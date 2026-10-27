@@ -53,6 +53,8 @@ PATTERNS: dict[str, tuple[str, list[int]]] = {
     "voltage": ("voltage", [0x0A0A10, 0x2A2A10, 0xF0D820, 0xFFF8C0]),
     "gadgeteer": ("cogs", [0x1A1C20, 0x4A5058, 0x8A929C, 0xC8A050]),
     "mastercraft": ("mastercraft", [0x2A1E0A, 0x9A7020, 0xE6B840, 0xFFF2B0]),
+    "flashbang": ("flashes", [0x0C0E12, 0x3A4250, 0xBFD8FF, 0xFFFFFF]),
+    "skeleton": ("skeleton", [0x0A0A0C, 0xE6DFC8, 0x8C846C, 0x030303]),
 }
 
 # Base maps and their palettes. Keep in step with CosmeticCatalog.Maps.
@@ -69,27 +71,36 @@ MAPS: dict[str, list[int]] = {
     "Pyro": [0x200A06, 0x8A2A0E, 0xF0A030], "Rive": [0x14202A, 0x2E5A7A, 0xC8D8C2],
     "Sanc": [0x1E140E, 0x5A3A22, 0xC8A27A], "Sche": [0x161616, 0x4A3E36, 0xB8A898],
     "Shad": [0x1A2228, 0x52606A, 0xE4ECF0], "Skys": [0x10141E, 0x2E3E6E, 0xA8B8E8],
-    "Slau": [0x1E0A0A, 0x5A1E1E, 0xA89A8A], "Stat": [0x1A1A14, 0x5A5236, 0xC2B47A],
+    "Slau": [0x161414, 0x2E2A2A, 0x5A0C10, 0x9A161C], "Stat": [0x1A1A14, 0x5A5236, 0xC2B47A],
     "Stee": [0x14161A, 0x464E5A, 0xA8AEB8], "Stro": [0x1A1810, 0x4E4630, 0x9A8E6A],
     "Term": [0x101A1E, 0x2E4E56, 0x8AB8B8], "Vert": [0x0E0E1A, 0x3A2E6E, 0xE89A3A],
     "Ware": [0x1E1A14, 0x5A4E3A, 0xA8987A], "Ziop": [0x140E1E, 0x46226A, 0x3AE8D8],
 }
+# Maps whose camo is not the shared blotch. Keep in step with CosmeticCatalog's map patterns.
+_MAP_SHAPES = {"Slau": "splatter"}
 for _code, _palette in MAPS.items():
-    PATTERNS["map_" + _code.lower()] = ("blotch", _palette)
+    PATTERNS["map_" + _code.lower()] = (_MAP_SHAPES.get(_code, "blotch"), _palette)
 
 _LADDER = ["woodland", "desert", "digital", "red_tiger", "blue_tiger"]
 _MAP_PATTERNS = ["map_" + c.lower() for c in MAPS]
-_SPY_EXTRA = ["smoke", "chaff", "turnabout", "minefield", "gadgeteer", "mastercraft"]
+_SPY_EXTRA = ["smoke", "chaff", "turnabout", "minefield", "gadgeteer", "mastercraft", "flashbang"]
 _MERC_EXTRA = ["voltage", "minefield", "gadgeteer", "mastercraft"]
 
 # Which retail textures take which patterns: (chars package folder, texture file stem, patterns).
 TARGETS: list[tuple[str, str, list[str]]] = [
-    ("SPerso", "SPersoTextures_Shadw_agent", _LADDER + ["night_ops", "static", "breaker"] + _SPY_EXTRA + _MAP_PATTERNS),
-    ("SPerso", "SPersoTextures_Shadw_agent_2", _LADDER + ["night_ops", "static", "breaker"] + _SPY_EXTRA + _MAP_PATTERNS),
-    ("SPerso", "SPersoTextures_DEF_01_A_Body", _LADDER + ["laser_grid", "frag", "lockdown"] + _MERC_EXTRA + _MAP_PATTERNS),
+    ("SPerso", "SPersoTextures_Shadw_agent", _LADDER + ["night_ops", "static", "breaker"] + _SPY_EXTRA + _MAP_PATTERNS
+     + ["skeleton"]),
+    ("SPerso", "SPersoTextures_Shadw_agent_2", _LADDER + ["night_ops", "static", "breaker"] + _SPY_EXTRA + _MAP_PATTERNS
+     + ["skeleton"]),
+    ("SPerso", "SPersoTextures_DEF_01_A_Body", _LADDER + ["laser_grid", "frag", "lockdown"] + _MERC_EXTRA + _MAP_PATTERNS
+     + ["skeleton"]),
+    ("SPerso", "SPersoTextures_DEF_01_A_Face", ["skeleton"]),  # the skull covers the merc's face too
     ("SWeaponFirst", "SWeaponTex_p190", _LADDER + ["static", "shockwave", "golden", "pyre", "kaido", "cryo",
-                                                   "chaff", "turnabout", "gadgeteer", "smoke", "mastercraft"]),
+                                                   "chaff", "turnabout", "gadgeteer", "smoke", "mastercraft", "flashbang"]),
 ]
+# The skeleton is drawn from the body's bind pose (svmbuild/skeleton.py): the mesh each body texture is painted from.
+SKELETON_MESH = {"SPersoTextures_Shadw_agent": "ATT_01.glb", "SPersoTextures_Shadw_agent_2": "ATT_01.glb",
+                 "SPersoTextures_DEF_01_A_Body": "DEF_01.glb", "SPersoTextures_DEF_01_A_Face": "DEF_01.glb"}
 for _gun in ("SWeaponTex_1DEF_01", "SWeaponTex_M160", "SWeaponTex_Hk81", "SWeaponTex_HK_81_chargeur", "SWeaponTex_shotgun"):
     TARGETS.append(("SWeaponFirst", _gun, _LADDER + ["golden", "laser_grid", "frag", "pyre", "kaido", "cryo"] + _MERC_EXTRA))
 
@@ -105,11 +116,11 @@ THUMB_SIZE = 256
 CAMO_STRENGTH = 0.85
 FINISH_STRENGTH = 0.97
 _GILDED = ("gold", "mastercraft")  # colours follow the retail brightness, no extra shading
-_LACQUERED = ("flames", "livery", "cryo", "cogs")  # a light touch of the retail shading
+_LACQUERED = ("flames", "livery", "cryo", "cogs", "skeleton")  # a light touch of the retail shading
 _FINISHES = _GILDED + _LACQUERED
 # Shapes that get the shared fine-detail layer (grain, hairline scratches, scuffs).
 _WEATHERED = ("blotch", "blotch-soft", "pixel", "stripe", "cracks", "shrapnel", "hazard", "smoke", "chaff",
-              "turnabout", "minefield", "voltage", "cogs", "arcs")
+              "turnabout", "minefield", "voltage", "cogs", "arcs", "flashes", "splatter")
 
 _LIGHT = (-0.6, -0.8)  # unit vector toward the light (top left), x right / y down
 _TAU = 2.0 * np.pi
@@ -1407,6 +1418,70 @@ def _shape_cogs(rng, h, w, colours, luma):
     return cv.rgb
 
 
+def _shape_flashes(rng, h, w, colours, luma):
+    """Flashbang: white-hot bursts over a dark suit, each a blown-out core, a cool halo ring and thin lens spikes
+    (four long, a few short), with faint after-image blooms between them."""
+    dark, mid, cool, white = (_rgb(c) for c in colours)
+    cv = _Canvas(h, w)
+    haze = _fbm(rng, h, w, 3, 4)
+    cv.rgb = _mix(np.broadcast_to(dark, (h, w, 3)), mid, haze ** 2 * 0.35)
+    # The after-images: soft, dim blooms of the cool colour.
+    ax, ay, ar, _aang, _aex = _scatter(rng, 300, 0.02, 0.045, gap=1.2)
+    for x, y, r in zip(ax, ay, ar):
+        iy, ix, X, Y = cv.tile(x, y, r * 2.5)
+        cv.add(iy, ix, 0.16 * np.exp(-(X * X + Y * Y) / (r * r)), cool)
+    xs, ys, rs, angs, extras = _scatter(rng, 400, 0.006, 0.016, gap=2.2, avoid=(ax, ay, ar * 0.2))
+    for x, y, r, ang, ex in zip(xs, ys, rs, angs, extras):
+        reach = r * 6.0
+        iy, ix, X, Y = cv.tile(x, y, reach)
+        d = np.hypot(X, Y)
+        theta = np.arctan2(Y, X) - ang
+        long_rays = np.exp(-np.abs(np.sin(2.0 * theta)) * 50.0) * np.exp(-d / (r * 3.2))
+        short_rays = np.exp(-np.abs(np.sin(3.0 * theta + 0.5)) * 40.0) * np.exp(-d / (r * 1.0))
+        ring = np.exp(-((d - r * (1.7 + 0.5 * ex)) / (r * 0.12)) ** 2) * 0.35
+        cv.add(iy, ix, ring, cool)
+        cv.add(iy, ix, 1.2 * long_rays + 0.5 * short_rays, white * 0.8 + cool * 0.2)
+        cv.add(iy, ix, np.maximum(_cov(d - r * 0.45, cv.px), 0.9 * np.exp(-d / (r * 0.55))), white)
+    return cv.rgb
+
+
+def _shape_splatter(rng, h, w, colours, luma):
+    """Slaughterhouse: a grimy dark apron grey with blood on it: ragged splashes (darker where they pooled, a brighter
+    dried rim), their flung droplets, some drawn out into streaks, and a fine mist of specks."""
+    dark, grime, blood, fresh = (_rgb(c) for c in colours)
+    cv = _Canvas(h, w)
+    cv.rgb = _ramp(_fbm(rng, h, w, 4, 5) ** 1.3, [colours[0], colours[1]])
+    spots = _scatter(rng, 260, 0.012, 0.045, gap=1.5)
+    for x, y, r, ang, ex in zip(*spots):
+        iy, ix, X, Y = cv.tile(x, y, r * 3.0)
+        d = np.hypot(X, Y)
+        th = np.arctan2(Y, X)
+        edge = 1.0
+        for k in range(3, 9):
+            edge = edge + rng.uniform(0.04, 0.16) / (k * 0.4) * np.sin(k * th + rng.uniform(0, _TAU))
+        sd = d - r * edge
+        cov = _cov(sd, cv.px)
+        pooled = np.clip(-sd / (r * 0.6), 0.0, 1.0)
+        col = _mix(np.broadcast_to(fresh, X.shape + (3,)), blood * 0.75, pooled * (0.6 + 0.4 * ex))
+        cv.over(iy, ix, cov * (0.82 + 0.18 * ex), col)
+        # Flung droplets around it, the far ones drawn out along their flight.
+        for _ in range(int(6 + 10 * rng.random())):
+            a = ang + rng.normal(0, 1.2)
+            dist = r * rng.uniform(1.15, 2.7)
+            dr = r * rng.uniform(0.05, 0.17)
+            stretch = 1.0 + 2.5 * max(0.0, (dist / r) - 1.6)
+            cx, cy = x + dist * np.cos(a), y + dist * np.sin(a)
+            jy, jx, U, V = cv.tile(cx, cy, dr * stretch * 1.5 + cv.px * 2)
+            u, v = _rot(U, V, a)
+            dd = np.hypot(u / stretch, v) - dr
+            cv.over(jy, jx, _cov(dd, cv.px) * 0.9, fresh * rng.uniform(0.7, 1.0))
+    mx, my, mr, _ma, me = _scatter(rng, 2500, 0.0012, 0.0035, gap=1.2)
+    for x, y, r, e in zip(mx, my, mr, me):
+        iy, ix, X, Y = cv.tile(x, y, r + cv.px * 2)
+        cv.over(iy, ix, _cov(np.hypot(X, Y) - r, cv.px) * (0.5 + 0.4 * e), fresh * 0.85)
+    return cv.rgb
+
+
 _SHAPES = {
     "blotch": _shape_blotch,
     "blotch-soft": lambda rng, h, w, c, l: _shape_blotch(rng, h, w, c, l, soft=True),
@@ -1429,13 +1504,25 @@ _SHAPES = {
     "voltage": _shape_voltage,
     "cogs": _shape_cogs,
     "mastercraft": _shape_mastercraft,
+    "flashes": _shape_flashes,
+    "splatter": _shape_splatter,
 }
 
 
-def pattern_image(pattern: str, h: int, w: int, luma: np.ndarray, seed: str = "") -> np.ndarray:
+def pattern_image(pattern: str, h: int, w: int, luma: np.ndarray, seed: str = "", mesh=None) -> np.ndarray:
     """The pattern's colours (h x w x 3, 0..1) for a texture of that size; seed (the texture's name) picks the layout.
-    The gold finishes follow the retail brightness."""
+    The gold finishes follow the retail brightness. The skeleton needs the body's mesh (skeleton.Mesh): it is drawn
+    where the bones lie on the texture seed, or flat from the front for the swatch (seed "thumb")."""
     shape, colours = PATTERNS[pattern]
+    if shape == "skeleton":
+        from . import skeleton  # noqa: PLC0415
+
+        if mesh is None:
+            raise ValueError("the skeleton camo needs the body's mesh")
+        layout = None if seed == "thumb" else skeleton.bake(mesh, seed, h, w)
+        if layout is None and seed != "thumb":
+            raise ValueError(f"{seed} is not a texture of the skeleton's mesh")
+        return np.clip(skeleton.draw(layout, colours, h, w, mesh), 0.0, 1.0).astype(np.float32)
     if shape not in _SHAPES:
         raise ValueError(f"unknown camo shape {shape}")
     rgb = np.array(_SHAPES[shape](_rng(pattern, seed), h, w, colours, luma), dtype=np.float32)
@@ -1444,13 +1531,13 @@ def pattern_image(pattern: str, h: int, w: int, luma: np.ndarray, seed: str = ""
     return np.clip(rgb, 0.0, 1.0)
 
 
-def paint(retail: np.ndarray, pattern: str, seed: str = "") -> np.ndarray:
+def paint(retail: np.ndarray, pattern: str, seed: str = "", mesh=None) -> np.ndarray:
     """The camo over a retail RGBA texture (uint8, already at the output size): the pattern's colours times the retail
     shading, alpha kept."""
     rgb = retail[..., :3].astype(np.float32) / 255.0
     luma = rgb @ np.array([0.3, 0.59, 0.11], np.float32)
     h, w = luma.shape
-    colours = pattern_image(pattern, h, w, luma, seed)
+    colours = pattern_image(pattern, h, w, luma, seed, mesh)
     shape = PATTERNS[pattern][0]
     if shape in _GILDED:
         camo = colours
@@ -1481,11 +1568,16 @@ def output_size(package: str, pattern: str, w: int, h: int) -> tuple[int, int]:
 def _paint_job(job: tuple) -> str:
     from PIL import Image  # noqa: PLC0415
 
-    src, dst, pattern, stem, size = job
+    src, dst, pattern, stem, size, mesh_path = job
     retail = Image.open(src).convert("RGBA")
     if retail.size != size:
         retail = retail.resize(size, Image.LANCZOS)
-    Image.fromarray(paint(np.asarray(retail, dtype=np.uint8), pattern, stem)).save(dst, compress_level=6)
+    mesh = None
+    if mesh_path:
+        from .skeleton import Mesh  # noqa: PLC0415
+
+        mesh = Mesh(Path(mesh_path))
+    Image.fromarray(paint(np.asarray(retail, dtype=np.uint8), pattern, stem, mesh)).save(dst, compress_level=6)
     return dst
 
 
@@ -1493,9 +1585,14 @@ def _thumb_job(job: tuple) -> str:
     """The flat pattern at 1024, area-scaled to the swatch size (the gold finishes on a mid grey)."""
     from PIL import Image  # noqa: PLC0415
 
-    pattern, dst = job
+    pattern, dst, mesh_path = job
     n = 1024
-    rgb = pattern_image(pattern, n, n, np.full((n, n), 0.5, np.float32), "thumb")
+    mesh = None
+    if mesh_path:
+        from .skeleton import Mesh  # noqa: PLC0415
+
+        mesh = Mesh(Path(mesh_path))
+    rgb = pattern_image(pattern, n, n, np.full((n, n), 0.5, np.float32), "thumb", mesh)
     k = n // THUMB_SIZE
     small = rgb.reshape(THUMB_SIZE, k, THUMB_SIZE, k, 3).mean((1, 3))
     Image.fromarray(np.clip(small * 255.0 + 0.5, 0, 255).astype(np.uint8)).save(dst, compress_level=6)
@@ -1520,12 +1617,20 @@ def build_all(chars_dir: Path) -> dict:
         with Image.open(src) as im:
             w, h = im.size
         for pattern in patterns:
+            mesh_path = None
+            if PATTERNS[pattern][0] == "skeleton":
+                mesh_path = chars_dir / package / SKELETON_MESH.get(stem, "")
+                if stem not in SKELETON_MESH or not mesh_path.is_file():
+                    skipped.append(f"{package}/{stem} ({pattern})")
+                    continue
             jobs.append((str(src), str(tex_dir / f"cosmetic_{pattern}_{stem}.png"), pattern, stem,
-                         output_size(package, pattern, w, h)))
+                         output_size(package, pattern, w, h), str(mesh_path) if mesh_path else None))
     jobs.sort(key=lambda j: -j[4][0] * j[4][1])  # the big ones first, so the pool ends evenly
     thumbs_dir = chars_dir / "thumbs"
     thumbs_dir.mkdir(parents=True, exist_ok=True)
-    thumbs = [(p, str(thumbs_dir / f"cosmetic_{p}.png")) for p in PATTERNS]
+    spy_mesh = chars_dir / "SPerso" / "ATT_01.glb"
+    thumbs = [(p, str(thumbs_dir / f"cosmetic_{p}.png"), str(spy_mesh) if PATTERNS[p][0] == "skeleton" else None)
+              for p in PATTERNS if PATTERNS[p][0] != "skeleton" or spy_mesh.is_file()]
     workers = max(1, min(os.cpu_count() or 1, 12))
     with cf.ProcessPoolExecutor(max_workers=workers, mp_context=mp.get_context("spawn")) as pool:
         done = list(pool.map(_paint_job, jobs, chunksize=1))

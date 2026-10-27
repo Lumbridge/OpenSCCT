@@ -136,6 +136,7 @@ public partial class SSpyBulletLauncher
         if (Target is SPAWNDEFENSE)
         {
             (Level.Game as SGameInfo)?.BroadcastTeamLocalizedMessage(0, SBasePawn.GameMessagesClass, K.SpyBulletMsgEnemyLocked);
+            Shooter.Controller?.PlayerReplicationInfo?.Stats?.AddFeat(FeatKeys.SpyBulletHits); // OpenSCCT's own, for achievements
         }
 
         Shooter.PlaySound(FireSound, ESoundSlot.SLOT_Misc, 1f, false, K.SpyBulletSoundRadius);

@@ -23,6 +23,12 @@ public static class FeatKeys
     /// <summary>Mercs killed by a merc mine the spy set off.</summary>
     public const string SpyMineKills = "spy.mine_kills";
 
+    /// <summary>Mercs a spy's bullet hit directly (not the wall marker's zone).</summary>
+    public const string SpyBulletHits = "spy.spy_bullet_hits";
+
+    /// <summary>Mercs a spy's flash-bangs flashed (every merc each flash catches counts).</summary>
+    public const string SpyFlashes = "spy.flashes";
+
     public const string MercSniperKills = "merc.sniper_kills";
     public const string MercHeadshots = "merc.headshots";
     public const string MercTerminateKills = "merc.terminate_kills";
@@ -48,7 +54,7 @@ public static class FeatKeys
     public static readonly string[] All =
     [
         SpyGrabKills, SpyNeckBreaks, SpyChokes, SpyDropKills, SpyStickyKos, SpyObjectives,
-        SpySmokeKos, SpyStickyCamUses, SpyShockerHeadshots, SpyLedgeGrabs, SpyChaffJams, SpyMineKills,
+        SpySmokeKos, SpyStickyCamUses, SpyShockerHeadshots, SpyLedgeGrabs, SpyChaffJams, SpyMineKills, SpyBulletHits, SpyFlashes,
         MercSniperKills, MercHeadshots, MercTerminateKills, MercGrenadeKills, MercMineKills, MercHipfireKills, MercMarks,
         MercChargeHits, MercTaserHits, MercMinesPlaced, MercBerserkHits,
         GunKills("ar"), GunKills("smg"), GunKills("shotgun"),

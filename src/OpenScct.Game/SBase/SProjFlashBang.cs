@@ -81,12 +81,25 @@ public partial class SProjFlashBang
             if (FlashSeenBy(pc, merc))
             {
                 pc.PawnTakeDamage(0, Instigator, Location, FVector.Zero, SDamageType.SDTFlash, 0, PercentDamageRefillable);
+                CountFlash(pc);
             }
         }
 
         PlaySound(SoundExplode, ESoundSlot.SLOT_Misc, K.FlashSoundVolume, false, K.FlashSoundRadius);
         XLevel.SpawnActor(new SFlashBang(), HitLocation, HitLocation.Rotation(), Owner, Instigator);
         Destroy();
+    }
+
+    /// <summary>OpenSCCT's own, for achievements: counts a flashed enemy merc for the throwing spy (server only).</summary>
+    private void CountFlash(SPlayerController victim)
+    {
+        if (Role != ENetRole.ROLE_Authority || Instigator?.Controller is not { } thrower ||
+            SGameInfo.TeamIndexOf(thrower) == SGameInfo.TeamIndexOf(victim))
+        {
+            return;
+        }
+
+        thrower.PlayerReplicationInfo?.Stats?.AddFeat(FeatKeys.SpyFlashes);
     }
 
     /// <summary>The server's facing and sight test of one merc (Explode, game 0x10ab8512 to 0x10ab8637).</summary>

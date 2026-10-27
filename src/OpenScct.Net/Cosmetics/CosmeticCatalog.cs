@@ -97,7 +97,7 @@ public static class CosmeticCatalog
         ("Sche", "Schermerhorn", [0x161616, 0x4A3E36, 0xB8A898]),
         ("Shad", "Shadow Moses", [0x1A2228, 0x52606A, 0xE4ECF0]),
         ("Skys", "Skyscraper", [0x10141E, 0x2E3E6E, 0xA8B8E8]),
-        ("Slau", "Slaughterhouse", [0x1E0A0A, 0x5A1E1E, 0xA89A8A]),
+        ("Slau", "Slaughterhouse", [0x161414, 0x2E2A2A, 0x5A0C10, 0x9A161C]),
         ("Stat", "Station", [0x1A1A14, 0x5A5236, 0xC2B47A]),
         ("Stee", "Steel Squat", [0x14161A, 0x464E5A, 0xA8AEB8]),
         ("Stro", "Stronghold", [0x1A1810, 0x4E4630, 0x9A8E6A]),
@@ -212,10 +212,12 @@ public static class CosmeticCatalog
             new("voltage", "Voltage", "voltage", [0x0A0A10, 0x2A2A10, 0xF0D820, 0xFFF8C0]),
             new("gadgeteer", "Gadgeteer", "cogs", [0x1A1C20, 0x4A5058, 0x8A929C, 0xC8A050]),
             new("mastercraft", "Mastercraft", "mastercraft", [0x2A1E0A, 0x9A7020, 0xE6B840, 0xFFF2B0]),
+            new("flashbang", "Flashbang", "flashes", [0x0C0E12, 0x3A4250, 0xBFD8FF, 0xFFFFFF]),
+            new("skeleton", "Skeleton", "skeleton", [0x0A0A0C, 0xE6DFC8, 0x8C846C, 0x030303]),
         };
         foreach ((string code, string name, uint[] palette) in Maps)
         {
-            patterns.Add(new("map_" + code.ToLowerInvariant(), name, "blotch", palette));
+            patterns.Add(new("map_" + code.ToLowerInvariant(), name, code == "Slau" ? "splatter" : "blotch", palette));
         }
 
         Patterns = patterns;
@@ -307,6 +309,15 @@ public static class CosmeticCatalog
                 Add($"merc.{gun}.{camo}", PatternName(patterns, camo), CosmeticSide.Merc, slot, CosmeticKind.Texture, pattern: camo);
             }
         }
+
+        // The flash-bang achievement reward (OpenSCCT's own): a spy suit and pistol.
+        Add("spy.body.flashbang", PatternName(patterns, "flashbang"), CosmeticSide.Spy, CosmeticSlot.Body, CosmeticKind.Texture, pattern: "flashbang");
+        Add("spy.pistol.flashbang", PatternName(patterns, "flashbang"), CosmeticSide.Spy, CosmeticSlot.Pistol, CosmeticKind.Texture,
+            pattern: "flashbang");
+
+        // The skeleton (OpenSCCT's own): bones drawn where they lie on the body, for both sides.
+        Add("spy.body.skeleton", PatternName(patterns, "skeleton"), CosmeticSide.Spy, CosmeticSlot.Body, CosmeticKind.Texture, pattern: "skeleton");
+        Add("merc.body.skeleton", PatternName(patterns, "skeleton"), CosmeticSide.Merc, CosmeticSlot.Body, CosmeticKind.Texture, pattern: "skeleton");
 
         if (bit - 1 > MaxBit)
         {

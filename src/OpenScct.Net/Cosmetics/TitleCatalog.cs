@@ -114,7 +114,7 @@ public static class TitleCatalog
         Add("ach_warden", "Warden", TitleSource.Achievement, achievement: "merc_wins_100");
         Add("ach_deadeye", "Deadeye", TitleSource.Achievement, achievement: "merc_sniper_75");
         Add("ach_ghost_machine", "Ghost in the Machine", TitleSource.Achievement, achievement: "spy_objectives_100");
-        Add("ach_gadget_master", "Gadget Master", TitleSource.Achievement, achievement: "gadget_master");
+        Add("ach_gadget_master", "Mastercraft", TitleSource.Achievement, achievement: "gadget_master");
         Add("ach_petard", "Petard", TitleSource.Achievement, achievement: "spy_mine_25");
         Add("ach_high_voltage", "High Voltage", TitleSource.Achievement, achievement: "merc_taser_100");
 

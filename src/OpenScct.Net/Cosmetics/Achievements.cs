@@ -194,10 +194,13 @@ public static class Achievements
                 "spy.body.turnabout"),
             Count("spy_mine_25", "Hoist by Their Own Petard", "Kill 25 mercs by setting off a merc mine.", D,
                 p => p.Feat(FeatKeys.SpyMineKills), 25, "spy.body.minefield"),
-            Once("spy_gadgeteer", "Gadgeteer", "In one round: knock out a merc with smoke, one with sticky cam gas, and jam one with chaff.", D,
-                (_, row, _) => row.Team == 0 && RowFeat(row, FeatKeys.SpySmokeKos) > 0 && RowFeat(row, FeatKeys.SpyStickyKos) > 0 &&
-                    RowFeat(row, FeatKeys.SpyChaffJams) > 0,
+            Once("spy_gadgeteer", "Gadgeteer",
+                "In one round: hit a merc with a spy bullet, knock one out with sticky cam gas, jam one with chaff and flash one with a flash-bang.", D,
+                (_, row, _) => row.Team == 0 && RowFeat(row, FeatKeys.SpyBulletHits) > 0 && RowFeat(row, FeatKeys.SpyStickyKos) > 0 &&
+                    RowFeat(row, FeatKeys.SpyChaffJams) > 0 && RowFeat(row, FeatKeys.SpyFlashes) > 0,
                 "spy.body.gadgeteer", "spy.pistol.gadgeteer"),
+            Once("spy_flash_10", "Whiteout", "Flash 10 mercs with flash-bangs in one match (every merc a flash catches counts).", D,
+                (_, row, _) => row.Team == 0 && RowFeat(row, FeatKeys.SpyFlashes) >= 10, "spy.body.flashbang", "spy.pistol.flashbang"),
             Count("merc_taser_25", "Live Wire", "Tase 25 spies.", D, p => p.Feat(FeatKeys.MercTaserHits), 25, "merc.light.yellow"),
             Count("merc_taser_100", "High Voltage", "Tase 100 spies.", D, p => p.Feat(FeatKeys.MercTaserHits), 100,
                 "merc.body.voltage", "merc.ar.voltage", "merc.smg.voltage", "merc.shotgun.voltage"),
@@ -237,7 +240,7 @@ public static class Achievements
             p => (spyIds.Count(p.Earned.Contains), spyIds.Length), ["spy.pistol.golden"], (p, _, _) => spyIds.All(p.Earned.Contains)));
 
         string[] gadgetIds = list.Where(a => a.Category == D).Select(a => a.Id).ToArray();
-        list.Add(new Achievement("gadget_master", "Gadget Master", "Finish every gadget achievement, spy and merc: the Mastercraft finish.", D,
+        list.Add(new Achievement("gadget_master", "Mastercraft", "Finish every achievement in this tab, spy and merc: the Mastercraft finish.", D,
             p => (gadgetIds.Count(p.Earned.Contains), gadgetIds.Length),
             ["spy.body.mastercraft", "spy.pistol.mastercraft", "merc.body.mastercraft", "merc.ar.mastercraft", "merc.smg.mastercraft",
                 "merc.shotgun.mastercraft"],
@@ -249,6 +252,7 @@ public static class Achievements
         list.Add(new Achievement("kaido", "Kaido", "Win 40 matches as a spy and 40 as a mercenary.", G,
             p => (Math.Min(p.Stats.SpyWins, 40) + Math.Min(p.Stats.MercWins, 40), 80), Guns("kaido")));
         list.Add(Count("kills_1500", "Cryo", "Take down 1500 opponents.", G, p => p.Stats.Kills, 1500, Guns("cryo")));
+        list.Add(Count("kills_666", "Bone Collector", "Take down 666 opponents.", G, p => p.Stats.Kills, 666, Both("body.skeleton")));
 
         foreach ((string code, string name, _) in CosmeticCatalog.Maps)
         {

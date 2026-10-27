@@ -359,9 +359,10 @@ target) and unlocks cosmetics:
   Gilded (every weapon achievement) gives the golden camo on all three guns.
 - **Gadgets:** both kits, including the Change Gear gadgets (the merc taser). Spy: smoke knockouts, sticky cam uses,
   chaff jams (40, 150), Shocker headshots, ledge grabs, mercs killed by a merc mine the spy set off (3, 10, 25: Own
-  Goal, Turnabout, Hoist by Their Own Petard) and Gadgeteer (a smoke knockout, a sticky cam knockout and a chaff jam in
-  one round). Merc: taser hits (25, 100), mines placed, mine kills (15, 50), frag kills (15, 50), berserk hits and
-  Demolitions (two explosive kills in a round). Gadget Master (every gadget achievement) gives the Mastercraft finish.
+  Goal, Turnabout, Hoist by Their Own Petard), Gadgeteer (a spy bullet hit on a merc, a sticky cam knockout, a chaff
+  jam and a flash-bang flash in one round) and Whiteout (10 mercs flashed in one match, every merc each flash catches
+  counted: the Flashbang suit and pistol). Merc: taser hits (25, 100), mines placed, mine kills (15, 50), frag kills (15, 50), berserk hits and
+  Demolitions (two explosive kills in a round). Mastercraft (every other achievement in the Gadgets tab) gives the Mastercraft finish.
 - **Maps:** win on a base map (the code's first four letters, so every variant counts) 3 times as a spy and 3 times
   as a merc. Each gives that map's camo.
 
