@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using OpenScct.Core;
 using OpenScct.Core.Engine;
 using OpenScct.Core.Uc;
@@ -150,7 +151,24 @@ public partial class SProjChaffe
                 pc.SetHudPerturbation(TimeToDisipation);
                 pc.eventClientChaffed();
             }
+
+            CountJam(merc, controller);
         }
+    }
+
+    // OpenSCCT's own, for achievements: the mercs this grenade has jammed so far.
+    private readonly HashSet<SPAWNDEFENSE> _jammed = [];
+
+    /// <summary>Counts a chaff jam for the throwing spy, once per enemy merc per grenade (server only).</summary>
+    private void CountJam(SPAWNDEFENSE merc, Controller victim)
+    {
+        if (Role != ENetRole.ROLE_Authority || Instigator is not SPawnAttaque { Controller: { } thrower } ||
+            SGameInfo.TeamIndexOf(thrower) == SGameInfo.TeamIndexOf(victim) || !_jammed.Add(merc))
+        {
+            return;
+        }
+
+        thrower.PlayerReplicationInfo?.Stats?.AddFeat(FeatKeys.SpyChaffJams);
     }
 
     /// <summary>The jamming field (10 s): objects lock on entry, mercs are jammed every tick, then the grenade goes.</summary>

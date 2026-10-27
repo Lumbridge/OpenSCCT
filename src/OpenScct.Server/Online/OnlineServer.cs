@@ -1238,6 +1238,13 @@ public sealed partial class OnlineServer : IDisposable
 
             feats[FeatKeys.SpyStickyKos] = s.Spy_StickyCamKOs;
             feats[FeatKeys.MercChargeHits] = s.Merc_ChargeHits;
+            feats[FeatKeys.SpySmokeKos] = s.Spy_SmokeKOs;
+            feats[FeatKeys.SpyStickyCamUses] = s.Spy_StickyCamUsed;
+            feats[FeatKeys.SpyShockerHeadshots] = s.Spy_ShockerGunHeadshots;
+            feats[FeatKeys.SpyLedgeGrabs] = s.Spy_LedgeGrabs;
+            feats[FeatKeys.MercTaserHits] = s.Merc_TaserHits;
+            feats[FeatKeys.MercMinesPlaced] = s.Merc_MinesPlaced;
+            feats[FeatKeys.MercBerserkHits] = s.Merc_BerserkHits;
         }
 
         feats[FeatKeys.SpyObjectives] = pri.iNbObjectivesTaken;

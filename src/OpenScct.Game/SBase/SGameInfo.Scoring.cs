@@ -31,6 +31,8 @@ public partial class SGameInfo
                 victim.NumLives--;
             }
 
+            CountSpyMineKill(Killed, KilledPawn);
+
             if (Killer is not null)
             {
                 if (!ReferenceEquals(Killer, Killed))

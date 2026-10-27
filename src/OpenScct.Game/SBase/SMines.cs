@@ -137,9 +137,16 @@ public partial class SMines
         SPlayerController? owner = PcOwner ?? (Owner as Pawn)?.Controller as SPlayerController;
         bExploding = true;
         GadgetBlast.Run(new GadgetBlast.Blast(this, RefLoc, Location, Range, bIntRange, Damage, MyDamageRange, DistForBlast,
-            MyDamageType, SDamageType.SDTBase, MyDamageType, PercentRefill, Shake, owner?.Pawn, true));
+            MyDamageType, SDamageType.SDTBase, MyDamageType, PercentRefill, Shake, owner?.Pawn, true, DetonatedBy));
         Destroy();
     }
+
+    /// <summary>The spy whose hit (or whose earlier mine's blast) set this mine off; OpenSCCT's own, for achievements.</summary>
+    protected Pawn? DetonatedBy { get; private set; }
+
+    /// <summary>Notes who set the mine off: a spy's hit, else the spy behind the blast now hitting it.</summary>
+    protected void NoteDetonator(Pawn? EventInstigator) =>
+        DetonatedBy ??= EventInstigator is SPawnAttaque ? EventInstigator : GadgetBlast.CurrentDetonator;
 
     /// <summary>A moving mover under the mine (MoverWhereIAm).</summary>
     protected bool MoverUnderMineMoves => MoverWhereIAm is { } mover && !mover.Velocity.IsZero();

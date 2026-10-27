@@ -341,22 +341,29 @@ players only" on the Host page: no valid ticket, no entry. The listen host's own
   it ended normally with a signed-in person on each side. The answer carries the stored round's `matchId` (empty
   from masters before demos), which the round's demo is uploaded under (see "Demos").
 
-**Achievements** (`src/OpenScct.Net/Cosmetics/Achievements.cs`, shared by the master and the game) come in five groups. Each one has progress (current and
+**Achievements** (`src/OpenScct.Net/Cosmetics/Achievements.cs`, shared by the master and the game) come in six groups. Each one has progress (current and
 target) and unlocks cosmetics:
-- **General:** tiers of matches, wins and kills, such as First Mission, Veteran and Centurion. Each gives a colour
-  tint for both sides.
-- **Spy:** win tiers, objectives taken, neck breaks, a drop-attack kill, three grab kills in a round (Triple
-  Threat), sticky-shock knockouts, and Untouchable (win without dying). Rewards are suit camos, pistol camos and
-  goggle light colours. Gilded Ghost (every spy achievement) gives the golden pistol.
-- **Merc:** win tiers, The Wall (win without losing an objective), marking 50 spies (Laser Grid) and charge hits.
+- **General:** tiers of matches (5, 25, 100, 300), wins (25, 100) and kills (50, 200, 750), such as Boots on the
+  Ground, Veteran and Centurion. Each gives a colour tint for both sides. Pyre (10 kills in a round), Kaido (40 wins
+  on each side) and Cryo (1500 kills) give the painted gun skins.
+- **Spy:** win tiers (5, 15, 40, 100), objectives taken (25, 100), neck breaks (25, 100), 10 drop-attack kills,
+  three grab kills in a round (Triple Threat), sticky cam gas knockouts, and Untouchable (win without dying). Rewards
+  are suit camos, pistol camos and goggle light colours. Gilded Ghost (every spy achievement) gives the golden pistol.
+- **Merc:** win tiers (5, 15, 40, 100), The Wall (win without losing an objective), marking 50 spies (Laser Grid)
+  and charge hits.
 - **Weapons:** a CoD4/MW2-style camo ladder for each merc gun (assault rifle, SMG, shotgun):
-  - Woodland 25 kills, Desert 75 kills, Digital 150 kills;
-  - Red Tiger 50 headshots, Blue Tiger 150 headshots;
-  - sniper, terminate, grenade and mine feats alongside them.
-  
+  - Woodland 50 kills, Desert 150 kills, Digital 300 kills;
+  - Red Tiger 75 headshots, Blue Tiger 200 headshots;
+  - scope (25, 75) and terminate (50) feats alongside them.
+
   Gilded (every weapon achievement) gives the golden camo on all three guns.
-- **Maps:** win on a base map (the code's first four letters, so every variant counts) as a spy and as a merc. Each
-  gives that map's camo.
+- **Gadgets:** both kits, including the Change Gear gadgets (the merc taser). Spy: smoke knockouts, sticky cam uses,
+  chaff jams (40, 150), Shocker headshots, ledge grabs, mercs killed by a merc mine the spy set off (3, 10, 25: Own
+  Goal, Turnabout, Hoist by Their Own Petard) and Gadgeteer (a smoke knockout, a sticky cam knockout and a chaff jam in
+  one round). Merc: taser hits (25, 100), mines placed, mine kills (15, 50), frag kills (15, 50), berserk hits and
+  Demolitions (two explosive kills in a round). Gadget Master (every gadget achievement) gives the Mastercraft finish.
+- **Maps:** win on a base map (the code's first four letters, so every variant counts) 3 times as a spy and 3 times
+  as a merc. Each gives that map's camo.
 
 The master's database (schema v2) keeps per-account feat totals (`feat_totals`) and wins per base map (`map_wins`)
 alongside the stats. A v1 database is upgraded in place.
@@ -370,12 +377,18 @@ alongside the stats. A v1 database is upgraded in place.
   - the merc's gun class (`SWeaponDefense`, `_Uzi`, `_Shotgun`) for the ladders. A headshot is the head pill on the
     victim's last damage.
 - **Laser marks** are counted in `SGadTorcheLaser.ThrowSpyBullet`.
-- **Sticky knockouts, charge hits and objectives** come from the retail statistics.
+- **Chaff jams** are counted in `SProjChaffe.NativeStateBrouillageTick`, each enemy merc once per grenade.
+- **Spy mine kills:** a mine remembers the spy whose hit (or whose earlier mine's blast) set it off
+  (`SMines.DetonatedBy`); while its blast runs `GadgetBlast.CurrentDetonator` names him, and a merc killed then counts
+  for that spy (`SGameInfo.CountSpyMineKill`). The kill itself stays the mine owner's, as in retail.
+- **Sticky and smoke knockouts, sticky cam uses, Shocker headshots, ledge grabs, charge, taser and berserk hits,
+  mines placed and objectives** come from the retail statistics.
 
 **Cosmetics** (`src/OpenScct.Net/Cosmetics/CosmeticCatalog.cs`). Every item has a permanent id and bit. A slot is a
 suit or armour, a light colour, the spy pistol, or one of the three merc guns. An item is one of:
 - a camo texture, which the content builder paints over the player's own retail texture (`content/svmbuild/cosmetics.py`,
-  in the chars step);
+  in the chars step), upscaled to 2048 for suits and armour and 1024 for guns (map camos 1024), with a flat 256 px
+  picture per pattern in `chars/thumbs/` for the menus;
 - a tint, a colour that keeps each texel's brightness;
 - a light hue, which turns the goggle lenses, helmet lamp and the normal goggle beam to a new hue at the same
   brightness. The merc's motion and EMF beams keep their colours, and the torch stays white.
@@ -590,7 +603,8 @@ Bans (rl:ac.bans) are by install id and address (no hardware fingerprints), with
 ## Hosting from the game
 
 Main menu, Create a Session (docs/MENUS.md): the match (map, mode, rules, password, voice chat mode, max players,
-revenge, random map, voice in lobby) and the hosting: name, port, the master to list on, listing on or off, UPnP. The game
+revenge, random map, voice in lobby) and the hosting: name, port, the master to list on, listing on or off, UPnP,
+recording demos (each round into the player's demos folder, docs/DEMOS.md). The game
 runs the same `OnlineServer` on its own thread (`ListenHost`), the host's own player over loopback and everyone
 else over UDP. UPnP (Godot's `Upnp`, rl:net.upnp) maps the game port for 24 h and the lobby says whether it worked,
 naming the port to forward by hand when not. With a master set, the host also registers for punches and the relay,

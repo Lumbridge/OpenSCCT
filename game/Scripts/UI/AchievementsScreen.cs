@@ -140,6 +140,7 @@ public partial class AchievementsScreen : MenuPage
         AchievementCategory.Spy => "Spy",
         AchievementCategory.Merc => "Mercenary",
         AchievementCategory.Weapons => "Weapons",
+        AchievementCategory.Gadgets => "Gadgets",
         AchievementCategory.Map => "Maps",
         _ => "General",
     };
@@ -147,7 +148,8 @@ public partial class AchievementsScreen : MenuPage
     private static string CategoryNote(AchievementCategory c) => c switch
     {
         AchievementCategory.Weapons => "A camo ladder per merc gun, then Gilded for the golden guns",
-        AchievementCategory.Map => "Win on each map as a spy and as a mercenary",
+        AchievementCategory.Gadgets => "Both kits, Change Gear gadgets too, then Gadget Master for the Mastercraft finish",
+        AchievementCategory.Map => "Win on each map 3 times as a spy and 3 times as a mercenary",
         _ => string.Empty,
     };
 

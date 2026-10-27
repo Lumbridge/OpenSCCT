@@ -12,6 +12,16 @@ public static class FeatKeys
     public const string SpyDropKills = "spy.drop_kills";
     public const string SpyStickyKos = "spy.sticky_kos";
     public const string SpyObjectives = "spy.objectives";
+    public const string SpySmokeKos = "spy.smoke_kos";
+    public const string SpyStickyCamUses = "spy.sticky_cam_uses";
+    public const string SpyShockerHeadshots = "spy.shocker_headshots";
+    public const string SpyLedgeGrabs = "spy.ledge_grabs";
+
+    /// <summary>Mercs a spy's chaff jammed (each merc once per grenade).</summary>
+    public const string SpyChaffJams = "spy.chaff_jams";
+
+    /// <summary>Mercs killed by a merc mine the spy set off.</summary>
+    public const string SpyMineKills = "spy.mine_kills";
 
     public const string MercSniperKills = "merc.sniper_kills";
     public const string MercHeadshots = "merc.headshots";
@@ -21,6 +31,9 @@ public static class FeatKeys
     public const string MercHipfireKills = "merc.hipfire_kills";
     public const string MercMarks = "merc.marks";
     public const string MercChargeHits = "merc.charge_hits";
+    public const string MercTaserHits = "merc.taser_hits";
+    public const string MercMinesPlaced = "merc.mines_placed";
+    public const string MercBerserkHits = "merc.berserk_hits";
 
     /// <summary>The merc gun classes the camo ladders follow.</summary>
     public static readonly string[] Guns = ["ar", "smg", "shotgun"];
@@ -35,8 +48,9 @@ public static class FeatKeys
     public static readonly string[] All =
     [
         SpyGrabKills, SpyNeckBreaks, SpyChokes, SpyDropKills, SpyStickyKos, SpyObjectives,
+        SpySmokeKos, SpyStickyCamUses, SpyShockerHeadshots, SpyLedgeGrabs, SpyChaffJams, SpyMineKills,
         MercSniperKills, MercHeadshots, MercTerminateKills, MercGrenadeKills, MercMineKills, MercHipfireKills, MercMarks,
-        MercChargeHits,
+        MercChargeHits, MercTaserHits, MercMinesPlaced, MercBerserkHits,
         GunKills("ar"), GunKills("smg"), GunKills("shotgun"),
         GunHeadshots("ar"), GunHeadshots("smg"), GunHeadshots("shotgun"),
     ];

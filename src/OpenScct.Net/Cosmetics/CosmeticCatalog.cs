@@ -173,6 +173,11 @@ public static class CosmeticCatalog
         ("magenta", "Magenta", 310f),
     ];
 
+    private static readonly (string Id, string Name, float Hue)[] s_gadgetSpyHues = [("orange", "Orange", 25f), ("teal", "Teal", 165f)];
+
+    private static readonly (string Id, string Name, float Hue)[] s_gadgetMercHues =
+        [("yellow", "Yellow", 55f), ("orange", "Orange", 25f), ("amber", "Amber", 40f)];
+
     private static readonly (string Id, string Name, uint Rgb)[] s_tints =
     [
         ("urban", "Urban grey", 0x9AA0A8), ("sand", "Sand", 0xD8C49A), ("olive", "Olive", 0x8A9A5A), ("midnight", "Midnight", 0x50586E),
@@ -200,6 +205,13 @@ public static class CosmeticCatalog
             new("breaker", "Breaker", "cracks", [0x2A2A2A, 0x6E6E6A, 0xA8A8A0]),
             new("frag", "Frag", "shrapnel", [0x0E0C0A, 0x3A2A1E, 0xD86A1E]),
             new("lockdown", "Lockdown", "hazard", [0x101010, 0xE8C018]),
+            new("smoke", "Smoke Screen", "smoke", [0x2A2C30, 0x5A5E66, 0x9AA0A8, 0xD0D4DA]),
+            new("chaff", "Chaff", "chaff", [0x14161A, 0x7A828C, 0xE0E6EE]),
+            new("turnabout", "Turnabout", "turnabout", [0x1A0E08, 0x6A2A0E, 0xF07818]),
+            new("minefield", "Minefield", "minefield", [0x1A2214, 0x3E4A2A, 0xE8C018]),
+            new("voltage", "Voltage", "voltage", [0x0A0A10, 0x2A2A10, 0xF0D820, 0xFFF8C0]),
+            new("gadgeteer", "Gadgeteer", "cogs", [0x1A1C20, 0x4A5058, 0x8A929C, 0xC8A050]),
+            new("mastercraft", "Mastercraft", "mastercraft", [0x2A1E0A, 0x9A7020, 0xE6B840, 0xFFF2B0]),
         };
         foreach ((string code, string name, uint[] palette) in Maps)
         {
@@ -260,6 +272,36 @@ public static class CosmeticCatalog
         foreach (string camo in new[] { "pyre", "kaido", "cryo" })
         {
             Add($"spy.pistol.{camo}", PatternName(patterns, camo), CosmeticSide.Spy, CosmeticSlot.Pistol, CosmeticKind.Texture, pattern: camo);
+            foreach ((CosmeticSlot slot, string gun) in new[] { (CosmeticSlot.GunAr, "ar"), (CosmeticSlot.GunSmg, "smg"), (CosmeticSlot.GunShotgun, "shotgun") })
+            {
+                Add($"merc.{gun}.{camo}", PatternName(patterns, camo), CosmeticSide.Merc, slot, CosmeticKind.Texture, pattern: camo);
+            }
+        }
+
+        // The gadget achievement rewards (OpenSCCT's own): new light hues, suits, pistols, armour and merc guns.
+        foreach ((string id, string name, float hue) in s_gadgetSpyHues)
+        {
+            Add($"spy.light.{id}", name, CosmeticSide.Spy, CosmeticSlot.Light, CosmeticKind.Hue, hue: hue);
+        }
+
+        foreach ((string id, string name, float hue) in s_gadgetMercHues)
+        {
+            Add($"merc.light.{id}", name, CosmeticSide.Merc, CosmeticSlot.Light, CosmeticKind.Hue, hue: hue);
+        }
+
+        foreach (string camo in new[] { "smoke", "chaff", "turnabout", "minefield", "gadgeteer", "mastercraft" })
+        {
+            Add($"spy.body.{camo}", PatternName(patterns, camo), CosmeticSide.Spy, CosmeticSlot.Body, CosmeticKind.Texture, pattern: camo);
+        }
+
+        foreach (string camo in new[] { "chaff", "turnabout", "gadgeteer", "smoke", "mastercraft" })
+        {
+            Add($"spy.pistol.{camo}", PatternName(patterns, camo), CosmeticSide.Spy, CosmeticSlot.Pistol, CosmeticKind.Texture, pattern: camo);
+        }
+
+        foreach (string camo in new[] { "voltage", "minefield", "gadgeteer", "mastercraft" })
+        {
+            Add($"merc.body.{camo}", PatternName(patterns, camo), CosmeticSide.Merc, CosmeticSlot.Body, CosmeticKind.Texture, pattern: camo);
             foreach ((CosmeticSlot slot, string gun) in new[] { (CosmeticSlot.GunAr, "ar"), (CosmeticSlot.GunSmg, "smg"), (CosmeticSlot.GunShotgun, "shotgun") })
             {
                 Add($"merc.{gun}.{camo}", PatternName(patterns, camo), CosmeticSide.Merc, slot, CosmeticKind.Texture, pattern: camo);

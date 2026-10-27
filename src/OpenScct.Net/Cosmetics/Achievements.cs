@@ -13,6 +13,7 @@ public enum AchievementCategory
     Spy,
     Merc,
     Weapons,
+    Gadgets,
     Map,
 }
 
@@ -71,14 +72,17 @@ public static class Achievements
     // The merc gun camo ladder, CoD4/MW2 style: (camo, kills or headshots, count, title).
     private static readonly (string Camo, bool Headshots, int Count, string Title)[] s_gunLadder =
     [
-        ("woodland", false, 25, "Woodland"),
-        ("desert", false, 75, "Desert"),
-        ("digital", false, 150, "Digital"),
-        ("red_tiger", true, 50, "Red Tiger"),
-        ("blue_tiger", true, 150, "Blue Tiger"),
+        ("woodland", false, 50, "Woodland"),
+        ("desert", false, 150, "Desert"),
+        ("digital", false, 300, "Digital"),
+        ("red_tiger", true, 75, "Red Tiger"),
+        ("blue_tiger", true, 200, "Blue Tiger"),
     ];
 
     private static readonly (string Key, string Name)[] s_guns = [("ar", "Assault rifle"), ("smg", "SMG"), ("shotgun", "Shotgun")];
+
+    /// <summary>Wins a map achievement needs on each side.</summary>
+    private const int MapWinsPerSide = 3;
 
     public static IReadOnlyList<Achievement> All { get; } = Build();
 
@@ -113,47 +117,49 @@ public static class Achievements
         const AchievementCategory S = AchievementCategory.Spy;
         const AchievementCategory M = AchievementCategory.Merc;
         const AchievementCategory W = AchievementCategory.Weapons;
+        const AchievementCategory D = AchievementCategory.Gadgets;
         var list = new List<Achievement>
         {
             // ---- General: tiers of matches, wins and kills; each gives a colour tint for both sides.
-            Count("first_match", "First Mission", "Finish a match on an official server.", G, p => p.Stats.Matches, 1, Both("body.urban")),
-            Count("matches_10", "Regular", "Finish 10 matches.", G, p => p.Stats.Matches, 10, Both("body.sand")),
-            Count("matches_50", "Dedicated", "Finish 50 matches.", G, p => p.Stats.Matches, 50, Both("body.olive")),
-            Count("matches_200", "Lifer", "Finish 200 matches.", G, p => p.Stats.Matches, 200, Both("body.midnight")),
-            Count("wins_10", "Veteran", "Win 10 matches.", G, Wins, 10, Both("body.arctic")),
-            Count("wins_50", "Elite", "Win 50 matches.", G, Wins, 50, Both("body.crimson")),
-            Count("kills_25", "Bloodied", "Take down 25 opponents.", G, p => p.Stats.Kills, 25, Both("body.navy")),
-            Count("kills_100", "Centurion", "Take down 100 opponents.", G, p => p.Stats.Kills, 100, Both("body.rust")),
-            Count("kills_500", "Reaper", "Take down 500 opponents.", G, p => p.Stats.Kills, 500, Both("body.ash")),
+            Count("first_match", "Boots on the Ground", "Finish 5 matches on an official server.", G, p => p.Stats.Matches, 5, Both("body.urban")),
+            Count("matches_25", "Regular", "Finish 25 matches.", G, p => p.Stats.Matches, 25, Both("body.sand")),
+            Count("matches_100", "Dedicated", "Finish 100 matches.", G, p => p.Stats.Matches, 100, Both("body.olive")),
+            Count("matches_300", "Lifer", "Finish 300 matches.", G, p => p.Stats.Matches, 300, Both("body.midnight")),
+            Count("wins_25", "Veteran", "Win 25 matches.", G, Wins, 25, Both("body.arctic")),
+            Count("wins_100", "Elite", "Win 100 matches.", G, Wins, 100, Both("body.crimson")),
+            Count("kills_50", "Bloodied", "Take down 50 opponents.", G, p => p.Stats.Kills, 50, Both("body.navy")),
+            Count("kills_200", "Centurion", "Take down 200 opponents.", G, p => p.Stats.Kills, 200, Both("body.rust")),
+            Count("kills_750", "Reaper", "Take down 750 opponents.", G, p => p.Stats.Kills, 750, Both("body.ash")),
 
             // ---- Spy
-            Count("spy_win", "Ghost Protocol", "Win a match as a spy.", S, p => p.Stats.SpyWins, 1, "spy.body.desert"),
-            Count("spy_wins_5", "Infiltrator", "Win 5 matches as a spy.", S, p => p.Stats.SpyWins, 5, "spy.body.woodland", "spy.light.blue"),
-            Count("spy_wins_25", "Shadow Operative", "Win 25 matches as a spy.", S, p => p.Stats.SpyWins, 25, "spy.body.digital"),
+            Count("spy_win", "Ghost Protocol", "Win 5 matches as a spy.", S, p => p.Stats.SpyWins, 5, "spy.body.desert"),
+            Count("spy_wins_15", "Infiltrator", "Win 15 matches as a spy.", S, p => p.Stats.SpyWins, 15, "spy.body.woodland", "spy.light.blue"),
+            Count("spy_wins_40", "Shadow Operative", "Win 40 matches as a spy.", S, p => p.Stats.SpyWins, 40, "spy.body.digital"),
             Count("spy_wins_100", "Phantom", "Win 100 matches as a spy.", S, p => p.Stats.SpyWins, 100, "spy.body.red_tiger", "spy.light.magenta"),
             Once("objectives", "Clean Sweep", "Win as a spy by taking every objective.", S,
                 (_, row, r) => row.Team == 0 && r.WinningTeam == 0 && r.ObjectivesNeeded > 0 && r.ObjectivesTaken >= r.ObjectivesNeeded,
                 "spy.pistol.woodland"),
-            Count("spy_objectives_10", "Data Thief", "Take 10 objectives.", S, p => p.Feat(FeatKeys.SpyObjectives), 10,
+            Count("spy_objectives_25", "Data Thief", "Take 25 objectives.", S, p => p.Feat(FeatKeys.SpyObjectives), 25,
                 "spy.pistol.digital", "spy.light.cyan"),
-            Count("spy_objectives_50", "Ghost in the Machine", "Take 50 objectives.", S, p => p.Feat(FeatKeys.SpyObjectives), 50,
+            Count("spy_objectives_100", "Ghost in the Machine", "Take 100 objectives.", S, p => p.Feat(FeatKeys.SpyObjectives), 100,
                 "spy.body.static", "spy.pistol.static"),
-            Count("spy_necks_10", "Snap", "Break 10 necks.", S, p => p.Feat(FeatKeys.SpyNeckBreaks), 10, "spy.pistol.desert", "spy.light.red"),
-            Count("spy_necks_50", "Breaker", "Break 50 necks.", S, p => p.Feat(FeatKeys.SpyNeckBreaks), 50, "spy.body.breaker"),
-            Count("spy_drop_kill", "Death from Above", "Kill a merc with a drop attack.", S, p => p.Feat(FeatKeys.SpyDropKills), 1,
+            Count("spy_necks_25", "Snap", "Break 25 necks.", S, p => p.Feat(FeatKeys.SpyNeckBreaks), 25, "spy.pistol.desert", "spy.light.red"),
+            Count("spy_necks_100", "Breaker", "Break 100 necks.", S, p => p.Feat(FeatKeys.SpyNeckBreaks), 100, "spy.body.breaker"),
+            Count("spy_drop_10", "Death from Above", "Kill 10 mercs with drop attacks.", S, p => p.Feat(FeatKeys.SpyDropKills), 10,
                 "spy.pistol.red_tiger"),
             Once("spy_grab_3", "Triple Threat", "Kill 3 mercs with grabs in one round.", S,
                 (_, row, _) => row.Team == 0 && RowFeat(row, FeatKeys.SpyGrabKills) >= 3, "spy.body.blue_tiger", "spy.pistol.blue_tiger",
                 "spy.light.amber"),
-            Count("spy_sticky_25", "Shockwave", "Knock out 25 mercs with the sticky shocker.", S, p => p.Feat(FeatKeys.SpyStickyKos), 25,
+            Count("spy_sticky_25", "Shockwave", "Knock out 25 mercs with sticky cam gas.", S, p => p.Feat(FeatKeys.SpyStickyKos), 25,
                 "spy.pistol.shockwave"),
             Once("spy_untouchable", "Untouchable", "Win as a spy without dying.", S,
                 (_, row, r) => row.Team == 0 && Won(row, r) && row.Deaths == 0, "spy.body.night_ops", "spy.light.violet"),
 
             // ---- Merc
-            Count("merc_win", "Lockdown", "Win a match as a mercenary.", M, p => p.Stats.MercWins, 1, "merc.body.desert"),
-            Count("merc_wins_5", "Guard Duty", "Win 5 matches as a mercenary.", M, p => p.Stats.MercWins, 5, "merc.body.woodland", "merc.light.blue"),
-            Count("merc_wins_25", "Enforcer", "Win 25 matches as a mercenary.", M, p => p.Stats.MercWins, 25, "merc.body.digital"),
+            Count("merc_win", "Lockdown", "Win 5 matches as a mercenary.", M, p => p.Stats.MercWins, 5, "merc.body.desert"),
+            Count("merc_wins_15", "Guard Duty", "Win 15 matches as a mercenary.", M, p => p.Stats.MercWins, 15, "merc.body.woodland",
+                "merc.light.blue"),
+            Count("merc_wins_40", "Enforcer", "Win 40 matches as a mercenary.", M, p => p.Stats.MercWins, 40, "merc.body.digital"),
             Count("merc_wins_100", "Warden", "Win 100 matches as a mercenary.", M, p => p.Stats.MercWins, 100, "merc.body.red_tiger",
                 "merc.light.magenta"),
             Once("merc_wall", "The Wall", "Win as a mercenary without losing an objective.", M,
@@ -164,16 +170,50 @@ public static class Achievements
                 "merc.light.violet"),
 
             // ---- Weapons: the feats that, with the gun ladders, lead to the golden guns.
-            Count("merc_sniper_10", "Marksman", "Kill 10 spies through the scope.", W, p => p.Feat(FeatKeys.MercSniperKills), 10,
+            Count("merc_sniper_25", "Marksman", "Kill 25 spies through the scope.", W, p => p.Feat(FeatKeys.MercSniperKills), 25,
                 "merc.light.green"),
-            Count("merc_sniper_50", "Deadeye", "Kill 50 spies through the scope.", W, p => p.Feat(FeatKeys.MercSniperKills), 50,
+            Count("merc_sniper_75", "Deadeye", "Kill 75 spies through the scope.", W, p => p.Feat(FeatKeys.MercSniperKills), 75,
                 "merc.body.blue_tiger"),
-            Count("merc_terminate_25", "Executioner", "Finish off 25 downed spies.", W, p => p.Feat(FeatKeys.MercTerminateKills), 25,
+            Count("merc_terminate_50", "Executioner", "Finish off 50 downed spies.", W, p => p.Feat(FeatKeys.MercTerminateKills), 50,
                 "merc.light.red"),
-            Count("merc_grenade_kill", "Fire in the Hole", "Kill a spy with a frag grenade.", W, p => p.Feat(FeatKeys.MercGrenadeKills), 1,
-                "merc.body.frag"),
-            Count("merc_mine_kill", "Tripwire", "Kill a spy with a mine.", W, p => p.Feat(FeatKeys.MercMineKills), 1,
+
+            // ---- Gadgets: the spy kit, then the merc kit (the taser and the other Change Gear gadgets included).
+            Count("spy_smoke_15", "Smoke Screen", "Knock out 15 mercs with smoke grenades.", D, p => p.Feat(FeatKeys.SpySmokeKos), 15,
+                "spy.body.smoke"),
+            Count("spy_cam_50", "Eye in the Sky", "Use the sticky cam 50 times.", D, p => p.Feat(FeatKeys.SpyStickyCamUses), 50,
+                "spy.light.teal"),
+            Count("spy_chaff_40", "Static Field", "Jam 40 mercs with chaff.", D, p => p.Feat(FeatKeys.SpyChaffJams), 40, "spy.pistol.chaff"),
+            Count("spy_chaff_150", "Blackout", "Jam 150 mercs with chaff.", D, p => p.Feat(FeatKeys.SpyChaffJams), 150, "spy.body.chaff"),
+            Count("spy_headshot_25", "Lights Out", "Land 25 Shocker headshots.", D, p => p.Feat(FeatKeys.SpyShockerHeadshots), 25,
+                "spy.light.orange"),
+            Count("spy_ledge_15", "Over the Edge", "Grab 15 mercs from a ledge.", D, p => p.Feat(FeatKeys.SpyLedgeGrabs), 15,
+                "spy.pistol.smoke"),
+            Count("spy_mine_3", "Own Goal", "Kill 3 mercs by setting off a merc mine.", D, p => p.Feat(FeatKeys.SpyMineKills), 3,
+                "spy.pistol.turnabout"),
+            Count("spy_mine_10", "Turnabout", "Kill 10 mercs by setting off a merc mine.", D, p => p.Feat(FeatKeys.SpyMineKills), 10,
+                "spy.body.turnabout"),
+            Count("spy_mine_25", "Hoist by Their Own Petard", "Kill 25 mercs by setting off a merc mine.", D,
+                p => p.Feat(FeatKeys.SpyMineKills), 25, "spy.body.minefield"),
+            Once("spy_gadgeteer", "Gadgeteer", "In one round: knock out a merc with smoke, one with sticky cam gas, and jam one with chaff.", D,
+                (_, row, _) => row.Team == 0 && RowFeat(row, FeatKeys.SpySmokeKos) > 0 && RowFeat(row, FeatKeys.SpyStickyKos) > 0 &&
+                    RowFeat(row, FeatKeys.SpyChaffJams) > 0,
+                "spy.body.gadgeteer", "spy.pistol.gadgeteer"),
+            Count("merc_taser_25", "Live Wire", "Tase 25 spies.", D, p => p.Feat(FeatKeys.MercTaserHits), 25, "merc.light.yellow"),
+            Count("merc_taser_100", "High Voltage", "Tase 100 spies.", D, p => p.Feat(FeatKeys.MercTaserHits), 100,
+                "merc.body.voltage", "merc.ar.voltage", "merc.smg.voltage", "merc.shotgun.voltage"),
+            Count("merc_mines_placed_75", "Minefield", "Place 75 mines.", D, p => p.Feat(FeatKeys.MercMinesPlaced), 75, "merc.body.minefield"),
+            Count("merc_mine_15", "Tripwire", "Kill 15 spies with mines.", D, p => p.Feat(FeatKeys.MercMineKills), 15,
                 "merc.ar.frag", "merc.smg.frag", "merc.shotgun.frag"),
+            Count("merc_mine_50", "Killing Field", "Kill 50 spies with mines.", D, p => p.Feat(FeatKeys.MercMineKills), 50,
+                "merc.ar.minefield", "merc.smg.minefield", "merc.shotgun.minefield"),
+            Count("merc_grenade_15", "Fire in the Hole", "Kill 15 spies with frag grenades.", D, p => p.Feat(FeatKeys.MercGrenadeKills), 15,
+                "merc.body.frag"),
+            Count("merc_grenade_50", "Shrapnel", "Kill 50 spies with frag grenades.", D, p => p.Feat(FeatKeys.MercGrenadeKills), 50,
+                "merc.light.orange"),
+            Count("merc_berserk_25", "Berserker", "Land 25 berserk hits.", D, p => p.Feat(FeatKeys.MercBerserkHits), 25, "merc.light.amber"),
+            Once("merc_demolitions", "Demolitions", "Kill 2 spies with frag grenades or mines in one round.", D,
+                (_, row, _) => row.Team == 1 && RowFeat(row, FeatKeys.MercGrenadeKills) + RowFeat(row, FeatKeys.MercMineKills) >= 2,
+                "merc.body.gadgeteer", "merc.ar.gadgeteer", "merc.smg.gadgeteer", "merc.shotgun.gadgeteer"),
         };
 
         foreach ((string gun, string gunName) in s_guns)
@@ -196,18 +236,27 @@ public static class Achievements
         list.Add(new Achievement("spy_gilded", "Gilded Ghost", "Finish every spy achievement: the golden pistol.", S,
             p => (spyIds.Count(p.Earned.Contains), spyIds.Length), ["spy.pistol.golden"], (p, _, _) => spyIds.All(p.Earned.Contains)));
 
+        string[] gadgetIds = list.Where(a => a.Category == D).Select(a => a.Id).ToArray();
+        list.Add(new Achievement("gadget_master", "Gadget Master", "Finish every gadget achievement, spy and merc: the Mastercraft finish.", D,
+            p => (gadgetIds.Count(p.Earned.Contains), gadgetIds.Length),
+            ["spy.body.mastercraft", "spy.pistol.mastercraft", "merc.body.mastercraft", "merc.ar.mastercraft", "merc.smg.mastercraft",
+                "merc.shotgun.mastercraft"],
+            (p, _, _) => gadgetIds.All(p.Earned.Contains)));
+
         // ---- The painted gun skins: each gives its skin for the spy pistol and all three merc guns. Listed after the
         // gilded ones so they are not part of what those need.
-        list.Add(Once("hot_streak", "Pyre", "Take down 7 opponents in one match.", G, (_, row, _) => row.Kills >= 7, Guns("pyre")));
-        list.Add(new Achievement("kaido", "Kaido", "Win 25 matches as a spy and 25 as a mercenary.", G,
-            p => (Math.Min(p.Stats.SpyWins, 25) + Math.Min(p.Stats.MercWins, 25), 50), Guns("kaido")));
-        list.Add(Count("kills_1000", "Cryo", "Take down 1000 opponents.", G, p => p.Stats.Kills, 1000, Guns("cryo")));
+        list.Add(Once("hot_streak", "Pyre", "Take down 10 opponents in one match.", G, (_, row, _) => row.Kills >= 10, Guns("pyre")));
+        list.Add(new Achievement("kaido", "Kaido", "Win 40 matches as a spy and 40 as a mercenary.", G,
+            p => (Math.Min(p.Stats.SpyWins, 40) + Math.Min(p.Stats.MercWins, 40), 80), Guns("kaido")));
+        list.Add(Count("kills_1500", "Cryo", "Take down 1500 opponents.", G, p => p.Stats.Kills, 1500, Guns("cryo")));
 
         foreach ((string code, string name, _) in CosmeticCatalog.Maps)
         {
             string camo = "body.map_" + code.ToLowerInvariant();
-            list.Add(new Achievement("map_" + code.ToLowerInvariant(), name, $"Win on {name} as a spy and as a mercenary.",
-                AchievementCategory.Map, p => ((p.MapWin(code, 0) > 0 ? 1 : 0) + (p.MapWin(code, 1) > 0 ? 1 : 0), 2), Both(camo)));
+            list.Add(new Achievement("map_" + code.ToLowerInvariant(), name,
+                $"Win on {name} {MapWinsPerSide} times as a spy and {MapWinsPerSide} times as a mercenary.", AchievementCategory.Map,
+                p => (Math.Min(p.MapWin(code, 0), MapWinsPerSide) + Math.Min(p.MapWin(code, 1), MapWinsPerSide), 2 * MapWinsPerSide),
+                Both(camo)));
         }
 
         foreach (string reward in list.SelectMany(a => a.Rewards))

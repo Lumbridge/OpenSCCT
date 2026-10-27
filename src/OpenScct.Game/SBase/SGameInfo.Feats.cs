@@ -18,6 +18,21 @@ public partial class SGameInfo
         _ => null,
     };
 
+    /// <summary>
+    /// A merc killed by a merc mine a spy set off: a mine kill feat for that spy (the kill, a team kill or a suicide,
+    /// stays the mine owner's as in retail).
+    /// </summary>
+    private static void CountSpyMineKill(Controller killed, Pawn? killedPawn)
+    {
+        if (GadgetBlast.CurrentIsMine != true || GadgetBlast.CurrentDetonator is not { Controller: { } spy } ||
+            (killedPawn ?? killed.Pawn) is not SPAWNDEFENSE || TeamIndexOf(spy) == TeamIndexOf(killed))
+        {
+            return;
+        }
+
+        spy.PlayerReplicationInfo?.Stats?.AddFeat(FeatKeys.SpyMineKills);
+    }
+
     /// <summary>Counts one enemy kill's cause for the killer and the victim.</summary>
     private static void CountKillFeats(Controller killer, Controller killed, Pawn? killedPawn, SDamageType type)
     {

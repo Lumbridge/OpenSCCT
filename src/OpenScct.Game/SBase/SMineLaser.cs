@@ -62,7 +62,11 @@ public partial class SMineLaser
     [Uc("SBase.SMineLaser.TakeDamage", Sha1 = "2c791e2bae007546d2756abdd5bdd2b72aea06fb")]
     [PortOf("uc:SBase.SMineLaser:TakeDamage", Spec = "spec/equipment/mine-launcher.md#mines")]
     protected override void TakeDamage(int Damage, Pawn? EventInstigator, FVector HitLocation, FVector Momentum,
-        SDamageType DamageType, int PillTag = 0) => Explosion();
+        SDamageType DamageType, int PillTag = 0)
+    {
+        NoteDetonator(EventInstigator);
+        Explosion();
+    }
 
     /// <summary>The interaction goes on the server, the beam on every machine, then the mine's own clean-up.</summary>
     [Uc("SBase.SMineLaser.Destroyed", Sha1 = "4249a9976272572b54f7d60f116ab2bc7a2f6d0f")]

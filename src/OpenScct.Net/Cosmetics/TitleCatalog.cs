@@ -108,12 +108,15 @@ public static class TitleCatalog
         Add("ach_spy_gilded", "Gilded Ghost", TitleSource.Achievement, achievement: "spy_gilded");
         Add("ach_untouchable", "Untouchable", TitleSource.Achievement, achievement: "spy_untouchable");
         Add("ach_wall", "The Wall", TitleSource.Achievement, achievement: "merc_wall");
-        Add("ach_reaper", "Reaper", TitleSource.Achievement, achievement: "kills_500");
-        Add("ach_lifer", "Lifer", TitleSource.Achievement, achievement: "matches_200");
+        Add("ach_reaper", "Reaper", TitleSource.Achievement, achievement: "kills_750");
+        Add("ach_lifer", "Lifer", TitleSource.Achievement, achievement: "matches_300");
         Add("ach_phantom", "Phantom", TitleSource.Achievement, achievement: "spy_wins_100");
         Add("ach_warden", "Warden", TitleSource.Achievement, achievement: "merc_wins_100");
-        Add("ach_deadeye", "Deadeye", TitleSource.Achievement, achievement: "merc_sniper_50");
-        Add("ach_ghost_machine", "Ghost in the Machine", TitleSource.Achievement, achievement: "spy_objectives_50");
+        Add("ach_deadeye", "Deadeye", TitleSource.Achievement, achievement: "merc_sniper_75");
+        Add("ach_ghost_machine", "Ghost in the Machine", TitleSource.Achievement, achievement: "spy_objectives_100");
+        Add("ach_gadget_master", "Gadget Master", TitleSource.Achievement, achievement: "gadget_master");
+        Add("ach_petard", "Petard", TitleSource.Achievement, achievement: "spy_mine_25");
+        Add("ach_high_voltage", "High Voltage", TitleSource.Achievement, achievement: "merc_taser_100");
 
         foreach (TitleItem t in list.Where(t => t.Source == TitleSource.Achievement))
         {

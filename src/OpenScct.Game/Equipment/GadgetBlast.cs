@@ -50,7 +50,8 @@ public static class GadgetBlast
         int PercentDamageRefillable,
         int ShakeRange,
         Pawn? Instigator,
-        bool bMine);
+        bool bMine,
+        Pawn? Detonator = null);
 
     /// <summary>
     /// Runs a blast over a copy of the level's actor list (in order). Mines (<see cref="Blast.bMine"/>) only hurt
@@ -60,7 +61,9 @@ public static class GadgetBlast
     public static void Run(in Blast b)
     {
         bool? outer = CurrentIsMine;
+        Pawn? outerDetonator = CurrentDetonator;
         CurrentIsMine = b.bMine;
+        CurrentDetonator = b.Detonator;
         try
         {
             RunBlast(b);
@@ -68,6 +71,7 @@ public static class GadgetBlast
         finally
         {
             CurrentIsMine = outer;
+            CurrentDetonator = outerDetonator;
         }
     }
 
@@ -82,6 +86,19 @@ public static class GadgetBlast
     {
         get => s_currentIsMine;
         private set => s_currentIsMine = value;
+    }
+
+    /// <summary>
+    /// While a mine blast runs: the spy who set the mine off (a merc mine a spy shot), else null. OpenSCCT's own, for
+    /// the spy's mine kill achievements; the kill itself stays the mine owner's.
+    /// </summary>
+    [System.ThreadStatic]
+    private static Pawn? s_currentDetonator;
+
+    public static Pawn? CurrentDetonator
+    {
+        get => s_currentDetonator;
+        private set => s_currentDetonator = value;
     }
 
     private static void RunBlast(in Blast b)
