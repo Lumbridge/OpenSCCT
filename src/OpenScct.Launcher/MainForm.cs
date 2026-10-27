@@ -306,6 +306,7 @@ internal sealed class MainForm : Form
         if (_swap is { HasStaged: true })
         {
             _launcherInfo.Text = "A new version of this launcher is ready.";
+            _launcherButton.Visible = true;
             _launcherBanner.Visible = true;
         }
 
@@ -653,7 +654,8 @@ internal sealed class MainForm : Form
             return;
         }
 
-        if (check.LauncherUpdateAvailable && check.Latest is { } l)
+        // Only when it cannot stage the update itself (read-only folder). One already staged keeps its restart button.
+        if (check.LauncherUpdateAvailable && check.Latest is { } l && _swap is not { HasStaged: true })
         {
             _launcherInfo.Text = $"Launcher {l.Version} is available. Download it from the OpenSCCT releases page (this folder is read only).";
             _launcherButton.Visible = false;
