@@ -414,7 +414,22 @@ viewport's camera, spark lines, beam strips, `svm_particle.gdshaderinc`). The ru
 `spec/native/emitters.md`; the gameplay effects and their converted assets: `docs/EFFECTS.md`. `Trigger(tag)` is
 Emitter.Trigger; `RenderMap.SetTime` steps every system at 60 Hz up to the scene time (going back restarts them).
 SteeE: 57 sprite emitters (flames, flares and smoke always on; explosions, sparks and debris wait for their events).
-Map mesh emitters draw nothing yet: the meshes they name are not in the map content.
+Mesh emitters (Fact parts, ORP lamps and mannequins, Aquarium vase shards and fish, Missile bricks, Stee debris)
+draw their static mesh from the map library: the converter adds each MeshEmitter's StaticMesh as a library node
+flagged `particle` (render.py `_particle_meshes`), MapBuilder builds it actor-lit into `RenderMap.ParticleMeshes`,
+and the view draws one MultiMesh per sub-emitter with the mesh's own materials (UseMeshBlendMode), lit once per
+emitter by the actor lighting at the emitter (bUnlit off; an Emitter is bUnlit by class default and then draws at
+full brightness). Maps converted before this have no such nodes and their mesh emitters still draw nothing (rerun
+`maps`).
+
+An emitter or light whose simulated actor rides a mover (AttachTag: ShadD spot1/spot2, ShadP DynamicSpotlights) or
+hangs on an SAnimatedMesh bone (ActorsToAttach: Club, Orph, Miss, Stat) follows it (`Views/AttachedEffects`, from
+`DeviceViews`): emitters through `Emitters.SetPlace`, lights through `RenderMap.MoveLight` (world term, actor lighting,
+corona). A bHardAttach rider keeps its frame in its base's (HardRelMatrix, pitch and roll included); a soft rider is
+where the simulation put it; a bone rider sits on the drawn bone (RelativeLocation and RelativeRotation, zero on these
+maps). The render-only Engine.Light actors with AttachTag (PanaD/PanaS `elevator`) are bStatic and not bMovable by
+class default and baked into the lightmaps: they stay put. The places are taken after the frame's emitters are
+simulated, so a moving emitter is one frame behind.
 
 ## Characters
 
@@ -518,7 +533,7 @@ Both need `.content/` (converted content and the render pack), so CI's default s
   Without DoGlow & 3 it adds a blurred copy of the scene instead. The three full-screen pre-draws of the night pass
   (texture factors 0x7f7f7f7f and 0 at depths 0.9974 and 0.9979) are not decoded.
 - Not drawn yet: projectors (`fx.json` projectors are empty on SteeE), light beams, the glow pyramid, mirrors,
-  MeshEmitter / BeamEmitter / SparkEmitter, map LE_ESpotShadow lights through the spot slot (SteeE's one has no
+  BeamEmitter / SparkEmitter, map LE_ESpotShadow lights through the spot slot (SteeE's one has no
   cookie), more than one spot shadow light at a time.
 - Some self-lit signs read darker than the original; the crane SAnimatedMesh is posed at its first frame only.
 - The pawn's pose uses the base channel only (blend channels are not mixed), so pawns differ slightly in the goldens.

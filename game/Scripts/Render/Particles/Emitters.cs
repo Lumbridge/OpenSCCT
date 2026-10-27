@@ -14,20 +14,42 @@ namespace OpenScctGame.Render.Particles;
 /// (stored values over the shared class defaults), drawn by a <see cref="ParticleSystemView"/> facing the viewport's
 /// camera (spec/native/emitters.md). <see cref="Trigger"/> is Emitter.Trigger for an event of the actor's Tag. The scene
 /// time drives them: <see cref="SetTime"/> steps every simulation at the fixed rate up to Level.TimeSeconds (going back
-/// restarts them) and redraws. A mesh emitter whose mesh the map content does not carry draws nothing.
+/// restarts them) and redraws. An emitter riding a mover or hung on a bone is moved by <see cref="SetPlace"/>. Mesh
+/// emitters draw the map library's copy of their static mesh (the converter adds it), lit as the emitter actor is.
 /// docs/RENDERING.md#emitters, docs/EFFECTS.md.
 /// </summary>
 [PortOf("eng:Render.Emitters", Spec = "spec/native/emitters.md#rules")]
 public sealed class Emitters : IParticleAssets
 {
     private readonly List<Entry> _entries = [];
+    private readonly Dictionary<string, Entry> _byId = new(StringComparer.OrdinalIgnoreCase);
     private readonly RenderMap _map;
     private float _time;
 
     /// <summary>Shorter rests wait for the next frame (float noise of the scene time).</summary>
     private const float MinStep = 1e-5f;
 
-    private sealed record Entry(FxEmitter Emitter, ParticleSystemSim Sim, ParticleSystemView View);
+    /// <summary>A moved mesh emitter is relit once it is this far (uu) from where it was last lit.</summary>
+    private const float RelightDistance = 16f;
+
+    /// <summary>The sphere (uu) the light set of a mesh emitter is chosen for.</summary>
+    [Provenance(ProvenanceKind.Estimated, "UE2 picks the emitter's lights by its render bounds; the particles' spread is not known up front")]
+    private const float LightRadius = 256f;
+
+    private sealed class Entry(FxEmitter emitter, ParticleSystemSim sim, ParticleSystemView view)
+    {
+        public FxEmitter Emitter { get; } = emitter;
+
+        public ParticleSystemSim Sim { get; } = sim;
+
+        public ParticleSystemView View { get; } = view;
+
+        public FVector Location { get; set; } = emitter.Location;
+
+        public FRotator Rotation { get; set; } = emitter.Rotation;
+
+        public FVector LitAt { get; set; } = emitter.Location;
+    }
 
     public Emitters(RenderMap map, Node3D parent)
     {
@@ -47,11 +69,6 @@ public sealed class Emitters : IParticleAssets
                     continue;
                 }
 
-                if (p.Kind == ParticleKind.Mesh)
-                {
-                    Skipped++;
-                }
-
                 subs.Add(p);
                 SubEmitters++;
             }
@@ -64,7 +81,11 @@ public sealed class Emitters : IParticleAssets
             var settings = new ParticleSystemParams(Bool(e.Props, "AutoDestroy"), Bool(e.Props, "AutoReset"), default, default);
             var sim = new ParticleSystemSim(subs, settings, FxRandom.Seed(e.Id));
             var view = new ParticleSystemView(sim, this, Root, e.Id, e.Float("HeatOpacity", RenderK.DefaultHeatOpacity));
-            _entries.Add(new Entry(e, sim, view));
+            Skipped += view.MissingMeshes;
+            var entry = new Entry(e, sim, view);
+            _entries.Add(entry);
+            _byId.TryAdd(e.Id, entry);
+            Light(entry);
         }
     }
 
@@ -78,7 +99,7 @@ public sealed class Emitters : IParticleAssets
     /// <summary>Emitter actors.</summary>
     public int Actors => _entries.Count;
 
-    /// <summary>Mesh sub-emitters (their meshes are not in the map content).</summary>
+    /// <summary>Mesh sub-emitters whose mesh the map content does not have (converted before the mesh export).</summary>
     public int Skipped { get; }
 
     /// <summary>The scene time the emitters are simulated to.</summary>
@@ -89,7 +110,32 @@ public sealed class Emitters : IParticleAssets
 
     public Texture2D? Texture(string? png) => png is null ? null : _map.Textures.Get(png);
 
-    public Mesh? Mesh(string? objectPath) => null;
+    public Mesh? Mesh(string? objectPath) =>
+        objectPath is not null && _map.ParticleMeshes.TryGetValue(objectPath, out ArrayMesh? mesh) ? mesh : null;
+
+    /// <summary>True when the map has a drawn Emitter actor of this id.</summary>
+    public bool Has(string id) => _byId.ContainsKey(id);
+
+    /// <summary>
+    /// Moves the Emitter actor <paramref name="id"/> (ignoring case) to where its simulated actor is now: riding a
+    /// mover (AttachTag) or hung on an SAnimatedMesh bone. The next <see cref="SetTime"/> spawns and draws there.
+    /// </summary>
+    public bool SetPlace(string id, FVector location, FRotator rotation)
+    {
+        if (!_byId.TryGetValue(id, out Entry? e))
+        {
+            return false;
+        }
+
+        e.Location = location;
+        e.Rotation = rotation;
+        if (FVector.Dist(location, e.LitAt) > RelightDistance)
+        {
+            Light(e);
+        }
+
+        return true;
+    }
 
     /// <summary>Emitter.Trigger for every Emitter actor whose Tag is <paramref name="tag"/> (ignoring case).</summary>
     public int Trigger(string tag)
@@ -110,13 +156,10 @@ public sealed class Emitters : IParticleAssets
     /// <summary>Emitter.ReplicateTrigger of the Emitter actor whose map id is <paramref name="id"/> (ignoring case).</summary>
     public bool TriggerActor(string id)
     {
-        foreach (Entry e in _entries)
+        if (_byId.TryGetValue(id, out Entry? e))
         {
-            if (string.Equals(e.Emitter.Id, id, StringComparison.OrdinalIgnoreCase))
-            {
-                e.Sim.Trigger();
-                return true;
-            }
+            e.Sim.Trigger();
+            return true;
         }
 
         return false;
@@ -149,12 +192,12 @@ public sealed class Emitters : IParticleAssets
             {
                 for (int i = 0; i < steps; i++)
                 {
-                    e.Sim.Step(step, e.Emitter.Location, e.Emitter.Rotation, default);
+                    e.Sim.Step(step, e.Location, e.Rotation, default);
                 }
 
                 if (rest > MinStep)
                 {
-                    e.Sim.Step(rest, e.Emitter.Location, e.Emitter.Rotation, default);
+                    e.Sim.Step(rest, e.Location, e.Rotation, default);
                 }
             }
 
@@ -173,12 +216,35 @@ public sealed class Emitters : IParticleAssets
         int total = 0;
         foreach (Entry e in _entries)
         {
-            var owner = new ParticleOwner(e.Emitter.Location, e.Emitter.Rotation, default, e.Sim.GlobalOffset);
+            var owner = new ParticleOwner(e.Location, e.Rotation, default, e.Sim.GlobalOffset);
             e.View.Draw(owner, view);
             total += e.View.Drawn;
         }
 
         Particles = total;
+    }
+
+    /// <summary>
+    /// The light set of an emitter's mesh particles, one per emitter as UMeshEmitter::RenderParticles sets the owner's
+    /// lights once before its particles. An Emitter is bUnlit by class default: its meshes then draw at full
+    /// brightness; with bUnlit off they take the actor lighting at the emitter.
+    /// </summary>
+    [Provenance(ProvenanceKind.Decoded, "UMeshEmitter::RenderParticles 0x110f3dc0 (editor twin): with UseMeshBlendMode the owner's light list is set once, then every particle drawn")]
+    [Provenance(ProvenanceKind.Estimated, "bUnlit owner drawn as white ambient and no lights (the UE2 unlit actor convention, not decoded here)")]
+    private void Light(Entry e)
+    {
+        e.LitAt = e.Location;
+        if (!e.View.HasLitMeshes)
+        {
+            return;
+        }
+
+        bool unlit = !(e.Emitter.Props.ValueKind == JsonValueKind.Object && e.Emitter.Props.TryGetProperty("bUnlit", out JsonElement v)
+            && v.ValueKind == JsonValueKind.False);
+        ActorLightSet set = unlit
+            ? new ActorLightSet { Ambient = Vector3.One }
+            : _map.LightActor(e.Location, LightRadius, (int)e.Emitter.Float("AmbientGlow"));
+        e.View.LightMeshes(set);
     }
 
     /// <summary>A Godot camera as the particle camera (UE space).</summary>

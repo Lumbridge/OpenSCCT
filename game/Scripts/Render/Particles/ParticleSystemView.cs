@@ -73,6 +73,7 @@ public sealed class ParticleSystemView
                 Root.AddChild(mmNode);
                 _layers.Add(new Layer(e, null, null, mmNode, mm));
                 MissingMeshes += mesh is null ? 1 : 0;
+                HasLitMeshes |= mesh is not null && p.UseMeshBlendMode;
                 continue;
             }
 
@@ -96,6 +97,25 @@ public sealed class ParticleSystemView
 
     /// <summary>Mesh emitters whose mesh the content does not have.</summary>
     public int MissingMeshes { get; }
+
+    /// <summary>True when a mesh emitter draws its mesh's own materials (UseMeshBlendMode), which the owner's lights light.</summary>
+    public bool HasLitMeshes { get; }
+
+    /// <summary>
+    /// Lights the meshes drawn with their own materials by the owner's light set (their mesh must be actor-lit, as
+    /// the map's particle meshes are). The particle-style meshes (UseMeshBlendMode off) are unlit.
+    /// </summary>
+    public void LightMeshes(ActorLightSet set)
+    {
+        ArgumentNullException.ThrowIfNull(set);
+        foreach (Layer layer in _layers)
+        {
+            if (layer.MultiNode is { } node && layer.Emitter.Params.UseMeshBlendMode)
+            {
+                ActorLighting.Apply(node, set);
+            }
+        }
+    }
 
     /// <summary>Quads, segments and mesh instances drawn by the last <see cref="Draw"/>.</summary>
     public int Drawn { get; private set; }

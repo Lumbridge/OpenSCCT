@@ -129,6 +129,9 @@ on every machine through the action stream.
   The Godot omni lights kept for them light nothing the templates draw.
 - The sticky cam gas sprites are depth tested as UE2 draws them (no soft particles), so a sprite crossing a wall or the
   floor shows the straight line of that surface; not yet compared with a capture of the original.
-- Map mesh emitters draw nothing: the meshes they name are not in the map content.
+- Map mesh emitters draw the map library's copy of their mesh (docs/RENDERING.md#emitters). Not done: a
+  UseParticleColor tint over the mesh's own materials (no map uses it), and with UseMeshBlendMode off the decoded
+  particle material takes the mesh section's texture only when it is a plain bitmap (we draw the sub-emitter's
+  Texture); no map uses that either.
 - Beam noise and branches, spawning and collision sounds, mesh skins swapped at run time (SMineProx's Skins).
 - Decal size and blending are estimated (the projector natives are not decoded).

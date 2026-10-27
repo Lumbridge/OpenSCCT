@@ -87,6 +87,7 @@ public sealed class Coronas
                 continue;
             }
 
+            c = Placed(c, node);
             bool visible = _map.IsLightOn(c.Light, c.On) && Visible(c, camera);
             float target = visible ? 1f : 0f;
             _fade[i] = settle ? target : Mathf.MoveToward(_fade[i], target, 6f * c.ScaleGlow * delta);
@@ -107,6 +108,21 @@ public sealed class Coronas
             Color k = c.Colour * (0.5f * fade * RenderK.CoronaStageGain);
             node.SetInstanceShaderParameter(ColourParam, new Vector4(k.R, k.G, k.B, 1f));
         }
+    }
+
+    /// <summary>
+    /// The corona where its light is now: a light riding a mover or hung on a bone (<see cref="RenderMap.MoveLight"/>)
+    /// takes its corona along.
+    /// </summary>
+    private CoronaEntry Placed(CoronaEntry c, MeshInstance3D node)
+    {
+        if (!_map.TryGetLightPlace(c.Light, out FVector location, out FRotator rotation))
+        {
+            return c;
+        }
+
+        node.Position = UeSpace.ToGodot(location);
+        return c with { Location = location, Rotation = rotation };
     }
 
     /// <summary>One line per corona in front of the camera (light, distance, on, trace result, fade), for calibration logs.</summary>

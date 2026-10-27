@@ -4,8 +4,10 @@ The exporter writes <Map>.gltf + .bin, textures/*.png and scene.json. This modul
 
 - render/world.glb: the exporter's glTF as one binary file. Scene roots `World` (the BSP meshes, with lightmaps on
   TEXCOORD_1) and `Library` (one node per static mesh variant the map draws, named by asset path, plus projector
-  decals and cloth patches). Node extras carry {"svmap": {"role", "asset", "variant"}}. The instance table (every
-  placed mesh actor with its UE transform and draw flags) is in the document's extras.svmap.instances.
+  decals and cloth patches). Node extras carry {"svmap": {"role", "asset", "variant"}}; a mesh that a map
+  MeshEmitter draws also carries "particle": true (the client builds it for the emitter view even when a placed
+  actor uses it too). The instance table (every placed mesh actor with its UE transform and draw flags) is in the
+  document's extras.svmap.instances.
 - render/textures/*.png: every texture and lightmap the glTF and the other files name (PNG for now).
 - render/materials.json: per glTF material, the exporter's blend flags, its source material and the material's
   gameplay flags (SurfaceType, bClimbable, bNoSplitJump, bNoStickyCam, vision flags, OcclusionType); the material
@@ -71,6 +73,7 @@ class RenderBuilder:
         self.gameplay_ids = gameplay_ids
         self.stats: Dict[str, Any] = {}
         self.files: Dict[str, bytes] = {}
+        self._particle_refs: Optional[List[Ref]] = None
 
     # ---- export ------------------------------------------------------------------------------
 
@@ -84,8 +87,9 @@ class RenderBuilder:
         if self.work.exists():
             shutil.rmtree(self.work)
         self.work.mkdir(parents=True)
+        extra = [r.ref for r in self._swap_meshes()] + [r.ref for r in self._particle_meshes()]
         st = export_gltf.export_map(self.src.path, self.src.pset, self.work, include_bsp=True,
-                                    extra_mesh_refs=[r.ref for r in self._swap_meshes()])
+                                    extra_mesh_refs=extra)
         out = self.work / self.src.name
         gltf = json.loads((out / f"{self.src.name}.gltf").read_text(encoding="utf-8"))
         binary = (out / f"{self.src.name}.bin").read_bytes()
@@ -135,6 +139,36 @@ class RenderBuilder:
                     out.append(r)
         return out
 
+    def _emitter_subs(self, info: ActorInfo) -> List[Tuple[Ref, Optional[str], dict]]:
+        """The sub-emitters of an Emitter actor (its own Emitters array): (object ref, class, decoded properties)."""
+        out = []
+        for r in self.src.value(info, "Emitters") or []:
+            if not isinstance(r, Ref) or r.ref == 0:
+                continue
+            cls, decoded, _refs, _pkg = self._decode_object(r.path)
+            out.append((r, cls, decoded))
+        return out
+
+    def _emitters(self) -> List[ActorInfo]:
+        return [info for info in self.src.actors
+                if self.src.db.is_a(info.cls, "Engine.Emitter") and info.category not in ("editor", "skipped")]
+
+    def _particle_meshes(self) -> List[Ref]:
+        """The static meshes the map's MeshEmitters draw (Fact parts, ORP lamps, Aquarium vase shards and fish). The
+        library gets a node for each, so the client can draw the particles with the mesh's own materials."""
+        if self._particle_refs is not None:
+            return self._particle_refs
+        out: List[Ref] = []
+        for info in self._emitters():
+            for _r, cls, decoded in self._emitter_subs(info):
+                if not cls or not self.src.db.is_a(cls, "Engine.MeshEmitter"):
+                    continue
+                sm = decoded.get("StaticMesh")
+                if isinstance(sm, Ref) and sm.ref != 0 and sm.path and not sm.is_class and self.src.own(sm):
+                    out.append(sm)
+        self._particle_refs = out
+        return out
+
     def _mesh_assets(self) -> Dict[str, str]:
         """scctpkg base node name (_safe of Package.Name) -> full asset path, from the actors' StaticMesh refs and
         the swap meshes."""
@@ -146,6 +180,7 @@ class RenderBuilder:
                 sm = self.src.db.default(info.cls, "StaticMesh")
             refs.append(sm)
         refs.extend(self._swap_meshes())
+        refs.extend(self._particle_meshes())
         for sm in refs:
             if not isinstance(sm, Ref) or sm.ref == 0 or not sm.path:
                 continue
@@ -173,6 +208,7 @@ class RenderBuilder:
 
     def build_glb(self, gltf: dict, binary: bytes, scene: dict) -> Tuple[bytes, Dict[str, str]]:
         assets = self._mesh_assets()
+        particle = {r.path for r in self._particle_meshes()}
         rename: Dict[str, str] = {}
         world_children: List[int] = []
         library_children: List[int] = []
@@ -195,6 +231,8 @@ class RenderBuilder:
             rename[name] = new
             node["name"] = new
             node["extras"] = {"svmap": {"role": "libraryMesh", "asset": asset, "variant": variant}}
+            if not variant and asset in particle:
+                node["extras"]["svmap"]["particle"] = True
             library_children.append(i)
         n = len(gltf["nodes"])
         gltf["nodes"].append({"name": "World", "children": world_children, "extras": {"svmap": {"role": "world"}}})
@@ -339,14 +377,9 @@ class RenderBuilder:
 
     def build_fx(self, scene: dict, textures: set) -> dict:
         emitters = {}
-        for info in self.src.actors:
-            if not self.src.db.is_a(info.cls, "Engine.Emitter") or info.category in ("editor", "skipped"):
-                continue
+        for info in self._emitters():
             subs = []
-            for r in self.src.value(info, "Emitters") or []:
-                if not isinstance(r, Ref) or r.ref == 0:
-                    continue
-                cls, decoded, _refs, _pkg = self._decode_object(r.path)
+            for r, cls, decoded in self._emitter_subs(info):
                 props = bag_to_json(decoded, default_resolver, self.src.notes, r.path)
                 sub = {"object": r.path, "class": cls, "props": props}
                 tex = props.get("Texture")
@@ -368,6 +401,7 @@ class RenderBuilder:
                 extra["patches"].append(a)
         self.stats["emitters"] = len(emitters)
         self.stats["subEmitters"] = sum(len(e["emitters"]) for e in emitters.values())
+        self.stats["particleMeshes"] = len({r.path for r in self._particle_meshes()})
         return {"emitters": emitters, **extra}
 
     # ---- all ---------------------------------------------------------------------------------

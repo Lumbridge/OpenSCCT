@@ -60,6 +60,18 @@ public sealed class ActorLighting
         }
     }
 
+    /// <summary>Moves a light (one riding a mover or a bone); takes effect at the next <see cref="Select"/>.</summary>
+    public void SetPlace(string name, FVector location, FRotator rotation)
+    {
+        for (int i = 0; i < _lights.Count; i++)
+        {
+            if (string.Equals(_lights[i].Name, name, StringComparison.OrdinalIgnoreCase))
+            {
+                _lights[i] = _lights[i] with { Location = location, Rotation = rotation };
+            }
+        }
+    }
+
     /// <summary>
     /// The light set of an actor whose bounding sphere is (<paramref name="center"/>, <paramref name="radius"/>) in
     /// uu. <paramref name="ambient"/> is A in display units (zone ambient plus AmbientGlow / 255); <paramref name="zone"/>

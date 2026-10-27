@@ -217,6 +217,30 @@ public sealed class RenderMap
     /// </summary>
     public Dictionary<string, ArrayMesh> SwapMeshes { get; } = new(StringComparer.OrdinalIgnoreCase);
 
+    /// <summary>The static meshes the map's MeshEmitters draw, by asset path (ignoring case), lit by the actor.</summary>
+    public Dictionary<string, ArrayMesh> ParticleMeshes { get; } = new(StringComparer.OrdinalIgnoreCase);
+
+    private readonly Dictionary<string, (FVector Location, FRotator Rotation)> _lightPlaces = new(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>
+    /// Moves a map light by its actor name (an STriggerLight riding a mover or hung on an SAnimatedMesh bone): the
+    /// world term, the actor lighting and its corona follow.
+    /// </summary>
+    public void MoveLight(string name, FVector location, FRotator rotation)
+    {
+        _lightPlaces[name] = (location, rotation);
+        WorldLights.SetPlace(name, location, rotation);
+        ActorLighting.SetPlace(name, location, rotation);
+    }
+
+    /// <summary>Where the light <paramref name="name"/> was last moved to; false while it has not moved.</summary>
+    public bool TryGetLightPlace(string name, out FVector location, out FRotator rotation)
+    {
+        bool moved = _lightPlaces.TryGetValue(name, out (FVector Location, FRotator Rotation) place);
+        (location, rotation) = place;
+        return moved;
+    }
+
     /// <summary>True when the world BSP alone does not block the line (static meshes and volumes are ignored).</summary>
     public bool BspLineOfSight(FVector from, FVector to) =>
         Zones is null || !Zones.LineCheck(out _, null, to, from, default,
@@ -430,6 +454,7 @@ public static class MapBuilder
         private readonly List<string> _materialNames = [];
         private readonly Dictionary<string, int> _libraryMeshes = new(StringComparer.Ordinal);
         private readonly HashSet<string> _usedLibraryMeshes = new(StringComparer.Ordinal);
+        private readonly HashSet<string> _particleMeshes = new(StringComparer.Ordinal);
         private readonly Dictionary<int, MeshPrimitive[]> _primitives = [];
         private readonly SortedDictionary<(int X, int Y, int Sky), Dictionary<(string, LightSource), SurfaceBuilder>> _cells = new();
         private readonly Dictionary<(string Mesh, LightSource Light, int Glow), ArrayMesh> _shared = [];
@@ -477,7 +502,9 @@ public static class MapBuilder
         {
             foreach ((string name, int mesh) in _libraryMeshes)
             {
-                if (_usedLibraryMeshes.Contains(name) || name.Contains('#', StringComparison.Ordinal))
+                bool used = _usedLibraryMeshes.Contains(name);
+                bool particle = _particleMeshes.Contains(name);
+                if ((used && !particle) || name.Contains('#', StringComparison.Ordinal))
                 {
                     continue;
                 }
@@ -497,7 +524,15 @@ public static class MapBuilder
 
                 if (arrayMesh.GetSurfaceCount() > 0)
                 {
-                    _map.SwapMeshes[name] = arrayMesh;
+                    if (!used)
+                    {
+                        _map.SwapMeshes[name] = arrayMesh;
+                    }
+
+                    if (particle)
+                    {
+                        _map.ParticleMeshes[name] = arrayMesh;
+                    }
                 }
             }
         }
@@ -542,6 +577,10 @@ public static class MapBuilder
                 else if (role == "libraryMesh" && node.TryGetProperty("name", out JsonElement name))
                 {
                     _libraryMeshes[name.GetString() ?? ""] = meshEl.GetInt32();
+                    if (sv.TryGetProperty("particle", out JsonElement particle) && particle.ValueKind == JsonValueKind.True)
+                    {
+                        _particleMeshes.Add(name.GetString() ?? "");
+                    }
                 }
             }
         }
