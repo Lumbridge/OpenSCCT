@@ -684,9 +684,9 @@ internal sealed class MainForm : Form
         }
 
         // Only when it cannot stage the update itself (read-only folder). One already staged keeps its restart button.
-        if (check.LauncherUpdateAvailable && check.Latest is { } l && _swap is not { HasStaged: true })
+        if (check.LauncherUpdateAvailable && check.LatestLauncher is { } l && _swap is not { HasStaged: true })
         {
-            _launcherInfo.Text = $"Launcher {l.Version} is available. Download it from the OpenSCCT releases page (this folder is read only).";
+            _launcherInfo.Text = $"Launcher {l} is available. Download it from the OpenSCCT releases page (this folder is read only).";
             _launcherButton.Visible = false;
             _launcherBanner.Visible = true;
         }
@@ -751,9 +751,10 @@ internal sealed class MainForm : Form
             return;
         }
 
-        SetStatus($"Downloading launcher {latest.Version}...", Theme.Muted);
+        SemVersion? launcher = ReleasePicker.LauncherVersion(latest);
+        SetStatus($"Downloading launcher {launcher}...", Theme.Muted);
         await _service.StageLauncherAsync(latest, _swap, ProgressReporter(), cancel);
-        _launcherInfo.Text = $"Launcher {latest.Version} is ready. Restart the launcher to use it.";
+        _launcherInfo.Text = $"Launcher {launcher} is ready. Restart the launcher to use it.";
         _launcherButton.Visible = true;
         _launcherBanner.Visible = true;
         SetStatus(string.Empty, Theme.Muted);

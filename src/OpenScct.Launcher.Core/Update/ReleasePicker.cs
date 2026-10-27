@@ -18,7 +18,8 @@ public sealed record VersionedRelease(SemVersion Version, ReleaseInfo Release)
 
 /// <summary>
 /// Picks the release and the files to download. Names written by tools/release/New-Release.ps1: a version release
-/// (<c>v0.6.1</c>) carries only <c>OpenSCCT.Launcher-0.6.1-win-x64.exe</c>, so players see one download. Everything
+/// (<c>v0.6.1</c>, the game's version) carries only the launcher, named by the launcher's own version
+/// (<c>OpenSCCT.Launcher-0.6.0-win-x64.exe</c>), so players see one download. Everything
 /// else is in the game files release (<see cref="StoreTag"/>): the build's file list
 /// <c>OpenSCCT-0.6.1-win-x64-files.json</c>, the files themselves, and one <c>&lt;asset&gt;.sha256</c> per file list
 /// and launcher. Older releases with <c>OpenSCCT-0.2.0-win-x64.zip</c> and <c>checksums.txt</c> in the version release
@@ -90,12 +91,39 @@ public static class ReleasePicker
                 && a.Name.EndsWith($"-{Platform}.zip", StringComparison.OrdinalIgnoreCase));
     }
 
-    /// <summary>The launcher exe of the release, or null when the release does not carry one.</summary>
-    public static ReleaseAsset? LauncherAsset(VersionedRelease release)
+    /// <summary>
+    /// The launcher exe of the release, or null when the release does not carry one. The launcher has its own version
+    /// (LauncherVersion in Directory.Build.props), named in the asset: a game release carries the current launcher,
+    /// often an older version than the game's. With several, the newest.
+    /// </summary>
+    public static ReleaseAsset? LauncherAsset(VersionedRelease release) => Launcher(release)?.Asset;
+
+    /// <summary>The version of the release's launcher exe (from its name), or null when it carries none.</summary>
+    public static SemVersion? LauncherVersion(VersionedRelease release) => Launcher(release)?.Version;
+
+    private static (ReleaseAsset Asset, SemVersion Version)? Launcher(VersionedRelease release)
     {
         ArgumentNullException.ThrowIfNull(release);
-        string exact = LauncherAssetName(release.Version);
-        return release.Release.Assets.FirstOrDefault(a => string.Equals(a.Name, exact, StringComparison.OrdinalIgnoreCase));
+        (ReleaseAsset Asset, SemVersion Version)? best = null;
+        string suffix = $"-{Platform}.exe";
+        foreach (ReleaseAsset asset in release.Release.Assets)
+        {
+            string name = asset.Name;
+            if (!name.StartsWith(LauncherPrefix, StringComparison.OrdinalIgnoreCase)
+                || !name.EndsWith(suffix, StringComparison.OrdinalIgnoreCase)
+                || name.Length <= LauncherPrefix.Length + suffix.Length
+                || !SemVersion.TryParse(name[LauncherPrefix.Length..^suffix.Length], out SemVersion? version))
+            {
+                continue;
+            }
+
+            if (best is null || version > best.Value.Version)
+            {
+                best = (asset, version);
+            }
+        }
+
+        return best;
     }
 
     /// <summary>

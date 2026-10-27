@@ -42,24 +42,33 @@ into every assembly; `OpenScct.Net.Discovery.BuildInfo` reads them back for the 
 menus, which show "OpenSCCT 0.5.0  build 20261026.1737 (a82eaa0)" in the bottom-right corner of the main menu and
 the options.
 
+**The launcher has its own version**, `LauncherVersion` in `Directory.Build.props` (0.8.7), apart from the game's.
+Bump it only when the launcher changes (`src/OpenScct.Launcher`, `src/OpenScct.Launcher.Core`, `src/OpenScct.Maps`,
+the icon). A game release carries the same launcher exe again, so players' launchers update themselves only when there
+is a new launcher. The launcher reads the version of a release's launcher from the asset name, not from the release
+tag (launchers up to 0.8.6 compared the tag, so every game release updated them).
+
 ## Build and publish
 
 ```
 dotnet build OpenSCCT.slnx                                         builds the launcher with everything else
 dotnet test --project tests/OpenScct.Launcher.Tests                the launcher tests
-dotnet publish src/OpenScct.Launcher -c Release -r win-x64 -p:Version=0.2.0
+dotnet publish src/OpenScct.Launcher -c Release -r win-x64
 ```
 
 `-r win-x64` turns on the publish settings in the project: self-contained, single file, compressed, ReadyToRun.
 The result is one `OpenSCCT.Launcher.exe` in `src/OpenScct.Launcher/bin/Release/net10.0-windows/win-x64/publish/`
-that runs without an installed .NET. Pass the release version as `-p:Version`: the launcher compares it with the
-release tag to decide whether it needs to update itself. A framework-dependent build is much smaller (add
+that runs without an installed .NET, stamped with `LauncherVersion`: the launcher compares it with the version in a
+release's launcher asset name to decide whether it needs to update itself. A framework-dependent build is much smaller (add
 `--self-contained false -p:PublishReadyToRun=false`) but needs the .NET 10 Desktop Runtime on the player's machine.
 
 ## Making a release
 
 1. Export the game from a pushed commit (Godot, preset "Windows Desktop", to `local\build\OpenSCCT.exe`).
-2. `tools\release\New-Release.ps1 -Version 0.2.0 -PublishLauncher`
+2. `tools\release\New-Release.ps1 -Version 0.2.0`. The launcher is built only when `LauncherVersion` has not been
+   made before; its exe and the git trees of its sources are kept in `local\release\launchers\<version>\`, and later
+   releases attach that same exe. A release whose launcher sources changed under an old `LauncherVersion` is refused:
+   bump it.
 3. Edit `local\release\0.2.0\notes.md`, then run `local\release\0.2.0\publish.ps1`: it uploads the game files to
    the `game-files` release in batches (made the first time) and then creates the draft version release with the
    launcher only (run it again to retry a failed upload).
@@ -71,7 +80,7 @@ The script refuses a build that has original game file types or converted conten
 `override.cfg` and logs, adds `openscct-build.json` (version, commit, dirty flag, time) and writes two sets of
 assets. Players see one download per version; everything else is the launcher's business.
 
-**The version release** (`v<version>`) holds only `OpenSCCT.Launcher-<version>-win-x64.exe`.
+**The version release** (`v<version>`, the game's version) holds only `OpenSCCT.Launcher-<launcher version>-win-x64.exe`.
 
 **The game files release** (tag `game-files`, one for every version, a prerelease so it is never "Latest"):
 

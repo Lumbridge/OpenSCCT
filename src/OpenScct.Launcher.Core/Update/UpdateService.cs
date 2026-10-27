@@ -18,7 +18,11 @@ public sealed record UpdateCheck(
     VersionedRelease? Latest,
     SemVersion? Installed,
     bool GameUpdateAvailable,
-    bool LauncherUpdateAvailable);
+    bool LauncherUpdateAvailable)
+{
+    /// <summary>The version of the launcher the latest release carries (its own, not the game's), or null.</summary>
+    public SemVersion? LatestLauncher { get; init; }
+}
 
 public enum InstallOutcome
 {
@@ -78,9 +82,10 @@ public sealed class UpdateService
         SemVersion? installed = _store.Current();
         bool game = latest is not null && (ReleasePicker.FilesAsset(latest) is not null || ReleasePicker.GameAsset(latest) is not null)
             && (installed is null || latest.Version > installed);
-        bool launcher = latest is not null && launcherVersion is not null
-            && latest.Version > launcherVersion && ReleasePicker.LauncherAsset(latest) is not null;
-        return new UpdateCheck(feed, latest, installed, game, launcher);
+        // The launcher updates itself only to a newer launcher: a game release usually carries the same one again.
+        SemVersion? latestLauncher = latest is null ? null : ReleasePicker.LauncherVersion(latest);
+        bool launcher = latestLauncher is not null && launcherVersion is not null && latestLauncher > launcherVersion;
+        return new UpdateCheck(feed, latest, installed, game, launcher) { LatestLauncher = latestLauncher };
     }
 
     /// <summary>Folders a running game uses. A game whose exe path cannot be read counts as using every version.</summary>
@@ -186,7 +191,7 @@ public sealed class UpdateService
         ArgumentNullException.ThrowIfNull(release);
         ArgumentNullException.ThrowIfNull(swap);
         ReleaseAsset asset = ReleasePicker.LauncherAsset(release)
-            ?? throw new UpdateRejectedException($"Release {release.Version} has no launcher ({ReleasePicker.LauncherAssetName(release.Version)}).");
+            ?? throw new UpdateRejectedException($"Release {release.Version} has no launcher ({ReleasePicker.LauncherPrefix}*-{ReleasePicker.Platform}.exe).");
         string file = await DownloadVerifiedAsync(release, asset, progress, cancel).ConfigureAwait(false);
         swap.Stage(file);
         TryDeleteFile(file);

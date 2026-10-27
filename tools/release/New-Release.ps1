@@ -4,15 +4,19 @@
     them. Publishes nothing itself.
 
 .DESCRIPTION
-    A version release (v<version>) carries only the launcher, so players see one download. Everything the launcher
-    fetches itself goes to the game files release (tag game-files, shared by every version).
+    A version release (v<version>, the game's version) carries only the launcher, so players see one download.
+    Everything the launcher fetches itself goes to the game files release (tag game-files, shared by every version).
+
+    The launcher has its own version (LauncherVersion in Directory.Build.props). It is built only when that version is
+    new; otherwise the release carries the exe made before, so players' launchers update themselves only when the
+    launcher changed. Launcher sources that changed under a version already made stop the release.
 
     Writes to local\release\<version>\ (gitignored):
-        OpenSCCT.Launcher-<version>-win-x64.exe          the launcher: the only asset of the version release
+        OpenSCCT.Launcher-<launcher version>-win-x64.exe the launcher: the only asset of the version release
         game-files\                                       what goes to the game files release:
             OpenSCCT-<version>-win-x64-files.json         the build's file list (delta updates)
             OpenSCCT-<version>-win-x64-files.json.sha256  its SHA-256
-            OpenSCCT.Launcher-<version>-win-x64.exe.sha256  the launcher's SHA-256
+            OpenSCCT.Launcher-<launcher version>-win-x64.exe.sha256  the launcher's SHA-256
             <sha256>.gz, OpenSCCT-<version>-win-x64-pack.zip  the build's new file contents
         notes.md                                         release notes template (when -NotesFile is not given)
         publish.ps1                                      uploads the game files, then makes the draft version release
@@ -25,7 +29,7 @@
 .EXAMPLE
     tools\release\New-Release.ps1 -Version 0.2.0
 .EXAMPLE
-    tools\release\New-Release.ps1 -Version 0.3.0-beta.1 -BuildDir local\testbuild -PublishLauncher
+    tools\release\New-Release.ps1 -Version 0.3.0-beta.1 -BuildDir local\testbuild
 #>
 #Requires -Version 7
 [CmdletBinding()]
@@ -36,10 +40,10 @@ param(
     # Folder with the exported game (OpenSCCT.exe and its data folder).
     [string]$BuildDir,
 
-    # Launcher exe to attach. Default: the dotnet publish output, if it exists.
+    # Launcher exe to attach instead of the kept or newly built one (local\release\launchers\<LauncherVersion>).
     [string]$LauncherExe,
 
-    # Run dotnet publish for the launcher with this version first.
+    # Kept so older command lines still work: the launcher is built on its own when its version is new.
     [switch]$PublishLauncher,
 
     # Leave the launcher out of the release.
@@ -257,25 +261,61 @@ Write-Host ('{0} files, {1:N1} MB; {2} new files in {3} uploads ({4:N1} MB compr
 Remove-Item -LiteralPath $staging -Recurse -Force
 
 if (-not $SkipLauncher) {
-    $project = Join-Path $repoRoot 'src\OpenScct.Launcher\OpenScct.Launcher.csproj'
-    $publishDir = Join-Path $repoRoot 'src\OpenScct.Launcher\bin\Release\net10.0-windows\win-x64\publish'
-    if ($PublishLauncher) {
-        & dotnet publish $project -c Release -r win-x64 "-p:Version=$Version" -o $publishDir
-        if ($LASTEXITCODE -ne 0) { throw 'dotnet publish of the launcher failed.' }
+    # The launcher has its own version (LauncherVersion in Directory.Build.props, bumped only when it changes): a game
+    # release carries the same launcher exe again, byte for byte, so players' launchers do not update themselves for
+    # nothing. Each launcher version's exe and the git trees of its sources are kept in local\release\launchers\; a
+    # release refuses launcher sources that changed under a version that was already made.
+    $props = Get-Content -Raw -LiteralPath (Join-Path $repoRoot 'Directory.Build.props')
+    if ($props -notmatch '<LauncherVersion>([^<]+)</LauncherVersion>') { throw 'No LauncherVersion in Directory.Build.props.' }
+    $launcherVersion = $Matches[1].Trim()
+    if ($launcherVersion -notmatch $semver) { throw "LauncherVersion '$launcherVersion' is not MAJOR.MINOR.PATCH[-PRERELEASE]." }
+    $sources = 'src/OpenScct.Launcher', 'src/OpenScct.Launcher.Core', 'src/OpenScct.Maps', 'game/branding/icon.ico'
+    $fingerprint = ($sources | ForEach-Object { (& git -C $repoRoot rev-parse "${commit}:$_").Trim() }) -join ' '
+    $launcherName = "OpenSCCT.Launcher-$launcherVersion-win-x64.exe"
+    # In the main checkout even when the release is made from a linked worktree (which is removed afterwards).
+    $mainRoot = Split-Path -Parent ((& git -C $repoRoot rev-parse --path-format=absolute --git-common-dir).Trim())
+    $kept = Join-Path $mainRoot "local\release\launchers\$launcherVersion"
+    $keptExe = Join-Path $kept $launcherName
+    $keptRecord = Join-Path $kept 'launcher.json'
+    if ($LauncherExe) {
+        Write-Warning "Using $LauncherExe as launcher $launcherVersion as given."
     }
-    if (-not $LauncherExe) { $LauncherExe = Join-Path $publishDir 'OpenSCCT.Launcher.exe' }
-    if (Test-Path $LauncherExe) {
-        $launcherAsset = Join-Path $OutDir "OpenSCCT.Launcher-$Version-win-x64.exe"
-        Copy-Item -LiteralPath $LauncherExe -Destination $launcherAsset
-        $assets += $launcherAsset
-        $stamped = (Get-Item $LauncherExe).VersionInfo.ProductVersion
-        if ($stamped -and -not $stamped.StartsWith($Version)) {
-            Write-Warning "The launcher exe says version '$stamped', not $Version. Publish it with -PublishLauncher so it does not offer itself as an update forever."
+    elseif (Test-Path -LiteralPath $keptRecord) {
+        $record = Get-Content -Raw -LiteralPath $keptRecord | ConvertFrom-Json
+        if ($record.sources -ne $fingerprint) {
+            throw "The launcher's sources changed since launcher $launcherVersion was made (commit $($record.commit)). Bump LauncherVersion in Directory.Build.props."
         }
+        if (-not (Test-Path -LiteralPath $keptExe)) {
+            & gh release download --repo $Repo --pattern $launcherName --dir $kept 2>$null
+        }
+        if (-not (Test-Path -LiteralPath $keptExe) -or (Get-FileHash -LiteralPath $keptExe -Algorithm SHA256).Hash.ToLowerInvariant() -ne $record.sha256) {
+            throw "Launcher $launcherVersion's exe is missing from $kept (or differs from the one made). Put the released $launcherName there."
+        }
+        Write-Host "Launcher $launcherVersion unchanged: the release carries the same exe again."
+        $LauncherExe = $keptExe
     }
     else {
-        Write-Warning "No launcher exe at $LauncherExe; the release will not update launchers. Use -PublishLauncher or -SkipLauncher."
+        # A launcher version not made here yet: build it once and keep it.
+        $project = Join-Path $repoRoot 'src\OpenScct.Launcher\OpenScct.Launcher.csproj'
+        $publishDir = Join-Path $repoRoot 'src\OpenScct.Launcher\bin\Release\net10.0-windows\win-x64\publish'
+        & dotnet publish $project -c Release -r win-x64 "-p:Version=$launcherVersion" -o $publishDir
+        if ($LASTEXITCODE -ne 0) { throw 'dotnet publish of the launcher failed.' }
+        New-Item -ItemType Directory -Force -Path $kept | Out-Null
+        Copy-Item -LiteralPath (Join-Path $publishDir 'OpenSCCT.Launcher.exe') -Destination $keptExe -Force
+        [ordered]@{
+            version = $launcherVersion; commit = $commit; sources = $fingerprint
+            sha256 = (Get-FileHash -LiteralPath $keptExe -Algorithm SHA256).Hash.ToLowerInvariant()
+        } | ConvertTo-Json | Set-Content -LiteralPath $keptRecord -Encoding utf8NoBOM
+        Write-Host "Launcher $launcherVersion is new: built and kept in $kept."
+        $LauncherExe = $keptExe
     }
+    $stamped = (Get-Item $LauncherExe).VersionInfo.ProductVersion
+    if (-not $stamped -or -not $stamped.StartsWith($launcherVersion)) {
+        throw "The launcher exe says version '$stamped', not $launcherVersion."
+    }
+    $launcherAsset = Join-Path $OutDir $launcherName
+    Copy-Item -LiteralPath $LauncherExe -Destination $launcherAsset -Force
+    $assets += $launcherAsset
 }
 
 foreach ($file in @($filesJson) + $assets) {
