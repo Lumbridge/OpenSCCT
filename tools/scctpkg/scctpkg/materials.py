@@ -107,6 +107,18 @@ class ResolvedMaterial:
     # Texture.AnimNext chain (animated texture, e.g. Aquarium Caustic1.C01..C16): {"frames": [Texture], "fps": float};
     # `texture` stays the first frame.
     flipbook: Optional[dict] = None
+    # Shader inputs with their own texture modifiers. UE2 transforms each stage of a Shader by its own modifier chain,
+    # so an Opacity or SpecularityMask that pans at another rate than the Diffuse (ClubD's CLU_Water_01_SH) cannot be
+    # baked into the diffuse's alpha: the exporter writes them as separate layers when they differ from the Diffuse.
+    opacity_anim: Optional[dict] = None
+    opacity_matrix: Optional[Tuple[float, float, float, float, float, float]] = None
+    opacity_layer: bool = False
+    spec_mask_anim: Optional[dict] = None
+    spec_mask_matrix: Optional[Tuple[float, float, float, float, float, float]] = None
+    # The env map's own 2D texture (a TexEnvMap over a Texture; cube maps leave it None): the client looks it up by the
+    # camera-space reflection instead of adding its mean colour.
+    env_texture: Optional[Texture] = None
+    env_key: str = ""
 
     @property
     def skip(self) -> bool:
@@ -161,6 +173,19 @@ def _uv_anim(cls: str, props: dict) -> Optional[dict]:
                 "rotation_type": int(props.get("TexRotationType", 0) or 0),
                 "u_offset": float(props.get("UOffset", 0.0) or 0.0), "v_offset": float(props.get("VOffset", 0.0) or 0.0)}
     return None
+
+
+def _copy_layers(result: ResolvedMaterial, inner: ResolvedMaterial) -> None:
+    """A FinalBlend or modifier around a Shader keeps the Shader's separately moving layers (when it has none itself)."""
+    if result.opacity_layer or result.opacity_anim or result.opacity_matrix:
+        return
+    if result.opacity is inner.opacity:
+        result.opacity_anim, result.opacity_matrix = inner.opacity_anim, inner.opacity_matrix
+        result.opacity_layer = inner.opacity_layer
+    if result.spec_mask is inner.spec_mask and result.spec_mask_anim is None and result.spec_mask_matrix is None:
+        result.spec_mask_anim, result.spec_mask_matrix = inner.spec_mask_anim, inner.spec_mask_matrix
+    if result.env_texture is None:
+        result.env_texture, result.env_key = inner.env_texture, inner.env_key
 
 
 class MaterialResolver:
@@ -267,6 +292,7 @@ class MaterialResolver:
                 op = self.resolve(owner, int(props["Opacity"]), depth + 1)
                 if op.texture is not None:
                     result.opacity = op.texture
+                    result.opacity_anim, result.opacity_matrix = op.uv_anim, op.uv_matrix
                     # OB_Normal with an Opacity texture is alpha blended (it was exported opaque: AquaE's fog sheet
                     # covered a wall, glass and water drew as solid slabs).
                     if ob == 0:
@@ -286,10 +312,12 @@ class MaterialResolver:
                     import numpy as _np
                     px = _np.asarray(env.texture.image.convert("RGB"), dtype=_np.float32) / 255.0
                     result.env_color = tuple(float(c) for c in px.reshape(-1, 3).mean(0))
+                    result.env_texture, result.env_key = env.texture, env.key
                 if props.get("SpecularityMask"):
                     sm = self.resolve(owner, int(props["SpecularityMask"]), depth + 1)
                     if sm.texture is not None:
                         result.spec_mask, result.spec_mask_key = sm.texture, sm.key
+                        result.spec_mask_anim, result.spec_mask_matrix = sm.uv_anim, sm.uv_matrix
             if props.get("SelfIllumination"):
                 result.unlit = True
                 si = self.resolve(owner, int(props["SelfIllumination"]), depth + 1)
@@ -384,6 +412,7 @@ class MaterialResolver:
                             result.spec_mask, result.spec_mask_key = inner.spec_mask, inner.spec_mask_key
                         if result.opacity is None and inner.opacity is not None:
                             result.opacity, result.opacity_key = inner.opacity, getattr(inner, "opacity_key", "")
+                        _copy_layers(result, inner)
                     if cls not in ("Shader", "FinalBlend"):
                         result.translucent = result.translucent or inner.translucent
                         result.masked = result.masked or inner.masked
@@ -399,7 +428,15 @@ class MaterialResolver:
                             result.spec_mask, result.spec_mask_key = inner.spec_mask, inner.spec_mask_key
                         if result.opacity is None:
                             result.opacity = inner.opacity   # a panner/scaler around an opacity Shader keeps its alpha
+                        _copy_layers(result, inner)
                     break
+        if cls == "Shader" and result.opacity is not None:
+            # The Opacity moves on its own (another panner or rate than the Diffuse): a separate layer, not a bake.
+            result.opacity_layer = (result.opacity_anim, result.opacity_matrix) != (result.uv_anim, result.uv_matrix)
+        if cls == "Combiner" and result.combine and any(a or m for a, m in result.combine["anims"].values()):
+            # The inputs carry their own modifiers (exported per input): Material1's must not also apply to the whole
+            # Combiner, or it would move twice.
+            result.uv_anim, result.uv_matrix = None, None
         if result.texture is None and cls == "MaterialSequence":
             # Animated screens (security-room feeds, monitors, blinking mines) have no FallbackMaterial: show the
             # sequence's first frame.

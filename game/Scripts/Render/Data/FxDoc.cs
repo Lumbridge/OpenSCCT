@@ -78,12 +78,94 @@ public sealed class FxEmitter
         Props.TryGetProperty(name, out JsonElement v) && v.ValueKind == JsonValueKind.Number ? v.GetSingle() : fallback;
 }
 
+/// <summary>
+/// An ERainVolume of render/fx.json rain[] (UE units): its location (the floor of the box), DrawScale x DrawScale3D, and
+/// the volume's m_RainSize, m_RainFalloff, m_RainFadeScale, m_DistanceToCamera, m_maxDistFromCamera, m_RainThickness,
+/// m_RainMatScale, with the rain material's texture, blend and panner.
+/// </summary>
+public sealed record RainEntry(
+    string Name,
+    FVector Location,
+    FVector Scale,
+    FVector Size,
+    float Falloff,
+    float FadeScale,
+    float DistanceToCamera,
+    float MaxDistance,
+    float Thickness,
+    float MatScale,
+    string? Texture,
+    bool Additive,
+    UvAnimRaw? Panner);
+
+/// <summary>A TexFriendlyPanner's stored values (PanU, PanV, PanRate, scaleU, scaleV).</summary>
+public sealed record UvAnimRaw(float PanU, float PanV, float Rate, float ScaleU, float ScaleV);
+
 /// <summary>render/fx.json: the map's Emitter actors with their sub-emitters (spec/svmap/1.1).</summary>
 public sealed class FxDoc
 {
     private JsonDocument? _doc;
 
     public List<FxEmitter> Emitters { get; } = [];
+
+    public List<RainEntry> Rain { get; } = [];
+
+    /// <summary>Only the rain volumes of render/fx.json (empty when the file is missing).</summary>
+    public static List<RainEntry> LoadRain(string path)
+    {
+        var rain = new List<RainEntry>();
+        if (!File.Exists(path))
+        {
+            return rain;
+        }
+
+        using JsonDocument doc = JsonDocument.Parse(File.ReadAllBytes(path));
+        ReadRain(doc.RootElement, rain);
+        return rain;
+    }
+
+    private static void ReadRain(JsonElement root, List<RainEntry> into)
+    {
+        if (!root.TryGetProperty("rain", out JsonElement list) || list.ValueKind != JsonValueKind.Array)
+        {
+            return;
+        }
+
+        foreach (JsonElement a in list.EnumerateArray())
+        {
+            if (!a.TryGetProperty("rain", out JsonElement r) || r.ValueKind != JsonValueKind.Object)
+            {
+                continue;
+            }
+
+            UvAnimRaw? panner = null;
+            if (r.TryGetProperty("uv_anim", out JsonElement anim) && anim.ValueKind == JsonValueKind.Object
+                && MaterialsDoc.Str(anim, "type") == "friendly_panner")
+            {
+                panner = new UvAnimRaw(Num(anim, "pan_u"), Num(anim, "pan_v"), Num(anim, "rate", 0.1f), Num(anim, "scale_u", 1f), Num(anim, "scale_v", 1f));
+            }
+
+            into.Add(new RainEntry(
+                MaterialsDoc.Str(a, "name") ?? "",
+                Vec(a, "location", default),
+                Vec(a, "scale", new FVector(1f, 1f, 1f)),
+                Vec(r, "size", new FVector(250f, 250f, 450f)),
+                Num(r, "falloff", 100f),
+                Num(r, "fade_scale", -1f),
+                Num(r, "distance_to_camera", 80f),
+                Num(r, "max_dist", 1000f),
+                Num(r, "thickness", 80f),
+                Num(r, "mat_scale", 10f),
+                MaterialsDoc.Str(r, "texture_uri"),
+                !r.TryGetProperty("additive", out JsonElement add) || add.ValueKind != JsonValueKind.False,
+                panner));
+        }
+    }
+
+    private static FVector Vec(JsonElement e, string name, FVector fallback) =>
+        e.TryGetProperty(name, out JsonElement v) && v.ValueKind == JsonValueKind.Array && v.GetArrayLength() >= 3
+            ? new FVector(v[0].GetSingle(), v[1].GetSingle(), v[2].GetSingle())
+            : fallback;
 
     public static FxDoc Load(string path, string sharedRoot)
     {
@@ -94,6 +176,7 @@ public sealed class FxDoc
         }
 
         fx._doc = JsonDocument.Parse(File.ReadAllBytes(path));
+        ReadRain(fx._doc.RootElement, fx.Rain);
         SharedClasses classes = SharedClasses.Load(sharedRoot);
         if (!fx._doc.RootElement.TryGetProperty("emitters", out JsonElement emitters))
         {
@@ -138,8 +221,8 @@ public sealed class FxDoc
         return fx;
     }
 
-    private static float Num(JsonElement e, string name) =>
-        e.TryGetProperty(name, out JsonElement v) && v.ValueKind == JsonValueKind.Number ? v.GetSingle() : 0f;
+    private static float Num(JsonElement e, string name, float fallback = 0f) =>
+        e.TryGetProperty(name, out JsonElement v) && v.ValueKind == JsonValueKind.Number ? v.GetSingle() : fallback;
 }
 
 /// <summary>Effective class defaults of the shared class pack (.content/shared/classes.json), loaded once.</summary>

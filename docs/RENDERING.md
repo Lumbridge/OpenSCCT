@@ -148,7 +148,22 @@ outdoor zones end at 8000).
 |---|---|
 | light | `LIGHT_LIGHTMAP` (BSP, UV2), `LIGHT_VERTEX` (baked colours), `LIGHT_ACTOR` (actor lighting), none (fullbright) |
 | blend | opaque; masked (alpha test 0.5); translucent (SRCALPHA, INVSRCALPHA); additive (ONE, ONE, also standing in for the screen blend ONE, INVSRCCOLOR); modulate (dest x src x 2); darken (dest x (1 - src)) |
-| extras | `SELF_ILLUM` (+ `_MASK`): lit diffuse lerped to SelfIllumination by the mask alpha; `ENV_COLOR`: the env map's mean colour x SpecularityMask alpha; `UV_ANIM`: panner, friendly panner, oscillator (pan and stretch), constant rotator |
+| extras | `SELF_ILLUM` (+ `_MASK`): lit diffuse lerped to SelfIllumination by the mask alpha; `ENV_COLOR`: the env map x SpecularityMask alpha, added (`ENV_TEX`: the env map's own 2D texture looked up by the camera-space reflection `0.25 R.xy + 0.5` like the EMF scene; without it, cube maps, its mean colour); `UV_ANIM`: panner, friendly panner, oscillator (pan and stretch), constant rotator; `OPACITY_LAYER`, `SPEC_LAYER`, `COMBINE`, `FLIPBOOK`: below |
+
+**Layers.** UE2 moves each input of a Shader or Combiner by its own modifier chain. The exporter writes an input
+apart when its modifiers differ from the Diffuse's, and the template evaluates it on its own, starting from the mesh's
+own UVs (`uv_matrix`, the transform baked into the UVs, is undone first): `OPACITY_LAYER` (an Opacity panning at its
+own rate, ClubD's `CLU_Water_01_SH`: alpha from that texture's alpha, or its luminance when the alpha is flat, as the
+old bake chose), `SPEC_LAYER` (the SpecularityMask). Otherwise Opacity stays baked into the diffuse's alpha.
+`COMBINE` evaluates a Combiner whose inputs animate (AquaE's sea `Aquarium_TXT.osc`: two panners at different rates
+under an oscillator; 98 materials in all): Material1, Material2 and the Mask each through their own modifiers after
+the Combiner's own, then CombineOperation (Material1, Material2, multiply, add, subtract, `lerp(M2, M1, mask.a)`,
+`M1 + M2 x mask.a`, mask colour), x Modulate2X / 4X, and AlphaOperation (mask alpha, multiply, add, Material1's,
+Material2's); InvertMask inverts the mask alpha; no Mask means Material1. Static Combiners stay a bake. `FLIPBOOK`
+plays an animated texture (Texture.AnimNext chain: AquaE caustics `SC01` 16 frames, ClubD's pool caustic projectors,
+AquaE's rain projectors) from an atlas, one frame per 1 / MaxFrameRate s (MinFrameRate when unset, else 30 fps
+[estimate: the game then steps a frame per rendered frame]). The game's MaterialSequence screens still show their
+first item.
 
 Two-sided materials disable culling. Unlit materials without self-illumination draw fullbright. Shaders are shared
 per variant (SteeE: 20 variants, 196 materials). Animated UVs follow the global `svm_time` (Level.TimeSeconds),
@@ -465,6 +480,26 @@ where the simulation put it; a bone rider sits on the drawn bone (RelativeLocati
 maps). The render-only Engine.Light actors with AttachTag (PanaD/PanaS `elevator`) are bStatic and not bMovable by
 class default and baked into the lightmaps: they stay put. The places are taken after the frame's emitters are
 simulated, so a moving emitter is one frame behind.
+
+## Rain volumes
+
+`RainVolumes` draws the map's ERainVolumes (`render/fx.json` rain; ClarD, Orph*, Skys*, Stat*, Aqua*) as
+AERainVolume::RenderRain does each frame (game 0x10a04d70; the volume's fields sit at 0x304..0x328 in reverse
+declaration order: Falloff, FadeScale, DistanceToCamera, maxDistFromCamera, then m_weatherProperties). The world box is
+(-X, -Y, 0)..(X, Y, Z) of m_RainSize x DrawScale x DrawScale3D from the volume's Location. Along X and along Y the
+camera coordinate is clamped to [min - D/2, max + D/2] (D = m_DistanceToCamera); vertical sheets stand at D/2, D/2 + T,
+... either side of it (T = m_RainThickness, 80 when 0), each spanning the box's other horizontal axis and its full
+height, with grey vertex colour `round(255 x clamp((Falloff - d) / Falloff x FadeScale, 0, 1))` at distance d. A sheet
+is drawn while it lies in [min, max) of its axis, its grey is not 0 and it is within m_maxDistFromCamera of the camera;
+the walk stops at the first step that draws neither sheet. So only the nearest sheets show (OrphD: two each way at
+75 uu, grey 0.125) and a negative FadeScale (Stat*) draws nothing. Texture coordinates repeat once per m_RainMatScale
+uu from a per-sheet offset; the material (StandardRainMaterial: FB_Translucent, drawn additive) pans them.
+
+Estimates: the per-sheet offsets (the game fills its 16-float table at run time), the TexFriendlyPanner as
+`scaleU x u + PanU x PanRate x t` (GetMatrix is not decoded), the floor origin of the box (from OrphD's BSP), the
+volume's rotation (left out; the shipped volumes turn at most a few degrees), the top-to-bottom tilt RenderRain gives
+the sheets from a camera term (not decoded; sheets are vertical). Thermal and EMF leave the rain out (the volume's
+HeatOpacity and EMFOpacity are 0), as they do additive surfaces.
 
 ## Characters
 

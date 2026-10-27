@@ -176,6 +176,29 @@ public sealed class MaterialCompiler
         if (m.EnvColor is not null && m.SpecMask is { } sm)
         {
             yield return (sm, Mipmapped(m, "SpecularityMask"));
+            if (m.EnvTexture is { } env)
+            {
+                yield return (env, false);
+            }
+        }
+
+        if (m.Opacity is { } op)
+        {
+            yield return (op.Texture, true);
+        }
+
+        if (m.Combine is { } c)
+        {
+            yield return (c.First.Texture, true);
+            yield return (c.Second.Texture, true);
+            if (c.Mask is { } mask)
+            {
+                yield return (mask.Texture, true);
+            }
+        }
+        else if (m.Flipbook is { } fb)
+        {
+            yield return (fb.Texture, true);
         }
     }
 
@@ -230,11 +253,26 @@ public sealed class MaterialCompiler
         bool selfIllumMask = selfIllum && entry.SelfIllumMask is not null;
         bool env = entry.EnvColor is not null && entry.SpecMask is not null;
         bool uvAnim = entry.UvAnim is { Code: > 0 };
-        Shader shader = ShaderFor(light, blend, entry.TwoSided, selfIllum, selfIllumMask, env, uvAnim);
+        CombineEntry? combine = entry.Combine;
+        FlipbookEntry? flipbook = combine is null ? entry.Flipbook : null;
+        var extras = new List<string>();
+        AddIf(extras, selfIllum, "SELF_ILLUM");
+        AddIf(extras, selfIllumMask, "SELF_ILLUM_MASK");
+        AddIf(extras, env, "ENV_COLOR");
+        AddIf(extras, env && entry.EnvTexture is not null, "ENV_TEX");
+        AddIf(extras, env && entry.SpecMaskLayer is not null, "SPEC_LAYER");
+        AddIf(extras, uvAnim, "UV_ANIM");
+        AddIf(extras, entry.Opacity is not null, "OPACITY_LAYER");
+        AddIf(extras, combine is not null, "COMBINE");
+        AddIf(extras, flipbook is not null, "FLIPBOOK");
+        Shader shader = ShaderFor(light, blend, entry.TwoSided, extras);
 
         var material = new ShaderMaterial { Shader = shader, ResourceName = entry.Name };
-        Texture2D? diffuse = _textures.Get(entry.Texture, Mipmapped(entry, "Diffuse"));
+        Texture2D? diffuse = combine is not null ? _textures.Get(combine.First.Texture, mipmaps: true)
+            : flipbook is not null ? _textures.Get(flipbook.Texture, mipmaps: true)
+            : _textures.Get(entry.Texture, Mipmapped(entry, "Diffuse"));
         SetTexture(material, "tex_diffuse", diffuse);
+        ApplyLayers(material, entry, combine, flipbook);
         if (light == LightSource.Lightmap)
         {
             SetTexture(material, "tex_lightmap", _textures.Get(entry.Lightmap, mipmaps: false));
@@ -253,6 +291,15 @@ public sealed class MaterialCompiler
         if (env)
         {
             SetTexture(material, "tex_spec_mask", _textures.Get(entry.SpecMask, Mipmapped(entry, "SpecularityMask")));
+            if (entry.EnvTexture is { } envTexture)
+            {
+                SetTexture(material, "tex_env", _textures.Get(envTexture, mipmaps: false));
+            }
+
+            if (entry.SpecMaskLayer is { } sm)
+            {
+                SetLayer(material, "sm", sm);
+            }
 
             // EnvColor is the env map's mean colour in linear light; the frame works in display values.
             Vector3 c = entry.EnvColor!.Value;
@@ -331,10 +378,72 @@ public sealed class MaterialCompiler
         }
     }
 
-    private Shader ShaderFor(LightSource light, MaterialBlend blend, bool twoSided, bool selfIllum, bool selfIllumMask,
-        bool env, bool uvAnim)
+    /// <summary>
+    /// The inputs evaluated on their own (docs/RENDERING.md#materials): a moving Opacity, the Combiner's inputs, the
+    /// flipbook atlas, and the transform that takes the mesh UVs back to their own for the separate layers.
+    /// </summary>
+    private void ApplyLayers(ShaderMaterial material, MaterialEntry entry, CombineEntry? combine, FlipbookEntry? flipbook)
     {
-        string key = $"{light}|{blend}|{twoSided}|{selfIllum}|{selfIllumMask}|{env}|{uvAnim}";
+        if (entry.Opacity is not null || entry.SpecMaskLayer is not null)
+        {
+            UvAffine undo = entry.UvMatrix?.Inverse() ?? UvAffine.Identity;
+            material.SetShaderParameter("base_row_u", undo.RowU);
+            material.SetShaderParameter("base_row_v", undo.RowV);
+        }
+
+        if (entry.Opacity is { } op)
+        {
+            SetTexture(material, "tex_opacity", _textures.Get(op.Texture, mipmaps: true));
+            SetLayer(material, "op", op);
+            material.SetShaderParameter("op_lum", entry.OpacityLum ? 1 : 0);
+        }
+
+        if (combine is not null)
+        {
+            SetTexture(material, "tex_c2", _textures.Get(combine.Second.Texture, mipmaps: true));
+            SetLayer(material, "c1", combine.First);
+            SetLayer(material, "c2", combine.Second);
+            if (combine.Mask is { } mask)
+            {
+                SetTexture(material, "tex_cmask", _textures.Get(mask.Texture, mipmaps: true));
+                SetLayer(material, "cm", mask);
+                material.SetShaderParameter("cmask_on", 1);
+            }
+
+            material.SetShaderParameter("combine", new Vector4I(combine.Op, combine.AlphaOp, (int)combine.Modulate, combine.InvertMask ? 1 : 0));
+        }
+
+        if (flipbook is not null)
+        {
+            material.SetShaderParameter("flipbook", new Vector4(flipbook.Cols, flipbook.Rows, flipbook.Frames, flipbook.Fps));
+        }
+    }
+
+    /// <summary>A layer's animation and static transform, as the shader's &lt;prefix&gt;_anim_* and &lt;prefix&gt;_row_* uniforms.</summary>
+    private static void SetLayer(ShaderMaterial material, string prefix, MaterialLayer layer)
+    {
+        UvAffine m = layer.Matrix ?? UvAffine.Identity;
+        material.SetShaderParameter(prefix + "_row_u", m.RowU);
+        material.SetShaderParameter(prefix + "_row_v", m.RowV);
+        if (layer.Anim is { Code: > 0 } a)
+        {
+            material.SetShaderParameter(prefix + "_anim_type", a.Code);
+            material.SetShaderParameter(prefix + "_anim_a", a.A);
+            material.SetShaderParameter(prefix + "_anim_b", a.B);
+        }
+    }
+
+    private static void AddIf(List<string> list, bool condition, string define)
+    {
+        if (condition)
+        {
+            list.Add(define);
+        }
+    }
+
+    private Shader ShaderFor(LightSource light, MaterialBlend blend, bool twoSided, List<string> extras)
+    {
+        string key = $"{light}|{blend}|{twoSided}|{string.Join(',', extras)}";
         if (_shaders.TryGetValue(key, out Shader? shader))
         {
             return shader;
@@ -379,10 +488,11 @@ public sealed class MaterialCompiler
             MaterialBlend.Darken => "BLEND_DARKEN",
             _ => null,
         });
-        Define(code, selfIllum ? "SELF_ILLUM" : null);
-        Define(code, selfIllumMask ? "SELF_ILLUM_MASK" : null);
-        Define(code, env ? "ENV_COLOR" : null);
-        Define(code, uvAnim ? "UV_ANIM" : null);
+        foreach (string extra in extras)
+        {
+            Define(code, extra);
+        }
+
         code.Append("#include \"").Append(TemplatePath).Append("\"\n");
         shader = new Shader { Code = code.ToString(), ResourceName = "svm_world " + key };
         _shaders[key] = shader;

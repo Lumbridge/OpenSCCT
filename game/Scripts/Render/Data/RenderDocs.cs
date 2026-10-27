@@ -92,6 +92,100 @@ public sealed record UvAnim(string Type, Vector4 A, Vector4 B)
         e.TryGetProperty(name, out JsonElement v) && v.ValueKind == JsonValueKind.Number ? v.GetSingle() : fallback;
 }
 
+/// <summary>
+/// A static texture-coordinate transform (TexScaler, fixed TexRotator): u' = a u + c v + e, v' = b u + d v + f, kept as
+/// the rows (a, c, e) and (b, d, f) the shader dots with (u, v, 1).
+/// </summary>
+public readonly record struct UvAffine(Vector3 RowU, Vector3 RowV)
+{
+    public static UvAffine Identity => new(new Vector3(1f, 0f, 0f), new Vector3(0f, 1f, 0f));
+
+    /// <summary>The exporter's [a, b, c, d, e, f], or null.</summary>
+    public static UvAffine? From(JsonElement e)
+    {
+        if (e.ValueKind != JsonValueKind.Array || e.GetArrayLength() < 6)
+        {
+            return null;
+        }
+
+        float a = e[0].GetSingle(), b = e[1].GetSingle(), c = e[2].GetSingle();
+        float d = e[3].GetSingle(), x = e[4].GetSingle(), y = e[5].GetSingle();
+        return new UvAffine(new Vector3(a, c, x), new Vector3(b, d, y));
+    }
+
+    /// <summary>The transform that undoes this one (identity when it cannot be undone).</summary>
+    public UvAffine Inverse()
+    {
+        float a = RowU.X, c = RowU.Y, e = RowU.Z, b = RowV.X, d = RowV.Y, f = RowV.Z;
+        float det = (a * d) - (b * c);
+        if (MathF.Abs(det) < 1e-8f)
+        {
+            return Identity;
+        }
+
+        float ia = d / det, ic = -c / det, ib = -b / det, id = a / det;
+        return new UvAffine(new Vector3(ia, ic, -((ia * e) + (ic * f))), new Vector3(ib, id, -((ib * e) + (id * f))));
+    }
+
+    /// <summary>This transform applied after <paramref name="first"/>.</summary>
+    public UvAffine After(UvAffine first)
+    {
+        Vector3 u = first.RowU, v = first.RowV;
+        return new UvAffine(
+            new Vector3((RowU.X * u.X) + (RowU.Y * v.X), (RowU.X * u.Y) + (RowU.Y * v.Y), (RowU.X * u.Z) + (RowU.Y * v.Z) + RowU.Z),
+            new Vector3((RowV.X * u.X) + (RowV.Y * v.X), (RowV.X * u.Y) + (RowV.Y * v.Y), (RowV.X * u.Z) + (RowV.Y * v.Z) + RowV.Z));
+    }
+}
+
+/// <summary>One input of a material evaluated on its own: its texture, animated modifier and static transform.</summary>
+public sealed record MaterialLayer(string Texture, UvAnim? Anim, UvAffine? Matrix);
+
+/// <summary>
+/// A UE2 Combiner whose inputs move on their own (materials.json flags "combine"): Material1, Material2 and the Mask with
+/// their own modifiers, combined per pixel by CombineOperation / AlphaOperation (docs/RENDERING.md#materials).
+/// </summary>
+public sealed record CombineEntry(int Op, int AlphaOp, float Modulate, bool InvertMask, MaterialLayer First, MaterialLayer Second,
+    MaterialLayer? Mask)
+{
+    public static CombineEntry? From(JsonElement c)
+    {
+        if (c.ValueKind != JsonValueKind.Object || MaterialsDoc.Str(c, "tex1") is not { } t1 || MaterialsDoc.Str(c, "tex2") is not { } t2)
+        {
+            return null;
+        }
+
+        MaterialLayer Layer(string tex, string suffix) => new(tex,
+            c.TryGetProperty("anim" + suffix, out JsonElement a) ? UvAnim.From(a) : null,
+            c.TryGetProperty("matrix" + suffix, out JsonElement m) ? UvAffine.From(m) : null);
+
+        string? mask = MaterialsDoc.Str(c, "mask");
+        return new CombineEntry(
+            Int(c, "op"), Int(c, "alpha_op"), Math.Max(1, Int(c, "mod")), MaterialsDoc.Bool(c, "invert_mask"),
+            Layer(t1, "1"), Layer(t2, "2"), mask is null ? null : Layer(mask, "Mask"));
+    }
+
+    private static int Int(JsonElement e, string name) =>
+        e.TryGetProperty(name, out JsonElement v) && v.ValueKind == JsonValueKind.Number ? v.GetInt32() : 0;
+}
+
+/// <summary>An animated texture (Texture.AnimNext chain) as a row-major atlas of its frames, stepped at Fps.</summary>
+public sealed record FlipbookEntry(string Texture, int Cols, int Rows, int Frames, float Fps)
+{
+    public static FlipbookEntry? From(JsonElement f)
+    {
+        if (f.ValueKind != JsonValueKind.Object || MaterialsDoc.Str(f, "texture") is not { } tex)
+        {
+            return null;
+        }
+
+        int cols = f.TryGetProperty("cols", out JsonElement c) ? c.GetInt32() : 1;
+        int rows = f.TryGetProperty("rows", out JsonElement r) ? r.GetInt32() : 1;
+        int frames = f.TryGetProperty("frames", out JsonElement n) ? n.GetInt32() : 1;
+        float fps = f.TryGetProperty("fps", out JsonElement s) && s.ValueKind == JsonValueKind.Number ? s.GetSingle() : 30f;
+        return frames > 1 && cols > 0 && rows > 0 ? new FlipbookEntry(tex, cols, rows, frames, fps) : null;
+    }
+}
+
 /// <summary>One material of render/materials.json, keyed by its glTF material name.</summary>
 public sealed class MaterialEntry
 {
@@ -118,6 +212,24 @@ public sealed class MaterialEntry
     public Vector3? EnvColor { get; init; }
 
     public UvAnim? UvAnim { get; init; }
+
+    /// <summary>The static transform the exporter baked into the mesh UVs; separate layers undo it.</summary>
+    public UvAffine? UvMatrix { get; init; }
+
+    /// <summary>A Shader.Opacity that moves on its own, sampled apart from the Diffuse (alpha, or luminance when OpacityLum).</summary>
+    public MaterialLayer? Opacity { get; init; }
+
+    public bool OpacityLum { get; init; }
+
+    /// <summary>The SpecularityMask's own modifiers when they differ from the Diffuse's (the mask texture is SpecMask).</summary>
+    public MaterialLayer? SpecMaskLayer { get; init; }
+
+    /// <summary>The env map's 2D texture, looked up by the camera-space reflection; null keeps EnvColor.</summary>
+    public string? EnvTexture { get; init; }
+
+    public CombineEntry? Combine { get; init; }
+
+    public FlipbookEntry? Flipbook { get; init; }
 
     public bool Mirror { get; init; }
 
@@ -213,6 +325,15 @@ public sealed class MaterialsDoc
                         ? new Vector3(env[0].GetSingle(), env[1].GetSingle(), env[2].GetSingle())
                         : null,
                     UvAnim = has && f.TryGetProperty("uv_anim", out JsonElement uv) ? UvAnim.From(uv) : null,
+                    UvMatrix = has && f.TryGetProperty("uv_matrix", out JsonElement um) ? UvAffine.From(um) : null,
+                    Opacity = has ? LayerOf(f, "opacity", Str(f, "opacity")) : null,
+                    OpacityLum = has && Bool(f, "opacity_lum"),
+                    SpecMaskLayer = has && (f.TryGetProperty("spec_mask_anim", out _) || f.TryGetProperty("spec_mask_matrix", out _))
+                        ? LayerOf(f, "spec_mask", Str(f, "spec_mask"))
+                        : null,
+                    EnvTexture = has ? Str(f, "env_texture") : null,
+                    Combine = has && f.TryGetProperty("combine", out JsonElement comb) ? CombineEntry.From(comb) : null,
+                    Flipbook = has && f.TryGetProperty("flipbook", out JsonElement fb) ? FlipbookEntry.From(fb) : null,
                     Mirror = has && Bool(f, "mirror"),
                     Projector = has && Bool(f, "projector"),
                     Skip = has && Bool(f, "skip"),
@@ -234,6 +355,14 @@ public sealed class MaterialsDoc
         ApplyList(doc, root, "modulate", e => Str(e, "mode") == "darken" ? MaterialBlend.Darken : MaterialBlend.Modulate);
         return doc;
     }
+
+    /// <summary>A layer of the flags: the texture plus "&lt;prefix&gt;_anim" and "&lt;prefix&gt;_matrix".</summary>
+    private static MaterialLayer? LayerOf(JsonElement f, string prefix, string? texture) =>
+        texture is null
+            ? null
+            : new MaterialLayer(texture,
+                f.TryGetProperty(prefix + "_anim", out JsonElement a) ? UvAnim.From(a) : null,
+                f.TryGetProperty(prefix + "_matrix", out JsonElement m) ? UvAffine.From(m) : null);
 
     private static void ApplyList(MaterialsDoc doc, JsonElement root, string list, Func<JsonElement, MaterialBlend> blendOf)
     {
