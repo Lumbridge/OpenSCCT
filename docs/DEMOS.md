@@ -31,6 +31,9 @@ player in first or third person, or fly a free camera.
   - **`svm-server`:** the `Demos` section of `svm-server.json` records every round into
     `OnlineServerSettings.DemoFolder`. `OnlineServer.DemoRecorded` reports each finished file, and files older than
     `KeepLocalDays` are deleted. The server log gives each demo's size and KB/s.
+  - **A game hosted from the menus:** Create a Session's **Record demos** (`OnlineSettings.HostRecordDemos`, saved
+    as `host/record_demos`) gives `ListenHost` the user's demos folder as `DemoFolder`, so each round is recorded
+    there like a dedicated server's (not uploaded: a listen host is not a trusted server).
   - **The game's offline play:** `--svm-play=Map --svm-record` records into the user's demos folder
     (`PlaySettings.DemoFolder`).
 

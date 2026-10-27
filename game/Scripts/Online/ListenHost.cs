@@ -39,6 +39,9 @@ public sealed record HostRequest
     /// <summary>The host's signed-in account (its player goes by the claimed name), or null for a guest host.</summary>
     public HostAccount? HostAccount { get; init; }
 
+    /// <summary>The folder each round is recorded into as a demo (docs/DEMOS.md), or null to record nothing.</summary>
+    public string? DemoFolder { get; init; }
+
     /// <summary>Bind to loopback only (smoke tests).</summary>
     public bool LoopbackOnly { get; init; }
 
@@ -126,6 +129,7 @@ public sealed class ListenHost : IDisposable
                 LanPort = request.LanPort,
                 LanLoopbackOnly = request.LoopbackOnly,
                 RequireAccounts = request.RequireAccounts,
+                DemoFolder = request.DemoFolder,
                 HostAccount = request.HostAccount,
                 Master = request.MasterUrl is { Length: > 0 } url
                     ? new MasterLinkSettings { Url = url, InviteKey = request.InviteKey, Listed = request.Listed }

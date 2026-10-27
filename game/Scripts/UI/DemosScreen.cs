@@ -51,7 +51,8 @@ public partial class DemosScreen : MenuPage
         _status = new Label
         {
             Name = "Status", Modulate = UiStyle.MenuFocus, AutowrapMode = TextServer.AutowrapMode.WordSmart,
-            Text = "Demos are kept in " + DemoLibrary.SavedFolder + ". Record an offline match with --svm-record.",
+            Text = "To record your own matches, tick Record demos when you Create a Session. Press Keep on a recent " +
+                "round to save it here. Demo files (.scctdemo) someone sends you go in your demos folder: press Open Folder.",
         };
         Body.AddChild(_status);
         PageButton("Back", () => FrontEnd.ShowMainMenu(GetTree()), "Back");

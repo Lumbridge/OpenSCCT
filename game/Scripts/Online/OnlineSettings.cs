@@ -88,6 +88,9 @@ public sealed class OnlineSettings
     /// <summary>Only signed-in players (with the master's ticket) may join the hosted game.</summary>
     public bool HostRequireAccounts { get; set; }
 
+    /// <summary>Record each round of the hosted game as a demo in the player's demos folder (docs/DEMOS.md).</summary>
+    public bool HostRecordDemos { get; set; }
+
     /// <summary>This install's id, made once.</summary>
     public string InstallId { get; set; } = string.Empty;
 
@@ -140,6 +143,7 @@ public sealed class OnlineSettings
             s.HubListed = file.GetValue("hub", "listed", s.HubListed).AsBool();
             s.HostPassword = file.GetValue("host", "password", s.HostPassword).AsString();
             s.HostRequireAccounts = file.GetValue("host", "require_accounts", s.HostRequireAccounts).AsBool();
+            s.HostRecordDemos = file.GetValue("host", "record_demos", s.HostRecordDemos).AsBool();
             s.InstallId = file.GetValue("player", "install_id", s.InstallId).AsString();
         }
 
@@ -180,6 +184,7 @@ public sealed class OnlineSettings
         file.SetValue("hub", "listed", HubListed);
         file.SetValue("host", "password", HostPassword);
         file.SetValue("host", "require_accounts", HostRequireAccounts);
+        file.SetValue("host", "record_demos", HostRecordDemos);
         file.SetValue("player", "install_id", InstallId);
         return file.Save(path);
     }

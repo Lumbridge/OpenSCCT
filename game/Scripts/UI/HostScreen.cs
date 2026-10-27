@@ -25,6 +25,7 @@ public partial class HostScreen : MenuPage
     private CheckBox? _listed;
     private CheckBox? _upnp;
     private CheckBox? _requireAccounts;
+    private CheckBox? _record;
     private Label? _requireNote;
     private LineEdit? _master;
     private Label? _status;
@@ -82,6 +83,7 @@ public partial class HostScreen : MenuPage
         _listed = Field(grid, "List on the master", new CheckBox { Name = "Listed", ButtonPressed = s.HostListed });
         _upnp = Field(grid, "Map the port (UPnP)", new CheckBox { Name = "Upnp", ButtonPressed = s.HostUpnp });
         _requireAccounts = Field(grid, "Signed-in players only", new CheckBox { Name = "RequireAccounts", ButtonPressed = s.HostRequireAccounts });
+        _record = Field(grid, "Record demos", new CheckBox { Name = "RecordDemos", ButtonPressed = s.HostRecordDemos });
         _requireNote = new Label { Name = "RequireAccountsNote", Modulate = UiStyle.MenuFocus, AutowrapMode = TextServer.AutowrapMode.WordSmart };
         net.AddChild(_requireNote);
         _master.TextChanged += _ => ShowRequireAccounts();
@@ -151,6 +153,7 @@ public partial class HostScreen : MenuPage
         s.HostListed = _listed!.ButtonPressed;
         s.HostUpnp = _upnp!.ButtonPressed;
         s.HostRequireAccounts = _requireAccounts!.ButtonPressed;
+        s.HostRecordDemos = _record!.ButtonPressed;
         s.HostSetup = setup.ToOptions();
         s.Save();
 
@@ -168,6 +171,7 @@ public partial class HostScreen : MenuPage
             InviteKey = s.InviteKey.Length > 0 ? s.InviteKey : null,
             LanPort = s.LanPort,
             RequireAccounts = s.HostRequireAccounts && s.MasterUrl.Length > 0,
+            DemoFolder = s.HostRecordDemos ? OpenScctGame.Play.Demo.DemoLibrary.SavedFolder : null,
         };
         if (!service.Host(request) && _status is not null)
         {
