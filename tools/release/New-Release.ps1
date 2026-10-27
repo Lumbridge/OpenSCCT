@@ -178,7 +178,6 @@ if (Test-Path $guard) {
 
 $assets = @()
 $launcherAsset = $null
-$legacyLauncherAsset = $null
 
 # The file list for delta updates (docs/LAUNCHER.md "Delta updates"): every file with its SHA-256 and the release
 # asset that holds it gzipped. Files the base release already has keep pointing at their old asset; only the
@@ -329,24 +328,14 @@ if (-not $SkipLauncher) {
     $launcherAsset = Join-Path $OutDir $launcherExeName
     Copy-Item -LiteralPath $LauncherExe -Destination $launcherAsset -Force
     $assets += $launcherAsset
-    # The same exe under its versioned name too: launchers before 0.8.8 only find a launcher named
-    # OpenSCCT.Launcher-<version>-win-x64.exe, so without it they never update themselves.
-    $legacyLauncherAsset = Join-Path $OutDir $launcherName
-    Copy-Item -LiteralPath $LauncherExe -Destination $legacyLauncherAsset -Force
-    $assets += $legacyLauncherAsset
 }
 
 foreach ($file in @($filesJson) + $assets) {
-    if ($file -eq $legacyLauncherAsset) { continue }
     $name = Split-Path $file -Leaf
     $hash = (Get-FileHash -LiteralPath $file -Algorithm SHA256).Hash.ToLowerInvariant()
-    if ($file -eq $launcherAsset) {
-        # The launcher's checksum file carries its version (ReleasePicker.LauncherChecksumName). It names both copies:
-        # launchers before 0.8.8 look for the line with the versioned name.
-        [System.IO.File]::WriteAllText((Join-Path $blobDir "$launcherName.sha256"), "$hash  $name`n$hash  $launcherName`n")
-        continue
-    }
-    [System.IO.File]::WriteAllText((Join-Path $blobDir "$name.sha256"), "$hash  $name`n")
+    # The launcher's checksum file carries its version (ReleasePicker.LauncherChecksumName); the line names the asset.
+    $sumName = if ($file -eq $launcherAsset) { "$launcherName.sha256" } else { "$name.sha256" }
+    [System.IO.File]::WriteAllText((Join-Path $blobDir $sumName), "$hash  $name`n")
 }
 
 if (-not $NotesFile) {
@@ -374,9 +363,7 @@ Write-Host ("  {0,10:N1} MB  {1} files for the $StoreTag release in game-files\"
 # The game files are too many for one command line, so the publish steps go in a script to review and run.
 # gh's "file#label" sets the asset's label: the launcher reads its version from it (ReleasePicker.LauncherLabelPrefix).
 $quoted = ($assets | ForEach-Object {
-        if ($_ -eq $launcherAsset) { '"' + $_ + '#OpenSCCT Launcher ' + $launcherVersion + '"' }
-        elseif ($_ -eq $legacyLauncherAsset) { '"' + $_ + '#OpenSCCT Launcher ' + $launcherVersion + ' (for launchers before 0.8.8)"' }
-        else { '"' + $_ + '"' }
+        if ($_ -eq $launcherAsset) { '"' + $_ + '#OpenSCCT Launcher ' + $launcherVersion + '"' } else { '"' + $_ + '"' }
     }) -join ' '
 $pre = if ($isPrerelease) { ' --prerelease' } else { '' }
 $publish = Join-Path $OutDir 'publish.ps1'
