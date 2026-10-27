@@ -36,13 +36,13 @@ come with .NET 10. The test project uses the repository's pinned xunit.v3 versio
 
 ## Version and build number
 
-The version is `VersionPrefix` in `Directory.Build.props` (0.8.16; a release passes `-p:Version`), and the build number
+The version is `VersionPrefix` in `Directory.Build.props` (0.8.17; a release passes `-p:Version`), and the build number
 is the UTC timestamp of the commit the build is made from, `yyyyMMdd.HHmm` (`Directory.Build.targets`). Both are stamped
 into every assembly; `OpenScct.Net.Discovery.BuildInfo` reads them back for the server browser, the master and the
 menus, which show "OpenSCCT 0.5.0  build 20261026.1737 (a82eaa0)" in the bottom-right corner of the main menu and
 the options.
 
-**The launcher has its own version**, `LauncherVersion` in `Directory.Build.props` (0.8.7), apart from the game's.
+**The launcher has its own version**, `LauncherVersion` in `Directory.Build.props` (0.8.10), apart from the game's.
 Bump it only when the launcher changes (`src/OpenScct.Launcher`, `src/OpenScct.Launcher.Core`, `src/OpenScct.Maps`,
 the icon). A game release carries the same launcher exe again, so players' launchers update themselves only when there
 is a new launcher. The launcher reads the version of a release's launcher from the asset name, not from the release
