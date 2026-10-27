@@ -5411,7 +5411,7 @@
     "eng:Render.LaserTriggerBeams": {"ports":["OpenScctGame: OpenScctGame.Fx.LaserTriggerView"],"status":"ported"},
     "eng:Render.MapBuilder": {"ports":["OpenScctGame: OpenScctGame.Render.MapBuilder"],"status":"ported"},
     "eng:Render.RainVolumes": {"ports":["OpenScctGame: OpenScctGame.Render.RainVolumes"],"status":"ported"},
-    "eng:Render.Remanence":{"ports":["OpenScctGame: OpenScctGame.Render.Post.RemanenceEffect"],"status":"ported"},
+    "eng:Render.Remanence": {"ports":["OpenScctGame: OpenScctGame.Render.Post.RemanenceEffect"],"status":"ported"},
     "eng:Render.SpotShadow": {"ports":["OpenScctGame: OpenScctGame.Render.SpotShadowLight"],"status":"ported"},
     "eng:Render.View": {"ports":["OpenScctGame: OpenScctGame.Render.FaithfulView"],"status":"ported"},
     "eng:SBase.SDamageVolume.Tick": {"specs":["spec/combat/environmental-damage.md:3"],"status":"specced"},
