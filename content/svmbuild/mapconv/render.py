@@ -215,6 +215,16 @@ class RenderBuilder:
             return None
         return self.src.db.cd.export_path(pkg, e)
 
+    def _softbody(self, name: str, body: dict) -> dict:
+        """A soft body's simulation settings for the client (scctpkg level.softbody_record) with its collSound and
+        shotSound (stored, else the class default: Sound_Persos.divers.RA_SoftBo_perso, RA_SoftBo_shot)."""
+        out = {k: v for k, v in body.items() if k not in ("ambient_glow", "unlit")}
+        info = next((a for a in self.src.actors if a.name == name), None)
+        for prop, key in (("collSound", "coll_sound"), ("shotSound", "shot_sound")):
+            ref = self.src.value(info, prop) if info is not None else None
+            out[key] = ref.path if isinstance(ref, Ref) and ref.ref != 0 and ref.path else ""
+        return out
+
     # ---- world.glb ---------------------------------------------------------------------------
 
     def build_glb(self, gltf: dict, binary: bytes, scene: dict) -> Tuple[bytes, Dict[str, str]]:
@@ -271,6 +281,8 @@ class RenderBuilder:
                     entry[k_dst] = a[k_src]
             if a["name"] in vision:
                 entry["vision"] = vision[a["name"]]
+            if "softbody" in a:
+                entry["softBody"] = self._softbody(a["name"], a["softbody"])
             instances.append(entry)
         gltf["extras"] = {"svmap": {"map": self.src.name, "instances": instances}}
         self.stats["instances"] = len(instances)

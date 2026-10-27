@@ -147,7 +147,9 @@ glTF 2.0 binary in render space. Scene roots: `World` (the BSP meshes; children 
 draws `Library` directly. Document extras `{"svmap": {"map", "instances": [...]}}`: one entry per placed mesh
 actor, `{"actor", "class", "kind", "mesh" (library node name), "location", "rotation" (UE rotator), "scale",
 "hidden", "gameplay"}` plus `prePivot`, `vertexLit`, `unlit`, `ambientGlow`, `cullDistance`, `skyZone`, `skins`,
-`keyPos`, `basePos` where they apply. Transforms are in UE space; the client converts them through `UeSpace`.
+`keyPos`, `basePos` where they apply, and `softBody` on soft bodies (ESBPatchActor, ESBStripDoorActor: kind, nbU,
+nbV, the simulation settings over the class defaults, collSound and shotSound paths, and the saved rest state as
+`points`, `uvs`, `fixed` particle indices and `links` [a, b, rest length]; library vertex i and i + N are particle i). Transforms are in UE space; the client converts them through `UeSpace`.
 Images are PNG files under `render/textures/` named by relative URI.
 
 ## `render/materials.json`, `render/lighting.json`, `render/fx.json`, `ui/mapinfo.json` (1.1)

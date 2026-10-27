@@ -570,6 +570,33 @@ volume's rotation (left out; the shipped volumes turn at most a few degrees), th
 the sheets from a camera term (not decoded; sheets are vertical). Thermal and EMF leave the rain out (the volume's
 HeatOpacity and EMFOpacity are 0), as they do additive surfaces.
 
+## Soft bodies
+
+`Render/SoftBodies` simulates and draws the map's ESBPatchActor cloth (awnings, flags, AquaE's sea and kelp) and
+ESBStripDoorActor plastic strip curtains (210 placed on 43 maps). The converter reads each body's saved simulation
+object (ESBPatch / ESBStripDoor: particles with fixed flags, local positions and u, v; links with rest lengths) and
+its settings over the class defaults (`scctpkg level.softbody_record`; maps store nbU / nbV only when they differ from
+the default 3, which once dropped ClarD's and MuseD's flags). A patch is a (nU + 1) x (nV + 1) grid linked to its right
+and lower neighbours; a strip door is nU strips, each two edges of nV + 1 particles linked down and across, each strip
+showing its own slice of the texture. The world.glb instance carries the `softBody` block and its library mesh is the
+body at rest.
+
+The step is UESoftBody::Update (0x1099a6f0, UESBPatch vtable; the strip door uses the same code): step clamped to
+0.005..0.05 s and smoothed (5 % new), wind per free particle from the level's 2D Perlin noise at its u, v plus two
+timers advancing by windUPan / windVPan (between windMin and windMax per axis), acceleration = Gravity (local space) +
+(wind + pushes) x nbU x nbV / Mass, Verlet with EnergyFactor taking that share of the speed, then nbIter passes of
+pawn collision and nbNormalizeIter passes over the links; positions held within 1000 uu of the actor. The client steps
+at most 120 times a second and only bodies seen in the last 5 s. Pawns (collActor) are upright cylinders at
+Location + Velocity x 0.08: a particle inside leaves by the nearest of top, bottom or side and takes the pawn's velocity
+over the step as a push; a moving pawn plays collSound (once per 0.5 s). Soft bodies never block movement (the
+primitive's point check always passes). Rifle tracers crossing a body push the four corners of the crossed cell by
+BulletHitFactor x 100 in the shot's direction and play shotSound. Drawn fullbright: UESoftBody::Render makes no
+lighting calls.
+
+Not done: shots without a tracer do not push (the client sees no shot line for them); collision planes, spheres,
+boxes and Attach (no placed body uses them); dragForce (only applies when the actor moves); the noise tables are seeded
+here, random per level in the original; the colliders are pawns only.
+
 ## Characters
 
 `SkeletalModel` loads a shared-pack skeletal mesh (spy `SPerso.ATT_01`, merc `SPerso.DEF_01`, props) with Godot's glTF
