@@ -70,6 +70,7 @@ internal sealed class MainForm : Form
     private string _notesText = "Checking for releases...";
     private Control? _root;
     private bool _fitPending;
+    private Control? _more;
 
     private readonly Button _changeGame = Theme.Button("Change...");
     private readonly Button _rebuild = Theme.Button("Rebuild");
@@ -175,6 +176,7 @@ internal sealed class MainForm : Form
         // The less common actions, small, along the bottom edge.
         Label version = Theme.Label("Launcher " + (_launcherVersion?.ToString() ?? "dev"), Theme.Small, Theme.Muted);
         version.Anchor = AnchorStyles.Right;
+        version.Margin = new Padding(12, 0, 0, 0);
         TableLayoutPanel more = Theme.Grid(Theme.Fill, Theme.Auto);
         more.Dock = DockStyle.Bottom;
         more.Padding = new Padding(0, 12, 0, 0);
@@ -192,6 +194,7 @@ internal sealed class MainForm : Form
         Controls.Add(root);
         Controls.Add(more);
         _root = root;
+        _more = more;
 
         // Contents grow after the first fit (the launcher banner, an update line, a long status): grow the window
         // again once that layout has settled, so the big button is never cut off.
@@ -230,6 +233,22 @@ internal sealed class MainForm : Form
     protected override void OnLoad(EventArgs e)
     {
         base.OnLoad(e);
+
+        // The bottom row of buttons does not wrap: widen the window to it (at this display scaling), and never let
+        // it be dragged narrower.
+        if (_more is not null)
+        {
+            int need = _more.GetPreferredSize(Size.Empty).Width + Padding.Horizontal;
+            Rectangle work = Screen.FromControl(this).WorkingArea;
+            int width = Math.Min(Math.Max(ClientSize.Width, need), work.Width - (Width - ClientSize.Width));
+            if (width != ClientSize.Width)
+            {
+                ClientSize = new Size(width, ClientSize.Height);
+            }
+
+            MinimumSize = new Size(Math.Max(MinimumSize.Width, SizeFromClientSize(new Size(width, 0)).Width), MinimumSize.Height);
+        }
+
         if (_root is not null)
         {
             Theme.FitToContent(this, _root);
