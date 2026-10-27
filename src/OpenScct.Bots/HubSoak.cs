@@ -271,7 +271,8 @@ public sealed class HubSoak : IDisposable
         var brain = new HubWanderBrain(Grid, BotNavigator.Seed(name) ^ (int)Settings.Seed, spy, Home);
         var bot = new BotClient(transport, _address, nowMicros, name, spy ? BotTeam.Spy : BotTeam.Merc, brain, _nav,
             new ClientSettings { Classes = Classes, Maps = Maps });
-        _visitors.Add(new Visitor(bot, new HubClient(bot.Session), brain, spy ? 0 : 1));
+        // The bot ticks its own session (BotClient.Tick); the hub client only reads its lines.
+        _visitors.Add(new Visitor(bot, new HubClient(bot.Session) { SessionTickedElsewhere = true }, brain, spy ? 0 : 1));
         _joined++;
     }
 

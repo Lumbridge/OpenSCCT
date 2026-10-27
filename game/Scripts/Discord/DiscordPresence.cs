@@ -29,6 +29,7 @@ public partial class DiscordPresence : Node
     private bool _canJoin;
     private bool _readyLogged;
     private bool _failLogged;
+    private bool _mergeErrorLogged;
     private double _sinceUpdate = UpdateSeconds;
     private PresenceState? _shown;
     private DateTime _since = DateTime.UtcNow;
@@ -177,7 +178,21 @@ public partial class DiscordPresence : Node
             return;
         }
 
-        client.Invoke();
+        try
+        {
+            client.Invoke();
+        }
+        catch (NullReferenceException e)
+        {
+            // DiscordRichPresence 1.6.1.70 throws in Assets.Merge when Discord echoes a presence back without its
+            // assets (fixed upstream after that release). Only that echo is lost; the next frame carries on.
+            if (!_mergeErrorLogged)
+            {
+                _mergeErrorLogged = true;
+                GD.PushWarning("Discord presence: the library failed to read Discord's reply (" + e.Message + "); ignored from now on.");
+            }
+        }
+
         TryJoin();
         _sinceUpdate += delta;
         if (_sinceUpdate < UpdateSeconds || !client.IsInitialized)
