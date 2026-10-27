@@ -60,6 +60,26 @@ public partial class PlayInput : Node
             return;
         }
 
+        // The click that brings the window back to the front only refocuses it: it never reaches the game.
+        if (@event is InputEventMouseButton refocus && Time.GetTicksMsec() < _eatClickUntilMsec)
+        {
+            if (refocus.Pressed)
+            {
+                _eatClickUntilMsec = 0;
+                _eatenButton = refocus.ButtonIndex;
+            }
+
+            GetViewport().SetInputAsHandled();
+            return;
+        }
+
+        if (@event is InputEventMouseButton { Pressed: false } eatenRelease && eatenRelease.ButtonIndex == _eatenButton)
+        {
+            _eatenButton = MouseButton.None;
+            GetViewport().SetInputAsHandled();
+            return;
+        }
+
         if (RequireCapture && !IsCaptured)
         {
             if (CapturePointer && @event is InputEventMouseButton { Pressed: true })
@@ -230,11 +250,21 @@ public partial class PlayInput : Node
         return false;
     }
 
+    /// <summary>How long after the window regains focus a mouse press is taken as the refocusing click.</summary>
+    private const ulong RefocusClickMsec = 250;
+
+    private ulong _eatClickUntilMsec;
+    private MouseButton _eatenButton = MouseButton.None;
+
     public override void _Notification(int what)
     {
         if (what == NotificationWMWindowFocusOut && Target is { } target)
         {
             ClearHeld(target);
+        }
+        else if (what == NotificationWMWindowFocusIn)
+        {
+            _eatClickUntilMsec = Time.GetTicksMsec() + RefocusClickMsec;
         }
     }
 }
