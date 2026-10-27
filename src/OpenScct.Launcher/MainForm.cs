@@ -69,6 +69,7 @@ internal sealed class MainForm : Form
     private string _notesTitle = "What's new";
     private string _notesText = "Checking for releases...";
     private Control? _root;
+    private bool _fitPending;
 
     private readonly Button _changeGame = Theme.Button("Change...");
     private readonly Button _rebuild = Theme.Button("Rebuild");
@@ -191,6 +192,23 @@ internal sealed class MainForm : Form
         Controls.Add(root);
         Controls.Add(more);
         _root = root;
+
+        // Contents grow after the first fit (the launcher banner, an update line, a long status): grow the window
+        // again once that layout has settled, so the big button is never cut off.
+        root.Layout += (_, _) =>
+        {
+            if (_fitPending || !IsHandleCreated)
+            {
+                return;
+            }
+
+            _fitPending = true;
+            BeginInvoke(() =>
+            {
+                _fitPending = false;
+                Theme.FitToContent(this, root);
+            });
+        };
 
         var tips = new ToolTip();
         tips.SetToolTip(_changeGame, "Pick the folder you installed Splinter Cell Chaos Theory in.");
