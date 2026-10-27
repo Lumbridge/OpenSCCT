@@ -268,9 +268,8 @@ public partial class SLaserTrigger
     [Provenance(ProvenanceKind.Estimated, "GetRainVolume is not ported; no map in .content/svmap places an Engine.ERainVolume")]
     internal static bool InRain(FVector location) => false;
 
-    /// <summary>Emitter.Kill (native 1155): the sparks stop; here the emitter goes at once.</summary>
-    [Provenance(ProvenanceKind.Estimated, "Emitter.Kill is not ported: the emitter is destroyed instead of letting its particles die")]
-    internal static void KillEmitter(Emitter emitter) => emitter.Destroy();
+    /// <summary>Emitter.Kill (native 1155): the sparks stop spawning and the live ones die out in the views.</summary>
+    internal static void KillEmitter(Emitter emitter) => emitter.Kill();
 
     protected override void CleanupDestroyedReferences()
     {

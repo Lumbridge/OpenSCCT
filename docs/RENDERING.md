@@ -76,9 +76,13 @@ Mode-dependent props (SDisk, SFlag, SFlagDropZone, SComputerObjectiveTrigger) ar
 it spawns, each SFlagDropZone as its case plus the lid it spawns at Location + (0, 0, 10) - 10 X,
 spec/objectives/disk-flag.md rules 1 and 4) and `"DiskHunt"` the dog tags. The golden captures are Story games.
 Skins a gameplay actor swaps in at run time that the gameplay meshes do not carry are built by `GameplaySkins` and
-put over the node by `MeshFollower.DrawSkin` (Skins[0], one skin for every slot): only the unarmed bomb spot's ghost
-(`SGameplayObjectsTex.Object.FX_pose_bomb_heat`, fullbright two-sided alpha blend, two frames at 3 fps,
-spec/objectives/bomb-target.md rule 14). Any other skin draws the mesh's own materials.
+put over the node by `MeshFollower.DrawSkin`: the unarmed bomb spot's ghost (Skins[0] over every slot,
+`SGameplayObjectsTex.Object.FX_pose_bomb_heat`, fullbright two-sided alpha blend, two frames at 3 fps,
+spec/objectives/bomb-target.md rule 14), and per surface the run-time skins the renderpack step exports with the
+gameplay meshes (`GAMEPLAY_SKINS`, materials.json `skins`: the camera and sensor LEDs green, blinking green, red, black
+and yellow in slot 1). A gameplay mesh's surface i is section i (surface name `section<i>`). Any other skin draws the
+mesh's own material. A node is drawn where its actor is after BeginPlay (a camera moves 24 uu off its wall), and
+`CameraMountViews` draws the wall mounts cameras spawn.
 
 ## Display space
 

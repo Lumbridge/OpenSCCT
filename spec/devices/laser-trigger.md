@@ -130,7 +130,7 @@ class with these partials (the SBase package is registered for maps), so no regi
 
 - The pawn primitive's line check uses `GadgetWorld.SegmentCylinderHit` (entry point, no pull-back).
 - GetRainVolume (native 1789) is not ported; no converted map places an ERainVolume, so the beam is never halved.
-- Emitter.Kill is not ported: the sparks emitter is destroyed at once.
+- Emitter.Kill: the sparks actor goes at once in the simulation; the drawn particles stop spawning and die out.
 - The TexScaler U scale is kept (`LaserScalerUScale`) but the views do not apply it; the normal-vision look reuses the
   spy beam's additive LaserBeamShader material on LasDetectBeam (not checked against the original's picture).
 - Which vision modes hide a `bHideInNormalVision` actor is taken from docs/RENDERING.md (shown in 36 and 38 only).

@@ -69,4 +69,7 @@ As Mover.
 
 ## Open questions
 
-1. Decode the AMoverRotating native receive and list (editor 0x110ab320) to confirm the start-rotation rule.
+1. Resolved (2026-10-27): AMoverRotating::PostNetReceive (game 0x1098fba0) is the Mover's (0x1098fac0) with
+   `OldRot = (SimOldRotPitch, SimOldRotYaw, SimOldRotRoll)` instead of the current rotation; the rest is identical
+   (OldPos = SimOldPos, alpha and rate x 0.01, keys from the truncated SimInterpolate.Z, PHYS_MovingBrush,
+   bInterpolating). The port matches.

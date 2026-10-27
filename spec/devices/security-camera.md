@@ -128,12 +128,14 @@ Class defaults also set `TriggerMethode = TriggerControl`, `iPriority = 5`, `bCa
 ## Port notes
 
 - `src/OpenScct.Game/SBase/SCamera.cs`. Estimated: the malfunction emitter class name (the spawn loads a class by
-  name; `SBase.SMalfunctionEmitter` is the only matching SBase class), `Emitter.Kill` replaced by Destroy, the head
+  name; `SBase.SMalfunctionEmitter` is the only matching SBase class), the tick's emitter call (virtual +0x140) taken as `Emitter.Kill`, the head
   rotation set directly instead of a zero-delta MoveActor, and the pawn list taken as the level's `SPawnAttaque`s in
   level order.
-- Render: the head turns through `DeviceViews` (the mesh follows Rotation). The LED skin swap and the wall mount
-  (a spawned actor) are not drawn yet. Vision values (`HeatIntensity`, `EMFIntensity` 0.6 / 0.8 on 32 cameras) come
-  from the map props through the gameplay mesh path.
+- Render: the head turns through `DeviceViews` (the mesh follows Rotation, drawn where PreBeginPlay put it, 24 uu off
+  the wall). The LED is `Skins[1]` drawn per surface from the gameplay pack's skin materials (renderpack
+  `GAMEPLAY_SKINS`); the mount is drawn by `CameraMountViews`. Killed sparks stop spawning and die out in the views.
+- Vision values (`HeatIntensity`, `EMFIntensity` 0.6 / 0.8 on 32 cameras) come from the map props through the
+  gameplay mesh path.
 - The `Event` target `SAlarm` is ported elsewhere; until it is, the event reaches no behaviour.
 
 ## Sources

@@ -775,9 +775,12 @@ def _skin_signature(sm: StaticMesh, owner: Package, resolver: MaterialResolver, 
     return ",".join(keys) if changed else ""
 
 
-def export_package(usx_path: Path, pset: PackageSet, out_root: Path) -> dict:
+def export_package(usx_path: Path, pset: PackageSet, out_root: Path, extra_materials: Optional[List[str]] = None) -> dict:
     """Export every StaticMesh of one .usx package as library nodes (for class-default meshes such as
-    SGameplayObjects: medkits, cameras, laser emitters, objectives). Output: out/_shared/<Pkg>/<Pkg>.gltf."""
+    SGameplayObjects: medkits, cameras, laser emitters, objectives). Output: out/_shared/<Pkg>/<Pkg>.gltf.
+    `extra_materials`: object paths (Package[.Group].Name) of materials no mesh section uses but actors put in their
+    Skins at run time (camera and sensor LEDs); each becomes a glTF material like a section's, and stats["skins"]
+    maps the path to its material name."""
     pkg = Package.load(usx_path)
     name = usx_path.stem
     out_dir = out_root / name
@@ -786,7 +789,23 @@ def export_package(usx_path: Path, pset: PackageSet, out_root: Path) -> dict:
     tex_uri: Dict[str, Optional[str]] = {}
     resolver = MaterialResolver(pset)
     writer = GltfWriter()
-    stats = {"package": name, "meshes": 0, "failed": []}
+    stats = {"package": name, "meshes": 0, "failed": [], "skins": {}}
+    for path in extra_materials or []:
+        pkg_name, _, rest = path.partition(".")
+        owner = pset.get(pkg_name)
+        e = owner.find_export(rest.split(".")[-1]) if owner is not None and rest else None
+        if e is None:
+            stats["failed"].append(f"{path}: not found")
+            continue
+        try:
+            res = resolver.resolve(owner, e.index + 1)
+            if res is None or res.skip:
+                continue
+            writer.material(res.key, res, _ensure_texture(res, tex_dir, tex_uri))
+            _self_illum_flags(writer, res.key, res, tex_dir, tex_uri)
+            stats["skins"][path] = res.key
+        except Exception as ex:
+            stats["failed"].append(f"{path}: {ex}")
     for e in pkg.exports_of_class("StaticMesh"):
         key = f"{name}.{e.name}"
         try:

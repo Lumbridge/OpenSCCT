@@ -40,18 +40,19 @@ public partial class SMagicEvent
     protected override void UnTrigger(Actor? Other, Pawn? EventInstigator) => NativeTrigger(Other, EventInstigator, false);
 
     /// <summary>
-    /// One activation: a trigger from StopActor clears the queue; then every enabled group answers (all its entries,
-    /// or the current step of a sequence) with each entry whose ValidOn matches, at once or queued at its delay
-    /// from now; cycles count down Repeat.
+    /// One activation: a call whose Other is StopActor (None matching None too) clears the queue and does nothing
+    /// else; otherwise every enabled group answers (all its entries, or the current step of a sequence) with each
+    /// entry whose ValidOn matches, at once or queued at its delay from now; cycles count down Repeat.
     /// </summary>
     [UcNative("ASMagicEvent::execNativeTrigger", Exe = 0x10ae9cf0, Editor = 0x111d30f0)]
     [PortOf("nat:SBase.SMagicEvent.NativeTrigger", Spec = "spec/devices/magic-event.md#rules")]
-    [Provenance(ProvenanceKind.Decoded, "Editor twin NativeTrigger semantics (magic-event.md rule 3), game build to confirm")]
+    [Provenance(ProvenanceKind.Decoded, "game 0x10ae9cf0: Other == StopActor (+0x310, no None check) frees EventQueue and returns; group loop 0x10ae9d9c matches the editor twin (magic-event.md rule 3)")]
     public void NativeTrigger(Actor? Other, Pawn? EventInstigator, bool bTrigger)
     {
-        if (StopActor is not null && ReferenceEquals(Other, StopActor))
+        if (ReferenceEquals(Other, StopActor))
         {
             EventQueue.Clear();
+            return;
         }
 
         for (int g = 0; g < Groups.Count; g++)

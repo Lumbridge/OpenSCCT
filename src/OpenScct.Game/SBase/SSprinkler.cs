@@ -60,12 +60,11 @@ public partial class SSprinkler
     /// <summary>Stops the water: the emitter is killed and the puddle starts shrinking.</summary>
     [Uc("SBase.SSprinkler.StopWater", Sha1 = "3587418ce9eeaebdb1256e279ce061b8b023a238")]
     [PortOf("uc:SBase.SSprinkler:StopWater", Spec = "spec/devices/sprinkler.md#rules")]
-    [Provenance(ProvenanceKind.Estimated, "Emitter.Kill (stop spawning, let the particles die, then destroy) is not ported; the emitter is destroyed at once")]
     public void StopWater()
     {
         if (WaterEmitter is not null)
         {
-            WaterEmitter.Destroy();
+            WaterEmitter.Kill();
             WaterEmitter = null;
         }
 

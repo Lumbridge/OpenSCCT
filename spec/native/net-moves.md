@@ -145,8 +145,8 @@ zone configurations, index `from × 4 + to`), `RunningSpeed`, `GroundSpeed`,
       or at most 0.3 s since `ClientUpdateTime` (both tests are `≤`, game 0x10aac4a0);
     - else the error is `Pawn.Location − ClientLoc`, with Z ignored when the pawn falls and was on a
       mover in the last 3 s (`fLastTimeOnAMover`, never written: dead in practice), when its base is a
-      mover that moved vertically in the last 3 s (`fLastTimeMoverMoves`, written by mover physics
-      while `|Velocity.Z| > 0.1`), or in `PHYS_OnPipeH` or `PHYS_Linear`; squared error ×10 in root
+      mover whose `fLastTimeMoverMoves` is within 3 s (written by mover physics
+      while `|Velocity.Z| < 0.1`, game 0x10a21d23, so in practice a mover that was vertically still in the last 3 s), or in `PHYS_OnPipeH` or `PHYS_Linear`; squared error ×10 in root
       motion; no correction when the squared error is at most 3 (error ≤ 1.73 uu, the client's
       `fErrorMax`).
     - A correction stamps `ClientUpdateTime = LastUpdateTime = now` and sends

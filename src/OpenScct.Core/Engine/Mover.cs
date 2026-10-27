@@ -78,15 +78,16 @@ public partial class Mover
     }
 
     /// <summary>
-    /// The moving-brush step (native): alpha advances by dt x PhysRate, the eased (MV_GlideByTime) or linear alpha
-    /// places the mover between OldPos/OldRot and the target key, and the move is made with encroachment checks. A
-    /// refused move leaves alpha where it was; reaching 1 ends the leg (KeyFrameReached), and the rest of the tick's
-    /// time carries into the next leg.
+    /// The moving-brush step (native, game 0x10a21970): alpha advances by dt x PhysRate, the eased (MV_GlideByTime,
+    /// 3a^2 - 2a^3) or linear alpha places the mover between OldPos/OldRot and the target key, and the move is made
+    /// with encroachment checks. An accepted move stores the alpha; reaching 1 ends the leg (KeyFrameReached) and the
+    /// rest of the tick's time carries into the next leg. A refused move keeps the alpha, and when the step had
+    /// crossed 1 the loop tries again with the leftover time (a shorter step towards the key).
     /// </summary>
-    [UcNative("AActor::physMovingBrush")]
+    [UcNative("AActor::physMovingBrush", Exe = 0x10a21970)]
     [PortOf("nat:AActor::physMovingBrush", Spec = "spec/devices/mover.md#interpolation")]
-    [Provenance(ProvenanceKind.Estimated, "Mover spec rule 2: glide curve 3a^2 - 2a^3 and leftover time carry, UE2 lineage")]
-    [Provenance(ProvenanceKind.Decoded, "game 0x10a21970: after the legs, Velocity = (Location - start) / DeltaTime on every tick, and fLastTimeMoverMoves is stamped from the Z speed (mover.md rule 2a)")]
+    [Provenance(ProvenanceKind.Decoded, "game 0x10a21970: glide 0x10c10a34 (3.0) x a^2 - 2 a^3 when MoverGlideType (+0x4dd) is 1; leftover dt = dt x (a' - 1) / (a' - a); rotation delta truncated (_ftol 0x10b83aa0); a refused MoveActor leaves PhysAlpha and the loop runs on while bInterpolating and dt > 0")]
+    [Provenance(ProvenanceKind.Decoded, "game 0x10a21cbd..0x10a21d44: after the legs, Velocity = (Location - start) / DeltaTime on every tick, and fLastTimeMoverMoves is stamped while |Velocity.Z| < 0.1 (mover.md rule 2a)")]
     public void physMovingBrush(float DeltaTime)
     {
         FVector start = Location;
@@ -94,17 +95,20 @@ public partial class Mover
         if (DeltaTime > 0f && !bDeleteMe)
         {
             Velocity = (Location - start) * (1f / DeltaTime);
-            if (SvmMath.Abs(Velocity.Z) > MoverK.VerticalMoveSpeed)
+            if (SvmMath.Abs(Velocity.Z) < MoverK.VerticalMoveSpeed)
             {
                 fLastTimeMoverMoves = Level.TimeSeconds;
             }
         }
     }
 
+    // A guard only: every refused step shortens the next by (1 - alpha), so the original loop always ends.
+    private const int MaxLegSteps = 64;
+
     private void MovingBrushLegs(float DeltaTime)
     {
         float dt = DeltaTime;
-        for (int legs = 0; bInterpolating && dt > 0f && legs < MoverK.MaxKeys && !bDeleteMe; legs++)
+        for (int step = 0; bInterpolating && dt > 0f && step < MaxLegSteps && !bDeleteMe; step++)
         {
             float alpha = PhysAlpha;
             float newAlpha = alpha + dt * PhysRate;
@@ -118,18 +122,22 @@ public partial class Mover
                 dt = 0f;
             }
 
-            float s = MoverGlideType == EMoverGlideType.MV_GlideByTime
-                ? 3f * newAlpha * newAlpha - 2f * newAlpha * newAlpha * newAlpha
-                : newAlpha;
-            FVector target = OldPos + (BasePos + KeyPos[KeyNum] - OldPos) * s;
-            FRotator rotation = OldRot + (BaseRot + KeyRot[KeyNum] - OldRot) * s;
+            double a = newAlpha;
+            double s = MoverGlideType == EMoverGlideType.MV_GlideByTime ? 3.0 * a * a - 2.0 * a * a * a : a;
+            int key = SvmMath.Clamp(KeyNum, 0, MoverK.MaxKeys - 1);
+            FVector target = OldPos + (BasePos + KeyPos[key] - OldPos) * (float)s;
+            FRotator to = BaseRot + KeyRot[key] - OldRot;
+            var rotation = new FRotator(
+                OldRot.Pitch + (int)(to.Pitch * s),
+                OldRot.Yaw + (int)(to.Yaw * s),
+                OldRot.Roll + (int)(to.Roll * s));
             if (!MoveBrush(target - Location, rotation))
             {
-                return;
+                continue;
             }
 
             PhysAlpha = newAlpha;
-            if (newAlpha >= 1f)
+            if (newAlpha == 1f)
             {
                 bInterpolating = false;
                 KeyFrameReached();
