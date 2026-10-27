@@ -1650,6 +1650,32 @@ def _thumb_job(job: tuple) -> str:
     return dst
 
 
+_WORKER_BYTES = 1.6 * 1024 ** 3
+
+
+def _available_memory() -> int | None:
+    """Physical memory free now, in bytes (None when it cannot be read)."""
+    try:
+        if os.name == "nt":
+            import ctypes  # noqa: PLC0415
+
+            class _Status(ctypes.Structure):
+                _fields_ = [("dwLength", ctypes.c_ulong), ("dwMemoryLoad", ctypes.c_ulong),
+                            ("ullTotalPhys", ctypes.c_ulonglong), ("ullAvailPhys", ctypes.c_ulonglong),
+                            ("ullTotalPageFile", ctypes.c_ulonglong), ("ullAvailPageFile", ctypes.c_ulonglong),
+                            ("ullTotalVirtual", ctypes.c_ulonglong), ("ullAvailVirtual", ctypes.c_ulonglong),
+                            ("ullAvailExtendedVirtual", ctypes.c_ulonglong)]
+
+            status = _Status()
+            status.dwLength = ctypes.sizeof(_Status)
+            if not ctypes.windll.kernel32.GlobalMemoryStatusEx(ctypes.byref(status)):
+                return None
+            return int(status.ullAvailPhys)
+        return int(os.sysconf("SC_AVPHYS_PAGES") * os.sysconf("SC_PAGE_SIZE"))
+    except (AttributeError, OSError, ValueError):
+        return None
+
+
 def build_all(chars_dir: Path) -> dict:
     """Writes every target's camos next to its retail texture (a texture the install lacks is skipped) and a swatch per
     pattern under chars/thumbs. The work is spread over worker processes."""
@@ -1691,7 +1717,14 @@ def build_all(chars_dir: Path) -> dict:
     thumbs = [(p, str(thumbs_dir / f"cosmetic_{p}.png"), str(spy_mesh) if PATTERNS[p][0] == "skeleton" else None)
               for p in PATTERNS if PATTERNS[p][0] != "skeleton" or spy_mesh.is_file()]
     workers = max(1, min(os.cpu_count() or 1, 12))
+    free = _available_memory()
+    if free is not None:
+        # A 2048 camo holds about 1.5 GB at its peak; leave room for whatever else is running (the maps' workers).
+        workers = max(1, min(workers, int(free * 0.8 // _WORKER_BYTES)))
     with cf.ProcessPoolExecutor(max_workers=workers, mp_context=mp.get_context("spawn")) as pool:
-        done = list(pool.map(_paint_job, jobs, chunksize=1))
-        done_thumbs = list(pool.map(_thumb_job, thumbs, chunksize=1))
+        # Queued together, so the swatches fill the workers the last camos leave idle.
+        camo_futures = [pool.submit(_paint_job, j) for j in jobs]
+        thumb_futures = [pool.submit(_thumb_job, t) for t in thumbs]
+        done = [f.result() for f in camo_futures]
+        done_thumbs = [f.result() for f in thumb_futures]
     return {"camos": len(done), "thumbs": len(done_thumbs), "skipped": skipped}

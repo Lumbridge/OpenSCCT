@@ -20,6 +20,7 @@ class CharsStep(Step):
     version = 5
     deps = ()
     per_map = False
+    background = True   # no other step reads shared/chars; runs beside the maps
     needs_game = True
     description = "P5: characters, first-person weapons and map anim props: GLB skins + anim files (shared/chars/)."
     code_files = ("content/svmbuild/charconv.py", "content/svmbuild/sources/animations.py",
@@ -63,7 +64,7 @@ class CharsStep(Step):
         from ..charconv import export_all  # noqa: PLC0415
         from ..sources.classdb import class_db  # noqa: PLC0415
 
-        stats = export_all(ctx.game, out_dir, class_db(str(ctx.game)))
+        stats = export_all(ctx.game, out_dir, class_db(str(ctx.game)), jobs=ctx.jobs)
         failed = [f for k, v in stats.items() if isinstance(v, dict) for f in v.get("failed", [])]
         if failed:
             raise ValueError("chars failed: " + "; ".join(failed[:10]))

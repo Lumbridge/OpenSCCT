@@ -575,34 +575,72 @@ def _place(g: _Gun, tile_m: float):
     return u, v
 
 
-def _noise3(rng, X, Y, Z, cell: float) -> np.ndarray:
-    """3D value noise (cells of cell metres, smooth-stepped between lattice points) at the points X, Y, Z (metres)."""
-    n = 64
-    lat = rng.random((n, n, n), dtype=np.float32)
-    out = np.zeros(X.shape, np.float32)
-    co = [c / cell for c in (X, Y, Z)]
-    i = [np.floor(c).astype(np.int64) for c in co]
-    f = [(c - k).astype(np.float32) for c, k in zip(co, i)]
-    f = [t * t * (3.0 - 2.0 * t) for t in f]
+_LATTICE = 64
+
+
+def _lattice(rng) -> np.ndarray:
+    """One noise lattice (64^3 random values, flattened)."""
+    n = _LATTICE
+    return rng.random((n, n, n), dtype=np.float32).ravel()
+
+
+def _corners(X, Y, Z, cell: float) -> tuple[list, list]:
+    """Where the points X, Y, Z (metres) fall in a lattice of cell metres: per axis, the two wrapped offsets into the
+    flat lattice and their smooth-stepped weights. Depends only on the points and the cell, so lattices of the same
+    cell can share it."""
+    n = _LATTICE
+    offsets, weights = [], []
+    for c, stride in ((X, n * n), (Y, n), (Z, 1)):
+        c = c / cell
+        k = np.floor(c)
+        t = (c - k).astype(np.float32)
+        t = t * t * (3.0 - 2.0 * t)
+        k0 = k.astype(np.int64) % n
+        offsets.append(((k0 * stride).astype(np.int32), (((k0 + 1) % n) * stride).astype(np.int32)))
+        weights.append((1.0 - t, t))
+    return offsets, weights
+
+
+def _lattice_at(lat: np.ndarray, corners: tuple[list, list]) -> np.ndarray:
+    """Value noise of one lattice at the points of corners (the trilinear sum, in the order wx * wy * wz * value)."""
+    offsets, weights = corners
+    out = np.zeros(offsets[0][0].shape, np.float32)
     for dx in (0, 1):
-        wx = f[0] if dx else 1.0 - f[0]
         for dy in (0, 1):
-            wy = f[1] if dy else 1.0 - f[1]
+            wxy = weights[0][dx] * weights[1][dy]
+            oxy = offsets[0][dx] + offsets[1][dy]
             for dz in (0, 1):
-                wz = f[2] if dz else 1.0 - f[2]
-                out += wx * wy * wz * lat[(i[0] + dx) % n, (i[1] + dy) % n, (i[2] + dz) % n]
+                out += wxy * weights[2][dz] * lat[oxy + offsets[2][dz]]
     return out
 
 
-def _fbm3(rng, X, Y, Z, cell: float, octaves: int) -> np.ndarray:
-    out = np.zeros(X.shape, np.float32)
+def _noise3(rng, X, Y, Z, cell: float) -> np.ndarray:
+    """3D value noise (cells of cell metres, smooth-stepped between lattice points) at the points X, Y, Z (metres)."""
+    lat = _lattice(rng)
+    return _lattice_at(lat, _corners(X, Y, Z, cell))
+
+
+def _fbm3s(rng, X, Y, Z, cell: float, octaves: int, count: int) -> list[np.ndarray]:
+    """count independent fBm fields at the same points: the same as count _fbm3 calls in a row (same lattices, drawn
+    in the same order), with each octave's corners worked out once for all of them."""
+    lats = [[_lattice(rng) for _ in range(octaves)] for _ in range(count)]
+    outs = [np.zeros(X.shape, np.float32) for _ in range(count)]
     amp = 1.0
-    for _ in range(octaves):
-        out += amp * _noise3(rng, X, Y, Z, cell)
+    for o in range(octaves):
+        corners = _corners(X, Y, Z, cell)
+        for k in range(count):
+            outs[k] += amp * _lattice_at(lats[k][o], corners)
         amp *= 0.5
         cell /= 2
-    lo, hi = np.percentile(out, (1, 99))
-    return np.clip((out - lo) / max(float(hi - lo), 1e-6), 0.0, 1.0)
+    fields = []
+    for out in outs:
+        lo, hi = np.percentile(out, (1, 99))
+        fields.append(np.clip((out - lo) / max(float(hi - lo), 1e-6), 0.0, 1.0))
+    return fields
+
+
+def _fbm3(rng, X, Y, Z, cell: float, octaves: int) -> np.ndarray:
+    return _fbm3s(rng, X, Y, Z, cell, octaves, 1)[0]
 
 
 def _solid_blotch(pattern: str, colours, P: np.ndarray, cover: np.ndarray, tile_m: float, soft: bool) -> np.ndarray:
@@ -616,7 +654,7 @@ def _solid_blotch(pattern: str, colours, P: np.ndarray, cover: np.ndarray, tile_
     h, w = cover.shape
     X, Y, Z = (P[..., k][cover] for k in range(3))
     cells = lambda k: tile_m / k  # noqa: E731
-    warp = [(_fbm3(rng, X, Y, Z, cells(6), 3) - 0.5) * 0.06 * tile_m for _ in range(3)]
+    warp = [(f - 0.5) * 0.06 * tile_m for f in _fbm3s(rng, X, Y, Z, cells(6), 3, 3)]
     Xw, Yw, Zw = X + warp[0], Y + warp[1], Z + warp[2]
     value = _fbm3(rng, Xw, Yw, Zw, cells(3 if soft else 4), 4)
     value = value + (_noise3(rng, X, Y, Z, cells(64)) - 0.5) * (0.05 if soft else 0.10)
@@ -677,7 +715,7 @@ def solid_galaxy(seed: str, colours, P: np.ndarray, cover: np.ndarray, swirl: fl
     X, Y, Z = X0 * swirl, Y0 * swirl, Z0 * swirl
     # Two rounds of warping swirl the cloud into ribbons.
     for amount, cell in ((0.22, 0.3), (0.05, 0.1)):
-        wx, wy, wz = ((_fbm3(rng, X, Y, Z, cell, 3) - 0.5) * amount for _ in range(3))
+        wx, wy, wz = ((f - 0.5) * amount for f in _fbm3s(rng, X, Y, Z, cell, 3, 3))
         X, Y, Z = X + wx, Y + wy, Z + wz
     cloud = _fbm3(rng, X, Y, Z, 0.24, 5)
     ribbon = 1.0 - np.abs(2.0 * _fbm3(rng, X, Y, Z, 0.16, 4) - 1.0)
@@ -713,7 +751,7 @@ def solid_inferno(seed: str, colours, P: np.ndarray, cover: np.ndarray, dist: np
     # The noise is stretched along the way the flames climb, so it reads as tongues.
     along = np.where(up, Y, np.abs(X))
     Xs, Ys = np.where(up, X, along * 0.3), np.where(up, along * 0.3, Y)
-    wx, wz = ((_fbm3(rng, Xs, Ys, Z, 0.09, 3) - 0.5) * 0.06 for _ in range(2))
+    wx, wz = ((f - 0.5) * 0.06 for f in _fbm3s(rng, Xs, Ys, Z, 0.09, 3, 2))
     n = _fbm3(rng, Xs + wx, Ys, Z + wz, 0.07, 4)
     s = d / np.maximum(reach, 1e-3)  # 0 at the source, 1 at the furthest tips
     field = 1.5 * n - s - 0.15  # > 0 inside the flames

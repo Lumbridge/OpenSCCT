@@ -17,7 +17,9 @@ A hit restores the step's outputs from the object store if they are missing or c
 step and stores the result.
 
 With jobs > 1, consecutive per-map steps run map by map in worker processes: each worker runs the whole chain of
-those steps for one map, with its own file hasher whose new digests are merged back into the parent's memo.
+those steps for one map, with its own file hasher whose new digests are merged back into the parent's memo. A global
+step marked `background` (long, and nothing in the build reads its files) then runs in a process of its own beside
+the rest of the plan; a step that depends on it waits for it, and the run waits for it at the end.
 """
 
 from __future__ import annotations
@@ -116,6 +118,9 @@ class Step:
     # dependencies on, the plan runs them after it (the maps step and audio-map).
     followers: tuple[str, ...] = ()
     per_map: bool = False
+    # With jobs > 1, run beside the rest of the plan in a process of its own (global steps only). Only for a step
+    # whose files no other step reads unless it lists this step in its deps.
+    background: bool = False
     stub: bool = False
     needs_game: bool = False
     description: str = ""
@@ -409,24 +414,62 @@ class Graph:
         results: list[UnitResult] = []
         produced: dict[tuple[str, str | None], str] = {}
         failed: set[tuple[str, str | None]] = set()
-        i = 0
-        while i < len(plan):
-            step = plan[i]
-            if step.per_map and ctx.jobs > 1 and len(ctx.maps) > 1:
-                j = i
-                while j < len(plan) and plan[j].per_map:
-                    j += 1
-                results.extend(self._run_parallel(ctx, plan[i:j], produced, failed))
-                i = j
-                continue
-            units: list[str | None] = list(ctx.maps) if step.per_map else [None]
-            for unit in units:
-                res = self.run_one(ctx, step, unit, produced, failed)
-                results.append(res)
-                ctx.log(_line(res))
-            i += 1
+        background: dict = {}   # step name -> future of its process
+        pool = None
+        try:
+            i = 0
+            while i < len(plan):
+                step = plan[i]
+                if step.per_map and ctx.jobs > 1 and len(ctx.maps) > 1:
+                    j = i
+                    while j < len(plan) and plan[j].per_map:
+                        j += 1
+                    self._await_background(ctx, background, {d for s in plan[i:j] for d in s.deps}, produced,
+                                           failed, results)
+                    results.extend(self._run_parallel(ctx, plan[i:j], produced, failed))
+                    i = j
+                    continue
+                self._await_background(ctx, background, set(step.deps), produced, failed, results)
+                if step.background and not step.per_map and ctx.jobs > 1:
+                    if pool is None:
+                        import concurrent.futures as cf  # noqa: PLC0415
+                        import multiprocessing as mp  # noqa: PLC0415
+
+                        pool = cf.ProcessPoolExecutor(max_workers=1, mp_context=mp.get_context("spawn"))
+                    shared = {k: v for k, v in produced.items() if k[1] is None}
+                    background[step.name] = pool.submit(_worker, _context_spec(ctx), list(self.steps.values()),
+                                                        [step.name], None, shared, set(failed), ctx.jobs)
+                    i += 1
+                    continue
+                units: list[str | None] = list(ctx.maps) if step.per_map else [None]
+                for unit in units:
+                    res = self.run_one(ctx, step, unit, produced, failed)
+                    results.append(res)
+                    ctx.log(_line(res))
+                i += 1
+            self._await_background(ctx, background, set(background), produced, failed, results)
+        finally:
+            if pool is not None:
+                pool.shutdown(wait=True, cancel_futures=True)
         ctx.hasher.save()
         return results
+
+    def _await_background(self, ctx: Context, background: dict, names: set, produced: dict, failed: set,
+                          results: list) -> None:
+        """Waits for the background steps among names and takes in their results."""
+        for name in [n for n in background if n in names]:
+            fut = background.pop(name)
+            try:
+                unit_results, unit_produced, unit_failed, hashes = fut.result()
+            except Exception as e:  # noqa: BLE001 - a dead worker fails its step, not the build
+                unit_results = [UnitResult(name, None, "failed", "", error=f"worker: {type(e).__name__}: {e}")]
+                unit_produced, unit_failed, hashes = {}, {(name, None)}, {}
+            produced.update(unit_produced)
+            failed.update(unit_failed)
+            ctx.hasher.merge(hashes)
+            for r in unit_results:
+                ctx.log(_line(r))
+            results.extend(unit_results)
 
     def _run_parallel(self, ctx: Context, steps: list[Step], produced: dict, failed: set) -> list[UnitResult]:
         import concurrent.futures as cf
@@ -502,8 +545,9 @@ def _context_spec(ctx: Context) -> dict:
             "trust_stat": ctx.hasher.trust_stat}
 
 
-def _worker(spec: dict, steps: list, names: list[str], unit: str, shared: dict, blocked: set):
-    """Runs the per-map steps `names` for one map in a worker process (the graph's own step objects, pickled)."""
+def _worker(spec: dict, steps: list, names: list[str], unit: str | None, shared: dict, blocked: set, jobs: int = 1):
+    """Runs the steps `names` for one map (or a background global step, unit None) in a worker process (the graph's
+    own step objects, pickled). jobs is what the steps see as ctx.jobs."""
 
     out = Path(spec["out"])
     store = Path(spec["hasher_store"]) if spec["hasher_store"] else None
@@ -511,7 +555,7 @@ def _worker(spec: dict, steps: list, names: list[str], unit: str, shared: dict, 
     lines: list[str] = []
     ctx = Context(game=Path(spec["game"]), out=out, hasher=hasher,
                   cache=Cache(out / "cache") if spec["cache"] else None, maps=list(spec["maps"]),
-                  force=spec["force"], log=lines.append, options=spec["options"], jobs=1)
+                  force=spec["force"], log=lines.append, options=spec["options"], jobs=jobs)
     graph = Graph(steps)
     produced = dict(shared)
     failed = set(blocked)
