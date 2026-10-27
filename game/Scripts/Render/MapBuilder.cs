@@ -197,6 +197,15 @@ public sealed class RenderMap
         Emitters?.SetTime(seconds);
     }
 
+    /// <summary>The map's texture projectors (render/projectors.json), or null for content without them.</summary>
+    public OpenScctGame.Render.Projectors.MapProjectors? Projectors { get; internal set; }
+
+    /// <summary>True when the projectors are drawn as volumes, so the converter's PROJ_ decal meshes are left out.</summary>
+    internal bool SkipProjectorDecals { get; set; }
+
+    /// <summary>The light beams of the map's lights (render/lightbeams.json), or null for content without them.</summary>
+    public OpenScctGame.Render.LightBeams.MapLightBeams? LightBeams { get; internal set; }
+
     /// <summary>The map's particle emitters, or null when the build left them out.</summary>
     public Particles.Emitters? Emitters { get; internal set; }
 
@@ -412,6 +421,8 @@ public static class MapBuilder
         map.SkyBoxes.AddRange(skyBoxes);
         map.Pack = pack;
         map.Actors = GameplayActors.Load(mapFolder);
+        List<OpenScctGame.Render.Projectors.ProjectorEntry>? projectors = OpenScctGame.Render.Projectors.ProjectorsDoc.Load(mapFolder);
+        map.SkipProjectorDecals = projectors is not null;
         new Builder(map, glb, options).Run();
         if (options.GameplayObjects)
         {
@@ -424,6 +435,13 @@ public static class MapBuilder
             map.Emitters = new Particles.Emitters(map, root);
             map.Stats.Emitters = map.Emitters.Count;
         }
+
+        if (projectors is not null)
+        {
+            map.Projectors = OpenScctGame.Render.Projectors.MapProjectors.Build(map, projectors, root);
+        }
+
+        map.LightBeams = OpenScctGame.Render.LightBeams.MapLightBeams.Build(map, root);
         if (pack is null)
         {
             map.Warnings.Add("no render pack (.content/shared/render): vision textures and gameplay object meshes are missing");
@@ -852,6 +870,10 @@ public static class MapBuilder
             }
 
             _usedLibraryMeshes.Add(meshName);
+            if (_map.SkipProjectorDecals && inst.TryGetProperty("projectorOf", out _))
+            {
+                return;   // drawn as a projector volume (MapProjectors)
+            }
 
             _map.Stats.Instances++;
             string actor = Str(inst, "actor") ?? "";

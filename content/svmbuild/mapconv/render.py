@@ -17,6 +17,9 @@ The exporter writes <Map>.gltf + .bin, textures/*.png and scene.json. This modul
   ambient, zone index), the sky zone, LevelInfo look settings and the lightmaps.
 - render/fx.json: every Emitter actor with its sub-emitters taken from its own Emitters array (the exact owner;
   the exporter attributes sub-emitters to the nearest preceding Emitter export), typed; projectors, rain and cloth.
+- render/projectors.json: every texture projector with its texture, frustum and blend ops (the client draws them as
+  volumes over the depth buffer).
+- render/lightbeams.json: the lights that draw a light beam, with their beam values and the beam slice meshes.
 - ui/mapinfo.json: the SMapSettings texts (map name, briefings, per-mode texts).
 """
 
@@ -60,6 +63,14 @@ def _replace_strings(v: Any, table: Dict[str, str]) -> Any:
     if isinstance(v, list):
         return [_replace_strings(x, table) for x in v]
     return v
+
+
+def _ue_vector(v: Any) -> List[float]:
+    return [float(v.get(k, 0.0)) for k in ("X", "Y", "Z")] if isinstance(v, dict) else [0.0, 0.0, 0.0]
+
+
+def _ue_rotator(v: Any) -> List[int]:
+    return [int(v.get(k, 0)) for k in ("Pitch", "Yaw", "Roll")] if isinstance(v, dict) else [0, 0, 0]
 
 
 def _json_bytes(doc: Any) -> bytes:
@@ -404,11 +415,103 @@ class RenderBuilder:
         self.stats["particleMeshes"] = len({r.path for r in self._particle_meshes()})
         return {"emitters": emitters, **extra}
 
+    # ---- projectors.json ---------------------------------------------------------------------
+
+    def build_projectors(self, scene: dict, tex_dir: Path) -> dict:
+        """Every texture projector (Projector, DynamicProjector) as the client draws it, a volume over whatever lies in
+        its frustum: placement, FOV, MaxTraceDistance, the blend ops, the flags, its texture PNG (written into
+        `tex_dir`), the texture size, its animation (TexPanner and friends, AnimNext flipbook)."""
+        from scctpkg import export_gltf  # noqa: PLC0415
+        from scctpkg.materials import MaterialResolver  # noqa: PLC0415
+
+        by_name = {a.name: a for a in self.src.actors}
+        resolver = MaterialResolver(self.src.pset)
+        tex_uri: Dict[str, Optional[str]] = {}
+        out = []
+        for a in scene["actors"]:
+            if a.get("kind") != "projector":
+                continue
+            info = by_name.get(a["name"])
+            ref = info.props.get("ProjTexture") if info is not None else None
+            if not isinstance(ref, Ref) or ref.ref == 0 or not self.src.own(ref):
+                continue
+            res = resolver.resolve(self.src.pkg, ref.ref)
+            if res.skip or res.texture is None:
+                self.src.notes.add("projector-texture", f"{a['name']}: {ref.path}")
+                continue
+            uri = export_gltf._ensure_texture(res, tex_dir, tex_uri)
+            if uri is None:
+                continue
+            tex = res.texture
+            entry = {"name": a["name"], "class": a["class"], "location": a["location"], "rotation": a["rotation"],
+                     "scale": a["scale"], "texture": uri,
+                     "size": [float(tex.props.get("USize") or tex.width or 256), float(tex.props.get("VSize") or tex.height or 256)],
+                     "fov": a.get("fov", 0.0), "maxTrace": a.get("max_trace", 1000.0), "fbBlend": a.get("fb_blend", 1),
+                     "matBlend": a.get("mat_blend", 0), "projectBsp": a.get("project_bsp", True),
+                     "projectStaticMesh": a.get("project_static_mesh", True), "backfaces": a.get("backfaces", False),
+                     "gradient": a.get("gradient", False),
+                     "projectActor": bool(self.src.value(info, "bProjectActor", True))}
+            if res.uv_anim:
+                entry["uvAnim"] = res.uv_anim
+            if res.flipbook:
+                fb = export_gltf._flipbook_png(res.key, res.flipbook, tex_dir, tex_uri)
+                if fb:
+                    entry["flipbook"] = fb
+            out.append(entry)
+        self.stats["projectors"] = len(out)
+        return {"projectors": out}
+
+    # ---- lightbeams.json ---------------------------------------------------------------------
+
+    def build_light_beams(self, scene: dict) -> dict:
+        """Lights that draw a light beam (UsesLightBeam with a LightBeamMesh, docs/RENDERING.md#light-beams): the beam
+        values of each (stored, else the class default) and the slice meshes they name, as plain positions and
+        triangle indices in the mesh's own space (x 0..1 along the beam, y and z -1..1 across it)."""
+        from scctpkg.staticmesh import read_static_mesh  # noqa: PLC0415
+
+        placed = {a["name"]: a for a in scene["actors"]}
+        meshes: Dict[str, Optional[dict]] = {}
+        beams = []
+        for info in self.src.actors:
+            if info.category in ("editor", "skipped"):
+                continue
+            mesh = self.src.value(info, "LightBeamMesh")
+            if not self.src.value(info, "UsesLightBeam") or not isinstance(mesh, Ref) or mesh.ref == 0 or not mesh.path:
+                continue
+            if mesh.path not in meshes:
+                meshes[mesh.path] = None
+                pkg, e = self.src.ref_export(mesh)
+                if pkg is not None and e is not None and e.class_name == "StaticMesh":
+                    sm = read_static_mesh(pkg, e)
+                    meshes[mesh.path] = {"positions": [round(float(v), 5) for v in sm.positions.reshape(-1)],
+                                         "indices": [int(i) for i in sm.indices]}
+            if meshes[mesh.path] is None:
+                self.src.notes.add("light-beam-mesh", f"{info.name}: {mesh.path}")
+                continue
+            a = placed.get(info.name) or {"location": _ue_vector(info.props.get("Location")),
+                                          "rotation": _ue_rotator(info.props.get("Rotation"))}
+            num = lambda k, d: float(self.src.value(info, k, d) or 0.0)  # noqa: E731
+            light_type = self.src.value(info, "LightType", 1)
+            beams.append({
+                "name": info.name, "class": info.cls.split(".")[-1], "mesh": mesh.path,
+                "location": a.get("location"), "rotation": a.get("rotation"),
+                "echelonRange": num("EchelonRange", 0.0), "spotWidth": num("SpotWidth", 0.0),
+                "spotHeight": num("SpotHeight", 0.0), "nearPlaneRatio": num("NearPlaneRatio", 0.0),
+                "falloffScale": num("LightBeamFalloffScale", 1.0), "alpha": int(num("LightBeamInitialAlpha", 128.0)),
+                "brightness": num("LightBrightness", 64.0), "hue": int(num("LightHue", 0.0)),
+                "saturation": int(num("LightSaturation", 255.0)), "color": a.get("color"),
+                "lightOn": int(light_type or 0) != 0, "initiallyOn": bool(self.src.value(info, "bInitialyOn", True))
+                if info.cls.endswith("STriggerLight") else True,
+                "gameplay": info.name in self.gameplay_ids})
+        self.stats["lightBeams"] = len(beams)
+        return {"meshes": {k: v for k, v in meshes.items() if v is not None}, "beams": beams}
+
     # ---- all ---------------------------------------------------------------------------------
 
     def build(self, zone_index: Dict[str, int], ui: dict) -> Dict[str, bytes]:
         gltf, binary, scene = self.export()
         tex_dir = self.work / self.src.name / "textures"
+        projectors = self.build_projectors(scene, tex_dir)   # writes its PNGs before the textures are collected
         textures = {}
         renamed: Dict[str, str] = {}
         if tex_dir.is_dir():
@@ -429,6 +532,8 @@ class RenderBuilder:
         files["materials.json"] = _json_bytes(self.build_materials(gltf, scene, rename))
         files["lighting.json"] = _json_bytes(self.build_lighting(scene, zone_index, lightmaps))
         files["fx.json"] = _json_bytes(self.build_fx(scene, set(textures)))
+        files["projectors.json"] = _json_bytes(_replace_strings(projectors, renamed))
+        files["lightbeams.json"] = _json_bytes(self.build_light_beams(scene))
         self.stats["textures"] = len(textures)
         self.ui = ui
         shutil.rmtree(self.work, ignore_errors=True)

@@ -72,10 +72,10 @@ SoundTriggers (54), SAlarms (39), objectives and computers.
 ## Port notes
 
 - `src/OpenScct.Game/SBase/STriggerLight.cs`; render wiring in `game/Scripts/Views/DeviceViews.cs`,
-  `game/Scripts/Render/MapBuilder.cs` (RenderMap), `ActorLighting.cs`, `Coronas.cs`.
+  `game/Scripts/Render/MapBuilder.cs` (RenderMap), `ActorLighting.cs`, `Coronas.cs`; the beam (live LightType and
+  UsesLightBeam) in `game/Scripts/Render/LightBeams/MapLightBeams.cs` (docs/RENDERING.md#light-beams).
 - Not drawn: `AssociatedShadowActors` (the maps give them as package paths of baked StaticMeshActors, which the
-  sim does not hold; they stay drawn), light beams (`UsesLightBeam`, `LightBeamMesh`: no beam renderer yet), and the
-  thermal heat of lights (`HeatIntensity` 500 with `HeatRadius` 200/1000 on 31 lights). Static meshes lit once at
+  sim does not hold; they stay drawn) and the thermal heat of lights (`HeatIntensity` 500 with `HeatRadius` 200/1000 on 31 lights). Static meshes lit once at
   build keep their light set when a light switches; moving actors relight every 0.1 s.
 
 ## Sources

@@ -289,6 +289,44 @@ FDynamicLight colour.
 - The sky backdrop has the lowest render priority, so a corona or a particle over the sky is never overdrawn by it
   (the crane lamp's corona was).
 
+## Projectors
+
+Map texture projectors (`Projector`, `DynamicProjector` with a `ProjTexture`; 127 placed) are drawn as volumes
+(`Projectors/MapProjectors`, `svm_projector.gdshaderinc`) from `render/projectors.json`: the back faces of the
+frustum box draw with no depth test, rebuild each pixel's world point from the depth buffer and project the texture
+onto it, so BSP, static meshes and actors all receive it. The converter's `PROJ_` decal meshes (BSP only, blend
+ignored) are left out when the file is there.
+
+- Mapping: u = dot(P - L, Y) / (USize x DrawScale x DrawScale3D.Y) + 0.5, v likewise with Z and VSize, depth
+  dot(P - L, X) in 0..MaxTraceDistance (live `Projector.Matrix`, bridge). With FOV > 0 the frustum holds that size at
+  the projector and widens from an apex behind it (estimate; FOV 1, ShadD's signs, stays the texture's size).
+- Frame buffer blend (`SetProjectorMaterial`, game 0x10972320): PB_AlphaBlend SRCALPHA, INVSRCALPHA; PB_Add ONE, ONE;
+  PB_None and PB_Modulate both DESTCOLOR, SRCCOLOR (frame x texture x 2). The texture is not lit.
+- Surfaces turned away from the projector are skipped unless `bProjectOnBackfaces` (the original fades them through a
+  generated attenuation texture, here a hard cut on the normal rebuilt from depth).
+- Animated textures: AnimNext flipbooks and TexPanner / TexOscillator, as in the world materials.
+- Thermal and EMF draw no projections.
+- Not reproduced: MaterialBlendingOp (the projected texture mixed with the surface's own material: PB_Modulate 2x,
+  PB_AlphaBlend by the projected alpha; PB_Add leaves it out), `bGradient` (no placed projector sets it), and
+  `bProjectActor` / `bProjectBSP` / `bProjectStaticMesh` filtering (the depth buffer does not say what drew it).
+
+## Light beams
+
+Lights with `UsesLightBeam` and a `LightBeamMesh` (200 placed, `TestMapStaticM.Accessories.LightBeam` and its copy
+`STM_INI.STM.INI_LightBeam`: 9 planes across Y and 9 across Z, X 0..1) draw the mesh stretched along the light
+(`LightBeams/MapLightBeams`, `svm_light_beam.gdshader`) from `render/lightbeams.json`:
+
+- Length EchelonRange x LightBeamFalloffScale; the section at distance t is the spot (SpotWidth x SpotHeight) x
+  (NearPlaneRatio + (1 - NearPlaneRatio) t / EchelonRange) (game 0x1097ba8a, bridge). NearPlaneRatio outside (0, 1]
+  is taken as 0.1 (estimate).
+- Each slice multiplies the frame by 1 + 0.2 x LightBrightness / 255 x sqrt(LightBeamInitialAlpha) x light colour,
+  fading as 1 - x along the beam (bridge FactD measurement; the fade is an estimate). No shadow buffer cut yet.
+- On while LightType != LT_None and UsesLightBeam: lights the simulation holds (STriggerLight, light movers such as
+  BankD's Mover3569) are read live after each tick, so `LightOff` (which clears UsesLightBeam) and alarm switches drop
+  the beam and a moving light carries it; other lights follow `RenderMap.IsLightOn`.
+- Thermal and EMF draw no beams. Searchlights (`SProjoFixe` / `SProjoLight`) have no beam: neither class sets one.
+- Not drawn: the merc torch's beam (SGadTorche sets UsesLightBeam while on; the torch is placed by `FlashLightView`).
+
 ## Sky zone
 
 When `lighting.json` has a sky zone, `FaithfulView` renders it in a SubViewport from the SkyZoneInfo's location with
@@ -633,8 +671,9 @@ Both need `.content/` (converted content and the render pack), so CI's default s
   pyramid and composites it (ps 0x10c4ed00); the night pass blurs that once more (0x10967d70) and adds it as `glow`.
   Without DoGlow & 3 it adds a blurred copy of the scene instead. The three full-screen pre-draws of the night pass
   (texture factors 0x7f7f7f7f and 0 at depths 0.9974 and 0.9979) are not decoded.
-- Not drawn yet: projectors (`fx.json` projectors are empty on SteeE), light beams, mirrors,
-  BeamEmitter / SparkEmitter.
+- Projectors: MaterialBlendingOp and per-type filtering (above). Light beams: the shadow buffer cut (window bars) and
+  the torch beam.
+- Not drawn yet: mirrors, BeamEmitter / SparkEmitter.
 - Spot shadow lights: the Echelon light pass's gain (2), shadow buffer sizes (ShadowZBufferWidthType /
   HeightType), EchelonBias and the original's limit on lights drawn at once are not decoded; bDirectional and
   bIsPerspective are read nowhere yet.

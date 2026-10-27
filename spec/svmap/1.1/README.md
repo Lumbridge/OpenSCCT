@@ -162,6 +162,12 @@ Client-only JSON, written with the canonical writer but hashed as raw bytes (ren
   `props`), `sky`, `look`, `lightmaps`.
 - `fx.json`: `emitters` keyed by Emitter actor: `class`, `gameplay`, typed `props`, `emitters` (its sub-emitters
   from its own `Emitters` array: `object`, `class`, typed `props`, `texture`); `projectors`, `rain`, `patches`.
+- `projectors.json` (optional): `projectors`, each texture projector with `location`, `rotation`, `scale`
+  (DrawScale x DrawScale3D), `texture`, `size` (USize, VSize), `fov`, `maxTrace`, `fbBlend`, `matBlend`, the projection
+  flags, `uvAnim` and `flipbook` when animated. A client that reads it leaves out the `projectorOf` instances.
+- `lightbeams.json` (optional): `beams` (lights with UsesLightBeam and a LightBeamMesh: placement, EchelonRange,
+  spot size, NearPlaneRatio, LightBeamFalloffScale, LightBeamInitialAlpha, brightness, colour, on state) and
+  `meshes` (per beam mesh asset: `positions` flat xyz in mesh space, `indices`).
 - `mapinfo.json`: the `SMapSettings` strings and `modes` (per mode name, its briefing texts).
 
 ## Versioning
