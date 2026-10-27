@@ -148,7 +148,7 @@ public partial class AchievementsScreen : MenuPage
     private static string CategoryNote(AchievementCategory c) => c switch
     {
         AchievementCategory.Weapons => "A camo ladder per merc gun, then Gilded for the golden guns",
-        AchievementCategory.Gadgets => "Both kits, Change Gear gadgets too, then all of them for the Mastercraft finish",
+        AchievementCategory.Gadgets => "Both kits, Change Gear gadgets too, then a side's whole kit for its Mastercraft suit and guns",
         AchievementCategory.Map => "Win on each map 3 times as a spy and 3 times as a mercenary",
         _ => string.Empty,
     };

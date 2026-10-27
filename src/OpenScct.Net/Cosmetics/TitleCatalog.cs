@@ -117,6 +117,7 @@ public static class TitleCatalog
         Add("ach_gadget_master", "Mastercraft", TitleSource.Achievement, achievement: "gadget_master");
         Add("ach_petard", "Petard", TitleSource.Achievement, achievement: "spy_mine_25");
         Add("ach_high_voltage", "High Voltage", TitleSource.Achievement, achievement: "merc_taser_100");
+        Add("ach_spy_mastercraft", "Mastercraft Ghost", TitleSource.Achievement, achievement: "spy_mastercraft");
 
         foreach (TitleItem t in list.Where(t => t.Source == TitleSource.Achievement))
         {

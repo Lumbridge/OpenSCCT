@@ -115,6 +115,9 @@ THUMB_SIZE = 256
 # painted skins: pyre, kaido, cryo, the cogs) replace nearly all of it, or the retail grey dulls them.
 CAMO_STRENGTH = 0.85
 FINISH_STRENGTH = 0.97
+# Mastercraft's engraving against the plain gold's: line width and how much darker/lighter the cuts are.
+MASTERCRAFT_WEIGHT = 2.0
+MASTERCRAFT_DEPTH = 1.6
 _GILDED = ("gold", "mastercraft")  # colours follow the retail brightness, no extra shading
 _LACQUERED = ("flames", "livery", "cryo", "cogs", "skeleton")  # a light touch of the retail shading
 _FINISHES = _GILDED + _LACQUERED
@@ -764,9 +767,10 @@ def _shape_stripe(rng, h, w, colours, luma):
     return _mix(np.broadcast_to(_rgb(colours[1]), (h, w, 3)) * (0.95 + 0.1 * streak)[..., None], dark, a)
 
 
-def _engraving(rng, h, w, cogs: bool):
+def _engraving(rng, h, w, cogs: bool, weight: float = 1.0):
     """Fine engraving for the gold finishes: (groove, raised) h x w 0..1. Small spiral scrolls with leaves scattered
-    over engine-turned waves; with cogs, engraved cog outlines too (the scrolls fill the gaps)."""
+    over engine-turned waves; with cogs, engraved cog outlines too (the scrolls fill the gaps). weight scales the line
+    widths (1 for the plain gold)."""
     cv = _Canvas(h, w)
     u, v = _uv(h, w)
     px = cv.px
@@ -777,7 +781,7 @@ def _engraving(rng, h, w, cogs: bool):
     f = (v + 0.25 * u) * 150.0 + 3.0 * _noise(rng, h, w, 5) + 0.8 * np.sin(u * _TAU * 9 + v * _TAU * 3)
     gy, gx = np.gradient(f)
     dist = np.abs(((f + 0.5) % 1.0) - 0.5) / (np.hypot(gx, gy) + 1e-6) * px
-    waves = 0.45 * _ink(dist, 0.00028, px)
+    waves = 0.45 * _ink(dist, 0.00028 * weight, px)
     if cogs:
         for x, y, r, ang, teeth, extra in _cog_layout(rng, 40, 5, 0.010, 0.026, 0.0042):
             iy, ix, X, Y = cv.tile(x, y, r * 1.15)
@@ -786,12 +790,12 @@ def _engraving(rng, h, w, cogs: bool):
             m = 0.0042 / np.pi
             d = _sd_gear(lx, ly, teeth, (r - 2.25 * m) / r, (r - m) / r, 0.00105 / r) * r
             rr = np.hypot(lx, ly)
-            lines = np.maximum(_ink(np.abs(d), 0.00034, px), _ink(np.abs(rr - 0.32) * r, 0.0003, px))
-            lines = np.maximum(lines, _ink(np.abs(rr - 0.12) * r, 0.0003, px))
+            lines = np.maximum(_ink(np.abs(d), 0.00034 * weight, px), _ink(np.abs(rr - 0.32) * r, 0.0003 * weight, px))
+            lines = np.maximum(lines, _ink(np.abs(rr - 0.12) * r, 0.0003 * weight, px))
             spokes = 3 + int(extra * 3)
             fx, fy = _fold(lx, ly, spokes)
             hole = np.maximum(np.maximum(rr - 0.62, 0.40 - rr), -(np.abs(fy) - 0.09))
-            lines = np.maximum(lines, _ink(np.abs(hole) * r, 0.0003, px))
+            lines = np.maximum(lines, _ink(np.abs(hole) * r, 0.0003 * weight, px))
             groove[iy, ix] = np.maximum(groove[iy, ix], lines)
             inside = _cov(d, px)
             raised[iy, ix] = np.maximum(raised[iy, ix], 0.35 * inside * _cov(-hole * r, px))
@@ -813,14 +817,14 @@ def _engraving(rng, h, w, cogs: bool):
         tx, ty = -np.sin(end), np.cos(end)  # the spiral's direction at its outer end
         l1, v1 = _sd_leaf(lx, ly, ex_, ey_, ex_ + 1.0 * (tx * 0.8 + ex_ * 0.6), ey_ + 1.0 * (ty * 0.8 + ey_ * 0.6), 0.22)
         l2, v2 = _sd_leaf(lx, ly, ex_, ey_, ex_ + 0.7 * (tx * 0.6 - ex_ * 0.8), ey_ + 0.7 * (ty * 0.6 - ey_ * 0.8), 0.16)
-        lines = np.maximum(_ink(d * r, 0.00034, px), _ink(np.abs(np.minimum(l1, l2)) * r, 0.00028, px))
-        lines = np.maximum(lines, 0.6 * _ink(np.minimum(v1, v2) * r, 0.0002, px) * _cov(np.minimum(l1, l2) * r, px))
+        lines = np.maximum(_ink(d * r, 0.00034 * weight, px), _ink(np.abs(np.minimum(l1, l2)) * r, 0.00028 * weight, px))
+        lines = np.maximum(lines, 0.6 * _ink(np.minimum(v1, v2) * r, 0.0002 * weight, px) * _cov(np.minimum(l1, l2) * r, px))
         groove[iy, ix] = np.maximum(groove[iy, ix], lines)
         raised[iy, ix] = np.maximum(raised[iy, ix], 0.5 * _cov(np.minimum(l1, l2) * r, px))
         clear[iy, ix] = np.maximum(clear[iy, ix], _cov((np.hypot(lx, ly) - 1.25) * r, px))
     groove = np.maximum(groove, waves * (1.0 - clear))
     # A burnished edge on the lit side of each groove.
-    k = max(1, int(round(0.0005 / px)))
+    k = max(1, int(round(0.0005 * weight / px)))
     burnish = np.clip(np.roll(groove, (k, k), (0, 1)) - groove, 0.0, 1.0)
     return groove, np.maximum(raised, 0.8 * burnish)
 
@@ -831,17 +835,17 @@ def _cog_hit(cv, clear, x, y, r) -> bool:
     return bool(clear[iy, ix].mean() > 0.05)
 
 
-def _gold_ramp(luma, colours, groove=None, raised=None):
+def _gold_ramp(luma, colours, groove=None, raised=None, depth: float = 1.0):
     """The retail brightness stretched over the whole gold ramp (gun textures are dark: unstretched, most of the gun
-    lands on the darkest gold), grooves cut darker and raised work burnished lighter. A flat luma (the menu swatch)
-    is taken as is."""
+    lands on the darkest gold), grooves cut darker and raised work burnished lighter (depth scales both, 1 for the
+    plain gold). A flat luma (the menu swatch) is taken as is."""
     lo, hi = np.percentile(luma, 2), np.percentile(luma, 98)
     stretched = luma if hi - lo < 0.02 else np.clip((luma - lo) / max(float(hi - lo), 1e-3), 0.0, 1.0)
     t = 0.25 + 0.75 * stretched
     if groove is None:
         return _ramp(t, colours)
-    t = t - 0.34 * groove + 0.16 * raised * (1.0 - groove)
-    return _ramp(t, colours) * (1.0 - 0.18 * groove)[..., None]
+    t = t - 0.34 * depth * groove + 0.16 * depth * raised * (1.0 - groove)
+    return _ramp(t, colours) * (1.0 - min(0.18 * depth, 0.6) * groove)[..., None]
 
 
 def _shape_gold(rng, h, w, colours, luma):
@@ -851,9 +855,10 @@ def _shape_gold(rng, h, w, colours, luma):
 
 
 def _shape_mastercraft(rng, h, w, colours, luma):
-    """Gold like "golden" with fine engraved cogs and filigree scrolls in the gaps."""
-    groove, raised = _engraving(rng, h, w, cogs=True)
-    return _gold_ramp(luma, colours, groove, raised)
+    """Gold like "golden" with engraved cogs and filigree scrolls in the gaps, cut wider and deeper than the plain
+    gold's so they read at a glance."""
+    groove, raised = _engraving(rng, h, w, cogs=True, weight=MASTERCRAFT_WEIGHT)
+    return _gold_ramp(luma, colours, groove, raised, depth=MASTERCRAFT_DEPTH)
 
 
 def _shape_flames(rng, h, w, colours, luma):

@@ -239,12 +239,17 @@ public static class Achievements
         list.Add(new Achievement("spy_gilded", "Gilded Ghost", "Finish every spy achievement: the golden pistol.", S,
             p => (spyIds.Count(p.Earned.Contains), spyIds.Length), ["spy.pistol.golden"], (p, _, _) => spyIds.All(p.Earned.Contains)));
 
-        string[] gadgetIds = list.Where(a => a.Category == D).Select(a => a.Id).ToArray();
-        list.Add(new Achievement("gadget_master", "Mastercraft", "Finish every achievement in this tab, spy and merc: the Mastercraft finish.", D,
-            p => (gadgetIds.Count(p.Earned.Contains), gadgetIds.Length),
-            ["spy.body.mastercraft", "spy.pistol.mastercraft", "merc.body.mastercraft", "merc.ar.mastercraft", "merc.smg.mastercraft",
-                "merc.shotgun.mastercraft"],
-            (p, _, _) => gadgetIds.All(p.Earned.Contains)));
+        // One Mastercraft per side: that side's suit and guns.
+        string[] spyGadgetIds = list.Where(a => a.Category == D && a.Id.StartsWith("spy_", StringComparison.Ordinal)).Select(a => a.Id).ToArray();
+        list.Add(new Achievement("spy_mastercraft", "Mastercraft Ghost", "Finish every spy gadget achievement: the Mastercraft suit and pistol.", D,
+            p => (spyGadgetIds.Count(p.Earned.Contains), spyGadgetIds.Length), ["spy.body.mastercraft", "spy.pistol.mastercraft"],
+            (p, _, _) => spyGadgetIds.All(p.Earned.Contains)));
+
+        string[] mercGadgetIds = list.Where(a => a.Category == D && a.Id.StartsWith("merc_", StringComparison.Ordinal)).Select(a => a.Id).ToArray();
+        list.Add(new Achievement("gadget_master", "Mastercraft", "Finish every merc gadget achievement: the Mastercraft suit and guns.", D,
+            p => (mercGadgetIds.Count(p.Earned.Contains), mercGadgetIds.Length),
+            ["merc.body.mastercraft", "merc.ar.mastercraft", "merc.smg.mastercraft", "merc.shotgun.mastercraft"],
+            (p, _, _) => mercGadgetIds.All(p.Earned.Contains)));
 
         // ---- The painted gun skins: each gives its skin for the spy pistol and all three merc guns. Listed after the
         // gilded ones so they are not part of what those need.

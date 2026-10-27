@@ -19,7 +19,7 @@ is a port: there is no `[PortOf]` and no provenance tag. The numbers are our own
    - objectives: `ObjectiveXp` (50) per objective the spy took (the `spy.objectives` feat), at most
      `MaxObjectivesCounted` (10), because objectives score 0 points in the retail table;
    - achievements: `AchievementXp` (250) for a total to reach, `RoundAchievementXp` (500) for a one-round feat,
-     `MetaAchievementXp` (1000) for Gilded, Gilded Ghost and Mastercraft (`Progression.XpOf`).
+     `MetaAchievementXp` (1000) for Gilded, Gilded Ghost, Mastercraft and Mastercraft Ghost (`Progression.XpOf`).
 4. **Levels.** Level 1 to `MaxLevel` (55). Going from level L to L+1 costs `FirstLevelXp + LevelStepXp * (L - 1)`
    (200, 250, 300 ...), 82,350 XP for a whole prestige (`PlayerRank.CapXp`). XP is kept within a prestige and never
    above the cap; the lifetime total keeps counting.
@@ -31,7 +31,7 @@ is a port: there is no `[PortOf]` and no provenance tag. The numbers are our own
    - level milestones 10, 25, 40 and 55 (Recruit, Regular, Veteran, Elite), from the best level ever reached; a
      prestiged account has them all;
    - achievement titles (Golden Gun, Gilded Ghost, Untouchable, The Wall, Reaper, Lifer, Phantom, Warden, Deadeye,
-     Ghost in the Machine, Mastercraft, Petard, High Voltage).
+     Ghost in the Machine, Mastercraft, Petard, High Voltage, Mastercraft Ghost).
 
    The player picks one (or none) on the Account page; it is kept in `settings.json` as `title` and follows the
    account through the profile sync.

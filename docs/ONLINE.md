@@ -362,7 +362,9 @@ target) and unlocks cosmetics:
   Goal, Turnabout, Hoist by Their Own Petard), Gadgeteer (a spy bullet hit on a merc, a sticky cam knockout, a chaff
   jam and a flash-bang flash in one round) and Whiteout (10 mercs flashed in one match, every merc each flash catches
   counted: the Flashbang suit and pistol). Merc: taser hits (25, 100), mines placed, mine kills (15, 50), frag kills (15, 50), berserk hits and
-  Demolitions (two explosive kills in a round). Mastercraft (every other achievement in the Gadgets tab) gives the Mastercraft finish.
+  Demolitions (two explosive kills in a round). Mastercraft Ghost (every spy gadget achievement) gives the spy
+  Mastercraft suit and pistol; Mastercraft (every merc gadget achievement) gives the merc Mastercraft suit and all three
+  guns. The Mastercraft finish is gold with deeper, wider engraving (cogs and scrolls) than the golden camo.
 - **Maps:** win on a base map (the code's first four letters, so every variant counts) 3 times as a spy and 3 times
   as a merc. Each gives that map's camo.
 

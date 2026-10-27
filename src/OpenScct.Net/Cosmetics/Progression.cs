@@ -146,7 +146,7 @@ public static class Progression
     public static int XpOf(Achievement achievement)
     {
         ArgumentNullException.ThrowIfNull(achievement);
-        if (achievement.Id is "gilded" or "spy_gilded" or "gadget_master")
+        if (achievement.Id is "gilded" or "spy_gilded" or "gadget_master" or "spy_mastercraft")
         {
             return ProgressionK.MetaAchievementXp;
         }
