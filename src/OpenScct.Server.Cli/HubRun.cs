@@ -59,6 +59,7 @@ internal static class HubRun
                     Name = options.Name ?? "OpenSCCT Hub",
                     MaxPlayers = options.MaxPlayers,
                     NetRate = options.NetRate,
+                    Profile = options.NetProfile ?? OpenScct.Net.NetProfile.Enhanced,
                     Seed = options.Seed,
                     Maps = Catalog(options),
                     Classes = NetClasses.Create(),
@@ -133,6 +134,7 @@ internal static class HubRun
             {
                 Name = config.Name, Port = config.Port, MaxPlayers = config.MaxPlayers, MaxGiven = true,
                 Motd = config.Motd ?? options.Motd, Maps = maps, NetRate = config.NetRate, Seed = config.Seed,
+                NetProfile = options.NetProfile ?? config.Profile,
                 LoopbackOnly = options.LoopbackOnly || config.LoopbackOnly, LanPlay = options.LanPlay || config.LanPlay,
             };
             fileMaster = config.Master;

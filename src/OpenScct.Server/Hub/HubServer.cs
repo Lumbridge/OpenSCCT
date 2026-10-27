@@ -26,11 +26,17 @@ public sealed record HubSettings
     public int MaxPlayers { get; init; } = HubK.DefaultMaxPlayers;
 
     /// <summary>
-    /// Replication passes per second; 0 (the default) takes the Stock rate (20 internet, 35 with
-    /// <see cref="LanPlay"/>). The hub runs the Stock profile with its own per-connection budget; its matches run
-    /// Enhanced (<see cref="HubMatchLauncher"/>).
+    /// Replication passes per second; 0 (the default) takes the profile's rate (Enhanced 60; Stock 20, 35 with
+    /// <see cref="LanPlay"/>).
     /// </summary>
     public int NetRate { get; init; }
+
+    /// <summary>
+    /// Network profile of the hub itself. Enhanced (the default, as in matches): replication every tick, a send budget
+    /// per client and interpolated pawn proxies. Stock replicates at 20 Hz with a per-connection budget, which made
+    /// movement in the hub snap.
+    /// </summary>
+    public NetProfile Profile { get; init; } = NetProfile.Enhanced;
 
     public ulong Seed { get; init; } = 1;
 
@@ -241,6 +247,7 @@ public sealed partial class HubServer : IDisposable
             Map = Settings.Map,
             MaxPlayers = Settings.MaxPlayers,
             NetRate = Settings.NetRate,
+            Profile = Settings.Profile,
             MatchSeed = Settings.Seed,
             Maps = Settings.Maps,
             Classes = Settings.Classes,
