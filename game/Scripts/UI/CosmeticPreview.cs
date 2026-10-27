@@ -55,9 +55,12 @@ public partial class CosmeticPreview : Control
         var container = new SubViewportContainer { Name = "View", Stretch = true, MouseFilter = MouseFilterEnum.Ignore };
         container.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
         AddChild(container);
+        // No MSAA: the post pass writes the colour buffer as a storage image, and the MSAA resolve target lacks that
+        // usage (the GPU call failed and the game crashed opening the armoury). FXAA smooths the edges after the pass.
         _viewport = new SubViewport
         {
-            Name = "Viewport", OwnWorld3D = true, TransparentBg = true, Msaa3D = Viewport.Msaa.Msaa4X,
+            Name = "Viewport", OwnWorld3D = true, TransparentBg = true, Msaa3D = Viewport.Msaa.Disabled,
+            ScreenSpaceAA = Viewport.ScreenSpaceAAEnum.Fxaa,
             Size = new Vector2I((int)size.X, (int)size.Y), RenderTargetUpdateMode = SubViewport.UpdateMode.WhenVisible,
         };
         container.AddChild(_viewport);
