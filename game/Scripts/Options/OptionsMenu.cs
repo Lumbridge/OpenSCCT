@@ -96,7 +96,7 @@ public partial class OptionsMenu : Control
 
         AddChild(BuildLabel.Corner());
 
-        VBoxContainer column = UiStyle.CentreColumn(this, 860f);
+        VBoxContainer column = Frame();
         column.AddChild(UiStyle.Title("OPTIONS", HudK.SpyColour));
         GridContainer player = Grid("Player");
         if (OpenScctGame.Online.AccountSettings.Current.AccountName is { } accountName)
@@ -122,7 +122,7 @@ public partial class OptionsMenu : Control
             column.AddChild(player);
         }
 
-        _tabs = new TabContainer { Name = "Tabs", CustomMinimumSize = new Vector2(860f, 440f) };
+        _tabs = new TabContainer { Name = "Tabs", CustomMinimumSize = new Vector2(0f, 440f), SizeFlagsVertical = SizeFlags.ExpandFill };
         _tabs.AddChild(KeysPage());
         _tabs.AddChild(MousePage());
         _tabs.AddChild(PadPage());
@@ -148,6 +148,40 @@ public partial class OptionsMenu : Control
 
         column.AddChild(buttons);
         LoadLayout(PlaySide.Spy);
+    }
+
+    /// <summary>
+    /// The options' frame: most of the screen (so the pages are not crammed), on a solid panel so a busy screen
+    /// behind (the lobby) does not show through. Returns the column the title, pages and buttons go in.
+    /// </summary>
+    private VBoxContainer Frame()
+    {
+        var frame = new Control
+        {
+            Name = "Frame", AnchorLeft = 0.08f, AnchorRight = 0.92f, AnchorTop = 0.04f, AnchorBottom = 0.96f,
+            CustomMinimumSize = new Vector2(860f, 0f),
+        };
+        AddChild(frame);
+        var fill = new ColorRect { Name = "Fill", Color = UiStyle.Background with { A = 0.96f }, MouseFilter = MouseFilterEnum.Ignore };
+        fill.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
+        frame.AddChild(fill);
+        var panel = new PanelContainer { Name = "Panel" };
+        panel.AddThemeStyleboxOverride("panel", UiStyle.MenuPanelBox());
+        panel.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
+        frame.AddChild(panel);
+        var margin = new MarginContainer { Name = "Margin" };
+        foreach (string side in new[] { "margin_left", "margin_right" })
+        {
+            margin.AddThemeConstantOverride(side, 24);
+        }
+
+        margin.AddThemeConstantOverride("margin_top", 8);
+        margin.AddThemeConstantOverride("margin_bottom", 16);
+        panel.AddChild(margin);
+        var column = new VBoxContainer { Name = "Column" };
+        column.AddThemeConstantOverride("separation", 10);
+        margin.AddChild(column);
+        return column;
     }
 
     // ---- pages ---------------------------------------------------------------------------------------------
@@ -274,7 +308,9 @@ public partial class OptionsMenu : Control
 
         bool merc = _padSide == PlaySide.Merc;
         Dictionary<string, string> buttons = _edit.Pad.ButtonsOf(merc);
-        List<(string Action, string Label)> choices = new KeyBindingsModel(_padSide).PadChoices();
+        var model = new KeyBindingsModel(_padSide);
+        List<(string Action, string Label)> choices = model.PadChoices();
+        List<(string Action, string Label)> every = model.PadChoices(otherTeam: true);
         foreach (string control in PadSettings.Controls)
         {
             string current = buttons.TryGetValue(control, out string? a) ? a : "";
@@ -282,8 +318,9 @@ public partial class OptionsMenu : Control
             int selected = items.FindIndex(c => string.Equals(c.Action, current, StringComparison.OrdinalIgnoreCase));
             if (selected < 0)
             {
-                // An action this side's layout has no key for: kept, and shown as such.
-                items.Add((current, current + " (no key in this layout)"));
+                // A saved action this team does not use, or one its layout has no key for: kept, and shown as such.
+                int other = every.FindIndex(c => string.Equals(c.Action, current, StringComparison.OrdinalIgnoreCase));
+                items.Add((current, other >= 0 ? every[other].Label + " (other team only)" : current + " (no key in this layout)"));
                 selected = items.Count - 1;
             }
 
@@ -312,7 +349,7 @@ public partial class OptionsMenu : Control
     {
         if (_padSide == PlaySide.Merc)
         {
-            _edit.Pad.MercButtons = PadSettings.DefaultButtons();
+            _edit.Pad.MercButtons = PadSettings.DefaultButtons(merc: true);
         }
         else
         {

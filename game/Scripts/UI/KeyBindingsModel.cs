@@ -67,7 +67,11 @@ public sealed class KeyBindingsModel
     /// What a controller button can do on this side: nothing, the menu, each bound key's action (named as the key list
     /// names it; the action is the key's first command or button), then the hub's own keys.
     /// </summary>
-    public List<(string Action, string Label)> PadChoices()
+    /// <remarks>
+    /// Both stock layouts bind the same shared key list, so the other team's actions (<see cref="SpyOnly"/>,
+    /// <see cref="MercOnly"/>) are left out unless <paramref name="otherTeam"/> is set (to name a saved choice).
+    /// </remarks>
+    public List<(string Action, string Label)> PadChoices(bool otherTeam = false)
     {
         var choices = new List<(string Action, string Label)>
         {
@@ -77,6 +81,11 @@ public sealed class KeyBindingsModel
         var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "", OpenScctGame.Options.PadSettings.MenuAction };
         foreach (KeyBindingRow row in Rows())
         {
+            if (!otherTeam && !UsedBy(row.Command, Side))
+            {
+                continue;
+            }
+
             foreach (OpenScctGame.Controls.KeyAction a in _bindings.Actions(row.Key))
             {
                 if (a.Kind == OpenScctGame.Controls.KeyActionKind.Axis)
@@ -99,6 +108,19 @@ public sealed class KeyBindingsModel
         }
 
         return choices;
+    }
+
+    /// <summary>Key list commands only the spy has (Reloaded's spy-only pad binds, rl:input.padbinds).</summary>
+    public static readonly string[] SpyOnly = ["HackComm", "PrevStickyCam", "Btw", "PerformCoopMvt", "ChangeSpeed"];
+
+    /// <summary>Key list commands only the mercenary has (Reloaded's merc-only pad binds, rl:input.padbinds).</summary>
+    public static readonly string[] MercOnly = ["ROF"];
+
+    /// <summary>Whether <paramref name="side"/> uses the key list command <paramref name="command"/>.</summary>
+    public static bool UsedBy(string command, PlaySide side)
+    {
+        string[] other = side == PlaySide.Merc ? SpyOnly : MercOnly;
+        return Array.FindIndex(other, c => string.Equals(c, command.Trim(), StringComparison.OrdinalIgnoreCase)) < 0;
     }
 
     /// <summary>The hub's own keys (HubHud), which are not layout commands.</summary>

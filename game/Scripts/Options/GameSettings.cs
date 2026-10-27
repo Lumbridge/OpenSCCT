@@ -127,17 +127,18 @@ public sealed class PadSettings
 
     /// <summary>The default pad layout: stock action names on the usual pad positions (Reloaded's own is not decoded).</summary>
     [Provenance(ProvenanceKind.Estimated, "Default pad layout per team not decoded (FEATURES open question 4)")]
-    public static Dictionary<string, string> DefaultButtons() => new(StringComparer.Ordinal)
+    /// <remarks>The merc's has nothing on the spy-only back to wall (LB) and walk speed (LS) buttons.</remarks>
+    public static Dictionary<string, string> DefaultButtons(bool merc = false) => new(StringComparer.Ordinal)
     {
         ["A"] = "Jump",
         ["B"] = "bCrouch",
         ["X"] = "bUsing",
         ["Y"] = "SwitchHeadset",
-        ["LB"] = "bUseBackToWall",
+        ["LB"] = merc ? "" : "bUseBackToWall",
         ["RB"] = "bRoll",
         ["LT"] = "bAltFire",
         ["RT"] = "bFire",
-        ["LS"] = "ChangeSpeed",
+        ["LS"] = merc ? "" : "ChangeSpeed",
         ["RS"] = "SwitchBinocularVision",
         ["DpadUp"] = "WheelUp",
         ["DpadDown"] = "WheelDown",
@@ -152,7 +153,7 @@ public sealed class PadSettings
     public Dictionary<string, string> SpyButtons { get; set; } = DefaultButtons();
 
     [JsonPropertyName("merc_buttons")]
-    public Dictionary<string, string> MercButtons { get; set; } = DefaultButtons();
+    public Dictionary<string, string> MercButtons { get; set; } = DefaultButtons(merc: true);
 
     public Dictionary<string, string> ButtonsOf(bool merc) => merc ? MercButtons : SpyButtons;
 
@@ -207,14 +208,14 @@ public sealed class PadSettings
         RunThreshold = LookSettings.Range(RunThreshold, 0.1f, 1f);
         RumbleStrength = LookSettings.Range(RumbleStrength, 0f, 1f);
         LookSpeed = LookSettings.Range(LookSpeed, 50f, 5000f);
-        SpyButtons = CleanButtons(SpyButtons);
-        MercButtons = CleanButtons(MercButtons);
+        SpyButtons = CleanButtons(SpyButtons, merc: false);
+        MercButtons = CleanButtons(MercButtons, merc: true);
     }
 
     /// <summary>Known controls only; a control the file leaves out gets its default (an empty value stays unbound).</summary>
-    private static Dictionary<string, string> CleanButtons(Dictionary<string, string>? saved)
+    private static Dictionary<string, string> CleanButtons(Dictionary<string, string>? saved, bool merc)
     {
-        Dictionary<string, string> clean = DefaultButtons();
+        Dictionary<string, string> clean = DefaultButtons(merc);
         if (saved is null)
         {
             return clean;
