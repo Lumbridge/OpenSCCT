@@ -35,6 +35,7 @@ public sealed class MasterHost : IAsyncDisposable
     private readonly AccountStore? _store;
     private readonly TicketSigner? _signer;
     private readonly AccountApi? _accounts;
+    private readonly Admin.AdminPortal? _portal;
     private bool _disposed;
 
     private MasterHost(WebApplication app, MasterOptions options, ServerRegistry registry, Introducer? introducer, Relay? relay, Prober? prober,
@@ -49,6 +50,11 @@ public sealed class MasterHost : IAsyncDisposable
         _store = store;
         _signer = signer;
         _accounts = store is not null && signer is not null ? new AccountApi(options, store, signer, registry, ClientIp, time) : null;
+        if (_accounts is not null && store is not null)
+        {
+            _portal = new Admin.AdminPortal(options, store, registry, ClientIp, () => (RelayForwarded, Introductions));
+            _accounts.AdminCallback = _portal.CallbackAsync;
+        }
         _limiter = new RateLimiter(options.RequestsPerMinute);
         _sweeper = new Timer(_ => Sweep(), null, Timeout.Infinite, Timeout.Infinite);
     }
@@ -112,6 +118,7 @@ public sealed class MasterHost : IAsyncDisposable
             {
                 store = AccountStore.Open(options.ResolvePath(options.Database), time);
                 signer = TicketSigner.LoadOrCreate(options.ResolvePath(options.TicketKeyFile));
+                MasterSettings.Apply(store, options);
             }
             catch
             {
@@ -159,6 +166,7 @@ public sealed class MasterHost : IAsyncDisposable
         _prober?.Sweep();
         _limiter.Sweep();
         _accounts?.Links.Sweep();
+        _portal?.Sample(Registry.Now);
     }
 
     // ---- HTTP API ----------------------------------------------------------------------------------------------
@@ -193,7 +201,9 @@ public sealed class MasterHost : IAsyncDisposable
                 }
             }
             else if (context.Request.Path.StartsWithSegments("/link", StringComparison.Ordinal) ||
-                context.Request.Path.StartsWithSegments("/auth", StringComparison.Ordinal))
+                context.Request.Path.StartsWithSegments("/auth", StringComparison.Ordinal) ||
+                (context.Request.Path.StartsWithSegments("/admin", StringComparison.Ordinal) &&
+                    !context.Request.Path.StartsWithSegments("/admin/assets", StringComparison.Ordinal)))
             {
                 // The browser side of the sign-in: no invite key (a browser has none), but the same limit.
                 if (!_limiter.Allow(ClientIp(context)))
@@ -224,10 +234,12 @@ public sealed class MasterHost : IAsyncDisposable
         if (_accounts is not null)
         {
             _accounts.Map(_app);
+            _portal?.Map(_app);
         }
         else
         {
             AccountApi.MapDisabled(_app);
+            _app.MapGet("/admin", () => Results.Content("The admin portal needs Discord sign-in set up on this master.", "text/plain"));
         }
     }
 
@@ -276,6 +288,11 @@ public sealed class MasterHost : IAsyncDisposable
         }
 
         IPAddress from = ClientIp(context);
+        if (_portal is not null && _portal.IsBlocked(request.ServerId, from))
+        {
+            return Error(StatusCodes.Status403Forbidden, "This server is blocked by the master's admins.");
+        }
+
         ServerRecord? record = Registry.Heartbeat(request, from, out string? error, out int status);
         if (record is null)
         {
@@ -290,19 +307,27 @@ public sealed class MasterHost : IAsyncDisposable
         }
 
         Reachability reach;
+        IReadOnlyList<MasterCommand> commands = [];
+        int? fast = null;
         lock (Registry.Gate)
         {
             record.TrustedName = trusted?.Name;
             reach = Registry.Classify(record);
+            if (_portal is not null)
+            {
+                (commands, fast) = _portal.OnHeartbeat(record, request);
+            }
         }
 
         return Results.Json(new HeartbeatResponse
         {
             ServerId = record.Id, HostToken = RelayFrames.TokenText(record.HostToken), PublicAddress = from.ToString(),
-            Reachability = reach, Introducer = IntroducerAddress, Relay = RelayAddress, HeartbeatSeconds = Options.HeartbeatSeconds,
+            Reachability = reach, Introducer = IntroducerAddress, Relay = RelayAddress,
+            HeartbeatSeconds = fast is { } f ? Math.Min(f, Options.HeartbeatSeconds) : Options.HeartbeatSeconds,
             Message = message, LatestVersion = Options.LatestVersion, MinVersion = Options.MinVersion, Listed = request.Listed,
             Trusted = trusted is not null, TicketKey = _accounts?.TicketKey,
             KickAccounts = _accounts is not null && request.AccountIds.Count > 0 ? _accounts.Kicks(request.AccountIds) : [],
+            Commands = commands,
         }, MasterApi.Json);
     }
 
@@ -328,7 +353,8 @@ public sealed class MasterHost : IAsyncDisposable
             return "The protocol or content hash is not hex.";
         }
 
-        if (r.Version.Length > 32 || r.Region.Length > 16 || r.Map.Length > 64 || r.LanAddresses.Count > 8 || r.PlayerNames.Count > 64 || r.AccountIds.Count > 64)
+        if (r.Version.Length > 32 || r.Region.Length > 16 || r.Map.Length > 64 || r.LanAddresses.Count > 8 || r.PlayerNames.Count > 64 || r.AccountIds.Count > 64 ||
+            r.PlayerDetails.Count > 64 || r.CommandResults.Count > 32 || r.PlayerDetails.Any(p => p.Name.Length > 64))
         {
             return "The heartbeat is too large.";
         }

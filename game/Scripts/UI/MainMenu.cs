@@ -47,6 +47,7 @@ public partial class MainMenu : MenuPage
         online.AddChild(OpenScctGame.Hub.HubScreen.MenuButton(this));
         AccountButton = UiStyle.MenuButton("Account", () => FrontEnd.ShowAccount(GetTree()), "Account");
         online.AddChild(AccountButton);
+        online.AddChild(AchievementsScreen.MenuButton(this));
         online.AddChild(ArmouryScreen.MenuButton(this));
         _account = new Label { Name = "AccountLine", Modulate = UiStyle.MenuFocus, HorizontalAlignment = HorizontalAlignment.Center };
         online.AddChild(_account);

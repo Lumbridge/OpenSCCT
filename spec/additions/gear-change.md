@@ -56,9 +56,19 @@ provenance tag. The numbers are our own and live in `OpenScct.Game.Equipment.Gea
      `ChangeGear`. That key is **I** by default: the stock layouts and the hub's keys leave it free, and it can be
      rebound.
    - Opened by the key, its Back and Escape close the whole menu.
-   - It shows the player's side: one row per host slot, each cycling through the allowed options no other slot
-     holds, or Empty. A merc also gets a weapon row.
-   - A line under the rows states the rule.
+   - It is drawn as the original's PC pages, at their positions on a 4:3 area (`GearMenu`):
+     - **Equipment** (`GUI.Edit_Profile`): background fond02, the side's portrait twice, dimmed; the four slots as
+       diamond buttons (MN_losange) in a cross, with the pad-button hints between them; "Quick Use 1/2" by a spy's
+       first two slots; the focused gadget's long name and description; the weapon in a diamond with its name. A
+       merc's weapon cycles through the team's weapons on a click. Slots past the host's count are disabled. The page
+       buttons are Cancel, Reset (the side's default kit) and OK (save and ask the server).
+     - **Gadgets** (`GUI.Edit_Gadgets`, opened from a slot): the team's eight options as square buttons in two rows
+       (MN_cadre06, MN_cadre01 when focused), "Equipped" under the ones a slot holds, banned ones greyed out, and the
+       focused one's name, description and "Quick use". Picking one sets the slot (a slot that held it takes the
+       slot's old gadget) and goes back. Cancel or Escape goes back without a change.
+   - Icons are the HUD atlases' tiles at each class's IconU/IconV; the portraits and icons show in both menu looks,
+     and the frames and background follow the menu look (the Modern look draws the same shapes in its colours).
+   - A line under the Equipment page states the rule (our addition).
 
 ## Constants
 

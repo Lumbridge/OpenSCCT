@@ -216,8 +216,10 @@ public sealed record PlayerTicket
         byte[] unlocks = [];
         if (hasUnlocks)
         {
+            // Bytes after the unlocks are fields a newer master added; this reader skips them, so the master can add
+            // fields without breaking servers that are not updated yet (new fields go at the end, never in between).
             int unlockLength = data[at++];
-            if (at + unlockLength != data.Length)
+            if (at + unlockLength > data.Length)
             {
                 return false;
             }

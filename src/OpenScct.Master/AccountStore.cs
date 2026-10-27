@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Security.Cryptography;
 using System.Text;
@@ -31,7 +32,7 @@ internal sealed record BanRow(long Id, long? AccountId, string? DiscordId, strin
 /// <summary>A name an account had, held from others until <see cref="Until"/>.</summary>
 internal sealed record NameHistoryRow(string Name, long Changed, long Until);
 
-internal sealed record AuditRow(long Id, long Time, string Action, string Detail);
+internal sealed record AuditRow(long Id, long Time, string Action, string Detail, string Actor = "");
 
 /// <summary>How a name claim went.</summary>
 internal enum NameClaim
@@ -47,9 +48,9 @@ internal enum NameClaim
 /// sign-in sessions (only a SHA-256 of each token is kept), bans, stats, achievements, synced settings and an audit
 /// log. One connection behind a lock; WAL lets the admin command read and write while the master runs.
 /// </summary>
-internal sealed class AccountStore : IDisposable
+internal sealed partial class AccountStore : IDisposable
 {
-    public const int SchemaVersion = 2;
+    public const int SchemaVersion = 4;
 
     /// <summary>Seconds between renames.</summary>
     public const long RenameCooldown = 30 * 86400;
@@ -128,7 +129,8 @@ internal sealed class AccountStore : IDisposable
             CreateVersion1();
         }
 
-        // Version 2: feat totals and base-map wins for the achievements.
+        // Version 2: feat totals and base-map wins for the achievements. Version 3: cosmetics an admin unlocked.
+        // Version 4: the admin portal (MigrateVersion4).
         InTransaction(() =>
         {
             Exec("""
@@ -143,7 +145,13 @@ internal sealed class AccountStore : IDisposable
                     team INTEGER NOT NULL,
                     wins INTEGER NOT NULL DEFAULT 0,
                     PRIMARY KEY (account_id, map, team));
+                CREATE TABLE IF NOT EXISTS cosmetic_grants (
+                    account_id INTEGER NOT NULL REFERENCES accounts(id),
+                    item TEXT NOT NULL,
+                    granted INTEGER NOT NULL,
+                    PRIMARY KEY (account_id, item));
                 """);
+            MigrateVersion4();
             Exec("DELETE FROM schema_version; INSERT INTO schema_version (version) VALUES ($v);", ("$v", SchemaVersion));
             return 0;
         });
@@ -625,6 +633,54 @@ internal sealed class AccountStore : IDisposable
         return new AccountProgress { Stats = StatsLocked(accountId), Feats = feats, MapWins = maps, Earned = earned };
     }
 
+    /// <summary>The cosmetics an admin unlocked for the account (beside what its achievements unlock).</summary>
+    public List<string> Grants(long accountId)
+    {
+        lock (_gate)
+        {
+            return Query("SELECT item FROM cosmetic_grants WHERE account_id = $a;", r => r.GetString(0), ("$a", accountId));
+        }
+    }
+
+    /// <summary>Everything the account may wear: its achievements' rewards and the admin's grants.</summary>
+    public IReadOnlyList<string> Unlocked(long accountId)
+    {
+        var ids = new List<string>(Achievements.Unlocked(Earned(accountId).Keys));
+        foreach (string item in Grants(accountId))
+        {
+            if (!ids.Contains(item, StringComparer.Ordinal) && CosmeticCatalog.Find(item) is not null)
+            {
+                ids.Add(item);
+            }
+        }
+
+        return ids;
+    }
+
+    /// <summary>Unlocks (or with <paramref name="unlock"/> false, takes back) cosmetics; returns how many rows changed.</summary>
+    public int SetGrants(long accountId, IEnumerable<string> items, bool unlock)
+    {
+        lock (_gate)
+        {
+            long now = Now;
+            var list = items.ToList();
+            return InTransaction(() =>
+            {
+                int changed = 0;
+                foreach (string item in list)
+                {
+                    changed += unlock
+                        ? Exec("INSERT OR IGNORE INTO cosmetic_grants (account_id, item, granted) VALUES ($a, $i, $now);",
+                            ("$a", accountId), ("$i", item), ("$now", now))
+                        : Exec("DELETE FROM cosmetic_grants WHERE account_id = $a AND item = $i;", ("$a", accountId), ("$i", item));
+                }
+
+                AuditLocked(unlock ? "unlock" : "lock", $"account {accountId}: {list.Count} cosmetic(s), {changed} changed");
+                return changed;
+            });
+        }
+    }
+
     /// <summary>The most one round may add to one feat.</summary>
     public const int MaxFeatPerRound = 200;
 
@@ -738,15 +794,16 @@ internal sealed class AccountStore : IDisposable
     }
 
     private void AuditLocked(string action, string detail) =>
-        Exec("INSERT INTO audit (time, action, detail) VALUES ($t, $a, $d);", ("$t", Now), ("$a", action), ("$d", detail));
+        Exec("INSERT INTO audit (time, action, detail, actor) VALUES ($t, $a, $d, $who);",
+            ("$t", Now), ("$a", action), ("$d", detail), ("$who", CurrentActor));
 
     /// <summary>The newest <paramref name="count"/> audit rows, oldest first.</summary>
     public List<AuditRow> AuditLog(int count)
     {
         lock (_gate)
         {
-            List<AuditRow> rows = Query("SELECT id, time, action, detail FROM audit ORDER BY id DESC LIMIT $n;",
-                r => new AuditRow(r.GetInt64(0), r.GetInt64(1), r.GetString(2), r.GetString(3)), ("$n", count));
+            List<AuditRow> rows = Query("SELECT id, time, action, detail, COALESCE(actor, '') FROM audit ORDER BY id DESC LIMIT $n;",
+                ReadAudit, ("$n", count));
             rows.Reverse();
             return rows;
         }

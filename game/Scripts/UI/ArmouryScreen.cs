@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Godot;
@@ -9,7 +8,6 @@ using OpenScct.Net.Cosmetics;
 using OpenScct.Net.Discovery;
 using OpenScctGame.Online;
 using OpenScctGame.Options;
-using OpenScctGame.Render.Characters;
 
 namespace OpenScctGame.UI;
 
@@ -26,7 +24,6 @@ public partial class ArmouryScreen : MenuPage
     private AccountService? _service;
     private Task<AccountInfo>? _refresh;
     private CosmeticSide _side = CosmeticSide.Spy;
-    private readonly Dictionary<string, Texture2D?> _thumbs = new(StringComparer.Ordinal);
 
     public override void _Ready()
     {
@@ -115,7 +112,7 @@ public partial class ArmouryScreen : MenuPage
         b.CustomMinimumSize = new Vector2(280f, 44f);
         b.Alignment = HorizontalAlignment.Left;
         b.Disabled = !open;
-        b.Icon = item is null ? null : Thumb(item);
+        b.Icon = item is null ? null : CosmeticThumbs.For(item, ThumbSize);
         b.ExpandIcon = false;
         b.TooltipText = open ? (item is null ? "The original look." : CosmeticCatalog.Describe(item))
             : "Locked. Unlocked by: " + (from is null ? "an achievement" : from.Title + " (" + from.Description + ")");
@@ -147,60 +144,6 @@ public partial class ArmouryScreen : MenuPage
 
     private static string[] Chosen(CosmeticSide side) =>
         side == CosmeticSide.Spy ? SettingsStore.Current.CosmeticsSpy : SettingsStore.Current.CosmeticsMerc;
-
-    /// <summary>A small picture of the item: its camo on the slot's texture, or a colour swatch.</summary>
-    private Texture2D? Thumb(CosmeticItem item)
-    {
-        if (_thumbs.TryGetValue(item.Id, out Texture2D? cached))
-        {
-            return cached;
-        }
-
-        Image? image = null;
-        switch (item.Kind)
-        {
-            case CosmeticKind.Texture when CamoTexture(item) is { } path && File.Exists(path):
-                image = Image.LoadFromFile(path);
-                image?.Resize(ThumbSize, ThumbSize, Image.Interpolation.Bilinear);
-                break;
-            case CosmeticKind.Tint:
-                (float r, float g, float b) = item.Colour;
-                image = Swatch(new Color(r, g, b));
-                break;
-            case CosmeticKind.Hue:
-                image = Swatch(Color.FromHsv(item.Hue / 360f, 0.85f, 1f));
-                break;
-        }
-
-        Texture2D? texture = image is null ? null : ImageTexture.CreateFromImage(image);
-        _thumbs[item.Id] = texture;
-        return texture;
-    }
-
-    private static Image Swatch(Color colour)
-    {
-        Image image = Image.CreateEmpty(ThumbSize, ThumbSize, false, Image.Format.Rgba8);
-        image.Fill(colour);
-        return image;
-    }
-
-    /// <summary>The built camo texture that shows the item best (the content builder's file for the slot's main texture).</summary>
-    private static string? CamoTexture(CosmeticItem item)
-    {
-        (string package, string stem) = (item.Slot, item.Side) switch
-        {
-            (CosmeticSlot.Body, CosmeticSide.Spy) => ("SPerso", "SPersoTextures_Shadw_agent"),
-            (CosmeticSlot.Body, CosmeticSide.Merc) => ("SPerso", "SPersoTextures_DEF_01_A_Body"),
-            (CosmeticSlot.Pistol, _) => ("SWeaponFirst", "SWeaponTex_p190"),
-            (CosmeticSlot.GunAr, _) => ("SWeaponFirst", "SWeaponTex_M160"),
-            (CosmeticSlot.GunSmg, _) => ("SWeaponFirst", "SWeaponTex_Hk81"),
-            (CosmeticSlot.GunShotgun, _) => ("SWeaponFirst", "SWeaponTex_shotgun"),
-            _ => (string.Empty, string.Empty),
-        };
-        return package.Length == 0
-            ? null
-            : Path.Combine(SkeletalModel.DefaultSharedRoot(), "chars", package, "textures", "cosmetic_" + item.Pattern + "_" + stem + ".png");
-    }
 
     private static Label Note(string text) => new()
     {

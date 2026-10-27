@@ -30,11 +30,15 @@ PACKAGES = ("Hud", "Options", "common")
 SHUD_TEXTURES = ("MN_boutons", "Icones_Gadgets", "Icones_Weapons", "Att_Arrow", "BinocularA_all", "Vision_lock",
                  "balayage_H", "Vision_friend")
 # The PC menus' own textures (GUI pages, not Magma): the page background, its corner brackets and frames
-# (GUIContent New_Menu; GUIPage defaults), and the PC styles' buttons, boxes and the voice icon (Menu_PC; sSTY_Pc*).
+# (GUIContent New_Menu; GUIPage defaults), and the PC styles' buttons, boxes and the voice icon (Menu_PC; sSTY_Pc*);
+# the equipment pages' background, side portraits and pad-button hints (Edit_Profile: fond02, MN_ATTperso,
+# MN_DEFperso, bouton01-04).
 MENU_TEXTURES = {
-    "GUIContent": ("fond", "loading", "MN_cadre01", "MN_cadre02", "MN_cadre03", "MN_cadre06", "MN_losange", "MN_petitrond"),
+    "GUIContent": ("fond", "loading", "MN_cadre01", "MN_cadre02", "MN_cadre03", "MN_cadre06", "MN_losange",
+                   "MN_petitrond", "fond02", "MN_ATTperso", "MN_DEFperso"),
     "Menu_PC": ("buton_select", "buton_validate", "buton_push", "TABS_NOselect", "Saquare_backd", "Saquare_BOX",
-                "CommunicatorON", "Disable", "scroll_bar", "Vert01", "noir01"),
+                "CommunicatorON", "Disable", "scroll_bar", "Vert01", "noir01",
+                "bouton01", "bouton02", "bouton03", "bouton04"),
 }
 # Magma.int and MagmaDynamic.int: the pages' texts; Engine.int: the key names ([BaseGUIController]
 # LocalizedKeyName[n] by EInputKey) the pages' key help and tokens show; GUI.int: the menus' texts, among them the

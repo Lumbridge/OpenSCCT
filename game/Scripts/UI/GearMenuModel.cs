@@ -3,23 +3,33 @@ using System.Collections.Generic;
 using OpenScct.Core.Uc;
 using OpenScct.Game.Equipment;
 using OpenScct.Game.SBase;
+using OpenScct.Provenance;
 using OpenScctGame.Options;
 
 namespace OpenScctGame.UI;
 
 /// <summary>
-/// The gear picker's rules (an OpenSCCT addition, spec/additions/gear-change.md): the player's side's gadget slots,
-/// each cycling through the team's options the host allows and no other slot holds, and the merc's weapon. Godot-free:
+/// The gear picker's rules (an OpenSCCT addition, spec/additions/gear-change.md, laid out as the original's
+/// <c>Edit_Profile</c> and <c>Edit_Gadgets</c> pages): the player's side's gadget slots, each set from the team's
+/// options the host allows (a gadget another slot holds swaps over), and the merc's weapon. Godot-free:
 /// <c>GearMenu</c> draws it. Saving writes the choice into <see cref="LoadoutSettings"/>; the server decides when it
 /// goes on.
 /// </summary>
 public sealed class GearMenuModel
 {
-    public const string Title = "Change Gear";
-    public const string Apply = "Apply";
-    public const string Back = "Back";
+    [Provenance(ProvenanceKind.Decoded, "GUI.Edit_Profile defaults TitlePage, ButtonA, ButtonB, ButtonY")]
+    public const string Title = "Equipment", Ok = "OK", Cancel = "Cancel", ResetCaption = "Reset";
+
+    [Provenance(ProvenanceKind.Decoded, "GUI.Edit_Gadgets defaults TitlePage")]
+    public const string GadgetsTitle = "Gadgets";
+
+    [Provenance(ProvenanceKind.Decoded, "GUI.Edit_Gadgets defaults Button1..8 Caption, QuickUse Caption")]
+    public const string Equipped = "Equipped", QuickUse = "Quick use";
+
+    [Provenance(ProvenanceKind.Decoded, "GUI.Edit_Profile defaults QuickUseR, QuickUseL Caption")]
+    public const string QuickUse1 = "Quick Use 1", QuickUse2 = "Quick Use 2";
+
     public const string Empty = "Empty";
-    public const string Weapon = "Weapon";
 
     public static readonly string MatchRule =
         $"New gear goes on now if you spawned less than {GearK.SwapWindowSeconds:0} s ago and have not used anything; " +
@@ -64,6 +74,9 @@ public sealed class GearMenuModel
 
     public string Rule => Hub ? HubRule : MatchRule;
 
+    /// <summary>The side's portrait (<c>STeamInfo.MaterialOfMesh[0]</c>, e.g. GUIContent.New_Menu.MN_ATTperso), or "".</summary>
+    public string Portrait { get; init; } = "";
+
     /// <summary>The picker for the player's current side, or null before the player has a team.</summary>
     public static GearMenuModel? For(SPlayerController? pc, LoadoutSettings saved, bool hub)
     {
@@ -88,7 +101,10 @@ public sealed class GearMenuModel
             }
         }
 
-        return new GearMenuModel(spy, team.iNBGadgets, options, team.bDisallowedInv, weapons, saved, hub);
+        return new GearMenuModel(spy, team.iNBGadgets, options, team.bDisallowedInv, weapons, saved, hub)
+        {
+            Portrait = team.MaterialOfMesh.Count > 0 ? team.MaterialOfMesh[0].Path ?? "" : "",
+        };
     }
 
     /// <summary>The name a class path shows (its localized ItemName), or "Empty".</summary>
@@ -119,25 +135,56 @@ public sealed class GearMenuModel
         return option >= 0 && ((_allowed >> option) & 1) != 0;
     }
 
-    /// <summary>Moves slot <paramref name="slot"/> to the next (or previous) allowed option no other slot holds, or empty.</summary>
-    public void Cycle(int slot, int step)
+    /// <summary>The team's options in order (the gadget grid's eight buttons).</summary>
+    public IReadOnlyList<string> Options => _options;
+
+    /// <summary>Whether a slot holds <paramref name="option"/> (the grid's "Equipped").</summary>
+    public bool IsEquipped(string option)
     {
-        if (slot < 0 || slot >= Slots)
+        for (int i = 0; i < Slots; i++)
+        {
+            if (option.Length > 0 && Same(Gadgets[i], option))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// <c>Edit_Gadgets.ButtonClick</c>: slot <paramref name="slot"/> takes <paramref name="option"/>; a slot that
+    /// held it takes the slot's old gadget (the two swap). Options the host bans cannot be picked.
+    /// </summary>
+    public void Choose(int slot, string option)
+    {
+        if (slot < 0 || slot >= Slots || !IsAllowed(option))
         {
             return;
         }
 
-        var choices = new List<string> { "" };
-        foreach (string option in _options)
+        for (int i = 0; i < Slots; i++)
         {
-            if (option.Length > 0 && IsAllowed(option) && (Same(option, Gadgets[slot]) || !HeldElsewhere(option, slot)))
+            if (i != slot && Same(Gadgets[i], option))
             {
-                choices.Add(option);
+                Gadgets[i] = Gadgets[slot];
             }
         }
 
-        int at = Math.Max(0, choices.FindIndex(c => Same(c, Gadgets[slot])));
-        Gadgets[slot] = choices[(((at + Math.Sign(step)) % choices.Count) + choices.Count) % choices.Count];
+        Gadgets[slot] = option;
+    }
+
+    /// <summary><c>Edit_Profile</c>'s Reset: the side's default kit (DefaultProfile.ini), then the host's restrictions.</summary>
+    public void Reset()
+    {
+        string[] defaults = Spy ? LoadoutSettings.DefaultSpy() : LoadoutSettings.DefaultMerc();
+        Array.Copy(defaults, Gadgets, Math.Min(defaults.Length, Gadgets.Length));
+        if (!Spy)
+        {
+            ChosenWeapon = Loadouts.MercWeapon.Path ?? "";
+        }
+
+        Normalize();
     }
 
     /// <summary>Moves the merc's weapon to the next (or previous) of the team's weapons.</summary>

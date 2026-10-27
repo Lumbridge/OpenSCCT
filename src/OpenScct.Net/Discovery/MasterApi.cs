@@ -157,6 +157,53 @@ public sealed record HeartbeatRequest
 
     /// <summary>Where the server stands, as its operator names it (for example <c>EU</c>, <c>US</c>), or empty.</summary>
     public string Region { get; init; } = string.Empty;
+
+    /// <summary>Every player with team, ping and account (the admin portal; older hosts send none).</summary>
+    public IReadOnlyList<HeartbeatPlayer> PlayerDetails { get; init; } = [];
+
+    /// <summary>Seconds left in the round being played, or -1.</summary>
+    public int RoundSecondsLeft { get; init; } = -1;
+
+    /// <summary>What the commands of the last answers printed (<see cref="HeartbeatResponse.Commands"/>).</summary>
+    public IReadOnlyList<MasterCommandResult> CommandResults { get; init; } = [];
+}
+
+/// <summary>One player of a server as its heartbeat describes it for the admin portal.</summary>
+public sealed record HeartbeatPlayer
+{
+    /// <summary>The session's player id (the server's kick and ban commands take it).</summary>
+    public int Id { get; init; }
+
+    public string Name { get; init; } = string.Empty;
+
+    /// <summary>0 spies, 1 mercs, 255 spectator.</summary>
+    public int Team { get; init; }
+
+    public int PingMs { get; init; }
+
+    public long? AccountId { get; init; }
+
+    public bool Bot { get; init; }
+
+    public bool Admin { get; init; }
+
+    public bool Host { get; init; }
+}
+
+/// <summary>An admin command for a trusted server: a line of its console (OnlineServer.Execute).</summary>
+public sealed record MasterCommand
+{
+    public long Id { get; init; }
+
+    public string Line { get; init; } = string.Empty;
+}
+
+/// <summary>What a server printed for one <see cref="MasterCommand"/>.</summary>
+public sealed record MasterCommandResult
+{
+    public long Id { get; init; }
+
+    public string Output { get; init; } = string.Empty;
 }
 
 /// <summary>The master's answer to a heartbeat.</summary>
@@ -197,6 +244,9 @@ public sealed record HeartbeatResponse
 
     /// <summary>Signed-in players on the server who are now banned: drop them.</summary>
     public IReadOnlyList<long> KickAccounts { get; init; } = [];
+
+    /// <summary>Admin commands to run (trusted servers only; others get none and must ignore any).</summary>
+    public IReadOnlyList<MasterCommand> Commands { get; init; } = [];
 }
 
 /// <summary>One server of the list.</summary>
@@ -480,6 +530,9 @@ public sealed record ResultsReport
 
     public int ObjectivesNeeded { get; init; }
 
+    /// <summary>How long the round lasted, seconds (0 from servers that do not say).</summary>
+    public int DurationSeconds { get; init; }
+
     public IReadOnlyList<ResultsReportRow> Rows { get; init; } = [];
 }
 
@@ -487,6 +540,9 @@ public sealed record ResultsReportRow
 {
     /// <summary>The signed-in player's account, or null for guests and bots.</summary>
     public long? AccountId { get; init; }
+
+    /// <summary>The name shown in the round (for the master's match history).</summary>
+    public string? Name { get; init; }
 
     /// <summary>0 spies, 1 mercs.</summary>
     public int Team { get; init; }

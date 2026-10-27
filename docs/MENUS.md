@@ -10,8 +10,9 @@ is in `docs/ONLINE.md`, voice in `docs/VOICE.md`, and the way to test it with tw
 | `game/Scripts/UI/MenuPage.cs` | the PC page look: background, typed title, corner brackets, framed panels, page buttons, `Shot` |
 | `game/Scripts/UI/UiStyle.cs` | the look switch (`Look`), `MenuTheme` (the PC button and list boxes, the style colours), `MenuBackdrop`, `MenuTexture` |
 | `game/Scripts/UI/UiArt.cs`, `UiBox.cs`, `UiCorner.cs`, `UiRule.cs`, `UiWordmark.cs` | the modern look: our own art, drawn at the window's size |
-| `game/Scripts/UI/MainMenu.cs` | Create a Session (also how to play offline), Find a Session, Join with IP, Account, Armoury, Profile Options, Quit |
-| `game/Scripts/UI/AccountScreen.cs` | Account: sign in with Discord (code, browser, wait), pick or change the name, stats, achievements by group with progress and rewards, sign out (docs/ONLINE.md "Accounts") |
+| `game/Scripts/UI/MainMenu.cs` | Create a Session (also how to play offline), Find a Session, Join with IP, Account, Achievements, Armoury, Profile Options, Quit |
+| `game/Scripts/UI/AccountScreen.cs` | Account: sign in with Discord (code, browser, wait), pick or change the name, stats, an achievements summary with links to Achievements and the Armoury, sign out (docs/ONLINE.md "Accounts") |
+| `game/Scripts/UI/AchievementsScreen.cs` | Achievements (OpenSCCT's own): every achievement by group (filter buttons), what to do, what it unlocks, progress or earned date; the list is the shared catalogue, so it is complete even with an older master |
 | `game/Scripts/UI/ArmouryScreen.cs` | Armoury (OpenSCCT's own): the spy's and merc's cosmetics per slot; locked items name the achievement that unlocks them (docs/ONLINE.md "Cosmetics") |
 | `game/Scripts/UI/HostScreen.cs` | Create Session: the page's rows plus hosting (server name, UDP port, master, listing, UPnP) |
 | `game/Scripts/UI/CreateSessionModel.cs` | the Create Session rules without Godot (rows, captions, ranges, mode rules, password) |

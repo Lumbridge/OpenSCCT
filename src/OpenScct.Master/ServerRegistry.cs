@@ -48,6 +48,18 @@ internal sealed class ServerRecord
     public string? TrustedName { get; set; }
 
     public bool Trusted => TrustedName is not null;
+
+    /// <summary>When the master first heard from the server (registry clock seconds).</summary>
+    public double FirstSeen { get; set; }
+
+    /// <summary>Admin commands waiting for the next heartbeat answer (trusted servers only).</summary>
+    public List<MasterCommand> PendingCommands { get; } = [];
+
+    /// <summary>The newest command results the server sent, newest last (at most 50).</summary>
+    public List<(MasterCommand Command, string Output, double At)> CommandLog { get; } = [];
+
+    /// <summary>Until when an admin is watching the server (faster heartbeats).</summary>
+    public double WatchedUntil { get; set; } = double.NegativeInfinity;
 }
 
 /// <summary>A client's punch request, valid for a minute.</summary>
@@ -209,7 +221,7 @@ internal sealed class ServerRegistry
 
             var record = new ServerRecord
             {
-                Id = NewId(), HostToken = NewToken(), Last = request, PublicIp = from, LastSeen = now,
+                Id = NewId(), HostToken = NewToken(), Last = request, PublicIp = from, LastSeen = now, FirstSeen = now,
             };
             _servers[record.Id] = record;
             _byHostToken[record.HostToken] = record;

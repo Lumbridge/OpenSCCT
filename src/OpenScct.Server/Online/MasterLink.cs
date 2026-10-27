@@ -106,6 +106,28 @@ public sealed class MasterLink : IDisposable
     /// <summary>Signed-in players present on the server, sent with each heartbeat (the master answers with the banned ones).</summary>
     public Func<IReadOnlyList<long>>? AccountIds { get; set; }
 
+    /// <summary>Every player with team, ping and account, sent with each heartbeat for the master's admin portal.</summary>
+    public Func<IReadOnlyList<HeartbeatPlayer>>? PlayerDetails { get; set; }
+
+    /// <summary>Seconds left in the round being played (-1: none), sent with each heartbeat.</summary>
+    public Func<int>? RoundSecondsLeft { get; set; }
+
+    /// <summary>Admin commands from the master (trusted servers only): raised on the host's thread, in <see cref="Tick"/>.</summary>
+    public event Action<IReadOnlyList<MasterCommand>>? Commands;
+
+    private readonly List<MasterCommandResult> _commandResults = [];
+
+    /// <summary>What a master command printed: sent with the next heartbeat, which goes out at once.</summary>
+    public void AddCommandResult(long id, string output)
+    {
+        if (_commandResults.Count < 32)
+        {
+            _commandResults.Add(new MasterCommandResult { Id = id, Output = output.Length > 2000 ? output[..2000] : output });
+        }
+
+        HeartbeatSoon();
+    }
+
     /// <summary>Lines for the host's lobby and log.</summary>
     public event Action<string>? Notice;
 
@@ -223,7 +245,15 @@ public sealed class MasterLink : IDisposable
             Dedicated = info.Dedicated, Protocol = MasterApi.Hex(info.ProtocolHash), Content = MasterApi.Hex(info.ContentHash),
             Version = info.Version, Listed = Settings.Listed, NatPunch = Settings.NatPunch, Relay = Settings.Relay, PlayerNames = names,
             RequireAccounts = Settings.RequireAccounts, AccountIds = AccountIds?.Invoke() ?? [], Kind = Settings.Kind, Region = Settings.Region ?? string.Empty,
+            PlayerDetails = PlayerDetails?.Invoke() ?? [], RoundSecondsLeft = RoundSecondsLeft?.Invoke() ?? -1, CommandResults = TakeCommandResults(),
         };
+    }
+
+    private List<MasterCommandResult> TakeCommandResults()
+    {
+        List<MasterCommandResult> results = [.. _commandResults];
+        _commandResults.Clear();
+        return results;
     }
 
     private void Completed(Task<HeartbeatResponse> task, long now)
@@ -284,6 +314,12 @@ public sealed class MasterLink : IDisposable
         if (r.KickAccounts is { Count: > 0 } kicks)
         {
             KickAccounts?.Invoke(kicks);
+        }
+
+        // Only a master that trusts this server's key sends commands; ignore any from one that does not.
+        if (r.Trusted && r.Commands is { Count: > 0 } commands)
+        {
+            Commands?.Invoke(commands);
         }
 
         // While the master's probes still run, ask again soon so the host learns how players reach it.

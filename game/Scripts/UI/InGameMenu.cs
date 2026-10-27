@@ -108,7 +108,6 @@ public partial class InGameMenu : Control
                 Dialog(size, quit: false);
                 break;
             case InGameMenuPage.Gear:
-                Dim(0.6f);
                 GearPage();
                 break;
             case InGameMenuPage.Leaving:

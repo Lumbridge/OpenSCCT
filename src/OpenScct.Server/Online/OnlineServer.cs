@@ -242,6 +242,12 @@ public sealed partial class OnlineServer : IDisposable
     private int _nextPlayerId = 1;
     private int _rotationIndex;
     private long _now;
+
+    /// <summary>When the round being played started (its duration goes to the master with the results).</summary>
+    private long _matchStart;
+
+    /// <summary>When a "restart" launches the round again once everyone is back in the lobby (-1: none).</summary>
+    private long _relaunchAt = -1;
     private long _phaseStart;
     private long _countdownEnd = -1;
     private long _endedAt = -1;
@@ -336,6 +342,9 @@ public sealed partial class OnlineServer : IDisposable
             Master.Notice += Announce;
             Master.AccountIds = SignedInAccounts;
             Master.KickAccounts += OnMasterKicks;
+            Master.PlayerDetails = PlayerDetailsForMaster;
+            Master.RoundSecondsLeft = () => Phase == SessionPhase.Match ? Info().SecondsLeft : -1;
+            Master.Commands += OnMasterCommands;
         }
         else if (settings.RequireAccounts)
         {
@@ -434,6 +443,7 @@ public sealed partial class OnlineServer : IDisposable
             {
                 case SessionPhase.Lobby:
                     TickLobby();
+                    TickRelaunch();
                     break;
                 case SessionPhase.Loading:
                     TickLoading();
@@ -735,6 +745,10 @@ public sealed partial class OnlineServer : IDisposable
 
         Phase = phase;
         _phaseStart = _now;
+        if (phase == SessionPhase.Match)
+        {
+            _matchStart = _now;
+        }
         _endedAt = -1;
         _resultsEnd = -1;
         if (phase != SessionPhase.Loading)
@@ -937,7 +951,8 @@ public sealed partial class OnlineServer : IDisposable
             SessionPlayer? p = _players.Find(x => x.Id == row.Id);
             rows.Add(new ResultsReportRow
             {
-                AccountId = p?.AccountId, Team = row.Team, Score = row.Score, Kills = row.Kills, Deaths = row.Deaths, Bot = p?.IsBot ?? false,
+                AccountId = p?.AccountId, Name = row.Name, Team = row.Team, Score = row.Score, Kills = row.Kills, Deaths = row.Deaths,
+                Bot = p?.IsBot ?? false,
                 Feats = row.Feats ?? new Dictionary<string, int>(),
             });
         }
@@ -946,7 +961,7 @@ public sealed partial class OnlineServer : IDisposable
         {
             ServerId = serverId, Map = results.Map, Mode = (int)Setup.Mode, WinningTeam = results.WinningTeam,
             WinningReason = results.WinningReason, ObjectivesTaken = results.ObjectivesTaken, ObjectivesNeeded = results.ObjectivesNeeded,
-            Rows = rows,
+            DurationSeconds = _matchStart > 0 ? (int)Math.Max(0, (_now - _matchStart) / Second) : 0, Rows = rows,
         });
     }
 
@@ -1368,6 +1383,57 @@ public sealed partial class OnlineServer : IDisposable
         }
 
         return ids;
+    }
+
+    /// <summary>After a "restart": launches the same round again once nobody is still loading back into the lobby.</summary>
+    private void TickRelaunch()
+    {
+        if (_relaunchAt < 0 || _now < _relaunchAt || _players.Exists(p => p.Expected))
+        {
+            return;
+        }
+
+        _relaunchAt = -1;
+        if (LaunchProblem() is { } problem)
+        {
+            Announce("Could not restart the round: " + problem);
+            return;
+        }
+
+        Launch();
+    }
+
+    /// <summary>Every player for the master's admin portal.</summary>
+    private List<HeartbeatPlayer> PlayerDetailsForMaster()
+    {
+        var list = new List<HeartbeatPlayer>(_players.Count);
+        foreach (SessionPlayer p in _players)
+        {
+            list.Add(new HeartbeatPlayer
+            {
+                Id = p.Id, Name = p.Name, Team = p.Team, PingMs = p.PingMs, AccountId = p.AccountId, Bot = p.IsBot, Admin = p.IsAdmin,
+                Host = p.IsHost,
+            });
+        }
+
+        return list;
+    }
+
+    /// <summary>
+    /// Admin commands from the master's portal (trusted servers only): each runs as a console line and its output goes
+    /// back with the next heartbeat. Closing the server is not taken from the master.
+    /// </summary>
+    private void OnMasterCommands(IReadOnlyList<MasterCommand> commands)
+    {
+        foreach (MasterCommand command in commands)
+        {
+            string verb = command.Line.Trim().Split(' ', 2)[0].ToLowerInvariant();
+            IReadOnlyList<string> output = verb is "close" or "quit" or "exit"
+                ? ["the master cannot close the server"]
+                : Execute(command.Line);
+            Log("master admin: " + command.Line + (output.Count > 0 ? " -> " + string.Join(" | ", output) : string.Empty));
+            Master?.AddCommandResult(command.Id, output.Count > 0 ? string.Join("\n", output) : "done");
+        }
     }
 
     /// <summary>The master banned these accounts: their players leave (the server's own ban list is not touched).</summary>

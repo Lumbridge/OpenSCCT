@@ -34,7 +34,7 @@ come with .NET 10. The test project uses the repository's pinned xunit.v3 versio
 
 ## Version and build number
 
-The version is `VersionPrefix` in `Directory.Build.props` (0.6.3; a release passes `-p:Version`), and the build number
+The version is `VersionPrefix` in `Directory.Build.props` (0.7.0; a release passes `-p:Version`), and the build number
 is the UTC timestamp of the commit the build is made from, `yyyyMMdd.HHmm` (`Directory.Build.targets`). Both are stamped
 into every assembly; `OpenScct.Net.Discovery.BuildInfo` reads them back for the server browser, the master and the
 menus, which show "OpenSCCT 0.5.0  build 20261026.1737 (a82eaa0)" in the bottom-right corner of the main menu and

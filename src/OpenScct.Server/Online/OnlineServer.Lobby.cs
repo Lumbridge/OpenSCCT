@@ -385,7 +385,7 @@ public sealed partial class OnlineServer
     public const string CommandHelp =
         "status | players | kick <id|name> [reason] | ban <id|name> [minutes] [reason] | unban <account|install id|address|name> | " +
         "map <name> [mode] | mode <name> | set <time|spylives|merclives|respawn|revenge|games|maxplayers|bots|botsperside|botskill> <value> | " +
-        "launch | lobby | next | say <text> | close";
+        "launch | lobby | restart | next | say <text> | close";
 
     /// <summary>
     /// Runs an admin command (the dedicated server's console, an admin's <c>cmd</c> line, a listen host) and returns
@@ -507,6 +507,14 @@ public sealed partial class OnlineServer
             case "lobby":
                 BackToLobby("The admin went back to the lobby.");
                 output.Add("back to the lobby");
+                break;
+            case "restart" when Phase != SessionPhase.Lobby:
+                BackToLobby("The admin restarted the round.");
+                _relaunchAt = _now + (5 * Second);
+                output.Add("restarting: back to the lobby, then the same round again once everyone is back");
+                break;
+            case "restart":
+                output.Add("no round to restart (use launch)");
                 break;
             case "next" when Settings.Rotation.Count > 0:
                 _rotationIndex = (_rotationIndex + 1) % Settings.Rotation.Count;

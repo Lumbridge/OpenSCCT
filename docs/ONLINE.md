@@ -272,7 +272,7 @@ players only" on the Host page: no valid ticket, no entry. The listen host's own
 - finished rounds are reported (`POST /api/v1/results`) and count for stats and achievements. A round counts when
   it ended normally with a signed-in person on each side.
 
-**Achievements** (`src/OpenScct.Master/Achievements.cs`) come in five groups. Each one has progress (current and
+**Achievements** (`src/OpenScct.Net/Cosmetics/Achievements.cs`, shared by the master and the game) come in five groups. Each one has progress (current and
 target) and unlocks cosmetics:
 - **General:** tiers of matches, wins and kills, such as First Mission, Veteran and Centurion. Each gives a colour
   tint for both sides.
@@ -325,6 +325,8 @@ How a look gets into a match:
 
 A Sticky shock's skin draws over a camo and gives it back when it ends.
 
+The master's operator can also give cosmetics without the achievements (`admin unlock`, kept in `cosmetic_grants`, schema v3) and take them back (`admin lock`). The account and its tickets carry them like earned ones.
+
 **Settings sync** (`ProfileSync`): the account keeps one record: `settings.json` without the per-PC fields
 (display mode, monitor, resolution, resolution scale, vsync, frame caps, microphone), plus the player's keybind
 files `svm_keys_spy.ini` and `svm_keys_merc.ini`. The game uploads it a few seconds after a save. On sign-in and at
@@ -338,9 +340,61 @@ servers. Only the master's operator sets them, from a shell on the master's mach
 svm-master admin ban <name|discord id|ip|cidr> [--days N] [--reason text] --config svm-master.json
 svm-master admin unban <name|discord id|ip|cidr|ban id> --config svm-master.json
 svm-master admin bans | whois <name|discord id> | rename <name> <new> | release-name <name> | audit [N]
+svm-master admin unlock|lock <name|discord id> <all|spy|merc|item id...> | cosmetics
 ```
 Each server keeps its own `bans.json` as well. There, a signed-in player is banned by account id, and a guest as
 before (install id, address, name).
+
+## Admin portal
+
+`https://<master>/admin` (`src/OpenScct.Master/Admin/`): web pages for the master's admins, the Discord ids in its
+config's `Admins` list. It is on when Discord sign-in is set up.
+
+**Signing in.**
+- `/admin/login` sends the browser to Discord with `state = admin.<nonce>` and the nonce in a short `svm_admin_state`
+  cookie. Discord comes back to the game's own `/auth/discord/callback`, which hands `admin.` states to the portal.
+  No second redirect URL needs registering with Discord.
+- A Discord id that is not in `Admins` is refused and audited (`admin.refused`).
+- A session is a random token in the `svm_admin` cookie: HttpOnly, Secure, SameSite=Strict, path `/admin`. Only its
+  hash is kept, in `admin_sessions`. It ends after 12 hours unused or 7 days at most, and every request checks
+  `Admins` again.
+- Every form carries the session's CSRF token.
+- Pages send their own content policy (scripts and styles only from `/admin/assets`), no framing and no caching, and
+  go through the master's rate limit.
+- Every change is audited with its admin (`audit.actor` is `admin:<name>`; the command line writes `cli`).
+
+**Pages.**
+
+| Page | What it does |
+|---|---|
+| Dashboard | Players online (games, hubs), servers, accounts, rounds today, relay and introducer counts, the 24-hour players chart, latest rounds and audit lines. It refreshes itself. |
+| Servers | Every registered server, unlisted ones too. A server's page lists its players (team, ping, account) and, for trusted servers, runs commands: say, kick or ban a player, change map or mode, start, next map, restart round, back to lobby, set an option, or any console line. It can also block the server's address. |
+| Players | Search by name, Discord id or account id; online, banned and admin marks. |
+| Player | Stats, achievements, cosmetics, bans, rounds, game sign-ins and old names. Actions: rename, release the name, ban or unban, kick from the server they are on, sign out everywhere, unlock or take back cosmetics. |
+| Bans | Bans in force (and ended ones). Ban a name, `#account`, Discord id, address or CIDR range; end a ban. |
+| Matches | Every round a trusted server reported, counted or not, with each player's line and feats. |
+| History | Players, servers and relay sessions over a day, a week or a month; peak players per day. |
+| Settings | Message of the day, latest and minimum version (stored in the database, they override the config at once); an announcement to every trusted server; blocked servers; the admin list. |
+| Audit | The audit log with a filter. |
+
+**Commands to servers.**
+- The master keeps a queue per trusted server and sends it with the next heartbeat answer (`HeartbeatResponse.Commands`).
+- While commands wait, or while an admin has the server's page open, the answer asks for heartbeats every 5 s.
+- The server runs each line through its console handler (`OnlineServer.Execute`), except closing the server. It
+  sends the output back with its next heartbeat (`HeartbeatRequest.CommandResults`), and the server page shows it.
+- Servers that are not trusted get no commands and ignore any.
+
+**What servers send.** Heartbeats also carry `PlayerDetails` (session id, name, team, ping, account, bot, admin, host)
+and `RoundSecondsLeft`. Results also carry each row's `Name` and the round's `DurationSeconds`. Older servers send
+none of these and still work.
+
+**Data (schema v4).**
+- `admin_sessions`;
+- `matches` and `match_rows`, every reported round;
+- `metrics`, one sample a minute, kept 90 days;
+- `settings`;
+- `blocked_servers`, refused at heartbeat;
+- `audit.actor`.
 
 ## Dedicated server (svm-server)
 
@@ -406,6 +460,28 @@ with no master picks it up once (`[master] defaults`), and a player who clears i
 runs (isolated settings) keep the master empty.
 
 The player's Discord status (what they are playing, with Join for friends) is in `docs/DISCORD.md`.
+
+## Updating the VPS
+
+`tools/deploy/Deploy-Vps.ps1` updates the running master, dedicated server and hub in one command (default: all
+three; `-Services master` for one). For each service it:
+1. publishes the program (linux-x64, self-contained) and uploads it;
+2. stops the service and backs up its folder to `/opt/svm/backups` (program, config, `accounts.db`, `ticket-key.pem`;
+   not the converted maps and characters). It keeps the last ten backups of each service;
+3. unpacks the new program over the old one, starts it, and checks it is up (the master's `/api/v1/status`);
+4. restores the backup and restarts the service when it does not come back.
+
+Configs, the accounts database, the ticket key and the content folders are never replaced. Each service is down for
+a few seconds: the game retries master calls, and servers re-register on their next heartbeat. The master upgrades
+its database itself on start.
+
+Keeping updates seamless:
+- **Master API:** add fields to the JSON answers, never rename or remove them; older games ignore what they do not
+  know.
+- **Join tickets:** new fields go after the existing ones. Servers skip bytes they do not know, so the master can be
+  updated before the servers.
+- **Game protocol:** a change to replication or the session protocol needs the servers and the players' game updated
+  together (a release); update the master first, then the servers.
 
 ## Deploying on a VPS
 

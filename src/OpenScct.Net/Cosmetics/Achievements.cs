@@ -2,13 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using OpenScct.Core.Engine;
-using OpenScct.Net.Cosmetics;
 using OpenScct.Net.Discovery;
 
-namespace OpenScct.Master;
+namespace OpenScct.Net.Cosmetics;
 
 /// <summary>Achievement groups, in the order the game shows them (the names go to the game as text).</summary>
-internal enum AchievementCategory
+public enum AchievementCategory
 {
     General,
     Spy,
@@ -21,7 +20,7 @@ internal enum AchievementCategory
 /// An account's totals as the achievements read them: the stats, the feats summed over all counted rounds, the base
 /// maps won per side, and the achievements already earned (for the ones that need others).
 /// </summary>
-internal sealed class AccountProgress
+public sealed class AccountProgress
 {
     public AccountStats Stats { get; init; } = new();
 
@@ -42,7 +41,7 @@ internal sealed class AccountProgress
 /// (current, target), the cosmetics it unlocks, and for one-round feats the test of that round (otherwise it is earned
 /// once the progress reaches the target).
 /// </summary>
-internal sealed record Achievement(
+public sealed record Achievement(
     string Id,
     string Title,
     string Description,
@@ -63,8 +62,11 @@ internal sealed record Achievement(
     }
 }
 
-/// <summary>Every achievement, in the order the game lists them. Thresholds are in the tables at the top.</summary>
-internal static class Achievements
+/// <summary>
+/// Every achievement, in the order the game lists them (shared: the master grants them, the game lists them even
+/// when its master is older). Thresholds are in the tables at the top.
+/// </summary>
+public static class Achievements
 {
     // The merc gun camo ladder, CoD4/MW2 style: (camo, kills or headshots, count, title).
     private static readonly (string Camo, bool Headshots, int Count, string Title)[] s_gunLadder =

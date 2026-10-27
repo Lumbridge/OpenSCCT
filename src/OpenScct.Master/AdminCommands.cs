@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
+using OpenScct.Net.Cosmetics;
 using OpenScct.Net.Discovery;
 
 namespace OpenScct.Master;
@@ -21,6 +23,9 @@ internal static class AdminCommands
           rename <name> <new name>                                  rename an account (no cooldown)
           release-name <name>                                       take a name away; the account picks a new one
           whois <name|discord id>                                   an account: ids, dates, stats, bans, old names
+          unlock <name|discord id> <all|spy|merc|item id...>         give an account cosmetics without the achievements
+          lock <name|discord id> <all|spy|merc|item id...>           take back cosmetics given with unlock
+          cosmetics                                                 list every cosmetic item id
           audit [N]                                                 the last N audit entries (default 20)
         """;
 
@@ -48,6 +53,7 @@ internal static class AdminCommands
         }
 
         using (store)
+        using (AccountStore.ActingAs("cli"))
         {
             var admin = new Session(store, options, output, errors);
             string[] rest = [.. args];
@@ -59,6 +65,9 @@ internal static class AdminCommands
                 "rename" when rest.Length == 3 => admin.Rename(rest[1], rest[2]),
                 "release-name" when rest.Length == 2 => admin.ReleaseName(rest[1]),
                 "whois" when rest.Length == 2 => admin.Whois(rest[1]),
+                "unlock" when rest.Length >= 3 => admin.Grant(rest[1], rest[2..], unlock: true),
+                "lock" when rest.Length >= 3 => admin.Grant(rest[1], rest[2..], unlock: false),
+                "cosmetics" when rest.Length == 1 => admin.Cosmetics(),
                 "audit" when rest.Length <= 2 => admin.Audit(rest.Length == 2 ? rest[1] : null),
                 _ => admin.UsageError(),
             };
@@ -67,6 +76,14 @@ internal static class AdminCommands
 
     private sealed class Session(AccountStore store, MasterOptions options, TextWriter output, TextWriter errors)
     {
+        private readonly AdminActions _actions = new(store);
+
+        private int Report(AdminResult result)
+        {
+            (result.Ok ? output : errors).WriteLine(result.Message);
+            return result.Ok ? Ok : result.NotFound ? NotFound : BadUsage;
+        }
+
         public int UsageError()
         {
             errors.WriteLine(Usage);
@@ -74,8 +91,7 @@ internal static class AdminCommands
         }
 
         /// <summary>The account a name or Discord id names (a Discord id with no account yet gives null).</summary>
-        private AccountRow? FindAccount(string who) =>
-            MasterOptions.IsSnowflake(who) ? store.FindByDiscord(who) : store.FindByName(who);
+        private AccountRow? FindAccount(string who) => _actions.FindAccount(who);
 
         public int Ban(string[] args)
         {
@@ -106,67 +122,10 @@ internal static class AdminCommands
                 }
             }
 
-            long? until = days is { } n ? store.Now + (long)(n * 86400) : null;
-            if (AccountStore.NormalizeIp(target) is { } ip)
-            {
-                long id = store.AddBan(null, null, ip, reason, until);
-                output.WriteLine($"Ban #{id}: address {ip}, {Until(until)}.");
-                return Ok;
-            }
-
-            AccountRow? account = FindAccount(target);
-            if (account is null && !MasterOptions.IsSnowflake(target))
-            {
-                errors.WriteLine($"No account is called '{target}'.");
-                return NotFound;
-            }
-
-            string discord = account?.DiscordId ?? target;
-            long banId = store.AddBan(account?.Id, discord, null, reason, until);
-            output.WriteLine(account is null
-                ? $"Ban #{banId}: Discord id {discord} (no account yet), {Until(until)}."
-                : $"Ban #{banId}: account {account.Id} ({account.Name ?? "no name"}, Discord {discord}), {Until(until)}.");
-            return Ok;
+            return Report(_actions.Ban(target, days, reason));
         }
 
-        public int Unban(string target)
-        {
-            int ended;
-            if (target.StartsWith('#') && long.TryParse(target.AsSpan(1), NumberStyles.None, CultureInfo.InvariantCulture, out long banId))
-            {
-                ended = store.EndBans(banId, null, null, null);
-            }
-            else if (AccountStore.NormalizeIp(target) is { } ip)
-            {
-                ended = store.EndBans(null, null, null, ip);
-            }
-            else if (FindAccount(target) is { } account)
-            {
-                ended = store.EndBans(null, account.Id, account.DiscordId, null);
-            }
-            else if (MasterOptions.IsSnowflake(target))
-            {
-                ended = store.EndBans(null, null, target, null);
-            }
-            else if (long.TryParse(target, NumberStyles.None, CultureInfo.InvariantCulture, out long plainId))
-            {
-                ended = store.EndBans(plainId, null, null, null);
-            }
-            else
-            {
-                errors.WriteLine($"No account is called '{target}'.");
-                return NotFound;
-            }
-
-            if (ended == 0)
-            {
-                errors.WriteLine($"No ban in force matches '{target}'.");
-                return NotFound;
-            }
-
-            output.WriteLine($"Ended {ended} ban(s).");
-            return Ok;
-        }
+        public int Unban(string target) => Report(_actions.Unban(target));
 
         public int Bans()
         {
@@ -186,62 +145,13 @@ internal static class AdminCommands
             return Ok;
         }
 
-        private string Target(BanRow b)
-        {
-            if (b.Ip is not null)
-            {
-                return "address " + b.Ip;
-            }
+        private string Target(BanRow b) => _actions.BanTarget(b);
 
-            if (b.AccountId is { } id)
-            {
-                string name = store.FindById(id)?.Name ?? "no name";
-                return $"account {id} ({name}, Discord {b.DiscordId ?? "-"})";
-            }
+        public int Rename(string who, string newName) =>
+            FindAccount(who) is { } account ? Report(_actions.Rename(account, newName)) : Report(AdminResult.Missing($"No account is called '{who}'."));
 
-            return "Discord " + (b.DiscordId ?? "-");
-        }
-
-        public int Rename(string who, string newName)
-        {
-            if (FindAccount(who) is not { } account)
-            {
-                errors.WriteLine($"No account is called '{who}'.");
-                return NotFound;
-            }
-
-            if (PlayerNames.ClaimProblem(newName) is { } problem)
-            {
-                errors.WriteLine(problem);
-                return BadUsage;
-            }
-
-            switch (store.ClaimName(account.Id, newName, ignoreCooldown: true, out _))
-            {
-                case NameClaim.Taken:
-                    errors.WriteLine($"'{newName}' is taken (or held for its last owner; release-name frees it).");
-                    return BadUsage;
-                case NameClaim.NoAccount:
-                    errors.WriteLine("The account is gone.");
-                    return NotFound;
-                default:
-                    output.WriteLine($"Account {account.Id}: {account.Name ?? "(no name)"} -> {newName}.");
-                    return Ok;
-            }
-        }
-
-        public int ReleaseName(string name)
-        {
-            AccountRow? account = store.FindByName(name);
-            if (account is null || !store.ReleaseName(account.Id))
-            {
-                errors.WriteLine($"No account is called '{name}'.");
-                return NotFound;
-            }
-
-            output.WriteLine($"Account {account.Id} no longer has the name {account.Name}; it picks a new one at its next sign-in.");
-            return Ok;
-        }
+        public int ReleaseName(string name) =>
+            store.FindByName(name) is { } account ? Report(_actions.ReleaseName(account)) : Report(AdminResult.Missing($"No account is called '{name}'."));
 
         public int Whois(string who)
         {
@@ -259,7 +169,7 @@ internal static class AdminCommands
             output.WriteLine($"Last seen   {AccountStore.Format(a.LastSeen)}");
             output.WriteLine($"Stats       {s.Matches} matches, {s.SpyWins} spy wins, {s.MercWins} merc wins, {s.Losses} losses, " +
                 $"{s.Kills} kills, {s.Deaths} deaths");
-            output.WriteLine($"Achievements {store.Earned(a.Id).Count} of {Achievements.All.Count}, cosmetics {Achievements.Unlocked(store.Earned(a.Id).Keys).Count} of {OpenScct.Net.Cosmetics.CosmeticCatalog.All.Count}");
+            output.WriteLine($"Achievements {store.Earned(a.Id).Count} of {Achievements.All.Count}, cosmetics {store.Unlocked(a.Id).Count} of {OpenScct.Net.Cosmetics.CosmeticCatalog.All.Count} ({store.Grants(a.Id).Count} given by unlock)");
             BanRow? ban = store.ActiveBan(a.Id, a.DiscordId, null);
             output.WriteLine(ban is null ? "Bans        none in force" : $"Bans        #{ban.Id}: {ban.Describe()}");
             List<NameHistoryRow> history = store.NameHistory(a.Id);
@@ -271,6 +181,19 @@ internal static class AdminCommands
             foreach (NameHistoryRow h in history)
             {
                 output.WriteLine($"Old name    {h.Name}  (until {AccountStore.Format(h.Changed)}, held to {AccountStore.Format(h.Until)})");
+            }
+
+            return Ok;
+        }
+
+        public int Grant(string who, string[] what, bool unlock) =>
+            FindAccount(who) is { } a ? Report(_actions.Grant(a, what, unlock)) : Report(AdminResult.Missing($"No account is called '{who}'."));
+
+        public int Cosmetics()
+        {
+            foreach (OpenScct.Net.Cosmetics.CosmeticItem i in OpenScct.Net.Cosmetics.CosmeticCatalog.All)
+            {
+                output.WriteLine($"{i.Id,-28}  {OpenScct.Net.Cosmetics.CosmeticCatalog.Describe(i)}");
             }
 
             return Ok;
@@ -292,12 +215,12 @@ internal static class AdminCommands
 
             foreach (AuditRow r in rows)
             {
-                output.WriteLine($"{AccountStore.Format(r.Time)}  {r.Action,-12}  {r.Detail}");
+                output.WriteLine($"{AccountStore.Format(r.Time)}  {r.Action,-12}  {r.Actor,-14}  {r.Detail}");
             }
 
             return Ok;
         }
 
-        private static string Until(long? until) => until is { } u ? "until " + AccountStore.Format(u) : "permanent";
+        private static string Until(long? until) => AdminActions.Until(until);
     }
 }

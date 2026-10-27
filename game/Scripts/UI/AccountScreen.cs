@@ -1,6 +1,5 @@
 using System;
 using System.Globalization;
-using System.Linq;
 using System.Threading.Tasks;
 using Godot;
 using OpenScct.Net.Cosmetics;
@@ -13,7 +12,7 @@ namespace OpenScctGame.UI;
 /// <summary>
 /// The Account page: signing in with Discord through our master (the master gives a short code and a page; the game
 /// opens the page in the browser and asks every 2 s until the sign-in is done, expired or refused), picking the
-/// account's name, and the signed-in account: name, stats, achievements and Sign out. A signed-in player's settings
+/// account's name, and the signed-in account: name, stats and Sign out (achievements have their own page). A signed-in player's settings
 /// and key layouts follow the account (<see cref="AccountService"/>). Without a master there are no accounts.
 /// </summary>
 public partial class AccountScreen : MenuPage
@@ -422,41 +421,7 @@ public partial class AccountScreen : MenuPage
                 $"Matches {st.Matches}    Spy wins {st.SpyWins}    Merc wins {st.MercWins}    Losses {st.Losses}")));
             stats.AddChild(Text(string.Create(CultureInfo.InvariantCulture, $"Kills {st.Kills}    Deaths {st.Deaths}")));
         }
-
-        VBoxContainer achievements = Panel(_content!, "Achievements", "Achievements");
-        if (info is null || info.Achievements.Count == 0)
-        {
-            achievements.AddChild(Text(info is null ? "Asking the master server..." : "No achievements yet."));
-            return;
-        }
-
-        int done = info.Achievements.Count(a => a.Earned is not null);
-        achievements.AddChild(Text(string.Create(CultureInfo.InvariantCulture,
-            $"{done} of {info.Achievements.Count} earned, {info.Unlocked.Count} cosmetics unlocked (choose them in the Armoury).")));
-        foreach (IGrouping<string, AchievementInfo> group in info.Achievements.GroupBy(a => a.Category.Length > 0 ? a.Category : "General"))
-        {
-            VBoxContainer groupPanel = Panel(_content!, "Achievements" + group.Key, CategoryTitle(group.Key));
-            foreach (AchievementInfo a in group)
-            {
-                string when = a.Earned is { } earned
-                    ? "  (" + earned.ToLocalTime().ToString("d MMM yyyy", CultureInfo.InvariantCulture) + ")"
-                    : a.Target > 1 ? string.Create(CultureInfo.InvariantCulture, $"  {a.Current} / {a.Target}") : string.Empty;
-                string rewards = CosmeticCatalog.DescribeAll(a.Rewards);
-                Label line = Text(a.Title + when + "\n" + a.Description + (rewards.Length > 0 ? "\nUnlocks: " + rewards : string.Empty));
-                line.Modulate = a.Earned is null ? UiStyle.MenuDisabled : UiStyle.MenuFocus;
-                groupPanel.AddChild(line);
-            }
-        }
     }
-
-    private static string CategoryTitle(string category) => category switch
-    {
-        "Spy" => "Spy achievements",
-        "Merc" => "Mercenary achievements",
-        "Weapons" => "Weapons (merc camo ladders and the golden guns)",
-        "Map" => "Maps (win as both sides)",
-        _ => "General achievements",
-    };
 
     private static Label Text(string text) => new()
     {

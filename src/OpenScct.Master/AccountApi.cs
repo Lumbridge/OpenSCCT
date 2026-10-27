@@ -40,6 +40,9 @@ internal sealed class AccountApi
 
     public PendingLinks Links { get; }
 
+    /// <summary>The admin portal's sign-in, for Discord answers whose state starts with "admin." (one callback URL for both).</summary>
+    public Func<HttpContext, Task<IResult>>? AdminCallback { get; set; }
+
     public string TicketKey => _signer.PublicKey;
 
     public void Map(WebApplication app)
@@ -163,6 +166,11 @@ internal sealed class AccountApi
     {
         NoStore(context);
         string state = context.Request.Query["state"].ToString();
+        if (state.StartsWith("admin.", StringComparison.Ordinal) && AdminCallback is { } admin)
+        {
+            return await admin(context).ConfigureAwait(false);
+        }
+
         string code = context.Request.Query["code"].ToString();
         string error = context.Request.Query["error"].ToString();
         if (Links.Find(state) is not { } link || link.Status == LinkStatus.Expired)
@@ -269,7 +277,7 @@ internal sealed class AccountApi
         {
             Id = account.Id, Name = account.Name, Admin = _options.IsAdmin(account.DiscordId),
             NameChangeAllowed = allowed is { } t ? DateTimeOffset.FromUnixTimeSeconds(t) : null,
-            Stats = _store.Stats(account.Id), Achievements = achievements, Unlocked = Achievements.Unlocked(earned.Keys),
+            Stats = _store.Stats(account.Id), Achievements = achievements, Unlocked = _store.Unlocked(account.Id),
         };
     }
 
@@ -344,7 +352,7 @@ internal sealed class AccountApi
         {
             AccountId = account.Id, Name = account.Name, ServerId = serverId, Expires = _time.GetUtcNow() + PlayerTicket.Lifetime,
             TicketId = PlayerTicket.NewTicketId(), Flags = _options.IsAdmin(account.DiscordId) ? PlayerTicketFlags.Admin : PlayerTicketFlags.None,
-            Unlocks = CosmeticUnlocks.Of(Achievements.Unlocked(_store.Earned(account.Id).Keys)).ToBytes(),
+            Unlocks = CosmeticUnlocks.Of(_store.Unlocked(account.Id)).ToBytes(),
         };
         return (_signer.Sign(ticket), null);
     }
@@ -375,10 +383,19 @@ internal sealed class AccountApi
             return Error(StatusCodes.Status400BadRequest, "The report is too large.");
         }
 
-        if (Countable(report))
+        bool counted = Countable(report);
+        if (counted)
         {
             _store.ApplyResults(report, server.Name);
         }
+
+        string serverName;
+        lock (_registry.Gate)
+        {
+            serverName = _registry.Find(report.ServerId)?.Last.Name ?? server.Name;
+        }
+
+        _store.RecordMatch(report, serverName, counted);
 
         return Results.Ok();
     }

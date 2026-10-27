@@ -13,5 +13,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Update="svm-master.example.json" CopyToOutputDirectory="PreserveNewest" />
+    <EmbeddedResource Include="Admin/assets/*" LogicalName="admin/%(Filename)%(Extension)" />
   </ItemGroup>
 </Project>
