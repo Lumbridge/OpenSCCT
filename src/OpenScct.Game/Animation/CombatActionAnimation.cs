@@ -9,10 +9,11 @@ namespace OpenScct.Game.Animation;
 /// <summary>
 /// The ExecuteAction cases no action port plays (spec/native/execute-action.md section 4): the weapon overlay (reload,
 /// fire), deaths and the stand-up, hits (PlayDamage), the cough, the binoculars, the back-to-wall fire transitions,
-/// throws, blasts and their wake-ups, the grab and grabbed clips, the terminate and counter-grab clips, the inert fall
-/// and landing, and the switch interaction. Each case does what the table gives (physics mode, root motion, clip,
-/// blend, fields); the script events of a case (skins, sounds, the BTW arm control) are left to their owners.
-/// <see cref="ActionAnimation.End"/> calls <see cref="Execute"/> after the ports, so it only runs for these actions.
+/// throws, blasts and their wake-ups, the grab and grabbed clips and repositioning, the terminate and counter-grab
+/// clips, the inert fall and landing, and the switch interaction. Each case does what the table gives (physics mode,
+/// root motion, clip, blend, fields); the script events of a case (skins, sounds, the BTW arm control) are left to
+/// their owners. <see cref="ActionAnimation.End"/> calls <see cref="Execute"/> after the ports, so it only runs for
+/// these actions.
 /// </summary>
 public static class CombatActionAnimation
 {
@@ -49,10 +50,13 @@ public static class CombatActionAnimation
     [Provenance(ProvenanceKind.Decoded, "execute-action.md case 314: Velocity Z -681")]
     public const float GrabbedLedgeFallZ = -681f;
 
+    [Provenance(ProvenanceKind.Decoded, "execute-action.md case 321: fPhysReposLinearSpeed = 220, server controlled")]
+    public const float ServerReposSpeed = 220f;
+
     /// <summary>Plays one of the cases this class covers; false for any other action.</summary>
     [UcNative("ASBasePawn::ExecuteAction", Exe = 0x10ad6800, Editor = 0x11215980)]
     [PortOf("nat:SBase.SBasePawn.ExecuteAction", Spec = "spec/native/execute-action.md#4-cases")]
-    [Provenance(ProvenanceKind.Decoded, "execute-action.md cases 6, 7, 11, 12, 18 to 37, 40 to 65, 73, 74, 92, 101, 106, 183 to 192, 230 to 233, 239 to 243, 249 to 251, 283 to 285, 291 to 297, 312 to 319, 325, 327")]
+    [Provenance(ProvenanceKind.Decoded, "execute-action.md cases 6, 7, 11, 12, 18 to 37, 40 to 65, 73, 74, 92, 101, 106, 183 to 192, 230 to 233, 239 to 243, 249 to 251, 283 to 285, 291 to 297, 312 to 319, 321, 325, 327")]
     public static bool Execute(SBasePawn pawn, int action)
     {
         System.ArgumentNullException.ThrowIfNull(pawn);
@@ -195,6 +199,20 @@ public static class CombatActionAnimation
                 Partner(pawn.m_PawnNoMoreGrabbed, pawn, SBasePawn.SA_GRABBED_RELEASE_DROPTECH);
                 Release(pawn);
                 pawn.SetCollision(false, false, false);
+                return true;
+
+            // ---- grab repositioning (19, 321) ----
+            case SBasePawn.SA_GRAB_REPOS:
+                // The merc stops blocking so the spy can walk into the grab spot; then SA_REPOS.
+                if (pawn.m_AttackTarget is { } target && !ReferenceEquals(target, pawn))
+                {
+                    target.SetCollision(true, false, false);
+                }
+
+                GrabRepos(pawn, TraversalActions.ReposSpeed, serverControls: false);
+                return true;
+            case SBasePawn.SA_SERVER_REPOS:
+                GrabRepos(pawn, ServerReposSpeed, serverControls: true);
                 return true;
 
             // ---- grabbed (30 to 37, 327) ----
@@ -891,6 +909,15 @@ public static class CombatActionAnimation
         held.SetCollision(true, true, true);
         held.bCollideWorld = true;
         Once(held, 0, "GrbdStAlEd0", 0f);
+    }
+
+    /// <summary>A grab repositioning: PHYS_Repositionnal to vVandammePos, walking on the way (Z ignored).</summary>
+    private static void GrabRepos(SBasePawn pawn, float speed, bool serverControls)
+    {
+        pawn.fPhysReposLinearSpeed = speed;
+        pawn.bServerControlsRepos = serverControls;
+        pawn.bUseAdditionnalPhysicsForRepos = true;
+        PawnActions.SetPhysics(pawn, EPhysics.PHYS_Repositionnal);
     }
 
     /// <summary>X(other, n): the partner pawn runs its own action inside this one.</summary>

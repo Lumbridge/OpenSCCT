@@ -8,12 +8,12 @@ namespace OpenScct.Server.Online;
 /// <summary>
 /// The stock special cases of voice routing read from the SBase port (spec/game/voice-chat.md rules 8 to 14): the lobby
 /// team-only switch (<c>bTeamVoiceOnly</c>, the lobby's "Restrict Mic to Team"), the merc's binocular voice target
-/// (<c>VoiceChatTargetPC</c>), the Hack Comm key (<c>bSpecialsChat</c> held while not grabbing) and spy bullet tags
-/// (<c>bSpyBulletOn</c>, <c>iTeamSpying</c>), grab talk, and downed chat partners (<c>PCChattingWith</c>). Every online
-/// session's voice relay reads its players through it; install it on <see cref="NetDriverVoiceDirectory.Links"/>.
-/// <para>Grab talk: the original mutes and unmutes directly when the voice key changes during a grab
-/// (ServerSetVoiceComWhenGrabbing) and keeps no flag. Until the grab port records one, a spy in s_GrabbingPlayer with
-/// the Hack Comm key held counts as talking to the merc he holds, which is what that key does in that state.</para>
+/// (<c>VoiceChatTargetPC</c>, set by the scope's and the binoculars' voice trace), the Hack Comm key (<c>bSpecialsChat</c>,
+/// sent by the owner with ReplicateSpecialsChatOnServer, held while not grabbing) and spy bullet tags (<c>bSpyBulletOn</c>,
+/// <c>iTeamSpying</c>), grab talk (<c>bVoiceComWhenGrabbing</c>, ServerSetVoiceComWhenGrabbing), and downed chat partners
+/// (<c>PCChattingWith</c>). Every online session's voice relay reads its players through it; install it on
+/// <see cref="NetDriverVoiceDirectory.Links"/>. All of it is the server's copy of the controller, so a client only ever
+/// asks; the server decides.
 /// </summary>
 public sealed class SessionVoiceLinks : IVoiceLinkSource
 {
@@ -29,9 +29,8 @@ public sealed class SessionVoiceLinks : IVoiceLinkSource
         member.TeamVoiceOnly = pc.bTeamVoiceOnly;
         member.VoiceTarget = TalkerOf(pc.VoiceChatTargetPC);
         bool grabbing = pc.IsInState(NAME_s_GrabbingPlayer);
-        bool key = pc.bSpecialsChat > 0;
-        member.HackCommKey = key && !grabbing;
-        if (grabbing && key && pc.SPawnType == PawnType.SPAWNOFFENSE && pc.SBPawn?.m_AttackTarget?.Controller is SPlayerController held)
+        member.HackCommKey = pc.bSpecialsChat > 0 && !grabbing;
+        if (grabbing && pc.bVoiceComWhenGrabbing && pc.SPawnType == PawnType.SPAWNOFFENSE && pc.SBPawn?.m_AttackTarget?.Controller is SPlayerController held)
         {
             member.GrabTalkWith = TalkerOf(held);
         }

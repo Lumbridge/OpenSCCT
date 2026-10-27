@@ -5,7 +5,7 @@ Units:
 - uc:SBase.SGameInfo:{ChangeVoiceChatter, UpdateVoiceChatMuting}
 - uc:Engine.PlayerController:{ServerChangeVoiceChatter, ServerGetVoiceChatters, ServerHearVoiceChatter, ServerMuteVoiceChatters, ClientMuteVoiceChatter, ClientChangeVoiceChatter, ClientSetVoiceChatterId, ClientEnterVoiceChat, ClientLeaveVoiceChat, WantsTeamVoiceOnly, SetAllowVoiceChat, OpenVoiceChatSession, CloseVoiceChatSession, ServerSetAllowVoiceChat}
 - uc:SBase.SPlayerController:{TalkToMate, OtherTeamCantHearMe, HearPC, s_Inactive.HearPC, CanHackEnemyComs, CanAlwaysTalkToMates, CanRouteVoice}
-- uc:SBase.SPlayerController:{ServerSetVoiceChatTarget, ServerClearVoiceChatTarget, StopHackComm, HackCommHear, IsHackCommUnmuted, ServerHearSpybullets, UpdateSpecialsChat, VoiceChatButtonToggle, s_GrabbingPlayer.VoiceChatButtonToggle, ServerSetVoiceComWhenGrabbing}
+- uc:SBase.SPlayerController:{ServerSetVoiceChatTarget, ServerClearVoiceChatTarget, StopHackComm, HackCommHear, IsHackCommUnmuted, ServerHearSpybullets, UpdateSpecialsChat, ReplicateSpecialsChatOnServer, VoiceChatButtonToggle, s_GrabbingPlayer.VoiceChatButtonToggle, ServerSetVoiceComWhenGrabbing}
 - uc:SBase.SPlayerController:{ServerSetTeamVoiceOnly, WantsTeamVoiceOnly, ServerToggleTeamVoiceChat, SetVoiceBanned, VoiceBanned, PropagateMuteToServer, PropagateMuteToServerInternal, PropagateMuteToClient, MutePlayerChange, ServerGetVoiceChatters, ClientSetVoiceChatMode, ClientEnterVoiceChat}
 - rl:voice.routing
 
@@ -34,9 +34,12 @@ through the engine, which plays what the listener has not muted.
 | allowVoiceChat, bVoiceBanned | PlayerReplicationInfo | the player's own switch; banned by the host |
 | bTeamVoiceOnly | SPlayerController | the lobby's "Restrict Mic to Team" |
 | PCChattingWith[3] | SPlayerController | enemies chatting with this downed player |
-| VoiceChatTargetPC | SPlayerController | the spy a merc's binocular trace found |
+| VoiceChatTargetPC | SPlayerController | the enemy the scope's or binoculars' voice trace found (server) |
+| VoiceChatTarget, bVoiceChatTargetSent | SPlayerController | the same on the owning machine, and whether the server was told |
 | HackCommUnmuted (array) | SPlayerController | enemies heard through hacked comms |
-| bSpecialsChat | SPlayerController | the Hack Comm key (input button, stock bind H) |
+| bSpecialsChat | SPlayerController | the Hack Comm key (input button, stock bind H); the owner sends each change with ReplicateSpecialsChatOnServer |
+| bCanTalkToGuy | SPlayerController | set by the server while a spy holds a merc and enemy coms can be hacked: the HUD's "Speak" prompt |
+| bCanListenSpyBulletedGuy | SPlayerController | set by the server while an enemy carries the player's team's tag: the HUD's "Hack" prompt |
 | bSpyBulletOn, iTeamSpying | SBasePawn | tagged by a spy bullet or the merc laser, and by which team |
 | fDistToTalkWhenOnGround | SPlayerController | downed chat range, 300 uu; 0 in Team mode |
 
@@ -85,16 +88,27 @@ The match (Modern, Classic, Team):
 9. Downed chat: while a player is down, the engine reports enemies within `fDistToTalkWhenOnGround` (300 uu; 0 in
    Team mode) as chat partners, up to three. The downed player hears each partner; the partner's own teammates stop
    hearing the partner. Standing up, death and respawn release every partner and give their teams back.
+   The report is native (decoded, editor ASPlayerController::Tick 0x111f41b0 and its helper 0x111f1740): every tick
+   on the server, while the player's pawn has `bLyingOnGround`, each partner who has a pawn, is on the other side and
+   is farther than the range or has let go of the Hack Comm key (`bSpecialsChat` 0) is dropped with
+   `HearPC(partner, false)`. Then, if the downed pawn is alive, every enemy controller with a pawn closer than the
+   range who holds the Hack Comm key and is not yet a partner takes the first free slot of the three, with
+   `HearPC(enemy, true)` (no slot free: ignored). Only `s_Inactive` and its children act on `HearPC`. `bLyingOnGround`
+   stays set while a merc finishes the spy (`s_TerminatedPawn`), so the merc holding the key talks to the spy he is
+   finishing; the spy is not heard by him (rule 11 still holds from going down) unless another rule links them.
 10. Team mode refuses every un-mute between players of different teams outside the lobby: none of rules 9 and 12 to
     14 ever connects enemies, and Hack Comm and the binocular trace do not start.
 
 Across teams in Modern and Classic:
 11. The other team never hears a dead or downed player: on death and on going down every enemy controller mutes him,
     which also ends any eavesdropping on him.
-12. Binocular voice trace: a merc in binoculars traces once per whole second along his view, from 50 uu ahead of his
-    eyes to 6000 × AudioZoomFactor (0.33 while the binoculars are up). When the trace hits a spy and enemy coms can be
-    hacked, a hacking sound plays and the merc hears that spy (one way). Hitting nothing or anything else, lowering
-    the binoculars, and the merc's death or downing end it.
+12. Voice trace: a merc in his rifle scope (s_Binoculars_Def) and a spy in his binoculars (s_Binoculars_Att) trace
+    once per whole second along the view, from 50 uu ahead of the eyes to 6000 × AudioZoomFactor (0.33, 0.66, 1.0 at
+    the three zoom levels). When the trace hits an enemy pawn (a spy for the scope, a merc for the binoculars) and
+    enemy coms can be hacked, a hacking sound plays (ClientPlaySound Snd_VoiceHacking), the HUD shows the Hack prompt,
+    and the tracer hears that enemy one way (ServerSetVoiceChatTarget). Hitting nothing or anything else, leaving the
+    scope or binoculars, and the tracer's death or downing end it (ServerClearVoiceChatTarget). The trace runs on the
+    owning machine; the server only keeps the target.
 13. Hacked comms: a pawn tagged by a team (a spy bullet, or the merc laser's mark; `bSpyBulletOn`, `iTeamSpying`,
     90 s) is heard, one way, by every player of that team who holds the Hack Comm key. It is not heard while either
     side is down. Pressing the key hears every tagged enemy; releasing it, death and going down stop it; a new tag
@@ -123,6 +137,8 @@ The rewrite's transport (docs/VOICE.md) sends every frame to the server, which f
   talker's last frame).
 - R4. A talker may send at most 60 frames a second (burst 15); the server writes the talker's id itself, so a client
   cannot speak for someone else, and audio from an endpoint that is no player is dropped.
+- R5. The server accepts a voice trace target only on the other side and within 6000 uu plus 1000 of slack (the
+  trace's longest reach and a second of movement; estimated), so a modified client cannot pick any enemy to hear.
 
 ## States
 
@@ -144,7 +160,10 @@ None of its own: the rules read the controller states listed under Inputs.
 
 ## Network
 
-All routing runs on the server (`CanRouteVoice`: a dedicated or listen server with a game info). The stock client
+All routing runs on the server (`CanRouteVoice`: a dedicated or listen server with a game info). The owner's inputs
+reach it through reliable calls: `ReplicateSpecialsChatOnServer` (the Hack Comm key, from UpdateSpecialsChat after
+each PlayerMove), `ServerSetVoiceComWhenGrabbing` (the key during a grab), `ServerSetVoiceChatTarget` and
+`ServerClearVoiceChatTarget` (the voice trace). The stock client
 only mutes and unmutes chatter ids it is told to (`ClientMuteVoiceChatter`, reliable). The GRI does not replicate
 `VoiceChatMode` through its native list (spec/native/net-replists.md); the server sends it with
 `ClientSetVoiceChatMode` when a player asks for the chatter list. In the rewrite only audio crosses the network;
@@ -174,8 +193,7 @@ routing state never does.
 
 ## Open questions
 
-1. Which native code calls `HearPC` for downed chat (rule 9), with what distance test and how often; and whether
-   partners are dropped when they walk away. Decode the caller of eventHearPC in the game executable.
+1. Answered in rule 9 (editor executable). Not checked against the game executable's copy.
 2. Whether the engine itself filters audio by the mute state on the server (MuteMeForVoiceChatter) or only on the
    receiving client; the rewrite filters on the server either way.
 3. Whether `SetVoiceMask` (voice masking, an Xbox Live feature) does anything on PC.

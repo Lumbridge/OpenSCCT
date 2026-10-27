@@ -210,6 +210,7 @@ public static class K
     public static readonly Name s_Hack_Leave = new("s_Hack_Leave");
     public static readonly Name s_Hack_FastLeave = new("s_Hack_FastLeave");
     public static readonly Name s_Maintain_GoTo = new("s_Maintain_GoTo");
+    public static readonly Name s_Maintain_Enter = new("s_Maintain_Enter");
     public static readonly Name s_Maintain_Leave = new("s_Maintain_Leave");
     public static readonly Name s_FlagAndDropZone_GoTo = new("s_FlagAndDropZone_GoTo");
     public static readonly Name s_Pickup_GoTo = new("s_Pickup_GoTo");

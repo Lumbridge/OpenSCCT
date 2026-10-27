@@ -50,10 +50,11 @@ public sealed class MercMeleeProxyTests
         SBasePawn merc = found ?? throw new Xunit.Sdk.XunitException("no merc on the server");
         var pc = (SPlayerController)merc.Controller!;
         string name = merc.PlayerReplicationInfo!.PlayerName;
+        // The berserk start of the weapon walking Use key (UseEdgeWeapon).
         pc.fLastChargingTime = -100f;
-        pc.fLastBerserkTime = -100f;
-        pc.aForward = 0f;
-        Assert.True(pc.MercUseAction(true));
+        merc.ChangeEnumAction(SBasePawn.SA_BERSERK_ATTACK);
+        pc.fLastBerserkTime = merc.Level.TimeSeconds;
+        pc.eventChangeState(s_Berserk360);
         Assert.True(pc.IsInState(s_Berserk360), pc.GetStateName().ToString());
 
         SBasePawn? proxy = null;

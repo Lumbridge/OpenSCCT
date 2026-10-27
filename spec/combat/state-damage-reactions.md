@@ -177,7 +177,8 @@ Common sub-steps used below:
     'B L Thigh' at (10,0,-10), then `MirrorState('s_PlayerWalkingSt0H')` if alive), `s_PlaceBomb`
     (`MirrorState('s_PlaceBomb_End')` if alive), `s_PlaceBomb_End` (`MirrorState('s_PlayerWalkingSt0H')` if alive,
     global, then undraw action if still armed).
-32. s_Hack_Use and s_Computer_Use: broadcast message 23 (objective interrupted) on every call, then PRE, SRTD.
+32. s_Hack_Use and s_Computer_Use: s_Computer_Use broadcasts message 23 (objective interrupted) on every call
+    (s_Hack_Use sends no message), then PRE, SRTD.
     Dead: BLASTOK and NOSB gives DEATH-G, explosion FATAL. Alive: Charged H-CH, Elbow H-EL, DropAttacked
     `MirrorState('s_FallDropAttacked')`; Sticky: if alive `MirrorState('s_PlayerWalkingSt0H')` (s_Hack_Use also
     `GotoWaitingState()`), then CS(false); other: ANIM and leave the terminal (`s_Hack_Leave` or
@@ -213,7 +214,7 @@ stateDiagram-v2
 | Name | Value | Unit | Provenance | Source |
 |---|---|---|---|---|
 | shock conducted to the grabbing spy | pill 2 | - | decoded | s_GrabbedByPlayer.PawnTakeDamage |
-| interrupt broadcast | SGameMessages switch 23 | - | decoded | s_Hack_Use, s_Computer_Use, s_Computer_Enter |
+| interrupt broadcast | SGameMessages switch 23 | - | decoded | s_Computer_Use, s_Computer_Enter (not s_Hack_Use) |
 | flag re-attach offset | (10, 0, -10) on 'B L Thigh' | uu | decoded | s_PutFlagInDropZone.PawnTakeDamage |
 
 ## Network

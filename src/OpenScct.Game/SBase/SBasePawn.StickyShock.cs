@@ -107,5 +107,14 @@ public partial class SBasePawn
     [Uc("SBase.SBasePawn.RestoreSkins", Sha1 = "5a7e2a9dc9224ca5320ea643b1b1f7dc0b82162e")]
     [PortOf("uc:SBase.SBasePawn:RestoreSkins", Spec = "spec/equipment/sticky-shock-effect.md#rules")]
     [Provenance(ProvenanceKind.Estimated, "The Skins array is not modelled: only the Stickess flag is cleared")]
-    public void RestoreSkins() => bStickySkinned = false;
+    [Provenance(ProvenanceKind.Decoded, "RestoreSkins: neither wet nor phospho, a spy on a machine whose local player is a spy (None reads as SPAWNOFFENSE) calls TestAndSetEMFVisible")]
+    public void RestoreSkins()
+    {
+        bStickySkinned = false;
+        if (!bWet && !OpenScct.Game.Equipment.PawnVision.IsPhosphoSkinned(this) && SPawnType == PawnType.SPAWNOFFENSE &&
+            ((Level.GetLocalPlayerController() as SPlayerController)?.SPawnType ?? PawnType.SPAWNOFFENSE) == PawnType.SPAWNOFFENSE)
+        {
+            OpenScct.Game.Equipment.PawnVision.TestAndSetEMFVisible(this);
+        }
+    }
 }

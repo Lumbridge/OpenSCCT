@@ -97,7 +97,8 @@ visible + frame 0 + play) are in `docs/HUD.md`.
 25. `StateOfDetect == 2`: `Heart1` hidden; `Heart` shown and playing (from `Heart1`'s frame when it was hidden).
 26. `StateOfDetect == 0`: `Heart` shown at frame 0, stopped.
 27. When the playing loop wraps (its frame went down) and `StateOfDetect != 0`, the check sound (`Snd_Check`) plays
-    once.
+    once. Both sounds play through the HUD sound helper (0x10b26920): no actor, 2D, volume 1, radius 4096, pitch 1, on
+    the local machine only.
 28. The radar dish shows while either cone area is visible (the radar's own rule).
 
 ## Constants

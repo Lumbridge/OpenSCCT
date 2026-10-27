@@ -239,6 +239,12 @@ public partial class SPlayerController
     [Provenance(ProvenanceKind.Decoded, "ASPlayerController::Tick 0x111f41b0 ends with SendActions for a pawn with Role 3 and ServerUpdateActionCounts 0x111f8c80 for a pawn with Role 4")]
     protected override void NativeTick(float DeltaSeconds)
     {
+        // The server keeps a downed player's chat partners first (SPlayerController.DownedChat.cs).
+        if (Role == ENetRole.ROLE_Authority && SBPawn is { bLyingOnGround: true })
+        {
+            UpdateDownedChat();
+        }
+
         bool movement = MovementService.Of(this) is not null;
         if (movement && Player is UViewport)
         {
@@ -263,8 +269,8 @@ public partial class SPlayerController
     /// <summary>The input and control part of the global PlayerTick (input-and-rotation.md, frame order).</summary>
     /// <remarks>
     /// Not ported here: the free camera and console input clears (front end), the heartbeat sound stop, the gadget,
-    /// smoke and HUD parts, ClientUpdatePosition and UpdatePositionForServer (netcode), the specials chat and the
-    /// objective idle timer (objectives spec).
+    /// smoke and HUD parts, ClientUpdatePosition and UpdatePositionForServer (netcode) and the objective idle timer
+    /// (objectives spec). The specials chat (the Hack Comm key) follows the move as in the original.
     /// </remarks>
     [Uc("SBase.SPlayerController.PlayerTick", Sha1 = "5e6178b93ec98230e270a689b61159665cd12ee7")]
     [PortOf("uc:SBase.SPlayerController:PlayerTick", Spec = "spec/movement/input-and-rotation.md#frame-order-global-playertick")]
@@ -328,6 +334,7 @@ public partial class SPlayerController
         FireModeButton(pawn, now);
         UnCrouchAndUnDraw(pawn);
         eventPlayerMove(DeltaTime);
+        UpdateSpecialsChat();
     }
 
     /// <summary>

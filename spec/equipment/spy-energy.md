@@ -76,7 +76,9 @@ belong to spy health regeneration in the native `TickNative`, not to energy (com
    125. The window test is strict (`now - Start < Duration`), the ramp value is truncated (`_ftol`), and while rising
    the value is not stopped at a target below 255 (only by leaving [0, 255]); targets are 0 or 255 in practice.
    Reloaded has a switch (DAT_1036abc0) that ignores the speed rule; the map setup 0x10017d70 clears it and no
-   setter was found, so the port applies the speed rule.
+   setter was found, so the port applies the speed rule. It runs on every machine (each draws the amount it ramps).
+7b. **Drawing.** GlassEffect / 255 blends the scene behind the spy over its shading, in normal vision only; every
+   goggle mode draws it uncloaked (docs/RENDERING.md#cloak).
 
 ## Constants
 | Name | Value | Unit | Provenance | Source |
@@ -98,6 +100,14 @@ belong to spy health regeneration in the native `TickNative`, not to energy (com
   client's Fire). The server neither tracks nor checks energy, so Shocker shots are client-authorised.
 - The HUD gauge reads the local value and is shown only while `EnergyLevel < EnergyLevelMax`.
 - The rewrite should keep the bar client-side for fidelity and may add a server shadow as an anti-cheat option.
+- Cloak (rep-pawn.md blocks 6 and 7): `SetDesiredGlassValue` and `SetPerturbationGlass` are client to server;
+  on the spy's own client they are sent and do not run there. The server runs them and broadcasts
+  `SetDesiredGlassValueOnClients` and `SetPerturbationGlassOnClients` (broadcast flag, net-replication.md rule 20)
+  to every client with the pawn's channel open, which runs the ramp and sound; a listen server runs them too. Port
+  addition: a dedicated server also takes the ramp and the flicker window (no sound), since the original skips the
+  call there and so kept the target at 255 after a damage decloak, refusing the next cloak.
+- GlassEffect itself is not replicated: a client that opens the spy's channel while it is cloaked draws it opaque
+  until the next toggle (as the original).
 
 ## Edge cases
 - Firing at any time blocks cloaking until the bar is full again.
@@ -114,9 +124,7 @@ belong to spy health regeneration in the native `TickNative`, not to energy (com
 - Bridge docs/overlays/cloak.md section 2 (native decode), docs/HUD.md (energy gauge).
 
 ## Open questions
-- The port keeps the cloak on the controlling machine (both halves of SetDesiredGlassValue run there); the server
-  does not track `GlassEffect`, so the damage decloak of `damage-pipeline.md` (server side) only raises a
-  presentation event, and nothing draws the cloak in the game view yet.
+- None open for the cloak network and drawing (resolved 2026-10-27, Network and rule 7b).
 
 ### Resolved
 - ComputeEnergyLevel (2026-10-26, REA session; Ghidra defines no function at 0x10af5fa0, so read from the

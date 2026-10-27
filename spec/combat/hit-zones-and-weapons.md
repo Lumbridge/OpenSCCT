@@ -189,7 +189,9 @@ Team weapon lists (def:SBase.STeamAttaquant.ClassWeapon = [SStickyShocker]; def:
 10. `SWeaponDefense_Shotgun.TraceFire` is native (1799, 0x10ab9d00). Script provides its parameters: the falloff
     coefficients above, ShootingRange 2500, its own DamageLookupTable, TotalShotgunDamageMultipler 0.2, RadiusScale
     0.35, DemiAngleDispersion 0.97 and coefficient 1.0. Client side, `SpawnImpacts` only draws 8 pellet decals; it
-    does not deal damage. The pellet count, per-pellet damage and how the multiplier combines are not known.
+    does not deal damage. The nine pellets, their damage and the largest-per-actor rule are in natives2-damage.md
+    rule 7; the multiplier, radius scale, dispersion fields and the class's own table are not read. The reload, the
+    pellet marks and how a merc gets the gun are in spec/equipment/merc-guns.md.
 
 ### Spy shocker gun
 11. Client (`SStickyShocker.Fire`): skipped in GameEnded; requires the weapon drawn (WeaponLoaded != 0), not in

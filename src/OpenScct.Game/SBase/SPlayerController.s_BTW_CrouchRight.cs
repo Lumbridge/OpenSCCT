@@ -7,8 +7,8 @@ using OpenScct.Provenance;
 namespace OpenScct.Game.SBase;
 
 // SBase.SPlayerController state s_BTW_CrouchRight: peeking at the end of the wall, crouched, looking round the wall end on his right (entered with the Left key).
-// Written from spec/movement/back-to-wall.md (Peeking). Not ported here: PlayAnimDmg (combat port) and the fire
-// mode branch (the s_BTWFire* states belong to the weapon port).
+// Written from spec/movement/back-to-wall.md (Peeking). The fire branch and the hit (PlayAnimDmg) are in
+// SPlayerController.s_BTWFire.cs.
 public partial class SPlayerController
 {
     [Uc("SBase.SPlayerController.s_BTW_CrouchRight")]
@@ -29,6 +29,11 @@ public partial class SPlayerController
             pc.MovementCamera(ECamMode.ECM_BTWPeakLeft);
             ReinitIfTazered(pc);
         }
+
+        /// <summary>A hit leaves the wall to the unarmed rest for the stance.</summary>
+        [Uc("SBase.SPlayerController.s_BTW_CrouchRight.PlayAnimDmg", Sha1 = "c354ad830c604a0a22cafb590810adb08e7ab2fc")]
+        [PortOf("uc:SBase.SPlayerController:s_BTW_CrouchRight.PlayAnimDmg", Spec = "spec/movement/back-to-wall.md#peeking-s_btw_standleft--standright--crouchleft--crouchright")]
+        public override void PlayAnimDmg(SPlayerController self, int PillTag, FVector Momentum) => self.BtwPlayAnimDmg(bKeepWeapon: false);
 
         [Uc("SBase.SPlayerController.s_BTW_CrouchRight.PlayerMove", Sha1 = "a1e6514a95faca01467b59d1ae45127226fdfc7e")]
         [PortOf("uc:SBase.SPlayerController:s_BTW_CrouchRight.PlayerMove", Spec = "spec/movement/back-to-wall.md#peeking-s_btw_standleft--standright--crouchleft--crouchright")]

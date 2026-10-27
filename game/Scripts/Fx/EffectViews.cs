@@ -197,6 +197,13 @@ public sealed partial class EffectViews : Node3D
             {
                 case "emitter" when a is Emitter:
                     t.View = Start(fx, a.GetUcClass().Name);
+
+                    // A dynamic light emitter (the flare and its trail) also lights its surroundings.
+                    if (a.bDynamicLight)
+                    {
+                        t.Light = LightFor(a);
+                    }
+
                     break;
                 case "projectile" or "mine" or "gadget" or "beam" when a.DrawType == (EDrawType)DT_StaticMesh:
                     t.Mesh = MeshFor(a, lib);
@@ -273,9 +280,10 @@ public sealed partial class EffectViews : Node3D
             if (t.Mesh is { } mesh)
             {
                 FVector scale = a.DrawScale3D * a.DrawScale;
-                mesh.Transform = UeSpace.TransformToGodot(a.Location, a.Rotation, scale, a.PrePivot);
+                bool onBone = BoneMeshFrame(a, scale, out Transform3D boneFrame, out bool pawnShown);
+                mesh.Transform = onBone ? boneFrame : UeSpace.TransformToGodot(a.Location, a.Rotation, scale, a.PrePivot);
                 bool visionOnly = a.bHideInNormalVision;
-                mesh.Visible = !a.bHidden && (!visionOnly || rendMap is 36 or 38);
+                mesh.Visible = !a.bHidden && (!visionOnly || rendMap is 36 or 38) && (!onBone || pawnShown);
                 Vector4 vision = GameplayObjects.VisionOf(a);
                 if (vision != t.Vision)
                 {
@@ -370,7 +378,9 @@ public sealed partial class EffectViews : Node3D
 
     private MeshInstance3D? MeshFor(Actor a, FxLibrary lib)
     {
-        if (a.StaticMesh.IsNone || lib.Mesh(a.StaticMesh.Path, lit: !a.bUnlit) is not { } mesh)
+        // The taser's beam (bIgnoreEchelonLighting, additive glow) is drawn unlit.
+        bool lit = !a.bUnlit && a is not STazerEmitter;
+        if (a.StaticMesh.IsNone || lib.Mesh(a.StaticMesh.Path, lit) is not { } mesh)
         {
             Missing.Add(a.StaticMesh.Path ?? a.GetUcClass().Path);
             return null;
@@ -384,7 +394,7 @@ public sealed partial class EffectViews : Node3D
             Transform = UeSpace.TransformToGodot(a.Location, a.Rotation, a.DrawScale3D * a.DrawScale, a.PrePivot),
         };
         AddChild(node);
-        if (!a.bUnlit && Map is { } map)
+        if (lit && Map is { } map)
         {
             Aabb box = node.Transform * mesh.GetAabb();
             float radius = UeSpace.UnitsPerMetre * box.Size.Length() * 0.5f;
@@ -440,6 +450,29 @@ public sealed partial class EffectViews : Node3D
         // SFlashLight is bAffectOwnZoneOnly: it lights only the surfaces of the zone it is in.
         ZoneIndex = Map?.ZoneIndexAt(a.Location) ?? -1,
     };
+
+    /// <summary>
+    /// A static mesh attached to a pawn's bone (the backpack on 'B Spine2'): the drawn bone's frame turned by the
+    /// actor's RelativeRotation and moved by its RelativeLocation, then its scale and PrePivot; false when it is not
+    /// attached or the bone is not drawn. <paramref name="pawnShown"/> is false while the pawn's view is hidden (the
+    /// own pawn in first person).
+    /// </summary>
+    private bool BoneMeshFrame(Actor a, FVector scale, out Transform3D frame, out bool pawnShown)
+    {
+        frame = default;
+        pawnShown = false;
+        if (a.AttachmentBone.IsNone || a.Base is not SBasePawn pawn || Pawns is null || !Pawns.TryGetBone(pawn, a.AttachmentBone, out Transform3D bone))
+        {
+            return false;
+        }
+
+        Basis boneBasis = bone.Basis.Orthonormalized();
+        Basis basis = boneBasis * UeSpace.RotationToGodot(a.RelativeRotation) * Basis.FromScale(UeSpace.DirectionToGodot(scale));
+        Vector3 origin = bone.Origin + (boneBasis * UeSpace.ToGodot(a.RelativeLocation)) - (basis * UeSpace.ToGodot(a.PrePivot));
+        frame = new Transform3D(basis, origin);
+        pawnShown = Pawns.ViewOf(pawn)?.Visible ?? false;
+        return true;
+    }
 
     /// <summary>
     /// Where an effect is drawn: an actor attached to a pawn's bone (AttachToBone: Base the pawn, AttachmentBone set)

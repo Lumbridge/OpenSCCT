@@ -110,6 +110,32 @@ Lock (alarm only; not reachable in SteeE):
 32. `s_Inactive` (after `Desactivate`): BeginState calls `StoppedMoving()` (which itself ends by entering `s_Initial`, and can arm the reset timer if away from home) and then `SetCollision(false, false, false)`; `Timer` does nothing.
 33. `LeaveCarrier` (event, native caller): `FlagCarrier.Controller.DiscardFlag()`. `Destroyed`: destroy the rack, then parent.
 
+### Throwing a hand item
+
+Rules T1 to T6 (SPlayerController ThrowObject and the s_Throw* states, SBasePawn.AnimNotifyThrow; decompiled
+SPlayerController.uc lines 6801, 11800 to 11960, 24513 to 24740). HandItem is a pickable gameplay object, or a Disk
+Hunt disk until its pickup clip frees the hand; a carried SFlag is never a hand item (rule 15).
+
+T1. Entry: in s_PlayerWalkingSt0H / Cr0H (input machine) a fire-mode request (bForceFireMode, not sticky-shocking)
+    with a HandItem goes to `s_ThrowGoTo` instead of drawing (the laser request is still applied first).
+T2. All four states extend s_PlayerWalkingWeapon; Fire and AltFire do nothing (s_ThrowReady's Fire below);
+    CanActivateLaser false. PlayerMove of s_ThrowGoTo and s_Throw: no jump, the weapon walk, then
+    `UpdatePawnRotationMario(DeltaTime, 1000, 0)` (the pawn turns toward the view); s_ThrowLeave: no jump, the walk.
+T3. `s_ThrowGoTo`: BeginState: a spy's camera ECM_SecondPerson (crouched ECM_SecondPersonCr), SA_THROW_ENTER.
+    AnimEnd(0) (no machine test): ChangeState `s_ThrowReady`.
+T4. `s_ThrowReady`: BeginState: a merc can be grabbed (bCanBeGrabbed; CanBeGrabbed true for a merc only),
+    TimerUSe 0, SA_THROW_LOOP; EndState clears the grab flag. Fire (not in inventory mode): TimerUSe = now when 0,
+    fThrowForce 0. PlayerTick, input machine, while TimerUSe > 0: held under MinimumThrowObjectDelay (0.25 s) gives
+    fThrowForce 1; else `min((held - 0.25) / MaximumThrowObjectDelay (1 s), 1)` and the HUD gauge
+    (SetBallisticValue); when Fire is no longer pressed: TimerUSe 0, gauge 0, ChangeState `s_Throw`. Then on every
+    machine a spy whose fire-mode key is down (bFireMode 1, not shocked) goes to `s_ThrowLeave`; then the global tick.
+T5. `s_Throw`: BeginState SA_THROW (ThroStAlEdH / ThroCrAlEdH). The clip's AnimNotifyThrow (0.257) runs only for
+    the local player's own pawn: `ThrowObject` on the input machine: with X, Z the pawn's axes,
+    `HandItem.Throw(self, (X + Z) * (fThrowForce + 1)^2 * 250)` (Throw is a reliable client-to-server function, so
+    the server places and launches the item, rule 17's parent part), gauge 0. AnimEnd(0): SA_WALK_CR_0H /
+    s_PlayerWalkingCr0H crouched, else SA_WALK_ST_0H / s_PlayerWalkingSt0H.
+T6. `s_ThrowLeave`: BeginState camera ECM_Walking, SA_THROW_LEAVE (the raise clip backward); AnimEnd(0) as s_Throw.
+
 ## States
 
 Disk:

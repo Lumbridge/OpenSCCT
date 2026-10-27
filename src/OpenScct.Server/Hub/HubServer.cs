@@ -8,6 +8,7 @@ using OpenScct.Core.Engine;
 using OpenScct.Game.Modes;
 using OpenScct.Game.SBase;
 using OpenScct.Net;
+using OpenScct.Net.Cosmetics;
 using OpenScct.Net.Discovery;
 using OpenScct.Net.Voice;
 using OpenScct.Net.Voice.Proximity;
@@ -102,6 +103,15 @@ public sealed record HubSettings
 
     /// <summary>The wall clock the master's tickets are checked against.</summary>
     public TimeProvider WallClock { get; init; } = TimeProvider.System;
+
+    /// <summary>
+    /// The key the player of the game hosting this hub logs in with (<c>?SvmHost=</c>), or null (a dedicated hub). He
+    /// has no ticket for a hub he hosts, so his looks and rank are checked against <see cref="HostAccount"/>.
+    /// </summary>
+    public string? HostKey { get; init; }
+
+    /// <summary>The hosting game's own account (its unlocks, rank and titles), or null.</summary>
+    public HostAccount? HostAccount { get; init; }
 }
 
 /// <summary>One hub player's own state, kept on its <see cref="PlayerSlot.Tag"/>.</summary>
@@ -162,10 +172,20 @@ public sealed class HubPlayer
 
     /// <summary>Level time of his last local chat line.</summary>
     internal float LastLocal { get; set; } = float.NegativeInfinity;
+
+    /// <summary>What his ticket (or the host account) unlocks: the looks he asks for are checked against it.</summary>
+    internal CosmeticUnlocks Unlocks { get; set; } = CosmeticUnlocks.None;
+
+    /// <summary>What he wears as a spy, checked against <see cref="Unlocks"/>.</summary>
+    public CosmeticLook SpyLook { get; internal set; }
+
+    /// <summary>What he wears as a merc, checked against <see cref="Unlocks"/>.</summary>
+    public CosmeticLook MercLook { get; internal set; }
 }
 
 /// <summary>What a login carried in, kept from the login filter until the player is in.</summary>
-internal readonly record struct HubLoginIdentity(PlayerTicket? Ticket, bool Admin, string InstallId, string Address);
+internal readonly record struct HubLoginIdentity(PlayerTicket? Ticket, bool Admin, string InstallId, string Address,
+    CosmeticUnlocks Unlocks, CosmeticLook SpyLook, CosmeticLook MercLook);
 
 /// <summary>
 /// A hub server: an OpenSCCT addition (spec/additions/hub.md). A <see cref="ServerHost"/> on the hub map with
@@ -404,10 +424,25 @@ public sealed partial class HubServer : IDisposable
             return false;
         }
 
+        WearLook(player);
         slot.Connection.ControlChannel?.Send(ControlMessage.TextLine(HubProtocol.Side(SGameInfo.TeamIndexOf(pc))));
         Log($"{slot.Name} plays {(team == 0 ? "spy" : "merc")}");
         SpawnWhenReleased(player, pc, old);
         return true;
+    }
+
+    /// <summary>
+    /// Puts the look of the side he plays on his PlayerReplicationInfo, which replicates it to every client (as a
+    /// match's login does with <c>?SvmLook=</c>); the pawn views redraw when it changes.
+    /// </summary>
+    private static void WearLook(HubPlayer player)
+    {
+        if (player.Slot.Controller is not { PlayerReplicationInfo: { } pri } pc)
+        {
+            return;
+        }
+
+        (pri.SvmLookLow, pri.SvmLookHigh) = (SGameInfo.TeamIndexOf(pc) == 1 ? player.MercLook : player.SpyLook).Split();
     }
 
     /// <summary>Takes a player's pawn away and puts him back at the plaza once his client has let go of it.</summary>
@@ -529,13 +564,21 @@ public sealed partial class HubServer : IDisposable
         // A signed-in player is his account's name; a guest of a hub on a master is Name#tag, so nobody passes for
         // a signed-in player (as on the online servers). Without a master there are no claimed names.
         bool admin = ticket is { IsAdmin: true } && Master is { Trusted: true } && Settings.Master?.ServerKey is { Length: > 0 };
-        _identities[connection] = new HubLoginIdentity(ticket, admin, installId, address);
+        // The hosting game's player has no ticket for his own hub: his looks and rank go by the host account, as a
+        // listen server's host does (OnlineServer). It does not make him signed in.
+        HostAccount? hostAccount = ticket is null && Settings.HostKey is { Length: > 0 } hostKey &&
+            ReadText(options, "SvmHost") == hostKey ? Settings.HostAccount : null;
+        CosmeticUnlocks unlocks = OnlineServer.UnlocksOf(ticket, hostAccount);
+        CosmeticLook spyLook = OnlineServer.CheckedLook(options, "SvmLookS", CosmeticSide.Spy, unlocks);
+        CosmeticLook mercLook = OnlineServer.CheckedLook(options, "SvmLookM", CosmeticSide.Merc, unlocks);
+        _identities[connection] = new HubLoginIdentity(ticket, admin, installId, address, unlocks, spyLook, mercLook);
         string clean = ticket is not null
             ? ticket.Name
             : UniqueName(Master is not null ? PlayerNames.GuestName(CleanName(name), installId) : CleanName(name));
-        int rank = OpenScct.Server.Online.PlayerRanks.Checked(ReadText(options, "SvmTitle"), ticket);
+        int rank = OpenScct.Server.Online.PlayerRanks.Checked(ReadText(options, "SvmTitle"), ticket, hostAccount);
+        CosmeticLook look = team == 1 ? mercLook : spyLook;
         return LoginDecision.Allow(clean, string.Create(CultureInfo.InvariantCulture,
-            $"?Team={team}?Mesh={mesh}{(rank != 0 ? $"?SvmRank={rank}" : string.Empty)}"));
+            $"?Team={team}?Mesh={mesh}{(rank != 0 ? $"?SvmRank={rank}" : string.Empty)}{(look.Packed != 0 ? "?SvmLook=" + look.ToHex() : string.Empty)}"));
     }
 
     private void OnJoined(PlayerSlot slot)
@@ -547,6 +590,9 @@ public sealed partial class HubServer : IDisposable
             player.InstallId = id.InstallId;
             player.Address = id.Address;
             player.IsAdmin = id.Admin;
+            player.Unlocks = id.Unlocks;
+            player.SpyLook = id.SpyLook;
+            player.MercLook = id.MercLook;
             if (id.Ticket is { } ticket)
             {
                 _tickets.Take(ticket);
@@ -639,6 +685,11 @@ public sealed partial class HubServer : IDisposable
                 break;
             case "local":
                 SayLocal(player, SessionProtocol.Text(fields, 0), now);
+                break;
+            case "look":
+                player.SpyLook = CosmeticLook.ParseHex(SessionProtocol.Text(fields, 0)).Validate(CosmeticSide.Spy, player.Unlocks);
+                player.MercLook = CosmeticLook.ParseHex(SessionProtocol.Text(fields, 1)).Validate(CosmeticSide.Merc, player.Unlocks);
+                WearLook(player);
                 break;
             case "watch":
                 if (Pads is null || !Pads.Watch(player, SessionProtocol.Text(fields, 0)))

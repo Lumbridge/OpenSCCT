@@ -10,7 +10,7 @@ using K = OpenScct.Game.Equipment.K;
 namespace OpenScct.Game.SBase;
 
 // SBase.SPlayerController spy binoculars (spec/equipment/spy-binoculars.md): the key's spy branch and the state
-// s_Binoculars_Att. The voice target is kept on the controller; the server's voice routing belongs to the voice spec.
+// s_Binoculars_Att. The voice trace is shared with the merc's scope (SPlayerController.Voice.cs).
 public partial class SPlayerController
 {
     private static readonly Name CNAME_s_Binoculars_Att = new("s_Binoculars_Att");
@@ -47,18 +47,6 @@ public partial class SPlayerController
     [Uc("SBase.SPlayerController.CanHackEnemyComs", Sha1 = "0aa34f51e0ba63c74eff6af9626c21ff02480f8a")]
     [PortOf("uc:SBase.SPlayerController:CanHackEnemyComs", Spec = "spec/equipment/spy-binoculars.md#rules")]
     public bool CanHackEnemyComs() => GameReplicationInfo is not { } gri || gri.VoiceChatMode != EVoiceChatMode.VCM_Team;
-
-    /// <summary>The binoculars' voice target cleared (rule 6).</summary>
-    private void SpyBinocularsClearVoiceTarget()
-    {
-        if (bVoiceChatTargetSent)
-        {
-            GadgetFx.Notify(this, GadgetFx.BinocularsVoice);
-            bVoiceChatTargetSent = false;
-        }
-
-        VoiceChatTarget = null;
-    }
 
     /// <summary>The binoculars' view turn (rule 7): input x dt x sensitivity x zoom speed x 5, pitch clamped.</summary>
     [Uc("SBase.SPlayerController.s_Binoculars_Att.UpdateCamRotation", Sha1 = "023583ba28898ac685c7366be0ac7d308e43a128")]
@@ -180,7 +168,7 @@ public partial class SPlayerController
             pc.bPressedJump = false;
             GadgetHud.SetHudState(pc, Name.None);
             pc.AudioZoomFactor = 0f;
-            pc.SpyBinocularsClearVoiceTarget();
+            pc.ClearBinocularVoiceTarget();
             pc.bBinocularVision = false;
             if (pc.IAmOnClient() && pc.SBPawn is { WeaponLoaded: 0 } pawn)
             {
@@ -245,36 +233,7 @@ public partial class SPlayerController
             self.Rotation.GetAxes(out FVector x, out _, out _);
             self.eventUpdateRotation(DeltaTime, 2f);
             float now = self.Level.TimeSeconds;
-            int second = SvmMath.Trunc(now);
-            if (self.iDateCheckBinoculars != second)
-            {
-                self.iDateCheckBinoculars = second;
-                FVector eye = pawn.Location + CombatServices.Ports(self).EyePosition(pawn);
-                Actor? hit = MovementNatives.Trace(self, out _, out _, eye + x * (self.AudioZoomFactor * K.SpyBinoVoiceRange),
-                    eye + x * K.SpyBinoVoiceStart, true);
-                if (hit is null)
-                {
-                    if (self.VoiceChatTarget is not null)
-                    {
-                        self.SpyBinocularsClearVoiceTarget();
-                    }
-                }
-                else if (!ReferenceEquals(hit, self.VoiceChatTarget))
-                {
-                    if (self.VoiceChatTarget is not null)
-                    {
-                        self.SpyBinocularsClearVoiceTarget();
-                    }
-
-                    if (hit is SPAWNDEFENSE && self.CanHackEnemyComs())
-                    {
-                        pawn.PlaySound(self.Snd_VoiceHacking, ESoundSlot.SLOT_None);
-                        self.VoiceChatTarget = hit;
-                        self.bVoiceChatTargetSent = true;
-                        GadgetFx.Notify(self, GadgetFx.BinocularsVoice, default, hit.ActorId);
-                    }
-                }
-            }
+            self.BinocularVoiceTrace(pawn, x, false);
 
             if (self.bChangeZoom)
             {

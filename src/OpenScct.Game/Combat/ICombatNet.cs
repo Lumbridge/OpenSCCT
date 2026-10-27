@@ -55,6 +55,12 @@ public interface ICombatNet
 
     /// <summary>A reliable call from <paramref name="Sender"/>'s machine to the server.</summary>
     void ServerCall(PlayerController Sender, in CombatCall Call);
+
+    /// <summary>
+    /// True when <paramref name="Owner"/>'s machine has <paramref name="A"/> (its channel is open there): the targets
+    /// of a broadcast call (spec/native/net-replication.md rule 20).
+    /// </summary>
+    bool HasActor(PlayerController Owner, Actor A) => true;
 }
 
 /// <summary>The combat network of a level without a network layer: nothing leaves the machine.</summary>

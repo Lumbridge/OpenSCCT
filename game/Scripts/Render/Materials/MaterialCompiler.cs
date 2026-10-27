@@ -110,12 +110,16 @@ public sealed class MaterialCompiler
         s_globalsAdded = true;
     }
 
+    /// <summary>The vision mode last set by <see cref="SetVision"/>.</summary>
+    public static int Vision { get; private set; } = RenderK.RendMapNormal;
+
     /// <summary>
     /// The vision mode every Faithful material draws (PlayerController.RendMap). Process wide, like the global
     /// parameter it sets: thermal and EMF change what the scene writes, the other modes draw the normal scene.
     /// </summary>
     public static void SetVision(int rendMap)
     {
+        Vision = rendMap;
         EnsureGlobals();
         RenderingServer.GlobalShaderParameterSet(VisionParameter, rendMap);
         float boost = rendMap == RenderK.RendMapNight ? RenderK.NightSceneBoost * NightAmbientScale : 0f;

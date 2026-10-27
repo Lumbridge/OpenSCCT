@@ -8,9 +8,10 @@ using K = OpenScct.Game.Combat.K;
 
 namespace OpenScct.Game.SBase;
 
-// SBase.SPlayerController grab states (spec/combat/spy-grab.md): the spy's approach, catch, hold and release states and
-// the merc's caught, held and released states. Their damage handlers are in SPlayerController.Combat.cs (the state
-// tables of CombatDispatch route PawnTakeDamage to them).
+// SBase.SPlayerController grab states (spec/combat/spy-grab.md): the common grab base states, the spy's approach, catch,
+// hold and release states and the merc's caught, held and released states. Their damage handlers are in
+// SPlayerController.Combat.cs (the state tables of CombatDispatch route PawnTakeDamage to them by state name). The ledge
+// grab states are in SPlayerController.CombatGrabLedge.cs.
 public partial class SPlayerController
 {
     private static readonly Name GNAME_GrabStAlBg0 = new("GrabStAlBg0");
@@ -120,13 +121,72 @@ public partial class SPlayerController
         }
     }
 
+    // ---- base states ----------------------------------------------------------------------------------------
+
+    /// <summary>
+    /// s_GrabBase: what every grab state shares (rule 27 and state-damage-reactions.md): no laser, no interaction,
+    /// falls and landings ignored, and only an explosion gives hit feedback (it blasts the player out of the grab).
+    /// The grab states inherit it as a C# base class only: the class metadata gives them no UC super state, so their
+    /// Instance passes null (UcActorState checks the super against the metadata when the state is first used).
+    /// </summary>
+    [Uc("SBase.SPlayerController.s_GrabBase")]
+    public class s_GrabBase : UcActorState, ICanActivateLaser, ICanInteract, CombatStateEvents.IDoInteraction, IMyFalling,
+        IMyNotifyLanded, IClientDamage, IExplosionHit
+    {
+        public static readonly s_GrabBase Instance = new(UcMeta.s_GrabBase, null);
+
+        protected s_GrabBase(UcStateInfo info, ActorState? super)
+            : base(info, super)
+        {
+        }
+
+        [Uc("SBase.SPlayerController.s_GrabBase.CanActivateLaser", Sha1 = "8567be1d106d88e612e9866eb7503ad103460bfb")]
+        [PortOf("uc:SBase.SPlayerController:s_GrabBase.CanActivateLaser", Spec = "spec/combat/spy-grab.md#grab-base-states")]
+        public virtual bool CanActivateLaser(SPlayerController self) => false;
+
+        [Uc("SBase.SPlayerController.s_GrabBase.CanInteract", Sha1 = "8567be1d106d88e612e9866eb7503ad103460bfb")]
+        [PortOf("uc:SBase.SPlayerController:s_GrabBase.CanInteract", Spec = "spec/combat/spy-grab.md#grab-base-states")]
+        public virtual bool CanInteract(SPlayerController self) => false;
+
+        [Uc("SBase.SPlayerController.s_GrabBase.DoInteraction", Sha1 = "8567be1d106d88e612e9866eb7503ad103460bfb")]
+        [PortOf("uc:SBase.SPlayerController:s_GrabBase.DoInteraction", Spec = "spec/combat/spy-grab.md#grab-base-states")]
+        public virtual bool DoInteraction(SPlayerController self) => false;
+
+        /// <summary>Ignored: a grab state never starts a fall.</summary>
+        public void MyFalling(SPlayerController self, float LeftTime)
+        {
+        }
+
+        /// <summary>Ignored.</summary>
+        public bool MyNotifyLanded(SPlayerController self, FVector HitNormal, float fTimeLeft, Actor? LandedOn) => false;
+
+        public virtual void ClientDamage(SPlayerController self, FVector Momentum, SDamageType DamageType, FVector HitLocation,
+            Pawn? instigatedBy) => self.GrabBaseClientDamage(Momentum, DamageType);
+
+        public void ExplosionHit(SPlayerController self, FVector Momentum) => self.GrabBaseExplosionHit(Momentum);
+    }
+
+    /// <summary>s_GrabBaseWithBlastDamageOnly: a grab base whose damage handler takes only explosions and grab breaks.</summary>
+    [Uc("SBase.SPlayerController.s_GrabBaseWithBlastDamageOnly")]
+    public class s_GrabBaseWithBlastDamageOnly : s_GrabBase
+    {
+        public static new readonly s_GrabBaseWithBlastDamageOnly Instance =
+            new(UcMeta.s_GrabBaseWithBlastDamageOnly, s_GrabBase.Instance);
+
+        protected s_GrabBaseWithBlastDamageOnly(UcStateInfo info, ActorState? super)
+            : base(info, super)
+        {
+        }
+    }
+
     // ---- spy approach -----------------------------------------------------------------------------------------
 
     /// <summary>s_Grabbing_UncrouchForGrab: a crouched spy stands up before the approach (rule 7).</summary>
     [Uc("SBase.SPlayerController.s_Grabbing_UncrouchForGrab")]
-    public class s_Grabbing_UncrouchForGrab : UcActorState, IPlayerMove, IFire, IAltFire, CombatStateEvents.IDoInteraction
+    public class s_Grabbing_UncrouchForGrab : s_GrabBaseWithBlastDamageOnly, IPlayerMove, IFire, IAltFire
     {
-        public static readonly s_Grabbing_UncrouchForGrab Instance = new(UcMeta.s_Grabbing_UncrouchForGrab, null);
+        public static new readonly s_Grabbing_UncrouchForGrab Instance =
+            new(UcMeta.s_Grabbing_UncrouchForGrab, null);
 
         protected s_Grabbing_UncrouchForGrab(UcStateInfo info, ActorState? super)
             : base(info, super)
@@ -183,7 +243,7 @@ public partial class SPlayerController
 
         [Uc("SBase.SPlayerController.s_Grabbing_UncrouchForGrab.DoInteraction", Sha1 = "8567be1d106d88e612e9866eb7503ad103460bfb")]
         [PortOf("uc:SBase.SPlayerController:s_Grabbing_UncrouchForGrab.DoInteraction", Spec = "spec/combat/spy-grab.md#server-validation-and-approach")]
-        public bool DoInteraction(SPlayerController self) => false;
+        public override bool DoInteraction(SPlayerController self) => false;
     }
 
     /// <summary>
@@ -191,10 +251,11 @@ public partial class SPlayerController
     /// repositioning starts the hold on the server; 3 s or a 32 uu height gap cancel it on the owner.
     /// </summary>
     [Uc("SBase.SPlayerController.s_Grabbing_GotoPosition")]
-    public class s_Grabbing_GotoPosition : UcActorState, IPlayerTick, IPlayerMove, INotifyBump, ITopSynchro, IFire, IAltFire,
-        CombatStateEvents.IDoInteraction
+    public class s_Grabbing_GotoPosition : s_GrabBaseWithBlastDamageOnly, IPlayerTick, IPlayerMove, INotifyBump, ITopSynchro,
+        IFire, IAltFire
     {
-        public static readonly s_Grabbing_GotoPosition Instance = new(UcMeta.s_Grabbing_GotoPosition, null);
+        public static new readonly s_Grabbing_GotoPosition Instance =
+            new(UcMeta.s_Grabbing_GotoPosition, null);
 
         protected s_Grabbing_GotoPosition(UcStateInfo info, ActorState? super)
             : base(info, super)
@@ -303,7 +364,7 @@ public partial class SPlayerController
 
         [Uc("SBase.SPlayerController.s_Grabbing_GotoPosition.DoInteraction", Sha1 = "8567be1d106d88e612e9866eb7503ad103460bfb")]
         [PortOf("uc:SBase.SPlayerController:s_Grabbing_GotoPosition.DoInteraction", Spec = "spec/combat/spy-grab.md#server-validation-and-approach")]
-        public bool DoInteraction(SPlayerController self) => false;
+        public override bool DoInteraction(SPlayerController self) => false;
     }
 
     /// <summary>The spy reached the merc (server): both alive start the hold, else the grab is cancelled.</summary>
@@ -325,9 +386,9 @@ public partial class SPlayerController
 
     /// <summary>s_Grab_GotoPosition: the base of the spy's repositioning before a release.</summary>
     [Uc("SBase.SPlayerController.s_Grab_GotoPosition")]
-    public class s_Grab_GotoPosition : UcActorState, IPlayerMove, INotifyBump, ITopSynchro, IFire, IAltFire
+    public class s_Grab_GotoPosition : s_GrabBaseWithBlastDamageOnly, IPlayerMove, INotifyBump, ITopSynchro, IFire, IAltFire
     {
-        public static readonly s_Grab_GotoPosition Instance = new(UcMeta.s_Grab_GotoPosition, null);
+        public static new readonly s_Grab_GotoPosition Instance = new(UcMeta.s_Grab_GotoPosition, null);
 
         protected s_Grab_GotoPosition(UcStateInfo info, ActorState? super)
             : base(info, super)
@@ -416,9 +477,9 @@ public partial class SPlayerController
 
     /// <summary>s_GrabbingPlayer_Begin: the spy waits for the merc to stand (rule 10).</summary>
     [Uc("SBase.SPlayerController.s_GrabbingPlayer_Begin")]
-    public class s_GrabbingPlayer_Begin : UcActorState, IPlayerMove, IFire, IAltFire
+    public class s_GrabbingPlayer_Begin : s_GrabBaseWithBlastDamageOnly, IPlayerMove, IFire, IAltFire
     {
-        public static readonly s_GrabbingPlayer_Begin Instance = new(UcMeta.s_GrabbingPlayer_Begin, null);
+        public static new readonly s_GrabbingPlayer_Begin Instance = new(UcMeta.s_GrabbingPlayer_Begin, null);
 
         protected s_GrabbingPlayer_Begin(UcStateInfo info, ActorState? super)
             : base(info, super)
@@ -447,9 +508,10 @@ public partial class SPlayerController
 
     /// <summary>s_GrabbingPlayer_RealBegin: the catch clip; its end starts the hold (rule 10).</summary>
     [Uc("SBase.SPlayerController.s_GrabbingPlayer_RealBegin")]
-    public class s_GrabbingPlayer_RealBegin : UcActorState, IPlayerMove, IFire, IAltFire, IGrabAborted
+    public class s_GrabbingPlayer_RealBegin : s_GrabBaseWithBlastDamageOnly, IPlayerMove, IFire, IAltFire, IGrabAborted
     {
-        public static readonly s_GrabbingPlayer_RealBegin Instance = new(UcMeta.s_GrabbingPlayer_RealBegin, null);
+        public static new readonly s_GrabbingPlayer_RealBegin Instance =
+            new(UcMeta.s_GrabbingPlayer_RealBegin, null);
 
         protected s_GrabbingPlayer_RealBegin(UcStateInfo info, ActorState? super)
             : base(info, super)
@@ -507,7 +569,8 @@ public partial class SPlayerController
     [Uc("SBase.SPlayerController.s_GrabbingPlayer")]
     public class s_GrabbingPlayer : UcActorState, IPlayerTick, IPlayerMove, IUpdateRotation, IFire, IAltFire, IGoInSmoke,
         ICanUseCam, ICanBeDropAttacked, ICanActivateLaser, ICanUncrouchAndUndraw, ICanInteract, ICanIUseBinocular,
-        ICanBeGrabbed, CombatStateEvents.IDoInteraction
+        ICanBeGrabbed, CombatStateEvents.IDoInteraction, IVoiceChatButtonToggle, IMyFalling, IMyNotifyLanded, IDropAttack,
+        ICanBeBlasted, IExplosionHit
     {
         public static readonly s_GrabbingPlayer Instance = new(UcMeta.s_GrabbingPlayer, null);
 
@@ -531,7 +594,7 @@ public partial class SPlayerController
             pc.SetTimer(K.GrabHoldLimit, false);
             if (pc.Role == ENetRole.ROLE_Authority)
             {
-                pc.bCanTalkToGuy = false;
+                pc.bCanTalkToGuy = pc.CanHackEnemyComs();
                 (pc.Level.Game as SGameInfo)?.AddPoint(0, pc, K.AP_A_Grab_Begin);
             }
 
@@ -548,8 +611,14 @@ public partial class SPlayerController
             if (pc.Role == ENetRole.ROLE_Authority)
             {
                 pc.bCanTalkToGuy = false;
+                pc.ServerSetVoiceComWhenGrabbing(false);
             }
         }
+
+        /// <summary>The Hack Comm key while holding talks with the merc instead of hacking comms (voice-chat.md rule 14).</summary>
+        [Uc("SBase.SPlayerController.s_GrabbingPlayer.VoiceChatButtonToggle", Sha1 = "9fc6fa85f6836b079a79899c6360a8bd5cf51db6")]
+        [PortOf("uc:SBase.SPlayerController:s_GrabbingPlayer.VoiceChatButtonToggle", Spec = "spec/game/voice-chat.md#rules")]
+        public void VoiceChatButtonToggle(SPlayerController self, bool bActivate) => self.ServerSetVoiceComWhenGrabbing(bActivate);
 
         /// <summary>The 15 s hold limit: the owner chokes the merc (rule 14).</summary>
         [Uc("SBase.SPlayerController.s_GrabbingPlayer.Timer", Sha1 = "63720da1f2e2fdecfb66c7a85e74ac5705c578a5")]
@@ -668,6 +737,43 @@ public partial class SPlayerController
 
         /// <summary>A holding spy can be grabbed in turn (the evidence table).</summary>
         public bool CanBeGrabbed(SPlayerController self) => true;
+
+        /// <summary>Ignored while holding.</summary>
+        public void MyFalling(SPlayerController self, float LeftTime)
+        {
+        }
+
+        /// <summary>Ignored while holding.</summary>
+        public bool MyNotifyLanded(SPlayerController self, FVector HitNormal, float fTimeLeft, Actor? LandedOn) => false;
+
+        /// <summary>The walking DropAttack (this state extends s_PlayerWalkingSt2H) runs this state's drop.</summary>
+        public void DropAttack(SPlayerController self, SBasePawn PawnToAttack) => performDropAttack(self, PawnToAttack);
+
+        /// <summary>
+        /// A spy carrying a merc lands on a head: the victim takes the drop and the points and message follow, but the
+        /// spy keeps holding (no landing state).
+        /// </summary>
+        [Uc("SBase.SPlayerController.s_GrabbingPlayer.performDropAttack", Sha1 = "7af44fe584489739dc1f5e753e6aeec308e325ff")]
+        [PortOf("uc:SBase.SPlayerController:s_GrabbingPlayer.performDropAttack", Spec = "spec/combat/spy-grab.md#grab-base-states")]
+        public void performDropAttack(SPlayerController self, SBasePawn? PawnToAttack)
+        {
+            if (self.Role != ENetRole.ROLE_Authority || PawnToAttack is null || self.Pawn is not { } me)
+            {
+                return;
+            }
+
+            DropDamage(PawnToAttack, me);
+            (self.Level.Game as SGameInfo)?.AddPoint(0, self, K.AP_D_KnockOut);
+            if (PawnToAttack.Health > 0)
+            {
+                self.DropMessage(PawnToAttack);
+            }
+        }
+
+        /// <summary>The walking blast test and blast (inherited from s_PlayerWalking).</summary>
+        public bool CanBeBlasted(SPlayerController self, FVector Momentum) => self.StandingCanBeBlasted(Momentum);
+
+        public void ExplosionHit(SPlayerController self, FVector Momentum) => self.StandingExplosionHit(Momentum);
     }
 
     // ---- merc caught and held ---------------------------------------------------------------------------------
@@ -677,10 +783,10 @@ public partial class SPlayerController
     /// escapes on the server; a vanished spy releases him.
     /// </summary>
     [Uc("SBase.SPlayerController.s_GrabbedByPlayer_Begin")]
-    public class s_GrabbedByPlayer_Begin : UcActorState, IPlayerTick, IPlayerMove, IGrabAborted, IFire, IAltFire, IGadgetQuickChoice,
-        IGadLaserSwitch, IGadTorcheSwitch, ISwitchBinocularVision, ISwitchHeadset, ISwitchROF
+    public class s_GrabbedByPlayer_Begin : s_GrabBaseWithBlastDamageOnly, IPlayerTick, IPlayerMove, IGrabAborted, IFire, IAltFire,
+        IGadgetQuickChoice, IGadLaserSwitch, IGadTorcheSwitch, ISwitchBinocularVision, ISwitchHeadset, ISwitchROF
     {
-        public static readonly s_GrabbedByPlayer_Begin Instance = new(UcMeta.s_GrabbedByPlayer_Begin, null);
+        public static new readonly s_GrabbedByPlayer_Begin Instance = new(UcMeta.s_GrabbedByPlayer_Begin, null);
 
         protected s_GrabbedByPlayer_Begin(UcStateInfo info, ActorState? super)
             : base(info, super)
@@ -797,10 +903,10 @@ public partial class SPlayerController
 
     /// <summary>s_GrabbedByPlayer: the merc is held (rule 12): no input, head camera, weapon lowered.</summary>
     [Uc("SBase.SPlayerController.s_GrabbedByPlayer")]
-    public class s_GrabbedByPlayer : UcActorState, IPlayerTick, IPlayerMove, IGoInSmoke, IFire, IAltFire, IGadgetQuickChoice,
+    public class s_GrabbedByPlayer : s_GrabBase, IPlayerTick, IPlayerMove, IGoInSmoke, IFire, IAltFire, IGadgetQuickChoice,
         IGadLaserSwitch, IGadTorcheSwitch, ISwitchBinocularVision, ISwitchHeadset, ISwitchROF
     {
-        public static readonly s_GrabbedByPlayer Instance = new(UcMeta.s_GrabbedByPlayer, null);
+        public static new readonly s_GrabbedByPlayer Instance = new(UcMeta.s_GrabbedByPlayer, null);
 
         protected s_GrabbedByPlayer(UcStateInfo info, ActorState? super)
             : base(info, super)
@@ -847,8 +953,13 @@ public partial class SPlayerController
 
         [Uc("SBase.SPlayerController.s_GrabbedByPlayer.EndState", Sha1 = "2a3c7360a6f979bed599e9cce9afc1b69005dfae")]
         [PortOf("uc:SBase.SPlayerController:s_GrabbedByPlayer.EndState", Spec = "spec/combat/spy-grab.md#holding-spy-s_grabbingplayer-merc-s_grabbedbyplayer")]
-        [Provenance(ProvenanceKind.Estimated, "EndState body not specced: the head camera is released")]
-        public override void EndState(Actor self) => CombatFx.Notify(self, CombatFx.HeadCamera);
+        [Provenance(ProvenanceKind.Decoded, "SPlayerController.uc s_GrabbedByPlayer.EndState: jump and crouch-roll cleared; the head camera stays for the release states, which detach it")]
+        public override void EndState(Actor self)
+        {
+            var pc = (SPlayerController)self;
+            pc.bPressedJump = false;
+            pc.bCrouchWithRoll = false;
+        }
 
         [Uc("SBase.SPlayerController.s_GrabbedByPlayer.PlayerTick", Sha1 = "199a0600dbb92a32125d52726df41dd891fce916")]
         [PortOf("uc:SBase.SPlayerController:s_GrabbedByPlayer.PlayerTick", Spec = "spec/combat/spy-grab.md#holding-spy-s_grabbingplayer-merc-s_grabbedbyplayer")]
@@ -923,9 +1034,10 @@ public partial class SPlayerController
 
     /// <summary>s_GrabbedByPlayer_AvoidGrab: the merc got away (rule 9): the escape clip, then walking.</summary>
     [Uc("SBase.SPlayerController.s_GrabbedByPlayer_AvoidGrab")]
-    public class s_GrabbedByPlayer_AvoidGrab : UcActorState, IPlayerMove, IFire, IAltFire
+    public class s_GrabbedByPlayer_AvoidGrab : s_GrabBaseWithBlastDamageOnly, IPlayerMove, IFire, IAltFire
     {
-        public static readonly s_GrabbedByPlayer_AvoidGrab Instance = new(UcMeta.s_GrabbedByPlayer_AvoidGrab, null);
+        public static new readonly s_GrabbedByPlayer_AvoidGrab Instance =
+            new(UcMeta.s_GrabbedByPlayer_AvoidGrab, null);
 
         protected s_GrabbedByPlayer_AvoidGrab(UcStateInfo info, ActorState? super)
             : base(info, super)
@@ -959,9 +1071,9 @@ public partial class SPlayerController
 
     /// <summary>s_Grab_Avoided: the spy's grab missed (rule 9): the miss clip, then unarmed walking.</summary>
     [Uc("SBase.SPlayerController.s_Grab_Avoided")]
-    public class s_Grab_Avoided : UcActorState, IPlayerMove, IFire, IAltFire
+    public class s_Grab_Avoided : s_GrabBaseWithBlastDamageOnly, IPlayerMove, IFire, IAltFire
     {
-        public static readonly s_Grab_Avoided Instance = new(UcMeta.s_Grab_Avoided, null);
+        public static new readonly s_Grab_Avoided Instance = new(UcMeta.s_Grab_Avoided, null);
 
         protected s_Grab_Avoided(UcStateInfo info, ActorState? super)
             : base(info, super)
@@ -1015,10 +1127,11 @@ public partial class SPlayerController
 
     /// <summary>s_GrabbedByPlayer_Released: the merc's release clip, then armed walking (rule 23).</summary>
     [Uc("SBase.SPlayerController.s_GrabbedByPlayer_Released")]
-    public class s_GrabbedByPlayer_Released : UcActorState, IPlayerMove, IFire, IAltFire, IGadgetQuickChoice, IGadLaserSwitch,
-        IGadTorcheSwitch, ISwitchBinocularVision, ISwitchHeadset, ISwitchROF
+    public class s_GrabbedByPlayer_Released : s_GrabBaseWithBlastDamageOnly, IPlayerMove, IFire, IAltFire, IGadgetQuickChoice,
+        IGadLaserSwitch, IGadTorcheSwitch, ISwitchBinocularVision, ISwitchHeadset, ISwitchROF
     {
-        public static readonly s_GrabbedByPlayer_Released Instance = new(UcMeta.s_GrabbedByPlayer_Released, null);
+        public static new readonly s_GrabbedByPlayer_Released Instance =
+            new(UcMeta.s_GrabbedByPlayer_Released, null);
 
         protected s_GrabbedByPlayer_Released(UcStateInfo info, ActorState? super)
             : base(info, super)
@@ -1204,6 +1317,7 @@ public partial class SPlayerController
             var pc = (SPlayerController)self;
             if (Channel == 0 && pc.SBPawn is { m_AttackedBy: null })
             {
+                CombatFx.Notify(pc, CombatFx.HeadCamera);
                 pc.eventChangeState(CNAME_s_Dead);
             }
         }
@@ -1229,6 +1343,7 @@ public partial class SPlayerController
             pc.bGrabIsReleasing = false;
             pc.SetHudPerturbationLength(0f);
             CombatFx.Notify(pc, CombatFx.WeirdEffect, 0f);
+            CombatFx.Notify(pc, CombatFx.HeadCamera);
             if (pc.SBPawn is { } pawn)
             {
                 pc.CombatPorts.ChangeEnumAction(pawn, SBasePawn.SA_GRABBED_RELEASE_GRABBING_LD, false);
@@ -1363,9 +1478,9 @@ public partial class SPlayerController
 
     /// <summary>s_ReleaseGrabbedPlayer: the spy's release clip, then walking (rule 22).</summary>
     [Uc("SBase.SPlayerController.s_ReleaseGrabbedPlayer")]
-    public class s_ReleaseGrabbedPlayer : UcActorState, IPlayerMove, IFire, IAltFire
+    public class s_ReleaseGrabbedPlayer : s_GrabBaseWithBlastDamageOnly, IPlayerMove, IFire, IAltFire
     {
-        public static readonly s_ReleaseGrabbedPlayer Instance = new(UcMeta.s_ReleaseGrabbedPlayer, null);
+        public static new readonly s_ReleaseGrabbedPlayer Instance = new(UcMeta.s_ReleaseGrabbedPlayer, null);
 
         protected s_ReleaseGrabbedPlayer(UcStateInfo info, ActorState? super)
             : base(info, super)
@@ -1374,6 +1489,12 @@ public partial class SPlayerController
 
         /// <summary>The release action of this release type.</summary>
         protected virtual int ReleaseAction => SBasePawn.SA_GRAB_RELEASE;
+
+        /// <summary>The ordinary hit feedback again, not the grab base's explosion-only one.</summary>
+        [Uc("SBase.SPlayerController.s_ReleaseGrabbedPlayer.ClientDamage", Sha1 = "a09d0ff65c7c5d43ad23a239c6de9ea71df396a2")]
+        [PortOf("uc:SBase.SPlayerController:s_ReleaseGrabbedPlayer.ClientDamage", Spec = "spec/combat/state-damage-reactions.md#clientdamage-overrides-owner-side")]
+        public override void ClientDamage(SPlayerController self, FVector Momentum, SDamageType DamageType, FVector HitLocation,
+            Pawn? instigatedBy) => self.GlobalClientDamage(Momentum, DamageType, HitLocation, instigatedBy);
 
         [Uc("SBase.SPlayerController.s_ReleaseGrabbedPlayer.BeginState", Sha1 = "cdff05f56941c7ce5b0d9c8a85282185586d3669")]
         [PortOf("uc:SBase.SPlayerController:s_ReleaseGrabbedPlayer.BeginState", Spec = "spec/combat/spy-grab.md#release-states")]

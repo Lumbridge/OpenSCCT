@@ -48,6 +48,12 @@ public static class GadgetNetReceive
             case "SetGasMaskUseOnServer" when target is SBasePawn pawn:
                 PawnGadgets.SetGasMaskUseOnServer(pawn, c.Bool1);
                 return true;
+            case "SetDesiredGlassValue" when target is SBasePawn pawn:
+                PawnVision.SetDesiredGlassValue(pawn, (byte)c.Int1, c.Float1);
+                return true;
+            case "SetPerturbationGlass" when target is SBasePawn pawn:
+                PawnVision.SetPerturbationGlass(pawn, c.Float1, c.Vector1.X);
+                return true;
             case "SetAmbientSoundOnServer" when target is SGadGasMask mask && c.Actor1 is SBasePawn wearer:
                 mask.SetAmbientSoundOnServer(wearer, (byte)c.Int1);
                 return true;
@@ -60,6 +66,9 @@ public static class GadgetNetReceive
             case "SpawnNoiseEmitter" when target is SGadNoiseEmitter snare && c.Actor1 is Pawn shooter &&
                 ReferenceEquals(shooter, snare.OwnerPawn):
                 snare.SpawnNoiseEmitter(new ClassRef(c.Name1.ToString()), shooter, c.Vector1, c.Rotation, c.Actor2);
+                return true;
+            case "ThrowBullet" when target is SSpyBulletLauncher launcher:
+                launcher.ThrowBullet(c.Vector1, c.Vector2);
                 return true;
         }
 
@@ -78,6 +87,12 @@ public static class GadgetNetReceive
             case "LocalSystemMessage" when target is SGadNoiseEmitter snare:
                 snare.LocalSystemMessage();
                 return true;
+            case "MyLocalMessage" when target is SSpyBulletLauncher launcher:
+                launcher.MyLocalMessage();
+                return true;
+            case "TellClientToTestAndSetEMFVisible" when target is SBasePawn pawn:
+                pawn.TellClientToTestAndSetEMFVisible(c.Bool1);
+                return true;
             case "CleanStickyCamOnClient":
                 PC.CleanStickyCamOnClient();
                 return true;
@@ -93,6 +108,12 @@ public static class GadgetNetReceive
             case "SetHudPerturbation":
                 PC.SetHudPerturbation(c.Float1);
                 return true;
+            case "AddGPOOnHud":
+                PC.AddGPOOnHud(c.Vector1);
+                return true;
+            case "RemoveGPOFromHud":
+                PC.RemoveGPOFromHud(c.Vector1);
+                return true;
             case "ClientChaffed":
                 PC.eventClientChaffed();
                 return true;
@@ -104,6 +125,12 @@ public static class GadgetNetReceive
                 return true;
             case "CamNetworkSwitchVisionModeOnAllClients" when target is SBasePawn pawn:
                 PawnGadgets.CamNetworkSwitchVisionModeOnAllClients(pawn, c.Actor1 as SCamNetwork, c.Int1);
+                return true;
+            case "SetDesiredGlassValueOnClients" when target is SBasePawn pawn:
+                PawnVision.ClientDesiredGlassValue(pawn, (byte)c.Int1, c.Float1);
+                return true;
+            case "SetPerturbationGlassOnClients" when target is SBasePawn pawn:
+                PawnVision.ClientPerturbationGlass(pawn, c.Float1, c.Vector1.X);
                 return true;
             case "UpdateRemoveMineUsabilityOnClient" when target is SGadMultiMinesLauncher launcher:
                 launcher.UpdateRemoveMineUsabilityOnClient(c.Bool1);

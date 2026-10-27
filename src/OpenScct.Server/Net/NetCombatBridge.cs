@@ -83,6 +83,9 @@ public sealed class NetCombatBridge : ICombatNet
         }
     }
 
+    public bool HasActor(PlayerController Owner, Actor A) =>
+        _driver.IsServer && _driver.OwningConnection(Owner) is { } connection && Mapped(connection, A);
+
     /// <summary>Seconds a call may wait for the actors it names to reach the other side before it is dropped.</summary>
     public const float MaxWaitSeconds = 5f;
 

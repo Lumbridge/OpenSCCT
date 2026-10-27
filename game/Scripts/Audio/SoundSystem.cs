@@ -66,6 +66,12 @@ public sealed partial class SoundSystem : Node3D, ISimEventSink
 
     public FRotator ListenerRotation { get; private set; }
 
+    /// <summary>The scope's or binoculars' audio zoom (SetAudioZoom: 0.33, 0.66 or 1; 0 is off).</summary>
+    public float AudioZoom { get; private set; }
+
+    /// <summary>The view FOV in degrees the audio zoom is measured against.</summary>
+    public float AudioZoomFov { get; private set; } = 90f;
+
     /// <summary>Sounds started since <see cref="Bind"/>, by leaf sound path (waves and streams), for tests and reports.</summary>
     public List<string> Started { get; } = [];
 
@@ -160,6 +166,16 @@ public sealed partial class SoundSystem : Node3D, ISimEventSink
                 _listener.MakeCurrent();
             }
         }
+    }
+
+    /// <summary>
+    /// SetAudioZoom: 3D sounds near the aim line get louder, the rest quieter (spec/native/audio.md, docs/VOICE.md
+    /// "Eavesdropping"). The listening player's AudioZoomFactor and view FOV, every frame.
+    /// </summary>
+    public void SetAudioZoom(float zoom, float fov)
+    {
+        AudioZoom = Math.Max(zoom, 0f);
+        AudioZoomFov = fov;
     }
 
     public void OnSimEvents(long tick, ReadOnlySpan<SimEvent> events)
@@ -632,7 +648,10 @@ public sealed partial class SoundSystem : Node3D, ISimEventSink
         }
 
         float d = FVector.Dist(v.Location, ListenerLocation);
-        float gain = v.Volume * v.Fade;
+
+        // The audio zoom scales the source volume, which DirectSound cannot raise above full.
+        float volume = v.Positional && AudioZoom > 0f ? Math.Min(1f, v.Volume * AudioZoomGain(v.Location)) : v.Volume;
+        float gain = volume * v.Fade;
         if (v.Positional)
         {
             gain *= SoundRules.DistanceGain(d, v.MinDistance);
@@ -641,6 +660,15 @@ public sealed partial class SoundSystem : Node3D, ISimEventSink
         v.Apply(gain, v.Pitch, v.Music ? ReverbBuses.MusicBus : v.Positional ? worldBus : ReverbBuses.FlatBus,
             UeSpace.ToGodot(v.Location));
         v.Priority = SoundRules.Priority(d * d, v.Radius, v.Volume, v.Leaf?.Flags ?? 0);
+    }
+
+    private float AudioZoomGain(FVector location)
+    {
+        ListenerRotation.GetAxes(out FVector x, out _, out _);
+        FVector to = location - ListenerLocation;
+        float forward = to | x;
+        float sideways = MathF.Sqrt(MathF.Max(to.SizeSquared() - (forward * forward), 0f));
+        return SoundRules.AudioZoomGain(AudioZoom, AudioZoomFov, forward, sideways);
     }
 
     /// <summary>Rules 19 to 22: start, keep or stop each actor's ambient loop.</summary>

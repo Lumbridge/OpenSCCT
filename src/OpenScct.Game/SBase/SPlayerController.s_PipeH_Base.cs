@@ -12,12 +12,22 @@ namespace OpenScct.Game.SBase;
 public partial class SPlayerController
 {
     [Uc("SBase.SPlayerController.s_PipeH_Base")]
-    public class s_PipeH_Base : UcActorState, ICanActivateLaser
+    public class s_PipeH_Base : UcActorState, ICanActivateLaser, ISwitchBinocularVision
     {
         public static readonly s_PipeH_Base Instance = new(UcMeta.s_PipeH_Base, null);
 
         protected s_PipeH_Base(UcStateInfo info, ActorState? super)
             : base(info, super)
+        {
+        }
+
+        /// <summary>
+        /// The binocular key does nothing on the bar, in every child state: without this the global version would
+        /// holster a drawn pistol (bForceExitFireMode) in the hanging fire states.
+        /// </summary>
+        [Uc("SBase.SPlayerController.s_PipeH_Base.SwitchBinocularVision", Sha1 = "23aff4eecf0e2e62053f2e78cf6e28d2d332361e")]
+        [PortOf("uc:SBase.SPlayerController:s_PipeH_Base.SwitchBinocularVision", Spec = "spec/movement/pipe-horizontal.md#s_pipeh_base")]
+        public virtual void SwitchBinocularVision(SPlayerController self)
         {
         }
 

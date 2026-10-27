@@ -122,16 +122,22 @@ public static class PawnActions
                 break;
 
             // ---- draw and holster (the draw channel; the weapon is loaded or unloaded at once) ----
+            // AnimateWalking(79, 80, 88, 89) puts the new stance's wait loop on the base channel under the draw clip,
+            // so the upper body has the armed (or unarmed) pose when the draw channel turns off.
             case SBasePawn.SA_WALK_ST_0Hto2H:
+                AnimateWalking(pawn, pawn.AWaitSt2);
                 Draw(pawn, pawn is SPAWNDEFENSE ? Name.None : pawn.ADrawStand2H, 2, DrawRate);
                 break;
             case SBasePawn.SA_WALK_CR_0Hto2H:
+                AnimateWalking(pawn, pawn.AWaitCr2);
                 Draw(pawn, pawn.ADrawCrouch2H, 2, DrawRate);
                 break;
             case SBasePawn.SA_WALK_ST_2Hto0H:
+                AnimateWalking(pawn, pawn.AWaitSt0);
                 Draw(pawn, pawn.AUnDrawStand2H, 0);
                 break;
             case SBasePawn.SA_WALK_CR_2Hto0H:
+                AnimateWalking(pawn, pawn.AWaitCr0);
                 Draw(pawn, pawn.AUnDrawCrouch2H, 0);
                 break;
 
@@ -211,6 +217,13 @@ public static class PawnActions
         }
 
         MovementService.HooksOf(pawn).SetWeaponLoaded(pawn, weaponLoaded);
+
+        // The spy's holster clip notify NotifyUndrawWeapon (spy-shocker.md rule 5) also asks for the laser off, so a
+        // later hold draw, the cam leave or another laser state does not bring back the old request.
+        if (weaponLoaded == 0 && pawn is SPawnAttaque && pawn.Controller is SPlayerController pc)
+        {
+            MovementService.HooksOf(pawn).SwitchLaser(pc, false);
+        }
     }
 
     /// <summary>

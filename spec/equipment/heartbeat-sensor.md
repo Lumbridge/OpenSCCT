@@ -33,8 +33,14 @@ sensor is the selected gadget and the Shocker is drawn. Marked pawns show on the
       team, health or line-of-sight test (team mates, dead pawns and pawns behind walls are marked too).
    4. When nothing was found, `StateOfDetect = 2`.
 3. **Load** is empty (no message on selection).
-4. **Radar** (HUD, estimated): the spy's radar draws marked pawns while the sensor scans; the check sound plays with
-   the sweep and the heartbeat sound while something is detected. The drawing belongs to the HUD spec.
+4. **Radar and sounds** (HUD): the spy's radar draws marked pawns while the sensor scans. The HUD's heart cone page
+   (game 0x10b2d7a0, spec/equipment/gadget-hud.md rules 22 to 28) plays the sounds: `Snd_DetectedPawn` (Heart_Beat, a
+   2D wave of 1.6 s) while `StateOfDetect == 1`, at most once every 1.5 s, and `Snd_Check` (echo_indic1) each time the
+   cone loop wraps. The heartbeat is one fixed sound, not a pawn's: its rate does not follow distance, health or how
+   many pawns were found. Both go through the HUD sound helper (0x10b26920): no actor, slot 0, volume 1, radius 4096,
+   pitch 1, the 2D flag. Only the spy using the sensor hears them, on his own machine.
+5. With the weapon holstered the page calls StopSound(PlayerOwner, Snd_DetectedPawn). The heartbeat was started with
+   no actor, so that stop most likely finds nothing; it is not ported.
 
 ## States
 None.
@@ -48,7 +54,7 @@ None.
 
 ## Network
 - Client and server each scan with their own view of the pawns; nothing is sent. The flag is local to each machine,
-  and only the spy's own HUD reads it.
+  and only the spy's own HUD reads it. The sounds come from that HUD, so they are local too, online as offline.
 
 ## Edge cases
 - Holstering, or selecting another gadget, stops the scan without clearing the marks: the radar keeps showing the
@@ -58,6 +64,9 @@ None.
 ## Evidence
 - local/re-out/uc/SBase/SGadHeartBeatSensor.uc; game native 0x10abd0e0 (private Ghidra copy local/ghidra-work/gadgets);
   local/reflect/game.json: SBasePawn.bDetectedByHBS bit 0x2 at 0xaf4, SGadHeartBeatSensor fields 0x35c to 0x368.
+- HUD heart cone page 0x10b2d7a0 and its sound helper 0x10b26920 (Audio vtable 0x70 PlaySound; the holster stop is
+  vtable 0x74, the slot execStopSound 0x10a25720 calls), private copy local/ghidra-work/heart.
 
 ## Open questions
-- The radar drawing of `bDetectedByHBS` (SHud.HudAtt native) and the sound cadence.
+- The radar drawing of `bDetectedByHBS` (SHud.HudAtt native).
+- Whether UNIAudio's StopSound on the controller (rule 5) can cut a heartbeat that was started with no actor.

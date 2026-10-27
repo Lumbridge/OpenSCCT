@@ -120,7 +120,9 @@ technique, kills him). The same contact with a player wearing sticky-shocker ski
     Location, Location - Other.Location, SDTStickyBlast, 0)`, action SA_BLAST_LOOP (239), velocity
     `-2 * 350 * Normal(vector(Rotation) with Z = -1.5)` through `SetVelocityAndOrientationForBlast`, and
     `ChangeState('s_Blast')`. On the server it is forwarded to the owner with `TellClientToStickyBlast(Other)`.
-    The blast states and the blast KO states ignore further StickyBlast calls.
+    The blast states and the blast KO states ignore further StickyBlast calls (s_Blast, s_BlastFallAfterObstacle,
+    s_BlastFloor, s_BlastWakeUp, s_KOAfterBlastFall, s_SleepAfterKOBlastFall); s_FallAfterGrabbedFromLedge does not
+    (spy-grab.md rule 36). No state defines its own version, so every other state runs this global one.
 14. The 200 damage kills (Health is 100); kill credit goes to the sticky pawn's controller (team check as usual).
 
 ## States

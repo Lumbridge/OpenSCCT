@@ -1620,11 +1620,11 @@ public sealed partial class OnlineServer : IDisposable
         (p.Rejoin is not null ? "?SvmRejoin=1" : string.Empty);
 
     /// <summary>A look from the join's options with every item the ticket does not unlock set back to retail.</summary>
-    private static CosmeticLook CheckedLook(string options, string key, CosmeticSide side, CosmeticUnlocks unlocks) =>
+    internal static CosmeticLook CheckedLook(string options, string key, CosmeticSide side, CosmeticUnlocks unlocks) =>
         CosmeticLook.ParseHex(UcOptions.ParseOption(options, key)).Validate(side, unlocks);
 
     /// <summary>What a joining player has unlocked: the master's ticket, or the listen host's own account; none for guests.</summary>
-    private static CosmeticUnlocks UnlocksOf(PlayerTicket? ticket, HostAccount? host) =>
+    internal static CosmeticUnlocks UnlocksOf(PlayerTicket? ticket, HostAccount? host) =>
         ticket is not null ? new CosmeticUnlocks(ticket.Unlocks)
         : host?.Unlocked is { } ids ? CosmeticUnlocks.Of(ids)
         : CosmeticUnlocks.None;

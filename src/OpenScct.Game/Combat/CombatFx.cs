@@ -1,5 +1,6 @@
 using OpenScct.Core;
 using OpenScct.Core.Engine;
+using OpenScct.Game.SBase;
 
 namespace OpenScct.Game.Combat;
 
@@ -7,7 +8,8 @@ namespace OpenScct.Game.Combat;
 /// Presentation side effects of the combat and equipment ports (pad rumble, HUD overlays, screen effects, camera
 /// modes, local messages), raised as <see cref="SimEventKind.Notify"/> events named after the original function. The
 /// three float parameters travel in <see cref="SimEvent.Location"/>, an int parameter in <see cref="SimEvent.Slot"/>.
-/// Views read them; the simulation never reads them back.
+/// Views read them; the simulation never reads them back. Two are also applied here, on the machine that raises them
+/// (the owner runs the combat states itself): <see cref="HeadCamera"/> and <see cref="FirstPersonView"/>.
 /// </summary>
 public static class CombatFx
 {
@@ -25,15 +27,23 @@ public static class CombatFx
     public static readonly Name SetHudPerturbationLength = new("SetHudPerturbationLength");
     public static readonly Name SetBallisticValue = new("SetBallisticValue");
     public static readonly Name LocalMessage = new("LocalMessage");
+    /// <summary>
+    /// SetWeirdEffect(factor), 1 on, 0 off. Not a screen effect: the native (game 0x10a25c00, editor 0x11187510)
+    /// passes the factor to the audio subsystem (XLevel.Engine.Audio, vtable +0xfc in the game). No listener yet.
+    /// </summary>
     public static readonly Name WeirdEffect = new("WeirdEffect");
     public static readonly Name OverlayFade = new("OverlayFade");
     public static readonly Name CrossEyeBlur = new("CrossEyeBlur");
     public static readonly Name SmokeBlur = new("SmokeBlur");
+    /// <summary>
+    /// m_camera.AttachCamToBone on 'B Head': attached when Slot is not 0 or the offset (A, B, C) is not zero, the
+    /// camera offset being (A, B, C); detached otherwise (no parameters). Applied by <see cref="Notify"/>.
+    /// </summary>
     public static readonly Name HeadCamera = new("HeadCamera");
+
+    /// <summary>bBehindView = false (A not 0) or true (A = 0). Applied by <see cref="Notify"/>.</summary>
     public static readonly Name FirstPersonView = new("FirstPersonView");
     public static readonly Name ShowHelp = new("ShowHelp");
-    public static readonly Name GlassEffect = new("SetDesiredGlassValueOnClients");
-    public static readonly Name PerturbationGlass = new("SetPerturbationGlassOnClients");
     public static readonly Name ReticleOn = new("ReticleOn");
     public static readonly Name ImpactEffect = new("ImpactEffect");
     public static readonly Name MuzzleFlash = new("MuzzleFlash");
@@ -62,5 +72,18 @@ public static class CombatFx
             Rotation = Source.Rotation,
             Slot = Slot,
         });
+
+        if (Source is SPlayerController pc)
+        {
+            if (What == HeadCamera)
+            {
+                var offset = new FVector(A, B, C);
+                pc.CombatHeadCamera(Slot != 0 || !offset.IsZero(), offset);
+            }
+            else if (What == FirstPersonView)
+            {
+                pc.bBehindView = A == 0f;
+            }
+        }
     }
 }

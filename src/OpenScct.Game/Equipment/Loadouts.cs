@@ -236,12 +236,14 @@ public static class Loadouts
 
     /// <summary>
     /// SpawnWeaponFor (rule 3): the class unchanged outside Merc Deathmatch; there the player's chosen respawn weapon
-    /// (not in this port: the Uzi and shotgun are beyond the slice, so the requested class is kept).
+    /// (<see cref="SPlayerController.SpawnWeaponFor"/>, which the Use key cycles while he is dead).
     /// </summary>
-    [Uc("SBase.SPlayerController.SpawnWeaponFor", Sha1 = "7d822ab59ca57b1b2e91d3c7e46f5b3502cdceef")]
     [PortOf("uc:SBase.SPlayerController:SpawnWeaponFor", Spec = "spec/equipment/loadouts.md#rules")]
-    [Provenance(ProvenanceKind.Estimated, "The Merc Deathmatch weapon choice is not ported: the requested class is kept")]
-    public static ClassRef SpawnWeaponFor(SPlayerController PC, ClassRef Class) => Class;
+    public static ClassRef SpawnWeaponFor(SPlayerController PC, ClassRef Class)
+    {
+        ClassRef chosen = PC.SpawnWeaponFor(Class);
+        return chosen.IsNone ? Class : chosen;
+    }
 
     /// <summary>True when the pawn's controller is the player of this machine (not a remote player or a bot).</summary>
     private static bool IsLocalOwner(SBasePawn Pawn) =>

@@ -74,6 +74,9 @@ public partial class SPlayerController
             case "AskServerToGrabPawn" when c.Actor1 is SBasePawn grabbed:
                 AskServerToGrabPawn(grabbed);
                 break;
+            case "AskServerToGrabPawnFromLedge" when c.Actor1 is SBasePawn pulled:
+                AskServerToGrabPawnFromLedge(pulled);
+                break;
             case "AskServerToUnGrabPawn":
                 AskServerToUnGrabPawn((GrabReleaseMethode_)c.Int1);
                 break;
@@ -164,6 +167,22 @@ public partial class SPlayerController
             case "ServerChangeGear":
                 ServerChangeGear();
                 break;
+            case "Throw" when target is SGamePlayObject thrown:
+                // SGamePlayObject.Throw (reliable owner to server): the hand item released by ThrowObject.
+                thrown.eventThrow(this, c.Vector1);
+                break;
+            case "ReplicateSpecialsChatOnServer":
+                ReplicateSpecialsChatOnServer(c.Int1 != 0 ? (byte)1 : (byte)0);
+                break;
+            case "ServerSetVoiceChatTarget":
+                ServerSetVoiceChatTarget(c.Actor1 as Pawn);
+                break;
+            case "ServerClearVoiceChatTarget":
+                ServerClearVoiceChatTarget();
+                break;
+            case "ServerSetVoiceComWhenGrabbing":
+                ServerSetVoiceComWhenGrabbing(c.Bool1);
+                break;
             default:
                 GadgetNetReceive.FromOwner(this, c);
                 break;
@@ -203,6 +222,12 @@ public partial class SPlayerController
                 break;
             case "GrabAborted":
                 GrabAborted();
+                break;
+            case "PCChangeClientStateForMercGrabbedFromLedge" when c.Actor1 is SBasePawn ledgeSpy:
+                PCChangeClientStateForMercGrabbedFromLedge(c.Vector2.X, c.Vector2.Y, ledgeSpy, c.Vector1, c.Int1);
+                break;
+            case "TellClientToStickyBlast":
+                TellClientToStickyBlast(c.Actor1);
                 break;
             case "ForceRotateTo":
                 ForceRotateTo(c.Rotation, c.Int1, c.Int2);

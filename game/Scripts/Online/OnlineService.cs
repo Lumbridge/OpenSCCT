@@ -89,7 +89,7 @@ public partial class OnlineService : Node
     }
 
     /// <summary>The listen host's own account: its unlocks, rank and titles as the master last told this game.</summary>
-    private static HostAccount HostAccountOf(long id, string name, OpenScct.Net.Discovery.AccountInfo? info)
+    internal static HostAccount HostAccountOf(long id, string name, OpenScct.Net.Discovery.AccountInfo? info)
     {
         int rank = info?.Progress is { } p ? PlayerRank.FromXp(p.Prestige, p.Xp).Pack() : 0;
         return new HostAccount(id, name, info?.Unlocked, rank, info?.Progress?.Titles);

@@ -99,7 +99,8 @@ public static class VoiceRouting
             return listener.Life != EVoiceLife.Dead;
         }
 
-        // A downed player hears the enemies chatting with him.
-        return listener.Life == EVoiceLife.LyingOnGround && listener.HasDownedChatWith(speaker.Talker);
+        // A downed player hears the enemies chatting with him; the partners last while he stays on the ground, so a spy
+        // being finished (s_TerminatedPawn, not s_LyingOnGround) still hears the merc.
+        return listener.Life != EVoiceLife.Dead && listener.HasDownedChatWith(speaker.Talker);
     }
 }

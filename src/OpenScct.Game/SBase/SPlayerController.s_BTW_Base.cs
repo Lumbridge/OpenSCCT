@@ -7,12 +7,12 @@ using OpenScct.Provenance;
 namespace OpenScct.Game.SBase;
 
 // SBase.SPlayerController state s_BTW_Base: the common part of the back-to-wall states. Written from
-// spec/movement/back-to-wall.md (s_BTW_Base). Not ported here: PawnTakeDamage and PlayAnimDmg on the wall (the
-// damage reactions belong to the combat port).
+// spec/movement/back-to-wall.md (s_BTW_Base). PawnTakeDamage is the combat port's (DamageBackToWall); PlayAnimDmg
+// leaves the wall (BtwPlayAnimDmg in SPlayerController.s_BTWFire.cs).
 public partial class SPlayerController
 {
     [Uc("SBase.SPlayerController.s_BTW_Base")]
-    public class s_BTW_Base : UcActorState, IPlayerMove, ICanUseCam
+    public class s_BTW_Base : UcActorState, IPlayerMove, ICanUseCam, IPlayAnimDmg
     {
         public static readonly s_BTW_Base Instance = new(UcMeta.s_BTW_Base, null);
 
@@ -33,6 +33,11 @@ public partial class SPlayerController
             self.UpdateCamRotation(DeltaTime);
             self.SendMove(DeltaTime, default);
         }
+
+        /// <summary>A hit leaves the wall to the resting state, keeping a drawn pistol.</summary>
+        [Uc("SBase.SPlayerController.s_BTW_Base.PlayAnimDmg", Sha1 = "d477481c48ce6a0ed6b57f36f0ef9e4d56180429")]
+        [PortOf("uc:SBase.SPlayerController:s_BTW_Base.PlayAnimDmg", Spec = "spec/movement/back-to-wall.md#s_btw_base-common")]
+        public virtual void PlayAnimDmg(SPlayerController self, int PillTag, FVector Momentum) => self.BtwPlayAnimDmg(bKeepWeapon: true);
 
         [Uc("SBase.SPlayerController.s_BTW_Base.CanUseCam", Sha1 = "a40381ccfdf342092554b33966344721f68fd6c2")]
         [PortOf("uc:SBase.SPlayerController:s_BTW_Base.CanUseCam", Spec = "spec/movement/back-to-wall.md#s_btw_base-common")]

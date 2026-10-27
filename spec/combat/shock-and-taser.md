@@ -133,7 +133,8 @@ the timers, the immunity test, the taser knock-down and the per-state variants. 
 
 ### Taser and taser-like hits
 27. Merc taser gadget (`SGadTazerLauncher`, RefireRate 1.0 s, fBulletRange 200 uu, fBulletAngle 60): `Use` calls the
-    native `UseBulletSet` (reliable RPC to the server), which picks the target and calls the event `DamagePawn`.
+    native `UseBulletSet` (reliable RPC to the server), which picks the targets and calls the event `DamagePawn`
+    (target selection, HitLocation and StartTrace: spec/equipment/tazer.md rules 2 to 5).
     `DamagePawn` does `PawnTakeDamage(0, merc, HitLocation, (HitLocation - StartTrace)*1000, SDTStickyShocker, -10, 0)`
     and counts `Merc_TaserHits` on an enemy (or in MercDeathMatch).
 28. Pipeline effect of PillTag -10: 51 damage when the victim is not already shocking (else 0), immunity bypass,
@@ -171,7 +172,7 @@ stateDiagram-v2
 | headshot HUD shutdown | freeze + 9.0 | s | decoded | Shock_HeadShotHudSfxDuration |
 | grab immunity after shock | 5.0 | s | decoded | fGrabInvulneralbilityTimeAfterStickyShock |
 | taser damage | 51 | hp | decoded | pipeline |
-| taser range / angle | 200 uu / 60 | uu / deg (unit of angle estimated) | decoded value, unit estimated | def:SBase.SGadTazerLauncher |
+| taser range | 200 (fBulletAngle 60 is not read; the cone is in tazer.md rule 3) | uu | decoded | def:SBase.SGadTazerLauncher, game 0x10aa0b50 |
 | jammer duration | 4 | s | decoded | fJammerDuration |
 | jammer minimum speed factor | 0.5 | - | decoded | PlayerTick |
 
@@ -204,14 +205,15 @@ stateDiagram-v2
 - Bridge docs/GADGET_TIMINGS.md rows "Shocker gun hit on a merc" and "Taser on a spy" (same values, independent read).
 
 ## Open questions
-- `SGadTazerLauncher.UseBulletSet` (native 1301): target selection (cone, line of sight, pawn type filter), HitLocation
-  and StartTrace passed to `DamagePawn`. Needs Ghidra.
 - Server copy of `bStickyShocking` for remote players: measure with two machines, shock a remote merc, read the
   server-side pawn flag while frozen.
 - Merc wake-up shock: confirm in game that a merc standing up from a KO is input frozen for about 3.5 s and hears the
   shock sound (two-pawn rig, knock the merc down with a drop attack, log `iDontUpdatePadInput` and the action list).
 
 ### Resolved
+- `SGadTazerLauncher.UseBulletSet` (native 1301): target selection, HitLocation and StartTrace. Resolved: game
+  0x10aa0b50, spec/equipment/tazer.md (every pawn in a distance-dependent cone, no team test; HitLocation the aim
+  point, StartTrace the merc's Location).
 - What the native action handler does for SA_DMG_ELECTRIC and SA_DMG_ELECTRIC_NOANIMS. Resolved: BeginStickySkin,
   bStickyShocking, evStickyShockSfx(1), IK_Type 1 with the old value saved, PlayDamage on channel 23 (53 no start
   bone, 54 from B Head) looping ADamage{St,Cr}Electric{0,2} with tween 0.2 (54 on a moving pawn: the head flinch on

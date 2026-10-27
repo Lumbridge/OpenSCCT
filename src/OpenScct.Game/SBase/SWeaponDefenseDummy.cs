@@ -54,6 +54,12 @@ public partial class SWeaponDefenseDummy
             }
         }
 
+        TickMuzzle();
+    }
+
+    /// <summary>The tick's muzzle step: each new count plays the muzzle effects where nobody sees the first-person gun.</summary>
+    private protected virtual void TickMuzzle()
+    {
         if (Level.NetMode == ENetMode.NM_DedicatedServer)
         {
             return;

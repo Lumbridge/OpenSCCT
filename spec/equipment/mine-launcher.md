@@ -145,7 +145,10 @@ opens a menu to pick the type or remove the oldest mine. A merc can pick a mine 
     distance from the mine; with no hit `vMurTouche = Location` and the length is `fDistanceMax + 0.1`. The beam
     actor gets the length; `fLastUpadtedLaser = now`.
 17. **SpawnLaser** (decoded 0x10a93b80): `CheckForOppositeWall`, then spawn the beam (`SLaserBeam_MineLaser`) at the
-    mine, rotated towards `vMurTouche`, owned by the mine.
+    mine, rotated towards `vMurTouche`, owned by the mine. With no wall `vMurTouche` is the mine itself, so the
+    rotation is zero (yaw and pitch atan2(0, 0)) and the 2000.1 uu beam points along world X, not the mine's facing.
+    The beam's tick (ASLaserBeam_MineLaser::Tick, game 0x10abd460) only sets `DrawScale3D.X = fTailleFaisceau` when
+    the length changes (and is not 0); it never turns the beam, so a re-measure keeps the spawn rotation.
 18. **CheckPresence** (decoded 0x10a93ce0): for each pawn of the list of the opposing side (spies for a merc mine,
     `bMineDefenseur`), within `fTailleFaisceau + CollisionRadius` of the mine (squared, strict), whose direction from
     the mine has cosine c with `vAxeX` such that (distance < 200 and c >= 0) or c > 0.9: when the beam segment

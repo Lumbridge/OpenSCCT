@@ -213,7 +213,7 @@ public sealed class VoiceRoster
             for (int j = 0; j < Count; j++)
             {
                 ref VoiceMember downed = ref _members[j];
-                if (j != i && downed.Life == EVoiceLife.LyingOnGround && downed.HasDownedChatWith(m.Talker) && downed.Team != m.Team)
+                if (j != i && downed.Life != EVoiceLife.Dead && downed.HasDownedChatWith(m.Talker) && downed.Team != m.Team)
                 {
                     m.TalksToDowned = true;
                     break;

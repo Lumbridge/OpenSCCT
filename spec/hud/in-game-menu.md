@@ -40,6 +40,13 @@ Opening (`ShowMenu`, the exec on IK_Escape in both stock layouts):
    crouch, use, gadget, zoom...), then opens one page: `Dedicated_Server` on a dedicated server's own console,
    `SSMenu_LANMainPage` when NetType is NET_LAN or NET_NONE, otherwise (Ubi.com) `Start_Menu`. Both pages are
    titled "In-Game Menu".
+1a. ShowMenu is an exec, so the controller's state can change it (port: SPlayerController.eventShowMenu, asked by
+    the play scene before it opens the menu): `s_InteractWithObject`, `s_MenuInteraction_GoToInteractionPosition`,
+    `s_InteractWithObjectWaitingEvent` and `s_InteractWithObjectWaitingEventCrToSt` ignore it (no menu during an
+    interaction); `s_MenuInteraction` opens it only while Use is up; the mine-on-wall states
+    (`s_BasePutMineOnWall` and the four that extend it) first ChangeState `s_PutMineOnWall_UnGrab`; the merc scope
+    (`s_Binoculars_Def`, `s_Binoculars_Def_Reloading`) first releases the held breath (bHoldBreath 0); the sticky cam
+    menu first goes to the waiting state.
 2. Nothing pauses the game: no page of the menu calls SetPause and `GUIPage.bPauseIfPossible` is never read by
    script. The match goes on behind the menu, offline as well.
 3. While a page is open the GUI controller shows the Windows pointer (`SetControllerStatus`:

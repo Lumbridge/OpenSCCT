@@ -104,7 +104,13 @@ Arming and the fuse (server):
     (credit to `ControllerWhoTakesIt`, objective taken).
 14. `ASBombTargetObjectiveTrigger::Tick` (native, decoded, every machine): when `bSkinState` differs from
     `bLocalSkinState`, copy it; armed: `Skins[0..2] = None` (the mesh's own materials) and `bAcceptsProjectors =
-    true`; unarmed: `Skins[0..2] = AbsentSkin` and `bAcceptsProjectors = false`.
+    true`; unarmed: `Skins[0..2] = AbsentSkin` and `bAcceptsProjectors = false`. The AbsentSkin is the ghost of the
+    charge: `FX_pose_bomb_heat` is a SpecialVisionTextureModifier (heat and EMF texture `FX_pose_bomb`) over the
+    Shader `FX_pose_bomb_fx` (Diffuse, Opacity and SelfIllumination all `FX_pose_bomb`, TwoSided): a fullbright,
+    two-sided, pale green charge at about 25% opacity, flickering at 3 fps with its darker, fainter second frame
+    (`FX_pose_bomb` AnimNext `FX_pose_bomb_2`). Every player of both teams sees it; armed, the solid C4 shows
+    (`bombing_c4_heat`, `bombing_c4_ecran_heat`). Client drawing: `MeshFollower.DrawSkin` puts Skins[0] over the node
+    when `GameplaySkins` builds it (game/Scripts/Render/GameplaySkins.cs).
 
 Menu label:
 

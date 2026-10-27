@@ -114,6 +114,28 @@ Activation (`voice_push_to_talk` off, the Reloaded default): the frame RMS after
 of it, and closes after `voice_activation_hold_ms` (300) below that. The frame after the gate closes goes out marked
 as the end of the talk spurt.
 
+## Eavesdropping
+
+The original's ways to hear the other team (spec/game/voice-chat.md rules 12 to 14), all decided by the server from
+its copy of each controller and read by `SessionVoiceLinks` every 100 ms:
+
+| Feature | Owner's machine | Server state | Heard |
+|---|---|---|---|
+| Hack Comm (H held) | `UpdateSpecialsChat` after each PlayerMove sends each change of `bSpecialsChat` (`ReplicateSpecialsChatOnServer`) | `bSpecialsChat` | every enemy carrying your team's tag (spy bullet, merc laser mark), one way, while the key is down, neither side downed and not grabbing |
+| Grab talk (H while holding a merc) | `s_GrabbingPlayer.VoiceChatButtonToggle` sends `ServerSetVoiceComWhenGrabbing` | `bVoiceComWhenGrabbing` (cleared by the grab's EndState) | spy and merc both ways; the spy's team stops hearing him |
+| Voice trace (merc scope, spy binoculars) | once a second a trace along the view, 50 to 6000 × zoom uu (`BinocularVoiceTrace`); an enemy hit plays `Snd_VoiceHacking` and sends `ServerSetVoiceChatTarget`, losing it sends `ServerClearVoiceChatTarget` | `VoiceChatTargetPC`, accepted only for an enemy within 7000 uu | the target, one way |
+
+The HUD: "Hack" while the trace has a target (`VoiceChatTarget`) or an enemy carries your team's tag
+(`bCanListenSpyBulletedGuy`), "Speak" while holding a merc (`bCanTalkToGuy`, set by the server when the mode allows it)
+or near a downed enemy; the eavesdropped talker shows in the speaker list like any other. Team mode (`CanHackEnemyComs`
+false) allows none of it.
+
+SetAudioZoom: while the local player's scope or binoculars are up, `PlayAudio` hands `AudioZoomFactor` and the view
+FOV to `SoundSystem.SetAudioZoom`, and each 3D sound's volume is multiplied by 1 + zoom × (3 - 3.9 r), r = min(1,
+112.5 / FOV × the sound's sideways share of its direction), never above full volume (`SoundRules.AudioZoomGain`,
+decoded from the game's UNIAudio at 0x10b06280; the reading of r is estimated). Sounds on the aim line get louder,
+the rest quieter.
+
 ## Settings
 
 `VoiceSettings` holds the Reloaded keys: `Enabled` (the stock "Allow VoiceChat"), `PushToTalk`
@@ -187,7 +209,6 @@ Talker ids on the wire are PlayerReplicationInfo ids plus one (`VoiceK.TalkerOf`
 - Noise suppression, automatic gain and echo cancellation (FEATURES rl:voice.noise, gain, echo; P1 and P2). The
   microphone test is on the Voice page.
 - Offline play (the local listen server of `--svm-play`) has no voice.
-- Downed chat waits for the native code that finds chat partners (spec open question 1); grab talk is read from the
-  Hack Comm key during a grab until the grab port keeps a flag (`SBaseVoiceLinks`).
+- Downed chat waits for the native code that finds chat partners (spec open question 1).
 - The lobby rules apply on the online session's lobby level, through the session's own directory.
 - A host-side voice ban command.

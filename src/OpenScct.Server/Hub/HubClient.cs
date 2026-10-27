@@ -6,6 +6,7 @@ using OpenScct.Core.Engine;
 using OpenScct.Game.Modes;
 using OpenScct.Game.SBase;
 using OpenScct.Net;
+using OpenScct.Net.Cosmetics;
 using OpenScct.Net.Voice;
 using OpenScct.Server.Online;
 
@@ -42,6 +43,15 @@ public sealed record HubClientSettings
 
     /// <summary>The title the player shows (TitleCatalog id); the hub keeps it only when the ticket unlocks it.</summary>
     public string? Title { get; init; }
+
+    /// <summary>What the player wears as a spy (the hub keeps only what his ticket or host account unlocks).</summary>
+    public CosmeticLook SpyLook { get; init; }
+
+    /// <summary>What the player wears as a merc.</summary>
+    public CosmeticLook MercLook { get; init; }
+
+    /// <summary>The key of the hub this game hosts (its player gets the host account's unlocks and rank), or null.</summary>
+    public string? HostKey { get; init; }
 }
 
 /// <summary>The player's own place in a pad's queue, as the hub last said (<c>hub queue</c>).</summary>
@@ -98,7 +108,10 @@ public sealed class HubClient : IDisposable
                 (Settings.ReturnPad is { Length: > 0 } pad ? "?" + HubProtocol.ReturnOption + "=" + pad : string.Empty) +
                 (Settings.InstallId.Length > 0 ? "?SvmId=" + OptionText(Settings.InstallId) : string.Empty) +
                 (Settings.Ticket is { Length: > 0 } ticket ? "?SvmTicket=" + OptionText(ticket) : string.Empty) +
-                (Settings.Title is { Length: > 0 } title ? "?SvmTitle=" + OptionText(title) : string.Empty),
+                (Settings.Title is { Length: > 0 } title ? "?SvmTitle=" + OptionText(title) : string.Empty) +
+                (Settings.SpyLook.Packed != 0 ? "?SvmLookS=" + Settings.SpyLook.ToHex() : string.Empty) +
+                (Settings.MercLook.Packed != 0 ? "?SvmLookM=" + Settings.MercLook.ToHex() : string.Empty) +
+                (Settings.HostKey is { Length: > 0 } hostKey ? "?SvmHost=" + OptionText(hostKey) : string.Empty),
             Gameplay = true,
             InstallGameplayServices = Settings.InstallGameplayServices,
             Maps = Settings.Maps,
@@ -208,6 +221,9 @@ public sealed class HubClient : IDisposable
 
     /// <summary>Asks to watch the match being played on a pad (the hub answers with a spectator's offer).</summary>
     public void Watch(string padId) => Session.SendText(HubProtocol.Watch(padId));
+
+    /// <summary>Wears new looks now (the Armoury changed them); the hub checks them as at login.</summary>
+    public void SetLook(CosmeticLook spy, CosmeticLook merc) => Session.SendText(HubProtocol.Look(spy, merc));
 
     /// <summary>Plays an emote (one of <see cref="HubEmotes.All"/>) for the players near.</summary>
     public void Emote(string emote) => Session.SendText(HubPlayProtocol.EmoteRequest(emote));

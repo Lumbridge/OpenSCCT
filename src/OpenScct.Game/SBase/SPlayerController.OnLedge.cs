@@ -6,8 +6,8 @@ using OpenScct.Provenance;
 
 namespace OpenScct.Game.SBase;
 
-// SBase.SPlayerController state OnLedge: hanging from a ledge; shimmy, climb up, drop, corners. Written from
-// spec/movement/ledge.md (Hanging).
+// SBase.SPlayerController state OnLedge: hanging from a ledge; shimmy, climb up, drop, corners, and the grab of a merc
+// standing above. Written from spec/movement/ledge.md (Hanging) and spec/combat/spy-grab.md (ledge grab).
 public partial class SPlayerController
 {
     [Uc("SBase.SPlayerController.OnLedge")]
@@ -38,7 +38,7 @@ public partial class SPlayerController
 
         /// <summary>
         /// Climb (forward or jump: the native picks the climb), drop (back or crouch), shimmy (left and right at
-        /// 80), the Use edge, and the move with the shimmy acceleration.
+        /// 80), the Use edge (the ledge grab), and the move with the shimmy acceleration.
         /// </summary>
         [Uc("SBase.SPlayerController.OnLedge.PlayerMove", Sha1 = "80e8b62d77ccfc89b7b2ce2d1677e7154df34ca3")]
         [PortOf("uc:SBase.SPlayerController:OnLedge.PlayerMove", Spec = "spec/movement/ledge.md#hanging-onledge-simulated")]
@@ -114,8 +114,58 @@ public partial class SPlayerController
                 return;
             }
 
-            // Step 6, the grab of a merc from the hang, needs bTestGrabLedgeGeo (not decoded) and the grab port.
+            // The Use press: a merc above the ledge is pulled over the edge (spy-grab.md rule 30).
+            if (self.bToggleUsing == 1 && self.bTestGrabLedgeGeo() && AskToGrabPawn(self) && pawn.m_AttackTarget is { } target)
+            {
+                self.CombatPorts.ChangeEnumAction(pawn, SBasePawn.SA_GRABFROMLEDGE_BEGIN, false);
+                self.GotoState(CNAME_s_GrabbingFromLedge_Begin);
+                self.AskServerToGrabPawnFromLedge(target);
+            }
+
             self.SendMove(DeltaTime, accel);
+        }
+
+        /// <summary>
+        /// The ledge reach (rule 31): a merc standing on the ledge above the hands, inside the 150 by 100 box in
+        /// front of the spy, woken more than 3.8 s ago.
+        /// </summary>
+        [Uc("SBase.SPlayerController.OnLedge.CanGrabPawn", Sha1 = "45f9fce3670e33a0761febb3fa2f757b9e45deb0")]
+        [PortOf("uc:SBase.SPlayerController:OnLedge.CanGrabPawn", Spec = "spec/combat/spy-grab.md#ledge-grab-spy-hanging-merc-above")]
+        public virtual bool CanGrabPawn(SPlayerController self, SBasePawn PawnToGrab)
+        {
+            if (self.Pawn is not { } me || (PawnToGrab.bIsCrouched && !PawnToGrab.CanUnCrouch()))
+            {
+                return false;
+            }
+
+            return self.Level.TimeSeconds - PawnToGrab.iLastWakeTime > self.fWakeInvulnerabilityTime &&
+                self.LedgeGrabGeometry(me, PawnToGrab, 1f);
+        }
+
+        /// <summary>
+        /// The owner's ledge grab search (rule 30): the first merc in reach that can be grabbed and is not shocking
+        /// becomes the target.
+        /// </summary>
+        [Uc("SBase.SPlayerController.OnLedge.AskToGrabPawn", Sha1 = "a10766013798ff4d83a3f888c719d97044837efe")]
+        [PortOf("uc:SBase.SPlayerController:OnLedge.AskToGrabPawn", Spec = "spec/combat/spy-grab.md#ledge-grab-spy-hanging-merc-above")]
+        public virtual bool AskToGrabPawn(SPlayerController self)
+        {
+            if (self.SBPawn is not { } spy || spy.bStickyShocking || self.GameReplicationInfo is { bAvlb_SPY_Grab: false })
+            {
+                return false;
+            }
+
+            foreach (Pawn p in self.XLevel.DynamicActors<Pawn>())
+            {
+                if (p is SPAWNDEFENSE target && !ReferenceEquals(target, spy) && CanGrabPawn(self, target) && target.bCanBeGrabbed &&
+                    !target.bStickyShocking)
+                {
+                    spy.m_AttackTarget = target;
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         /// <summary>A corner: the next ledge's points kept for the end of the turn clip, then the corner change.</summary>

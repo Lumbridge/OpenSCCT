@@ -18,6 +18,7 @@ Deathmatch; absent means Extraction). The code branches on it in a few places on
 | Kills | Merc Deathmatch: every kill counts, a suicide costs one | `SGameInfo.Killed` |
 | End of round | Merc Deathmatch: kill limit and survivors; other modes: lives, then objectives | `SGameInfo.sCheckEndGame` |
 | Late joiners | play only in Merc Deathmatch, watch otherwise | `SGameInfo.Login`, `StartLateJoiner` |
+| Merc weapon | Merc Deathmatch: each Use press while dead picks the next gun (rifle, Uzi, shotgun) for the respawn, shown bottom right; other modes: the profile's gun | `SPlayerController.SpawnWeaponFor`, `ServerCycleRespawnWeapon`, `SHud.DrawRespawnWeapon` (spec/equipment/merc-guns.md) |
 | Spy inventory | the bomb gadget in Story and Sabotage | equipment loadouts |
 | Bomb spots | hidden outside Story | `SBombTargetObjectiveTrigger.PostBeginPlay` |
 | Death | Disk Hunt: the carrier drops his disks | `SPlayerController.s_Dead`, `DropDisks` |

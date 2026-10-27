@@ -520,6 +520,47 @@ public sealed class SkeletalModel
         }
     }
 
+    public const string CloakShaderPath = "res://Shaders/svm_cloak.gdshader";
+
+    public static readonly StringName GlassParameter = "svm_glass";
+
+    // A transparency above 0 moves the meshes to the transparent pass (after the screen copy the cloak samples); this
+    // one is the smallest Godot takes (alpha below 0.999), so the shading under the glass stays 99% opaque.
+    private const float CloakPass = 0.01f;
+
+    private static ShaderMaterial? s_cloak;
+    private float _glass;
+
+    /// <summary>
+    /// The camo suit on every mesh (docs/RENDERING.md#cloak): <paramref name="amount"/> is GlassEffect / 255, 0 draws
+    /// the model as usual.
+    /// </summary>
+    public void SetGlass(float amount)
+    {
+        amount = Math.Clamp(amount, 0f, 1f);
+        if (amount == _glass)
+        {
+            return;
+        }
+
+        bool on = amount > 0f;
+        if (on != (_glass > 0f))
+        {
+            s_cloak ??= new ShaderMaterial { Shader = GD.Load<Shader>(CloakShaderPath) };
+            foreach (MeshInstance3D mesh in _meshes)
+            {
+                mesh.Transparency = on ? CloakPass : 0f;
+                mesh.MaterialOverlay = on ? s_cloak : null;
+            }
+        }
+
+        _glass = amount;
+        foreach (MeshInstance3D mesh in _meshes)
+        {
+            mesh.SetInstanceShaderParameter(GlassParameter, amount);
+        }
+    }
+
     /// <summary>Lights every mesh of the model with one actor light set.</summary>
     public void Light(ActorLightSet set)
     {

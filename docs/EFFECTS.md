@@ -58,6 +58,13 @@ The runtime lays each sub-emitter's stored values over its class defaults from `
   lights do (the same colour, gain, radius and `1 - (d / R)^2` world falloff; SFlashLight is bAffectOwnZoneOnly, so only
   its zone). The muzzle actors' own lights join them for their 0.1 s (SMuzzleGenerique and sMuzzleCanon for the rifle,
   SMuzzleSticky for the Shocker: steady LE_PointAmbient, brightness 255, LightRadius 1, so 50 uu).
+- An Emitter actor with bDynamicLight lights its surroundings too, as the flash lights do: the merc flare's
+  SFlareEmitter (radius 25, its native tick flickering the brightness) and its flight trail SFlareCourseEmitter
+  (radius 6), spec/equipment/flare.md.
+- Abandoned projections (Projector.AbandonProjector, kept in the level's `AbandonedProjectors` on each drawing
+  machine): the flare's Burn_flare mark, drawn by `CombatFxView.Decals.cs` on the first surface along the
+  projector's axis for its lifetime (30 s). The projection is not decoded: the mark is a square of the texture's
+  width x DrawScale.
 - An effect attached to a pawn's bone (AttachToBone: the sticky shock's seven SEffectShockedPawnEmitter) is drawn at that
   bone of the drawn skeleton; the simulation has none.
 - The spy pistol's SLaserBeam (and the merc laser's) is left to its own view (`SpyLaserView`, `MercLaserView`), which

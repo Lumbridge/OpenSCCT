@@ -116,6 +116,7 @@ public sealed class PawnAttachments
         if (pawn is SPAWNDEFENSE merc && merc.WeaponDummy is { bDeleteMe: false } dummy && !dummy.Mesh.IsNone)
         {
             Place(dummy.Mesh.Path!, dummy.InHand ? BoneRightHand : BoneHolster, null, dt, null, PawnCosmetics.GunItem(pawn));
+            DrawVision(dummy.Mesh.Path!, dummy);
         }
         else if (pawn is SPawnAttaque && pawn.MyWeapon is SWeaponAttaque { bDeleteMe: false } pistol && !pistol.Mesh.IsNone)
         {
@@ -135,11 +136,22 @@ public sealed class PawnAttachments
                     Place(pistol.Mesh.Path!, BoneRightHand, pistol.ViewAnim, dt, null, PawnCosmetics.GunItem(pawn));
                     break;
             }
+
+            DrawVision(pistol.Mesh.Path!, pistol);
         }
 
         foreach (Attached a in _models.Values)
         {
             a.Model.Root.Visible = a.Used;
+        }
+    }
+
+    /// <summary>The pawn's camo suit on its attachments too (<see cref="SkeletalModel.SetGlass"/>).</summary>
+    public void SetGlass(float amount)
+    {
+        foreach (Attached a in _models.Values)
+        {
+            a.Model.SetGlass(amount);
         }
     }
 
@@ -211,5 +223,26 @@ public sealed class PawnAttachments
         public OpenScct.Net.Cosmetics.CosmeticItem? Cosmetic { get; set; }
 
         public bool CosmeticSet { get; set; }
+
+        public Vector4? Vision { get; set; }
+    }
+
+    /// <summary>
+    /// The attachment's own actor's live vision values (the pistol's SetEMFWeapon 1 / UnSetEMFWeapon 0.3, replicated;
+    /// the merc's dummy keeps the Actor defaults), when they change.
+    /// </summary>
+    private void DrawVision(string asset, Actor source)
+    {
+        if (!_models.TryGetValue(asset, out Attached? a))
+        {
+            return;
+        }
+
+        Vector4 vision = GameplayObjects.VisionOf(source);
+        if (a.Vision != vision)
+        {
+            a.Vision = vision;
+            a.Model.SetVision(vision);
+        }
     }
 }

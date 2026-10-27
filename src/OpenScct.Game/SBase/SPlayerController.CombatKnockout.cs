@@ -106,9 +106,13 @@ public partial class SPlayerController
     /// </summary>
     [Uc("SBase.SPlayerController.s_Inactive")]
     public class s_Inactive : UcActorState, IPlayerTick, IPlayerMove, ICanActivateLaser, ICheckshock, IGoInSmoke, IFire, IAltFire,
-        IGadgetQuickChoice, IGadLaserSwitch, IGadTorcheSwitch, ISwitchBinocularVision, ISwitchHeadset, ISwitchROF, ICanActivateCloak
+        IGadgetQuickChoice, IGadLaserSwitch, IGadTorcheSwitch, ISwitchBinocularVision, ISwitchHeadset, ISwitchROF, ICanActivateCloak,
+        IHearPC
     {
         public static readonly s_Inactive Instance = new(UcMeta.s_Inactive, null);
+
+        /// <summary>Downed chat: see <see cref="SPlayerController.InactiveHearPC"/>.</summary>
+        public void HearPC(SPlayerController self, SPlayerController PCToTalkWith, bool bHear) => self.InactiveHearPC(PCToTalkWith, bHear);
 
         protected s_Inactive(UcStateInfo info, ActorState? super)
             : base(info, super)
@@ -351,7 +355,7 @@ public partial class SPlayerController
 
         if (CombatAlive)
         {
-            CombatFx.Notify(this, CombatFx.HeadCamera, 1f);
+            CombatFx.Notify(this, CombatFx.HeadCamera, Slot: 1);
             SetHudPerturbationLength(KnockDownPerturbation);
             if (SPawnType == PawnType.SPAWNDEFENSE)
             {
@@ -576,6 +580,7 @@ public partial class SPlayerController
             if (pc.Role == ENetRole.ROLE_Authority && pc.SBPawn is { } lying)
             {
                 lying.bLyingOnGround = false;
+                pc.ReleaseChatPartners();
             }
         }
 
@@ -689,6 +694,7 @@ public partial class SPlayerController
             {
                 pc.bBehindView = true;
                 CombatFx.Notify(pc, CombatFx.HeadCamera, 0f);
+                pc.MovementCamera(ECamMode.ECM_Walking);
                 (pawn.MyWeapon as SWeaponDefense)?.AnimateFall();
             }
         }

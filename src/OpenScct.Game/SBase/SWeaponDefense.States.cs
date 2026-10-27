@@ -34,21 +34,26 @@ public partial class SWeaponDefense
         return true;
     }
 
-    private void ReloadBegin(float MessageTime)
+    /// <summary>
+    /// The start of a reload: the sound, the reload clip, the third-person action (the shotgun passes its shell
+    /// count's, or -1 for none), no reticle or laser, the message. <paramref name="ClearFlash"/> also stops the
+    /// low-ammo flash.
+    /// </summary>
+    private protected void ReloadBegin(float MessageTime, int Action = SBasePawn.SA_RELOAD, bool ClearFlash = true)
     {
         ServerSound(ReloadSound, ESoundSlot.SLOT_None, (int)K.WeaponSoundRadius);
         ViewAnim.SetAlpha(ACTIONCHANNEL, 1f);
         ViewAnim.Play(ACTIONCHANNEL, AFirstReloSt, ViewModelClips.DataOf(AFirstReloSt));
-        if (Instigator is SBasePawn pawn)
+        if (Action >= 0 && Instigator is SBasePawn pawn)
         {
-            CombatServices.Ports(this).ChangeEnumAction(pawn, SBasePawn.SA_RELOAD, false);
+            CombatServices.Ports(this).ChangeEnumAction(pawn, Action, false);
         }
 
         if (OwnerPC is { } pc)
         {
             pc.bNoReticule = true;
             pc.EteintLaser();
-            if (pc.myHUD is SHud hud)
+            if (ClearFlash && pc.myHUD is SHud hud)
             {
                 hud.bReticuleFlash = false;
             }

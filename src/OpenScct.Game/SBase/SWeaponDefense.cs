@@ -209,7 +209,7 @@ public partial class SWeaponDefense
     /// </summary>
     [Uc("SBase.SWeaponDefense.FireWeapon", Sha1 = "18c3e79b883a41e2a868d56d1c9ab8f6156b3769")]
     [PortOf("uc:SBase.SWeaponDefense:FireWeapon", Spec = "spec/equipment/merc-rifle.md#rules")]
-    public void FireWeapon()
+    public virtual void FireWeapon()
     {
         BulletsToFire -= 1;
         FRotator aim = OwnerPC?.MyDesiredRotation ?? Instigator?.Rotation ?? Rotation;
@@ -232,7 +232,7 @@ public partial class SWeaponDefense
         SpawnSFX();
         ApplyWeaponJump();
         ViewAnim.SetAlpha(ACTIONCHANNEL, K.ShotClipAlpha);
-        ViewAnim.Play(ACTIONCHANNEL, AFirstShooSt, K.FirstShooStFd2);
+        ViewAnim.Play(ACTIONCHANNEL, AFirstShooSt, ViewModelClips.DataOf(AFirstShooSt));
     }
 
     /// <summary>
@@ -339,7 +339,7 @@ public partial class SWeaponDefense
     [Uc("SBase.SWeaponDefense.TraceFire", Sha1 = "d314de74e13035858380e9a6cf85ff4ee728d52f")]
     [PortOf("uc:SBase.SWeaponDefense:TraceFire", Spec = "spec/equipment/merc-rifle.md#rules")]
     [PortOf("uc:SBase.SWeaponDefense:TraceFire", Spec = "spec/combat/hit-zones-and-weapons.md#merc-rifle-and-uzi-script-tracefire-server")]
-    public void TraceFire(float Accuracy, float YOffset, float ZOffset, FVector TraceStartLocation = default)
+    public virtual void TraceFire(float Accuracy, float YOffset, float ZOffset, FVector TraceStartLocation = default)
     {
         if (Instigator is not { } shooter || Controller is null)
         {
@@ -532,7 +532,7 @@ public partial class SWeaponDefense
     /// <summary>The ROF button (rule 16): Auto and Single to Burst, Burst to Auto, with the sound, skin and server copy.</summary>
     [Uc("SBase.SWeaponDefense.SwitchROF", Sha1 = "63b06ca88f96c5c10ed1ef13fd0c2bf4b74f32af")]
     [PortOf("uc:SBase.SWeaponDefense:SwitchROF", Spec = "spec/equipment/merc-rifle.md#rules")]
-    public void SwitchROF() => SetMode(WeaponRules.NextMode(ROFMode));
+    public virtual void SwitchROF() => SetMode(WeaponRules.NextMode(ROFMode));
 
     /// <summary>Single shot for the scope, remembering the mode (when not single yet, or on entry).</summary>
     [Uc("SBase.SWeaponDefense.ROF_Single", Sha1 = "bd5e771871aab1ce31c8c2d3a3c67128d6119ee4")]
@@ -800,12 +800,12 @@ public partial class SWeaponDefense
     /// <summary>The first-person muzzle effects (a view effect).</summary>
     [Uc("SBase.SWeaponDefense.SpawnSFX", Sha1 = "1a99da366a6976dcc1a814919a71bbaff447fac1")]
     [PortOf("uc:SBase.SWeaponDefense:SpawnSFX", Spec = "spec/equipment/merc-rifle.md#rules")]
-    public void SpawnSFX() => CombatFx.Notify(this, CNAME_SpawnSFX);
+    public virtual void SpawnSFX() => CombatFx.Notify(this, CNAME_SpawnSFX);
 
     /// <summary>The barrel smoke after a burst (a view effect).</summary>
     [Uc("SBase.SWeaponDefense.CreateSmoke2", Sha1 = "9116098e3a572b5ba37edd478f6424542f1d6f3a")]
     [PortOf("uc:SBase.SWeaponDefense:CreateSmoke2", Spec = "spec/equipment/merc-rifle.md#rules")]
-    public void CreateSmoke2() => CombatFx.Notify(this, CNAME_CreateSmoke2);
+    public virtual void CreateSmoke2() => CombatFx.Notify(this, CNAME_CreateSmoke2);
 
     /// <summary>A reticle message on the owner's HUD (the server-to-client function always runs locally).</summary>
     [Uc("SBase.SWeaponDefense.LocalMessage", Sha1 = "f2493b837e571ebcffa102a61299a768380d8066")]

@@ -122,6 +122,39 @@ public partial class SimPawnView : Node3D
         _model.SetGlowHue(PawnCosmetics.HueTurn(look[OpenScct.Net.Cosmetics.CosmeticSlot.Light], PawnCosmetics.SideOf(pawn)));
     }
 
+    /// <summary>
+    /// The camo suit: the pawn's GlassEffect (ramped and flickered on this machine, spy-energy.md rule 7a) on the body
+    /// and its attachments, in normal vision only: the original draws glass actors only while RendMap is 5, so every
+    /// goggle mode shows the spy as uncloaked. The goggle glow is its own actor and keeps drawing.
+    /// </summary>
+    [Provenance(ProvenanceKind.Decoded, "scene traversal 0x10a395d2 / 0x10a39c3a / 0x10a3f1ff: an actor with GlassEffect != 0 goes to the glass list only when RendMap == 5")]
+    [Provenance(ProvenanceKind.Estimated, "The attachments (the gun) take the pawn's amount; in the original they are separate actors with their own GlassEffect")]
+    private void DrawGlass(SBasePawn pawn)
+    {
+        float amount = Render.Materials.MaterialCompiler.Vision == RenderK.RendMapNormal ? pawn.GlassEffect / 255f : 0f;
+        _model?.SetGlass(amount);
+        _attachments?.SetGlass(amount);
+    }
+
+    private Vector4? _visionDrawn;
+
+    /// <summary>
+    /// The pawn's live vision values (HeatIntensity, HeatOpacity, EMF glow, EMFOpacity; replicated from the server's
+    /// SetEMF / UnSetEMF) on the body, when they change: a spy is drawn in EMF only while EMF visible (vision-goggles.md
+    /// rule 12). docs/RENDERING.md#vision-modes.
+    /// </summary>
+    private void DrawVision(SBasePawn pawn)
+    {
+        Vector4 vision = GameplayObjects.VisionOf(pawn);
+        if (_visionDrawn == vision || _model is null)
+        {
+            return;
+        }
+
+        _visionDrawn = vision;
+        _model.SetVision(vision);
+    }
+
     /// <summary>Takes the pawn's state after a simulation tick (location, yaw and channel frames for the interpolation).</summary>
     public void OnTick()
     {
@@ -170,6 +203,8 @@ public partial class SimPawnView : Node3D
         _goggleGlow?.Draw(pawn);
         DrawSkins(pawn);
         DrawCosmetics(pawn);
+        DrawGlass(pawn);
+        DrawVision(pawn);
         _relightClock -= dt;
         if (_relightClock <= 0f && Map is not null)
         {

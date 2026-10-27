@@ -189,6 +189,17 @@ stream that has the Sound's own name.
     affects 3D sources. SteeE: 29 of its 32 sound zones have one (Room, StoneCorridor, Sewerpipe, Stoneroom,
     Hallway, Hangar, City).
 
+### Audio zoom (SetAudioZoom)
+
+25a. `SetAudioZoom(factor)` (the merc's scope and the spy's binoculars: 0.33, 0.66, 1.0 per zoom level, 0 when put
+    away) stores the factor on the subsystem and rescales every playing sound without the 2D flag (0x10): volume ×
+    (1 + factor × (3 - 3.9 r)), r = min(1, 112.5 / camera FOV × the projected distance of the sound from the view
+    axis); a sound behind the view has r = 1. On the aim line a sound is up to four times louder (capped at full
+    volume by DirectSound), at the edge of the view or behind it down to 0.1 (game `execSetAudioZoom 0x10a25b80`,
+    `0x10b06510`, `0x10b06340`, gain `0x10b06280`; also used when a sound starts, `0x10b03d50`). The rewrite reads the
+    projected distance as the sideways share of the unit direction (estimated) and applies it every frame
+    (`SoundRules.AudioZoomGain`). A negative factor only refreshes the volumes.
+
 ### Animation notifies
 
 26. AnimNotify_Sound plays its Sound at the mesh owner with id 0, its Volume, Radius (an int; 0 means 80), pitch 1,

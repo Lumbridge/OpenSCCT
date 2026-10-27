@@ -5,6 +5,7 @@ using System.Linq;
 using Godot;
 using OpenScct.Core;
 using OpenScct.Core.Engine;
+using OpenScct.Core.Uc;
 using OpenScct.Game.SBase;
 using OpenScct.Server;
 using OpenScctGame.Audio;
@@ -95,6 +96,18 @@ public sealed partial class PlayAudio : Node
         return audio;
     }
 
+    /// <summary>
+    /// A gadget page's sound (the heart sensor's heartbeat and scan ping): 2D with no actor, as the HUD natives play
+    /// it on the player's own machine (AudioK.HudSoundRadius).
+    /// </summary>
+    public void PlayHudSound(AssetRef sound)
+    {
+        if (!sound.IsNone)
+        {
+            Sound?.PlaySound(0, sound.Path!, 0, false, FVector.Zero, 1f, AudioK.HudSoundRadius, 1f, attenuate: false, flat: true);
+        }
+    }
+
     /// <summary>Gives the sound the client world once its map is in (apart from _Process: its lambda's closure would be made every frame).</summary>
     private void Bind(PlaySession session, SoundSystem sound)
     {
@@ -121,6 +134,12 @@ public sealed partial class PlayAudio : Node
         if (_view?.Invoke() is { } v)
         {
             sound.SetListener(v.Location, v.Rotation);
+        }
+
+        // SetAudioZoom: the local player's scope or binoculars (AudioZoomFactor is 0 outside them).
+        if (session.LocalController is { } pc)
+        {
+            sound.SetAudioZoom(pc.AudioZoomFactor, pc.FovAngle);
         }
 
         if (_quiet)

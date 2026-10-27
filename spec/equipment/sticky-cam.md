@@ -135,6 +135,18 @@ per pack; a cam that is destroyed or picked up comes back as a charge.
 12. **s_UseObject_StickyCam_Leave** (extends the armed walk): ignores Fire, AltFire, PrevStickyCam; the global
     `PlayerTick`; a still move with `UpdateRotation`; at the end of the palm clip on the input machine: a spy with the
     pistol out holsters (SA_WALK_*_2Hto0H, `s_PlayerWalkingMario_T_2HToOH`), else `GotoWaitingState`.
+13. **Damage in the cam states** (server, PawnTakeDamage; dead: the death or the fatal blast as everywhere).
+    - Fly-in (`s_UseObject_StickyCam_SmoothToPosition`): `CleanStickyCamOnClient` first, for every hit. Charge and
+      elbow run their handlers; a drop attack mirrors `s_FallDropAttacked`; a shock leaves the cam (mirrored, without
+      saving the state: back to `PreviousState` on a horizontal pipe, on a wall or in Vandamme, else
+      `s_UseObject_StickyCam_Leave`) then `Checkshock(Pill)`; any other hit leaves the cam the same way unless IK_Type
+      is IKT_PIPH or IKT_JCVD or the damage is SDTBase_NoAnim. No hit animation.
+    - View (`s_UseObject_StickyCam`, and the camera network view that extends it): a shock runs
+      `Checkshock(Pill, true)` and goes on; charge, elbow and drop run their handlers and stop. Otherwise the view is
+      left to `PreviousState` (mirrored, not saved); a previous state of `s_PlayerWaiting`, `s_ElbowShot_GoBackward`
+      or `s_PlayerCharging` is first replaced by the walking state of the stance: a spy's 0H or 2H by WeaponLoaded, a
+      merc's 2H.
+    - Code: SPlayerController.StickyCamDamage.cs.
 
 ### The cam actor
 13. **SOrientableObject**: `AcceptStickableGPO` false. `PostNetBeginPlay`: limit centres from the placed rotation,
@@ -193,7 +205,7 @@ per pack; a cam that is destroyed or picked up comes back as a charge.
     selected gadget is no longer the sticky cam; after the walking tick, while Alt-fire is no longer held: item 0
     fires a new cam with default doses (or shows `TextCantSpawnStickyCam` and leaves when `iCanUse[0]` was 0), item 1
     views the previous cam (or shows `TextNoStickyCamAvailable`), item 2 leaves; then the selection resets to 0.
-    `ClientDamage` and `ShowMenu` leave to waiting. `EndState` forbids grabs again. Nothing in 4.0 script enters this
+    `ClientDamage` and `ShowMenu` leave to waiting (ShowMenu then opens the In-Game Menu). `EndState` forbids grabs again. Nothing in 4.0 script enters this
     menu (`GotoStickyInteractionMenu` has no caller).
 27. **StickyCamWasDestroyed(instigator, doses)** (class): `LoseStickyCam(doses)`, then the instigator (a spy who
     picked it up) `ReloadStickyCam(doses)`.

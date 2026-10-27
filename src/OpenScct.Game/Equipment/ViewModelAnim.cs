@@ -69,6 +69,25 @@ public sealed class ViewModelAnim
         _backward[Channel] = false;
     }
 
+    /// <summary>
+    /// SetAnimFrame in frames: the channel's one-shot jumps to <paramref name="Frame"/> of <paramref name="Clip"/> (the
+    /// shotgun's reload skips the shells it does not need). A loop or a stopped channel is left alone.
+    /// </summary>
+    public void SetFrame(int Channel, float Frame, ClipData Clip)
+    {
+        if (!_playing[Channel] || _loop[Channel] || Clip.Frames <= 1 || _rate[Channel] <= 0f)
+        {
+            return;
+        }
+
+        float left = (Clip.Frames - 1 - Frame) / (Clip.Fps * _rate[Channel]);
+        _remaining[Channel] = left > 0f ? left : 0f;
+    }
+
+    /// <summary>Seconds a channel's one-shot of <paramref name="Clip"/> has played (0 for a loop or a stopped channel).</summary>
+    public float Elapsed(int Channel, ClipData Clip) =>
+        _playing[Channel] && !_loop[Channel] ? Clip.Seconds(_rate[Channel]) - _remaining[Channel] : 0f;
+
     /// <summary>Stops a channel (no AnimEnd).</summary>
     public void Stop(int Channel)
     {
@@ -127,6 +146,11 @@ public static class ViewModelClips
     public static readonly Name FirstAtakChEd2 = new("FirstAtakChEd2");
     public static readonly Name FirstAtakChit2 = new("FirstAtakChit2");
     public static readonly Name FirstAtakCrFd2 = new("FirstAtakCrFd2");
+    public static readonly Name FirstShooStFd2U = new("FirstShooStFd2U");
+    public static readonly Name FirstShooStFd2Ub = new("FirstShooStFd2Ub");
+    public static readonly Name FirstReloStFd2U = new("FirstReloStFd2U");
+    public static readonly Name FirstShooStFd2S = new("FirstShooStFd2S");
+    public static readonly Name FirstReloStFd2S = new("FirstReloStFd2S");
 
     /// <summary>The clip data of a sequence (an unknown clip ends at once).</summary>
     public static ClipData DataOf(Name Sequence)
@@ -199,6 +223,31 @@ public static class ViewModelClips
         if (Sequence == FirstAtakCrFd2)
         {
             return K.FirstAtakCrFd2;
+        }
+
+        if (Sequence == FirstShooStFd2U)
+        {
+            return K.FirstShooStFd2U;
+        }
+
+        if (Sequence == FirstShooStFd2Ub)
+        {
+            return K.FirstShooStFd2Ub;
+        }
+
+        if (Sequence == FirstReloStFd2U)
+        {
+            return K.FirstReloStFd2U;
+        }
+
+        if (Sequence == FirstShooStFd2S)
+        {
+            return K.FirstShooStFd2S;
+        }
+
+        if (Sequence == FirstReloStFd2S)
+        {
+            return K.FirstReloStFd2S;
         }
 
         return new ClipData(1, 15f);

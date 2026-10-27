@@ -94,6 +94,28 @@ public static class AudioK
     [Provenance(ProvenanceKind.Decoded, "Update 0x10f6e980: velocity above 300 is dropped")]
     public const float MaxDopplerSpeed = 300f;
 
+    /// <summary>
+    /// Audio zoom (SetAudioZoom, the scope and binoculars): a 3D sound's off-axis measure is this over the view FOV times
+    /// its sideways share; 1 at about the edge of the view.
+    /// </summary>
+    [Provenance(ProvenanceKind.Decoded, "game 0x10b06280 (audio zoom gain): 112.5 / camera FOV x |projected xy|, clamped to 1")]
+    [Provenance(ProvenanceKind.Estimated, "|projected xy| read as the sideways part of the unit direction to the sound (the projection's operands were not recovered)")]
+    public const float AudioZoomFovScale = 112.5f;
+
+    /// <summary>Audio zoom gain: 1 + zoom x (centre - edge x off-axis), so up to 1 + 3 x zoom on the aim line.</summary>
+    [Provenance(ProvenanceKind.Decoded, "game 0x10b06280: (3 - 3.9 r) x zoom + 1, applied to each non-2D sound's volume by 0x10b06340 (SetAudioZoom, execSetAudioZoom 0x10a25b80)")]
+    public const float AudioZoomCentre = 3f;
+
+    [Provenance(ProvenanceKind.Decoded, "game 0x10b06280: (3 - 3.9 r) x zoom + 1")]
+    public const float AudioZoomEdge = 3.9f;
+
+    /// <summary>
+    /// Radius of a gadget page's sound (the heart sensor's heartbeat and scan ping): the page natives call the
+    /// subsystem's PlaySound with no actor, slot 0, volume 1, this radius, pitch 1 and the 2D flag.
+    /// </summary>
+    [Provenance(ProvenanceKind.Decoded, "HUD sound helper game 0x10b26920: Audio->PlaySound(None, 0, Sound, loc, 1.0, 4096.0, 1.0, 0x10, ...)")]
+    public const float HudSoundRadius = 4096f;
+
     /// <summary>Sound flags (spec/native/audio.md, Sound objects).</summary>
     public const int FlagLoop = 0x0002;
     public const int FlagStream = 0x0004;

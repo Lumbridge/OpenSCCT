@@ -42,6 +42,12 @@ public partial class SPlayerController
                 pc.DropDisks();
             }
 
+            // The spy mark comes off the dead pawn (spy-bullet.md rule 12).
+            if (pc.Role == ENetRole.ROLE_Authority && pc.SBPawn is { } marked)
+            {
+                marked.DetectedByMarqueurSpy(pc.SPawnType == PawnType.SPAWNDEFENSE ? 0 : 1, false);
+            }
+
             if (pc.Role == ENetRole.ROLE_Authority && pc.SBPawn is { UsedObject: { } used } pawn)
             {
                 used.Destroy();
@@ -89,6 +95,8 @@ public partial class SPlayerController
             }
 
             pc.bBehindView = true;
+            pc.CombatHeadCamera(false, default);
+            pc.MovementCamera(ECamMode.ECM_Walking);
             if (pc.SBPawn is { } body)
             {
                 ports.DeleteAllInventory(body);

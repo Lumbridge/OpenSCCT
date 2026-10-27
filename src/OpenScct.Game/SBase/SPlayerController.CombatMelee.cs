@@ -2,7 +2,6 @@ using OpenScct.Core;
 using OpenScct.Core.Engine;
 using OpenScct.Core.Uc;
 using OpenScct.Game.Combat;
-using OpenScct.Game.Objectives;
 using OpenScct.Physics.Collision;
 using OpenScct.Provenance;
 using K = OpenScct.Game.Combat.K;
@@ -10,22 +9,19 @@ using K = OpenScct.Game.Combat.K;
 namespace OpenScct.Game.SBase;
 
 // SBase.SPlayerController melee (spec/combat/melee-elbow-charge-berserk.md): the elbow strike search and its server
-// check, the merc's Use choice between charge, berserk and elbow, the charge target lock and the post-charge
-// slow-down. The melee states are in SPlayerController.CombatMeleeStates.cs; the victims' reactions
-// (Handle_ElbowDmg, Handle_ChargedDmg) are in SPlayerController.Combat.cs.
+// check, the charge target lock and the post-charge slow-down (the merc's Use choice between charge, berserk and
+// elbow is UseEdgeWeapon in SPlayerController.s_PlayerWalkingWeapon.cs). The melee states are in
+// SPlayerController.CombatMeleeStates.cs; the victims' reactions (Handle_ElbowDmg, Handle_ChargedDmg) are in
+// SPlayerController.Combat.cs.
 public partial class SPlayerController
 {
     private static readonly Name MNAME_AskServerToElbowAttack = new("AskServerToElbowAttack");
     private static readonly Name MNAME_ForceRotateTo = new("ForceRotateTo");
     private static readonly Name MNAME_Client_Vibration_Charge_Obstacle = new("Client_Vibration_Charge_Obstacle");
     private static readonly Name MNAME_s_ElbowShooting = new("s_ElbowShooting");
-    private static readonly Name MNAME_s_PlayerCharging = new("s_PlayerCharging");
-    private static readonly Name MNAME_s_Berserk360 = new("s_Berserk360");
     private static readonly Name MNAME_EnemyIsStanding = new("EnemyIsStanding");
     private static readonly Name MNAME_EnemyIsCrouched = new("EnemyIsCrouched");
     private static readonly Name MNAME_s_Firing = new("s_Firing");
-    private static readonly Name MNAME_s_Reanimation = new("s_Reanimation");
-    private static readonly Name MNAME_s_Charging = new("s_Charging");
     private static readonly Name MNAME_AtakStAlFd2 = new("AtakStAlFd2");
     private static readonly Name MNAME_AtakStAlFd0 = new("AtakStAlFd0");
     private static readonly Name MNAME_AtakStAlDn0 = new("AtakStAlDn0");
@@ -34,62 +30,6 @@ public partial class SPlayerController
 
     /// <summary>The rifle butt sound when the weapon is drawn, else the elbow sound.</summary>
     private AssetRef MeleeSound => SBPawn is { WeaponLoaded: not 0 } ? MSND_RifleButt : MSND_Elbow;
-
-    // ---- the Use key ---------------------------------------------------------------------------------------
-
-    /// <summary>
-    /// The merc's Use key in the weapon walking states (rule 1): charge with forward input and the cooldowns, else an
-    /// interaction or a revive or finish, else the berserk spin, else the elbow. True when something started.
-    /// </summary>
-    [PortOf("uc:SBase.SPlayerController:s_PlayerWalkingWeapon.PlayerMove", Spec = "spec/combat/melee-elbow-charge-berserk.md#who-presses-use-and-what-happens")]
-    public bool MercUseAction(bool bCantRollCuzColl)
-    {
-        if (SBPawn is not SPAWNDEFENSE merc)
-        {
-            return false;
-        }
-
-        float now = Level.TimeSeconds;
-        GameReplicationInfo? gri = GameReplicationInfo;
-        bool chargeOn = gri is null || gri.bAvlb_MERC_Charge;
-        bool berserkOn = gri is null || gri.bAvlb_MERC_Berserk;
-        float threshold = fPadXMaxLu * fChargeSeuilPad;
-        bool interaction = IManager?.HasUsableInteractions() ?? false;
-        bool reloading = merc.MyWeapon is { } w && w.IsInState(CNAME_s_Reloading);
-        if (aForward >= threshold && !merc.bIsCrouched &&
-            (now - fLastChargingTime > iSecondBetweenTwoChargesWithoutEnnemy ||
-             (now - fLastChargingTime > iSecondBetweenTwoChargesWithEnnemy && FindTargetToCharge())) &&
-            now - fLastBerserkTime > fSecondBetweenTwoBerserks && !reloading && !interaction && chargeOn)
-        {
-            CombatPorts.ChangeEnumAction(merc, SBasePawn.SA_CHARGING, false);
-            merc.MyWeapon?.GotoState(MNAME_s_Charging);
-            eventChangeState(MNAME_s_PlayerCharging);
-            return true;
-        }
-
-        if (merc.bStickyShocking)
-        {
-            return false;
-        }
-
-        if (InteractionMenuRules.DoInteraction(this, eventCanInteract()) || FindPawnToReanimateOrTerminate())
-        {
-            return true;
-        }
-
-        bool weaponFree = merc.MyWeapon is { } rifle && !(rifle.IsInState(CNAME_s_Reloading) || rifle.IsInState(CNAME_s_FullReloading) ||
-            rifle.IsInState(CNAME_s_ElbowShocking) || rifle.IsInState(MNAME_s_Reanimation) || rifle.IsInState(CNAME_s_FireGrenade));
-        if (!merc.bIsCrouched && (aForward < threshold || !chargeOn) && now - fLastBerserkTime > fSecondBetweenTwoBerserks &&
-            now - fLastChargingTime > fSecondBetweenChargeAndBerserk && weaponFree && !interaction && berserkOn)
-        {
-            CombatPorts.ChangeEnumAction(merc, SBasePawn.SA_BERSERK_ATTACK, false);
-            fLastBerserkTime = now;
-            eventChangeState(MNAME_s_Berserk360);
-            return true;
-        }
-
-        return FindPawnToElbowShotAndGoForIt(true);
-    }
 
     /// <summary>
     /// The merc's input scale after a charge (rule 3): half speed for 2 s, back to full over 0.5 s (the walking scale

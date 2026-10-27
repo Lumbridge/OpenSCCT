@@ -168,7 +168,8 @@ public partial class SPlayerController
     /// <summary>
     /// The peek states' move (Left states shown in the spec, Right states mirror with the Left key): the view
     /// within 15000 of looking back along the wall; leaving when the wall is lost or the key is held, back to the
-    /// wall when the key is released, and the stance change 0.5 s apart. The spy does not move.
+    /// wall when the key is released, the fire request (pistol out round the corner, SPlayerController.s_BTWFire.cs),
+    /// and the stance change 0.5 s apart. The spy does not move.
     /// </summary>
     [PortOf("uc:SBase.SPlayerController:s_BTW_StandLeft.PlayerMove", Spec = "spec/movement/back-to-wall.md#peeking-s_btw_standleft--standright--crouchleft--crouchright")]
     internal void PeekMove(float DeltaTime, bool bLeft, bool bCrouched)
@@ -191,6 +192,16 @@ public partial class SPlayerController
                 pawn.ChangeEnumAction(bCrouched ? SBasePawn.SA_WALK_CR_0H : SBasePawn.SA_WALK_ST_0H);
                 eventChangeState(bCrouched ? MovementStateNames.s_PlayerWalkingCr0H : MovementStateNames.s_PlayerWalkingSt0H);
                 MovementCamera(ECamMode.ECM_Walking);
+            }
+            else if (bLeft && !bCrouched && (iMove & key) == 0)
+            {
+                // s_BTW_StandLeft tests the released key before the fire request; the other three after it.
+                pawn.ChangeEnumAction(SBasePawn.SA_BTW_ST);
+                eventChangeState(MovementStateNames.s_BTW_up);
+            }
+            else if (bForceFireMode && !pawn.bStickyShocking)
+            {
+                BtwPeekFire(pawn, bLeft, bCrouched);
             }
             else if ((iMove & key) == 0)
             {

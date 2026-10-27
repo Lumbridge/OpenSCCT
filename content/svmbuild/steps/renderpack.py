@@ -44,6 +44,8 @@ TEXTURES = {
     "Engine.Omni_Atten_2D": "heat source attenuation (LevelInfo.pOmniAtten2D)",
     "sfx.def_flare": "merc torch corona (SGadTorche Skins[0])",
     "sfx.gg_heat_64": "alternative thermal table",
+    # The first frame comes with the vision modifiers (FX_pose_bomb_heat's heat and EMF texture).
+    "SGameplayObjectsTex.FX_pose_bomb_2": "unarmed bomb spot ghost, second frame (FX_pose_bomb AnimNext)",
 }
 
 VISION_CLASSES = ("HeatTextureModifier", "SpecialVisionTextureModifier", "EMFTextureModifier")

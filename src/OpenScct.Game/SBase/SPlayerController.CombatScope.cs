@@ -384,6 +384,7 @@ public partial class SPlayerController
 
             pc.BinocularNoiseDuration = K.ScopeNoiseTicks;
             pc.AudioZoomFactor = K.AudioZoom1;
+            pc.VoiceChatTarget = null;
             if (now - pc.BinocularBreathLastTimeSeconds > K.BreathResetDelay)
             {
                 pc.BinocularHoldBreathTime = K.BreathResetDelay;
@@ -445,6 +446,7 @@ public partial class SPlayerController
             CombatFx.Notify(pc, CombatFx.HudState);
             pc.ScopeResetFOV();
             pc.AudioZoomFactor = 0f;
+            pc.ClearBinocularVoiceTarget();
             (pawn?.MyWeapon as SWeaponDefense)?.PreviousMode();
             if (pc.bLaserPreviously && pawn is SPAWNDEFENSE merc)
             {
@@ -498,6 +500,8 @@ public partial class SPlayerController
                 return;
             }
 
+            self.Rotation.GetAxes(out FVector x, out _, out _);
+            self.BinocularVoiceTrace(pawn, x, true);
             if (self.bChangeZoom)
             {
                 self.fBinocularZoomEffectTime = K.ZoomEffectTime + DeltaTime;

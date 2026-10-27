@@ -375,6 +375,11 @@ public partial class PlayRoot : Node3D
             else
             {
                 Hud.Net.Source = ReadNet;
+                if (Hud.GadgetViews is { } gadgets && Audio is { } audio)
+                {
+                    // The heart sensor's heartbeat and scan ping (spec/equipment/gadget-hud.md rules 24 and 27).
+                    gadgets.Heart.PlaySound = s => audio.PlayHudSound(s.Sound);
+                }
             }
 
             if (Hud is not null && View is not null)

@@ -71,6 +71,10 @@ Mode-dependent props (SDisk, SFlag, SFlagDropZone, SComputerObjectiveTrigger) ar
 `GameplayObjects.ShowMode(map, "Story")` shows what Story starts with (each SFlag as its disk HardDisk_T plus the rack
 it spawns, each SFlagDropZone as its case plus the lid it spawns at Location + (0, 0, 10) - 10 X,
 spec/objectives/disk-flag.md rules 1 and 4) and `"DiskHunt"` the dog tags. The golden captures are Story games.
+Skins a gameplay actor swaps in at run time that the gameplay meshes do not carry are built by `GameplaySkins` and
+put over the node by `MeshFollower.DrawSkin` (Skins[0], one skin for every slot): only the unarmed bomb spot's ghost
+(`SGameplayObjectsTex.Object.FX_pose_bomb_heat`, fullbright two-sided alpha blend, two frames at 3 fps,
+spec/objectives/bomb-target.md rule 14). Any other skin draws the mesh's own materials.
 
 ## Display space
 
@@ -364,6 +368,10 @@ high-detail switch doubles them above 800 pixels of width, not used). The compos
   0.03 to 0.06 and EMFIntensity 0.07; 94 store HeatOpacity 0 and EMFOpacity 0); actors read the instance uniform
   `svm_vision_actor` (gameplay meshes from `sim/gameplay.json`; pawns HeatIntensity 1 by default; a spy without a
   drawn weapon has EMFOpacity 0, spec/equipment/vision-goggles.md rule 12, read live as 0 in the captures).
+  `SimPawnView` writes the pawn's live values (`GameplayObjects.VisionOf`: HeatIntensity, HeatOpacity, EMFIntensity
+  while bEMFIsOn, EMFOpacity; replicated on every change) when they change, so a spy shows in EMF only while EMF
+  visible; `PawnAttachments` does the same for the spy's pistol from its own actor (1 while the spy is EMF visible,
+  0.3 screen door otherwise) and for the merc's rifle dummy (Actor defaults: drawn, no glow).
 - Laser beams (`Lasers`: SLaserBeam's LasDetectBeam stretched from start to end; the tripwires' and the mines'
   SLaserBeam_MineLaser, length fTailleFaisceau) are vision-only nodes: drawn only in 36 and 38 (bHideInNormalVision),
   with their own material: the beam's HeatIntensity in thermal (tripwire 1, mine beam 0.4), full EMF glow in EMF.
@@ -374,6 +382,28 @@ high-detail switch doubles them above 800 pixels of width, not used). The compos
 - Not yet: the night glow term and its pre-draws, the heat-source pass (HeatRadius actors; SteeE has none), the
   EMF actor pass details (the original's electronics glow as outlines with halos; ours
   fill), the remanence overlay (PlayerController.RemanenceBlendFactor).
+
+## Cloak
+
+The spy's camo suit is `Actor.GlassEffect` (0 opaque, 255 full glass), ramped and flickered on every machine by
+`SPawnAttaque.TickNative` (spec/equipment/spy-energy.md rules 7 and 7a). The original draws an actor with GlassEffect
+set in a deferred glass list, only in normal vision (RendMap 5; scene traversal 0x10a395d2, 0x10a39c3a, 0x10a3f1ff):
+the pawn shaded normally into its own target, then textured with the frame drawn so far at its screen position plus a
+refraction shift, blended by TFactor alpha = GlassEffect, then copied back where it passes the depth test (game
+0x10a3bd47..0x10a3be15). Per pixel: `lerp(shaded, behind(uv + shift), GlassEffect / 255)`, no tint or texture. The
+shift is `(-k Nx / 640, k Ny / 480)` with `k = 10 (1 - d / 1500)` (0 from 1500 uu), d the camera distance (glass
+policy 0x109771f0); that it follows the vertex normal is inferred (the vertex shader is built at run time).
+
+`SimPawnView` hands GlassEffect / 255 to `SkeletalModel.SetGlass` for the body and the attachments (the gun) while the
+view's vision is 5. A cloaked model draws in the transparent pass (GeometryInstance3D.transparency 0.01, so the
+screen copy holds the scene without it) with `svm_cloak.gdshader` as its material overlay: the screen copy at the
+shifted pixel, alpha the glass amount. In night, thermal, motion and EMF vision the spy draws as uncloaked, as in the
+original; the cloak also makes the spy EMF visible (TestAndSetEMFVisible) and hides it from motion tracking
+(DesiredGlassEffect 255). The goggle glow is its own actor and is not glassed. The spy's own view has no screen effect
+(the HUD energy gauge and the suit messages only).
+
+Known differences: the pawn's surfaces in the transparent pass do not write depth, so while partly cloaked its own
+parts can overlap in draw order; other translucent surfaces behind the spy are missing from the screen copy.
 
 ## Emitters
 

@@ -85,8 +85,8 @@ pawn. The first call fills channels 2 to 13 with AWaitSt0 loops.
   (49 to 65, PlayDamage: the special hits and a moving pawn's head flinch from B Head, at rest the body hit on 17 or
   the electric loop on 23, and the merc's first-person pain), the binoculars (73, 74), the back-to-wall fire
   transitions and holds (183 to 192), throws (230 to 233, 251), blasts and their wake-ups (239 to 243, 249, 250),
-  the held switch (283 to 285), the grab from a ledge (312 to 314), terminate (317 to 319) and the counter grab
-  (325). Not done: the grabbed merc's PHYS_FollowParent (the mode is not decoded), the case events (skins, shock
+  the held switch (283 to 285), the grab from a ledge (312 to 314), the grab repositioning (19, 321), terminate
+  (317 to 319) and the counter grab (325). Not done: the grabbed merc's PHYS_FollowParent (the mode is not decoded), the case events (skins, shock
   sounds, RemoveBTWArmControl).
 - `SBasePawn.AnimEnd` runs `PawnAnimEnd.Channel`: channels 16, 17, 18, 19, 21, 22 and 24 blend out as the script
   does (17 over 0.3 s, restoring IK_Type), the draw channel turns off and moves a back-to-wall fire transition on to
@@ -135,6 +135,15 @@ first draw of a tween, then 1 - frame / last frame). Backward clips sample from 
 the L and R bones (estimated reflection). In root motion the root's translation stays where the move started and,
 with lock bit 2, its turn since then is taken out (the actor's yaw carries it). `SimPawnView.TryGetBone` and
 `PawnViews.TryGetBone` give a bone's drawn world transform; `PoseCameraBones` answers `ICameraBones` from them.
+
+The merc's head camera (the script's `m_camera.AttachCamToBone(true, 'B Head', offset)`) puts the first-person view
+on that bone: on a ladder (`MercLadderCamera`), in the berserk spin, and in the combat states that raise
+`CombatFx.HeadCamera` (grabbed by a spy and its release states, the charge knock-back, the KO fall and lying, the
+finishing move). `CombatFx.Notify` applies that event and `FirstPersonView` (bBehindView off) on the machine that
+raises them, which for the owner's states is the owner's own machine; detaching (stand-up, release, death, a new pawn)
+also clears bFirstPersonWithPawn. With bBehindView off the own body stays hidden and the view rides the head; in the
+finishing move (bBehindView and bFirstPersonWithPawn on) the body is drawn. `CombatFx.WeirdEffect` (SetWeirdEffect)
+is an audio effect in the original (the native calls the audio subsystem), not a screen effect, and has no listener.
 
 ## Aim (upper body)
 

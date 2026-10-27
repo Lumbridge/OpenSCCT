@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Globalization;
+using OpenScct.Net.Cosmetics;
 using OpenScct.Server.Online;
 
 namespace OpenScct.Server.Hub;
@@ -48,7 +49,10 @@ public enum HubPadState : byte
 ///   hub vote &lt;padId&gt; &lt;option&gt;      vote for the pad's next match (0 its own, 1.. its choices; -1 the next one)
 ///   hub watch &lt;padId&gt;               watch the pad's match being played
 ///   hub local &lt;text&gt;                say to the players near you (HubK.LocalChatRange)
+///   hub look &lt;spyHex&gt; &lt;mercHex&gt;   wear these looks now (CosmeticLook hex; changed in the Armoury)
 /// login option ?HubReturn=&lt;padId&gt;: a player back from that pad's match, spawned beside the pad.
+/// login options ?SvmLookS= and ?SvmLookM=: the looks he wears on each side, as a match's login carries them.
+/// login option ?SvmHost=&lt;key&gt;: the player of the game hosting the hub (its account's unlocks and rank).
 /// </code>
 /// </summary>
 public static class HubProtocol
@@ -58,9 +62,9 @@ public static class HubProtocol
 
     /// <summary>
     /// Version of this line set (2: signs, pads, queues and matches; 3: signs mounted on boards; 4: votes, watching,
-    /// matches through the master, the roster and local chat).
+    /// matches through the master, the roster and local chat; 5: looks).
     /// </summary>
-    public const int Version = 4;
+    public const int Version = 5;
 
     /// <summary>The login option a player back from a pad's match carries.</summary>
     public const string ReturnOption = "HubReturn";
@@ -77,6 +81,8 @@ public static class HubProtocol
     public static string Vote(string padId, int option) => SessionProtocol.Line(Command, "vote", padId, option);
 
     public static string Watch(string padId) => SessionProtocol.Line(Command, "watch", padId);
+
+    public static string Look(CosmeticLook spy, CosmeticLook merc) => SessionProtocol.Line(Command, "look", spy.ToHex(), merc.ToHex());
 
     public static string Who(int playerId, int team, int pingMs, bool signedIn, string name) =>
         SessionProtocol.Line(Command, "who", playerId, team, pingMs, signedIn ? 1 : 0, name);
@@ -119,6 +125,8 @@ public static class HubProtocol
             "pad" => 16,
             "queue" => 3,
             "match" => 7,
+            "look" => 2,
+            "vote" => 2,
             _ => 1,
         };
         if (rest.Length > 0 && SessionProtocol.TryParse(SessionProtocol.Prefix + "x " + rest, out _, out List<string> split, count))

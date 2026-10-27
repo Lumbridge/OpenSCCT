@@ -88,7 +88,7 @@ Clip lengths (decoded from `SWeaponFirst.ukx`, NumFrames / Rate at play rate 1):
 FirstReloStFd2 31 / 15 = 2.067 s, FirstReloStFd1 26 / 15 = 1.733 s, FirstDrawStEd2 11 / 15 = 0.733 s,
 FirstGrbdStBg2 16 / 15 = 1.067 s, FirstElecStFd2 6 / 15 = 0.400 s.
 
-Variants (not in the slice, reference only): SWeaponDefense_Uzi RateOfFire 0.1, clip 60, ammo 360, BaseDamage 10,
+Variants (ported in `merc-guns.md`, which also covers how a merc gets them): SWeaponDefense_Uzi RateOfFire 0.1, clip 60, ammo 360, BaseDamage 10,
 recoil 6.0 / 4.5, dispersion 0.1..0.35, bands 400/900/1500 with CMax 1.765, CoefCaC 1.688, CoefMed 0.95, CoefMin 0.65,
 bCanSnipe false. SWeaponDefense_Shotgun RateOfFire 1.15, clip 6, ammo 50, bands 450/950/1300 with 7.0/6.0/1.57/0.43,
 native TraceFire override (nat:SBase.SWeaponDefense_Shotgun.TraceFire at 0x10ab9d00), bCanSnipe false.

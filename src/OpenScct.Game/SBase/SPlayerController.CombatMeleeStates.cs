@@ -737,7 +737,7 @@ public partial class SPlayerController
             pc.Goggle?.ResetVisionMode(true);
             if (pawn is SPAWNDEFENSE && pawn.Health > 0 && !pc.IsRemotePlayer)
             {
-                CombatFx.Notify(pc, CombatFx.HeadCamera, K.GrabbedCameraX, 0f, K.GrabbedCameraZ);
+                CombatFx.Notify(pc, CombatFx.HeadCamera, Slot: 1);
                 pc.SetHudPerturbationLength(K.ChargeVictimPerturbation);
                 CombatFx.Notify(pc, CombatFx.OverlayFade, 0f, 255f, K.ChargeVictimOverlay);
                 CombatFx.Notify(pc, CombatFx.WeirdEffect, 1f);

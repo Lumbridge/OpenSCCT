@@ -431,6 +431,16 @@ The angles are our own, tuned by eye, and want a look in the game.
   the portal's server page; a trusted hub (a `serverKey`) takes the portal's commands through `HubServer.Execute`:
   `help`, `status`, `players`, `say <text>`, `kick <id|name> [reason]`, `ban <id|name> [minutes] [reason]`,
   `unban <account|install id|address|name>`. Closing the hub is refused.
+- **Looks (skins).** As in a match: the visit sends the Armoury's looks for both sides as `?SvmLookS=` and
+  `?SvmLookM=` (`HubClientSettings.SpyLook`, `MercLook`); `HubServer.FilterLogin` checks them against the ticket's
+  unlocks (`OnlineServer.CheckedLook`, `UnlocksOf`; a guest wears the retail look) and logs the player in with
+  `?SvmLook=` for his side, so `SGameInfo.Login` puts it on his PlayerReplicationInfo, which replicates it to every
+  client (`PlayerLookNet`); the pawn views redraw it (`SimPawnView.DrawCosmetics`, `PawnAttachments`,
+  `FirstPersonView`). `HubPlayer` keeps both sides' looks: a side change puts on the new side's (`WearLook`). A save
+  of other looks during the visit (`SettingsStore.Saved`, `HubService.OnSettingsSaved`) sends `hub look <spy> <merc>`,
+  checked the same way (an older hub ignores the line). The host of a hub hosted in the game logs in with
+  `?SvmHost=<key>` (`HubHost.HostKey`): his looks and rank go by his own account (`HubSettings.HostAccount`), as a
+  listen host's; he is still not signed in (no ticket).
 
 ## Player list and chat
 
@@ -459,7 +469,9 @@ The angles are our own, tuned by eye, and want a look in the game.
 - The replication pass is one block of about 6 to 12 ms every third tick at 50 players; spreading it over the ticks
   would flatten the p99.
 - A hub hosted in the game gives its own host no ticket (he joins on 127.0.0.1, not through the master), so the host
-  is a guest in his own hub.
+  is a guest in his own hub (his looks and rank still go by his account, see "Looks").
+- The Armoury is on the main menu only, which ends the visit; a hub page or menu entry for it would use the live
+  `hub look` path. The hub's skins are not yet checked in a windowed game.
 - The play scene keeps the side the player arrived as in its settings. After a side change the pawn, its kit, the
   view and the HUD page follow the new pawn, and the key layout is swapped for the new side's (PlayRoot.FollowSide);
   anything else the scene chose from the settings at load still needs a check with the converted content.

@@ -329,6 +329,9 @@ public partial class SPlayerController
         Pawn.ClientRestart();
         SetViewTarget(Pawn);
         bBehindView = Pawn.PointOfView();
+
+        // Port safety: a new pawn never starts with the camera on a head bone (a round can end mid-grab).
+        CombatHeadCamera(false, default);
         EnterStartState();
     }
 
@@ -663,6 +666,12 @@ public partial class SPlayerController
     [PortOf("uc:SBase.SPlayerController:ServerCycleRespawnWeapon", Spec = "spec/game/death-lives-respawn.md#rules")]
     public void ServerCycleRespawnWeapon()
     {
+        if (Role < ENetRole.ROLE_Authority)
+        {
+            GameHost.ServerCall(this, new GameCall("ServerCycleRespawnWeapon"));
+            return;
+        }
+
         if (!CanPickRespawnWeapon() || PlayerReplicationInfo?.Team is not STeamInfo team || team.ClassWeapon.Count == 0)
         {
             return;

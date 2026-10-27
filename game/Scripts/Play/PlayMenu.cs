@@ -80,7 +80,13 @@ public partial class PlayMenu : Node
         {
             if (OpensMenu(ik))
             {
-                Open();
+                // The player's state first (SPlayerController.eventShowMenu): interactions ignore the key, some
+                // states leave before the menu opens.
+                if (Session?.LocalController?.eventShowMenu() ?? true)
+                {
+                    Open();
+                }
+
                 GetViewport().SetInputAsHandled();
             }
             else if (Runs(ik, GearCommand))

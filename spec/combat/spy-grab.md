@@ -13,6 +13,8 @@ Units:
 - uc:SBase.SPlayerController:MirrorStateForMercGrabbedFromLedge
 - uc:SBase.SPlayerController:PCChangeClientStateForMercGrabbedFromLedge
 - rep:SBase.SPlayerController.PCChangeClientStateForMercGrabbedFromLedge
+- uc:SBase.SPlayerController:ReceiveAnEvent
+- uc:SBase.SPlayerController:SendAnEventToServer
 - uc:SBase.SPlayerController:AskServerToUnGrabPawn
 - rep:SBase.SPlayerController.AskServerToUnGrabPawn
 - uc:SBase.SPlayerController:AskServerToUnGrabPawnAndFreeGuy
@@ -158,7 +160,8 @@ SA_EXIT_REPOS 326, SA_GRABBED_RELEASE_DROPTECH 327.
    `AskServerToUnGrabPawn(Grabbing_Cancelled)` and `GotoWaitingState()`; otherwise while the target exists: action
    SA_GRAB_REPOS (19) unless already repositioning; reposition target = T.Location minus the grab offset along the
    spy-to-merc axes, sent with `SetInfoForVandamme`; if `|T.Z - spy.Z| > 32`, `AskServerToUnGrabPawn(Grabbing_Stopped)`
-   and `GotoWaitingState()`. If the target is gone while repositioning, `GotoWaitingState()`.
+   and `GotoWaitingState()`. If the target is gone while repositioning, `GotoWaitingState()`. SA_GRAB_REPOS makes
+   the target stop blocking (collision 1, 0, 0) and repositions the spy at 180 uu/s, client controlled (as SA_REPOS).
    Server: on `NotifyBump` with the target, or on the native `TopSynchro` (reposition finished), if both are alive:
    merc `MirrorState('s_GrabbedByPlayer', , , spy pawn)` and spy `MirrorState('s_GrabbingPlayer_Begin')`; otherwise
    `AskServerToUnGrabPawn(Grabbing_Cancelled)` and `GotoWaitingState()` if alive.
@@ -295,11 +298,31 @@ SA_EXIT_REPOS 326, SA_GRABBED_RELEASE_DROPTECH 327.
 29. Both values start at 0 at grab start, so the first value to arrive is compared with 0 (or with -1 left from a
     previous match). Reproduce this ordering exactly.
 
+### Grab base states
+29a. Every grab state except `s_GrabbingPlayer` and `s_AbortGrab` extends `s_GrabBase` (directly, or through
+     `s_GrabBaseWithBlastDamageOnly` or `s_GrabFromLedgeBase`): no laser (`CanActivateLaser` false), no interaction
+     (`CanInteract` and `DoInteraction` false), and GoInSmoke, MyFalling, MyNotifyLanded and performDropAttack are
+     ignored. `ClientDamage` only reacts to explosions (`ExplosionHit`, the camera off the head bone, the HUD effect and
+     the shake); `ExplosionHit` with a momentum under BlastDistMax goes to `s_Blast` with SA_BLAST_LOOP_AFTERGRAB. The
+     spy release family (`s_ReleaseGrabbedPlayer` and its children) puts the global ClientDamage back but keeps the
+     grab ExplosionHit.
+29b. `s_GrabbingPlayer` extends `s_PlayerWalkingSt2H` instead: it ignores AltFire, MyFalling and MyNotifyLanded and
+     keeps the walking blast test and blast (`CanBeBlasted`: momentum under BlastDistMax). The walking DropAttack
+     (landing on a head while carrying) runs its own `performDropAttack` (authority): the victim takes 17 drop damage
+     on pill 1, the spy gets AP_D_KnockOut (16) and message 16 is broadcast when the victim survives; unlike the global
+     version there is no landing state and no alive check on the spy, so he keeps holding. `s_GrabbingPlayer_Begin`
+     and `s_GrabbingPlayer_RealBegin` define the same function, but their DropAttack is the empty global one, so
+     nothing reaches it (not ported).
+29c. The held merc's rifle: `s_GrabbedByPlayer.PlayerTick` puts `MyWeapon` (the first-person rifle) at
+     OffSetWeaponGrab (default 0, 0, 0) and then at the 'B Head' bone origin minus 0.3 on Z, so it follows the head
+     camera. In the port the first-person view model is drawn at the camera, which is on the head bone during the
+     hold, so this needs no simulation step.
+
 ### Ledge grab (spy hanging, merc above)
 30. In `OnLedge`, Use (press edge) with the native `bTestGrabLedgeGeo()` true and `OnLedge.AskToGrabPawn()` (first merc
     with `OnLedge.CanGrabPawn`, `bCanBeGrabbed`, not shocking; spy not shocking; grab option on) sets
     `m_AttackTarget`, plays SA_GRABFROMLEDGE_BEGIN (313), local `GotoState('s_GrabbingFromLedge_Begin')` and sends
-    `AskServerToGrabPawnFromLedge(T)`.
+    `AskServerToGrabPawnFromLedge(T)`. The Use edge is tested after the drop (a drop leaves the state first).
 31. `OnLedge.CanGrabPawn(T)`: T can uncrouch if crouched; idealZ = spyZ + 210 - spyCH + T.CH; d = spy2D - T2D;
     `d . X` within 150 and `d . Y` within 100 (spy axes); `|idealZ - T.Z| < 10`; T in front of the spy
     (dot > 0.75); woke more than 3.8 s ago. The facing test (dot < 1.1) always passes.
@@ -314,24 +337,43 @@ SA_EXIT_REPOS 326, SA_GRABBED_RELEASE_DROPTECH 327.
     pawns, server `GotoState('s_GrabbedFromLedge_Begin')`, and RPC `PCChangeClientStateForMercGrabbedFromLedge` that
     does the same on the merc's owner with action SA_REPOS 148 if not stale); spy server
     `GotoState('s_GrabbingFromLedge_Begin')`; `Spy_LedgeGrabs += 1`; spy-bullet comms; music. If the merc's state is
-    not grabbable, nothing is sent.
+    not grabbable, nothing is sent. Every refusal (`SE_GrabFromLedgePb`) goes through `ServerSendAnEvent`: to a
+    remote spy's owner, else straight to the spy's state. SA_SERVER_REPOS (321) is server-controlled repositioning
+    at 220 uu/s; it executes only where the merc's actions may (not on the server for a remote merc), and the merc's
+    owner repositions itself with SA_REPOS (180 uu/s) from the RPC. For a merc with neither a viewport nor a remote
+    connection (a bot) the RPC body runs on the server too. Music: spy 'Interface.Objectifs.Jingl_AsomDrop_Attac',
+    merc 'Interface.Objectifs.Jingl_AsomDrop_Def' (no transition). The spy-bullet comms call (`ServerHearSpybullets`)
+    has no port yet, here or in rule 6.
 33. Spy `s_GrabbingFromLedge_Begin`: `bCanStop = false`, owner 1.5 s timeout back to `OnLedge` (SA_ONLEDGE 112). The
     pull starts when both happened: the spy's 'GrabLgBgRail' clip ended (channel 0, owner) and the merc reported ready
     (`SE_GrabFromLedgeMercIsReady`); the second of the two plays SA_GRABFROMLEDGE_GO (312) and enters
     `s_GrabbingFromLedge_Go`, whose channel 0 end returns to `OnLedge`. `SE_GrabFromLedgePb` returns to `OnLedge` at once.
+    The state's SendAnEventToServer and ServerSendAnEvent both hand the event to ReceiveAnEvent on the machine that
+    has it (a server sends it on to a remote spy's owner). The timer is not cleared on leaving the state.
 34. Merc `s_GrabbedFromLedge_Begin` (immune to damage volumes): owner 1.5 s timer: if still repositioning, SA_EXIT_REPOS
     (326), tell the spy `SE_GrabFromLedgePb`, `GrabAborted()`; else head camera, weapon hidden, third person,
     `bCanStop = true`. Server: `TopSynchro` (reposition done) sets PHYS_None and tells the spy `MercIsReady`; a bump
     while repositioning sends Pb and aborts. Owner PlayerMove: if the attacker is gone, or 3.0 s passed and the pawn
     is not in root motion: abort (exit repos, or restore camera and weapon and go to the waiting state) and send Pb.
-    Fire and gadgets are disabled; damage per `state-damage-reactions.md` rule 17.
+    Fire and gadgets are disabled; damage per `state-damage-reactions.md` rule 17. BeginState (all): binoculars off;
+    owner only: the timer, `bCanStop = false`, rumble Vibration_Grab_Kill, TimerUSe and fGrabFromLedgeStartTime =
+    now, throw force and the HUD ballistic gauge 0, `bUsingNow = false`. EndState: `bUsing = 0`. PlayerTick clears
+    the fire inputs. Until `bCanStop` the view yaw follows the pawn (pitch kept). The owner's abort restores the camera
+    with `ResetMercCam`, raises the rifle (`bDrawWeapon`, weapon state s_Selected, AnimateWaiting) and waits.
+    Telling the spy from the merc's machine: the authority calls the spy's ReceiveAnEvent directly; a remote merc's
+    machine has no controller for the spy (controllers replicate only to their owner), so nothing is sent from there
+    and the spy's own 1.5 s timeout ends his side.
 35. When the merc's 'GrbdStLgRail' clip ends on channel 0 (`SBasePawn.AnimEnd`, on each machine that plays it):
     PHYS_Falling, velocity = 77.5 * facing with Z = -681, clip 'FallStAlFr0', `m_LastSpecialMoveTime = now`,
     `Controller.GotoState('s_FallAfterGrabbedFromLedge')`.
 36. `s_FallAfterGrabbedFromLedge` (immune to damage volumes, ignores fatal-blast notices): landing on the owner:
     `DamagePawn_C2S(self, 200, attacker spy, Location, (0,0,-1), DamTypeGrabBreak)` (kill credited to the spy, stat
     `Merc_DeathFromLedgeGrab`), action SA_LAND_AFTER_BLAST_WALL (249), `s_Dead`. Falling more than 4.0 s: SFell
-    self-kill (`blast-and-fall-damage.md`). Landing on a pawn's head first triggers a drop attack or sticky blast.
+    self-kill (`blast-and-fall-damage.md`). Landing on a pawn's head first triggers a drop attack or sticky blast
+    (NotifyBump on the owner, `Other.Z + 0.8 Other.CH <= Z - CH`). The state lists its own ignores (fire, gadgets,
+    headset, rate of fire, the fatal-blast notice) without StickyBlast, so the sticky blast does run; its damage
+    handler is the blast fall's. `bIsDamageVolumeSensitive` (false in both merc states) has no port (no damage
+    volumes).
 
 ### Presence triggers that see a held merc
 37. `SPresenceTrigger.Touch(Other)`: if Other is of DetectedClass (default merc) fire the event (or untrigger if
@@ -439,10 +481,11 @@ stateDiagram-v2
 ## Open questions
 - The native action handler's pairing (which actions move or animate the partner pawn, PHYS_FollowParent attachment
   of the held merc, who clears `m_AttackedBy` at release).
-- `bTestGrabLedgeGeo` (native 1802, 0x10aac090) geometry test.
 - Whether the ledge pull clip 'GrbdStLgRail' ends at the same time on server and owner (the GotoState is local).
 
 ### Resolved
+- `bTestGrabLedgeGeo` (native 1802, 0x10aac090). Resolved: spec/native/natives2-traversal.md rule 7 (a second ledge
+  90 to 102 above or below, lined up within 10, wide enough for the spy's spot 20 either side).
 - Counter-grab counting. Resolved: nothing sends it. No script calls `GrabSendServerCounterValue`, and the name is
   not in the game exe, the editor exe or Reloaded.Core.dll, so no native raises it either; iGrabMyCounterGrabValue is
   only zeroed by the grab states. The mash match never runs in the shipped game and a merc cannot counter-grab; rule

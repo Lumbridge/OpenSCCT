@@ -160,7 +160,7 @@ public partial class SPlayerController
 
     /// <summary>The hack (rules 14, 20, 22, 24): the server's timer takes the terminal; moving or drawing cancels.</summary>
     [Uc("SBase.SPlayerController.s_Computer_Use")]
-    public class s_Computer_Use : UcActorState, IPlayerMove, ICanBeDropAttacked
+    public class s_Computer_Use : UcActorState, IPlayerMove, ICanBeDropAttacked, IGadgetQuickChoice
     {
         public static readonly s_Computer_Use Instance = new(UcMeta.s_Computer_Use, null);
 
@@ -213,6 +213,28 @@ public partial class SPlayerController
         [Uc("SBase.SPlayerController.s_Computer_Use.CanBeDropAttacked", Sha1 = "a40381ccfdf342092554b33966344721f68fd6c2")]
         [PortOf("uc:SBase.SPlayerController:s_Computer_Use.CanBeDropAttacked", Spec = "spec/objectives/terminal-hack.md#rules")]
         public bool CanBeDropAttacked(SPlayerController self) => true;
+
+        /// <summary>
+        /// The quick gadget keys (rule 26; with the default keys the mouse buttons): a quick grenade leaves with progress
+        /// kept, a cloak is used without leaving. Message 23 needs the game, so only a host sends it.
+        /// </summary>
+        [Uc("SBase.SPlayerController.s_Computer_Use.GadgetQuickChoice", Sha1 = "7f531a49ece26d39efb5a5a89dd66cac79559e74")]
+        [PortOf("uc:SBase.SPlayerController:s_Computer_Use.GadgetQuickChoice", Spec = "spec/objectives/terminal-hack.md#rules")]
+        public void GadgetQuickChoice(SPlayerController self, int i)
+        {
+            if (!self.PanelQuickGadget(i, pawnSelect: false, cloakQuickUse: true))
+            {
+                return;
+            }
+
+            self.bQuickGadgetQuery = true;
+            if (self.Role == ENetRole.ROLE_Authority)
+            {
+                ObjectiveMessages.Broadcast(self, K.MsgInterrupted);
+            }
+
+            self.eventChangeState(K.s_Computer_Leave);
+        }
     }
 
     /// <summary>The leave animation after a taken (or broken) hack; its end goes back to walking (rule 23).</summary>

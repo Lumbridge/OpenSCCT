@@ -89,7 +89,7 @@ public partial class SPlayerController
 
     /// <summary>The enter animation; Interaction sub 2 tells the server the hack starts (rule 10).</summary>
     [Uc("SBase.SPlayerController.s_Hack_Enter")]
-    public class s_Hack_Enter : UcActorState, IPlayerMove
+    public class s_Hack_Enter : UcActorState, IPlayerMove, IClientDamage
     {
         public static readonly s_Hack_Enter Instance = new(UcMeta.s_Hack_Enter, null);
 
@@ -135,11 +135,21 @@ public partial class SPlayerController
         [Uc("SBase.SPlayerController.s_Hack_Enter.PlayerMove", Sha1 = "8d2e204f90f947d25ce96cc06a493b9f4d440ec8")]
         [PortOf("uc:SBase.SPlayerController:s_Hack_Enter.PlayerMove", Spec = "spec/objectives/switch-hack.md#rules")]
         public void PlayerMove(SPlayerController self, float DeltaTime) => self.InteractionStillMove(DeltaTime);
+
+        /// <summary>Hit on the owner (rule 17): the panel is freed (a spy killed here would otherwise keep it locked).</summary>
+        [Uc("SBase.SPlayerController.s_Hack_Enter.ClientDamage", Sha1 = "4f0ccec352b81e327f9bfb6756db814c26b47870")]
+        [PortOf("uc:SBase.SPlayerController:s_Hack_Enter.ClientDamage", Spec = "spec/objectives/switch-hack.md#rules")]
+        public void ClientDamage(SPlayerController self, FVector Momentum, SDamageType DamageType, FVector HitLocation, Pawn? instigatedBy)
+        {
+            SwitchHackRules.PostAndForget(self, false);
+            self.GlobalClientDamage(Momentum, DamageType, HitLocation, instigatedBy);
+        }
     }
 
     /// <summary>The hack (rules 12, 13, 16): the server's timer reports success; moving or drawing cancels.</summary>
     [Uc("SBase.SPlayerController.s_Hack_Use")]
-    public class s_Hack_Use : UcActorState, IPlayerMove, ICanBeDropAttacked, ICanBeGrabbed
+    public class s_Hack_Use : UcActorState, IPlayerMove, ICanBeDropAttacked, ICanBeGrabbed, IClientDamage, IGadgetQuickChoice,
+        IServerWillStartGrabOnMe
     {
         public static readonly s_Hack_Use Instance = new(UcMeta.s_Hack_Use, null);
 
@@ -207,6 +217,53 @@ public partial class SPlayerController
         [Uc("SBase.SPlayerController.s_Hack_Use.CanBeGrabbed", Sha1 = "9ca447bdebf24bc1fe879d251877cf611c4265e3")]
         [PortOf("uc:SBase.SPlayerController:s_Hack_Use.CanBeGrabbed", Spec = "spec/objectives/switch-hack.md#rules")]
         public bool CanBeGrabbed(SPlayerController self) => self.SBPawn is SPAWNDEFENSE;
+
+        /// <summary>Hit on the owner (rule 17): the panel is freed, so a spy killed mid-hack does not lock it.</summary>
+        [Uc("SBase.SPlayerController.s_Hack_Use.ClientDamage", Sha1 = "58d9921033567bb50e5648790d65839d30c7e5b9")]
+        [PortOf("uc:SBase.SPlayerController:s_Hack_Use.ClientDamage", Spec = "spec/objectives/switch-hack.md#rules")]
+        public void ClientDamage(SPlayerController self, FVector Momentum, SDamageType DamageType, FVector HitLocation, Pawn? instigatedBy)
+        {
+            self.InteractionPost(self.SelectedInteraction, K.SubFailed);
+            self.GlobalClientDamage(Momentum, DamageType, HitLocation, instigatedBy);
+        }
+
+        /// <summary>
+        /// A merc about to be grabbed at the panel frees it (server, rule 17). The server's menu selection can lag the
+        /// owner's (scrolling is local), so without a selected switch entry the hacked switch's entry is used.
+        /// </summary>
+        [Uc("SBase.SPlayerController.s_Hack_Use.ServerWillStartGrabOnMe", Sha1 = "ba67cdd671cff0f7f874cae16093a43a7403651b")]
+        [PortOf("uc:SBase.SPlayerController:s_Hack_Use.ServerWillStartGrabOnMe", Spec = "spec/objectives/switch-hack.md#rules")]
+        public void ServerWillStartGrabOnMe(SPlayerController self)
+        {
+            SInteractObject? entry = self.SelectedInteraction as STriggerInteraction ??
+                SwitchHackRules.FindHackableSwitch(self)?.TriggerInteraction;
+            self.InteractionPost(entry, K.SubFailed);
+        }
+
+        /// <summary>
+        /// The quick gadget keys (rule 17; with the default keys the mouse buttons): a quick grenade ends the hack
+        /// (the throw follows from the walking state), a cloak is used without leaving.
+        /// </summary>
+        [Uc("SBase.SPlayerController.s_Hack_Use.GadgetQuickChoice", Sha1 = "041dd0ccbb092bdcd7972be2a4b02617bba90f48")]
+        [PortOf("uc:SBase.SPlayerController:s_Hack_Use.GadgetQuickChoice", Spec = "spec/objectives/switch-hack.md#rules")]
+        public void GadgetQuickChoice(SPlayerController self, int i)
+        {
+            if (!self.PanelQuickGadget(i, pawnSelect: false, cloakQuickUse: true) || self.SBPawn is not { } pawn)
+            {
+                return;
+            }
+
+            self.bQuickGadgetQuery = true;
+            pawn.ChangeEnumAction(SBasePawn.SA_HACK_ENTERBACK);
+            if (pawn.bIsCrouched)
+            {
+                pawn.ChangeEnumAction(SBasePawn.SA_WANTS_TO_CROUCH);
+            }
+
+            self.bCanCheckUsingButton = true;
+            self.InteractionPost(self.SelectedInteraction, K.SubFailed);
+            self.GotoWaitingState();
+        }
     }
 
     /// <summary>
@@ -214,7 +271,7 @@ public partial class SPlayerController
     /// spy's back animation ends it.
     /// </summary>
     [Uc("SBase.SPlayerController.s_Hack_Leave")]
-    public class s_Hack_Leave : UcActorState, IPlayerMove
+    public class s_Hack_Leave : UcActorState, IPlayerMove, IClientDamage
     {
         public static readonly s_Hack_Leave Instance = new(UcMeta.s_Hack_Leave, null);
 
@@ -295,6 +352,14 @@ public partial class SPlayerController
         [Uc("SBase.SPlayerController.s_Hack_Leave.PlayerMove", Sha1 = "e1d55d356cbeee2e87ae773a540c1db2ce9690e7")]
         [PortOf("uc:SBase.SPlayerController:s_Hack_Leave.PlayerMove", Spec = "spec/objectives/switch-hack.md#rules")]
         public void PlayerMove(SPlayerController self, float DeltaTime) => self.InteractionStillMove(DeltaTime);
+
+        [Uc("SBase.SPlayerController.s_Hack_Leave.ClientDamage", Sha1 = "c9ad3981a84762bc46fb1b25b126479970703a0e")]
+        [PortOf("uc:SBase.SPlayerController:s_Hack_Leave.ClientDamage", Spec = "spec/objectives/switch-hack.md#rules")]
+        public void ClientDamage(SPlayerController self, FVector Momentum, SDamageType DamageType, FVector HitLocation, Pawn? instigatedBy)
+        {
+            self.InteractionPost(self.SelectedInteraction, K.SubFailed);
+            self.GlobalClientDamage(Momentum, DamageType, HitLocation, instigatedBy);
+        }
     }
 
     /// <summary>The cancelled hack (rule 16): the server leaves s_Hacking without firing, walking at once.</summary>

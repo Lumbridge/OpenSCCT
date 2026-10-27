@@ -314,6 +314,49 @@ public static class K
     [Provenance(ProvenanceKind.Decoded, "s_GrabbedByPlayer_Released_KO sleep overlay 0 to 255 over 3 s")]
     public const float KoReleaseOverlayTime = 3f;
 
+    // ---- ledge grab (spec/combat/spy-grab.md rules 30 to 36) ----
+
+    [Provenance(ProvenanceKind.Decoded, "OnLedge.CanGrabPawn: ideal merc Z = spy Z + 210 - spy CH + merc CH")]
+    public const float LedgeGrabHeight = 210f;
+
+    [Provenance(ProvenanceKind.Decoded, "OnLedge.CanGrabPawn: |ideal Z - merc Z| < 10")]
+    public const float LedgeGrabHeightTolerance = 10f;
+
+    [Provenance(ProvenanceKind.Decoded, "AskServerToGrabPawnFromLedge: fGrabFromLedgeDist1 and Dist2 times 1.5")]
+    public const float LedgeGrabServerBoxFactor = 1.5f;
+
+    [Provenance(ProvenanceKind.Decoded, "AskServerToGrabPawnFromLedge: pull spot m_LedgeGrabArmsZone.X + 16 + CollisionRadius + 4 ahead")]
+    public const float LedgeGrabArmsMargin = 16f;
+
+    [Provenance(ProvenanceKind.Decoded, "AskServerToGrabPawnFromLedge: pull spot m_LedgeGrabArmsZone.X + 16 + CollisionRadius + 4 ahead")]
+    public const float LedgeGrabRadiusMargin = 4f;
+
+    [Provenance(ProvenanceKind.Decoded, "AskServerToGrabPawnFromLedge: merc box trace (35, 35, 87.5) to the pull spot")]
+    public static readonly FVector LedgeGrabPathExtent = new(35f, 35f, 87.5f);
+
+    [Provenance(ProvenanceKind.Decoded, "s_GrabbingFromLedge_Begin and s_GrabbedFromLedge_Begin SetTimer(1.5)")]
+    public const float LedgeGrabTimeout = 1.5f;
+
+    [Provenance(ProvenanceKind.Decoded, "s_GrabbedFromLedge_Begin.PlayerMove: abort after 3.0 s out of root motion")]
+    public const float LedgeGrabbedAbortTime = 3f;
+
+    [Provenance(ProvenanceKind.Decoded, "s_FallAfterGrabbedFromLedge.MyNotifyLanded DamagePawn_C2S 200 DamTypeGrabBreak")]
+    public const int LedgeGrabFallDamage = 200;
+
+    [Provenance(ProvenanceKind.Decoded, "s_FallAfterGrabbedFromLedge.NotifyBump: Other.Z + 0.8 Other.CH <= Z - CH")]
+    public const float LedgeFallHeadShare = 0.8f;
+
+    // ---- sticky blast (SPlayerController.StickyBlast) ----
+
+    [Provenance(ProvenanceKind.Decoded, "SPlayerController.StickyBlast DamagePawn_C2S 200 SDTStickyBlast")]
+    public const int StickyBlastDamage = 200;
+
+    [Provenance(ProvenanceKind.Decoded, "SPlayerController.StickyBlast: vDir = vector(Rotation), vDir.Z = -1.5")]
+    public const float StickyBlastDirZ = -1.5f;
+
+    [Provenance(ProvenanceKind.Decoded, "SPlayerController.StickyBlast: velocity -2 * BlastSpeedMin * Normal(vDir)")]
+    public const float StickyBlastSpeedFactor = -2f;
+
     // ---- melee (spec/combat/melee-elbow-charge-berserk.md) --------------------------------------------------
 
     [Provenance(ProvenanceKind.Decoded, "FindPawnToElbowShotAndGoForIt reach 150")]

@@ -24,7 +24,7 @@ public static class CombatEquipment
     public static void Install(Level Level)
     {
         Level.SetService<IGameFlowPorts>(new EquipmentGameFlowPorts(Level.GetService<IGameFlowPorts>()));
-        Level.SetService<IDeviceHooks>(new EquipmentDeviceHooks(Level.GetService<IDeviceHooks>()));
+        Level.SetService<IDeviceHooks>(new EquipmentDeviceHooks(Level.GetService<IDeviceHooks>(), Level));
         if (Level.GetService<MovementService>() is { } movement)
         {
             movement.Hooks = new EquipmentMovementHooks(movement.Hooks);
@@ -100,12 +100,18 @@ public sealed class EquipmentGameFlowPorts : IGameFlowPorts
         Inner.HearVoiceChatter(Game, Listener, Speaker, Mute);
 }
 
-/// <summary>The devices' calls into the equipment port (gadget lookup and refills); the rest is passed on.</summary>
+/// <summary>
+/// The devices' calls into the equipment port (gadget lookup and refills), the HUD (markers, map hints) and the game
+/// rules (team messages); each is then passed on.
+/// </summary>
 public sealed class EquipmentDeviceHooks : IDeviceHooks
 {
-    public EquipmentDeviceHooks(IDeviceHooks? inner = null)
+    private readonly Level? _level;
+
+    public EquipmentDeviceHooks(IDeviceHooks? inner = null, Level? level = null)
     {
         Inner = inner;
+        _level = level;
     }
 
     public IDeviceHooks? Inner { get; }
@@ -126,14 +132,36 @@ public sealed class EquipmentDeviceHooks : IDeviceHooks
         }
     }
 
-    public void AddGPOOnHud(SPlayerController Controller, FVector Location) => Inner?.AddGPOOnHud(Controller, Location);
+    /// <summary>SPlayerController.AddGPOOnHud (the HUD's marker list, sent to a remote player's machine).</summary>
+    public void AddGPOOnHud(SPlayerController Controller, FVector Location)
+    {
+        Controller.AddGPOOnHud(Location);
+        Inner?.AddGPOOnHud(Controller, Location);
+    }
 
-    public void RemoveGPOFromHud(SPlayerController Controller, FVector Location) => Inner?.RemoveGPOFromHud(Controller, Location);
+    /// <summary>SPlayerController.RemoveGPOFromHud.</summary>
+    public void RemoveGPOFromHud(SPlayerController Controller, FVector Location)
+    {
+        Controller.RemoveGPOFromHud(Location);
+        Inner?.RemoveGPOFromHud(Controller, Location);
+    }
 
-    public void AddTutoMapMessage(SPlayerController Controller, string Message) => Inner?.AddTutoMapMessage(Controller, Message);
+    /// <summary>SHud(Controller.myHUD).AddTutoMapMessage (the zone tips' map hint).</summary>
+    public void AddTutoMapMessage(SPlayerController Controller, string Message)
+    {
+        (Controller.myHUD as SHud)?.AddTutoMapMessage(Message);
+        Inner?.AddTutoMapMessage(Controller, Message);
+    }
 
-    public void BroadcastTeamLocalizedMessage(int Team, ClassRef MessageClass, int Switch, Actor? OptionalObject) =>
+    /// <summary>
+    /// SGameInfo(Level.Game).BroadcastTeamLocalizedMessage(Team, MessageClass, Switch, None, None, OptionalObject):
+    /// on the server only (a client has no game info), each player of the side gets it as ReceiveLocalizedMessage.
+    /// </summary>
+    public void BroadcastTeamLocalizedMessage(int Team, ClassRef MessageClass, int Switch, Actor? OptionalObject)
+    {
+        (_level?.Info.Game as SGameInfo)?.BroadcastTeamLocalizedMessage((byte)Team, MessageClass, Switch, null, null, OptionalObject);
         Inner?.BroadcastTeamLocalizedMessage(Team, MessageClass, Switch, OptionalObject);
+    }
 
     public USPlayerProfile? GetPlayerProfile() => Inner?.GetPlayerProfile();
 }
@@ -197,7 +225,12 @@ public sealed class EquipmentMovementHooks : IMovementHooks
         _ => Inner.UseSearch(PC, Step, bCantRollCuzColl),
     };
 
-    public void DiscardPickup(SPlayerController PC) => Inner.DiscardPickup(PC);
+    /// <summary>SPlayerController.DiscardPickup: Fire, Use and the binocular shot drop the hand item first.</summary>
+    public void DiscardPickup(SPlayerController PC)
+    {
+        PC.DiscardPickup();
+        Inner.DiscardPickup(PC);
+    }
 
     /// <summary>The death animation of a fall (combat spec).</summary>
     public void PlayAnimDeath(SPlayerController PC) => PC.PlayAnimDeath(FVector.Zero, PC.Pawn?.Health ?? 0);

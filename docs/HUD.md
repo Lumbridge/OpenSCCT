@@ -239,9 +239,9 @@ page is stretched too (`HudOptions.StretchHud`), as the unpatched game. `Options
 - Enhanced Reality icons (`HudMarkers`) draw on a canvas of HudScreenRight x HudScreenBottom (0x10079880): with
   `ws_er_small` (Reloaded's first-run default) the icons keep the 4:3 size, without it the 640 wide canvas is kept
   and they grow with the width (`HudMarkers.ErSmall`, `WidescreenHud`; the settings file has no keys for them yet).
-- Full-frame overlays: P_StickyCam and P_CamNetWork draw their frame centred, its edges reaching the picture's
-  edges; the binocular pages are stretched over the picture (`StretchAll`); the merc's gas mask (`MaskGas` on
-  P_HudDEF) covers the picture.
+- Full-frame overlays: P_StickyCam, P_CamNetWork and the binocular pages are stretched over the picture
+  (`StretchAll`; centred at 4:3 the sticky cam's scope effect left bare bands at the sides of a 16:9 screen); the
+  merc's gas mask (`MaskGas` on P_HudDEF) covers the picture.
 
 `--svm-smoke=aspect` plays SteeE as the spy and as the merc at 1024 x 768, 1152 x 720, 1280 x 720 and 1680 x 720 and
 checks each: the window is stretched only at 21:9 and the play view is then 1280 x 720; the camera's vertical angle

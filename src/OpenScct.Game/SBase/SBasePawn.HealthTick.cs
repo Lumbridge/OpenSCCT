@@ -11,14 +11,14 @@ namespace OpenScct.Game.SBase;
 public partial class SBasePawn
 {
     /// <summary>
-    /// SBasePawn.Tick: NativeTick first. The rest of the script tick (the server's spy bullet expiry) is not ported
-    /// here.
+    /// SBasePawn.Tick: NativeTick first, then the server's spy mark expiry (SBasePawn.SpyBulletExpiry.cs).
     /// </summary>
     [Uc("SBase.SBasePawn.Tick", Sha1 = "8604928c46b3e97d1540d25c1dad27e6d65d6925")]
     [PortOf("uc:SBase.SBasePawn:Tick", Spec = "spec/combat/health.md#rules")]
     protected override void Tick(float DeltaTime)
     {
         NativeTickHealth(DeltaTime);
+        SpyBulletExpiry();
     }
 
     /// <summary>

@@ -250,7 +250,8 @@ Fields:
     `vWallJumpDir`, `GotoState('s_TerminatePawn_ReposBegin')`, link both pawns' `m_PawnToTerminate` to each other.
     Invalid: send `ServerSendAnEvent(SE_TerminatePawnPb)` to a remote merc (his terminate state answers with
     SA_WALK_ST_2H and `ChangeState('s_PlayerWalkingSt2H')`), or do that directly for a local merc.
-38. `s_TerminatePawn_ReposBegin`: owner 2.0 s timeout back to `s_PlayerWalkingSt2H`; `bCanBeGrabbed = true`. The pawn
+38. `s_TerminatePawn_ReposBegin`: owner 2.0 s timeout back to `s_PlayerWalkingSt2H` (SA_WALK_ST_2H; the spy is not
+    touched: he is still in `s_LyingOnGround` and keeps his lying timer); `bCanBeGrabbed = true`. The pawn
     walks to S with PHYS_Repositionnal (native); when it arrives the native `TopSynchro` event on the server calls
     `MirrorStateForRepos('s_TerminatePawn', Location, Rotation.Yaw)` (the owner is moved to the server position).
 39. `s_TerminatePawn.BeginState`: action SA_TERMINATEPAWN_BEGIN (317; the native case plays the merc clip 'AtakDnMmBg2'
@@ -259,8 +260,12 @@ Fields:
     no reticle. Channel 0 AnimEnd (owner): `ChangeState('s_TerminatePawn_Maintain')`.
 40. `s_TerminatePawn_Maintain`: remembers the Use button; owner timer fMaxTimeMaintainingPawn (10 s). A new Use press,
     the timer, or the victim's Health <= 0 plays SA_TERMINATEPAWN_KILL (318) and `ChangeState('s_TerminatePawn_Kill')`.
-41. `s_TerminatePawn_Kill`: channel 0 AnimEnd (owner) gives `ChangeState('s_TransitionTPK')`; EndState restores the
-    view, reticle and weapon.
+41. `s_TerminatePawn_Kill`: channel 0 AnimEnd (owner) gives `ChangeState('s_TransitionTPK')`; EndState (also
+    `s_TerminatePawn_Fall`'s): head camera detached, first person view, reticle back unless the laser was on, rifle
+    drawn, back in `s_Selected` with its idle animation (AnimateWaiting).
+41a. Talking during the hold: no terminate state touches voice. The spy is still `bLyingOnGround`, so the native downed
+    chat of `voice-chat.md` rule 9 runs: a merc within 300 uu holding the Hack Comm key is heard by the spy (one way)
+    and not by his own team; releasing the key, the spy standing up, dying or respawning ends it.
 42. `s_TransitionTPK.BeginState`: `ChangeState('s_PlayerWalkingCr2H')` with SA_WALK_CR_2H if crouched, else
     St2H/SA_WALK_ST_2H; server: if the victim is alive, `victim.PawnTakeDamage(300, merc, (0,0,0), (0,0,1), SDTBase)`
     (always lethal; kill credit and points to the merc; falling death animation).

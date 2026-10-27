@@ -97,6 +97,8 @@ public sealed class StickyCamPage : GadgetViewPage
     public StickyCamPage(HudAssets assets, HudOptions? options = null)
         : base(assets, PageName, options, GadgetView.StickyCam)
     {
+        // A full-screen scope view like the binoculars: stretched over the whole screen, not kept in the 4:3 middle.
+        Renderer.StretchAll = true;
     }
 
     public override HudSide Side => HudSide.Spy;
@@ -155,6 +157,8 @@ public sealed class CamNetworkPage : GadgetViewPage
     public CamNetworkPage(HudAssets assets, HudOptions? options = null)
         : base(assets, PageName, options, GadgetView.CamNetwork)
     {
+        // Full-screen camera view, stretched like the sticky cam and binoculars.
+        Renderer.StretchAll = true;
     }
 
     public override HudSide Side => HudSide.Merc;

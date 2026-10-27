@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Godot;
 using OpenScct.Core;
 using OpenScct.Net;
+using OpenScct.Net.Cosmetics;
 using OpenScct.Net.Discovery;
 using OpenScct.Server;
 using OpenScct.Server.Hub;
@@ -54,6 +55,9 @@ public partial class HubService : Node
     private string? _returnPad;
     private MasterClient? _master;
     private string? _ticket;
+
+    /// <summary>The looks the hub was last given (at login or since), so an unchanged save sends nothing.</summary>
+    private (CosmeticLook Spy, CosmeticLook Merc) _lookSent;
     private (Task<JoinResponse> Answer, OpenScct.Server.Hub.HubMatchOffer Offer, string Address)? _matchJoin;
     private Task<JoinResponse>? _pendingJoin;
 
@@ -269,8 +273,13 @@ public partial class HubService : Node
             MasterLinkSettings? master = s.HubListed && s.MasterUrl.Length > 0
                 ? new MasterLinkSettings { Url = s.MasterUrl, InviteKey = s.InviteKey.Length > 0 ? s.InviteKey : null }
                 : null;
+            // The host's own player has no ticket for his hub: his looks and rank go by his account, as a listen host's.
+            AccountSettings account = AccountSettings.Current;
+            HostAccount? hostAccount = account.AccountName is { } claimed && account.AccountId > 0
+                ? OnlineService.HostAccountOf(account.AccountId, claimed, AccountService.Get(GetTree()).Account)
+                : null;
             Host = HubHost.Start(port, string.IsNullOrWhiteSpace(name) ? "OpenSCCT Hub" : name.Trim() + "'s hub",
-                new MapCatalog([.. Catalog.Maps.Roots]), Classes, master);
+                new MapCatalog([.. Catalog.Maps.Roots]), Classes, master, hostAccount);
         }
         catch (InvalidOperationException e)
         {
@@ -290,6 +299,7 @@ public partial class HubService : Node
         _start = _clock.NowMicroseconds;
         _ticks = 0;
         _target = target;
+        _lookSent = Looks(OpenScctGame.Options.SettingsStore.Current);
         Client = new HubClient(transport, target, _start, new HubClientSettings
         {
             PlayerName = name,
@@ -302,6 +312,9 @@ public partial class HubService : Node
             Ticket = _masterId is not null ? _ticket : null,
             InstallId = OnlineSettings.Current.InstallId,
             Title = OpenScctGame.Options.SettingsStore.Current.Title,
+            SpyLook = _lookSent.Spy,
+            MercLook = _lookSent.Merc,
+            HostKey = Host?.HostKey,
         }, ownsTransport: true);
         Client.Play.Clock = () => _clock.NowMicroseconds / 1_000_000.0;
         if (_voice is null)
@@ -605,8 +618,28 @@ public partial class HubService : Node
     private FVector? Ear() =>
         _round is { IsLoaded: true, View.Camera: { } camera } ? UeSpace.ToUe(camera.GlobalPosition) : null;
 
+    /// <summary>The looks the player wears on each side, from the Armoury's saved choice.</summary>
+    private static (CosmeticLook Spy, CosmeticLook Merc) Looks(OpenScctGame.Options.GameSettings s) =>
+        (CosmeticLook.FromIds(CosmeticSide.Spy, s.CosmeticsSpy), CosmeticLook.FromIds(CosmeticSide.Merc, s.CosmeticsMerc));
+
+    /// <summary>Saved settings with other looks (the Armoury) go to the hub, which puts them on the player's character.</summary>
+    private void OnSettingsSaved(OpenScctGame.Options.GameSettings s)
+    {
+        (CosmeticLook Spy, CosmeticLook Merc) looks = Looks(s);
+        if (Client is not { } client || looks == _lookSent)
+        {
+            return;
+        }
+
+        _lookSent = looks;
+        client.SetLook(looks.Spy, looks.Merc);
+    }
+
+    public override void _EnterTree() => OpenScctGame.Options.SettingsStore.Saved += OnSettingsSaved;
+
     public override void _ExitTree()
     {
+        OpenScctGame.Options.SettingsStore.Saved -= OnSettingsSaved;
         Leave(showMenu: false);
         _master?.Dispose();
         _master = null;

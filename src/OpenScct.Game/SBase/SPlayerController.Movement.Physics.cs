@@ -22,12 +22,21 @@ public partial class SPlayerController : ISPlayerControllerPhysics
         void StickyBlast(SPlayerController self, Actor? Other);
     }
 
-    /// <summary>The walking or falling physics found a sticky-skinned pawn to land on (combat spec).</summary>
+    /// <summary>
+    /// The walking or falling physics found a sticky-skinned pawn to land on (drop-attack.md rule 13): the state's
+    /// version, nothing in the states that ignore it (the blast states), else the global StickyBlast.
+    /// </summary>
     public void eventStickyBlast(Actor? Other)
     {
         if (StateNode is IStickyBlast s)
         {
             s.StickyBlast(this, Other);
+            return;
+        }
+
+        if (Combat.CombatStateEvents.Lookup(this, "StickyBlast", out _) != Combat.CombatStateEvents.StateFunction.Ignored)
+        {
+            StickyBlast(Other);
         }
     }
 

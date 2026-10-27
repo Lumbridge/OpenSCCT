@@ -226,19 +226,27 @@ public partial class SPlayerController
         }
     }
 
-    /// <summary>The finishing merc's view, reticle and weapon back.</summary>
+    /// <summary>
+    /// The finishing merc's view and reticle back (the reticle stays off while the laser was on), and the rifle drawn
+    /// again in s_Selected with its idle animation (s_TerminatePawn_Kill and _Fall EndState).
+    /// </summary>
     private void TerminateRestoreView()
     {
-        if (IsRemotePlayer)
+        if (!IsRemotePlayer)
         {
-            return;
+            CombatFx.Notify(this, CombatFx.HeadCamera);
+            bBehindView = false;
+            if (!bLaserEtaitAllume)
+            {
+                bNoReticule = false;
+            }
         }
 
-        CombatFx.Notify(this, CombatFx.HeadCamera);
-        bNoReticule = false;
         if (SBPawn?.MyWeapon is SWeaponDefense rifle)
         {
             rifle.bDrawWeapon = true;
+            rifle.GotoState(CNAME_s_Selected);
+            rifle.AnimateWaiting();
         }
     }
 
@@ -364,10 +372,11 @@ public partial class SPlayerController
         [PortOf("uc:SBase.SPlayerController:s_TerminatePawn_ReposBegin.Timer", Spec = "spec/combat/knockout-and-terminate.md#the-finishing-move-merc-terminates-a-downed-spy")]
         public override void Timer(Actor self)
         {
+            // The approach gave up: the spy never left s_LyingOnGround, so he is left alone (no release).
             var pc = (SPlayerController)self;
-            pc.ReleaseTerminated();
             if (pc.SBPawn is { } pawn)
             {
+                pawn.m_PawnToTerminate = null;
                 pc.CombatPorts.ChangeEnumAction(pawn, SBasePawn.SA_WALK_ST_2H, false);
             }
 
@@ -422,7 +431,10 @@ public partial class SPlayerController
                     rifle.bDrawWeapon = false;
                 }
 
+                // The head view with the body drawn (the script sets bFirstPersonWithPawn again in every PlayerMove).
+                pc.bBehindView = true;
                 pc.bNoReticule = true;
+                pc.bFirstPersonWithPawn = true;
             }
         }
 
@@ -573,7 +585,10 @@ public partial class SPlayerController
                 pc.ReleaseTerminated();
             }
 
-            pc.MyFalling(0f);
+            if (pc.IAmOnClient())
+            {
+                pc.MyFalling(0f);
+            }
         }
 
         [Uc("SBase.SPlayerController.s_TerminatePawn_Fall.EndState", Sha1 = "cfc70ea8c51b16e66259d69e57a1817bad9cfd5d")]

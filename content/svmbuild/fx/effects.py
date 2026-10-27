@@ -59,7 +59,10 @@ EFFECT_BASES = (
     ("SBase.SMines", "mine"),
     ("SBase.SStickyCam", "gadget"),
     ("SBase.SNoiseEmitter", "gadget"),
+    ("SBase.SProjMarqueurSpy", "gadget"),
+    ("SBase.SBackPack", "gadget"),
     ("SBase.SLaserBeam", "beam"),
+    ("SBase.STazerEmitter", "beam"),
     ("SBase.SMetalHotSpot", "decal"),
     ("SBase.SFlaque", "decal"),
 )

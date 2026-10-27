@@ -15,13 +15,16 @@ namespace OpenScctGame.Fx;
 /// CheckPresence);</item>
 /// <item>the mines' beams (SLaserBeam_MineLaser of the laser mine, the spy trap and the poison mine,
 /// spec/equipment/mine-launcher.md rules 16, 17 and 23): from the beam's place (the mine) along its rotation (towards
-/// the wall it measured) for the replicated beam length fTailleFaisceau.</item>
+/// the wall it measured) for the replicated beam length fTailleFaisceau. A laser mine that found no wall when it made
+/// its beam turned it towards itself (a zero rotation), so its 2000.1 uu beam runs along world X, as in the original:
+/// the beam's tick only stretches DrawScale3D.X to fTailleFaisceau and never turns it.</item>
 /// </list>
 /// Each with the beam's bHideInNormalVision and HeatIntensity (0.4 for a mine's beam, so thermal only and EMF). A
 /// hidden beam (switched off, chaffed, an absent tripwire) or a gone one is removed. Reads the client world and never
 /// writes it.
 /// </summary>
 [PortOf("eng:Render.LaserTriggerBeams", Spec = "spec/devices/laser-trigger.md#drawing")]
+[Provenance(ProvenanceKind.Decoded, "ASLaserBeam_MineLaser::Tick game 0x10abd460: fTailleFaisceau changed and not 0 -> SetDrawScale3D(fTailleFaisceau, Y, Z), FarMoveActor in place; no rotation. execSpawnLaser 0x10a93b80: Rotation of (vMurTouche - Location), zero with no wall")]
 public sealed class LaserTriggerView
 {
     private readonly Lasers _lasers;

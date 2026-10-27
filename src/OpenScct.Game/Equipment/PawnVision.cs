@@ -247,17 +247,26 @@ public static class PawnVision
             ? beam.CurrentMode != K.BeamModeNone && beam.CurrentMode != K.BeamModeNormal
             : ((Pawn.Controller as SPlayerController)?.Goggle?.CurrentMode ?? SGoggle.REN_DynLight) != SGoggle.REN_DynLight;
         return Pawn.WeaponLoaded != 0 || vision || Pawn.bBinocularsOn || Pawn.bSpyBulletOn ||
-            Pawn.DesiredGlassEffect != 0 || Pawn.PhosphoSkinTime > 0f;
+            Pawn.DesiredGlassEffect != 0 || IsPhosphoSkinned(Pawn);
     }
+
+    /// <summary>The phospho skin is on: PhosphoSkinTime (its end time) is set and not reached.</summary>
+    public static bool IsPhosphoSkinned(SBasePawn Pawn) =>
+        Pawn.PhosphoSkinTime > 0f && Pawn.Level.TimeSeconds < Pawn.PhosphoSkinTime;
 
     /// <summary>The server makes the pawn EMF-visible (sent by the controlling client).</summary>
     [Uc("SBase.SBasePawn.SetEMFToServer", Sha1 = "0da87f2090280e03813fff1b8edbf2fdbfb1ddd6")]
     [PortOf("uc:SBase.SBasePawn:SetEMFToServer", Spec = "spec/equipment/vision-goggles.md#rules")]
     public static void SetEMFToServer(SBasePawn Pawn)
     {
-        if (Pawn.Role < ENetRole.ROLE_Authority && Pawn.Controller is PlayerController pc)
+        // A server function: a client sends it for a pawn it controls and drops it for any other.
+        if (Pawn.Role < ENetRole.ROLE_Authority)
         {
-            CombatServices.Net(Pawn).ServerCall(pc, new CombatCall(CNAME_SetEMFToServer) { Target = Pawn });
+            if (Pawn.Controller is PlayerController pc)
+            {
+                CombatServices.Net(Pawn).ServerCall(pc, new CombatCall(CNAME_SetEMFToServer) { Target = Pawn });
+            }
+
             return;
         }
 
@@ -269,31 +278,37 @@ public static class PawnVision
     [PortOf("uc:SBase.SBasePawn:UnSetEMFToServer", Spec = "spec/equipment/vision-goggles.md#rules")]
     public static void UnSetEMFToServer(SBasePawn Pawn)
     {
-        if (Pawn.Role < ENetRole.ROLE_Authority && Pawn.Controller is PlayerController pc)
+        if (Pawn.Role < ENetRole.ROLE_Authority)
         {
-            CombatServices.Net(Pawn).ServerCall(pc, new CombatCall(CNAME_UnSetEMFToServer) { Target = Pawn });
+            if (Pawn.Controller is PlayerController pc)
+            {
+                CombatServices.Net(Pawn).ServerCall(pc, new CombatCall(CNAME_UnSetEMFToServer) { Target = Pawn });
+            }
+
             return;
         }
 
         UnSetEMF(Pawn);
     }
 
-    /// <summary>EMF visible: bEMFIsOn and full opacity.</summary>
+    /// <summary>EMF visible: bEMFIsOn and full opacity, the weapon too (so its replicated values follow).</summary>
     [Uc("SBase.SBasePawn.SetEMF", Sha1 = "805216bac7fa2939a4debc9e866ed9530a822411")]
     [PortOf("uc:SBase.SBasePawn:SetEMF", Spec = "spec/equipment/vision-goggles.md#rules")]
     public static void SetEMF(SBasePawn Pawn)
     {
         Pawn.bEMFIsOn = true;
         Pawn.EMFOpacity = 1f;
+        Pawn.MyWeapon?.SetEMFWeapon();
     }
 
-    /// <summary>EMF invisible: bEMFIsOn off and no opacity.</summary>
+    /// <summary>EMF invisible: bEMFIsOn off and no opacity; the weapon back to its undrawn 0.3.</summary>
     [Uc("SBase.SBasePawn.UnSetEMF", Sha1 = "9b55be2aacbd25625839c92e60c17c3ff33a0620")]
     [PortOf("uc:SBase.SBasePawn:UnSetEMF", Spec = "spec/equipment/vision-goggles.md#rules")]
     public static void UnSetEMF(SBasePawn Pawn)
     {
         Pawn.bEMFIsOn = false;
         Pawn.EMFOpacity = 0f;
+        Pawn.MyWeapon?.UnSetEMFWeapon();
     }
 
     /// <summary>
@@ -332,18 +347,29 @@ public static class PawnVision
     /// <summary>The cloak's perturbation sound.</summary>
     public static readonly AssetRef SndCapeDamage = new("Armes_impacts.Gadgets.RA_Cape_damage");
 
+    private static readonly Name CNAME_SetDesiredGlassValue = new("SetDesiredGlassValue");
+    private static readonly Name CNAME_SetDesiredGlassValueOnClients = new("SetDesiredGlassValueOnClients");
+    private static readonly Name CNAME_SetPerturbationGlass = new("SetPerturbationGlass");
+    private static readonly Name CNAME_SetPerturbationGlassOnClients = new("SetPerturbationGlassOnClients");
+
     /// <summary>
     /// SetDesiredGlassValue (spy-energy.md rule 7): a new cloak target (the same target does nothing), reached
     /// linearly over Duration (0: PerturbationDefaultValue) from the current amount, with a perturbation of the same
-    /// length. The original runs it on the server and sends the target to the owning client
-    /// (SetDesiredGlassValueOnClients); the port's cloak lives on the controlling machine, so both halves run here.
+    /// length, then the broadcast to every client. A client-to-server function (rep-pawn.md block 7): called on the
+    /// spy's own client it is sent to the server and does not run there.
     /// </summary>
     [Uc("SBase.SBasePawn.SetDesiredGlassValue", Sha1 = "26c096360b43a5ce60f9c760e77dc684c3b52b44")]
     [PortOf("uc:SBase.SBasePawn:SetDesiredGlassValue", Spec = "spec/equipment/spy-energy.md#rules")]
-    [Provenance(ProvenanceKind.Decoded, "SBasePawn.uc SetDesiredGlassValue: early return on the same target, slope (Desired - Glass) / Duration, B = Glass - now * slope, SetPerturbationGlass(Duration), then the client half")]
-    [Provenance(ProvenanceKind.Estimated, "Both halves run on the calling machine (the port keeps the cloak on the controlling machine, not on the server)")]
+    [PortOf("rep:SBase.SBasePawn.SetDesiredGlassValue", Spec = "spec/net/rep-pawn.md#rules")]
+    [Provenance(ProvenanceKind.Decoded, "SBasePawn.uc SetDesiredGlassValue: early return on the same target, slope (Desired - Glass) / Duration, B = Glass - now * slope, SetPerturbationGlass(Duration), then SetDesiredGlassValueOnClients")]
     public static void SetDesiredGlassValue(SBasePawn Pawn, byte DesiredValue, float Duration = 0f)
     {
+        if (GadgetNet.ToServer(Pawn, Pawn.Controller as PlayerController,
+            new CombatCall(CNAME_SetDesiredGlassValue) { Target = Pawn, Int1 = DesiredValue, Float1 = Duration }))
+        {
+            return;
+        }
+
         if (DesiredValue == Pawn.DesiredGlassEffect)
         {
             return;
@@ -360,12 +386,31 @@ public static class PawnVision
     }
 
     /// <summary>
-    /// The owning client's half: the same ramp (no same-target test), the in/out sound and, on the controlling
-    /// machine, the EMF visibility test.
+    /// SetDesiredGlassValueOnClients, a server function on the broadcast flag (rep-pawn.md block 6): every client that
+    /// has the pawn runs <see cref="ClientDesiredGlassValue"/>, and so does a listen server or a standalone game.
+    /// </summary>
+    [PortOf("rep:SBase.SBasePawn.SetDesiredGlassValueOnClients", Spec = "spec/net/rep-pawn.md#rules")]
+    [Provenance(ProvenanceKind.Estimated, "A dedicated server also takes the ramp (without the sound): the original skips the call there, so after a damage decloak (StandardReactionsToDamage) the server's target stays 255 and its same-target test refuses the next cloak")]
+    public static void SetDesiredGlassValueOnClients(SBasePawn Pawn, byte DesiredValue, float Duration = 0f)
+    {
+        if (GadgetNet.ToAllClients(Pawn,
+            new CombatCall(CNAME_SetDesiredGlassValueOnClients) { Target = Pawn, Int1 = DesiredValue, Float1 = Duration }))
+        {
+            ClientDesiredGlassValue(Pawn, DesiredValue, Duration);
+        }
+        else if (Pawn.Level.NetMode == ENetMode.NM_DedicatedServer)
+        {
+            SetGlassRamp(Pawn, DesiredValue, Duration == 0f ? Pawn.PerturbationDefaultValue : Duration);
+        }
+    }
+
+    /// <summary>
+    /// The body of SetDesiredGlassValueOnClients where it runs: the same ramp (no same-target test), the in/out sound
+    /// and, on the controlling machine, the EMF visibility test.
     /// </summary>
     [Uc("SBase.SBasePawn.SetDesiredGlassValueOnClients", Sha1 = "6f9caefca439d887dad4c850d3551d934ec649ba")]
     [PortOf("uc:SBase.SBasePawn:SetDesiredGlassValueOnClients", Spec = "spec/equipment/spy-energy.md#rules")]
-    public static void SetDesiredGlassValueOnClients(SBasePawn Pawn, byte DesiredValue, float Duration = 0f)
+    public static void ClientDesiredGlassValue(SBasePawn Pawn, byte DesiredValue, float Duration = 0f)
     {
         if (Duration == 0f)
         {
@@ -382,23 +427,46 @@ public static class PawnVision
 
     /// <summary>
     /// SetPerturbationGlass: unless the ramp base is 0, a flicker window of Duration (0: PerturbationDefaultValue)
-    /// at frequency Value (0: 12.8) from now, then the owning client's half (the same window and the perturbation
-    /// sound).
+    /// at frequency Value (0: 12.8) from now, then the broadcast (the same window and the perturbation sound on every
+    /// client). A client-to-server function, like SetDesiredGlassValue.
     /// </summary>
     [Uc("SBase.SBasePawn.SetPerturbationGlass", Sha1 = "abd42c0b6ab3aabdb61ad2024b4f2871f2e429fc")]
     [PortOf("uc:SBase.SBasePawn:SetPerturbationGlass", Spec = "spec/equipment/spy-energy.md#rules")]
+    [PortOf("rep:SBase.SBasePawn.SetPerturbationGlass", Spec = "spec/net/rep-pawn.md#rules")]
     public static void SetPerturbationGlass(SBasePawn Pawn, float Duration = 0f, float Value = 0f)
     {
+        if (GadgetNet.ToServer(Pawn, Pawn.Controller as PlayerController,
+            new CombatCall(CNAME_SetPerturbationGlass) { Target = Pawn, Float1 = Duration, Vector1 = new FVector(Value, 0f, 0f) }))
+        {
+            return;
+        }
+
         if (SetPerturbationWindow(Pawn, Duration, Value))
         {
             SetPerturbationGlassOnClients(Pawn, Duration);
         }
     }
 
-    /// <summary>The owning client's flicker window, with the perturbation sound.</summary>
+    /// <summary>SetPerturbationGlassOnClients, broadcast like <see cref="SetDesiredGlassValueOnClients"/>.</summary>
+    [PortOf("rep:SBase.SBasePawn.SetPerturbationGlassOnClients", Spec = "spec/net/rep-pawn.md#rules")]
+    [Provenance(ProvenanceKind.Estimated, "A dedicated server also takes the flicker window (without the sound), as SetDesiredGlassValueOnClients")]
+    public static void SetPerturbationGlassOnClients(SBasePawn Pawn, float Duration = 0f, float Value = 0f)
+    {
+        if (GadgetNet.ToAllClients(Pawn,
+            new CombatCall(CNAME_SetPerturbationGlassOnClients) { Target = Pawn, Float1 = Duration, Vector1 = new FVector(Value, 0f, 0f) }))
+        {
+            ClientPerturbationGlass(Pawn, Duration, Value);
+        }
+        else if (Pawn.Level.NetMode == ENetMode.NM_DedicatedServer)
+        {
+            SetPerturbationWindow(Pawn, Duration, Value);
+        }
+    }
+
+    /// <summary>The body of SetPerturbationGlassOnClients where it runs: the flicker window, with the perturbation sound.</summary>
     [Uc("SBase.SBasePawn.SetPerturbationGlassOnClients", Sha1 = "358379cbcee7a574fbdc532ca8fb7e17ec1bacd6")]
     [PortOf("uc:SBase.SBasePawn:SetPerturbationGlassOnClients", Spec = "spec/equipment/spy-energy.md#rules")]
-    public static void SetPerturbationGlassOnClients(SBasePawn Pawn, float Duration = 0f, float Value = 0f)
+    public static void ClientPerturbationGlass(SBasePawn Pawn, float Duration = 0f, float Value = 0f)
     {
         if (SetPerturbationWindow(Pawn, Duration, Value))
         {
@@ -442,14 +510,13 @@ public static class PawnVision
     /// above 240 uu/s outside root motion; the amount follows the ramp at now + 0.1 until it passes the target or
     /// leaves [0, 255]; during a perturbation, while cos(PerturbationValue x now) > 0, it jitters by a random amount
     /// whose range shrinks from 510 to 10 over the window, kept inside the byte, a jittered value equal to the
-    /// target drawn as 125.
+    /// target drawn as 125. Runs in every machine's pawn tick, so each machine draws the amount it ramps itself.
     /// </summary>
     [UcNative("ASPawnAttaque::execTickNative", Exe = 0x10af5cf0)]
     [PortOf("rl:SBase.SPawnAttaque.TickNative", Spec = "spec/native/reloaded-hooks.md#rules")]
     [Provenance(ProvenanceKind.Decoded, "TickNative game 0x10af5cf0 and Reloaded body 0x100caae0 (events SetDesiredGlassValue 0xbfcf1 and TestAndSetEMFVisible 0xbfced)")]
     [Provenance(ProvenanceKind.Estimated, "Reloaded's speed switch DAT_1036abc0 is taken as off (the map setup 0x10017d70 clears it and no setter was found), so the speed rule applies")]
-    [Provenance(ProvenanceKind.Estimated, "Runs with the equipment part of the controlling machine's PlayerTick; the original runs it in every machine's pawn tick")]
-    public static void TickGlass(SBasePawn Pawn, float DeltaTime)
+    public static void TickGlass(SBasePawn Pawn)
     {
         float now = Pawn.Level.TimeSeconds;
         if (Pawn.Controller is SPlayerController pc && pc.IAmOnClient() && Pawn.DesiredGlassEffect != 0 &&

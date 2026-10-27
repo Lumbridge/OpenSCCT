@@ -858,7 +858,8 @@ public partial class SPlayerController
 
     /// <summary>
     /// The gadget, energy and cloak parts of the global PlayerTick on the local player's machine: the inventory mode
-    /// cleared, the item cycling keys, the throw gauge and release, the spy's energy and cloak ramp, the cloak button.
+    /// cleared, the item cycling keys, the throw gauge and release, the spy's energy, the cloak button (the cloak ramp
+    /// runs in the pawn tick).
     /// </summary>
     [PortOf("uc:SBase.SPlayerController:PlayerTick", Spec = "spec/equipment/inventory-selection.md#rules")]
     [PortOf("uc:SBase.SPlayerController:PlayerTick", Spec = "spec/equipment/grenade-throw.md#rules")]
@@ -877,7 +878,6 @@ public partial class SPlayerController
         if (pawn is SPawnAttaque spy)
         {
             SpyEnergy.ComputeEnergyLevel(spy, DeltaTime);
-            PawnVision.TickGlass(spy, DeltaTime);
             CloakButton(spy, now);
         }
 

@@ -11,7 +11,8 @@ namespace OpenScct.Game.SBase;
 // SBase.SPlayerController spy grab (spec/combat/spy-grab.md): the owner's grab test and the server's validation, the
 // release location search, the server's release resolution with the KO, neck break and choke outcomes, the
 // counter-grab result and the drop attack on a holding spy. The grab states are in SPlayerController.CombatGrabStates.cs.
-// Not ported here: the ledge grab (rules 30 to 36) and the grab voice link (rule 15).
+// The ledge grab (rules 30 to 36) is in SPlayerController.CombatGrabLedge.cs, the grab voice link (rule 15) in
+// SPlayerController.Voice.cs.
 public partial class SPlayerController
 {
     private static readonly Name GNAME_AskServerToGrabPawn = new("AskServerToGrabPawn");
@@ -247,6 +248,12 @@ public partial class SPlayerController
         {
             Target.m_PawnToTerminate = null;
             (finishing.Controller as SPlayerController)?.eventMirrorState(CNAME_s_TerminatedPawn_Released);
+        }
+
+        // s_Hack_Use frees its panel here; crouched, the original calls it after the state change (a no-op).
+        if (!spy.bIsCrouched)
+        {
+            merc.ServerWillStartGrabOnMe();
         }
 
         merc.eventMirrorState(GNAME_s_GrabbedByPlayer_Begin, default, false, spy);

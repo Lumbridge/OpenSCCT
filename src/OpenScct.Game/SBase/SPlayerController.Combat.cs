@@ -34,7 +34,6 @@ public partial class SPlayerController
     private static readonly Name CNAME_s_PlaceBomb_End = new("s_PlaceBomb_End");
     private static readonly Name CNAME_s_PlayerWalkingSt0H = new("s_PlayerWalkingSt0H");
     private static readonly Name CNAME_s_Maintain_Leave = new("s_Maintain_Leave");
-    private static readonly Name CNAME_s_UseObject_StickyCam_Leave = new("s_UseObject_StickyCam_Leave");
     private static readonly Name CNAME_DIE_Forward = new("DIE_Forward");
     private static readonly Name CNAME_DIE_Backward = new("DIE_Backward");
     private static readonly Name CNAME_DIE_Left = new("DIE_Left");
@@ -329,10 +328,10 @@ public partial class SPlayerController
         {
             if (DamageType != SDamageType.SFell)
             {
-                CombatFx.Notify(victim, CombatFx.GlassEffect, 0f, 1f);
+                Equipment.PawnVision.SetDesiredGlassValueOnClients(victim, 0, 1f);
             }
 
-            CombatFx.Notify(victim, CombatFx.PerturbationGlass);
+            Equipment.PawnVision.SetPerturbationGlassOnClients(victim);
         }
 
         if (victim.Health <= 0)
@@ -1387,14 +1386,9 @@ public partial class SPlayerController
     private void DamageUseObjectMirador(int Damage, Pawn? By, FVector Hit, FVector M, SDamageType T, int Pill, int Pct) =>
         UseObjectDamage(Damage, By, Hit, M, T, Pill, Pct);
 
-    /// <summary>
-    /// The sticky cam handler; the original also special-cases a PreviousState of s_PlayerWaiting,
-    /// s_ElbowShot_GoBackward or s_PlayerCharging when it leaves the camera (sticky cam spec, not ported here).
-    /// </summary>
-    [Uc("SBase.SPlayerController.s_UseObject_StickyCam.PawnTakeDamage", Sha1 = "dcd9ee7d48827d31848b90445c749768693dd19a")]
-    [PortOf("uc:SBase.SPlayerController:s_UseObject_StickyCam.PawnTakeDamage", Spec = "spec/combat/state-damage-reactions.md#handler-behaviour")]
+    /// <summary>The sticky cam and camera network view handler (SPlayerController.StickyCamDamage.cs).</summary>
     private void DamageUseObjectStickyCam(int Damage, Pawn? By, FVector Hit, FVector M, SDamageType T, int Pill, int Pct) =>
-        UseObjectDamage(Damage, By, Hit, M, T, Pill, Pct);
+        StickyCamViewDamage(Damage, By, Hit, M, T, Pill, Pct);
 
     private void UseObjectDamage(int Damage, Pawn? By, FVector Hit, FVector M, SDamageType T, int Pill, int Pct)
     {
@@ -1429,48 +1423,9 @@ public partial class SPlayerController
         eventMirrorState(CombatNatives.WaitingStateFor(this), default, true);
     }
 
-    /// <summary>
-    /// The sticky cam approach handler. Not ported here: CleanStickyCamOnClient and the previous-state exits of the
-    /// sticky cam spec; a shock leaves through s_UseObject_StickyCam_Leave.
-    /// </summary>
-    [Uc("SBase.SPlayerController.s_UseObject_StickyCam_SmoothToPosition.PawnTakeDamage", Sha1 = "1914b314c239ca2c5cdbd225621820be9b221043")]
-    [PortOf("uc:SBase.SPlayerController:s_UseObject_StickyCam_SmoothToPosition.PawnTakeDamage", Spec = "spec/combat/state-damage-reactions.md#handler-behaviour")]
-    private void DamageStickyCamSmooth(int Damage, Pawn? By, FVector Hit, FVector M, SDamageType T, int Pill, int Pct)
-    {
-        StandardReactionsToDamage(Damage, Pct, By, Hit, M, T, ref Pill);
-        if (Pawn is null)
-        {
-            return;
-        }
-
-        if (Pawn.Health <= 0)
-        {
-            CombatDeadDirectOrFatal(T, M);
-            return;
-        }
-
-        switch (T)
-        {
-            case SDamageType.SDamage_Charged:
-                Handle_ChargedDmg(M, By);
-                return;
-            case SDamageType.SDamage_ElbowShock:
-                Handle_ElbowDmg(M, By);
-                return;
-            case SDamageType.SDamage_DropAttacked:
-                eventMirrorState(CNAME_s_FallDropAttacked);
-                return;
-            case SDamageType.SDTStickyShocker:
-                eventMirrorState(CNAME_s_UseObject_StickyCam_Leave);
-                eventCheckshock(Pill, false);
-                return;
-        }
-
-        if (CombatIkOk && T != SDamageType.SDTBase_NoAnim)
-        {
-            CombatHitAnim(Pill, M);
-        }
-    }
+    /// <summary>The sticky cam fly-in handler (SPlayerController.StickyCamDamage.cs).</summary>
+    private void DamageStickyCamSmooth(int Damage, Pawn? By, FVector Hit, FVector M, SDamageType T, int Pill, int Pct) =>
+        StickyCamFlyInDamage(Damage, By, Hit, M, T, Pill, Pct);
 
     [Uc("SBase.SPlayerController.s_Maintain_Enter.PawnTakeDamage", Sha1 = "6f24685d75a90e7f5cb4f569082eac07611801d7")]
     [Uc("SBase.SPlayerController.s_Maintain_Use.PawnTakeDamage", Sha1 = "dc37c48198c0874b765734d55a770ec361160309")]
@@ -1575,7 +1530,12 @@ public partial class SPlayerController
 
     private void TerminalUseDamage(int Damage, Pawn? By, FVector Hit, FVector M, SDamageType T, int Pill, int Pct, bool hack)
     {
-        ObjectiveMessages.Broadcast(this, OK.MsgInterrupted);
+        // Only the terminal announces "interrupted" (message 23); the panel hack sends none.
+        if (!hack)
+        {
+            ObjectiveMessages.Broadcast(this, OK.MsgInterrupted);
+        }
+
         if (!CombatAlive)
         {
             return;

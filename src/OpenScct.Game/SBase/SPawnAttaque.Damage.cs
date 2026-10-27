@@ -24,6 +24,8 @@ public partial class SPawnAttaque
         base.PostBeginPlay();
         NbPointsRefillable = 0;
         EnergyLevel = EnergyLevelMax;
+        // SPawnAttaque.PostBeginPlay ends with RestoreSkins: where the local player is a spy, the spy starts EMF hidden.
+        RestoreSkins();
     }
 
     /// <summary>The spy's tick: TickNative with the default health, then the pawn tick (where the health refill runs).</summary>
@@ -37,13 +39,12 @@ public partial class SPawnAttaque
 
     /// <summary>
     /// TickNative (native 1414, stock 0x10af5cf0, replaced by Reloaded): the argument is read and ignored and no
-    /// health changes here; the native runs the screen glass effect only (natives2-damage.md rule 9), which the cloak
-    /// port (Equipment/PawnVision.cs) owns. The health refill is SBasePawn.NativeTick (SBasePawn.HealthTick.cs).
+    /// health changes here; the native runs the screen glass effect only (natives2-damage.md rule 9), on every machine,
+    /// which the cloak port owns (<see cref="PawnVision.TickGlass"/>). The health refill is SBasePawn.NativeTick
+    /// (SBasePawn.HealthTick.cs).
     /// </summary>
     [UcNative("ASPawnAttaque::execTickNative", Exe = 0x10af5cf0)]
     [PortOf("nat:SBase.SPawnAttaque.TickNative", Spec = "spec/combat/health.md#rules")]
     [Provenance(ProvenanceKind.Decoded, "execTickNative 0x10af5cf0: no health rule, the glass effect only")]
-    public void TickNative(int DefaultHealth)
-    {
-    }
+    public void TickNative(int DefaultHealth) => PawnVision.TickGlass(this);
 }

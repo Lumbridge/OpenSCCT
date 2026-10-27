@@ -33,6 +33,24 @@ public static class SoundRules
         return minDistance / (minDistance + (rolloff * (distance - minDistance)));
     }
 
+    /// <summary>
+    /// The audio zoom of the scope and binoculars (SetAudioZoom): the volume factor of a 3D sound
+    /// <paramref name="forward"/> uu ahead of the view and <paramref name="sideways"/> uu off its axis, for a zoom
+    /// factor (0.33, 0.66, 1; 0 is off) and the view's FOV in degrees. Sounds on the aim line get louder (up to
+    /// 1 + 3 x zoom), sounds near the edge of the view or behind it quieter (down to 1 - 0.9 x zoom).
+    /// </summary>
+    public static float AudioZoomGain(float zoom, float fov, float forward, float sideways)
+    {
+        if (zoom <= 0f || fov <= 0f)
+        {
+            return 1f;
+        }
+
+        float distance = MathF.Sqrt(forward * forward + sideways * sideways);
+        float r = forward <= 0f || distance <= 0f ? 1f : Math.Min(1f, AudioK.AudioZoomFovScale / fov * (sideways / distance));
+        return ((AudioK.AudioZoomCentre - (r * AudioK.AudioZoomEdge)) * zoom) + 1f;
+    }
+
     /// <summary>Rules 10 and 19: the pitch factor of a call, or of SoundPitch / 64 for ambient sounds.</summary>
     public static float Pitch(float pitch) => Math.Clamp(pitch, AudioK.MinPitch, AudioK.MaxPitch);
 

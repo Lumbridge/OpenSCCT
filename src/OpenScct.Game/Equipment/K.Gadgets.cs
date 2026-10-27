@@ -280,6 +280,9 @@ public static partial class K
     [Provenance(ProvenanceKind.Decoded, "s_Binoculars_Att.PlayerMove voice trace AudioZoomFactor x 6000")]
     public const float SpyBinoVoiceRange = 6000f;
 
+    [Provenance(ProvenanceKind.Estimated, "Server check of a claimed voice target: the trace's longest reach plus a second of movement")]
+    public const float VoiceTargetServerSlack = 1000f;
+
     [Provenance(ProvenanceKind.Decoded, "s_Binoculars_Att.PlayerMove mark at most once per second")]
     public const float SpyBinoMarkRepeat = 1f;
 

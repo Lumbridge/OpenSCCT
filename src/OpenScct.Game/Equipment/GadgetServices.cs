@@ -42,6 +42,31 @@ public static class GadgetNet
         return true;
     }
 
+    /// <summary>
+    /// A server call on the SCCT broadcast flag (net-replication.md rule 20): sent to every remote player whose machine
+    /// has <paramref name="Self"/>. Returns whether it also runs here: on a listen server or standalone, not on a
+    /// dedicated server or a client (a client sends nothing).
+    /// </summary>
+    public static bool ToAllClients(Actor Self, in CombatCall Call)
+    {
+        ENetMode mode = Self.Level.NetMode;
+        if (mode == ENetMode.NM_Client)
+        {
+            return false;
+        }
+
+        ICombatNet net = CombatServices.Net(Self);
+        foreach (SPlayerController pc in Self.XLevel.AllActors<SPlayerController>())
+        {
+            if (!pc.bDeleteMe && pc.IsRemotePlayer && net.HasActor(pc, Self))
+            {
+                net.ClientCall(pc, Call);
+            }
+        }
+
+        return mode != ENetMode.NM_DedicatedServer;
+    }
+
     /// <summary>The player controlling <paramref name="Item"/>'s owner pawn (a gadget, a pawn), or null.</summary>
     public static SPlayerController? Controller(Actor? Item) => Item switch
     {

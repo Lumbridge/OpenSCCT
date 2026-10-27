@@ -172,7 +172,13 @@ PlayerMove (Left states shown; Right states mirror with the Left key):
    - stance change with the 0.5 s cooldown: standing with the latch set and bCanCrouch: SA_WANTS_TO_CROUCH,
      SA_BTW_LEFT, s_BTW_CrouchLeft (else clear the latch); crouched with the latch clear and CanUnCrouch:
      SA_WANTS_TO_UNCROUCH, SA_BTW_LEFT, s_BTW_StandLeft (else set the latch).
-3. Zero move. A hit (PlayAnimDmg) leaves the wall as in the base.
+3. Zero move. A hit (PlayAnimDmg, owner) leaves the wall: the heartbeat, the pawn faced along vWallNormal (pitch
+   and roll 0), SA_BTW_OUT, then always the unarmed rest (crouched with the latch or crouched: SA_WALK_CR_0H,
+   s_PlayerWalkingCr0H; else SA_WALK_ST_0H, s_PlayerWalkingSt0H). The s_BTW_Base version (every other back-to-wall
+   state, the fire states included) does the same but keeps a drawn pistol: WeaponLoaded != 0 goes to the 2H rest.
+   The damage handler calls it only with WeaponLoaded 0 or for a shock.
+4. Order of the branches: s_BTW_StandLeft tests the released key before the fire request; s_BTW_StandRight,
+   s_BTW_CrouchLeft and s_BTW_CrouchRight test the fire request first.
 
 ### Firing round the corner (s_BTWFire* states)
 
@@ -186,6 +192,18 @@ matching peek state. Stance change as in peeking, with actions SA_BTW_FIRE_LEFT 
 The pawn's channel-14 AnimEnd and the clip notifies NotifyTakeArmControlForBTWFireLeft/Right maintain SBasePawn.BTW
 and IK_Type (BTWFire* while the draw clip plays forward, back to the peek value when it plays backward) and call
 AnimateBTW (animation spec).
+
+The weapon itself is loaded by the draw clips' own notifies (BackStSpBgL/R, BackCrSpBgL/R at 0.3125):
+NotifyDrawUndrawWeapon is the spy's quick draw (WeaponLoaded 0 to 1) forward and the quick holster (1, 2 or 7 to 0,
+laser off) backward; the right clips also carry NotifyChangeHandWeapon (0.5625 crouched, 0.625 standing), which puts
+the pistol in the other hand (1 or 2 to 7, 7 to 2). Backward clips fire their notifies at mirrored times, so the hand
+change comes before the holster. The shot is the class Fire (no state overrides it): refused in weapon transit, so
+only once the draw clip ends. The binocular key in a fire state is the global one: a spy with the pistol out asks
+for the holster (bForceExitFireMode).
+
+Port note: bTestCanFireInBTW is not decoded (open question 4); the port uses CheckBTWEyes toward the peek side
+(a Left state is the spy's left, CheckBTWEyes(false)) and refuses only -1 (blocked or a drop). The notifies only act
+for these four clips; the other clips with NotifyDrawUndrawWeapon (pipe, split jump) load the weapon at their action.
 
 ## States
 
@@ -254,7 +272,9 @@ Physics: PHYS_Walking throughout; the sidestep is ordinary walking with a forced
 
 ## Open questions
 
-4. bTestCanFireInBTW: the clearance test for the pistol round the corner.
+4. bTestCanFireInBTW: the clearance test for the pistol round the corner. Game 0x10ab22a0 is not a procedure in
+   the local REA analysis of SCCT_Versus_game.exe (not_in_procedure); decode it from the editor (exec 0x111e8690)
+   or the full Ghidra project. Until then the port uses the stand-in above.
 5. The -1 of CheckBTWEyes for a drop beside the wall end is read from the probe geometry; a BTW golden at a wall end
    over a drop would confirm the script reaction (natives2-traversal.md open question 2).
 

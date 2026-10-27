@@ -32,6 +32,8 @@ untriggers it, so it fires for the rest of the round once the gun animation has 
 4. `ThrowGren(Force, Origin, Rotation)`: spawn `ProjectileClass` owned by the trap at Origin/Rotation; when it is an
    `SProjGrenade`, `Launch(Force, false)`: velocity along the rotation of `Force` plus the grenade launch bonus
    (grenade-throw.md; the trap's own velocity is zero). A non-grenade class is spawned without launch.
+5. With its default class the trap throws flares (SProjFlare, spec/equipment/flare.md): each sticks where it hits
+   and burns for 20 s. The only placed trap (TME33) throws frags.
 
 ## States
 

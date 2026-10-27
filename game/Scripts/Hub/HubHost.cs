@@ -20,10 +20,11 @@ public sealed class HubHost : IDisposable
     private readonly Thread _thread;
     private bool _disposed;
 
-    private HubHost(HubServer server, LiteNetLibTransport udp)
+    private HubHost(HubServer server, LiteNetLibTransport udp, string hostKey)
     {
         Server = server;
         Udp = udp;
+        HostKey = hostKey;
         _thread = new Thread(Run) { IsBackground = true, Name = "OpenSCCT hub host" };
     }
 
@@ -33,6 +34,9 @@ public sealed class HubHost : IDisposable
     public LiteNetLibTransport Udp { get; }
 
     public int Port => Udp.LocalPort;
+
+    /// <summary>The key the host's own player logs in with (<c>?SvmHost=</c>): his looks and rank go by the host account.</summary>
+    public string HostKey { get; }
 
     /// <summary>Where the host's own player joins.</summary>
     public string LocalAddress => "127.0.0.1:" + Port.ToString(System.Globalization.CultureInfo.InvariantCulture);
@@ -45,14 +49,17 @@ public sealed class HubHost : IDisposable
     /// <summary>
     /// Opens UDP <paramref name="port"/> and the hub on <paramref name="maps"/> and starts the host thread. Throws
     /// <see cref="InvalidOperationException"/> with a readable reason (the port is in use, the hub map is missing).
-    /// With <paramref name="master"/> the hub lists itself in that master's hub list.
+    /// With <paramref name="master"/> the hub lists itself in that master's hub list; <paramref name="hostAccount"/> is
+    /// the hosting game's own account (its player's unlocks and rank), or null.
     /// </summary>
-    public static HubHost Start(int port, string name, MapCatalog maps, NetClassRegistry classes, OpenScct.Server.Online.MasterLinkSettings? master = null)
+    public static HubHost Start(int port, string name, MapCatalog maps, NetClassRegistry classes, OpenScct.Server.Online.MasterLinkSettings? master = null,
+        OpenScct.Server.Online.HostAccount? hostAccount = null)
     {
         ArgumentNullException.ThrowIfNull(maps);
         LiteNetLibTransport udp = LiteNetLibTransport.Listen(port, HubK.DefaultMaxPlayers + 8, loopbackOnly: false);
         try
         {
+            string key = Convert.ToHexString(System.Security.Cryptography.RandomNumberGenerator.GetBytes(8)).ToLowerInvariant();
             HubServer server;
             try
             {
@@ -64,6 +71,8 @@ public sealed class HubHost : IDisposable
                     MatchBots = OpenScct.Bots.OnlineServerBots.Factory(),
                     MatchClock = static () => new StopwatchClock(),
                     Master = master,
+                    HostKey = key,
+                    HostAccount = hostAccount,
                 });
             }
             catch (System.IO.IOException e)
@@ -73,7 +82,7 @@ public sealed class HubHost : IDisposable
 
             server.Logged += line => GD.Print("SVM_HUB " + line);
             GD.Print("SVM_HUB " + server.PadsSummary);
-            var host = new HubHost(server, udp);
+            var host = new HubHost(server, udp, key);
             host._thread.Start();
             GD.Print($"SVM_HUB hosting {name} on UDP port {udp.LocalPort}");
             return host;

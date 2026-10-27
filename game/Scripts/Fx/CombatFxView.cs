@@ -161,6 +161,7 @@ public partial class CombatFxView : Node3D
 
         TrackTracers(level);
         TrackMarks(level);
+        TrackProjections(level);
         _effects?.OnTick(level);
     }
 
@@ -269,7 +270,7 @@ public partial class CombatFxView : Node3D
         var node = new Node3D { Name = "MuzzleFlash" };
         AddChild(node);
         node.GlobalPosition = at;
-        bool meshes = AddMuzzleMeshes(node, p.Kind, at, forward);
+        bool meshes = AddMuzzleMeshes(node, p.Kind, p.Source, at, forward);
         var light = new OmniLight3D
         {
             LightColor = colour,
@@ -301,7 +302,7 @@ public partial class CombatFxView : Node3D
     /// </summary>
     [Provenance(ProvenanceKind.Decoded, "SMuzzleFlash / SMuzzleSticky.PostBeginPlay, SWeaponDefense.SpawnSFX, SWeaponDefenseDummy.ClientFireMuzzle")]
     [Provenance(ProvenanceKind.Estimated, "The third-person gun's FX and FX_DOUILLE bones are not drawn: the flash sits at the hand's estimate and the casing starts there")]
-    private bool AddMuzzleMeshes(Node3D node, Name kind, Vector3 at, Vector3 forward)
+    private bool AddMuzzleMeshes(Node3D node, Name kind, Actor? source, Vector3 at, Vector3 forward)
     {
         if (_library is not { Available: true } lib)
         {
@@ -341,7 +342,17 @@ public partial class CombatFxView : Node3D
         }
 
         Add("SBase.SMuzzleGenerique", 1.5f + (rng.Next() * 2f), firstPerson ? new FVector(3.5f + (rng.Next() * 2f), 1f, 1f) : new FVector(1f, 1f, 1f));
-        Add("SBase.sMuzzleCanon", 1f, new FVector(1f, 1f, 1f));
+        // The first-person Uzi and shotgun have no barrel flash; both shotguns add their spray (merc-guns.md).
+        if (!(firstPerson && source is SWeaponDefense_Uzi or SWeaponDefense_Shotgun))
+        {
+            Add("SBase.sMuzzleCanon", 1f, new FVector(1f, 1f, 1f));
+        }
+
+        if (source is SWeaponDefense_Shotgun or SWeaponDefenseDummy_Shotgun)
+        {
+            _effects?.Spawn("SBase.SShotGunEmitter", origin, aim);
+        }
+
         FVector casing = origin;
         if (firstPerson && FirstPerson?.Model is { } model && model.Skeleton.FindBone("FX_DOUILLE") is var bone and >= 0)
         {

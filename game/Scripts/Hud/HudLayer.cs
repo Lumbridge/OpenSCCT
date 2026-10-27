@@ -369,7 +369,9 @@ public partial class HudLayer : CanvasLayer
         _canvasList.Clear();
         if (Snapshot.RespawnWeapon is { } weapon && !Snapshot.HideHud && Assets?.TextureSize(HudRespawnWeaponDrawer.Package, HudRespawnWeaponDrawer.Atlas) is { } atlas)
         {
-            HudRespawnWeaponDrawer.Draw(_canvasList, screen, weapon, new Vector2(atlas.X, atlas.Y));
+            // BeginRespawnWeaponPick names the key bound to Use: here the bUsing button's key.
+            HudRespawnWeapon shown = Options.KeyName?.Invoke("bUsing") is { Length: > 0 } key ? weapon with { Key = key } : weapon;
+            HudRespawnWeaponDrawer.Draw(_canvasList, screen, shown, new Vector2(atlas.X, atlas.Y));
         }
 
         Console.Draw(screen, Snapshot.TimeSeconds, !Snapshot.Valid);

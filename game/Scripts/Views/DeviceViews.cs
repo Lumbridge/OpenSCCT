@@ -9,6 +9,7 @@ using OpenScct.Game.SBase;
 using OpenScct.Provenance;
 using OpenScctGame.Render;
 using OpenScctGame.Render.Characters;
+using OpenScctGame.Render.Data;
 using OpenScctGame.Render.Materials;
 
 namespace OpenScctGame.Views;
@@ -30,6 +31,7 @@ public sealed class DeviceViews
     private readonly Dictionary<string, Mesh?> _meshByAsset = new(StringComparer.OrdinalIgnoreCase);
     private readonly HashSet<string> _missing = new(StringComparer.OrdinalIgnoreCase);
     private float _relightClock;
+    private double _skinClock;
 
     /// <summary>Binds the map's nodes to the actors <paramref name="loaded"/> created (the client's map load).</summary>
     public DeviceViews(RenderMap map, MapLoadResult loaded, Node3D parent, string? sharedRoot = null)
@@ -218,6 +220,7 @@ public sealed class DeviceViews
             _relightClock = RelightSeconds;
         }
 
+        _skinClock += dt;
         foreach (MeshFollower m in _meshes)
         {
             if (m.WantsMeshChange)
@@ -227,6 +230,7 @@ public sealed class DeviceViews
                 m.ShowMesh(wanted, wanted is null || own ? null : FindMesh(wanted));
             }
 
+            m.DrawSkin(_map.Pack, _skinClock);
             m.Draw(alpha);
             if (relight && m.Moved && m.Entry.Light == LightSource.Actor && m.Entry.Node.Visible)
             {
@@ -376,6 +380,28 @@ public sealed class MeshFollower
         if (mesh is not null)
         {
             Entry.Node.Mesh = mesh;
+        }
+    }
+
+    /// <summary>
+    /// The actor's Skins[0] over every surface when it is a skin the render builds (<see cref="GameplaySkins"/>: the
+    /// unarmed bomb spot's ghost, which the native tick swaps for the mesh's own materials once a charge is planted);
+    /// otherwise the mesh's own materials.
+    /// </summary>
+    [Provenance(ProvenanceKind.Decoded, "ASBombTargetObjectiveTrigger::Tick: Skins[0..2] = AbsentSkin unarmed, None armed (one skin for every slot)")]
+    internal void DrawSkin(RenderPack? pack, double seconds)
+    {
+        MeshInstance3D node = Entry.Node;
+        if (!GodotObject.IsInstanceValid(node))
+        {
+            return;
+        }
+
+        string? skin = Actor.Skins.Count > 0 ? Actor.Skins[0].Path : null;
+        Material? material = skin is null ? null : GameplaySkins.For(pack, skin, seconds);
+        if (!ReferenceEquals(node.MaterialOverride, material))
+        {
+            node.MaterialOverride = material;
         }
     }
 
