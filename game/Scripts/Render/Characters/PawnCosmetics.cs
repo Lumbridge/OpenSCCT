@@ -12,8 +12,12 @@ namespace OpenScctGame.Render.Characters;
 /// </summary>
 public static class PawnCosmetics
 {
-    /// <summary>The retail goggle green's hue, degrees.</summary>
-    public const float SpyRetailHue = 120f;
+    /// <summary>
+    /// The retail goggle glow's hue, degrees: a yellow green, not pure green. Measured on the converted textures,
+    /// weighted by saturation: the lens self-illumination (Shadw_agent under its SI mask) 75, the beam (goggle_green) 67.
+    /// At 120 every light colour came out about 50 degrees short (amber pink, cyan green, violet blue).
+    /// </summary>
+    public const float SpyRetailHue = 71f;
 
     /// <summary>The retail merc torch and lamp orange's hue, degrees (RenderK.TorchHue 21 of 255).</summary>
     public const float MercRetailHue = 21f * 360f / 255f;

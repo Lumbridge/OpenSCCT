@@ -159,7 +159,8 @@ public static class CosmeticCatalog
     public static string DescribeAll(IEnumerable<string> ids) =>
         string.Join(", ", ids.Select(Find).Where(i => i is not null).Select(i => Describe(i!)));
 
-    // Retail goggle green is about hue 120 and the merc torch orange about hue 30 (RenderK.TorchHue 21 of 255).
+    // Retail goggle glow is a yellow green, about hue 71, and the merc torch orange about hue 30 (RenderK.TorchHue 21 of 255);
+    // the game turns the retail colour by the difference (PawnCosmetics.HueTurn).
     private static readonly (string Id, string Name, float Hue)[] s_spyHues =
     [
         ("blue", "Blue", 215f), ("red", "Red", 0f), ("amber", "Amber", 40f), ("violet", "Violet", 275f), ("cyan", "Cyan", 185f),
