@@ -55,12 +55,18 @@ python -m svmbuild audio audio-map --maps all --jobs 6
     `soundPitch` and light values.
   - `zones`: every ZoneInfo with its ambience and its reverb (`effect`: the `ZoneEffect` object, its EFFECT_* class
     and the effective I3DL2 parameters, class defaults with the map's overrides).
+  - `zoneDist`: the portal distance between every two zones, rows and columns by zone number (the collision ZONE
+    records): the engine's ZoneDist table (game 0x109ea770), made from the world model's zone Connectivity masks.
+    Occlusion and the 3D ambient range scale with it (rules 18 and 20).
   - `missing`: references that do not resolve.
 - `streams/<Package>/<Name>.ogg`: the bank's Ogg Vorbis streams as stored.
 - The step puts its files into the map's `manifest.json` (`files`, the `audio` group hash, and
   `{"pack": "audio", "sha256": <shared/audio/audio.json>}` in `requires`). The maps step owns the folder: when it
   rebuilds or restores a map it removes `audio/` and writes its own manifest, and the next `audio-map` run (built or
-  from the cache) puts both back. Run `audio-map` after `maps` (the `all` target and the step's dependencies do).
+  from the cache) puts both back. The maps step names `audio-map` as a follower (`Step.followers`), so any plan that
+  runs `maps` with dependencies on (`python -m svmbuild maps --maps X`) runs `audio-map` after it; only `--no-deps`
+  leaves a map without audio. The client warns (`SVM_AUDIO the map has no audio table ...`) when a map folder has no
+  `audio/audio.json`: its ambience, reverb and streamed sounds are then silent.
 
 ### Numbers (reference install, 2026-10-23)
 
@@ -86,10 +92,18 @@ python -m svmbuild audio audio-map --maps all --jobs 6
 
 Every update it moves sources with their actors, computes the gain itself (Godot's attenuation is off on every
 `AudioStreamPlayer3D`, which only pans): `volume x fade x R / (R + 0.5 (d - R))` beyond the radius for 3D sources,
-plain volume for 2D ones. Ambient loops (rules 19 to 22) come from two places: the simulation's actors whose
+plain volume for 2D ones. Occlusion (rule 18) shrinks R for a 3D source whose actor's SoundOcclusion is not
+OCCLUSION_None: two line checks (listener to source and back, movers and level geometry) give the thickness between
+the first surfaces seen from each end and their materials' OcclusionType (collision TFLX); the factor
+`min(1, 0.95^(ZoneDist^2) x 1.5 x (2 - thickness / 700) x m)`, pulled halfway to 1 when both surfaces are in one
+zone, with m the EAX material preset of the type (Generic 0.32, Full 0, SingleWindow 0.2, DoubleWindow 0.056, ThinDoor
+0.35, ThickDoor 0.079, WoodWall 0.1, BrickWall 0.056, StoneWall 0.032, Curtain 0.5), multiplies R (at least 0.1 uu); R
+eases to a new value over at most 1 s. This is the subsystem's DirectSound path; with EAX on the original applies
+the same factor as EAX occlusion (direct path -2000 log10 f mB at high frequencies, the preset's LF and room ratios),
+which Godot cannot do per voice. A second hit in zone 0 leaves the sound unoccluded, as in the original. Ambient loops (rules 19 to 22) come from two places: the simulation's actors whose
 `AmbientSound` is set (zones, SAmbientSoundTrigger, movers), read through `IAudioWorld.CollectAmbient`, and the
-client-only actors of the map's `audio.json`. 3D loops play within 100 x their radius; a zone's 2D ambience plays
-while the listener is in that zone; other 2D loops fall off with distance and only the loudest of a sound plays.
+client-only actors of the map's `audio.json`. 3D loops play within 100 x their radius x 0.8^(ZoneDist^2) between the
+actor's zone and the listener's; a zone's 2D ambience plays while the listener is in that zone; other 2D loops fall off with distance and only the loudest of a sound plays.
 A loop keeps its voice while it plays; when more loops are in range than there are voices (the KrauE merc spawn hears
 about 40), the lowest priority ones lose theirs to rule 15 and start again only when they win a voice back. The
 sound system remembers which voice each actor's loop started on and only treats it as that loop while the voice
@@ -99,15 +113,30 @@ restarts another actor's loop (it did, every update, at 1,000 to 6,000 starts a 
 
 Reverb: `ReverbBuses` makes `SvmWorld`, `SvmFlat`, `SvmMusic` and one `SvmReverbN` bus per distinct zone effect
 (SteeE: 29 zones share a handful of parameter sets). 3D voices play on the bus of the listener's zone. Godot's
-`AudioEffectReverb` is not I3DL2; the parameter mapping (wet from Room + Reverb, room size from DecayTime, damping
-from RoomHF and DecayHFRatio, spread from EnvironmentDiffusion, pre-delay from the two delays) is an estimate.
+`AudioEffectReverb` is a Freeverb (eight damped combs of 25 to 37 ms, four allpasses), not I3DL2. The mapping
+follows the I3DL2 definitions where the models meet: the comb feedback that loses 60 dB over DecayTime along the mean
+comb (room size = (g - 0.7) / 0.28, so decays below about 0.6 s or above about 10 s clamp); the comb low-pass that
+gives DecayTime x DecayHFRatio at HFReference (Godot's damping is a 2.5 to 10 kHz cutoff, so a ratio of 1 or more
+takes 10 kHz); the wet level from Room + Reflections and Room + Reverb summed as energy, dry at 1; the pre-delay from
+ReflectionsDelay + ReverbDelay (20 to 500 ms), no pre-delay feedback. Still estimated: the absolute wet level
+(Freeverb's gain is not the I3DL2 reference), and RoomHF / RoomLF, EnvironmentDiffusion, Density, the reflection
+pattern and RoomRolloffFactor have no Godot counterpart.
+
+Music at map load: the engine plays the LevelInfo's Song with no fade when a map loads (game 0x109e82c4,
+`Audio->PlayMusic(Level->Song, 0)`); `SoundSystem.Bind` does the same from the map table (TermD's `DAPlayerStart`,
+the menu levels' music). MusicTrigger's SoundVolume plays no part: the subsystem's PlayMusic plays at the music
+volume setting only (game 0x10b04920). AquaE and the other Aqua maps' `aqua_musicA` is a zone ambience (ZoneInfo
+AmbientSound), so it plays as the zone's 2D bed by rule 21, as in the original.
 
 ### In a match
 
 `PlayRoot` adds a `PlayAudio` (before the HUD): it loads the map's audio, puts a `PlayAudioRouter` in front of the
 `SoundSystem` as the client world's event sink (the HUD's tap wraps it), binds the sound system to the client's
-world once the map is loaded (actor locations, ambient loops, zones, surfaces) and listens from the play camera
-every frame. Where the sounds come from:
+world once the map is loaded (actor locations, ambient loops, zones, surfaces) and listens every frame where the
+original does (rule 23): UNIAudio's Update takes the viewport player controller's Location (game 0x10b05260), which
+the following camera's solver moves to the camera spot, so that is the drawn camera; in the object views (sticky
+camera, camera network, Mirador and the move to a sticky camera) the controller stays by the pawn and the player
+keeps hearing from there. First person keeps the camera (where the original's controller sits then is not decoded). Where the sounds come from:
 
 - The client's own simulation: the local pawn's and the proxies' footsteps and gear (walk-cycle notifies), the
   landing, gadgets and projectiles the client simulates, the goggles' mode sounds (`SGoggle.Sound.cs`), the HUD
@@ -194,20 +223,39 @@ back, 11 to 15 starts a run, each one after a rule-15 loss; a bare count of 20 f
   none, so the jingles play once and the warning is gone (play-aim log: 4 before, 0 after). The sound data were
   never short.
 
+## Footprints
+
+`SBasePawn.FootPrint` (the walk-cycle notifies and the landing, through `IMovementHooks.FootPrint`) traces 100 uu
+down from the foot bone, sends the floor's SurfaceType to the sound system (SetSwitch, the next step's switch sound),
+spawns SFootPrintEffect on sand, SWaterFootStepEffect on medium water, SSparkWater on deep water and SDustEmitter on
+a fake ceiling above 200 uu/s, and while the feet are dirty (sand, snow, water: FootDirtyness falls by 1, 1 or
+0.05 / 0.02 a step) leaves an SFootPrint projection for 20 s. The print uses the class texture: the colour and the
+sand, water or phosphor texture the script sets on the shared combiner material are not drawn, and it is cast
+straight down under the pawn's yaw instead of along the foot bone (estimated).
+
 ## Not done yet
 
-- Footsteps: the walk-cycle notifies call `PlayFootStepLeft` / `PlayFootStepRight`; `FootPrint` (the surface
-  switch, footprints) is a movement hook with no implementation yet, so the sound system's own surface trace stands
-  in.
-- Occlusion (rule 18), the zone factor of the ambient range and Doppler.
-- Following a bone (rule 17): sources follow their actor; `ClientHearSound` sends BoneIdx 0.
+- Doppler (rule 17) and following a bone: sources follow their actor; `ClientHearSound` sends BoneIdx 0.
+- The switch fallback trace (rule 13) uses the hit material's own SurfaceType, not the innermost material's (the
+  collision data keeps the wrapper's). FootPrint's SetSwitch, which precedes every step sound, uses the hit
+  material's own value in the original too.
+- The 0.8^(ZoneDist^2) factor the subsystem also applies to an occluded one-shot's priority radius.
 - The reach test of the server's hearing is an estimate (100 x the radius; spec open question 4).
 - Script sounds not ported yet (no call site in the ports): the SHud binocular sounds (Snd_BinocularNoise,
   Snd_BinocularAnalyzeLoop, Snd_BinocularAttLoop, Snd_BinocularAnalyzeDetect), Snd_HudShutdown (the port of
   HudShutDown has no ClientPlaySound), Hud_viseProgress (SetBallisticValue), the cape sounds of SBasePawn
-  (Cape_InOut, RA_Cape_damage), SCamera's CamDzzz and the camera, laser and sensor explosions
-  (RA_camSurveil_EXPLO), SMuzzleSticky's GzitSound, SFlashGen's SND_Tonnerre, SNoiseEmitter, SShotGunProjector's
-  SW_Impact_Shot, the push sounds of Decoration and the ESoftBodyActor sounds.
+  (Cape_InOut, RA_Cape_damage), SFlashGen's SND_Tonnerre (the class is not ported: its lightning flicker belongs to
+  the lights), SShotGunProjector's SW_Impact_Shot and the ESoftBodyActor sounds. The noise event NativeHitWall raises
+  after a bounce sound is not ported.
+- Ported since: SCamera's CamDzzz (SCamera.cs), STriggerLight's sound (STriggerLight.cs), the camera, laser and
+  sensor chaff explosions (RA_camSurveil_EXPLO), SNoiseEmitter's steps and breaths, SMuzzleSticky's GzitSound (at
+  the pistol, SWeaponAttaque.TickSWeaponAttaque) and SGamePlayObject's BounceSound (NativeHitWall: half the mirrored
+  velocity; a bounce that carries on faster than 40 uu/s on an object with a static mesh, volume 1, radius 100).
+  Decoration's PushSound and EndPushSound need no port: no SCCT class extends Decoration and no map places one.
+- Map loops over the network (read through, not run): SAmbientSoundTrigger.PreBeginPlay runs in every world, so a
+  client starts with the server's on/off state; AmbientSound is replicated (Actor group 5 in the first bunch,
+  SAmbientSoundTrigger and Mover on every change) against class-default shadows, so an initially-on trigger, a
+  trigger switched later and a mover's loop reach the client.
 - `SPlayerController.ClientNotifyNoise` (the spy's noise meter on footsteps) is not ported.
 - The default slot of the simulation's `PlaySound` is SLOT_None; the original's is SLOT_Misc (rule 1). It only
   changes which call replaces which when all 32 voices are busy.

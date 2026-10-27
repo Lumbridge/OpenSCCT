@@ -20,7 +20,7 @@ from .audio import audio_code
 
 class AudioMapStep(Step):
     name = "audio-map"
-    version = 2
+    version = 3
     deps = ("audio", "maps")
     per_map = True
     needs_game = True
@@ -29,7 +29,7 @@ class AudioMapStep(Step):
     def extra_code(self) -> list[Path]:
         root = Path(__file__).resolve().parents[1]
         return env.code_files() + audio_code() + [root / "mapconv" / "source.py", root / "sources" / "classdb.py",
-                                                  root / "sources" / "typedprops.py"]
+                                                  root / "sources" / "typedprops.py", root / "sources" / "modeltail.py"]
 
     def options(self, ctx: Context, unit: str | None) -> dict:
         return {"map": unit}

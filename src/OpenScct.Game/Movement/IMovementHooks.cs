@@ -108,9 +108,7 @@ public sealed class MovementHooksLocal : IMovementHooks
     {
     }
 
-    public void FootPrint(SBasePawn Pawn, bool bTrueIfLeftFoot)
-    {
-    }
+    public void FootPrint(SBasePawn Pawn, bool bTrueIfLeftFoot) => Pawn.FootPrint(bTrueIfLeftFoot);
 
     public void LaunchQuickGadget(SPlayerController PC)
     {

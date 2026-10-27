@@ -116,6 +116,50 @@ public static class AudioK
     [Provenance(ProvenanceKind.Decoded, "HUD sound helper game 0x10b26920: Audio->PlaySound(None, 0, Sound, loc, 1.0, 4096.0, 1.0, 0x10, ...)")]
     public const float HudSoundRadius = 4096f;
 
+    /// <summary>
+    /// Rule 18: the direct-path factor of each Material.OcclusionType (EOcclusionType: Generic, None, Full,
+    /// SingleWindow, DoubleWindow, ThinDoor, ThickDoor, WoodWall, BrickWall, StoneWall, Curtain). These are the EAX
+    /// material presets' occlusion as a linear factor (-1000 mB is 0.316); the subsystem's constructor also stores
+    /// each preset's LF and room ratios, used only by the EAX path.
+    /// </summary>
+    [Provenance(ProvenanceKind.Decoded, "UUNIAudioSubsystem constructor game 0x10b029a0: 11 x 3 floats at +0x74; GetOcclusion 0x10b07100 reads the first")]
+    public static readonly float[] OcclusionMaterialFactor =
+        [0.316228f, 1f, 1e-5f, 0.199526f, 0.056234f, 0.354813f, 0.079433f, 0.1f, 0.056234f, 0.031623f, 0.501187f];
+
+    /// <summary>Rule 18: the thickness between the two hits counts against the factor at 1 per 700 uu.</summary>
+    [Provenance(ProvenanceKind.Decoded, "GetOcclusion 0x10b07100: 2 - |hit1 - hit2| x 0.0014285714")]
+    public const float OcclusionThicknessScale = 700f;
+
+    /// <summary>Rule 18: the factor before the zone term, at zero thickness.</summary>
+    [Provenance(ProvenanceKind.Decoded, "GetOcclusion 0x10b07100: 2.0")]
+    public const float OcclusionBase = 2f;
+
+    /// <summary>Rule 18: the zone term, OcclusionZoneBase ^ (ZoneDist^2) x 1.5.</summary>
+    [Provenance(ProvenanceKind.Decoded, "GetOcclusion 0x10b07100: pow(0.95, ZoneDist[a][b]^2) x factor x 1.5, at most 1")]
+    public const float OcclusionZoneBase = 0.95f;
+
+    [Provenance(ProvenanceKind.Decoded, "GetOcclusion 0x10b07100: x 1.5")]
+    public const float OcclusionZoneScale = 1.5f;
+
+    /// <summary>Rule 18: both hits in one zone pull the factor halfway back to 1.</summary>
+    [Provenance(ProvenanceKind.Decoded, "GetOcclusion 0x10b07100: f + (1 - f) x 0.5 when the zones match")]
+    public const float OcclusionSameZoneMix = 0.5f;
+
+    /// <summary>Rule 18: the occluded minimum distance is never below this (the DirectSound path without EAX).</summary>
+    [Provenance(ProvenanceKind.Decoded, "game 0x10b0bc80: max(ratio x radius, 0.1)")]
+    public const float OccludedMinDistance = 0.1f;
+
+    /// <summary>Rule 18: the minimum distance eases to a new occlusion over at most this many seconds.</summary>
+    [Provenance(ProvenanceKind.Decoded, "Update game 0x10b05f7c: cur += (target - cur) x dt below 1 s since the last settle, else cur = target")]
+    public const float OcclusionSettleSeconds = 1f;
+
+    /// <summary>Rule 20: a 3D ambient's range shrinks by AmbientZoneBase ^ (ZoneDist^2) between its zone and the listener's.</summary>
+    [Provenance(ProvenanceKind.Decoded, "UpdateAmbientSounds game 0x10b05114: d^2 < (100 x SoundRadius x pow(0.8, ZoneDist^2))^2")]
+    public const float AmbientZoneBase = 0.8f;
+
+    /// <summary>Actor.SoundOcclusion OCCLUSION_None: the actor's sounds are never occluded.</summary>
+    public const byte OcclusionNone = 1;
+
     /// <summary>Sound flags (spec/native/audio.md, Sound objects).</summary>
     public const int FlagLoop = 0x0002;
     public const int FlagStream = 0x0004;

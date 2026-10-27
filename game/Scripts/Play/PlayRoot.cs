@@ -16,6 +16,7 @@ using OpenScctGame.Match;
 using OpenScctGame.Play.Session;
 using OpenScctGame.Render;
 using OpenScctGame.Views;
+using ViewSource = OpenScct.Game.Camera.PlayerCalcView.EViewSource;
 
 namespace OpenScctGame.Play;
 
@@ -422,16 +423,35 @@ public partial class PlayRoot : Node3D
             stats.InPackets, stats.InPacketsLost, stats.OutPackets, stats.OutPacketsLost, corrections, session.Client.ServerNetRate);
     }
 
-    /// <summary>Where the player hears from: the drawn camera, else the last calc view.</summary>
+    /// <summary>
+    /// Where the player hears from (spec/native/audio.md rule 23): UNIAudio's Update listens at the viewport's
+    /// player controller's Location, turned by the drawn view (game 0x10b05260). The following camera's solver moves
+    /// the controller to the camera spot, so there the drawn (interpolated) camera is the same place. The object
+    /// views (sticky camera, camera network, Mirador and the move to a sticky camera) leave the controller where the
+    /// following camera put it, by the pawn: the player keeps hearing from there, not from the remote camera.
+    /// First person keeps the camera (where the original's controller sits then is not decoded).
+    /// </summary>
     private (FVector Location, FRotator Rotation)? ListenerView()
     {
+        (FVector Location, FRotator Rotation)? view = null;
         if (Camera is { } camera)
         {
             (FVector location, FRotator rotation, float _) = camera.Current;
-            return (location, rotation);
+            view = (location, rotation);
+        }
+        else if (Session is { View.Valid: true } s)
+        {
+            view = (s.View.Location, s.View.Rotation);
         }
 
-        return Session is { View.Valid: true } s ? (s.View.Location, s.View.Rotation) : null;
+        if (view is { } v && Session?.LocalController is { } pc &&
+            OpenScct.Game.Camera.PlayerCalcView.SourceOf(pc) is ViewSource.StickyCam or ViewSource.StickyCamSmoothToPosition
+                or ViewSource.Mirador)
+        {
+            return (pc.Location, v.Rotation);
+        }
+
+        return view;
     }
 
     private void PostLateHudEvents(OpenScct.Server.ClientSession client)

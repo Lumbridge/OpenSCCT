@@ -131,5 +131,5 @@ SteeE instances:
    crane debris emitters. This settles the engine rule for client calls on unowned always-relevant actors (also used
    by `Emitter.ReplicateTrigger` and SGamePlayObject `SpawnDamageEmitter`); native call path in ProcessRemoteFunction.
 2. Server-side `PlaySound` reach: which players receive it (radius test, occlusion, owner exclusion). Audio spec.
-3. Whether `PlayMusic` uses the trigger's `SoundVolume` (50 on MusicTrigger263). Scenario: compare the music level
-   with another map's MusicTrigger at default 128.
+3. Answered: `PlayMusic` ignores the trigger's `SoundVolume` (UUNIAudioSubsystem::PlayMusic, game 0x10b04920, plays
+   at the music volume setting with no actor).

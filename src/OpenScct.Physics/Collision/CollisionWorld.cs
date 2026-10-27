@@ -94,6 +94,9 @@ public sealed partial class CollisionWorld : ICollisionWorld
 
     /// <summary>The original UE2 PolyFlags of each collision material's BSP surface (SVMap 1.1 TFLX; 0 without it).</summary>
     private readonly uint[] _materialPolyFlags;
+
+    /// <summary>Each collision material's own Material.OcclusionType (EOcclusionType; SVMap 1.1 TFLX; 0 without it).</summary>
+    private readonly byte[] _materialOcclusion;
     private readonly CollisionZone[] _zones;
     private readonly string?[] _zoneActorIds;
     private readonly ZoneInfo?[] _zoneActors;
@@ -218,7 +221,8 @@ public sealed partial class CollisionWorld : ICollisionWorld
         _dynamicColliders = dynamic.ToArray();
         _materials = data.Materials.AsSpan().ToArray();
         _materialPolyFlags = ReadPolyFlags(data, _materials.Length);
-        _bsp = data.BspNodes.AsSpan().ToArray();
+        _materialOcclusion = ReadOcclusionTypes(data, _materials.Length);
+        _bsp =data.BspNodes.AsSpan().ToArray();
         if (_bspCollider >= 0)
         {
             _bspTris = data.Triangles.AsSpan().ToArray();
@@ -323,7 +327,32 @@ public sealed partial class CollisionWorld : ICollisionWorld
         return flags;
     }
 
+    /// <summary>The occlusion type byte of the TFLX rows, one per material (the sound system's occlusion, spec/native/audio.md rule 18).</summary>
+    private static byte[] ReadOcclusionTypes(CollisionData data, int count)
+    {
+        var types = new byte[count];
+        foreach (CollisionUnknownChunk chunk in data.UnknownChunks)
+        {
+            if (chunk.FourCC == "TFLX" && chunk.Count == (uint)count && chunk.Payload.Length >= count * TflxStride)
+            {
+                for (int i = 0; i < count; i++)
+                {
+                    types[i] = chunk.Payload[(i * TflxStride) + TflxOcclusionOffset];
+                }
+
+                break;
+            }
+        }
+
+        return types;
+    }
+
+    /// <summary>The hit material's own OcclusionType (0, Generic, for -1 or a map without TFLX).</summary>
+    public byte OcclusionTypeOf(int material) =>
+        material >= 0 && material < _materialOcclusion.Length ? _materialOcclusion[material] : (byte)0;
+
     private const int TflxStride = 8;
+    private const int TflxOcclusionOffset = 6;
 
     // SVMap 1.1 CSRC rows (spec/svmap/1.1/collision.md): u32 source, u32 asset, u8 set, u8, u16 variants, u16 traceUse, u16.
     private const int CsrcStride = 16;

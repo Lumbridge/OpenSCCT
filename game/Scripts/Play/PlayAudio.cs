@@ -140,6 +140,7 @@ public sealed partial class PlayAudio : Node
         if (session.LocalController is { } pc)
         {
             sound.SetAudioZoom(pc.AudioZoomFactor, pc.FovAngle);
+            sound.ViewActorId = (pc.ViewTarget ?? pc.Pawn)?.ActorId ?? 0;
         }
 
         if (_quiet)

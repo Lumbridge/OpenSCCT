@@ -87,6 +87,13 @@ public sealed class AudioLibrary
             lib.Map = MapAudioDoc.Load(System.IO.Path.Combine(mapDir, "audio.json"));
             lib.ReadMapSounds(System.IO.Path.Combine(mapDir, "audio.json"));
         }
+        else if (mapDir is not null)
+        {
+            // Without the map's table the map plays none of its own sounds: no zone ambience, reverb, streamed
+            // loops or client-only ambient actors. A maps rebuild removes the folder; audio-map puts it back.
+            GD.PushWarning($"SVM_AUDIO the map has no audio table at {mapDir}: its ambience, reverb and streamed " +
+                           $"sounds are silent (python -m svmbuild audio-map --maps {System.IO.Path.GetFileName(mapFolder)})");
+        }
 
         return lib;
     }
@@ -254,7 +261,8 @@ public sealed record MapSoundActor(
     float SoundRadius,
     byte SoundPitch,
     int LightType,
-    float LightBrightness);
+    float LightBrightness,
+    byte SoundOcclusion = 0);
 
 /// <summary>A zone of the map's audio.json: its ambience and its I3DL2 reverb parameters.</summary>
 public sealed record MapSoundZone(string Id, string? AmbientSound, byte SoundVolume, byte SoundPitch, string? EffectClass,
@@ -266,6 +274,18 @@ public sealed class MapAudioDoc
     public List<MapSoundActor> Actors { get; } = [];
 
     public Dictionary<string, MapSoundZone> Zones { get; } = new(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>ZoneDist (ULevel, game 0x109ea770): <see cref="ZoneCount"/> x <see cref="ZoneCount"/> portal distances, row-major.</summary>
+    public byte[] ZoneDist { get; private set; } = [];
+
+    /// <summary>LevelInfo.Song: the music the engine starts when the map loads (TermD; the menu levels).</summary>
+    public string? LevelSong { get; private set; }
+
+    public int ZoneCount { get; private set; }
+
+    /// <summary>The portal distance between two zone numbers; 0 when the map has no table (no zone term then).</summary>
+    public int ZoneDistance(int a, int b) =>
+        a >= 0 && b >= 0 && a < ZoneCount && b < ZoneCount ? ZoneDist[(a * ZoneCount) + b] : 0;
 
     public static MapAudioDoc Load(string path)
     {
@@ -280,6 +300,12 @@ public sealed class MapAudioDoc
         foreach (JsonElement a in root.GetProperty("actors").EnumerateArray())
         {
             JsonElement loc = a.GetProperty("location");
+            if (a.GetProperty("class").GetString() is { } cls && cls.EndsWith("LevelInfo", StringComparison.Ordinal) &&
+                a.TryGetProperty("sounds", out JsonElement levelSounds) && levelSounds.TryGetProperty("Song", out JsonElement song))
+            {
+                m.LevelSong = song.GetString();
+            }
+
             m.Actors.Add(new MapSoundActor(
                 a.GetProperty("id").GetString()!,
                 a.GetProperty("class").GetString()!,
@@ -290,7 +316,32 @@ public sealed class MapAudioDoc
                 Num(a, "soundRadius", 64f),
                 (byte)Num(a, "soundPitch", 64),
                 (int)Num(a, "lightType", 0),
-                Num(a, "lightBrightness", 64f)));
+                Num(a, "lightBrightness", 64f),
+                (byte)Num(a, "soundOcclusion", 0)));
+        }
+
+        // The portal distance between zones (rows and columns by zone number), absent in older content.
+        if (root.TryGetProperty("zoneDist", out JsonElement dist) && dist.ValueKind == JsonValueKind.Array)
+        {
+            int n = dist.GetArrayLength();
+            m.ZoneDist = new byte[n * n];
+            m.ZoneCount = n;
+            int i = 0;
+            foreach (JsonElement row in dist.EnumerateArray())
+            {
+                int j = 0;
+                foreach (JsonElement v in row.EnumerateArray())
+                {
+                    if (j < n)
+                    {
+                        m.ZoneDist[(i * n) + j] = (byte)Math.Clamp(v.GetInt32(), 0, 255);
+                    }
+
+                    j++;
+                }
+
+                i++;
+            }
         }
 
         foreach (JsonElement z in root.GetProperty("zones").EnumerateArray())
