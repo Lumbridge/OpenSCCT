@@ -268,13 +268,24 @@ launcher finds the game, downloads the build, builds the content and then Play w
 The **Maps** button (bottom row) opens a list of the maps in [SCCT-Maps](https://github.com/Lumbridge/SCCT-Maps),
 read the way the SCCT Map Manager reads it (its `docs/publishing.md`): original maps (`release/<Package>/<version>`,
 newest version, names from `release/names.json`), community (with `community/_shared`), enhanced, recovered and
-ported maps, and the ports released as assets (`asset-catalog.json`). Editor asset packs and editor-only scenery (no
+ported maps, the ports released as assets (`asset-catalog.json`), and the stock SCCT Versus 4.0 maps
+(`stock/Packages/Maps/*.sdc`, category Stock, listed as `stock/<Code>` and named after their asset pack, such as
+"Aquarius (AquaE)"; Entry and Lobby are not listed). Editor asset packs and editor-only scenery (no
 `Packages/Maps/*.sdc`) are not listed, and only the files the game plays with are downloaded (Maps, Textures,
 StaticMeshes, Sounds, Animations, `System/_PC_` text; never MapsEd).
 
+**Stock asset packs.** The `assets/svm-*` entries of `asset-catalog.json` (every texture, mesh, sound and animation
+package of SCCT Versus 4.0, in 36 packs on `svm-*-vX.Y.Z` releases) are never listed as maps. Their files join the
+package pool where the repository's folders have no copy, so any downloaded map (stock, enhanced, community) takes a
+stock package it imports from them when the install lacks it, file by file, not whole packs. A stock map also takes its
+own `<Code>-i.utc` (menu pictures and text) and `<Code>.uas` (sounds) from them, which the map file does not import.
+These packs list plain SHA-1 hashes where the tree and the ports list Git blob ids; a download is accepted when it
+matches either (`MapPaths.MatchesHash`). The install is still needed to build content (System scripts, menus and
+Reloaded's map tables are not in the packs).
+
 - One GitHub API call per refresh (the repository's tree, pinned to its commit); files then come from
   `raw.githubusercontent.com` at that commit or from release assets, which are not rate limited. No token.
-- Each file is checked against its size and Git blob id from the tree before it is put in place; a bad file is
+- Each file is checked against its size and hash (Git blob id, or plain SHA-1 for the stock asset packs) before it is put in place; a bad file is
   deleted. Paths are checked (no `..`, devices, links) before anything is written.
 - Files go to `%LOCALAPPDATA%\OpenSCCT\maps\game\`, laid out like an install. The player's game folder is never
   written. Maps share files: a file is downloaded once and deleted with the last map that lists it. When two maps list

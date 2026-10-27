@@ -71,6 +71,7 @@ public sealed class MapRepository
             if (await RawTextAsync(catalog.Commit, "asset-catalog.json", 16 * 1024 * 1024, timeout.Token).ConfigureAwait(false) is { } released)
             {
                 catalog = MapIndexParser.Merge(catalog, MapIndexParser.ParseReleased(released, catalog.Commit));
+                catalog = MapIndexParser.WithStockAssets(catalog, MapIndexParser.ParseStockAssets(released));
             }
 
             return catalog with { Maps = MapIndexParser.Ordered(catalog.Maps) };
@@ -122,7 +123,7 @@ public sealed class MapRepository
                 }
             }
 
-            if (!string.Equals(MapPaths.GitBlobSha1(target), file.Hash, StringComparison.OrdinalIgnoreCase))
+            if (!MapPaths.MatchesHash(target, file.Hash))
             {
                 throw new InvalidDataException($"{file.Destination} does not match the map list (damaged download).");
             }

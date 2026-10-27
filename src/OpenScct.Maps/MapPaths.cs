@@ -136,6 +136,28 @@ public static class MapPaths
         return Convert.ToHexString(hash.GetHashAndReset()).ToLowerInvariant();
     }
 
+    /// <summary>
+    /// Whether a file has the listed hash: its Git blob id (what the repository's tree and the ports list), or its
+    /// plain SHA-1 (what the stock asset packs of <c>asset-catalog.json</c> list). Both are read in one pass.
+    /// </summary>
+    public static bool MatchesHash(string path, string hash)
+    {
+        using FileStream stream = File.OpenRead(path);
+        using var blob = IncrementalHash.CreateHash(HashAlgorithmName.SHA1);
+        using var plain = IncrementalHash.CreateHash(HashAlgorithmName.SHA1);
+        blob.AppendData(Encoding.ASCII.GetBytes("blob " + stream.Length + "\0"));
+        byte[] buffer = new byte[128 * 1024];
+        int n;
+        while ((n = stream.Read(buffer)) > 0)
+        {
+            blob.AppendData(buffer.AsSpan(0, n));
+            plain.AppendData(buffer.AsSpan(0, n));
+        }
+
+        return string.Equals(Convert.ToHexString(blob.GetHashAndReset()), hash, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(Convert.ToHexString(plain.GetHashAndReset()), hash, StringComparison.OrdinalIgnoreCase);
+    }
+
     /// <summary>A short id of a set of files (their paths and hashes).</summary>
     public static string Fingerprint(IEnumerable<MapFile> files) =>
         Fingerprint(files.Select(f => f.Destination.ToLowerInvariant() + ":" + f.Hash.ToLowerInvariant()));

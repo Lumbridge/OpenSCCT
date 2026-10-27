@@ -46,6 +46,12 @@ public sealed record MapPackage(
     public string Fingerprint => MapPaths.Fingerprint(Files);
 }
 
+/// <summary>
+/// The stock asset packs' files (<see cref="MapIndexParser.ParseStockAssets"/>) and the name of the map each stock map
+/// code belongs to (<c>AquaE</c> -> <c>Aquarius</c>).
+/// </summary>
+public sealed record StockAssets(IReadOnlyList<MapFile> Files, IReadOnlyDictionary<string, string> Names);
+
 /// <summary>The maps of the SCCT-Maps repository at one commit.</summary>
 public sealed record MapIndex(string Commit, IReadOnlyList<MapPackage> Maps)
 {
@@ -65,13 +71,18 @@ public sealed record MapIndex(string Commit, IReadOnlyList<MapPackage> Maps)
 /// <item><c>release/&lt;Package&gt;/&lt;version&gt;/Packages/Maps/*.sdc</c>: original maps, newest version only, named by <c>release/names.json</c>;</item>
 /// <item><c>community|enhanced|recovered|ports/&lt;name&gt;/Packages/Maps/*.sdc</c> and <c>ports/&lt;game&gt;/&lt;map&gt;/Packages/...</c>;
 /// community maps also take <c>community/_shared</c>;</item>
-/// <item><c>asset-catalog.json</c>: ports whose packages are release assets (they replace a tree entry of the same id).</item>
+/// <item><c>asset-catalog.json</c>: ports whose packages are release assets (they replace a tree entry of the same id);</item>
+/// <item><c>stock/Packages/Maps/*.sdc</c>: the SCCT Versus 4.0 maps, with the stock asset packs (<c>assets/svm-*</c>) as the
+/// source of their own files and of any package a downloaded map imports that the player's install lacks.</item>
 /// </list>
 /// Editor asset packs and entries without a playable map (editor-only scenery) are not offered.
 /// </summary>
 public static class MapIndexParser
 {
     public const string Original = "Original";
+
+    /// <summary>The maps of SCCT Versus 4.0 (<c>stock/</c>), for installs that lack some of them.</summary>
+    public const string Stock = "Stock";
 
     private sealed record Blob(string Path, string Hash, long Size);
 
@@ -97,15 +108,25 @@ public static class MapIndexParser
 
         // Each folder holding Packages/Maps/*.sdc is one map (one version of it for release/).
         var roots = new Dictionary<string, Root>(StringComparer.Ordinal);
+        var stock = new List<Blob>();
         foreach (Blob b in blobs)
         {
             string[] p = b.Path.Split('/');
-            if (p.Length < 5 || !b.Path.EndsWith(".sdc", StringComparison.OrdinalIgnoreCase))
+            if (p.Length < 4 || !b.Path.EndsWith(".sdc", StringComparison.OrdinalIgnoreCase))
             {
                 continue;
             }
 
-            if (p[0] == "release" && p.Length == 6 && p[3] == "Packages" && p[4] == "Maps")
+            if (p[0] == "stock" && p.Length == 4 && p[1] == "Packages" && p[2] == "Maps")
+            {
+                // One map per stock map file; the menu maps are not offered.
+                string code = Path.GetFileNameWithoutExtension(p[3]);
+                if (!code.Equals("Entry", StringComparison.OrdinalIgnoreCase) && !code.Equals("Lobby", StringComparison.OrdinalIgnoreCase))
+                {
+                    stock.Add(b);
+                }
+            }
+            else if (p[0] == "release" && p.Length == 6 && p[3] == "Packages" && p[4] == "Maps")
             {
                 roots[string.Join('/', p.Take(3))] = new Root("original/" + p[1], p[1], Original, p[2], string.Empty);
             }
@@ -144,6 +165,25 @@ public static class MapIndexParser
                     break;
                 }
             }
+        }
+
+        foreach (Blob b in stock)
+        {
+            try
+            {
+                MapPaths.ValidateRelative(b.Path);
+                MapPaths.ValidateHash(b.Hash);
+                MapPaths.ValidateSize(b.Size);
+            }
+            catch (InvalidDataException)
+            {
+                continue;
+            }
+
+            string code = Path.GetFileNameWithoutExtension(b.Path);
+            string dest = b.Path["stock/".Length..];
+            maps.Add(new MapPackage("stock/" + code, code, Stock, "Latest", string.Empty, commit, "README.md",
+                [new MapFile(b.Path, dest, b.Hash, b.Size)]));
         }
 
         return new MapIndex(commit, maps) { Packages = PackagePool(blobs.Select(b => (b.Path, b.Hash, b.Size))) };
@@ -310,6 +350,127 @@ public static class MapIndexParser
             .ToList();
     }
 
+    /// <summary>
+    /// The files of the stock asset packs of <c>asset-catalog.json</c> (<c>assets/svm-*</c>: every texture, mesh,
+    /// sound and animation package of SCCT Versus 4.0, on versioned releases), newest version of each pack. They are
+    /// never offered as maps: they fill the package pool (a map takes the packages it imports from them) and give
+    /// the stock maps their own files. Their hashes are plain SHA-1 (<see cref="MapPaths.MatchesHash"/>).
+    /// </summary>
+    public static StockAssets ParseStockAssets(string json)
+    {
+        using JsonDocument doc = JsonDocument.Parse(json);
+        if (doc.RootElement.ValueKind != JsonValueKind.Array)
+        {
+            throw new InvalidDataException("The map release list is not a list.");
+        }
+
+        var packs = new Dictionary<string, (Version Version, string Name, List<MapFile> Files)>(StringComparer.Ordinal);
+        foreach (JsonElement e in doc.RootElement.EnumerateArray())
+        {
+            string id = Text(e, "Id");
+            string version = Text(e, "Version");
+            if (!id.StartsWith("assets/svm-", StringComparison.Ordinal) || !Regex.IsMatch(version, @"^v\d+\.\d+\.\d+$"))
+            {
+                continue;
+            }
+
+            var files = new List<MapFile>();
+            if (e.TryGetProperty("Files", out JsonElement list) && list.ValueKind == JsonValueKind.Array)
+            {
+                foreach (JsonElement f in list.EnumerateArray())
+                {
+                    string source = Text(f, "Source");
+                    string dest = Text(f, "Destination");
+                    string hash = Text(f, "Hash");
+                    long size = f.TryGetProperty("Size", out JsonElement s) && s.ValueKind == JsonValueKind.Number ? s.GetInt64() : -1;
+                    string[] sp = source.Split('/');
+                    if (sp.Length != 4 || sp[0] != "releases" || sp[1] != "download" || !sp[2].EndsWith("-" + version, StringComparison.Ordinal)
+                        || !MapPaths.IsPlayable(dest) || dest.StartsWith("Packages/Maps/", StringComparison.OrdinalIgnoreCase))
+                    {
+                        continue;
+                    }
+
+                    try
+                    {
+                        MapPaths.ValidateRelative(source);
+                        MapPaths.ValidateRelative(dest);
+                        MapPaths.ValidateHash(hash);
+                        MapPaths.ValidateSize(size);
+                    }
+                    catch (InvalidDataException)
+                    {
+                        continue;                           // a file this player cannot take is left out
+                    }
+
+                    files.Add(new MapFile(source, dest, hash, size));
+                }
+            }
+
+            var v = Version.Parse(version[1..]);
+            if (!packs.TryGetValue(id, out var have) || v > have.Version)
+            {
+                string name = Text(e, "Name");
+                int dash = name.LastIndexOf(" - ", StringComparison.Ordinal);
+                packs[id] = (v, dash >= 0 ? name[(dash + 3)..].Trim() : name.Trim(), files);
+            }
+        }
+
+        // A stock map is named after the pack holding its menu file (<Code>-i.utc): "Aquarius (AquaE)".
+        var names = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var pack in packs.Values.Where(p => p.Name.Length is > 0 and <= 50 && !p.Name.Any(char.IsControl)))
+        {
+            foreach (MapFile f in pack.Files.Where(f => f.Destination.EndsWith("-i.utc", StringComparison.OrdinalIgnoreCase)))
+            {
+                string file = Path.GetFileName(f.Destination);
+                names.TryAdd(file[..^"-i.utc".Length], pack.Name);
+            }
+        }
+
+        return new StockAssets(packs.Values.SelectMany(p => p.Files).ToList(), names);
+    }
+
+    /// <summary>
+    /// The catalogue with the stock asset packs added: their packages join the pool where the repository's folders
+    /// have no copy, and each stock map (<c>stock/Packages/Maps/&lt;Code&gt;.sdc</c>, listed as <c>stock/&lt;Code&gt;</c>)
+    /// takes its own files from them (<c>&lt;Code&gt;-i.utc</c>, its menu pictures and text, and <c>&lt;Code&gt;.uas</c>, its
+    /// sounds), which the map file does not import. The packages a map imports are fetched by the install as for
+    /// any downloaded map.
+    /// </summary>
+    public static MapIndex WithStockAssets(MapIndex catalog, StockAssets stock)
+    {
+        IReadOnlyList<MapFile> assets = stock.Files;
+        var pool = new Dictionary<string, IReadOnlyList<MapFile>>(catalog.Packages, StringComparer.OrdinalIgnoreCase);
+        foreach (IGrouping<string, MapFile> byName in assets.GroupBy(f => Path.GetFileNameWithoutExtension(f.Destination), StringComparer.OrdinalIgnoreCase))
+        {
+            if (!pool.ContainsKey(byName.Key))
+            {
+                pool[byName.Key] = byName.GroupBy(f => f.Destination, StringComparer.OrdinalIgnoreCase).Select(g => g.First()).ToList();
+            }
+        }
+
+        var maps = catalog.Maps.Select(m =>
+        {
+            if (m.Category != Stock || m.Codes.Count != 1)
+            {
+                return m;
+            }
+
+            string code = m.Codes[0];
+            var own = assets.Where(f => Path.GetFileName(f.Destination) is { } name
+                    && (name.Equals(code + "-i.utc", StringComparison.OrdinalIgnoreCase) || name.Equals(code + ".uas", StringComparison.OrdinalIgnoreCase)))
+                .GroupBy(f => f.Destination, StringComparer.OrdinalIgnoreCase)
+                .Select(g => g.First());
+            return m with
+            {
+                Name = stock.Names.TryGetValue(code, out string? name) ? $"{name} ({code})" : m.Name,
+                Files = m.Files.Concat(own).GroupBy(f => f.Destination, StringComparer.OrdinalIgnoreCase).Select(g => g.First())
+                    .OrderBy(f => f.Destination, StringComparer.OrdinalIgnoreCase).ToList(),
+            };
+        }).ToList();
+
+        return catalog with { Maps = maps, Packages = pool };
+    }
+
     /// <summary>The tree's maps with the released ports added (a released port replaces the tree entry with its id).</summary>
     public static MapIndex Merge(MapIndex tree, IReadOnlyList<MapPackage> released)
     {
@@ -357,6 +518,7 @@ public static class MapIndexParser
     /// <summary>The catalogue in the order the Maps window lists it: original maps first, then by name.</summary>
     public static IReadOnlyList<MapPackage> Ordered(IEnumerable<MapPackage> maps) => maps
         .OrderByDescending(m => m.Category == Original)
+        .ThenBy(m => m.Category == Stock)
         .ThenBy(m => m.Name, StringComparer.OrdinalIgnoreCase)
         .ThenBy(m => m.Category, StringComparer.OrdinalIgnoreCase)
         .ToList();
