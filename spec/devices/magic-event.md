@@ -36,7 +36,8 @@ Trigger/Untrigger type, optionally one step per activation (sequence) and a limi
    repeating 0.05 s timer (the class has no script `Timer`; the timer drives the native queue, rule 5).
 2. `Trigger(Other, I)` calls `NativeTrigger(Other, I, true)`; `UnTrigger` calls `NativeTrigger(Other, I, false)`.
 3. NativeTrigger contract (decoded from the editor twin, see Evidence):
-   a. If `Other == StopActor` (and StopActor is set), the pending queue is cleared.
+   a. If `Other == StopActor` the pending queue is cleared and the call ends there: no group answers. There is no
+      None check (game 0x10ae9d5b), so a None Other with no StopActor also only clears the queue.
    b. For each group: skip if `Repeat <= -1`.
    c. Non-sequence group: visit every entry. Sequence group: visit only the entry at `SequenceIndex`.
    d. An entry answers when the activation matches `ValidOn`: `EVT_Trigger` accepts Trigger, `EVT_Untrigger` accepts
@@ -96,10 +97,12 @@ Server only (`ROLE_None`). Receivers replicate their own results.
 
 ## Open questions
 
-2. Confirm the editor-decoded semantics hold in the game build (BSim match of `0x10ae9cf0` with the editor thunk).
 3. Whether the queue survives a round reset (not relevant to Story, one round).
 
 ### Resolved
+
+2. Game build check (2026-10-27, game 0x10ae9cf0 disassembled): the group loop matches the editor twin; the StopActor
+   test returns after clearing the queue and has no None check (rule 3a corrected).
 
 1. Which routine runs the queue and how often. Resolved: the 0.05 s timer from the script `SetTimer`; each expiry
    fires every entry with `Time <= TimeSeconds` in queue order. Repeat 0 is unlimited; Sequence groups advance only on

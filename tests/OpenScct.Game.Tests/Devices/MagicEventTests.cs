@@ -69,9 +69,9 @@ public sealed class MagicEventTests
     {
         (DeviceScene s, SMagicEvent m, Dictionary<string, EventProbe> p, _) = Magic(Group(0, false,
             Entry("a", 0f, EEventType.EVT_TriggerUntrigger)));
-        s.Level.TriggerEvent("magic", null, null);
-        s.Level.TriggerEvent("magic", null, null);
-        s.Level.TriggerEvent("magic", null, null);
+        s.Level.TriggerEvent("magic", s.Level.Info, null);
+        s.Level.TriggerEvent("magic", s.Level.Info, null);
+        s.Level.TriggerEvent("magic", s.Level.Info, null);
         Assert.Equal([true, false, true], p["a"].Calls.ConvertAll(c => c.Trigger));
         Assert.Equal(EEventType.EVT_UntriggerTrigger, m.Groups[0].EventGroup[0].Type);
     }
@@ -83,11 +83,11 @@ public sealed class MagicEventTests
             Entry("a", 0f),
             Entry("b", 0f, EEventType.EVT_Untrigger, EEventType.EVT_Untrigger),
             Entry("c", 0f, EEventType.EVT_Trigger, EEventType.EVT_TriggerUntrigger)));
-        s.Level.UntriggerEvent("magic", null, null);
+        s.Level.UntriggerEvent("magic", s.Level.Info, null);
         Assert.Empty(p["a"].Calls);
         Assert.False(Assert.Single(p["b"].Calls).Trigger);
         Assert.Single(p["c"].Calls);
-        s.Level.TriggerEvent("magic", null, null);
+        s.Level.TriggerEvent("magic", s.Level.Info, null);
         Assert.Single(p["a"].Calls);
         Assert.Single(p["b"].Calls);
         Assert.Equal(2, p["c"].Calls.Count);
@@ -98,17 +98,17 @@ public sealed class MagicEventTests
     {
         (DeviceScene s, SMagicEvent m, Dictionary<string, EventProbe> p, _) = Magic(Group(1, true,
             Entry("a", 0f), Entry("b", 0f)));
-        s.Level.TriggerEvent("magic", null, null);
+        s.Level.TriggerEvent("magic", s.Level.Info, null);
         Assert.Single(p["a"].Calls);
         Assert.Empty(p["b"].Calls);
         Assert.Equal(1, m.Groups[0].SequenceIndex);
-        s.Level.TriggerEvent("magic", null, null);
+        s.Level.TriggerEvent("magic", s.Level.Info, null);
         Assert.Single(p["b"].Calls);
         Assert.Equal(0, m.Groups[0].SequenceIndex);
 
         // Repeat 1: the wrap was the last cycle.
         Assert.Equal(-1, m.Groups[0].Repeat);
-        s.Level.TriggerEvent("magic", null, null);
+        s.Level.TriggerEvent("magic", s.Level.Info, null);
         Assert.Single(p["a"].Calls);
     }
 
@@ -117,7 +117,7 @@ public sealed class MagicEventTests
     {
         (DeviceScene s, SMagicEvent m, Dictionary<string, EventProbe> p, _) = Magic(Group(0, true,
             Entry("a", 0f), Entry("b", 0f)));
-        s.Level.UntriggerEvent("magic", null, null);
+        s.Level.UntriggerEvent("magic", s.Level.Info, null);
         Assert.Equal(0, m.Groups[0].SequenceIndex);
         Assert.Empty(p["a"].Calls);
     }
@@ -128,7 +128,7 @@ public sealed class MagicEventTests
         (DeviceScene s, SMagicEvent m, Dictionary<string, EventProbe> p, _) = Magic(Group(2, false, Entry("a", 0f)));
         for (int i = 0; i < 4; i++)
         {
-            s.Level.TriggerEvent("magic", null, null);
+            s.Level.TriggerEvent("magic", s.Level.Info, null);
         }
 
         Assert.Equal(2, p["a"].Calls.Count);
@@ -170,7 +170,7 @@ public sealed class MagicEventTests
         }
 
         s.Begin();
-        s.Level.TriggerEvent("magic", null, null);
+        s.Level.TriggerEvent("magic", s.Level.Info, null);
         s.StepSeconds(1f);
         Assert.Equal(["b", "a"], order);
     }

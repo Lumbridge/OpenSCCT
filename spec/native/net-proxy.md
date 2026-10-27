@@ -177,7 +177,7 @@ Mover fields: `SimOldPos`, `SimInterpolate`, `OldPos`, `OldRot`, `PhysAlpha`, `P
     `Velocity`, `AmbientSound` on every update, `BaseRot` first bunch. Movers are `bAlwaysRelevant`
     with update frequency 100, so they pass every server pass.
 18. Mover physics on any machine stamps `fLastTimeMoverMoves = Level.TimeSeconds` while
-    `|Velocity.Z| > 0.1` (read by the correction rules, `net-moves.md` rule 12).
+    `|Velocity.Z| < 0.1` (byte-checked, game 0x10a21d23: the mover is still vertically) (read by the correction rules, `net-moves.md` rule 12).
 
 ## States
 

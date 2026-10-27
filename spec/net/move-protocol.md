@@ -407,7 +407,7 @@ their low 8 bits.
 - Physics changing between the matched move and the newest move cancels the correction entirely.
 - Rule 20b reads `fLastTimeOnAMover`, which no script writes; with its default -3.0 the rule never
   fires unless native code writes it: no native writes it, so it never fires; `fLastTimeMoverMoves` is
-  written by mover physics (`Level.TimeSeconds` while `|Velocity.Z| > 0.1`; game 0x10a21970).
+  written by mover physics (`Level.TimeSeconds` while `|Velocity.Z| < 0.1`, byte-checked; game 0x10a21970).
 - `MovePawn` may move less than `vDiff` (blocked); later saved moves are shifted by the offset actually
   applied, not the requested one.
 - On a lift moving vertically, Z is never corrected (rule 21.5a), and on a mover that moved in the last
@@ -483,7 +483,7 @@ check the decoded batching and message choice end to end.
 6. **Saved-move lifetime.** Resolved: one per send; spawned until 100, then a ring overwriting the oldest; never
    freed. Rules 3, 22. Evidence: editor 0x111e7160, 0x111f2a80 (ANSWERS-net move-protocol 6).
 7. **fLastTimeOnAMover / fLastTimeMoverMoves writers.** Resolved: `fLastTimeOnAMover` has no writer (rule 20.4b
-   never fires); `fLastTimeMoverMoves` is written by mover physics while `|Velocity.Z| > 0.1`. Edge cases.
+   never fires); `fLastTimeMoverMoves` is written by mover physics while `|Velocity.Z| < 0.1`. Edge cases.
    Evidence: game 0x10a21970; offset search (ANSWERS-net move-protocol 7).
 8. **MovePawn.** Resolved: swept move; teleport to the target when blocked more than 50 uu short; base not
    changed explicitly. Rule 21. Evidence: editor 0x111fe4a0 (ANSWERS-net move-protocol 8).

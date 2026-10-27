@@ -151,14 +151,16 @@ Fields that drive behaviour (types, class default from `def:Engine.Mover`):
    `SimInterpolate = (100 * PhysAlpha, 100 * max(0.01, PhysRate), 256 * PrevKeyNum + KeyNum)`.
 2. Native motion (each tick while `bInterpolating`, engine routine, contract only):
    `a' = PhysAlpha + dt * PhysRate`, clamped to 1. Eased alpha for `MV_GlideByTime`:
-   `s(a) = 3a^2 - 2a^3` (estimated); linear `s(a) = a` for `MV_MoveByTime`. Target pose:
+   `s(a) = 3a^2 - 2a^3` (decoded, game 0x10a21a53: constant 3.0 at 0x10c10a34); linear `s(a) = a` for `MV_MoveByTime`. Target pose:
    `P = OldPos + (BasePos + KeyPos[KeyNum] - OldPos) * s(a')`, `R = OldRot + (BaseRot + KeyRot[KeyNum] - OldRot) * s(a')`.
    The mover is moved there with encroachment checks (rule 20). If the move is accepted, `PhysAlpha = a'`; when
    `a' == 1`, `bInterpolating = false` and `KeyFrameReached` is called. If the move is refused, alpha does not
-   advance this tick. Actors based on the mover ride with it.
+   advance; when the step had crossed 1 the loop tries again with the leftover time `dt x (a' - 1) / (a' - a)` (a
+   shorter step towards the key) until a step stays at or below 1. The rotation delta is truncated toward zero
+   (`_ftol`), the location is not rounded. Actors based on the mover ride with it.
 2a. After the legs of a tick (decoded, game 0x10a21970) the physics sets `Velocity = (Location - start) / DeltaTime`
    on every tick in PHYS_MovingBrush (zero at rest), and stamps `fLastTimeMoverMoves = Level.TimeSeconds` while
-   `|Velocity.Z| > 0.1` (see lift.md open question 2).
+   `|Velocity.Z| < 0.1` (byte-checked, see lift.md open question 2).
 3. Because `s(1 - a) = 1 - s(a)`, a reversal (rule 1) continues from the exact current position, and the remaining
    time of the reversed leg equals the time already spent on it.
 4. `KeyFrameReached` (simulated, called by the engine on every machine that moves the mover):
@@ -394,7 +396,7 @@ Shutter cycle from a hack: 10 s moving shut, 20 s held, 10 s reopening, 40 s tot
   physics PHYS_MovingBrush, `bInterpolating` on. Ported as `Mover.ClientStartInterpolation`, called from the client's
   PostNetReceive hook (`PawnProxies.NetReceive.PostMover`) when `SimInterpolate` changed in a bunch. The Mover's native list never sends `BasePos` (only `SLiftDoor`
   does, with `Base`).
-- Mover physics writes `fLastTimeMoverMoves = Level.TimeSeconds` while `|Velocity.Z| > 0.1` (read by the move
+- Mover physics writes `fLastTimeMoverMoves = Level.TimeSeconds` while `|Velocity.Z| < 0.1` (read by the move
   protocol; net-moves.md).
 - `bAlwaysRelevant`, `NetPriority 2.7`, `bOnlyDirtyReplication`.
 
@@ -429,9 +431,6 @@ Shutter cycle from a hack: 10 s moving shut, 20 s held, 10 s reopening, 40 s tot
 
 ## Open questions
 
-1. Native `physMovingBrush`: confirm the glide curve, alpha clamping and carry of leftover time, and that a refused
-   step leaves alpha unchanged. Scenario: trace a shutter's Z every frame over its 10 s leg; compare against
-   `BasePos.Z + KeyPos.Z * s(t / 10)`.
 3. Client interpolation on a reversal: the start rule is decoded (Network), but how a reversal mid-leg looks on a
    client is not. Scenario: two-machine session, compare client and server shutter Z.
 4. Whether `MakeNoise` has any effect in versus play (in UE2 only bots hear it). Treat as no effect until shown.
@@ -439,6 +438,9 @@ Shutter cycle from a hack: 10 s moving shut, 20 s held, 10 s reopening, 40 s tot
    reset movers between rounds (Story is one round).
 
 ### Resolved
+
+1. Native `physMovingBrush`. Resolved (game 0x10a21970, 2026-10-27): rule 2 above (glide 3a^2 - 2a^3, leftover
+   time carried, a refused step keeps alpha and retries with the leftover time, rotation truncated).
 
 2. Native encroachment order. Resolved: CheckEncroachment lists the overlapped actors (mask 0x9f); a mover with
    bTryToMoveEncroachedActor shoves them first, otherwise EncroachingOn decides (true stops the mover); every

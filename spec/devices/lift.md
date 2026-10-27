@@ -131,7 +131,7 @@ stateDiagram-v2
   doors are based on the client's cabin and use the moved BasePos after `Arrived`.
 - Switch usability reaches clients through the interaction objects' own replication.
 - Mover physics sets `Velocity = move / DeltaTime` each tick and stamps `fLastTimeMoverMoves` while the vertical
-  speed is above 0.1 (game 0x10a21970), which the move protocol reads for pawns riding a lift.
+  speed is below 0.1 (game 0x10a21970), which the move protocol reads for pawns riding a lift.
 
 ## Edge cases
 
@@ -145,5 +145,5 @@ stateDiagram-v2
 ## Open questions
 
 1. Decompiled `SLiftDoor.EncroachingOn` shows no return after `super.EncroachingOn`; taken as returning false.
-2. game 0x10a21970 decompiles the `fLastTimeMoverMoves` test as `|Velocity.Z| < 0.1`; the port follows the earlier
-   decoding in net-proxy.md rule 18 (`> 0.1`). Worth a byte check.
+2. Resolved (byte check 2026-10-27): game 0x10a21d23 is FABS, FCOMP 0.1 (0x10c109e8), TEST AH 5, JP over the store,
+   so the stamp is taken while `|Velocity.Z| < 0.1`, despite the field's name. The port follows the bytes.
