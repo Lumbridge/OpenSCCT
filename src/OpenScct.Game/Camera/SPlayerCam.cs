@@ -289,8 +289,8 @@ public partial class SPlayerCam
 
     /// <summary>
     /// UpdateView: the view effects on a rotation. A live hit roll replaces the roll and fades toward 0 at
-    /// m_hitFadeOut; a live shake replaces the roll (after the hit) and, once it has reached its target, the target
-    /// moves toward 0 by m_shakeFadeOut and flips sign, while the shake follows it at m_shakeSpeed, so the roll swings
+    /// m_hitFadeOut; a live shake replaces the roll (after the hit), its target moves toward 0 at m_shakeFadeOut per
+    /// second and flips sign once reached (<see cref="SwingTarget"/>), while the shake follows it at m_shakeSpeed, so the roll swings
     /// from side to side as it dies down; a live tilt is added to the pitch and swings the same way. The values applied
     /// are the ones from before this frame's step. Every step is speed x Level.m_dT, truncated toward zero.
     /// </summary>
@@ -313,28 +313,32 @@ public partial class SPlayerCam
         if (m_shakeRoll != 0 || m_shakeTargetRoll != 0)
         {
             roll = m_shakeRoll;
-            if (m_shakeRoll == m_shakeTargetRoll)
-            {
-                // The reached target comes back toward 0 and flips sign, so the shake swings to and fro as it dies down.
-                m_shakeTargetRoll = -CameraMath.ApproachInt(m_shakeTargetRoll, 0, m_shakeFadeOut * dt);
-            }
-
+            m_shakeTargetRoll = SwingTarget(m_shakeRoll, m_shakeTargetRoll, m_shakeFadeOut * dt);
             m_shakeRoll = CameraMath.ApproachInt(m_shakeRoll, m_shakeTargetRoll, m_shakeSpeed * dt);
         }
 
         if (m_tiltPitch != 0 || m_tiltTargetPitch != 0)
         {
             pitch += m_tiltPitch;
-            if (m_tiltPitch == m_tiltTargetPitch)
-            {
-                // The same swing as the shake: the reached target fades and flips sign.
-                m_tiltTargetPitch = -CameraMath.ApproachInt(m_tiltTargetPitch, 0, m_tiltFadeOut * dt);
-            }
-
+            m_tiltTargetPitch = SwingTarget(m_tiltPitch, m_tiltTargetPitch, m_tiltFadeOut * dt);
             m_tiltPitch = CameraMath.ApproachInt(m_tiltPitch, m_tiltTargetPitch, m_tiltSpeed * dt);
         }
 
         return new FRotator(pitch, Rot.Yaw, roll);
+    }
+
+    /// <summary>
+    /// The next swing target of a shake or tilt. The original fades the target only on the frames where the swing
+    /// reaches it, so the fade depends on the frame rate: a merc hit (800 at speed 20000, fade-out 500) swayed for
+    /// about 10 s at 60 fps and over 20 s at 144 fps. Here the target fades every frame, so the swing dies out in
+    /// target / fade-out seconds at any frame rate. A reached target still flips sign, so the view swings side to side.
+    /// </summary>
+    [Provenance(ProvenanceKind.Estimated, "Deviation from game 0x10a96280: the target fades every frame instead of only on the frame it is reached")]
+    private static int SwingTarget(int value, int target, float fadeStep)
+    {
+        bool reached = value == target;
+        int faded = CameraMath.ApproachInt(target, 0, fadeStep);
+        return reached ? -faded : faded;
     }
 
     // ---- the views --------------------------------------------------------------------------------------------
