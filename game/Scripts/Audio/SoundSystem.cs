@@ -801,6 +801,20 @@ public sealed partial class SoundSystem : Node3D, ISimEventSink
                 CountAmbientStop(a.ActorId);
             }
 
+            if (running is null && !def.Positional)
+            {
+                // Rules 21 and 22: a 2D loop already playing this sound for another actor carries on for this one.
+                if (Shared2DLoop(def.Path, a) is { } shared)
+                {
+                    running = shared;
+                }
+                else if (!a.IsZone && ListenerZoneLoop(def.Path) is not null)
+                {
+                    // The listener's zone ambience keeps a sound it plays; no second copy starts.
+                    continue;
+                }
+            }
+
             if (running is not null && string.Equals(running.CallPath, def.Path, StringComparison.OrdinalIgnoreCase))
             {
                 running.BaseVolume = playVolume;
@@ -820,6 +834,7 @@ public sealed partial class SoundSystem : Node3D, ISimEventSink
                 music: false, loop: true, ambient: true, occlusion: a.SoundOcclusion);
             if (Start(call, follow: a.ActorId > 0) && LastStarted is { } v)
             {
+                v.AmbientZoneId = a.IsZone ? a.Id : null;
                 _ambientVoices[a.ActorId] = v;
             }
         }
@@ -848,6 +863,61 @@ public sealed partial class SoundSystem : Node3D, ISimEventSink
                 }
             }
         }
+    }
+
+    /// <summary>
+    /// The 2D ambient loop playing <paramref name="sound"/> for another actor, handed over to <paramref name="a"/> without
+    /// a restart (UpdateAmbientSounds, editor 0x10f6d390: a 2D candidate whose sound a source already plays takes that
+    /// source over, its actor, id, location and volume, when it is louder or the source's actor is the zone the listener
+    /// left). A non-zone actor never takes the listener zone's loop. Null when no such loop plays.
+    /// </summary>
+    private Voice? Shared2DLoop(string sound, in AmbientSource a)
+    {
+        int owner = 0;
+        Voice? found = null;
+        foreach (KeyValuePair<int, Voice> kv in _ambientVoices)
+        {
+            Voice v = kv.Value;
+            if (kv.Key != a.ActorId && OwnsAmbient(v, (kv.Key * 16) + AudioK.AmbientSlotId) && !v.AmbientPositional &&
+                string.Equals(v.CallPath, sound, StringComparison.OrdinalIgnoreCase))
+            {
+                owner = kv.Key;
+                found = v;
+                break;
+            }
+        }
+
+        if (found is null || (!a.IsZone && found.AmbientZoneId is not null &&
+                              string.Equals(found.AmbientZoneId, _listenerZone, StringComparison.OrdinalIgnoreCase)))
+        {
+            return null;
+        }
+
+        _ambientVoices.Remove(owner);
+        found.ActorId = a.ActorId;
+        found.Id = (a.ActorId * 16) + AudioK.AmbientSlotId;
+        found.Follow = a.ActorId > 0;
+        found.Location = a.Location;
+        found.AmbientZoneId = a.IsZone ? a.Id : null;
+        _ambientVoices[a.ActorId] = found;
+        return found;
+    }
+
+    /// <summary>The listener zone's ambience loop when it plays <paramref name="sound"/>, else null.</summary>
+    private Voice? ListenerZoneLoop(string sound)
+    {
+        foreach (KeyValuePair<int, Voice> kv in _ambientVoices)
+        {
+            Voice v = kv.Value;
+            if (v.AmbientZoneId is not null && string.Equals(v.AmbientZoneId, _listenerZone, StringComparison.OrdinalIgnoreCase) &&
+                OwnsAmbient(v, (kv.Key * 16) + AudioK.AmbientSlotId) &&
+                string.Equals(v.CallPath, sound, StringComparison.OrdinalIgnoreCase))
+            {
+                return v;
+            }
+        }
+
+        return null;
     }
 
     private void CountAmbientStop(int actorId) => AmbientStops[actorId] = AmbientStops.TryGetValue(actorId, out int n) ? n + 1 : 1;
@@ -940,6 +1010,9 @@ public sealed partial class SoundSystem : Node3D, ISimEventSink
         public bool Flat;
         public bool Ambient;
         public bool AmbientPositional;
+
+        /// <summary>The map id of the ZoneInfo whose ambience this loop is (rule 21), else null.</summary>
+        public string? AmbientZoneId;
         public float BaseVolume;
         public float Volume;
         public float CallRadius;
@@ -1063,6 +1136,7 @@ public sealed partial class SoundSystem : Node3D, ISimEventSink
             Leaf = null;
             Ambient = false;
             AmbientPositional = false;
+            AmbientZoneId = null;
             Music = false;
             Flat = false;
             Id = 0;

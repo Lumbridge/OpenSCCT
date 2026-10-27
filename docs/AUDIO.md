@@ -103,7 +103,7 @@ the same factor as EAX occlusion (direct path -2000 log10 f mB at high frequenci
 which Godot cannot do per voice. A second hit in zone 0 leaves the sound unoccluded, as in the original. Ambient loops (rules 19 to 22) come from two places: the simulation's actors whose
 `AmbientSound` is set (zones, SAmbientSoundTrigger, movers), read through `IAudioWorld.CollectAmbient`, and the
 client-only actors of the map's `audio.json`. 3D loops play within 100 x their radius x 0.8^(ZoneDist^2) between the
-actor's zone and the listener's; a zone's 2D ambience plays while the listener is in that zone; other 2D loops fall off with distance and only the loudest of a sound plays.
+actor's zone and the listener's; a zone's 2D ambience plays while the listener is in that zone; other 2D loops fall off with distance and only the loudest of a sound plays. When the loudest changes (or the listener walks into another zone with the same ambience) the playing loop is handed to the new actor and carries on, as in the original; it used to stop and start again from the beginning (MoonD's park organ, seven 2D speakers, restarted each time the player walked past one).
 A loop keeps its voice while it plays; when more loops are in range than there are voices (the KrauE merc spawn hears
 about 40), the lowest priority ones lose theirs to rule 15 and start again only when they win a voice back. The
 sound system remembers which voice each actor's loop started on and only treats it as that loop while the voice

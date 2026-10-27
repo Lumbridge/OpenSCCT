@@ -186,7 +186,11 @@ stream that has the Sound's own name.
     `breath_masqGaz`): the loop plays as that Sound says, not as the picked entry's flag would.
 22. 2D ambient of any other actor: volume `V x Gain / (((d - R) / R) x Rolloff + 1)` with R the actor's
     SoundRadius (or the Sound's Radius), played 2D while at least 0.05; of several actors with the same Sound only
-    the loudest plays.
+    the loudest plays. A 2D loop is shared, not restarted (editor 0x10f6d390): a 2D candidate whose Sound a source
+    already plays takes that source over (its actor, id, location, radius and volume) when it is louder than the
+    source's actor, or the source has no actor; a ZoneInfo of the listener's zone takes it over whatever its owner, so
+    walking into another zone with the same ambience carries on; a non-zone actor never takes the source of the
+    listener's zone. The sound keeps playing from where it was.
 23. The listener is the viewport player controller's Location, turned by the scene's view (Update, game
     0x10b05260); its zone is the zone of that point (kept when the point is in zone 0). SCCT's following camera moves
     the controller to the camera spot, so in the third-person view it is the camera; the object views (sticky camera,
