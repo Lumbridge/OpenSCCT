@@ -202,10 +202,19 @@ def _rot(x, y, a: float):
 
 
 def _blur(img, sigma: float, px: float):
-    """Gaussian blur, sigma in texture units, wrapping across the edges."""
-    from scipy import ndimage  # noqa: PLC0415
-
-    return ndimage.gaussian_filter(img, sigma=max(sigma / px, 0.3), mode="wrap")
+    """Gaussian blur, sigma in texture units, wrapping across the edges (the same kernel as scipy's gaussian_filter:
+    cut off at 4 sigma, run along each axis in turn)."""
+    s = max(sigma / px, 0.3)
+    radius = int(4.0 * s + 0.5)
+    taps = np.exp(-0.5 * (np.arange(-radius, radius + 1, dtype=np.float64) / s) ** 2)
+    taps /= taps.sum()
+    out = np.asarray(img, dtype=np.float64)
+    for axis in range(out.ndim):
+        acc = np.zeros_like(out)
+        for k, t in zip(range(-radius, radius + 1), taps):
+            acc += t * np.roll(out, -k, axis=axis)
+        out = acc
+    return out.astype(np.asarray(img).dtype)
 
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -241,14 +250,20 @@ def _fbm(rng: np.random.Generator, h: int, w: int, base: int, octaves: int = 3, 
 
 def _warp(img: np.ndarray, du, dv) -> np.ndarray:
     """img sampled with each pixel moved by (du, dv) texture units (wraps)."""
-    from scipy import ndimage  # noqa: PLC0415
-
     h, w = img.shape
     L = max(h, w)
     yy = np.arange(h, dtype=np.float32)[:, None] + np.asarray(dv, np.float32) * L
     xx = np.arange(w, dtype=np.float32)[None, :] + np.asarray(du, np.float32) * L
     yy, xx = np.broadcast_arrays(yy, xx)
-    return ndimage.map_coordinates(img, [yy, xx], order=1, mode="grid-wrap").astype(np.float32)
+    # Bilinear between the four wrapped neighbours.
+    y0, x0 = np.floor(yy), np.floor(xx)
+    fy, fx = (yy - y0).astype(np.float32), (xx - x0).astype(np.float32)
+    y0, x0 = y0.astype(np.int64) % h, x0.astype(np.int64) % w
+    y1, x1 = (y0 + 1) % h, (x0 + 1) % w
+    src = np.asarray(img, dtype=np.float32)
+    top = src[y0, x0] * (1 - fx) + src[y0, x1] * fx
+    bottom = src[y1, x0] * (1 - fx) + src[y1, x1] * fx
+    return (top * (1 - fy) + bottom * fy).astype(np.float32)
 
 
 def _blocks(small: np.ndarray, h: int, w: int) -> np.ndarray:
