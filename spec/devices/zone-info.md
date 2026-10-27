@@ -24,8 +24,8 @@ SShaker shake events limited to one zone, SAlarmZoneInfo (alarm zones), and the 
 | `ZoneTag` | None | ZoneTrigger (no map has one) |
 | `LocationName` | "" | PlayerReplicationInfo.GetLocationName (when no named volume) |
 | `ForcedSkyZone`, `SkyZone` (replicated) | None | sky rendering |
-| `bDistanceFog`, `bClearToFogColor`, `DistanceFogColor/Start/End/BlendTime` | off, (128,128,128), 3000, 8000, 1 | render fog (`DisplaySpaceEffect`) |
-| `AmbientBrightness/Hue/Saturation`, `m_RefAmbientColor` | 0, 0, 255, black | render and AI light (`ActorLighting`, `AiLightField`) |
+| `bDistanceFog`, `bClearToFogColor`, `DistanceFogColor/Start/End/BlendTime` | off, (128,128,128), 3000, 8000, 1 | render fog and clear colour (`FaithfulView` blend, `DisplaySpaceEffect`; docs/RENDERING.md#display-space) |
+| `AmbientBrightness/Hue/Saturation`, `m_RefAmbientColor` | 0, 0, 255, black | render and AI light (`ActorLighting`, `AiLightField`); m_RefAmbientColor = FGetHSV(Hue, Saturation, Brightness) on all 2814 stored zones, computed by the converter where absent |
 | `ZoneEffect` (I3DL2 listener) | None | reverb (`ReverbBuses`) |
 | `AmbientSound`, `SoundVolume/Pitch/Radius`, `bFullVolume`, `SoundOcclusion` (Actor) | | zone ambience (`AudioWorld`) |
 | `bLonelyZone`, `ManualExcludes` | off, empty | zone portal visibility (render culling) |

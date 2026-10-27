@@ -87,9 +87,10 @@ is the identity at the default settings. The Faithful pipeline does the same:
 
 1. Materials write display values (textures are sampled raw, no sRGB decode; lightmaps and vertex colours are
    multiplied in display space). Blending therefore happens in display space too, as in the original.
-2. `Post/DisplaySpaceEffect`, a `CompositorEffect` after the transparent pass, runs `svm_display_post.glsl` in two
-   stages: stage 1 zone distance fog and the glow gate on the normal scene; stage 2 the vision pass of RendMap and the
-   exact sRGB decode. Thermal, motion and EMF run the blur pyramid (`svm_vision_blur.glsl`) between the stages.
+2. `Post/DisplaySpaceEffect`, a `CompositorEffect` after the transparent pass, runs `svm_display_post.glsl` in three
+   stages: distance fog; the glow composite of the normal view (gate, plus the glow from `svm_glow.glsl` when the
+   level's threshold is below 255); the vision pass of RendMap and the exact sRGB decode. Thermal, motion and EMF run
+   the blur pyramid (`svm_vision_blur.glsl`) before the vision pass.
 3. The environment passes colours through: Linear tonemapper, exposure 1, no glow, AO, SSR, SDFGI, fog, adjustments
    or auto exposure; no MSAA, TAA or debanding. Godot's output encode is the exact sRGB curve, so the screen shows
    the display value again. Godot linearizes the environment's background colour, so a clear colour is handed over
@@ -98,15 +99,45 @@ is the identity at the default settings. The Faithful pipeline does the same:
 `Post/DisplayCheck` draws 16 known values (0 to 255) through the whole chain and reads them back: every golden run
 starts with it, and it must be exact within one step. It reads back exact (maximum error 0).
 
-**Glow gate.** The original's glow composite multiplies the frame by `saturate(16 (dot(scene, (0.311, 0.524, 0.165))
-- 0.03))`, which crushes near-black, and it runs even when the level's GlowThreshold is 255 (SteeE). It applies to the
-normal frame only: the night pass (0x10963090) reads the scene before any composite and replaces it, and the thermal,
-motion and EMF passes have their own. The glow itself (bright-pass pyramid) is not added yet; at threshold 255 it adds
-nothing.
+**Glow.** The normal composite (0x10966010, while PlayerController.DoGlow & 3, default 1) runs the glow driver
+0x10967740 in mode 0 and then writes `frame x saturate(16 (dot(frame, (0.311, 0.524, 0.165)) - 0.03)) + glow`
+(ps_1_1 0x10c4ea78). The gate crushes near-black and runs at every threshold. The glow, all in 8-bit targets:
 
-**Zone fog.** `ZoneInfo.bDistanceFog` zones blend linearly to `DistanceFogColor` between start and end view depth,
-in display space, not on the sky, and not in thermal or EMF (their own scene passes). SteeE has no fog zones, so this
-path is unverified.
+1. Bright pass (ps 0x10c4e898) of the whole frame into 512 x 512 (0x30e68): `L = dot(frame, (0.3, 0.59, 0.11))`,
+   `T = GlowThreshold / 255` (render/lighting.json `look.glow_threshold`, class default 224); where `L > T` it writes
+   rgb `saturate(8 L)` and alpha `saturate(8 (L - T))`, else 0 (c5 = (0, 0, 0, T), so the bright parts go white).
+2. Four runs of the vision blur (0x10967d70: a vertical then a horizontal 4-tap pass, each halving one side) give
+   256, 128, 64 and 32 texels square (targets 0x30e70, 0x30e78, 0x30e80, 0x30e88; sizes at the default detail).
+3. Composite (ps 0x10c4ed00) back into 0x30e68: `0.4 L1 + 0.6 L2 + 0.7 L3 + 0.9 L4`, bilinear.
+4. The final composite samples it bilinear over the whole screen.
+
+At threshold 255 nothing passes (L is at most 1), so the passes are skipped (SteeE and four other maps). 79 maps glow
+(65 at 224; AquaE 250, PolaE 230, ClubD 227). Only the normal view (and binoculars over it) glows: the night pass
+(0x10963090) reads the scene before any composite and runs the driver in mode 1 with its own tint (not ported, see open
+issues); thermal, motion and EMF have their own passes. With FlashColor.A set the driver runs mode 2 (ps 0x10c4e920,
+the frame lerped to FlashColor first) and the composite adds the flash colour (ps 0x10c4eb10); no script sets it, so
+mode 2 is not ported. The original asks for texture filter 5 (gaussian cubic) for the bright pass's 2x reduction; we
+sample bilinear.
+
+**Distance fog.** Linear table fog on view depth (D3D W fog: FOGTABLEMODE linear when the device has table and W fog,
+0x1095d640), in display space, over what was drawn; where nothing was drawn the clear colour stays. The scene fog setup
+(0x10a15fb8) picks it each frame:
+- Thermal: no fog. EMF: start 1500, end 2000 uu, colour 0xffffda85 (its clear colour).
+- Otherwise the camera zone's `bDistanceFog`, `DistanceFogColor`, `DistanceFogStart`, `DistanceFogEnd`, blended on a
+  zone change over the new zone's `DistanceFogBlendTime` (class default 1 s; 41 zones set 0) with PlayerController's
+  LastZone, LastViewOrigin, TimeSinceLastFogChange and LastDistanceFog*: a zone without fog blends towards start 32764,
+  end 32765 in the last colour; the first zone, a jump of more than 100 uu and a change between two fogless zones
+  take the new fog at once; a change while a blend runs starts from where it got to. Colours lerp as bytes, truncated.
+  Fog is on while the zone has it or a blend runs.
+- The sky zone's own scene takes its zone's fog unblended (AquaE's SkyZoneInfo fogs 0..16 uu, so its sky is the fog
+  colour).
+- `bClearToFogColor` with `bDistanceFog` (42 zones; 16 more set it without fog, which does nothing): the view clears to
+  the zone's `DistanceFogColor` (0x10a3e515; not in thermal or EMF). Both the main and the sky camera clear to it, so it
+  shows where neither drew.
+
+Zones store only fields that differ from the class defaults, so the converter writes colour (128, 128, 128), start
+3000, end 8000 and blend time 1 when a zone leaves them out (ClubD's ZoneInfo1141 fogs and clears to grey; MissD's
+outdoor zones end at 8000).
 
 ## Materials
 
@@ -536,7 +567,7 @@ Both need `.content/` (converted content and the render pack), so CI's default s
   pyramid and composites it (ps 0x10c4ed00); the night pass blurs that once more (0x10967d70) and adds it as `glow`.
   Without DoGlow & 3 it adds a blurred copy of the scene instead. The three full-screen pre-draws of the night pass
   (texture factors 0x7f7f7f7f and 0 at depths 0.9974 and 0.9979) are not decoded.
-- Not drawn yet: projectors (`fx.json` projectors are empty on SteeE), light beams, the glow pyramid, mirrors,
+- Not drawn yet: projectors (`fx.json` projectors are empty on SteeE), light beams, mirrors,
   BeamEmitter / SparkEmitter, map LE_ESpotShadow lights through the spot slot (SteeE's one has no
   cookie), more than one spot shadow light at a time.
 - Some self-lit signs read darker than the original; the crane SAnimatedMesh is posed at its first frame only in the

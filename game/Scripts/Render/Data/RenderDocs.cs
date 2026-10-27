@@ -337,7 +337,14 @@ public sealed record ZoneEntry(
     Color FogColor,
     float FogStart,
     float FogEnd,
-    string LocationName);
+    string LocationName)
+{
+    /// <summary>ZoneInfo.DistanceFogBlendTime: seconds the view's fog takes to move to this zone's (0 at once).</summary>
+    public float FogBlendTime { get; init; } = 1f;
+
+    /// <summary>ZoneInfo.bClearToFogColor: with <see cref="Fog"/>, the main view clears to <see cref="FogColor"/>.</summary>
+    public bool ClearToFog { get; init; }
+}
 
 /// <summary>render/lighting.json.</summary>
 public sealed class LightingDoc
@@ -446,7 +453,11 @@ public sealed class LightingDoc
                     Rgba8(z, "fog_color"),
                     Num(z, "fog_start"),
                     Num(z, "fog_end"),
-                    MaterialsDoc.Str(z, "location_name") ?? ""));
+                    MaterialsDoc.Str(z, "location_name") ?? "")
+                {
+                    FogBlendTime = Num(z, "fog_blend_time", 1f),
+                    ClearToFog = MaterialsDoc.Bool(z, "clear_to_fog"),
+                });
             }
         }
 

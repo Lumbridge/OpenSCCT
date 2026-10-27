@@ -2,11 +2,14 @@
 #version 450
 
 // The display-space post pass (docs/RENDERING.md#display-space, #vision-modes). Until here the colour buffer holds the
-// original's display values (in thermal its heat buffer: G heat, B depth fade). Two stages, run together or apart:
-//   stage 1: zone distance fog (not on the sky) and the glow composite's gate, on the normal scene;
-//   stage 2: the vision pass of PlayerController.RendMap, then the exact sRGB decode, so the tonemapper's sRGB encode
-//            (Linear, exposure 1) puts the display value on screen.
-// Thermal, motion and EMF read the blur pyramid (svm_vision_blur.glsl) that runs between the two stages.
+// original's display values (in thermal its heat buffer: G heat, B depth fade). Three stages (bits), run together or
+// apart:
+//   1: the view's distance fog (not where nothing was drawn);
+//   4: the glow composite of the normal view: frame x gate + the blurred bright pass (svm_glow.glsl);
+//   2: the vision pass of PlayerController.RendMap, then the exact sRGB decode, so the tonemapper's sRGB encode
+//      (Linear, exposure 1) puts the display value on screen.
+// Thermal, motion and EMF read the blur pyramid (svm_vision_blur.glsl), which runs before stage 2; the glow runs
+// between stages 1 and 4.
 
 layout(local_size_x = 8, local_size_y = 8, local_size_z = 1) in;
 
@@ -16,7 +19,7 @@ layout(set = 0, binding = 2) uniform sampler2D noise_texture;   // Engine.Noise0
 layout(set = 0, binding = 3, std140) uniform Params {
 	vec4 fog_color;    // rgb display colour, a = 1 when the zone has distance fog
 	vec4 fog_range;    // x start, y end (metres of view depth), z near, w far (metres)
-	vec4 gate;         // x on, y gain, z offset
+	vec4 gate;         // x on, y gain, z offset, w 1 to add the glow
 	vec4 gate_luma;    // rgb weights
 	vec4 frame;        // x RendMap, y stage bits, zw size in pixels
 	vec4 noise;        // x cos, y sin of the grain angle, zw grain offset
@@ -37,6 +40,7 @@ layout(set = 0, binding = 4) uniform sampler2D lut_texture;     // Engine.heat_a
 layout(set = 0, binding = 5) uniform sampler2D sonar_texture;   // Engine.sonar_background, bilinear, repeat
 layout(set = 0, binding = 6) uniform sampler2D blur1_texture;   // 256 x 256 level of the pyramid, bilinear, clamp
 layout(set = 0, binding = 7) uniform sampler2D blur2_texture;   // 128 x 128 level
+layout(set = 0, binding = 8) uniform sampler2D glow_texture;    // the glow composite (512 x 512), bilinear, clamp
 
 float srgb_to_linear(float c) {
 	return c <= 0.04045 ? c / 12.92 : pow((c + 0.055) / 1.055, 2.4);
@@ -54,21 +58,25 @@ void main() {
 	int mode = int(p.frame.x + 0.5);
 	int stage = int(p.frame.y + 0.5);
 
-	if ((stage & 1) != 0) {
-		if (p.fog_color.a > 0.5) {
-			// Reverse Z: 1 at the near plane, 0 at the far plane and where nothing was drawn (the sky).
-			float d = texelFetch(depth_texture, xy, 0).r;
-			if (d > 0.0) {
-				float n = p.fog_range.z;
-				float f = p.fog_range.w;
-				float z = n * f / (d * (f - n) + n);
-				float k = clamp((z - p.fog_range.x) / max(p.fog_range.y - p.fog_range.x, 1e-4), 0.0, 1.0);
-				c = mix(c, p.fog_color.rgb, k);
-			}
+	if ((stage & 1) != 0 && p.fog_color.a > 0.5) {
+		// Linear table fog on view depth (D3D W fog, 0x1095d640) over what was drawn. Reverse Z: 1 at the near plane, 0
+		// at the far plane and where nothing was drawn (the clear colour stays).
+		float d = texelFetch(depth_texture, xy, 0).r;
+		if (d > 0.0) {
+			float n = p.fog_range.z;
+			float f = p.fog_range.w;
+			float z = n * f / (d * (f - n) + n);
+			float k = clamp((z - p.fog_range.x) / max(p.fog_range.y - p.fog_range.x, 1e-4), 0.0, 1.0);
+			c = mix(c, p.fog_color.rgb, k);
 		}
+	}
 
-		if (p.gate.x > 0.5) {
-			c *= clamp(p.gate.y * (dot(c, p.gate_luma.rgb) - p.gate.z), 0.0, 1.0);
+	if ((stage & 4) != 0 && p.gate.x > 0.5) {
+		// ps_1_1 0x10c4ea78: mad r0, gate, scene, glow, written to an 8-bit target.
+		c *= clamp(p.gate.y * (dot(c, p.gate_luma.rgb) - p.gate.z), 0.0, 1.0);
+		if (p.gate.w > 0.5) {
+			vec2 uv = (vec2(xy) + 0.5) / vec2(size);
+			c = clamp(c + texture(glow_texture, uv).rgb, vec3(0.0), vec3(1.0));
 		}
 	}
 

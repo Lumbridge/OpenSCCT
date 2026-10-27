@@ -257,7 +257,9 @@ public sealed class RenderMap
     public ZoneEntry? ZoneAt(FVector location) => Zones is null ? null : Lighting.ZoneByIndex(Zones.GetZoneIndex(location));
 
     /// <summary>
-    /// A: the zone ambient (m_RefAmbientColor) plus AmbientGlow as grey, saturating, in display units.
+    /// A: the zone ambient plus AmbientGlow as grey, saturating, in display units. The zone ambient is
+    /// m_RefAmbientColor, which every map stores as FGetHSV(AmbientHue, AmbientSaturation, AmbientBrightness); the
+    /// converter computes that where it is not stored (generated maps).
     /// </summary>
     public Vector3 AmbientAt(FVector location, int ambientGlow)
     {

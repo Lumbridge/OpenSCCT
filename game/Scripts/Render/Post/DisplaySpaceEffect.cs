@@ -9,7 +9,10 @@ namespace OpenScctGame.Render.Post;
 /// <summary>What the display-space pass does this frame. Set from the main thread, read on the render thread.</summary>
 public sealed record DisplayPostSettings
 {
-    /// <summary>Zone distance fog (ZoneInfo.bDistanceFog): colour as a display value, start and end in uu.</summary>
+    /// <summary>
+    /// The view's distance fog (the zone's ZoneInfo.bDistanceFog, blended on a zone change; EMF's own): colour as a
+    /// display value, start and end in uu. Not in thermal.
+    /// </summary>
     public bool Fog { get; init; }
 
     public Color FogColor { get; init; }
@@ -20,6 +23,12 @@ public sealed record DisplayPostSettings
 
     /// <summary>The glow composite's dark gate (applies whenever PlayerController.DoGlow is on, even at threshold 255).</summary>
     public bool GlowGate { get; init; } = true;
+
+    /// <summary>
+    /// LevelInfo.GlowThreshold: the bright pass keeps what is brighter than this / 255 and the glow composite adds it
+    /// back blurred (with the gate, normal view only). 255 adds nothing, so the glow passes are skipped.
+    /// </summary>
+    public int GlowThreshold { get; init; } = 255;
 
     /// <summary>PlayerController.RendMap: 5 normal, 34 night, 36 thermal, 37 motion, 38 EMF.</summary>
     public int RendMap { get; init; } = RenderK.RendMapNormal;
@@ -80,6 +89,7 @@ public partial class DisplaySpaceEffect : CompositorEffect
 {
     public const string ShaderPath = "res://Shaders/svm_display_post.glsl";
     public const string BlurShaderPath = "res://Shaders/svm_vision_blur.glsl";
+    public const string GlowShaderPath = "res://Shaders/svm_glow.glsl";
     private const int NoiseSize = 128;
     private const int ParamVectors = 17 + DisplayPostSettings.MaxCleanRects;
 
@@ -88,6 +98,9 @@ public partial class DisplaySpaceEffect : CompositorEffect
     private Rid _pipeline;
     private Rid _blurShader;
     private Rid _blurPipeline;
+    private Rid _glowShader;
+    private Rid _glowPipeline;
+    private Rid _bright;
     private Rid _nearest;
     private Rid _linearRepeat;
     private Rid _linearClamp;
@@ -95,10 +108,12 @@ public partial class DisplaySpaceEffect : CompositorEffect
     private Rid _lut;
     private Rid _sonar;
     private readonly Rid[] _params = new Rid[2];
-    private readonly Rid[] _levels = new Rid[RenderK.BlurTargets.Length];
-    // Uniform sets of the pyramid passes that read a level (made once: they hold only this effect's own resources and
-    // are freed before them).
-    private readonly Rid[] _levelSets = new Rid[RenderK.BlurTargets.Length];
+    // The blur pyramid: the vision levels (RenderK.BlurTargets) then the glow's two further runs (GlowExtraTargets).
+    private static readonly Vector2I[] LevelSizes = [.. RenderK.BlurTargets, .. RenderK.GlowExtraTargets];
+    private readonly Rid[] _levels = new Rid[LevelSizes.Length];
+    // Uniform sets of the pyramid passes that read a level or the bright target (made once: they hold only this
+    // effect's own resources and are freed before them).
+    private readonly Rid[] _levelSets = new Rid[LevelSizes.Length];
     private RenderPack? _uploaded;
     private volatile DisplayPostSettings _settings = new();
     private uint _frame;
@@ -130,7 +145,7 @@ public partial class DisplaySpaceEffect : CompositorEffect
     private bool _released;
 
     /// <summary>True once the compute pipelines exist.</summary>
-    public bool Ready => _pipeline.IsValid && _blurPipeline.IsValid;
+    public bool Ready => _pipeline.IsValid && _blurPipeline.IsValid && _glowPipeline.IsValid;
 
     /// <summary>Why the pass could not start, or null.</summary>
     public string? Error { get; private set; }
@@ -160,7 +175,7 @@ public partial class DisplaySpaceEffect : CompositorEffect
         }
 
         _released = true;
-        Rid[] rids = [.. _levelSets, _pipeline, _shader, _blurPipeline, _blurShader, _nearest, _linearRepeat, _linearClamp, _noise, _lut, _sonar, .. _params, .. _levels];
+        Rid[] rids = [.. _levelSets, _pipeline, _shader, _blurPipeline, _blurShader, _glowPipeline, _glowShader, _nearest, _linearRepeat, _linearClamp, _noise, _lut, _sonar, .. _params, .. _levels, _bright];
         RenderingServer.CallOnRenderThread(Callable.From(() =>
         {
             // On the render thread, between frames: the pass stops drawing before its resources go.
@@ -185,7 +200,8 @@ public partial class DisplaySpaceEffect : CompositorEffect
         }
 
         if (!Compile(ShaderPath, "svm_display_post", out _shader, out _pipeline) ||
-            !Compile(BlurShaderPath, "svm_vision_blur", out _blurShader, out _blurPipeline))
+            !Compile(BlurShaderPath, "svm_vision_blur", out _blurShader, out _blurPipeline) ||
+            !Compile(GlowShaderPath, "svm_glow", out _glowShader, out _glowPipeline))
         {
             return;
         }
@@ -217,16 +233,19 @@ public partial class DisplaySpaceEffect : CompositorEffect
         _params[1] = _rd.UniformBufferCreate(ParamVectors * 16);
         for (int i = 0; i < _levels.Length; i++)
         {
-            Vector2I s = RenderK.BlurTargets[i];
-            _levels[i] = _rd.TextureCreate(new RDTextureFormat
-            {
-                Format = RenderingDevice.DataFormat.R16G16B16A16Sfloat,
-                Width = (uint)s.X,
-                Height = (uint)s.Y,
-                UsageBits = RenderingDevice.TextureUsageBits.SamplingBit | RenderingDevice.TextureUsageBits.StorageBit,
-            }, new RDTextureView());
+            _levels[i] = Target(LevelSizes[i]);
         }
+
+        _bright = Target(RenderK.GlowBrightTarget);
     }
+
+    private Rid Target(Vector2I size) => _rd!.TextureCreate(new RDTextureFormat
+    {
+        Format = RenderingDevice.DataFormat.R16G16B16A16Sfloat,
+        Width = (uint)size.X,
+        Height = (uint)size.Y,
+        UsageBits = RenderingDevice.TextureUsageBits.SamplingBit | RenderingDevice.TextureUsageBits.StorageBit,
+    }, new RDTextureView());
 
     private bool Compile(string path, string name, out Rid shader, out Rid pipeline)
     {
@@ -330,8 +349,23 @@ public partial class DisplaySpaceEffect : CompositorEffect
     [Provenance(ProvenanceKind.Decoded, "thermal post 0x10964d30, motion 0x10963dc0 and EMF 0x10965680 each run 0x10967d70 twice")]
     public static bool UsesPyramid(int rendMap) => rendMap is RenderK.RendMapThermal or RenderK.RendMapMotion or RenderK.RendMapEmf;
 
-    /// <summary>True when the mode draws the normal scene, so zone fog applies (thermal and EMF draw their own passes).</summary>
+    /// <summary>True when the mode draws the normal scene (thermal and EMF draw their own passes).</summary>
     public static bool DrawsNormalScene(int rendMap) => rendMap is not (RenderK.RendMapThermal or RenderK.RendMapEmf);
+
+    /// <summary>True when the mode takes distance fog: every mode but thermal (EMF has a fog of its own).</summary>
+    [Provenance(ProvenanceKind.Decoded, "scene fog setup 0x10a15fb8: no SetDistanceFog for RendMap 36 (and 35)")]
+    public static bool TakesFog(int rendMap) => rendMap != RenderK.RendMapThermal;
+
+    /// <summary>
+    /// True when the frame runs the glow composite (gate and glow): the normal view. The night pass (0x10963090) reads
+    /// the scene before any composite and replaces it, and the thermal, motion and EMF passes have their own.
+    /// </summary>
+    [Provenance(ProvenanceKind.Decoded, "glow driver 0x10967740 is called by the normal composite 0x10966010 (mode 0) and the night pass (mode 1) only")]
+    public static bool RunsGlowComposite(int rendMap) => rendMap is RenderK.RendMapNormal or RenderK.RendMapBinoculars;
+
+    /// <summary>The bright pass threshold (0..1) of a GlowThreshold, or null when nothing can pass it (255).</summary>
+    [Provenance(ProvenanceKind.Decoded, "0x10966010: GlowThreshold byte x 1/255 (0x10c10a5c) into c5.a; cnd keeps L > T, and L is at most 1")]
+    public static float? GlowCut(int glowThreshold) => glowThreshold >= 255 ? null : Math.Max(0, glowThreshold) / 255f;
 
     public override void _RenderCallback(int effectCallbackType, RenderData renderData)
     {
@@ -366,18 +400,18 @@ public partial class DisplaySpaceEffect : CompositorEffect
         int mode = s.RendMap;
         _lastDrawnRendMap = mode;
         _lastDrawnCleanRects = mode == RenderK.RendMapMotion ? Math.Min(s.CleanRects.Length, DisplayPostSettings.MaxCleanRects) : 0;
-        bool normal = DrawsNormalScene(mode);
-        bool fog = normal && s.Fog;
-        // The glow composite runs on the normal frame (night vision draws its own glow term); vision passes skip it.
-        // The gate belongs to the glow composite of the normal frame; the night pass (0x10963090) reads the scene copy
-        // before any composite and replaces it, so night vision has no gate.
-        bool gate = s.GlowGate && mode is RenderK.RendMapNormal or RenderK.RendMapBinoculars;
+        bool fog = TakesFog(mode) && s.Fog;
+        // The glow composite (the gate, and the glow when the threshold lets anything through) runs on the normal frame
+        // only (night vision draws its own glow term, not ported); vision passes skip it.
+        bool gate = s.GlowGate && RunsGlowComposite(mode);
+        float? cut = gate ? GlowCut(s.GlowThreshold) : null;
+        bool glow = cut is not null;
         float slope = 1f + (3f * s.MtvSlope / 255f);
         Span<float> values =
         [
             s.FogColor.R, s.FogColor.G, s.FogColor.B, fog ? 1f : 0f,
             UeSpace.LengthToGodot(s.FogStart), UeSpace.LengthToGodot(s.FogEnd), UeSpace.LengthToGodot(s.Near), UeSpace.LengthToGodot(s.Far),
-            gate ? 1f : 0f, RenderK.GlowGateGain, RenderK.GlowGateOffset, 0f,
+            gate ? 1f : 0f, RenderK.GlowGateGain, RenderK.GlowGateOffset, glow ? 1f : 0f,
             RenderK.GlowGateLuma.X, RenderK.GlowGateLuma.Y, RenderK.GlowGateLuma.Z, 0f,
             mode, 0f, size.X, size.Y,
             MathF.Cos(angle), MathF.Sin(angle), offU, offV,
@@ -411,22 +445,33 @@ public partial class DisplaySpaceEffect : CompositorEffect
         {
             Rid color = buffers.GetColorLayer(view);
             Rid depth = buffers.GetDepthLayer(view);
-            if (pyramid)
+            if (glow)
+            {
+                // The bright pass reads the fogged scene, so fog runs first; the gate and glow follow the pyramid.
+                if (fog)
+                {
+                    Main(values, StageFog, color, depth, size);
+                }
+
+                Glow(color, size, cut!.Value);
+                Main(values, StageGlow | StageVision, color, depth, size);
+            }
+            else if (pyramid)
             {
                 if (fog || gate)
                 {
-                    Main(values, 1f, color, depth, size);
+                    Main(values, StageFog | StageGlow, color, depth, size);
                 }
 
                 Blur(color, size, _levels[0], new Vector2(0f, 1f), fromFrame: true);
                 Blur(_levels[0], RenderK.BlurTargets[0], _levels[1], new Vector2(1f, 0f), fromFrame: false);
                 Blur(_levels[1], RenderK.BlurTargets[1], _levels[2], new Vector2(0f, 1f), fromFrame: false);
                 Blur(_levels[2], RenderK.BlurTargets[2], _levels[3], new Vector2(1f, 0f), fromFrame: false);
-                Main(values, 2f, color, depth, size);
+                Main(values, StageVision, color, depth, size);
             }
             else
             {
-                Main(values, 3f, color, depth, size);
+                Main(values, StageFog | StageGlow | StageVision, color, depth, size);
             }
         }
     }
@@ -437,7 +482,12 @@ public partial class DisplaySpaceEffect : CompositorEffect
     private byte[]? _mainBytes;
     private byte[]? _blurBytes;
 
-    private void Main(Span<float> values, float stage, Rid color, Rid depth, Vector2I size)
+    // Stage bits of the main pass: zone fog; the glow composite (gate, glow); the vision pass and the sRGB decode.
+    private const int StageFog = 1;
+    private const int StageVision = 2;
+    private const int StageGlow = 4;
+
+    private void Main(Span<float> values, int stage, Rid color, Rid depth, Vector2I size)
     {
         values[17] = stage;
         Span<byte> raw = MemoryMarshal.AsBytes(values);
@@ -447,13 +497,14 @@ public partial class DisplaySpaceEffect : CompositorEffect
         }
 
         raw.CopyTo(_mainBytes);
-        Rid block = _params[stage == 1f ? 0 : 1];
+        // The vision stage always ends a frame's passes: an earlier stage has its own block.
+        Rid block = _params[(stage & StageVision) == 0 ? 0 : 1];
         _rd!.BufferUpdate(block, 0, (uint)_mainBytes.Length, _mainBytes);
         UniformSlots slots = _mainSlots ??= new UniformSlots(RenderingDevice.UniformType.Image,
             RenderingDevice.UniformType.SamplerWithTexture, RenderingDevice.UniformType.SamplerWithTexture,
             RenderingDevice.UniformType.UniformBuffer, RenderingDevice.UniformType.SamplerWithTexture,
             RenderingDevice.UniformType.SamplerWithTexture, RenderingDevice.UniformType.SamplerWithTexture,
-            RenderingDevice.UniformType.SamplerWithTexture);
+            RenderingDevice.UniformType.SamplerWithTexture, RenderingDevice.UniformType.SamplerWithTexture);
         slots.Set(0, color);
         slots.Set(1, _nearest, depth);
         slots.Set(2, _linearRepeat, _noise);
@@ -462,6 +513,7 @@ public partial class DisplaySpaceEffect : CompositorEffect
         slots.Set(5, _linearRepeat, _sonar);
         slots.Set(6, _linearClamp, _levels[1]);
         slots.Set(7, _linearClamp, _levels[3]);
+        slots.Set(8, _linearClamp, _bright);
         Rid set = UniformSetCacheRD.GetCache(_shader, 0, slots.Array);
         long list = _rd.ComputeListBegin();
         _rd.ComputeListBindComputePipeline(list, _pipeline);
@@ -478,7 +530,7 @@ public partial class DisplaySpaceEffect : CompositorEffect
     private void Blur(Rid source, Vector2I sourceSize, Rid target, Vector2 axis, bool fromFrame)
     {
         int index = Array.IndexOf(_levels, target);
-        Vector2I size = RenderK.BlurTargets[index];
+        Vector2I size = LevelSizes[index];
         Rid spare = _levels[index == _levels.Length - 1 ? 0 : _levels.Length - 1];
         UniformSlots slots = _blurSlots ??= new UniformSlots(RenderingDevice.UniformType.SamplerWithTexture,
             RenderingDevice.UniformType.Image, RenderingDevice.UniformType.Image);
@@ -521,6 +573,70 @@ public partial class DisplaySpaceEffect : CompositorEffect
         _rd.ComputeListBindUniformSet(list, set, 0);
         _rd.ComputeListSetPushConstant(list, bytes, (uint)bytes.Length);
         _rd.ComputeListDispatch(list, (uint)((size.X + 7) / 8), (uint)((size.Y + 7) / 8), 1);
+        _rd.ComputeListEnd();
+    }
+
+    private UniformSlots? _glowSlots;
+    private byte[]? _glowBytes;
+
+    /// <summary>
+    /// The glow driver in mode 0 (0x10967740): the bright pass of the frame into the 512 x 512 target, four blur runs
+    /// (each a vertical then a horizontal pass, as the vision pyramid) to 256, 128, 64 and 32 texels square, then the
+    /// weighted sum of the four levels back into the bright target, which the main pass adds over the gated frame.
+    /// </summary>
+    [Provenance(ProvenanceKind.Decoded, "glow driver 0x10967740 mode 0: bright pass 0x10967200 (ps 0x10c4e898), 0x10967d70 x 4, composite 0x109684f0 (ps 0x10c4ed00)")]
+    [Provenance(ProvenanceKind.Estimated, "the bright pass samples the frame bilinear; the original asks for texture filter 5 (gaussian cubic), which drivers do not offer")]
+    private void Glow(Rid color, Vector2I size, float cut)
+    {
+        GlowPass(color, size, 0f, cut);
+        Rid source = _bright;
+        Vector2I sourceSize = RenderK.GlowBrightTarget;
+        // Levels 1 (256), 3 (128), 5 (64) and 7 (32) are the pyramid; 0, 2, 4 and 6 the vertical halves between them.
+        for (int i = 0; i < _levels.Length; i += 2)
+        {
+            Blur(source, sourceSize, _levels[i], new Vector2(0f, 1f), fromFrame: false);
+            Blur(_levels[i], LevelSizes[i], _levels[i + 1], new Vector2(1f, 0f), fromFrame: false);
+            source = _levels[i + 1];
+            sourceSize = LevelSizes[i + 1];
+        }
+
+        GlowPass(color, size, 1f, cut);
+    }
+
+    /// <summary>One pass of svm_glow.glsl into the bright target: mode 0 the bright pass, 1 the composite.</summary>
+    private void GlowPass(Rid color, Vector2I frameSize, float mode, float cut)
+    {
+        UniformSlots slots = _glowSlots ??= new UniformSlots(RenderingDevice.UniformType.SamplerWithTexture,
+            RenderingDevice.UniformType.SamplerWithTexture, RenderingDevice.UniformType.SamplerWithTexture,
+            RenderingDevice.UniformType.SamplerWithTexture, RenderingDevice.UniformType.Image, RenderingDevice.UniformType.Image);
+        slots.Set(0, _linearClamp, _levels[1]);
+        slots.Set(1, _linearClamp, _levels[3]);
+        slots.Set(2, _linearClamp, _levels[5]);
+        slots.Set(3, _linearClamp, _levels[7]);
+        slots.Set(4, color);
+        slots.Set(5, _bright);
+        Rid set = UniformSetCacheRD.GetCache(_glowShader, 0, slots.Array);
+        Vector2I target = RenderK.GlowBrightTarget;
+        Vector4 w = RenderK.GlowLevelWeights;
+        Span<float> push =
+        [
+            mode, cut, RenderK.GlowBrightGain, 0f,
+            frameSize.X, frameSize.Y, target.X, target.Y,
+            w.X, w.Y, w.Z, w.W,
+            RenderK.GlowBrightLuma.X, RenderK.GlowBrightLuma.Y, RenderK.GlowBrightLuma.Z, 0f,
+        ];
+        Span<byte> raw = MemoryMarshal.AsBytes(push);
+        if (_glowBytes?.Length != raw.Length)
+        {
+            _glowBytes = new byte[raw.Length];
+        }
+
+        raw.CopyTo(_glowBytes);
+        long list = _rd!.ComputeListBegin();
+        _rd.ComputeListBindComputePipeline(list, _glowPipeline);
+        _rd.ComputeListBindUniformSet(list, set, 0);
+        _rd.ComputeListSetPushConstant(list, _glowBytes, (uint)_glowBytes.Length);
+        _rd.ComputeListDispatch(list, (uint)((target.X + 7) / 8), (uint)((target.Y + 7) / 8), 1);
         _rd.ComputeListEnd();
     }
 }
