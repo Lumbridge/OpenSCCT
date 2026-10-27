@@ -1052,51 +1052,15 @@
   },
   {
    "activeAtStart": true,
-   "id": "CourseVaultLGW",
+   "id": "CourseClimbLG",
    "kind": "LG",
    "mask": 0,
    "platform": 0,
    "points": [
-    [3840.0, 2304.0, 96.0],
-    [3840.0, 1536.0, 96.0]
+    [3584.0, 2112.0, 208.0],
+    [3584.0, 1728.0, 208.0]
    ],
-   "src": {"kind": "synthetic", "note": "vault wall, west face"}
-  },
-  {
-   "activeAtStart": true,
-   "id": "CourseVaultLGE",
-   "kind": "LG",
-   "mask": 0,
-   "platform": 0,
-   "points": [
-    [3872.0, 1536.0, 96.0],
-    [3872.0, 2304.0, 96.0]
-   ],
-   "src": {"kind": "synthetic", "note": "vault wall, east face"}
-  },
-  {
-   "activeAtStart": true,
-   "id": "CourseClimbLGW",
-   "kind": "LG",
-   "mask": 0,
-   "platform": 0,
-   "points": [
-    [4352.0, 2304.0, 208.0],
-    [4352.0, 1536.0, 208.0]
-   ],
-   "src": {"kind": "synthetic", "note": "climb block, west face"}
-  },
-  {
-   "activeAtStart": true,
-   "id": "CourseClimbLGE",
-   "kind": "LG",
-   "mask": 0,
-   "platform": 0,
-   "points": [
-    [4864.0, 1536.0, 208.0],
-    [4864.0, 2304.0, 208.0]
-   ],
-   "src": {"kind": "synthetic", "note": "climb block, east face"}
+   "src": {"kind": "synthetic", "note": "deck A, west face: hang and climb"}
   },
   {
    "activeAtStart": true,
@@ -1105,10 +1069,10 @@
    "mask": 0,
    "platform": 0,
    "points": [
-    [5252.0, 1536.0, 376.0],
-    [5252.0, 2304.0, 376.0]
+    [3968.0, 1728.0, 584.0],
+    [3968.0, 2112.0, 584.0]
    ],
-   "src": {"kind": "synthetic", "note": "climbable both faces"}
+   "src": {"kind": "synthetic", "note": "climbable both faces, the deck's full width"}
   },
   {
    "activeAtStart": true,
@@ -1117,48 +1081,46 @@
    "mask": 0,
    "platform": 0,
    "points": [
-    [5696.0, 1920.0, 277.0],
-    [6336.0, 1920.0, 277.0]
+    [4160.0, 1920.0, 485.0],
+    [5184.0, 1920.0, 485.0]
    ],
    "src": {"kind": "synthetic", "note": "bar underside 1 under the line"}
   },
   {
    "activeAtStart": true,
-   "id": "CourseTowerPIPE",
-   "kind": "PIPE",
-   "mask": 0,
-   "platform": 0,
-   "points": [
-    [6896.0, 1920.0, 0.0],
-    [6896.0, 1920.0, 384.0],
-    [6886.0, 1920.0, 0.0]
-   ],
-   "src": {"kind": "synthetic", "note": "bottom, top flush with the tower top, side 10 toward the climber"}
-  },
-  {
-   "activeAtStart": true,
-   "id": "CourseTowerLADDER",
-   "kind": "LADDER",
-   "mask": 0,
-   "platform": 0,
-   "points": [
-    [7168.0, 1788.0, 0.0],
-    [7168.0, 1788.0, 384.0],
-    [7168.0, 1778.0, 0.0]
-   ],
-   "src": {"kind": "synthetic", "note": "bottom, top flush with the tower top, side 10 toward the climber"}
-  },
-  {
-   "activeAtStart": true,
-   "id": "CourseTowerLGE",
+   "id": "CourseShimmyLG",
    "kind": "LG",
    "mask": 0,
    "platform": 0,
    "points": [
-    [7424.0, 1792.0, 384.0],
-    [7424.0, 2048.0, 384.0]
+    [5216.0, 2112.0, 472.0],
+    [6048.0, 2112.0, 472.0]
    ],
-   "src": {"kind": "synthetic", "note": "tower top, east lip"}
+   "src": {"kind": "synthetic", "note": "wall lip, south face: shimmy across"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "CourseChimneyLG",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [6400.0, 2016.0, 616.0],
+    [6400.0, 1824.0, 616.0]
+   ],
+   "src": {"kind": "synthetic", "note": "deck D, west face, in the chimney"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "CourseWallJumpLG",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [6912.0, 2048.0, 1024.0],
+    [6912.0, 1792.0, 1024.0]
+   ],
+   "src": {"kind": "synthetic", "note": "deck E, west face: wall jump to the lip"}
   },
   {
    "activeAtStart": true,
@@ -1167,13 +1129,10 @@
    "mask": 0,
    "platform": 0,
    "points": [
-    [9072.0, 1920.0, 368.0],
-    [7312.0, 1920.0, 688.0]
+    [9072.0, 1920.0, 1008.0],
+    [7312.0, 1920.0, 1328.0]
    ],
-   "src": {
-    "kind": "synthetic",
-    "note": "high end 304 over the tower top, low end 208 over the finish deck"
-   }
+   "src": {"kind": "synthetic", "note": "high end 304 over deck E, low end 208 over the finish deck"}
   },
   {
    "activeAtStart": true,
@@ -1182,10 +1141,26 @@
    "mask": 0,
    "platform": 0,
    "points": [
-    [8832.0, 2048.0, 160.0],
-    [8832.0, 1792.0, 160.0]
+    [8832.0, 2048.0, 800.0],
+    [8832.0, 1792.0, 800.0]
    ],
    "src": {"kind": "synthetic", "note": "finish deck, west lip"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "CourseExitLADDER",
+   "kind": "LADDER",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [9348.0, 1920.0, 0.0],
+    [9348.0, 1920.0, 800.0],
+    [9358.0, 1920.0, 0.0]
+   ],
+   "src": {
+    "kind": "synthetic",
+    "note": "bottom, top flush with the finish deck, side 10 toward the climber"
+   }
   }
  ],
  "map": "Hub"

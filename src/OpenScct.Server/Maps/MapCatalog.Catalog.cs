@@ -129,6 +129,22 @@ public sealed partial class MapCatalog
     private List<MapPlaylist>? _playlists;
     private MapCatalogData? _catalogData;
 
+    /// <summary>
+    /// Forgets what was read from the content folders, so maps converted while the game runs (a map fetched for a
+    /// lobby) are listed and a map converted again is read again. Loaded maps already in use are not touched.
+    /// </summary>
+    public void Refresh()
+    {
+        lock (_gate)
+        {
+            _catalog = null;
+            _playlists = null;
+            _catalogData = null;
+            _entries.Clear();
+            _cache.Clear();
+        }
+    }
+
     /// <summary>The menu name of a mode (Story, Disk Hunt, Deathmatch, Merc Deathmatch).</summary>
     public static string ModeName(EGameMode mode) => mode switch
     {

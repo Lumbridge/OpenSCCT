@@ -59,6 +59,9 @@ public sealed record OnlineClientSettings
 
     public string? MercLook { get; init; }
 
+    /// <summary>The title the player shows (OpenScct.Net.Cosmetics.TitleCatalog id); the server keeps it only when the ticket unlocks it.</summary>
+    public string? Title { get; init; }
+
     public MapCatalog? Maps { get; init; }
 
     public NetClassRegistry? Classes { get; init; }
@@ -160,6 +163,9 @@ public sealed class OnlineClient : IDisposable
 
     /// <summary>Why the visit failed, as a player reads it, or null.</summary>
     public string? Error { get; private set; }
+
+    /// <summary>The server kicked (or banned) this player.</summary>
+    public bool Kicked { get; private set; }
 
     /// <summary>The lobby as the server describes it.</summary>
     public LobbyState Lobby { get; } = new();
@@ -488,7 +494,8 @@ public sealed class OnlineClient : IDisposable
             options += "?SvmId=" + Clean(Settings.InstallId);
         }
 
-        if (Settings.PreferredTeam is 0 or 1)
+        // 255 asks for a spectator's place (a hub player watching a pad's match).
+        if (Settings.PreferredTeam is 0 or 1 or SessionProtocol.SpectatorTeam)
         {
             options += "?Team=" + Settings.PreferredTeam.ToString(CultureInfo.InvariantCulture);
         }
@@ -516,6 +523,11 @@ public sealed class OnlineClient : IDisposable
         if (Settings.MercLook is { Length: > 0 } mercLook && mercLook != "0")
         {
             options += "?SvmLookM=" + Clean(mercLook);
+        }
+
+        if (Settings.Title is { Length: > 0 } title)
+        {
+            options += "?SvmTitle=" + Clean(title);
         }
 
         return options;
@@ -687,13 +699,27 @@ public sealed class OnlineClient : IDisposable
                 MasterApi.TryParseHex(SessionProtocol.Text(f, 0), out ulong content);
                 Lobby.SetupContentHash = content;
                 Lobby.Setup = LobbySetup.FromOptions(SessionProtocol.Text(f, 1), Lobby.Setup);
+                Lobby.SetupSource = null;
                 CheckMap();
                 break;
             }
 
+            case "mapsource":
+                // Follows the setup when the host downloaded its map: map, fingerprint, commit, id (with spaces).
+                if (string.Equals(SessionProtocol.Text(f, 0), Lobby.Setup.Map, StringComparison.OrdinalIgnoreCase)
+                    && SessionProtocol.Text(f, 3) is { Length: > 0 } sourceId)
+                {
+                    Lobby.SetupSource = new MapSourceInfo(sourceId, SessionProtocol.Text(f, 2), SessionProtocol.Text(f, 1));
+                }
+
+                break;
+
             case "player":
                 Lobby.Upsert(new LobbyPlayer(SessionProtocol.Int(f, 0), SessionProtocol.Text(f, 5), (byte)SessionProtocol.Int(f, 1),
                     (SessionPlayerFlags)SessionProtocol.Int(f, 2), SessionProtocol.Int(f, 3), (MapState)SessionProtocol.Int(f, 4)));
+                break;
+            case "rank":
+                Lobby.SetRank(SessionProtocol.Int(f, 0), SessionProtocol.Int(f, 1));
                 break;
             case "gone":
                 Lobby.Remove(SessionProtocol.Int(f, 0));
@@ -735,6 +761,7 @@ public sealed class OnlineClient : IDisposable
                 ResultsReceived?.Invoke(Results);
                 break;
             case "kicked":
+                Kicked = true;
                 _failRequest = SessionProtocol.Text(f, 0).Length > 0 ? SessionProtocol.Text(f, 0) : "You were removed from the server.";
                 return;
         }
@@ -750,6 +777,7 @@ public sealed class OnlineClient : IDisposable
         {
             "hello" => 5,
             "setup" => 2,
+            "mapsource" => 4,
             "player" => 6,
             "msg" or "kicked" => 1,
             "row" => 7,
@@ -766,6 +794,19 @@ public sealed class OnlineClient : IDisposable
         Lobby.AddMessage(message);
         MessageReceived?.Invoke(message);
         Changed?.Invoke();
+    }
+
+    /// <summary>
+    /// Checks the setup's map again and tells the server, after the map was installed while in the lobby (the
+    /// catalog refreshed first). Call from the thread that drives this client.
+    /// </summary>
+    public void RecheckMap()
+    {
+        if (State is OnlineClientState.Lobby or OnlineClientState.Results)
+        {
+            CheckMap();
+            Changed?.Invoke();
+        }
     }
 
     /// <summary>Tells the server whether this install has the setup's map, and the same version of it.</summary>

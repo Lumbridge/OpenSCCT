@@ -79,7 +79,31 @@ public sealed partial class HubActivities
         }
 
         state.EmoteAt = now;
+        state.EmoteUntil = now + HubEmotes.Seconds(emote);
         SendNear(pawn.Location, HubPlayK.EmoteRange, HubPlayProtocol.Emote(ReplicationId(slot), emote), slot);
+    }
+
+    /// <summary>Ends a player's emote for everyone near when he moves off or loses his pawn, so the pose stops as he goes.</summary>
+    private void TickEmote(PlayerSlot slot, PlayState state, Pawn? pawn, double now)
+    {
+        if (now >= state.EmoteUntil)
+        {
+            return;
+        }
+
+        FVector v = pawn?.Velocity ?? FVector.Zero;
+        bool moved = pawn is null || (v.X * v.X) + (v.Y * v.Y) > HubPlayK.EmoteStopSpeed * HubPlayK.EmoteStopSpeed ||
+                     MathF.Abs(v.Z) > HubPlayK.EmoteStopSpeed;
+        if (!moved || now - state.EmoteAt < 0.25)
+        {
+            return;
+        }
+
+        state.EmoteUntil = double.NegativeInfinity;
+        if (pawn is not null)
+        {
+            SendNear(pawn.Location, HubPlayK.EmoteRange, HubPlayProtocol.EmoteStop(ReplicationId(slot)), slot);
+        }
     }
 
     private void NextTrack(PlayerSlot slot)

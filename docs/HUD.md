@@ -122,7 +122,7 @@ top-level area of a page starts hidden and stopped at frame 0; each driver shows
 | Reticule, ReticuleMessage, Pos_Merc, AlertMessage (merc) | reticle per weapon kind with spread and hit colour, laser gate, sound arrows, reticle message at the aim point, posture icon, alert box (merc-reticle.md) |
 | merc effects | perturbation, shutdown and reboot, foam, droplets, sticky shock, flash white-out (screen-effects.md) |
 | Ballistic | the charge gauge |
-| PCConnectedPlayers | up to four rows while shown (F10); Reloaded's ping column when `show_ping` is on |
+| PCConnectedPlayers | up to four rows while shown (F10); Reloaded's ping column when `show_ping` is on; OpenSCCT's Rank column (level tag, spec/additions/progression.md) when a listed player has a rank |
 | Radar | dish, blips, edge arrows (spy teammates and enemies, merc alarms and hacked terminals) |
 | P_SpectatorMode | objectives, time, lives, watched player, respawn countdown, tip (spectator-page.md) |
 | P_BinocularsATT / DEF | zoom label and marker, scope ring animations, sights and axes at the aim point, breath gauge, range finder, key help, Hack prompt, reticle message (binoculars.md) |

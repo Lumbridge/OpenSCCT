@@ -1,6 +1,10 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.IO;
 using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Security.Cryptography;
@@ -44,6 +48,25 @@ public sealed record MasterLinkSettings
 
     /// <summary>Where the server stands (<c>EU</c>, <c>US</c>...), shown in the lists; empty for none.</summary>
     public string Region { get; init; } = string.Empty;
+
+    /// <summary>Upload round demos to the master's bucket (trusted servers only; docs/ONLINE.md, "Demos").</summary>
+    public bool UploadDemos { get; init; } = true;
+}
+
+/// <summary>What the master lists about a demo besides its round (the recorder fills it in).</summary>
+public sealed record DemoMeta
+{
+    /// <summary>How long the recording runs, seconds.</summary>
+    public int DurationSeconds { get; init; }
+
+    /// <summary>The game version that recorded it.</summary>
+    public string GameVersion { get; init; } = BuildInfo.Version;
+
+    /// <summary>The net protocol hash the stream is in.</summary>
+    public ulong NetProtocol { get; init; }
+
+    /// <summary>The map's content hash.</summary>
+    public ulong ContentHash { get; init; }
 }
 
 /// <summary>
@@ -72,7 +95,11 @@ public sealed class MasterLink : IDisposable
     private Reachability _lastReach = (Reachability)(-1);
     private string? _ticketKeyText;
     private string? _resultsError;
+    private readonly ConcurrentQueue<string> _taskNotices = new();
     private bool _disposed;
+
+    /// <summary>PUTs demo files to the signed S3 links (no master headers; long timeout for big files on slow links).</summary>
+    private static readonly HttpClient s_upload = new() { Timeout = TimeSpan.FromMinutes(10) };
 
     public MasterLink(MasterLinkSettings settings, LiteNetLibTransport udp)
     {
@@ -112,6 +139,9 @@ public sealed class MasterLink : IDisposable
     /// <summary>Seconds left in the round being played (-1: none), sent with each heartbeat.</summary>
     public Func<int>? RoundSecondsLeft { get; set; }
 
+    /// <summary>Signed-in players who dropped out of the round and may rejoin it, sent with each heartbeat.</summary>
+    public Func<IReadOnlyList<long>>? RejoinAccounts { get; set; }
+
     /// <summary>Admin commands from the master (trusted servers only): raised on the host's thread, in <see cref="Tick"/>.</summary>
     public event Action<IReadOnlyList<MasterCommand>>? Commands;
 
@@ -136,33 +166,34 @@ public sealed class MasterLink : IDisposable
 
     /// <summary>
     /// Posts a finished round to the master (trusted servers only), off the host's thread: three tries ten seconds
-    /// apart. A post that failed every try comes out of <see cref="Notice"/> at a later tick.
+    /// apart. A post that failed every try comes out of <see cref="Notice"/> at a later tick. The task ends with the
+    /// stored round's id (for <see cref="UploadDemo"/>), or null when the round was not taken or the master is older.
     /// </summary>
-    public void ReportResults(ResultsReport report)
+    public Task<long?> ReportResults(ResultsReport report)
     {
         ArgumentNullException.ThrowIfNull(report);
         if (_disposed || !Trusted || _client.ServerKey is null)
         {
-            return;
+            return Task.FromResult<long?>(null);
         }
 
-        _ = PostResults(report);
+        return PostResults(report);
     }
 
-    private async Task PostResults(ResultsReport report)
+    private async Task<long?> PostResults(ResultsReport report)
     {
         string? error = null;
         for (int attempt = 0; attempt < 3; attempt++)
         {
             if (_disposed)
             {
-                return;
+                return null;
             }
 
             try
             {
-                await _client.ReportResultsAsync(report).ConfigureAwait(false);
-                return;
+                ResultsResponse answer = await _client.ReportResultsAsync(report).ConfigureAwait(false);
+                return answer.MatchId;
             }
             catch (Exception e) when (e is MasterException or System.Net.Http.HttpRequestException or TaskCanceledException or ObjectDisposedException)
             {
@@ -180,6 +211,91 @@ public sealed class MasterLink : IDisposable
         {
             Interlocked.Exchange(ref _resultsError, error);
         }
+
+        return null;
+    }
+
+    /// <summary>
+    /// Uploads the demo file of round <paramref name="matchId"/> (trusted servers with
+    /// <see cref="MasterLinkSettings.UploadDemos"/>), off the host's thread: asks the master for a signed link, PUTs
+    /// the file straight to the bucket, then confirms; three tries ten seconds apart. The outcome comes out of
+    /// <see cref="Notice"/> at a later tick. The task ends true once the master lists the demo.
+    /// </summary>
+    public Task<bool> UploadDemo(long matchId, string filePath, DemoMeta meta)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(filePath);
+        ArgumentNullException.ThrowIfNull(meta);
+        if (_disposed || !Trusted || _client.ServerKey is null || !Settings.UploadDemos)
+        {
+            return Task.FromResult(false);
+        }
+
+        return Task.Run(() => PutDemo(matchId, filePath, meta));
+    }
+
+    private async Task<bool> PutDemo(long matchId, string filePath, DemoMeta meta)
+    {
+        long size;
+        string sha;
+        try
+        {
+            await using FileStream file = File.OpenRead(filePath);
+            size = file.Length;
+            sha = Convert.ToHexStringLower(await SHA256.HashDataAsync(file).ConfigureAwait(false));
+        }
+        catch (Exception e) when (e is IOException or UnauthorizedAccessException)
+        {
+            _taskNotices.Enqueue($"Master server: the demo of round {matchId} could not be read: {e.Message}");
+            return false;
+        }
+
+        var request = new DemoUploadRequest
+        {
+            MatchId = matchId, Size = size, Sha256 = sha, DurationSeconds = meta.DurationSeconds, GameVersion = meta.GameVersion,
+            NetVersion = MasterApi.Hex(meta.NetProtocol), ContentHash = MasterApi.Hex(meta.ContentHash),
+        };
+        string? error = null;
+        for (int attempt = 0; attempt < 3; attempt++)
+        {
+            if (_disposed)
+            {
+                return false;
+            }
+
+            try
+            {
+                DemoUploadResponse link = await _client.RequestDemoUploadAsync(request).ConfigureAwait(false);
+                await using (FileStream file = File.OpenRead(filePath))
+                {
+                    using var content = new StreamContent(file);
+                    content.Headers.ContentType = new MediaTypeHeaderValue(link.ContentType);
+                    content.Headers.ContentLength = size;
+                    using HttpResponseMessage put = await s_upload.PutAsync(new Uri(link.UploadUrl), content).ConfigureAwait(false);
+                    if (!put.IsSuccessStatusCode)
+                    {
+                        throw new HttpRequestException($"the bucket answered {(int)put.StatusCode}", null, put.StatusCode);
+                    }
+                }
+
+                await _client.DemoDoneAsync(link.DemoId).ConfigureAwait(false);
+                _taskNotices.Enqueue($"Master server: the demo of round {matchId} was uploaded ({size / 1024} KB).");
+                return true;
+            }
+            catch (Exception e) when (e is MasterException or HttpRequestException or TaskCanceledException or ObjectDisposedException or IOException)
+            {
+                error = e.Message;
+                // The master refused (too big, not our round, demos off): another try would be refused too.
+                if (e is MasterException { StatusCode: (>= 400 and < 500) or 503 })
+                {
+                    break;
+                }
+            }
+
+            await Task.Delay(TimeSpan.FromSeconds(10)).ConfigureAwait(false);
+        }
+
+        _taskNotices.Enqueue($"Master server: the demo of round {matchId} was not uploaded: {error}");
+        return false;
     }
 
     /// <summary>Called after every server tick with the server's current info.</summary>
@@ -194,6 +310,11 @@ public sealed class MasterLink : IDisposable
         if (Interlocked.Exchange(ref _resultsError, null) is { } resultsError)
         {
             Notice?.Invoke("Master server: the round's results were not taken: " + resultsError);
+        }
+
+        while (_taskNotices.TryDequeue(out string? line))
+        {
+            Notice?.Invoke(line);
         }
 
         if (_pending is { IsCompleted: true } done)
@@ -246,6 +367,7 @@ public sealed class MasterLink : IDisposable
             Version = info.Version, Listed = Settings.Listed, NatPunch = Settings.NatPunch, Relay = Settings.Relay, PlayerNames = names,
             RequireAccounts = Settings.RequireAccounts, AccountIds = AccountIds?.Invoke() ?? [], Kind = Settings.Kind, Region = Settings.Region ?? string.Empty,
             PlayerDetails = PlayerDetails?.Invoke() ?? [], RoundSecondsLeft = RoundSecondsLeft?.Invoke() ?? -1, CommandResults = TakeCommandResults(),
+            RejoinAccounts = RejoinAccounts?.Invoke() ?? [],
         };
     }
 

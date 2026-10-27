@@ -57,6 +57,10 @@ public static class GadgetNetReceive
             case "SpawnMine" when target is SGadMultiMinesLauncher launcher && c.Actor1 is Pawn placer:
                 launcher.SpawnMine(new ClassRef(c.Name1.ToString()), placer, c.Vector1, c.Rotation);
                 return true;
+            case "SpawnNoiseEmitter" when target is SGadNoiseEmitter snare && c.Actor1 is Pawn shooter &&
+                ReferenceEquals(shooter, snare.OwnerPawn):
+                snare.SpawnNoiseEmitter(new ClassRef(c.Name1.ToString()), shooter, c.Vector1, c.Rotation, c.Actor2);
+                return true;
         }
 
         return false;
@@ -70,6 +74,9 @@ public static class GadgetNetReceive
         {
             case "TellClientToDecCharge" when target is SGadStickyCam gad:
                 gad.TellClientToDecCharge();
+                return true;
+            case "LocalSystemMessage" when target is SGadNoiseEmitter snare:
+                snare.LocalSystemMessage();
                 return true;
             case "CleanStickyCamOnClient":
                 PC.CleanStickyCamOnClient();

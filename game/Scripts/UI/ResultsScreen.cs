@@ -101,7 +101,7 @@ public partial class ResultsScreen : Control
         foreach (MatchResultRow row in result.Rows)
         {
             Color c = row.IsLocal ? UiStyle.SideColour(row.Side) : UiStyle.Text;
-            AddCell(row.Name, c);
+            AddNameCell(row.Name, row.Rank, c);
             AddCell(row.Side == HudSide.Spy ? "Spy" : "Merc", c);
             AddCell(row.Score.ToString(CultureInfo.InvariantCulture), c);
             AddCell(row.Kills.ToString(CultureInfo.InvariantCulture), c);
@@ -131,6 +131,8 @@ public partial class ResultsScreen : Control
         {
             // OpenSCCT's own: the round reaches the master a moment after it ends; ask twice for what it earned.
             _earnedBefore = new HashSet<string>(known.Achievements.Where(a => a.Earned is not null).Select(a => a.Id), StringComparer.Ordinal);
+            _xpBefore = known.Progress?.TotalXp;
+            _awardBefore = known.Progress?.LastAward?.When;
             _askAt = [5f, 15f];
             Unlocks = new Label
             {
@@ -154,6 +156,13 @@ public partial class ResultsScreen : Control
     public Label? Unlocks { get; private set; }
 
     private HashSet<string>? _earnedBefore;
+
+    /// <summary>The account's XP and last award time before the round (null: the master had no levels then).</summary>
+    private long? _xpBefore;
+    private DateTimeOffset? _awardBefore;
+
+    /// <summary>Online and signed in: the round's XP, level and new titles, once the master has them.</summary>
+    public VBoxContainer? XpPanel { get; private set; }
     private float[] _askAt = [];
     private float _time;
     private Task<AccountInfo>? _ask;
@@ -185,8 +194,19 @@ public partial class ResultsScreen : Control
 
         AccountService.Get(GetTree()).Update(ask.Result);
         List<AchievementInfo> fresh = ask.Result.Achievements.Where(a => a.Earned is not null && !_earnedBefore.Contains(a.Id)).ToList();
+        XpAward? award = ask.Result.Progress is { LastAward: { } last } p && (p.TotalXp != _xpBefore || last.When != _awardBefore) ? last : null;
+        if (award is not null && ask.Result.Progress is { } progress)
+        {
+            ShowXp(award, progress);
+        }
+
         if (fresh.Count == 0 || Unlocks is null)
         {
+            if (award is not null)
+            {
+                _askAt = [];
+            }
+
             return;
         }
 
@@ -197,6 +217,72 @@ public partial class ResultsScreen : Control
             return "Achievement unlocked: " + a.Title + (rewards.Length > 0 ? " - " + rewards : string.Empty);
         }));
         Unlocks.Visible = true;
+    }
+
+    /// <summary>"+640 XP", the parts, the rank badge and bar, "Level up!", new titles and "Ready to prestige".</summary>
+    private void ShowXp(XpAward award, ProgressInfo progress)
+    {
+        if (XpPanel is not null || _column is null)
+        {
+            return;
+        }
+
+        PlayerRank rank = RankBadge.OfAccount(AccountService.Get(GetTree()).Account);
+        XpPanel = new VBoxContainer { Name = "Xp", Alignment = BoxContainer.AlignmentMode.Center };
+        var head = new HBoxContainer { Alignment = BoxContainer.AlignmentMode.Center };
+        head.AddThemeConstantOverride("separation", 16);
+        head.AddChild(new RankBadge(40, 18).Show(rank, withTitle: true));
+        var total = new Label { Text = string.Create(CultureInfo.InvariantCulture, $"+{award.Total:N0} XP"), Modulate = UiStyle.MenuTitle };
+        total.AddThemeFontSizeOverride("font_size", 26);
+        head.AddChild(total);
+        XpPanel.AddChild(head);
+
+        var parts = new List<string>();
+        void Part(string what, int xp)
+        {
+            if (xp > 0)
+            {
+                parts.Add(string.Create(CultureInfo.InvariantCulture, $"{what} {xp:N0}"));
+            }
+        }
+
+        Part("score", award.Score);
+        Part("finish", award.Finish);
+        Part("win", award.Win);
+        Part("objectives", award.Objectives);
+        Part("achievements", award.Achievements);
+        XpPanel.AddChild(new Label { Text = string.Join("    ", parts), Modulate = UiStyle.Dim, HorizontalAlignment = HorizontalAlignment.Center });
+        XpPanel.AddChild(new UiProgress
+        {
+            Value = rank.Fraction, Fill = RankIcons.ColourOf(rank), CustomMinimumSize = new Vector2(520f, 6f),
+            SizeFlagsHorizontal = SizeFlags.ShrinkCenter,
+        });
+
+        var notes = new List<string>();
+        if (award.LevelAfter > award.LevelBefore)
+        {
+            notes.Add(string.Create(CultureInfo.InvariantCulture, $"Level up! Level {award.LevelAfter}"));
+        }
+
+        notes.AddRange(award.NewTitles.Select(id => TitleCatalog.Find(id) is { } t ? "Title unlocked: " + t.Text : null).OfType<string>());
+        if (rank.CanPrestige)
+        {
+            notes.Add($"Level {ProgressionK.MaxLevel}: you can enter prestige {rank.Prestige + 1} on the Account page.");
+        }
+
+        if (notes.Count > 0)
+        {
+            XpPanel.AddChild(new Label
+            {
+                Text = string.Join("\n", notes), Modulate = UiStyle.MenuFocus, HorizontalAlignment = HorizontalAlignment.Center,
+            });
+        }
+
+        _column.AddChild(XpPanel);
+        if (Unlocks is not null)
+        {
+            _column.MoveChild(XpPanel, Unlocks.GetIndex());
+        }
     }
 
     public override void _Process(double delta)
@@ -247,6 +333,23 @@ public partial class ResultsScreen : Control
         }
 
         MenuButton?.GrabFocus();
+    }
+
+    /// <summary>The player's name, with his rank emblem and level before it when he has one.</summary>
+    private void AddNameCell(string name, int rank, Color colour)
+    {
+        PlayerRank r = PlayerRank.Unpack(rank);
+        if (r.IsNone)
+        {
+            AddCell(name, colour);
+            return;
+        }
+
+        var cell = new HBoxContainer();
+        cell.AddThemeConstantOverride("separation", 8);
+        cell.AddChild(new RankBadge(22).Show(r));
+        cell.AddChild(new Label { Text = name, Modulate = colour });
+        Table!.AddChild(cell);
     }
 
     private void AddCell(string text, Color colour) => Table!.AddChild(new Label { Text = text, Modulate = colour });

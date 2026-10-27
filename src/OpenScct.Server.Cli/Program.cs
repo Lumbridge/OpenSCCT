@@ -90,6 +90,7 @@ internal static class Program
                     Map = options.Map,
                     MaxPlayers = options.MaxPlayers,
                     NetRate = options.NetRate,
+                    Profile = options.NetProfile ?? NetProfile.Enhanced,
                     MatchSeed = options.Seed,
                     Maps = maps,
                     Net = new OpenScct.Net.NetDriverSettings { LanPlay = options.LanPlay, IsLan = options.LanPlay, UpdateGate = options.UpdateGate },
@@ -120,7 +121,7 @@ internal static class Program
                 }
 
                 Log(string.Create(CultureInfo.InvariantCulture,
-                    $"{host.Map.Name} (content {host.Map.ContentHash:x16}) on UDP port {transport.LocalPort}, up to {options.MaxPlayers} players, replication {options.NetRate} Hz"));
+                    $"{host.Map.Name} (content {host.Map.ContentHash:x16}) on UDP port {transport.LocalPort}, up to {options.MaxPlayers} players, replication {host.NetRate} Hz ({host.Settings.Profile})"));
                 var status = new StatusPrinter();
                 if (options.Bots is { } script)
                 {
@@ -182,6 +183,16 @@ internal static class Program
         if (options.Maps is { } maps)
         {
             config = config with { Maps = System.IO.Path.GetFullPath(maps) };
+        }
+
+        if (options.NetRate > 0)
+        {
+            config = config with { NetRate = options.NetRate };
+        }
+
+        if (options.NetProfile is { } profile)
+        {
+            config = config with { NetProfile = profile == NetProfile.Stock ? "stock" : "enhanced" };
         }
 
         return OnlineRun.Run(config, options.Config, options.Seconds);

@@ -91,6 +91,41 @@ master see (`SessionPhase`):
 Leaving: a player who leaves (or times out) is removed and announced; when nobody is left in a round, the server
 goes back to its lobby.
 
+### Rejoining a round
+
+A player who drops out of a round, whatever the cause (a crash, Alt+F4, a killed process, a dead PC, a lost
+connection, or leaving through the menu), is offered the round again the next time the game shows its main menu,
+as long as the round is still being played. Our addition; the original's reconnect take-over
+(`SGameInfo.Login`) only works before the match starts.
+
+- **The server keeps his place** (`OnlineServer.Rejoin.cs`): a person on a side who leaves while the session is
+  loading, playing or showing the results of a series game (not a bot, a spectator, the listen host's own player, a
+  kicked or banned player, or anyone while the server closes) is kept as a `DroppedPlayer`: his account (or, for a
+  guest, his install id), his session side, the round, and during the match his score, kills, deaths and lives.
+  The places are dropped when the session goes back to the lobby or the last game of the series ends.
+- **Coming back**: a new player whose ticket's account (or, as a guest, install id) matches a kept place joins on
+  that side instead of as a spectator, and a signed-in one needs no server password (his ticket proves who he is,
+  and he may be rejoining from another PC). The map login carries `?SvmRejoin=1`, which lets `SGameInfo.Login` put him
+  on his side waiting (as a Merc Deathmatch late joiner) instead of making him a visitor. Once he is in, the server
+  gives back the score, kills, deaths and lives he left with (the side's starting lives when the series moved on to
+  another game), spawns him if he has lives left, and announces "X rejoined the round."
+- **The master knows** (signed-in players): heartbeats carry the kept places' account ids (`RejoinAccounts`), and the
+  account answer (`GET /api/v1/account`, also the sign-in's answer) carries `rejoin` (`RejoinOffer`: server id,
+  name, map, mode) when a game server that is loading or playing holds one for the account and he is not on it. So
+  signing in on any PC offers the round.
+- **The game remembers** (`RejoinService`, `user://rejoin.cfg`): from the moment a round of someone else's server
+  loads until the visit is back in a lobby, the game keeps the server's master id (or the typed address), its
+  password and the map. When the main menu opens it asks the master for that server (`GET /api/v1/servers/{id}`),
+  or the server itself for a typed address (a server query), and shows the **Match in progress** panel with
+  **Rejoin** and **Not now** while the server is loading or playing a round. Rejoin joins through the server browser
+  (with the ticket) or the address; Not now forgets it. A kick, or a rejoin that failed, forgets it too; leaving
+  through the menu keeps it, but the panel only shows the next time the game starts. Without a remembered round the
+  panel shows the master's offer for the account. Hosting and hub pad matches are not remembered.
+
+Limits: a round ends as before when a leaver was the last player of his side (the game's own end check) or the last
+person in it (back to the lobby), so there is then nothing to rejoin. A heartbeat names the dropped accounts without
+proof, so a hostile host could make the panel offer its server to an account; Not now dismisses it.
+
 ### Travel
 
 Each map runs its own `ServerHost` with its own driver, and clients reconnect for each map, as UE2 clients do on
@@ -112,14 +147,38 @@ packets carry no connection salt; see Open items).
 ### Session protocol
 
 The session's own commands are text lines on the control channel starting with `#svm ` (`SessionProtocol`), as
-UE2's control channel carries text commands. Server to client: `hello`, `setup`, `player`, `gone`, `phase`, `msg`,
-`travel`, `row`, `results`, `kicked`. Client to server: `team`, `ready`, `setup`, `launch`, `lobby`, `mapcheck`,
+UE2's control channel carries text commands. Server to client: `hello`, `setup`, `player`, `rank` (a signed-in
+player's level, prestige and title, `PlayerRank` packed), `gone`, `phase`, `msg`, `travel`, `row`, `results`, `kicked`. Client to server: `team`, `ready`, `setup`, `launch`, `lobby`, `mapcheck`,
 `kick`, `ban`, `admin`, `cmd`, `teamvoice` (the lobby's "Restrict Mic to Team"; a player line carries it as flag 128).
 A bot's player line carries flag 256. The setup line is `LobbySetup.ToOptions`: GetOptionsString, then `SvmDisks`,
 `SvmDisksToWin`, `SvmDisksMax`, `SvmVoice` (the page's voice index), `SvmVoiceLobby`, `SvmRandomMap`, `SvmBots`
 (0 off, 1 per side, 2 fill), `SvmBotsPerSide` and `SvmBotSkill` (0 Easy to 3 Expert). A player's identity across maps is the session token in its login options
 (`?SvmToken=`), with its install id (`?SvmId=`, bans) and, for a listen host's own player, the host key (`?SvmHost=`).
 The Hello text that carries them may be up to 400 bytes (`ControlMessage.MaxLoginBytes`).
+
+### Missing maps
+
+After each `setup` line, a host whose map came from the SCCT-Maps repository (downloaded through the launcher's
+Maps window) sends `mapsource <map> <fingerprint> <commit> <id>`: the repository id last, so it keeps its spaces.
+`OnlineServerSettings.MapSource` gives it; the game's host uses `MapDownloads.SourceOf` (the downloaded map whose
+codes include the setup's map, and only when the host's own install has no map of that name). A `setup` line clears
+the client's `LobbyState.SetupSource`; older clients ignore the new line.
+
+A player whose `mapcheck` says Missing or Differs while a source is known sees a line under the lobby status with a
+Download button (`LobbyRoomScreen`, `OnlineLobby.MapFetch`). `MapFetch` then, in the background: reads the
+repository's tree at the host's commit and takes the package with the host's id and fingerprint (so both have the
+same files), downloads it into the launcher's maps folder (`--svm-map-downloads=`, default
+`%LOCALAPPDATA%\OpenSCCT\maps`), and runs the content builder shipped beside the exe (`contenttools`, or a
+checkout's `content` with Python from PATH) for that map only: `maps-catalog renderpack maps audio-map --maps <codes>
+--addons <maps\game>` in the content's language (`content-build.json`), output in `<content>\map-fetch.log`. When it
+ends the catalog is read again (`MapCatalog.Refresh`) and the client sends `mapcheck` again (`OnlineClient.RecheckMap`),
+so the host sees the player turn ready to play. `content-build.json`'s `downloadedMaps` moves on with it, so the
+launcher does not prepare the game files again for that map.
+
+It refuses when the player's own install has a map of that name (the install's copy always wins), when the build
+has no builder that reads downloaded maps, or when the game was not started with its content and game folders. Not
+done: a dedicated server (svm-server) has no `MapSource` yet, and a map the host converted from its own install
+cannot be fetched.
 
 ### Bots
 
@@ -210,8 +269,17 @@ HTTP API (`MasterApi`, JSON camelCase, enums as text). With invite keys set, eve
 | `GET /api/v1/servers/{id}` | one server, listed or not (join by server id) |
 | `POST /api/v1/servers/{id}/join` | how to reach it: public address, own addresses (same network only), a punch token, a relay token |
 | `DELETE /api/v1/servers/{id}?hostToken=` | unlist now (listings lapse 90 s after the last heartbeat) |
-| `GET /api/v1/status` | version, notices, counts (health check) |
+| `GET /api/v1/status` | versions, notices, counts (health check) |
 
+- **The master's own version.** The master is versioned apart from the game: `MasterVersion` in
+  `src/OpenScct.Master/OpenScct.Master.csproj` (bump it when the master changes; a release's `-p:Version` does not
+  touch it), stamped into svm-master.dll with the build number (the commit's UTC timestamp, yyyyMMdd.HHmm) and the
+  short commit (`MasterBuildInfo`). The status answer carries them as `masterVersion`, `masterBuild` and
+  `masterCommit`; `version` stays the game version the master was built with. The master logs both on start, and
+  the game shows the master's line under its own version in the main menu's and options' corner
+  (`MasterVersionCheck`: "Master 1.0.0  build 20261027.1200 (abc1234)"; "Master: checking...", "Master: not
+  reached" (asked again a minute later), "Master: none set", or "Master (game 0.7.0)" from a master older than these
+  fields). To see which master build is live: `curl https://master.lumbridge.co.uk/api/v1/status`.
 - **Versions.** `LatestVersion` adds an update notice to the list and to heartbeats; a host older than `MinVersion`
   is refused with an update message (rl:net.version).
 - **Reachability** (`ServerRegistry.Classify`). On a host's first heartbeat (and every 5 minutes, or when its address
@@ -270,7 +338,8 @@ players only" on the Host page: no valid ticket, no entry. The listen host's own
 - admin tickets make the player a server admin (as `!login` does). The master's admins are Discord ids in its
   config (`Admins`).
 - finished rounds are reported (`POST /api/v1/results`) and count for stats and achievements. A round counts when
-  it ended normally with a signed-in person on each side.
+  it ended normally with a signed-in person on each side. The answer carries the stored round's `matchId` (empty
+  from masters before demos), which the round's demo is uploaded under (see "Demos").
 
 **Achievements** (`src/OpenScct.Net/Cosmetics/Achievements.cs`, shared by the master and the game) come in five groups. Each one has progress (current and
 target) and unlocks cosmetics:
@@ -326,6 +395,20 @@ How a look gets into a match:
 A Sticky shock's skin draws over a camo and gives it back when it ends.
 
 The master's operator can also give cosmetics without the achievements (`admin unlock`, kept in `cosmetic_grants`, schema v3) and take them back (`admin lock`). The account and its tickets carry them like earned ones.
+
+**Levels and prestige** (spec/additions/progression.md; `ProgressionK`, `PlayerRank`, `TitleCatalog` in
+`src/OpenScct.Net/Cosmetics/`). Every counted round gives each signed-in player XP (score, finishing, winning,
+objectives) plus the XP of the achievements it earned; the master keeps it in `progression` (schema v5: prestige,
+XP within it, best level, lifetime XP, the last round's award as JSON). 55 levels, 10 prestiges, a master prestige
+emblem at prestige 10 level 55, and titles (per prestige, level milestones, some achievements).
+1. `AccountInfo.Progress` (`ProgressInfo`) gives the game the rank, XP, unlocked titles and the last award
+   (`XpAward`, which the results screen shows).
+2. `POST /api/v1/account/prestige` prestiges a level 55 account (409 below 55 or at prestige 10).
+3. The join ticket carries the packed rank and the title bits after the unlocks (trailing fields of format 2).
+4. The Hello carries the chosen title (`?SvmTitle=`); the server keeps it when the ticket unlocks it, passes
+   `?SvmRank=` to the map login, and `PlayerReplicationInfo.SvmRank` replicates to everyone (`PlayerLookNet`). The
+   lobby sends it as a `rank <id> <packed>` line after the player line.
+5. Admins set a rank on the portal's player page or with `svm-master admin rank <who> <prestige> <level>`.
 
 **Settings sync** (`ProfileSync`): the account keeps one record: `settings.json` without the per-PC fields
 (display mode, monitor, resolution, resolution scale, vsync, frame caps, microphone), plus the player's keybind
@@ -396,6 +479,74 @@ none of these and still work.
 - `blocked_servers`, refused at heartbeat;
 - `audit.actor`.
 
+## Demos
+
+The master keeps round demos (the recorded network stream of a round, about 1 to 3 MB) in a private **S3 bucket**
+for 7 days. Trusted servers upload them; any player signed in with Discord can list and download them. The master
+only **signs short-lived links** (`DemoStorage`, AWSSDK.S3 `GetPreSignedURL`, signed locally): the files go straight
+between S3 and the servers or players, never through the VPS, and neither servers nor players hold AWS keys. Demos
+are off while `Demos.Bucket` is empty (or sign-in is not set up).
+
+**Bucket setup** (once, in the AWS console):
+1. Create a bucket (for example `openscct-demos`) in **eu-west-2** (London). Keep **Block Public Access** on (all
+   four settings) and ACLs disabled; the bucket stays private.
+2. Management → Lifecycle rules → add a rule limited to the prefix `demos/`:
+   - expire current versions of objects **7 days** after creation;
+   - delete expired object delete markers and **abort incomplete multipart uploads after 1 day**.
+3. IAM → Users → add a user for the master (no console access) with this inline policy, then make an access key for it:
+
+   ```json
+   {
+     "Version": "2012-10-17",
+     "Statement": [
+       {
+         "Effect": "Allow",
+         "Action": [ "s3:PutObject", "s3:GetObject" ],
+         "Resource": "arn:aws:s3:::<bucket>/demos/*"
+       }
+     ]
+   }
+   ```
+
+4. Put the bucket and keys in `svm-master.json` (the secret is better in the service's environment as
+   `SVM_Master__Demos__SecretKey`) and restart the master. Its start line says `demos s3://<bucket> (...)`.
+
+| `Demos` field | Default | What |
+|---|---|---|
+| `Bucket` | empty (off) | the bucket's name |
+| `Region` | eu-west-2 | the bucket's region |
+| `AccessKey` / `SecretKey` | none | the IAM user's key (only `s3:PutObject` and `s3:GetObject` on `demos/*`) |
+| `KeepDays` | 7 | days a demo is listed; keep it the same as the lifecycle rule |
+| `MaxBytes` | 67108864 (64 MB) | the largest demo a server may upload |
+
+**Endpoints.**
+
+| Call | Who | What |
+|---|---|---|
+| `POST /api/v1/demos/upload` | trusted server (`X-Svm-Server-Key`) | body `{ matchId, size, sha256, durationSeconds, gameVersion, netVersion, contentHash }`; the round must be one this server reported (its server id registered under the same key). Answers `{ demoId, uploadUrl, contentType, urlExpires }`: a PUT link valid 15 minutes with the Content-Length and Content-Type signed in, so S3 refuses any other size. Over `MaxBytes`: 413; a round that already has a ready demo: 409 |
+| `POST /api/v1/demos/{id}/done` | trusted server | the upload finished; the demo is listed from now on |
+| `GET /api/v1/demos?page=` | signed-in player (`Authorization: Bearer`) | ready, unexpired demos newest first, 25 a page: map, mode, server name, time, duration, winner, players (from `match_rows`), size, sha256, versions, expiry |
+| `POST /api/v1/demos/{id}/download` | signed-in player | `{ url, urlExpires, size, sha256 }`: a GET link valid 5 minutes; 30 links per account per hour |
+
+Client calls: `MasterClient.RequestDemoUploadAsync`, `DemoDoneAsync`, `DemosAsync`, `DemoDownloadAsync`.
+
+**On the server.** When a trusted server's round ends, `OnlineServer` reports the results and keeps the answer's
+`matchId`. The demo recorder hands its finished file to `OnlineServer.SubmitDemo(path, DemoMeta)`;
+`MasterLink.UploadDemo` then hashes the file, asks for the link, PUTs the file with `HttpClient` off the server's
+thread (three tries ten seconds apart, like results) and confirms with `done`. The outcome shows in the server log.
+`demos.upload: false` in `svm-server.json` turns uploads off.
+
+**Data (schema v6).** `demos`: id, match, object key (`demos/{yyyy-MM-dd}/{matchId}-{random}.scctdemo`), size,
+sha256, duration, game, net and content versions, state (`pending`, `ready`, `expired`), created, expires. Once a
+minute (with the metrics sample) the master marks expired the demos past `KeepDays` and the uploads not confirmed
+within an hour; the lifecycle rule deletes the files. The admin portal's round page (`/admin/matches/{id}`) shows the
+round's demo with a download link (a fresh 5-minute link each click).
+
+**Cost.** S3 Standard in eu-west-2 is about $0.024 per GB-month; with demos of 1 to 3 MB kept 7 days, even
+hundreds of rounds a week stay under 1 GB stored. Uploads into S3 are free. Downloads to the internet are free up to
+100 GB a month (AWS's free data-out allowance), then about $0.09 per GB. Requests cost fractions of a cent per
+thousand. Expect pennies a month; the per-account download limit keeps one player from running it up.
+
 ## Dedicated server (svm-server)
 
 ```
@@ -425,6 +576,7 @@ The old single-map flags (`--map`, `--game`, `--bots`) still run a bare `ServerH
 | `launchCountdownSeconds` / `resultsSeconds` / `loadTimeoutSeconds` | 5 / 30 / 60 | |
 | `bansFile` | bans.json | next to the config |
 | `master` | none | `{ url, inviteKey, listed, natPunch, relay }` |
+| `demos` | none | `{ upload }`: upload recorded demos to the master's bucket (default true; trusted servers only, see "Demos") |
 
 Console (standard input, and `cmd <command>` from in-game admins): `status`, `players`, `kick <id|name> [reason]`,
 `ban <id|name> [minutes] [reason]`, `unban <install id|address|name>`, `map <name> [mode]`, `mode <name>`,
@@ -488,6 +640,10 @@ Keeping updates seamless:
 What Ryan provisions later. Nothing here is deployed by the repository. One small VPS runs the master and a
 dedicated server: 1 vCPU, 1 GB RAM and a public IPv4 are enough for the master, the relay and one 2v2 server;
 traffic is about 5 KB/s per relayed player each way plus the server's own 2 to 5 KB/s per player.
+Empty servers idle (`RealtimeLoop`, an OpenSCCT addition): a dedicated server in its lobby with nobody connected,
+and a hub with nobody in it, tick 10 times a second instead of 60 and sleep in between, so they cost almost no CPU
+(this matters on burstable plans such as Lightsail's). The first connection puts them back on 60 Hz; a joining
+player waits at most a tenth of a second longer for the first answer.
 
 1. **Name.** Point a DNS name at the VPS, for example `master.example.org` (an A record; AAAA too if it has IPv6).
 
@@ -580,7 +736,7 @@ traffic is about 5 KB/s per relayed player each way plus the server's own 2 to 5
 
 10. **Check.**
     ```
-    curl https://master.example.org/api/v1/status                       # {"version":"0.5.0",...,"inviteOnly":true}
+    curl https://master.example.org/api/v1/status                       # {"version":"0.7.0","masterVersion":"1.0.0",...,"inviteOnly":true}
     journalctl -u svm-server -f                                           # "Listed on the master server as ..."
                                                                           # "Players reach this server directly."
     ```
@@ -673,7 +829,5 @@ dotnet run --project src/OpenScct.Server.Cli -- --online --master http://127.0.0
 - No IPv6 pinholes for listen hosts yet; LAN addresses sent to the master are IPv4 only.
 - `!resign`, `!lagcomp` and the practice commands of Reloaded are not ported; playlists (rl:qol.lobbymaps) are a
   plain rotation in the server config, and the lobby's map picker lists every installed map.
-- A player who drops during a round and comes back with the same token joins as a new spectator (the session
-  forgets a leaver); the original's reconnect takeover is Play Level only.
 - Bots: the dedicated server's config file has no bot fields yet (the console's `set bots` works); its rotation
   entries could carry them.

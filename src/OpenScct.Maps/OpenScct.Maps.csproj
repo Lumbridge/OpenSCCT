@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Community maps from the SCCT-Maps repository: the catalogue, downloads, the local library and the content
+       builder run for downloaded maps. Used by the launcher and the game (docs/LAUNCHER.md "Downloaded maps"). -->
+  <PropertyGroup>
+    <RootNamespace>OpenScct.Maps</RootNamespace>
+  </PropertyGroup>
+</Project>

@@ -54,9 +54,27 @@ public static class MasterApi
 
     public const string SignOutPath = "/api/v1/account/signout";
 
+    /// <summary>Moves a level 55 account to the next prestige (level 1 again).</summary>
+    public const string PrestigePath = "/api/v1/account/prestige";
+
     public const string ProfilePath = "/api/v1/account/profile";
 
     public const string ResultsPath = "/api/v1/results";
+
+    /// <summary>Ready round demos for signed-in players (<c>?page=</c>, from 0).</summary>
+    public const string DemosPath = "/api/v1/demos";
+
+    /// <summary>A trusted server asks for a demo upload link.</summary>
+    public const string DemoUploadPath = "/api/v1/demos/upload";
+
+    /// <summary>A trusted server confirms a demo's upload.</summary>
+    public static string DemoDonePath(long demoId) => DemosPath + "/" + demoId.ToString(CultureInfo.InvariantCulture) + "/done";
+
+    /// <summary>A signed-in player asks for a demo's download link.</summary>
+    public static string DemoDownloadPath(long demoId) => DemosPath + "/" + demoId.ToString(CultureInfo.InvariantCulture) + "/download";
+
+    /// <summary>Demos per page of <see cref="DemosPath"/>.</summary>
+    public const int DemoPageSize = 25;
 
     /// <summary>The page the game opens in the browser to sign in (outside /api, so no invite key).</summary>
     public const string LinkPagePrefix = "/link/";
@@ -166,6 +184,12 @@ public sealed record HeartbeatRequest
 
     /// <summary>What the commands of the last answers printed (<see cref="HeartbeatResponse.Commands"/>).</summary>
     public IReadOnlyList<MasterCommandResult> CommandResults { get; init; } = [];
+
+    /// <summary>
+    /// Signed-in players who dropped out of the round being played and may rejoin it (the master offers them the
+    /// rejoin when their game asks for the account; older hosts send none).
+    /// </summary>
+    public IReadOnlyList<long> RejoinAccounts { get; init; } = [];
 }
 
 /// <summary>One player of a server as its heartbeat describes it for the admin portal.</summary>
@@ -367,7 +391,20 @@ public sealed record JoinResponse
 /// <summary>The master's status page (also a health check).</summary>
 public sealed record MasterStatus
 {
+    /// <summary>The game version the master was built with (OpenScct.Net, <see cref="BuildInfo.Version"/>).</summary>
     public string Version { get; init; } = BuildInfo.Version;
+
+    /// <summary>
+    /// The master's own version ("1.0.0", MasterVersion in OpenScct.Master.csproj), apart from the game's release
+    /// numbers; null from a master older than this field.
+    /// </summary>
+    public string? MasterVersion { get; init; }
+
+    /// <summary>The master's build number (its commit's UTC timestamp, yyyyMMdd.HHmm), or null.</summary>
+    public string? MasterBuild { get; init; }
+
+    /// <summary>The short commit hash the master was built from, or null.</summary>
+    public string? MasterCommit { get; init; }
 
     public string? Motd { get; init; }
 
@@ -455,6 +492,80 @@ public sealed record AccountInfo
 
     /// <summary>The cosmetics the earned achievements unlock (OpenScct.Net.Cosmetics.CosmeticCatalog ids).</summary>
     public IReadOnlyList<string> Unlocked { get; init; } = [];
+
+    /// <summary>Level, prestige and titles (null from masters before levels).</summary>
+    public ProgressInfo? Progress { get; init; }
+
+    /// <summary>A round the player dropped out of that is still being played, or null (and from older masters).</summary>
+    public RejoinOffer? Rejoin { get; init; }
+}
+
+/// <summary>A round in progress the player left (a crash, a lost connection, a quit) and may rejoin on his side.</summary>
+public sealed record RejoinOffer
+{
+    /// <summary>The server's master id (join it as a listed server, through <see cref="MasterApi.JoinPath"/>).</summary>
+    public string ServerId { get; init; } = string.Empty;
+
+    public string ServerName { get; init; } = string.Empty;
+
+    public string Map { get; init; } = string.Empty;
+
+    public int Mode { get; init; }
+
+    public SessionPhase Phase { get; init; }
+}
+
+/// <summary>An account's level and prestige (spec/additions/progression.md).</summary>
+public sealed record ProgressInfo
+{
+    public int Prestige { get; init; }
+
+    public int Level { get; init; } = 1;
+
+    /// <summary>XP into this prestige (level 1 is 0).</summary>
+    public int Xp { get; init; }
+
+    /// <summary>XP over every prestige.</summary>
+    public long TotalXp { get; init; }
+
+    /// <summary>The highest level reached in any prestige.</summary>
+    public int BestLevel { get; init; } = 1;
+
+    /// <summary>Unlocked titles (OpenScct.Net.Cosmetics.TitleCatalog ids).</summary>
+    public IReadOnlyList<string> Titles { get; init; } = [];
+
+    /// <summary>The last counted round's XP, or null before the first.</summary>
+    public XpAward? LastAward { get; init; }
+}
+
+/// <summary>The XP one counted round gave, by part.</summary>
+public sealed record XpAward
+{
+    public DateTimeOffset When { get; init; }
+
+    public string Map { get; init; } = string.Empty;
+
+    public int Score { get; init; }
+
+    public int Finish { get; init; }
+
+    public int Win { get; init; }
+
+    public int Objectives { get; init; }
+
+    /// <summary>XP from achievements earned in that round.</summary>
+    public int Achievements { get; init; }
+
+    public int Total { get; init; }
+
+    public int LevelBefore { get; init; }
+
+    public int LevelAfter { get; init; }
+
+    public int Prestige { get; init; }
+
+    /// <summary>Titles unlocked by that round.</summary>
+    public IReadOnlyList<string> NewTitles { get; init; } = [];
 }
 
 public sealed record AccountStats
@@ -557,4 +668,129 @@ public sealed record ResultsReportRow
 
     /// <summary>The round's achievement feats by name (OpenScct.Core.Engine.FeatKeys); the master ignores unknown names.</summary>
     public IReadOnlyDictionary<string, int> Feats { get; init; } = new Dictionary<string, int>();
+}
+
+/// <summary>
+/// The master's answer to a round report. Masters before demos answered with an empty body, so read it as optional.
+/// </summary>
+public sealed record ResultsResponse
+{
+    /// <summary>The stored round's id (demos of the round are uploaded under it).</summary>
+    public long? MatchId { get; init; }
+}
+
+/// <summary>A trusted server asks to upload the demo of a round it reported.</summary>
+public sealed record DemoUploadRequest
+{
+    /// <summary>The round, as the answer to its results gave it.</summary>
+    public long MatchId { get; init; }
+
+    /// <summary>The file's length in bytes; the upload link only takes exactly this many.</summary>
+    public long Size { get; init; }
+
+    /// <summary>SHA-256 of the file, 64 lower-case hex digits (players check their download against it).</summary>
+    public string Sha256 { get; init; } = string.Empty;
+
+    public int DurationSeconds { get; init; }
+
+    /// <summary>The game version that recorded it (<c>BuildInfo.Version</c>).</summary>
+    public string GameVersion { get; init; } = string.Empty;
+
+    /// <summary>The net protocol the stream is in (hex), so players see whether their build can play it.</summary>
+    public string NetVersion { get; init; } = string.Empty;
+
+    /// <summary>The map's content hash (hex), so players see whether they have the same map.</summary>
+    public string ContentHash { get; init; } = string.Empty;
+}
+
+/// <summary>Where to PUT a demo: a short-lived S3 link with the size signed in.</summary>
+public sealed record DemoUploadResponse
+{
+    public long DemoId { get; init; }
+
+    public string UploadUrl { get; init; } = string.Empty;
+
+    /// <summary>The Content-Type the PUT must send (it is part of the signature).</summary>
+    public string ContentType { get; init; } = "application/octet-stream";
+
+    public DateTimeOffset UrlExpires { get; init; }
+}
+
+/// <summary>One page of ready demos, newest first.</summary>
+public sealed record DemoListResponse
+{
+    public IReadOnlyList<DemoEntry> Demos { get; init; } = [];
+
+    public int Page { get; init; }
+
+    public int PageSize { get; init; }
+
+    /// <summary>Ready demos in all.</summary>
+    public int Total { get; init; }
+}
+
+/// <summary>A ready demo with its round.</summary>
+public sealed record DemoEntry
+{
+    public long Id { get; init; }
+
+    public long MatchId { get; init; }
+
+    public string Map { get; init; } = string.Empty;
+
+    public int Mode { get; init; }
+
+    public string ServerName { get; init; } = string.Empty;
+
+    /// <summary>When the round ended (was reported).</summary>
+    public DateTimeOffset Time { get; init; }
+
+    public int DurationSeconds { get; init; }
+
+    /// <summary>0 spies, 1 mercs, 255 none.</summary>
+    public int WinningTeam { get; init; } = 255;
+
+    public long Size { get; init; }
+
+    public string Sha256 { get; init; } = string.Empty;
+
+    public string GameVersion { get; init; } = string.Empty;
+
+    public string NetVersion { get; init; } = string.Empty;
+
+    public string ContentHash { get; init; } = string.Empty;
+
+    /// <summary>When the demo leaves the list (and the bucket).</summary>
+    public DateTimeOffset Expires { get; init; }
+
+    public IReadOnlyList<DemoPlayer> Players { get; init; } = [];
+}
+
+/// <summary>A player of a demo's round.</summary>
+public sealed record DemoPlayer
+{
+    public string Name { get; init; } = string.Empty;
+
+    /// <summary>0 spies, 1 mercs.</summary>
+    public int Team { get; init; }
+
+    public int Score { get; init; }
+
+    public int Kills { get; init; }
+
+    public int Deaths { get; init; }
+
+    public bool Bot { get; init; }
+}
+
+/// <summary>Where to GET a demo: a short-lived S3 link.</summary>
+public sealed record DemoDownloadResponse
+{
+    public string Url { get; init; } = string.Empty;
+
+    public DateTimeOffset UrlExpires { get; init; }
+
+    public long Size { get; init; }
+
+    public string Sha256 { get; init; } = string.Empty;
 }

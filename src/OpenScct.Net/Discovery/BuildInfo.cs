@@ -24,24 +24,39 @@ public static class BuildInfo
 
     static BuildInfo()
     {
-        System.Reflection.Assembly assembly = typeof(BuildInfo).Assembly;
+        (Version, BuildNumber, Commit) = Stamp(typeof(BuildInfo).Assembly);
+    }
+
+    /// <summary>
+    /// What a build stamped into <paramref name="assembly"/>: the informational version split into the version and the
+    /// short commit hash, and the AssemblyMetadata("BuildNumber") of Directory.Build.targets ("0" when missing).
+    /// </summary>
+    public static (string Version, string BuildNumber, string Commit) Stamp(System.Reflection.Assembly assembly)
+    {
+        System.ArgumentNullException.ThrowIfNull(assembly);
         string informational = System.Reflection.CustomAttributeExtensions
             .GetCustomAttribute<System.Reflection.AssemblyInformationalVersionAttribute>(assembly)?.InformationalVersion ?? "0.0.0";
         int plus = informational.IndexOf('+', System.StringComparison.Ordinal);
-        Version = plus >= 0 ? informational[..plus] : informational;
+        string version = plus >= 0 ? informational[..plus] : informational;
         string commit = plus >= 0 ? informational[(plus + 1)..] : string.Empty;
-        Commit = commit.Length > 7 ? commit[..7] : commit;
-        string build = "0";
+        string build = Metadata(assembly, "BuildNumber") ?? "0";
+        return (version, build, commit.Length > 7 ? commit[..7] : commit);
+    }
+
+    /// <summary>The value of the assembly's AssemblyMetadata(<paramref name="key"/>), or null when it has none.</summary>
+    public static string? Metadata(System.Reflection.Assembly assembly, string key)
+    {
+        System.ArgumentNullException.ThrowIfNull(assembly);
         foreach (System.Reflection.AssemblyMetadataAttribute meta in
                  System.Reflection.CustomAttributeExtensions.GetCustomAttributes<System.Reflection.AssemblyMetadataAttribute>(assembly))
         {
-            if (meta.Key == "BuildNumber" && !string.IsNullOrEmpty(meta.Value))
+            if (meta.Key == key && !string.IsNullOrEmpty(meta.Value))
             {
-                build = meta.Value;
+                return meta.Value;
             }
         }
 
-        BuildNumber = build;
+        return null;
     }
 
     /// <summary>Default UDP game port (no clash with the original game's 8888 or the Reloaded Editor test slots).</summary>

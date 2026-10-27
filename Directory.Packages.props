@@ -3,6 +3,7 @@
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
   </PropertyGroup>
   <ItemGroup>
+    <PackageVersion Include="AWSSDK.S3" Version="4.0.23.4" />
     <PackageVersion Include="Concentus" Version="2.2.2" />
     <PackageVersion Include="LiteNetLib" Version="2.1.4" />
     <PackageVersion Include="Microsoft.Data.Sqlite" Version="10.0.14" />

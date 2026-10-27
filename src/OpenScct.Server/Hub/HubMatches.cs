@@ -26,6 +26,12 @@ public enum HubMatchStatus
     Failed = 3,
 }
 
+/// <summary>A pad match's score as the hub shows it on the pad's sign (written by the match's thread).</summary>
+public sealed record HubMatchLive(int SpyScore, int MercScore, int SecondsLeft, int Players, int Watchers, bool Playing)
+{
+    public static HubMatchLive None { get; } = new(0, 0, 0, 0, 0, false);
+}
+
 /// <summary>What a pad asks a match for: the pad's config, the people and the side each plays, the join token.</summary>
 public sealed record HubMatchRequest(HubPadConfig Pad, IReadOnlyList<(string Name, int Team)> Players, string Password);
 
@@ -43,6 +49,12 @@ public interface IHubMatch : IDisposable
     /// <summary>Why it failed, or null.</summary>
     string? Failure { get; }
 
+    /// <summary>The score, time left and watchers now (the match's thread replaces it as it plays).</summary>
+    HubMatchLive Live => HubMatchLive.None;
+
+    /// <summary>The match's own (unlisted) master entry once the master answered, or null: players join it at its address.</summary>
+    string? MasterId => null;
+
     /// <summary>Takes one line the match logged since the last call (the hub logs it on its own thread).</summary>
     bool TryTakeLog(out string line);
 }
@@ -56,7 +68,7 @@ public interface IHubMatchLauncher
 /// <summary>
 /// The default pad match launcher (spec/additions/hub.md "Starting the match"): a dedicated
 /// <see cref="OnlineServer"/> per match on its own thread of the hub's process, on the first free UDP port of the
-/// config's range (28890 to 28897 by default, clear of the hub's and the game's 28888). The session is a normal online
+/// config's range (28890 to 28897 by default, clear of the hub's 28886 and the game's 28888). The session is a normal online
 /// session with a lobby that launches by itself once the expected people are in (or 20 s after the first came), the
 /// pad's match as its setup, bots filling the empty places when the pad says so, and the pad's password, so only the
 /// players the hub sent get in. Once the round's results are out and its players left (or 45 s after the round
@@ -88,6 +100,13 @@ public sealed class HubMatchLauncher : IHubMatchLauncher
 
     /// <summary>Seconds the session waits for its first player before it gives up.</summary>
     public float NobodyCameSeconds { get; init; } = 45f;
+
+    /// <summary>
+    /// The hub's master: each match registers there unlisted, so players reach it as they reach the hub (direct, NAT
+    /// punch or the master's relay) and signed-in players bring their tickets. Null: matches are joined at the hub's
+    /// address only.
+    /// </summary>
+    public MasterLinkSettings? Master { get; init; }
 
     /// <summary>Seconds after the round ended before the session closes whoever is still there.</summary>
     public float CloseAfterEndSeconds { get; init; } = 45f;
@@ -145,7 +164,7 @@ public sealed class HubMatchLauncher : IHubMatchLauncher
                 Name = $"Hub {pad.Id}: {pad.Title} {pad.Format}",
                 Dedicated = true,
                 MaxPlayers = maxPlayers,
-                MaxSpectators = 0,
+                MaxSpectators = _config.Spectators,
                 Password = request.Password,
                 Setup = setup,
                 Maps = maps,
@@ -160,6 +179,8 @@ public sealed class HubMatchLauncher : IHubMatchLauncher
                 OpenMapCommands = false,
                 LanPort = 0,
                 Voice = true,
+                Profile = NetProfile.Enhanced,
+                Master = Master is { } master ? master with { Listed = false, Kind = ServerKind.Game } : null,
             }, 0, udp);
         }
         catch (Exception e) when (e is InvalidOperationException or System.IO.IOException or ArgumentException)
@@ -184,6 +205,7 @@ public sealed class HubMatchLauncher : IHubMatchLauncher
         private readonly Thread _thread;
         private volatile int _status;
         private volatile string? _failure;
+        private volatile HubMatchLive _live = HubMatchLive.None;
         private long _opened = -1;
         private long _ended = -1;
         private bool _anyoneCame;
@@ -207,6 +229,10 @@ public sealed class HubMatchLauncher : IHubMatchLauncher
         public HubMatchStatus Status => (HubMatchStatus)_status;
 
         public string? Failure => _failure;
+
+        public HubMatchLive Live => _live;
+
+        public string? MasterId => _server.Master?.ServerId;
 
         public bool IsRunning => _thread.IsAlive;
 
@@ -253,11 +279,25 @@ public sealed class HubMatchLauncher : IHubMatchLauncher
                 _opened = now;
             }
 
+            // Watchers do not keep a match open: only its players count.
             int humans = 0;
+            int watchers = 0;
             foreach (SessionPlayer p in s.Players)
             {
-                humans += p.IsBot ? 0 : 1;
+                if (p.IsSpectator)
+                {
+                    watchers += p.IsBot ? 0 : 1;
+                }
+                else
+                {
+                    humans += p.IsBot ? 0 : 1;
+                }
             }
+
+            bool playing = s.Phase is SessionPhase.Loading or SessionPhase.Match;
+            ServerInfo info = s.Info();
+            var teams = s.Host.Game?.GameReplicationInfo?.Teams;
+            _live = new HubMatchLive((int)(teams?[0]?.Score ?? 0f), (int)(teams?[1]?.Score ?? 0f), info.SecondsLeft, humans, watchers, playing);
 
             _anyoneCame |= humans > 0;
             if (s.Phase is SessionPhase.Loading or SessionPhase.Match)

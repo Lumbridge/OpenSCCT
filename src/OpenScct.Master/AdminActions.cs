@@ -169,5 +169,20 @@ internal sealed class AdminActions(AccountStore store)
             "The game sees the change on its next account refresh (opening the Armoury or Account page).");
     }
 
+    /// <summary>Sets an account's prestige and level (the XP becomes the start of that level).</summary>
+    public AdminResult SetRank(AccountRow account, string prestigeText, string levelText)
+    {
+        if (!int.TryParse(prestigeText, System.Globalization.NumberStyles.None, System.Globalization.CultureInfo.InvariantCulture, out int prestige) ||
+            !int.TryParse(levelText, System.Globalization.NumberStyles.None, System.Globalization.CultureInfo.InvariantCulture, out int level) ||
+            prestige > ProgressionK.MaxPrestige || level < 1 || level > ProgressionK.MaxLevel)
+        {
+            return AdminResult.Refused($"Prestige is 0 to {ProgressionK.MaxPrestige} and level 1 to {ProgressionK.MaxLevel}.");
+        }
+
+        store.SetRank(account.Id, prestige, level);
+        return AdminResult.Done($"{account.Name ?? account.DiscordId} is now prestige {prestige}, level {level}. " +
+            "Servers see it at the player's next join.");
+    }
+
     public static string Until(long? until) => until is { } u ? "until " + AccountStore.Format(u) : "permanent";
 }

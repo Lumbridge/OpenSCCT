@@ -27,7 +27,7 @@ public partial class HubService : Node
     public const string NodeName = "HubService";
 
     /// <summary>The hub's default game port (the dedicated server's).</summary>
-    public const int DefaultPort = 28888;
+    public const int DefaultPort = HubK.DefaultPort;
 
     private const int MaxCatchUpTicks = 5;
 
@@ -53,6 +53,8 @@ public partial class HubService : Node
     private string? _matchHost;
     private string? _returnPad;
     private MasterClient? _master;
+    private string? _ticket;
+    private (Task<JoinResponse> Answer, OpenScct.Server.Hub.HubMatchOffer Offer, string Address)? _matchJoin;
     private Task<JoinResponse>? _pendingJoin;
 
     /// <summary>The visit, or null when not in a hub.</summary>
@@ -178,6 +180,9 @@ public partial class HubService : Node
         }
 
         _returnPad = returnPad;
+        // Signed in, the master's answer carries the player's ticket for the hub: he comes in under his account's name.
+        master.SessionToken = AccountSettings.Current.SignedIn ? AccountSettings.Current.Token : null;
+        _ticket = null;
         _pendingJoin = master.JoinAsync(_masterId);
         Status = $"Asking the master server the way to {_masterName}...";
     }
@@ -192,6 +197,12 @@ public partial class HubService : Node
         }
 
         JoinResponse join = answer.Result;
+        _ticket = join.Ticket is { Length: > 0 } ticket ? ticket : null;
+        if (_ticket is null && join.TicketProblem is { Length: > 0 } problem && AccountSettings.Current.SignedIn)
+        {
+            GD.Print("SVM_HUB no ticket: " + problem);
+        }
+
         _attempts.Clear();
         foreach (JoinAttempt a in JoinTarget.FromJoin(join, OnlineSettings.Current.Path).Attempts)
         {
@@ -238,6 +249,7 @@ public partial class HubService : Node
         _masterName = null;
         _matchHost = null;
         _returnPad = null;
+        _ticket = null;
         _attempts.Clear();
     }
 
@@ -286,6 +298,10 @@ public partial class HubService : Node
             Classes = Classes,
             InstallGameplayServices = false,
             ReturnPad = returnPad,
+            // The ticket is for the listed hub only (a hosted or typed-in hub gets none).
+            Ticket = _masterId is not null ? _ticket : null,
+            InstallId = OnlineSettings.Current.InstallId,
+            Title = OpenScctGame.Options.SettingsStore.Current.Title,
         }, ownsTransport: true);
         Client.Play.Clock = () => _clock.NowMicroseconds / 1_000_000.0;
         if (_voice is null)
@@ -310,6 +326,7 @@ public partial class HubService : Node
     {
         bool wasIn = _round is not null;
         _pendingJoin = null;
+        _matchJoin = null;
         _attempts.Clear();
         if (_round is { } round)
         {
@@ -358,6 +375,12 @@ public partial class HubService : Node
         {
             _pendingJoin = null;
             Answered(answer);
+        }
+
+        if (_matchJoin is { Answer.IsCompleted: true } m)
+        {
+            _matchJoin = null;
+            MatchAnswered(m.Answer, m.Offer, m.Address);
         }
 
         if (Client is not { } client)
@@ -463,6 +486,8 @@ public partial class HubService : Node
         _round.AddChild(audio);
         client.Play.Cue += audio.Cue;
         client.Play.Fanfare += _ => audio.Cue("fanfare");
+        // Emotes posed on the pawns (the overlay reads the visit's play state, so it does nothing once the visit ends).
+        OpenScctGame.Views.SimPawnView.Overlay = new HubEmotePoses(() => Client?.Play);
         _signs = new HubSignsView();
         _round.AddChild(_signs);
         _signs.Client = client;
@@ -485,7 +510,8 @@ public partial class HubService : Node
         string host = offer.Host ?? _matchHost ?? HostOf(_target);
         string address = (host.Contains(':', StringComparison.Ordinal) && !host.StartsWith('[') ? "[" + host + "]" : host) + ":" +
             offer.Port.ToString(System.Globalization.CultureInfo.InvariantCulture);
-        GD.Print($"SVM_HUB match of {offer.PadId}: joining {address} as {(offer.Team == 1 ? "merc" : "spy")}");
+        string role = offer.Spectator ? "spectator" : offer.Team == 1 ? "merc" : "spy";
+        GD.Print($"SVM_HUB match of {offer.PadId}: joining {address} as {role}{(offer.MasterId is { } mid ? " (master entry " + mid + ")" : string.Empty)}");
         if (_round is { } round)
         {
             _round = null;
@@ -499,11 +525,40 @@ public partial class HubService : Node
         Client = null;
         client.Session.Disconnect();
         client.Dispose();
-        Note($"Joining the match of {offer.PadId}...");
-        Status = $"Joining the match of {offer.PadId} at {address}...";
+        string what = offer.Spectator ? "Watching" : "Joining";
+        Note($"{what} the match of {offer.PadId}...");
+        Status = $"{what} the match of {offer.PadId} at {address}...";
         string padId = offer.PadId;
+        if (offer.MasterId is { } matchId && Master() is { } master)
+        {
+            // The match has its own master entry: asked like a listed server (its address, its punch and relay
+            // routes, the player's ticket), with the hub's address to fall back on.
+            master.SessionToken = AccountSettings.Current.SignedIn ? AccountSettings.Current.Token : null;
+            _matchJoin = (master.JoinAsync(matchId), offer, address);
+            return;
+        }
+
         OnlineService.Get(GetTree()).JoinFromHub(OpenScct.Server.Online.JoinTarget.FromAddress(address), offer.Password, offer.Team,
             note => ReturnFromMatch(padId, note));
+    }
+
+    /// <summary>The master answered the way into a pad's match: joins by its routes, or at the hub's address when it did not.</summary>
+    private void MatchAnswered(Task<JoinResponse> answer, OpenScct.Server.Hub.HubMatchOffer offer, string address)
+    {
+        string padId = offer.PadId;
+        OpenScct.Server.Online.JoinTarget target = OpenScct.Server.Online.JoinTarget.FromAddress(address);
+        string? ticket = null;
+        if (answer.IsCompletedSuccessfully && answer.Result is { } join)
+        {
+            target = OpenScct.Server.Online.JoinTarget.FromJoin(join, OnlineSettings.Current.Path);
+            ticket = join.Ticket is { Length: > 0 } t ? t : null;
+        }
+        else
+        {
+            GD.Print("SVM_HUB the master did not answer for the match; joining at " + address);
+        }
+
+        OnlineService.Get(GetTree()).JoinFromHub(target, offer.Password, offer.Team, note => ReturnFromMatch(padId, note), ticket);
     }
 
     /// <summary>Back from a pad's match: joins the hub again (spawned beside the pad) with a note on the HUD.</summary>

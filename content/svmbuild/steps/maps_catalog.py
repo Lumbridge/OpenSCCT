@@ -11,6 +11,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from .. import canonical
+from .. import gamefiles
 from ..graph import Context, Step, StepOutput
 from ..paths import SCCTPKG_ROOT
 
@@ -34,13 +35,12 @@ class MapsCatalogStep(Step):
         return _scctpkg_files()
 
     def _map_files(self, ctx: Context) -> list[Path]:
-        folder = ctx.game / "Packages" / "Maps"
-        return sorted((p for p in folder.iterdir() if p.is_file() and p.suffix.lower().startswith(".sd")),
-                      key=lambda p: p.name.upper()) if folder.is_dir() else []
+        # The install's maps and the downloaded ones.
+        return sorted((p for p in gamefiles.files(ctx.game, "Packages/Maps") if p.suffix.lower().startswith(".sd")),
+                      key=lambda p: p.name.upper())
 
     def _info_packages(self, ctx: Context) -> list[Path]:
-        folder = ctx.game / "Packages" / "Textures"
-        return sorted(folder.glob("*-i.utc"), key=lambda p: p.name.upper()) if folder.is_dir() else []
+        return sorted(gamefiles.files(ctx.game, "Packages/Textures", "*-i.utc"), key=lambda p: p.name.upper())
 
     def _reloaded(self, ctx: Context) -> Path:
         return ctx.game / "System" / "Reloaded.Core.dll"

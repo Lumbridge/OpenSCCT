@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
 using Godot;
+using OpenScct.Net.Cosmetics;
 using OpenScct.Provenance;
 using OpenScctGame.Controls;
 using OpenScctGame.UI;
@@ -201,10 +202,25 @@ public partial class GameStatusPage : Control
             }
 
             Color colour = r.Local ? (team == 0 ? HudK.SpyColour : HudK.MercColour) : UiStyle.Text;
-            grid.AddChild(Cell(r.Name, colour));
+            grid.AddChild(NameCell(r.Name, r.Rank, colour));
             grid.AddChild(Cell((team == 0 ? r.ObjOrKills : r.Kills).ToString(CultureInfo.InvariantCulture), colour));
             grid.AddChild(Cell(r.Lives < HudK.InfiniteLives ? r.Lives.ToString(CultureInfo.InvariantCulture) : "Infinite", colour));
         }
+    }
+
+    /// <summary>The name with the player's rank emblem and level before it (OpenSCCT's own; nothing for guests).</summary>
+    private static Control NameCell(string name, int rank, Color colour)
+    {
+        var cell = new HBoxContainer { Alignment = BoxContainer.AlignmentMode.Center };
+        cell.AddThemeConstantOverride("separation", 6);
+        PlayerRank r = PlayerRank.Unpack(rank);
+        if (!r.IsNone)
+        {
+            cell.AddChild(new RankBadge(20) { TooltipText = RankBadge.Describe(r) }.Show(r));
+        }
+
+        cell.AddChild(Cell(name, colour));
+        return cell;
     }
 
     private static Label Cell(string text, Color colour) => new() { Text = text, Modulate = colour, HorizontalAlignment = HorizontalAlignment.Center };
@@ -224,6 +240,10 @@ public partial class GameStatusPage : Control
             if (grid.GetChild(i) is Label l)
             {
                 names.Add(l.Text);
+            }
+            else if (grid.GetChild(i) is HBoxContainer cell && cell.GetChild(cell.GetChildCount() - 1) is Label named)
+            {
+                names.Add(named.Text);
             }
         }
 

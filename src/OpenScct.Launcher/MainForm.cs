@@ -15,6 +15,7 @@ using OpenScct.Launcher.Content;
 using OpenScct.Launcher.GitHub;
 using OpenScct.Launcher.Install;
 using OpenScct.Launcher.Launch;
+using OpenScct.Maps;
 using OpenScct.Launcher.Settings;
 using OpenScct.Launcher.Update;
 using OpenScct.Launcher.Versioning;
@@ -54,6 +55,7 @@ internal sealed class MainForm : Form
 
     private readonly LauncherLayout _layout = new(LauncherLayout.DefaultRoot);
     private readonly VersionStore _store;
+    private readonly MapLibrary _maps;
     private readonly TokenStore _tokens;
     private readonly IGameProcessProbe _games = new GameProcessProbe();
     private readonly LauncherSwap? _swap;
@@ -80,6 +82,7 @@ internal sealed class MainForm : Form
     private readonly Button _whatsNew = Theme.Button("What's new");
     private readonly Button _check = Theme.Button("Check for updates");
     private readonly Button _rollback = Theme.Button("Roll back");
+    private readonly Button _mapsButton = Theme.Button("Maps");
     private readonly Button _settingsButton = Theme.Button("Settings");
     private readonly TableLayoutPanel _launcherBanner = Theme.Grid(Theme.Fill, Theme.Auto);
     private readonly Label _launcherInfo = Theme.Label(string.Empty, Theme.Body, Theme.Warning);
@@ -89,6 +92,7 @@ internal sealed class MainForm : Form
     public MainForm()
     {
         _store = new VersionStore(_layout);
+        _maps = new MapLibrary(_layout.Maps);
         _tokens = new TokenStore(_layout.Token, new DpapiProtector());
         _settings = LauncherSettings.Load(_layout.Settings);
         _service = CreateService();
@@ -173,7 +177,7 @@ internal sealed class MainForm : Form
         TableLayoutPanel more = Theme.Grid(Theme.Fill, Theme.Auto);
         more.Dock = DockStyle.Bottom;
         more.Padding = new Padding(0, 12, 0, 0);
-        Theme.AddRow(more, Theme.Flow(false, _whatsNew, _check, _rollback, _settingsButton), version);
+        Theme.AddRow(more, Theme.Flow(false, _whatsNew, _check, _rollback, _mapsButton, _settingsButton), version);
 
         var root = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, BackColor = Color.Transparent };
         root.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100f));
@@ -192,6 +196,7 @@ internal sealed class MainForm : Form
         tips.SetToolTip(_changeGame, "Pick the folder you installed Splinter Cell Chaos Theory in.");
         tips.SetToolTip(_rebuild, "Prepare the game files again from your copy, for example if a map looks wrong.");
         tips.SetToolTip(_rollback, "Go back to the version you had before the last update.");
+        tips.SetToolTip(_mapsButton, "Download new maps made by the community.");
 
         _main.Click += async (_, _) => await DoNextAsync();
         _changeGame.Click += (_, _) => ChooseGameFolder();
@@ -200,6 +205,7 @@ internal sealed class MainForm : Form
         _check.Click += async (_, _) => await RunAsync(CheckAsync);
         _rollback.Click += (_, _) => Rollback();
         _settingsButton.Click += (_, _) => OpenSettings();
+        _mapsButton.Click += (_, _) => OpenMaps();
         _launcherButton.Click += async (_, _) => await RunAsync(UpdateLauncherAsync);
     }
 
@@ -277,6 +283,7 @@ internal sealed class MainForm : Form
         _rollback.Enabled = _store.Previous() is not null && !busy;
         _check.Enabled = !busy;
         _settingsButton.Enabled = !busy;
+        _mapsButton.Enabled = !busy;
         _launcherButton.Enabled = !busy;
         if (_swap is { HasStaged: true })
         {
@@ -368,9 +375,13 @@ internal sealed class MainForm : Form
         }
         else if (!ContentIsCurrent(current))
         {
-            _filesStep.Set(StepState.Todo, state.Version == current.ToString()
-                ? "Your language changed in Settings. Prepare the game files again to use it."
-                : "OpenSCCT was updated. The game files need a quick refresh.");
+            bool sameVersion = state.Version == current.ToString();
+            bool sameLanguage = ContentBuildPlan.NormaliseLanguage(state.Language) == ContentBuildPlan.NormaliseLanguage(_settings.Language);
+            _filesStep.Set(StepState.Todo, !sameVersion
+                ? "OpenSCCT was updated. The game files need a quick refresh."
+                : !sameLanguage
+                    ? "Your language changed in Settings. Prepare the game files again to use it."
+                    : "Your downloaded maps changed. Prepare the game files to add them.");
         }
         else
         {
@@ -489,7 +500,49 @@ internal sealed class MainForm : Form
     }
 
     private bool ContentIsCurrent(SemVersion? current) =>
-        current is not null && ContentState.Load(_layout.Content) is { } state && state.IsCurrent(current.ToString(), _settings.OriginalGamePath, _settings.Language);
+        current is not null && ContentState.Load(_layout.Content) is { } state
+        && state.IsCurrent(current.ToString(), _settings.OriginalGamePath, _settings.Language, DownloadedMapsFor(current));
+
+    /// <summary>
+    /// The downloaded maps the current version's builder would read (their fingerprint), or empty when there are
+    /// none or the builder is older than downloaded maps (it then builds without them).
+    /// </summary>
+    private string DownloadedMapsFor(SemVersion current) =>
+        _maps.HasMaps && ContentBuildPlan.SupportsAddons(_layout.VersionDir(current.ToString())) ? _maps.Fingerprint() : string.Empty;
+
+    /// <summary>The Maps window; downloading or removing maps prepares the game files again when they were ready before.</summary>
+    private void OpenMaps()
+    {
+        if (_work is not null)
+        {
+            return;
+        }
+
+        bool changed;
+        using (var dialog = new MapsForm(_maps, Http, _settings.OriginalGamePath))
+        {
+            dialog.ShowDialog(this);
+            changed = dialog.Changed;
+        }
+
+        RefreshLocal();
+        SemVersion? current = _store.Current();
+        if (!changed || current is null)
+        {
+            return;
+        }
+
+        if (!ContentBuildPlan.SupportsAddons(_layout.VersionDir(current.ToString())))
+        {
+            SetStatus($"Version {current} cannot add downloaded maps yet. They are added once OpenSCCT is updated.", Theme.Warning);
+            return;
+        }
+
+        if (ContentState.Load(_layout.Content) is not null && GameFound && !ContentIsCurrent(current))
+        {
+            _ = RunAsync(BuildContentAsync);
+        }
+    }
 
     // ---- the work ----------------------------------------------------------------------------------------------
 
@@ -523,6 +576,7 @@ internal sealed class MainForm : Form
                 _progressText.Text = p.Total > 0 ? $"{p.Done} of {p.Total} done" : string.Empty;
             });
             object gate = new();
+            string downloaded = DownloadedMapsFor(current);
             ContentState state = await ContentBuilder.RunAsync(python, current.ToString(), game, _layout.Content, ContentBuildPlan.DefaultJobs,
                 progress, line =>
                 {
@@ -531,7 +585,7 @@ internal sealed class MainForm : Form
                         log.WriteLine(line);
                     }
                 },
-                cancel, _settings.Language);
+                cancel, _settings.Language, downloaded.Length > 0 ? _maps.GameFolder : null, downloaded);
             SetStatus(state.Ok
                 ? "All set. Press PLAY."
                 : $"Some files could not be prepared ({state.Failed}). Press the button to try again. Details: {logPath}", state.Ok ? Theme.Accent : Theme.Error);
@@ -692,7 +746,7 @@ internal sealed class MainForm : Form
         string exe = _store.ExePath(current);
         try
         {
-            using Process? process = Process.Start(GameStart.Create(exe, _settings.OriginalGamePath, _layout.Content));
+            using Process? process = Process.Start(GameStart.Create(exe, _settings.OriginalGamePath, _layout.Content, mapsRoot: _layout.Maps));
             SetStatus($"Started OpenSCCT {current}.", Theme.Accent);
             WindowState = FormWindowState.Minimized;
         }

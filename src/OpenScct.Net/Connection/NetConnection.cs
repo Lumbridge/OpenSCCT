@@ -56,6 +56,7 @@ public sealed partial class NetConnection : INetObjectMap
     private long _lastTickTime;
 
     private readonly NetDriver _driver;
+    private readonly IDemoSink? _recorder;
     private readonly FBitWriter _body;
     private readonly FBitWriter _packet;
     private readonly FBitReader _reader = new();
@@ -98,9 +99,10 @@ public sealed partial class NetConnection : INetObjectMap
     /// <summary>Actor ids of bNetTemporary actors already sent on this connection (never sent again).</summary>
     internal readonly HashSet<int> SentTemporaries = new();
 
-    internal NetConnection(NetDriver driver, EndpointId remoteEndpoint, int connectionId, long now)
+    internal NetConnection(NetDriver driver, EndpointId remoteEndpoint, int connectionId, long now, IDemoSink? recorder = null)
     {
         _driver = driver;
+        _recorder = recorder;
         RemoteEndpoint = remoteEndpoint;
         ConnectionId = connectionId;
         ConnectTime = now;
@@ -108,7 +110,8 @@ public sealed partial class NetConnection : INetObjectMap
         _lastSendTime = now;
         State = EConnectionState.USOCK_Pending;
         CurrentNetSpeed = driver.Settings.DefaultNetSpeed;
-        IsLocal = driver.Transport.IsLocalEndpoint(remoteEndpoint);
+        SendRate = driver.Settings.MaxClientRate;
+        IsLocal = recorder is not null || driver.Transport.IsLocalEndpoint(remoteEndpoint);
         _periodStart = now;
         _lastTickTime = now;
 
@@ -159,10 +162,25 @@ public sealed partial class NetConnection : INetObjectMap
     /// </summary>
     public int CurrentNetSpeed { get; set; }
 
-    /// <summary>True for a connection over loopback: it does not count against the send budget.</summary>
+    /// <summary>True for a connection over loopback (or a demo recorder): it does not count against the send budget.</summary>
     public bool IsLocal { get; }
 
-    /// <summary>Bytes sent and not yet paid off, for <see cref="SendBudgetMode.PerConnection"/>.</summary>
+    /// <summary>
+    /// True for a demo recorder (<see cref="NetDriver.OpenRecorderConnection"/>): its packets go to a demo file instead
+    /// of the transport, each counts as acked once written (so nothing is resent), and it never times out.
+    /// </summary>
+    public bool IsRecorder => _recorder is not null;
+
+    /// <summary>
+    /// On a server with <see cref="SendBudgetMode.PerClientAdaptive"/>: this client's own adaptive send rate in bytes
+    /// per second, steered by the CONF* law from this connection's lag, up to MaxClientRate. Unused otherwise.
+    /// </summary>
+    public int SendRate { get; internal set; }
+
+    /// <summary>
+    /// Bytes sent and not yet paid off, for <see cref="SendBudgetMode.PerConnection"/> and, on a server,
+    /// <see cref="SendBudgetMode.PerClientAdaptive"/>.
+    /// </summary>
     internal long QueuedBytes;
 
     /// <summary>
@@ -798,7 +816,14 @@ public sealed partial class NetConnection : INetObjectMap
         _packet.AppendBits(_body);
         _packet.WriteBit(true);
         int bytes = _packet.NumBytes;
-        _driver.Transport.Send(RemoteEndpoint, _packet.Data);
+        if (_recorder is not null)
+        {
+            _recorder.Write(header.Tick, _packet.Data);
+        }
+        else
+        {
+            _driver.Transport.Send(RemoteEndpoint, _packet.Data);
+        }
 
         _sent[_outSeq & SentMask].SendTime = now;
         if (_inFlight == 0)
@@ -815,6 +840,15 @@ public sealed partial class NetConnection : INetObjectMap
         Stats.OutPackets++;
         Stats.OutBytes += bytes;
         _periodOutPackets++;
+        if (_recorder is not null)
+        {
+            // A demo file loses nothing: the packet is acked as soon as it is written.
+            ushort seq = _oldestInFlight;
+            _oldestInFlight++;
+            _inFlight--;
+            ReceivedAck(seq);
+        }
+
         if (!IsLocal)
         {
             _driver.OnBytesSent(this, bytes + PacketOverheadBytes);
@@ -847,6 +881,11 @@ public sealed partial class NetConnection : INetObjectMap
         }
 
         _lastTickTime = now;
+        if (_recorder is not null)
+        {
+            LastReceiveTime = now;
+        }
+
         if (now - _periodStart > K.StatisticsPeriodMicros)
         {
             EndStatisticsPeriod(now);

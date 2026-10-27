@@ -85,7 +85,10 @@ Not actors (listener objects referenced by zones): `SBase.EFFECT_Room` (8), `SBa
 3. **Movers (client).** The native `PostNetReceive` (decoded, editor 0x110b3020, 0x110a70e0) starts the same
    interpolation on the client, only when `SimInterpolate` changed: `OldPos = SimOldPos`, `OldRot` = the current
    rotation, `PhysAlpha` and `PhysRate` = `SimInterpolate.X` and `.Y` x 0.01, `KeyNum` = the low byte and
-   `PrevKeyNum` = the high byte of `SimInterpolate.Z`, physics PHYS_MovingBrush, `bInterpolating` on. `KeyFrameReached`
+   `PrevKeyNum` = the high byte of `SimInterpolate.Z`, physics PHYS_MovingBrush, `bInterpolating` on. Port note: the
+   client's map `Rotation` and its byte-sent `BaseRot` can name one orientation whole turns apart (-32768 and
+   32768), so `OldRot` is moved by whole turns to the nearest of `BaseRot + KeyRot[PrevKeyNum]` (estimated; without
+   it such a mover spins a full turn on its first leg). `KeyFrameReached`
    (simulated) runs on both sides: `PrevKeyNum = KeyNum`, `PhysAlpha = 0`, `ClientUpdate -= 1`; it
    chains to the next key while moving through intermediate keys (down when `0 < KeyNum <
    OldKeyNum`, up when `KeyNum < NumKeys - 1` and `KeyNum > OldKeyNum`), else it stops the ambient

@@ -3,10 +3,22 @@
     <OutputType>Exe</OutputType>
     <AssemblyName>svm-master</AssemblyName>
     <RootNamespace>OpenScct.Master</RootNamespace>
+    <!--
+      The master's own version (MasterBuildInfo, the status answer's masterVersion, shown in the game under its own
+      version). Bump it when the master changes; it is apart from the game's VersionPrefix and a release's -p:Version.
+    -->
+    <MasterVersion>1.0.0</MasterVersion>
   </PropertyGroup>
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
+      <_Parameter1>MasterVersion</_Parameter1>
+      <_Parameter2>$(MasterVersion)</_Parameter2>
+    </AssemblyAttribute>
+  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\OpenScct.Net\OpenScct.Net.csproj" />
     <PackageReference Include="Microsoft.Data.Sqlite" />
+    <PackageReference Include="AWSSDK.S3" />
   </ItemGroup>
   <ItemGroup>
     <InternalsVisibleTo Include="OpenScct.Integration.Tests" />

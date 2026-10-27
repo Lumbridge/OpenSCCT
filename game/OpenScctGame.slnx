@@ -22,6 +22,10 @@
       <BuildType Solution="ExportDebug|*" Project="Debug" />
       <BuildType Solution="ExportRelease|*" Project="Release" />
     </Project>
+    <Project Path="../src/OpenScct.Maps/OpenScct.Maps.csproj">
+      <BuildType Solution="ExportDebug|*" Project="Debug" />
+      <BuildType Solution="ExportRelease|*" Project="Release" />
+    </Project>
     <Project Path="../src/OpenScct.Net/OpenScct.Net.csproj">
       <BuildType Solution="ExportDebug|*" Project="Debug" />
       <BuildType Solution="ExportRelease|*" Project="Release" />

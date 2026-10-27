@@ -24,6 +24,9 @@ public partial class HubHud : CanvasLayer
 
     private readonly List<HubNameTag> _tags = new();
     private readonly List<Label> _tagLabels = new();
+
+    /// <summary>The rank emblem beside a name tag, pixels before the tag's scale.</summary>
+    private const float TagIconSize = 20f;
     private readonly List<string> _voiceLines = new();
     private Label? _voice;
     private Label? _chat;
@@ -31,6 +34,11 @@ public partial class HubHud : CanvasLayer
     private Label? _queue;
     private LineEdit? _entry;
     private bool _teamOnly;
+    private bool _local;
+    private HubPlayerList? _playerList;
+
+    /// <summary>A chat line shows over its speaker's head this long (seconds).</summary>
+    private const double BubbleSeconds = 6.0;
     private int _chatCount = -1;
 
     public HubClient? Client { get; set; }
@@ -52,7 +60,7 @@ public partial class HubHud : CanvasLayer
         _help = new Label
         {
             Name = "Help", Position = new Vector2(16f, 40f), Modulate = new Color(1f, 1f, 1f, 0.75f),
-            Text = "Hub   J spy   K merc   N plaza   G emotes   U use   X stop   Enter/F5 chat   F6 team chat   O leave   Stand on a match pad to queue",
+            Text = "Hub   J spy   K merc   N plaza   G emotes   U use   X stop   V vote   H watch   P players   Enter/F5 chat   F6 team chat   O leave   Stand on a match pad to queue",
         };
         if (OpenScctGame.UI.UiArt.CaptionFont is { } caption)
         {
@@ -87,6 +95,12 @@ public partial class HubHud : CanvasLayer
             label.AddThemeColorOverride("font_shadow_color", new Color(0f, 0f, 0f, 1f));
             label.AddThemeConstantOverride("shadow_offset_x", 1);
             label.AddThemeConstantOverride("shadow_offset_y", 1);
+            // The player's rank emblem, left of the name (OpenSCCT's own; hidden for guests).
+            label.AddChild(new TextureRect
+            {
+                Name = "Rank", Visible = false, Size = new Vector2(TagIconSize, TagIconSize), ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
+                StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered, MouseFilter = Control.MouseFilterEnum.Ignore,
+            });
             _tagLabels.Add(label);
             AddChild(label);
         }
@@ -171,7 +185,7 @@ public partial class HubHud : CanvasLayer
         for (int i = System.Math.Max(0, lines.Count - ChatLines); i < lines.Count; i++)
         {
             HubChatEntry e = lines[i];
-            sb.AppendLine(e.IsSystem ? "* " + e.Text : (e.TeamOnly ? "(team) " : string.Empty) + e.Name + ": " + e.Text);
+            sb.AppendLine(e.IsSystem ? "* " + e.Text : (e.TeamOnly ? "(team) " : e.Local ? "(near) " : string.Empty) + e.Name + ": " + e.Text);
         }
 
         _chat.Text = sb.ToString();
@@ -205,7 +219,17 @@ public partial class HubHud : CanvasLayer
 
             Label label = _tagLabels[shown++];
             Vector2 screen = camera.UnprojectPosition(at);
-            label.Text = client.Play.EmoteOf(tag.PlayerId) is { } emote ? tag.Name + "\n" + HubEmotes.Caption(emote) : tag.Name;
+            OpenScct.Net.Cosmetics.PlayerRank rank = OpenScct.Net.Cosmetics.PlayerRank.Unpack(tag.Rank);
+            string name = rank.IsNone ? tag.Name
+                : rank.Title is { } title ? tag.Name + "\n" + OpenScctGame.UI.RankBadge.Text(rank) + "  " + title.Text
+                : tag.Name + "\n" + OpenScctGame.UI.RankBadge.Text(rank);
+            label.Text = (client.Play.EmoteOf(tag.PlayerId) is { } emote ? name + "\n" + HubEmotes.Caption(emote) : name) + Bubble(client, tag.Name);
+            if (label.GetNodeOrNull<TextureRect>("Rank") is { } icon)
+            {
+                icon.Visible = !rank.IsNone;
+                icon.Texture = rank.IsNone ? null : OpenScctGame.UI.RankIcons.For(rank, (int)TagIconSize);
+                icon.Position = new Vector2(-TagIconSize - 4f, 0f);
+            }
             label.Modulate = tag.Team == 1 ? HudK.MercColour : HudK.SpyColour;
             float scale = Mathf.Clamp(1.4f - tag.Distance / HubK.NameTagRange, 0.6f, 1.2f);
             label.Scale = new Vector2(scale, scale);
@@ -216,6 +240,32 @@ public partial class HubHud : CanvasLayer
 
         TagsShown = shown;
         HideTags(shown);
+    }
+
+    /// <summary>What the player said in the last few seconds, as a bubble under his name (two short lines at most), or empty.</summary>
+    private static string Bubble(HubClient client, string name)
+    {
+        if (!client.LastSaid(name, out string text, out double at) || client.Play.Now - at > BubbleSeconds)
+        {
+            return string.Empty;
+        }
+
+        const int Width = 34;
+        if (text.Length <= Width)
+        {
+            return "\n\u201c" + text + "\u201d";
+        }
+
+        int cut = text.LastIndexOf(' ', Width);
+        cut = cut > 8 ? cut : Width;
+        string first = text[..cut].TrimEnd();
+        string rest = text[cut..].TrimStart();
+        if (rest.Length > Width)
+        {
+            rest = rest[..(Width - 3)] + "...";
+        }
+
+        return "\n\u201c" + first + "\n" + rest + "\u201d";
     }
 
     private void HideTags(int from)
@@ -248,8 +298,14 @@ public partial class HubHud : CanvasLayer
             }
             else if (key.Keycode == Key.Tab)
             {
-                _teamOnly = !_teamOnly;
-                _entry!.PlaceholderText = _teamOnly ? "Say to your side" : "Say";
+                // Everyone, then your side, then the players near you.
+                (_teamOnly, _local) = (_teamOnly, _local) switch
+                {
+                    (false, false) => (true, false),
+                    (true, _) => (false, true),
+                    _ => (false, false),
+                };
+                _entry!.PlaceholderText = Placeholder();
                 GetViewport().SetInputAsHandled();
             }
 
@@ -290,11 +346,47 @@ public partial class HubHud : CanvasLayer
             case Key.X:
                 client.CancelActivity();
                 break;
+            case Key.V when client.Queue.PadId is { } votePad:
+                // On a pad: the vote moves on to the pad's next match.
+                client.Vote(votePad, -1);
+                break;
+            case Key.H when client.Queue.PadId is { } watchPad:
+                client.Watch(watchPad);
+                break;
+            case Key.P:
+                TogglePlayerList(client);
+                break;
             default:
                 return;
         }
 
         GetViewport().SetInputAsHandled();
+    }
+
+    /// <summary>P: the hub's players, with each one's voice volume and mute and a chat mute.</summary>
+    private void TogglePlayerList(HubClient client)
+    {
+        if (_playerList is { } open)
+        {
+            _playerList = null;
+            open.QueueFree();
+            if (Round?.Controls is { } on)
+            {
+                on.Enabled = true;
+            }
+
+            return;
+        }
+
+        _playerList = new HubPlayerList { Client = client, Voice = Service?.VoiceChat?.Voice };
+        _playerList.Closed += () => TogglePlayerList(client);
+        AddChild(_playerList);
+        if (Round?.Controls is { } input)
+        {
+            // The pointer is freed for the sliders; a click in the world captures it again once the list is closed.
+            input.ReleasePointer();
+            input.Enabled = false;
+        }
     }
 
     private void OpenEntry(bool teamOnly = false)
@@ -305,7 +397,8 @@ public partial class HubHud : CanvasLayer
         }
 
         _teamOnly = teamOnly;
-        _entry.PlaceholderText = _teamOnly ? "Say to your side" : "Say";
+        _local = false;
+        _entry.PlaceholderText = Placeholder();
         _entry.Text = string.Empty;
         _entry.Visible = true;
         _entry.GrabFocus();
@@ -330,6 +423,9 @@ public partial class HubHud : CanvasLayer
         }
     }
 
+    private string Placeholder() =>
+        _teamOnly ? "Say to your side (Tab: near you)" : _local ? "Say to the players near you (Tab: everyone)" : "Say (Tab: your side)";
+
     private void Send(string text)
     {
         string line = text.Trim();
@@ -337,6 +433,14 @@ public partial class HubHud : CanvasLayer
         {
             // "/wave" and the like play the emote instead of saying it.
             Client?.Emote(line[1..].ToLowerInvariant());
+        }
+        else if (line.StartsWith("/l ", System.StringComparison.OrdinalIgnoreCase) && line.Length > 3)
+        {
+            Client?.SayLocal(line[3..]);
+        }
+        else if (line.Length > 0 && _local)
+        {
+            Client?.SayLocal(line);
         }
         else if (line.Length > 0)
         {

@@ -46,7 +46,9 @@ public sealed class DeviceViews
 
             if (map.Gameplay.TryGetValue(record.Id, out GameplayMesh? entry))
             {
-                var follower = new MeshFollower(actor, entry);
+                // The map's bHidden, not the actor's now: replication may have shown it before this first bind.
+                bool mapHidden = map.Actors.Find(record.Id) is { } placed ? placed.Bool("bHidden") : actor.bHidden;
+                var follower = new MeshFollower(actor, entry, mapHidden);
                 _meshes.Add(follower);
                 if (follower.Asset is { } asset && entry.Node.Mesh is { } mesh)
                 {
@@ -271,8 +273,9 @@ public sealed class MeshFollower
     private FRotator _rotation;
     private bool _meshMissing;
     private readonly Mesh? _mesh0;
+    private Vector4 _vision;
 
-    internal MeshFollower(Actor actor, GameplayMesh entry)
+    internal MeshFollower(Actor actor, GameplayMesh entry, bool mapHidden)
     {
         Actor = actor;
         Entry = entry;
@@ -280,13 +283,14 @@ public sealed class MeshFollower
         _location0 = actor.Location;
         _rotation0 = actor.Rotation;
         _placed0Inverse = UeSpace.TransformToGodot(_location0, _rotation0).AffineInverse();
-        _hidden0 = actor.bHidden;
+        _hidden0 = mapHidden;
         _visible0 = entry.Node.Visible;
         _prevLocation = _location = actor.Location;
         _prevRotation = _rotation = actor.Rotation;
         Asset = actor.StaticMesh.Path;
         ShownAsset = Asset;
         _mesh0 = entry.Node.Mesh;
+        _vision = entry.Node.GetInstanceShaderParameter(GameplayObjects.VisionActorParameter).AsVector4();
         Replaceable = !actor.bStatic && !actor.bNoDelete;
     }
 
@@ -389,6 +393,15 @@ public sealed class MeshFollower
         // A stage that removes the mesh (a broken window pane, spec/devices/vitre.md rule 2) hides the node.
         bool meshGone = Asset is not null && Actor.StaticMesh.IsNone && Actor.DrawType == EDrawType.DT_StaticMesh;
         node.Visible = visible && !_meshMissing && !meshGone && !Actor.bDeleteMe && Actor.DrawType != EDrawType.DT_None;
+
+        // The live vision values (a switched-off device stops glowing in EMF); HeatOpacity, not replicated, stays the map's.
+        Vector4 vision = GameplayObjects.VisionOf(Actor) with { Y = _vision.Y };
+        if (vision != _vision)
+        {
+            _vision = vision;
+            node.SetInstanceShaderParameter(GameplayObjects.VisionActorParameter, vision);
+        }
+
         if (!Moved || !node.Visible)
         {
             return;

@@ -309,6 +309,62 @@ public static partial class K
     [Provenance(ProvenanceKind.Decoded, "natives2-events.md rule 6: a cloaked spy has DesiredGlassEffect 255")]
     public const byte MotionCloakedGlass = 255;
 
+    // ---- alarm snare (alarm-snare.md) ------------------------------------------------------------------------
+
+    [Provenance(ProvenanceKind.Decoded, "UseEmitter 0x10aa1240: start 10 uu behind the FX bone")]
+    public const float SnareLaunchPullBack = 10f;
+
+    [Provenance(ProvenanceKind.Decoded, "SpawnNoiseEmitter 0x10aa1570: the launch sound at radius 100")]
+    public const float SnareLaunchSoundRadius = 100f;
+
+    [Provenance(ProvenanceKind.Decoded, "SNoiseEmitter.PostBeginPlay SetTimer(0.5) and fSpeed = 50")]
+    public const float SnareFirstNoise = 0.5f;
+
+    [Provenance(ProvenanceKind.Decoded, "SNoiseEmitter.PostBeginPlay fSpeed = 50")]
+    public const float SnareStartSpeed = 50f;
+
+    [Provenance(ProvenanceKind.Decoded, "SNoiseEmitter.Tick: fVal += FRand() * 0.48, past 1.0 restart at FRand() * 0.16")]
+    public const float SnareArrowStep = 0.48f;
+
+    [Provenance(ProvenanceKind.Decoded, "SNoiseEmitter.Tick: restart at FRand() * 0.16")]
+    public const float SnareArrowRestart = 0.16f;
+
+    [Provenance(ProvenanceKind.Decoded, "SNoiseEmitter.Timer: FRand() < 0.2 picks a breath")]
+    public const float SnareBreathChance = 0.2f;
+
+    [Provenance(ProvenanceKind.Decoded, "SNoiseEmitter.Timer: Action = int(FRand() * 2.9)")]
+    public const float SnareBreathPick = 2.9f;
+
+    [Provenance(ProvenanceKind.Decoded, "SNoiseEmitter.Timer: fSpeed = FRand() * 160 + 10")]
+    public const float SnareSpeedRange = 160f;
+
+    [Provenance(ProvenanceKind.Decoded, "SNoiseEmitter.Timer: fSpeed = FRand() * 160 + 10")]
+    public const float SnareSpeedMin = 10f;
+
+    [Provenance(ProvenanceKind.Decoded, "SNoiseEmitter.Timer: NotifyNoise(fNoiseCoeff * fSpeed / 200)")]
+    public const float SnareNoiseSpeed = 200f;
+
+    [Provenance(ProvenanceKind.Decoded, "SNoiseEmitter.Timer: WalkingSounds[int(fSpeed / 67)]")]
+    public const float SnareFootstepBand = 67f;
+
+    [Provenance(ProvenanceKind.Decoded, "SNoiseEmitter.Timer: footsteps at radius 1000")]
+    public const float SnareFootstepRadius = 1000f;
+
+    [Provenance(ProvenanceKind.Decoded, "SNoiseEmitter.Timer: SetTimer(40 / fSpeed, true)")]
+    public const float SnareStepDistance = 40f;
+
+    [Provenance(ProvenanceKind.Decoded, "SNoiseEmitter.Timer: FakeAlarms again after the alarm's Duration + Rand(5)")]
+    public const int SnareFakeJitter = 5;
+
+    [Provenance(ProvenanceKind.Decoded, "SNoiseEmitter.FakeAlarms: sight to the point 5 uu along the device's X axis")]
+    public const float SnareDeviceProbe = 5f;
+
+    [Provenance(ProvenanceKind.Decoded, "SGadNoiseEmitter.LocalSystemMessage AddMessageOnHud(5)")]
+    public const int SnareHudOn = 5;
+
+    [Provenance(ProvenanceKind.Decoded, "SNoiseEmitter.Destroyed AddMessageOnHud(6)")]
+    public const int SnareHudOff = 6;
+
     // ---- gadget HUD views (gadget-hud.md) --------------------------------------------------------------------
 
     [Provenance(ProvenanceKind.Decoded, "gas mask page method 0x10b27ec0: gauge frame 2 x (30 - trunc(MaskDuration))")]

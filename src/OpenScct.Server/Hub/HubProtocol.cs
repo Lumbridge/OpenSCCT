@@ -36,10 +36,18 @@ public enum HubPadState : byte
 ///   hub pad &lt;id&gt; &lt;state&gt; &lt;seconds&gt; &lt;map&gt; &lt;mode&gt; &lt;teamSize&gt; &lt;spies&gt; &lt;spySlots&gt; &lt;mercs&gt; &lt;mercSlots&gt;
 ///           &lt;loX&gt; &lt;loY&gt; &lt;hiX&gt; &lt;hiY&gt; &lt;floorZ&gt; &lt;title&gt;      a pad's match and state (to everyone, on change)
 ///   hub queue &lt;padId|-&gt; &lt;side|-1&gt; &lt;text&gt;        the player's own place in a pad's queue ("-": in none)
-///   hub match &lt;padId&gt; &lt;port&gt; &lt;team&gt; &lt;password&gt; &lt;map&gt; &lt;mode&gt; &lt;host|-&gt;   go and play: join that session
+///   hub who &lt;playerId&gt; &lt;team&gt; &lt;pingMs&gt; &lt;signedIn&gt; &lt;name&gt;   one player of the hub (the player list; every few seconds)
+///   hub gone &lt;playerId&gt;             he left
+///   hub local &lt;playerId&gt; &lt;team&gt; &lt;text&gt;   a local chat line of a player near you
+///   hub match &lt;padId&gt; &lt;port&gt; &lt;team&gt; &lt;password&gt; &lt;map&gt; &lt;mode&gt; &lt;host|-&gt; [masterId|-]   go and play: join that
+///           session (team 255: watch it as a spectator; masterId: the session's master entry, joined through the
+///           master so a relay can carry it)
 /// client -> server
 ///   hub side &lt;0|1&gt;                 play the other side (respawns at the plaza)
 ///   hub respawn                       back to the plaza
+///   hub vote &lt;padId&gt; &lt;option&gt;      vote for the pad's next match (0 its own, 1.. its choices; -1 the next one)
+///   hub watch &lt;padId&gt;               watch the pad's match being played
+///   hub local &lt;text&gt;                say to the players near you (HubK.LocalChatRange)
 /// login option ?HubReturn=&lt;padId&gt;: a player back from that pad's match, spawned beside the pad.
 /// </code>
 /// </summary>
@@ -48,8 +56,11 @@ public static class HubProtocol
     /// <summary>The command every hub line carries first.</summary>
     public const string Command = "hub";
 
-    /// <summary>Version of this line set (2: signs, pads, queues and matches; 3: signs mounted on boards).</summary>
-    public const int Version = 3;
+    /// <summary>
+    /// Version of this line set (2: signs, pads, queues and matches; 3: signs mounted on boards; 4: votes, watching,
+    /// matches through the master, the roster and local chat).
+    /// </summary>
+    public const int Version = 4;
 
     /// <summary>The login option a player back from a pad's match carries.</summary>
     public const string ReturnOption = "HubReturn";
@@ -63,6 +74,19 @@ public static class HubProtocol
 
     public static string Respawn() => SessionProtocol.Line(Command, "respawn");
 
+    public static string Vote(string padId, int option) => SessionProtocol.Line(Command, "vote", padId, option);
+
+    public static string Watch(string padId) => SessionProtocol.Line(Command, "watch", padId);
+
+    public static string Who(int playerId, int team, int pingMs, bool signedIn, string name) =>
+        SessionProtocol.Line(Command, "who", playerId, team, pingMs, signedIn ? 1 : 0, name);
+
+    public static string Gone(int playerId) => SessionProtocol.Line(Command, "gone", playerId);
+
+    public static string LocalRequest(string text) => SessionProtocol.Line(Command, "local", text);
+
+    public static string Local(int playerId, int team, string text) => SessionProtocol.Line(Command, "local", playerId, team, text);
+
     public static string Sign(HubSign sign) => SessionProtocol.Line(Command, "sign", sign.Id, sign.Position.X, sign.Position.Y, sign.Position.Z,
         HubSigns.Hex(sign.Rgba), sign.Scale, sign.Face.Yaw, sign.Face.Width, sign.Face.Height, HubSigns.EncodeText(sign.Text));
 
@@ -74,7 +98,7 @@ public static class HubProtocol
     public static string Queue(string? padId, int side, string text) => SessionProtocol.Line(Command, "queue", padId ?? "-", side, text);
 
     public static string Match(HubMatchOffer offer) => SessionProtocol.Line(Command, "match", offer.PadId, offer.Port, offer.Team, offer.Password,
-        offer.Map, (int)offer.Mode, offer.Host ?? "-");
+        offer.Map, (int)offer.Mode, offer.Host ?? "-", offer.MasterId ?? "-");
 
     /// <summary>Splits a hub line into its verb and fields (a name or message keeps its spaces). False for any other line.</summary>
     public static bool TryParse(string line, out string verb, out List<string> fields)
@@ -181,8 +205,12 @@ public sealed record HubPadInfo
 /// <see cref="Host"/>), the side he plays, the session's password (the join token: only the players sent this line
 /// get in), and the match.
 /// </summary>
-public sealed record HubMatchOffer(string PadId, int Port, int Team, string Password, string Map, OpenScct.Core.EGameMode Mode, string? Host)
+public sealed record HubMatchOffer(string PadId, int Port, int Team, string Password, string Map, OpenScct.Core.EGameMode Mode, string? Host,
+    string? MasterId = null)
 {
+    /// <summary>The offer is to watch the match as a spectator.</summary>
+    public bool Spectator => Team == SessionProtocol.SpectatorTeam;
+
     public static HubMatchOffer? Parse(IReadOnlyList<string> f)
     {
         if (f.Count < 6)
@@ -191,7 +219,9 @@ public sealed record HubMatchOffer(string PadId, int Port, int Team, string Pass
         }
 
         string host = SessionProtocol.Text(f, 6);
-        return new HubMatchOffer(f[0], SessionProtocol.Int(f, 1), SessionProtocol.Int(f, 2) == 1 ? 1 : 0, f[3], f[4],
-            (OpenScct.Core.EGameMode)SessionProtocol.Int(f, 5), host is "" or "-" ? null : host);
+        string masterId = SessionProtocol.Text(f, 7);
+        int team = SessionProtocol.Int(f, 2);
+        return new HubMatchOffer(f[0], SessionProtocol.Int(f, 1), team == SessionProtocol.SpectatorTeam ? team : team == 1 ? 1 : 0, f[3], f[4],
+            (OpenScct.Core.EGameMode)SessionProtocol.Int(f, 5), host is "" or "-" ? null : host, masterId is "" or "-" ? null : masterId);
     }
 }

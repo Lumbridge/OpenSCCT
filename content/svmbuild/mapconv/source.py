@@ -57,9 +57,11 @@ class MapSource:
         from scctpkg.packageset import PackageSet  # noqa: PLC0415
         from scctpkg.properties import skip_state_frame  # noqa: PLC0415
 
-        self.path = Path(self.game) / "Packages" / "Maps" / f"{self.name}.sdc"
+        from ..gamefiles import game_file, package_roots  # noqa: PLC0415
+
+        self.path = game_file(Path(self.game), f"Packages/Maps/{self.name}.sdc")
         self.pkg = Package.load(self.path)
-        self.pset = PackageSet([Path(self.game) / "Packages"])
+        self.pset = PackageSet(package_roots(Path(self.game)))
         self.pset.register(self.pkg)
         self._path_index: Dict[str, dict] = {}
         lv = sf.ge.level_export(self.pkg)

@@ -110,8 +110,11 @@ public partial class SGameInfo
 
         PlayerReplicationInfo? pri = newPlayer.PlayerReplicationInfo;
         bool matchHasBegun = GameReplicationInfo?.bMatchHasBegun ?? false;
+        // OpenSCCT's own: a player the online server lets back into the round he dropped out of (?SvmRejoin=1) is
+        // not made a visitor; he waits on his side like a Merc Deathmatch late joiner and the server spawns him.
+        bool bRejoin = ParseOption(Options, "SvmRejoin") == "1";
         if (inTeam == K.SpectatorTeam ||
-            (matchHasBegun && (MatchInfo?.GameMode != EGameMode.GM_MercDeathMatch || bGameEnded)))
+            (matchHasBegun && !bRejoin && (MatchInfo?.GameMode != EGameMode.GM_MercDeathMatch || bGameEnded)))
         {
             bWelcomePending = true;
             if (pri is not null)
@@ -170,6 +173,9 @@ public partial class SGameInfo
                 pri.SvmLookLow = (int)(look & 0xFFFFFFFFL);
                 pri.SvmLookHigh = (int)(look >> 32);
             }
+
+            // OpenSCCT's own: the level, prestige and title the online server checked against the player's ticket.
+            pri.SvmRank = GetIntOption(Options, "SvmRank", 0);
         }
 
         Name pawnClassName = pri?.Team is STeamInfo team && inMesh < team.PawnList.Count ? team.PawnList[inMesh] : Name.None;

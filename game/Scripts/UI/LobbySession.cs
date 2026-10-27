@@ -46,7 +46,7 @@ public sealed record LobbyMessage(string Text, string? Sender, HudSide? Side, bo
 
 /// <summary>A player as an online lobby lists it: the base line, its id, ping, host mark and whether it has the map.</summary>
 public sealed record OnlineLobbyPlayer(int Id, string Name, HudSide? Side, bool Ready, bool IsLocal, bool IsHost, int PingMs, string MapNote,
-    bool TeamVoiceOnly = false, bool IsBot = false, bool IsVerified = false);
+    bool TeamVoiceOnly = false, bool IsBot = false, bool IsVerified = false, int Rank = 0);
 
 /// <summary>
 /// An online lobby (docs/ONLINE.md): on top of the sides and ready flags, the server and its setup (map, mode and the
@@ -111,7 +111,26 @@ public interface IOnlineLobbySession : ILobbySession
 
     /// <summary>A line about the local microphone (level, transmitting or silent, push to talk or activation).</summary>
     string MicrophoneLine { get; }
+
+    // ---- the setup's map, when the local player lacks it (docs/ONLINE.md "Missing maps") ----
+
+    /// <summary>What to show about fetching the setup's map, or null when there is nothing to show.</summary>
+    LobbyMapFetch? MapFetch { get; }
+
+    /// <summary>Downloads and prepares the setup's map from where the host got it.</summary>
+    void StartMapFetch();
+
+    void CancelMapFetch();
+
+    /// <summary>Called every frame by the screen: once a fetch is done, the map list is read again and the map checked.</summary>
+    void UpdateMapFetch();
 }
+
+/// <summary>
+/// The lobby's line about the setup's map when the local player lacks it: the text, whether Download can be pressed,
+/// whether a fetch runs (Stop then) and how far it is, and whether the text is a problem.
+/// </summary>
+public sealed record LobbyMapFetch(string Text, bool CanStart, bool Running, double Fraction, bool Problem);
 
 /// <summary>
 /// The lobby of an offline or locally hosted match: the local player and bots that fill the sides, two a side for

@@ -21,7 +21,7 @@ internal sealed record CliOptions
           --key <text>      with --master: the master's invite key
 
         Hub (an OpenSCCT addition; docs/HUB.md):
-          --hub             run a hub server on the Hub map (up to 50 players unless --max says)
+          --hub             run a hub server on the Hub map (up to 50 players unless --max says; UDP port 28886 unless --port says)
           --hub --config <file>  take the hub's name, port, maxPlayers, motd, maps and master from this
                             JSON file (the online server's format; rotation and lobby fields are ignored)
           --name <text>     with --hub: the hub's name
@@ -42,7 +42,9 @@ internal sealed record CliOptions
           --port <n>        UDP port to listen on (default 28888)
           --max <n>         maximum players (default 4)
           --map <name>      map to run (default TestBox)
-          --rate <hz>       replication rate: 20 internet, 35 LAN, up to 60 (default 20)
+          --rate <hz>       replication rate, 1 to 60 (default: 60 Enhanced; Stock 20, 35 with --lanplay)
+          --net <profile>   network profile: enhanced (default: every tick, a send budget per client)
+                            or stock (the original's 20/35 Hz and shared send budget)
           --seed <n>        match seed (default 1)
           --seconds <n>     stop after n seconds (default: run until Ctrl+C)
           --maps <dir>      also look for SVMap folders here (before the default places)
@@ -66,7 +68,11 @@ internal sealed record CliOptions
 
     public string Map { get; init; } = MapCatalog.TestBox;
 
-    public int NetRate { get; init; } = OpenScct.Net.K.NetServerMaxTickRate;
+    /// <summary><c>--rate</c>: replication rate, or 0 for the network profile's rate.</summary>
+    public int NetRate { get; init; }
+
+    /// <summary><c>--net stock|enhanced</c>, or null when not given (Enhanced for a match, the config's for online).</summary>
+    public OpenScct.Net.NetProfile? NetProfile { get; init; }
 
     public ulong Seed { get; init; } = 1;
 
@@ -138,6 +144,9 @@ internal sealed record CliOptions
     /// <summary>--max was given.</summary>
     public bool MaxGiven { get; init; }
 
+    /// <summary>--port was given (a hub otherwise takes its own default port, HubK.DefaultPort).</summary>
+    public bool PortGiven { get; init; }
+
     /// <summary>The online server: a config file or <c>--online</c>, and not a hub (a hub reads the config itself).</summary>
     public bool IsOnline => (Online || Config is not null) && !Hub;
 
@@ -189,7 +198,7 @@ internal sealed record CliOptions
             switch (arg)
             {
                 case "--port" when TryInt(value, 1, 65535, out int port):
-                    options = options with { Port = port };
+                    options = options with { Port = port, PortGiven = true };
                     break;
                 case "--max" when TryInt(value, 1, 64, out int max):
                     options = options with { MaxPlayers = max, MaxGiven = true };
@@ -202,6 +211,9 @@ internal sealed record CliOptions
                     break;
                 case "--rate" when TryInt(value, 1, 60, out int rate):
                     options = options with { NetRate = rate };
+                    break;
+                case "--net" when OpenScct.Net.NetProfiles.TryParse(value, out OpenScct.Net.NetProfile profile):
+                    options = options with { NetProfile = profile };
                     break;
                 case "--seed" when ulong.TryParse(value, NumberStyles.None, CultureInfo.InvariantCulture, out ulong seed):
                     options = options with { Seed = seed };

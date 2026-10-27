@@ -29,6 +29,10 @@ public partial class CosmeticPreview : Control
     private readonly Camera3D _camera;
     private readonly TextureRect _flat;
     private SkeletalModel? _model;
+    private GoggleGlowView? _glow;
+    private bool _glowMerc;
+    private float? _glowHue;
+    private bool _glowOn;
     private string? _asset;
     private bool _frameNext;
     private bool _headShot;
@@ -102,6 +106,10 @@ public partial class CosmeticPreview : Control
             _model.SetGlowHue(null);
         }
 
+        // The goggle beam as the game draws it, on the character views: in the item's colour for a light.
+        bool character = item is { Slot: CosmeticSlot.Body or CosmeticSlot.Light };
+        SetGlow(character, item?.Side == CosmeticSide.Merc, item is { Slot: CosmeticSlot.Light } ? PawnCosmetics.HueTurn(item, item.Side) : null);
+
         bool head = item is { Slot: CosmeticSlot.Light };
         if (head != _headShot)
         {
@@ -111,21 +119,78 @@ public partial class CosmeticPreview : Control
     }
 
     /// <summary>The model an item is drawn on: the side's character for a body or light, the gun the others see.</summary>
-    public static string AssetOf(CosmeticItem item) => item.Slot switch
+    public static string AssetOf(CosmeticItem item) => AssetFor(item.Side, item.Slot);
+
+    /// <summary>The model a slot is seen on: the side's character for a body or light, else that gun.</summary>
+    public static string AssetFor(CosmeticSide side, CosmeticSlot slot) => slot switch
     {
         CosmeticSlot.Pistol => "SWeaponFirst.p190",
         CosmeticSlot.GunAr => "SWeaponFirst.M160",
         CosmeticSlot.GunSmg => "SWeaponFirst.Hk81",
         CosmeticSlot.GunShotgun => "SWeaponFirst.BM401",
-        _ => item.Side == CosmeticSide.Spy ? "SPerso.ATT_01" : "SPerso.DEF_01",
+        _ => side == CosmeticSide.Spy ? "SPerso.ATT_01" : "SPerso.DEF_01",
     };
+
+    /// <summary>
+    /// Shows a whole kit as the game draws it, seen from <paramref name="view"/>: for the suit or the light, the
+    /// character wearing the look's suit with its light colour (framed on the head for the light); for a gun slot, that
+    /// gun with its camo. Without the built content the viewed slot's flat picture shows.
+    /// </summary>
+    public void ShowLook(CosmeticSide side, CosmeticLook look, CosmeticSlot view)
+    {
+        Item = look[view];
+        string asset = AssetFor(side, view);
+        if (asset != _asset)
+        {
+            _asset = asset;
+            Load(asset);
+        }
+
+        if (_model is null)
+        {
+            _flat.Texture = Item is null ? null : CosmeticThumbs.For(Item, 128);
+            _flat.Visible = _flat.Texture is not null;
+            return;
+        }
+
+        _flat.Visible = false;
+        bool character = view is CosmeticSlot.Body or CosmeticSlot.Light;
+        PawnCosmetics.ApplyItem(_model, character ? look[CosmeticSlot.Body] : look[view]);
+        float? hue = character ? PawnCosmetics.HueTurn(look[CosmeticSlot.Light], side) : null;
+        _model.SetGlowHue(hue);
+        SetGlow(character, side == CosmeticSide.Merc, hue);
+        bool head = view == CosmeticSlot.Light;
+        if (head != _headShot)
+        {
+            _headShot = head;
+            _frameNext = true;
+        }
+    }
+
+    /// <summary>Whether the goggle beam shows, for which side and in which colour (drawn each frame on the posed head).</summary>
+    private void SetGlow(bool on, bool merc, float? hueTurn)
+    {
+        _glowOn = on;
+        _glowMerc = merc;
+        _glowHue = hueTurn;
+        if (!on)
+        {
+            _glow?.HideGlow();
+        }
+    }
 
     private void Load(string? asset)
     {
         if (_model is not null)
         {
-            _turntable.RemoveChild(_model.Root);
-            _model.Root.QueueFree();
+            _glow?.HideGlow();
+            _glow = null;
+            foreach (Node child in _turntable.GetChildren())
+            {
+                _turntable.RemoveChild(child);
+                child.QueueFree();
+            }
+
             _model = null;
         }
 
@@ -147,6 +212,16 @@ public partial class CosmeticPreview : Control
 
         _turntable.AddChild(_model.Root);
         _model.Light(StudioLights());
+        SkeletalModel character = _model;
+        _glow = asset.StartsWith("SPerso.", StringComparison.Ordinal)
+            ? new GoggleGlowView(_turntable, null, bone =>
+            {
+                int index = character.Skeleton.FindBone(bone.ToString());
+                return index < 0
+                    ? (false, default)
+                    : (true, character.Skeleton.GlobalTransform * character.Skeleton.GetBoneGlobalPose(index));
+            })
+            : null;
         foreach (string clip in s_idleClips)
         {
             if (_model.Sampler.Play(clip))
@@ -176,6 +251,11 @@ public partial class CosmeticPreview : Control
         {
             _frameNext = false;
             Frame();
+        }
+
+        if (_glowOn && _glow is not null && _model.Root.IsInsideTree())
+        {
+            _glow.DrawStill(_glowMerc, _glowHue);
         }
 
         if (_dragging)

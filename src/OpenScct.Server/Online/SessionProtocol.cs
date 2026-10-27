@@ -14,6 +14,13 @@ public enum MapState : byte
     Differs = 3,
 }
 
+/// <summary>
+/// Where the session's map can be downloaded: a map of the SCCT-Maps repository (its <paramref name="Id"/> there,
+/// the <paramref name="Commit"/> the host downloaded it at and its files' <paramref name="Fingerprint"/>), so a
+/// player without it can fetch the same version (the lobby line <c>mapsource</c>, docs/ONLINE.md).
+/// </summary>
+public sealed record MapSourceInfo(string Id, string Commit, string Fingerprint);
+
 /// <summary>Flags of a lobby player line.</summary>
 [Flags]
 public enum SessionPlayerFlags

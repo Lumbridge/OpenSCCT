@@ -37,6 +37,10 @@ public partial class LobbyRoomScreen : MenuPage
     private Label? _spiesWaiting;
     private Label? _mercsWaiting;
     private Label? _status;
+    private HBoxContainer? _mapFetchBar;
+    private Label? _mapFetchText;
+    private ProgressBar? _mapFetchProgress;
+    private Button? _mapFetchButton;
     private Label? _microphone;
     private RichTextLabel? _messages;
     private LineEdit? _chat;
@@ -56,6 +60,8 @@ public partial class LobbyRoomScreen : MenuPage
         public required TextureRect Speaker { get; init; }
 
         public required Label Name { get; init; }
+
+        public required RankBadge Rank { get; init; }
 
         public required Label Ready { get; init; }
 
@@ -102,6 +108,7 @@ public partial class LobbyRoomScreen : MenuPage
         IOnlineLobbySession session = Session ?? throw new InvalidOperationException("The lobby room needs a session.");
         _status = new Label { Name = "Status", HorizontalAlignment = HorizontalAlignment.Center, Modulate = UiStyle.MenuFocus };
         Body.AddChild(_status);
+        BuildMapFetchBar();
 
         var upper = new HBoxContainer { Name = "Upper" };
         upper.AddThemeConstantOverride("separation", 12);
@@ -206,6 +213,72 @@ public partial class LobbyRoomScreen : MenuPage
 
         string map = Parameters.Setup.Map;
         MapPicture.SetMap(MapImages.Preview(_mapCatalog, map), _mapCatalog is { } maps ? MapTitles.Of(maps, map) : map);
+    }
+
+    /// <summary>
+    /// The line under the status when the local player lacks the setup's map and the host got it from the community
+    /// maps: what is missing, a Download button (Stop while it runs) and the progress (docs/ONLINE.md "Missing maps").
+    /// </summary>
+    private void BuildMapFetchBar()
+    {
+        _mapFetchBar = new HBoxContainer { Name = "MapFetch", Visible = false };
+        _mapFetchBar.AddThemeConstantOverride("separation", 12);
+        _mapFetchText = new Label
+        {
+            Name = "Text", SizeFlagsHorizontal = SizeFlags.ExpandFill, AutowrapMode = TextServer.AutowrapMode.WordSmart,
+            VerticalAlignment = VerticalAlignment.Center,
+        };
+        _mapFetchProgress = new ProgressBar
+        {
+            Name = "Progress", CustomMinimumSize = new Vector2(220f, 20f), MinValue = 0, MaxValue = 1, Step = 0.001,
+            ShowPercentage = false, SizeFlagsVertical = SizeFlags.ShrinkCenter, Visible = false,
+        };
+        _mapFetchButton = UiStyle.MenuButton("Download", PressMapFetch, "MapFetchButton");
+        _mapFetchButton.CustomMinimumSize = new Vector2(180f, 36f);
+        _mapFetchBar.AddChild(_mapFetchText);
+        _mapFetchBar.AddChild(_mapFetchProgress);
+        _mapFetchBar.AddChild(_mapFetchButton);
+        Body.AddChild(_mapFetchBar);
+    }
+
+    private void PressMapFetch()
+    {
+        if (Session?.MapFetch is not { } fetch)
+        {
+            return;
+        }
+
+        if (fetch.Running)
+        {
+            Session.CancelMapFetch();
+        }
+        else if (fetch.CanStart)
+        {
+            Session.StartMapFetch();
+        }
+    }
+
+    private void ShowMapFetch(IOnlineLobbySession s)
+    {
+        s.UpdateMapFetch();
+        if (_mapFetchBar is null || _mapFetchText is null || _mapFetchProgress is null || _mapFetchButton is null)
+        {
+            return;
+        }
+
+        LobbyMapFetch? fetch = s.MapFetch;
+        _mapFetchBar.Visible = fetch is not null;
+        if (fetch is null)
+        {
+            return;
+        }
+
+        _mapFetchText.Text = fetch.Text;
+        _mapFetchText.Modulate = fetch.Problem ? UiStyle.MenuDisabled : UiStyle.MenuFocus;
+        _mapFetchProgress.Visible = fetch.Running;
+        _mapFetchProgress.Value = fetch.Fraction;
+        _mapFetchButton.Visible = fetch.Running || fetch.CanStart;
+        _mapFetchButton.Text = fetch.Running ? "Stop" : fetch.Problem ? "Try again" : "Download";
     }
 
     private void BuildConfirm()
@@ -367,6 +440,7 @@ public partial class LobbyRoomScreen : MenuPage
                 (p.TeamVoiceOnly ? " (mic: team)" : string.Empty) +
                 (p.MapNote.Length > 0 ? "  [" + p.MapNote + "]" : string.Empty);
             row.Name.Modulate = p.IsLocal ? UiStyle.SideColour(p.Side ?? HudSide.Spy) : UiStyle.MenuText;
+            row.Rank.Show(OpenScct.Net.Cosmetics.PlayerRank.Unpack(p.Rank), withTitle: true);
             // A bot is always ready: its column says what it is instead.
             row.Ready.Text = p.IsBot ? BotText : p.Side is null || p.IsHost ? string.Empty : p.Ready ? "Ready" : "Not Ready";
             row.Ping.Text = p.PingMs > 0 ? string.Create(CultureInfo.InvariantCulture, $"{p.PingMs} ms") : string.Empty;
@@ -440,6 +514,8 @@ public partial class LobbyRoomScreen : MenuPage
             ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize, StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered, Modulate = UiStyle.MenuFocus,
         };
         line.AddChild(speaker);
+        var rank = new RankBadge(24, 14) { Name = "Rank", CustomMinimumSize = new Vector2(96f, 0f), Visible = false };
+        line.AddChild(rank);
         // The name takes the row's spare width and the row grows for a long one ("Name#3d08 (host)"), nothing cut.
         var name = new Label { Name = "Name", CustomMinimumSize = new Vector2(140f, 0f), SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
         var ready = new Label { Name = "ReadyState", CustomMinimumSize = new Vector2(72f, 0f) };
@@ -484,7 +560,7 @@ public partial class LobbyRoomScreen : MenuPage
             line.AddChild(kick);
         }
 
-        return new PlayerRow { Line = line, Speaker = speaker, Name = name, Ready = ready, Ping = ping, Volume = volume, VolumeText = volumeText, Mute = mute, Kick = kick };
+        return new PlayerRow { Line = line, Speaker = speaker, Name = name, Rank = rank, Ready = ready, Ping = ping, Volume = volume, VolumeText = volumeText, Mute = mute, Kick = kick };
     }
 
     public override void _Process(double delta)
@@ -506,6 +582,7 @@ public partial class LobbyRoomScreen : MenuPage
         string count = left > 0.05 && s.Countdown > 0 ? string.Create(CultureInfo.InvariantCulture, $"   Starting in {Math.Ceiling(left)}...") : string.Empty;
         string host = s.IsHost ? "you are the host" : "hosted by " + HostName(s);
         _status.Text = s.ServerName + " - " + host + count;
+        ShowMapFetch(s);
         foreach (PlayerRow row in _rows.Values)
         {
             row.Speaker.Visible = s.Speaking(row.PlayerName);

@@ -33,6 +33,15 @@ public sealed record HubClientSettings
 
     /// <summary>Back from this pad's match: the hub spawns the player beside it (<c>?HubReturn=</c>), or null.</summary>
     public string? ReturnPad { get; init; }
+
+    /// <summary>The master's ticket for this hub (a signed-in player's join answer), or null: a guest.</summary>
+    public string? Ticket { get; init; }
+
+    /// <summary>The game's install id (the hub's bans), or empty.</summary>
+    public string InstallId { get; init; } = string.Empty;
+
+    /// <summary>The title the player shows (TitleCatalog id); the hub keeps it only when the ticket unlocks it.</summary>
+    public string? Title { get; init; }
 }
 
 /// <summary>The player's own place in a pad's queue, as the hub last said (<c>hub queue</c>).</summary>
@@ -42,15 +51,19 @@ public sealed record HubClientSettings
 public readonly record struct HubQueueStatus(string? PadId, int Side, string Text);
 
 /// <summary>One line of the hub's chat box: a player's chat line or a system line (<see cref="PlayerId"/> 0).</summary>
-public readonly record struct HubChatEntry(int PlayerId, string Name, int Team, string Text, bool TeamOnly)
+public readonly record struct HubChatEntry(int PlayerId, string Name, int Team, string Text, bool TeamOnly, bool Local = false)
 {
     public bool IsSystem => PlayerId == 0;
 
     public override string ToString() => IsSystem ? Text : $"{Name}: {Text}";
 }
 
+/// <summary>One player of the hub as the player list shows him (<c>hub who</c>).</summary>
+public readonly record struct HubRosterEntry(int PlayerId, string Name, int Team, int PingMs, bool SignedIn);
+
 /// <summary>A name over a pawn's head: where (UE space), who, which side and how far from the viewer.</summary>
-public readonly record struct HubNameTag(FVector Location, string Name, int Team, float Distance, int PlayerId);
+/// <param name="Rank">The player's rank and title (OpenScct.Net.Cosmetics.PlayerRank packed; 0 for guests).</param>
+public readonly record struct HubNameTag(FVector Location, string Name, int Team, float Distance, int PlayerId, int Rank = 0);
 
 /// <summary>
 /// A player's visit to a hub (an OpenSCCT addition, spec/additions/hub.md): a <see cref="ClientSession"/> with the
@@ -67,6 +80,9 @@ public sealed class HubClient : IDisposable
     private readonly List<HubChatEntry> _chat = new();
     private readonly Dictionary<string, HubSign> _signs = new(StringComparer.Ordinal);
     private readonly Dictionary<string, HubPadInfo> _pads = new(StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<int, HubRosterEntry> _roster = new();
+    private readonly Dictionary<string, (string Text, double At)> _lastSaid = new(StringComparer.OrdinalIgnoreCase);
+    private readonly HashSet<string> _chatMuted = new(StringComparer.OrdinalIgnoreCase);
     private readonly bool _ownsSession;
     private bool _disposed;
 
@@ -79,7 +95,10 @@ public sealed class HubClient : IDisposable
         {
             PlayerName = Settings.PlayerName,
             LoginOptions = "?Team=" + (Settings.Team == 1 ? 1 : 0).ToString(CultureInfo.InvariantCulture) +
-                (Settings.ReturnPad is { Length: > 0 } pad ? "?" + HubProtocol.ReturnOption + "=" + pad : string.Empty),
+                (Settings.ReturnPad is { Length: > 0 } pad ? "?" + HubProtocol.ReturnOption + "=" + pad : string.Empty) +
+                (Settings.InstallId.Length > 0 ? "?SvmId=" + OptionText(Settings.InstallId) : string.Empty) +
+                (Settings.Ticket is { Length: > 0 } ticket ? "?SvmTicket=" + OptionText(ticket) : string.Empty) +
+                (Settings.Title is { Length: > 0 } title ? "?SvmTitle=" + OptionText(title) : string.Empty),
             Gameplay = true,
             InstallGameplayServices = Settings.InstallGameplayServices,
             Maps = Settings.Maps,
@@ -89,6 +108,9 @@ public sealed class HubClient : IDisposable
         _ownsSession = true;
         Attach(Session);
     }
+
+    /// <summary>A login option's value with the characters that would end it taken out.</summary>
+    private static string OptionText(string text) => text.Replace("?", string.Empty, StringComparison.Ordinal).Replace(" ", string.Empty, StringComparison.Ordinal);
 
     /// <summary>A visit over a session made elsewhere (a bot's): the hub lines, chat and rules on it; the session is not disposed with it.</summary>
     public HubClient(ClientSession session)
@@ -115,6 +137,9 @@ public sealed class HubClient : IDisposable
     public bool Welcomed { get; private set; }
 
     public string ServerName { get; private set; } = string.Empty;
+
+    /// <summary>This player's id in the hub (its welcome line's), or 0 before it.</summary>
+    public int PlayerId { get; private set; }
 
     public int MaxPlayers { get; private set; }
 
@@ -178,6 +203,12 @@ public sealed class HubClient : IDisposable
     /// <summary>Asks to be put back at the plaza.</summary>
     public void Respawn() => Session.SendText(HubProtocol.Respawn());
 
+    /// <summary>Votes for a pad's next match (0 its own, 1.. its choices).</summary>
+    public void Vote(string padId, int option) => Session.SendText(HubProtocol.Vote(padId, option));
+
+    /// <summary>Asks to watch the match being played on a pad (the hub answers with a spectator's offer).</summary>
+    public void Watch(string padId) => Session.SendText(HubProtocol.Watch(padId));
+
     /// <summary>Plays an emote (one of <see cref="HubEmotes.All"/>) for the players near.</summary>
     public void Emote(string emote) => Session.SendText(HubPlayProtocol.EmoteRequest(emote));
 
@@ -189,6 +220,44 @@ public sealed class HubClient : IDisposable
 
     /// <summary>Says a line to everyone in the hub (or to the player's side).</summary>
     public void Say(string text, bool teamOnly = false) => Session.SendChat(teamOnly ? EChatScope.TeamSay : EChatScope.Say, text);
+
+    /// <summary>Says a line to the players near this one only.</summary>
+    public void SayLocal(string text) => Session.SendText(HubProtocol.LocalRequest(text));
+
+    /// <summary>The hub's players as last listed (the player list).</summary>
+    public IReadOnlyCollection<HubRosterEntry> Roster => _roster.Values;
+
+    /// <summary>Hides (or shows again) a player's chat lines, by name, for this visit.</summary>
+    public void MuteChat(string name, bool muted)
+    {
+        if (muted)
+        {
+            _chatMuted.Add(name);
+        }
+        else
+        {
+            _chatMuted.Remove(name);
+        }
+    }
+
+    public bool IsChatMuted(string name) => _chatMuted.Contains(name);
+
+    /// <summary>
+    /// What the player named <paramref name="name"/> last said in chat (any scope) and when (the play clock), for a
+    /// bubble over his head. By name: chat lines carry the session's player ids, name tags the replication infos'.
+    /// </summary>
+    public bool LastSaid(string name, out string text, out double at)
+    {
+        if (_lastSaid.TryGetValue(name, out var said))
+        {
+            (text, at) = said;
+            return true;
+        }
+
+        text = string.Empty;
+        at = 0;
+        return false;
+    }
 
     /// <summary>The name tags of the other players' pawns within <paramref name="range"/> of <paramref name="viewPoint"/>.</summary>
     public void NameTags(FVector viewPoint, List<HubNameTag> into, float range = HubK.NameTagRange) =>
@@ -221,7 +290,7 @@ public sealed class HubClient : IDisposable
             }
 
             int team = pri.Team?.TeamIndex ?? (pawn.SPawnType == PawnType.SPAWNOFFENSE ? 0 : 1);
-            into.Add(new HubNameTag(at, pri.PlayerName, team, MathF.Sqrt(d2), pri.PlayerID));
+            into.Add(new HubNameTag(at, pri.PlayerName, team, MathF.Sqrt(d2), pri.PlayerID, pri.SvmRank));
         }
 
         into.Sort(static (a, b) => b.Distance.CompareTo(a.Distance));
@@ -259,6 +328,7 @@ public sealed class HubClient : IDisposable
         {
             case "welcome":
                 Welcomed = true;
+                PlayerId = SessionProtocol.Int(fields, 1);
                 MaxPlayers = SessionProtocol.Int(fields, 2);
                 ServerName = SessionProtocol.Text(fields, 3);
                 break;
@@ -277,6 +347,28 @@ public sealed class HubClient : IDisposable
             case "msg":
                 Add(new HubChatEntry(0, string.Empty, -1, SessionProtocol.Text(fields, 0), false));
                 break;
+            case "who" when fields.Count >= 5:
+            {
+                int id = SessionProtocol.Int(fields, 0);
+                _roster[id] = new HubRosterEntry(id, SessionProtocol.Text(fields, 4), SessionProtocol.Int(fields, 1),
+                    SessionProtocol.Int(fields, 2), SessionProtocol.Int(fields, 3) == 1);
+                break;
+            }
+
+            case "gone":
+                if (_roster.Remove(SessionProtocol.Int(fields, 0), out HubRosterEntry goneEntry))
+                {
+                    _lastSaid.Remove(goneEntry.Name);
+                }
+
+                break;
+            case "local" when fields.Count >= 3:
+            {
+                int id = SessionProtocol.Int(fields, 0);
+                string who = _roster.TryGetValue(id, out HubRosterEntry r) ? r.Name : "?";
+                Add(new HubChatEntry(id, who, SessionProtocol.Int(fields, 1), SessionProtocol.Text(fields, 2), false, Local: true));
+                break;
+            }
             case "sign" when fields.Count >= 9:
                 var sign = new HubSign(fields[0],
                     new FVector(HubProtocol.Float(fields, 1), HubProtocol.Float(fields, 2), HubProtocol.Float(fields, 3)),
@@ -316,6 +408,16 @@ public sealed class HubClient : IDisposable
 
     private void Add(HubChatEntry entry)
     {
+        if (!entry.IsSystem && _chatMuted.Contains(entry.Name))
+        {
+            return;
+        }
+
+        if (!entry.IsSystem)
+        {
+            _lastSaid[entry.Name] = (entry.Text, Play.Now);
+        }
+
         _chat.Add(entry);
         if (_chat.Count > MaxChat)
         {

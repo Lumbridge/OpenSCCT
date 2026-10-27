@@ -9,11 +9,13 @@ namespace OpenScct.Launcher.Launch;
 /// How Play starts the game. A plain start opens the main menu, so no arguments are needed. When the original game
 /// path is set, it is passed as <c>--svm-game-root=</c> (key layouts) and as SVM_GAME_ROOT. When content built by
 /// the launcher exists, its folder (shared/ and svmap/) is passed as <c>--svm-content=</c>. Godot reads user
-/// arguments after "--".
+/// arguments after "--". The downloaded maps folder is passed as <c>--svm-map-downloads=</c>, so the game can fetch a map
+/// a lobby picks that the player lacks (docs/LAUNCHER.md "Downloaded maps").
 /// </summary>
 public static class GameStart
 {
-    public static ProcessStartInfo Create(string exePath, string? originalGamePath, string? contentRoot, IEnumerable<string>? extraUserArgs = null)
+    public static ProcessStartInfo Create(string exePath, string? originalGamePath, string? contentRoot, IEnumerable<string>? extraUserArgs = null,
+        string? mapsRoot = null)
     {
         ArgumentException.ThrowIfNullOrEmpty(exePath);
         var info = new ProcessStartInfo(exePath)
@@ -32,6 +34,11 @@ public static class GameStart
         if (!string.IsNullOrWhiteSpace(contentRoot) && Directory.Exists(contentRoot))
         {
             user.Add("--svm-content=" + contentRoot);
+        }
+
+        if (!string.IsNullOrWhiteSpace(mapsRoot))
+        {
+            user.Add("--svm-map-downloads=" + mapsRoot);
         }
 
         if (extraUserArgs is not null)

@@ -21,7 +21,11 @@ public partial class Boot : Node
 
         App app = App.From(this);
         OfflinePlayEntry.Register();
-        if (!app.IsSmokeRun && app.Options.PlayMap is not null)
+        if (!app.IsSmokeRun && app.Options.DemoFile is { } demo)
+        {
+            Callable.From(() => OpenScctGame.Play.Demo.DemoLibrary.Watch(GetTree(), demo)).CallDeferred();
+        }
+        else if (!app.IsSmokeRun && app.Options.PlayMap is not null)
         {
             Callable.From(() => PlayRoot.Enter(GetTree(), PlayConfig.FromOptions(app.Options))).CallDeferred();
         }

@@ -40,6 +40,7 @@ public sealed partial class HubActivities
         public double MercNoticeAt = double.NegativeInfinity;
         public double MissNoticeAt = double.NegativeInfinity;
         public double EmoteAt = double.NegativeInfinity;
+        public double EmoteUntil = double.NegativeInfinity;
     }
 
     internal HubActivities(HubServer hub, HubLayout layout, HubScores scores, Func<long> micros, ulong seed)
@@ -49,6 +50,7 @@ public sealed partial class HubActivities
         Layout = layout;
         Scores = scores;
         _random = new SimRandom(seed, 0x4855, 1);
+        scores.KeepCourseLayout(layout.LayoutVersion);
         _boards[CourseBoardId] = (layout.CourseBoard, string.Empty);
         _boards[RangeBoardId] = (layout.RangeBoard, string.Empty);
         _boards[BallBoardId] = (layout.BallBoard, string.Empty);
@@ -132,6 +134,7 @@ public sealed partial class HubActivities
 
             Pawn? pawn = LivingPawn(slot);
             TickCourse(slot, state, pawn, now);
+            TickEmote(slot, state, pawn, now);
         }
 
         TickRange(now);

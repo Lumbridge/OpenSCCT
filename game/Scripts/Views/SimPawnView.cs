@@ -45,6 +45,11 @@ public partial class SimPawnView : Node3D
     private bool _sticky;
     private long _lookDrawn = -1;
 
+    private readonly List<PoseTurn> _overlayTurns = new();
+
+    /// <summary>Extra posing laid over every drawn pawn (the hub's emotes while a visit runs), or null.</summary>
+    public static IPawnPoseOverlay? Overlay { get; set; }
+
     public SimPawnView()
     {
         Name = "Pawn";
@@ -297,6 +302,7 @@ public partial class SimPawnView : Node3D
             RootLockOf(pawn, c0, out offset, out turn);
         }
 
+        ApplyOverlay(pawn);
         _applier!.Apply(_channels, rootLock, c0.bBackward ? c0.AnimLast : 0f, offset, turn);
     }
 
@@ -337,6 +343,47 @@ public partial class SimPawnView : Node3D
     }
 
     private int _drawYaw;
+
+    /// <summary>
+    /// Turns the <see cref="Overlay"/>'s pawn-frame turns into skeleton-space turns for the applier (the frame of the
+    /// drawn yaw, the way <see cref="SetAim"/> turns the aim), and the hips' drop into a root shift.
+    /// </summary>
+    private void ApplyOverlay(SBasePawn pawn)
+    {
+        ChannelPoseApplier applier = _applier!;
+        applier.ExtraTurns.Clear();
+        applier.ExtraShift = Vector3.Zero;
+        _overlayTurns.Clear();
+        float drop = Overlay?.Collect(pawn, _overlayTurns) ?? 0f;
+        if (_overlayTurns.Count == 0 && drop == 0f)
+        {
+            return;
+        }
+
+        Vector3 forward = UeSpace.DirectionToGodot(new FRotator(0, _drawYaw, 0).Vector()).Normalized();
+        Vector3 right = UeSpace.DirectionToGodot(new FRotator(0, _drawYaw + 16384, 0).Vector()).Normalized();
+        Vector3 up = Vector3.Up;
+        Basis skeleton = _model!.Skeleton.GlobalTransform.Basis.Orthonormalized();
+        Basis toSkeleton = skeleton.Inverse();
+        foreach (PoseTurn t in _overlayTurns)
+        {
+            int bone = applier.FindBone(t.Bone);
+            if (bone < 0 || t.Radians == 0f)
+            {
+                continue;
+            }
+
+            Vector3 axis = ((forward * t.Axis.X) + (right * t.Axis.Y) + (up * t.Axis.Z)).Normalized();
+            Quaternion world = new(axis, t.Radians);
+            Quaternion local = (toSkeleton * new Basis(world) * skeleton).GetRotationQuaternion();
+            applier.ExtraTurns[bone] = applier.ExtraTurns.TryGetValue(bone, out Quaternion had) ? (local * had).Normalized() : local;
+        }
+
+        if (drop != 0f)
+        {
+            applier.ExtraShift = _model.Skeleton.GlobalTransform.Basis.Inverse() * (Vector3.Down * (drop / UeSpace.UnitsPerMetre));
+        }
+    }
 
     /// <summary>
     /// A channel's frame between the last two ticks: interpolated while the same clip moves forward (no new play), and

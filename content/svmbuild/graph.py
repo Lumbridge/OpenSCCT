@@ -83,6 +83,11 @@ class Context:
             raise ValueError(f"logical path without scheme: {logical!r}")
         if scheme == "game":
             return self.game / rel
+        if scheme == "addons":
+            from .gamefiles import addons_root  # noqa: PLC0415
+
+            root = addons_root()
+            return (root if root is not None else self.game / ".no-addons") / rel
         if scheme == "repo":
             return REPO_ROOT / rel
         if scheme == "out":
@@ -90,7 +95,14 @@ class Context:
         raise ValueError(f"unknown scheme in {logical!r}")
 
     def game_path(self, path: Path) -> str:
-        return "game:" + Path(path).resolve().relative_to(self.game.resolve()).as_posix()
+        """game:<rel> for a file of the install, addons:<rel> for one of the downloaded maps folder."""
+        from .gamefiles import addons_root  # noqa: PLC0415
+
+        resolved = Path(path).resolve()
+        root = addons_root()
+        if root is not None and is_within(resolved, root) and not is_within(resolved, self.game):
+            return "addons:" + resolved.relative_to(root.resolve()).as_posix()
+        return "game:" + resolved.relative_to(self.game.resolve()).as_posix()
 
     def digest(self, logical: str) -> str | None:
         return self.hasher.maybe(self.resolve(logical))

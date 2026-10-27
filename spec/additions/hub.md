@@ -96,17 +96,24 @@ only draw what it says (`HubActivities` on the server, `HubPlayState` on the cli
 (`HubLayout`, rule A12).
 
 A1. **Course gates.** A gate is a disc on the floor: a pawn is over it when its centre is within the gate's radius
-    on the floor and between 192 uu below and 320 uu above the gate's height. The start gate is 192 uu across the
-    middle, the finish 256.
+    on the floor and between the gate's depth (192 uu unless the manifest gives one) below and 320 uu above the gate's
+    height. The start gate is 192 uu across the middle, the finish 256.
 A2. **A run.** Only spies run (a merc in the start gate is told the course is for spies). The clock starts the moment
     a spy who stood in the start gate steps out of it. Checkpoints must be passed in order; the finish counts only
     once all of them are passed (otherwise the runner is told which one he missed). Going back into the start gate
     resets the run; it is cancelled by a respawn or side change, by going more than 512 uu outside the course's area,
     after 300 s, or with X. The time is the server's, in milliseconds, from the tick he left the start to the tick
     he reached the finish.
-A3. **Checkpoints.** The course's own `checkpoints` list if the manifest has one (radius 640); else one checkpoint
+A3. **Checkpoints.** The course's own `checkpoints` list if the manifest has one (each a point, radius 640, or an
+    object with `at` and its own `radius` and `depth`: the assault course's are on its decks, radius 192, 48 deep);
+    else one checkpoint
     over the middle of each of the course's traversal pieces (`ges`, in the manifest's order, radius 256), so each
     piece has to be climbed or crossed; else three on the line from start to finish (radius 640).
+A3a. **Falls.** On a raised course (the manifest's course area has `fallZ`), a running spy whose centre goes under
+    `fallZ` once he passed the first checkpoint fell: the server sets him down, standing still, 64 uu over the deck of
+    the last checkpoint he passed, the clock still running, and tells him `hubplay run fall <falls> <checkpoint>`. A
+    second fall within 1 s of a put-back is not counted. The course board is cleared when the map's layout version
+    changes (the scores file keeps the version the course's times were set on).
 A4. **Aim range rounds.** A merc at the firing line (at most 96 uu in front of it, anywhere behind it in the range)
     presses U to start a 30 s round; at most four rounds run at once, one per merc. Each round keeps two targets up
     at random places between 256 uu in front of the backstop and 512 uu short of the firing line, across the lane;
@@ -128,7 +135,9 @@ A7. **Boards.** Three boards, each the top 10 of every player's best by name: th
     Every board text goes through `HubActivities.PublishBoard(id, text)`.
 A8. **Emotes.** G opens the emote menu (1 wave, 2 salute, 3 cheer, 4 dance, 5 sit, 6 point, 7 laugh, 8 clap;
     Escape closes) and `/wave` and the like in the chat box do the same. The server lets a player emote at most
-    every 1.5 s and tells the players within 4500 uu, who show it under his name for 4 s (8 s to dance or sit).
+    every 1.5 s and tells the players within 4500 uu, who show it under his name for 4 s (8 s to dance or sit) and
+    pose his character for it (bone turns over its animation, blended in and out over 0.25 s). It ends early when he
+    moves faster than 60 uu/s on the floor or vertically: the server tells the same players `hubplay emote <id> -`.
 A9. **The jukebox.** A box in the plaza's north-east corner plays one of four procedural tracks of our own; it is
     heard within 1600 uu, at full volume within 384 uu. U within 384 uu puts on the next track for everyone (at most
     every 4 s). The music is made by the client's synthesiser, so there is no recorded audio and no licence to track.
@@ -165,7 +174,10 @@ A12. **Where.** From `fixtures/hubmap/areas.json` (next to the map's folder, or 
 23. **Starting.** At the countdown's end the hub opens an online session for the lineup: its own UDP port from the
     config's range (28890 to 28897 by default, never the hub's), the pad's map and mode as its setup, one game, bots
     as the pad says, and a new random password as the join token. Each lineup player is sent `hub match <pad> <port>
-    <team> <token> <map> <mode> <host|->` and leaves the queue; the others keep their places and the pad goes on.
+    <team> <token> <map> <mode> <host|-> [masterId|-]` and leaves the queue; the others keep their places and the pad
+    goes on. A hub on a master registers each session there unlisted and waits up to 4 s for its master id before it
+    sends the offers, so players join it through the master (its routes, the relay, their tickets); without one they
+    join at the host and port.
     The session lets its players in on the given sides, has them ready on joining, and launches when all of them
     came, or 20 s after the first came.
 24. **Back to the hub.** A player's visit to the match ends when its results arrive (after the end banner), when he
@@ -183,3 +195,22 @@ A12. **Where.** From `fixtures/hubmap/areas.json` (next to the map's folder, or 
     <floorZ> <title>` (state 0 off, 1 idle, 2 waiting, 3 counting down, 4 starting). A player on a pad is sent his
     own place as `hub queue <pad> <side> <text>`, and `hub queue - -1` when he is on none. Signs are `hub sign <id> <x>
     <y> <z> <RRGGBBAA> <scale> <text>` (`\n` a line break, `\\` a backslash) and `hub unsign <id>`.
+27. **Votes and rotation.** A pad may list `choices` (map, mode, players per side) besides its own match (option 0).
+    A player on the pad votes with `hub vote <pad> <option>` (-1: the option after his current vote); only votes of
+    players on the pad count, and only while it is idle or waiting. The option with the most votes becomes the pad's
+    match at once (a tie keeps the current one). The votes are cleared when the pad starts a match; when that match had
+    no votes the pad moves on to its next option. The pad's sign lists the options with their votes.
+28. **Watching.** A player asks `hub watch <pad>`; when the pad has a session in its lobby or round, he is sent its
+    offer with team 255 and joins it as a spectator. A session has the config's `spectators` places (4 by default);
+    spectators do not count as its players (it closes when its players left). The pad's sign shows the round in
+    play: the spies' and mercs' scores, the time left and how many watch.
+29. **Identity.** A player joining a hub on a master may bring a master ticket for it (`?SvmTicket=`): checked as on the
+    online servers (signed, for this hub, not expired, each once). He then comes in under his account's name; a guest
+    of a hub on a master is `Name#tag`. The hub's own bans (account, install id, address, name) and the master's
+    account bans keep players out; a trusted hub takes the admin portal's commands (help, status, players, say,
+    kick, ban, unban; never close).
+30. **The player list and local chat.** Every 3 s the hub sends each player's `hub who <id> <team> <ping> <signedIn>
+    <name>` to everyone, and `hub gone <id>` when one leaves. A player's `hub local <text>` (at most one every 0.5 s,
+    100 characters) is sent as `hub local <id> <team> <text>` to every player within 3000 uu of him, himself included.
+    Muting a player's voice or chat is the listener's own choice and stays in his game.
+31. **Ports.** A hub listens on UDP 28886 unless told otherwise; the game's default is 28888, so one PC can run both.

@@ -42,6 +42,8 @@ vec3 svm_hue_turn(vec3 c, float angle) {
 	return c * co + cross(k, c) * sin(angle) + k * dot(k, c) * (1.0 - co);
 }
 varying vec4 v_vision;
+// OpenSCCT's own: 1 on the golden camo's materials (a polished gold sheen, SkeletalModel's cosmetic materials).
+uniform float svm_gold = 0.0;
 
 uniform sampler2D tex_diffuse : filter_linear_mipmap_anisotropic, repeat_enable, hint_default_white;
 
@@ -277,6 +279,23 @@ void fragment() {
 #ifdef ENV_COLOR
 	c = min(c + env_color * texture(tex_spec_mask, uv).a, vec3(1.0));
 #endif
+	if (svm_gold > 0.0) {
+		// Polished gold: a fake studio reflection (bright above, dark below), a tight highlight from the upper front,
+		// a warm rim at grazing angles and a slow glint that sweeps across the metal. All in view space.
+		vec3 n = normalize(NORMAL);
+		vec3 v = normalize(VIEW);
+		vec3 r = reflect(-v, n);
+		float ndv = clamp(dot(n, v), 0.0, 1.0);
+		const vec3 gold = vec3(1.0, 0.78, 0.32);
+		float sky = smoothstep(-0.35, 0.85, r.y);
+		float spec = pow(clamp(dot(r, normalize(vec3(0.35, 0.8, 0.5))), 0.0, 1.0), 28.0);
+		float spec2 = pow(clamp(dot(r, normalize(vec3(-0.6, 0.3, 0.7))), 0.0, 1.0), 12.0);
+		float rim = pow(1.0 - ndv, 3.0);
+		float band = fract((uv.x + uv.y) * 0.5 - svm_time * 0.18);
+		float glint = smoothstep(0.0, 0.035, band) * (1.0 - smoothstep(0.035, 0.09, band));
+		vec3 metal = c * mix(0.55, 1.15, sky);
+		c = min(metal + gold * (spec * 1.3 + spec2 * 0.35 + rim * 0.45 + glint * 0.55) * svm_gold, vec3(1.0));
+	}
 	float a = t.a;
 #if defined(BLEND_MODULATE)
 	c = t.rgb * 2.0;

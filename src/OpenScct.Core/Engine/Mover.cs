@@ -173,18 +173,25 @@ public partial class Mover
     /// </summary>
     [UcNative("AMover::PostNetReceive", Editor = 0x110b3020)]
     [PortOf("eng:AMover::PostNetReceive", Spec = "spec/net/rep-map-actors.md#rules")]
+    [Provenance(ProvenanceKind.Estimated, "The client's map Rotation and its replicated BaseRot (sent as bytes, 0..65280) can name the same orientation whole turns apart (-32768 and 32768); the start is moved by whole turns onto the key left so the leg turns as the server's does")]
     public virtual void ClientStartInterpolation()
     {
         OldPos = SimOldPos;
-        OldRot = Rotation;
         PhysAlpha = SimInterpolate.X * 0.01f;
         PhysRate = SimInterpolate.Y * 0.01f;
         int keys = (int)SimInterpolate.Z;
-        KeyNum = (byte)(keys & 0xff);
-        PrevKeyNum = (byte)((keys >> 8) & 0xff);
+        KeyNum = (byte)SvmMath.Clamp(keys & 0xff, 0, MoverK.MaxKeys - 1);
+        PrevKeyNum = (byte)SvmMath.Clamp((keys >> 8) & 0xff, 0, MoverK.MaxKeys - 1);
+        OldRot = NearestTurn(Rotation, BaseRot + KeyRot[PrevKeyNum]);
         SetPhysics(EPhysics.PHYS_MovingBrush);
         bInterpolating = true;
     }
+
+    /// <summary><paramref name="r"/> with each axis moved by whole turns to the nearest of <paramref name="near"/>'s (same orientation).</summary>
+    private static FRotator NearestTurn(FRotator r, FRotator near) => new(
+        near.Pitch + FRotator.NormalizeAxis(r.Pitch - near.Pitch),
+        near.Yaw + FRotator.NormalizeAxis(r.Yaw - near.Yaw),
+        near.Roll + FRotator.NormalizeAxis(r.Roll - near.Roll));
 
     /// <summary>Matinee hook (unused by the versus maps): leave the state and let interpolation drive the mover.</summary>
     [Uc("Engine.Mover.StartInterpolation", Sha1 = "0b0531f27602e722bac85380a4a07cf45e739666")]

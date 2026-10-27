@@ -27,7 +27,7 @@ public sealed class HubTargetView
 }
 
 /// <summary>A player's emote as the client shows it.</summary>
-public readonly record struct HubEmoteView(string Emote, double Until);
+public readonly record struct HubEmoteView(string Emote, double Since, double Until);
 
 /// <summary>
 /// The client's side of the hub's activities (an OpenSCCT addition): everything the server's activity lines said,
@@ -69,6 +69,9 @@ public sealed class HubPlayState
     public double RunStartedAt { get; private set; }
 
     public int Checkpoints { get; private set; }
+
+    /// <summary>Falls into the course's pit in this run.</summary>
+    public int Falls { get; private set; }
 
     public int Passed { get; private set; }
 
@@ -135,6 +138,25 @@ public sealed class HubPlayState
         // The server loses k of the speed per second: over half a second at most, distance = v0 (t - k t^2 / 2).
         float s = t - 0.5f * HubPlayK.BallFriction * t * t;
         return new FVector(BallOrigin.X + BallVx * s, BallOrigin.Y + BallVy * s, BallOrigin.Z);
+    }
+
+    /// <summary>
+    /// The emote <paramref name="playerId"/> wears, with the seconds since it started and the seconds until it ends
+    /// (negative once over, for a blend out), or false when he has none (or ended one more than a second ago).
+    /// </summary>
+    public bool EmoteState(int playerId, out string emote, out double since, out double left)
+    {
+        emote = string.Empty;
+        since = left = 0;
+        if (!_emotes.TryGetValue(playerId, out HubEmoteView e) || Now - e.Until > 1.0)
+        {
+            return false;
+        }
+
+        emote = e.Emote;
+        since = Now - e.Since;
+        left = e.Until - Now;
+        return true;
     }
 
     /// <summary>The emote <paramref name="playerId"/> shows now, or null.</summary>
@@ -237,8 +259,18 @@ public sealed class HubPlayState
 
             case "emote":
             {
+                // "-" ends the player's emote (he moved off).
                 string emote = SessionProtocol.Text(f, 1);
-                _emotes[SessionProtocol.Int(f, 0)] = new HubEmoteView(emote, now + HubEmotes.Seconds(emote));
+                int who = SessionProtocol.Int(f, 0);
+                if (HubEmotes.IsEmote(emote))
+                {
+                    _emotes[who] = new HubEmoteView(emote, now, now + HubEmotes.Seconds(emote));
+                }
+                else if (_emotes.TryGetValue(who, out HubEmoteView e) && e.Until > now)
+                {
+                    // Kept for the blend out: it ends now.
+                    _emotes[who] = e with { Until = now };
+                }
                 break;
             }
 
@@ -275,6 +307,7 @@ public sealed class HubPlayState
                 RunStartedAt = now;
                 Checkpoints = SessionProtocol.Int(f, 1);
                 Passed = 0;
+                Falls = 0;
                 LastSplit = -1;
                 Cue?.Invoke("start");
                 break;
@@ -284,6 +317,15 @@ public sealed class HubPlayState
                 LastSplit = SessionProtocol.Int(f, 3);
                 Cue?.Invoke("cp");
                 break;
+            case "fall":
+            {
+                Falls = SessionProtocol.Int(f, 1);
+                int back = SessionProtocol.Int(f, 2);
+                Notice(back > 0 ? $"Fell! Back to checkpoint {back}" : "Fell! Back to the start", seconds: 2.5);
+                Cue?.Invoke("fall");
+                break;
+            }
+
             case "finish":
             {
                 Running = false;

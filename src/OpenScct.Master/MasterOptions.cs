@@ -124,6 +124,12 @@ public sealed class MasterOptions
     /// <summary>Our own servers: a heartbeat with one of these keys is trusted (admin tickets, results count).</summary>
     public List<TrustedServerOptions> TrustedServers { get; set; } = new();
 
+    /// <summary>Round demos kept in S3 (docs/ONLINE.md, "Demos"). Off while <see cref="DemoOptions.Bucket"/> is empty.</summary>
+    public DemoOptions Demos { get; set; } = new();
+
+    /// <summary>True when demos are on: a bucket is named and players can sign in (downloads need an account).</summary>
+    public bool DemosEnabled => !string.IsNullOrWhiteSpace(Demos.Bucket) && AccountsEnabled;
+
     /// <summary>True when players can sign in (Discord is set up).</summary>
     public bool AccountsEnabled => !string.IsNullOrWhiteSpace(Discord.ClientId) && !string.IsNullOrWhiteSpace(Discord.ClientSecret);
 
@@ -224,6 +230,20 @@ public sealed class MasterOptions
             }
         }
 
+        if (!string.IsNullOrWhiteSpace(Demos.Bucket))
+        {
+            if (string.IsNullOrWhiteSpace(Demos.Region) || string.IsNullOrWhiteSpace(Demos.AccessKey) || string.IsNullOrWhiteSpace(Demos.SecretKey))
+            {
+                throw new InvalidOperationException(
+                    "Demos needs Region, AccessKey and SecretKey with its Bucket (the secret in SVM_Master__Demos__SecretKey).");
+            }
+
+            if (Demos.KeepDays is < 1 or > 365 || Demos.MaxBytes < 1024 * 1024)
+            {
+                throw new InvalidOperationException("Demos.KeepDays must be 1 to 365 and Demos.MaxBytes at least 1 MB.");
+            }
+        }
+
         if (string.IsNullOrWhiteSpace(Database) || string.IsNullOrWhiteSpace(TicketKeyFile))
         {
             throw new InvalidOperationException("Database and TicketKeyFile must name files.");
@@ -266,6 +286,29 @@ public sealed class DiscordOptions
 
     /// <summary>Discord's authorize page (tests point it at a fake).</summary>
     public string AuthorizeUrl { get; set; } = "https://discord.com/oauth2/authorize";
+}
+
+/// <summary>
+/// Where round demos are kept: a private S3 bucket the master signs short-lived upload and download links for (the
+/// files never pass through the master). The IAM user's keys need only s3:PutObject and s3:GetObject on demos/*.
+/// </summary>
+public sealed class DemoOptions
+{
+    /// <summary>The bucket's name; empty turns demos off.</summary>
+    public string? Bucket { get; set; }
+
+    public string Region { get; set; } = "eu-west-2";
+
+    public string? AccessKey { get; set; }
+
+    /// <summary>Keep it out of the config file: set <c>SVM_Master__Demos__SecretKey</c> in the environment.</summary>
+    public string? SecretKey { get; set; }
+
+    /// <summary>Days a demo is listed (the bucket's lifecycle rule deletes the file after the same time).</summary>
+    public int KeepDays { get; set; } = 7;
+
+    /// <summary>The largest demo a server may upload, bytes.</summary>
+    public long MaxBytes { get; set; } = 64L * 1024 * 1024;
 }
 
 /// <summary>One of our own servers, known by its key (sent in <c>X-Svm-Server-Key</c>).</summary>

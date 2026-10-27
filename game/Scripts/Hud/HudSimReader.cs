@@ -567,7 +567,7 @@ public sealed class HudSimReader : IHudSource
                 }
 
                 int objOrKills = team == 0 && !s.DeathMatch ? pri.iNbObjectivesTaken : pri.Kills;
-                s.Players.Add(new HudPlayerRow(pri.PlayerName, team, spectator, objOrKills, pri.NumLives, pri.Ping));
+                s.Players.Add(new HudPlayerRow(pri.PlayerName, team, spectator, objOrKills, pri.NumLives, pri.Ping, pri.SvmRank));
             }
         }
     }
@@ -594,7 +594,7 @@ public sealed class HudSimReader : IHudSource
 
                 int objOrKills = team == 0 && !s.DeathMatch ? pri.iNbObjectivesTaken : pri.Kills;
                 s.Score.Add(new HudScoreRow(pri.PlayerName, team, spectator, objOrKills, pri.Kills, pri.Deaths, pri.NumLives,
-                    pri.Ping, ReferenceEquals(pri, own)));
+                    pri.Ping, ReferenceEquals(pri, own), pri.SvmRank));
             }
         }
     }

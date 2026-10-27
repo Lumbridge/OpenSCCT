@@ -24,6 +24,12 @@ internal static class HubRun
         MasterLinkSettings? master;
         try
         {
+            // A hub listens on its own default port (not the game's) unless --port or the config file names one.
+            if (!options.PortGiven && options.Config is null)
+            {
+                options = options with { Port = HubK.DefaultPort };
+            }
+
             (options, master) = WithConfig(options);
         }
         catch (Exception e) when (e is InvalidOperationException or IOException or UnauthorizedAccessException)
@@ -61,6 +67,8 @@ internal static class HubRun
                     Motd = options.Motd,
                     // The boards survive a restart in a small file next to the server.
                     ScoresPath = Path.Combine(AppContext.BaseDirectory, "hub-scores.json"),
+                    // The hub's own bans (the admin's ban command), next to the server too.
+                    Bans = new BanList(Path.Combine(AppContext.BaseDirectory, "hub-bans.json"), static () => DateTimeOffset.UtcNow),
                     MatchBots = OnlineServerBots.Factory(),
                     MatchClock = static () => new StopwatchClock(),
                     MatchLoopbackOnly = options.LoopbackOnly,
@@ -91,14 +99,14 @@ internal static class HubRun
                 hub.Logged += Log;
                 Log(hub.PadsSummary);
                 Log(string.Create(CultureInfo.InvariantCulture,
-                    $"hub {hub.Host.Map.Name} on UDP port {transport.LocalPort}, up to {options.MaxPlayers} players, replication {options.NetRate} Hz, interest {(options.NoInterest ? "off" : "on")}"));
+                    $"hub {hub.Host.Map.Name} on UDP port {transport.LocalPort}, up to {options.MaxPlayers} players, replication {hub.Host.NetRate} Hz, interest {(options.NoInterest ? "off" : "on")}"));
                 var meter = new ServerMeter(hub, options.ReportSeconds, options.ReportFile);
-                RunLoop(new StopwatchClock(), stop.Token, now =>
+                RealtimeLoop.Run(new StopwatchClock(), stop.Token, now =>
                 {
                     long t0 = Stopwatch.GetTimestamp();
                     hub.Tick(now);
                     meter.Tick(Stopwatch.GetElapsedTime(t0).TotalMilliseconds, now);
-                });
+                }, () => hub.IsIdle);
                 meter.Flush(final: true);
                 Log($"stopped: {hub.Status()}");
             }
@@ -195,7 +203,7 @@ internal static class HubRun
                 {
                     try
                     {
-                        RunLoop(clock, stop.Token, crowd.Step);
+                        RealtimeLoop.Run(clock, stop.Token, crowd.Step);
                     }
                     catch (Exception e)
                     {
@@ -264,39 +272,6 @@ internal static class HubRun
 
         roots.AddRange(defaults.Roots);
         return new MapCatalog([.. roots]);
-    }
-
-    /// <summary>Calls <paramref name="tick"/> 60 times a second on <paramref name="clock"/> (a backlog over 5 ticks is dropped).</summary>
-    private static void RunLoop(IClock clock, CancellationToken token, Action<long> tick)
-    {
-        long start = clock.NowMicroseconds;
-        long ticks = 0;
-        while (!token.IsCancellationRequested)
-        {
-            long now = clock.NowMicroseconds;
-            long due = start + VirtualClock.TickToMicroseconds(ticks + 1, OpenScct.Core.Sim.Hz);
-            if (now < due)
-            {
-                if (due - now > 2000)
-                {
-                    Thread.Sleep(1);
-                }
-                else
-                {
-                    Thread.Yield();
-                }
-
-                continue;
-            }
-
-            if (now - due > VirtualClock.TickToMicroseconds(5, OpenScct.Core.Sim.Hz))
-            {
-                start = now - VirtualClock.TickToMicroseconds(ticks + 1, OpenScct.Core.Sim.Hz);
-            }
-
-            tick(now);
-            ticks++;
-        }
     }
 
     private static void Log(string line) =>

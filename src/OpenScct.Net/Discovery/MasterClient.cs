@@ -95,6 +95,10 @@ public sealed class MasterClient : IDisposable
     public Task<AccountInfo> ClaimNameAsync(string name, CancellationToken cancellationToken = default) =>
         SendAsync<AccountInfo>(HttpMethod.Post, MasterApi.AccountNamePath, new NameRequest { Name = name }, cancellationToken);
 
+    /// <summary>Prestiges the account (level 55 only); the answer is the account after it.</summary>
+    public Task<AccountInfo> PrestigeAsync(CancellationToken cancellationToken = default) =>
+        SendAsync<AccountInfo>(HttpMethod.Post, MasterApi.PrestigePath, new { }, cancellationToken);
+
     /// <summary>Ends this sign-in on the master (the token stops working).</summary>
     public async Task SignOutAsync(CancellationToken cancellationToken = default)
     {
@@ -121,13 +125,51 @@ public sealed class MasterClient : IDisposable
     public Task<ProfileData> PutProfileAsync(ProfileData profile, CancellationToken cancellationToken = default) =>
         SendAsync<ProfileData>(HttpMethod.Put, MasterApi.ProfilePath, profile, cancellationToken);
 
-    /// <summary>A trusted server's finished round (needs <see cref="ServerKey"/>).</summary>
-    public async Task ReportResultsAsync(ResultsReport report, CancellationToken cancellationToken = default)
+    /// <summary>
+    /// A trusted server's finished round (needs <see cref="ServerKey"/>). The answer carries the stored round's id;
+    /// it is empty (no id) from masters before demos.
+    /// </summary>
+    public async Task<ResultsResponse> ReportResultsAsync(ResultsReport report, CancellationToken cancellationToken = default)
     {
         using HttpRequestMessage message = Request(HttpMethod.Post, MasterApi.ResultsPath, report);
         using HttpResponseMessage response = await Send(message, cancellationToken).ConfigureAwait(false);
         await EnsureOk(response, cancellationToken).ConfigureAwait(false);
+        string text = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
+        if (string.IsNullOrWhiteSpace(text))
+        {
+            return new ResultsResponse();
+        }
+
+        try
+        {
+            return JsonSerializer.Deserialize<ResultsResponse>(text, MasterApi.Json) ?? new ResultsResponse();
+        }
+        catch (JsonException)
+        {
+            return new ResultsResponse();
+        }
     }
+
+    /// <summary>A trusted server asks where to upload a round's demo (needs <see cref="ServerKey"/>).</summary>
+    public Task<DemoUploadResponse> RequestDemoUploadAsync(DemoUploadRequest request, CancellationToken cancellationToken = default) =>
+        SendAsync<DemoUploadResponse>(HttpMethod.Post, MasterApi.DemoUploadPath, request, cancellationToken);
+
+    /// <summary>A trusted server confirms a demo's upload; the demo is listed from then on.</summary>
+    public async Task DemoDoneAsync(long demoId, CancellationToken cancellationToken = default)
+    {
+        using HttpRequestMessage message = Request(HttpMethod.Post, MasterApi.DemoDonePath(demoId), new { });
+        using HttpResponseMessage response = await Send(message, cancellationToken).ConfigureAwait(false);
+        await EnsureOk(response, cancellationToken).ConfigureAwait(false);
+    }
+
+    /// <summary>One page (from 0) of ready demos, newest first (needs <see cref="SessionToken"/>).</summary>
+    public Task<DemoListResponse> DemosAsync(int page = 0, CancellationToken cancellationToken = default) =>
+        SendAsync<DemoListResponse>(HttpMethod.Get,
+            MasterApi.DemosPath + "?page=" + Math.Max(0, page).ToString(System.Globalization.CultureInfo.InvariantCulture), null, cancellationToken);
+
+    /// <summary>A short-lived download link for a demo (needs <see cref="SessionToken"/>); fetch it with a plain GET.</summary>
+    public Task<DemoDownloadResponse> DemoDownloadAsync(long demoId, CancellationToken cancellationToken = default) =>
+        SendAsync<DemoDownloadResponse>(HttpMethod.Post, MasterApi.DemoDownloadPath(demoId), new { }, cancellationToken);
 
     /// <summary>
     /// The listed servers. <paramref name="protocol"/> keeps only servers of that build; <paramref name="content"/>
@@ -162,6 +204,10 @@ public sealed class MasterClient : IDisposable
 
         return SendAsync<ServerListResponse>(HttpMethod.Get, query.ToString(), null, cancellationToken);
     }
+
+    /// <summary>One server as the list shows it, listed or not (404 when the master no longer knows it).</summary>
+    public Task<ServerEntry> ServerAsync(string serverId, CancellationToken cancellationToken = default) =>
+        SendAsync<ServerEntry>(HttpMethod.Get, MasterApi.ServerPath(serverId), null, cancellationToken);
 
     /// <summary>How to reach one server (direct address, punch token, relay token).</summary>
     public Task<JoinResponse> JoinAsync(string serverId, CancellationToken cancellationToken = default) =>

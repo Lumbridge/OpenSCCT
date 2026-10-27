@@ -324,6 +324,7 @@ TILES = {
     "carpet": _carpet,
     "court": lambda k: _concrete(k, (34, 40, 52), seams=False, spread=0.1),
     "track": lambda k: _concrete(k, (24, 60, 72), seams=False, spread=0.12),
+    "pit": lambda k: _hazard(k, (150, 120, 24), (16, 16, 18)),
     "range": lambda k: _concrete(k, (70, 70, 66), spread=0.14),
     "booth": lambda k: _planks(k, (110, 76, 46)),
     "wood": lambda k: _planks(k, (138, 98, 58)),

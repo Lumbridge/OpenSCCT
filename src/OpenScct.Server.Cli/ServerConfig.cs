@@ -57,6 +57,22 @@ internal sealed record MasterConfig
     public string? Region { get; init; }
 }
 
+/// <summary>Demo recording (docs/DEMOS.md): each round as a .scctdemo file, uploaded to the master's bucket (docs/ONLINE.md, "Demos").</summary>
+internal sealed record DemosConfig
+{
+    /// <summary>Record every round.</summary>
+    public bool Record { get; init; } = true;
+
+    /// <summary>Where the files go, relative to the config file.</summary>
+    public string Folder { get; init; } = "demos";
+
+    /// <summary>Upload recorded demos to the master's bucket (needs the trusted-server key; the master must have demos on).</summary>
+    public bool Upload { get; init; } = true;
+
+    /// <summary>Days a demo file stays in <see cref="Folder"/>; 0 keeps them all.</summary>
+    public int KeepLocalDays { get; init; } = 7;
+}
+
 /// <summary>
 /// <c>svm-server.json</c>: what a dedicated online server serves (docs/ONLINE.md, "Dedicated server"). JSON with
 /// comments; every field is optional.
@@ -95,8 +111,19 @@ internal sealed record ServerConfig
 
     public string? Motd { get; init; }
 
-    /// <summary>Replication rate: 20 internet, 35 LAN.</summary>
-    public int NetRate { get; init; } = OpenScct.Net.K.NetServerMaxTickRate;
+    /// <summary>Replication rate, 1 to 60; 0 (the default) takes the network profile's (Enhanced 60; Stock 20, 35 LAN).</summary>
+    public int NetRate { get; init; }
+
+    /// <summary>
+    /// Network profile of the matches: "enhanced" (the default: every tick, a send budget per client) or "stock" (the
+    /// original's rates and shared send budget); docs/NETCODE.md, "Send rate and budget: Stock and Enhanced".
+    /// </summary>
+    public string? NetProfile { get; init; }
+
+    /// <summary><see cref="NetProfile"/> parsed; Enhanced when missing or not recognised.</summary>
+    [JsonIgnore]
+    public OpenScct.Net.NetProfile Profile =>
+        OpenScct.Net.NetProfiles.TryParse(NetProfile, out OpenScct.Net.NetProfile p) ? p : OpenScct.Net.NetProfile.Enhanced;
 
     /// <summary>The original's -lanplay switch (LAN tick cap and net speeds).</summary>
     public bool LanPlay { get; init; }
@@ -119,6 +146,9 @@ internal sealed record ServerConfig
     public string? BansFile { get; init; } = "bans.json";
 
     public MasterConfig? Master { get; init; }
+
+    /// <summary>Demo recording and upload; null records nothing.</summary>
+    public DemosConfig? Demos { get; init; }
 
     /// <summary>
     /// Only players signed in on the master may join. Null: on when the server is listed on a master, off otherwise.

@@ -34,6 +34,7 @@ public sealed record PlayerTicket
     private const int MaxServerIdBytes = 32;
     private const int MaxNameBytes = 48;
     private const int MaxUnlockBytes = 64;
+    private const int MaxTitleBytes = 32;
 
     public long AccountId { get; init; }
 
@@ -53,6 +54,15 @@ public sealed record PlayerTicket
 
     /// <summary>The cosmetics the account has unlocked, as a bit set by catalogue bit (OpenScct.Net.Cosmetics).</summary>
     public byte[] Unlocks { get; init; } = [];
+
+    /// <summary>
+    /// The account's rank, packed without a title (OpenScct.Net.Cosmetics.PlayerRank; 0 from masters before levels).
+    /// A trailing field: written after the unlocks.
+    /// </summary>
+    public int Rank { get; init; }
+
+    /// <summary>The titles the account has unlocked, as a bit set by title bit (OpenScct.Net.Cosmetics.TitleCatalog).</summary>
+    public byte[] Titles { get; init; } = [];
 
     /// <summary>The ticket's text, signed with the master's private key.</summary>
     public string Sign(ECDsa key)
@@ -153,12 +163,12 @@ public sealed record PlayerTicket
     {
         byte[] server = Encoding.ASCII.GetBytes(ServerId);
         byte[] name = Encoding.UTF8.GetBytes(Name);
-        if (server.Length > MaxServerIdBytes || name.Length > MaxNameBytes || Unlocks.Length > MaxUnlockBytes)
+        if (server.Length > MaxServerIdBytes || name.Length > MaxNameBytes || Unlocks.Length > MaxUnlockBytes || Titles.Length > MaxTitleBytes)
         {
             throw new InvalidOperationException("Ticket server id, name or unlocks too long.");
         }
 
-        byte[] data = new byte[1 + 1 + 8 + 8 + 8 + 1 + server.Length + 1 + name.Length + 1 + Unlocks.Length];
+        byte[] data = new byte[1 + 1 + 8 + 8 + 8 + 1 + server.Length + 1 + name.Length + 1 + Unlocks.Length + 4 + 1 + Titles.Length];
         int at = 0;
         data[at++] = FormatVersion;
         data[at++] = (byte)Flags;
@@ -176,6 +186,11 @@ public sealed record PlayerTicket
         at += name.Length;
         data[at++] = (byte)Unlocks.Length;
         Unlocks.CopyTo(data, at);
+        at += Unlocks.Length;
+        BinaryPrimitives.WriteInt32LittleEndian(data.AsSpan(at), Rank);
+        at += 4;
+        data[at++] = (byte)Titles.Length;
+        Titles.CopyTo(data, at);
         return data;
     }
 
@@ -214,6 +229,8 @@ public sealed record PlayerTicket
         string name = Encoding.UTF8.GetString(data, at, nameLength);
         at += nameLength;
         byte[] unlocks = [];
+        int rank = 0;
+        byte[] titles = [];
         if (hasUnlocks)
         {
             // Bytes after the unlocks are fields a newer master added; this reader skips them, so the master can add
@@ -225,12 +242,25 @@ public sealed record PlayerTicket
             }
 
             unlocks = data.AsSpan(at, unlockLength).ToArray();
+            at += unlockLength;
+
+            // Rank and titles (masters with levels); absent from older masters.
+            if (at + 5 <= data.Length)
+            {
+                rank = BinaryPrimitives.ReadInt32LittleEndian(data.AsSpan(at));
+                at += 4;
+                int titleLength = data[at++];
+                if (at + titleLength <= data.Length)
+                {
+                    titles = data.AsSpan(at, titleLength).ToArray();
+                }
+            }
         }
 
         ticket = new PlayerTicket
         {
             AccountId = account, Name = name, ServerId = server, Expires = DateTimeOffset.FromUnixTimeSeconds(expires), TicketId = id,
-            Flags = flags, Unlocks = unlocks,
+            Flags = flags, Unlocks = unlocks, Rank = rank, Titles = titles,
         };
         return true;
     }

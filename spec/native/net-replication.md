@@ -161,7 +161,9 @@ Connection: `SentTemporaries` (bNetTemporary actors already sent), `LastServerTi
        zero and is omitted when it does not.
 20. **SCCT broadcast flag (function flag 0x01000000).** When `F` carries it, step 4 is skipped and the
     targets are all client connections of the driver, but only those on which the actor already has
-    an open channel (no channel is opened for a broadcast). After sending, the call also runs locally
+    an open channel (no channel is opened for a broadcast; port note: on a listen server a local, loopback
+    connection without a channel gets one opened and the call, since those are the host's own players, for whom
+    the original runs the call locally). After sending, the call also runs locally
     on a listen server; on a dedicated server it does not run locally; on a client a broadcast call
     whose condition is true is neither sent (a client has no client connections) nor run. The flag is
     set on exactly 20 functions in this build:

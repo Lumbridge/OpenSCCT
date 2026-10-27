@@ -72,7 +72,8 @@ public enum HudBlipKind
 public readonly record struct HudBlip(HudBlipKind Kind, FVector Location);
 
 /// <summary>A row of the connected players list.</summary>
-public sealed record HudPlayerRow(string Name, int Team, bool Spectator, int ObjOrKills, int Lives, int Ping = 0);
+/// <param name="Rank">The player's rank (OpenScct.Net.Cosmetics.PlayerRank packed; 0 for guests and bots).</param>
+public sealed record HudPlayerRow(string Name, int Team, bool Spectator, int ObjOrKills, int Lives, int Ping = 0, int Rank = 0);
 
 /// <summary>The merc reticle of the weapon class (SWeaponDefense, its Uzi and shotgun subclasses).</summary>
 public enum HudWeaponKind
@@ -255,7 +256,8 @@ public sealed class HudBinoculars
 }
 
 /// <summary>A row of the in-match scoreboard (spec/hud/scoreboard.md).</summary>
-public sealed record HudScoreRow(string Name, int Team, bool Spectator, int ObjOrKills, int Kills, int Deaths, int Lives, int Ping, bool Local);
+public sealed record HudScoreRow(string Name, int Team, bool Spectator, int ObjOrKills, int Kills, int Deaths, int Lives, int Ping, bool Local,
+    int Rank = 0);
 
 /// <summary>An objective of the mission status list (View_GameStatus).</summary>
 public sealed record HudObjectiveLine(string Text, bool Done);

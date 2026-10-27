@@ -51,6 +51,11 @@ internal static class OnlineRun
         }
 
         string? bansPath = config.BansFile is { Length: > 0 } b ? Path.GetFullPath(Path.Combine(baseDir, b)) : null;
+        string? demoFolder = config.Demos is { Record: true, Folder.Length: > 0 } d ? Path.GetFullPath(Path.Combine(baseDir, d.Folder)) : null;
+        if (demoFolder is not null && config.Demos!.KeepLocalDays > 0)
+        {
+            DemoFolders.Prune(demoFolder, TimeSpan.FromDays(config.Demos.KeepLocalDays), Log);
+        }
         var settings = new OnlineServerSettings
         {
             Name = config.Name,
@@ -64,6 +69,7 @@ internal static class OnlineRun
             Setup = rotation[0],
             Rotation = rotation.Count > 1 ? rotation : [],
             NetRate = config.NetRate,
+            Profile = config.Profile,
             MatchSeed = config.Seed,
             Maps = maps,
             Net = new NetDriverSettings { LanPlay = config.LanPlay, IsLan = config.LanPlay, UpdateGate = NetUpdateGate.DecodedGuarded },
@@ -79,10 +85,11 @@ internal static class OnlineRun
                 ? new MasterLinkSettings
                 {
                     Url = m.Url, InviteKey = m.InviteKey, Listed = m.Listed, NatPunch = m.NatPunch, Relay = m.Relay, ServerKey = m.ServerKey,
-                    Region = m.Region ?? string.Empty,
+                    Region = m.Region ?? string.Empty, UploadDemos = config.Demos?.Upload ?? true,
                 }
                 : null,
             RequireAccounts = config.RequiresAccounts,
+            DemoFolder = demoFolder,
         };
         if (config.RequireAccounts == true && settings.Master is null)
         {
@@ -108,6 +115,11 @@ internal static class OnlineRun
         using (var stop = new CancellationTokenSource())
         {
             server.Logged += Log;
+            if (demoFolder is not null && config.Demos!.KeepLocalDays > 0)
+            {
+                int keepDays = config.Demos.KeepLocalDays;
+                server.DemoRecorded += (_, _) => DemoFolders.Prune(demoFolder, TimeSpan.FromDays(keepDays), Log);
+            }
             using PosixSignalRegistration term = PosixSignalRegistration.Create(PosixSignal.SIGTERM, ctx =>
             {
                 ctx.Cancel = true;

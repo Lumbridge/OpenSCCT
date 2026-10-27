@@ -248,6 +248,12 @@ public partial class HudLayer : CanvasLayer
     /// <summary>The frame-rate readout.</summary>
     public HudFps Fps { get; } = new();
 
+    /// <summary>Reloaded's network readout under the frame-rate readout (rl:net.stats).</summary>
+    public bool ShowNet { get; set; }
+
+    /// <summary>The network readout; its <see cref="HudNet.Source"/> is set by the play scene.</summary>
+    public HudNet Net { get; } = new();
+
     /// <summary>Sets the connected players list of a new HUD (Reloaded keeps it on and remembers it).</summary>
     public bool InitialConnectedPlayers { get; set; }
 
@@ -415,6 +421,8 @@ public partial class HudLayer : CanvasLayer
         Fps.Add(dt);
         Fps.Draw(screen, ShowFps);
         _items.AddRange(Fps.DrawList.Items);
+        Net.Draw(screen, dt, ShowNet, ShowFps);
+        _items.AddRange(Net.DrawList.Items);
 
         _canvas?.Submit(_items);
     }

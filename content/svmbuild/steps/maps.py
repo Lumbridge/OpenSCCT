@@ -10,6 +10,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from .. import gamefiles
 from ..graph import Context, Step, StepOutput
 from ..paths import REPO_ROOT
 from ..sources import env
@@ -40,11 +41,14 @@ class MapsStep(Step):
         return {"map": unit, "render": not ctx.options.get("sim_only", False), "language": env.language()}
 
     def _map_file(self, ctx: Context, unit: str | None) -> Path:
-        return ctx.game / "Packages" / "Maps" / f"{unit}.sdc"
+        return gamefiles.game_file(ctx.game, f"Packages/Maps/{unit}.sdc")
 
     def inputs(self, ctx: Context, unit: str | None) -> dict[str, str | None]:
         out = {ctx.game_path(self._map_file(ctx, unit)): ctx.hasher.sha256(self._map_file(ctx, unit))}
         for f in env.script_package_files(ctx.game):
+            out[ctx.game_path(f)] = ctx.hasher.sha256(f)
+        # A downloaded map's own text (names, zone tips) is in the addons' System/_PC_.
+        for f in gamefiles.addon_text_files(str(unit)):
             out[ctx.game_path(f)] = ctx.hasher.sha256(f)
         return out
 
@@ -84,7 +88,7 @@ class MapsStep(Step):
         env.import_formats()
         from scctpkg.packageset import PackageSet  # noqa: PLC0415
 
-        index = PackageSet([ctx.game / "Packages"]).files
+        index = PackageSet(gamefiles.package_roots(ctx.game)).files
         for key, logical in lookups.items():
             if key == str(unit).lower():
                 continue

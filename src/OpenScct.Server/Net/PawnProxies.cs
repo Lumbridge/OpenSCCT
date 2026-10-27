@@ -23,9 +23,12 @@ namespace OpenScct.Server;
 /// (<c>ClientReliableGetPawnPositionAndActions</c>) the first time and unreliably while it is under 0.4 s old; between
 /// samples a batch under 0.15 s old is repeated alone (<c>ClientGetPawnActions</c>). The batch bookkeeping (rule 6) is
 /// the controller's tick (OpenScct.Game.Animation.ProxyAnimation.ServerUpdateActionCounts).
-/// Rule 3's Rotation pushes go through <see cref="NetDriver.PropertyPush"/>; not ported here: its aim properties
-/// (iDesiredYawPitch, iYawPitchFromView).
+/// Rule 3's Rotation pushes go through <see cref="NetDriver.PropertyPush"/>, and its pacing of the aim properties
+/// (iDesiredYawPitch, iYawPitchFromView: at most every 0.09 s) through <see cref="NetDriver.PropertyWithhold"/>.
 /// </para>
+/// <para>With <see cref="PawnProxyMode.Interpolate"/> (the Enhanced profile) the samples keep this schedule, but Rotation
+/// and the aim properties go on every pass they changed, so the client's interpolation buffer gets them at the send
+/// rate (docs/NETCODE.md, "Proxy pawn interpolation").</para>
 /// </summary>
 [UcNative("ASBasePawn::GetOptimizedRepList", Editor = 0x1120c9d0)]
 [PortOf("eng:ASBasePawn::GetOptimizedRepList", Spec = "spec/native/net-proxy.md#server-what-each-viewer-gets-per-update-of-a-pawn-to-a-non-owning-connection")]
@@ -65,13 +68,17 @@ public sealed class PawnProxySender
     private readonly List<(int, NetConnection)> _stale = new();
     private readonly NetCallArgs _args = new();
     private readonly HashSet<(int Pawn, NetConnection Viewer)> _rotationPushes = new();
+    private readonly HashSet<(int Pawn, NetConnection Viewer)> _aimDue = new();
     private long _pass;
 
     public PawnProxySender(NetDriver driver)
     {
         _driver = driver ?? throw new ArgumentNullException(nameof(driver));
         _driver.PropertyPush = PushesRotation;
+        _driver.PropertyWithhold = WithholdsAim;
     }
+
+    private bool Interpolating => _driver.Settings.PawnProxies == PawnProxyMode.Interpolate;
 
     [Provenance(ProvenanceKind.Decoded, "net-proxy.md constants: rotation property threshold 1800")]
     public const int RotationPushYaw = 1800;
@@ -107,6 +114,7 @@ public sealed class PawnProxySender
         ArgumentNullException.ThrowIfNull(level);
         _pass++;
         _rotationPushes.Clear();
+        _aimDue.Clear();
         float now = level.TimeSeconds;
         INetInterest? interest = _driver.Settings.Interest;
         IReadOnlyList<NetConnection> viewers = _driver.ClientConnections;
@@ -125,7 +133,7 @@ public sealed class PawnProxySender
                     continue;
                 }
 
-                Sample(pawn, viewer, pc, now, interest is null ? 1f : interest.ProxySampleScale(pawn, _driver.ViewerFor(viewer)));
+                Sample(pawn, viewer, pc, now, interest is null || viewer.IsRecorder ? 1f : interest.ProxySampleScale(pawn, _driver.ViewerFor(viewer)));
             }
         }
 
@@ -221,10 +229,22 @@ public sealed class PawnProxySender
             }
         }
 
-        // Rule 3: Rotation as a property between samples, at most every 0.09 s (sooner only for a turn of more than
-        // 1800 units from what the viewer last got); a forced sample carries it instead.
-        if (now - s.LastAimTime >= minInterval || s.Initial)
+        // Rule 3: Rotation and the aim properties between samples, at most every 0.09 s (Rotation sooner only for a
+        // turn of more than 1800 units from what the viewer last got); a forced sample carries Rotation instead.
+        // Enhanced: every pass, for the client's interpolation buffer.
+        if (Interpolating)
         {
+            _aimDue.Add((pawn.ActorId, viewer));
+            if (!force && pawn.Rotation != s.Rotation)
+            {
+                PushRotation(pawn, viewer, s);
+            }
+
+            s.LastAimTime = now;
+        }
+        else if (now - s.LastAimTime >= minInterval || s.Initial)
+        {
+            _aimDue.Add((pawn.ActorId, viewer));
             if (!force && pawn.Rotation != s.Rotation)
             {
                 PushRotation(pawn, viewer, s);
@@ -284,6 +304,16 @@ public sealed class PawnProxySender
         actor is SBasePawn && _rotationPushes.Contains((actor.ActorId, viewer)) &&
         string.Equals(property.Name, "Rotation", StringComparison.OrdinalIgnoreCase);
 
+    /// <summary>
+    /// The driver's withhold test (rule 3): a pawn's aim properties go to a viewer only on a pass whose aim block ran
+    /// for it; a change held back goes with the next one.
+    /// </summary>
+    [Provenance(ProvenanceKind.Decoded, "net-proxy.md rule 3: iDesiredYawPitch and iYawPitchFromView pushed if changed when 0.09 s passed since LastAimTime")]
+    private bool WithholdsAim(Actor actor, NetConnection viewer, RepProperty property) =>
+        actor is SBasePawn && !_aimDue.Contains((actor.ActorId, viewer)) &&
+        (string.Equals(property.Name, "iDesiredYawPitch", StringComparison.OrdinalIgnoreCase) ||
+         string.Equals(property.Name, "iYawPitchFromView", StringComparison.OrdinalIgnoreCase));
+
     /// <summary>The shortest-arc yaw difference in rotator units (0 to 32768).</summary>
     private static int YawDifference(int a, int b)
     {
@@ -342,6 +372,9 @@ public sealed class PawnProxySender
 /// <para>The action batches (proxy-pawns.md rules 3 and 4, GetNewActions), their playback (rule 8) and the zone
 /// configuration (rule 9) are OpenScct.Game.Animation.ProxyAnimation's, run first in the tick. The aim
 /// (iDesiredYawPitch) follows the received one smoothed, as in rule 15.</para>
+/// <para>Installed with a <see cref="PawnInterpolation"/> (Enhanced, <see cref="PawnProxyMode.Interpolate"/>), the
+/// samples, Rotation and aim go into its buffer instead and the tick shows the buffered state at the render time
+/// (<see cref="TickInterpolated"/>); the actions and zone configuration run as in Stock.</para>
 /// </summary>
 [UcNative("ASBasePawn::TickSimulated", Editor = 0x1121dc30)]
 [PortOf("eng:ASBasePawn::TickSimulated", Spec = "spec/native/net-proxy.md#client-proxy-tick-ticksimulated-every-frame-for-a-simulated-pawn")]
@@ -377,20 +410,24 @@ public static class PawnProxyReceiver
     [Provenance(ProvenanceKind.Decoded, "TickSimulated editor 0x1121dc30: m_dT x 16384 (0x11476cb8) as the fixed turn step")]
     public const float AimPitchTurnRate = 16384f;
 
-    /// <summary>Registers the sample handlers on a client driver and installs the proxies' simulated tick in its level.</summary>
-    public static void Install(Level level, NetDriver driver)
+    /// <summary>
+    /// Registers the sample handlers on a client driver and installs the proxies' simulated tick in its level. With
+    /// <paramref name="interpolation"/> (Enhanced) the proxies are shown from its buffer; without, as in Stock.
+    /// </summary>
+    public static void Install(Level level, NetDriver driver, PawnInterpolation? interpolation = null)
     {
         ArgumentNullException.ThrowIfNull(level);
         ArgumentNullException.ThrowIfNull(driver);
         foreach (string function in new[] { "ClientGetPawnPosition", "ClientGetPawnPositionAndActions", "ClientReliableGetPawnPositionAndActions", "ClientGetPawnActions" })
         {
-            driver.Functions.Register("SBase.SPlayerController", function, Receive);
+            driver.Functions.Register("SBase.SPlayerController", function,
+                (self, f, args, from) => Receive(self, f, args, from, driver, interpolation));
         }
 
-        var receive = new NetReceive();
+        var receive = new NetReceive(interpolation);
         driver.PreNetReceive = receive.Pre;
         driver.PostNetReceive = receive.Post;
-        InstallTick(level);
+        InstallTick(level, interpolation);
     }
 
     /// <summary>
@@ -400,9 +437,10 @@ public static class PawnProxyReceiver
     /// the property turned the proxy at once and the next tick turned it back toward the last sample's yaw, so a bot
     /// turning in place swung back and forth (1.9 times the server's yaw travel).
     /// </summary>
-    private sealed class NetReceive
+    private sealed class NetReceive(PawnInterpolation? interpolation)
     {
         private SBasePawn? _pawn;
+        private bool _buffered;
         private Mover? _mover;
         private FVector _simInterpolate;
         private FRotator _rotation;
@@ -423,6 +461,11 @@ public static class PawnProxyReceiver
             {
                 _rotation = _pawn.Rotation;
                 _aim = _pawn.iDesiredYawPitch;
+                _buffered = interpolation is not null && _pawn.Role == ENetRole.ROLE_SimulatedProxy;
+                if (_buffered)
+                {
+                    interpolation!.BeginReceive(_pawn);
+                }
             }
         }
 
@@ -440,7 +483,12 @@ public static class PawnProxyReceiver
             }
 
             _pawn = null;
-            if (pawn.iDesiredYawPitch != _aim)
+            if (_buffered)
+            {
+                // Enhanced: the received aim words go into the buffer; the shown ones stay until the tick.
+                interpolation!.EndReceive(pawn);
+            }
+            else if (pawn.iDesiredYawPitch != _aim)
             {
                 pawn.iReceivedDesiredYawPitch = pawn.iDesiredYawPitch;
                 pawn.iDesiredYawPitch = _aim;
@@ -501,15 +549,18 @@ public static class PawnProxyReceiver
         }
     }
 
-    /// <summary>Makes <see cref="Tick"/> the simulated tick of every SBasePawn proxy in <paramref name="level"/>.</summary>
-    public static void InstallTick(Level level)
+    /// <summary>
+    /// Makes <see cref="Tick"/> (or, with <paramref name="interpolation"/>, <see cref="TickInterpolated"/>) the simulated
+    /// tick of every SBasePawn proxy in <paramref name="level"/>.
+    /// </summary>
+    public static void InstallTick(Level level, PawnInterpolation? interpolation = null)
     {
         ArgumentNullException.ThrowIfNull(level);
-        level.SetService<ISimulatedTick>(new SimulatedPawnTick());
+        level.SetService<ISimulatedTick>(new SimulatedPawnTick(interpolation));
     }
 
     /// <summary>The level's simulated tick for SBasePawn proxies (the pawn's own tick runs <see cref="Tick"/>).</summary>
-    private sealed class SimulatedPawnTick : ISimulatedTick
+    private sealed class SimulatedPawnTick(PawnInterpolation? interpolation) : ISimulatedTick
     {
         public bool TickSimulated(Actor Actor, float DeltaSeconds)
         {
@@ -518,12 +569,21 @@ public static class PawnProxyReceiver
                 return false;
             }
 
-            Tick(pawn, DeltaSeconds);
+            if (interpolation is not null)
+            {
+                TickInterpolated(pawn, interpolation, DeltaSeconds);
+            }
+            else
+            {
+                Tick(pawn, DeltaSeconds);
+            }
+
             return true;
         }
     }
 
-    private static void Receive(Actor self, RepFunction f, NetCallArgs args, NetConnection from)
+    private static void Receive(Actor self, RepFunction f, NetCallArgs args, NetConnection from, NetDriver driver,
+        PawnInterpolation? interpolation)
     {
         SBasePawn? pawn = null;
         NetValue position = default;
@@ -548,7 +608,16 @@ public static class PawnProxyReceiver
 
         if (havePosition)
         {
-            ApplySample(pawn, position.V * 0.1f, position.R, position.V2);
+            if (interpolation is not null)
+            {
+                pawn.ReceivedRotation = position.R;
+                pawn.ReceivedVelocity = position.V2;
+                interpolation.OnSample(pawn, driver.ReceivingTick, position.V * 0.1f, position.V2);
+            }
+            else
+            {
+                ApplySample(pawn, position.V * 0.1f, position.R, position.V2);
+            }
         }
 
         if (f.Name != "ClientGetPawnPosition")
@@ -680,6 +749,54 @@ public static class PawnProxyReceiver
         }
 
         TurnProxy(pawn, driver, dt);
+    }
+
+    /// <summary>
+    /// The Enhanced proxy tick: the relayed actions and zone configuration (rules 8 and 9) and the stock physics in root
+    /// motion and follow-parent (rule 12) as in <see cref="Tick"/>; otherwise
+    /// the pawn takes its buffered state at the render time: position (a move with world collision off, as the snaps),
+    /// velocity and acceleration (the animation's inputs), rotation and both aim words.
+    /// </summary>
+    public static void TickInterpolated(SBasePawn pawn, PawnInterpolation interpolation, float dt)
+    {
+        ArgumentNullException.ThrowIfNull(pawn);
+        ArgumentNullException.ThrowIfNull(interpolation);
+        OpenScct.Game.Animation.ProxyAnimation.TickSimulated(pawn);
+        if (pawn.bDeleteMe || dt <= 0f)
+        {
+            return;
+        }
+
+        // Rule 11's snap is not needed: Physics arrives at once while the position is shown late, so snapping to the
+        // newest state would pop the pawn forward by the delay at every jump and landing. The forced sample of the change
+        // rides the buffer; a teleport still snaps (PawnInterpolation).
+        PhysicsDriver? driver = pawn.XLevel.PhysicsDriver as PhysicsDriver;
+        pawn.bInternalChangePhysics = false;
+        pawn.ErrorDistance = default;
+        if (pawn.Physics is EPhysics.PHYS_RootMotion or EPhysics.PHYS_FollowParent)
+        {
+            driver?.performPhysics(pawn, dt);
+            interpolation.Follow(pawn);
+            return;
+        }
+
+        if (!interpolation.TrySample(pawn, out ProxyState state))
+        {
+            return;
+        }
+
+        pawn.Velocity = pawn.Physics == EPhysics.PHYS_None ? default : state.Velocity;
+        pawn.Acceleration = pawn.Velocity.SafeNormal();
+        FVector delta = state.Location - pawn.Location;
+        if (!delta.IsZero() || state.Rotation != pawn.Rotation)
+        {
+            MoveNoWorld(pawn, driver, delta, state.Rotation);
+        }
+
+        pawn.iDesiredYawPitch = state.Aim;
+        pawn.iReceivedDesiredYawPitch = state.Aim;
+        pawn.iSmoothDifYaw = 0;
+        pawn.iYawPitchFromView = state.View;
     }
 
     /// <summary>Rule 13 (ClientSmoothFlags 7: bits 1 and 4 set, bit 8 clear).</summary>

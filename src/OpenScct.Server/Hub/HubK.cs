@@ -47,4 +47,20 @@ public static class HubK
 
     /// <summary>Height over a pawn's location (its centre) where its name tag sits (uu).</summary>
     public const float NameTagHeight = 110f;
+
+    /// <summary>
+    /// The UDP port a hub listens on unless told otherwise (a hub hosted in the game, svm-server --hub): its own, so one
+    /// PC can host a hub and a game (28888) at once. Clear of the master's 28880/28881, the LAN answers' 28889 and the
+    /// pad matches' 28890 to 28897.
+    /// </summary>
+    public const int DefaultPort = 28886;
+
+    /// <summary>Local chat reaches the players this near the speaker (the proximity voice's hearing range).</summary>
+    public const float LocalChatRange = 3000f;
+
+    /// <summary>The player list's lines go out this often (seconds).</summary>
+    public const float RosterSeconds = 3f;
+
+    /// <summary>A player's local chat lines at most this often (seconds).</summary>
+    public const float LocalChatCooldownSeconds = 0.5f;
 }

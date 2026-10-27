@@ -165,6 +165,7 @@ public abstract class HudPage
         if (Root.Visible)
         {
             DrawPings(s);
+            DrawRanks(s);
         }
     }
 
@@ -588,6 +589,37 @@ public abstract class HudPage
             Rect4 r = lives.PageRect;
             ExtraText("Extras/Ping" + n, (s.Players[i].Ping * HudK.PingUnit).ToString(CultureInfo.InvariantCulture),
                 new Rect4(r.R + HudK.PingGap, r.T, r.R + HudK.PingGap + 40f, r.B), lives.Anchor, MagmaAlign.Left, colour, HudK.PingTextHeight);
+        }
+    }
+
+    /// <summary>
+    /// OpenSCCT's own: a Rank column after the lives (and the ping) of the connected players list, the level tag of
+    /// each signed-in player ("P3 42"); shown only when someone in the list has a rank.
+    /// </summary>
+    protected void DrawRanks(HudSnapshot s)
+    {
+        if (!s.ShowPlayers || !s.Players.Exists(p => p.Rank != 0) ||
+            DrawList.Find("PCConnectedPlayers/PCText_LivesTitle") is not { } title)
+        {
+            return;
+        }
+
+        float shift = HudK.PingGap + (Options.ShowPing ? 40f + HudK.PingGap : 0f);
+        var colour = new Color(1f, 1f, 1f, 1f);
+        Rect4 t = title.PageRect;
+        ExtraText("Extras/RankTitle", "Rank", new Rect4(t.R + shift, t.T, t.R + shift + 50f, t.B), title.Anchor,
+            MagmaAlign.Left, colour, HudK.PingTextHeight);
+        for (int i = 0; i < s.Players.Count && i < HudSimReader.MaxConnectedPlayers; i++)
+        {
+            string n = (i + 1).ToString(CultureInfo.InvariantCulture);
+            if (s.Players[i].Spectator || DrawList.Find("PCConnectedPlayers/PCText_Lives" + n) is not { } lives)
+            {
+                continue;
+            }
+
+            Rect4 r = lives.PageRect;
+            ExtraText("Extras/Rank" + n, OpenScct.Net.Cosmetics.PlayerRank.Unpack(s.Players[i].Rank).Tag,
+                new Rect4(r.R + shift, r.T, r.R + shift + 50f, r.B), lives.Anchor, MagmaAlign.Left, colour, HudK.PingTextHeight);
         }
     }
 

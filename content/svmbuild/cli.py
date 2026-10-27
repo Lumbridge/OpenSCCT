@@ -20,6 +20,7 @@ import sys
 import time
 from pathlib import Path
 
+from . import gamefiles
 from .graph import Cache, Context, Graph
 from .hashing import FileHasher
 from .paths import SCCTPKG_ROOT, default_game_root, default_out_root, is_within
@@ -31,7 +32,8 @@ def _resolve_maps(game: Path, spec: str | None) -> list[str]:
     maps_dir = game / "Packages" / "Maps"
     if not maps_dir.is_dir():
         raise SystemExit(f"no Packages/Maps folder under {game} (set --game or SVM_GAME_ROOT)")
-    available = {p.stem.lower(): p.stem for p in maps_dir.glob("*.sdc")}
+    # The install's maps and the downloaded ones (--addons).
+    available = {p.stem.lower(): p.stem for p in gamefiles.files(game, "Packages/Maps", "*.sdc")}
     if spec is None or spec.strip().lower() == "all":
         return sorted(available.values(), key=str.lower)
     out = []
@@ -54,6 +56,9 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--maps", help="comma list of map names, or all (default: all maps)")
     ap.add_argument("--game", type=Path, default=None,
                     help="game root (default $SVM_GAME_ROOT or the reference install)")
+    ap.add_argument("--addons", type=Path, default=None,
+                    help="downloaded maps folder laid out like an install (Packages/, System/_PC_); the install's "
+                         "files win over it (default $SVM_ADDONS)")
     ap.add_argument("--out", type=Path, default=None, help="content root (default $SVM_CONTENT or <repo>/.content)")
     ap.add_argument("--force", action="store_true", help="rebuild even when the cache has the result")
     ap.add_argument("--no-cache", action="store_true", help="neither read nor write the cache")
@@ -90,6 +95,13 @@ def main(argv: list[str] | None = None) -> int:
     if is_within(out, game) or is_within(game, out):
         print(f"--out {out} must not overlap the game folder {game}", file=sys.stderr)
         return 2
+    # Worker processes find the downloaded maps through SVM_ADDONS (gamefiles.addons_root).
+    if args.addons is not None:
+        os.environ[gamefiles.ADDONS_ENV] = str(args.addons.resolve())
+    addons = gamefiles.addons_root()
+    if addons is not None and (is_within(addons, game) or is_within(game, addons) or is_within(addons, out)):
+        print(f"--addons {addons} must not overlap the game folder or the output", file=sys.stderr)
+        return 2
     needs_maps = any(s.per_map for s in plan)
     if any(s.needs_game and not s.stub for s in plan) and not (game / "Packages").is_dir():
         print(f"no Packages folder under {game} (set --game or SVM_GAME_ROOT)", file=sys.stderr)
@@ -118,6 +130,8 @@ def main(argv: list[str] | None = None) -> int:
     options = {"check_stable": args.check_stable, "sim_only": args.sim_only}
     ctx = Context(game=game, out=out, hasher=hasher, cache=cache, maps=maps, force=args.force, options=options,
                   jobs=max(1, args.jobs))
+    if addons is not None:
+        print(f"addons {addons}")
     print(f"game {game}\nout  {out}\nlang {language} ({cd.LANGUAGES[language]})\nplan {' '.join(s.name for s in plan)}" + (f"  maps {len(maps)}" if maps else "")
           + (f"  jobs {ctx.jobs}" if ctx.jobs > 1 else ""))
     wall = time.perf_counter()

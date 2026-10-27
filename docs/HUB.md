@@ -12,26 +12,28 @@ how it is built, how to run it, and what it measured.
 | `tools/hubmap` | the hub map's layout (`layout.py`), its procedural art (`art.py`) and the generator (`generate.py`; reuses TestRange's world builder) |
 | `game/Scripts/Hub/HubPadThemes.cs` | shows a pad's theme kit (`Apply(padId, themeId)`) and maps a map code to a theme (`ThemeForMap`) |
 | `fixtures/hub`, `fixtures/hubmap/areas.json` | the generated SVMap (tracked, like TestBox) and its area manifest |
-| `src/OpenScct.Server/Hub` | `HubServer` (the session, with its voice relay), `SHubGameInfo` (the rules on top of SGameInfo), `HubClient` (a visit: lines, chat, name tags), `HubVoice` (a visit's voice), `HubVoicePositions`, `HubProtocol`, `HubK` |
 | `src/OpenScct.Server/Hub/HubActivities*.cs`, `HubLayout`, `HubScores`, `HubPlayProtocol`, `HubPlayState`, `HubPlayK` | the activities (H3): course time trial, aim range, emotes, jukebox, plaza ball, the score boards and their file |
-| `src/OpenScct.Server/Hub` | `HubServer` (the session, with its voice relay), `SHubGameInfo` (the rules on top of SGameInfo), `HubClient` (a visit: lines, chat, name tags, signs, pads, queue, match tickets), `HubVoice` (a visit's voice), `HubVoicePositions`, `HubSigns` (server-driven world text), `HubPads` (match pads and queues), `HubMatches` (the pads' match sessions), `HubConfig` (the pads' data), `HubProtocol`, `HubK` |
-| `fixtures/hubmap/hub.json` | the match pads' config: each pad's map, mode, team size, bots; the countdown and the match ports |
+| `src/OpenScct.Server/Hub` | `HubServer` (the session, with its voice relay; `HubServer.Admin.cs` moderation and admin commands, `HubServer.Social.cs` the player list lines and local chat), `SHubGameInfo` (the rules on top of SGameInfo), `HubClient` (a visit: lines, chat, name tags, the roster, signs, pads, queue, match tickets), `HubVoice` (a visit's voice), `HubVoicePositions`, `HubSigns` (server-driven world text), `HubPads` (match pads, queues, votes, watching), `HubMatches` (the pads' match sessions), `HubConfig` (the pads' data), `HubProtocol`, `HubK` |
+| `fixtures/hubmap/hub.json` | the match pads' config: each pad's map, mode, team size, bots and vote choices; the countdown, spectator places and the match ports |
 | `src/OpenScct.Game/Modes/PlayRules.cs` | the level service that turns damage and pawn attacks off (two gates in the ported code ask it) |
 | `src/OpenScct.Net/Replication/NetInterest.cs` | `INetInterest` and `DistanceInterest`, the opt-in interest layer of the server pass |
 | `src/OpenScct.Net/Voice/Proximity` | positional voice (falloff, occlusion, per-player volume and mute, the relay filter, `ProximityPlayback`) |
 | `src/OpenScct.Bots/HubWanderBrain.cs`, `HubSoak.cs` | hub visitors for the soak test |
 | `src/OpenScct.Server.Cli/HubRun.cs` | `svm-server --hub` and `--hub-bots` |
-| `game/Scripts/Hub` | the Hub entry of the main menu (`HubScreen`), the visit in the game (`HubService`), a hub hosted from the game (`HubHost`), the hub HUD (`HubHud`, with `HubHud.Activities.cs`), the hub's voice chat (`HubVoiceChat`), the activities' world props (`HubProps`) and sounds (`HubAudio`) |
-| `game/Scripts/Hub` | the Hub entry of the main menu (`HubScreen`), the visit in the game (`HubService`), a hub hosted from the game (`HubHost`), the hub HUD (`HubHud`, with the queue panel), the hub's voice chat (`HubVoiceChat`), the world signs (`HubSignsView`), the pads' floor overlays and map pictures (`HubPadView`) |
+| `game/Scripts/Hub` | the Hub entry of the main menu (`HubScreen`), the visit in the game (`HubService`), a hub hosted from the game (`HubHost`), the hub HUD (`HubHud`, with `HubHud.Activities.cs` and the queue panel), the player list (`HubPlayerList`), the emote poses (`HubEmotePoses`), the hub's voice chat (`HubVoiceChat`), the world signs (`HubSignsView`), the pads' floor overlays and map pictures (`HubPadView`), the activities' world props (`HubProps`) and sounds (`HubAudio`) |
 | `tests/OpenScct.Integration.Tests/Hub`, `tests/OpenScct.Net.Tests/InterestTests.cs`, `tests/OpenScct.Net.Tests/Voice/ProximityVoiceTests.cs`, `tools/hubmap/test_hubmap.py` | the checks |
 
 ## Running a hub
 
 ```
-dotnet run --project src/OpenScct.Server.Cli -c Release -- --hub [--port 28888] [--max 50] [--name "My hub"] [--motd "Hello"]
+dotnet run --project src/OpenScct.Server.Cli -c Release -- --hub [--port 28886] [--max 50] [--name "My hub"] [--motd "Hello"]
     [--master https://master.example.org --key <invite key> [--server-key <trusted key>] [--region EU] [--unlisted]]
 svm-server --hub --config svm-hub.json     # name, port, maxPlayers, motd, maps and master (with region) from the file
 ```
+
+A hub listens on UDP 28886 unless `--port` or its config file names another (`HubK.DefaultPort`): its own port, so
+one PC can host a hub and a game (28888) at once. `svm-server --hub` keeps its bans in `hub-bans.json` next to the
+server, beside `hub-scores.json`.
 
 **Listing.** A hub with a master heartbeats like a game server (`MasterLink`, `HubServer.Info`), with `kind: hub`
 and its `region`. The master lists hubs apart: `GET /api/v1/servers?kind=hub`; a list asked without `kind` (every
@@ -54,16 +56,16 @@ ping), "Join a hub by address", "Host a hub" with "Show it in the hub list"; Ref
   address; back from a match the game asks the master again.
 
 - **Host**: the game opens a hub itself (`HubHost`: the dedicated server's `HubServer` on a thread of
-  the game, UDP port 28888 on every interface) and joins it on 127.0.0.1. With a master set and "Show it in the hub
+  the game, UDP port 28886 on every interface) and joins it on 127.0.0.1. With a master set and "Show it in the hub
   list" on (`[hub] listed` in online.cfg, on by default) it is listed as a player hub; others join it from the list
-  (through the relay when this PC cannot be reached) or by this PC's address (LAN IP, or the public IP with UDP 28888
-  forwarded; Windows asks once to let OpenSCCT through its firewall). A relayed hub's pad matches still need UDP
-  28890-28897 reachable on the host. The hub closes
-  when the host leaves it (O), which drops everyone in it. Port 28888 is also the default game port, so a PC cannot
-  host a hub and a normal game at the same time on the defaults.
-- **Join**: the hub's address (LAN or direct IP; the port defaults to 28888). In the hub: J play spy, K play merc, N back to the plaza, Enter or F5 to chat, F6 to chat to your side (Tab while
-typing switches, Escape cancels), G emotes, U use (start an aim range round at the firing line, next jukebox
-record), X stop your run or round, O leave. The hub keys sit on keys the original's default layouts leave free. Names float over the other players' heads in their side's colour. Voice
+  (through the relay when this PC cannot be reached) or by this PC's address (LAN IP, or the public IP with UDP 28886
+  forwarded; Windows asks once to let OpenSCCT through its firewall). A listed hub's pad matches register on the
+  master too (unlisted), so they are reached the same ways, the relay included. The hub closes when the host leaves it
+  (O), which drops everyone in it.
+- **Join**: the hub's address (LAN or direct IP; the port defaults to 28886). In the hub: J play spy, K play merc, N back to the plaza, Enter or F5 to chat, F6 to chat to your side (Tab while
+typing goes everyone, your side, near you; `/l text` says it near you; Escape cancels), G emotes, U use (start an aim
+range round at the firing line, next jukebox record, ready on a pad), X stop your run or round, V on a pad to vote for
+its next match, H on a pad to watch its match, P the player list, O leave. The hub keys sit on keys the original's default layouts leave free. Names float over the other players' heads in their side's colour. Voice
 works as in a match (the options' Voice page: push to talk or voice activation; Caps Lock to talk, Y to your side
 only, F8 mutes the microphone), but each player is heard only near him: see "Proximity voice" below. The play scene
 needs the converted character content to draw pawns; without it the hub still plays.
@@ -225,8 +227,9 @@ and the match starts when enough players stand there. The rules are in `spec/add
 **Config.** `fixtures/hubmap/hub.json` (found beside the hub map; without it the same four pads are built in):
 
 ```json
-{"countdownSeconds": 10, "matchPorts": [28890, 28897], "matchHost": "optional address players use for matches",
- "pads": [{"id": "Pad1", "map": "SteeE", "mode": "Story", "teamSize": 2, "bots": "off"},
+{"countdownSeconds": 10, "matchPorts": [28890, 28897], "spectators": 4, "matchHost": "optional address players use for matches",
+ "pads": [{"id": "Pad1", "map": "SteeE", "mode": "Story", "teamSize": 2, "bots": "off",
+           "choices": [{"map": "PolaE", "mode": "Story"}, {"map": "AquaE", "mode": "Story"}]},
           {"id": "Pad3", "map": "MuseT", "mode": "Story", "teamSize": 3, "bots": "fill", "minPlayers": 2}]}
 ```
 
@@ -235,8 +238,27 @@ catalog's modes for that map (a mode the map does not play becomes `DefaultMode`
 turns the pad off). `teamSize` is per side (Merc Deathmatch: players in the free-for-all). With `"bots": "fill"`
 and `minPlayers` the countdown starts with that many ready people and bots take the empty places. The pads' places come
 from the area manifest: each pad's `lo`/`hi`, and `signAnchor` [x, y, z] and `floorZ` when the map gives them (else
-the sign floats 360 uu over the pad's centre). `HubPads.Reconfigure` changes a pad's match while the hub runs (for a
-rotation or a vote later); clients are told and their pad hook runs.
+the sign floats 360 uu over the pad's centre). `HubPads.Reconfigure` changes a pad's match while the hub runs;
+clients are told and their pad hook runs.
+
+**Votes and rotation.** A pad's `choices` (map, mode, optional `teamSize`; bots and minimum players are the pad's) are
+the other matches it can play; its own match is option 1 on the sign. A player on the pad presses V to move his vote
+on to the next option (`hub vote <pad> -1`); while the pad is idle or waiting the most votes pick its match (a tie
+keeps the current one), and the sign lists the options with their votes. Votes end with the match they were for;
+with no votes the pad moves on to its next option after each match (a rotation). Choices on maps the server lacks
+are dropped, and their modes are checked as the pad's.
+
+**Watching.** H on a pad whose match is in its lobby or being played asks `hub watch <pad>`; the hub answers with an
+offer as a spectator (team 255, the match's password) and the player joins it as one (`?Team=255`), then comes back
+beside the pad at its end as the players do. Each match has `spectators` places (default 4); watchers do not keep a
+match open. The pad's sign shows the match in play: the score ("Playing: Spies 2 - Mercs 5"), the time left and how
+many watch (`IHubMatch.Live`, written by the match's thread).
+
+**Through the master.** With a master link, each pad match registers on the hub's master as an unlisted game server
+(`HubMatchLauncher.Master`), and the offer carries its master id as a trailing field
+(`hub match ... <host> <masterId>`). The game then asks the master the way in, as for a listed server (its address,
+punch and relay routes, and a signed-in player's ticket for the match), and falls back to the hub's address when the
+master does not answer. The hub holds a start's offers until the match's master entry is known, at most 4 s.
 
 Defaults: Pad1 Enhanced Steel Squat Story 2v2, Pad2 Enhanced Polar Base Deathmatch 2v2, Pad3 Museum 3v3 Story 3v3
 (bots fill, 2 people start it), Pad4 Enhanced Club House Merc Deathmatch 4 players (bots fill, 2 people start it).
@@ -250,7 +272,7 @@ Defaults: Pad1 Enhanced Steel Squat Story 2v2, Pad2 Enhanced Polar Base Deathmat
    the lineup at the pad's need and everyone in it ready, a 10 s countdown runs (the sign and the HUD count down);
    anyone stepping off below the need, or unreadying, stops it.
 4. At zero the hub opens the match session (`HubMatchLauncher`): a dedicated `OnlineServer` on its own thread of the
-   hub's process, on the first free UDP port of 28890-28897 (the hub and the game's default are 28888), the pad's
+   hub's process, on the first free UDP port of 28890-28897 (clear of the hub's 28886 and the game's 28888), the pad's
    setup, bots per the pad, a fresh password as the join token, players ready on joining, launch once everyone came
    (or 20 s after the first did). Each lineup player gets `hub match <pad> <port> <team> <token> <map> <mode> <host>`.
    Players on the pad who were not in the lineup keep their places, and the pad goes on queueing (several matches of
@@ -281,7 +303,7 @@ waiting for 1 merc", "starting in 7 s", "this match is full; you are next in lin
 **Trying it.** Two PCs: one hosts (main menu, Hub, "Host", or `svm-server --hub`), the other joins by
 address; both walk east from the plaza onto Pad 1 (for a quicker check, set Pad1's `teamSize` to 1 in hub.json). On
 one PC: two game instances (the second with `--svm-background` if it should stay out of the way), both joining
-127.0.0.1. The hosting PC needs UDP 28888 and 28890-28897 open for players from outside; set `matchHost` when
+127.0.0.1. The hosting PC needs UDP 28886 and 28890-28897 open for players who reach it directly (not through the relay); set `matchHost` when
 players reach the hub through an address the hub cannot see (a relay or a DNS name).
 
 Checked 2026-10-26 with a headless diagnostic (a hub on loopback UDP, two visitors put on Pad1 at 1v1): both queued
@@ -328,10 +350,10 @@ are from the map's area manifest (`HubLayout`) and keeps the boards in `HubScore
 
 | Activity | How it plays | Board |
 |---|---|---|
-| Spy movement course | step out of the green start gate: the clock runs (top middle of the HUD) until the white finish, through every amber checkpoint in order (the next one pulses) | fastest times |
+| Spy assault course | step out of the green start gate: the clock runs (top middle of the HUD) until the white finish, through every amber checkpoint in order (the next one pulses); a fall into the pit puts you back on the last deck, the clock still running | fastest times |
 | Merc aim range | U at the yellow firing line: a 30 s round, two pop-up targets at a time downrange (yours red, other rounds grey); 10 per body hit, 25 per headshot, plus up to 50 for accuracy | best round scores |
 | Plaza ball | walk into the orange ball to kick it; into the west or east goal scores for the last kicker | most goals |
-| Emotes | G then 1 to 8, or `/wave` in chat: shown under your name to everyone within 4500 uu | |
+| Emotes | G then 1 to 8, or `/wave` in chat: your character does it (a pose laid over its animation) and the caption shows under your name, for everyone within 4500 uu; moving ends it | |
 | Jukebox | the box in the plaza's north-east corner; U next to it changes the record for everyone | |
 
 - **Hits without damage.** The hub server's level gets a hit-zones service (`HubRangeHitZones`) that wraps the stock
@@ -341,8 +363,9 @@ are from the map's area manifest (`HubLayout`) and keeps the boards in `HubScore
   anyone. Targets are not spawned or replicated: the clients draw them from `hubplay target` lines.
 - **Boards.** Every board text goes through `HubActivities.PublishBoard(id, text)` (ids `CourseBoard`, `RangeBoard`,
   `BallBoard`), which sends a `hubplay board` line to everyone (and to each joiner) and raises
-  `HubActivities.BoardPublished` for the world signs. For now the HUD shows the nearest board within 2200 uu of the
-  camera in a panel on the right. A board stands at its area's `leaderboardAnchor` when the manifest has one.
+  `HubActivities.BoardPublished` for the world signs. The HUD's board panel shows the nearest board within 2200 uu
+  only when the world has no sign for it (a board is read once). A board stands at its area's `leaderboardAnchor`
+  when the manifest has one.
 - **HUD.** `HubHud.Activities.cs`: the course clock and checkpoints or the round's clock and score, notices (hits,
   personal bests, records, goals), the board panel, a prompt of what U does here, the emote menu; Inter and
   JetBrains Mono, the menus' fonts (OFL, `game/branding/fonts`). Emote captions go under the name tags.
@@ -360,29 +383,86 @@ are from the map's area manifest (`HubLayout`) and keeps the boards in `HubScore
   other client; a kick moved the ball on both, a ball sent into the west goal scored; the boards came back from the
   scores file on a second start.
 
+### The assault course (layout version 3)
+
+The course south of the plaza is a raised route of decks over a pit (the course floor), along y 1920 from x 3072 to
+9472 (`tools/hubmap/layout.py`, "Spy assault course"). Each deck reaches the next only through its piece, and the
+decks are 384 wide with drops on both sides, so nothing can be run past or round:
+
+1. climb onto deck A (a 208 lip, hang and climb) from the start apron;
+2. a fence (376) across deck A's full width;
+3. hand over hand across a 640 gap: the bar 277 over the decks, from 192 over deck A to 192 over deck B;
+4. ledge shimmy across a 512 gap: a wall on the north side with its lip 264 over the decks, and a soffit 112 over
+   the lip so the wall top cannot be climbed and walked;
+5. a split jump chimney: deck C narrows to the 192 corridor between two walls, up to deck D's lip 408 over it;
+6. a wall jump to deck E's lip 408 higher;
+7. the zip line (TestRange's 1760 run, 320 drop) down to the finish deck, and a ladder down from it.
+
+Each checkpoint stands on a landing deck at its height (radius 192, 48 deep: `HubGate.Depth`; areas.json's
+checkpoints carry `radius` and `depth`), so it counts only once its piece is behind you. A running spy whose centre
+goes under `fallZ` (96, the manifest's course area) once past the first checkpoint fell into the pit: the server
+puts him back on the last passed checkpoint's deck (`pawn.SetLocation`, as pad returns are; the client follows the
+server's position correction), the clock still running, with `hubplay run fall <falls> <checkpoint>`, a notice, a
+chime and the falls on the HUD's clock. The course board is cleared when the layout version changes
+(`courseLayout` in `hub-scores.json`): old times were set on another route. The heights are the garden's kit
+heights; the route is laid out by numbers and needs walking with the full moveset (the chimney's split jump up to a
+408 lip and the shimmy under the soffit most of all).
+
+### Emotes as poses
+
+The character packages hold no emote clips, so each emote is a short program of bone turns (`HubEmotePoses`) laid
+over the pawn's own animation: `SimPawnView.Overlay` (an `IPawnPoseOverlay`) gives turns about the pawn's frame
+(forward, right, up), the view turns them into skeleton space and `ChannelPoseApplier.ExtraTurns` applies them parent
+first after the blend and the aim; `ExtraShift` lowers the hips for sit. Each blends in and out over 0.25 s. The
+server ends an emote for everyone near when its player moves faster than 60 uu/s or jumps (`hubplay emote <id> -`).
+The angles are our own, tuned by eye, and want a look in the game.
+
+## Accounts and moderation
+
+- **Tickets.** Joining a listed hub, a signed-in player's game asks the master with his session, and the answer carries
+  his ticket for the hub; the visit sends `?SvmTicket=` and `?SvmId=` (`HubClientSettings.Ticket`, `InstallId`).
+  `HubServer` checks it with `TicketGate` (signed by the master's key, for this hub's master id, not expired, each
+  ticket once): a signed-in player comes in under his account's name, a guest of a hub on a master as `Name#tag` (as on
+  the online servers). `HubSettings.RequireAccounts` refuses guests. A hub hosted or typed in by address has no ticket
+  to give; its visitors are guests.
+- **Bans.** `HubSettings.Bans` (a `BanList`; `svm-server --hub` keeps `hub-bans.json`) by account, install id,
+  address or name; the master's account bans kick (`MasterLink.KickAccounts`).
+- **Admin portal.** The hub's master link reports its signed-in accounts and players (name, side, ping, account) to
+  the portal's server page; a trusted hub (a `serverKey`) takes the portal's commands through `HubServer.Execute`:
+  `help`, `status`, `players`, `say <text>`, `kick <id|name> [reason]`, `ban <id|name> [minutes] [reason]`,
+  `unban <account|install id|address|name>`. Closing the hub is refused.
+
+## Player list and chat
+
+- **Player list (P).** Both sides' players (signed in ✓ or guest, ping) from `hub who` lines the hub sends every 3 s
+  (`hub gone` when one leaves); for each other player a voice volume slider (0 to 200 %), a voice mute (`HubVoice`, kept
+  by name for the visit; the relay stops sending a muted talker) and a chat mute (`HubClient.MuteChat`, this game only).
+  The pointer is freed while it is open.
+- **Local chat.** Tab while typing cycles everyone, your side, near you; `/l text` says a line near you. The client sends
+  `hub local <text>`; the hub delivers `hub local <playerId> <team> <text>` to the players within 3000 uu of the
+  speaker (`HubK.LocalChatRange`, the voice's hearing range), at most one line per half second. The chat box marks
+  them "(near)".
+- **Bubbles.** Any chat line a player says shows under his name tag for 6 s (two short lines at most).
+
 ## Open items
 
-- Activities: emotes show as captions only (no animation is played yet; a server-driven pose for sit and dance needs
-  the pawn's animation channel); the course of layout version 1 has no pieces, so its checkpoints are spaced on the
-  line until the map's course gets its traversal pieces; the boards stand in the world as signs at their anchors (`BoardPublished` -> `HubSigns.Set`) and the nearest
-  one is also shown in the HUD; the HUD, props and music still need a look in a windowed game with the converted content.
+- Activities: the emote poses and the assault course (layout version 3) were built by numbers and need a look and a
+  walk in the game; the HUD, props and music still need a look in a windowed game with the converted content.
 - Match pads: the pad flow is checked headless only (see "Match pads"); the windowed look (signs, overlays, map
-  pictures, the queue panel) and a full round to the end banner and back are still to see. The pads have no host
-  rotation or vote yet (`HubPads.Reconfigure` is there for it), matches run in the hub's process (a separate
-  `svm-server` per match would need a launcher of its own).
+  pictures, the queue panel) and a full round to the end banner and back are still to see; so are votes, watching and
+  joining a match through its master entry. Matches run in the hub's process (a separate `svm-server` per match would
+  need a launcher of its own).
 - The pad themes follow each pad's map (`HubPadView.OnPadConfigChanged` -> `HubPadThemes.Apply(pad, ThemeForMap(map))`,
   and the chosen kits go on once the hub map is built); maps with no kit of their own show the neutral `hub` theme.
 - The course and the new rails, benches and props were laid out by numbers (the kit heights) and drawn in an
   offscreen render; walking them with the full moveset in the game is still to check.
 - The replication pass is one block of about 6 to 12 ms every third tick at 50 players; spreading it over the ticks
   would flatten the p99.
-- Hub pad matches are not relayed: a player hub behind NAT lists and joins through the relay, but its matches need
-  UDP 28890-28897 reachable. Hub names are not checked against accounts (no tickets in the hub yet).
+- A hub hosted in the game gives its own host no ticket (he joins on 127.0.0.1, not through the master), so the host
+  is a guest in his own hub.
 - The play scene keeps the side the player arrived as in its settings. After a side change the pawn, its kit, the
   view and the HUD page follow the new pawn, and the key layout is swapped for the new side's (PlayRoot.FollowSide);
   anything else the scene chose from the settings at load still needs a check with the converted content.
-- Text chat is hub-wide (voice is by distance).
-- The hub has no screen yet to set another player's voice volume or mute him (the lobby has one for matches);
-  `HubVoice.SetVolume` and `SetMuted` are there for it.
+- The online server keeps its own ticket check (`OnlineServer.CheckTicket`); it can move onto `TicketGate` too.
 - Proximity voice was heard in the headless smoke and the tests; a windowed check with two real microphones (the
   falloff and the muffling by ear) is still to do.

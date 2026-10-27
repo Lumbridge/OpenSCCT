@@ -57,4 +57,11 @@ public static partial class K
 
     [Provenance(ProvenanceKind.Estimated, "as QuickThrowHandForward")]
     public const float QuickThrowHandUp = 0f;
+
+    /// <summary>
+    /// The server accepts an owner's ThrowGren this much before RefireRate has passed on its own clock, so jitter does
+    /// not drop a throw the client timed correctly.
+    /// </summary>
+    [Provenance(ProvenanceKind.Estimated, "port choice: the original trusts the client's UseGren; 0.25 s covers ordinary jitter")]
+    public const float RemoteRefireSlack = 0.25f;
 }

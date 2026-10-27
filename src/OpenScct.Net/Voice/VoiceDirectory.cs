@@ -79,7 +79,7 @@ public sealed class NetDriverVoiceDirectory : IVoiceDirectory
         for (int i = 0; i < connections.Count; i++)
         {
             NetConnection connection = connections[i];
-            if (connection.State == EConnectionState.USOCK_Closed || connection.Actor is not PlayerController pc ||
+            if (connection.State == EConnectionState.USOCK_Closed || connection.IsRecorder || connection.Actor is not PlayerController pc ||
                 pc.bDeleteMe || pc.PlayerReplicationInfo is not { } pri || VoiceK.TalkerOf(pri.PlayerID) == 0)
             {
                 continue;

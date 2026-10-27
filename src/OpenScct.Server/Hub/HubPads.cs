@@ -38,7 +38,17 @@ public sealed class HubPad
         Area = area;
         Number = number;
         State = config.Playable ? HubPadState.Idle : HubPadState.Off;
+        Options = HubConfig.Options(config);
     }
+
+    /// <summary>The matches the pad can be voted to: its own (0) and its choices.</summary>
+    public IReadOnlyList<HubPadConfig> Options { get; }
+
+    /// <summary>The option the pad queues for now.</summary>
+    public int Option { get; internal set; }
+
+    /// <summary>Each voter's option (only players on the pad count).</summary>
+    internal Dictionary<HubPlayer, int> Votes { get; } = new();
 
     public HubPadConfig Config { get; internal set; }
 
@@ -112,6 +122,16 @@ public sealed class HubPads
     private readonly List<HubPad> _pads = new();
     private readonly List<IHubMatch> _matches = new();
     private readonly List<HubQueueEntry> _gone = new();
+    private readonly List<PendingOffers> _pending = new();
+
+    /// <summary>
+    /// Offers held back a moment after a start, until the match's master entry is known (players then join it through
+    /// the master, so a relay can carry it), or <see cref="MasterWaitSeconds"/> passed (they join at its address).
+    /// </summary>
+    private sealed record PendingOffers(IHubMatch Match, List<(HubPlayer Player, HubMatchOffer Offer)> Offers, float Until);
+
+    /// <summary>Longest wait for a match's master entry before its offers go out with the address only.</summary>
+    public const float MasterWaitSeconds = 4f;
     private long _order;
 
     internal HubPads(HubServer hub, HubConfig config, IHubMatchLauncher? launcher)
@@ -182,6 +202,11 @@ public sealed class HubPads
 
     internal void Left(HubPlayer player)
     {
+        foreach (HubPad p in _pads)
+        {
+            p.Votes.Remove(player);
+        }
+
         if (player.Pad is { } pad)
         {
             pad.Queue.RemoveAll(e => ReferenceEquals(e.Player, player));
@@ -193,6 +218,7 @@ public sealed class HubPads
     internal void Tick(float now, IReadOnlyList<HubPlayer> players)
     {
         DrainMatches();
+        FlushOffers(now);
         foreach (HubPlayer p in players)
         {
             UpdatePresence(p, now);
@@ -244,6 +270,11 @@ public sealed class HubPads
         if (p.Pad is { } old)
         {
             old.Queue.RemoveAll(e => ReferenceEquals(e.Player, p));
+            if (old.Votes.Remove(p))
+            {
+                ApplyVotes(old);
+            }
+
             _hub.LogLine($"{p.Slot.Name} left the queue of {old.Config.Id}");
         }
 
@@ -399,18 +430,154 @@ public sealed class HubPads
         pad.MatchesRunning++;
         pad.StartingUntil = now + StartingSeconds;
         _hub.LogLine($"{pad.Config.Id}: match started on UDP port {match.Port}: {HubMatchLauncher.Describe(request)}");
+        var offers = new List<(HubPlayer, HubMatchOffer)>();
         foreach (HubQueueEntry e in lineup)
         {
-            var offer = new HubMatchOffer(pad.Config.Id, match.Port, e.Side, request.Password, pad.Config.Map, pad.Config.Mode, Config.MatchHost);
-            Send(e.Player.Slot, HubProtocol.Match(offer));
+            offers.Add((e.Player, new HubMatchOffer(pad.Config.Id, match.Port, e.Side, request.Password, pad.Config.Map, pad.Config.Mode, Config.MatchHost)));
             e.Player.DepartedAt = now;
             e.Player.Pad = null;
             e.Player.QueueLine = string.Empty;
             pad.Queue.Remove(e);
         }
 
+        _pending.Add(new PendingOffers(match, offers, _hub.Master is not null ? now + MasterWaitSeconds : now));
+        FlushOffers(now);
         _hub.Say($"{PadName(pad)}: {pad.Config.Title} {pad.Config.Format} is starting with {lineup.Count} player(s).");
+
+        // The votes were for this match. With choices and no votes, the next match is the next choice (a rotation).
+        bool voted = pad.Votes.Count > 0;
+        pad.Votes.Clear();
+        if (!voted && pad.Options.Count > 1)
+        {
+            SetOption(pad, (pad.Option + 1) % pad.Options.Count);
+        }
+
         PadChanged?.Invoke(pad);
+    }
+
+    /// <summary>Sends the held offers whose match has its master entry now, or whose wait is over.</summary>
+    private void FlushOffers(float now)
+    {
+        for (int i = _pending.Count - 1; i >= 0; i--)
+        {
+            PendingOffers p = _pending[i];
+            string? masterId = p.Match.MasterId;
+            if (masterId is null && now < p.Until)
+            {
+                continue;
+            }
+
+            _pending.RemoveAt(i);
+            foreach ((HubPlayer player, HubMatchOffer offer) in p.Offers)
+            {
+                Send(player.Slot, HubProtocol.Match(offer with { MasterId = masterId }));
+            }
+        }
+    }
+
+    /// <summary>
+    /// A vote of a player on the pad for one of its options (while nobody counts down): the most votes pick the pad's
+    /// match; a tie keeps the current one. Option -1 moves the player's vote on to the next option (the V key).
+    /// False when the vote does not count.
+    /// </summary>
+    public bool Vote(HubPlayer player, string padId, int option)
+    {
+        if (option == -1 && Find(padId) is { Options.Count: > 1 } cycled)
+        {
+            option = ((cycled.Votes.TryGetValue(player, out int mine) ? mine : cycled.Option) + 1) % cycled.Options.Count;
+        }
+
+        if (Find(padId) is not { } pad || !ReferenceEquals(player.Pad, pad) || option < 0 || option >= pad.Options.Count ||
+            pad.State is HubPadState.Countdown or HubPadState.Starting or HubPadState.Off)
+        {
+            return false;
+        }
+
+        pad.Votes[player] = option;
+        ApplyVotes(pad);
+        return true;
+    }
+
+    private void ApplyVotes(HubPad pad)
+    {
+        if (pad.State is HubPadState.Countdown or HubPadState.Starting || pad.Options.Count < 2)
+        {
+            return;
+        }
+
+        var tally = Tally(pad);
+        int best = pad.Option;
+        for (int i = 0; i < tally.Length; i++)
+        {
+            if (tally[i] > tally[best])
+            {
+                best = i;
+            }
+        }
+
+        if (best != pad.Option)
+        {
+            SetOption(pad, best);
+            _hub.LogLine($"{pad.Config.Id}: voted to {pad.Config.Map} {pad.Config.Format}");
+        }
+    }
+
+    private static int[] Tally(HubPad pad)
+    {
+        var tally = new int[pad.Options.Count];
+        foreach (int v in pad.Votes.Values)
+        {
+            tally[v]++;
+        }
+
+        return tally;
+    }
+
+    private void SetOption(HubPad pad, int option)
+    {
+        pad.Option = option;
+        HubPadConfig c = pad.Options[option];
+        pad.Config = Launcher is null ? c with { Playable = false } : c;
+        pad.CountdownEnd = -1f;
+        pad.LastLine = string.Empty;
+        if (pad.State != HubPadState.Off)
+        {
+            pad.State = pad.Queue.Count > 0 ? HubPadState.Waiting : HubPadState.Idle;
+        }
+    }
+
+    /// <summary>
+    /// A player asks to watch the pad's match being played: an offer as a spectator (team 255) with the match's
+    /// password. False when the pad has no match to watch.
+    /// </summary>
+    public bool Watch(HubPlayer player, string padId)
+    {
+        if (Find(padId) is not { } pad || RunningMatch(pad) is not { } m)
+        {
+            return false;
+        }
+
+        HubPadConfig c = m.Request.Pad;
+        var offer = new HubMatchOffer(pad.Config.Id, m.Port, OpenScct.Server.Online.SessionProtocol.SpectatorTeam, m.Request.Password, c.Map, c.Mode,
+            Config.MatchHost, m.MasterId);
+        Send(player.Slot, HubProtocol.Match(offer));
+        _hub.LogLine($"{player.Slot.Name} watches the match of {pad.Config.Id}");
+        return true;
+    }
+
+    /// <summary>The running match of a pad (the newest), or null.</summary>
+    private IHubMatch? RunningMatch(HubPad pad)
+    {
+        for (int i = _matches.Count - 1; i >= 0; i--)
+        {
+            if (string.Equals(_matches[i].Request.Pad.Id, pad.Config.Id, StringComparison.OrdinalIgnoreCase) &&
+                _matches[i].Status is HubMatchStatus.Lobby or HubMatchStatus.Playing)
+            {
+                return _matches[i];
+            }
+        }
+
+        return null;
     }
 
     private void DrainMatches()
@@ -444,7 +611,7 @@ public sealed class HubPads
 
         // The sign shows more than the line carries (who is ready, who is next), so it is set every tick; HubSigns
         // only sends it on when its text changed.
-        _hub.Signs.Set("Pad." + pad.Config.Id, pad.Area.Anchor, SignText(pad, info), Colour(pad.State), 1f, pad.Area.SignFace);
+        _hub.Signs.Set("Pad." + pad.Config.Id, pad.Area.Anchor, SignText(pad, info, RunningMatch(pad)?.Live), Colour(pad.State), 1f, pad.Area.SignFace);
         string line = HubProtocol.Pad(info);
         if (line == pad.LastLine)
         {
@@ -483,7 +650,7 @@ public sealed class HubPads
     /// Starting in 7...
     /// </code>
     /// </summary>
-    public static string SignText(HubPad pad, HubPadInfo info)
+    public static string SignText(HubPad pad, HubPadInfo info, HubMatchLive? live = null)
     {
         HubPadConfig c = pad.Config;
         var sb = new StringBuilder();
@@ -516,9 +683,35 @@ public sealed class HubPads
             HubPadState.Starting => "Match starting!",
             _ => Missing(pad, c),
         });
-        if (pad.MatchesRunning > 0 && info.State != HubPadState.Starting)
+        if (live is { Playing: true } l && info.State != HubPadState.Starting)
         {
-            sb.Append('\n').Append(pad.MatchesRunning == 1 ? "1 match playing" : $"{pad.MatchesRunning} matches playing");
+            // The match in play: its score and clock, and how to watch it.
+            string clock = l.SecondsLeft > 0
+                ? string.Create(CultureInfo.InvariantCulture, $", {l.SecondsLeft / 60}:{l.SecondsLeft % 60:00} left")
+                : string.Empty;
+            string score = c.MercsOnly ? "Playing" : string.Create(CultureInfo.InvariantCulture, $"Playing: Spies {l.SpyScore} - Mercs {l.MercScore}");
+            string watching = l.Watchers > 0 ? string.Create(CultureInfo.InvariantCulture, $" ({l.Watchers} watching)") : string.Empty;
+            sb.Append('\n').Append(score).Append(clock).Append("   H to watch").Append(watching);
+        }
+        else if (pad.MatchesRunning > 0 && info.State != HubPadState.Starting)
+        {
+            sb.Append('\n').Append(pad.MatchesRunning == 1 ? "1 match playing   H to watch" : $"{pad.MatchesRunning} matches playing   H to watch");
+        }
+
+        if (pad.Options.Count > 1 && info.State is HubPadState.Idle or HubPadState.Waiting)
+        {
+            int[] tally = Tally(pad);
+            sb.Append("\nVote with 1-").Append(pad.Options.Count.ToString(CultureInfo.InvariantCulture)).Append(" on the pad:");
+            for (int i = 0; i < pad.Options.Count; i++)
+            {
+                HubPadConfig o = pad.Options[i];
+                sb.Append(i == pad.Option ? "  >" : "   ").Append((i + 1).ToString(CultureInfo.InvariantCulture)).Append(' ')
+                    .Append(o.Title.Length > 0 ? o.Title : o.Map).Append(' ').Append(MapCatalog.ModeName(o.Mode));
+                if (tally[i] > 0)
+                {
+                    sb.Append(" (").Append(tally[i].ToString(CultureInfo.InvariantCulture)).Append(')');
+                }
+            }
         }
 
         return sb.ToString();

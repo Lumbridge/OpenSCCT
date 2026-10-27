@@ -171,6 +171,41 @@ public sealed class ChannelPoseApplier
         _rot[b] = (parent.Inverse() * AimRotation.Normalized() * parent * _rot[b].Normalized()).Normalized();
     }
 
+    /// <summary>
+    /// Extra turns laid over the blended pose before it is set (an OpenSCCT addition: the hub's emotes,
+    /// game/Scripts/Hub/HubEmotePoses.cs): bone index to a turn in skeleton space about the bone's origin, applied
+    /// parent first so a child's turn adds to its parent's. Cleared by the caller; empty for an ordinary pose.
+    /// </summary>
+    public Dictionary<int, Quaternion> ExtraTurns { get; } = new();
+
+    /// <summary>A shift of the first root bone in skeleton space (metres) laid over the pose with <see cref="ExtraTurns"/> (a sit lowers the hips).</summary>
+    public Vector3 ExtraShift { get; set; }
+
+    private void TurnExtraBones()
+    {
+        if (ExtraTurns.Count == 0)
+        {
+            return;
+        }
+
+        foreach (int b in _order)
+        {
+            if (!ExtraTurns.TryGetValue(b, out Quaternion turn))
+            {
+                continue;
+            }
+
+            Quaternion parent = Quaternion.Identity;
+            for (int p = _parent[b]; p >= 0; p = _parent[p])
+            {
+                parent = _rot[p].Normalized() * parent;
+            }
+
+            parent = parent.Normalized();
+            _rot[b] = (parent.Inverse() * turn.Normalized() * parent * _rot[b].Normalized()).Normalized();
+        }
+    }
+
     /// <summary>The index of a bone by name, or -1.</summary>
     public int FindBone(string name) => _bones.TryGetValue(name, out int b) ? b : -1;
 
@@ -214,6 +249,13 @@ public sealed class ChannelPoseApplier
         }
 
         TurnAimBone();
+        TurnExtraBones();
+        if (ExtraShift != Vector3.Zero && RootBone >= 0)
+        {
+            // The root's local space is the skeleton's (it has no parent).
+            _pos[RootBone] += ExtraShift;
+        }
+
         for (int b = 0; b < _count; b++)
         {
             _skeleton.SetBonePosePosition(b, _pos[b]);

@@ -264,6 +264,7 @@ public sealed class ActorChannel : Channel
                 }
 
                 if ((memo != 2 && !(driver.PropertyPush is { } push && push(actor, connection, p))) ||
+                    (memo == 2 && driver.PropertyWithhold is { } withhold && withhold(actor, connection, p)) ||
                     RepLayout.Same(p, words, _recent, objects, _recentObjects))
                 {
                     continue;
@@ -413,6 +414,7 @@ public sealed class ActorChannel : Channel
         RepLayout layout = ClassInfo!.Layout;
         target.bNetOwner = driver.IsLocallyOwned(target);
         Motion?.BeginReceive(target);
+        driver.ReceivingTick = bunch.PacketTick;
         driver.PreNetReceive?.Invoke(target);
         NetValue value;
         while (!r.AtEnd)

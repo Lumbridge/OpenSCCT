@@ -20,7 +20,8 @@ public enum MatchEndReason
 }
 
 /// <summary>One line of the results table.</summary>
-public sealed record MatchResultRow(string Name, HudSide Side, int Score, int Kills, int Deaths, int Objectives, bool IsLocal);
+/// <param name="Rank">The player's rank (OpenScct.Net.Cosmetics.PlayerRank packed; 0 offline, for guests and bots).</param>
+public sealed record MatchResultRow(string Name, HudSide Side, int Score, int Kills, int Deaths, int Objectives, bool IsLocal, int Rank = 0);
 
 /// <summary>What the results screen shows after a match.</summary>
 public sealed class MatchResult

@@ -154,7 +154,10 @@ Notable differences from other UE2 builds (this engine has no `StartLocationShap
     PTDU_None `A = U Size.X, B = R Size.X`; PTDU_Scale `A = U Size.Y, B = R Size.X`; PTDU_Up and PTDU_UpAndNormal
     `A = D Size.Y, B = C Size.X`; PTDU_Right and PTDU_RightAndNormal `A = C Size.Y, B = D Size.X`; PTDU_Forward and
     PTDU_Normal: `P` is the world Y axis when |D.X| > 0.57, else Z when |D.Y| > 0.57, else X; `A = (D x P) Size.Y`,
-    `B = unit(A x D) Size.X`. So Size is a half extent.
+    `B = unit(A x D) Size.X`. So Size is a half extent. PTDU_UpAndNormal and PTDU_RightAndNormal cross with the stored
+    normal (not the one PTRS_Actor turned). Under PTCS_Relative the camera location and axes are moved into the owner's
+    frame first and the quads are drawn through the owner's transform, so the projection normal and the best axis P
+    are the owner's, not the world's.
 19. Spin (`SpinParticles`): the angle `round(StartSpin.X + Time SpinsPerSecond.X)` in rotator units (when
     SpinsPerSecond.X is negative: `65535 - (round(StartSpin.X - Time SpinsPerSecond.X) & 65535)`), turning A and B
     about F (about D for PTDU_Forward and PTDU_Normal).

@@ -223,6 +223,11 @@ public sealed class SkeletalModel
                         TwoSided = e.TwoSided, Unlit = e.Unlit, SelfIllum = e.SelfIllum, SelfIllumMask = e.SelfIllumMask, SpecMask = e.SpecMask,
                         EnvColor = e.EnvColor, UvAnim = e.UvAnim, ListBlend = e.ListBlend,
                     }, LightSource.Actor);
+                    if (pattern == "golden" && made is ShaderMaterial shiny)
+                    {
+                        // The golden camo is polished metal: the world shader's gold sheen (svm_gold).
+                        shiny.SetShaderParameter(GoldParameter, 1f);
+                    }
                 }
             }
 
@@ -399,6 +404,7 @@ public sealed class SkeletalModel
     }
 
     public static readonly StringName TintParameter = "svm_tint";
+    public static readonly StringName GoldParameter = "svm_gold";
     public static readonly StringName GlowHueParameter = "svm_glow_hue";
 
     private Template? _template;

@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from .. import gamefiles
 from ..graph import Context, Step, StepOutput
 from ..paths import SCCTPKG_ROOT, import_scctpkg
 
@@ -28,7 +29,7 @@ class MapsPreviewStep(Step):
         return {"map": unit, "includeBsp": True}
 
     def _map_file(self, ctx: Context, unit: str | None) -> Path:
-        return ctx.game / "Packages" / "Maps" / f"{unit}.sdc"
+        return gamefiles.game_file(ctx.game, f"Packages/Maps/{unit}.sdc")
 
     def inputs(self, ctx: Context, unit: str | None) -> dict[str, str | None]:
         map_file = self._map_file(ctx, unit)
@@ -46,8 +47,7 @@ class MapsPreviewStep(Step):
         from scctpkg.export_gltf import export_map  # noqa: PLC0415 - vendored, imported on demand
         from scctpkg.packageset import PackageSet  # noqa: PLC0415
 
-        packages = ctx.game / "Packages"
-        pset = PackageSet([packages])
+        pset = PackageSet(gamefiles.package_roots(ctx.game))
         stats = export_map(self._map_file(ctx, unit), pset, out_dir.parent, include_bsp=True)
         # Packages the export opened (or looked for and did not find) decide its output beyond the map itself.
         files: dict[str, str | None] = {}
@@ -81,7 +81,7 @@ class MapsPreviewStep(Step):
         import_scctpkg()
         from scctpkg.packageset import PackageSet  # noqa: PLC0415
 
-        index = PackageSet([ctx.game / "Packages"]).files
+        index = PackageSet(gamefiles.package_roots(ctx.game)).files
         for key, logical in lookups.items():
             path = index.get(key)
             if (ctx.game_path(path) if path is not None else None) != logical:

@@ -5,7 +5,7 @@ namespace OpenScct.Server;
 
 /// <summary>
 /// OpenSCCT's own replicated members of PlayerReplicationInfo: the cosmetic look (two ints), sent to every client so
-/// each draws the others' skins and light colours.
+/// each draws the others' skins and light colours, and the rank (level, prestige and title) the scoreboards show.
 /// </summary>
 public static class PlayerLookNet
 {
@@ -14,6 +14,7 @@ public static class PlayerLookNet
         var extension = new RepExtension();
         extension.Properties.Add(new RepExtensionProperty("SvmLookLow", nameof(PlayerReplicationInfo.SvmLookLow), RepLeafKind.Int));
         extension.Properties.Add(new RepExtensionProperty("SvmLookHigh", nameof(PlayerReplicationInfo.SvmLookHigh), RepLeafKind.Int));
+        extension.Properties.Add(new RepExtensionProperty("SvmRank", nameof(PlayerReplicationInfo.SvmRank), RepLeafKind.Int));
         return extension;
     }
 }

@@ -4,7 +4,6 @@ using OpenScct.Content;
 using OpenScct.Core;
 using OpenScct.Game.Modes;
 using OpenScct.Game.SBase;
-using K = OpenScct.Net.K;
 
 namespace OpenScctGame.Play.Session;
 
@@ -61,8 +60,11 @@ public sealed record PlaySettings
 
     public string PlayerName { get; init; } = "Player";
 
-    /// <summary>Replication passes per second of the listen server (20 internet, 35 LAN, up to 60).</summary>
-    public int NetRate { get; init; } = K.NetServerMaxTickRate;
+    /// <summary>
+    /// Replication passes per second of the listen server, 1 to 60 (<c>--svm-netrate=</c>); 0 (the default) takes the
+    /// Enhanced profile's rate, every tick (60).
+    /// </summary>
+    public int NetRate { get; init; }
 
     public ulong MatchSeed { get; init; } = 1;
 
@@ -90,6 +92,9 @@ public sealed record PlaySettings
     /// the loopback.
     /// </summary>
     public OpenScct.Net.SimLinkProfile? SimLink { get; init; }
+
+    /// <summary>Records the match as a demo into this folder (docs/DEMOS.md), or null for none.</summary>
+    public string? DemoFolder { get; init; }
 
     /// <summary>The team index the login asks for.</summary>
     public int Team => Side == PlaySide.Spy ? 0 : 1;

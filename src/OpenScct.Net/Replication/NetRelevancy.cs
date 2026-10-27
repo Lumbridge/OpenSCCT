@@ -100,6 +100,36 @@ public sealed class NetRelevancy
         return test(this, actor, viewer);
     }
 
+    // Classes whose test is "only the owner's connection" (a player's controller and its helpers): a demo recorder
+    // keeps these tests, so it never gets another player's controller (whose role would make it look local).
+    private static readonly HashSet<string> OwnerOnlyClasses = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "Engine.PlayerController", "SBase.SPlayerController", "SBase.SInteractionManager", "SBase.SPlayerCam",
+    };
+
+    private readonly Dictionary<UcClassInfo, bool> _ownerOnly = new();
+
+    /// <summary>
+    /// Relevancy for a demo recorder connection (<see cref="NetConnection.IsRecorder"/>): every actor, so a demo can
+    /// follow any player anywhere, except the owner-only classes, which keep their own test.
+    /// </summary>
+    public bool IsRelevantToRecorder(Actor actor, in NetViewer viewer)
+    {
+        ArgumentNullException.ThrowIfNull(actor);
+        UcClassInfo cls = actor.GetUcClass();
+        if (!_ownerOnly.TryGetValue(cls, out bool ownerOnly))
+        {
+            for (UcClassInfo? c = cls; c is not null && !ownerOnly; c = c.Super)
+            {
+                ownerOnly = OwnerOnlyClasses.Contains(c.Path);
+            }
+
+            _ownerOnly[cls] = ownerOnly;
+        }
+
+        return !ownerOnly || IsRelevant(actor, viewer);
+    }
+
     /// <summary>"Owned by X": X is in the actor's Owner chain, the actor itself included.</summary>
     public static bool IsOwnedBy(Actor actor, Actor? x)
     {

@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Threading;
+using System.Threading.Tasks;
 using OpenScct.Core;
 using OpenScct.Core.Engine;
 using OpenScct.Game.GameFlow;
@@ -13,7 +14,6 @@ using OpenScct.Net.Cosmetics;
 using OpenScct.Net.Discovery;
 using OpenScct.Net.Voice;
 using OpenScct.Provenance;
-using K = OpenScct.Net.K;
 
 namespace OpenScct.Server.Online;
 
@@ -40,11 +40,24 @@ public sealed record OnlineServerSettings
     /// <summary>Dedicated servers: the matches the lobby moves through after each series (empty keeps the setup).</summary>
     public IReadOnlyList<LobbySetup> Rotation { get; init; } = [];
 
-    public int NetRate { get; init; } = K.NetServerMaxTickRate;
+    /// <summary>Replication rate of each round's server, 1 to 60; 0 (the default) takes the rate of <see cref="Profile"/>.</summary>
+    public int NetRate { get; init; }
+
+    /// <summary>
+    /// Network profile of each round's server (<see cref="ServerSettings.Profile"/>): Stock by default; the dedicated
+    /// server, the hub's matches and the game's own host choose Enhanced.
+    /// </summary>
+    public NetProfile Profile { get; init; } = NetProfile.Stock;
 
     public ulong MatchSeed { get; init; } = 1;
 
     public MapCatalog? Maps { get; init; }
+
+    /// <summary>
+    /// Where a map came from when it was downloaded from the SCCT-Maps repository (null: not downloaded), told to
+    /// players with the setup so those without the map can fetch it. Null: never told.
+    /// </summary>
+    public Func<string, MapSourceInfo?>? MapSource { get; init; }
 
     public NetClassRegistry? Classes { get; init; }
 
@@ -136,6 +149,12 @@ public sealed record OnlineServerSettings
     /// null: the session has no bots whatever the setup says.
     /// </summary>
     public OnlineBotFactory? Bots { get; init; }
+
+    /// <summary>
+    /// Records each round as a demo (docs/DEMOS.md) into this folder; null (the default) records nothing.
+    /// <see cref="OnlineServer.DemoRecorded"/> reports each finished file.
+    /// </summary>
+    public string? DemoFolder { get; init; }
 }
 
 /// <summary>A player of the session on the server, kept across the maps of the visit.</summary>
@@ -205,6 +224,15 @@ public sealed class SessionPlayer
     public CosmeticLook SpyLook { get; internal set; }
 
     public CosmeticLook MercLook { get; internal set; }
+
+    /// <summary>The rank with the checked title (PlayerRank packed; 0 for guests and bots).</summary>
+    public int Rank { get; internal set; }
+
+    /// <summary>The round place this player came back to (he dropped out of it), until he is in again.</summary>
+    internal DroppedPlayer? Rejoin { get; set; }
+
+    /// <summary>Kicked or banned: he gets no place to rejoin.</summary>
+    internal bool Kicked { get; set; }
 
     internal SessionPlayerFlags Flags(SessionPhase phase) =>
         (Ready ? SessionPlayerFlags.Ready : 0) | (IsHost ? SessionPlayerFlags.Host : 0) | (IsAdmin ? SessionPlayerFlags.Admin : 0) |
@@ -344,6 +372,7 @@ public sealed partial class OnlineServer : IDisposable
             Master.KickAccounts += OnMasterKicks;
             Master.PlayerDetails = PlayerDetailsForMaster;
             Master.RoundSecondsLeft = () => Phase == SessionPhase.Match ? Info().SecondsLeft : -1;
+            Master.RejoinAccounts = RejoinAccounts;
             Master.Commands += OnMasterCommands;
         }
         else if (settings.RequireAccounts)
@@ -419,6 +448,12 @@ public sealed partial class OnlineServer : IDisposable
     /// <summary>Raised when a round ended and its results are known.</summary>
     public event Action<MatchResults>? RoundEnded;
 
+    /// <summary>
+    /// Raised when a round's demo is complete on disk (<see cref="OnlineServerSettings.DemoFolder"/>): the file, and
+    /// the round's results (null when the round stopped early: everyone left, a map change).
+    /// </summary>
+    public event Action<string, MatchResults?>? DemoRecorded;
+
     private void Log(string line) => Logged?.Invoke(line);
 
     // ---- ticking ------------------------------------------------------------------------------------------------
@@ -470,41 +505,23 @@ public sealed partial class OnlineServer : IDisposable
 
     /// <summary>
     /// Runs <see cref="Tick"/> at 60 Hz from <paramref name="clock"/> until cancelled or <see cref="Close"/>, calling
-    /// <paramref name="afterTick"/> after each tick; a stall drops its backlog.
+    /// <paramref name="afterTick"/> after each tick; a stall drops its backlog. While <see cref="IsIdle"/> it ticks
+    /// only <see cref="RealtimeLoop.IdleHz"/> times a second.
     /// </summary>
-    public void RunRealtime(IClock clock, CancellationToken cancellationToken, Action<OnlineServer>? afterTick = null)
-    {
-        ArgumentNullException.ThrowIfNull(clock);
-        long start = clock.NowMicroseconds;
-        long ticks = 0;
-        while (!cancellationToken.IsCancellationRequested && !CloseRequested)
+    public void RunRealtime(IClock clock, CancellationToken cancellationToken, Action<OnlineServer>? afterTick = null) =>
+        RealtimeLoop.Run(clock, cancellationToken, now =>
         {
-            long now = clock.NowMicroseconds;
-            long due = start + VirtualClock.TickToMicroseconds(ticks + 1, Sim.Hz);
-            if (now < due)
-            {
-                if (due - now > 2000)
-                {
-                    Thread.Sleep(1);
-                }
-                else
-                {
-                    Thread.Yield();
-                }
-
-                continue;
-            }
-
-            if (now - due > VirtualClock.TickToMicroseconds(5, Sim.Hz))
-            {
-                start = now - VirtualClock.TickToMicroseconds(ticks + 1, Sim.Hz);
-            }
-
             Tick(now);
-            ticks++;
             afterTick?.Invoke(this);
-        }
-    }
+        }, () => IsIdle, () => CloseRequested);
+
+    /// <summary>
+    /// True when nobody is on the server: in the lobby, no players, no connections (not even one still connecting),
+    /// no travel, kick or close waiting. <see cref="RunRealtime"/> then ticks slowly.
+    /// </summary>
+    public bool IsIdle =>
+        _travel is null && Phase == SessionPhase.Lobby && _players.Count == 0 && _kicks.Count == 0 && _closeAt < 0
+        && Host.Driver.ClientConnections.Count == 0;
 
     private void TickKicks()
     {
@@ -557,6 +574,7 @@ public sealed partial class OnlineServer : IDisposable
             Map = map,
             MaxPlayers = Settings.MaxPlayers + Settings.MaxSpectators,
             NetRate = Settings.NetRate,
+            Profile = Settings.Profile,
             MatchSeed = Settings.MatchSeed + (ulong)RoundsStarted,
             NetMode = Settings.Dedicated ? ENetMode.NM_DedicatedServer : ENetMode.NM_ListenServer,
             Maps = Maps,
@@ -609,11 +627,85 @@ public sealed partial class OnlineServer : IDisposable
 
         if (!isLobby)
         {
+            StartDemo(host, map, gameOptions!);
             _bots = StartBots(host);
         }
 
         HostStarted?.Invoke(host);
         return host;
+    }
+
+    /// <summary>Starts the round's demo when the session records them; a failure only costs the demo.</summary>
+    private void StartDemo(ServerHost host, string map, string gameOptions)
+    {
+        if (Settings.DemoFolder is not { Length: > 0 } folder)
+        {
+            return;
+        }
+
+        DateTimeOffset start = Settings.WallClock.GetUtcNow();
+        string path = System.IO.Path.Combine(folder,
+            start.ToString("yyyyMMdd-HHmmss", CultureInfo.InvariantCulture) + "-" + map + DemoFile.Extension);
+        DemoWriter? writer = null;
+        try
+        {
+            writer = new DemoWriter(path, new DemoHeader
+            {
+                GameVersion = BuildInfo.Version,
+                ProtocolHash = host.Driver.ProtocolHash,
+                ContentHash = host.Map.ContentHash,
+                Map = map,
+                GameOptions = gameOptions,
+                ServerName = Settings.Name,
+                StartUnixMs = start.ToUnixTimeMilliseconds(),
+                TickRate = Sim.Hz,
+                NetRate = host.NetRate,
+            });
+            host.StartRecording(writer, _now);
+            Log($"recording demo {path}");
+        }
+        catch (Exception e) when (e is System.IO.IOException or UnauthorizedAccessException or InvalidOperationException)
+        {
+            writer?.Dispose();
+            Log($"demo not recorded: {e.Message}");
+        }
+    }
+
+    /// <summary>Finishes the round's demo, if one is recording, and reports it.</summary>
+    private void FinishDemo(ServerHost host, MatchResults? results)
+    {
+        if (host.Recorder is not { IsFinished: false } recorder)
+        {
+            return;
+        }
+
+        try
+        {
+            recorder.Finish();
+            recorder.Writer.Dispose();
+            DemoIndex index = recorder.Writer.Index;
+            long bytes = new System.IO.FileInfo(recorder.Writer.Path).Length;
+            double seconds = Math.Max(1.0, index.DurationTicks / (double)Sim.Hz);
+            Log($"demo {recorder.Writer.Path}: {bytes / 1024} KB, {seconds:0} s ({bytes / 1024.0 / seconds:0.0} KB/s, {index.RawBytes / 1024.0 / seconds:0.0} KB/s raw)");
+
+            // A finished round's demo goes to the master's bucket (trusted servers with uploads on).
+            if (results is not null && SubmitDemo(recorder.Writer.Path, new DemoMeta
+                {
+                    DurationSeconds = (int)seconds,
+                    GameVersion = recorder.Writer.Header.GameVersion,
+                    NetProtocol = recorder.Writer.Header.ProtocolHash,
+                    ContentHash = recorder.Writer.Header.ContentHash,
+                }))
+            {
+                Log($"uploading demo {recorder.Writer.Path}");
+            }
+
+            DemoRecorded?.Invoke(recorder.Writer.Path, results);
+        }
+        catch (System.IO.IOException e)
+        {
+            Log($"demo not saved: {e.Message}");
+        }
     }
 
     /// <summary>
@@ -714,6 +806,7 @@ public sealed partial class OnlineServer : IDisposable
         _transport.Current?.Retire();
         _bots?.Dispose();
         _bots = null;
+        FinishDemo(old, null);
         old.Dispose();
         try
         {
@@ -745,9 +838,15 @@ public sealed partial class OnlineServer : IDisposable
 
         Phase = phase;
         _phaseStart = _now;
+        if (phase == SessionPhase.Lobby)
+        {
+            // The round (or the series) is over: nobody has a place to rejoin any more.
+            _dropped.Clear();
+        }
         if (phase == SessionPhase.Match)
         {
             _matchStart = _now;
+            _roundMatchId = null;
         }
         _endedAt = -1;
         _resultsEnd = -1;
@@ -876,6 +975,7 @@ public sealed partial class OnlineServer : IDisposable
 
         foreach (SessionPlayer p in missing)
         {
+            KeepDropped(p, null);
             RemovePlayer(p, $"{p.Name} did not load in time.");
         }
 
@@ -920,6 +1020,12 @@ public sealed partial class OnlineServer : IDisposable
         MatchResults results = BuildResults();
         LastResults = results;
         SetPhase(SessionPhase.Results);
+        if (results.GamesLeft == 0)
+        {
+            // The last game of the series is over: there is no round left to rejoin.
+            _dropped.Clear();
+        }
+
         foreach (SessionPlayer p in _players)
         {
             p.Ready = p.IsBot;
@@ -933,13 +1039,47 @@ public sealed partial class OnlineServer : IDisposable
             BroadcastPhase();
         }
 
-        RoundEnded?.Invoke(results);
+        // Reported first: the round's demo is handed to the upload once the master has the round (SubmitDemo).
         ReportResults(results);
+        RoundEnded?.Invoke(results);
+        FinishDemo(Host, results);
     }
+
+    /// <summary>
+    /// Uploads a finished round's demo file to the master's bucket (docs/ONLINE.md, "Demos"), once the master has
+    /// stored the round's results. Call on the host's thread after the round ended (from <see cref="RoundEnded"/> or
+    /// during the results) and before the next round starts. False when it will not be uploaded: no trusted master,
+    /// uploads off (<see cref="MasterLinkSettings.UploadDemos"/>) or the round was not reported. The file must stay
+    /// in place until the upload is done; the outcome comes out of the master link's notices.
+    /// </summary>
+    public bool SubmitDemo(string path, DemoMeta meta)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(path);
+        ArgumentNullException.ThrowIfNull(meta);
+        if (Master is not { Trusted: true } link || Settings.Master is not { UploadDemos: true } || _roundMatchId is not { } matchId)
+        {
+            return false;
+        }
+
+        _ = UploadWhenReported(link, matchId, path, meta);
+        return true;
+    }
+
+    private static async Task UploadWhenReported(MasterLink link, Task<long?> reported, string path, DemoMeta meta)
+    {
+        if (await reported.ConfigureAwait(false) is { } matchId)
+        {
+            await link.UploadDemo(matchId, path, meta).ConfigureAwait(false);
+        }
+    }
+
+    /// <summary>The master's id of the round that just ended, once its results are taken (null: not reported).</summary>
+    private Task<long?>? _roundMatchId;
 
     /// <summary>A trusted server's finished round goes to the master for the players' stats (off the tick).</summary>
     private void ReportResults(MatchResults results)
     {
+        _roundMatchId = null;
         if (Master is not { Trusted: true, ServerId: { } serverId } link || Settings.Master?.ServerKey is not { Length: > 0 })
         {
             return;
@@ -957,7 +1097,7 @@ public sealed partial class OnlineServer : IDisposable
             });
         }
 
-        link.ReportResults(new ResultsReport
+        _roundMatchId = link.ReportResults(new ResultsReport
         {
             ServerId = serverId, Map = results.Map, Mode = (int)Setup.Mode, WinningTeam = results.WinningTeam,
             WinningReason = results.WinningReason, ObjectivesTaken = results.ObjectivesTaken, ObjectivesNeeded = results.ObjectivesNeeded,
@@ -1222,16 +1362,20 @@ public sealed partial class OnlineServer : IDisposable
         }
         else
         {
-            if (Settings.Password is { Length: > 0 } password && UcOptions.ParseOption(options, "Password") != password)
+            bool host = !Settings.Dedicated && Settings.HostKey is { Length: > 0 } key && UcOptions.ParseOption(options, "SvmHost") == key;
+            PlayerTicket? ticket = CheckTicket(UcOptions.ParseOption(options, "SvmTicket"), out string ticketProblem);
+            HostAccount? hostAccount = host && ticket is null ? Settings.HostAccount : null;
+
+            // A player who dropped out of the round comes back to his place; a signed-in one (his ticket proves who
+            // he is) needs no password, as he may be rejoining from another PC.
+            DroppedPlayer? dropped = host ? null : FindDropped(ticket?.AccountId, installId);
+            if (Settings.Password is { Length: > 0 } password && UcOptions.ParseOption(options, "Password") != password &&
+                dropped is not { AccountId: not null })
             {
                 return LoginDecision.Refuse(UcOptions.ParseOption(options, "Password").Length == 0
                     ? "This server needs a password."
                     : "Wrong password.");
             }
-
-            bool host = !Settings.Dedicated && Settings.HostKey is { Length: > 0 } key && UcOptions.ParseOption(options, "SvmHost") == key;
-            PlayerTicket? ticket = CheckTicket(UcOptions.ParseOption(options, "SvmTicket"), out string ticketProblem);
-            HostAccount? hostAccount = host && ticket is null ? Settings.HostAccount : null;
             if (hostAccount is not null && Settings.Bans?.Find(null, null, null, hostAccount.AccountId) is { } hostBan)
             {
                 return Banned(hostBan);
@@ -1260,7 +1404,7 @@ public sealed partial class OnlineServer : IDisposable
             int requested = UcOptions.GetIntOption(options, "Team", -1);
             bool wantsSpectator = requested == SessionProtocol.SpectatorTeam ||
                 UcStrings.EqualsIgnoreCase(UcOptions.ParseOption(options, "SpectatorOnly"), "true");
-            bool spectator = wantsSpectator || Phase != SessionPhase.Lobby;
+            bool spectator = wantsSpectator || (Phase != SessionPhase.Lobby && dropped is null);
             // Bots never take a person's place: they make room (UpdateBots) when he joins.
             if (!spectator && CountHumans(spectators: false) >= Settings.MaxPlayers)
             {
@@ -1287,12 +1431,21 @@ public sealed partial class OnlineServer : IDisposable
                 Verified = ticket is not null || hostAccount is not null,
                 SpyLook = CheckedLook(options, "SvmLookS", CosmeticSide.Spy, UnlocksOf(ticket, hostAccount)),
                 MercLook = CheckedLook(options, "SvmLookM", CosmeticSide.Merc, UnlocksOf(ticket, hostAccount)),
+                Rank = PlayerRanks.Checked(UcOptions.ParseOption(options, "SvmTitle"), ticket, hostAccount),
                 IsAdmin = masterAdmin,
                 IsHost = host,
                 Ready = Settings.ReadyOnJoin,
-                Team = spectator ? SessionProtocol.SpectatorTeam : (byte)(requested is 0 or 1 ? requested : SmallerTeam()),
+                Team = spectator ? SessionProtocol.SpectatorTeam
+                    : dropped is not null ? dropped.Team
+                    : (byte)(requested is 0 or 1 ? requested : SmallerTeam()),
+                Rejoin = spectator ? null : dropped,
             };
             _players.Add(player);
+            if (player.Rejoin is { } place)
+            {
+                _dropped.Remove(place);
+            }
+
             if (ticket is not null)
             {
                 _usedTickets[ticket.TicketId] = ticket.Expires;
@@ -1303,6 +1456,10 @@ public sealed partial class OnlineServer : IDisposable
                 : hostAccount is not null
                 ? $"{player.Name} joined from {address} (id {player.Id}, the host, signed in on this game, account {hostAccount.AccountId})"
                 : $"{player.Name} joined from {address} (id {player.Id}, guest: {ticketProblem})");
+            if (player.Rejoin is not null)
+            {
+                Log($"{player.Name} rejoins round {RoundsStarted} on side {player.Team}");
+            }
         }
 
         player.Address = address;
@@ -1458,7 +1615,9 @@ public sealed partial class OnlineServer : IDisposable
 
     /// <summary>The login options of a player for the current map's game rules (its side, and the series count for the revenge swap).</summary>
     private string MatchLoginOptions(SessionPlayer p) => "?Team=" + p.Team.ToString(CultureInfo.InvariantCulture) + SeriesOptions(Host.Game) +
-        (p.Team switch { 0 => p.SpyLook, 1 => p.MercLook, _ => CosmeticLook.Default } is { Packed: not 0 } look ? "?SvmLook=" + look.ToHex() : string.Empty);
+        (p.Team switch { 0 => p.SpyLook, 1 => p.MercLook, _ => CosmeticLook.Default } is { Packed: not 0 } look ? "?SvmLook=" + look.ToHex() : string.Empty) +
+        (p.Rank != 0 ? "?SvmRank=" + p.Rank.ToString(CultureInfo.InvariantCulture) : string.Empty) +
+        (p.Rejoin is not null ? "?SvmRejoin=1" : string.Empty);
 
     /// <summary>A look from the join's options with every item the ticket does not unlock set back to retail.</summary>
     private static CosmeticLook CheckedLook(string options, string key, CosmeticSide side, CosmeticUnlocks unlocks) =>
@@ -1596,6 +1755,7 @@ public sealed partial class OnlineServer : IDisposable
 
         SendWelcome(p);
         BroadcastPlayer(p);
+        Rejoined(p, slot);
         if (Phase == SessionPhase.Lobby)
         {
             UpdateBots();
@@ -1625,6 +1785,7 @@ public sealed partial class OnlineServer : IDisposable
         if (ReferenceEquals(p.Slot, slot) || (p.Slot is null && !p.Expected))
         {
             p.Slot = null;
+            KeepDropped(p, slot.Controller);
             RemovePlayer(p, $"{p.Name} left.");
         }
     }
@@ -1772,6 +1933,7 @@ public sealed partial class OnlineServer : IDisposable
         _lan?.Dispose();
         _bots?.Dispose();
         _bots = null;
+        FinishDemo(Host, null);
         Host.Dispose();
         _transport.Dispose();
     }

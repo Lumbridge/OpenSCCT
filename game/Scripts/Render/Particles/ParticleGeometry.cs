@@ -64,12 +64,12 @@ public static class ParticleGeometry
         ArgumentNullException.ThrowIfNull(e);
         ArgumentNullException.ThrowIfNull(into);
         ParticleParams p = e.Params;
-        FVector normal = p.ProjectionNormal.SafeNormal();
-        if (p.UseRotationFrom == 1)
-        {
-            normal = ParticleEmitterSim.Rotate(normal, owner.Rotation);
-        }
+        FVector rawNormal = p.ProjectionNormal.SafeNormal();
+        FVector normal = p.UseRotationFrom == 1 ? ParticleEmitterSim.Rotate(rawNormal, owner.Rotation) : rawNormal;
 
+        // Under PTCS_Relative the engine builds each quad in the owner's frame (the camera moved into it) and draws it
+        // through the owner's transform, so the projection normal and the best-axis pick turn with the owner too.
+        FVector sideNormal = WorldDirection(p, rawNormal, owner);
         ReadOnlySpan<Particle> particles = e.Particles;
         int used = Math.Min(e.ActiveParticles, particles.Length);
         for (int i = 0; i < used; i++)
@@ -81,8 +81,10 @@ public static class ParticleGeometry
             }
 
             FVector at = World(p, q.Location, owner);
-            FVector d = p.UseDirectionAs == 4 ? normal : WorldDirection(p, q.Location - q.OldLocation, owner).SafeNormal();
-            FVector c = p.UseDirectionAs is 5 or 6 ? d ^ normal : (d ^ (at - camera.Location)).SafeNormal();
+            FVector localD = p.UseDirectionAs == 4 ? normal : (q.Location - q.OldLocation).SafeNormal();
+            FVector d = WorldDirection(p, localD, owner);
+            // UpAndNormal and RightAndNormal cross with the stored normal, not the one PTRS_Actor turned.
+            FVector c = p.UseDirectionAs is 5 or 6 ? d ^ sideNormal : (d ^ (at - camera.Location)).SafeNormal();
             FVector a;
             FVector b;
             FVector spinAxis = camera.Forward;
@@ -110,10 +112,12 @@ public static class ParticleGeometry
                     break;
                 case 3:
                 case 4:
-                    FVector axis = MathF.Abs(d.X) > ParticleK.BestAxisThreshold ? new FVector(0f, 1f, 0f)
-                        : MathF.Abs(d.Y) > ParticleK.BestAxisThreshold ? new FVector(0f, 0f, 1f) : new FVector(1f, 0f, 0f);
-                    a = (d ^ axis) * sy;
-                    b = (a ^ d).SafeNormal() * sx;
+                    // The best axis is picked in the frame the quad is built in (the owner's under PTCS_Relative).
+                    FVector axis = MathF.Abs(localD.X) > ParticleK.BestAxisThreshold ? new FVector(0f, 1f, 0f)
+                        : MathF.Abs(localD.Y) > ParticleK.BestAxisThreshold ? new FVector(0f, 0f, 1f) : new FVector(1f, 0f, 0f);
+                    FVector localA = (localD ^ axis) * sy;
+                    a = WorldDirection(p, localA, owner);
+                    b = WorldDirection(p, (localA ^ localD).SafeNormal() * sx, owner);
                     spinAxis = d;
                     break;
                 default:

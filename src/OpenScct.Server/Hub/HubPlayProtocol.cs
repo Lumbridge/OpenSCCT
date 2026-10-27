@@ -17,11 +17,12 @@ namespace OpenScct.Server.Hub;
 ///   hubplay run cp &lt;passed&gt; &lt;of&gt; &lt;ms&gt;        you passed a checkpoint (split time)
 ///   hubplay run finish &lt;ms&gt; &lt;rank&gt; &lt;best&gt;   your run's time, its place on the board (0 none), 1 for a personal best
 ///   hubplay run cancel &lt;reason&gt;
+///   hubplay run fall &lt;falls&gt; &lt;checkpoint&gt;    you fell into the course's pit: back on checkpoint's deck (0 the start), the clock running
 ///   hubplay range start &lt;seconds&gt;              your range round started
 ///   hubplay range score &lt;points&gt; &lt;hits&gt; &lt;shots&gt; &lt;heads&gt; &lt;msLeft&gt;
 ///   hubplay range end &lt;score&gt; &lt;hits&gt; &lt;shots&gt; &lt;heads&gt; &lt;rank&gt; &lt;best&gt;
 ///   hubplay target &lt;id&gt; &lt;ownerPlayerId&gt; &lt;up&gt; &lt;x&gt; &lt;y&gt; &lt;z&gt;   a pop-up target rose (1) or fell (0)
-///   hubplay emote &lt;playerId&gt; &lt;emote&gt;          a player near you emotes (playerId: his replication info's)
+///   hubplay emote &lt;playerId&gt; &lt;emote&gt;          a player near you emotes (playerId: his replication info's); emote "-": he stopped
 ///   hubplay jukebox &lt;track&gt; &lt;title&gt;           the jukebox's track
 ///   hubplay ball &lt;x&gt; &lt;y&gt; &lt;z&gt; &lt;vx&gt; &lt;vy&gt;        the plaza ball (velocity in uu/s, for the client to run it on)
 ///   hubplay toast &lt;text&gt;                       a notice for this player
@@ -53,6 +54,8 @@ public static class HubPlayProtocol
 
     public static string RunCancel(string reason) => SessionProtocol.Line(Command, "run", "cancel", reason);
 
+    public static string RunFall(int falls, int checkpoint) => SessionProtocol.Line(Command, "run", "fall", falls, checkpoint);
+
     public static string RangeStart(int seconds) => SessionProtocol.Line(Command, "range", "start", seconds);
 
     public static string RangeScore(int points, int hits, int shots, int heads, int msLeft) =>
@@ -65,6 +68,8 @@ public static class HubPlayProtocol
         SessionProtocol.Line(Command, "target", id, owner, up, Whole(at.X), Whole(at.Y), Whole(at.Z));
 
     public static string Emote(int playerId, string emote) => SessionProtocol.Line(Command, "emote", playerId, emote);
+
+    public static string EmoteStop(int playerId) => SessionProtocol.Line(Command, "emote", playerId, "-");
 
     public static string EmoteRequest(string emote) => SessionProtocol.Line(Command, "emote", emote);
 

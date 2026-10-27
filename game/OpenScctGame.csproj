@@ -27,6 +27,7 @@
     <ProjectReference Include="..\src\OpenScct.Net\OpenScct.Net.csproj" />
     <ProjectReference Include="..\src\OpenScct.Server\OpenScct.Server.csproj" />
     <ProjectReference Include="..\src\OpenScct.Bots\OpenScct.Bots.csproj" />
+    <ProjectReference Include="..\src\OpenScct.Maps\OpenScct.Maps.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -13,37 +13,88 @@ namespace OpenScctGame.UI;
 
 /// <summary>
 /// The Armoury (OpenSCCT's own): the spy's and the merc's cosmetics per slot (suit or armour, light colour, pistol or
-/// each merc gun). Locked items say which achievement unlocks them; picking one saves it to the settings, which follow
-/// the account. Servers check the choice against the account's unlocks when the player joins.
+/// each merc gun) beside a kit panel with a turning 3D preview of the chosen look (the character in its suit and light
+/// colour, or a gun in its camo). Pointing at any item, locked ones too, tries it on in the preview; picking an
+/// unlocked one saves it to the settings, which follow the account. Servers check the choice against the account's
+/// unlocks when the player joins.
 /// </summary>
 public partial class ArmouryScreen : MenuPage
 {
+    private const float BodyWidth = 1180f;
+    private const float ListWidth = 712f;
+    private const float KitWidth = 448f;
     private const int ThumbSize = 40;
 
+    /// <summary>The frame's title and buttons and the page's side switch above the split.</summary>
+    private const float ChromeHeight = 104f + 64f + 52f;
+
+    private ScrollContainer? _listScroll;
+    private ScrollContainer? _kitScroll;
     private VBoxContainer? _content;
+    private VBoxContainer? _kit;
+    private CosmeticPreview? _preview;
+    private Label? _viewName;
+    private HFlowContainer? _views;
+    private VBoxContainer? _equipped;
     private AccountService? _service;
     private Task<AccountInfo>? _refresh;
     private CosmeticSide _side = CosmeticSide.Spy;
+    private CosmeticSlot _view = CosmeticSlot.Body;
+
+    /// <summary>The item being tried on (pointed at) and its slot, or null for the chosen kit.</summary>
+    private (CosmeticSlot Slot, CosmeticItem? Item)? _tryOn;
 
     public override void _Ready()
     {
         Name = "Armoury";
-        BuildFrame("Armoury", 900f);
+        BuildFrame("Armoury", BodyWidth);
         _service = AccountService.Get(GetTree());
         var sides = new HBoxContainer { Name = "Sides" };
         sides.AddChild(UiStyle.MenuButton("Spy", () => ShowSide(CosmeticSide.Spy), "SideSpy"));
         sides.AddChild(UiStyle.MenuButton("Mercenary", () => ShowSide(CosmeticSide.Merc), "SideMerc"));
         Body.AddChild(sides);
-        _content = new VBoxContainer { Name = "Content" };
+
+        var split = new HBoxContainer { Name = "Split" };
+        split.AddThemeConstantOverride("separation", 20);
+        Body.AddChild(split);
+        _listScroll = new ScrollContainer
+        {
+            Name = "ListScroll", CustomMinimumSize = new Vector2(ListWidth, 0f), HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled,
+        };
+        split.AddChild(_listScroll);
+        _content = new VBoxContainer { Name = "Content", SizeFlagsHorizontal = SizeFlags.ExpandFill };
         _content.AddThemeConstantOverride("separation", 8);
-        Body.AddChild(_content);
+        _listScroll.AddChild(_content);
+
+        _kitScroll = new ScrollContainer
+        {
+            Name = "KitScroll", CustomMinimumSize = new Vector2(KitWidth, 0f), HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled,
+        };
+        split.AddChild(_kitScroll);
+        var kitFrame = new VBoxContainer { Name = "KitFrame", SizeFlagsHorizontal = SizeFlags.ExpandFill };
+        _kitScroll.AddChild(kitFrame);
+        _kit = Panel(kitFrame, "Kit", "Your kit");
+        _kit.AddThemeConstantOverride("separation", 6);
+        BuildKit();
+
         PageButton("Back", () => FrontEnd.ShowMainMenu(GetTree()), "Back").GrabFocus();
+        PageButton("Achievements", () => FrontEnd.ShowAchievements(GetTree()), "Achievements");
+        GetViewport().SizeChanged += FitHeight;
+        FitHeight();
         if (AccountService.HasMaster && AccountSettings.Current.SignedIn)
         {
             _refresh = AccountService.Call(c => c.AccountAsync());
         }
 
         ShowSide(_side);
+    }
+
+    public override void _ExitTree()
+    {
+        if (GetViewport() is { } viewport)
+        {
+            viewport.SizeChanged -= FitHeight;
+        }
     }
 
     public override void _Process(double delta)
@@ -64,9 +115,50 @@ public partial class ArmouryScreen : MenuPage
     public static Button MenuButton(Node from) =>
         UiStyle.MenuButton("Armoury", () => FrontEnd.ShowArmoury(from.GetTree()), "Armoury");
 
+    /// <summary>The list and the kit panel fill the window's height between the side switch and the page buttons.</summary>
+    private void FitHeight()
+    {
+        float height = Math.Max(320f, GetViewportRect().Size.Y - ChromeHeight);
+        _listScroll!.CustomMinimumSize = new Vector2(ListWidth, height);
+        _kitScroll!.CustomMinimumSize = new Vector2(KitWidth, height);
+    }
+
+    private void BuildKit()
+    {
+        var frame = new PanelContainer { Name = "PreviewFrame" };
+        frame.AddThemeStyleboxOverride("panel", UiStyle.ThumbBox());
+        _kit!.AddChild(frame);
+        _preview = new CosmeticPreview(new Vector2(KitWidth - 44f, 330f));
+        frame.AddChild(_preview);
+        _viewName = new Label { Name = "ViewName", Modulate = UiStyle.MenuFocus, HorizontalAlignment = HorizontalAlignment.Center };
+        _kit.AddChild(_viewName);
+        _views = new HFlowContainer { Name = "Views" };
+        _views.AddThemeConstantOverride("h_separation", 6);
+        _views.AddThemeConstantOverride("v_separation", 6);
+        _kit.AddChild(_views);
+        var caption = new Label { Name = "EquippedCaption", Text = "Equipped", Modulate = UiStyle.Dim, Uppercase = true };
+        caption.AddThemeFontSizeOverride("font_size", 13);
+        _kit.AddChild(caption);
+        _equipped = new VBoxContainer { Name = "Equipped" };
+        _kit.AddChild(_equipped);
+        var hint = new Label
+        {
+            Text = "Point at an item to try it on. Drag the model to turn it.", Modulate = UiStyle.Dim,
+            AutowrapMode = TextServer.AutowrapMode.WordSmart, CustomMinimumSize = new Vector2(KitWidth - 44f, 0f),
+        };
+        hint.AddThemeFontSizeOverride("font_size", 13);
+        _kit.AddChild(hint);
+    }
+
     private void ShowSide(CosmeticSide side)
     {
+        if (side != _side)
+        {
+            _view = CosmeticSlot.Body;
+        }
+
         _side = side;
+        _tryOn = null;
         foreach (Node child in _content!.GetChildren())
         {
             _content.RemoveChild(child);
@@ -78,15 +170,15 @@ public partial class ArmouryScreen : MenuPage
         if (account is null)
         {
             _content.AddChild(Note(AccountService.HasMaster
-                ? "Sign in on the Account page and earn achievements on official servers to unlock these."
-                : "Cosmetics are unlocked by achievements on an official master server; none is set up."));
+                ? "Sign in on the Account page and earn achievements on official servers to unlock these. You can still try everything on."
+                : "Cosmetics are unlocked by achievements on an official master server; none is set up. You can still try everything on."));
         }
 
-        CosmeticLook look = CosmeticLook.FromIds(side, Chosen(side));
+        CosmeticLook look = Look(side);
         foreach (CosmeticSlot slot in CosmeticCatalog.SlotsOf(side))
         {
             VBoxContainer panel = Panel(_content, "Slot" + slot, CosmeticCatalog.SlotName(slot, side));
-            var grid = new GridContainer { Name = "Items", Columns = 3 };
+            var grid = new GridContainer { Name = "Items", Columns = 2 };
             grid.AddThemeConstantOverride("h_separation", 6);
             grid.AddThemeConstantOverride("v_separation", 4);
             panel.AddChild(grid);
@@ -97,6 +189,8 @@ public partial class ArmouryScreen : MenuPage
                 grid.AddChild(ItemButton(side, slot, item, ReferenceEquals(look[slot], item), unlocked.Contains(item.Id), from));
             }
         }
+
+        RefreshKit();
     }
 
     private Button ItemButton(CosmeticSide side, CosmeticSlot slot, CosmeticItem? item, bool chosen, bool open, AchievementInfo? from)
@@ -109,7 +203,7 @@ public partial class ArmouryScreen : MenuPage
         }
 
         Button b = UiStyle.MenuButton(text, () => Choose(side, slot, item), "Item" + (item?.Id ?? slot + ".retail").Replace('.', '_'));
-        b.CustomMinimumSize = new Vector2(280f, 44f);
+        b.CustomMinimumSize = new Vector2(340f, 44f);
         b.Alignment = HorizontalAlignment.Left;
         b.Disabled = !open;
         b.Icon = item is null ? null : CosmeticThumbs.For(item, ThumbSize);
@@ -121,12 +215,100 @@ public partial class ArmouryScreen : MenuPage
             b.Modulate = UiStyle.MenuFocus;
         }
 
+        // Trying on: pointing at (or moving the keyboard focus to) any item shows it in the preview, locked or not.
+        b.MouseEntered += () => TryOn(slot, item);
+        b.FocusEntered += () => TryOn(slot, item);
+        b.MouseExited += EndTryOn;
+        b.FocusExited += EndTryOn;
         return b;
+    }
+
+    private void TryOn(CosmeticSlot slot, CosmeticItem? item)
+    {
+        _tryOn = (slot, item);
+        // A light is seen on the character's head; a suit on the whole character; a gun on its own.
+        _view = slot;
+        RefreshKit();
+    }
+
+    private void EndTryOn()
+    {
+        if (_tryOn is null)
+        {
+            return;
+        }
+
+        _tryOn = null;
+        RefreshKit();
+    }
+
+    /// <summary>Redraws the kit panel: the preview of the chosen look (with the item tried on), the views and the list.</summary>
+    private void RefreshKit()
+    {
+        if (_preview is null)
+        {
+            return;
+        }
+
+        CosmeticLook look = Look(_side);
+        if (_tryOn is { } t)
+        {
+            look = look.With(t.Slot, t.Item);
+        }
+
+        _preview.ShowLook(_side, look, _view);
+        CosmeticItem? shown = look[_view];
+        _viewName!.Text = CosmeticCatalog.SlotName(_view, _side) + ": " + (shown?.Name ?? "Retail") + (_tryOn is not null ? "  (trying on)" : string.Empty);
+
+        foreach (Node child in _views!.GetChildren())
+        {
+            _views.RemoveChild(child);
+            child.QueueFree();
+        }
+
+        foreach (CosmeticSlot slot in CosmeticCatalog.SlotsOf(_side))
+        {
+            CosmeticSlot s = slot;
+            var chip = new Button
+            {
+                Name = "View" + slot, Text = CosmeticCatalog.SlotName(slot, _side), ToggleMode = true, ButtonPressed = slot == _view,
+                CustomMinimumSize = new Vector2(0f, 34f), ThemeTypeVariation = UiStyle.TileVariation, FocusMode = FocusModeEnum.None,
+            };
+            chip.AddThemeFontSizeOverride("font_size", 13);
+            chip.Pressed += () =>
+            {
+                _view = s;
+                RefreshKit();
+            };
+            _views.AddChild(chip);
+        }
+
+        foreach (Node child in _equipped!.GetChildren())
+        {
+            _equipped.RemoveChild(child);
+            child.QueueFree();
+        }
+
+        CosmeticLook chosen = Look(_side);
+        foreach (CosmeticSlot slot in CosmeticCatalog.SlotsOf(_side))
+        {
+            var row = new HBoxContainer();
+            row.AddThemeConstantOverride("separation", 8);
+            var icon = new TextureRect
+            {
+                Texture = chosen[slot] is { } item ? CosmeticThumbs.For(item, 24) : null, CustomMinimumSize = new Vector2(24f, 24f),
+                ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize, StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered,
+            };
+            row.AddChild(icon);
+            row.AddChild(new Label { Text = CosmeticCatalog.SlotName(slot, _side), Modulate = UiStyle.Dim, CustomMinimumSize = new Vector2(130f, 0f) });
+            row.AddChild(new Label { Text = chosen[slot]?.Name ?? "Retail", Modulate = UiStyle.MenuText });
+            _equipped.AddChild(row);
+        }
     }
 
     private void Choose(CosmeticSide side, CosmeticSlot slot, CosmeticItem? item)
     {
-        CosmeticLook look = CosmeticLook.FromIds(side, Chosen(side)).With(slot, item);
+        CosmeticLook look = Look(side).With(slot, item);
         string[] ids = CosmeticCatalog.SlotsOf(side).Select(s => look[s]?.Id).Where(id => id is not null).Select(id => id!).ToArray();
         GameSettings settings = SettingsStore.Current;
         if (side == CosmeticSide.Spy)
@@ -139,14 +321,16 @@ public partial class ArmouryScreen : MenuPage
         }
 
         SettingsStore.Save(settings);
+        _view = slot;
         ShowSide(side);
     }
 
-    private static string[] Chosen(CosmeticSide side) =>
-        side == CosmeticSide.Spy ? SettingsStore.Current.CosmeticsSpy : SettingsStore.Current.CosmeticsMerc;
+    private static CosmeticLook Look(CosmeticSide side) =>
+        CosmeticLook.FromIds(side, side == CosmeticSide.Spy ? SettingsStore.Current.CosmeticsSpy : SettingsStore.Current.CosmeticsMerc);
 
     private static Label Note(string text) => new()
     {
-        Text = text, AutowrapMode = TextServer.AutowrapMode.WordSmart, CustomMinimumSize = new Vector2(820f, 0f), Modulate = UiStyle.MenuFocus,
+        Text = text, AutowrapMode = TextServer.AutowrapMode.WordSmart, CustomMinimumSize = new Vector2(ListWidth - 40f, 0f),
+        Modulate = UiStyle.MenuFocus,
     };
 }

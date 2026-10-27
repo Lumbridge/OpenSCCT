@@ -52,7 +52,7 @@ public partial class HubAudio : Node
         return player;
     }
 
-    /// <summary>A chime for an activity cue ("start", "cp", "finish", "best", "hit", "head", "end", "fanfare").</summary>
+    /// <summary>A chime for an activity cue ("start", "cp", "fall", "finish", "best", "hit", "head", "end", "fanfare").</summary>
     public void Cue(string cue) => _chimes.Play(cue);
 
     public override void _Process(double delta)
@@ -243,6 +243,7 @@ internal sealed class HubChimes
             "hit" => [(91, 0f)],
             "head" => [(96, 0f), (91, 0.06f)],
             "end" => [(79, 0f), (76, 0.14f), (72, 0.28f)],
+            "fall" => [(67, 0f), (60, 0.12f)],
             _ => [(84, 0f)],
         };
         float gain = cue is "hit" or "head" ? 0.18f : 0.28f;

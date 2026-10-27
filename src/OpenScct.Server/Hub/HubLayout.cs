@@ -7,15 +7,19 @@ using OpenScct.Core;
 namespace OpenScct.Server.Hub;
 
 /// <summary>One gate of the course: a disc on the floor (radius in uu), passed when a pawn's centre is over it.</summary>
-public readonly record struct HubGate(string Id, FVector At, float Radius)
+public readonly record struct HubGate(string Id, FVector At, float Radius, float Depth = HubPlayK.GateDepth)
 {
-    /// <summary>True when <paramref name="p"/> is over the gate: within the radius on the floor, at most <see cref="HubPlayK.GateHeight"/> above it.</summary>
+    /// <summary>
+    /// True when <paramref name="p"/> is over the gate: within the radius on the floor, from <see cref="Depth"/> below
+    /// its height to <see cref="HubPlayK.GateHeight"/> above it (a deck's gate has a shallow depth, so a pawn in the
+    /// pit under the deck is not on it).
+    /// </summary>
     public bool Contains(FVector p)
     {
         float dx = p.X - At.X;
         float dy = p.Y - At.Y;
         float dz = p.Z - At.Z;
-        return dx * dx + dy * dy <= Radius * Radius && dz > -HubPlayK.GateDepth && dz < HubPlayK.GateHeight;
+        return dx * dx + dy * dy <= Radius * Radius && dz > -Depth && dz < HubPlayK.GateHeight;
     }
 }
 
@@ -36,6 +40,15 @@ public sealed class HubLayout
 
     /// <summary>The course's area on the floor (x, y): a run that leaves it is cancelled.</summary>
     public (float X0, float Y0, float X1, float Y1) CourseArea { get; private set; } = (3072f, 512f, 9216f, 3328f);
+
+    /// <summary>
+    /// A running spy whose centre goes under this height in the course's area, once past the first checkpoint, fell
+    /// into the pit (layout version 3, a raised course); none (negative infinity) for a course on the floor.
+    /// </summary>
+    public float CourseFallZ { get; private set; } = float.NegativeInfinity;
+
+    /// <summary>The manifest's layout version (0 when it names none): the course's board is cleared when it changes.</summary>
+    public int LayoutVersion { get; private set; }
 
     public FVector CourseBoard { get; private set; }
 
@@ -125,6 +138,7 @@ public sealed class HubLayout
 
     private void Read(JsonElement root)
     {
+        LayoutVersion = (int)Num(root, "layoutVersion", 0f);
         var ges = new Dictionary<string, FVector>(StringComparer.Ordinal);
         if (root.TryGetProperty("ges", out JsonElement geList) && geList.ValueKind == JsonValueKind.Array)
         {
@@ -203,6 +217,7 @@ public sealed class HubLayout
     private void ReadCourse(JsonElement area, (float, float, float, float)? box, Dictionary<string, FVector> ges)
     {
         CourseArea = box ?? CourseArea;
+        CourseFallZ = Num(area, "fallZ", float.NegativeInfinity);
         if (area.TryGetProperty("start", out JsonElement start))
         {
             CourseStart = CourseStart with { At = Vec(start, Floor) };
@@ -218,7 +233,11 @@ public sealed class HubLayout
         {
             foreach (JsonElement cp in cps.EnumerateArray())
             {
-                Checkpoints.Add(new HubGate("CP" + (Checkpoints.Count + 1), Vec(cp, Floor), HubPlayK.CheckpointRadius));
+                // A plain point, or an object with its own radius and depth (a deck's checkpoint).
+                JsonElement at = cp.ValueKind == JsonValueKind.Object ? cp.GetProperty("at") : cp;
+                float radius = cp.ValueKind == JsonValueKind.Object ? Num(cp, "radius", HubPlayK.CheckpointRadius) : HubPlayK.CheckpointRadius;
+                float depth = cp.ValueKind == JsonValueKind.Object ? Num(cp, "depth", HubPlayK.GateDepth) : HubPlayK.GateDepth;
+                Checkpoints.Add(new HubGate("CP" + (Checkpoints.Count + 1), Vec(at, Floor), radius, depth));
             }
         }
         else if (area.TryGetProperty("ges", out JsonElement names) && names.ValueKind == JsonValueKind.Array)

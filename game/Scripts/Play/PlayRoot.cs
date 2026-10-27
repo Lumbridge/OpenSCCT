@@ -50,6 +50,9 @@ public sealed record PlayConfig
     /// </summary>
     public Func<IClock, PlaySession>? CreateSession { get; init; }
 
+    /// <summary>A demo being watched (docs/DEMOS.md): its cameras, playback bar and keys replace the player's input.</summary>
+    public Demo.DemoPlayer? Demo { get; init; }
+
     /// <summary>A play of <see cref="LaunchOptions.PlayMap"/> with the launch options' side, mode, rules and host.</summary>
     public static PlayConfig FromOptions(LaunchOptions options)
     {
@@ -71,6 +74,17 @@ public sealed record PlayConfig
         if (options.PlayNetRate > 0)
         {
             settings = settings with { NetRate = options.PlayNetRate };
+        }
+
+        // A simulated bad link needs the host in this thread: the simulated network delivers when the client polls.
+        if (options.PlaySimLink is { } link)
+        {
+            settings = settings with { HostMode = PlayHostMode.Inline, SimLink = SimLinkProfile.Get(link) };
+        }
+
+        if (options.PlayRecord)
+        {
+            settings = settings with { DemoFolder = OpenScctGame.Play.Demo.DemoLibrary.SavedFolder };
         }
 
         return new PlayConfig { Settings = settings, GameRoot = options.GameRoot };
@@ -336,6 +350,13 @@ public partial class PlayRoot : Node3D
             CapturePointer = !headless,
         };
         AddChild(Controls);
+        if (Config.Demo is { } demo)
+        {
+            // A demo's keys are the playback bar's; the spectator the recorder was takes no input.
+            Controls.Enabled = false;
+            AddChild(new Demo.DemoHud(demo));
+        }
+
         if (Config.Audio)
         {
             // Before the HUD: the sound takes the client world's event sink first and the HUD's tap wraps it.
@@ -351,7 +372,12 @@ public partial class PlayRoot : Node3D
             {
                 GD.Print($"SVM_PLAY no HUD: {error}");
             }
-            else if (View is not null)
+            else
+            {
+                Hud.Net.Source = ReadNet;
+            }
+
+            if (Hud is not null && View is not null)
             {
                 // The scope sights follow the aim point drawn between ticks, as the camera is.
                 Hud.DrawnAimLocation = () => _aim.At(_alpha);
@@ -373,6 +399,21 @@ public partial class PlayRoot : Node3D
         // Server messages and chat for the HUD, the chat line, the HUD's keys and the player's settings; the In-Game
         // Menu on the ShowMenu key (Escape).
         Menu = PlayMenu.Attach(this, Session, Controls, PlayHud.Attach(this, Session, Controls, Hud));
+    }
+
+    /// <summary>The local player's link totals for the network readout (main thread, between client ticks).</summary>
+    private NetReadout? ReadNet()
+    {
+        if (Session is not { IsStopped: false } session || session.Client.Connection?.Stats is not { } stats)
+        {
+            return null;
+        }
+
+        long corrections = session.LocalController is { } pc
+            ? session.Client.Movement.PeekEndpoint(pc)?.Client?.CorrectionsApplied ?? 0
+            : 0;
+        return new NetReadout(stats.HasRtt, stats.RttMicros, stats.JitterMicros, stats.InBytes, stats.OutBytes,
+            stats.InPackets, stats.InPacketsLost, stats.OutPackets, stats.OutPacketsLost, corrections, session.Client.ServerNetRate);
     }
 
     /// <summary>Where the player hears from: the drawn camera, else the last calc view.</summary>
@@ -397,6 +438,7 @@ public partial class PlayRoot : Node3D
 
     private void BeforeTick(PlaySession session, long tick)
     {
+        Config.Demo?.BeforeTick();
         if (Config.Pilot is { } pilot)
         {
             long start = Stopwatch.GetTimestamp();
@@ -414,6 +456,7 @@ public partial class PlayRoot : Node3D
 
     private void AfterTick(PlaySession session, long tick)
     {
+        Config.Demo?.AfterTick(session);
         Stats.Ticks++;
         _time.OnTick(session.Client.World.Level.Info.TimeSeconds);
         _look.AfterTick(session.LocalController, session.View);
@@ -559,7 +602,8 @@ public partial class PlayRoot : Node3D
 
         // The mouse turn not yet simulated is drawn now (no frame of delay, as the original's per-frame controller).
         (float pendingX, float pendingY) = Controls?.PendingMouse ?? (0f, 0f);
-        FRotator look = _look.Offset(pc, session.Mouse, pendingX + session.Input.MouseX, pendingY + session.Input.MouseY, session.ViewportSize, alpha);
+        FRotator look = session.ViewOverride is not null ? default
+            : _look.Offset(pc, session.Mouse, pendingX + session.Input.MouseX, pendingY + session.Input.MouseY, session.ViewportSize, alpha);
         if (Camera is not null && View is not null && Camera.Apply(session.PreviousView, session.View, alpha, look, _look.OrbitDistance(pc)))
         {
             // Materials, light types and the map's emitters at the drawn moment between ticks (they moved only at the
@@ -597,7 +641,8 @@ public partial class PlayRoot : Node3D
             }
         }
 
-        SBasePawn? firstPerson = pc is { bBehindView: false } ? session.LocalPawn : null;
+        SBasePawn? firstPerson = session.FirstPersonOverride is { } fpOverride ? fpOverride()
+            : pc is { bBehindView: false } ? session.LocalPawn : null;
         Pawns?.Draw(alpha, dt, firstPerson);
         Devices?.Draw(alpha, dt);
         if (Camera is not null)
@@ -641,6 +686,7 @@ public partial class PlayRoot : Node3D
         OpenScctGame.Controls.Pointer.Release();
         Session?.Dispose();
         Session = null;
+        Config.Demo?.Dispose();
         Devices = null;
         Pawns = null;
         FirstPerson = null;

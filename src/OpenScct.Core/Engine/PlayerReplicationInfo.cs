@@ -29,4 +29,10 @@ public partial class PlayerReplicationInfo : ReplicationInfo
 
     /// <summary>The look as one value.</summary>
     public long SvmLook => ((long)SvmLookHigh << 32) | (uint)SvmLookLow;
+
+    /// <summary>
+    /// OpenSCCT's own: the player's level, prestige and shown title (OpenScct.Net.Cosmetics.PlayerRank packed; 0 for
+    /// guests and bots), set by the server at login from its checked <c>?SvmRank=</c> option and replicated to every client.
+    /// </summary>
+    public int SvmRank;
 }

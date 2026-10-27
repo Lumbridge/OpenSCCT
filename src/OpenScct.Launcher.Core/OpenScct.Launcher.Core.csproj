@@ -5,4 +5,7 @@
   <ItemGroup>
     <InternalsVisibleTo Include="OpenScct.Launcher.Tests" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\OpenScct.Maps\OpenScct.Maps.csproj" />
+  </ItemGroup>
 </Project>

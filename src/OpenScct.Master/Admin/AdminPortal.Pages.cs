@@ -78,15 +78,16 @@ internal sealed partial class AdminPortal
         int page = PageOf(c);
         (List<AccountListRow> rows, int total) = _store.SearchAccounts(q, byCreated, page, PageSize);
         HashSet<long> online = OnlineAccounts();
+        Dictionary<long, PlayerRank> ranks = _store.Ranks(rows.Select(r => r.Account.Id));
         long now = _store.Now;
         string search = "<form method=\"get\" action=\"/admin/players\" class=\"bar\">" + Input("q", "Name, Discord id or account id", q) +
             Select("sort", [("seen", "Last seen"), ("created", "Newest accounts")], byCreated ? "created" : "seen") +
             Button("Search") + "</form>";
-        string table = Table(["Account", "Name", "Discord", "Last seen", "Created", "Matches", "Kills", ""],
+        string table = Table(["Account", "Name", "Rank", "Discord", "Last seen", "Created", "Matches", "Kills", ""],
             rows.Select(r => new[]
             {
                 "#" + r.Account.Id.ToString(CultureInfo.InvariantCulture), Link($"/admin/players/{r.Account.Id}", r.Account.Name ?? "(no name)"),
-                H(r.Account.DiscordId), H(Ago(r.Account.LastSeen, now)), H(Time(r.Account.Created)), N(r.Matches), N(r.Kills),
+                H(RankText(ranks.GetValueOrDefault(r.Account.Id))), H(r.Account.DiscordId), H(Ago(r.Account.LastSeen, now)), H(Time(r.Account.Created)), N(r.Matches), N(r.Kills),
                 (online.Contains(r.Account.Id) ? Badge("online", "ok") : string.Empty) + (r.Banned ? Badge("banned", "bad") : string.Empty) +
                     (_options.IsAdmin(r.Account.DiscordId) ? Badge("admin") : string.Empty),
             }));
@@ -104,6 +105,7 @@ internal sealed partial class AdminPortal
 
         long now = _store.Now;
         AccountInfo info = AccountInfo(account);
+        ProgressRow progress = _store.ProgressionOf(id);
         var body = new StringBuilder();
         string where = string.Join(", ", Snapshot().Where(s => s.Players.Any(p => p.AccountId == id))
             .Select(s => Link($"/admin/servers/{s.Id}", s.Name)));
@@ -113,7 +115,12 @@ internal sealed partial class AdminPortal
             ("Matches", N(info.Stats.Matches), $"{info.Stats.SpyWins} spy wins, {info.Stats.MercWins} merc wins, {info.Stats.Losses} losses"),
             ("Kills", N(info.Stats.Kills), $"{info.Stats.Deaths} deaths"),
             ("Achievements", $"{info.Achievements.Count(a => a.Earned is not null)} / {info.Achievements.Count}", null),
-            ("Cosmetics", $"{info.Unlocked.Count} / {CosmeticCatalog.All.Count}", $"{_store.Grants(id).Count} given by admins")));
+            ("Cosmetics", $"{info.Unlocked.Count} / {CosmeticCatalog.All.Count}", $"{_store.Grants(id).Count} given by admins"),
+            ("Rank", RankText(progress.Rank), $"{N(progress.TotalXp)} XP in all, best level {progress.BestLevel}, " +
+                $"{_store.Titles(id).Count} / {TitleCatalog.All.Count} titles"),
+            ("Last round XP", progress.LastAward is { } award ? "+" + N(award.Total) : "-",
+                progress.LastAward is { } la ? $"score {la.Score}, finish {la.Finish}, win {la.Win}, objectives {la.Objectives}, " +
+                    $"achievements {la.Achievements} ({la.Map})" : null)));
         if (where.Length > 0)
         {
             body.Append("<p class=\"notice\">Playing now on ").Append(where).Append(".</p>");
@@ -129,6 +136,9 @@ internal sealed partial class AdminPortal
             Form(c, self, Button("Kick from server", "do", "kick"), "Kick this player from the server they are on?") +
             Form(c, self, Button("Sign out everywhere", "do", "signout"), "End every game sign-in of this account?") +
             Form(c, self, Select("what", CosmeticChoices()) + Button("Unlock", "do", "unlock") + Button("Take back", "do", "lock")) +
+            Form(c, self, Input("prestige", "Prestige (0-10)", progress.Prestige.ToString(CultureInfo.InvariantCulture), type: "number") +
+                Input("level", "Level (1-55)", progress.Rank.Level.ToString(CultureInfo.InvariantCulture), type: "number") +
+                Button("Set rank", "do", "rank"), "Set this account's prestige and level?") +
             "</div>"));
 
         body.Append(Section("Bans", Table(["#", "Reason", "Until", "Added"], _store.BansOf(account).Select(b => new[]
@@ -175,10 +185,14 @@ internal sealed partial class AdminPortal
             "signout" => AdminResult.Done($"Ended {_store.RevokeSessions(id)} game sign-in(s)."),
             "unlock" => _actions.Grant(account, [Field(form, "what")], unlock: true),
             "lock" => _actions.Grant(account, [Field(form, "what")], unlock: false),
+            "rank" => _actions.SetRank(account, Field(form, "prestige"), Field(form, "level")),
             _ => AdminResult.Refused("Unknown action."),
         };
         return Player(c, admin, id, result.Message, !result.Ok);
     }
+
+    private static string RankText(PlayerRank rank) =>
+        rank.IsNone ? "-" : rank.IsMaster ? $"Master, level {rank.Level}" : rank.Prestige > 0 ? $"P{rank.Prestige}, level {rank.Level}" : $"Level {rank.Level}";
 
     private static double? Days(string text) =>
         double.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out double d) && d > 0 ? d : null;
@@ -274,8 +288,43 @@ internal sealed partial class AdminPortal
                     (r.Bot ? " " + Badge("bot") : string.Empty),
                 H(r.Team == 0 ? "Spy" : r.Team == 1 ? "Merc" : "-"), N(r.Score), N(r.Kills), N(r.Deaths),
                 H(string.Join(", ", r.Feats.Select(f => $"{f.Key} {f.Value}"))),
-            }));
+            })) + DemoSection(id);
         return Page(c, $"Round #{id}", "/admin/matches", admin.Name, body);
+    }
+
+    /// <summary>The round's demo, with a download link while it is kept.</summary>
+    private string DemoSection(long matchId)
+    {
+        if (_store.DemoOfMatch(matchId) is not { } d)
+        {
+            return _demos is null ? string.Empty : "<h2>Demo</h2><p class=\"muted\">No demo was uploaded for this round.</p>";
+        }
+
+        bool kept = d.State == DemoState.Ready && d.Expires > _store.Now;
+        string state = d.State switch
+        {
+            DemoState.Ready when kept => Badge("ready", "ok"),
+            DemoState.Pending => Badge("uploading"),
+            _ => Badge("expired"),
+        };
+        string download = kept && _demos is not null ? Link($"/admin/matches/{matchId}/demo", "Download") : "-";
+        return "<h2>Demo</h2>" + Table(["Demo", "State", "Size", "Length", "Versions", "Uploaded", "Kept until", ""], [new[]
+        {
+            H("#" + d.Id), state, H((d.Size / (1024.0 * 1024.0)).ToString("0.0", System.Globalization.CultureInfo.InvariantCulture) + " MB"),
+            H(d.DurationSeconds > 0 ? Duration(d.DurationSeconds) : "-"),
+            H($"game {d.GameVersion}, net {d.NetVersion}, content {d.ContentHash}"), H(Time(d.Created)), H(Time(d.Expires)), download,
+        }]);
+    }
+
+    /// <summary>Sends the admin to a fresh short-lived download link of the round's demo.</summary>
+    private IResult MatchDemo(HttpContext c, AdminSessionRow admin, long matchId)
+    {
+        if (_demos is null || _store.DemoOfMatch(matchId) is not { State: DemoState.Ready } d || d.Expires <= _store.Now)
+        {
+            return Page(c, "No demo", "/admin/matches", admin.Name, "<p>This round has no demo kept.</p>", status: 404);
+        }
+
+        return Results.Redirect(_demos.DownloadUrl(d.Key).Url);
     }
 
     // ---- History -----------------------------------------------------------------------------------------------

@@ -24,8 +24,12 @@ public sealed record HubSettings
 
     public int MaxPlayers { get; init; } = HubK.DefaultMaxPlayers;
 
-    /// <summary>Replication passes per second (20 internet, 35 LAN), as for a match.</summary>
-    public int NetRate { get; init; } = OpenScct.Net.K.NetServerMaxTickRate;
+    /// <summary>
+    /// Replication passes per second; 0 (the default) takes the Stock rate (20 internet, 35 with
+    /// <see cref="LanPlay"/>). The hub runs the Stock profile with its own per-connection budget; its matches run
+    /// Enhanced (<see cref="HubMatchLauncher"/>).
+    /// </summary>
+    public int NetRate { get; init; }
 
     public ulong Seed { get; init; } = 1;
 
@@ -89,6 +93,15 @@ public sealed record HubSettings
 
     /// <summary>A dedicated hub (svm-server), not one a game hosts: the list says so.</summary>
     public bool Dedicated { get; init; }
+
+    /// <summary>The hub's own bans (by account, install id, address or name); null: none.</summary>
+    public BanList? Bans { get; init; }
+
+    /// <summary>Only signed-in players may come in (with a master link that gives them tickets); guests are refused.</summary>
+    public bool RequireAccounts { get; init; }
+
+    /// <summary>The wall clock the master's tickets are checked against.</summary>
+    public TimeProvider WallClock { get; init; } = TimeProvider.System;
 }
 
 /// <summary>One hub player's own state, kept on its <see cref="PlayerSlot.Tag"/>.</summary>
@@ -131,7 +144,28 @@ public sealed class HubPlayer
 
     /// <summary>The last <c>hub queue</c> line he was sent.</summary>
     internal string QueueLine { get; set; } = string.Empty;
+
+    /// <summary>His master account when he came in with a good ticket, else null (a guest).</summary>
+    public long? AccountId { get; internal set; }
+
+    /// <summary>Signed in: his name is his account's.</summary>
+    public bool Verified => AccountId is not null;
+
+    /// <summary>A master admin (his ticket says so and the hub is trusted by the master).</summary>
+    public bool IsAdmin { get; internal set; }
+
+    /// <summary>The client's install id (bans), or empty.</summary>
+    public string InstallId { get; internal set; } = string.Empty;
+
+    /// <summary>Where he joined from (bans and the admin's player list).</summary>
+    public string Address { get; internal set; } = string.Empty;
+
+    /// <summary>Level time of his last local chat line.</summary>
+    internal float LastLocal { get; set; } = float.NegativeInfinity;
 }
+
+/// <summary>What a login carried in, kept from the login filter until the player is in.</summary>
+internal readonly record struct HubLoginIdentity(PlayerTicket? Ticket, bool Admin, string InstallId, string Address);
 
 /// <summary>
 /// A hub server: an OpenSCCT addition (spec/additions/hub.md). A <see cref="ServerHost"/> on the hub map with
@@ -140,12 +174,14 @@ public sealed class HubPlayer
 /// lobby), pick a side at login or later, chat, and respawn at the plaza. Single-threaded: call <see cref="Tick"/> or
 /// <see cref="RunRealtime"/> from one thread.
 /// </summary>
-public sealed class HubServer : IDisposable
+public sealed partial class HubServer : IDisposable
 {
     private readonly List<HubPlayer> _players = new();
     private readonly List<HubPlayer> _respawn = new();
     private readonly List<HubPlayer> _spawn = new();
     private readonly Dictionary<NetConnection, string> _returning = new();
+    private readonly Dictionary<NetConnection, HubLoginIdentity> _identities = new();
+    private readonly TicketGate _tickets = new();
 
     /// <summary>Seconds after a returning player joined before he is moved beside his pad.</summary>
     private const float ReturnDelaySeconds = 1.5f;
@@ -244,6 +280,10 @@ public sealed class HubServer : IDisposable
             IHubMatchLauncher? launcher = Settings.MatchLauncher ??
                 (Settings.Maps is { } maps && Settings.MatchClock is { } clock
                     ? new HubMatchLauncher(maps, Settings.Classes, Settings.MatchBots, config, clock, Settings.MatchLoopbackOnly)
+                    {
+                        // Each match registers unlisted with the hub's master: reachable as the hub is, with tickets.
+                        Master = Settings.Master is { Url.Length: > 0 } hubMaster && !Settings.MatchLoopbackOnly ? hubMaster : null,
+                    }
                     : null);
             Pads = new HubPads(this, config, launcher);
             PadsSummary = $"match pads from {config.Source}: {Pads.Pads.Count} pad(s){(launcher is null ? ", no match launcher (pads off)" : string.Empty)}";
@@ -254,8 +294,12 @@ public sealed class HubServer : IDisposable
             _udp.Unconnected = OnUnconnected;
             if (Settings.Master is { Url.Length: > 0 } master)
             {
-                Master = new MasterLink(master with { Kind = ServerKind.Hub }, _udp);
+                Master = new MasterLink(master with { Kind = ServerKind.Hub, RequireAccounts = Settings.RequireAccounts }, _udp);
                 Master.Notice += LogLine;
+                Master.AccountIds = SignedInAccounts;
+                Master.PlayerDetails = PlayerDetailsForMaster;
+                Master.KickAccounts += OnMasterKicks;
+                Master.Commands += OnMasterCommands;
             }
         }
 
@@ -318,16 +362,26 @@ public sealed class HubServer : IDisposable
         Watch();
     }
 
-    /// <summary>Runs the hub on the wall clock until cancelled (see <see cref="ServerHost.RunRealtime"/>).</summary>
+    /// <summary>
+    /// Runs the hub on the wall clock until cancelled (see <see cref="ServerHost.RunRealtime"/>); while
+    /// <see cref="IsIdle"/> it ticks only <see cref="RealtimeLoop.IdleHz"/> times a second.
+    /// </summary>
     public void RunRealtime(IClock clock, CancellationToken cancellationToken, Action<HubServer>? afterTick = null)
     {
         _realtime = clock;
-        Host.RunRealtime(clock, cancellationToken, _ =>
+        RealtimeLoop.Run(clock, cancellationToken, now =>
         {
+            Host.Tick(now);
             Watch();
             afterTick?.Invoke(this);
-        });
+        }, () => IsIdle);
     }
+
+    /// <summary>
+    /// True when nobody is in the hub: no players and no connections (not even one still connecting). The pads'
+    /// matches run on their own loops, so players away in a match do not keep the hub awake.
+    /// </summary>
+    public bool IsIdle => _players.Count == 0 && Host.Driver.ClientConnections.Count == 0;
 
     /// <summary>Sends a system line to every player's chat box.</summary>
     public void Say(string text) => Host.Broadcast(HubProtocol.Message(text));
@@ -437,6 +491,33 @@ public sealed class HubServer : IDisposable
             return LoginDecision.Refuse("The hub is full");
         }
 
+        string installId = ReadText(options, "SvmId");
+        string address = Host.Driver.Transport.RemoteAddress(connection.RemoteEndpoint) ?? "this machine";
+        if (Settings.Bans?.Find(installId, address, name) is { } ban)
+        {
+            return Banned(ban);
+        }
+
+        PlayerTicket? ticket = _tickets.Check(ReadText(options, "SvmTicket"), Master?.TicketKey, Master?.ServerId,
+            Settings.WallClock.GetUtcNow(), out string ticketProblem);
+        if (ticket is not null)
+        {
+            if (Settings.Bans?.Find(null, null, null, ticket.AccountId) is { } accountBan)
+            {
+                return Banned(accountBan);
+            }
+
+            if (_players.Exists(p => p.AccountId == ticket.AccountId))
+            {
+                return LoginDecision.Refuse("You are already in this hub.");
+            }
+        }
+        else if (Settings.RequireAccounts && Master is not null)
+        {
+            Log($"refused {CleanName(name)} from {address}: {ticketProblem}");
+            return LoginDecision.Refuse("This hub is for signed-in players: sign in on the Account page (main menu).");
+        }
+
         int team = ReadInt(options, "Team", 0) == 1 ? 1 : 0;
         int mesh = Math.Clamp(ReadInt(options, "Mesh", 0), 0, 3);
         string back = ReadText(options, HubProtocol.ReturnOption);
@@ -445,15 +526,38 @@ public sealed class HubServer : IDisposable
             _returning[connection] = back;
         }
 
-        string clean = UniqueName(CleanName(name));
-        return LoginDecision.Allow(clean, string.Create(CultureInfo.InvariantCulture, $"?Team={team}?Mesh={mesh}"));
+        // A signed-in player is his account's name; a guest of a hub on a master is Name#tag, so nobody passes for
+        // a signed-in player (as on the online servers). Without a master there are no claimed names.
+        bool admin = ticket is { IsAdmin: true } && Master is { Trusted: true } && Settings.Master?.ServerKey is { Length: > 0 };
+        _identities[connection] = new HubLoginIdentity(ticket, admin, installId, address);
+        string clean = ticket is not null
+            ? ticket.Name
+            : UniqueName(Master is not null ? PlayerNames.GuestName(CleanName(name), installId) : CleanName(name));
+        int rank = OpenScct.Server.Online.PlayerRanks.Checked(ReadText(options, "SvmTitle"), ticket);
+        return LoginDecision.Allow(clean, string.Create(CultureInfo.InvariantCulture,
+            $"?Team={team}?Mesh={mesh}{(rank != 0 ? $"?SvmRank={rank}" : string.Empty)}"));
     }
 
     private void OnJoined(PlayerSlot slot)
     {
         var player = new HubPlayer(slot);
         slot.Tag = player;
+        if (_identities.Remove(slot.Connection, out HubLoginIdentity id))
+        {
+            player.InstallId = id.InstallId;
+            player.Address = id.Address;
+            player.IsAdmin = id.Admin;
+            if (id.Ticket is { } ticket)
+            {
+                _tickets.Take(ticket);
+                player.AccountId = ticket.AccountId;
+            }
+        }
+
         _players.Add(player);
+        Log(player.Verified
+            ? $"{slot.Name} is signed in (account {player.AccountId}{(player.IsAdmin ? ", master admin" : string.Empty)})"
+            : $"{slot.Name} is a guest");
         if (slot.Controller is { } pc && Game.Spawn(pc))
         {
             player.Spawns++;
@@ -488,6 +592,7 @@ public sealed class HubServer : IDisposable
         if (slot.Tag is HubPlayer player)
         {
             _players.Remove(player);
+            Host.Broadcast(HubProtocol.Gone(slot.PlayerId));
             Pads?.Left(player);
             Signs.Forget(slot);
             Say($"{slot.Name} left the hub.");
@@ -522,6 +627,23 @@ public sealed class HubServer : IDisposable
                 if (!player.AwaitingSpawn)
                 {
                     Respawn(player, pc);
+                }
+
+                break;
+            case "vote":
+                if (Pads is null || !Pads.Vote(player, SessionProtocol.Text(fields, 0), SessionProtocol.Int(fields, 1)))
+                {
+                    connection.ControlChannel?.Send(ControlMessage.TextLine(HubProtocol.Message("Votes count from players on the pad, before its countdown.")));
+                }
+
+                break;
+            case "local":
+                SayLocal(player, SessionProtocol.Text(fields, 0), now);
+                break;
+            case "watch":
+                if (Pads is null || !Pads.Watch(player, SessionProtocol.Text(fields, 0)))
+                {
+                    connection.ControlChannel?.Send(ControlMessage.TextLine(HubProtocol.Message("No match is being played on that pad.")));
                 }
 
                 break;
@@ -619,6 +741,7 @@ public sealed class HubServer : IDisposable
         }
 
         Pads?.Tick(now, _players);
+        TickRoster(now);
 
         // Signs four times a second: what each player should have from where his pawn is.
         if (++_signTick >= Sim.Hz / 4)
@@ -659,6 +782,9 @@ public sealed class HubServer : IDisposable
     }
 
     private void Log(string line) => Logged?.Invoke(line);
+
+    private static LoginDecision Banned(BanEntry ban) =>
+        LoginDecision.Refuse(ban.Reason.Length > 0 ? "You are banned from this hub: " + ban.Reason : "You are banned from this hub.");
 
     internal void LogLine(string line) => Log(line);
 

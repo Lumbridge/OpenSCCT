@@ -119,7 +119,10 @@ SDamageType indices used below: 0 NoDamageType, 1 SDamage_Charged, 4 SDamage_Exp
 2. SBasic `PostBeginPlay`: if `InteractionClass` is set: un-hide a hidden object as an empty static mesh and spawn the
    interaction at the object's pose (priority and in-front copied). If not `bInitialyUsable`, the interaction is made
    unusable (this touches `InteractionObj` even when there is none: harmless access warning). A damageable object
-   with `HitPoints == 0` gets `HitPoints = 1`.
+   with `HitPoints == 0` gets `HitPoints = 1`. Not simulated, so it never runs on a client (net-replication.md
+   rule 19.2): the interaction exists on the server only and reaches clients as `InteractionObj`. The same holds for
+   the interactions spawned by SGPO (pickup) and `SComputerObjectiveTrigger`. A client copy would join that client's
+   Use menu and send the server an object it cannot resolve, leaving the player stuck in the menu.
 3. SGPO `BeginPlay` (simulated): neither pickable nor pushable means `bWorldGeometry = true` (counts as world for
    traces and movement).
 4. SGPO `PostBeginPlay`: `OriginalColHeight = CollisionHeight`; pickable: spawn a pickup interaction and enable

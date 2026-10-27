@@ -29,6 +29,8 @@ public partial class App : Node
 
         // Where an installed build finds the content the launcher built and the maps shipped beside the exe.
         OpenScct.Server.ContentPaths.Configure(Options.ContentRoot, System.IO.Path.GetDirectoryName(OS.GetExecutablePath()));
+        // Maps downloaded from SCCT-Maps: where they are, so lobbies can tell and fetch them.
+        OpenScctGame.Online.MapDownloads.Configure(Options);
         foreach (string arg in Options.Unknown)
         {
             if (arg != BackgroundWindow.Flag)

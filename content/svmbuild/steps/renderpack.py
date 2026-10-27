@@ -25,6 +25,7 @@ import tempfile
 from pathlib import Path
 
 from .. import canonical
+from .. import gamefiles
 from ..graph import Context, Step, StepOutput
 from ..sources import env
 
@@ -151,7 +152,7 @@ def build_pack(game: Path, out_dir: Path) -> dict:
     from scctpkg.packageset import PackageSet  # noqa: PLC0415
 
     game = Path(game)
-    pset = PackageSet([game / "Packages", game / "System"])
+    pset = PackageSet(gamefiles.package_roots(game, "System"))
     tex = _Exporter(pset, out_dir)
     stats: dict = {}
 
@@ -197,7 +198,7 @@ def _vision_index(pset, tex: _Exporter, game: Path) -> tuple[dict, dict]:
 
     modifiers: dict[str, dict] = {}
     raw: dict[str, tuple] = {}
-    for utx in sorted((game / "Packages" / "Textures").glob("*.utx")):
+    for utx in gamefiles.files(game, "Packages/Textures", "*.utx"):
         try:
             pkg = pset.get(utx.stem)
         except PackageError:
@@ -268,9 +269,10 @@ def _vision_index(pset, tex: _Exporter, game: Path) -> tuple[dict, dict]:
 
 
 def _mip_packages(game: Path) -> list[Path]:
-    root = Path(game) / "Packages"
-    files = sorted((root / "Textures").glob("*.utx")) + sorted((root / "StaticMeshes").glob("*.usx"))
-    return files + sorted((root / "Maps").glob("*.sdc"))
+    # The downloaded maps' packages too: their textures' stored mip levels and vision modifiers.
+    root = "Packages/"
+    files = gamefiles.files(game, root + "Textures", "*.utx") + gamefiles.files(game, root + "StaticMeshes", "*.usx")
+    return files + gamefiles.files(game, root + "Maps", "*.sdc")
 
 
 def _mip_index(pset, game: Path) -> dict[str, int]:

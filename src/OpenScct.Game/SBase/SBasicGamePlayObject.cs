@@ -45,6 +45,15 @@ public partial class SBasicGamePlayObject
     [PortOf("uc:SBase.SBasicGamePlayObject:PostBeginPlay", Spec = "spec/devices/gameplay-object.md#start-up")]
     protected override void PostBeginPlay()
     {
+        // The script function is not simulated, so a client never runs this (net-replication.md rule 19.2). A client
+        // copy of the interaction would join that client's Use menu, and picking it sends the server an object it
+        // does not know: the menu then hangs. Clients get the server's interaction by replication (InteractionObj).
+        if (Role < ENetRole.ROLE_Authority)
+        {
+            base.PostBeginPlay();
+            return;
+        }
+
         if (!InteractionClass.IsNone)
         {
             if (bHidden)

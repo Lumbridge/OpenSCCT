@@ -74,6 +74,9 @@ public readonly record struct ControlMessage
     /// <summary>Server replication rate in flushes per second (Welcome).</summary>
     public int NetRate { get; init; }
 
+    /// <summary>How the server's proxy pawns are to be shown (Welcome): the client follows the server's mode.</summary>
+    public PawnProxyMode PawnProxies { get; init; }
+
     /// <summary>Requested net speed in bytes per second (Hello).</summary>
     public int NetSpeed { get; init; }
 
@@ -95,11 +98,11 @@ public readonly record struct ControlMessage
     /// that differs from its own copy.
     /// </summary>
     public static ControlMessage Welcome(int playerId, string map, uint serverTick, int netRate, ulong contentHash = 0,
-        string? files = null) =>
+        string? files = null, PawnProxyMode pawnProxies = PawnProxyMode.DeadReckoning) =>
         new()
         {
             Type = EControlMessage.Welcome, PlayerId = playerId, Text = map, ServerTick = serverTick, NetRate = netRate,
-            ContentHash = contentHash, File = files,
+            ContentHash = contentHash, File = files, PawnProxies = pawnProxies,
         };
 
     public static ControlMessage Reject(string reason, string? file = null) =>
@@ -142,6 +145,7 @@ public readonly record struct ControlMessage
                 w.WriteIntPacked((uint)NetRate);
                 w.WriteUInt64(ContentHash);
                 w.WriteString(Clip(File, MaxFilesBytes), MaxFilesBytes);
+                w.WriteIntPacked((uint)PawnProxies);
                 break;
             case EControlMessage.Reject:
                 w.WriteString(Clip(Text, MaxReasonBytes), MaxReasonBytes);
@@ -203,7 +207,10 @@ public readonly record struct ControlMessage
                 int rate = (int)r.ReadIntPacked();
                 ulong content = r.ReadUInt64();
                 string files = r.ReadString(MaxFilesBytes);
-                return Welcome(playerId, map, tick, rate, content, files.Length == 0 ? null : files);
+
+                // Last and optional (one message per bunch): a server without it shows its pawns the Stock way.
+                var proxies = r.AtEnd ? PawnProxyMode.DeadReckoning : (PawnProxyMode)Math.Min(r.ReadIntPacked(), (uint)PawnProxyMode.Interpolate);
+                return Welcome(playerId, map, tick, rate, content, files.Length == 0 ? null : files, proxies);
             }
 
             case EControlMessage.Reject:

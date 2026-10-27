@@ -16,6 +16,14 @@ public static class K
     [Provenance(ProvenanceKind.Decoded, "System/Default.ini [IpDrv.TcpNetDriver] LanServerMaxTickRate")]
     public const int LanServerMaxTickRate = 35;
 
+    /// <summary>
+    /// Replication rate of an Enhanced host (<see cref="NetProfile.Enhanced"/>): one network frame per world tick, so
+    /// clients get every simulated state instead of one in three (docs/NETCODE.md, "Send rate and budget: Stock and
+    /// Enhanced"). Also the tick cap its update frequency gate uses.
+    /// </summary>
+    [Provenance(ProvenanceKind.Estimated, "Rewrite choice (rl:net.rates): the 60 Hz sim rate, Sim.Hz")]
+    public const int EnhancedServerTickRate = OpenScct.Core.Sim.Hz;
+
     /// <summary>GetMaxTickRate clamps a dedicated server's cap into this range.</summary>
     [Provenance(ProvenanceKind.Decoded, "spec/native/net-driver.md rule 11, game 0x109ecb10")]
     public const int MinServerTickRate = 10;

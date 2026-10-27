@@ -48,6 +48,10 @@ public static class FrontEnd
     public static ServerBrowserScreen ShowServerBrowser(SceneTree tree, string discordMasterId) =>
         Show(tree, new ServerBrowserScreen { DiscordJoinId = discordMasterId });
 
+    /// <summary>The server browser, joining a listed server by its master id at once (rejoining a round).</summary>
+    public static ServerBrowserScreen ShowServerBrowser(SceneTree tree, string masterId, string name, string? password) =>
+        Show(tree, new ServerBrowserScreen { DiscordJoinId = masterId, JoinIdName = name, JoinIdPassword = password });
+
     /// <summary>Joining a server or changing maps.</summary>
     public static ConnectingScreen ShowConnecting(SceneTree tree, OpenScctGame.Online.OnlineService service) =>
         Show(tree, new ConnectingScreen { Service = service });
@@ -63,6 +67,9 @@ public static class FrontEnd
 
     /// <summary>The Armoury (OpenSCCT's own): the cosmetics the achievements unlock.</summary>
     public static ArmouryScreen ShowArmoury(SceneTree tree) => Show(tree, new ArmouryScreen());
+
+    /// <summary>Demos (OpenSCCT's own): recorded matches to watch (docs/DEMOS.md).</summary>
+    public static DemosScreen ShowDemos(SceneTree tree) => Show(tree, new DemosScreen());
 
     /// <summary>Create Session (map, mode, the session's options and rules, hosting).</summary>
     public static HostScreen ShowHost(SceneTree tree) => Show(tree, new HostScreen());

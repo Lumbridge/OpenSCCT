@@ -65,6 +65,7 @@ public sealed class PlaySession : IDisposable
             Map = map.Id,
             MaxPlayers = 16,
             NetRate = settings.NetRate,
+            Profile = NetProfile.Enhanced,
             MatchSeed = settings.MatchSeed,
             NetMode = ENetMode.NM_ListenServer,
             Maps = Catalog,
@@ -110,6 +111,59 @@ public sealed class PlaySession : IDisposable
 
         Client.World.Level.Info.m_dT = Sim.DeltaTime;
         InstallCombatNet();
+        if (settings.DemoFolder is { Length: > 0 } demos)
+        {
+            RecordDemo(demos, map.Id);
+        }
+    }
+
+    /// <summary>The demo file this match records into (<see cref="PlaySettings.DemoFolder"/>), or null.</summary>
+    public string? DemoPath { get; private set; }
+
+    /// <summary>
+    /// Records the match as a demo (docs/DEMOS.md) from the host's first tick that has the game rules, on the host's
+    /// thread; the host finishes the file when it is disposed.
+    /// </summary>
+    private void RecordDemo(string folder, string mapId)
+    {
+        DateTimeOffset start = DateTimeOffset.UtcNow;
+        string path = Path.Combine(folder, start.ToString("yyyyMMdd-HHmmss", System.Globalization.CultureInfo.InvariantCulture) +
+            "-" + mapId + DemoFile.Extension);
+        DemoPath = path;
+        bool started = false;
+        Host.BeforeWorldTick += host =>
+        {
+            if (started || Loader.Game is not { } game)
+            {
+                return;
+            }
+
+            started = true;
+            DemoWriter? writer = null;
+            try
+            {
+                writer = new DemoWriter(path, new DemoHeader
+                {
+                    GameVersion = OpenScct.Net.Discovery.BuildInfo.Version,
+                    ProtocolHash = host.Driver.ProtocolHash,
+                    ContentHash = host.Map.ContentHash,
+                    Map = mapId,
+                    GameOptions = Loader.GameOptions,
+                    ServerName = "Offline",
+                    StartUnixMs = start.ToUnixTimeMilliseconds(),
+                    TickRate = Sim.Hz,
+                    NetRate = host.NetRate,
+                });
+                host.StartRecording(writer, host.Driver.Time, game);
+                AddLog("recording demo " + path);
+            }
+            catch (Exception e) when (e is IOException or UnauthorizedAccessException or InvalidOperationException)
+            {
+                writer?.Dispose();
+                DemoPath = null;
+                AddLog("demo not recorded: " + e.Message);
+            }
+        };
     }
 
     /// <summary>
@@ -227,6 +281,25 @@ public sealed class PlaySession : IDisposable
 
     /// <summary>Client ticks run so far.</summary>
     public long TicksRun => _ticks;
+
+    /// <summary>
+    /// Replaces the calc view after each client tick when set (demo playback's cameras, docs/DEMOS.md): it gets the
+    /// calc view (invalid when there is no local controller) and returns the view to draw.
+    /// </summary>
+    public Func<ViewSample, ViewSample>? ViewOverride { get; set; }
+
+    /// <summary>
+    /// When set, the pawn drawn as seen from inside (body hidden) instead of the local first-person pawn: demo
+    /// playback's first-person view of another player. Returns null for none.
+    /// </summary>
+    public Func<SBasePawn?>? FirstPersonOverride { get; set; }
+
+    /// <summary>Draws <paramref name="view"/> from now on without waiting for a tick (a paused demo's free camera).</summary>
+    public void SetViewNow(ViewSample view)
+    {
+        _previousView = view;
+        _view = view;
+    }
 
     /// <summary>The view after the last client tick.</summary>
     public ViewSample View => _view;
@@ -360,6 +433,11 @@ public sealed class PlaySession : IDisposable
         {
             PlayerCalcView.NativeGlobalPlayerCalcView(viewer, out _, out FVector location, out FRotator rotation);
             _view = new ViewSample(Client.LocalTick, location, rotation, viewer.FovAngle, true);
+        }
+
+        if (ViewOverride is { } viewOverride)
+        {
+            _view = viewOverride(LocalController is null ? default : _view);
         }
 
         AfterClientTick?.Invoke(this, Client.LocalTick);

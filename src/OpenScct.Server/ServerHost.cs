@@ -10,7 +10,7 @@ using OpenScct.Net;
 
 namespace OpenScct.Server;
 
-/// <summary>Server settings. Defaults: TestBox, 4 players, internet replication rate (20 Hz), a dedicated server.</summary>
+/// <summary>Server settings. Defaults: TestBox, 4 players, the Stock network profile (20 Hz), a dedicated server.</summary>
 public sealed record ServerSettings
 {
     public string Map { get; init; } = MapCatalog.TestBox;
@@ -18,10 +18,18 @@ public sealed record ServerSettings
     public int MaxPlayers { get; init; } = 4;
 
     /// <summary>
-    /// Network frames (replication passes and flushes) per second: 20 internet, 35 LAN
-    /// (<see cref="K.LanServerMaxTickRate"/>), up to 60. The world always ticks at 60 Hz.
+    /// Network frames (replication passes and flushes) per second, 1 to 60; 0 (the default) takes the rate of
+    /// <see cref="Profile"/>: Stock 20 internet, 35 with <see cref="NetDriverSettings.LanPlay"/>; Enhanced 60. The world
+    /// always ticks at 60 Hz. <see cref="ServerHost.NetRate"/> is the rate in use.
     /// </summary>
-    public int NetRate { get; init; } = K.NetServerMaxTickRate;
+    public int NetRate { get; init; }
+
+    /// <summary>
+    /// Stock (the decoded rates and <see cref="Net"/> as given) or Enhanced (every tick, a send budget per client);
+    /// see <see cref="NetProfiles"/> and docs/NETCODE.md, "Send rate and budget: Stock and Enhanced". Hosts that
+    /// players play on (svm-server, online lobbies, the game's own host) choose Enhanced unless told otherwise.
+    /// </summary>
+    public NetProfile Profile { get; init; } = NetProfile.Stock;
 
     public ulong MatchSeed { get; init; } = 1;
 
@@ -115,7 +123,7 @@ public sealed class PlayerSlot
 /// <summary>
 /// The server: a <see cref="World"/> ticking at 60 Hz with its map (actors bound to channels by SVMap index,
 /// physics attached), a server <see cref="NetDriver"/> running a replication pass and a flush at
-/// <see cref="ServerSettings.NetRate"/>, the handshake, the objective and game-host bridges, and one
+/// <see cref="NetRate"/>, the handshake, the objective and game-host bridges, and one
 /// <see cref="CubeWalker"/> per joined player when <see cref="ServerSettings.SpawnWalkers"/> is set. The same code
 /// runs a dedicated server (any transport) and a listen server (see <see cref="ListenServer"/>).
 /// <para>Single-threaded: call <see cref="Tick"/> (or <see cref="RunRealtime"/>) from one thread only.</para>
@@ -135,14 +143,17 @@ public sealed class ServerHost : INetworkNotify, IDisposable
     {
         ArgumentNullException.ThrowIfNull(transport);
         Settings = settings ?? new ServerSettings();
-        if (Settings.NetRate is < 1 or > Sim.Hz)
+        if (Settings.NetRate is < 0 or > Sim.Hz)
         {
-            throw new ArgumentOutOfRangeException(nameof(settings), Settings.NetRate, "NetRate must be 1 to 60.");
+            throw new ArgumentOutOfRangeException(nameof(settings), Settings.NetRate, "NetRate must be 1 to 60, or 0 for the profile's rate.");
         }
+
+        NetRate = NetProfiles.Rate(Settings.Profile, Settings.Net.LanPlay, Settings.NetRate);
 
         World = new World(Settings.MatchSeed, Settings.NetMode);
         MapCatalog maps = Settings.Maps ?? MapCatalog.CreateDefault();
-        Driver = new NetDriver(transport, Settings.Classes ?? NetClasses.Create(), this, isServer: true, Settings.Net) { World = World };
+        Driver = new NetDriver(transport, Settings.Classes ?? NetClasses.Create(), this, isServer: true,
+            NetProfiles.Apply(Settings.Net, Settings.Profile, NetRate)) { World = World };
         World.Level.SetService<IObjectiveNet>(new NetObjectiveBridge(Driver));
         World.Level.SetService<IGameHost>(new NetGameHost(Driver));
         World.Level.SetService<OpenScct.Game.Devices.IDeviceNet>(new NetDeviceBridge(Driver));
@@ -222,14 +233,23 @@ public sealed class ServerHost : INetworkNotify, IDisposable
 
     public IReadOnlyList<PlayerSlot> Players => _players;
 
+    /// <summary>The demo being recorded (<see cref="StartRecording"/>), or null.</summary>
+    public DemoRecorder? Recorder { get; private set; }
+
     /// <summary>Text lines received from clients, oldest first.</summary>
     public IReadOnlyList<string> ReceivedTexts => _texts;
 
     /// <summary>Replication flushes so far.</summary>
     public long FlushCount { get; private set; }
 
-    /// <summary>Ticks between flushes, rounded up (3 at 20 Hz).</summary>
-    public int FlushIntervalTicks => (Sim.Hz + Settings.NetRate - 1) / Settings.NetRate;
+    /// <summary>
+    /// Network frames per second in use: <see cref="ServerSettings.NetRate"/>, or the rate of
+    /// <see cref="ServerSettings.Profile"/> when that is 0.
+    /// </summary>
+    public int NetRate { get; }
+
+    /// <summary>Ticks between flushes, rounded up (3 at 20 Hz, 1 at 60 Hz).</summary>
+    public int FlushIntervalTicks => (Sim.Hz + NetRate - 1) / NetRate;
 
     /// <summary>
     /// Raised when a player joins (after its walker, if any, spawned). The handler may give the connection its
@@ -280,7 +300,8 @@ public sealed class ServerHost : INetworkNotify, IDisposable
         DeviceEvents?.RelayTick(World);
         StartGate?.Tick(PendingClients());
         CloseExpiredRejections(nowMicros);
-        _flushAccumulator += Settings.NetRate;
+        Recorder?.Scan();
+        _flushAccumulator += NetRate;
         if (_flushAccumulator >= Sim.Hz)
         {
             _flushAccumulator -= Sim.Hz;
@@ -355,6 +376,65 @@ public sealed class ServerHost : INetworkNotify, IDisposable
         }
     }
 
+    /// <summary>
+    /// Starts recording a demo into <paramref name="writer"/> (docs/DEMOS.md): a recorder connection logs in as a
+    /// hidden spectator, so the file gets the Welcome and then everything a spectator anywhere would see. Needs the
+    /// game rules: <see cref="Game"/>, or <paramref name="game"/> when a map loader installed them (the game's own
+    /// host). Start it before players join so the demo has the whole match. One recording per host.
+    /// </summary>
+    public DemoRecorder StartRecording(DemoWriter writer, long nowMicros, SGameInfo? game = null)
+    {
+        ArgumentNullException.ThrowIfNull(writer);
+        ObjectDisposedException.ThrowIf(_disposed, this);
+        game ??= Game;
+        if (game is null)
+        {
+            throw new InvalidOperationException("Demos need the game rules.");
+        }
+
+        if (Recorder is { IsFinished: false })
+        {
+            throw new InvalidOperationException("A demo is already recording.");
+        }
+
+        NetConnection connection = Driver.OpenRecorderConnection(writer, nowMicros);
+        var recorder = new DemoRecorder(this, writer, connection) { Game = game };
+        connection.UserData = recorder;
+        Recorder = recorder;
+
+        // The Hello a client would send, then its Join: Welcome, then a spectator controller.
+        connection.SetOpen();
+        connection.CurrentNetSpeed = Driver.Settings.MaxClientRate;
+        connection.ControlChannel?.Send(ControlMessage.Welcome(_nextPlayerId++, Map.Name, (uint)World.TickCount, NetRate,
+            Map.ContentHash, Map.FileListing, Driver.Settings.PawnProxies));
+
+        // A recorder never takes a spectator place from a player.
+        game.MaxSpectators++;
+        string error = string.Empty;
+        PlayerController? pc = game.Login(string.Empty, NativeUrl.Rebuild("?Name=Demo?SpectatorOnly=true"), ref error);
+        if (pc is null)
+        {
+            game.MaxSpectators--;
+            connection.Close(string.IsNullOrEmpty(error) ? "Demo login failed" : error);
+            writer.Dispose();
+            Recorder = null;
+            throw new InvalidOperationException("The demo recorder could not log in: " + error);
+        }
+
+        pc.Player = new SimNetConnection();
+        pc.Role = ENetRole.ROLE_Authority;
+        pc.RemoteRole = ENetRole.ROLE_AutonomousProxy;
+        recorder.Controller = pc;
+        connection.Actor = pc;
+        connection.bJoined = true;
+        game.PostLogin(pc);
+        Driver.ResetConnectionPing(connection);
+        return recorder;
+    }
+
+    /// <summary>Finishes the demo being recorded, if any (also done by <see cref="Dispose"/>).</summary>
+    public void StopRecording() => Recorder?.Finish();
+
     // ---- INetworkNotify ------------------------------------------------------------------------------------
 
     void INetworkNotify.NotifyControlMessage(NetConnection connection, in ControlMessage message)
@@ -405,6 +485,19 @@ public sealed class ServerHost : INetworkNotify, IDisposable
         {
             _rejected.RemoveAt(rejected);
             _rejectDeadlines.RemoveAt(rejected);
+        }
+
+        if (connection.UserData is DemoRecorder recorder)
+        {
+            if (recorder.Controller is { bDeleteMe: false } spectator && recorder.Game is { } rules)
+            {
+                rules.Logout(spectator);
+                rules.MaxSpectators--;
+                spectator.Destroy();
+            }
+
+            recorder.Controller = null;
+            return;
         }
 
         if (connection.UserData is PlayerSlot slot)
@@ -483,8 +576,8 @@ public sealed class ServerHost : INetworkNotify, IDisposable
         };
         connection.UserData = slot;
         _players.Add(slot);
-        connection.ControlChannel?.Send(ControlMessage.Welcome(slot.PlayerId, Map.Name, (uint)World.TickCount, Settings.NetRate,
-            Map.ContentHash, Map.FileListing));
+        connection.ControlChannel?.Send(ControlMessage.Welcome(slot.PlayerId, Map.Name, (uint)World.TickCount, NetRate,
+            Map.ContentHash, Map.FileListing, Driver.Settings.PawnProxies));
     }
 
     private void Reject(NetConnection connection, string reason, string? file)
@@ -561,6 +654,8 @@ public sealed class ServerHost : INetworkNotify, IDisposable
             return;
         }
 
+        Recorder?.Finish();
+        Recorder?.Writer.Dispose();
         _disposed = true;
         Driver.Dispose();
     }

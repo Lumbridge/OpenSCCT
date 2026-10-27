@@ -38,6 +38,12 @@ public sealed record HubPadConfig
     /// <summary>False when the server cannot run the match (the map is not installed): the pad says so and queues nobody.</summary>
     public bool Playable { get; init; } = true;
 
+    /// <summary>
+    /// The other matches the pad's players may vote for (hub.json <c>choices</c>: map, mode, team size); the pad's own
+    /// match is option 0. With choices and no votes the pad moves on to the next one after each match (a rotation).
+    /// </summary>
+    public IReadOnlyList<HubPadChoice> Choices { get; init; } = [];
+
     public bool MercsOnly => Mode == EGameMode.GM_MercDeathMatch;
 
     /// <summary>Places on the spies' side.</summary>
@@ -58,6 +64,9 @@ public sealed record HubPadConfig
 }
 
 /// <summary>Where a pad is on the hub map: its floor rectangle (UE x, y), the floor height and the sign's anchor.</summary>
+/// <summary>One more match a pad can be voted to (its bots and minimum players are the pad's).</summary>
+public sealed record HubPadChoice(string Map, EGameMode Mode, int TeamSize);
+
 public sealed record HubPadArea(string Id, float LoX, float LoY, float HiX, float HiY, float FloorZ, FVector? SignAnchor, HubSignFace SignFace = default)
 {
     /// <summary>A pawn location counts as on the pad up to this far above the floor (a jump stays on the pad).</summary>
@@ -101,10 +110,13 @@ public sealed record HubConfig
     /// <summary>Seconds a full pad counts down before its match starts.</summary>
     public float CountdownSeconds { get; init; } = 10f;
 
-    /// <summary>The first UDP port a pad match may listen on (the hub and the default game port are 28888).</summary>
+    /// <summary>The first UDP port a pad match may listen on (the hub's default is 28886, the game's 28888).</summary>
     public int MatchPortFirst { get; init; } = 28890;
 
     public int MatchPortLast { get; init; } = 28897;
+
+    /// <summary>Spectator places in each pad match (players in the hub who walk up and watch).</summary>
+    public int Spectators { get; init; } = 4;
 
     /// <summary>The address players connect to for a match, or null: the address they reached the hub at.</summary>
     public string? MatchHost { get; init; }
@@ -194,7 +206,22 @@ public sealed record HubConfig
                 mode = entry.DefaultMode;
             }
 
-            pads.Add(p with { Mode = mode, Title = entry.Name, Map = entry.Id });
+            // Choices on maps the server lacks are dropped; their modes are fixed the same way.
+            var choices = new List<HubPadChoice>();
+            foreach (HubPadChoice c in p.Choices)
+            {
+                MapCatalogEntry? ce = maps.FindMap(c.Map) is null ? null : maps.GetCatalogEntry(c.Map);
+                if (ce is null)
+                {
+                    log?.Invoke($"{p.Id}: choice {c.Map} is not installed on this server; left out");
+                    continue;
+                }
+
+                EGameMode cm = ce.PlayableModes.Contains(c.Mode) ? c.Mode : ce.DefaultMode;
+                choices.Add(c with { Map = ce.Id, Mode = cm, TeamSize = Math.Clamp(c.TeamSize, 1, cm == EGameMode.GM_MercDeathMatch ? 8 : 4) });
+            }
+
+            pads.Add(p with { Mode = mode, Title = entry.Name, Map = entry.Id, Choices = choices });
         }
 
         return this with { Pads = pads };
@@ -249,6 +276,11 @@ public sealed record HubConfig
             config = config with { MatchPortFirst = first, MatchPortLast = last };
         }
 
+        if (root.TryGetProperty("spectators", out JsonElement spec) && spec.TryGetInt32(out int spectators))
+        {
+            config = config with { Spectators = Math.Clamp(spectators, 0, 16) };
+        }
+
         if (root.TryGetProperty("matchHost", out JsonElement host) && host.ValueKind == JsonValueKind.String && host.GetString() is { Length: > 0 } h)
         {
             config = config with { MatchHost = h };
@@ -279,6 +311,7 @@ public sealed record HubConfig
                         _ => BotFill.Off,
                     },
                     MinPlayers = Int(p, "minPlayers", 0),
+                    Choices = ParseChoices(p),
                 });
             }
 
@@ -286,6 +319,41 @@ public sealed record HubConfig
         }
 
         return config;
+    }
+
+    private static List<HubPadChoice> ParseChoices(JsonElement pad)
+    {
+        var list = new List<HubPadChoice>();
+        if (!pad.TryGetProperty("choices", out JsonElement choices) || choices.ValueKind != JsonValueKind.Array)
+        {
+            return list;
+        }
+
+        foreach (JsonElement c in choices.EnumerateArray())
+        {
+            string map = Str(c, "map");
+            if (map.Length == 0)
+            {
+                continue;
+            }
+
+            LobbySetup.TryParseMode(Str(c, "mode"), out EGameMode mode);
+            list.Add(new HubPadChoice(map, mode == EGameMode.GM_Undefined ? EGameMode.GM_Multi : mode, Int(c, "teamSize", Int(pad, "teamSize", 2))));
+        }
+
+        return list;
+    }
+
+    /// <summary>The pad's own match and its choices as whole pad configs (option 0 first).</summary>
+    public static List<HubPadConfig> Options(HubPadConfig pad)
+    {
+        var list = new List<HubPadConfig> { pad with { Choices = [] } };
+        foreach (HubPadChoice c in pad.Choices)
+        {
+            list.Add(pad with { Map = c.Map, Mode = c.Mode, TeamSize = c.TeamSize, Choices = [], Title = string.Empty });
+        }
+
+        return list;
     }
 
     /// <summary>The pads of an areas.json (the <c>matchPads</c> area's <c>pads</c>).</summary>

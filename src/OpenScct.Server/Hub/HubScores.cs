@@ -88,6 +88,8 @@ public sealed class HubTable
 
     internal void Load(HubScore score) => _best[score.Name] = score;
 
+    internal void Clear() => _best.Clear();
+
     private bool Better(int a, int b) => LowerIsBetter ? a < b : a > b;
 
     private int Compare(HubScore a, HubScore b)
@@ -111,6 +113,27 @@ public sealed class HubScores
 
     public string? Path { get; private init; }
 
+    /// <summary>The hub map layout version the course's times were set on (0: unknown, a file from before it was kept).</summary>
+    public int CourseLayout { get; private set; }
+
+    /// <summary>
+    /// Clears the course's times when they were set on another layout (a rebuilt course: old times would be on a
+    /// different route) and saves; true when it cleared them.
+    /// </summary>
+    public bool KeepCourseLayout(int layoutVersion)
+    {
+        if (layoutVersion <= 0 || CourseLayout == layoutVersion)
+        {
+            return false;
+        }
+
+        bool had = Course.Bests.Count > 0;
+        Course.Clear();
+        CourseLayout = layoutVersion;
+        Save();
+        return had;
+    }
+
     /// <summary>The last save or load error, or null.</summary>
     public string? Error { get; private set; }
 
@@ -126,6 +149,11 @@ public sealed class HubScores
         {
             using JsonDocument doc = JsonDocument.Parse(File.ReadAllText(path));
             ReadTable(doc.RootElement, "course", scores.Course);
+            if (doc.RootElement.TryGetProperty("courseLayout", out JsonElement cl) && cl.ValueKind == JsonValueKind.Number)
+            {
+                scores.CourseLayout = cl.GetInt32();
+            }
+
             ReadTable(doc.RootElement, "range", scores.Range);
             ReadTable(doc.RootElement, "goals", scores.Goals);
         }
@@ -152,6 +180,7 @@ public sealed class HubScores
             {
                 w.WriteStartObject();
                 w.WriteString("format", "openscct.hubscores/1");
+                w.WriteNumber("courseLayout", CourseLayout);
                 WriteTable(w, "course", Course);
                 WriteTable(w, "range", Range);
                 WriteTable(w, "goals", Goals);

@@ -48,6 +48,10 @@ public sealed partial class OnlineServer
             if (!ReferenceEquals(other, p))
             {
                 Send(p, PlayerLine(other));
+                if (other.Rank != 0)
+                {
+                    Send(p, RankLine(other));
+                }
             }
         }
 
@@ -67,6 +71,25 @@ public sealed partial class OnlineServer
     {
         ulong content = Maps.FindMap(Setup.Map)?.ContentHash ?? 0;
         Send(to, SessionProtocol.Line("setup", MasterApi.Hex(content), Setup.ToOptions()));
+
+        // Right after the setup (which clears it on the client): where a downloaded map can be fetched. Clients from
+        // before this line ignore it. The id is last, so it keeps its spaces.
+        if (MapSourceOf(Setup.Map) is { } source)
+        {
+            Send(to, SessionProtocol.Line("mapsource", Setup.Map, source.Fingerprint, source.Commit, source.Id));
+        }
+    }
+
+    private MapSourceInfo? MapSourceOf(string map)
+    {
+        try
+        {
+            return Settings.MapSource?.Invoke(map);
+        }
+        catch (Exception ex) when (ex is System.IO.IOException or UnauthorizedAccessException or System.Text.Json.JsonException)
+        {
+            return null;
+        }
     }
 
     private string PlayerLine(SessionPlayer p) =>
@@ -77,7 +100,14 @@ public sealed partial class OnlineServer
     {
         p.SentPing = p.PingMs;
         Send(null, PlayerLine(p));
+        if (p.Rank != 0)
+        {
+            Send(null, RankLine(p));
+        }
     }
+
+    /// <summary>A player's rank (a line of its own: clients before levels ignore it).</summary>
+    private static string RankLine(SessionPlayer p) => SessionProtocol.Line("rank", p.Id, p.Rank);
 
     private string PhaseLine()
     {
@@ -349,6 +379,7 @@ public sealed partial class OnlineServer
         }
 
         Send(p, SessionProtocol.Line("kicked", reason));
+        p.Kicked = true;
         _kicks.Add((p, _now + (Second / 2)));
         Log($"kick {p.Name}: {reason}");
     }

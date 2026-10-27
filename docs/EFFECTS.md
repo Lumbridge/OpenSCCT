@@ -41,8 +41,14 @@ The runtime lays each sub-emitter's stored values over its class defaults from `
   SSmokeEmitter (smoke grenade cloud), SChaffeEmitter (chaff), SGrenadeExplosion (frag), SStickyCamEmitter (sticky cam
   gas), SPoisonEmitter and SMinePoisonEmitter (poison mine), and any other Emitter class the simulation spawns.
 - Every spawned actor drawn as a static mesh shows its class mesh, actor-lit, at its place, rotation and draw scale:
-  thrown grenades (SProjSmoke, SProjChaffe, SProjFrag, SProjFlashBang...), the stuck sticky cam, mines and their laser
-  beams (beams only in thermal and EMF, `bHideInNormalVision`).
+  thrown grenades (SProjSmoke, SProjChaffe, SProjFrag, SProjFlashBang...), the stuck sticky cam, mines, the alarm
+  snare. Each mesh takes its actor's live vision values every frame (`GameplayObjects.VisionOf`: HeatIntensity,
+  HeatOpacity, EMFIntensity while bEMFIsOn, EMFOpacity; class defaults such as mines 0.5 heat and 1 EMF, sticky cam
+  0.2 and 1, snare 1 and 1, replicated in the first bunch), so they are warm in thermal and glow in EMF.
+- The mines' laser beams (SLaserBeam_MineLaser of the laser mine, spy trap and poison mine) are not drawn here: their
+  LasDetectBeam mesh is a render-pack gameplay mesh, drawn by `LaserTriggerView` through `Lasers` like the tripwires,
+  from the mine along the beam's rotation for the replicated `fTailleFaisceau`, at its HeatIntensity (0.4), only in
+  thermal and EMF (`bHideInNormalVision`).
 - Effects the original spawns on each drawing machine from script, never replicated: the launch trails
   (SSmokeLaunchEmitter on smoke, chaff, flash-bang and phosphorus grenades that are not quick-thrown, SFragLaunchEmitter
   on frags, removed when the frag explodes), and what `Spawn` is asked for.

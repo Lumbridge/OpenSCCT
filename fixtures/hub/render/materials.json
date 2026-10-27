@@ -30,11 +30,6 @@
   "Hub.Materials.art_garden_6": {"OcclusionType": 8, "SurfaceType": 5},
   "Hub.Materials.art_garden_7": {"OcclusionType": 8, "SurfaceType": 5},
   "Hub.Materials.art_garden_8": {"OcclusionType": 8, "SurfaceType": 5},
-  "Hub.Materials.art_gate_0": {"OcclusionType": 8, "SurfaceType": 5},
-  "Hub.Materials.art_gate_1": {"OcclusionType": 8, "SurfaceType": 5},
-  "Hub.Materials.art_gate_2": {"OcclusionType": 8, "SurfaceType": 5},
-  "Hub.Materials.art_gate_3": {"OcclusionType": 8, "SurfaceType": 5},
-  "Hub.Materials.art_gate_4": {"OcclusionType": 8, "SurfaceType": 5},
   "Hub.Materials.art_helipad": {"OcclusionType": 8, "SurfaceType": 5},
   "Hub.Materials.art_move_0": {"OcclusionType": 8, "SurfaceType": 5},
   "Hub.Materials.art_move_1": {"OcclusionType": 8, "SurfaceType": 5},
@@ -42,6 +37,7 @@
   "Hub.Materials.art_move_3": {"OcclusionType": 8, "SurfaceType": 5},
   "Hub.Materials.art_move_4": {"OcclusionType": 8, "SurfaceType": 5},
   "Hub.Materials.art_move_5": {"OcclusionType": 8, "SurfaceType": 5},
+  "Hub.Materials.art_move_6": {"OcclusionType": 8, "SurfaceType": 5},
   "Hub.Materials.art_padboard_Pad1": {"OcclusionType": 8, "SurfaceType": 5},
   "Hub.Materials.art_padboard_Pad2": {"OcclusionType": 8, "SurfaceType": 5},
   "Hub.Materials.art_padboard_Pad3": {"OcclusionType": 8, "SurfaceType": 5},
@@ -112,6 +108,7 @@
   "Hub.Materials.neon_sodium": {"OcclusionType": 8, "SurfaceType": 5},
   "Hub.Materials.neon_teal": {"OcclusionType": 8, "SurfaceType": 5},
   "Hub.Materials.neon_white": {"OcclusionType": 8, "SurfaceType": 5},
+  "Hub.Materials.pit": {"OcclusionType": 8, "SurfaceType": 5},
   "Hub.Materials.plaza": {"OcclusionType": 8, "SurfaceType": 5},
   "Hub.Materials.polar_frost": {"OcclusionType": 8, "SurfaceType": 5},
   "Hub.Materials.polar_ice": {"OcclusionType": 8, "SurfaceType": 5},
@@ -139,7 +136,7 @@
     "two_sided": false,
     "unlit": false
    },
-   "index": 67,
+   "index": 68,
    "source": "Hub.Materials.aqua_grating"
   },
   "Hub.Materials.aqua_metal": {
@@ -150,7 +147,7 @@
     "two_sided": false,
     "unlit": false
    },
-   "index": 68,
+   "index": 69,
    "source": "Hub.Materials.aqua_metal"
   },
   "Hub.Materials.art_arrow_0": {
@@ -161,7 +158,7 @@
     "two_sided": false,
     "unlit": false
    },
-   "index": 28,
+   "index": 29,
    "source": "Hub.Materials.art_arrow_0"
   },
   "Hub.Materials.art_arrow_1": {
@@ -172,7 +169,7 @@
     "two_sided": false,
     "unlit": false
    },
-   "index": 29,
+   "index": 30,
    "source": "Hub.Materials.art_arrow_1"
   },
   "Hub.Materials.art_arrow_2": {
@@ -183,7 +180,7 @@
     "two_sided": false,
     "unlit": false
    },
-   "index": 30,
+   "index": 31,
    "source": "Hub.Materials.art_arrow_2"
   },
   "Hub.Materials.art_arrow_3": {
@@ -194,7 +191,7 @@
     "two_sided": false,
     "unlit": false
    },
-   "index": 31,
+   "index": 32,
    "source": "Hub.Materials.art_arrow_3"
   },
   "Hub.Materials.art_arrow_4": {
@@ -205,7 +202,7 @@
     "two_sided": false,
     "unlit": false
    },
-   "index": 32,
+   "index": 33,
    "source": "Hub.Materials.art_arrow_4"
   },
   "Hub.Materials.art_banner_mercs": {
@@ -216,7 +213,7 @@
     "two_sided": false,
     "unlit": true
    },
-   "index": 26,
+   "index": 27,
    "source": "Hub.Materials.art_banner_mercs"
   },
   "Hub.Materials.art_banner_spies": {
@@ -227,7 +224,7 @@
     "two_sided": false,
     "unlit": true
    },
-   "index": 27,
+   "index": 28,
    "source": "Hub.Materials.art_banner_spies"
   },
   "Hub.Materials.art_board_course": {
@@ -238,7 +235,7 @@
     "two_sided": false,
     "unlit": true
    },
-   "index": 117,
+   "index": 114,
    "source": "Hub.Materials.art_board_course"
   },
   "Hub.Materials.art_board_range": {
@@ -249,7 +246,7 @@
     "two_sided": false,
     "unlit": true
    },
-   "index": 101,
+   "index": 102,
    "source": "Hub.Materials.art_board_range"
   },
   "Hub.Materials.art_course_finish": {
@@ -260,7 +257,7 @@
     "two_sided": false,
     "unlit": false
    },
-   "index": 103,
+   "index": 104,
    "source": "Hub.Materials.art_course_finish"
   },
   "Hub.Materials.art_course_start": {
@@ -271,7 +268,7 @@
     "two_sided": false,
     "unlit": false
    },
-   "index": 104,
+   "index": 105,
    "source": "Hub.Materials.art_course_start"
   },
   "Hub.Materials.art_court_aquarius": {
@@ -282,7 +279,7 @@
     "two_sided": false,
     "unlit": false
    },
-   "index": 69,
+   "index": 70,
    "source": "Hub.Materials.art_court_aquarius"
   },
   "Hub.Materials.art_court_hub": {
@@ -293,7 +290,7 @@
     "two_sided": false,
     "unlit": false
    },
-   "index": 53,
+   "index": 54,
    "source": "Hub.Materials.art_court_hub"
   },
   "Hub.Materials.art_court_lab": {
@@ -304,7 +301,7 @@
     "two_sided": false,
     "unlit": false
    },
-   "index": 72,
+   "index": 73,
    "source": "Hub.Materials.art_court_lab"
   },
   "Hub.Materials.art_court_museum": {
@@ -315,7 +312,7 @@
     "two_sided": false,
     "unlit": false
    },
-   "index": 77,
+   "index": 78,
    "source": "Hub.Materials.art_court_museum"
   },
   "Hub.Materials.art_court_polar": {
@@ -326,7 +323,7 @@
     "two_sided": false,
     "unlit": false
    },
-   "index": 56,
+   "index": 57,
    "source": "Hub.Materials.art_court_polar"
   },
   "Hub.Materials.art_court_steel": {
@@ -337,7 +334,7 @@
     "two_sided": false,
     "unlit": false
    },
-   "index": 62,
+   "index": 63,
    "source": "Hub.Materials.art_court_steel"
   },
   "Hub.Materials.art_garden_0": {
@@ -348,7 +345,7 @@
     "two_sided": false,
     "unlit": false
    },
-   "index": 33,
+   "index": 34,
    "source": "Hub.Materials.art_garden_0"
   },
   "Hub.Materials.art_garden_1": {
@@ -359,7 +356,7 @@
     "two_sided": false,
     "unlit": false
    },
-   "index": 34,
+   "index": 35,
    "source": "Hub.Materials.art_garden_1"
   },
   "Hub.Materials.art_garden_2": {
@@ -370,7 +367,7 @@
     "two_sided": false,
     "unlit": false
    },
-   "index": 35,
+   "index": 36,
    "source": "Hub.Materials.art_garden_2"
   },
   "Hub.Materials.art_garden_3": {
@@ -381,7 +378,7 @@
     "two_sided": false,
     "unlit": false
    },
-   "index": 36,
+   "index": 37,
    "source": "Hub.Materials.art_garden_3"
   },
   "Hub.Materials.art_garden_4": {
@@ -392,7 +389,7 @@
     "two_sided": false,
     "unlit": false
    },
-   "index": 37,
+   "index": 38,
    "source": "Hub.Materials.art_garden_4"
   },
   "Hub.Materials.art_garden_5": {
@@ -403,7 +400,7 @@
     "two_sided": false,
     "unlit": false
    },
-   "index": 38,
+   "index": 39,
    "source": "Hub.Materials.art_garden_5"
   },
   "Hub.Materials.art_garden_6": {
@@ -414,7 +411,7 @@
     "two_sided": false,
     "unlit": false
    },
-   "index": 39,
+   "index": 40,
    "source": "Hub.Materials.art_garden_6"
   },
   "Hub.Materials.art_garden_7": {
@@ -425,7 +422,7 @@
     "two_sided": false,
     "unlit": false
    },
-   "index": 40,
+   "index": 41,
    "source": "Hub.Materials.art_garden_7"
   },
   "Hub.Materials.art_garden_8": {
@@ -436,63 +433,8 @@
     "two_sided": false,
     "unlit": false
    },
-   "index": 41,
+   "index": 42,
    "source": "Hub.Materials.art_garden_8"
-  },
-  "Hub.Materials.art_gate_0": {
-   "flags": {
-    "masked": false,
-    "texture": "textures/Hub_art_gate_0.png",
-    "translucent": false,
-    "two_sided": false,
-    "unlit": true
-   },
-   "index": 105,
-   "source": "Hub.Materials.art_gate_0"
-  },
-  "Hub.Materials.art_gate_1": {
-   "flags": {
-    "masked": false,
-    "texture": "textures/Hub_art_gate_1.png",
-    "translucent": false,
-    "two_sided": false,
-    "unlit": true
-   },
-   "index": 106,
-   "source": "Hub.Materials.art_gate_1"
-  },
-  "Hub.Materials.art_gate_2": {
-   "flags": {
-    "masked": false,
-    "texture": "textures/Hub_art_gate_2.png",
-    "translucent": false,
-    "two_sided": false,
-    "unlit": true
-   },
-   "index": 107,
-   "source": "Hub.Materials.art_gate_2"
-  },
-  "Hub.Materials.art_gate_3": {
-   "flags": {
-    "masked": false,
-    "texture": "textures/Hub_art_gate_3.png",
-    "translucent": false,
-    "two_sided": false,
-    "unlit": true
-   },
-   "index": 108,
-   "source": "Hub.Materials.art_gate_3"
-  },
-  "Hub.Materials.art_gate_4": {
-   "flags": {
-    "masked": false,
-    "texture": "textures/Hub_art_gate_4.png",
-    "translucent": false,
-    "two_sided": false,
-    "unlit": true
-   },
-   "index": 109,
-   "source": "Hub.Materials.art_gate_4"
   },
   "Hub.Materials.art_helipad": {
    "flags": {
@@ -502,7 +444,7 @@
     "two_sided": false,
     "unlit": false
    },
-   "index": 124,
+   "index": 121,
    "source": "Hub.Materials.art_helipad"
   },
   "Hub.Materials.art_move_0": {
@@ -513,7 +455,7 @@
     "two_sided": false,
     "unlit": false
    },
-   "index": 110,
+   "index": 106,
    "source": "Hub.Materials.art_move_0"
   },
   "Hub.Materials.art_move_1": {
@@ -524,7 +466,7 @@
     "two_sided": false,
     "unlit": false
    },
-   "index": 111,
+   "index": 107,
    "source": "Hub.Materials.art_move_1"
   },
   "Hub.Materials.art_move_2": {
@@ -535,7 +477,7 @@
     "two_sided": false,
     "unlit": false
    },
-   "index": 112,
+   "index": 108,
    "source": "Hub.Materials.art_move_2"
   },
   "Hub.Materials.art_move_3": {
@@ -546,7 +488,7 @@
     "two_sided": false,
     "unlit": false
    },
-   "index": 113,
+   "index": 109,
    "source": "Hub.Materials.art_move_3"
   },
   "Hub.Materials.art_move_4": {
@@ -557,7 +499,7 @@
     "two_sided": false,
     "unlit": false
    },
-   "index": 114,
+   "index": 110,
    "source": "Hub.Materials.art_move_4"
   },
   "Hub.Materials.art_move_5": {
@@ -568,8 +510,19 @@
     "two_sided": false,
     "unlit": false
    },
-   "index": 115,
+   "index": 111,
    "source": "Hub.Materials.art_move_5"
+  },
+  "Hub.Materials.art_move_6": {
+   "flags": {
+    "masked": false,
+    "texture": "textures/Hub_art_move_6.png",
+    "translucent": false,
+    "two_sided": false,
+    "unlit": false
+   },
+   "index": 112,
+   "source": "Hub.Materials.art_move_6"
   },
   "Hub.Materials.art_padboard_Pad1": {
    "flags": {
@@ -579,7 +532,7 @@
     "two_sided": false,
     "unlit": true
    },
-   "index": 51,
+   "index": 52,
    "source": "Hub.Materials.art_padboard_Pad1"
   },
   "Hub.Materials.art_padboard_Pad2": {
@@ -590,7 +543,7 @@
     "two_sided": false,
     "unlit": true
    },
-   "index": 82,
+   "index": 83,
    "source": "Hub.Materials.art_padboard_Pad2"
   },
   "Hub.Materials.art_padboard_Pad3": {
@@ -601,7 +554,7 @@
     "two_sided": false,
     "unlit": true
    },
-   "index": 84,
+   "index": 85,
    "source": "Hub.Materials.art_padboard_Pad3"
   },
   "Hub.Materials.art_padboard_Pad4": {
@@ -612,7 +565,7 @@
     "two_sided": false,
     "unlit": true
    },
-   "index": 86,
+   "index": 87,
    "source": "Hub.Materials.art_padboard_Pad4"
   },
   "Hub.Materials.art_padnum_Pad1": {
@@ -623,7 +576,7 @@
     "two_sided": false,
     "unlit": false
    },
-   "index": 52,
+   "index": 53,
    "source": "Hub.Materials.art_padnum_Pad1"
   },
   "Hub.Materials.art_padnum_Pad2": {
@@ -634,7 +587,7 @@
     "two_sided": false,
     "unlit": false
    },
-   "index": 83,
+   "index": 84,
    "source": "Hub.Materials.art_padnum_Pad2"
   },
   "Hub.Materials.art_padnum_Pad3": {
@@ -645,7 +598,7 @@
     "two_sided": false,
     "unlit": false
    },
-   "index": 85,
+   "index": 86,
    "source": "Hub.Materials.art_padnum_Pad3"
   },
   "Hub.Materials.art_padnum_Pad4": {
@@ -656,7 +609,7 @@
     "two_sided": false,
     "unlit": false
    },
-   "index": 87,
+   "index": 88,
    "source": "Hub.Materials.art_padnum_Pad4"
   },
   "Hub.Materials.art_padtitle_aquarius": {
@@ -667,7 +620,7 @@
     "two_sided": false,
     "unlit": false
    },
-   "index": 70,
+   "index": 71,
    "source": "Hub.Materials.art_padtitle_aquarius"
   },
   "Hub.Materials.art_padtitle_hub": {
@@ -678,7 +631,7 @@
     "two_sided": false,
     "unlit": false
    },
-   "index": 54,
+   "index": 55,
    "source": "Hub.Materials.art_padtitle_hub"
   },
   "Hub.Materials.art_padtitle_lab": {
@@ -689,7 +642,7 @@
     "two_sided": false,
     "unlit": false
    },
-   "index": 73,
+   "index": 74,
    "source": "Hub.Materials.art_padtitle_lab"
   },
   "Hub.Materials.art_padtitle_museum": {
@@ -700,7 +653,7 @@
     "two_sided": false,
     "unlit": false
    },
-   "index": 78,
+   "index": 79,
    "source": "Hub.Materials.art_padtitle_museum"
   },
   "Hub.Materials.art_padtitle_polar": {
@@ -711,7 +664,7 @@
     "two_sided": false,
     "unlit": false
    },
-   "index": 57,
+   "index": 58,
    "source": "Hub.Materials.art_padtitle_polar"
   },
   "Hub.Materials.art_padtitle_steel": {
@@ -722,7 +675,7 @@
     "two_sided": false,
     "unlit": false
    },
-   "index": 63,
+   "index": 64,
    "source": "Hub.Materials.art_padtitle_steel"
   },
   "Hub.Materials.art_plaza_mark": {
@@ -733,7 +686,7 @@
     "two_sided": false,
     "unlit": false
    },
-   "index": 21,
+   "index": 22,
    "source": "Hub.Materials.art_plaza_mark"
   },
   "Hub.Materials.art_range_1": {
@@ -744,7 +697,7 @@
     "two_sided": false,
     "unlit": false
    },
-   "index": 95,
+   "index": 96,
    "source": "Hub.Materials.art_range_1"
   },
   "Hub.Materials.art_range_2": {
@@ -755,7 +708,7 @@
     "two_sided": false,
     "unlit": false
    },
-   "index": 96,
+   "index": 97,
    "source": "Hub.Materials.art_range_2"
   },
   "Hub.Materials.art_range_3": {
@@ -766,7 +719,7 @@
     "two_sided": false,
     "unlit": false
    },
-   "index": 97,
+   "index": 98,
    "source": "Hub.Materials.art_range_3"
   },
   "Hub.Materials.art_range_4": {
@@ -777,7 +730,7 @@
     "two_sided": false,
     "unlit": false
    },
-   "index": 98,
+   "index": 99,
    "source": "Hub.Materials.art_range_4"
   },
   "Hub.Materials.art_screen": {
@@ -788,7 +741,7 @@
     "two_sided": false,
     "unlit": true
    },
-   "index": 119,
+   "index": 116,
    "source": "Hub.Materials.art_screen"
   },
   "Hub.Materials.art_sign_course": {
@@ -799,7 +752,7 @@
     "two_sided": false,
     "unlit": true
    },
-   "index": 116,
+   "index": 113,
    "source": "Hub.Materials.art_sign_course"
   },
   "Hub.Materials.art_sign_garden": {
@@ -810,7 +763,7 @@
     "two_sided": false,
     "unlit": true
    },
-   "index": 50,
+   "index": 51,
    "source": "Hub.Materials.art_sign_garden"
   },
   "Hub.Materials.art_sign_hub": {
@@ -821,7 +774,7 @@
     "two_sided": false,
     "unlit": true
    },
-   "index": 24,
+   "index": 25,
    "source": "Hub.Materials.art_sign_hub"
   },
   "Hub.Materials.art_sign_lounge": {
@@ -832,7 +785,7 @@
     "two_sided": false,
     "unlit": true
    },
-   "index": 121,
+   "index": 118,
    "source": "Hub.Materials.art_sign_lounge"
   },
   "Hub.Materials.art_sign_pads": {
@@ -843,7 +796,7 @@
     "two_sided": false,
     "unlit": true
    },
-   "index": 88,
+   "index": 89,
    "source": "Hub.Materials.art_sign_pads"
   },
   "Hub.Materials.art_sign_range": {
@@ -854,7 +807,7 @@
     "two_sided": false,
     "unlit": true
    },
-   "index": 100,
+   "index": 101,
    "source": "Hub.Materials.art_sign_range"
   },
   "Hub.Materials.art_sign_tower": {
@@ -865,7 +818,7 @@
     "two_sided": false,
     "unlit": true
    },
-   "index": 122,
+   "index": 119,
    "source": "Hub.Materials.art_sign_tower"
   },
   "Hub.Materials.art_stall_0": {
@@ -876,7 +829,7 @@
     "two_sided": false,
     "unlit": true
    },
-   "index": 89,
+   "index": 90,
    "source": "Hub.Materials.art_stall_0"
   },
   "Hub.Materials.art_stall_1": {
@@ -887,7 +840,7 @@
     "two_sided": false,
     "unlit": true
    },
-   "index": 90,
+   "index": 91,
    "source": "Hub.Materials.art_stall_1"
   },
   "Hub.Materials.art_stall_2": {
@@ -898,7 +851,7 @@
     "two_sided": false,
     "unlit": true
    },
-   "index": 91,
+   "index": 92,
    "source": "Hub.Materials.art_stall_2"
   },
   "Hub.Materials.art_stall_3": {
@@ -909,7 +862,7 @@
     "two_sided": false,
     "unlit": true
    },
-   "index": 92,
+   "index": 93,
    "source": "Hub.Materials.art_stall_3"
   },
   "Hub.Materials.art_stall_4": {
@@ -920,7 +873,7 @@
     "two_sided": false,
     "unlit": true
    },
-   "index": 93,
+   "index": 94,
    "source": "Hub.Materials.art_stall_4"
   },
   "Hub.Materials.art_station_0": {
@@ -931,7 +884,7 @@
     "two_sided": false,
     "unlit": true
    },
-   "index": 42,
+   "index": 43,
    "source": "Hub.Materials.art_station_0"
   },
   "Hub.Materials.art_station_1": {
@@ -942,7 +895,7 @@
     "two_sided": false,
     "unlit": true
    },
-   "index": 43,
+   "index": 44,
    "source": "Hub.Materials.art_station_1"
   },
   "Hub.Materials.art_station_2": {
@@ -953,7 +906,7 @@
     "two_sided": false,
     "unlit": true
    },
-   "index": 44,
+   "index": 45,
    "source": "Hub.Materials.art_station_2"
   },
   "Hub.Materials.art_station_3": {
@@ -964,7 +917,7 @@
     "two_sided": false,
     "unlit": true
    },
-   "index": 45,
+   "index": 46,
    "source": "Hub.Materials.art_station_3"
   },
   "Hub.Materials.art_station_4": {
@@ -975,7 +928,7 @@
     "two_sided": false,
     "unlit": true
    },
-   "index": 46,
+   "index": 47,
    "source": "Hub.Materials.art_station_4"
   },
   "Hub.Materials.art_station_5": {
@@ -986,7 +939,7 @@
     "two_sided": false,
     "unlit": true
    },
-   "index": 47,
+   "index": 48,
    "source": "Hub.Materials.art_station_5"
   },
   "Hub.Materials.art_station_6": {
@@ -997,7 +950,7 @@
     "two_sided": false,
     "unlit": true
    },
-   "index": 48,
+   "index": 49,
    "source": "Hub.Materials.art_station_6"
   },
   "Hub.Materials.art_target": {
@@ -1008,7 +961,7 @@
     "two_sided": false,
     "unlit": false
    },
-   "index": 94,
+   "index": 95,
    "source": "Hub.Materials.art_target"
   },
   "Hub.Materials.art_ticker": {
@@ -1027,7 +980,7 @@
      "type": "friendly_panner"
     }
    },
-   "index": 120,
+   "index": 117,
    "source": "Hub.Materials.art_ticker"
   },
   "Hub.Materials.bark": {
@@ -1137,7 +1090,7 @@
     "two_sided": false,
     "unlit": false
    },
-   "index": 49,
+   "index": 50,
    "source": "Hub.Materials.foliage"
   },
   "Hub.Materials.hedge": {
@@ -1159,7 +1112,7 @@
     "two_sided": false,
     "unlit": false
    },
-   "index": 55,
+   "index": 56,
    "source": "Hub.Materials.hub_slate"
   },
   "Hub.Materials.hvac": {
@@ -1170,7 +1123,7 @@
     "two_sided": false,
     "unlit": false
    },
-   "index": 123,
+   "index": 120,
    "source": "Hub.Materials.hvac"
   },
   "Hub.Materials.lab_hazard": {
@@ -1181,7 +1134,7 @@
     "two_sided": false,
     "unlit": false
    },
-   "index": 74,
+   "index": 75,
    "source": "Hub.Materials.lab_hazard"
   },
   "Hub.Materials.lab_panel": {
@@ -1192,7 +1145,7 @@
     "two_sided": false,
     "unlit": false
    },
-   "index": 75,
+   "index": 76,
    "source": "Hub.Materials.lab_panel"
   },
   "Hub.Materials.metal": {
@@ -1214,7 +1167,7 @@
     "two_sided": false,
     "unlit": false
    },
-   "index": 79,
+   "index": 80,
    "source": "Hub.Materials.museum_marble"
   },
   "Hub.Materials.museum_wood": {
@@ -1225,7 +1178,7 @@
     "two_sided": false,
     "unlit": false
    },
-   "index": 80,
+   "index": 81,
    "source": "Hub.Materials.museum_wood"
   },
   "Hub.Materials.neon_amber": {
@@ -1236,7 +1189,7 @@
     "two_sided": false,
     "unlit": true
    },
-   "index": 25,
+   "index": 26,
    "source": "Hub.Materials.neon_amber"
   },
   "Hub.Materials.neon_cyan": {
@@ -1247,7 +1200,7 @@
     "two_sided": false,
     "unlit": true
    },
-   "index": 102,
+   "index": 103,
    "source": "Hub.Materials.neon_cyan"
   },
   "Hub.Materials.neon_gold": {
@@ -1258,7 +1211,7 @@
     "two_sided": false,
     "unlit": true
    },
-   "index": 81,
+   "index": 82,
    "source": "Hub.Materials.neon_gold"
   },
   "Hub.Materials.neon_green": {
@@ -1269,7 +1222,7 @@
     "two_sided": false,
     "unlit": true
    },
-   "index": 23,
+   "index": 24,
    "source": "Hub.Materials.neon_green"
   },
   "Hub.Materials.neon_ice": {
@@ -1280,7 +1233,7 @@
     "two_sided": false,
     "unlit": true
    },
-   "index": 58,
+   "index": 59,
    "source": "Hub.Materials.neon_ice"
   },
   "Hub.Materials.neon_lab": {
@@ -1291,7 +1244,7 @@
     "two_sided": false,
     "unlit": true
    },
-   "index": 76,
+   "index": 77,
    "source": "Hub.Materials.neon_lab"
   },
   "Hub.Materials.neon_magenta": {
@@ -1302,7 +1255,7 @@
     "two_sided": false,
     "unlit": true
    },
-   "index": 118,
+   "index": 115,
    "source": "Hub.Materials.neon_magenta"
   },
   "Hub.Materials.neon_red": {
@@ -1313,7 +1266,7 @@
     "two_sided": false,
     "unlit": true
    },
-   "index": 59,
+   "index": 60,
    "source": "Hub.Materials.neon_red"
   },
   "Hub.Materials.neon_sodium": {
@@ -1324,7 +1277,7 @@
     "two_sided": false,
     "unlit": true
    },
-   "index": 64,
+   "index": 65,
    "source": "Hub.Materials.neon_sodium"
   },
   "Hub.Materials.neon_teal": {
@@ -1335,7 +1288,7 @@
     "two_sided": false,
     "unlit": true
    },
-   "index": 71,
+   "index": 72,
    "source": "Hub.Materials.neon_teal"
   },
   "Hub.Materials.neon_white": {
@@ -1346,8 +1299,19 @@
     "two_sided": false,
     "unlit": true
    },
-   "index": 99,
+   "index": 100,
    "source": "Hub.Materials.neon_white"
+  },
+  "Hub.Materials.pit": {
+   "flags": {
+    "masked": false,
+    "texture": "textures/Hub_pit.png",
+    "translucent": false,
+    "two_sided": false,
+    "unlit": false
+   },
+   "index": 11,
+   "source": "Hub.Materials.pit"
   },
   "Hub.Materials.plaza": {
    "flags": {
@@ -1357,7 +1321,7 @@
     "two_sided": false,
     "unlit": false
    },
-   "index": 11,
+   "index": 12,
    "source": "Hub.Materials.plaza"
   },
   "Hub.Materials.polar_frost": {
@@ -1368,7 +1332,7 @@
     "two_sided": false,
     "unlit": false
    },
-   "index": 60,
+   "index": 61,
    "source": "Hub.Materials.polar_frost"
   },
   "Hub.Materials.polar_ice": {
@@ -1379,7 +1343,7 @@
     "two_sided": false,
     "unlit": false
    },
-   "index": 61,
+   "index": 62,
    "source": "Hub.Materials.polar_ice"
   },
   "Hub.Materials.range": {
@@ -1390,7 +1354,7 @@
     "two_sided": false,
     "unlit": false
    },
-   "index": 12,
+   "index": 13,
    "source": "Hub.Materials.range"
   },
   "Hub.Materials.roof": {
@@ -1401,7 +1365,7 @@
     "two_sided": false,
     "unlit": false
    },
-   "index": 13,
+   "index": 14,
    "source": "Hub.Materials.roof"
   },
   "Hub.Materials.sky": {
@@ -1412,7 +1376,7 @@
     "two_sided": false,
     "unlit": true
    },
-   "index": 14,
+   "index": 15,
    "source": "Hub.Materials.sky"
   },
   "Hub.Materials.skyline": {
@@ -1423,7 +1387,7 @@
     "two_sided": false,
     "unlit": true
    },
-   "index": 15,
+   "index": 16,
    "source": "Hub.Materials.skyline"
   },
   "Hub.Materials.sofa": {
@@ -1434,7 +1398,7 @@
     "two_sided": false,
     "unlit": false
    },
-   "index": 16,
+   "index": 17,
    "source": "Hub.Materials.sofa"
   },
   "Hub.Materials.sofa2": {
@@ -1445,7 +1409,7 @@
     "two_sided": false,
     "unlit": false
    },
-   "index": 17,
+   "index": 18,
    "source": "Hub.Materials.sofa2"
   },
   "Hub.Materials.steel_concrete": {
@@ -1456,7 +1420,7 @@
     "two_sided": false,
     "unlit": false
    },
-   "index": 65,
+   "index": 66,
    "source": "Hub.Materials.steel_concrete"
   },
   "Hub.Materials.steel_corrugated": {
@@ -1467,7 +1431,7 @@
     "two_sided": false,
     "unlit": false
    },
-   "index": 66,
+   "index": 67,
    "source": "Hub.Materials.steel_corrugated"
   },
   "Hub.Materials.track": {
@@ -1478,7 +1442,7 @@
     "two_sided": false,
     "unlit": false
    },
-   "index": 18,
+   "index": 19,
    "source": "Hub.Materials.track"
   },
   "Hub.Materials.turf": {
@@ -1489,7 +1453,7 @@
     "two_sided": false,
     "unlit": false
    },
-   "index": 19,
+   "index": 20,
    "source": "Hub.Materials.turf"
   },
   "Hub.Materials.water": {
@@ -1508,7 +1472,7 @@
      "type": "friendly_panner"
     }
    },
-   "index": 22,
+   "index": 23,
    "source": "Hub.Materials.water"
   },
   "Hub.Materials.wood": {
@@ -1519,7 +1483,7 @@
     "two_sided": false,
     "unlit": false
    },
-   "index": 20,
+   "index": 21,
    "source": "Hub.Materials.wood"
   }
  },
@@ -1536,6 +1500,7 @@
   {"base": "Hub.World_fence", "name": "Hub.World_fence#vc"},
   {"base": "Hub.World_hedge", "name": "Hub.World_hedge#vc"},
   {"base": "Hub.World_metal", "name": "Hub.World_metal#vc"},
+  {"base": "Hub.World_pit", "name": "Hub.World_pit#vc"},
   {"base": "Hub.World_plaza", "name": "Hub.World_plaza#vc"},
   {"base": "Hub.World_range", "name": "Hub.World_range#vc"},
   {"base": "Hub.World_roof", "name": "Hub.World_roof#vc"},
@@ -1873,13 +1838,13 @@
   {"base": "Hub.CourseKit_metal", "name": "Hub.CourseKit_metal#vc"},
   {"base": "Hub.CourseMarks_art_course_finish", "name": "Hub.CourseMarks_art_course_finish#vc"},
   {"base": "Hub.CourseMarks_art_course_start", "name": "Hub.CourseMarks_art_course_start#vc"},
-  {"base": "Hub.CourseGates_darkpanel", "name": "Hub.CourseGates_darkpanel#vc"},
   {"base": "Hub.CourseArrows_art_move_0", "name": "Hub.CourseArrows_art_move_0#vc"},
   {"base": "Hub.CourseArrows_art_move_1", "name": "Hub.CourseArrows_art_move_1#vc"},
   {"base": "Hub.CourseArrows_art_move_2", "name": "Hub.CourseArrows_art_move_2#vc"},
   {"base": "Hub.CourseArrows_art_move_3", "name": "Hub.CourseArrows_art_move_3#vc"},
   {"base": "Hub.CourseArrows_art_move_4", "name": "Hub.CourseArrows_art_move_4#vc"},
   {"base": "Hub.CourseArrows_art_move_5", "name": "Hub.CourseArrows_art_move_5#vc"},
+  {"base": "Hub.CourseArrows_art_move_6", "name": "Hub.CourseArrows_art_move_6#vc"},
   {"base": "Hub.CourseSign_metal", "name": "Hub.CourseSign_metal#vc"},
   {"base": "Hub.CourseBoard_darkpanel", "name": "Hub.CourseBoard_darkpanel#vc"},
   {"base": "Hub.LoungeDressing_darkpanel", "name": "Hub.LoungeDressing_darkpanel#vc"},

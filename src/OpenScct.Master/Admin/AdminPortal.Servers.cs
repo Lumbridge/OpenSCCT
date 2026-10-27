@@ -415,5 +415,6 @@ internal sealed partial class AdminPortal
         }
 
         _store.AddMetric(players, servers, hubs, _registry.RelaySessionCount);
+        _store.ExpireDemos();
     }
 }

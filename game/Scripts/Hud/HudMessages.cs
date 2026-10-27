@@ -134,13 +134,17 @@ public static class HudMessages
         };
     }
 
+    /// <summary>OpenSCCT's own: a kill line's name with the player's level tag before it ("(P3 42) Name"); guests as they are.</summary>
+    private static string Ranked(PlayerReplicationInfo pri) =>
+        OpenScct.Net.Cosmetics.PlayerRank.Unpack(pri.SvmRank) is { IsNone: false } rank ? "(" + rank.Tag + ") " + pri.PlayerName : pri.PlayerName;
+
     /// <summary><c>SDeathMessage.GetString</c>: the kill line ("Killer killed Victim", "Victim has resigned...").</summary>
     [Uc("SBase.SDeathMessage.GetString", Sha1 = "fb23e354a6bd97aa1c342246da3e732f6d05811e")]
     [PortOf("uc:SBase.SDeathMessage:GetString", Spec = "spec/hud/messages.md#rules")]
     public static string DeathString(int Switch, PlayerReplicationInfo? killer, PlayerReplicationInfo? victim)
     {
-        string victimName = victim?.PlayerName ?? DeathTexts.SomeoneString;
-        string killerName = killer?.PlayerName ?? DeathTexts.SomeoneString;
+        string victimName = victim is not null ? Ranked(victim) : DeathTexts.SomeoneString;
+        string killerName = killer is not null ? Ranked(killer) : DeathTexts.SomeoneString;
         List<string> words = DeathTexts.DeathString;
         string Word(int i) => i >= 0 && i < words.Count ? words[i] : "";
         switch (Switch)

@@ -247,6 +247,10 @@ public sealed class GameSettings
     [JsonPropertyName("cosmetics_merc")]
     public string[] CosmeticsMerc { get; set; } = [];
 
+    /// <summary>The title shown under the name (OpenScct.Net.Cosmetics.TitleCatalog id), or null for none.</summary>
+    [JsonPropertyName("title")]
+    public string? Title { get; set; }
+
     // ---- display -------------------------------------------------------------------------------------------
 
     /// <summary>Fullscreen, BorderlessFullscreen or Windowed.</summary>
@@ -363,6 +367,10 @@ public sealed class GameSettings
 
     [JsonPropertyName("show_fps")]
     public bool ShowFps { get; set; }
+
+    /// <summary>Network readout under the frame-rate readout: ping, jitter, loss, bandwidth, corrections (rl:net.stats).</summary>
+    [JsonPropertyName("show_net")]
+    public bool ShowNet { get; set; }
 
     // ---- Discord -------------------------------------------------------------------------------------------
 

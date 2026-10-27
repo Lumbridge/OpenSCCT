@@ -26,6 +26,7 @@ internal static class AdminCommands
           unlock <name|discord id> <all|spy|merc|item id...>         give an account cosmetics without the achievements
           lock <name|discord id> <all|spy|merc|item id...>           take back cosmetics given with unlock
           cosmetics                                                 list every cosmetic item id
+          rank <name|discord id> <prestige> <level>                 set an account's prestige (0-10) and level (1-55)
           audit [N]                                                 the last N audit entries (default 20)
         """;
 
@@ -68,6 +69,7 @@ internal static class AdminCommands
                 "unlock" when rest.Length >= 3 => admin.Grant(rest[1], rest[2..], unlock: true),
                 "lock" when rest.Length >= 3 => admin.Grant(rest[1], rest[2..], unlock: false),
                 "cosmetics" when rest.Length == 1 => admin.Cosmetics(),
+                "rank" when rest.Length == 4 => admin.Rank(rest[1], rest[2], rest[3]),
                 "audit" when rest.Length <= 2 => admin.Audit(rest.Length == 2 ? rest[1] : null),
                 _ => admin.UsageError(),
             };
@@ -167,6 +169,8 @@ internal static class AdminCommands
             output.WriteLine($"Name        {a.Name ?? "(none)"}" + (a.NameChanged is { } c ? $"  (set {AccountStore.Format(c)})" : string.Empty));
             output.WriteLine($"Created     {AccountStore.Format(a.Created)}");
             output.WriteLine($"Last seen   {AccountStore.Format(a.LastSeen)}");
+            OpenScct.Net.Cosmetics.PlayerRank rank = store.ProgressionOf(a.Id).Rank;
+            output.WriteLine($"Rank        prestige {rank.Prestige}, level {rank.Level}");
             output.WriteLine($"Stats       {s.Matches} matches, {s.SpyWins} spy wins, {s.MercWins} merc wins, {s.Losses} losses, " +
                 $"{s.Kills} kills, {s.Deaths} deaths");
             output.WriteLine($"Achievements {store.Earned(a.Id).Count} of {Achievements.All.Count}, cosmetics {store.Unlocked(a.Id).Count} of {OpenScct.Net.Cosmetics.CosmeticCatalog.All.Count} ({store.Grants(a.Id).Count} given by unlock)");
@@ -188,6 +192,9 @@ internal static class AdminCommands
 
         public int Grant(string who, string[] what, bool unlock) =>
             FindAccount(who) is { } a ? Report(_actions.Grant(a, what, unlock)) : Report(AdminResult.Missing($"No account is called '{who}'."));
+
+        public int Rank(string who, string prestige, string level) =>
+            FindAccount(who) is { } a ? Report(_actions.SetRank(a, prestige, level)) : Report(AdminResult.Missing($"No account is called '{who}'."));
 
         public int Cosmetics()
         {

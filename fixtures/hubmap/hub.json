@@ -2,10 +2,15 @@
  "format": "openscct.hubconfig/1",
  "countdownSeconds": 10,
  "matchPorts": [28890, 28897],
+ "spectators": 4,
  "pads": [
-  {"id": "Pad1", "map": "SteeE", "mode": "Story", "teamSize": 2, "bots": "off"},
-  {"id": "Pad2", "map": "PolaE", "mode": "Deathmatch", "teamSize": 2, "bots": "off"},
-  {"id": "Pad3", "map": "MuseT", "mode": "Story", "teamSize": 3, "bots": "fill", "minPlayers": 2},
-  {"id": "Pad4", "map": "ClubE", "mode": "MercDeathmatch", "teamSize": 4, "bots": "fill", "minPlayers": 2}
+  {"id": "Pad1", "map": "SteeE", "mode": "Story", "teamSize": 2, "bots": "off",
+   "choices": [{"map": "PolaE", "mode": "Story"}, {"map": "AquaE", "mode": "Story"}]},
+  {"id": "Pad2", "map": "PolaE", "mode": "Deathmatch", "teamSize": 2, "bots": "off",
+   "choices": [{"map": "SteeE", "mode": "Deathmatch"}, {"map": "ClubE", "mode": "Deathmatch"}]},
+  {"id": "Pad3", "map": "MuseT", "mode": "Story", "teamSize": 3, "bots": "fill", "minPlayers": 2,
+   "choices": [{"map": "FactE", "mode": "Story"}]},
+  {"id": "Pad4", "map": "ClubE", "mode": "MercDeathmatch", "teamSize": 4, "bots": "fill", "minPlayers": 2,
+   "choices": [{"map": "SteeE", "mode": "MercDeathmatch"}, {"map": "PolaE", "mode": "MercDeathmatch"}]}
  ]
 }

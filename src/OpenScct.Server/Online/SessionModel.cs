@@ -7,6 +7,9 @@ namespace OpenScct.Server.Online;
 /// <summary>A player of the session as every client sees it in the lobby and on the scoreboard.</summary>
 public sealed record LobbyPlayer(int Id, string Name, byte Team, SessionPlayerFlags Flags, int PingMs, MapState Map)
 {
+    /// <summary>The player's rank with its shown title (OpenScct.Net.Cosmetics.PlayerRank packed; 0 for guests and bots).</summary>
+    public int Rank { get; init; }
+
     public bool Ready => (Flags & SessionPlayerFlags.Ready) != 0;
 
     public bool IsHost => (Flags & SessionPlayerFlags.Host) != 0;
@@ -92,6 +95,9 @@ public sealed class LobbyState
     /// <summary>The server's content hash of the setup's map.</summary>
     public ulong SetupContentHash { get; internal set; }
 
+    /// <summary>Where the setup's map can be downloaded (the host downloaded it from SCCT-Maps), or null.</summary>
+    public MapSourceInfo? SetupSource { get; internal set; }
+
     public SessionPhase Phase { get; internal set; }
 
     /// <summary>Seconds left of the launch countdown or of the results, or 0.</summary>
@@ -119,7 +125,7 @@ public sealed class LobbyState
         int i = _players.FindIndex(p => p.Id == player.Id);
         if (i >= 0)
         {
-            _players[i] = player;
+            _players[i] = player with { Rank = player.Rank != 0 ? player.Rank : _players[i].Rank };
         }
         else
         {
@@ -128,6 +134,16 @@ public sealed class LobbyState
     }
 
     internal void Remove(int id) => _players.RemoveAll(p => p.Id == id);
+
+    /// <summary>A "rank" line: the rank of a player already listed.</summary>
+    internal void SetRank(int id, int rank)
+    {
+        int i = _players.FindIndex(p => p.Id == id);
+        if (i >= 0)
+        {
+            _players[i] = _players[i] with { Rank = rank };
+        }
+    }
 
     internal void AddMessage(SessionMessage message)
     {

@@ -41,10 +41,13 @@ class AudioMapStep(Step):
         from ..audio.build import bank_file  # noqa: PLC0415
 
         out: dict[str, str | None] = {}
-        sdc = ctx.game / "Packages" / "Maps" / f"{unit}.sdc"
+        from ..gamefiles import game_file  # noqa: PLC0415
+
+        sdc = game_file(ctx.game, f"Packages/Maps/{unit}.sdc")
         out[ctx.game_path(sdc)] = ctx.hasher.sha256(sdc)
         bank = bank_file(ctx.game, str(unit))
-        out[f"game:Packages/Sounds/{unit}.uas"] = ctx.hasher.sha256(bank) if bank.is_file() else None
+        out[ctx.game_path(bank) if bank.is_file() else f"game:Packages/Sounds/{unit}.uas"] = (
+            ctx.hasher.sha256(bank) if bank.is_file() else None)
         for f in env.script_package_files(ctx.game):
             out[ctx.game_path(f)] = ctx.hasher.sha256(f)
         return out

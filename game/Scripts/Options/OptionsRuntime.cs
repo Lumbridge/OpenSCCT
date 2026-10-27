@@ -110,6 +110,7 @@ public partial class OptionsRuntime : Node
             Hud.Options.ShowPing = s.ShowPing;
             Hud.Options.StretchHud = !s.Widescreen;
             Hud.ShowFps = s.ShowFps;
+            Hud.ShowNet = s.ShowNet;
         }
 
         if (Gamepad is not null)

@@ -150,7 +150,7 @@ public partial class SPlayerController
                 bomb.ActivateBombTarget();
                 break;
             case "ThrowGren" when target is SGadGrenLauncher launcher:
-                launcher.ThrowGren(c.Int1, c.Vector1, c.Rotation, c.Bool1);
+                launcher.ServerThrowGren(c.Int1, c.Vector1, c.Rotation, c.Bool1);
                 break;
             case "UseBulletSet" when target is SGadTazerLauncher taser:
                 taser.UseBulletSet();

@@ -30,7 +30,12 @@ public partial class SComputerObjectiveTrigger
         SetCollision(false, false, false);
         Rotation.GetAxes(out FVector x, out FVector y, out FVector z);
         FVector at = Location + x * InteractionDistanceToCenter + y * UseRelativeLocation.Y + z * UseRelativeLocation.Z;
-        InteractionObj = ObjectiveNatives.Spawn<SComputerInteraction>(this, this, at, Rotation);
+        // Server only (not simulated): a client copy would join the client's Use menu as an entry the server does
+        // not know; clients get the server's by replication.
+        if (Role == ENetRole.ROLE_Authority)
+        {
+            InteractionObj = ObjectiveNatives.Spawn<SComputerInteraction>(this, this, at, Rotation);
+        }
         DeltaCaptureTime = 0f;
         SkinState = SKIN_Idle;
         base.PostBeginPlay();

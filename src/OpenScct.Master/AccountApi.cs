@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,7 +16,7 @@ namespace OpenScct.Master;
 /// The account side of the master (docs/ONLINE.md, "Accounts"): Discord sign-in from the game, the account calls,
 /// join tickets, ban kicks for heartbeats and round results from trusted servers.
 /// </summary>
-internal sealed class AccountApi
+internal sealed partial class AccountApi
 {
     private const string SignInAgain = "Sign in again.";
 
@@ -27,8 +28,9 @@ internal sealed class AccountApi
     private readonly TimeProvider _time;
 
     public AccountApi(MasterOptions options, AccountStore store, TicketSigner signer, ServerRegistry registry,
-        Func<HttpContext, IPAddress> clientIp, TimeProvider time)
+        Func<HttpContext, IPAddress> clientIp, TimeProvider time, DemoStorage? demos = null)
     {
+        _demos = demos;
         _options = options;
         _store = store;
         _signer = signer;
@@ -54,10 +56,12 @@ internal sealed class AccountApi
         app.MapGet(MasterApi.AccountPath, (HttpContext context) => WithAccount(context, a => Results.Json(Info(a), MasterApi.Json)));
         app.MapPost(MasterApi.AccountNamePath, (HttpContext context, NameRequest request) => WithAccount(context, a => ClaimName(a, request)));
         app.MapPost(MasterApi.SignOutPath, SignOut);
+        app.MapPost(MasterApi.PrestigePath, (HttpContext context) => WithAccount(context, Prestige));
         app.MapGet(MasterApi.ProfilePath, (HttpContext context) => WithAccount(context, a =>
             _store.Profile(a.Id) is { } p ? Results.Json(p, MasterApi.Json) : Results.NoContent()));
         app.MapPut(MasterApi.ProfilePath, (HttpContext context, ProfileData profile) => WithAccount(context, a => PutProfile(a, profile)));
         app.MapPost(MasterApi.ResultsPath, (HttpContext context, ResultsReport report) => PostResults(context, report));
+        MapDemos(app);
     }
 
     /// <summary>The same paths when sign-in is not set up: each answers 503.</summary>
@@ -73,9 +77,11 @@ internal sealed class AccountApi
         app.MapGet(MasterApi.AccountPath, Off);
         app.MapPost(MasterApi.AccountNamePath, Off);
         app.MapPost(MasterApi.SignOutPath, Off);
+        app.MapPost(MasterApi.PrestigePath, Off);
         app.MapGet(MasterApi.ProfilePath, Off);
         app.MapPut(MasterApi.ProfilePath, Off);
         app.MapPost(MasterApi.ResultsPath, () => Error(StatusCodes.Status503ServiceUnavailable, "This master keeps no accounts or results."));
+        MapDemosDisabled(app);
     }
 
     private static IResult Error(int status, string message) =>
@@ -278,8 +284,39 @@ internal sealed class AccountApi
             Id = account.Id, Name = account.Name, Admin = _options.IsAdmin(account.DiscordId),
             NameChangeAllowed = allowed is { } t ? DateTimeOffset.FromUnixTimeSeconds(t) : null,
             Stats = _store.Stats(account.Id), Achievements = achievements, Unlocked = _store.Unlocked(account.Id),
+            Progress = _store.ProgressInfo(account.Id),
+            Rejoin = RejoinFor(account.Id),
         };
     }
+
+    /// <summary>
+    /// A game server whose heartbeat says this account dropped out of the round it is playing (loading or match)
+    /// and is not back on it: the game offers the rejoin (docs/ONLINE.md, "Rejoining a round").
+    /// </summary>
+    private RejoinOffer? RejoinFor(long accountId)
+    {
+        lock (_registry.Gate)
+        {
+            foreach (ServerRecord r in _registry.Snapshot())
+            {
+                HeartbeatRequest h = r.Last;
+                if (h.Kind == ServerKind.Game && h.Phase is SessionPhase.Loading or SessionPhase.Match &&
+                    h.RejoinAccounts.Contains(accountId) && !h.AccountIds.Contains(accountId))
+                {
+                    return new RejoinOffer { ServerId = r.Id, ServerName = h.Name, Map = h.Map, Mode = h.Mode, Phase = h.Phase };
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private IResult Prestige(AccountRow account) => _store.Prestige(account.Id) switch
+    {
+        PrestigeResult.NotAtCap => Error(StatusCodes.Status409Conflict, $"Reach level {ProgressionK.MaxLevel} to prestige."),
+        PrestigeResult.AtLastPrestige => Error(StatusCodes.Status409Conflict, "You are at the last prestige."),
+        _ => Results.Json(Info(account), MasterApi.Json),
+    };
 
     private IResult ClaimName(AccountRow account, NameRequest request)
     {
@@ -353,6 +390,7 @@ internal sealed class AccountApi
             AccountId = account.Id, Name = account.Name, ServerId = serverId, Expires = _time.GetUtcNow() + PlayerTicket.Lifetime,
             TicketId = PlayerTicket.NewTicketId(), Flags = _options.IsAdmin(account.DiscordId) ? PlayerTicketFlags.Admin : PlayerTicketFlags.None,
             Unlocks = CosmeticUnlocks.Of(_store.Unlocked(account.Id)).ToBytes(),
+            Rank = _store.ProgressionOf(account.Id).Rank.Pack(), Titles = TitleCatalog.ToBytes(_store.Titles(account.Id)),
         };
         return (_signer.Sign(ticket), null);
     }
@@ -395,9 +433,9 @@ internal sealed class AccountApi
             serverName = _registry.Find(report.ServerId)?.Last.Name ?? server.Name;
         }
 
-        _store.RecordMatch(report, serverName, counted);
+        long matchId = _store.RecordMatch(report, serverName, counted);
 
-        return Results.Ok();
+        return Results.Json(new ResultsResponse { MatchId = matchId }, MasterApi.Json);
     }
 
     /// <summary>A round with a winner and at least one signed-in player on each team.</summary>

@@ -77,7 +77,8 @@ public partial class HubHud
         if (play.Running)
         {
             activity = $"COURSE  {HubScores.Time(play.RunMs)}\ncheckpoint {play.Passed}/{play.Checkpoints}" +
-                       (play.LastSplit >= 0 ? $"   split {HubScores.Time(play.LastSplit)}" : string.Empty);
+                       (play.LastSplit >= 0 ? $"   split {HubScores.Time(play.LastSplit)}" : string.Empty) +
+                       (play.Falls > 0 ? $"   falls {play.Falls}" : string.Empty);
         }
         else if (play.InRound)
         {
@@ -108,7 +109,7 @@ public partial class HubHud
         _notices.Position = new Vector2(0f, 110f);
 
         FVector? eye = Round?.View?.Camera is { } camera && Round.IsLoaded ? UeSpace.ToUe(camera.GlobalPosition) : null;
-        DrawBoard(play, eye, size);
+        DrawBoard(client, play, eye, size);
         _prompt.Text = eye is { } at ? Prompt(client, play, at) : string.Empty;
         _prompt.Size = new Vector2(size.X, 0f);
         _prompt.Position = new Vector2(0f, size.Y - 100f);
@@ -117,17 +118,20 @@ public partial class HubHud
         _emoteMenu.Position = new Vector2(size.X * 0.5f - 90f, size.Y * 0.5f - 120f);
     }
 
-    /// <summary>The nearest board within range, in a panel on the right.</summary>
-    private void DrawBoard(HubPlayState play, FVector? eye, Vector2 size)
+    /// <summary>
+    /// The nearest board within range, in a panel on the right, when the world does not show it: a board the hub put up
+    /// as a world sign is read there, not twice.
+    /// </summary>
+    private void DrawBoard(HubClient client, HubPlayState play, FVector? eye, Vector2 size)
     {
         HubBoard? nearest = null;
         float best = HubPlayK.BoardShowRange;
         if (eye is { } at)
         {
-            foreach (HubBoard b in play.Boards.Values)
+            foreach ((string id, HubBoard b) in play.Boards)
             {
                 float d = (b.At - at).Size();
-                if (d < best && b.Lines.Length > 0)
+                if (d < best && b.Lines.Length > 0 && !client.Signs.ContainsKey(id))
                 {
                     best = d;
                     nearest = b;

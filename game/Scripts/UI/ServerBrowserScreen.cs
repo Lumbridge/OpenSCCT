@@ -86,8 +86,14 @@ public partial class ServerBrowserScreen : MenuPage
     private OptionButton? _path;
     private Label? _status;
 
-    /// <summary>A listed server's master id to join as soon as the page is up (a Discord Join, docs/DISCORD.md).</summary>
+    /// <summary>A listed server's master id to join as soon as the page is up (a Discord Join, docs/DISCORD.md, or a rejoin).</summary>
     public string? DiscordJoinId { get; init; }
+
+    /// <summary>What the status line calls the server of <see cref="DiscordJoinId"/>.</summary>
+    public string JoinIdName { get; init; } = "your Discord friend's game";
+
+    /// <summary>The password to join the server of <see cref="DiscordJoinId"/> with (a rejoin keeps the one it had), or null.</summary>
+    public string? JoinIdPassword { get; init; }
 
     public Tree? Table { get; private set; }
 
@@ -180,7 +186,8 @@ public partial class ServerBrowserScreen : MenuPage
         Refresh();
         if (DiscordJoinId is { Length: > 0 } discordJoin)
         {
-            JoinByMasterId(discordJoin, "your Discord friend's game");
+            JoinByMasterId(discordJoin, JoinIdName);
+            _joinPassword = JoinIdPassword;
         }
     }
 
@@ -351,7 +358,7 @@ public partial class ServerBrowserScreen : MenuPage
             GD.Print("SVM_BROWSER no ticket for " + join.ServerName + ": " + problem);
         }
 
-        _service!.Join(join.Direct ?? JoinTarget.FromJoin(result, OnlineSettings.Current.Path), _joinPassword, result.Ticket);
+        _service!.Join(join.Direct ?? JoinTarget.FromJoin(result, OnlineSettings.Current.Path), _joinPassword, result.Ticket, join.ServerId);
         return true;
     }
 

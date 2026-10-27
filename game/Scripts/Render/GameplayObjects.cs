@@ -243,6 +243,16 @@ public static class GameplayObjects
     /// <summary>The template's per-actor vision values (HeatIntensity, HeatOpacity, EMF glow, EMFOpacity).</summary>
     public static readonly StringName VisionActorParameter = "svm_vision_actor";
 
+    /// <summary>
+    /// A live actor's vision values in the <see cref="VisionActorParameter"/> layout: HeatIntensity, HeatOpacity, EMF
+    /// glow (EMFIntensity while bEMFIsOn) and EMFOpacity. HeatIntensity, the EMF values and bEMFIsOn are replicated.
+    /// </summary>
+    public static Vector4 VisionOf(OpenScct.Core.Engine.Actor actor)
+    {
+        ArgumentNullException.ThrowIfNull(actor);
+        return new Vector4(actor.HeatIntensity, actor.HeatOpacity, OpenScct.Game.Equipment.EmfVision.Glow(actor), actor.EMFOpacity);
+    }
+
     /// <summary>Writes every gameplay mesh's vision values from its actor (sim/gameplay.json over the class defaults).</summary>
     public static void ApplyVision(RenderMap map, GameplayActors actors)
     {

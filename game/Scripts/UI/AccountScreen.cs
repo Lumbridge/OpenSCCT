@@ -1,5 +1,6 @@
 using System;
 using System.Globalization;
+using System.Linq;
 using System.Threading.Tasks;
 using Godot;
 using OpenScct.Net.Cosmetics;
@@ -12,7 +13,8 @@ namespace OpenScctGame.UI;
 /// <summary>
 /// The Account page: signing in with Discord through our master (the master gives a short code and a page; the game
 /// opens the page in the browser and asks every 2 s until the sign-in is done, expired or refused), picking the
-/// account's name, and the signed-in account: name, stats and Sign out (achievements have their own page). A signed-in player's settings
+/// account's name, and the signed-in account: name, rank (level, XP, prestige, title; spec/additions/progression.md),
+/// stats and Sign out (achievements have their own page). A signed-in player's settings
 /// and key layouts follow the account (<see cref="AccountService"/>). Without a master there are no accounts.
 /// </summary>
 public partial class AccountScreen : MenuPage
@@ -42,7 +44,11 @@ public partial class AccountScreen : MenuPage
     private Task<AccountInfo>? _claim;
     private Task<AccountInfo>? _refresh;
     private Task? _signOut;
+    private Task<AccountInfo>? _prestige;
     private LineEdit? _nameEdit;
+
+    /// <summary>The Prestige button was pressed once: the next press confirms.</summary>
+    private bool _prestigeArmed;
 
     /// <summary>True while the name picker is a change of an already claimed name (Cancel goes back).</summary>
     private bool _changingName;
@@ -155,6 +161,29 @@ public partial class AccountScreen : MenuPage
             else
             {
                 ShowStatus(AccountService.ErrorOf(refresh));
+            }
+        }
+
+        if (_prestige is { IsCompleted: true } prestige)
+        {
+            _prestige = null;
+            _prestigeArmed = false;
+            if (prestige.IsCompletedSuccessfully)
+            {
+                _service!.Update(prestige.Result);
+                ShowView(View.SignedIn);
+                int p = prestige.Result.Progress?.Prestige ?? 0;
+                ShowStatus($"Prestige {p}: back to level 1 with a new emblem" +
+                    (TitleCatalog.Find("prestige_" + p.ToString(CultureInfo.InvariantCulture)) is { } t ? $" and the title {t.Text}." : "."));
+            }
+            else if (AccountService.IsSignedOutError(prestige))
+            {
+                SignedOutByMaster();
+            }
+            else
+            {
+                ShowStatus(AccountService.ErrorOf(prestige));
+                ShowView(View.SignedIn);
             }
         }
 
@@ -409,6 +438,8 @@ public partial class AccountScreen : MenuPage
 
         panel.AddChild(Text("Your settings and key layouts follow this account to other PCs (display and microphone stay on each PC)."));
 
+        BuildRank(info);
+
         VBoxContainer stats = Panel(_content!, "Stats", "Stats");
         if (info is null)
         {
@@ -421,6 +452,139 @@ public partial class AccountScreen : MenuPage
                 $"Matches {st.Matches}    Spy wins {st.SpyWins}    Merc wins {st.MercWins}    Losses {st.Losses}")));
             stats.AddChild(Text(string.Create(CultureInfo.InvariantCulture, $"Kills {st.Kills}    Deaths {st.Deaths}")));
         }
+    }
+
+    // ---- rank ----------------------------------------------------------------------------------------------
+
+    private void BuildRank(AccountInfo? info)
+    {
+        VBoxContainer rankPanel = Panel(_content!, "Rank", "Rank");
+        if (info is null)
+        {
+            rankPanel.AddChild(Text("Asking the master server..."));
+            return;
+        }
+
+        if (info.Progress is not { } progress)
+        {
+            rankPanel.AddChild(Text("This master server has no levels yet."));
+            return;
+        }
+
+        PlayerRank rank = RankBadge.OfAccount(info);
+        rankPanel.AddChild(new RankBadge(72, 26) { Name = "Badge" }.Show(rank, withTitle: true));
+
+        var bar = new UiProgress { Name = "XpBar", Value = rank.Fraction, Fill = RankIcons.ColourOf(rank), CustomMinimumSize = new Vector2(700f, 8f) };
+        rankPanel.AddChild(bar);
+        rankPanel.AddChild(Text(rank.AtCap
+            ? string.Create(CultureInfo.InvariantCulture, $"Level {ProgressionK.MaxLevel}: the top of this prestige.    {progress.TotalXp:N0} XP in all")
+            : string.Create(CultureInfo.InvariantCulture,
+                $"{rank.XpIntoLevel:N0} / {rank.XpForNext:N0} XP to level {rank.Level + 1}    {progress.TotalXp:N0} XP in all")));
+        rankPanel.AddChild(Text(string.Create(CultureInfo.InvariantCulture,
+            $"XP comes from counted rounds on official servers: {ProgressionK.ScoreXp} per point of score, {ProgressionK.FinishXp} for finishing, " +
+            $"{ProgressionK.WinXp} for a win, {ProgressionK.ObjectiveXp} per objective taken, and {ProgressionK.AchievementXp} to " +
+            $"{ProgressionK.MetaAchievementXp} for each achievement.")));
+
+        if (rank.CanPrestige)
+        {
+            rankPanel.AddChild(Text(_prestigeArmed
+                ? $"Prestige {rank.Prestige + 1} puts you back to level 1 with a new emblem and title. Your achievements, cosmetics and stats stay. Press again to confirm."
+                : $"You can prestige: go back to level 1 for the prestige {rank.Prestige + 1} emblem and a new title."));
+            Button prestigeButton = UiStyle.MenuButton(_prestigeArmed ? "Confirm prestige" : $"Enter prestige {rank.Prestige + 1}", Prestige, "Prestige");
+            prestigeButton.Disabled = _prestige is not null;
+            rankPanel.AddChild(prestigeButton);
+        }
+        else if (rank.IsMaster)
+        {
+            rankPanel.AddChild(Text("Master prestige: there is no higher rank."));
+        }
+
+        BuildEmblems(rank);
+        BuildTitles(progress);
+    }
+
+    private void BuildEmblems(PlayerRank rank)
+    {
+        VBoxContainer panel = Panel(_content!, "Emblems", "Prestige emblems");
+        var row = new HFlowContainer { Name = "EmblemRow" };
+        row.AddThemeConstantOverride("h_separation", 10);
+        for (int p = 1; p <= ProgressionK.MaxPrestige + 1; p++)
+        {
+            bool master = p > ProgressionK.MaxPrestige;
+            bool reached = master ? rank.IsMaster : rank.Prestige >= p;
+            var icon = new TextureRect
+            {
+                Texture = master ? RankIcons.Master(48) : RankIcons.Prestige(p, 48), CustomMinimumSize = new Vector2(48f, 48f),
+                ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize, StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered,
+                Modulate = reached ? Colors.White : new Color(1f, 1f, 1f, 0.22f), MouseFilter = MouseFilterEnum.Stop,
+                TooltipText = Progression.PrestigeNames[p] + (reached ? string.Empty : master
+                    ? $" (reach level {ProgressionK.MaxLevel} at prestige {ProgressionK.MaxPrestige})"
+                    : " (not reached yet)"),
+            };
+            row.AddChild(icon);
+        }
+
+        panel.AddChild(row);
+    }
+
+    private void BuildTitles(ProgressInfo progress)
+    {
+        VBoxContainer panel = Panel(_content!, "Titles", "Title");
+        string? chosen = SettingsStore.Current.Title;
+        if (chosen is not null && !progress.Titles.Contains(chosen))
+        {
+            chosen = null;
+        }
+
+        panel.AddChild(Text($"The title shown under your name in lobbies and the hub. {progress.Titles.Count} of {TitleCatalog.All.Count} unlocked."));
+        var flow = new HFlowContainer { Name = "TitleList" };
+        flow.AddThemeConstantOverride("h_separation", 6);
+        flow.AddThemeConstantOverride("v_separation", 6);
+        var group = new ButtonGroup();
+        flow.AddChild(TitleButton("None", null, chosen is null, true, "No title", group));
+        foreach (TitleItem t in TitleCatalog.All)
+        {
+            bool have = progress.Titles.Contains(t.Id);
+            flow.AddChild(TitleButton(t.Text, t.Id, chosen == t.Id, have, have ? t.HowToUnlock.Replace("Reach", "Reached", StringComparison.Ordinal)
+                .Replace("Earn the", "Earned the", StringComparison.Ordinal) : "Locked. " + t.HowToUnlock, group));
+        }
+
+        panel.AddChild(flow);
+    }
+
+    private Button TitleButton(string text, string? id, bool on, bool unlocked, string tooltip, ButtonGroup group)
+    {
+        var button = new Button
+        {
+            Text = unlocked ? text : text + " (locked)", ToggleMode = true, ButtonPressed = on, ButtonGroup = group, Disabled = !unlocked,
+            TooltipText = tooltip, Name = "Title_" + (id ?? "none"),
+        };
+        button.Pressed += () =>
+        {
+            GameSettings settings = SettingsStore.Current;
+            settings.Title = id;
+            SettingsStore.Save(settings);
+            ShowStatus(id is null ? "No title shown." : $"Title set: {text}. Players see it from your next join.");
+        };
+        return button;
+    }
+
+    private void Prestige()
+    {
+        if (_prestige is not null)
+        {
+            return;
+        }
+
+        if (!_prestigeArmed)
+        {
+            _prestigeArmed = true;
+            ShowView(View.SignedIn);
+            return;
+        }
+
+        _prestige = AccountService.Call(c => c.PrestigeAsync());
+        ShowStatus("Asking the master server...");
     }
 
     private static Label Text(string text) => new()

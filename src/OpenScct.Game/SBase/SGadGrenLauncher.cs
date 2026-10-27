@@ -71,6 +71,20 @@ public partial class SGadGrenLauncher
             return;
         }
 
+        // Then the refire time of this gadget (another gadget has its own LastUsed) and the charge; the clock starts here.
+        if (Level.TimeSeconds - LastUsed < RefireRate)
+        {
+            return;
+        }
+
+        if (Charge < 1 && Charge != K.UnlimitedCharge && !GadgetWorld.CurLevelIsTutorial(this))
+        {
+            pawn.PlaySound(SND_EmptyCharge, ESoundSlot.SLOT_Misc, null, false, K.EmptyChargeRadius);
+            return;
+        }
+
+        LastUsed = Level.TimeSeconds;
+
         // A player merc's FX bone at the release, 80 uu behind the aimed rifle's (measured, grenade-throw.md rule 4a).
         FCoords fx = pawn.SPawnType == PawnType.SPAWNDEFENSE && pawn.Controller is SPlayerController thrower
             ? CombatNatives.MercThrowFxCoords(pawn, thrower.MyDesiredRotation)
@@ -207,5 +221,19 @@ public partial class SGadGrenLauncher
 
         DecCharge();
         LastUsed = Level.TimeSeconds;
+    }
+
+    /// <summary>
+    /// The server end of a ThrowGren sent by the owner's machine: refused inside this gadget's refire time on the
+    /// server's clock (less a little slack for network jitter), so a client cannot throw faster than UseGren allows.
+    /// </summary>
+    public void ServerThrowGren(int Force, FVector Origin, FRotator Rotation, bool bQuickLaunch)
+    {
+        if (Level.TimeSeconds - LastUsed < RefireRate - K.RemoteRefireSlack)
+        {
+            return;
+        }
+
+        ThrowGren(Force, Origin, Rotation, bQuickLaunch);
     }
 }

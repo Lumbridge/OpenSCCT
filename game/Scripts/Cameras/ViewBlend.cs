@@ -123,9 +123,10 @@ public sealed class LookAhead
                 Active = true;
                 _misses = 0;
             }
-            else if (_stateChanged || ++_misses > MissesAllowed)
+            else if (_stateChanged || (yaw == 0 && pitch == 0) || ++_misses > MissesAllowed)
             {
-                // A new state may turn the view its own way; a second miss in a row means the model is not the plain one.
+                // A new state may turn the view its own way; a view that did not turn at all is not taking the mouse
+                // (a roll keeps the view it began with); a second miss in a row means the model is not the plain one.
                 Active = false;
             }
         }

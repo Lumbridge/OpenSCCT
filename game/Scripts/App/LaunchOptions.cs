@@ -21,10 +21,14 @@ public sealed class LaunchOptions
     public const string RulesPrefix = "--rules=";
     public const string HostPrefix = "--svm-host=";
     public const string NetRatePrefix = "--svm-netrate=";
+    public const string SimLinkPrefix = "--svm-simlink=";
     public const string GameRootPrefix = "--svm-game-root=";
     public const string ContentPrefix = "--svm-content=";
+    public const string MapDownloadsPrefix = "--svm-map-downloads=";
     public const string PlayBotsPrefix = "--bots=";
     public const string DifficultyPrefix = "--difficulty=";
+    public const string RecordFlag = "--svm-record";
+    public const string DemoPrefix = "--svm-demo=";
     public const double DefaultSmokeTimeoutSeconds = 120.0;
     public const int DefaultBots = 3;
     public const int MaxBots = 15;
@@ -64,6 +68,12 @@ public sealed class LaunchOptions
     /// <summary>Replication rate of the listen server (<c>--svm-netrate=</c>), 0 for the default.</summary>
     public int PlayNetRate { get; private init; }
 
+    /// <summary>
+    /// A simulated bad link to the play host (<c>--svm-simlink=A|B|C|D</c>: 0, 60, 120 or 250 ms ping with growing
+    /// loss), or null for none. Plays with the inline host.
+    /// </summary>
+    public string? PlaySimLink { get; private init; }
+
     /// <summary>The original game folder the key layouts are read from (<c>--svm-game-root=</c>), or null.</summary>
     public string? GameRoot { get; private init; }
 
@@ -73,11 +83,23 @@ public sealed class LaunchOptions
     /// </summary>
     public string? ContentRoot { get; private init; }
 
+    /// <summary>
+    /// The maps downloaded from SCCT-Maps (<c>--svm-map-downloads=</c>, the launcher's maps folder), or null (then the
+    /// launcher's default folder): where a map a lobby picks is fetched to (docs/LAUNCHER.md "Downloaded maps").
+    /// </summary>
+    public string? MapsRoot { get; private init; }
+
     /// <summary>Server-side bots of an offline play (<c>--bots=3</c> fills a 2v2 next to the player), 0 for none.</summary>
     public int PlayBots { get; private init; }
 
     /// <summary>The offline play bots' difficulty (<c>--difficulty=easy|normal|hard|expert</c>).</summary>
     public string PlayDifficulty { get; private init; } = "normal";
+
+    /// <summary>Record the offline play (<c>--svm-record</c>) as a demo in the user's demos folder (docs/DEMOS.md).</summary>
+    public bool PlayRecord { get; private init; }
+
+    /// <summary>A demo file to watch at start (<c>--svm-demo=path</c>), or null.</summary>
+    public string? DemoFile { get; private init; }
 
     /// <summary>Arguments that were not recognised, kept so callers can report them.</summary>
     public IReadOnlyList<string> Unknown { get; private init; } = [];
@@ -97,10 +119,14 @@ public sealed class LaunchOptions
         string rules = "map";
         string host = "thread";
         int netRate = 0;
+        string? simLink = null;
         string? gameRoot = null;
         string? contentRoot = null;
+        string? mapsRoot = null;
         int playBots = 0;
         string difficulty = "normal";
+        bool record = false;
+        string? demo = null;
         foreach (string arg in userArgs)
         {
             if (arg.StartsWith(SmokePrefix, StringComparison.Ordinal))
@@ -153,6 +179,11 @@ public sealed class LaunchOptions
             {
                 netRate = rate;
             }
+            else if (arg.StartsWith(SimLinkPrefix, StringComparison.Ordinal)
+                && arg[SimLinkPrefix.Length..].ToUpperInvariant() is "A" or "B" or "C" or "D")
+            {
+                simLink = arg[SimLinkPrefix.Length..].ToUpperInvariant();
+            }
             else if (arg.StartsWith(GameRootPrefix, StringComparison.Ordinal) && arg.Length > GameRootPrefix.Length)
             {
                 gameRoot = arg[GameRootPrefix.Length..];
@@ -160,6 +191,10 @@ public sealed class LaunchOptions
             else if (arg.StartsWith(ContentPrefix, StringComparison.Ordinal) && arg.Length > ContentPrefix.Length)
             {
                 contentRoot = arg[ContentPrefix.Length..];
+            }
+            else if (arg.StartsWith(MapDownloadsPrefix, StringComparison.Ordinal) && arg.Length > MapDownloadsPrefix.Length)
+            {
+                mapsRoot = arg[MapDownloadsPrefix.Length..];
             }
             else if (arg.StartsWith(PlayBotsPrefix, StringComparison.Ordinal)
                 && int.TryParse(arg[PlayBotsPrefix.Length..], NumberStyles.None, CultureInfo.InvariantCulture, out int playBotCount)
@@ -170,6 +205,14 @@ public sealed class LaunchOptions
             else if (arg.StartsWith(DifficultyPrefix, StringComparison.Ordinal) && arg.Length > DifficultyPrefix.Length)
             {
                 difficulty = arg[DifficultyPrefix.Length..].ToLowerInvariant();
+            }
+            else if (arg == RecordFlag)
+            {
+                record = true;
+            }
+            else if (arg.StartsWith(DemoPrefix, StringComparison.Ordinal) && arg.Length > DemoPrefix.Length)
+            {
+                demo = arg[DemoPrefix.Length..].Trim('"');
             }
             else
             {
@@ -190,10 +233,14 @@ public sealed class LaunchOptions
             PlayRules = rules,
             PlayHost = host,
             PlayNetRate = netRate,
+            PlaySimLink = simLink,
             GameRoot = gameRoot,
             ContentRoot = contentRoot,
+            MapsRoot = mapsRoot,
             PlayBots = playBots,
             PlayDifficulty = difficulty,
+            PlayRecord = record,
+            DemoFile = demo,
             Unknown = unknown,
         };
     }

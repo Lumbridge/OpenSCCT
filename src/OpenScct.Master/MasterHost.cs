@@ -36,6 +36,7 @@ public sealed class MasterHost : IAsyncDisposable
     private readonly TicketSigner? _signer;
     private readonly AccountApi? _accounts;
     private readonly Admin.AdminPortal? _portal;
+    private readonly DemoStorage? _demos;
     private bool _disposed;
 
     private MasterHost(WebApplication app, MasterOptions options, ServerRegistry registry, Introducer? introducer, Relay? relay, Prober? prober,
@@ -49,10 +50,11 @@ public sealed class MasterHost : IAsyncDisposable
         _prober = prober;
         _store = store;
         _signer = signer;
-        _accounts = store is not null && signer is not null ? new AccountApi(options, store, signer, registry, ClientIp, time) : null;
+        _demos = store is not null && options.DemosEnabled ? new DemoStorage(options.Demos, time) : null;
+        _accounts = store is not null && signer is not null ? new AccountApi(options, store, signer, registry, ClientIp, time, _demos) : null;
         if (_accounts is not null && store is not null)
         {
-            _portal = new Admin.AdminPortal(options, store, registry, ClientIp, () => (RelayForwarded, Introductions));
+            _portal = new Admin.AdminPortal(options, store, registry, ClientIp, () => (RelayForwarded, Introductions), _demos);
             _accounts.AdminCallback = _portal.CallbackAsync;
         }
         _limiter = new RateLimiter(options.RequestsPerMinute);
@@ -150,10 +152,11 @@ public sealed class MasterHost : IAsyncDisposable
         master.HttpAddress = addresses?.Addresses.FirstOrDefault() ?? options.HttpUrl;
         master._sweeper.Change(TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(1));
         ILogger log = logs.CreateLogger("OpenScct.Master");
-        log.LogInformation("svm-master {Version}: HTTP {Http}, introducer {Introducer}, relay {Relay}, probes {Probe}, {Access}, accounts {Accounts}",
-            BuildInfo.Version, master.HttpAddress, master.IntroducerAddress ?? "off", master.RelayAddress ?? "off",
+        log.LogInformation("svm-master {Version} (game {GameVersion}): HTTP {Http}, introducer {Introducer}, relay {Relay}, probes {Probe}, {Access}, accounts {Accounts}, demos {Demos}",
+            MasterBuildInfo.Text, BuildInfo.Version, master.HttpAddress, master.IntroducerAddress ?? "off", master.RelayAddress ?? "off",
             prober is null ? "off" : "on", options.InviteKeys.Count > 0 ? "invite only" : "public",
-            store is null ? "off" : options.ResolvePath(options.Database));
+            store is null ? "off" : options.ResolvePath(options.Database),
+            master._demos is null ? "off" : $"s3://{options.Demos.Bucket} ({options.Demos.Region}, {options.Demos.KeepDays} days)");
         return master;
     }
 
@@ -227,6 +230,8 @@ public sealed class MasterHost : IAsyncDisposable
                 : Error(StatusCodes.Status404NotFound, "Unknown server id or wrong host token."));
         _app.MapGet(MasterApi.StatusPath, () => Results.Json(new MasterStatus
         {
+            MasterVersion = MasterBuildInfo.Version, MasterBuild = MasterBuildInfo.BuildNumber,
+            MasterCommit = MasterBuildInfo.Commit.Length > 0 ? MasterBuildInfo.Commit : null,
             Motd = Options.Motd, LatestVersion = Options.LatestVersion, MinVersion = Options.MinVersion,
             Servers = Registry.ServerCount, RelaySessions = Registry.RelaySessionCount, InviteOnly = Options.InviteKeys.Count > 0,
             TicketKey = _accounts?.TicketKey, Accounts = _accounts is not null,
@@ -354,6 +359,7 @@ public sealed class MasterHost : IAsyncDisposable
         }
 
         if (r.Version.Length > 32 || r.Region.Length > 16 || r.Map.Length > 64 || r.LanAddresses.Count > 8 || r.PlayerNames.Count > 64 || r.AccountIds.Count > 64 ||
+            r.RejoinAccounts.Count > 64 ||
             r.PlayerDetails.Count > 64 || r.CommandResults.Count > 32 || r.PlayerDetails.Any(p => p.Name.Length > 64))
         {
             return "The heartbeat is too large.";
@@ -514,6 +520,7 @@ public sealed class MasterHost : IAsyncDisposable
         _prober?.Dispose();
         _store?.Dispose();
         _signer?.Dispose();
+        _demos?.Dispose();
     }
 
     /// <summary>A fixed one-minute window of requests per address.</summary>

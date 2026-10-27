@@ -46,7 +46,9 @@ OrphE, OrphT, PanaD, PanaS, PyroD, SancD, StatD, StatE, StatS, WareD, ZiopD, Zio
 `DisplayMessage` is a reliable function with the broadcast flag: the server sends it to every client that has an
 open channel for the trigger and runs it itself (a listen server's player). The trigger is not always relevant, so
 a client too far from it (outside the 2500 uu radius and out of sight) has no channel and misses the line, as in
-the original.
+the original. On a listen server the original also runs the call itself, so the host's own players always see it;
+here they are loopback clients, so the driver opens a channel for a local connection that has none and sends the
+call (net-replication.md rule 20 port note). Remote clients still need an open channel.
 
 ## Edge cases
 

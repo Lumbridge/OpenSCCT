@@ -49,7 +49,12 @@ public partial class SGamePlayObject
         OriginalColHeight = SvmMath.Trunc(CollisionHeight);
         if (bPickable)
         {
-            PickupInteraction = DeviceClasses.Spawn(this, DeviceK_PickupInteraction, this, Name.None, Location, Rotation) as SPickupInteraction;
+            // Server only, as the interaction of SBasicGamePlayObject.PostBeginPlay.
+            if (Role == ENetRole.ROLE_Authority)
+            {
+                PickupInteraction = DeviceClasses.Spawn(this, DeviceK_PickupInteraction, this, Name.None, Location, Rotation) as SPickupInteraction;
+            }
+
             bMovable = true;
             bReplicateMovement = true;
             bSkipActorPropertyReplication = false;

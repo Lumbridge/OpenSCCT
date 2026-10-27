@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Godot;
 using OpenScct.Core;
 using OpenScct.Net.Discovery;
@@ -78,7 +79,7 @@ public sealed class OnlineLobby : IOnlineLobbySession
                     _ => string.Empty,
                 };
                 HudSide? side = p.IsSpectator ? null : p.Team == 1 ? HudSide.Merc : HudSide.Spy;
-                list.Add(new OnlineLobbyPlayer(p.Id, p.Name, side, p.Ready, p.Id == State.LocalId, p.IsHost, p.PingMs, note, p.TeamVoiceOnly, p.IsBot, p.IsVerified));
+                list.Add(new OnlineLobbyPlayer(p.Id, p.Name, side, p.Ready, p.Id == State.LocalId, p.IsHost, p.PingMs, note, p.TeamVoiceOnly, p.IsBot, p.IsVerified, p.Rank));
             }
 
             return list;
@@ -137,6 +138,7 @@ public sealed class OnlineLobby : IOnlineLobbySession
 
     public void Leave()
     {
+        _fetch?.Cancel();
         _service.Changed -= Raise;
         _service.Leave();
     }
@@ -179,6 +181,75 @@ public sealed class OnlineLobby : IOnlineLobbySession
 
     public string MicrophoneLine => _service.VoiceChat?.MicrophoneLine() ?? string.Empty;
 
+    // ---- the setup's map, when this player lacks it ----
+
+    private OpenScctGame.Online.MapFetch? _fetch;
+
+    public LobbyMapFetch? MapFetch
+    {
+        get
+        {
+            if (_fetch is { } fetch)
+            {
+                (MapFetchStage stage, string text, double fraction) = fetch.Snapshot();
+                return stage switch
+                {
+                    MapFetchStage.Listing or MapFetchStage.Downloading or MapFetchStage.Converting => new LobbyMapFetch(text, false, true, fraction, false),
+                    MapFetchStage.Done => new LobbyMapFetch(text, false, false, 1, false),
+                    _ => new LobbyMapFetch(text, MapOffered, false, 0, stage == MapFetchStage.Failed),
+                };
+            }
+
+            return MapOffered
+                ? new LobbyMapFetch($"You don't have the map {State.Setup.Map}. The host got it from the community maps: download it to play.",
+                    true, false, 0, false)
+                : null;
+        }
+    }
+
+    /// <summary>The local player lacks the setup's map (or has another version) and the host said where it is.</summary>
+    private bool MapOffered =>
+        State.SetupSource is not null && State.Local is { Map: MapState.Missing or MapState.Differs };
+
+    public void StartMapFetch()
+    {
+        if (_fetch is { Finished: false } || State.SetupSource is not { } source)
+        {
+            return;
+        }
+
+        _fetch = OpenScctGame.Online.MapFetch.Start(State.Setup.Map, source);
+    }
+
+    public void CancelMapFetch() => _fetch?.Cancel();
+
+    public void UpdateMapFetch()
+    {
+        if (_fetch is not { Finished: true } fetch)
+        {
+            return;
+        }
+
+        if (fetch.Snapshot().Stage == MapFetchStage.Done)
+        {
+            // The new map is on disk: read the content folders again and tell the server.
+            _client.Maps.Refresh();
+            if (!ReferenceEquals(_service.Catalog.Maps, _client.Maps))
+            {
+                _service.Catalog.Maps.Refresh();
+            }
+
+            _fetch = null;
+            _client.RecheckMap();
+            Raise();
+        }
+        else if (!string.Equals(fetch.Map, State.Setup.Map, StringComparison.OrdinalIgnoreCase))
+        {
+            // A failed or stopped fetch of a map the host has since changed away from.
+            _fetch = null;
+        }
+    }
+
     /// <summary>The results screen's table from a round's results.</summary>
     public static MatchResult ToMatchResult(OnlineClient client, MatchResults results)
     {
@@ -187,7 +258,9 @@ public sealed class OnlineLobby : IOnlineLobbySession
         var rows = new List<MatchResultRow>();
         foreach (ResultRow r in results.Rows)
         {
-            rows.Add(new MatchResultRow(r.Name, r.Team == 1 ? HudSide.Merc : HudSide.Spy, r.Score, r.Kills, r.Deaths, 0, r.Id == client.Lobby.LocalId));
+            int rank = client.Lobby.Players.FirstOrDefault(p => p.Id == r.Id)?.Rank ?? 0;
+            rows.Add(new MatchResultRow(r.Name, r.Team == 1 ? HudSide.Merc : HudSide.Spy, r.Score, r.Kills, r.Deaths, 0, r.Id == client.Lobby.LocalId,
+                rank));
         }
 
         return new MatchResult

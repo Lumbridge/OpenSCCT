@@ -27,7 +27,9 @@ def read_text(game: Path, package: str) -> Dict[str, Dict[str, Any]]:
     import_formats()
     import scctformats.classdefaults as cd  # noqa: PLC0415
 
-    return cd.read_localization(Path(game) / "System" / "_PC_", package)
+    from ..gamefiles import text_dir  # noqa: PLC0415
+
+    return cd.read_localization(text_dir(Path(game), package), package)
 
 
 def parse_struct_value(text: str) -> Any:

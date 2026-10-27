@@ -30,6 +30,14 @@
     },
     "TrustedServers": [
       { "Name": "official-1", "Key": "change-me-to-a-long-random-server-key" }
-    ]
+    ],
+    "Demos": {
+      "Bucket": "",
+      "Region": "eu-west-2",
+      "AccessKey": "",
+      "SecretKey": "",
+      "KeepDays": 7,
+      "MaxBytes": 67108864
+    }
   }
 }

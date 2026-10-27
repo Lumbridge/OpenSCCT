@@ -274,6 +274,7 @@ public partial class OptionsMenu : Control
         Check(g, "Connected players list on (F10)", "show_scoreboard", _edit.ShowScoreboard, v => _edit.ShowScoreboard = v);
         Check(g, "Ping in the players list", "show_ping", _edit.ShowPing, v => _edit.ShowPing = v);
         Check(g, "Frame rate readout", "show_fps", _edit.ShowFps, v => _edit.ShowFps = v);
+        Check(g, "Network readout (ping, loss, corrections)", "show_net", _edit.ShowNet, v => _edit.ShowNet = v);
         Check(g, "Discord status (shows your game, lets friends join)", "discord_presence", _edit.DiscordPresence, v => _edit.DiscordPresence = v);
         return Page("HUD", g);
     }

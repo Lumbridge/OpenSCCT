@@ -35,6 +35,12 @@ public static class HubPlayK
     /// <summary>A run that strays this far outside the course's area is cancelled.</summary>
     public const float CourseLeaveMargin = 512f;
 
+    /// <summary>A spy put back on a deck after a fall is dropped this far over it (his feet over the deck).</summary>
+    public const float FallReturnHeight = 64f;
+
+    /// <summary>A second fall within this time of a put-back is not counted (he is still landing).</summary>
+    public const float FallGraceSeconds = 1f;
+
     // ---- aim range ---------------------------------------------------------------------------------------------
 
     public const float RoundSeconds = 30f;
@@ -89,6 +95,9 @@ public static class HubPlayK
     public const float EmoteRange = 4500f;
 
     public const float EmoteCooldown = 1.5f;
+
+    /// <summary>An emote ends when its player moves faster than this (uu/s on the floor), or jumps.</summary>
+    public const float EmoteStopSpeed = 60f;
 
     /// <summary>"Use" reaches the jukebox from this near.</summary>
     public const float JukeboxUseRange = 384f;

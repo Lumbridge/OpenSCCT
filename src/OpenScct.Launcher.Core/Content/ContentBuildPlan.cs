@@ -67,8 +67,18 @@ public static class ContentBuildPlan
         return Languages.Where(l => l.Code == DefaultLanguage || (folder is null || File.Exists(Path.Combine(folder, "GUI." + l.Code)))).ToList();
     }
 
-    /// <summary>The arguments after python.exe.</summary>
-    public static IReadOnlyList<string> Arguments(string gamePath, string contentRoot, int jobs, string language = DefaultLanguage)
+    /// <summary>
+    /// Whether the builder in <paramref name="versionDir"/> reads downloaded maps (<c>--addons</c>, added with
+    /// svmbuild/gamefiles.py); an older builder stops on the unknown option, so it is not passed one.
+    /// </summary>
+    public static bool SupportsAddons(string versionDir) =>
+        File.Exists(Path.Combine(versionDir, ToolsFolder, "repo", "content", "svmbuild", "gamefiles.py"));
+
+    /// <summary>
+    /// The arguments after python.exe. <paramref name="addons"/> is the downloaded maps folder
+    /// (<see cref="OpenScct.Maps.MapLibrary.GameFolder"/>), or null.
+    /// </summary>
+    public static IReadOnlyList<string> Arguments(string gamePath, string contentRoot, int jobs, string language = DefaultLanguage, string? addons = null)
     {
         ArgumentException.ThrowIfNullOrEmpty(gamePath);
         ArgumentException.ThrowIfNullOrEmpty(contentRoot);
@@ -76,6 +86,11 @@ public static class ContentBuildPlan
         args.AddRange(Steps);
         args.AddRange(["--maps", "all", "--game", gamePath, "--out", contentRoot, "--jobs", Math.Max(1, jobs).ToString(CultureInfo.InvariantCulture),
             "--report", Path.Combine(contentRoot, "build-report.json")]);
+        if (!string.IsNullOrEmpty(addons))
+        {
+            args.AddRange(["--addons", addons]);
+        }
+
         // Only when not English: a builder from before --language existed still runs an English build.
         string lang = NormaliseLanguage(language);
         if (lang != DefaultLanguage)
@@ -115,6 +130,10 @@ public sealed class ContentState
     [JsonPropertyName("language")]
     public string? Language { get; set; }
 
+    /// <summary>The downloaded maps it was built with (<see cref="OpenScct.Maps.MapLibrary.Fingerprint"/>; null or empty: none).</summary>
+    [JsonPropertyName("downloadedMaps")]
+    public string? DownloadedMaps { get; set; }
+
     [JsonPropertyName("ok")]
     public bool Ok { get; set; }
 
@@ -146,9 +165,13 @@ public sealed class ContentState
         AtomicFile.WriteAllText(Path.Combine(contentRoot, FileName), JsonSerializer.Serialize(this, Json));
     }
 
-    /// <summary>Whether content built for <paramref name="version"/> from <paramref name="game"/> in <paramref name="language"/> is there and complete.</summary>
-    public bool IsCurrent(string version, string? game, string? language = ContentBuildPlan.DefaultLanguage) =>
+    /// <summary>
+    /// Whether content built for <paramref name="version"/> from <paramref name="game"/> in <paramref name="language"/>
+    /// with the downloaded maps <paramref name="downloadedMaps"/> is there and complete.
+    /// </summary>
+    public bool IsCurrent(string version, string? game, string? language = ContentBuildPlan.DefaultLanguage, string? downloadedMaps = null) =>
         Ok && string.Equals(Version, version, StringComparison.OrdinalIgnoreCase)
+        && string.Equals(DownloadedMaps ?? string.Empty, downloadedMaps ?? string.Empty, StringComparison.Ordinal)
         && ContentBuildPlan.NormaliseLanguage(Language) == ContentBuildPlan.NormaliseLanguage(language)
         && string.Equals(Path.GetFullPath(Game ?? "."), Path.GetFullPath(game ?? "."), StringComparison.OrdinalIgnoreCase);
 }
@@ -160,39 +183,18 @@ public sealed class ContentState
 /// </summary>
 public static class ContentBuilder
 {
+    /// <param name="addons">The downloaded maps folder to read next to the install, or null.</param>
+    /// <param name="downloadedMaps">Their fingerprint, kept in <see cref="ContentState.DownloadedMaps"/>.</param>
     public static async Task<ContentState> RunAsync(string python, string version, string gamePath, string contentRoot, int jobs,
-        IProgress<ContentProgress>? progress, Action<string>? log, CancellationToken cancel, string language = ContentBuildPlan.DefaultLanguage)
+        IProgress<ContentProgress>? progress, Action<string>? log, CancellationToken cancel, string language = ContentBuildPlan.DefaultLanguage,
+        string? addons = null, string? downloadedMaps = null)
     {
         language = ContentBuildPlan.NormaliseLanguage(language);
         ArgumentException.ThrowIfNullOrEmpty(python);
         Directory.CreateDirectory(contentRoot);
-        var info = new ProcessStartInfo(python)
-        {
-            UseShellExecute = false,
-            CreateNoWindow = true,
-            RedirectStandardOutput = true,
-            RedirectStandardError = true,
-            WorkingDirectory = contentRoot,
-        };
-        foreach (string arg in ContentBuildPlan.Arguments(gamePath, contentRoot, jobs, language))
-        {
-            info.ArgumentList.Add(arg);
-        }
-
-        info.Environment["PYTHONUNBUFFERED"] = "1";
-        info.Environment["PYTHONIOENCODING"] = "utf-8";
-
         var counter = new UnitCounter();
-        using var process = new Process { StartInfo = info, EnableRaisingEvents = true };
-        var exited = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
-        process.Exited += (_, _) => exited.TrySetResult();
-        void OnLine(string? line)
+        void OnLine(string line)
         {
-            if (line is null)
-            {
-                return;
-            }
-
             log?.Invoke(line);
             if (counter.Read(line))
             {
@@ -200,38 +202,17 @@ public static class ContentBuilder
             }
         }
 
-        process.OutputDataReceived += (_, e) => OnLine(e.Data);
-        process.ErrorDataReceived += (_, e) => OnLine(e.Data);
-        if (!process.Start())
-        {
-            throw new InvalidOperationException("The content builder did not start.");
-        }
-
-        process.BeginOutputReadLine();
-        process.BeginErrorReadLine();
-        using (cancel.Register(() =>
-        {
-            try
-            {
-                process.Kill(entireProcessTree: true);
-            }
-            catch (InvalidOperationException)
-            {
-                // Already gone.
-            }
-        }))
-        {
-            await exited.Task.ConfigureAwait(false);
-            await process.WaitForExitAsync(CancellationToken.None).ConfigureAwait(false);
-        }
-
-        cancel.ThrowIfCancellationRequested();
+        // Arguments() starts with "-u -m svmbuild", which the shared runner adds itself.
+        int exitCode = await new OpenScct.Maps.BuilderTool(python, contentRoot)
+            .RunAsync(ContentBuildPlan.Arguments(gamePath, contentRoot, jobs, language, addons).Skip(3), contentRoot, OnLine, cancel)
+            .ConfigureAwait(false);
         var state = new ContentState
         {
             Version = version,
             Game = gamePath,
             Language = language,
-            Ok = process.ExitCode == 0,
+            DownloadedMaps = string.IsNullOrEmpty(downloadedMaps) ? null : downloadedMaps,
+            Ok = exitCode == 0,
             Maps = counter.Maps,
             Failed = counter.Failed,
             FinishedAt = DateTimeOffset.UtcNow,

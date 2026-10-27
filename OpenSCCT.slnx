@@ -6,6 +6,7 @@
     <Project Path="src/OpenScct.Game/OpenScct.Game.csproj" />
     <Project Path="src/OpenScct.Launcher.Core/OpenScct.Launcher.Core.csproj" />
     <Project Path="src/OpenScct.Launcher/OpenScct.Launcher.csproj" />
+    <Project Path="src/OpenScct.Maps/OpenScct.Maps.csproj" />
     <Project Path="src/OpenScct.Master/OpenScct.Master.csproj" />
     <Project Path="src/OpenScct.Net/OpenScct.Net.csproj" />
     <Project Path="src/OpenScct.Physics/OpenScct.Physics.csproj" />

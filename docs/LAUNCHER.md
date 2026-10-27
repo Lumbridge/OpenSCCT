@@ -5,7 +5,8 @@
 keeps the previous build for rollback. It can also update itself.
 
 Releases carry our code builds only. Game content (maps, characters, UI) is built on the player's machine from
-their own Splinter Cell Chaos Theory install and is never downloaded.
+their own Splinter Cell Chaos Theory install and is never downloaded. Extra maps made by the community can be
+downloaded from the SCCT-Maps repository (see "Downloaded maps").
 
 ## Projects
 
@@ -24,6 +25,7 @@ src/OpenScct.Launcher.Core/     update logic, no UI (net10.0)
   Settings/                       launcher.json, the token store (DPAPI through ISecretProtector)
   Launch/                         the Play command line, running game detection
   Content/ContentBuildPlan.cs     "Build game content from your install": the builder's command line, run and progress
+  (downloaded maps: src/OpenScct.Maps, shared with the game; see "Downloaded maps")
 src/OpenScct.Launcher/          WinForms app (net10.0-windows): main window, settings, DPAPI, theme
 tests/OpenScct.Launcher.Tests/  tests for the core library (fake HTTP handler, temp folders)
 tools/release/New-Release.ps1   packs a build into release assets and prints the gh command
@@ -34,7 +36,7 @@ come with .NET 10. The test project uses the repository's pinned xunit.v3 versio
 
 ## Version and build number
 
-The version is `VersionPrefix` in `Directory.Build.props` (0.7.0; a release passes `-p:Version`), and the build number
+The version is `VersionPrefix` in `Directory.Build.props` (0.8.0; a release passes `-p:Version`), and the build number
 is the UTC timestamp of the commit the build is made from, `yyyyMMdd.HHmm` (`Directory.Build.targets`). Both are stamped
 into every assembly; `OpenScct.Net.Discovery.BuildInfo` reads them back for the server browser, the master and the
 menus, which show "OpenSCCT 0.5.0  build 20261026.1737 (a82eaa0)" in the bottom-right corner of the main menu and
@@ -102,6 +104,7 @@ versions\0.2.0\       one exported build per version
 downloads\0.2.0\      downloads in progress (.partial with a small identity file) and finished zips
 cache\                the last release list and its ETag, and a rate limit note
 content\              game content built from the player's install (later)
+maps\                 maps downloaded from SCCT-Maps: installed.json, game\ (their files), downloads\
 ```
 
 The game's own user data (settings, key bindings, saves) is Godot's `user://`, in
@@ -243,6 +246,43 @@ have (the SteeE crane, `sqt13_anm`) are skipped.
 
 A fresh player: install the launcher and press Install. The
 launcher finds the game, downloads the build, builds the content and then Play works.
+
+## Downloaded maps
+
+The **Maps** button (bottom row) opens a list of the maps in [SCCT-Maps](https://github.com/Lumbridge/SCCT-Maps),
+read the way the SCCT Map Manager reads it (its `docs/publishing.md`): original maps (`release/<Package>/<version>`,
+newest version, names from `release/names.json`), community (with `community/_shared`), enhanced, recovered and
+ported maps, and the ports released as assets (`asset-catalog.json`). Editor asset packs and editor-only scenery (no
+`Packages/Maps/*.sdc`) are not listed, and only the files the game plays with are downloaded (Maps, Textures,
+StaticMeshes, Sounds, Animations, `System/_PC_` text; never MapsEd).
+
+- One GitHub API call per refresh (the repository's tree, pinned to its commit); files then come from
+  `raw.githubusercontent.com` at that commit or from release assets, which are not rate limited. No token.
+- Each file is checked against its size and Git blob id from the tree before it is put in place; a bad file is
+  deleted. Paths are checked (no `..`, devices, links) before anything is written.
+- Files go to `%LOCALAPPDATA%\OpenSCCT\maps\game\`, laid out like an install. The player's game folder is never
+  written. Maps share files: a file is downloaded once and deleted with the last map that lists it. When two maps list
+  different contents for the same file, the last one downloaded wins.
+- A map whose codes the install already has shows "Already in your game" and cannot be downloaded: the install's copy
+  is the one used.
+- The list shows Downloaded, Update available (the repository's files changed) and downloaded maps no longer listed,
+  which can still be removed.
+
+**Building them.** `ContentBuildPlan` passes `--addons <maps\game>` to the builder when there are downloaded maps and
+the version's builder has `svmbuild/gamefiles.py` (an older builder would stop on the option; it builds without them
+and the launcher says so). The builder (`svmbuild.gamefiles`, `SVM_ADDONS` for its workers) reads that folder as a
+second layer under the install: the install's file always wins, so a map that ships its own copy of a stock package
+(`SWeapon.ukx`, `AQU_anm.ukx`) never changes stock content. The maps list, maps-catalog, maps, audio, audio-map,
+renderpack (stored mips and vision modifiers) and maps-preview steps read it; classes, chars, ui and fx read the
+install only. Addon files have `addons:` logical paths in the cache, so only steps whose inputs changed run again.
+
+`content-build.json` keeps the downloaded maps' fingerprint (`downloadedMaps`); downloading, updating or removing a
+map makes the content not current, and closing the Maps window prepares the game files again when they were ready
+before (the cache converts only the new maps, plus renderpack and maps-catalog).
+
+The catalogue, downloads, library and the builder runner are in `src/OpenScct.Maps`, shared by the launcher and
+the game. Play passes the maps folder as `--svm-map-downloads=`, so in a lobby the game can fetch a map the host
+downloaded and the player lacks (docs/ONLINE.md "Missing maps").
 
 ## Open
 

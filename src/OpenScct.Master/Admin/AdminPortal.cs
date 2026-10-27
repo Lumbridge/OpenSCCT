@@ -28,11 +28,13 @@ internal sealed partial class AdminPortal
     private readonly AdminActions _actions;
     private readonly Func<HttpContext, IPAddress> _clientIp;
     private readonly Func<(long RelayForwarded, long Introductions)> _udpStats;
+    private readonly DemoStorage? _demos;
     private long _nextCommandId = 1;
 
     public AdminPortal(MasterOptions options, AccountStore store, ServerRegistry registry, Func<HttpContext, IPAddress> clientIp,
-        Func<(long RelayForwarded, long Introductions)> udpStats)
+        Func<(long RelayForwarded, long Introductions)> udpStats, DemoStorage? demos = null)
     {
+        _demos = demos;
         _options = options;
         _store = store;
         _registry = registry;
@@ -61,6 +63,7 @@ internal sealed partial class AdminPortal
         Route(app, "POST", "/admin/bans", c => Post(c, (a, f) => Task.FromResult(BanAction(c, a, f))));
         Route(app, "GET", "/admin/matches", c => Get(c, Matches));
         Route(app, "GET", "/admin/matches/{id:long}", c => Get(c, (cx, a) => Match(cx, a, Id(c))));
+        Route(app, "GET", "/admin/matches/{id:long}/demo", c => Get(c, (cx, a) => MatchDemo(cx, a, Id(c))));
         Route(app, "GET", "/admin/history", c => Get(c, History));
         Route(app, "GET", "/admin/settings", c => Get(c, (cx, a) => Settings(cx, a, null, false)));
         Route(app, "POST", "/admin/settings", c => Post(c, (a, f) => Task.FromResult(SettingsAction(c, a, f))));

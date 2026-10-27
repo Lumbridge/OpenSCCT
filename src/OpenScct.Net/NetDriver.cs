@@ -16,6 +16,22 @@ public enum ProxyMotionMode : byte
     Interpolate = 1,
 }
 
+/// <summary>
+/// How other players' pawns move on a client (the Stock/Enhanced split of rl:net.clientsync, docs/NETCODE.md "Proxy pawn
+/// interpolation"). The server's send schedule follows its own driver's setting.
+/// </summary>
+public enum PawnProxyMode : byte
+{
+    /// <summary>Stock: the original's dead reckoning (spec/native/net-proxy.md rules 1 to 15).</summary>
+    DeadReckoning = 0,
+
+    /// <summary>
+    /// Enhanced: the client shows each proxy pawn from a buffer of received states about two send intervals in the
+    /// past; the server pushes Rotation and the aim properties every pass instead of every 0.09 s.
+    /// </summary>
+    Interpolate = 1,
+}
+
 /// <summary>Who pays for what a driver sends.</summary>
 public enum SendBudgetMode : byte
 {
@@ -30,6 +46,15 @@ public enum SendBudgetMode : byte
 
     /// <summary>No limit (tests, tools).</summary>
     Unlimited,
+
+    /// <summary>
+    /// Enhanced hosts (<see cref="NetProfile.Enhanced"/>): a budget per client connection at that connection's own
+    /// adaptive rate (<see cref="NetConnection.SendRate"/>), so one saturated client stalls only itself. The CONF* law
+    /// steers each rate from that connection's lag with the server row's thresholds and full step, between the row's
+    /// minimum and <see cref="NetDriverSettings.MaxClientRate"/>. A client driver spends its connection's rate, as
+    /// with <see cref="SharedAdaptive"/>.
+    /// </summary>
+    PerClientAdaptive,
 }
 
 /// <summary>The update frequency test of the server pass (spec/native/net-replication.md rule 4).</summary>
@@ -100,6 +125,9 @@ public sealed record NetDriverSettings
 
     /// <summary>Ticks a proxy may be extrapolated past its newest state before it holds.</summary>
     public int MaxExtrapolationTicks { get; init; } = 6;
+
+    /// <summary>How other players' pawns move (Stock dead reckoning or Enhanced interpolation).</summary>
+    public PawnProxyMode PawnProxies { get; init; } = PawnProxyMode.DeadReckoning;
 
     /// <summary>
     /// Interest management for large sessions (an OpenSCCT addition, <see cref="INetInterest"/>); null, the default,
@@ -291,6 +319,12 @@ public sealed class NetDriver : IDisposable
     /// <summary>Client: estimate of the server tick.</summary>
     public NetTimeline Timeline { get; } = new();
 
+    /// <summary>Client: the newest server tick stamped on a packet received from the server, or -1.</summary>
+    public long NewestServerTick { get; private set; } = -1;
+
+    /// <summary>Client: the server tick of the packet whose bunch is being received (the one a received call came in).</summary>
+    public long ReceivingTick { get; internal set; } = -1;
+
     /// <summary>Map actors by SVMap actor index, set by the host after loading the map.</summary>
     public NetMapBinding MapBinding { get; } = new();
 
@@ -333,6 +367,13 @@ public sealed class NetDriver : IDisposable
     /// The property still goes only when it differs from what the connection last got.
     /// </summary>
     public Func<Actor, NetConnection, RepProperty, bool>? PropertyPush { get; set; }
+
+    /// <summary>
+    /// A class's native list leaving out a property its condition includes, per connection and update (as
+    /// ASBasePawn::GetOptimizedRepList sends a pawn's aim properties only every 0.09 s, spec/native/net-proxy.md rule 3).
+    /// A withheld change stays different from what the connection last got, so it goes on a later update.
+    /// </summary>
+    public Func<Actor, NetConnection, RepProperty, bool>? PropertyWithhold { get; set; }
 
     /// <summary>
     /// Client: a class's native PreNetReceive, run before the properties of each received bunch of an actor (after
@@ -428,6 +469,30 @@ public sealed class NetDriver : IDisposable
         _connections.Add(connection);
         _byEndpoint[endpoint] = connection;
         ResetConnectionPing();
+        return connection;
+    }
+
+    // ---- demo recording ------------------------------------------------------------------------------------
+
+    /// <summary>
+    /// Server: opens a demo recorder connection (docs/DEMOS.md). It looks like a client whose control channel the
+    /// remote opened, but its packets go to <paramref name="sink"/> instead of the transport and count as acked once
+    /// written. The host logs it in as a spectator; <see cref="NetConnection.IsRecorder"/> makes every actor relevant
+    /// to it (see <see cref="NetRelevancy"/>).
+    /// </summary>
+    public NetConnection OpenRecorderConnection(IDemoSink sink, long now)
+    {
+        ArgumentNullException.ThrowIfNull(sink);
+        if (!IsServer)
+        {
+            throw new InvalidOperationException("Only a server records demos.");
+        }
+
+        ObjectDisposedException.ThrowIf(_disposed, this);
+        Time = now;
+        var connection = new NetConnection(this, EndpointId.None, _nextConnectionId++, now, sink);
+        connection.CreateChannel(EChannelType.CHTYPE_Control, openedLocally: false, chIndex: 0);
+        _connections.Add(connection);
         return connection;
     }
 
@@ -548,6 +613,19 @@ public sealed class NetDriver : IDisposable
                 }
 
                 break;
+
+            case SendBudgetMode.PerClientAdaptive when IsServer:
+                for (int i = 0; i < _connections.Count; i++)
+                {
+                    NetConnection c = _connections[i];
+                    c.QueuedBytes = Refill(c.QueuedBytes, c.SendRate, frameMicros);
+                }
+
+                break;
+
+            case SendBudgetMode.PerClientAdaptive:
+                QueuedBytes = Refill(QueuedBytes, ServerConnection?.CurrentNetSpeed ?? Settings.DefaultNetSpeed, frameMicros);
+                break;
         }
     }
 
@@ -564,16 +642,18 @@ public sealed class NetDriver : IDisposable
     {
         SendBudgetMode.SharedAdaptive => QueuedBytes + pendingBytes <= 0,
         SendBudgetMode.PerConnection => connection.QueuedBytes + pendingBytes <= 0,
+        SendBudgetMode.PerClientAdaptive => (IsServer ? connection.QueuedBytes : QueuedBytes) + pendingBytes <= 0,
         _ => true,
     };
 
     internal void OnBytesSent(NetConnection connection, int bytes)
     {
-        if (Settings.Budget == SendBudgetMode.SharedAdaptive)
+        if (Settings.Budget == SendBudgetMode.SharedAdaptive ||
+            (Settings.Budget == SendBudgetMode.PerClientAdaptive && !IsServer))
         {
             QueuedBytes += bytes;
         }
-        else if (Settings.Budget == SendBudgetMode.PerConnection)
+        else if (Settings.Budget is SendBudgetMode.PerConnection or SendBudgetMode.PerClientAdaptive)
         {
             connection.QueuedBytes += bytes;
         }
@@ -591,12 +671,23 @@ public sealed class NetDriver : IDisposable
         if (!IsServer)
         {
             int speed = connection.CurrentNetSpeed;
-            Adapt(ref speed, connection.AvgLag, Settings.Conf.Client, Settings.Conf.Client.StepUp, lan, now);
+            NetSpeedRow client = Settings.Conf.Client;
+            Adapt(ref speed, connection.AvgLag, client, client.StepUp, client.Min(lan), client.Max(lan), now);
             connection.CurrentNetSpeed = speed;
             return;
         }
 
         NetSpeedRow row = connection.Actor is null ? Settings.Conf.ListenServer : ServerRow;
+        if (Settings.Budget == SendBudgetMode.PerClientAdaptive)
+        {
+            // Enhanced: this connection's own rate from its own lag, with the whole step.
+            int max = Settings.MaxClientRate;
+            int own = connection.SendRate;
+            Adapt(ref own, connection.AvgLag, row, row.StepUp, Math.Min(row.Min(lan), max), max, now);
+            connection.SendRate = own;
+            return;
+        }
+
         float worst = 0f;
         int count = 0;
         for (int i = 0; i < _connections.Count; i++)
@@ -612,14 +703,12 @@ public sealed class NetDriver : IDisposable
         }
 
         int rate = NetSpeed;
-        Adapt(ref rate, worst, row, row.StepUp / Math.Max(1, count), lan, now);
+        Adapt(ref rate, worst, row, row.StepUp / Math.Max(1, count), row.Min(lan), row.Max(lan), now);
         NetSpeed = rate;
     }
 
-    private void Adapt(ref int speed, float lag, NetSpeedRow row, int step, bool lan, long now)
+    private void Adapt(ref int speed, float lag, NetSpeedRow row, int step, int min, int max, long now)
     {
-        int min = row.Min(lan);
-        int max = row.Max(lan);
         speed = Math.Clamp(speed, min, max);
         if (now - _netSpeedResetTime < K.NetSpeedHoldMicros)
         {
@@ -661,11 +750,16 @@ public sealed class NetDriver : IDisposable
             server.CurrentNetSpeed = Math.Clamp(K.NetSpeedResetRate, Settings.Conf.Client.Min(lan), Settings.Conf.Client.Max(lan));
         }
 
+        bool perClient = IsServer && Settings.Budget == SendBudgetMode.PerClientAdaptive;
         for (int i = 0; i < _connections.Count; i++)
         {
             if (connection is null || ReferenceEquals(_connections[i], connection))
             {
                 _connections[i].ResetLagStatistics();
+                if (perClient)
+                {
+                    _connections[i].SendRate = Settings.MaxClientRate;
+                }
             }
         }
     }
@@ -755,7 +849,8 @@ public sealed class NetDriver : IDisposable
     private void ServerTickClient(NetConnection connection, Level level, long stamp, long now)
     {
         NetViewer viewer = ViewerOf(connection);
-        INetInterest? interest = Settings.Interest;
+        bool recorder = connection.IsRecorder;
+        INetInterest? interest = recorder ? null : Settings.Interest;
         Relevancy.BeginPass();
         float dt = (now - connection.LastServerTickTime) / 1_000_000f;
         int rate = GetMaxTickRate();
@@ -812,7 +907,7 @@ public sealed class NetDriver : IDisposable
             bool relevant = false;
             if (!actor.bTearOff && !culled && (channel is null || now - channel.RelevantTime > recheck))
             {
-                relevant = Relevancy.IsRelevant(actor, viewer);
+                relevant = recorder ? Relevancy.IsRelevantToRecorder(actor, viewer) : Relevancy.IsRelevant(actor, viewer);
             }
 
             if (relevant)
@@ -1074,6 +1169,11 @@ public sealed class NetDriver : IDisposable
                 }
             }
 
+            if (NetMode == ENetMode.NM_ListenServer)
+            {
+                SendBroadcastToLocalPlayers(actor, f, args);
+            }
+
             return NetMode == ENetMode.NM_ListenServer ? ENetCallResult.SentAndRunLocally : ENetCallResult.Sent;
         }
 
@@ -1093,6 +1193,34 @@ public sealed class NetDriver : IDisposable
 
         SendCall(target, ch, f, args);
         return ENetCallResult.Sent;
+    }
+
+    /// <summary>
+    /// Rule 20 on a listen server: the original runs a broadcast locally, so the host's own players see it wherever
+    /// they are. Here they are loopback clients, so a local connection without a channel for the actor gets one opened
+    /// (as rule 19.7 does) and the call; remote clients still need an open channel.
+    /// </summary>
+    private void SendBroadcastToLocalPlayers(Actor actor, RepFunction f, NetCallArgs? args)
+    {
+        if (Classes.Find(actor.GetType()) is not { } info)
+        {
+            return;
+        }
+
+        for (int i = 0; i < _connections.Count; i++)
+        {
+            NetConnection c = _connections[i];
+            if (!c.IsLocal || !c.bJoined || c.State != EConnectionState.USOCK_Open || c.FindActorChannel(actor) is not null)
+            {
+                continue;
+            }
+
+            if (OpenActorChannel(c, actor, info) is { } ch)
+            {
+                ch.ReplicateActor(++_captureStamp);
+                SendCall(c, ch, f, args);
+            }
+        }
     }
 
     /// <summary>
@@ -1219,6 +1347,10 @@ public sealed class NetDriver : IDisposable
         if (!IsServer && ReferenceEquals(connection, ServerConnection))
         {
             Timeline.AddSample(remoteTick, LocalTick);
+            if (remoteTick > NewestServerTick)
+            {
+                NewestServerTick = remoteTick;
+            }
         }
     }
 
@@ -1249,6 +1381,11 @@ public sealed class NetDriver : IDisposable
             }
 
             _connections.RemoveAt(i);
+            if (connection.IsRecorder)
+            {
+                continue;
+            }
+
             _byEndpoint.Remove(connection.RemoteEndpoint);
             Transport.Disconnect(connection.RemoteEndpoint);
             if (ReferenceEquals(connection, ServerConnection))

@@ -5,7 +5,11 @@ using OpenScct.Core.Engine;
 
 namespace OpenScct.Server.Hub;
 
-/// <summary>The spy movement course: a time trial from the start gate through every checkpoint, in order, to the finish.</summary>
+/// <summary>
+/// The spy assault course: a time trial from the start gate through every checkpoint, in order, to the finish. On a
+/// raised course (<see cref="HubLayout.CourseFallZ"/>) a spy who falls into the pit is put back on the deck of the
+/// last checkpoint he passed, the clock still running.
+/// </summary>
 public sealed partial class HubActivities
 {
     /// <summary>One run in progress.</summary>
@@ -13,6 +17,8 @@ public sealed partial class HubActivities
     {
         public double Start;
         public int Next;
+        public int Falls;
+        public double PutBackAt = double.NegativeInfinity;
         public Pawn? Pawn;
     }
 
@@ -97,6 +103,12 @@ public sealed partial class HubActivities
             return;
         }
 
+        if (run.Next > 0 && at.Z < l.CourseFallZ && now - run.PutBackAt > HubPlayK.FallGraceSeconds)
+        {
+            PutBack(slot, run, pawn, now);
+            return;
+        }
+
         if (run.Next < l.Checkpoints.Count && l.Checkpoints[run.Next].Contains(at))
         {
             run.Next++;
@@ -144,6 +156,18 @@ public sealed partial class HubActivities
         }
     }
 
+    /// <summary>A fall into the pit: the spy is set down on the last passed checkpoint's deck, standing still.</summary>
+    private void PutBack(PlayerSlot slot, Run run, Pawn pawn, double now)
+    {
+        run.Falls++;
+        run.PutBackAt = now;
+        HubGate gate = Layout.Checkpoints[run.Next - 1];
+        pawn.Velocity = FVector.Zero;
+        pawn.Acceleration = FVector.Zero;
+        pawn.SetLocation(gate.At with { Z = gate.At.Z + pawn.CollisionHeight + HubPlayK.FallReturnHeight });
+        Send(slot, HubPlayProtocol.RunFall(run.Falls, run.Next));
+    }
+
     private void CancelRun(PlayerSlot slot, PlayState state, string reason)
     {
         state.Run = null;
@@ -151,5 +175,5 @@ public sealed partial class HubActivities
     }
 
     private void PublishCourseBoard() =>
-        PublishBoard(CourseBoardId, HubScores.BoardText("SPY COURSE  best times", Scores.Course, static s => HubScores.Time(s.Value)));
+        PublishBoard(CourseBoardId, HubScores.BoardText("ASSAULT COURSE  best times", Scores.Course, static s => HubScores.Time(s.Value)));
 }

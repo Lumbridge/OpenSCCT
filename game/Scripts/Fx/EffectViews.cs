@@ -18,8 +18,8 @@ namespace OpenScctGame.Fx;
 /// <item>every Emitter actor spawned during play (SSmokeEmitter, SChaffeEmitter, SGrenadeExplosion, SStickyCamEmitter,
 /// SPoisonEmitter...) is a <see cref="ParticleSystemSim"/> of its class's converted sub-emitters, following the actor
 /// and gone with it;</item>
-/// <item>every spawned actor drawn as a static mesh (thrown grenades, stuck sticky cams, mines and their laser beams)
-/// shows its class mesh at its place, rotation and draw scale, actor-lit;</item>
+/// <item>every spawned actor drawn as a static mesh (thrown grenades, stuck sticky cams, mines, alarm snares) shows its
+/// class mesh at its place, rotation and draw scale, actor-lit, with the actor's live heat and EMF values;</item>
 /// <item>effects the original spawns on each drawing machine from script (Level.NetMode != NM_DedicatedServer): the
 /// grenades' launch trails (SSmokeLaunchEmitter, SFragLaunchEmitter), and what <see cref="Spawn"/> is asked for (impact
 /// sparks, shell casings);</item>
@@ -213,10 +213,11 @@ public sealed partial class EffectViews : Node3D
     /// Actors another view draws: the spy pistol's SLaserBeam is drawn from the drawn hand by
     /// <see cref="SpyLaserView"/> (the simulation has no skeleton, so its own place starts in mid-air), and the merc
     /// laser's by <see cref="OpenScctGame.Render.MercLaserView"/>. Drawing them here as well showed every beam twice. The
-    /// map's laser tripwire beams (LasDetectBeam, not in the effects meshes) are drawn by <see cref="LaserTriggerView"/>.
+    /// map's laser tripwire beams and the mines' beams (LasDetectBeam, not in the effects meshes) are drawn by
+    /// <see cref="LaserTriggerView"/>.
     /// </summary>
     private static bool DrawnByOwnView(Actor a) =>
-        a is SLaserBeam and not SLaserBeam_MineLaser && a.Owner is SWeaponAttaque or SGadTorcheLaser or SLaserTrigger;
+        a is SLaserBeam_MineLaser || (a is SLaserBeam && a.Owner is SWeaponAttaque or SGadTorcheLaser or SLaserTrigger);
 
     /// <summary>
     /// Starts an effect class at a place, as script's Spawn of a cosmetic class does on each drawing machine; it
@@ -275,6 +276,12 @@ public sealed partial class EffectViews : Node3D
                 mesh.Transform = UeSpace.TransformToGodot(a.Location, a.Rotation, scale, a.PrePivot);
                 bool visionOnly = a.bHideInNormalVision;
                 mesh.Visible = !a.bHidden && (!visionOnly || rendMap is 36 or 38);
+                Vector4 vision = GameplayObjects.VisionOf(a);
+                if (vision != t.Vision)
+                {
+                    t.Vision = vision;
+                    mesh.SetInstanceShaderParameter(GameplayObjects.VisionActorParameter, vision);
+                }
             }
 
             if (t.Light is { } light)
@@ -487,6 +494,9 @@ public sealed partial class EffectViews : Node3D
         public OmniLight3D? Light { get; set; }
 
         public Loose? Trail { get; set; }
+
+        /// <summary>The vision values last written to <see cref="Mesh"/> (NaN: none yet).</summary>
+        public Vector4 Vision { get; set; } = new(float.NaN, 0f, 0f, 0f);
     }
 
     private sealed class Loose(ParticleSystemView view, string cls, FVector location, FRotator rotation, float life, bool autoDestroy)

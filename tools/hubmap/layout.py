@@ -17,8 +17,9 @@ our own signage in JetBrains Mono (OFL). Units are Unreal units in UE space (lef
   the client shows one kit per pad (game/Scripts/Hub/HubPadThemes.cs);
 - the merc aim range in the west: a booth with five stalls behind a counter, painted targets on the berm, distance
   marks, a leaderboard board facing the plaza;
-- the spy movement course in the south: a numbered route of vault, climb, fence, hand over hand, pipe or ladder up a
-  tower and a zip line down to the finish deck, with gates and floor arrows, and a leaderboard board;
+- the spy assault course in the south: a raised route of decks over a pit, joined only by their pieces (climb, fence,
+  hand over hand across a gap, ledge shimmy across a gap, split jump chimney, wall jump, zip line down to the finish
+  deck), with numbered floor arrows and a leaderboard board;
 - the lounge in the south-west: sofas facing a big screen with a scrolling ticker, a bar, warm light;
 - rooftop dressing in the other corners: a water tower landmark, air-conditioning units, a helipad.
 
@@ -33,7 +34,7 @@ from dataclasses import dataclass, field
 
 MAP_ID = "Hub"
 TITLE = "Hub"
-LAYOUT_VERSION = 2
+LAYOUT_VERSION = 3
 
 Vec3 = tuple[float, float, float]
 
@@ -743,97 +744,133 @@ area("AimRange", "aimRange", "Merc aim range", RANGE_LO, RANGE_HI, "H3", firingL
      leaderboardAnchor=[RANGE_BOARD[0] - 14.0, RANGE_BOARD[1], 464.0], leaderboardYaw=YAW_E,
      leaderboardSize=[384.0, 416.0])
 
-# ---- Spy movement course (south): a numbered route along y 1920 -----------------------------------------------------
+# ---- Spy assault course (south): a raised route of decks over a pit, along y 1920 -----------------------------------
+# Layout version 3. Every deck stands alone over the pit (the course floor) and reaches the next only through its
+# piece, so no piece can be run past: climb, fence, hand over hand across a gap, ledge shimmy across a gap, split
+# jump chimney, wall jump, zip line down to the finish deck. A spy who falls into the pit is put back on the last
+# deck he reached (HubActivities.Course.cs), the clock still running. The piece heights are the garden's (TestRange's).
 COURSE_LO, COURSE_HI = (3072.0, 512.0), (9472.0, 3328.0)
 ROUTE_Y = 1920.0
-ROUTE = (1536.0, 2304.0)
-floor_zone((COURSE_LO[0], ROUTE[0]), (COURSE_HI[0], ROUTE[1]), "track")
+ROUTE = (1536.0, 2304.0)             # the painted lane (start apron and pit edges)
+DECK_Y = (ROUTE_Y - 192, ROUTE_Y + 192)   # decks are 384 wide, the pit on both sides
+CHIMNEY_Y = (ROUTE_Y - 96, ROUTE_Y + 96)  # the split jump corridor: 192 between the walls, as the garden's
+COURSE_FALL_Z = 96.0                 # a pawn's centre under this (on the pit floor) has fallen
+mat("pit", tile=(256.0, 256.0))
+floor_zone((COURSE_LO[0], ROUTE[0]), (3584.0, ROUTE[1]), "track")    # the start apron (the first zone wins)
 for y in ROUTE:
     box("CourseLane", (COURSE_LO[0], y - 6, 0.0), (COURSE_HI[0], y + 6, 0.5), "neon_cyan", faces="t")
-# 1 vault wall.
-solid("CourseVault", (3840, ROUTE[0], 0), (3872, ROUTE[1], 96))
-ledge("CourseVaultLGW", (3840, ROUTE[1], 96), (3840, ROUTE[0], 96), "vault wall, west face")
-ledge("CourseVaultLGE", (3872, ROUTE[0], 96), (3872, ROUTE[1], 96), "vault wall, east face")
-# 2 climb block (208, the lowest hang and climb).
-solid("CourseClimb", (4352, ROUTE[0], 0), (4864, ROUTE[1], 208))
-ledge("CourseClimbLGW", (4352, ROUTE[1], 208), (4352, ROUTE[0], 208), "climb block, west face")
-ledge("CourseClimbLGE", (4864, ROUTE[0], 208), (4864, ROUTE[1], 208), "climb block, east face")
-# 3 fence (376, climb over).
-solid("CourseFence", (5251, ROUTE[0], 0), (5253, ROUTE[1], 376), "fence")
-ge("CourseFenceFENCE", "FENCE", (5252, ROUTE[0], 376), (5252, ROUTE[1], 376), note="climbable both faces")
-# 4 hand over hand bar at the kit height (277), between two pillars on the route.
-solid("CourseHohPillarW", (5632, ROUTE_Y - 32, 0), (5696, ROUTE_Y + 32, 416))
-solid("CourseHohPillarE", (6336, ROUTE_Y - 32, 0), (6400, ROUTE_Y + 32, 416))
-solid("CourseHohBar", (5696, ROUTE_Y - 4, 276), (6336, ROUTE_Y + 4, 284), "metal")
-ge("CourseHohHOH", "HOH", (5696, ROUTE_Y, 277), (6336, ROUTE_Y, 277), note="bar underside 1 under the line")
-# 5 tower (384): a pipe on its west face, a ladder on its south face.
-COURSE_TOWER = (6912.0, 1792.0, 7424.0, 2048.0, 384.0)
-tx0, ty0, tx1, ty1, ttop = COURSE_TOWER
-solid("CourseTower", (tx0, ty0, 0), (tx1, ty1, ttop))
-CPIPE_X = tx0 - 16
-box("CourseKit", (CPIPE_X - 4, ROUTE_Y - 4, 0.0), (CPIPE_X + 4, ROUTE_Y + 4, ttop), "metal")
-ge("CourseTowerPIPE", "PIPE", (CPIPE_X, ROUTE_Y, 0), (CPIPE_X, ROUTE_Y, ttop), (CPIPE_X - 10, ROUTE_Y, 0),
-   note="bottom, top flush with the tower top, side 10 toward the climber")
-CLADDER = (7168.0, ty0 - 4)
-ge("CourseTowerLADDER", "LADDER", (CLADDER[0], CLADDER[1], 0), (CLADDER[0], CLADDER[1], ttop),
-   (CLADDER[0], CLADDER[1] - 10, 0), note="bottom, top flush with the tower top, side 10 toward the climber")
-ladder_visual("CourseKit", CLADDER[0], CLADDER[1] - 3, 0, ttop)
-ledge("CourseTowerLGE", (tx1, ty0, ttop), (tx1, ty1, ttop), "tower top, east lip")
-# 6 zip line down to the finish deck: TestRange's run and drop (1760, 320), high end 304 over the tower top.
-CZIP_HIGH: Vec3 = (tx1 - 112, ROUTE_Y, ttop + 304)
-CZIP_LOW: Vec3 = (tx1 - 112 + 1760, ROUTE_Y, ttop + 304 - 320)
-ge("CourseZipZL", "ZL", CZIP_LOW, CZIP_HIGH, note="high end 304 over the tower top, low end 208 over the finish deck")
-FINISH_DECK = (CZIP_LOW[0] - 240, 1792.0, CZIP_LOW[0] - 240 + 512, 2048.0, 160.0)
+
+
+def deck(ident, x0, x1, top, y=DECK_Y):
+    """A deck column over the pit, with a cyan lip strip down both long sides."""
+    solid(ident, (x0, y[0], 0), (x1, y[1], top), "deck")
+    for yy, side in ((y[0], -1), (y[1], 1)):
+        box("CourseLips", (x0, yy + (0 if side < 0 else -3), top - 8), (x1, yy + (3 if side < 0 else 0), top + 0.5),
+            "neon_cyan", faces="t" + ("s" if side < 0 else "n"))
+
+
+# 1 climb (208): deck A's west face, from the start apron.
+A0, A1, ATOP = 3584.0, 4352.0, 208.0
+deck("CourseDeckA", A0, A1, ATOP)
+ledge("CourseClimbLG", (A0, DECK_Y[1], ATOP), (A0, DECK_Y[0], ATOP), "deck A, west face: hang and climb")
+# 2 fence (376) across the whole deck, nothing round its ends but the drop.
+FENCE_X = 3968.0
+solid("CourseFence", (FENCE_X - 1, DECK_Y[0], ATOP), (FENCE_X + 1, DECK_Y[1], ATOP + 376), "fence")
+ge("CourseFenceFENCE", "FENCE", (FENCE_X, DECK_Y[0], ATOP + 376), (FENCE_X, DECK_Y[1], ATOP + 376),
+   note="climbable both faces, the deck's full width")
+# 3 hand over hand across a 640 gap: the bar starts 192 over deck A and ends 192 over deck B, 277 over the decks.
+B0, B1, BTOP = 4992.0, 5376.0, 208.0
+deck("CourseDeckB", B0, B1, BTOP)
+HOH_X = (A1 - 192, B0 + 192)
+HOH_Z = ATOP + 277
+solid("CourseHohPillarW", (HOH_X[0] - 64, ROUTE_Y - 32, ATOP), (HOH_X[0], ROUTE_Y + 32, ATOP + 416))
+solid("CourseHohPillarE", (HOH_X[1], ROUTE_Y - 32, BTOP), (HOH_X[1] + 64, ROUTE_Y + 32, BTOP + 416))
+solid("CourseHohBar", (HOH_X[0], ROUTE_Y - 4, HOH_Z - 1), (HOH_X[1], ROUTE_Y + 4, HOH_Z + 7), "metal")
+ge("CourseHohHOH", "HOH", (HOH_X[0], ROUTE_Y, HOH_Z), (HOH_X[1], ROUTE_Y, HOH_Z), note="bar underside 1 under the line")
+# 4 ledge shimmy across a 512 gap: a wall on the north side with its lip 264 over the decks (a standing jump grab),
+# a soffit 112 over the lip so the wall top cannot be climbed and walked.
+C0, C1, CTOP = 5888.0, 6400.0, 208.0
+SHIMMY_X = (B1 - 160, C0 + 160)
+SHIMMY_Z = BTOP + 264
+SW = (DECK_Y[1], DECK_Y[1] + 32)      # the wall stands just north of the decks
+solid("CourseShimmyWall", (SHIMMY_X[0], SW[0], 0), (SHIMMY_X[1], SW[1], SHIMMY_Z), "darkpanel")
+solid("CourseShimmySoffit", (SHIMMY_X[0], SW[0] - 48, SHIMMY_Z + 112), (SHIMMY_X[1], SW[1], SHIMMY_Z + 144), "darkpanel")
+ledge("CourseShimmyLG", (SHIMMY_X[0], SW[0], SHIMMY_Z), (SHIMMY_X[1], SW[0], SHIMMY_Z), "wall lip, south face: shimmy across")
+box("CourseLips", (SHIMMY_X[0], SW[0] - 3, SHIMMY_Z - 8), (SHIMMY_X[1], SW[0], SHIMMY_Z), "neon_cyan", faces="s")
+# 5 split jump chimney: deck C narrows to the corridor between two walls, up to deck D's lip 408 over deck C.
+CN = 6080.0                           # deck C narrows here
+deck("CourseDeckC", C0, CN, CTOP)
+deck("CourseDeckCNeck", CN, C1, CTOP, y=CHIMNEY_Y)
+DTOP = CTOP + 408
+for k, (y0, y1) in enumerate(((CHIMNEY_Y[0] - 32, CHIMNEY_Y[0]), (CHIMNEY_Y[1], CHIMNEY_Y[1] + 32))):
+    solid(f"CourseChimney{k}", (CN, y0, 0), (C1, y1, DTOP + 104), "darkpanel")
+D0, D1 = C1, 6912.0
+deck("CourseDeckD", D0, D1, DTOP)
+ledge("CourseChimneyLG", (D0, CHIMNEY_Y[1], DTOP), (D0, CHIMNEY_Y[0], DTOP), "deck D, west face, in the chimney")
+# 6 wall jump (408): deck E's west face.
+E0, E1, ETOP = D1, 7424.0, DTOP + 408
+deck("CourseDeckE", E0, E1, ETOP, y=(ROUTE_Y - 128, ROUTE_Y + 128))
+ledge("CourseWallJumpLG", (E0, ROUTE_Y + 128, ETOP), (E0, ROUTE_Y - 128, ETOP), "deck E, west face: wall jump to the lip")
+# 7 zip line down to the finish deck: TestRange's run and drop (1760, 320), high end 304 over deck E.
+CZIP_HIGH: Vec3 = (E1 - 112, ROUTE_Y, ETOP + 304)
+CZIP_LOW: Vec3 = (E1 - 112 + 1760, ROUTE_Y, ETOP + 304 - 320)
+ge("CourseZipZL", "ZL", CZIP_LOW, CZIP_HIGH, note="high end 304 over deck E, low end 208 over the finish deck")
+FINISH_DECK = (CZIP_LOW[0] - 240, ROUTE_Y - 128, CZIP_LOW[0] - 240 + 512, ROUTE_Y + 128, CZIP_LOW[2] - 208)
 fx0, fy0, fx1, fy1, ftop = FINISH_DECK
-solid("CourseFinish", (fx0, fy0, 0), (fx1, fy1, ftop), "deck")
+deck("CourseFinish", fx0, fx1, ftop, y=(fy0, fy1))
 ledge("CourseFinishLGW", (fx0, fy1, ftop), (fx0, fy0, ftop), "finish deck, west lip")
 beam("CourseKit", CZIP_HIGH, CZIP_LOW, 3, "metal")
-beam("CourseKit", (CZIP_HIGH[0], ROUTE_Y, ttop), (CZIP_HIGH[0], ROUTE_Y, CZIP_HIGH[2] + 24), 8, "metal")
+beam("CourseKit", (CZIP_HIGH[0], ROUTE_Y, ETOP), (CZIP_HIGH[0], ROUTE_Y, CZIP_HIGH[2] + 24), 8, "metal")
 beam("CourseKit", (CZIP_LOW[0] + 200, ROUTE_Y, ftop), (CZIP_LOW[0] + 200, ROUTE_Y, CZIP_LOW[2] + 24), 8, "metal")
+# The way down after the finish: a ladder on the finish deck's east face, and the pit's east end is the exit apron.
+CLADDER = (fx1 + 4, ROUTE_Y)
+ge("CourseExitLADDER", "LADDER", (CLADDER[0], CLADDER[1], 0), (CLADDER[0], CLADDER[1], ftop),
+   (CLADDER[0] + 10, CLADDER[1], 0), note="bottom, top flush with the finish deck, side 10 toward the climber")
+ladder_visual("CourseKit", CLADDER[0] + 3, CLADDER[1], 0, ftop, along="y")
+floor_zone((fx1, ROUTE[0]), (COURSE_HI[0], ROUTE[1]), "track")     # the exit apron
+floor_zone((COURSE_LO[0], ROUTE[0]), (COURSE_HI[0], ROUTE[1]), "pit")
 COURSE_START = (3328.0, ROUTE_Y)
-COURSE_END = (fx0 + 128, ROUTE_Y)
+COURSE_END = (fx0 + 160, ROUTE_Y, ftop)
 art_mat("art_course_start", "checker_strip", 256, 64, "START", unlit=False)
 art_mat("art_course_finish", "checker_strip", 256, 128, "FINISH", unlit=False)
 decal("CourseMarks", COURSE_START, ROUTE[1] - ROUTE[0], 192, E, "art_course_start", z=0.6)
 decal("CourseMarks", (fx0 + 160, ROUTE_Y), fy1 - fy0, 128, E, "art_course_finish", z=ftop + 0.6)
-# Gates: two posts outside the lane, a crossbar with the checkpoint's number, a floor arrow naming the move.
-CHECKPOINTS = [("vault", 3712.0), ("climb", 4224.0), ("fence", 5120.0), ("hoh", 5504.0), ("tower", 6656.0),
-               ("zip", CZIP_HIGH[0]), ("finish", fx0 + 160)]
-MOVES = {"vault": "VAULT", "climb": "CLIMB", "fence": "FENCE", "hoh": "HANG", "tower": "PIPE / LADDER", "zip": "ZIP LINE",
-         "finish": "FINISH"}
+# Checkpoints: one on each landing deck, at its height, so it counts only once its piece is behind you. A small
+# radius and a shallow gate: a pawn in the pit under a deck is not on it.
+CHECKPOINTS = [("climb", (A0 + 160, ATOP)), ("fence", (FENCE_X + 224, ATOP)), ("hoh", (B0 + 192, BTOP)),
+               ("shimmy", (C0 + 96, CTOP)), ("chimney", (D0 + 192, DTOP)), ("walljump", (E0 + 160, ETOP)),
+               ("zip", (fx0 + 64, ftop))]
+MOVES = {"climb": "CLIMB", "fence": "FENCE", "hoh": "HAND OVER HAND", "shimmy": "SHIMMY", "chimney": "SPLIT JUMP",
+         "walljump": "WALL JUMP", "zip": "ZIP LINE"}
+# The floor arrow before each piece (on the deck the piece starts from) and its number.
+ARROWS = [("climb", (A0 - 200, 0.0)), ("fence", (FENCE_X - 200, ATOP)), ("hoh", (A1 - 320, ATOP)),
+          ("shimmy", (B1 - 220, BTOP)), ("chimney", (CN - 96, CTOP)), ("walljump", (D1 - 200, DTOP)),
+          ("zip", ((E0 + E1) / 2, ETOP))]
 checkpoints = []
-for k, (kind, x) in enumerate(CHECKPOINTS):
-    z = ftop if kind == "finish" else (ttop if kind == "zip" else 0.0)
-    if kind not in ("zip", "finish"):
-        for j, y in enumerate((ROUTE[0] - 48, ROUTE[1] + 16)):
-            solid(f"CourseGate{k}Post{j}", (x - 16, y, 0), (x + 16, y + 32, 448), "darkpanel")
-        box("CourseGates", (x - 16, ROUTE[0] - 48, 448), (x + 16, ROUTE[1] + 48, 480), "darkpanel")
-        box("CourseGates", (x - 18, ROUTE[0] - 48, 440), (x - 16, ROUTE[1] + 48, 448), "neon_cyan", faces="w")
-        art_mat(f"art_gate_{k}", "sign", [f"{k + 1}", MOVES[kind]], 192, 128, fg=(90, 220, 255))
-        wall_sign("CourseGates", (x - 17, ROUTE_Y, 400), 192, 128, W, f"art_gate_{k}")
-    art_mat(f"art_move_{k}", "floor_label", MOVES[kind], arrow=True, fg=(90, 220, 255), bg=(24, 60, 72), unlit=False)
-    if kind == "zip":
-        decal("CourseArrows", ((tx0 + tx1) / 2, ROUTE_Y), 256, 64, E, f"art_move_{k}", z=ttop + 0.7)
-    elif kind != "finish":
-        decal("CourseArrows", (x - 200, ROUTE_Y), 512, 128, E, f"art_move_{k}", z=0.7)
-    checkpoints.append({"id": f"CP{k + 1}", "kind": kind, "at": [x, ROUTE_Y, z]})
-art_mat("art_sign_course", "sign", ["MOVEMENT COURSE", "spies: start at the gate, beat the clock"], 768, 144,
+for k, (kind, (x, z)) in enumerate(CHECKPOINTS):
+    checkpoints.append({"id": f"CP{k + 1}", "kind": kind, "at": [x, ROUTE_Y, z], "radius": 192.0, "depth": 48.0})
+for k, (kind, (x, z)) in enumerate(ARROWS):
+    art_mat(f"art_move_{k}", "floor_label", f"{k + 1} {MOVES[kind]}", arrow=True, fg=(90, 220, 255), bg=(24, 60, 72),
+            unlit=False)
+    decal("CourseArrows", (x, ROUTE_Y), 320 if kind in ("chimney",) else 352, 88, E, f"art_move_{k}", z=z + 0.7)
+art_mat("art_sign_course", "sign", ["SPY ASSAULT COURSE", "don't touch the floor: beat the clock"], 768, 144,
         fg=(90, 220, 255))
-wall_sign("CourseSign", (6144, COURSE_HI[1] + 2, 900), 2048, 384, N, "art_sign_course", double=True)
+wall_sign("CourseSign", (6144, COURSE_HI[1] + 2, 1100), 2048, 384, N, "art_sign_course", double=True)
 for dx in (-900, 900):
-    beam("CourseSign", (6144 + dx, COURSE_HI[1] + 1, 1092), (6144 + dx, COURSE_HI[1] + 1, 1536), 5, "metal")
+    beam("CourseSign", (6144 + dx, COURSE_HI[1] + 1, 1292), (6144 + dx, COURSE_HI[1] + 1, 1536), 5, "metal")
 # The leaderboard: on two posts near the start, facing north toward the plaza.
 COURSE_BOARD = (3712.0, 3200.0)
 for k, x in enumerate((COURSE_BOARD[0] - 256, COURSE_BOARD[0] + 224)):
     solid(f"CourseBoardPost{k}", (x, COURSE_BOARD[1] - 32, 0), (x + 32, COURSE_BOARD[1], 680), "metal")
-art_mat("art_board_course", "board", "MOVEMENT COURSE", "best times")
+art_mat("art_board_course", "board", "ASSAULT COURSE", "best times")
 box("CourseBoard", (COURSE_BOARD[0] - 224, COURSE_BOARD[1] - 32, 256), (COURSE_BOARD[0] + 224, COURSE_BOARD[1] - 16, 672),
     "darkpanel", faces="tbsew")
 wall_sign("CourseBoard", (COURSE_BOARD[0], COURSE_BOARD[1] - 15.5, 464), 448, 416, N, "art_board_course")
-for k, lx in enumerate((3600, 4800, 6000, 7200, 8400, 9200)):
-    light(f"CourseLight{k}", (lx, ROUTE_Y, 600), 190, 68, hue=128, saturation=160)
-area("Course", "movementCourse", "Spy movement course", COURSE_LO, COURSE_HI, "H3", start=list(COURSE_START),
-     finish=list(COURSE_END), route=list(ROUTE), checkpoints=checkpoints,
+for k, (lx, lz) in enumerate(((3800, 700), (4700, 700), (5600, 760), (6600, 1100), (7200, 1400), (8300, 1300),
+                              (9100, 1200))):
+    light(f"CourseLight{k}", (lx, ROUTE_Y, lz), 190, 68, hue=128, saturation=160)
+area("Course", "movementCourse", "Spy assault course", COURSE_LO, COURSE_HI, "H3", start=list(COURSE_START),
+     finish=list(COURSE_END), route=list(ROUTE), checkpoints=checkpoints, fallZ=COURSE_FALL_Z,
      leaderboardAnchor=[COURSE_BOARD[0], COURSE_BOARD[1] - 14.0, 464.0], leaderboardYaw=YAW_N,
      leaderboardSize=[448.0, 416.0])
 

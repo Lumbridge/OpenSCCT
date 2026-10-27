@@ -33,26 +33,24 @@ def sounds_dir(game: Path) -> Path:
 
 
 def package_files(game: Path) -> list[Path]:
-    d = sounds_dir(game)
-    return sorted((p for p in d.glob("*.uax") if p.is_file()), key=lambda p: p.name.lower()) if d.is_dir() else []
+    """The install's sound packages and those of the downloaded maps (gamefiles: the install's win)."""
+    from ..gamefiles import files  # noqa: PLC0415
+
+    return files(game, "Packages/Sounds", "*.uax")
 
 
 def mux_files(game: Path) -> list[Path]:
-    d = sounds_dir(game)
-    return sorted((p for p in d.glob("*.mux") if p.is_file()), key=lambda p: p.name.lower()) if d.is_dir() else []
+    from ..gamefiles import files  # noqa: PLC0415
+
+    return files(game, "Packages/Sounds", "*.mux")
 
 
 def bank_file(game: Path, map_name: str) -> Path:
-    """The map's bank, Packages/Sounds/<Map>.uas, matched ignoring case (the path it would have when missing)."""
-    d = sounds_dir(game)
-    exact = d / f"{map_name}.uas"
-    if exact.is_file() or not d.is_dir():
-        return exact
-    want = f"{map_name}.uas".lower()
-    for p in d.iterdir():
-        if p.name.lower() == want:
-            return p
-    return exact
+    """The map's bank, Packages/Sounds/<Map>.uas, matched ignoring case, the install's first, then the downloaded
+    maps' (the install's path when missing)."""
+    from ..gamefiles import find_file  # noqa: PLC0415
+
+    return find_file(game, "Packages/Sounds", f"{map_name}.uas")
 
 
 def safe_part(name: str) -> str:

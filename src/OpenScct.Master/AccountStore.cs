@@ -50,7 +50,7 @@ internal enum NameClaim
 /// </summary>
 internal sealed partial class AccountStore : IDisposable
 {
-    public const int SchemaVersion = 4;
+    public const int SchemaVersion = 6;
 
     /// <summary>Seconds between renames.</summary>
     public const long RenameCooldown = 30 * 86400;
@@ -130,7 +130,8 @@ internal sealed partial class AccountStore : IDisposable
         }
 
         // Version 2: feat totals and base-map wins for the achievements. Version 3: cosmetics an admin unlocked.
-        // Version 4: the admin portal (MigrateVersion4).
+        // Version 4: the admin portal (MigrateVersion4). Version 5: levels and prestige (MigrateVersion5).
+        // Version 6: round demos (MigrateVersion6).
         InTransaction(() =>
         {
             Exec("""
@@ -152,6 +153,8 @@ internal sealed partial class AccountStore : IDisposable
                     PRIMARY KEY (account_id, item));
                 """);
             MigrateVersion4();
+            MigrateVersion5();
+            MigrateVersion6();
             Exec("DELETE FROM schema_version; INSERT INTO schema_version (version) VALUES ($v);", ("$v", SchemaVersion));
             return 0;
         });
@@ -729,6 +732,7 @@ internal sealed partial class AccountStore : IDisposable
                     }
 
                     AccountProgress progress = ProgressLocked(id);
+                    var newlyEarned = new List<Achievement>();
                     foreach (Achievement a in Achievements.All)
                     {
                         if (!progress.Earned.Contains(a.Id) && a.Earned(progress, row, report))
@@ -736,8 +740,11 @@ internal sealed partial class AccountStore : IDisposable
                             Exec("INSERT OR IGNORE INTO achievements (account_id, achievement_id, earned, server) VALUES ($a, $id, $now, $s);",
                                 ("$a", id), ("$id", a.Id), ("$now", now), ("$s", report.ServerId));
                             progress.Earned.Add(a.Id);
+                            newlyEarned.Add(a);
                         }
                     }
+
+                    AwardLocked(id, row, report, newlyEarned, progress.Earned, now);
 
                     counted++;
                 }

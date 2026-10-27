@@ -123,7 +123,7 @@ script writers of `bNetDirty` were not traced), then a pass per connection that 
 received a packet in the last 1.5 s. Actors go in level list order with no priority sort; a candidate is
 always relevant, not owner-only, or owned directly by the viewer; the frequency gate is
 `NetUpdateFrequency >= Rate || NetUpdateFrequency × dt > 1` with `Rate = GetMaxTickRate()` (20 or 35 on a
-dedicated server, 0 on a listen server) and `dt` the time since the connection's last pass. The local Ghidra
+Stock dedicated server, the host's own rate on an Enhanced one, 0 on a listen server) and `dt` the time since the connection's last pass. The local Ghidra
 output confirms the rule; on a 20 Hz dedicated server 5 and 10 Hz actors therefore update only when passes
 stall on the budget, and once at the first pass of a connection. `NetUpdateGate.Stochastic` (the UE2.0
 `FRand() < NetUpdateFrequency × dt`), `Always` and `DecodedGuarded` (below) are settings; `Decoded` is the
@@ -162,7 +162,103 @@ not above zero, so all of a server's client connections stall together. Once per
 `CONF*` law steps the rate from the average acknowledgement lag: a client steers its own rate, a server one
 shared rate from the worst lag of its clients (dedicated or listen row, LAN rows with `IsLan`), held at the
 maximum for 2 s after `ResetConnectionPing` (called when a player joins). Connections over loopback (a listen
-host's local players) are not counted. `PerConnection` (stock UE2) and `Unlimited` are settings.
+host's local players) are not counted. `PerConnection` (stock UE2), `PerClientAdaptive` (Enhanced, below) and
+`Unlimited` are settings.
+
+### Send rate and budget: Stock and Enhanced
+
+`ServerSettings.Profile` (`NetProfile`, `src/OpenScct.Net/NetProfile.cs`) picks one of two behaviours; this is the
+rewrite's side of `rl:net.rates` (spec/reloaded/FEATURES.md).
+
+| | Stock | Enhanced |
+|---|---|---|
+| Replication rate (`ServerHost.NetRate`) | 20 Hz, 35 Hz with lanplay (`K.NetServerMaxTickRate`, `K.LanServerMaxTickRate`) | 60 Hz, every world tick (`K.EnhancedServerTickRate` = `Sim.Hz`) |
+| Tick cap of the frequency gate (`GetMaxTickRate`) | 20 / 35 | the replication rate |
+| Send budget | `NetDriverSettings.Budget` as given (`SharedAdaptive` by default) | `SendBudgetMode.PerClientAdaptive` |
+| Other players' pawns on a client (`NetDriverSettings.PawnProxies`) | dead reckoning (`PawnProxyMode.DeadReckoning`) | interpolation buffer (`PawnProxyMode.Interpolate`, Proxy pawn interpolation below) |
+
+**Who runs what.** The library default (`ServerSettings`, `OnlineServerSettings`) is Stock, so tests, bot matches and
+tools keep the decoded behaviour. The hosts players play on choose Enhanced: `svm-server` single-map servers
+(`Program`), the online server (`svm-server --config` / `--online`, `OnlineRun`), the hub's matches
+(`HubMatchLauncher`), the game's online host (`game/Scripts/Online/ListenHost.cs`) and the game's own play session
+(`PlaySession`, `--svm-play`). The hub map itself stays Stock with its per-connection budget. A client learns the
+rate from Welcome (`ClientSession.ServerNetRate`), so its interpolation delay follows.
+
+**Toggles.** `svm-server --net stock|enhanced` (single-map and online), `"netProfile": "stock"` in `svm-server.json`.
+The rate overrides keep working on top of either profile: `svm-server --rate <hz>` (also overrides the config file's
+`netRate` for an online server), `netRate` in `svm-server.json`, `--svm-netrate=<hz>` for the game's play session.
+A rate of 0 (the default everywhere) means the profile's rate. `NetProfiles.Rate` and `NetProfiles.Apply` turn a
+profile into the rate and the driver settings; `ServerHost` calls them once at start.
+
+**Why 60 Hz.** The sim runs at 60 Hz; at 20 Hz a client sees one state in three and interpolates over 50 ms gaps,
+which feels late in a game of close-range fights. Bot matches measured about 7 KB/s per client at 60 Hz, well inside
+what a home connection or a VPS uplink carries today; the original's 20 Hz was sized for 2005 modems.
+
+**Why a budget per client.** `SharedAdaptive` gives a server one rate for all of its clients, steered by the worst
+lag among them: one client on a bad link drags every other client down to the row minimum, and the shared rate
+(dedicated row: 8000 to 15000 B/s on the internet) cannot carry several clients at 60 Hz in the first place.
+`PerClientAdaptive` gives each client connection its own budget, refilled at its own rate
+(`NetConnection.SendRate`), so a saturated client stalls only itself. The CONF* law still runs, per connection: once
+per statistics period it steps that connection's rate from that connection's own lag, with the server row's
+thresholds (`LagToTakeAction`, `MaxAllowedLag`) and the full `StepUp`, between the row minimum and
+`MaxClientRate`. `ResetConnectionPing` sets the rate of the connection(s) it resets to `MaxClientRate`, held 2 s as
+in the decoded law. Loopback connections (the listen host's own player) stay outside the budget. A client driver
+with this mode spends its connection's rate exactly as with `SharedAdaptive`; the client's own send rate (moves,
+client CONF* row) is unchanged by either profile.
+
+**MaxClientRate.** Kept at the decoded 20000 B/s: about 2.8 times the measured 7 KB/s, which leaves room for joins
+(initial bunches of every relevant actor) and busier maps. The rate a client asks for in Hello
+(`ConfiguredInternetSpeed`, 10000) still only feeds the move protocol's correction limit (`CurrentNetSpeed`), as
+decoded; it does not cap the Enhanced send rate. A congested link lowers its own rate through the lag thresholds,
+down to the row minimum (8000 B/s dedicated internet, 7000 listen, 15000 on a LAN), which still carries the
+measured average.
+
+### Proxy pawn interpolation (Enhanced)
+
+`rl:net.clientsync` (spec/reloaded/FEATURES.md). Stock clients show other players' pawns by the original's dead
+reckoning (`PawnProxyReceiver.Tick`, below). Enhanced clients show them from an interpolation buffer, about two
+server send intervals in the past, so a remote player moves along the path the server simulated instead of being
+walked on the last velocity and pulled back.
+
+**Toggle.** `NetDriverSettings.PawnProxies`: `NetProfiles.Apply` sets `PawnProxyMode.Interpolate` for the Enhanced
+profile, so it follows `--net stock|enhanced` and `"netProfile"`. The server sends its mode in Welcome
+(`ControlMessage.PawnProxies`, the message's last field; a Welcome without it means Stock) and the client follows it
+(`ClientSession.PawnProxies`); there is no client-side switch, so client and server always agree.
+
+**Server.** The sample schedule (rules 1, 2, 4, 5) is unchanged in both modes, so position bandwidth is the same.
+Enhanced pushes `Rotation` and the aim properties (`iDesiredYawPitch`, `iYawPitchFromView`) on every pass they
+changed, so the buffer gets them at the send rate; Stock keeps rule 3 (Rotation and aim at most every 0.09 s,
+Rotation sooner for a turn over 1800 units).
+
+**Client.** `PawnInterpolation` (`src/OpenScct.Server/Net/PawnInterpolation.cs`) keeps one `ProxyMotion` per proxy
+pawn (the same buffer the M0 `CubeWalker` path uses through `ActorChannel.Motion`; pawns cannot use that hook since
+their positions come as calls, not properties). After each tick's receive (`ClientSession.Tick`, before the world
+ticks) it buffers one state per pawn at the newest server packet tick (`NetDriver.NewestServerTick`):
+- the sample, when one came (stamped with its packet's tick, `NetDriver.ReceivingTick`; a reliable sample that
+  waited is carried forward to the newest tick);
+- otherwise the server's own dead reckoning from the newest state (velocity, gravity 1500 while falling). The server
+  only stays silent while that prediction holds within 1 or 30 uu² (rule 2), so a packet without a sample says the
+  pawn is where the prediction puts it;
+- each with the latest received Rotation (`ReceivedRotation`) and aim words, which `PreNetReceive`/`PostNetReceive`
+  take into the buffer instead of onto the pawn.
+
+The proxy tick (`PawnProxyReceiver.TickInterpolated`) still plays the action batches and zone configuration (rules
+8, 9), then samples the buffer at `ClientSession.RenderTimeFixed`: position (a move with world collision off),
+velocity and acceleration (the animation's inputs), rotation, and both aim words (each 16-bit half interpolated the
+short way). Past the newest state it extrapolates by velocity for at most `NetDriverSettings.MaxExtrapolationTicks`
+(6 ticks, 100 ms), then holds.
+
+**Snaps.** Only on the first sample and on a teleport: a sample more than six collision radii (`SnapRadii`) from
+where the buffer predicted the pawn. A snap resets the buffer and puts a state backed off along the velocity at the
+render time, so the pawn moves on at once instead of waiting out the delay. Root motion and follow-parent run the
+stock physics (rule 12) while the buffer holds the pawn where it is shown, so leaving them hands back without a jump.
+Other physics changes do not snap (unlike rule 11): `Physics` arrives undelayed while the position is shown late, so
+a snap to the newest state would pop the pawn forward by the delay at every jump and landing.
+
+**Delay.** `ClientSession.InterpolationDelayTicks` = `ClientSettings.InterpolationIntervals` (2) send intervals of
+`ServerNetRate` (from Welcome): 6 ticks (100 ms) at 20 Hz, 2 ticks (33 ms) at Enhanced 60 Hz; also as
+`InterpolationDelayMs`. The client's view time of other players is `ClientSession.RenderTimeFixed` (server ticks x
+`NetTimeline.Fraction`); lag compensation should rewind to it.
 
 ### Function calls
 
@@ -213,12 +309,15 @@ for a call that names an actor its connection has not seen yet.
   on a 20% velocity change or on a position error over 1 or 30 uu²) sent as `ClientGetPawnPosition` on the
   viewer's controller. The pawn sets `bCompressedPosition` (rule 4), so the Actor list never sends its `Location`,
   `Velocity` or `Rotation`; its own list pushes `Rotation` between samples at most every 0.09 s, sooner only for a
-  turn of more than 1800 units (rule 3, through `NetDriver.PropertyPush`, per viewer). On the client each proxy's
+  turn of more than 1800 units (rule 3, through `NetDriver.PropertyPush`, per viewer), and sends the aim properties
+  `iDesiredYawPitch` and `iYawPitchFromView` only on those 0.09 s passes (rule 3, through
+  `NetDriver.PropertyWithhold`; a held-back change goes with the next one). Enhanced replaces the client side below
+  (Proxy pawn interpolation). On the client each proxy's
   own tick runs `PawnProxyReceiver.Tick` in place of the stock physics (`ISimulatedTick`, ASBasePawn::TickSimulated,
   rules 10 to 15): with no error left a walking proxy walks by the received velocity (`physWalkingSimulated`) and
   any other moves by it (`ClientDistantMoveSmooth`); an error is blended out at 200 (ramping over a second) or
-  400 uu/s, snapped beyond six radii or on a physics change, and the yaw turns toward the sample's (a pushed
-  `Rotation` is turned back to it on the next tick). The action batches ride with the
+  400 uu/s, snapped beyond six radii or on a physics change, and the yaw turns toward the received one (a pushed
+  `Rotation` only moves that target, rule 15a; a received aim is smoothed in, rule 15). The action batches ride with the
   samples (rule 5): a new batch (the controller's tick stamps it, `ProxyAnimation.ServerUpdateActionCounts`) forces
   a sample that carries it reliably the first time (`ClientReliableGetPawnPositionAndActions`), unreliably while it
   is under 0.4 s old, and alone (`ClientGetPawnActions`) between samples for 0.15 s. The server records the actions a
@@ -278,7 +377,8 @@ Online sessions (lobby, map travel, results, the master, NAT punch and relay) si
 - Handshake: Hello carries the protocol hash (and optionally a content hash); Welcome carries the map, its
   content hash and its sim file digests; a client whose copy differs leaves with "Your game's version is not
   the same as the server's" and names the differing file.
-- `ServerHost` ticks the world at 60 Hz and runs a network frame at `NetRate`; it installs the bridges, spawns
+- `ServerHost` ticks the world at 60 Hz and runs a network frame at `NetRate` (the profile's rate unless
+  overridden; see "Send rate and budget: Stock and Enhanced"); it installs the bridges, spawns
   an M0 `CubeWalker` per player unless told not to, and raises `PlayerJoined` so a game can give the connection
   its player controller. `ListenServer`, ports and `svm-server` are as in M0.
 
@@ -487,12 +587,27 @@ is refused leaves the client behind until the divergence check reinitialises it,
 fallen out of the world and 4 rounds not ended (the use menu). At 2% stalls the 150 seeds show 2 reinits and no rest
 error.
 
+## Measuring in play
+
+- **Network readout** (`rl:net.stats`, Options > HUD > "Network readout", `show_net`): one line under the frame-rate
+  readout, refreshed every second: ping and jitter (the connection's smoothed RTT), packet loss in and out, KB/s
+  down and up, position corrections applied per second and the server's send rate. Source: the client
+  connection's `NetStats` and `ClientMoves.CorrectionsApplied` (`game/Scripts/Hud/HudNet.cs`, read in `PlayRoot.ReadNet`).
+- **Simulated bad link** (`--svm-simlink=A|B|C|D` with `--svm-play=<map>`): the local player's link to the host goes
+  through `SimLinkNetwork` with that profile (A 0 ms; B 60 ms, 1% loss; C 120 ms +/-20, 2% loss; D 250 ms, 5% loss)
+  on the real clock. It forces the inline host. Offline play only; online games use the real link.
+
 ## Open items
 
-- Proxy pawns: the aim properties of rule 3 (`iDesiredYawPitch`, `iYawPitchFromView`), the aim smoothing (rule 15)
-  and the epoch reset of a forced reinit (rule 7) are not ported. Standing bots that turn all the time make
-  their proxies' yaw flick between the pushed `Rotation` and the sample's (the decoded rules 3 and 15; measured
-  1.9 x the pawn's yaw travel on SteeE, 3.0 x before the port); human players turn far less while standing.
+- Proxy pawns: the epoch reset of a forced reinit (rule 7) is not ported (`ProxyAnimation.ReinitBatchTime` is
+  unused). Rule 3's aim pacing, the aim smoothing (rule 15) and PreNetReceive/PostNetReceive (rule 15a, which ended
+  the yaw flick between a pushed `Rotation` and the sample's) are ported; Stock proxies of standing bots that turn
+  all the time still step their yaw at the decoded 0.09 s and 65535 units/s, as the original does. Enhanced proxies
+  interpolate yaw and aim from Rotation and aim pushed every pass. Neither has been measured in play since.
+- Enhanced proxy interpolation (Proxy pawn interpolation) has not been checked in play yet: the pause-free snap, the
+  hand-back from root motion, a pawn blocked by the local player's cylinder during its move (it catches up on the
+  next tick), and how often a dropped sample (unreliable, the server assumes delivery) makes a pawn slide until the
+  next forced sample (0.7 s at most), as in Stock.
 - The corrections the decoded protocol makes in traversal (Traversal over the network) are kept as decoded; the
   original's own correction counts in traversal were not measured.
 - `GEPointCheck` is an addition; points that are not GE points (none found in the scenarios) stay rounded.

@@ -41,6 +41,10 @@ public partial class OnlineService : Node
     private Action<string?>? _hubReturn;
     private bool _hubPlayed;
 
+    /// <summary>The visit's server on the master and its password, remembered with a round (RejoinService).</summary>
+    private string? _visitMasterId;
+    private string? _visitPassword;
+
     /// <summary>The player's visit, or null when not online.</summary>
     public OnlineClient? Client { get; private set; }
 
@@ -84,6 +88,13 @@ public partial class OnlineService : Node
         return service;
     }
 
+    /// <summary>The listen host's own account: its unlocks, rank and titles as the master last told this game.</summary>
+    private static HostAccount HostAccountOf(long id, string name, OpenScct.Net.Discovery.AccountInfo? info)
+    {
+        int rank = info?.Progress is { } p ? PlayerRank.FromXp(p.Prestige, p.Xp).Pack() : 0;
+        return new HostAccount(id, name, info?.Unlocked, rank, info?.Progress?.Titles);
+    }
+
     /// <summary>
     /// The visit's settings: a signed-in player goes by the account's name (the server checks it against the ticket),
     /// a guest by the options' name.
@@ -97,6 +108,7 @@ public partial class OnlineService : Node
         Ticket = ticket,
         SpyLook = CosmeticLook.FromIds(CosmeticSide.Spy, SettingsStore.Current.CosmeticsSpy).ToHex(),
         MercLook = CosmeticLook.FromIds(CosmeticSide.Merc, SettingsStore.Current.CosmeticsMerc).ToHex(),
+        Title = SettingsStore.Current.Title,
         Maps = Catalog.Maps,
         Classes = Classes,
         InstallGameplayServices = false,
@@ -104,14 +116,17 @@ public partial class OnlineService : Node
 
     /// <summary>
     /// Joins a server (a browser entry, a LAN answer or a typed address) and shows the connecting screen.
-    /// <paramref name="ticket"/> is the master's ticket for that server when the player is signed in.
+    /// <paramref name="ticket"/> is the master's ticket for that server when the player is signed in;
+    /// <paramref name="masterId"/> its master id when the target is an address of a listed server.
     /// </summary>
-    public void Join(JoinTarget target, string? password = null, string? ticket = null)
+    public void Join(JoinTarget target, string? password = null, string? ticket = null, string? masterId = null)
     {
         ArgumentNullException.ThrowIfNull(target);
         EndVisit();
         LastError = null;
         _notes.Clear();
+        _visitMasterId = masterId ?? target.MasterId;
+        _visitPassword = password;
         StartVisit(new OnlineClient(target, ClientSettings(password, ticket: ticket), _clock.NowMicroseconds));
     }
 
@@ -124,7 +139,7 @@ public partial class OnlineService : Node
     /// player leaves, the visit ends and <paramref name="back"/> runs with a line for the hub (the hub service joins
     /// the hub again).
     /// </summary>
-    public void JoinFromHub(JoinTarget target, string password, int team, Action<string?> back)
+    public void JoinFromHub(JoinTarget target, string password, int team, Action<string?> back, string? ticket = null)
     {
         ArgumentNullException.ThrowIfNull(target);
         ArgumentNullException.ThrowIfNull(back);
@@ -133,7 +148,9 @@ public partial class OnlineService : Node
         _notes.Clear();
         _hubReturn = back;
         _hubPlayed = false;
-        StartVisit(new OnlineClient(target, ClientSettings(password) with { PreferredTeam = team == 1 ? 1 : 0 }, _clock.NowMicroseconds));
+        // Team 255 watches as a spectator; the ticket (a match on the hub's master) brings the account's name.
+        int preferred = team == SessionProtocol.SpectatorTeam ? team : team == 1 ? 1 : 0;
+        StartVisit(new OnlineClient(target, ClientSettings(password, ticket: ticket) with { PreferredTeam = preferred }, _clock.NowMicroseconds));
     }
 
     /// <summary>Ends a hub match's visit and hands back to the hub.</summary>
@@ -183,7 +200,7 @@ public partial class OnlineService : Node
         {
             request = request with
             {
-                HostAccount = new HostAccount(account.AccountId, claimed, AccountService.Get(GetTree()).Account?.Unlocked),
+                HostAccount = HostAccountOf(account.AccountId, claimed, AccountService.Get(GetTree()).Account),
             };
         }
 
@@ -232,6 +249,7 @@ public partial class OnlineService : Node
             return;
         }
 
+        RejoinService.Get(GetTree()).LeftByChoice();
         EndVisit();
         FrontEnd.ShowMainMenu(GetTree());
     }
@@ -319,6 +337,11 @@ public partial class OnlineService : Node
         }
 
         SceneTree tree = GetTree();
+        if (Hosting is null && _hubReturn is null)
+        {
+            // A round of someone else's server is remembered, so the game can offer to rejoin it after a drop.
+            RejoinService.Get(tree).Follow(client, state, _visitMasterId, _visitPassword);
+        }
         switch (state)
         {
             case OnlineClientState.Lobby:

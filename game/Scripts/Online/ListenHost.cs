@@ -114,10 +114,12 @@ public sealed class ListenHost : IDisposable
             {
                 Name = request.Name,
                 Dedicated = false,
+                Profile = NetProfile.Enhanced,
                 MaxPlayers = request.MaxPlayers,
                 Password = string.IsNullOrEmpty(request.Password) ? null : request.Password,
                 Setup = request.Setup,
                 Maps = maps,
+                MapSource = MapDownloads.SourceOf,
                 Classes = classes,
                 HostKey = key,
                 Bots = OpenScct.Bots.OnlineServerBots.Factory(),

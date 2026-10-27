@@ -479,6 +479,10 @@ public sealed class NetMovementBridge : IMovementNet
         return endpoint;
     }
 
+    /// <summary>The protocol objects of <paramref name="controller"/> if they exist already (no side effects), for readouts.</summary>
+    public MoveEndpoint? PeekEndpoint(Actor controller) =>
+        _endpoints.TryGetValue(controller, out MoveEndpoint? endpoint) ? endpoint : null;
+
     private readonly Dictionary<Actor, Pawn?> _pawns = new();
 
     // The physics check's 3 s (net-moves.md rule 11.5) count from the pawn's first move: a player who was dead or

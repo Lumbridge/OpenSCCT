@@ -181,7 +181,25 @@ public sealed class ClientSession : INetworkNotify, IDisposable
     /// <summary>Server time shown this tick (server ticks times <see cref="NetTimeline.Fraction"/>), or -1 before any packet.</summary>
     public long RenderTimeFixed { get; private set; } = -1;
 
+    /// <summary>
+    /// How far behind the server's estimated time the client shows replicated actors: <see
+    /// cref="ClientSettings.InterpolationIntervals"/> send intervals of the server's rate (<see cref="ServerNetRate"/>, from
+    /// Welcome), in world ticks. Stock 20 Hz: 6 ticks (100 ms); Enhanced 60 Hz: 2 ticks (33 ms). The view time it gives is
+    /// <see cref="RenderTimeFixed"/>; lag compensation rewinds other players to it.
+    /// </summary>
     public int InterpolationDelayTicks => Settings.InterpolationIntervals * ((Sim.Hz + ServerNetRate - 1) / ServerNetRate);
+
+    /// <summary><see cref="InterpolationDelayTicks"/> in milliseconds.</summary>
+    public float InterpolationDelayMs => InterpolationDelayTicks * Sim.DeltaTime * 1000f;
+
+    /// <summary>
+    /// How this client shows other players' pawns: the server's mode from Welcome (Enhanced hosts interpolate, Stock
+    /// hosts dead reckon).
+    /// </summary>
+    public PawnProxyMode PawnProxies { get; private set; } = PawnProxyMode.DeadReckoning;
+
+    /// <summary>With <see cref="PawnProxyMode.Interpolate"/> and gameplay: the proxy pawns' buffers, once the map loaded.</summary>
+    public PawnInterpolation? PawnInterpolation { get; private set; }
 
     /// <summary>Text lines received from the server, in order (session lines go to <see cref="SessionLineReceived"/>).</summary>
     public IReadOnlyList<string> ReceivedTexts => _texts;
@@ -200,6 +218,20 @@ public sealed class ClientSession : INetworkNotify, IDisposable
         ObjectDisposedException.ThrowIf(_disposed, this);
         Driver.LocalTick = LocalTick;
         Driver.TickDispatch(nowMicros);
+
+        // This tick's view time, before the world ticks: the proxy pawns' tick shows them at it.
+        Driver.Timeline.Advance();
+        if (Driver.Timeline.IsValid)
+        {
+            RenderTimeFixed = Driver.Timeline.RenderTimeFixed(LocalTick, InterpolationDelayTicks);
+        }
+
+        if (PawnInterpolation is { } pawns)
+        {
+            pawns.RenderTimeFixed = RenderTimeFixed;
+            pawns.AfterReceive(Driver.NewestServerTick);
+        }
+
         if (State == EClientState.Joined)
         {
             SendMove();
@@ -217,10 +249,8 @@ public sealed class ClientSession : INetworkNotify, IDisposable
             World.Step();
         }
 
-        Driver.Timeline.Advance();
         if (Driver.Timeline.IsValid)
         {
-            RenderTimeFixed = Driver.Timeline.RenderTimeFixed(LocalTick, InterpolationDelayTicks);
             Driver.UpdateProxies(RenderTimeFixed);
         }
 
@@ -360,6 +390,7 @@ public sealed class ClientSession : INetworkNotify, IDisposable
         PlayerId = message.PlayerId;
         MapName = message.Text;
         ServerNetRate = message.NetRate is >= 1 and <= Sim.Hz ? message.NetRate : K.NetServerMaxTickRate;
+        PawnProxies = message.PawnProxies;
         MapCatalog maps = Settings.Maps ?? MapCatalog.CreateDefault();
         if (!maps.TryLoad(World, MapName ?? string.Empty, isClient: true, out MapInfo? map, out string? error))
         {
@@ -388,7 +419,10 @@ public sealed class ClientSession : INetworkNotify, IDisposable
             }
 
             DeviceEvents = NetDeviceEvents.InstallClient(World.Level, Driver);
-            PawnProxyReceiver.Install(World.Level, Driver);
+            PawnInterpolation = PawnProxies == PawnProxyMode.Interpolate
+                ? new PawnInterpolation(Driver.Settings.MaxExtrapolationTicks) { RenderTimeFixed = RenderTimeFixed }
+                : null;
+            PawnProxyReceiver.Install(World.Level, Driver, PawnInterpolation);
         }
 
         connection.SetOpen();

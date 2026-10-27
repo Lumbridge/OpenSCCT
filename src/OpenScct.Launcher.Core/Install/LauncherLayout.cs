@@ -13,6 +13,7 @@ namespace OpenScct.Launcher.Install;
 /// downloads\            downloads in progress and finished zips
 /// cache\                the release list and its ETag
 /// content\              game content built from the player's own install (later)
+/// maps\                 maps downloaded from the SCCT-Maps repository, read by the content build
 /// </code>
 /// The game's user:// data (settings, key bindings, saves) is in %APPDATA%\Godot\app_userdata\OpenSCCT and is never
 /// touched by the launcher.
@@ -47,6 +48,9 @@ public sealed class LauncherLayout
     public string Cache => Path.Combine(Root, "cache");
 
     public string Content => Path.Combine(Root, "content");
+
+    /// <summary>Maps downloaded from the SCCT-Maps repository (<see cref="OpenScct.Maps.MapLibrary"/>).</summary>
+    public string Maps => Path.Combine(Root, "maps");
 
     public string VersionDir(string version) => Path.Combine(Versions, version);
 }

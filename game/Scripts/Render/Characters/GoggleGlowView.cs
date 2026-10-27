@@ -92,6 +92,42 @@ public sealed class GoggleGlowView
         _model.Root.Visible = true;
     }
 
+    /// <summary>
+    /// The glow as the cosmetic previews show it (OpenSCCT's own), with no simulated pawn: the side's beam on the head
+    /// bone at the side's relative rotation, in its normal skin (the spy's green, the merc's orange) turned by
+    /// <paramref name="hueTurn"/> as the game turns it for the player's light colour.
+    /// </summary>
+    public void DrawStill(bool merc, float? hueTurn)
+    {
+        if (!Load(merc ? "SGoggle.DEF01_beams" : "SGoggle.ATT01_beams"))
+        {
+            return;
+        }
+
+        (bool ok, Transform3D bone) = _bone(OpenScct.Game.Equipment.K.GoggleBeamBone);
+        if (!ok)
+        {
+            Hide();
+            return;
+        }
+
+        FRotator relative = merc ? OpenScct.Game.Equipment.K.MercGoggleBeamRotation : OpenScct.Game.Equipment.K.SpyGoggleBeamRotation;
+        _model!.Root.GlobalTransform = new Transform3D(bone.Basis.Orthonormalized() * UeSpace.RotationToGodot(relative), bone.Origin);
+        string skin = SkinKey((merc ? OpenScct.Game.Equipment.K.GoggleSkinOrange : OpenScct.Game.Equipment.K.GoggleSkinGreen).Path) ?? _model.Slots[0];
+        if (skin != _skinOn)
+        {
+            Material? material = MaterialFor(skin);
+            _model.SetSkins(_ => material);
+            _skinOn = skin;
+        }
+
+        _model.SetGlowHue(hueTurn, diffuse: true);
+        _model.Root.Visible = true;
+    }
+
+    /// <summary>Hides the glow (the previews' gun views).</summary>
+    public void HideGlow() => Hide();
+
     private void Hide()
     {
         if (_model is not null)
