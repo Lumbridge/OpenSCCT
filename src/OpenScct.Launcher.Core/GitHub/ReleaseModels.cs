@@ -44,6 +44,10 @@ public sealed class ReleaseAsset
     [JsonPropertyName("name")]
     public string Name { get; set; } = string.Empty;
 
+    /// <summary>The display name GitHub shows instead of <see cref="Name"/>, when the uploader set one.</summary>
+    [JsonPropertyName("label")]
+    public string? Label { get; set; }
+
     [JsonPropertyName("size")]
     public long Size { get; set; }
 

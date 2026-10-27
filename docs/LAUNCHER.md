@@ -80,7 +80,11 @@ The script refuses a build that has original game file types or converted conten
 `override.cfg` and logs, adds `openscct-build.json` (version, commit, dirty flag, time) and writes two sets of
 assets. Players see one download per version; everything else is the launcher's business.
 
-**The version release** (`v<version>`, the game's version) holds only `OpenSCCT.Launcher-<launcher version>-win-x64.exe`.
+**The version release** (`v<version>`, the game's version) holds only `OpenSCCT.Launcher.exe`, labelled
+`OpenSCCT Launcher <launcher version>`. The name has no version, so a player's copy keeps one name across updates; the
+launcher reads the version from the label. Its checksum is `OpenSCCT.Launcher-<launcher version>-win-x64.exe.sha256` in
+the game files release. Older releases named the exe by version (`OpenSCCT.Launcher-0.8.7-win-x64.exe`); those still
+work.
 
 **The game files release** (tag `game-files`, one for every version, a prerelease so it is never "Latest"):
 
@@ -175,16 +179,15 @@ version's list points at. Deleting an old version release is fine; its files sta
 
 **Rollback** swaps current and previous in `install.json` (only while no game is running).
 
-**Self update.** When the release has `OpenSCCT.Launcher-<version>-win-x64.exe` and its version is newer than the
+**Self update.** When the release has a launcher (see above) and its version is newer than the
 running launcher, the launcher fetches it right after the update check ("Update launcher" retries a failed
 download). The exe is downloaded, verified and copied next to the
 running one as `OpenSCCT.Launcher.exe.new`. "Restart to finish" renames the running exe to `.old` (Windows allows
 renaming a running exe), moves `.new` into its place, starts it with `--after-update` and closes. A launcher still
-named as downloaded (`OpenSCCT.Launcher-0.8.0-win-x64.exe`) takes the new version's name
-(`OpenSCCT.Launcher-0.8.4-win-x64.exe`, from the staged exe's product version); any other name is kept, and so is
-the name when a file with the new name is already there. A launcher started with `--after-update` by an older one
-that kept the old name renames its own exe the same way. The new process deletes `.old` (its own, or the
-`OpenSCCT.Launcher-*.exe.old` a renaming update left), and finishes or undoes a swap that stopped half way. A launcher in a read-only folder (Program Files)
+under an old versioned name (`OpenSCCT.Launcher-0.8.0-win-x64.exe`) takes the plain name `OpenSCCT.Launcher.exe`;
+any other name is kept, and so is the old name when `OpenSCCT.Launcher.exe` is already there. A launcher started with
+`--after-update` by an older one that kept its versioned name renames its own exe the same way. The new process
+deletes `.old` (its own, or the `OpenSCCT.Launcher-*.exe.old` a renaming update left), and finishes or undoes a swap that stopped half way. A launcher in a read-only folder (Program Files)
 says so instead of updating; it never asks for elevation.
 
 ## Play

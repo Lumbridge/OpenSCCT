@@ -12,11 +12,14 @@
     launcher changed. Launcher sources that changed under a version already made stop the release.
 
     Writes to local\release\<version>\ (gitignored):
-        OpenSCCT.Launcher-<launcher version>-win-x64.exe the launcher: the only asset of the version release
+        OpenSCCT.Launcher.exe                            the launcher: the only asset of the version release, labelled
+                                                         "OpenSCCT Launcher <launcher version>" (the name has no version,
+                                                         so players' copies keep one name across updates)
         game-files\                                       what goes to the game files release:
             OpenSCCT-<version>-win-x64-files.json         the build's file list (delta updates)
             OpenSCCT-<version>-win-x64-files.json.sha256  its SHA-256
-            OpenSCCT.Launcher-<launcher version>-win-x64.exe.sha256  the launcher's SHA-256
+            OpenSCCT.Launcher-<launcher version>-win-x64.exe.sha256  the launcher's SHA-256 (named by its version:
+                                                         every version shares this release)
             <sha256>.gz, OpenSCCT-<version>-win-x64-pack.zip  the build's new file contents
         notes.md                                         release notes template (when -NotesFile is not given)
         publish.ps1                                      uploads the game files, then makes the draft version release
@@ -174,6 +177,7 @@ if (Test-Path $guard) {
 }
 
 $assets = @()
+$launcherAsset = $null
 
 # The file list for delta updates (docs/LAUNCHER.md "Delta updates"): every file with its SHA-256 and the release
 # asset that holds it gzipped. Files the base release already has keep pointing at their old asset; only the
@@ -271,7 +275,9 @@ if (-not $SkipLauncher) {
     if ($launcherVersion -notmatch $semver) { throw "LauncherVersion '$launcherVersion' is not MAJOR.MINOR.PATCH[-PRERELEASE]." }
     $sources = 'src/OpenScct.Launcher', 'src/OpenScct.Launcher.Core', 'src/OpenScct.Maps', 'game/branding/icon.ico'
     $fingerprint = ($sources | ForEach-Object { (& git -C $repoRoot rev-parse "${commit}:$_").Trim() }) -join ' '
+    # Kept locally (and its checksum published) under the versioned name; released under the plain name.
     $launcherName = "OpenSCCT.Launcher-$launcherVersion-win-x64.exe"
+    $launcherExeName = 'OpenSCCT.Launcher.exe'
     # In the main checkout even when the release is made from a linked worktree (which is removed afterwards).
     $mainRoot = Split-Path -Parent ((& git -C $repoRoot rev-parse --path-format=absolute --git-common-dir).Trim())
     $kept = Join-Path $mainRoot "local\release\launchers\$launcherVersion"
@@ -286,7 +292,13 @@ if (-not $SkipLauncher) {
             throw "The launcher's sources changed since launcher $launcherVersion was made (commit $($record.commit)). Bump LauncherVersion in Directory.Build.props."
         }
         if (-not (Test-Path -LiteralPath $keptExe)) {
+            # Older releases name it by version; newer ones carry the plain name (checked against the record below).
             & gh release download --repo $Repo --pattern $launcherName --dir $kept 2>$null
+            if (-not (Test-Path -LiteralPath $keptExe)) {
+                & gh release download --repo $Repo --pattern $launcherExeName --dir $kept 2>$null
+                $plain = Join-Path $kept $launcherExeName
+                if (Test-Path -LiteralPath $plain) { Move-Item -LiteralPath $plain -Destination $keptExe -Force }
+            }
         }
         if (-not (Test-Path -LiteralPath $keptExe) -or (Get-FileHash -LiteralPath $keptExe -Algorithm SHA256).Hash.ToLowerInvariant() -ne $record.sha256) {
             throw "Launcher $launcherVersion's exe is missing from $kept (or differs from the one made). Put the released $launcherName there."
@@ -313,7 +325,7 @@ if (-not $SkipLauncher) {
     if (-not $stamped -or -not $stamped.StartsWith($launcherVersion)) {
         throw "The launcher exe says version '$stamped', not $launcherVersion."
     }
-    $launcherAsset = Join-Path $OutDir $launcherName
+    $launcherAsset = Join-Path $OutDir $launcherExeName
     Copy-Item -LiteralPath $LauncherExe -Destination $launcherAsset -Force
     $assets += $launcherAsset
 }
@@ -321,7 +333,9 @@ if (-not $SkipLauncher) {
 foreach ($file in @($filesJson) + $assets) {
     $name = Split-Path $file -Leaf
     $hash = (Get-FileHash -LiteralPath $file -Algorithm SHA256).Hash.ToLowerInvariant()
-    [System.IO.File]::WriteAllText((Join-Path $blobDir "$name.sha256"), "$hash  $name`n")
+    # The launcher's checksum file carries its version (ReleasePicker.LauncherChecksumName); the line names the asset.
+    $sumName = if ($file -eq $launcherAsset) { "$launcherName.sha256" } else { "$name.sha256" }
+    [System.IO.File]::WriteAllText((Join-Path $blobDir $sumName), "$hash  $name`n")
 }
 
 if (-not $NotesFile) {
@@ -347,7 +361,10 @@ $storeFiles = @(Get-ChildItem -LiteralPath $blobDir -File)
 Write-Host ("  {0,10:N1} MB  {1} files for the $StoreTag release in game-files\" -f ((($storeFiles | Measure-Object -Property Length -Sum).Sum) / 1MB), $storeFiles.Count)
 
 # The game files are too many for one command line, so the publish steps go in a script to review and run.
-$quoted = ($assets | ForEach-Object { '"' + $_ + '"' }) -join ' '
+# gh's "file#label" sets the asset's label: the launcher reads its version from it (ReleasePicker.LauncherLabelPrefix).
+$quoted = ($assets | ForEach-Object {
+        if ($_ -eq $launcherAsset) { '"' + $_ + '#OpenSCCT Launcher ' + $launcherVersion + '"' } else { '"' + $_ + '"' }
+    }) -join ' '
 $pre = if ($isPrerelease) { ' --prerelease' } else { '' }
 $publish = Join-Path $OutDir 'publish.ps1'
 @"

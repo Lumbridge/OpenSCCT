@@ -191,7 +191,7 @@ public sealed class UpdateService
         ArgumentNullException.ThrowIfNull(release);
         ArgumentNullException.ThrowIfNull(swap);
         ReleaseAsset asset = ReleasePicker.LauncherAsset(release)
-            ?? throw new UpdateRejectedException($"Release {release.Version} has no launcher ({ReleasePicker.LauncherPrefix}*-{ReleasePicker.Platform}.exe).");
+            ?? throw new UpdateRejectedException($"Release {release.Version} has no launcher ({ReleasePicker.LauncherExeName}).");
         string file = await DownloadVerifiedAsync(release, asset, progress, cancel).ConfigureAwait(false);
         swap.Stage(file);
         TryDeleteFile(file);

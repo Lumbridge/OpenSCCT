@@ -9,7 +9,7 @@ launcher converts the maps, characters and sounds from your install on your own 
 ## Get playing
 
 1. **Install Splinter Cell: Chaos Theory** (the Steam version works; it is found automatically).
-2. **Download the launcher**: `OpenSCCT.Launcher-<version>-win-x64.exe` from the
+2. **Download the launcher**: `OpenSCCT.Launcher.exe` from the
    [latest release](https://github.com/Lumbridge/OpenSCCT/releases/latest). Put it in any folder and run it.
    Windows may show a SmartScreen warning because the exe is not signed: click **More info**, then **Run anyway**.
 3. **Follow the three steps in the launcher.** It finds your game, downloads OpenSCCT and prepares the game files

@@ -1,9 +1,7 @@
 using System;
-using System.Reflection;
 using System.Threading;
 using System.Windows.Forms;
 using OpenScct.Launcher.Update;
-using OpenScct.Launcher.Versioning;
 
 namespace OpenScct.Launcher.App;
 
@@ -25,12 +23,10 @@ internal static class Program
             var swap = new LauncherSwap(exe);
             swap.CleanupAfterStart(afterUpdate ? TimeSpan.FromSeconds(10) : TimeSpan.Zero);
 
-            // An older launcher kept its own name when it updated to this one: take this version's name.
+            // An older launcher kept its versioned name when it updated to this one: take the plain name.
             if (afterUpdate)
             {
-                string? info = typeof(Program).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
-                int plus = info?.IndexOf('+', StringComparison.Ordinal) ?? -1;
-                ExePath = swap.RenameToVersion(SemVersion.TryParse(plus >= 0 ? info![..plus] : info, out SemVersion? own) ? own : null);
+                ExePath = swap.RenameToPlainName();
             }
         }
 

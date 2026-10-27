@@ -37,32 +37,32 @@ public sealed class LauncherSwap
     }
 
     /// <summary>
-    /// Where the staged exe goes. A launcher still named as it was downloaded (<c>OpenSCCT.Launcher-0.8.0-win-x64.exe</c>)
-    /// takes the name of the version it updates to, so the file name never shows an old version; any other name (a
-    /// player's own, or <c>OpenSCCT.Launcher.exe</c>) is kept, as is the name when a file already has the new one.
+    /// Where the staged exe goes. A launcher still under an old versioned name (<c>OpenSCCT.Launcher-0.8.0-win-x64.exe</c>)
+    /// takes the plain name <c>OpenSCCT.Launcher.exe</c>; any other name (a player's own, or the plain one) is kept, as
+    /// is the old name when a file already has the plain one.
     /// </summary>
-    public string TargetPath(Versioning.SemVersion? stagedVersion)
+    public string TargetPath()
     {
         string name = Path.GetFileName(ExePath);
         bool versionedName = name.StartsWith(ReleasePicker.LauncherPrefix, StringComparison.OrdinalIgnoreCase)
             && name.EndsWith("-" + ReleasePicker.Platform + ".exe", StringComparison.OrdinalIgnoreCase);
-        if (stagedVersion is null || !versionedName)
+        if (!versionedName)
         {
             return ExePath;
         }
 
-        string target = Path.Combine(Path.GetDirectoryName(ExePath)!, ReleasePicker.LauncherAssetName(stagedVersion));
-        return string.Equals(target, ExePath, StringComparison.OrdinalIgnoreCase) || File.Exists(target) ? ExePath : target;
+        string target = Path.Combine(Path.GetDirectoryName(ExePath)!, ReleasePicker.LauncherExeName);
+        return File.Exists(target) ? ExePath : target;
     }
 
     /// <summary>
     /// Run by a launcher just started after an update: renames its own exe (Windows allows renaming a running exe) to
-    /// <see cref="TargetPath"/> for <paramref name="ownVersion"/>, for an update done by an older launcher that kept
-    /// the old name. Never throws; returns the exe's path afterwards (unchanged when the name stays).
+    /// <see cref="TargetPath"/>, for an update done by an older launcher that kept a versioned name. Never throws;
+    /// returns the exe's path afterwards (unchanged when the name stays).
     /// </summary>
-    public string RenameToVersion(Versioning.SemVersion? ownVersion)
+    public string RenameToPlainName()
     {
-        string target = TargetPath(ownVersion);
+        string target = TargetPath();
         if (string.Equals(target, ExePath, StringComparison.OrdinalIgnoreCase))
         {
             return ExePath;
@@ -79,21 +79,8 @@ public sealed class LauncherSwap
         }
     }
 
-    /// <summary>The version stamped into the staged exe (its product version), or null when it cannot be read.</summary>
-    public Versioning.SemVersion? StagedVersion()
-    {
-        if (!HasStaged)
-        {
-            return null;
-        }
-
-        string? product = System.Diagnostics.FileVersionInfo.GetVersionInfo(NewPath).ProductVersion;
-        int plus = product?.IndexOf('+', StringComparison.Ordinal) ?? -1;
-        return Versioning.SemVersion.TryParse(plus >= 0 ? product![..plus] : product, out Versioning.SemVersion? v) ? v : null;
-    }
-
     /// <summary>
-    /// Puts the staged exe in place, under <see cref="TargetPath"/> for its version. Returns the path to start; the
+    /// Puts the staged exe in place, under <see cref="TargetPath"/>. Returns the path to start; the
     /// caller starts it and exits.
     /// </summary>
     public string Swap()
@@ -103,7 +90,7 @@ public sealed class LauncherSwap
             throw new InvalidOperationException("No launcher update is staged.");
         }
 
-        string target = TargetPath(StagedVersion());
+        string target = TargetPath();
         if (File.Exists(OldPath))
         {
             File.Delete(OldPath);
@@ -141,8 +128,8 @@ public sealed class LauncherSwap
             return;
         }
 
-        // The old exe is this one's .old, or, after an update that renamed the launcher to its new version, another
-        // launcher's .old in the same folder.
+        // The old exe is this one's .old, or, after an update that renamed a versioned launcher to the plain name, the
+        // versioned name's .old in the same folder.
         string[] olds;
         try
         {
