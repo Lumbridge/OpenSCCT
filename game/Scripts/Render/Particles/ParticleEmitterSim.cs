@@ -443,7 +443,7 @@ public sealed class ParticleEmitterSim
 
             if (q.Time > q.MaxLifetime)
             {
-                if (!p.RespawnDeadParticles)
+                if (!p.RespawnDeadParticles || _killPending)
                 {
                     dead++;
                     q.Flags &= ~FlagAlive;
@@ -473,7 +473,8 @@ public sealed class ParticleEmitterSim
             ClampAndLose(ref q, dt, bounced);
         }
 
-        bool spawning = (dead < MaxActiveParticles && ActiveParticles != dead) || rate != 0f || p.RespawnDeadParticles;
+        // Emitter.Kill: no rate and no respawn once killed, so the sub-emitter is all dead when its last particle goes.
+        bool spawning = (dead < MaxActiveParticles && ActiveParticles != dead) || (!_killPending && (rate != 0f || p.RespawnDeadParticles));
         AllParticlesDead = !spawning;
     }
 
@@ -517,7 +518,7 @@ public sealed class ParticleEmitterSim
         FVector at = hit - extent;
         if (p.UseMaxCollisions && q.HitCount + 1 >= (int)MathF.Round(p.MaxCollisions.Pick(ref _rng)))
         {
-            if (!p.RespawnDeadParticles)
+            if (!p.RespawnDeadParticles || _killPending)
             {
                 dead++;
                 q.Flags &= ~FlagAlive;

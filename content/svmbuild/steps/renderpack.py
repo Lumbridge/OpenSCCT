@@ -9,7 +9,8 @@
   modifier chain (and a Shader's Diffuse), so a mesh whose converted material names that base finds them.
 - gameplay/gameplay.glb, gameplay/materials.json, gameplay/textures/: the static meshes of SGameplayObjects.usx
   (class-default meshes of gameplay actors: first-aid cabinets, window panes, extinguishers, laser beams) in the map
-  render format (materials.json like a map's, keyed by glTF material name).
+  render format (materials.json like a map's, keyed by glTF material name), plus the run-time skin materials
+  (GAMEPLAY_SKINS; materials.json "skins" maps each object path to its material name).
 - mips.json: the number of mip levels every Texture of the game stores (texture, static mesh and map packages), by
   object path: most world textures store one level, and the original draws those without mipmaps.
 - render.json: format, the texture table (object path -> PNG), the gameplay mesh table (object path -> glTF node).
@@ -59,6 +60,16 @@ VISION_DEFAULTS = {
                            "bInvertEMFTexture": False},
 }
 GAMEPLAY_PACKAGE = "SGameplayObjects"
+# Materials gameplay actors put in Skins at run time over the gameplay meshes (no mesh section uses them), exported
+# with the gameplay meshes: the camera and sensor LEDs (SCamera / SVolumetricSensor LightGreen, LightRed, LightOff,
+# skin 1) and the yellow LED four sensors are placed with.
+GAMEPLAY_SKINS = (
+    "SGameplayObjectsTex_led.SGPO.heat_SI_alarm_greenA",
+    "SGameplayObjectsTex_led.SGPO.heat_SI_alarm_green_cligA",
+    "SGameplayObjectsTex_led.SGPO.heat_si_alarm_redA",
+    "SGameplayObjectsTex_led.SGPO.heat_SI_blackA",
+    "SGPOTexE_led.SGPO.heat_si_alarm_yellowA",
+)
 
 
 def _safe(name: str) -> str:
@@ -67,7 +78,7 @@ def _safe(name: str) -> str:
 
 class RenderPackStep(Step):
     name = "renderpack"
-    version = 1
+    version = 2
     deps = ()
     per_map = False
     needs_game = True
@@ -77,7 +88,7 @@ class RenderPackStep(Step):
         return env.code_files()
 
     def options(self, ctx: Context, unit: str | None) -> dict:
-        return {"textures": sorted(TEXTURES), "gameplay": GAMEPLAY_PACKAGE}
+        return {"textures": sorted(TEXTURES), "gameplay": GAMEPLAY_PACKAGE, "skins": list(GAMEPLAY_SKINS)}
 
     def inputs(self, ctx: Context, unit: str | None) -> dict[str, str | None]:
         out = {}
@@ -330,7 +341,7 @@ def _gameplay_meshes(pset, game: Path, out_dir: Path) -> dict:
         return {}
     out_dir.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory(prefix="svm-renderpack-") as tmp:
-        st = export_gltf.export_package(usx, pset, Path(tmp))
+        st = export_gltf.export_package(usx, pset, Path(tmp), extra_materials=list(GAMEPLAY_SKINS))
         folder = Path(tmp) / GAMEPLAY_PACKAGE
         gltf = json.loads((folder / f"{GAMEPLAY_PACKAGE}.gltf").read_text(encoding="utf-8"))
         binary = (folder / f"{GAMEPLAY_PACKAGE}.bin").read_bytes() if (folder / f"{GAMEPLAY_PACKAGE}.bin").exists() else b""
@@ -347,7 +358,7 @@ def _gameplay_meshes(pset, game: Path, out_dir: Path) -> dict:
             materials[name] = {"flags": flags.get(_safe(name), {})}
         doc = {"format": FORMAT, "package": GAMEPLAY_PACKAGE, "materials": materials,
                "additive": scene.get("additive_materials", []), "modulate": scene.get("modulate_materials", []),
-               "failed": st.get("failed", [])}
+               "skins": st.get("skins", {}), "failed": st.get("failed", [])}
         (out_dir / "materials.json").write_bytes(canonical.dump_file(doc, ascii_keys=False))
         nodes = {n.get("name") for n in gltf.get("nodes", [])}
 

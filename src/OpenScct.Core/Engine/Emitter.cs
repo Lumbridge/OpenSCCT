@@ -38,4 +38,26 @@ public partial class Emitter
     [Provenance(ProvenanceKind.Estimated,
         "The original broadcasts ReplicateTrigger to clients when bNetworkTrigger makes the emitter a relevant proxy (PreBeginPlay); the rewrite keeps map emitters unreplicated and relays the notify to every client instead, so an emitter without bNetworkTrigger (seen only on the server's own screen in the original) also fires on remote clients")]
     public void ReplicateTrigger() => XLevel.World.Events.Notify(this, NAME_ReplicateTrigger);
+
+    /// <summary>True once <see cref="Kill"/> ended this emitter: the views let its live particles run out.</summary>
+    public bool Killed { get; private set; }
+
+    /// <summary>
+    /// Emitter.Kill (native 1155): no more particles spawn and the actor goes once the live ones are dead
+    /// (spec/native/emitters.md rule 4). The particles live in the views, so the simulation marks the actor and
+    /// destroys it now; a view drawing it stops spawning and keeps the particles until they die.
+    /// </summary>
+    [UcNative("AEmitter::execKill")]
+    [PortOf("nat:Engine.Emitter.Kill", Spec = "spec/native/emitters.md#rules")]
+    [Provenance(ProvenanceKind.Estimated, "The actor is destroyed at once instead of when its last particle dies; only the drawn particles outlive it")]
+    public void Kill()
+    {
+        if (bDeleteMe)
+        {
+            return;
+        }
+
+        Killed = true;
+        Destroy();
+    }
 }

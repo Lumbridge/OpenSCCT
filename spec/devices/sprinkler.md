@@ -66,7 +66,8 @@ SFlaque variation replicates and each client grows its puddle itself.
 
 ## Open questions
 
-1. Emitter.Kill is not ported; the port destroys the emitter at once (estimated).
+1. Emitter.Kill: the emitter actor goes at once in the simulation; the drawn water stops spawning and the live
+   particles die out (estimated: the original keeps the actor until then).
 2. Whether the native SSprinkler uses the wet volume (wet pawns, extinguished fire) is not decoded.
 3. Spawned puddles have no collider in our collision world (the original has bWorldGeometry, bBlockPlayers).
 

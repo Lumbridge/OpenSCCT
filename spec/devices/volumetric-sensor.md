@@ -85,7 +85,8 @@ brushes are touch colliders in `collision.bin`).
 
 - The native caller of LightStateChange is not decoded: the port compares `bLightState` with `bLocalLightState` after
   every tick on every machine.
-- The LED skin swap is set on the actor (`Skins[1]`) but the device views do not follow skin changes yet, so the LED
-  does not change colour on screen.
-- Emitter.Kill is not ported (the sparks are destroyed at once).
+- The LED skin (`Skins[1]`) is drawn per surface from the gameplay pack's skin materials (renderpack `GAMEPLAY_SKINS`),
+  so it changes colour on screen; the blinking `green_cligA` is drawn from its first frame only if its texture
+  animates (not checked).
+- Emitter.Kill: the sparks actor goes at once in the simulation; the drawn particles stop spawning and die out.
 - `Volumes.Length == 0` would divide by zero in the original; the port stops the state code (no map has an empty list).

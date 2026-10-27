@@ -271,8 +271,10 @@ public static class GameplayObjects
     {
         var arrayMesh = new ArrayMesh();
         JsonElement prims = glb.Root.GetProperty("meshes")[mesh].GetProperty("primitives");
+        int section = -1;
         foreach (JsonElement p in prims.EnumerateArray())
         {
+            section++;
             JsonElement attrs = p.GetProperty("attributes");
             int materialIndex = p.TryGetProperty("material", out JsonElement mi) ? mi.GetInt32() : -1;
             string materialName = materialIndex >= 0 && materialIndex < materialNames.Count ? materialNames[materialIndex] : "";
@@ -295,9 +297,27 @@ public static class GameplayObjects
             var surface = new SurfaceBuilder(false, false);
             surface.Add(Transform3D.Identity, prim, 0);
             surface.AddTo(arrayMesh, material);
+            arrayMesh.SurfaceSetName(arrayMesh.GetSurfaceCount() - 1, SectionSurfacePrefix + section);
         }
 
         return arrayMesh.GetSurfaceCount() > 0 ? arrayMesh : null;
+    }
+
+    private const string SectionSurfacePrefix = "section";
+
+    /// <summary>
+    /// The mesh section (glTF primitive, one per drawn StaticMesh section) surface <paramref name="surface"/> of a
+    /// gameplay mesh draws, which is the Skins slot that replaces its material; -1 for a mesh built elsewhere.
+    /// </summary>
+    [Provenance(ProvenanceKind.Estimated, "Primitive order is section order; a section the exporter skips (no faces, a skipped material) shifts the later slots")]
+    public static int SectionOf(Mesh mesh, int surface)
+    {
+        ArgumentNullException.ThrowIfNull(mesh);
+        string name = mesh is ArrayMesh a ? a.SurfaceGetName(surface) : string.Empty;
+        return name.StartsWith(SectionSurfacePrefix, StringComparison.Ordinal)
+            && int.TryParse(name.AsSpan(SectionSurfacePrefix.Length), System.Globalization.NumberStyles.None, System.Globalization.CultureInfo.InvariantCulture, out int s)
+            ? s
+            : -1;
     }
 
     private static int[] Sequence(int n)

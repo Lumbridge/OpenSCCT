@@ -39,6 +39,7 @@ public sealed class DeviceViews
         _map = map ?? throw new ArgumentNullException(nameof(map));
         ArgumentNullException.ThrowIfNull(loaded);
         ArgumentNullException.ThrowIfNull(parent);
+        Mounts = new CameraMountViews(map, parent, FindMesh);
         foreach (ActorRecord record in loaded.Gameplay.Actors)
         {
             if (loaded.ActorOf(record) is not { } actor)
@@ -49,8 +50,12 @@ public sealed class DeviceViews
             if (map.Gameplay.TryGetValue(record.Id, out GameplayMesh? entry))
             {
                 // The map's bHidden, not the actor's now: replication may have shown it before this first bind.
-                bool mapHidden = map.Actors.Find(record.Id) is { } placed ? placed.Bool("bHidden") : actor.bHidden;
-                var follower = new MeshFollower(actor, entry, mapHidden);
+                GameplayActor? placed = map.Actors.Find(record.Id);
+                bool mapHidden = placed is not null ? placed.Bool("bHidden") : actor.bHidden;
+                (FVector, FRotator)? mapPlace = placed is not null && placed.TryGet("Location", out _)
+                    ? (placed.Vector("Location"), placed.Rotator("Rotation"))
+                    : null;
+                var follower = new MeshFollower(actor, entry, mapHidden, mapPlace);
                 _meshes.Add(follower);
                 if (follower.Asset is { } asset && entry.Node.Mesh is { } mesh)
                 {
@@ -87,6 +92,9 @@ public sealed class DeviceViews
     /// <summary>The skeletal props.</summary>
     public IReadOnlyList<AnimatedMeshView> Animated => _animated;
 
+    /// <summary>The security cameras' spawned wall mounts.</summary>
+    public CameraMountViews Mounts { get; }
+
     /// <summary>Meshes the render content does not have (a swapped StaticMesh, a skeletal mesh): the node hides.</summary>
     public IReadOnlyCollection<string> MissingMeshes => _missing;
 
@@ -121,6 +129,7 @@ public sealed class DeviceViews
         if (level is not null)
         {
             Rebind(level);
+            Mounts.OnTick(level);
         }
 
         foreach (MeshFollower m in _meshes)
@@ -242,6 +251,8 @@ public sealed class DeviceViews
         {
             a.Draw(dt);
         }
+
+        Mounts.Draw();
     }
 
     private Mesh? FindMesh(string asset)
@@ -279,14 +290,20 @@ public sealed class MeshFollower
     private readonly Mesh? _mesh0;
     private Vector4 _vision;
 
-    internal MeshFollower(Actor actor, GameplayMesh entry, bool mapHidden)
+    /// <summary>
+    /// Follows <paramref name="actor"/> from its node. <paramref name="mapPlace"/> is the map's Location and Rotation
+    /// the node was built at: an actor its own BeginPlay already moved (a camera set 24 uu off its wall,
+    /// spec/devices/security-camera.md rule 1) is drawn where it is, not where the map put it.
+    /// </summary>
+    internal MeshFollower(Actor actor, GameplayMesh entry, bool mapHidden, (FVector Location, FRotator Rotation)? mapPlace = null)
     {
         Actor = actor;
         Entry = entry;
         _node0 = entry.Node.Transform;
         _location0 = actor.Location;
         _rotation0 = actor.Rotation;
-        _placed0Inverse = UeSpace.TransformToGodot(_location0, _rotation0).AffineInverse();
+        (FVector built, FRotator builtRotation) = mapPlace ?? (_location0, _rotation0);
+        _placed0Inverse = UeSpace.TransformToGodot(built, builtRotation).AffineInverse();
         _hidden0 = mapHidden;
         _visible0 = entry.Node.Visible;
         _prevLocation = _location = actor.Location;
@@ -296,6 +313,7 @@ public sealed class MeshFollower
         _mesh0 = entry.Node.Mesh;
         _vision = entry.Node.GetInstanceShaderParameter(GameplayObjects.VisionActorParameter).AsVector4();
         Replaceable = !actor.bStatic && !actor.bNoDelete;
+        Moved = mapPlace is { } m && Away(_location0 - m.Location, _rotation0, m.Rotation);
     }
 
     public Actor Actor { get; private set; }
@@ -353,14 +371,13 @@ public sealed class MeshFollower
     /// True when the actor is away from its map placement by more than what replication rounds (locations to whole
     /// units, rotations to 256-unit steps): a replicated static prop keeps the map's exact transform.
     /// </summary>
-    private bool LeftPlacement()
-    {
-        FVector d = _location - _location0;
-        return MathF.Abs(d.X) > PlacementSlack || MathF.Abs(d.Y) > PlacementSlack || MathF.Abs(d.Z) > PlacementSlack ||
-            Math.Abs(FRotator.NormalizeAxis(_rotation.Pitch - _rotation0.Pitch)) > RotationSlack ||
-            Math.Abs(FRotator.NormalizeAxis(_rotation.Yaw - _rotation0.Yaw)) > RotationSlack ||
-            Math.Abs(FRotator.NormalizeAxis(_rotation.Roll - _rotation0.Roll)) > RotationSlack;
-    }
+    private bool LeftPlacement() => Away(_location - _location0, _rotation, _rotation0);
+
+    private static bool Away(FVector d, FRotator rotation, FRotator rotation0) =>
+        MathF.Abs(d.X) > PlacementSlack || MathF.Abs(d.Y) > PlacementSlack || MathF.Abs(d.Z) > PlacementSlack ||
+        Math.Abs(FRotator.NormalizeAxis(rotation.Pitch - rotation0.Pitch)) > RotationSlack ||
+        Math.Abs(FRotator.NormalizeAxis(rotation.Yaw - rotation0.Yaw)) > RotationSlack ||
+        Math.Abs(FRotator.NormalizeAxis(rotation.Roll - rotation0.Roll)) > RotationSlack;
 
     private const float PlacementSlack = 1f;
 
@@ -384,11 +401,13 @@ public sealed class MeshFollower
     }
 
     /// <summary>
-    /// The actor's Skins[0] over every surface when it is a skin the render builds (<see cref="GameplaySkins"/>: the
-    /// unarmed bomb spot's ghost, which the native tick swaps for the mesh's own materials once a charge is planted);
-    /// otherwise the mesh's own materials.
+    /// The actor's Skins over the mesh (UE2 Actor.GetSkin: Skins[i], when set, replaces section i's material). The
+    /// bomb spot's ghost (<see cref="GameplaySkins.For"/>) covers every surface, as the native tick sets it in every
+    /// slot; the pack's run-time skins (the camera and sensor LED in slot 1) replace their own surface. A skin the
+    /// render does not have keeps the mesh's own material.
     /// </summary>
     [Provenance(ProvenanceKind.Decoded, "ASBombTargetObjectiveTrigger::Tick: Skins[0..2] = AbsentSkin unarmed, None armed (one skin for every slot)")]
+    [Provenance(ProvenanceKind.Decoded, "ASCamera::Tick / SVolumetricSensor.LightStateChange: the LED is Skins[1] (security-camera.md rule 9, volumetric-sensor.md rule 7)")]
     internal void DrawSkin(RenderPack? pack, double seconds)
     {
         MeshInstance3D node = Entry.Node;
@@ -397,13 +416,46 @@ public sealed class MeshFollower
             return;
         }
 
-        string? skin = Actor.Skins.Count > 0 ? Actor.Skins[0].Path : null;
-        Material? material = skin is null ? null : GameplaySkins.For(pack, skin, seconds);
-        if (!ReferenceEquals(node.MaterialOverride, material))
+        string? skin0 = Actor.Skins.Count > 0 ? Actor.Skins[0].Path : null;
+        Material? whole = skin0 is null ? null : GameplaySkins.For(pack, skin0, seconds);
+        if (!ReferenceEquals(node.MaterialOverride, whole))
         {
-            node.MaterialOverride = material;
+            node.MaterialOverride = whole;
+        }
+
+        if (node.Mesh is not { } mesh)
+        {
+            return;
+        }
+
+        int surfaces = mesh.GetSurfaceCount();
+        if (!ReferenceEquals(_skinnedMesh, mesh))
+        {
+            // A swapped mesh: its surfaces start from their own materials.
+            _skinnedMesh = mesh;
+            _surfaceSkins = new string?[surfaces];
+            for (int i = 0; i < surfaces; i++)
+            {
+                node.SetSurfaceOverrideMaterial(i, null);
+            }
+        }
+
+        int count = Actor.Skins.Count;
+        for (int i = 0; i < surfaces; i++)
+        {
+            int slot = GameplayObjects.SectionOf(mesh, i);
+            string? skin = whole is null && slot >= 0 && slot < count ? Actor.Skins[slot].Path : null;
+            if (!string.Equals(_surfaceSkins[i], skin, StringComparison.OrdinalIgnoreCase))
+            {
+                _surfaceSkins[i] = skin;
+                node.SetSurfaceOverrideMaterial(i, GameplaySkins.Skin(pack, skin, Entry.Light));
+            }
         }
     }
+
+    // The skin path each surface last drew (null: the mesh's own material).
+    private string?[] _surfaceSkins = [];
+    private Mesh? _skinnedMesh;
 
     [Provenance(ProvenanceKind.Estimated, "Movers drawn between the last two ticks (linear location, shortest-way rotation)")]
     internal void Draw(float alpha)

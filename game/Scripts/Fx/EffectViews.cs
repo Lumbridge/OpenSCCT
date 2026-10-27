@@ -159,6 +159,14 @@ public sealed partial class EffectViews : Node3D
         foreach (Actor a in _gone)
         {
             Tracked t = _tracked[a];
+            if (a is Emitter { Killed: true } && t.View is { } killed)
+            {
+                // Emitter.Kill: no more spawning; the live particles die out where the emitter was.
+                killed.Sim.Kill();
+                _loose.Add(new Loose(killed, t.Class, PlaceOf(a), a.Rotation, float.PositiveInfinity, autoDestroy: true));
+                t.View = null;
+            }
+
             t.View?.Free();
             t.Mesh?.QueueFree();
             t.Light?.QueueFree();

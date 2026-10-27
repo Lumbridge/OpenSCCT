@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text.Json;
 using Godot;
 using OpenScct.Provenance;
 using OpenScctGame.Render.Data;
@@ -10,8 +11,9 @@ namespace OpenScctGame.Render;
 
 /// <summary>
 /// Materials gameplay actors put in their Skins at run time that the gameplay meshes do not carry, built from the
-/// render pack. Only the unarmed bomb spot's ghost for now (SBombTargetObjectiveTrigger.AbsentSkin,
-/// spec/objectives/bomb-target.md rule 14); any other skin draws the mesh's own materials.
+/// render pack: the unarmed bomb spot's ghost (SBombTargetObjectiveTrigger.AbsentSkin, spec/objectives/bomb-target.md
+/// rule 14), and the skins the renderpack step exports with the gameplay meshes (gameplay/materials.json "skins": the
+/// camera and sensor LEDs, spec/devices/security-camera.md rule 9). Any other skin draws the mesh's own material.
 /// </summary>
 public static class GameplaySkins
 {
@@ -28,6 +30,76 @@ public static class GameplaySkins
     private const float BombGhostFrameRate = 3f;
 
     private static readonly Dictionary<string, Material[]> s_cache = new(StringComparer.OrdinalIgnoreCase);
+
+    private static readonly Dictionary<string, PackSkins> s_packSkins = new(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>
+    /// The material of the pack-exported skin <paramref name="skin"/> (an object path such as
+    /// SGameplayObjectsTex_led.SGPO.heat_SI_alarm_greenA) lit by <paramref name="light"/>, or null when the pack does
+    /// not carry it.
+    /// </summary>
+    public static Material? Skin(RenderPack? pack, string? skin, LightSource light)
+    {
+        if (pack is null || string.IsNullOrEmpty(skin) || pack.GameplayGlb is not { } glb)
+        {
+            return null;
+        }
+
+        if (!s_packSkins.TryGetValue(pack.Root, out PackSkins? skins))
+        {
+            skins = PackSkins.Load(pack, glb);
+            s_packSkins[pack.Root] = skins;
+        }
+
+        return skins.Get(skin, light);
+    }
+
+    /// <summary>The gameplay pack's skin table (object path -> material name) and the compiler that builds them.</summary>
+    private sealed class PackSkins
+    {
+        private readonly Dictionary<string, string> _names = new(StringComparer.OrdinalIgnoreCase);
+        private MaterialCompiler? _compiler;
+
+        public static PackSkins Load(RenderPack pack, string glb)
+        {
+            var skins = new PackSkins();
+            string folder = Path.GetDirectoryName(glb)!;
+            string path = Path.Combine(folder, "materials.json");
+            if (!File.Exists(path))
+            {
+                return skins;
+            }
+
+            using (var json = JsonDocument.Parse(File.ReadAllBytes(path)))
+            {
+                if (json.RootElement.TryGetProperty("skins", out JsonElement table) && table.ValueKind == JsonValueKind.Object)
+                {
+                    foreach (JsonProperty p in table.EnumerateObject())
+                    {
+                        if (p.Value.GetString() is { } name)
+                        {
+                            skins._names[p.Name] = name;
+                        }
+                    }
+                }
+            }
+
+            if (skins._names.Count > 0)
+            {
+                skins._compiler = new MaterialCompiler(MaterialsDoc.Load(path), new TextureCache(folder))
+                {
+                    Pack = pack,
+                    VisionLookup = VisionLookup.ModifierName,
+                };
+            }
+
+            return skins;
+        }
+
+        // The compiler caches each (material, light) it builds.
+        public Material? Get(string skin, LightSource light) =>
+            _compiler is not null && _names.TryGetValue(skin, out string? name) ? _compiler.Get(name, light) : null;
+    }
 
     /// <summary>
     /// The material of <paramref name="skin"/> at <paramref name="seconds"/> (animated skins step their frames), or null

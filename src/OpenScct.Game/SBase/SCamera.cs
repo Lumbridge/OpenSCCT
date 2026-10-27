@@ -81,10 +81,9 @@ public partial class SCamera
     /// <summary>The emitter dies and the wall mount goes with the camera.</summary>
     [Uc("SBase.SCamera.Destroyed", Sha1 = "3c58d74ab47e29b796a9d6ce4c15a17776c5b23f")]
     [PortOf("uc:SBase.SCamera:Destroyed", Spec = "spec/devices/security-camera.md#start-up")]
-    [Provenance(ProvenanceKind.Estimated, "Emitter.Kill is not ported: the malfunction emitter is destroyed")]
     protected override void Destroyed()
     {
-        MalfunctionEmitter?.Destroy();
+        MalfunctionEmitter?.Kill();
         WallSupport?.Destroy();
         base.Destroyed();
     }
@@ -240,9 +239,10 @@ public partial class SCamera
                 break;
         }
 
+        // game 0x10ab61f8 calls the emitter's virtual +0x140, taken as AEmitter::Kill: the sparks die out.
         if (LocalLightState != LightLocked)
         {
-            MalfunctionEmitter?.Destroy();
+            MalfunctionEmitter?.Kill();
             MalfunctionEmitter = null;
         }
         else if (MalfunctionEmitter is null)
