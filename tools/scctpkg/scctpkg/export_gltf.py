@@ -685,24 +685,38 @@ def _static_mesh_prims(sm: StaticMesh, owner: Package, resolver: MaterialResolve
     return prims
 
 
-def _patch_prims(patch: dict, res, writer: GltfWriter, tex_dir: Path, tex_uri: Dict[str, Optional[str]], unlit: bool):
-    """Flat nb_u x nb_v grid in the actor's local XZ plane (U along X, V down Z), centred, both faces; UVs span
-    scale_u x scale_v texture repeats."""
-    nu, nv = max(1, int(patch["nb_u"])), max(1, int(patch["nb_v"]))
-    w, h = nu * float(patch["u_length"]), nv * float(patch["v_length"])
-    iu, iv = np.meshgrid(np.arange(nu + 1), np.arange(nv + 1), indexing="xy")
-    fu, fv = (iu / nu).ravel(), (iv / nv).ravel()
-    pos = np.stack([(fu - 0.5) * w, np.zeros_like(fu), (0.5 - fv) * h], axis=1).astype(np.float32)
-    uv = np.stack([fu * float(patch.get("scale_u", 1.0) or 1.0), fv * float(patch.get("scale_v", 1.0) or 1.0)], axis=1).astype(np.float32)
-    quads = []
+def softbody_triangles(body: dict) -> List[Tuple[int, int, int]]:
+    """Front-face triangles over a soft body's particles (level.softbody_record): a patch's grid cells row by row, a
+    strip door's strips as ladders between their two edges (particle k of the left edge faces 2 nV + 1 - k)."""
+    nu, nv = int(body["nb_u"]), int(body["nb_v"])
+    tris: List[Tuple[int, int, int]] = []
+    if body["kind"] == "strip":
+        per = 2 * (nv + 1)
+        for s in range(nu):
+            base = s * per
+            for j in range(nv):
+                a, c = base + j, base + j + 1
+                b, d = base + per - 1 - j, base + per - 2 - j
+                tris += [(a, c, b), (b, c, d)]
+        return tris
     for j in range(nv):
         for i in range(nu):
             a, b = j * (nu + 1) + i, j * (nu + 1) + i + 1
             c, d = a + nu + 1, b + nu + 1
-            quads += [a, c, b, b, c, d]
-    front = np.array(quads, np.uint32)
-    back = front.reshape(-1, 3)[:, ::-1].ravel()
+            tris += [(a, c, b), (b, c, d)]
+    return tris
+
+
+def _patch_prims(body: dict, res, writer: GltfWriter, tex_dir: Path, tex_uri: Dict[str, Optional[str]], unlit: bool):
+    """A soft body at its saved rest state (level.softbody_record), both faces: vertex i (and i + N for the back) is
+    particle i, so the client's simulation moves the vertices in place. UVs are the particles' u, v times
+    scaleU, scaleV."""
+    pos = np.asarray(body["points"], np.float32).reshape(-1, 3)
     n = len(pos)
+    uv = np.asarray(body["uvs"], np.float32).reshape(-1, 2) * np.array(
+        [float(body.get("scale_u", 1.0) or 1.0), float(body.get("scale_v", 1.0) or 1.0)], np.float32)
+    front = np.asarray(softbody_triangles(body), np.uint32).reshape(-1)
+    back = front.reshape(-1, 3)[:, ::-1].ravel()
     positions = np.concatenate([pos, pos])
     normals = np.concatenate([np.tile([0.0, -1.0, 0.0], (n, 1)), np.tile([0.0, 1.0, 0.0], (n, 1))]).astype(np.float32)
     uvs = np.concatenate([uv, uv])
@@ -1237,17 +1251,19 @@ def export_map(map_path: Path, pset: PackageSet, out_root: Path, include_bsp: bo
                 rec.extra["rain"]["additive_gain"] = float(rres.additive_gain)
                 rec.extra["rain"]["uv_anim"] = rres.uv_anim
         if rec.extra.get("patch_material_ref"):
-            # ESBPatchActor (soft-body cloth: AquaE's sea, awnings): a static grid mesh standing in for the runtime
-            # simulation; the actor's DrawScale scales it like any mesh actor.
+            # ESBPatchActor / ESBStripDoorActor (soft bodies: AquaE's sea, awnings, flags, strip curtains): the body
+            # at its saved rest state; the client simulates it from the instance's softbody settings. The actor's
+            # DrawScale scales it like any mesh actor.
             pres = resolver.resolve(pkg, rec.extra["patch_material_ref"])
             if not pres.skip:
                 pname = _safe(f"PATCH_{rec.name}")
-                glow = int(rec.extra["patch"].get("ambient_glow", 0))
+                body = rec.extra["softbody"]
+                glow = int(body.get("ambient_glow", 0))
                 # UESoftBody::Render makes no lighting calls: soft bodies (DrawType 13) draw fullbright. AquaD's sea has
                 # no light in reach and zone ambient 0, yet the game shows near-white crests (matched live only with
                 # the light term at 1.0). The lit path below stays for reference.
                 unlit = True
-                prims = _patch_prims(rec.extra["patch"], pres, writer, tex_dir, tex_uri, unlit)
+                prims = _patch_prims(body, pres, writer, tex_dir, tex_uri, unlit)
                 if not unlit:
                     # No baked light (the game builds the patch at runtime); AmbientGlow adds to lighting like on static
                     # meshes (ambient_glow -> Custom Primitive Data 28 on M_SCCT_VertexLit, capped there), not as a

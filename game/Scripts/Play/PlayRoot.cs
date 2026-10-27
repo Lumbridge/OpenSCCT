@@ -669,6 +669,7 @@ public partial class PlayRoot : Node3D
             : pc is { bBehindView: false } ? session.LocalPawn : null;
         Pawns?.Draw(alpha, dt, firstPerson);
         Devices?.Draw(alpha, dt);
+        Map?.SoftBodies?.Update(dt, session.Client.World.Level, Audio?.Sound);
         if (Camera is not null)
         {
             (FVector location, FRotator rotation, float _) = Camera.Current;

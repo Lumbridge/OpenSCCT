@@ -199,6 +199,9 @@ public sealed class RenderMap
     /// <summary>The map's particle emitters, or null when the build left them out.</summary>
     public Particles.Emitters? Emitters { get; internal set; }
 
+    /// <summary>The map's soft bodies (cloth patches and strip doors), simulated on this machine.</summary>
+    public OpenScctGame.Render.SoftBodies.SoftBodyViews? SoftBodies { get; internal set; }
+
     internal CollisionWorld? Zones { get; }
 
     public RenderMapStats Stats { get; } = new();
@@ -385,6 +388,7 @@ public static class MapBuilder
         map.SkyBoxes.AddRange(skyBoxes);
         map.Pack = pack;
         map.Actors = GameplayActors.Load(mapFolder);
+        map.SoftBodies = new OpenScctGame.Render.SoftBodies.SoftBodyViews(root);
         new Builder(map, glb, options).Run();
         if (options.GameplayObjects)
         {
@@ -828,6 +832,12 @@ public static class MapBuilder
             LightSource light = unlit ? LightSource.None : baked ? LightSource.Vertex : LightSource.Actor;
 
             if (hidden && !gameplay)
+            {
+                return;
+            }
+
+            if (!hidden && inst.TryGetProperty("softBody", out JsonElement softBody)
+                && _map.SoftBodies?.Add(actor, softBody, transform, location, prims, _map.Compiler, VisionOf(inst)) == true)
             {
                 return;
             }

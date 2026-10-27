@@ -8,6 +8,7 @@ tagged marker for everything else so the runtime bridge can match by name.
 from __future__ import annotations
 
 import json
+import struct
 import os
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Tuple
@@ -203,6 +204,151 @@ def _zone_ambient(pkg: Package) -> dict:
     return out
 
 
+# Soft-body class defaults (Engine.ESoftBodyActor and the SoftBody package's class default objects, classes step).
+_SOFTBODY_COMMON = {"Gravity": (0.0, 0.0, -980.0), "friction": 0.0, "nbIter": 1, "nbNormalizeIter": 1, "collActor": True,
+                    "EnergyFactor": 0.0, "hitDamping": 1.0, "dragForce": 60.0, "BulletHitFactor": 25, "Mass": 100.0,
+                    "nbU": 3, "nbV": 3, "ULength": 10.0, "VLength": 10.0, "scaleU": 1.0, "scaleV": 1.0, "FixedTop": True}
+SOFTBODY_DEFAULTS = {
+    "ESBPatchActor": {**_SOFTBODY_COMMON, "nbIter": 3, "nbNormalizeIter": 2, "windMin": (0.0, -100.0, 0.0),
+                      "windMax": (0.0, 300.0, 0.0), "windUScale": 2.0, "windVScale": 2.0, "windUPan": 0.7, "windVPan": 0.31},
+    "ESBStripDoorActor": {**_SOFTBODY_COMMON, "nbIter": 3, "nbNormalizeIter": 2, "windMin": (0.0, -100.0, 0.0),
+                          "windMax": (0.0, 100.0, 0.0), "windUScale": 1.0, "windVScale": 1.0, "windUPan": 0.5,
+                          "windVPan": 0.21},
+}
+_SB_PARTICLE = 72   # FSBParticle: flags, position, old position, acceleration, wind, hit force, u, v
+
+
+def _sb_state(pkg: Package, ref: int):
+    """The particles and links of a placed soft body's simulation object (ESBPatch / ESBStripDoor export), as the
+    editor saved them: UESoftBody::Serialize (0x110d7800 in the editor) writes the primitive's bounds, two ints, the
+    owner, an int, then the particle array (72 bytes each: flags bit 0 = fixed, position, old position, acceleration,
+    wind, hit force, u, v; positions in the actor's local space) and the link array (two particle indices and the rest
+    length). Returns (flags, points, uvs, links) or None when the object is missing or does not read."""
+    if not isinstance(ref, int) or ref <= 0 or ref > len(pkg.exports):
+        return None
+    e = pkg.exports[ref - 1]
+    if e.size <= 0:
+        return None
+    try:
+        r = pkg.export_reader(e)
+        skip_state_frame(r, e.flags)
+        read_properties(r)
+        r.raw(25 + 16 + 8)      # bounding box, bounding sphere, two ints
+        r.compact()             # the owning actor
+        r.i32()
+        n = r.compact()
+        if n <= 0 or n > 4096:
+            return None
+        flags, points, uvs = [], [], []
+        for _ in range(n):
+            raw = r.raw(_SB_PARTICLE)
+            f = struct.unpack_from("<I", raw, 0)[0]
+            v = struct.unpack_from("<17f", raw, 4)
+            flags.append(f & 1)
+            points.extend(v[0:3])
+            uvs.extend(v[15:17])
+        m = r.compact()
+        if m < 0 or m > 16384:
+            return None
+        links = []
+        for _ in range(m):
+            a, b = r.i32(), r.i32()
+            rest = r.f32()
+            if not (0 <= a < n and 0 <= b < n):
+                return None
+            links.append((a, b, rest))
+    except Exception:
+        return None
+    if not all(abs(x) < 1e6 and x == x for x in points):
+        return None
+    return flags, points, uvs, links
+
+
+def _sb_built(cls: str, name: str, nu: int, nv: int, ul: float, vl: float, fixed: dict):
+    """The rest layout the build gives a soft body, for when its saved object does not read (the layout read from 70
+    saved bodies): a patch is a (nU + 1) x (nV + 1) grid in local XZ, centred, row by row from the top-left, linked to
+    its right and lower neighbours; a strip door is nU strips of ULength side by side, each two edges of nV + 1
+    particles (the left one top down, the right one bottom up), linked down each edge and across, top row fixed."""
+    w, h = nu * ul, nv * vl
+    flags, points, uvs, links = [], [], [], []
+    if cls == "ESBStripDoorActor":
+        # Each strip shows a random 1/nU wide slice of the texture (the saved bodies' u); estimated from the name.
+        seed = sum(ord(c) * (i + 1) for i, c in enumerate(name))
+        for k in range(nu):
+            seed = (seed * 1103515245 + 12345) & 0x7FFFFFFF
+            off = (seed / 0x7FFFFFFF) * (1.0 - 1.0 / nu)
+            base = len(flags)
+            for side in (0, 1):
+                x = -w / 2 + (k + side) * ul
+                rows = range(nv + 1) if side == 0 else range(nv, -1, -1)
+                for j in rows:
+                    flags.append(1 if j == 0 else 0)
+                    points.extend((x, 0.0, h / 2 - j * vl))
+                    uvs.extend((off + side / nu, j / nv))
+            for j in range(nv):
+                links.append((base + j, base + j + 1, vl))
+                links.append((base + 2 * nv + 1 - j, base + 2 * nv - j, vl))
+                links.append((base + j + 1, base + 2 * nv - j, ul))
+        return flags, points, uvs, links
+    for j in range(nv + 1):
+        for i in range(nu + 1):
+            top, bottom, left, right = j == 0, j == nv, i == 0, i == nu
+            f = ((top and fixed["FixedTop"]) or (bottom and fixed["FixedBottom"]) or (left and fixed["FixedLeft"])
+                 or (right and fixed["FixedRight"]) or (top and left and fixed["FixedTopLeft"])
+                 or (top and right and fixed["FixedTopRight"]) or (bottom and left and fixed["FixedBottomLeft"])
+                 or (bottom and right and fixed["FixedBottomRight"]))
+            flags.append(1 if f else 0)
+            points.extend((-w / 2 + i * ul, 0.0, h / 2 - j * vl))
+            uvs.extend((i / nu, j / nv))
+    for j in range(nv + 1):
+        for i in range(nu + 1):
+            a = j * (nu + 1) + i
+            for b, rest in ((a + 1, ul) if i < nu else (None, 0.0), (a + nu + 1, vl) if j < nv else (None, 0.0)):
+                if b is not None and not (flags[a] and flags[b]):
+                    links.append((a, b, rest))
+    return flags, points, uvs, links
+
+
+def softbody_record(pkg: Package, cls: str, props: dict) -> Optional[dict]:
+    """The simulation settings and rest state of a placed soft body (stored values over the class defaults), the way
+    UESoftBody copies them from its actor each build (0x1099d090 in the game): friction and hitDamping clamped to 0..1,
+    dragForce to 0..10000."""
+    d = SOFTBODY_DEFAULTS[cls]
+    g = lambda k: props.get(k, d.get(k))
+    vec = lambda k: [float(x) for x in g(k)] if isinstance(g(k), (tuple, list)) and len(g(k)) == 3 else list(d[k])
+    nu, nv = max(1, int(_num(g("nbU"), 3))), max(1, int(_num(g("nbV"), 3)))
+    ul, vl = _num(g("ULength"), 10.0), _num(g("VLength"), 10.0)
+    state = _sb_state(pkg, props.get("SoftBody"))
+    expected = 2 * nu * (nv + 1) if cls == "ESBStripDoorActor" else (nu + 1) * (nv + 1)
+    source = "map"
+    if state is None or len(state[0]) != expected:
+        fixed = {k: bool(props.get(k, d.get(k, False))) for k in
+                 ("FixedTop", "FixedBottom", "FixedLeft", "FixedRight", "FixedTopLeft", "FixedTopRight",
+                  "FixedBottomLeft", "FixedBottomRight")}
+        state = _sb_built(cls, str(props.get("Tag", "")) + str(props.get("Location", "")), nu, nv, ul, vl, fixed)
+        source = "built"
+    flags, points, uvs, links = state
+    clamp = lambda v, lo, hi: max(lo, min(hi, v))
+    return {
+        "kind": "strip" if cls == "ESBStripDoorActor" else "patch", "source": source,
+        "nb_u": nu, "nb_v": nv, "u_length": ul, "v_length": vl,
+        "scale_u": _num(g("scaleU"), 1.0), "scale_v": _num(g("scaleV"), 1.0),
+        "gravity": vec("Gravity"), "wind_min": vec("windMin"), "wind_max": vec("windMax"),
+        "wind_u_scale": _num(g("windUScale"), 0.0), "wind_v_scale": _num(g("windVScale"), 0.0),
+        "wind_u_pan": _num(g("windUPan"), 0.0), "wind_v_pan": _num(g("windVPan"), 0.0),
+        "friction": clamp(_num(g("friction"), 0.0), 0.0, 1.0),
+        "nb_iter": int(_num(g("nbIter"), 1)), "nb_normalize_iter": int(_num(g("nbNormalizeIter"), 1)),
+        "coll_actor": bool(g("collActor")), "energy_factor": _num(g("EnergyFactor"), 0.0),
+        "hit_damping": clamp(_num(g("hitDamping"), 1.0), 0.0, 1.0),
+        "drag_force": clamp(_num(g("dragForce"), 60.0), 0.0, 10000.0),
+        "bullet_hit_factor": int(_num(g("BulletHitFactor"), 25)), "mass": _num(g("Mass"), 100.0),
+        "fixed": [i for i, f in enumerate(flags) if f],
+        "points": [round(float(x), 3) for x in points],
+        "uvs": [round(float(x), 5) for x in uvs],
+        "links": [[int(a), int(b), round(float(rest), 3)] for a, b, rest in links],
+    }
+
+
 def extract_level(pkg: Package, pset: PackageSet) -> List[ActorRecord]:
     records: List[ActorRecord] = []
     zone_ambient = _zone_ambient(pkg)
@@ -248,7 +394,7 @@ def extract_level(pkg: Package, pset: PackageSet) -> List[ActorRecord]:
         if isinstance(mesh_ref, int) and mesh_ref != 0:
             rec.mesh_ref = mesh_ref
             rec.mesh_key = pset.import_path(pkg, mesh_ref)
-            rec.kind = "mover" if (cls == "Mover" or "Mover" in cls or cls in ("SLift", "ESBStripDoor")) else "staticmesh"
+            rec.kind = "mover" if (cls == "Mover" or "Mover" in cls or cls == "SLift") else "staticmesh"
             if any(w in rec.mesh_key.lower() for w in HIDDEN_MESH_WORDS):
                 rec.hidden = True
             smi = props.get("StaticMeshInstance")
@@ -390,22 +536,20 @@ def extract_level(pkg: Package, pset: PackageSet) -> List[ActorRecord]:
             if isinstance(mref, int) and mref:
                 rec.extra["rain"]["material"] = pset.import_path(pkg, mref)
                 rec.extra["rain_material_ref"] = mref
-        elif cls == "ESBPatchActor" and props.get("nbU") and props.get("nbV"):
-            # Soft-body cloth patch the game builds at runtime: a grid of nbU x nbV cells of ULength x VLength (x
-            # DrawScale), centred on the actor, in its local XZ plane (roll turns it flat). AquaE's sea is one (10 x 10,
-            # 4000 x 3800 uu under the terrace, texture Aquarium_TXT.osc), the rest are awnings and banners. The
-            # exporter builds it as a static grid; AmbientGlow is its only light (bIgnoreEchelonLighting).
+        elif cls in SOFTBODY_DEFAULTS:
+            # Soft body (ESBPatchActor cloth: AquaE's sea, awnings, flags; ESBStripDoorActor plastic strip curtains),
+            # simulated at runtime from its ESBPatch / ESBStripDoor object (softbody_record). AquaE's sea is a patch
+            # (10 x 10, 2000 x 1900 uu under the terrace); AmbientGlow is its only light (bIgnoreEchelonLighting).
+            # Maps store nbU, nbV and the rest only when they differ from the class default (ClarD's flags keep
+            # nbU 3), so every value falls back to it.
             tex = props.get("Texture")
             skins = object_refs(props.get("Skins"))
             mref = tex if isinstance(tex, int) and tex else (skins[0] if skins and skins[0] else 0)
-            if mref:
-                rec.extra["patch"] = {
-                    "nb_u": int(_num(props.get("nbU"), 1)), "nb_v": int(_num(props.get("nbV"), 1)),
-                    "u_length": _num(props.get("ULength"), 100.0), "v_length": _num(props.get("VLength"), 100.0),
-                    "scale_u": _num(props.get("scaleU"), 1.0), "scale_v": _num(props.get("scaleV"), 1.0),
-                    "ambient_glow": int(_num(props.get("AmbientGlow"), 0)),
-                    "unlit": bool(props.get("bUnlit")),
-                }
+            body = softbody_record(pkg, cls, props) if mref else None
+            if body is not None:
+                body["ambient_glow"] = int(_num(props.get("AmbientGlow"), 0))
+                body["unlit"] = bool(props.get("bUnlit"))
+                rec.extra["softbody"] = body
                 rec.extra["patch_material_ref"] = mref
         elif rec.kind == "marker" and cdef.get("sm") and "StaticMesh" not in props:
             # Class-default mesh (SLaserTrigger housings, SCamNetwork globes, SInfirmary cabinets): drawn by the
