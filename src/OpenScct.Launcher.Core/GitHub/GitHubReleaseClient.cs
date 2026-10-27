@@ -172,11 +172,22 @@ public sealed class GitHubReleaseClient
         }
     }
 
-    /// <summary>A request for an asset's bytes through the API, which also works for a private repository.</summary>
+    /// <summary>
+    /// A request for an asset's bytes. With a token: through the API, which also works for a private repository.
+    /// Without one: the public download link, because every API request counts against the 60 an hour GitHub allows
+    /// anonymous callers, and a fresh install downloads far more files than that.
+    /// </summary>
     public HttpRequestMessage CreateAssetRequest(ReleaseAsset asset)
     {
         ArgumentNullException.ThrowIfNull(asset);
-        string url = !string.IsNullOrEmpty(asset.Url) ? asset.Url : asset.BrowserDownloadUrl ?? throw new ArgumentException("Asset has no URL.", nameof(asset));
+        string? url = !_source.Authenticated && !string.IsNullOrEmpty(asset.BrowserDownloadUrl)
+            ? asset.BrowserDownloadUrl
+            : !string.IsNullOrEmpty(asset.Url) ? asset.Url : asset.BrowserDownloadUrl;
+        if (string.IsNullOrEmpty(url))
+        {
+            throw new ArgumentException("Asset has no URL.", nameof(asset));
+        }
+
         var request = new HttpRequestMessage(HttpMethod.Get, url);
 
         // HttpClient drops the Authorization header when GitHub redirects to its storage host, as it should.

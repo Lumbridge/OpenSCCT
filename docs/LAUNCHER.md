@@ -34,7 +34,7 @@ come with .NET 10. The test project uses the repository's pinned xunit.v3 versio
 
 ## Version and build number
 
-The version is `VersionPrefix` in `Directory.Build.props` (0.6.1; a release passes `-p:Version`), and the build number
+The version is `VersionPrefix` in `Directory.Build.props` (0.6.2; a release passes `-p:Version`), and the build number
 is the UTC timestamp of the commit the build is made from, `yyyyMMdd.HHmm` (`Directory.Build.targets`). Both are stamped
 into every assembly; `OpenScct.Net.Discovery.BuildInfo` reads them back for the server browser, the master and the
 menus, which show "OpenSCCT 0.5.0  build 20261026.1737 (a82eaa0)" in the bottom-right corner of the main menu and
@@ -145,7 +145,9 @@ version's list points at. Deleting an old version release is fine; its files sta
 2. **Pick.** The highest semantic version among the tags (drafts never, prereleases on request). The file list
    (or, without one, the game zip) and its checksum are found by name. With a file list, steps 3 to 5 run per
    missing file (see Delta updates).
-3. **Download.** Through the asset's API URL with `Accept: application/octet-stream` (works for a private repository;
+3. **Download.** Without a token through the public download link (API requests are limited to 60 an hour for
+   anonymous callers, fewer than a fresh install needs); with a token through the asset's API URL with
+   `Accept: application/octet-stream` (works for a private repository;
    HttpClient drops the token when GitHub redirects to its storage host). The file goes to `<name>.partial`; an
    identity file (asset id, size, upload time) makes sure a partial is only resumed for the same upload. Resume is a
    `Range` request; a server that answers 200 instead starts the file over; a dropped connection is retried up to
