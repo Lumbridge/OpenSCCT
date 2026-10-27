@@ -33,7 +33,7 @@ public sealed class GameSettingsTests : IDisposable
         Assert.Equal(1f, s.SpyKbm.Look);
         Assert.Equal(1f, s.MercKbm.Look);
         Assert.Equal(2.45f, s.MercKbm.ScopeVertical);
-        Assert.False(s.Pad.Enabled);
+        Assert.True(s.Pad.Enabled);
         Assert.Equal(0.25f, s.Pad.DeadzoneLeft);
         Assert.Equal(0.15f, s.Pad.DeadzoneRight);
         Assert.Equal(0.75f, s.Pad.VerticalScale);

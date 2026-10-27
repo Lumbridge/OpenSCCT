@@ -211,7 +211,115 @@ public partial class OptionsMenu : Control
         g.AddChild(new Label { Text = "Detected" });
         g.AddChild(new Label { Name = "Pads", Text = names, Modulate = UiStyle.Dim });
         g.AddChild(new Control());
-        return Page("Controller", g);
+
+        var content = new VBoxContainer { Name = "ControllerContent", SizeFlagsHorizontal = SizeFlags.ExpandFill };
+        content.AddChild(g);
+        content.AddChild(new HSeparator());
+        GridContainer layout = Grid("PadLayout");
+        var side = new OptionButton { Name = "PadSide", CustomMinimumSize = new Vector2(320f, 0f), SizeFlagsHorizontal = SizeFlags.ExpandFill };
+        side.AddItem("Spy", (int)PlaySide.Spy);
+        side.AddItem("Mercenary", (int)PlaySide.Merc);
+        side.Selected = _padSide == PlaySide.Merc ? 1 : 0;
+        side.ItemSelected += index =>
+        {
+            _padSide = (PlaySide)side.GetItemId((int)index);
+            RebuildPadButtons();
+        };
+        layout.AddChild(new Label { Text = "Button layout", CustomMinimumSize = new Vector2(320f, 0f) });
+        layout.AddChild(side);
+        layout.AddChild(UiStyle.MenuButton("Reset buttons", ResetPadButtons, "ResetPadButtons"));
+        _controls["controller.layout_side"] = side;
+        content.AddChild(layout);
+        _padGrid = Grid("PadButtons");
+        content.AddChild(_padGrid);
+        RebuildPadButtons();
+        return Page("Controller", content);
+    }
+
+    /// <summary>The side whose controller buttons the Controller page shows.</summary>
+    private PlaySide _padSide = PlaySide.Spy;
+    private GridContainer? _padGrid;
+
+    /// <summary>Pad control names as the options list them.</summary>
+    private static string PadControlLabel(string control) => control switch
+    {
+        "LB" => "Left bumper",
+        "RB" => "Right bumper",
+        "LT" => "Left trigger",
+        "RT" => "Right trigger",
+        "LS" => "Left stick click",
+        "RS" => "Right stick click",
+        "DpadUp" => "D-pad up",
+        "DpadDown" => "D-pad down",
+        "DpadLeft" => "D-pad left",
+        "DpadRight" => "D-pad right",
+        "Back" => "Back / View",
+        "Start" => "Start / Menu",
+        _ => control + " button",
+    };
+
+    /// <summary>One row per pad control: what it does on the shown side (saved with Save, like the other settings).</summary>
+    private void RebuildPadButtons()
+    {
+        if (_padGrid is null)
+        {
+            return;
+        }
+
+        foreach (Node child in _padGrid.GetChildren())
+        {
+            _padGrid.RemoveChild(child);
+            child.QueueFree();
+        }
+
+        bool merc = _padSide == PlaySide.Merc;
+        Dictionary<string, string> buttons = _edit.Pad.ButtonsOf(merc);
+        List<(string Action, string Label)> choices = new KeyBindingsModel(_padSide).PadChoices();
+        foreach (string control in PadSettings.Controls)
+        {
+            string current = buttons.TryGetValue(control, out string? a) ? a : "";
+            var items = new List<(string Action, string Label)>(choices);
+            int selected = items.FindIndex(c => string.Equals(c.Action, current, StringComparison.OrdinalIgnoreCase));
+            if (selected < 0)
+            {
+                // An action this side's layout has no key for: kept, and shown as such.
+                items.Add((current, current + " (no key in this layout)"));
+                selected = items.Count - 1;
+            }
+
+            var option = new OptionButton
+            {
+                Name = "Pad_" + control, ClipText = true, CustomMinimumSize = new Vector2(320f, 0f), SizeFlagsHorizontal = SizeFlags.ExpandFill,
+            };
+            for (int i = 0; i < items.Count; i++)
+            {
+                option.AddItem(items[i].Label, i);
+            }
+
+            option.Selected = selected;
+            string c = control;
+            // The edited settings are read when chosen: Save swaps them for a fresh copy.
+            option.ItemSelected += index => _edit.Pad.ButtonsOf(merc)[c] = items[(int)index].Action;
+            _padGrid.AddChild(new Label { Text = PadControlLabel(control), CustomMinimumSize = new Vector2(320f, 0f) });
+            _padGrid.AddChild(option);
+            _padGrid.AddChild(new Control());
+            _controls["controller.buttons." + control] = option;
+        }
+    }
+
+    /// <summary>The shown side's controller buttons back to the defaults (saved with Save).</summary>
+    private void ResetPadButtons()
+    {
+        if (_padSide == PlaySide.Merc)
+        {
+            _edit.Pad.MercButtons = PadSettings.DefaultButtons();
+        }
+        else
+        {
+            _edit.Pad.SpyButtons = PadSettings.DefaultButtons();
+        }
+
+        RebuildPadButtons();
     }
 
     private Control DisplayPage()

@@ -108,9 +108,53 @@ public sealed class LookSettings
 /// <summary>Native controller settings (Reloaded's controller_* keys).</summary>
 public sealed class PadSettings
 {
+    /// <summary>On by default: a plugged-in controller works without a trip to the options.</summary>
     [JsonPropertyName("enabled")]
-    [Provenance(ProvenanceKind.Decoded, "spec/reloaded/FEATURES.md rl:input.pad: controller_enabled = false")]
-    public bool Enabled { get; set; }
+    [Provenance(ProvenanceKind.Estimated, "OpenSCCT choice: on by default (Reloaded's controller_enabled default is false, rl:input.pad)")]
+    public bool Enabled { get; set; } = true;
+
+    /// <summary>The pad controls a layout binds, in the order the options list them (Xbox names).</summary>
+    public static readonly string[] Controls =
+    [
+        "A", "B", "X", "Y", "LB", "RB", "LT", "RT", "LS", "RS", "DpadUp", "DpadDown", "DpadLeft", "DpadRight", "Start", "Back",
+    ];
+
+    /// <summary>The menu command (<c>ShowMenu</c>; Escape when the layout binds no key to it).</summary>
+    public const string MenuAction = "ShowMenu";
+
+    /// <summary>The prefix of a binding that presses a key directly (the hub's own keys, which are not layout commands).</summary>
+    public const string KeyPrefix = "Key:";
+
+    /// <summary>The default pad layout: stock action names on the usual pad positions (Reloaded's own is not decoded).</summary>
+    [Provenance(ProvenanceKind.Estimated, "Default pad layout per team not decoded (FEATURES open question 4)")]
+    public static Dictionary<string, string> DefaultButtons() => new(StringComparer.Ordinal)
+    {
+        ["A"] = "Jump",
+        ["B"] = "bCrouch",
+        ["X"] = "bUsing",
+        ["Y"] = "SwitchHeadset",
+        ["LB"] = "bUseBackToWall",
+        ["RB"] = "bRoll",
+        ["LT"] = "bAltFire",
+        ["RT"] = "bFire",
+        ["LS"] = "ChangeSpeed",
+        ["RS"] = "SwitchBinocularVision",
+        ["DpadUp"] = "WheelUp",
+        ["DpadDown"] = "WheelDown",
+        ["DpadLeft"] = "bFireMode",
+        ["DpadRight"] = "bReload",
+        ["Start"] = MenuAction,
+        ["Back"] = "DisplaySessionStatus",
+    };
+
+    /// <summary>The spy's pad layout: control name to action (a layout command or button, <see cref="KeyPrefix"/> + a key, or "" for none).</summary>
+    [JsonPropertyName("spy_buttons")]
+    public Dictionary<string, string> SpyButtons { get; set; } = DefaultButtons();
+
+    [JsonPropertyName("merc_buttons")]
+    public Dictionary<string, string> MercButtons { get; set; } = DefaultButtons();
+
+    public Dictionary<string, string> ButtonsOf(bool merc) => merc ? MercButtons : SpyButtons;
 
     [JsonPropertyName("move")]
     public bool Move { get; set; } = true;
@@ -163,6 +207,28 @@ public sealed class PadSettings
         RunThreshold = LookSettings.Range(RunThreshold, 0.1f, 1f);
         RumbleStrength = LookSettings.Range(RumbleStrength, 0f, 1f);
         LookSpeed = LookSettings.Range(LookSpeed, 50f, 5000f);
+        SpyButtons = CleanButtons(SpyButtons);
+        MercButtons = CleanButtons(MercButtons);
+    }
+
+    /// <summary>Known controls only; a control the file leaves out gets its default (an empty value stays unbound).</summary>
+    private static Dictionary<string, string> CleanButtons(Dictionary<string, string>? saved)
+    {
+        Dictionary<string, string> clean = DefaultButtons();
+        if (saved is null)
+        {
+            return clean;
+        }
+
+        foreach (string control in Controls)
+        {
+            if (saved.TryGetValue(control, out string? action))
+            {
+                clean[control] = action ?? "";
+            }
+        }
+
+        return clean;
     }
 }
 

@@ -63,6 +63,60 @@ public sealed class KeyBindingsModel
     public static string LabelOf(string command) =>
         BindingLabels.Label(command, (section, key) => UiStyle.Assets?.Localize("GUI", section, key, "") is { Length: > 0 } s ? s : null);
 
+    /// <summary>
+    /// What a controller button can do on this side: nothing, the menu, each bound key's action (named as the key list
+    /// names it; the action is the key's first command or button), then the hub's own keys.
+    /// </summary>
+    public List<(string Action, string Label)> PadChoices()
+    {
+        var choices = new List<(string Action, string Label)>
+        {
+            ("", "(nothing)"),
+            (OpenScctGame.Options.PadSettings.MenuAction, "Menu"),
+        };
+        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "", OpenScctGame.Options.PadSettings.MenuAction };
+        foreach (KeyBindingRow row in Rows())
+        {
+            foreach (OpenScctGame.Controls.KeyAction a in _bindings.Actions(row.Key))
+            {
+                if (a.Kind == OpenScctGame.Controls.KeyActionKind.Axis)
+                {
+                    continue;
+                }
+
+                if (seen.Add(a.Name))
+                {
+                    choices.Add((a.Name, row.Label));
+                }
+
+                break;
+            }
+        }
+
+        foreach ((string key, string label) in HubKeys)
+        {
+            choices.Add((OpenScctGame.Options.PadSettings.KeyPrefix + key, "Hub: " + label));
+        }
+
+        return choices;
+    }
+
+    /// <summary>The hub's own keys (HubHud), which are not layout commands.</summary>
+    public static readonly (string Key, string Label)[] HubKeys =
+    [
+        ("Enter", "chat"),
+        ("N", "back to the plaza"),
+        ("U", "use"),
+        ("X", "leave the activity"),
+        ("G", "emotes"),
+        ("P", "player list"),
+        ("O", "armoury"),
+        ("V", "vote"),
+        ("H", "watch"),
+        ("J", "play spy"),
+        ("K", "play mercenary"),
+    ];
+
     /// <summary>The command bound to <paramref name="key"/>, or null.</summary>
     public string? CommandOf(string key) => _bindings.Layout.Bindings.TryGetValue(key, out string? c) ? c : null;
 

@@ -46,6 +46,9 @@ public partial class App : Node
             AddChild(new BackgroundWindow { Name = "BackgroundWindow" });
         }
 
+        // Controller use of the menus (focus, B and Start back out).
+        AddChild(new OpenScctGame.Options.PadMenus());
+
         // The player's saved gear and the gear-change HUD line on every level the game loads (spec/additions/gear-change.md).
         OpenScctGame.Play.Session.PlayMapLoader.AddLevelServices = OpenScctGame.Play.GearServices.Install;
 

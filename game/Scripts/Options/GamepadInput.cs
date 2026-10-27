@@ -9,39 +9,50 @@ using OpenScctGame.Play.Session;
 namespace OpenScctGame.Options;
 
 /// <summary>
-/// Controller basics (rl:input.pad): the first connected Godot joypad (SDL mapping database) drives the local player
-/// through the side's key layout: the left stick holds the keys bound to BT_Up/Down/Left/Right (radial deadzone,
-/// optional eight-way snap), the right stick adds look counts (deadzone, response curve, vertical scale, the side's pad
-/// look multiplier), and the buttons press the keys bound to their actions. The spy toggles to running above the walk
-/// threshold. Defaults are Reloaded's (deadzones 0.25 and 0.15, vertical 0.75, walk threshold 0.95).
+/// Controller play (rl:input.pad): the controller in use (the last one that sent input, else the first connected)
+/// drives the local player through the side's key layout. The left stick holds the keys bound to BT_Up/Down/Left/Right
+/// (radial deadzone, optional eight-way snap), the right stick adds look counts (deadzone, response curve, vertical
+/// scale, the side's pad look multiplier), and each button presses the key its action is bound to in the side's pad
+/// layout (<see cref="PadSettings.SpyButtons"/>, <see cref="PadSettings.MercButtons"/>, remapped on the options'
+/// Controller page). Presses go in as real key and mouse events, so everything that reads keys (the play menu, the
+/// HUD's commands, the hub's keys) answers the pad as it answers the keyboard. The spy toggles to running above the
+/// walk threshold. Defaults are Reloaded's (deadzones 0.25 and 0.15, vertical 0.75, walk threshold 0.95).
 /// </summary>
 public partial class GamepadInput : Node
 {
-    /// <summary>The button layout (Reloaded's own pad layout is not decoded, FEATURES open question 4).</summary>
-    [Provenance(ProvenanceKind.Estimated, "Default pad layout per team not decoded; stock action names on the usual pad positions")]
-    public static readonly IReadOnlyDictionary<JoyButton, string> Buttons = new Dictionary<JoyButton, string>
+    /// <summary>The Godot buttons of the pad controls (the triggers are axes).</summary>
+    public static readonly IReadOnlyDictionary<string, JoyButton> Buttons = new Dictionary<string, JoyButton>(StringComparer.Ordinal)
     {
-        [JoyButton.A] = "Jump",
-        [JoyButton.B] = "bCrouch",
-        [JoyButton.X] = "bUsing",
-        [JoyButton.Y] = "SwitchHeadset",
-        [JoyButton.LeftShoulder] = "bUseBackToWall",
-        [JoyButton.RightShoulder] = "bRoll",
-        [JoyButton.LeftStick] = "ChangeSpeed",
-        [JoyButton.RightStick] = "SwitchBinocularVision",
-        [JoyButton.DpadUp] = "WheelUp",
-        [JoyButton.DpadDown] = "WheelDown",
-        [JoyButton.DpadLeft] = "bFireMode",
-        [JoyButton.DpadRight] = "bReload",
+        ["A"] = JoyButton.A,
+        ["B"] = JoyButton.B,
+        ["X"] = JoyButton.X,
+        ["Y"] = JoyButton.Y,
+        ["LB"] = JoyButton.LeftShoulder,
+        ["RB"] = JoyButton.RightShoulder,
+        ["LS"] = JoyButton.LeftStick,
+        ["RS"] = JoyButton.RightStick,
+        ["DpadUp"] = JoyButton.DpadUp,
+        ["DpadDown"] = JoyButton.DpadDown,
+        ["DpadLeft"] = JoyButton.DpadLeft,
+        ["DpadRight"] = JoyButton.DpadRight,
+        ["Start"] = JoyButton.Start,
+        ["Back"] = JoyButton.Back,
     };
 
-    /// <summary>Trigger presses: right fires, left alternate fires.</summary>
+    /// <summary>How far a trigger goes down before it counts as pressed.</summary>
     public const float TriggerPress = 0.5f;
 
-    private readonly HashSet<string> _held = new(StringComparer.OrdinalIgnoreCase);
+    /// <summary>How far the left stick leans before a direction key goes down.</summary>
+    public const float MovePress = 0.38f;
+
+    /// <summary>The key each held control (a pad control or a stick direction) pressed, so the release lifts that key.</summary>
+    private readonly Dictionary<string, string> _held = new(StringComparer.Ordinal);
     private readonly Dictionary<string, string?> _keyOf = new(StringComparer.OrdinalIgnoreCase);
     private InputBindings? _keysFor;
+    private bool _wasMerc;
     private bool _wasFast;
+
+    private static ulong s_drivenFrame = ulong.MaxValue;
 
     public GamepadInput()
     {
@@ -57,31 +68,35 @@ public partial class GamepadInput : Node
     /// <summary>The pad in use, or -1.</summary>
     public int Device { get; private set; } = -1;
 
+    /// <summary>True while a controller drives a player (this frame or the last): the menus leave its buttons alone.</summary>
+    public static bool Driving => s_drivenFrame != ulong.MaxValue && Engine.GetProcessFrames() - s_drivenFrame <= 1;
+
     public override void _Process(double delta)
     {
-        if (!Settings.Pad.Enabled || PlayInput is not { Enabled: true, Bindings: { } bindings } input)
+        if (!Settings.Pad.Enabled || PlayInput is not { Enabled: true, Bindings: { } bindings } input || Typing())
         {
             ReleaseAll();
             return;
         }
 
-        Godot.Collections.Array<int> pads = Godot.Input.GetConnectedJoypads();
-        Device = pads.Count > 0 ? pads[0] : -1;
+        Device = PadMenus.CurrentDevice();
         if (Device < 0)
         {
             ReleaseAll();
             return;
         }
 
-        if (!ReferenceEquals(_keysFor, bindings))
+        bool merc = Session?.LocalPawn is SPAWNDEFENSE;
+        if (!ReferenceEquals(_keysFor, bindings) || merc != _wasMerc)
         {
             ReleaseAll();
             _keyOf.Clear();
             _keysFor = bindings;
+            _wasMerc = merc;
         }
 
+        s_drivenFrame = Engine.GetProcessFrames();
         PadSettings pad = Settings.Pad;
-        bool merc = Session?.LocalPawn is SPAWNDEFENSE;
         if (pad.Move)
         {
             Vector2 move = Stick(JoyAxis.LeftX, JoyAxis.LeftY, pad.DeadzoneLeft);
@@ -92,10 +107,10 @@ public partial class GamepadInput : Node
                 move = new Vector2(Mathf.Cos(a), Mathf.Sin(a)) * move.Length();
             }
 
-            Hold(input, "BT_Up", move.Y < -0.38f);
-            Hold(input, "BT_Down", move.Y > 0.38f);
-            Hold(input, "BT_Left", move.X < -0.38f);
-            Hold(input, "BT_Right", move.X > 0.38f);
+            Hold(input, "MoveUp", "BT_Up", move.Y < -MovePress);
+            Hold(input, "MoveDown", "BT_Down", move.Y > MovePress);
+            Hold(input, "MoveLeft", "BT_Left", move.X < -MovePress);
+            Hold(input, "MoveRight", "BT_Right", move.X > MovePress);
             RunThreshold(input, merc, move.Length(), pad.RunThreshold);
         }
 
@@ -107,19 +122,30 @@ public partial class GamepadInput : Node
             float multiplier = merc ? group.Look : (session.LocalPawn?.WeaponLoaded ?? 0) > 0 ? group.Look : group.FreeLook;
             session.Input.MouseX += Response(look.X, group.LookResponse) * k * multiplier;
             session.Input.MouseY -= Response(look.Y, group.LookResponse) * k * multiplier * pad.VerticalScale;
+            if (look != Vector2.Zero)
+            {
+                Capture(input);
+            }
         }
 
         if (pad.Binds)
         {
-            foreach ((JoyButton button, string action) in Buttons)
+            foreach ((string control, string action) in pad.ButtonsOf(merc))
             {
-                Hold(input, action, Godot.Input.IsJoyButtonPressed(Device, button));
+                Hold(input, control, action, IsDown(Device, control));
             }
-
-            Hold(input, "bFire", Godot.Input.GetJoyAxis(Device, JoyAxis.TriggerRight) > TriggerPress);
-            Hold(input, "bAltFire", Godot.Input.GetJoyAxis(Device, JoyAxis.TriggerLeft) > TriggerPress);
         }
     }
+
+    public override void _ExitTree() => ReleaseAll();
+
+    /// <summary>A pad control is down: a button, or a trigger past <see cref="TriggerPress"/>.</summary>
+    public static bool IsDown(int device, string control) => control switch
+    {
+        "LT" => Godot.Input.GetJoyAxis(device, JoyAxis.TriggerLeft) > TriggerPress,
+        "RT" => Godot.Input.GetJoyAxis(device, JoyAxis.TriggerRight) > TriggerPress,
+        _ => Buttons.TryGetValue(control, out JoyButton b) && Godot.Input.IsJoyButtonPressed(device, b),
+    };
 
     /// <summary>A stick with a radial deadzone, rescaled so the edge of the deadzone is 0.</summary>
     public Vector2 Stick(JoyAxis x, JoyAxis y, float deadzone)
@@ -165,6 +191,31 @@ public partial class GamepadInput : Node
         return Math.Sign(v) * (0.75f + t * (top - 0.75f));
     }
 
+    /// <summary>Sends a key or mouse button (IK name) as a real Godot event, as the keyboard or mouse would.</summary>
+    public static void Send(Viewport? viewport, string ik, bool down)
+    {
+        switch (GodotKeys.ToEvent(ik))
+        {
+            case InputEventKey key:
+                // Some handlers read Keycode (the hub), others PhysicalKeycode (the play input).
+                key.Keycode = key.PhysicalKeycode;
+                key.Pressed = down;
+                Godot.Input.ParseInputEvent(key);
+                break;
+            case InputEventMouseButton button:
+                // A captured pointer clicks at the middle of the window.
+                Vector2 middle = viewport is null ? Vector2.Zero : viewport.GetVisibleRect().Size / 2f;
+                button.Position = middle;
+                button.GlobalPosition = middle;
+                button.Pressed = down;
+                Godot.Input.ParseInputEvent(button);
+                break;
+        }
+    }
+
+    /// <summary>A text field has the keys (the chat line): the pad must not type into it.</summary>
+    private bool Typing() => GetViewport()?.GuiGetFocusOwner() is LineEdit or TextEdit;
+
     /// <summary>
     /// The spy's automatic run: above the walk threshold the spy runs, below it walks (ChangeSpeed toggles
     /// SPlayerController.bFastSpeed). Mercs have no speed toggle.
@@ -179,33 +230,72 @@ public partial class GamepadInput : Node
         bool fast = deflection >= threshold;
         if (fast != pc.bFastSpeed && fast != _wasFast && KeyFor(input, "ChangeSpeed") is { } key)
         {
-            input.Key(key, true);
-            input.Key(key, false);
+            Capture(input);
+            Send(GetViewport(), key, true);
+            Send(GetViewport(), key, false);
         }
 
         _wasFast = fast;
     }
 
-    /// <summary>Holds or releases the first key the layout binds to <paramref name="action"/> (a button byte or a command).</summary>
-    private void Hold(PlayInput input, string action, bool down)
+    /// <summary>Holds or releases the key the layout binds to <paramref name="action"/> for one control.</summary>
+    private void Hold(PlayInput input, string control, string action, bool down)
     {
-        if (KeyFor(input, action) is not { } key)
+        if (down)
         {
-            return;
-        }
+            if (_held.ContainsKey(control) || KeyFor(input, action) is not { } key)
+            {
+                return;
+            }
 
-        if (down && _held.Add(action))
-        {
-            input.Key(key, true);
+            if (!string.Equals(action, PadSettings.MenuAction, StringComparison.OrdinalIgnoreCase))
+            {
+                Capture(input);
+            }
+
+            Send(GetViewport(), key, true);
+            if (key.StartsWith("MouseWheel", StringComparison.OrdinalIgnoreCase))
+            {
+                // The wheel has no hold: one notch per press.
+                Send(GetViewport(), key, false);
+            }
+
+            _held[control] = key;
         }
-        else if (!down && _held.Remove(action))
+        else if (_held.Remove(control, out string? key) && !key.StartsWith("MouseWheel", StringComparison.OrdinalIgnoreCase))
         {
-            input.Key(key, false);
+            Send(GetViewport(), key, false);
         }
     }
 
+    /// <summary>
+    /// The play input reads keys only while the pointer is captured (the mouse's first click takes it): pad play
+    /// takes it the same way.
+    /// </summary>
+    private static void Capture(PlayInput input)
+    {
+        if (input.RequireCapture && input.CapturePointer && !input.IsCaptured && DisplayServer.GetName() != "headless")
+        {
+            Pointer.Capture();
+        }
+    }
+
+    /// <summary>
+    /// The key that runs <paramref name="action"/> in the layout: the first key bound to that command or button, the
+    /// key itself for a <see cref="PadSettings.KeyPrefix"/> binding, Escape for the menu when no key runs ShowMenu.
+    /// </summary>
     private string? KeyFor(PlayInput input, string action)
     {
+        if (action.Length == 0)
+        {
+            return null;
+        }
+
+        if (action.StartsWith(PadSettings.KeyPrefix, StringComparison.OrdinalIgnoreCase))
+        {
+            return action[PadSettings.KeyPrefix.Length..];
+        }
+
         if (_keyOf.TryGetValue(action, out string? cached))
         {
             return cached;
@@ -232,20 +322,28 @@ public partial class GamepadInput : Node
             }
         }
 
+        if (found is null && string.Equals(action, PadSettings.MenuAction, StringComparison.OrdinalIgnoreCase))
+        {
+            found = "Escape";
+        }
+
         _keyOf[action] = found;
         return found;
     }
 
     private void ReleaseAll()
     {
-        if (PlayInput is { } input)
+        if (_held.Count == 0)
         {
-            foreach (string action in _held)
+            return;
+        }
+
+        Viewport? viewport = IsInsideTree() ? GetViewport() : null;
+        foreach (string key in _held.Values)
+        {
+            if (!key.StartsWith("MouseWheel", StringComparison.OrdinalIgnoreCase))
             {
-                if (_keyOf.TryGetValue(action, out string? key) && key is not null)
-                {
-                    input.Key(key, false);
-                }
+                Send(viewport, key, false);
             }
         }
 
