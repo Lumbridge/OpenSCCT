@@ -5,6 +5,7 @@ using OpenScct.Content;
 using OpenScct.Content.Loading;
 using OpenScct.Core;
 using OpenScct.Core.Engine;
+using OpenScct.Game.Devices;
 using OpenScct.Game.SBase;
 using OpenScct.Provenance;
 using OpenScctGame.Render;
@@ -16,9 +17,9 @@ namespace OpenScctGame.Views;
 
 /// <summary>
 /// Draws the client world's devices over the built map: every gameplay mesh node of <see cref="RenderMap.Gameplay"/>
-/// follows its simulated actor (movers move, hidden actors hide, a changed StaticMesh swaps the node's mesh), and
-/// every SAnimatedMesh (SteeE's crane and blast wall) is a skeletal model that shows and hides with the actor and
-/// starts the sequence its replicated SimAnim names. Reads the simulation and never writes it.
+/// follows its simulated actor (movers move, swimming fish swim, hidden actors hide, a changed StaticMesh swaps the
+/// node's mesh), and every SAnimatedMesh and skeletal fish is a skeletal model that shows and hides with the actor
+/// and plays its animation channel. Reads the simulation and never writes it.
 /// </summary>
 public sealed class DeviceViews
 {
@@ -63,9 +64,9 @@ public sealed class DeviceViews
                 _lights.Add(new LightSwitch(record.Id, light));
             }
 
-            if (actor is SAnimatedMesh animated && !animated.Mesh.IsNone)
+            if (IsSkeletal(actor))
             {
-                string asset = animated.Mesh.Path!;
+                string asset = actor.Mesh.Path!;
                 string? glb = SkeletalModel.FindGlb(asset, sharedRoot ?? map.SharedRoot);
                 if (glb is null)
                 {
@@ -76,10 +77,18 @@ public sealed class DeviceViews
                 SkeletalModel model = SkeletalModel.Load(glb);
                 model.Root.Name = record.Id;
                 parent.AddChild(model.Root);
-                _animated.Add(new AnimatedMeshView(record.Id, animated, model, map));
+                _animated.Add(new AnimatedMeshView(record.Id, actor, model, map));
             }
         }
     }
+
+    /// <summary>
+    /// The skeletal mesh actors drawn as models: every SAnimatedMesh (the map props of the anim packages) and the fish
+    /// drawn with a mesh (DT_Mesh: sharks, mantas, dolphins). Fish drawn with a static mesh are gameplay nodes.
+    /// </summary>
+    private static bool IsSkeletal(Actor actor) =>
+        !actor.Mesh.IsNone &&
+        (actor is SAnimatedMesh || (actor is SFish or SFish_Follow && actor.DrawType == EDrawType.DT_Mesh));
 
     /// <summary>The followed gameplay mesh nodes.</summary>
     public IReadOnlyList<MeshFollower> Meshes => _meshes;
@@ -240,7 +249,7 @@ public sealed class DeviceViews
 
         foreach (AnimatedMeshView a in _animated)
         {
-            a.Draw(dt);
+            a.Draw(alpha, dt);
         }
     }
 
@@ -443,26 +452,43 @@ public sealed class MeshFollower
     }
 }
 
+
 /// <summary>
-/// An SAnimatedMesh drawn as its skeletal model: shown while the actor is not hidden, and playing the sequence of
-/// the actor's replicated SimAnim from its start when the server starts it (a rate above 0 after a frozen or
-/// different channel), held at the replicated frame while frozen.
+/// A skeletal mesh actor drawn as its skeletal model, shown while the actor is not hidden. An SAnimatedMesh shows its
+/// animation channel (the client's proxy plays what the server's SimAnim says, backwards and looping included), drawn
+/// ahead from the last tick at the channel's rate; a skeletal fish loops the sequence its script last chose
+/// (AnimsFish) and is drawn between its last two ticks as it swims.
 /// </summary>
 public sealed class AnimatedMeshView
 {
-    private readonly SAnimatedMesh _actor;
+    private readonly Actor _actor;
+    private readonly SAnimatedMesh? _mesh;
     private readonly RenderMap _map;
-    private FAnimRep _rep;
-    private bool _bound;
+    private MeshAnimSequence? _sequence;
+    private string _sequenceName = "";
+    private float _frame;
+    private float _frameRate;
+    private bool _loop;
+    private float _since;
+    private float _posedFrame = -1f;
+    private Name _looped;
+    private int _loopStarts;
+    private FVector _prevLocation;
+    private FVector _location;
+    private FRotator _prevRotation;
+    private FRotator _rotation;
     private bool _lit;
 
-    internal AnimatedMeshView(string id, SAnimatedMesh actor, SkeletalModel model, RenderMap map)
+    internal AnimatedMeshView(string id, Actor actor, SkeletalModel model, RenderMap map)
     {
         Id = id;
         _actor = actor;
+        _mesh = actor as SAnimatedMesh;
         Model = model;
         _map = map;
-        Place();
+        _prevLocation = _location = actor.Location;
+        _prevRotation = _rotation = actor.Rotation;
+        Place(1f);
         OnTick();
     }
 
@@ -470,10 +496,10 @@ public sealed class AnimatedMeshView
 
     public SkeletalModel Model { get; }
 
-    public SAnimatedMesh Actor => _actor;
+    public Actor Actor => _actor;
 
-    /// <summary>Times the view started a sequence (not counting frozen holds).</summary>
-    public int Starts { get; private set; }
+    /// <summary>Sequences the drawn channel started (an SAnimatedMesh's channel starts, a fish's loop changes).</summary>
+    public int Starts => _mesh?.AnimStarts ?? _loopStarts;
 
     /// <summary>The sequence the model plays or holds, or null.</summary>
     public string? Sequence => Model.Sampler.Current?.Name;
@@ -483,38 +509,39 @@ public sealed class AnimatedMeshView
 
     public bool Visible => Model.Root.Visible;
 
-    [Provenance(ProvenanceKind.Estimated, "Client start rule: a SimAnim with rate above 0 that differs from the last one starts the sequence (UE2 client anim replication)")]
     internal void OnTick()
     {
-        FAnimRep rep = _actor.SimAnim;
-        if (_bound && rep == _rep)
+        _prevLocation = _location;
+        _prevRotation = _rotation;
+        _location = _actor.Location;
+        _rotation = _actor.Rotation;
+        if (_mesh is not null)
         {
+            _sequence = _mesh.AnimSequence;
+            _frame = _mesh.AnimFrame;
+            _frameRate = _mesh.AnimFrameRate;
+            _loop = _mesh.AnimLooping;
+            _since = 0f;
             return;
         }
 
-        bool start = rep.AnimRate > 0 && (!_bound || rep.AnimSequence != _rep.AnimSequence || _rep.AnimRate == 0);
-        _rep = rep;
-        _bound = true;
-        if (rep.AnimSequence.IsNone)
+        Name looped = _actor switch
         {
-            return;
-        }
-
-        string sequence = rep.AnimSequence.ToString();
-        if (start)
+            SFish fish => fish.LoopedAnim,
+            SFish_Follow follower => follower.LoopedAnim,
+            _ => default,
+        };
+        if (looped != _looped)
         {
-            if (Model.Sampler.Play(sequence, rep.AnimRate / 64f, rep.AnimLoop != 0, rep.AnimFrame / 255f))
+            _looped = looped;
+            if (!looped.IsNone && Model.Sampler.Play(looped.ToString(), 1f, true))
             {
-                Starts++;
+                _loopStarts++;
             }
-        }
-        else if (rep.AnimRate == 0)
-        {
-            Model.Sampler.Play(sequence, 0f, false, rep.AnimFrame / 255f);
         }
     }
 
-    internal void Draw(float dt)
+    internal void Draw(float alpha, float dt)
     {
         bool visible = !_actor.bHidden && !_actor.bDeleteMe && _actor.DrawType == EDrawType.DT_Mesh;
         Model.Root.Visible = visible;
@@ -523,9 +550,17 @@ public sealed class AnimatedMeshView
             return;
         }
 
-        Place();
-        Model.Sampler.Advance(dt);
-        Model.Pose();
+        Place(alpha);
+        if (_mesh is null)
+        {
+            Model.Sampler.Advance(dt);
+            Model.Pose();
+        }
+        else
+        {
+            DrawChannel(dt);
+        }
+
         if (!_lit)
         {
             _lit = true;
@@ -534,5 +569,52 @@ public sealed class AnimatedMeshView
         }
     }
 
-    private void Place() => Model.Place(_actor.Location, _actor.Rotation, _actor.PrePivot, _actor.DrawScale);
+    /// <summary>
+    /// The channel's frame (normalised over the sequence's N frames, ending at (N - 1) / N) carried on from the last
+    /// tick, as the sampler's frame (normalised over the clip, which ends at the last frame). Posed only when it moved.
+    /// </summary>
+    private void DrawChannel(float dt)
+    {
+        if (_sequence is not { NumFrames: > 1 } sequence)
+        {
+            return;
+        }
+
+        _since += dt;
+        float end = (sequence.NumFrames - 1) / (float)sequence.NumFrames;
+        float frame = _frame + (_frameRate * _since);
+        if (_loop && frame > end)
+        {
+            frame %= end;
+        }
+
+        frame = Math.Clamp(frame, 0f, end) / end;
+        string name = sequence.Name.ToString();
+        bool changed = !string.Equals(name, _sequenceName, StringComparison.Ordinal);
+        if (!changed && frame == _posedFrame)
+        {
+            return;
+        }
+
+        if (!Model.Sampler.Play(name, 0f, false, frame))
+        {
+            return;
+        }
+
+        _sequenceName = name;
+        _posedFrame = frame;
+        Model.Pose();
+    }
+
+    [Provenance(ProvenanceKind.Estimated, "Skeletal props drawn between the last two ticks (linear location, shortest-way rotation)")]
+    private void Place(float alpha)
+    {
+        float a = Math.Clamp(alpha, 0f, 1f);
+        FVector location = _prevLocation + ((_location - _prevLocation) * a);
+        var rotation = new FRotator(
+            _prevRotation.Pitch + (int)(FRotator.NormalizeAxis(_rotation.Pitch - _prevRotation.Pitch) * a),
+            _prevRotation.Yaw + (int)(FRotator.NormalizeAxis(_rotation.Yaw - _prevRotation.Yaw) * a),
+            _prevRotation.Roll + (int)(FRotator.NormalizeAxis(_rotation.Roll - _prevRotation.Roll) * a));
+        Model.Place(location, rotation, _actor.PrePivot, _actor.DrawScale);
+    }
 }

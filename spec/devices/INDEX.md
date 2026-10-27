@@ -4,7 +4,7 @@ Behaviour specs for the map devices SteeE uses: event dispatch, movers, triggers
 switches, magic events, gameplay objects, glass, extinguishers, damage volumes, stations, hint zones, the camera
 network, sound devices, zones and volumes, security control zones, help paths, sprinklers, and the SteeE chains (crane timeline) that compose them.
 
-Total units specced: 518.
+Total units specced: 536.
 network, laser tripwires and volumetric sensors, sound devices, and the SteeE chains (crane timeline) that compose them.
 
 
@@ -16,7 +16,7 @@ network, laser tripwires and volumetric sensors, sound devices, and the SteeE ch
 | [mover.md](mover.md) | Mover | 97 | 1 def, 3 nat, 5 rep, 88 uc |
 | [triggers.md](triggers.md) | Proximity triggers: Trigger and SPresenceTrigger | 20 | 3 def, 2 nat, 15 uc |
 | [sound-music.md](sound-music.md) | Sound devices: SoundTrigger, SAmbientSoundTrigger, MusicTrigger | 17 | 3 def, 5 nat, 1 rep, 8 uc |
-| [animated-mesh.md](animated-mesh.md) | SAnimatedMesh and animation notifies | 17 | 3 def, 3 nat, 11 uc |
+| [animated-mesh.md](animated-mesh.md) | SAnimatedMesh and animation notifies | 18 | 4 def, 3 nat, 11 uc |
 | [shaker.md](shaker.md) | SShaker (camera shake on an event) | 9 | 1 def, 1 nat, 1 rep, 6 uc |
 | [ge-trigger.md](ge-trigger.md) | SGETrigger (traversal element activation mask) | 4 | 1 def, 1 rep, 2 uc |
 | [magic-event.md](magic-event.md) | SMagicEvent (delayed event groups) | 5 | 1 def, 1 nat, 3 uc |
@@ -35,6 +35,7 @@ network, laser tripwires and volumetric sensors, sound devices, and the SteeE ch
 | [gpo-control.md](gpo-control.md) | SGPOControl (security control zone) | 10 | 1 def, 3 rep, 6 uc |
 | [help-path.md](help-path.md) | SHelpPath (in-game help markers) | 2 | 2 uc |
 | [sprinkler.md](sprinkler.md) | SSprinkler and SFlaque (sprinklers and puddles) | 15 | 2 def, 2 rep, 11 uc |
+| [fish.md](fish.md) | SFish, SFish_Big and SFish_Follow (aquarium fish) | 17 | 3 def, 14 uc |
 | [alarm.md](alarm.md) | SAlarm (map alarms: locks, events, HUD alarm) | 35 | 1 def, 2 eng, 2 nat, 4 rep, 26 uc |
 | [message-trigger.md](message-trigger.md) | SMessageTrigger (map text messages) | 6 | 1 def, 1 rep, 4 uc |
 | [notify-noise.md](notify-noise.md) | SNotifyNoise (repeating noise marker) | 10 | 1 def, 2 rep, 7 uc |

@@ -48,7 +48,11 @@ Without the pack the client still draws, with a seeded stand-in grain, no therma
 - Skeletal props (`SAnimatedMesh`, DrawType DT_Mesh with a mesh from the shared packs) are placed by
   `AnimatedProps.Build` at the first frame of their first sequence and lit for their mesh's bounding sphere (the
   crane, at DrawScale 10, reaches 2440 uu from its centre). Skinned meshes cull with a 64 m margin, since the pose
-  moves vertices away from the rest box.
+  moves vertices away from the rest box. In play, `DeviceViews` draws every SAnimatedMesh (all 54 placed meshes of
+  the map anim packages are exported by the chars step, `charconv.MAP_PROP_SETS`) and the skeletal fish: a prop
+  shows its actor's animation channel (backwards and looping included, the client's proxy follows the server's
+  SimAnim), a fish loops the AnimsFish sequence its script chose and is drawn between ticks as it swims. Static-mesh
+  fish are gameplay nodes that follow their actor (spec/devices/fish.md).
 - `RenderMap.Actors` holds `sim/gameplay.json` over `sim/classes.json`; `MtvSlope` and `MtvOffset` come from its
   LevelInfo.
 - `RenderMap.SwapMeshes`: the meshes gameplay objects change to at run time (SGamePlayObject `TriggeredMesh` and
@@ -520,5 +524,6 @@ Both need `.content/` (converted content and the render pack), so CI's default s
 - Not drawn yet: projectors (`fx.json` projectors are empty on SteeE), light beams, the glow pyramid, mirrors,
   MeshEmitter / BeamEmitter / SparkEmitter, map LE_ESpotShadow lights through the spot slot (SteeE's one has no
   cookie), more than one spot shadow light at a time.
-- Some self-lit signs read darker than the original; the crane SAnimatedMesh is posed at its first frame only.
+- Some self-lit signs read darker than the original; the crane SAnimatedMesh is posed at its first frame only in the
+  render-only views (AnimatedProps.Build; play animates it).
 - The pawn's pose uses the base channel only (blend channels are not mixed), so pawns differ slightly in the goldens.

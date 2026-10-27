@@ -15,6 +15,7 @@ Units:
 - uc:Engine.AnimNotify_Trigger:Notify
 - def:Engine.AnimNotify_Trigger
 - def:Engine.AnimNotify_Sound
+- def:Engine.AnimNotify_StopSound
 - nat:Engine.Actor.AttachToBone
 - nat:Engine.Actor.FreezeAnimAt
 - nat:Engine.Actor.PlayAnim
@@ -88,6 +89,8 @@ notify object.
     rule 2.
 12. `AnimNotify_Sound.Notify` (native): plays `Sound` at the owner (or at `BoneName` when set) with `Volume` and
     `Radius`. Native, so it runs on every machine that updates the animation: each client hears it locally.
+    `AnimNotify_StopSound.Notify` (native, body not decoded) stops its `Sound` on the owner (RiveD's
+    `MAL_anm.ventilateur_mesh` fan ends its loop with it).
 
 ## States
 
@@ -138,6 +141,12 @@ flare sprites (`sfx.Flare.def_flare`, DrawScale 2): aircraft warning lamps on th
   the same sequence; `bHidden` replicates through the Actor rules (the wall appearing). The class is
   `nativereplication`, so the exact list is native.
 - Server: triggers, state changes, notify events (rule 11), `AnimEnd`-driven state.
+- This port's SimAnim (estimated; the native replication is not decoded): `PlayAnim` sends the sequence, rate x 64
+  and start frame 0, or 255 for a backward play (it starts at the end); a play with plays of the same sequence left
+  sets `AnimLoop`; the end of a one-shot sends rate 0 and the end frame, unless `AnimEnd` plays again in that tick.
+  A client's proxy plays its own channel from it (a rate above 0 after a held channel or another sequence starts it,
+  rate 0 holds the frame, `AnimLoop` wraps it at the end), so its notify sounds play locally and the views draw that
+  channel.
 - Every machine: bone attachments (rule 1 runs before the authority check), notify sounds (rule 12), the pose.
 
 ## Edge cases
