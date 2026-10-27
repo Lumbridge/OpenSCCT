@@ -70,6 +70,7 @@ internal sealed class MainForm : Form
     private string _notesText = "Checking for releases...";
     private Control? _root;
     private bool _fitPending;
+    private bool _fitting;
     private Control? _more;
 
     private readonly Button _changeGame = Theme.Button("Change...");
@@ -198,9 +199,10 @@ internal sealed class MainForm : Form
 
         // Contents grow after the first fit (the launcher banner, an update line, a long status): grow the window
         // again once that layout has settled, so the big button is never cut off.
+        // FitToContent lays the root out itself: the layouts it causes are ignored, or each fit would queue the next.
         root.Layout += (_, _) =>
         {
-            if (_fitPending || !IsHandleCreated)
+            if (_fitPending || _fitting || !IsHandleCreated)
             {
                 return;
             }
@@ -208,8 +210,16 @@ internal sealed class MainForm : Form
             _fitPending = true;
             BeginInvoke(() =>
             {
-                _fitPending = false;
-                Theme.FitToContent(this, root);
+                _fitting = true;
+                try
+                {
+                    Theme.FitToContent(this, root);
+                }
+                finally
+                {
+                    _fitting = false;
+                    _fitPending = false;
+                }
             });
         };
 
