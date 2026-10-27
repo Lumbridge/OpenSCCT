@@ -27,11 +27,15 @@ internal static class DiscordAuth
         return http;
     }
 
-    /// <summary>Discord's authorize page for the sign-in <paramref name="state"/> (the link code).</summary>
+    /// <summary>
+    /// Discord's authorize page for the sign-in <paramref name="state"/> (the link code). <c>prompt=consent</c> makes
+    /// Discord show its Authorize button every time; with <c>prompt=none</c> a player who had authorised the app before
+    /// was sent straight back and signed in without pressing anything.
+    /// </summary>
     public static string AuthorizeUrl(MasterOptions options, string state) =>
         options.Discord.AuthorizeUrl + "?client_id=" + Uri.EscapeDataString(options.Discord.ClientId ?? string.Empty) +
         "&response_type=code&redirect_uri=" + Uri.EscapeDataString(options.DiscordRedirectUrl) +
-        "&scope=identify&state=" + Uri.EscapeDataString(state) + "&prompt=none";
+        "&scope=identify&state=" + Uri.EscapeDataString(state) + "&prompt=consent";
 
     /// <summary>Trades the callback's <paramref name="code"/> for a token and reads the user's id with it.</summary>
     public static async Task<string> IdentifyAsync(MasterOptions options, string code, CancellationToken cancellationToken)
