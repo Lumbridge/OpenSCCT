@@ -1690,6 +1690,9 @@ def build_all(chars_dir: Path) -> dict:
               for p in PATTERNS if PATTERNS[p][0] != "skeleton" or spy_mesh.is_file()]
     workers = max(1, min(os.cpu_count() or 1, 12))
     with cf.ProcessPoolExecutor(max_workers=workers, mp_context=mp.get_context("spawn")) as pool:
-        done = list(pool.map(_paint_job, jobs, chunksize=1))
-        done_thumbs = list(pool.map(_thumb_job, thumbs, chunksize=1))
+        # Queued together, so the swatches fill the workers the last camos leave idle.
+        camo_futures = [pool.submit(_paint_job, j) for j in jobs]
+        thumb_futures = [pool.submit(_thumb_job, t) for t in thumbs]
+        done = [f.result() for f in camo_futures]
+        done_thumbs = [f.result() for f in thumb_futures]
     return {"camos": len(done), "thumbs": len(done_thumbs), "skipped": skipped}
