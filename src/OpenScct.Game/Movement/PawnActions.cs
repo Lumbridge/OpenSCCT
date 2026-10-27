@@ -205,7 +205,9 @@ public static class PawnActions
 
     /// <summary>
     /// A draw or holster: the clip on the draw channel (AnimEnd 14 ends the weapon transit) and the weapon state
-    /// (equipment's SetWeaponLoaded, at the start of the clip here).
+    /// (equipment's SetWeaponLoaded, at the start of the clip here). The spy's holster is the exception: its clip's
+    /// NotifyUndrawWeapon sets 4 and the pistol's AnimEnd sets 0 (spy-shocker.md rules 4 and 5), so the weapon stays
+    /// out until then (the heart sensor keeps scanning meanwhile, as in the original).
     /// </summary>
     [Provenance(ProvenanceKind.Estimated, "When in the clip the weapon is loaded belongs to the equipment port (draw notifies)")]
     private static void Draw(SBasePawn pawn, Name sequence, int weaponLoaded, float rate = 1f)
@@ -216,7 +218,14 @@ public static class PawnActions
             Once(pawn, SBasePawn.DRAWCHANNEL, sequence, 0f, rate);
         }
 
-        MovementService.HooksOf(pawn).SetWeaponLoaded(pawn, weaponLoaded);
+        // Only when the holster clip is really playing with its notifies; otherwise unload at once as before.
+        PawnAnimChannel draw = pawn.PawnAnim[SBasePawn.DRAWCHANNEL];
+        bool spyHolsterByNotify = weaponLoaded == 0 && !sequence.IsNone && pawn is SPawnAttaque { MyWeapon: SWeaponAttaque } &&
+            draw.Sequence == sequence && draw.bAnimNotify;
+        if (!spyHolsterByNotify)
+        {
+            MovementService.HooksOf(pawn).SetWeaponLoaded(pawn, weaponLoaded);
+        }
 
         // The spy's holster clip notify NotifyUndrawWeapon (spy-shocker.md rule 5) also asks for the laser off, so a
         // later hold draw, the cam leave or another laser state does not bring back the old request.

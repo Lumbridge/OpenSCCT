@@ -23,6 +23,7 @@ public static class MovementNotifies
     private static readonly Name NotifyDrawUndrawWeapon = new("NotifyDrawUndrawWeapon");
     private static readonly Name NotifyChangeHandWeapon = new("NotifyChangeHandWeapon");
     private static readonly Name AnimNotifyThrow = new("AnimNotifyThrow");
+    private static readonly Name NotifyUndrawWeapon = new("NotifyUndrawWeapon");
 
     /// <summary>Registers the movement notifies with <paramref name="level"/>'s handlers (again is harmless).</summary>
     public static void Install(Level level)
@@ -40,5 +41,14 @@ public static class MovementNotifies
         handlers.Register(NotifyDrawUndrawWeapon, a => (a as SBasePawn)?.BtwDrawNotify(bChangeHand: false));
         handlers.Register(NotifyChangeHandWeapon, a => (a as SBasePawn)?.BtwDrawNotify(bChangeHand: true));
         handlers.Register(AnimNotifyThrow, a => (a as SBasePawn)?.AnimNotifyThrow());
+
+        // The spy's holster clips (DrawStSpEd2, DrawCrSpEd2): the pistol goes away (4), its AnimEnd unloads it (0).
+        handlers.Register(NotifyUndrawWeapon, a =>
+        {
+            if (a is SPawnAttaque spy)
+            {
+                Equipment.PawnWeapons.NotifyUndrawWeapon(spy);
+            }
+        });
     }
 }

@@ -59,6 +59,9 @@ None.
 ## Edge cases
 - Holstering, or selecting another gadget, stops the scan without clearing the marks: the radar keeps showing the
   last result until the next scan.
+- Holstering does not stop it at the key press: WeaponLoaded stays non-zero until the holster clip's
+  NotifyUndrawWeapon (about 0.15 s in) sets 4 and the pistol's backward draw clip ends (4 frames at 15 fps), so the
+  scan and the cone run on for about 0.4 s (spy-shocker.md rules 4 and 5).
 - The cone uses the controller rotation (the camera), not the pawn's facing.
 
 ## Evidence
