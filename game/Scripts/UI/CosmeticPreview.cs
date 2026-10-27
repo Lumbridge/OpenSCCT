@@ -4,6 +4,7 @@ using OpenScct.Net.Cosmetics;
 using OpenScctGame.Render;
 using OpenScctGame.Render.Characters;
 using OpenScctGame.Render.Materials;
+using OpenScctGame.Render.Post;
 
 namespace OpenScctGame.UI;
 
@@ -62,7 +63,17 @@ public partial class CosmeticPreview : Control
         container.AddChild(_viewport);
         _turntable = new Node3D { Name = "Turntable" };
         _viewport.AddChild(_turntable);
-        _camera = new Camera3D { Name = "Camera", Fov = FieldOfView, Near = 0.02f, Far = 100f, Current = true };
+        // The materials write display values, as in the game: the game's post pass turns them into linear light, or
+        // every colour would be sRGB-encoded twice (washed out, reds turning pink).
+        _camera = new Camera3D
+        {
+            Name = "Camera", Fov = FieldOfView, Near = 0.02f, Far = 100f, Current = true,
+            Environment = FaithfulView.CreateEnvironment(), Attributes = FaithfulView.CreateAttributes(),
+            Compositor = new Compositor
+            {
+                CompositorEffects = [new DisplaySpaceEffect { Settings = new DisplayPostSettings { GlowGate = false } }],
+            },
+        };
         _viewport.AddChild(_camera);
         _flat = new TextureRect
         {

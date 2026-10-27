@@ -61,6 +61,8 @@ PATTERNS: dict[str, tuple[str, list[int]]] = {
     "mastercraft": ("mastercraft", [0x2A1E0A, 0x9A7020, 0xE6B840, 0xFFF2B0]),
     "flashbang": ("flashes", [0x0C0E12, 0x3A4250, 0xBFD8FF, 0xFFFFFF]),
     "skeleton": ("skeleton", [0x0A0A0C, 0xE6DFC8, 0x8C846C, 0x030303]),
+    "galaxy": ("galaxy", [0x020206, 0x061436, 0x10328C, 0x5A24B0, 0xD040A8, 0x8AE0FF, 0xF4F6FF]),
+    "inferno": ("inferno", [0x0A0A0C, 0x6A0C02, 0xC82408, 0xF07010, 0xFFC038, 0xFFF4B8]),
 }
 
 # Base maps and their palettes. Keep in step with CosmeticCatalog.Maps.
@@ -89,17 +91,20 @@ for _code, _palette in MAPS.items():
 
 _LADDER = ["woodland", "desert", "digital", "red_tiger", "blue_tiger"]
 _MAP_PATTERNS = ["map_" + c.lower() for c in MAPS]
-_SPY_EXTRA = ["smoke", "chaff", "turnabout", "minefield", "gadgeteer", "mastercraft", "flashbang"]
+# The spy suits beyond the ladder: Galaxy and Inferno took over the Chaff and Breaker suits (too like Night Ops and
+# Smoke Screen); the chaff and breaker patterns stay in the catalog, chaff on the pistol. The merc's Digital and Frag
+# suits became Galaxy and Inferno the same way (digital and frag stay on his guns).
+_SPY_SUITS = ["smoke", "turnabout", "minefield", "gadgeteer", "mastercraft", "flashbang", "galaxy", "inferno"]
 _MERC_EXTRA = ["voltage", "minefield", "gadgeteer", "mastercraft"]
 
 # Which retail textures take which patterns: (chars package folder, texture file stem, patterns).
 TARGETS: list[tuple[str, str, list[str]]] = [
-    ("SPerso", "SPersoTextures_Shadw_agent", _LADDER + ["night_ops", "static", "breaker"] + _SPY_EXTRA + _MAP_PATTERNS
+    ("SPerso", "SPersoTextures_Shadw_agent", _LADDER + ["night_ops", "static"] + _SPY_SUITS + _MAP_PATTERNS
      + ["skeleton"]),
-    ("SPerso", "SPersoTextures_Shadw_agent_2", _LADDER + ["night_ops", "static", "breaker"] + _SPY_EXTRA + _MAP_PATTERNS
+    ("SPerso", "SPersoTextures_Shadw_agent_2", _LADDER + ["night_ops", "static"] + _SPY_SUITS + _MAP_PATTERNS
      + ["skeleton"]),
-    ("SPerso", "SPersoTextures_DEF_01_A_Body", _LADDER + ["laser_grid", "frag", "lockdown"] + _MERC_EXTRA + _MAP_PATTERNS
-     + ["skeleton"]),
+    ("SPerso", "SPersoTextures_DEF_01_A_Body", [c for c in _LADDER if c != "digital"] + ["laser_grid", "lockdown"]
+     + _MERC_EXTRA + ["galaxy", "inferno"] + _MAP_PATTERNS + ["skeleton"]),
     ("SPerso", "SPersoTextures_DEF_01_A_Face", ["skeleton"]),  # the skull covers the merc's face too
     ("SWeaponFirst", "SWeaponTex_p190", _LADDER + ["static", "shockwave", "golden", "pyre", "kaido", "cryo",
                                                    "chaff", "turnabout", "gadgeteer", "smoke", "mastercraft", "flashbang"]),
@@ -125,7 +130,7 @@ FINISH_STRENGTH = 0.97
 MASTERCRAFT_WEIGHT = 2.0
 MASTERCRAFT_DEPTH = 1.6
 _GILDED = ("gold", "mastercraft")  # colours follow the retail brightness, no extra shading
-_LACQUERED = ("flames", "livery", "cryo", "cogs", "skeleton")  # a light touch of the retail shading
+_LACQUERED = ("flames", "livery", "cryo", "cogs", "skeleton", "galaxy", "inferno")  # a light touch of the retail shading
 _FINISHES = _GILDED + _LACQUERED
 # Shapes that get the shared fine-detail layer (grain, hairline scratches, scuffs).
 _WEATHERED = ("blotch", "blotch-soft", "pixel", "stripe", "cracks", "shrapnel", "hazard", "smoke", "chaff",
@@ -1493,6 +1498,26 @@ def _shape_splatter(rng, h, w, colours, luma):
     return cv.rgb
 
 
+def _flat_points(h: int, w: int, width_m: float) -> np.ndarray:
+    """A flat sheet of points (h x w x 3, metres) width_m across, y up: the solid shapes drawn flat for the swatch."""
+    v, u = np.mgrid[0:h, 0:w].astype(np.float32)
+    s = width_m / w
+    return np.stack([u * s, (h - 1 - v) * s, np.zeros_like(u)], -1)
+
+
+def _shape_galaxy(rng, h, w, colours, luma):
+    from . import gunskin  # noqa: PLC0415
+
+    return gunskin.solid_galaxy("galaxy", colours, _flat_points(h, w, 0.6), np.ones((h, w), bool))
+
+
+def _shape_inferno(rng, h, w, colours, luma):
+    from . import gunskin  # noqa: PLC0415
+
+    P = _flat_points(h, w, 0.8)
+    return gunskin.solid_inferno("inferno", colours, P, np.ones((h, w), bool), P[..., 1], 0.75, np.ones((h, w), bool))
+
+
 _SHAPES = {
     "blotch": _shape_blotch,
     "blotch-soft": lambda rng, h, w, c, l: _shape_blotch(rng, h, w, c, l, soft=True),
@@ -1517,6 +1542,8 @@ _SHAPES = {
     "mastercraft": _shape_mastercraft,
     "flashes": _shape_flashes,
     "splatter": _shape_splatter,
+    "galaxy": _shape_galaxy,
+    "inferno": _shape_inferno,
 }
 
 

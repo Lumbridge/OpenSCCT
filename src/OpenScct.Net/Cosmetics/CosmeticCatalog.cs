@@ -214,6 +214,8 @@ public static class CosmeticCatalog
             new("mastercraft", "Mastercraft", "mastercraft", [0x2A1E0A, 0x9A7020, 0xE6B840, 0xFFF2B0]),
             new("flashbang", "Flashbang", "flashes", [0x0C0E12, 0x3A4250, 0xBFD8FF, 0xFFFFFF]),
             new("skeleton", "Skeleton", "skeleton", [0x0A0A0C, 0xE6DFC8, 0x8C846C, 0x030303]),
+            new("galaxy", "Galaxy", "galaxy", [0x020206, 0x061436, 0x10328C, 0x5A24B0, 0xD040A8, 0x8AE0FF, 0xF4F6FF]),
+            new("inferno", "Inferno", "inferno", [0x0A0A0C, 0x6A0C02, 0xC82408, 0xF07010, 0xFFC038, 0xFFF4B8]),
         };
         foreach ((string code, string name, uint[] palette) in Maps)
         {
@@ -246,7 +248,8 @@ public static class CosmeticCatalog
                 : ["woodland", "desert", "digital", "red_tiger", "blue_tiger", "laser_grid", "frag", "lockdown"];
             foreach (string camo in bodyCamos)
             {
-                Add($"{s}.body.{camo}", PatternName(patterns, camo), side, CosmeticSlot.Body, CosmeticKind.Texture, pattern: camo);
+                string drawn = SuitPattern(side, camo);
+                Add($"{s}.body.{camo}", PatternName(patterns, drawn), side, CosmeticSlot.Body, CosmeticKind.Texture, pattern: drawn);
             }
         }
 
@@ -293,7 +296,8 @@ public static class CosmeticCatalog
 
         foreach (string camo in new[] { "smoke", "chaff", "turnabout", "minefield", "gadgeteer", "mastercraft" })
         {
-            Add($"spy.body.{camo}", PatternName(patterns, camo), CosmeticSide.Spy, CosmeticSlot.Body, CosmeticKind.Texture, pattern: camo);
+            string drawn = SuitPattern(CosmeticSide.Spy, camo);
+            Add($"spy.body.{camo}", PatternName(patterns, drawn), CosmeticSide.Spy, CosmeticSlot.Body, CosmeticKind.Texture, pattern: drawn);
         }
 
         foreach (string camo in new[] { "chaff", "turnabout", "gadgeteer", "smoke", "mastercraft" })
@@ -334,4 +338,18 @@ public static class CosmeticCatalog
     }
 
     private static string PatternName(List<CamoPattern> patterns, string id) => patterns.First(p => p.Id == id).Name;
+
+    /// <summary>
+    /// The pattern a suit item draws: the spy's Breaker and Chaff suits (too like Smoke Screen and Night Ops) and the
+    /// merc's Frag and Digital suits (too like Voltage and Gadgeteer) became Inferno and Galaxy, keeping their ids, bits
+    /// and achievements; every other suit draws its own id's pattern.
+    /// </summary>
+    private static string SuitPattern(CosmeticSide side, string camo) => (side, camo) switch
+    {
+        (CosmeticSide.Spy, "breaker") => "inferno",
+        (CosmeticSide.Spy, "chaff") => "galaxy",
+        (CosmeticSide.Merc, "frag") => "inferno",
+        (CosmeticSide.Merc, "digital") => "galaxy",
+        _ => camo,
+    };
 }

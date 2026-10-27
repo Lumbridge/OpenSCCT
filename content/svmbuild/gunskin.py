@@ -24,7 +24,9 @@ suits, Pyre's with flames climbing from the cuffs, the rest with the pattern wra
 
 Suits (draw_suit). The body's bind pose takes the same tiles, seen from the front, the sides and above, blended by
 which way each texel faces; the blotch camos are again solid 3D noise, and tiger stripes are turned to wrap round the
-torso and legs.
+torso and legs. Galaxy (a Doppler nebula with stars) and Inferno (flames rising from the boots and the hands) are solid
+3D designs of their own. The body's atlas shares islands between left and right and front and back, so the body is
+folded to one quarter (|x|, |z|) before anything is drawn on it.
 
 Shapes are measured against the gun's size (its length and height), so every gun gets the same design at its own
 scale. Edges are anti-aliased over about one texel, from how far the surface moves per texel.
@@ -120,7 +122,6 @@ class _Gun:
         self.extent = np.zeros(self.piece.shape, np.float32)  # the piece's length along its long axis (metres)
         body_v = np.unique(all_tris[comp_of_vertex[all_tris[:, 0]] == biggest])
         z_body = gz[body_v]
-        self.bx0, self.bx1 = float(gx[body_v].min()), float(gx[body_v].max())  # the body's own rear and front
         self.zc = float((z_body.min() + z_body.max()) / 2)
         self.width = float(z_body.max() - z_body.min())
         for cid in np.unique(self.piece[self.piece >= 0]):
@@ -455,7 +456,7 @@ def _tongues(g: _Gun, dist, lateral, band: float, reach: float, rng):
     f = q - k
     tip = lengths[k % 64] * reach
     base = 0.22 * reach
-    edge = base + (tip - base) * (1.0 - np.abs(2.0 * f - 1.0)) ** 2.2
+    edge = base + (tip - base) * (1.0 - np.abs(2.0 * f - 1.0)) ** 1.6
     field = edge - dist
     # Metres from the edge: the field over its change per metre.
     dm = field * g.mpp / np.maximum(g.fw_of(field), 1e-7)
@@ -480,11 +481,11 @@ def _pyre(g: _Gun, colours, rng, luma=None) -> np.ndarray:
     L = g.size
     line = 0.0035 * L
 
-    # Body: broad tongues from the front of the body sweeping back toward the stock, curling up as they go.
-    blen = g.bx1 - g.bx0
-    dist = g.bx1 - g.x
-    lateral = g.y - 0.1 * dist - 0.2 * dist ** 2 / blen
-    dm, along = _tongues(g, dist, lateral, 0.15 * L, 0.85 * blen, rng)
+    # Body (and anything hanging off it): wavy tongues from the muzzle end sweeping back and up toward the stock, with
+    # a slow S-curl.
+    dist = g.x1 - g.x
+    lateral = g.y - 0.32 * dist + 0.02 * L * np.sin(dist / (0.18 * g.length) * 2 * np.pi)
+    dm, along = _tongues(g, dist, lateral, 0.075 * L, 0.85 * g.length, rng)
     paint = _fire(g, dm, along, colours, black, line)
     body = g.mask(BODY)
     out[body] = paint[body]
@@ -514,7 +515,7 @@ def _pyre(g: _Gun, colours, rng, luma=None) -> np.ndarray:
     sleeve = g.mask(SLEEVE)
     if sleeve.any():
         ext = np.maximum(g.extent, 1e-3)
-        dm, along = _tongues(g, np.minimum(g.t, 1.0 - g.t) * ext, g.around, 0.07 * ext, 0.35 * ext, rng)
+        dm, along = _tongues(g, np.minimum(g.t, 1.0 - g.t) * ext, g.around, 0.03 * ext, 0.3 * ext, rng)
         paint = _fire(g, dm, along, colours, black, 0.0015 * ext)
         out[sleeve] = paint[sleeve]
     return out
@@ -648,6 +649,92 @@ def _solid_blotch(pattern: str, colours, P: np.ndarray, cover: np.ndarray, tile_
 _SOLID = ("blotch", "blotch-soft")
 
 
+def _stars(rng, X, Y, Z, cell: float, keep: float, r_lo: float, r_hi: float) -> np.ndarray:
+    """Point stars scattered through space (one in about keep of the cells of cell metres, each at a random spot of
+    its cell with a radius between r_lo and r_hi metres): each point's brightness 0..1."""
+    table = rng.random((5, 1 << 16), dtype=np.float32)
+    ix, iy, iz = (np.floor(c / cell).astype(np.int64) for c in (X, Y, Z))
+    k = ((ix * 73856093) ^ (iy * 19349663) ^ (iz * 83492791)) & 0xFFFF
+    cx, cy, cz = ((i + 0.2 + 0.6 * table[n][k]) * cell for n, i in enumerate((ix, iy, iz)))
+    r = r_lo + (r_hi - r_lo) * table[3][k] ** 3
+    d2 = (X - cx) ** 2 + (Y - cy) ** 2 + (Z - cz) ** 2
+    on = table[4][k] < keep
+    return np.where(on, np.exp(-d2 / (r * r)), 0.0).astype(np.float32)
+
+
+def solid_galaxy(seed: str, colours, P: np.ndarray, cover: np.ndarray) -> np.ndarray:
+    """Galaxy (OpenSCCT's own): a Doppler-style nebula, deep space swirling into blue, violet and pink ribbons, sown
+    with stars, computed in 3D at each point P (metres) so it has no seams. colours: space, then the nebula dark to
+    light, the last the stars' tint."""
+    from . import cosmetics  # noqa: PLC0415
+
+    rng = cosmetics._rng(seed, "galaxy")
+    h, w = cover.shape
+    X0, Y0, Z0 = (P[..., k][cover] for k in range(3))
+    X, Y, Z = X0, Y0, Z0
+    # Two rounds of warping swirl the cloud into ribbons.
+    for amount, cell in ((0.22, 0.3), (0.05, 0.1)):
+        wx, wy, wz = ((_fbm3(rng, X, Y, Z, cell, 3) - 0.5) * amount for _ in range(3))
+        X, Y, Z = X + wx, Y + wy, Z + wz
+    cloud = _fbm3(rng, X, Y, Z, 0.24, 5)
+    ribbon = 1.0 - np.abs(2.0 * _fbm3(rng, X, Y, Z, 0.16, 4) - 1.0)
+    t = np.clip(0.9 * cloud ** 2.2 + 0.5 * ribbon ** 6 - 0.04, 0.0, 1.0)
+    pal = np.stack([_rgb(c) for c in colours[:-1]])
+    s = t * (len(pal) - 1)
+    i = np.clip(s.astype(np.int32), 0, len(pal) - 2)
+    col = pal[i] * (1 - (s - i))[:, None] + pal[i + 1] * (s - i)[:, None]
+    # Stars: a fine dust and a few bigger ones, dimmer where the nebula is bright.
+    star = _stars(rng, X0, Y0, Z0, 0.018, 0.5, 0.0012, 0.0026)
+    star = np.maximum(star, _stars(rng, X0 + 5.0, Y0, Z0, 0.07, 0.6, 0.002, 0.006))
+    star = star * (0.4 + 0.6 * (1.0 - t))
+    col = col + (_rgb(colours[-1]) - col) * np.clip(star * 1.3, 0.0, 1.0)[:, None]
+    out = np.zeros((h, w, 3), np.float32)
+    out[cover] = col
+    return out
+
+
+def solid_inferno(seed: str, colours, P: np.ndarray, cover: np.ndarray, dist: np.ndarray, reach,
+                  upright: np.ndarray) -> np.ndarray:
+    """Inferno (OpenSCCT's own): flames over black, rising dist metres from their source (the boots, the hands) and
+    licking out to reach metres, pale yellow at the root to red at the tips, with a dark-red edge. upright: where the
+    flames climb along Y (else along X, the arms out sideways). Computed in 3D at each point P, so no seams. colours:
+    the black, the dark red edge, then the flame red to pale yellow."""
+    from . import cosmetics  # noqa: PLC0415
+
+    rng = cosmetics._rng(seed, "inferno")
+    h, w = cover.shape
+    X, Y, Z = (P[..., k][cover] for k in range(3))
+    d = dist[cover]
+    up = upright[cover]
+    reach = np.broadcast_to(np.asarray(reach, np.float32), cover.shape)[cover]
+    # The noise is stretched along the way the flames climb, so it reads as tongues.
+    along = np.where(up, Y, np.abs(X))
+    Xs, Ys = np.where(up, X, along * 0.3), np.where(up, along * 0.3, Y)
+    wx, wz = ((_fbm3(rng, Xs, Ys, Z, 0.09, 3) - 0.5) * 0.06 for _ in range(2))
+    n = _fbm3(rng, Xs + wx, Ys, Z + wz, 0.07, 4)
+    s = d / np.maximum(reach, 1e-3)  # 0 at the source, 1 at the furthest tips
+    field = 1.5 * n - s - 0.15  # > 0 inside the flames
+    black = _rgb(colours[0])
+    ramp = np.stack([_rgb(c) for c in colours[2:]][::-1])  # pale core first
+    heat = np.clip(s / np.maximum(1.5 * n - 0.15, 1e-3), 0.0, 1.0) * (len(ramp) - 1)
+    i = np.clip(heat.astype(np.int32), 0, len(ramp) - 2)
+    fire = ramp[i] * (1 - (heat - i))[:, None] + ramp[i + 1] * (heat - i)[:, None]
+    # Edges anti-aliased by the field's change per texel (not counting jumps to another island).
+    full = np.full((h, w), -1.0, np.float32)
+    full[cover] = field
+    step = 0.0
+    for ax in (0, 1):
+        step = step + np.minimum(np.abs(np.roll(full, -1, ax) - full), np.abs(full - np.roll(full, 1, ax))) ** 2
+    fw = np.sqrt(step)[cover] + 1e-4
+    inside = np.clip(field / fw + 0.5, 0.0, 1.0)
+    col = black + (fire - black) * inside[:, None]
+    line = np.clip((0.035 - np.abs(field)) / fw + 0.5, 0.0, 1.0) * np.clip((field + 0.06) / 0.06, 0.0, 1.0)
+    col = col + (_rgb(colours[1]) - col) * line[:, None]
+    out = np.zeros((h, w, 3), np.float32)
+    out[cover] = col
+    return out
+
+
 def _tone(c) -> float:
     return float(c @ np.array([0.3, 0.59, 0.11], np.float32))
 
@@ -746,11 +833,24 @@ def draw_suit(pattern: str, shape: str, colours: list[int], mesh: Mesh, texture:
     layout = bake(mesh, texture, h, w)
     if layout is None:
         raise ValueError(f"{texture} is not a texture of the body's mesh")
-    P, N = layout["P"], layout["N"]
+    # The body's atlas shares islands between left and right and between front and back (a texel can be traced to
+    # either side, triangle by triangle): the pattern is drawn on the body folded to one quarter, so every texel
+    # agrees whichever side it shows on.
+    P = np.abs(layout["P"]) * np.array([1.0, 0.0, 1.0], np.float32) + layout["P"] * np.array([0.0, 1.0, 0.0], np.float32)
+    N = layout["N"]
     x, y, z = P[..., 0], P[..., 1], P[..., 2]
     tile_m = TILE_M * _SUIT_SCALE.get(shape, _TILE_SCALE.get(shape, 1.0))
     if shape in _SOLID:
         return _solid_blotch(pattern, colours, P, layout["cover"], tile_m, shape == "blotch-soft")
+    if shape == "galaxy":
+        return solid_galaxy(pattern, colours, P, layout["cover"])
+    if shape == "inferno":
+        # From the boots up the legs and body; from the hands along the arms (out sideways in the bind pose).
+        arm = np.isin(layout["group"], (ARM_L, ARM_R, HAND_L, HAND_R))
+        bottom, span = float(mesh.pos[:, 1].min()), float(np.abs(mesh.pos[:, 0]).max())
+        dist = np.where(arm, span - np.abs(x), y - bottom)
+        reach = np.where(arm, 0.55, 1.5)
+        return solid_inferno(pattern, colours, P, layout["cover"], dist, reach, ~arm)
     img = _tile(pattern, shape, tuple(colours))
     top = float(mesh.pos[:, 1].max())
     down = (top - y) / tile_m
