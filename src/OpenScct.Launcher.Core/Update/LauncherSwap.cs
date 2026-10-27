@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Threading;
 
 namespace OpenScct.Launcher.Update;
@@ -35,14 +36,50 @@ public sealed class LauncherSwap
         File.Move(temp, NewPath, overwrite: true);
     }
 
-    /// <summary>Puts the staged exe in place. The caller then starts <see cref="ExePath"/> and exits.</summary>
-    public void Swap()
+    /// <summary>
+    /// Where the staged exe goes. A launcher still named as it was downloaded (<c>OpenSCCT.Launcher-0.8.0-win-x64.exe</c>)
+    /// takes the name of the version it updates to, so the file name never shows an old version; any other name (a
+    /// player's own, or <c>OpenSCCT.Launcher.exe</c>) is kept, as is the name when a file already has the new one.
+    /// </summary>
+    public string TargetPath(Versioning.SemVersion? stagedVersion)
+    {
+        string name = Path.GetFileName(ExePath);
+        bool versionedName = name.StartsWith(ReleasePicker.LauncherPrefix, StringComparison.OrdinalIgnoreCase)
+            && name.EndsWith("-" + ReleasePicker.Platform + ".exe", StringComparison.OrdinalIgnoreCase);
+        if (stagedVersion is null || !versionedName)
+        {
+            return ExePath;
+        }
+
+        string target = Path.Combine(Path.GetDirectoryName(ExePath)!, ReleasePicker.LauncherAssetName(stagedVersion));
+        return string.Equals(target, ExePath, StringComparison.OrdinalIgnoreCase) || File.Exists(target) ? ExePath : target;
+    }
+
+    /// <summary>The version stamped into the staged exe (its product version), or null when it cannot be read.</summary>
+    public Versioning.SemVersion? StagedVersion()
+    {
+        if (!HasStaged)
+        {
+            return null;
+        }
+
+        string? product = System.Diagnostics.FileVersionInfo.GetVersionInfo(NewPath).ProductVersion;
+        int plus = product?.IndexOf('+', StringComparison.Ordinal) ?? -1;
+        return Versioning.SemVersion.TryParse(plus >= 0 ? product![..plus] : product, out Versioning.SemVersion? v) ? v : null;
+    }
+
+    /// <summary>
+    /// Puts the staged exe in place, under <see cref="TargetPath"/> for its version. Returns the path to start; the
+    /// caller starts it and exits.
+    /// </summary>
+    public string Swap()
     {
         if (!HasStaged)
         {
             throw new InvalidOperationException("No launcher update is staged.");
         }
 
+        string target = TargetPath(StagedVersion());
         if (File.Exists(OldPath))
         {
             File.Delete(OldPath);
@@ -51,13 +88,15 @@ public sealed class LauncherSwap
         File.Move(ExePath, OldPath);
         try
         {
-            File.Move(NewPath, ExePath);
+            File.Move(NewPath, target);
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {
             File.Move(OldPath, ExePath);
             throw;
         }
+
+        return target;
     }
 
     /// <summary>
@@ -78,21 +117,36 @@ public sealed class LauncherSwap
             return;
         }
 
-        DateTime until = DateTime.UtcNow + waitForOldProcess;
-        while (File.Exists(OldPath))
+        // The old exe is this one's .old, or, after an update that renamed the launcher to its new version, another
+        // launcher's .old in the same folder.
+        string[] olds;
+        try
         {
-            try
-            {
-                File.Delete(OldPath);
-            }
-            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
-            {
-                if (DateTime.UtcNow >= until)
-                {
-                    return;
-                }
+            olds = Directory.GetFiles(Path.GetDirectoryName(ExePath)!, ReleasePicker.LauncherPrefix + "*.exe.old");
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            olds = [];
+        }
 
-                Thread.Sleep(200);
+        DateTime until = DateTime.UtcNow + waitForOldProcess;
+        foreach (string old in olds.Append(OldPath).Distinct(StringComparer.OrdinalIgnoreCase))
+        {
+            while (File.Exists(old))
+            {
+                try
+                {
+                    File.Delete(old);
+                }
+                catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+                {
+                    if (DateTime.UtcNow >= until)
+                    {
+                        return;
+                    }
+
+                    Thread.Sleep(200);
+                }
             }
         }
     }

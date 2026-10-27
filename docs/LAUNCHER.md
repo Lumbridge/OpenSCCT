@@ -170,8 +170,11 @@ version's list points at. Deleting an old version release is fine; its files sta
 running launcher, the launcher fetches it right after the update check ("Update launcher" retries a failed
 download). The exe is downloaded, verified and copied next to the
 running one as `OpenSCCT.Launcher.exe.new`. "Restart to finish" renames the running exe to `.old` (Windows allows
-renaming a running exe), moves `.new` into its place, starts it with `--after-update` and closes. The new process
-deletes `.old`, and finishes or undoes a swap that stopped half way. A launcher in a read-only folder (Program Files)
+renaming a running exe), moves `.new` into its place, starts it with `--after-update` and closes. A launcher still
+named as downloaded (`OpenSCCT.Launcher-0.8.0-win-x64.exe`) takes the new version's name
+(`OpenSCCT.Launcher-0.8.4-win-x64.exe`, from the staged exe's product version); any other name is kept, and so is
+the name when a file with the new name is already there. The new process deletes `.old` (its own, or the
+`OpenSCCT.Launcher-*.exe.old` a renaming update left), and finishes or undoes a swap that stopped half way. A launcher in a read-only folder (Program Files)
 says so instead of updating; it never asks for elevation.
 
 ## Play

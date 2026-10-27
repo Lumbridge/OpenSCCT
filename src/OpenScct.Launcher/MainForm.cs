@@ -768,8 +768,8 @@ internal sealed class MainForm : Form
 
         try
         {
-            _swap.Swap();
-            Process.Start(new ProcessStartInfo(_swap.ExePath, Program.AfterUpdateArg) { UseShellExecute = false });
+            string started = _swap.Swap();
+            Process.Start(new ProcessStartInfo(started, Program.AfterUpdateArg) { UseShellExecute = false });
             Close();
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or Win32Exception)
