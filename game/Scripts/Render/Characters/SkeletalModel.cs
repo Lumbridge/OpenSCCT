@@ -225,12 +225,14 @@ public sealed class SkeletalModel
                     }, LightSource.Actor);
                     if (made is ShaderMaterial shiny)
                     {
-                        // The world shader's sheen (svm_sheen): polished gold on the golden camo, glossy black lacquer
-                        // with near-white highlights on the pyre camo.
+                        // The world shader's sheen (svm_sheen): on the golden camo a full gold mirror that stays bright
+                        // in any light (a special finish), on the pyre camo glossy black lacquer with near-white
+                        // highlights that darkens in shadow like everything else.
                         if (pattern == "golden")
                         {
                             shiny.SetShaderParameter(SheenParameter, 1f);
                             shiny.SetShaderParameter(SheenTintParameter, new Vector3(1f, 0.8f, 0.36f));
+                            shiny.SetShaderParameter(SheenMirrorParameter, 1f);
                         }
                         else if (pattern == "pyre")
                         {
@@ -416,6 +418,7 @@ public sealed class SkeletalModel
     public static readonly StringName TintParameter = "svm_tint";
     public static readonly StringName SheenParameter = "svm_sheen";
     public static readonly StringName SheenTintParameter = "svm_sheen_tint";
+    public static readonly StringName SheenMirrorParameter = "svm_sheen_mirror";
     public static readonly StringName GlowHueParameter = "svm_glow_hue";
 
     private Template? _template;

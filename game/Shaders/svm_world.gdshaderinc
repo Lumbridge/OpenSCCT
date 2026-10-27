@@ -43,9 +43,12 @@ vec3 svm_hue_turn(vec3 c, float angle) {
 }
 varying vec4 v_vision;
 // OpenSCCT's own: a polished sheen on cosmetic camo materials (SkeletalModel.Cosmetic): its strength (0 off, 1 on the
-// golden camo) and the colour of its highlights (gold, or near white for the pyre camo's black lacquer).
+// golden camo), the colour of its highlights (gold, or near white for the pyre camo's black lacquer), and how much of a
+// mirror it is (1 on the golden camo: a full reflection of a bright fake environment, whatever the local light; 0: a
+// partial reflection that darkens in shadow like the rest of the scene).
 uniform float svm_sheen = 0.0;
 uniform vec3 svm_sheen_tint = vec3(1.0, 0.8, 0.36);
+uniform float svm_sheen_mirror = 0.0;
 
 uniform sampler2D tex_diffuse : filter_linear_mipmap_anisotropic, repeat_enable, hint_default_white;
 
@@ -284,22 +287,26 @@ void fragment() {
 	if (svm_sheen > 0.0) {
 		// Polished metal or lacquer: mostly a fake studio reflection of the texture (dark floor, bright sky, a hot strip
 		// at the horizon) instead of its diffuse lighting, two highlights, a Fresnel rim and a slow glint across the
-		// surface. All in view space. The reflection keeps some of the local light level, so the surface still darkens
-		// in shadow instead of glowing.
+		// surface. All in view space. A partial mirror keeps some of the local light level, so it darkens in shadow; a
+		// full mirror (the golden camo) ignores it and adds soft bright and dark streaks to the environment, so the
+		// reflection slides over the metal as the gun moves.
 		vec3 n = normalize(NORMAL);
 		vec3 v = normalize(VIEW);
 		vec3 r = reflect(-v, n);
 		float ndv = clamp(dot(n, v), 0.0, 1.0);
 		float level = clamp(dot(c, vec3(1.0)) / max(dot(t.rgb, vec3(1.0)), 0.03), 0.0, 1.0);
-		float shade = mix(0.3, 1.0, level);
+		float shade = mix(mix(0.3, 1.0, level), 1.0, svm_sheen_mirror);
 		float env = mix(0.3, 1.25, smoothstep(-0.45, 0.9, r.y)) + 0.85 * exp(-pow((r.y - 0.12) * 7.0, 2.0));
+		float streaks = 0.35 * sin(r.x * 7.0 + r.y * 2.5) + 0.2 * sin(r.x * 17.0 - r.z * 5.0)
+			+ 0.7 * pow(clamp(dot(r, normalize(vec3(-0.7, 0.45, 0.4))), 0.0, 1.0), 6.0);
+		env = max(env + streaks * svm_sheen_mirror, 0.15);
 		vec3 refl = t.rgb * env * shade;
 		float spec = pow(clamp(dot(r, normalize(vec3(0.35, 0.8, 0.5))), 0.0, 1.0), 48.0);
 		float spec2 = pow(clamp(dot(r, normalize(vec3(-0.6, 0.3, 0.7))), 0.0, 1.0), 16.0);
 		float rim = pow(1.0 - ndv, 4.0);
 		float band = fract((uv.x + uv.y) * 0.5 - svm_time * 0.18);
 		float glint = smoothstep(0.0, 0.035, band) * (1.0 - smoothstep(0.035, 0.09, band));
-		vec3 metal = mix(c, refl, 0.75 * svm_sheen);
+		vec3 metal = mix(c, refl, mix(0.75, 0.95, svm_sheen_mirror) * svm_sheen);
 		vec3 shine = svm_sheen_tint * (spec * 1.8 + spec2 * 0.5 + rim * 0.6 + glint * 0.5) * shade * svm_sheen;
 		c = min(metal + shine, vec3(1.0));
 	}
