@@ -87,6 +87,16 @@ $pushed = [bool](& git -C $repoRoot branch -r --contains $commit 2>$null)
 if ($dirty) { Write-Warning 'The working tree has uncommitted changes; the build may not match a commit.' }
 if (-not $pushed) { Write-Warning "Commit $commit is not on any remote branch yet." }
 
+# The game shows the version stamped into its assemblies (BuildInfo): a build exported for another version would
+# show the wrong one in game.
+$stamped = Get-ChildItem -LiteralPath $BuildDir -Directory -Filter 'data_*' |
+    ForEach-Object { Join-Path $_.FullName 'OpenScct.Net.dll' } | Where-Object { Test-Path -LiteralPath $_ } | Select-Object -First 1
+if (-not $stamped) { throw "No data_*\OpenScct.Net.dll in $BuildDir to read the game's version from." }
+$gameVersion = ([System.Diagnostics.FileVersionInfo]::GetVersionInfo($stamped).ProductVersion -split '\+')[0]
+if ($gameVersion -ne $Version) {
+    throw "The build in $BuildDir is version $gameVersion, not $Version. Export the game again from the release commit."
+}
+
 # Files that never ship: local window settings, logs, the test launch scripts and notes of a local build (.cmd, .bat,
 # BUILD.txt), original game file types, converted content.
 $excludeNames = @('override.cfg', 'BUILD.txt')
