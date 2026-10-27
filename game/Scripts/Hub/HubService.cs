@@ -618,9 +618,9 @@ public partial class HubService : Node
     private FVector? Ear() =>
         _round is { IsLoaded: true, View.Camera: { } camera } ? UeSpace.ToUe(camera.GlobalPosition) : null;
 
-    /// <summary>The looks the player wears on each side, from the Armoury's saved choice.</summary>
+    /// <summary>The looks the hub is sent for each side: the Armoury's saved choice, or retail while the player hides theirs.</summary>
     private static (CosmeticLook Spy, CosmeticLook Merc) Looks(OpenScctGame.Options.GameSettings s) =>
-        (CosmeticLook.FromIds(CosmeticSide.Spy, s.CosmeticsSpy), CosmeticLook.FromIds(CosmeticSide.Merc, s.CosmeticsMerc));
+        (s.SharedLook(CosmeticSide.Spy), s.SharedLook(CosmeticSide.Merc));
 
     /// <summary>Saved settings with other looks (the Armoury) go to the hub, which puts them on the player's character.</summary>
     private void OnSettingsSaved(OpenScctGame.Options.GameSettings s)

@@ -3,6 +3,7 @@ using Godot;
 using OpenScct.Core.Engine;
 using OpenScct.Game.SBase;
 using OpenScct.Net.Cosmetics;
+using OpenScctGame.Options;
 
 namespace OpenScctGame.Render.Characters;
 
@@ -25,9 +26,26 @@ public static class PawnCosmetics
     /// <summary>How strongly a tint recolours (the rest keeps the retail colours).</summary>
     public const float TintStrength = 0.8f;
 
-    /// <summary>The look the pawn's player wears (retail when there is none).</summary>
-    public static CosmeticLook LookOf(Pawn? pawn) =>
-        pawn?.PlayerReplicationInfo is { } pri ? new CosmeticLook(pri.SvmLook) : CosmeticLook.Default;
+    /// <summary>
+    /// The look drawn on the pawn (retail when there is none). The local player's own pawn wears the Armoury's choice
+    /// while "hide mine" keeps it off the servers; other players' pawns are drawn retail while "hide others" is on.
+    /// </summary>
+    public static CosmeticLook LookOf(Pawn? pawn)
+    {
+        if (pawn?.PlayerReplicationInfo is not { } pri)
+        {
+            return CosmeticLook.Default;
+        }
+
+        GameSettings settings = SettingsStore.Current;
+        bool mine = ReferenceEquals(pawn.Level?.GetLocalPlayerController()?.PlayerReplicationInfo, pri);
+        if (mine)
+        {
+            return settings.CosmeticsHideMine ? settings.OwnLook(SideOf(pawn)) : new CosmeticLook(pri.SvmLook);
+        }
+
+        return settings.CosmeticsHideOthers ? CosmeticLook.Default : new CosmeticLook(pri.SvmLook);
+    }
 
     public static CosmeticSide SideOf(Pawn pawn) => pawn is SPAWNDEFENSE ? CosmeticSide.Merc : CosmeticSide.Spy;
 

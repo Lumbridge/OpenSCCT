@@ -52,6 +52,11 @@ public partial class ArmouryScreen : MenuPage
         var sides = new HBoxContainer { Name = "Sides" };
         sides.AddChild(UiStyle.MenuButton("Spy", () => ShowSide(CosmeticSide.Spy), "SideSpy"));
         sides.AddChild(UiStyle.MenuButton("Mercenary", () => ShowSide(CosmeticSide.Merc), "SideMerc"));
+        sides.AddChild(new Control { SizeFlagsHorizontal = SizeFlags.ExpandFill });
+        sides.AddChild(VisibilityBox("HideOthers", "Hide others' cosmetics", SettingsStore.Current.CosmeticsHideOthers,
+            (s, on) => s.CosmeticsHideOthers = on));
+        sides.AddChild(VisibilityBox("HideMine", "Hide my cosmetics from others", SettingsStore.Current.CosmeticsHideMine,
+            (s, on) => s.CosmeticsHideMine = on));
         Body.AddChild(sides);
 
         var split = new HBoxContainer { Name = "Split" };
@@ -327,6 +332,22 @@ public partial class ArmouryScreen : MenuPage
 
     private static CosmeticLook Look(CosmeticSide side) =>
         CosmeticLook.FromIds(side, side == CosmeticSide.Spy ? SettingsStore.Current.CosmeticsSpy : SettingsStore.Current.CosmeticsMerc);
+
+    /// <summary>
+    /// A cosmetics visibility switch, saved when flipped. Hiding your own takes effect at the next join (the hub
+    /// takes it at once); hiding others' redraws straight away.
+    /// </summary>
+    private static CheckBox VisibilityBox(string name, string text, bool on, Action<GameSettings, bool> set)
+    {
+        var box = new CheckBox { Name = name, Text = text, ButtonPressed = on };
+        box.Toggled += pressed =>
+        {
+            GameSettings settings = SettingsStore.Current;
+            set(settings, pressed);
+            SettingsStore.Save(settings);
+        };
+        return box;
+    }
 
     private static Label Note(string text) => new()
     {

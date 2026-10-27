@@ -5,6 +5,7 @@ using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using OpenScct.Game.Equipment;
+using OpenScct.Net.Cosmetics;
 using OpenScct.Provenance;
 
 namespace OpenScctGame.Options;
@@ -246,6 +247,22 @@ public sealed class GameSettings
     /// <summary>The chosen merc cosmetics (catalogue ids).</summary>
     [JsonPropertyName("cosmetics_merc")]
     public string[] CosmeticsMerc { get; set; } = [];
+
+    /// <summary>Draw every other player in the retail look (their cosmetics are not shown on this machine).</summary>
+    [JsonPropertyName("cosmetics_hide_others")]
+    public bool CosmeticsHideOthers { get; set; }
+
+    /// <summary>Keep this player's cosmetics to themselves: servers get the retail look, only this machine draws the chosen one.</summary>
+    [JsonPropertyName("cosmetics_hide_mine")]
+    public bool CosmeticsHideMine { get; set; }
+
+    /// <summary>The look sent to servers for a side: the chosen one, or retail while <see cref="CosmeticsHideMine"/> is on.</summary>
+    public CosmeticLook SharedLook(CosmeticSide side) =>
+        CosmeticsHideMine ? CosmeticLook.Default : OwnLook(side);
+
+    /// <summary>The look chosen in the Armoury for a side.</summary>
+    public CosmeticLook OwnLook(CosmeticSide side) =>
+        CosmeticLook.FromIds(side, side == CosmeticSide.Spy ? CosmeticsSpy : CosmeticsMerc);
 
     /// <summary>The title shown under the name (OpenScct.Net.Cosmetics.TitleCatalog id), or null for none.</summary>
     [JsonPropertyName("title")]
