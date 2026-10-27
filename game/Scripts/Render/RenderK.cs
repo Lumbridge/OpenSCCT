@@ -106,6 +106,48 @@ public static partial class RenderK
     [Provenance(ProvenanceKind.Decoded, "SCCT glow composite ps_1_1 luma weights")]
     public static readonly Vector3 GlowGateLuma = new(0.311f, 0.524f, 0.165f);
 
+    /// <summary>
+    /// The glow bright pass (normal view, FlashColor.A 0): L = dot(scene, luma); where L &gt; GlowThreshold / 255 it
+    /// writes rgb saturate(8 L) and alpha saturate(8 (L - T)), else 0 (c5 = (0, 0, 0, T), so rgb is white in practice).
+    /// </summary>
+    [Provenance(ProvenanceKind.Decoded, "bright pass ps_1_1 0x10c4e898 (slot +0x30f70): dp3 c4; sub_x4 r1, r0, c5; cnd_x2 r0.a > 0.5; c5 set by 0x10967200")]
+    public static readonly Vector3 GlowBrightLuma = new(0.3f, 0.59f, 0.11f);
+
+    [Provenance(ProvenanceKind.Decoded, "ps_1_1 0x10c4e898: sub_x4 then cnd_x2")]
+    public const float GlowBrightGain = 8f;
+
+    /// <summary>The bright pass target (0x30e68) at the default detail: the whole frame drawn into 512 x 512.</summary>
+    [Provenance(ProvenanceKind.Decoded, "render target 0x30e68 created at 0x1095cf9b from 0x10c78bc0 x 0x10c78b70 (512 x 512, defaults 0x1090ab98)")]
+    public static readonly Vector2I GlowBrightTarget = new(512, 512);
+
+    /// <summary>
+    /// The glow pyramid past the vision levels: runs 3 and 4 draw 128 x 128 into 128 x 64 then 64 x 64, and that into
+    /// 64 x 32 then 32 x 32 (targets 0x30e7c..0x30e88), with the vision blur passes.
+    /// </summary>
+    [Provenance(ProvenanceKind.Decoded, "glow driver 0x10967740: four 0x10967d70 runs 0x30e68 -> 0x30e70 -> 0x30e78 -> 0x30e80 -> 0x30e88; sizes 0x1095c330 / 0x1090ab98")]
+    public static readonly Vector2I[] GlowExtraTargets = [new(128, 64), new(64, 64), new(64, 32), new(32, 32)];
+
+    /// <summary>The glow composite into 0x30e68: 0.4 L1 + 0.6 L2 + 0.7 L3 + 0.9 L4 (the four pyramid levels, bilinear).</summary>
+    [Provenance(ProvenanceKind.Decoded, "composite ps_1_1 0x10c4ed00 (mul/mad c0..c3), constants 0x10bff1b8..0x10bff1c4 set by 0x109684f0")]
+    public static readonly Vector4 GlowLevelWeights = new(0.4f, 0.6f, 0.7f, 0.9f);
+
+    // ---- zone distance fog -------------------------------------------------------------------------------------
+
+    /// <summary>The fog of a zone without bDistanceFog while the view blends towards it: start 32764, end 32765 uu.</summary>
+    [Provenance(ProvenanceKind.Decoded, "scene fog setup 0x10a15fb8: 32765 (0x10c73b0c) and 32765 - 1")]
+    public const float FogOffEnd = 32765f;
+
+    /// <summary>A view that moved more than this between frames takes the new zone's fog at once (no blend).</summary>
+    [Provenance(ProvenanceKind.Decoded, "scene fog setup 0x10a16058: |view - LastViewOrigin| against 100 (0x10c109e0)")]
+    public const float FogTeleportUnits = 100f;
+
+    /// <summary>EMF vision (RendMap 38) fogs every surface to its clear colour 0xffffda85 from 1500 to 2000 uu.</summary>
+    [Provenance(ProvenanceKind.Decoded, "scene fog setup 0x10a16359: SetDistanceFog(1, 1500, 2000, 0xffffda85) for RendMap 38")]
+    public const float EmfFogStart = 1500f;
+
+    [Provenance(ProvenanceKind.Decoded, "scene fog setup 0x10a16359")]
+    public const float EmfFogEnd = 2000f;
+
     /// <summary>Night vision (RendMap 34): out = saturate(4 n (L tint + glow)), L = dot(scene, luma).</summary>
     [Provenance(ProvenanceKind.Decoded, "night vision post pass ps_1_1 (bridge docs/VISION_MODES.md)")]
     public const float NightVisionGain = 4f;

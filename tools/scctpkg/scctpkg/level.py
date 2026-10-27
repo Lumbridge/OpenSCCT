@@ -186,8 +186,41 @@ def _corona(props, pkg: Package, pset: PackageSet, trig: bool) -> Optional[dict]
 PLF_PSX2_ONLY, PLF_XBOX_ONLY = 1, 2
 
 
+# Engine.ZoneInfo class defaults of the fog fields (def:Engine.ZoneInfo): a zone stores only what differs, so a fog zone
+# without DistanceFogColor fogs to grey 128 (ClubD's ZoneInfo1141, MissD's three outdoor zones), one without
+# DistanceFogEnd ends at 8000.
+ZONE_FOG_DEFAULTS = {"DistanceFogColor": [128, 128, 128, 0], "DistanceFogStart": 3000.0, "DistanceFogEnd": 8000.0,
+                     "DistanceFogBlendTime": 1.0}
+
+
+def _hsv_color(hue: int, sat: int, bright: int) -> List[int]:
+    """UE2 FGetHSV(H, S, V) as bytes (truncated): the zone light colour of AmbientHue/Saturation/Brightness. Every
+    stored m_RefAmbientColor of the 84 maps (2814 zones) equals this, so it stands in where a map does not store one."""
+    import math
+    b = bright * 1.4 / 255.0
+    b *= 0.7 / (0.01 + math.sqrt(b))
+    b = min(max(b, 0.0), 1.0)
+    if hue < 86:
+        h = ((85 - hue) / 85.0, hue / 85.0, 0.0)
+    elif hue < 171:
+        h = (0.0, (170 - hue) / 85.0, (hue - 85) / 85.0)
+    else:
+        h = ((hue - 170) / 85.0, 0.0, (255 - hue) / 84.0)
+    return [int((c + sat / 255.0 * (1.0 - c)) * b * 255.0) for c in h] + [255]
+
+
+def zone_ambient_color(props: dict) -> List[int]:
+    """A zone's ambient light colour [R, G, B, A]: m_RefAmbientColor, else FGetHSV of AmbientHue, AmbientSaturation
+    (default 255) and AmbientBrightness (default 0)."""
+    amb = props.get("m_RefAmbientColor")
+    if isinstance(amb, (tuple, list)) and len(amb) >= 3:
+        return list(amb)
+    return _hsv_color(int(_num(props.get("AmbientHue"), 0)), int(_num(props.get("AmbientSaturation"), 255)),
+                      int(_num(props.get("AmbientBrightness"), 0)))
+
+
 def _zone_ambient(pkg: Package) -> dict:
-    """ZoneInfo / SkyZoneInfo object ref -> m_RefAmbientColor brightness (max of RGB, 0-255)."""
+    """ZoneInfo / SkyZoneInfo object ref -> ambient brightness (max of RGB, 0-255)."""
     out = {}
     for e in pkg.exports:
         if not e.class_name.endswith("ZoneInfo") or e.size <= 0 or not (e.flags & 0x02000000):
@@ -195,11 +228,10 @@ def _zone_ambient(pkg: Package) -> dict:
         try:
             r = pkg.export_reader(e)
             skip_state_frame(r, e.flags)
-            amb = read_properties(r).get("m_RefAmbientColor")
+            amb = zone_ambient_color(read_properties(r))
         except Exception:
             continue
-        if isinstance(amb, (tuple, list)) and len(amb) >= 3:
-            out[e.index + 1] = int(max(amb[:3]))
+        out[e.index + 1] = int(max(amb[:3]))
     return out
 
 
@@ -363,13 +395,18 @@ def extract_level(pkg: Package, pset: PackageSet) -> List[ActorRecord]:
             rec.extra = {"team": "merc" if int(_num(props.get("TeamNumber"), 0)) == 1 else "spy"}
         elif cls in ZONE_CLASSES:
             rec.kind = "zone"
+            fog_color = props.get("DistanceFogColor")
             rec.extra = {
                 "location_name": str(props.get("LocationName", "")),
                 "fog": bool(props.get("bDistanceFog")),
-                "fog_color": list(props.get("DistanceFogColor")) if isinstance(props.get("DistanceFogColor"), (tuple, list)) else [0, 0, 0, 0],
-                "fog_start": _num(props.get("DistanceFogStart"), 0.0),
-                "fog_end": _num(props.get("DistanceFogEnd"), 0.0),
-                "ambient": list(props.get("m_RefAmbientColor")) if isinstance(props.get("m_RefAmbientColor"), (tuple, list)) else [0, 0, 0, 0],
+                "fog_color": list(fog_color) if isinstance(fog_color, (tuple, list)) else list(ZONE_FOG_DEFAULTS["DistanceFogColor"]),
+                "fog_start": _num(props.get("DistanceFogStart"), ZONE_FOG_DEFAULTS["DistanceFogStart"]),
+                "fog_end": _num(props.get("DistanceFogEnd"), ZONE_FOG_DEFAULTS["DistanceFogEnd"]),
+                # Seconds the view's fog takes to move to this zone's (0: at once).
+                "fog_blend_time": _num(props.get("DistanceFogBlendTime"), ZONE_FOG_DEFAULTS["DistanceFogBlendTime"]),
+                # With bDistanceFog the main view clears to DistanceFogColor before drawing.
+                "clear_to_fog": bool(props.get("bClearToFogColor")),
+                "ambient": zone_ambient_color(props),
                 "sky": cls == "SkyZoneInfo",
             }
         elif cls == "ERainVolume":

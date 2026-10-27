@@ -398,22 +398,126 @@ public partial class FaithfulView : Node3D
             }
         }
 
+        _fog.Tick((float)delta);
         UpdateEffect();
         _coronas?.Update(_cameraLocation, (float)delta, _cut);
         _cut = false;
     }
 
+    private readonly ZoneFog _fog = new();
+
+    /// <summary>The distance fog the view draws with: on, colour (display value), start and end in uu.</summary>
+    private readonly record struct ViewFog(bool On, Color Color, float Start, float End);
+
+    /// <summary>
+    /// The view's zone fog with its blend over the new zone's DistanceFogBlendTime (the scene fog setup, game
+    /// 0x10a15fb8, with PlayerController's LastZone, LastViewOrigin, TimeSinceLastFogChange and LastDistanceFog*).
+    /// A zone without fog blends towards start 32764 and end 32765 in the colour last used; a view that jumped more than
+    /// 100 uu, or the first zone, takes the new fog at once; zone 0 (no ZoneInfo) never blends.
+    /// </summary>
+    private sealed class ZoneFog
+    {
+        private int _lastZone;
+        private FVector _lastOrigin;
+        private float _since;
+        private float _lastStart;
+        private float _lastEnd;
+        private (int R, int G, int B) _lastColor;
+
+        /// <summary>PlayerController.Tick: TimeSinceLastFogChange += DeltaTime (0x10a30240).</summary>
+        public void Tick(float delta) => _since += delta;
+
+        public ViewFog Update(LightingDoc? lighting, ZoneEntry? zone, FVector origin)
+        {
+            int index = zone?.ZoneIndex ?? 0;
+            if (index < 0)
+            {
+                index = 0;
+            }
+
+            bool fog = zone is { Fog: true };
+            if (index != _lastZone)
+            {
+                if (fog && _lastStart == RenderK.FogOffEnd)
+                {
+                    _lastColor = Bytes(zone!.FogColor);
+                }
+
+                ZoneEntry? old = _lastZone == 0 ? null : lighting?.ZoneByIndex(_lastZone);
+                if (_lastZone == 0 || (origin - _lastOrigin).Size() > RenderK.FogTeleportUnits || (!fog && old is not { Fog: true }))
+                {
+                    _since = BlendTime(zone);
+                }
+                else
+                {
+                    // Still blending into the old zone: keep where that blend got to as the new starting point.
+                    float oldTime = BlendTime(old);
+                    if (_since < oldTime)
+                    {
+                        float a = oldTime == 0f ? 1f : _since / oldTime;
+                        _lastStart += ((old?.FogStart ?? 0f) - _lastStart) * a;
+                        _lastEnd += ((old?.FogEnd ?? 0f) - _lastEnd) * a;
+                        _lastColor = Lerp(_lastColor, Bytes(old?.FogColor ?? default), a);
+                    }
+
+                    _since = 0f;
+                }
+
+                _lastZone = index;
+            }
+
+            _lastOrigin = origin;
+            float time = BlendTime(zone);
+            float alpha = time == 0f ? 1f : _since / time;
+            (int R, int G, int B) color = fog ? Bytes(zone!.FogColor) : _lastColor;
+            float start = fog ? zone!.FogStart : RenderK.FogOffEnd - 1f;
+            float end = fog ? zone!.FogEnd : RenderK.FogOffEnd;
+            if (!(alpha < 1f) || index == 0)
+            {
+                _lastColor = color;
+                _lastStart = start;
+                _lastEnd = end;
+                _since = 1e6f;
+                alpha = 1f;
+            }
+
+            (int R, int G, int B) c = Lerp(_lastColor, color, alpha);
+            return new ViewFog(
+                fog || alpha < 1f,
+                new Color(c.R / 255f, c.G / 255f, c.B / 255f),
+                _lastStart + ((start - _lastStart) * alpha),
+                _lastEnd + ((end - _lastEnd) * alpha));
+        }
+
+        private static float BlendTime(ZoneEntry? zone) => zone?.FogBlendTime ?? 1f;
+
+        private static (int R, int G, int B) Bytes(Color c) =>
+            ((int)MathF.Round(c.R * 255f), (int)MathF.Round(c.G * 255f), (int)MathF.Round(c.B * 255f));
+
+        /// <summary>The byte lerp of 0x109fbf20: a + (b - a) x alpha, truncated.</summary>
+        private static (int R, int G, int B) Lerp((int R, int G, int B) a, (int R, int G, int B) b, float alpha) =>
+            ((int)(a.R + ((b.R - a.R) * alpha)), (int)(a.G + ((b.G - a.G) * alpha)), (int)(a.B + ((b.B - a.B) * alpha)));
+    }
+
     private void UpdateEffect()
     {
         ZoneEntry? zone = CameraZone;
-        bool fog = zone is { Fog: true } && zone.FogEnd > zone.FogStart;
+        // EMF fogs to its clear colour; thermal has no fog; the other modes take the zone fog, blended on a zone change.
+        ViewFog fog = _rendMap switch
+        {
+            RenderK.RendMapThermal => default,
+            RenderK.RendMapEmf => new ViewFog(true, RenderK.EmfClear, RenderK.EmfFogStart, RenderK.EmfFogEnd),
+            _ => _fog.Update(Map?.Lighting, zone, _cameraLocation),
+        };
+        UpdateClear(zone);
         Effect.Settings = new DisplayPostSettings
         {
-            Fog = fog,
-            FogColor = zone?.FogColor ?? new Color(0f, 0f, 0f),
-            FogStart = zone?.FogStart ?? 0f,
-            FogEnd = zone?.FogEnd ?? 0f,
+            Fog = fog.On,
+            FogColor = fog.Color,
+            FogStart = fog.Start,
+            FogEnd = fog.End,
             GlowGate = GlowGate,
+            GlowThreshold = Map?.Lighting.GlowThreshold ?? 255,
             RendMap = RendMap,
             MtvSlope = Map?.MtvSlope ?? RenderK.DefaultMtvSlope,
             MtvOffset = Map?.MtvOffset ?? RenderK.DefaultMtvOffset,
@@ -422,29 +526,68 @@ public partial class FaithfulView : Node3D
             Near = RenderK.NearClipUnits,
             Far = RenderK.FarClipUnits,
         };
+
+        if (_skyEffect is not null)
+        {
+            // The sky zone's own scene takes its zone's fog as it is, without the view's blend (AquaE's sky zone fogs
+            // everything from 0 to 16 uu).
+            ZoneEntry? sky = Map is { Lighting.SkyZone: >= 0 } ? Map.Lighting.ZoneByIndex(Map.Lighting.SkyZone) : null;
+            bool skyFog = sky is { Fog: true } && !IsSceneVision(_rendMap);
+            _skyEffect.Settings = new DisplayPostSettings
+            {
+                GlowGate = false,
+                Fog = skyFog,
+                FogColor = sky?.FogColor ?? default,
+                FogStart = sky?.FogStart ?? 0f,
+                FogEnd = sky?.FogEnd ?? 0f,
+                Near = RenderK.NearClipUnits,
+                Far = RenderK.FarClipUnits,
+            };
+        }
     }
 
     /// <summary>True for the modes whose scene is the vision pass of its own (thermal, EMF), not the normal frame.</summary>
     public static bool IsSceneVision(int rendMap) => rendMap is RenderK.RendMapThermal or RenderK.RendMapEmf;
 
+    private Color _clear = new(0f, 0f, 0f);
+
     /// <summary>
-    /// The vision mode's scene settings: the materials' mode, the clear colour (EMF clears to 0xffffda85, the others to
-    /// black), coronas off in thermal and EMF, vision-only nodes on in thermal and EMF.
+    /// The clear colour: EMF clears to 0xffffda85; a camera zone with bDistanceFog and bClearToFogColor clears to its
+    /// DistanceFogColor (not in thermal); else black. The sky view clears the same, so the clear shows wherever neither
+    /// the world nor the sky zone drew.
     /// </summary>
-    private void ApplyVision()
+    [Provenance(ProvenanceKind.Decoded, "scene clear 0x10a3e515: Clear(DistanceFogColor) when the view zone has bClearToFogColor and bDistanceFog, RendMap not 36 or 38, main scene only")]
+    private void UpdateClear(ZoneEntry? zone)
     {
-        Materials.MaterialCompiler.SetVision(_rendMap);
+        Color clear = _rendMap == RenderK.RendMapEmf ? RenderK.EmfClear
+            : zone is { Fog: true, ClearToFog: true } && !IsSceneVision(_rendMap) ? zone.FogColor
+            : new Color(0f, 0f, 0f);
+        if (clear == _clear)
+        {
+            return;
+        }
+
+        _clear = clear;
         // Godot linearizes the background colour (sRGB to linear); the frame holds display values, so hand it the
         // sRGB encoding of the value the buffer must hold.
-        Color clear = _rendMap == RenderK.RendMapEmf ? RenderK.EmfClear.LinearToSrgb() : new Color(0f, 0f, 0f);
         foreach (Camera3D? camera in new[] { Camera, _skyCamera })
         {
             if (camera?.Environment is { } env)
             {
-                env.BackgroundColor = clear;
+                env.BackgroundColor = new Color(clear.R, clear.G, clear.B).LinearToSrgb();
             }
         }
+    }
 
+    /// <summary>
+    /// The vision mode's scene settings: the materials' mode, the clear colour (<see cref="UpdateClear"/>), coronas off
+    /// in thermal and EMF, vision-only nodes on in thermal and EMF.
+    /// </summary>
+    private void ApplyVision()
+    {
+        Materials.MaterialCompiler.SetVision(_rendMap);
+        // Sets both cameras' clear again below (the sky camera may be new).
+        _clear = new Color(-1f, -1f, -1f);
         bool sceneVision = IsSceneVision(_rendMap);
         // Thermal and EMF draw no sky zone: the frame keeps its clear colour there (thermal black reads as the far,
         // cold end of the table).
