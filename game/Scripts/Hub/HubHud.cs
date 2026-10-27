@@ -61,6 +61,7 @@ public partial class HubHud : CanvasLayer
         _help = new Label
         {
             Name = "Help", Position = new Vector2(16f, 40f), Modulate = new Color(1f, 1f, 1f, 0.75f),
+            AutowrapMode = TextServer.AutowrapMode.WordSmart, MouseFilter = Control.MouseFilterEnum.Ignore,
             Text = "Hub   J spy   K merc   N plaza   G emotes   U use   X stop   V vote   H watch   P players   O armoury   Enter/F5 chat   F6 team chat   Esc menu   Stand on a match pad to queue",
         };
         if (OpenScctGame.UI.UiArt.CaptionFont is { } caption)
@@ -122,9 +123,22 @@ public partial class HubHud : CanvasLayer
         }
     }
 
+    /// <summary>The key hints wrap within this share of the screen's width, clear of the top right readouts (frame rate, network, voice).</summary>
+    private const float HelpWidthShare = 0.42f;
+
     public override void _Process(double delta)
     {
         Vector2 size = GetViewport().GetVisibleRect().Size;
+        if (_help is not null)
+        {
+            float width = Mathf.Max(320f, size.X * HelpWidthShare);
+            if (!Mathf.IsEqualApprox(_help.CustomMinimumSize.X, width))
+            {
+                _help.CustomMinimumSize = new Vector2(width, 0f);
+                _help.ResetSize();
+            }
+        }
+
         if (_chat is not null && _entry is not null)
         {
             _chat.Position = new Vector2(16f, size.Y - 260f);
@@ -188,7 +202,9 @@ public partial class HubHud : CanvasLayer
             ? HubPadView.StateColour(info.State)
             : new Color(1f, 1f, 1f, 0.9f);
         _queue.Size = new Vector2(size.X * 0.8f, 0f);
-        _queue.Position = new Vector2(size.X * 0.1f, 84f);
+        // Under the key hints however many lines they wrap to.
+        float below = _help is { Visible: true } help ? help.Position.Y + help.Size.Y + 8f : 0f;
+        _queue.Position = new Vector2(size.X * 0.1f, Mathf.Max(84f, below));
     }
 
     private void RefreshChat(HubClient client)
