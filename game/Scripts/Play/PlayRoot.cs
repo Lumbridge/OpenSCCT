@@ -474,6 +474,7 @@ public partial class PlayRoot : Node3D
         }
 
         Devices?.OnTick(session.Client.World.Level);
+        Map?.LightBeams?.OnTick(session.Client.Map?.Loaded);
         TriggerMapEmitters(session);
         Pawns?.OnTick(session.Client.World.Level);
         Fx?.OnTick(session);
