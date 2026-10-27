@@ -12,7 +12,7 @@ Rules:
   ghidra-project  Ghidra project or archive (.gpr, .gzf, anything inside a *.rep folder)
   game-extension  original game file type (.sdc .usx .utx .utc .ukx .uax .uas .mux .u .int)
   media           DDS, glTF/GLB, OGG, WAV or image files (by extension or content) outside fixtures/,
-                  docs/images/ and game/branding/ (our own art)
+                  docs/images/, game/branding/ and tools/branding/discord/ (our own art)
   size            file larger than 5 MB
   ue-package      content starts with the UE package tag C1 83 2A 9E
   pe-binary       Windows executable or DLL (the game, the editor and Reloaded.Core are PE files)
@@ -53,8 +53,10 @@ GHIDRA_EXTENSIONS = frozenset({".gpr", ".gzf"})
 MEDIA_EXTENSIONS = frozenset(
     {".dds", ".glb", ".gltf", ".ogg", ".wav", ".png", ".jpg", ".jpeg", ".tga", ".bmp"}
 )
-# game/branding/ holds our own art (drawn by tools/branding/make_branding.py), never game files.
-MEDIA_ALLOWED_PREFIXES = ("fixtures/", "docs/images/", "game/branding/")
+# game/branding/ and tools/branding/discord/ hold our own art (drawn by tools/branding/make_branding.py
+# and make_discord_art.py), never game files.
+MEDIA_ALLOWED_PREFIXES = ("fixtures/", "docs/images/", "game/branding/", "tools/branding/discord/")
+MEDIA_ALLOWED_TEXT = ", ".join(MEDIA_ALLOWED_PREFIXES)
 
 SPEC_PREFIXES = ("spec/",)
 ANNOTATION_PREFIXES = ("re/ghidra/annotations/",)
@@ -277,7 +279,7 @@ def check_entry(entry: Entry) -> list[Finding]:
     media_allowed = _starts_with_any(low, MEDIA_ALLOWED_PREFIXES)
     media_reported = False
     if ext in MEDIA_EXTENSIONS and not media_allowed:
-        add("media", f"{ext} file outside fixtures/, docs/images/ and game/branding/")
+        add("media", f"{ext} file outside {MEDIA_ALLOWED_TEXT}")
         media_reported = True
     if entry.size > MAX_BYTES:
         add("size", f"{entry.size / (1024 * 1024):.1f} MB, over the 5 MB limit")
@@ -294,7 +296,7 @@ def check_entry(entry: Entry) -> list[Finding]:
     if not media_allowed and not media_reported:
         kind = _media_kind(head)
         if kind:
-            add("media", f"{kind} content outside fixtures/, docs/images/ and game/branding/")
+            add("media", f"{kind} content outside {MEDIA_ALLOWED_TEXT}")
 
     if entry.size <= MAX_BYTES:
         text = _decode_text(data)
