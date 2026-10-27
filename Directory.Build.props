@@ -11,6 +11,6 @@
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
     <RepoRoot>$(MSBuildThisFileDirectory)</RepoRoot>
     <!-- The OpenSCCT version (OpenScct.Net BuildInfo: the menus, the server browser and the master; the build number is in Directory.Build.targets); releases pass -p:Version. -->
-    <VersionPrefix>0.8.5</VersionPrefix>
+    <VersionPrefix>0.8.6</VersionPrefix>
   </PropertyGroup>
 </Project>
