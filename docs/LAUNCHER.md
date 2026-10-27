@@ -34,7 +34,7 @@ come with .NET 10. The test project uses the repository's pinned xunit.v3 versio
 
 ## Version and build number
 
-The version is `VersionPrefix` in `Directory.Build.props` (0.6.0; a release passes `-p:Version`), and the build number
+The version is `VersionPrefix` in `Directory.Build.props` (0.6.1; a release passes `-p:Version`), and the build number
 is the UTC timestamp of the commit the build is made from, `yyyyMMdd.HHmm` (`Directory.Build.targets`). Both are stamped
 into every assembly; `OpenScct.Net.Discovery.BuildInfo` reads them back for the server browser, the master and the
 menus, which show "OpenSCCT 0.5.0  build 20261026.1737 (a82eaa0)" in the bottom-right corner of the main menu and
@@ -58,27 +58,34 @@ release tag to decide whether it needs to update itself. A framework-dependent b
 
 1. Export the game from a pushed commit (Godot, preset "Windows Desktop", to `local\build\OpenSCCT.exe`).
 2. `tools\release\New-Release.ps1 -Version 0.2.0 -PublishLauncher`
-3. Edit `local\release\0.2.0\notes.md`, then run `local\release\0.2.0\publish.ps1`: it creates the draft release
-   with its assets and uploads the new blobs in batches (run it again to retry a failed upload).
+3. Edit `local\release\0.2.0\notes.md`, then run `local\release\0.2.0\publish.ps1`: it uploads the game files to
+   the `game-files` release in batches (made the first time) and then creates the draft version release with the
+   launcher only (run it again to retry a failed upload).
 4. Check the draft on GitHub and publish it. The launcher ignores drafts, and the next release's delta is made
    against the newest published one.
 
 The script refuses a build that has original game file types or converted content folders (`maps`, `svmap`,
 `shared`, `.content`, `packs`) in it, runs `tools/ci/no_game_data.ps1 --all` on the staged files, leaves out
-`override.cfg` and logs, adds `openscct-build.json` (version, commit, dirty flag, time) and writes:
+`override.cfg` and logs, adds `openscct-build.json` (version, commit, dirty flag, time) and writes two sets of
+assets. Players see one download per version; everything else is the launcher's business.
+
+**The version release** (`v<version>`) holds only `OpenSCCT.Launcher-<version>-win-x64.exe`.
+
+**The game files release** (tag `game-files`, one for every version, a prerelease so it is never "Latest"):
 
 | Asset | What |
 |---|---|
 | `OpenSCCT-<version>-win-x64-files.json` | the build's file list for delta updates (below) |
-| `<sha256>.gz` | one gzipped file of the build per new file content (only content no earlier release holds) |
-| `OpenSCCT-<version>-win-x64.zip` | the exported game, files at the top level of the zip (one wrapping folder is also accepted); the fallback when a delta cannot be made |
-| `OpenSCCT.Launcher-<version>-win-x64.exe` | the launcher, optional |
-| `checksums.txt` | `<sha256>  <asset name>` per line (sha256sum format) |
+| `<sha256>.gz` | one gzipped file of the build per new file content of 256 KB or more |
+| `OpenSCCT-<version>-win-x64-pack.zip` | the smaller new file contents, one zip entry per SHA-256 |
+| `<asset>.sha256` | `<sha256>  <asset name>` for the file list and the launcher |
 
-A release may instead publish `<asset>.sha256` per file; the launcher looks for that first. An asset without a
-published checksum is never installed. The tag is the version with a `v` in front (`v0.2.0`, `v0.3.0-beta.1`); a
-version with a prerelease part is also published as a GitHub prerelease, and the launcher skips prereleases unless
-"Include prereleases" is on.
+The launcher looks for each asset in the version release first, then in `game-files` (asked for by tag when it is
+older than the list's first page), so an old-style release with `checksums.txt` and a full game zip in the version
+release still installs. An asset without a published checksum is never installed. The tag is the version with a `v`
+in front (`v0.2.0`, `v0.3.0-beta.1`); a version with a prerelease part is also published as a GitHub prerelease, and
+the launcher skips prereleases unless "Include prereleases" is on. `game-files` is not a version tag, so it is never
+picked as one. GitHub allows 1000 assets per release; `publish.ps1` stops before `game-files` passes 990.
 
 The script publishes nothing and does not change the repository's visibility. The repository is public, so players
 need no token; a token (below) is only for a private fork.
@@ -107,27 +114,27 @@ The game is exported with its pack beside the exe (`OpenSCCT.pck`, `binary_forma
 game/export_presets.cfg), so the engine exe (about 110 MB) stays the same from build to build and a typical update
 is the pack plus our own DLLs.
 
-Each release carries `OpenSCCT-<version>-win-x64-files.json`:
+Each version has `OpenSCCT-<version>-win-x64-files.json` in the `game-files` release:
 
 ```
 { "format": 1, "version": "0.6.0", "commit": "...",
   "files": [ { "path": "OpenSCCT.pck", "size": 21733120, "sha256": "9c5a...",
-               "blob": { "tag": "v0.6.0", "name": "9c5a....gz", "size": 8012233 } } ] }
+               "blob": { "tag": "game-files", "name": "9c5a....gz", "size": 8012233 } } ] }
 ```
 
 Every file of the build is listed with its SHA-256 and the release asset that holds it, gzipped and named by the
-hash. `New-Release.ps1` reads the newest published release's list (`-BaseTag` picks another, `-NoDelta` none): a
-file whose hash is there keeps pointing at that older asset; only new content becomes a blob of the new release.
-Each blob is uploaded once and stays in the release that first had it.
+hash (small files are members of a version's pack zip). `New-Release.ps1` reads the newest published version's
+list (`-BaseTag` picks another, `-NoDelta` none): a file whose hash is there keeps pointing at that older asset; only
+new content becomes a new blob. Each blob is uploaded once and stays in `game-files`.
 
 The launcher (`DeltaInstaller`) hashes the files of the installed current and previous versions (only files of a
 size the list has), copies every file it already has into the new version's staging folder, downloads the missing
 blobs (resumable, from whichever release holds them; a release older than the list's first page is asked for by
 tag), unpacks each while checking its SHA-256, and renames the folder into place as before. A fresh install
-downloads every blob once. The file list itself is checked against `checksums.txt`.
+downloads every blob once. The file list itself is checked against its `.sha256`.
 
-When a blob's release is gone the launcher falls back to the release's full zip. **Do not delete old releases**
-whose blobs newer releases still point at, or make the next release with `-NoDelta`.
+There is no full game zip any more: **never delete the `game-files` release or assets in it** that a published
+version's list points at. Deleting an old version release is fine; its files stay in `game-files`.
 
 ## How an update works
 

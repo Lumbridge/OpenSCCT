@@ -65,6 +65,16 @@ public sealed class UpdateService
     {
         ReleaseFeed feed = await _github.GetReleasesAsync(cancel).ConfigureAwait(false);
         VersionedRelease? latest = ReleasePicker.Latest(feed.Releases, includePrereleases);
+        if (latest is not null)
+        {
+            // The game files release: in the list, or asked for by tag once it is older than the list's first page.
+            ReleaseInfo? files = feed.Releases.FirstOrDefault(r => string.Equals(r.TagName, ReleasePicker.StoreTag, StringComparison.Ordinal) && !r.Draft)
+                ?? (ReleasePicker.FilesAsset(latest) is null && ReleasePicker.GameAsset(latest) is null
+                    ? await _github.GetReleaseByTagAsync(ReleasePicker.StoreTag, cancel).ConfigureAwait(false)
+                    : null);
+            latest = latest with { Store = files };
+        }
+
         SemVersion? installed = _store.Current();
         bool game = latest is not null && (ReleasePicker.FilesAsset(latest) is not null || ReleasePicker.GameAsset(latest) is not null)
             && (installed is null || latest.Version > installed);

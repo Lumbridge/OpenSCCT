@@ -1,14 +1,21 @@
 <#
 .SYNOPSIS
-    Packs an exported OpenSCCT build (and optionally the launcher) into release assets with a checksum file, and
-    prints the gh command that would publish them. Publishes nothing itself.
+    Packs an exported OpenSCCT build and the launcher into release assets, and writes the script that publishes
+    them. Publishes nothing itself.
 
 .DESCRIPTION
+    A version release (v<version>) carries only the launcher, so players see one download. Everything the launcher
+    fetches itself goes to the game files release (tag game-files, shared by every version).
+
     Writes to local\release\<version>\ (gitignored):
-        OpenSCCT-<version>-win-x64.zip            the exported game build, our code only
-        OpenSCCT.Launcher-<version>-win-x64.exe   the launcher (when found or published with -PublishLauncher)
-        checksums.txt                             SHA-256 of each asset, sha256sum format
-        notes.md                                  release notes template (when -NotesFile is not given)
+        OpenSCCT.Launcher-<version>-win-x64.exe          the launcher: the only asset of the version release
+        game-files\                                       what goes to the game files release:
+            OpenSCCT-<version>-win-x64-files.json         the build's file list (delta updates)
+            OpenSCCT-<version>-win-x64-files.json.sha256  its SHA-256
+            OpenSCCT.Launcher-<version>-win-x64.exe.sha256  the launcher's SHA-256
+            <sha256>.gz, OpenSCCT-<version>-win-x64-pack.zip  the build's new file contents
+        notes.md                                         release notes template (when -NotesFile is not given)
+        publish.ps1                                      uploads the game files, then makes the draft version release
 
     The build is checked for original game files and converted content before it is zipped: a release carries our
     code builds only. Game content is built on the player's machine from their own install.
@@ -41,6 +48,9 @@ param(
     [string]$OutDir,
 
     [string]$Repo = 'Lumbridge/OpenSCCT',
+
+    # The release that holds every version's game files (ReleasePicker.StoreTag in the launcher).
+    [string]$StoreTag = 'game-files',
 
     [string]$NotesFile,
 
@@ -159,11 +169,15 @@ if (-not $NoDelta) {
     if (-not $BaseTag) {
         $listed = & gh release list --repo $Repo --exclude-drafts --limit 30 --json tagName,publishedAt 2>$null | ConvertFrom-Json
         if ($LASTEXITCODE -ne 0) { Write-Warning 'gh could not list releases; every file becomes a new blob.'; $listed = @() }
-        $BaseTag = ($listed | Sort-Object publishedAt -Descending | Select-Object -First 1).tagName
+        $BaseTag = ($listed | Where-Object { $_.tagName -match '^v\d' } | Sort-Object publishedAt -Descending | Select-Object -First 1).tagName
     }
     if ($BaseTag) {
         $baseDir = Join-Path $OutDir '.base'
-        & gh release download $BaseTag --repo $Repo --pattern '*-files.json' --dir $baseDir 2>$null
+        $baseVersion = $BaseTag.TrimStart('v')
+        & gh release download $StoreTag --repo $Repo --pattern "OpenSCCT-$baseVersion-win-x64-files.json" --dir $baseDir 2>$null
+        if (-not (Test-Path (Join-Path $baseDir "OpenSCCT-$baseVersion-win-x64-files.json"))) {
+            & gh release download $BaseTag --repo $Repo --pattern '*-files.json' --dir $baseDir 2>$null
+        }
         $baseList = Get-ChildItem -LiteralPath $baseDir -Filter '*-files.json' -ErrorAction SilentlyContinue | Select-Object -First 1
         if ($baseList) {
             foreach ($f in (Get-Content -LiteralPath $baseList.FullName -Raw | ConvertFrom-Json).files) { $known[$f.sha256] = $f.blob }
@@ -179,13 +193,13 @@ if (-not $NoDelta) {
 # New file contents become blobs of this release: a file of 256 KB or more is its own gzipped asset <sha256>.gz; the
 # smaller ones go together into one zip pack (entries named by their SHA-256), so a release stays well under GitHub's
 # 1000 assets per release.
-$blobDir = Join-Path $OutDir 'blobs'
+$blobDir = Join-Path $OutDir 'game-files'
 New-Item -ItemType Directory -Force $blobDir | Out-Null
 $packLimit = 256KB
 $packName = "OpenSCCT-$Version-win-x64-pack.zip"
 $packPath = Join-Path $blobDir $packName
 $pack = $null
-$packRef = [ordered]@{ tag = "v$Version"; name = $packName; size = 0 }
+$packRef = [ordered]@{ tag = $StoreTag; name = $packName; size = 0 }
 $entries = [System.Collections.Generic.List[object]]::new()
 $newBlobs = @{}
 $fullSize = 0L
@@ -207,7 +221,7 @@ try {
                 $out = [System.IO.File]::Create($gz)
                 $zip = [System.IO.Compression.GZipStream]::new($out, [System.IO.Compression.CompressionLevel]::Optimal)
                 try { $in.CopyTo($zip) } finally { $zip.Dispose(); $out.Dispose(); $in.Dispose() }
-                $blob = [ordered]@{ tag = "v$Version"; name = "$sha.gz"; size = (Get-Item -LiteralPath $gz).Length }
+                $blob = [ordered]@{ tag = $StoreTag; name = "$sha.gz"; size = (Get-Item -LiteralPath $gz).Length }
             }
             $newBlobs[$sha] = $blob
         }
@@ -223,18 +237,14 @@ if (Test-Path -LiteralPath $packPath) {
     $packSize = (Get-Item -LiteralPath $packPath).Length
     foreach ($b in $newBlobs.Values) { if ($b.Contains('member')) { $b.size = $packSize } }
 }
-$filesJson = Join-Path $OutDir "OpenSCCT-$Version-win-x64-files.json"
+$uploads = @(Get-ChildItem -LiteralPath $blobDir -File)
+$filesJson = Join-Path $blobDir "OpenSCCT-$Version-win-x64-files.json"
 [ordered]@{ format = 1; version = $Version; commit = $commit; files = $entries } |
     ConvertTo-Json -Depth 5 | Set-Content -LiteralPath $filesJson -Encoding utf8NoBOM
-$assets += $filesJson
-$uploads = @(Get-ChildItem -LiteralPath $blobDir -File)
 $newSize = ($uploads | Measure-Object -Property Length -Sum).Sum
 Write-Host ('{0} files, {1:N1} MB; {2} new files in {3} uploads ({4:N1} MB compressed)' -f $entries.Count, ($fullSize / 1MB), $newBlobs.Count, $uploads.Count, ($newSize / 1MB))
 
-$gameZip = Join-Path $OutDir "OpenSCCT-$Version-win-x64.zip"
-[System.IO.Compression.ZipFile]::CreateFromDirectory($staging, $gameZip, [System.IO.Compression.CompressionLevel]::Optimal, $false)
 Remove-Item -LiteralPath $staging -Recurse -Force
-$assets += $gameZip
 
 if (-not $SkipLauncher) {
     $project = Join-Path $repoRoot 'src\OpenScct.Launcher\OpenScct.Launcher.csproj'
@@ -258,13 +268,11 @@ if (-not $SkipLauncher) {
     }
 }
 
-$lines = foreach ($asset in $assets) {
-    $hash = (Get-FileHash -LiteralPath $asset -Algorithm SHA256).Hash.ToLowerInvariant()
-    "$hash  $(Split-Path $asset -Leaf)"
+foreach ($file in @($filesJson) + $assets) {
+    $name = Split-Path $file -Leaf
+    $hash = (Get-FileHash -LiteralPath $file -Algorithm SHA256).Hash.ToLowerInvariant()
+    [System.IO.File]::WriteAllText((Join-Path $blobDir "$name.sha256"), "$hash  $name`n")
 }
-$checksums = Join-Path $OutDir 'checksums.txt'
-[System.IO.File]::WriteAllText($checksums, (($lines -join "`n") + "`n"))
-$assets += $checksums
 
 if (-not $NotesFile) {
     $NotesFile = Join-Path $OutDir 'notes.md'
@@ -283,26 +291,35 @@ Write-Host ''
 Write-Host "Release assets in $OutDir" -ForegroundColor Green
 foreach ($asset in $assets) {
     $size = '{0,10:N1} MB' -f ((Get-Item $asset).Length / 1MB)
-    Write-Host "  $size  $(Split-Path $asset -Leaf)"
+    Write-Host "  $size  $(Split-Path $asset -Leaf)  (the version release)"
 }
-Write-Host ("  {0,10:N1} MB  {1} new file uploads in blobs\" -f ($newSize / 1MB), $uploads.Count)
+$storeFiles = @(Get-ChildItem -LiteralPath $blobDir -File)
+Write-Host ("  {0,10:N1} MB  {1} files for the $StoreTag release in game-files\" -f ((($storeFiles | Measure-Object -Property Length -Sum).Sum) / 1MB), $storeFiles.Count)
 
-# The blobs are too many for one command line, so the publish steps go in a script to review and run.
+# The game files are too many for one command line, so the publish steps go in a script to review and run.
 $quoted = ($assets | ForEach-Object { '"' + $_ + '"' }) -join ' '
 $pre = if ($isPrerelease) { ' --prerelease' } else { '' }
 $publish = Join-Path $OutDir 'publish.ps1'
 @"
-# Creates the draft release v$Version with its assets and new blobs. Check the draft on GitHub, then publish it.
+# Uploads the game files to the $StoreTag release (made once, as a prerelease so it is never "Latest"), then creates
+# the draft release v$Version with the launcher only. Check the draft on GitHub, then publish it.
 `$ErrorActionPreference = 'Stop'
+gh release view $StoreTag --repo $Repo *> `$null
+if (`$LASTEXITCODE -ne 0) {
+    gh release create $StoreTag --repo $Repo --target $commit --title "Game files (the launcher downloads these)" --prerelease --latest=false --notes "Files the OpenSCCT launcher downloads and checks by itself. You do not need anything here: download the launcher from the latest release instead."
+    if (`$LASTEXITCODE -ne 0) { throw 'gh release create $StoreTag failed.' }
+}
+`$count = [int](gh release view $StoreTag --repo $Repo --json assets --jq '.assets | length')
+`$files = @(Get-ChildItem -LiteralPath "$blobDir" -File | ForEach-Object FullName)
+if (`$count + `$files.Count -gt 990) { throw "$StoreTag would pass GitHub's 1000 assets per release (`$count there, `$(`$files.Count) new)." }
+for (`$i = 0; `$i -lt `$files.Count; `$i += 20) {
+    gh release upload $StoreTag @(`$files[`$i..([Math]::Min(`$i + 19, `$files.Count - 1))]) --repo $Repo --clobber
+    if (`$LASTEXITCODE -ne 0) { throw 'gh release upload failed; run this script again to retry.' }
+}
 gh release view v$Version --repo $Repo *> `$null
 if (`$LASTEXITCODE -ne 0) {
     gh release create v$Version $quoted --repo $Repo --target $commit --title "OpenSCCT $Version" --notes-file "$NotesFile" --draft$pre
     if (`$LASTEXITCODE -ne 0) { throw 'gh release create failed.' }
-}
-`$blobs = @(Get-ChildItem -LiteralPath "$blobDir" -File | ForEach-Object FullName)
-for (`$i = 0; `$i -lt `$blobs.Count; `$i += 20) {
-    gh release upload v$Version @(`$blobs[`$i..([Math]::Min(`$i + 19, `$blobs.Count - 1))]) --repo $Repo --clobber
-    if (`$LASTEXITCODE -ne 0) { throw 'gh release upload failed; run this script again to retry the blobs.' }
 }
 "@ | Set-Content -LiteralPath $publish -Encoding utf8NoBOM
 
