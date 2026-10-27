@@ -536,7 +536,9 @@ public sealed class NetDriver : IDisposable
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
         Time = now;
-        FrameMicros = _lastFlush < 0 ? 0 : now - _lastFlush;
+        // A clock that steps back (a caller switching clocks) must not count as negative time: the refill would turn
+        // into a send debt of twice the step, and every unreliable call would be dropped until it was paid off.
+        FrameMicros = _lastFlush < 0 ? 0 : Math.Max(0, now - _lastFlush);
         _lastFlush = now;
         RefillBudget(FrameMicros);
         if (IsServer && replicate && World is not null)

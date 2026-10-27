@@ -486,7 +486,9 @@ public partial class HubService : Node
         {
             Settings = settings,
             GameRoot = App.From(this).Options.GameRoot,
-            CreateSession = clock => new PlaySession(settings, clock, session, Catalog.Maps, folder, loader),
+            // The play scene ticks the connection on this service's clock, the one it was ticked on so far: a fresh
+            // clock would start behind it, and the driver would see time go backwards.
+            CreateSession = _ => new PlaySession(settings, _clock, session, Catalog.Maps, folder, loader),
         };
         client.SessionTickedElsewhere = true;
         _round = PlayRoot.Enter(GetTree(), config);
