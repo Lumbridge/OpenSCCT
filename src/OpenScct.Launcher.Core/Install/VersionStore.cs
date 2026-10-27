@@ -169,8 +169,12 @@ public sealed class VersionStore
         SemVersion? old = Current();
         if (old is not null && old == version)
         {
-            if (manifest.Pending is not null)
+            // Current() falls back to the newest folder when the manifest names none: write the name down, or the
+            // next install would become current on its own.
+            string name = version.ToString();
+            if (manifest.Current != name || manifest.Pending is not null)
             {
+                manifest.Current = name;
                 manifest.Pending = null;
                 manifest.Save(_layout.Manifest);
             }

@@ -117,7 +117,9 @@ public sealed class GeneratorTests
         Assert.DoesNotContain(widget, l => l.StartsWith("DrawType =", StringComparison.Ordinal));
         Assert.DoesNotContain(widget, l => l.StartsWith("Role =", StringComparison.Ordinal));
         Assert.Contains("Count = 3;", widget);
-        Assert.Contains("Label = \"Say \\\"hi\\\"\\nnow\";", widget);
+        // Localized text is read at run time (docs/CODEGEN.md), never written as a literal.
+        Assert.Contains(widget, l => l.StartsWith("Label = ", StringComparison.Ordinal) && l.EndsWith("UcText.Get(\"Demo.Widget\", \"Label\", Label);", StringComparison.Ordinal));
+        Assert.DoesNotContain(widget, l => l.Contains("Say ", StringComparison.Ordinal));
         Assert.Contains("Mode = EMode.MODE_On;", widget);
         Assert.Contains("Info = new FWidgetInfo { Count = 2, Note = \"x\" };", widget);
         Assert.Contains("Info.Steps[1] = 1.5f;", widget);

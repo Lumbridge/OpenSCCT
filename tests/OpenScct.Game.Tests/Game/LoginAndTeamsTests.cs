@@ -1,5 +1,6 @@
 using OpenScct.Core;
 using OpenScct.Core.Engine;
+using OpenScct.Core.Uc;
 using OpenScct.Game.SBase;
 using Xunit;
 
@@ -41,6 +42,7 @@ public class LoginAndTeamsTests
     [Fact]
     public void A_full_server_refuses_the_login_with_the_capacity_message()
     {
+        Assert.SkipUnless(UcText.HasText, "the game text (shared/classes.json) is not in .content");
         GameWorld w = Map();
         w.Game.MaxPlayers = 1;
         w.Join("?Name=A?Team=0");
@@ -94,6 +96,7 @@ public class LoginAndTeamsTests
     [Fact]
     public void A_map_without_any_start_refuses_every_playing_login()
     {
+        Assert.SkipUnless(UcText.HasText, "the game text (shared/classes.json) is not in .content");
         GameWorld w = new GameWorld().Load(Story);
         (PlayerController? pc, string error) = w.TryJoin("?Name=M?Team=1");
         Assert.Null(pc);

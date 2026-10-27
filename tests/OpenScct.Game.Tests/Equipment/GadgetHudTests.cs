@@ -1,5 +1,6 @@
 using OpenScct.Core;
 using OpenScct.Core.Engine;
+using OpenScct.Core.Uc;
 using OpenScct.Game.Equipment;
 using OpenScct.Game.SBase;
 using OpenScct.Game.Tests.Combat;
@@ -86,6 +87,7 @@ public sealed class GadgetHudTests
     [Fact]
     public void TheCameraPageShowsTheCameraNameOrThatItIsUnderControl()
     {
+        Assert.SkipUnless(UcText.HasText, "the game text (shared/classes.json) is not in .content");
         (CombatScene scene, SPlayerController pc, SBasePawn merc, SGadCamNetwork gad, SCamNetwork a, _) = Network();
         Assert.Null(GadgetHudRules.CamNetworkName(pc));
         gad.Use(1f);
@@ -116,6 +118,7 @@ public sealed class GadgetHudTests
     [Fact]
     public void TheStickyMenuShowsItsLinesWithTheSelectionAndGreysWhatCannotBeUsed()
     {
+        Assert.SkipUnless(UcText.HasText, "the game text (shared/classes.json) is not in .content");
         (_, SPlayerController pc, SPawnAttaque spy, SGadStickyCam gad) = StickySpy();
         Assert.Null(GadgetHudRules.StickyCamMenu(pc));
         pc.GotoStickyInteractionMenu();
@@ -153,6 +156,7 @@ public sealed class GadgetHudTests
     [Fact]
     public void TheMineMenuListsFiveEntriesWithTheSelectedTypeAndGreysTheUnavailableOnes()
     {
+        Assert.SkipUnless(UcText.HasText, "the game text (shared/classes.json) is not in .content");
         CombatScene scene = GadgetKit.Scene();
         (SPlayerController pc, SBasePawn merc) = GadgetKit.Local(scene, false, new FVector(0f, 0f, 100f));
         SGadMultiMinesLauncher gad = GadgetKit.Gadget(scene, merc, new SGadMultiMinesLauncher());

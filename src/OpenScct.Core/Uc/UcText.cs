@@ -34,6 +34,9 @@ public static class UcText
         }
     }
 
+    /// <summary>True when the text was found (tests that need it skip without it, as CI has no content).</summary>
+    public static bool HasText => Table().Count > 0;
+
     /// <summary>The localized value of <paramref name="property"/> in class <paramref name="classPath"/>, or <paramref name="fallback"/>.</summary>
     public static string Get(string classPath, string property, string fallback) =>
         Find(classPath, property) is { ValueKind: JsonValueKind.String } v ? v.GetString() ?? fallback : fallback;

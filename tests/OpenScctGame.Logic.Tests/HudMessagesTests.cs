@@ -1,6 +1,7 @@
 using System.Linq;
 using OpenScct.Core;
 using OpenScct.Core.Engine;
+using OpenScct.Core.Uc;
 using OpenScct.Game.SBase;
 using OpenScctGame.Hud;
 using Xunit;
@@ -55,6 +56,7 @@ public sealed class HudMessagesTests
     [Fact]
     public void DeathMessagesSayWhoKilledWhom()
     {
+        Assert.SkipUnless(UcText.HasText, "the game text (shared/classes.json) is not in .content");
         var killer = new PlayerReplicationInfo { PlayerName = "Shadownet" };
         var victim = new PlayerReplicationInfo { PlayerName = "Ghost" };
         Assert.Equal("Shadownet killed Ghost", HudMessages.DeathString(0, killer, victim));
@@ -73,6 +75,7 @@ public sealed class HudMessagesTests
     [Fact]
     public void ATeammatesDeathIsPriorityTwoAndAnEnemysPriorityOne()
     {
+        Assert.SkipUnless(UcText.HasText, "the game text (shared/classes.json) is not in .content");
         var rig = new Rig();
         HudMessages.ReceiveLocalizedMessage(rig.Pc, HudMessages.DeathMessageClass, 0, rig.Merc, rig.Mate, null);
         HudMessages.ReceiveLocalizedMessage(rig.Pc, HudMessages.DeathMessageClass, 0, rig.Mate, rig.Merc, null);
@@ -176,6 +179,7 @@ public sealed class HudMessagesTests
     [Fact]
     public void GameMessagesRouteByTheirSwitch()
     {
+        Assert.SkipUnless(UcText.HasText, "the game text (shared/classes.json) is not in .content");
         var rig = new Rig();
         HudMessages.ReceiveLocalizedMessage(rig.Pc, HudMessages.GameMessagesClass, 56, rig.Mate, null, null);
         Assert.Contains(rig.Hud.MessageStack, m => m.Message == "Ghost used his last life");

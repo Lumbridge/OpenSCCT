@@ -14,20 +14,31 @@ public sealed class InGameMenuModelTests
     private static (InGameMenuButton, float)[] Tops(InGameMenuContext c) =>
         InGameMenuModel.Layout(c).Select(e => (e.Button, e.Top)).ToArray();
 
+    // Change Gear (an OpenSCCT addition) goes under Back; the column keeps the 0.1 spacing, raised by half a step.
+    private static void AssertTops((InGameMenuButton Button, float Top)[] expected, (InGameMenuButton Button, float Top)[] actual)
+    {
+        Assert.Equal(expected.Select(e => e.Button), actual.Select(e => e.Button));
+        for (int i = 0; i < expected.Length; i++)
+        {
+            Assert.Equal(expected[i].Top, actual[i].Top, 0.0001f);
+        }
+    }
+
     [Fact]
     public void Offline_has_no_return_to_lobby()
     {
-        Assert.Equal(
-            [(InGameMenuButton.Back, 0.325f), (InGameMenuButton.StrategicMap, 0.425f), (InGameMenuButton.Options, 0.525f), (InGameMenuButton.QuitSession, 0.625f)],
+        AssertTops(
+            [(InGameMenuButton.Back, 0.275f), (InGameMenuButton.ChangeGear, 0.375f), (InGameMenuButton.StrategicMap, 0.475f),
+                (InGameMenuButton.Options, 0.575f), (InGameMenuButton.QuitSession, 0.675f)],
             Tops(Offline));
     }
 
     [Fact]
     public void Network_host_gets_return_to_lobby()
     {
-        Assert.Equal(
-            [(InGameMenuButton.Back, 0.275f), (InGameMenuButton.StrategicMap, 0.375f), (InGameMenuButton.Options, 0.475f),
-                (InGameMenuButton.ReturnToLobby, 0.575f), (InGameMenuButton.QuitSession, 0.675f)],
+        AssertTops(
+            [(InGameMenuButton.Back, 0.225f), (InGameMenuButton.ChangeGear, 0.325f), (InGameMenuButton.StrategicMap, 0.425f),
+                (InGameMenuButton.Options, 0.525f), (InGameMenuButton.ReturnToLobby, 0.625f), (InGameMenuButton.QuitSession, 0.725f)],
             Tops(LanHost));
     }
 
@@ -51,7 +62,7 @@ public sealed class InGameMenuModelTests
     [Fact]
     public void Captions_are_the_originals()
     {
-        Assert.Equal(["Back", "Strategic Map", "Options", "Return to Lobby", "Quit Session"], InGameMenuModel.Layout(LanHost).Select(e => e.Caption));
+        Assert.Equal(["Back", "Change Gear", "Strategic Map", "Options", "Return to Lobby", "Quit Session"], InGameMenuModel.Layout(LanHost).Select(e => e.Caption));
         Assert.Equal("In-Game Menu", InGameMenuK.Title);
     }
 

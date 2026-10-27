@@ -4,6 +4,8 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>net10.0-windows</TargetFramework>
     <UseWindowsForms>true</UseWindowsForms>
+    <!-- Lets the Linux CI job build the whole solution (it never runs the launcher). -->
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
     <AssemblyName>OpenSCCT.Launcher</AssemblyName>
     <RootNamespace>OpenScct.Launcher.App</RootNamespace>
     <ApplicationIcon>..\..\game\branding\icon.ico</ApplicationIcon>
