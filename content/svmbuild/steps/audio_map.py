@@ -20,7 +20,7 @@ from .audio import audio_code
 
 class AudioMapStep(Step):
     name = "audio-map"
-    version = 1
+    version = 2
     deps = ("audio", "maps")
     per_map = True
     needs_game = True

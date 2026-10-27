@@ -187,7 +187,12 @@ public sealed class MapFetch
             var progress = new Counter<MapDownloadProgress>(p => Set(MapFetchStage.Downloading,
                 $"Downloading {map.Name}: {Mb(p.Received)} of {Mb(p.Total)}", p.Total > 0 ? (double)p.Received / p.Total : 1));
             Set(MapFetchStage.Downloading, $"Downloading {map.Name}...", 0);
-            await library.InstallAsync(map, repository, progress, cancel).ConfigureAwait(false);
+            MapInstallResult result = await library.InstallAsync(map, repository, progress, cancel, index, MapDownloads.GameRoot)
+                .ConfigureAwait(false);
+            if (result.Missing.Count > 0)
+            {
+                GD.PushWarning(result.Warning(map.Name));
+            }
 
             // Convert only this map (the builder's cache keeps the rest); its output goes to a log beside the content.
             Set(MapFetchStage.Converting, $"Preparing {map.Name}. This can take a minute...", 1);
@@ -212,7 +217,7 @@ public sealed class MapFetch
             }
 
             ContentBuildFile.AdvanceDownloadedMaps(content, before, library.Fingerprint());
-            Set(MapFetchStage.Done, $"{map.Name} is ready.", 1);
+            Set(MapFetchStage.Done, result.Warning(map.Name) is { } warning ? $"{map.Name} is ready. {warning}" : $"{map.Name} is ready.", 1);
         }
         catch (OperationCanceledException)
         {

@@ -10,6 +10,8 @@ svmap/<Map>/audio/                    the "audio-map" step
                                       volume, radius, pitch, loop), the map's sound actors and the zones (ambience,
                                       I3DL2 reverb)
     streams/<Package>/<Name>.ogg      the Ogg Vorbis streams of the map's .uas bank, as stored
+    wav/<Map>/<Group>/<Name>.wav      the sounds stored in the map package itself (a community map's music), as
+                                      stored; their entries carry the full sound record and "root": "map"
 
 The map's manifest.json gets the audio files and the audio group hash, and requires the shared audio pack.
 """
@@ -213,13 +215,50 @@ def load_library(shared_audio: Path) -> dict:
 
 
 def bank_layout(game: Path, map_name: str) -> list[str]:
-    """Files (relative to the map's audio folder) the map's build writes, from the bank index alone."""
+    """Files (relative to the map's audio folder) the map's build writes, from the bank index and the map
+    package's own Sound exports."""
     rels = ["audio.json"]
     f = bank_file(game, map_name)
     if f.is_file():
         bank = uas.read_bank(f.read_bytes(), check_streams=False)
         rels += [stream_rel(e.package, e.name) for e in bank.entries]
+    rels += [wav_rel(path) for path in map_package_waves(game, map_name)]
     return sorted(set(rels))
+
+
+def _map_package(game: Path, map_name: str):
+    from ..gamefiles import game_file  # noqa: PLC0415
+    from ..paths import import_scctpkg  # noqa: PLC0415
+
+    import_scctpkg()
+    from scctpkg.package import Package  # noqa: PLC0415
+
+    f = game_file(Path(game), f"Packages/Maps/{map_name}.sdc")
+    return Package.load(f) if f.is_file() else None
+
+
+def read_map_sounds(pkg) -> tuple[dict[str, sound.SoundObject], list[str]]:
+    """The Sound exports stored in a map package itself: (path -> object, problems)."""
+    objects: dict[str, sound.SoundObject] = {}
+    problems: list[str] = []
+    if pkg is None:
+        return objects, problems
+    for e in pkg.exports:
+        if e.class_name != "Sound":
+            continue
+        try:
+            s = sound.decode_sound(pkg, e)
+        except Exception as ex:  # noqa: BLE001 - one bad sound is reported, the rest convert
+            problems.append(f"{e.full_name}: {type(ex).__name__}: {ex}")
+            continue
+        objects[s.path] = s
+    return objects, problems
+
+
+def map_package_waves(game: Path, map_name: str) -> list[str]:
+    """Paths of the map package's own sounds that carry wave data (one file each under audio/wav/)."""
+    objects, _ = read_map_sounds(_map_package(game, map_name))
+    return sorted((p for p, s in objects.items() if s.data is not None), key=str.lower)
 
 
 def _map_sound_entry(path: str, info: dict, bank: uas.Bank | None, streams: dict) -> dict:
@@ -266,7 +305,30 @@ def build_map_audio(game: Path, map_name: str, audio_dir: Path, library: dict, s
                 row["errors"] = st.errors
             stream_rows.append(row)
             streams[f"{e.package}.{e.name}".lower()] = row
-    found = refs.map_sound_refs(src, refs.SoundIndex(lib_sounds)) if src is not None else \
+    # Sounds stored in the map package itself (a community map's own music and effects): written under audio/wav/
+    # and played from the map folder.
+    own, own_problems = read_map_sounds(src.pkg if src is not None else _map_package(game, map_name))
+    own_info: dict[str, dict] = {}
+    if own:
+        by_name: dict[str, list[str]] = {}
+        for p in sorted(list(lib_sounds) + list(own), key=str.lower):
+            by_name.setdefault(p.rsplit(".", 1)[-1].lower(), []).append(p)
+        for path in sorted(own, key=str.lower):
+            s = own[path]
+            resolved = []
+            for e in s.entries:
+                hits = by_name.get(e.name.lower(), [])
+                mine = [h for h in hits if h.split(".", 1)[0].lower() == s.package.lower()]
+                resolved.append((mine or hits or [None])[0])
+            info = sound_json(s, resolved, None)
+            info["root"] = "map"
+            if s.data is not None:
+                target = audio_dir / wav_rel(path)
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_bytes(s.data)
+            own_info[path] = info
+    sounds_all = {**lib_sounds, **own_info}
+    found = refs.map_sound_refs(src, refs.SoundIndex(sounds_all)) if src is not None else \
         {"actors": [], "zones": [], "missing": {}}
     # Every sound the map can play: what its actors name, the streamed sounds of its bank's packages, and what
     # list sounds reach from those.
@@ -279,14 +341,15 @@ def build_map_audio(game: Path, map_name: str, audio_dir: Path, library: dict, s
     for path, info in lib_sounds.items():
         if info["kind"] in ("stream", "multichannel") and path.split(".", 1)[0].lower() in bank_packages:
             wanted.append(path)
+    wanted += list(own_info)
     seen: dict[str, dict] = {}
     queue = sorted(set(wanted), key=str.lower)
     while queue:
         path = queue.pop(0)
-        if path in seen or path not in lib_sounds:
+        if path in seen or path not in sounds_all:
             continue
-        info = lib_sounds[path]
-        seen[path] = _map_sound_entry(path, info, bank, streams)
+        info = sounds_all[path]
+        seen[path] = info if path in own_info else _map_sound_entry(path, info, bank, streams)
         for e in info.get("entries", []):
             if e.get("sound") and e["sound"] not in seen:
                 queue.append(e["sound"])
@@ -304,6 +367,8 @@ def build_map_audio(game: Path, map_name: str, audio_dir: Path, library: dict, s
         "zones": found["zones"],
         "missing": {"sounds": found["missing"], "streams": missing_streams},
     }
+    if own_problems:
+        doc["problems"] = own_problems
     (audio_dir / "audio.json").write_bytes(canonical.dump_file(doc))
     return {
         "streams": len(stream_rows),
@@ -318,6 +383,8 @@ def build_map_audio(game: Path, map_name: str, audio_dir: Path, library: dict, s
         "missingStreams": len(missing_streams),
         "missingRefs": len(found["missing"]),
         "noBank": bank is None,
+        "ownSounds": len(own_info),
+        "ownProblems": len(own_problems),
     }
 
 

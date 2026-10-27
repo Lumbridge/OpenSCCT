@@ -212,7 +212,9 @@ internal sealed class MapsForm : Form
         if (row.Installed is not null)
         {
             return row.Map is null ? RowState.Unlisted
-                : row.Map.Fingerprint == row.Installed.Fingerprint ? RowState.Downloaded : RowState.UpdateAvailable;
+                : row.Map.Fingerprint == row.Installed.Fingerprint && row.Installed.DependenciesChecked
+                    ? RowState.Downloaded
+                    : RowState.UpdateAvailable;
         }
 
         return row.Map is not null && MapLibrary.CodesInInstall(row.Map, _gamePath).Count == row.Map.Codes.Count
@@ -342,6 +344,14 @@ internal sealed class MapsForm : Form
         if (row.Installed is { } installed)
         {
             lines.Add("Downloaded " + installed.InstalledAt.ToLocalTime().ToString("g", CultureInfo.CurrentCulture) + ".");
+            if (MapInstallResult.MissingWarning(row.Name, installed.MissingPackages) is { } warning)
+            {
+                lines.Add(warning);
+            }
+            else if (!installed.DependenciesChecked)
+            {
+                lines.Add("Download it again to fetch the packages it needs that your game does not have.");
+            }
         }
 
         return string.Join("\r\n", lines);
@@ -373,6 +383,7 @@ internal sealed class MapsForm : Form
 
         await RunAsync("Downloading...", async cancel =>
         {
+            var warnings = new List<string>();
             for (int i = 0; i < maps.Count; i++)
             {
                 MapPackage map = maps[i];
@@ -384,13 +395,27 @@ internal sealed class MapsForm : Form
                     _progress.Fraction = p.Total > 0 ? (double)p.Received / p.Total : 1;
                     SetStatus($"{prefix}: {Mb(p.Received)} of {Mb(p.Total)}", Theme.Muted);
                 });
-                await _library.InstallAsync(map, _repository, progress, cancel);
+                MapInstallResult result = await _library.InstallAsync(map, _repository, progress, cancel, _catalog, _gamePath);
+                if (result.Warning(map.Name) is { } warning)
+                {
+                    warnings.Add(warning);
+                }
+
                 Changed = true;
                 Fill();
             }
 
-            SetStatus((maps.Count == 1 ? maps[0].Name + " is" : $"{maps.Count} maps are")
-                + " downloaded. Close this window to prepare the game files with them.", Theme.Accent);
+            string done = (maps.Count == 1 ? maps[0].Name + " is" : $"{maps.Count} maps are")
+                + " downloaded. Close this window to prepare the game files with them.";
+            if (warnings.Count > 0)
+            {
+                SetStatus(done + " " + string.Join(" ", warnings), Theme.Warning);
+                MessageBox.Show(this, string.Join("\r\n\r\n", warnings), "Packages not found", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+            else
+            {
+                SetStatus(done, Theme.Accent);
+            }
         });
     }
 

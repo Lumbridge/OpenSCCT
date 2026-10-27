@@ -183,6 +183,14 @@ public sealed class AudioLibrary
         foreach (JsonProperty p in doc.RootElement.GetProperty("sounds").EnumerateObject())
         {
             JsonElement v = p.Value;
+
+            // A sound stored in the map package itself (a community map's music): a full record, files in the map folder.
+            if (v.TryGetProperty("root", out JsonElement own) && own.GetString() == "map" && v.TryGetProperty("flags", out _))
+            {
+                _sounds[p.Name] = Read(p.Name, v, MapDir!);
+                continue;
+            }
+
             if (!v.TryGetProperty("file", out JsonElement file) || !v.TryGetProperty("root", out JsonElement root) ||
                 root.GetString() != "map" || !_sounds.TryGetValue(p.Name, out SoundDef? shared))
             {

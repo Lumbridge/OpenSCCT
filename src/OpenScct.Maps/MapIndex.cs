@@ -47,7 +47,17 @@ public sealed record MapPackage(
 }
 
 /// <summary>The maps of the SCCT-Maps repository at one commit.</summary>
-public sealed record MapIndex(string Commit, IReadOnlyList<MapPackage> Maps);
+public sealed record MapIndex(string Commit, IReadOnlyList<MapPackage> Maps)
+{
+    /// <summary>
+    /// Every texture, mesh, sound and animation package in the repository's folders, by package name (ignoring
+    /// case): the files a downloaded map can take a package it needs from when the player's install lacks it (a map
+    /// made for Enhanced SCCT Versus uses packages that other maps in the repository carry). One file per
+    /// destination: the copy most folders agree on.
+    /// </summary>
+    public IReadOnlyDictionary<string, IReadOnlyList<MapFile>> Packages { get; init; } =
+        new Dictionary<string, IReadOnlyList<MapFile>>(StringComparer.OrdinalIgnoreCase);
+}
 
 /// <summary>
 /// Reads the SCCT-Maps repository the way the SCCT Map Manager does (its docs/publishing.md):
@@ -136,7 +146,7 @@ public static class MapIndexParser
             }
         }
 
-        return new MapIndex(commit, maps);
+        return new MapIndex(commit, maps) { Packages = PackagePool(blobs.Select(b => (b.Path, b.Hash, b.Size))) };
 
         MapPackage? Build(string folder, Root info)
         {
@@ -174,6 +184,63 @@ public static class MapIndexParser
             return new MapPackage(info.Id, info.Name, info.Category, info.Version, info.Game, commit, notes,
                 files.Values.OrderBy(f => f.Destination, StringComparer.OrdinalIgnoreCase).ToList());
         }
+    }
+
+    /// <summary>
+    /// The texture, mesh, sound and animation packages under the map folders of a tree listing (path, blob id,
+    /// size), by package name. Editor folders (MapsEd), map files and <c>assets/</c> are left out. Where folders hold
+    /// different copies of one file, the copy most of them hold is used (then the first path in order).
+    /// </summary>
+    public static IReadOnlyDictionary<string, IReadOnlyList<MapFile>> PackagePool(IEnumerable<(string Path, string Hash, long Size)> blobs)
+    {
+        string[] tops = ["release", "community", "enhanced", "recovered", "ports", "stock"];
+        var candidates = new List<MapFile>();
+        foreach ((string path, string hash, long size) in blobs)
+        {
+            string[] p = path.Split('/');
+            int at = Array.LastIndexOf(p, "Packages");
+            if (p.Length < 4 || !tops.Contains(p[0]) || at < 1 || at != p.Length - 3 || p[at + 1] == "Maps")
+            {
+                continue;
+            }
+
+            string dest = string.Join('/', p.Skip(at));
+            if (!MapPaths.IsPlayable(dest) || size <= 0)
+            {
+                continue;
+            }
+
+            try
+            {
+                MapPaths.ValidateRelative(path);
+                MapPaths.ValidateHash(hash);
+                MapPaths.ValidateSize(size);
+            }
+            catch (InvalidDataException)
+            {
+                continue;                                   // a file this player cannot take is left out
+            }
+
+            candidates.Add(new MapFile(path, dest, hash, size));
+        }
+
+        var pool = new Dictionary<string, IReadOnlyList<MapFile>>(StringComparer.OrdinalIgnoreCase);
+        foreach (IGrouping<string, MapFile> byName in candidates.GroupBy(f => Path.GetFileNameWithoutExtension(f.Destination), StringComparer.OrdinalIgnoreCase))
+        {
+            pool[byName.Key] = byName
+                .GroupBy(f => f.Destination, StringComparer.OrdinalIgnoreCase)
+                .Select(byDest => byDest
+                    .GroupBy(f => f.Hash, StringComparer.OrdinalIgnoreCase)
+                    .OrderByDescending(h => h.Count())
+                    .ThenBy(h => h.Select(f => f.Source).Min(StringComparer.Ordinal), StringComparer.Ordinal)
+                    .First()
+                    .OrderBy(f => f.Source, StringComparer.Ordinal)
+                    .First())
+                .OrderBy(f => f.Destination, StringComparer.OrdinalIgnoreCase)
+                .ToList();
+        }
+
+        return pool;
     }
 
     /// <summary>

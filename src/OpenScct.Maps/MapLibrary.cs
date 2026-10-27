@@ -38,10 +38,38 @@ public sealed class InstalledMap
 
     [JsonPropertyName("installedAt")]
     public DateTimeOffset InstalledAt { get; set; }
+
+    /// <summary>
+    /// Whether the packages the map imports were looked for when it was downloaded (false for maps downloaded before
+    /// that existed: the Maps window offers them as an update).
+    /// </summary>
+    [JsonPropertyName("dependenciesChecked")]
+    public bool DependenciesChecked { get; set; }
+
+    /// <summary>Packages the map imports that neither the player's install nor the map repository has.</summary>
+    [JsonPropertyName("missingPackages")]
+    public List<string> MissingPackages { get; set; } = [];
 }
 
 /// <summary>Progress of a map download: bytes received of the bytes to download, and the file being fetched.</summary>
 public sealed record MapDownloadProgress(long Received, long Total, string File);
+
+/// <summary>
+/// What a map download brought: the packages fetched from other folders of the repository because the install
+/// lacks them, and the packages the map needs that were found nowhere (it plays with missing textures, objects or
+/// sounds).
+/// </summary>
+public sealed record MapInstallResult(IReadOnlyList<string> Added, IReadOnlyList<string> Missing)
+{
+    /// <summary>A sentence for the player about <see cref="Missing"/>, or null when nothing is missing.</summary>
+    public string? Warning(string mapName) => MissingWarning(mapName, Missing);
+
+    public static string? MissingWarning(string mapName, IReadOnlyCollection<string> missing) => missing.Count == 0
+        ? null
+        : $"{mapName} needs {missing.Count} package{(missing.Count == 1 ? string.Empty : "s")} that your game and the map "
+            + $"repository do not have ({string.Join(", ", missing)}). It will play with missing textures, objects or "
+            + "sounds; installing Enhanced SCCT Versus 4.0 usually provides them.";
+}
 
 /// <summary>
 /// The maps a player downloaded from the SCCT-Maps repository, under <c>%LOCALAPPDATA%\OpenSCCT\maps</c>:
@@ -135,42 +163,90 @@ public sealed class MapLibrary
     /// Downloads <paramref name="map"/> (or brings an older download up to date): every file it lists that is not
     /// here with the same content is downloaded, checked and put in place, then the map is recorded. Files the map
     /// no longer lists are removed unless another map uses them.
+    /// <para>
+    /// With the catalogue (<paramref name="index"/>) and the player's install (<paramref name="gamePath"/>), the
+    /// packages the map's files import are looked for too, and again for each package that brings: one the install
+    /// has is used from there, one another downloaded map brought is shared, and any other is downloaded from the
+    /// repository folder that carries it (<see cref="MapIndex.Packages"/>). The result names those, and the ones found
+    /// nowhere.
+    /// </para>
     /// </summary>
-    public async Task InstallAsync(MapPackage map, MapRepository repository, IProgress<MapDownloadProgress>? progress, CancellationToken cancel)
+    public async Task<MapInstallResult> InstallAsync(MapPackage map, MapRepository repository, IProgress<MapDownloadProgress>? progress,
+        CancellationToken cancel, MapIndex? index = null, string? gamePath = null)
     {
         ArgumentNullException.ThrowIfNull(map);
         ArgumentNullException.ThrowIfNull(repository);
         Directory.CreateDirectory(GameFolder);
         Directory.CreateDirectory(DownloadsFolder);
 
-        var known = KnownHashes();
-        var needed = map.Files.Where(f => !(known.TryGetValue(f.Destination, out string? hash)
-                && string.Equals(hash, f.Hash, StringComparison.OrdinalIgnoreCase)
-                && File.Exists(MapPaths.Under(GameFolder, f.Destination))))
-            .ToList();
-        long total = needed.Sum(f => f.Size);
-        long done = 0;
-        foreach (MapFile file in needed)
+        var files = new Dictionary<string, MapFile>(StringComparer.OrdinalIgnoreCase);
+        foreach (MapFile f in map.Files)
         {
-            cancel.ThrowIfCancellationRequested();
-            string target = MapPaths.Under(GameFolder, file.Destination);
-            string temp = Path.Combine(DownloadsFolder, file.Hash.ToLowerInvariant() + ".part");
-            if (File.Exists(temp))
+            files.TryAdd(f.Destination, f);
+        }
+
+        var transfer = new Transfer(progress);
+        await DownloadAsync(map, files.Values.ToList(), repository, transfer, cancel).ConfigureAwait(false);
+
+        var added = new SortedSet<string>(StringComparer.OrdinalIgnoreCase);
+        var missing = new SortedSet<string>(StringComparer.OrdinalIgnoreCase);
+        bool checkDependencies = index is not null && !string.IsNullOrWhiteSpace(gamePath) && Directory.Exists(gamePath);
+        if (checkDependencies)
+        {
+            HashSet<string> inInstall = PackageNames(gamePath!);
+
+            // Files other downloaded maps brought, by package name: shared, so they stay while this map uses them.
+            var shared = new Dictionary<string, List<MapFile>>(StringComparer.OrdinalIgnoreCase);
+            foreach (MapFile f in Installed().Where(m => m.Id != map.Id).SelectMany(m => m.Files))
             {
-                File.Delete(temp);
+                string name = Path.GetFileNameWithoutExtension(f.Destination);
+                if (!shared.TryGetValue(name, out List<MapFile>? list))
+                {
+                    shared[name] = list = [];
+                }
+
+                if (!list.Any(x => string.Equals(x.Destination, f.Destination, StringComparison.OrdinalIgnoreCase)))
+                {
+                    list.Add(f);
+                }
             }
 
-            long before = done;
-            var bytes = new Counter(n =>
+            var have = new HashSet<string>(files.Keys.Select(k => Path.GetFileNameWithoutExtension(k)), StringComparer.OrdinalIgnoreCase);
+            var scanned = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            List<MapFile> pending = files.Values.ToList();
+            while (pending.Count > 0)
             {
-                done += n;
-                progress?.Report(new MapDownloadProgress(done, total, file.Destination));
-            });
-            progress?.Report(new MapDownloadProgress(done, total, file.Destination));
-            await repository.DownloadAsync(map, file, temp, bytes, cancel).ConfigureAwait(false);
-            Directory.CreateDirectory(Path.GetDirectoryName(target)!);
-            File.Move(temp, target, overwrite: true);
-            done = before + file.Size;
+                cancel.ThrowIfCancellationRequested();
+                var fetch = new List<MapFile>();
+                foreach (MapFile f in pending.Where(f => scanned.Add(f.Destination)))
+                {
+                    foreach (string name in ImportsOf(MapPaths.Under(GameFolder, f.Destination)))
+                    {
+                        if (have.Contains(name) || inInstall.Contains(name) || missing.Contains(name))
+                        {
+                            continue;
+                        }
+
+                        have.Add(name);
+                        if (shared.TryGetValue(name, out List<MapFile>? brought))
+                        {
+                            fetch.AddRange(brought);
+                        }
+                        else if (index!.Packages.TryGetValue(name, out IReadOnlyList<MapFile>? found))
+                        {
+                            fetch.AddRange(found);
+                            added.Add(name);
+                        }
+                        else
+                        {
+                            missing.Add(name);
+                        }
+                    }
+                }
+
+                pending = fetch.Where(f => files.TryAdd(f.Destination, f)).ToList();
+                await DownloadAsync(map, pending, repository, transfer, cancel).ConfigureAwait(false);
+            }
         }
 
         // Record the map, then drop files its older version had that nothing uses now.
@@ -186,8 +262,10 @@ public sealed class MapLibrary
             Commit = map.Commit,
             Fingerprint = map.Fingerprint,
             Codes = map.Codes.ToList(),
-            Files = map.Files.ToList(),
+            Files = files.Values.OrderBy(f => f.Destination, StringComparer.OrdinalIgnoreCase).ToList(),
             InstalledAt = DateTimeOffset.UtcNow,
+            DependenciesChecked = checkDependencies,
+            MissingPackages = missing.ToList(),
         });
         Save(maps);
         if (previous is not null)
@@ -195,7 +273,111 @@ public sealed class MapLibrary
             DeleteUnused(previous.Files, maps);
         }
 
-        progress?.Report(new MapDownloadProgress(total, total, string.Empty));
+        transfer.Finish();
+        return new MapInstallResult(added.ToList(), missing.ToList());
+    }
+
+    /// <summary>Downloads the files of <paramref name="files"/> that are not here with the same content.</summary>
+    private async Task DownloadAsync(MapPackage map, IReadOnlyList<MapFile> files, MapRepository repository, Transfer transfer, CancellationToken cancel)
+    {
+        var known = KnownHashes();
+        foreach ((string destination, string hash) in transfer.Fetched)
+        {
+            known[destination] = hash;
+        }
+
+        var needed = files.Where(f => !(known.TryGetValue(f.Destination, out string? hash)
+                && string.Equals(hash, f.Hash, StringComparison.OrdinalIgnoreCase)
+                && File.Exists(MapPaths.Under(GameFolder, f.Destination))))
+            .ToList();
+        transfer.Total += needed.Sum(f => f.Size);
+        foreach (MapFile file in needed)
+        {
+            cancel.ThrowIfCancellationRequested();
+            string target = MapPaths.Under(GameFolder, file.Destination);
+            string temp = Path.Combine(DownloadsFolder, file.Hash.ToLowerInvariant() + ".part");
+            if (File.Exists(temp))
+            {
+                File.Delete(temp);
+            }
+
+            long before = transfer.Done;
+            var bytes = new Counter(n =>
+            {
+                transfer.Done += n;
+                transfer.Report(file.Destination);
+            });
+            transfer.Report(file.Destination);
+            await repository.DownloadAsync(map, file, temp, bytes, cancel).ConfigureAwait(false);
+            Directory.CreateDirectory(Path.GetDirectoryName(target)!);
+            File.Move(temp, target, overwrite: true);
+            transfer.Done = before + file.Size;
+            transfer.Fetched[file.Destination] = file.Hash;
+        }
+    }
+
+    /// <summary>
+    /// The packages a file imports; none for files that are not packages (sound banks, text) or cannot be read (they
+    /// are then used as they are).
+    /// </summary>
+    private static IReadOnlyList<string> ImportsOf(string path)
+    {
+        string ext = Path.GetExtension(path).ToLowerInvariant();
+        if (ext is not (".sdc" or ".utx" or ".utc" or ".usx" or ".uax" or ".ukx"))
+        {
+            return [];
+        }
+
+        try
+        {
+            return File.Exists(path) ? PackageImports.RootPackages(path) : [];
+        }
+        catch (Exception ex) when (ex is IOException or InvalidDataException or UnauthorizedAccessException)
+        {
+            return [];
+        }
+    }
+
+    /// <summary>
+    /// The names of the packages an install has: every file under Packages (any folder) and the script packages of
+    /// System (<c>System\_PC_\*.u</c>), without their extensions.
+    /// </summary>
+    public static HashSet<string> PackageNames(string gamePath)
+    {
+        var names = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        string packages = Path.Combine(gamePath, "Packages");
+        if (Directory.Exists(packages))
+        {
+            foreach (string f in Directory.EnumerateFiles(packages, "*", SearchOption.AllDirectories))
+            {
+                names.Add(Path.GetFileNameWithoutExtension(f));
+            }
+        }
+
+        string system = Path.Combine(gamePath, "System");
+        if (Directory.Exists(system))
+        {
+            foreach (string f in Directory.EnumerateFiles(system, "*.u", SearchOption.AllDirectories))
+            {
+                names.Add(Path.GetFileNameWithoutExtension(f));
+            }
+        }
+
+        return names;
+    }
+
+    /// <summary>Bytes received of the bytes to download over every batch of one map's download, and the files fetched.</summary>
+    private sealed class Transfer(IProgress<MapDownloadProgress>? progress)
+    {
+        public long Total { get; set; }
+
+        public long Done { get; set; }
+
+        public Dictionary<string, string> Fetched { get; } = new(StringComparer.OrdinalIgnoreCase);
+
+        public void Report(string file) => progress?.Report(new MapDownloadProgress(Done, Total, file));
+
+        public void Finish() => progress?.Report(new MapDownloadProgress(Total, Total, string.Empty));
     }
 
     /// <summary>Removes a downloaded map and the files no other downloaded map uses.</summary>
