@@ -43,7 +43,9 @@ public partial class HubPlayerList : Control
     {
         Name = "HubPlayerList";
         Theme = UiStyle.Theme;
-        SetAnchorsPreset(LayoutPreset.FullRect);
+        // The offsets too: SetAnchorsPreset alone keeps the control's zero size, which left the list a sliver in the
+        // top left corner with no room for its rows.
+        SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
         MouseFilter = MouseFilterEnum.Stop;
         AddChild(new ColorRect { Color = new Color(0f, 0f, 0f, 0.6f), MouseFilter = MouseFilterEnum.Ignore, AnchorRight = 1f, AnchorBottom = 1f });
 

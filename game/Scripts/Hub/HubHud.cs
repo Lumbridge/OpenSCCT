@@ -113,6 +113,14 @@ public partial class HubHud : CanvasLayer
         ReadyActivities();
     }
 
+    public override void _ExitTree()
+    {
+        if (Round?.Hud?.Source is HudSimReader reader)
+        {
+            reader.HidePlayers = false;
+        }
+    }
+
     public override void _Process(double delta)
     {
         Vector2 size = GetViewport().GetVisibleRect().Size;
@@ -122,6 +130,11 @@ public partial class HubHud : CanvasLayer
             _chat.Size = new Vector2(size.X * 0.45f, 200f);
             _entry.Position = new Vector2(16f, size.Y - 52f);
             _entry.Size = new Vector2(size.X * 0.45f, 32f);
+        }
+
+        if (Round?.Hud?.Source is HudSimReader reader)
+        {
+            reader.HidePlayers = true;
         }
 
         if (Client is not { } client)

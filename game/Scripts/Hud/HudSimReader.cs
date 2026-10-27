@@ -42,6 +42,12 @@ public sealed class HudSimReader : IHudSource
     /// <summary>The HUD's own effect state the reader adds to the snapshot.</summary>
     public HudEffects? Effects { get; set; }
 
+    /// <summary>
+    /// Hides the connected players list whatever the HUD says (OpenSCCT's own: the hub sets it, where the four-row list
+    /// cannot hold the hub's players and P opens the hub's own list).
+    /// </summary>
+    public bool HidePlayers { get; set; }
+
     public SPlayerController? Controller => _controller() is { bDeleteMe: false } pc ? pc : null;
 
     public void Fill(HudSnapshot snapshot)
@@ -50,6 +56,7 @@ public sealed class HudSimReader : IHudSource
         if (Controller is { } pc)
         {
             Read(pc, snapshot, _localize, Effects);
+            snapshot.ShowPlayers &= !HidePlayers;
         }
     }
 
