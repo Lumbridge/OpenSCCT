@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Threading;
 using OpenScct.Core;
 using OpenScct.Core.Engine;
 using OpenScct.Core.Uc;
@@ -135,13 +136,23 @@ public sealed class PropertyPath
     /// <summary>A setter, or null when the leaf cannot be written (a property without a setter, a read-only field).</summary>
     public Action<UObject, T>? Setter<T>()
     {
-        if (_setterBuilt)
+        // Layouts (and so their paths) are shared by drivers on different threads. The setter is stored before the
+        // built flag is published: a thread that saw the flag first used to get a null setter and never wrote the
+        // property (a client whose own walker kept the simulated proxy role).
+        if (Volatile.Read(ref _setterBuilt))
         {
             return _setter as Action<UObject, T>;
         }
 
-        _setterBuilt = true;
-        _setter = BuildSetter<T>();
+        lock (_structFields)
+        {
+            if (!_setterBuilt)
+            {
+                _setter = BuildSetter<T>();
+                Volatile.Write(ref _setterBuilt, true);
+            }
+        }
+
         return _setter as Action<UObject, T>;
     }
 

@@ -221,7 +221,22 @@ internal sealed class WalkerRig : IDisposable
         }
 
         throw new InvalidOperationException("Clients did not all see " + walkers.ToString(CultureInfo.InvariantCulture) +
-            " walkers in time.");
+            " walkers in time. " + Describe());
+    }
+
+    /// <summary>Each client's state, reject reason and walker counts, plus the server's player count.</summary>
+    public string Describe()
+    {
+        var text = new System.Text.StringBuilder();
+        text.Append(CultureInfo.InvariantCulture, $"Frame {Frame}, server players {Server.Players.Count}.");
+        for (int i = 0; i < Clients.Length; i++)
+        {
+            ClientSession c = Clients[i];
+            text.Append(CultureInfo.InvariantCulture,
+                $" Client {i}: {c.State}, reject '{c.RejectReason}', local walker {(c.LocalWalker is null ? "no" : "yes")}, live walkers {LiveWalkers(c)}, channels {c.ActorChannels.Count}.");
+        }
+
+        return text.ToString();
     }
 
     public bool AllSee(int walkers)

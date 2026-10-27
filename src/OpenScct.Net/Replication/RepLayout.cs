@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using OpenScct.Core;
 using OpenScct.Core.Engine;
 using OpenScct.Core.Uc;
@@ -235,10 +236,11 @@ public sealed class RepLeaf
 
     private Action<UObject, T>? Set<T>()
     {
-        if (!_setBuilt)
+        // Shared across threads: store the setter before publishing the flag (see PropertyPath.Setter).
+        if (!Volatile.Read(ref _setBuilt))
         {
-            _setBuilt = true;
             _set = Path.Setter<T>();
+            Volatile.Write(ref _setBuilt, true);
         }
 
         return _set as Action<UObject, T>;

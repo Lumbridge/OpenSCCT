@@ -105,7 +105,9 @@ public sealed class MasterTests
     public async Task AnUnreachableMasterGivesAReadableError()
     {
         CancellationToken ct = TestContext.Current.CancellationToken;
-        using var client = new MasterClient("http://127.0.0.1:9", timeout: TimeSpan.FromSeconds(3));
+        // Windows retries a refused loopback connect for about two seconds before failing, so a short timeout can
+        // win that race on a busy machine and give the "did not answer in time" message instead.
+        using var client = new MasterClient("http://127.0.0.1:9", timeout: TimeSpan.FromSeconds(30));
         MasterException e = await Assert.ThrowsAsync<MasterException>(() => client.ListAsync(cancellationToken: ct));
         Assert.Equal(0, e.StatusCode);
         Assert.StartsWith("Could not reach the master server at 127.0.0.1", e.Message, StringComparison.Ordinal);
