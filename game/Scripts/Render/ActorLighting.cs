@@ -47,6 +47,9 @@ public sealed class ActorLighting
 
     public int LightCount => _lights.Count;
 
+    /// <summary>Scene time (Level.TimeSeconds) the light types are evaluated at; the map sets it each frame.</summary>
+    public float Time { get; set; }
+
     /// <summary>Switches a light on or off for actors (a triggered STriggerLight); takes effect at the next <see cref="Select"/>.</summary>
     public void SetOn(string name, bool on)
     {
@@ -112,7 +115,9 @@ public sealed class ActorLighting
         int n = Math.Min(RenderK.MaxActorLights, _ranked.Count);
         for (int i = 0; i < n; i++)
         {
-            set.Lights[i] = Pack(_ranked[i].Light);
+            // Ranked by LightBrightness alone; the light type scales the colour (FDynamicLight::Update).
+            LightEntry l = _ranked[i].Light;
+            set.Lights[i] = PackWorld(l, WorldLights.Modulation(l, Time));
             set.Names[i] = _ranked[i].Light.Name;
         }
 
@@ -187,9 +192,13 @@ public sealed class ActorLighting
         return c * RenderK.HsvFullBrightness * (l.Brightness / 255f);
     }
 
-    private static PackedLight Pack(LightEntry l) => PackWorld(l, 1f);
-
-    /// <summary>A light in the template's layout, its colour scaled by <paramref name="brightness"/> (light type modulation).</summary>
+    /// <summary>
+    /// A light in the template's layout, its colour scaled by <paramref name="brightness"/> (light type modulation).
+    /// A point light's spot.w carries its effect for the actor term: -2 plain, -3 LE_QuadraticNonIncidence (D3D
+    /// attenuation 1 / (8 d^2 / R^2)), -4 LE_PointAmbient (the light's colour also set as its D3D ambient, which adds
+    /// C x attenuation whatever the normal).
+    /// </summary>
+    [Provenance(ProvenanceKind.Decoded, "RenderingModeNormal::SetLight effects 20 and 21, editor 0x10f29940 (bridge docs/LIGHTING_BALANCE.md)")]
     public static PackedLight PackWorld(LightEntry l, float brightness)
     {
         ArgumentNullException.ThrowIfNull(l);
@@ -205,7 +214,12 @@ public sealed class ActorLighting
 
         Vector3 p = UeSpace.ToGodot(l.Location);
         float radius = UeSpace.LengthToGodot(WorldRadius(l));
-        Vector4 spot = new(0f, 0f, 0f, -2f);
+        Vector4 spot = new(0f, 0f, 0f, l.Effect switch
+        {
+            RenderK.LE_QuadraticNonIncidence => -3f,
+            RenderK.LE_PointAmbient => -4f,
+            _ => -2f,
+        });
         float cosTheta = 1f;
         if (IsSpot(l))
         {

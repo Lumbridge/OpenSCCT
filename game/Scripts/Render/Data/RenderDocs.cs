@@ -435,7 +435,20 @@ public sealed record LightEntry(
 {
     /// <summary>Zone index of <see cref="Zone"/>, set once the zones are read; -1 when unknown.</summary>
     public int ZoneIndex { get; set; } = -1;
+
+    /// <summary>A number made from the name, for per-light noise (the flicker).</summary>
+    public int Seed { get; } = Name.GetHashCode(StringComparison.Ordinal);
+
+    /// <summary>The Echelon frustum of an LE_ESpotShadow light (zero for other lights).</summary>
+    public EchelonSpot? Echelon { get; init; }
 }
+
+/// <summary>
+/// The Echelon light values of an LE_ESpotShadow map light: EchelonRange, SpotWidth / SpotHeight at that range,
+/// NearPlaneRatio, EchelonNormalInfluence, and its EchelonLightingMaterial (ProjectedLightingTexture, AttenuationType).
+/// </summary>
+public sealed record EchelonSpot(float Range, float Width, float Height, float NearPlaneRatio, float NormalInfluence, string? Texture,
+    int Attenuation);
 
 /// <summary>A light's corona (bCorona) of render/lighting.json: Skins[0] drawn as a camera-facing additive halo.</summary>
 public sealed record CoronaEntry(
@@ -565,7 +578,10 @@ public sealed class LightingDoc
                     MaterialsDoc.Str(l, "zone"),
                     Num(l, "light_period", 32f),
                     Num(l, "light_phase"),
-                    MaterialsDoc.Bool(l, "own_zone_only")));
+                    MaterialsDoc.Bool(l, "own_zone_only"))
+                {
+                    Echelon = EchelonOf(l),
+                });
             }
         }
 
@@ -622,6 +638,34 @@ public sealed class LightingDoc
         }
 
         return doc;
+    }
+
+    /// <summary>
+    /// The Echelon values of an LE_ESpotShadow light, with the Actor defaults (EchelonRange 1000, SpotWidth and
+    /// SpotHeight 250, NearPlaneRatio 0.1, EchelonNormalInfluence 1) and EchAtten_Linear (EchelonLightingMaterial
+    /// default) where absent.
+    /// </summary>
+    private static EchelonSpot? EchelonOf(JsonElement l)
+    {
+        if ((int)Num(l, "effect") != RenderK.LE_ESpotShadow)
+        {
+            return null;
+        }
+
+        float range = Num(l, "echelon_range");
+        float width = Num(l, "spot_width");
+        float height = Num(l, "spot_height");
+        float influence = l.TryGetProperty("props", out JsonElement props) && props.ValueKind == JsonValueKind.Object
+            ? Num(props, "EchelonNormalInfluence", 1f)
+            : 1f;
+        return new EchelonSpot(
+            range > 0f ? range : 1000f,
+            width > 0f ? width : 250f,
+            height > 0f ? height : 250f,
+            Num(l, "near_plane_ratio", 0.1f),
+            influence,
+            MaterialsDoc.Str(l, "echelon_texture_uri"),
+            (int)Num(l, "echelon_attenuation", 1f));
     }
 
     private static float Num(JsonElement e, string name, float fallback = 0f) =>

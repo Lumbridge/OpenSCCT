@@ -11,7 +11,7 @@ namespace OpenScctGame.Render;
 /// Light coronas (bCorona): one camera-facing additive quad per corona light, sized and faded each frame from the
 /// view as the original does. With s = clamp(0.001 x distance, 0.01, 10): half size clamp(s x DrawScale x Fade x
 /// 512 x DrawScale3D, MinCoronaSize, MaxCoronaSize) uu, roll s x CoronaRotation x 16384 + CoronaRotationOffset,
-/// colour corona colour x 0.5 x Fade. Fade moves at 6 x ScaleGlow per second towards the light being on and in
+/// colour corona colour x light type x 0.5 x Fade. Fade moves at 6 x ScaleGlow per second towards the light being on and in
 /// range and seen: a line from the camera to 16 uu short of the light that the world BSP does not block (or settles at
 /// once with <see cref="Update"/>(settle: true)).
 /// docs/RENDERING.md#coronas.
@@ -27,6 +27,9 @@ public sealed class Coronas
     private readonly RenderMap _map;
     private readonly List<(CoronaEntry Entry, MeshInstance3D Node)> _coronas = [];
     private readonly float[] _fade;
+
+    // The light of each corona (for its light type), or null when the light list does not hold it.
+    private readonly LightEntry?[] _lights;
 
     public Coronas(RenderMap map, Node3D parent)
     {
@@ -67,6 +70,17 @@ public sealed class Coronas
         }
 
         _fade = new float[_coronas.Count];
+        var byName = new Dictionary<string, LightEntry>(StringComparer.Ordinal);
+        foreach (LightEntry l in map.Lighting.Lights)
+        {
+            byName.TryAdd(l.Name, l);
+        }
+
+        _lights = new LightEntry?[_coronas.Count];
+        for (int i = 0; i < _coronas.Count; i++)
+        {
+            _lights[i] = byName.GetValueOrDefault(_coronas[i].Entry.Light);
+        }
     }
 
     public int Count => _coronas.Count;
@@ -105,7 +119,10 @@ public sealed class Coronas
             float roll = ((s * c.Rotation01 * 16384f) + c.RotationOffset) * (MathF.Tau / 65536f);
             node.Visible = true;
             node.SetInstanceShaderParameter(SizeParam, new Vector4(UeSpace.LengthToGodot(half), roll, 0f, 0f));
-            Color k = c.Colour * (0.5f * fade * RenderK.CoronaStageGain);
+            // Estimated (the corona colour's source is not decoded): the corona follows the light's FDynamicLight colour,
+            // which carries its light type, so a pulsing or flickering light's corona pulses and flickers with it.
+            float m = _lights[i] is { } light ? WorldLights.Modulation(light, _map.Time) : 1f;
+            Color k = c.Colour * (0.5f * fade * m * RenderK.CoronaStageGain);
             node.SetInstanceShaderParameter(ColourParam, new Vector4(k.R, k.G, k.B, 1f));
         }
     }

@@ -164,13 +164,15 @@ varying vec3 v_light;
 
 // One light of either light set: pos.xyz in metres and pos.w the radius in metres (pos.w < 0: a sun, pos.xyz the
 // direction to it); col.rgb gain x colour, col.a cos(theta / 2) of a spot; spot.xyz the spot direction, spot.w
-// cos(phi / 2) or -2. Falloff 1 - 3x^2 + 2x^3 over x = d / R, Lambert, no specular.
+// cos(phi / 2), else the point light's effect: -2 plain, -3 LE_QuadraticNonIncidence, -4 LE_PointAmbient (both on
+// actors only, falloff 0). Falloff 1 - 3x^2 + 2x^3 over x = d / R, Lambert, no specular.
 vec3 svm_one_light(vec4 pos, vec4 col, vec4 spot, vec3 wp, vec3 wn, int falloff) {
 	if (dot(col.rgb, col.rgb) <= 0.0) {
 		return vec3(0.0);
 	}
 	vec3 l;
 	float att = 1.0;
+	float ambient = 0.0;
 	if (pos.w < 0.0) {
 		l = normalize(pos.xyz);
 	} else {
@@ -180,6 +182,14 @@ vec3 svm_one_light(vec4 pos, vec4 col, vec4 spot, vec3 wp, vec3 wn, int falloff)
 		float x = dist / max(pos.w, 1e-5);
 		if (x >= 1.0) {
 			att = 0.0;
+		} else if (falloff == 0 && spot.w < -2.5 && spot.w > -3.5) {
+			// D3D attenuation 1 / (Att2 d^2) with Att2 = 8 / R^2, without the 2 of the point fit that col carries
+			// (col = 2 C); the light term saturates later.
+			att = 0.5 / max(8.0 * x * x, 1e-3);
+		} else if (falloff == 0 && spot.w < -3.5) {
+			// The light's ambient (its colour, attenuated) is added whatever the normal.
+			att = 1.0 - 3.0 * x * x + 2.0 * x * x * x;
+			ambient = att;
 		} else if (falloff == 1) {
 			att = 1.0 - x * x;
 		} else if (falloff == 2) {
@@ -194,44 +204,101 @@ vec3 svm_one_light(vec4 pos, vec4 col, vec4 spot, vec3 wp, vec3 wn, int falloff)
 			att *= clamp((c - spot.w) / max(col.a - spot.w, 1e-5), 0.0, 1.0);
 		}
 	}
-	return col.rgb * att * max(0.0, dot(wn, l));
+	return col.rgb * (att * max(0.0, dot(wn, l)) + ambient);
 }
 
 #if defined(LIGHT_LIGHTMAP) || defined(LIGHT_VERTEX) || defined(LIGHT_ACTOR)
-// The spot shadow light slot (LE_ESpotShadow: the merc torch, docs/RENDERING.md#spot-shadow-lights), per pixel on the
-// light stage: colour x cookie x attenuation x shadow, N.L by the normal influence.
-global uniform vec4 svm_spot;           // x on, y range (m), z normal influence, w attenuation (0 none, 1 linear, 2 late)
-global uniform vec4 svm_spot_colour;    // rgb gain x colour, a near plane (m)
-global uniform mat4 svm_spot_view;      // world to the light's view
-global uniform vec4 svm_spot_frustum;   // x 1 / tan(half width), y 1 / tan(half height), z bias (m), w bias per metre
-global uniform vec4 svm_spot_pos;       // xyz light position (m)
+// The spot shadow lights (LE_ESpotShadow: the merc torch, searchlights, window and sun projectors,
+// docs/RENDERING.md#spot-shadow-lights), per pixel on the light stage: colour x cookie x attenuation x shadow, N.L by
+// the normal influence. One row of svm_spots per slot:
+//   0-2 world to the light camera's view (3 x 4; the camera sits at the frustum's apex)
+//   3   x on, y range (m), z normal influence, w attenuation (0 none, 1 linear, 2 late)
+//   4   rgb gain x colour, a distance from the apex to the light (m): the lit span starts there
+//   5   x, y the view to clip scale (perspective: divided by depth), z 1 for parallel rays, w cookie layer
+//   6   the slot's tile of the depth atlas (uv origin, uv size)
+//   7   x own zone (or -1), y bias (m), z bias per metre, w edge softening disc radius (texels; 0 one lookup)
+global uniform sampler2D svm_spots;
+global uniform int svm_spot_count;
 global uniform sampler2D svm_spot_depth;
-global uniform sampler2D svm_spot_cookie;
+global uniform sampler2DArray svm_spot_cookies;
 global uniform sampler2D svm_spot_atten;
 varying vec3 v_wpos;
 varying vec3 v_wnormal;
 
-vec3 svm_spot_light(vec3 wp, vec3 wn) {
-	if (svm_spot.x < 0.5) {
+// One filtered shadow lookup (the depth map compared at the four nearest texels, blended bilinearly, as hardware
+// shadow filtering does), kept inside the slot's tile. 1 lit, 0 shadowed.
+float svm_spot_lookup(vec4 tile, vec2 suv, float zref) {
+	vec2 atlas = vec2(textureSize(svm_spot_depth, 0));
+	vec2 lo = tile.xy * atlas + 0.5;
+	vec2 hi = (tile.xy + tile.zw) * atlas - 1.5;
+	vec2 p = clamp((tile.xy + suv * tile.zw) * atlas - 0.5, lo, max(lo, hi));
+	vec2 base = floor(p);
+	vec2 f = p - base;
+	vec4 d = textureGather(svm_spot_depth, (base + 1.0) / atlas, 0);
+	vec4 lit = step(vec4(zref), d);
+	// textureGather order: (0, 1), (1, 1), (1, 0), (0, 0).
+	return mix(mix(lit.w, lit.z, f.x), mix(lit.x, lit.y, f.x), f.y);
+}
+
+// The shadow term: one filtered lookup, or eight on a disc softening the edge (the sandbox's shadow_edge_smoothing).
+float svm_spot_shadow(vec4 tile, vec2 suv, float zref, float soft) {
+	if (soft <= 0.0) {
+		return svm_spot_lookup(tile, suv, zref);
+	}
+	vec2 step_uv = soft / vec2(textureSize(svm_spot_depth, 0)) / tile.zw;
+	float sum = 0.0;
+	for (int k = 0; k < 8; k++) {
+		float a = float(k) * 0.78539816 + 0.39269908;
+		sum += svm_spot_lookup(tile, suv + vec2(cos(a), sin(a)) * step_uv, zref);
+	}
+	return sum * 0.125;
+}
+
+vec3 svm_spot_slot(int i, vec3 wp, vec3 wn, float zone) {
+	vec4 a = texelFetch(svm_spots, ivec2(3, i), 0);
+	if (a.x < 0.5) {
 		return vec3(0.0);
 	}
-	vec3 v = (svm_spot_view * vec4(wp, 1.0)).xyz;
+	vec4 e = texelFetch(svm_spots, ivec2(7, i), 0);
+	if (e.x >= 0.0 && zone >= 0.0 && abs(e.x - zone) > 0.5) {
+		return vec3(0.0);
+	}
+	vec4 r0 = texelFetch(svm_spots, ivec2(0, i), 0);
+	vec4 r1 = texelFetch(svm_spots, ivec2(1, i), 0);
+	vec4 r2 = texelFetch(svm_spots, ivec2(2, i), 0);
+	vec4 w = vec4(wp, 1.0);
+	vec3 v = vec3(dot(r0, w), dot(r1, w), dot(r2, w));
 	float z = -v.z;
-	if (z <= svm_spot_colour.a || z >= svm_spot.y) {
+	vec4 c = texelFetch(svm_spots, ivec2(4, i), 0);
+	if (z <= c.a || z >= c.a + a.y) {
 		return vec3(0.0);
 	}
-	vec2 ndc = vec2(v.x * svm_spot_frustum.x, v.y * svm_spot_frustum.y) / z;
+	vec4 f = texelFetch(svm_spots, ivec2(5, i), 0);
+	vec2 ndc = f.z > 0.5 ? v.xy * f.xy : v.xy * f.xy / z;
 	if (abs(ndc.x) >= 1.0 || abs(ndc.y) >= 1.0) {
 		return vec3(0.0);
 	}
 	vec2 suv = vec2(ndc.x, -ndc.y) * 0.5 + 0.5;
-	if (z > texture(svm_spot_depth, suv).r + svm_spot_frustum.z + svm_spot_frustum.w * z) {
+	float shadow = svm_spot_shadow(texelFetch(svm_spots, ivec2(6, i), 0), suv, z - e.y - e.z * z, e.w);
+	if (shadow <= 0.0) {
 		return vec3(0.0);
 	}
-	vec3 cookie = texture(svm_spot_cookie, suv).rgb;
-	float atten = svm_spot.w < 0.5 ? 1.0 : texture(svm_spot_atten, vec2(z / svm_spot.y, svm_spot.w < 1.5 ? 0.25 : 0.75)).r;
-	float ndl = max(0.0, dot(wn, normalize(svm_spot_pos.xyz - wp)));
-	return svm_spot_colour.rgb * cookie * atten * mix(1.0, ndl, svm_spot.z);
+	vec3 cookie = texture(svm_spot_cookies, vec3(suv, f.w)).rgb;
+	float atten = a.w < 0.5 ? 1.0 : texture(svm_spot_atten, vec2((z - c.a) / a.y, a.w < 1.5 ? 0.25 : 0.75)).r;
+	// N.L towards the apex (parallel rays: along the axis), in the light's view space.
+	vec3 nv = vec3(dot(r0.xyz, wn), dot(r1.xyz, wn), dot(r2.xyz, wn));
+	vec3 l = f.z > 0.5 ? vec3(0.0, 0.0, 1.0) : normalize(-v);
+	float ndl = max(0.0, dot(nv, l));
+	return c.rgb * cookie * atten * mix(1.0, ndl, a.z) * shadow;
+}
+
+// Every spot shadow light at a surface point; zone is the surface's zone (-1 unknown: own-zone lights still reach it).
+vec3 svm_spot_light(vec3 wp, vec3 wn, float zone) {
+	vec3 sum = vec3(0.0);
+	for (int i = 0; i < svm_spot_count; i++) {
+		sum += svm_spot_slot(i, wp, wn, zone);
+	}
+	return sum;
 }
 #endif
 
@@ -372,10 +439,15 @@ void fragment() {
 	}
 #if defined(LIGHT_LIGHTMAP) || defined(LIGHT_VERTEX) || defined(LIGHT_ACTOR)
 	vec3 wn = normalize(v_wnormal) * (FRONT_FACING ? 1.0 : -1.0);
-	vec3 spot = svm_spot_light(v_wpos, wn);
+#if defined(LIGHT_LIGHTMAP) || defined(LIGHT_VERTEX)
+	float zone = floor(COLOR.a * 255.0 + 0.5);
+#else
+	float zone = -1.0;
+#endif
+	vec3 spot = svm_spot_count > 0 ? svm_spot_light(v_wpos, wn, zone) : vec3(0.0);
 #endif
 #if defined(LIGHT_LIGHTMAP) || defined(LIGHT_VERTEX)
-	vec3 dyn = (svm_dyn_light_count > 0 ? svm_dynamic(v_wpos, wn, floor(COLOR.a * 255.0 + 0.5)) : vec3(0.0)) + spot;
+	vec3 dyn = (svm_dyn_light_count > 0 ? svm_dynamic(v_wpos, wn, zone) : vec3(0.0)) + spot;
 #endif
 #if defined(LIGHT_LIGHTMAP)
 	vec3 lit = t.rgb * min(texture(tex_lightmap, UV2).rgb * lightmap_scale + vec3(svm_vision_ambient) + dyn, vec3(2.0));

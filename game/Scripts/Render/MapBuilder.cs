@@ -193,6 +193,7 @@ public sealed class RenderMap
         Time = seconds;
         MaterialCompiler.SetTime(seconds);
         WorldLights.Update(seconds);
+        ActorLighting.Time = seconds;
         Emitters?.SetTime(seconds);
     }
 
