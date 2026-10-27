@@ -1,13 +1,18 @@
 using System;
+using System.Reflection;
 using System.Threading;
 using System.Windows.Forms;
 using OpenScct.Launcher.Update;
+using OpenScct.Launcher.Versioning;
 
 namespace OpenScct.Launcher.App;
 
 internal static class Program
 {
     public const string AfterUpdateArg = "--after-update";
+
+    /// <summary>The launcher's exe now: Environment.ProcessPath keeps the start name after a rename on update.</summary>
+    public static string? ExePath { get; private set; } = Environment.ProcessPath;
 
     [STAThread]
     private static int Main(string[] args)
@@ -17,7 +22,16 @@ internal static class Program
         if (exe is not null)
         {
             // After a self update the old process may still be closing: give it a few seconds.
-            new LauncherSwap(exe).CleanupAfterStart(afterUpdate ? TimeSpan.FromSeconds(10) : TimeSpan.Zero);
+            var swap = new LauncherSwap(exe);
+            swap.CleanupAfterStart(afterUpdate ? TimeSpan.FromSeconds(10) : TimeSpan.Zero);
+
+            // An older launcher kept its own name when it updated to this one: take this version's name.
+            if (afterUpdate)
+            {
+                string? info = typeof(Program).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
+                int plus = info?.IndexOf('+', StringComparison.Ordinal) ?? -1;
+                ExePath = swap.RenameToVersion(SemVersion.TryParse(plus >= 0 ? info![..plus] : info, out SemVersion? own) ? own : null);
+            }
         }
 
         using var single = new Mutex(initiallyOwned: true, @"Local\OpenSCCT.Launcher", out bool first);

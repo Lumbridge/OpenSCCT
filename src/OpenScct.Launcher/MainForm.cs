@@ -99,7 +99,7 @@ internal sealed class MainForm : Form
         _tokens = new TokenStore(_layout.Token, new DpapiProtector());
         _settings = LauncherSettings.Load(_layout.Settings);
         _service = CreateService();
-        if (Environment.ProcessPath is { } exe)
+        if (Program.ExePath is { } exe)
         {
             _swap = new LauncherSwap(exe);
         }

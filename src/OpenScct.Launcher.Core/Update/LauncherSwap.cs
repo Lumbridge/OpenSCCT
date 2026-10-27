@@ -55,6 +55,30 @@ public sealed class LauncherSwap
         return string.Equals(target, ExePath, StringComparison.OrdinalIgnoreCase) || File.Exists(target) ? ExePath : target;
     }
 
+    /// <summary>
+    /// Run by a launcher just started after an update: renames its own exe (Windows allows renaming a running exe) to
+    /// <see cref="TargetPath"/> for <paramref name="ownVersion"/>, for an update done by an older launcher that kept
+    /// the old name. Never throws; returns the exe's path afterwards (unchanged when the name stays).
+    /// </summary>
+    public string RenameToVersion(Versioning.SemVersion? ownVersion)
+    {
+        string target = TargetPath(ownVersion);
+        if (string.Equals(target, ExePath, StringComparison.OrdinalIgnoreCase))
+        {
+            return ExePath;
+        }
+
+        try
+        {
+            File.Move(ExePath, target);
+            return target;
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            return ExePath;
+        }
+    }
+
     /// <summary>The version stamped into the staged exe (its product version), or null when it cannot be read.</summary>
     public Versioning.SemVersion? StagedVersion()
     {
