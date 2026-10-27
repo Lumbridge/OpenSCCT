@@ -20,7 +20,10 @@ PATTERNS: dict[str, tuple[str, list[int]]] = {
     "digital": ("pixel", [0x2E3640, 0x56687A, 0x8A9AAE, 0xB4C2D0]),
     "red_tiger": ("stripe", [0x0A0A0A, 0xC01818]),
     "blue_tiger": ("stripe", [0x0A0A0A, 0x1C5AD8]),
-    "golden": ("gold", [0x7A5A12, 0xD8A830, 0xFFE88A]),
+    "golden": ("gold", [0x9A7020, 0xE6B840, 0xFFF2B0]),
+    "pyre": ("flames", [0x0A0A0C, 0x6A0C02, 0xC82408, 0xF07010, 0xFFC038, 0xFFF4B8]),
+    "kaido": ("livery", [0xE0301E, 0x1A2238, 0xF4F2EE, 0xF2C21A, 0x0C0C0E]),
+    "cryo": ("cryo", [0xF0F2F4, 0x0E1014, 0x1E86D8, 0x8EDCFF]),
     "laser_grid": ("scanlines", [0x140808, 0xE82020]),
     "night_ops": ("blotch", [0x0C0C0E, 0x1C1C20, 0x2C2C30]),
     "static": ("noise", [0x101418, 0x5A6A7A, 0xD8E4F0]),
@@ -60,13 +63,15 @@ TARGETS: list[tuple[str, str, list[str]]] = [
     ("SPerso", "SPersoTextures_Shadw_agent", _LADDER + ["night_ops", "static", "breaker"] + _MAP_PATTERNS),
     ("SPerso", "SPersoTextures_Shadw_agent_2", _LADDER + ["night_ops", "static", "breaker"] + _MAP_PATTERNS),
     ("SPerso", "SPersoTextures_DEF_01_A_Body", _LADDER + ["laser_grid", "frag", "lockdown"] + _MAP_PATTERNS),
-    ("SWeaponFirst", "SWeaponTex_p190", _LADDER + ["static", "shockwave", "golden"]),
+    ("SWeaponFirst", "SWeaponTex_p190", _LADDER + ["static", "shockwave", "golden", "pyre", "kaido", "cryo"]),
 ]
 for _gun in ("SWeaponTex_1DEF_01", "SWeaponTex_M160", "SWeaponTex_Hk81", "SWeaponTex_HK_81_chargeur", "SWeaponTex_shotgun"):
-    TARGETS.append(("SWeaponFirst", _gun, _LADDER + ["golden", "laser_grid", "frag"]))
+    TARGETS.append(("SWeaponFirst", _gun, _LADDER + ["golden", "laser_grid", "frag", "pyre", "kaido", "cryo"]))
 
-# How much of the camo replaces the retail colour (the rest keeps small markings readable).
+# How much of the camo replaces the retail colour (the rest keeps small markings readable). The finishes (gold, the
+# painted skins: pyre, kaido, cryo) replace nearly all of it, or the retail grey dulls them.
 CAMO_STRENGTH = 0.85
+FINISH_STRENGTH = 0.97
 
 
 def _rgb(c: int) -> np.ndarray:
@@ -106,6 +111,114 @@ def _bands(value: np.ndarray, colours: list[int]) -> np.ndarray:
     return palette[index]
 
 
+def _stretched_noise(rng: np.random.Generator, h: int, w: int, cells_y: int, cells_x: int) -> np.ndarray:
+    """Value noise on a cells_y x cells_x grid, bicubically enlarged (wraps across the texture edges)."""
+    from PIL import Image  # noqa: PLC0415
+
+    grid = rng.random((cells_y, cells_x)).astype(np.float32)
+    grid = np.pad(grid, ((0, 1), (0, 1)), mode="wrap")
+    img = Image.fromarray(grid, mode="F").resize((w + w // cells_x, h + h // cells_y), Image.BICUBIC)
+    return np.asarray(img, dtype=np.float32)[:h, :w]
+
+
+def _flames(rng: np.random.Generator, h: int, w: int, colours: list[int]) -> np.ndarray:
+    """Black with rows of flame tongues licking up (colours: the black, then the flame ramp from its dark red edge to
+    its pale core). The texture's UV islands are not known, so the rows repeat down the texture and each island
+    takes a slice of flames."""
+    yy, xx = np.mgrid[0:h, 0:w].astype(np.float32)
+    rows = 3
+    # Tongues: noise stretched upward, its sideways sway warped by a second noise.
+    sway = _stretched_noise(rng, h, w, 3, 6) - 0.5
+    tall = 0.6 * _stretched_noise(rng, h, w, 4 * rows, 22) + 0.4 * _stretched_noise(rng, h, w, 8 * rows, 44)
+    x = (xx / w + sway * 0.06) % 1.0
+    xi = np.clip((x * w).astype(np.int32), 0, w - 1)
+    tall = tall[yy.astype(np.int32), xi]
+    # 0 at the top of a row, 1 at its foot: the fire is hottest at the foot and thins out upward.
+    foot = ((yy / h) * rows) % 1.0
+    heat = foot ** 2.4 * 1.3 - (1.0 - tall) * 1.15
+    edge = 0.05
+    flame = np.clip((heat - edge) / 0.85, 0.0, 1.0)
+    ramp = np.stack([_rgb(c) for c in colours[1:]])
+    t = flame * (len(ramp) - 1)
+    i = np.clip(t.astype(np.int32), 0, len(ramp) - 2)
+    f = (t - i)[..., None]
+    fire = ramp[i] * (1 - f) + ramp[i + 1] * f
+    # A soft dark-red fringe where a tongue meets the black, then black.
+    cover = np.clip((heat - edge + 0.04) / 0.04, 0.0, 1.0)[..., None]
+    return _rgb(colours[0]) * (1 - cover) + fire * cover
+
+
+def _livery(rng: np.random.Generator, h: int, w: int, colours: list[int]) -> np.ndarray:
+    """Japanese racing livery (colours: the red, the navy, the white, the yellow, the black): a red body with navy
+    panels edged in white, white racing stripes, yellow and black hazard strips, and white decal plates of
+    katakana-like strokes."""
+    yy, xx = np.mgrid[0:h, 0:w].astype(np.float32)
+    red, navy, white, yellow, black = (_rgb(c) for c in colours)
+    u, v = xx / w, yy / h
+    out = red * np.ones((h, w, 1), np.float32)
+    # Navy panels: slanted bands, a thin white line along each edge.
+    a = (v * 3.0 + u * 0.8) % 1.0
+    panel = (a > 0.58) & (a < 0.86)
+    edge = ((a > 0.55) & (a <= 0.58)) | ((a >= 0.86) & (a < 0.89))
+    out = np.where(panel[..., None], navy, out)
+    out = np.where(edge[..., None], white, out)
+    # Twin white racing stripes across the red.
+    b = (u * 2.0 - v * 1.2) % 1.0
+    stripes = ((b > 0.30) & (b < 0.36)) | ((b > 0.40) & (b < 0.43))
+    out = np.where((stripes & ~panel & ~edge)[..., None], white, out)
+    # Hazard strips just under each navy panel.
+    hz = (a > 0.90) & (a < 0.95)
+    hatch = (((xx + yy) / max(4.0, min(h, w) / 40.0)) % 2.0) < 1.0
+    out = np.where(hz[..., None], np.where(hatch[..., None], yellow, black), out)
+    # Decal plates: white rectangles carrying rows of katakana-like strokes in navy, and glyph rows straight on the red.
+    cell = max(6, min(h, w) // 40)
+    for _ in range(10):
+        pw, ph = int(cell * (4 + rng.integers(0, 6))), int(cell * (1.5 + rng.random() * 1.5))
+        px, py = int(rng.random() * (w - pw)), int(rng.random() * (h - ph))
+        plate = rng.random() < 0.5
+        ink, ground = (navy, white) if plate else (white, None)
+        if ground is not None:
+            out[py:py + ph, px:px + pw] = ground
+        gx = px + cell // 2
+        while gx + cell <= px + pw - cell // 2:
+            gy = py + (ph - cell) // 2
+            for _s in range(2 + rng.integers(0, 2)):
+                kind = rng.integers(0, 3)
+                t = max(1, cell // 6)
+                if kind == 0:  # a horizontal bar
+                    y0 = gy + int(rng.random() * (cell - t))
+                    out[y0:y0 + t, gx:gx + cell] = ink
+                elif kind == 1:  # a vertical bar
+                    x0 = gx + int(rng.random() * (cell - t))
+                    out[gy:gy + cell, x0:x0 + t] = ink
+                else:  # a slanted stroke
+                    for k in range(cell):
+                        out[gy + k:gy + k + 1, gx + cell - 1 - k // 2 - t:gx + cell - k // 2] = ink
+            gx += cell + cell // 3
+    return out
+
+
+def _cryo(rng: np.random.Generator, h: int, w: int, colours: list[int]) -> np.ndarray:
+    """Clean sci-fi panels (colours: the white, the black, the deep blue, the sky blue): diagonal bands cycling white
+    panel, black panel with white slanted ribs, and a deep-to-sky blue gradient strip with a white pinstripe, the bands
+    split by thin black seams."""
+    yy, xx = np.mgrid[0:h, 0:w].astype(np.float32)
+    white, black, deep, sky = (_rgb(c) for c in colours)
+    u, v = xx / w, yy / h
+    a = (u + v * 0.5) * 4.5
+    band = np.floor(a).astype(np.int32) % 3
+    f = (a - np.floor(a))[..., None]
+    ribs = (((u * 0.7 - v) * 16.0) % 1.0) < 0.35
+    inner = (f[..., 0] > 0.18) & (f[..., 0] < 0.82)
+    black_panel = np.where((ribs & inner)[..., None], white, black)
+    gradient = deep * (1 - f) + sky * f
+    pin = np.abs(f[..., 0] - 0.62) < 0.035
+    blue_panel = np.where(pin[..., None], white, gradient)
+    out = np.where((band == 0)[..., None], white, np.where((band == 1)[..., None], black_panel, blue_panel))
+    seam = (f[..., 0] < 0.03) | (f[..., 0] > 0.97)
+    return np.where(seam[..., None], black, out)
+
+
 def pattern_image(pattern: str, h: int, w: int, luma: np.ndarray) -> np.ndarray:
     """The pattern's colours (h x w x 3, 0..1) for a texture of that size; gold follows the retail brightness."""
     shape, colours = PATTERNS[pattern]
@@ -126,11 +239,21 @@ def pattern_image(pattern: str, h: int, w: int, luma: np.ndarray) -> np.ndarray:
         dark = wave > (1.0 - width)
         return np.where(dark[..., None], _rgb(colours[0]), _rgb(colours[1]))
     if shape == "gold":
+        # The retail brightness stretched over the whole ramp (gun textures are dark: unstretched, most of the gun
+        # lands on the darkest gold).
         palette = np.stack([_rgb(c) for c in colours])
-        t = np.clip(luma * 1.4, 0.0, 1.0) * (len(colours) - 1)
+        lo, hi = np.percentile(luma, 2), np.percentile(luma, 98)
+        stretched = np.clip((luma - lo) / max(float(hi - lo), 1e-3), 0.0, 1.0)
+        t = (0.25 + 0.75 * stretched) * (len(colours) - 1)
         i = np.clip(t.astype(np.int32), 0, len(colours) - 2)
         f = (t - i)[..., None]
         return palette[i] * (1 - f) + palette[i + 1] * f
+    if shape == "flames":
+        return _flames(rng, h, w, colours)
+    if shape == "livery":
+        return _livery(rng, h, w, colours)
+    if shape == "cryo":
+        return _cryo(rng, h, w, colours)
     if shape == "scanlines":
         period = max(4, h // 32)
         lines = (yy.astype(np.int32) % period) < max(1, period // 4)
@@ -171,12 +294,18 @@ def paint(retail: np.ndarray, pattern: str) -> np.ndarray:
     luma = rgb @ np.array([0.3, 0.59, 0.11], np.float32)
     h, w = luma.shape
     colours = pattern_image(pattern, h, w, luma)
-    if PATTERNS[pattern][0] == "gold":
+    shape = PATTERNS[pattern][0]
+    if shape == "gold":
         camo = colours
+    elif shape in ("flames", "livery", "cryo"):
+        # A light touch of the retail shading, so edges and details still read through the lacquer.
+        shading = np.clip(0.5 + 0.5 * luma / max(float(luma.mean()), 1e-3), 0.8, 1.15)[..., None]
+        camo = np.clip(colours * shading, 0.0, 1.0)
     else:
         shading = np.clip(luma / max(float(luma.mean()), 1e-3), 0.35, 1.8)[..., None]
         camo = np.clip(colours * shading, 0.0, 1.0)
-    out = rgb * (1 - CAMO_STRENGTH) + camo * CAMO_STRENGTH
+    strength = FINISH_STRENGTH if shape in ("gold", "flames", "livery", "cryo") else CAMO_STRENGTH
+    out = rgb * (1 - strength) + camo * strength
     result = retail.copy()
     result[..., :3] = np.clip(out * 255.0 + 0.5, 0, 255).astype(np.uint8)
     return result

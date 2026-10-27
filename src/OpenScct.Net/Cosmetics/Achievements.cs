@@ -105,6 +105,8 @@ public static class Achievements
 
     private static string[] Both(string item) => ["spy." + item, "merc." + item];
 
+    private static string[] Guns(string camo) => ["spy.pistol." + camo, "merc.ar." + camo, "merc.smg." + camo, "merc.shotgun." + camo];
+
     private static List<Achievement> Build()
     {
         const AchievementCategory G = AchievementCategory.General;
@@ -193,6 +195,13 @@ public static class Achievements
         string[] spyIds = list.Where(a => a.Category == S).Select(a => a.Id).ToArray();
         list.Add(new Achievement("spy_gilded", "Gilded Ghost", "Finish every spy achievement: the golden pistol.", S,
             p => (spyIds.Count(p.Earned.Contains), spyIds.Length), ["spy.pistol.golden"], (p, _, _) => spyIds.All(p.Earned.Contains)));
+
+        // ---- The painted gun skins: each gives its skin for the spy pistol and all three merc guns. Listed after the
+        // gilded ones so they are not part of what those need.
+        list.Add(Once("hot_streak", "Pyre", "Take down 7 opponents in one match.", G, (_, row, _) => row.Kills >= 7, Guns("pyre")));
+        list.Add(new Achievement("kaido", "Kaido", "Win 25 matches as a spy and 25 as a mercenary.", G,
+            p => (Math.Min(p.Stats.SpyWins, 25) + Math.Min(p.Stats.MercWins, 25), 50), Guns("kaido")));
+        list.Add(Count("kills_1000", "Cryo", "Take down 1000 opponents.", G, p => p.Stats.Kills, 1000, Guns("cryo")));
 
         foreach ((string code, string name, _) in CosmeticCatalog.Maps)
         {

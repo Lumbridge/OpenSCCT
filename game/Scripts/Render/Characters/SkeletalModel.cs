@@ -223,10 +223,20 @@ public sealed class SkeletalModel
                         TwoSided = e.TwoSided, Unlit = e.Unlit, SelfIllum = e.SelfIllum, SelfIllumMask = e.SelfIllumMask, SpecMask = e.SpecMask,
                         EnvColor = e.EnvColor, UvAnim = e.UvAnim, ListBlend = e.ListBlend,
                     }, LightSource.Actor);
-                    if (pattern == "golden" && made is ShaderMaterial shiny)
+                    if (made is ShaderMaterial shiny)
                     {
-                        // The golden camo is polished metal: the world shader's gold sheen (svm_gold).
-                        shiny.SetShaderParameter(GoldParameter, 1f);
+                        // The world shader's sheen (svm_sheen): polished gold on the golden camo, glossy black lacquer
+                        // with near-white highlights on the pyre camo.
+                        if (pattern == "golden")
+                        {
+                            shiny.SetShaderParameter(SheenParameter, 1f);
+                            shiny.SetShaderParameter(SheenTintParameter, new Vector3(1f, 0.8f, 0.36f));
+                        }
+                        else if (pattern == "pyre")
+                        {
+                            shiny.SetShaderParameter(SheenParameter, 0.7f);
+                            shiny.SetShaderParameter(SheenTintParameter, new Vector3(1f, 0.93f, 0.85f));
+                        }
                     }
                 }
             }
@@ -404,7 +414,8 @@ public sealed class SkeletalModel
     }
 
     public static readonly StringName TintParameter = "svm_tint";
-    public static readonly StringName GoldParameter = "svm_gold";
+    public static readonly StringName SheenParameter = "svm_sheen";
+    public static readonly StringName SheenTintParameter = "svm_sheen_tint";
     public static readonly StringName GlowHueParameter = "svm_glow_hue";
 
     private Template? _template;

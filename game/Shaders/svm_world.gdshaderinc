@@ -42,8 +42,10 @@ vec3 svm_hue_turn(vec3 c, float angle) {
 	return c * co + cross(k, c) * sin(angle) + k * dot(k, c) * (1.0 - co);
 }
 varying vec4 v_vision;
-// OpenSCCT's own: 1 on the golden camo's materials (a polished gold sheen, SkeletalModel's cosmetic materials).
-uniform float svm_gold = 0.0;
+// OpenSCCT's own: a polished sheen on cosmetic camo materials (SkeletalModel.Cosmetic): its strength (0 off, 1 on the
+// golden camo) and the colour of its highlights (gold, or near white for the pyre camo's black lacquer).
+uniform float svm_sheen = 0.0;
+uniform vec3 svm_sheen_tint = vec3(1.0, 0.8, 0.36);
 
 uniform sampler2D tex_diffuse : filter_linear_mipmap_anisotropic, repeat_enable, hint_default_white;
 
@@ -279,22 +281,27 @@ void fragment() {
 #ifdef ENV_COLOR
 	c = min(c + env_color * texture(tex_spec_mask, uv).a, vec3(1.0));
 #endif
-	if (svm_gold > 0.0) {
-		// Polished gold: a fake studio reflection (bright above, dark below), a tight highlight from the upper front,
-		// a warm rim at grazing angles and a slow glint that sweeps across the metal. All in view space.
+	if (svm_sheen > 0.0) {
+		// Polished metal or lacquer: mostly a fake studio reflection of the texture (dark floor, bright sky, a hot strip
+		// at the horizon) instead of its diffuse lighting, two highlights, a Fresnel rim and a slow glint across the
+		// surface. All in view space. The reflection keeps some of the local light level, so the surface still darkens
+		// in shadow instead of glowing.
 		vec3 n = normalize(NORMAL);
 		vec3 v = normalize(VIEW);
 		vec3 r = reflect(-v, n);
 		float ndv = clamp(dot(n, v), 0.0, 1.0);
-		const vec3 gold = vec3(1.0, 0.78, 0.32);
-		float sky = smoothstep(-0.35, 0.85, r.y);
-		float spec = pow(clamp(dot(r, normalize(vec3(0.35, 0.8, 0.5))), 0.0, 1.0), 28.0);
-		float spec2 = pow(clamp(dot(r, normalize(vec3(-0.6, 0.3, 0.7))), 0.0, 1.0), 12.0);
-		float rim = pow(1.0 - ndv, 3.0);
+		float level = clamp(dot(c, vec3(1.0)) / max(dot(t.rgb, vec3(1.0)), 0.03), 0.0, 1.0);
+		float shade = mix(0.3, 1.0, level);
+		float env = mix(0.3, 1.25, smoothstep(-0.45, 0.9, r.y)) + 0.85 * exp(-pow((r.y - 0.12) * 7.0, 2.0));
+		vec3 refl = t.rgb * env * shade;
+		float spec = pow(clamp(dot(r, normalize(vec3(0.35, 0.8, 0.5))), 0.0, 1.0), 48.0);
+		float spec2 = pow(clamp(dot(r, normalize(vec3(-0.6, 0.3, 0.7))), 0.0, 1.0), 16.0);
+		float rim = pow(1.0 - ndv, 4.0);
 		float band = fract((uv.x + uv.y) * 0.5 - svm_time * 0.18);
 		float glint = smoothstep(0.0, 0.035, band) * (1.0 - smoothstep(0.035, 0.09, band));
-		vec3 metal = c * mix(0.55, 1.15, sky);
-		c = min(metal + gold * (spec * 1.3 + spec2 * 0.35 + rim * 0.45 + glint * 0.55) * svm_gold, vec3(1.0));
+		vec3 metal = mix(c, refl, 0.75 * svm_sheen);
+		vec3 shine = svm_sheen_tint * (spec * 1.8 + spec2 * 0.5 + rim * 0.6 + glint * 0.5) * shade * svm_sheen;
+		c = min(metal + shine, vec3(1.0));
 	}
 	float a = t.a;
 #if defined(BLEND_MODULATE)

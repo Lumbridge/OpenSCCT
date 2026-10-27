@@ -188,7 +188,10 @@ public static class CosmeticCatalog
             new("digital", "Digital", "pixel", [0x2E3640, 0x56687A, 0x8A9AAE, 0xB4C2D0]),
             new("red_tiger", "Red Tiger", "stripe", [0x0A0A0A, 0xC01818]),
             new("blue_tiger", "Blue Tiger", "stripe", [0x0A0A0A, 0x1C5AD8]),
-            new("golden", "Golden", "gold", [0x7A5A12, 0xD8A830, 0xFFE88A]),
+            new("golden", "Golden", "gold", [0x9A7020, 0xE6B840, 0xFFF2B0]),
+            new("pyre", "Pyre", "flames", [0x0A0A0C, 0x6A0C02, 0xC82408, 0xF07010, 0xFFC038, 0xFFF4B8]),
+            new("kaido", "Kaido", "livery", [0xE0301E, 0x1A2238, 0xF4F2EE, 0xF2C21A, 0x0C0C0E]),
+            new("cryo", "Cryo", "cryo", [0xF0F2F4, 0x0E1014, 0x1E86D8, 0x8EDCFF]),
             new("laser_grid", "Laser Grid", "scanlines", [0x140808, 0xE82020]),
             new("night_ops", "Night Ops", "blotch", [0x0C0C0E, 0x1C1C20, 0x2C2C30]),
             new("static", "Static", "noise", [0x101418, 0x5A6A7A, 0xD8E4F0]),
@@ -250,6 +253,16 @@ public static class CosmeticCatalog
             string camo = "map_" + code.ToLowerInvariant();
             Add($"spy.body.{camo}", name, CosmeticSide.Spy, CosmeticSlot.Body, CosmeticKind.Texture, pattern: camo);
             Add($"merc.body.{camo}", name, CosmeticSide.Merc, CosmeticSlot.Body, CosmeticKind.Texture, pattern: camo);
+        }
+
+        // The painted gun skins (OpenSCCT's own): the spy pistol and every merc gun.
+        foreach (string camo in new[] { "pyre", "kaido", "cryo" })
+        {
+            Add($"spy.pistol.{camo}", PatternName(patterns, camo), CosmeticSide.Spy, CosmeticSlot.Pistol, CosmeticKind.Texture, pattern: camo);
+            foreach ((CosmeticSlot slot, string gun) in new[] { (CosmeticSlot.GunAr, "ar"), (CosmeticSlot.GunSmg, "smg"), (CosmeticSlot.GunShotgun, "shotgun") })
+            {
+                Add($"merc.{gun}.{camo}", PatternName(patterns, camo), CosmeticSide.Merc, slot, CosmeticKind.Texture, pattern: camo);
+            }
         }
 
         if (bit - 1 > MaxBit)
