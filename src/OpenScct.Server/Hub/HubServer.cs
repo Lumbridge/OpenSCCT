@@ -155,6 +155,12 @@ public sealed class HubPlayer
 
     internal float ReleasingSince { get; set; }
 
+    /// <summary>
+    /// Where a side change took the old pawn from (its feet and the player's view), so the new side's pawn stands
+    /// there; null for a respawn (back at the plaza).
+    /// </summary>
+    internal (FVector Feet, FRotator View)? KeepPlace { get; set; }
+
     /// <summary>True while the player waits for his new pawn after a side change or respawn.</summary>
     public bool AwaitingSpawn => Releasing is not null;
 
@@ -426,10 +432,16 @@ public sealed partial class HubServer : IDisposable
         }
 
         Pawn? old = pc.Pawn;
+        (FVector, FRotator)? place = old is { bDeleteMe: false, Health: > 0 } alive && alive.Location.Z > HubK.KillZ
+            ? (alive.Location with { Z = alive.Location.Z - alive.CollisionHeight }, pc.Rotation)
+            : null;
         if (!Game.SwitchSide(pc, team))
         {
             return false;
         }
+
+        // A second change before the new pawn came keeps the first change's place.
+        player.KeepPlace ??= place;
 
         WearLook(player);
         slot.Connection.ControlChannel?.Send(ControlMessage.TextLine(HubProtocol.Side(SGameInfo.TeamIndexOf(pc))));
@@ -457,6 +469,7 @@ public sealed partial class HubServer : IDisposable
     {
         Pawn? old = pc.Pawn;
         Game.TakePawn(pc);
+        player.KeepPlace = null;
         SpawnWhenReleased(player, pc, old);
     }
 
@@ -489,9 +502,15 @@ public sealed partial class HubServer : IDisposable
     private void FinishSpawn(HubPlayer player, PlayerController pc)
     {
         player.Releasing = null;
+        (FVector Feet, FRotator View)? place = player.KeepPlace;
+        player.KeepPlace = null;
         if (Game.Spawn(pc))
         {
             Count(player.Slot);
+            if (place is { } at && !Game.PlaceAt(pc, at.Feet, at.View))
+            {
+                player.Slot.Connection.ControlChannel?.Send(ControlMessage.TextLine(HubProtocol.Message("No room for that side there: you start at the plaza.")));
+            }
         }
     }
 

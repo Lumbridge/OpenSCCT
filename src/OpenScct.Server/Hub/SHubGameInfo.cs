@@ -189,6 +189,40 @@ public sealed class SHubGameInfo : SGameInfo
         return true;
     }
 
+    /// <summary>
+    /// Moves the player's new pawn to stand at <paramref name="feet"/> facing <paramref name="view"/> (a side change
+    /// keeps the player where he was). False, with the pawn left at its start spot, when the new side's body does not
+    /// fit there.
+    /// </summary>
+    public bool PlaceAt(PlayerController pc, FVector feet, FRotator view)
+    {
+        ArgumentNullException.ThrowIfNull(pc);
+        if (pc.Pawn is not { bDeleteMe: false } pawn)
+        {
+            return false;
+        }
+
+        if (!pawn.SetLocation(feet with { Z = feet.Z + pawn.CollisionHeight + HubK.KeepPlaceLift }))
+        {
+            return false;
+        }
+
+        pawn.Velocity = FVector.Zero;
+        pawn.Acceleration = FVector.Zero;
+        pawn.Rotation = new FRotator(0, view.Yaw, 0);
+        pc.Rotation = view;
+        if (pc.IsRemotePlayer)
+        {
+            Host.ClientCall(pc, new GameCall("ClientSetRotation") { Rotation = view });
+        }
+        else
+        {
+            pc.ClientSetRotation(view);
+        }
+
+        return true;
+    }
+
     /// <summary>The side's pawn type, field of view and pawn class, as Login sets them.</summary>
     private void ApplySide(PlayerController pc)
     {

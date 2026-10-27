@@ -30,6 +30,9 @@ public static class HubK
     /// <summary>A pawn below this height (uu) has fallen out of the hall and is put back at the plaza.</summary>
     public const float KillZ = -2048f;
 
+    /// <summary>A side change sets the new pawn down this far above the old one's feet (units), clear of the floor.</summary>
+    public const float KeepPlaceLift = 2f;
+
     /// <summary>A player may change side or respawn at most this often.</summary>
     public const float SideChangeCooldownSeconds = 2f;
 

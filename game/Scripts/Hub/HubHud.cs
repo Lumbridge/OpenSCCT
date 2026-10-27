@@ -36,6 +36,7 @@ public partial class HubHud : CanvasLayer
     private bool _teamOnly;
     private bool _local;
     private HubPlayerList? _playerList;
+    private OpenScctGame.UI.ArmouryScreen? _armoury;
 
     /// <summary>A chat line shows over its speaker's head this long (seconds).</summary>
     private const double BubbleSeconds = 6.0;
@@ -60,7 +61,7 @@ public partial class HubHud : CanvasLayer
         _help = new Label
         {
             Name = "Help", Position = new Vector2(16f, 40f), Modulate = new Color(1f, 1f, 1f, 0.75f),
-            Text = "Hub   J spy   K merc   N plaza   G emotes   U use   X stop   V vote   H watch   P players   Enter/F5 chat   F6 team chat   Esc menu   Stand on a match pad to queue",
+            Text = "Hub   J spy   K merc   N plaza   G emotes   U use   X stop   V vote   H watch   P players   O armoury   Enter/F5 chat   F6 team chat   Esc menu   Stand on a match pad to queue",
         };
         if (OpenScctGame.UI.UiArt.CaptionFont is { } caption)
         {
@@ -301,7 +302,7 @@ public partial class HubHud : CanvasLayer
 
     public override void _UnhandledInput(InputEvent @event)
     {
-        if (@event is not InputEventKey { Pressed: true, Echo: false } key || Client is not { } client)
+        if (@event is not InputEventKey { Pressed: true, Echo: false } key || Client is not { } client || _armoury is not null)
         {
             return;
         }
@@ -376,6 +377,9 @@ public partial class HubHud : CanvasLayer
             case Key.P:
                 TogglePlayerList(client);
                 break;
+            case Key.O when _playerList is null:
+                OpenArmoury();
+                break;
             default:
                 return;
         }
@@ -406,6 +410,37 @@ public partial class HubHud : CanvasLayer
             // The pointer is freed for the sliders; a click in the world captures it again once the list is closed.
             input.ReleasePointer();
             input.Enabled = false;
+        }
+    }
+
+    /// <summary>
+    /// O: the Armoury over the hub. A look picked there is saved, and HubService sends saved looks to the hub, which
+    /// puts them on the player's character at once.
+    /// </summary>
+    private void OpenArmoury()
+    {
+        _armoury = new OpenScctGame.UI.ArmouryScreen { Closed = CloseArmoury };
+        AddChild(_armoury);
+        if (Round?.Controls is { } input)
+        {
+            input.ReleasePointer();
+            input.Enabled = false;
+        }
+    }
+
+    private void CloseArmoury()
+    {
+        if (_armoury is not { } open)
+        {
+            return;
+        }
+
+        _armoury = null;
+        open.QueueFree();
+        if (Round?.Controls is { } input)
+        {
+            // A click in the world captures the pointer again (as after the player list).
+            input.Enabled = true;
         }
     }
 

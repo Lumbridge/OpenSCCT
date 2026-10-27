@@ -44,6 +44,12 @@ public partial class ArmouryScreen : MenuPage
     /// <summary>The item being tried on (pointed at) and its slot, or null for the chosen kit.</summary>
     private (CosmeticSlot Slot, CosmeticItem? Item)? _tryOn;
 
+    /// <summary>
+    /// Set when the page is opened over the hub instead of as a menu screen: Back and Escape call it, and the
+    /// Achievements button is left out. Saved choices reach the hub through the saved settings (HubService).
+    /// </summary>
+    public Action? Closed { get; init; }
+
     public override void _Ready()
     {
         Name = "Armoury";
@@ -82,8 +88,16 @@ public partial class ArmouryScreen : MenuPage
         _kit.AddThemeConstantOverride("separation", 6);
         BuildKit();
 
-        PageButton("Back", () => FrontEnd.ShowMainMenu(GetTree()), "Back").GrabFocus();
-        PageButton("Achievements", () => FrontEnd.ShowAchievements(GetTree()), "Achievements");
+        if (Closed is { } closed)
+        {
+            PageButton("Back", closed, "Back").GrabFocus();
+        }
+        else
+        {
+            PageButton("Back", () => FrontEnd.ShowMainMenu(GetTree()), "Back").GrabFocus();
+            PageButton("Achievements", () => FrontEnd.ShowAchievements(GetTree()), "Achievements");
+        }
+
         GetViewport().SizeChanged += FitHeight;
         FitHeight();
         if (AccountService.HasMaster && AccountSettings.Current.SignedIn)
@@ -114,6 +128,22 @@ public partial class ArmouryScreen : MenuPage
                 ShowSide(_side);
             }
         }
+    }
+
+    /// <summary>Over the hub, Escape closes the page; no other key reaches the game behind it.</summary>
+    public override void _UnhandledInput(InputEvent @event)
+    {
+        if (Closed is not { } closed || @event is not InputEventKey { Pressed: true } key)
+        {
+            return;
+        }
+
+        if (key.Keycode == Key.Escape && !key.Echo)
+        {
+            closed();
+        }
+
+        GetViewport().SetInputAsHandled();
     }
 
     /// <summary>The menu's button for this page.</summary>
