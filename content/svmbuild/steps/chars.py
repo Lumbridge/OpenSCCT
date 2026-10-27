@@ -1,8 +1,9 @@
 """P5 chars step: characters, first-person weapons and map animation props as GLB skins plus animation files
 (shared/chars/<Package>/<Mesh>.glb, <Animation>.anim.json, textures/). See svmbuild/charconv.py.
 
-Sets: SPerso ATT_01 (spy) and DEF_01 (merc), every SWeaponFirst mesh except the PS2 variants, and SteeE's
-sqt13_anm crane and wall, and the SGoggle beams (goggle glow). Materials a class swaps into Skins at run time (the merc rifle's rate-of-fire screens)
+Sets: SPerso ATT_01 (spy) and DEF_01 (merc), every SWeaponFirst mesh except the PS2 variants, the SGoggle beams
+(goggle glow), and every skeletal mesh a map places (charconv.MAP_PROP_SETS: SAnimatedMesh props such as SteeE's
+crane, Aqua's palms and FactD's grilles, and the skeletal fish). Materials a class swaps into Skins at run time (the merc rifle's rate-of-fire screens)
 are exported with them. Then OpenSCCT's own cosmetic camos are painted over the body and gun textures (svmbuild/cosmetics.py).
 """
 
@@ -16,7 +17,7 @@ from ..sources import env
 
 class CharsStep(Step):
     name = "chars"
-    version = 4
+    version = 5
     deps = ()
     per_map = False
     needs_game = True
@@ -35,7 +36,7 @@ class CharsStep(Step):
         return {"sets": [[p, list(m)] for p, m in DEFAULT_SETS]}
 
     def inputs(self, ctx: Context, unit: str | None) -> dict[str, str | None]:
-        from ..charconv import DEFAULT_SETS  # noqa: PLC0415
+        from ..charconv import DEFAULT_SETS, MAP_PROP_SETS, import_packages  # noqa: PLC0415
 
         out = {}
         for p, _ in DEFAULT_SETS:
@@ -43,8 +44,12 @@ class CharsStep(Step):
             out[ctx.game_path(f)] = ctx.hasher.sha256(f) if f.is_file() else None   # an optional map's props
         for f in env.script_package_files(ctx.game):
             out[ctx.game_path(f)] = ctx.hasher.sha256(f)
-        # Skins and notify sounds come from other packages; the textures folder decides the PNGs.
-        for name in ("SPersoTextures", "SWeaponTex", "SGoggleTextures"):
+        # Skins and notify sounds come from other packages; the textures folder decides the PNGs. The map props'
+        # skins are in the texture packages their .ukx imports.
+        skins = {"SPersoTextures", "SWeaponTex", "SGoggleTextures"}
+        for p, _ in MAP_PROP_SETS:
+            skins.update(import_packages(ctx.game, p))
+        for name in sorted(skins):
             tex = ctx.game / "Packages" / "Textures" / f"{name}.utx"
             if tex.is_file():
                 out[ctx.game_path(tex)] = ctx.hasher.sha256(tex)

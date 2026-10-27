@@ -31,20 +31,70 @@ from .sources.env import import_formats
 from .sources.typedprops import bag_to_json, default_resolver
 from .writers.glb import pack_glb
 
+# The skeletal meshes the maps place (SAnimatedMesh props and DT_Mesh fish): every Mesh a map actor of sim/gameplay.json
+# names in these packages, gathered over all the maps with placed_meshes (SteeE's crane and wall, Aqua's palms, air
+# traps, sharks, mantas and dolphins, FactD's grilles and generators, ClubD's ceilings and paper doors, fans, vents,
+# doors...). Meshes no map places are left out (AQU_anm.AQA_macrocystis_mesh, CLU_anims.clu_aquarium_mesh, TME/TSP
+# spares).
+MAP_PROP_SETS = (
+    ("AQU_anm", ("AQU_airtrap_mesh", "AQU_amphore_mesh", "AQU_manta_mesh", "Aqua_plant_mesh", "aqu_caisse_mesh",
+                 "aqu_dauphin_mesh", "aqu_shark_mesh", "aqua_ext_palmier_mesh")),
+    ("CLU_anims", ("CLU_bamboo_mesh", "CLU_chute_boitier_elec_mesh", "CLU_tree02_mesh", "CLU_vent_steam_mesh",
+                   "Clu_paperdoor_mesh", "Clu_zen_heater_mesh", "clu_zen_acces_mesh", "fakeceiling_mesh",
+                   "fakeceiling_s_mesh")),
+    ("FAC_anm", ("FAC_genelec_mesh", "chute_container_mesh", "fac_mur01_mesh", "fac_mur02_mesh", "fac_mur03_mesh",
+                 "fac_pelle_mesh", "ouverture_grilles_mesh")),
+    ("GAR_anm", ("GAR_gyrophare64_mesh", "GAR_pistons_mesh", "GAR_vitre_snipe_mesh", "gar_barreaux_mesh",
+                 "gar_train_mesh")),
+    ("MAL_anm", ("ventilateur_mesh",)),
+    ("map17_anm", ("pol_bigrad_mesh", "pol_manche_mesh", "pol_radar_mesh", "pol_ventometre_mesh")),
+    ("MIS_ANM", ("MIS_airtrap_mesh", "MIS_porte_silo_mesh", "mis_giro_mesh", "mis_porte_mesh", "ventilateur_mesh")),
+    ("orf_anm", ("ORF_mur_mesh", "orp_gene_mesh", "orp_plancher_mesh", "orp_verriere_mesh")),
+    ("sqt13_anm", ("sqt_grue_mesh", "sqt_mur_mesh")),   # SteeE crane and collapsing wall
+    ("TME01_anm", ("tme01_anmmesh01_mesh", "tme01_anmmesh02_mesh", "tme04_EMFanimmesh_mesh",
+                   "tme04_breakingwall_mesh", "tme04_gun_mesh")),
+    ("TSP01_anm", ("tsp01_anmmesh01_mesh", "tsp01_anmmesh02_mesh", "tsp02_anmmesh01_mesh", "tsp05_lightanm_mesh")),
+)
+
 # (package under Packages/Animations, mesh names; empty = every mesh except the PS2 variants)
 DEFAULT_SETS = (
     ("SPerso", ("ATT_01", "DEF_01")),          # spy, merc
     ("SWeaponFirst", ()),                      # first-person weapons
-    ("sqt13_anm", ("sqt_grue_mesh", "sqt_mur_mesh")),   # SteeE crane and collapsing wall
     ("SGoggle", ("ATT01_beams", "DEF01_beams")),        # goggle glow (spec/equipment/goggle-glow.md)
-)
+) + MAP_PROP_SETS
 
-# Sets of one map's props: skipped when the install does not have the package (the retail Versus has no SteeE).
-OPTIONAL_SETS = frozenset({"sqt13_anm"})
+# Sets of the maps' props: skipped when the install does not have the package (the retail Versus has no SteeE).
+OPTIONAL_SETS = frozenset(p for p, _ in MAP_PROP_SETS)
 
 
 def set_path(game: Path, package: str) -> Path:
     return Path(game) / "Packages" / "Animations" / f"{package}.ukx"
+
+
+def placed_meshes(gameplay_files) -> dict:
+    """{package: sorted mesh names} of the Mesh every actor of the given sim/gameplay.json files names, to check or
+    rebuild MAP_PROP_SETS (the step does not read the maps, so the chars output stays one shared unit)."""
+    out: Dict[str, set] = {}
+    for f in gameplay_files:
+        doc = json.loads(Path(f).read_text(encoding="utf-8"))
+        for a in doc.get("actors", []):
+            mesh = a.get("props", {}).get("Mesh")
+            if isinstance(mesh, dict) and isinstance(mesh.get("$asset"), str) and "." in mesh["$asset"]:
+                pkg, name = mesh["$asset"].split(".", 1)
+                out.setdefault(pkg, set()).add(name)
+    return {k: sorted(v) for k, v in sorted(out.items())}
+
+
+def import_packages(game: Path, package: str) -> list:
+    """The top-level packages a set's .ukx imports (its skins' texture packages), for the step's input hashes."""
+    path = set_path(game, package)
+    if not path.is_file():
+        return []
+    import_formats()
+    from scctpkg.package import Package  # noqa: PLC0415
+
+    pkg = Package.load(path)
+    return sorted({i.name for i in pkg.imports if i.outer == 0 and i.class_name == "Package"})
 
 # Materials a class swaps into a mesh's Skins at run time, exported next to that package's meshes (textures/, named
 # as the mesh materials are): the merc rifle's rate-of-fire screen (SWeaponDefense Skins[3], SetMode swaps

@@ -257,8 +257,8 @@ own at start (`GameLocator`): the Steam copy (app 13570) in any Steam library (S
 `steamapps\libraryfolders.vdf`, then `appmanifest_13570.acf`'s install folder, then its `Versus` subfolder), then
 common Ubisoft and Steam folders. A folder picked in Settings may be the game root or its Versus folder. Checked on
 the Steam copy (2026-10-26): all 21 of its maps and every shared pack convert and validate, about 470 MB in 45 s;
-its maps are the retail set (AQU03, BNK11, ...), not Enhanced SCCT Versus's 83. Props of a map the install does not
-have (the SteeE crane, `sqt13_anm`) are skipped.
+its maps are the retail set (AQU03, BNK11, ...), not Enhanced SCCT Versus's 83. Props of maps the install does not
+have (the SteeE crane, `sqt13_anm`, and the other map anim packages) are skipped.
 
 A fresh player: install the launcher and press Install. The
 launcher finds the game, downloads the build, builds the content and then Play works.

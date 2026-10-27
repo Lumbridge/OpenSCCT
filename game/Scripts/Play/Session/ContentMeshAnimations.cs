@@ -10,7 +10,8 @@ namespace OpenScctGame.Play.Session;
 
 /// <summary>
 /// The animation sequences of a map's skeletal mesh actors (SVMap 1.1 <c>animations</c>) as the devices read them:
-/// frame counts, rates and the notify objects (AnimNotify_Trigger fires events, AnimNotify_Sound plays a sound), so
+/// frame counts, rates and the notify objects (AnimNotify_Trigger fires events, AnimNotify_Sound plays a sound,
+/// AnimNotify_StopSound stops one), so
 /// SteeE's crane fires <c>tueletube</c> and <c>blast01</c> on time on every machine that loads the map.
 /// </summary>
 public sealed class ContentMeshAnimations : IMeshAnimations
@@ -71,6 +72,18 @@ public sealed class ContentMeshAnimations : IMeshAnimations
                 sound.Radius = props.GetInt("Radius", sound.Radius);
                 sound.BoneName = props.GetName("BoneName", sound.BoneName);
                 return sound;
+            }
+
+            case "Engine.AnimNotify_StopSound":
+            {
+                // Stops a looping notify sound (RiveD's MAL_anm.ventilateur_mesh fan), as PawnAnimNotifies reads it.
+                var stop = new UAnimNotify_StopSound();
+                if (props.GetAsset("Sound") is { } asset)
+                {
+                    stop.Sound = new UcAsset(asset.Path);
+                }
+
+                return stop;
             }
 
             case "Engine.AnimNotify_Script":

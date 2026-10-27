@@ -32,6 +32,11 @@ public partial class SAnimatedMesh
     private bool _fromStart;
     private int _plays;
 
+    // A client's proxy: the replicated SimAnim it last applied, and whether the server said the play repeats.
+    private FAnimRep _followed;
+    private bool _following;
+    private bool _loop;
+
     /// <summary>The sequence on the channel, or null.</summary>
     public MeshAnimSequence? AnimSequence => _sequence;
 
@@ -40,6 +45,15 @@ public partial class SAnimatedMesh
 
     /// <summary>True while the channel plays (not frozen and not ended).</summary>
     public bool IsAnimating => _playing;
+
+    /// <summary>Normalised frames per second the channel moves while playing (negative backwards, 0 when held).</summary>
+    public float AnimFrameRate => !_playing ? 0f : _backward ? -_rate : _rate;
+
+    /// <summary>True on a client's proxy while the server replays the sequence (the channel wraps at its end).</summary>
+    public bool AnimLooping => _loop;
+
+    /// <summary>Times the channel started a sequence (views count starts from it).</summary>
+    public int AnimStarts { get; private set; }
 
     /// <summary>
     /// Hangs the attachments on their bones (every machine); on the authority: no physics, drawn as a mesh, the
@@ -88,6 +102,10 @@ public partial class SAnimatedMesh
         if (iCurrentAnim >= 0 && iCurrentAnim < Animations.Count)
         {
             PlayAnim(Animations[iCurrentAnim], 1f, false);
+
+            // The replicated loop flag: set while plays of this sequence are left, so clients wrap the channel
+            // instead of waiting for a SimAnim that does not change when the same sequence starts again.
+            SimAnim = SimAnim with { AnimLoop = (byte)(iLoopLeft != 0 ? 1 : 0) };
         }
 
         bHidden = false;
@@ -112,6 +130,24 @@ public partial class SAnimatedMesh
             return;
         }
 
+        StartChannel(sequence, Rate, bBackward);
+
+        // A backward play starts at its end frame, so the replicated start frame is the end (255): clients read it
+        // as the direction, which SimAnim has no field for.
+        SimAnim = new FAnimRep
+        {
+            AnimSequence = sequence.Name,
+            AnimRate = (byte)SvmMath.Clamp(SvmMath.Trunc(Rate * 64f), 0, 255),
+            AnimFrame = (byte)(bBackward ? BackwardStartFrame : 0),
+        };
+    }
+
+    /// <summary>The replicated start frame that marks a backward play.</summary>
+    private const int BackwardStartFrame = 255;
+
+    /// <summary>Starts <paramref name="sequence"/> on channel 0 from its first frame (its end frame when backward).</summary>
+    private void StartChannel(MeshAnimSequence sequence, float Rate, bool bBackward)
+    {
         _sequence = sequence;
         _rate = Rate * sequence.Rate / sequence.NumFrames;
         _backward = bBackward;
@@ -119,7 +155,43 @@ public partial class SAnimatedMesh
         _playing = true;
         _fromStart = true;
         _plays++;
-        SimAnim = new FAnimRep { AnimSequence = sequence.Name, AnimRate = (byte)SvmMath.Clamp(SvmMath.Trunc(Rate * 64f), 0, 255) };
+        AnimStarts++;
+    }
+
+    /// <summary>
+    /// A client's proxy plays what the server's replicated SimAnim says (UE2 animation replication, so the notify
+    /// sounds play on every machine, rule 12): a rate above 0 after a held channel or another sequence starts it
+    /// (backwards when the start frame is the end), a rate of 0 holds the replicated frame, and the loop flag makes
+    /// the channel wrap at its end.
+    /// </summary>
+    [Provenance(ProvenanceKind.Estimated, "Client start rule of SimAnim (UE2 client animation replication); the backward and loop encodings are this port's")]
+    private void FollowSimAnim()
+    {
+        FAnimRep rep = SimAnim;
+        if (_following && rep == _followed)
+        {
+            return;
+        }
+
+        bool start = rep.AnimRate > 0 && (!_following || rep.AnimSequence != _followed.AnimSequence || _followed.AnimRate == 0);
+        _followed = rep;
+        _following = true;
+        _loop = rep.AnimLoop != 0 && rep.AnimRate > 0;
+        if (rep.AnimSequence.IsNone || XLevel.GetService<IMeshAnimations>()?.FindSequence(Mesh, rep.AnimSequence) is not { } sequence)
+        {
+            return;
+        }
+
+        if (start)
+        {
+            StartChannel(sequence, rep.AnimRate / 64f, rep.AnimFrame == BackwardStartFrame);
+        }
+        else if (rep.AnimRate == 0)
+        {
+            _sequence = sequence;
+            _frame = rep.AnimFrame / 255f;
+            _playing = false;
+        }
     }
 
     /// <summary>Holds the channel at <paramref name="Time"/> (a normalised frame), not moving.</summary>
@@ -186,10 +258,17 @@ public partial class SAnimatedMesh
         {
             _playing = false;
 
-            // AnimEnd is not simulated: a client's proxy holds the end pose and leaves the state to the server.
+            // AnimEnd is not simulated: a client's proxy holds the end pose and leaves the state to the server, or
+            // wraps while the server replays the sequence.
             if (Role >= ENetRole.ROLE_AutonomousProxy)
             {
+                // The channel holds its end: clients see a held channel unless AnimEnd plays again in this tick.
+                SimAnim = SimAnim with { AnimRate = 0, AnimFrame = (byte)SvmMath.Clamp(SvmMath.Trunc(_frame * 255f), 0, 255) };
                 eventAnimEnd(0);
+            }
+            else if (_loop)
+            {
+                StartChannel(sequence, _followed.AnimRate / 64f, _backward);
             }
         }
     }
@@ -201,10 +280,17 @@ public partial class SAnimatedMesh
     protected override void NativeTick(float DeltaSeconds)
     {
         base.NativeTick(DeltaSeconds);
-        if (!bDeleteMe)
+        if (bDeleteMe)
         {
-            UpdateAnimation(DeltaSeconds);
+            return;
         }
+
+        if (Role < ENetRole.ROLE_Authority)
+        {
+            FollowSimAnim();
+        }
+
+        UpdateAnimation(DeltaSeconds);
     }
 
     /// <summary>
