@@ -323,6 +323,13 @@ public static class CosmeticCatalog
         Add("spy.body.skeleton", PatternName(patterns, "skeleton"), CosmeticSide.Spy, CosmeticSlot.Body, CosmeticKind.Texture, pattern: "skeleton");
         Add("merc.body.skeleton", PatternName(patterns, "skeleton"), CosmeticSide.Merc, CosmeticSlot.Body, CosmeticKind.Texture, pattern: "skeleton");
 
+        // Galaxy on the guns (OpenSCCT's own): the spy pistol and every merc gun, given with the Galaxy suits.
+        Add("spy.pistol.galaxy", PatternName(patterns, "galaxy"), CosmeticSide.Spy, CosmeticSlot.Pistol, CosmeticKind.Texture, pattern: "galaxy");
+        foreach ((CosmeticSlot slot, string gun) in new[] { (CosmeticSlot.GunAr, "ar"), (CosmeticSlot.GunSmg, "smg"), (CosmeticSlot.GunShotgun, "shotgun") })
+        {
+            Add($"merc.{gun}.galaxy", PatternName(patterns, "galaxy"), CosmeticSide.Merc, slot, CosmeticKind.Texture, pattern: "galaxy");
+        }
+
         if (bit - 1 > MaxBit)
         {
             throw new InvalidOperationException("Too many cosmetics for the look's byte per slot.");

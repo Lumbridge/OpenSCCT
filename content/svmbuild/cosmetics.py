@@ -107,13 +107,15 @@ TARGETS: list[tuple[str, str, list[str]]] = [
      + _MERC_EXTRA + ["galaxy", "inferno"] + _MAP_PATTERNS + ["skeleton"]),
     ("SPerso", "SPersoTextures_DEF_01_A_Face", ["skeleton"]),  # the skull covers the merc's face too
     ("SWeaponFirst", "SWeaponTex_p190", _LADDER + ["static", "shockwave", "golden", "pyre", "kaido", "cryo",
-                                                   "chaff", "turnabout", "gadgeteer", "smoke", "mastercraft", "flashbang"]),
+                                                   "chaff", "turnabout", "gadgeteer", "smoke", "mastercraft", "flashbang",
+                                                   "galaxy"]),
 ]
 # The skeleton is drawn from the body's bind pose (svmbuild/skeleton.py): the mesh each body texture is painted from.
 SKELETON_MESH = {"SPersoTextures_Shadw_agent": "ATT_01.glb", "SPersoTextures_Shadw_agent_2": "ATT_01.glb",
                  "SPersoTextures_DEF_01_A_Body": "DEF_01.glb", "SPersoTextures_DEF_01_A_Face": "DEF_01.glb"}
 for _gun in ("SWeaponTex_1DEF_01", "SWeaponTex_M160", "SWeaponTex_Hk81", "SWeaponTex_HK_81_chargeur", "SWeaponTex_shotgun"):
-    TARGETS.append(("SWeaponFirst", _gun, _LADDER + ["golden", "laser_grid", "frag", "pyre", "kaido", "cryo"] + _MERC_EXTRA))
+    TARGETS.append(("SWeaponFirst", _gun, _LADDER + ["golden", "laser_grid", "frag", "pyre", "kaido", "cryo"] + _MERC_EXTRA
+                    + ["galaxy"]))
 
 # Output size: the retail size times the package's factor (bodies 512 -> 2048, guns 256 -> 1024), at least MIN_SIZE on
 # the long side. The map camos on bodies stop at MAP_MAX.

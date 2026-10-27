@@ -25,7 +25,7 @@ suits, Pyre's with flames climbing from the cuffs, the rest with the pattern wra
 Suits (draw_suit). The body's bind pose takes the same tiles, seen from the front, the sides and above, blended by
 which way each texel faces; the blotch camos are again solid 3D noise, and tiger stripes are turned to wrap round the
 torso and legs. Galaxy (a Doppler nebula with stars) and Inferno (flames rising from the boots and the hands) are solid
-3D designs of their own. The body's atlas shares islands between left and right and front and back, so the body is
+3D designs of their own; Galaxy is drawn on the guns too, its nebula packed tighter (GALAXY_GUN_SWIRL). The body's atlas shares islands between left and right and front and back, so the body is
 folded to one quarter (|x|, |z|) before anything is drawn on it.
 
 Shapes are measured against the gun's size (its length and height), so every gun gets the same design at its own
@@ -647,6 +647,8 @@ def _solid_blotch(pattern: str, colours, P: np.ndarray, cover: np.ndarray, tile_
 
 
 _SOLID = ("blotch", "blotch-soft")
+# How much tighter the Galaxy nebula is packed on the guns than on the suits.
+GALAXY_GUN_SWIRL = 2.5
 
 
 def _stars(rng, X, Y, Z, cell: float, keep: float, r_lo: float, r_hi: float) -> np.ndarray:
@@ -662,16 +664,17 @@ def _stars(rng, X, Y, Z, cell: float, keep: float, r_lo: float, r_hi: float) -> 
     return np.where(on, np.exp(-d2 / (r * r)), 0.0).astype(np.float32)
 
 
-def solid_galaxy(seed: str, colours, P: np.ndarray, cover: np.ndarray) -> np.ndarray:
+def solid_galaxy(seed: str, colours, P: np.ndarray, cover: np.ndarray, swirl: float = 1.0) -> np.ndarray:
     """Galaxy (OpenSCCT's own): a Doppler-style nebula, deep space swirling into blue, violet and pink ribbons, sown
     with stars, computed in 3D at each point P (metres) so it has no seams. colours: space, then the nebula dark to
-    light, the last the stars' tint."""
+    light, the last the stars' tint. swirl packs the nebula tighter (the guns, far smaller than a body, take more than
+    1 to show a few swirls); the stars keep their size."""
     from . import cosmetics  # noqa: PLC0415
 
     rng = cosmetics._rng(seed, "galaxy")
     h, w = cover.shape
     X0, Y0, Z0 = (P[..., k][cover] for k in range(3))
-    X, Y, Z = X0, Y0, Z0
+    X, Y, Z = X0 * swirl, Y0 * swirl, Z0 * swirl
     # Two rounds of warping swirl the cloud into ribbons.
     for amount, cell in ((0.22, 0.3), (0.05, 0.1)):
         wx, wy, wz = ((_fbm3(rng, X, Y, Z, cell, 3) - 0.5) * amount for _ in range(3))
@@ -748,7 +751,7 @@ def _laid(g: _Gun, colours, rng, luma=None, *, pattern: str, shape: str) -> np.n
 
     tile_m = TILE_M * _TILE_SCALE.get(shape, 1.0)
     u, v = _place(g, tile_m)
-    img = None if shape in _SOLID else _tile(pattern, shape, tuple(colours))
+    img = None if shape in _SOLID or shape == "galaxy" else _tile(pattern, shape, tuple(colours))
     pal = [_rgb(c) for c in colours]
     gilded = shape in ("gold", "mastercraft")
     if gilded:
@@ -763,6 +766,8 @@ def _laid(g: _Gun, colours, rng, luma=None, *, pattern: str, shape: str) -> np.n
         if shape in _SOLID:
             P = np.stack([g.x, g.y, g.z], -1)
             out = _solid_blotch(pattern, colours, P, g.cover, tile_m, shape == "blotch-soft")
+        elif shape == "galaxy":
+            out = solid_galaxy(pattern, colours, np.stack([g.x, g.y, g.z], -1), g.cover, GALAXY_GUN_SWIRL)
         else:
             out = _sample(img, u, v)
         darkest = min(pal, key=_tone)
