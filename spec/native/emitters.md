@@ -186,8 +186,11 @@ Notable differences from other UE2 builds (this engine has no `StartLocationShap
     ExtentMultiplier x MeshExtent. StartSizeRange defaults to 1: Size scales the mesh.
 24. Each particle draws StaticMesh at `Location + R(spin) (Size x (vertex - owner PrePivot))`, with spin (when
     SpinParticles) the rotator `(Pitch = Y, Yaw = X, Roll = Z)` of `int(StartSpin + Time SpinsPerSecond)`; under PTCS_Relative
-    the owner's rotation and location follow. `UseMeshBlendMode` (default) keeps the mesh's own materials; otherwise
-    the particle's draw style with the particle colour (`UseParticleColor`).
+    the owner's rotation and location follow. `UseMeshBlendMode` (default) keeps the mesh's own materials (per
+    section the owner's skin, else the mesh's), lit by the owner's light list set once before the particles, and
+    wrapped in a colour modifier of the particle colour when `UseParticleColor`; otherwise each section draws through
+    the owner's particle material: the emitter's DrawStyle, `RenderTwoSided`, the colour as TFactor, the emitter's
+    alpha test, ZTest and ZWrite, and the section's material as the texture only when it is a bitmap, unlit.
 
 ### Beams (UBeamEmitter)
 25. A beam particle joins its location to an end point given by DetermineEndPointBy (PTEP_Velocity: the velocity;

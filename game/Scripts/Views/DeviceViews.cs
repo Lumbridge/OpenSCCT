@@ -79,7 +79,12 @@ public sealed class DeviceViews
                 _animated.Add(new AnimatedMeshView(record.Id, animated, model, map));
             }
         }
+
+        Attached = new AttachedEffects(map, loaded, _animated);
     }
+
+    /// <summary>The map's emitters and lights that ride a mover or hang on a bone.</summary>
+    public AttachedEffects Attached { get; }
 
     /// <summary>The followed gameplay mesh nodes.</summary>
     public IReadOnlyList<MeshFollower> Meshes => _meshes;
@@ -132,6 +137,8 @@ public sealed class DeviceViews
         {
             a.OnTick();
         }
+
+        Attached.OnTick();
 
         // A trigger light switches the map's light of the same name (spec/devices/trigger-light.md, render).
         for (int i = 0; i < _lights.Count; i++)
@@ -242,6 +249,9 @@ public sealed class DeviceViews
         {
             a.Draw(dt);
         }
+
+        // After the props' poses: what hangs on their bones follows this frame's pose.
+        Attached.Draw(alpha, dt);
     }
 
     private Mesh? FindMesh(string asset)
