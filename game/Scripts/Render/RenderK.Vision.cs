@@ -197,9 +197,41 @@ public static partial class RenderK
     [Provenance(ProvenanceKind.Estimated, "same 2x stage as the point lights (RenderingModeNormal::SetLight); not measured")]
     public const float SpotShadowGain = 2f;
 
-    /// <summary>Shadow map size of a spot shadow light.</summary>
-    [Provenance(ProvenanceKind.Estimated, "a square depth target per light; the original's buffer size is not decoded")]
+    /// <summary>
+    /// Shadow map height of a spot shadow light; its width follows SpotWidth / SpotHeight, up to twice this (a wider
+    /// light gets a lower height instead).
+    /// </summary>
+    [Provenance(ProvenanceKind.Estimated, "the original's ShadowZBuffer sizes are not decoded")]
     public const int SpotShadowMapSize = 512;
+
+    /// <summary>
+    /// Spot shadow lights drawn at once: the template's slots (each with a tile of the shared shadow atlas). The
+    /// original's limit is not decoded.
+    /// </summary>
+    [Provenance(ProvenanceKind.Estimated, "a frame budget: one shadow pass per slot per frame")]
+    public const int SpotShadowSlots = 8;
+
+    /// <summary>Slots map LE_ESpotShadow lights may take (the nearest to the camera); the rest stay for torches and searchlights.</summary>
+    [Provenance(ProvenanceKind.Estimated, "a frame budget")]
+    public const int SpotShadowMapLights = 6;
+
+    /// <summary>
+    /// Radius in shadow map texels of the eight-lookup disc that softens spot shadow edges, as the sandbox's Reloaded
+    /// config does (shadow_edge_smoothing: "a disc of eight blended lookups"); 0 keeps the stock single filtered lookup.
+    /// </summary>
+    [Provenance(ProvenanceKind.Estimated, "Reloaded shadow_edge_smoothing (spec/reloaded/FEATURES.md rl:gfx.shadows); the disc radius is not decoded")]
+    public const float SpotShadowSoftRadius = 1.5f;
+
+    /// <summary>Side of a spot light's projected texture in the template's texture array.</summary>
+    [Provenance(ProvenanceKind.Estimated, "the cookies are resampled to one size to share an array")]
+    public const int SpotCookieSize = 256;
+
+    /// <summary>
+    /// NearPlaneRatio from which the frustum's apex (p x EchelonRange / (1 - p) behind the light) is treated as at
+    /// infinity: parallel rays, an orthographic box SpotWidth x SpotHeight (FactD's Light17985 has 1.0).
+    /// </summary>
+    [Provenance(ProvenanceKind.Estimated, "the limit of the decoded frustum (editor 0x111a5480) as p tends to 1")]
+    public const float SpotParallelRatio = 0.999f;
 
     // ---- coronas --------------------------------------------------------------------------------------------
 

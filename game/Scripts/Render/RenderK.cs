@@ -83,6 +83,10 @@ public static partial class RenderK
     [Provenance(ProvenanceKind.Decoded, "Engine.u ELightEffect: 22 LE_ESpotShadow")]
     public const int LE_ESpotShadow = 22;
 
+    /// <summary>LightEffect value of LE_QuadraticNonIncidence (D3D attenuation 1 / (8 d^2 / R^2) on actors).</summary>
+    [Provenance(ProvenanceKind.Decoded, "Engine.u ELightEffect: 20 LE_QuadraticNonIncidence")]
+    public const int LE_QuadraticNonIncidence = 20;
+
     /// <summary>LightEffect value of LE_PointAmbient (the flash lights and muzzle flashes).</summary>
     [Provenance(ProvenanceKind.Decoded, "Engine.u ELightEffect: 21 LE_PointAmbient")]
     public const int LE_PointAmbient = 21;

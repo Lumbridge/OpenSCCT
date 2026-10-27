@@ -1198,7 +1198,11 @@ def export_map(map_path: Path, pset: PackageSet, out_root: Path, include_bsp: bo
             eref = rec.extra.pop("echelon_material_ref")
             try:
                 owner, e = resolver.pset.resolve(pkg, eref)
-                tref = resolver._props(owner, e).get("ProjectedLightingTexture") if e is not None else None
+                eprops = resolver._props(owner, e) if e is not None else {}
+                # EEchelonAttenuationType: 0 none, 1 linear (the class default), 2 late.
+                att = eprops.get("AttenuationType", 1)
+                entry["echelon_attenuation"] = att if isinstance(att, int) else 1
+                tref = eprops.get("ProjectedLightingTexture")
                 if isinstance(tref, int) and tref:
                     tres = resolver.resolve(owner, tref)
                     if not tres.skip and tres.texture is not None:

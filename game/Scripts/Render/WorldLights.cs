@@ -166,24 +166,72 @@ public sealed class WorldLights
     }
 
     /// <summary>
-    /// Brightness factor of a light type at a time (FDynamicLight::Update): steady 1; pulse 0.6 + 0.39 sin;
-    /// subtle pulse 0.9 + 0.09 sin; blink on for half of each period. The phase runs at 35 / LightPeriod turns a
-    /// second from LightPhase / 256 of a turn. Flicker and strobe are drawn steady for now.
+    /// Brightness factor of a light type at scene time <paramref name="time"/> (FDynamicLight::Update, run once a frame):
+    /// <list type="bullet">
+    /// <item>steady 1;</item>
+    /// <item>pulse 0.6 + 0.39 sin(a), subtle pulse 0.9 + 0.09 sin(a), with a = time x 35 x 2 pi / max(1, LightPeriod)
+    /// + (LightPhase &lt;&lt; 8) in radians (the phase keeps the sine table's index scale);</item>
+    /// <item>blink off while the integer part of time x 35 x 65536 / (LightPeriod + 1) + (LightPhase &lt;&lt; 8) is odd
+    /// (an index that moves thousands a frame, so blink reads as noise);</item>
+    /// <item>flicker a new appFrand each frame, 0 below 0.5;</item>
+    /// <item>strobe one switch shared by every strobe light, toggled each time the scene time changes.</item>
+    /// </list>
     /// </summary>
-    [Provenance(ProvenanceKind.Decoded, "FDynamicLight::Update light types, editor 0x111af860 (bridge docs/LIGHTING_FEATURES.md)")]
+    [Provenance(ProvenanceKind.Decoded, "FDynamicLight::Update light types, game 0x10a1de70 (editor 0x111af860)")]
     public static float Modulation(LightEntry l, float time)
     {
         ArgumentNullException.ThrowIfNull(l);
-        float period = MathF.Max(1f, l.Period);
-        float turns = (time * 35f / period) + (l.Phase / 256f);
-        float sin = MathF.Sin(turns * MathF.Tau);
-        return l.LightType switch
+        switch (l.LightType)
         {
-            2 => 0.6f + (0.39f * sin),
-            3 => (turns - MathF.Floor(turns)) < 0.5f ? 1f : 0f,
-            7 => 0.9f + (0.09f * sin),
-            _ => 1f,
-        };
+            case 2:
+                return 0.6f + (0.39f * MathF.Sin(PulseAngle(l, time)));
+            case 3:
+                double index = (time * 2293760.0 / ((int)l.Period + 1)) + ((int)l.Phase << 8);
+                return ((long)index & 1) != 0 ? 0f : 1f;
+            case 4:
+                float r = FrameRandom(l, time);
+                return r < 0.5f ? 0f : r;
+            case 5:
+                return StrobeOff(time) ? 0f : 1f;
+            case 7:
+                return 0.9f + (0.09f * MathF.Sin(PulseAngle(l, time)));
+            default:
+                return 1f;
+        }
+    }
+
+    // time x 219.9115 (35 x 2 pi) / max(1, period) + (phase << 8), in double as the x87 code keeps it.
+    private static float PulseAngle(LightEntry l, float time) =>
+        (float)(((time * 219.9115 / Math.Max(1, (int)l.Period)) + ((int)l.Phase << 8)) % (2.0 * Math.PI));
+
+    // The shared strobe switch (a static in the original): toggled whenever a new scene time is seen.
+    private static float s_strobeTime = float.NaN;
+    private static bool s_strobeOff;
+
+    private static bool StrobeOff(float time)
+    {
+        if (time != s_strobeTime)
+        {
+            s_strobeTime = time;
+            s_strobeOff = !s_strobeOff;
+        }
+
+        return s_strobeOff;
+    }
+
+    /// <summary>
+    /// The flicker's appFrand: one value per light and frame, the same for the world and actor terms in that frame
+    /// (a hash of the scene time and the light, not the original's generator).
+    /// </summary>
+    private static float FrameRandom(LightEntry l, float time)
+    {
+        uint h = (uint)BitConverter.SingleToInt32Bits(time) ^ (uint)l.Seed;
+        h ^= h >> 16;
+        h *= 0x7feb352dU;
+        h ^= h >> 15;
+        h *= 0x846ca68bU;
+        h ^= h >> 16;
+        return (h >> 8) / 16777216f;
     }
 
     public static void EnsureGlobals()

@@ -14,7 +14,9 @@ namespace OpenScctGame.Render;
 /// (<see cref="SpotShadowShape.Torch"/>) wherever a torch's LightType is on. The simulation's NativeTickTorche port
 /// decides on and off and the direction; the light sits on the merc's Laser bone as drawn (the eye point when the
 /// pawn is not drawn, as for the local merc in first person) and, while IK_Type is IKT_NONE, points along that
-/// bone. The Faithful template has one spot slot, so the local merc's own torch wins, then the nearest other.
+/// bone. One torch is drawn: the local merc's own, else the nearest other. Each spot shadow light takes one of the
+/// template's slots: the torch, the nearest lit searchlight spot and the map's own LE_ESpotShadow lights
+/// (<see cref="MapSpotLights"/>) are drawn together.
 /// </summary>
 [PortOf("nat:SBase.SGadTorche.NativeTickTorche", Spec = "spec/equipment/merc-flashlight.md#rules")]
 public sealed partial class FlashLightView : Node
@@ -43,8 +45,20 @@ public sealed partial class FlashLightView : Node
     /// <summary>True when the last placement came from the drawn Laser bone.</summary>
     public bool FromBone { get; private set; }
 
+    /// <summary>The map's own LE_ESpotShadow lights, once a map is set.</summary>
+    public MapSpotLights? MapLights => _mapLights;
+
+    private MapSpotLights? _mapLights;
+
     public void Draw(Level? level, SBasePawn? local, FVector cameraLocation)
     {
+        if (Map is not null)
+        {
+            _mapLights ??= new MapSpotLights(Map, this);
+            _mapLights.Update(cameraLocation);
+        }
+
+        DrawProjector(level, cameraLocation);
         SGadTorche? best = null;
         float bestD = float.MaxValue;
         if (level is not null)
@@ -73,13 +87,7 @@ public sealed partial class FlashLightView : Node
                 _light.On = false;
             }
 
-            DrawProjector(level, cameraLocation);
             return;
-        }
-
-        if (_projo is { On: true })
-        {
-            _projo.On = false;
         }
 
         _light ??= new SpotShadowLight(this, Map.Pack, SpotShadowShape.Torch);
@@ -115,10 +123,10 @@ public sealed partial class FlashLightView : Node
     public SProjoLight? LitByProjector { get; private set; }
 
     /// <summary>
-    /// With no torch on, the nearest lit searchlight spot (SProjoLight, LE_ESpotShadow, spec/devices/projector.md)
-    /// takes the one spot slot, shaped by the values its projector copied to it.
+    /// The nearest lit searchlight spot (SProjoLight, LE_ESpotShadow, spec/devices/projector.md) takes a spot slot,
+    /// shaped by the values its projector copied to it; it keeps to its own zone (bAffectOwnZoneOnly).
     /// </summary>
-    [Provenance(ProvenanceKind.Estimated, "SProjoLight has no EchelonLightMaterial: drawn with the torch cookie and attenuation; the torch wins the one slot")]
+    [Provenance(ProvenanceKind.Estimated, "SProjoLight has no EchelonLightMaterial: drawn with the torch cookie and attenuation; only the nearest is drawn")]
     private void DrawProjector(Level? level, FVector cameraLocation)
     {
         SProjoLight? best = null;
@@ -163,6 +171,7 @@ public sealed partial class FlashLightView : Node
         }
 
         _projo ??= new SpotShadowLight(this, Map.Pack, shape);
+        _projo.Zone = Map.ZoneIndexAt(best.Location);
         _projo.Place(best.Location, best.Rotation);
         if (!_projo.On)
         {
@@ -178,5 +187,7 @@ public sealed partial class FlashLightView : Node
         _light = null;
         _projo?.Dispose();
         _projo = null;
+        _mapLights?.Dispose();
+        _mapLights = null;
     }
 }

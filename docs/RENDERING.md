@@ -151,8 +151,13 @@ shader parameter, and are summed per pixel into the baked term.
 - Colour, gain and radius are the actor model's (below). The falloff over the world is `1 - (d / R)^2`: in a sweep
   (gain, radius, falloff) on the SteeE shop and yard views it matched far better than the actor falloff (shop SSIM
   0.70 to 0.81, luma ratio 0.54 to 1.00). Measured, not decoded.
-- Light types: pulse `0.6 + 0.39 sin`, subtle pulse `0.9 + 0.09 sin`, blink half on, at 35 / LightPeriod turns a
-  second from LightPhase / 256; flicker and strobe are steady for now.
+- Light types (FDynamicLight::Update, game 0x10a1de70, evaluated once a frame; `WorldLights.Modulation`, shared by
+  the world term, actor lighting and coronas): pulse `0.6 + 0.39 sin(a)`, subtle pulse `0.9 + 0.09 sin(a)` with
+  `a = t x 35 x 2 pi / max(1, LightPeriod) + (LightPhase << 8)` radians; blink off while the integer part of
+  `t x 35 x 65536 / (LightPeriod + 1) + (LightPhase << 8)` is odd (it reads as noise); flicker a fresh random value
+  each frame, 0 below 0.5; strobe one switch for all strobe lights, toggled whenever the scene time changes.
+- Animated lights that are baked (bApplyToStaticLighting without bDynamicLight: 13, pulse and subtle pulse, all also
+  in-game lights) stay steady on the world, as the baked light is; they animate on actors.
 - `bAffectOwnZoneOnly` lights light only surfaces of their zone. Each triangle carries its zone in the vertex colour
   alpha: the zone of a point 2, 8 or 32 uu in front of it through the collision BSP; mesh faces that land in solid
   take the actor's zone. A vertex shared by triangles of two zones is written once per zone, so no triangle blends
@@ -161,19 +166,35 @@ shader parameter, and are summed per pixel into the baked term.
 
 ## Spot shadow lights
 
-`SpotShadowLight` draws an LE_ESpotShadow light (Echelon spot: the merc torch, window and sun projectors) with its
-own shadow pass: a camera at the light renders the world into a 512 x 512 target (`SpotShadowMapSize`, estimated),
-whose depth `svm_spot_depth.glsl` keeps as linear distance along the axis. The world template adds, per pixel, to
-the light stage of every lit surface (lightmapped, vertex lit and actor lit) the light's colour x 2 x the cookie at
-the projected point x the attenuation ramp at d / EchelonRange x the shadow test, with N.L weighted by the normal
-influence. The frustum is SpotWidth x SpotHeight at EchelonRange, near EchelonRange x NearPlaneRatio.
+`SpotShadowLight` draws an LE_ESpotShadow light (Echelon spot: the merc torch, searchlights, window and sun
+projectors) with its own shadow pass. The frustum is the decoded one (editor 0x111a5480): its apex sits
+`p x EchelonRange / (1 - p)` behind the light (p = NearPlaneRatio), the near plane at the light (p x SpotWidth by
+p x SpotHeight) and the far plane SpotWidth x SpotHeight, EchelonRange further on; geometry between the apex and the
+light never shadows. From p 0.999 the rays are taken as parallel (an orthographic box; FactD's Light17985 has 1.0).
+A camera at the apex renders the world into the light's tile of a shared 2048 x 2048 R32F atlas (tiles 1024 x 512,
+the map 512 high and as wide as SpotWidth / SpotHeight allows), kept as linear distance along the axis by
+`svm_spot_depth.glsl`. The template has `SpotShadowSlots` (8) slots, one float-texture row each (`svm_spots`); it adds,
+per pixel, to the light stage of every lit surface (lightmapped, vertex lit and actor lit) each light's colour x 2 x
+the cookie at the projected point x the attenuation ramp at d / EchelonRange (d from the light) x the shadow term,
+with N.L (towards the apex) weighted by the normal influence. Own-zone lights light only world surfaces of their zone.
+Cookies share a texture array (`svm_spot_cookies`, each resampled to 256 x 256; layer 0 white).
+
+- Map LE_ESpotShadow lights (`MapSpotLights`, 364 over all maps) are not in the baked light: the bridge found FactD's
+  lightmap uniform under the window patches the game draws with bar shadows (fix_plan I8), so every one that is on
+  is drawn, whatever its bApplyToStaticLighting. The six nearest the camera (`SpotShadowMapLights`, estimated) take
+  slots; each follows its switch and light type. Cookie: EchelonLightMaterial.ProjectedLightingTexture
+  (`echelon_texture_uri`), attenuation its AttenuationType (`echelon_attenuation`, written by the exporter since this
+  change; linear, the class default, until the map is converted again), normal influence EchelonNormalInfluence
+  (default 1). Lights without a material get no cookie and linear attenuation (estimated).
+- Shadow lookups: one filtered lookup (four depth comparisons blended bilinearly, as hardware shadow filtering);
+  with `SpotShadowSoftRadius` > 0 (1.5 texels, estimated) eight such lookups on a disc, as the sandbox's Reloaded
+  `shadow_edge_smoothing` does. The stock game uses the single filtered lookup.
 
 - `SpotShadowShape.Torch` is SGadTorche's (spec/equipment/merc-flashlight.md): range 1500, 400 x 400, near ratio
   0.0025, brightness 304, hue 21, saturation 255 (white), cookie `Echelon.flashlight` (Echelon.Torche's
   ProjectedLightingTexture), linear attenuation (`Engine.linear_attenuation`), normal influence 0.
 - The 2x gain is estimated (the Echelon light pass is not decoded); colour is FGetHSV x brightness / 255 as for
-  other lights. One spot shadow light is drawn at a time (the template has one slot). `Place(location, rotation)`
-  moves it; views put the torch on the merc's `Laser` bone (NativeTickTorche is not decoded; the UE5 client found
+  other lights. `Place(location, rotation)` moves it; views put the torch on the merc's `Laser` bone (NativeTickTorche is not decoded; the UE5 client found
   that bone). `On` follows LightType.
 - The sandbox's Reloaded config smooths shadow edges with eight blended lookups and scales shadow maps
   (`shadow_edge_smoothing`, `shadow_quality` 8); the port uses one hard lookup for now.
@@ -188,14 +209,20 @@ lighting:
 255) x brightness / 255` (0.8213 at V 255), `R = 25 (LightRadius + 1)`, `A` = zone ambient plus AmbientGlow / 255.
 Lights are ranked by `brightness x (1 - d^2 / (R + r)^2)`, suns first; spots score 0 outside their cone and use
 `phi = 1.15 acos((1 - LightCone / 256)^2)`, `theta = 0.05 phi`. Only `bApplyToInGameLighting` lights that are on
-take part, and own-zone lights only for actors in their zone. The set is chosen on the CPU and handed over as
+take part, and own-zone lights only for actors in their zone. The light type scales each chosen light's colour (as
+for the world lights); ranking uses LightBrightness alone. LE_QuadraticNonIncidence (20) uses the D3D attenuation
+`1 / (8 d^2 / R^2)` (with half the point gain, as the 2 of the point fit is not there); LE_PointAmbient (21) also
+adds its attenuated colour whatever the normal (its D3D ambient). LE_Cylinder and LE_NonIncidence stay plain points
+(not decoded). The set is chosen on the CPU and handed over as
 instance uniforms; the shader evaluates it per vertex. The spot shadow light and the night boost are added per pixel.
 
 ## Coronas
 
 Lights with `bCorona` draw `Skins[0]` as a camera-facing additive quad at the light (`Coronas`, `svm_corona.gdshader`):
 `s = clamp(0.001 x distance, 0.01, 10)`, half size `clamp(s x DrawScale x Fade x 512 x DrawScale3D, Min, Max)` uu,
-roll `s x CoronaRotation x 16384 + CoronaRotationOffset`, colour `corona colour x 0.5 x Fade x 2`, no depth test.
+roll `s x CoronaRotation x 16384 + CoronaRotationOffset`, colour `corona colour x light type x 0.5 x Fade x 2`, no
+depth test. The light type factor (pulse, flicker...) is estimated: the corona is taken to follow the light's
+FDynamicLight colour.
 
 - The doubling (`CoronaStageGain`, measured): the halo of SteeE's crane lamp reads 1.9 to 2.1 times the undoubled
   halo at every radius, as from a Modulate2X stage on the halved colour.
@@ -518,7 +545,9 @@ Both need `.content/` (converted content and the render pack), so CI's default s
   Without DoGlow & 3 it adds a blurred copy of the scene instead. The three full-screen pre-draws of the night pass
   (texture factors 0x7f7f7f7f and 0 at depths 0.9974 and 0.9979) are not decoded.
 - Not drawn yet: projectors (`fx.json` projectors are empty on SteeE), light beams, the glow pyramid, mirrors,
-  MeshEmitter / BeamEmitter / SparkEmitter, map LE_ESpotShadow lights through the spot slot (SteeE's one has no
-  cookie), more than one spot shadow light at a time.
+  MeshEmitter / BeamEmitter / SparkEmitter.
+- Spot shadow lights: the Echelon light pass's gain (2), shadow buffer sizes (ShadowZBufferWidthType /
+  HeightType), EchelonBias and the original's limit on lights drawn at once are not decoded; bDirectional and
+  bIsPerspective are read nowhere yet.
 - Some self-lit signs read darker than the original; the crane SAnimatedMesh is posed at its first frame only.
 - The pawn's pose uses the base channel only (blend channels are not mixed), so pawns differ slightly in the goldens.
