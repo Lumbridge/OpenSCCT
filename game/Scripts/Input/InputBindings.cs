@@ -26,12 +26,15 @@ public sealed class InputBindings
     public const string ReferenceGameFolder = @"Desktop\Enhanced SCCT Versus v4.0 Public Beta 3";
 
     private readonly Dictionary<string, List<KeyAction>> _resolved = new(StringComparer.OrdinalIgnoreCase);
+    private readonly bool _seedsInputMap;
 
-    private InputBindings(KeyLayout layout, string source, string userFile)
+    private InputBindings(KeyLayout layout, string source, string userFile, PlaySide side, bool seedsInputMap)
     {
         Layout = layout;
         Source = source;
         UserFile = userFile;
+        Side = side;
+        _seedsInputMap = seedsInputMap;
         foreach (string key in layout.Bindings.Keys)
         {
             _resolved[key] = layout.Resolve(key);
@@ -41,7 +44,13 @@ public sealed class InputBindings
     /// <summary>Raised after a rebind wrote a side's user file (the account's profile sync sends the change).</summary>
     public static event Action? UserFileSaved;
 
+    /// <summary>Raised after a rebind changed a side's layout, so a running round reloads that side's keys.</summary>
+    public static event Action<PlaySide>? Rebound;
+
     public KeyLayout Layout { get; }
+
+    /// <summary>The side this layout is for.</summary>
+    public PlaySide Side { get; }
 
     /// <summary>Where the base layout came from (an ini path, or "built-in").</summary>
     public string Source { get; }
@@ -120,7 +129,7 @@ public sealed class InputBindings
         }
 
         AddGearKey(layout);
-        var bindings = new InputBindings(layout, source, userFile);
+        var bindings = new InputBindings(layout, source, userFile, side, seedInputMap);
         if (seedInputMap)
         {
             bindings.SeedInputMap();
@@ -153,8 +162,12 @@ public sealed class InputBindings
         }
     }
 
-    /// <summary>Changes one key and saves the user file.</summary>
-    public InputBindings Rebind(string key, string command, PlaySide side)
+    /// <summary>
+    /// Changes one key and saves the user file. The InputMap is only reseeded by a layout that seeds it (the options
+    /// screen's copy does not, so editing the other side's keys leaves the played side's InputMap alone); a running
+    /// round picks the change up through <see cref="Rebound"/>.
+    /// </summary>
+    public InputBindings Rebind(string key, string command)
     {
         Layout.Bind(key, command);
         if (TryWrite(ProjectSettings.GlobalizePath(UserFile), Layout))
@@ -162,8 +175,13 @@ public sealed class InputBindings
             UserFileSaved?.Invoke();
         }
 
-        var updated = new InputBindings(Layout, Source, UserFile);
-        updated.SeedInputMap();
+        var updated = new InputBindings(Layout, Source, UserFile, Side, _seedsInputMap);
+        if (_seedsInputMap)
+        {
+            updated.SeedInputMap();
+        }
+
+        Rebound?.Invoke(Side);
         return updated;
     }
 

@@ -80,7 +80,7 @@ public sealed class KeyBindingsModel
             return;
         }
 
-        _bindings = _bindings.Rebind(newKey, command, Side);
-        _bindings = _bindings.Rebind(oldKey, "", Side);
+        _bindings = _bindings.Rebind(newKey, command);
+        _bindings = _bindings.Rebind(oldKey, "");
     }
 }

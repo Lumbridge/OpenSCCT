@@ -342,6 +342,7 @@ public partial class PlayRoot : Node3D
 
         _bindingsSide = settings.Side;
         _seedInputMap = !headless;
+        InputBindings.Rebound += OnKeysRebound;
         Controls = new PlayInput
         {
             Bindings = InputBindings.Load(settings.Side, Config.GameRoot, seedInputMap: !headless),
@@ -504,6 +505,24 @@ public partial class PlayRoot : Node3D
         controls.Bindings = InputBindings.Load(side, Config.GameRoot, _seedInputMap);
         controls.ClearHeld(session.Input);
         GD.Print($"SVM_PLAY keys: {(side == PlaySide.Merc ? "merc" : "spy")} layout for the new side");
+    }
+
+    /// <summary>
+    /// A rebind in the options (in-game menu or the hub) saved a side's keys: when it is the side being played, the
+    /// round's layout is reloaded so the change applies at once instead of on the next round.
+    /// </summary>
+    private void OnKeysRebound(PlaySide side)
+    {
+        if (Controls is not { } controls || side != _bindingsSide)
+        {
+            return;
+        }
+
+        controls.Bindings = InputBindings.Load(side, Config.GameRoot, _seedInputMap);
+        if (Session is { } session)
+        {
+            controls.ClearHeld(session.Input);
+        }
     }
 
     /// <summary>
@@ -689,6 +708,7 @@ public partial class PlayRoot : Node3D
     {
         // Whatever ends the round (results, the lobby, a disconnect, a map change), the pointer it took goes back.
         OpenScctGame.Controls.Pointer.Release();
+        InputBindings.Rebound -= OnKeysRebound;
         Session?.Dispose();
         Session = null;
         Config.Demo?.Dispose();
