@@ -1,0 +1,116 @@
+{
+  "format": "svm.combat/1",
+  "id": "combat.rifle-reload",
+  "title": "Merc rifle: five shots, the reload button (s_Reloading, clip refill at the end of the clip), then the button again on a full clip",
+  "map": "SteeE",
+  "mode": "playlevel",
+  "local": {
+    "team": "merc",
+    "floor": [
+      -492.0,
+      -2032.0,
+      -1143.5
+    ],
+    "yaw": 16384,
+    "crouched": false
+  },
+  "target": null,
+  "settleFrames": 30,
+  "durationFrames": 330,
+  "events": [
+    {
+      "frame": 0,
+      "do": "rof",
+      "mode": "single"
+    },
+    {
+      "frame": 2,
+      "do": "aimPoint",
+      "point": [
+        -492.0,
+        2000.0,
+        -1000.0
+      ]
+    },
+    {
+      "frame": 10,
+      "do": "fire"
+    },
+    {
+      "frame": 11,
+      "do": "fireUp"
+    },
+    {
+      "frame": 25,
+      "do": "fire"
+    },
+    {
+      "frame": 26,
+      "do": "fireUp"
+    },
+    {
+      "frame": 40,
+      "do": "fire"
+    },
+    {
+      "frame": 41,
+      "do": "fireUp"
+    },
+    {
+      "frame": 55,
+      "do": "fire"
+    },
+    {
+      "frame": 56,
+      "do": "fireUp"
+    },
+    {
+      "frame": 70,
+      "do": "fire"
+    },
+    {
+      "frame": 71,
+      "do": "fireUp"
+    },
+    {
+      "frame": 100,
+      "do": "buttons",
+      "buttons": {
+        "bReload": 1
+      }
+    },
+    {
+      "frame": 104,
+      "do": "buttons",
+      "buttons": {
+        "bReload": 0
+      }
+    },
+    {
+      "frame": 260,
+      "do": "buttons",
+      "buttons": {
+        "bReload": 1
+      }
+    },
+    {
+      "frame": 264,
+      "do": "buttons",
+      "buttons": {
+        "bReload": 0
+      }
+    }
+  ],
+  "repeats": 2,
+  "measure": {
+    "shots": {},
+    "reload": {}
+  },
+  "covers": [
+    "uc:SBase.SWeaponDefense:Reload",
+    "uc:SBase.SWeaponDefense:s_Reloading.BeginState",
+    "uc:SBase.SWeaponDefense:s_Reloading.AnimEnd",
+    "uc:SBase.SWeaponDefense:s_Reloading.EndState"
+  ],
+  "spot": "SteeE east yard lane (x -492, floor z -1143.5, clear for 1792 uu along +Y from y -2032; found with re/tools/difftest/spots.py for the R4 locomotion recordings)"
+}

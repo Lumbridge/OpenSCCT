@@ -1,0 +1,183 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+env:
+  DOTNET_NOLOGO: "1"
+  DOTNET_CLI_TELEMETRY_OPTOUT: "1"
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: "1"
+  NUGET_XMLDOC_MODE: skip
+
+jobs:
+  linux:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.10"
+
+      # Cheapest check first: nothing game-derived may reach the repo.
+      - name: Game data guard
+        run: python tools/ci/no_game_data.py
+
+      # The vendored scctpkg must be exactly the recorded upstream files plus the listed local patches.
+      - name: Vendored scctpkg check
+        run: python tools/scctpkg/sync.py --check
+
+      - uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+
+      - uses: actions/cache@v6
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('Directory.Packages.props', '**/*.csproj', 'global.json') }}
+          restore-keys: nuget-${{ runner.os }}-
+
+      - name: Build
+        run: dotnet build OpenSCCT.slnx -c Release
+
+      # Microsoft.Testing.Platform runner (global.json). Exit code 8 means a test project has no
+      # tests yet; drop the ignore once every project has some.
+      - name: Test
+        run: dotnet test --solution OpenSCCT.slnx -c Release --no-build --ignore-exit-code 8
+
+      - name: Publish dedicated server (linux-x64)
+        run: >-
+          dotnet publish src/OpenScct.Server.Cli/OpenScct.Server.Cli.csproj -c Release -r linux-x64
+          --self-contained false -o "$RUNNER_TEMP/svm-server-linux-x64"
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: svm-server-linux-x64
+          path: ${{ runner.temp }}/svm-server-linux-x64
+          retention-days: 7
+
+      # Planned: both jobs upload their replay hash and a small job compares win-x64 with linux-x64.
+      - name: Determinism hash (placeholder)
+        run: |
+          if [ -f tools/OpenScct.Tools/OpenScct.Tools.csproj ]; then
+            dotnet run --project tools/OpenScct.Tools -c Release -- determinism
+          else
+            echo "tools/OpenScct.Tools does not exist yet, skipping"
+          fi
+
+      - name: Python tests
+        run: |
+          python -m pip install --disable-pip-version-check -r tools/ci/requirements.txt -r content/requirements.txt
+          python -m pytest tools/ci/tests -q
+          python -m pytest tests/content -q
+          # Reverse-engineering tools: their tests use synthetic data only (no game files in CI).
+          (cd re/tools && python -m pytest -q)
+          (cd re/formats && python -m pytest -q)
+          (cd re/ghidra/scripts/transfer && python -m pytest -q)
+
+  windows:
+    # Private repo minutes count double on Windows: keep this job to what only Windows can check.
+    runs-on: windows-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Game data guard
+        run: python tools/ci/no_game_data.py
+
+      - uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+
+      - uses: actions/cache@v6
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('Directory.Packages.props', '**/*.csproj', 'global.json') }}
+          restore-keys: nuget-${{ runner.os }}-
+
+      - name: Build
+        run: dotnet build OpenSCCT.slnx -c Release
+
+      # Microsoft.Testing.Platform runner (global.json). Exit code 8 means a test project has no
+      # tests yet; drop the ignore once every project has some.
+      - name: Test
+        run: dotnet test --solution OpenSCCT.slnx -c Release --no-build --ignore-exit-code 8
+
+      - name: Banned API check
+        run: ./tools/ci/check-banned-api.ps1
+
+      - name: Determinism hash (placeholder)
+        shell: bash
+        run: |
+          if [ -f tools/OpenScct.Tools/OpenScct.Tools.csproj ]; then
+            dotnet run --project tools/OpenScct.Tools -c Release -- determinism
+          else
+            echo "tools/OpenScct.Tools does not exist yet, skipping"
+          fi
+
+  # The smokes that need no game content (docs/TESTING-PLAY.md, "Trusting the smokes", CI): boot, TestBox (a tracked fixture)
+  # and TestRange generated here from tools/testmap without the install. Every other smoke plays converted maps and
+  # the install's characters, HUD and sounds, which never reach the repository.
+  godot-smoke:
+    runs-on: windows-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.10"
+
+      - uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+
+      - uses: actions/cache@v6
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('Directory.Packages.props', '**/*.csproj', 'global.json') }}
+          restore-keys: nuget-${{ runner.os }}-
+
+      # The editor zip is not cached, only the verified install (Get-Godot.ps1 skips the download then).
+      - uses: actions/cache@v6
+        with:
+          path: |
+            tools/godot
+            !tools/godot/downloads/**/*.zip
+            !tools/godot/downloads/**/*.tpz
+          key: godot-${{ runner.os }}-${{ hashFiles('godot-version.txt') }}
+
+      # TestRange as a machine without the game makes it (no class table), into .content/svmap/TestRange where the
+      # game looks; the station manifest it writes must be the tracked one.
+      - name: Generate TestRange
+        run: |
+          python -m pip install --disable-pip-version-check -r content/requirements.txt
+          python -B tools/testmap/generate.py --no-classes --stations-out "$env:RUNNER_TEMP/stations.json"
+          python -c "import json,sys; a=json.load(open(sys.argv[1])); b=json.load(open(sys.argv[2])); sys.exit(0 if a == b else 'fixtures/testrange/stations.json is not what tools/testmap makes')" fixtures/testrange/stations.json "$env:RUNNER_TEMP/stations.json"
+
+      - name: Godot headless smokes
+        run: ./tools/ci/godot-smoke.ps1 -Tests boot,testbox,range-sim -ExpectedFailures selftest-fail -TimeoutSeconds 180
+
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: godot-smoke
+          path: local/test-results
+          retention-days: 7

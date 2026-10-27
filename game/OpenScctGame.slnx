@@ -1,0 +1,43 @@
+<Solution>
+  <!-- Godot builds Debug in the editor and ExportDebug / ExportRelease when exporting. -->
+  <Configurations>
+    <BuildType Name="Debug" />
+    <BuildType Name="ExportDebug" />
+    <BuildType Name="ExportRelease" />
+  </Configurations>
+  <Folder Name="/lib/">
+    <Project Path="../src/OpenScct.Bots/OpenScct.Bots.csproj">
+      <BuildType Solution="ExportDebug|*" Project="Debug" />
+      <BuildType Solution="ExportRelease|*" Project="Release" />
+    </Project>
+    <Project Path="../src/OpenScct.Content/OpenScct.Content.csproj">
+      <BuildType Solution="ExportDebug|*" Project="Debug" />
+      <BuildType Solution="ExportRelease|*" Project="Release" />
+    </Project>
+    <Project Path="../src/OpenScct.Core/OpenScct.Core.csproj">
+      <BuildType Solution="ExportDebug|*" Project="Debug" />
+      <BuildType Solution="ExportRelease|*" Project="Release" />
+    </Project>
+    <Project Path="../src/OpenScct.Game/OpenScct.Game.csproj">
+      <BuildType Solution="ExportDebug|*" Project="Debug" />
+      <BuildType Solution="ExportRelease|*" Project="Release" />
+    </Project>
+    <Project Path="../src/OpenScct.Net/OpenScct.Net.csproj">
+      <BuildType Solution="ExportDebug|*" Project="Debug" />
+      <BuildType Solution="ExportRelease|*" Project="Release" />
+    </Project>
+    <Project Path="../src/OpenScct.Physics/OpenScct.Physics.csproj">
+      <BuildType Solution="ExportDebug|*" Project="Debug" />
+      <BuildType Solution="ExportRelease|*" Project="Release" />
+    </Project>
+    <Project Path="../src/OpenScct.Provenance/OpenScct.Provenance.csproj">
+      <BuildType Solution="ExportDebug|*" Project="Debug" />
+      <BuildType Solution="ExportRelease|*" Project="Release" />
+    </Project>
+    <Project Path="../src/OpenScct.Server/OpenScct.Server.csproj">
+      <BuildType Solution="ExportDebug|*" Project="Debug" />
+      <BuildType Solution="ExportRelease|*" Project="Release" />
+    </Project>
+  </Folder>
+  <Project Path="OpenScctGame.csproj" />
+</Solution>

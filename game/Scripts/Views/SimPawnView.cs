@@ -1,0 +1,380 @@
+using System;
+using System.Collections.Generic;
+using Godot;
+using OpenScct.Core;
+using OpenScct.Core.Engine;
+using OpenScct.Game.Animation;
+using OpenScct.Game.Movement;
+using OpenScct.Game.SBase;
+using OpenScct.Provenance;
+using OpenScctGame.Render;
+using OpenScctGame.Render.Characters;
+
+namespace OpenScctGame.Views;
+
+/// <summary>
+/// Draws one simulated pawn: its character mesh (spy SPerso.ATT_01, merc SPerso.DEF_01) placed at the pawn's
+/// location and yaw (interpolated between the last two ticks) with UE2 placement, posed every frame by the
+/// <see cref="ChannelPoseApplier"/> from all 25 of the pawn's animation channels as the simulation keeps them (the
+/// actions' clips, the walk blender's channels 1 to 15, the overlays on their start bones, the root lock of a
+/// root-motion move), with the weapons on their bones (<see cref="PawnAttachments"/>), and lit by the map's actor
+/// lighting. It reads the simulation and never writes it.
+/// </summary>
+public partial class SimPawnView : Node3D
+{
+    /// <summary>Bounding sphere radius used to rank lights for a pawn (cylinder 35 x 89 half height).</summary>
+    public const float LightRadius = 95f;
+
+    private readonly ChannelPose[] _channels = new ChannelPose[PawnAnimation.ChannelCount];
+    private readonly TickChannel[] _prev = new TickChannel[PawnAnimation.ChannelCount];
+    private readonly TickChannel[] _cur = new TickChannel[PawnAnimation.ChannelCount];
+    private readonly Dictionary<Name, int> _boneOf = new();
+    private SkeletalModel? _model;
+    private ChannelPoseApplier? _applier;
+    private PawnAttachments? _attachments;
+    private GoggleGlowView? _goggleGlow;
+    private FVector _prevLocation;
+    private FVector _location;
+    private FVector _prevPrePivot;
+    private FVector _prePivot;
+    private int _prevYaw;
+    private int _yaw;
+    private bool _placed;
+    private float _relightClock;
+    private StickySkins? _stickySkins;
+    private bool _sticky;
+    private long _lookDrawn = -1;
+
+    public SimPawnView()
+    {
+        Name = "Pawn";
+    }
+
+    /// <summary>The pawn drawn (on the client world).</summary>
+    public SBasePawn? Pawn { get; private set; }
+
+    public RenderMap? Map { get; set; }
+
+    public SkeletalModel? Model => _model;
+
+    /// <summary>The applier posing the mesh (for checks).</summary>
+    public ChannelPoseApplier? Applier => _applier;
+
+    /// <summary>The weapons drawn on the pawn's bones.</summary>
+    public PawnAttachments? Attachments => _attachments;
+
+    /// <summary>The pawn's goggle glow (spec/equipment/goggle-glow.md).</summary>
+    public GoggleGlowView? GoggleGlow => _goggleGlow;
+
+    /// <summary>Loads the mesh for <paramref name="pawn"/>; false when the shared packs do not have it.</summary>
+    public bool Bind(SBasePawn pawn, string? sharedRoot)
+    {
+        Pawn = pawn ?? throw new ArgumentNullException(nameof(pawn));
+        string asset = pawn is SPAWNDEFENSE ? "SPerso.DEF_01" : "SPerso.ATT_01";
+        string? root = sharedRoot ?? Map?.SharedRoot;
+        string? glb = SkeletalModel.FindGlb(asset, root);
+        if (glb is null)
+        {
+            return false;
+        }
+
+        _model = SkeletalModel.Load(glb);
+        AddChild(_model.Root);
+        _stickySkins = StickySkins.For(root);
+        _applier = new ChannelPoseApplier(_model.Skeleton);
+        _attachments = new PawnAttachments(this, root) { Map = Map };
+        _goggleGlow = new GoggleGlowView(this, root, bone => (TryGetBone(bone, out Transform3D world), world));
+        Name = $"Pawn{pawn.ActorId}";
+        return true;
+    }
+
+    /// <summary>Surfaces now drawn with the Stickess skin (0 when the pawn is not shocked).</summary>
+    public int StickySurfaces { get; private set; }
+
+    /// <summary>bStickySkinned (BeginStickySkin / RestoreSkins): the Stickess shaders over the body, or the own skins.</summary>
+    private void DrawSkins(SBasePawn pawn)
+    {
+        if (pawn.bStickySkinned == _sticky || _model is null)
+        {
+            return;
+        }
+
+        _sticky = pawn.bStickySkinned;
+        StickySurfaces = _model.SetSkins(_sticky && _stickySkins is { } skins ? skins.Over : null);
+    }
+
+    /// <summary>OpenSCCT's own: the player's body camo or tint and light hue (lenses, lamp), when the look changes.</summary>
+    private void DrawCosmetics(SBasePawn pawn)
+    {
+        OpenScct.Net.Cosmetics.CosmeticLook look = PawnCosmetics.LookOf(pawn);
+        if (look.Packed == _lookDrawn || _model is null)
+        {
+            return;
+        }
+
+        _lookDrawn = look.Packed;
+        PawnCosmetics.ApplyItem(_model, look[OpenScct.Net.Cosmetics.CosmeticSlot.Body]);
+        _model.SetGlowHue(PawnCosmetics.HueTurn(look[OpenScct.Net.Cosmetics.CosmeticSlot.Light], PawnCosmetics.SideOf(pawn)));
+    }
+
+    /// <summary>Takes the pawn's state after a simulation tick (location, yaw and channel frames for the interpolation).</summary>
+    public void OnTick()
+    {
+        if (Pawn is not { } pawn)
+        {
+            return;
+        }
+
+        _prevLocation = _placed ? _location : pawn.Location;
+        _prevPrePivot = _placed ? _prePivot : pawn.PrePivot;
+        _prevYaw = _placed ? _yaw : pawn.Rotation.Yaw;
+        _location = pawn.Location;
+        _prePivot = pawn.PrePivot;
+        _yaw = pawn.Rotation.Yaw;
+        PawnAnimation anim = pawn.PawnAnim;
+        for (int c = 0; c < PawnAnimation.ChannelCount; c++)
+        {
+            _prev[c] = _placed ? _cur[c] : default;
+            PawnAnimChannel ch = anim[c];
+            _cur[c] = new TickChannel(ch.Sequence, ch.Frame, ch.ClipFrame);
+        }
+
+        _placed = true;
+    }
+
+    /// <summary>Places and poses the pawn for a frame <paramref name="alpha"/> of the way from the previous tick to the last.</summary>
+    public void Draw(float alpha, float dt)
+    {
+        if (Pawn is not { } pawn || _model is null || _applier is null || !_placed)
+        {
+            return;
+        }
+
+        Visible = !pawn.bHidden && !pawn.bDeleteMe;
+        alpha = Math.Clamp(alpha, 0f, 1f);
+        FVector location = _prevLocation + (_location - _prevLocation) * alpha;
+        // The mesh is drawn at Location + PrePivot. A crouch or stand-up moves the cylinder and changes PrePivot by the
+        // same amount in one tick (the mesh stays put), so both are interpolated together.
+        FVector prePivot = _prevPrePivot + (_prePivot - _prevPrePivot) * alpha;
+        int yaw = _prevYaw + (int)(FRotator.NormalizeAxis(_yaw - _prevYaw) * alpha);
+        _model.Place(location, new FRotator(0, yaw, 0), prePivot);
+        _drawYaw = yaw;
+        SetAim(pawn, yaw);
+        Pose(pawn, alpha);
+        _attachments?.Draw(pawn, dt);
+        _goggleGlow?.Draw(pawn);
+        DrawSkins(pawn);
+        DrawCosmetics(pawn);
+        _relightClock -= dt;
+        if (_relightClock <= 0f && Map is not null)
+        {
+            _relightClock = 0.1f;
+            ActorLightSet lights = Map.LightActor(location, LightRadius, 0);
+            _model.Light(lights);
+            _attachments?.Light(lights);
+        }
+    }
+
+    /// <summary>The world transform of one of the pawn's bones as last drawn, or false.</summary>
+    public bool TryGetBone(Name bone, out Transform3D world)
+    {
+        world = default;
+        if (_model is null || _applier is null)
+        {
+            return false;
+        }
+
+        int index = BoneIndex(bone);
+        if (index < 0)
+        {
+            return false;
+        }
+
+        world = _model.Skeleton.GlobalTransform * _model.Skeleton.GetBoneGlobalPose(index);
+        return true;
+    }
+
+    /// <summary>
+    /// The upper-body aim of this draw: the mesh instance's AAFULL pair (yaw, pitch) turns B Spine2 (bone 4) by the
+    /// pitch about the horizontal axis across the pawn's facing (Z x facing), then by the yaw about the vertical
+    /// (0x11102160: two axis-angle coords applied to the bone's transposed space base).
+    /// </summary>
+    private void SetAim(SBasePawn pawn, int yaw)
+    {
+        if (_applier is null || _model is null)
+        {
+            return;
+        }
+
+        MeshAimIK aim = pawn.PawnAnim.Aim;
+        if (aim.FullYaw == 0f && aim.FullPitch == 0f)
+        {
+            _applier.AimBone = -1;
+            return;
+        }
+
+        _applier.AimBone = _aimBone ??= _applier.FindBone(MeshAimIK.FullAimBoneName);
+        Basis world = AimPose.WorldBasis(aim.FullYaw, aim.FullPitch, new FRotator(0, yaw, 0).Vector());
+        Basis skeleton = _model.Skeleton.GlobalTransform.Basis.Orthonormalized();
+        _applier.AimRotation = (skeleton.Inverse() * world * skeleton).GetRotationQuaternion();
+    }
+
+    private int? _aimBone;
+
+    /// <summary>The skeleton index of a bone by its UE name (cached), or -1.</summary>
+    public int BoneIndex(Name bone)
+    {
+        if (bone.IsNone || _applier is null)
+        {
+            return 0;
+        }
+
+        if (!_boneOf.TryGetValue(bone, out int index))
+        {
+            index = _applier.FindBone(bone.ToString());
+            _boneOf[bone] = index;
+        }
+
+        return index;
+    }
+
+    private void Pose(SBasePawn pawn, float alpha)
+    {
+        AnimSampler sampler = _model!.Sampler;
+        PawnAnimation anim = pawn.PawnAnim;
+        Array.Clear(_channels);
+        for (int c = 0; c < PawnAnimation.ChannelCount; c++)
+        {
+            PawnAnimChannel ch = anim[c];
+            if (ch.Sequence.IsNone || ch.Clip is null || sampler.Find(ch.Sequence.ToString()) is not { } clip)
+            {
+                continue;
+            }
+
+            float weight = c == 0 ? 1f : ch.BlendAlpha;
+            if (!(weight > 0f))
+            {
+                continue;
+            }
+
+            (float frame, float clipFrame) = Interpolated(c, ch, alpha);
+            int start = BoneIndex(ch.StartBone);
+            _channels[c] = new ChannelPose
+            {
+                Clip = clip,
+                Sequence = ch.Sequence.ToString(),
+                Frame = frame,
+                ClipFrame = clipFrame,
+                Frames = ch.Frames,
+                Fps = ch.Clip.Fps,
+                Alpha = weight,
+                StartBone = start < 0 ? 0 : start,
+                Loop = ch.bLoop,
+                Mirror = ch.bMirror,
+            };
+        }
+
+        RootLock rootLock = RootLock.None;
+        PawnAnimChannel c0 = anim[0];
+        if (pawn.Physics == EPhysics.PHYS_RootMotion && pawn.iLockRootMotionType != 0)
+        {
+            // The mesh's own lock once physics has set it (the pose build reads the instance's lock), else the
+            // action's.
+            int lockType = ((OpenScct.Physics.Movement.ISBasePawnPhysics)pawn).RootMotionMesh is PawnRootMotion { RootLockType: not 0 } locked
+                ? locked.RootLockType
+                : pawn.iLockRootMotionType;
+            rootLock = RootLock.Translation;
+            if ((lockType & 2) != 0)
+            {
+                rootLock |= RootLock.Yaw;
+            }
+        }
+
+        Vector3? offset = null;
+        Quaternion? turn = null;
+        if (rootLock != RootLock.None)
+        {
+            RootLockOf(pawn, c0, out offset, out turn);
+        }
+
+        _applier!.Apply(_channels, rootLock, c0.bBackward ? c0.AnimLast : 0f, offset, turn);
+    }
+
+    /// <summary>
+    /// The locked root's offset in skeleton space (coop.md rule 24, anim.md rule 3.4): R(lock) - R(t) of channel 0 at
+    /// the drawn frame (the backward forms for a backward play), in the mesh's axes; null when the mesh is not locked
+    /// yet or the clip has no root data (the root is then pinned). With lock bit 2 also the turn that takes the yaw
+    /// the root motion carried since the lock back out of the root (position and rotation), so the body stays where the
+    /// move put it while the actor turns.
+    /// </summary>
+    [Provenance(ProvenanceKind.Decoded, "pose build game 0x109ba4f0 at 0x109bcbac: with lock bit 2 bone 0's position and rotation are turned back by the root yaw since the lock (yaw of field 0x250 minus 0x1f0 with the GetRootRotationDelta sign rules: the root turn the actor carried, not other turns of the actor)")]
+    private void RootLockOf(SBasePawn pawn, PawnAnimChannel c0, out Vector3? offset, out Quaternion? turn)
+    {
+        offset = null;
+        turn = null;
+        if (_model is null || ((OpenScct.Physics.Movement.ISBasePawnPhysics)pawn).RootMotionMesh is not PawnRootMotion { RootLockType: not 0 } mesh)
+        {
+            return;
+        }
+
+        Basis skeleton = _model.Skeleton.GlobalTransform.Basis;
+        float clipFrame = _channels[0].Clip is not null ? _channels[0].ClipFrame : c0.ClipFrame;
+        if (RootLockPose.Offset(c0.Clip, clipFrame, c0.bMirror, mesh.LockedRoot, mesh.RootLockType, c0.bBackward, c0.bLoop,
+                out FVector local))
+        {
+            new FRotator(0, _drawYaw, 0).GetAxes(out FVector x, out FVector y, out FVector z);
+            Vector3 world = UeSpace.DirectionToGodot((x * local.X) + (y * local.Y) + (z * local.Z)) / UeSpace.UnitsPerMetre;
+            offset = skeleton.Inverse() * world;
+        }
+
+        if ((mesh.RootLockType & 2) != 0)
+        {
+            Basis unit = skeleton.Orthonormalized();
+            int carried = (int)FRotator.NormalizeAxis(mesh.CarriedRootTurn(c0, clipFrame));
+            Basis back = UeSpace.RotationToGodot(new FRotator(0, -carried, 0));
+            turn = (unit.Inverse() * back * unit).GetRotationQuaternion();
+        }
+    }
+
+    private int _drawYaw;
+
+    /// <summary>
+    /// A channel's frame between the last two ticks: interpolated while the same clip moves forward (no new play), and
+    /// across the wrap of a loop (the frame went past 1 and came back near 0), else the last tick's. The walk channels
+    /// loop all the time; without the wrap case each loop drew one tick ahead and then held that frame for a whole tick
+    /// (a hitch every cycle, worst at walking speed where a cycle is about a second).
+    /// </summary>
+    [Provenance(ProvenanceKind.Estimated, "Draws between ticks interpolate the channel frame; the original draws once per tick")]
+    private (float Frame, float ClipFrame) Interpolated(int c, PawnAnimChannel ch, float alpha)
+    {
+        TickChannel cur = _cur[c];
+        TickChannel prev = _prev[c];
+        if (cur.Sequence != ch.Sequence || prev.Sequence != cur.Sequence || (prev.Frame < 0f) != (cur.Frame < 0f))
+        {
+            return (ch.Frame, ch.ClipFrame);
+        }
+
+        if (cur.Frame >= prev.Frame)
+        {
+            return (prev.Frame + ((cur.Frame - prev.Frame) * alpha), prev.ClipFrame + ((cur.ClipFrame - prev.ClipFrame) * alpha));
+        }
+
+        // A loop's wrap: the frame fell by more than half a cycle in one tick. Anything else going back (a frame set
+        // by hand, a new play of the same clip) shows the last tick's frame as before.
+        if (!ch.bLoop || prev.Frame < 0f || prev.Frame - cur.Frame < 0.5f)
+        {
+            return (ch.Frame, ch.ClipFrame);
+        }
+
+        return (Wrapped(prev.Frame, cur.Frame + 1f, alpha), Wrapped(prev.ClipFrame, cur.ClipFrame + (ch.bBackward ? -1f : 1f), alpha));
+    }
+
+    /// <summary>The loop position <paramref name="alpha"/> of the way from <paramref name="from"/> to an unwrapped <paramref name="to"/>, back in [0, 1).</summary>
+    private static float Wrapped(float from, float to, float alpha)
+    {
+        float f = from + ((to - from) * alpha);
+        return f - MathF.Floor(f);
+    }
+
+    private readonly record struct TickChannel(Name Sequence, float Frame, float ClipFrame);
+}

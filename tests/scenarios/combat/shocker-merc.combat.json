@@ -1,0 +1,160 @@
+{
+  "format": "svm.combat/1",
+  "id": "combat.shocker-merc",
+  "title": "Spy shocker at a merc 500 uu away (spine2): 8 shots 0.5 s apart, then the energy refill",
+  "map": "SteeE",
+  "mode": "playlevel",
+  "local": {
+    "team": "spy",
+    "floor": [
+      -492.0,
+      -2032.0,
+      -1143.5
+    ],
+    "yaw": 16384,
+    "crouched": false
+  },
+  "target": {
+    "team": "merc",
+    "floor": [
+      -492.0,
+      -1532.0,
+      -1143.5
+    ],
+    "yaw": 49152,
+    "crouched": false
+  },
+  "setup": [
+    {
+      "op": "draw"
+    }
+  ],
+  "settleFrames": 30,
+  "durationFrames": 900,
+  "events": [
+    {
+      "frame": 4,
+      "do": "aim",
+      "bone": "spine2"
+    },
+    {
+      "frame": 6,
+      "do": "fire"
+    },
+    {
+      "frame": 7,
+      "do": "fireUp"
+    },
+    {
+      "frame": 34,
+      "do": "aim",
+      "bone": "spine2"
+    },
+    {
+      "frame": 36,
+      "do": "fire"
+    },
+    {
+      "frame": 37,
+      "do": "fireUp"
+    },
+    {
+      "frame": 64,
+      "do": "aim",
+      "bone": "spine2"
+    },
+    {
+      "frame": 66,
+      "do": "fire"
+    },
+    {
+      "frame": 67,
+      "do": "fireUp"
+    },
+    {
+      "frame": 94,
+      "do": "aim",
+      "bone": "spine2"
+    },
+    {
+      "frame": 96,
+      "do": "fire"
+    },
+    {
+      "frame": 97,
+      "do": "fireUp"
+    },
+    {
+      "frame": 124,
+      "do": "aim",
+      "bone": "spine2"
+    },
+    {
+      "frame": 126,
+      "do": "fire"
+    },
+    {
+      "frame": 127,
+      "do": "fireUp"
+    },
+    {
+      "frame": 154,
+      "do": "aim",
+      "bone": "spine2"
+    },
+    {
+      "frame": 156,
+      "do": "fire"
+    },
+    {
+      "frame": 157,
+      "do": "fireUp"
+    },
+    {
+      "frame": 184,
+      "do": "aim",
+      "bone": "spine2"
+    },
+    {
+      "frame": 186,
+      "do": "fire"
+    },
+    {
+      "frame": 187,
+      "do": "fireUp"
+    },
+    {
+      "frame": 214,
+      "do": "aim",
+      "bone": "spine2"
+    },
+    {
+      "frame": 216,
+      "do": "fire"
+    },
+    {
+      "frame": 217,
+      "do": "fireUp"
+    }
+  ],
+  "repeats": 2,
+  "measure": {
+    "energy": {},
+    "shock": {
+      "victim": "T"
+    },
+    "hits": {}
+  },
+  "covers": [
+    "uc:SBase.SStickyShocker:Fire",
+    "uc:SBase.SWeaponAttaque:ServerFireWeaponWithLocation",
+    "uc:SBase.SWeaponAttaque:TraceFireWithPos",
+    "uc:SBase.SPawnAttaque:AuthorizeEnergy",
+    "nat:SBase.SPawnAttaque.ComputeEnergyLevel",
+    "uc:SBase.SPlayerController:Checkshock",
+    "uc:SBase.SPlayerController:ClientStickyShock",
+    "uc:SBase.SPlayerController:PlayerTick"
+  ],
+  "spot": "SteeE east yard lane (x -492, floor z -1143.5, clear for 1792 uu along +Y from y -2032; found with re/tools/difftest/spots.py for the R4 locomotion recordings)",
+  "notes": "The merc target has no PlayerTick (no viewport), so its freeze never ends; its deadlines (iTimeToStopStickyShock, iTimeElecStickyShock), TimeShock and RealTimeInvulSticky are what the shock wrote. The freeze as a player lives it is recorded with the local player as the victim."
+}

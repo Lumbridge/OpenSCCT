@@ -1,0 +1,93 @@
+{
+  "format": "svm.scenario/1",
+  "id": "moveset.spy-vault-barrier",
+  "title": "Spy walks to a 95.5 uu yard wall (LG 12), jumps against it and vaults over to the far side",
+  "map": "SteeE",
+  "mode": "playlevel",
+  "players": [
+    {
+      "team": "spy"
+    }
+  ],
+  "spawn": {
+    "floor": [
+      -2688.0,
+      1640.0,
+      -1127.5
+    ],
+    "yaw": 49152,
+    "clearance": 2.0,
+    "spot": "yard floor 136 uu north of the low wall under LG 12, facing it (-Y)",
+    "notes": "LG 12 (-2880, 1504, -1032) to (-2496, 1504, -1032) and LG 26 at y 1472 top a wall 32 thick and 95.5 over the yard floor z -1127.5 on both sides (BSP Brush4122). A standing spy box swept south stops at y 1539 (35 from the lip); CheckBarrier room box (35, 35, 22.5) over the top 140 beyond and down 85.2 is clear; the far floor is z -1127.5. Found with re/tools/difftest/movespots.py (barrier)."
+  },
+  "setup": [
+    {
+      "op": "leaveGE",
+      "maxFrames": 240
+    },
+    {
+      "op": "teleport"
+    },
+    {
+      "op": "stance",
+      "crouched": false
+    },
+    {
+      "op": "fastSpeed",
+      "value": true
+    },
+    {
+      "op": "write",
+      "target": "pawn",
+      "field": "Health",
+      "value": 100
+    },
+    {
+      "op": "view",
+      "pitch": 0,
+      "yaw": 49152
+    },
+    {
+      "op": "waitStill",
+      "maxFrames": 180
+    }
+  ],
+  "settleFrames": 30,
+  "durationFrames": 200,
+  "inputs": [
+    {
+      "frame": 0,
+      "buttons": {
+        "BT_Up": 1
+      },
+      "note": "walk the last 100 uu to the wall"
+    },
+    {
+      "frame": 30,
+      "buttons": {
+        "BT_Up": 0
+      },
+      "note": "let go at the wall"
+    },
+    {
+      "frame": 45,
+      "jump": true,
+      "note": "jump against the wall: CheckBarrier"
+    }
+  ],
+  "repeats": 3,
+  "profile": "traversal",
+  "measure": {},
+  "covers": [
+    "uc:SBase.SPlayerController:s_PlayerWalkingMario.PlayerMove",
+    "nat:SBase.SPlayerController.CheckBarrier",
+    "uc:SBase.SPlayerController:s_BarrierJumpDetect.PlayerMove",
+    "uc:SBase.SPlayerController:s_BarrierJumpDetect.TopSynchro",
+    "uc:SBase.SPlayerController:s_BarrierJump.PlayerMove",
+    "uc:SBase.SPlayerController:s_BarrierJump.AnimEnd",
+    "uc:SBase.SPlayerController:s_PlayerJump.PlayerMove",
+    "uc:SBase.SPlayerController:MyNotifyLanded",
+    "uc:SBase.SPlayerController:PlayerLanding.BeginState",
+    "def:SBase.SPawnAttaque"
+  ]
+}

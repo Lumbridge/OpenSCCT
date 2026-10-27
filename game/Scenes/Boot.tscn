@@ -1,0 +1,13 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" uid="uid://dgl1gxv0ydnhe" path="res://Scripts/App/Boot.cs" id="1_boot"]
+
+[node name="Boot" type="Node"]
+script = ExtResource("1_boot")
+
+[node name="Status" type="Label" parent="."]
+offset_left = 24.0
+offset_top = 24.0
+offset_right = 640.0
+offset_bottom = 56.0
+text = "OpenSCCT"

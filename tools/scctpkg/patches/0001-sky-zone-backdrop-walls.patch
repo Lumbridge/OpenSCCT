@@ -1,0 +1,43 @@
+diff --git a/bsp.py b/bsp.py
+index ac7109c..52e7191 100644
+--- a/bsp.py
++++ b/bsp.py
+@@ -200,7 +200,8 @@ def point_zone(model: BspModel, p) -> int:
+     return model.nodes[parent].izone[is_front]
+ 
+ 
+-def extract_polygons(model: BspModel, include_nonstructural: bool = True) -> List[BspPolygon]:
++def extract_polygons(model: BspModel, include_nonstructural: bool = True,
++                     include_fake_backdrop: bool = False) -> List[BspPolygon]:
+     polys: List[BspPolygon] = []
+     npts = len(model.points)
+     nvec = len(model.vectors)
+@@ -212,8 +213,10 @@ def extract_polygons(model: BspModel, include_nonstructural: bool = True) -> Lis
+         if node.isurf < 0 or node.isurf >= len(model.surfs):
+             continue
+         surf = model.surfs[node.isurf]
+-        if surf.polyflags & (PF_INVISIBLE | PF_PORTAL | PF_FAKE_BACKDROP):
+-            continue   # fake backdrop = skybox window in UE2, not a wall
++        if surf.polyflags & (PF_INVISIBLE | PF_PORTAL):
++            continue
++        if surf.polyflags & PF_FAKE_BACKDROP and not include_fake_backdrop:
++            continue   # fake backdrop = skybox window in UE2, not a wall (the sky zone's own walls are asked for)
+         pool = model.verts[node.ivertpool:node.ivertpool + node.numverts, 0]
+         if len(pool) < 3 or pool.max() >= npts or pool.min() < 0:
+             continue
+diff --git a/export_gltf.py b/export_gltf.py
+index d371eb5..33697ed 100644
+--- a/export_gltf.py
++++ b/export_gltf.py
+@@ -1012,7 +1012,10 @@ def export_map(map_path: Path, pset: PackageSet, out_root: Path, include_bsp: bo
+             sky_polys: List[BspPolygon] = []
+             if sky_rec is not None:
+                 sky_zone = point_zone(model, sky_rec.location)
+-                sky_polys = [p for p in polys if model.nodes[p.node_index].izone[1] == sky_zone]
++                # The sky zone's own walls are fake-backdrop surfaces (SteeE's star box, SQU13_txt.Tsky06): drawn by
++                # the sky view, while the fake-backdrop windows of the other zones stay out.
++                sky_polys = [p for p in extract_polygons(model, include_fake_backdrop=True)
++                             if model.nodes[p.node_index].izone[1] == sky_zone]
+                 if sky_polys and len(sky_polys) < len(polys):
+                     polys = [p for p in polys if model.nodes[p.node_index].izone[1] != sky_zone]
+                 else:

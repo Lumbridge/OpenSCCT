@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" uid="uid://c6lqu3ypg48g6" path="res://Scripts/Play/GameRoot.cs" id="1_game"]
+
+[node name="Game" type="Node3D"]
+script = ExtResource("1_game")

@@ -1,0 +1,18 @@
+{
+ "files": {
+  "render/world.glb": {"sha256": "d39870ee6983ab8afe8b40c1c3c2e194e53554ec09b56db85f7f67361b77238d", "size": 53760},
+  "sim/collision.bin": {"sha256": "34dd205e3c537891b0cca854a6a8fef93216f304aac078dcb7397cd0254a2410", "size": 13600},
+  "sim/gameplay.json": {"sha256": "2fdcaae0b033c290eac4de0eca0c2f43359493e3453d5573db5be4d1d5c7ed81", "size": 8046},
+  "sim/traversal.json": {"sha256": "6b75147f84fbb102ac5fbbcd6b03433b447ce759a0b9d8b1db79217b946b039c", "size": 720}
+ },
+ "format": "svmap",
+ "formatVersion": "1.0.0",
+ "hashes": {
+  "render": "4453bad6a3688f37e507ac7fd2a8d00b9ee410d44dbc55bb956b984a4d6f874f",
+  "sim": "cdf46bb734b4372fec38327aff84439f95ba7d6bb931af9b52ab117c33b0d346"
+ },
+ "map": "TestBox",
+ "requires": [],
+ "source": {"generator": "svmbuild.testbox", "generatorVersion": 1, "kind": "synthetic"},
+ "title": "TestBox"
+}

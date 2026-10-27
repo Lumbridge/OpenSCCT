@@ -1,0 +1,592 @@
+{
+ "actors": {
+  "PlayerStart0": {
+   "class": "Engine.PlayerStart",
+   "location": [384.0, 2560.0, 86.0]
+  },
+  "PlayerStart1": {
+   "class": "Engine.PlayerStart",
+   "location": [384.0, 2816.0, 86.0]
+  },
+  "PlayerStart2": {
+   "class": "Engine.PlayerStart",
+   "location": [384.0, 3072.0, 86.0]
+  },
+  "PlayerStart3": {
+   "class": "Engine.PlayerStart",
+   "location": [384.0, 3328.0, 86.0]
+  },
+  "PlayerStart4": {
+   "class": "Engine.PlayerStart",
+   "location": [7808.0, 2560.0, 86.0]
+  },
+  "PlayerStart5": {
+   "class": "Engine.PlayerStart",
+   "location": [7808.0, 2816.0, 86.0]
+  },
+  "PlayerStart6": {
+   "class": "Engine.PlayerStart",
+   "location": [7808.0, 3072.0, 86.0]
+  },
+  "PlayerStart7": {
+   "class": "Engine.PlayerStart",
+   "location": [7808.0, 3328.0, 86.0]
+  },
+  "SAmmoStock0": {
+   "class": "SBase.SAmmoStock",
+   "location": [7680.0, 1536.0, 0.0]
+  },
+  "SCamNetwork0": {
+   "class": "SBase.SCamNetwork",
+   "location": [4096.0, 6120.0, 512.0]
+  },
+  "SCamNetwork1": {
+   "class": "SBase.SCamNetwork",
+   "location": [24.0, 3072.0, 512.0]
+  },
+  "SCamNetwork2": {
+   "class": "SBase.SCamNetwork",
+   "location": [2048.0, 24.0, 512.0]
+  },
+  "SComputerObjectiveTrigger0": {
+   "class": "SBase.SComputerObjectiveTrigger",
+   "location": [5056.0, 656.0, 87.0]
+  },
+  "SFlag0": {
+   "class": "SBase.SFlag",
+   "location": [5536.0, 672.0, 81.0]
+  },
+  "SFlagDropZone0": {
+   "class": "SBase.SFlagDropZone",
+   "location": [5888.0, 448.0, 1.0]
+  },
+  "SInfirmary0": {
+   "class": "SBase.SInfirmary",
+   "location": [4608.0, 0.0, 140.0]
+  },
+  "SMission0": {
+   "class": "SBase.SMission",
+   "location": [4864.0, 512.0, 320.0]
+  },
+  "SObjective0": {
+   "class": "SBase.SObjective",
+   "location": [4864.0, 512.0, 256.0]
+  },
+  "SObjective1": {
+   "class": "SBase.SObjective",
+   "location": [4864.0, 512.0, 272.0]
+  },
+  "SVitre0": {
+   "class": "SBase.SVitre",
+   "location": [1520.0, 352.0, 128.0]
+  },
+  "ZoneHall": {
+   "class": "Engine.ZoneInfo",
+   "location": [4096.0, 3072.0, 900.0]
+  },
+  "ZoneRoom": {
+   "class": "Engine.ZoneInfo",
+   "location": [512.0, 1792.0, 300.0]
+  }
+ },
+ "format": "svm.testrange/1",
+ "generator": "tools.testmap 1",
+ "hall": {
+  "hi": [8192.0, 6144.0, 1024.0],
+  "lo": [0.0, 0.0, 0.0]
+ },
+ "layoutVersion": 1,
+ "lights": [
+  {
+   "brightness": 24.0,
+   "id": "RoomLight0",
+   "location": [896.0, 1792.0, 320.0],
+   "radius": 14.0,
+   "zone": "ZoneRoom"
+  },
+  {
+   "brightness": 48.0,
+   "id": "RoomLight1",
+   "location": [1152.0, 1792.0, 320.0],
+   "radius": 14.0,
+   "zone": "ZoneRoom"
+  },
+  {
+   "brightness": 80.0,
+   "id": "RoomLight2",
+   "location": [1408.0, 1792.0, 320.0],
+   "radius": 14.0,
+   "zone": "ZoneRoom"
+  },
+  {
+   "brightness": 128.0,
+   "id": "RoomLight3",
+   "location": [1664.0, 1792.0, 320.0],
+   "radius": 14.0,
+   "zone": "ZoneRoom"
+  },
+  {
+   "brightness": 192.0,
+   "id": "RoomLight4",
+   "location": [1920.0, 1792.0, 320.0],
+   "radius": 14.0,
+   "zone": "ZoneRoom"
+  },
+  {
+   "brightness": 255.0,
+   "id": "RoomLight5",
+   "location": [2176.0, 1792.0, 320.0],
+   "radius": 14.0,
+   "zone": "ZoneRoom"
+  }
+ ],
+ "map": "TestRange",
+ "stations": [
+  {
+   "ge": "Ledge128LG",
+   "geKind": "LG",
+   "gePoints": [
+    [256.0, 5888.0, 128.0],
+    [512.0, 5888.0, 128.0]
+   ],
+   "height": 128,
+   "id": "Ledge128",
+   "kind": "ledge",
+   "lip": [
+    [256, 5888.0, 128],
+    [512, 5888.0, 128]
+   ],
+   "spot": [384.0, 5788.0, 0.0],
+   "title": "Ledge 128 (hop-up)",
+   "yaw": 16384
+  },
+  {
+   "ge": "Ledge208LG",
+   "geKind": "LG",
+   "gePoints": [
+    [768.0, 5888.0, 208.0],
+    [1024.0, 5888.0, 208.0]
+   ],
+   "height": 208,
+   "id": "Ledge208",
+   "kind": "ledge",
+   "lip": [
+    [768, 5888.0, 208],
+    [1024, 5888.0, 208]
+   ],
+   "spot": [896.0, 5788.0, 0.0],
+   "title": "Ledge 208",
+   "yaw": 16384
+  },
+  {
+   "ge": "Ledge264LG",
+   "geKind": "LG",
+   "gePoints": [
+    [1280.0, 5888.0, 264.0],
+    [1536.0, 5888.0, 264.0]
+   ],
+   "height": 264,
+   "id": "Ledge264",
+   "kind": "ledge",
+   "lip": [
+    [1280, 5888.0, 264],
+    [1536, 5888.0, 264]
+   ],
+   "spot": [1408.0, 5788.0, 0.0],
+   "title": "Ledge 264",
+   "yaw": 16384
+  },
+  {
+   "ge": "Ledge320LG",
+   "geKind": "LG",
+   "gePoints": [
+    [1792.0, 5888.0, 320.0],
+    [2048.0, 5888.0, 320.0]
+   ],
+   "height": 320,
+   "id": "Ledge320",
+   "kind": "ledge",
+   "lip": [
+    [1792, 5888.0, 320],
+    [2048, 5888.0, 320]
+   ],
+   "spot": [1920.0, 5788.0, 0.0],
+   "title": "Ledge 320",
+   "yaw": 16384
+  },
+  {
+   "ge": "Boost448LG",
+   "geKind": "LG",
+   "gePoints": [
+    [2304.0, 5888.0, 448.0],
+    [2560.0, 5888.0, 448.0]
+   ],
+   "height": 448,
+   "helper": [2432, 5828.0, 0],
+   "id": "Boost448",
+   "kind": "coopBoost",
+   "spot": [2432.0, 5788.0, 0.0],
+   "title": "Co-op boost ledge 448",
+   "yaw": 16384
+  },
+  {
+   "ge": "WallJump408LG",
+   "geKind": "LG",
+   "gePoints": [
+    [2816.0, 5888.0, 408.0],
+    [3200.0, 5888.0, 408.0]
+   ],
+   "height": 408,
+   "id": "WallJump408",
+   "kind": "wallJump",
+   "runUp": 210,
+   "spot": [3008.0, 5678.0, 0.0],
+   "title": "Wall jump to a 408 lip",
+   "yaw": 16384
+  },
+  {
+   "ge": "Pipe512PIPE",
+   "geKind": "PIPE",
+   "gePoints": [
+    [3584.0, 5872.0, 0.0],
+    [3584.0, 5872.0, 512.0],
+    [3584.0, 5862.0, 0.0]
+   ],
+   "height": 512,
+   "id": "Pipe512",
+   "kind": "pipe",
+   "spot": [3584.0, 5752.0, 0.0],
+   "title": "Vertical pipe 512",
+   "yaw": 16384
+  },
+  {
+   "ge": "Ladder320LADDER",
+   "geKind": "LADDER",
+   "gePoints": [
+    [4096.0, 5884.0, 0.0],
+    [4096.0, 5884.0, 320.0],
+    [4096.0, 5874.0, 0.0]
+   ],
+   "height": 320,
+   "id": "Ladder320",
+   "kind": "ladder",
+   "spot": [4096.0, 5738.0, 0.0],
+   "title": "Ladder 320",
+   "yaw": 16384
+  },
+  {
+   "gap": 192,
+   "height": 512,
+   "id": "SplitShaft192",
+   "kind": "splitJump",
+   "spot": [4549.5, 6009.5, 0.0],
+   "title": "Split jump shaft 192",
+   "walls": [4512, 4704],
+   "yaw": 49152
+  },
+  {
+   "ge": ["Vault96LGS", "Vault96LGN"],
+   "height": 96,
+   "id": "Vault96",
+   "kind": "vault",
+   "spot": [448.0, 4472.0, 0.0],
+   "thick": 32,
+   "title": "Vault barrier 96 x 32",
+   "yaw": 16384
+  },
+  {
+   "ge": "Fence376FENCE",
+   "geKind": "FENCE",
+   "gePoints": [
+    [1024.0, 4624.0, 376.0],
+    [1408.0, 4624.0, 376.0]
+   ],
+   "height": 376,
+   "id": "Fence376",
+   "kind": "fence",
+   "spot": [1216.0, 4469.0, 0.0],
+   "title": "Fence 376 (climbable both sides)",
+   "yaw": 16384
+  },
+  {
+   "ge": "Hoh277HOH",
+   "geKind": "HOH",
+   "gePoints": [
+    [1856.0, 4624.0, 277.0],
+    [2496.0, 4624.0, 277.0]
+   ],
+   "height": 277,
+   "id": "Hoh277",
+   "kind": "hoh",
+   "spot": [2054.0, 4624.0, 0.0],
+   "title": "Hand over hand 277",
+   "yaw": 0
+  },
+  {
+   "height": 17,
+   "id": "Curb17",
+   "kind": "step",
+   "spot": [3072.0, 4380.0, 0.0],
+   "title": "Curb 17",
+   "yaw": 16384
+  },
+  {
+   "height": 34,
+   "id": "Step34",
+   "kind": "step",
+   "spot": [3456.0, 4380.0, 0.0],
+   "title": "Step 34",
+   "yaw": 16384
+  },
+  {
+   "height": 50,
+   "id": "Block50",
+   "kind": "step",
+   "spot": [3840.0, 4380.0, 0.0],
+   "title": "Block 50 (blocks a walk)",
+   "yaw": 16384
+  },
+  {
+   "count": 10,
+   "id": "Stairs16",
+   "kind": "stairs",
+   "rise": 16,
+   "run": 32,
+   "spot": [4124.0, 4608.0, 0.0],
+   "title": "Stairs 10 x 16 rise, 32 run",
+   "top": 160,
+   "yaw": 0
+  },
+  {
+   "id": "Ramp384",
+   "kind": "ramp",
+   "rise": 384,
+   "run": 768,
+   "spot": [5020.0, 4544.0, 0.0],
+   "title": "Ramp 384 over 768 (26.57 degrees)",
+   "yaw": 0
+  },
+  {
+   "height": 384,
+   "id": "Drop384",
+   "kind": "drop",
+   "spot": [6272.0, 3772.0, 384.0],
+   "title": "Drop 384 off the deck's south edge",
+   "yaw": 49152
+  },
+  {
+   "height": 600,
+   "id": "Drop600",
+   "kind": "drop",
+   "spot": [6596.0, 4608.0, 600.0],
+   "title": "Drop 600 off the tower's east edge",
+   "yaw": 0
+  },
+  {
+   "drop": 320.0,
+   "ge": "Zip1760ZL",
+   "geKind": "ZL",
+   "gePoints": [
+    [6144.0, 2064.0, 368.0],
+    [6144.0, 3824.0, 688.0]
+   ],
+   "high": [6144.0, 3824.0, 688.0],
+   "id": "Zip1760",
+   "kind": "zipLine",
+   "landingTop": 160,
+   "length": 1788.854,
+   "low": [6144.0, 2064.0, 368.0],
+   "run": 1760.0,
+   "slope": 0.17889,
+   "spot": [6144.0, 3784.0, 384.0],
+   "title": "Zip line 1760 run, 320 drop",
+   "yaw": 49152
+  },
+  {
+   "doors": [
+    [240, 1792, 0],
+    [2320, 1792, 0]
+   ],
+   "id": "Gradient",
+   "kind": "lightGradient",
+   "samples": [
+    [384, 1792.0, 0.0],
+    [640, 1792.0, 0.0],
+    [896, 1792.0, 0.0],
+    [1152, 1792.0, 0.0],
+    [1408, 1792.0, 0.0],
+    [1664, 1792.0, 0.0],
+    [1920, 1792.0, 0.0],
+    [2176, 1792.0, 0.0]
+   ],
+   "spot": [384.0, 1792.0, 0.0],
+   "title": "Dark-to-lit gradient room",
+   "yaw": 0
+  },
+  {
+   "backstop": 3584,
+   "firingX": 512.0,
+   "id": "Lane",
+   "kind": "shootingLane",
+   "lane": [256.0, 768.0],
+   "markStep": 250.0,
+   "marks": [
+    512.0,
+    762.0,
+    1012.0,
+    1262.0,
+    1512.0,
+    1762.0,
+    2012.0,
+    2262.0,
+    2512.0,
+    2762.0,
+    3012.0,
+    3262.0,
+    3512.0
+   ],
+   "spot": [512.0, 512.0, 0.0],
+   "title": "Shooting lane 0 to 3000 with marks every 250",
+   "yaw": 0
+  },
+  {
+   "id": "MotionPanels",
+   "kind": "motionPanels",
+   "openZ": [32.0, 224.0],
+   "openings": {
+    "glass": [288.0, 416.0],
+    "grating": [608.0, 736.0],
+    "open": [448.0, 576.0]
+   },
+   "panelX": [1512.0, 1528.0],
+   "spot": [1760.0, 272.0, 0.0],
+   "title": "Panel wall at 1000: glass, open window, grating",
+   "walkFrom": [1760, 272, 0],
+   "walkTo": [1760, 752, 0],
+   "watchFrom": [512.0, 512, 0],
+   "yaw": 16384
+  },
+  {
+   "actor": "SComputerObjectiveTrigger0",
+   "at": [5056.0, 656.0, 87.0],
+   "id": "Terminal",
+   "kind": "terminal",
+   "spot": [5056.0, 592.0, 0.0],
+   "title": "Terminal on a desk (hack from the south)",
+   "yaw": 16384
+  },
+  {
+   "actor": "SFlag0",
+   "at": [5536.0, 672.0, 81.0],
+   "id": "Disk",
+   "kind": "disk",
+   "spot": [5536.0, 582.0, 0.0],
+   "title": "Disk on a table",
+   "yaw": 16384
+  },
+  {
+   "actor": "SFlagDropZone0",
+   "at": [5888.0, 448.0, 1.0],
+   "id": "DropZone",
+   "kind": "dropZone",
+   "spot": [5888.0, 358.0, 0.0],
+   "title": "Disk drop zone",
+   "yaw": 16384
+  },
+  {
+   "actor": "SInfirmary0",
+   "at": [4608.0, 0.0, 140.0],
+   "id": "Medkit",
+   "kind": "medkit",
+   "spot": [4608.0, 96.0, 0.0],
+   "title": "First aid on the south wall",
+   "yaw": 49152
+  },
+  {
+   "actor": "SAmmoStock0",
+   "at": [7680.0, 1536.0, 0.0],
+   "id": "Ammo",
+   "kind": "ammo",
+   "spot": [7570.0, 1536.0, 0.0],
+   "title": "Ammunition stock by the merc starts",
+   "yaw": 0
+  },
+  {
+   "actors": ["SCamNetwork0", "SCamNetwork1", "SCamNetwork2"],
+   "at": [
+    [4096.0, 6120.0, 512.0],
+    [24.0, 3072.0, 512.0],
+    [2048.0, 24.0, 512.0]
+   ],
+   "id": "CamNetwork",
+   "kind": "cameraNetwork",
+   "spot": [4096.0, 3072.0, 0.0],
+   "title": "Camera network: three wall globes in one ring",
+   "yaw": 0
+  },
+  {
+   "id": "SpyStarts",
+   "kind": "spawn",
+   "spot": [384.0, 2944.0, 0.0],
+   "starts": [
+    [384.0, 2560.0, 86.0],
+    [384.0, 2816.0, 86.0],
+    [384.0, 3072.0, 86.0],
+    [384.0, 3328.0, 86.0]
+   ],
+   "team": 0,
+   "title": "Spy starts (west)",
+   "yaw": 0
+  },
+  {
+   "id": "MercStarts",
+   "kind": "spawn",
+   "spot": [7808.0, 2944.0, 0.0],
+   "starts": [
+    [7808.0, 2560.0, 86.0],
+    [7808.0, 2816.0, 86.0],
+    [7808.0, 3072.0, 86.0],
+    [7808.0, 3328.0, 86.0]
+   ],
+   "team": 1,
+   "title": "Merc starts (east)",
+   "yaw": 32768
+  },
+  {
+   "hi": [4864, 4096, 0],
+   "id": "OpenFloor",
+   "kind": "openFloor",
+   "lo": [2560, 1280, 0],
+   "spot": [3712.0, 2688.0, 0.0],
+   "title": "Open floor for bots",
+   "yaw": 0
+  },
+  {
+   "hi": [7680, 5376, 0],
+   "id": "Water",
+   "kind": "water",
+   "lo": [7168, 4864, -16],
+   "spot": [7424.0, 5120.0, -16.0],
+   "surface": 18,
+   "title": "Shallow water pool 16 deep",
+   "yaw": 0
+  }
+ ],
+ "units": "uu, UE space (Z up, yaw 16384 = +Y)",
+ "zones": [
+  {
+   "ambient": 0,
+   "hi": [2304.0, 2048.0, 384.0],
+   "id": "ZoneRoom",
+   "lo": [256.0, 1536.0, 0.0],
+   "name": "Gradient Room"
+  },
+  {
+   "ambient": 16,
+   "hi": [8192.0, 6144.0, 1024.0],
+   "id": "ZoneHall",
+   "lo": [0.0, 0.0, -16.0],
+   "name": "Hall"
+  }
+ ]
+}

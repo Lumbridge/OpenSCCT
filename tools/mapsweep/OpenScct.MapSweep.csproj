@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Map sweep (docs/MAPS.md): loads every converted Story and Deathmatch map offline with bots, plays it at high
+       speed on the inline host and reports load problems, bad spawns, pawns out of the world or stuck, bots that cannot
+       get anywhere, objectives out of reach, exceptions and slow frames. A test tool, not a sim library. -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>OpenScct.MapSweep</RootNamespace>
+    <IsPackable>false</IsPackable>
+    <DefaultItemExcludes>$(DefaultItemExcludes);Tests/**</DefaultItemExcludes>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\OpenScct.Server\OpenScct.Server.csproj" />
+    <ProjectReference Include="..\..\src\OpenScct.Bots\OpenScct.Bots.csproj" />
+  </ItemGroup>
+  <!-- The Godot-free play session, so a map is played the way offline play hosts it. -->
+  <ItemGroup>
+    <Compile Include="..\..\game\Scripts\Play\Session\*.cs" Link="Linked\PlaySession\%(Filename)%(Extension)" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="OpenScct.MapSweep.Tests" />
+  </ItemGroup>
+</Project>

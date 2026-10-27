@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="$(RepoRoot)build/Test.props" />
+  <PropertyGroup>
+    <RootNamespace>OpenScct.Content.Tests</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\OpenScct.Content\OpenScct.Content.csproj" />
+    <!-- The all-maps load test also loads with the game's classes (generated SBase classes and the device ports). -->
+    <ProjectReference Include="..\..\src\OpenScct.Game\OpenScct.Game.csproj" />
+  </ItemGroup>
+</Project>

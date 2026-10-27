@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Coverage report: joins re/inventory/inventory.json with the provenance attributes of the built assemblies,
+       coverage/status.yaml, the spec Units lists and the difftest scenarios, and writes docs/progress.
+       A build tool, not a sim library. It reads the other projects' bin output as metadata and references none of
+       them, so it builds and runs while other projects are broken; build the solution first for a fresh report. -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>OpenScct.Coverage</RootNamespace>
+    <IsPackable>false</IsPackable>
+    <!-- The test project lives in Tests/ below this folder; keep its files out of this project. -->
+    <DefaultItemExcludes>$(DefaultItemExcludes);Tests/**</DefaultItemExcludes>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="YamlDotNet" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="OpenScct.Coverage.Tests" />
+  </ItemGroup>
+</Project>

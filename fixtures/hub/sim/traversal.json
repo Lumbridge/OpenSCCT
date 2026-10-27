@@ -1,0 +1,1192 @@
+{
+ "activationMask": 0,
+ "formatVersion": "1.1.0",
+ "ges": [
+  {
+   "activeAtStart": true,
+   "id": "FountainLGS",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [5888.0, 5888.0, 96.0],
+    [6400.0, 5888.0, 96.0]
+   ],
+   "src": {"kind": "synthetic", "note": "basin lip: vault or climb"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "FountainLGN",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [6400.0, 6400.0, 96.0],
+    [5888.0, 6400.0, 96.0]
+   ],
+   "src": {"kind": "synthetic", "note": "basin lip: vault or climb"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "FountainLGW",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [5888.0, 6400.0, 96.0],
+    [5888.0, 5888.0, 96.0]
+   ],
+   "src": {"kind": "synthetic", "note": "basin lip: vault or climb"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "FountainLGE",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [6400.0, 5888.0, 96.0],
+    [6400.0, 6400.0, 96.0]
+   ],
+   "src": {"kind": "synthetic", "note": "basin lip: vault or climb"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "FountainLADDER",
+   "kind": "LADDER",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [6144.0, 6076.0, 96.0],
+    [6144.0, 6076.0, 416.0],
+    [6144.0, 6066.0, 96.0]
+   ],
+   "src": {"kind": "synthetic", "note": "from the basin up the column, top flush"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "FountainTopLG",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [6080.0, 6080.0, 416.0],
+    [6208.0, 6080.0, 416.0]
+   ],
+   "src": {"kind": "synthetic", "note": "column top, south lip"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Ledge128LG",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [3072.0, 11776.0, 128.0],
+    [3328.0, 11776.0, 128.0]
+   ],
+   "src": {"kind": "synthetic", "note": "under the hang height: hop-up"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Ledge208LG",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [3584.0, 11776.0, 208.0],
+    [3840.0, 11776.0, 208.0]
+   ],
+   "src": {"kind": "synthetic", "note": "lowest hang and climb"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Ledge264LG",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [4096.0, 11776.0, 264.0],
+    [4352.0, 11776.0, 264.0]
+   ],
+   "src": {"kind": "synthetic", "note": "container lip height"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Ledge320LG",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [4608.0, 11776.0, 320.0],
+    [4864.0, 11776.0, 320.0]
+   ],
+   "src": {"kind": "synthetic", "note": "highest standing-jump grab"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "WallJump408LG",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [5120.0, 11776.0, 408.0],
+    [5504.0, 11776.0, 408.0]
+   ],
+   "src": {"kind": "synthetic", "note": "wall jump: kick up to this lip"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Pipe512PIPE",
+   "kind": "PIPE",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [5888.0, 11760.0, 0.0],
+    [5888.0, 11760.0, 512.0],
+    [5888.0, 11750.0, 0.0]
+   ],
+   "src": {"kind": "synthetic", "note": "bottom, top flush with the block top, side 10 toward the climber"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Ladder320LADDER",
+   "kind": "LADDER",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [6400.0, 11772.0, 0.0],
+    [6400.0, 11772.0, 320.0],
+    [6400.0, 11762.0, 0.0]
+   ],
+   "src": {"kind": "synthetic", "note": "bottom, top flush with the block top, side 10 toward the climber"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Vault96LGS",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [3072.0, 10240.0, 96.0],
+    [3456.0, 10240.0, 96.0]
+   ],
+   "src": {"kind": "synthetic", "note": "barrier lip, south face"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Vault96LGN",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [3072.0, 10272.0, 96.0],
+    [3456.0, 10272.0, 96.0]
+   ],
+   "src": {"kind": "synthetic", "note": "barrier lip, north face"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Fence376FENCE",
+   "kind": "FENCE",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [3840.0, 10256.0, 376.0],
+    [4224.0, 10256.0, 376.0]
+   ],
+   "src": {"kind": "synthetic", "note": "climbable both faces, nothing above"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Hoh277HOH",
+   "kind": "HOH",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [4672.0, 10256.0, 277.0],
+    [5312.0, 10256.0, 277.0]
+   ],
+   "src": {"kind": "synthetic", "note": "bar underside 1 under the line"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Tower600LADDER",
+   "kind": "LADDER",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [8700.0, 10240.0, 384.0],
+    [8700.0, 10240.0, 600.0],
+    [8690.0, 10240.0, 384.0]
+   ],
+   "src": {"kind": "synthetic", "note": "from the deck to the tower top, flush"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Deck384LGS",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [8192.0, 9344.0, 384.0],
+    [8960.0, 9344.0, 384.0]
+   ],
+   "src": {"kind": "synthetic", "note": "deck lip"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Deck384LGW",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [8192.0, 10368.0, 384.0],
+    [8192.0, 9984.0, 384.0]
+   ],
+   "src": {"kind": "synthetic", "note": "deck lip"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "ZipLineZL",
+   "kind": "ZL",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [8576.0, 7696.0, 368.0],
+    [8576.0, 9456.0, 688.0]
+   ],
+   "src": {"kind": "synthetic", "note": "high end 304 over the deck, low end over the landing deck"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "ZipLandingLGS",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [8448.0, 7424.0, 160.0],
+    [8704.0, 7424.0, 160.0]
+   ],
+   "src": {"kind": "synthetic", "note": "landing deck lip, climb back up"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Pad1RailS0LGS",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [9216.0, 4568.0, 96.0],
+    [9600.0, 4568.0, 96.0]
+   ],
+   "src": {"kind": "synthetic", "note": "rail top, south face"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Pad1RailS0LGN",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [9600.0, 4584.0, 96.0],
+    [9216.0, 4584.0, 96.0]
+   ],
+   "src": {"kind": "synthetic", "note": "rail top, north face"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Pad1RailS1LGS",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [9856.0, 4568.0, 96.0],
+    [10240.0, 4568.0, 96.0]
+   ],
+   "src": {"kind": "synthetic", "note": "rail top, south face"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Pad1RailS1LGN",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [10240.0, 4584.0, 96.0],
+    [9856.0, 4584.0, 96.0]
+   ],
+   "src": {"kind": "synthetic", "note": "rail top, north face"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Pad1RailN0LGS",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [9216.0, 5656.0, 96.0],
+    [9600.0, 5656.0, 96.0]
+   ],
+   "src": {"kind": "synthetic", "note": "rail top, south face"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Pad1RailN0LGN",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [9600.0, 5672.0, 96.0],
+    [9216.0, 5672.0, 96.0]
+   ],
+   "src": {"kind": "synthetic", "note": "rail top, north face"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Pad1RailN1LGS",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [9856.0, 5656.0, 96.0],
+    [10240.0, 5656.0, 96.0]
+   ],
+   "src": {"kind": "synthetic", "note": "rail top, south face"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Pad1RailN1LGN",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [10240.0, 5672.0, 96.0],
+    [9856.0, 5672.0, 96.0]
+   ],
+   "src": {"kind": "synthetic", "note": "rail top, north face"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Pad1RailW0LGW",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [9176.0, 4992.0, 96.0],
+    [9176.0, 4608.0, 96.0]
+   ],
+   "src": {"kind": "synthetic", "note": "rail top, west face"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Pad1RailW0LGE",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [9192.0, 4608.0, 96.0],
+    [9192.0, 4992.0, 96.0]
+   ],
+   "src": {"kind": "synthetic", "note": "rail top, east face"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Pad1RailW1LGW",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [9176.0, 5632.0, 96.0],
+    [9176.0, 5248.0, 96.0]
+   ],
+   "src": {"kind": "synthetic", "note": "rail top, west face"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Pad1RailW1LGE",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [9192.0, 5248.0, 96.0],
+    [9192.0, 5632.0, 96.0]
+   ],
+   "src": {"kind": "synthetic", "note": "rail top, east face"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Pad1RailE0LGW",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [10264.0, 4992.0, 96.0],
+    [10264.0, 4608.0, 96.0]
+   ],
+   "src": {"kind": "synthetic", "note": "rail top, west face"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Pad1RailE0LGE",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [10280.0, 4608.0, 96.0],
+    [10280.0, 4992.0, 96.0]
+   ],
+   "src": {"kind": "synthetic", "note": "rail top, east face"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Pad1RailE1LGW",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [10264.0, 5632.0, 96.0],
+    [10264.0, 5248.0, 96.0]
+   ],
+   "src": {"kind": "synthetic", "note": "rail top, west face"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Pad1RailE1LGE",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [10280.0, 5248.0, 96.0],
+    [10280.0, 5632.0, 96.0]
+   ],
+   "src": {"kind": "synthetic", "note": "rail top, east face"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Pad2RailS0LGS",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [10496.0, 4568.0, 96.0],
+    [10880.0, 4568.0, 96.0]
+   ],
+   "src": {"kind": "synthetic", "note": "rail top, south face"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Pad2RailS0LGN",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [10880.0, 4584.0, 96.0],
+    [10496.0, 4584.0, 96.0]
+   ],
+   "src": {"kind": "synthetic", "note": "rail top, north face"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Pad2RailS1LGS",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [11136.0, 4568.0, 96.0],
+    [11520.0, 4568.0, 96.0]
+   ],
+   "src": {"kind": "synthetic", "note": "rail top, south face"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Pad2RailS1LGN",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [11520.0, 4584.0, 96.0],
+    [11136.0, 4584.0, 96.0]
+   ],
+   "src": {"kind": "synthetic", "note": "rail top, north face"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Pad2RailN0LGS",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [10496.0, 5656.0, 96.0],
+    [10880.0, 5656.0, 96.0]
+   ],
+   "src": {"kind": "synthetic", "note": "rail top, south face"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Pad2RailN0LGN",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [10880.0, 5672.0, 96.0],
+    [10496.0, 5672.0, 96.0]
+   ],
+   "src": {"kind": "synthetic", "note": "rail top, north face"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Pad2RailN1LGS",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [11136.0, 5656.0, 96.0],
+    [11520.0, 5656.0, 96.0]
+   ],
+   "src": {"kind": "synthetic", "note": "rail top, south face"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Pad2RailN1LGN",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [11520.0, 5672.0, 96.0],
+    [11136.0, 5672.0, 96.0]
+   ],
+   "src": {"kind": "synthetic", "note": "rail top, north face"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Pad2RailW0LGW",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [10456.0, 4992.0, 96.0],
+    [10456.0, 4608.0, 96.0]
+   ],
+   "src": {"kind": "synthetic", "note": "rail top, west face"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Pad2RailW0LGE",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [10472.0, 4608.0, 96.0],
+    [10472.0, 4992.0, 96.0]
+   ],
+   "src": {"kind": "synthetic", "note": "rail top, east face"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Pad2RailW1LGW",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [10456.0, 5632.0, 96.0],
+    [10456.0, 5248.0, 96.0]
+   ],
+   "src": {"kind": "synthetic", "note": "rail top, west face"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Pad2RailW1LGE",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [10472.0, 5248.0, 96.0],
+    [10472.0, 5632.0, 96.0]
+   ],
+   "src": {"kind": "synthetic", "note": "rail top, east face"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Pad2RailE0LGW",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [11544.0, 4992.0, 96.0],
+    [11544.0, 4608.0, 96.0]
+   ],
+   "src": {"kind": "synthetic", "note": "rail top, west face"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Pad2RailE0LGE",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [11560.0, 4608.0, 96.0],
+    [11560.0, 4992.0, 96.0]
+   ],
+   "src": {"kind": "synthetic", "note": "rail top, east face"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Pad2RailE1LGW",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [11544.0, 5632.0, 96.0],
+    [11544.0, 5248.0, 96.0]
+   ],
+   "src": {"kind": "synthetic", "note": "rail top, west face"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Pad2RailE1LGE",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [11560.0, 5248.0, 96.0],
+    [11560.0, 5632.0, 96.0]
+   ],
+   "src": {"kind": "synthetic", "note": "rail top, east face"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Pad3RailS0LGS",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [9216.0, 6232.0, 96.0],
+    [9600.0, 6232.0, 96.0]
+   ],
+   "src": {"kind": "synthetic", "note": "rail top, south face"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Pad3RailS0LGN",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [9600.0, 6248.0, 96.0],
+    [9216.0, 6248.0, 96.0]
+   ],
+   "src": {"kind": "synthetic", "note": "rail top, north face"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Pad3RailS1LGS",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [9856.0, 6232.0, 96.0],
+    [10240.0, 6232.0, 96.0]
+   ],
+   "src": {"kind": "synthetic", "note": "rail top, south face"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Pad3RailS1LGN",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [10240.0, 6248.0, 96.0],
+    [9856.0, 6248.0, 96.0]
+   ],
+   "src": {"kind": "synthetic", "note": "rail top, north face"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Pad3RailN0LGS",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [9216.0, 7320.0, 96.0],
+    [9600.0, 7320.0, 96.0]
+   ],
+   "src": {"kind": "synthetic", "note": "rail top, south face"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Pad3RailN0LGN",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [9600.0, 7336.0, 96.0],
+    [9216.0, 7336.0, 96.0]
+   ],
+   "src": {"kind": "synthetic", "note": "rail top, north face"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Pad3RailN1LGS",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [9856.0, 7320.0, 96.0],
+    [10240.0, 7320.0, 96.0]
+   ],
+   "src": {"kind": "synthetic", "note": "rail top, south face"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Pad3RailN1LGN",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [10240.0, 7336.0, 96.0],
+    [9856.0, 7336.0, 96.0]
+   ],
+   "src": {"kind": "synthetic", "note": "rail top, north face"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Pad3RailW0LGW",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [9176.0, 6656.0, 96.0],
+    [9176.0, 6272.0, 96.0]
+   ],
+   "src": {"kind": "synthetic", "note": "rail top, west face"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Pad3RailW0LGE",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [9192.0, 6272.0, 96.0],
+    [9192.0, 6656.0, 96.0]
+   ],
+   "src": {"kind": "synthetic", "note": "rail top, east face"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Pad3RailW1LGW",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [9176.0, 7296.0, 96.0],
+    [9176.0, 6912.0, 96.0]
+   ],
+   "src": {"kind": "synthetic", "note": "rail top, west face"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Pad3RailW1LGE",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [9192.0, 6912.0, 96.0],
+    [9192.0, 7296.0, 96.0]
+   ],
+   "src": {"kind": "synthetic", "note": "rail top, east face"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Pad3RailE0LGW",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [10264.0, 6656.0, 96.0],
+    [10264.0, 6272.0, 96.0]
+   ],
+   "src": {"kind": "synthetic", "note": "rail top, west face"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Pad3RailE0LGE",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [10280.0, 6272.0, 96.0],
+    [10280.0, 6656.0, 96.0]
+   ],
+   "src": {"kind": "synthetic", "note": "rail top, east face"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Pad3RailE1LGW",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [10264.0, 7296.0, 96.0],
+    [10264.0, 6912.0, 96.0]
+   ],
+   "src": {"kind": "synthetic", "note": "rail top, west face"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Pad3RailE1LGE",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [10280.0, 6912.0, 96.0],
+    [10280.0, 7296.0, 96.0]
+   ],
+   "src": {"kind": "synthetic", "note": "rail top, east face"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Pad4RailS0LGS",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [10496.0, 6232.0, 96.0],
+    [10880.0, 6232.0, 96.0]
+   ],
+   "src": {"kind": "synthetic", "note": "rail top, south face"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Pad4RailS0LGN",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [10880.0, 6248.0, 96.0],
+    [10496.0, 6248.0, 96.0]
+   ],
+   "src": {"kind": "synthetic", "note": "rail top, north face"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Pad4RailS1LGS",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [11136.0, 6232.0, 96.0],
+    [11520.0, 6232.0, 96.0]
+   ],
+   "src": {"kind": "synthetic", "note": "rail top, south face"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Pad4RailS1LGN",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [11520.0, 6248.0, 96.0],
+    [11136.0, 6248.0, 96.0]
+   ],
+   "src": {"kind": "synthetic", "note": "rail top, north face"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Pad4RailN0LGS",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [10496.0, 7320.0, 96.0],
+    [10880.0, 7320.0, 96.0]
+   ],
+   "src": {"kind": "synthetic", "note": "rail top, south face"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Pad4RailN0LGN",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [10880.0, 7336.0, 96.0],
+    [10496.0, 7336.0, 96.0]
+   ],
+   "src": {"kind": "synthetic", "note": "rail top, north face"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Pad4RailN1LGS",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [11136.0, 7320.0, 96.0],
+    [11520.0, 7320.0, 96.0]
+   ],
+   "src": {"kind": "synthetic", "note": "rail top, south face"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Pad4RailN1LGN",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [11520.0, 7336.0, 96.0],
+    [11136.0, 7336.0, 96.0]
+   ],
+   "src": {"kind": "synthetic", "note": "rail top, north face"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Pad4RailW0LGW",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [10456.0, 6656.0, 96.0],
+    [10456.0, 6272.0, 96.0]
+   ],
+   "src": {"kind": "synthetic", "note": "rail top, west face"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Pad4RailW0LGE",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [10472.0, 6272.0, 96.0],
+    [10472.0, 6656.0, 96.0]
+   ],
+   "src": {"kind": "synthetic", "note": "rail top, east face"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Pad4RailW1LGW",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [10456.0, 7296.0, 96.0],
+    [10456.0, 6912.0, 96.0]
+   ],
+   "src": {"kind": "synthetic", "note": "rail top, west face"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Pad4RailW1LGE",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [10472.0, 6912.0, 96.0],
+    [10472.0, 7296.0, 96.0]
+   ],
+   "src": {"kind": "synthetic", "note": "rail top, east face"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Pad4RailE0LGW",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [11544.0, 6656.0, 96.0],
+    [11544.0, 6272.0, 96.0]
+   ],
+   "src": {"kind": "synthetic", "note": "rail top, west face"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Pad4RailE0LGE",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [11560.0, 6272.0, 96.0],
+    [11560.0, 6656.0, 96.0]
+   ],
+   "src": {"kind": "synthetic", "note": "rail top, east face"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Pad4RailE1LGW",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [11544.0, 7296.0, 96.0],
+    [11544.0, 6912.0, 96.0]
+   ],
+   "src": {"kind": "synthetic", "note": "rail top, west face"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Pad4RailE1LGE",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [11560.0, 6912.0, 96.0],
+    [11560.0, 7296.0, 96.0]
+   ],
+   "src": {"kind": "synthetic", "note": "rail top, east face"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "RangeCounterLGE",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [3072.0, 4864.0, 80.0],
+    [3072.0, 7424.0, 80.0]
+   ],
+   "src": {"kind": "synthetic", "note": "counter top, shooter side"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "CourseVaultLGW",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [3840.0, 2304.0, 96.0],
+    [3840.0, 1536.0, 96.0]
+   ],
+   "src": {"kind": "synthetic", "note": "vault wall, west face"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "CourseVaultLGE",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [3872.0, 1536.0, 96.0],
+    [3872.0, 2304.0, 96.0]
+   ],
+   "src": {"kind": "synthetic", "note": "vault wall, east face"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "CourseClimbLGW",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [4352.0, 2304.0, 208.0],
+    [4352.0, 1536.0, 208.0]
+   ],
+   "src": {"kind": "synthetic", "note": "climb block, west face"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "CourseClimbLGE",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [4864.0, 1536.0, 208.0],
+    [4864.0, 2304.0, 208.0]
+   ],
+   "src": {"kind": "synthetic", "note": "climb block, east face"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "CourseFenceFENCE",
+   "kind": "FENCE",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [5252.0, 1536.0, 376.0],
+    [5252.0, 2304.0, 376.0]
+   ],
+   "src": {"kind": "synthetic", "note": "climbable both faces"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "CourseHohHOH",
+   "kind": "HOH",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [5696.0, 1920.0, 277.0],
+    [6336.0, 1920.0, 277.0]
+   ],
+   "src": {"kind": "synthetic", "note": "bar underside 1 under the line"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "CourseTowerPIPE",
+   "kind": "PIPE",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [6896.0, 1920.0, 0.0],
+    [6896.0, 1920.0, 384.0],
+    [6886.0, 1920.0, 0.0]
+   ],
+   "src": {"kind": "synthetic", "note": "bottom, top flush with the tower top, side 10 toward the climber"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "CourseTowerLADDER",
+   "kind": "LADDER",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [7168.0, 1788.0, 0.0],
+    [7168.0, 1788.0, 384.0],
+    [7168.0, 1778.0, 0.0]
+   ],
+   "src": {"kind": "synthetic", "note": "bottom, top flush with the tower top, side 10 toward the climber"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "CourseTowerLGE",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [7424.0, 1792.0, 384.0],
+    [7424.0, 2048.0, 384.0]
+   ],
+   "src": {"kind": "synthetic", "note": "tower top, east lip"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "CourseZipZL",
+   "kind": "ZL",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [9072.0, 1920.0, 368.0],
+    [7312.0, 1920.0, 688.0]
+   ],
+   "src": {
+    "kind": "synthetic",
+    "note": "high end 304 over the tower top, low end 208 over the finish deck"
+   }
+  },
+  {
+   "activeAtStart": true,
+   "id": "CourseFinishLGW",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [8832.0, 2048.0, 160.0],
+    [8832.0, 1792.0, 160.0]
+   ],
+   "src": {"kind": "synthetic", "note": "finish deck, west lip"}
+  }
+ ],
+ "map": "Hub"
+}

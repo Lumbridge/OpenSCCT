@@ -1,0 +1,34 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/OpenScct.Bots/OpenScct.Bots.csproj" />
+    <Project Path="src/OpenScct.Content/OpenScct.Content.csproj" />
+    <Project Path="src/OpenScct.Core/OpenScct.Core.csproj" />
+    <Project Path="src/OpenScct.Game/OpenScct.Game.csproj" />
+    <Project Path="src/OpenScct.Launcher.Core/OpenScct.Launcher.Core.csproj" />
+    <Project Path="src/OpenScct.Launcher/OpenScct.Launcher.csproj" />
+    <Project Path="src/OpenScct.Master/OpenScct.Master.csproj" />
+    <Project Path="src/OpenScct.Net/OpenScct.Net.csproj" />
+    <Project Path="src/OpenScct.Physics/OpenScct.Physics.csproj" />
+    <Project Path="src/OpenScct.Provenance/OpenScct.Provenance.csproj" />
+    <Project Path="src/OpenScct.Server.Cli/OpenScct.Server.Cli.csproj" />
+    <Project Path="src/OpenScct.Server/OpenScct.Server.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/OpenScct.Content.Tests/OpenScct.Content.Tests.csproj" />
+    <Project Path="tests/OpenScct.CodeGen.Tests/OpenScct.CodeGen.Tests.csproj" />
+    <Project Path="tests/OpenScct.Core.Tests/OpenScct.Core.Tests.csproj" />
+    <Project Path="tests/OpenScct.DiffTest/OpenScct.DiffTest.csproj" />
+    <Project Path="tests/OpenScct.Game.Tests/OpenScct.Game.Tests.csproj" />
+    <Project Path="tests/OpenScct.Integration.Tests/OpenScct.Integration.Tests.csproj" />
+    <Project Path="tests/OpenScct.Launcher.Tests/OpenScct.Launcher.Tests.csproj" />
+    <Project Path="tests/OpenScct.Net.Tests/OpenScct.Net.Tests.csproj" />
+    <Project Path="tests/OpenScct.Physics.Tests/OpenScct.Physics.Tests.csproj" />
+    <Project Path="tests/OpenScctGame.Logic.Tests/OpenScctGame.Logic.Tests.csproj" />
+  </Folder>
+  <Folder Name="/tools/">
+    <Project Path="tools/OpenScct.CodeGen/OpenScct.CodeGen.csproj" />
+    <Project Path="tools/OpenScct.Coverage/OpenScct.Coverage.csproj" />
+    <Project Path="tools/OpenScct.Coverage/Tests/OpenScct.Coverage.Tests.csproj" />
+    <Project Path="tools/mapsweep/OpenScct.MapSweep.csproj" />
+  </Folder>
+</Solution>

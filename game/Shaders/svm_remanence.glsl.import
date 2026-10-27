@@ -1,0 +1,14 @@
+[remap]
+
+importer="glsl"
+type="RDShaderFile"
+uid="uid://c8gkj2qmtbi18"
+path="res://.godot/imported/svm_remanence.glsl-3b175cc4a1616f4b0efc9a7a4d4e06ab.res"
+
+[deps]
+
+source_file="res://Shaders/svm_remanence.glsl"
+dest_files=["res://.godot/imported/svm_remanence.glsl-3b175cc4a1616f4b0efc9a7a4d4e06ab.res"]
+
+[params]
+

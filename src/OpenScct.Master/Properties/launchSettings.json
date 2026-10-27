@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "OpenScct.Master": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "https://localhost:56166;http://localhost:56167"
+    }
+  }
+}

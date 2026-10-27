@@ -1,0 +1,20 @@
+{
+  "format": "svm.golden-poses/1",
+  "map": "SteeE",
+  "team": "spy",
+  "notes": "Twelve fixed views across SteeE for golden renders. 'pawn' is a pawn location (player starts); 'floor' is a floor point from the spot survey (re/tools/difftest/spots.py), and the pawn goes to floor + CollisionHeight + 2. Yaw and pitch are UE rotator units (65536 per turn) for the controller view.",
+  "poses": [
+    { "id": "spy-spawn", "kind": "indoor", "pawn": [-1418.131, 1751.364, -118.969], "yaw": -37240, "pitch": 0, "spot": "PlayerStart256, spy spawn room on the top floor" },
+    { "id": "merc-spawn", "kind": "indoor", "pawn": [-1547.605, -2329.877, -1041.977], "yaw": -53636, "pitch": 0, "spot": "PlayerStart3149, merc spawn" },
+    { "id": "basement", "kind": "indoor-dark", "pawn": [-1494.0, 2106.0, -1384.0], "yaw": 32768, "pitch": 0, "spot": "PlayerStart3838, basement under the blue building" },
+    { "id": "kitchen", "kind": "indoor", "pawn": [-3084.0, -932.0, -1088.0], "yaw": 16384, "pitch": 0, "spot": "PlayerStart3847, kitchen" },
+    { "id": "lounge", "kind": "indoor", "pawn": [-3084.0, -932.0, -440.0], "yaw": 16384, "pitch": 0, "spot": "PlayerStart3850, lounge" },
+    { "id": "shop", "kind": "indoor", "pawn": [-1627.537, -1739.941, -368.977], "yaw": -43160, "pitch": 0, "spot": "PlayerStart3826, shop floor above the merc spawn" },
+    { "id": "storage", "kind": "indoor-dark", "pawn": [-2826.0, 2093.0, -741.0], "yaw": 0, "pitch": 0, "spot": "PlayerStart3859, storage" },
+    { "id": "dark-room", "kind": "indoor-dark", "floor": [-2316.0, 2096.0, -167.5], "yaw": 49152, "pitch": 0, "spot": "lane on the top floor next to the dark room" },
+    { "id": "yard-east", "kind": "outdoor", "floor": [-492.0, -2032.0, -1143.5], "yaw": 16384, "pitch": 0, "spot": "east yard lane, heading +Y" },
+    { "id": "courtyard", "kind": "courtyard", "floor": [-2508.0, 176.0, -1143.5], "yaw": 0, "pitch": 0, "spot": "middle of the central yard, heading +X" },
+    { "id": "yard-north", "kind": "outdoor", "floor": [-3084.0, 1328.0, -1127.5], "yaw": 0, "pitch": 0, "spot": "north yard lane, heading +X" },
+    { "id": "crane", "kind": "crane", "floor": [-3084.0, 1328.0, -1127.5], "yaw": 0, "pitch": 8000, "spot": "north yard lane, looking up east at the crane" }
+  ]
+}

@@ -1,0 +1,103 @@
+{
+  "format": "svm.scenario/1",
+  "id": "moveset.spy-split-jump",
+  "title": "Spy jumps beside the north wall of the 191 uu pipe shaft, split jumps off it at the apex, braces between both walls (Vandamme) and drops with crouch",
+  "map": "SteeE",
+  "mode": "playlevel",
+  "players": [
+    {
+      "team": "spy"
+    }
+  ],
+  "spawn": {
+    "floor": [
+      -3369.0,
+      -1670.0,
+      -1191.5
+    ],
+    "yaw": 0,
+    "clearance": 2.0,
+    "spot": "pipe shaft floor, 37.5 uu from its north wall and 51 east of the pipe, facing along the shaft (+X)",
+    "notes": "The shaft at the foot of PIPE 21 (-3417, -1648): BSP walls (Brush4839) at y -1823.5 and -1632.5, 191 apart from the floor z -1191.5 to at least 500 above it; west wall x -3503.5; the pipe mesh stands out 16 from the north wall at x -3420 (a first trial 40 uu west of it, against the south wall, was stopped by the pipe 42.5 short of the north wall, too far for the brace; a second, 36.5 from the north wall, flew across and stopped 38.2 from the south wall: the falling wall pre-probe stops the pawn short of the wall by up to one frame step, and the brace wants under 38, so the spot is set 1 uu further south). East wall x -3328.5 from 200 over the floor; below it a ramp (21.8 degrees) leads in. CheckWallJump wants d1 + d2 in [182, 200) with one wall within R + 3 = 38. Found with re/tools/difftest/movespots.py (split)."
+  },
+  "setup": [
+    {
+      "op": "leaveGE",
+      "maxFrames": 240
+    },
+    {
+      "op": "teleport"
+    },
+    {
+      "op": "stance",
+      "crouched": false
+    },
+    {
+      "op": "fastSpeed",
+      "value": true
+    },
+    {
+      "op": "write",
+      "target": "pawn",
+      "field": "Health",
+      "value": 100
+    },
+    {
+      "op": "view",
+      "pitch": 0,
+      "yaw": 0
+    },
+    {
+      "op": "waitStill",
+      "maxFrames": 180
+    }
+  ],
+  "settleFrames": 30,
+  "durationFrames": 300,
+  "inputs": [
+    {
+      "frame": 0,
+      "jump": true,
+      "note": "jump on the spot"
+    },
+    {
+      "frame": 24,
+      "jump": true,
+      "note": "jump again at the apex (|Velocity.Z| < 150): CheckWallJump"
+    },
+    {
+      "frame": 150,
+      "buttons": {
+        "bCrouch": 1
+      },
+      "note": "crouch drops from the brace"
+    },
+    {
+      "frame": 153,
+      "buttons": {
+        "bCrouch": 0
+      }
+    }
+  ],
+  "repeats": 3,
+  "profile": "traversal",
+  "measure": {},
+  "covers": [
+    "nat:SBase.SBasePawn.MyDoJump",
+    "uc:SBase.SPlayerController:s_PlayerJump.PlayerMove",
+    "nat:SBase.SPlayerController.CheckWallJump",
+    "uc:SBase.SBasePawn:SetWallJumpDir",
+    "uc:SBase.SPlayerController:s_PreSplitJump.PlayerMove",
+    "uc:SBase.SPlayerController:s_PreSplitJump.ImpulsionSplit",
+    "uc:SBase.SBasePawn:ImpulsionSplit",
+    "uc:SBase.SPlayerController:ImpulsionSplit",
+    "uc:SBase.SPlayerController:s_SplitJump.PlayerMove",
+    "uc:SBase.SPlayerController:VandammeBegin.BeginState",
+    "uc:SBase.SPlayerController:VandammeBegin.PlayerMove",
+    "uc:SBase.SPlayerController:VandammeBegin.AnimEnd",
+    "uc:SBase.SPlayerController:Vandamme.BeginState",
+    "uc:SBase.SPlayerController:Vandamme.PlayerMove",
+    "uc:SBase.SBasePawn:SetInfoForVandamme",
+    "def:SBase.SPawnAttaque"
+  ]
+}

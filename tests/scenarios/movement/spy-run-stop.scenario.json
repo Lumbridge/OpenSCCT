@@ -1,0 +1,111 @@
+{
+  "format": "svm.scenario/1",
+  "id": "movement.spy-run-stop",
+  "title": "Spy runs 1.5 s and lets go, then taps forward for 6 frames and lets go",
+  "map": "SteeE",
+  "mode": "playlevel",
+  "players": [
+    {
+      "team": "spy"
+    }
+  ],
+  "spawn": {
+    "floor": [
+      -492.0,
+      -2032.0,
+      -1143.5
+    ],
+    "yaw": 16384,
+    "clearance": 2.0,
+    "spot": "east yard lane, heading +Y",
+    "notes": "BSP floor z -1143.5, normal z 1.0 every 16 uu for 1792 uu along +Y; a spy box widened by 25 uu sweeps the lane clear; nearest GE 599 uu (an LG 145 uu higher); zone ZoneInfo1913. Found with re/tools/difftest/spots.py (editor live point.info and trace.box)."
+  },
+  "setup": [
+    {
+      "op": "teleport"
+    },
+    {
+      "op": "stance",
+      "crouched": false
+    },
+    {
+      "op": "fastSpeed",
+      "value": true
+    },
+    {
+      "op": "write",
+      "target": "pawn",
+      "field": "Health",
+      "value": 100
+    },
+    {
+      "op": "view",
+      "pitch": 0,
+      "yaw": 16384
+    },
+    {
+      "op": "waitStill",
+      "maxFrames": 180
+    }
+  ],
+  "settleFrames": 30,
+  "durationFrames": 240,
+  "inputs": [
+    {
+      "frame": 0,
+      "buttons": {
+        "BT_Up": 1
+      },
+      "note": "run"
+    },
+    {
+      "frame": 90,
+      "buttons": {
+        "BT_Up": 0
+      },
+      "note": "let go: the stop"
+    },
+    {
+      "frame": 150,
+      "buttons": {
+        "BT_Up": 1
+      },
+      "note": "tap, let go before full speed"
+    },
+    {
+      "frame": 156,
+      "buttons": {
+        "BT_Up": 0
+      },
+      "note": "let go mid-ramp"
+    }
+  ],
+  "repeats": 3,
+  "profile": "locomotion",
+  "measure": {
+    "plateauSpeed": {
+      "from": 45,
+      "to": 90,
+      "expect": 423.5
+    },
+    "accelTime": {
+      "from": 0,
+      "fraction": 0.9
+    },
+    "decelTime": {
+      "from": 90,
+      "fraction": 0.1
+    },
+    "stopDistance": {
+      "from": 90,
+      "to": 149
+    }
+  },
+  "covers": [
+    "uc:SBase.SPlayerController:s_PlayerWalkingMario.PlayerMove",
+    "uc:SBase.SPlayerController:UpdatePawnRotationMario",
+    "uc:SBase.SPlayerController:GetSpeedMode",
+    "nat:SBase.SPlayerController.NativeComputeControlVariables",
+    "uc:SBase.SPlayerController:s_PlayerWalkingSt0H.PlayerTick"
+  ]
+}

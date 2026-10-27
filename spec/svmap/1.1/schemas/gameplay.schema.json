@@ -1,0 +1,356 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://svmap.invalid/1.1/gameplay.schema.json",
+  "title": "SVMap 1.1 sim/gameplay.json",
+  "description": "Placed actors with typed properties, plus indexes derived from them. Actors are in original level order.",
+  "type": "object",
+  "required": [
+    "formatVersion",
+    "map",
+    "levelInfo",
+    "mapSettings",
+    "actors",
+    "tagIndex",
+    "eventEdges",
+    "missionTree"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "formatVersion": {
+      "$ref": "common.schema.json#/$defs/formatVersion"
+    },
+    "map": {
+      "$ref": "common.schema.json#/$defs/mapId"
+    },
+    "levelInfo": {
+      "$ref": "#/$defs/levelInfo"
+    },
+    "mapSettings": {
+      "description": "Per game mode settings, keyed by mode name (Story, DiskHunt, Deathmatch...).",
+      "type": "object",
+      "propertyNames": {
+        "pattern": "^[A-Za-z][A-Za-z0-9]*$"
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/modeSettings"
+      }
+    },
+    "actors": {
+      "description": "Every placed actor except the LevelInfo, in level order (Level.Actors order after the LevelInfo).",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/actor"
+      }
+    },
+    "tagIndex": {
+      "description": "Derived: effective Tag -> ids of the actors carrying it, in level order (LevelInfo first). Keys use the spelling of the first carrier; matching ignores ASCII case.",
+      "type": "object",
+      "additionalProperties": {
+        "type": "array",
+        "items": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "minItems": 1,
+        "uniqueItems": true
+      }
+    },
+    "eventEdges": {
+      "description": "Derived: event edges of every actor (1.1 rules in README.md): fire edges from event-name properties at any depth, accept edges from sender filters, notify edges from the animation notifies of the sequences an actor plays.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/eventEdge"
+      }
+    },
+    "missionTree": {
+      "description": "Derived: SMission -> SObjective -> trigger actors, from the Objectives and Triggers properties.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/mission"
+      }
+    },
+    "animations": {
+      "description": "Animation sets of the skeletal meshes that actors use (keyed by the mesh asset path): sequences with frame counts, rates and notifies. Optional.",
+      "type": "object",
+      "propertyNames": {
+        "$ref": "common.schema.json#/$defs/assetPath"
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/animationSet"
+      }
+    }
+  },
+  "$defs": {
+    "actor": {
+      "type": "object",
+      "required": [
+        "id",
+        "class",
+        "props"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "class": {
+          "$ref": "common.schema.json#/$defs/classPath"
+        },
+        "props": {
+          "$ref": "common.schema.json#/$defs/props"
+        },
+        "src": {
+          "$ref": "#/$defs/src"
+        }
+      }
+    },
+    "src": {
+      "description": "Where the actor came from: the export index (1-based) in the original map package.",
+      "type": "object",
+      "required": [
+        "export"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "export": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "levelInfo": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/actor"
+        },
+        {
+          "properties": {
+            "class": {
+              "pattern": "LevelInfo$"
+            },
+            "props": {
+              "required": [
+                "GEActivationMask"
+              ],
+              "properties": {
+                "GEActivationMask": {
+                  "description": "GE ID bits live when the round starts; SGETrigger toggles bits at run time.",
+                  "$ref": "common.schema.json#/$defs/byte"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "modeSettings": {
+      "type": "object",
+      "propertyNames": {
+        "$ref": "common.schema.json#/$defs/propName"
+      },
+      "additionalProperties": {
+        "$ref": "common.schema.json#/$defs/propValue"
+      },
+      "properties": {
+        "TimeLimit": {
+          "description": "Minutes.",
+          "type": "integer",
+          "minimum": 0
+        },
+        "SpiesLives": {
+          "description": "Lives per spy player.",
+          "type": "integer",
+          "minimum": 0
+        },
+        "SentriesLives": {
+          "description": "Lives per merc player.",
+          "type": "integer",
+          "minimum": 0
+        },
+        "RespawnTime": {
+          "description": "Seconds.",
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "eventEdge": {
+      "type": "object",
+      "required": [
+        "from",
+        "via",
+        "event",
+        "to"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "from": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "via": {
+          "$ref": "common.schema.json#/$defs/propPath"
+        },
+        "event": {
+          "type": "string",
+          "minLength": 1
+        },
+        "to": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/id"
+          },
+          "uniqueItems": true
+        },
+        "kind": {
+          "description": "fire (default when absent), accept or notify.",
+          "enum": [
+            "accept",
+            "notify"
+          ]
+        },
+        "seq": {
+          "description": "notify: the sequence.",
+          "type": "string"
+        },
+        "time": {
+          "description": "notify: seconds into the sequence at rate 1 (float32 of t * frames / rate).",
+          "type": "number"
+        },
+        "notify": {
+          "description": "notify: the notify object asset path.",
+          "type": "string"
+        }
+      }
+    },
+    "mission": {
+      "type": "object",
+      "required": [
+        "mission",
+        "objectives"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "mission": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "gameMode": {
+          "$ref": "common.schema.json#/$defs/byte"
+        },
+        "minimumObjectives": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "objectives": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "objective",
+              "triggers"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "objective": {
+                "$ref": "common.schema.json#/$defs/id"
+              },
+              "triggers": {
+                "type": "array",
+                "items": {
+                  "$ref": "common.schema.json#/$defs/id"
+                }
+              }
+            }
+          }
+        },
+        "triggers": {
+          "description": "The mission's own Triggers (Disk Hunt missions list their disks here).",
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/id"
+          }
+        }
+      }
+    },
+    "animationSet": {
+      "type": "object",
+      "required": [
+        "animation",
+        "sequences"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "animation": {
+          "description": "Asset path of the MeshAnimation.",
+          "$ref": "common.schema.json#/$defs/assetPath"
+        },
+        "sequences": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/sequence"
+          }
+        }
+      }
+    },
+    "sequence": {
+      "type": "object",
+      "required": [
+        "frames",
+        "rate",
+        "notifies"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "frames": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "rate": {
+          "description": "Frames per second at play rate 1.",
+          "type": "number"
+        },
+        "startFrame": {
+          "type": "integer"
+        },
+        "groups": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "notifies": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/notify"
+          }
+        }
+      }
+    },
+    "notify": {
+      "type": "object",
+      "required": [
+        "time"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "time": {
+          "description": "Normalized time over the sequence, 0..1 (float32).",
+          "type": "number"
+        },
+        "function": {
+          "description": "Script function name (None for notify objects).",
+          "type": "string"
+        },
+        "object": {
+          "description": "Asset path of the notify object.",
+          "type": "string"
+        },
+        "class": {
+          "description": "Its class (Engine.AnimNotify_Trigger, Engine.AnimNotify_Sound, ...).",
+          "type": "string"
+        },
+        "props": {
+          "$ref": "common.schema.json#/$defs/props"
+        }
+      }
+    }
+  }
+}

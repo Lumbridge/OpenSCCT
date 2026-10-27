@@ -1,0 +1,65 @@
+{
+  "format": "svm.combat/1",
+  "id": "combat.grab-ko",
+  "title": "Spy grabs a merc from behind, then Fire: the knock-out (51) and the merc lying down",
+  "map": "SteeE",
+  "mode": "playlevel",
+  "local": {
+    "team": "spy",
+    "floor": [
+      -492.0,
+      -1622.0,
+      -1143.5
+    ],
+    "yaw": 16384,
+    "crouched": false
+  },
+  "target": {
+    "team": "merc",
+    "floor": [
+      -492.0,
+      -1532.0,
+      -1143.5
+    ],
+    "yaw": 16384,
+    "crouched": false
+  },
+  "settleFrames": 30,
+  "durationFrames": 1000,
+  "events": [
+    {
+      "frame": 10,
+      "do": "buttons",
+      "buttons": {
+        "bUsing": 1
+      }
+    },
+    {
+      "frame": 14,
+      "do": "buttons",
+      "buttons": {
+        "bUsing": 0
+      }
+    },
+    {
+      "frame": 160,
+      "do": "fire"
+    },
+    {
+      "frame": 161,
+      "do": "fireUp"
+    }
+  ],
+  "repeats": 2,
+  "measure": {
+    "states": {}
+  },
+  "covers": [
+    "uc:SBase.SPlayerController:AskToGrabPawn",
+    "uc:SBase.SPlayerController:CanGrabPawn",
+    "uc:SBase.SPlayerController:AskServerToGrabPawn",
+    "uc:SBase.SPlayerController:GrabServerReleaseRequest"
+  ],
+  "spot": "SteeE east yard lane (x -492, floor z -1143.5, clear for 1792 uu along +Y from y -2032; found with re/tools/difftest/spots.py for the R4 locomotion recordings)",
+  "notes": "The spy stands 90 uu behind the merc, both facing +Y; Use starts the grab."
+}

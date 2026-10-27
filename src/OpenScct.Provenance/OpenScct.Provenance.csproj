@@ -1,0 +1,6 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="$(RepoRoot)build/Sim.props" />
+  <PropertyGroup>
+    <RootNamespace>OpenScct.Provenance</RootNamespace>
+  </PropertyGroup>
+</Project>

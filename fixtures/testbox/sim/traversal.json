@@ -1,0 +1,39 @@
+{
+ "formatVersion": "1.0.0",
+ "ges": [
+  {
+   "id": "GE0",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [128.0, 832.0, 224.0],
+    [384.0, 832.0, 224.0]
+   ],
+   "src": {"kind": "synthetic", "note": "Room A ledge block"}
+  },
+  {
+   "id": "GE1",
+   "kind": "LG",
+   "mask": 4,
+   "platform": 0,
+   "points": [
+    [1600.0, 832.0, 280.0],
+    [2240.0, 832.0, 280.0]
+   ],
+   "src": {"kind": "synthetic", "note": "Room B mezzanine edge, cleared by SGETrigger0"}
+  },
+  {
+   "id": "GE2",
+   "kind": "ZL",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [1600.0, 960.0, 400.0],
+    [2400.0, 128.0, 150.0]
+   ],
+   "src": {"kind": "synthetic", "note": "Room B zip line"}
+  }
+ ],
+ "map": "TestBox"
+}

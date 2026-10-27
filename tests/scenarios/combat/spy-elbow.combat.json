@@ -1,0 +1,55 @@
+{
+  "format": "svm.combat/1",
+  "id": "combat.spy-elbow",
+  "title": "Spy elbow strike on a merc facing him 110 uu away",
+  "map": "SteeE",
+  "mode": "playlevel",
+  "local": {
+    "team": "spy",
+    "floor": [
+      -492.0,
+      -1642.0,
+      -1143.5
+    ],
+    "yaw": 16384,
+    "crouched": false
+  },
+  "target": {
+    "team": "merc",
+    "floor": [
+      -492.0,
+      -1532.0,
+      -1143.5
+    ],
+    "yaw": 49152,
+    "crouched": false
+  },
+  "settleFrames": 30,
+  "durationFrames": 240,
+  "events": [
+    {
+      "frame": 10,
+      "do": "buttons",
+      "buttons": {
+        "bUsing": 1
+      }
+    },
+    {
+      "frame": 14,
+      "do": "buttons",
+      "buttons": {
+        "bUsing": 0
+      }
+    }
+  ],
+  "repeats": 2,
+  "measure": {
+    "states": {}
+  },
+  "covers": [
+    "uc:SBase.SPlayerController:FindPawnToElbowShotAndGoForIt",
+    "uc:SBase.SPlayerController:AskServerToElbowAttack",
+    "uc:SBase.SPlayerController:Handle_ElbowDmg"
+  ],
+  "spot": "SteeE east yard lane (x -492, floor z -1143.5, clear for 1792 uu along +Y from y -2032; found with re/tools/difftest/spots.py for the R4 locomotion recordings)"
+}

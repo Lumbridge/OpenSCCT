@@ -1,0 +1,109 @@
+{
+  "format": "svm.scenario/1",
+  "id": "traversal.spy-ledge-pull-up",
+  "title": "Spy hangs from the container ledge and pulls up with forward, standing on the top",
+  "map": "SteeE",
+  "mode": "playlevel",
+  "players": [
+    {
+      "team": "spy"
+    }
+  ],
+  "spawn": {
+    "floor": [
+      -2000.0,
+      150.0,
+      -1143.5
+    ],
+    "yaw": 16384,
+    "clearance": 2.0,
+    "spot": "yard south of container A, 100 uu from its south wall, facing it (+Y)",
+    "notes": "LG 104 runs along the container top's south lip, (-2172.6, 286, -880) to (-1632.6, 286, -880), 263.5 above the yard floor z -1143.5 (flat, normal z 1). A standing spy box swept toward the wall stops 36 uu from the lip line (contact y 250); headroom over that spot 164 uu; the top has room for a standing and a crouched spy. Both ends are outside corners shared with LG 103 and LG 102. Found with re/tools/difftest/gespots.py (jumpGrab)."
+  },
+  "setup": [
+    {
+      "op": "leaveGE",
+      "maxFrames": 240
+    },
+    {
+      "op": "teleport"
+    },
+    {
+      "op": "stance",
+      "crouched": false
+    },
+    {
+      "op": "fastSpeed",
+      "value": true
+    },
+    {
+      "op": "write",
+      "target": "pawn",
+      "field": "Health",
+      "value": 100
+    },
+    {
+      "op": "view",
+      "pitch": 0,
+      "yaw": 16384
+    },
+    {
+      "op": "waitStill",
+      "maxFrames": 180
+    }
+  ],
+  "settleFrames": 30,
+  "durationFrames": 260,
+  "inputs": [
+    {
+      "frame": 0,
+      "buttons": {
+        "BT_Up": 1
+      },
+      "note": "walk the last 100 uu to the wall (fast mode)"
+    },
+    {
+      "frame": 40,
+      "buttons": {
+        "BT_Up": 0
+      },
+      "note": "let go at the wall: GroundSpeed 0, so the jump is not a wall jump"
+    },
+    {
+      "frame": 55,
+      "jump": true,
+      "note": "jump on the spot under the lip"
+    },
+    {
+      "frame": 100,
+      "buttons": {
+        "BT_Up": 1
+      },
+      "note": "forward: TestTopLedge, standing climb"
+    },
+    {
+      "frame": 110,
+      "buttons": {
+        "BT_Up": 0
+      }
+    }
+  ],
+  "repeats": 3,
+  "profile": "traversal",
+  "measure": {},
+  "covers": [
+    "uc:SBase.SPlayerController:s_PlayerJump.Ledge",
+    "uc:SBase.SPlayerController:GrabLedge.BeginState",
+    "uc:SBase.SPlayerController:GrabLedge.PlayerMove",
+    "uc:SBase.SPlayerController:GrabLedge.TopSynchro",
+    "uc:SBase.SPlayerController:GrabLedge.AnimEnd",
+    "uc:SBase.SPlayerController:OnLedge.BeginState",
+    "uc:SBase.SPlayerController:OnLedge.PlayerMove",
+    "nat:SBase.SPlayerController.CheckArmsZone",
+    "uc:SBase.SBasePawn:SetLedgeGrabZones",
+    "def:SBase.SPawnAttaque",
+    "nat:SBase.SPlayerController.TestTopLedge",
+    "uc:SBase.SPlayerController:TopLedge.PlayerMove",
+    "uc:SBase.SPlayerController:TopLedge.AnimEnd"
+  ]
+}

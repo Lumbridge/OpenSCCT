@@ -1,0 +1,83 @@
+{
+  "format": "svm.scenario/1",
+  "id": "combat.merc-fall-ledge",
+  "title": "Merc walks off a 790 uu roof edge, falls, lands and takes fall damage",
+  "map": "SteeE",
+  "mode": "playlevel",
+  "players": [
+    {
+      "team": "merc"
+    }
+  ],
+  "spawn": {
+    "floor": [
+      -684.0,
+      464.0,
+      -351.0
+    ],
+    "yaw": 12288,
+    "clearance": 2.0,
+    "spot": "east yard roof, edge 288 uu ahead at yaw 12288 (67.5 degrees); the spot of movement.spy-fall-ledge",
+    "notes": "The yard floor z -1141.0 lies 790 uu below the roof z -351.0, but at the merc's walking speed (346.5 uu/s, no slow mode) he flies further than the spy of movement.spy-fall-ledge and lands on a step 18 uu above the yard: the recorded drop (fZMaxFalling - Location.Z at landing) is 772.6 uu (774.9 when the last air frame is already below the step top). Merc fall damage int((h - 450) / 550 * 100)."
+  },
+  "setup": [
+    {
+      "op": "teleport"
+    },
+    {
+      "op": "stance",
+      "crouched": false
+    },
+    {
+      "op": "write",
+      "target": "pawn",
+      "field": "Health",
+      "value": 100
+    },
+    {
+      "op": "view",
+      "pitch": 0,
+      "yaw": 12288
+    },
+    {
+      "op": "waitStill",
+      "maxFrames": 180
+    }
+  ],
+  "settleFrames": 30,
+  "durationFrames": 300,
+  "inputs": [
+    {
+      "frame": 0,
+      "buttons": {
+        "BT_Up": 1
+      },
+      "note": "walk to the edge"
+    },
+    {
+      "frame": 100,
+      "buttons": {
+        "BT_Up": 0
+      },
+      "note": "let go while falling, before landing"
+    }
+  ],
+  "repeats": 3,
+  "profile": "locomotion",
+  "measure": {
+    "fall": {
+      "expectDrop": 772.6
+    },
+    "fallDamage": {
+      "expect": 58
+    }
+  },
+  "covers": [
+    "uc:SBase.SPlayerController:MyFalling",
+    "uc:SBase.SPlayerController:PlayerFalling.BeginState",
+    "uc:SBase.SPlayerController:MyNotifyLanded",
+    "uc:SBase.SPlayerController:PlayerLanding.BeginState",
+    "uc:SBase.SBasePawn:TakeFallingDamage",
+    "def:SBase.SPAWNDEFENSE"
+  ]
+}

@@ -1,0 +1,37 @@
+using OpenScct.Core;
+using OpenScct.Core.Engine;
+using OpenScct.Core.Uc;
+using OpenScct.Game.Movement;
+using OpenScct.Provenance;
+
+namespace OpenScct.Game.SBase;
+
+// SBase.SPlayerController state s_BTW_CrouchLeft: peeking at the end of the wall, crouched, looking round the wall end on his left (entered with the Right key).
+// Written from spec/movement/back-to-wall.md (Peeking). Not ported here: PlayAnimDmg (combat port) and the fire
+// mode branch (the s_BTWFire* states belong to the weapon port).
+public partial class SPlayerController
+{
+    [Uc("SBase.SPlayerController.s_BTW_CrouchLeft")]
+    public class s_BTW_CrouchLeft : s_BTW
+    {
+        public static new readonly s_BTW_CrouchLeft Instance = new(UcMeta.s_BTW_CrouchLeft, s_BTW.Instance);
+
+        protected s_BTW_CrouchLeft(UcStateInfo info, ActorState? super)
+            : base(info, super)
+        {
+        }
+
+        [Uc("SBase.SPlayerController.s_BTW_CrouchLeft.BeginState", Sha1 = "06298a73d38601782024a8900cd254cd21124f15")]
+        [PortOf("uc:SBase.SPlayerController:s_BTW_CrouchLeft.BeginState", Spec = "spec/movement/back-to-wall.md#peeking-s_btw_standleft--standright--crouchleft--crouchright")]
+        public override void BeginState(Actor self)
+        {
+            var pc = (SPlayerController)self;
+            pc.MovementCamera(ECamMode.ECM_BTWPeakRight);
+            ReinitIfTazered(pc);
+        }
+
+        [Uc("SBase.SPlayerController.s_BTW_CrouchLeft.PlayerMove", Sha1 = "0d7248e073a071199103d70c2c53bfce65525aa6")]
+        [PortOf("uc:SBase.SPlayerController:s_BTW_CrouchLeft.PlayerMove", Spec = "spec/movement/back-to-wall.md#peeking-s_btw_standleft--standright--crouchleft--crouchright")]
+        public override void PlayerMove(SPlayerController self, float DeltaTime) => self.PeekMove(DeltaTime, bLeft: true, bCrouched: true);
+    }
+}

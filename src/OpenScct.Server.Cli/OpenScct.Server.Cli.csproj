@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <AssemblyName>svm-server</AssemblyName>
+    <RootNamespace>OpenScct.Server.Cli</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\OpenScct.Server\OpenScct.Server.csproj" />
+    <ProjectReference Include="..\OpenScct.Bots\OpenScct.Bots.csproj" />
+  </ItemGroup>
+</Project>

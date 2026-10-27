@@ -1,0 +1,82 @@
+using System.Collections.Generic;
+using OpenScctGame.Audio;
+
+namespace OpenScctGame.Smoke;
+
+/// <summary>Registry of the smoke tests that can be named on the command line.</summary>
+public static class SmokeTests
+{
+    public static IReadOnlyList<string> Names { get; } =
+        [BootSmoke.TestName, TestBoxSmoke.TestName, SelfTestFailSmoke.TestName, SteeERenderSmoke.TestName, GoldenSmoke.TestName,
+            Hud.HudSmoke.TestName, AudioSmoke.TestName, PlaySpySmoke.TestName, PlayCraneSmoke.TestName,
+            PlayDiskHuntSmoke.TestName, PlayDeathmatchSmoke.TestName, Voice.VoiceSmoke.TestName,
+            Online.OnlineSmoke.TestName, Online.NetLobbySmoke.TestName, Online.NetLobbySmoke.GuestTestName, Online.NetBotsSmoke.TestName, Online.NetBotsSmoke.GuestTestName, GadgetsSmoke.TestName, PlayBotsSmoke.TestName, UI.InGameMenuSmoke.TestName,
+            PlayCombatSmoke.TestName, PlayAudioSmoke.TestName, PlayAudioMercSmoke.TestName, PlayAudioKrauSmoke.TestName,
+            PlayAnimSmoke.TestName, PlayInspectSmoke.TestName, PlayVisionSmoke.TestName,
+            PlayCrouchSmoke.TestName, PlayProxiesSmoke.TestName, PlayTraversalSmoke.TestName, PlayAimSmoke.TestName, PlayAimCamSmoke.TestName, PlayFxSmoke.TestName,
+            PlayExitSmoke.TestName, AspectSmoke.TestName, PlayTeamSmoke.TestName,
+            RangeTraversalSmoke.TestName, RangeMotionSmoke.TestName, RangeBotsSmoke.TestName, RangeSimSmoke.TestName,
+            PlayShockerSmoke.TestName, PlayMotionSmoke.TestName, PlayMercSmoke.TestName, SmoothSmoke.TestName,
+            MapShotsSmoke.TestName, PlayReticleSmoke.TestName, AnimBonesSmoke.TestName, PlayHitchSmoke.TestName, PlayLasersSmoke.TestName,
+            FrameRateSmoke.TestName, GoggleGlowSmoke.TestName, MenuLayoutSmoke.TestName, MenuArtSmoke.TestName, PlayHurtSmoke.TestName, Hub.HubSmoke.TestName];
+
+    public static SmokeTest? Create(string name) => name switch
+    {
+        BootSmoke.TestName => new BootSmoke(),
+        MenuLayoutSmoke.TestName => new MenuLayoutSmoke(),
+        MenuArtSmoke.TestName => new MenuArtSmoke(),
+        TestBoxSmoke.TestName => new TestBoxSmoke(),
+        SelfTestFailSmoke.TestName => new SelfTestFailSmoke(),
+        SteeERenderSmoke.TestName => new SteeERenderSmoke(),
+        GoldenSmoke.TestName => new GoldenSmoke(),
+        AudioSmoke.TestName => new AudioSmoke(),
+        Hud.HudSmoke.TestName => new Hud.HudSmoke(),
+        PlaySpySmoke.TestName => new PlaySpySmoke(),
+        PlayCraneSmoke.TestName => new PlayCraneSmoke(),
+        PlayDiskHuntSmoke.TestName => new PlayDiskHuntSmoke(),
+        PlayDeathmatchSmoke.TestName => new PlayDeathmatchSmoke(),
+        Voice.VoiceSmoke.TestName => new Voice.VoiceSmoke(),
+        Online.OnlineSmoke.TestName => new Online.OnlineSmoke(),
+        Online.NetLobbySmoke.TestName => new Online.NetLobbySmoke(),
+        Online.NetLobbySmoke.GuestTestName => new Online.NetLobbyGuestSmoke(),
+        Online.NetBotsSmoke.TestName => new Online.NetBotsSmoke(),
+        Online.NetBotsSmoke.GuestTestName => new Online.NetBotsGuestSmoke(),
+        Hub.HubSmoke.TestName => new Hub.HubSmoke(),
+        GadgetsSmoke.TestName => new GadgetsSmoke(),
+        PlayBotsSmoke.TestName => new PlayBotsSmoke(),
+        UI.InGameMenuSmoke.TestName => new UI.InGameMenuSmoke(),
+        PlayAudioSmoke.TestName => new PlayAudioSmoke(),
+        PlayAudioMercSmoke.TestName => new PlayAudioMercSmoke(),
+        PlayAudioKrauSmoke.TestName => new PlayAudioKrauSmoke(),
+        PlayCombatSmoke.TestName => new PlayCombatSmoke(),
+        PlayAnimSmoke.TestName => new PlayAnimSmoke(),
+        PlayInspectSmoke.TestName => new PlayInspectSmoke(),
+        PlayVisionSmoke.TestName => new PlayVisionSmoke(),
+        PlayCrouchSmoke.TestName => new PlayCrouchSmoke(),
+        PlayProxiesSmoke.TestName => new PlayProxiesSmoke(),
+        PlayTraversalSmoke.TestName => new PlayTraversalSmoke(),
+        PlayAimSmoke.TestName => new PlayAimSmoke(),
+        PlayHurtSmoke.TestName => new PlayHurtSmoke(),
+        PlayAimCamSmoke.TestName => new PlayAimCamSmoke(),
+        PlayFxSmoke.TestName => new PlayFxSmoke(),
+        RangeTraversalSmoke.TestName => new RangeTraversalSmoke(),
+        RangeMotionSmoke.TestName => new RangeMotionSmoke(),
+        RangeBotsSmoke.TestName => new RangeBotsSmoke(),
+        RangeSimSmoke.TestName => new RangeSimSmoke(),
+        PlayMercSmoke.TestName => new PlayMercSmoke(),
+        PlayShockerSmoke.TestName => new PlayShockerSmoke(),
+        PlayLasersSmoke.TestName => new PlayLasersSmoke(),
+        PlayExitSmoke.TestName => new PlayExitSmoke(),
+        AspectSmoke.TestName => new AspectSmoke(),
+        PlayTeamSmoke.TestName => new PlayTeamSmoke(),
+        PlayMotionSmoke.TestName => new PlayMotionSmoke(),
+        SmoothSmoke.TestName => new SmoothSmoke(),
+        MapShotsSmoke.TestName => new MapShotsSmoke(),
+        PlayReticleSmoke.TestName => new PlayReticleSmoke(),
+        AnimBonesSmoke.TestName => new AnimBonesSmoke(),
+        PlayHitchSmoke.TestName => new PlayHitchSmoke(),
+        FrameRateSmoke.TestName => new FrameRateSmoke(),
+        GoggleGlowSmoke.TestName => new GoggleGlowSmoke(),
+        _ => null,
+    };
+}

@@ -1,0 +1,101 @@
+{
+  "format": "svm.scenario/1",
+  "id": "moveset.spy-step-curb",
+  "title": "Spy runs north across a 1.1 uu gutter and up a 17.1 uu curb, turns and runs back down it",
+  "map": "SteeE",
+  "mode": "playlevel",
+  "players": [
+    {
+      "team": "spy"
+    }
+  ],
+  "spawn": {
+    "floor": [
+      -2047.7,
+      960.0,
+      -1143.5
+    ],
+    "yaw": 16384,
+    "clearance": 2.0,
+    "spot": "yard floor z -1143.5, 160 uu south of the gutter, facing north (+Y)",
+    "notes": "Along x -2047.7: floor z -1143.5 to y 1080, gutter z -1144.64 from y 1120 to 1200, then the curb top z -1127.5 from y 1240 (a 17.1 step up). A standing spy box swept north from y 900 is clear to y 1436.9. Found with re/tools/difftest/movespots.py (steps)."
+  },
+  "setup": [
+    {
+      "op": "leaveGE",
+      "maxFrames": 240
+    },
+    {
+      "op": "teleport"
+    },
+    {
+      "op": "stance",
+      "crouched": false
+    },
+    {
+      "op": "fastSpeed",
+      "value": true
+    },
+    {
+      "op": "write",
+      "target": "pawn",
+      "field": "Health",
+      "value": 100
+    },
+    {
+      "op": "view",
+      "pitch": 0,
+      "yaw": 16384
+    },
+    {
+      "op": "waitStill",
+      "maxFrames": 180
+    }
+  ],
+  "settleFrames": 30,
+  "durationFrames": 200,
+  "inputs": [
+    {
+      "frame": 0,
+      "buttons": {
+        "BT_Up": 1
+      },
+      "note": "run north up the curb"
+    },
+    {
+      "frame": 50,
+      "buttons": {
+        "BT_Up": 0
+      },
+      "note": "let go on the curb top"
+    },
+    {
+      "frame": 70,
+      "buttons": {
+        "BT_Up": 1
+      },
+      "view": {
+        "pitch": 0,
+        "yaw": 49152
+      },
+      "note": "turn south and run back down the curb"
+    },
+    {
+      "frame": 130,
+      "buttons": {
+        "BT_Up": 0
+      },
+      "note": "let go"
+    }
+  ],
+  "repeats": 3,
+  "profile": "locomotion",
+  "measure": {},
+  "covers": [
+    "uc:SBase.SPlayerController:s_PlayerWalkingMario.PlayerMove",
+    "uc:SBase.SPlayerController:UpdatePawnRotationMario",
+    "nat:SBase.SPlayerController.NativeComputeControlVariables",
+    "uc:SBase.SPlayerController:s_PlayerWalkingSt0H.PlayerTick",
+    "def:SBase.SPawnAttaque"
+  ]
+}

@@ -1,0 +1,177 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://svmap.invalid/1.1/traversal.schema.json",
+  "title": "SVMap 1.1 sim/traversal.json",
+  "description": "Geometric events (GEs): the authored traversal data for ledges, pipes, zip lines, ladders, fences, poles and hand-over-hand bars. Order is the original level GE list order.",
+  "type": "object",
+  "required": [
+    "formatVersion",
+    "map",
+    "ges"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "formatVersion": {
+      "$ref": "common.schema.json#/$defs/formatVersion"
+    },
+    "map": {
+      "$ref": "common.schema.json#/$defs/mapId"
+    },
+    "ges": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/ge"
+      }
+    },
+    "activationMask": {
+      "description": "LevelInfo.GEActivationMask at round start (the same value as gameplay.json levelInfo). Optional.",
+      "$ref": "common.schema.json#/$defs/byte"
+    }
+  },
+  "$defs": {
+    "ge": {
+      "type": "object",
+      "required": [
+        "id",
+        "kind",
+        "points",
+        "mask",
+        "platform",
+        "src"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "kind": {
+          "description": "Original kind name. Codes: POLE 1, FENCE 2, HOH 4, LG 8, LADDER 16, PIPE 32, ZL 64.",
+          "enum": [
+            "POLE",
+            "FENCE",
+            "HOH",
+            "LG",
+            "LADDER",
+            "PIPE",
+            "ZL"
+          ]
+        },
+        "points": {
+          "description": "UE-space points: 2 for POLE, FENCE, HOH, LG, ZL; 3 for LADDER and PIPE.",
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/vec3"
+          },
+          "minItems": 2,
+          "maxItems": 3
+        },
+        "mask": {
+          "description": "The GE ID byte. 0: always active; otherwise active while it shares a bit with the GE activation mask.",
+          "$ref": "common.schema.json#/$defs/byte"
+        },
+        "platform": {
+          "description": "Original EPlatform: 0 common, 1 PS2 only, 2 Xbox only.",
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2
+        },
+        "src": {
+          "$ref": "#/$defs/src"
+        },
+        "flags": {
+          "description": "The original GE flag word (0x2: added in the editor, its selection bit). Optional.",
+          "type": "integer",
+          "minimum": 0
+        },
+        "activeAtStart": {
+          "description": "Derived: mask is 0 or shares a bit with activationMask. Optional.",
+          "type": "boolean"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "enum": [
+                  "LADDER",
+                  "PIPE"
+                ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "points": {
+                "minItems": 3
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "points": {
+                "maxItems": 2
+              }
+            }
+          }
+        }
+      ]
+    },
+    "src": {
+      "oneOf": [
+        {
+          "description": "Converted: position in the original level GE list.",
+          "type": "object",
+          "required": [
+            "kind",
+            "index"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "kind": {
+              "const": "level"
+            },
+            "index": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        },
+        {
+          "description": "Native map: the authoring node that produced it.",
+          "type": "object",
+          "required": [
+            "kind",
+            "node"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "kind": {
+              "const": "authored"
+            },
+            "node": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        {
+          "description": "Generated test content.",
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "kind": {
+              "const": "synthetic"
+            },
+            "note": {
+              "type": "string"
+            }
+          }
+        }
+      ]
+    }
+  }
+}

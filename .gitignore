@@ -1,0 +1,37 @@
+# Build output
+bin/
+obj/
+*.user
+.vs/
+.idea/
+TestResults/
+
+# Godot
+game/.godot/
+game/.mono/
+*.translation
+
+# Local-only data: never commit game files, decompiled output, traces or converted content
+local/
+.content/
+re/.venv-ghidra/
+tools/godot/
+__pycache__/
+*.pyc
+
+# Original game file types (guarded again in CI)
+*.sdc
+*.usx
+*.utx
+*.utc
+*.ukx
+*.uax
+*.uas
+*.mux
+*.u
+*.gpr
+*.rep/
+*.gzf
+
+# Local test-run window settings (no focus)
+game/override.cfg

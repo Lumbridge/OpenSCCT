@@ -1,0 +1,529 @@
+{
+"ActionPoints": [
+"Int"
+],
+"ActorToDraw": [
+"Object"
+],
+"ActorsToAttach": [
+"Struct:AttachActor"
+],
+"AlarmsList": [
+"Object"
+],
+"Alias": [
+"Str"
+],
+"Animations": [
+"Name"
+],
+"AntiPortals": [
+"Object"
+],
+"AssociatedShadowActors": [
+"Object"
+],
+"Attach": [
+"Struct:SBAttachment"
+],
+"Attached": [
+"Object"
+],
+"AuxiliaryMessageStack": [
+"Struct:StackedMessage"
+],
+"BannedIPs": [
+"Str"
+],
+"BeamEndPoints": [
+"Struct:ParticleBeamEndPoint"
+],
+"BoneMirrors": [
+"Int"
+],
+"ClassInventory": [
+"Class"
+],
+"ClassWeapon": [
+"Class"
+],
+"ColorLine": [
+"Struct:Color"
+],
+"ColorScale": [
+"Struct:ParticleColorScale"
+],
+"ColumnWidths": [
+"Float"
+],
+"Controls": [
+"Object"
+],
+"DamagedMeshes": [
+"Struct:DamagedMesh"
+],
+"DeathString": [
+"Str"
+],
+"Decorations": [
+"Struct:DecorationType"
+],
+"Description": [
+"Str"
+],
+"DestroyOnEventFrom": [
+"Object"
+],
+"DetectedActor": [
+"Object"
+],
+"Disks": [
+"Object"
+],
+"Doors": [
+"Object"
+],
+"DoorsAndSwitches": [
+"Struct:DoorsAndSwitchesForOneKey"
+],
+"EMFTextures": [
+"Object"
+],
+"Echos": [
+"Struct:Echo"
+],
+"Elements": [
+"Struct:GUIListElem"
+],
+"Emitters": [
+"Object"
+],
+"EventGroup": [
+"Struct:SuperEvent"
+],
+"EventQueue": [
+"Struct:WaitingEvent"
+],
+"Events": [
+"Name"
+],
+"FontArrayFonts": [
+"Object"
+],
+"FontArrayNames": [
+"Name"
+],
+"FontStack": [
+"Object"
+],
+"Formats": [
+"Str"
+],
+"GameMessageQueue": [
+"Struct:StackedMessage"
+],
+"GlobalInteractions": [
+"Object"
+],
+"Groups": [
+"Struct:EventGroup"
+],
+"HFPoints": [
+"Struct:ParticleBeamData"
+],
+"HFScaleFactors": [
+"Struct:ParticleBeamScale"
+],
+"HackCommUnmuted": [
+"Object"
+],
+"HitActors": [
+"Object"
+],
+"IgnoredEchelonLights": [
+"Object"
+],
+"ImageMode": [
+"Object"
+],
+"InfoMessageStack": [
+"Struct:StackedMessage"
+],
+"InitColumnPerc": [
+"Float"
+],
+"InteractionArray": [
+"Object"
+],
+"InvSortData": [
+"Int"
+],
+"Key": [
+"Int"
+],
+"KeyChanged": [
+"Int"
+],
+"KeyLabel": [
+"Str"
+],
+"KeyName": [
+"Str"
+],
+"LFPoints": [
+"Struct:Vector"
+],
+"LFScaleFactors": [
+"Struct:ParticleBeamScale"
+],
+"LKeyName": [
+"Str"
+],
+"LadderInfos": [
+"Struct:GsLadderInfo"
+],
+"Leaves": [
+"Int"
+],
+"LiftDoors": [
+"Object"
+],
+"List": [
+"Str"
+],
+"LocalInteractions": [
+"Object"
+],
+"LockedObjects": [
+"Struct:LockedObject"
+],
+"LogValues": [
+"Struct:LogVar"
+],
+"LoopStatus_0forInfinite": [
+"Int"
+],
+"MalfunctionGamePlayObjects": [
+"Struct:Vector"
+],
+"ManualExcludes": [
+"Object"
+],
+"MapFloors": [
+"Struct:SnapCameraFloorStruct"
+],
+"Maps": [
+"Str"
+],
+"MatNames": [
+"Str"
+],
+"MaterialOfMesh": [
+"Object"
+],
+"Materials": [
+"Object",
+"Struct:StaticMeshMaterial"
+],
+"MenuStack": [
+"Object"
+],
+"MessageStack": [
+"Struct:StackedMessage"
+],
+"Mips": [
+"Int"
+],
+"Modes": [
+"Struct:GameModeInfo"
+],
+"ModesStrings": [
+"Struct:GameModeInfoStrings"
+],
+"MouseCursorOffset": [
+"Struct:Vector"
+],
+"MouseCursors": [
+"Object"
+],
+"MoversToLock": [
+"Struct:MoverLockInfo"
+],
+"MsgArray": [
+"Str"
+],
+"MutedPlayers": [
+"Object"
+],
+"NameMode": [
+"Str"
+],
+"NameOfMesh": [
+"Str"
+],
+"ObjectLights": [
+"Object"
+],
+"ObjectiveTriggersToLock": [
+"Object"
+],
+"Objectives": [
+"Object"
+],
+"ObjectivesAndTriggersList": [
+"Struct:ObjectiveAndTriggerERState"
+],
+"ObjectivesList": [
+"Object"
+],
+"Objects": [
+"Object"
+],
+"OctreeNodes": [
+"Int"
+],
+"OldKey": [
+"Int"
+],
+"Op": [
+"Str"
+],
+"OutArray": [
+"Str"
+],
+"PRIArray": [
+"Object"
+],
+"Particles": [
+"Struct:Particle"
+],
+"Paths": [
+"Str"
+],
+"PawnList": [
+"Name"
+],
+"PersistentStack": [
+"Object"
+],
+"PlayerInfo": [
+"Struct:KeyValuePair",
+"Struct:PlayerResponseLine"
+],
+"PlayerStats": [
+"Struct:XBoxPlayerStat"
+],
+"PrecacheMaterials": [
+"Object"
+],
+"PrecacheStaticMeshes": [
+"Object"
+],
+"ProfileList": [
+"Str"
+],
+"Projectors": [
+"Struct:ProjectorRenderInfoPtr"
+],
+"PunkBusterTypeMessages": [
+"Str"
+],
+"RandomMaps": [
+"Int"
+],
+"RandomObjectiveActivate": [
+"Object"
+],
+"RemoveKey": [
+"Byte"
+],
+"RevolutionScale": [
+"Struct:ParticleRevolutionScale"
+],
+"SectionRow": [
+"Int"
+],
+"SendFIFO": [
+"Byte"
+],
+"SequenceItems": [
+"Struct:MaterialSequenceItem"
+],
+"ShakeEvents": [
+"Struct:ShakeEvent"
+],
+"ShortNameMode": [
+"Str"
+],
+"SizeScale": [
+"Struct:ParticleTimeScale"
+],
+"Skins": [
+"Object"
+],
+"SortData": [
+"Struct:MultiColumnSortData"
+],
+"SoundIntensity": [
+"Int"
+],
+"SoundLocation": [
+"Struct:Vector"
+],
+"Sounds": [
+"Struct:ParticleSound"
+],
+"SparkData": [
+"Struct:ParticleSparkData"
+],
+"SpawnableObjects": [
+"Struct:SpawnInfo"
+],
+"SpecialBehaviors": [
+"Struct:SpecialBehavior"
+],
+"SpecificPackage": [
+"Str"
+],
+"SpyLabel": [
+"Str"
+],
+"Spy_ObjectivesTaken": [
+"Name"
+],
+"Spy_ObjectivesTakenTime": [
+"Int"
+],
+"StateGame": [
+"Str"
+],
+"StaticMeshProjectors": [
+"Struct:StaticMeshProjectorRenderInfoPtr"
+],
+"StaticSectionBatches": [
+"Struct:BatchReference"
+],
+"StringValues": [
+"Str"
+],
+"StyleNames": [
+"Name"
+],
+"StyleStack": [
+"Object"
+],
+"SubdivisionScale": [
+"Float"
+],
+"Switches": [
+"Object"
+],
+"SymbolNames": [
+"Str"
+],
+"TabStack": [
+"Object"
+],
+"TakeDamageTypes": [
+"Byte"
+],
+"TeamName": [
+"Str"
+],
+"TexRotObj": [
+"Object"
+],
+"TextSentry": [
+"Str"
+],
+"TextSpy": [
+"Str"
+],
+"TextTeamWin": [
+"Str"
+],
+"TimerValues": [
+"Struct:LogTimer"
+],
+"Timers": [
+"Object"
+],
+"Touching": [
+"Object"
+],
+"TrailData": [
+"Struct:ParticleTrailData"
+],
+"TrailInfo": [
+"Struct:ParticleTrailInfo"
+],
+"Triggers": [
+"Object"
+],
+"TriggersERVisibilityZones": [
+"Object"
+],
+"Txt_Label": [
+"Str"
+],
+"VelocityScale": [
+"Struct:ParticleVelocityScale"
+],
+"VoiceChatters": [
+"Struct:VoiceChatterInfo"
+],
+"Volumes": [
+"Object"
+],
+"_LadderInfos": [
+"Struct:GsLadderInfo"
+],
+"aTipStrings": [
+"Str"
+],
+"bSection": [
+"Bool"
+],
+"collBoxes": [
+"Struct:RangeVector"
+],
+"collPlanes": [
+"Struct:Plane"
+],
+"collSpheres": [
+"Struct:Plane"
+],
+"floatValues": [
+"Float"
+],
+"intValues": [
+"Int"
+],
+"playersnameATT": [
+"Str"
+],
+"playersnameDEF": [
+"Str"
+],
+"pris": [
+"Object"
+],
+"sGameRes": [
+"Str"
+],
+"sQuality": [
+"Str"
+],
+"sResolution": [
+"Str"
+],
+"serverInfo": [
+"Struct:KeyValuePair"
+],
+"txt_Unit": [
+"Str"
+],
+"txt_Victory": [
+"Str"
+]
+}

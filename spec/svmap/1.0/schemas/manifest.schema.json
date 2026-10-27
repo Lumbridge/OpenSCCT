@@ -1,0 +1,97 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://svmap.invalid/1.0/manifest.schema.json",
+  "title": "SVMap 1.0 manifest.json",
+  "description": "Identity, provenance and hashes of one SVMap folder. Hash rules are in conventions.md.",
+  "type": "object",
+  "required": ["format", "formatVersion", "map", "title", "source", "files", "hashes", "requires"],
+  "additionalProperties": false,
+  "properties": {
+    "format": { "const": "svmap" },
+    "formatVersion": { "$ref": "common.schema.json#/$defs/formatVersion" },
+    "map": { "$ref": "common.schema.json#/$defs/mapId" },
+    "title": { "type": "string" },
+    "source": { "$ref": "#/$defs/source" },
+    "files": {
+      "description": "Every file of the map except manifest.json, keyed by path relative to the map root.",
+      "type": "object",
+      "propertyNames": { "pattern": "^(sim|render|audio|ui)/[^\\\\]+$" },
+      "required": ["sim/gameplay.json", "sim/collision.bin", "sim/traversal.json"],
+      "additionalProperties": { "$ref": "#/$defs/file" }
+    },
+    "hashes": {
+      "description": "Group hashes; a group is present when its folder has files.",
+      "type": "object",
+      "required": ["sim"],
+      "additionalProperties": false,
+      "properties": {
+        "sim": { "$ref": "common.schema.json#/$defs/sha256" },
+        "render": { "$ref": "common.schema.json#/$defs/sha256" },
+        "audio": { "$ref": "common.schema.json#/$defs/sha256" },
+        "ui": { "$ref": "common.schema.json#/$defs/sha256" }
+      }
+    },
+    "requires": {
+      "description": "Shared content packs the render, audio or ui files refer to.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["pack", "sha256"],
+        "additionalProperties": false,
+        "properties": {
+          "pack": { "type": "string", "pattern": "^[A-Za-z0-9_.-]+$" },
+          "sha256": { "$ref": "common.schema.json#/$defs/sha256" }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "file": {
+      "type": "object",
+      "required": ["sha256", "size"],
+      "additionalProperties": false,
+      "properties": {
+        "sha256": {
+          "description": "File digest: canonical bytes for sim/*.json, raw bytes otherwise.",
+          "$ref": "common.schema.json#/$defs/sha256"
+        },
+        "size": { "description": "Size on disk in bytes.", "type": "integer", "minimum": 0 }
+      }
+    },
+    "source": {
+      "oneOf": [
+        {
+          "description": "Converted from an original map.",
+          "type": "object",
+          "required": ["kind", "generator", "generatorVersion", "original"],
+          "additionalProperties": false,
+          "properties": {
+            "kind": { "const": "converted" },
+            "generator": { "type": "string" },
+            "generatorVersion": { "type": "integer", "minimum": 1 },
+            "original": {
+              "type": "object",
+              "required": ["file", "sha256"],
+              "additionalProperties": false,
+              "properties": {
+                "file": { "description": "Path relative to the game root, / separators.", "type": "string" },
+                "sha256": { "$ref": "common.schema.json#/$defs/sha256" }
+              }
+            }
+          }
+        },
+        {
+          "description": "Authored natively (map tools) or generated (test fixtures).",
+          "type": "object",
+          "required": ["kind", "generator", "generatorVersion"],
+          "additionalProperties": false,
+          "properties": {
+            "kind": { "enum": ["authored", "synthetic"] },
+            "generator": { "type": "string" },
+            "generatorVersion": { "type": "integer", "minimum": 1 }
+          }
+        }
+      ]
+    }
+  }
+}

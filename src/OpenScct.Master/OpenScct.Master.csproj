@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <AssemblyName>svm-master</AssemblyName>
+    <RootNamespace>OpenScct.Master</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\OpenScct.Net\OpenScct.Net.csproj" />
+    <PackageReference Include="Microsoft.Data.Sqlite" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="OpenScct.Integration.Tests" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="svm-master.example.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

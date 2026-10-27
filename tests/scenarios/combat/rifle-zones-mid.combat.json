@@ -1,0 +1,253 @@
+{
+  "format": "svm.combat/1",
+  "id": "combat.rifle-zones-mid",
+  "title": "Merc rifle single shots at a standing spy 900 uu away, one per hit zone (head, torso, arms, legs)",
+  "map": "SteeE",
+  "mode": "playlevel",
+  "local": {
+    "team": "merc",
+    "floor": [
+      -492.0,
+      -2032.0,
+      -1143.5
+    ],
+    "yaw": 16384,
+    "crouched": false
+  },
+  "target": {
+    "team": "spy",
+    "floor": [
+      -492.0,
+      -1132.0,
+      -1143.5
+    ],
+    "yaw": 49152,
+    "crouched": false
+  },
+  "settleFrames": 30,
+  "durationFrames": 334,
+  "events": [
+    {
+      "frame": 0,
+      "do": "rof",
+      "mode": "single",
+      "note": "single shots: every shot spawns a tracer (impact)"
+    },
+    {
+      "frame": 4,
+      "do": "heal",
+      "hp": 100,
+      "note": "head"
+    },
+    {
+      "frame": 6,
+      "do": "aim",
+      "bone": "head"
+    },
+    {
+      "frame": 8,
+      "do": "fire"
+    },
+    {
+      "frame": 9,
+      "do": "fireUp"
+    },
+    {
+      "frame": 34,
+      "do": "heal",
+      "hp": 100,
+      "note": "torso"
+    },
+    {
+      "frame": 36,
+      "do": "aim",
+      "bone": "spine2",
+      "to": "pelvis"
+    },
+    {
+      "frame": 38,
+      "do": "fire"
+    },
+    {
+      "frame": 39,
+      "do": "fireUp"
+    },
+    {
+      "frame": 64,
+      "do": "heal",
+      "hp": 100,
+      "note": "upper-arm-l"
+    },
+    {
+      "frame": 66,
+      "do": "aim",
+      "bone": "l_upperarm",
+      "to": "l_forearm"
+    },
+    {
+      "frame": 68,
+      "do": "fire"
+    },
+    {
+      "frame": 69,
+      "do": "fireUp"
+    },
+    {
+      "frame": 94,
+      "do": "heal",
+      "hp": 100,
+      "note": "forearm-l"
+    },
+    {
+      "frame": 96,
+      "do": "aim",
+      "bone": "l_forearm",
+      "to": "l_hand"
+    },
+    {
+      "frame": 98,
+      "do": "fire"
+    },
+    {
+      "frame": 99,
+      "do": "fireUp"
+    },
+    {
+      "frame": 124,
+      "do": "heal",
+      "hp": 100,
+      "note": "hand-l"
+    },
+    {
+      "frame": 126,
+      "do": "aim",
+      "bone": "l_hand"
+    },
+    {
+      "frame": 128,
+      "do": "fire"
+    },
+    {
+      "frame": 129,
+      "do": "fireUp"
+    },
+    {
+      "frame": 154,
+      "do": "heal",
+      "hp": 100,
+      "note": "thigh-l"
+    },
+    {
+      "frame": 156,
+      "do": "aim",
+      "bone": "l_thigh",
+      "to": "l_calf"
+    },
+    {
+      "frame": 158,
+      "do": "fire"
+    },
+    {
+      "frame": 159,
+      "do": "fireUp"
+    },
+    {
+      "frame": 184,
+      "do": "heal",
+      "hp": 100,
+      "note": "calf-l"
+    },
+    {
+      "frame": 186,
+      "do": "aim",
+      "bone": "l_calf",
+      "to": "l_foot"
+    },
+    {
+      "frame": 188,
+      "do": "fire"
+    },
+    {
+      "frame": 189,
+      "do": "fireUp"
+    },
+    {
+      "frame": 214,
+      "do": "heal",
+      "hp": 100,
+      "note": "foot-l"
+    },
+    {
+      "frame": 216,
+      "do": "aim",
+      "bone": "l_foot"
+    },
+    {
+      "frame": 218,
+      "do": "fire"
+    },
+    {
+      "frame": 219,
+      "do": "fireUp"
+    },
+    {
+      "frame": 244,
+      "do": "heal",
+      "hp": 100,
+      "note": "upper-arm-r"
+    },
+    {
+      "frame": 246,
+      "do": "aim",
+      "bone": "r_upperarm",
+      "to": "r_forearm"
+    },
+    {
+      "frame": 248,
+      "do": "fire"
+    },
+    {
+      "frame": 249,
+      "do": "fireUp"
+    },
+    {
+      "frame": 274,
+      "do": "heal",
+      "hp": 100,
+      "note": "thigh-r"
+    },
+    {
+      "frame": 276,
+      "do": "aim",
+      "bone": "r_thigh",
+      "to": "r_calf"
+    },
+    {
+      "frame": 278,
+      "do": "fire"
+    },
+    {
+      "frame": 279,
+      "do": "fireUp"
+    }
+  ],
+  "repeats": 2,
+  "measure": {
+    "hits": {},
+    "shots": {}
+  },
+  "covers": [
+    "uc:SBase.SPlayerController:Fire",
+    "uc:SBase.SWeaponDefense:FireWeapon",
+    "uc:SBase.SWeaponDefense:ServerFireWeapon",
+    "uc:SBase.SWeaponDefense:TraceFire",
+    "nat:Engine.Actor.TraceBone",
+    "nat:SBase.SWeaponDefense.GetAccuracy",
+    "uc:SBase.SPlayerController:StandardReactionsToDamage",
+    "uc:SBase.SPlayerController:PawnTakeDamage",
+    "def:SBase.SWeaponDefense",
+    "def:SBase.SPawnAttaque"
+  ],
+  "spot": "SteeE east yard lane (x -492, floor z -1143.5, clear for 1792 uu along +Y from y -2032; found with re/tools/difftest/spots.py for the R4 locomotion recordings)",
+  "notes": "The spy faces the merc; each shot aims at a bone or the middle of a limb capsule's two bones (spec/native/hit-zones.md pills) and the spy is healed to 100 before it. Expected damage: int(int(17 c(d)) table[pill] / 100), hit-zones-and-weapons.md rules 7 to 9."
+}

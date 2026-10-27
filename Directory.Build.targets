@@ -1,0 +1,25 @@
+<Project>
+  <!--
+    The build number shown in the game's menus: the UTC timestamp of the commit the build is made from, yyyyMMdd.HHmm
+    (so every build of one commit carries the same number and release builds stay reproducible), stamped into every
+    assembly as AssemblyMetadata("BuildNumber"). Without git (a source zip) it is 0. The version itself is
+    VersionPrefix in Directory.Build.props; tools/release/New-Release.ps1 overrides it with -p:Version.
+  -->
+  <Target Name="OpenScctBuildNumber" BeforeTargets="GetAssemblyAttributes;GenerateAssemblyInfo" Condition="'$(OpenScctBuildNumber)' == ''">
+    <Exec EnvironmentVariables="TZ=UTC" Command="git -c log.showSignature=false log -1 --format=%25%25cd --date=format-local:%25%25Y%25%25m%25%25d.%25%25H%25%25M" WorkingDirectory="$(MSBuildThisFileDirectory)" ConsoleToMSBuild="true"
+          IgnoreExitCode="true" StandardOutputImportance="low" StandardErrorImportance="low" EchoOff="true">
+      <Output TaskParameter="ConsoleOutput" PropertyName="OpenScctGitStamp" />
+      <Output TaskParameter="ExitCode" PropertyName="OpenScctGitExit" />
+    </Exec>
+    <PropertyGroup>
+      <OpenScctBuildNumber Condition="'$(OpenScctGitExit)' == '0'">$(OpenScctGitStamp.Trim())</OpenScctBuildNumber>
+      <OpenScctBuildNumber Condition="'$(OpenScctBuildNumber)' == ''">0</OpenScctBuildNumber>
+    </PropertyGroup>
+    <ItemGroup>
+      <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
+        <_Parameter1>BuildNumber</_Parameter1>
+        <_Parameter2>$(OpenScctBuildNumber)</_Parameter2>
+      </AssemblyAttribute>
+    </ItemGroup>
+  </Target>
+</Project>

@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="$(RepoRoot)build/Test.props" />
+  <PropertyGroup>
+    <RootNamespace>OpenScct.CodeGen.Tests</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\tools\OpenScct.CodeGen\OpenScct.CodeGen.csproj" />
+    <ProjectReference Include="..\..\src\OpenScct.Core\OpenScct.Core.csproj" />
+    <ProjectReference Include="..\..\src\OpenScct.Game\OpenScct.Game.csproj" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,90 @@
+{
+  "format": "svm.scenario/1",
+  "id": "traversal.spy-zip-line-13",
+  "title": "Spy runs off the balcony under the high end of zip line GE 13, jumps, catches it and rides it down",
+  "map": "SteeE",
+  "mode": "playlevel",
+  "players": [
+    {
+      "team": "spy"
+    }
+  ],
+  "spawn": {
+    "floor": [
+      -2313.2,
+      1433.8,
+      -166.67
+    ],
+    "yaw": 52001,
+    "clearance": 2.0,
+    "spot": "balcony z -166.67 under the high end of ZL GE 13, 40 uu down the line from it, facing down the line",
+    "notes": "ZL GE 13 from (-2324.0, 1472.3, 130.7) down to (-1822.1, -319.4, -183.8): 1860.7 uu long, slope 0.169, line 297.4 above the balcony at the high end. The balcony runs 16 to 128 uu down the line from the high end (a wall behind it); beyond is a 1040 uu drop to the yard. Running jump at about 100 uu: CheckZipArms catches the line once Velocity.Z < 254 (about 0.24 s after the take-off), within 60 uu of the hang point 116 under the line. The low end is over a walkway at z -488. Found with re/tools/difftest/gespots.py (zl)."
+  },
+  "setup": [
+    {
+      "op": "leaveGE",
+      "maxFrames": 240
+    },
+    {
+      "op": "teleport"
+    },
+    {
+      "op": "stance",
+      "crouched": false
+    },
+    {
+      "op": "fastSpeed",
+      "value": true
+    },
+    {
+      "op": "write",
+      "target": "pawn",
+      "field": "Health",
+      "value": 100
+    },
+    {
+      "op": "view",
+      "pitch": 0,
+      "yaw": 52001
+    },
+    {
+      "op": "waitStill",
+      "maxFrames": 180
+    }
+  ],
+  "settleFrames": 30,
+  "durationFrames": 480,
+  "inputs": [
+    {
+      "frame": 0,
+      "buttons": {
+        "BT_Up": 1
+      },
+      "note": "run down the line"
+    },
+    {
+      "frame": 12,
+      "jump": true,
+      "buttons": {
+        "BT_Up": 0
+      },
+      "note": "running jump at about 100 uu, stick released"
+    }
+  ],
+  "repeats": 3,
+  "profile": "traversal",
+  "measure": {},
+  "covers": [
+    "uc:SBase.SPlayerController:s_PlayerJump.ZipLine",
+    "uc:SBase.SPlayerController:s_GrabZip.PlayerMove",
+    "uc:SBase.SPlayerController:s_GrabZip.AnimEnd",
+    "uc:SBase.SPlayerController:s_GrabZip.EndState",
+    "uc:SBase.SPlayerController:s_ZipLine.BeginState",
+    "uc:SBase.SPlayerController:s_ZipLine.PlayerMove",
+    "uc:SBase.SPlayerController:s_ZipLine.AnimEnd",
+    "uc:SBase.SPlayerController:TestZipWall",
+    "uc:SBase.SBasePawn:SetZipLineZones",
+    "uc:SBase.SPlayerController:s_ZipWall.BeginState",
+    "uc:SBase.SPlayerController:s_ZipWall.AnimEnd"
+  ]
+}

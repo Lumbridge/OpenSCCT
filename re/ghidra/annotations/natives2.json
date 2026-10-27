@@ -1,0 +1,89 @@
+{
+  "format": "svm.ghidra.annotations/1",
+  "id": "natives2",
+  "note": "Per-program sections in the svm.ghidra.annotations/1 layout; merge each into annotations/<program id>.json.",
+  "programs": [
+    {
+      "format": "svm.ghidra.annotations/1",
+      "id": "editor",
+      "program": "ChaosTheory_Editor.exe",
+      "sha256": "bce63aa2f44acbb5104dad09b00325cf32ae6a38efe97ab2ebf6a44dcb9819a3",
+      "imageBase": "0x10e00000",
+      "counts": {"namespaces": 13, "functions": 27, "labels": 0, "comments": 5},
+      "namespaces": [
+        {"path": "FFrame", "kind": "class"},
+        {"path": "FVector", "kind": "class"},
+        {"path": "ASPlayerController", "kind": "class"},
+        {"path": "ASGamePlayObject", "kind": "class"},
+        {"path": "ASProjFrag", "kind": "class"},
+        {"path": "ASMineProx", "kind": "class"},
+        {"path": "ASMineLaser", "kind": "class"},
+        {"path": "ASObjective", "kind": "class"},
+        {"path": "ASMission", "kind": "class"},
+        {"path": "ASObjectiveTrigger", "kind": "class"},
+        {"path": "ASMagicEvent", "kind": "class"},
+        {"path": "ASWeaponDefense", "kind": "class"},
+        {"path": "ULevel", "kind": "class"}
+      ],
+      "functions": [
+        {"address": "0x10f3a9c0", "namespace": "FFrame", "name": "Step"},
+        {"address": "0x10e931b0", "namespace": "", "name": "GetRotationCoordsInv"},
+        {"address": "0x10eb2b10", "namespace": "", "name": "FCoords_TransformVector"},
+        {"address": "0x10fde6a0", "namespace": "", "name": "PointDistToSegmentT"},
+        {"address": "0x10f64a30", "namespace": "FVector", "name": "SizeSquared"},
+        {"address": "0x10fa3370", "namespace": "", "name": "appFrand"},
+        {"address": "0x111e4ca0", "namespace": "ASPlayerController", "name": "WallJumpProbe"},
+        {"address": "0x111e4df0", "namespace": "ASPlayerController", "name": "WallJumpPickDirection"},
+        {"address": "0x111c5e00", "namespace": "ASGamePlayObject", "name": "ProcessDamage"},
+        {"address": "0x111bde00", "namespace": "", "name": "CastToSPlayerController"},
+        {"address": "0x111bf270", "namespace": "", "name": "CallEventByName"},
+        {"address": "0x111e16d0", "namespace": "ASProjFrag", "name": "CallEventByName"},
+        {"address": "0x111cb720", "namespace": "ASMineProx", "name": "CallEventByName"},
+        {"address": "0x111cc8b0", "namespace": "ASMineLaser", "name": "CallEventByName"},
+        {"address": "0x1121fe70", "namespace": "ASObjective", "name": "Desactivate"},
+        {"address": "0x112205f0", "namespace": "ASMission", "name": "Desactivate"},
+        {"address": "0x111ce1e0", "namespace": "ASObjectiveTrigger", "name": "Desactivate"},
+        {"address": "0x1121ffa0", "namespace": "ASObjective", "name": "Reset"},
+        {"address": "0x1121f960", "namespace": "ASObjective", "name": "ScheduleReset"},
+        {"address": "0x111ce0a0", "namespace": "ASObjectiveTrigger", "name": "GetTriggerTime"},
+        {"address": "0x112203b0", "namespace": "ASMission", "name": "eventDoBroadcastLocalizedMessage"},
+        {"address": "0x11220310", "namespace": "ASMission", "name": "eventNotifyTaken"},
+        {"address": "0x111d3420", "namespace": "ASMagicEvent", "name": "UpdateTimer"},
+        {"address": "0x111d2ff0", "namespace": "ASMagicEvent", "name": "ProcessQueue"},
+        {"address": "0x111d2f10", "namespace": "ASMagicEvent", "name": "FireEvent"},
+        {"address": "0x111d66e0", "namespace": "ASWeaponDefense", "name": "GetFireStart"},
+        {"address": "0x110be6a0", "namespace": "ULevel", "name": "CheckSlice"}
+      ],
+      "labels": [],
+      "comments": [
+        {"address": "0x110a7520", "type": "plate", "text": "Writes DrawType (SetDrawType), not DrawScale"},
+        {"address": "0x1123fb80", "type": "plate", "text": "MSVC float to int conversion, truncates toward zero"},
+        {"address": "0x111c5e00", "type": "plate", "text": "GPO damage: HP, blast to every visible actor in DamageActorRange, shake, spawns, best damage stage"},
+        {"address": "0x111d2ff0", "type": "plate", "text": "Fires every queued event whose time has come, in queue order, on the 0.05 s timer"},
+        {"address": "0x1120ff60", "type": "plate", "text": "Spy health refill lives here (HealthRefill, MinTimeHealthRefill, NbPointsRefillable), not in TickNative"}
+      ]
+    },
+    {
+      "format": "svm.ghidra.annotations/1",
+      "id": "game",
+      "program": "SCCT Versus",
+      "sha256": "a98873aaec1de21fdcccc0afb9985e3ddcf38a9ddce1207214872d6428ec9950",
+      "imageBase": "0x10900000",
+      "counts": {"namespaces": 2, "functions": 4, "labels": 0, "comments": 1},
+      "namespaces": [
+        {"path": "ASDamageVolume", "kind": "class"},
+        {"path": "ASGamePlayObject", "kind": "class"}
+      ],
+      "functions": [
+        {"address": "0x10a85f90", "namespace": "ASDamageVolume", "name": "Tick"},
+        {"address": "0x10a86240", "namespace": "", "name": "eventbIsDamageVolumeSensitive"},
+        {"address": "0x10904030", "namespace": "", "name": "appSeconds"},
+        {"address": "0x10a8fc90", "namespace": "ASGamePlayObject", "name": "ProcessDamage"}
+      ],
+      "labels": [],
+      "comments": [
+        {"address": "0x10a85f90", "type": "plate", "text": "Damage volume tick: real-time period (appSeconds), every touching actor, no Super.Tick"}
+      ]
+    }
+  ]
+}

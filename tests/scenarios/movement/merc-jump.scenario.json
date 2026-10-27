@@ -1,0 +1,80 @@
+{
+  "format": "svm.scenario/1",
+  "id": "movement.merc-jump",
+  "title": "Merc standing still jumps once and lands",
+  "map": "SteeE",
+  "mode": "playlevel",
+  "players": [
+    {
+      "team": "merc"
+    }
+  ],
+  "spawn": {
+    "floor": [
+      -492.0,
+      -2032.0,
+      -1143.5
+    ],
+    "yaw": 16384,
+    "clearance": 2.0,
+    "spot": "east yard lane, heading +Y",
+    "notes": "BSP floor z -1143.5, normal z 1.0 every 16 uu for 1792 uu along +Y; a spy box widened by 25 uu sweeps the lane clear; nearest GE 599 uu (an LG 145 uu higher); zone ZoneInfo1913. Found with re/tools/difftest/spots.py (editor live point.info and trace.box)."
+  },
+  "setup": [
+    {
+      "op": "teleport"
+    },
+    {
+      "op": "stance",
+      "crouched": false
+    },
+    {
+      "op": "write",
+      "target": "pawn",
+      "field": "Health",
+      "value": 100
+    },
+    {
+      "op": "view",
+      "pitch": 0,
+      "yaw": 16384
+    },
+    {
+      "op": "waitStill",
+      "maxFrames": 180
+    }
+  ],
+  "settleFrames": 60,
+  "durationFrames": 150,
+  "inputs": [
+    {
+      "frame": 30,
+      "jump": true,
+      "note": "jump (bPressedJump) from a standstill"
+    }
+  ],
+  "repeats": 3,
+  "profile": "locomotion",
+  "measure": {
+    "jumpApex": {
+      "from": 30,
+      "expect": 81.7
+    },
+    "airtime": {
+      "from": 30,
+      "expect": 0.66
+    }
+  },
+  "covers": [
+    "nat:SBase.SBasePawn.MyDoJump",
+    "uc:SBase.SPlayerController:s_PlayerJump.BeginState",
+    "uc:SBase.SPlayerController:s_PlayerJump.PlayerMove",
+    "uc:SBase.SPlayerController:s_PlayerJump.AnimEnd",
+    "uc:SBase.SPlayerController:s_PlayerJump.MyNotifyLanded",
+    "uc:SBase.SPlayerController:MyNotifyLanded",
+    "uc:SBase.SPlayerController:PlayerFalling.BeginState",
+    "rep:Engine.LevelInfo.DefaultGravity",
+    "uc:SBase.SPlayerController:s_PlayerWalkingWeapon.PlayerMove",
+    "def:SBase.SPAWNDEFENSE"
+  ]
+}

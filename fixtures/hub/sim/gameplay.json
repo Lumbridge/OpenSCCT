@@ -1,0 +1,742 @@
+{
+ "actors": [
+  {
+   "class": "Engine.PlayerStart",
+   "id": "PlayerStart0",
+   "props": {
+    "Location": {"X": 6069.0, "Y": 6908.0, "Z": 86.0},
+    "Rotation": {"Pitch": 0, "Roll": 0, "Yaw": 50173},
+    "Tag": "PlayerStart",
+    "TeamNumber": 0
+   }
+  },
+  {
+   "class": "Engine.PlayerStart",
+   "id": "PlayerStart1",
+   "props": {
+    "Location": {"X": 5921.0, "Y": 6879.0, "Z": 86.0},
+    "Rotation": {"Pitch": 0, "Roll": 0, "Yaw": 52225},
+    "Tag": "PlayerStart",
+    "TeamNumber": 0
+   }
+  },
+  {
+   "class": "Engine.PlayerStart",
+   "id": "PlayerStart2",
+   "props": {
+    "Location": {"X": 5782.0, "Y": 6821.0, "Z": 86.0},
+    "Rotation": {"Pitch": 0, "Roll": 0, "Yaw": 54274},
+    "Tag": "PlayerStart",
+    "TeamNumber": 0
+   }
+  },
+  {
+   "class": "Engine.PlayerStart",
+   "id": "PlayerStart3",
+   "props": {
+    "Location": {"X": 5657.0, "Y": 6738.0, "Z": 86.0},
+    "Rotation": {"Pitch": 0, "Roll": 0, "Yaw": 56315},
+    "Tag": "PlayerStart",
+    "TeamNumber": 0
+   }
+  },
+  {
+   "class": "Engine.PlayerStart",
+   "id": "PlayerStart4",
+   "props": {
+    "Location": {"X": 5550.0, "Y": 6631.0, "Z": 86.0},
+    "Rotation": {"Pitch": 0, "Roll": 0, "Yaw": 58373},
+    "Tag": "PlayerStart",
+    "TeamNumber": 0
+   }
+  },
+  {
+   "class": "Engine.PlayerStart",
+   "id": "PlayerStart5",
+   "props": {
+    "Location": {"X": 5467.0, "Y": 6506.0, "Z": 86.0},
+    "Rotation": {"Pitch": 0, "Roll": 0, "Yaw": 60414},
+    "Tag": "PlayerStart",
+    "TeamNumber": 0
+   }
+  },
+  {
+   "class": "Engine.PlayerStart",
+   "id": "PlayerStart6",
+   "props": {
+    "Location": {"X": 5409.0, "Y": 6367.0, "Z": 86.0},
+    "Rotation": {"Pitch": 0, "Roll": 0, "Yaw": 62463},
+    "Tag": "PlayerStart",
+    "TeamNumber": 0
+   }
+  },
+  {
+   "class": "Engine.PlayerStart",
+   "id": "PlayerStart7",
+   "props": {
+    "Location": {"X": 5380.0, "Y": 6219.0, "Z": 86.0},
+    "Rotation": {"Pitch": 0, "Roll": 0, "Yaw": 64515},
+    "Tag": "PlayerStart",
+    "TeamNumber": 0
+   }
+  },
+  {
+   "class": "Engine.PlayerStart",
+   "id": "PlayerStart8",
+   "props": {
+    "Location": {"X": 5380.0, "Y": 6069.0, "Z": 86.0},
+    "Rotation": {"Pitch": 0, "Roll": 0, "Yaw": 1021},
+    "Tag": "PlayerStart",
+    "TeamNumber": 0
+   }
+  },
+  {
+   "class": "Engine.PlayerStart",
+   "id": "PlayerStart9",
+   "props": {
+    "Location": {"X": 5409.0, "Y": 5921.0, "Z": 86.0},
+    "Rotation": {"Pitch": 0, "Roll": 0, "Yaw": 3073},
+    "Tag": "PlayerStart",
+    "TeamNumber": 0
+   }
+  },
+  {
+   "class": "Engine.PlayerStart",
+   "id": "PlayerStart10",
+   "props": {
+    "Location": {"X": 5467.0, "Y": 5782.0, "Z": 86.0},
+    "Rotation": {"Pitch": 0, "Roll": 0, "Yaw": 5122},
+    "Tag": "PlayerStart",
+    "TeamNumber": 0
+   }
+  },
+  {
+   "class": "Engine.PlayerStart",
+   "id": "PlayerStart11",
+   "props": {
+    "Location": {"X": 5550.0, "Y": 5657.0, "Z": 86.0},
+    "Rotation": {"Pitch": 0, "Roll": 0, "Yaw": 7163},
+    "Tag": "PlayerStart",
+    "TeamNumber": 0
+   }
+  },
+  {
+   "class": "Engine.PlayerStart",
+   "id": "PlayerStart12",
+   "props": {
+    "Location": {"X": 5657.0, "Y": 5550.0, "Z": 86.0},
+    "Rotation": {"Pitch": 0, "Roll": 0, "Yaw": 9221},
+    "Tag": "PlayerStart",
+    "TeamNumber": 0
+   }
+  },
+  {
+   "class": "Engine.PlayerStart",
+   "id": "PlayerStart13",
+   "props": {
+    "Location": {"X": 5782.0, "Y": 5467.0, "Z": 86.0},
+    "Rotation": {"Pitch": 0, "Roll": 0, "Yaw": 11262},
+    "Tag": "PlayerStart",
+    "TeamNumber": 0
+   }
+  },
+  {
+   "class": "Engine.PlayerStart",
+   "id": "PlayerStart14",
+   "props": {
+    "Location": {"X": 5921.0, "Y": 5409.0, "Z": 86.0},
+    "Rotation": {"Pitch": 0, "Roll": 0, "Yaw": 13311},
+    "Tag": "PlayerStart",
+    "TeamNumber": 0
+   }
+  },
+  {
+   "class": "Engine.PlayerStart",
+   "id": "PlayerStart15",
+   "props": {
+    "Location": {"X": 6069.0, "Y": 5380.0, "Z": 86.0},
+    "Rotation": {"Pitch": 0, "Roll": 0, "Yaw": 15363},
+    "Tag": "PlayerStart",
+    "TeamNumber": 0
+   }
+  },
+  {
+   "class": "Engine.PlayerStart",
+   "id": "PlayerStart16",
+   "props": {
+    "Location": {"X": 6037.0, "Y": 7227.0, "Z": 86.0},
+    "Rotation": {"Pitch": 0, "Roll": 0, "Yaw": 50179},
+    "Tag": "PlayerStart",
+    "TeamNumber": 0
+   }
+  },
+  {
+   "class": "Engine.PlayerStart",
+   "id": "PlayerStart17",
+   "props": {
+    "Location": {"X": 5828.0, "Y": 7185.0, "Z": 86.0},
+    "Rotation": {"Pitch": 0, "Roll": 0, "Yaw": 52226},
+    "Tag": "PlayerStart",
+    "TeamNumber": 0
+   }
+  },
+  {
+   "class": "Engine.PlayerStart",
+   "id": "PlayerStart18",
+   "props": {
+    "Location": {"X": 5631.0, "Y": 7104.0, "Z": 86.0},
+    "Rotation": {"Pitch": 0, "Roll": 0, "Yaw": 54271},
+    "Tag": "PlayerStart",
+    "TeamNumber": 0
+   }
+  },
+  {
+   "class": "Engine.PlayerStart",
+   "id": "PlayerStart19",
+   "props": {
+    "Location": {"X": 5454.0, "Y": 6985.0, "Z": 86.0},
+    "Rotation": {"Pitch": 0, "Roll": 0, "Yaw": 56319},
+    "Tag": "PlayerStart",
+    "TeamNumber": 0
+   }
+  },
+  {
+   "class": "Engine.PlayerStart",
+   "id": "PlayerStart20",
+   "props": {
+    "Location": {"X": 5303.0, "Y": 6834.0, "Z": 86.0},
+    "Rotation": {"Pitch": 0, "Roll": 0, "Yaw": 58369},
+    "Tag": "PlayerStart",
+    "TeamNumber": 0
+   }
+  },
+  {
+   "class": "Engine.PlayerStart",
+   "id": "PlayerStart21",
+   "props": {
+    "Location": {"X": 5184.0, "Y": 6657.0, "Z": 86.0},
+    "Rotation": {"Pitch": 0, "Roll": 0, "Yaw": 60417},
+    "Tag": "PlayerStart",
+    "TeamNumber": 0
+   }
+  },
+  {
+   "class": "Engine.PlayerStart",
+   "id": "PlayerStart22",
+   "props": {
+    "Location": {"X": 5103.0, "Y": 6460.0, "Z": 86.0},
+    "Rotation": {"Pitch": 0, "Roll": 0, "Yaw": 62462},
+    "Tag": "PlayerStart",
+    "TeamNumber": 0
+   }
+  },
+  {
+   "class": "Engine.PlayerStart",
+   "id": "PlayerStart23",
+   "props": {
+    "Location": {"X": 5061.0, "Y": 6251.0, "Z": 86.0},
+    "Rotation": {"Pitch": 0, "Roll": 0, "Yaw": 64509},
+    "Tag": "PlayerStart",
+    "TeamNumber": 0
+   }
+  },
+  {
+   "class": "Engine.PlayerStart",
+   "id": "PlayerStart24",
+   "props": {
+    "Location": {"X": 5061.0, "Y": 6037.0, "Z": 86.0},
+    "Rotation": {"Pitch": 0, "Roll": 0, "Yaw": 1027},
+    "Tag": "PlayerStart",
+    "TeamNumber": 0
+   }
+  },
+  {
+   "class": "Engine.PlayerStart",
+   "id": "PlayerStart25",
+   "props": {
+    "Location": {"X": 5103.0, "Y": 5828.0, "Z": 86.0},
+    "Rotation": {"Pitch": 0, "Roll": 0, "Yaw": 3074},
+    "Tag": "PlayerStart",
+    "TeamNumber": 0
+   }
+  },
+  {
+   "class": "Engine.PlayerStart",
+   "id": "PlayerStart26",
+   "props": {
+    "Location": {"X": 5184.0, "Y": 5631.0, "Z": 86.0},
+    "Rotation": {"Pitch": 0, "Roll": 0, "Yaw": 5119},
+    "Tag": "PlayerStart",
+    "TeamNumber": 0
+   }
+  },
+  {
+   "class": "Engine.PlayerStart",
+   "id": "PlayerStart27",
+   "props": {
+    "Location": {"X": 5303.0, "Y": 5454.0, "Z": 86.0},
+    "Rotation": {"Pitch": 0, "Roll": 0, "Yaw": 7167},
+    "Tag": "PlayerStart",
+    "TeamNumber": 0
+   }
+  },
+  {
+   "class": "Engine.PlayerStart",
+   "id": "PlayerStart28",
+   "props": {
+    "Location": {"X": 5454.0, "Y": 5303.0, "Z": 86.0},
+    "Rotation": {"Pitch": 0, "Roll": 0, "Yaw": 9217},
+    "Tag": "PlayerStart",
+    "TeamNumber": 0
+   }
+  },
+  {
+   "class": "Engine.PlayerStart",
+   "id": "PlayerStart29",
+   "props": {
+    "Location": {"X": 5631.0, "Y": 5184.0, "Z": 86.0},
+    "Rotation": {"Pitch": 0, "Roll": 0, "Yaw": 11265},
+    "Tag": "PlayerStart",
+    "TeamNumber": 0
+   }
+  },
+  {
+   "class": "Engine.PlayerStart",
+   "id": "PlayerStart30",
+   "props": {
+    "Location": {"X": 5828.0, "Y": 5103.0, "Z": 86.0},
+    "Rotation": {"Pitch": 0, "Roll": 0, "Yaw": 13310},
+    "Tag": "PlayerStart",
+    "TeamNumber": 0
+   }
+  },
+  {
+   "class": "Engine.PlayerStart",
+   "id": "PlayerStart31",
+   "props": {
+    "Location": {"X": 6037.0, "Y": 5061.0, "Z": 86.0},
+    "Rotation": {"Pitch": 0, "Roll": 0, "Yaw": 15357},
+    "Tag": "PlayerStart",
+    "TeamNumber": 0
+   }
+  },
+  {
+   "class": "Engine.PlayerStart",
+   "id": "PlayerStart32",
+   "props": {
+    "Location": {"X": 6219.0, "Y": 5380.0, "Z": 86.0},
+    "Rotation": {"Pitch": 0, "Roll": 0, "Yaw": 17405},
+    "Tag": "PlayerStart",
+    "TeamNumber": 1
+   }
+  },
+  {
+   "class": "Engine.PlayerStart",
+   "id": "PlayerStart33",
+   "props": {
+    "Location": {"X": 6367.0, "Y": 5409.0, "Z": 86.0},
+    "Rotation": {"Pitch": 0, "Roll": 0, "Yaw": 19457},
+    "Tag": "PlayerStart",
+    "TeamNumber": 1
+   }
+  },
+  {
+   "class": "Engine.PlayerStart",
+   "id": "PlayerStart34",
+   "props": {
+    "Location": {"X": 6506.0, "Y": 5467.0, "Z": 86.0},
+    "Rotation": {"Pitch": 0, "Roll": 0, "Yaw": 21506},
+    "Tag": "PlayerStart",
+    "TeamNumber": 1
+   }
+  },
+  {
+   "class": "Engine.PlayerStart",
+   "id": "PlayerStart35",
+   "props": {
+    "Location": {"X": 6631.0, "Y": 5550.0, "Z": 86.0},
+    "Rotation": {"Pitch": 0, "Roll": 0, "Yaw": 23547},
+    "Tag": "PlayerStart",
+    "TeamNumber": 1
+   }
+  },
+  {
+   "class": "Engine.PlayerStart",
+   "id": "PlayerStart36",
+   "props": {
+    "Location": {"X": 6738.0, "Y": 5657.0, "Z": 86.0},
+    "Rotation": {"Pitch": 0, "Roll": 0, "Yaw": 25605},
+    "Tag": "PlayerStart",
+    "TeamNumber": 1
+   }
+  },
+  {
+   "class": "Engine.PlayerStart",
+   "id": "PlayerStart37",
+   "props": {
+    "Location": {"X": 6821.0, "Y": 5782.0, "Z": 86.0},
+    "Rotation": {"Pitch": 0, "Roll": 0, "Yaw": 27646},
+    "Tag": "PlayerStart",
+    "TeamNumber": 1
+   }
+  },
+  {
+   "class": "Engine.PlayerStart",
+   "id": "PlayerStart38",
+   "props": {
+    "Location": {"X": 6879.0, "Y": 5921.0, "Z": 86.0},
+    "Rotation": {"Pitch": 0, "Roll": 0, "Yaw": 29695},
+    "Tag": "PlayerStart",
+    "TeamNumber": 1
+   }
+  },
+  {
+   "class": "Engine.PlayerStart",
+   "id": "PlayerStart39",
+   "props": {
+    "Location": {"X": 6908.0, "Y": 6069.0, "Z": 86.0},
+    "Rotation": {"Pitch": 0, "Roll": 0, "Yaw": 31747},
+    "Tag": "PlayerStart",
+    "TeamNumber": 1
+   }
+  },
+  {
+   "class": "Engine.PlayerStart",
+   "id": "PlayerStart40",
+   "props": {
+    "Location": {"X": 6908.0, "Y": 6219.0, "Z": 86.0},
+    "Rotation": {"Pitch": 0, "Roll": 0, "Yaw": 33789},
+    "Tag": "PlayerStart",
+    "TeamNumber": 1
+   }
+  },
+  {
+   "class": "Engine.PlayerStart",
+   "id": "PlayerStart41",
+   "props": {
+    "Location": {"X": 6879.0, "Y": 6367.0, "Z": 86.0},
+    "Rotation": {"Pitch": 0, "Roll": 0, "Yaw": 35841},
+    "Tag": "PlayerStart",
+    "TeamNumber": 1
+   }
+  },
+  {
+   "class": "Engine.PlayerStart",
+   "id": "PlayerStart42",
+   "props": {
+    "Location": {"X": 6821.0, "Y": 6506.0, "Z": 86.0},
+    "Rotation": {"Pitch": 0, "Roll": 0, "Yaw": 37890},
+    "Tag": "PlayerStart",
+    "TeamNumber": 1
+   }
+  },
+  {
+   "class": "Engine.PlayerStart",
+   "id": "PlayerStart43",
+   "props": {
+    "Location": {"X": 6738.0, "Y": 6631.0, "Z": 86.0},
+    "Rotation": {"Pitch": 0, "Roll": 0, "Yaw": 39931},
+    "Tag": "PlayerStart",
+    "TeamNumber": 1
+   }
+  },
+  {
+   "class": "Engine.PlayerStart",
+   "id": "PlayerStart44",
+   "props": {
+    "Location": {"X": 6631.0, "Y": 6738.0, "Z": 86.0},
+    "Rotation": {"Pitch": 0, "Roll": 0, "Yaw": 41989},
+    "Tag": "PlayerStart",
+    "TeamNumber": 1
+   }
+  },
+  {
+   "class": "Engine.PlayerStart",
+   "id": "PlayerStart45",
+   "props": {
+    "Location": {"X": 6506.0, "Y": 6821.0, "Z": 86.0},
+    "Rotation": {"Pitch": 0, "Roll": 0, "Yaw": 44030},
+    "Tag": "PlayerStart",
+    "TeamNumber": 1
+   }
+  },
+  {
+   "class": "Engine.PlayerStart",
+   "id": "PlayerStart46",
+   "props": {
+    "Location": {"X": 6367.0, "Y": 6879.0, "Z": 86.0},
+    "Rotation": {"Pitch": 0, "Roll": 0, "Yaw": 46079},
+    "Tag": "PlayerStart",
+    "TeamNumber": 1
+   }
+  },
+  {
+   "class": "Engine.PlayerStart",
+   "id": "PlayerStart47",
+   "props": {
+    "Location": {"X": 6219.0, "Y": 6908.0, "Z": 86.0},
+    "Rotation": {"Pitch": 0, "Roll": 0, "Yaw": 48131},
+    "Tag": "PlayerStart",
+    "TeamNumber": 1
+   }
+  },
+  {
+   "class": "Engine.PlayerStart",
+   "id": "PlayerStart48",
+   "props": {
+    "Location": {"X": 6251.0, "Y": 5061.0, "Z": 86.0},
+    "Rotation": {"Pitch": 0, "Roll": 0, "Yaw": 17411},
+    "Tag": "PlayerStart",
+    "TeamNumber": 1
+   }
+  },
+  {
+   "class": "Engine.PlayerStart",
+   "id": "PlayerStart49",
+   "props": {
+    "Location": {"X": 6460.0, "Y": 5103.0, "Z": 86.0},
+    "Rotation": {"Pitch": 0, "Roll": 0, "Yaw": 19458},
+    "Tag": "PlayerStart",
+    "TeamNumber": 1
+   }
+  },
+  {
+   "class": "Engine.PlayerStart",
+   "id": "PlayerStart50",
+   "props": {
+    "Location": {"X": 6657.0, "Y": 5184.0, "Z": 86.0},
+    "Rotation": {"Pitch": 0, "Roll": 0, "Yaw": 21503},
+    "Tag": "PlayerStart",
+    "TeamNumber": 1
+   }
+  },
+  {
+   "class": "Engine.PlayerStart",
+   "id": "PlayerStart51",
+   "props": {
+    "Location": {"X": 6834.0, "Y": 5303.0, "Z": 86.0},
+    "Rotation": {"Pitch": 0, "Roll": 0, "Yaw": 23551},
+    "Tag": "PlayerStart",
+    "TeamNumber": 1
+   }
+  },
+  {
+   "class": "Engine.PlayerStart",
+   "id": "PlayerStart52",
+   "props": {
+    "Location": {"X": 6985.0, "Y": 5454.0, "Z": 86.0},
+    "Rotation": {"Pitch": 0, "Roll": 0, "Yaw": 25601},
+    "Tag": "PlayerStart",
+    "TeamNumber": 1
+   }
+  },
+  {
+   "class": "Engine.PlayerStart",
+   "id": "PlayerStart53",
+   "props": {
+    "Location": {"X": 7104.0, "Y": 5631.0, "Z": 86.0},
+    "Rotation": {"Pitch": 0, "Roll": 0, "Yaw": 27649},
+    "Tag": "PlayerStart",
+    "TeamNumber": 1
+   }
+  },
+  {
+   "class": "Engine.PlayerStart",
+   "id": "PlayerStart54",
+   "props": {
+    "Location": {"X": 7185.0, "Y": 5828.0, "Z": 86.0},
+    "Rotation": {"Pitch": 0, "Roll": 0, "Yaw": 29694},
+    "Tag": "PlayerStart",
+    "TeamNumber": 1
+   }
+  },
+  {
+   "class": "Engine.PlayerStart",
+   "id": "PlayerStart55",
+   "props": {
+    "Location": {"X": 7227.0, "Y": 6037.0, "Z": 86.0},
+    "Rotation": {"Pitch": 0, "Roll": 0, "Yaw": 31741},
+    "Tag": "PlayerStart",
+    "TeamNumber": 1
+   }
+  },
+  {
+   "class": "Engine.PlayerStart",
+   "id": "PlayerStart56",
+   "props": {
+    "Location": {"X": 7227.0, "Y": 6251.0, "Z": 86.0},
+    "Rotation": {"Pitch": 0, "Roll": 0, "Yaw": 33795},
+    "Tag": "PlayerStart",
+    "TeamNumber": 1
+   }
+  },
+  {
+   "class": "Engine.PlayerStart",
+   "id": "PlayerStart57",
+   "props": {
+    "Location": {"X": 7185.0, "Y": 6460.0, "Z": 86.0},
+    "Rotation": {"Pitch": 0, "Roll": 0, "Yaw": 35842},
+    "Tag": "PlayerStart",
+    "TeamNumber": 1
+   }
+  },
+  {
+   "class": "Engine.PlayerStart",
+   "id": "PlayerStart58",
+   "props": {
+    "Location": {"X": 7104.0, "Y": 6657.0, "Z": 86.0},
+    "Rotation": {"Pitch": 0, "Roll": 0, "Yaw": 37887},
+    "Tag": "PlayerStart",
+    "TeamNumber": 1
+   }
+  },
+  {
+   "class": "Engine.PlayerStart",
+   "id": "PlayerStart59",
+   "props": {
+    "Location": {"X": 6985.0, "Y": 6834.0, "Z": 86.0},
+    "Rotation": {"Pitch": 0, "Roll": 0, "Yaw": 39935},
+    "Tag": "PlayerStart",
+    "TeamNumber": 1
+   }
+  },
+  {
+   "class": "Engine.PlayerStart",
+   "id": "PlayerStart60",
+   "props": {
+    "Location": {"X": 6834.0, "Y": 6985.0, "Z": 86.0},
+    "Rotation": {"Pitch": 0, "Roll": 0, "Yaw": 41985},
+    "Tag": "PlayerStart",
+    "TeamNumber": 1
+   }
+  },
+  {
+   "class": "Engine.PlayerStart",
+   "id": "PlayerStart61",
+   "props": {
+    "Location": {"X": 6657.0, "Y": 7104.0, "Z": 86.0},
+    "Rotation": {"Pitch": 0, "Roll": 0, "Yaw": 44033},
+    "Tag": "PlayerStart",
+    "TeamNumber": 1
+   }
+  },
+  {
+   "class": "Engine.PlayerStart",
+   "id": "PlayerStart62",
+   "props": {
+    "Location": {"X": 6460.0, "Y": 7185.0, "Z": 86.0},
+    "Rotation": {"Pitch": 0, "Roll": 0, "Yaw": 46078},
+    "Tag": "PlayerStart",
+    "TeamNumber": 1
+   }
+  },
+  {
+   "class": "Engine.PlayerStart",
+   "id": "PlayerStart63",
+   "props": {
+    "Location": {"X": 6251.0, "Y": 7227.0, "Z": 86.0},
+    "Rotation": {"Pitch": 0, "Roll": 0, "Yaw": 48125},
+    "Tag": "PlayerStart",
+    "TeamNumber": 1
+   }
+  },
+  {
+   "class": "Engine.ZoneInfo",
+   "id": "ZoneHall",
+   "props": {
+    "AmbientBrightness": 34,
+    "Location": {"X": 6144.0, "Y": 6144.0, "Z": 1400.0},
+    "LocationName": "Hub",
+    "Tag": "ZoneInfo"
+   }
+  }
+ ],
+ "eventEdges": [],
+ "formatVersion": "1.1.0",
+ "levelInfo": {
+  "class": "Engine.LevelInfo",
+  "id": "LevelInfo0",
+  "props": {
+   "Author": "OpenSCCT",
+   "GEActivationMask": 0,
+   "RecommendedNumPlayers": 50,
+   "Tag": "LevelInfo",
+   "Title": "Hub"
+  }
+ },
+ "map": "Hub",
+ "mapSettings": {
+  "Story": {"RespawnTime": 3, "SentriesLives": 99, "SpiesLives": 99, "TimeLimit": 0}
+ },
+ "missionTree": [],
+ "tagIndex": {
+  "LevelInfo": ["LevelInfo0"],
+  "PlayerStart": [
+   "PlayerStart0",
+   "PlayerStart1",
+   "PlayerStart2",
+   "PlayerStart3",
+   "PlayerStart4",
+   "PlayerStart5",
+   "PlayerStart6",
+   "PlayerStart7",
+   "PlayerStart8",
+   "PlayerStart9",
+   "PlayerStart10",
+   "PlayerStart11",
+   "PlayerStart12",
+   "PlayerStart13",
+   "PlayerStart14",
+   "PlayerStart15",
+   "PlayerStart16",
+   "PlayerStart17",
+   "PlayerStart18",
+   "PlayerStart19",
+   "PlayerStart20",
+   "PlayerStart21",
+   "PlayerStart22",
+   "PlayerStart23",
+   "PlayerStart24",
+   "PlayerStart25",
+   "PlayerStart26",
+   "PlayerStart27",
+   "PlayerStart28",
+   "PlayerStart29",
+   "PlayerStart30",
+   "PlayerStart31",
+   "PlayerStart32",
+   "PlayerStart33",
+   "PlayerStart34",
+   "PlayerStart35",
+   "PlayerStart36",
+   "PlayerStart37",
+   "PlayerStart38",
+   "PlayerStart39",
+   "PlayerStart40",
+   "PlayerStart41",
+   "PlayerStart42",
+   "PlayerStart43",
+   "PlayerStart44",
+   "PlayerStart45",
+   "PlayerStart46",
+   "PlayerStart47",
+   "PlayerStart48",
+   "PlayerStart49",
+   "PlayerStart50",
+   "PlayerStart51",
+   "PlayerStart52",
+   "PlayerStart53",
+   "PlayerStart54",
+   "PlayerStart55",
+   "PlayerStart56",
+   "PlayerStart57",
+   "PlayerStart58",
+   "PlayerStart59",
+   "PlayerStart60",
+   "PlayerStart61",
+   "PlayerStart62",
+   "PlayerStart63"
+  ],
+  "ZoneInfo": ["ZoneHall"]
+ }
+}

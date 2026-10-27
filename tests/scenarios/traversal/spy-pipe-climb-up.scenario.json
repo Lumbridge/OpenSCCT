@@ -1,0 +1,89 @@
+{
+  "format": "svm.scenario/1",
+  "id": "traversal.spy-pipe-climb-up",
+  "title": "Spy walks into the pipe on the yard wall, climbs 1280 uu to the roof and tops out standing",
+  "map": "SteeE",
+  "mode": "playlevel",
+  "players": [
+    {
+      "team": "spy"
+    }
+  ],
+  "spawn": {
+    "floor": [
+      -1918.0,
+      1336.0,
+      -1127.5
+    ],
+    "yaw": 16384,
+    "clearance": 2.0,
+    "spot": "yard floor 120 uu south of PIPE GE 22, facing it (+Y)",
+    "notes": "PIPE GE 22: bottom (-1918, 1456, -1128) on the yard floor z -1127.5, top (-1918, 1456, 152) flush with the roof z 152.5, side point 10 uu toward -Y (the climber's side). A standing spy box swept toward it stops 35.7 uu from the pipe (its mesh), inside the 20 uu grab window round the spot 35 uu out. Floor z -1127.5 at 60, 120 and 180 uu out; the roof is z 152.5 at 40 to 120 uu behind the top. Found with re/tools/difftest/gespots.py (pipe)."
+  },
+  "setup": [
+    {
+      "op": "leaveGE",
+      "maxFrames": 240
+    },
+    {
+      "op": "teleport"
+    },
+    {
+      "op": "stance",
+      "crouched": false
+    },
+    {
+      "op": "fastSpeed",
+      "value": true
+    },
+    {
+      "op": "write",
+      "target": "pawn",
+      "field": "Health",
+      "value": 100
+    },
+    {
+      "op": "view",
+      "pitch": 0,
+      "yaw": 16384
+    },
+    {
+      "op": "waitStill",
+      "maxFrames": 180
+    }
+  ],
+  "settleFrames": 30,
+  "durationFrames": 720,
+  "inputs": [
+    {
+      "frame": 0,
+      "buttons": {
+        "BT_Up": 1
+      },
+      "note": "walk into the pipe, then climb with forward held"
+    },
+    {
+      "frame": 615,
+      "buttons": {
+        "BT_Up": 0
+      },
+      "note": "let go on the roof (first walking frame is 611)"
+    }
+  ],
+  "repeats": 3,
+  "profile": "traversal",
+  "measure": {},
+  "covers": [
+    "uc:SBase.SPlayerController:s_PlayerWalkingMario.Pipe",
+    "uc:SBase.SPlayerController:s_GrabPipe.PlayerMove",
+    "uc:SBase.SPlayerController:s_GrabPipe.AnimEnd",
+    "uc:SBase.SPlayerController:s_OnPipe.BeginState",
+    "uc:SBase.SPlayerController:s_OnPipe.PlayerMove",
+    "uc:SBase.SBasePawn:SetPipeZones",
+    "uc:SBase.SBasePawn:SendZipPAndNormalToServer",
+    "uc:SBase.SPlayerController:s_OnPipe.TopPipe",
+    "uc:SBase.SPlayerController:s_TopPipe.BeginState",
+    "uc:SBase.SPlayerController:s_TopPipe.PlayerMove",
+    "uc:SBase.SPlayerController:s_TopPipe.AnimEnd"
+  ]
+}

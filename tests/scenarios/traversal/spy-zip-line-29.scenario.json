@@ -1,0 +1,106 @@
+{
+  "format": "svm.scenario/1",
+  "id": "traversal.spy-zip-line-29",
+  "title": "Spy jumps onto zip line GE 29, rides it down, drops at its end, catches the deck ledge and climbs onto the deck",
+  "map": "SteeE",
+  "mode": "playlevel",
+  "players": [
+    {
+      "team": "spy"
+    }
+  ],
+  "spawn": {
+    "floor": [
+      -2843.3,
+      -280.0,
+      153.21
+    ],
+    "yaw": 16209,
+    "clearance": 2.0,
+    "spot": "platform z 153.21 under the high end of ZL GE 29, 40 uu down the line from it, facing down the line",
+    "notes": "ZL GE 29 from (-2844.0, -320.0, 458.0) down to (-2814.0, 1468.0, 140.0): 1788.3 uu long, slope 0.178, line 304.8 above the platform at the high end. The platform runs 0 to 112 uu down the line (a beam top at z 413 crosses it 16 uu from the high end, above head height); beyond it drops to z -488. The low end is over a deck at z -68 (LG 180 and 181), about where a rider's feet hang (202 under the line). Found with re/tools/difftest/gespots.py (zl)."
+  },
+  "setup": [
+    {
+      "op": "leaveGE",
+      "maxFrames": 240
+    },
+    {
+      "op": "teleport"
+    },
+    {
+      "op": "stance",
+      "crouched": false
+    },
+    {
+      "op": "fastSpeed",
+      "value": true
+    },
+    {
+      "op": "write",
+      "target": "pawn",
+      "field": "Health",
+      "value": 100
+    },
+    {
+      "op": "view",
+      "pitch": 0,
+      "yaw": 16209
+    },
+    {
+      "op": "waitStill",
+      "maxFrames": 180
+    }
+  ],
+  "settleFrames": 30,
+  "durationFrames": 540,
+  "inputs": [
+    {
+      "frame": 0,
+      "buttons": {
+        "BT_Up": 1
+      },
+      "note": "run down the line"
+    },
+    {
+      "frame": 12,
+      "jump": true,
+      "buttons": {
+        "BT_Up": 0
+      },
+      "note": "running jump at about 100 uu, stick released"
+    },
+    {
+      "frame": 400,
+      "buttons": {
+        "BT_Up": 1
+      },
+      "note": "hanging from the deck's LG 180: forward climbs onto it"
+    },
+    {
+      "frame": 410,
+      "buttons": {
+        "BT_Up": 0
+      }
+    }
+  ],
+  "repeats": 3,
+  "profile": "traversal",
+  "measure": {},
+  "covers": [
+    "uc:SBase.SPlayerController:s_PlayerJump.ZipLine",
+    "uc:SBase.SPlayerController:s_GrabZip.PlayerMove",
+    "uc:SBase.SPlayerController:s_GrabZip.AnimEnd",
+    "uc:SBase.SPlayerController:s_GrabZip.EndState",
+    "uc:SBase.SPlayerController:s_ZipLine.BeginState",
+    "uc:SBase.SPlayerController:s_ZipLine.PlayerMove",
+    "uc:SBase.SPlayerController:s_ZipLine.AnimEnd",
+    "uc:SBase.SPlayerController:TestZipWall",
+    "uc:SBase.SBasePawn:SetZipLineZones",
+    "uc:SBase.SPlayerController:s_ZipLine.NoGE",
+    "uc:SBase.SPlayerController:s_PlayerJump.Ledge",
+    "uc:SBase.SPlayerController:GrabLedge.AnimEnd",
+    "uc:SBase.SPlayerController:OnLedge.PlayerMove",
+    "nat:SBase.SPlayerController.TestTopLedge"
+  ]
+}

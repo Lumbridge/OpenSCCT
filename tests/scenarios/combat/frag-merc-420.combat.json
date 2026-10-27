@@ -1,0 +1,63 @@
+{
+  "format": "svm.combat/1",
+  "id": "combat.frag-merc-420",
+  "title": "Frag grenade (the spy target's) 420 uu in front of the merc, health 1000: damage, blast and recovery",
+  "map": "SteeE",
+  "mode": "playlevel",
+  "local": {
+    "team": "merc",
+    "floor": [
+      -492.0,
+      -2032.0,
+      -1143.5
+    ],
+    "yaw": 16384,
+    "crouched": false
+  },
+  "target": {
+    "team": "spy",
+    "floor": [
+      -492.0,
+      -532.0,
+      -1143.5
+    ],
+    "yaw": 49152,
+    "crouched": false
+  },
+  "order": 90,
+  "settleFrames": 30,
+  "durationFrames": 420,
+  "events": [
+    {
+      "frame": 0,
+      "do": "healLocal",
+      "hp": 1000
+    },
+    {
+      "frame": 2,
+      "do": "grenade",
+      "kind": "frag",
+      "fromLocal": [
+        0.0,
+        420.0,
+        8.0
+      ],
+      "by": "target"
+    }
+  ],
+  "repeats": 2,
+  "measure": {
+    "blast": {},
+    "states": {}
+  },
+  "covers": [
+    "nat:Engine.Projectile.Explode",
+    "def:SBase.SProjFrag",
+    "uc:SBase.SProjFrag:PostBeginPlay",
+    "uc:SBase.SPlayerController:StandardReactionsToDamage",
+    "uc:SBase.SPlayerController:ExplosionHit",
+    "uc:SBase.SPlayerController:ClientDamage"
+  ],
+  "spot": "SteeE east yard lane (x -492, floor z -1143.5, clear for 1792 uu along +Y from y -2032; found with re/tools/difftest/spots.py for the R4 locomotion recordings)",
+  "notes": "Health 1000 so the explosion (200) does not kill and the blast reaction can be recorded."
+}

@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="$(RepoRoot)build/Test.props" />
+  <PropertyGroup>
+    <RootNamespace>OpenScct.Core.Tests</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\OpenScct.Core\OpenScct.Core.csproj" />
+  </ItemGroup>
+</Project>

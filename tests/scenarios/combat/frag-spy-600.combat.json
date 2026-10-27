@@ -1,0 +1,63 @@
+{
+  "format": "svm.combat/1",
+  "id": "combat.frag-spy-600",
+  "title": "Merc frag grenade 600 uu from a standing spy (health 1000)",
+  "map": "SteeE",
+  "mode": "playlevel",
+  "local": {
+    "team": "merc",
+    "floor": [
+      -492.0,
+      -2032.0,
+      -1143.5
+    ],
+    "yaw": 16384,
+    "crouched": false
+  },
+  "target": {
+    "team": "spy",
+    "floor": [
+      -492.0,
+      -1532.0,
+      -1143.5
+    ],
+    "yaw": 49152,
+    "crouched": false
+  },
+  "settleFrames": 200,
+  "durationFrames": 360,
+  "events": [
+    {
+      "frame": 0,
+      "do": "heal",
+      "hp": 1000
+    },
+    {
+      "frame": 2,
+      "do": "grenade",
+      "kind": "frag",
+      "fromTarget": [
+        0.0,
+        600.0,
+        8.0
+      ],
+      "by": "local",
+      "note": "dropped 600 uu north of the spy's feet, the grenade's own 2 s fuse"
+    }
+  ],
+  "repeats": 2,
+  "measure": {
+    "blast": {},
+    "states": {}
+  },
+  "covers": [
+    "nat:Engine.Projectile.Explode",
+    "def:SBase.SProjFrag",
+    "uc:SBase.SProjFrag:PostBeginPlay",
+    "uc:SBase.SPlayerController:StandardReactionsToDamage",
+    "uc:SBase.SPlayerController:ExplosionHit",
+    "uc:SBase.SPlayerController:ClientDamage"
+  ],
+  "spot": "SteeE east yard lane (x -492, floor z -1143.5, clear for 1792 uu along +Y from y -2032; found with re/tools/difftest/spots.py for the R4 locomotion recordings)",
+  "notes": "Settle 200 frames so the spy is past its 3 s spawn protection. Expected (natives2-damage.md rule 4, damage-pipeline.md rule 21): inside 350 uu SDamage_Explosion, 200 taken whatever the distance; 350 to 500 uu SDTBase int((1 - d / 500) 334); beyond 500 nothing."
+}

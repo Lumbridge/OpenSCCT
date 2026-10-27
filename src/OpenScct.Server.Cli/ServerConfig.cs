@@ -1,0 +1,202 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using OpenScct.Core;
+using OpenScct.Net.Discovery;
+using OpenScct.Server.Online;
+
+namespace OpenScct.Server.Cli;
+
+/// <summary>One match of the rotation: a map and mode, with optional changes to the map's own settings.</summary>
+internal sealed record RotationEntry
+{
+    public string Map { get; init; } = "SteeE";
+
+    /// <summary>Story, DiskHunt, Deathmatch or MercDeathmatch.</summary>
+    public string Mode { get; init; } = "Story";
+
+    public int? TimeLimit { get; init; }
+
+    public int? SpyLives { get; init; }
+
+    public int? MercLives { get; init; }
+
+    public int? Respawn { get; init; }
+
+    public int? KillLimit { get; init; }
+
+    /// <summary>Disk Hunt: active disks and disks to take.</summary>
+    public int? Disks { get; init; }
+
+    public int? DisksToWin { get; init; }
+
+    public bool? Revenge { get; init; }
+
+    public int? GamesInARow { get; init; }
+}
+
+/// <summary>The master a dedicated server lists itself on.</summary>
+internal sealed record MasterConfig
+{
+    public string Url { get; init; } = string.Empty;
+
+    public string? InviteKey { get; init; }
+
+    public bool Listed { get; init; } = true;
+
+    public bool NatPunch { get; init; } = true;
+
+    public bool Relay { get; init; } = true;
+
+    /// <summary>The trusted-server key the master's admin gave this server (master admins are admins here, rounds count for stats).</summary>
+    public string? ServerKey { get; init; }
+
+    /// <summary>Where the server stands (for example <c>EU</c> or <c>US</c>), shown in the lists.</summary>
+    public string? Region { get; init; }
+}
+
+/// <summary>
+/// <c>svm-server.json</c>: what a dedicated online server serves (docs/ONLINE.md, "Dedicated server"). JSON with
+/// comments; every field is optional.
+/// </summary>
+internal sealed record ServerConfig
+{
+    private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web)
+    {
+        ReadCommentHandling = JsonCommentHandling.Skip,
+        AllowTrailingCommas = true,
+        WriteIndented = true,
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+    };
+
+    public string Name { get; init; } = "OpenSCCT dedicated server";
+
+    public int Port { get; init; } = BuildInfo.DefaultGamePort;
+
+    /// <summary>LAN discovery port; 0 turns LAN discovery off.</summary>
+    public int LanPort { get; init; } = BuildInfo.DefaultLanPort;
+
+    /// <summary>Bind to 127.0.0.1 and ::1 only (testing on one machine).</summary>
+    public bool LoopbackOnly { get; init; }
+
+    public int MaxPlayers { get; init; } = 8;
+
+    public int MaxSpectators { get; init; } = 2;
+
+    public string? Password { get; init; }
+
+    /// <summary>Password of in-game admins (<c>!login</c>); with one set, only admins change maps.</summary>
+    public string? AdminPassword { get; init; }
+
+    /// <summary>Without an admin password, every player may change the map and launch.</summary>
+    public bool OpenMapCommands { get; init; } = true;
+
+    public string? Motd { get; init; }
+
+    /// <summary>Replication rate: 20 internet, 35 LAN.</summary>
+    public int NetRate { get; init; } = OpenScct.Net.K.NetServerMaxTickRate;
+
+    /// <summary>The original's -lanplay switch (LAN tick cap and net speeds).</summary>
+    public bool LanPlay { get; init; }
+
+    /// <summary>An extra folder searched for SVMap maps (before maps/ next to the executable).</summary>
+    public string? Maps { get; init; }
+
+    /// <summary>The matches the server plays in turn; the first is the lobby's first setup.</summary>
+    public List<RotationEntry> Rotation { get; init; } = [new RotationEntry()];
+
+    public int MinPlayersToLaunch { get; init; } = 2;
+
+    public float LaunchCountdownSeconds { get; init; } = 5f;
+
+    public float ResultsSeconds { get; init; } = 30f;
+
+    public float LoadTimeoutSeconds { get; init; } = 60f;
+
+    /// <summary>Where bans are kept (relative to the config file); null keeps them in memory only.</summary>
+    public string? BansFile { get; init; } = "bans.json";
+
+    public MasterConfig? Master { get; init; }
+
+    /// <summary>
+    /// Only players signed in on the master may join. Null: on when the server is listed on a master, off otherwise.
+    /// Without a master it cannot be on (nobody could have a ticket).
+    /// </summary>
+    public bool? RequireAccounts { get; init; }
+
+    /// <summary><see cref="RequireAccounts"/> with its default filled in.</summary>
+    [JsonIgnore]
+    public bool RequiresAccounts => RequireAccounts ?? Master is { Url.Length: > 0, Listed: true };
+
+    public ulong Seed { get; init; } = 1;
+
+    public static ServerConfig Load(string path)
+    {
+        try
+        {
+            return JsonSerializer.Deserialize<ServerConfig>(File.ReadAllText(path), Json) ?? new ServerConfig();
+        }
+        catch (JsonException e)
+        {
+            throw new InvalidOperationException($"{path}: {e.Message}", e);
+        }
+    }
+
+    public string ToJson() => JsonSerializer.Serialize(this, Json);
+
+    /// <summary>A config to start from (written by <c>--write-config</c>).</summary>
+    public static ServerConfig Example() => new()
+    {
+        Name = "My OpenSCCT server",
+        Motd = "Welcome. Be nice.",
+        Rotation =
+        [
+            new RotationEntry { Map = "SteeE", Mode = "Story" },
+            new RotationEntry { Map = "SteeE", Mode = "Story", Revenge = true },
+        ],
+        Master = new MasterConfig { Url = "https://master.example.org", InviteKey = "the-invite-key" },
+        RequireAccounts = true,
+    };
+
+    /// <summary>The rotation's setups, each from its map's own settings for the mode and the entry's changes.</summary>
+    public List<LobbySetup> Setups(MapCatalog maps)
+    {
+        var list = new List<LobbySetup>();
+        foreach (RotationEntry e in Rotation)
+        {
+            if (maps.FindMap(e.Map) is not { } entry)
+            {
+                throw new InvalidOperationException($"Rotation map '{e.Map}' is not installed (looked in: {string.Join("; ", maps.Roots)}).");
+            }
+
+            if (!LobbySetup.TryParseMode(e.Mode, out EGameMode mode))
+            {
+                throw new InvalidOperationException($"Rotation mode '{e.Mode}' is not a mode (Story, DiskHunt, Deathmatch, MercDeathmatch).");
+            }
+
+            LobbySetup s = LobbySetup.ForMap(entry.Id, mode, maps.GetMapSettings(entry.Id), MaxPlayers);
+            s = s with
+            {
+                TimeLimit = e.TimeLimit ?? s.TimeLimit,
+                SpyLives = e.SpyLives ?? s.SpyLives,
+                MercLives = e.MercLives ?? s.MercLives,
+                RespawnSeconds = e.Respawn ?? s.RespawnSeconds,
+                ScoreLimit = e.KillLimit ?? s.ScoreLimit,
+                Disks = e.Disks ?? s.Disks,
+                DisksToWin = e.DisksToWin ?? s.DisksToWin,
+                Revenge = e.Revenge ?? s.Revenge,
+                GamesInARow = e.GamesInARow ?? s.GamesInARow,
+            };
+            list.Add(s.Clamped());
+        }
+
+        if (list.Count == 0)
+        {
+            throw new InvalidOperationException("The rotation is empty.");
+        }
+
+        return list;
+    }
+}

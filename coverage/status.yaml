@@ -1,0 +1,117 @@
+# Coverage status of every unit of the original game.
+#
+# The inventory (re/inventory/inventory.json, built by re/tools/inventory) lists every unit, weighted
+# by bytecode size. This file records only what the inventory and the code cannot tell: units with an
+# explicit status, and units that are out of scope. tools/OpenScct.Coverage merges the two with the spec
+# Units lists, the [PortOf]/[Uc]/[UcNative] attributes of the built assemblies and the difftest
+# scenarios, and writes docs/progress/COVERAGE.md. `dotnet run --project tools/OpenScct.Coverage -- --check`
+# fails on unknown ids, missing spec files and n-a entries without a reason.
+#
+# Unit id kinds (grammar in re/inventory/README.md):
+#   uc:   UnrealScript code: uc:Pkg.Class:Function, uc:Pkg.Class:State.Function, uc:Pkg.Class:State@code
+#   nat:  script natives: nat:Pkg.Class.Function
+#   rep:  replication members: rep:Pkg.Class.Member
+#   def:  class default properties: def:Pkg.Class
+#   eng:  native engine code outside the inventory: eng:ASBasePawn::physWalking
+#   fmt:  file formats
+#   rl:   Reloaded.Core behaviour
+#
+# Statuses: unported (default), specced, ported, verified, n-a.
+#   specced   listed under a spec's Units:
+#   ported    C# carries [PortOf], [Uc] or [UcNative] for the unit (def: also when the class skeleton
+#             generator emitted the class defaults)
+#   verified  ported, and covered by a difftest scenario whose golden passes, or matched by a test
+#             against measured values (then say which in `evidence`)
+#   n-a       out of scope, with a reason
+
+version: 1
+
+# Single units with an explicit status. Fields: status, spec (path#anchor), reason (n-a), evidence.
+# Example:
+#   uc:SBase.SPlayerController:s_PlayerWalkingWeapon.PlayerMove:
+#     status: verified
+#     spec: spec/movement/walking.md#weapon-walking-s_playerwalkingweaponplayermove
+#     evidence: tests/OpenScct.Game.Tests/... against measured speeds
+units: {}
+
+# Out-of-scope units, matched by glob (* matches any run of characters, including dots and colons).
+# Every entry needs a reason. A unit that is ported anyway keeps its status and is reported.
+na:
+  - globs:
+      - "uc:SBase.SXBoxLiveRef:*"
+      - "nat:SBase.SXBoxLiveRef.*"
+      - "def:SBase.SXBoxLiveRef"
+      - "uc:SBase.SPlayerController:XBoxLive"
+      - "uc:GUI.GUIComponent:XBoxLive"
+    reason: >-
+      Xbox Live service layer (sign-in, friends, invitations, matchmaking, leaderboards, content download,
+      mute lists) and the two accessors that return it. On PC the same class fronted the Ubi.com game
+      service, which no longer runs. Xbox Live is not a target; the rewrite finds games through its own
+      master server and LAN discovery.
+
+  - globs:
+      - "uc:GUI.SSMenu_ErrorXBLive_*"
+      - "def:GUI.SSMenu_ErrorXBLive_*"
+    reason: >-
+      Xbox Live error pages of the menu ("Your Xbox console cannot connect to Xbox Live", duplicate
+      sign-in). Xbox only: no script opens them on PC.
+
+  - globs:
+      - "nat:Core.Object.PSX2*"
+    reason: >-
+      PlayStation 2 natives: network configuration (NetCnf, NetCtl), DNAS authentication, memory card
+      port check and online/offline switches. PS2 only.
+
+  - globs:
+      - "nat:Core.Object.IsPsx2"
+      - "nat:Core.Object.IsXbox"
+      - "uc:Core.Object:IsPC"
+    reason: >-
+      Platform queries. The rewrite is a PC game, so ports take the PC branch of their callers directly
+      (IsPsx2 and IsXbox false, IsPC true) instead of asking.
+
+  - globs:
+      - "nat:GUI.GUIController.IsMemoryCardReady"
+      - "nat:GUI.GUIController.HasMemoryCardBeenChanged"
+      - "nat:GUI.GUIController.SetMemoryCardActivation"
+      - "nat:GUI.GUIController.LaunchDashBoardMemoryPage"
+    reason: >-
+      Console save storage: memory card state and the Xbox dashboard's memory page. PC profiles are files
+      on disk; the PC callers only use these as no-ops.
+
+  - globs:
+      - "nat:SBase.SPlayerController.RumbleEnable"
+      - "nat:SBase.SPlayerController.RumblePadStart"
+      - "nat:SBase.SPlayerController.RumblePadStop"
+      - "nat:SBase.SPlayerController.RumblePadTest"
+      - "nat:SBase.SPlayerController.RumblePadTime"
+      - "nat:SBase.SPlayerController.RumblePadUpdate"
+    reason: >-
+      The stock engine's console rumble natives. No script calls them in this build: the Enhanced 4.0
+      scripts drive rumble through the Reloaded natives NativeRumble* (1910 to 1915), which stay in scope
+      (spec/reloaded/FEATURES.md rl:input.rumble, spec/native/reloaded-hooks.md rule 28).
+
+  - globs:
+      - "def:Core.*Commandlet"
+      - "nat:Core.Commandlet.*"
+      - "uc:Core.*Commandlet:*"
+    reason: >-
+      Commandlets: command-line and editor tools (ucc), never run by the game.
+
+  - globs:
+      - "nat:SBase.SPlayerController.NativeOnlineFlags"
+      - "nat:SBase.SPlayerController.NativeSetLiveState"
+      - "nat:SBase.SPlayerController.NativeRenderCaps"
+      - "nat:SBase.SPlayerController.NativeStoreRenderCaps"
+      - "uc:SBase.SPlayerController:RefreshPlayerLiveFlags"
+      - "uc:SBase.SPlayerController:ClientUpdateLiveFlags"
+      - "uc:SBase.SPlayerController:UpdatePlayerLiveStateToServer"
+      - "uc:SBase.SPlayerController:RequestRenderCaps"
+      - "uc:SBase.SPlayerController:ServerSetRenderCaps"
+      - "rep:SBase.SPlayerController.ClientUpdateLiveFlags"
+      - "rep:SBase.SPlayerController.UpdatePlayerLiveStateToServer"
+      - "rep:SBase.SPlayerController.ServerSetRenderCaps"
+    reason: >-
+      Reloaded's client verification challenge (server request, client reply computed by a Reloaded
+      native, server discards it). spec/native/reloaded-hooks.md rule 27: the rewrite does not
+      reproduce it.

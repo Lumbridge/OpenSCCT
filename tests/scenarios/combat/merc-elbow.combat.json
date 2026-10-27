@@ -1,0 +1,81 @@
+{
+  "format": "svm.combat/1",
+  "id": "combat.merc-elbow",
+  "title": "Merc elbow strike: a berserk spin that hits nobody, then Use within its 3 s cooldown with a spy 110 uu in front",
+  "map": "SteeE",
+  "mode": "playlevel",
+  "local": {
+    "team": "merc",
+    "floor": [
+      -492.0,
+      -2032.0,
+      -1143.5
+    ],
+    "yaw": 16384,
+    "crouched": false
+  },
+  "target": {
+    "team": "spy",
+    "floor": [
+      -492.0,
+      -1632.0,
+      -1143.5
+    ],
+    "yaw": 49152,
+    "crouched": false
+  },
+  "settleFrames": 30,
+  "durationFrames": 420,
+  "events": [
+    {
+      "frame": 10,
+      "do": "buttons",
+      "buttons": {
+        "bUsing": 1
+      }
+    },
+    {
+      "frame": 14,
+      "do": "buttons",
+      "buttons": {
+        "bUsing": 0
+      }
+    },
+    {
+      "frame": 120,
+      "do": "place",
+      "floor": [
+        -492.0,
+        -1922.0,
+        -1143.5
+      ],
+      "yaw": 49152,
+      "note": "the spy is moved in front of the merc while his berserk cools down"
+    },
+    {
+      "frame": 170,
+      "do": "buttons",
+      "buttons": {
+        "bUsing": 1
+      }
+    },
+    {
+      "frame": 174,
+      "do": "buttons",
+      "buttons": {
+        "bUsing": 0
+      }
+    }
+  ],
+  "repeats": 2,
+  "measure": {
+    "states": {}
+  },
+  "covers": [
+    "uc:SBase.SPlayerController:FindPawnToElbowShotAndGoForIt",
+    "uc:SBase.SPlayerController:AskServerToElbowAttack",
+    "uc:SBase.SPlayerController:Handle_ElbowDmg"
+  ],
+  "spot": "SteeE east yard lane (x -492, floor z -1143.5, clear for 1792 uu along +Y from y -2032; found with re/tools/difftest/spots.py for the R4 locomotion recordings)",
+  "notes": "melee-elbow-charge-berserk.md rule 1: with the default options a merc's Use is a charge (moving) or a berserk (still); it is an elbow only while those cool down."
+}

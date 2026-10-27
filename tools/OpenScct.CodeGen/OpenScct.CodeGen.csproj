@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Class skeleton generator: reads the local decompiler index, class defaults and reflection dumps and writes
+       src/OpenScct.Core/Generated and src/OpenScct.Game/Generated. A build tool, not a sim library. -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>OpenScct.CodeGen</RootNamespace>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="OpenScct.CodeGen.Tests" />
+  </ItemGroup>
+</Project>

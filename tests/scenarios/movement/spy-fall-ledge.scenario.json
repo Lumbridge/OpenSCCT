@@ -1,0 +1,99 @@
+{
+  "format": "svm.scenario/1",
+  "id": "movement.spy-fall-ledge",
+  "title": "Spy walks slowly off a 790 uu roof edge, falls, lands and takes fall damage",
+  "map": "SteeE",
+  "mode": "playlevel",
+  "players": [
+    {
+      "team": "spy"
+    }
+  ],
+  "spawn": {
+    "floor": [
+      -684.0,
+      464.0,
+      -351.0
+    ],
+    "yaw": 12288,
+    "clearance": 2.0,
+    "spot": "east yard roof, edge 288 uu ahead at yaw 12288 (67.5 degrees)",
+    "notes": "Flat roof z -351.0 (normal z 1.0) for 288 uu ahead and 48 uu to each side; beyond the edge the walkable yard floor z -1141.0 (a 790 uu drop) stays flat for 320 uu; sweeps of the run-up, the air beyond the edge and a fall at 175 and 230 uu/s are clear (not at 430). Nearest GE: LG 129, 191 uu from the run-up and about 340 uu from the landing, at yard level. Found with re/tools/difftest/spots.py (drop search)."
+  },
+  "setup": [
+    {
+      "op": "teleport"
+    },
+    {
+      "op": "stance",
+      "crouched": false
+    },
+    {
+      "op": "fastSpeed",
+      "value": false
+    },
+    {
+      "op": "write",
+      "target": "pawn",
+      "field": "Health",
+      "value": 100
+    },
+    {
+      "op": "view",
+      "pitch": 0,
+      "yaw": 12288
+    },
+    {
+      "op": "waitStill",
+      "maxFrames": 180
+    }
+  ],
+  "settleFrames": 30,
+  "durationFrames": 360,
+  "inputs": [
+    {
+      "frame": 0,
+      "buttons": {
+        "BT_Up": 1
+      },
+      "note": "walk slowly to the edge (169 uu/s)"
+    },
+    {
+      "frame": 150,
+      "buttons": {
+        "BT_Up": 0
+      },
+      "note": "let go while falling, before landing"
+    }
+  ],
+  "repeats": 3,
+  "profile": "locomotion",
+  "measure": {
+    "plateauSpeed": {
+      "from": 30,
+      "to": 90,
+      "expect": 169.4
+    },
+    "fall": {
+      "expectDrop": 790.0
+    },
+    "fallDamage": {
+      "expect": 21
+    }
+  },
+  "covers": [
+    "uc:SBase.SPlayerController:MyFalling",
+    "uc:SBase.SPlayerController:PlayerFalling.BeginState",
+    "uc:SBase.SPlayerController:PlayerFalling.EndState",
+    "uc:SBase.SPlayerController:s_PlayerJump.EndState",
+    "uc:SBase.SPlayerController:s_PlayerJump.PlayerMove",
+    "uc:SBase.SPlayerController:s_PlayerJump.MyNotifyLanded",
+    "uc:SBase.SPlayerController:MyNotifyLanded",
+    "uc:SBase.SPlayerController:PlayerLanding.BeginState",
+    "uc:SBase.SPlayerController:PlayerLanding.AnimEnd",
+    "uc:SBase.SPlayerController:GotoWaitingState",
+    "uc:SBase.SBasePawn:TakeFallingDamage",
+    "def:SBase.SPawnAttaque",
+    "rep:Engine.LevelInfo.DefaultGravity"
+  ]
+}

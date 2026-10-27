@@ -1,0 +1,115 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://svmap.invalid/1.0/common.schema.json",
+  "title": "SVMap 1.0 shared definitions",
+  "$defs": {
+    "formatVersion": {
+      "description": "SemVer of the SVMap format this file follows.",
+      "type": "string",
+      "pattern": "^1\\.0\\.(0|[1-9][0-9]*)$"
+    },
+    "mapId": {
+      "description": "Map id: the original map file stem (SteeE) or a native map name.",
+      "type": "string",
+      "pattern": "^[A-Za-z_][A-Za-z0-9_]*$",
+      "maxLength": 63
+    },
+    "id": {
+      "description": "Actor id: the original export name (SFlag28768), unique per map ignoring ASCII case.",
+      "type": "string",
+      "pattern": "^[A-Za-z_][A-Za-z0-9_]*$",
+      "maxLength": 63
+    },
+    "propName": {
+      "description": "UnrealScript property or struct member name.",
+      "type": "string",
+      "pattern": "^[A-Za-z_][A-Za-z0-9_]*$",
+      "maxLength": 63
+    },
+    "classPath": {
+      "description": "Package.Class with the original names.",
+      "type": "string",
+      "pattern": "^[A-Za-z_][A-Za-z0-9_]*\\.[A-Za-z_][A-Za-z0-9_]*$"
+    },
+    "assetPath": {
+      "description": "Package.Group.Name with every group level; at least Package.Name.",
+      "type": "string",
+      "pattern": "^[^.\\s]+(\\.[^.\\s]+)+$"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "byte": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 255
+    },
+    "vec3": {
+      "description": "UE-space point (uu): x, y, z.",
+      "type": "array",
+      "items": { "type": "number" },
+      "minItems": 3,
+      "maxItems": 3
+    },
+    "actorRef": {
+      "description": "Reference to an actor of the same map; None is written as null.",
+      "type": "object",
+      "required": ["$actor"],
+      "additionalProperties": false,
+      "properties": { "$actor": { "$ref": "#/$defs/id" } }
+    },
+    "assetRef": {
+      "description": "Reference to a non-actor object (mesh, material, sound...).",
+      "type": "object",
+      "required": ["$asset"],
+      "additionalProperties": false,
+      "properties": { "$asset": { "$ref": "#/$defs/assetPath" } }
+    },
+    "classRef": {
+      "description": "Value of a class-typed property.",
+      "type": "object",
+      "required": ["$class"],
+      "additionalProperties": false,
+      "properties": { "$class": { "$ref": "#/$defs/classPath" } }
+    },
+    "staticArray": {
+      "description": "Overridden elements of a static array property (ArrayDim > 1), keyed by decimal index.",
+      "type": "object",
+      "required": ["$elements"],
+      "additionalProperties": false,
+      "properties": {
+        "$elements": {
+          "type": "object",
+          "propertyNames": { "pattern": "^(0|[1-9][0-9]*)$" },
+          "minProperties": 1,
+          "additionalProperties": { "$ref": "#/$defs/propValue" }
+        }
+      }
+    },
+    "struct": {
+      "description": "Struct value keyed by member name (Vector X/Y/Z, Rotator Pitch/Yaw/Roll, Color R/G/B/A...).",
+      "type": "object",
+      "propertyNames": { "$ref": "#/$defs/propName" },
+      "additionalProperties": { "$ref": "#/$defs/propValue" }
+    },
+    "propValue": {
+      "description": "Typed property value. Int/Byte/enum: integer. Float: number with a decimal point. Bool. Str/Name: string. Object: actorRef, assetRef or null. Class: classRef. Dynamic array: array. Static array: staticArray. Struct: struct.",
+      "anyOf": [
+        { "type": ["number", "string", "boolean", "null"] },
+        { "type": "array", "items": { "$ref": "#/$defs/propValue" } },
+        { "$ref": "#/$defs/actorRef" },
+        { "$ref": "#/$defs/assetRef" },
+        { "$ref": "#/$defs/classRef" },
+        { "$ref": "#/$defs/staticArray" },
+        { "$ref": "#/$defs/struct" }
+      ]
+    },
+    "props": {
+      "description": "Property values that differ from the class defaults, keyed by property name.",
+      "type": "object",
+      "propertyNames": { "$ref": "#/$defs/propName" },
+      "additionalProperties": { "$ref": "#/$defs/propValue" }
+    }
+  }
+}

@@ -1,0 +1,510 @@
+using System;
+using System.Collections.Generic;
+using Godot;
+using OpenScct.Core;
+using OpenScct.Core.Engine;
+using OpenScct.Game.SBase;
+using OpenScct.Physics.Collision;
+using OpenScct.Provenance;
+using OpenScctGame.Render;
+using OpenScctGame.Render.Data;
+using OpenScctGame.Render.Particles;
+
+namespace OpenScctGame.Fx;
+
+/// <summary>
+/// The gameplay effects on this machine (docs/EFFECTS.md), drawn from the client world after each tick:
+/// <list type="bullet">
+/// <item>every Emitter actor spawned during play (SSmokeEmitter, SChaffeEmitter, SGrenadeExplosion, SStickyCamEmitter,
+/// SPoisonEmitter...) is a <see cref="ParticleSystemSim"/> of its class's converted sub-emitters, following the actor
+/// and gone with it;</item>
+/// <item>every spawned actor drawn as a static mesh (thrown grenades, stuck sticky cams, mines and their laser beams)
+/// shows its class mesh at its place, rotation and draw scale, actor-lit;</item>
+/// <item>effects the original spawns on each drawing machine from script (Level.NetMode != NM_DedicatedServer): the
+/// grenades' launch trails (SSmokeLaunchEmitter, SFragLaunchEmitter), and what <see cref="Spawn"/> is asked for (impact
+/// sparks, shell casings);</item>
+/// <item>the flash lights (SFlashLight, SFlashLight_FragGrenade).</item>
+/// </list>
+/// It reads the client world and never writes to it.
+/// </summary>
+public sealed partial class EffectViews : Node3D
+{
+    private const int DT_StaticMesh = 8;
+
+    private readonly Dictionary<Actor, Tracked> _tracked = new(ReferenceEqualityComparer.Instance);
+    private readonly List<Loose> _loose = [];
+    private readonly List<Actor> _gone = [];
+    private readonly List<LightEntry> _worldLights = [];
+    private ParticleTrace? _trace;
+    private Level? _level;
+    private uint _seed = 1;
+
+    public EffectViews()
+    {
+        Name = "Effects";
+    }
+
+    public FxLibrary? Library { get; set; }
+
+    /// <summary>The drawn pawns, for effects attached to a bone (AttachToBone).</summary>
+    public OpenScctGame.Views.PawnViews? Pawns { get; set; }
+
+    /// <summary>The map, for lighting the meshes of thrown gadgets.</summary>
+    public RenderMap? Map { get; set; }
+
+    /// <summary>Particle systems started so far, by class name.</summary>
+    public Dictionary<string, int> Started { get; } = new(StringComparer.Ordinal);
+
+    /// <summary>Actor meshes shown so far, by class name.</summary>
+    public Dictionary<string, int> MeshesShown { get; } = new(StringComparer.Ordinal);
+
+    /// <summary>The most particles drawn at once so far, by class name.</summary>
+    public Dictionary<string, int> PeakParticles { get; } = new(StringComparer.Ordinal);
+
+    /// <summary>Lights other views add for the next <see cref="Draw"/> only (the muzzle flashes' lights).</summary>
+    public List<LightEntry> ExtraLights { get; } = [];
+
+    /// <summary>Flash lights the last <see cref="Draw"/> handed to the world's dynamic lights.</summary>
+    public int WorldLit { get; private set; }
+
+    /// <summary>The most flash lights lighting the world at once so far.</summary>
+    public int PeakWorldLit { get; private set; }
+
+    /// <summary>Particles drawn by the last <see cref="Draw"/>.</summary>
+    public int Particles { get; private set; }
+
+    /// <summary>Particle systems alive now.</summary>
+    public int LiveSystems
+    {
+        get
+        {
+            int n = _loose.Count;
+            foreach (Tracked t in _tracked.Values)
+            {
+                n += t.View is null ? 0 : 1;
+            }
+
+            return n;
+        }
+    }
+
+    /// <summary>Actor meshes drawn now.</summary>
+    public int LiveMeshes
+    {
+        get
+        {
+            int n = 0;
+            foreach (Tracked t in _tracked.Values)
+            {
+                n += t.Mesh is { Visible: true } ? 1 : 0;
+            }
+
+            return n;
+        }
+    }
+
+    /// <summary>Classes asked for that the converted effects do not have.</summary>
+    public HashSet<string> Missing { get; } = new(StringComparer.Ordinal);
+
+    /// <summary>The particles drawn now of one effect class (actor-backed and spawned).</summary>
+    public int ParticlesOf(string cls)
+    {
+        int n = 0;
+        foreach (Tracked t in _tracked.Values)
+        {
+            if (t.View is { } v && t.Class == cls)
+            {
+                n += v.Drawn;
+            }
+        }
+
+        foreach (Loose l in _loose)
+        {
+            if (l.Class == cls)
+            {
+                n += l.View.Drawn;
+            }
+        }
+
+        return n;
+    }
+
+    /// <summary>The mesh node shown for an actor, or null.</summary>
+    public MeshInstance3D? MeshOf(Actor actor) => _tracked.TryGetValue(actor, out Tracked? t) ? t.Mesh : null;
+
+    /// <summary>After a client tick: finds the new effect actors and the ones that went.</summary>
+    public void OnTick(Level level)
+    {
+        ArgumentNullException.ThrowIfNull(level);
+        if (Library is not { Available: true } lib)
+        {
+            return;
+        }
+
+        if (!ReferenceEquals(level, _level))
+        {
+            _level = level;
+            _trace = TraceOf(level);
+        }
+
+        _gone.Clear();
+        foreach ((Actor a, Tracked t) in _tracked)
+        {
+            if (a.bDeleteMe)
+            {
+                _gone.Add(a);
+            }
+        }
+
+        foreach (Actor a in _gone)
+        {
+            Tracked t = _tracked[a];
+            t.View?.Free();
+            t.Mesh?.QueueFree();
+            t.Light?.QueueFree();
+            if (t.Trail is { } trail)
+            {
+                // The frag's Explode destroys its trail; the others are left where the grenade went (SetBase, LifeSpan).
+                if (a is SProjFrag)
+                {
+                    trail.Life = 0f;
+                }
+                else
+                {
+                    trail.Follow = null;
+                }
+            }
+
+            _tracked.Remove(a);
+        }
+
+        foreach (Actor a in level.AllActors<Actor>())
+        {
+            if (a.bDeleteMe || a.bNoDelete || a.bStatic || _tracked.ContainsKey(a) || DrawnByOwnView(a))
+            {
+                continue;
+            }
+
+            string cls = a.GetUcClass().Path;
+            if (lib.Find(cls) is not { } fx)
+            {
+                continue;
+            }
+
+            var t = new Tracked(a, a.GetUcClass().Name);
+            _tracked[a] = t;
+            switch (fx.Kind)
+            {
+                case "emitter" when a is Emitter:
+                    t.View = Start(fx, a.GetUcClass().Name);
+                    break;
+                case "projectile" or "mine" or "gadget" or "beam" when a.DrawType == (EDrawType)DT_StaticMesh:
+                    t.Mesh = MeshFor(a, lib);
+                    t.Trail = TrailFor(a);
+                    break;
+                case "light":
+                    t.Light = LightFor(a);
+                    break;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Actors another view draws: the spy pistol's SLaserBeam is drawn from the drawn hand by
+    /// <see cref="SpyLaserView"/> (the simulation has no skeleton, so its own place starts in mid-air), and the merc
+    /// laser's by <see cref="OpenScctGame.Render.MercLaserView"/>. Drawing them here as well showed every beam twice. The
+    /// map's laser tripwire beams (LasDetectBeam, not in the effects meshes) are drawn by <see cref="LaserTriggerView"/>.
+    /// </summary>
+    private static bool DrawnByOwnView(Actor a) =>
+        a is SLaserBeam and not SLaserBeam_MineLaser && a.Owner is SWeaponAttaque or SGadTorcheLaser or SLaserTrigger;
+
+    /// <summary>
+    /// Starts an effect class at a place, as script's Spawn of a cosmetic class does on each drawing machine; it
+    /// follows <paramref name="follow"/> while that lives. Null when the class has no converted sub-emitters.
+    /// </summary>
+    public ParticleSystemSim? Spawn(string cls, FVector location, FRotator rotation, Actor? follow = null)
+    {
+        if (Library is not { Available: true } lib)
+        {
+            return null;
+        }
+
+        if (lib.Find(cls) is not { } fx)
+        {
+            Missing.Add(cls);
+            return null;
+        }
+
+        if (Start(fx, cls) is not { } view)
+        {
+            Missing.Add(cls);
+            return null;
+        }
+
+        float life = fx.Float("LifeSpan");
+        var loose = new Loose(view, ShortName(cls), location, rotation, life > 0f ? life : float.PositiveInfinity, fx.Bool("AutoDestroy"))
+        {
+            Follow = follow,
+        };
+        _loose.Add(loose);
+        return view.Sim;
+    }
+
+    /// <summary>Each frame: steps and draws the particles, places the meshes and lights.</summary>
+    public void Draw(float dt, FVector cameraLocation, FRotator cameraRotation, int rendMap)
+    {
+        dt = Math.Clamp(dt, 0f, 0.1f);
+        ParticleCamera camera = ParticleCamera.From(cameraLocation, cameraRotation);
+        int total = 0;
+        foreach (Tracked t in _tracked.Values)
+        {
+            Actor a = t.Actor;
+            if (t.View is { } view)
+            {
+                FVector at = PlaceOf(a);
+                view.Sim.Step(dt, at, a.Rotation, a.Velocity);
+                view.Root.Visible = !a.bHidden;
+                view.Draw(new ParticleOwner(at, a.Rotation, a.Velocity, view.Sim.GlobalOffset), camera);
+                total += view.Drawn;
+                Peak(t.Class, view.Drawn);
+            }
+
+            if (t.Mesh is { } mesh)
+            {
+                FVector scale = a.DrawScale3D * a.DrawScale;
+                mesh.Transform = UeSpace.TransformToGodot(a.Location, a.Rotation, scale, a.PrePivot);
+                bool visionOnly = a.bHideInNormalVision;
+                mesh.Visible = !a.bHidden && (!visionOnly || rendMap is 36 or 38);
+            }
+
+            if (t.Light is { } light)
+            {
+                PlaceLight(light, a);
+                if (light.Visible)
+                {
+                    _worldLights.Add(WorldLightOf(a, light.LightEnergy * 255f));
+                }
+            }
+        }
+
+        // The flash lights light the world as the map's dynamic lights do (the template's dynamic term).
+        _worldLights.AddRange(ExtraLights);
+        ExtraLights.Clear();
+        Map?.WorldLights.SetSpawned(_worldLights);
+        WorldLit = Map?.WorldLights.SpawnedCount ?? 0;
+        PeakWorldLit = Math.Max(PeakWorldLit, WorldLit);
+        _worldLights.Clear();
+
+        for (int i = _loose.Count - 1; i >= 0; i--)
+        {
+            Loose l = _loose[i];
+            l.Age += dt;
+            if (l.Follow is { bDeleteMe: false } f)
+            {
+                l.Location = f.Location;
+                l.Rotation = f.Rotation;
+            }
+
+            if (l.Age >= l.Life || (l.AutoDestroy && l.View.Sim.AllDead && l.Age > 0.1f))
+            {
+                l.View.Free();
+                _loose.RemoveAt(i);
+                continue;
+            }
+
+            l.View.Sim.Step(dt, l.Location, l.Rotation, default);
+            l.View.Draw(new ParticleOwner(l.Location, l.Rotation, default, l.View.Sim.GlobalOffset), camera);
+            total += l.View.Drawn;
+            Peak(l.Class, l.View.Drawn);
+        }
+
+        Particles = total;
+    }
+
+    private void Peak(string cls, int drawn)
+    {
+        if (drawn > PeakParticles.GetValueOrDefault(cls))
+        {
+            PeakParticles[cls] = drawn;
+        }
+    }
+
+    private ParticleSystemView? Start(FxClass fx, string name)
+    {
+        ParticleSystemSim? sim = Library!.CreateSystem(fx.Path, _seed++ * 2246822519u);
+        if (sim is null)
+        {
+            return null;
+        }
+
+        sim.Trace = _trace;
+        Started[ShortName(fx.Path)] = Started.GetValueOrDefault(ShortName(fx.Path)) + 1;
+        return new ParticleSystemView(sim, Library, this, name, fx.Float("HeatOpacity", RenderK.DefaultHeatOpacity));
+    }
+
+    /// <summary>The launch trail script spawns for a thrown grenade on every drawing machine (not for a quick throw).</summary>
+    [Provenance(ProvenanceKind.Decoded, "SProjSmoke / SProjChaffe / SProjFlashBang / SProjPhospho.PostBeginPlay: SSmokeLaunchEmitter unless QuickLaunch; SProjFrag.PostBeginPlay: SFragLaunchEmitter (Level.NetMode != NM_DedicatedServer)")]
+    private Loose? TrailFor(Actor a)
+    {
+        string? cls = a switch
+        {
+            SProjFrag => "SBase.SFragLaunchEmitter",
+            SProjGrenade { QuickLaunch: true } => null,
+            SProjSmoke or SProjChaffe or SProjFlashBang or SProjPhospho => "SBase.SSmokeLaunchEmitter",
+            _ => null,
+        };
+        if (cls is null || Spawn(cls, a.Location, a.Rotation, a) is null)
+        {
+            return null;
+        }
+
+        return _loose[^1];
+    }
+
+    private MeshInstance3D? MeshFor(Actor a, FxLibrary lib)
+    {
+        if (a.StaticMesh.IsNone || lib.Mesh(a.StaticMesh.Path, lit: !a.bUnlit) is not { } mesh)
+        {
+            Missing.Add(a.StaticMesh.Path ?? a.GetUcClass().Path);
+            return null;
+        }
+
+        var node = new MeshInstance3D
+        {
+            Name = a.GetUcClass().Name,
+            Mesh = mesh,
+            CastShadow = GeometryInstance3D.ShadowCastingSetting.Off,
+            Transform = UeSpace.TransformToGodot(a.Location, a.Rotation, a.DrawScale3D * a.DrawScale, a.PrePivot),
+        };
+        AddChild(node);
+        if (!a.bUnlit && Map is { } map)
+        {
+            Aabb box = node.Transform * mesh.GetAabb();
+            float radius = UeSpace.UnitsPerMetre * box.Size.Length() * 0.5f;
+            ActorLighting.Apply(node, map.LightActor(a.Location, MathF.Max(radius, 8f), a.AmbientGlow));
+        }
+
+        string name = a.GetUcClass().Name;
+        MeshesShown[name] = MeshesShown.GetValueOrDefault(name) + 1;
+        return node;
+    }
+
+    private OmniLight3D LightFor(Actor a)
+    {
+        var light = new OmniLight3D { Name = a.GetUcClass().Name, ShadowEnabled = false };
+        AddChild(light);
+        PlaceLight(light, a);
+        string name = a.GetUcClass().Name;
+        Started[name] = Started.GetValueOrDefault(name) + 1;
+        return light;
+    }
+
+    /// <summary>
+    /// A flash light: LightBrightness, hue and saturation at the actor, reach 25 (LightRadius + 1) uu. The frag's
+    /// flash fades its brightness from 255 to 0 over fTempsDisparition (its native tick).
+    /// </summary>
+    [Provenance(ProvenanceKind.Decoded, "SFlashLight_FragGrenade tick (game 0x10abd280): LightBrightness = 255 - (TimeSeconds - fDateDepart) / fTempsDisparition x 255")]
+    [Provenance(ProvenanceKind.Estimated, "The world's own light model is not fed by these lights; a Godot omni light of the hue stands in, energy brightness / 255")]
+    private static void PlaceLight(OmniLight3D light, Actor a)
+    {
+        light.GlobalPosition = UeSpace.ToGodot(a.Location);
+        float brightness = a.LightBrightness;
+        if (a is SFlashLight_FragGrenade frag && frag.fTempsDisparition > 0f)
+        {
+            brightness = 255f - ((a.Level.TimeSeconds - frag.fDateDepart) / frag.fTempsDisparition * 255f);
+        }
+
+        // Light actors are bHidden (Engine.Light defaults) and still light their surroundings.
+        light.Visible = (int)a.LightType != 0 && brightness > 0f;
+        light.LightColor = Color.FromHsv(a.LightHue / 255f, a.LightSaturation / 255f, 1f);
+        light.LightEnergy = Math.Clamp(brightness / 255f, 0f, 8f);
+        light.OmniRange = UeSpace.LengthToGodot(RenderK.LightRadiusUnits * (a.LightRadius + 1f));
+    }
+
+    /// <summary>
+    /// A spawned light as a dynamic world light: the actor's light properties at <paramref name="brightness"/>, a dynamic
+    /// light applied to the world (UE2 lights a spawned bDynamicLight actor's surroundings each frame).
+    /// </summary>
+    [Provenance(ProvenanceKind.Estimated, "The world falloff, gain and radius are those of the map's dynamic lights (docs/RENDERING.md#dynamic-lights)")]
+    private LightEntry WorldLightOf(Actor a, float brightness) => new(
+        a.GetUcClass().Name, a.Location, a.Rotation, brightness, a.LightHue, a.LightSaturation, a.LightRadius, a.LightCone,
+        (int)a.LightEffect, 1, true, true, true, true, null, a.LightPeriod, a.LightPhase, a.bAffectOwnZoneOnly)
+    {
+        // SFlashLight is bAffectOwnZoneOnly: it lights only the surfaces of the zone it is in.
+        ZoneIndex = Map?.ZoneIndexAt(a.Location) ?? -1,
+    };
+
+    /// <summary>
+    /// Where an effect is drawn: an actor attached to a pawn's bone (AttachToBone: Base the pawn, AttachmentBone set)
+    /// follows that bone of the drawn skeleton (the simulation has none), others their own Location.
+    /// </summary>
+    private FVector PlaceOf(Actor a)
+    {
+        if (!a.AttachmentBone.IsNone && (a.Base ?? a.Owner) is SBasePawn pawn && Pawns is not null &&
+            Pawns.TryGetBone(pawn, a.AttachmentBone, out Transform3D bone))
+        {
+            return UeSpace.ToUe(bone.Origin);
+        }
+
+        return a.Location;
+    }
+
+    private static string ShortName(string cls) => cls[(cls.LastIndexOf('.') + 1)..];
+
+    /// <summary>The particle collision trace on the client's collision (level and world geometry, flags 0x84).</summary>
+    private static ParticleTrace? TraceOf(Level level)
+    {
+        if (OpenScct.Game.Equipment.GadgetWorld.Collision(level.Info) is not { } world)
+        {
+            return null;
+        }
+
+        return (FVector start, FVector end, out FVector hit, out FVector normal) =>
+        {
+            if (world.LineCheck(out FCheckResult r, null, end, start, FVector.Zero, (ETraceFlags)ParticleK.TraceFlags) && r.bHit)
+            {
+                hit = r.Location;
+                normal = r.Normal;
+                return true;
+            }
+
+            hit = default;
+            normal = default;
+            return false;
+        };
+    }
+
+    private sealed class Tracked(Actor actor, string cls)
+    {
+        public Actor Actor { get; } = actor;
+
+        public string Class { get; } = cls;
+
+        public ParticleSystemView? View { get; set; }
+
+        public MeshInstance3D? Mesh { get; set; }
+
+        public OmniLight3D? Light { get; set; }
+
+        public Loose? Trail { get; set; }
+    }
+
+    private sealed class Loose(ParticleSystemView view, string cls, FVector location, FRotator rotation, float life, bool autoDestroy)
+    {
+        public ParticleSystemView View { get; } = view;
+
+        public string Class { get; } = cls;
+
+        public FVector Location { get; set; } = location;
+
+        public FRotator Rotation { get; set; } = rotation;
+
+        public float Life { get; set; } = life;
+
+        public bool AutoDestroy { get; } = autoDestroy;
+
+        public float Age { get; set; }
+
+        public Actor? Follow { get; set; }
+    }
+}

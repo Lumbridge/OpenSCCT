@@ -1,0 +1,90 @@
+{
+  "format": "svm.combat/1",
+  "id": "combat.spawn-protection",
+  "title": "Spawn protection of a fresh spy: a frag going off inside the 3 s window, a bullet at 1.7 s, a frag going off after the window",
+  "map": "SteeE",
+  "mode": "playlevel",
+  "local": {
+    "team": "merc",
+    "floor": [
+      -492.0,
+      -2032.0,
+      -1143.5
+    ],
+    "yaw": 16384,
+    "crouched": false
+  },
+  "target": null,
+  "settleFrames": 30,
+  "durationFrames": 460,
+  "events": [
+    {
+      "frame": 0,
+      "do": "spawnTarget",
+      "team": "spy",
+      "floor": [
+        -492.0,
+        -1532.0,
+        -1143.5
+      ],
+      "yaw": 49152,
+      "note": "a fresh spy (RestartPlayer: fSpawnProtectionEnd = now + 3), moved into the lane by the rig 0.5 s and 1 s later"
+    },
+    {
+      "frame": 34,
+      "do": "grenade",
+      "kind": "frag",
+      "fromTarget": [
+        0.0,
+        150.0,
+        8.0
+      ],
+      "by": "local",
+      "note": "goes off about 2.6 s after the spawn: protected"
+    },
+    {
+      "frame": 100,
+      "do": "aim",
+      "bone": "spine2",
+      "to": "pelvis"
+    },
+    {
+      "frame": 104,
+      "do": "fire"
+    },
+    {
+      "frame": 105,
+      "do": "fireUp"
+    },
+    {
+      "frame": 200,
+      "do": "heal",
+      "hp": 1000
+    },
+    {
+      "frame": 240,
+      "do": "grenade",
+      "kind": "frag",
+      "fromTarget": [
+        0.0,
+        150.0,
+        8.0
+      ],
+      "by": "local",
+      "note": "goes off about 6 s after the spawn"
+    }
+  ],
+  "repeats": 2,
+  "measure": {
+    "hits": {},
+    "blast": {},
+    "states": {},
+    "deaths": {}
+  },
+  "covers": [
+    "uc:SBase.SPlayerController:EnterStartState",
+    "uc:SBase.SGameInfo:RestartPlayer",
+    "uc:SBase.SPlayerController:StandardReactionsToDamage"
+  ],
+  "spot": "SteeE east yard lane (x -492, floor z -1143.5, clear for 1792 uu along +Y from y -2032; found with re/tools/difftest/spots.py for the R4 locomotion recordings)"
+}

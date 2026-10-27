@@ -1,0 +1,122 @@
+{
+  "format": "svm.scenario/1",
+  "id": "moveset.spy-hoh",
+  "title": "Spy jumps up to a horizontal pipe 277 uu overhead, moves hand over hand along it, then drops with crouch",
+  "map": "MounE",
+  "mode": "playlevel",
+  "players": [
+    {
+      "team": "spy"
+    }
+  ],
+  "spawn": {
+    "floor": [
+      3560.0,
+      -2976.8,
+      641.0
+    ],
+    "yaw": 32768,
+    "clearance": 2.0,
+    "spot": "roof z 641 under HOH 12, 198 uu from its east end, facing along it (-X)",
+    "notes": "HOH GE 12: (3758, -2976.8, 918) to (1090, -2975.8, 918), the pipe mesh (StaticMeshActor7314) underside at z 916.8. Flat floor z 641 under it from x 2900 to 3740 (277 under the pipe); a standing box swept along the pipe line from x 3600 to 2900 is clear; a wall 143 uu to the south. Found with re/tools/difftest/movespots.py (hoh)."
+  },
+  "setup": [
+    {
+      "op": "leaveGE",
+      "maxFrames": 240
+    },
+    {
+      "op": "teleport"
+    },
+    {
+      "op": "stance",
+      "crouched": false
+    },
+    {
+      "op": "fastSpeed",
+      "value": true
+    },
+    {
+      "op": "write",
+      "target": "pawn",
+      "field": "Health",
+      "value": 100
+    },
+    {
+      "op": "view",
+      "pitch": 0,
+      "yaw": 32768
+    },
+    {
+      "op": "waitStill",
+      "maxFrames": 180
+    }
+  ],
+  "settleFrames": 30,
+  "durationFrames": 380,
+  "inputs": [
+    {
+      "frame": 0,
+      "buttons": {
+        "BT_Up": 1
+      },
+      "note": "walk 40 uu along the pipe"
+    },
+    {
+      "frame": 12,
+      "buttons": {
+        "BT_Up": 0
+      },
+      "note": "let go under the pipe"
+    },
+    {
+      "frame": 30,
+      "jump": true,
+      "note": "jump on the spot: HandOverHand"
+    },
+    {
+      "frame": 100,
+      "buttons": {
+        "BT_Up": 1
+      },
+      "note": "forward: hand over hand along the pipe"
+    },
+    {
+      "frame": 250,
+      "buttons": {
+        "BT_Up": 0
+      },
+      "note": "stop"
+    },
+    {
+      "frame": 280,
+      "buttons": {
+        "bCrouch": 1
+      },
+      "note": "crouch drops from the pipe"
+    },
+    {
+      "frame": 283,
+      "buttons": {
+        "bCrouch": 0
+      }
+    }
+  ],
+  "repeats": 3,
+  "profile": "traversal",
+  "measure": {},
+  "covers": [
+    "uc:SBase.SPlayerController:s_PlayerJump.HandOverHand",
+    "uc:SBase.SPlayerController:HandOverHand",
+    "nat:SBase.SPlayerController.CheckArmsZone",
+    "uc:SBase.SPlayerController:s_GrabPipH.PlayerMove",
+    "uc:SBase.SPlayerController:s_GrabPipH.AnimEnd",
+    "uc:SBase.SPlayerController:s_GrabPipH.EndState",
+    "uc:SBase.SPlayerController:s_OnPipeH.BeginState",
+    "uc:SBase.SPlayerController:s_OnPipeH.PlayerMove",
+    "nat:SBase.SBasePawn.MyDoJump",
+    "uc:SBase.SPlayerController:s_PlayerJump.PlayerMove",
+    "uc:SBase.SPlayerController:MyNotifyLanded",
+    "def:SBase.SPawnAttaque"
+  ]
+}

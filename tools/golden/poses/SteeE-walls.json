@@ -1,0 +1,152 @@
+{
+  "format": "svm.golden-poses/1",
+  "map": "SteeE",
+  "team": "spy",
+  "notes": "The third-person camera at the SteeE spy spawn (the spy crouched as it spawns), turned eight ways and looking up and down, for tests/OpenScctGame.Logic.Tests/Views/WallCameraTests.cs. The spawn room's walls are close on several sides, so some views pull the camera in.",
+  "poses": [
+    {
+      "id": "spawn-yaw-0",
+      "kind": "indoor",
+      "pawn": [
+        -1418.131,
+        1751.364,
+        -116.495
+      ],
+      "yaw": 0,
+      "pitch": 0,
+      "spot": "PlayerStart256 (spy spawn), view turned to 0"
+    },
+    {
+      "id": "spawn-yaw-1",
+      "kind": "indoor",
+      "pawn": [
+        -1418.131,
+        1751.364,
+        -116.495
+      ],
+      "yaw": 8192,
+      "pitch": 0,
+      "spot": "PlayerStart256 (spy spawn), view turned to 8192"
+    },
+    {
+      "id": "spawn-yaw-2",
+      "kind": "indoor",
+      "pawn": [
+        -1418.131,
+        1751.364,
+        -116.495
+      ],
+      "yaw": 16384,
+      "pitch": 0,
+      "spot": "PlayerStart256 (spy spawn), view turned to 16384"
+    },
+    {
+      "id": "spawn-yaw-3",
+      "kind": "indoor",
+      "pawn": [
+        -1418.131,
+        1751.364,
+        -116.495
+      ],
+      "yaw": 24576,
+      "pitch": 0,
+      "spot": "PlayerStart256 (spy spawn), view turned to 24576"
+    },
+    {
+      "id": "spawn-yaw-4",
+      "kind": "indoor",
+      "pawn": [
+        -1418.131,
+        1751.364,
+        -116.495
+      ],
+      "yaw": 32768,
+      "pitch": 0,
+      "spot": "PlayerStart256 (spy spawn), view turned to 32768"
+    },
+    {
+      "id": "spawn-yaw-5",
+      "kind": "indoor",
+      "pawn": [
+        -1418.131,
+        1751.364,
+        -116.495
+      ],
+      "yaw": 40960,
+      "pitch": 0,
+      "spot": "PlayerStart256 (spy spawn), view turned to 40960"
+    },
+    {
+      "id": "spawn-yaw-6",
+      "kind": "indoor",
+      "pawn": [
+        -1418.131,
+        1751.364,
+        -116.495
+      ],
+      "yaw": 49152,
+      "pitch": 0,
+      "spot": "PlayerStart256 (spy spawn), view turned to 49152"
+    },
+    {
+      "id": "spawn-yaw-7",
+      "kind": "indoor",
+      "pawn": [
+        -1418.131,
+        1751.364,
+        -116.495
+      ],
+      "yaw": 57344,
+      "pitch": 0,
+      "spot": "PlayerStart256 (spy spawn), view turned to 57344"
+    },
+    {
+      "id": "spawn-look-down",
+      "kind": "indoor",
+      "pawn": [
+        -1418.131,
+        1751.364,
+        -116.495
+      ],
+      "yaw": -37240,
+      "pitch": -6000,
+      "spot": "PlayerStart256 (spy spawn), looking down"
+    },
+    {
+      "id": "spawn-look-up",
+      "kind": "indoor",
+      "pawn": [
+        -1418.131,
+        1751.364,
+        -116.495
+      ],
+      "yaw": -37240,
+      "pitch": 6000,
+      "spot": "PlayerStart256 (spy spawn), looking up"
+    },
+    {
+      "id": "crouch-by-wall",
+      "kind": "indoor",
+      "pawn": [
+        -1596.999,
+        1541.317,
+        -116.495
+      ],
+      "yaw": -19948,
+      "pitch": 0,
+      "spot": "spy spawn room, crouched where the play check saw the spy hidden from the camera"
+    },
+    {
+      "id": "crouch-by-wall-2",
+      "kind": "indoor",
+      "pawn": [
+        -1596.999,
+        1541.317,
+        -116.495
+      ],
+      "yaw": -3289,
+      "pitch": 0,
+      "spot": "spy spawn room, crouched, turned as after the crouched walk"
+    }
+  ]
+}

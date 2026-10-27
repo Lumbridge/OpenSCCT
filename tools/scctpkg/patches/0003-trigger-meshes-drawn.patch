@@ -1,0 +1,15 @@
+diff --git a/level.py b/level.py
+index ca11d02..afaa696 100644
+--- a/level.py
++++ b/level.py
+@@ -29,7 +29,9 @@ SKIP_CLASSES = {"Model", "Polys", "StaticMesh", "StaticMeshInstance", "Texture",
+ # DT_Sprite, path guides and triggers default to bHidden.
+ with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "class_defaults.json"), encoding="utf-8") as _f:
+     CLASS_DEFAULTS: Dict[str, dict] = json.load(_f)
+-HIDDEN_MESH_WORDS = ("help_path", "path_circle", "fakewarp", "nullobj", "trigger_", "_collision", "blocking")
++# "trigger_" is not a helper word: trigger_hack, trigger_urgence, trigger_scan and Trigger_Vert are the hack panels,
++# emergency buttons and scanners the game draws. A sprite SInterrupteur (trigger_standard) is hidden by its DrawType.
++HIDDEN_MESH_WORDS = ("help_path", "path_circle", "fakewarp", "nullobj", "_collision", "blocking")
+ DT_STATICMESH = 8
+ 
+ # UE2 ELightType / ELightEffect values, read from the live game's Engine.Actor enums.

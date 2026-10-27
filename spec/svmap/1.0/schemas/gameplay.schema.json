@@ -1,0 +1,132 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://svmap.invalid/1.0/gameplay.schema.json",
+  "title": "SVMap 1.0 sim/gameplay.json",
+  "description": "Placed actors with typed properties, plus indexes derived from them. Actors are in original level order.",
+  "type": "object",
+  "required": ["formatVersion", "map", "levelInfo", "mapSettings", "actors", "tagIndex", "eventEdges", "missionTree"],
+  "additionalProperties": false,
+  "properties": {
+    "formatVersion": { "$ref": "common.schema.json#/$defs/formatVersion" },
+    "map": { "$ref": "common.schema.json#/$defs/mapId" },
+    "levelInfo": { "$ref": "#/$defs/levelInfo" },
+    "mapSettings": {
+      "description": "Per game mode settings, keyed by mode name (Story, DiskHunt, Deathmatch...).",
+      "type": "object",
+      "propertyNames": { "pattern": "^[A-Za-z][A-Za-z0-9]*$" },
+      "additionalProperties": { "$ref": "#/$defs/modeSettings" }
+    },
+    "actors": {
+      "description": "Every placed actor except the LevelInfo, in level order (Level.Actors order after the LevelInfo).",
+      "type": "array",
+      "items": { "$ref": "#/$defs/actor" }
+    },
+    "tagIndex": {
+      "description": "Derived: effective Tag -> ids of the actors carrying it, in level order (LevelInfo first). Keys use the spelling of the first carrier; matching ignores ASCII case.",
+      "type": "object",
+      "additionalProperties": {
+        "type": "array",
+        "items": { "$ref": "common.schema.json#/$defs/id" },
+        "minItems": 1,
+        "uniqueItems": true
+      }
+    },
+    "eventEdges": {
+      "description": "Derived: for each actor and each event-name property it sets, the actors whose Tag matches.",
+      "type": "array",
+      "items": { "$ref": "#/$defs/eventEdge" }
+    },
+    "missionTree": {
+      "description": "Derived: SMission -> SObjective -> trigger actors, from the Objectives and Triggers properties.",
+      "type": "array",
+      "items": { "$ref": "#/$defs/mission" }
+    }
+  },
+  "$defs": {
+    "actor": {
+      "type": "object",
+      "required": ["id", "class", "props"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "$ref": "common.schema.json#/$defs/id" },
+        "class": { "$ref": "common.schema.json#/$defs/classPath" },
+        "props": { "$ref": "common.schema.json#/$defs/props" },
+        "src": { "$ref": "#/$defs/src" }
+      }
+    },
+    "src": {
+      "description": "Where the actor came from: the export index (1-based) in the original map package.",
+      "type": "object",
+      "required": ["export"],
+      "additionalProperties": false,
+      "properties": { "export": { "type": "integer", "minimum": 1 } }
+    },
+    "levelInfo": {
+      "allOf": [
+        { "$ref": "#/$defs/actor" },
+        {
+          "properties": {
+            "class": { "pattern": "LevelInfo$" },
+            "props": {
+              "required": ["GEActivationMask"],
+              "properties": {
+                "GEActivationMask": {
+                  "description": "GE ID bits live when the round starts; SGETrigger toggles bits at run time.",
+                  "$ref": "common.schema.json#/$defs/byte"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "modeSettings": {
+      "type": "object",
+      "propertyNames": { "$ref": "common.schema.json#/$defs/propName" },
+      "additionalProperties": { "$ref": "common.schema.json#/$defs/propValue" },
+      "properties": {
+        "TimeLimit": { "description": "Minutes.", "type": "integer", "minimum": 0 },
+        "SpiesLives": { "description": "Lives per spy player.", "type": "integer", "minimum": 0 },
+        "SentriesLives": { "description": "Lives per merc player.", "type": "integer", "minimum": 0 },
+        "RespawnTime": { "description": "Seconds.", "type": "integer", "minimum": 0 }
+      }
+    },
+    "eventEdge": {
+      "type": "object",
+      "required": ["from", "via", "event", "to"],
+      "additionalProperties": false,
+      "properties": {
+        "from": { "$ref": "common.schema.json#/$defs/id" },
+        "via": { "$ref": "common.schema.json#/$defs/propName" },
+        "event": { "type": "string", "minLength": 1 },
+        "to": {
+          "type": "array",
+          "items": { "$ref": "common.schema.json#/$defs/id" },
+          "uniqueItems": true
+        }
+      }
+    },
+    "mission": {
+      "type": "object",
+      "required": ["mission", "objectives"],
+      "additionalProperties": false,
+      "properties": {
+        "mission": { "$ref": "common.schema.json#/$defs/id" },
+        "gameMode": { "$ref": "common.schema.json#/$defs/byte" },
+        "minimumObjectives": { "type": "integer", "minimum": 0 },
+        "objectives": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["objective", "triggers"],
+            "additionalProperties": false,
+            "properties": {
+              "objective": { "$ref": "common.schema.json#/$defs/id" },
+              "triggers": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/id" } }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Windows desktop launcher: WinForms on .NET 10, no third-party packages. Publish: see docs/LAUNCHER.md. -->
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <AssemblyName>OpenSCCT.Launcher</AssemblyName>
+    <RootNamespace>OpenScct.Launcher.App</RootNamespace>
+    <ApplicationIcon>..\..\game\branding\icon.ico</ApplicationIcon>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationHighDpiMode>PerMonitorV2</ApplicationHighDpiMode>
+    <Version>0.1.0</Version>
+    <Product>OpenSCCT Launcher</Product>
+    <Company>OpenSCCT</Company>
+    <Description>OpenSCCT Launcher</Description>
+    <!-- Lower startup cost for the published exe. -->
+    <TieredPGO>true</TieredPGO>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+  </PropertyGroup>
+
+  <!-- Publish settings, used by: dotnet publish src/OpenScct.Launcher -c Release -r win-x64 -->
+  <PropertyGroup Condition="'$(RuntimeIdentifier)' != ''">
+    <SelfContained>true</SelfContained>
+    <PublishSingleFile>true</PublishSingleFile>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+    <PublishReadyToRun>true</PublishReadyToRun>
+    <DebugType>none</DebugType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="..\..\game\branding\icon.ico" LogicalName="OpenScct.Launcher.icon.ico" Link="branding\icon.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\OpenScct.Launcher.Core\OpenScct.Launcher.Core.csproj" />
+  </ItemGroup>
+</Project>

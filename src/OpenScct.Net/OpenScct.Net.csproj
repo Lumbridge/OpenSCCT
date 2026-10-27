@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="$(RepoRoot)build/Sim.props" />
+  <PropertyGroup>
+    <RootNamespace>OpenScct.Net</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\OpenScct.Core\OpenScct.Core.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Concentus" />
+    <PackageReference Include="LiteNetLib" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="OpenScct.Net.Tests" />
+  </ItemGroup>
+</Project>

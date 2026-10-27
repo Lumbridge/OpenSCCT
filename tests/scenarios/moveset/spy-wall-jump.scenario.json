@@ -1,0 +1,108 @@
+{
+  "format": "svm.scenario/1",
+  "id": "moveset.spy-wall-jump",
+  "title": "Spy runs at the yard wall under the deck railing (LG 205), jumps, kicks off the wall up to the railing and hangs, then drops with back",
+  "map": "SteeE",
+  "mode": "playlevel",
+  "players": [
+    {
+      "team": "spy"
+    }
+  ],
+  "spawn": {
+    "floor": [
+      -2047.7,
+      1260.0,
+      -1127.5
+    ],
+    "yaw": 16384,
+    "clearance": 2.0,
+    "spot": "yard floor 210 uu south of the deck wall under LG 205, facing it (+Y)",
+    "notes": "LG 205, (-2108.6, 1469.8, -718.2) to (-1986.8, 1469.8, -718.2), the deck railing top, 409.3 over the yard floor z -1127.5 (gz - Location.Z = 320.8, inside the wall jump window 130 to 335, kick up). The BSP wall (Brush3024) faces -Y at y 1471.9: a standing spy box swept north along x -2047.7 stops at y 1436.9 and is clear from y 900. The yard floor is flat z -1127.5 from y 1240; south of it a 17.1 curb. Line traces from 300 out at the pawn height, 160 higher and 35 to each side all hit the wall square on. Found with re/tools/difftest/movespots.py (walljump)."
+  },
+  "setup": [
+    {
+      "op": "leaveGE",
+      "maxFrames": 240
+    },
+    {
+      "op": "teleport"
+    },
+    {
+      "op": "stance",
+      "crouched": false
+    },
+    {
+      "op": "fastSpeed",
+      "value": true
+    },
+    {
+      "op": "write",
+      "target": "pawn",
+      "field": "Health",
+      "value": 100
+    },
+    {
+      "op": "view",
+      "pitch": 0,
+      "yaw": 16384
+    },
+    {
+      "op": "waitStill",
+      "maxFrames": 180
+    }
+  ],
+  "settleFrames": 30,
+  "durationFrames": 300,
+  "inputs": [
+    {
+      "frame": 0,
+      "buttons": {
+        "BT_Up": 1
+      },
+      "note": "run north at the wall (fast mode)"
+    },
+    {
+      "frame": 10,
+      "jump": true,
+      "note": "jump at speed 160 uu from the wall: CheckGEForWallJump"
+    },
+    {
+      "frame": 16,
+      "buttons": {
+        "BT_Up": 0
+      },
+      "note": "let go; the run-up state runs on its own"
+    },
+    {
+      "frame": 150,
+      "buttons": {
+        "BT_Down": 1
+      },
+      "note": "back drops from the hang"
+    },
+    {
+      "frame": 156,
+      "buttons": {
+        "BT_Down": 0
+      }
+    }
+  ],
+  "repeats": 3,
+  "profile": "traversal",
+  "measure": {},
+  "covers": [
+    "uc:SBase.SPlayerController:s_PlayerWalkingMario.PlayerMove",
+    "nat:SBase.SPlayerController.CheckGEForWallJump",
+    "uc:SBase.SPlayerController:s_FirstWallJumpPrepareFromJump.PlayerMove",
+    "uc:SBase.SPlayerController:s_FirstWallJump.PlayerMove",
+    "uc:SBase.SPlayerController:s_FirstWallJump.AnimEnd",
+    "uc:SBase.SPlayerController:s_WallJumpSalto.PlayerMove",
+    "uc:SBase.SPlayerController:s_WallJumpSalto.Ledge",
+    "uc:SBase.SPlayerController:s_WallJumpSalto.AnimEnd",
+    "uc:SBase.SPlayerController:GrabLedge.BeginState",
+    "uc:SBase.SPlayerController:OnLedge.PlayerMove",
+    "nat:SBase.SPlayerController.CheckArmsZone",
+    "def:SBase.SPawnAttaque"
+  ]
+}

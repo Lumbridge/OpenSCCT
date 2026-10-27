@@ -1,0 +1,107 @@
+{
+  "format": "svm.scenario/1",
+  "id": "moveset.merc-jump-stairs",
+  "title": "Merc walks up the stairwell ramp, jumps half way up, walks on to the top, turns and walks back down",
+  "map": "SteeE",
+  "mode": "playlevel",
+  "players": [
+    {
+      "team": "merc"
+    }
+  ],
+  "spawn": {
+    "floor": [
+      -2060.0,
+      2368.0,
+      -1447.5
+    ],
+    "yaw": 0,
+    "clearance": 2.0,
+    "spot": "stairwell bottom floor z -1447.5, 52 uu before the foot of the ramp, facing up it (+X)",
+    "notes": "As moveset.spy-ramp-up-down: ramp plane normal z 0.89216 from z -1447.5 at x -2008 to z -1127.5 at x -1336."
+  },
+  "setup": [
+    {
+      "op": "leaveGE",
+      "maxFrames": 240
+    },
+    {
+      "op": "teleport"
+    },
+    {
+      "op": "stance",
+      "crouched": false
+    },
+    {
+      "op": "write",
+      "target": "pawn",
+      "field": "Health",
+      "value": 100
+    },
+    {
+      "op": "view",
+      "pitch": 0,
+      "yaw": 0
+    },
+    {
+      "op": "waitStill",
+      "maxFrames": 180
+    }
+  ],
+  "settleFrames": 30,
+  "durationFrames": 330,
+  "inputs": [
+    {
+      "frame": 0,
+      "buttons": {
+        "BT_Up": 1
+      },
+      "note": "walk up the ramp"
+    },
+    {
+      "frame": 60,
+      "jump": true,
+      "note": "jump on the ramp"
+    },
+    {
+      "frame": 135,
+      "buttons": {
+        "BT_Up": 0
+      },
+      "note": "let go on the top floor"
+    },
+    {
+      "frame": 150,
+      "buttons": {
+        "BT_Up": 1
+      },
+      "view": {
+        "pitch": 0,
+        "yaw": 32768
+      },
+      "note": "turn round (view to -X) and walk back down"
+    },
+    {
+      "frame": 290,
+      "buttons": {
+        "BT_Up": 0
+      },
+      "note": "let go at the bottom"
+    }
+  ],
+  "repeats": 3,
+  "profile": "locomotion",
+  "measure": {},
+  "covers": [
+    "uc:SBase.SPlayerController:s_PlayerWalkingWeapon.PlayerMove",
+    "uc:SBase.SPlayerController:UpdatePawnRotationWeapon",
+    "nat:SBase.SPlayerController.NativeComputeControlVariables",
+    "nat:SBase.SBasePawn.MyDoJump",
+    "uc:SBase.SPlayerController:s_PlayerJump.BeginState",
+    "uc:SBase.SPlayerController:s_PlayerJump.PlayerMove",
+    "uc:SBase.SPlayerController:s_PlayerJump.MyNotifyLanded",
+    "uc:SBase.SPlayerController:MyNotifyLanded",
+    "uc:SBase.SPlayerController:s_PlayerWalkingSt2H.PlayerTick",
+    "def:SBase.SPAWNDEFENSE"
+  ]
+}

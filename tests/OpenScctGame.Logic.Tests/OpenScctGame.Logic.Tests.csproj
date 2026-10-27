@@ -1,0 +1,56 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="$(RepoRoot)build/Test.props" />
+  <PropertyGroup>
+    <RootNamespace>OpenScctGame.Logic.Tests</RootNamespace>
+  </PropertyGroup>
+  <!--
+    The Godot-free parts of the client (game/): they are compiled here from their sources so they can be tested
+    without the Godot runtime. Only files that use no Godot type may be listed.
+  -->
+  <ItemGroup>
+    <Compile Include="..\..\game\Scripts\Options\GameSettings.cs" Link="Linked\GameSettings.cs" />
+    <Compile Include="..\..\game\Scripts\Options\DisplayFrameCap.cs" Link="Linked\DisplayFrameCap.cs" />
+    <Compile Include="..\..\game\Scripts\Options\ViewFov.cs" Link="Linked\ViewFov.cs" />
+    <Compile Include="..\..\game\Scripts\Options\UserDataMigration.cs" Link="Linked\UserDataMigration.cs" />
+    <!-- Reloaded's widescreen layout rules for the picture and the HUD. -->
+    <Compile Include="..\..\game\Scripts\Hud\HudLayout.cs" Link="Linked\HudLayout.cs" />
+    <!-- The motion tracker's 640 x 480 frame on the screen. -->
+    <Compile Include="..\..\game\Scripts\Hud\HudMotionFrame.cs" Link="Linked\HudMotionFrame.cs" />
+    <Compile Include="..\..\game\Scripts\Hud\HudMessages.cs" Link="Linked\HudMessages.cs" />
+    <!-- The key token pass of drawn texts. -->
+    <Compile Include="..\..\game\Scripts\Input\KeyTokens.cs" Link="Linked\KeyTokens.cs" />
+    <!-- The English names of the key bindings and the Magma text table, with the layout parser they read. -->
+    <Compile Include="..\..\game\Scripts\UI\EnglishText.cs" Link="Linked\EnglishText.cs" />
+    <Compile Include="..\..\game\Scripts\UI\BindingLabels.cs" Link="Linked\BindingLabels.cs" />
+    <Compile Include="..\..\game\Scripts\Input\KeyLayout.cs" Link="Linked\KeyLayout.cs" />
+    <Compile Include="..\..\game\Scripts\UI\InGameMenuModel.cs" Link="Linked\InGameMenuModel.cs" />
+    <!-- The Create Session page and the Lobby Room's rules (docs/MENUS.md). -->
+    <Compile Include="..\..\game\Scripts\UI\CreateSessionModel.cs" Link="Linked\CreateSessionModel.cs" />
+    <Compile Include="..\..\game\Scripts\UI\LobbyRoomModel.cs" Link="Linked\LobbyRoomModel.cs" />
+    <!-- The play session (the listen server, the loopback client and the bots), for the client-side view checks. -->
+    <Compile Include="..\..\game\Scripts\Play\Session\*.cs" Link="Linked\Session\%(Filename)%(Extension)" />
+    <!-- The drawn view between ticks: the camera blend and the mouse look-ahead, the view model's one-shot clock. -->
+    <Compile Include="..\..\game\Scripts\Cameras\ViewBlend.cs" Link="Linked\ViewBlend.cs" />
+    <Compile Include="..\..\game\Scripts\Views\OneShotClock.cs" Link="Linked\OneShotClock.cs" />
+    <Compile Include="..\..\game\Scripts\Views\MeshSwap.cs" Link="Linked\MeshSwap.cs" />
+    <!-- Frame pacing: the level time drawn between ticks and the frame-rate smoke's motion measures. -->
+    <Compile Include="..\..\game\Scripts\Play\DrawnTime.cs" Link="Linked\DrawnTime.cs" />
+    <Compile Include="..\..\game\Scripts\Smoke\FrameMotion.cs" Link="Linked\FrameMotion.cs" />
+    <!-- The end banner's side in an online round. -->
+    <Compile Include="..\..\game\Scripts\Online\RoundResultSide.cs" Link="Linked\RoundResultSide.cs" />
+    <!-- The play scene's sound router. -->
+    <Compile Include="..\..\game\Scripts\Play\PlayAudioRouter.cs" Link="Linked\PlayAudioRouter.cs" />
+    <!-- The wave chunk fixes the sound library applies before Godot loads a file. -->
+    <Compile Include="..\..\game\Scripts\Audio\WavChunks.cs" Link="Linked\WavChunks.cs" />
+    <!-- The particle natives (spec/native/emitters.md): parameters, the sub-emitter and Emitter updates, the geometry. -->
+    <Compile Include="..\..\game\Scripts\Render\Particles\ParticleParams.cs" Link="Linked\Particles\ParticleParams.cs" />
+    <Compile Include="..\..\game\Scripts\Render\Particles\ParticleEmitterSim.cs" Link="Linked\Particles\ParticleEmitterSim.cs" />
+    <Compile Include="..\..\game\Scripts\Render\Particles\ParticleSystemSim.cs" Link="Linked\Particles\ParticleSystemSim.cs" />
+    <Compile Include="..\..\game\Scripts\Render\Particles\ParticleGeometry.cs" Link="Linked\Particles\ParticleGeometry.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\OpenScct.Game\OpenScct.Game.csproj" />
+    <ProjectReference Include="..\..\src\OpenScct.Server\OpenScct.Server.csproj" />
+    <ProjectReference Include="..\..\src\OpenScct.Bots\OpenScct.Bots.csproj" />
+  </ItemGroup>
+</Project>

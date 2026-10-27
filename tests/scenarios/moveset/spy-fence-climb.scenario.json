@@ -1,0 +1,107 @@
+{
+  "format": "svm.scenario/1",
+  "id": "moveset.spy-fence-climb",
+  "title": "Spy walks into a 377 uu chain-link fence, climbs it, crosses over the top and climbs down the far side",
+  "map": "MounE",
+  "mode": "playlevel",
+  "players": [
+    {
+      "team": "spy"
+    }
+  ],
+  "spawn": {
+    "floor": [
+      3520.0,
+      149.0,
+      160.5
+    ],
+    "yaw": 32768,
+    "clearance": 2.0,
+    "spot": "floor z 160.5, 155 uu east of FENCE 225, facing it (-X)",
+    "notes": "FENCE GE 225: (3364.9, 279, 537.9) to (3364.9, 19, 537.9), the fence top 377.4 over the floor z 160.5 on both sides. Its face (StaticMeshActor3447, texture Prison_TEX.Static.CIA_chainfence) is at x 3367 from the floor to z 530; nothing above it. A standing box swept west at y 100, 149 and 200 stops at x 3402 (35 from the face). FENCE 226 and 227 continue the line north and south. Found with re/tools/difftest/movespots.py (fence)."
+  },
+  "setup": [
+    {
+      "op": "leaveGE",
+      "maxFrames": 240
+    },
+    {
+      "op": "teleport"
+    },
+    {
+      "op": "stance",
+      "crouched": false
+    },
+    {
+      "op": "fastSpeed",
+      "value": true
+    },
+    {
+      "op": "write",
+      "target": "pawn",
+      "field": "Health",
+      "value": 100
+    },
+    {
+      "op": "view",
+      "pitch": 0,
+      "yaw": 32768
+    },
+    {
+      "op": "waitStill",
+      "maxFrames": 180
+    }
+  ],
+  "settleFrames": 30,
+  "durationFrames": 500,
+  "inputs": [
+    {
+      "frame": 0,
+      "buttons": {
+        "BT_Up": 1
+      },
+      "note": "walk into the fence and climb with forward held"
+    },
+    {
+      "frame": 200,
+      "buttons": {
+        "BT_Up": 0
+      },
+      "note": "let go during the crossing (held on, forward climbs back over)"
+    },
+    {
+      "frame": 320,
+      "buttons": {
+        "BT_Down": 1
+      },
+      "note": "climb down the far side with back held"
+    },
+    {
+      "frame": 425,
+      "buttons": {
+        "BT_Down": 0
+      },
+      "note": "let go on the floor"
+    }
+  ],
+  "repeats": 3,
+  "profile": "traversal",
+  "measure": {},
+  "covers": [
+    "uc:SBase.SPlayerController:s_PlayerWalkingMario.NotifyHitWall",
+    "nat:SBase.SBasePawn.CheckFence",
+    "uc:SBase.SPlayerController:GrabFence.BeginState",
+    "uc:SBase.SPlayerController:GrabFence.PlayerMove",
+    "uc:SBase.SPlayerController:GrabFence.AnimEnd",
+    "uc:SBase.SPlayerController:OnFence.BeginState",
+    "uc:SBase.SPlayerController:OnFence.PlayerMove",
+    "uc:SBase.SPlayerController:OnFence.FenceTop",
+    "uc:SBase.SPlayerController:FenceTop",
+    "uc:SBase.SPlayerController:OnTopFence.PlayerMove",
+    "uc:SBase.SPlayerController:OnTopFence.AnimEnd",
+    "uc:SBase.SPlayerController:OnFence.MyNotifyLanded",
+    "uc:SBase.SPlayerController:OnFence.EndState",
+    "uc:SBase.SBasePawn:SetFenceZones",
+    "def:SBase.SPawnAttaque"
+  ]
+}

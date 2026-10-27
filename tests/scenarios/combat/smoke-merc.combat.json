@@ -1,0 +1,56 @@
+{
+  "format": "svm.combat/1",
+  "id": "combat.smoke-merc",
+  "title": "Spy smoke grenade at a merc's feet: cough, slow-down and the knock-out after 6 s",
+  "map": "SteeE",
+  "mode": "playlevel",
+  "local": {
+    "team": "merc",
+    "floor": [
+      -492.0,
+      -2032.0,
+      -1143.5
+    ],
+    "yaw": 16384,
+    "crouched": false
+  },
+  "target": {
+    "team": "spy",
+    "floor": [
+      -492.0,
+      -532.0,
+      -1143.5
+    ],
+    "yaw": 49152,
+    "crouched": false
+  },
+  "order": 95,
+  "settleFrames": 30,
+  "durationFrames": 1100,
+  "events": [
+    {
+      "frame": 2,
+      "do": "grenade",
+      "kind": "smoke",
+      "fromLocal": [
+        0.0,
+        80.0,
+        8.0
+      ],
+      "by": "target"
+    }
+  ],
+  "repeats": 2,
+  "measure": {
+    "states": {}
+  },
+  "covers": [
+    "uc:SBase.SPlayerController:GoInSmoke",
+    "uc:SBase.SSmokeEmitter:DetectedSPlayerController",
+    "def:SBase.SSmokeEmitter",
+    "def:SBase.SProjSmoke",
+    "uc:SBase.SPlayerController:CountGasKO"
+  ],
+  "spot": "SteeE east yard lane (x -492, floor z -1143.5, clear for 1792 uu along +Y from y -2032; found with re/tools/difftest/spots.py for the R4 locomotion recordings)",
+  "notes": "The cloud test runs for the local player only (smoke-grenade.md rule 4), so the merc is the local player."
+}

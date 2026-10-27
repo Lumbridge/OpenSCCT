@@ -1,0 +1,91 @@
+{
+  "format": "svm.scenario/1",
+  "id": "moveset.merc-walk-off-ledge",
+  "title": "Merc walks off a walkway edge and drops 381 uu onto the yard",
+  "map": "SteeE",
+  "mode": "playlevel",
+  "players": [
+    {
+      "team": "merc"
+    }
+  ],
+  "spawn": {
+    "floor": [
+      -620.0,
+      1232.0,
+      -746.32
+    ],
+    "yaw": 32768,
+    "clearance": 2.0,
+    "spot": "walkway z -746.3, edge 240 uu ahead (-X)",
+    "notes": "As moveset.spy-run-off-ledge. 381 is under the merc's 450 damage threshold."
+  },
+  "setup": [
+    {
+      "op": "leaveGE",
+      "maxFrames": 240
+    },
+    {
+      "op": "teleport"
+    },
+    {
+      "op": "stance",
+      "crouched": false
+    },
+    {
+      "op": "write",
+      "target": "pawn",
+      "field": "Health",
+      "value": 100
+    },
+    {
+      "op": "view",
+      "pitch": 0,
+      "yaw": 32768
+    },
+    {
+      "op": "waitStill",
+      "maxFrames": 180
+    }
+  ],
+  "settleFrames": 30,
+  "durationFrames": 200,
+  "inputs": [
+    {
+      "frame": 0,
+      "buttons": {
+        "BT_Up": 1
+      },
+      "note": "walk off the edge"
+    },
+    {
+      "frame": 110,
+      "buttons": {
+        "BT_Up": 0
+      },
+      "note": "let go after landing"
+    }
+  ],
+  "repeats": 3,
+  "profile": "locomotion",
+  "measure": {
+    "fall": {
+      "expectDrop": 381.2
+    },
+    "fallDamage": {
+      "expect": 0
+    }
+  },
+  "covers": [
+    "uc:SBase.SPlayerController:s_PlayerWalkingWeapon.PlayerMove",
+    "uc:SBase.SPlayerController:MyFalling",
+    "uc:SBase.SPlayerController:PlayerFalling.BeginState",
+    "uc:SBase.SPlayerController:s_PlayerJump.PlayerMove",
+    "uc:SBase.SPlayerController:MyNotifyLanded",
+    "uc:SBase.SPlayerController:PlayerLanding.BeginState",
+    "uc:SBase.SPlayerController:PlayerLanding.AnimEnd",
+    "uc:SBase.SPlayerController:GotoWaitingState",
+    "uc:SBase.SBasePawn:TakeFallingDamage",
+    "def:SBase.SPAWNDEFENSE"
+  ]
+}

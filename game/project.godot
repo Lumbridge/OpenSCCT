@@ -1,0 +1,44 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
+config_version=5
+
+[application]
+
+config/name="OpenSCCT"
+config/description="OpenSCCT client"
+run/main_scene="res://Scenes/Boot.tscn"
+config/features=PackedStringArray("4.7", "C#", "Forward Plus")
+config/icon="res://branding/icon.svg"
+config/windows_native_icon="res://branding/icon.ico"
+boot_splash/bg_color=Color(0.039, 0.051, 0.043, 1)
+boot_splash/show_image=true
+boot_splash/image="res://branding/splash.png"
+boot_splash/fullsize=false
+
+[audio]
+
+driver/enable_input=true
+
+[autoload]
+
+SmokeWatchdog="*res://Scripts/App/smoke_watchdog.gd"
+App="*res://Scripts/App/App.cs"
+
+[display]
+
+window/size/viewport_width=1280
+window/size/viewport_height=720
+
+[dotnet]
+
+project/assembly_name="OpenScctGame"
+
+[rendering]
+
+renderer/rendering_method="forward_plus"

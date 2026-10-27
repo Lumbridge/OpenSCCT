@@ -1,0 +1,249 @@
+# Launcher
+
+`OpenSCCT.Launcher.exe` installs, updates and starts OpenSCCT. It reads GitHub Releases of the repository
+(default `Lumbridge/OpenSCCT`), installs each game build in its own folder, switches between them in one step and
+keeps the previous build for rollback. It can also update itself.
+
+Releases carry our code builds only. Game content (maps, characters, UI) is built on the player's machine from
+their own Splinter Cell Chaos Theory install and is never downloaded.
+
+## Projects
+
+```
+src/OpenScct.Launcher.Core/     update logic, no UI (net10.0)
+  Versioning/SemVersion.cs        Semantic Versioning 2.0.0 parse and compare, "v" tags accepted
+  GitHub/                         release list with ETag cache, rate limit and offline handling; asset requests
+  Update/ReleasePicker.cs         newest release, game zip, launcher exe and checksum asset by name
+  Update/Checksums.cs             checksums.txt and <asset>.sha256 parsing, SHA-256 of a file
+  Update/ResumableDownloader.cs   download to .partial, resume with Range, restart when the server ignores it
+  Update/UpdateService.cs         check, download, verify, install, switch, wait for a running game
+  Update/BuildFiles.cs            the build's file list (per-file SHA-256 and the release asset holding each file)
+  Update/DeltaInstaller.cs        install from the file list: reuse files already installed, download only the rest
+  Update/LauncherSwap.cs          self update: stage .new, swap on restart, clean up .old
+  Install/                        folder layout, install.json manifest, side by side install, rollback, prune
+  Settings/                       launcher.json, the token store (DPAPI through ISecretProtector)
+  Launch/                         the Play command line, running game detection
+  Content/ContentBuildPlan.cs     "Build game content from your install": the builder's command line, run and progress
+src/OpenScct.Launcher/          WinForms app (net10.0-windows): main window, settings, DPAPI, theme
+tests/OpenScct.Launcher.Tests/  tests for the core library (fake HTTP handler, temp folders)
+tools/release/New-Release.ps1   packs a build into release assets and prints the gh command
+```
+
+The app has no third-party packages: WinForms, `HttpClient`, `System.Text.Json`, `ZipFile` and `ProtectedData` all
+come with .NET 10. The test project uses the repository's pinned xunit.v3 versions (`Directory.Packages.props`).
+
+## Version and build number
+
+The version is `VersionPrefix` in `Directory.Build.props` (0.6.0; a release passes `-p:Version`), and the build number
+is the UTC timestamp of the commit the build is made from, `yyyyMMdd.HHmm` (`Directory.Build.targets`). Both are stamped
+into every assembly; `OpenScct.Net.Discovery.BuildInfo` reads them back for the server browser, the master and the
+menus, which show "OpenSCCT 0.5.0  build 20261026.1737 (a82eaa0)" in the bottom-right corner of the main menu and
+the options.
+
+## Build and publish
+
+```
+dotnet build OpenSCCT.slnx                                         builds the launcher with everything else
+dotnet test --project tests/OpenScct.Launcher.Tests                the launcher tests
+dotnet publish src/OpenScct.Launcher -c Release -r win-x64 -p:Version=0.2.0
+```
+
+`-r win-x64` turns on the publish settings in the project: self-contained, single file, compressed, ReadyToRun.
+The result is one `OpenSCCT.Launcher.exe` in `src/OpenScct.Launcher/bin/Release/net10.0-windows/win-x64/publish/`
+that runs without an installed .NET. Pass the release version as `-p:Version`: the launcher compares it with the
+release tag to decide whether it needs to update itself. A framework-dependent build is much smaller (add
+`--self-contained false -p:PublishReadyToRun=false`) but needs the .NET 10 Desktop Runtime on the player's machine.
+
+## Making a release
+
+1. Export the game from a pushed commit (Godot, preset "Windows Desktop", to `local\build\OpenSCCT.exe`).
+2. `tools\release\New-Release.ps1 -Version 0.2.0 -PublishLauncher`
+3. Edit `local\release\0.2.0\notes.md`, then run `local\release\0.2.0\publish.ps1`: it creates the draft release
+   with its assets and uploads the new blobs in batches (run it again to retry a failed upload).
+4. Check the draft on GitHub and publish it. The launcher ignores drafts, and the next release's delta is made
+   against the newest published one.
+
+The script refuses a build that has original game file types or converted content folders (`maps`, `svmap`,
+`shared`, `.content`, `packs`) in it, runs `tools/ci/no_game_data.ps1 --all` on the staged files, leaves out
+`override.cfg` and logs, adds `openscct-build.json` (version, commit, dirty flag, time) and writes:
+
+| Asset | What |
+|---|---|
+| `OpenSCCT-<version>-win-x64-files.json` | the build's file list for delta updates (below) |
+| `<sha256>.gz` | one gzipped file of the build per new file content (only content no earlier release holds) |
+| `OpenSCCT-<version>-win-x64.zip` | the exported game, files at the top level of the zip (one wrapping folder is also accepted); the fallback when a delta cannot be made |
+| `OpenSCCT.Launcher-<version>-win-x64.exe` | the launcher, optional |
+| `checksums.txt` | `<sha256>  <asset name>` per line (sha256sum format) |
+
+A release may instead publish `<asset>.sha256` per file; the launcher looks for that first. An asset without a
+published checksum is never installed. The tag is the version with a `v` in front (`v0.2.0`, `v0.3.0-beta.1`); a
+version with a prerelease part is also published as a GitHub prerelease, and the launcher skips prereleases unless
+"Include prereleases" is on.
+
+The script publishes nothing and does not change the repository's visibility. The repository is public, so players
+need no token; a token (below) is only for a private fork.
+
+## Folders
+
+Everything the launcher writes is under `%LOCALAPPDATA%\OpenSCCT`:
+
+```
+install.json          current version, previous version (rollback), a pending version
+launcher.json         owner, repo, prereleases, check on start, original game path
+token.dat             GitHub token, encrypted with DPAPI for the current Windows user
+versions\0.2.0\       one exported build per version
+downloads\0.2.0\      downloads in progress (.partial with a small identity file) and finished zips
+cache\                the last release list and its ETag, and a rate limit note
+content\              game content built from the player's install (later)
+```
+
+The game's own user data (settings, key bindings, saves) is Godot's `user://`, in
+`%APPDATA%\Godot\app_userdata\OpenSCCT`. The launcher never writes or deletes there. Deleting old versions only
+works inside `versions\`, refuses any other path, and removes junctions or links without following them.
+
+## Delta updates
+
+The game is exported with its pack beside the exe (`OpenSCCT.pck`, `binary_format/embed_pck=false` in
+game/export_presets.cfg), so the engine exe (about 110 MB) stays the same from build to build and a typical update
+is the pack plus our own DLLs.
+
+Each release carries `OpenSCCT-<version>-win-x64-files.json`:
+
+```
+{ "format": 1, "version": "0.6.0", "commit": "...",
+  "files": [ { "path": "OpenSCCT.pck", "size": 21733120, "sha256": "9c5a...",
+               "blob": { "tag": "v0.6.0", "name": "9c5a....gz", "size": 8012233 } } ] }
+```
+
+Every file of the build is listed with its SHA-256 and the release asset that holds it, gzipped and named by the
+hash. `New-Release.ps1` reads the newest published release's list (`-BaseTag` picks another, `-NoDelta` none): a
+file whose hash is there keeps pointing at that older asset; only new content becomes a blob of the new release.
+Each blob is uploaded once and stays in the release that first had it.
+
+The launcher (`DeltaInstaller`) hashes the files of the installed current and previous versions (only files of a
+size the list has), copies every file it already has into the new version's staging folder, downloads the missing
+blobs (resumable, from whichever release holds them; a release older than the list's first page is asked for by
+tag), unpacks each while checking its SHA-256, and renames the folder into place as before. A fresh install
+downloads every blob once. The file list itself is checked against `checksums.txt`.
+
+When a blob's release is gone the launcher falls back to the release's full zip. **Do not delete old releases**
+whose blobs newer releases still point at, or make the next release with `-NoDelta`.
+
+## How an update works
+
+1. **Check.** `GET /repos/<owner>/<repo>/releases` with `If-None-Match` set to the cached ETag. A 304 costs no rate
+   limit. Offline, timed out, 4xx or 5xx: the cached list is shown with the reason. A rate limit answer (403 or 429
+   with `X-RateLimit-Remaining: 0` or `Retry-After`) is remembered until its reset time and no request is sent
+   before then. Anonymous use has 60 requests an hour, which a launcher that checks on start does not come near.
+2. **Pick.** The highest semantic version among the tags (drafts never, prereleases on request). The file list
+   (or, without one, the game zip) and its checksum are found by name. With a file list, steps 3 to 5 run per
+   missing file (see Delta updates).
+3. **Download.** Through the asset's API URL with `Accept: application/octet-stream` (works for a private repository;
+   HttpClient drops the token when GitHub redirects to its storage host). The file goes to `<name>.partial`; an
+   identity file (asset id, size, upload time) makes sure a partial is only resumed for the same upload. Resume is a
+   `Range` request; a server that answers 200 instead starts the file over; a dropped connection is retried up to
+   four times, resuming each time.
+4. **Verify.** SHA-256 of the whole file against the published checksum. A mismatch deletes the download.
+5. **Install.** Unzip into `versions\.staging-<version>-<id>`, check for `OpenSCCT.exe`, rename to
+   `versions\<version>` in one step. Existing version folders are never touched, so a running game keeps its files.
+6. **Switch.** One atomic write of `install.json` (temp file and rename): the new version becomes current and the old
+   one becomes previous. If a game is running, the new version is recorded as pending and the switch happens as soon
+   as no game process is left (checked every 3 seconds and on the next start).
+7. **Prune.** Folders other than current and previous, and leftover staging folders, are deleted, except folders a
+   running game uses. A game whose exe path cannot be read counts as using every version.
+
+**Rollback** swaps current and previous in `install.json` (only while no game is running).
+
+**Self update.** When the release has `OpenSCCT.Launcher-<version>-win-x64.exe` and its version is newer than the
+running launcher, the launcher fetches it right after the update check ("Update launcher" retries a failed
+download). The exe is downloaded, verified and copied next to the
+running one as `OpenSCCT.Launcher.exe.new`. "Restart to finish" renames the running exe to `.old` (Windows allows
+renaming a running exe), moves `.new` into its place, starts it with `--after-update` and closes. The new process
+deletes `.old`, and finishes or undoes a swap that stopped half way. A launcher in a read-only folder (Program Files)
+says so instead of updating; it never asks for elevation.
+
+## Play
+
+Play starts `versions\<current>\OpenSCCT.exe` from its own folder. A plain start opens the main menu, so no
+arguments are needed. When the original game path is set it is passed as `-- --svm-game-root=<path>` and as
+`SVM_GAME_ROOT` (key layouts), and the launcher's `content\` folder is passed as `--svm-content=<folder>` (see Game content).
+
+## Settings and the token
+
+Settings: owner and repository, include prereleases, check on start, the original game install folder (with a
+check that it has a `System` folder), and links to the launcher folder and to the game's user data folder.
+
+The token is only for a private repository. A fine-grained token with read-only "Contents" access to the one
+repository is enough. It is encrypted with `ProtectedData` (DPAPI, `CurrentUser` scope, with fixed entropy) into
+`token.dat`, never written in plain text, never shown again, and can be removed. A token that cannot be decrypted
+(another user or machine) counts as none. Without a token the launcher calls GitHub anonymously.
+
+## Game content
+
+Maps, characters, UI, sounds and effects are converted on the player's machine from their own Splinter Cell Chaos
+Theory install; nothing derived from the game is ever downloaded.
+
+**The builder ships with each build.** `tools/release/Build-ContentTools.ps1` (run by `New-Release.ps1`; skip with
+`-SkipContentTools`) puts `contenttools\` into the game build:
+
+```
+contenttools\python\   CPython 3.10 embeddable package (python.org) with numpy, Pillow, jsonschema (PyPI wheels,
+                        content/requirements.txt), search path set in python310._pth
+contenttools\repo\     our tracked sources in the repository's layout: content\svmbuild, tools\scctpkg\scctpkg,
+                        re\formats\scctformats, spec\svmap
+```
+
+Only git-tracked files are copied. scctpkg's game-derived `class_defaults.json` is not shipped: svmbuild writes it
+from the classes step's `shared\classes.json` (`svmbuild/sources/classdefaults_dump.py`, the class names of the
+upstream dump with the values read from the player's install; equal to the upstream file for all 274 classes). The
+builder files are part of the build, so the delta updater only downloads them again when they change.
+
+**The launcher runs it** (`ContentBuilder`, `ContentBuildPlan`) when the player presses "Build content", and on its
+own right after a game install or update whose content is not current:
+
+`contenttools\python\python.exe -u -m svmbuild classes chars audio ui maps-catalog renderpack fx maps audio-map --maps all --game "<install>" --out "%LOCALAPPDATA%\OpenSCCT\content" --jobs <half the cores, at most 6> --report "<content>\build-report.json"`
+
+No window opens; the output goes to `content\build.log`, and the progress bar counts finished units (each global
+step, and each map per map step). "Stop" kills the builder and its workers; the builder's cache (`content\cache\`)
+keeps what was finished, so the next build resumes, and a build after an update redoes only steps whose code or
+inputs changed. When it ends the launcher writes `content\content-build.json` (version, install, ok, maps,
+failures). The content is current when that file names the current version and the same install.
+
+**Language.** Settings has a Language list: English, French, German, Spanish and Italian, those the install has text
+files for (`System\_PC_\GUI.<code>`). The launcher passes `--language fra` (and so on; nothing for English) and keeps the
+language in `content-build.json`, so content built in another language is not current; changing the setting builds
+again. The builder (`scctformats.classdefaults.language`, `SVM_LANGUAGE` for its workers) reads every text file in
+that language, falling back to `.int`: the class defaults, the UI strings and each map's own text. The map converter
+puts `<Map>.<code>` over its actors' localized properties (zone tips, missions, alarms) and `<Map>-i.<code>` over
+SMapSettings (briefings, ModesStrings), as the original does at load (`svmbuild/mapconv/localization.py`): retail
+packages store French text, so without this a Steam copy showed French zone tips. Our own menus are English only.
+
+**The game finds it** through `--svm-content=<content>` (Play passes it; `SVM_CONTENT` also works): shared packs from
+`<content>\shared`, converted maps from `<content>\svmap` (`OpenScct.Server.ContentPaths`). The maps the game ships
+itself (the hub with `hubmap\hub.json`, TestBox) are in `maps\` next to the exe, copied from `fixtures\` by
+`New-Release.ps1`. A checkout still finds `.content` and `fixtures` as before. Play refuses to start until a content
+build has finished once.
+
+**Which install.** The builder reads a Versus folder (`System\_PC_` and `Packages`). The launcher finds it on its
+own at start (`GameLocator`): the Steam copy (app 13570) in any Steam library (Steam's path from the registry and
+`steamapps\libraryfolders.vdf`, then `appmanifest_13570.acf`'s install folder, then its `Versus` subfolder), then
+common Ubisoft and Steam folders. A folder picked in Settings may be the game root or its Versus folder. Checked on
+the Steam copy (2026-10-26): all 21 of its maps and every shared pack convert and validate, about 470 MB in 45 s;
+its maps are the retail set (AQU03, BNK11, ...), not Enhanced SCCT Versus's 83. Props of a map the install does not
+have (the SteeE crane, `sqt13_anm`) are skipped.
+
+A fresh player: install the launcher and press Install. The
+launcher finds the game, downloads the build, builds the content and then Play works.
+
+## Open
+
+- Not run yet: the tests, a publish of the single-file exe, and a real round trip against a GitHub release (draft or
+  a test repository).
+- Not run yet: a content build with the packed builder (its Python and wheels have not been downloaded on this
+  machine), and a fresh install through the launcher end to end.
+- The content cache roughly doubles the disk the content takes (about 2 GB of content for all maps).
+- No stall timeout inside a download body: a connection that hangs without closing waits until the user cancels or
+  closes the launcher. The partial is kept for the next try.
+- No cancel button yet; closing the window cancels a running download.
+- Release notes are shown as plain Markdown text.
+- The exe is not code signed, so SmartScreen warns on first start.

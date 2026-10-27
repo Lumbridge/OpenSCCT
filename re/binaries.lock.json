@@ -1,0 +1,174 @@
+{
+  "format": "svm.binaries.lock/1",
+  "build": "Enhanced SCCT Versus v4.0 Public Beta 3",
+  "files": [
+    {
+      "id": "game",
+      "path": "System/SCCT Versus",
+      "size": 3637248,
+      "sha256": "a98873aaec1de21fdcccc0afb9985e3ddcf38a9ddce1207214872d6428ec9950",
+      "pe": {
+        "machine": "0x014c",
+        "sections": 5,
+        "timeDateStamp": 1115195323,
+        "timeDateStampUtc": "2005-05-04T08:28:43Z",
+        "imageBase": "0x10900000",
+        "sizeOfImage": "0x455000",
+        "entryPoint": "0x10b836df",
+        "checksum": "0x0037b42f"
+      }
+    },
+    {
+      "id": "editor",
+      "path": "System/ChaosTheory_Editor.exe",
+      "size": 9433088,
+      "sha256": "bce63aa2f44acbb5104dad09b00325cf32ae6a38efe97ab2ebf6a44dcb9819a3",
+      "pe": {
+        "machine": "0x014c",
+        "sections": 6,
+        "timeDateStamp": 1115198035,
+        "timeDateStampUtc": "2005-05-04T09:13:55Z",
+        "imageBase": "0x10e00000",
+        "sizeOfImage": "0xd93000",
+        "entryPoint": "0x1123fde0",
+        "checksum": "0x0090cdbf"
+      }
+    },
+    {
+      "id": "reloaded_core",
+      "path": "System/Reloaded.Core.dll",
+      "size": 3737088,
+      "sha256": "6b9d4444e7e05f7c04767509599df97c0f0fd9fc61686821cc8333066995dc46",
+      "pe": {
+        "machine": "0x014c",
+        "sections": 5,
+        "timeDateStamp": 1791670799,
+        "timeDateStampUtc": "2026-10-10T22:19:59Z",
+        "imageBase": "0x10000000",
+        "sizeOfImage": "0x42e000",
+        "entryPoint": "0x10247e10",
+        "checksum": "0x0039176b"
+      }
+    },
+    {
+      "id": "pc:Core.u",
+      "path": "System/_PC_/Core.u",
+      "size": 45526,
+      "sha256": "88599929126c0d6e5901ee6f66e38ee478631bbea3aa65f1b989628eb59166a7",
+      "package": {
+        "version": 300,
+        "licensee": 0,
+        "flags": "0x1",
+        "guid": "D18BD5504013D08681BDCA9F2A0181FD",
+        "names": 497,
+        "imports": 16,
+        "exports": 863
+      }
+    },
+    {
+      "id": "pc:Editor.u",
+      "path": "System/_PC_/Editor.u",
+      "size": 711043,
+      "sha256": "38ba6024d83e90742fb4d45757d46c8bfde5933ccc26728c3a04c73d2d0dd9c4",
+      "package": {
+        "version": 300,
+        "licensee": 0,
+        "flags": "0x1",
+        "guid": "7B99220C4E0F51F6857F9D98759B9CB2",
+        "names": 301,
+        "imports": 41,
+        "exports": 381
+      }
+    },
+    {
+      "id": "pc:Engine.u",
+      "path": "System/_PC_/Engine.u",
+      "size": 556443,
+      "sha256": "e23a385045ca86e2ea2aa082f3a406e99041e71c64293321d6ec984b1c6b8e82",
+      "package": {
+        "version": 300,
+        "licensee": 0,
+        "flags": "0x1",
+        "guid": "5E2415D740646EA7EFA8F3860BDFA097",
+        "names": 4604,
+        "imports": 76,
+        "exports": 6120
+      }
+    },
+    {
+      "id": "pc:GUI.u",
+      "path": "System/_PC_/GUI.u",
+      "size": 815598,
+      "sha256": "4c1971bc3e0d38ffbf030abac8eb063fd8b85a0654a52602f045428b4ed41a4a",
+      "package": {
+        "version": 300,
+        "licensee": 0,
+        "flags": "0x1",
+        "guid": "5AE95F7546692775CE1C6AABEDDBEA85",
+        "names": 3799,
+        "imports": 488,
+        "exports": 7293
+      }
+    },
+    {
+      "id": "pc:IpDrv.u",
+      "path": "System/_PC_/IpDrv.u",
+      "size": 8714,
+      "sha256": "7521ce72220691dd07e0ffd77f6363ff164e2d78283ec788bef4fe9538d5b53d",
+      "package": {
+        "version": 300,
+        "licensee": 0,
+        "flags": "0x5",
+        "guid": "B0585E1149CED4EA2C0895836D643979",
+        "names": 112,
+        "imports": 17,
+        "exports": 133
+      }
+    },
+    {
+      "id": "pc:SBase.u",
+      "path": "System/_PC_/SBase.u",
+      "size": 1229936,
+      "sha256": "596e136c5556d9c532f00e8032e28b10210c359ac8c3bc0c49b3a86ea21f02d9",
+      "package": {
+        "version": 300,
+        "licensee": 0,
+        "flags": "0x1",
+        "guid": "32887B0E448E5A9B2D558295E3D8555C",
+        "names": 7419,
+        "imports": 1149,
+        "exports": 13035
+      }
+    },
+    {
+      "id": "pc:SoftBody.u",
+      "path": "System/_PC_/SoftBody.u",
+      "size": 3905,
+      "sha256": "914c5f90f9c5696392109fd5bd3c8169bbecc48fb311af8c05400676f9705b91",
+      "package": {
+        "version": 300,
+        "licensee": 0,
+        "flags": "0x1",
+        "guid": "95C636C641AAFD85327F3E8A3D23496E",
+        "names": 80,
+        "imports": 18,
+        "exports": 46
+      }
+    },
+    {
+      "id": "pc:UnrealEd.u",
+      "path": "System/_PC_/UnrealEd.u",
+      "size": 6438,
+      "sha256": "d9d2abf6461cef4bba89549acc16b7c9279549a1e4eefab958d850245b833f21",
+      "package": {
+        "version": 300,
+        "licensee": 0,
+        "flags": "0x1",
+        "guid": "B43486774DB9D697CFC67998F31C405D",
+        "names": 119,
+        "imports": 30,
+        "exports": 91
+      }
+    }
+  ]
+}

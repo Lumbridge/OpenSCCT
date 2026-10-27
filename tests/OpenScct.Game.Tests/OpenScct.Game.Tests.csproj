@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="$(RepoRoot)build/Test.props" />
+  <PropertyGroup>
+    <RootNamespace>OpenScct.Game.Tests</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\OpenScct.Game\OpenScct.Game.csproj" />
+    <ProjectReference Include="..\..\src\OpenScct.Physics\OpenScct.Physics.csproj" />
+    <ProjectReference Include="..\..\src\OpenScct.Content\OpenScct.Content.csproj" />
+    <!-- AI/: the server bots' match tests run a dedicated server with server-side bots. -->
+    <ProjectReference Include="..\..\src\OpenScct.Bots\OpenScct.Bots.csproj" />
+  </ItemGroup>
+</Project>

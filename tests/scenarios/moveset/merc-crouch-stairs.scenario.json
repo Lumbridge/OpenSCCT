@@ -1,0 +1,80 @@
+{
+  "format": "svm.scenario/1",
+  "id": "moveset.merc-crouch-stairs",
+  "title": "Merc crouch-walks up the 26.9 degree stairwell ramp to the top",
+  "map": "SteeE",
+  "mode": "playlevel",
+  "players": [
+    {
+      "team": "merc"
+    }
+  ],
+  "spawn": {
+    "floor": [
+      -2060.0,
+      2368.0,
+      -1447.5
+    ],
+    "yaw": 0,
+    "clearance": 2.0,
+    "spot": "stairwell bottom floor z -1447.5, 52 uu before the foot of the ramp, facing up it (+X)",
+    "notes": "As moveset.spy-ramp-up-down: ramp plane normal z 0.89216 from z -1447.5 at x -2008 to z -1127.5 at x -1336."
+  },
+  "setup": [
+    {
+      "op": "leaveGE",
+      "maxFrames": 240
+    },
+    {
+      "op": "teleport"
+    },
+    {
+      "op": "stance",
+      "crouched": true
+    },
+    {
+      "op": "write",
+      "target": "pawn",
+      "field": "Health",
+      "value": 100
+    },
+    {
+      "op": "view",
+      "pitch": 0,
+      "yaw": 0
+    },
+    {
+      "op": "waitStill",
+      "maxFrames": 180
+    }
+  ],
+  "settleFrames": 30,
+  "durationFrames": 440,
+  "inputs": [
+    {
+      "frame": 0,
+      "buttons": {
+        "BT_Up": 1
+      },
+      "note": "crouch-walk up the ramp"
+    },
+    {
+      "frame": 400,
+      "buttons": {
+        "BT_Up": 0
+      },
+      "note": "let go on the top floor"
+    }
+  ],
+  "repeats": 3,
+  "profile": "locomotion",
+  "measure": {},
+  "covers": [
+    "uc:SBase.SPlayerController:s_PlayerWalkingWeapon.PlayerMove",
+    "uc:SBase.SPlayerController:UpdatePawnRotationWeapon",
+    "nat:SBase.SPlayerController.NativeComputeControlVariables",
+    "uc:SBase.SPlayerController:s_PlayerWalkingCr2H.PlayerTick",
+    "uc:SBase.SPlayerController:ProcessCrouch",
+    "def:SBase.SPAWNDEFENSE"
+  ]
+}

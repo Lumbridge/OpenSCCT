@@ -1,0 +1,36 @@
+<Project Sdk="Godot.NET.Sdk/4.7.2">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <EnableDynamicLoading>true</EnableDynamicLoading>
+    <RootNamespace>OpenScctGame</RootNamespace>
+    <AssemblyName>OpenScctGame</AssemblyName>
+  </PropertyGroup>
+
+  <!--
+    Godot builds with Debug, ExportDebug or ExportRelease. The libraries only know Debug and Release,
+    and a configuration name they do not know would build them without optimisation, so map it here.
+    OpenScctGame.slnx carries the same mapping for solution builds.
+  -->
+  <PropertyGroup>
+    <SvmLibraryConfiguration Condition="'$(Configuration)' == 'ExportRelease'">Release</SvmLibraryConfiguration>
+    <SvmLibraryConfiguration Condition="'$(SvmLibraryConfiguration)' == ''">Debug</SvmLibraryConfiguration>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ProjectReference>
+      <SetConfiguration>Configuration=$(SvmLibraryConfiguration)</SetConfiguration>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\src\OpenScct.Core\OpenScct.Core.csproj" />
+    <ProjectReference Include="..\src\OpenScct.Content\OpenScct.Content.csproj" />
+    <ProjectReference Include="..\src\OpenScct.Net\OpenScct.Net.csproj" />
+    <ProjectReference Include="..\src\OpenScct.Server\OpenScct.Server.csproj" />
+    <ProjectReference Include="..\src\OpenScct.Bots\OpenScct.Bots.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Discord Rich Presence over the local Discord app's pipe (docs/DISCORD.md). -->
+    <PackageReference Include="DiscordRichPresence" />
+  </ItemGroup>
+</Project>

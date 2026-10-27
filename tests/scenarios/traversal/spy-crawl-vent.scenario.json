@@ -1,0 +1,109 @@
+{
+  "format": "svm.scenario/1",
+  "id": "traversal.spy-crawl-vent",
+  "title": "Crouched spy walks through the low vent in the west wall, cannot stand inside it, stands up on the far side",
+  "map": "SteeE",
+  "mode": "playlevel",
+  "players": [
+    {
+      "team": "spy"
+    }
+  ],
+  "spawn": {
+    "floor": [
+      -3180.0,
+      -1200.0,
+      -807.5
+    ],
+    "yaw": 32768,
+    "clearance": 2.0,
+    "spot": "floor z -807.5 east of the west wall's low vent, facing it (-X)",
+    "notes": "Floor cells reached on foot where a crouched spy (35, 35, 50) fits and a standing one (35, 35, 87.5) does not: 12 cells, x -3372 to -3276, y -1232 to -1168, floor z -807.5, through the wall at x -3340; standing room on both sides (x -3436 and -3244). A crouched box swept from (-3436, -1200) to (-3244, -1200) is clear. Found with re/tools/difftest/gespots.py (crawl)."
+  },
+  "setup": [
+    {
+      "op": "leaveGE",
+      "maxFrames": 240
+    },
+    {
+      "op": "teleport"
+    },
+    {
+      "op": "stance",
+      "crouched": true
+    },
+    {
+      "op": "fastSpeed",
+      "value": true
+    },
+    {
+      "op": "write",
+      "target": "pawn",
+      "field": "Health",
+      "value": 100
+    },
+    {
+      "op": "view",
+      "pitch": 0,
+      "yaw": 32768
+    },
+    {
+      "op": "waitStill",
+      "maxFrames": 180
+    }
+  ],
+  "settleFrames": 30,
+  "durationFrames": 200,
+  "inputs": [
+    {
+      "frame": 0,
+      "buttons": {
+        "BT_Up": 1
+      },
+      "note": "crouched walk (fast, 221 uu/s) through the vent"
+    },
+    {
+      "frame": 40,
+      "buttons": {
+        "bCrouch": 1
+      },
+      "note": "crouch key inside the vent: no room to stand, the request is dropped and the latch set again"
+    },
+    {
+      "frame": 43,
+      "buttons": {
+        "bCrouch": 0
+      }
+    },
+    {
+      "frame": 90,
+      "buttons": {
+        "BT_Up": 0
+      },
+      "note": "stop past the vent"
+    },
+    {
+      "frame": 110,
+      "buttons": {
+        "bCrouch": 1
+      },
+      "note": "crouch key again outside: stand up"
+    },
+    {
+      "frame": 113,
+      "buttons": {
+        "bCrouch": 0
+      }
+    }
+  ],
+  "repeats": 3,
+  "profile": "traversal",
+  "measure": {},
+  "covers": [
+    "uc:SBase.SPlayerController:ProcessCrouch",
+    "nat:SBase.SBasePawn.CanUnCrouch",
+    "uc:SBase.SPlayerController:s_PlayerWalkingCr0H.BeginState",
+    "uc:SBase.SPlayerController:s_PlayerWalkingMario.PlayerMove",
+    "uc:SBase.SPlayerController:ComputeCrouchOrRoll"
+  ]
+}

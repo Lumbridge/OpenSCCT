@@ -1,0 +1,66 @@
+{
+  "format": "svm.combat/1",
+  "id": "combat.rifle-auto-standing",
+  "title": "Merc rifle on full auto down the lane: a whole clip held, the automatic reload with fire held, then more rounds; BulletInARow decay after release",
+  "map": "SteeE",
+  "mode": "playlevel",
+  "local": {
+    "team": "merc",
+    "floor": [
+      -492.0,
+      -2032.0,
+      -1143.5
+    ],
+    "yaw": 16384,
+    "crouched": false
+  },
+  "target": null,
+  "settleFrames": 30,
+  "durationFrames": 740,
+  "events": [
+    {
+      "frame": 0,
+      "do": "rof",
+      "mode": "auto"
+    },
+    {
+      "frame": 2,
+      "do": "aimPoint",
+      "point": [
+        -492.0,
+        2000.0,
+        -1000.0
+      ]
+    },
+    {
+      "frame": 6,
+      "do": "fire",
+      "note": "held for 25 rounds, the auto-reload and 15 more"
+    },
+    {
+      "frame": 606,
+      "do": "fireUp"
+    }
+  ],
+  "repeats": 2,
+  "measure": {
+    "shots": {},
+    "reload": {}
+  },
+  "covers": [
+    "uc:SBase.SPlayerController:Fire",
+    "uc:SBase.SWeaponDefense:FireWeapon",
+    "uc:SBase.SWeaponDefense:ServerFireWeapon",
+    "uc:SBase.SWeaponDefense:TraceFire",
+    "nat:Engine.Actor.TraceBone",
+    "nat:SBase.SWeaponDefense.GetAccuracy",
+    "uc:SBase.SPlayerController:StandardReactionsToDamage",
+    "uc:SBase.SPlayerController:PawnTakeDamage",
+    "uc:SBase.SWeaponDefense:s_Firing.Timer",
+    "uc:SBase.SWeaponDefense:ApplyWeaponJump",
+    "uc:SBase.SWeaponDefense:s_Selected.Tick",
+    "uc:SBase.SWeaponDefense:s_Reloading.AnimEnd",
+    "nat:SBase.SWeaponDefense.NativeTickSWeaponDefense"
+  ],
+  "spot": "SteeE east yard lane (x -492, floor z -1143.5, clear for 1792 uu along +Y from y -2032; found with re/tools/difftest/spots.py for the R4 locomotion recordings)"
+}

@@ -1,0 +1,16 @@
+<Project>
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>14</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Deterministic>true</Deterministic>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <AnalysisLevel>latest</AnalysisLevel>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <RepoRoot>$(MSBuildThisFileDirectory)</RepoRoot>
+    <!-- The OpenSCCT version (OpenScct.Net BuildInfo: the menus, the server browser and the master; the build number is in Directory.Build.targets); releases pass -p:Version. -->
+    <VersionPrefix>0.6.0</VersionPrefix>
+  </PropertyGroup>
+</Project>

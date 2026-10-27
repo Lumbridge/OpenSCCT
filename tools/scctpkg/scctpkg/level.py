@@ -1,0 +1,447 @@
+"""Extracts a map's placed actors into plain records for export.
+
+Handles StaticMeshActor (and SCCT subclasses that carry a StaticMesh),
+Light classes, PlayerStart classes, Movers, ZoneInfo/SkyZoneInfo and keeps a
+tagged marker for everything else so the runtime bridge can match by name.
+"""
+
+from __future__ import annotations
+
+import json
+import os
+from dataclasses import dataclass, field
+from typing import Dict, List, Optional, Tuple
+
+from .package import Export, Package
+from .packageset import PackageSet
+from .properties import read_properties, skip_state_frame
+
+LIGHT_CLASSES = {"Light", "Spotlight", "TriggerLight", "STriggerLight", "SunLight", "SLight", "SSpotLight",
+                 "SunlightCorona", "STriggerLightBeam"}
+PLAYERSTART_CLASSES = {"PlayerStart", "STriggerPlayerStart", "SPlayerStart"}
+ZONE_CLASSES = {"ZoneInfo", "SkyZoneInfo", "WarpZoneInfo", "SZoneInfo"}
+PROJECTOR_CLASSES = {"Projector", "DynamicProjector"}
+SKIP_CLASSES = {"Model", "Polys", "StaticMesh", "StaticMeshInstance", "Texture", "Shader", "Package",
+                "LevelSummary", "Level", "Palette", "Font", "Camera", "Brush", "Sound", "SMapSettings"}
+# Class defaults (DrawType, bHidden, bHideInNormalVision, StaticMesh) of 274 actor classes, read from the running
+# game's class default objects. A map only stores a property when it differs from the class default, so these decide
+# whether a placed actor is drawn (DrawType 8 = DT_StaticMesh) and hidden: SGamePlayObject, Mover, SLift default to
+# DT_Sprite, path guides and triggers default to bHidden.
+with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "class_defaults.json"), encoding="utf-8") as _f:
+    CLASS_DEFAULTS: Dict[str, dict] = json.load(_f)
+# "trigger_" is not a helper word: trigger_hack, trigger_urgence, trigger_scan and Trigger_Vert are the hack panels,
+# emergency buttons and scanners the game draws. A sprite SInterrupteur (trigger_standard) is hidden by its DrawType.
+HIDDEN_MESH_WORDS = ("help_path", "path_circle", "fakewarp", "nullobj", "_collision", "blocking")
+DT_STATICMESH = 8
+
+# UE2 ELightType / ELightEffect values, read from the live game's Engine.Actor enums.
+LT_NONE = 0
+LE_STATICSPOT = 8
+LE_SPOTLIGHT = 12
+LE_ESPOTSHADOW = 22        # SCCT projector spot
+
+# Light corona defaults (Light class default object in the running game).
+CORONA_DEFAULTS = {"MinCoronaSize": 0.0, "MaxCoronaSize": 1000.0, "CoronaRotation": 0.0, "CoronaRotationOffset": 0.0}
+# UE2 Projector defaults (Engine.Projector class default object in the running game); maps store only what differs.
+# FrameBufferBlendingOp defaults to PB_Modulate (1): maps store 0 (ShadD, CpusS) but never 1.
+PROJECTOR_DEFAULTS = {"FOV": 0, "MaxTraceDistance": 1000, "FrameBufferBlendingOp": 1, "MaterialBlendingOp": 0,
+                      "bProjectBSP": True, "bProjectStaticMesh": True, "bProjectOnBackfaces": False, "bClipBSP": False,
+                      "bGradient": False, "bProjectOnParallelBSP": False}
+
+
+def compact_refs(raw: bytes, count: int) -> List[int]:
+    """Decode `count` FCompactIndex object references from raw bytes (an object array the parser could not type)."""
+    out, i = [], 0
+    for _ in range(count):
+        if i >= len(raw):
+            break
+        b0 = raw[i]
+        i += 1
+        v = b0 & 0x3F
+        if b0 & 0x40:
+            shift = 6
+            while i < len(raw):
+                b = raw[i]
+                i += 1
+                v |= (b & 0x7F) << shift
+                shift += 7
+                if not b & 0x80:
+                    break
+        out.append(-v if b0 & 0x80 else v)
+    return out
+
+
+def object_refs(v) -> List[int]:
+    """Object array property value (list, single int, or the parser's raw {'_count','_raw'} dict) -> refs."""
+    if isinstance(v, list):
+        return [int(x) if isinstance(x, int) else 0 for x in v]
+    if isinstance(v, int):
+        return [v]
+    if isinstance(v, dict) and "_raw" in v:
+        return compact_refs(v["_raw"], int(v.get("_count", 0)))
+    return []
+
+
+def corona_color(hue: int, sat: int) -> Tuple[float, float, float]:
+    """UE2 corona colour (render code at 0x10a138a9): hue ramp in 1/85 steps, then lerp to white by saturation/255."""
+    h = hue & 0xFF
+    if h < 86:
+        c = ((85 - h) / 85.0, h / 85.0, 0.0)
+    elif h < 171:
+        c = (0.0, (170 - h) / 85.0, (h - 85) / 85.0)
+    else:
+        c = ((h - 170) / 85.0, 0.0, (255 - h) / 84.0)
+    t = max(0, min(255, sat)) / 255.0
+    return tuple(round(x + (1.0 - x) * t, 4) for x in c)
+
+
+@dataclass
+class ActorRecord:
+    name: str
+    cls: str
+    kind: str                         # staticmesh | light | playerstart | mover | zone | marker
+    location: Tuple[float, float, float] = (0.0, 0.0, 0.0)
+    rotation: Tuple[int, int, int] = (0, 0, 0)
+    scale: Tuple[float, float, float] = (1.0, 1.0, 1.0)
+    mesh_key: str = ""                # "Package.Mesh"
+    mesh_ref: int = 0
+    tag: str = ""
+    group: str = ""
+    extra: Dict = field(default_factory=dict)
+    hidden: bool = False
+
+
+def _num(v, default: float) -> float:
+    if isinstance(v, (int, float)):
+        return float(v)
+    if isinstance(v, list):
+        for x in v:
+            if isinstance(x, (int, float)):
+                return float(x)
+    return default
+
+
+def _scale_of(props) -> Tuple[float, float, float]:
+    s = _num(props.get("DrawScale"), 1.0) or 1.0
+    s3 = props.get("DrawScale3D")
+    if isinstance(s3, (tuple, list)) and len(s3) == 3 and all(isinstance(x, (int, float)) for x in s3):
+        out = (s * s3[0], s * s3[1], s * s3[2])
+    else:
+        out = (s, s, s)
+    # Misparsed or editor-junk scales (seen: 559648 on a ZoneInfo) would break rendering bounds.
+    if any(abs(x) > 1000.0 or x == 0.0 for x in out):
+        return (1.0, 1.0, 1.0)
+    return out
+
+
+def _hsv_to_rgb(hue: int, sat: int, brightness: float) -> Tuple[float, float, float]:
+    """UE2 light colour as the game computes it (FGetHSV, decoded from the exe): a hue triangle R->G->B over 0..255
+    (85 per ramp), pulled toward white by Saturation / 255 (255 = white). FGetHSV's brightness factor (0.82 at V 255)
+    is left out here; the client's UE2 pawn lighting applies it."""
+    h = float(hue)
+    if h < 86:
+        r, g, b = (85.0 - h) / 85.0, h / 85.0, 0.0
+    elif h < 171:
+        r, g, b = 0.0, (170.0 - h) / 85.0, (h - 85.0) / 85.0
+    else:
+        r, g, b = (h - 170.0) / 85.0, 0.0, (255.0 - h) / 84.0
+    s = sat / 255.0
+    return tuple(float(max(0.0, min(1.0, c + (1.0 - c) * s)) * brightness) for c in (r, g, b))
+
+
+def _class_default(cls: str) -> dict:
+    d = CLASS_DEFAULTS.get(cls)
+    if d is not None:
+        return d
+    # Classes missing from the dump (map-local subclasses such as SFish, MusicTrigger): triggers are hidden helpers.
+    return {"dt": None, "hidden": 1 if cls.endswith("Trigger") else 0, "hideNV": 0, "sm": ""}
+
+
+def _corona(props, pkg: Package, pset: PackageSet, trig: bool) -> Optional[dict]:
+    """Corona parameters of a light (UE2 draws Skins[0] as a camera-facing halo while bCorona is set)."""
+    skins = object_refs(props.get("Skins"))
+    tex_ref = skins[0] if skins else 0
+    on = bool(props.get("bCorona"))
+    if not on and not (trig and tex_ref):
+        return None     # trigger lights can switch a corona on at runtime (bInitialCorona); keep those
+    g = lambda k: _num(props.get(k), CORONA_DEFAULTS[k])
+    s3 = props.get("DrawScale3D")
+    s3 = list(s3) if isinstance(s3, (tuple, list)) and len(s3) == 3 else [1.0, 1.0, 1.0]
+    hue = int(_num(props.get("LightHue"), 0))
+    sat = int(_num(props.get("LightSaturation"), 255))
+    return {
+        "texture": pset.import_path(pkg, tex_ref) if tex_ref else "",
+        "texture_ref": tex_ref,
+        "min": g("MinCoronaSize"), "max": g("MaxCoronaSize"),
+        "rotation": g("CoronaRotation"), "rotation_offset": g("CoronaRotationOffset"),
+        "draw_scale": _num(props.get("DrawScale"), 1.0), "scale3d": s3,
+        "scale_glow": _num(props.get("ScaleGlow"), 1.0),
+        "hue": hue, "saturation": sat, "color": list(corona_color(hue, sat)),
+        "radius": _num(props.get("LightRadius"), 64.0), "cone": int(_num(props.get("LightCone"), 128)),
+        "orient": bool(props.get("bCoronaUsesOrientation")), "own_blend": bool(props.get("UseOwnFinalBlend")),
+        "on": on,
+    }
+
+
+PLF_PSX2_ONLY, PLF_XBOX_ONLY = 1, 2
+
+
+def _zone_ambient(pkg: Package) -> dict:
+    """ZoneInfo / SkyZoneInfo object ref -> m_RefAmbientColor brightness (max of RGB, 0-255)."""
+    out = {}
+    for e in pkg.exports:
+        if not e.class_name.endswith("ZoneInfo") or e.size <= 0 or not (e.flags & 0x02000000):
+            continue
+        try:
+            r = pkg.export_reader(e)
+            skip_state_frame(r, e.flags)
+            amb = read_properties(r).get("m_RefAmbientColor")
+        except Exception:
+            continue
+        if isinstance(amb, (tuple, list)) and len(amb) >= 3:
+            out[e.index + 1] = int(max(amb[:3]))
+    return out
+
+
+def extract_level(pkg: Package, pset: PackageSet) -> List[ActorRecord]:
+    records: List[ActorRecord] = []
+    zone_ambient = _zone_ambient(pkg)
+    for e in pkg.exports:
+        cls = e.class_name
+        if cls in SKIP_CLASSES or e.size <= 0:
+            continue
+        if not (e.flags & 0x02000000):
+            continue  # not an actor (no state frame)
+        r = pkg.export_reader(e)
+        try:
+            skip_state_frame(r, e.flags)
+            props = read_properties(r)
+        except Exception:
+            props = {}
+        if props.get("bDeleteMe") or props.get("bPendingDelete"):
+            continue   # deleted editor ghosts stay in the package but never exist in game
+        if int(_num(props.get("Platform"), 0)) == PLF_PSX2_ONLY and cls != "Emitter":
+            # PS2-only actors (Engine.u EPlatform: 0 COMMON, 1 PSX2_Only, 2 XBOX_Only). The PC Versus build keeps the
+            # XBOX_Only ones: live on MuseD, Light16 (XBOX_Only projector) lights the spawn wall and spy (switching it
+            # off drops the wall 59 -> 14) and XBOX_Only vents/conduits are loaded, DrawType 8, not hidden. 85eee5c
+            # dropped all 1620 of them. Emitters stay whatever their flag (20aa357): the client draws an emitter only
+            # while its live actor exists, so a marker the game really drops costs nothing.
+            continue
+        loc = props.get("Location")
+        loc = tuple(loc) if isinstance(loc, (tuple, list)) and len(loc) == 3 else (0.0, 0.0, 0.0)
+        rot = props.get("Rotation")
+        rot = tuple(rot) if isinstance(rot, (tuple, list)) and len(rot) == 3 else (0, 0, 0)
+        cdef = _class_default(cls)
+        # bHidden / DrawType are stored only when they differ from the class default.
+        hidden = bool(props["bHidden"]) if "bHidden" in props else bool(cdef.get("hidden"))
+        draw_type = int(_num(props.get("DrawType"), -1)) if "DrawType" in props else cdef.get("dt")
+        rec = ActorRecord(name=e.name, cls=cls, kind="marker", location=loc, rotation=rot, scale=_scale_of(props),
+                          tag=str(props.get("Tag", "")), group=str(props.get("Group", "")), hidden=hidden)
+        mesh_ref = props.get("StaticMesh")
+        if isinstance(mesh_ref, int) and mesh_ref != 0 and draw_type is not None and draw_type != DT_STATICMESH:
+            # The game does not draw the static mesh of a sprite/none/mesh actor (e.g. DT_Sprite SInterrupteur with
+            # trigger_standard): keep a hidden marker so the runtime still finds it by name.
+            rec.hidden = True
+            rec.extra["draw_type"] = draw_type
+            rec.extra["static_mesh"] = pset.import_path(pkg, mesh_ref)
+            mesh_ref = None
+        if isinstance(mesh_ref, int) and mesh_ref != 0:
+            rec.mesh_ref = mesh_ref
+            rec.mesh_key = pset.import_path(pkg, mesh_ref)
+            rec.kind = "mover" if (cls == "Mover" or "Mover" in cls or cls in ("SLift", "ESBStripDoor")) else "staticmesh"
+            if any(w in rec.mesh_key.lower() for w in HIDDEN_MESH_WORDS):
+                rec.hidden = True
+            smi = props.get("StaticMeshInstance")
+            if isinstance(smi, int) and smi > 0:
+                rec.extra["smi"] = smi
+            # Actor.bUnlit: drawn fullbright (texture only), its baked vertex colours unused - MissE's grass tufts
+            # store near-black colours but show their green texture in the game.
+            if props.get("bUnlit"):
+                rec.extra["unlit"] = True
+            # Actor.AmbientGlow (0-255; 5611 mesh actors on 83 maps) raises the actor's own lighting on top of its baked
+            # vertex colours: BankD's sky-zone skyline has glow 180 and near-black colours, and the game draws it lit.
+            glow = int(_num(props.get("AmbientGlow"), 0))
+            if props.get("bSpecialLit"):
+                # bSpecialLit meshes take the zone ambient instead of baked light: ClubD's sky backdrop (CLU_warp,
+                # baked colours all 0) sits in SkyZoneInfo1724 with m_RefAmbientColor 149 and the game draws it at
+                # tex x 2 x 149/255 [I from the classic frame, ClubD p3].
+                region = props.get("Region") if isinstance(props.get("Region"), dict) else {}
+                glow = max(glow, zone_ambient.get(region.get("Zone"), 0))
+            if glow > 0:
+                rec.extra["ambient_glow"] = glow
+            # UE2 stops drawing the actor beyond CullDistance (510 mesh actors in the Versus maps, 1000-5000 uu).
+            if props.get("CullDistance"):
+                rec.extra["cull_distance"] = float(props["CullDistance"])
+            pre = props.get("PrePivot")
+            if isinstance(pre, (tuple, list)):
+                rec.extra["prepivot"] = list(pre)
+            # Actor.Skins[i] replaces the material of mesh section i (0 = keep the mesh's own material).
+            refs = object_refs(props.get("Skins"))
+            if any(refs):
+                rec.extra["skin_refs"] = refs
+                rec.extra["skins"] = [pset.import_path(pkg, s) if s else "" for s in refs]
+            if rec.kind == "mover":
+                kp = props.get("KeyPos")
+                if isinstance(kp, list):
+                    rec.extra["keypos"] = [list(k) if isinstance(k, (tuple, list)) else None for k in kp]
+                bp = props.get("BasePos")
+                if isinstance(bp, (tuple, list)):
+                    rec.extra["basepos"] = list(bp)
+        elif cls in LIGHT_CLASSES or (props.get("LightBrightness") is not None and props.get("LightRadius") is not None):
+            rec.kind = "light"
+            rec.hidden = bool(props.get("bHidden"))   # Light.bHidden only hides the editor sprite
+            effect = int(_num(props.get("LightEffect"), 0))
+            ltype = int(_num(props.get("LightType"), 1))
+            rec.extra = {
+                "brightness": _num(props.get("LightBrightness"), 64.0),
+                "radius": _num(props.get("LightRadius"), 64.0),
+                "hue": int(_num(props.get("LightHue"), 0)),
+                "saturation": int(props.get("LightSaturation", 255) or 0),
+                "color": list(_hsv_to_rgb(int(_num(props.get("LightHue"), 0)), int(props.get("LightSaturation", 255) if props.get("LightSaturation") is not None else 255), 1.0)),
+                "light_type": "spot" if effect in (LE_SPOTLIGHT, LE_STATICSPOT, LE_ESPOTSHADOW) or cls in ("Spotlight", "SSpotLight") else "point",
+                "cone": int(_num(props.get("LightCone"), 128)),
+                "effect": effect,
+                "ltype": ltype,
+                "echelon_range": _num(props.get("EchelonRange"), 0.0),
+                "spot_width": _num(props.get("SpotWidth"), 0.0),
+                "spot_height": _num(props.get("SpotHeight"), 0.0),
+                # LE_ESpotShadow frustum (decoded, docs/LIGHTING_BALANCE.md): apex NearPlaneRatio x EchelonRange /
+                # (1 - NearPlaneRatio) behind the light. Actor default 0.1.
+                "near_plane_ratio": _num(props.get("NearPlaneRatio"), 0.1),
+                # LT_Pulse / Blink / Flicker / Strobe / SubtlePulse timing (UE2 Light defaults: period 32, phase 0).
+                "light_period": _num(props.get("LightPeriod"), 32),
+                "light_phase": _num(props.get("LightPhase"), 0),
+            }
+            # STriggerLight.bInitialyOn defaults to False and is only saved when True; switch/trigger groups
+            # (e.g. FactD's "Disco" room) start off. Plain lights are always on unless LT_None.
+            trig = cls in ("STriggerLight", "TriggerLight")
+            on = bool(props.get("bInitialyOn", props.get("bInitiallyOn", False))) if trig else True
+            rec.extra.update({
+                "initially_on": bool(on and (trig or ltype != LT_NONE)),
+                "triggered": trig,
+                # SCCT light flags: static lights are already in the lightmaps/vertex colours; in-game lights
+                # light dynamic actors (pawns); dynamic lights are applied to the world at runtime.
+                "apply_static": bool(props.get("bApplyToStaticLighting", True)),
+                "apply_ingame": bool(props.get("bApplyToInGameLighting", False)),
+                "dynamic": bool(props.get("bDynamicLight", trig)),
+                # bAffectOwnZoneOnly: the light reaches only actors in its own zone (MissE's outdoor Br 255 radius 180
+                # fill lights stop at the building: the bench spy is a silhouette in the game, lit grey without this).
+                "own_zone_only": bool(props.get("bAffectOwnZoneOnly", False)),
+            })
+            reg = props.get("Region")
+            if isinstance(reg, dict) and isinstance(reg.get("Zone"), int) and reg["Zone"]:
+                try:
+                    rec.extra["zone"] = pkg.object_name(int(reg["Zone"]))
+                except Exception:
+                    pass
+            em = props.get("EchelonLightMaterial")
+            if effect == LE_ESPOTSHADOW and isinstance(em, int) and em:
+                # EchelonLightingMaterial: the projector throws its ProjectedLightingTexture over the frustum box
+                # (RiveD's neon "River Mall" logo, BankD's projectors); the exporter writes the texture.
+                rec.extra["echelon_material_ref"] = em
+            corona = _corona(props, pkg, pset, trig)
+            if corona is not None:
+                rec.extra["corona"] = corona
+            if ltype == LT_NONE and cls == "Light":
+                rec.hidden = True
+        elif cls in PROJECTOR_CLASSES and isinstance(props.get("ProjTexture"), int) and props.get("ProjTexture"):
+            # UE2 texture projector (painted wall signs): export_gltf clips the BSP under it into a decal mesh.
+            rec.kind = "projector"
+            g = lambda k: props.get(k, PROJECTOR_DEFAULTS[k])
+            rec.extra = {
+                "proj_texture": pset.import_path(pkg, int(props["ProjTexture"])),
+                "proj_texture_ref": int(props["ProjTexture"]),
+                "fov": _num(g("FOV"), 0.0), "max_trace": _num(g("MaxTraceDistance"), 1000.0),
+                "fb_blend": int(_num(g("FrameBufferBlendingOp"), 0)), "mat_blend": int(_num(g("MaterialBlendingOp"), 0)),
+                "project_bsp": bool(g("bProjectBSP")), "project_static_mesh": bool(g("bProjectStaticMesh")),
+                "backfaces": bool(g("bProjectOnBackfaces")), "clip_bsp": bool(g("bClipBSP")),
+                "gradient": bool(g("bGradient")), "parallel": bool(g("bProjectOnParallelBSP")),
+                "draw_scale": _num(props.get("DrawScale"), 1.0),
+            }
+        elif cls in PLAYERSTART_CLASSES:
+            rec.kind = "playerstart"
+            rec.extra = {"team": "merc" if int(_num(props.get("TeamNumber"), 0)) == 1 else "spy"}
+        elif cls in ZONE_CLASSES:
+            rec.kind = "zone"
+            rec.extra = {
+                "location_name": str(props.get("LocationName", "")),
+                "fog": bool(props.get("bDistanceFog")),
+                "fog_color": list(props.get("DistanceFogColor")) if isinstance(props.get("DistanceFogColor"), (tuple, list)) else [0, 0, 0, 0],
+                "fog_start": _num(props.get("DistanceFogStart"), 0.0),
+                "fog_end": _num(props.get("DistanceFogEnd"), 0.0),
+                "ambient": list(props.get("m_RefAmbientColor")) if isinstance(props.get("m_RefAmbientColor"), (tuple, list)) else [0, 0, 0, 0],
+                "sky": cls == "SkyZoneInfo",
+            }
+        elif cls == "ERainVolume":
+            # World-space rain the game draws itself inside a box, seen from outside too (OrphD/OrphE and 91 volumes
+            # in all). Location sits on the floor: m_RainSize is the box, rising m_RainSize.Z from there [I from OrphD's
+            # BSP floors]. The client builds the sheets from these (SCCTEffects.cpp UpdateRainVolumes).
+            wp = props.get("m_weatherProperties") if isinstance(props.get("m_weatherProperties"), dict) else {}
+            size = props.get("m_RainSize")
+            rec.extra["rain"] = {
+                "size": list(size) if isinstance(size, (tuple, list)) and len(size) == 3 else [512.0, 512.0, 1024.0],
+                "falloff": _num(props.get("m_RainFalloff"), 100.0),
+                "fade_scale": _num(props.get("m_RainFadeScale"), 0.5),
+                "distance_to_camera": _num(props.get("m_DistanceToCamera"), 150.0),
+                "thickness": _num(wp.get("m_RainThickness"), 250.0),
+                "mat_scale": _num(wp.get("m_RainMatScale"), 10.0),
+            }
+            mref = wp.get("m_RainMaterial")
+            if isinstance(mref, int) and mref:
+                rec.extra["rain"]["material"] = pset.import_path(pkg, mref)
+                rec.extra["rain_material_ref"] = mref
+        elif cls == "ESBPatchActor" and props.get("nbU") and props.get("nbV"):
+            # Soft-body cloth patch the game builds at runtime: a grid of nbU x nbV cells of ULength x VLength (x
+            # DrawScale), centred on the actor, in its local XZ plane (roll turns it flat). AquaE's sea is one (10 x 10,
+            # 4000 x 3800 uu under the terrace, texture Aquarium_TXT.osc), the rest are awnings and banners. The
+            # exporter builds it as a static grid; AmbientGlow is its only light (bIgnoreEchelonLighting).
+            tex = props.get("Texture")
+            skins = object_refs(props.get("Skins"))
+            mref = tex if isinstance(tex, int) and tex else (skins[0] if skins and skins[0] else 0)
+            if mref:
+                rec.extra["patch"] = {
+                    "nb_u": int(_num(props.get("nbU"), 1)), "nb_v": int(_num(props.get("nbV"), 1)),
+                    "u_length": _num(props.get("ULength"), 100.0), "v_length": _num(props.get("VLength"), 100.0),
+                    "scale_u": _num(props.get("scaleU"), 1.0), "scale_v": _num(props.get("scaleV"), 1.0),
+                    "ambient_glow": int(_num(props.get("AmbientGlow"), 0)),
+                    "unlit": bool(props.get("bUnlit")),
+                }
+                rec.extra["patch_material_ref"] = mref
+        elif rec.kind == "marker" and cdef.get("sm") and "StaticMesh" not in props:
+            # Class-default mesh (SLaserTrigger housings, SCamNetwork globes, SInfirmary cabinets): drawn by the
+            # runtime from /Game/SCCT/Shared; recorded for tools. Instances that store another DrawType (61 DT_Sprite
+            # SInterrupteur, 8 SVolumetricSensor) do not draw it: hidden marker with their draw_type, as above.
+            if draw_type == DT_STATICMESH:
+                rec.extra["default_mesh"] = cdef["sm"]
+            elif draw_type is not None:
+                rec.hidden = True
+                rec.extra["draw_type"] = draw_type
+        records.append(rec)
+    return records
+
+
+# LevelInfo.GlowThreshold class default (live LevelInfo0 / Entry): the native glow post pass brightpasses at T/255.
+GLOW_THRESHOLD_DEFAULT = 224
+
+
+def extract_look(pkg: Package) -> dict:
+    """Per-map post-process settings stored on the LevelInfo (only when they differ from the class default)."""
+    look = {"glow_threshold": GLOW_THRESHOLD_DEFAULT, "glow_threshold_stored": False}
+    for e in pkg.exports_of_class("LevelInfo"):
+        if e.size <= 0:
+            continue
+        r = pkg.export_reader(e)
+        try:
+            skip_state_frame(r, e.flags)
+            props = read_properties(r)
+        except Exception:
+            continue
+        if "GlowThreshold" in props:
+            look["glow_threshold"] = int(_num(props["GlowThreshold"], GLOW_THRESHOLD_DEFAULT))
+            look["glow_threshold_stored"] = True
+        if "Brightness" in props:
+            look["brightness"] = _num(props["Brightness"], 1.0)
+        break
+    # 255 disables the pass (SteeD/E/P/T); T = glow_threshold / 255.
+    look["glow_enabled"] = look["glow_threshold"] < 255
+    return look

@@ -1,0 +1,28 @@
+M:System.Math.Sin(System.Double);Use SvmMath (UE2 sine table) so results match on every platform
+M:System.Math.Cos(System.Double);Use SvmMath
+M:System.Math.Tan(System.Double);Use SvmMath
+M:System.Math.Asin(System.Double);Use SvmMath
+M:System.Math.Acos(System.Double);Use SvmMath
+M:System.Math.Atan(System.Double);Use SvmMath
+M:System.Math.Atan2(System.Double,System.Double);Use SvmMath
+M:System.Math.Exp(System.Double);Use SvmMath
+M:System.Math.Log(System.Double);Use SvmMath
+M:System.Math.Pow(System.Double,System.Double);Use SvmMath
+M:System.Math.FusedMultiplyAdd(System.Double,System.Double,System.Double);No FMA in sim code
+M:System.MathF.Sin(System.Single);Use SvmMath (UE2 sine table) so results match on every platform
+M:System.MathF.Cos(System.Single);Use SvmMath
+M:System.MathF.Tan(System.Single);Use SvmMath
+M:System.MathF.Asin(System.Single);Use SvmMath
+M:System.MathF.Acos(System.Single);Use SvmMath
+M:System.MathF.Atan(System.Single);Use SvmMath
+M:System.MathF.Atan2(System.Single,System.Single);Use SvmMath
+M:System.MathF.Exp(System.Single);Use SvmMath
+M:System.MathF.Log(System.Single);Use SvmMath
+M:System.MathF.Pow(System.Single,System.Single);Use SvmMath
+M:System.MathF.FusedMultiplyAdd(System.Single,System.Single,System.Single);No FMA in sim code
+T:System.Random;Use the seeded sim RNG streams (OpenScct.Core.SimRandom)
+P:System.DateTime.Now;Sim time comes from the tick counter
+P:System.DateTime.UtcNow;Sim time comes from the tick counter
+P:System.Environment.TickCount;Sim time comes from the tick counter
+P:System.Environment.TickCount64;Sim time comes from the tick counter
+T:System.Diagnostics.Stopwatch;Sim time comes from the tick counter

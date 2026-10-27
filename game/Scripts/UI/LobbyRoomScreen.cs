@@ -1,0 +1,546 @@
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using Godot;
+using OpenScct.Server.Online;
+using OpenScctGame.Hud;
+using OpenScctGame.Options;
+
+namespace OpenScctGame.UI;
+
+/// <summary>
+/// The online lobby as the original's Lobby Room page (Lobby_Create; spec/game/lobby-and-match-creation.md rules 11 to
+/// 18; docs/MENUS.md): the Spies and Mercenaries lists ("Waiting for players" when empty) with each player's ready
+/// state, ping and voice (speaking, and the local player's volume and mute for him, Reloaded's per-player control),
+/// the spectators, "Switch Team", "Restrict Mic to Team", the Session Parameters (the Create Session rows: the host
+/// edits them and applies, a client reads them and sees changed values blink), the chat box with Say and TeamSay and
+/// its spam delay, kicking with "Do you want to kick", and the page buttons: Leave, Options and Launch (host; Cancel
+/// while the launch counts down) or Ready / Not Ready (client).
+/// </summary>
+public partial class LobbyRoomScreen : MenuPage
+{
+    /// <summary>What a server bot's row reads in the ready column.</summary>
+    public const string BotText = "Bot";
+
+    /// <summary>
+    /// The mark after a signed-in (verified) player's name: a check mark when the menu font draws one, else "[v]"
+    /// (the original look's bitmap font has no such glyph).
+    /// </summary>
+    private static string VerifiedMark =>
+        (UiStyle.IsOriginal ? UiStyle.MenuTheme.DefaultFont : UiArt.BodyFont) is { } font && font.HasChar('✓') ? " ✓" : " [v]";
+
+    private readonly Dictionary<int, PlayerRow> _rows = new();
+    private readonly LobbyRoomModel _room = new();
+    private VBoxContainer? _spies;
+    private VBoxContainer? _mercs;
+    private VBoxContainer? _spectators;
+    private Label? _spiesWaiting;
+    private Label? _mercsWaiting;
+    private Label? _status;
+    private Label? _microphone;
+    private RichTextLabel? _messages;
+    private LineEdit? _chat;
+    private Control? _confirm;
+    private Label? _confirmText;
+    private int _confirmKick = -1;
+    private int _shownMessages = -1;
+    private double _countdownEnd;
+    private float _lastCountdown;
+    private LobbySetup? _modelSetup;
+    private OpenScct.Server.MapCatalog? _mapCatalog;
+
+    private sealed class PlayerRow
+    {
+        public required HBoxContainer Line { get; init; }
+
+        public required TextureRect Speaker { get; init; }
+
+        public required Label Name { get; init; }
+
+        public required Label Ready { get; init; }
+
+        public required Label Ping { get; init; }
+
+        public HSlider? Volume { get; init; }
+
+        public Label? VolumeText { get; init; }
+
+        public CheckBox? Mute { get; init; }
+
+        public Button? Kick { get; init; }
+
+        public string PlayerName { get; set; } = string.Empty;
+    }
+
+    public IOnlineLobbySession? Session { get; set; }
+
+    /// <summary>The Session Parameters rows' rules (the host edits through them).</summary>
+    public CreateSessionModel? Parameters { get; private set; }
+
+    public SessionRowsView? ParameterRows { get; private set; }
+
+    /// <summary>The selected map's picture in Session Parameters.</summary>
+    public MapThumb? MapPicture { get; private set; }
+
+    /// <summary>Launch / Cancel (host) or Ready / Not Ready (client).</summary>
+    public Button? MainButton { get; private set; }
+
+    public Button? LeaveButton { get; private set; }
+
+    public Button? SwitchTeamButton { get; private set; }
+
+    public Button? SpectateButton { get; private set; }
+
+    public Button? ApplyButton { get; private set; }
+
+    public CheckBox? TeamVoiceOnlyBox { get; private set; }
+
+    public override void _Ready()
+    {
+        Name = "LobbyRoom";
+        BuildFrame(LobbyRoomModel.Title, 1180f);
+        IOnlineLobbySession session = Session ?? throw new InvalidOperationException("The lobby room needs a session.");
+        _status = new Label { Name = "Status", HorizontalAlignment = HorizontalAlignment.Center, Modulate = UiStyle.MenuFocus };
+        Body.AddChild(_status);
+
+        var upper = new HBoxContainer { Name = "Upper" };
+        upper.AddThemeConstantOverride("separation", 12);
+        Body.AddChild(upper);
+        var teams = new VBoxContainer { Name = "Teams", SizeFlagsHorizontal = SizeFlags.ExpandFill };
+        upper.AddChild(teams);
+        _spies = Panel(teams, "Spies", "Spies", 620f);
+        _spiesWaiting = new Label { Name = "SpiesWaiting", Text = LobbyRoomModel.WaitingText, Modulate = UiStyle.MenuDisabled };
+        _spies.AddChild(_spiesWaiting);
+        _mercs = Panel(teams, "Mercs", "Mercenaries", 620f);
+        _mercsWaiting = new Label { Name = "MercsWaiting", Text = LobbyRoomModel.WaitingText, Modulate = UiStyle.MenuDisabled };
+        _mercs.AddChild(_mercsWaiting);
+        _spectators = Panel(teams, "Spectators", "Spectators", 620f);
+
+        var sideRow = new HBoxContainer { Name = "SideRow" };
+        teams.AddChild(sideRow);
+        SwitchTeamButton = UiStyle.MenuButton("Switch Team", SwitchTeam, "SwitchTeam");
+        SpectateButton = UiStyle.MenuButton("Spectate", session.Spectate, "Spectate");
+        SwitchTeamButton.CustomMinimumSize = SpectateButton.CustomMinimumSize = new Vector2(180f, 40f);
+        sideRow.AddChild(SwitchTeamButton);
+        sideRow.AddChild(SpectateButton);
+        TeamVoiceOnlyBox = new CheckBox { Name = "TeamVoiceOnly", Text = "Restrict Mic to Team" };
+        TeamVoiceOnlyBox.Toggled += on => Session?.SetTeamVoiceOnly(on);
+        sideRow.AddChild(TeamVoiceOnlyBox);
+        _microphone = new Label { Name = "Microphone", Modulate = UiStyle.MenuFocus, AutowrapMode = TextServer.AutowrapMode.WordSmart };
+        teams.AddChild(_microphone);
+
+        // The chat box beside the lists.
+        VBoxContainer chat = Panel(upper, "Chat", null, 500f);
+        chat.SizeFlagsVertical = SizeFlags.ExpandFill;
+        _messages = new RichTextLabel
+        {
+            Name = "Messages", CustomMinimumSize = new Vector2(0f, 150f), SizeFlagsHorizontal = SizeFlags.ExpandFill,
+            SizeFlagsVertical = SizeFlags.ExpandFill, ScrollFollowing = true, BbcodeEnabled = false,
+        };
+        chat.AddChild(_messages);
+        var line = new HBoxContainer { Name = "ChatRow" };
+        _chat = new LineEdit { Name = "ChatLine", PlaceholderText = "Say something", SizeFlagsHorizontal = SizeFlags.ExpandFill, MaxLength = 100 };
+        _chat.TextSubmitted += _ => SendChat(teamOnly: false);
+        Button say = UiStyle.MenuButton("Say", () => SendChat(teamOnly: false), "Say");
+        Button teamSay = UiStyle.MenuButton("TeamSay", () => SendChat(teamOnly: true), "TeamSay");
+        say.CustomMinimumSize = teamSay.CustomMinimumSize = new Vector2(100f, 36f);
+        line.AddChild(_chat);
+        line.AddChild(say);
+        line.AddChild(teamSay);
+        chat.AddChild(line);
+
+        // Session Parameters below, across the page: the Create Session rows (without the password and Max Players,
+        // which only the host's Create Session page has).
+        VBoxContainer parameters = Panel(Body, "Parameters", "Session Parameters");
+        Parameters = new CreateSessionModel(session.Maps, session.MapSettings, session.Setup);
+        _modelSetup = Parameters.Setup;
+        var rows = new List<SessionRow>(CreateSessionModel.Rows);
+        rows.Remove(SessionRow.Password);
+        rows.Remove(SessionRow.MaxPlayers);
+        ParameterRows = new SessionRowsView(Parameters, rows, showPassword: false, compact: true) { Blink = _room };
+        ParameterRows.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+
+        // The selected map's picture beside the rows, following the map (the host's edits, or the host's setup).
+        var parameterLine = new HBoxContainer { Name = "ParameterLine" };
+        parameterLine.AddThemeConstantOverride("separation", 12);
+        parameters.AddChild(parameterLine);
+        MapPicture = new MapThumb(new Vector2(180f, 180f)) { SizeFlagsVertical = SizeFlags.ShrinkBegin };
+        parameterLine.AddChild(MapPicture);
+        parameterLine.AddChild(ParameterRows);
+        _mapCatalog = GetTree().Root.GetNodeOrNull<OpenScctGame.Online.OnlineService>(OpenScctGame.Online.OnlineService.NodeName)?.Catalog.Maps;
+        Parameters.Changed += ShowMapPicture;
+        ShowMapPicture();
+        ApplyButton = UiStyle.MenuButton("Apply", Apply, "Apply");
+        ApplyButton.CustomMinimumSize = new Vector2(220f, 36f);
+        ApplyButton.SizeFlagsHorizontal = SizeFlags.ShrinkEnd;
+        parameters.AddChild(ApplyButton);
+
+        LeaveButton = PageButton("Leave", () => Session?.Leave(), "Leave");
+        PageButton("Options", OpenOptions, "Options");
+        MainButton = PageButton("Ready", PressMain, "Main");
+        BuildConfirm();
+
+        session.Changed += Refresh;
+        Refresh();
+    }
+
+    public override void _ExitTree()
+    {
+        if (Session is not null)
+        {
+            Session.Changed -= Refresh;
+        }
+
+        if (Parameters is not null)
+        {
+            Parameters.Changed -= ShowMapPicture;
+        }
+    }
+
+    private void ShowMapPicture()
+    {
+        if (MapPicture is null || Parameters is null)
+        {
+            return;
+        }
+
+        string map = Parameters.Setup.Map;
+        MapPicture.SetMap(MapImages.Preview(_mapCatalog, map), _mapCatalog is { } maps ? MapTitles.Of(maps, map) : map);
+    }
+
+    private void BuildConfirm()
+    {
+        _confirm = new PanelContainer { Name = "KickConfirm", Visible = false, AnchorLeft = 0.35f, AnchorRight = 0.65f, AnchorTop = 0.4f, AnchorBottom = 0.55f };
+        _confirm.AddThemeStyleboxOverride("panel", UiStyle.MenuPanelBox());
+        var column = new VBoxContainer();
+        _confirmText = new Label { Name = "Text", HorizontalAlignment = HorizontalAlignment.Center, AutowrapMode = TextServer.AutowrapMode.WordSmart };
+        column.AddChild(_confirmText);
+        var buttons = new HBoxContainer { Alignment = BoxContainer.AlignmentMode.Center };
+        Button yes = UiStyle.MenuButton("Yes", () => ConfirmKick(true), "KickYes");
+        Button no = UiStyle.MenuButton("No", () => ConfirmKick(false), "KickNo");
+        yes.CustomMinimumSize = no.CustomMinimumSize = new Vector2(140f, 40f);
+        buttons.AddChild(yes);
+        buttons.AddChild(no);
+        column.AddChild(buttons);
+        _confirm.AddChild(column);
+        AddChild(_confirm);
+    }
+
+    private void SwitchTeam()
+    {
+        if (Session is null)
+        {
+            return;
+        }
+
+        OnlineLobbyPlayer? local = Local();
+        Session.SetSide(local?.Side == HudSide.Spy ? HudSide.Merc : HudSide.Spy);
+    }
+
+    private void PressMain()
+    {
+        if (Session is not { } s)
+        {
+            return;
+        }
+
+        if (s.CanControl)
+        {
+            s.Start(GetTree());
+        }
+        else
+        {
+            s.SetReady(!(Local()?.Ready ?? false));
+        }
+    }
+
+    private void Apply()
+    {
+        if (Session is { CanControl: true } s && Parameters is not null)
+        {
+            s.ApplySetup(Parameters.Setup with { MaxPlayers = s.Setup.MaxPlayers });
+        }
+    }
+
+    private void SendChat(bool teamOnly)
+    {
+        if (Session is not { } s || _chat is not { Text.Length: > 0 } chat)
+        {
+            return;
+        }
+
+        if (!_room.TrySendChat(Time.GetTicksMsec() / 1000.0))
+        {
+            _messages?.AppendText(LobbyRoomModel.SpamText + "\n");
+            return;
+        }
+
+        s.Chat(chat.Text, teamOnly);
+        chat.Text = string.Empty;
+    }
+
+    private void OpenOptions()
+    {
+        var options = new OptionsMenu { Overlay = true };
+        options.Closed += options.QueueFree;
+        AddChild(options);
+    }
+
+    private void AskKick(int id, string name)
+    {
+        _confirmKick = id;
+        if (_confirmText is not null)
+        {
+            _confirmText.Text = "Do you want to kick " + name + "?";
+        }
+
+        if (_confirm is not null)
+        {
+            _confirm.Visible = true;
+        }
+    }
+
+    private void ConfirmKick(bool yes)
+    {
+        if (yes && _confirmKick >= 0)
+        {
+            Session?.Kick(_confirmKick);
+        }
+
+        _confirmKick = -1;
+        if (_confirm is not null)
+        {
+            _confirm.Visible = false;
+        }
+    }
+
+    private OnlineLobbyPlayer? Local()
+    {
+        if (Session is null)
+        {
+            return null;
+        }
+
+        foreach (OnlineLobbyPlayer p in Session.Members)
+        {
+            if (p.IsLocal)
+            {
+                return p;
+            }
+        }
+
+        return null;
+    }
+
+    /// <summary>Redraws the lists, the parameters and the buttons from the session.</summary>
+    public void Refresh()
+    {
+        if (Session is not { } s || _spies is null || _mercs is null || _spectators is null)
+        {
+            return;
+        }
+
+        var seen = new HashSet<int>();
+        foreach (OnlineLobbyPlayer p in s.Members)
+        {
+            seen.Add(p.Id);
+            if (!_rows.TryGetValue(p.Id, out PlayerRow? row))
+            {
+                row = MakeRow(p, s);
+                _rows[p.Id] = row;
+            }
+
+            VBoxContainer list = p.Side switch
+            {
+                HudSide.Spy => _spies,
+                HudSide.Merc => _mercs,
+                _ => _spectators,
+            };
+            if (row.Line.GetParent() != list)
+            {
+                row.Line.GetParent()?.RemoveChild(row.Line);
+                list.AddChild(row.Line);
+            }
+
+            row.PlayerName = p.Name;
+            row.Name.Text = p.Name + (p.IsVerified ? VerifiedMark : string.Empty) + (p.IsHost ? " (host)" : string.Empty) +
+                (p.TeamVoiceOnly ? " (mic: team)" : string.Empty) +
+                (p.MapNote.Length > 0 ? "  [" + p.MapNote + "]" : string.Empty);
+            row.Name.Modulate = p.IsLocal ? UiStyle.SideColour(p.Side ?? HudSide.Spy) : UiStyle.MenuText;
+            // A bot is always ready: its column says what it is instead.
+            row.Ready.Text = p.IsBot ? BotText : p.Side is null || p.IsHost ? string.Empty : p.Ready ? "Ready" : "Not Ready";
+            row.Ping.Text = p.PingMs > 0 ? string.Create(CultureInfo.InvariantCulture, $"{p.PingMs} ms") : string.Empty;
+            if (row.Kick is not null)
+            {
+                row.Kick.Visible = s.CanControl;
+            }
+        }
+
+        foreach (int id in new List<int>(_rows.Keys))
+        {
+            if (!seen.Contains(id))
+            {
+                _rows[id].Line.QueueFree();
+                _rows.Remove(id);
+            }
+        }
+
+        _spiesWaiting!.Visible = _spies.GetChildCount() <= 2;
+        _mercsWaiting!.Visible = _mercs.GetChildCount() <= 2;
+
+        // The spectators' frame only when someone watches (the original lobby has no such list).
+        if (_spectators.GetParent() is Control spectatorFrame)
+        {
+            spectatorFrame.Visible = _spectators.GetChildCount() > 1;
+        }
+
+        // Session Parameters: the host's edits stay until applied; the others follow the server (changes blink).
+        bool control = s.CanControl;
+        _room.Show(s.Setup, Time.GetTicksMsec() / 1000.0);
+        if (_modelSetup != s.Setup)
+        {
+            // A client always shows the server's values; the host keeps his edits until he applies them.
+            if (!control || Parameters!.Setup == _modelSetup)
+            {
+                Parameters!.Load(s.Setup);
+            }
+
+            _modelSetup = s.Setup;
+        }
+
+        ParameterRows!.Editable = control;
+        ApplyButton!.Visible = control;
+        TeamVoiceOnlyBox!.SetPressedNoSignal(s.TeamVoiceOnly);
+        OnlineLobbyPlayer? local = Local();
+        SwitchTeamButton!.Disabled = local is null || (local.Ready && !control) || s.Setup.Mode == OpenScct.Core.EGameMode.GM_MercDeathMatch;
+        SpectateButton!.Disabled = local is null || local.Side is null || (local.Ready && !control);
+        MainButton!.Text = LobbyRoomModel.MainButton(control, local?.Ready ?? false, s.Launching);
+        MainButton.Disabled = local is null;
+
+        if (_messages is not null && s.Messages.Count != _shownMessages)
+        {
+            _shownMessages = s.Messages.Count;
+            var lines = new System.Text.StringBuilder();
+            foreach (LobbyMessage m in s.Messages)
+            {
+                lines.AppendLine(m.Sender is null ? "* " + m.Text : (m.TeamOnly ? "(Team) " : string.Empty) + m.Sender + ": " + m.Text);
+            }
+
+            _messages.Text = lines.ToString();
+        }
+    }
+
+    private PlayerRow MakeRow(OnlineLobbyPlayer p, IOnlineLobbySession s)
+    {
+        var line = new HBoxContainer { Name = "Player" + p.Id.ToString(CultureInfo.InvariantCulture) };
+        line.AddThemeConstantOverride("separation", 6);
+        var speaker = new TextureRect
+        {
+            Name = "Speaking", Texture = UiStyle.MenuTexture("Menu_PC", "CommunicatorON"), CustomMinimumSize = new Vector2(24f, 24f),
+            ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize, StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered, Modulate = UiStyle.MenuFocus,
+        };
+        line.AddChild(speaker);
+        // The name takes the row's spare width and the row grows for a long one ("Name#3d08 (host)"), nothing cut.
+        var name = new Label { Name = "Name", CustomMinimumSize = new Vector2(140f, 0f), SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
+        var ready = new Label { Name = "ReadyState", CustomMinimumSize = new Vector2(72f, 0f) };
+        var ping = new Label { Name = "Ping", CustomMinimumSize = new Vector2(50f, 0f) };
+        line.AddChild(name);
+        line.AddChild(ready);
+        line.AddChild(ping);
+        HSlider? volume = null;
+        Label? volumeText = null;
+        CheckBox? mute = null;
+        Button? kick = null;
+        // A bot never talks and follows the Bots setting: no volume, mute or kick on its row.
+        if (!p.IsLocal && !p.IsBot)
+        {
+            // Reloaded's "scroll to adjust" and "click to mute", as a slider and a box per player.
+            string player = p.Name;
+            volume = new HSlider
+            {
+                Name = "Volume", MinValue = 0, MaxValue = 200, Step = 5, Value = s.VoiceVolume(player) * 100f,
+                CustomMinimumSize = new Vector2(90f, 20f), TooltipText = "This player's voice volume",
+            };
+            volumeText = new Label { Name = "VolumeText", CustomMinimumSize = new Vector2(48f, 0f) };
+            void Apply(double v)
+            {
+                s.SetVoiceVolume(player, (float)v / 100f);
+                volumeText.Text = string.Create(CultureInfo.InvariantCulture, $"{v:0}%");
+            }
+
+            // A click on the track moves the grabber without value_changed (Godot's Slider blocks it on press): take the
+            // value when the press ends too.
+            volume.ValueChanged += Apply;
+            volume.DragEnded += _ => Apply(volume.Value);
+            volumeText.Text = string.Create(CultureInfo.InvariantCulture, $"{volume.Value:0}%");
+            mute = new CheckBox { Name = "Mute", Text = "Mute", ButtonPressed = s.VoiceMuted(player) };
+            mute.Toggled += on => s.SetVoiceMuted(player, on);
+            line.AddChild(volume);
+            line.AddChild(volumeText);
+            line.AddChild(mute);
+            int id = p.Id;
+            kick = new Button { Name = "Kick", Text = "Kick" };
+            kick.Pressed += () => AskKick(id, player);
+            line.AddChild(kick);
+        }
+
+        return new PlayerRow { Line = line, Speaker = speaker, Name = name, Ready = ready, Ping = ping, Volume = volume, VolumeText = volumeText, Mute = mute, Kick = kick };
+    }
+
+    public override void _Process(double delta)
+    {
+        base._Process(delta);
+        if (Session is not { } s || _status is null)
+        {
+            return;
+        }
+
+        double now = Time.GetTicksMsec() / 1000.0;
+        if (Math.Abs(s.Countdown - _lastCountdown) > 0.05f)
+        {
+            _lastCountdown = s.Countdown;
+            _countdownEnd = now + s.Countdown;
+        }
+
+        double left = _countdownEnd - now;
+        string count = left > 0.05 && s.Countdown > 0 ? string.Create(CultureInfo.InvariantCulture, $"   Starting in {Math.Ceiling(left)}...") : string.Empty;
+        string host = s.IsHost ? "you are the host" : "hosted by " + HostName(s);
+        _status.Text = s.ServerName + " - " + host + count;
+        foreach (PlayerRow row in _rows.Values)
+        {
+            row.Speaker.Visible = s.Speaking(row.PlayerName);
+        }
+
+        if (_microphone is not null)
+        {
+            _microphone.Text = s.MicrophoneLine;
+        }
+    }
+
+    private static string HostName(IOnlineLobbySession s)
+    {
+        foreach (OnlineLobbyPlayer p in s.Members)
+        {
+            if (p.IsHost)
+            {
+                return p.Name;
+            }
+        }
+
+        return "a dedicated server";
+    }
+
+    /// <summary>The row of a player by name (tests and the menu pilot).</summary>
+    public Control? PlayerLine(string playerName)
+    {
+        foreach (PlayerRow row in _rows.Values)
+        {
+            if (row.PlayerName == playerName)
+            {
+                return row.Line;
+            }
+        }
+
+        return null;
+    }
+}

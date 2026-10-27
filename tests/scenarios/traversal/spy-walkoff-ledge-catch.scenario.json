@@ -1,0 +1,104 @@
+{
+  "format": "svm.scenario/1",
+  "id": "traversal.spy-walkoff-ledge-catch",
+  "title": "Spy walks slowly off the container top, turns round and catches the ledge behind his feet, then drops",
+  "map": "SteeE",
+  "mode": "playlevel",
+  "players": [
+    {
+      "team": "spy"
+    }
+  ],
+  "spawn": {
+    "floor": [
+      -2000.0,
+      400.0,
+      -879.0
+    ],
+    "yaw": 49152,
+    "clearance": 2.0,
+    "spot": "container A top, 114 uu from its south lip (LG 104), facing it (-Y)",
+    "notes": "Top z -879.0 flat for 250 uu north of the lip, room for a standing spy; the yard is 263.5 below the lip, deeper than the 175 uu floor test of MyFalling. The 128 uu hole in the top (x -1898.6 to -1770.6, y 418.8 to 546.8) is 100 uu east. Slow mode (fNormePadMove 0.4 < 0.7) so MyFalling looks for a ledge behind the feet. Found with re/tools/difftest/gespots.py (walkOff)."
+  },
+  "setup": [
+    {
+      "op": "leaveGE",
+      "maxFrames": 240
+    },
+    {
+      "op": "teleport"
+    },
+    {
+      "op": "stance",
+      "crouched": false
+    },
+    {
+      "op": "fastSpeed",
+      "value": false
+    },
+    {
+      "op": "write",
+      "target": "pawn",
+      "field": "Health",
+      "value": 100
+    },
+    {
+      "op": "view",
+      "pitch": 0,
+      "yaw": 49152
+    },
+    {
+      "op": "waitStill",
+      "maxFrames": 180
+    }
+  ],
+  "settleFrames": 30,
+  "durationFrames": 330,
+  "inputs": [
+    {
+      "frame": 0,
+      "buttons": {
+        "BT_Up": 1
+      },
+      "note": "walk slowly (169.4 uu/s) to the lip"
+    },
+    {
+      "frame": 75,
+      "buttons": {
+        "BT_Up": 0
+      },
+      "note": "let go once off the top"
+    },
+    {
+      "frame": 220,
+      "buttons": {
+        "bCrouch": 1
+      },
+      "note": "crouch key drops from the hang"
+    },
+    {
+      "frame": 223,
+      "buttons": {
+        "bCrouch": 0
+      }
+    }
+  ],
+  "repeats": 3,
+  "profile": "traversal",
+  "measure": {},
+  "covers": [
+    "uc:SBase.SPlayerController:MyFalling",
+    "nat:SBase.SPlayerController.CheckBackFeetZone",
+    "uc:SBase.SPlayerController:PlayerFallToBackGrab.BeginState",
+    "uc:SBase.SPlayerController:PlayerFalling.BeginState",
+    "uc:SBase.SPlayerController:s_PlayerJump.PlayerMove",
+    "uc:SBase.SPlayerController:s_PlayerJump.Ledge",
+    "uc:SBase.SPlayerController:GrabLedge.BeginState",
+    "uc:SBase.SPlayerController:GrabLedge.AnimEnd",
+    "uc:SBase.SPlayerController:OnLedge.PlayerMove",
+    "uc:SBase.SPlayerController:MyNotifyLanded",
+    "uc:SBase.SPlayerController:PlayerLanding.BeginState",
+    "uc:SBase.SPlayerController:PlayerLanding.AnimEnd",
+    "uc:SBase.SPlayerController:GotoWaitingState"
+  ]
+}

@@ -1,0 +1,82 @@
+{
+  "format": "svm.scenario/1",
+  "id": "moveset.spy-run-at-step",
+  "title": "Spy runs at a 50 uu step with a ledge on its lip: the auto hop is refused (no room for the 112.4 uu reach over the top) and the step stops the spy",
+  "map": "MounE",
+  "mode": "playlevel",
+  "players": [
+    {
+      "team": "spy"
+    }
+  ],
+  "spawn": {
+    "floor": [
+      4150.0,
+      -2188.0,
+      -723.5
+    ],
+    "yaw": 0,
+    "clearance": 2.0,
+    "spot": "pit floor z -723.5, 162 uu west of the block, facing it (+X)",
+    "notes": "A 50 uu block (StaticMeshActor6600, top z -673.5, x 4346.7 to 4415, y -2228 to -2138) on the pit floor z -723.5 of the ladder room, with LG 502 along its west lip at z -674.5 (49 over the floor, inside the auto hop window 40 to 64). A standing box swept east along y -2188 stops at x 4311.7. Found with re/tools/difftest/movespots.py (steps). The block is only 68 deep: beyond it the strip z -627 (46.5 higher, LG 143 on its lip) then the wall at x 4511.5, so the AutoFeetLedge room box (standing, 112.4 over the top) is blocked."
+  },
+  "setup": [
+    {
+      "op": "leaveGE",
+      "maxFrames": 240
+    },
+    {
+      "op": "teleport"
+    },
+    {
+      "op": "stance",
+      "crouched": false
+    },
+    {
+      "op": "fastSpeed",
+      "value": true
+    },
+    {
+      "op": "write",
+      "target": "pawn",
+      "field": "Health",
+      "value": 100
+    },
+    {
+      "op": "view",
+      "pitch": 0,
+      "yaw": 0
+    },
+    {
+      "op": "waitStill",
+      "maxFrames": 180
+    }
+  ],
+  "settleFrames": 30,
+  "durationFrames": 150,
+  "inputs": [
+    {
+      "frame": 0,
+      "buttons": {
+        "BT_Up": 1
+      },
+      "note": "run at the step (fast mode, over the 300 of the auto hop)"
+    },
+    {
+      "frame": 60,
+      "buttons": {
+        "BT_Up": 0
+      },
+      "note": "let go"
+    }
+  ],
+  "repeats": 3,
+  "profile": "locomotion",
+  "measure": {},
+  "covers": [
+    "uc:SBase.SPlayerController:s_PlayerWalkingMario.PlayerMove",
+    "nat:SBase.SPlayerController.CheckArmsZone",
+    "uc:SBase.SPlayerController:s_PlayerWalkingSt0H.PlayerTick",
+    "def:SBase.SPawnAttaque"
+  ]
+}

@@ -1,0 +1,65 @@
+{
+  "format": "svm.combat/1",
+  "id": "combat.shock-spy-freeze",
+  "title": "A spy's shocker hits the local spy: freeze and electric time (spy values), the immunity window",
+  "map": "SteeE",
+  "mode": "playlevel",
+  "local": {
+    "team": "spy",
+    "floor": [
+      -492.0,
+      -2032.0,
+      -1143.5
+    ],
+    "yaw": 16384,
+    "crouched": false
+  },
+  "target": {
+    "team": "spy",
+    "floor": [
+      -492.0,
+      -1832.0,
+      -1143.5
+    ],
+    "yaw": 49152,
+    "crouched": false
+  },
+  "order": 90,
+  "settleFrames": 30,
+  "durationFrames": 1000,
+  "events": [
+    {
+      "frame": 30,
+      "do": "targetFire",
+      "bone": "spine2",
+      "note": "the target spy's shocker, server side"
+    },
+    {
+      "frame": 500,
+      "do": "targetFire",
+      "bone": "spine2",
+      "note": "inside the immunity: refused"
+    },
+    {
+      "frame": 760,
+      "do": "targetFire",
+      "bone": "spine2",
+      "note": "after the immunity"
+    }
+  ],
+  "repeats": 2,
+  "measure": {
+    "shock": {
+      "victim": "L"
+    },
+    "states": {}
+  },
+  "covers": [
+    "uc:SBase.SPlayerController:Checkshock",
+    "uc:SBase.SPlayerController:ClientStickyShock",
+    "uc:SBase.SPlayerController:PlayerTick",
+    "uc:SBase.SWeaponAttaque:TraceFireWithPos"
+  ],
+  "spot": "SteeE east yard lane (x -492, floor z -1143.5, clear for 1792 uu along +Y from y -2032; found with re/tools/difftest/spots.py for the R4 locomotion recordings)",
+  "notes": "The target spy fires its shocker through ServerFireWeaponWithLocation from its eye at the local player's bone (what its client would ask the server); the local player runs the freeze, the electric time and the immunity as a player does."
+}

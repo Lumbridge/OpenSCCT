@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="$(RepoRoot)build/Test.props" />
+  <PropertyGroup>
+    <RootNamespace>OpenScct.Coverage.Tests</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\OpenScct.Coverage.csproj" />
+    <!-- Only for the attributes the scanner test puts on its own types. -->
+    <ProjectReference Include="..\..\..\src\OpenScct.Provenance\OpenScct.Provenance.csproj" />
+  </ItemGroup>
+</Project>

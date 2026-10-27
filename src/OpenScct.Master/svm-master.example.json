@@ -1,0 +1,35 @@
+{
+  "Master": {
+    "HttpUrl": "http://127.0.0.1:28800",
+    "PublicHost": "master.example.org",
+    "UdpBind": "*",
+    "IntroducerPort": 28880,
+    "RelayPort": 28881,
+    "ProbePort": 0,
+    "Introducer": true,
+    "Relay": true,
+    "Probe": true,
+    "InviteKeys": [ "change-me-to-a-long-random-key" ],
+    "Motd": "Private test master. Report problems to the host.",
+    "LatestVersion": "0.5.0",
+    "MinVersion": "0.5.0",
+    "HeartbeatSeconds": 30,
+    "ExpirySeconds": 90,
+    "MaxServers": 200,
+    "MaxRelaySessions": 128,
+    "RelayBytesPerSecond": 65536,
+    "TrustForwardedFor": true,
+    "PublicUrl": "https://master.example.org",
+    "Database": "accounts.db",
+    "TicketKeyFile": "ticket-key.pem",
+    "Admins": [ "123456789012345678" ],
+    "Discord": {
+      "ClientId": "",
+      "ClientSecret": "",
+      "RedirectUrl": "https://master.example.org/auth/discord/callback"
+    },
+    "TrustedServers": [
+      { "Name": "official-1", "Key": "change-me-to-a-long-random-server-key" }
+    ]
+  }
+}

@@ -1,0 +1,185 @@
+{
+  "format": "svm.combat/1",
+  "id": "combat.death-directions",
+  "title": "Lethal rifle shots into a standing spy from its front, back, left and right: the death action and clip ChooseDeathAnimation picks",
+  "map": "SteeE",
+  "mode": "playlevel",
+  "local": {
+    "team": "merc",
+    "floor": [
+      -492.0,
+      -2032.0,
+      -1143.5
+    ],
+    "yaw": 16384,
+    "crouched": false
+  },
+  "target": null,
+  "settleFrames": 30,
+  "durationFrames": 900,
+  "events": [
+    {
+      "frame": 10,
+      "do": "spawnTarget",
+      "team": "spy",
+      "floor": [
+        -492.0,
+        -1732.0,
+        -1143.5
+      ],
+      "yaw": 49152,
+      "note": "the merc is on the spy's front; the rig moves it to its spot 0.5 s and 1 s later"
+    },
+    {
+      "frame": 120,
+      "do": "crouchTarget",
+      "crouched": false
+    },
+    {
+      "frame": 180,
+      "do": "heal",
+      "hp": 10
+    },
+    {
+      "frame": 182,
+      "do": "aim",
+      "bone": "spine2",
+      "to": "pelvis"
+    },
+    {
+      "frame": 184,
+      "do": "fire"
+    },
+    {
+      "frame": 185,
+      "do": "fireUp"
+    },
+    {
+      "frame": 230,
+      "do": "spawnTarget",
+      "team": "spy",
+      "floor": [
+        -492.0,
+        -1732.0,
+        -1143.5
+      ],
+      "yaw": 16384,
+      "note": "the merc is on the spy's back; the rig moves it to its spot 0.5 s and 1 s later"
+    },
+    {
+      "frame": 340,
+      "do": "crouchTarget",
+      "crouched": false
+    },
+    {
+      "frame": 400,
+      "do": "heal",
+      "hp": 10
+    },
+    {
+      "frame": 402,
+      "do": "aim",
+      "bone": "spine2",
+      "to": "pelvis"
+    },
+    {
+      "frame": 404,
+      "do": "fire"
+    },
+    {
+      "frame": 405,
+      "do": "fireUp"
+    },
+    {
+      "frame": 450,
+      "do": "spawnTarget",
+      "team": "spy",
+      "floor": [
+        -492.0,
+        -1732.0,
+        -1143.5
+      ],
+      "yaw": 32768,
+      "note": "the merc is on the spy's right; the rig moves it to its spot 0.5 s and 1 s later"
+    },
+    {
+      "frame": 560,
+      "do": "crouchTarget",
+      "crouched": false
+    },
+    {
+      "frame": 620,
+      "do": "heal",
+      "hp": 10
+    },
+    {
+      "frame": 622,
+      "do": "aim",
+      "bone": "spine2",
+      "to": "pelvis"
+    },
+    {
+      "frame": 624,
+      "do": "fire"
+    },
+    {
+      "frame": 625,
+      "do": "fireUp"
+    },
+    {
+      "frame": 670,
+      "do": "spawnTarget",
+      "team": "spy",
+      "floor": [
+        -492.0,
+        -1732.0,
+        -1143.5
+      ],
+      "yaw": 0,
+      "note": "the merc is on the spy's left; the rig moves it to its spot 0.5 s and 1 s later"
+    },
+    {
+      "frame": 780,
+      "do": "crouchTarget",
+      "crouched": false
+    },
+    {
+      "frame": 840,
+      "do": "heal",
+      "hp": 10
+    },
+    {
+      "frame": 842,
+      "do": "aim",
+      "bone": "spine2",
+      "to": "pelvis"
+    },
+    {
+      "frame": 844,
+      "do": "fire"
+    },
+    {
+      "frame": 845,
+      "do": "fireUp"
+    }
+  ],
+  "repeats": 2,
+  "measure": {
+    "hits": {},
+    "states": {},
+    "deaths": {}
+  },
+  "covers": [
+    "nat:SBase.SBasePawn.ChooseDeathAnimation",
+    "uc:SBase.SPlayerController:PlayAnimDeath",
+    "uc:SBase.SPlayerController:Fire",
+    "uc:SBase.SWeaponDefense:FireWeapon",
+    "uc:SBase.SWeaponDefense:ServerFireWeapon",
+    "uc:SBase.SWeaponDefense:TraceFire",
+    "nat:Engine.Actor.TraceBone",
+    "nat:SBase.SWeaponDefense.GetAccuracy",
+    "uc:SBase.SPlayerController:StandardReactionsToDamage",
+    "uc:SBase.SPlayerController:PawnTakeDamage"
+  ],
+  "spot": "SteeE east yard lane (x -492, floor z -1143.5, clear for 1792 uu along +Y from y -2032; found with re/tools/difftest/spots.py for the R4 locomotion recordings)"
+}

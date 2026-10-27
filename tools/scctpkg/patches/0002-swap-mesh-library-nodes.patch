@@ -1,0 +1,43 @@
+diff --git a/export_gltf.py b/export_gltf.py
+--- a/export_gltf.py
++++ b/export_gltf.py
+@@ -976,7 +976,9 @@
+ 
+ 
+ def export_map(map_path: Path, pset: PackageSet, out_root: Path, include_bsp: bool = True,
+-               max_meshes: Optional[int] = None) -> dict:
++               max_meshes: Optional[int] = None, extra_mesh_refs: Optional[List[int]] = None) -> dict:
++    """extra_mesh_refs: static mesh references (relative to the map package) that no actor places but the game can
++    swap to (SGamePlayObject TriggeredMesh, DamagedMeshes[].StaticMesh); each becomes a library node too."""
+     pkg = Package.load(map_path)
+     map_name = map_path.stem
+     out_dir = out_root / map_name
+@@ -1264,6 +1266,28 @@
+                                                                        "patch_material_ref")})
+         scene_actors.append(entry)
+ 
++    # Swap meshes: library nodes for the meshes gameplay objects change to at run time.
++    stats["swap_meshes"] = 0
++    for ref in extra_mesh_refs or []:
++        if not isinstance(ref, int) or ref == 0:
++            continue
++        key = pset.import_path(pkg, ref)
++        if not key or key in mesh_cache:
++            continue
++        mesh_cache[key] = None
++        loaded = load_mesh(ActorRecord(name=key, cls="StaticMesh", kind="staticmesh", mesh_key=key, mesh_ref=ref))
++        if loaded is None:
++            continue
++        owner, sm = loaded
++        try:
++            prims = _static_mesh_prims(sm, owner, resolver, writer, tex_dir, tex_uri)
++            if prims:
++                mesh_cache[key] = writer.mesh(_safe(key), prims)
++                writer.node(_safe(key), mesh_cache[key], extras={"scct_kind": "library"})
++                stats["swap_meshes"] += 1
++        except Exception as ex:
++            stats["missing_meshes"].append(f"{key}: {ex}")
++
+     gltf_path = out_dir / f"{map_name}.gltf"
+     writer.write(gltf_path)
+     scene = {"map": map_name, "gltf": gltf_path.name, "source": str(map_path), "actors": scene_actors,

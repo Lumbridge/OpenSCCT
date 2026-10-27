@@ -1,0 +1,129 @@
+{
+  "format": "svm.scenario/1",
+  "id": "traversal.spy-btw-peek",
+  "title": "Spy puts his back to the container wall, sidesteps to its corner, peeks round it, steps back and leaves",
+  "map": "SteeE",
+  "mode": "playlevel",
+  "players": [
+    {
+      "team": "spy"
+    }
+  ],
+  "spawn": {
+    "floor": [
+      -1700.0,
+      150.0,
+      -1143.5
+    ],
+    "yaw": 16384,
+    "clearance": 2.0,
+    "spot": "yard south of container A, 100 uu from its south wall and 67 uu west of its south-east corner, facing the wall (+Y)",
+    "notes": "Container A's south wall (under LG 104) rises 263.5 uu over the flat yard floor z -1143.5; a standing spy stops 36 uu from the lip line (y 250). The wall ends at the outside corner x -1632.6 (LG 104 meets LG 102). With his back to the wall the spy faces -Y; the view still looks +Y, and the left key then gives iMove 2 (Right), which the BTW move turns into a sidestep toward +X, the corner (measured in the first trial). Found with re/tools/difftest/gespots.py (btw)."
+  },
+  "setup": [
+    {
+      "op": "leaveGE",
+      "maxFrames": 240
+    },
+    {
+      "op": "teleport"
+    },
+    {
+      "op": "stance",
+      "crouched": false
+    },
+    {
+      "op": "fastSpeed",
+      "value": true
+    },
+    {
+      "op": "write",
+      "target": "pawn",
+      "field": "Health",
+      "value": 100
+    },
+    {
+      "op": "view",
+      "pitch": 0,
+      "yaw": 16384
+    },
+    {
+      "op": "waitStill",
+      "maxFrames": 180
+    }
+  ],
+  "settleFrames": 30,
+  "durationFrames": 330,
+  "inputs": [
+    {
+      "frame": 0,
+      "buttons": {
+        "BT_Up": 1
+      },
+      "note": "walk to the wall"
+    },
+    {
+      "frame": 40,
+      "buttons": {
+        "BT_Up": 0
+      },
+      "note": "stop at the wall (the stick must be inside 5000)"
+    },
+    {
+      "frame": 50,
+      "buttons": {
+        "bUseBackToWall": 1
+      },
+      "note": "back-to-wall key, one frame: wall in front, enter back"
+    },
+    {
+      "frame": 51,
+      "buttons": {
+        "bUseBackToWall": 0
+      }
+    },
+    {
+      "frame": 110,
+      "buttons": {
+        "BT_Left": 1
+      },
+      "note": "left key: iMove 2 (the camera faces the spy, so the native swaps left and right), sidestep +X toward the corner, then peek round it"
+    },
+    {
+      "frame": 220,
+      "buttons": {
+        "BT_Left": 0
+      },
+      "note": "let go: back to the wall"
+    },
+    {
+      "frame": 250,
+      "buttons": {
+        "bUseBackToWall": 1
+      },
+      "note": "back-to-wall key again: leave the wall"
+    },
+    {
+      "frame": 251,
+      "buttons": {
+        "bUseBackToWall": 0
+      }
+    }
+  ],
+  "repeats": 3,
+  "profile": "traversal",
+  "measure": {},
+  "covers": [
+    "uc:SBase.SPlayerController:s_PlayerWalkingMario.ProcessWorldInteract",
+    "nat:SBase.SPlayerController.CheckBTW",
+    "nat:SBase.SPlayerController.CheckBTWEyes",
+    "uc:SBase.SPlayerController:s_EnterBTW.AnimEnd",
+    "uc:SBase.SPlayerController:s_BTW.BeginState",
+    "uc:SBase.SPlayerController:s_BTW.MyPlayerMove",
+    "uc:SBase.SPlayerController:s_BTW_up.PlayerMove",
+    "uc:SBase.SPlayerController:s_BTW_StandLeft.BeginState",
+    "uc:SBase.SPlayerController:s_BTW_StandLeft.PlayerMove",
+    "uc:SBase.SPlayerController:s_SortieBTW.PlayerMove",
+    "uc:SBase.SPlayerController:s_SortieBTW.AnimEnd"
+  ]
+}

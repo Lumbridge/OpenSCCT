@@ -1,0 +1,1409 @@
+{
+ "areas": [
+  {
+   "centre": [6144.0, 6144.0],
+   "hi": [7680.0, 7680.0],
+   "id": "Plaza",
+   "kind": "spawn",
+   "lo": [4608.0, 4608.0],
+   "mercStarts": 32,
+   "phase": "H1",
+   "rings": [768.0, 1088.0],
+   "signCentre": [6144.0, 6144.0, 784.0],
+   "spyStarts": 32,
+   "title": "Spawn plaza"
+  },
+  {
+   "ges": [
+    "Ledge128LG",
+    "Ledge208LG",
+    "Ledge264LG",
+    "Ledge320LG",
+    "WallJump408LG",
+    "Pipe512PIPE",
+    "Ladder320LADDER",
+    "Vault96LGS",
+    "Vault96LGN",
+    "Fence376FENCE",
+    "Hoh277HOH",
+    "Tower600LADDER",
+    "Deck384LGS",
+    "Deck384LGW",
+    "ZipLineZL",
+    "ZipLandingLGS"
+   ],
+   "hi": [9472.0, 12288.0],
+   "id": "Garden",
+   "kind": "traversal",
+   "lo": [2816.0, 8448.0],
+   "phase": "H1",
+   "title": "Traversal garden",
+   "zipHigh": [8576.0, 9456.0, 688.0],
+   "zipLow": [8576.0, 7696.0, 368.0]
+  },
+  {
+   "defaultTheme": "hub",
+   "hi": [12288.0, 7936.0],
+   "id": "MatchPads",
+   "kind": "matchPads",
+   "lo": [8960.0, 4352.0],
+   "pads": [
+    {
+     "centre": [9728.0, 5120.0],
+     "hi": [10240.0, 5632.0],
+     "id": "Pad1",
+     "lo": [9216.0, 4608.0],
+     "railGap": 256.0,
+     "signAnchor": [9728.0, 5702.0, 576.0],
+     "signSize": [832.0, 272.0],
+     "signYaw": 49152,
+     "theme": "polar"
+    },
+    {
+     "centre": [11008.0, 5120.0],
+     "hi": [11520.0, 5632.0],
+     "id": "Pad2",
+     "lo": [10496.0, 4608.0],
+     "railGap": 256.0,
+     "signAnchor": [11008.0, 5702.0, 576.0],
+     "signSize": [832.0, 272.0],
+     "signYaw": 49152,
+     "theme": "steel"
+    },
+    {
+     "centre": [9728.0, 6784.0],
+     "hi": [10240.0, 7296.0],
+     "id": "Pad3",
+     "lo": [9216.0, 6272.0],
+     "railGap": 256.0,
+     "signAnchor": [9728.0, 7366.0, 576.0],
+     "signSize": [832.0, 272.0],
+     "signYaw": 49152,
+     "theme": "aquarius"
+    },
+    {
+     "centre": [11008.0, 6784.0],
+     "hi": [11520.0, 7296.0],
+     "id": "Pad4",
+     "lo": [10496.0, 6272.0],
+     "railGap": 256.0,
+     "signAnchor": [11008.0, 7366.0, 576.0],
+     "signSize": [832.0, 272.0],
+     "signYaw": 49152,
+     "theme": "lab"
+    }
+   ],
+   "phase": "H2",
+   "themes": [
+    {
+     "id": "hub",
+     "maps": [],
+     "title": "OPENSCCT"
+    },
+    {
+     "id": "polar",
+     "maps": ["Pola"],
+     "title": "POLAR BASE"
+    },
+    {
+     "id": "steel",
+     "maps": ["Stee", "Fact", "Ware"],
+     "title": "STEEL SQUAT"
+    },
+    {
+     "id": "aquarius",
+     "maps": ["Aqua", "Offs"],
+     "title": "AQUARIUS"
+    },
+    {
+     "id": "lab",
+     "maps": ["Krau", "Clar", "Deft", "Zio"],
+     "title": "KRAUSER LAB"
+    },
+    {
+     "id": "museum",
+     "maps": ["Muse", "Bank", "Pana", "Cine", "Club", "Sanc", "Sche"],
+     "title": "MUSEUM"
+    }
+   ],
+   "title": "Match pads"
+  },
+  {
+   "backstop": 576.0,
+   "firingLine": 3072.0,
+   "hi": [3328.0, 7936.0],
+   "id": "AimRange",
+   "kind": "aimRange",
+   "lane": [4864.0, 7424.0],
+   "leaderboardAnchor": [3282.0, 7712.0, 464.0],
+   "leaderboardSize": [384.0, 416.0],
+   "leaderboardYaw": 0,
+   "lo": [512.0, 4352.0],
+   "phase": "H3",
+   "stalls": [
+    [4864.0, 5376.0],
+    [5376.0, 5888.0],
+    [5888.0, 6400.0],
+    [6400.0, 6912.0],
+    [6912.0, 7424.0]
+   ],
+   "title": "Merc aim range"
+  },
+  {
+   "checkpoints": [
+    {
+     "at": [3712.0, 1920.0, 0.0],
+     "id": "CP1",
+     "kind": "vault"
+    },
+    {
+     "at": [4224.0, 1920.0, 0.0],
+     "id": "CP2",
+     "kind": "climb"
+    },
+    {
+     "at": [5120.0, 1920.0, 0.0],
+     "id": "CP3",
+     "kind": "fence"
+    },
+    {
+     "at": [5504.0, 1920.0, 0.0],
+     "id": "CP4",
+     "kind": "hoh"
+    },
+    {
+     "at": [6656.0, 1920.0, 0.0],
+     "id": "CP5",
+     "kind": "tower"
+    },
+    {
+     "at": [7312.0, 1920.0, 384.0],
+     "id": "CP6",
+     "kind": "zip"
+    },
+    {
+     "at": [8992.0, 1920.0, 160.0],
+     "id": "CP7",
+     "kind": "finish"
+    }
+   ],
+   "finish": [8960.0, 1920.0],
+   "hi": [9472.0, 3328.0],
+   "id": "Course",
+   "kind": "movementCourse",
+   "leaderboardAnchor": [3712.0, 3186.0, 464.0],
+   "leaderboardSize": [448.0, 416.0],
+   "leaderboardYaw": 16384,
+   "lo": [3072.0, 512.0],
+   "phase": "H3",
+   "route": [1536.0, 2304.0],
+   "start": [3328.0, 1920.0],
+   "title": "Spy movement course"
+  },
+  {
+   "hi": [2816.0, 3840.0],
+   "id": "Lounge",
+   "kind": "lounge",
+   "lo": [256.0, 256.0],
+   "musicAnchor": [1536.0, 2048.0, 256.0],
+   "phase": "H1",
+   "screenAnchor": [5.0, 2048.0, 704.0],
+   "screenSize": [1536.0, 768.0],
+   "screenYaw": 0,
+   "seats": [
+    [1536.0, 1536.0],
+    [1536.0, 2560.0],
+    [2240.0, 1600.0],
+    [2240.0, 2496.0]
+   ],
+   "title": "Lounge"
+  }
+ ],
+ "format": "openscct.hub/1",
+ "generator": "tools.hubmap 2",
+ "ges": [
+  {
+   "id": "FountainLGS",
+   "kind": "LG",
+   "points": [
+    [5888.0, 5888.0, 96.0],
+    [6400.0, 5888.0, 96.0]
+   ]
+  },
+  {
+   "id": "FountainLGN",
+   "kind": "LG",
+   "points": [
+    [6400.0, 6400.0, 96.0],
+    [5888.0, 6400.0, 96.0]
+   ]
+  },
+  {
+   "id": "FountainLGW",
+   "kind": "LG",
+   "points": [
+    [5888.0, 6400.0, 96.0],
+    [5888.0, 5888.0, 96.0]
+   ]
+  },
+  {
+   "id": "FountainLGE",
+   "kind": "LG",
+   "points": [
+    [6400.0, 5888.0, 96.0],
+    [6400.0, 6400.0, 96.0]
+   ]
+  },
+  {
+   "id": "FountainLADDER",
+   "kind": "LADDER",
+   "points": [
+    [6144.0, 6076.0, 96.0],
+    [6144.0, 6076.0, 416.0],
+    [6144.0, 6066.0, 96.0]
+   ]
+  },
+  {
+   "id": "FountainTopLG",
+   "kind": "LG",
+   "points": [
+    [6080.0, 6080.0, 416.0],
+    [6208.0, 6080.0, 416.0]
+   ]
+  },
+  {
+   "id": "Ledge128LG",
+   "kind": "LG",
+   "points": [
+    [3072.0, 11776.0, 128.0],
+    [3328.0, 11776.0, 128.0]
+   ]
+  },
+  {
+   "id": "Ledge208LG",
+   "kind": "LG",
+   "points": [
+    [3584.0, 11776.0, 208.0],
+    [3840.0, 11776.0, 208.0]
+   ]
+  },
+  {
+   "id": "Ledge264LG",
+   "kind": "LG",
+   "points": [
+    [4096.0, 11776.0, 264.0],
+    [4352.0, 11776.0, 264.0]
+   ]
+  },
+  {
+   "id": "Ledge320LG",
+   "kind": "LG",
+   "points": [
+    [4608.0, 11776.0, 320.0],
+    [4864.0, 11776.0, 320.0]
+   ]
+  },
+  {
+   "id": "WallJump408LG",
+   "kind": "LG",
+   "points": [
+    [5120.0, 11776.0, 408.0],
+    [5504.0, 11776.0, 408.0]
+   ]
+  },
+  {
+   "id": "Pipe512PIPE",
+   "kind": "PIPE",
+   "points": [
+    [5888.0, 11760.0, 0.0],
+    [5888.0, 11760.0, 512.0],
+    [5888.0, 11750.0, 0.0]
+   ]
+  },
+  {
+   "id": "Ladder320LADDER",
+   "kind": "LADDER",
+   "points": [
+    [6400.0, 11772.0, 0.0],
+    [6400.0, 11772.0, 320.0],
+    [6400.0, 11762.0, 0.0]
+   ]
+  },
+  {
+   "id": "Vault96LGS",
+   "kind": "LG",
+   "points": [
+    [3072.0, 10240.0, 96.0],
+    [3456.0, 10240.0, 96.0]
+   ]
+  },
+  {
+   "id": "Vault96LGN",
+   "kind": "LG",
+   "points": [
+    [3072.0, 10272.0, 96.0],
+    [3456.0, 10272.0, 96.0]
+   ]
+  },
+  {
+   "id": "Fence376FENCE",
+   "kind": "FENCE",
+   "points": [
+    [3840.0, 10256.0, 376.0],
+    [4224.0, 10256.0, 376.0]
+   ]
+  },
+  {
+   "id": "Hoh277HOH",
+   "kind": "HOH",
+   "points": [
+    [4672.0, 10256.0, 277.0],
+    [5312.0, 10256.0, 277.0]
+   ]
+  },
+  {
+   "id": "Tower600LADDER",
+   "kind": "LADDER",
+   "points": [
+    [8700.0, 10240.0, 384.0],
+    [8700.0, 10240.0, 600.0],
+    [8690.0, 10240.0, 384.0]
+   ]
+  },
+  {
+   "id": "Deck384LGS",
+   "kind": "LG",
+   "points": [
+    [8192.0, 9344.0, 384.0],
+    [8960.0, 9344.0, 384.0]
+   ]
+  },
+  {
+   "id": "Deck384LGW",
+   "kind": "LG",
+   "points": [
+    [8192.0, 10368.0, 384.0],
+    [8192.0, 9984.0, 384.0]
+   ]
+  },
+  {
+   "id": "ZipLineZL",
+   "kind": "ZL",
+   "points": [
+    [8576.0, 7696.0, 368.0],
+    [8576.0, 9456.0, 688.0]
+   ]
+  },
+  {
+   "id": "ZipLandingLGS",
+   "kind": "LG",
+   "points": [
+    [8448.0, 7424.0, 160.0],
+    [8704.0, 7424.0, 160.0]
+   ]
+  },
+  {
+   "id": "Pad1RailS0LGS",
+   "kind": "LG",
+   "points": [
+    [9216.0, 4568.0, 96.0],
+    [9600.0, 4568.0, 96.0]
+   ]
+  },
+  {
+   "id": "Pad1RailS0LGN",
+   "kind": "LG",
+   "points": [
+    [9600.0, 4584.0, 96.0],
+    [9216.0, 4584.0, 96.0]
+   ]
+  },
+  {
+   "id": "Pad1RailS1LGS",
+   "kind": "LG",
+   "points": [
+    [9856.0, 4568.0, 96.0],
+    [10240.0, 4568.0, 96.0]
+   ]
+  },
+  {
+   "id": "Pad1RailS1LGN",
+   "kind": "LG",
+   "points": [
+    [10240.0, 4584.0, 96.0],
+    [9856.0, 4584.0, 96.0]
+   ]
+  },
+  {
+   "id": "Pad1RailN0LGS",
+   "kind": "LG",
+   "points": [
+    [9216.0, 5656.0, 96.0],
+    [9600.0, 5656.0, 96.0]
+   ]
+  },
+  {
+   "id": "Pad1RailN0LGN",
+   "kind": "LG",
+   "points": [
+    [9600.0, 5672.0, 96.0],
+    [9216.0, 5672.0, 96.0]
+   ]
+  },
+  {
+   "id": "Pad1RailN1LGS",
+   "kind": "LG",
+   "points": [
+    [9856.0, 5656.0, 96.0],
+    [10240.0, 5656.0, 96.0]
+   ]
+  },
+  {
+   "id": "Pad1RailN1LGN",
+   "kind": "LG",
+   "points": [
+    [10240.0, 5672.0, 96.0],
+    [9856.0, 5672.0, 96.0]
+   ]
+  },
+  {
+   "id": "Pad1RailW0LGW",
+   "kind": "LG",
+   "points": [
+    [9176.0, 4992.0, 96.0],
+    [9176.0, 4608.0, 96.0]
+   ]
+  },
+  {
+   "id": "Pad1RailW0LGE",
+   "kind": "LG",
+   "points": [
+    [9192.0, 4608.0, 96.0],
+    [9192.0, 4992.0, 96.0]
+   ]
+  },
+  {
+   "id": "Pad1RailW1LGW",
+   "kind": "LG",
+   "points": [
+    [9176.0, 5632.0, 96.0],
+    [9176.0, 5248.0, 96.0]
+   ]
+  },
+  {
+   "id": "Pad1RailW1LGE",
+   "kind": "LG",
+   "points": [
+    [9192.0, 5248.0, 96.0],
+    [9192.0, 5632.0, 96.0]
+   ]
+  },
+  {
+   "id": "Pad1RailE0LGW",
+   "kind": "LG",
+   "points": [
+    [10264.0, 4992.0, 96.0],
+    [10264.0, 4608.0, 96.0]
+   ]
+  },
+  {
+   "id": "Pad1RailE0LGE",
+   "kind": "LG",
+   "points": [
+    [10280.0, 4608.0, 96.0],
+    [10280.0, 4992.0, 96.0]
+   ]
+  },
+  {
+   "id": "Pad1RailE1LGW",
+   "kind": "LG",
+   "points": [
+    [10264.0, 5632.0, 96.0],
+    [10264.0, 5248.0, 96.0]
+   ]
+  },
+  {
+   "id": "Pad1RailE1LGE",
+   "kind": "LG",
+   "points": [
+    [10280.0, 5248.0, 96.0],
+    [10280.0, 5632.0, 96.0]
+   ]
+  },
+  {
+   "id": "Pad2RailS0LGS",
+   "kind": "LG",
+   "points": [
+    [10496.0, 4568.0, 96.0],
+    [10880.0, 4568.0, 96.0]
+   ]
+  },
+  {
+   "id": "Pad2RailS0LGN",
+   "kind": "LG",
+   "points": [
+    [10880.0, 4584.0, 96.0],
+    [10496.0, 4584.0, 96.0]
+   ]
+  },
+  {
+   "id": "Pad2RailS1LGS",
+   "kind": "LG",
+   "points": [
+    [11136.0, 4568.0, 96.0],
+    [11520.0, 4568.0, 96.0]
+   ]
+  },
+  {
+   "id": "Pad2RailS1LGN",
+   "kind": "LG",
+   "points": [
+    [11520.0, 4584.0, 96.0],
+    [11136.0, 4584.0, 96.0]
+   ]
+  },
+  {
+   "id": "Pad2RailN0LGS",
+   "kind": "LG",
+   "points": [
+    [10496.0, 5656.0, 96.0],
+    [10880.0, 5656.0, 96.0]
+   ]
+  },
+  {
+   "id": "Pad2RailN0LGN",
+   "kind": "LG",
+   "points": [
+    [10880.0, 5672.0, 96.0],
+    [10496.0, 5672.0, 96.0]
+   ]
+  },
+  {
+   "id": "Pad2RailN1LGS",
+   "kind": "LG",
+   "points": [
+    [11136.0, 5656.0, 96.0],
+    [11520.0, 5656.0, 96.0]
+   ]
+  },
+  {
+   "id": "Pad2RailN1LGN",
+   "kind": "LG",
+   "points": [
+    [11520.0, 5672.0, 96.0],
+    [11136.0, 5672.0, 96.0]
+   ]
+  },
+  {
+   "id": "Pad2RailW0LGW",
+   "kind": "LG",
+   "points": [
+    [10456.0, 4992.0, 96.0],
+    [10456.0, 4608.0, 96.0]
+   ]
+  },
+  {
+   "id": "Pad2RailW0LGE",
+   "kind": "LG",
+   "points": [
+    [10472.0, 4608.0, 96.0],
+    [10472.0, 4992.0, 96.0]
+   ]
+  },
+  {
+   "id": "Pad2RailW1LGW",
+   "kind": "LG",
+   "points": [
+    [10456.0, 5632.0, 96.0],
+    [10456.0, 5248.0, 96.0]
+   ]
+  },
+  {
+   "id": "Pad2RailW1LGE",
+   "kind": "LG",
+   "points": [
+    [10472.0, 5248.0, 96.0],
+    [10472.0, 5632.0, 96.0]
+   ]
+  },
+  {
+   "id": "Pad2RailE0LGW",
+   "kind": "LG",
+   "points": [
+    [11544.0, 4992.0, 96.0],
+    [11544.0, 4608.0, 96.0]
+   ]
+  },
+  {
+   "id": "Pad2RailE0LGE",
+   "kind": "LG",
+   "points": [
+    [11560.0, 4608.0, 96.0],
+    [11560.0, 4992.0, 96.0]
+   ]
+  },
+  {
+   "id": "Pad2RailE1LGW",
+   "kind": "LG",
+   "points": [
+    [11544.0, 5632.0, 96.0],
+    [11544.0, 5248.0, 96.0]
+   ]
+  },
+  {
+   "id": "Pad2RailE1LGE",
+   "kind": "LG",
+   "points": [
+    [11560.0, 5248.0, 96.0],
+    [11560.0, 5632.0, 96.0]
+   ]
+  },
+  {
+   "id": "Pad3RailS0LGS",
+   "kind": "LG",
+   "points": [
+    [9216.0, 6232.0, 96.0],
+    [9600.0, 6232.0, 96.0]
+   ]
+  },
+  {
+   "id": "Pad3RailS0LGN",
+   "kind": "LG",
+   "points": [
+    [9600.0, 6248.0, 96.0],
+    [9216.0, 6248.0, 96.0]
+   ]
+  },
+  {
+   "id": "Pad3RailS1LGS",
+   "kind": "LG",
+   "points": [
+    [9856.0, 6232.0, 96.0],
+    [10240.0, 6232.0, 96.0]
+   ]
+  },
+  {
+   "id": "Pad3RailS1LGN",
+   "kind": "LG",
+   "points": [
+    [10240.0, 6248.0, 96.0],
+    [9856.0, 6248.0, 96.0]
+   ]
+  },
+  {
+   "id": "Pad3RailN0LGS",
+   "kind": "LG",
+   "points": [
+    [9216.0, 7320.0, 96.0],
+    [9600.0, 7320.0, 96.0]
+   ]
+  },
+  {
+   "id": "Pad3RailN0LGN",
+   "kind": "LG",
+   "points": [
+    [9600.0, 7336.0, 96.0],
+    [9216.0, 7336.0, 96.0]
+   ]
+  },
+  {
+   "id": "Pad3RailN1LGS",
+   "kind": "LG",
+   "points": [
+    [9856.0, 7320.0, 96.0],
+    [10240.0, 7320.0, 96.0]
+   ]
+  },
+  {
+   "id": "Pad3RailN1LGN",
+   "kind": "LG",
+   "points": [
+    [10240.0, 7336.0, 96.0],
+    [9856.0, 7336.0, 96.0]
+   ]
+  },
+  {
+   "id": "Pad3RailW0LGW",
+   "kind": "LG",
+   "points": [
+    [9176.0, 6656.0, 96.0],
+    [9176.0, 6272.0, 96.0]
+   ]
+  },
+  {
+   "id": "Pad3RailW0LGE",
+   "kind": "LG",
+   "points": [
+    [9192.0, 6272.0, 96.0],
+    [9192.0, 6656.0, 96.0]
+   ]
+  },
+  {
+   "id": "Pad3RailW1LGW",
+   "kind": "LG",
+   "points": [
+    [9176.0, 7296.0, 96.0],
+    [9176.0, 6912.0, 96.0]
+   ]
+  },
+  {
+   "id": "Pad3RailW1LGE",
+   "kind": "LG",
+   "points": [
+    [9192.0, 6912.0, 96.0],
+    [9192.0, 7296.0, 96.0]
+   ]
+  },
+  {
+   "id": "Pad3RailE0LGW",
+   "kind": "LG",
+   "points": [
+    [10264.0, 6656.0, 96.0],
+    [10264.0, 6272.0, 96.0]
+   ]
+  },
+  {
+   "id": "Pad3RailE0LGE",
+   "kind": "LG",
+   "points": [
+    [10280.0, 6272.0, 96.0],
+    [10280.0, 6656.0, 96.0]
+   ]
+  },
+  {
+   "id": "Pad3RailE1LGW",
+   "kind": "LG",
+   "points": [
+    [10264.0, 7296.0, 96.0],
+    [10264.0, 6912.0, 96.0]
+   ]
+  },
+  {
+   "id": "Pad3RailE1LGE",
+   "kind": "LG",
+   "points": [
+    [10280.0, 6912.0, 96.0],
+    [10280.0, 7296.0, 96.0]
+   ]
+  },
+  {
+   "id": "Pad4RailS0LGS",
+   "kind": "LG",
+   "points": [
+    [10496.0, 6232.0, 96.0],
+    [10880.0, 6232.0, 96.0]
+   ]
+  },
+  {
+   "id": "Pad4RailS0LGN",
+   "kind": "LG",
+   "points": [
+    [10880.0, 6248.0, 96.0],
+    [10496.0, 6248.0, 96.0]
+   ]
+  },
+  {
+   "id": "Pad4RailS1LGS",
+   "kind": "LG",
+   "points": [
+    [11136.0, 6232.0, 96.0],
+    [11520.0, 6232.0, 96.0]
+   ]
+  },
+  {
+   "id": "Pad4RailS1LGN",
+   "kind": "LG",
+   "points": [
+    [11520.0, 6248.0, 96.0],
+    [11136.0, 6248.0, 96.0]
+   ]
+  },
+  {
+   "id": "Pad4RailN0LGS",
+   "kind": "LG",
+   "points": [
+    [10496.0, 7320.0, 96.0],
+    [10880.0, 7320.0, 96.0]
+   ]
+  },
+  {
+   "id": "Pad4RailN0LGN",
+   "kind": "LG",
+   "points": [
+    [10880.0, 7336.0, 96.0],
+    [10496.0, 7336.0, 96.0]
+   ]
+  },
+  {
+   "id": "Pad4RailN1LGS",
+   "kind": "LG",
+   "points": [
+    [11136.0, 7320.0, 96.0],
+    [11520.0, 7320.0, 96.0]
+   ]
+  },
+  {
+   "id": "Pad4RailN1LGN",
+   "kind": "LG",
+   "points": [
+    [11520.0, 7336.0, 96.0],
+    [11136.0, 7336.0, 96.0]
+   ]
+  },
+  {
+   "id": "Pad4RailW0LGW",
+   "kind": "LG",
+   "points": [
+    [10456.0, 6656.0, 96.0],
+    [10456.0, 6272.0, 96.0]
+   ]
+  },
+  {
+   "id": "Pad4RailW0LGE",
+   "kind": "LG",
+   "points": [
+    [10472.0, 6272.0, 96.0],
+    [10472.0, 6656.0, 96.0]
+   ]
+  },
+  {
+   "id": "Pad4RailW1LGW",
+   "kind": "LG",
+   "points": [
+    [10456.0, 7296.0, 96.0],
+    [10456.0, 6912.0, 96.0]
+   ]
+  },
+  {
+   "id": "Pad4RailW1LGE",
+   "kind": "LG",
+   "points": [
+    [10472.0, 6912.0, 96.0],
+    [10472.0, 7296.0, 96.0]
+   ]
+  },
+  {
+   "id": "Pad4RailE0LGW",
+   "kind": "LG",
+   "points": [
+    [11544.0, 6656.0, 96.0],
+    [11544.0, 6272.0, 96.0]
+   ]
+  },
+  {
+   "id": "Pad4RailE0LGE",
+   "kind": "LG",
+   "points": [
+    [11560.0, 6272.0, 96.0],
+    [11560.0, 6656.0, 96.0]
+   ]
+  },
+  {
+   "id": "Pad4RailE1LGW",
+   "kind": "LG",
+   "points": [
+    [11544.0, 7296.0, 96.0],
+    [11544.0, 6912.0, 96.0]
+   ]
+  },
+  {
+   "id": "Pad4RailE1LGE",
+   "kind": "LG",
+   "points": [
+    [11560.0, 6912.0, 96.0],
+    [11560.0, 7296.0, 96.0]
+   ]
+  },
+  {
+   "id": "RangeCounterLGE",
+   "kind": "LG",
+   "points": [
+    [3072.0, 4864.0, 80.0],
+    [3072.0, 7424.0, 80.0]
+   ]
+  },
+  {
+   "id": "CourseVaultLGW",
+   "kind": "LG",
+   "points": [
+    [3840.0, 2304.0, 96.0],
+    [3840.0, 1536.0, 96.0]
+   ]
+  },
+  {
+   "id": "CourseVaultLGE",
+   "kind": "LG",
+   "points": [
+    [3872.0, 1536.0, 96.0],
+    [3872.0, 2304.0, 96.0]
+   ]
+  },
+  {
+   "id": "CourseClimbLGW",
+   "kind": "LG",
+   "points": [
+    [4352.0, 2304.0, 208.0],
+    [4352.0, 1536.0, 208.0]
+   ]
+  },
+  {
+   "id": "CourseClimbLGE",
+   "kind": "LG",
+   "points": [
+    [4864.0, 1536.0, 208.0],
+    [4864.0, 2304.0, 208.0]
+   ]
+  },
+  {
+   "id": "CourseFenceFENCE",
+   "kind": "FENCE",
+   "points": [
+    [5252.0, 1536.0, 376.0],
+    [5252.0, 2304.0, 376.0]
+   ]
+  },
+  {
+   "id": "CourseHohHOH",
+   "kind": "HOH",
+   "points": [
+    [5696.0, 1920.0, 277.0],
+    [6336.0, 1920.0, 277.0]
+   ]
+  },
+  {
+   "id": "CourseTowerPIPE",
+   "kind": "PIPE",
+   "points": [
+    [6896.0, 1920.0, 0.0],
+    [6896.0, 1920.0, 384.0],
+    [6886.0, 1920.0, 0.0]
+   ]
+  },
+  {
+   "id": "CourseTowerLADDER",
+   "kind": "LADDER",
+   "points": [
+    [7168.0, 1788.0, 0.0],
+    [7168.0, 1788.0, 384.0],
+    [7168.0, 1778.0, 0.0]
+   ]
+  },
+  {
+   "id": "CourseTowerLGE",
+   "kind": "LG",
+   "points": [
+    [7424.0, 1792.0, 384.0],
+    [7424.0, 2048.0, 384.0]
+   ]
+  },
+  {
+   "id": "CourseZipZL",
+   "kind": "ZL",
+   "points": [
+    [9072.0, 1920.0, 368.0],
+    [7312.0, 1920.0, 688.0]
+   ]
+  },
+  {
+   "id": "CourseFinishLGW",
+   "kind": "LG",
+   "points": [
+    [8832.0, 2048.0, 160.0],
+    [8832.0, 1792.0, 160.0]
+   ]
+  }
+ ],
+ "hall": {
+  "hi": [12288.0, 12288.0, 1536.0],
+  "lo": [0.0, 0.0, 0.0]
+ },
+ "layoutVersion": 2,
+ "map": "Hub",
+ "starts": [
+  {
+   "id": "PlayerStart0",
+   "location": [6069.0, 6908.0, 86.0],
+   "team": 0,
+   "yaw": 50173
+  },
+  {
+   "id": "PlayerStart1",
+   "location": [5921.0, 6879.0, 86.0],
+   "team": 0,
+   "yaw": 52225
+  },
+  {
+   "id": "PlayerStart2",
+   "location": [5782.0, 6821.0, 86.0],
+   "team": 0,
+   "yaw": 54274
+  },
+  {
+   "id": "PlayerStart3",
+   "location": [5657.0, 6738.0, 86.0],
+   "team": 0,
+   "yaw": 56315
+  },
+  {
+   "id": "PlayerStart4",
+   "location": [5550.0, 6631.0, 86.0],
+   "team": 0,
+   "yaw": 58373
+  },
+  {
+   "id": "PlayerStart5",
+   "location": [5467.0, 6506.0, 86.0],
+   "team": 0,
+   "yaw": 60414
+  },
+  {
+   "id": "PlayerStart6",
+   "location": [5409.0, 6367.0, 86.0],
+   "team": 0,
+   "yaw": 62463
+  },
+  {
+   "id": "PlayerStart7",
+   "location": [5380.0, 6219.0, 86.0],
+   "team": 0,
+   "yaw": 64515
+  },
+  {
+   "id": "PlayerStart8",
+   "location": [5380.0, 6069.0, 86.0],
+   "team": 0,
+   "yaw": 1021
+  },
+  {
+   "id": "PlayerStart9",
+   "location": [5409.0, 5921.0, 86.0],
+   "team": 0,
+   "yaw": 3073
+  },
+  {
+   "id": "PlayerStart10",
+   "location": [5467.0, 5782.0, 86.0],
+   "team": 0,
+   "yaw": 5122
+  },
+  {
+   "id": "PlayerStart11",
+   "location": [5550.0, 5657.0, 86.0],
+   "team": 0,
+   "yaw": 7163
+  },
+  {
+   "id": "PlayerStart12",
+   "location": [5657.0, 5550.0, 86.0],
+   "team": 0,
+   "yaw": 9221
+  },
+  {
+   "id": "PlayerStart13",
+   "location": [5782.0, 5467.0, 86.0],
+   "team": 0,
+   "yaw": 11262
+  },
+  {
+   "id": "PlayerStart14",
+   "location": [5921.0, 5409.0, 86.0],
+   "team": 0,
+   "yaw": 13311
+  },
+  {
+   "id": "PlayerStart15",
+   "location": [6069.0, 5380.0, 86.0],
+   "team": 0,
+   "yaw": 15363
+  },
+  {
+   "id": "PlayerStart16",
+   "location": [6037.0, 7227.0, 86.0],
+   "team": 0,
+   "yaw": 50179
+  },
+  {
+   "id": "PlayerStart17",
+   "location": [5828.0, 7185.0, 86.0],
+   "team": 0,
+   "yaw": 52226
+  },
+  {
+   "id": "PlayerStart18",
+   "location": [5631.0, 7104.0, 86.0],
+   "team": 0,
+   "yaw": 54271
+  },
+  {
+   "id": "PlayerStart19",
+   "location": [5454.0, 6985.0, 86.0],
+   "team": 0,
+   "yaw": 56319
+  },
+  {
+   "id": "PlayerStart20",
+   "location": [5303.0, 6834.0, 86.0],
+   "team": 0,
+   "yaw": 58369
+  },
+  {
+   "id": "PlayerStart21",
+   "location": [5184.0, 6657.0, 86.0],
+   "team": 0,
+   "yaw": 60417
+  },
+  {
+   "id": "PlayerStart22",
+   "location": [5103.0, 6460.0, 86.0],
+   "team": 0,
+   "yaw": 62462
+  },
+  {
+   "id": "PlayerStart23",
+   "location": [5061.0, 6251.0, 86.0],
+   "team": 0,
+   "yaw": 64509
+  },
+  {
+   "id": "PlayerStart24",
+   "location": [5061.0, 6037.0, 86.0],
+   "team": 0,
+   "yaw": 1027
+  },
+  {
+   "id": "PlayerStart25",
+   "location": [5103.0, 5828.0, 86.0],
+   "team": 0,
+   "yaw": 3074
+  },
+  {
+   "id": "PlayerStart26",
+   "location": [5184.0, 5631.0, 86.0],
+   "team": 0,
+   "yaw": 5119
+  },
+  {
+   "id": "PlayerStart27",
+   "location": [5303.0, 5454.0, 86.0],
+   "team": 0,
+   "yaw": 7167
+  },
+  {
+   "id": "PlayerStart28",
+   "location": [5454.0, 5303.0, 86.0],
+   "team": 0,
+   "yaw": 9217
+  },
+  {
+   "id": "PlayerStart29",
+   "location": [5631.0, 5184.0, 86.0],
+   "team": 0,
+   "yaw": 11265
+  },
+  {
+   "id": "PlayerStart30",
+   "location": [5828.0, 5103.0, 86.0],
+   "team": 0,
+   "yaw": 13310
+  },
+  {
+   "id": "PlayerStart31",
+   "location": [6037.0, 5061.0, 86.0],
+   "team": 0,
+   "yaw": 15357
+  },
+  {
+   "id": "PlayerStart32",
+   "location": [6219.0, 5380.0, 86.0],
+   "team": 1,
+   "yaw": 17405
+  },
+  {
+   "id": "PlayerStart33",
+   "location": [6367.0, 5409.0, 86.0],
+   "team": 1,
+   "yaw": 19457
+  },
+  {
+   "id": "PlayerStart34",
+   "location": [6506.0, 5467.0, 86.0],
+   "team": 1,
+   "yaw": 21506
+  },
+  {
+   "id": "PlayerStart35",
+   "location": [6631.0, 5550.0, 86.0],
+   "team": 1,
+   "yaw": 23547
+  },
+  {
+   "id": "PlayerStart36",
+   "location": [6738.0, 5657.0, 86.0],
+   "team": 1,
+   "yaw": 25605
+  },
+  {
+   "id": "PlayerStart37",
+   "location": [6821.0, 5782.0, 86.0],
+   "team": 1,
+   "yaw": 27646
+  },
+  {
+   "id": "PlayerStart38",
+   "location": [6879.0, 5921.0, 86.0],
+   "team": 1,
+   "yaw": 29695
+  },
+  {
+   "id": "PlayerStart39",
+   "location": [6908.0, 6069.0, 86.0],
+   "team": 1,
+   "yaw": 31747
+  },
+  {
+   "id": "PlayerStart40",
+   "location": [6908.0, 6219.0, 86.0],
+   "team": 1,
+   "yaw": 33789
+  },
+  {
+   "id": "PlayerStart41",
+   "location": [6879.0, 6367.0, 86.0],
+   "team": 1,
+   "yaw": 35841
+  },
+  {
+   "id": "PlayerStart42",
+   "location": [6821.0, 6506.0, 86.0],
+   "team": 1,
+   "yaw": 37890
+  },
+  {
+   "id": "PlayerStart43",
+   "location": [6738.0, 6631.0, 86.0],
+   "team": 1,
+   "yaw": 39931
+  },
+  {
+   "id": "PlayerStart44",
+   "location": [6631.0, 6738.0, 86.0],
+   "team": 1,
+   "yaw": 41989
+  },
+  {
+   "id": "PlayerStart45",
+   "location": [6506.0, 6821.0, 86.0],
+   "team": 1,
+   "yaw": 44030
+  },
+  {
+   "id": "PlayerStart46",
+   "location": [6367.0, 6879.0, 86.0],
+   "team": 1,
+   "yaw": 46079
+  },
+  {
+   "id": "PlayerStart47",
+   "location": [6219.0, 6908.0, 86.0],
+   "team": 1,
+   "yaw": 48131
+  },
+  {
+   "id": "PlayerStart48",
+   "location": [6251.0, 5061.0, 86.0],
+   "team": 1,
+   "yaw": 17411
+  },
+  {
+   "id": "PlayerStart49",
+   "location": [6460.0, 5103.0, 86.0],
+   "team": 1,
+   "yaw": 19458
+  },
+  {
+   "id": "PlayerStart50",
+   "location": [6657.0, 5184.0, 86.0],
+   "team": 1,
+   "yaw": 21503
+  },
+  {
+   "id": "PlayerStart51",
+   "location": [6834.0, 5303.0, 86.0],
+   "team": 1,
+   "yaw": 23551
+  },
+  {
+   "id": "PlayerStart52",
+   "location": [6985.0, 5454.0, 86.0],
+   "team": 1,
+   "yaw": 25601
+  },
+  {
+   "id": "PlayerStart53",
+   "location": [7104.0, 5631.0, 86.0],
+   "team": 1,
+   "yaw": 27649
+  },
+  {
+   "id": "PlayerStart54",
+   "location": [7185.0, 5828.0, 86.0],
+   "team": 1,
+   "yaw": 29694
+  },
+  {
+   "id": "PlayerStart55",
+   "location": [7227.0, 6037.0, 86.0],
+   "team": 1,
+   "yaw": 31741
+  },
+  {
+   "id": "PlayerStart56",
+   "location": [7227.0, 6251.0, 86.0],
+   "team": 1,
+   "yaw": 33795
+  },
+  {
+   "id": "PlayerStart57",
+   "location": [7185.0, 6460.0, 86.0],
+   "team": 1,
+   "yaw": 35842
+  },
+  {
+   "id": "PlayerStart58",
+   "location": [7104.0, 6657.0, 86.0],
+   "team": 1,
+   "yaw": 37887
+  },
+  {
+   "id": "PlayerStart59",
+   "location": [6985.0, 6834.0, 86.0],
+   "team": 1,
+   "yaw": 39935
+  },
+  {
+   "id": "PlayerStart60",
+   "location": [6834.0, 6985.0, 86.0],
+   "team": 1,
+   "yaw": 41985
+  },
+  {
+   "id": "PlayerStart61",
+   "location": [6657.0, 7104.0, 86.0],
+   "team": 1,
+   "yaw": 44033
+  },
+  {
+   "id": "PlayerStart62",
+   "location": [6460.0, 7185.0, 86.0],
+   "team": 1,
+   "yaw": 46078
+  },
+  {
+   "id": "PlayerStart63",
+   "location": [6251.0, 7227.0, 86.0],
+   "team": 1,
+   "yaw": 48125
+  }
+ ],
+ "units": "uu, UE space (Z up, yaw 16384 = +Y)"
+}

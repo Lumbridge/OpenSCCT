@@ -1,0 +1,329 @@
+{
+ "actors": [
+  {
+   "class": "Engine.ZoneInfo",
+   "id": "ZoneInfo0",
+   "props": {
+    "Location": {"X": 512.0, "Y": 512.0, "Z": 256.0},
+    "LocationName": "Room A",
+    "Tag": "ZoneInfo"
+   }
+  },
+  {
+   "class": "Engine.ZoneInfo",
+   "id": "ZoneInfo1",
+   "props": {
+    "Location": {"X": 2048.0, "Y": 512.0, "Z": 256.0},
+    "LocationName": "Room B",
+    "Tag": "ZoneInfo"
+   }
+  },
+  {
+   "class": "Engine.ZoneInfo",
+   "id": "ZoneInfo2",
+   "props": {
+    "Location": {"X": 512.0, "Y": -1024.0, "Z": 256.0},
+    "LocationName": "Room C",
+    "Tag": "ZoneInfo"
+   }
+  },
+  {
+   "class": "Engine.PlayerStart",
+   "id": "PlayerStart0",
+   "props": {
+    "Location": {"X": 128.0, "Y": 128.0, "Z": 100.0},
+    "Rotation": {"Pitch": 0, "Roll": 0, "Yaw": 0},
+    "Tag": "PlayerStart",
+    "TeamNumber": 0
+   }
+  },
+  {
+   "class": "Engine.PlayerStart",
+   "id": "PlayerStart1",
+   "props": {
+    "Location": {"X": 128.0, "Y": 384.0, "Z": 100.0},
+    "Rotation": {"Pitch": 0, "Roll": 0, "Yaw": 0},
+    "Tag": "PlayerStart",
+    "TeamNumber": 0
+   }
+  },
+  {
+   "class": "Engine.PlayerStart",
+   "id": "PlayerStart2",
+   "props": {
+    "Location": {"X": 1792.0, "Y": 256.0, "Z": 100.0},
+    "Rotation": {"Pitch": 0, "Roll": 0, "Yaw": 32768},
+    "Tag": "PlayerStart",
+    "TeamNumber": 1
+   }
+  },
+  {
+   "class": "Engine.PlayerStart",
+   "id": "PlayerStart3",
+   "props": {
+    "Location": {"X": 2048.0, "Y": 256.0, "Z": 100.0},
+    "Rotation": {"Pitch": 0, "Roll": 0, "Yaw": 32768},
+    "Tag": "PlayerStart",
+    "TeamNumber": 1
+   }
+  },
+  {
+   "class": "Engine.Mover",
+   "id": "Mover0",
+   "props": {
+    "BasePos": {"X": 1280.0, "Y": 512.0, "Z": 0.0},
+    "DrawType": 8,
+    "InitialState": "TriggerOpenTimed",
+    "KeyPos": {
+     "$elements": {
+      "0": {"X": 0.0, "Y": 0.0, "Z": 0.0},
+      "1": {"X": 0.0, "Y": 0.0, "Z": 240.0}
+     }
+    },
+    "Location": {"X": 1280.0, "Y": 512.0, "Z": 0.0},
+    "MoveTime": 1.0,
+    "NumKeys": 2,
+    "Rotation": {"Pitch": 0, "Roll": 0, "Yaw": 0},
+    "StaticMesh": {"$asset": "TestBox.Meshes.SlidingDoor"},
+    "StayOpenTime": 4.0,
+    "Tag": "TestDoor",
+    "bBlockActors": true,
+    "bBlockPlayers": true,
+    "bCollideActors": true
+   }
+  },
+  {
+   "class": "Engine.Trigger",
+   "id": "Trigger0",
+   "props": {
+    "CollisionHeight": 64.0,
+    "CollisionRadius": 160.0,
+    "Event": "TestDoor",
+    "Location": {"X": 1280.0, "Y": 512.0, "Z": 64.0},
+    "Tag": "Trigger",
+    "bCollideActors": true
+   }
+  },
+  {
+   "class": "SBase.SComputerObjectiveTrigger",
+   "id": "SComputerObjectiveTrigger0",
+   "props": {
+    "CollisionHeight": 40.0,
+    "CollisionRadius": 40.0,
+    "DominationCaptureTime": 10,
+    "Location": {"X": 2496.0, "Y": 128.0, "Z": 64.0},
+    "Rotation": {"Pitch": 0, "Roll": 0, "Yaw": 32768},
+    "Tag": "SComputerObjectiveTrigger",
+    "TriggerName": "Terminal B",
+    "bCollideActors": true
+   }
+  },
+  {
+   "class": "SBase.SComputerObjectiveTrigger",
+   "id": "SComputerObjectiveTrigger1",
+   "props": {
+    "CollisionHeight": 40.0,
+    "CollisionRadius": 40.0,
+    "DominationCaptureTime": 10,
+    "Location": {"X": 512.0, "Y": -1472.0, "Z": 64.0},
+    "Rotation": {"Pitch": 0, "Roll": 0, "Yaw": 16384},
+    "Tag": "SComputerObjectiveTrigger",
+    "TriggerName": "Terminal C",
+    "bCollideActors": true
+   }
+  },
+  {
+   "class": "SBase.SFlag",
+   "id": "SFlag0",
+   "props": {
+    "CollisionHeight": 30.0,
+    "CollisionRadius": 50.0,
+    "DropZone": {"$actor": "SFlagDropZone0"},
+    "Location": {"X": 128.0, "Y": -1408.0, "Z": 32.0},
+    "ResetTime": 15,
+    "Rotation": {"Pitch": 0, "Roll": 0, "Yaw": 0},
+    "Tag": "SFlag",
+    "TriggerName": "Test Files",
+    "bCollideActors": true,
+    "fInteractionHeight": 30.0,
+    "fInteractionRadius": 50.0
+   }
+  },
+  {
+   "class": "SBase.SFlagDropZone",
+   "id": "SFlagDropZone0",
+   "props": {
+    "CollisionHeight": 30.0,
+    "CollisionRadius": 50.0,
+    "Location": {"X": 896.0, "Y": 128.0, "Z": 32.0},
+    "Tag": "SFlagDropZone",
+    "TriggerName": "Test Files",
+    "bCollideActors": true,
+    "fInteractionHeight": 30.0,
+    "fInteractionRadius": 50.0
+   }
+  },
+  {
+   "class": "SBase.SObjective",
+   "id": "SObjective0",
+   "props": {
+    "Description": "Terminal: Terminal B",
+    "DescriptionDEF": "Terminal: Terminal B",
+    "Location": {"X": 512.0, "Y": 512.0, "Z": 256.0},
+    "ObjectiveName": "Terminal B",
+    "Tag": "SObjective",
+    "Triggers": [
+     {"$actor": "SComputerObjectiveTrigger0"}
+    ]
+   }
+  },
+  {
+   "class": "SBase.SObjective",
+   "id": "SObjective1",
+   "props": {
+    "Description": "Terminal: Terminal C",
+    "DescriptionDEF": "Terminal: Terminal C",
+    "Location": {"X": 512.0, "Y": 512.0, "Z": 272.0},
+    "ObjectiveName": "Terminal C",
+    "Tag": "SObjective",
+    "Triggers": [
+     {"$actor": "SComputerObjectiveTrigger1"}
+    ]
+   }
+  },
+  {
+   "class": "SBase.SObjective",
+   "id": "SObjective2",
+   "props": {
+    "Description": "Disk: Test Files",
+    "DescriptionDEF": "Disk: Test Files",
+    "Location": {"X": 512.0, "Y": 512.0, "Z": 288.0},
+    "ObjectiveName": "Test Files",
+    "Tag": "SObjective",
+    "Triggers": [
+     {"$actor": "SFlag0"}
+    ]
+   }
+  },
+  {
+   "class": "SBase.SMission",
+   "id": "SMission0",
+   "props": {
+    "Description": "Accomplish 2 out of 3 objectives.",
+    "DescriptionDEF": "Prevent the intruders from reaching 2 of the 3 objectives.",
+    "GameMode": 5,
+    "Location": {"X": 512.0, "Y": 512.0, "Z": 320.0},
+    "MinimumObjectives": 2,
+    "ObjectiveName": "",
+    "Objectives": [
+     {"$actor": "SObjective0"},
+     {"$actor": "SObjective1"},
+     {"$actor": "SObjective2"}
+    ],
+    "Tag": "SMission",
+    "bChained": false
+   }
+  },
+  {
+   "class": "Engine.Trigger",
+   "id": "Trigger1",
+   "props": {
+    "CollisionHeight": 64.0,
+    "CollisionRadius": 64.0,
+    "Event": "TestGEToggle",
+    "Location": {"X": 1792.0, "Y": 704.0, "Z": 64.0},
+    "Tag": "Trigger",
+    "bCollideActors": true
+   }
+  },
+  {
+   "class": "SBase.SGETrigger",
+   "id": "SGETrigger0",
+   "props": {
+    "GEMask": 4,
+    "Location": {"X": 1920.0, "Y": 928.0, "Z": 380.0},
+    "Tag": "TestGEToggle",
+    "bToggle": true
+   }
+  },
+  {
+   "class": "Engine.BlockingVolume",
+   "id": "BlockingVolume0",
+   "props": {
+    "Location": {"X": 2528.0, "Y": 928.0, "Z": 396.0},
+    "Rotation": {"Pitch": 0, "Roll": 0, "Yaw": 16384},
+    "Tag": "BlockingVolume",
+    "bBlockActors": true,
+    "bBlockNonZeroExtent": true,
+    "bBlockPlayers": true,
+    "bBlockZeroExtent": false,
+    "bCollideActors": true
+   }
+  }
+ ],
+ "eventEdges": [
+  {
+   "event": "TestDoor",
+   "from": "Trigger0",
+   "to": ["Mover0"],
+   "via": "Event"
+  },
+  {
+   "event": "TestGEToggle",
+   "from": "Trigger1",
+   "to": ["SGETrigger0"],
+   "via": "Event"
+  }
+ ],
+ "formatVersion": "1.0.0",
+ "levelInfo": {
+  "class": "Engine.LevelInfo",
+  "id": "LevelInfo0",
+  "props": {
+   "Author": "SVM",
+   "GEActivationMask": 4,
+   "RecommendedNumPlayers": 4,
+   "Tag": "LevelInfo",
+   "Title": "TestBox"
+  }
+ },
+ "map": "TestBox",
+ "mapSettings": {
+  "Story": {"RespawnTime": 10, "SentriesLives": 3, "SpiesLives": 4, "TimeLimit": 10}
+ },
+ "missionTree": [
+  {
+   "gameMode": 5,
+   "minimumObjectives": 2,
+   "mission": "SMission0",
+   "objectives": [
+    {
+     "objective": "SObjective0",
+     "triggers": ["SComputerObjectiveTrigger0"]
+    },
+    {
+     "objective": "SObjective1",
+     "triggers": ["SComputerObjectiveTrigger1"]
+    },
+    {
+     "objective": "SObjective2",
+     "triggers": ["SFlag0"]
+    }
+   ]
+  }
+ ],
+ "tagIndex": {
+  "BlockingVolume": ["BlockingVolume0"],
+  "LevelInfo": ["LevelInfo0"],
+  "PlayerStart": ["PlayerStart0", "PlayerStart1", "PlayerStart2", "PlayerStart3"],
+  "SComputerObjectiveTrigger": ["SComputerObjectiveTrigger0", "SComputerObjectiveTrigger1"],
+  "SFlag": ["SFlag0"],
+  "SFlagDropZone": ["SFlagDropZone0"],
+  "SMission": ["SMission0"],
+  "SObjective": ["SObjective0", "SObjective1", "SObjective2"],
+  "TestDoor": ["Mover0"],
+  "TestGEToggle": ["SGETrigger0"],
+  "Trigger": ["Trigger0", "Trigger1"],
+  "ZoneInfo": ["ZoneInfo0", "ZoneInfo1", "ZoneInfo2"]
+ }
+}

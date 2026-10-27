@@ -1,0 +1,69 @@
+{
+  "format": "svm.combat/1",
+  "id": "combat.merc-charge",
+  "title": "Merc charge (Use while walking forward) into a spy 450 uu ahead",
+  "map": "SteeE",
+  "mode": "playlevel",
+  "local": {
+    "team": "merc",
+    "floor": [
+      -492.0,
+      -2032.0,
+      -1143.5
+    ],
+    "yaw": 16384,
+    "crouched": false
+  },
+  "target": {
+    "team": "spy",
+    "floor": [
+      -492.0,
+      -1582.0,
+      -1143.5
+    ],
+    "yaw": 49152,
+    "crouched": false
+  },
+  "settleFrames": 30,
+  "durationFrames": 420,
+  "events": [
+    {
+      "frame": 2,
+      "do": "buttons",
+      "buttons": {
+        "BT_Up": 1
+      }
+    },
+    {
+      "frame": 40,
+      "do": "buttons",
+      "buttons": {
+        "bUsing": 1
+      }
+    },
+    {
+      "frame": 44,
+      "do": "buttons",
+      "buttons": {
+        "bUsing": 0
+      }
+    },
+    {
+      "frame": 110,
+      "do": "buttons",
+      "buttons": {
+        "BT_Up": 0
+      }
+    }
+  ],
+  "repeats": 2,
+  "measure": {
+    "states": {}
+  },
+  "covers": [
+    "uc:SBase.SPlayerController:s_PlayerCharging.BeginState",
+    "uc:SBase.SPlayerController:FindTargetToCharge",
+    "uc:SBase.SPlayerController:Handle_ChargedDmg"
+  ],
+  "spot": "SteeE east yard lane (x -492, floor z -1143.5, clear for 1792 uu along +Y from y -2032; found with re/tools/difftest/spots.py for the R4 locomotion recordings)"
+}

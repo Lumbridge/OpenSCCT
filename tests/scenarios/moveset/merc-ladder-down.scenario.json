@@ -1,0 +1,109 @@
+{
+  "format": "svm.scenario/1",
+  "id": "moveset.merc-ladder-down",
+  "title": "Merc walks to the top of a 320 uu ladder, gets on from above and climbs down with back held",
+  "map": "MounE",
+  "mode": "playlevel",
+  "players": [
+    {
+      "team": "merc"
+    }
+  ],
+  "spawn": {
+    "floor": [
+      4464.0,
+      -2420.0,
+      -319.5
+    ],
+    "yaw": 16384,
+    "clearance": 2.0,
+    "spot": "top floor z -319.5, 153 uu south of the top of LADDER 149, facing it (+Y)",
+    "notes": "LADDER GE 149: bottom (4464, -2266.6, -629.1), top (4464, -2266.6, -309.1), side point 10 toward +Y (the climbing side). Its foot is a strip of floor z -627 (x 4412 to 4511.5, a pit z -723.5 west of it); a standing box swept south along x 4464 stops at y -2236 against the ladder mesh, 4.4 from the grab spot (bottom + 35 N). The top exit is the floor z -319 / -319.5 south of the ladder (to y -2560 and beyond), flush with the top; a box swept north on it is clear to the edge. Found with re/tools/difftest/movespots.py (ladder)."
+  },
+  "setup": [
+    {
+      "op": "leaveGE",
+      "maxFrames": 240
+    },
+    {
+      "op": "teleport"
+    },
+    {
+      "op": "stance",
+      "crouched": false
+    },
+    {
+      "op": "write",
+      "target": "pawn",
+      "field": "Health",
+      "value": 100
+    },
+    {
+      "op": "view",
+      "pitch": 0,
+      "yaw": 16384
+    },
+    {
+      "op": "waitStill",
+      "maxFrames": 180
+    }
+  ],
+  "settleFrames": 30,
+  "durationFrames": 440,
+  "inputs": [
+    {
+      "frame": 0,
+      "buttons": {
+        "BT_Up": 1
+      },
+      "note": "walk to the ladder top: TopLadder"
+    },
+    {
+      "frame": 30,
+      "buttons": {
+        "BT_Up": 0
+      },
+      "note": "let go once on it"
+    },
+    {
+      "frame": 160,
+      "buttons": {
+        "BT_Down": 1
+      },
+      "note": "climb down with back held"
+    },
+    {
+      "frame": 300,
+      "buttons": {
+        "BT_Down": 0
+      },
+      "note": "let go on the floor"
+    }
+  ],
+  "repeats": 3,
+  "profile": "traversal",
+  "measure": {},
+  "covers": [
+    "uc:SBase.SPlayerController:TopLadder",
+    "uc:SBase.SPlayerController:s_WaitAtTopLadder.PlayerMove",
+    "uc:SBase.SPlayerController:s_WaitAtTopLadder.TopSynchro",
+    "uc:SBase.SPlayerController:s_downTopLadder.PlayerMove",
+    "uc:SBase.SPlayerController:s_downTopLadder.AnimEnd",
+    "uc:SBase.SPlayerController:s_OnLadderTop.BeginState",
+    "uc:SBase.SPlayerController:s_OnLadderTop.PlayerMove",
+    "uc:SBase.SPlayerController:s_Back_LadderTop.PlayerMove",
+    "uc:SBase.SPlayerController:s_Back_LadderTop.AnimEnd",
+    "uc:SBase.SPlayerController:s_OnLadder.BeginState",
+    "uc:SBase.SPlayerController:s_OnLadder.PlayerMove",
+    "uc:SBase.SPlayerController:s_LadderBase.NotifyHitWall",
+    "uc:SBase.SPlayerController:s_LadderBase.BeginState",
+    "uc:SBase.SPlayerController:s_LadderBase.EndState",
+    "uc:SBase.SPlayerController:s_PlayerWalkingWeapon.TopLadder",
+    "uc:SBase.SPlayerController:s_LadderGrabFall.PlayerMove",
+    "uc:SBase.SPlayerController:s_LadderGrabFall.AnimEnd",
+    "uc:SBase.SPlayerController:s_EndLadderDrawWeapon.PlayerMove",
+    "uc:SBase.SPlayerController:s_EndLadderDrawWeapon.AnimEnd",
+    "uc:SBase.SPlayerController:ResetMercCam",
+    "def:SBase.SPAWNDEFENSE"
+  ]
+}

@@ -1,0 +1,101 @@
+{
+  "format": "svm.scenario/1",
+  "id": "moveset.spy-ladder-up",
+  "title": "Spy walks into a 320 uu ladder, climbs it with forward held and climbs out at the top",
+  "map": "MounE",
+  "mode": "playlevel",
+  "players": [
+    {
+      "team": "spy"
+    }
+  ],
+  "spawn": {
+    "floor": [
+      4464.0,
+      -2120.0,
+      -627.0
+    ],
+    "yaw": 49152,
+    "clearance": 2.0,
+    "spot": "floor strip z -627, 146 uu north of LADDER 149, facing it (-Y)",
+    "notes": "LADDER GE 149: bottom (4464, -2266.6, -629.1), top (4464, -2266.6, -309.1), side point 10 toward +Y (the climbing side). Its foot is a strip of floor z -627 (x 4412 to 4511.5, a pit z -723.5 west of it); a standing box swept south along x 4464 stops at y -2236 against the ladder mesh, 4.4 from the grab spot (bottom + 35 N). The top exit is the floor z -319 / -319.5 south of the ladder (to y -2560 and beyond), flush with the top; a box swept north on it is clear to the edge. Found with re/tools/difftest/movespots.py (ladder)."
+  },
+  "setup": [
+    {
+      "op": "leaveGE",
+      "maxFrames": 240
+    },
+    {
+      "op": "teleport"
+    },
+    {
+      "op": "stance",
+      "crouched": false
+    },
+    {
+      "op": "fastSpeed",
+      "value": true
+    },
+    {
+      "op": "write",
+      "target": "pawn",
+      "field": "Health",
+      "value": 100
+    },
+    {
+      "op": "view",
+      "pitch": 0,
+      "yaw": 49152
+    },
+    {
+      "op": "waitStill",
+      "maxFrames": 180
+    }
+  ],
+  "settleFrames": 30,
+  "durationFrames": 460,
+  "inputs": [
+    {
+      "frame": 0,
+      "buttons": {
+        "BT_Up": 1
+      },
+      "note": "walk into the ladder and climb with forward held"
+    },
+    {
+      "frame": 400,
+      "buttons": {
+        "BT_Up": 0
+      },
+      "note": "let go on the top floor"
+    }
+  ],
+  "repeats": 3,
+  "profile": "traversal",
+  "measure": {},
+  "covers": [
+    "uc:SBase.SPlayerController:NarrowLadder",
+    "nat:SBase.SPlayerController.CheckArmsZone",
+    "uc:SBase.SPlayerController:s_GrabLadder.BeginState",
+    "uc:SBase.SPlayerController:s_GrabLadder.PlayerMove",
+    "uc:SBase.SPlayerController:s_GrabLadder.AnimEnd",
+    "uc:SBase.SPlayerController:s_GrabLadder.EndState",
+    "uc:SBase.SPlayerController:s_LadderBase.BeginState",
+    "uc:SBase.SPlayerController:s_LadderBase.EndState",
+    "uc:SBase.SPlayerController:s_OnLadder.BeginState",
+    "uc:SBase.SPlayerController:s_OnLadder.PlayerMove",
+    "uc:SBase.SPlayerController:s_OnLadder.TopLadder",
+    "uc:SBase.SPlayerController:s_LadderToTopTr.PlayerMove",
+    "uc:SBase.SPlayerController:s_LadderToTopTr@code",
+    "uc:SBase.SPlayerController:s_LadderToTop.PlayerMove",
+    "uc:SBase.SPlayerController:s_LadderToTop.AnimEnd",
+    "uc:SBase.SPlayerController:s_OnLadderTop.BeginState",
+    "uc:SBase.SPlayerController:s_OnLadderTop.PlayerMove",
+    "nat:SBase.SPlayerController.bTestTopLadder",
+    "nat:SBase.SPlayerController.CheckCeilingForLadder",
+    "uc:SBase.SPlayerController:s_LadderTop.PlayerMove",
+    "uc:SBase.SPlayerController:s_LadderTop.AnimEnd",
+    "uc:SBase.SPlayerController:s_PlayerWalkingMario.NarrowLadder",
+    "def:SBase.SPawnAttaque"
+  ]
+}

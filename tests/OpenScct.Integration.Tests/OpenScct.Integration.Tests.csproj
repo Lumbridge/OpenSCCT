@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="$(RepoRoot)build/Test.props" />
+  <PropertyGroup>
+    <RootNamespace>OpenScct.Integration.Tests</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\OpenScct.Server\OpenScct.Server.csproj" />
+    <ProjectReference Include="..\..\src\OpenScct.Bots\OpenScct.Bots.csproj" />
+    <ProjectReference Include="..\..\src\OpenScct.Master\OpenScct.Master.csproj" />
+  </ItemGroup>
+  <!-- The Godot-free play session (game/Scripts/Play/Session), for the tests that play as the local player does. -->
+  <ItemGroup>
+    <Compile Include="..\..\game\Scripts\Play\Session\*.cs" Link="Linked\PlaySession\%(Filename)%(Extension)" />
+  </ItemGroup>
+</Project>

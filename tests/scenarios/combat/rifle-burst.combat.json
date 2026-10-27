@@ -1,0 +1,85 @@
+{
+  "format": "svm.combat/1",
+  "id": "combat.rifle-burst",
+  "title": "Merc rifle in burst mode down the lane: four presses of three rounds",
+  "map": "SteeE",
+  "mode": "playlevel",
+  "local": {
+    "team": "merc",
+    "floor": [
+      -492.0,
+      -2032.0,
+      -1143.5
+    ],
+    "yaw": 16384,
+    "crouched": false
+  },
+  "target": null,
+  "settleFrames": 30,
+  "durationFrames": 260,
+  "events": [
+    {
+      "frame": 0,
+      "do": "rof",
+      "mode": "burst"
+    },
+    {
+      "frame": 2,
+      "do": "aimPoint",
+      "point": [
+        -492.0,
+        2000.0,
+        -1000.0
+      ]
+    },
+    {
+      "frame": 10,
+      "do": "fire"
+    },
+    {
+      "frame": 11,
+      "do": "fireUp"
+    },
+    {
+      "frame": 70,
+      "do": "fire"
+    },
+    {
+      "frame": 71,
+      "do": "fireUp"
+    },
+    {
+      "frame": 130,
+      "do": "fire"
+    },
+    {
+      "frame": 131,
+      "do": "fireUp"
+    },
+    {
+      "frame": 190,
+      "do": "fire"
+    },
+    {
+      "frame": 191,
+      "do": "fireUp"
+    }
+  ],
+  "repeats": 2,
+  "measure": {
+    "shots": {}
+  },
+  "covers": [
+    "uc:SBase.SPlayerController:Fire",
+    "uc:SBase.SWeaponDefense:FireWeapon",
+    "uc:SBase.SWeaponDefense:ServerFireWeapon",
+    "uc:SBase.SWeaponDefense:TraceFire",
+    "nat:Engine.Actor.TraceBone",
+    "nat:SBase.SWeaponDefense.GetAccuracy",
+    "uc:SBase.SPlayerController:StandardReactionsToDamage",
+    "uc:SBase.SPlayerController:PawnTakeDamage",
+    "uc:SBase.SWeaponDefense:GetNbBulletsFromROF",
+    "uc:SBase.SWeaponDefense:s_Firing.Timer"
+  ],
+  "spot": "SteeE east yard lane (x -492, floor z -1143.5, clear for 1792 uu along +Y from y -2032; found with re/tools/difftest/spots.py for the R4 locomotion recordings)"
+}

@@ -1,0 +1,15 @@
+<Project>
+  <!-- Imported by every simulation library (no Godot, deterministic rules). -->
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.BannedApiAnalyzers" PrivateAssets="all" />
+    <AdditionalFiles Include="$(RepoRoot)BannedSymbols.txt" Link="BannedSymbols.txt" />
+  </ItemGroup>
+  <PropertyGroup>
+    <!-- RS0030 = use of a banned API. Always an error in sim code. -->
+    <WarningsAsErrors>$(WarningsAsErrors);RS0030</WarningsAsErrors>
+    <IsSimLibrary>true</IsSimLibrary>
+  </PropertyGroup>
+  <Target Name="SvmNoGodotInSim" BeforeTargets="Build">
+    <Error Condition="'@(PackageReference->AnyHaveMetadataValue('Identity','GodotSharp'))' == 'true'" Text="Simulation libraries must not reference Godot." />
+  </Target>
+</Project>

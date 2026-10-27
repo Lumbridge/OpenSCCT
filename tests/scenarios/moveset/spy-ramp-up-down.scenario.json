@@ -1,0 +1,91 @@
+{
+  "format": "svm.scenario/1",
+  "id": "moveset.spy-ramp-up-down",
+  "title": "Spy runs up the 26.9 degree stairwell ramp (stairs with ramp collision), turns at the top and runs back down",
+  "map": "SteeE",
+  "mode": "playlevel",
+  "players": [
+    {
+      "team": "spy"
+    }
+  ],
+  "spawn": {
+    "floor": [
+      -2110.0,
+      2368.0,
+      -1447.5
+    ],
+    "yaw": 0,
+    "clearance": 2.0,
+    "spot": "stairwell bottom floor z -1447.5, 100 uu before the foot of the ramp, facing up it (+X)",
+    "notes": "The lowest flight of the east stairwell: collision is a plane, normal z 0.89216 (26.85 degrees), rising 16.2 uu per 32 from z -1447.5 at x -2008 to z -1127.5 at x -1336, 224 wide (y 2256 to 2480; wall at y 2495.5). Flat floor z -1127.5 beyond x -1336 to x -1208. Found with re/tools/difftest/movespots.py (slopes)."
+  },
+  "setup": [
+    {
+      "op": "leaveGE",
+      "maxFrames": 240
+    },
+    {
+      "op": "teleport"
+    },
+    {
+      "op": "stance",
+      "crouched": false
+    },
+    {
+      "op": "fastSpeed",
+      "value": true
+    },
+    {
+      "op": "write",
+      "target": "pawn",
+      "field": "Health",
+      "value": 100
+    },
+    {
+      "op": "view",
+      "pitch": 0,
+      "yaw": 0
+    },
+    {
+      "op": "waitStill",
+      "maxFrames": 180
+    }
+  ],
+  "settleFrames": 30,
+  "durationFrames": 300,
+  "inputs": [
+    {
+      "frame": 0,
+      "buttons": {
+        "BT_Up": 1
+      },
+      "note": "run up the ramp"
+    },
+    {
+      "frame": 120,
+      "view": {
+        "pitch": 0,
+        "yaw": 32768
+      },
+      "note": "turn round at the top (view to -X), forward still held"
+    },
+    {
+      "frame": 250,
+      "buttons": {
+        "BT_Up": 0
+      },
+      "note": "let go at the bottom"
+    }
+  ],
+  "repeats": 3,
+  "profile": "locomotion",
+  "measure": {},
+  "covers": [
+    "uc:SBase.SPlayerController:s_PlayerWalkingMario.PlayerMove",
+    "uc:SBase.SPlayerController:UpdatePawnRotationMario",
+    "nat:SBase.SPlayerController.NativeComputeControlVariables",
+    "uc:SBase.SPlayerController:s_PlayerWalkingSt0H.PlayerTick",
+    "def:SBase.SPawnAttaque"
+  ]
+}
