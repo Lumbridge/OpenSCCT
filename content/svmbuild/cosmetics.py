@@ -13,6 +13,10 @@ Small motifs (cogs, bolts, rivets, chevrons, circuit traces, lightning, shards, 
 one into their own small tile, wrapping across the texture edges: the textures are UV atlases of many small islands,
 so motifs stay small (a few percent of the texture) rather than one big drawing.
 
+The painted gun skins (Kaido's livery, Cryo's panels) are not drawn across the texture: a band wider than the atlas
+islands would land on each gun piece as a plain slice of stripe. They are drawn on the gun's mesh instead, piece by
+piece (svmbuild/gunskin.py), as the skeleton is drawn on the body.
+
 Each pattern also gets a flat 256 px swatch, shared/chars/thumbs/cosmetic_<pattern>.png, for the menus (a painted
 atlas reads as noise when shown flat).
 
@@ -1517,7 +1521,8 @@ _SHAPES = {
 def pattern_image(pattern: str, h: int, w: int, luma: np.ndarray, seed: str = "", mesh=None) -> np.ndarray:
     """The pattern's colours (h x w x 3, 0..1) for a texture of that size; seed (the texture's name) picks the layout.
     The gold finishes follow the retail brightness. The skeleton needs the body's mesh (skeleton.Mesh): it is drawn
-    where the bones lie on the texture seed, or flat from the front for the swatch (seed "thumb")."""
+    where the bones lie on the texture seed, or flat from the front for the swatch (seed "thumb"). Given the gun's mesh,
+    the painted gun skins are drawn on the gun (gunskin.py); without it, or for the swatch, across the texture."""
     shape, colours = PATTERNS[pattern]
     if shape == "skeleton":
         from . import skeleton  # noqa: PLC0415
@@ -1528,6 +1533,12 @@ def pattern_image(pattern: str, h: int, w: int, luma: np.ndarray, seed: str = ""
         if layout is None and seed != "thumb":
             raise ValueError(f"{seed} is not a texture of the skeleton's mesh")
         return np.clip(skeleton.draw(layout, colours, h, w, mesh), 0.0, 1.0).astype(np.float32)
+    if mesh is not None and seed != "thumb":
+        from . import gunskin  # noqa: PLC0415
+
+        if gunskin.handles(shape, seed):
+            return np.clip(gunskin.draw(shape, colours, mesh, seed, h, w, _rng(pattern, seed)), 0.0, 1.0).astype(
+                np.float32)
     if shape not in _SHAPES:
         raise ValueError(f"unknown camo shape {shape}")
     rgb = np.array(_SHAPES[shape](_rng(pattern, seed), h, w, colours, luma), dtype=np.float32)
@@ -1612,6 +1623,8 @@ def build_all(chars_dir: Path) -> dict:
 
     from PIL import Image  # noqa: PLC0415
 
+    from . import gunskin  # noqa: PLC0415
+
     jobs, skipped = [], []
     for package, stem, patterns in TARGETS:
         tex_dir = chars_dir / package / "textures"
@@ -1623,6 +1636,9 @@ def build_all(chars_dir: Path) -> dict:
             w, h = im.size
         for pattern in patterns:
             mesh_path = None
+            if gunskin.handles(PATTERNS[pattern][0], stem):
+                gun_mesh = chars_dir / package / gunskin.GUN_MESH[stem][0]
+                mesh_path = gun_mesh if gun_mesh.is_file() else None  # without it, drawn across the texture
             if PATTERNS[pattern][0] == "skeleton":
                 mesh_path = chars_dir / package / SKELETON_MESH.get(stem, "")
                 if stem not in SKELETON_MESH or not mesh_path.is_file():

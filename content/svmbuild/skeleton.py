@@ -106,7 +106,12 @@ class Mesh:
                 self.tris.setdefault(texture_of(p.get("material", 0)), []).append(
                     acc(p["indices"]).reshape(-1, 3).astype(np.int64))
         vg = self.groups.argmax(1)
-        self.head_top = float(self.pos[vg == HEAD, 1].max()) if (vg == HEAD).any() else float(self.joints_y("B Head") + 0.2)
+        if (vg == HEAD).any():
+            self.head_top = float(self.pos[vg == HEAD, 1].max())
+        elif "B Head" in self.joints:
+            self.head_top = self.joints_y("B Head") + 0.2
+        else:  # a gun: no head
+            self.head_top = float(self.pos[:, 1].max())
         torso = self.pos[vg == TORSO]
         self._torso = torso
 
@@ -122,9 +127,12 @@ class Mesh:
         return float(np.abs(band[:, 0]).max()) if len(band) else 0.15
 
 
-def bake(mesh: Mesh, texture: str, h: int, w: int) -> dict | None:
-    """Every texel of a texture traced back to the bind pose: position, normal and body part (h x w), with a mask of
-    the texels a triangle covers (seams padded a few texels outward). None when the mesh does not use that texture."""
+def bake(mesh: Mesh, texture: str, h: int, w: int, priority: np.ndarray | None = None) -> dict | None:
+    """Every texel of a texture traced back to the bind pose: position, normal, body part and the index of the
+    texture's triangle (in mesh.tris[texture] order) covering it (h x w), with a mask of the texels a triangle covers
+    (seams padded a few texels outward). UVs outside 0..1 wrap, as the textures repeat. Where triangles share texels,
+    the one with the highest priority (one per triangle, in the same order) keeps them, else the last one. None when
+    the mesh does not use that texture."""
     tris = mesh.tris.get(texture)
     if not tris:
         return None
@@ -132,16 +140,16 @@ def bake(mesh: Mesh, texture: str, h: int, w: int) -> dict | None:
     P = np.zeros((h, w, 3), np.float32)
     N = np.zeros((h, w, 3), np.float32)
     G = np.zeros((h, w, _GROUPS), np.float32)
+    T = np.full((h, w), -1, np.int32)
+    best = np.full((h, w), -np.inf, np.float32)
     cover = np.zeros((h, w), bool)
     uv = mesh.uv * np.array([w, h], np.float32)
-    for a, b, c in tris:
+    for k, (a, b, c) in enumerate(tris):
         pa, pb, pc = uv[a], uv[b], uv[c]
-        x0 = max(int(np.floor(min(pa[0], pb[0], pc[0]))), 0)
-        x1 = min(int(np.ceil(max(pa[0], pb[0], pc[0]))), w - 1)
-        y0 = max(int(np.floor(min(pa[1], pb[1], pc[1]))), 0)
-        y1 = min(int(np.ceil(max(pa[1], pb[1], pc[1]))), h - 1)
-        if x1 < x0 or y1 < y0:
-            continue
+        x0 = int(np.floor(min(pa[0], pb[0], pc[0])))
+        x1 = min(int(np.ceil(max(pa[0], pb[0], pc[0]))), x0 + w - 1)
+        y0 = int(np.floor(min(pa[1], pb[1], pc[1])))
+        y1 = min(int(np.ceil(max(pa[1], pb[1], pc[1]))), y0 + h - 1)
         area = (pb[0] - pa[0]) * (pc[1] - pa[1]) - (pb[1] - pa[1]) * (pc[0] - pa[0])
         if abs(area) < 1e-9:
             continue
@@ -153,11 +161,16 @@ def bake(mesh: Mesh, texture: str, h: int, w: int) -> dict | None:
         if not inside.any():
             continue
         iy, ix = np.nonzero(inside)
-        iy, ix = iy + y0, ix + x0
+        iy, ix = (iy + y0) % h, (ix + x0) % w
         ka, kb, kc = wa[inside][:, None], wb[inside][:, None], wc[inside][:, None]
+        if priority is not None:
+            keep = priority[k] >= best[iy, ix]
+            iy, ix, ka, kb, kc = iy[keep], ix[keep], ka[keep], kb[keep], kc[keep]
+            best[iy, ix] = priority[k]
         P[iy, ix] = ka * mesh.pos[a] + kb * mesh.pos[b] + kc * mesh.pos[c]
         N[iy, ix] = ka * mesh.nrm[a] + kb * mesh.nrm[b] + kc * mesh.nrm[c]
         G[iy, ix] = ka * mesh.groups[a] + kb * mesh.groups[b] + kc * mesh.groups[c]
+        T[iy, ix] = k
         cover[iy, ix] = True
     # Pad the islands outward, so filtering at a seam never reaches an unpainted texel.
     for _ in range(max(3, max(h, w) // 256)):
@@ -167,11 +180,11 @@ def bake(mesh: Mesh, texture: str, h: int, w: int) -> dict | None:
             if src.any():
                 iy, ix = np.nonzero(src)
                 sy, sx = (iy - dy) % h, (ix - dx) % w
-                P[iy, ix], N[iy, ix], G[iy, ix] = P[sy, sx], N[sy, sx], G[sy, sx]
+                P[iy, ix], N[iy, ix], G[iy, ix], T[iy, ix] = P[sy, sx], N[sy, sx], G[sy, sx], T[sy, sx]
                 cover[iy, ix] = True
                 grow[iy, ix] = False
     N /= np.maximum(np.linalg.norm(N, axis=2, keepdims=True), 1e-6)
-    return {"P": P, "N": N, "group": G.argmax(2), "cover": cover}
+    return {"P": P, "N": N, "group": G.argmax(2), "tri": T, "cover": cover}
 
 
 # ---------------------------------------------------------------------------------------------------------------------

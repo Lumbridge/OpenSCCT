@@ -23,7 +23,8 @@ class CharsStep(Step):
     description = "P5: characters, first-person weapons and map anim props: GLB skins + anim files (shared/chars/)."
     code_files = ("content/svmbuild/charconv.py", "content/svmbuild/sources/animations.py",
                   "content/svmbuild/sources/classdb.py", "content/svmbuild/sources/typedprops.py",
-                  "content/svmbuild/writers/glb.py", "content/svmbuild/canonical.py", "content/svmbuild/cosmetics.py")
+                  "content/svmbuild/writers/glb.py", "content/svmbuild/canonical.py", "content/svmbuild/cosmetics.py",
+                  "content/svmbuild/skeleton.py", "content/svmbuild/gunskin.py")
 
     def extra_code(self) -> list[Path]:
         return env.code_files()
