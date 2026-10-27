@@ -481,7 +481,7 @@ public partial class AccountScreen : MenuPage
             : string.Create(CultureInfo.InvariantCulture,
                 $"{rank.XpIntoLevel:N0} / {rank.XpForNext:N0} XP to level {rank.Level + 1}    {progress.TotalXp:N0} XP in all")));
         rankPanel.AddChild(Text(string.Create(CultureInfo.InvariantCulture,
-            $"XP comes from counted rounds on official servers: {ProgressionK.ScoreXp} per point of score, {ProgressionK.FinishXp} for finishing, " +
+            $"XP comes from counted rounds on official servers: {ProgressionK.ScoreXp} per point of score, {ProgressionK.FinishXp} for completing a game, " +
             $"{ProgressionK.WinXp} for a win, {ProgressionK.ObjectiveXp} per objective taken, and {ProgressionK.AchievementXp} to " +
             $"{ProgressionK.MetaAchievementXp} for each achievement.")));
 
