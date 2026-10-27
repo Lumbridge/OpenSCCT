@@ -1,35 +1,43 @@
-"""Gun-shaped paint jobs for the painted gun skins (Kaido's racing livery, Cryo's sci-fi panels): drawn on the gun
-itself, not across its texture.
+"""Every gun and suit skin drawn on the mesh itself, not across its texture.
 
-A gun texture is a UV atlas of many small islands (a side of the receiver here, the top of the barrel there), so a
-design drawn across the texture lands on each piece as a random slice of it. Instead, as for the skeleton camo, each
-texel is traced back to the point of the gun's mesh it covers (skeleton.bake), and the design is drawn on the gun in
-metres:
+A gun or body texture is a UV atlas of many small islands (a side of the receiver here, the top of the barrel there),
+so a pattern drawn across the texture lands on each piece as a random slice of it, at that island's own size and
+turned its own way. Instead, as for the skeleton camo, each texel is traced back to the point of the mesh it covers
+(skeleton.bake), and the skin is drawn there in metres.
 
-- the gun's frame: forward (to the muzzle), up and side, per mesh (GUN_MESH);
-- its pieces: the mesh's separate shells (welded by position), each sorted by its shape into the body (receiver,
-  stock, grip), barrels (long, thin and along the gun: barrels, handguards, scope tubes), hanging pieces (magazines,
-  separate grips) and small parts (sights, levers, bolts);
-- each texel's face: side, top or end, from its normal, which picks the plane a flat motif (decal, chevron, rivet) is
-  drawn in.
+Guns. Each gun has its frame (forward to the muzzle, up and side, per mesh: GUN_MESH) and its pieces: the mesh's
+separate shells (welded by position), each sorted by its shape into the body (receiver, stock, grip), barrels (long,
+thin and along the gun: barrels, handguards, scope tubes), hanging pieces (magazines, separate grips) and small parts
+(sights, levers, bolts). Each texel's face (side, top or end, from its normal) picks the plane a flat motif is drawn in.
 
-The body takes the livery in the gun's frame (a two-tone split sweeping along the gun, pinstripes, stripes over the
-top), barrels take rings along their own axis, hanging pieces their own colour along their length and small parts an
-accent. So each part reads as painted, and a stripe carries on from one face to the next. The merc's sleeves (his
-first-person arms share the gun's skin) are painted as a racing suit instead: a stripe along the top of each arm and
-cuffs at its ends.
+- Kaido (racing livery), Cryo (sci-fi panels) and Pyre (hot-rod flames) are designed piece by piece: the body takes
+  the main design in the gun's frame, barrels take rings along their own axis, hanging pieces their own design along
+  their length and small parts an accent.
+- Every other skin is its flat pattern (cosmetics' shapes, drawn once as a wrapping tile) laid over the whole gun at
+  one real size (TILE_M), so it runs on from piece to piece and every gun shows it at the same scale: the sides see it
+  from the side, the top from above, barrels have it wrapped round them. The blotch camos are computed in 3D instead
+  (solid noise the surface cuts through: no seams at all). Then trim: a dark muzzle with an accent ring on each barrel,
+  a dark foot plate on magazines and grips, dark small parts.
+
+The merc's sleeves (his first-person arms share the gun's skin) are painted as a suit: Kaido's and Cryo's as racing
+suits, Pyre's with flames climbing from the cuffs, the rest with the pattern wrapped round each arm and dark cuffs.
+
+Suits (draw_suit). The body's bind pose takes the same tiles, seen from the front, the sides and above, blended by
+which way each texel faces; the blotch camos are again solid 3D noise, and tiger stripes are turned to wrap round the
+torso and legs.
 
 Shapes are measured against the gun's size (its length and height), so every gun gets the same design at its own
-scale. Edges are
-anti-aliased over about one texel, from how far the gun's surface moves per texel.
+scale. Edges are anti-aliased over about one texel, from how far the surface moves per texel.
 """
 
 from __future__ import annotations
 
+import functools
+
 import numpy as np
 
 from .cosmetics import _cov, _dome, _mix, _rgb, _sd_box, _sd_chevron, _sd_segment, _span, _stripe
-from .skeleton import Mesh, bake
+from .skeleton import ARM_L, ARM_R, HAND_L, HAND_R, Mesh, bake
 
 # Retail gun texture: (the mesh it is painted from, forward and up in that mesh's space, whether it is the merc's
 # sleeves rather than the gun).
@@ -106,7 +114,13 @@ class _Gun:
         self.t = np.zeros(self.piece.shape, np.float32)  # 0..1 along it (barrels: rear to muzzle; hanging: up)
         self.across = np.zeros(self.piece.shape, np.float32)  # metres across it, from its middle
         self.lift = np.zeros(self.piece.shape, np.float32)  # how far the surface faces up, square to the piece's axis
-        z_body = gz[np.unique(all_tris[comp_of_vertex[all_tris[:, 0]] == biggest])]
+        # Metres around the piece's long axis from its top (the seam underneath): barrels and sleeves are wrapped
+        # around, not projected from the side.
+        self.around = np.zeros(self.piece.shape, np.float32)
+        self.extent = np.zeros(self.piece.shape, np.float32)  # the piece's length along its long axis (metres)
+        body_v = np.unique(all_tris[comp_of_vertex[all_tris[:, 0]] == biggest])
+        z_body = gz[body_v]
+        self.bx0, self.bx1 = float(gx[body_v].min()), float(gx[body_v].max())  # the body's own rear and front
         self.zc = float((z_body.min() + z_body.max()) / 2)
         self.width = float(z_body.max() - z_body.min())
         for cid in np.unique(self.piece[self.piece >= 0]):
@@ -135,10 +149,14 @@ class _Gun:
             self.role[m] = role
             self.along[m] = a
             self.t[m] = (a - lo) / max(hi - lo, 1e-6)
+            self.extent[m] = hi - lo
             self.across[m] = rel @ e1
             up_sq = U - (U @ e0) * e0
             up_sq = up_sq / max(float(np.linalg.norm(up_sq)), 1e-6)
             self.lift[m] = N[m] @ up_sq
+            perp = rel - (rel @ e0)[:, None] * e0
+            radius = float(np.median(np.linalg.norm(perp, axis=1))) if len(perp) else 0.0
+            self.around[m] = np.arctan2(perp @ np.cross(e0, up_sq), perp @ up_sq) * radius
         self.F, self.U, self.S = F, U, S
 
     @staticmethod
@@ -423,16 +441,335 @@ def _cryo(g: _Gun, colours, rng) -> np.ndarray:
     return out
 
 
-_DRAW = {"livery": _livery, "cryo": _cryo}
+# ---------------------------------------------------------------------------------------------------------------------
+# Pyre: hot-rod flames sweeping back from the muzzle
+
+def _tongues(g: _Gun, dist, lateral, band: float, reach: float, rng):
+    """Flame tongues growing from dist = 0 (metres) along dist, side by side across lateral (metres, one tongue every
+    band): each starts as a solid front, narrows and ends in a point between half of reach and reach (reach may vary
+    per texel). Returns the
+    signed distance to the flames' edge (metres, positive inside) and how far along its tongue each point is (0..1)."""
+    lengths = rng.uniform(0.45, 1.0, 64).astype(np.float32)
+    q = lateral / band
+    k = np.floor(q).astype(np.int64)
+    f = q - k
+    tip = lengths[k % 64] * reach
+    base = 0.22 * reach
+    edge = base + (tip - base) * (1.0 - np.abs(2.0 * f - 1.0)) ** 2.2
+    field = edge - dist
+    # Metres from the edge: the field over its change per metre.
+    dm = field * g.mpp / np.maximum(g.fw_of(field), 1e-7)
+    return dm, np.clip(dist / np.maximum(edge, 1e-6), 0.0, 1.0)
+
+
+def _fire(g: _Gun, dm, along, colours, black, line: float):
+    """Flames over black from _tongues: pale at the root to red at the tips, a dark-red pinstripe round the edge."""
+    ramp = np.stack([_rgb(c) for c in colours[2:]][::-1])  # pale core first
+    t = np.clip(along, 0.0, 1.0) * (len(ramp) - 1)
+    i = np.clip(t.astype(np.int32), 0, len(ramp) - 2)
+    fire = ramp[i] * (1 - (t - i))[..., None] + ramp[i + 1] * (t - i)[..., None]
+    out = _mix(np.broadcast_to(black, fire.shape), fire, np.clip(dm / g.mpp + 0.5, 0.0, 1.0))
+    return _mix(out, _rgb(colours[1]), np.clip((line - np.abs(dm)) / g.mpp + 0.5, 0.0, 1.0))
+
+
+def _pyre(g: _Gun, colours, rng, luma=None) -> np.ndarray:
+    black = _rgb(colours[0])
+    h, w = g.cover.shape
+    out = np.empty((h, w, 3), np.float32)
+    out[:] = black
+    L = g.size
+    line = 0.0035 * L
+
+    # Body: broad tongues from the front of the body sweeping back toward the stock, curling up as they go.
+    blen = g.bx1 - g.bx0
+    dist = g.bx1 - g.x
+    lateral = g.y - 0.1 * dist - 0.2 * dist ** 2 / blen
+    dm, along = _tongues(g, dist, lateral, 0.15 * L, 0.85 * blen, rng)
+    paint = _fire(g, dm, along, colours, black, line)
+    body = g.mask(BODY)
+    out[body] = paint[body]
+
+    # Hanging pieces (magazines, grips): their own flames licking up from the foot.
+    hang = g.mask(HANG)
+    dm, along = _tongues(g, g.t * g.extent, g.across, 0.05 * L, 0.8 * np.maximum(g.extent, 1e-3), rng)
+    paint = _fire(g, dm, along, colours, black, line)
+    out[hang] = paint[hang]
+
+    # Barrels: blued steel, heat-tinted toward the muzzle (straw, bronze, purple, blue), a flame-orange ring at the
+    # breech.
+    barrel = g.mask(BARREL)
+    ft = g.fw_of(g.t)
+    tint = np.stack([black, np.array([0.62, 0.48, 0.2]), np.array([0.5, 0.26, 0.12]), np.array([0.34, 0.12, 0.36]),
+                     np.array([0.12, 0.22, 0.52])]).astype(np.float32)
+    s = np.clip((g.t - 0.5) / 0.5, 0.0, 1.0) * (len(tint) - 1)
+    i = np.clip(s.astype(np.int32), 0, len(tint) - 2)
+    paint = tint[i] * (1 - (s - i))[..., None] + tint[i + 1] * (s - i)[..., None]
+    paint = _mix(paint, _rgb(colours[3]), _span(g.t, 0.02, 0.06, ft))
+    out[barrel] = paint[barrel]
+
+    # Small parts: flame orange.
+    out[g.mask(SMALL)] = _rgb(colours[3])
+
+    # Sleeves: black, flames climbing from each cuff.
+    sleeve = g.mask(SLEEVE)
+    if sleeve.any():
+        ext = np.maximum(g.extent, 1e-3)
+        dm, along = _tongues(g, np.minimum(g.t, 1.0 - g.t) * ext, g.around, 0.07 * ext, 0.35 * ext, rng)
+        paint = _fire(g, dm, along, colours, black, 0.0015 * ext)
+        out[sleeve] = paint[sleeve]
+    return out
+
+
+# ---------------------------------------------------------------------------------------------------------------------
+# Every other skin: its flat pattern laid on the gun
+
+# Metres of gun one tile of a flat pattern covers: the same on every gun, so a camo is one scale across the arsenal.
+TILE_M = 0.40
+TILE_PX = 1024
+# Shapes drawn bigger or smaller than one tile per TILE_M.
+_TILE_SCALE = {"pixel": 1.3, "blotch": 1.5, "blotch-soft": 1.5, "scanlines": 1.6, "stripe": 1.2}
+
+
+@functools.lru_cache(maxsize=4)
+def _tile(pattern: str, shape: str, colours: tuple) -> np.ndarray:
+    """The pattern drawn flat (TILE_PX square, wrapping), weathering included: one per pattern, shared by every gun
+    texture so a magazine on its own texture carries on the gun's pattern."""
+    from . import cosmetics  # noqa: PLC0415
+
+    n = TILE_PX
+    flat = np.full((n, n), 0.5, np.float32)
+    if shape in ("gold", "mastercraft"):
+        weight = cosmetics.MASTERCRAFT_WEIGHT if shape == "mastercraft" else 1.0
+        groove, raised = cosmetics._engraving(cosmetics._rng(pattern, "gun"), n, n, shape == "mastercraft", weight)
+        return np.stack([groove, raised, np.zeros_like(groove)], -1).astype(np.float32)
+    rgb = np.array(cosmetics._SHAPES[shape](cosmetics._rng(pattern, "gun"), n, n, list(colours), flat), np.float32)
+    if shape in cosmetics._WEATHERED:
+        cosmetics._fine_detail(cosmetics._rng(pattern, "gun:detail"), rgb)
+    return rgb
+
+
+def _sample(img: np.ndarray, u, v) -> np.ndarray:
+    """img (wrapping) at (u, v) in tile units, bilinear."""
+    n, m = img.shape[:2]
+    x, y = u * m - 0.5, v * n - 0.5
+    x0, y0 = np.floor(x), np.floor(y)
+    fx, fy = (x - x0)[..., None].astype(np.float32), (y - y0)[..., None].astype(np.float32)
+    x0, y0 = x0.astype(np.int64) % m, y0.astype(np.int64) % n
+    x1, y1 = (x0 + 1) % m, (y0 + 1) % n
+    top = img[y0, x0] * (1 - fx) + img[y0, x1] * fx
+    bottom = img[y1, x0] * (1 - fx) + img[y1, x1] * fx
+    return top * (1 - fy) + bottom * fy
+
+
+def _place(g: _Gun, tile_m: float):
+    """Each texel's place on the flat pattern (tile units, image up = the gun's up): the sides take it as seen from the
+    side, the top and bottom from above, the ends from the front (each shifted so it does not echo the side), and
+    barrels and sleeves wrapped round their axis (the seam underneath)."""
+    side_u, side_v = (g.x - g.x0) / tile_m, (g.y1 - g.y) / tile_m + 0.02
+    u = np.where(g.top, side_u + 0.37, np.where(g.end, (g.z - g.zc) / tile_m + 0.71, side_u))
+    v = np.where(g.top, (g.z - g.zc) / tile_m + 0.5, side_v)
+    wrapped = g.cover & ((g.role == BARREL) | (g.role == SLEEVE))
+    u = np.where(wrapped & (g.role == SLEEVE), g.along / tile_m, u)
+    v = np.where(wrapped, g.around / tile_m + 0.5, v)
+    return u, v
+
+
+def _noise3(rng, X, Y, Z, cell: float) -> np.ndarray:
+    """3D value noise (cells of cell metres, smooth-stepped between lattice points) at the points X, Y, Z (metres)."""
+    n = 64
+    lat = rng.random((n, n, n), dtype=np.float32)
+    out = np.zeros(X.shape, np.float32)
+    co = [c / cell for c in (X, Y, Z)]
+    i = [np.floor(c).astype(np.int64) for c in co]
+    f = [(c - k).astype(np.float32) for c, k in zip(co, i)]
+    f = [t * t * (3.0 - 2.0 * t) for t in f]
+    for dx in (0, 1):
+        wx = f[0] if dx else 1.0 - f[0]
+        for dy in (0, 1):
+            wy = f[1] if dy else 1.0 - f[1]
+            for dz in (0, 1):
+                wz = f[2] if dz else 1.0 - f[2]
+                out += wx * wy * wz * lat[(i[0] + dx) % n, (i[1] + dy) % n, (i[2] + dz) % n]
+    return out
+
+
+def _fbm3(rng, X, Y, Z, cell: float, octaves: int) -> np.ndarray:
+    out = np.zeros(X.shape, np.float32)
+    amp = 1.0
+    for _ in range(octaves):
+        out += amp * _noise3(rng, X, Y, Z, cell)
+        amp *= 0.5
+        cell /= 2
+    lo, hi = np.percentile(out, (1, 99))
+    return np.clip((out - lo) / max(float(hi - lo), 1e-6), 0.0, 1.0)
+
+
+def _solid_blotch(pattern: str, colours, P: np.ndarray, cover: np.ndarray, tile_m: float, soft: bool) -> np.ndarray:
+    """The blotch camos (cosmetics._shape_blotch: warped layered noise cut into hard colour bands, desert's softened
+    with a sand speckle) computed in 3D at each texel's point P (h x w x 3, metres): one solid camo the surface cuts
+    through, with no seams and no views to blend. Cells are measured in tiles of tile_m metres, as the flat shape's are
+    in textures."""
+    from . import cosmetics  # noqa: PLC0415
+
+    rng = cosmetics._rng(pattern, "solid")
+    h, w = cover.shape
+    X, Y, Z = (P[..., k][cover] for k in range(3))
+    cells = lambda k: tile_m / k  # noqa: E731
+    warp = [(_fbm3(rng, X, Y, Z, cells(6), 3) - 0.5) * 0.06 * tile_m for _ in range(3)]
+    Xw, Yw, Zw = X + warp[0], Y + warp[1], Z + warp[2]
+    value = _fbm3(rng, Xw, Yw, Zw, cells(3 if soft else 4), 4)
+    value = value + (_noise3(rng, X, Y, Z, cells(64)) - 0.5) * (0.05 if soft else 0.10)
+    value = value + (_noise3(rng, X, Y, Z, cells(160)) - 0.5) * (0.02 if soft else 0.05)
+    lo, hi = np.percentile(value, (1, 99))
+    full = np.zeros((h, w), np.float32)
+    full[cover] = np.clip((value - lo) / max(float(hi - lo), 1e-6), 0.0, 1.0)
+    # Bands, anti-aliased by the change per texel (not counting jumps to another island).
+    step = 0.0
+    for ax in (0, 1):
+        step = step + np.minimum(np.abs(np.roll(full, -1, ax) - full), np.abs(full - np.roll(full, 1, ax))) ** 2
+    fw = np.sqrt(step) + (0.07 if soft else 0.0) + 1e-6
+    pal = np.stack([_rgb(c) for c in colours])
+    out = np.empty((h, w, 3), np.float32)
+    out[:] = pal[0]
+    for k in range(1, len(colours)):
+        out += (pal[k] - pal[k - 1]) * np.clip((full - k / len(colours)) / fw + 0.5, 0.0, 1.0)[..., None]
+    tint = np.ones((h, w), np.float32)
+    tint[cover] = 0.96 + 0.08 * _noise3(rng, X, Y, Z, cells(40))
+    out *= tint[..., None]
+    if soft:
+        g1, g2 = np.zeros((h, w), np.float32), np.zeros((h, w), np.float32)
+        g1[cover], g2[cover] = _noise3(rng, X, Y, Z, cells(520)), _noise3(rng, X, Y, Z, cells(900))
+        out = _mix(out, pal[-1] * 1.06, 0.55 * cosmetics._ss(0.72, 0.84, g1))
+        out = _mix(out, pal[0] * 0.9, 0.45 * cosmetics._ss(0.28, 0.16, g2) * cover)
+    cosmetics._fine_detail(cosmetics._rng(pattern, "solid:detail"), out)
+    return out
+
+
+_SOLID = ("blotch", "blotch-soft")
+
+
+def _tone(c) -> float:
+    return float(c @ np.array([0.3, 0.59, 0.11], np.float32))
+
+
+def _laid(g: _Gun, colours, rng, luma=None, *, pattern: str, shape: str) -> np.ndarray:
+    """The pattern laid over the whole gun at one scale (_place), with trim on the parts: a dark muzzle with an accent
+    ring on each barrel, a dark foot plate on magazines and grips, dark small parts, dark cuffs edged in the accent on
+    the sleeves. The gold finishes stay gold all over (darker gold trim, plain polished small parts) and keep the
+    retail brightness."""
+    from . import cosmetics  # noqa: PLC0415
+
+    tile_m = TILE_M * _TILE_SCALE.get(shape, 1.0)
+    u, v = _place(g, tile_m)
+    img = None if shape in _SOLID else _tile(pattern, shape, tuple(colours))
+    pal = [_rgb(c) for c in colours]
+    gilded = shape in ("gold", "mastercraft")
+    if gilded:
+        gr = _sample(img, u, v)
+        lum = luma if luma is not None else np.full(g.cover.shape, 0.5, np.float32)
+        depth = cosmetics.MASTERCRAFT_DEPTH if shape == "mastercraft" else 1.0
+        out = cosmetics._gold_ramp(lum, colours, gr[..., 0], gr[..., 1], depth)
+        plain = cosmetics._gold_ramp(lum, colours)
+        metal = pal[0] * 0.75
+        accent = pal[-1]
+    else:
+        if shape in _SOLID:
+            P = np.stack([g.x, g.y, g.z], -1)
+            out = _solid_blotch(pattern, colours, P, g.cover, tile_m, shape == "blotch-soft")
+        else:
+            out = _sample(img, u, v)
+        darkest = min(pal, key=_tone)
+        metal = (0.55 * darkest + 0.45 * np.full(3, 0.07, np.float32)).astype(np.float32)
+        # The accent: the most colourful of the lighter colours.
+        light = [c for c in pal if c is not darkest] or pal
+        accent = max(light, key=lambda c: float(c.max() - c.min()) + 0.3 * float(c.max()))
+    ft = g.fw_of(g.t)
+
+    barrel = g.mask(BARREL)
+    paint = _mix(out, metal, _span(g.t, 0.80, 2.0, ft))
+    paint = _mix(paint, accent, _span(g.t, 0.80, 0.835, ft))
+    out[barrel] = paint[barrel]
+
+    hang = g.mask(HANG)
+    paint = _mix(out, metal, _span(g.t, -1.0, 0.06, ft))
+    paint = _mix(paint, accent, _span(g.t, 0.06, 0.075, ft))
+    out[hang] = paint[hang]
+
+    small = g.mask(SMALL)
+    out[small] = plain[small] if gilded else metal
+
+    sleeve = g.mask(SLEEVE)
+    if sleeve.any():
+        paint = _mix(out, metal, np.maximum(_span(g.t, -1.0, 0.09, ft), _span(g.t, 0.91, 2.0, ft)))
+        paint = _mix(paint, accent, np.maximum(_span(g.t, 0.09, 0.105, ft), _span(g.t, 0.895, 0.91, ft)))
+        out[sleeve] = paint[sleeve]
+    return out
+
+
+_DRAW = {"livery": _livery, "cryo": _cryo, "flames": _pyre}
+# Shapes that are drawn on the body only (never on a gun texture).
+_NOT_ON_GUNS = ("skeleton",)
 
 
 def handles(shape: str, texture: str) -> bool:
-    """Whether this shape is drawn on the gun for this texture (else it is drawn across the texture)."""
-    return shape in _DRAW and texture in GUN_MESH
+    """Whether this shape is drawn on the gun for this texture (else it is drawn across the texture): every shape on
+    every gun texture with a mesh."""
+    return shape not in _NOT_ON_GUNS and texture in GUN_MESH
 
 
-def draw(shape: str, colours: list[int], mesh: Mesh, texture: str, h: int, w: int, rng) -> np.ndarray:
-    """The skin's colours (h x w x 3, 0..1) for a gun texture, drawn on the gun's mesh."""
+def draw(shape: str, colours: list[int], mesh: Mesh, texture: str, h: int, w: int, rng, pattern: str = "",
+         luma: np.ndarray | None = None) -> np.ndarray:
+    """The skin's colours (h x w x 3, 0..1) for a gun texture, drawn on the gun's mesh. luma (the retail brightness,
+    h x w) is what the gold finishes follow."""
     _, forward, up, sleeves = GUN_MESH[texture]
     g = _Gun(mesh, texture, h, w, forward, up, sleeves)
-    return _DRAW[shape](g, colours, rng)
+    if shape in _DRAW:
+        return _DRAW[shape](g, colours, rng)
+    return _laid(g, colours, rng, luma, pattern=pattern or shape, shape=shape)
+
+
+# ---------------------------------------------------------------------------------------------------------------------
+# Suits: the same flat patterns laid on the body
+
+# Shapes drawn at another size on the suits than on the guns.
+_SUIT_SCALE = {"stripe": 2.0}
+# Shapes whose stripes run across the tile's width: turned on the body so they wrap round it.
+_ACROSS = ("stripe",)
+
+def draw_suit(pattern: str, shape: str, colours: list[int], mesh: Mesh, texture: str, h: int, w: int,
+              luma: np.ndarray | None = None) -> np.ndarray:
+    """A camo (h x w x 3, 0..1) for a body texture, laid on the body in its bind pose at the guns' scale (TILE_M):
+    seen from the front and back, from the sides and from above, blended by how far each texel faces each way, so it
+    runs on across the atlas's seams at one size all over the suit. The gold finishes keep the retail brightness."""
+    from . import cosmetics  # noqa: PLC0415
+
+    layout = bake(mesh, texture, h, w)
+    if layout is None:
+        raise ValueError(f"{texture} is not a texture of the body's mesh")
+    P, N = layout["P"], layout["N"]
+    x, y, z = P[..., 0], P[..., 1], P[..., 2]
+    tile_m = TILE_M * _SUIT_SCALE.get(shape, _TILE_SCALE.get(shape, 1.0))
+    if shape in _SOLID:
+        return _solid_blotch(pattern, colours, P, layout["cover"], tile_m, shape == "blotch-soft")
+    img = _tile(pattern, shape, tuple(colours))
+    top = float(mesh.pos[:, 1].max())
+    down = (top - y) / tile_m
+    fu, fv, su, sv = x / tile_m, down, z / tile_m + 0.37, down + 0.21
+    if shape in _ACROSS:
+        # Stripes run across each limb: turned to wrap round the torso, legs and head; the arms (out sideways in the
+        # bind pose) keep them upright.
+        flat = ~np.isin(layout["group"], (ARM_L, ARM_R, HAND_L, HAND_R))
+        fu, fv = np.where(flat, down, fu), np.where(flat, x / tile_m, fv)
+        su, sv = np.where(flat, down + 0.21, su), np.where(flat, z / tile_m + 0.37, sv)
+    views = (_sample(img, fu, fv),  # front and back
+             _sample(img, su, sv),  # sides
+             _sample(img, x / tile_m + 0.61, z / tile_m + 0.43))  # above and below
+    # Mostly one view per texel: blends only where the surface turns between them.
+    wts = np.abs(N[..., [2, 0, 1]]) ** 8
+    wts = wts / np.maximum(wts.sum(-1, keepdims=True), 1e-6)
+    out = sum(v * wts[..., k:k + 1] for k, v in enumerate(views))
+    if shape in ("gold", "mastercraft"):
+        lum = luma if luma is not None else np.full((h, w), 0.5, np.float32)
+        depth = cosmetics.MASTERCRAFT_DEPTH if shape == "mastercraft" else 1.0
+        return cosmetics._gold_ramp(lum, colours, out[..., 0], out[..., 1], depth)
+    return out
