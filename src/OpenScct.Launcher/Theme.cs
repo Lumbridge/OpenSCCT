@@ -136,6 +136,12 @@ internal static class Theme
     /// </summary>
     public static void FitToContent(Form form, Control root)
     {
+        // Minimised the client area is empty and everything seems to overhang; maximised it is the user's choice.
+        if (form.WindowState != FormWindowState.Normal)
+        {
+            return;
+        }
+
         Rectangle work = Screen.FromControl(form).WorkingArea;
         Size chrome = form.Size - form.ClientSize;
         int width = Math.Min(form.ClientSize.Width, work.Width - chrome.Width);
