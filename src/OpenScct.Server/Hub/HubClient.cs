@@ -335,7 +335,7 @@ public sealed class HubClient : IDisposable
             return;
         }
 
-        if (!HubProtocol.TryParse(line, out string verb, out List<string> fields))
+        if (!HubProtocol.TryParse(line, out string verb, out List<string> fields, fromServer: true))
         {
             return;
         }

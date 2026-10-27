@@ -33,10 +33,30 @@ public abstract partial class Controller : Actor
         base.PreBeginPlay();
     }
 
-    [Provenance(ProvenanceKind.Estimated, "Stock UE2 Controller.Destroyed calls RemoveController")]
+    /// <summary>
+    /// On the authority: leaves the ControllerList, leaves the team (a player, not a spectator) and destroys the
+    /// PlayerReplicationInfo, so a player who leaves drops off every client's player list.
+    /// </summary>
+    [Provenance(ProvenanceKind.Decoded, "Engine.Controller.Destroyed: Role check, RemoveController, Team.RemoveFromTeam unless bOnlySpectator, PlayerReplicationInfo.Destroy")]
     protected internal override void Destroyed()
     {
+        if (Role < ENetRole.ROLE_Authority)
+        {
+            base.Destroyed();
+            return;
+        }
+
         RemoveController();
+        if (PlayerReplicationInfo is { } pri)
+        {
+            if (!pri.bOnlySpectator && pri.Team is { } team)
+            {
+                team.RemoveFromTeam(this);
+            }
+
+            pri.Destroy();
+        }
+
         base.Destroyed();
     }
 

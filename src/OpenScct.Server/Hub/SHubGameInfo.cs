@@ -101,6 +101,12 @@ public sealed class SHubGameInfo : SGameInfo
     {
         if (Exiting.PlayerReplicationInfo is { } pri)
         {
+            // Off his side first: as a spectator Controller.Destroyed no longer takes him off the team.
+            if (!pri.bOnlySpectator && pri.Team is { } team)
+            {
+                team.RemoveFromTeam(Exiting);
+            }
+
             pri.bOnlySpectator = true;
         }
 

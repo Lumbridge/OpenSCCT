@@ -61,11 +61,11 @@ ping), "Join a hub by address", "Host a hub" with "Show it in the hub list"; Ref
   (through the relay when this PC cannot be reached) or by this PC's address (LAN IP, or the public IP with UDP 28886
   forwarded; Windows asks once to let OpenSCCT through its firewall). A listed hub's pad matches register on the
   master too (unlisted), so they are reached the same ways, the relay included. The hub closes when the host leaves it
-  (O), which drops everyone in it.
+  (Escape menu), which drops everyone in it.
 - **Join**: the hub's address (LAN or direct IP; the port defaults to 28886). In the hub: J play spy, K play merc, N back to the plaza, Enter or F5 to chat, F6 to chat to your side (Tab while
 typing goes everyone, your side, near you; `/l text` says it near you; Escape cancels), G emotes, U use (start an aim
 range round at the firing line, next jukebox record, ready on a pad), X stop your run or round, V on a pad to vote for
-its next match, H on a pad to watch its match, P the player list, O leave. The hub keys sit on keys the original's default layouts leave free. Names float over the other players' heads in their side's colour. Voice
+its next match, H on a pad to watch its match, P the player list; leave from the Escape menu. The hub keys sit on keys the original's default layouts leave free. Names float over the other players' heads in their side's colour. Voice
 works as in a match (the options' Voice page: push to talk or voice activation; Caps Lock to talk, Y to your side
 only, F8 mutes the microphone), but each player is heard only near him: see "Proximity voice" below. The play scene
 needs the converted character content to draw pawns; without it the hub still plays.

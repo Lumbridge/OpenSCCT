@@ -13,7 +13,7 @@ namespace OpenScctGame.Hub;
 /// to cancel; Tab while typing switches to the side's chat), the voice overlay (who is heard, the muted microphone),
 /// the match pad panel (top centre, while the player stands on a pad: "Queued on Pad 2 as a merc: 3/4, waiting for 1
 /// merc", in the pad's state colour, or the hub service's note about the last match), and the hub keys: J play spy,
-/// K play merc, N back to the plaza, O leave the hub, Enter or F5 chat, F6 chat to your side. The activities' part (HubHud.Activities.cs) adds the course
+/// K play merc, N back to the plaza, Enter or F5 chat, F6 chat to your side. The activities' part (HubHud.Activities.cs) adds the course
 /// clock, the range round, notices, boards, prompts and the emote menu. Self-contained: it reads the visit and the
 /// play scene's camera and never writes the simulation.
 /// </summary>
@@ -60,7 +60,7 @@ public partial class HubHud : CanvasLayer
         _help = new Label
         {
             Name = "Help", Position = new Vector2(16f, 40f), Modulate = new Color(1f, 1f, 1f, 0.75f),
-            Text = "Hub   J spy   K merc   N plaza   G emotes   U use   X stop   V vote   H watch   P players   Enter/F5 chat   F6 team chat   O leave   Stand on a match pad to queue",
+            Text = "Hub   J spy   K merc   N plaza   G emotes   U use   X stop   V vote   H watch   P players   Enter/F5 chat   F6 team chat   Esc menu   Stand on a match pad to queue",
         };
         if (OpenScctGame.UI.UiArt.CaptionFont is { } caption)
         {
@@ -83,7 +83,12 @@ public partial class HubHud : CanvasLayer
         _voice = new Label { Name = "Voice", HorizontalAlignment = HorizontalAlignment.Right };
         _voice.AddThemeColorOverride("font_shadow_color", new Color(0f, 0f, 0f, 0.9f));
         AddChild(_voice);
-        _chat = new Label { Name = "Chat", AutowrapMode = TextServer.AutowrapMode.WordSmart, VerticalAlignment = VerticalAlignment.Bottom };
+        // Grows upwards: the box keeps its bottom above the chat line however many lines wrap.
+        _chat = new Label
+        {
+            Name = "Chat", AutowrapMode = TextServer.AutowrapMode.WordSmart, VerticalAlignment = VerticalAlignment.Bottom,
+            GrowVertical = Control.GrowDirection.Begin, MouseFilter = Control.MouseFilterEnum.Ignore,
+        };
         _chat.AddThemeColorOverride("font_shadow_color", new Color(0f, 0f, 0f, 0.9f));
         AddChild(_chat);
         _entry = new LineEdit { Name = "ChatEntry", Visible = false, MaxLength = OpenScct.Net.ChatK.MaxChars, PlaceholderText = "Say" };
@@ -185,7 +190,12 @@ public partial class HubHud : CanvasLayer
         for (int i = System.Math.Max(0, lines.Count - ChatLines); i < lines.Count; i++)
         {
             HubChatEntry e = lines[i];
-            sb.AppendLine(e.IsSystem ? "* " + e.Text : (e.TeamOnly ? "(team) " : e.Local ? "(near) " : string.Empty) + e.Name + ": " + e.Text);
+            if (sb.Length > 0)
+            {
+                sb.Append('\n');
+            }
+
+            sb.Append(e.IsSystem ? "* " + e.Text : (e.TeamOnly ? "(team) " : e.Local ? "(near) " : string.Empty) + e.Name + ": " + e.Text);
         }
 
         _chat.Text = sb.ToString();
@@ -333,9 +343,6 @@ public partial class HubHud : CanvasLayer
                 break;
             case Key.N:
                 client.Respawn();
-                break;
-            case Key.O:
-                Service?.Leave();
                 break;
             case Key.G:
                 OpenEmoteMenu();

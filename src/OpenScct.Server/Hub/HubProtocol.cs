@@ -106,8 +106,11 @@ public static class HubProtocol
     public static string Match(HubMatchOffer offer) => SessionProtocol.Line(Command, "match", offer.PadId, offer.Port, offer.Team, offer.Password,
         offer.Map, (int)offer.Mode, offer.Host ?? "-", offer.MasterId ?? "-");
 
-    /// <summary>Splits a hub line into its verb and fields (a name or message keeps its spaces). False for any other line.</summary>
-    public static bool TryParse(string line, out string verb, out List<string> fields)
+    /// <summary>
+    /// Splits a hub line into its verb and fields (a name or message keeps its spaces). False for any other line.
+    /// <paramref name="fromServer"/>: the line came from the hub (the client reading it); "local" has more fields that way.
+    /// </summary>
+    public static bool TryParse(string line, out string verb, out List<string> fields, bool fromServer = false)
     {
         verb = string.Empty;
         fields = new List<string>();
@@ -124,9 +127,11 @@ public static class HubProtocol
             "sign" => 10,
             "pad" => 16,
             "queue" => 3,
-            "match" => 7,
+            "match" => 8,
             "look" => 2,
             "vote" => 2,
+            "who" => 5,
+            "local" => fromServer ? 3 : 1,
             _ => 1,
         };
         if (rest.Length > 0 && SessionProtocol.TryParse(SessionProtocol.Prefix + "x " + rest, out _, out List<string> split, count))

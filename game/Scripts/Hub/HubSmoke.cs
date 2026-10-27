@@ -146,7 +146,7 @@ public sealed class HubSmoke : SmokeTest
                 }
 
                 _notes += $" switched={merc.GetType().Name} tagsShown={round.GetNodeOrNull<HubHud>("HubHud")?.TagsShown}";
-                round.GetNodeOrNull<HubHud>("HubHud")!._UnhandledInput(new InputEventKey { Keycode = Key.O, Pressed = true });
+                service.Leave();
                 return Next();
             case 6:
                 if (context.Tree.CurrentScene is not MainMenu || service.Client is not null)
