@@ -63,7 +63,7 @@ class CharsStep(Step):
         from ..charconv import export_all  # noqa: PLC0415
         from ..sources.classdb import class_db  # noqa: PLC0415
 
-        stats = export_all(ctx.game, out_dir, class_db(str(ctx.game)), jobs=ctx.jobs)
+        stats = export_all(ctx.game, out_dir, class_db(str(ctx.game)))
         failed = [f for k, v in stats.items() if isinstance(v, dict) for f in v.get("failed", [])]
         if failed:
             raise ValueError("chars failed: " + "; ".join(failed[:10]))

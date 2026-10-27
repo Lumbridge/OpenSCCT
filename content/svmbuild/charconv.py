@@ -248,42 +248,14 @@ def export_set(game: Path, package: str, meshes, out_dir: Path, db, notes, work:
     return stats
 
 
-def _export_set_job(game: str, package: str, meshes, out_dir: str) -> tuple[str, dict, dict]:
-    """One set in a worker process: its own class database and notes, its own work folder."""
-    from .sources.classdb import class_db  # noqa: PLC0415
+def export_all(game: Path, out_dir: Path, db, sets=DEFAULT_SETS) -> dict:
     from .sources.typedprops import Notes  # noqa: PLC0415
 
     notes = Notes()
-    out = Path(out_dir)
-    stats = export_set(Path(game), package, meshes, out, class_db(game), notes, out / f".work-{package}")
-    return package, stats, dict(notes.counts)
-
-
-def export_all(game: Path, out_dir: Path, db, sets=DEFAULT_SETS, jobs: int = 1) -> dict:
-    """Exports every set. With jobs > 1 the sets run in worker processes (each writes only its own <Package>/
-    folder); the result keeps the order of `sets`."""
-    from .sources.typedprops import Notes  # noqa: PLC0415
-
-    todo = [(p, m) for p, m in sets if not (p in OPTIONAL_SETS and not set_path(game, p).is_file())]
-    counts: Dict[str, int] = {}
-    done: Dict[str, dict] = {}
-    if jobs > 1 and len(todo) > 1:
-        import concurrent.futures as cf  # noqa: PLC0415
-        import multiprocessing as mp  # noqa: PLC0415
-
-        with cf.ProcessPoolExecutor(max_workers=min(jobs, len(todo)), mp_context=mp.get_context("spawn")) as pool:
-            # DEFAULT_SETS lists the big sets (characters, first-person weapons) first, so they start first.
-            futures = [pool.submit(_export_set_job, str(game), p, list(m), str(out_dir)) for p, m in todo]
-            for fut in futures:
-                package, stats, note_counts = fut.result()
-                done[package] = stats
-                for k, v in note_counts.items():
-                    counts[k] = counts.get(k, 0) + v
-    else:
-        notes = Notes()
-        for package, meshes in todo:
-            done[package] = export_set(game, package, meshes, out_dir, db, notes, out_dir / f".work-{package}")
-        counts = dict(notes.counts)
-    out = {p: done[p] for p, _ in todo}
-    out["_notes"] = dict(sorted(counts.items()))
+    out = {}
+    for package, meshes in sets:
+        if package in OPTIONAL_SETS and not set_path(game, package).is_file():
+            continue
+        out[package] = export_set(game, package, meshes, out_dir, db, notes, out_dir / ".work")
+    out["_notes"] = dict(notes.counts)
     return out
