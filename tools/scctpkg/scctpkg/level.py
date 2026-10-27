@@ -378,12 +378,16 @@ def extract_level(pkg: Package, pset: PackageSet) -> List[ActorRecord]:
             # BSP floors]. The client builds the sheets from these (SCCTEffects.cpp UpdateRainVolumes).
             wp = props.get("m_weatherProperties") if isinstance(props.get("m_weatherProperties"), dict) else {}
             size = props.get("m_RainSize")
+            # Fallbacks are the ERainVolume class defaults (maps store only what differs); m_RainFalloff has none (0 in
+            # the game, where RenderRain would divide by it): 100 here, the value every shipped volume but Stat*'s sets.
             rec.extra["rain"] = {
-                "size": list(size) if isinstance(size, (tuple, list)) and len(size) == 3 else [512.0, 512.0, 1024.0],
+                "size": list(size) if isinstance(size, (tuple, list)) and len(size) == 3 else [250.0, 250.0, 450.0],
                 "falloff": _num(props.get("m_RainFalloff"), 100.0),
-                "fade_scale": _num(props.get("m_RainFadeScale"), 0.5),
-                "distance_to_camera": _num(props.get("m_DistanceToCamera"), 150.0),
-                "thickness": _num(wp.get("m_RainThickness"), 250.0),
+                "fade_scale": _num(props.get("m_RainFadeScale"), -1.0),
+                "distance_to_camera": _num(props.get("m_DistanceToCamera"), 80.0),
+                # RenderRain draws no sheet farther than this from the camera.
+                "max_dist": _num(props.get("m_maxDistFromCamera"), 1000.0),
+                "thickness": _num(wp.get("m_RainThickness"), 80.0),
                 "mat_scale": _num(wp.get("m_RainMatScale"), 10.0),
             }
             mref = wp.get("m_RainMaterial")

@@ -27,6 +27,7 @@ public partial class FaithfulView : Node3D
     private float _fov = 90f;
     private Vector2I _projectedFor;
     private Coronas? _coronas;
+    private RainVolumes? _rain;
     private bool _cut = true;
 
     public FaithfulView()
@@ -169,6 +170,7 @@ public partial class FaithfulView : Node3D
         ArgumentNullException.ThrowIfNull(map);
         Map = map;
         _coronas = new Coronas(map, map.Root);
+        _rain = new RainVolumes(map, map.Root);
         ApplyVision();
         if (map.Lighting.SkyLocation is null)
         {
@@ -234,10 +236,14 @@ public partial class FaithfulView : Node3D
 
         UpdateEffect();
         _coronas?.Update(location, 0f, _cut);
+        _rain?.Update(location);
     }
 
     /// <summary>The coronas of the attached map, or null.</summary>
     public Coronas? Coronas => _coronas;
+
+    /// <summary>The rain volumes of the attached map, or null.</summary>
+    public RainVolumes? Rain => _rain;
 
     /// <summary>
     /// The vertical FOV of a UE FOV: FovAngle is horizontal over a 4:3 picture, and wider pictures add width (Hor+),

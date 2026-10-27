@@ -208,6 +208,7 @@ class GltfWriter:
             comb = _combine_flags(key, resolved, getattr(self, "tex_dir", None), getattr(self, "tex_uri", None))
             if comb:
                 flags["combine"] = comb
+            flags.update(_layer_flags(key, resolved, getattr(self, "tex_dir", None), getattr(self, "tex_uri", None)))
             if getattr(resolved, "env_map", False):
                 flags["env_map"] = True
                 if getattr(resolved, "env_color", None) is not None:
@@ -589,6 +590,49 @@ def _combine_flags(key: str, res: ResolvedMaterial, tex_dir: Optional[Path], tex
     return out
 
 
+def _opacity_uses_luminance(opacity) -> bool:
+    """_with_opacity's channel choice: the alpha channel when it varies, else the luminance."""
+    lo, hi = opacity.convert("RGBA").getchannel("A").getextrema()
+    return hi - lo <= 8
+
+
+def _layer_flags(key: str, res: ResolvedMaterial, tex_dir: Optional[Path], tex_uri) -> dict:
+    """Material inputs the client evaluates on their own instead of a bake (docs/RENDERING.md#materials):
+    "opacity" (+ "opacity_anim", "opacity_matrix", "opacity_lum") when the Opacity moves differently from the Diffuse;
+    "spec_mask_anim" / "spec_mask_matrix" when the SpecularityMask does; "env_texture" for a 2D env map; "flipbook" for
+    an AnimNext chain ({"texture", "cols", "rows", "frames", "fps"}); "uv_matrix", the static matrix baked into the
+    mesh UVs, which the client undoes for the separate layers (they start from the mesh's own UVs)."""
+    out: dict = {}
+    if tex_dir is None or tex_uri is None:
+        return out
+    layered = False
+    op = getattr(res, "opacity", None)
+    if getattr(res, "opacity_layer", False) and op is not None and op.image is not None:
+        uri = _texture_png(res.opacity_key or f"{key}__opl", op, tex_dir, tex_uri)
+        if uri:
+            out.update({"opacity": uri, "opacity_anim": res.opacity_anim,
+                        "opacity_matrix": list(res.opacity_matrix) if res.opacity_matrix else None,
+                        "opacity_lum": _opacity_uses_luminance(op.image)})
+            layered = True
+    if getattr(res, "spec_mask", None) is not None \
+            and (res.spec_mask_anim, res.spec_mask_matrix) != (res.uv_anim, res.uv_matrix):
+        out.update({"spec_mask_anim": res.spec_mask_anim,
+                    "spec_mask_matrix": list(res.spec_mask_matrix) if res.spec_mask_matrix else None})
+        layered = True
+    if layered and res.uv_matrix is not None:
+        out["uv_matrix"] = list(res.uv_matrix)
+    env = getattr(res, "env_texture", None)
+    if env is not None and env.image is not None:
+        uri = _texture_png(res.env_key or f"{key}__env", env, tex_dir, tex_uri)
+        if uri:
+            out["env_texture"] = uri
+    if res.flipbook:
+        fb = _flipbook_png(key, res.flipbook, tex_dir, tex_uri)
+        if fb:
+            out["flipbook"] = fb
+    return out
+
+
 def _ensure_texture(res: Optional[ResolvedMaterial], tex_dir: Path, tex_uri: Dict[str, Optional[str]]) -> Optional[str]:
     if res is None:
         return None
@@ -604,7 +648,9 @@ def _ensure_texture(res: Optional[ResolvedMaterial], tex_dir: Path, tex_uri: Dic
                 tex_uri[key] = None
         if tex_uri[key]:
             return tex_uri[key]
-    if getattr(res, "opacity", None) is not None and res.texture is not None and res.texture.image is not None             and res.opacity.image is not None:
+    # A separately moving Opacity (opacity_layer) is not baked: the client samples it on its own (_layer_flags).
+    if getattr(res, "opacity", None) is not None and res.texture is not None and res.texture.image is not None \
+            and res.opacity.image is not None and not getattr(res, "opacity_layer", False):
         key = f"{res.key}__op"
         if key not in tex_uri:
             fname = _safe(key) + ".png"

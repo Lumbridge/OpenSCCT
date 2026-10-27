@@ -3,7 +3,7 @@
 // the end. The includer sets render_mode and one define of each group:
 //   light:  LIGHT_LIGHTMAP | LIGHT_VERTEX | LIGHT_ACTOR | (none: fullbright)
 //   blend:  BLEND_MASKED | BLEND_TRANSLUCENT | BLEND_ADDITIVE | BLEND_MODULATE | BLEND_DARKEN | (none: opaque)
-//   extras: SELF_ILLUM, SELF_ILLUM_MASK, ENV_COLOR, UV_ANIM
+//   extras: SELF_ILLUM, SELF_ILLUM_MASK, ENV_COLOR (+ ENV_TEX, SPEC_LAYER), UV_ANIM, OPACITY_LAYER, COMBINE, FLIPBOOK
 // Textures are sampled raw (no sRGB decode): they hold display values like the original's.
 // Vision modes (global svm_vision = PlayerController.RendMap, docs/RENDERING.md#vision-modes) replace the output:
 //   36 thermal: the Z pass, (0, heat, 1 - viewZ / 5000); translucent surfaces blend (0, 0, fade) by alpha x HeatOpacity
@@ -70,6 +70,18 @@ uniform sampler2D tex_self_illum_mask : filter_linear_mipmap_anisotropic, repeat
 #ifdef ENV_COLOR
 uniform sampler2D tex_spec_mask : filter_linear_mipmap_anisotropic, repeat_enable, hint_default_white;
 uniform vec3 env_color = vec3(0.0);
+#ifdef ENV_TEX
+// The env map's own texture, looked up by the camera-space reflection like the EMF scene (0.25 R.xy + 0.5).
+uniform sampler2D tex_env : filter_linear, repeat_enable, hint_default_black;
+#endif
+#ifdef SPEC_LAYER
+// The SpecularityMask's own modifiers (layer layout below).
+uniform int sm_anim_type = 0;
+uniform vec4 sm_anim_a = vec4(0.0);
+uniform vec4 sm_anim_b = vec4(0.0);
+uniform vec3 sm_row_u = vec3(1.0, 0.0, 0.0);
+uniform vec3 sm_row_v = vec3(0.0, 1.0, 0.0);
+#endif
 #endif
 
 #ifdef UV_ANIM
@@ -79,6 +91,54 @@ uniform int uv_anim_type = 0;
 uniform vec4 uv_anim_a = vec4(0.0);
 uniform vec4 uv_anim_b = vec4(0.0);
 uniform vec2 tex_size = vec2(256.0);
+#endif
+
+// Separate layers (UE2 transforms each Shader / Combiner input by its own modifier chain): each has an animation of the
+// UV_ANIM layout and a static transform (rows dotted with (u, v, 1)). They start from the mesh's own UVs: base_row_u / v
+// undo the static transform the exporter baked into the UVs for the Diffuse.
+#if defined(OPACITY_LAYER) || defined(SPEC_LAYER)
+uniform vec3 base_row_u = vec3(1.0, 0.0, 0.0);
+uniform vec3 base_row_v = vec3(0.0, 1.0, 0.0);
+#endif
+
+#ifdef OPACITY_LAYER
+uniform sampler2D tex_opacity : filter_linear_mipmap_anisotropic, repeat_enable, hint_default_white;
+uniform int op_anim_type = 0;
+uniform vec4 op_anim_a = vec4(0.0);
+uniform vec4 op_anim_b = vec4(0.0);
+uniform vec3 op_row_u = vec3(1.0, 0.0, 0.0);
+uniform vec3 op_row_v = vec3(0.0, 1.0, 0.0);
+// 1: the opacity is the texture's luminance (its alpha is flat), as the exporter's opacity bake picks.
+uniform int op_lum = 0;
+#endif
+
+#ifdef COMBINE
+// UE2 Combiner: tex_diffuse is Material1, tex_c2 Material2, tex_cmask the Mask (Material1 when cmask_on is 0).
+// combine = (CombineOperation, AlphaOperation, Modulate 1/2/4, InvertMask).
+uniform sampler2D tex_c2 : filter_linear_mipmap_anisotropic, repeat_enable, hint_default_white;
+uniform sampler2D tex_cmask : filter_linear_mipmap_anisotropic, repeat_enable, hint_default_white;
+uniform int cmask_on = 0;
+uniform ivec4 combine = ivec4(0, 0, 1, 0);
+uniform int c1_anim_type = 0;
+uniform vec4 c1_anim_a = vec4(0.0);
+uniform vec4 c1_anim_b = vec4(0.0);
+uniform vec3 c1_row_u = vec3(1.0, 0.0, 0.0);
+uniform vec3 c1_row_v = vec3(0.0, 1.0, 0.0);
+uniform int c2_anim_type = 0;
+uniform vec4 c2_anim_a = vec4(0.0);
+uniform vec4 c2_anim_b = vec4(0.0);
+uniform vec3 c2_row_u = vec3(1.0, 0.0, 0.0);
+uniform vec3 c2_row_v = vec3(0.0, 1.0, 0.0);
+uniform int cm_anim_type = 0;
+uniform vec4 cm_anim_a = vec4(0.0);
+uniform vec4 cm_anim_b = vec4(0.0);
+uniform vec3 cm_row_u = vec3(1.0, 0.0, 0.0);
+uniform vec3 cm_row_v = vec3(0.0, 1.0, 0.0);
+#endif
+
+#ifdef FLIPBOOK
+// Texture.AnimNext chain as an atlas (tex_diffuse): x columns, y rows, z frames, w frames per second.
+uniform vec4 flipbook = vec4(1.0, 1.0, 1.0, 30.0);
 #endif
 
 #ifdef LIGHT_ACTOR
@@ -220,30 +280,88 @@ void vertex() {
 #endif
 }
 
+// One animated texture modifier (the UV_ANIM layout) at the scene time.
+vec2 svm_anim(vec2 uv, int type, vec4 a, vec4 b, vec2 size) {
+	float t = svm_time;
+	if (type == 1) {
+		uv += a.xy * a.z * t;
+	} else if (type == 2) {
+		// OT_Pan wobbles the coordinate; the stretch types scale about the middle.
+		float su = a.x * sin(6.2831853 * a.y * t);
+		float sv = b.x * sin(6.2831853 * b.y * t);
+		uv.x = a.z >= 1.0 ? (uv.x - 0.5) * (1.0 + su) + 0.5 : uv.x + su;
+		uv.y = b.z >= 1.0 ? (uv.y - 0.5) * (1.0 + sv) + 0.5 : uv.y + sv;
+	} else if (type == 3) {
+		vec2 pivot = a.zw / size;
+		float r = a.x * t;
+		vec2 d = uv - pivot;
+		uv = pivot + vec2(d.x * cos(r) - d.y * sin(r), d.x * sin(r) + d.y * cos(r));
+	}
+	return uv;
+}
+
+// A static texture transform: rows dotted with (u, v, 1).
+vec2 svm_affine(vec2 uv, vec3 row_u, vec3 row_v) {
+	vec3 h = vec3(uv, 1.0);
+	return vec2(dot(row_u, h), dot(row_v, h));
+}
+
 vec2 svm_uv(vec2 uv) {
 #ifdef UV_ANIM
-	float t = svm_time;
-	if (uv_anim_type == 1) {
-		uv += uv_anim_a.xy * uv_anim_a.z * t;
-	} else if (uv_anim_type == 2) {
-		// OT_Pan wobbles the coordinate; the stretch types scale about the middle.
-		float su = uv_anim_a.x * sin(6.2831853 * uv_anim_a.y * t);
-		float sv = uv_anim_b.x * sin(6.2831853 * uv_anim_b.y * t);
-		uv.x = uv_anim_a.z >= 1.0 ? (uv.x - 0.5) * (1.0 + su) + 0.5 : uv.x + su;
-		uv.y = uv_anim_b.z >= 1.0 ? (uv.y - 0.5) * (1.0 + sv) + 0.5 : uv.y + sv;
-	} else if (uv_anim_type == 3) {
-		vec2 pivot = uv_anim_a.zw / tex_size;
-		float a = uv_anim_a.x * t;
-		vec2 d = uv - pivot;
-		uv = pivot + vec2(d.x * cos(a) - d.y * sin(a), d.x * sin(a) + d.y * cos(a));
-	}
+	uv = svm_anim(uv, uv_anim_type, uv_anim_a, uv_anim_b, tex_size);
 #endif
 	return uv;
 }
 
 void fragment() {
 	vec2 uv = svm_uv(UV);
+#if defined(OPACITY_LAYER) || defined(SPEC_LAYER)
+	vec2 raw_uv = svm_affine(UV, base_row_u, base_row_v);
+#endif
+#if defined(COMBINE)
+	// Each input through its own modifiers (after the Combiner's own), then CombineOperation / AlphaOperation.
+	vec2 uv1 = svm_anim(svm_affine(uv, c1_row_u, c1_row_v), c1_anim_type, c1_anim_a, c1_anim_b, vec2(textureSize(tex_diffuse, 0)));
+	vec2 uv2 = svm_anim(svm_affine(uv, c2_row_u, c2_row_v), c2_anim_type, c2_anim_a, c2_anim_b, vec2(textureSize(tex_c2, 0)));
+	vec4 m1 = texture(tex_diffuse, uv1, svm_mip_bias);
+	vec4 m2 = texture(tex_c2, uv2, svm_mip_bias);
+	vec4 mk = m1;
+	if (cmask_on != 0) {
+		vec2 uvm = svm_anim(svm_affine(uv, cm_row_u, cm_row_v), cm_anim_type, cm_anim_a, cm_anim_b, vec2(textureSize(tex_cmask, 0)));
+		mk = texture(tex_cmask, uvm, svm_mip_bias);
+	}
+	float ma = combine.w != 0 ? 1.0 - mk.a : mk.a;
+	vec3 crgb = m1.rgb;
+	if (combine.x == 1) {
+		crgb = m2.rgb;
+	} else if (combine.x == 2) {
+		crgb = m1.rgb * m2.rgb;
+	} else if (combine.x == 3) {
+		crgb = m1.rgb + m2.rgb;
+	} else if (combine.x == 4) {
+		crgb = m1.rgb - m2.rgb;
+	} else if (combine.x == 5) {
+		crgb = mix(m2.rgb, m1.rgb, ma);
+	} else if (combine.x == 6) {
+		crgb = m1.rgb + m2.rgb * ma;
+	} else if (combine.x == 7) {
+		crgb = mk.rgb;
+	}
+	float ca = combine.y == 1 ? m1.a * m2.a : combine.y == 2 ? m1.a + m2.a : combine.y == 3 ? m1.a : combine.y == 4 ? m2.a : ma;
+	vec4 t = clamp(vec4(crgb * float(combine.z), ca), 0.0, 1.0);
+#elif defined(FLIPBOOK)
+	// The frame of the scene time, one atlas cell; gradients from the tiled UVs keep the mip level across cell edges.
+	float frame = mod(floor(svm_time * flipbook.w), flipbook.z);
+	vec2 cell = vec2(mod(frame, flipbook.x), floor(frame / flipbook.x));
+	vec2 fuv = (fract(uv) + cell) / flipbook.xy;
+	vec4 t = textureGrad(tex_diffuse, fuv, dFdx(uv) / flipbook.xy, dFdy(uv) / flipbook.xy);
+#else
 	vec4 t = texture(tex_diffuse, uv, svm_mip_bias);
+#endif
+#ifdef OPACITY_LAYER
+	vec2 opuv = svm_anim(svm_affine(raw_uv, op_row_u, op_row_v), op_anim_type, op_anim_a, op_anim_b, vec2(textureSize(tex_opacity, 0)));
+	vec4 op = texture(tex_opacity, opuv, svm_mip_bias);
+	t.a = op_lum != 0 ? dot(op.rgb, vec3(0.299, 0.587, 0.114)) : op.a;
+#endif
 	if (svm_tint.a > 0.0) {
 		const vec3 luma = vec3(0.3, 0.59, 0.11);
 		vec3 recolour = svm_tint.rgb * (dot(t.rgb, luma) / max(dot(svm_tint.rgb, luma), 0.05));
@@ -282,7 +400,18 @@ void fragment() {
 	c = mix(c, glow, m);
 #endif
 #ifdef ENV_COLOR
-	c = min(c + env_color * texture(tex_spec_mask, uv).a, vec3(1.0));
+#ifdef SPEC_LAYER
+	vec2 smuv = svm_anim(svm_affine(raw_uv, sm_row_u, sm_row_v), sm_anim_type, sm_anim_a, sm_anim_b, vec2(textureSize(tex_spec_mask, 0)));
+#else
+	vec2 smuv = uv;
+#endif
+#ifdef ENV_TEX
+	vec3 er = reflect(normalize(VERTEX), normalize(NORMAL));
+	vec3 env_added = texture(tex_env, er.xy * 0.25 + 0.5).rgb;
+#else
+	vec3 env_added = env_color;
+#endif
+	c = min(c + env_added * texture(tex_spec_mask, smuv).a, vec3(1.0));
 #endif
 	if (svm_sheen > 0.0) {
 		// Polished metal or lacquer: mostly a fake studio reflection of the texture (dark floor, bright sky, a hot strip
