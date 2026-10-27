@@ -21,6 +21,11 @@ using OpenScct.Launcher.Versioning;
 
 namespace OpenScct.Launcher.App;
 
+/// <summary>
+/// The launcher window, laid out as the three steps a player goes through: find Splinter Cell Chaos Theory, download
+/// OpenSCCT, prepare the game files from their copy. One big button always does the next thing and becomes PLAY when
+/// everything is ready. Less common actions (what's new, check again, roll back, settings) are in the row below it.
+/// </summary>
 internal sealed class MainForm : Form
 {
     private static readonly HttpClient Http = new(new SocketsHttpHandler
@@ -34,6 +39,19 @@ internal sealed class MainForm : Form
         Timeout = TimeSpan.FromSeconds(60),
     };
 
+    /// <summary>What the big button does now.</summary>
+    private enum NextAction
+    {
+        None,
+        ChooseGame,
+        Check,
+        Install,
+        Update,
+        Prepare,
+        Play,
+        Cancel,
+    }
+
     private readonly LauncherLayout _layout = new(LauncherLayout.DefaultRoot);
     private readonly VersionStore _store;
     private readonly TokenStore _tokens;
@@ -45,24 +63,27 @@ internal sealed class MainForm : Form
     private UpdateCheck? _lastCheck;
     private CancellationTokenSource? _work;
     private bool _buildingContent;
+    private NextAction _next;
+    private string _notesTitle = "What's new";
+    private string _notesText = "Checking for releases...";
     private Control? _root;
 
-    private readonly Label _installedValue = Theme.Label("-", Theme.Heading, Theme.Accent);
-    private readonly Label _latestValue = Theme.Label("-", Theme.Heading);
-    private readonly Label _status = Theme.Label("Ready.", Theme.Body, Theme.Muted);
-    private readonly Label _notesHeading = Theme.Label("Release notes", Theme.Heading);
-    private readonly TextBox _notes = Theme.TextBox();
-    private readonly Label _contentInfo = Theme.Label(string.Empty, Theme.Small, Theme.Muted);
+    private readonly Button _changeGame = Theme.Button("Change...");
+    private readonly Button _rebuild = Theme.Button("Rebuild");
+    private readonly StepCard _gameStep;
+    private readonly StepCard _installStep;
+    private readonly StepCard _filesStep;
     private readonly GreenProgressBar _progress = new();
     private readonly Label _progressText = Theme.Label(string.Empty, Theme.Small, Theme.Muted);
-    private readonly Button _play = Theme.Button("PLAY", primary: true);
-    private readonly Button _update = Theme.Button("Update");
+    private readonly Button _main = Theme.Button("PLAY", primary: true);
+    private readonly Label _status = Theme.Label(string.Empty, Theme.Body, Theme.Muted);
+    private readonly Button _whatsNew = Theme.Button("What's new");
     private readonly Button _check = Theme.Button("Check for updates");
     private readonly Button _rollback = Theme.Button("Roll back");
     private readonly Button _settingsButton = Theme.Button("Settings");
-    private readonly Button _contentButton = Theme.Button("Build content");
-    private readonly Button _launcherButton = Theme.Button("Update launcher");
-    private readonly Label _launcherInfo = Theme.Label(string.Empty, Theme.Small, Theme.Warning);
+    private readonly TableLayoutPanel _launcherBanner = Theme.Grid(Theme.Fill, Theme.Auto);
+    private readonly Label _launcherInfo = Theme.Label(string.Empty, Theme.Body, Theme.Warning);
+    private readonly Button _launcherButton = Theme.Button("Restart to finish");
     private readonly System.Windows.Forms.Timer _pendingTimer = new() { Interval = 3000 };
 
     public MainForm()
@@ -78,6 +99,10 @@ internal sealed class MainForm : Form
 
         string? info = Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
         _launcherVersion = SemVersion.TryParse(info, out SemVersion? v) ? v : null;
+
+        _gameStep = new StepCard(1, "Find Splinter Cell Chaos Theory", _changeGame);
+        _installStep = new StepCard(2, "Download OpenSCCT");
+        _filesStep = new StepCard(3, "Prepare the game files", _rebuild);
 
         BuildUi();
         _pendingTimer.Tick += (_, _) => OnPendingTick();
@@ -96,8 +121,8 @@ internal sealed class MainForm : Form
         Icon = Theme.LoadIcon(32);
         AutoScaleMode = AutoScaleMode.Dpi;
         AutoScaleDimensions = new SizeF(96f, 96f);
-        ClientSize = new Size(820, 600);
-        MinimumSize = new Size(640, 520);
+        ClientSize = new Size(720, 520);
+        MinimumSize = new Size(600, 480);
         FormBorderStyle = FormBorderStyle.Sizable;
         StartPosition = FormStartPosition.CenterScreen;
         BackColor = Theme.Background;
@@ -117,94 +142,65 @@ internal sealed class MainForm : Form
         };
         Label title = Theme.Label("OpenSCCT", Theme.Title, Theme.Accent);
         Label subtitle = Theme.Label("Splinter Cell Chaos Theory Versus, rebuilt", Theme.Small, Theme.Muted);
-        Label launcherVersion = Theme.Label("Launcher " + (_launcherVersion?.ToString() ?? "dev"), Theme.Small, Theme.Muted);
-        launcherVersion.Margin = new Padding(0, 10, 12, 0);
-        TableLayoutPanel header = Theme.Grid(Theme.Auto, Theme.Fill, Theme.Auto);
-        FlowLayoutPanel headerRight = Theme.Flow(false, launcherVersion, _settingsButton);
-        headerRight.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-        Theme.AddRow(header, logo, Theme.Flow(true, title, subtitle), headerRight);
+        TableLayoutPanel header = Theme.Grid(Theme.Auto, Theme.Fill);
+        Theme.AddRow(header, logo, Theme.Flow(true, title, subtitle));
+        header.Margin = new Padding(0, 0, 0, 4);
 
-        Label installedLabel = Theme.Label("Installed", Theme.Small, Theme.Muted);
-        Label latestLabel = Theme.Label("Latest release", Theme.Small, Theme.Muted);
-        _launcherInfo.Visible = false;
-        _launcherButton.Visible = false;
-        TableLayoutPanel info = Theme.Grid(Theme.Auto, Theme.Auto, Theme.Fill);
-        info.BackColor = Theme.Panel;
-        info.Padding = new Padding(14, 8, 14, 8);
-        info.Margin = new Padding(0, 12, 0, 0);
-        FlowLayoutPanel installed = Theme.Flow(true, installedLabel, _installedValue);
-        installed.Margin = new Padding(0, 0, 40, 0);
-        FlowLayoutPanel launcherUpdate = Theme.Flow(true, _launcherInfo, _launcherButton);
-        launcherUpdate.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-        Theme.AddRow(info, installed, Theme.Flow(true, latestLabel, _latestValue), launcherUpdate);
-
-        _notesHeading.Margin = new Padding(0, 12, 0, 4);
-        _notes.Multiline = true;
-        _notes.ReadOnly = true;
-        _notes.ScrollBars = ScrollBars.Vertical;
-        _notes.WordWrap = true;
-        _notes.Dock = DockStyle.Fill;
-        _notes.MinimumSize = new Size(0, 90);
-        _notes.Text = "Checking for releases...";
-
-        Label contentTitle = Theme.Label("Build game content from your install", Theme.Heading);
-        TableLayoutPanel content = Theme.Grid(Theme.Fill, Theme.Auto);
-        content.BackColor = Theme.Panel;
-        content.Padding = new Padding(14, 8, 14, 8);
-        content.Margin = new Padding(0, 10, 0, 0);
-        _contentButton.Anchor = AnchorStyles.Right;
-        _contentButton.Margin = new Padding(12, 0, 0, 0);
-        TableLayoutPanel contentText = Theme.Grid(Theme.Fill);
-        Theme.AddRow(contentText, contentTitle);
-        Theme.AddRow(contentText, Theme.Wrapping(_contentInfo));
-        Theme.AddRow(content, contentText, _contentButton);
+        // A launcher update waiting for a restart: a banner above the steps.
+        _launcherBanner.BackColor = Theme.Panel;
+        _launcherBanner.Padding = new Padding(14, 8, 14, 8);
+        _launcherBanner.Margin = new Padding(0, 8, 0, 0);
+        _launcherBanner.Visible = false;
+        _launcherButton.Anchor = AnchorStyles.Right;
+        Theme.AddRow(_launcherBanner, Theme.Wrapping(_launcherInfo), _launcherButton);
 
         _progress.Visible = false;
         _progress.Anchor = AnchorStyles.Left | AnchorStyles.Right;
-        _progress.Margin = new Padding(0, 10, 0, 2);
+        _progress.Margin = new Padding(0, 14, 0, 2);
         Theme.Wrapping(_progressText);
 
-        _play.Anchor = AnchorStyles.Right | AnchorStyles.Top;
-        TableLayoutPanel actions = Theme.Grid(Theme.Fill, Theme.Auto);
-        actions.Margin = new Padding(0, 10, 0, 0);
-        FlowLayoutPanel buttons = Theme.Flow(false, _update, _check, _rollback);
-        buttons.Anchor = AnchorStyles.Left | AnchorStyles.Top;
-        Theme.AddRow(actions, buttons, _play);
+        // The big button on the right, the status line next to it.
+        _main.Anchor = AnchorStyles.Right | AnchorStyles.Top;
         Theme.Wrapping(_status);
-        _status.Margin = new Padding(0, 6, 0, 0);
+        _status.Margin = new Padding(0, 8, 16, 0);
+        TableLayoutPanel actions = Theme.Grid(Theme.Fill, Theme.Auto);
+        actions.Margin = new Padding(0, 14, 0, 0);
+        Theme.AddRow(actions, _status, _main);
 
-        var root = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, BackColor = Color.Transparent, AutoScroll = true };
+        // The less common actions, small, along the bottom edge.
+        Label version = Theme.Label("Launcher " + (_launcherVersion?.ToString() ?? "dev"), Theme.Small, Theme.Muted);
+        version.Anchor = AnchorStyles.Right;
+        TableLayoutPanel more = Theme.Grid(Theme.Fill, Theme.Auto);
+        more.Dock = DockStyle.Bottom;
+        more.Padding = new Padding(0, 12, 0, 0);
+        Theme.AddRow(more, Theme.Flow(false, _whatsNew, _check, _rollback, _settingsButton), version);
+
+        var root = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, BackColor = Color.Transparent };
         root.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100f));
-        foreach (Control row in new Control[] { header, info, _notesHeading, _notes, content, _progress, _progressText, actions, _status })
+        foreach (Control row in new Control[] { header, _launcherBanner, _gameStep, _installStep, _filesStep, _progress, _progressText, actions })
         {
             int r = root.RowCount++;
-            root.RowStyles.Add(ReferenceEquals(row, _notes) ? new RowStyle(SizeType.Percent, 100f) : new RowStyle(SizeType.AutoSize));
+            root.RowStyles.Add(new RowStyle(SizeType.AutoSize));
             root.Controls.Add(row, 0, r);
         }
 
         Controls.Add(root);
+        Controls.Add(more);
         _root = root;
 
         var tips = new ToolTip();
-        tips.SetToolTip(_rollback, "Switch back to the version installed before the last update.");
-        tips.SetToolTip(_contentButton, "Converts maps, characters, UI and sounds from your own install. Nothing is downloaded.");
+        tips.SetToolTip(_changeGame, "Pick the folder you installed Splinter Cell Chaos Theory in.");
+        tips.SetToolTip(_rebuild, "Prepare the game files again from your copy, for example if a map looks wrong.");
+        tips.SetToolTip(_rollback, "Go back to the version you had before the last update.");
 
-        _play.Click += (_, _) => Play();
-        _update.Click += async (_, _) => await RunAsync(UpdateGameAsync);
+        _main.Click += async (_, _) => await DoNextAsync();
+        _changeGame.Click += (_, _) => ChooseGameFolder();
+        _rebuild.Click += async (_, _) => await RunAsync(BuildContentAsync);
+        _whatsNew.Click += (_, _) => ShowWhatsNew();
         _check.Click += async (_, _) => await RunAsync(CheckAsync);
         _rollback.Click += (_, _) => Rollback();
         _settingsButton.Click += (_, _) => OpenSettings();
         _launcherButton.Click += async (_, _) => await RunAsync(UpdateLauncherAsync);
-        _contentButton.Click += async (_, _) =>
-        {
-            if (_buildingContent)
-            {
-                _work?.Cancel();
-                return;
-            }
-
-            await RunAsync(BuildContentAsync);
-        };
     }
 
     protected override void OnLoad(EventArgs e)
@@ -229,13 +225,13 @@ internal sealed class MainForm : Form
         }
         else
         {
-            _notes.Text = "Update checks on start are off. Use Check for updates.";
+            _notesText = "Update checks on start are off. Use Check for updates.";
         }
     }
 
     /// <summary>
     /// The player's Chaos Theory Versus folder, found without asking (their Steam libraries, then common folders)
-    /// when none is set or the set one is gone. Settings can still pick another.
+    /// when none is set or the set one is gone. Step 1's Change button can still pick another.
     /// </summary>
     private void FindGameIfUnset()
     {
@@ -254,7 +250,6 @@ internal sealed class MainForm : Form
         {
             _settings.OriginalGamePath = found;
             _settings.Save(_layout.Settings);
-            SetStatus("Found Splinter Cell Chaos Theory: " + found, Theme.Muted);
         }
     }
 
@@ -265,94 +260,238 @@ internal sealed class MainForm : Form
         base.OnFormClosing(e);
     }
 
+    // ---- the steps ---------------------------------------------------------------------------------------------
+
+    private bool GameFound => ContentBuildPlan.LooksLikeOriginalInstall(_settings.OriginalGamePath ?? string.Empty);
+
     private void RefreshLocal()
     {
         SemVersion? current = _store.Current();
-        SemVersion? pending = _store.Pending();
-        _installedValue.Text = current?.ToString() ?? "Not installed";
-        if (pending is not null)
-        {
-            _installedValue.Text += $"  ({pending} after the game closes)";
-        }
-
         bool busy = _work is not null;
-        _play.Enabled = current is not null && !busy;
+
+        RefreshGameStep();
+        RefreshInstallStep(current);
+        RefreshFilesStep(current, busy);
+
+        _changeGame.Enabled = !busy;
         _rollback.Enabled = _store.Previous() is not null && !busy;
         _check.Enabled = !busy;
         _settingsButton.Enabled = !busy;
-        _update.Enabled = !busy && _lastCheck is { GameUpdateAvailable: true };
-        _update.Text = _lastCheck is { GameUpdateAvailable: true, Latest: { } latest }
-            ? (current is null ? "Install " : "Update to ") + latest.Version
-            : "Up to date";
-        if (_lastCheck is null)
-        {
-            _update.Text = "Update";
-        }
-
         _launcherButton.Enabled = !busy;
         if (_swap is { HasStaged: true })
         {
-            _launcherInfo.Text = "A launcher update is ready.";
-            _launcherInfo.Visible = true;
-            _launcherButton.Text = "Restart to finish";
-            _launcherButton.Visible = true;
+            _launcherInfo.Text = "A new version of this launcher is ready.";
+            _launcherBanner.Visible = true;
         }
 
-        RefreshContent(current, busy);
+        RefreshMainButton(current, busy);
     }
 
-    /// <summary>The content step's line and button: what is built, from where, and whether it needs building.</summary>
-    private void RefreshContent(SemVersion? current, bool busy)
+    private void RefreshGameStep()
     {
-        if (_buildingContent)
-        {
-            _contentButton.Text = "Stop";
-            _contentButton.Enabled = true;
-            return;
-        }
-
         string game = _settings.OriginalGamePath ?? string.Empty;
-        ContentState? state = ContentState.Load(_layout.Content);
-        bool validGame = ContentBuildPlan.LooksLikeOriginalInstall(game);
-        bool hasBuilder = current is not null && ContentBuildPlan.Python(_layout.VersionDir(current.ToString())) is not null;
-        _contentButton.Enabled = !busy && validGame && hasBuilder;
-        _contentButton.Text = state is { Ok: true } ? (ContentIsCurrent(current) ? "Rebuild" : "Update content") : "Build content";
-        if (game.Length == 0)
+        if (GameFound)
         {
-            _contentInfo.Text = "Splinter Cell Chaos Theory was not found. Install it from Steam, or pick its folder in Settings.";
+            _gameStep.Set(StepState.Done, "Found: " + game);
+            _changeGame.Text = "Change...";
         }
-        else if (!validGame)
+        else if (game.Length == 0)
         {
-            _contentInfo.Text = "Not an SCCT install (no System and Packages folders): " + game;
-        }
-        else if (current is null)
-        {
-            _contentInfo.Text = "Install the game first. Install: " + game;
-        }
-        else if (!hasBuilder)
-        {
-            _contentInfo.Text = $"OpenSCCT {current} has no content builder; update the game.";
-        }
-        else if (state is null)
-        {
-            _contentInfo.Text = "Not built yet (takes a while the first time). Install: " + game;
-        }
-        else if (!state.Ok)
-        {
-            _contentInfo.Text = $"The last build did not finish ({state.Failed} failed). Build again to resume.";
+            _gameStep.Set(StepState.Problem, "Not found on this PC. Install it from Steam, or choose the folder you installed it in.");
+            _changeGame.Text = "Choose folder...";
         }
         else
         {
-            string builtIn = ContentBuildPlan.Languages.FirstOrDefault(l => l.Code == ContentBuildPlan.NormaliseLanguage(state.Language)).Name ?? "English";
-            _contentInfo.Text = (ContentIsCurrent(current) ? $"Built in {builtIn}"
-                : state.Version == current.ToString() ? $"Built in {builtIn}; build again for the language picked in Settings"
-                : $"Built with {state.Version}; update for {current}") +
-                $": {state.Maps} maps, {state.FinishedAt.ToLocalTime().ToString("g", CultureInfo.CurrentCulture)}.";
+            _gameStep.Set(StepState.Problem, "This folder is not a Splinter Cell Chaos Theory install: " + game);
+            _changeGame.Text = "Choose folder...";
         }
+    }
+
+    private void RefreshInstallStep(SemVersion? current)
+    {
+        SemVersion? pending = _store.Pending();
+        VersionedRelease? latest = _lastCheck?.Latest;
+        bool update = _lastCheck is { GameUpdateAvailable: true };
+        if (pending is not null)
+        {
+            _installStep.Set(StepState.Done, $"Version {pending} is ready and starts the next time you play.");
+        }
+        else if (current is not null && update && latest is not null)
+        {
+            _installStep.Set(StepState.Todo, $"Version {current} is installed. Version {latest.Version} is available.");
+        }
+        else if (current is not null)
+        {
+            _installStep.Set(StepState.Done, $"Version {current} is installed and up to date.");
+        }
+        else if (_lastCheck is null)
+        {
+            _installStep.Set(StepState.Todo, _work is not null
+                ? "Looking for the latest version..."
+                : "Press Check for updates to find the latest version.");
+        }
+        else if (latest is not null)
+        {
+            _installStep.Set(StepState.Todo, $"Not installed yet. Version {latest.Version} is ready to download.");
+        }
+        else
+        {
+            _installStep.Set(StepState.Problem, "No download found yet. Check your internet connection, then press Check again.");
+        }
+    }
+
+    private void RefreshFilesStep(SemVersion? current, bool busy)
+    {
+        ContentState? state = ContentState.Load(_layout.Content);
+        bool hasBuilder = current is not null && ContentBuildPlan.Python(_layout.VersionDir(current.ToString())) is not null;
+        _rebuild.Visible = state is { Ok: true } && !_buildingContent;
+        _rebuild.Enabled = !busy && GameFound && hasBuilder;
+        if (_buildingContent)
+        {
+            _filesStep.Set(StepState.Todo, "Converting the maps, characters and sounds from your copy...");
+        }
+        else if (!GameFound || current is null)
+        {
+            _filesStep.Set(StepState.Waiting, "Made from your own copy of the game once steps 1 and 2 are done. Nothing is downloaded.");
+        }
+        else if (!hasBuilder)
+        {
+            _filesStep.Set(StepState.Problem, $"Version {current} cannot prepare game files. Update OpenSCCT (step 2).");
+        }
+        else if (state is null)
+        {
+            _filesStep.Set(StepState.Todo, "Converts the maps, characters and sounds from your copy. Takes a few minutes the first time.");
+        }
+        else if (!state.Ok)
+        {
+            _filesStep.Set(StepState.Problem, "The last run did not finish. Run it again to carry on where it stopped.");
+        }
+        else if (!ContentIsCurrent(current))
+        {
+            _filesStep.Set(StepState.Todo, state.Version == current.ToString()
+                ? "Your language changed in Settings. Prepare the game files again to use it."
+                : "OpenSCCT was updated. The game files need a quick refresh.");
+        }
+        else
+        {
+            string language = ContentBuildPlan.Languages.FirstOrDefault(l => l.Code == ContentBuildPlan.NormaliseLanguage(state.Language)).Name ?? "English";
+            _filesStep.Set(StepState.Done, $"Ready: {state.Maps} maps, in {language}.");
+        }
+    }
+
+    /// <summary>The big button: the next thing to do, or PLAY.</summary>
+    private void RefreshMainButton(SemVersion? current, bool busy)
+    {
+        (NextAction next, string text, bool enabled) = busy
+            ? (NextAction.Cancel, _buildingContent ? "Stop" : "Cancel", true)
+            : !GameFound
+                ? (NextAction.ChooseGame, "Choose game folder", true)
+                : current is null
+                    ? _lastCheck is { Latest: not null, GameUpdateAvailable: true }
+                        ? (NextAction.Install, "Install", true)
+                        : (NextAction.Check, _lastCheck is null ? "Check for updates" : "Check again", true)
+                    : _lastCheck is { GameUpdateAvailable: true }
+                        ? (NextAction.Update, "Update", true)
+                        : !ContentIsCurrent(current)
+                            ? (NextAction.Prepare, "Prepare game files", ContentBuildPlan.Python(_layout.VersionDir(current.ToString())) is not null)
+                            : (NextAction.Play, "PLAY", true);
+        _next = next;
+        _check.Visible = next != NextAction.Check;
+        _main.Text = text;
+        _main.Enabled = enabled;
+    }
+
+    private async Task DoNextAsync()
+    {
+        switch (_next)
+        {
+            case NextAction.Cancel:
+                _work?.Cancel();
+                break;
+            case NextAction.ChooseGame:
+                ChooseGameFolder();
+                break;
+            case NextAction.Check:
+                await RunAsync(CheckAsync);
+                break;
+            case NextAction.Install:
+            case NextAction.Update:
+                await RunAsync(UpdateGameAsync);
+                break;
+            case NextAction.Prepare:
+                await RunAsync(BuildContentAsync);
+                break;
+            case NextAction.Play:
+                Play();
+                break;
+        }
+    }
+
+    private void ChooseGameFolder()
+    {
+        using var dialog = new FolderBrowserDialog
+        {
+            Description = "Choose the folder you installed Splinter Cell Chaos Theory in",
+            UseDescriptionForTitle = true,
+            ShowNewFolderButton = false,
+        };
+        if (Directory.Exists(_settings.OriginalGamePath))
+        {
+            dialog.InitialDirectory = _settings.OriginalGamePath;
+        }
+
+        if (dialog.ShowDialog(this) != DialogResult.OK)
+        {
+            return;
+        }
+
+        if (GameLocator.Normalize(dialog.SelectedPath) is not { } versus)
+        {
+            SetStatus("That folder does not have Splinter Cell Chaos Theory in it. Pick the folder with the Versus folder inside.", Theme.Warning);
+            return;
+        }
+
+        bool changed = !string.Equals(versus, _settings.OriginalGamePath, StringComparison.OrdinalIgnoreCase);
+        _settings.OriginalGamePath = versus;
+        _settings.Save(_layout.Settings);
+        SetStatus(changed ? "Game folder saved." : "That is the folder already in use.", Theme.Accent);
+        RefreshLocal();
+    }
+
+    private void ShowWhatsNew()
+    {
+        using var dialog = new Form
+        {
+            Text = _notesTitle,
+            Icon = Icon,
+            StartPosition = FormStartPosition.CenterParent,
+            ClientSize = new Size(560, 420),
+            BackColor = Theme.Background,
+            ForeColor = Theme.Text,
+            Font = Theme.Body,
+            AutoScaleMode = AutoScaleMode.Dpi,
+            AutoScaleDimensions = new SizeF(96f, 96f),
+            MinimizeBox = false,
+            MaximizeBox = false,
+            ShowInTaskbar = false,
+            Padding = new Padding(16),
+        };
+        TextBox notes = Theme.TextBox();
+        notes.Multiline = true;
+        notes.ReadOnly = true;
+        notes.ScrollBars = ScrollBars.Vertical;
+        notes.WordWrap = true;
+        notes.Dock = DockStyle.Fill;
+        notes.Text = _notesText;
+        notes.Select(0, 0);
+        dialog.Controls.Add(notes);
+        dialog.ShowDialog(this);
     }
 
     private bool ContentIsCurrent(SemVersion? current) =>
         current is not null && ContentState.Load(_layout.Content) is { } state && state.IsCurrent(current.ToString(), _settings.OriginalGamePath, _settings.Language);
+
+    // ---- the work ----------------------------------------------------------------------------------------------
 
     /// <summary>
     /// Builds the player's content from their install with the current version's builder. The builder's cache keeps
@@ -372,7 +511,7 @@ internal sealed class MainForm : Form
         RefreshLocal();
         _progress.Fraction = 0;
         _progress.Visible = true;
-        SetStatus("Building game content from your install. The first build takes a while; you can stop and resume it.", Theme.Muted);
+        SetStatus("Preparing the game files. The first time takes a few minutes; you can stop and carry on later.", Theme.Muted);
         string logPath = Path.Combine(_layout.Content, "build.log");
         Directory.CreateDirectory(_layout.Content);
         try
@@ -381,7 +520,7 @@ internal sealed class MainForm : Form
             var progress = new Progress<ContentProgress>(p =>
             {
                 _progress.Fraction = p.Total > 0 ? (double)p.Done / p.Total : 0;
-                _progressText.Text = $"{p.Done} of {p.Total}  {Shorten(p.Line, 90)}";
+                _progressText.Text = p.Total > 0 ? $"{p.Done} of {p.Total} done" : string.Empty;
             });
             object gate = new();
             ContentState state = await ContentBuilder.RunAsync(python, current.ToString(), game, _layout.Content, ContentBuildPlan.DefaultJobs,
@@ -394,8 +533,8 @@ internal sealed class MainForm : Form
                 },
                 cancel, _settings.Language);
             SetStatus(state.Ok
-                ? $"Game content built: {state.Maps} maps. Press Play."
-                : $"Content build ended with {state.Failed} failures. Details: {logPath}", state.Ok ? Theme.Accent : Theme.Error);
+                ? "All set. Press PLAY."
+                : $"Some files could not be prepared ({state.Failed}). Press the button to try again. Details: {logPath}", state.Ok ? Theme.Accent : Theme.Error);
         }
         finally
         {
@@ -403,40 +542,27 @@ internal sealed class MainForm : Form
         }
     }
 
-    private static string Shorten(string text, int max) => text.Length <= max ? text : text[..(max - 3)] + "...";
-
     private async Task CheckAsync(CancellationToken cancel)
     {
-        _status.ForeColor = Theme.Muted;
-        _status.Text = $"Checking {_settings.Owner}/{_settings.Repo}...";
+        SetStatus("Looking for updates...", Theme.Muted);
         using var timeout = CancellationTokenSource.CreateLinkedTokenSource(cancel);
         timeout.CancelAfter(TimeSpan.FromSeconds(30));
         UpdateCheck check = await _service.CheckAsync(_settings.IncludePrereleases, _launcherVersion, timeout.Token);
         _lastCheck = check;
 
-        _latestValue.Text = check.Latest?.Version.ToString() ?? "None";
         if (check.Latest is { } latest)
         {
             ReleaseInfo r = latest.Release;
             string when = r.PublishedAt?.ToLocalTime().ToString("d", CultureInfo.CurrentCulture) ?? string.Empty;
-            _notesHeading.Text = $"Release notes: {r.Name ?? r.TagName}  {when}";
-            string body = string.IsNullOrWhiteSpace(r.Body) ? "(No notes for this release.)" : r.Body;
-            _notes.Text = body.ReplaceLineEndings("\r\n");
+            _notesTitle = $"What's new: {r.Name ?? r.TagName}  {when}";
+            _notesText = (string.IsNullOrWhiteSpace(r.Body) ? "(No notes for this release.)" : r.Body).ReplaceLineEndings("\r\n");
         }
         else
         {
-            _notesHeading.Text = "Release notes";
-            _notes.Text = check.Feed.Source == ReleaseFeedSource.None
+            _notesTitle = "What's new";
+            _notesText = check.Feed.Source == ReleaseFeedSource.None
                 ? "No release information yet."
-                : "No release with a version tag was found.";
-        }
-
-        if (check.LauncherUpdateAvailable && _swap is { HasStaged: false } && check.Latest is { } l)
-        {
-            _launcherInfo.Text = $"Launcher {l.Version} is available.";
-            _launcherInfo.Visible = true;
-            _launcherButton.Text = "Update launcher";
-            _launcherButton.Visible = true;
+                : "No release was found.";
         }
 
         // The launcher fetches its own update at once (verified, staged as .new); the swap waits for "Restart to
@@ -449,20 +575,29 @@ internal sealed class MainForm : Form
             }
             catch (Exception ex) when (ex is HttpRequestException or IOException or UnauthorizedAccessException or UpdateRejectedException)
             {
-                SetStatus("The launcher update could not be downloaded: " + ex.Message, Theme.Warning);
+                SetStatus("The launcher could not update itself: " + ex.Message, Theme.Warning);
             }
 
             return;
         }
 
-        string from = check.Feed.Source switch
+        if (check.LauncherUpdateAvailable && check.Latest is { } l)
         {
-            ReleaseFeedSource.Network => "Checked just now.",
-            ReleaseFeedSource.NotModified => "Checked just now, nothing new.",
-            ReleaseFeedSource.Cache => "Showing the last known releases.",
-            _ => string.Empty,
-        };
-        SetStatus(check.Feed.Problem is null ? from : check.Feed.Problem + " " + from, check.Feed.Problem is null ? Theme.Muted : Theme.Warning);
+            _launcherInfo.Text = $"Launcher {l.Version} is available. Download it from the OpenSCCT releases page (this folder is read only).";
+            _launcherButton.Visible = false;
+            _launcherBanner.Visible = true;
+        }
+
+        if (check.Feed.Problem is { } problem)
+        {
+            SetStatus(problem, Theme.Warning);
+        }
+        else
+        {
+            SetStatus(check.GameUpdateAvailable && _store.Current() is not null
+                ? "An update is available."
+                : string.Empty, Theme.Muted);
+        }
     }
 
     private async Task UpdateGameAsync(CancellationToken cancel)
@@ -472,19 +607,18 @@ internal sealed class MainForm : Form
             return;
         }
 
-        SetStatus($"Downloading {latest.Version}...", Theme.Muted);
+        SetStatus($"Downloading OpenSCCT {latest.Version}...", Theme.Muted);
         InstallOutcome outcome = await _service.InstallAsync(latest, ProgressReporter(), cancel);
         SetStatus(outcome switch
         {
-            InstallOutcome.Activated => $"Installed {latest.Version}. The previous version is kept for rollback.",
-            InstallOutcome.WaitingForGameToClose => $"{latest.Version} is installed and becomes current when OpenSCCT closes.",
-            _ => $"{latest.Version} is already current.",
+            InstallOutcome.Activated => $"OpenSCCT {latest.Version} is installed.",
+            InstallOutcome.WaitingForGameToClose => $"OpenSCCT {latest.Version} is ready and starts once you close the game.",
+            _ => $"OpenSCCT {latest.Version} is already installed.",
         }, Theme.Accent);
         await CheckAsync(cancel);
 
-        // A new install (or a changed builder) needs its content built before Play: start it right away.
-        if (outcome == InstallOutcome.Activated && !ContentIsCurrent(_store.Current())
-            && ContentBuildPlan.LooksLikeOriginalInstall(_settings.OriginalGamePath))
+        // A new install (or a changed builder) needs its game files before PLAY: carry straight on.
+        if (outcome == InstallOutcome.Activated && !ContentIsCurrent(_store.Current()) && GameFound)
         {
             await BuildContentAsync(cancel);
         }
@@ -516,7 +650,10 @@ internal sealed class MainForm : Form
 
         SetStatus($"Downloading launcher {latest.Version}...", Theme.Muted);
         await _service.StageLauncherAsync(latest, _swap, ProgressReporter(), cancel);
-        SetStatus("Launcher update downloaded and verified. Restart to finish.", Theme.Accent);
+        _launcherInfo.Text = $"Launcher {latest.Version} is ready. Restart the launcher to use it.";
+        _launcherButton.Visible = true;
+        _launcherBanner.Visible = true;
+        SetStatus(string.Empty, Theme.Muted);
     }
 
     private void RestartIntoNewLauncher()
@@ -548,9 +685,7 @@ internal sealed class MainForm : Form
 
         if (ContentState.Load(_layout.Content) is not { Ok: true })
         {
-            SetStatus(string.IsNullOrEmpty(_settings.OriginalGamePath)
-                ? "Set your original game install in Settings, then build the game content."
-                : "Build the game content first (Build content).", Theme.Warning);
+            SetStatus("Prepare the game files first (step 3).", Theme.Warning);
             return;
         }
 
@@ -575,14 +710,14 @@ internal sealed class MainForm : Form
             return;
         }
 
-        if (MessageBox.Show(this, $"Switch back to OpenSCCT {previous}?", "Roll back", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
+        if (MessageBox.Show(this, $"Go back to OpenSCCT {previous}?", "Roll back", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
         {
             return;
         }
 
         try
         {
-            SetStatus(_service.Rollback() ? $"Switched back to {previous}." : "Nothing to roll back to.", Theme.Accent);
+            SetStatus(_service.Rollback() ? $"Back on version {previous}." : "There is no earlier version to go back to.", Theme.Accent);
         }
         catch (InvalidOperationException ex)
         {
@@ -607,10 +742,9 @@ internal sealed class MainForm : Form
         _lastCheck = null;
         RefreshLocal();
 
-        // Text is part of the built content: a new language builds it again (the cache redoes only the text steps
+        // Text is part of the game files: a new language prepares them again (the cache redoes only the text steps
         // and the maps, which hold their own text).
-        bool rebuild = languageChanged && ContentState.Load(_layout.Content) is not null
-            && ContentBuildPlan.LooksLikeOriginalInstall(_settings.OriginalGamePath);
+        bool rebuild = languageChanged && ContentState.Load(_layout.Content) is not null && GameFound;
         _ = RunAsync(async cancel =>
         {
             await CheckAsync(cancel);
@@ -632,7 +766,7 @@ internal sealed class MainForm : Form
         {
             if (_service.TryFinishPending() == InstallOutcome.Activated)
             {
-                SetStatus($"Switched to {_store.Current()}.", Theme.Accent);
+                SetStatus($"Now on version {_store.Current()}.", Theme.Accent);
                 RefreshLocal();
             }
         }
@@ -671,7 +805,7 @@ internal sealed class MainForm : Form
         }
         catch (OperationCanceledException)
         {
-            SetStatus("Cancelled.", Theme.Muted);
+            SetStatus("Stopped. Press the button to carry on.", Theme.Muted);
         }
         catch (UpdateRejectedException ex)
         {
@@ -679,7 +813,7 @@ internal sealed class MainForm : Form
         }
         catch (Exception ex) when (ex is HttpRequestException or IOException or UnauthorizedAccessException or InvalidDataException or InvalidOperationException)
         {
-            SetStatus(ex.Message + " A partial download resumes on the next try.", Theme.Error);
+            SetStatus(ex.Message + " Press the button to try again; downloads carry on where they stopped.", Theme.Error);
         }
         finally
         {

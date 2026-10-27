@@ -12,17 +12,17 @@ launcher converts the maps, characters and sounds from your install on your own 
 2. **Download the launcher**: `OpenSCCT.Launcher-<version>-win-x64.exe` from the
    [latest release](https://github.com/Lumbridge/OpenSCCT/releases/latest). Put it in any folder and run it.
    Windows may show a SmartScreen warning because the exe is not signed: click **More info**, then **Run anyway**.
-3. **Click Install.** The launcher downloads the game, then builds the game content from your install. The first
-   build takes a few minutes.
+3. **Follow the three steps in the launcher.** It finds your game, downloads OpenSCCT and prepares the game files
+   from your copy. The big green button always does the next step (Install, then Prepare game files); the first
+   time takes a few minutes.
 4. **Click PLAY.**
 
 That's it. The launcher checks for updates each time it starts, downloads only what changed, and updates itself.
 
 ## If something goes wrong
 
-- **"Splinter Cell Chaos Theory was not found"**: open **Settings** and pick your game folder (the one with the
-  `Versus` folder in it).
-- **A map or menu looks wrong after an update**: click **Rebuild** next to the content.
+- **Step 1 says the game was not found**: click **Choose folder...** and pick the folder you installed it in.
+- **A map or menu looks wrong after an update**: click **Rebuild** in step 3.
 - **The new version misbehaves**: **Roll back** returns to the previous one.
 - **Text language**: Settings has a Language list (English, French, German, Spanish, Italian, if your copy has it).
 
