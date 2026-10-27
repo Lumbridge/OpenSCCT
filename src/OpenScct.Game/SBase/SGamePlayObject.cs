@@ -600,17 +600,59 @@ public partial class SGamePlayObject
     }
 
     /// <summary>
-    /// Native bounce: the object stops where it hit and the StoppedMoving event follows (bounce damping and the
-    /// BounceSound are open question 2).
+    /// Native bounce: the object stops where it hit and the StoppedMoving event follows (bounce damping is open
+    /// question 2). The BounceSound plays as the original's does when the hit would bounce the object on.
     /// </summary>
     [UcNative("ASGamePlayObject::execNativeHitWall", Exe = 0x10a90870)]
     [PortOf("nat:SBase.SGamePlayObject.NativeHitWall", Spec = "spec/devices/gameplay-object.md#pushable-and-pickable-props")]
     [Provenance(ProvenanceKind.Estimated, "Bounce rules not decoded (gameplay-object.md open question 2): stop at the first hit")]
     public void NativeHitWall(FVector HitNormal, Actor? Wall)
     {
+        PlayBounceSound(HitNormal, Wall);
         Velocity = FVector.Zero;
         SetPhysics(EPhysics.PHYS_None);
         eventStoppedMoving();
+    }
+
+    /// <summary>The share of the mirrored velocity a bounce keeps.</summary>
+    [Provenance(ProvenanceKind.Decoded, "NativeHitWall game 0x10a90a08: (V - 2 (V.N) N) x 0.5")]
+    private const float BounceKeep = 0.5f;
+
+    /// <summary>Below this bounce speed on a floor (normal Z above 0.7) the object settles instead of bouncing.</summary>
+    [Provenance(ProvenanceKind.Decoded, "NativeHitWall game 0x10a90b32: speed < 60 and HitNormal.Z > 0.7 stop it")]
+    private const float BounceSettleSpeed = 60f;
+
+    [Provenance(ProvenanceKind.Decoded, "NativeHitWall game 0x10a90b3f: HitNormal.Z > 0.7")]
+    private const float BounceFloorNormalZ = 0.7f;
+
+    /// <summary>A bounce slower than this makes no sound.</summary>
+    [Provenance(ProvenanceKind.Decoded, "NativeHitWall game 0x10a90d26: speed > 40")]
+    private const float BounceSoundSpeed = 40f;
+
+    /// <summary>The bounce sound's radius (volume 1, pitch 1).</summary>
+    [Provenance(ProvenanceKind.Decoded, "NativeHitWall game 0x10a90d60: HearSound(self, BounceSound, (1.0, 100.0, 1.0)) to every bIsPlayer controller")]
+    private const float BounceSoundRadius = 100f;
+
+    /// <summary>
+    /// NativeHitWall's sound (game 0x10a90d26): the object bounces with half its mirrored velocity; when it bounces on
+    /// (it hit a pawn, or it is not settling on a floor below 60 uu/s) faster than 40 uu/s and has a static mesh,
+    /// every player hears its BounceSound at radius 100. The native then raises a noise event (not ported).
+    /// </summary>
+    [Provenance(ProvenanceKind.Estimated, "The class the native tests the wall against (0x10cc1568) is read as Pawn")]
+    private void PlayBounceSound(FVector HitNormal, Actor? Wall)
+    {
+        if (BounceSound.IsNone || StaticMesh.IsNone)
+        {
+            return;
+        }
+
+        FVector bounce = (Velocity - (HitNormal * (2f * (Velocity | HitNormal)))) * BounceKeep;
+        float speed = bounce.Size();
+        bool settles = speed < BounceSettleSpeed && HitNormal.Z > BounceFloorNormalZ;
+        if ((Wall is Pawn || !settles) && speed > BounceSoundSpeed)
+        {
+            PlaySound(BounceSound, ESoundSlot.SLOT_None, 1f, false, BounceSoundRadius);
+        }
     }
 
     // ---- effects ------------------------------------------------------------------------------------------

@@ -1,15 +1,17 @@
 using OpenScct.Core;
 using OpenScct.Core.Engine;
 using OpenScct.Core.Uc;
+using OpenScct.Game.Combat;
 using OpenScct.Game.Movement;
+using OpenScct.Physics.Collision;
 using OpenScct.Provenance;
 
 namespace OpenScct.Game.SBase;
 
 // SBase.SBasePawn footsteps: the walk-cycle notifies PlayFootStepLeft and PlayFootStepRight and the footstep sounds
 // they play. Written from spec/native/audio.md rules 27 and 28. The sounds are SimEvents (PlaySound); the surface the
-// switch sounds pick comes from FootPrint's SetSwitch (IMovementHooks.FootPrint), else from the sound system's own
-// trace below the sound (rule 13).
+// switch sounds pick comes from FootPrint's SetSwitch (IMovementHooks.FootPrint, which runs FootPrint below), else
+// from the sound system's own trace below the sound (rule 13).
 public partial class SBasePawn
 {
     [Provenance(ProvenanceKind.Decoded, "SBasePawn.PlayFootStepSound: the footstep and gear sounds")]
@@ -111,5 +113,106 @@ public partial class SBasePawn
                     FootBreathRadius, null, true, HEADBONE);
             }
         }
+    }
+
+    /// <summary>How far below the foot bone FootPrint looks for the floor.</summary>
+    [Provenance(ProvenanceKind.Decoded, "SBasePawn.FootPrint: Trace to footcoord.Origin + (0, 0, -100)")]
+    public const float FootPrintTraceDepth = 100f;
+
+    /// <summary>Seconds a footprint stays drawn.</summary>
+    [Provenance(ProvenanceKind.Decoded, "SBasePawn.FootPrint: AbandonProjector(20.0)")]
+    public const float FootPrintLifetime = 20f;
+
+    /// <summary>Straight down: the direction the footprint's projection is cast.</summary>
+    [Provenance(ProvenanceKind.Estimated, "GetBoneRotation of the foot bone replaced by a downward rotation under the pawn's yaw")]
+    private const int FootPrintPitchDown = -16384;
+
+    /// <summary>
+    /// The footprint of one step: a line from the foot bone 100 uu down; the floor's surface type goes to the sound
+    /// system (SetSwitch, the next footstep's switch sound), sand, water, snow and fake ceilings make their effects,
+    /// and dirty feet leave a print (an abandoned SFootPrint projection) that fades out over the next steps. The print
+    /// keeps its class's texture: the colour and the sand, water or phosphor texture the script sets on the shared
+    /// FootStepCombiner and FootStepColor material objects are not drawn.
+    /// </summary>
+    [Uc("SBase.SBasePawn.FootPrint")]
+    [PortOf("uc:SBase.SBasePawn:FootPrint", Spec = "spec/native/audio.md#footsteps-sbasepawn")]
+    public virtual void FootPrint(bool bTrueIfLeftFoot)
+    {
+        if (XLevel is null || MovementNatives.Driver(this) is not { } driver)
+        {
+            return;
+        }
+
+        Name bone = bTrueIfLeftFoot ? LeftFootBone : RightFootBone;
+        FVector foot = CombatServices.Ports(this).BoneCoords(this, bone).Origin;
+        var flags = (ETraceFlags)MovementK.TraceScriptWorld;
+        if (!driver.Collision.LineCheck(out FCheckResult hit, this, foot + new FVector(0f, 0f, -FootPrintTraceDepth), foot,
+                default, flags) || hit.Material < 0)
+        {
+            return;
+        }
+
+        var surface = (ESurfaceType)hit.SurfaceType;
+        FVector at = hit.Location + hit.Normal;
+        SetSwitch(hit.SurfaceType);
+        switch (surface)
+        {
+            case ESurfaceType.SURFACE_Sand:
+                SetFootDirt(1f, 1f, 140, 140, 140, 80);
+                XLevel.SpawnActor(new SFootPrintEffect(), at, Rotation, this);
+                break;
+            case ESurfaceType.SURFACE_MediumWater:
+                SetFootDirt(1f, 0.05f, 0, 0, 0, 170);
+                XLevel.SpawnActor(new SWaterFootStepEffect(), at, Rotation, this);
+                break;
+            case ESurfaceType.SURFACE_Snow:
+                SetFootDirt(1f, 1f, 20, 25, 40, 80);
+                break;
+            case ESurfaceType.SURFACE_DeepWater:
+                SetFootDirt(1f, 0.02f, 0, 0, 0, 170);
+                if (driver.Collision.LineCheck(out FCheckResult water, this, Location + new FVector(0f, 0f, -100f),
+                        Location + new FVector(0f, 0f, 50f), default, flags))
+                {
+                    XLevel.SpawnActor(new SSparkWater(), water.Location + water.Normal, Rotation, this);
+                }
+
+                break;
+            case ESurfaceType.SURFACE_FakeCeiling:
+                if (Velocity.Size() > CeilingDustMinSpeed)
+                {
+                    XLevel.SpawnActor(new SDustEmitter(), at, Rotation, this);
+                }
+
+                break;
+        }
+
+        if (FootDirtyness > 0f && surface != ESurfaceType.SURFACE_MediumWater && surface != ESurfaceType.SURFACE_DeepWater)
+        {
+            SFootPrint? print = XLevel.SpawnActor(new SFootPrint(), hit.Location + (hit.Normal * 10f),
+                new FRotator(FootPrintPitchDown, Rotation.Yaw, 0), this);
+            if (print is not null)
+            {
+                if (!bTrueIfLeftFoot)
+                {
+                    print.ProjTexture = print.RightFootTexture;
+                }
+
+                print.AttachProjector();
+                print.AbandonProjector(FootPrintLifetime);
+                print.Destroy();
+            }
+        }
+
+        FootDirtyness -= DecreaseFootDirtyness;
+    }
+
+    private void SetFootDirt(float dirt, float decrease, byte r, byte g, byte b, byte a)
+    {
+        FootDirtyness = dirt;
+        DecreaseFootDirtyness = decrease;
+        StepColor.R = r;
+        StepColor.G = g;
+        StepColor.B = b;
+        StepColor.A = a;
     }
 }

@@ -55,6 +55,7 @@ public sealed partial class SoundSystem : Node3D, ISimEventSink
     private int _musicHandle;
     private double _now;
     private string? _listenerZone;
+    private int _listenerZoneIndex;
 
     public AudioLibrary? Library { get; private set; }
 
@@ -65,6 +66,12 @@ public sealed partial class SoundSystem : Node3D, ISimEventSink
     public FVector ListenerLocation { get; private set; }
 
     public FRotator ListenerRotation { get; private set; }
+
+    /// <summary>
+    /// The actor the player views (0: none). UNIAudio plays this actor's sounds at the listener (PlaySound, game
+    /// 0x10b03fe1), so they are never occluded.
+    /// </summary>
+    public int ViewActorId { get; set; }
 
     /// <summary>The scope's or binoculars' audio zoom (SetAudioZoom: 0.33, 0.66 or 1; 0 is off).</summary>
     public float AudioZoom { get; private set; }
@@ -147,6 +154,13 @@ public sealed partial class SoundSystem : Node3D, ISimEventSink
         StartCount = 0;
         Unknown.Clear();
         Silent = 0;
+
+        // The engine's map load plays the LevelInfo's Song as music with no fade (game 0x109e82c4 and 0x109eb982:
+        // Audio->PlayMusic(Level->Song, 0)).
+        if (library.Map?.LevelSong is { } song)
+        {
+            PlayMusic(song, 0f);
+        }
     }
 
 
@@ -221,7 +235,10 @@ public sealed partial class SoundSystem : Node3D, ISimEventSink
 
         if (World is not null)
         {
+            // Rule 23: a point in zone 0 keeps the last zone.
             _listenerZone = World.ZoneIdAt(ListenerLocation) ?? _listenerZone;
+            int zone = World.ZoneIndexAt(ListenerLocation);
+            _listenerZoneIndex = zone != 0 ? zone : _listenerZoneIndex;
         }
 
         string bus = Buses?.BusForZone(_listenerZone) ?? ReverbBuses.WorldBus;
@@ -377,7 +394,7 @@ public sealed partial class SoundSystem : Node3D, ISimEventSink
     // ---- starting a call ------------------------------------------------------------------------------------
 
     private readonly record struct PlayCall(SoundDef Def, int ActorId, int Id, FVector Location, float Volume, float Radius,
-        float Pitch, bool music, bool loop, bool ambient, bool flat = false);
+        float Pitch, bool music, bool loop, bool ambient, bool flat = false, byte occlusion = 0);
 
     private bool Start(in PlayCall call, bool follow)
     {
@@ -412,6 +429,9 @@ public sealed partial class SoundSystem : Node3D, ISimEventSink
         v.AmbientPositional = call.ambient && call.Def.Positional;
         v.BaseVolume = call.Volume * chain;
         v.CallRadius = call.Radius;
+        // Rule 18: an actor whose SoundOcclusion is OCCLUSION_None is never occluded; a call without an actor is.
+        v.SoundOcclusion = call.ActorId > 0 && !call.ambient && World is not null ? World.SoundOcclusionOf(call.ActorId) : call.occlusion;
+        v.OcclusionSettled = false;
         v.Pitch = call.ambient ? call.Pitch : SoundRules.Pitch(call.Pitch);
         if (leaf.Kind == "sequence")
         {
@@ -654,12 +674,44 @@ public sealed partial class SoundSystem : Node3D, ISimEventSink
         float gain = volume * v.Fade;
         if (v.Positional)
         {
-            gain *= SoundRules.DistanceGain(d, v.MinDistance);
+            gain *= SoundRules.DistanceGain(d, OccludedMinDistance(v));
         }
 
         v.Apply(gain, v.Pitch, v.Music ? ReverbBuses.MusicBus : v.Positional ? worldBus : ReverbBuses.FlatBus,
             UeSpace.ToGodot(v.Location));
         v.Priority = SoundRules.Priority(d * d, v.Radius, v.Volume, v.Leaf?.Flags ?? 0);
+    }
+
+    /// <summary>
+    /// Rule 18 on the DirectSound path (UseEAX off; game 0x10b05e80 and 0x10b0bc80): every update the occlusion
+    /// factor between the listener and the source shrinks the source's minimum distance, down to 0.1 uu; the
+    /// distance eases toward a new value in proportion to the time since it last settled and settles after 1 s.
+    /// </summary>
+    private float OccludedMinDistance(Voice v)
+    {
+        float target = v.MinDistance;
+        if (World is not null && v.SoundOcclusion != AudioK.OcclusionNone && (v.ActorId == 0 || v.ActorId != ViewActorId) &&
+            World.OcclusionBetween(ListenerLocation, v.Location, out OcclusionHits hits) &&
+            SoundRules.Occlusion(FVector.Dist(hits.NearListener, hits.NearSource), hits.TypeNearListener, hits.TypeNearSource,
+                hits.ZoneNearListener, hits.ZoneNearSource,
+                Library?.Map?.ZoneDistance(hits.ZoneNearListener, hits.ZoneNearSource) ?? 0) is { } factor)
+        {
+            target = Math.Max(v.MinDistance * factor, AudioK.OccludedMinDistance);
+        }
+
+        double since = _now - v.OcclusionSettledAt;
+        if (!v.OcclusionSettled || since >= AudioK.OcclusionSettleSeconds)
+        {
+            v.OccludedMinDistance = target;
+            v.OcclusionSettledAt = _now;
+            v.OcclusionSettled = true;
+        }
+        else
+        {
+            v.OccludedMinDistance += (target - v.OccludedMinDistance) * (float)since;
+        }
+
+        return v.OccludedMinDistance;
     }
 
     private float AudioZoomGain(FVector location)
@@ -715,7 +767,9 @@ public sealed partial class SoundSystem : Node3D, ISimEventSink
             float playVolume = volume;
             if (def.Positional)
             {
-                audible = d <= AudioK.RangeFactor * radius;
+                // Rule 20: the range shrinks with the portal distance between the actor's zone and the listener's.
+                int zoneDistance = World is null ? 0 : Library.Map?.ZoneDistance(World.ZoneIndexAt(a.Location), _listenerZoneIndex) ?? 0;
+                audible = d <= AudioK.RangeFactor * radius * SoundRules.AmbientZoneFactor(zoneDistance);
             }
             else if (a.IsZone)
             {
@@ -763,7 +817,7 @@ public sealed partial class SoundSystem : Node3D, ISimEventSink
 
             running?.Stop();
             var call = new PlayCall(def, a.ActorId, id, a.Location, playVolume, radius, SoundRules.AmbientPitch(a.SoundPitch),
-                music: false, loop: true, ambient: true);
+                music: false, loop: true, ambient: true, occlusion: a.SoundOcclusion);
             if (Start(call, follow: a.ActorId > 0) && LastStarted is { } v)
             {
                 _ambientVoices[a.ActorId] = v;
@@ -822,7 +876,7 @@ public sealed partial class SoundSystem : Node3D, ISimEventSink
             // Negative ids keep these apart from simulated actors.
             _ambient.Add(new AmbientSource(-(i + 1), a.Id, a.Location, a.AmbientSound, a.SoundVolume, a.SoundRadius,
                 a.SoundPitch, a.Class.EndsWith("ZoneInfo", StringComparison.Ordinal) || a.Class.EndsWith("LevelInfo", StringComparison.Ordinal),
-                a.LightType, a.LightBrightness));
+                a.LightType, a.LightBrightness, a.SoundOcclusion));
         }
     }
 
@@ -891,6 +945,12 @@ public sealed partial class SoundSystem : Node3D, ISimEventSink
         public float CallRadius;
         public float Radius;
         public float MinDistance;
+
+        /// <summary>The actor's SoundOcclusion (rule 18) and the eased, occluded minimum distance.</summary>
+        public byte SoundOcclusion;
+        public float OccludedMinDistance;
+        public double OcclusionSettledAt;
+        public bool OcclusionSettled;
         public float Pitch = 1f;
         public bool Positional;
         public bool Looping;

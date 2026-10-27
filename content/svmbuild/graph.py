@@ -112,6 +112,9 @@ class Step:
     name: str = ""
     version: int = 1
     deps: tuple[str, ...] = ()
+    # Steps whose files live inside this step's folder: a rebuild or restore of this step removes them, so with
+    # dependencies on, the plan runs them after it (the maps step and audio-map).
+    followers: tuple[str, ...] = ()
     per_map: bool = False
     stub: bool = False
     needs_game: bool = False
@@ -306,7 +309,7 @@ class Graph:
                 raise ValueError(f"duplicate step {s.name}")
             self.steps[s.name] = s
         for s in self.steps.values():
-            for d in s.deps:
+            for d in s.deps + s.followers:
                 if d not in self.steps:
                     raise ValueError(f"step {s.name} depends on unknown step {d}")
         self.order(list(self.steps))  # rejects cycles
@@ -326,6 +329,9 @@ class Graph:
                 for d in self.steps[n].deps:
                     visit(d, stack + (n,))
             wanted.add(n)
+            if with_deps:
+                for f in self.steps[n].followers:
+                    visit(f, ())
 
         for t in targets:
             visit(t, ())

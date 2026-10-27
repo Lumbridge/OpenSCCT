@@ -30,6 +30,8 @@ class MapsStep(Step):
     name = "maps"
     version = 4
     deps = ("classes",)
+    # The map folder holds audio/, which a rebuild or restore of this step removes: audio-map puts it back.
+    followers = ("audio-map",)
     per_map = True
     needs_game = True
     description = "P4: one original map to SVMap 1.1: gameplay, collision, GEs, render, ui (svmap/<Map>/)."

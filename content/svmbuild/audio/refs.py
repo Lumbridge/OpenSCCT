@@ -173,3 +173,40 @@ def zone_effect(src, info) -> dict | None:
     out["params"] = params
     out["stored"] = sorted(k for k in stored if k in I3DL2_FIELDS)
     return out
+
+
+def zone_distances(src) -> list[list[int]]:
+    """The portal distance between every two zones of the map's world model (ULevel ZoneDist, game 0x109ea770):
+    0 to itself, the step of the expansion below that first reaches it, else 255. Rows and columns follow the zone
+    numbers (the collision ZONE records). The occlusion and the ambient range of the sound system scale with it."""
+    from ..sources import modeltail  # noqa: PLC0415
+
+    ref = src.header.model_a or src.header.model_b
+    if not ref:
+        return []
+    model = modeltail.read_model(src.pkg, src.pkg.exports[ref - 1])
+    n = len(model.zones)
+    if n == 0:
+        return []
+    mask = (1 << 64) - 1
+    # Each zone's reach starts as its Connectivity mask (zones past the model's count only reach themselves); every
+    # step replaces a zone's reach by the union of the reaches of the zones it reaches, so the reach doubles.
+    reach = [model.zones[i].connectivity & mask if i < n else 1 << i for i in range(64)]
+    dist = [[0 if i == j else 255 for j in range(64)] for i in range(64)]
+    for step in range(1, 64):
+        for i in range(64):
+            row = dist[i]
+            for j in range(64):
+                if row[j] > step and reach[i] >> j & 1:
+                    row[j] = step
+        nxt = []
+        for i in range(64):
+            acc = 0
+            for k in range(64):
+                if reach[i] >> k & 1:
+                    acc |= reach[k]
+            nxt.append(acc)
+        if nxt == reach:  # nothing more is reached: the later steps change nothing
+            break
+        reach = nxt
+    return [dist[i][:n] for i in range(n)]

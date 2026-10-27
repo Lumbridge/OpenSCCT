@@ -43,6 +43,13 @@ public partial class SWeaponAttaque
     [Provenance(ProvenanceKind.Decoded, "laser placement helper (game 0x10ab7c80): SetDrawScale3D(len + 1, 0.5, 0.5)")]
     public const float LaserBeamThickness = 0.5f;
 
+    /// <summary>SMuzzleSticky's GzitSound (its default) and how PostBeginPlay plays it.</summary>
+    [Provenance(ProvenanceKind.Decoded, "SMuzzleSticky.PostBeginPlay: PlaySound(GzitSound, SLOT_Misc, 1.5, , 150.0, , true); GzitSound=Armes_impacts.Armes.StikyShok_Flash_1")]
+    private static readonly AssetRef MuzzleStickyGzit = new("Armes_impacts.Armes.StikyShok_Flash_1");
+
+    private const float MuzzleStickyGzitVolume = 1.5f;
+    private const float MuzzleStickyGzitRadius = 150f;
+
     /// <summary>TickSWeaponAttaque (native 1287): the hand bone for the stance, the laser actors, the muzzle mesh.</summary>
     [Uc("SBase.SWeaponAttaque.TickSWeaponAttaque", Sha1 = "e8898aae6b9d7ffd92474a9ab1ed7ce1563ee8b3")]
     [UcNative("ASWeaponAttaque::execTickSWeaponAttaque")]
@@ -80,6 +87,8 @@ public partial class SWeaponAttaque
             if (Level.NetMode != ENetMode.NM_DedicatedServer)
             {
                 CombatFx.Notify(this, CombatFx.MuzzleSticky);
+                // SMuzzleSticky.PostBeginPlay: the flash's zap, played here at the pistol (the muzzle actor is a view).
+                PlaySound(MuzzleStickyGzit, ESoundSlot.SLOT_Misc, MuzzleStickyGzitVolume, false, MuzzleStickyGzitRadius, null, true);
             }
         }
     }

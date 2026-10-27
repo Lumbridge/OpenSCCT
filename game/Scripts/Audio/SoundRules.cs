@@ -80,6 +80,39 @@ public static class SoundRules
         return volume * gain / ((((distance - radius) / radius) * rolloff) + 1f);
     }
 
+    /// <summary>
+    /// Rule 18 (GetOcclusion, game 0x10b07100): the occlusion factor of a source behind something, from the distance
+    /// between the first surface seen from the listener and the first seen from the source (<paramref name="thickness"/>),
+    /// the two surfaces' OcclusionTypes (the one that lets less through counts), their zone numbers and the portal
+    /// distance between those zones (255 when unknown). Null when the second hit's zone is 0 (the original then leaves
+    /// the sound unoccluded).
+    /// </summary>
+    public static float? Occlusion(float thickness, int typeNearListener, int typeNearSource, int zoneNearListener,
+        int zoneNearSource, int zoneDistance)
+    {
+        if (zoneNearSource == 0)
+        {
+            return null;
+        }
+
+        float m = Math.Min(MaterialFactor(typeNearListener), MaterialFactor(typeNearSource));
+        float f = (AudioK.OcclusionBase - (thickness / AudioK.OcclusionThicknessScale)) * m;
+        float zone = MathF.Pow(AudioK.OcclusionZoneBase, zoneDistance * zoneDistance);
+        f = Math.Min(zone * f * AudioK.OcclusionZoneScale, 1f);
+        if (zoneNearListener == zoneNearSource)
+        {
+            f += (1f - f) * AudioK.OcclusionSameZoneMix;
+        }
+
+        return f;
+    }
+
+    private static float MaterialFactor(int type) =>
+        type >= 0 && type < AudioK.OcclusionMaterialFactor.Length ? AudioK.OcclusionMaterialFactor[type] : AudioK.OcclusionMaterialFactor[0];
+
+    /// <summary>Rule 20: the 3D ambient range factor for a portal distance between the actor's zone and the listener's.</summary>
+    public static float AmbientZoneFactor(int zoneDistance) => MathF.Pow(AudioK.AmbientZoneBase, zoneDistance * zoneDistance);
+
     /// <summary>Rule 3: the sound id of a call. Slot 0 takes a fresh id from <paramref name="counter"/> every call.</summary>
     public static int SoundId(int actorIndex, int slot, bool noOverride, ref int counter)
     {

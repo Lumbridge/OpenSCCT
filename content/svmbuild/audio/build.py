@@ -365,6 +365,7 @@ def build_map_audio(game: Path, map_name: str, audio_dir: Path, library: dict, s
         "sounds": {k: seen[k] for k in sorted(seen, key=str.lower)},
         "actors": found["actors"],
         "zones": found["zones"],
+        "zoneDist": refs.zone_distances(src) if src is not None else [],
         "missing": {"sounds": found["missing"], "streams": missing_streams},
     }
     if own_problems:

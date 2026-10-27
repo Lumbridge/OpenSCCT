@@ -156,7 +156,20 @@ stream that has the Sound's own name.
     and back gives the thickness of what is in between; the factor is `(2 - thickness / 700) x m`, m a per-material
     factor of the surface hit (indexed by the hit material's own OcclusionType, game 0x10b071eb: of the two
     directions' materials the one with the smaller factor; no material is type 0), then a zone term, at most 1. It multiplies the minimum distance (and is applied as
-    EAX occlusion when EAX is on). Not ported yet.
+    EAX occlusion when EAX is on). The factors per OcclusionType are the EAX material presets (constructor game
+    0x10b029a0, three floats each: direct factor, LF ratio, room ratio): Generic 0.316 / 0.5 / 1.5, None 1, Full
+    1e-5, SingleWindow 0.2 / 0.71 / 0.43, DoubleWindow 0.056 / 0.4 / 0.24, ThinDoor 0.355 / 0.66 / 0.66, ThickDoor
+    0.079 / 0.64 / 0.27, WoodWall 0.1 / 0.5 / 0.3, BrickWall 0.056 / 0.6 / 0.24, StoneWall 0.032 / 0.68 / 0.2,
+    Curtain 0.5 / 0.15 / 1. The zone term (game 0x10b07282): z1 and z2 are the zone numbers at the hit seen from the
+    listener and the hit seen from the source; z2 = 0 leaves the sound unoccluded (factor 1); else factor =
+    min(1, 0.95^(ZoneDist[z1][z2]^2) x factor x 1.5), and when z1 = z2 factor += (1 - factor) x 0.5. ZoneDist is
+    the level's 64 x 64 portal distance table (game 0x109ea770: each zone's reach starts as its Connectivity mask, a
+    zone pair gets distance d at the d-th step that reaches it, then every reach becomes the union of the reaches it
+    holds; 0 to itself, 255 never). Update recomputes it for every playing 3D voice (game 0x10b05e80): the target
+    minimum distance is factor x radius, the current one moves by (target - current) x the time since it last
+    settled and settles after 1 s; without EAX the buffer's minimum distance is max(that, 0.1) (game 0x10b0bc80); with
+    EAX the occlusion is 2000 log10(factor) mB with the preset's LF and room ratios. The rewrite plays the
+    DirectSound path.
 
 ### Ambient sounds (UpdateAmbientSounds, every update)
 
@@ -164,7 +177,8 @@ stream that has the Sound's own name.
     `SoundVolume / 255 x AmbientVolume` (setting 1.0), pitch `clamp(SoundPitch / 64, 0.5, 2)`, play flags loop and
     update pitch. A light with a LightType other than LT_None also scales it by LightBrightness / 255.
 20. 3D ambient (the Sound lacks flag 0x10): when the Sound has a Radius above 0 it replaces the actor's SoundRadius.
-    The sound plays while `d <= 100 x SoundRadius`, as a 3D source with that radius (rule 11).
+    The sound plays while `d <= 100 x SoundRadius x 0.8^(ZoneDist[actor zone][listener zone]^2)` (game 0x10b05114;
+    the actor's zone is the zone of its location), as a 3D source with that radius (rule 11).
 21. 2D ambient of a ZoneInfo (and LevelInfo): plays only while the listener's zone is that ZoneInfo, 2D, at the
     candidate volume times Gain. This is the zone ambience (SteeE: 13 zones).
     Whether an ambient loop is 3D or 2D (rules 20 to 22) is decided by the actor's own Sound, also when it is a
@@ -173,13 +187,16 @@ stream that has the Sound's own name.
 22. 2D ambient of any other actor: volume `V x Gain / (((d - R) / R) x Rolloff + 1)` with R the actor's
     SoundRadius (or the Sound's Radius), played 2D while at least 0.05; of several actors with the same Sound only
     the loudest plays.
-23. The listener is the view actor's location; its zone is the zone of that point (kept when the point is in zone
-    0).
+23. The listener is the viewport player controller's Location, turned by the scene's view (Update, game
+    0x10b05260); its zone is the zone of that point (kept when the point is in zone 0). SCCT's following camera moves
+    the controller to the camera spot, so in the third-person view it is the camera; the object views (sticky camera,
+    camera network, Mirador) leave the controller by the pawn.
 
 ### Music
 
 24. PlayMusic plays the song 2D with the music flag at the music volume (1.0), radius 1000, pitch 1, fading in over
-    FadeInTime. One track at a time: a previous track fades out over `max(FadeInTime, 2)` seconds. A song that is
+    FadeInTime; no actor's SoundVolume takes part (game 0x10b04920). The engine's map load plays the LevelInfo's
+    Song this way with FadeInTime 0 (game 0x109e82c4 and 0x109eb982). One track at a time: a previous track fades out over `max(FadeInTime, 2)` seconds. A song that is
     already the current track and still playing is not restarted.
 
 ### Reverb
@@ -313,8 +330,8 @@ properties (spec/devices/sound-music.md).
 1. The listener roll-off: the 2D ambient formula reads the configured Rolloff (0.5); that the DirectSound 3D
    listener gets the same factor is assumed. Scenario: a SoundTrigger at a known radius, listener at 1x, 2x and 4x
    the radius; record the output level.
-2. The zone term of occlusion and of the ambient range (a power of the listener's and the source's zone numbers)
-   is not decoded; the rewrite uses 1.
+2. Decoded (rules 18 and 20). Open: whether the reference install runs the EAX path (its System folder has
+   dsound.dll and eax.dll); the rewrite plays the DirectSound one.
 3. The upper pitch clamp of one-shot sounds (2 is assumed, as for ambient sounds).
 4. APlayerController::HearSound (the per-hearer reach test that decides who gets ClientHearSound) is not decoded.
 5. Which streamed sounds a map really plays when its bank lacks the package (rule in Map banks): assumed silent.
