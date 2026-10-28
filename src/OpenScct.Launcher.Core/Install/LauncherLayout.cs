@@ -52,5 +52,8 @@ public sealed class LauncherLayout
     /// <summary>Maps downloaded from the SCCT-Maps repository (<see cref="OpenScct.Maps.MapLibrary"/>).</summary>
     public string Maps => Path.Combine(Root, "maps");
 
+    /// <summary>Converted maps and shared packs downloaded from OpenSCCT-Content (the game reads them; docs/CONTENT-PACKS.md).</summary>
+    public string Packs => Path.Combine(Root, "packs");
+
     public string VersionDir(string version) => Path.Combine(Versions, version);
 }

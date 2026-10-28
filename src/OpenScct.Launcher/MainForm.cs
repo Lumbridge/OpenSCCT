@@ -559,7 +559,10 @@ internal sealed class MainForm : Form
     private string DownloadedMapsFor(SemVersion current) =>
         _maps.HasMaps && ContentBuildPlan.SupportsAddons(_layout.VersionDir(current.ToString())) ? _maps.Fingerprint() : string.Empty;
 
-    /// <summary>The Maps window; downloading or removing maps prepares the game files again when they were ready before.</summary>
+    /// <summary>
+    /// The Maps window. Downloaded maps are ready to play; removing a map an older launcher took from SCCT-Maps
+    /// prepares the game files again when they were ready before.
+    /// </summary>
     private void OpenMaps()
     {
         if (_work is not null)
@@ -568,7 +571,7 @@ internal sealed class MainForm : Form
         }
 
         bool changed;
-        using (var dialog = new MapsForm(_maps, Http, _settings.OriginalGamePath))
+        using (var dialog = new MapsForm(_maps, Http, _layout.Packs, _layout.Content))
         {
             dialog.ShowDialog(this);
             changed = dialog.Changed;
