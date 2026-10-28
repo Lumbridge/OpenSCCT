@@ -151,8 +151,11 @@ public sealed class ObjectiveTriggerTests
         TestPC mate = w.AddPlayer(spy: true, default);
         var owner = w.Level.Spawn<SBasicGamePlayObject>()!;
         pc.IManager!.AddInteractionObj(ObjectiveNatives.Spawn<STriggerInteraction>(owner, owner, default, default));
-        var give = (SShareObjectInteraction)pc.IManager.Interactions[3]!;
+        // The touched entry went in ahead of the built-in ones, so the give entry is one slot further down.
+        var give = (SShareObjectInteraction)pc.IManager.Interactions[4]!;
         give.aActorToInteractWith = (SBasePawn)mate.Pawn!;
+        // The HUD list calls CanUse on every entry each frame; the selection walk stops at the first usable slot.
+        give.CanUse(pc);
 
         Assert.Equal(EMenuRelease.Leave, ObjWorld.UseEntry(pc, give));
         Assert.Null(give.aActorToInteractWith);

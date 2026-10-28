@@ -105,9 +105,10 @@ public sealed class InteractionSystemTests
         ObjWorld.Touch(pc, entry);
 
         SInteractionManager menu = pc.IManager!;
+        // Inserted ahead of the built-in entries (priority 999999), so it takes slot 0.
         Assert.Equal(K.FixedEntries + 1, menu.NbObjects);
-        Assert.Same(entry, menu.Interactions[K.FixedEntries]);
-        Assert.Contains((entry, K.FixedEntries), w.Net.ClientAdds);
+        Assert.Same(entry, menu.Interactions[0]);
+        Assert.Contains((entry, 0), w.Net.ClientAdds);
 
         pc.Pawn!.EndTouch(entry);
 
@@ -254,7 +255,7 @@ public sealed class InteractionSystemTests
     }
 
     [Fact]
-    public void CheckPriority_is_positive_when_the_new_entry_comes_first()
+    public void CheckPriority_is_0_for_the_same_object_3_when_the_current_is_not_higher_else_1()
     {
         (ObjWorld w, SBasicGamePlayObject owner) = WithOwner();
         TestPC pc = w.AddPlayer(spy: true, default);
@@ -263,8 +264,9 @@ public sealed class InteractionSystemTests
         var high = SpawnEntry<STriggerInteraction>(w, owner);
         high.iPriority = 25;
 
-        Assert.True(pc.IManager!.CheckPriority(high, low) > 0);
-        Assert.True(pc.IManager.CheckPriority(low, high) < 0);
+        Assert.Equal(0, pc.IManager!.CheckPriority(low, low));
+        Assert.Equal(1, pc.IManager.CheckPriority(high, low));
+        Assert.Equal(3, pc.IManager.CheckPriority(low, high));
     }
 
     [Fact]
