@@ -273,6 +273,13 @@ public partial class OptionsMenu : Control
             Check(g, "Mercenary second clutch", key + ".clutch_two_enabled", l.ClutchTwoEnabled, v => of().ClutchTwoEnabled = v);
             Slider(g, "Mercenary second clutch multiplier", key + ".clutch_two", 0.1f, 4f, 0.05f, l.ClutchTwo > 0f ? l.ClutchTwo : 1f, v => of().ClutchTwo = v);
         }
+
+        if (skipLooks)
+        {
+            // The controller groups only: the stick clicks trade places with the bumpers.
+            Check(g, side + ": swap left stick click and left bumper", key + ".swap_ls_lb", l.SwapLsLb, v => of().SwapLsLb = v);
+            Check(g, side + ": swap right stick click and right bumper", key + ".swap_rs_rb", l.SwapRsRb, v => of().SwapRsRb = v);
+        }
     }
 
     /// <summary>The clutch whose key waits for a press, or null.</summary>

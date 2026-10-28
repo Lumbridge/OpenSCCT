@@ -314,9 +314,13 @@ stateDiagram-v2
 - Reloaded's sticky cam code (2026-10-28 reading of Reloaded.Core): at start-up it sets SStickyCam's class defaults of
   `iReplicatedPitch` and `iReplicatedYaw` to 12345678 (0x1000f790), so a cam whose angle is 0 (yaw 0 is east) still
   replicates it instead of being taken for the default; this is the "activation sound for clients when fired east"
-  fix (rl:fix.stickycam_east_sound). Not ported: the rewrite's first bunch carries the cam's exact rotation and
-  PostNetBeginPlay sets both angles from it, so a client's cam already starts at the right angle; whether the
-  original's silence came from this alone is not known. The leave state hook (spec/native/reloaded-hooks.md rule 36,
-  rl:fix.stickycam_stuck) is not ported. No Reloaded code deals with launching with no cams left
+  fix (rl:fix.stickycam_east_sound). Ported (SStickyCam's constructor, SStickyCam only, not the network cameras that
+  extend it): the rewrite's net driver leaves a value equal to the class default out of the first bunch as UE2 does, so
+  with defaults of 0 a cam facing east or level reached the other players without `iReplicatedYaw` / `iReplicatedPitch`
+  (their PostNetBeginPlay still copied the cam's replicated rotation, so the angle was right in the rewrite even
+  before); with 12345678 the angles always go in the first bunch, as in Reloaded. Why the original's activation sound
+  went silent from this is not known (the sound plays in PostNetBeginPlay, not from these fields). The leave state hook
+  (spec/native/reloaded-hooks.md rule 36, rl:fix.stickycam_stuck) is ported: the quick exit to waiting on the next
+  frame, the pistol kept drawn, the cam gadget or quick gadget re-armed. No Reloaded code deals with launching with no cams left
   (rl:fix.stickycam_none_left) or with the camo selection after a cam (rl:fix.camo_slot2): those are the Enhanced 4.0
   script, which the rewrite ports as is (rules 1 and 2: no charge gives the empty click and nothing else).

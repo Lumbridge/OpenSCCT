@@ -273,7 +273,8 @@ back). Settings keys are Reloaded's (`voice_push_to_talk`, `voice_activation_thr
 cancellation (experimental) sit under Microphone Volume (docs/VOICE.md "Microphone clean-up"). The Keys page has
 "Separate spy and mercenary layouts" (`use_split_spy_merc_keyboard`, on): off, both sides play the spy's layout and a
 rebind on either side changes both (it takes effect on Save). The Controller page has "Analog slow walk"
-(`controller.slow_walk`). The Display page has Widescreen HUD (`widescreen_hud`) and small Enhanced Reality icons
+(`controller.slow_walk`) and, for each side, the stick click and bumper swaps (`swap_ls_lb`, `swap_rs_rb` in
+`controls_spy_pad` / `controls_merc_pad`, rl:input.pad). The Display page has Widescreen HUD (`widescreen_hud`) and small Enhanced Reality icons
 (`ws_er_small`) apart from Widescreen (`widescreen`, the Hor+ view).
 The key rows read "Bind: Capslock" as Reloaded's page writes them ("Bind: %s"). The options pages scroll up and down
 only, and a long device name is clipped to its column. The Display mode list reads "Borderless fullscreen" for

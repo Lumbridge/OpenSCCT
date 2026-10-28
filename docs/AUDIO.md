@@ -90,7 +90,12 @@ python -m svmbuild audio audio-map --maps all --jobs 6
 | `PlayMusic`, `StopMusic` | one music voice, 2D, no Gain, fade in; the previous track fades out over at least 2 s |
 | `SetSwitch` | the surface the next switch sound plays; without one, the system traces 15 uu above to 150 uu below the sound (`IAudioWorld.SurfaceOf`) |
 
-Every update it moves sources with their actors, computes the gain itself (Godot's attenuation is off on every
+Every update it moves sources with their actors (a source started on a bone, as AnimNotify_Sound and the footsteps
+start theirs, follows that bone of the drawn mesh: `IAudioWorld.TryGetBoneLocation` over the level's camera bone
+service), shifts the pitch of 3D sources for Doppler (rule 17: `SoundRules.DopplerPitch`, the listener's and the
+source's movement over the update along the line between them, `(c - 0.5 vl) / (c - 0.5 vs)` with c = 343 m/s over
+the DirectSound distance factor 0.0127 m per uu, about 27,000 uu/s; a source faster than 300 uu/s or of the viewed
+actor counts as still; at most a percent or two at running speeds), computes the gain itself (Godot's attenuation is off on every
 `AudioStreamPlayer3D`, which only pans): `volume x fade x R / (R + 0.5 (d - R))` beyond the radius for 3D sources,
 plain volume for 2D ones. Occlusion (rule 18) shrinks R for a 3D source whose actor's SoundOcclusion is not
 OCCLUSION_None: two line checks (listener to source and back, movers and level geometry) give the thickness between
@@ -253,13 +258,11 @@ yaw instead of along the foot bone, and the texture's axes on the floor are esti
 
 ## Not done yet
 
-- Doppler (rule 17): the subsystem's Update (editor 0x10f6e980) gives the listener a velocity from its own movement
-  over the update and each 3D source its velocity (zeroed above 300 uu/s or for the listener's own sounds), and
-  DirectSound applies DopplerFactor 0.5. Godot cannot be given a velocity per player, so it would be a pitch change
-  of ours; it needs the DirectSound distance factor first (whether one Unreal unit is taken as a metre), which is not
-  decoded, so the players keep Doppler off.
-- Following a bone: sources follow their actor; `ClientHearSound` sends BoneIdx 0. A bone-following source would
-  need the bone index sent with the sound and the drawn skeleton's bone looked up each update.
+- Doppler (rule 17) is our pitch change on the Godot voice: DirectSound's own arithmetic and its speed of sound are
+  not read (343 m/s taken). The distance factor is decoded (UUNIAudioSubsystem::SetViewport and ReinitDirectSound set
+  the listener's SetDistanceFactor to 0.0127, then SetRolloffFactor(RollOff) and SetDopplerFactor(DopplerFactor)).
+- Bone sources heard from the server: `ClientHearSound` sends BoneIdx 0 (the server has no skeleton to number the
+  bones), so such a copy follows its actor; the client's own simulated call of the sound names its bone and follows it.
 - The switch fallback trace (rule 13) uses the hit material's own SurfaceType, not the innermost material's (the
   collision data keeps the wrapper's). FootPrint's SetSwitch, which precedes every step sound, uses the hit
   material's own value in the original too.

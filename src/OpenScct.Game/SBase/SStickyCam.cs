@@ -19,6 +19,25 @@ public partial class SStickyCam
 
     private SStickyCam? _camDefaults;
 
+    /// <summary>
+    /// Reloaded's class defaults (rl:fix.stickycam_east_sound): the replicated angles start at 12345678 instead of 0,
+    /// so the first bunch to the other players always carries them, a cam facing east (yaw 0) or level (pitch 0)
+    /// included. A value equal to the class default is left out of the first bunch (docs/NETCODE.md), so without this
+    /// such a cam reached the others without its replicated angles (they then had only the cam's rotation, which
+    /// PostNetBeginPlay copies). Only SStickyCam's own defaults change, as in Reloaded: the
+    /// network cameras that extend it keep 0.
+    /// </summary>
+    [PortOf("rl:fix.stickycam_east_sound", Spec = "spec/equipment/sticky-cam.md#open-questions")]
+    [Provenance(ProvenanceKind.Decoded, "Reloaded.Core 0x1000f790: SStickyCam default iReplicatedPitch and iReplicatedYaw = 12345678 at start-up")]
+    public SStickyCam()
+    {
+        if (GetType() == typeof(SStickyCam))
+        {
+            iReplicatedPitch = K.ReloadedStickyCamAngleDefault;
+            iReplicatedYaw = K.ReloadedStickyCamAngleDefault;
+        }
+    }
+
     /// <summary>The class default object (UnrealScript <c>default.X</c>).</summary>
     protected SStickyCam CamDefaults => _camDefaults ??= GetUcClass().Create() as SStickyCam ?? this;
 

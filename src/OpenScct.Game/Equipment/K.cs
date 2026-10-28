@@ -289,6 +289,15 @@ public static partial class K
     [Provenance(ProvenanceKind.Decoded, "GadgetQuickChoice cooldown 2 s")]
     public const float QuickLaunchCooldown = 2f;
 
+    [Provenance(ProvenanceKind.Decoded, "Reloaded.Core 0x10017cb0 (s_UseObject_StickyCam_Leave entry): fDateLaunchedLastQuickGadget raised to at least now - 1.85 (float 0x10346500)")]
+    public const float ReloadedStickyLeaveQuickFloor = 1.85f;
+
+    [Provenance(ProvenanceKind.Decoded, "Reloaded.Core 0x10017cb0: the sticky cam gadget's LastUsed = now - RefireRate - 0.1 (float 0x10346324)")]
+    public const float ReloadedStickyLeaveRearmMargin = 0.1f;
+
+    [Provenance(ProvenanceKind.Decoded, "Reloaded.Core 0x1000f790: SStickyCam default iReplicatedPitch / iReplicatedYaw")]
+    public const int ReloadedStickyCamAngleDefault = 12345678;
+
     [Provenance(ProvenanceKind.Decoded, "SProjGrenade.PostNetBeginPlay yaw spin 10000 + 5000 FRand")]
     public const float SpinYawBase = 10000f;
 

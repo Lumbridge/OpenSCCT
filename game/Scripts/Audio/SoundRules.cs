@@ -22,6 +22,40 @@ public static class SoundRules
     public static float MinDistance(float radius) =>
         radius == 0f ? AudioK.ZeroRadiusMinDistance : Math.Max(radius, AudioK.MinMinDistance);
 
+    /// <summary>
+    /// Rule 17: the Doppler pitch factor DirectSound gives a 3D source from the listener's and the source's velocities
+    /// (uu/s) along the line between them: <c>(c - D vl) / (c - D vs)</c>, c the speed of sound in uu/s (343 m/s over
+    /// the 0.0127 m distance factor), D the Doppler factor 0.5, vl and vs the velocities' parts toward the listener
+    /// from the source. A source faster than 300 uu/s counts as still. Held within the pitch range.
+    /// </summary>
+    [OpenScct.Provenance.Provenance(OpenScct.Provenance.ProvenanceKind.Estimated, "The textbook Doppler formula DirectSound 3D documents (real world at factor 1); dsound's own arithmetic is not read; the clamp to 0.5..2 is ours, for a listener that jumps (a camera cut)")]
+    public static float DopplerPitch(OpenScct.Core.FVector listener, OpenScct.Core.FVector listenerVelocity,
+        OpenScct.Core.FVector source, OpenScct.Core.FVector sourceVelocity)
+    {
+        OpenScct.Core.FVector toListener = listener - source;
+        float d = toListener.Size();
+        if (d <= 0f)
+        {
+            return 1f;
+        }
+
+        if (sourceVelocity.SizeSquared() > AudioK.DopplerMaxSourceSpeed * AudioK.DopplerMaxSourceSpeed)
+        {
+            sourceVelocity = default;
+        }
+
+        float c = AudioK.SpeedOfSound / AudioK.DistanceFactor;
+        float vl = (toListener | listenerVelocity) / d;
+        float vs = (toListener | sourceVelocity) / d;
+        float below = c - (AudioK.DopplerFactor * vs);
+        if (below <= 0f)
+        {
+            return AudioK.MaxPitch;
+        }
+
+        return Math.Clamp((c - (AudioK.DopplerFactor * vl)) / below, AudioK.MinPitch, AudioK.MaxPitch);
+    }
+
     /// <summary>Rule 11: inverse distance gain, 1 inside the minimum distance.</summary>
     public static float DistanceGain(float distance, float minDistance, float rolloff = AudioK.Rolloff)
     {

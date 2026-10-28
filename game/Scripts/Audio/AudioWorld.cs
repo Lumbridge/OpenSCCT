@@ -33,6 +33,16 @@ public interface IAudioWorld
     /// <summary>The current location of an actor the simulation knows, for sources that follow their actor.</summary>
     bool TryGetActorLocation(int actorId, out FVector location);
 
+    /// <summary>
+    /// The current location of one bone of an actor's drawn mesh, for sources started on a bone (rule 17). False when
+    /// the actor or the bone is not drawn; the source then follows the actor.
+    /// </summary>
+    bool TryGetBoneLocation(int actorId, Name bone, out FVector location)
+    {
+        location = default;
+        return false;
+    }
+
     /// <summary>Every actor whose AmbientSound is set now.</summary>
     void CollectAmbient(List<AmbientSource> into);
 
@@ -68,6 +78,15 @@ public sealed class LevelAudioWorld(Level level, ICollisionWorld? collision, Fun
         Actor? a = Level.FindActor(actorId);
         location = a?.Location ?? default;
         return a is not null && !a.bDeleteMe;
+    }
+
+    /// <summary>The bone as the pawn views last drew it (the level's camera bone service).</summary>
+    public bool TryGetBoneLocation(int actorId, Name bone, out FVector location)
+    {
+        location = default;
+        return Level.FindActor(actorId) is Pawn { bDeleteMe: false } pawn &&
+            Level.GetService<OpenScct.Game.Camera.ICameraBones>() is { } bones &&
+            bones.TryGetBone(pawn, bone, out location, out _);
     }
 
     public void CollectAmbient(List<AmbientSource> into)

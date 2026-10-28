@@ -67,6 +67,12 @@ public sealed partial class SoundSystem : Node3D, ISimEventSink
 
     public FRotator ListenerRotation { get; private set; }
 
+    /// <summary>The listener's velocity from its own movement over the last update (uu/s), for the Doppler shift.</summary>
+    public FVector ListenerVelocity { get; private set; }
+
+    private FVector _lastListener;
+    private bool _lastListenerSet;
+
     /// <summary>
     /// The actor the player views (0: none). UNIAudio plays this actor's sounds at the listener (PlaySound, game
     /// 0x10b03fe1), so they are never occluded.
@@ -241,6 +247,11 @@ public sealed partial class SoundSystem : Node3D, ISimEventSink
             _listenerZoneIndex = zone != 0 ? zone : _listenerZoneIndex;
         }
 
+        // Rule 17: the listener's velocity is its movement over this update.
+        ListenerVelocity = _lastListenerSet && delta > 0 ? (ListenerLocation - _lastListener) * (float)(1.0 / delta) : default;
+        _lastListener = ListenerLocation;
+        _lastListenerSet = true;
+
         string bus = Buses?.BusForZone(_listenerZone) ?? ReverbBuses.WorldBus;
         UpdateAmbient();
         foreach (Voice v in _voices)
@@ -264,7 +275,7 @@ public sealed partial class SoundSystem : Node3D, ISimEventSink
                 string sound = e.What.ToString();
                 int unknown = Unknown.Count;
                 bool started = PlaySound(e.ActorId, sound, e.Slot, e.NoOverride, e.Location, e.Volume, e.Radius, e.Pitch, !e.NoAttenuate,
-                    flat: e.Flat);
+                    flat: e.Flat, bone: e.Bone);
                 if (Calls.Count >= MaxStarts)
                 {
                     Calls.RemoveRange(0, MaxStarts / 2);
@@ -291,7 +302,7 @@ public sealed partial class SoundSystem : Node3D, ISimEventSink
 
     /// <summary>Rules 9 to 17 for one call. Returns false when nothing started.</summary>
     public bool PlaySound(int actorId, string sound, int slot, bool noOverride, FVector location, float volume, float radius,
-        float pitch, bool attenuate = true, bool flat = false)
+        float pitch, bool attenuate = true, bool flat = false, Name bone = default)
     {
         SoundDef? def = Library?.Find(sound);
         if (def is null)
@@ -308,7 +319,18 @@ public sealed partial class SoundSystem : Node3D, ISimEventSink
         float r = radius == 0f ? AudioK.DefaultHearRadius : radius;
         int id = SoundRules.SoundId(actorId, Math.Clamp(slot, 0, 7), noOverride, ref _freshId);
         var call = new PlayCall(def, actorId, id, location, volume, r, pitch, music: false, loop: false, ambient: false, flat);
-        return Start(call, follow: actorId != 0);
+        if (!Start(call, follow: actorId != 0))
+        {
+            return false;
+        }
+
+        // Rule 17: a source started on a bone follows that bone of its actor's drawn mesh.
+        if (LastStarted is { } started)
+        {
+            started.Bone = bone;
+        }
+
+        return true;
     }
 
     /// <summary>Stops this actor's sources that play <paramref name="sound"/> (or were started from it).</summary>
@@ -629,7 +651,11 @@ public sealed partial class SoundSystem : Node3D, ISimEventSink
     {
         if (v.Follow && World is not null)
         {
-            if (World.TryGetActorLocation(v.ActorId, out FVector at))
+            if (!v.Bone.IsNone && World.TryGetBoneLocation(v.ActorId, v.Bone, out FVector onBone))
+            {
+                v.Location = onBone;
+            }
+            else if (World.TryGetActorLocation(v.ActorId, out FVector at))
             {
                 v.Location = at;
             }
@@ -677,9 +703,31 @@ public sealed partial class SoundSystem : Node3D, ISimEventSink
             gain *= SoundRules.DistanceGain(d, OccludedMinDistance(v));
         }
 
-        v.Apply(gain, v.Pitch, v.Music ? ReverbBuses.MusicBus : v.Positional ? worldBus : ReverbBuses.FlatBus,
+        v.Apply(gain, v.Pitch * Doppler(v, dt), v.Music ? ReverbBuses.MusicBus : v.Positional ? worldBus : ReverbBuses.FlatBus,
             UeSpace.ToGodot(v.Location));
         v.Priority = SoundRules.Priority(d * d, v.Radius, v.Volume, v.Leaf?.Flags ?? 0);
+    }
+
+    /// <summary>
+    /// Rule 17: the Doppler pitch factor of a 3D source, from its movement over this update and the listener's. The
+    /// listener's own sounds (the viewed actor's) get no source velocity.
+    /// </summary>
+    private float Doppler(Voice v, float dt)
+    {
+        FVector velocity = v.HasLastLocation && dt > 0f ? (v.Location - v.LastLocation) * (1f / dt) : default;
+        v.LastLocation = v.Location;
+        v.HasLastLocation = true;
+        if (!v.Positional || v.Music)
+        {
+            return 1f;
+        }
+
+        if (v.ActorId != 0 && v.ActorId == ViewActorId)
+        {
+            velocity = default;
+        }
+
+        return SoundRules.DopplerPitch(ListenerLocation, ListenerVelocity, v.Location, velocity);
     }
 
     /// <summary>
@@ -1004,7 +1052,14 @@ public sealed partial class SoundSystem : Node3D, ISimEventSink
         public int ActorId;
         public int Id;
         public bool Follow;
+
+        /// <summary>The bone of the actor's mesh the source follows (None: the actor's location).</summary>
+        public Name Bone;
         public FVector Location;
+
+        /// <summary>Where the source was at the last update (its Doppler velocity).</summary>
+        public FVector LastLocation;
+        public bool HasLastLocation;
         public float Priority;
         public bool Music;
         public bool Flat;
@@ -1043,7 +1098,9 @@ public sealed partial class SoundSystem : Node3D, ISimEventSink
             ActorId = actorId;
             Id = id;
             Follow = follow;
+            Bone = default;
             Location = location;
+            HasLastLocation = false;
             Priority = priority;
             Sequence = null;
             LoopUntil = 0;

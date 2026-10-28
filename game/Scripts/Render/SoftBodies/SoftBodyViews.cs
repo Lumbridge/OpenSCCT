@@ -31,6 +31,10 @@ public sealed class SoftBodyViews
     private SWeaponDefense? _gun;
     private int _clip;
 
+    /// <summary>The muzzle count last seen on each merc's third-person gun and each spy's pistol.</summary>
+    private readonly Dictionary<Actor, int> _muzzles = new(ReferenceEqualityComparer.Instance);
+    private readonly List<Actor> _muzzlesGone = [];
+
     internal SoftBodyViews(Node3D parent)
     {
         _root = new Node3D { Name = "SoftBodies" };
@@ -90,6 +94,7 @@ public sealed class SoftBodyViews
         {
             TrackTracers(level, sound, localPawn);
             TrackOwnShots(localPawn, sound);
+            TrackMuzzleShots(level, localPawn, sound);
         }
 
         _bank = MathF.Min(_bank + dt, SoftBodyK.MaxStep);
@@ -179,8 +184,8 @@ public sealed class SoftBodyViews
 
         foreach (SFireTrace t in level.AllActors<SFireTrace>())
         {
-            // The local player's own shots are taken from his aim (TrackOwnShots), tracer or not.
-            if (t.bDeleteMe || t.ImpactLoc.IsZero() || !_traces.Add(t) || (localPawn is not null && ReferenceEquals(t.Instigator, localPawn)))
+            // The players' shots are taken from their aim (TrackOwnShots, TrackMuzzleShots), tracer or not.
+            if (t.bDeleteMe || t.ImpactLoc.IsZero() || !_traces.Add(t) || t.Instigator is SBasePawn)
             {
                 continue;
             }
@@ -222,6 +227,77 @@ public sealed class SoftBodyViews
         _gun = gun;
         _clip = gun.ClipAmmo;
     }
+
+    /// <summary>
+    /// The other players' rifle rounds and every spy's pistol shots (the local spy's too): each step of the replicated
+    /// muzzle count every machine gets (SWeaponDefenseDummy and SWeaponAttaque MuzzleCount, one per shot) is a line
+    /// from the shooter's eye along his replicated aim (the merc's iDesiredYawPitch, the spy's iYawPitchFromView; the
+    /// local spy's own view) to the first world hit within the gun's ShootingRange, pushing the bodies it crosses.
+    /// </summary>
+    [Provenance(ProvenanceKind.Estimated, "Stands in for the server's pass-through trace and SBBulletHitClient as TrackOwnShots does: one line per muzzle count step at the replicated aim, without spread; the eye point as the start (SWeapon.GetFireStart without the merc's laser case)")]
+    private void TrackMuzzleShots(Level level, SBasePawn? localPawn, SoundSystem? sound)
+    {
+        _muzzlesGone.Clear();
+        foreach (Actor a in _muzzles.Keys)
+        {
+            if (a.bDeleteMe)
+            {
+                _muzzlesGone.Add(a);
+            }
+        }
+
+        foreach (Actor a in _muzzlesGone)
+        {
+            _muzzles.Remove(a);
+        }
+
+        foreach (SWeaponDefenseDummy dummy in level.AllActors<SWeaponDefenseDummy>())
+        {
+            // The local merc's own rounds come from his clip (TrackOwnShots).
+            bool own = localPawn is not null && ReferenceEquals(dummy.Instigator, localPawn);
+            MuzzleShots(dummy, dummy.MuzzleCount, own ? null : dummy.Instigator as SBasePawn, localPawn,
+                SoftBodyK.MercShootingRange, sound);
+        }
+
+        foreach (SWeaponAttaque pistol in level.AllActors<SWeaponAttaque>())
+        {
+            MuzzleShots(pistol, pistol.MuzzleCount, pistol.Instigator as SBasePawn, localPawn, pistol.ShootingRange, sound);
+        }
+    }
+
+    /// <summary>The new steps of one gun's muzzle count, each a shot line from <paramref name="shooter"/> (null: none).</summary>
+    private void MuzzleShots(Actor gun, int count, SBasePawn? shooter, SBasePawn? localPawn, float range, SoundSystem? sound)
+    {
+        if (gun.bDeleteMe)
+        {
+            return;
+        }
+
+        bool seen = _muzzles.TryGetValue(gun, out int last);
+        _muzzles[gun] = count;
+        if (!seen || count <= last || shooter is null)
+        {
+            return;
+        }
+
+        FRotator aim = ReferenceEquals(shooter, localPawn) && shooter.Controller is PlayerController pc
+            ? pc.Rotation
+            : PackedAim(shooter.SPawnType == PawnType.SPAWNDEFENSE ? shooter.iDesiredYawPitch : shooter.iYawPitchFromView);
+        FVector start = shooter.Location + new FVector(0f, 0f, shooter.EyeHeight);
+        FVector end = start + (aim.Vector() * range);
+        if (OpenScct.Game.Equipment.GadgetWorld.Line(shooter, end, start, ETraceFlags.TRACE_World, out FCheckResult hit))
+        {
+            end = hit.Location;
+        }
+
+        for (int i = last; i < count; i++)
+        {
+            ShotLine(start, end, sound);
+        }
+    }
+
+    /// <summary>A pawn's packed aim (pitch in the high 16 bits, yaw in the low 16) as a rotator.</summary>
+    private static FRotator PackedAim(int packed) => new((packed >> 16) & 0xffff, packed & 0xffff, 0);
 
     /// <summary>SBBulletHit for one shot line: every body it crosses gets the crossed cell pushed and plays shotSound.</summary>
     private void ShotLine(FVector start, FVector end, SoundSystem? sound)

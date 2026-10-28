@@ -13,7 +13,8 @@ public partial class PlayerController
     /// actor when it is relevant here, else at <paramref name="SoundLocation"/>. <paramref name="Parameters"/> carries
     /// the volume and the pitch in thousandths and the radius (0 is heard as 80); <paramref name="Id"/> the slot
     /// and bNoOverride (ActorIndex x 16 + Slot x 2 + bNoOverride). The event is marked <see cref="SimEvent.Heard"/>.
-    /// <paramref name="BoneIdx"/> (the bone of the actor's mesh the sound follows) is not used: the sound follows the actor.
+    /// <paramref name="BoneIdx"/> (the bone of the actor's mesh the sound follows) is not used: our server sends 0 (it has
+    /// no skeleton to number bones), so a heard sound follows the actor. Sounds this machine raises name their bone.
     /// </summary>
     [UcNative("APlayerController::execClientHearSound", Exe = 0x10a22ee0, Editor = 0x11189020)]
     [PortOf("nat:Engine.PlayerController.ClientHearSound", Spec = "spec/native/audio.md#actor-natives")]

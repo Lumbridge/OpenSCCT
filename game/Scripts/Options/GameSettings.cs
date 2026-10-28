@@ -102,6 +102,27 @@ public sealed class LookSettings
     [JsonPropertyName("clutch_two_enabled")]
     public bool ClutchTwoEnabled { get; set; }
 
+    /// <summary>Controller groups: the left stick click and the left bumper trade places (rl:input.pad).</summary>
+    [JsonPropertyName("swap_ls_lb")]
+    public bool SwapLsLb { get; set; }
+
+    /// <summary>Controller groups: the right stick click and the right bumper trade places (rl:input.pad).</summary>
+    [JsonPropertyName("swap_rs_rb")]
+    public bool SwapRsRb { get; set; }
+
+    /// <summary>
+    /// The pad control that is read for <paramref name="control"/>: with a swap on, LB reads the left stick click and
+    /// LS the left bumper (RB and RS the same with the right swap).
+    /// </summary>
+    public string PhysicalControl(string control) => control switch
+    {
+        "LB" when SwapLsLb => "LS",
+        "LS" when SwapLsLb => "LB",
+        "RB" when SwapRsRb => "RS",
+        "RS" when SwapRsRb => "RB",
+        _ => control,
+    };
+
     /// <summary>The multiplier of the clutches held (1 with none): each enabled clutch with a value above 0 counts.</summary>
     public float ClutchOf(bool one, bool two) =>
         (one && ClutchOneEnabled && ClutchOne > 0f ? ClutchOne : 1f) * (two && ClutchTwoEnabled && ClutchTwo > 0f ? ClutchTwo : 1f);

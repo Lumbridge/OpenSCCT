@@ -14,7 +14,8 @@ rl:SBase.SPlayerController.{ToggleFreeCamera, ToggleHideHud, RaiseChatLine, Rais
 NativeOnlineFlags, NativeSetLiveState, NativeRenderCaps, NativeStoreRenderCaps, NativeRumbleEnable,
 NativeRumblePadStart, NativeRumblePadStop, NativeRumblePadTime, NativeRumblePadUpdate, NativeRumbleTriggers},
 rl:fix.jump_lockon, rl:fix.ko_after_interrupt, rl:fix.crosshair_shift, rl:qol.crosshair, rl:fix.disk_radar,
-rl:fix.camo_detection, rl:SBase.ASPlayerController.CheckLedgeArms
+rl:fix.camo_detection, rl:SBase.ASPlayerController.CheckLedgeArms, rl:fix.stickycam_stuck,
+rl:fix.stickycam_east_sound
 
 ## Purpose
 
@@ -223,8 +224,12 @@ Patches decoded so far (each rule lives in the subsystem spec named):
     200 instead of 170 (0x1001ad50) and reads `ReceivedVelocity` except on a listen host (0x10b27bcf -> 0x1001ad60).
 33. **Security camera and camo** (security-camera.md rule 8). CheckPresence (0x10ab5f74 -> 0x1001a560) skips a pawn
     whose `DesiredGlassEffect` is 255. A render hook in the scene traversal (0x10a3d6a4 -> 0x1001a5b0 / 0x1001a580)
-    sends a spy pawn with `GlassEffect` 255 down the plain draw path instead of the flagged-actor path while the local
-    goggle mode is 37 (motion tracking); the rewrite's renderer does not have that path yet.
+    replaces the `bHideInNormalVision` test there: the stock code draws an actor with that flag only in RendMap 36 or
+    38 (0x10a3d6af..0x10a3d6c9) and every other actor always (0x10a3d6cf); the hook sends a spy pawn (the SPawnAttaque
+    vtable) with `GlassEffect` 255 down the flagged branch while the local RendMap is 37 (motion tracking), so a fully
+    cloaked spy is not drawn at all in motion vision (rl:fix.camo_detection's "not drawn in Motion Vision"). Only the
+    pawn: its weapon and goggle glow are their own actors. Ported in `SimPawnView.DrawMotionCloak` (the body model
+    hidden).
 
 ### State entry hooks
 
@@ -239,11 +244,15 @@ controller with the new state's name. The handlers that matter for gameplay:
     symptom: the spy could not be knocked out or elbowed after interrupting). The second GotoWaitingState sends
     walking again. The rewrite does the same
     (SPlayerController.ReloadedStateHooks.cs).
-36. `s_UseObject_StickyCam_Leave` (0x10017cb0): flags the next frame to call `GotoWaitingState` (the quick exit of
-    rl:fix.stickycam_stuck), sets the input byte `bFireMode` while the pistol was out (cleared again on the next state
-    change), and either re-arms the sticky cam gadget (its `LastUsed = now - RefireRate - 0.1`, when `myHUD` field
-    +0x480 is 1) or moves `fDateLaunchedLastQuickGadget` back to `now - 1.85` so a quick gadget can fire at once. Not
-    ported.
+36. `s_UseObject_StickyCam_Leave` (0x10017cb0; rl:fix.stickycam_stuck): every state entry first clears a flag
+    (0x1036ae73), which this entry sets again; it also remembers whether the pawn's `WeaponLoaded` is not 0. With the
+    pawn's `SelectedGadget` an SGadStickyCam: when `myHUD.LastSwitchGadget` is 1 the gadget is ready again (`LastUsed =
+    now - RefireRate - 0.1`), else `fDateLaunchedLastQuickGadget` is raised to at least `now - 1.85` (a quick gadget
+    waits at most 0.15 s more). The frame hook (0x100a74d0): while the flag is set it calls `GotoWaitingState` (the
+    quick exit, no wait for the palm clip; the state change clears the flag) and, when the pistol was out, sets
+    `bFireMode` to 1 so the spy keeps it drawn; the next frame after the change puts `bFireMode` back to 0. Ported in
+    SPlayerController.ReloadedStateHooks.cs (the raised `bFireMode` is applied again in NativeComputeControlVariables,
+    since our input layer copies the held keys onto it every frame).
 37. `s_Binoculars_Def` (0x10017c00): the sniper torch fix (rule 6). The `*_GoTo` states and `GameEnded`, `s_Dead`
     set flags for Reloaded's own frame limiter and HUD (no gameplay effect).
 
@@ -320,5 +329,4 @@ replies. Everything else is local to one machine.
 4. The direct code patches: physWalking (its operand patches point at a 0.001 constant), ProcessServerMove,
    ExecuteAction's entry hook, physLedge, physRootMotion, TickSimulated, physRepositionning and the sticky camera
    view are gameplay; each needs a before/after reading and a note in the physics and net specs. Decoded so far:
-   rules 29 to 33. The scene traversal hook of rule 33 (what the plain draw path gives a cloaked spy in motion
-   tracking vision) needs a renderer reading.
+   rules 29 to 33.

@@ -180,7 +180,8 @@ public sealed class NetHearSound : ISimEventSink
                     _args.Bool(p.ValueOffset, !e.NoAttenuate);
                     break;
 
-                // BoneIdx stays 0: the events name bones, and the client's sound follows the actor.
+                // BoneIdx stays 0: the events name bones and the server has no skeleton to number them, so a heard
+                // copy follows the actor; the client's own simulated call of a bone sound follows the bone.
             }
         }
 

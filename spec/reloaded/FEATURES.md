@@ -643,7 +643,9 @@ Faithful renderer rather than ports.
 - **Open:** default pad button layout per team (only the action names are known); capture from the
   Reloaded binds page in a sandbox.
 - **Done (2026-10-28):** the left stick is an analog move (spec/native/input.md rule 9: full circle, analog slow walk,
-  `slow_walk`), hot plug lines and the once-only first-run prompt. Left: swapping stick clicks with bumpers.
+  `slow_walk`), hot plug lines and the once-only first-run prompt. Swapping stick clicks with bumpers (2026-10-28):
+  `swap_ls_lb` and `swap_rs_rb` in the controller groups (`controls_spy_pad`, `controls_merc_pad`), off by default;
+  on the Controller page per side; the side's binds then read the other control (`GamepadInput`).
 
 ### rl:input.padbinds - Controller binds and hybrid input
 - **Players get:** bind pages for spy (Use/Grab, Last Sticky Cam, Hack Comms, Use Gadget, Back To Wall,

@@ -479,7 +479,16 @@ public partial class SPlayerController
     /// <summary>The input native (see <see cref="ControlInput"/>).</summary>
     [UcNative("ASPlayerController::execNativeComputeControlVariables", Exe = 0x10aaf400, Editor = 0x111f37d0)]
     [PortOf("nat:SBase.SPlayerController.NativeComputeControlVariables", Spec = "spec/movement/input-and-rotation.md#frame-order-global-playertick")]
-    public void NativeComputeControlVariables(float dt) => ControlInput.Compute(this, dt, ref _lastUseForControl);
+    public void NativeComputeControlVariables(float dt)
+    {
+        if (bReloadedStickyFireModeHeld)
+        {
+            // The sticky cam quick exit holds fire mode for this one frame over the keys (ReloadedStateHooks).
+            bFireMode = 1;
+        }
+
+        ControlInput.Compute(this, dt, ref _lastUseForControl);
+    }
 
     /// <summary>
     /// The controller's left stick this frame (rl:input.pad), forward and right positive, -1 to 1 after the deadzone; it

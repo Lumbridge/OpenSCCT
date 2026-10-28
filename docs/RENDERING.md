@@ -572,7 +572,9 @@ view's vision is 5. A cloaked model draws in the transparent pass (GeometryInsta
 screen copy holds the scene without it) with `svm_cloak.gdshader` as its material overlay: the screen copy at the
 shifted pixel, alpha the glass amount. In night, thermal, motion and EMF vision the spy draws as uncloaked, as in the
 original; the cloak also makes the spy EMF visible (TestAndSetEMFVisible) and hides it from motion tracking
-(DesiredGlassEffect 255). The goggle glow is its own actor and is not glassed. The spy's own view has no screen effect
+(DesiredGlassEffect 255). With the suit fully on (GlassEffect 255) the spy's body is not drawn at all in motion
+vision (Reloaded's scene traversal hook, spec/native/reloaded-hooks.md rule 33; `SimPawnView.DrawMotionCloak`); his
+gun and goggle glow still draw. The goggle glow is its own actor and is not glassed. The spy's own view has no screen effect
 (the HUD energy gauge and the suit messages only).
 
 Known differences: the pawn's surfaces in the transparent pass do not write depth, so while partly cloaked its own
@@ -658,12 +660,16 @@ body stored, so the push of another player's shot shows mainly where the trace r
 
 Soft bodies are not in the simulation, so the server's pass-through trace and SBBulletHitClient are stood in for on
 each machine: the local merc's own rounds (each one leaving his clip, tracer or not) push along his aim, from the
-gun's fire start to the first world hit within ShootingRange, without spread (his own tracers are then skipped so a
-round pushes once); other players' rounds push only through their tracers. That matches what the original shows
-mostly: the shooter's machine pushes the cell under his aim, another machine only what its own last trace through the
-body stored.
+gun's fire start to the first world hit within ShootingRange, without spread. Every other shot comes from the
+replicated muzzle counts every machine already gets (SWeaponDefenseDummy for another merc's rifle, SWeaponAttaque for
+every spy's pistol, the local spy's too): each step of the count is a line from the shooter's eye along his
+replicated aim (a merc's iDesiredYawPitch, a spy's iYawPitchFromView, the local spy's own view) to the first world
+hit within the gun's range (15000 for another merc, whose third-person gun does not say which rifle he holds). The
+players' tracers are then skipped so a round pushes once. In the original the shooter's machine pushes the cell under
+his aim and another machine only what its own last trace through the body stored, so other players' shots push more
+here than there.
 
-Not done: other players' shots without a tracer do not push; the spy pistol's shots do not push; collision planes, spheres,
+Not done: collision planes, spheres,
 boxes and Attach (no placed body uses them); dragForce (only applies when the actor moves); the noise tables are seeded
 here, random per level in the original; the colliders are pawns only.
 

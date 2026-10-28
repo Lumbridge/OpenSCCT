@@ -53,6 +53,10 @@ internal static class SoftBodyK
     [Provenance(ProvenanceKind.Decoded, "0x10b00c50: BulletHitFactor * 100 as the push's length cap")]
     public const float BulletHitScale = 100f;
 
+    /// <summary>The reach of another merc's rounds (his third-person gun does not say which rifle he holds).</summary>
+    [Provenance(ProvenanceKind.Decoded, "SWeaponDefense default ShootingRange 15000")]
+    public const float MercShootingRange = 15000f;
+
     /// <summary>Bodies not drawn for this long are not stepped.</summary>
     [Provenance(ProvenanceKind.Decoded, "0x1099a6b0: steps only while the last render time + 5.0 >= Level.TimeSeconds")]
     public const float DrawnRecently = 5f;

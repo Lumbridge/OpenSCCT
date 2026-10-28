@@ -179,6 +179,26 @@ public partial class SimPawnView : Node3D
         float amount = Render.Materials.MaterialCompiler.Vision == RenderK.RendMapNormal ? pawn.GlassEffect / 255f : 0f;
         _model?.SetGlass(amount);
         _attachments?.SetGlass(amount);
+        DrawMotionCloak(pawn);
+    }
+
+    /// <summary>
+    /// Reloaded's camo fix for motion vision (rl:fix.camo_detection): a spy whose suit is fully on (GlassEffect 255)
+    /// is not drawn at all while this machine's view is in motion tracking, as an actor hidden in normal vision is
+    /// not. Only the body: the gun and the goggle glow are their own actors in the original and keep drawing.
+    /// </summary>
+    [PortOf("rl:fix.camo_detection", Spec = "spec/native/reloaded-hooks.md#direct-code-patches")]
+    [Provenance(ProvenanceKind.Decoded, "Reloaded.Core 0x1001a5b0 / 0x1001a580 at game 0x10a3d6a4: an SPawnAttaque with GlassEffect 255 while the local RendMap is 37 takes the bHideInNormalVision branch (0x10a3d6af), which draws only in RendMap 36 and 38")]
+    private void DrawMotionCloak(SBasePawn pawn)
+    {
+        if (_model is null)
+        {
+            return;
+        }
+
+        bool hidden = pawn is SPawnAttaque && pawn.GlassEffect == byte.MaxValue &&
+            Render.Materials.MaterialCompiler.Vision == RenderK.RendMapMotion;
+        _model.Root.Visible = !hidden;
     }
 
     private Vector4? _visionDrawn;

@@ -132,24 +132,27 @@ public partial class GamepadInput : Node
         bool clutchOne = false, clutchTwo = false;
         if (pad.Binds)
         {
+            // The side's controller group can swap the stick clicks with the bumpers (swap_ls_lb, swap_rs_rb).
+            LookSettings swaps = Settings.LookOf(merc, pad: true);
             foreach ((string control, string action) in pad.ButtonsOf(merc))
             {
-                if (flying && IsFreeCamControl(control))
+                string physical = swaps.PhysicalControl(control);
+                if (flying && IsFreeCamControl(physical))
                 {
                     // The free camera has the triggers and the shoulder buttons (FreeCamera above).
                     Hold(input, control, action, false);
                 }
                 else if (string.Equals(action, PadSettings.ClutchOneAction, StringComparison.OrdinalIgnoreCase))
                 {
-                    clutchOne |= IsDown(Device, control);
+                    clutchOne |= IsDown(Device, physical);
                 }
                 else if (string.Equals(action, PadSettings.ClutchTwoAction, StringComparison.OrdinalIgnoreCase))
                 {
-                    clutchTwo |= IsDown(Device, control);
+                    clutchTwo |= IsDown(Device, physical);
                 }
                 else
                 {
-                    Hold(input, control, action, IsDown(Device, control));
+                    Hold(input, control, action, IsDown(Device, physical));
                 }
             }
         }

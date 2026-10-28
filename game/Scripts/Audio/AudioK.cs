@@ -50,6 +50,22 @@ public static class AudioK
     [Provenance(ProvenanceKind.Estimated, "The same bound for one-shot sounds (spec/native/audio.md open question 3)")]
     public const float MaxPitch = 2f;
 
+    /// <summary>Metres per Unreal unit, the DirectSound listener's distance factor.</summary>
+    [Provenance(ProvenanceKind.Decoded, "UUNIAudioSubsystem::SetViewport and ReinitDirectSound (editor 0x10f6e6ff, 0x10f6bd90): listener SetDistanceFactor(0x3c5013a9 = 0.0127)")]
+    public const float DistanceFactor = 0.0127f;
+
+    /// <summary>The listener's Doppler factor.</summary>
+    [Provenance(ProvenanceKind.Decoded, "Default.ini [UNIAudio.UNIAudioSubsystem] DopplerFactor=0.5, set as the listener's SetDopplerFactor (ReinitDirectSound)")]
+    public const float DopplerFactor = 0.5f;
+
+    /// <summary>The speed of sound DirectSound's Doppler shift uses, in metres a second.</summary>
+    [Provenance(ProvenanceKind.Estimated, "DirectSound 3D's real-world model (Doppler factor 1 is the real world); the exact constant inside dsound is not read")]
+    public const float SpeedOfSound = 343f;
+
+    /// <summary>A source moving faster than this gets no Doppler velocity.</summary>
+    [Provenance(ProvenanceKind.Decoded, "UUNIAudioSubsystem::Update (editor 0x10f6e980): a source velocity over 300 uu/s is replaced by the zero vector")]
+    public const float DopplerMaxSourceSpeed = 300f;
+
     /// <summary>SoundPitch value of pitch 1.</summary>
     [Provenance(ProvenanceKind.Decoded, "Update 0x10f6e980: SoundPitch x 0.015625")]
     public const float PitchUnit = 64f;
