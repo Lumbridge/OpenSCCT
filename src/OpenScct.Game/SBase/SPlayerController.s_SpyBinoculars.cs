@@ -287,6 +287,7 @@ public partial class SPlayerController
             if (self.myHUD is SHud hud)
             {
                 hud.BinocularSndRegular += DeltaTime;
+                hud.BinocularDetectBlip();
                 if (self.bUsing > 0 && now - self.TimeUsing >= 0f)
                 {
                     self.TimeUsing = now + K.SpyBinoMarkRepeat;

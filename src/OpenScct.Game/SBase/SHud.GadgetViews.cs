@@ -14,7 +14,8 @@ namespace OpenScct.Game.SBase;
 public partial class SHud
 {
     public static new readonly StateTable ClassStates =
-        new(Actor.ClassStates, s_Hud_UseObject_CamNetwork.Instance, s_Hud_UseObject_StickyCam.Instance);
+        new(Actor.ClassStates, s_Hud_UseObject_CamNetwork.Instance, s_Hud_UseObject_StickyCam.Instance,
+            s_H_Binoculars_Def.Instance, s_H_Binoculars_Att.Instance);
 
     public override StateTable GetStateTable() => ClassStates;
 
