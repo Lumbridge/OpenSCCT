@@ -1504,7 +1504,6 @@ coverage can track it.
 - uc:SBase.SBasePawn:DistantClientReinit
 - uc:SBase.SBasePawn:ExecuteActionForGoggle
 - uc:SBase.SBasePawn:NotifyQuickLaunch
-- uc:SBase.SBasePawn:AnimNotifyNoise
 - uc:SBase.SBasePawn:AnimNotify_Interact
 - uc:SBase.SBasePawn:PlayFirstPersonSharingAnimation
 - uc:SBase.SBasePawn:PlayFirstPersonDamage
