@@ -291,8 +291,14 @@ public static class ParticleGeometry
         }
     }
 
-    /// <summary>Rule 25 (summarized): each beam as a camera-facing strip from the particle to its end point.</summary>
-    [Provenance(ProvenanceKind.Estimated, "UBeamEmitter: straight strip to the end point by DetermineEndPointBy; the noise and branches are not decoded")]
+    /// <summary>
+    /// Rule 25: each beam as a camera-facing strip through its points (<see cref="ParticleEmitterSim.BeamPoints"/>),
+    /// one quad between each two. At each point the strip's half width is the particle's Size.X across the line from
+    /// the point before it (before the first: the first point mirrored through the second) and the camera; U runs
+    /// along the beam (BeamTextureUScale x the point's share of its length), V across it (0 to BeamTextureVScale).
+    /// </summary>
+    [Provenance(ProvenanceKind.Decoded, "UBeamEmitter::RenderParticles editor 0x110f62c0: side = normalise((P - prev) x (prev - camera)) x Size.X, vertices P + side (V 0) and P - side (V BeamTextureVScale), U = BeamTextureUScale x the point's w")]
+    [Provenance(ProvenanceKind.Estimated, "One sheet (SheetsUsed above 1 turns more strips about the beam) and no DynamicHFNoise; no SCCT beam sets either")]
     public static void Beams(ParticleEmitterSim e, in ParticleCamera camera, in ParticleOwner owner, List<SpriteQuad> into)
     {
         ArgumentNullException.ThrowIfNull(e);
@@ -300,6 +306,14 @@ public static class ParticleGeometry
         ParticleParams p = e.Params;
         ReadOnlySpan<Particle> particles = e.Particles;
         int used = Math.Min(e.ActiveParticles, particles.Length);
+        int n = e.BeamPointCount;
+        if (n < 2)
+        {
+            return;
+        }
+
+        Span<FVector> at = stackalloc FVector[n];
+        Span<FVector> side = stackalloc FVector[n];
         for (int i = 0; i < used; i++)
         {
             ref readonly Particle q = ref particles[i];
@@ -308,30 +322,37 @@ public static class ParticleGeometry
                 continue;
             }
 
-            FVector start = World(p, q.Location, owner);
-            FVector end = p.DetermineEndPointBy switch
+            ReadOnlySpan<FVector> points = e.BeamPoints(i);
+            ReadOnlySpan<float> u = e.BeamU(i);
+            for (int j = 0; j < n; j++)
             {
-                1 => start + (WorldDirection(p, q.Velocity, owner).SafeNormal() * p.BeamDistanceRange.Average),
-                2 when p.BeamEndPointOffsets.Length > 0 => start + p.BeamEndPointOffsets[0],
-                5 when p.BeamEndPointOffsets.Length > 0 => p.BeamEndPointOffsets[0],
-                _ => start + WorldDirection(p, q.Velocity, owner),
-            };
-            FVector along = end - start;
-            FVector side = (along ^ (start - camera.Location)).SafeNormal() * q.Size.X;
-            into.Add(new SpriteQuad
+                at[j] = World(p, points[j], owner);
+            }
+
+            FVector prev = (at[0] * 2f) - at[1];
+            for (int j = 0; j < n; j++)
             {
-                C0 = start - side,
-                C1 = end - side,
-                C2 = start + side,
-                C3 = end + side,
-                U0 = 0f,
-                V0 = 0f,
-                U1 = p.BeamTextureUScale,
-                V1 = p.BeamTextureVScale,
-                BU1 = 1f,
-                BV1 = 1f,
-                Color = q.Color,
-            });
+                side[j] = ((at[j] - prev) ^ (prev - camera.Location)).SafeNormal() * q.Size.X;
+                prev = at[j];
+            }
+
+            for (int j = 0; j < n - 1; j++)
+            {
+                into.Add(new SpriteQuad
+                {
+                    C0 = at[j] - side[j],
+                    C1 = at[j + 1] - side[j + 1],
+                    C2 = at[j] + side[j],
+                    C3 = at[j + 1] + side[j + 1],
+                    U0 = p.BeamTextureUScale * u[j],
+                    V0 = 0f,
+                    U1 = p.BeamTextureUScale * u[j + 1],
+                    V1 = p.BeamTextureVScale,
+                    BU1 = 1f,
+                    BV1 = 1f,
+                    Color = q.Color,
+                });
+            }
         }
     }
 }

@@ -44,8 +44,30 @@ public sealed class ActorLighting
     }
 
     private readonly HashSet<string> _off = new(StringComparer.OrdinalIgnoreCase);
+    private readonly List<LightEntry> _spawned = [];
 
     public int LightCount => _lights.Count;
+
+    /// <summary>Lights spawned during play that light actors now (see <see cref="SetSpawned"/>).</summary>
+    public int SpawnedCount => _spawned.Count;
+
+    /// <summary>
+    /// The dynamic lights spawned during play this frame (the effect lights: SFlashLight and kin, muzzle flashes, the
+    /// flare), each at the brightness it has now. They are ranked with the map's lights for every actor, as UE2's
+    /// dynamic lights reach actors as well as surfaces. Replaces the previous frame's set.
+    /// </summary>
+    public void SetSpawned(IEnumerable<LightEntry> lights)
+    {
+        ArgumentNullException.ThrowIfNull(lights);
+        _spawned.Clear();
+        foreach (LightEntry l in lights)
+        {
+            if (l.LightType != 0 && l.Effect != RenderK.LE_ESpotShadow)
+            {
+                _spawned.Add(l);
+            }
+        }
+    }
 
     /// <summary>Scene time (Level.TimeSeconds) the light types are evaluated at; the map sets it each frame.</summary>
     public float Time { get; set; }
@@ -90,17 +112,12 @@ public sealed class ActorLighting
                 continue;
             }
 
-            // bAffectOwnZoneOnly lights reach only actors in their zone.
-            if (l.OwnZoneOnly && zone >= 0 && l.ZoneIndex >= 0 && l.ZoneIndex != zone)
-            {
-                continue;
-            }
+            Rank(l, center, radius, zone);
+        }
 
-            float score = Score(l, center, radius);
-            if (score > 0f)
-            {
-                _ranked.Add((score, l));
-            }
+        foreach (LightEntry l in _spawned)
+        {
+            Rank(l, center, radius, zone);
         }
 
         // Suns always first, then by score; ties keep the map order.
@@ -123,6 +140,21 @@ public sealed class ActorLighting
 
         set.Count = n;
         return set;
+    }
+
+    private void Rank(LightEntry l, FVector center, float radius, int zone)
+    {
+        // bAffectOwnZoneOnly lights reach only actors in their zone.
+        if (l.OwnZoneOnly && zone >= 0 && l.ZoneIndex >= 0 && l.ZoneIndex != zone)
+        {
+            return;
+        }
+
+        float score = Score(l, center, radius);
+        if (score > 0f)
+        {
+            _ranked.Add((score, l));
+        }
     }
 
     /// <summary>LightBrightness x (1 - |L - C|^2 / (R + r)^2); spots outside their cone score 0.</summary>

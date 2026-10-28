@@ -691,7 +691,7 @@ public partial class PlayRoot : Node3D
             : pc is { bBehindView: false, FreeCameraFlying: 0 } ? session.LocalPawn : null;
         Pawns?.Draw(alpha, dt, firstPerson);
         Devices?.Draw(alpha, dt);
-        Map?.SoftBodies?.Update(dt, session.Client.World.Level, Audio?.Sound);
+        Map?.SoftBodies?.Update(dt, session.Client.World.Level, Audio?.Sound, session.LocalPawn);
         if (Camera is not null)
         {
             (FVector location, FRotator rotation, float _) = Camera.Current;

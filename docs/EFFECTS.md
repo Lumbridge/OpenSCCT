@@ -67,7 +67,9 @@ The runtime lays each sub-emitter's stored values over its class defaults from `
   lights (`WorldLights.SetSpawned`, at most 16), so the frag's flash lights the walls and floor as the map's own dynamic
   lights do (the same colour, gain, radius and `1 - (d / R)^2` world falloff; SFlashLight is bAffectOwnZoneOnly, so only
   its zone). The muzzle actors' own lights join them for their 0.1 s (SMuzzleGenerique and sMuzzleCanon for the rifle,
-  SMuzzleSticky for the Shocker: steady LE_PointAmbient, brightness 255, LightRadius 1, so 50 uu).
+  SMuzzleSticky for the Shocker: steady LE_PointAmbient, brightness 255, LightRadius 1, so 50 uu). The same set also
+  lights the actors (`ActorLighting.SetSpawned`): every pawn, weapon and prop picks its four lights from the map's
+  lights and these together, from the frame after (the pawns are lit before the effects are drawn).
 - An Emitter actor with bDynamicLight lights its surroundings too, as the flash lights do: the merc flare's
   SFlareEmitter (radius 25, its native tick flickering the brightness) and its flight trail SFlareCourseEmitter
   (radius 6), spec/equipment/flare.md.
@@ -88,10 +90,13 @@ The runtime lays each sub-emitter's stored values over its class defaults from `
   shadwagent_sticky_1 at 0.5 a second along V, as self-illumination and its mask; the template's `si_pan`).
 - The wet skins of a pawn in the rain (`SBasePawn.BeginWetSkin`, spec/equipment/rain.md): `WetSkins` puts the
   SpecialVisionTextureModifiers' heat and EMF textures (shared/render vision.json: HEAT_SN02_SI_wet where the local
-  player is a spy, HEAT_sn02_wet elsewhere, heat_sn02_2_wet_head, DEF01_heat_bodu_sv) over the body while bWet, in
-  thermal and EMF only. Their normal-vision materials (wet_lit_ATT, wet_lit_ATT_SI, wet_lit_ATT_2, lit_def_fx) are
-  not converted, so the skins draw the surfaces' own textures and normal vision keeps the own skins and the camo; in
-  the converted data only the spy's head changes (wet heat HEATTEX_Heat instead of HEATTEX_Cool). The cooling itself
+  player is a spy, HEAT_sn02_wet elsewhere, heat_sn02_2_wet_head, DEF01_heat_bodu_sv) over the body while bWet. In
+  normal vision they draw their base LitSpecularMaterials (wet_lit_ATT_SI, wet_lit_ATT, wet_lit_ATT_2, lit_def_fx):
+  the surface's own diffuse (camo included) plus the wet env map (SPersoTextures.wet_envmap by the camera-space
+  reflection, as the map Shaders' env maps) added through the SpecularityMask's alpha, and the glow of the _SI and
+  merc variants. The chars step exports their textures with the mesh (glb extras `svmap.wetSkins`); meshes built
+  before it keep the surface's own look in normal vision. In thermal the spy's head changes (wet heat HEATTEX_Heat
+  instead of HEATTEX_Cool). The cooling itself
   is the pawn's replicated HeatIntensity (down to 0.5 in rain), which every view draws.
 - The rain splashes (`SFlicFlocEmitter`, one per pawn on its 'B Head', spec/equipment/rain.md rules 4 and 5): the
   simulation's emitter keeps what its script sets (rates, respawn, the particle budget, restarts, the puff trigger)
@@ -150,13 +155,20 @@ on every machine through the action stream.
 
 ## Not done yet
 
-- Effect lights light the world (above) but not pawns and props: actor lighting picks from the map's lights only.
-  The Godot omni lights kept for them light nothing the templates draw.
+- The Godot omni lights kept for the effect lights light nothing the templates draw (the world and actor terms above
+  do the lighting).
 - The sticky cam gas sprites are depth tested as UE2 draws them (no soft particles), so a sprite crossing a wall or the
   floor shows the straight line of that surface; not yet compared with a capture of the original.
 - Map mesh emitters draw the map library's copy of their mesh (docs/RENDERING.md#emitters). Not done: a
   UseParticleColor tint over the mesh's own materials (no map uses it), and with UseMeshBlendMode off the decoded
   particle material takes the mesh section's texture only when it is a plain bitmap (we draw the sub-emitter's
   Texture); no map uses that either.
-- Beam noise and branches, spawning and collision sounds, mesh skins swapped at run time (SMineProx's Skins).
+- Beams (spec/native/emitters.md rule 25): the low and high frequency noise is drawn as decoded (points made at
+  spawn, a strip through them). Not done: branches (no SCCT beam names a BranchEmitter, so none spawns in the
+  original either), SheetsUsed above 1 and DynamicHFNoise (no SCCT beam sets them), PTEP_Actor end points, and
+  BeamEndPoints use their first entry's middle. Spawning and collision sounds of particles are not done.
+- Run-time skins on effect meshes (`EffectViews.ApplySkins`): an actor's Skins entry that is an additive material
+  of the texture table is drawn over that surface, added and unlit; SMineProx's light (Skins[1]: proxy_mine_Off_final
+  until it arms, proxy_mine_On while armed, Off again while chaffed). The fx step exports LightOn and LightOff
+  (fx step version 2); without that rebuild the armed light keeps the mesh's own LED material.
 - Decal size and blending are estimated (the projector natives are not decoded).

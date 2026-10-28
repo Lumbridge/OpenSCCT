@@ -56,6 +56,7 @@ public sealed class FxLibrary : IParticleAssets
     private readonly Dictionary<string, FxClass> _classes = new(StringComparer.OrdinalIgnoreCase);
     private readonly Dictionary<string, (string Glb, string Node)> _meshTable = new(StringComparer.OrdinalIgnoreCase);
     private readonly Dictionary<string, string> _textureTable = new(StringComparer.OrdinalIgnoreCase);
+    private readonly HashSet<string> _additive = new(StringComparer.OrdinalIgnoreCase);
     private readonly Dictionary<string, Mesh?> _meshes = new(StringComparer.OrdinalIgnoreCase);
     private readonly Dictionary<string, MeshPackage?> _packages = new(StringComparer.OrdinalIgnoreCase);
     private readonly TextureCache _textures;
@@ -171,6 +172,9 @@ public sealed class FxLibrary : IParticleAssets
     /// <summary>The PNG of a texture or material object path, or null.</summary>
     public string? TexturePng(string? objectPath) => objectPath is not null && _textureTable.TryGetValue(objectPath, out string? png) ? png : null;
 
+    /// <summary>True when the material at <paramref name="objectPath"/> is drawn added to the frame (an additive Shader).</summary>
+    public bool TextureAdditive(string? objectPath) => objectPath is not null && _additive.Contains(objectPath);
+
     public Mesh? Mesh(string? objectPath) => Mesh(objectPath, lit: false);
 
     /// <summary>A static mesh, unlit (effects) or actor-lit (grenades, cams, mines: the node then needs ActorLighting).</summary>
@@ -276,6 +280,11 @@ public sealed class FxLibrary : IParticleAssets
                 if (t.Value.TryGetProperty("png", out JsonElement png) && png.GetString() is { } p)
                 {
                     _textureTable[t.Name] = p;
+                    if (t.Value.TryGetProperty("material", out JsonElement mat) && mat.ValueKind == JsonValueKind.Object &&
+                        mat.TryGetProperty("additive", out JsonElement add) && add.ValueKind == JsonValueKind.True)
+                    {
+                        _additive.Add(t.Name);
+                    }
                 }
             }
         }

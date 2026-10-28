@@ -458,6 +458,8 @@ public sealed partial class EffectViews : Node3D
                     t.Vision = vision;
                     mesh.SetInstanceShaderParameter(GameplayObjects.VisionActorParameter, vision);
                 }
+
+                ApplySkins(t, a, mesh);
             }
 
             if (t.Light is { } light)
@@ -470,10 +472,12 @@ public sealed partial class EffectViews : Node3D
             }
         }
 
-        // The flash lights light the world as the map's dynamic lights do (the template's dynamic term).
+        // The flash lights light the world as the map's dynamic lights do (the template's dynamic term), and the
+        // actors (pawns, weapons, props) through their light sets from the next frame.
         _worldLights.AddRange(ExtraLights);
         ExtraLights.Clear();
         Map?.WorldLights.SetSpawned(_worldLights);
+        Map?.ActorLighting.SetSpawned(_worldLights);
         WorldLit = Map?.WorldLights.SpawnedCount ?? 0;
         PeakWorldLit = Math.Max(PeakWorldLit, WorldLit);
         _worldLights.Clear();
@@ -662,6 +666,60 @@ public sealed partial class EffectViews : Node3D
         return node;
     }
 
+    /// <summary>
+    /// The actor's Skins over its mesh's surfaces as script sets them at run time (SMineProx swaps LightOn and LightOff
+    /// into Skins[1] as it arms, is chaffed and comes back): each slot whose skin is an additive material of the
+    /// effects' texture table draws that texture added, unlit; other slots keep the mesh's own material.
+    /// </summary>
+    [Provenance(ProvenanceKind.Estimated, "Only additive skins are drawn (the only run-time skins of the effect meshes, SMineProx's proxy_mine_On and proxy_mine_Off_final, are additive Shaders); drawn as their diffuse texture")]
+    private void ApplySkins(Tracked t, Actor a, MeshInstance3D mesh)
+    {
+        int slots = Math.Min(a.Skins.Count, mesh.GetSurfaceOverrideMaterialCount());
+        if (t.Skins.Length != slots)
+        {
+            t.Skins = new string?[slots];
+        }
+
+        for (int i = 0; i < slots; i++)
+        {
+            string? path = a.Skins[i].IsNone ? null : a.Skins[i].Path;
+            if (string.Equals(path, t.Skins[i], StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            t.Skins[i] = path;
+            mesh.SetSurfaceOverrideMaterial(i, SkinMaterial(path));
+        }
+    }
+
+    private readonly Dictionary<string, Material?> _skinMaterials = new(StringComparer.OrdinalIgnoreCase);
+
+    private Material? SkinMaterial(string? path)
+    {
+        if (path is null || Library is not { Available: true } lib || !lib.TextureAdditive(path))
+        {
+            return null;
+        }
+
+        if (!_skinMaterials.TryGetValue(path, out Material? material))
+        {
+            material = lib.Texture(lib.TexturePng(path)) is { } texture
+                ? new StandardMaterial3D
+                {
+                    ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded,
+                    Transparency = BaseMaterial3D.TransparencyEnum.Alpha,
+                    BlendMode = BaseMaterial3D.BlendModeEnum.Add,
+                    AlbedoTexture = texture,
+                    CullMode = BaseMaterial3D.CullModeEnum.Disabled,
+                }
+                : null;
+            _skinMaterials[path] = material;
+        }
+
+        return material;
+    }
+
     private OmniLight3D LightFor(Actor a)
     {
         var light = new OmniLight3D { Name = a.GetUcClass().Name, ShadowEnabled = false };
@@ -806,6 +864,9 @@ public sealed partial class EffectViews : Node3D
         public OmniLight3D? Light { get; set; }
 
         public Loose? Trail { get; set; }
+
+        /// <summary>The skin path last put on each surface of <see cref="Mesh"/> (null: the mesh's own material).</summary>
+        public string?[] Skins { get; set; } = [];
 
         /// <summary>The vision values last written to <see cref="Mesh"/> (NaN: none yet).</summary>
         public Vector4 Vision { get; set; } = new(float.NaN, 0f, 0f, 0f);

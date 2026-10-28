@@ -79,8 +79,30 @@ public sealed class ParticleEmitterSim
         _particles = new Particle[Math.Max(0, p.MaxParticles)];
         _rng = new FxRandom(seed);
         Disabled = p.Disabled;
+        if (p.Kind == ParticleKind.Beam)
+        {
+            BeamPointCount = Math.Max(2, p.HighFrequencyPoints);
+            _beamPoints = new FVector[_particles.Length * BeamPointCount];
+            _beamU = new float[_particles.Length * BeamPointCount];
+            _lowPoints = new FVector[Math.Max(2, p.LowFrequencyPoints)];
+        }
+
         Reset();
     }
+
+    private readonly FVector[]? _beamPoints;
+    private readonly float[]? _beamU;
+    private readonly FVector[]? _lowPoints;
+
+    /// <summary>A beam sub-emitter's points per beam (HighFrequencyPoints, at least 2); 0 for other kinds.</summary>
+    public int BeamPointCount { get; }
+
+    /// <summary>The points of the beam in <paramref name="slot"/> (in the particles' own space), fixed when it spawned.</summary>
+    public ReadOnlySpan<FVector> BeamPoints(int slot) =>
+        _beamPoints is null ? default : _beamPoints.AsSpan(slot * BeamPointCount, BeamPointCount);
+
+    /// <summary>The share of the beam's length at each of its points (0 to 1), the texture's U before BeamTextureUScale.</summary>
+    public ReadOnlySpan<float> BeamU(int slot) => _beamU is null ? default : _beamU.AsSpan(slot * BeamPointCount, BeamPointCount);
 
     public ParticleParams Params { get; }
 
@@ -383,7 +405,104 @@ public sealed class ParticleEmitterSim
             return;
         }
 
+        if (_beamPoints is not null)
+        {
+            SpawnBeamPoints(slot, in q);
+        }
+
         AllParticlesDead = false;
+    }
+
+    /// <summary>
+    /// UBeamEmitter::SpawnParticle after the base spawn: the beam's direction D and end point by DetermineEndPointBy,
+    /// then LowFrequencyPoints points from the particle along D (each but the first moved by a LowFrequencyNoiseRange
+    /// pick), and HighFrequencyPoints points along those (each but the first a straight blend of the two low points
+    /// around it plus a HighFrequencyNoiseRange pick). When an end point was found (Offset, Actor, TraceOffset,
+    /// OffsetAsAbsolute with a BeamEndPoints entry) the last low and high points sit on it exactly. The points stay as
+    /// spawned for the beam's life (no DynamicHFNoise in SCCT's beams).
+    /// </summary>
+    [Provenance(ProvenanceKind.Decoded, "UBeamEmitter::SpawnParticle editor 0x110f4b60: D = Velocity x MaxLifetime (PTEP_Velocity), normalised Velocity x a BeamDistanceRange pick (PTEP_Distance), the end point's offset (Offset, TraceOffset traced, OffsetAsAbsolute); low point i = start + D i / (LF - 1) + noise; high point j blends the low points at j / (HF - 1); picks Y, X, Z")]
+    [Provenance(ProvenanceKind.Estimated, "BeamEndPoints use their offset's middle and the first entry (the original picks one by Weight and a point in its range); PTEP_Actor has no actors here; branches are not spawned: they need a BranchEmitter, which no SCCT beam sets")]
+    private void SpawnBeamPoints(int slot, in Particle q)
+    {
+        ParticleParams p = Params;
+        FVector[] low = _lowPoints!;
+        int lf = low.Length;
+        int hf = BeamPointCount;
+        FVector start = q.Location;
+        FVector dir = FVector.Zero;
+        FVector end = FVector.Zero;
+        bool pinned = false;
+        FVector[] offsets = p.BeamEndPointOffsets;
+        switch (p.DetermineEndPointBy)
+        {
+            case 0:
+                dir = q.Velocity * q.MaxLifetime;
+                break;
+            case 1:
+                dir = q.Velocity.SafeNormal() * p.BeamDistanceRange.Pick(ref _rng);
+                break;
+            case 2 when offsets.Length > 0:
+                dir = offsets[0];
+                end = start + dir;
+                pinned = true;
+                break;
+            case 4 when offsets.Length > 0:
+                end = start + offsets[0];
+                if (Trace is { } trace && trace(start, end, out FVector hit, out _))
+                {
+                    end = hit;
+                }
+
+                dir = end - start;
+                pinned = true;
+                break;
+            case 5 when offsets.Length > 0:
+                end = offsets[0];
+                dir = end - start;
+                pinned = true;
+                break;
+        }
+
+        low[0] = start;
+        for (int i = 1; i < lf; i++)
+        {
+            low[i] = start + (dir * (i / (float)(lf - 1))) + p.LowFrequencyNoiseRange.Pick(ref _rng);
+        }
+
+        if (pinned)
+        {
+            low[lf - 1] = end;
+        }
+
+        Span<FVector> points = _beamPoints.AsSpan(slot * hf, hf);
+        Span<float> u = _beamU.AsSpan(slot * hf, hf);
+        points[0] = low[0];
+        u[0] = 0f;
+        float step = 1f / (hf - 1);
+        float segment = 1f / (lf - 1);
+        float along = step;
+        int k = 0;
+        for (int j = 1; j < hf; j++)
+        {
+            FVector noise = p.HighFrequencyNoiseRange.Pick(ref _rng);
+            float t = (lf - 1) * along;
+            FVector a = low[k];
+            FVector b = low[Math.Min(k + 1, lf - 1)];
+            points[j] = (a * (1f - t)) + (b * t) + noise;
+            u[j] = step * j;
+            along += step;
+            if (along >= segment)
+            {
+                k++;
+                along -= segment;
+            }
+        }
+
+        if (pinned)
+        {
+            points[hf - 1] = end;
+        }
     }
 
     private ParticleEmitterSim? Sibling(int index) =>

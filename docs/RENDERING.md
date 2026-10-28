@@ -629,8 +629,14 @@ binary. Shots: the original's SBBulletHit pushes the up to four particles the la
 SBBulletHitClient(Momentum), which on another machine pushes only what that machine's own last trace through the
 body stored, so the push of another player's shot shows mainly where the trace ran.
 
-Not done: shots without a tracer do not push (the client sees no shot line for them; soft bodies are not in the
-simulation, so the server's pass-through trace and SBBulletHitClient are not ported); collision planes, spheres,
+Soft bodies are not in the simulation, so the server's pass-through trace and SBBulletHitClient are stood in for on
+each machine: the local merc's own rounds (each one leaving his clip, tracer or not) push along his aim, from the
+gun's fire start to the first world hit within ShootingRange, without spread (his own tracers are then skipped so a
+round pushes once); other players' rounds push only through their tracers. That matches what the original shows
+mostly: the shooter's machine pushes the cell under his aim, another machine only what its own last trace through the
+body stored.
+
+Not done: other players' shots without a tracer do not push; the spy pistol's shots do not push; collision planes, spheres,
 boxes and Attach (no placed body uses them); dragForce (only applies when the actor moves); the noise tables are seeded
 here, random per level in the original; the colliders are pawns only.
 

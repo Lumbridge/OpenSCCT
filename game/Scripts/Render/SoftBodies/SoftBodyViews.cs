@@ -5,6 +5,7 @@ using Godot;
 using OpenScct.Core;
 using OpenScct.Core.Engine;
 using OpenScct.Game.SBase;
+using OpenScct.Physics.Collision;
 using OpenScct.Provenance;
 using OpenScctGame.Audio;
 using OpenScctGame.Render.Geometry;
@@ -15,7 +16,8 @@ namespace OpenScctGame.Render.SoftBodies;
 /// <summary>
 /// The map's soft bodies (ESBPatchActor cloth and ESBStripDoorActor strip curtains): each one a mesh whose vertices
 /// follow its <see cref="SoftBodySim"/>, stepped on this machine only. Pawns push them aside (collActor), rifle
-/// tracers through them push the hit cell, and they play their collSound and shotSound. Drawn fullbright, as
+/// tracers and this machine's own merc shots through them push the hit cell, and they play their collSound and
+/// shotSound. Drawn fullbright, as
 /// UESoftBody::Render makes no lighting calls. docs/RENDERING.md "Soft bodies".
 /// </summary>
 public sealed class SoftBodyViews
@@ -26,6 +28,8 @@ public sealed class SoftBodyViews
     private readonly HashSet<SFireTrace> _traces = [];
     private readonly List<SFireTrace> _gone = [];
     private float _bank;
+    private SWeaponDefense? _gun;
+    private int _clip;
 
     internal SoftBodyViews(Node3D parent)
     {
@@ -71,9 +75,10 @@ public sealed class SoftBodyViews
 
     /// <summary>
     /// Each frame: banks <paramref name="dt"/> and, once a step's worth (1/120 s) is in, steps every body drawn in the
-    /// last 5 s with the banked time against the pawns of <paramref name="level"/>. Tracers that cross a body push it.
+    /// last 5 s with the banked time against the pawns of <paramref name="level"/>. Tracers, and the shots of
+    /// <paramref name="localPawn"/>'s merc gun, that cross a body push it.
     /// </summary>
-    public void Update(float dt, Level? level, SoundSystem? sound)
+    public void Update(float dt, Level? level, SoundSystem? sound, SBasePawn? localPawn = null)
     {
         if (_bodies.Count == 0)
         {
@@ -83,7 +88,8 @@ public sealed class SoftBodyViews
         float now = level?.TimeSeconds ?? 0f;
         if (level is not null)
         {
-            TrackTracers(level, sound);
+            TrackTracers(level, sound, localPawn);
+            TrackOwnShots(localPawn, sound);
         }
 
         _bank = MathF.Min(_bank + dt, SoftBodyK.MaxStep);
@@ -155,7 +161,7 @@ public sealed class SoftBodyViews
     /// impact that crosses a body pushes the cell it crosses and plays shotSound.
     /// </summary>
     [Provenance(ProvenanceKind.Estimated, "Shots are seen through their SFireTrace tracers only (a share of the rifle's rounds); the push takes the shot's direction at full BulletHitFactor length, as the original sets the momentum's length to it")]
-    private void TrackTracers(Level level, SoundSystem? sound)
+    private void TrackTracers(Level level, SoundSystem? sound, SBasePawn? localPawn)
     {
         _gone.Clear();
         foreach (SFireTrace t in _traces)
@@ -171,24 +177,65 @@ public sealed class SoftBodyViews
             _traces.Remove(t);
         }
 
-        Span<int> corners = stackalloc int[4];
         foreach (SFireTrace t in level.AllActors<SFireTrace>())
         {
-            if (t.bDeleteMe || t.ImpactLoc.IsZero() || !_traces.Add(t))
+            // The local player's own shots are taken from his aim (TrackOwnShots), tracer or not.
+            if (t.bDeleteMe || t.ImpactLoc.IsZero() || !_traces.Add(t) || (localPawn is not null && ReferenceEquals(t.Instigator, localPawn)))
             {
                 continue;
             }
 
-            FVector dir = t.ImpactLoc - t.Location;
-            foreach (Body body in _bodies)
+            ShotLine(t.Location, t.ImpactLoc, sound);
+        }
+    }
+
+    /// <summary>
+    /// The local merc's own rounds (each one leaving the clip), with a tracer or not: the line from the gun's fire start
+    /// along his aim to the first world hit within ShootingRange pushes the bodies it crosses. In the original the
+    /// server's trace through a body sends SBBulletHitClient, and the shooter's machine pushes the cell its own last
+    /// line check through the body stored, which is the one under his aim.
+    /// </summary>
+    [Provenance(ProvenanceKind.Estimated, "Soft bodies are not in the simulation, so the server's pass-through trace is stood in for by this machine's aim line (no spread); which of the client's own traces stores the cell in the original was not identified; other players' shots without a tracer do not push")]
+    private void TrackOwnShots(SBasePawn? localPawn, SoundSystem? sound)
+    {
+        if (localPawn?.MyWeapon is not SWeaponDefense gun || localPawn.Controller is not PlayerController pc)
+        {
+            _gun = null;
+            return;
+        }
+
+        if (ReferenceEquals(gun, _gun) && gun.ClipAmmo < _clip)
+        {
+            FVector start = gun.GetFireStart();
+            FVector end = start + (pc.Rotation.Vector() * gun.ShootingRange);
+            if (OpenScct.Game.Equipment.GadgetWorld.Line(localPawn, end, start, ETraceFlags.TRACE_World, out FCheckResult hit))
             {
-                FVector a = body.ToLocal(t.Location);
-                FVector b = body.ToLocal(t.ImpactLoc);
-                if (body.Sim.LineCheck(a, b, body.Front, corners, out _))
-                {
-                    body.Sim.BulletHit(body.DirectionToLocal(dir), corners);
-                    Play(sound, body.Sim.ShotSound, body.Location);
-                }
+                end = hit.Location;
+            }
+
+            for (int i = gun.ClipAmmo; i < _clip; i++)
+            {
+                ShotLine(start, end, sound);
+            }
+        }
+
+        _gun = gun;
+        _clip = gun.ClipAmmo;
+    }
+
+    /// <summary>SBBulletHit for one shot line: every body it crosses gets the crossed cell pushed and plays shotSound.</summary>
+    private void ShotLine(FVector start, FVector end, SoundSystem? sound)
+    {
+        Span<int> corners = stackalloc int[4];
+        FVector dir = end - start;
+        foreach (Body body in _bodies)
+        {
+            FVector a = body.ToLocal(start);
+            FVector b = body.ToLocal(end);
+            if (body.Sim.LineCheck(a, b, body.Front, corners, out _))
+            {
+                body.Sim.BulletHit(body.DirectionToLocal(dir), corners);
+                Play(sound, body.Sim.ShotSound, body.Location);
             }
         }
     }

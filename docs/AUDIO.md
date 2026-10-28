@@ -239,19 +239,26 @@ yaw instead of along the foot bone, and the texture's axes on the floor are esti
 
 ## Not done yet
 
-- Doppler (rule 17) and following a bone: sources follow their actor; `ClientHearSound` sends BoneIdx 0.
+- Doppler (rule 17): the subsystem's Update (editor 0x10f6e980) gives the listener a velocity from its own movement
+  over the update and each 3D source its velocity (zeroed above 300 uu/s or for the listener's own sounds), and
+  DirectSound applies DopplerFactor 0.5. Godot cannot be given a velocity per player, so it would be a pitch change
+  of ours; it needs the DirectSound distance factor first (whether one Unreal unit is taken as a metre), which is not
+  decoded, so the players keep Doppler off.
+- Following a bone: sources follow their actor; `ClientHearSound` sends BoneIdx 0. A bone-following source would
+  need the bone index sent with the sound and the drawn skeleton's bone looked up each update.
 - The switch fallback trace (rule 13) uses the hit material's own SurfaceType, not the innermost material's (the
   collision data keeps the wrapper's). FootPrint's SetSwitch, which precedes every step sound, uses the hit
   material's own value in the original too.
 - The 0.8^(ZoneDist^2) factor the subsystem also applies to an occluded one-shot's priority radius.
 - The reach test of the server's hearing is an estimate (100 x the radius; spec open question 4).
-- Script sounds not ported yet (no call site in the ports): the SHud binocular sounds (Snd_BinocularNoise,
-  Snd_BinocularAnalyzeLoop, Snd_BinocularAttLoop, Snd_BinocularAnalyzeDetect), Snd_HudShutdown (the port of
-  HudShutDown has no ClientPlaySound), Hud_viseProgress (SetBallisticValue), the cape sounds of SBasePawn
-  (Cape_InOut, RA_Cape_damage), SFlashGen's SND_Tonnerre (the class is not ported: its lightning flicker belongs to
-  the lights), SShotGunProjector's SW_Impact_Shot and the ESoftBodyActor sounds. The noise event NativeHitWall raises
-  after a bounce sound is not ported.
-- Ported since: SCamera's CamDzzz (SCamera.cs), STriggerLight's sound (STriggerLight.cs), the camera, laser and
+- Script sounds not ported yet (no call site in the ports): SFlashGen's SND_Tonnerre (the class is not ported: its
+  lightning flicker belongs to the lights). The noise event NativeHitWall raises after a bounce sound is not ported.
+- Ported since: the SHud binocular sounds (Snd_BinocularNoise, Snd_BinocularAnalyzeLoop, Snd_BinocularAttLoop,
+  Snd_BinocularAnalyzeDetect; SHud.Binoculars.cs), Snd_HudShutdown (SPlayerController.CombatShock.cs),
+  Hud_viseProgress (SHud.Ballistic.cs), the cape sounds of SBasePawn (Cape_InOut from SetDesiredGlassValueOnClients,
+  RA_Cape_damage from SetPerturbationGlassOnClients, radius 300; PawnVision.cs), SShotGunProjector's SW_Impact_Shot
+  (chance 0.3, volume 0.8, radius 100; SShotGunProjector.cs), the ESoftBodyActor shotSound and collSound (radius 128;
+  Render/SoftBodies/SoftBodyViews.cs, docs/RENDERING.md "Soft bodies"), SCamera's CamDzzz (SCamera.cs), STriggerLight's sound (STriggerLight.cs), the camera, laser and
   sensor chaff explosions (RA_camSurveil_EXPLO), SNoiseEmitter's steps and breaths, SMuzzleSticky's GzitSound (at
   the pistol, SWeaponAttaque.TickSWeaponAttaque) and SGamePlayObject's BounceSound (NativeHitWall: half the mirrored
   velocity; a bounce that carries on faster than 40 uu/s on an object with a static mesh, volume 1, radius 100).

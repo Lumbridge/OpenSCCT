@@ -13,7 +13,8 @@ Status column: **done** (ported in the 2026-10-28 overnight wave, not yet played
 **partial** (what is left is named), **n-a** (decoded and found to be dead code in the original), **open** (not
 started), **later** (large, left for a planned piece of work).
 
-Content rebuild needed before some rows show in game: the `maps` step (rain `sim/rain.json` for the 12 rain maps, the
+Content rebuild needed before some rows show in game: the `chars` step (normal-vision wet skins), the `fx` step (the
+armed proximity mine's light), the `maps` step (rain `sim/rain.json` for the 12 rain maps, the
 damaged-object particles of MissD/E/P and PrisD, the strategic map pictures; rain changes those maps' sim hash, so the
 server's content must be rebuilt too) and the `ui` step (tutorial pictures, strategic map markers).
 
@@ -38,17 +39,20 @@ server's content must be rebuilt too) and the `ui` step (tutorial pictures, stra
 | Gap | What the original does | Status |
 |---|---|---|
 | Merc gas mask | `SGasMask` on bone B Head for every merc with the gadget; ours is spawned unattached and never drawn | done |
-| Wet skins, head rain splashes | `BeginWetSkin` (HEAT_*_wet), `SFlicFlocEmitter` | done for thermal/EMF and splashes; normal-vision wet materials not converted |
+| Wet skins, head rain splashes | `BeginWetSkin` (HEAT_*_wet), `SFlicFlocEmitter` | done (normal-vision wet LitSpecularMaterials: env map through the specularity mask; needs the chars rebuild) |
 | Binocular HUD sounds | s_H_Binoculars_Def/_Att loops and the 5 s detect blip | done |
 | HUD shutdown sounds, throw charge tick | Snd_HudShutdown, msg 8, Hud_viseProgress | done |
-| Shotgun barrel smoke, shotgun spray velocity | CreateSmoke1 (two SSmokeCanonEmitters); SShotGunEmitter adds the shooter's velocity | smoke done (also the rifle and Uzi burst smoke); spray velocity open (needs CombatFxView.cs) |
+| Shotgun barrel smoke, shotgun spray velocity | CreateSmoke1 (two SSmokeCanonEmitters); SShotGunEmitter adds the shooter's velocity | done (also the rifle and Uzi burst smoke) |
 | Footprints | tint combiner, StepColor, per-surface texture, mirrored right foot | done (texture orientation estimated; existing decals are no longer world-aligned) |
 | Sprinkler splash height, water-pipe puddle | floor trace; SFlaque grow and shrink | done (sprinkler puddles now drawn too) |
 | Damaged gameplay object particles | `SSpawnableEmitter` with the map's own SpawnParticle (80 entries, 25 maps) | done, needs the maps rebuild (the data is on 4 maps, not 25) |
-| Soft bodies | explosion push and untraced bullet hits | n-a for explosions (SBExplosionHit has no caller); untraced bullet hits open (soft bodies are not in the sim) |
-| Blood splash overlay, blood drop trail | `SHud.DrawBloodSplash` (native), `SBloodSplat` | overlay n-a (nothing sets bSplashBloodStart); blood drop trail open (spawner not found) |
+| Soft bodies | explosion push and untraced bullet hits | n-a for explosions (SBExplosionHit has no caller); untraced hits partial: the local merc's own rounds push along his aim, other players' only through tracers (docs/RENDERING.md "Soft bodies") |
+| Blood splash overlay, blood drop trail | `SHud.DrawBloodSplash` (native), `SBloodSplat` | n-a: nothing sets bSplashBloodStart; the blood drop fields are never read and SImpactEffectBlood, the only SBloodSplat spawner, is never spawned (spec/combat/health.md edge cases) |
 | Merc target name | `SHud.DrawTargetName` (native) | done (decoded) |
-| Local spy shadow | `SetupOldSchoolShadow` ShadowProjector | open |
+| Local spy shadow | `SetupOldSchoolShadow` ShadowProjector | n-a: ShadowDarkness 0 keeps it detached after its first tick (spec/game/respawn-and-spawning.md rule 25) |
+| Effect lights on actors | muzzle flashes, flash lights and the flare light pawns, weapons and props | done |
+| Beam noise, mine light skins | BeamEmitter low/high frequency noise (the damaged neons' SElectricArcEmitter); SMineProx swaps Skins[1] | done (beam branches n-a: no SCCT beam has a BranchEmitter); the armed mine light needs the fx rebuild |
+| Audio: Doppler, bone-following sources | rule 17 | open (needs the DirectSound distance factor decoded; docs/AUDIO.md) |
 
 ## Voice
 

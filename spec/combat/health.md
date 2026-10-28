@@ -88,6 +88,13 @@ Not applicable.
 - Grab damage (the 51 on a merc) and direct `Health` writes do not go through SRTD and never add to a refill pool
   (mercs have none anyway).
 - A spy hit by a 70 % weapon for 25 regains at most 17 (int(25 * 70 * 0.01)).
+- The blood drop trail is dead in the original. BloodDropStartTime is written (the merc rifle's hit on a spy, and 0
+  when a refill ends) and replicated, but nothing reads it, and NextBloodSplatTime, CurrentBloodDropPerSecond and the
+  four BloodDrop* settings are never read or written: no script line, and no instruction of the game or editor binary
+  addresses their offsets (0xb70 to 0xb88) on an SPawnAttaque (2026-10-28 scan; the hits there are other classes'
+  fields at the same offsets). SBloodSplat is spawned only by SImpactEffectBlood.PostBeginPlay, and no script,
+  native or Reloaded code names SImpactEffectBlood (Reloaded.Core's impact class list has every other SImpactEffect
+  but not it; the editor binary has no such string), so no blood decal ever appears.
 
 ## Evidence
 - local/re-out/uc/SBase/{SPawnAttaque,SBasePawn,SInfirmary,SHealMateInteraction,SHud}.uc, SPlayerController.uc
