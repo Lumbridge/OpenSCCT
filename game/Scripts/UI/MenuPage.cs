@@ -33,6 +33,8 @@ public partial class MenuPage : Control
     /// <summary>The page's content, between the title and the page buttons.</summary>
     protected VBoxContainer Body { get; private set; } = null!;
 
+    private CenterContainer? _centre;
+
     /// <summary>The page title (typed out when the page opens).</summary>
     public string TitleText
     {
@@ -113,11 +115,11 @@ public partial class MenuPage : Control
             HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled,
         };
         AddChild(scroll);
-        var centre = new CenterContainer { Name = "Centre", SizeFlagsHorizontal = SizeFlags.ExpandFill };
-        scroll.AddChild(centre);
+        _centre = new CenterContainer { Name = "Centre", SizeFlagsHorizontal = SizeFlags.ExpandFill };
+        scroll.AddChild(_centre);
         Body = new VBoxContainer { Name = "Body", CustomMinimumSize = new Vector2(bodyWidth, 0f) };
         Body.AddThemeConstantOverride("separation", 8);
-        centre.AddChild(Body);
+        _centre.AddChild(Body);
 
         _bar = new HBoxContainer
         {
@@ -147,6 +149,15 @@ public partial class MenuPage : Control
         _title.OffsetRight = -90f;
         _title.ClipText = true;
         _title.TextOverrunBehavior = TextServer.OverrunBehavior.TrimEllipsis;
+    }
+
+    /// <summary>Centres the body up and down as well as across (while it fits; a taller body still scrolls).</summary>
+    protected void CentreBodyVertically()
+    {
+        if (_centre is not null)
+        {
+            _centre.SizeFlagsVertical = SizeFlags.ExpandFill;
+        }
     }
 
     /// <summary>The modern look's thin rules under the title and above the page buttons.</summary>

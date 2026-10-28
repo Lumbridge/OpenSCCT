@@ -40,6 +40,7 @@ public partial class MainMenu : MenuPage
         // The original's title here is "Enhanced Versus"; ours is a Splinter Cell fact, a new one each time.
         BuildFrame(SplashTrivia.Pick(), 520f);
         UseSplashTitle();
+        CentreBodyVertically();
         Body.AddChild(UiStyle.Wordmark());
 
         // A round the player dropped out of (a crash, a lost connection, a quit) that is still being played.
