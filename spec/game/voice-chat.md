@@ -112,7 +112,8 @@ Across teams in Modern and Classic:
 13. Hacked comms: a pawn tagged by a team (a spy bullet, or the merc laser's mark; `bSpyBulletOn`, `iTeamSpying`,
     90 s) is heard, one way, by every player of that team who holds the Hack Comm key. It is not heard while either
     side is down. Pressing the key hears every tagged enemy; releasing it, death and going down stop it; a new tag
-    while the key is held is heard at once.
+    while the key is held is heard at once. A grab stops it from the moment it begins (a ledge grab too) until its
+    release, which gives it back if the key is still held.
 14. Grab talk: a spy holding a merc who presses the Hack Comm key talks with that merc both ways, and his own team stops
     hearing him; releasing the key or the end of the grab gives both back. Without the key the grab changes nothing.
 

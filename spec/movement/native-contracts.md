@@ -66,6 +66,7 @@ Units:
 - uc:SBase.SPlayerController:GetSpeedMode
 - uc:SBase.SPlayerController:ScriptMyProcessMove
 - uc:SBase.SBasePawn:RMColOn
+- uc:SBase.SBasePawn:AnimNotifyNoise
 - uc:SBase.SBasePawn:Tick
 - uc:SBase.SPawnAttaque:Tick
 - uc:SBase.SPAWNDEFENSE:CheckBob
@@ -193,6 +194,7 @@ Default.PrePivot; only the ledge test uses m_LedgeGrabArmsZone whatever the curr
 | GetSpeedMode() -> float | NativeComputeControlVariables, which multiplies the key input by it each frame (input.md) | 1.0, 0.8, 0.6 or 0.4 (input-and-rotation.md) |
 | ScriptMyProcessMove(dt, accel) | MyServerMove processing on the server, per client move | calls the state's MyProcessMove |
 | RMColOn (SBasePawn) | clip notify during root motion | sets bUseRootMotionAdditionnalPhysics = true and RootMotionAdditionnalPhysics = PHYS_None (collision back on during the clip) |
+| AnimNotifyNoise (SBasePawn) | clip notify (every machine) | the local player controller's ClientNotifyNoise(this pawn, 1.0): the merc HUD's sound arrow; nothing without a local player |
 
 Events are virtual and state-overridable, and several natives are too: CheckArmsZone and CheckFeetZone are
 non-final natives, so a state can replace them with script (s_WaistLedgeDetect replaces CheckFeetZone with

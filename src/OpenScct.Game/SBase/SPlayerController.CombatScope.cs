@@ -527,7 +527,7 @@ public partial class SPlayerController
 
             self.BinocularTimeBetweenFire = SvmMath.Max(self.BinocularTimeBetweenFire - DeltaTime, 0f);
 
-            self.ProcessCrouch();
+            ProcessCrouch(self, pawn);
             float a = self.aForward / K.ScopeInputSpan;
             float curve = pawn.bIsCrouched
                 ? (K.ScopeCrouchA * a + K.ScopeCrouchB) * a + K.ScopeCrouchC
@@ -667,6 +667,46 @@ public partial class SPlayerController
         [Uc("SBase.SPlayerController.s_Binoculars_Def.CanBeElbowShocked", Sha1 = "a40381ccfdf342092554b33966344721f68fd6c2")]
         [PortOf("uc:SBase.SPlayerController:s_Binoculars_Def.CanBeElbowShocked", Spec = "spec/equipment/merc-scope.md#rules")]
         public bool CanBeElbowShocked(SPlayerController self) => true;
+
+        /// <summary>
+        /// The scope's crouch: the stance changes without leaving the scope, with the two-handed transition clip
+        /// (SA_WAIT_CR2ST_2H, SA_WAIT_ST2CR_2H), at most every 0.5 s. With no room to stand the latch goes back on.
+        /// </summary>
+        [Uc("SBase.SPlayerController.s_Binoculars_Def.ProcessCrouch", Sha1 = "644f20d3e5297ac471a59ab772488956639a7c53")]
+        [PortOf("uc:SBase.SPlayerController:s_Binoculars_Def.ProcessCrouch", Spec = "spec/equipment/merc-scope.md#rules")]
+        private static void ProcessCrouch(SPlayerController self, SBasePawn pawn)
+        {
+            if (!pawn.bCanCrouch)
+            {
+                return;
+            }
+
+            float now = self.Level.TimeSeconds;
+            if (!self.bCrouchWithRoll)
+            {
+                if (!pawn.bIsCrouched)
+                {
+                    return;
+                }
+
+                if (pawn.CanUnCrouch() && self.m_LastSpecialMoveTime < now - K.SpyBinoCrouchGuard)
+                {
+                    pawn.ChangeEnumAction(SBasePawn.SA_WANTS_TO_UNCROUCH);
+                    self.m_LastSpecialMoveTime = now;
+                    pawn.ChangeEnumAction(SBasePawn.SA_WAIT_CR2ST_2H);
+                }
+                else
+                {
+                    self.bCrouchWithRoll = true;
+                }
+            }
+            else if (!pawn.bIsCrouched && self.m_LastSpecialMoveTime < now - K.SpyBinoCrouchGuard)
+            {
+                pawn.ChangeEnumAction(SBasePawn.SA_WANTS_TO_CROUCH);
+                self.m_LastSpecialMoveTime = now;
+                pawn.ChangeEnumAction(SBasePawn.SA_WAIT_ST2CR_2H);
+            }
+        }
 
         [Uc("SBase.SPlayerController.s_Binoculars_Def.CanCrouch", Sha1 = "a40381ccfdf342092554b33966344721f68fd6c2")]
         [PortOf("uc:SBase.SPlayerController:s_Binoculars_Def.CanCrouch", Spec = "spec/equipment/merc-scope.md#rules")]

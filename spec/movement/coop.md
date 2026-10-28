@@ -139,7 +139,12 @@ alive, GotoWaitingState.
    SA_WANTS_TO_CROUCH) if standing. AnimEnd channel 0 of CoopCrAlHpBgP: SA_SHL_P_WAITING (the native then sets
    bReadyForShortLadder). Any of reload, rate of fire, jump, fire mode, fire, or the stick outside the 100 square
    cancels (SA_SHL_P_STOP, GotoWaitingState) unless the boost clip CoopCrAlHpEdP is playing. PerformCoopMvt again
-   while ready (or with jump pressed): SA_SHL_P_LEAVE, s_ShortLadder_P_Out. A quick grenade launch cancels too.
+   while ready (or with jump pressed): SA_SHL_P_LEAVE, s_ShortLadder_P_Out. The quick gadget keys work here (not
+   while CoopCrAlHpEdP plays; spies only, the slot within the team's count, slot 1 refused while the cloak is
+   selected, no fire mode pending, 2 s after the last quick launch): the pawn selects the slot; a grenade that can be
+   quick-launched (a charge, or the tutorial) by a helper who can stand sets bUnCrouchAndUnDraw and
+   bQuickGadgetQuery, plays SA_SHL_P_STOP and goes to the walking state, which throws it; a cloak is quick-used and
+   the help goes on.
 3. s_ShortLadder_P_WaitForShortLadder (set by the server when the climber jumps): zero move; damage cancels
    unless CoopCrAlHpEdP is playing; AnimEnd of CoopCrAlHpEdP: SA_SHL_P_FINISH forced, latch off, smooth camera,
    SA_WALK_ST_0H forced, s_PlayerWalkingSt0H.

@@ -1,8 +1,10 @@
 using OpenScct.Core;
 using OpenScct.Core.Engine;
 using OpenScct.Core.Uc;
+using OpenScct.Game.Equipment;
 using OpenScct.Game.Movement;
 using OpenScct.Provenance;
+using EK = OpenScct.Game.Equipment.K;
 
 namespace OpenScct.Game.SBase;
 
@@ -10,12 +12,8 @@ namespace OpenScct.Game.SBase;
 // the begin clip he is ready. Written from spec/movement/coop.md (short ladder, helper, rule 2).
 public partial class SPlayerController
 {
-    /// <remarks>
-    /// Not ported here: the quick gadget key (GadgetQuickChoice: the grenade launcher's quick launch, which stops the
-    /// help, and the cloak's quick use; equipment spec).
-    /// </remarks>
     [Uc("SBase.SPlayerController.s_ShortLadder_P_Waiting")]
-    public class s_ShortLadder_P_Waiting : s_ShortLadder_P_Base
+    public class s_ShortLadder_P_Waiting : s_ShortLadder_P_Base, IGadgetQuickChoice
     {
         public static new readonly s_ShortLadder_P_Waiting Instance = new(UcMeta.s_ShortLadder_P_Waiting, s_ShortLadder_P_Base.Instance);
 
@@ -77,6 +75,48 @@ public partial class SPlayerController
             self.bPressedJump = false;
             self.UpdateCamRotation(DeltaTime);
             self.SendMove(DeltaTime, default);
+        }
+
+        /// <summary>
+        /// A quick gadget key while boosting (spies only, not during the boost clip, 2 s after the last quick launch,
+        /// with no fire mode pending; slot 1 refused while the cloak is selected): the slot is selected; a grenade that
+        /// can be quick-launched (a charge, or the tutorial) by a helper able to stand stops the help and is thrown
+        /// from the walking state; a cloak is used at once and the help goes on.
+        /// </summary>
+        [Uc("SBase.SPlayerController.s_ShortLadder_P_Waiting.GadgetQuickChoice", Sha1 = "a70e4f2a2439a4b75ee05b87dbfa36a39859d745")]
+        [PortOf("uc:SBase.SPlayerController:s_ShortLadder_P_Waiting.GadgetQuickChoice", Spec = "spec/movement/coop.md#short-ladder-helper")]
+        public void GadgetQuickChoice(SPlayerController self, int i)
+        {
+            if (self.SBPawn is not { } pawn || i >= PawnInventory.TeamSlots(pawn) || pawn.PawnAnim[0].Sequence == CoopCrAlHpEdP)
+            {
+                return;
+            }
+
+            if (i == 1 && pawn.SelectedGadget is SGadCloak)
+            {
+                return;
+            }
+
+            if (self.fDateFireMode != 0f || pawn.SPawnType != PawnType.SPAWNOFFENSE ||
+                self.Level.TimeSeconds <= self.fDateLaunchedLastQuickGadget + EK.QuickLaunchCooldown)
+            {
+                return;
+            }
+
+            PawnInventory.SelectGagdet(pawn, i);
+            switch (pawn.SelectedGadget)
+            {
+                case SGadGrenLauncher grenade when grenade.CanQuickLaunch &&
+                    (grenade.Charge > 0 || GadgetWorld.CurLevelIsTutorial(pawn)) && (!pawn.bIsCrouched || pawn.CanUnCrouch()):
+                    self.bUnCrouchAndUnDraw = 1;
+                    self.bQuickGadgetQuery = true;
+                    pawn.ChangeEnumAction(SBasePawn.SA_SHL_P_STOP, true);
+                    self.GotoWaitingState();
+                    break;
+                case SGadCloak cloak:
+                    cloak.QuickUse();
+                    break;
+            }
         }
 
         /// <summary>The begin clip ended (controlling side): the waiting hold, which makes the helper ready.</summary>

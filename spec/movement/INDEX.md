@@ -1421,7 +1421,6 @@ coverage can track it.
 - uc:SBase.SPlayerController:SendPawnPosition
 - uc:SBase.SPlayerController:PCChangeClientStateForMercGrabbedFromLedge
 - uc:SBase.SPlayerController:MirrorStateForMercGrabbedFromLedge
-- uc:SBase.SPlayerController:ClientSetRotation
 - uc:SBase.SPlayerController:ForceRotateTo
 - uc:SBase.SPlayerController:ClientStopRM
 - uc:SBase.SPlayerController:AntiBugTellServerIAmDead
@@ -1504,7 +1503,6 @@ coverage can track it.
 - uc:SBase.SBasePawn:DistantClientReinit
 - uc:SBase.SBasePawn:ExecuteActionForGoggle
 - uc:SBase.SBasePawn:NotifyQuickLaunch
-- uc:SBase.SBasePawn:AnimNotifyNoise
 - uc:SBase.SBasePawn:AnimNotify_Interact
 - uc:SBase.SBasePawn:PlayFirstPersonSharingAnimation
 - uc:SBase.SBasePawn:PlayFirstPersonDamage

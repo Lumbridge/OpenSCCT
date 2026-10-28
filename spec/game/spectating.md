@@ -28,6 +28,7 @@ Units:
 - uc:SBase.SPlayerController:s_Spectating_Visitor.SwitchEnhancedReality
 - uc:SBase.SPlayerController:Server_FindNextFriend
 - uc:SBase.SPlayerController:Server_FindNextVisitor
+- uc:SBase.SPlayerController:ClientSetViewTarget, uc:Engine.PlayerController:ClientSetViewTarget
 - uc:SBase.SPlayerController:BaseSpectating.IsSpectating
 - uc:SBase.SPlayerController:BaseSpectating.MyProcessMove
 - uc:SBase.SPlayerController:BaseSpectating.PlayerMove
@@ -69,6 +70,10 @@ which is the parent of `s_MultiSpectating_WhenKilled` and `s_Spectating_Visitor`
    Mode 1 is night (spy) or motion (merc), 2 thermal (spy) or EMF (merc), 3 cycles; modes disabled in the GRI
    `bAvlb_*` flags are refused or skipped; choosing the active mode turns vision off. Then `Goggle.Activate()`
    (vision spec).
+5a. `ClientSetViewTarget(A)` (server to owner, also run by the server for a local player): the Engine part sets the
+   view target. Then, in `s_Spectating_Visitor` with a pawn `A`: a goggle mode the watched side cannot use is
+   dropped (EMF or motion tracking while watching a spy, night or thermal while watching a merc): `CurrentMode`
+   becomes REN_DynLight (5) and `Goggle.Activate()`.
 6. GadTorcheSwitch toggles HUD visibility.
 
 `s_MultiSpectating` (overrides):

@@ -659,11 +659,11 @@ public partial class SPlayerController
 
     /// <summary>
     /// PlayerFallingInerte: a player killed in the air falls as a body (death spec rule 8): 10 s at most, then
-    /// s_Dead; landing gives s_LandingInerte. Drop attacks are ignored. Not ported here: the falling corpse's drop
-    /// attack on a pawn below (NotifyBump, drop attack spec).
+    /// s_Dead; landing gives s_LandingInerte. Drop attacks are ignored, but the falling body that lands on a pawn's
+    /// head drop-attacks him (or sets off his sticky skin).
     /// </summary>
     [Uc("SBase.SPlayerController.PlayerFallingInerte")]
-    public class PlayerFallingInerte : UcActorState, IMyNotifyLanded, IDropAttack, IMyFalling
+    public class PlayerFallingInerte : UcActorState, IMyNotifyLanded, IDropAttack, IMyFalling, INotifyBump
     {
         public static readonly PlayerFallingInerte Instance = new(UcMeta.PlayerFallingInerte, null);
 
@@ -728,7 +728,32 @@ public partial class SPlayerController
                 self.eventChangeState(CNAME_s_LandingInerte);
             }
 
-            (pawn.MyWeapon as SWeaponDefense)?.AnimateLand();
+            if (pawn.WeaponLoaded != 0)
+            {
+                (pawn.MyWeapon as SWeaponDefense)?.AnimateLand();
+            }
+
+            return true;
+        }
+
+        /// <summary>Coming down on a head (owner): a sticky-skinned pawn blasts, anyone else is drop-attacked.</summary>
+        [Uc("SBase.SPlayerController.PlayerFallingInerte.NotifyBump", Sha1 = "d06cb3f59a430f67708596d3088746b58b7fdf69")]
+        [PortOf("uc:SBase.SPlayerController:PlayerFallingInerte.NotifyBump", Spec = "spec/combat/death-and-respawn.md#paths-into-s_dead")]
+        public bool NotifyBump(SPlayerController self, Actor Other)
+        {
+            if (Other is SBasePawn below && self.Pawn is { } me &&
+                below.Location.Z + below.CollisionHeight * K.LedgeFallHeadShare <= me.Location.Z - me.CollisionHeight && self.IAmOnClient())
+            {
+                if (below.bStickySkinned)
+                {
+                    self.eventStickyBlast(below);
+                }
+                else
+                {
+                    self.TellServerToFallAttack(below);
+                }
+            }
+
             return true;
         }
 

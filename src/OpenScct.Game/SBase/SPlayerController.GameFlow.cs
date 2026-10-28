@@ -554,7 +554,50 @@ public partial class SPlayerController
         {
             UnPossess();
             SetViewTarget(SpecTarget);
-            GameHost.ClientCall(this, new GameCall("ClientSetViewTarget") { Actor = SpecTarget });
+            ClientSetViewTarget(SpecTarget);
+        }
+    }
+
+    private static readonly Name GNAME_s_Spectating_Visitor = new("s_Spectating_Visitor");
+
+    /// <summary>
+    /// Server to owner: the Engine rotation set, and the desired rotations follow it so the aim does not swing back
+    /// (respawn-and-spawning.md rule 7).
+    /// </summary>
+    [Uc("SBase.SPlayerController.ClientSetRotation", Sha1 = "8cc2abd82be36ddcd9eb6dbf69c3e54d741a9fd0")]
+    [PortOf("uc:SBase.SPlayerController:ClientSetRotation", Spec = "spec/game/respawn-and-spawning.md#rules")]
+    public override void ClientSetRotation(FRotator NewRotation)
+    {
+        base.ClientSetRotation(NewRotation);
+        MyDesiredRotation = Rotation;
+        LocalMyDesiredRotation = Rotation;
+    }
+
+    /// <summary>
+    /// The camera follows <paramref name="A"/> (spectating.md rule 5a). A visitor whose new view pawn is of the other side
+    /// drops a goggle mode that side has no use for: EMF or motion tracking on a spy, night or thermal on a merc, to
+    /// the plain view.
+    /// </summary>
+    [Uc("SBase.SPlayerController.ClientSetViewTarget", Sha1 = "4449b1177fc44ed4a299f4f5459b14605da1b073")]
+    [PortOf("uc:SBase.SPlayerController:ClientSetViewTarget", Spec = "spec/game/spectating.md#rules")]
+    public override void ClientSetViewTarget(Actor? A)
+    {
+        base.ClientSetViewTarget(A);
+        if (IsRemotePlayer || !IsInState(GNAME_s_Spectating_Visitor) || A is not SBasePawn watched || Goggle is not { } goggle)
+        {
+            return;
+        }
+
+        bool drop = goggle.CurrentMode switch
+        {
+            SGoggle.REN_EMFVision or SGoggle.REN_MotionTrackingVision => watched.SPawnType == PawnType.SPAWNOFFENSE,
+            SGoggle.REN_NightVision or SGoggle.REN_ThermalVision => watched.SPawnType == PawnType.SPAWNDEFENSE,
+            _ => false,
+        };
+        if (drop)
+        {
+            goggle.CurrentMode = SGoggle.REN_DynLight;
+            goggle.Activate();
         }
     }
 

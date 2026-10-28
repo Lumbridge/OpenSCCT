@@ -121,7 +121,7 @@ its copy of each controller and read by `SessionVoiceLinks` every 100 ms:
 
 | Feature | Owner's machine | Server state | Heard |
 |---|---|---|---|
-| Hack Comm (H held) | `UpdateSpecialsChat` after each PlayerMove sends each change of `bSpecialsChat` (`ReplicateSpecialsChatOnServer`) | `bSpecialsChat` | every enemy carrying your team's tag (spy bullet, merc laser mark), one way, while the key is down, neither side downed and not grabbing |
+| Hack Comm (H held) | `UpdateSpecialsChat` after each PlayerMove sends each change of `bSpecialsChat` (`ReplicateSpecialsChatOnServer`) | `bSpecialsChat` | every enemy carrying your team's tag (spy bullet, merc laser mark), one way, while the key is down, neither side downed and not grabbing (any grab, a ledge grab too, from its start to its release) |
 | Grab talk (H while holding a merc) | `s_GrabbingPlayer.VoiceChatButtonToggle` sends `ServerSetVoiceComWhenGrabbing` | `bVoiceComWhenGrabbing` (cleared by the grab's EndState) | spy and merc both ways; the spy's team stops hearing him |
 | Voice trace (merc scope, spy binoculars) | once a second a trace along the view, 50 to 6000 × zoom uu (`BinocularVoiceTrace`); an enemy hit plays `Snd_VoiceHacking` and sends `ServerSetVoiceChatTarget`, losing it sends `ServerClearVoiceChatTarget` | `VoiceChatTargetPC`, accepted only for an enemy within 7000 uu | the target, one way |
 

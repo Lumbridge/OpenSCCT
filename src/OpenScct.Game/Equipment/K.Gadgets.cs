@@ -89,6 +89,10 @@ public static partial class K
     [Provenance(ProvenanceKind.Decoded, "SGadStickyCam.Use / menu messages for 3 s")]
     public const float StickyMessageTime = 3f;
 
+    /// <summary>The Give entry's "gave" message stays 3 s (AddMessageToStack time 3).</summary>
+    [Provenance(ProvenanceKind.Decoded, "s_MenuInteraction.PlayerMove: AddMessageToStack(..., 3)")]
+    public const int ShareMessageTime = 3;
+
     // ---- heartbeat sensor (heartbeat-sensor.md) ---------------------------------------------------------------
 
     [Provenance(ProvenanceKind.Decoded, "CheckForPawn 0x10abd0e0 StateOfDetect values")]
