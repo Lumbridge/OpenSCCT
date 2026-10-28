@@ -305,10 +305,6 @@ tools\godot\4.7.2-stable\Godot_v4.7.2-stable_mono_win64_console.exe --path game 
 - The pose build's timing is emulated (after the tick for a drawn pawn, after the advance for the local merc in
   first person, before each action).
 - The root turn is the yaw of the root key's X axis; keys within 60 degrees of upright keep the previous yaw.
-- SA_LEDGE_GRAB and SA_ONLEDGE in `TraversalActions` stop channel 15 (the clip is cleared); execute-action.md says
-  the channel is blended to 0 and keeps its clip. The difftest shows it in traversal.spy-walkoff-ledge-catch
-  (channel 15 at alpha 0 from the catch on, reported only). The fix belongs in `TraversalActions`:
-  `SetBlendParams(DBLJUMPCHANNEL, 0f)` in place of `Stop`.
 - traversal.spy-zip-line-29: the movement leaves the reference at frame 0, so no channels are compared.
 - The root track's rotation keys (LaddStAlBu0 turns 180 degrees in its track) are not read; the turn still comes
   from the root bone. The four root-track goldens pass with it.

@@ -96,12 +96,36 @@ is the identity at the default settings. The Faithful pipeline does the same:
    level's threshold is below 255); the vision pass of RendMap and the exact sRGB decode. Thermal, motion and EMF run
    the blur pyramid (`svm_vision_blur.glsl`) before the vision pass.
 3. The environment passes colours through: Linear tonemapper, exposure 1, no glow, AO, SSR, SDFGI, fog, adjustments
-   or auto exposure; no MSAA, TAA or debanding. Godot's output encode is the exact sRGB curve, so the screen shows
+   or auto exposure; no TAA or debanding, and MSAA and SMAA only when the player turns them on (see
+   [Anti-aliasing](#anti-aliasing)). Godot's output encode is the exact sRGB curve, so the screen shows
    the display value again. Godot linearizes the environment's background colour, so a clear colour is handed over
    sRGB-encoded.
 
 `Post/DisplayCheck` draws 16 known values (0 to 255) through the whole chain and reads them back: every golden run
 starts with it, and it must be exact within one step. It reads back exact (maximum error 0).
+
+### Anti-aliasing
+
+The stock Versus renderer draws without anti-aliasing; Reloaded adds MSAA and SMAA (rl:gfx.aa). Options, Display:
+`msaa` (on or off, first run off), `msaa_samples` (2, 4 or 8, first run 4) and `smaa` (first run off), saved in
+`settings.json`. `SettingsApplier.ApplyAntiAliasing` sets them on the viewport that draws the game when the options
+are saved, so they apply at once:
+
+- MSAA is the viewport's `Msaa3D`. Godot resolves the samples after the transparent pass, before the compositor's
+  `PostTransparent` effects, so the display-space pass and the flash-bang after-image work on the resolved frame.
+  Godot 4.7.2 makes that resolve target without storage use (binding it as an image failed and crashed the armoury
+  preview), so `Post/StorageColor` runs those passes on a storage copy: a compute copy of the resolved frame through
+  a sampler in, the passes, a texture copy back into the resolve target, which the tonemap pass reads next. Without
+  MSAA the colour buffer is a storage image and the passes write it in place, as before. The first frame that needs
+  the copy prints `SVM_RENDER display post: the colour buffer is not a storage image`.
+- With MSAA on, masked (alpha-tested) world materials draw with alpha to coverage (`MaterialCompiler.AlphaToCoverage`,
+  `alpha_to_coverage` and `ALPHA_ANTIALIASING_EDGE` 0.3 in `svm_world.gdshaderinc`), so fences, grilles and foliage
+  edges are smoothed by the samples too. Shaders are made when a map is built, so this follows from the next map.
+- SMAA is the viewport's `ScreenSpaceAA`. Godot runs it after the tonemap, so it smooths the frame as shown, after
+  fog, glow and the vision passes (Reloaded applies SMAA last as well). It combines with MSAA.
+- The sky zone, spot shadow, golden and display check viewports keep both off, so the golden captures and the
+  readback stay exact. The sky zone's picture is copied in without MSAA; its edges are not smoothed by MSAA (SMAA
+  smooths the whole frame). The armoury preview keeps its own FXAA.
 
 **Glow.** The normal composite (0x10966010, while PlayerController.DoGlow & 3, default 1) runs the glow driver
 0x10967740 in mode 0 and then writes `frame x saturate(16 (dot(frame, (0.311, 0.524, 0.165)) - 0.03)) + glow`
@@ -739,7 +763,15 @@ Both need `.content/` (converted content and the render pack), so CI's default s
   (texture factors 0x7f7f7f7f and 0 at depths 0.9974 and 0.9979) are not decoded.
 - Projectors: MaterialBlendingOp and per-type filtering (above). Light beams: the shadow buffer cut (window bars) and
   the torch beam.
-- Not drawn yet: mirrors, BeamEmitter / SparkEmitter.
+- Mirrors: none to draw. Every PF_Mirrored BSP surface of the shipped maps (MuseD/E/T 86, OffsD 11, ScheU 16,
+  SteeD/P 25, SteeE/T 4, TermD 17 surfaces) is also PF_Invisible (flags 0x8000009 or 0x8000109), and UE2 leaves
+  invisible surfaces out of drawing, so the original shows no mirror; the exporter drops them with the other invisible
+  surfaces. The maps' "mirror" textures (DTK_mirroir on ClarD, CpusS) are ordinary meshes and draw as such. Counted by
+  reading every map's world Model (2026-10-28).
+- Beam emitters: drawn as straight strips; the noise and branches are not decoded. No map places a BeamEmitter and
+  the one effect class with a beam (SElectricArcEmitter) is spawned by no script, so nothing shows the difference.
+  Spark emitters are drawn (spec/native/emitters.md rule 22); the one map spark emitter (PanaD and PanaS Emitter241,
+  under a disabled sprite burst) starts when its `Sprite` event triggers it.
 - Spot shadow lights: the Echelon light pass's gain (2), shadow buffer sizes (ShadowZBufferWidthType /
   HeightType), EchelonBias and the original's limit on lights drawn at once are not decoded; bDirectional and
   bIsPerspective are read nowhere yet.

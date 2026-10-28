@@ -278,8 +278,9 @@ public partial class SPlayerController
     /// <remarks>
     /// The free camera's input clears run in TickFreeCamera, before PlayerTick (the cinematic camera takes the
     /// movement input too). Not ported here: the console input clears (front end), the heartbeat sound stop, the gadget,
-    /// smoke and HUD parts, ClientUpdatePosition (netcode) and the objective idle timer (objectives spec). The specials
-    /// chat (the Hack Comm key) follows the move as in the original, then the camera goes to the server every 0.14 s.
+    /// smoke and HUD parts and ClientUpdatePosition (netcode). The specials chat (the Hack Comm key) follows the move as
+    /// in the original, then the camera goes to the server every 0.14 s, then the mission reminder runs
+    /// (SPlayerController.MissionReminder.cs).
     /// </remarks>
     [Uc("SBase.SPlayerController.PlayerTick", Sha1 = "5e6178b93ec98230e270a689b61159665cd12ee7")]
     [PortOf("uc:SBase.SPlayerController:PlayerTick", Spec = "spec/movement/input-and-rotation.md#frame-order-global-playertick")]
@@ -349,6 +350,8 @@ public partial class SPlayerController
             lastCameraReplicationPositionTime = now;
             UpdatePositionForServer(Location, Rotation);
         }
+
+        MissionReminder(pawn, now);
     }
 
     [Provenance(ProvenanceKind.Decoded, "SPlayerController.PlayerTick: UpdatePositionForServer when TimeSeconds - lastCameraReplicationPositionTime > 0.14")]

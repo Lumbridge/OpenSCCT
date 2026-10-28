@@ -69,6 +69,9 @@ public sealed class LocalInput
         PadStick = forward != 0f || strafe != 0f;
     }
 
+    /// <summary>The pad's triggers for the free camera: right minus left, -1 to 1 (up positive).</summary>
+    public float PadUp { get; set; }
+
     /// <summary>The index of a button name, or -1.</summary>
     public static int IndexOf(string button)
     {
@@ -121,6 +124,7 @@ public sealed class LocalInput
         Fast = false;
         Slow = false;
         SetPadStick(0f, 0f);
+        PadUp = 0f;
         EndTick();
     }
 

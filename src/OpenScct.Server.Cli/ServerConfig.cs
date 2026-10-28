@@ -261,6 +261,25 @@ internal sealed record ServerConfig
     /// <summary>Where bans are kept (relative to the config file); null keeps them in memory only.</summary>
     public string? BansFile { get; init; } = "bans.json";
 
+    /// <summary>
+    /// The match log (rl:qol.matchlog): one JSON line per finished round, relative to the config file. Null or empty
+    /// turns it off.
+    /// </summary>
+    public string? MatchLog { get; init; } = "matches.jsonl";
+
+    /// <summary>
+    /// Plays a map playlist in turn instead of <see cref="Rotation"/> (rl:qol.lobbymaps): Standard, Extended, Classic,
+    /// 3v3, Merc Deathmatch or All (docs/MAPS.md), each installed map of it once, in the list's order. Null: the rotation.
+    /// </summary>
+    public string? Playlist { get; init; }
+
+    /// <summary>
+    /// The mode of <see cref="Playlist"/>'s matches (Story, DiskHunt, Deathmatch, MercDeathmatch); null takes the
+    /// playlist's own (Merc Deathmatch for its playlist, Story for the others). A map that does not play it takes its
+    /// default mode.
+    /// </summary>
+    public string? PlaylistMode { get; init; }
+
     public MasterConfig? Master { get; init; }
 
     /// <summary>Demo recording and upload; null records nothing.</summary>
@@ -312,11 +331,55 @@ internal sealed record ServerConfig
         RequireAccounts = true,
     };
 
+    /// <summary>The playlist's matches as rotation entries (no changes to the maps' own settings).</summary>
+    private List<RotationEntry> PlaylistEntries(MapCatalog maps, string name)
+    {
+        MapPlaylist? list = null;
+        foreach (MapPlaylist p in maps.GetPlaylists())
+        {
+            if (string.Equals(p.Name, name, StringComparison.OrdinalIgnoreCase))
+            {
+                list = p;
+            }
+        }
+
+        if (list is null)
+        {
+            var names = new List<string>();
+            foreach (MapPlaylist p in maps.GetPlaylists())
+            {
+                names.Add(p.Name);
+            }
+
+            throw new InvalidOperationException($"Playlist '{name}' is not a playlist ({string.Join(", ", names)}).");
+        }
+
+        EGameMode mode = list.Mode;
+        if (PlaylistMode is { Length: > 0 } text && !LobbySetup.TryParseMode(text, out mode))
+        {
+            throw new InvalidOperationException($"Playlist mode '{text}' is not a mode (Story, DiskHunt, Deathmatch, MercDeathmatch).");
+        }
+
+        var entries = new List<RotationEntry>();
+        foreach (string map in list.Maps)
+        {
+            EGameMode m = maps.GetCatalogEntry(map) is { } e && e.Mode(mode) is { Playable: false } ? e.DefaultMode : mode;
+            entries.Add(new RotationEntry { Map = map, Mode = LobbySetup.ModeName(m) });
+        }
+
+        if (entries.Count == 0)
+        {
+            throw new InvalidOperationException($"Playlist '{list.Name}' has no installed map (missing: {string.Join(", ", list.Missing)}).");
+        }
+
+        return entries;
+    }
+
     /// <summary>The rotation's setups, each from its map's own settings for the mode and the entry's changes.</summary>
     public List<LobbySetup> Setups(MapCatalog maps)
     {
         var list = new List<LobbySetup>();
-        foreach (RotationEntry e in Rotation)
+        foreach (RotationEntry e in Playlist is { Length: > 0 } playlist ? PlaylistEntries(maps, playlist) : Rotation)
         {
             if (maps.FindMap(e.Map) is not { } entry)
             {

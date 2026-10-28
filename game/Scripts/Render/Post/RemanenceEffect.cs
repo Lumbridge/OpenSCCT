@@ -30,6 +30,8 @@ public partial class RemanenceEffect : CompositorEffect
     private bool _released;
     private UniformSlots? _slots;
     private byte[]? _push;
+    // The colour buffer as a storage image (a copy of it with MSAA, rl:gfx.aa).
+    private readonly StorageColor _storage = new("remanence");
 
     public RemanenceEffect()
     {
@@ -77,6 +79,7 @@ public partial class RemanenceEffect : CompositorEffect
         RenderingServer.CallOnRenderThread(Callable.From(() =>
         {
             _rd = null;
+            _storage.Free();
             foreach (Rid rid in rids)
             {
                 if (rid.IsValid)
@@ -145,7 +148,12 @@ public partial class RemanenceEffect : CompositorEffect
             _captureSize = size;
         }
 
-        Rid color = buffers.GetColorLayer(0);
+        Rid color = _storage.Begin(_rd, buffers.GetColorLayer(0), size);
+        if (!color.IsValid)
+        {
+            return;
+        }
+
         if (capture)
         {
             Dispatch(color, 1f, 0f, size);
@@ -157,6 +165,8 @@ public partial class RemanenceEffect : CompositorEffect
             Dispatch(color, 2f, factor, size);
             Draws++;
         }
+
+        _storage.End();
     }
 
     private void Dispatch(Rid color, float mode, float factor, Vector2I size)

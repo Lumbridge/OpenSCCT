@@ -144,8 +144,8 @@ public partial class PlayerController
 
     /// <summary>
     /// Server to owner: the camera follows <paramref name="A"/>. A remote player's copy on the server sends it to his
-    /// machine; the owning machine (or a local player) sets the view target. Not ported: a None target asking the
-    /// server to resend its view target (ServerVerifyViewTarget).
+    /// machine; the owning machine (or a local player) sets the view target. A None target (the actor is not
+    /// relevant on the client yet) asks the server to resend it (ServerVerifyViewTarget).
     /// </summary>
     [Uc("Engine.PlayerController.ClientSetViewTarget", Sha1 = "600a457d28e0077afd08703d13dcc3d52990caf6")]
     [PortOf("uc:Engine.PlayerController:ClientSetViewTarget", Spec = "spec/game/spectating.md#rules")]
@@ -157,10 +157,39 @@ public partial class PlayerController
             return;
         }
 
+        if (A is null)
+        {
+            ServerVerifyViewTarget();
+        }
+
         SetViewTarget(A);
     }
 
+    /// <summary>
+    /// Client to server: the client got a None view target, so the server sends its own view target again (unless
+    /// the player views himself).
+    /// </summary>
+    [Uc("Engine.PlayerController.ServerVerifyViewTarget", Sha1 = "ad164119c0ba78dfb16b3b4663f25cd3c982ec60")]
+    [PortOf("uc:Engine.PlayerController:ServerVerifyViewTarget", Spec = "spec/game/spectating.md#rules")]
+    public void ServerVerifyViewTarget()
+    {
+        if (Role < ENetRole.ROLE_Authority)
+        {
+            GameHost.ServerCall(this, new GameCall(NAME_ServerVerifyViewTarget));
+            return;
+        }
+
+        // A view target never set would only send None back and ask again.
+        if (ViewTarget is null || ReferenceEquals(ViewTarget, this))
+        {
+            return;
+        }
+
+        ClientSetViewTarget(ViewTarget);
+    }
+
     private static readonly Name NAME_ClientSetViewTarget = new("ClientSetViewTarget");
+    private static readonly Name NAME_ServerVerifyViewTarget = new("ServerVerifyViewTarget");
 
     /// <summary>Server travel to <paramref name="URL"/>; only a standalone game or a listen server can switch level.</summary>
     [Uc("Engine.PlayerController.SwitchLevel", Sha1 = "ed2fa429bc8ccadbaf9eaab8d5562ed758696af4")]

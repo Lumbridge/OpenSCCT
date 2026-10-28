@@ -27,11 +27,11 @@ server's content must be rebuilt too) and the `ui` step (tutorial pictures, stra
 | Rifle interact and mine states | `SWeaponDefense` s_Interacting and s_DropMine* (clips, laser off/on); the controller already enters them | done |
 | Give gadget to a teammate | share menu Give (`AskServerGiveObjectToPawn`); receive side exists | done (the original's empty "gave" word kept) |
 | Best mine to remove | `GetBestMineIndexToRemove` picks which mine/sticky cam the menu removes | done (decoded: furthest along the view axis) |
-| Small state overrides | ladder-boost quick gadget, crouch in the scope, inert body drop attack, jump AltFire gate, `KilledBy` zone kills, `EmptyAlarmsList`, body shotgun partial reload, AnimNotifyNoise/RMColOn, visitor goggle reset, `ClientSetRotation`, `DistantClientReinit` | done, except `EmptyAlarmsList` per spectator HUD frame and `ServerVerifyViewTarget`; `KilledBy` has no caller yet |
+| Small state overrides | ladder-boost quick gadget, crouch in the scope, inert body drop attack, jump AltFire gate, `KilledBy` zone kills, `EmptyAlarmsList`, body shotgun partial reload, AnimNotifyNoise/RMColOn, visitor goggle reset, `ClientSetRotation`, `DistantClientReinit` | done (`EmptyAlarmsList` every spectator HUD frame and `ServerVerifyViewTarget` added later in the wave); `KilledBy` n-a: decoded, nothing in Versus calls it (spec/combat/environmental-damage.md rule 4) |
 | Pad aim assist | `NativeFindTargetToSnap` never decoded; nothing sets `bSnappedToTarget` | done (decoded; spine height estimated) |
 | Merc squint | `NativeComputeSquinting` never decoded | done, sim only (no visible effect in the original either) |
 | Merc elbow turn / quick 180 | global `UpdateRotationDefenseur` / `NativeRotationCameraDefenseur` | n-a (never runs on PC) |
-| Free camera, hide HUD | Enhanced cinematic camera gated by `bAvlb_CinematicCamera`; ported (spec/hud/cinematic-camera.md); pad controls not wired | done |
+| Free camera, hide HUD | Enhanced cinematic camera gated by `bAvlb_CinematicCamera`; ported (spec/hud/cinematic-camera.md), with pad controls (triggers up and down, shoulder buttons speed: our mapping) | done |
 
 ## Effects and looks
 
@@ -70,7 +70,7 @@ Who-hears-whom matches the original (rules in `VoiceRouting.cs`). Gaps:
 | Per-view sensitivity multipliers stored but unused; clutch | done (scope now 0.75 sideways by Reloaded default; `vertical` meaning estimated) |
 | Sniper kick tied to mouse sensitivity (Reloaded fix) | done |
 | Invert X, feet/meters, Objective Sounds, wheel mode (profile options; profile is null) | done (wheel defaults to Gadget, as before) |
-| classic_crosshair, hack_alpha, Shocker snap option, location name on the HUD | hack_alpha and location done; classic_crosshair open (offset not decoded); Shocker snap open (the snap itself isn't in the game) |
+| classic_crosshair, hack_alpha, Shocker snap option, location name on the HUD | hack_alpha, location and the Shocker snap (its draw-state turn ported, option `shocker_snap`, on) done; classic_crosshair open (offset not decoded) |
 | Anisotropic level, shadow quality, low-latency mode, window position | done (low latency: Ultra = On, Godot's floor) |
 | Crash log, process priority/affinity | done (priority/affinity on the client and `svm-server`; Godot-callback exceptions not caught) |
 | Microphone noise suppression, automatic gain, echo cancellation (rl:voice.noise, gain, echo) | done (our own managed DSP, docs/VOICE.md "Microphone clean-up"; not tuned against Reloaded's speexdsp) |
@@ -82,12 +82,19 @@ Who-hears-whom matches the original (rules in `VoiceRouting.cs`). Gaps:
 | `!resign`, jitter in `!pings` | done |
 | Lag compensation (rl:net.lagcomp) | done (off by default: `lagcomp on`, `!lagcomp on` or config `lagComp`; docs/NETCODE.md "Lag compensation"; Reloaded's default ceiling not decoded, ours is 250 ms) |
 | Client fire prediction (rl:net.fireprediction) | done (for the merc rifles/SMG and the spy pistol's world impacts; option `fire_prediction`, on; pawn hits stay server-confirmed) |
-| Practice server mode, `!heal` `!regen` `!tank` `!kill` | done (extra ammunition not ported, `!regen`/`!tank` effects are our choice: docs/ONLINE.md "Practice servers") |
+| Practice server mode, `!heal` `!regen` `!tank` `!kill` | done (extra ammunition as our `!ammo` command, the ammo crate refill sent to the player's machine; `!regen`/`!tank`/`!ammo` effects are our choice: docs/ONLINE.md "Practice servers") |
 | Client console, `set`/`get` | done (docs/HUD.md "Developer console") |
-| MSAA/SMAA | later (M) |
-| Extraction, Sabotage, Neutralization modes | later (L) |
+| MSAA/SMAA (rl:gfx.aa) | done: Display options msaa, msaa_samples, smaa (first run all off, 4 samples), applied at once; alpha to coverage on masked surfaces from the next map; with MSAA the post passes run on a copy of the resolved frame (docs/RENDERING.md "Anti-aliasing"). Not yet seen running with MSAA on |
+| Map BeamEmitter / SparkEmitter, mirrors (RENDERING.md open issues) | n-a: sparks were already drawn (rule 22) and beams as straight strips; no map places a beam, the one map spark emitter (PanaD/PanaS Emitter241) waits for its event; every PF_Mirrored BSP surface (MuseD/E/T, OffsD, ScheU, SteeD/E/P/T, TermD) is also PF_Invisible, and UE2 leaves invisible surfaces out of drawing, so no map shows a mirror (the DTK_mirroir "mirrors" of ClarD and CpusS are plain textured meshes, already drawn) |
+| Extraction, Sabotage, Neutralization modes | the rules play them (mission selection, Sabotage's bomb and no-modem reminder, Neutralization's HUD clear); the original's menu never offers them and no stock map has a mission or settings entry for them | n-a for stock maps (checked over all 85 converted maps); done for custom maps: the catalog and Create Session offer them only on a map with such a mission/entry, plus the mission reminder every mode uses (docs/MODES.md) |
 | Unverified Reloaded fixes: grab angle, jump lock-on 7.5 m, KO after interrupt, slow strafe, disk radar threshold, crosshair shift, sticky cam fixes | open: need decoding of the Reloaded patch values |
-| Signed releases, lobby music, join sound, local match log, scoreboard split size | open (small or optional) |
+| Signed releases, lobby music, join sound, scoreboard split size | open (small or optional) |
+| Local match log (rl:qol.matchlog) | done (svm-server `matches.jsonl`, one JSON line per round; config `matchLog`; no stats upload; listen hosts keep none) |
+| Lobby map picker playlists, search, rotation by playlist (rl:qol.lobbymaps) | done (Create Session and the lobby's Maps button; `active_map_playlist`; svm-server `playlist`/`playlistMode`); variant words not dimmed, no separate Merc Deathmatch playlist choice |
+| Net readout extras (rl:net.stats): separate `show_net_loss`, host best/worst line | done (loss now off by default) |
+| Signed player keys (rl:ac.bans): Ed25519 per install, join challenge, bans by key | done (game and online servers; the hub and the master do not use keys yet) |
+| Per-connection packet salt (docs/ONLINE.md open item) | done (32-bit salt in every packet header; protocol svm-net/0.3) |
+| IPv6 LAN addresses, IPv6 pinholes | LAN addresses done (up to two IPv6 ones to the master); pinholes open (Godot's UPnP has no IPv6 firewall control) |
 
 ## Front end
 
@@ -101,7 +108,7 @@ Who-hears-whom matches the original (rules in `VoiceRouting.cs`). Gaps:
 | Strategic Map (in-game menu, F7 and lobby; spec/hud/strategic-map.md) | done (needs the maps and ui steps rebuilt for the pictures) |
 | Tutorials hub, gadget encyclopedia, Visit a Map with help paths, first-time-map prompt | done, needs the ui rebuild (TutoOrExam gate skipped) |
 | HUD legend and keyboard pictures pages | done |
-| Tutorial zone hints (SZoneTips) offline: standalone only in the original, and offline play is a listen server here | open (M) |
+| Tutorial zone hints (SZoneTips) offline: standalone only in the original, and offline play is a listen server here | done (shown for the local player while an offline session runs: spec/devices/zone-tips.md rule 5a) |
 | Video: post quality, brightness pattern, keep-settings countdown | open (S) |
 | Main menu quit confirmation | open (S) |
 | Per-player loading list | open (S) |

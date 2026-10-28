@@ -369,6 +369,13 @@ public sealed class GameSettings
     [Provenance(ProvenanceKind.Decoded, "SPlayerProfile InvertX (no default: false); SetPadInvertX sets bInvertHorizontalAxisCamSpy")]
     public bool InvertXSpy { get; set; }
 
+    /// <summary>
+    /// Drawing the Shocker turns the spy toward the nearest merc in front of him (the stock lock-on snap); Enhanced lets
+    /// it be turned off (enh:rules.shocker_snap).
+    /// </summary>
+    [JsonPropertyName("shocker_snap")]
+    public bool ShockerSnap { get; set; } = true;
+
     /// <summary>The mouse wheel: "Gadget" (profile SelectedMouse 0, changes gadgets) or "Speed" (1, walk and run).</summary>
     [JsonPropertyName("mouse_wheel")]
     [Provenance(ProvenanceKind.Estimated, "OpenSCCT choice: Gadget, as the rewrite has always played; DefaultProfile.ini has SelectedMouse=1 (Speed)")]
@@ -481,6 +488,21 @@ public sealed class GameSettings
     [JsonPropertyName("filter_level")]
     [Provenance(ProvenanceKind.Decoded, "spec/reloaded/FEATURES.md rl:gfx.filtering filter_level first-run 4, range 0 to 16")]
     public int FilterLevel { get; set; } = 4;
+
+    /// <summary>Multisample anti-aliasing of the 3D scene (Reloaded's msaa, first run off); masked surfaces then use alpha to coverage (from the next map).</summary>
+    [JsonPropertyName("msaa")]
+    [Provenance(ProvenanceKind.Decoded, "spec/reloaded/FEATURES.md rl:gfx.aa msaa first-run false")]
+    public bool Msaa { get; set; }
+
+    /// <summary>MSAA samples per pixel: 2, 4 or 8 (Reloaded's msaa_samples, first run 4).</summary>
+    [JsonPropertyName("msaa_samples")]
+    [Provenance(ProvenanceKind.Decoded, "spec/reloaded/FEATURES.md rl:gfx.aa msaa_samples first-run 4")]
+    public int MsaaSamples { get; set; } = 4;
+
+    /// <summary>SMAA over the finished frame (Reloaded's smaa, first run off); it combines with MSAA.</summary>
+    [JsonPropertyName("smaa")]
+    [Provenance(ProvenanceKind.Decoded, "spec/reloaded/FEATURES.md rl:gfx.aa smaa first-run false")]
+    public bool Smaa { get; set; }
 
     /// <summary>Shadow map scale (Reloaded's shadow_quality, 0.5 to 16, first run 3): a spot light's map is 256 x this texels high.</summary>
     [JsonPropertyName("shadow_quality")]
@@ -618,6 +640,11 @@ public sealed class GameSettings
     [JsonPropertyName("show_net")]
     public bool ShowNet { get; set; }
 
+    /// <summary>Packet loss received and sent in the network readout (Reloaded's show_net_loss, added after v4.0b).</summary>
+    [JsonPropertyName("show_net_loss")]
+    [Provenance(ProvenanceKind.Decoded, "spec/reloaded/FEATURES.md rl:net.stats show_net_loss = false")]
+    public bool ShowNetLoss { get; set; }
+
     /// <summary>The name of the place the player is in (the map's zone and volume names), at the top of the screen.</summary>
     [JsonPropertyName("show_location")]
     [Provenance(ProvenanceKind.Decoded, "spec/reloaded/FEATURES.md rl:qol.location show_location = true")]
@@ -641,6 +668,14 @@ public sealed class GameSettings
     /// </summary>
     [JsonPropertyName("fire_prediction")]
     public bool FirePrediction { get; set; } = true;
+
+    /// <summary>
+    /// The map playlist the host's map lists show and the Choose Map arrows step through (rl:qol.lobbymaps): a playlist
+    /// name of the map catalog (Standard, Extended, Classic, 3v3, Merc Deathmatch) or "All" (every installed map).
+    /// </summary>
+    [JsonPropertyName("active_map_playlist")]
+    [Provenance(ProvenanceKind.Decoded, "spec/reloaded/FEATURES.md rl:qol.lobbymaps active_map_playlist first-run Standard")]
+    public string ActiveMapPlaylist { get; set; } = "Standard";
 
     // ---- Discord -------------------------------------------------------------------------------------------
 
@@ -712,6 +747,7 @@ public sealed class GameSettings
         LowLatencyMode = OneOf(LatencyModes, LowLatencyMode);
         FilterLevel = FilterLevel <= 0 ? 0 : FilterLevel <= 2 ? 2 : FilterLevel <= 4 ? 4 : FilterLevel <= 8 ? 8 : 16;
         ShadowQuality = LookSettings.Range(ShadowQuality, 0.5f, 16f);
+        MsaaSamples = MsaaSamples <= 2 ? 2 : MsaaSamples <= 4 ? 4 : 8;
         HackAlpha = Math.Clamp(HackAlpha, 0, 255);
         if (Array.IndexOf(DisplayModes, DisplayMode) < 0)
         {

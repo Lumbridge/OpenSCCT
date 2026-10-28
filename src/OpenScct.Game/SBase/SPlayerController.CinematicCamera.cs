@@ -23,6 +23,9 @@ public partial class SPlayerController
     /// <summary>The speed factor the held keys give this tick (Shift fast, Alt slow), set by the input layer.</summary>
     public float FreeCamSpeedFactor = 1f;
 
+    /// <summary>The pad's up and down for the free camera this tick (right trigger minus left, -1 to 1), set by the input layer.</summary>
+    public float FreeCamPadUp;
+
     /// <summary>The Reloaded hide-HUD switch (ToggleHideHud); the HUD hides while it or HUD.bHideHUD is set.</summary>
     public bool bCinematicHideHud;
 
@@ -202,8 +205,9 @@ public partial class SPlayerController
     }
 
     /// <summary>
-    /// Each local tick while the free camera flies, before PlayerTick: the mouse turns it and the movement keys fly it
-    /// (Jump up, Crouch down), then the controller's input is cleared, so whatever state the controller is in the pawn
+    /// Each local tick while the free camera flies, before PlayerTick: the mouse (or the right stick) turns it and the
+    /// movement keys (or the left stick) fly it, Jump and Crouch (or the pad's triggers) go up and down, then the
+    /// controller's input is cleared, so whatever state the controller is in the pawn
     /// stands still and does nothing. The camera stops when the pawn dies or goes.
     /// </summary>
     [Provenance(ProvenanceKind.Estimated, "Enhanced 4.0 key rows: movement keys, Space and Ctrl up and down, wheel sets speed, Shift fast, Alt slow; mouse turn uses the merc mouse rate; pitch +-16000; no collision")]
@@ -231,7 +235,7 @@ public partial class SPlayerController
 
         float forward = BT_Up - BT_Down;
         float right = BT_Right - BT_Left;
-        float up = (aUp > 0f ? 1f : 0f) - (bCrouch != 0 ? 1f : 0f);
+        float up = SvmMath.Clamp((aUp > 0f ? 1f : 0f) - (bCrouch != 0 ? 1f : 0f) + FreeCamPadUp, -1f, 1f);
         FVector side = new FRotator(0, r.Yaw + 16384, 0).Vector();
         FVector move = r.Vector() * forward + side * right + new FVector(0f, 0f, up);
         float speed = FreeCamSpeed * FreeCamSpeedFactor * DeltaTime;

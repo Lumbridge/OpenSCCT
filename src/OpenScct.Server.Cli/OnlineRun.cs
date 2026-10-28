@@ -51,6 +51,7 @@ internal static class OnlineRun
         }
 
         string? bansPath = config.BansFile is { Length: > 0 } b ? Path.GetFullPath(Path.Combine(baseDir, b)) : null;
+        string? matchLogPath = config.MatchLog is { Length: > 0 } ml ? Path.GetFullPath(Path.Combine(baseDir, ml)) : null;
         string? demoFolder = config.Demos is { Record: true, Folder.Length: > 0 } d ? Path.GetFullPath(Path.Combine(baseDir, d.Folder)) : null;
         if (demoFolder is not null && config.Demos!.KeepLocalDays > 0)
         {
@@ -90,6 +91,7 @@ internal static class OnlineRun
                 : null,
             RequireAccounts = config.RequiresAccounts,
             DemoFolder = demoFolder,
+            MatchLog = matchLogPath is not null ? new MatchLog(matchLogPath) : null,
             LagCompensation = config.LagComp,
             LagCompensationCeilingMs = config.LagCompCeilingMs,
         };

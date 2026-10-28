@@ -164,6 +164,9 @@ public sealed record OnlineServerSettings
     /// <see cref="OnlineServer.DemoRecorded"/> reports each finished file.
     /// </summary>
     public string? DemoFolder { get; init; }
+
+    /// <summary>Writes a JSON line for every finished round (rl:qol.matchlog); null (the default) logs nothing.</summary>
+    public MatchLog? MatchLog { get; init; }
 }
 
 /// <summary>A player of the session on the server, kept across the maps of the visit.</summary>
@@ -232,6 +235,12 @@ public sealed class SessionPlayer
     /// <summary>The signed-in player's master account (from his ticket), or null for a guest or a bot.</summary>
     public long? AccountId { get; internal set; }
 
+    /// <summary>
+    /// The player's proven key (<see cref="PlayerKey"/>: he signed the server's join challenge), or null for a client
+    /// without one, a bot, or the listen host's own player.
+    /// </summary>
+    public string? PublicKey { get; internal set; }
+
     /// <summary>The player joined with a valid master ticket: his name is his account's claimed name.</summary>
     public bool Verified { get; internal set; }
 
@@ -288,6 +297,7 @@ public sealed partial class OnlineServer : IDisposable
 
     /// <summary>When the round being played started (its duration goes to the master with the results).</summary>
     private long _matchStart;
+    private DateTimeOffset _matchStartUtc;
 
     /// <summary>When a "restart" launches the round again once everyone is back in the lobby (-1: none).</summary>
     private long _relaunchAt = -1;
@@ -629,6 +639,7 @@ public sealed partial class OnlineServer : IDisposable
         _relay = _voice is not null ? new VoiceRelay(_voice, directory, new SessionClock(this)) : null;
 
         host.LoginFilter = FilterLogin;
+        host.KeyChallenge = true;
         host.PlayerJoined += OnPlayerJoined;
         host.PlayerLeft += OnPlayerLeft;
         host.SessionLineReceived += OnSessionLine;
@@ -870,6 +881,7 @@ public sealed partial class OnlineServer : IDisposable
         if (phase == SessionPhase.Match)
         {
             _matchStart = _now;
+            _matchStartUtc = Settings.WallClock.GetUtcNow();
             _roundMatchId = null;
         }
         _endedAt = -1;
@@ -1066,6 +1078,7 @@ public sealed partial class OnlineServer : IDisposable
 
         // Reported first: the round's demo is handed to the upload once the master has the round (SubmitDemo).
         ReportResults(results);
+        WriteMatchLog(results);
         RoundEnded?.Invoke(results);
         FinishDemo(Host, results);
     }
@@ -1135,6 +1148,33 @@ public sealed partial class OnlineServer : IDisposable
             WinningReason = results.WinningReason, ObjectivesTaken = results.ObjectivesTaken, ObjectivesNeeded = results.ObjectivesNeeded,
             DurationSeconds = _matchStart > 0 ? (int)Math.Max(0, (_now - _matchStart) / Second) : 0, Rows = rows,
         });
+    }
+
+    /// <summary>The round's line in the server's match log (Settings.MatchLog), when it keeps one.</summary>
+    private void WriteMatchLog(MatchResults results)
+    {
+        if (Settings.MatchLog is not { } log)
+        {
+            return;
+        }
+
+        var players = new List<MatchLogPlayer>();
+        foreach (ResultRow row in results.Rows)
+        {
+            SessionPlayer? p = _players.Find(x => x.Id == row.Id);
+            players.Add(new MatchLogPlayer(row.Name, row.Team, row.Score, row.Kills, row.Deaths, row.Lives, p?.IsBot ?? false,
+                p is { Verified: true } ? p.AccountId : null, p?.PublicKey, p?.PingMs ?? 0));
+        }
+
+        var entry = new MatchLogEntry
+        {
+            StartedUtc = _matchStart > 0 ? _matchStartUtc : Settings.WallClock.GetUtcNow(), EndedUtc = Settings.WallClock.GetUtcNow(),
+            Server = Settings.Name, Round = RoundsStarted, Setup = Setup, Results = results, Players = players,
+        };
+        if (!log.Write(entry, out string? error))
+        {
+            Log($"match log {log.Path}: {error}");
+        }
     }
 
     [PortOf("uc:GUI.Ending_Menu:Timer", Spec = "spec/game/round-travel.md#rules")]
@@ -1379,11 +1419,21 @@ public sealed partial class OnlineServer : IDisposable
 
         ulong token = RelayFrames.TryParseToken(UcOptions.ParseOption(options, "SvmToken"), out ulong t) ? t : 0;
         string installId = UcOptions.ParseOption(options, "SvmId");
+
+        // Proven by the join challenge (ServerHost.KeyChallenge drops a key the client wrote itself).
+        string playerKey = UcOptions.ParseOption(options, "SvmKey");
         string address = Host.Driver.Transport.RemoteAddress(connection.RemoteEndpoint) ?? "this machine";
         SessionPlayer? player = token == 0 ? null : _players.Find(p => p.Token == token);
-        if (Settings.Bans?.Find(installId, address, player?.Verified == true ? null : name, player?.AccountId) is { } ban)
+        if (Settings.Bans?.Find(installId, address, player?.Verified == true ? null : name, player?.AccountId,
+            playerKey.Length > 0 ? playerKey : null) is { } ban)
         {
             return Banned(ban);
+        }
+
+        if (player is not null && player.PublicKey is { } known && known != playerKey)
+        {
+            // The session token came back with another key (or none): not the same player.
+            return LoginDecision.Refuse("The player key check failed.");
         }
 
         if (player is not null)
@@ -1407,7 +1457,7 @@ public sealed partial class OnlineServer : IDisposable
 
             // A player who dropped out of the round comes back to his place; a signed-in one (his ticket proves who
             // he is) needs no password, as he may be rejoining from another PC.
-            DroppedPlayer? dropped = host ? null : FindDropped(ticket?.AccountId, installId);
+            DroppedPlayer? dropped = host ? null : FindDropped(ticket?.AccountId, installId, playerKey);
             if (Settings.Password is { Length: > 0 } password && UcOptions.ParseOption(options, "Password") != password &&
                 dropped is not { AccountId: not null })
             {
@@ -1466,6 +1516,7 @@ public sealed partial class OnlineServer : IDisposable
             player = new SessionPlayer(_nextPlayerId++, shown, token == 0 ? NewToken() : token)
             {
                 InstallId = installId.Length > 0 ? installId : null,
+                PublicKey = playerKey.Length > 0 ? playerKey : null,
                 AccountId = ticket?.AccountId ?? hostAccount?.AccountId,
                 Verified = ticket is not null || hostAccount is not null,
                 SpyLook = CheckedLook(options, "SvmLookS", CosmeticSide.Spy, UnlocksOf(ticket, hostAccount)),
@@ -1496,6 +1547,11 @@ public sealed partial class OnlineServer : IDisposable
                 : hostAccount is not null
                 ? $"{player.Name} joined from {address} (id {player.Id}, the host, signed in on this game, account {hostAccount.AccountId})"
                 : $"{player.Name} joined from {address} (id {player.Id}, guest: {ticketProblem})");
+            if (player.PublicKey is { } proven)
+            {
+                Log($"{player.Name} has player key {PlayerKey.Short(proven)}");
+            }
+
             if (player.Rejoin is not null)
             {
                 Log($"{player.Name} rejoins round {RoundsStarted} on side {player.Team}");

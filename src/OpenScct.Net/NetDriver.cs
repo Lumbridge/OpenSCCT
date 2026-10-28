@@ -464,12 +464,36 @@ public sealed class NetDriver : IDisposable
         Time = now;
         EndpointId endpoint = Transport.Connect(address);
         var connection = new NetConnection(this, endpoint, _nextConnectionId++, now);
+
+        // The salt that ties the server's packets to this connection; a recording's packets carry the recorded one.
+        if (!Transport.AdoptsRemoteSalt)
+        {
+            connection.SetSalt(NewSalt());
+        }
+
         connection.CreateChannel(EChannelType.CHTYPE_Control, openedLocally: true, chIndex: 0);
         ServerConnection = connection;
         _connections.Add(connection);
         _byEndpoint[endpoint] = connection;
         ResetConnectionPing();
         return connection;
+    }
+
+    /// <summary>
+    /// A random, non-zero connection salt. It never touches the simulation, so it comes from the system's random
+    /// source: someone who cannot see the traffic must not be able to guess it.
+    /// </summary>
+    private static uint NewSalt()
+    {
+        Span<byte> bytes = stackalloc byte[4];
+        uint salt;
+        do
+        {
+            System.Security.Cryptography.RandomNumberGenerator.Fill(bytes);
+            salt = System.Buffers.Binary.BinaryPrimitives.ReadUInt32LittleEndian(bytes);
+        }
+        while (salt == 0);
+        return salt;
     }
 
     // ---- demo recording ------------------------------------------------------------------------------------
