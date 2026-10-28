@@ -173,9 +173,7 @@ public abstract class HudPage
 
         if (Root.Visible)
         {
-            DrawPings(s);
-            DrawRanks(s);
-            DrawSplitColumn(s);
+            DrawBoard(s);
         }
     }
 
@@ -577,8 +575,8 @@ public abstract class HudPage
     /// <summary>
     /// The rows of the connected players list: the list as read (spies, mercs, spectators, four rows), or, once the
     /// bigger team has <see cref="HudOptions.ScoreboardSplit"/> players and both teams have someone, the spies only:
-    /// the mercs then get their own column beside it (<see cref="DrawSplitColumn"/>). That is Reloaded's split
-    /// (rl:qol.scoreboard, scoreboard_split_team_size); its drawing is not decoded, so the column copies the list's.
+    /// the mercs then get their own panel beside it (<see cref="DrawBoard"/>). That is Reloaded's split
+    /// (rl:qol.scoreboard, scoreboard_split_team_size).
     /// </summary>
     protected List<HudPlayerRow> ListRows(HudSnapshot s)
     {
@@ -631,140 +629,239 @@ public abstract class HudPage
         return rows;
     }
 
-    /// <summary>Page width of the list's own columns (PCConnectedPlayers: name 20 to 170, kills to 200, lives to 255).</summary>
+    /// <summary>
+    /// OpenSCCT's look for the connected players list (F10): the Magma list's widgets are driven as before (their
+    /// texts are the values) but drawn here instead, as a translucent panel with a header row, a side icon per row,
+    /// centred columns sized to their titles (score, lives, and Reloaded's ping and OpenSCCT's rank when shown), the
+    /// local player's row tinted in their side's colour and the ping coloured by its size. The panel's bottom edge sits
+    /// where the Magma list ends, centred on it. A split list (<see cref="SplitTeams"/>) draws a panel per team side by
+    /// side.
+    /// </summary>
+    protected void DrawBoard(HudSnapshot s)
+    {
+        if (!s.ShowPlayers || DrawList.Find("PCConnectedPlayers/PCText_LivesTitle") is not { } title)
+        {
+            return;
+        }
+
+        string scoreTitle = DrawList.TextOf("PCConnectedPlayers/PCText_ObjOrKillsTitle") ?? "Obj / Kills";
+        string livesTitle = title.Text;
+        MagmaAnchor anchor = title.Anchor;
+        Rect4 t = title.PageRect;
+        DrawList.Items.RemoveAll(i => i.Path.StartsWith("PCConnectedPlayers/", StringComparison.OrdinalIgnoreCase));
+        _white ??= WhiteRegion.Find(Assets);
+
+        string local = "";
+        foreach (HudScoreRow r in s.Score)
+        {
+            if (r.Local)
+            {
+                local = r.Name;
+                break;
+            }
+        }
+
+        float centre = t.L - LivesTitleLeft + ListWidth / 2f;
+        float bottom = t.T + BoardBottom;
+        if (SplitTeams(s))
+        {
+            BoardLayout spies = Layout(TeamRows(s, 0), "Spies", scoreTitle, livesTitle);
+            BoardLayout mercs = Layout(TeamRows(s, 1), "Mercenaries", "Kills", livesTitle);
+            float left = centre - (spies.Width + BoardGap + mercs.Width) / 2f;
+            DrawPanel(spies, left, bottom, anchor, local, HudK.SpyColour, "PCConnectedPlayers/", "Extras/");
+            DrawPanel(mercs, left + spies.Width + BoardGap, bottom, anchor, local, HudK.MercColour, "Extras/Split", "Extras/Split");
+        }
+        else
+        {
+            BoardLayout all = Layout(ListRows(s), "Players", scoreTitle, livesTitle);
+            Color accent = Side == HudSide.Merc ? HudK.MercColour : HudK.SpyColour;
+            DrawPanel(all, centre - all.Width / 2f, bottom, anchor, local, accent, "PCConnectedPlayers/", "Extras/");
+        }
+    }
+
+    /// <summary>Page width of the Magma list's own columns (name 20 to 170, kills to 200, lives to 255).</summary>
     private const float ListWidth = 255f;
 
     /// <summary>The list's lives title starts this far from the list's left (PCText_LivesTitle rect 205).</summary>
     private const float LivesTitleLeft = 205f;
 
-    /// <summary>Gap between the split's two columns.</summary>
-    private const float SplitGap = 20f;
+    /// <summary>The board's bottom edge below the list's top (the Magma list's fourth row ends at 48).</summary>
+    private const float BoardBottom = 52f;
 
-    /// <summary>Page width the ping and rank columns add right of the lives.</summary>
-    private float ExtraColumnsWidth(List<HudPlayerRow> rows) =>
-        (Options.ShowPing ? HudK.PingGap + 40f : 0f) + (rows.Exists(p => p.Rank != 0) ? HudK.PingGap + 50f : 0f);
+    private const float BoardPad = 4f;
+    private const float BoardRow = 11f;
+    private const float BoardIcon = 8f;
+    private const float BoardColumnGap = 10f;
+    private const float BoardGap = 8f;
+    private const float BoardNameMin = 60f;
+    private const float BoardNameMax = 120f;
 
-    /// <summary>
-    /// Reloaded's ping column beside the connected players list (rl:qol.scoreboard): drawn as extra text right of the
-    /// lives column, row by row, with the list's own anchoring.
-    /// </summary>
-    protected void DrawPings(HudSnapshot s)
+    private static readonly Color BoardBack = new(0f, 0f, 0f, 0.5f);
+    private static readonly Color BoardHeaderBack = new(0f, 0f, 0f, 0.35f);
+    private static readonly Color BoardStripe = new(1f, 1f, 1f, 0.035f);
+    private static readonly Color BoardTitleText = new(1f, 1f, 1f, 0.6f);
+    private static readonly Color BoardDim = new(1f, 1f, 1f, 0.45f);
+    private static readonly Color PingGood = new(0.55f, 0.95f, 0.55f, 1f);
+    private static readonly Color PingFair = new(1f, 0.85f, 0.35f, 1f);
+    private static readonly Color PingBad = new(1f, 0.4f, 0.35f, 1f);
+
+    private sealed record BoardLayout(List<HudPlayerRow> Rows, string Heading, string ScoreTitle, string LivesTitle,
+        float NameWidth, float ScoreWidth, float LivesWidth, float PingWidth, float RankWidth)
     {
-        if (!Options.ShowPing || !s.ShowPlayers || DrawList.Find("PCConnectedPlayers/PCText_LivesTitle") is not { } title)
+        public float Width => BoardPad + BoardIcon + 4f + NameWidth + ScoreWidth + LivesWidth + PingWidth + RankWidth + BoardPad;
+    }
+
+    private BoardLayout Layout(List<HudPlayerRow> rows, string heading, string scoreTitle, string livesTitle)
+    {
+        bool ranks = rows.Exists(p => p.Rank != 0);
+        float name = Measure(heading);
+        foreach (HudPlayerRow r in rows)
         {
-            return;
+            name = Math.Max(name, Measure(r.Name));
         }
 
-        List<HudPlayerRow> rows = ListRows(s);
-        var colour = new Color(1f, 1f, 1f, 1f);
-        Rect4 t = title.PageRect;
-        ExtraText("Extras/PingTitle", "Ping", new Rect4(t.R + HudK.PingGap, t.T, t.R + HudK.PingGap + 40f, t.B), title.Anchor,
-            MagmaAlign.Left, colour, HudK.PingTextHeight);
-        for (int i = 0; i < rows.Count && i < HudSimReader.MaxConnectedPlayers; i++)
-        {
-            string n = (i + 1).ToString(CultureInfo.InvariantCulture);
-            if (rows[i].Spectator || DrawList.Find("PCConnectedPlayers/PCText_Lives" + n) is not { } lives)
-            {
-                continue;
-            }
+        name = Math.Clamp(name + BoardColumnGap, BoardNameMin, BoardNameMax);
+        float Column(string head, float min) => Math.Max(Measure(head), min) + BoardColumnGap;
+        return new BoardLayout(rows, heading, scoreTitle, livesTitle, name, Column(scoreTitle, 14f), Column(livesTitle, 14f),
+            Options.ShowPing ? Column("Ping", 18f) : 0f, ranks ? Column("Rank", 30f) : 0f);
+    }
 
-            Rect4 r = lives.PageRect;
-            ExtraText("Extras/Ping" + n, (rows[i].Ping * HudK.PingUnit).ToString(CultureInfo.InvariantCulture),
-                new Rect4(r.R + HudK.PingGap, r.T, r.R + HudK.PingGap + 40f, r.B), lives.Anchor, MagmaAlign.Left, colour, HudK.PingTextHeight);
-        }
+    /// <summary>Width of <paramref name="text"/> in page units at the list's text height.</summary>
+    private float Measure(string text)
+    {
+        const float h = HudK.PingTextHeight;
+        return Assets.Font(HudAssets.DefaultFont)?.Measure(text, h, 1f, 0.045f * h) ?? text.Length * h * 0.6f;
     }
 
     /// <summary>
-    /// OpenSCCT's own: a Rank column after the lives (and the ping) of the connected players list, the level tag of
-    /// each signed-in player ("P3 42"); shown only when someone in the list has a rank.
+    /// One panel of the board, bottom edge at <paramref name="bottom"/>. Text paths keep the Magma list's names
+    /// (<paramref name="listPrefix"/>: PCTextPlayerN, PCText_ObjOrKillsN, PCText_LivesN) and the extras' (PingN, RankN).
     /// </summary>
-    protected void DrawRanks(HudSnapshot s)
+    private void DrawPanel(BoardLayout b, float left, float bottom, MagmaAnchor a, string local, Color accent,
+        string listPrefix, string extraPrefix)
     {
-        List<HudPlayerRow> rows = ListRows(s);
-        if (!s.ShowPlayers || !rows.Exists(p => p.Rank != 0) ||
-            DrawList.Find("PCConnectedPlayers/PCText_LivesTitle") is not { } title)
+        float top = bottom - (BoardPad * 2f + BoardRow * (b.Rows.Count + 1));
+        float right = left + b.Width;
+        float headerBottom = top + BoardPad + BoardRow;
+        Quad("Extras/BoardBack" + listPrefix, new Rect4(left, top, right, bottom), a, BoardBack);
+        Quad("Extras/BoardHeader" + listPrefix, new Rect4(left, top, right, headerBottom), a, BoardHeaderBack);
+        Quad("Extras/BoardAccent" + listPrefix, new Rect4(left, headerBottom - 0.6f, right, headerBottom), a, accent with { A = 0.85f });
+
+        float nameX = left + BoardPad + BoardIcon + 4f;
+        float scoreX = nameX + b.NameWidth;
+        float livesX = scoreX + b.ScoreWidth;
+        float pingX = livesX + b.LivesWidth;
+        float rankX = pingX + b.PingWidth;
+        float y = top + BoardPad;
+        void Cell(string path, string text, float x, float w, float rowTop, Color colour, MagmaAlign align = MagmaAlign.Center) =>
+            ExtraText(path, text, new Rect4(x, rowTop + 1.5f, x + w, rowTop + 1.5f + BoardRow), a, align, colour, HudK.PingTextHeight);
+
+        Cell("Extras/BoardHeading" + listPrefix, b.Heading, nameX, b.NameWidth, y, accent, MagmaAlign.Left);
+        Cell(listPrefix + "PCText_ObjOrKillsTitle", b.ScoreTitle, scoreX, b.ScoreWidth, y, BoardTitleText);
+        Cell(listPrefix + "PCText_LivesTitle", b.LivesTitle, livesX, b.LivesWidth, y, BoardTitleText);
+        if (b.PingWidth > 0f)
         {
-            return;
+            Cell(extraPrefix + "PingTitle", "Ping", pingX, b.PingWidth, y, BoardTitleText);
         }
 
-        float shift = HudK.PingGap + (Options.ShowPing ? 40f + HudK.PingGap : 0f);
-        var colour = new Color(1f, 1f, 1f, 1f);
-        Rect4 t = title.PageRect;
-        ExtraText("Extras/RankTitle", "Rank", new Rect4(t.R + shift, t.T, t.R + shift + 50f, t.B), title.Anchor,
-            MagmaAlign.Left, colour, HudK.PingTextHeight);
-        for (int i = 0; i < rows.Count && i < HudSimReader.MaxConnectedPlayers; i++)
+        if (b.RankWidth > 0f)
         {
-            string n = (i + 1).ToString(CultureInfo.InvariantCulture);
-            if (rows[i].Spectator || DrawList.Find("PCConnectedPlayers/PCText_Lives" + n) is not { } lives)
-            {
-                continue;
-            }
-
-            Rect4 r = lives.PageRect;
-            ExtraText("Extras/Rank" + n, OpenScct.Net.Cosmetics.PlayerRank.Unpack(rows[i].Rank).Tag,
-                new Rect4(r.R + shift, r.T, r.R + shift + 50f, r.B), lives.Anchor, MagmaAlign.Left, colour, HudK.PingTextHeight);
-        }
-    }
-
-    /// <summary>
-    /// The mercenaries' column of a split list, right of the spies' (the list itself), in the list's layout: a title
-    /// row (the side's name, Kills, Lives, and Ping and Rank when shown), then one row per merc, the name in the
-    /// mercs' colour (the list marks sides with its icons).
-    /// </summary>
-    protected void DrawSplitColumn(HudSnapshot s)
-    {
-        if (!s.ShowPlayers || !SplitTeams(s) || DrawList.Find("PCConnectedPlayers/PCText_LivesTitle") is not { } title)
-        {
-            return;
+            Cell(extraPrefix + "RankTitle", "Rank", rankX, b.RankWidth, y, BoardTitleText);
         }
 
-        List<HudPlayerRow> spies = TeamRows(s, 0);
-        List<HudPlayerRow> mercs = TeamRows(s, 1);
-        Rect4 t = title.PageRect;
-        float x = t.L - LivesTitleLeft + ListWidth + ExtraColumnsWidth(spies) + SplitGap;
-        float y = t.T;
-        var white = new Color(1f, 1f, 1f, 1f);
-        float h = HudK.PingTextHeight;
-        MagmaAnchor a = title.Anchor;
         string infinite = Assets.Localize("MagmaDynamic", "Magma", "Inifite_Short", "Inf.");
-        bool ranks = mercs.Exists(p => p.Rank != 0);
-        ExtraText("Extras/SplitTitle", "Mercenaries", new Rect4(x + 20f, y, x + 120f, y + 20f), a, MagmaAlign.Left, HudK.MercColour, h);
-        ExtraText("Extras/SplitKillsTitle", "Kills", new Rect4(x + 170f, y, x + 200f, y + 20f), a, MagmaAlign.Left, white, h);
-        ExtraText("Extras/SplitLivesTitle", "Lives", new Rect4(x + 210f, y, x + ListWidth, y + 20f), a, MagmaAlign.Left, white, h);
-        float extra = x + ListWidth + HudK.PingGap;
-        if (Options.ShowPing)
+        var white = new Color(1f, 1f, 1f, 1f);
+        for (int i = 0; i < b.Rows.Count; i++)
         {
-            ExtraText("Extras/SplitPingTitle", "Ping", new Rect4(extra, y, extra + 40f, y + 20f), a, MagmaAlign.Left, white, h);
-        }
-
-        float rank = extra + (Options.ShowPing ? 40f + HudK.PingGap : 0f);
-        if (ranks)
-        {
-            ExtraText("Extras/SplitRankTitle", "Rank", new Rect4(rank, y, rank + 50f, y + 20f), a, MagmaAlign.Left, white, h);
-        }
-
-        for (int i = 0; i < mercs.Count; i++)
-        {
-            HudPlayerRow row = mercs[i];
+            HudPlayerRow row = b.Rows[i];
             string n = (i + 1).ToString(CultureInfo.InvariantCulture);
-            float top = y + 10f * (i + 1);
-            ExtraText("Extras/SplitName" + n, row.Name, new Rect4(x + 20f, top, x + 170f, top + 20f), a, MagmaAlign.Left, HudK.MercColour, h);
-            ExtraText("Extras/SplitKills" + n, row.ObjOrKills.ToString(CultureInfo.InvariantCulture), new Rect4(x + 170f, top, x + 200f, top + 20f), a,
-                MagmaAlign.Left, white, h);
-            ExtraText("Extras/SplitLives" + n, row.Lives >= HudK.InfiniteLives ? infinite : row.Lives.ToString(CultureInfo.InvariantCulture),
-                new Rect4(x + 210f, top, x + 240f, top + 20f), a, MagmaAlign.Left, white, h);
-            if (Options.ShowPing)
+            float rowTop = y + BoardRow * (i + 1);
+            var band = new Rect4(left, rowTop, right, rowTop + BoardRow);
+            Color side = row.Spectator ? BoardDim : row.Team == 1 ? HudK.MercColour : HudK.SpyColour;
+            if (local.Length > 0 && row.Name == local)
             {
-                ExtraText("Extras/SplitPing" + n, (row.Ping * HudK.PingUnit).ToString(CultureInfo.InvariantCulture),
-                    new Rect4(extra, top, extra + 40f, top + 20f), a, MagmaAlign.Left, white, h);
+                Quad("Extras/BoardLocal" + listPrefix + n, band, a, side with { A = 0.16f });
+            }
+            else if (i % 2 == 1)
+            {
+                Quad("Extras/BoardStripe" + listPrefix + n, band, a, BoardStripe);
             }
 
-            if (ranks && row.Rank != 0)
+            float iconTop = rowTop + (BoardRow - BoardIcon) / 2f;
+            Icon("Extras/BoardIcon" + listPrefix + n, row.Spectator ? "Spectator" : row.Team == 1 ? "Merc" : "Spy",
+                new Rect4(left + BoardPad, iconTop, left + BoardPad + BoardIcon, iconTop + BoardIcon), a, side);
+            Cell(listPrefix + "PCTextPlayer" + n, row.Name, nameX, b.NameWidth, rowTop, row.Spectator ? BoardDim : white, MagmaAlign.Left);
+            if (row.Spectator)
             {
-                ExtraText("Extras/SplitRank" + n, OpenScct.Net.Cosmetics.PlayerRank.Unpack(row.Rank).Tag, new Rect4(rank, top, rank + 50f, top + 20f), a,
-                    MagmaAlign.Left, white, h);
+                continue;
+            }
+
+            Cell(listPrefix + "PCText_ObjOrKills" + n, row.ObjOrKills.ToString(CultureInfo.InvariantCulture), scoreX, b.ScoreWidth, rowTop, white);
+            Cell(listPrefix + "PCText_Lives" + n, row.Lives >= HudK.InfiniteLives ? infinite : row.Lives.ToString(CultureInfo.InvariantCulture),
+                livesX, b.LivesWidth, rowTop, row.Lives == 0 ? BoardDim : white);
+            if (b.PingWidth > 0f)
+            {
+                int ms = row.Ping * HudK.PingUnit;
+                Cell(extraPrefix + "Ping" + n, ms.ToString(CultureInfo.InvariantCulture), pingX, b.PingWidth, rowTop,
+                    ms < 80 ? PingGood : ms < 150 ? PingFair : PingBad);
+            }
+
+            if (b.RankWidth > 0f && row.Rank != 0)
+            {
+                Cell(extraPrefix + "Rank" + n, OpenScct.Net.Cosmetics.PlayerRank.Unpack(row.Rank).Tag, rankX, b.RankWidth, rowTop, white);
             }
         }
+    }
+
+    /// <summary>A solid page-unit rectangle of the board, at least a pixel tall.</summary>
+    private void Quad(string path, Rect4 r, MagmaAnchor a, Color colour)
+    {
+        if (_white is not { } white)
+        {
+            return;
+        }
+
+        Vector2 p0 = Renderer.ToScreen(new Vector2(r.L, r.T), a);
+        Vector2 p1 = Renderer.ToScreen(new Vector2(r.R, r.B), a);
+        if (p1.Y - p0.Y < 1f)
+        {
+            p0.Y = p1.Y - 1f;
+        }
+
+        DrawList.Items.Add(white.Quad(path, p0, p1 - p0, colour));
+    }
+
+    /// <summary>A Hud package material (Spy, Merc, Spectator) drawn in a page-unit rectangle.</summary>
+    private void Icon(string path, string material, Rect4 r, MagmaAnchor a, Color colour)
+    {
+        MagmaPackage hud = Assets.Hud;
+        int m = hud.FindMaterial(material);
+        if (m < 0)
+        {
+            return;
+        }
+
+        MagmaMaterial mat = hud.Materials[m];
+        if (Assets.TextureSize(hud.Name, mat.Texture) is not { } size || size.X <= 0 || size.Y <= 0)
+        {
+            return;
+        }
+
+        Vector2 p0 = Renderer.ToScreen(new Vector2(r.L, r.T), a);
+        Vector2 p1 = Renderer.ToScreen(new Vector2(r.R, r.B), a);
+        Rect4 g = mat.Region;
+        var uv0 = new Vector2(g.L / size.X, g.T / size.Y);
+        var uv1 = new Vector2(g.R / size.X, g.B / size.Y);
+        DrawList.Items.Add(new MagmaDrawItem
+        {
+            Path = path,
+            Kind = MagmaWidgetKind.Image,
+            Package = hud.Name,
+            Texture = mat.Texture,
+            Points = [p0, new Vector2(p1.X, p0.Y), p1, new Vector2(p0.X, p1.Y)],
+            Uvs = [uv0, new Vector2(uv1.X, uv0.Y), uv1, new Vector2(uv0.X, uv1.Y)],
+            Colors = [colour, colour, colour, colour],
+        });
     }
 
     /// <summary>The page position of a top-level instance from its first key.</summary>
