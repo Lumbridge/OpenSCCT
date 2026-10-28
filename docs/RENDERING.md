@@ -579,7 +579,8 @@ simulated, so a moving emitter is one frame behind.
 
 ## Rain volumes
 
-`RainVolumes` draws the map's ERainVolumes (`render/fx.json` rain; ClarD, Orph*, Skys*, Stat*, Aqua*) as
+The simulation knows the same boxes (sim/rain.json, or render/fx.json rain for older conversions): pawns standing in
+one are wet (spec/equipment/rain.md). `RainVolumes` draws the map's ERainVolumes (`render/fx.json` rain; ClarD, Orph*, Skys*, Stat*, Aqua*) as
 AERainVolume::RenderRain does each frame (game 0x10a04d70; the volume's fields sit at 0x304..0x328 in reverse
 declaration order: Falloff, FadeScale, DistanceToCamera, maxDistFromCamera, then m_weatherProperties). The world box is
 (-X, -Y, 0)..(X, Y, Z) of m_RainSize x DrawScale x DrawScale3D from the volume's Location. Along X and along Y the

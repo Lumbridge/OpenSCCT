@@ -11,6 +11,7 @@ from ..svmap import LATEST_VERSION, write_svmap
 from ..writers.collision import KINDS, read_collision
 from .collision import CollisionBuilder
 from .gameplay import build_class_table, build_gameplay
+from .rain import build_rain
 from .render import RenderBuilder
 from .source import MapSource
 from .traversal import build_traversal
@@ -61,6 +62,9 @@ def build_map(game: Path, name: str, out_dir: Path, db, *, map_sha256: str, clas
               "original": {"file": f"Packages/Maps/{src.path.name}", "sha256": map_sha256}}
     requires = [{"pack": "classes", "sha256": classes_pack}] if classes_pack else []
     files = {"sim/classes.json": canonical.dump_file(class_table)}
+    rain = build_rain(src)
+    if rain["volumes"]:
+        files["sim/rain.json"] = canonical.dump_file(rain)
     if ui:
         files["ui/mapinfo.json"] = canonical.dump_file(ui, ascii_keys=False)
     t = time.perf_counter()

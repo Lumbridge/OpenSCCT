@@ -83,7 +83,7 @@ public partial class SLaserTrigger
                 beam.SetDrawType(EDrawType.DT_StaticMesh);
                 beam.bHidden = bLaserHidden;
                 beam.HeatIntensity = 1f;
-                if (InRain(beam.Location))
+                if (beam.GetRainVolume(beam.Location) is not null)
                 {
                     beam.HeatIntensity *= SensorK.RainHeatFactor;
                 }
@@ -263,10 +263,6 @@ public partial class SLaserTrigger
 
         return a + (ab * (t / len2));
     }
-
-    /// <summary>GetRainVolume (native 1789) != None: no converted map places an ERainVolume, so never.</summary>
-    [Provenance(ProvenanceKind.Estimated, "GetRainVolume is not ported; no map in .content/svmap places an Engine.ERainVolume")]
-    internal static bool InRain(FVector location) => false;
 
     /// <summary>Emitter.Kill (native 1155): the sparks stop spawning and the live ones die out in the views.</summary>
     internal static void KillEmitter(Emitter emitter) => emitter.Kill();

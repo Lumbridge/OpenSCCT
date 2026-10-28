@@ -31,9 +31,12 @@ public partial class SMines
     /// <summary>In rain the mine's heat is halved (the gameplay object's description copy does not run).</summary>
     [Uc("SBase.SMines.PreBeginPlay", Sha1 = "7cf035cdf3cf022e65ff4fbb199f16863f9d4da9")]
     [PortOf("uc:SBase.SMines:PreBeginPlay", Spec = "spec/equipment/mine-launcher.md#mines")]
-    [Provenance(ProvenanceKind.Estimated, "GetRainVolume is not ported: rain volumes are a map feature (no rain in SteeE)")]
     protected override void PreBeginPlay()
     {
+        if (GetRainVolume(Location) is not null)
+        {
+            HeatIntensity *= OpenScct.Game.Devices.SensorK.RainHeatFactor;
+        }
     }
 
     /// <summary>On the server the interaction goes and the owner's mine count drops.</summary>

@@ -236,6 +236,9 @@ public static partial class K
     [Provenance(ProvenanceKind.Decoded, "SGadGasMask.Load message 2 s")]
     public const float GasMaskMessageTime = 2f;
 
+    [Provenance(ProvenanceKind.Decoded, "SGadGasMask.PostBeginPlay, SGasMask.Tick: AttachToBone(DummyGasMask, 'B Head')")]
+    public static readonly OpenScct.Core.Name GasMaskBone = new("B Head");
+
     [Provenance(ProvenanceKind.Decoded, "SGadGasMask.SetAmbientSoundOnServer values")]
     public const byte GAD_STOPSOUND = 0;
 

@@ -7,6 +7,9 @@ namespace OpenScctGame.Render.Particles;
 /// <summary>Where the owning Emitter actor is this frame.</summary>
 public readonly record struct ParticleOwner(FVector Location, FRotator Rotation, FVector Velocity, FVector GlobalOffset);
 
+/// <summary>Adjusts a new particle once its start place and velocity are set.</summary>
+public delegate void ParticleSpawnHook(ref Particle particle);
+
 /// <summary>A world trace for particle collisions: from <paramref name="start"/> to <paramref name="end"/>.</summary>
 public delegate bool ParticleTrace(FVector start, FVector end, out FVector hitLocation, out FVector hitNormal);
 
@@ -105,6 +108,33 @@ public sealed class ParticleEmitterSim
     /// <summary>The collision trace (null: particles never collide).</summary>
     public ParticleTrace? Trace { get; set; }
 
+    /// <summary>
+    /// A rate script set at run time (Emitters[i].InitialParticlesPerSecond and ParticlesPerSecond, both the same), or
+    /// null for the sub-emitter's own.
+    /// </summary>
+    public float? RateOverride { get; set; }
+
+    /// <summary>RespawnDeadParticles as script set it at run time, or null for the sub-emitter's own.</summary>
+    public bool? RespawnOverride { get; set; }
+
+    /// <summary>
+    /// FlicFlocEmitter.VariableMaxParticles: while not 0, the most particles the rate may still spawn (each spawn uses
+    /// one; once used up it is 0 and the rate spawns freely again, UFlicFlocEmitter::SpawnParticles).
+    /// </summary>
+    public int SpawnBudget { get; set; }
+
+    /// <summary>Called for every new particle once its start place is set (a FlicFlocEmitter's body splash, for one).</summary>
+    public ParticleSpawnHook? OnSpawn { get; set; }
+
+    private bool Respawns => RespawnOverride ?? Params.RespawnDeadParticles;
+
+    /// <summary>Script's <c>AllParticlesDead = false; WarmedUp = false</c>: the sub-emitter runs again.</summary>
+    public void Restart()
+    {
+        AllParticlesDead = false;
+        WarmedUp = false;
+    }
+
     /// <summary>Particles alive now.</summary>
     public int Alive
     {
@@ -202,6 +232,12 @@ public sealed class ParticleEmitterSim
             _currentSpawnOnTrigger -= n;
         }
 
+        if (SpawnBudget != 0)
+        {
+            n = Math.Clamp(n, 0, SpawnBudget);
+            SpawnBudget -= n;
+        }
+
         float increment = 1f / rate;
         float start = dt + (fraction * increment) - increment;
         for (int k = 0; k < n; k++)
@@ -259,6 +295,7 @@ public sealed class ParticleEmitterSim
         }
 
         q.Location += at;
+        OnSpawn?.Invoke(ref q);
         q.OldLocation = q.Location;
         q.StartLocation = q.Location;
         q.ColorMultiplier *= p.ColorMultiplierRange.Pick(ref _rng);
@@ -390,11 +427,11 @@ public sealed class ParticleEmitterSim
         {
             rate = p.AutomaticInitialSpawning
                 ? MaxActiveParticles / ((p.LifetimeRange.Max + p.LifetimeRange.Min) * 0.5f)
-                : p.InitialParticlesPerSecond;
+                : RateOverride ?? p.InitialParticlesPerSecond;
         }
         else
         {
-            rate = p.ParticlesPerSecond;
+            rate = RateOverride ?? p.ParticlesPerSecond;
         }
 
         if (_currentSpawnOnTrigger != 0)
@@ -443,7 +480,7 @@ public sealed class ParticleEmitterSim
 
             if (q.Time > q.MaxLifetime)
             {
-                if (!p.RespawnDeadParticles || _killPending)
+                if (!Respawns || _killPending)
                 {
                     dead++;
                     q.Flags &= ~FlagAlive;
@@ -474,7 +511,7 @@ public sealed class ParticleEmitterSim
         }
 
         // Emitter.Kill: no rate and no respawn once killed, so the sub-emitter is all dead when its last particle goes.
-        bool spawning = (dead < MaxActiveParticles && ActiveParticles != dead) || (!_killPending && (rate != 0f || p.RespawnDeadParticles));
+        bool spawning = (dead < MaxActiveParticles && ActiveParticles != dead) || (!_killPending && (rate != 0f || Respawns));
         AllParticlesDead = !spawning;
     }
 
@@ -518,7 +555,7 @@ public sealed class ParticleEmitterSim
         FVector at = hit - extent;
         if (p.UseMaxCollisions && q.HitCount + 1 >= (int)MathF.Round(p.MaxCollisions.Pick(ref _rng)))
         {
-            if (!p.RespawnDeadParticles || _killPending)
+            if (!Respawns || _killPending)
             {
                 dead++;
                 q.Flags &= ~FlagAlive;

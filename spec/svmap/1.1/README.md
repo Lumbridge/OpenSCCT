@@ -13,6 +13,7 @@ below are optional files, optional fields and new collision chunks that 1.0 read
     classes.json           (1.1, optional) effective class defaults of the classes the actors use
     collision.bin          collision geometry and colliders (binary, chunked)
     traversal.json         geometric events (GEs): ledges, pipes, zip lines, ladders, fences, poles, HOH bars
+    rain.json              (1.1, optional) the rain volumes' boxes, which make pawns wet
   render/                  client only
     world.glb              world BSP, static mesh library and the instance table
     materials.json         (1.1) material blend flags, gameplay flags and the material object graph
@@ -132,6 +133,14 @@ overlaid with its props by the rules above.
   elements (`$elements`).
 - Native maps may write the table from their engine's class defaults; a loader whose classes already hold these
   defaults only applies what differs.
+
+## `sim/rain.json` (1.1, optional)
+
+`{"format": "svm.rain/1", "volumes": [{"name", "location", "scale", "size", "falloff"}]}`: every ERainVolume of the
+map (also drawn from `render/fx.json` rain), written only when the map has one. `location` is the floor of the box,
+`scale` DrawScale x DrawScale3D, `size` m_RainSize, `falloff` m_RainFalloff; the box is (-X, -Y, 0)..(X, Y, Z) of
+size x scale from location. A pawn whose location is inside a box is in that rain volume. A reader without the file
+may take the same values from `render/fx.json` rain.
 
 ## `sim/traversal.json`
 

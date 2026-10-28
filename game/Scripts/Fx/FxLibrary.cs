@@ -77,9 +77,37 @@ public sealed class FxLibrary : IParticleAssets
         if (File.Exists(path))
         {
             lib.Read(path, SharedClasses.Load(sharedRoot));
+            lib.AddLateClasses();
         }
 
         return lib;
+    }
+
+    /// <summary>
+    /// Effect classes the fx step lists since a later converter version (class, kind and class-default mesh), for
+    /// content converted before: SGasMask, the merc's visible mask, drawn from the SGameplayObjects package the step
+    /// already exports whole.
+    /// </summary>
+    private static readonly (string Class, string Kind, string Mesh)[] s_lateClasses =
+    [
+        ("SBase.SGasMask", "gadget", "SGameplayObjects.GasMask.DEF_Gasmask"),
+    ];
+
+    private void AddLateClasses()
+    {
+        foreach ((string cls, string kind, string mesh) in s_lateClasses)
+        {
+            if (!_classes.ContainsKey(cls))
+            {
+                _classes[cls] = new FxClass
+                {
+                    Path = cls,
+                    Kind = kind,
+                    Emitters = [],
+                    Assets = new Dictionary<string, string>(StringComparer.Ordinal) { ["StaticMesh"] = mesh },
+                };
+            }
+        }
     }
 
     public bool Available => _classes.Count > 0;
@@ -132,7 +160,7 @@ public sealed class FxLibrary : IParticleAssets
         }
 
         Mesh? mesh = null;
-        if (_meshTable.TryGetValue(objectPath, out (string Glb, string Node) entry))
+        if (_meshTable.TryGetValue(objectPath, out (string Glb, string Node) entry) || PackageMesh(objectPath, out entry))
         {
             if (!_packages.TryGetValue(entry.Glb, out MeshPackage? package))
             {
@@ -145,6 +173,31 @@ public sealed class FxLibrary : IParticleAssets
 
         _meshes[key] = mesh;
         return mesh;
+    }
+
+    /// <summary>
+    /// A mesh the table does not list, in a package the step exported whole: meshes/Package.glb, node Package_Name
+    /// (the exporter's naming), when that file exists.
+    /// </summary>
+    private bool PackageMesh(string objectPath, out (string Glb, string Node) entry)
+    {
+        entry = default;
+        int first = objectPath.IndexOf('.', StringComparison.Ordinal);
+        int last = objectPath.LastIndexOf('.');
+        if (first <= 0 || last == first)
+        {
+            return false;
+        }
+
+        string package = objectPath[..first];
+        string glb = "meshes/" + package + ".glb";
+        if (!File.Exists(System.IO.Path.Combine(_folder, glb)))
+        {
+            return false;
+        }
+
+        entry = (glb, package + "_" + objectPath[(last + 1)..]);
+        return true;
     }
 
     /// <summary>

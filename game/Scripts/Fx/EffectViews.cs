@@ -205,6 +205,10 @@ public sealed partial class EffectViews : Node3D
             {
                 case "emitter" when a is Emitter:
                     t.View = Start(fx, a.GetUcClass().Name);
+                    if (a is SFlicFlocEmitter flicFloc && t.View is { } splash)
+                    {
+                        HookFlicFloc(t, flicFloc, splash);
+                    }
 
                     // A dynamic light emitter (the flare and its trail) also lights its surroundings.
                     if (a.bDynamicLight)
@@ -278,6 +282,12 @@ public sealed partial class EffectViews : Node3D
             if (t.View is { } view)
             {
                 FVector at = PlaceOf(a);
+                t.Place = at;
+                if (a is SFlicFlocEmitter flicFloc)
+                {
+                    ApplyFlicFloc(t, flicFloc, view);
+                }
+
                 view.Sim.Step(dt, at, a.Rotation, a.Velocity);
                 view.Root.Visible = !a.bHidden;
                 view.Draw(new ParticleOwner(at, a.Rotation, a.Velocity, view.Sim.GlobalOffset), camera);
@@ -484,14 +494,20 @@ public sealed partial class EffectViews : Node3D
 
     /// <summary>
     /// Where an effect is drawn: an actor attached to a pawn's bone (AttachToBone: Base the pawn, AttachmentBone set)
-    /// follows that bone of the drawn skeleton (the simulation has none), others their own Location.
+    /// follows that bone of the drawn skeleton (the simulation has none), moved by its RelativeLocation in the bone's
+    /// frame; others their own Location.
     /// </summary>
     private FVector PlaceOf(Actor a)
     {
         if (!a.AttachmentBone.IsNone && (a.Base ?? a.Owner) is SBasePawn pawn && Pawns is not null &&
             Pawns.TryGetBone(pawn, a.AttachmentBone, out Transform3D bone))
         {
-            return UeSpace.ToUe(bone.Origin);
+            if (a.RelativeLocation.IsZero())
+            {
+                return UeSpace.ToUe(bone.Origin);
+            }
+
+            return UeSpace.ToUe(bone.Origin + (bone.Basis.Orthonormalized() * UeSpace.ToGodot(a.RelativeLocation)));
         }
 
         return a.Location;
@@ -538,6 +554,16 @@ public sealed partial class EffectViews : Node3D
 
         /// <summary>The vision values last written to <see cref="Mesh"/> (NaN: none yet).</summary>
         public Vector4 Vision { get; set; } = new(float.NaN, 0f, 0f, 0f);
+
+        /// <summary>Where the particle system was placed this frame.</summary>
+        public FVector Place { get; set; }
+
+        /// <summary>An SFlicFlocEmitter's restarts and triggers already applied to the drawn copy.</summary>
+        public int FlicSplashStarts { get; set; }
+
+        public int FlicDripStarts { get; set; }
+
+        public int FlicPuffTriggers { get; set; }
     }
 
     private sealed class Loose(ParticleSystemView view, string cls, FVector location, FRotator rotation, float life, bool autoDestroy)
