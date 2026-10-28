@@ -78,7 +78,8 @@ Who-hears-whom matches the original (rules in `VoiceRouting.cs`). Gaps:
 | Client fire prediction (rl:net.fireprediction) | done (for the merc rifles/SMG and the spy pistol's world impacts; option `fire_prediction`, on; pawn hits stay server-confirmed) |
 | Practice server mode, `!heal` `!regen` `!tank` `!kill` | done (extra ammunition not ported, `!regen`/`!tank` effects are our choice: docs/ONLINE.md "Practice servers") |
 | Client console, `set`/`get` | done (docs/HUD.md "Developer console") |
-| MSAA/SMAA | later (M) |
+| MSAA/SMAA (rl:gfx.aa) | done: Display options msaa, msaa_samples, smaa (first run all off, 4 samples), applied at once; alpha to coverage on masked surfaces from the next map; with MSAA the post passes run on a copy of the resolved frame (docs/RENDERING.md "Anti-aliasing"). Not yet seen running with MSAA on |
+| Map BeamEmitter / SparkEmitter, mirrors (RENDERING.md open issues) | n-a: sparks were already drawn (rule 22) and beams as straight strips; no map places a beam, the one map spark emitter (PanaD/PanaS Emitter241) waits for its event; every PF_Mirrored BSP surface (MuseD/E/T, OffsD, ScheU, SteeD/E/P/T, TermD) is also PF_Invisible, and UE2 leaves invisible surfaces out of drawing, so no map shows a mirror (the DTK_mirroir "mirrors" of ClarD and CpusS are plain textured meshes, already drawn) |
 | Extraction, Sabotage, Neutralization modes | later (L) |
 | Unverified Reloaded fixes: grab angle, jump lock-on 7.5 m, KO after interrupt, slow strafe, disk radar threshold, crosshair shift, sticky cam fixes | open: need decoding of the Reloaded patch values |
 | Signed releases, MMCSS voice thread, lobby music, join sound, local match log, scoreboard split size | open (small or optional) |
