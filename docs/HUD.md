@@ -143,7 +143,8 @@ for its second game. The `net-lobby` smoke checks the banner and its side in bot
 **Canvas parts.** Over the page, in this order: the spy's interaction list and Enhanced Reality markers (`HudMarkers`,
 player pages only), the merc's motion tracking brackets (`HudMotionTracking`: the goggles' tracker's screen boxes
 from the drawn camera and its decoded DrawHUD, in the 640 x 480 frame scaled by height and centred, also on the
-camera network page; spec/equipment/motion-tracking.md), the binocular markers (`HudBinocularMarkers`, the spy's binocular page only), the deathmatch
+camera network page; spec/equipment/motion-tracking.md; and the HUD's own tracker with the laser sight's target, its
+typed name and the friend mark, SHud.DrawTargetName, spec/hud/merc-reticle.md rule 3e), the binocular markers (`HudBinocularMarkers`, the spy's binocular page only), the deathmatch
 respawn weapon, the console lines, the screen-effect washes and the knock-out text (`HudSfx`), overlays (the chat
 line), the frame rate readout. The SHud canvas doubles its colours (screen-effects.md rule 0, `HudK.CanvasColour`).
 

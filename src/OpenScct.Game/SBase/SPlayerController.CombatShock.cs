@@ -298,7 +298,8 @@ public partial class SPlayerController
     /// The combat and equipment parts of SPlayerController.PlayerTick that the movement port's PlayerTick leaves out
     /// (it already runs the freeze end, the taser knock-down, the jammer and the heartbeat timer): the electric end
     /// and the rifle's electric clip, the HUD perturbation, the equipment input (gadget cycling, throw charge, spy
-    /// energy, the cloak button) and the merc cough. The global PlayerTick calls it once per frame.
+    /// energy, the cloak button), the merc's squint and cough, and the target snap. The global PlayerTick calls it once
+    /// per frame.
     /// </summary>
     [Uc("SBase.SPlayerController.PlayerTick", Sha1 = "5e6178b93ec98230e270a689b61159665cd12ee7")]
     [PortOf("uc:SBase.SPlayerController:PlayerTick", Spec = "spec/combat/shock-and-taser.md#shock-end-owner-playertick-every-frame")]
@@ -308,7 +309,13 @@ public partial class SPlayerController
         ElectricTick();
         HudPerturbationTick();
         EquipmentPlayerTick(DeltaTime);
+        if (SBPawn?.SPawnType == PawnType.SPAWNDEFENSE)
+        {
+            NativeComputeSquinting(DeltaTime);
+        }
+
         CoughTick();
+        SnapPlayerTick();
     }
 
     /// <summary>

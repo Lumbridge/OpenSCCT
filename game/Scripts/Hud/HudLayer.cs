@@ -44,6 +44,7 @@ public partial class HudLayer : CanvasLayer
     private WhiteRegion? _white;
     private SPlayerController? _lastController;
     private SHud? _lastHud;
+    private bool _mercAimRan;
 
     public HudLayer()
     {
@@ -294,7 +295,11 @@ public partial class HudLayer : CanvasLayer
             }
 
             // The merc's aim point (SHud.SpotReticule) before the snapshot reads it (spec/hud/merc-reticle.md rule 3).
-            HudMercAim.Update(pc, ScreenSize ?? GetViewport()?.GetVisibleRect().Size ?? new Vector2(MagmaRenderer.PageWidth, MagmaRenderer.PageHeight));
+            _mercAimRan = HudMercAim.Update(pc, ScreenSize ?? GetViewport()?.GetVisibleRect().Size ?? new Vector2(MagmaRenderer.PageWidth, MagmaRenderer.PageHeight));
+        }
+        else
+        {
+            _mercAimRan = false;
         }
 
         Snapshot.Clear();
@@ -365,7 +370,11 @@ public partial class HudLayer : CanvasLayer
             Markers.DrawList.Clear();
         }
 
-        Motion.Update(playerPage && Snapshot.Side == HudSide.Merc || IsCamNetworkPage(page) ? pc : null, screen, Projector, Options.StretchHud, Assets);
+        // The laser's target name: the merc HUD's aim point helper past its gates, or the camera network's HUD state.
+        bool mercPage = playerPage && Snapshot.Side == HudSide.Merc;
+        bool camNetwork = IsCamNetworkPage(page);
+        bool targetName = camNetwork || (mercPage && _mercAimRan && pc?.myHUD is SHud aimHud && aimHud.TargetNameInAimHelper());
+        Motion.Update(mercPage || camNetwork ? pc : null, screen, Projector, Options.StretchHud, Assets, targetName);
         _canvasList.Clear();
         if (Snapshot.RespawnWeapon is { } weapon && !Snapshot.HideHud && Assets?.TextureSize(HudRespawnWeaponDrawer.Package, HudRespawnWeaponDrawer.Atlas) is { } atlas)
         {

@@ -79,7 +79,9 @@ original is not called), **N** new native (the stock game has no body; script ca
 
 6. **SGadTorche.NativeTickTorche (1300), W.** With an internal switch on and the torch not in use,
    Reloaded sets `bInUse` for the duration of the original tick and clears it afterwards, so the light
-   update runs as if the torch were in use. Visual fix (flashlight rendering); does not change what is
+   update runs as if the torch were in use. The switch is the "torch was on at scope entry" flag of the
+   sniper-mode torch fix: set when the local merc enters `s_Binoculars_Def` with the torch on and cleared on
+   the next frame, when Reloaded turns the torch back on (merc-flashlight.md rule 12). Does not change what is
    replicated.
 7. **SGadGrenLauncher.ThrowGren (1314), R.** Stock: reads the launch location and rotation and two
    arguments for the projectile; spawns `ProjectileClass` there (owner and instigator of the launcher) and
