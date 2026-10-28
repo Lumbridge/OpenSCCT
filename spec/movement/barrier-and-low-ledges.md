@@ -149,7 +149,15 @@ stateDiagram-v2
 
 - The waist ledge needs two signals (clip end and TopSynchro); if one never comes (for example the native never
   finishes the repositioning) the spy stays in s_WaistLedgeDetect. There is no timeout in script.
-- The feet ledge is refused while crouched and while rolling.
+- physLedge raises TopSynchro before the hold move and NoGE after it, so one call can raise both: a detect state
+  that already had its clip end leaves for the climb on TopSynchro, and the climb state ignores the NoGE of the same
+  call (physics-traversal.md physLedge rule 4).
+- A ledge less than about 107 uu above the floor (C.Z - 20 below the standing pawn's origin) caught as a waist ledge
+  right after a jump from the floor: the hold reaches into the floor, so NoGE comes on the hold's second call, before
+  the detect clip ends (tween 0.08 s), and the spy drops back (SA_LEDGEFALL, s_PlayerJump). Such ledges are only
+  climbed by the barrier vault, which is refused when its landing box (85.2 down from 23.5 over the top, 140 beyond,
+  20 aside) meets anything, such as seats behind a low wall (MoonD's monorail car: only about 90 uu either side of the
+  centre pillar vault).
 - A merc never vaults (CheckBarrier is only called from the spy's Mario walking states).
 
 ## Evidence
