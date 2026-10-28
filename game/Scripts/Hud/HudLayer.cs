@@ -258,7 +258,7 @@ public partial class HudLayer : CanvasLayer
     /// <summary>Sets the connected players list of a new HUD (Reloaded keeps it on and remembers it).</summary>
     public bool InitialConnectedPlayers { get; set; }
 
-    /// <summary>The location readout at the top of the screen (rl:qol.location, show_location).</summary>
+    /// <summary>The location readout above the radar (rl:qol.location, show_location).</summary>
     public bool ShowLocation { get; set; } = true;
 
     /// <summary>The location readout.</summary>
@@ -471,7 +471,7 @@ public partial class HudLayer : CanvasLayer
         Net.Draw(screen, dt, ShowNet, ShowFps);
         _items.AddRange(Net.DrawList.Items);
         Location.Draw(screen, Snapshot.Valid && !Snapshot.HideHud && pc is not null ? HudLocation.NameAt(pc.ViewTarget as OpenScct.Core.Engine.Pawn ?? pc.Pawn) : "",
-            ShowLocation);
+            ShowLocation, page);
         _items.AddRange(Location.DrawList.Items);
 
         _canvas?.Submit(_items);
