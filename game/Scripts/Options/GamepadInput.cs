@@ -114,13 +114,20 @@ public partial class GamepadInput : Node
             RunThreshold(input, merc, move.Length(), pad.RunThreshold);
         }
 
+        bool flying = FreeCamera();
+
         // The clutches are held here, not sent as keys (rl:input.clutch).
         bool clutchOne = false, clutchTwo = false;
         if (pad.Binds)
         {
             foreach ((string control, string action) in pad.ButtonsOf(merc))
             {
-                if (string.Equals(action, PadSettings.ClutchOneAction, StringComparison.OrdinalIgnoreCase))
+                if (flying && IsFreeCamControl(control))
+                {
+                    // The free camera has the triggers and the shoulder buttons (FreeCamera above).
+                    Hold(input, control, action, false);
+                }
+                else if (string.Equals(action, PadSettings.ClutchOneAction, StringComparison.OrdinalIgnoreCase))
                 {
                     clutchOne |= IsDown(Device, control);
                 }
@@ -178,6 +185,48 @@ public partial class GamepadInput : Node
     private MouseLook _padLook = new();
 
     public override void _ExitTree() => ReleaseAll();
+
+    private bool _lbWas;
+    private bool _rbWas;
+
+    /// <summary>The triggers and shoulder buttons the free camera takes while it flies.</summary>
+    private static bool IsFreeCamControl(string control) => control is "LT" or "RT" or "LB" or "RB";
+
+    /// <summary>
+    /// The cinematic free camera's pad controls (Enhanced 4.0, spec/hud/cinematic-camera.md rule 8): while it flies the
+    /// triggers fly it up (right) and down (left) and the shoulder buttons step its speed (right faster, left slower,
+    /// one step per press). The left stick moves it and the right stick turns it as they always do. True while it flies.
+    /// </summary>
+    private bool FreeCamera()
+    {
+        if (Session is not { LocalController: { FreeCameraFlying: not 0 } } session)
+        {
+            if (Session is { } idle)
+            {
+                idle.Input.PadUp = 0f;
+            }
+
+            _lbWas = _rbWas = false;
+            return false;
+        }
+
+        session.Input.PadUp = Godot.Input.GetJoyAxis(Device, JoyAxis.TriggerRight) - Godot.Input.GetJoyAxis(Device, JoyAxis.TriggerLeft);
+        bool lb = IsDown(Device, "LB");
+        bool rb = IsDown(Device, "RB");
+        if (rb && !_rbWas)
+        {
+            session.Input.Wheel++;
+        }
+
+        if (lb && !_lbWas)
+        {
+            session.Input.Wheel--;
+        }
+
+        _lbWas = lb;
+        _rbWas = rb;
+        return true;
+    }
 
     /// <summary>A pad control is down: a button, or a trigger past <see cref="TriggerPress"/>.</summary>
     public static bool IsDown(int device, string control) => control switch
@@ -373,6 +422,11 @@ public partial class GamepadInput : Node
 
     private void ReleaseAll()
     {
+        if (Session is { } session)
+        {
+            session.Input.PadUp = 0f;
+        }
+
         if (_held.Count == 0)
         {
             return;

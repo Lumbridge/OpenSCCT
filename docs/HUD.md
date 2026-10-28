@@ -208,7 +208,7 @@ Commands (`UI/ConsoleCommands`, Godot-free; settings through `Options/SettingsCo
 | `login <password>` | the server's admin login (`!login`) |
 | `cmd <command>` | a server console command (docs/ONLINE.md), for the host and admins |
 | `practice on`, `practice off` | the server's practice mode (host and admins; `practice` alone says what it does) |
-| `resign`, `pings`, `practice`, `heal`, `regen`, `tank`, `kill`, `rmap_next`, `rmap_prev`, `map <name> [mode]` | sent as the chat command (`!resign`, `!next`, `!prev`...) |
+| `resign`, `pings`, `practice`, `heal`, `regen`, `tank`, `kill`, `ammo`, `rmap_next`, `rmap_prev`, `map <name> [mode]` | sent as the chat command (`!resign`, `!next`, `!prev`...) |
 | `say <text>` | a chat line |
 | `quit` | closes the game |
 
@@ -224,7 +224,7 @@ applies them at start and on save.
 
 | Group | Keys |
 |---|---|
-| player | `player_name`, `mouse_sensitivity` (4..40), `invert_y`, `invert_x_spy` (profile InvertX), `mouse_wheel` (Gadget, Speed: profile SelectedMouse 0 and 1), `clutch_one_key`, `clutch_two_key` |
+| player | `player_name`, `mouse_sensitivity` (4..40), `invert_y`, `invert_x_spy` (profile InvertX), `shocker_snap` (on: drawing the Shocker turns the spy to the nearest merc in front of him; enh:rules.shocker_snap), `mouse_wheel` (Gadget, Speed: profile SelectedMouse 0 and 1), `clutch_one_key`, `clutch_two_key` |
 | look per team | `controls_spy_kbm`, `controls_merc_kbm` (`look`, `free_look`, `scope`, `scope_vertical`, `vertical`, `cam`, `look_response`, `clutch_one`, `clutch_one_enabled`, `clutch_two`, `clutch_two_enabled`), and the same for `controls_spy_pad`, `controls_merc_pad` |
 | controller | `controller`: `enabled`, `deadzone_left` 0.25, `deadzone_right` 0.15, `vertical_scale` 0.75, `run_threshold` 0.95, `rumble` (off), `rumble_strength` 1.0, 8-way move per side, `look_speed`, the pad layouts (`Clutch1`, `Clutch2` hold the clutches) |
 | display | `display_mode` (Windowed, Fullscreen, BorderlessFullscreen), `display_monitor`, `resolution`, `window_position` (Default, Centered, Stretched), `vsync`, `widescreen`, `ws_fov` (95..112, default 112), `fps_spy`, `fps_merc` (Monitor by default, Unlimited or 30 to 240: docs/RENDERING.md, frame pacing), `resolution_scale`, `filter_level`, `shadow_quality`, `shadow_edge_smoothing`, `low_latency_mode`, `throttle_stop` (docs/RENDERING.md) |
@@ -265,7 +265,7 @@ on the controller in use, scaled by `rumble_strength`. The Controller page's Tes
 touches, else its zone's name: the map data's LocationName) at the top centre (`show_location`; Enhanced's position
 is not decoded). `HudMarkers.HackAlpha` draws the icon of an objective being hacked at `hack_alpha` / 255.
 Not done: `classic_crosshair` (the reticle already sits on the aim point, centred at rest; the stock offset is not
-decoded) and Enhanced's Shocker snap option (the snap itself, FindAttClosestTarget, is not called yet).
+decoded).
 
 **Field of view.** `ViewFov` (Godot-free, unit tested) is Reloaded's rule 20 as its code does it (Reloaded.Core
 0x100a7080, 0x100a4ac0): with `widescreen` on the camera's FovAngle (horizontal over 4:3) keeps its 4:3 vertical angle

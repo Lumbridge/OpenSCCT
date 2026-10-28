@@ -86,7 +86,9 @@ gets the kill credit, because the original resolves an instigator through severa
      instigator exists: `CountEnvironmentalKill(EventInstigator.Controller, own controller)`.
    The damage type is SDTBase, so `Killed` does not count it again (rule 12).
 4. `SBasePawn.KilledBy(EventInstigator)`: `PawnTakeDamage(Health + 100, EventInstigator, (0,0,0), (0,0,1), SDTBase)`
-   (no environmental count). Raised by native code (Open questions). `SBasePawn.EncroachedBy` is empty (no telefrag).
+   (no environmental count). Nothing in Versus calls it: no script does, and the game binary's only use of the
+   KilledBy name is its registration (FName::StaticInit, name 0x9e2; no other code loads that name), so the port has
+   no caller either. `SBasePawn.EncroachedBy` is empty (no telefrag).
 5. Mover instigator: `Mover.Trigger(Other, EventInstigator)` uses `Other.Instigator` when EventInstigator is None; the
    `TriggerOpenOnceOnly` state stores `Instigator = EventInstigator` when it opens. `SAnimatedMesh` (state `s_Wait`)
    stores a non-None EventInstigator as its Instigator before animating; `AnimNotify_Trigger.Notify` fires its event
@@ -237,7 +239,6 @@ stateDiagram-v2
   SMineLaser.Explosion 0x10a93ee0 (Ghidra annotations re/ghidra/annotations/game.json, Bridge docs/GADGET_TIMINGS.md).
 
 ## Open questions
-- Who calls `KilledBy` natively (expected: encroachment by a non-mover actor or zone kill).
 - Whether the crane control use passes the spy as instigator through SInterrupteur to the crane SAnimatedMesh
   (objectives spec), and whether the crane notify uses AnimNotify_Trigger or a scripted notify.
 

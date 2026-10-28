@@ -218,6 +218,7 @@ public partial class OptionsMenu : Control
             v => _edit.MouseSensitivity = v, "0");
         Check(g, "Invert mouse", "invert_y", _edit.InvertY, v => _edit.InvertY = v);
         Check(g, "Invert X axis (spy)", "invert_x_spy", _edit.InvertXSpy, v => _edit.InvertXSpy = v);
+        Check(g, "Shocker lock-on snap when drawing (spy)", "shocker_snap", _edit.ShockerSnap, v => _edit.ShockerSnap = v);
         Choice(g, "Mouse wheel", "mouse_wheel", GameSettings.WheelModes, _edit.MouseWheel, v => _edit.MouseWheel = v,
             m => m == "Gadget" ? "Changes gadget" : "Walk and run");
         LookRows(g, "controls_spy_kbm", () => _edit.SpyKbm, merc: false);

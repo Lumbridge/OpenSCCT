@@ -620,7 +620,7 @@ Console (standard input, and `cmd <command>` from in-game admins): `status`, `pl
 `SPlayerController.ServerResign`), `!lagcomp` (everyone: the setting; the host and admins, or everyone on an open
 dedicated server: `!lagcomp on|off|reset|<ms>`), `!login <password>`, `!help`, and for the host
 and admins `!voiceban <id|name>` and `!unvoiceban <id|name>`, and on a practice server `!heal`, `!regen`, `!tank`,
-`!kill`. Ctrl+C, SIGTERM and `close` tell the players and the master before
+`!kill`, `!ammo`. Ctrl+C, SIGTERM and `close` tell the players and the master before
 stopping.
 
 ### Practice servers
@@ -635,7 +635,8 @@ the lives and respawn change from the next round. Its rounds:
   so turning practice off brings them back;
 - take the practice chat commands from every player, each acting on the sender only, during a round:
   `!heal` (full health, poison cured), `!regen` (on/off: 10 health back each second), `!tank` (on/off: no damage,
-  except the player's own `!kill` or resign, and kept at full health), `!kill` (dies at once, like a suicide);
+  except the player's own `!kill` or resign, and kept at full health), `!kill` (dies at once, like a suicide),
+  `!ammo` (the ammo crate's refill: a merc's weapon, and a bomb gadget, full again, with the crate sound);
   `!practice` says what the server does. Off a practice server they answer that they only work there;
 - are not sent to the master's results (`ReportResults` skips a round that had practice on at any time), so they count
   for no stats, XP or achievements.
@@ -644,7 +645,8 @@ Everything runs on the server (`OnlineServer.Practice.cs`); the tank rule is a l
 `SPlayerController.PawnTakeDamage` asks before any reaction, installed on the round's map on the server only. The
 server's info (flag bit 8) and its master listing say practice, and the server browser shows "(practice)" after the
 mode. Reloaded's exact `!regen` and `!tank` effects are not decoded; the rate above is ours. Its extra ammunition is
-not ported (ammunition is kept by the owning client in this port; a server refill needs a client call).
+not decoded either; `!ammo` is ours: ammunition is kept by the player's own machine, so the server sends it the ammo
+crate's `ReloadAmmoStock` call (a server-to-client function in the original too).
 
 Bans (rl:ac.bans) are by install id and address (no hardware fingerprints), with an optional end.
 

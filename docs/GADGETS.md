@@ -165,12 +165,10 @@ message to the mercs), map hints to `SHud.AddTutoMapMessage`. `GetPlayerProfile`
 - Without skeletal data the pistol and rifle muzzles are estimated (`CombatNatives.EstimatedBoneCoords`): the merc's
   at his eyes along his aim, the spy's at his eyes turned toward what his camera looks at.
 
-- The quick throw fires at once; the original throws at the clip's notify (0.4 s into ThroStAlMix).
-- Other players' laser beams (`NativeReplaceLaserDistant`) are drawn from the hand bone along the packed aim until
-  that native is read; the local merc's beam and the torch follow the decoded natives
-  (`game/Scripts/Render/MercLaserView.cs`, `FlashLightView.cs`). The torch uses the Faithful template's one spot slot,
-  so only one torch lights the scene at a time (the local merc's, else the nearest).
-- The rate of fire key cycles Auto and Burst only; Single exists only inside the scope (merc-rifle.md rule 16).
+- The torch uses the Faithful template's one spot slot, so only one torch lights the scene at a time (the local
+  merc's, else the nearest). (Other players' laser beams follow the decoded NativeReplaceLaserDistant, and the quick
+  throw waits for ThroStAlMix's NotifyQuickLaunch, as in the original. The rate of fire key cycles Auto and Burst
+  only, as the original's SwitchROF does; Single exists only inside the scope, merc-rifle.md rule 16.)
 - The original has no merc eye adaptation (spec/equipment/merc-eye-adaptation.md: measured flat in the sandbox).
 - The mine menu's greyed entries follow the launcher's availability array (one capture would settle which ones).
 - Map-placed devices that react to the gadgets (cameras, lasers, alarms locked by chaff) belong to the map work.

@@ -49,6 +49,9 @@ public sealed class LocalInput
     /// <summary>Alt is held (the free camera flies slowly).</summary>
     public bool Slow { get; set; }
 
+    /// <summary>The pad's triggers for the free camera: right minus left, -1 to 1 (up positive).</summary>
+    public float PadUp { get; set; }
+
     /// <summary>The index of a button name, or -1.</summary>
     public static int IndexOf(string button)
     {
@@ -100,6 +103,7 @@ public sealed class LocalInput
         Up = 0f;
         Fast = false;
         Slow = false;
+        PadUp = 0f;
         EndTick();
     }
 

@@ -756,14 +756,15 @@ public partial class SPlayerController
     /// <summary>
     /// The spy's draw snap (spy-shocker.md rule 3): from the pelvis 40 uu up, the nearest visible awake merc beyond
     /// 200 uu whose aim rotation (to his pelvis 15 uu up, offset 12 uu sideways) is within 6000 units of the camera in
-    /// yaw and pitch. Returns that rotation with the pitch scaled by 1.133 and sets bAttTargetEnemy.
+    /// yaw and pitch. Stores that rotation, with the pitch scaled by 1.133, in AttBestTargetRotation and sets
+    /// bAttTargetEnemy (the draw state turns to it).
     /// </summary>
     [Uc("SBase.SPlayerController.FindAttClosestTarget", Sha1 = "955dbd5c2e6889bd2d59a809c3a2bf0d156227e1")]
     [PortOf("uc:SBase.SPlayerController:FindAttClosestTarget", Spec = "spec/equipment/spy-shocker.md#rules")]
-    [Provenance(ProvenanceKind.Estimated, "The pelvis is the pawn location (no skeletal pose); the found rotation is returned to the draw state")]
-    public bool FindAttClosestTarget(out FRotator Aim)
+    [Provenance(ProvenanceKind.Estimated, "The pelvis is the pawn location (no skeletal pose)")]
+    public bool FindAttClosestTarget()
     {
-        Aim = Rotation;
+        FRotator Aim = Rotation;
         bAttTargetEnemy = false;
         if (SBPawn is not { } me)
         {
@@ -808,6 +809,7 @@ public partial class SPlayerController
         if (bAttTargetEnemy)
         {
             Aim.Pitch = SvmMath.Trunc(Aim.Pitch * K.SnapPitchFactor);
+            AttBestTargetRotation = Aim;
         }
 
         return bAttTargetEnemy;

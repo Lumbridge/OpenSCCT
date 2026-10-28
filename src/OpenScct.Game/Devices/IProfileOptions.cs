@@ -22,4 +22,16 @@ public interface IProfileOptions
     /// spec/game/tutorials.md).
     /// </summary>
     bool DisplayHelpInGame => false;
+
+    /// <summary>
+    /// The spy's lock-on snap when he draws the Shocker (default on, as in the stock game; Enhanced's option to turn it
+    /// off: enh:rules.shocker_snap).
+    /// </summary>
+    bool ShockerSnap => true;
+
+    /// <summary>
+    /// This machine plays an offline session (its own listen server, the original's standalone game): the map's zone
+    /// hints (SZoneTips), which the original shows only in a standalone game, show for its player.
+    /// </summary>
+    bool OfflineSession => false;
 }

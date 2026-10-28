@@ -14,4 +14,8 @@ public sealed class SettingsProfileOptions : IProfileOptions
     public byte SelectedMouse => SettingsStore.Current.WheelSelectsGadgets ? (byte)0 : (byte)1;
 
     public bool DisplayHelpInGame => Tutorials.TutorialProfile.DisplayHelpInGame;
+
+    public bool ShockerSnap => SettingsStore.Current.ShockerSnap;
+
+    public bool OfflineSession => Play.Session.PlaySession.OfflineSessionRunning;
 }
