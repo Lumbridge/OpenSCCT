@@ -536,16 +536,47 @@ internal sealed class MainForm : Form
             ShowInTaskbar = false,
             Padding = new Padding(16),
         };
-        TextBox notes = Theme.TextBox();
-        notes.Multiline = true;
-        notes.ReadOnly = true;
-        notes.ScrollBars = ScrollBars.Vertical;
-        notes.WordWrap = true;
-        notes.Dock = DockStyle.Fill;
-        notes.Text = _notesText;
-        notes.Select(0, 0);
-        dialog.Controls.Add(notes);
+        // The notes are GitHub markdown: shown formatted (headings, bullets, bold, code, links that open the browser).
+        var frame = new Panel { Dock = DockStyle.Fill, BackColor = Theme.Panel, Padding = new Padding(10, 8, 4, 8), BorderStyle = BorderStyle.FixedSingle };
+        var notes = new RichTextBox
+        {
+            Dock = DockStyle.Fill,
+            ReadOnly = true,
+            BorderStyle = BorderStyle.None,
+            BackColor = Theme.Panel,
+            ForeColor = Theme.Text,
+            Font = Theme.Body,
+            ScrollBars = RichTextBoxScrollBars.Vertical,
+            DetectUrls = false,
+            WordWrap = true,
+            TabStop = false,
+        };
+        notes.Rtf = ReleaseNotesRtf.Convert(_notesText, Rgb(Theme.Text), Rgb(Theme.Accent), Rgb(Theme.Muted), Theme.Body.SizeInPoints);
+        notes.LinkClicked += (_, e) => OpenLink(e.LinkText);
+        frame.Controls.Add(notes);
+        dialog.Controls.Add(frame);
+        dialog.Shown += (_, _) => notes.Select(0, 0);
         dialog.ShowDialog(this);
+    }
+
+    private static int Rgb(Color c) => (c.R << 16) | (c.G << 8) | c.B;
+
+    /// <summary>Opens a link of the release notes in the browser (http and https only).</summary>
+    private void OpenLink(string? url)
+    {
+        if (!Uri.TryCreate(url, UriKind.Absolute, out Uri? uri) || (uri.Scheme != Uri.UriSchemeHttps && uri.Scheme != Uri.UriSchemeHttp))
+        {
+            return;
+        }
+
+        try
+        {
+            Process.Start(new ProcessStartInfo(uri.AbsoluteUri) { UseShellExecute = true })?.Dispose();
+        }
+        catch (Win32Exception e)
+        {
+            SetStatus("Could not open the link: " + e.Message, Theme.Warning);
+        }
     }
 
     private bool ContentIsCurrent(SemVersion? current) =>
