@@ -29,8 +29,10 @@ public partial class MapPickerView : VBoxContainer
     /// <param name="installed">The maps the model steps through (id and title).</param>
     /// <param name="playlist">The playlist shown first (a catalog playlist name; an unknown one shows every map).</param>
     /// <param name="playlistChosen">Told the name when the player picks another playlist (to remember it).</param>
+    /// <param name="downloadable">Maps the player does not have that can still be picked (the hub laptop's maps of
+    /// OpenSCCT-Content), shown after the installed ones under the title given.</param>
     public MapPickerView(CreateSessionModel model, MapCatalog maps, IReadOnlyList<(string Id, string Title)> installed, float height = 330f,
-        string? playlist = null, Action<string>? playlistChosen = null)
+        string? playlist = null, Action<string>? playlistChosen = null, IReadOnlyList<(string Id, string Title)>? downloadable = null)
     {
         Model = model ?? throw new ArgumentNullException(nameof(model));
         ArgumentNullException.ThrowIfNull(maps);
@@ -69,6 +71,11 @@ public partial class MapPickerView : VBoxContainer
             {
                 AddTile(id, title, null, maps);
             }
+        }
+
+        foreach ((string id, string title) in downloadable ?? [])
+        {
+            AddTile(id, title, null, maps);
         }
 
         model.Changed += Refresh;

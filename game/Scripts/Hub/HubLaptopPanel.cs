@@ -19,8 +19,9 @@ namespace OpenScctGame.Hub;
 /// everyone in Merc Deathmatch). The rows a hub match cannot use are left out: the password (the hub gives each match
 /// its own), games in a row, revenge and random map (a hub match is one game), voice in the lobby (the match's lobby
 /// launches at once). If the pad changes while the laptop is open, the rows follow unless the player has edited them.
-/// Choose Map steps through the player's maps and every map of OpenSCCT-Content (docs/CONTENT-PACKS.md); for one the
-/// player lacks, a Download button fetches it (the hub fetches its own copy when the setup is applied).
+/// The map is picked from a grid of pictures (<see cref="MapPickerView"/>, as Create Session's) or with Choose Map: the
+/// player's maps and every map of OpenSCCT-Content (docs/CONTENT-PACKS.md); for one the player lacks, a Download button
+/// fetches it (the hub fetches its own copy when the setup is applied).
 /// </summary>
 public partial class HubLaptopPanel : Control
 {
@@ -45,6 +46,8 @@ public partial class HubLaptopPanel : Control
     private Button? _download;
     private readonly List<(string Id, string Title)> _list = new();
     private bool _indexListed;
+    private VBoxContainer? _pickerHolder;
+    private MapPickerView? _picker;
     private int _generation = ContentPacks.Generation;
 
     public HubLaptopPanel(HubClient client, string padId, MapCatalog? maps)
@@ -93,6 +96,9 @@ public partial class HubLaptopPanel : Control
         // The model keeps this list: maps of the index join it when the index arrives.
         _model = new CreateSessionModel(_list, map => _maps?.GetMapSettings(map), Current());
         _model.Changed += OnModelChanged;
+        _pickerHolder = new VBoxContainer { Name = "Maps" };
+        column.AddChild(_pickerHolder);
+        BuildPicker();
         var scroll = new ScrollContainer
         {
             Name = "Scroll", SizeFlagsVertical = SizeFlags.ExpandFill, HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled,
@@ -138,6 +144,7 @@ public partial class HubLaptopPanel : Control
     {
         if (!_indexListed && ListIndexMaps())
         {
+            BuildPicker();
             Refresh();
         }
 
@@ -156,6 +163,7 @@ public partial class HubLaptopPanel : Control
             }
 
             ListIndexMaps();
+            BuildPicker();
             bool edited = _edited;
             _loading = true;
             m.SelectMap(m.Setup.Map);
@@ -184,6 +192,35 @@ public partial class HubLaptopPanel : Control
         }
 
         return true;
+    }
+
+    /// <summary>
+    /// The grid of maps (made again when the list changes: the index came in, a map was downloaded): the player's
+    /// hostable maps with their pictures, then the maps of the index they lack.
+    /// </summary>
+    private void BuildPicker()
+    {
+        if (_pickerHolder is null || _model is null || _maps is null)
+        {
+            return;
+        }
+
+        if (_picker is not null)
+        {
+            _pickerHolder.RemoveChild(_picker);
+            _picker.QueueFree();
+        }
+
+        var installed = new List<(string Id, string Title)>();
+        var downloadable = new List<(string Id, string Title)>();
+        foreach ((string id, string title) in _list)
+        {
+            (_maps.FindMap(id) is not null ? installed : downloadable).Add((id, title));
+        }
+
+        // Opens on every map (no playlist), so the maps to download show too.
+        _picker = new MapPickerView(_model, _maps, installed, height: 280f, downloadable: downloadable);
+        _pickerHolder.AddChild(_picker);
     }
 
     private static string Megabytes(long bytes) => string.Create(System.Globalization.CultureInfo.InvariantCulture, $"{bytes / 1048576.0:0} MB");
