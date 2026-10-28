@@ -25,7 +25,7 @@ public partial class SessionRowsView : VBoxContainer
     private LineEdit? _password;
     private bool _editable = true;
 
-    /// <param name="compact">Two columns of rows instead of the page's three rule boxes (the lobby's narrower panel).</param>
+    /// <param name="compact">The lobby's layout (<see cref="BuildCompact"/>) instead of the page's three rule boxes.</param>
     public SessionRowsView(CreateSessionModel model, IReadOnlyCollection<SessionRow> rows, bool showPassword, bool compact = false)
     {
         Model = model ?? throw new ArgumentNullException(nameof(model));
@@ -71,6 +71,13 @@ public partial class SessionRowsView : VBoxContainer
     private void Build(IReadOnlyCollection<SessionRow> rows, bool showPassword)
     {
         AddThemeConstantOverride("separation", 4);
+        if (_compact)
+        {
+            BuildCompact(rows);
+            Refresh();
+            return;
+        }
+
         var top = new VBoxContainer { Name = "MapMode" };
         var session = new VBoxContainer { Name = "Session" };
         var boxes = new HBoxContainer { Name = "RuleBoxes" };
@@ -78,22 +85,9 @@ public partial class SessionRowsView : VBoxContainer
         AddChild(top);
         AddChild(session);
         AddChild(boxes);
-        VBoxContainer left, mid, right;
-        GridContainer? grid = null;
-        if (_compact)
-        {
-            grid = new GridContainer { Name = "Compact", Columns = 3 };
-            grid.AddThemeConstantOverride("h_separation", 12);
-            boxes.AddChild(grid);
-            left = mid = right = session;
-        }
-        else
-        {
-            left = Box(boxes, "BoxLeft");
-            mid = Box(boxes, "BoxMid");
-            right = Box(boxes, "BoxRight");
-        }
-
+        VBoxContainer left = Box(boxes, "BoxLeft");
+        VBoxContainer mid = Box(boxes, "BoxMid");
+        VBoxContainer right = Box(boxes, "BoxRight");
         foreach (SessionRow row in CreateSessionModel.Rows)
         {
             if (!Contains(rows, row) || (row == SessionRow.Password && !showPassword))
@@ -110,16 +104,7 @@ public partial class SessionRowsView : VBoxContainer
                 SessionRow.TimeLimit or SessionRow.SpyLives or SessionRow.MercLives => mid,
                 _ => right,
             };
-            Control made = MakeRow(row);
-            if (grid is not null && row is not (SessionRow.Map or SessionRow.Mode))
-            {
-                grid.AddChild(made);
-            }
-            else
-            {
-                parent.AddChild(made);
-            }
-
+            parent.AddChild(MakeRow(row));
             if (row == SessionRow.VoiceChat)
             {
                 _hint = new Label { Name = "VoiceHint", Modulate = UiStyle.MenuFocus, HorizontalAlignment = HorizontalAlignment.Right };
@@ -129,6 +114,72 @@ public partial class SessionRowsView : VBoxContainer
 
         Refresh();
     }
+
+    /// <summary>
+    /// The lobby's layout: Map and Mode as two left-aligned lines, then three columns grouped by what they set (the
+    /// match's length and lives; voice and bots; rule switches), every value in a cell of one width so the columns
+    /// line up. A check box row has no Yes/No beside the box, and the voice hint is the Voice Chat row's tooltip.
+    /// </summary>
+    private void BuildCompact(IReadOnlyCollection<SessionRow> rows)
+    {
+        var top = new VBoxContainer { Name = "MapMode" };
+        top.AddThemeConstantOverride("separation", 2);
+        AddChild(top);
+        AddChild(new Control { Name = "Gap", CustomMinimumSize = new Vector2(0f, 6f) });
+        var columns = new HBoxContainer { Name = "Columns" };
+        columns.AddThemeConstantOverride("separation", 32);
+        AddChild(columns);
+        VBoxContainer match = CompactColumn(columns, "Match");
+        VBoxContainer players = CompactColumn(columns, "Players");
+        VBoxContainer rules = CompactColumn(columns, "Rules");
+        foreach (SessionRow row in CreateSessionModel.Rows)
+        {
+            if (!Contains(rows, row) || row is SessionRow.Password or SessionRow.MaxPlayers)
+            {
+                continue;
+            }
+
+            VBoxContainer parent = row switch
+            {
+                SessionRow.Map or SessionRow.Mode => top,
+                SessionRow.TimeLimit or SessionRow.Respawn or SessionRow.SpyLives or SessionRow.MercLives or SessionRow.GamesInARow or
+                    SessionRow.ActiveDisks or SessionRow.DisksToTake => match,
+                SessionRow.VoiceChat or SessionRow.VoiceInLobby or SessionRow.Bots or SessionRow.BotsPerSide or SessionRow.BotSkill or
+                    SessionRow.AutoBalance => players,
+                _ => rules,
+            };
+            parent.AddChild(MakeRow(row));
+        }
+
+        // Within a column: lengths before lives, voice before bots.
+        Order(match, SessionRow.TimeLimit, SessionRow.Respawn, SessionRow.SpyLives, SessionRow.MercLives, SessionRow.GamesInARow,
+            SessionRow.ActiveDisks, SessionRow.DisksToTake);
+        Order(players, SessionRow.VoiceChat, SessionRow.VoiceInLobby, SessionRow.Bots, SessionRow.BotsPerSide, SessionRow.BotSkill,
+            SessionRow.AutoBalance);
+    }
+
+    private static VBoxContainer CompactColumn(HBoxContainer parent, string name)
+    {
+        var column = new VBoxContainer { Name = name, SizeFlagsHorizontal = SizeFlags.ExpandFill };
+        column.AddThemeConstantOverride("separation", 2);
+        parent.AddChild(column);
+        return column;
+    }
+
+    private void Order(VBoxContainer column, params SessionRow[] order)
+    {
+        int at = 0;
+        foreach (SessionRow row in order)
+        {
+            if (_rows.TryGetValue(row, out Control? line) && line.GetParent() == column)
+            {
+                column.MoveChild(line, at++);
+            }
+        }
+    }
+
+    /// <summary>The fixed width of a compact row's value cell (arrows and value, or the check box).</summary>
+    private const float CompactCell = 124f;
 
     private static bool Contains(IReadOnlyCollection<SessionRow> rows, SessionRow row)
     {
@@ -156,13 +207,28 @@ public partial class SessionRowsView : VBoxContainer
     private Control MakeRow(SessionRow row)
     {
         var line = new HBoxContainer { Name = "Row_" + row };
+        bool wide = row is SessionRow.Map or SessionRow.Mode;
         var caption = new Label
         {
-            Name = row + "Caption", Text = Model.Caption(row), SizeFlagsHorizontal = SizeFlags.ExpandFill,
-            CustomMinimumSize = new Vector2(_compact ? 0f : 150f, 0f), TooltipText = Model.Caption(row),
+            Name = row + "Caption", Text = Model.Caption(row), TooltipText = Model.Caption(row), MouseFilter = MouseFilterEnum.Pass,
+            SizeFlagsHorizontal = _compact && wide ? SizeFlags.ShrinkBegin : SizeFlags.ExpandFill,
+            CustomMinimumSize = new Vector2(_compact ? (wide ? 140f : 0f) : 150f, 0f),
         };
         line.AddChild(caption);
         _captions[row] = caption;
+
+        // Compact rows put their control in a cell of one width, so values line up down a column.
+        Container cell = line;
+        if (_compact && !wide)
+        {
+            var box = new HBoxContainer
+            {
+                Name = row + "Cell", CustomMinimumSize = new Vector2(CompactCell, 0f), Alignment = BoxContainer.AlignmentMode.Center,
+            };
+            line.AddChild(box);
+            cell = box;
+        }
+
         if (CreateSessionModel.IsCheck(row))
         {
             var check = new CheckBox { Name = row + "Check" };
@@ -173,11 +239,14 @@ public partial class SessionRowsView : VBoxContainer
                     Model.SetChecked(row, on);
                 }
             };
-            line.AddChild(check);
+            cell.AddChild(check);
             _checks[row] = check;
-            var value = new Label { Name = row + "Value", CustomMinimumSize = new Vector2(40f, 0f) };
-            line.AddChild(value);
-            _values[row] = value;
+            if (!_compact)
+            {
+                var value = new Label { Name = row + "Value", CustomMinimumSize = new Vector2(40f, 0f) };
+                cell.AddChild(value);
+                _values[row] = value;
+            }
         }
         else if (row == SessionRow.Password)
         {
@@ -198,20 +267,22 @@ public partial class SessionRowsView : VBoxContainer
 
                 Model.SetPassword(clean);
             };
-            line.AddChild(_password);
+            cell.AddChild(_password);
         }
         else
         {
-            line.AddChild(Arrow(row, "Prev", "◄", -1));
+            cell.AddChild(Arrow(row, "Prev", "◄", -1));
             var value = new Label
             {
                 Name = row + "Value", HorizontalAlignment = HorizontalAlignment.Center,
-                CustomMinimumSize = new Vector2(row is SessionRow.Map ? (_compact ? 260f : 300f) : row is SessionRow.Mode or SessionRow.VoiceChat ? (_compact ? 90f : 170f) : (_compact ? 36f : 44f), 0f),
+                SizeFlagsHorizontal = _compact && !wide ? SizeFlags.ExpandFill : SizeFlags.Fill,
+                CustomMinimumSize = new Vector2(
+                    _compact ? (wide ? 280f : 0f) : row is SessionRow.Map ? 300f : row is SessionRow.Mode or SessionRow.VoiceChat ? 170f : 44f, 0f),
                 // Sized to its text (an overrun behaviour would let the row shrink it to "ENHANCED STEEL SQU...").
             };
-            line.AddChild(value);
+            cell.AddChild(value);
             _values[row] = value;
-            line.AddChild(Arrow(row, "Next", "►", 1));
+            cell.AddChild(Arrow(row, "Next", "►", 1));
         }
 
         _rows[row] = line;
@@ -253,6 +324,10 @@ public partial class SessionRowsView : VBoxContainer
         if (_hint is not null)
         {
             _hint.Text = Model.VoiceHint;
+        }
+        else if (_compact && _captions.TryGetValue(SessionRow.VoiceChat, out Label? voice))
+        {
+            voice.TooltipText = Model.Caption(SessionRow.VoiceChat) + ": " + Model.VoiceHint;
         }
     }
 

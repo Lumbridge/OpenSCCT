@@ -64,6 +64,11 @@ public partial class LobbyRoomScreen : MenuPage
         VoiceUnban,
     }
 
+    // The Admin menu's item ids (also their indexes).
+    private const int AdminKick = 0;
+    private const int AdminBan = 1;
+    private const int AdminVoiceBan = 2;
+
     private sealed class PlayerRow
     {
         public required HBoxContainer Line { get; init; }
@@ -84,11 +89,8 @@ public partial class LobbyRoomScreen : MenuPage
 
         public CheckBox? Mute { get; init; }
 
-        public Button? Kick { get; init; }
-
-        public Button? Ban { get; init; }
-
-        public Button? VoiceBan { get; init; }
+        /// <summary>The host's Kick, Ban and Voice Ban, in one menu (null on the local player's and bots' rows).</summary>
+        public MenuButton? Admin { get; init; }
 
         public bool VoiceBanned { get; set; }
 
@@ -277,19 +279,15 @@ public partial class LobbyRoomScreen : MenuPage
         BriefingButton = UiStyle.MenuButton("Briefing", OpenBriefing, "Briefing");
         BriefingButton.CustomMinimumSize = new Vector2(180f, 40f);
         sideRow.AddChild(BriefingButton);
-        TeamVoiceOnlyBox = new CheckBox { Name = "TeamVoiceOnly", Text = "Restrict Mic to Team" };
-        TeamVoiceOnlyBox.Toggled += on => Session?.SetTeamVoiceOnly(on);
-        sideRow.AddChild(TeamVoiceOnlyBox);
-        _microphone = new Label { Name = "Microphone", Modulate = UiStyle.MenuFocus, AutowrapMode = TextServer.AutowrapMode.WordSmart };
-        teams.AddChild(_microphone);
 
-        // The chat box beside the lists.
+        // The chat box beside the lists, with the voice line (microphone state, Restrict Mic to Team) at its foot:
+        // all the talking in one place.
         VBoxContainer chat = Panel(upper, "Chat", null, 500f);
         chat.SizeFlagsVertical = SizeFlags.ExpandFill;
         _messages = new RichTextLabel
         {
             Name = "Messages", CustomMinimumSize = new Vector2(0f, 150f), SizeFlagsHorizontal = SizeFlags.ExpandFill,
-            SizeFlagsVertical = SizeFlags.ExpandFill, ScrollFollowing = true, BbcodeEnabled = false,
+            SizeFlagsVertical = SizeFlags.ExpandFill, ScrollFollowing = true, BbcodeEnabled = true,
         };
         chat.AddChild(_messages);
         var line = new HBoxContainer { Name = "ChatRow" };
@@ -302,6 +300,17 @@ public partial class LobbyRoomScreen : MenuPage
         line.AddChild(say);
         line.AddChild(teamSay);
         chat.AddChild(line);
+        var voiceRow = new HBoxContainer { Name = "VoiceRow" };
+        chat.AddChild(voiceRow);
+        _microphone = new Label
+        {
+            Name = "Microphone", Modulate = UiStyle.MenuDisabled, SizeFlagsHorizontal = SizeFlags.ExpandFill,
+            TextOverrunBehavior = TextServer.OverrunBehavior.TrimEllipsis, VerticalAlignment = VerticalAlignment.Center,
+        };
+        voiceRow.AddChild(_microphone);
+        TeamVoiceOnlyBox = new CheckBox { Name = "TeamVoiceOnly", Text = "Restrict Mic to Team" };
+        TeamVoiceOnlyBox.Toggled += on => Session?.SetTeamVoiceOnly(on);
+        voiceRow.AddChild(TeamVoiceOnlyBox);
 
         // Session Parameters below, across the page: the Create Session rows (without the password and Max Players,
         // which only the host's Create Session page has).
@@ -517,7 +526,7 @@ public partial class LobbyRoomScreen : MenuPage
 
         if (!_room.TrySendChat(Time.GetTicksMsec() / 1000.0))
         {
-            _messages?.AppendText(LobbyRoomModel.SpamText + "\n");
+            _messages?.AppendText(Dim(LobbyRoomModel.SpamText) + "\n");
             return;
         }
 
@@ -673,21 +682,11 @@ public partial class LobbyRoomScreen : MenuPage
             // A bot is always ready: its column says what it is instead.
             row.Ready.Text = p.IsBot ? BotText : p.Side is null || p.IsHost ? string.Empty : p.Ready ? "Ready" : "Not Ready";
             row.Ping.Text = p.PingMs > 0 ? string.Create(CultureInfo.InvariantCulture, $"{p.PingMs} ms") : string.Empty;
-            if (row.Kick is not null)
-            {
-                row.Kick.Visible = s.CanControl;
-            }
-
-            if (row.Ban is not null)
-            {
-                row.Ban.Visible = s.CanControl;
-            }
-
             row.VoiceBanned = p.VoiceBanned;
-            if (row.VoiceBan is not null)
+            if (row.Admin is not null)
             {
-                row.VoiceBan.Visible = s.CanControl;
-                row.VoiceBan.Text = p.VoiceBanned ? "Voice Unban" : "Voice Ban";
+                row.Admin.Visible = s.CanControl;
+                row.Admin.GetPopup().SetItemText(AdminVoiceBan, p.VoiceBanned ? "Voice Unban" : "Voice Ban");
             }
         }
 
@@ -749,9 +748,19 @@ public partial class LobbyRoomScreen : MenuPage
         {
             _shownMessages = s.Messages.Count;
             var lines = new System.Text.StringBuilder();
+            // Server and network notes dimmed so the players' lines stand out; a team line in the team's colour.
             foreach (LobbyMessage m in s.Messages)
             {
-                lines.AppendLine(m.Sender is null ? "* " + m.Text : (m.TeamOnly ? "(Team) " : string.Empty) + m.Sender + ": " + m.Text);
+                if (m.Sender is null)
+                {
+                    lines.AppendLine(Dim(m.Text));
+                    continue;
+                }
+
+                string said = Escape(m.Sender) + ": " + Escape(m.Text);
+                lines.AppendLine(m.TeamOnly
+                    ? "[color=#" + UiStyle.SideColour(m.Side ?? HudSide.Spy).ToHtml(false) + "](Team) " + said + "[/color]"
+                    : said);
             }
 
             _messages.Text = lines.ToString();
@@ -780,9 +789,7 @@ public partial class LobbyRoomScreen : MenuPage
         HSlider? volume = null;
         Label? volumeText = null;
         CheckBox? mute = null;
-        Button? kick = null;
-        Button? ban = null;
-        Button? voiceBan = null;
+        MenuButton? admin = null;
         // A bot never talks and follows the Bots setting: no volume, mute or kick on its row.
         if (!p.IsLocal && !p.IsBot)
         {
@@ -810,27 +817,29 @@ public partial class LobbyRoomScreen : MenuPage
             line.AddChild(volume);
             line.AddChild(volumeText);
             line.AddChild(mute);
-            int id = p.Id;
-            kick = new Button { Name = "Kick", Text = "Kick" };
-            kick.Pressed += () => AskKick(id, player);
-            line.AddChild(kick);
-            ban = new Button { Name = "Ban", Text = "Ban" };
-            ban.Pressed += () => AskKick(id, player, ConfirmAction.Ban);
-            line.AddChild(ban);
-            voiceBan = new Button { Name = "VoiceBan", Text = "Voice Ban" };
-            line.AddChild(voiceBan);
+            admin = new MenuButton { Name = "Admin", Text = "Admin ▾", Flat = false, TooltipText = "Kick, ban or voice ban this player" };
+            PopupMenu items = admin.GetPopup();
+            items.AddItem("Kick", AdminKick);
+            items.AddItem("Ban", AdminBan);
+            items.AddItem("Voice Ban", AdminVoiceBan);
+            line.AddChild(admin);
         }
 
         var row = new PlayerRow
         {
             Line = line, Speaker = speaker, Name = name, Rank = rank, Ready = ready, Ping = ping, Volume = volume, VolumeText = volumeText,
-            Mute = mute, Kick = kick, Ban = ban, VoiceBan = voiceBan,
+            Mute = mute, Admin = admin,
         };
-        if (voiceBan is not null)
+        if (admin is not null)
         {
             int id = p.Id;
             string player = p.Name;
-            voiceBan.Pressed += () => AskKick(id, player, row.VoiceBanned ? ConfirmAction.VoiceUnban : ConfirmAction.VoiceBan);
+            admin.GetPopup().IdPressed += item => AskKick(id, player, item switch
+            {
+                AdminBan => ConfirmAction.Ban,
+                AdminVoiceBan => row.VoiceBanned ? ConfirmAction.VoiceUnban : ConfirmAction.VoiceBan,
+                _ => ConfirmAction.Kick,
+            });
         }
 
         return row;
@@ -866,6 +875,11 @@ public partial class LobbyRoomScreen : MenuPage
             _microphone.Text = s.MicrophoneLine;
         }
     }
+
+    /// <summary>Chat text with its BBCode brackets made literal (a player can type "[b]").</summary>
+    private static string Escape(string text) => text.Replace("[", "[lb]", StringComparison.Ordinal);
+
+    private static string Dim(string text) => "[color=#" + UiStyle.MenuDisabled.ToHtml(true) + "]" + Escape(text) + "[/color]";
 
     private static string HostName(IOnlineLobbySession s)
     {

@@ -367,8 +367,8 @@ public partial class OnlineVoiceChat : Node
         }
 
         string state = voice.Voice.Transmitting ? "transmitting" : "silent";
-        string mode = _settings.PushToTalk ? "push to talk" : "voice activation";
-        return string.Create(CultureInfo.InvariantCulture, $"Microphone: {state} ({mode}, level {voice.Voice.InputLevel:0.000})") +
+        string mode = _settings.PushToTalk ? "push to talk" : "voice activated";
+        return string.Create(CultureInfo.InvariantCulture, $"Mic {state}, {mode}") +
             (MicrophoneProblem is { } p && ToneHz <= 0 ? " - " + p : string.Empty);
     }
 }
