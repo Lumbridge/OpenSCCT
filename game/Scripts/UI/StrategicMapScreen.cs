@@ -50,6 +50,7 @@ public partial class StrategicMapScreen : MenuPage
     /// <summary>Back was pressed (or, with <see cref="OwnKeys"/>, Escape).</summary>
     public event Action? Closed;
 
+    [PortOf("def:GUI.StrategicMap", Spec = "spec/hud/strategic-map.md#rules")]
     public override void _Ready()
     {
         BuildFrame(PageTitle, 1000f);

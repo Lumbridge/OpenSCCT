@@ -16,6 +16,7 @@ IDs of each file are in that file's `Units:` header.
 | [binoculars.md](binoculars.md) | P_BinocularsATT and P_BinocularsDEF, and the spy's objective markers in the binoculars |
 | [cinematic-camera.md](cinematic-camera.md) | The Enhanced cinematic camera: the FreeCam and HideHud binds, the server permission and the free camera |
 | [in-game-menu.md](in-game-menu.md) | The In-Game Menu (Escape, ShowMenu): its pages, keys, layout and the quit and lobby confirmations |
+| [strategic-map.md](strategic-map.md) | The strategic map (the menu's button and F7, DisplayStrategicMap): floors, legend, the you-are-here and team-mate markers, UpdateMinimapParams |
 
 ## Relevant units not specced here
 

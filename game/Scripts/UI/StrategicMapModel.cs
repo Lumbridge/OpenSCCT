@@ -39,6 +39,8 @@ public sealed record StrategicMapCamera(StrategicMapPoint Position, StrategicMap
 /// <c>ui/strategicmap/floor&lt;n&gt;.png</c>). Loading never throws: a missing or broken file gives a map with nothing
 /// to show (the null guards Enhanced and Reloaded added for the F7 crash).
 /// </summary>
+[PortOf("rl:fix.f7_crash", Spec = "spec/hud/strategic-map.md#rules")]
+[PortOf("enh:fix.strategic_map", Spec = "spec/hud/strategic-map.md#rules")]
 public sealed class StrategicMapData
 {
     /// <summary>The folder of the floor pictures in a converted map (the maps step writes them).</summary>
@@ -305,6 +307,7 @@ public sealed class StrategicMapModel
     [Uc("GUI.StrategicMap.UpdateTeamMatesPositions", Sha1 = "c2cf14733fd6a8a587ec9c253405708938bf5a49")]
     [PortOf("uc:GUI.StrategicMap:UpdateTeamMatesPositions", Spec = "spec/hud/strategic-map.md#rules")]
     [PortOf("nat:GUI.StrategicMap.UpdateTeamMate", Spec = "spec/hud/strategic-map.md#rules")]
+    [PortOf("rl:GUI.StrategicMap.UpdateTeamMate", Spec = "spec/hud/strategic-map.md#rules")]
     private void PlaceMates(IEnumerable<StrategicMapPosition> mates)
     {
         Array.Clear(_mates);

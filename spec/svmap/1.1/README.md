@@ -23,6 +23,8 @@ below are optional files, optional fields and new collision chunks that 1.0 read
   audio/                   client only (later)
   ui/                      client only
     mapinfo.json           (1.1) map name and briefing texts per game mode
+    strategicmap/floor<n>.png  (1.1, optional) the strategic map's picture of floor n (LevelInfo.MapFloors order; the
+                           heights and the snapshot camera are in sim/gameplay.json levelInfo)
 ```
 
 The dedicated server loads only `sim/`. The client loads all of it. `fixtures/testbox/` is a complete synthetic

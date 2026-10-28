@@ -22,6 +22,7 @@ is in `docs/ONLINE.md`, voice in `docs/VOICE.md`, and the way to test it with tw
 | `game/Scripts/UI/CreateSessionModel.cs` | the Create Session rules without Godot (rows, captions, ranges, mode rules, password) |
 | `game/Scripts/UI/SessionRowsView.cs` | the rows drawn with the original's arrows and boxes; also the lobby's Session Parameters |
 | `game/Scripts/UI/LobbyRoomScreen.cs` | the online Lobby Room |
+| `game/Scripts/UI/StrategicMapScreen.cs`, `StrategicMapModel.cs` | the Strategic map page (in a match and from the Lobby Room) and its rules without Godot |
 | `game/Scripts/UI/LobbyRoomModel.cs` | the Lobby Room rules without Godot (page button, blinking changes, chat spam delay) |
 | `game/Scripts/UI/JoinWithIpScreen.cs`, `ServerBrowserScreen.cs`, `ConnectingScreen.cs`, `ResultsScreen.cs` | Join with IP, Sessions, the loading page, the end menu |
 | `game/Scripts/UI/LobbyScreen.cs`, `LobbySession.cs` | the offline lobby (bots fill the 2v2) and the lobby interfaces |
@@ -188,12 +189,35 @@ editable for the host (OK applies it), read only for everyone else.
 - Session Parameters: the Create Session rows. The host edits and presses Apply; any change un-readies the others
   (the original's clients un-ready themselves), whose changed values blink for three seconds.
 - Chat: Say and TeamSay ("(Team) " prefix); a line within a second of the last one is not sent: "(Spam delay, 1 second)".
-- Page buttons: Leave, Options (the options over the lobby), and Launch / Cancel for the host or Ready / Not Ready for
-  the others. Launch needs everyone on a side ready; a player without the map, or with another version of it, is named.
+- Page buttons: Leave, Options (the options over the lobby), Strategic Map (the selected map's strategic map, below),
+  and Launch / Cancel for the host or Ready / Not Ready for the others. Launch needs everyone on a side ready; a player without the map, or with another version of it, is named.
 
 Per-player volume and mute (rl:voice.mix) are Reloaded's: its overlay sets a player's volume with the scroll wheel and
 mutes with a click. The rewrite puts the same control on each lobby row and shows Reloaded's overlay in the round
 ("Guest - volume 40%", "Your microphone is muted"). Choices last for the visit, kept by player name.
+
+## Strategic map
+
+The original's `StrategicMap` page (spec/hud/strategic-map.md): the shown floor's picture, the map's legend
+(`LegendMapInBrief`) on the right, Up and Down at the picture's lower left with a "Floor 1 / 3" caption (only for a
+map with more than one floor), and Back. In a match it opens from the In-Game Menu's Strategic Map button (Back,
+Escape or the right mouse button return to the menu) and from F7, `DisplayStrategicMap` (Escape, the right mouse
+button or F7 again close it); it opens on the player's own floor, and every half second the "you are here" marker
+(turned to where he faces) and up to two team mates blink and move. The positions of the mates come from the
+server: the page asks for them (`UpdateMinimapParams`) and reads the replicated PRI fields. The Lobby Room's Strategic
+Map button (an OpenSCCT addition) shows the selected map's pictures and legend without markers.
+
+| Look | Picture | Markers |
+|---|---|---|
+| original | the map's floor picture in a thin frame | Menu_PC `YouAreHereTexPC` and `ButtonWhite`, turned and tinted with the original's blink colours |
+| modern | the same picture in the `UiBox` thumbnail frame | our own: a dot with a view cone, and a ringed dot, in the same colours |
+
+The pictures are map content: the maps step writes them to `ui/strategicmap/floor<n>.png` of each map folder, and the
+ui step exports the two marker textures. Until the content is rebuilt (the `maps` step for every map, and the `ui`
+step) the page shows "No map picture" and, in the original look, draws the modern markers. A map without a strategic
+map (the Cine, Clar, Kraus, Moun, Pana, Sanc, Sche, Shad, Slau, Stro, Term and Vert maps, among others) shows the
+page with "No map picture"; maps without a snapshot camera (the tutorials, PyroD, SkysP, Ziop) show their pictures
+without markers.
 
 ## Voice page
 

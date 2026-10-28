@@ -87,7 +87,7 @@ Who-hears-whom matches the original (rules in `VoiceRouting.cs`). Gaps:
 | Lobby Ban button | wave |
 | Session player names in the server browser | wave |
 | Briefing page | wave |
-| Strategic Map (in-game menu and lobby) | later (M) |
+| Strategic Map (in-game menu, F7 and lobby; spec/hud/strategic-map.md) | done (needs the maps and ui steps rebuilt for the pictures) |
 | Tutorials hub, gadget encyclopedia, Visit a Map with help paths, first-time-map prompt | wave |
 | HUD legend and keyboard pictures pages | wave |
 | Tutorial zone hints (SZoneTips) offline: standalone only in the original, and offline play is a listen server here | open (M) |

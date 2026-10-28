@@ -133,7 +133,5 @@ return to the lobby, a client's disconnect.
 
 ## Open questions
 
-- The strategic map page (`StrategicMap`: the level's MapFloors textures, the you-are-here dot and the team mates by
-  the natives 1531 and 1868) is not decoded; the rewrite shows its button disabled.
 - How the PC build draws these GUI pages (fonts, button styles s_PcButton) is not decoded; the rewrite draws them
   in the front end's style.

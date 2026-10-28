@@ -212,6 +212,9 @@ public partial class PlayMenu : Node
     /// The DisplayStrategicMap key (F7): the strategic map opens on its own when the player's state allows it
     /// (<c>SPlayerController.DisplayStrategicMap</c>); the controls stop as for ShowMenu.
     /// </summary>
+    [Uc("GUI.StrategicMap_InGame.InitComponent", Sha1 = "4c51d526391b0813a35dceae4eac14622c31e995")]
+    [PortOf("uc:GUI.StrategicMap_InGame:InitComponent", Spec = "spec/hud/strategic-map.md#rules")]
+    [PortOf("def:GUI.StrategicMap_InGame", Spec = "spec/hud/strategic-map.md#rules")]
     public void OpenStrategicMap()
     {
         if (!(Session?.LocalController?.CanDisplayStrategicMap() ?? false) || Model.OpenStrategicMap(Context(), Now) != InGameMenuAction.Opened)

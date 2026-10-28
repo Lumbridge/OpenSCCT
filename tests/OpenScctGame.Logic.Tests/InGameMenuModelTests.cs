@@ -100,14 +100,17 @@ public sealed class InGameMenuModelTests
     }
 
     [Fact]
-    public void Hidden_and_unported_buttons_do_nothing()
+    public void Hidden_buttons_do_nothing_and_the_strategic_map_returns_to_the_menu()
     {
         var m = new InGameMenuModel();
         m.Open(Offline, 0);
         Assert.Equal(InGameMenuAction.None, m.Click(InGameMenuButton.ReturnToLobby));
-        Assert.Equal(InGameMenuAction.None, m.Click(InGameMenuButton.StrategicMap));
         Assert.Equal(InGameMenuPage.Main, m.Page);
-        Assert.False(InGameMenuModel.StrategicMapAvailable);
+        Assert.Equal(InGameMenuAction.None, m.Click(InGameMenuButton.StrategicMap));
+        Assert.Equal(InGameMenuPage.StrategicMap, m.Page);
+        Assert.Equal(InGameMenuAction.None, m.StrategicMapKey());
+        Assert.Equal(InGameMenuAction.None, m.StrategicMapBack());
+        Assert.Equal(InGameMenuPage.Main, m.Page);
     }
 
     [Fact]

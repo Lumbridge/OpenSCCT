@@ -171,7 +171,8 @@ status: both teams with objectives or kills, and the objective list; F9 toggles 
 ## In-match menu
 
 Escape (`ShowMenu` in both stock layouts) opens the original's In-Game Menu (`SSMenu_LANMainPage`, spec/hud/in-game-menu.md):
-Back, Strategic Map (shown, not ported yet), Options (the options screen over the game), Return to Lobby (only the
+Back, Strategic Map (the map's floors with the player and his team mates, spec/hud/strategic-map.md; F7 opens it
+directly), Options (the options screen over the game), Return to Lobby (only the
 host of a network game) and Quit Session (End session, Cancel, Quit Game). The match is not paused, as in the original;
 the player's controls stop and the pointer is freed while the menu is open, and keys are ignored for its first half
 second. `InGameMenuModel` (Godot-free, unit tested) holds the rules, `UI/InGameMenu` draws them in the front end's style
