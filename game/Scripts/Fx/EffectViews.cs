@@ -494,7 +494,24 @@ public sealed partial class EffectViews : Node3D
             return UeSpace.ToUe(bone.Origin);
         }
 
+        if (!a.AttachmentBone.IsNone && a.Base is SWeaponDefense { bDeleteMe: false } weapon)
+        {
+            return WeaponBonePlace(weapon, a);
+        }
+
         return a.Location;
+    }
+
+    /// <summary>
+    /// An effect on a merc gun's bone (the barrel smoke on FX): the simulation's place of that bone, the actor's
+    /// RelativeLocation taken along the bone's axes.
+    /// </summary>
+    [Provenance(ProvenanceKind.Estimated, "The gun's FX bone is the simulation's estimate (GetBoneCoords), not the drawn first-person gun's bone")]
+    private static FVector WeaponBonePlace(SWeaponDefense weapon, Actor a)
+    {
+        FCoords c = OpenScct.Game.Combat.CombatServices.Ports(weapon).BoneCoords(weapon, a.AttachmentBone);
+        FVector r = a.RelativeLocation;
+        return c.Origin + (c.XAxis * r.X) + (c.YAxis * r.Y) + (c.ZAxis * r.Z);
     }
 
     private static string ShortName(string cls) => cls[(cls.LastIndexOf('.') + 1)..];

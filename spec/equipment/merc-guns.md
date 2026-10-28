@@ -65,7 +65,8 @@ FirstReloStFd2S 46 (AnimNotify_Script EventReloadFirst1..5 at 0.788, 1.110, 1.44
 3. **Shotgun trigger.** The rifle's (`Fire`, `s_Firing`, auto-reload in `s_Selected` when the clip runs dry outside
    single shot) with `SwitchROF` empty, so it stays in ROF_Auto: held fire shoots every 1.15 s until the clip is
    empty. `FireWeapon` is the rifle's, then `ChangeEnumAction(SA_FIRE)` (the third-person pump, ReloStSpFd3).
-   `CreateSmoke2` is empty (no barrel smoke after a pull).
+   `CreateSmoke2` is empty (no barrel smoke after a pull); instead `CreateSmoke1`, at the start of every pull, spawns
+   two SSmokeCanonEmitter on the FX bone at (22, 3, -1) and (22, -3, -1), one per barrel.
 4. **Shotgun damage.** `ServerFireWeapon` is the rifle's; its `TraceFire` is the native one: nine pellets, the
    largest per actor, no tracer, no stats beyond ShotsFired (natives2-damage.md rule 7). It stores the near and far
    hit ranges in the third-person gun (`MinProjDistance`, `MaxProjDistance`, replicated).

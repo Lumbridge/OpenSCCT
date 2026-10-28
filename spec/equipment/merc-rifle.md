@@ -106,7 +106,8 @@ native TraceFire override (nat:SBase.SWeaponDefense_Shotgun.TraceFire at 0x10ab9
    unit vector of the `FX` bone rotation. Trace actors and world from `S = E - 56 D` to `E' = E - 38 D` (an 18 uu
    segment ending 38 uu behind the muzzle). Firing is allowed only if nothing is hit. Runs on the shooting client.
 4. **s_Firing.BeginState:** if `CheckIfCanFire()`: `BulletInARow += 1`, `BulletsToFire = GetNbBulletsFromROF()`,
-   `FireWeapon()`, rumble. Then always `SetTimer(RateOfFire, looping)`.
+   `FireWeapon()`, rumble. Then always `SetTimer(RateOfFire, looping)` and `CreateSmoke1()` (empty for the rifle and
+   the Uzi; the shotgun's barrel smoke, merc-guns.md rule 3).
    `GetNbBulletsFromROF`: Single 1, Burst `min(3, ClipAmmo)`, Auto `ClipAmmo`.
 5. **s_Firing.Timer** (every RateOfFire = 0.2 s, engine timer rules): if `BulletsToFire <= 0`, or
    (`ROFMode == ROF_Auto` and fire is not held), or `bElbowBackward`: if not Single spawn the barrel smoke

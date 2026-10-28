@@ -32,7 +32,6 @@ public partial class SWeaponDefense
     private static readonly Name CNAME_ImpactHole = new("SImpactEffectHole");
     private static readonly Name CNAME_ImpactHoleBack = new("SImpactEffectHoleBack");
     private static readonly Name CNAME_SpawnSFX = new("SpawnSFX");
-    private static readonly Name CNAME_CreateSmoke2 = new("CreateSmoke2");
     private static readonly Name CNAME_FirstPainStBk2 = new("FirstPainStBk2");
     private static readonly Name CNAME_FirstPainStFt2 = new("FirstPainStFt2");
     private static readonly Name CNAME_FirstPainStLt2 = new("FirstPainStLt2");
@@ -802,10 +801,37 @@ public partial class SWeaponDefense
     [PortOf("uc:SBase.SWeaponDefense:SpawnSFX", Spec = "spec/equipment/merc-rifle.md#rules")]
     public virtual void SpawnSFX() => CombatFx.Notify(this, CNAME_SpawnSFX);
 
-    /// <summary>The barrel smoke after a burst (a view effect).</summary>
+    /// <summary>The barrel smoke at the start of a pull: the rifle has none (the shotgun does).</summary>
+    [Uc("SBase.SWeaponDefense.CreateSmoke1", Sha1 = "23aff4eecf0e2e62053f2e78cf6e28d2d332361e")]
+    [PortOf("uc:SBase.SWeaponDefense:CreateSmoke1", Spec = "spec/equipment/merc-rifle.md#rules")]
+    public virtual void CreateSmoke1()
+    {
+    }
+
+    /// <summary>The barrel smoke after a burst: an SSmokeCanonEmitter on the FX bone.</summary>
     [Uc("SBase.SWeaponDefense.CreateSmoke2", Sha1 = "9116098e3a572b5ba37edd478f6424542f1d6f3a")]
     [PortOf("uc:SBase.SWeaponDefense:CreateSmoke2", Spec = "spec/equipment/merc-rifle.md#rules")]
-    public virtual void CreateSmoke2() => CombatFx.Notify(this, CNAME_CreateSmoke2);
+    public virtual void CreateSmoke2() => SpawnBarrelSmoke(FVector.Zero);
+
+    /// <summary>
+    /// <c>Spawn(class'SSmokeCanonEmitter', self, , GetBoneCoords('FX').Origin, , true)</c>, attached to the FX bone at
+    /// <paramref name="Relative"/> (SetRelativeLocation). A cosmetic emitter (RemoteRole None, 4 s), spawned only where
+    /// it can be drawn; the client's effect view keeps it on the weapon's FX bone.
+    /// </summary>
+    protected void SpawnBarrelSmoke(FVector Relative)
+    {
+        if (Level.NetMode == ENetMode.NM_DedicatedServer)
+        {
+            return;
+        }
+
+        FCoords fx = CombatServices.Ports(this).BoneCoords(this, FxBone);
+        if (Spawn<SSmokeCanonEmitter>(this, default, fx.Origin) is { } smoke)
+        {
+            OpenScct.Game.Objectives.ObjectiveNatives.AttachToBone(this, smoke, FxBone);
+            smoke.RelativeLocation = Relative;
+        }
+    }
 
     /// <summary>A reticle message on the owner's HUD (the server-to-client function always runs locally).</summary>
     [Uc("SBase.SWeaponDefense.LocalMessage", Sha1 = "f2493b837e571ebcffa102a61299a768380d8066")]
