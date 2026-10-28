@@ -8,10 +8,10 @@ namespace OpenScctGame.UI;
 /// <summary>
 /// Draws the In-Game Menu of an <see cref="InGameMenuModel"/> over the game (spec/hud/in-game-menu.md): the "In-Game
 /// Menu" page with its buttons where the original puts them (centred, half the screen wide, at their fractions of
-/// the height), the quit and lobby confirmations in their dialog box, the leaving page, and the options screen
-/// (<see cref="OptionsMenu"/> as an overlay) for Options. The original's GUI pages are drawn in the front end's
-/// style. Clicks go to the model; what the play scene must do is raised through <see cref="Acted"/>. While shown it
-/// is in the group <see cref="Group"/>.
+/// the height), the quit and lobby confirmations in their dialog box, the leaving page, the options screen
+/// (<see cref="OptionsMenu"/> as an overlay) for Options, and the strategic map (<see cref="StrategicMapScreen"/>).
+/// The original's GUI pages are drawn in the front end's style. Clicks go to the model; what the play scene must do
+/// is raised through <see cref="Acted"/>. While shown it is in the group <see cref="Group"/>.
 /// </summary>
 public partial class InGameMenu : Control
 {
@@ -36,6 +36,9 @@ public partial class InGameMenu : Control
 
     /// <summary>The gear picker for the player's side now (null before he has one).</summary>
     public Func<GearMenuModel?>? GearSource { get; set; }
+
+    /// <summary>The strategic map page for the map being played (spec/hud/strategic-map.md), made when the page opens.</summary>
+    public Func<StrategicMapScreen>? StrategicMapSource { get; set; }
 
     /// <summary>Apply on the gear picker: save the choice and ask the server to put it on.</summary>
     public event Action<GearMenuModel>? GearApplied;
@@ -114,6 +117,9 @@ public partial class InGameMenu : Control
                 Dim(0.85f);
                 Text(InGameMenuK.LeavingText, new Rect2(0f, size.Y * 0.45f, size.X, 40f));
                 break;
+            case InGameMenuPage.StrategicMap:
+                StrategicMapPage();
+                break;
             case InGameMenuPage.Options when _options is null:
                 _options = new OptionsMenu { Overlay = true };
                 _options.Closed += OnOptionsClosed;
@@ -145,12 +151,6 @@ public partial class InGameMenu : Control
             Button b = UiStyle.MenuButton(e.Caption, () => Click(which), which.ToString());
             b.Position = new Vector2((size.X - width) * 0.5f, (size.Y * e.Top) - (ButtonHeight * 0.5f));
             b.Size = new Vector2(width, ButtonHeight);
-            if (which == InGameMenuButton.StrategicMap && !InGameMenuModel.StrategicMapAvailable)
-            {
-                b.Disabled = true;
-                b.TooltipText = "The strategic map is not available yet.";
-            }
-
             AddChild(b);
             first ??= b;
         }
@@ -249,6 +249,13 @@ public partial class InGameMenu : Control
         };
         gear.Closed += () => Act(Model.GearBack());
         AddChild(gear);
+    }
+
+    private void StrategicMapPage()
+    {
+        StrategicMapScreen map = StrategicMapSource?.Invoke() ?? new StrategicMapScreen(StrategicMapData.Empty);
+        map.Closed += () => Act(Model.StrategicMapBack());
+        AddChild(map);
     }
 
     private void Click(InGameMenuButton button) => Act(Model.Click(button));

@@ -6,5 +6,6 @@ collision.py  sim/collision.bin
 traversal.py  sim/traversal.json
 rain.py       sim/rain.json (the ERainVolume boxes the pawn tick tests, written when the map has any)
 render.py     render/ (world.glb from scctpkg's exporter, materials, lighting, fx, textures) and ui/mapinfo.json
+strategicmap.py  ui/strategicmap/floor<n>.png, the strategic map's floor pictures
 build.py      the whole folder, with the manifest
 """

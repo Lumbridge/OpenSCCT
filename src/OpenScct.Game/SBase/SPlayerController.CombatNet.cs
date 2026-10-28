@@ -167,6 +167,10 @@ public partial class SPlayerController
             case "ServerChangeGear":
                 ServerChangeGear();
                 break;
+            case "UpdateMinimapParams":
+                // PlayerReplicationInfo.UpdateMinimapParams from the strategic map page (spec/hud/strategic-map.md).
+                PlayerReplicationInfo?.UpdateMinimapParams();
+                break;
             case "Throw" when target is SGamePlayObject thrown:
                 // SGamePlayObject.Throw (reliable owner to server): the hand item released by ThrowObject.
                 thrown.eventThrow(this, c.Vector1);

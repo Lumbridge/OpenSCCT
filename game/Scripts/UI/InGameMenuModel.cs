@@ -49,6 +49,9 @@ public enum InGameMenuPage
 
     /// <summary><c>QuitMatch_Page</c>: a client leaving ("Leaving session, please wait ...").</summary>
     Leaving,
+
+    /// <summary><c>StrategicMap</c> (from the menu) or <c>StrategicMap_InGame</c> (the DisplayStrategicMap key): spec/hud/strategic-map.md.</summary>
+    StrategicMap,
 }
 
 /// <summary>What the play scene must do after a menu input.</summary>
@@ -133,6 +136,9 @@ public static class InGameMenuK
 
     [Provenance(ProvenanceKind.Decoded, "GUI.SSMenu_ConfirmQuitLAN defaults ClientQuitSession")]
     public const string LeavingText = "Leaving session, please wait ...";
+
+    [Provenance(ProvenanceKind.Decoded, "Default_kbd_0.ini, Default_kbd_1.ini: IK_F7=DisplayStrategicMap")]
+    public const string StrategicMapCommand = "DisplayStrategicMap";
 }
 
 /// <summary>
@@ -147,6 +153,7 @@ public sealed class InGameMenuModel
     private double _leavingAt;
     private InGameMenuAction _afterLeaving;
     private bool _gearOnly;
+    private bool _mapOnly;
 
     public InGameMenuPage Page { get; private set; } = InGameMenuPage.Closed;
 
@@ -166,9 +173,6 @@ public sealed class InGameMenuModel
         _ => null,
     };
 
-    /// <summary>The strategic map page is not ported; its button is shown but cannot be used.</summary>
-    public static bool StrategicMapAvailable => false;
-
     /// <summary>
     /// <c>SPlayerController.ShowMenu</c> (offline and LAN: <c>SSMenu_LANMainPage</c>): opens the menu. The caller
     /// stops the player's controls (<c>StopAllControls</c>) on <see cref="InGameMenuAction.Opened"/>.
@@ -187,8 +191,57 @@ public sealed class InGameMenuModel
         Page = InGameMenuPage.Main;
         _openedAt = now;
         _gearOnly = false;
+        _mapOnly = false;
         return InGameMenuAction.Opened;
     }
+
+    /// <summary>
+    /// <c>SPlayerController.DisplayStrategicMap</c> (F7): opens the strategic map on its own
+    /// (<c>StrategicMap_InGame</c>); leaving it closes the whole menu. Not on a tutorial map. The caller asks the
+    /// player's state first (<c>SPlayerController.CanDisplayStrategicMap</c>).
+    /// </summary>
+    [PortOf("uc:SBase.SPlayerController:DisplayStrategicMap", Spec = "spec/hud/strategic-map.md#rules")]
+    public InGameMenuAction OpenStrategicMap(InGameMenuContext context, double now)
+    {
+        if (IsOpen || context.Tutorial)
+        {
+            return InGameMenuAction.None;
+        }
+
+        InGameMenuAction opened = Open(context, now);
+        Page = InGameMenuPage.StrategicMap;
+        _mapOnly = true;
+        return opened;
+    }
+
+    /// <summary>
+    /// The strategic map's Back (or Escape, the right mouse button): back to the In-Game Menu, or closed when the
+    /// DisplayStrategicMap key opened it (<c>StrategicMap_InGame.InternalOnKeyEvent</c>: <c>CloseAll</c>).
+    /// </summary>
+    [Uc("GUI.StrategicMap_InGame.InternalOnKeyEvent", Sha1 = "1199ac968877a382199bda50e6f9ad1fadb3129e")]
+    [PortOf("uc:GUI.StrategicMap_InGame:InternalOnKeyEvent", Spec = "spec/hud/strategic-map.md#rules")]
+    public InGameMenuAction StrategicMapBack()
+    {
+        if (Page != InGameMenuPage.StrategicMap)
+        {
+            return InGameMenuAction.None;
+        }
+
+        if (_mapOnly)
+        {
+            return CloseAll();
+        }
+
+        Page = InGameMenuPage.Main;
+        return InGameMenuAction.None;
+    }
+
+    /// <summary>
+    /// The DisplayStrategicMap key while the map is open: <c>StrategicMap_InGame</c> takes it as its exit key and
+    /// closes everything; the page opened from the menu does not react to it.
+    /// </summary>
+    public InGameMenuAction StrategicMapKey() =>
+        Page == InGameMenuPage.StrategicMap && _mapOnly ? CloseAll() : InGameMenuAction.None;
 
     /// <summary>
     /// The gear key (an OpenSCCT addition, spec/additions/gear-change.md): opens the menu straight on the gear
@@ -315,6 +368,8 @@ public sealed class InGameMenuModel
                 return CloseAll();
             case InGameMenuPage.Gear when string.Equals(ik, "Escape", StringComparison.OrdinalIgnoreCase):
                 return GearBack();
+            case InGameMenuPage.StrategicMap when IsCloseKey(ik):
+                return StrategicMapBack();
             case InGameMenuPage.ConfirmQuit or InGameMenuPage.ConfirmLobby when string.Equals(ik, "Escape", StringComparison.OrdinalIgnoreCase):
                 Page = InGameMenuPage.Main;
                 return InGameMenuAction.None;
@@ -349,8 +404,11 @@ public sealed class InGameMenuModel
             case InGameMenuButton.QuitSession:
                 Page = InGameMenuPage.ConfirmQuit;
                 return InGameMenuAction.None;
+            case InGameMenuButton.StrategicMap:
+                // Controller.OpenMenu('StrategicMap'): the page over the menu; its Back returns here.
+                Page = InGameMenuPage.StrategicMap;
+                return InGameMenuAction.None;
             default:
-                // The strategic map page is not ported.
                 return InGameMenuAction.None;
         }
     }

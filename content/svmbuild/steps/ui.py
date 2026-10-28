@@ -15,7 +15,7 @@ from ..sources import env
 
 class UiStep(Step):
     name = "ui"
-    version = 2
+    version = 3
     deps = ()
     per_map = False
     needs_game = True

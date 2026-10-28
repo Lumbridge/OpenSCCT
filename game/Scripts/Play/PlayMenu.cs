@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using Godot;
+using OpenScct.Core.Engine;
 using OpenScct.Game.SBase;
 using OpenScct.Provenance;
 using OpenScctGame.Chat;
@@ -25,6 +27,7 @@ public partial class PlayMenu : Node
 {
     private CanvasLayer? _layer;
     private bool _inputWasEnabled = true;
+    private StrategicMapData? _strategicMap;
 
     public PlayMenu()
     {
@@ -61,7 +64,7 @@ public partial class PlayMenu : Node
     {
         // Over the HUD and the status page, under the F12 options overlay.
         _layer = new CanvasLayer { Name = "InGameMenuLayer", Layer = HudLayer.DefaultLayer + 4 };
-        Menu = new InGameMenu { Model = Model, Now = () => Now, GearSource = GearModel };
+        Menu = new InGameMenu { Model = Model, Now = () => Now, GearSource = GearModel, StrategicMapSource = StrategicMapPage };
         Menu.Acted += Act;
         Menu.GearApplied += ApplyGear;
         _layer.AddChild(Menu);
@@ -92,6 +95,11 @@ public partial class PlayMenu : Node
             else if (Runs(ik, GearCommand))
             {
                 OpenGear();
+                GetViewport().SetInputAsHandled();
+            }
+            else if (Runs(ik, InGameMenuK.StrategicMapCommand))
+            {
+                OpenStrategicMap();
                 GetViewport().SetInputAsHandled();
             }
         }
@@ -128,6 +136,14 @@ public partial class PlayMenu : Node
             return;
         }
 
+        if (key && Model.Page == InGameMenuPage.StrategicMap && Bound(ik, InGameMenuK.StrategicMapCommand))
+        {
+            // StrategicMap_InGame: its exit key is the key that opened it.
+            GetViewport().SetInputAsHandled();
+            Act(Model.StrategicMapKey());
+            return;
+        }
+
         if (key || InGameMenuModel.IsCloseKey(ik))
         {
             InGameMenuAction action = Model.KeyPressed(ik, Now);
@@ -144,10 +160,14 @@ public partial class PlayMenu : Node
     public const string GearCommand = "ChangeGear";
 
     /// <summary>The key runs <paramref name="command"/> in the player's layout and nothing else has the keys.</summary>
-    private bool Runs(string ik, string command)
+    private bool Runs(string ik, string command) =>
+        PlayInput is { Enabled: true } && Session is { IsStopped: false } && !(Hud?.Chat?.IsOpen ?? false) && !(Hud?.Status?.IsOpen ?? false) &&
+        Bound(ik, command);
+
+    /// <summary>The key runs <paramref name="command"/> in the player's layout (whether or not the controls are live).</summary>
+    private bool Bound(string ik, string command)
     {
-        if (PlayInput is not { Enabled: true, Bindings: { } bindings } || Session is null || Session.IsStopped ||
-            (Hud?.Chat?.IsOpen ?? false) || (Hud?.Status?.IsOpen ?? false))
+        if (PlayInput is not { Bindings: { } bindings })
         {
             return false;
         }
@@ -186,6 +206,61 @@ public partial class PlayMenu : Node
         }
 
         StopControls();
+    }
+
+    /// <summary>
+    /// The DisplayStrategicMap key (F7): the strategic map opens on its own when the player's state allows it
+    /// (<c>SPlayerController.DisplayStrategicMap</c>); the controls stop as for ShowMenu.
+    /// </summary>
+    public void OpenStrategicMap()
+    {
+        if (!(Session?.LocalController?.CanDisplayStrategicMap() ?? false) || Model.OpenStrategicMap(Context(), Now) != InGameMenuAction.Opened)
+        {
+            return;
+        }
+
+        StopControls();
+    }
+
+    /// <summary>The strategic map page for the map being played, with the live positions (spec/hud/strategic-map.md).</summary>
+    private StrategicMapScreen StrategicMapPage()
+    {
+        _strategicMap ??= StrategicMapData.Load(Session?.MapFolder);
+        return new StrategicMapScreen(_strategicMap) { Live = LivePositions };
+    }
+
+    /// <summary>
+    /// <c>UpdateTeamMatesPositions</c>: asks the server for fresh positions (<c>UpdateMinimapParams</c>), then reads the
+    /// local pawn and the team mates' PRIs (same team, not the player, MinimapYaw not -1; the answer to this request
+    /// arrives for the next one).
+    /// </summary>
+    private StrategicMapLive LivePositions()
+    {
+        if (Session?.LocalController is not { } pc)
+        {
+            return StrategicMapLive.Nobody;
+        }
+
+        pc.RequestMinimapParams();
+        StrategicMapPosition? you = pc.Pawn is { } pawn
+            ? new StrategicMapPosition(new StrategicMapPoint(pawn.Location.X, pawn.Location.Y, pawn.Location.Z), pawn.Rotation.Yaw)
+            : null;
+        var mates = new List<StrategicMapPosition>(2);
+        PlayerReplicationInfo? own = pc.PlayerReplicationInfo;
+        if (own?.Team is { } team && pc.GameReplicationInfo is { } gri)
+        {
+            foreach (PlayerReplicationInfo? pri in gri.PRIArray)
+            {
+                if (pri is null || ReferenceEquals(pri, own) || pri.Team is null || pri.Team.TeamIndex != team.TeamIndex || pri.MinimapYaw == -1)
+                {
+                    continue;
+                }
+
+                mates.Add(new StrategicMapPosition(new StrategicMapPoint(pri.MinimapX, pri.MinimapY, pri.MinimapZ), pri.MinimapYaw));
+            }
+        }
+
+        return new StrategicMapLive(you, mates);
     }
 
     /// <summary>The key runs ShowMenu in the player's layout (Escape when no key is bound to it) and nothing else has the keys.</summary>

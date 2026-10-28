@@ -14,6 +14,7 @@ from .gameplay import build_class_table, build_gameplay
 from .rain import build_rain
 from .render import RenderBuilder
 from .source import MapSource
+from .strategicmap import build_strategic_map
 from .traversal import build_traversal
 
 GENERATOR = "svmbuild.maps"
@@ -67,6 +68,7 @@ def build_map(game: Path, name: str, out_dir: Path, db, *, map_sha256: str, clas
         files["sim/rain.json"] = canonical.dump_file(rain)
     if ui:
         files["ui/mapinfo.json"] = canonical.dump_file(ui, ascii_keys=False)
+    files.update(build_strategic_map(src))
     t = time.perf_counter()
     manifest = write_svmap(out_dir, map_id=name, title=title, source=source, gameplay=gameplay, traversal=traversal,
                            collision=collision, render=render_files, requires=requires, files=files,

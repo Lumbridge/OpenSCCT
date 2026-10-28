@@ -15,8 +15,8 @@ namespace OpenScctGame.UI;
 /// the spectators, "Switch Team", "Restrict Mic to Team", the Session Parameters (the Create Session rows: the host
 /// edits them and applies, a client reads them and sees changed values blink), the chat box with Say and TeamSay and
 /// its spam delay, kicking with "Do you want to kick" (and, beyond the original, Ban and Voice Ban with the same
-/// question), and the page buttons: Leave, Options and Launch (host; Cancel
-/// while the launch counts down) or Ready / Not Ready (client).
+/// question), and the page buttons: Leave, Options, Strategic Map (the selected map's floors) and Launch (host;
+/// Cancel while the launch counts down) or Ready / Not Ready (client).
 /// </summary>
 public partial class LobbyRoomScreen : MenuPage
 {
@@ -260,6 +260,7 @@ public partial class LobbyRoomScreen : MenuPage
 
         LeaveButton = PageButton("Leave", () => Session?.Leave(), "Leave");
         PageButton("Options", OpenOptions, "Options");
+        PageButton(InGameMenuK.StrategicMap, OpenStrategicMap, "StrategicMap");
         MainButton = PageButton("Ready", PressMain, "Main");
         BuildConfirm();
 
@@ -440,6 +441,19 @@ public partial class LobbyRoomScreen : MenuPage
         var options = new OptionsMenu { Overlay = true };
         options.Closed += options.QueueFree;
         AddChild(options);
+    }
+
+    /// <summary>
+    /// An OpenSCCT addition: the selected map's strategic map (floors, Up and Down, the legend) over the lobby, without
+    /// markers (spec/hud/strategic-map.md).
+    /// </summary>
+    private void OpenStrategicMap()
+    {
+        string map = Parameters?.Setup.Map ?? string.Empty;
+        string? folder = string.IsNullOrEmpty(map) ? null : OpenScctGame.Render.MapBuilder.FindMapFolder(map);
+        var page = new StrategicMapScreen(StrategicMapData.Load(folder)) { OwnKeys = true };
+        page.Closed += page.QueueFree;
+        AddChild(page);
     }
 
     private void AskKick(int id, string name, ConfirmAction action = ConfirmAction.Kick)

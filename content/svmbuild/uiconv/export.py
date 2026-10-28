@@ -32,14 +32,15 @@ SHUD_TEXTURES = ("MN_boutons", "Icones_Gadgets", "Icones_Weapons", "Att_Arrow", 
 # The PC menus' own textures (GUI pages, not Magma): the page background, its corner brackets and frames
 # (GUIContent New_Menu; GUIPage defaults), and the PC styles' buttons, boxes and the voice icon (Menu_PC; sSTY_Pc*);
 # the equipment pages' background, side portraits and pad-button hints (Edit_Profile: fond02, MN_ATTperso,
-# MN_DEFperso, bouton01-04); the tutorials' pictures (Tutorials_PC: the tips' SPY_ / SENTRY_Tuto01-09
+# MN_DEFperso, bouton01-04); the strategic map's markers (StrategicMapMenu YouAreHereTexRotator and TeamMate turn
+# YouAreHereTexPC and ButtonWhite); the tutorials' pictures (Tutorials_PC: the tips' SPY_ / SENTRY_Tuto01-09
 # (Tutorials_Tuto), the HUD legends' screenshots (View_Hud_Spy, View_Hud_Sentry) and the keyboard (View_KeyboardConfigOne)).
 MENU_TEXTURES = {
     "GUIContent": ("fond", "loading", "MN_cadre01", "MN_cadre02", "MN_cadre03", "MN_cadre06", "MN_losange",
                    "MN_petitrond", "fond02", "MN_ATTperso", "MN_DEFperso"),
     "Menu_PC": ("buton_select", "buton_validate", "buton_push", "TABS_NOselect", "Saquare_backd", "Saquare_BOX",
                 "CommunicatorON", "Disable", "scroll_bar", "Vert01", "noir01",
-                "bouton01", "bouton02", "bouton03", "bouton04"),
+                "bouton01", "bouton02", "bouton03", "bouton04", "YouAreHereTexPC", "ButtonWhite"),
     "Tutorials_PC": tuple(f"{side}_Tuto{i:02d}" for side in ("SPY", "SENTRY") for i in range(1, 10)) +
                     ("SPY_Tutorial2_User_Interface", "SENTRY_Tutorial2_User_Interface", "clavier"),
 }
