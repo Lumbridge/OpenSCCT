@@ -79,8 +79,8 @@ public sealed class NetObjectiveBridge : IObjectiveNet
 /// (<see cref="IGameHost.ServerCall"/> on a client) sent as the replicated function the <see cref="GameCall"/> names.
 /// The call's fields fill the function's parameters by type, in order: floats from Float1 then Float2, names from
 /// Name1 then Name2, bools from Bool, ints, bytes and enums from Int, strings from Text, classes from Class then
-/// Class2, assets from Asset, rotators from Rotation, PlayerReplicationInfo parameters from Pri1 then Pri2, other
-/// objects from Actor then Object. Calls that are not replicated functions, or that run here, go to the fallback
+/// Class2, assets from Asset, rotators from Rotation, vectors from Vector, PlayerReplicationInfo parameters from Pri1
+/// then Pri2, other objects from Actor then Object. Calls that are not replicated functions, or that run here, go to the fallback
 /// host (the view layer, or nothing on a dedicated server).
 /// </summary>
 public sealed class NetGameHost : IGameHost
@@ -190,6 +190,9 @@ public sealed class NetGameHost : IGameHost
                 case RepLeafKind.Rotator:
                     call = call with { Rotation = v.R };
                     break;
+                case RepLeafKind.Vector:
+                    call = call with { Vector = v.V };
+                    break;
                 case RepLeafKind.Object:
                     if (p.ClrType is { } t && typeof(PlayerReplicationInfo).IsAssignableFrom(t))
                     {
@@ -282,6 +285,9 @@ public sealed class NetGameHost : IGameHost
                     break;
                 case RepLeafKind.Rotator:
                     v.R = call.Rotation;
+                    break;
+                case RepLeafKind.Vector:
+                    v.V = call.Vector;
                     break;
                 case RepLeafKind.Object:
                     if (p.ClrType is { } t && typeof(PlayerReplicationInfo).IsAssignableFrom(t))

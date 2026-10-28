@@ -191,7 +191,7 @@ Collider kinds:
 | 3 | meshHull | static mesh simplified collision (convex hulls or its collision BSP) |
 | 4 | mover | `Mover` and subclasses |
 | 5 | glass | breakable glass (`SVitre`) |
-| 6 | gpo | gameplay objects (`SGamePlayObject` and similar swappable or breakable meshes) |
+| 6 | gpo | gameplay objects (`SBasicGamePlayObject` and subclasses that are not `bWorldGeometry`: cameras, sensors, lasers, breakers, swappable or breakable meshes); other actors to traces, moved with the actor |
 | 7 | attached | collision attached to another actor (`parent`) |
 
 Collider flags, from the owning actor's properties (`bCollideActors`, `bBlockActors`, ...):
