@@ -148,6 +148,7 @@ public partial class OptionsRuntime : Node
         if (Hud is not null)
         {
             Hud.Options.ShowPing = s.ShowPing;
+            Hud.Options.ScoreboardSplit = s.ScoreboardSplitTeamSize;
             Hud.Options.StretchHud = !s.WidescreenHud;
             Hud.Markers.Widescreen = s.Widescreen;
             Hud.Markers.WidescreenHud = s.WidescreenHud;

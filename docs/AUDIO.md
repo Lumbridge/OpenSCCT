@@ -170,6 +170,20 @@ world.EventSink = sound;                 // SimEvents of every tick
 sound.SetListener(cameraLocation, cameraRotation);   // every frame, UE space
 ```
 
+### Front end
+
+The original's menus live on two menu levels, and each plays its LevelInfo Song when it loads: `Entry` (the main
+menu and the pages under it) has `Interface.Menu.Menu_music1` (63 s, looping) and `Lobby` has
+`Interface.Menu.Menu_music2` (188 s, Enhanced's longer lobby music, enh:audio.lobby_music). Both streams are in the
+two maps' banks, converted by the maps step (`svmap/Entry/audio`, `svmap/Lobby/audio`). The rewrite's menus are Godot
+pages, so `FrontEndAudio` (a node under the root, made by the first menu page) plays the Song of the level the page
+belongs to: the Lobby's for the Lobby Room and the offline lobby, the Entry's for the other menu pages, none for the
+loading pages, the results and the round's scene (its map plays its own Song). A change of track fades the old one
+out over 2 s (PlayMusic's minimum) and starts the new one at once, on `SvmMusic` at the music volume, without the
+Sound's own gain (as the map music). It also plays the lobby's join sound (rl:qol.lobby, rl:audio.join: which sound
+Reloaded plays is not decoded; ours is `Interface.Menu.bip_message` at its own gain, flat on `SvmFlat`). Headless
+runs and `SVM_AUDIO_MUTE=1` play nothing.
+
 ### Smoke test
 
 `--svm-smoke=audio` loads SteeE's audio and simulation (a merc `PawnRig`), binds the sound system to the rig's

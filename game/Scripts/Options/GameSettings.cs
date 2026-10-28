@@ -514,6 +514,18 @@ public sealed class GameSettings
     [Provenance(ProvenanceKind.Decoded, "spec/reloaded/FEATURES.md rl:gfx.shadows shadow_edge_smoothing = true")]
     public bool ShadowEdgeSmoothing { get; set; } = true;
 
+    /// <summary>
+    /// The original Video Options' "Post-Render Quality" (SPlayerProfile.GraphPostQual: 0 Normal, 1 High, default 1).
+    /// What the native GRAPHICPOSTQUALITY command changes is not decoded; the rewrite's Normal leaves the glow out of
+    /// the normal view's composite (the gate still runs), High draws it.
+    /// </summary>
+    [JsonPropertyName("post_quality")]
+    [Provenance(ProvenanceKind.Estimated, "SPlayerProfile.GraphPostQual (DefaultProfile.ini 1); its effect (native GRAPHICPOSTQUALITY, clamped 0..1) not decoded: Normal drops the glow")]
+    public int PostQuality { get; set; } = 1;
+
+    /// <summary>Video_Settings' sQuality captions for the post-render row (Normal, High).</summary>
+    public static readonly string[] PostQualities = ["Normal", "High"];
+
     /// <summary>"Reduce input lag": Off, On (one frame queued) or Ultra (one frame queued, two swap chain images). Needs a restart.</summary>
     [JsonPropertyName("low_latency_mode")]
     [Provenance(ProvenanceKind.Estimated, "rl:gfx.pacing: Reloaded's default is On; the rewrite starts Off until frame queue 1 is measured on Vulkan and D3D12")]
@@ -633,6 +645,14 @@ public sealed class GameSettings
     [Provenance(ProvenanceKind.Decoded, "spec/reloaded/FEATURES.md rl:qol.scoreboard show_ping first-run false")]
     public bool ShowPing { get; set; }
 
+    /// <summary>
+    /// The team size at which the connected players list splits into a column per team, sized on the bigger team
+    /// (Reloaded's scoreboard_split_team_size, 1 to 4).
+    /// </summary>
+    [JsonPropertyName("scoreboard_split_team_size")]
+    [Provenance(ProvenanceKind.Decoded, "spec/reloaded/FEATURES.md rl:qol.scoreboard scoreboard_split_team_size = 3 (1 to 4)")]
+    public int ScoreboardSplitTeamSize { get; set; } = 3;
+
     [JsonPropertyName("show_fps")]
     public bool ShowFps { get; set; }
 
@@ -747,6 +767,8 @@ public sealed class GameSettings
         LowLatencyMode = OneOf(LatencyModes, LowLatencyMode);
         FilterLevel = FilterLevel <= 0 ? 0 : FilterLevel <= 2 ? 2 : FilterLevel <= 4 ? 4 : FilterLevel <= 8 ? 8 : 16;
         ShadowQuality = LookSettings.Range(ShadowQuality, 0.5f, 16f);
+        PostQuality = Math.Clamp(PostQuality, 0, 1);
+        ScoreboardSplitTeamSize = Math.Clamp(ScoreboardSplitTeamSize, 1, 4);
         MsaaSamples = MsaaSamples <= 2 ? 2 : MsaaSamples <= 4 ? 4 : 8;
         HackAlpha = Math.Clamp(HackAlpha, 0, 255);
         if (Array.IndexOf(DisplayModes, DisplayMode) < 0)

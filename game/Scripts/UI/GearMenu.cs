@@ -112,13 +112,28 @@ public partial class GearMenu : MenuPage
         Rebuild();
     }
 
-    /// <summary>Escape on the Gadgets page goes back to Equipment (the In-Game Menu handles it on Equipment).</summary>
+    /// <summary>
+    /// The page handles Escape on Equipment itself (Cancel), as over the Lobby Room; in a match the In-Game Menu does.
+    /// </summary>
+    public bool OwnKeys { get; init; }
+
+    /// <summary>Escape on the Gadgets page goes back to Equipment (on Equipment: Cancel when <see cref="OwnKeys"/>).</summary>
     public override void _Input(InputEvent @event)
     {
-        if (_grid && @event is InputEventKey { Pressed: true, Echo: false, Keycode: Key.Escape })
+        if (@event is not InputEventKey { Pressed: true, Echo: false, Keycode: Key.Escape })
+        {
+            return;
+        }
+
+        if (_grid)
         {
             ShowEquipment();
             GetViewport().SetInputAsHandled();
+        }
+        else if (OwnKeys)
+        {
+            GetViewport().SetInputAsHandled();
+            Closed?.Invoke();
         }
     }
 

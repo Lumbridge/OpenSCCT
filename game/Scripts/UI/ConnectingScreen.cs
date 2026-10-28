@@ -25,6 +25,8 @@ public partial class ConnectingScreen : MenuPage
     private MapThumb? _mapPicture;
     private string? _pictureKey;
     private Label? _log;
+    private Label? _tip;
+    private bool? _tipSide;
 
     public OnlineService? Service { get; set; }
 
@@ -50,6 +52,8 @@ public partial class ConnectingScreen : MenuPage
         Body.AddChild(modeRow);
         _explain = new Label { Name = "Explanation", AutowrapMode = TextServer.AutowrapMode.WordSmart, CustomMinimumSize = new Vector2(740f, 0f) };
         Body.AddChild(_explain);
+        _tip = LoadingTip.Label(string.Empty);
+        Body.AddChild(_tip);
         _log = new Label { Name = "Log", Modulate = UiStyle.MenuFocus, AutowrapMode = TextServer.AutowrapMode.WordSmart, CustomMinimumSize = new Vector2(740f, 120f) };
         Body.AddChild(_log);
         CancelButton = PageButton("Cancel", () => Service?.Leave(), "Cancel");
@@ -99,7 +103,16 @@ public partial class ConnectingScreen : MenuPage
                 _ => "L_Story",
             });
             _explain.Text = Explanation(client, mode);
+            if (_tipSide != merc)
+            {
+                // A tip for the side the player loads in as (enh:ui.tips), picked once per side.
+                _tipSide = merc;
+                string tip = LoadingTip.Pick(merc);
+                _tip!.Text = tip.Length > 0 ? "Tip: " + tip : string.Empty;
+            }
         }
+
+        _tip!.Visible = round;
 
         // The join's steps (direct, NAT punch, relay) belong to joining; the loading page of a round shows none.
         var sb = new StringBuilder();

@@ -50,7 +50,13 @@ public partial class MenuPage : Control
     public IReadOnlyList<Button> PageButtons => _pageButtons;
 
     /// <summary>Every menu page frees the mouse pointer, however it was reached (a round's end, a disconnect, the In-Game Menu).</summary>
-    public override void _EnterTree() => OpenScctGame.Controls.Pointer.Release();
+    public override void _EnterTree()
+    {
+        OpenScctGame.Controls.Pointer.Release();
+
+        // The menu music follows the page on screen (FrontEndAudio).
+        OpenScctGame.Audio.FrontEndAudio.Get(GetTree());
+    }
 
     /// <summary>Builds the frame: background, title, corner brackets, body and the button bar. Call first in _Ready.</summary>
     protected void BuildFrame(string title, float bodyWidth = 1100f)

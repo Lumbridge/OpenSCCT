@@ -92,7 +92,11 @@ Who-hears-whom matches the original (rules in `VoiceRouting.cs`). Gaps:
 | Map BeamEmitter / SparkEmitter, mirrors (RENDERING.md open issues) | n-a: sparks were already drawn (rule 22) and beams as straight strips; no map places a beam, the one map spark emitter (PanaD/PanaS Emitter241) waits for its event; every PF_Mirrored BSP surface (MuseD/E/T, OffsD, ScheU, SteeD/E/P/T, TermD) is also PF_Invisible, and UE2 leaves invisible surfaces out of drawing, so no map shows a mirror (the DTK_mirroir "mirrors" of ClarD and CpusS are plain textured meshes, already drawn) |
 | Extraction, Sabotage, Neutralization modes | the rules play them (mission selection, Sabotage's bomb and no-modem reminder, Neutralization's HUD clear); the original's menu never offers them and no stock map has a mission or settings entry for them | n-a for stock maps (checked over all 85 converted maps); done for custom maps: the catalog and Create Session offer them only on a map with such a mission/entry, plus the mission reminder every mode uses (docs/MODES.md) |
 | Unverified Reloaded fixes: grab angle, jump lock-on 7.5 m, KO after interrupt, slow strafe, disk radar threshold, crosshair shift, sticky cam fixes | open: need decoding of the Reloaded patch values |
-| Signed releases, lobby music, join sound, scoreboard split size | open (small or optional) |
+| Signed releases | open (small or optional) |
+| Menu and lobby music (enh:audio.lobby_music: the Entry and Lobby levels' Songs, already converted by the maps step) | done (`FrontEndAudio`; docs/AUDIO.md "Front end") |
+| Lobby join sound (rl:qol.lobby, rl:audio.join) | done (Reloaded's sound not decoded: ours is Interface.Menu.bip_message) |
+| Scoreboard split at team size, Merc Deathmatch result lines (rl:qol.scoreboard) | done (Reloaded's drawing not decoded: the mercs' column copies the list's layout; the lines are the results headline; Reloaded's "Elapsed Time" line not shown) |
+| Enhanced tips on the loading pages (enh:ui.tips) | done (the team's converted aTipStrings) |
 | Local match log (rl:qol.matchlog) | done (svm-server `matches.jsonl`, one JSON line per round; config `matchLog`; no stats upload; listen hosts keep none) |
 | Lobby map picker playlists, search, rotation by playlist (rl:qol.lobbymaps) | done (Create Session and the lobby's Maps button; `active_map_playlist`; svm-server `playlist`/`playlistMode`); variant words not dimmed, no separate Merc Deathmatch playlist choice |
 | Net readout extras (rl:net.stats): separate `show_net_loss`, host best/worst line | done (loss now off by default) |
@@ -113,10 +117,12 @@ Who-hears-whom matches the original (rules in `VoiceRouting.cs`). Gaps:
 | Tutorials hub, gadget encyclopedia, Visit a Map with help paths, first-time-map prompt | done, needs the ui rebuild (TutoOrExam gate skipped) |
 | HUD legend and keyboard pictures pages | done |
 | Tutorial zone hints (SZoneTips) offline: standalone only in the original, and offline play is a listen server here | done (shown for the local player while an offline session runs: spec/devices/zone-tips.md rule 5a) |
-| Video: post quality, brightness pattern, keep-settings countdown | open (S) |
-| Main menu quit confirmation | open (S) |
-| Per-player loading list | open (S) |
-| Lobby Equipment button | open (S) |
+| Video: post quality, brightness pattern, keep-settings countdown | done (post quality's native effect not decoded: Normal drops the glow; the countdown follows display mode, monitor and window size) |
+| Main menu quit confirmation | done |
+| Per-player loading list | done (client side from the replicated PRIs and the session list; no protocol change) |
+| Lobby Equipment button | done (online Lobby Room; the offline lobby has none) |
+| Server browser mode legend (LegendModeServer) | n-a (no page or native opens it; placeholder captions) |
+| Discord Join to a password server | done (secret kinds `mp`/`ap`; the friend's game asks for the password) |
 
 ## Out of scope or done under other names
 

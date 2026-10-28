@@ -24,12 +24,18 @@ public partial class JoinWithIpScreen : MenuPage
 
     public Button? JoinButton { get; private set; }
 
+    /// <summary>
+    /// An address to fill in instead of the last one, with the password box focused: a Discord Join to a friend's
+    /// server that has a password (docs/DISCORD.md).
+    /// </summary>
+    public string? PresetAddress { get; init; }
+
     public override void _Ready()
     {
         Name = "JoinWithIp";
         BuildFrame("Join with IP", 560f);
         OnlineSettings s = OnlineSettings.Current;
-        (string host, int port) = Split(s.LastAddress);
+        (string host, int port) = Split(PresetAddress ?? s.LastAddress);
         VBoxContainer box = Panel(Body, "Fields", null);
         var grid = new GridContainer { Columns = 2 };
         grid.AddThemeConstantOverride("h_separation", 16);
@@ -49,7 +55,16 @@ public partial class JoinWithIpScreen : MenuPage
         Body.AddChild(_status);
         PageButton("Cancel", () => FrontEnd.ShowMainMenu(GetTree()), "Cancel");
         JoinButton = PageButton("Join", Join, "JoinIp");
-        Address.GrabFocus();
+        Password.TextSubmitted += _ => Join();
+        if (PresetAddress is not null)
+        {
+            ShowStatus("Your Discord friend's game has a password. Enter it and press Join.");
+            Password.GrabFocus();
+        }
+        else
+        {
+            Address.GrabFocus();
+        }
     }
 
     /// <summary>"host:port" into its parts (the game's port when there is none).</summary>

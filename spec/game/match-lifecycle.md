@@ -176,6 +176,26 @@ Pawns therefore spawn (rule 15) before lives are assigned (rule 23) and before m
 `launchMatchNow` (server to client RPC, also hooked by Reloaded) sets the receiving client's local copies of
 `GRI.bMatchLaunchingNow` and `bMatchLaunching` to true (lobby countdown UI).
 
+## Waiting for players
+
+What Loading_Menu shows while the start gate waits (the gate itself is rules above):
+
+- The host's page titles itself "Waiting for players (n / m)": n the players in, m the players to wait for (on a
+  dedicated host the PRI count less one). Before every client is on the map it lists one line per expected player:
+  "name ready" for a PRI that exists, " -" plus the connecting text for a slot with no PRI yet. Once all are in, every
+  second it lists every PRI from NumFirstPlayer: "name ready" when `bWaitingPlayer` is set, "name loading ..." when
+  not.
+- A client's page (s_Client) titles itself "Waiting for players" and every half second lists every PRI the same way
+  (ready or loading), until the match has begun; then it closes (or opens the lobby or the end menu when the match
+  already ended).
+- `TimedOutText` ("Player timed out...") is in the page's strings but no code shows it.
+- Enhanced's GUI.int words: titleText "Waiting for players", ReadyText "is ready", LoadingText "is connecting",
+  ConnectingText "Loading...", TimedOutText "Player timed out...".
+
+The rewrite (`game/Scripts/Online/RoundStartList.cs`) draws the client's list over the round's view, with the counts
+in the title, and adds what its session knows: a session player with no PRI on the map yet reads "Loading...", and a
+player the server dropped for not loading in time (or who left while the round loaded) reads "Player timed out...".
+
 ## States
 ```mermaid
 stateDiagram-v2

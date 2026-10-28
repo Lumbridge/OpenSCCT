@@ -84,7 +84,7 @@ public partial class MainMenu : MenuPage
         };
         Body.AddChild(_status);
 
-        QuitButton = PageButton("Quit", () => GetTree().Quit(), "Quit");
+        QuitButton = PageButton("Quit", AskQuit, "Quit");
         if (OnlineService.Get(GetTree()).LastError is { } error)
         {
             ShowStatus(error);
@@ -109,6 +109,26 @@ public partial class MainMenu : MenuPage
         {
             _rejoin.Changed -= ShowRejoin;
         }
+    }
+
+    /// <summary>
+    /// GUI.ConfirmQuitPage: "Are you sure you want to quit?" with Cancel and Quit Game (the page's own captions from
+    /// GUI.int). Quit Game ends the program; Cancel closes the box.
+    /// </summary>
+    [OpenScct.Provenance.PortOf("uc:GUI.ConfirmQuitPage:YesButtonClick", Spec = "spec/game/lobby-and-match-creation.md#front-end-pages")]
+    [OpenScct.Provenance.PortOf("uc:GUI.ConfirmQuitPage:NoButtonClick", Spec = "spec/game/lobby-and-match-creation.md#front-end-pages")]
+    private void AskQuit()
+    {
+        const string section = "ConfirmQuitPage";
+        ConfirmBox.Open(this, new ConfirmBox
+        {
+            Name = "ConfirmQuit",
+            Question = OpenScctGame.Tutorials.TutorialText.Lines(
+                OpenScctGame.Tutorials.TutorialText.Caption(section, "LabelCaption", "Are you sure|you want to quit?")),
+            NoCaption = OpenScctGame.Tutorials.TutorialText.Caption(section, "sBT_Cancel", "Cancel"),
+            YesCaption = OpenScctGame.Tutorials.TutorialText.Caption(section, "sBT_Yes", "Quit Game").Trim(),
+            Yes = () => GetTree().Quit(),
+        });
     }
 
     /// <summary>The Match in progress panel: shown with the round's server and map while the rejoin is offered.</summary>

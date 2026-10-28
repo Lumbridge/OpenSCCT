@@ -29,6 +29,10 @@ is in `docs/ONLINE.md`, voice in `docs/VOICE.md`, and the way to test it with tw
 | `game/Scripts/Options/OptionsMenu.Voice.cs` | the Voice page and Test my microphone |
 | `game/Scripts/Online/OnlineVoiceChat.cs` | the visit's voice: microphone, keys, settings, per-player volume and mute, the round's overlay |
 | `game/Scripts/Options/OptionsMenu.cs` | the options pages; HUD holds "Discord status" (docs/DISCORD.md) |
+| `game/Scripts/UI/ConfirmBox.cs`, `LoadingTip.cs` | the yes/no question over a page (quit, keep the screen settings); the loading pages' tip |
+| `game/Scripts/Online/RoundStartList.cs` | the round's "Waiting for players" list (Loading_Menu) until the match begins |
+| `game/Scripts/Options/BrightnessTest.cs` | the brightness test pattern (GUI.Mire) |
+| `game/Scripts/Audio/FrontEndAudio.cs` | the menu and lobby music and the lobby's join sound |
 | `game/Scripts/UI/MenuPilot.cs` | drives the menus with input events (clicks, typing) for the smokes |
 | `game/Scripts/Online/NetLobbySmoke.cs` | the two-process `net-lobby` smoke |
 
@@ -72,7 +76,30 @@ tools\godot\4.7.2-stable\Godot_v4.7.2-stable_mono_win64_console.exe --path game 
 
 The loading page between maps is the original's (GUI.loading): "Loading...", the mode's picture (common `L_Story`,
 `L_diskhunt`, `L_Death`) and name, and the map's explanation of the mode for the player's side
-(SMapSettings.ModesStrings). The results open with the HUD's `P_EndGame` banner (a Magma page), then the end menu.
+(SMapSettings.ModesStrings). Under them a tip for that side (enh:ui.tips, `LoadingTip`): one of the team class's
+aTipStrings, which Enhanced rewrote (silent movement, proxy mine speed, EMF ghosting; converted from SBase.int into
+`shared/classes.json`), with its key tokens named from the player's layout. The original shows those tips only on the
+death page. The results open with the HUD's `P_EndGame` banner (a Magma page), then the end menu; in Merc Deathmatch
+its headline is Reloaded's line instead of a side: "*name* wins with *n* kills", "Draw at *n* kills" or "No kills
+scored".
+
+Once a network round's map is in, the original's Loading_Menu list (`game/Scripts/Online/RoundStartList.cs`,
+spec/game/match-lifecycle.md "Waiting for players") stays over the round's view until the match begins: "Waiting for
+players (ready / expected)" and a line per player of the session, "is ready" when his PRI reports waiting to play
+(`bWaitingPlayer`, replicated), "is connecting" while he loads, "Loading..." when he has no PRI on the map yet, and
+"Player timed out..." for one dropped (or gone) while the round loaded. The server already sent all of it (the PRIs
+and the session's player list); nothing new travels.
+
+The main menu's Quit asks first (GUI.ConfirmQuitPage, `ConfirmBox`): "Are you sure you want to quit?", Cancel or
+Quit Game; Escape cancels.
+
+## Menu music and sounds
+
+The menus play the original's menu-level music (`game/Scripts/Audio/FrontEndAudio.cs`, docs/AUDIO.md "Front end"):
+the Entry level's Song (Menu_music1) on the main menu and the pages under it, the Lobby level's (Menu_music2, the
+longer track, enh:audio.lobby_music) in the lobby, nothing on the loading pages, the results or in a round. The
+lobby plays a beep when a player joins (rl:qol.lobby, rl:audio.join). The songs come from the converted Entry and
+Lobby maps (the maps step); without them the menus are silent.
 
 ## Flow
 
@@ -184,8 +211,13 @@ editable for the host (OK applies it), read only for everyone else.
   want to kick ...?"), Ban ("Do you want to ban ... from this server?": his account, install id and address, for good)
   and Voice Ban / Voice Unban ("Do you want to ban ... from voice chat?": nobody hears him and he hears nobody for the
   rest of the visit).
-- Switch Team (not in Merc Deathmatch, not while ready), Spectate, Briefing, Restrict Mic to Team, and a line about
-  the local microphone (transmitting or silent, push to talk or voice activation, the level).
+- Switch Team (not in Merc Deathmatch, not while ready), Spectate, Equipment, Briefing, Restrict Mic to Team, and a
+  line about the local microphone (transmitting or silent, push to talk or voice activation, the level).
+- Equipment (Lobby_Create's button, which opens Edit_Profile): the gear picker of the round (`GearMenu`) for the
+  local player's side, with the slots and allowed gadgets the session's setup will give that side (Alternate Mode,
+  or the stock rules with Deathmatch's one gadget). OK saves the choice to the settings file; the server takes it
+  when the round spawns the player (spec/additions/gear-change.md). Greyed for a spectator and while the launch counts
+  down.
 - Briefing (GUI.Briefing, BriefingDeux): the setup's map and mode for the local player's side (a spectator reads the
   mercs'). Page 1 "MISSION MAIN OBJECTIVE": the map's loading picture, the mode's objective
   (ExplicationModeSpy / Sentry) and the map's briefing (ExpliMapInBriefSpy / Sentry); Next shows page 2, the mode's
@@ -247,6 +279,20 @@ The key rows read "Bind: Capslock" as Reloaded's page writes them ("Bind: %s"). 
 only, and a long device name is clipped to its column. The Display mode list reads "Borderless fullscreen" for
 Reloaded's `BorderlessFullscreen` value; the Keys page names the layout file, not its whole path.
 
+## Display page (the original's Video Options)
+
+Beside Reloaded's rows (mode, monitor, window size, frame caps, shadow quality and smoothing, filtering), the
+original Video_Settings' own:
+
+- Post-render quality, Normal or High (`post_quality`, default High as DefaultProfile.ini's GraphPostQual 1). What the
+  original's native GRAPHICPOSTQUALITY changes is not decoded; ours: Normal leaves the glow out of the normal view.
+- Brightness configuration (GUI.Mire, `Options/BrightnessTest.cs`): the test pattern on black, three dark squares with
+  a check mark in the left one; the original look shows the converted calibrage picture, the modern look draws it at
+  the picture's levels. Back or Escape closes it.
+- Keep these settings (GUI.Validate_VideoSettings): after Save changes the display mode, monitor or window size,
+  "Do you want to keep these settings? Original settings will be reset in: 15" counts down; Yes keeps them, No or
+  the end of the count saves and applies the old three back.
+
 ## Tests
 
 - `tests/OpenScctGame.Logic.Tests/MenuCreateSessionTests.cs`, `MenuLobbyRoomTests.cs`: the page rules.
@@ -265,7 +311,11 @@ tools\godot\4.7.2-stable\Godot_v4.7.2-stable_mono_win64_console.exe --path game 
 ## Differences from the original
 
 - Host options the original had that the rewrite does not show: Tutor Mode, Game Type (Free or Ranking) and Level
-  Gap (Ubi.com features), Lock / Unlock (Ubi.com matches), Equipment, Friends. Alternate Mode is on the LAN page in
+  Gap (Ubi.com features), Lock / Unlock (Ubi.com matches), Friends.
+- The server browser has no mode legend: the original's LegendModeServer page (mode shapes) is never opened by any
+  page, and the browser names each server's mode in words.
+- The video options ask "keep these settings?" after a change of display mode, monitor or window size (the original
+  asked after its resolution and quality rows); the other display rows apply without asking. Alternate Mode is on the LAN page in
   the original too, and the rewrite has it (above).
 - The original's random map pool is the stock maps numbered 01 to 12 without 07; the rewrite draws from the installed
   maps that have the mode.

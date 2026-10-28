@@ -523,7 +523,8 @@ public partial class FaithfulView : Node3D
             FogStart = fog.Start,
             FogEnd = fog.End,
             GlowGate = GlowGate,
-            GlowThreshold = Map?.Lighting.GlowThreshold ?? 255,
+            // Post-Render Quality Normal draws no glow (threshold 255 lets nothing through); the gate still runs.
+            GlowThreshold = OpenScctGame.Options.SettingsStore.Current.PostQuality == 0 ? 255 : Map?.Lighting.GlowThreshold ?? 255,
             RendMap = RendMap,
             MtvSlope = Map?.MtvSlope ?? RenderK.DefaultMtvSlope,
             MtvOffset = Map?.MtvOffset ?? RenderK.DefaultMtvOffset,

@@ -122,7 +122,7 @@ top-level area of a page starts hidden and stopped at frame 0; each driver shows
 | Reticule, ReticuleMessage, Pos_Merc, AlertMessage (merc) | reticle per weapon kind with spread and hit colour, laser gate, sound arrows, reticle message at the aim point, posture icon, alert box (merc-reticle.md) |
 | merc effects | perturbation, shutdown and reboot, foam, droplets, sticky shock, flash white-out (screen-effects.md) |
 | Ballistic | the charge gauge |
-| PCConnectedPlayers | up to four rows while shown (F10); Reloaded's ping column when `show_ping` is on; OpenSCCT's Rank column (level tag, spec/additions/progression.md) when a listed player has a rank |
+| PCConnectedPlayers | up to four rows while shown (F10); Reloaded's ping column when `show_ping` is on; OpenSCCT's Rank column (level tag, spec/additions/progression.md) when a listed player has a rank; Reloaded's split (`scoreboard_split_team_size`, 1 to 4, default 3): once the bigger team has that many players (and both teams someone), the list shows the spies and a drawn column beside it the mercs, each up to four rows |
 | Radar | dish, blips, edge arrows (spy teammates and enemies, merc alarms and hacked terminals) |
 | P_SpectatorMode | objectives, time, lives, watched player, respawn countdown, tip (spectator-page.md) |
 | P_BinocularsATT / DEF | zoom label and marker, scope ring animations, sights and axes at the aim point, breath gauge, range finder, key help, Hack prompt, reticle message (binoculars.md) |
@@ -227,9 +227,9 @@ applies them at start and on save.
 | player | `player_name`, `mouse_sensitivity` (4..40), `invert_y`, `invert_x_spy` (profile InvertX), `shocker_snap` (on: drawing the Shocker turns the spy to the nearest merc in front of him; enh:rules.shocker_snap), `mouse_wheel` (Gadget, Speed: profile SelectedMouse 0 and 1), `clutch_one_key`, `clutch_two_key`, `use_split_spy_merc_keyboard` (on: separate layouts) |
 | look per team | `controls_spy_kbm`, `controls_merc_kbm` (`look`, `free_look`, `scope`, `scope_vertical`, `vertical`, `cam`, `look_response`, `clutch_one`, `clutch_one_enabled`, `clutch_two`, `clutch_two_enabled`), and the same for `controls_spy_pad`, `controls_merc_pad` |
 | controller | `controller`: `enabled`, `deadzone_left` 0.25, `deadzone_right` 0.15, `vertical_scale` 0.75, `run_threshold` 0.95, `slow_walk` (on), `prompted`, `rumble` (off), `rumble_strength` 1.0, 8-way move per side, `look_speed`, the pad layouts (`Clutch1`, `Clutch2` hold the clutches) |
-| display | `display_mode` (Windowed, Fullscreen, BorderlessFullscreen), `display_monitor`, `resolution`, `window_position` (Default, Centered, Stretched), `vsync`, `widescreen`, `widescreen_hud`, `ws_er_small`, `ws_fov` (95..112, default 112), `fps_spy`, `fps_merc` (Monitor by default, Unlimited or 30 to 240: docs/RENDERING.md, frame pacing), `resolution_scale`, `filter_level`, `msaa`, `msaa_samples`, `smaa`, `shadow_quality`, `shadow_edge_smoothing`, `low_latency_mode`, `throttle_stop` (docs/RENDERING.md) |
+| display | `display_mode` (Windowed, Fullscreen, BorderlessFullscreen), `display_monitor`, `resolution`, `window_position` (Default, Centered, Stretched), `vsync`, `widescreen`, `widescreen_hud`, `ws_er_small`, `ws_fov` (95..112, default 112), `fps_spy`, `fps_merc` (Monitor by default, Unlimited or 30 to 240: docs/RENDERING.md, frame pacing), `resolution_scale`, `filter_level`, `msaa`, `msaa_samples`, `smaa`, `shadow_quality`, `shadow_edge_smoothing`, `post_quality` (0 Normal: no glow, 1 High), `low_latency_mode`, `throttle_stop` (docs/RENDERING.md) |
 | audio | `master_volume`, `sound_volume`, `music_volume`, `objective_sounds` (profile bObjectiveSounds), `voice_output_volume` (Godot buses Master, SvmWorld and the effect buses, SvmMusic, SvmVoice) |
-| HUD | `show_scoreboard`, `show_ping`, `show_fps`, `show_net`, `show_net_loss` (off), `show_location`, `hack_alpha` (0..255, 178), `hud_feet` (profile bInFeet), `fire_prediction` (on; docs/NETCODE.md "Lag compensation and fire prediction") |
+| HUD | `show_scoreboard`, `show_ping`, `scoreboard_split_team_size` (1..4, 3), `show_fps`, `show_net`, `show_net_loss` (off), `show_location`, `hack_alpha` (0..255, 178), `hud_feet` (profile bInFeet), `fire_prediction` (on; docs/NETCODE.md "Lag compensation and fire prediction") |
 | console | `override_console_key` (true: the key left of 1; false: the apostrophe key) |
 
 `OptionsMenu` is the screen (from the main menu, or over the game with F12): Keys (rebinding the spy and merc layouts
@@ -420,7 +420,7 @@ on Alternate Mode and its "Cinematic Camera" switch (offline they always work). 
 - The original has no hit direction marker: damage feedback is the undirected wash or perturbation, the flash-bang
   only whites out a player facing it (the simulation's ClientDamage cone and trace), and the merc's directional cue
   is the sound arrows.
-- The Reloaded scoreboard look is not decoded (the original list and status page are used). (The coop icons follow
+- The Reloaded scoreboard look is not decoded: the original list and status page are used, with Reloaded's ping column and team split drawn in the list's own layout. (The coop icons follow
   the decoded spy driver: `InteractionPrompts.cs`, spec/objectives/team-interactions.md.)
 - Binoculars: the range finder traces from the rifle's FX bone (the original's bone is unidentified); markers behind
   the view get no edge arrow (the projector gives no point); only objective triggers are listed (not secondary
