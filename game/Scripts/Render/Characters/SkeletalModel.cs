@@ -246,6 +246,169 @@ public sealed class SkeletalModel
             Swaps[(own, key)] = made;
             return made;
         }
+
+        /// <summary>The meshes made by <see cref="Split"/>, by source mesh and material.</summary>
+        private Dictionary<(Mesh, string), MeshSplit?> Splits { get; } = new();
+
+        /// <summary>
+        /// <paramref name="mesh"/> cut in two: the surfaces drawing <paramref name="material"/> and the rest, each a mesh
+        /// of its own (made once and shared by every model of this file). Null when no surface draws it or every
+        /// surface does.
+        /// </summary>
+        public MeshSplit? Split(Mesh? mesh, string material)
+        {
+            if (mesh is not ArrayMesh source)
+            {
+                return null;
+            }
+
+            if (Splits.TryGetValue((source, material), out MeshSplit? made))
+            {
+                return made;
+            }
+
+            var rest = new List<int>();
+            var part = new List<int>();
+            for (int s = 0; s < source.GetSurfaceCount(); s++)
+            {
+                (source.SurfaceGetMaterial(s)?.ResourceName == material ? part : rest).Add(s);
+            }
+
+            made = part.Count == 0 || rest.Count == 0 ? null : new MeshSplit(Pick(source, rest), [.. rest], Pick(source, part), [.. part]);
+            Splits[(source, material)] = made;
+            return made;
+        }
+
+        // The flags a surface keeps when copied: 8 bone weights and the custom channel formats.
+        private static readonly Mesh.ArrayFormat KeptFlags = Mesh.ArrayFormat.FlagUse8BoneWeights | (Mesh.ArrayFormat)(((1L << 12) - 1) << 13);
+
+        private static ArrayMesh Pick(ArrayMesh source, List<int> surfaces)
+        {
+            var made = new ArrayMesh { ResourceName = source.ResourceName, BlendShapeMode = source.BlendShapeMode };
+            for (int b = 0; b < source.GetBlendShapeCount(); b++)
+            {
+                made.AddBlendShape(source.GetBlendShapeName(b));
+            }
+
+            foreach (int s in surfaces)
+            {
+                made.AddSurfaceFromArrays(source.SurfaceGetPrimitiveType(s), source.SurfaceGetArrays(s),
+                    source.SurfaceGetBlendShapeArrays(s), null, source.SurfaceGetFormat(s) & KeptFlags);
+                int i = made.GetSurfaceCount() - 1;
+                made.SurfaceSetMaterial(i, source.SurfaceGetMaterial(s));
+                made.SurfaceSetName(i, source.SurfaceGetName(s));
+            }
+
+            return made;
+        }
+    }
+
+    /// <summary>A mesh cut in two by material: each half with the source surface index of each of its surfaces.</summary>
+    private sealed record MeshSplit(ArrayMesh Rest, int[] RestSurfaces, ArrayMesh Part, int[] PartSurfaces);
+
+    // The per-mesh shader values a split-off part takes over from its source mesh.
+    // (A property: the parameter names are static fields declared further down, not yet set while this one would be.)
+    private static StringName[] InstanceParameters => [TintParameter, GlowHueParameter, GameplayObjects.VisionActorParameter, GlassParameter];
+
+    /// <summary>
+    /// Moves the surfaces drawing <paramref name="material"/> (as the mesh export names it, such as SWeaponTex.1DEF_01)
+    /// into mesh instances of their own, on the same skeleton and skin with the same materials, so a camo or tint can
+    /// be put on them apart from the rest (<see cref="SetCosmetic(MeshInstance3D, string?)"/>,
+    /// <see cref="SetTint(MeshInstance3D, Vector3, float)"/>). Returns those instances (a mesh drawing nothing but
+    /// that material is returned as it is); empty when no surface draws it. Material slots (<see cref="Slots"/>) keep
+    /// their order. Call it right after <see cref="Load"/>, before any skin.
+    /// </summary>
+    public IReadOnlyList<MeshInstance3D> SplitPart(string material)
+    {
+        var parts = new List<MeshInstance3D>();
+        if (_template is null)
+        {
+            return parts;
+        }
+
+        foreach (MeshInstance3D mesh in _meshes.ToArray())
+        {
+            if (mesh.Mesh is null)
+            {
+                continue;
+            }
+
+            if (_template.Split(mesh.Mesh, material) is not { } split)
+            {
+                bool all = mesh.Mesh.GetSurfaceCount() > 0;
+                for (int s = 0; s < mesh.Mesh.GetSurfaceCount(); s++)
+                {
+                    all &= mesh.Mesh.SurfaceGetMaterial(s)?.ResourceName == material;
+                }
+
+                if (all)
+                {
+                    parts.Add(mesh);
+                }
+
+                continue;
+            }
+
+            var part = new MeshInstance3D
+            {
+                Name = mesh.Name + "_" + material.Replace('.', '_'),
+                Mesh = split.Part,
+                Skin = mesh.Skin,
+                Skeleton = mesh.Skeleton,
+                Transform = mesh.Transform,
+                ExtraCullMargin = mesh.ExtraCullMargin,
+                CastShadow = mesh.CastShadow,
+                Layers = mesh.Layers,
+                Transparency = mesh.Transparency,
+                MaterialOverlay = mesh.MaterialOverlay,
+            };
+            mesh.GetParent().AddChild(part);
+            foreach (StringName p in InstanceParameters)
+            {
+                Variant value = mesh.GetInstanceShaderParameter(p);
+                if (value.VariantType != Variant.Type.Nil)
+                {
+                    part.SetInstanceShaderParameter(p, value);
+                }
+            }
+
+            // Each surface's override material by its index in the source mesh, then laid on the two halves.
+            var overrides = new Material?[mesh.Mesh.GetSurfaceCount()];
+            for (int s = 0; s < overrides.Length; s++)
+            {
+                overrides[s] = mesh.GetSurfaceOverrideMaterial(s);
+            }
+
+            mesh.Mesh = split.Rest;
+            var moved = new Dictionary<int, (MeshInstance3D, int)>();
+            for (int i = 0; i < split.RestSurfaces.Length; i++)
+            {
+                mesh.SetSurfaceOverrideMaterial(i, overrides[split.RestSurfaces[i]]);
+                moved[split.RestSurfaces[i]] = (mesh, i);
+            }
+
+            for (int i = 0; i < split.PartSurfaces.Length; i++)
+            {
+                part.SetSurfaceOverrideMaterial(i, overrides[split.PartSurfaces[i]]);
+                moved[split.PartSurfaces[i]] = (part, i);
+            }
+
+            // The surface list in place, so the material slots keep their order (UE2 Skins indices).
+            for (int e = 0; e < _surfaces.Count; e++)
+            {
+                (MeshInstance3D m, int s, string name, Material? own) = _surfaces[e];
+                if (ReferenceEquals(m, mesh))
+                {
+                    (MeshInstance3D to, int index) = moved[s];
+                    _surfaces[e] = (to, index, name, own);
+                }
+            }
+
+            _meshes.Add(part);
+            parts.Add(part);
+        }
+
+        return parts;
     }
 
     private static Template BuildTemplate(string glbPath)
@@ -347,7 +510,7 @@ public sealed class SkeletalModel
     /// <summary>Surfaces drawing a cosmetic camo under any skin: what a skin's end puts back instead of the mesh's own.</summary>
     private readonly Dictionary<(MeshInstance3D, int), Material> _cosmetic = [];
     private readonly HashSet<(MeshInstance3D, int)> _skinned = [];
-    private string? _cosmeticPattern;
+    private readonly Dictionary<MeshInstance3D, string?> _cosmeticPatterns = [];
 
     private Material? Base(MeshInstance3D mesh, int surface, Material? own) =>
         _cosmetic.TryGetValue((mesh, surface), out Material? camo) ? camo : own;
@@ -358,13 +521,21 @@ public sealed class SkeletalModel
     /// </summary>
     public void SetCosmetic(string? pattern)
     {
-        if (pattern == _cosmeticPattern || _template is null)
+        foreach (MeshInstance3D mesh in _meshes)
+        {
+            SetCosmetic(mesh, pattern);
+        }
+    }
+
+    /// <summary><see cref="SetCosmetic(string?)"/> on one mesh of the model only (a part made by <see cref="SplitPart"/>, or the rest).</summary>
+    public void SetCosmetic(MeshInstance3D only, string? pattern)
+    {
+        if (_template is null || _cosmeticPatterns.GetValueOrDefault(only) == pattern)
         {
             return;
         }
 
-        _cosmeticPattern = pattern;
-        _cosmetic.Clear();
+        _cosmeticPatterns[only] = pattern;
         IReadOnlyList<string> slots = Slots;
         var slotted = new HashSet<string>();
         foreach (int slot in _slotSkins.Keys)
@@ -377,6 +548,12 @@ public sealed class SkeletalModel
 
         foreach ((MeshInstance3D mesh, int surface, string name, Material? own) in _surfaces)
         {
+            if (!ReferenceEquals(mesh, only))
+            {
+                continue;
+            }
+
+            _cosmetic.Remove((mesh, surface));
             if (pattern is not null && _template.Cosmetic(name, pattern) is { } camo)
             {
                 _cosmetic[(mesh, surface)] = camo;
@@ -395,11 +572,17 @@ public sealed class SkeletalModel
     /// </summary>
     public void SetTint(Vector3 rgb, float strength)
     {
-        var value = new Vector4(rgb.X, rgb.Y, rgb.Z, strength);
         foreach (MeshInstance3D mesh in _meshes)
         {
-            mesh.SetInstanceShaderParameter(TintParameter, value);
+            SetTint(mesh, rgb, strength);
         }
+    }
+
+    /// <summary><see cref="SetTint(Vector3, float)"/> on one mesh of the model only.</summary>
+    public static void SetTint(MeshInstance3D mesh, Vector3 rgb, float strength)
+    {
+        ArgumentNullException.ThrowIfNull(mesh);
+        mesh.SetInstanceShaderParameter(TintParameter, new Vector4(rgb.X, rgb.Y, rgb.Z, strength));
     }
 
     /// <summary>

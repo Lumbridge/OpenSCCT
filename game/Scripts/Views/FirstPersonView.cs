@@ -1,5 +1,8 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Godot;
+using OpenScct.Net.Cosmetics;
 using OpenScct.Core;
 using OpenScct.Core.Engine;
 using OpenScct.Game.Equipment;
@@ -95,20 +98,34 @@ public partial class FirstPersonView : Node3D
         }
     }
 
-    private OpenScct.Net.Cosmetics.CosmeticItem? _cosmetic;
+    /// <summary>The merc's first-person sleeves and gloves, in every merc view model (1DEF_01, 1DEF_Uzi, 1DEF_shotgun).</summary>
+    public const string ArmsMaterial = "SWeaponTex.1DEF_01";
+
+    private IReadOnlyList<MeshInstance3D> _arms = [];
+    private CosmeticItem? _gunCosmetic;
+    private CosmeticItem? _bodyCosmetic;
     private SkeletalModel? _cosmeticModel;
 
-    /// <summary>OpenSCCT's own: the player's gun camo or tint, under the weapon's Skins (the rate-of-fire screen stays).</summary>
+    /// <summary>
+    /// OpenSCCT's own: the player's gun camo or tint on the gun, under the weapon's Skins (the rate-of-fire screen
+    /// stays), and the body's on the arms, so the sleeves match the merc's suit.
+    /// </summary>
     private void DrawCosmetic(Pawn? pawn)
     {
-        OpenScct.Net.Cosmetics.CosmeticItem? item = pawn is null ? null : PawnCosmetics.GunItem(pawn);
-        if (ReferenceEquals(_cosmeticModel, _model) && ReferenceEquals(_cosmetic, item))
+        CosmeticItem? gun = pawn is null ? null : PawnCosmetics.GunItem(pawn);
+        CosmeticItem? body = pawn is null ? null : PawnCosmetics.LookOf(pawn)[CosmeticSlot.Body];
+        if (ReferenceEquals(_cosmeticModel, _model) && ReferenceEquals(_gunCosmetic, gun) && ReferenceEquals(_bodyCosmetic, body))
         {
             return;
         }
 
-        PawnCosmetics.ApplyItem(_model!, item);
-        _cosmetic = item;
+        foreach (MeshInstance3D mesh in _model!.Meshes)
+        {
+            PawnCosmetics.ApplyItem(_model, mesh, _arms.Contains(mesh) ? body : gun);
+        }
+
+        _gunCosmetic = gun;
+        _bodyCosmetic = body;
         _cosmeticModel = _model;
     }
 
@@ -120,6 +137,7 @@ public partial class FirstPersonView : Node3D
         _asset = asset;
         _model?.Root.QueueFree();
         _model = null;
+        _arms = [];
         _applier = null;
         if (SkeletalModel.FindGlb(asset, SharedRoot ?? Map?.SharedRoot) is not { } glb)
         {
@@ -128,6 +146,7 @@ public partial class FirstPersonView : Node3D
         }
 
         _model = SkeletalModel.Load(glb);
+        _arms = _model.SplitPart(ArmsMaterial);
         AddChild(_model.Root);
         _applier = new ChannelPoseApplier(_model.Skeleton);
     }

@@ -96,6 +96,9 @@ _MAP_PATTERNS = ["map_" + c.lower() for c in MAPS]
 # suits became Galaxy and Inferno the same way (digital and frag stay on his guns).
 _SPY_SUITS = ["smoke", "turnabout", "minefield", "gadgeteer", "mastercraft", "flashbang", "galaxy", "inferno"]
 _MERC_EXTRA = ["voltage", "minefield", "gadgeteer", "mastercraft"]
+# The merc's suits (his body item): also painted on his first-person sleeves, which wear the body's camo, not the gun's.
+_MERC_SUITS = ([c for c in _LADDER if c != "digital"] + ["laser_grid", "lockdown"] + _MERC_EXTRA + ["galaxy", "inferno"]
+               + _MAP_PATTERNS)
 
 # Which retail textures take which patterns: (chars package folder, texture file stem, patterns).
 TARGETS: list[tuple[str, str, list[str]]] = [
@@ -103,8 +106,7 @@ TARGETS: list[tuple[str, str, list[str]]] = [
      + ["skeleton"]),
     ("SPerso", "SPersoTextures_Shadw_agent_2", _LADDER + ["night_ops", "static"] + _SPY_SUITS + _MAP_PATTERNS
      + ["skeleton"]),
-    ("SPerso", "SPersoTextures_DEF_01_A_Body", [c for c in _LADDER if c != "digital"] + ["laser_grid", "lockdown"]
-     + _MERC_EXTRA + ["galaxy", "inferno"] + _MAP_PATTERNS + ["skeleton"]),
+    ("SPerso", "SPersoTextures_DEF_01_A_Body", _MERC_SUITS + ["skeleton"]),
     ("SPerso", "SPersoTextures_DEF_01_A_Face", ["skeleton"]),  # the skull covers the merc's face too
     ("SWeaponFirst", "SWeaponTex_p190", _LADDER + ["static", "shockwave", "golden", "pyre", "kaido", "cryo",
                                                    "chaff", "turnabout", "gadgeteer", "smoke", "mastercraft", "flashbang",
@@ -113,9 +115,11 @@ TARGETS: list[tuple[str, str, list[str]]] = [
 # The skeleton is drawn from the body's bind pose (svmbuild/skeleton.py): the mesh each body texture is painted from.
 SKELETON_MESH = {"SPersoTextures_Shadw_agent": "ATT_01.glb", "SPersoTextures_Shadw_agent_2": "ATT_01.glb",
                  "SPersoTextures_DEF_01_A_Body": "DEF_01.glb", "SPersoTextures_DEF_01_A_Face": "DEF_01.glb"}
-for _gun in ("SWeaponTex_1DEF_01", "SWeaponTex_M160", "SWeaponTex_Hk81", "SWeaponTex_HK_81_chargeur", "SWeaponTex_shotgun"):
+for _gun in ("SWeaponTex_M160", "SWeaponTex_Hk81", "SWeaponTex_HK_81_chargeur", "SWeaponTex_shotgun"):
     TARGETS.append(("SWeaponFirst", _gun, _LADDER + ["golden", "laser_grid", "frag", "pyre", "kaido", "cryo"] + _MERC_EXTRA
                     + ["galaxy"]))
+# The skeleton is drawn on the body only: with it the sleeves stay retail.
+TARGETS.append(("SWeaponFirst", "SWeaponTex_1DEF_01", _MERC_SUITS))
 
 # Output size: the retail size times the package's factor (bodies 512 -> 2048, guns 256 -> 1024), at least MIN_SIZE on
 # the long side. The map camos on bodies stop at MAP_MAX.

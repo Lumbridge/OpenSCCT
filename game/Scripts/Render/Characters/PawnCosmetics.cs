@@ -88,21 +88,32 @@ public static class PawnCosmetics
     public static void ApplyItem(SkeletalModel model, CosmeticItem? item)
     {
         ArgumentNullException.ThrowIfNull(model);
+        (string? pattern, Vector3 rgb, float strength) = Dress(item);
+        model.SetCosmetic(pattern);
+        model.SetTint(rgb, strength);
+    }
+
+    /// <summary>Draws a body or gun item on one mesh of a model only (a part made by SkeletalModel.SplitPart, or the rest).</summary>
+    public static void ApplyItem(SkeletalModel model, MeshInstance3D mesh, CosmeticItem? item)
+    {
+        ArgumentNullException.ThrowIfNull(model);
+        (string? pattern, Vector3 rgb, float strength) = Dress(item);
+        model.SetCosmetic(mesh, pattern);
+        SkeletalModel.SetTint(mesh, rgb, strength);
+    }
+
+    /// <summary>An item's camo pattern and tint (null and no tint for retail).</summary>
+    private static (string? Pattern, Vector3 Rgb, float Strength) Dress(CosmeticItem? item)
+    {
         switch (item?.Kind)
         {
             case CosmeticKind.Texture:
-                model.SetCosmetic(item.Pattern);
-                model.SetTint(Vector3.One, 0f);
-                break;
+                return (item.Pattern, Vector3.One, 0f);
             case CosmeticKind.Tint:
                 (float r, float g, float b) = item.Colour;
-                model.SetCosmetic(null);
-                model.SetTint(new Vector3(r, g, b), TintStrength);
-                break;
+                return (null, new Vector3(r, g, b), TintStrength);
             default:
-                model.SetCosmetic(null);
-                model.SetTint(Vector3.One, 0f);
-                break;
+                return (null, Vector3.One, 0f);
         }
     }
 }

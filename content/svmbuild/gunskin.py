@@ -19,8 +19,9 @@ thin and along the gun: barrels, handguards, scope tubes), hanging pieces (magaz
   (solid noise the surface cuts through: no seams at all). Then trim: a dark muzzle with an accent ring on each barrel,
   a dark foot plate on magazines and grips, dark small parts.
 
-The merc's sleeves (his first-person arms share the gun's skin) are painted as a suit: Kaido's and Cryo's as racing
-suits, Pyre's with flames climbing from the cuffs, the rest with the pattern wrapped round each arm and dark cuffs.
+The merc's sleeves (his first-person arms wear his body's camo, not the gun's) are painted as a suit: the pattern
+wrapped round each arm with dark cuffs. The Kaido, Cryo and Pyre sleeve designs (racing suits, flames climbing from the
+cuffs) are kept for when a suit takes those patterns.
 
 Suits (draw_suit). The body's bind pose takes the same tiles, seen from the front, the sides and above, blended by
 which way each texel faces; the blotch camos are again solid 3D noise, and tiger stripes are turned to wrap round the
