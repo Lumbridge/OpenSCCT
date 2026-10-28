@@ -688,7 +688,7 @@ public partial class PlayRoot : Node3D
         }
 
         SBasePawn? firstPerson = session.FirstPersonOverride is { } fpOverride ? fpOverride()
-            : pc is { bBehindView: false } ? session.LocalPawn : null;
+            : pc is { bBehindView: false, FreeCameraFlying: 0 } ? session.LocalPawn : null;
         Pawns?.Draw(alpha, dt, firstPerson);
         Devices?.Draw(alpha, dt);
         Map?.SoftBodies?.Update(dt, session.Client.World.Level, Audio?.Sound);

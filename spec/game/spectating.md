@@ -176,8 +176,9 @@ stateDiagram-v2
 - Natives: Actor.AllPlayerControllers 0x10a28350 (1144), SPlayerController.NativePlayerInput 0x10aaa8d0 (1382)
 
 ## Open questions
-- What Reloaded does with Server_FindNextVisitor and ClientSetViewTarget (free camera feature,
-  `ServerRequestFreeCam`); compare spectator behaviour with and without Reloaded.
+- What Reloaded does with Server_FindNextVisitor; compare spectator behaviour with and without Reloaded. (The
+  free camera, `ServerRequestFreeCam` and its `ClientSetViewTarget` call, is for living players only:
+  spec/hud/cinematic-camera.md.)
 
 ### Resolved
 - Camera placement while attached to SpecTarget. Resolved: the following camera uses SpecTarget when the spectator

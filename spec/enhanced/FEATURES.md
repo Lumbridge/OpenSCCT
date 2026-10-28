@@ -251,7 +251,8 @@ Reloaded v4.0d binary and are marked "v4.0".
   (pad: left stick moves, triggers up and down, shoulders set speed; keyboard: movement keys, Space and
   Ctrl, wheel sets speed, Shift fast, Alt slow).
 - **Evidence:** INT40 `[ExtraKeyRows]` Cinematic Camera section.
-- **Rewrite:** spectator free camera (plan M7 spectator) with a server permission flag; HUD hide action.
+- **Rewrite:** done (spec/hud/cinematic-camera.md): a living player's free camera and HUD hide, asked of the server
+  and allowed by Alternate Mode's Cinematic Camera switch; pad controls not wired yet.
 - **Priority:** P2.
 - **Open:** whether the Reloaded lobby label "Streaming" reflects this server permission.
 

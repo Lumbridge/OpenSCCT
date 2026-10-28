@@ -26,7 +26,7 @@ what landed), **later** (large, left for a planned piece of work).
 | Pad aim assist | `NativeFindTargetToSnap` never decoded; nothing sets `bSnappedToTarget` | wave (decode) |
 | Merc squint | `NativeComputeSquinting` never decoded | wave (decode) |
 | Merc elbow turn / quick 180 | global `UpdateRotationDefenseur` / `NativeRotationCameraDefenseur` | wave (decode, if time) |
-| Free camera, hide HUD | Enhanced cinematic camera gated by `bAvlb_CinematicCamera`; flag and binds exist, no handler | later |
+| Free camera, hide HUD | Enhanced cinematic camera gated by `bAvlb_CinematicCamera`; ported (spec/hud/cinematic-camera.md); pad controls not wired | done |
 
 ## Effects and looks
 

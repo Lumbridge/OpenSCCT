@@ -39,7 +39,9 @@ public static class HudMercAim
         }
 
         Name state = pc.GetStateName();
-        if (hud.P is not { SPawnType: PawnType.SPAWNDEFENSE } || hud.bHideHUD || state == NAME_s_MultiSpectating ||
+        // The cinematic camera's Hide HUD and free camera hide the aim too (the view is not the merc's).
+        if (hud.P is not { SPawnType: PawnType.SPAWNDEFENSE } || hud.bHideHUD || pc.bCinematicHideHud || pc.FreeCameraFlying != 0 ||
+            state == NAME_s_MultiSpectating ||
             state == NAME_s_Spectating_Visitor || state == NAME_s_MultiSpectating_WhenKilled)
         {
             return false;

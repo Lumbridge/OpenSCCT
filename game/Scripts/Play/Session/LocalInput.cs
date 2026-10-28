@@ -40,6 +40,15 @@ public sealed class LocalInput
     /// <summary>Exec commands pressed this tick, in order.</summary>
     public List<InputCommand> Commands { get; } = new();
 
+    /// <summary>Mouse wheel steps this tick, up positive (the free camera's speed).</summary>
+    public int Wheel { get; set; }
+
+    /// <summary>Shift is held (the free camera flies fast).</summary>
+    public bool Fast { get; set; }
+
+    /// <summary>Alt is held (the free camera flies slowly).</summary>
+    public bool Slow { get; set; }
+
     /// <summary>The index of a button name, or -1.</summary>
     public static int IndexOf(string button)
     {
@@ -80,6 +89,7 @@ public sealed class LocalInput
     {
         MouseX = 0f;
         MouseY = 0f;
+        Wheel = 0;
         Commands.Clear();
     }
 
@@ -88,6 +98,8 @@ public sealed class LocalInput
     {
         Array.Clear(_buttons);
         Up = 0f;
+        Fast = false;
+        Slow = false;
         EndTick();
     }
 
@@ -128,15 +140,31 @@ public static class PlayerCommands
     [
         "Fire", "AltFire", "Jump", "GadgetQuickChoice", "SelectGadget", "SwitchHeadset", "SwitchBinocularVision",
         "ChangeSpeed", "GadLaserSwitch", "GadTorcheSwitch", "SwitchLaser", "WheelUp", "WheelDown", "ZoomIn", "ZoomOut",
-        "SwitchROF", "PrevStickyCam", "PerformCoopMvt",
+        "SwitchROF", "PrevStickyCam", "PerformCoopMvt", "FreeCam", "HideHud",
     ];
 
-    /// <summary>Runs <paramref name="command"/> on <paramref name="pc"/>; false when the port has no such command.</summary>
+    /// <summary>
+    /// Runs <paramref name="command"/> on <paramref name="pc"/>; false when the port has no such command. While the
+    /// cinematic free camera flies only FreeCam and HideHud run: the pawn takes no orders (the other commands are
+    /// swallowed).
+    /// </summary>
     public static bool Execute(SPlayerController pc, InputCommand command)
     {
         ArgumentNullException.ThrowIfNull(pc);
-        switch (command.Name.ToUpperInvariant())
+        string name = command.Name.ToUpperInvariant();
+        if (pc.FreeCameraFlying != 0 && name is not ("FREECAM" or "HIDEHUD"))
         {
+            return true;
+        }
+
+        switch (name)
+        {
+            case "FREECAM":
+                pc.FreeCam();
+                return true;
+            case "HIDEHUD":
+                pc.HideHud();
+                return true;
             case "FIRE":
                 pc.eventFire(0f);
                 return true;

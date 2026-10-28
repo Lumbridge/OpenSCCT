@@ -412,6 +412,13 @@ public sealed class PlaySession : IDisposable
             Input.ApplyButtons(pc);
             Mouse.Apply(pc, Input.MouseX, Input.MouseY, ViewportSize.Width, ViewportSize.Height);
             pc.aUp = Input.Up;
+            if (pc.FreeCameraFlying != 0)
+            {
+                // The cinematic free camera: the wheel steps its speed, Shift and Alt scale it.
+                pc.StepFreeCamSpeed(Input.Wheel);
+                pc.FreeCamSpeedFactor = Input.Fast ? CinematicCameraK.FastFactor : Input.Slow ? CinematicCameraK.SlowFactor : 1f;
+            }
+
             foreach (InputCommand command in Input.Commands)
             {
                 if (!PlayerCommands.Execute(pc, command))
