@@ -7,8 +7,8 @@ namespace OpenScctGame.UI;
 
 /// <summary>
 /// Draws the In-Game Menu of an <see cref="InGameMenuModel"/> over the game (spec/hud/in-game-menu.md): the "In-Game
-/// Menu" page with its buttons where the original puts them (centred, half the screen wide, at their fractions of
-/// the height), the quit and lobby confirmations in their dialog box, the leaving page, the options screen
+/// Menu" page with its buttons stacked close together on a panel, centred where the original's column had its
+/// middle (half the screen wide; the original spread them over the height), the quit and lobby confirmations in their dialog box, the leaving page, the options screen
 /// (<see cref="OptionsMenu"/> as an overlay) for Options, and the strategic map (<see cref="StrategicMapScreen"/>).
 /// The original's GUI pages are drawn in the front end's style. Clicks go to the model; what the play scene must do
 /// is raised through <see cref="Acted"/>. While shown it is in the group <see cref="Group"/>.
@@ -19,6 +19,12 @@ public partial class InGameMenu : Control
     public const string Group = "svm_pause_menu";
 
     private const float ButtonHeight = 44f;
+
+    /// <summary>Space between the main page's buttons (pixels).</summary>
+    private const float ButtonGap = 10f;
+
+    /// <summary>Margin of the panel behind the main page's buttons (pixels).</summary>
+    private const float PanelPadding = 22f;
 
     private InGameMenuPage _shown = (InGameMenuPage)(-1);
     private Vector2 _shownSize;
@@ -143,13 +149,34 @@ public partial class InGameMenu : Control
         title.Size = new Vector2(size.X, 48f);
         AddChild(title);
 
-        float width = size.X * InGameMenuK.ButtonWidth;
-        Button? first = null;
-        foreach (InGameMenuEntry e in Model.Entries)
+        // OpenSCCT's layout: the buttons stacked close together on a panel, centred where the original's spread-out
+        // column (each button at its own fraction of the height) had its middle, so they read easily over the game.
+        var entries = Model.Entries;
+        if (entries.Count == 0)
         {
-            InGameMenuButton which = e.Button;
-            Button b = UiStyle.MenuButton(e.Caption, () => Click(which), which.ToString());
-            b.Position = new Vector2((size.X - width) * 0.5f, (size.Y * e.Top) - (ButtonHeight * 0.5f));
+            return;
+        }
+
+        float width = size.X * InGameMenuK.ButtonWidth;
+        float middle = size.Y * (entries[0].Top + entries[entries.Count - 1].Top) * 0.5f;
+        float stack = entries.Count * ButtonHeight + (entries.Count - 1) * ButtonGap;
+        float top = Math.Max(middle - stack * 0.5f, title.Position.Y + title.Size.Y + PanelPadding * 2f);
+        var panel = new Panel
+        {
+            Name = "ButtonPanel",
+            Position = new Vector2((size.X - width) * 0.5f - PanelPadding, top - PanelPadding),
+            Size = new Vector2(width + 2f * PanelPadding, stack + 2f * PanelPadding),
+            MouseFilter = MouseFilterEnum.Ignore,
+        };
+        panel.AddThemeStyleboxOverride("panel", UiStyle.MenuPanelBox());
+        AddChild(panel);
+
+        Button? first = null;
+        for (int i = 0; i < entries.Count; i++)
+        {
+            InGameMenuButton which = entries[i].Button;
+            Button b = UiStyle.MenuButton(entries[i].Caption, () => Click(which), which.ToString());
+            b.Position = new Vector2((size.X - width) * 0.5f, top + i * (ButtonHeight + ButtonGap));
             b.Size = new Vector2(width, ButtonHeight);
             AddChild(b);
             first ??= b;
