@@ -30,6 +30,9 @@ Alarm box (`ChronoAlarm` -> A_ChronoAlarme, both pages):
 1. Among the SHud.AlarmsList entries with `MessagePriority > 4`, take the largest
    `Duration + StartTime - GRI.ElapsedTime` (bAlarmOn is not tested). While that value is above 0 the box shows
    `"0:%02u"` of it, opening from frame 0 when it appears; otherwise it hides.
+1a. `SHud.EmptyAlarmsList` (entering s_Dead, and every HUD frame while the player spectates): stops the
+   high-priority alarm sound, empties AlarmsList and MalfunctionGamePlayObjects, and in GM_Neutralization (3) for a
+   merc view pawn also empties ActorToDraw. The mode test reads `Level.Game`, so on a client it is skipped.
 
 Objective counter (`Objectif`):
 
