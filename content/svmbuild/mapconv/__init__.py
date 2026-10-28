@@ -4,6 +4,7 @@ source.py     opens the map: package, Level export, GE partition, every actor of
 gameplay.py   sim/gameplay.json (and the per-map class table sim/classes.json)
 collision.py  sim/collision.bin
 traversal.py  sim/traversal.json
+rain.py       sim/rain.json (the ERainVolume boxes the pawn tick tests, written when the map has any)
 render.py     render/ (world.glb from scctpkg's exporter, materials, lighting, fx, textures) and ui/mapinfo.json
 build.py      the whole folder, with the manifest
 """

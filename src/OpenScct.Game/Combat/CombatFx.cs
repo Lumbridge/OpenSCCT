@@ -19,8 +19,10 @@ public static class CombatFx
     public static readonly Name Vibration_StickyShock = new("Vibration_StickyShock");
     public static readonly Name Vibration_Tir = new("Vibration_Tir");
     public static readonly Name Vibration_Gadget = new("Vibration_Gadget");
-    public static readonly Name Vibration_Charge = new("Vibration_Charge");
-    public static readonly Name Vibration_Grab = new("Vibration_Grab");
+    public static readonly Name Vibration_Charge_Course = new("Vibration_Charge_Course");
+    public static readonly Name Vibration_Charge_Obstacle = new("Vibration_Charge_Obstacle");
+    public static readonly Name Vibration_Grabbed = new("Vibration_Grabbed");
+    public static readonly Name Vibration_Grab_Kill = new("Vibration_Grab_Kill");
     public static readonly Name Vibration_Blast = new("Vibration_Blast");
     public static readonly Name ClientDamageHudEffect = new("ClientDamageHudEffect");
     public static readonly Name HudShutDown = new("HudShutDown");

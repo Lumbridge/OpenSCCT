@@ -88,8 +88,28 @@ public sealed class LookSettings
     [JsonPropertyName("look_response")]
     public string LookResponse { get; set; } = "Linear";
 
+    /// <summary>The first sensitivity clutch: a held button multiplies the look by this (rl:input.clutch).</summary>
+    [JsonPropertyName("clutch_one")]
+    public float ClutchOne { get; set; }
+
+    [JsonPropertyName("clutch_one_enabled")]
+    public bool ClutchOneEnabled { get; set; }
+
+    /// <summary>The second clutch (Reloaded gives it to the merc only).</summary>
+    [JsonPropertyName("clutch_two")]
+    public float ClutchTwo { get; set; }
+
+    [JsonPropertyName("clutch_two_enabled")]
+    public bool ClutchTwoEnabled { get; set; }
+
+    /// <summary>The multiplier of the clutches held (1 with none): each enabled clutch with a value above 0 counts.</summary>
+    public float ClutchOf(bool one, bool two) =>
+        (one && ClutchOneEnabled && ClutchOne > 0f ? ClutchOne : 1f) * (two && ClutchTwoEnabled && ClutchTwo > 0f ? ClutchTwo : 1f);
+
     internal void Clamp()
     {
+        ClutchOne = Range(ClutchOne, 0f, 10f);
+        ClutchTwo = Range(ClutchTwo, 0f, 10f);
         FreeLook = Range(FreeLook, 0.05f, 10f);
         Look = Range(Look, 0.05f, 10f);
         Scope = Range(Scope, 0.05f, 10f);
@@ -121,6 +141,12 @@ public sealed class PadSettings
 
     /// <summary>The menu command (<c>ShowMenu</c>; Escape when the layout binds no key to it).</summary>
     public const string MenuAction = "ShowMenu";
+
+    /// <summary>The pad bind held for the first sensitivity clutch (Reloaded's "Right Clutch" for the spy, "Left Clutch" for the merc).</summary>
+    public const string ClutchOneAction = "Clutch1";
+
+    /// <summary>The pad bind held for the second clutch (the merc's).</summary>
+    public const string ClutchTwoAction = "Clutch2";
 
     /// <summary>The prefix of a binding that presses a key directly (the hub's own keys, which are not layout commands).</summary>
     public const string KeyPrefix = "Key:";
@@ -182,10 +208,14 @@ public sealed class PadSettings
     [Provenance(ProvenanceKind.Decoded, "rl:input.pad controller_walk_threshold 0.95")]
     public float RunThreshold { get; set; } = 0.95f;
 
+    /// <summary>Controller vibration (Reloaded's controller_rumble_enabled, off on a first run).</summary>
     [JsonPropertyName("rumble")]
+    [Provenance(ProvenanceKind.Decoded, "rl:input.rumble controller_rumble_enabled = false")]
     public bool Rumble { get; set; }
 
+    /// <summary>The vibration's strength, 0 to 1 (controller_rumble_strength).</summary>
     [JsonPropertyName("rumble_strength")]
+    [Provenance(ProvenanceKind.Decoded, "rl:input.rumble controller_rumble_strength = 1.0")]
     public float RumbleStrength { get; set; } = 1f;
 
     /// <summary>Snap spy movement to eight directions.</summary>
@@ -290,18 +320,49 @@ public sealed class GameSettings
     [Provenance(ProvenanceKind.Decoded, "spec/reloaded/FEATURES.md rl:input.sens controls_merc_config_kbm")]
     public LookSettings MercKbm { get; set; } = new() { FreeLook = 1f, Look = 1f, Scope = 0.75f, ScopeVertical = 2.45f, Vertical = 1f, Cam = 1f };
 
-    /// <summary>controls_spy_config_controller (cam 1.8, free look 1.6 aggressive, gun look 1.2 soft, vertical 3.5).</summary>
+    /// <summary>controls_spy_config_controller (cam 1.8, free look 1.6 aggressive, gun look 1.2 soft, vertical 3.5, clutch 2.0 on).</summary>
     [JsonPropertyName("controls_spy_pad")]
     [Provenance(ProvenanceKind.Decoded, "spec/reloaded/FEATURES.md appendix A controls_spy_config_controller")]
-    public LookSettings SpyPad { get; set; } = new() { FreeLook = 1.6f, Look = 1.2f, Scope = 0.75f, Vertical = 3.5f, Cam = 1.8f, LookResponse = "CurveAggressive" };
+    public LookSettings SpyPad { get; set; } = new()
+    {
+        FreeLook = 1.6f, Look = 1.2f, Scope = 0.75f, Vertical = 3.5f, Cam = 1.8f, LookResponse = "CurveAggressive",
+        ClutchOne = 2f, ClutchOneEnabled = true,
+    };
 
-    /// <summary>controls_merc_config_controller (look 1.8 medium, scope 0.75, scope_vertical 2.45, cam 1.0).</summary>
+    /// <summary>controls_merc_config_controller (look 1.8 medium, scope 0.75, scope_vertical 2.45, cam 1.0, clutches 0.5 and 2.0 on).</summary>
     [JsonPropertyName("controls_merc_pad")]
     [Provenance(ProvenanceKind.Decoded, "spec/reloaded/FEATURES.md appendix A controls_merc_config_controller")]
-    public LookSettings MercPad { get; set; } = new() { FreeLook = 1f, Look = 1.8f, Scope = 0.75f, ScopeVertical = 2.45f, Vertical = 1f, Cam = 1f, LookResponse = "CurveMedium" };
+    public LookSettings MercPad { get; set; } = new()
+    {
+        FreeLook = 1f, Look = 1.8f, Scope = 0.75f, ScopeVertical = 2.45f, Vertical = 1f, Cam = 1f, LookResponse = "CurveMedium",
+        ClutchOne = 0.5f, ClutchOneEnabled = true, ClutchTwo = 2f, ClutchTwoEnabled = true,
+    };
 
     [JsonPropertyName("controller")]
     public PadSettings Pad { get; set; } = new();
+
+    /// <summary>
+    /// The keyboard or mouse key (UE2 name, as the key layouts write it: "LeftAlt", "MiddleMouse") held for the first
+    /// sensitivity clutch; empty for none. The controller's clutches are pad binds (<see cref="PadSettings.ClutchOneAction"/>).
+    /// </summary>
+    [JsonPropertyName("clutch_one_key")]
+    public string ClutchOneKey { get; set; } = "";
+
+    /// <summary>The key held for the second clutch (the merc's).</summary>
+    [JsonPropertyName("clutch_two_key")]
+    public string ClutchTwoKey { get; set; } = "";
+
+    /// <summary>Profile InvertX: the spy's free look turns the other way left and right (Enhanced's "Invert X Axis (Spy)").</summary>
+    [JsonPropertyName("invert_x_spy")]
+    [Provenance(ProvenanceKind.Decoded, "SPlayerProfile InvertX (no default: false); SetPadInvertX sets bInvertHorizontalAxisCamSpy")]
+    public bool InvertXSpy { get; set; }
+
+    /// <summary>The mouse wheel: "Gadget" (profile SelectedMouse 0, changes gadgets) or "Speed" (1, walk and run).</summary>
+    [JsonPropertyName("mouse_wheel")]
+    [Provenance(ProvenanceKind.Estimated, "OpenSCCT choice: Gadget, as the rewrite has always played; DefaultProfile.ini has SelectedMouse=1 (Speed)")]
+    public string MouseWheel { get; set; } = "Gadget";
+
+    public static readonly string[] WheelModes = ["Gadget", "Speed"];
 
     /// <summary>The chosen gear (spec/additions/gear-change.md).</summary>
     [JsonPropertyName("loadout")]
@@ -379,6 +440,40 @@ public sealed class GameSettings
     [JsonPropertyName("resolution_scale")]
     public float RenderScale { get; set; } = 1f;
 
+    /// <summary>Where a window goes in windowed mode: Default (the screen's top left), Centered or Stretched (the whole screen).</summary>
+    [JsonPropertyName("window_position")]
+    [Provenance(ProvenanceKind.Estimated, "OpenSCCT choice: Centered, as the rewrite placed windows; Reloaded's first run has Stretched (rl:gfx.modes)")]
+    public string WindowPosition { get; set; } = "Centered";
+
+    public static readonly string[] WindowPositions = ["Default", "Centered", "Stretched"];
+
+    /// <summary>Anisotropic filtering of the textures: 0 (off), 2, 4, 8 or 16 (Reloaded's filter_level, first run 4).</summary>
+    [JsonPropertyName("filter_level")]
+    [Provenance(ProvenanceKind.Decoded, "spec/reloaded/FEATURES.md rl:gfx.filtering filter_level first-run 4, range 0 to 16")]
+    public int FilterLevel { get; set; } = 4;
+
+    /// <summary>Shadow map scale (Reloaded's shadow_quality, 0.5 to 16, first run 3): a spot light's map is 256 x this texels high.</summary>
+    [JsonPropertyName("shadow_quality")]
+    [Provenance(ProvenanceKind.Decoded, "spec/reloaded/FEATURES.md rl:gfx.shadows shadow_quality first-run 3.0, range 0.5 to 16.0")]
+    public float ShadowQuality { get; set; } = 3f;
+
+    /// <summary>Soft shadow edges (eight blended lookups on a disc); off keeps the stock single lookup.</summary>
+    [JsonPropertyName("shadow_edge_smoothing")]
+    [Provenance(ProvenanceKind.Decoded, "spec/reloaded/FEATURES.md rl:gfx.shadows shadow_edge_smoothing = true")]
+    public bool ShadowEdgeSmoothing { get; set; } = true;
+
+    /// <summary>"Reduce input lag": Off, On (one frame queued) or Ultra (one frame queued, two swap chain images). Needs a restart.</summary>
+    [JsonPropertyName("low_latency_mode")]
+    [Provenance(ProvenanceKind.Estimated, "rl:gfx.pacing: Reloaded's default is On; the rewrite starts Off until frame queue 1 is measured on Vulkan and D3D12")]
+    public string LowLatencyMode { get; set; } = "Off";
+
+    public static readonly string[] LatencyModes = ["Off", "On", "Ultra"];
+
+    /// <summary>Windows: opt the game out of power throttling (EcoQoS) at start (Reloaded's throttle_stop, experimental).</summary>
+    [JsonPropertyName("throttle_stop")]
+    [Provenance(ProvenanceKind.Decoded, "spec/reloaded/FEATURES.md rl:gfx.system throttle_stop = false")]
+    public bool ThrottleStop { get; set; }
+
     // ---- audio ---------------------------------------------------------------------------------------------
 
     [JsonPropertyName("master_volume")]
@@ -391,6 +486,11 @@ public sealed class GameSettings
 
     [JsonPropertyName("music_volume")]
     public float MusicVolume { get; set; } = 0.5f;
+
+    /// <summary>Profile bObjectiveSounds: the objective jingles play (Enhanced's "Objective Sounds").</summary>
+    [JsonPropertyName("objective_sounds")]
+    [Provenance(ProvenanceKind.Decoded, "SPlayerProfile defaults bObjectiveSounds=True")]
+    public bool ObjectiveSounds { get; set; } = true;
 
     /// <summary>Other players' voices (voice_output_volume).</summary>
     [JsonPropertyName("voice_output_volume")]
@@ -456,6 +556,21 @@ public sealed class GameSettings
     [JsonPropertyName("show_net")]
     public bool ShowNet { get; set; }
 
+    /// <summary>The name of the place the player is in (the map's zone and volume names), at the top of the screen.</summary>
+    [JsonPropertyName("show_location")]
+    [Provenance(ProvenanceKind.Decoded, "spec/reloaded/FEATURES.md rl:qol.location show_location = true")]
+    public bool ShowLocation { get; set; } = true;
+
+    /// <summary>Enhanced Reality icon opacity while its objective is being hacked, 0 to 255 (shown as a percentage).</summary>
+    [JsonPropertyName("hack_alpha")]
+    [Provenance(ProvenanceKind.Decoded, "spec/reloaded/FEATURES.md rl:qol.hackalpha hack_alpha = 178")]
+    public int HackAlpha { get; set; } = 178;
+
+    /// <summary>Profile bInFeet: the HUD's distances in feet instead of metres.</summary>
+    [JsonPropertyName("hud_feet")]
+    [Provenance(ProvenanceKind.Decoded, "SPlayerProfile bInFeet (no default: false, metres)")]
+    public bool HudFeet { get; set; }
+
     // ---- network -------------------------------------------------------------------------------------------
 
     /// <summary>
@@ -470,6 +585,15 @@ public sealed class GameSettings
     /// <summary>Shows what the player is doing on their Discord profile, with Join for friends (docs/DISCORD.md).</summary>
     [JsonPropertyName("discord_presence")]
     public bool DiscordPresence { get; set; } = true;
+
+    // ---- console -------------------------------------------------------------------------------------------
+
+    /// <summary>
+    /// The developer console opens on the key left of 1 (backtick or tilde, by its place on the keyboard, whatever the
+    /// layout) instead of Chaos Theory's own console key, the apostrophe key (rl:input.console).
+    /// </summary>
+    [JsonPropertyName("override_console_key")]
+    public bool OverrideConsoleKey { get; set; } = true;
 
     /// <summary>Where the settings came from, for the options screen (not saved).</summary>
     [JsonIgnore]
@@ -519,6 +643,14 @@ public sealed class GameSettings
         SpyPad.Clamp();
         MercPad.Clamp();
         Pad.Clamp();
+        ClutchOneKey = (ClutchOneKey ?? "").Trim();
+        ClutchTwoKey = (ClutchTwoKey ?? "").Trim();
+        MouseWheel = OneOf(WheelModes, MouseWheel);
+        WindowPosition = OneOf(WindowPositions, WindowPosition, "Centered");
+        LowLatencyMode = OneOf(LatencyModes, LowLatencyMode);
+        FilterLevel = FilterLevel <= 0 ? 0 : FilterLevel <= 2 ? 2 : FilterLevel <= 4 ? 4 : FilterLevel <= 8 ? 8 : 16;
+        ShadowQuality = LookSettings.Range(ShadowQuality, 0.5f, 16f);
+        HackAlpha = Math.Clamp(HackAlpha, 0, 255);
         if (Array.IndexOf(DisplayModes, DisplayMode) < 0)
         {
             DisplayMode = DisplayModes[0];
@@ -540,6 +672,16 @@ public sealed class GameSettings
         VoiceJitterFrames = Math.Clamp(VoiceJitterFrames, 1, 12);
         VoiceInputDevice ??= "";
     }
+
+    /// <summary><paramref name="value"/> when it is one of <paramref name="items"/> (any case, given back as listed), else the fallback or the first.</summary>
+    private static string OneOf(string[] items, string? value, string? fallback = null)
+    {
+        int i = Array.FindIndex(items, x => string.Equals(x, value?.Trim(), StringComparison.OrdinalIgnoreCase));
+        return i >= 0 ? items[i] : fallback ?? items[0];
+    }
+
+    /// <summary>The wheel changes gadgets (profile SelectedMouse 0) rather than walk and run (1).</summary>
+    public bool WheelSelectsGadgets => MouseWheel == "Gadget";
 
     /// <summary>A frame cap: below 0 follows the monitor, 0 is unlimited, otherwise 30 to 240.</summary>
     public static int ClampFps(int fps) => DisplayFrameCap.Clamp(fps);

@@ -166,8 +166,8 @@ public static class GadgetHud
 
     /// <summary>
     /// SHud.GotoState for a gadget view (s_Hud_UseObject, s_Hud_UseObject_StickyCam, s_Hud_UseObject_CamNetwork,
-    /// s_H_Binoculars_Att, or None): the HUD enters the state when its port has it; the view name is raised for the
-    /// client HUD either way.
+    /// s_H_Binoculars_Att, s_H_Binoculars_Def, or None): the HUD enters the state when its port has it (the binocular
+    /// states play their sounds); the view name is raised for the client HUD either way.
     /// </summary>
     [Provenance(ProvenanceKind.Estimated, "The SHud states are drawing (HUD spec); the sim raises the name and enters a ported state only")]
     public static void SetHudState(SPlayerController PC, Name State)
@@ -276,14 +276,9 @@ public static class GadgetWorld
     /// <summary>The level's Use / interaction world-geometry test for an actor hit by a gadget trace.</summary>
     public static bool IsWorldGeometry(Actor? Hit) => Hit is null || Hit.bWorldGeometry || Hit is LevelInfo;
 
-    /// <summary>A tutorial level (SPersistentData.CurLevelIsTutorial): the TME and TSP tutorial maps.</summary>
-    [Provenance(ProvenanceKind.Estimated, "Tutorial maps by name prefix (TME, TSP); the persistent data tutorial list is not ported")]
-    public static bool CurLevelIsTutorial(Actor Self)
-    {
-        string map = OpenScct.Game.GameFlow.GameFlowServices.Host(Self).GetURLMap() ?? string.Empty;
-        return map.StartsWith("TME", System.StringComparison.OrdinalIgnoreCase) ||
-            map.StartsWith("TSP", System.StringComparison.OrdinalIgnoreCase);
-    }
+    /// <summary>A tutorial level (SPersistentData.CurLevelIsTutorial): one of the tutorial maps (<see cref="OpenScct.Game.GameFlow.TutorialMaps"/>).</summary>
+    public static bool CurLevelIsTutorial(Actor Self) =>
+        OpenScct.Game.GameFlow.TutorialMaps.CurLevelIsTutorial(OpenScct.Game.GameFlow.GameFlowServices.Host(Self).GetURLMap());
 
     /// <summary>
     /// A zero-extent line against one actor's collision cylinder (UPrimitive::LineCheck of a cylinder actor): true when

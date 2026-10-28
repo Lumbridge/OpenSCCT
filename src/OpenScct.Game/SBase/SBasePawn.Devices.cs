@@ -35,6 +35,16 @@ public partial class SBasePawn
         }
     }
 
+    /// <summary>
+    /// Killed by the world on behalf of <paramref name="EventInstigator"/> (a kill zone, or a crush that Actor routes
+    /// here): Health + 100 of SDTBase damage through the controller, so the normal death path runs.
+    /// </summary>
+    [Uc("SBase.SBasePawn.KilledBy", Sha1 = "4d214f5ae7d03cdd5d2b53195c93e6e7f2e1e82b")]
+    [PortOf("uc:SBase.SBasePawn:KilledBy", Spec = "spec/combat/environmental-damage.md#movers-and-lifts")]
+    public override void KilledBy(Pawn? EventInstigator) =>
+        (Controller as SPlayerController)?.PawnTakeDamage(Health + DeviceCrushExtra, EventInstigator, FVector.Zero, new FVector(0f, 0f, 1f),
+            SDamageType.SDTBase);
+
     /// <summary>Crush damage is the crushed pawn's Health plus this much.</summary>
     [Provenance(ProvenanceKind.Decoded, "SBase.SBasePawn.CrushedBy damage Health + 100")]
     private const int DeviceCrushExtra = 100;

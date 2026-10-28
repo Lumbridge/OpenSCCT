@@ -18,14 +18,18 @@ DrawScale3D (7), StaticMeshInstance (14 on PolaT). Defaults: hidden, no collisio
 
 ## Rules
 
-1. PostBeginPlay: bHidden = not `PlayerProfile.bDisplayHelpInGame` (no profile: hidden).
+1. PostBeginPlay: bHidden = not `PlayerProfile.bDisplayHelpInGame` (no profile: hidden). The flag is on only for a
+   Visit a Map play (spec/game/tutorials.md rules 11 and 12); the rewrite reads it from the level's profile options
+   (`IProfileOptions.DisplayHelpInGame`) when there is no profile object.
 2. Visible(b): bHidden = not b. SPlayerController.ShowHelpPath(b) calls it on every SHelpPath; SPlayerProfile.
    SetDisplayHelpInGame calls ShowHelpPath when the option changes.
 
 ## Open questions
 
-1. The render pack marks help_path meshes hidden (`HIDDEN_MESH_WORDS` in scctpkg level.py); the renderer does not
-   yet show them when the sim actor is unhidden. The options toggle (ShowHelpPath) is not ported.
+1. The render pack marks help_path meshes hidden (`HIDDEN_MESH_WORDS` in scctpkg level.py) and the map does not
+   store their bHidden (the class default); the device views treat a help path's map visibility as hidden, so the
+   mesh shows once the actor is unhidden. ShowHelpPath (the original's toggle while playing) is not ported: the help
+   is chosen before the map loads.
 
 ## Evidence
 

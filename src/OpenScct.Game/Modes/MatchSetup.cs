@@ -111,6 +111,20 @@ public sealed class MatchSetup
     }
 
     /// <summary>
+    /// The offline launch's rules (GUI.loading.Timer with no network: a tutorial, the next tutorial or a Visit a Map):
+    /// no time limit, unlimited lives on both sides and a 5 s respawn, whatever the map's entry says.
+    /// </summary>
+    [Provenance(ProvenanceKind.Decoded, "GUI.loading.Timer with NET_NONE: TimeLimit 0, NumLivesATT 0, NumLivesDEF 0, TimesRespawn 5 (spec/game/tutorials.md rule 4)")]
+    public MatchSetup WithOfflineRules()
+    {
+        Match.TimeLimit = 0;
+        Match.NumLivesATT = 0;
+        Match.NumLivesDEF = 0;
+        Match.TimesRespawn = K.OfflineRespawn;
+        return this;
+    }
+
+    /// <summary>
     /// The map URL options the lobby launch travels with (match-options.md rule 27): the match options and the
     /// expected player count.
     /// </summary>

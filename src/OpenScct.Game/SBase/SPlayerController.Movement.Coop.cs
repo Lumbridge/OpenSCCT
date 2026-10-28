@@ -238,14 +238,9 @@ public partial class SPlayerController
     public bool AreaIsSafeToInteract(Actor? Target) =>
         Target is not null && SBPawn is { } pawn && MovementNatives.Driver(pawn) is { } driver && driver.AreaIsSafeToInteract(pawn, Target);
 
-    /// <summary>SPersistentData.CurLevelIsTutorial for the co-op key: the tutorial maps (TME, TSP) by name.</summary>
-    [Provenance(ProvenanceKind.Estimated, "Tutorial maps by name prefix (TME, TSP); the persistent data tutorial list is not ported")]
-    public bool CoopTutorialLevel()
-    {
-        string map = GameFlowServices.Host(this).GetURLMap() ?? string.Empty;
-        return map.StartsWith("TME", System.StringComparison.OrdinalIgnoreCase) ||
-               map.StartsWith("TSP", System.StringComparison.OrdinalIgnoreCase);
-    }
+    /// <summary>SPersistentData.CurLevelIsTutorial for the co-op key (<see cref="TutorialMaps"/>).</summary>
+    public bool CoopTutorialLevel() =>
+        TutorialMaps.CurLevelIsTutorial(GameFlowServices.Host(this).GetURLMap());
 
     /// <summary>
     /// The helpers' cancel inputs (short ladder and hoist waiting states): reload, rate of fire, jump, fire mode,

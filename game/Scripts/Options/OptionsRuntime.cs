@@ -63,6 +63,7 @@ public partial class OptionsRuntime : Node
         {
             Hud.InitialConnectedPlayers = _settings.ShowScoreboard;
             Hud.ConnectedPlayersToggled += OnConnectedPlayers;
+            Hud.Effects.Applied += OnLocalNotify;
         }
 
         Apply(_settings);
@@ -74,6 +75,7 @@ public partial class OptionsRuntime : Node
         if (Hud is not null)
         {
             Hud.ConnectedPlayersToggled -= OnConnectedPlayers;
+            Hud.Effects.Applied -= OnLocalNotify;
         }
 
         // Outside the game Reloaded uses the merc cap.
@@ -84,6 +86,44 @@ public partial class OptionsRuntime : Node
     }
 
     private void OnSaved(GameSettings s) => Apply(s);
+
+    /// <summary>The controller's rumble for the local player's notifications (rl:input.rumble).</summary>
+    public PadRumble Rumble { get; } = new();
+
+    private void OnLocalNotify(SPlayerController pc, OpenScct.Core.SimEvent e, float now) => Rumble.OnNotify(pc, e, now, _settings.Pad);
+
+    /// <summary>
+    /// The keyboard and mouse clutches (rl:input.clutch): while the key of one is held, the session's mouse look takes
+    /// the side's clutch multiplier (the merc has two; the spy only the first).
+    /// </summary>
+    private void UpdateClutch(PlaySession session)
+    {
+        bool merc = session.LocalPawn is SPAWNDEFENSE;
+        bool typing = GetViewport()?.GuiGetFocusOwner() is LineEdit or TextEdit;
+        bool one = !typing && KeyHeld(_settings.ClutchOneKey);
+        bool two = !typing && merc && KeyHeld(_settings.ClutchTwoKey);
+        float clutch = _settings.LookOf(merc, pad: false).ClutchOf(one, two);
+        if (session.Mouse.Clutch != clutch)
+        {
+            session.Mouse = session.Mouse with { Clutch = clutch };
+        }
+    }
+
+    /// <summary>A key or mouse button, by its UE2 name, is down.</summary>
+    private static bool KeyHeld(string ik)
+    {
+        if (ik.Length == 0)
+        {
+            return false;
+        }
+
+        return OpenScctGame.Controls.GodotKeys.ToEvent(ik) switch
+        {
+            InputEventKey key => Input.IsPhysicalKeyPressed(key.PhysicalKeycode),
+            InputEventMouseButton button => Input.IsMouseButtonPressed(button.ButtonIndex),
+            _ => false,
+        };
+    }
 
     /// <summary>Reloaded remembers the scoreboard's state.</summary>
     private void OnConnectedPlayers(bool shown)
@@ -111,6 +151,9 @@ public partial class OptionsRuntime : Node
             Hud.Options.StretchHud = !s.Widescreen;
             Hud.ShowFps = s.ShowFps;
             Hud.ShowNet = s.ShowNet;
+            Hud.ShowLocation = s.ShowLocation;
+            Hud.DistanceInFeet = s.HudFeet;
+            Hud.Markers.HackAlpha = s.HackAlpha / 255f;
         }
 
         if (Gamepad is not null)
@@ -124,6 +167,11 @@ public partial class OptionsRuntime : Node
 
     public override void _Process(double delta)
     {
+        if (Session is { } session && _overlay is null)
+        {
+            UpdateClutch(session);
+        }
+
         if (CapFrames)
         {
             bool merc = Session?.LocalPawn is SPAWNDEFENSE || (Session?.Settings.Side == PlaySide.Merc && Session.LocalPawn is null);

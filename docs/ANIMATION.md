@@ -15,6 +15,7 @@ original names.
 | Notifies | `src/OpenScct.Game/Animation/PawnAnimNotifies.cs` | clip notifies from the converted packages, fired by the update |
 | Root motion | `src/OpenScct.Game/Movement/PawnRootMotion.cs` | the root's movement and turn for PHYS_RootMotion |
 | Aim | `src/OpenScct.Game/Animation/MeshAimIK.cs`, `game/Scripts/Views/AimPose.cs` | the upper body turned toward the aim (AimAt) |
+| Arm aim | `src/OpenScct.Game/Animation/ArmAim.cs`, `MeshBoneDirections.cs` | an upper arm turned toward the view (TurnHead's arm cases) |
 | Pose | `game/Scripts/Views/ChannelPoseApplier.cs`, `SimPawnView.cs` | the client's pose from the channels |
 | View models | `game/Scripts/Views/ViewModelPose.cs`, `FirstPersonView.cs`, `PawnAttachments.cs` | first-person arms, third-person weapons |
 | Difftest | `tests/OpenScct.DiffTest/Anim` | the channels against the real game, frame by frame |
@@ -167,6 +168,24 @@ of the aim (89 % of the frames with a sideways aim over 8.6 degrees) and reports
 the client asks for the aim toward its owner's desired rotation. A rifle shot plays no body clip in the original
 (the combat goldens have no SA_FIRE); what other players see of a shot is this aim and the third-person muzzle flash.
 
+### Arm aim
+
+TurnHead's other cases turn an upper arm toward the view (spec/native/aim-ik.md rule 5): firing round a corner from
+back to wall (the right arm round a left corner, the left arm round a right one; a fixed holster pose while the corner
+draw plays backward), firing while holding a grabbed body, firing from a pipe hang (by one hand or by the legs) and
+firing braced in a split jump.
+
+- `ArmAim` (`src/OpenScct.Game/Animation/ArmAim.cs`, called from `PawnMovementAnimation.TurnHead`) picks the case,
+  steps the bone's world rotation toward the view plus the pose's offset by at most 100000 (split jump 150000)
+  rotator units per second per axis, and leaves it on `PawnAnimation.Directions` (`MeshBoneDirections`, the mesh
+  instance's SetBoneDirection controllers). It releases the arms when no case holds one; `RemoveBTWArmControl`
+  (SA_BTW_OUT) releases the right arm and forearm. The step starts from where the arm is drawn (the level's
+  `ICameraBones`, the drawn poses); a server has no pose and takes the target at once (nothing reads it there).
+- `SimPawnView.SetDirections` turns each controller's world rotation into the skeleton's space and
+  `ChannelPoseApplier.Directions` gives the bone that rotation after the spine aim, so the forearm, hand and weapon
+  follow. It runs for every drawn pawn: the inputs (IK_Type, BTW, PipHFire, iYawPitchFromView, the pawn's yaw) are
+  replicated and the split-jump flag comes from a clip notify, so other players' pawns aim their arms too.
+
 ## Weapons and view models
 
 - First person (merc): `FirstPersonView` poses the weapon's own mesh (SWeaponFirst.1DEF_01, the arms and rifle) from
@@ -225,6 +244,7 @@ client drew. "Before" is the build Ryan tested (fa7fd88); "now" is after this wa
 | Emotes | none in the character packages | - | - | - |
 | Merc first person | FirstWaitStFd2, FirstWalkStFd2, FirstJumpStFd2, FirstShooStFd2, FirstReloStFd2 | view model | drawn; the walk loop while standing | drawn; the idle loop while standing |
 | Weapon aim (spy and merc) | AimAt AAFULL of IKT_WEAPONLOADED | B Spine2 turn | not in the pose | drawn (play-aim) |
+| Arm aim (corner, grab, pipe and split-jump fire) | TurnHead arm cases | B R / B L UpperArm | not in the pose | drawn (not checked in play yet) |
 | Bots and other players | everything above, through the proxy action playback | proxies | c0 and c4 only (a merc bot drew JoggStAlFd0, which DEF_01 lacks) | walk, crouch, jump, land and goggle channels drawn (play-anim, 3 bots); armed bots turn their upper body to their aim |
 
 ## Other players' pawns
@@ -278,9 +298,9 @@ tools\godot\4.7.2-stable\Godot_v4.7.2-stable_mono_win64_console.exe --path game 
 
 ## Open
 
-- The other bone control of TurnHead (the back-to-wall, grab, pipe and split-jump arm rotations through
-  SetBoneDirection, LookAt, the AAVERT, AAHOH and AABTW turns) is not in the pose; AimAt AAFULL is (Aim above). The
-  space of the pose build's bone coords at the turn is taken as the actor's (aim-ik.md open question 1).
+- LookAt and the AAVERT, AAHOH and AABTW turns are not in the pose; AimAt AAFULL is (Aim above), and so are
+  TurnHead's arm rotations (Arm aim above). The space of the pose build's bone coords at the turn is taken as the
+  actor's (aim-ik.md open question 1); SetBoneDirection's space 1 as the bone's world frame (open question 3).
 - bGlobalPose and the exact mirror reflection (anim.md open question 1); lock bit 4.
 - The pose build's timing is emulated (after the tick for a drawn pawn, after the advance for the local merc in
   first person, before each action).

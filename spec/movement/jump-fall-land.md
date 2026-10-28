@@ -160,6 +160,9 @@ which has the same PlayerMove and events.
 NotifyBump(Other) while in the air: if Other is a Mover moving up slower than the pawn
 (`Other.Velocity.Z < Pawn.Velocity.Z`), reset fZMaxFalling = Location.Z (being carried by a mover is not a fall).
 
+AltFire in the air: only a merc whose team carries gadgets (iNBGadgets above 0) runs the global AltFire (his grenade
+throw); for a spy it does nothing. PlayAnimDmg does nothing (no hit animation in the air).
+
 ### GE grabs while airborne
 
 The events below are raised by the native zone checks of step 7 (contracts in native-contracts.md). Each one

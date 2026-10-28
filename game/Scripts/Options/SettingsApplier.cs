@@ -42,9 +42,75 @@ public static class SettingsApplier
         }
 
         ApplyAudio(s);
+        ApplyRendering(s, viewport);
         if (viewport is not null && DisplayServer.GetName() != "headless")
         {
             DisplayFramePacer.Attach(viewport);
+        }
+    }
+
+    /// <summary>
+    /// The texture filtering (filter_level on the viewport, and as the default of the viewports made later) and the
+    /// spot shadows' map size and edge smoothing (shadow_quality, shadow_edge_smoothing: from the next map, when the
+    /// shadow atlas is made again).
+    /// </summary>
+    public static void ApplyRendering(GameSettings s, Viewport? viewport)
+    {
+        ArgumentNullException.ThrowIfNull(s);
+        Viewport.AnisotropicFiltering level = s.FilterLevel switch
+        {
+            0 => Viewport.AnisotropicFiltering.Disabled,
+            2 => Viewport.AnisotropicFiltering.Anisotropy2X,
+            4 => Viewport.AnisotropicFiltering.Anisotropy4X,
+            8 => Viewport.AnisotropicFiltering.Anisotropy8X,
+            _ => Viewport.AnisotropicFiltering.Anisotropy16X,
+        };
+        ProjectSettings.SetSetting("rendering/textures/default_filters/anisotropic_filtering_level", (int)level);
+        if (viewport is not null)
+        {
+            viewport.AnisotropicFilteringLevel = level;
+        }
+
+        Render.SpotShadowLight.MapSize = Render.SpotShadowLight.MapSizeFor(s.ShadowQuality);
+        Render.SpotShadowLight.SoftRadius = s.ShadowEdgeSmoothing ? Render.RenderK.SpotShadowSoftRadius : 0f;
+    }
+
+    /// <summary>The project settings file the engine reads at start (project.godot's application/config/project_settings_override).</summary>
+    public const string StartOverridePath = "user://render_override.cfg";
+
+    /// <summary>
+    /// The settings that only take effect at start (Reloaded's low_latency_mode, rl:gfx.pacing), written for the next
+    /// start: On and Ultra queue one swap chain image less (2, Godot's lowest; its default is 3). The frame queue stays
+    /// at 2, the lowest Godot's setting allows, so Ultra is On for now. Off removes the file.
+    /// </summary>
+    [OpenScct.Provenance.Provenance(OpenScct.Provenance.ProvenanceKind.Estimated, "rl:gfx.pacing open question: Godot 4.7 offers frame queue 2 to 3 and 2 to 4 swap chain images; Reloaded's latency modes are not decoded")]
+    public static void WriteStartOverrides(GameSettings s)
+    {
+        ArgumentNullException.ThrowIfNull(s);
+        string path = ProjectSettings.GlobalizePath(StartOverridePath);
+        try
+        {
+            if (s.LowLatencyMode == "Off")
+            {
+                if (System.IO.File.Exists(path))
+                {
+                    System.IO.File.Delete(path);
+                }
+
+                return;
+            }
+
+            System.IO.File.WriteAllText(path,
+                "; Written by OpenSCCT from settings.json (low_latency_mode); removed when it is Off.\n" +
+                "[rendering]\n\nrendering_device/vsync/swapchain_image_count=2\n");
+        }
+        catch (System.IO.IOException e)
+        {
+            GD.PushWarning($"Could not write {StartOverridePath}: {e.Message}");
+        }
+        catch (UnauthorizedAccessException e)
+        {
+            GD.PushWarning($"Could not write {StartOverridePath}: {e.Message}");
         }
     }
 
@@ -119,12 +185,9 @@ public static class SettingsApplier
         }
 
         DisplayServer.WindowSetMode(mode);
-        if (mode == DisplayServer.WindowMode.Windowed && GameSettings.ParseResolution(s.Resolution) is { } size)
+        if (mode == DisplayServer.WindowMode.Windowed)
         {
-            DisplayServer.WindowSetSize(new Vector2I(size.Width, size.Height));
-            Vector2I area = DisplayServer.ScreenGetSize(screen);
-            Vector2I origin = DisplayServer.ScreenGetPosition(screen);
-            DisplayServer.WindowSetPosition(origin + (area - new Vector2I(size.Width, size.Height)) / 2);
+            PlaceWindow(s, screen);
         }
 
         if (viewport is not null)
@@ -132,7 +195,37 @@ public static class SettingsApplier
             viewport.Scaling3DScale = s.RenderScale;
         }
 
+        ApplyRendering(s, viewport);
         ApplyPacing(s);
+    }
+
+    /// <summary>
+    /// A window's size and place (window_position, rl:gfx.modes): Stretched fills the screen's usable area; Centered
+    /// centres a window of the chosen size; Default leaves the place to the system.
+    /// </summary>
+    private static void PlaceWindow(GameSettings s, int screen)
+    {
+        if (s.WindowPosition == "Stretched")
+        {
+            Rect2I usable = DisplayServer.ScreenGetUsableRect(screen);
+            DisplayServer.WindowSetSize(usable.Size);
+            DisplayServer.WindowSetPosition(usable.Position);
+            return;
+        }
+
+        if (GameSettings.ParseResolution(s.Resolution) is not { } size)
+        {
+            return;
+        }
+
+        var wanted = new Vector2I(size.Width, size.Height);
+        DisplayServer.WindowSetSize(wanted);
+        if (s.WindowPosition == "Centered")
+        {
+            Vector2I area = DisplayServer.ScreenGetSize(screen);
+            Vector2I origin = DisplayServer.ScreenGetPosition(screen);
+            DisplayServer.WindowSetPosition(origin + (area - wanted) / 2);
+        }
     }
 
     /// <summary>
@@ -190,18 +283,32 @@ public static class SettingsApplier
         }
     }
 
-    /// <summary>The mouse look of the play session from the profile sensitivity and the sides' look multipliers.</summary>
-    public static MouseLook MouseLookOf(GameSettings s, MouseLook? current = null)
+    /// <summary>
+    /// The mouse look of the play session from the profile sensitivity, the sides' look multipliers per view and the
+    /// profile's inversions (the clutch is left as it is: <see cref="OptionsRuntime"/> sets it while one is held).
+    /// </summary>
+    /// <param name="pad">The controller groups' multipliers instead of the mouse's (the controller's view scaling).</param>
+    public static MouseLook MouseLookOf(GameSettings s, MouseLook? current = null, bool pad = false)
     {
         ArgumentNullException.ThrowIfNull(s);
         MouseLook basis = current ?? new MouseLook();
+        LookSettings spy = s.LookOf(merc: false, pad);
+        LookSettings merc = s.LookOf(merc: true, pad);
         return basis with
         {
             MouseSensitivity = s.MouseSensitivity,
-            SpyFreeLook = s.SpyKbm.FreeLook,
-            SpyGunLook = s.SpyKbm.Look,
-            MercLook = s.MercKbm.Look,
+            SpyFreeLook = spy.FreeLook,
+            SpyGunLook = spy.Look,
+            SpyScope = spy.Scope,
+            SpyVertical = spy.Vertical,
+            SpyCam = spy.Cam,
+            MercLook = merc.Look,
+            MercScope = merc.Scope,
+            MercScopeVertical = merc.ScopeVertical,
+            MercVertical = merc.Vertical,
+            MercCam = merc.Cam,
             InvertY = s.InvertY,
+            InvertXSpy = s.InvertXSpy,
         };
     }
 }

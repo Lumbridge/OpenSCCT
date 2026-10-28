@@ -143,7 +143,8 @@ for its second game. The `net-lobby` smoke checks the banner and its side in bot
 **Canvas parts.** Over the page, in this order: the spy's interaction list and Enhanced Reality markers (`HudMarkers`,
 player pages only), the merc's motion tracking brackets (`HudMotionTracking`: the goggles' tracker's screen boxes
 from the drawn camera and its decoded DrawHUD, in the 640 x 480 frame scaled by height and centred, also on the
-camera network page; spec/equipment/motion-tracking.md), the binocular markers (`HudBinocularMarkers`, the spy's binocular page only), the deathmatch
+camera network page; spec/equipment/motion-tracking.md; and the HUD's own tracker with the laser sight's target, its
+typed name and the friend mark, SHud.DrawTargetName, spec/hud/merc-reticle.md rule 3e), the binocular markers (`HudBinocularMarkers`, the spy's binocular page only), the deathmatch
 respawn weapon, the console lines, the screen-effect washes and the knock-out text (`HudSfx`), overlays (the chat
 line), the frame rate readout. The SHud canvas doubles its colours (screen-effects.md rule 0, `HudK.CanvasColour`).
 
@@ -186,6 +187,33 @@ original's rules (spectators may not chat unless dead and the voice mode allows 
 characters a second, team lines to the sender's team) and sends each recipient a chat message with the sender's id,
 name and team; the client hands it to `HudConsole` ("Ghost: on my way"). Spec: `spec/hud/chat.md`.
 
+## Developer console
+
+`UI/DevConsole` (rl:qol.console, rl:input.console) opens and closes on the key left of 1 (backtick or tilde, by
+its place on the keyboard, so any layout), or on Chaos Theory's own console key, the apostrophe key, with
+`override_console_key` off. It works in the menus and in play, but not over an open chat line or a focused text box.
+It is a band over the top of the screen in a monospaced system font (Consolas, then other mono fonts). While it is
+open it takes every key press, click and mouse movement, so nothing reaches the game or the menus; releases still
+pass so no key stays held. Escape or the console key closes it; Up and Down walk the typed history.
+
+Commands (`UI/ConsoleCommands`, Godot-free; settings through `Options/SettingsConsole`):
+
+| Command | What |
+|---|---|
+| `help` | the list |
+| `current` | every settings.json key and value |
+| `get <key>`, `set <key> <value>` | a settings.json key; a group member with a dot (`controls_spy_kbm.look`); switches take on/off; the settings' limits apply; saved and applied at once |
+| `<key> [value]` | a settings key alone shows it, with a value sets it (Reloaded's `fps_spy`, `fps_merc`, `ws_fov`, `widescreen`) |
+| `login <password>` | the server's admin login (`!login`) |
+| `cmd <command>` | a server console command (docs/ONLINE.md), for the host and admins |
+| `practice on`, `practice off` | the server's practice mode (host and admins; `practice` alone says what it does) |
+| `resign`, `pings`, `practice`, `heal`, `regen`, `tank`, `kill`, `rmap_next`, `rmap_prev`, `map <name> [mode]` | sent as the chat command (`!resign`, `!next`, `!prev`...) |
+| `say <text>` | a chat line |
+| `quit` | closes the game |
+
+The server's system lines (answers to `cmd`, `!pings` and the others) are shown in it as they arrive. Not in smoke
+runs (it is added by `App` outside them).
+
 ## Options and settings
 
 The settings live in `user://settings.json`, JSON with comments and trailing commas allowed, keys named as
@@ -195,18 +223,48 @@ applies them at start and on save.
 
 | Group | Keys |
 |---|---|
-| player | `player_name`, `mouse_sensitivity` (4..40), `invert_y` |
-| look per team | `controls_spy_kbm`, `controls_merc_kbm` (`look`, `free_look`, `scope`, `scope_vertical`, `vertical`, `cam`, `look_response`), and the same for `controls_spy_pad`, `controls_merc_pad` |
-| controller | `controller`: `enabled`, `deadzone_left` 0.25, `deadzone_right` 0.15, `vertical_scale` 0.75, `run_threshold` 0.95, rumble, 8-way move per side, `look_speed` |
-| display | `display_mode` (Windowed, Fullscreen, BorderlessFullscreen), `display_monitor`, `resolution`, `vsync`, `widescreen`, `ws_fov` (95..112, default 112), `fps_spy`, `fps_merc` (Monitor by default, Unlimited or 30 to 240: docs/RENDERING.md, frame pacing), `resolution_scale` |
-| audio | `master_volume`, `sound_volume`, `music_volume`, `voice_output_volume` (Godot buses Master, SvmWorld and the effect buses, SvmMusic, SvmVoice) |
-| HUD | `show_scoreboard`, `show_ping`, `show_fps` |
+| player | `player_name`, `mouse_sensitivity` (4..40), `invert_y`, `invert_x_spy` (profile InvertX), `mouse_wheel` (Gadget, Speed: profile SelectedMouse 0 and 1), `clutch_one_key`, `clutch_two_key` |
+| look per team | `controls_spy_kbm`, `controls_merc_kbm` (`look`, `free_look`, `scope`, `scope_vertical`, `vertical`, `cam`, `look_response`, `clutch_one`, `clutch_one_enabled`, `clutch_two`, `clutch_two_enabled`), and the same for `controls_spy_pad`, `controls_merc_pad` |
+| controller | `controller`: `enabled`, `deadzone_left` 0.25, `deadzone_right` 0.15, `vertical_scale` 0.75, `run_threshold` 0.95, `rumble` (off), `rumble_strength` 1.0, 8-way move per side, `look_speed`, the pad layouts (`Clutch1`, `Clutch2` hold the clutches) |
+| display | `display_mode` (Windowed, Fullscreen, BorderlessFullscreen), `display_monitor`, `resolution`, `window_position` (Default, Centered, Stretched), `vsync`, `widescreen`, `ws_fov` (95..112, default 112), `fps_spy`, `fps_merc` (Monitor by default, Unlimited or 30 to 240: docs/RENDERING.md, frame pacing), `resolution_scale`, `filter_level`, `shadow_quality`, `shadow_edge_smoothing`, `low_latency_mode`, `throttle_stop` (docs/RENDERING.md) |
+| audio | `master_volume`, `sound_volume`, `music_volume`, `objective_sounds` (profile bObjectiveSounds), `voice_output_volume` (Godot buses Master, SvmWorld and the effect buses, SvmMusic, SvmVoice) |
+| HUD | `show_scoreboard`, `show_ping`, `show_fps`, `show_net`, `show_location`, `hack_alpha` (0..255, 178), `hud_feet` (profile bInFeet) |
+| console | `override_console_key` (true: the key left of 1; false: the apostrophe key) |
 
 `OptionsMenu` is the screen (from the main menu, or over the game with F12): Keys (rebinding the spy and merc layouts
 through `KeyBindingsModel`; click a key, press the new one, Escape cancels), Mouse, Controller, Display, Audio, HUD,
 then Save, Defaults, Back. `OptionsRuntime` applies the mouse look multipliers per team, the HUD switches, the frame
 cap of the side played (not in headless or smoke runs), the field of view and the controller; `GamepadInput` maps Godot joypads to the
 layouts with Reloaded's SDL defaults (radial dead zones, response curves, the spy's run threshold).
+
+**Look multipliers** (rl:input.sens, `MouseLook.Multipliers`): the view picks the group's field. A sticky camera or
+the camera network takes `cam`; the binoculars and the merc's sniper scope take `scope`, the merc's vertical also
+`scope_vertical` (2.45 turns the scope up and down as fast as sideways, 1 is the stock 40.8 %, Reloaded's legacy
+sniper mode); otherwise the side's look (the spy's `free_look` holstered, `look` with the gun drawn) with `vertical`
+scaling the up and down look relative to the side's default (3.5 spy, 1.0 merc: the meaning of `vertical` is not
+decoded, so its defaults keep the stock ratio). They scale the mouse counts before the input mapping; the controller's
+counts are scaled so they end up with the controller groups' fields instead (`GamepadInput.PadMultipliers`).
+**Clutches** (rl:input.clutch): while `clutch_one_key` (or `clutch_two_key`, the merc's) is held, or a pad control
+bound to `Clutch1` or `Clutch2`, the group's enabled clutch multiplies the look (before the response curve on a pad).
+The Mouse page sets the keys (click, press the key; Escape clears it).
+
+**Profile options.** The original reads InvertX, bInFeet, bObjectiveSounds and SelectedMouse from the player's
+profile, which the rewrite does not have (`IDeviceHooks.GetPlayerProfile` stays empty: a profile there would also set
+the kit). They live in the settings file instead: `MouseLook.Apply` puts `invert_x_spy` on the controller
+(bInvertHorizontalAxisCamSpy), `HudLayer.DistanceInFeet` calls `SHud.HudUnit`, and the level service
+`IProfileOptions` (`SettingsProfileOptions`, installed with the gear services) answers ClientSetMusic's objective
+jingle check and the wheel (WheelUp, WheelDown) for the machine's own controller only. `mouse_wheel` defaults to
+Gadget, as the rewrite always played; the original's default profile has Speed.
+
+**Rumble** (rl:input.rumble, spec/combat/rumble.md): `PadRumble` hears the local player's `Vibration_*`
+notifications through `HudEffects.Applied`, keeps the script's priority rule and plays the script's motor strengths
+on the controller in use, scaled by `rumble_strength`. The Controller page's Test plays the blast's rumble.
+
+**HUD extras.** `HudLocation` writes the name of the place the viewed pawn is in (the highest-priority named volume it
+touches, else its zone's name: the map data's LocationName) at the top centre (`show_location`; Enhanced's position
+is not decoded). `HudMarkers.HackAlpha` draws the icon of an objective being hacked at `hack_alpha` / 255.
+Not done: `classic_crosshair` (the reticle already sits on the aim point, centred at rest; the stock offset is not
+decoded) and Enhanced's Shocker snap option (the snap itself, FindAttClosestTarget, is not called yet).
 
 **Field of view.** `ViewFov` (Godot-free, unit tested) is Reloaded's rule 20 as its code does it (Reloaded.Core
 0x100a7080, 0x100a4ac0): with `widescreen` on the camera's FovAngle (horizontal over 4:3) keeps its 4:3 vertical angle
@@ -303,6 +361,26 @@ CI's default set stays `boot` and `testbox`. With a renderer, `--svm-hud-capture
 (keep them under `local/`). Unit tests: `tests/OpenScctGame.Logic.Tests` (settings file, message routing, field of view),
 `tests/OpenScct.Game.Tests/Hud/SoundArrowTests.cs`,
 `tests/OpenScct.Net.Tests/ChatMessageTests.cs`, `tests/OpenScct.Integration.Tests/ChatRelayTests.cs`.
+
+## Cinematic camera (Free Camera, Hide HUD)
+
+The Enhanced 4.0 binds `FreeCam` and `HideHud` (Options, Keys, "Cinematic Camera" rows) work when the host turned
+on Alternate Mode and its "Cinematic Camera" switch (offline they always work). Rules: spec/hud/cinematic-camera.md.
+
+- **Who:** a living player, at any time in the round. Without the switch the console says "Free look is not enabled
+  on this server." or "Hiding the hud is not enabled on this server."
+- **How:** the key runs `SPlayerController.FreeCam` / `HideHud` (`PlayerCommands`, `LocalInput.cs`), which asks the
+  server (`ServerRequestFreeCam` / `ServerRequestHideHud`); the server checks its GRI and answers
+  (`ClientStartFreeCam` / `ClientToggleHideHud`), and the player's machine starts the camera or flips the switch
+  (`SPlayerController.CinematicCamera.cs`). FreeCam again stops the camera at once, without asking.
+- **Free camera:** it starts where the view is. Mouse turns it; the movement keys fly it along the view; Jump goes
+  up and Crouch down; the wheel steps the speed (600 uu/s to start); Shift is fast, Alt slow. No collision. The pawn
+  stands where it was and takes no input; its body is drawn and the first-person weapon is not. The camera stops by
+  itself when the pawn dies. Other players only see the pawn standing still.
+- **Hide HUD:** `bCinematicHideHud` on the controller; `HudSimReader` adds it to the snapshot's `HideHud`, so the
+  pages hide as for `HUD.bHideHUD`, and the merc's aim point hides too.
+- **Not done:** pad controls for the free camera (triggers, shoulders); the server's relevancy still sees from the
+  pawn, so things far from it may be missing when the camera flies far away.
 
 ## Slice additions and gaps
 

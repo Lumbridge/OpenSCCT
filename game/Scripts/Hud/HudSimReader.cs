@@ -112,6 +112,9 @@ public sealed class HudSimReader : IHudSource
             s.HideHud |= effects.Sfx.Sleeping && effects.Sfx.ValueOf(effects.Sfx.Find(SFXType.SFXT_TextureColorSleep)) < 255f;
         }
 
+        // The cinematic camera's Hide HUD switch (Reloaded ToggleHideHud).
+        s.HideHud |= pc.bCinematicHideHud;
+
         ReadPawn(pc, pawn, s);
         s.VisionMode = pc.RendMap;
         s.VisionName = HudK.VisionName(pc.RendMap);

@@ -82,6 +82,17 @@ public static class PlayerCalcView
         public static void NativePlayerCalcView(SPlayerController PC, bool bUpdate, out Actor? ViewActor, out FVector CameraLocation,
         out FRotator CameraRotation)
     {
+        // The cinematic free camera (Reloaded ToggleFreeCamera): the view is the camera's own spot while it flies.
+        if (PC.FreeCameraFlying != 0)
+        {
+            ViewActor = PC;
+            CameraLocation = PC.FreeCamLocation;
+            CameraRotation = PC.FreeCamRotation;
+            PC.vCamLocation = CameraLocation;
+            PC.rCamRotation = CameraRotation;
+            return;
+        }
+
         switch (SourceOf(PC))
         {
             case EViewSource.Mirador:

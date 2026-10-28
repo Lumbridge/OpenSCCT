@@ -245,9 +245,17 @@ public partial class SPlayerController
             UpdateDownedChat();
         }
 
+        if (Role < ENetRole.ROLE_Authority)
+        {
+            ApplyPendingVoiceChatMode();
+        }
+
         bool movement = MovementService.Of(this) is not null;
         if (movement && Player is UViewport)
         {
+            // The cinematic free camera takes this tick's input before any state sees it, so the pawn gets none
+            // (spec/hud/cinematic-camera.md).
+            TickFreeCamera(DeltaSeconds);
             eventPlayerTick(DeltaSeconds);
             if (SBPawn is { Role: not ENetRole.ROLE_Authority } own)
             {
@@ -268,7 +276,8 @@ public partial class SPlayerController
 
     /// <summary>The input and control part of the global PlayerTick (input-and-rotation.md, frame order).</summary>
     /// <remarks>
-    /// Not ported here: the free camera and console input clears (front end), the heartbeat sound stop, the gadget,
+    /// The free camera's input clears run in TickFreeCamera, before PlayerTick (the cinematic camera takes the
+    /// movement input too). Not ported here: the console input clears (front end), the heartbeat sound stop, the gadget,
     /// smoke and HUD parts, ClientUpdatePosition (netcode) and the objective idle timer (objectives spec). The specials
     /// chat (the Hack Comm key) follows the move as in the original, then the camera goes to the server every 0.14 s.
     /// </remarks>

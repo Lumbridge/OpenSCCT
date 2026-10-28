@@ -528,12 +528,14 @@ public sealed class ServerHost : INetworkNotify, IDisposable
             if (slot.Controller is { bDeleteMe: false } pc)
             {
                 Game?.Logout(pc);
-                if (pc.Pawn is { bDeleteMe: false } pawn)
+
+                // The controller goes first: its Destroyed drops a carried flag, which needs the pawn.
+                Pawn? pawn = pc.Pawn;
+                pc.Destroy();
+                if (pawn is { bDeleteMe: false })
                 {
                     pawn.Destroy();
                 }
-
-                pc.Destroy();
             }
 
             slot.Walker = null;

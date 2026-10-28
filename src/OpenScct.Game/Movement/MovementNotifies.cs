@@ -8,8 +8,9 @@ namespace OpenScct.Game.Movement;
 /// <summary>
 /// The script notifies of the movement clips (AnimNotify_Script NotifyName to the SBasePawn function), registered
 /// with the level's <see cref="AnimNotifyHandlers"/>: the split jump's push, the Vandamme pistol draw and the
-/// hand-over-hand fire poses (SBasePawn.Movement.Notifies.cs), the back-to-wall draw and the hand-item throw
-/// (SBasePawn.BtwFireNotifies.cs).
+/// hand-over-hand fire poses, the root-motion collision switch and the noise notify (SBasePawn.Movement.Notifies.cs),
+/// the back-to-wall draw and the hand-item throw (SBasePawn.BtwFireNotifies.cs), and the shotgun's per-shell reload
+/// notifies (SBasePawn.ReloadNotifies.cs).
 /// </summary>
 public static class MovementNotifies
 {
@@ -24,6 +25,13 @@ public static class MovementNotifies
     private static readonly Name NotifyChangeHandWeapon = new("NotifyChangeHandWeapon");
     private static readonly Name AnimNotifyThrow = new("AnimNotifyThrow");
     private static readonly Name NotifyUndrawWeapon = new("NotifyUndrawWeapon");
+    private static readonly Name RMColOn = new("RMColOn");
+    private static readonly Name AnimNotifyNoise = new("AnimNotifyNoise");
+    private static readonly Name[] EventReloadAmmoNb =
+    [
+        new("EventReloadAmmoNb1"), new("EventReloadAmmoNb2"), new("EventReloadAmmoNb3"), new("EventReloadAmmoNb4"),
+        new("EventReloadAmmoNb5"),
+    ];
 
     /// <summary>Registers the movement notifies with <paramref name="level"/>'s handlers (again is harmless).</summary>
     public static void Install(Level level)
@@ -41,6 +49,16 @@ public static class MovementNotifies
         handlers.Register(NotifyDrawUndrawWeapon, a => (a as SBasePawn)?.BtwDrawNotify(bChangeHand: false));
         handlers.Register(NotifyChangeHandWeapon, a => (a as SBasePawn)?.BtwDrawNotify(bChangeHand: true));
         handlers.Register(AnimNotifyThrow, a => (a as SBasePawn)?.AnimNotifyThrow());
+
+        handlers.Register(RMColOn, a => (a as SBasePawn)?.RMColOn());
+        handlers.Register(AnimNotifyNoise, a => (a as SBasePawn)?.AnimNotifyNoise());
+
+        // The shotgun's body reload clip: one notify per shell; the last shell loaded skips to the clip's end.
+        handlers.Register(EventReloadAmmoNb[0], a => (a as SBasePawn)?.EventReloadAmmoNb1());
+        handlers.Register(EventReloadAmmoNb[1], a => (a as SBasePawn)?.EventReloadAmmoNb2());
+        handlers.Register(EventReloadAmmoNb[2], a => (a as SBasePawn)?.EventReloadAmmoNb3());
+        handlers.Register(EventReloadAmmoNb[3], a => (a as SBasePawn)?.EventReloadAmmoNb4());
+        handlers.Register(EventReloadAmmoNb[4], a => (a as SBasePawn)?.EventReloadAmmoNb5());
 
         // The spy's holster clips (DrawStSpEd2, DrawCrSpEd2): the pistol goes away (4), its AnimEnd unloads it (0).
         handlers.Register(NotifyUndrawWeapon, a =>

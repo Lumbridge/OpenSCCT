@@ -24,6 +24,9 @@ public sealed class FxClass
     /// <summary>The sub-emitters with their properties over their class defaults (emitters only).</summary>
     public required IReadOnlyList<ParticleParams> Emitters { get; init; }
 
+    /// <summary>The sub-emitters' stored values and class defaults, in the order of <see cref="Emitters"/>.</summary>
+    public IReadOnlyList<FxSubEmitter> Sources { get; init; } = [];
+
     /// <summary>The asset properties of the class (StaticMesh, ImpactMaterial, ProjTexture, Skins...).</summary>
     public required IReadOnlyDictionary<string, string> Assets { get; init; }
 
@@ -77,9 +80,37 @@ public sealed class FxLibrary : IParticleAssets
         if (File.Exists(path))
         {
             lib.Read(path, SharedClasses.Load(sharedRoot));
+            lib.AddLateClasses();
         }
 
         return lib;
+    }
+
+    /// <summary>
+    /// Effect classes the fx step lists since a later converter version (class, kind and class-default mesh), for
+    /// content converted before: SGasMask, the merc's visible mask, drawn from the SGameplayObjects package the step
+    /// already exports whole.
+    /// </summary>
+    private static readonly (string Class, string Kind, string Mesh)[] s_lateClasses =
+    [
+        ("SBase.SGasMask", "gadget", "SGameplayObjects.GasMask.DEF_Gasmask"),
+    ];
+
+    private void AddLateClasses()
+    {
+        foreach ((string cls, string kind, string mesh) in s_lateClasses)
+        {
+            if (!_classes.ContainsKey(cls))
+            {
+                _classes[cls] = new FxClass
+                {
+                    Path = cls,
+                    Kind = kind,
+                    Emitters = [],
+                    Assets = new Dictionary<string, string>(StringComparer.Ordinal) { ["StaticMesh"] = mesh },
+                };
+            }
+        }
     }
 
     public bool Available => _classes.Count > 0;
@@ -110,6 +141,31 @@ public sealed class FxLibrary : IParticleAssets
         return new ParticleSystemSim(c.Emitters, settings, seed);
     }
 
+    /// <summary>
+    /// A new particle system of an Emitter class whose script changed a sub-emitter's values before it ran:
+    /// <paramref name="change"/> gives (sub-emitter index, property name) a new value, or null to keep the class's.
+    /// </summary>
+    public ParticleSystemSim? CreateSystem(string cls, uint seed, Func<int, string, JsonElement?> change)
+    {
+        ArgumentNullException.ThrowIfNull(change);
+        if (Find(cls) is not { Kind: "emitter", Emitters.Count: > 0 } c || c.Sources.Count != c.Emitters.Count)
+        {
+            return CreateSystem(cls, seed);
+        }
+
+        var emitters = new List<ParticleParams>(c.Sources.Count);
+        for (int i = 0; i < c.Sources.Count; i++)
+        {
+            FxSubEmitter sub = c.Sources[i];
+            int index = i;
+            emitters.Add(ParticleParams.From(sub.Class, sub.ObjectPath,
+                n => change(index, n) ?? (sub.TryGet(n, out JsonElement v) ? v : null), sub.Texture));
+        }
+
+        var settings = new ParticleSystemParams(c.Bool("AutoDestroy"), c.Bool("AutoReset"), default, default);
+        return new ParticleSystemSim(emitters, settings, seed);
+    }
+
     public Texture2D? Texture(string? png) => png is null ? null : _textures.Get(png);
 
     /// <summary>The PNG of a texture or material object path, or null.</summary>
@@ -132,7 +188,7 @@ public sealed class FxLibrary : IParticleAssets
         }
 
         Mesh? mesh = null;
-        if (_meshTable.TryGetValue(objectPath, out (string Glb, string Node) entry))
+        if (_meshTable.TryGetValue(objectPath, out (string Glb, string Node) entry) || PackageMesh(objectPath, out entry))
         {
             if (!_packages.TryGetValue(entry.Glb, out MeshPackage? package))
             {
@@ -145,6 +201,31 @@ public sealed class FxLibrary : IParticleAssets
 
         _meshes[key] = mesh;
         return mesh;
+    }
+
+    /// <summary>
+    /// A mesh the table does not list, in a package the step exported whole: meshes/Package.glb, node Package_Name
+    /// (the exporter's naming), when that file exists.
+    /// </summary>
+    private bool PackageMesh(string objectPath, out (string Glb, string Node) entry)
+    {
+        entry = default;
+        int first = objectPath.IndexOf('.', StringComparison.Ordinal);
+        int last = objectPath.LastIndexOf('.');
+        if (first <= 0 || last == first)
+        {
+            return false;
+        }
+
+        string package = objectPath[..first];
+        string glb = "meshes/" + package + ".glb";
+        if (!File.Exists(System.IO.Path.Combine(_folder, glb)))
+        {
+            return false;
+        }
+
+        entry = (glb, package + "_" + objectPath[(last + 1)..]);
+        return true;
     }
 
     /// <summary>
@@ -218,6 +299,7 @@ public sealed class FxLibrary : IParticleAssets
         foreach (JsonProperty c in list.EnumerateObject())
         {
             var emitters = new List<ParticleParams>();
+            var sources = new List<FxSubEmitter>();
             if (c.Value.TryGetProperty("emitters", out JsonElement subs) && subs.ValueKind == JsonValueKind.Array)
             {
                 foreach (JsonElement s in subs.EnumerateArray())
@@ -227,6 +309,7 @@ public sealed class FxLibrary : IParticleAssets
                     JsonElement props = s.TryGetProperty("props", out JsonElement sp) ? sp.Clone() : default;
                     string? texture = s.TryGetProperty("texture", out JsonElement st) ? st.GetString() : null;
                     emitters.Add(ParticleParams.From(cls, obj, props, classes.DefaultsOf(cls), texture));
+                    sources.Add(new FxSubEmitter(obj, cls, props, classes.DefaultsOf(cls), texture));
                 }
             }
 
@@ -250,6 +333,7 @@ public sealed class FxLibrary : IParticleAssets
                 Path = c.Name,
                 Kind = c.Value.TryGetProperty("kind", out JsonElement k) ? k.GetString() ?? "" : "",
                 Emitters = emitters,
+                Sources = sources,
                 Assets = assets,
                 Defaults = defaults is { } d ? d.Clone() : default,
             };

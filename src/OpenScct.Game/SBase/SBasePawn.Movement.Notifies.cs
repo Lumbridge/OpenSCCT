@@ -79,4 +79,21 @@ public partial class SBasePawn
             pc.MovementCamera(ECamMode.ECM_HOHFPHanged);
         }
     }
+
+    /// <summary>
+    /// A clip's collision notify during root motion: the move goes on with the extra physics off
+    /// (bUseRootMotionAdditionnalPhysics with PHYS_None), so the pawn collides normally again.
+    /// </summary>
+    [Uc("SBase.SBasePawn.RMColOn", Sha1 = "e57bdf2a6a57d35f8e0efb095c58bb176deb25e6")]
+    [PortOf("uc:SBase.SBasePawn:RMColOn", Spec = "spec/movement/native-contracts.md#events-the-natives-raise-script-entry-points")]
+    public void RMColOn()
+    {
+        bUseRootMotionAdditionnalPhysics = true;
+        RootMotionAdditionnalPhysics = EPhysics.PHYS_None;
+    }
+
+    /// <summary>A clip's noise notify: the local player hears this pawn (the merc's sound arrows), at full loudness.</summary>
+    [Uc("SBase.SBasePawn.AnimNotifyNoise", Sha1 = "4c4a6166ec468b4fee86c16c9dcb95e871ab03db")]
+    [PortOf("uc:SBase.SBasePawn:AnimNotifyNoise", Spec = "spec/movement/native-contracts.md#events-the-natives-raise-script-entry-points")]
+    public void AnimNotifyNoise() => (Level.GetLocalPlayerController() as SPlayerController)?.ClientNotifyNoise(this, 1f);
 }

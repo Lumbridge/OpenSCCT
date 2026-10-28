@@ -149,10 +149,12 @@ packets carry no connection salt; see Open items).
 The session's own commands are text lines on the control channel starting with `#svm ` (`SessionProtocol`), as
 UE2's control channel carries text commands. Server to client: `hello`, `setup`, `player`, `rank` (a signed-in
 player's level, prestige and title, `PlayerRank` packed), `gone`, `phase`, `msg`, `travel`, `row`, `results`, `kicked`. Client to server: `team`, `ready`, `setup`, `launch`, `lobby`, `mapcheck`,
-`kick`, `ban`, `admin`, `cmd`, `teamvoice` (the lobby's "Restrict Mic to Team"; a player line carries it as flag 128).
-A bot's player line carries flag 256. The setup line is `LobbySetup.ToOptions`: GetOptionsString, then `SvmDisks`,
+`kick`, `ban`, `voiceban <id> <0|1>` (host or admin), `admin`, `cmd`, `teamvoice` (the lobby's "Restrict Mic to
+Team"; a player line carries it as flag 128). A bot's player line carries flag 256, a voice-banned player's 1024. The setup line is `LobbySetup.ToOptions`: GetOptionsString, then `SvmDisks`,
 `SvmDisksToWin`, `SvmDisksMax`, `SvmVoice` (the page's voice index), `SvmVoiceLobby`, `SvmRandomMap`, `SvmBots`
-(0 off, 1 per side, 2 fill), `SvmBotsPerSide` and `SvmBotSkill` (0 Easy to 3 Expert). A player's identity across maps is the session token in its login options
+(0 off, 1 per side, 2 fill), `SvmBotsPerSide`, `SvmBotSkill` (0 Easy to 3 Expert), `SvmBal` (auto balance) and
+`SvmAlt` (Alternate Mode: eleven hex digits, the switch, the ability bits, the spy gadget mask and slots, the merc
+gadget mask and slots; `AlternateRules.ToOptions`). The whole line must stay under the control message's 512 bytes. A player's identity across maps is the session token in its login options
 (`?SvmToken=`), with its install id (`?SvmId=`, bans) and, for a listen host's own player, the host key (`?SvmHost=`).
 The Hello text that carries them may be up to 400 bytes (`ControlMessage.MaxLoginBytes`).
 
@@ -219,7 +221,15 @@ and the first player, a listen host's own, has 0). The lobby level has no game r
 session's players (talker = session player id) by the lobby rules: everyone hears everyone, only with Voice in Lobby
 on, and not across sides from a player who restricted his mic to his team. The setup's voice mode reaches the running
 map's replication info at once (`LobbySetup.ApplyTo(GameReplicationInfo)`), and `allowVoiceChat` is on (the host's
-profile switch, which the server has no profile for). On the client, `OnlineVoice` follows the visit from map to map
+profile switch, which the server has no profile for). `VoiceChatMode` is not in the GRI's replicated list (as in the
+original), so the server sends it to each player's machine with `ClientSetVoiceChatMode`: at PostLogin, when the host
+changes it in the lobby, and when the client asks (`ServerGetVoiceChatters`, once it has its GRI). The client keeps
+it in its own GRI, where the Hack prompt and `Snd_VoiceHacking` (`CanHackEnemyComs`) read it; Team mode also takes
+the downed chat distance (`fDistToTalkWhenOnGround`, the "Speak" prompt) to 0.
+
+Voice bans: the host or an admin bans a player from voice (`voiceban` / `unvoiceban` on the console, `!voiceban` /
+`!unvoiceban` in chat, the lobby row's Voice Ban). The session player keeps it for the visit and every round's
+PlayerReplicationInfo gets `bVoiceBanned`, so the relay sends nobody his voice and him nobody's (lobby included). On the client, `OnlineVoice` follows the visit from map to map
 and keeps each other player's volume and mute by name.
 
 ## Joining
@@ -588,18 +598,52 @@ The old single-map flags (`--map`, `--game`, `--bots`) still run a bare `ServerH
 | `netRate` / `lanPlay` | 20 / false | replication rate; the original's -lanplay |
 | `maps` | none | extra SVMap folder (searched before `maps/` next to the executable) |
 | `rotation` | `[{ "map": "SteeE", "mode": "Story" }]` | each `{ map, mode, timeLimit, spyLives, mercLives, respawn, killLimit, disks, disksToWin, revenge, gamesInARow }`; unset values come from the map's own settings |
+| `autoBalance` | false | joiners asking for the bigger side go to the smaller one; no switch that leaves a side two people ahead |
+| `alternate` | none (off) | Alternate Mode for every match: `{ on, spyThermalVision, spyNightVision, spyGrab, spyElbow, spyLethalDrop, mercEmfVision, mercMotionTracking, mercElbow, mercLethalDrop, mercTorch, mercLaser, mercBerserk, mercCharge, cinematicCamera, spyGadgets, spySlots, mercGadgets, mercSlots }`; abilities left out keep the stock value, gadgets are the side's gear numbers 1 to 8 allowed (left out: all), slots 0 to 4 |
 | `minPlayersToLaunch` | 2 | the lobby launches when this many are ready |
 | `launchCountdownSeconds` / `resultsSeconds` / `loadTimeoutSeconds` | 5 / 30 / 60 | |
 | `bansFile` | bans.json | next to the config |
 | `master` | none | `{ url, inviteKey, listed, natPunch, relay }` |
 | `demos` | none | `{ upload }`: upload recorded demos to the master's bucket (default true; trusted servers only, see "Demos") |
+| `practice` | false | practice server (see "Practice servers"); the console's `practice on` and `practice off` change it while running |
 
 Console (standard input, and `cmd <command>` from in-game admins): `status`, `players`, `kick <id|name> [reason]`,
-`ban <id|name> [minutes] [reason]`, `unban <install id|address|name>`, `map <name> [mode]`, `mode <name>`,
-`set time|spylives|merclives|respawn|score|revenge|games|maxplayers <value>`, `launch`, `lobby`, `next`,
-`say <text>`, `close`. Chat commands (rl:qol.chatcmds): `!map <name> [mode]`, `!next`, `!prev` (`!back`),
-`!pings`, `!login <password>`, `!help`. Ctrl+C, SIGTERM and `close` tell the players and the master before
+`ban <id|name> [minutes] [reason]`, `unban <install id|address|name>`, `voiceban <id|name>`, `unvoiceban <id|name>`,
+`map <name> [mode]`, `mode <name>`,
+`set time|spylives|merclives|respawn|score|revenge|games|maxplayers|bots|botsperside|botskill|balance|alternate|practice <value>`,
+`set alternate <item> <value>` (items: `spythermal`, `spynight`, `spygrab`, `spyelbow`, `spydrop`, `mercemf`,
+`mercmotion`, `mercelbow`, `mercdrop`, `merctorch`, `merclaser`, `mercberserk`, `merccharge`, `cinematic` on or off;
+`spygadget1` to `spygadget8`, `mercgadget1` to `mercgadget8` on or off; `spyslots`, `mercslots` 0 to 4),
+`practice [on|off]`, `launch`,
+`lobby`, `next`, `say <text>`, `close`. Chat commands (rl:qol.chatcmds): `!map <name> [mode]`, `!next`, `!prev`
+(`!back`), `!pings` (ping, jitter and loss per player), `!resign` (give up the round: your lives are spent;
+`SPlayerController.ServerResign`), `!login <password>`, `!help`, and for the host
+and admins `!voiceban <id|name>` and `!unvoiceban <id|name>`, and on a practice server `!heal`, `!regen`, `!tank`,
+`!kill`. Ctrl+C, SIGTERM and `close` tell the players and the master before
 stopping.
+
+### Practice servers
+
+A practice server (Reloaded's practice mode, rl:net.practice) is a switch of the session's setup (`LobbySetup.Practice`,
+`?SvmPr=1` in the lobby protocol): the Create Session page's **Practice** row, the dedicated server's `practice`
+config field, or the console's `practice on|off` / `set practice on` (also from the game's console, see docs/HUD.md).
+It stays on through map changes, the rotation and `!next`. Turned on during a round, the commands work at once and
+the lives and respawn change from the next round. Its rounds:
+
+- launch with unlimited lives on both sides and the shortest respawn (1 s); the lobby keeps the values the host set,
+  so turning practice off brings them back;
+- take the practice chat commands from every player, each acting on the sender only, during a round:
+  `!heal` (full health, poison cured), `!regen` (on/off: 10 health back each second), `!tank` (on/off: no damage,
+  except the player's own `!kill` or resign, and kept at full health), `!kill` (dies at once, like a suicide);
+  `!practice` says what the server does. Off a practice server they answer that they only work there;
+- are not sent to the master's results (`ReportResults` skips a round that had practice on at any time), so they count
+  for no stats, XP or achievements.
+
+Everything runs on the server (`OnlineServer.Practice.cs`); the tank rule is a level service (`PracticeRules`) that
+`SPlayerController.PawnTakeDamage` asks before any reaction, installed on the round's map on the server only. The
+server's info (flag bit 8) and its master listing say practice, and the server browser shows "(practice)" after the
+mode. Reloaded's exact `!regen` and `!tank` effects are not decoded; the rate above is ours. Its extra ammunition is
+not ported (ammunition is kept by the owning client in this port; a server refill needs a client call).
 
 Bans (rl:ac.bans) are by install id and address (no hardware fingerprints), with an optional end.
 
@@ -617,9 +661,11 @@ reports **relay only**: every remote player plays through the relay.
 ## The game client
 
 `OnlineService` keeps the visit across scenes and ticks it at 60 Hz. Screens: the server browser (master list, LAN
-search, saved addresses with ping, phase, how each is reached and whether it can be joined), the host page, the
+search, saved addresses with ping, phase, how each is reached and whether it can be joined; under the list the
+selected session's players by side, from the server's own answer, else the master's list, whose heartbeat carries
+`playerTeams` beside `playerNames`), the host page, the
 connecting page (what is being tried), the lobby (sides, ready, pings and map checks, the setup the host edits,
-kick, countdown, chat), the round (the play scene on the visit's session: `PlaySession` in remote mode, ticked with
+kick, ban, voice ban, Alternate Mode, the briefing, countdown, chat), the round (the play scene on the visit's session: `PlaySession` in remote mode, ticked with
 the local input; the HUD, chat and scoreboard work as offline; the HUD's ping column reads `PRI.Ping`, which the
 server sets from the connection's round trip), the results (ready for the next round, back to lobby for the host,
 leave), and the main menu with the reason when a visit ends. Online settings live in `user://online.cfg` (master,
@@ -844,7 +890,7 @@ dotnet run --project src/OpenScct.Server.Cli -- --online --master http://127.0.0
   destination address but not for another is not caught and shows as needs intro (the relay is still tried after
   a failed punch).
 - No IPv6 pinholes for listen hosts yet; LAN addresses sent to the master are IPv4 only.
-- `!resign`, `!lagcomp` and the practice commands of Reloaded are not ported; playlists (rl:qol.lobbymaps) are a
-  plain rotation in the server config, and the lobby's map picker lists every installed map.
+- `!lagcomp` of Reloaded is not ported; playlists (rl:qol.lobbymaps) are a plain rotation in the server config, and
+  the lobby's map picker lists every installed map.
 - Bots: the dedicated server's config file has no bot fields yet (the console's `set bots` works); its rotation
   entries could carry them.

@@ -202,7 +202,8 @@ public partial class SPlayerController
         if (fBinocularKickTime > 0f)
         {
             fBinocularKickTime = SvmMath.Max(fBinocularKickTime - dt, 0f);
-            float q = K.KickQ * fSensibiliteSouris * dt;
+            // Reloaded's fix (rl:fix.sniper_kick): the same kick for every player, whatever his mouse sensitivity.
+            float q = K.KickQ * K.KickSensitivity * dt;
             float time = fBinocularKickTime;
             float kick;
             if (time > K.KickSplit)
@@ -347,11 +348,15 @@ public partial class SPlayerController
         }
 
         /// <summary>
-        /// Rule 2: lights off (the laser remembered), the breath reserve restored, the rifle raised in single shot,
-        /// the grenade charge cleared and the first zoom at 30 degrees.
+        /// Rule 2: the laser off (and remembered), the breath reserve restored, the rifle raised in single shot, the
+        /// grenade charge cleared and the first zoom at 30 degrees. The torch stays on: the script unloads it, and
+        /// Reloaded (Enhanced builds) turns it back on at once with no message or sound (rl:fix.flashlight_sniper).
         /// </summary>
         [Uc("SBase.SPlayerController.s_Binoculars_Def.BeginState", Sha1 = "1ecae974c731e23a29a01d340319aa2c2ce2dd7b")]
         [PortOf("uc:SBase.SPlayerController:s_Binoculars_Def.BeginState", Spec = "spec/equipment/merc-scope.md#rules")]
+        [PortOf("rl:fix.flashlight_sniper", Spec = "spec/equipment/merc-flashlight.md#rules")]
+        [Provenance(ProvenanceKind.Decoded, "Reloaded.Core state entry hook for s_Binoculars_Def (table 0x10017d70, handler 0x10017c00), the next-frame TorcheON (0x100a74d0) and the NativeTickTorche wrapper 0x10023df0")]
+        [Provenance(ProvenanceKind.Estimated, "The torch is simply left on: Reloaded's one-frame off and on (the server's light off, the two switch sounds elsewhere) is not reproduced")]
         public override void BeginState(Actor self)
         {
             var pc = (SPlayerController)self;
@@ -370,11 +375,6 @@ public partial class SPlayerController
             if (pawn is SPAWNDEFENSE merc)
             {
                 merc.bCanBeGrabbed = true;
-                if (merc.Torche is { bInUse: true } torch)
-                {
-                    torch.Unload();
-                }
-
                 if (merc.TorcheLaser is { bInUse: true } laser)
                 {
                     pc.bLaserPreviously = true;
@@ -409,7 +409,7 @@ public partial class SPlayerController
 
             pc.TimerUSe = 0f;
             pc.bUsingNow = false;
-            CombatFx.Notify(pc, CombatFx.SetBallisticValue, 0f);
+            pc.SetBallisticValue(0f);
             pc.bChangeZoom = true;
             pc.fBinocularZoomEffectTime = K.FirstZoomEffectTime;
             pc.fBinocularVisionFOV = K.ScopeFov1;
@@ -444,6 +444,7 @@ public partial class SPlayerController
             }
 
             CombatFx.Notify(pc, CombatFx.HudState);
+            GadgetHud.SetHudState(pc, Name.None);
             pc.ScopeResetFOV();
             pc.AudioZoomFactor = 0f;
             pc.ClearBinocularVoiceTarget();
@@ -525,7 +526,7 @@ public partial class SPlayerController
 
             self.BinocularTimeBetweenFire = SvmMath.Max(self.BinocularTimeBetweenFire - DeltaTime, 0f);
 
-            self.ProcessCrouch();
+            ProcessCrouch(self, pawn);
             float a = self.aForward / K.ScopeInputSpan;
             float curve = pawn.bIsCrouched
                 ? (K.ScopeCrouchA * a + K.ScopeCrouchB) * a + K.ScopeCrouchC
@@ -637,6 +638,7 @@ public partial class SPlayerController
         public void WeaponNotifiedSnipingDrawEnded(SPlayerController self)
         {
             CombatFx.Notify(self, CombatFx.HudState, 1f);
+            GadgetHud.SetHudState(self, GadgetStates.s_H_Binoculars_Def);
             self.ScopeSetFOV(self.fBinocularVisionFOV);
         }
 
@@ -664,6 +666,46 @@ public partial class SPlayerController
         [Uc("SBase.SPlayerController.s_Binoculars_Def.CanBeElbowShocked", Sha1 = "a40381ccfdf342092554b33966344721f68fd6c2")]
         [PortOf("uc:SBase.SPlayerController:s_Binoculars_Def.CanBeElbowShocked", Spec = "spec/equipment/merc-scope.md#rules")]
         public bool CanBeElbowShocked(SPlayerController self) => true;
+
+        /// <summary>
+        /// The scope's crouch: the stance changes without leaving the scope, with the two-handed transition clip
+        /// (SA_WAIT_CR2ST_2H, SA_WAIT_ST2CR_2H), at most every 0.5 s. With no room to stand the latch goes back on.
+        /// </summary>
+        [Uc("SBase.SPlayerController.s_Binoculars_Def.ProcessCrouch", Sha1 = "644f20d3e5297ac471a59ab772488956639a7c53")]
+        [PortOf("uc:SBase.SPlayerController:s_Binoculars_Def.ProcessCrouch", Spec = "spec/equipment/merc-scope.md#rules")]
+        private static void ProcessCrouch(SPlayerController self, SBasePawn pawn)
+        {
+            if (!pawn.bCanCrouch)
+            {
+                return;
+            }
+
+            float now = self.Level.TimeSeconds;
+            if (!self.bCrouchWithRoll)
+            {
+                if (!pawn.bIsCrouched)
+                {
+                    return;
+                }
+
+                if (pawn.CanUnCrouch() && self.m_LastSpecialMoveTime < now - K.SpyBinoCrouchGuard)
+                {
+                    pawn.ChangeEnumAction(SBasePawn.SA_WANTS_TO_UNCROUCH);
+                    self.m_LastSpecialMoveTime = now;
+                    pawn.ChangeEnumAction(SBasePawn.SA_WAIT_CR2ST_2H);
+                }
+                else
+                {
+                    self.bCrouchWithRoll = true;
+                }
+            }
+            else if (!pawn.bIsCrouched && self.m_LastSpecialMoveTime < now - K.SpyBinoCrouchGuard)
+            {
+                pawn.ChangeEnumAction(SBasePawn.SA_WANTS_TO_CROUCH);
+                self.m_LastSpecialMoveTime = now;
+                pawn.ChangeEnumAction(SBasePawn.SA_WAIT_ST2CR_2H);
+            }
+        }
 
         [Uc("SBase.SPlayerController.s_Binoculars_Def.CanCrouch", Sha1 = "a40381ccfdf342092554b33966344721f68fd6c2")]
         [PortOf("uc:SBase.SPlayerController:s_Binoculars_Def.CanCrouch", Spec = "spec/equipment/merc-scope.md#rules")]
@@ -695,6 +737,7 @@ public partial class SPlayerController
             var pc = (SPlayerController)self;
             pc.bBinocularVision = true;
             CombatFx.Notify(pc, CombatFx.HudState);
+            GadgetHud.SetHudState(pc, Name.None);
             if (!pc.IsRemotePlayer)
             {
                 pc.SBPawn?.MyWeapon?.eventReload();

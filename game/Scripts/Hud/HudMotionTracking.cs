@@ -17,6 +17,8 @@ namespace OpenScctGame.Hud;
 /// colours (doubled, HudK.CanvasColour). The merc page draws it after the Enhanced Reality markers, as
 /// ASHud::execHudDef calls RenderMotionTracking after ERDrawObjectives (0x10af8060); the camera network's HUD state
 /// draws it too (s_Hud_UseObject_CamNetwork.DrawHUD). Locks exist only while the tracker is active (motion vision).
+/// The HUD's own tracker (SHud.DrawTargetName, spec/hud/merc-reticle.md rule 3e) holds the laser sight's target, with
+/// its typed name over the bracket and the friend mark for a teammate.
 /// </summary>
 public sealed class HudMotionTracking
 {
@@ -46,16 +48,35 @@ public sealed class HudMotionTracking
     public static SMotionTrackingVision? TrackerOf(SPlayerController? pc) =>
         pc is { SPawnType: PawnType.SPAWNDEFENSE } && pc.Goggle?.MotionTrackingVision is { bDeleteMe: false } t ? t : null;
 
-    /// <summary>Projects and draws the local merc's tracker; clears the list when there is none.</summary>
-    public void Update(SPlayerController? pc, Vector2 screen, Func<FVector, Vector2?>? project, bool stretch, HudAssets? assets)
+    /// <summary>The HUD's own tracker (the laser's target name) drawn last frame, or null.</summary>
+    public SMotionTrackingVision? TargetTracker { get; private set; }
+
+    /// <summary>
+    /// Projects and draws the local merc's tracker; clears the list when there is none. With
+    /// <paramref name="targetName"/> the laser's target name pass of the frame runs too (SHud.DrawTargetName: the
+    /// merc HUD's aim point helper past its gates, or the camera network's HUD state): the laser target's lock on the
+    /// HUD's own tracker, that tracker's brackets, the typed name, then the tracker's expiry.
+    /// </summary>
+    public void Update(SPlayerController? pc, Vector2 screen, Func<FVector, Vector2?>? project, bool stretch, HudAssets? assets,
+        bool targetName = false)
     {
         DrawList.Clear();
         CleanRects.Clear();
         _list.Clear();
         DrawnLocks = 0;
         Tracker = TrackerOf(pc);
-        if (Tracker is not { } tracker || pc is null || project is null || tracker.LockedObjects.Count == 0)
+        TargetTracker = null;
+        SHud? hud = targetName ? pc?.myHUD as SHud : null;
+        if (hud is not null && hud.TargetNameLocks())
         {
+            TargetTracker = hud.TargetTracker;
+        }
+
+        bool goggles = Tracker is { LockedObjects.Count: > 0 };
+        bool laser = TargetTracker is { LockedObjects.Count: > 0 };
+        if (pc is null || project is null || (!goggles && !laser))
+        {
+            hud?.ExpireTargetLocks();
             return;
         }
 
@@ -63,7 +84,7 @@ public sealed class HudMotionTracking
         Frame = frame;
         float now = pc.Level.TimeSeconds;
         FRotator boxAxes = pc.Pawn?.Rotation ?? pc.Rotation;
-        tracker.ProjectLocks(p =>
+        FVector ToFrame(FVector p)
         {
             Vector2? s = project(p);
             if (s is not { } px)
@@ -73,10 +94,27 @@ public sealed class HudMotionTracking
 
             (float fx, float fy) = frame.FromScreen(px.X, px.Y);
             return new FVector(fx, fy, 0.5f);
-        }, boxAxes, SMotionTrackingVisionK.FrameWidth, SMotionTrackingVisionK.FrameHeight, now, CleanRects: _list.CleanRects);
+        }
 
         Fill(pc, now);
-        tracker.BuildHud(_list, _inputs);
+        if (goggles)
+        {
+            Tracker!.ProjectLocks(ToFrame, boxAxes, SMotionTrackingVisionK.FrameWidth, SMotionTrackingVisionK.FrameHeight, now,
+                CleanRects: _list.CleanRects);
+            Tracker.BuildHud(_list, _inputs);
+        }
+
+        if (laser)
+        {
+            TargetTracker!.ProjectLocks(ToFrame, boxAxes, SMotionTrackingVisionK.FrameWidth, SMotionTrackingVisionK.FrameHeight, now);
+            TargetTracker.BuildHud(_list, _inputs);
+            if (hud!.TargetNameLabel(t => _inputs.Measure(t, MotionHudFont.Medium)) is { } name)
+            {
+                _list.Add(name);
+            }
+        }
+
+        hud?.ExpireTargetLocks();
         foreach (MotionHudRect r in _list.CleanRects)
         {
             Vector2 a = Pixel(frame, r.X1, r.Y1);
@@ -104,7 +142,7 @@ public sealed class HudMotionTracking
             }
         }
 
-        if (Tracker is { } t && t.TextHold.Length > 0)
+        if ((Tracker ?? TargetTracker) is { } t && t.TextHold.Length > 0)
         {
             _inputs.TextHold = t.TextHold;
         }
@@ -164,14 +202,26 @@ public sealed class HudMotionTracking
             });
         }
 
-        DrawnLocks = 0;
-        foreach (FLockedObject l in Tracker!.LockedObjects)
+        DrawnLocks = CountDrawn(Tracker) + CountDrawn(TargetTracker);
+    }
+
+    private static int CountDrawn(SMotionTrackingVision? tracker)
+    {
+        int n = 0;
+        if (tracker is null)
+        {
+            return n;
+        }
+
+        foreach (FLockedObject l in tracker.LockedObjects)
         {
             if (l.Actor is not null && l.ScreenPosition1.Z < SMotionTrackingVisionK.FrontDepth)
             {
-                DrawnLocks++;
+                n++;
             }
         }
+
+        return n;
     }
 
     private static Vector2 Pixel(MotionHudFrame frame, float x, float y)

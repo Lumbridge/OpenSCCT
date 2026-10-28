@@ -62,6 +62,8 @@ public sealed class LobbyRoomModel
         Check(SessionRow.Revenge, before.Revenge != after.Revenge);
         Check(SessionRow.RandomMap, before.RandomMap != after.RandomMap);
         Check(SessionRow.VoiceInLobby, before.VoiceInLobby != after.VoiceInLobby);
+        Check(SessionRow.AutoBalance, before.AutoBalance != after.AutoBalance);
+        Check(SessionRow.Alternate, before.Alternate != after.Alternate);
         Check(SessionRow.GamesInARow, before.GamesInARow != after.GamesInARow);
         Check(SessionRow.TimeLimit, before.TimeLimit != after.TimeLimit);
         Check(SessionRow.SpyLives, before.SpyLives != after.SpyLives || before.ScoreLimit != after.ScoreLimit);
@@ -72,6 +74,7 @@ public sealed class LobbyRoomModel
         Check(SessionRow.Bots, before.Bots != after.Bots);
         Check(SessionRow.BotsPerSide, before.BotsPerSide != after.BotsPerSide);
         Check(SessionRow.BotSkill, before.BotSkill != after.BotSkill);
+        Check(SessionRow.Practice, before.Practice != after.Practice);
         return rows;
     }
 

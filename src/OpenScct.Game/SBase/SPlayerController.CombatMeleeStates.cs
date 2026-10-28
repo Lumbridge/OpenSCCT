@@ -281,7 +281,7 @@ public partial class SPlayerController
     /// <summary>s_PlayerCharging: the merc's 1 s charge (rules 14 to 19).</summary>
     [Uc("SBase.SPlayerController.s_PlayerCharging")]
     public class s_PlayerCharging : UcActorState, IPlayerTick, IPlayerMove, INotifyBump, INotifyHitWall, IMyFalling, IGoInSmoke,
-        ICanActivateLaser, ICanBeDropAttacked, IFire, IAltFire
+        ICanActivateLaser, ICanBeDropAttacked, IFire, IAltFire, IComputeTargetDistance
     {
         public static readonly s_PlayerCharging Instance = new(UcMeta.s_PlayerCharging, null);
 
@@ -350,7 +350,7 @@ public partial class SPlayerController
             if (now - pc.fGrabDate > K.ChargeTiltPeriod)
             {
                 pc.fGrabDate = now;
-                CombatFx.Notify(pc, CombatFx.Vibration_Charge);
+                CombatFx.Notify(pc, CombatFx.Vibration_Charge_Course);
             }
 
             if (before < pc.fRespawnDate && now >= pc.fRespawnDate)
@@ -362,7 +362,7 @@ public partial class SPlayerController
         /// <summary>While charging the target distance is the charge target lock.</summary>
         [Uc("SBase.SPlayerController.s_PlayerCharging.ComputeTargetDistance", Sha1 = "7d01aa90a426ebeca1aca0e173a920c354d0fd4a")]
         [PortOf("uc:SBase.SPlayerController:s_PlayerCharging.ComputeTargetDistance", Spec = "spec/combat/melee-elbow-charge-berserk.md#merc-charge")]
-        public static void ComputeTargetDistance(SPlayerController self) => self.FindTargetToCharge();
+        public bool ComputeTargetDistance(SPlayerController self) => self.FindTargetToCharge();
 
         /// <summary>
         /// Rule 16: the heading blends toward the aim (or the target) with the weights 9 or 14 (t + 1) against
@@ -464,7 +464,7 @@ public partial class SPlayerController
                 self.DestroyGPO(gpo, (int)self.iChargeDamage, SDamageType.SDamage_Charged);
             }
 
-            CombatFx.Notify(self, CombatFx.Vibration_Charge);
+            CombatFx.Notify(self, CombatFx.Vibration_Charge_Obstacle);
             self.SetHudPerturbationLength(K.ChargeWallPerturbation);
             self.eventChangeState(MNAME_s_PlayerCharging_HitWall);
             return false;
@@ -916,7 +916,7 @@ public partial class SPlayerController
                 self.DestroyGPO(gpo, (int)self.iChargeDamage, SDamageType.SDamage_Charged);
             }
 
-            CombatFx.Notify(self, CombatFx.Vibration_Charge);
+            CombatFx.Notify(self, CombatFx.Vibration_Charge_Obstacle);
             self.SetHudPerturbationLength(K.ChargeWallPerturbation);
             return false;
         }

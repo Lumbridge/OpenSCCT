@@ -22,7 +22,7 @@ public partial class SPresDetector
 
     private static readonly ClassRef CREF_SGameMessages = new("SBase.SGameMessages");
 
-    /// <summary>In rain the heat is halved (not ported, as for the other mines).</summary>
+    /// <summary>In rain the heat is halved (the same body as SMines.PreBeginPlay, which it runs).</summary>
     [Uc("SBase.SPresDetector.PreBeginPlay", Sha1 = "7cf035cdf3cf022e65ff4fbb199f16863f9d4da9")]
     [PortOf("uc:SBase.SPresDetector:PreBeginPlay", Spec = "spec/equipment/presence-detector.md#rules")]
     protected override void PreBeginPlay() => base.PreBeginPlay();

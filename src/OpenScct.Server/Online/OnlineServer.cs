@@ -223,6 +223,12 @@ public sealed class SessionPlayer
     /// <summary>The lobby's "Restrict Mic to Team" (SPlayerController.ServerSetTeamVoiceOnly), kept across the maps.</summary>
     public bool TeamVoiceOnly { get; internal set; }
 
+    /// <summary>
+    /// Banned from voice by the host or an admin (PlayerReplicationInfo.bVoiceBanned, which the original set from Xbox
+    /// Live), kept across the maps: nobody hears him and he hears nobody.
+    /// </summary>
+    public bool VoiceBanned { get; internal set; }
+
     /// <summary>The signed-in player's master account (from his ticket), or null for a guest or a bot.</summary>
     public long? AccountId { get; internal set; }
 
@@ -248,7 +254,7 @@ public sealed class SessionPlayer
         (IsSpectator ? SessionPlayerFlags.Spectator : 0) |
         (Slot is { Connection.bJoined: true } && phase is SessionPhase.Match or SessionPhase.Results ? SessionPlayerFlags.InGame : 0) |
         (Expected ? SessionPlayerFlags.Loading : 0) | (TeamVoiceOnly ? SessionPlayerFlags.TeamVoice : 0) |
-        (Verified ? SessionPlayerFlags.Verified : 0) |
+        (Verified ? SessionPlayerFlags.Verified : 0) | (VoiceBanned ? SessionPlayerFlags.VoiceBanned : 0) |
         (IsBot ? SessionPlayerFlags.Bot | (phase is SessionPhase.Match or SessionPhase.Results ? SessionPlayerFlags.InGame : 0) : 0);
 }
 
@@ -333,6 +339,7 @@ public sealed partial class OnlineServer : IDisposable
                 VoiceMember member = VoiceMember.Create((ushort)p.Id, p.IsSpectator ? -1 : p.Team);
                 member.Endpoint = slot.Connection.RemoteEndpoint;
                 member.TeamVoiceOnly = p.TeamVoiceOnly;
+                member.VoiceBanned = p.VoiceBanned;
                 roster.Add(member);
             }
 
@@ -634,6 +641,7 @@ public sealed partial class OnlineServer : IDisposable
             if (game.GameReplicationInfo is { } gri)
             {
                 Setup.ApplyTo(gri);
+                AlternateRules.ApplyTo(gri, game.PersistentData);
 
                 // The host's own "Allow VoiceChat" (the profile switch the server has no profile for).
                 gri.allowVoiceChat = Settings.Voice;
@@ -644,6 +652,7 @@ public sealed partial class OnlineServer : IDisposable
         {
             StartDemo(host, map, gameOptions!);
             _bots = StartBots(host);
+            StartPracticeRound(host);
         }
 
         HostStarted?.Invoke(host);
@@ -1007,6 +1016,7 @@ public sealed partial class OnlineServer : IDisposable
 
     private void TickMatch()
     {
+        TickPractice();
         if (CountHumans(spectators: false) == 0 && _now - _phaseStart > 5 * Second)
         {
             BackToLobby("Everyone left the round.");
@@ -1100,6 +1110,13 @@ public sealed partial class OnlineServer : IDisposable
             return;
         }
 
+        // A practice round (unlimited lives, !heal and !tank) is not a real match: it counts for no stats or achievements.
+        if (_practiceRound)
+        {
+            Log("practice round: results not reported to the master");
+            return;
+        }
+
         var rows = new List<ResultsReportRow>();
         foreach (ResultRow row in results.Rows)
         {
@@ -1176,7 +1193,7 @@ public sealed partial class OnlineServer : IDisposable
         if (Settings.Dedicated && Settings.Rotation.Count > 0)
         {
             _rotationIndex = (_rotationIndex + 1) % Settings.Rotation.Count;
-            ApplySetup(Settings.Rotation[_rotationIndex], announce: true);
+            ApplySetup(KeepPractice(Settings.Rotation[_rotationIndex]), announce: true);
         }
 
         if (Setup.RandomMap && RandomMap() is { } next)
@@ -1459,7 +1476,8 @@ public sealed partial class OnlineServer : IDisposable
                 Ready = Settings.ReadyOnJoin,
                 Team = spectator ? SessionProtocol.SpectatorTeam
                     : dropped is not null ? dropped.Team
-                    : (byte)(requested is 0 or 1 ? requested : SmallerTeam()),
+                    : (byte)(requested is 0 or 1 && !(Setup.AutoBalance && CountTeam((byte)requested) > CountTeam((byte)(1 - requested)))
+                        ? requested : SmallerTeam()),
                 Rejoin = spectator ? null : dropped,
             };
             _players.Add(player);
@@ -1767,6 +1785,11 @@ public sealed partial class OnlineServer : IDisposable
             pc.bTeamVoiceOnly = p.TeamVoiceOnly;
         }
 
+        if (slot.Controller?.PlayerReplicationInfo is { } voicePri)
+        {
+            voicePri.bVoiceBanned = p.VoiceBanned;
+        }
+
         // The session keeps the side the player chose in the lobby (the original's profile team): a revenge game logs
         // him in on the other side (Login), but back in the lobby he is on his own side again. Only a player the
         // lobby gave no side yet takes the side the game put him on.
@@ -1867,7 +1890,7 @@ public sealed partial class OnlineServer : IDisposable
             MaxPlayers = Settings.MaxPlayers, GamePort = GamePort, ProtocolHash = Host.Driver.ProtocolHash,
             ContentHash = Maps.FindMap(Setup.Map)?.ContentHash ?? 0, HasPassword = Settings.Password is { Length: > 0 },
             Dedicated = Settings.Dedicated, SecondsLeft = left, PlayerList = list,
-            MasterId = Master?.ServerId ?? string.Empty, RequireAccounts = RequireAccounts,
+            MasterId = Master?.ServerId ?? string.Empty, RequireAccounts = RequireAccounts, Practice = Setup.Practice,
         };
     }
 

@@ -12,6 +12,14 @@ public static partial class MovementK
     [Provenance(ProvenanceKind.Decoded, "walking PlayerMove stick clamp 6000 (squared 36000000)")]
     public const float StickFullScale = 6000f;
 
+    /// <summary>Reloaded's per-axis scale of a standing spy's key diagonal (rl:fix.slow_strafe).</summary>
+    [Provenance(ProvenanceKind.Decoded, "Reloaded.Core 0x1001ab50: 0.70710677 on both axes when |forward| + |strafe| == 2, a spy, not bIsCrouched")]
+    public const float DiagonalAxisScale = 0.70710677f;
+
+    /// <summary>Reloaded's ledge assist: fNormePadMove while Use is held in slow mode (rl:input.ledgeassist).</summary>
+    [Provenance(ProvenanceKind.Decoded, "Reloaded.Core 0x1001ab50: bUsing (+0xc21) and fNormePadMove > 0.4 and not bFastSpeed (bit 5 of +0xc40): fNormePadMove = 0.4 (0x3ecccccd)")]
+    public const float LedgeAssistNorm = 0.4f;
+
     [Provenance(ProvenanceKind.Decoded, "walking PlayerMove: aForward^2 + aStrafe^2 > 36000000")]
     public const float StickClampSquared = 36000000f;
 

@@ -381,6 +381,7 @@ public sealed class SPlayerControllerMoves : IMoveController, IMoveControllerTim
         }
 
         Server?.ReinitPawn();
+        pawn.DistantClientReinit(0);
     }
 
     /// <summary>The controller's s_ClientIsReinit stand-in: answers at once (the original repeats it every second).</summary>

@@ -734,7 +734,8 @@ public partial class SPlayerController
     }
 
     private bool WheelSelectsGadgets(SBasePawn pawn) =>
-        (XLevel.GetService<IDeviceHooks>()?.GetPlayerProfile()?.SelectedMouse ?? 0) == 0 && PawnInventory.TeamSlots(pawn) > 0;
+        (XLevel.GetService<IDeviceHooks>()?.GetPlayerProfile()?.SelectedMouse ?? LocalProfileOptions()?.SelectedMouse ?? 0) == 0 &&
+        PawnInventory.TeamSlots(pawn) > 0;
 
     /// <summary>The weapon states' laser key: the spy laser toggles on the server (spy-shocker.md rule 6).</summary>
     [Uc("SBase.SPlayerController.s_PlayerWalkingWeapon.SwitchLaser", Sha1 = "c7a4b9666591efeb2990524b26078f1157137c90")]
@@ -931,7 +932,7 @@ public partial class SPlayerController
         float v = WeaponRules.ThrowValue(e, pawn.WeaponLoaded != 0, K.ThrowTapWindow, K.ThrowRamp);
         if (e >= K.ThrowTapWindow)
         {
-            CombatFx.Notify(this, CombatFx.SetBallisticValue, v);
+            SetBallisticValue(v);
         }
 
         if (bAltFire != 0)
@@ -945,7 +946,7 @@ public partial class SPlayerController
             grenade.Use(v);
         }
 
-        CombatFx.Notify(this, CombatFx.SetBallisticValue, 0f);
+        SetBallisticValue(0f);
     }
 
     /// <summary>

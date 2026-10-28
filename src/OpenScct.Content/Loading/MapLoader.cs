@@ -55,11 +55,15 @@ public sealed class MapLoader
     /// <summary>Apply the map's class table on top of the generated defaults (default on).</summary>
     public bool ApplyClassDefaults { get; init; } = true;
 
-    /// <summary>Loads <paramref name="map"/> into the world's level, with its class table.</summary>
+    /// <summary>
+    /// Loads <paramref name="map"/> into the world's level, with its class table, and gives the level the map's rain
+    /// volumes (<see cref="RainVolumeLoader"/>).
+    /// </summary>
     public MapLoadResult Load(World world, SvMap map)
     {
         ArgumentNullException.ThrowIfNull(world);
         ArgumentNullException.ThrowIfNull(map);
+        world.Level.SetService(RainVolumeLoader.Load(map.Root));
         return Load(world.Level, map.Gameplay, map.Classes);
     }
 

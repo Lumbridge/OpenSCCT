@@ -88,6 +88,9 @@ public static class K
     [Provenance(ProvenanceKind.Decoded, "Create_Match.LoadModeRules: respawn 5 without a map entry")]
     public const int MenuNoEntryRespawn = 5;
 
+    [Provenance(ProvenanceKind.Decoded, "GUI.loading.Timer with no network: MatchInfo.TimesRespawn = 5")]
+    public const int OfflineRespawn = 5;
+
     [Provenance(ProvenanceKind.Decoded, "Create_Match.LoadModeRules: disk boxes 1 and 1 without a map entry")]
     public const int MenuNoEntryDisks = 1;
 

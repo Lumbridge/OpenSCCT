@@ -142,6 +142,26 @@ public partial class PlayerController
         ViewTarget = NewViewTarget ?? this;
     }
 
+    /// <summary>
+    /// Server to owner: the camera follows <paramref name="A"/>. A remote player's copy on the server sends it to his
+    /// machine; the owning machine (or a local player) sets the view target. Not ported: a None target asking the
+    /// server to resend its view target (ServerVerifyViewTarget).
+    /// </summary>
+    [Uc("Engine.PlayerController.ClientSetViewTarget", Sha1 = "600a457d28e0077afd08703d13dcc3d52990caf6")]
+    [PortOf("uc:Engine.PlayerController:ClientSetViewTarget", Spec = "spec/game/spectating.md#rules")]
+    public virtual void ClientSetViewTarget(Actor? A)
+    {
+        if (IsRemotePlayer)
+        {
+            GameHost.ClientCall(this, new GameCall(NAME_ClientSetViewTarget) { Actor = A });
+            return;
+        }
+
+        SetViewTarget(A);
+    }
+
+    private static readonly Name NAME_ClientSetViewTarget = new("ClientSetViewTarget");
+
     /// <summary>Server travel to <paramref name="URL"/>; only a standalone game or a listen server can switch level.</summary>
     [Uc("Engine.PlayerController.SwitchLevel", Sha1 = "ed2fa429bc8ccadbaf9eaab8d5562ed758696af4")]
     [PortOf("uc:Engine.PlayerController:SwitchLevel", Spec = "spec/game/round-travel.md#rules")]

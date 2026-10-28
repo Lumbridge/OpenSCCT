@@ -93,6 +93,24 @@ public partial class SHud
     }
 
     /// <summary>
+    /// Clears every alarm and gameplay object marker at death or while spectating: the high-priority alarm sound
+    /// stops, the alarm list and the GPO markers empty, and in Neutralization a merc's drawn markers (ActorToDraw) go
+    /// too. The mode is read from the game, so that last part only runs where the game is (the host).
+    /// </summary>
+    [Uc("SBase.SHud.EmptyAlarmsList", Sha1 = "d0d9657399e06aad068a2588d09884da78a2909e")]
+    [PortOf("uc:SBase.SHud:EmptyAlarmsList", Spec = "spec/hud/counters-and-prompts.md#rules")]
+    public void EmptyAlarmsList()
+    {
+        PlayerOwner?.StopSound(Snd_HiPrioAlarm);
+        AlarmsList.Clear();
+        MalfunctionGamePlayObjects.Clear();
+        if (Level.Game is SGameInfo { MatchInfo.GameMode: EGameMode.GM_Neutralization } && P is { SPawnType: PawnType.SPAWNDEFENSE })
+        {
+            ActorToDraw.Clear();
+        }
+    }
+
+    /// <summary>
     /// SHud.AddInfoMessageToStack (the zone message area, one entry): an empty text is ignored; a text already there
     /// stays max(time, MessageMustStayTime) from now; otherwise it is appended and, past one entry, the first entry
     /// of the lowest priority goes. The client HUD's copy is HudMessages.AddInfoMessageToStack.

@@ -44,6 +44,7 @@ public partial class HudLayer : CanvasLayer
     private WhiteRegion? _white;
     private SPlayerController? _lastController;
     private SHud? _lastHud;
+    private bool _mercAimRan;
 
     public HudLayer()
     {
@@ -257,6 +258,28 @@ public partial class HudLayer : CanvasLayer
     /// <summary>Sets the connected players list of a new HUD (Reloaded keeps it on and remembers it).</summary>
     public bool InitialConnectedPlayers { get; set; }
 
+    /// <summary>The location readout at the top of the screen (rl:qol.location, show_location).</summary>
+    public bool ShowLocation { get; set; } = true;
+
+    /// <summary>The location readout.</summary>
+    public HudLocation Location { get; } = new();
+
+    /// <summary>
+    /// The profile's bInFeet: the HUD's distances in feet instead of metres (SHud.HudUnit). A change applies to the
+    /// HUD in use at once, as SPlayerProfile.SetUnit does.
+    /// </summary>
+    public bool DistanceInFeet
+    {
+        get => _feet;
+        set
+        {
+            _feet = value;
+            _lastHud?.HudUnit(value);
+        }
+    }
+
+    private bool _feet;
+
     public override void _Process(double delta) => Step((float)delta);
 
     /// <summary>One HUD frame: effects and message driver, snapshot, pages, then the draw.</summary>
@@ -294,7 +317,11 @@ public partial class HudLayer : CanvasLayer
             }
 
             // The merc's aim point (SHud.SpotReticule) before the snapshot reads it (spec/hud/merc-reticle.md rule 3).
-            HudMercAim.Update(pc, ScreenSize ?? GetViewport()?.GetVisibleRect().Size ?? new Vector2(MagmaRenderer.PageWidth, MagmaRenderer.PageHeight));
+            _mercAimRan = HudMercAim.Update(pc, ScreenSize ?? GetViewport()?.GetVisibleRect().Size ?? new Vector2(MagmaRenderer.PageWidth, MagmaRenderer.PageHeight));
+        }
+        else
+        {
+            _mercAimRan = false;
         }
 
         Snapshot.Clear();
@@ -365,7 +392,11 @@ public partial class HudLayer : CanvasLayer
             Markers.DrawList.Clear();
         }
 
-        Motion.Update(playerPage && Snapshot.Side == HudSide.Merc || IsCamNetworkPage(page) ? pc : null, screen, Projector, Options.StretchHud, Assets);
+        // The laser's target name: the merc HUD's aim point helper past its gates, or the camera network's HUD state.
+        bool mercPage = playerPage && Snapshot.Side == HudSide.Merc;
+        bool camNetwork = IsCamNetworkPage(page);
+        bool targetName = camNetwork || (mercPage && _mercAimRan && pc?.myHUD is SHud aimHud && aimHud.TargetNameInAimHelper());
+        Motion.Update(mercPage || camNetwork ? pc : null, screen, Projector, Options.StretchHud, Assets, targetName);
         _canvasList.Clear();
         if (Snapshot.RespawnWeapon is { } weapon && !Snapshot.HideHud && Assets?.TextureSize(HudRespawnWeaponDrawer.Package, HudRespawnWeaponDrawer.Atlas) is { } atlas)
         {
@@ -425,27 +456,23 @@ public partial class HudLayer : CanvasLayer
         _items.AddRange(Fps.DrawList.Items);
         Net.Draw(screen, dt, ShowNet, ShowFps);
         _items.AddRange(Net.DrawList.Items);
+        Location.Draw(screen, Snapshot.Valid && !Snapshot.HideHud && pc is not null ? HudLocation.NameAt(pc.ViewTarget as OpenScct.Core.Engine.Pawn ?? pc.Pawn) : "",
+            ShowLocation);
+        _items.AddRange(Location.DrawList.Items);
 
         _canvas?.Submit(_items);
     }
 
     /// <summary>
-    /// The HUD side of <c>SHud.PostNetBeginPlay</c> for a new SHud: Enhanced Reality on (level 1), metric distances
-    /// (HudUnit), and the connected players list as the settings keep it (the original starts it off; Reloaded
-    /// remembers it).
+    /// The HUD side of <c>SHud.PostNetBeginPlay</c> for a new SHud: Enhanced Reality on (level 1), the distance unit
+    /// of the profile's bInFeet (HudUnit; <see cref="DistanceInFeet"/> from the settings), and the connected players
+    /// list as the settings keep it (the original starts it off; Reloaded remembers it).
     /// </summary>
     [OpenScct.Provenance.Uc("SBase.SHud.PostNetBeginPlay", Sha1 = "8a024f36ed1c77b91eca0c49848710adb3540a12")]
-    [OpenScct.Provenance.Uc("SBase.SHud.HudUnit", Sha1 = "76f5dfcd8fea6f48c121b9e20b3158b70fd629d4")]
-    [OpenScct.Provenance.PortOf("uc:SBase.SHud:HudUnit", Spec = "spec/hud/counters-and-prompts.md#rules")]
     private void HudBegin(SHud hud)
     {
         hud.EnhancedRealityLevel = 1;
-        if (hud.StrDistanceUnit.Length == 0)
-        {
-            hud.StrDistanceUnit = HudK.DefaultDistanceUnit;
-            hud.fDistanceUnit = HudK.DefaultDistanceScale;
-        }
-
+        hud.HudUnit(DistanceInFeet);
         hud.bShowConnectedPlayers = InitialConnectedPlayers;
     }
 

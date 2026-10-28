@@ -16,6 +16,7 @@ run/main_scene="res://Scenes/Boot.tscn"
 config/features=PackedStringArray("4.7", "C#", "Forward Plus")
 config/icon="res://branding/icon.svg"
 config/windows_native_icon="res://branding/icon.ico"
+config/project_settings_override="user://render_override.cfg"
 boot_splash/bg_color=Color(0.039, 0.051, 0.043, 1)
 boot_splash/show_image=true
 boot_splash/image="res://branding/splash.png"

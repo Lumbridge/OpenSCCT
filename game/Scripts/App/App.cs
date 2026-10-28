@@ -27,6 +27,11 @@ public partial class App : Node
     {
         Options = LaunchOptions.Parse(OS.GetCmdlineUserArgs());
 
+        // Crash reports next to the settings (rl:ac.crash), then the process options of the command line and the
+        // power throttling opt-out (rl:gfx.system).
+        CrashLog.Install(OS.GetUserDataDir());
+        ProcessTuning.Apply(Options.Priority, Options.Affinity);
+
         // Where an installed build finds the content the launcher built and the maps shipped beside the exe.
         OpenScct.Server.ContentPaths.Configure(Options.ContentRoot, System.IO.Path.GetDirectoryName(OS.GetExecutablePath()));
         // Maps downloaded from SCCT-Maps: where they are, so lobbies can tell and fetch them.
@@ -65,6 +70,13 @@ public partial class App : Node
             // settings (user://settings.json).
             OpenScctGame.Options.UserDataMigration.Run(OS.GetUserDataDir());
             OpenScctGame.Options.SettingsApplier.ApplyAtStart(GetViewport());
+            if (OpenScctGame.Options.SettingsStore.Current.ThrottleStop)
+            {
+                ProcessTuning.StopPowerThrottling();
+            }
+
+            // The developer console on the key left of 1 (rl:qol.console); it keeps itself last in the tree.
+            GetTree().Root.CallDeferred(Node.MethodName.AddChild, new OpenScctGame.UI.DevConsole());
 
             // The player's Discord status and a friend's Join (docs/DISCORD.md).
             if (OpenScctGame.Discord.DiscordPresence.Wanted(this))

@@ -82,6 +82,7 @@ public static class SettingsStore
             result = Error.FileNoPermission;
         }
 
+        SettingsApplier.WriteStartOverrides(settings);
         UiSettings ui = UiSettings.Current;
         ui.PlayerName = settings.PlayerName;
         ui.MouseSensitivity = settings.MouseSensitivity;

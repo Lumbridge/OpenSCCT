@@ -304,6 +304,7 @@ public partial class PlayRoot : Node3D
         }
 
         Session = Config.CreateSession?.Invoke(clock) ?? new PlaySession(settings, clock);
+        CrashLog.Context = settings.Map + " " + settings.Mode;
         if (settings.Bots > 0)
         {
             GD.Print($"SVM_PLAY bots: {settings.Bots} at {settings.Difficulty} ({(settings.HostMode == PlayHostMode.Inline ? "status every 10 s" : "host thread")})");
@@ -687,7 +688,7 @@ public partial class PlayRoot : Node3D
         }
 
         SBasePawn? firstPerson = session.FirstPersonOverride is { } fpOverride ? fpOverride()
-            : pc is { bBehindView: false } ? session.LocalPawn : null;
+            : pc is { bBehindView: false, FreeCameraFlying: 0 } ? session.LocalPawn : null;
         Pawns?.Draw(alpha, dt, firstPerson);
         Devices?.Draw(alpha, dt);
         Map?.SoftBodies?.Update(dt, session.Client.World.Level, Audio?.Sound);
@@ -731,6 +732,7 @@ public partial class PlayRoot : Node3D
         // Whatever ends the round (results, the lobby, a disconnect, a map change), the pointer it took goes back.
         OpenScctGame.Controls.Pointer.Release();
         InputBindings.Rebound -= OnKeysRebound;
+        CrashLog.Context = "";
         Session?.Dispose();
         Session = null;
         Config.Demo?.Dispose();

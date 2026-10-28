@@ -178,6 +178,15 @@ public partial class PlayInput : Node
         float up = 0f;
         foreach ((string ik, bool pressed) in _pending)
         {
+            if (pressed && string.Equals(ik, "MouseWheelUp", StringComparison.OrdinalIgnoreCase))
+            {
+                input.Wheel++;
+            }
+            else if (pressed && string.Equals(ik, "MouseWheelDown", StringComparison.OrdinalIgnoreCase))
+            {
+                input.Wheel--;
+            }
+
             foreach (KeyAction a in Bindings.Actions(ik))
             {
                 switch (a.Kind)
@@ -214,6 +223,8 @@ public partial class PlayInput : Node
         }
 
         input.Up = up;
+        input.Fast = _down.Contains("Shift");
+        input.Slow = _down.Contains("Alt");
         input.MouseX += _mouseX;
         input.MouseY += _mouseY;
         _mouseX = 0f;

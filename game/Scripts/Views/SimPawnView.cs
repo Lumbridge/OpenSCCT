@@ -42,7 +42,8 @@ public partial class SimPawnView : Node3D
     private bool _placed;
     private float _relightClock;
     private StickySkins? _stickySkins;
-    private bool _sticky;
+    private string? _glb;
+    private SkinShown _skinShown;
     private long _lookDrawn = -1;
 
     private readonly List<PoseTurn> _overlayTurns = new();
@@ -84,6 +85,7 @@ public partial class SimPawnView : Node3D
         }
 
         _model = SkeletalModel.Load(glb);
+        _glb = glb;
         AddChild(_model.Root);
         _stickySkins = StickySkins.For(root);
         _applier = new ChannelPoseApplier(_model.Skeleton);
@@ -96,16 +98,59 @@ public partial class SimPawnView : Node3D
     /// <summary>Surfaces now drawn with the Stickess skin (0 when the pawn is not shocked).</summary>
     public int StickySurfaces { get; private set; }
 
-    /// <summary>bStickySkinned (BeginStickySkin / RestoreSkins): the Stickess shaders over the body, or the own skins.</summary>
+    /// <summary>Surfaces now drawn with a wet skin (0 when the pawn is dry or the view is in normal vision).</summary>
+    public int WetSurfaces { get; private set; }
+
+    private enum SkinShown
+    {
+        Own,
+        Sticky,
+        WetSpyMachine,
+        WetMercMachine,
+    }
+
+    /// <summary>
+    /// The skins over the body: the Stickess shaders while bStickySkinned (BeginStickySkin), else the wet skins while
+    /// bWet (BeginWetSkin; RestoreSkins puts them back after a shock), else the own skins. The wet skins differ from the
+    /// own ones only in thermal and EMF here (their normal-vision materials are not converted, docs/EFFECTS.md), so in
+    /// normal vision the own skins stay, with the player's camo.
+    /// </summary>
+    [Provenance(ProvenanceKind.Estimated, "Entering rain during a shock keeps the Stickess skin until RestoreSkins (the original's BeginWetSkin would replace it)")]
     private void DrawSkins(SBasePawn pawn)
     {
-        if (pawn.bStickySkinned == _sticky || _model is null)
+        if (_model is null)
         {
             return;
         }
 
-        _sticky = pawn.bStickySkinned;
-        StickySurfaces = _model.SetSkins(_sticky && _stickySkins is { } skins ? skins.Over : null);
+        SkinShown want = SkinShown.Own;
+        if (pawn.bStickySkinned)
+        {
+            want = SkinShown.Sticky;
+        }
+        else if (pawn.bWet && Render.Materials.MaterialCompiler.Vision != RenderK.RendMapNormal)
+        {
+            // HEAT_SN02_SI_wet where this machine's player is a spy (no local player reads as a spy), HEAT_sn02_wet elsewhere.
+            bool localSpy = ((pawn.Level.GetLocalPlayerController() as SPlayerController)?.SPawnType ?? PawnType.SPAWNOFFENSE) == PawnType.SPAWNOFFENSE;
+            want = localSpy ? SkinShown.WetSpyMachine : SkinShown.WetMercMachine;
+        }
+
+        if (want == _skinShown)
+        {
+            return;
+        }
+
+        _skinShown = want;
+        Func<string, Material?>? skin = want switch
+        {
+            SkinShown.Sticky => _stickySkins is { } sticky ? sticky.Over : null,
+            SkinShown.WetSpyMachine or SkinShown.WetMercMachine =>
+                WetSkins.For(_glb, pawn is not SPAWNDEFENSE, want == SkinShown.WetSpyMachine) is { } wet ? wet.Over : null,
+            _ => null,
+        };
+        int surfaces = _model.SetSkins(skin);
+        StickySurfaces = want == SkinShown.Sticky ? surfaces : 0;
+        WetSurfaces = want is SkinShown.WetSpyMachine or SkinShown.WetMercMachine ? surfaces : 0;
     }
 
     /// <summary>OpenSCCT's own: the player's body camo or tint and light hue (lenses, lamp), when the look changes.</summary>
@@ -198,6 +243,7 @@ public partial class SimPawnView : Node3D
         _model.Place(location, new FRotator(0, yaw, 0), prePivot);
         _drawYaw = yaw;
         SetAim(pawn, yaw);
+        SetDirections(pawn);
         Pose(pawn, alpha);
         _attachments?.Draw(pawn, dt);
         _goggleGlow?.Draw(pawn);
@@ -260,6 +306,35 @@ public partial class SimPawnView : Node3D
     }
 
     private int? _aimBone;
+
+    /// <summary>
+    /// The bone direction controllers the simulation holds (TurnHead's arm aim, aim-ik.md rule 5): each world rotation
+    /// (UE axes) taken into the skeleton's space for the applier, which gives the bone that rotation.
+    /// </summary>
+    private void SetDirections(SBasePawn pawn)
+    {
+        ChannelPoseApplier applier = _applier!;
+        applier.Directions.Clear();
+        IReadOnlyList<BoneDirection> all = pawn.PawnAnim.Directions.All;
+        if (all.Count == 0)
+        {
+            return;
+        }
+
+        Basis toSkeleton = _model!.Skeleton.GlobalTransform.Basis.Orthonormalized().Inverse();
+        for (int i = 0; i < all.Count; i++)
+        {
+            BoneDirection d = all[i];
+            int bone = BoneIndex(d.Bone);
+            if (bone < 0)
+            {
+                continue;
+            }
+
+            Quaternion rotation = (toSkeleton * UeSpace.RotationToGodot(d.Rotation)).GetRotationQuaternion();
+            applier.Directions[bone] = (rotation, d.Alpha);
+        }
+    }
 
     /// <summary>The skeleton index of a bone by its UE name (cached), or -1.</summary>
     public int BoneIndex(Name bone)

@@ -298,7 +298,8 @@ public partial class SPlayerController
     /// The combat and equipment parts of SPlayerController.PlayerTick that the movement port's PlayerTick leaves out
     /// (it already runs the freeze end, the taser knock-down, the jammer and the heartbeat timer): the electric end
     /// and the rifle's electric clip, the HUD perturbation, the equipment input (gadget cycling, throw charge, spy
-    /// energy, the cloak button) and the merc cough. The global PlayerTick calls it once per frame.
+    /// energy, the cloak button), the merc's squint and cough, and the target snap. The global PlayerTick calls it once
+    /// per frame.
     /// </summary>
     [Uc("SBase.SPlayerController.PlayerTick", Sha1 = "5e6178b93ec98230e270a689b61159665cd12ee7")]
     [PortOf("uc:SBase.SPlayerController:PlayerTick", Spec = "spec/combat/shock-and-taser.md#shock-end-owner-playertick-every-frame")]
@@ -308,7 +309,13 @@ public partial class SPlayerController
         ElectricTick();
         HudPerturbationTick();
         EquipmentPlayerTick(DeltaTime);
+        if (SBPawn?.SPawnType == PawnType.SPAWNDEFENSE)
+        {
+            NativeComputeSquinting(DeltaTime);
+        }
+
         CoughTick();
+        SnapPlayerTick();
     }
 
     /// <summary>
@@ -660,7 +667,13 @@ public partial class SPlayerController
     /// <summary>True while the HUD is perturbed (shock, chaff).</summary>
     public bool IsHudPerturbed => myHUD is { bPerturbation: true };
 
-    /// <summary>The merc head-shot HUD shutdown (sticky-shock-effect.md rule 3.11); spies are not affected.</summary>
+    /// <summary>
+    /// The merc head-shot HUD shutdown (sticky-shock-effect.md rule 3.11, spec/hud/screen-effects.md rule 12); spies
+    /// are not affected. The HUD keeps the times and plays Snd_HudShutdown; bShutDown, the "System malfunction"
+    /// message and the "Rebooting" one 12 s later are the client HUD's (HudEffects, MercHudPage).
+    /// </summary>
+    [Uc("SBase.SHud.HudShutDown", Sha1 = "9b48ba9d88d58ed12b14cd49ffe9199eea2082e3")]
+    [PortOf("uc:SBase.SHud:HudShutDown", Spec = "spec/hud/screen-effects.md#rules")]
     public void HudShutDown(float CloseTime, float Length)
     {
         if (SPawnType != PawnType.SPAWNDEFENSE)
@@ -673,6 +686,7 @@ public partial class SPlayerController
             hud.HudShutDownLength = Length;
             hud.TimeToBeginShutDown = Level.TimeSeconds;
             hud.TimeToCloseShut = CloseTime;
+            ClientPlaySoundCombat(hud.Snd_HudShutdown);
         }
 
         CombatFx.Notify(this, CombatFx.HudShutDown, CloseTime, Length);

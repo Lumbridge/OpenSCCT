@@ -69,12 +69,7 @@ public partial class SGadBomb
         return false;
     }
 
-    /// <summary>SPersistentData.CurLevelIsTutorial for the current map: the TME and TSP tutorial maps.</summary>
-    [Provenance(ProvenanceKind.Estimated, "Tutorial maps by name prefix (TME, TSP); the persistent data tutorial list is not ported")]
-    private bool IsTutorialLevel()
-    {
-        string map = GameFlowServices.Host(this).GetURLMap() ?? string.Empty;
-        return map.StartsWith("TME", System.StringComparison.OrdinalIgnoreCase) ||
-               map.StartsWith("TSP", System.StringComparison.OrdinalIgnoreCase);
-    }
+    /// <summary>SPersistentData.CurLevelIsTutorial for the current map (<see cref="TutorialMaps"/>).</summary>
+    private bool IsTutorialLevel() =>
+        TutorialMaps.CurLevelIsTutorial(GameFlowServices.Host(this).GetURLMap());
 }

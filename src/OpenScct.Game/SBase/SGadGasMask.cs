@@ -3,6 +3,7 @@ using OpenScct.Core.Engine;
 using OpenScct.Core.Uc;
 using OpenScct.Game.Combat;
 using OpenScct.Game.Equipment;
+using OpenScct.Game.Objectives;
 using OpenScct.Provenance;
 using K = OpenScct.Game.Equipment.K;
 
@@ -187,18 +188,25 @@ public partial class SGadGasMask
         DummyGasMask?.Destroy();
     }
 
-    /// <summary>Based on the owner; the server gives the merc the visual mask on his head.</summary>
+    /// <summary>
+    /// Based on the owner; the server gives the merc the visual mask (an SGasMask owned by him, his the Instigator)
+    /// attached to his 'B Head' bone, where the views draw it.
+    /// </summary>
     [Uc("SBase.SGadGasMask.PostBeginPlay", Sha1 = "3e5545a73fa1918ad952429ecf225a860565d311")]
     [PortOf("uc:SBase.SGadGasMask:PostBeginPlay", Spec = "spec/equipment/gas-mask.md#rules")]
-    [Provenance(ProvenanceKind.Estimated, "AttachToBone('B Head') is a view effect here: the mask is based on the pawn")]
     protected override void PostBeginPlay()
     {
         base.PostBeginPlay();
         SetBase(Owner);
-        if (Role == ENetRole.ROLE_Authority && Owner is Pawn owner)
+        if (Role == ENetRole.ROLE_Authority && Owner is SBasePawn owner)
         {
-            DummyGasMask = XLevel.SpawnActor(new SGasMask(), owner.Location, owner.Rotation, owner);
-            DummyGasMask?.SetBase(owner);
+            DummyGasMask = XLevel.SpawnActor(new SGasMask(), owner.Location, owner.Rotation, owner, Instigator ?? owner);
+            if (DummyGasMask is { } mask)
+            {
+                mask.Instigator ??= owner;
+                mask.SetOwner(owner);
+                ObjectiveNatives.AttachToBone(owner, mask, K.GasMaskBone);
+            }
         }
     }
 

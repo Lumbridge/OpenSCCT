@@ -252,6 +252,9 @@ public sealed class OnlineClient : IDisposable
 
     public void Ban(int playerId) => SendLine(SessionProtocol.Line("ban", playerId));
 
+    /// <summary>Host or admin: bans a player from voice chat, or lifts it.</summary>
+    public void SetVoiceBanned(int playerId, bool banned) => SendLine(SessionProtocol.Line("voiceban", playerId, banned));
+
     /// <summary>Logs in as an admin of a dedicated server.</summary>
     public void Admin(string password) => SendLine(SessionProtocol.Line("admin", password));
 

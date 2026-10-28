@@ -60,6 +60,9 @@ public partial class ChatInput : Node, IHudOverlay
     /// <summary>The line is open.</summary>
     public bool IsOpen { get; private set; }
 
+    /// <summary>The chat line that is open now, if any (the developer console does not open over it).</summary>
+    public static ChatInput? Typing { get; private set; }
+
     /// <summary>What the console line holds now, prefix included (<c>Say hello</c>).</summary>
     public string Typed => _typed;
 
@@ -81,6 +84,7 @@ public partial class ChatInput : Node, IHudOverlay
         }
 
         IsOpen = true;
+        Typing = this;
         _scope = scope;
         _typed = scope == EChatScope.TeamSay ? TeamSayPrefix : SayPrefix;
         if (PlayInput is { Target: { } target } input)
@@ -94,6 +98,18 @@ public partial class ChatInput : Node, IHudOverlay
     {
         IsOpen = false;
         _typed = "";
+        if (Typing == this)
+        {
+            Typing = null;
+        }
+    }
+
+    public override void _ExitTree()
+    {
+        if (Typing == this)
+        {
+            Typing = null;
+        }
     }
 
     private int PrefixLength => _scope == EChatScope.TeamSay ? TeamSayPrefix.Length : SayPrefix.Length;

@@ -147,8 +147,17 @@ public static partial class K
     [Provenance(ProvenanceKind.Decoded, "SWeaponFirst.ukx WaitP190 5 frames at 15 fps")]
     public static readonly ClipData WaitP190 = new(5, 15f);
 
-    [Provenance(ProvenanceKind.Estimated, "FirstButtStFd2 clip data not decoded: about the strike's 0.6 s")]
-    public static readonly ClipData FirstButtStFd2 = new(10, 15f);
+    [Provenance(ProvenanceKind.Decoded, "SWeaponFirst.ukx FirstButtStFd2 17 frames at 15 fps")]
+    public static readonly ClipData FirstButtStFd2 = new(17, 15f);
+
+    [Provenance(ProvenanceKind.Decoded, "SWeaponFirst.ukx FirstMineStBg2 7 frames at 15 fps")]
+    public static readonly ClipData FirstMineStBg2 = new(7, 15f);
+
+    [Provenance(ProvenanceKind.Decoded, "SWeaponFirst.ukx FirstMineStNt2 11 frames at 15 fps")]
+    public static readonly ClipData FirstMineStNt2 = new(11, 15f);
+
+    [Provenance(ProvenanceKind.Decoded, "SWeaponFirst.ukx FirstMineStEd2 15 frames at 15 fps")]
+    public static readonly ClipData FirstMineStEd2 = new(15, 15f);
 
     [Provenance(ProvenanceKind.Estimated, "FirstAtakChEd2 clip data not decoded: the 0.4 s charge run-out")]
     public static readonly ClipData FirstAtakChEd2 = new(7, 15f);
@@ -475,6 +484,14 @@ public static partial class K
 
     [Provenance(ProvenanceKind.Decoded, "UpdateRotationDefenseur kick q = 0.5 * sensitivity * dt * 50")]
     public const float KickQ = 25f;
+
+    /// <summary>
+    /// The sensitivity the scope kick is worked out with (rl:fix.sniper_kick): Reloaded and Enhanced give every player
+    /// the same kick, where the stock kick grew with the mouse sensitivity (up to 10x between the slider's ends). The
+    /// profile's default (MouseSensitivity 40, read as 4) keeps the stock kick of a default player.
+    /// </summary>
+    [Provenance(ProvenanceKind.Estimated, "rl:fix.sniper_kick: kick no longer tied to sensitivity; the fixed value Reloaded uses is not decoded, the profile default 40 / 10 is used")]
+    public const float KickSensitivity = 4f;
 
     // ---- inventory (spec/equipment/inventory-selection.md, loadouts.md) ---------------------------------
 

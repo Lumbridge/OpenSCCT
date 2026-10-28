@@ -276,6 +276,12 @@ public partial class SGameInfo
         }
 
         Host.ClientCall(NewPlayer, new GameCall("ClientSetCinematicCamera") { Bool = pd.bAvlb_CinematicCamera });
+        if (NewPlayer is SPlayerController voicePlayer)
+        {
+            // The voice mode is never replicated with the GRI: the player's machine gets it here (ServerGetVoiceChatters).
+            voicePlayer.ServerGetVoiceChatters(voicePlayer);
+        }
+
         if (UcStrings.EqualsIgnoreCase(InLAN, "Server") && NewPlayer.PlayerReplicationInfo is { } pri)
         {
             pri.bIAmServer = true;

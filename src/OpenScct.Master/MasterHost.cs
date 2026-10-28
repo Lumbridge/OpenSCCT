@@ -358,7 +358,7 @@ public sealed class MasterHost : IAsyncDisposable
             return "The protocol or content hash is not hex.";
         }
 
-        if (r.Version.Length > 32 || r.Region.Length > 16 || r.Map.Length > 64 || r.LanAddresses.Count > 8 || r.PlayerNames.Count > 64 || r.AccountIds.Count > 64 ||
+        if (r.Version.Length > 32 || r.Region.Length > 16 || r.Map.Length > 64 || r.LanAddresses.Count > 8 || r.PlayerNames.Count > 64 || r.PlayerTeams.Count > 64 || r.AccountIds.Count > 64 ||
             r.RejoinAccounts.Count > 64 ||
             r.PlayerDetails.Count > 64 || r.CommandResults.Count > 32 || r.PlayerDetails.Any(p => p.Name.Length > 64))
         {
@@ -394,7 +394,8 @@ public sealed class MasterHost : IAsyncDisposable
             Players = h.Players, MaxPlayers = h.MaxPlayers, Password = h.Password, Dedicated = h.Dedicated, Protocol = h.Protocol,
             Content = h.Content, Version = h.Version, Reachability = Registry.Classify(r),
             AgeSeconds = (int)Math.Max(0, Registry.Now - r.LastSeen), PlayerNames = h.PlayerNames,
-            RequireAccounts = h.RequireAccounts, Trusted = r.Trusted, Kind = h.Kind, Region = h.Region,
+            PlayerTeams = h.PlayerTeams.Count == h.PlayerNames.Count ? h.PlayerTeams : [],
+            RequireAccounts = h.RequireAccounts, Trusted = r.Trusted, Kind = h.Kind, Region = h.Region, Practice = h.Practice,
         };
     }
 

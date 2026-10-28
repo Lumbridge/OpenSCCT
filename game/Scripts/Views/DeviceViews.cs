@@ -52,7 +52,9 @@ public sealed class DeviceViews
             {
                 // The map's bHidden, not the actor's now: replication may have shown it before this first bind.
                 GameplayActor? placed = map.Actors.Find(record.Id);
-                bool mapHidden = placed is not null ? placed.Bool("bHidden") : actor.bHidden;
+                // A help path is hidden by its class default, which the map does not store (and the render pack
+                // builds its mesh hidden): it shows only once the actor is unhidden (the in-game help).
+                bool mapHidden = actor is OpenScct.Game.SBase.SHelpPath || (placed is not null ? placed.Bool("bHidden") : actor.bHidden);
                 (FVector, FRotator)? mapPlace = placed is not null && placed.TryGet("Location", out _)
                     ? (placed.Vector("Location"), placed.Rotator("Rotation"))
                     : null;

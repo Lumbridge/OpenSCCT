@@ -1,6 +1,10 @@
-# Merc eye adaptation (asked for; not in the original)
+# Merc eye adaptation and the squint
 
-Units: none. This page records why the rewrite has no merc eye adaptation.
+Units:
+- nat:SBase.SPlayerController.NativeComputeSquinting
+
+This page records the merc's squint value (computed, but with no visible effect) and why the rewrite draws no
+merc eye adaptation.
 
 ## Purpose
 Ryan asked for the merc's normal view (RendMap 5, no torch, no vision mode) to get brighter over time while he
@@ -10,11 +14,31 @@ original game. Neither shows such a rule.
 ## Rules
 1. There is no eye adaptation. The merc's normal view is drawn the same way however long he stands still; its
    brightness depends only on the lights, the torch and the player's Brightness, Contrast and Gamma settings.
+2. **The squint** (`NativeComputeSquinting(dt)`, native 1386, decoded game 0x10aafc80). The merc branch of the
+   local player's `PlayerTick` calls it every tick, before the smoke cough. It keeps two timers on the controller,
+   `DurationStatic` and `DurationForSquinting`, and writes `PlayerController.SquintingFactor`:
+   - In the scope (`bBinocularVision`) or without a torch actor (`SPAWNDEFENSE.Torche`): `SquintingFactor = 0`,
+     nothing else changes.
+   - Torch on (`Torche.bInUse`): `DurationStatic = 0`, `DurationForSquinting -= dt`.
+   - Otherwise, with `v` the pawn's speed: when `v < 5` and both `|int(aLookUp)|` and `|int(aTurn)|` are at most 10
+     (standing still, not looking around), `DurationStatic += dt`, and once `DurationStatic > 0.5`,
+     `DurationForSquinting += dt`. Else `DurationStatic = 0` and: `v >= 80` gives `DurationForSquinting -= dt`;
+     a slower move gives `DurationForSquinting -= 0.3 dt`, then raised to 1.2 when below 1.2 (so a slow walk also
+     lifts a small value up to 1.2).
+   - `DurationForSquinting` is clamped to 0..2; `SquintingFactor = 0.15 D` while `D < 1`, else
+     `0.15 + 0.25 (D - 1)` (at most 0.4).
+   Its only reader is the scene pre-render (game 0x10a0af70): in `RendMap` 5, when `SquintingFactor` is not 0, the
+   render interface's light byte (+0xC) becomes `int(SquintingFactor x 28)`. Night vision sets the same byte to 30
+   together with the interface's night flag (+4); RendMap 5 sets no flag, and the measurements below (a still merc
+   in the dark for 120 s, where the factor reaches 0.4) show no brightening, so the byte has no visible effect
+   there. The rewrite keeps the value in the simulation and draws nothing from it.
 
 ## Evidence
 - Script: no SBase, Engine or GUI class reads time standing still, writes a brightness, gamma, contrast or
   exposure value, or changes `RendMap` 5 drawing (searched local/re-out/uc for adapt, lumin, bright, gamma, contrast,
   exposure and the French terms the code uses).
+- Native: NativeComputeSquinting game 0x10aafc80 (editor exec 0x111e7280); the pre-render step game 0x10a0af70
+  (RendMap 34: +4 = 1 and +0xC = 30; RendMap 5: +0xC = int(SquintingFactor x 28.0, 0x10c10b0c) when not 0).
 - Native: `UD3DRenderDevice::UpdateGamma` (game 0x1095dab0) builds the gamma ramp from the client's Brightness and
   Contrast (each clamped to 0..0.8) and Gamma only; it is reached through the client's `UpdateGamma` (vtable), which
   the options menu calls. No string or property of the game or of Reloaded.Core names an exposure, adaptation or

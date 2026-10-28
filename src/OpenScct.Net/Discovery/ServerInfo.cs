@@ -68,6 +68,9 @@ public sealed record ServerInfo
     /// <summary>A hub (docs/HUB.md), not a game server: flag bit 4, which older readers ignore.</summary>
     public bool IsHub { get; init; }
 
+    /// <summary>A practice server (spec/reloaded/FEATURES.md rl:net.practice): flag bit 8, which older readers ignore.</summary>
+    public bool Practice { get; init; }
+
     /// <summary>Version 2 added <see cref="MasterId"/> and <see cref="RequireAccounts"/> at the end; version 1 still reads.</summary>
     private const byte FormatVersion = 2;
     private const byte FirstVersion = 1;
@@ -89,7 +92,7 @@ public sealed record ServerInfo
         w.UInt64(ProtocolHash);
         w.UInt64(ContentHash);
         w.Text(Version);
-        w.Byte((byte)((HasPassword ? 1 : 0) | (Dedicated ? 2 : 0) | (IsHub ? 4 : 0)));
+        w.Byte((byte)((HasPassword ? 1 : 0) | (Dedicated ? 2 : 0) | (IsHub ? 4 : 0) | (Practice ? 8 : 0)));
         w.UInt16((ushort)Math.Clamp(SecondsLeft, 0, ushort.MaxValue));
         int count = Math.Min(PlayerList.Count, MaxListed);
         w.Byte((byte)count);
@@ -153,7 +156,7 @@ public sealed record ServerInfo
         {
             Name = name, Map = map, Mode = mode, Phase = (SessionPhase)phase, Players = players, MaxPlayers = max,
             GamePort = port, ProtocolHash = protocol, ContentHash = content, Version = build,
-            HasPassword = (flags & 1) != 0, Dedicated = (flags & 2) != 0, IsHub = (flags & 4) != 0, SecondsLeft = left, PlayerList = list,
+            HasPassword = (flags & 1) != 0, Dedicated = (flags & 2) != 0, IsHub = (flags & 4) != 0, Practice = (flags & 8) != 0, SecondsLeft = left, PlayerList = list,
             MasterId = masterId, RequireAccounts = requireAccounts,
         };
         return true;

@@ -20,6 +20,7 @@ no UFunction of its own. Annotations in parentheses after a unit in the spec fil
 | [environmental-damage.md](environmental-damage.md) | Mover and lift crush, damage volumes, GPO damage and explosions, thrown objects, environmental kill attribution | 37 |
 | [spawn-protection-and-scoring.md](spawn-protection-and-scoring.md) | Spawn protection, spawn shock, AddPoint table, combat statistics | 12 |
 | [health.md](health.md) | Health values, spy regeneration, poison, healing | 17 |
+| [rumble.md](rumble.md) | Controller rumble: the Vibration_* shapes and priorities | 14 |
 
 Total unit references: 629 (unique 583).
 
@@ -675,6 +676,18 @@ Total unit references: 629 (unique 583).
 - uc:SBase.SInfirmary:Use
 - uc:SBase.SHealMateInteraction:InitInteract
 - uc:SBase.SHud:PostRender
+### rumble.md
+- uc:SBase.SPlayerController:Vibration_CheckSiPossible
+- uc:SBase.SPlayerController:Vibration_StopTout
+- uc:SBase.SPlayerController:Vibration_CoupParDefaut
+- uc:SBase.SPlayerController:Vibration_SautMoyen
+- uc:SBase.SPlayerController:Vibration_SautHaut
+- uc:SBase.SPlayerController:Vibration_Bousculade
+- uc:SBase.SPlayerController:Vibration_Blast
+- uc:SBase.SPlayerController:Vibration_Grabbed
+- uc:SBase.SPlayerController:Vibration_Grab_Kill
+- uc:SBase.SPlayerController:Vibration_Charge_Course
+- uc:SBase.SPlayerController:Vibration_Charge_Obstacle
 
 ## Relevant units not specced here
 These units touch combat but belong to another area or were only read for context. Each needs an owner spec (or an
@@ -761,7 +774,7 @@ Spectating, respawn weapon, end of match (game mode spec):
 Voice, HUD and feedback (voice, HUD and input specs):
 - uc:SBase.SPlayerController:TalkToMate, OtherTeamCantHearMe, ServerHearSpybullets, HearPC, CanHackEnemyComs,
   CanAlwaysTalkToMates, ServerSetVoiceChatTarget, ServerClearVoiceChatTarget, StopHackComm
-- uc:SBase.SPlayerController:Vibration_* (rumble), ClientShake, SetHudPerturbation
+- uc:SBase.SPlayerController:ClientShake, SetHudPerturbation (rumble: rumble.md)
 - uc:SBase.SHud:DrawBloodSplash, nat:SBase.SHud.ProcessSFX (hooked by Reloaded.Core), uc:SBase.SGameMessages:GetString
   (switches 16, 17, 20, 23, 56, 57, 58 used here); nat:SBase.SPlayerController.ClientDamageHudEffect is listed in
   damage-pipeline.md as a contract only

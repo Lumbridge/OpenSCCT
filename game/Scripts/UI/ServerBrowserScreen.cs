@@ -56,10 +56,16 @@ public partial class ServerBrowserScreen : MenuPage
         /// <summary>Only signed-in players may join (the master's list, or the server's own answer).</summary>
         public bool RequireAccounts { get; set; }
 
+        /// <summary>A practice server (rl:net.practice).</summary>
+        public bool Practice { get; set; }
+
         /// <summary>The server's id on its master (from its own answer), for a ticket; empty when not listed.</summary>
         public string MasterId { get; set; } = string.Empty;
 
         public IPEndPoint? Endpoint { get; set; }
+
+        /// <summary>The players and their sides (the server's own answer, else the master's list).</summary>
+        public IReadOnlyList<ServerInfoPlayer> PlayerList { get; set; } = [];
     }
 
     /// <summary>
@@ -85,6 +91,7 @@ public partial class ServerBrowserScreen : MenuPage
     private LineEdit? _password;
     private OptionButton? _path;
     private Label? _status;
+    private Label? _players;
 
     /// <summary>A listed server's master id to join as soon as the page is up (a Discord Join, docs/DISCORD.md, or a rejoin).</summary>
     public string? DiscordJoinId { get; init; }
@@ -147,7 +154,13 @@ public partial class ServerBrowserScreen : MenuPage
         }
 
         Table.ItemActivated += Join;
+        Table.ItemSelected += ShowPlayers;
         column.AddChild(Table);
+
+        // The selected session's players by side (the original's LAN list shows none; the master and the server's
+        // answer carry them).
+        _players = new Label { Name = "Players", Modulate = UiStyle.MenuFocus, AutowrapMode = TextServer.AutowrapMode.WordSmart };
+        column.AddChild(_players);
 
         var joinRow = new HBoxContainer { Name = "JoinRow" };
         _address = new LineEdit { Name = "Address", Text = settings.LastAddress, PlaceholderText = "address or address:port", SizeFlagsHorizontal = SizeFlags.ExpandFill };
@@ -376,6 +389,12 @@ public partial class ServerBrowserScreen : MenuPage
             row.MaxPlayers = e.MaxPlayers;
             row.Password = e.Password;
             row.RequireAccounts = e.RequireAccounts;
+            row.Practice = e.Practice;
+            if (row.Endpoint is null || row.PlayerList.Count == 0)
+            {
+                row.PlayerList = PlayersOf(e);
+            }
+
             row.Reach = e.Reachability switch
             {
                 Reachability.Direct => "direct",
@@ -430,7 +449,9 @@ public partial class ServerBrowserScreen : MenuPage
             row.Protocol = r.Info.ProtocolHash;
             row.Content = r.Info.ContentHash;
             row.RequireAccounts = r.Info.RequireAccounts || (row.Entry?.RequireAccounts ?? false);
+            row.Practice = r.Info.Practice;
             row.MasterId = r.Info.MasterId;
+            row.PlayerList = r.Info.PlayerList;
             if (row.Reach.Length == 0 && !r.FromLan)
             {
                 row.Reach = "direct";
@@ -443,6 +464,73 @@ public partial class ServerBrowserScreen : MenuPage
     }
 
     private Row? Find(string key) => _rows.Find(r => r.Key == key);
+
+    /// <summary>A player whose side the master did not say.</summary>
+    private const byte NoSide = 254;
+
+    /// <summary>The master's names with their sides (a host that sends no sides: every name without one).</summary>
+    private static List<ServerInfoPlayer> PlayersOf(ServerEntry e)
+    {
+        var list = new List<ServerInfoPlayer>();
+        for (int i = 0; i < e.PlayerNames.Count; i++)
+        {
+            list.Add(new ServerInfoPlayer(e.PlayerNames[i], i < e.PlayerTeams.Count ? e.PlayerTeams[i] : NoSide));
+        }
+
+        return list;
+    }
+
+    /// <summary>The selected session's players under the list: "Spies: ...  Mercenaries: ...  Spectators: ...".</summary>
+    private void ShowPlayers()
+    {
+        if (_players is null)
+        {
+            return;
+        }
+
+        if (Table?.GetSelected() is not { } item || Find(item.GetMetadata(0).AsString()) is not { } row)
+        {
+            _players.Text = string.Empty;
+            return;
+        }
+
+        if (row.PlayerList.Count == 0)
+        {
+            _players.Text = row.Players > 0 ? (row.Name.Length > 0 ? row.Name : row.Key) + ": the player names are not known yet." : string.Empty;
+            return;
+        }
+
+        var spies = new List<string>();
+        var mercs = new List<string>();
+        var spectators = new List<string>();
+        var others = new List<string>();
+        foreach (ServerInfoPlayer p in row.PlayerList)
+        {
+            List<string> side = p.Team switch
+            {
+                0 => spies,
+                1 => mercs,
+                SessionProtocol.SpectatorTeam => spectators,
+                _ => others,
+            };
+            side.Add(p.Name);
+        }
+
+        var parts = new List<string>();
+        void Part(string title, List<string> names)
+        {
+            if (names.Count > 0)
+            {
+                parts.Add(title + ": " + string.Join(", ", names));
+            }
+        }
+
+        Part("Spies", spies);
+        Part("Mercenaries", mercs);
+        Part("Spectators", spectators);
+        Part("Players", others);
+        _players.Text = string.Join("     ", parts);
+    }
 
     private Row Add(string key, string source)
     {
@@ -494,7 +582,7 @@ public partial class ServerBrowserScreen : MenuPage
             item.SetText(0, (row.Password ? "[locked] " : string.Empty) + (row.RequireAccounts ? "[signed-in only] " : string.Empty) +
                 (row.Name.Length > 0 ? row.Name : row.Key));
             item.SetText(1, MapTitles.Of(_service!.Catalog.Maps, row.Map));
-            item.SetText(2, LobbySetup.ModeName((EGameMode)(byte)row.Mode));
+            item.SetText(2, LobbySetup.ModeName((EGameMode)(byte)row.Mode) + (row.Practice ? " (practice)" : string.Empty));
             item.SetText(3, string.Create(CultureInfo.InvariantCulture, $"{row.Players}/{row.MaxPlayers}"));
             item.SetText(4, row.PingMs >= 0 ? row.PingMs.ToString(CultureInfo.InvariantCulture) : "-");
             item.SetText(5, SessionProtocol.PhaseName(row.Phase));
@@ -514,6 +602,8 @@ public partial class ServerBrowserScreen : MenuPage
                 item.Select(0);
             }
         }
+
+        ShowPlayers();
     }
 
     private void Join()

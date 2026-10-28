@@ -29,6 +29,8 @@ Additive: every 1.0 file reads as before, and 1.0 readers skip what is new.
 - `render/`: `world.glb` scene roots, library node naming by asset path and the instance table in the document
   extras; new `materials.json`, `lighting.json`, `fx.json` and `textures/*.png`.
 - `ui/mapinfo.json`: map name and briefing texts.
+- `sim/rain.json` (optional): the rain volumes' boxes and falloff, so a server without `render/` knows where pawns are
+  wet.
 - Client-only JSON (`render/`, `ui/`) may use non-ASCII object keys; `sim/` keys stay ASCII. File names stay ASCII
   (a converter escapes other characters as `_uXXXX`).
 

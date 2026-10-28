@@ -44,7 +44,7 @@ public partial class SPlayerController
             }
         }
 
-        CombatFx.Notify(this, CombatFx.SetBallisticValue, 0f);
+        SetBallisticValue(0f);
     }
 
     /// <summary>The throw clip ended: the unarmed rest for the stance.</summary>
@@ -251,13 +251,13 @@ public partial class SPlayerController
                 else
                 {
                     pc.fThrowForce = SvmMath.Min((held - pc.MinimumThrowObjectDelay) / pc.MaximumThrowObjectDelay, 1f);
-                    CombatFx.Notify(pc, CombatFx.SetBallisticValue, pc.fThrowForce);
+                    pc.SetBallisticValue(pc.fThrowForce);
                 }
 
                 if (pc.bFire == 0)
                 {
                     pc.TimerUSe = 0f;
-                    CombatFx.Notify(pc, CombatFx.SetBallisticValue, 0f);
+                    pc.SetBallisticValue(0f);
                     pc.eventChangeState(CNAME_s_Throw);
                 }
             }
