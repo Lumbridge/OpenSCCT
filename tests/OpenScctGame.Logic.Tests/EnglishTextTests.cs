@@ -210,7 +210,9 @@ public sealed partial class EnglishTextTests
                     continue;
                 }
 
-                foreach (Match m in Regex.Matches(File.ReadAllText(file), "\"((?:[^\"\\\r\n]|\\.)*)\""))
+                // Provenance notes quote the original's identifiers (often French) and are never shown.
+                string code = Regex.Replace(File.ReadAllText(file), @"^\s*\[Provenance\(.*$", "", RegexOptions.Multiline);
+                foreach (Match m in Regex.Matches(code, "\"((?:[^\"\\\r\n]|\\.)*)\""))
                 {
                     // Shown text has words; identifiers of the original (area and widget names, class paths) have no spaces.
                     string literal = m.Groups[1].Value;

@@ -1,0 +1,743 @@
+diff --git a/export_gltf.py b/export_gltf.py
+index 4a21691..498719d 100644
+--- a/export_gltf.py
++++ b/export_gltf.py
+@@ -208,6 +208,7 @@ class GltfWriter:
+             comb = _combine_flags(key, resolved, getattr(self, "tex_dir", None), getattr(self, "tex_uri", None))
+             if comb:
+                 flags["combine"] = comb
++            flags.update(_layer_flags(key, resolved, getattr(self, "tex_dir", None), getattr(self, "tex_uri", None)))
+             if getattr(resolved, "env_map", False):
+                 flags["env_map"] = True
+                 if getattr(resolved, "env_color", None) is not None:
+@@ -528,6 +529,9 @@ def _combined_image(res: ResolvedMaterial):
+     m = fit(c.get("mask"))
+     if b is None:
+         b = a
++    elif c.get("env2"):
++        # An env-mapped Material2 is looked up by the reflection, not the UVs: the bake takes its mean colour.
++        b = np.broadcast_to(b.reshape(-1, b.shape[-1]).mean(0), b.shape).copy()
+     if m is None:
+         m = a
+     ma = m[..., 3:4] if m.shape[-1] == 4 else np.ones_like(a[..., :1])
+@@ -571,13 +575,24 @@ def _combine_flags(key: str, res: ResolvedMaterial, tex_dir: Optional[Path], tex
+     if not c or tex_dir is None or tex_uri is None or res.texture is None:
+         return None
+     anims = c.get("anims") or {}
+-    if not any(a for a, _ in anims.values()):
++    env2 = bool(c.get("env2"))
++    if not env2 and not any(a for a, _ in anims.values()):
+         return None
+     out = {"op": c.get("op", 0), "alpha_op": c.get("alpha_op", 0), "mod": c.get("mod", 1),
+            "invert_mask": bool(c.get("invert_mask"))}
++    if env2:
++        # Material2 is a TexEnvMap: the client looks it up by the reflection ("env2") and plays its AnimNext chain
++        # from an atlas ("flip2": {"cols", "rows", "frames", "fps"}, tex2 is then the atlas).
++        out["env2"] = True
++        flip = _flipbook_png(f"{key}__c2", c["flip2"], tex_dir, tex_uri) if c.get("flip2") else None
++        if flip:
++            out["flip2"] = {k: flip[k] for k in ("cols", "rows", "frames", "fps")}
+     for slot, tex in (("1", res.texture), ("2", c.get("tex2")), ("mask", c.get("mask"))):
+         name = "tex1" if slot == "1" else ("tex2" if slot == "2" else "mask")
+-        uri = _texture_png(f"{key}__c{slot}", tex, tex_dir, tex_uri) if tex is not None else None
++        if slot == "2" and "flip2" in out:
++            uri = tex_uri.get(f"{key}__c2__flip")
++        else:
++            uri = _texture_png(f"{key}__c{slot}", tex, tex_dir, tex_uri) if tex is not None else None
+         if uri is None and slot != "mask":
+             return None
+         if uri is not None:
+@@ -589,6 +604,49 @@ def _combine_flags(key: str, res: ResolvedMaterial, tex_dir: Optional[Path], tex
+     return out
+ 
+ 
++def _opacity_uses_luminance(opacity) -> bool:
++    """_with_opacity's channel choice: the alpha channel when it varies, else the luminance."""
++    lo, hi = opacity.convert("RGBA").getchannel("A").getextrema()
++    return hi - lo <= 8
++
++
++def _layer_flags(key: str, res: ResolvedMaterial, tex_dir: Optional[Path], tex_uri) -> dict:
++    """Material inputs the client evaluates on their own instead of a bake (docs/RENDERING.md#materials):
++    "opacity" (+ "opacity_anim", "opacity_matrix", "opacity_lum") when the Opacity moves differently from the Diffuse;
++    "spec_mask_anim" / "spec_mask_matrix" when the SpecularityMask does; "env_texture" for a 2D env map; "flipbook" for
++    an AnimNext chain ({"texture", "cols", "rows", "frames", "fps"}); "uv_matrix", the static matrix baked into the
++    mesh UVs, which the client undoes for the separate layers (they start from the mesh's own UVs)."""
++    out: dict = {}
++    if tex_dir is None or tex_uri is None:
++        return out
++    layered = False
++    op = getattr(res, "opacity", None)
++    if getattr(res, "opacity_layer", False) and op is not None and op.image is not None:
++        uri = _texture_png(res.opacity_key or f"{key}__opl", op, tex_dir, tex_uri)
++        if uri:
++            out.update({"opacity": uri, "opacity_anim": res.opacity_anim,
++                        "opacity_matrix": list(res.opacity_matrix) if res.opacity_matrix else None,
++                        "opacity_lum": _opacity_uses_luminance(op.image)})
++            layered = True
++    if getattr(res, "spec_mask", None) is not None \
++            and (res.spec_mask_anim, res.spec_mask_matrix) != (res.uv_anim, res.uv_matrix):
++        out.update({"spec_mask_anim": res.spec_mask_anim,
++                    "spec_mask_matrix": list(res.spec_mask_matrix) if res.spec_mask_matrix else None})
++        layered = True
++    if layered and res.uv_matrix is not None:
++        out["uv_matrix"] = list(res.uv_matrix)
++    env = getattr(res, "env_texture", None)
++    if env is not None and env.image is not None:
++        uri = _texture_png(res.env_key or f"{key}__env", env, tex_dir, tex_uri)
++        if uri:
++            out["env_texture"] = uri
++    if res.flipbook:
++        fb = _flipbook_png(key, res.flipbook, tex_dir, tex_uri)
++        if fb:
++            out["flipbook"] = fb
++    return out
++
++
+ def _ensure_texture(res: Optional[ResolvedMaterial], tex_dir: Path, tex_uri: Dict[str, Optional[str]]) -> Optional[str]:
+     if res is None:
+         return None
+@@ -604,7 +662,9 @@ def _ensure_texture(res: Optional[ResolvedMaterial], tex_dir: Path, tex_uri: Dic
+                 tex_uri[key] = None
+         if tex_uri[key]:
+             return tex_uri[key]
+-    if getattr(res, "opacity", None) is not None and res.texture is not None and res.texture.image is not None             and res.opacity.image is not None:
++    # A separately moving Opacity (opacity_layer) is not baked: the client samples it on its own (_layer_flags).
++    if getattr(res, "opacity", None) is not None and res.texture is not None and res.texture.image is not None \
++            and res.opacity.image is not None and not getattr(res, "opacity_layer", False):
+         key = f"{res.key}__op"
+         if key not in tex_uri:
+             fname = _safe(key) + ".png"
+@@ -685,24 +745,38 @@ def _static_mesh_prims(sm: StaticMesh, owner: Package, resolver: MaterialResolve
+     return prims
+ 
+ 
+-def _patch_prims(patch: dict, res, writer: GltfWriter, tex_dir: Path, tex_uri: Dict[str, Optional[str]], unlit: bool):
+-    """Flat nb_u x nb_v grid in the actor's local XZ plane (U along X, V down Z), centred, both faces; UVs span
+-    scale_u x scale_v texture repeats."""
+-    nu, nv = max(1, int(patch["nb_u"])), max(1, int(patch["nb_v"]))
+-    w, h = nu * float(patch["u_length"]), nv * float(patch["v_length"])
+-    iu, iv = np.meshgrid(np.arange(nu + 1), np.arange(nv + 1), indexing="xy")
+-    fu, fv = (iu / nu).ravel(), (iv / nv).ravel()
+-    pos = np.stack([(fu - 0.5) * w, np.zeros_like(fu), (0.5 - fv) * h], axis=1).astype(np.float32)
+-    uv = np.stack([fu * float(patch.get("scale_u", 1.0) or 1.0), fv * float(patch.get("scale_v", 1.0) or 1.0)], axis=1).astype(np.float32)
+-    quads = []
++def softbody_triangles(body: dict) -> List[Tuple[int, int, int]]:
++    """Front-face triangles over a soft body's particles (level.softbody_record): a patch's grid cells row by row, a
++    strip door's strips as ladders between their two edges (particle k of the left edge faces 2 nV + 1 - k)."""
++    nu, nv = int(body["nb_u"]), int(body["nb_v"])
++    tris: List[Tuple[int, int, int]] = []
++    if body["kind"] == "strip":
++        per = 2 * (nv + 1)
++        for s in range(nu):
++            base = s * per
++            for j in range(nv):
++                a, c = base + j, base + j + 1
++                b, d = base + per - 1 - j, base + per - 2 - j
++                tris += [(a, c, b), (b, c, d)]
++        return tris
+     for j in range(nv):
+         for i in range(nu):
+             a, b = j * (nu + 1) + i, j * (nu + 1) + i + 1
+             c, d = a + nu + 1, b + nu + 1
+-            quads += [a, c, b, b, c, d]
+-    front = np.array(quads, np.uint32)
+-    back = front.reshape(-1, 3)[:, ::-1].ravel()
++            tris += [(a, c, b), (b, c, d)]
++    return tris
++
++
++def _patch_prims(body: dict, res, writer: GltfWriter, tex_dir: Path, tex_uri: Dict[str, Optional[str]], unlit: bool):
++    """A soft body at its saved rest state (level.softbody_record), both faces: vertex i (and i + N for the back) is
++    particle i, so the client's simulation moves the vertices in place. UVs are the particles' u, v times
++    scaleU, scaleV."""
++    pos = np.asarray(body["points"], np.float32).reshape(-1, 3)
+     n = len(pos)
++    uv = np.asarray(body["uvs"], np.float32).reshape(-1, 2) * np.array(
++        [float(body.get("scale_u", 1.0) or 1.0), float(body.get("scale_v", 1.0) or 1.0)], np.float32)
++    front = np.asarray(softbody_triangles(body), np.uint32).reshape(-1)
++    back = front.reshape(-1, 3)[:, ::-1].ravel()
+     positions = np.concatenate([pos, pos])
+     normals = np.concatenate([np.tile([0.0, -1.0, 0.0], (n, 1)), np.tile([0.0, 1.0, 0.0], (n, 1))]).astype(np.float32)
+     uvs = np.concatenate([uv, uv])
+@@ -729,9 +803,12 @@ def _skin_signature(sm: StaticMesh, owner: Package, resolver: MaterialResolver,
+     return ",".join(keys) if changed else ""
+ 
+ 
+-def export_package(usx_path: Path, pset: PackageSet, out_root: Path) -> dict:
++def export_package(usx_path: Path, pset: PackageSet, out_root: Path, extra_materials: Optional[List[str]] = None) -> dict:
+     """Export every StaticMesh of one .usx package as library nodes (for class-default meshes such as
+-    SGameplayObjects: medkits, cameras, laser emitters, objectives). Output: out/_shared/<Pkg>/<Pkg>.gltf."""
++    SGameplayObjects: medkits, cameras, laser emitters, objectives). Output: out/_shared/<Pkg>/<Pkg>.gltf.
++    `extra_materials`: object paths (Package[.Group].Name) of materials no mesh section uses but actors put in their
++    Skins at run time (camera and sensor LEDs); each becomes a glTF material like a section's, and stats["skins"]
++    maps the path to its material name."""
+     pkg = Package.load(usx_path)
+     name = usx_path.stem
+     out_dir = out_root / name
+@@ -740,7 +817,23 @@ def export_package(usx_path: Path, pset: PackageSet, out_root: Path) -> dict:
+     tex_uri: Dict[str, Optional[str]] = {}
+     resolver = MaterialResolver(pset)
+     writer = GltfWriter()
+-    stats = {"package": name, "meshes": 0, "failed": []}
++    stats = {"package": name, "meshes": 0, "failed": [], "skins": {}}
++    for path in extra_materials or []:
++        pkg_name, _, rest = path.partition(".")
++        owner = pset.get(pkg_name)
++        e = owner.find_export(rest.split(".")[-1]) if owner is not None and rest else None
++        if e is None:
++            stats["failed"].append(f"{path}: not found")
++            continue
++        try:
++            res = resolver.resolve(owner, e.index + 1)
++            if res is None or res.skip:
++                continue
++            writer.material(res.key, res, _ensure_texture(res, tex_dir, tex_uri))
++            _self_illum_flags(writer, res.key, res, tex_dir, tex_uri)
++            stats["skins"][path] = res.key
++        except Exception as ex:
++            stats["failed"].append(f"{path}: {ex}")
+     for e in pkg.exports_of_class("StaticMesh"):
+         key = f"{name}.{e.name}"
+         try:
+@@ -1198,7 +1291,11 @@ def export_map(map_path: Path, pset: PackageSet, out_root: Path, include_bsp: bo
+             eref = rec.extra.pop("echelon_material_ref")
+             try:
+                 owner, e = resolver.pset.resolve(pkg, eref)
+-                tref = resolver._props(owner, e).get("ProjectedLightingTexture") if e is not None else None
++                eprops = resolver._props(owner, e) if e is not None else {}
++                # EEchelonAttenuationType: 0 none, 1 linear (the class default), 2 late.
++                att = eprops.get("AttenuationType", 1)
++                entry["echelon_attenuation"] = att if isinstance(att, int) else 1
++                tref = eprops.get("ProjectedLightingTexture")
+                 if isinstance(tref, int) and tref:
+                     tres = resolver.resolve(owner, tref)
+                     if not tres.skip and tres.texture is not None:
+@@ -1237,17 +1334,19 @@ def export_map(map_path: Path, pset: PackageSet, out_root: Path, include_bsp: bo
+                 rec.extra["rain"]["additive_gain"] = float(rres.additive_gain)
+                 rec.extra["rain"]["uv_anim"] = rres.uv_anim
+         if rec.extra.get("patch_material_ref"):
+-            # ESBPatchActor (soft-body cloth: AquaE's sea, awnings): a static grid mesh standing in for the runtime
+-            # simulation; the actor's DrawScale scales it like any mesh actor.
++            # ESBPatchActor / ESBStripDoorActor (soft bodies: AquaE's sea, awnings, flags, strip curtains): the body
++            # at its saved rest state; the client simulates it from the instance's softbody settings. The actor's
++            # DrawScale scales it like any mesh actor.
+             pres = resolver.resolve(pkg, rec.extra["patch_material_ref"])
+             if not pres.skip:
+                 pname = _safe(f"PATCH_{rec.name}")
+-                glow = int(rec.extra["patch"].get("ambient_glow", 0))
++                body = rec.extra["softbody"]
++                glow = int(body.get("ambient_glow", 0))
+                 # UESoftBody::Render makes no lighting calls: soft bodies (DrawType 13) draw fullbright. AquaD's sea has
+                 # no light in reach and zone ambient 0, yet the game shows near-white crests (matched live only with
+                 # the light term at 1.0). The lit path below stays for reference.
+                 unlit = True
+-                prims = _patch_prims(rec.extra["patch"], pres, writer, tex_dir, tex_uri, unlit)
++                prims = _patch_prims(body, pres, writer, tex_dir, tex_uri, unlit)
+                 if not unlit:
+                     # No baked light (the game builds the patch at runtime); AmbientGlow adds to lighting like on static
+                     # meshes (ambient_glow -> Custom Primitive Data 28 on M_SCCT_VertexLit, capped there), not as a
+diff --git a/level.py b/level.py
+index afaa696..802691a 100644
+--- a/level.py
++++ b/level.py
+@@ -8,6 +8,7 @@ tagged marker for everything else so the runtime bridge can match by name.
+ from __future__ import annotations
+ 
+ import json
++import struct
+ import os
+ from dataclasses import dataclass, field
+ from typing import Dict, List, Optional, Tuple
+@@ -31,7 +32,8 @@ with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "class_defaul
+     CLASS_DEFAULTS: Dict[str, dict] = json.load(_f)
+ # "trigger_" is not a helper word: trigger_hack, trigger_urgence, trigger_scan and Trigger_Vert are the hack panels,
+ # emergency buttons and scanners the game draws. A sprite SInterrupteur (trigger_standard) is hidden by its DrawType.
+-HIDDEN_MESH_WORDS = ("help_path", "path_circle", "fakewarp", "nullobj", "_collision", "blocking")
++# Not "fakewarp": fakewarp_aqa is the big Aqua* tank's backdrop (green sand floor and algae wall), drawn by the game.
++HIDDEN_MESH_WORDS = ("help_path", "path_circle", "nullobj", "_collision", "blocking")
+ DT_STATICMESH = 8
+ 
+ # UE2 ELightType / ELightEffect values, read from the live game's Engine.Actor enums.
+@@ -186,8 +188,41 @@ def _corona(props, pkg: Package, pset: PackageSet, trig: bool) -> Optional[dict]
+ PLF_PSX2_ONLY, PLF_XBOX_ONLY = 1, 2
+ 
+ 
++# Engine.ZoneInfo class defaults of the fog fields (def:Engine.ZoneInfo): a zone stores only what differs, so a fog zone
++# without DistanceFogColor fogs to grey 128 (ClubD's ZoneInfo1141, MissD's three outdoor zones), one without
++# DistanceFogEnd ends at 8000.
++ZONE_FOG_DEFAULTS = {"DistanceFogColor": [128, 128, 128, 0], "DistanceFogStart": 3000.0, "DistanceFogEnd": 8000.0,
++                     "DistanceFogBlendTime": 1.0}
++
++
++def _hsv_color(hue: int, sat: int, bright: int) -> List[int]:
++    """UE2 FGetHSV(H, S, V) as bytes (truncated): the zone light colour of AmbientHue/Saturation/Brightness. Every
++    stored m_RefAmbientColor of the 84 maps (2814 zones) equals this, so it stands in where a map does not store one."""
++    import math
++    b = bright * 1.4 / 255.0
++    b *= 0.7 / (0.01 + math.sqrt(b))
++    b = min(max(b, 0.0), 1.0)
++    if hue < 86:
++        h = ((85 - hue) / 85.0, hue / 85.0, 0.0)
++    elif hue < 171:
++        h = (0.0, (170 - hue) / 85.0, (hue - 85) / 85.0)
++    else:
++        h = ((hue - 170) / 85.0, 0.0, (255 - hue) / 84.0)
++    return [int((c + sat / 255.0 * (1.0 - c)) * b * 255.0) for c in h] + [255]
++
++
++def zone_ambient_color(props: dict) -> List[int]:
++    """A zone's ambient light colour [R, G, B, A]: m_RefAmbientColor, else FGetHSV of AmbientHue, AmbientSaturation
++    (default 255) and AmbientBrightness (default 0)."""
++    amb = props.get("m_RefAmbientColor")
++    if isinstance(amb, (tuple, list)) and len(amb) >= 3:
++        return list(amb)
++    return _hsv_color(int(_num(props.get("AmbientHue"), 0)), int(_num(props.get("AmbientSaturation"), 255)),
++                      int(_num(props.get("AmbientBrightness"), 0)))
++
++
+ def _zone_ambient(pkg: Package) -> dict:
+-    """ZoneInfo / SkyZoneInfo object ref -> m_RefAmbientColor brightness (max of RGB, 0-255)."""
++    """ZoneInfo / SkyZoneInfo object ref -> ambient brightness (max of RGB, 0-255)."""
+     out = {}
+     for e in pkg.exports:
+         if not e.class_name.endswith("ZoneInfo") or e.size <= 0 or not (e.flags & 0x02000000):
+@@ -195,14 +230,158 @@ def _zone_ambient(pkg: Package) -> dict:
+         try:
+             r = pkg.export_reader(e)
+             skip_state_frame(r, e.flags)
+-            amb = read_properties(r).get("m_RefAmbientColor")
++            amb = zone_ambient_color(read_properties(r))
+         except Exception:
+             continue
+-        if isinstance(amb, (tuple, list)) and len(amb) >= 3:
+-            out[e.index + 1] = int(max(amb[:3]))
++        out[e.index + 1] = int(max(amb[:3]))
+     return out
+ 
+ 
++# Soft-body class defaults (Engine.ESoftBodyActor and the SoftBody package's class default objects, classes step).
++_SOFTBODY_COMMON = {"Gravity": (0.0, 0.0, -980.0), "friction": 0.0, "nbIter": 1, "nbNormalizeIter": 1, "collActor": True,
++                    "EnergyFactor": 0.0, "hitDamping": 1.0, "dragForce": 60.0, "BulletHitFactor": 25, "Mass": 100.0,
++                    "nbU": 3, "nbV": 3, "ULength": 10.0, "VLength": 10.0, "scaleU": 1.0, "scaleV": 1.0, "FixedTop": True}
++SOFTBODY_DEFAULTS = {
++    "ESBPatchActor": {**_SOFTBODY_COMMON, "nbIter": 3, "nbNormalizeIter": 2, "windMin": (0.0, -100.0, 0.0),
++                      "windMax": (0.0, 300.0, 0.0), "windUScale": 2.0, "windVScale": 2.0, "windUPan": 0.7, "windVPan": 0.31},
++    "ESBStripDoorActor": {**_SOFTBODY_COMMON, "nbIter": 3, "nbNormalizeIter": 2, "windMin": (0.0, -100.0, 0.0),
++                          "windMax": (0.0, 100.0, 0.0), "windUScale": 1.0, "windVScale": 1.0, "windUPan": 0.5,
++                          "windVPan": 0.21},
++}
++_SB_PARTICLE = 72   # FSBParticle: flags, position, old position, acceleration, wind, hit force, u, v
++
++
++def _sb_state(pkg: Package, ref: int):
++    """The particles and links of a placed soft body's simulation object (ESBPatch / ESBStripDoor export), as the
++    editor saved them: UESoftBody::Serialize (0x110d7800 in the editor) writes the primitive's bounds, two ints, the
++    owner, an int, then the particle array (72 bytes each: flags bit 0 = fixed, position, old position, acceleration,
++    wind, hit force, u, v; positions in the actor's local space) and the link array (two particle indices and the rest
++    length). Returns (flags, points, uvs, links) or None when the object is missing or does not read."""
++    if not isinstance(ref, int) or ref <= 0 or ref > len(pkg.exports):
++        return None
++    e = pkg.exports[ref - 1]
++    if e.size <= 0:
++        return None
++    try:
++        r = pkg.export_reader(e)
++        skip_state_frame(r, e.flags)
++        read_properties(r)
++        r.raw(25 + 16 + 8)      # bounding box, bounding sphere, two ints
++        r.compact()             # the owning actor
++        r.i32()
++        n = r.compact()
++        if n <= 0 or n > 4096:
++            return None
++        flags, points, uvs = [], [], []
++        for _ in range(n):
++            raw = r.raw(_SB_PARTICLE)
++            f = struct.unpack_from("<I", raw, 0)[0]
++            v = struct.unpack_from("<17f", raw, 4)
++            flags.append(f & 1)
++            points.extend(v[0:3])
++            uvs.extend(v[15:17])
++        m = r.compact()
++        if m < 0 or m > 16384:
++            return None
++        links = []
++        for _ in range(m):
++            a, b = r.i32(), r.i32()
++            rest = r.f32()
++            if not (0 <= a < n and 0 <= b < n):
++                return None
++            links.append((a, b, rest))
++    except Exception:
++        return None
++    if not all(abs(x) < 1e6 and x == x for x in points):
++        return None
++    return flags, points, uvs, links
++
++
++def _sb_built(cls: str, name: str, nu: int, nv: int, ul: float, vl: float, fixed: dict):
++    """The rest layout the build gives a soft body, for when its saved object does not read (the layout read from 70
++    saved bodies): a patch is a (nU + 1) x (nV + 1) grid in local XZ, centred, row by row from the top-left, linked to
++    its right and lower neighbours; a strip door is nU strips of ULength side by side, each two edges of nV + 1
++    particles (the left one top down, the right one bottom up), linked down each edge and across, top row fixed."""
++    w, h = nu * ul, nv * vl
++    flags, points, uvs, links = [], [], [], []
++    if cls == "ESBStripDoorActor":
++        # Each strip shows a random 1/nU wide slice of the texture (the saved bodies' u); estimated from the name.
++        seed = sum(ord(c) * (i + 1) for i, c in enumerate(name))
++        for k in range(nu):
++            seed = (seed * 1103515245 + 12345) & 0x7FFFFFFF
++            off = (seed / 0x7FFFFFFF) * (1.0 - 1.0 / nu)
++            base = len(flags)
++            for side in (0, 1):
++                x = -w / 2 + (k + side) * ul
++                rows = range(nv + 1) if side == 0 else range(nv, -1, -1)
++                for j in rows:
++                    flags.append(1 if j == 0 else 0)
++                    points.extend((x, 0.0, h / 2 - j * vl))
++                    uvs.extend((off + side / nu, j / nv))
++            for j in range(nv):
++                links.append((base + j, base + j + 1, vl))
++                links.append((base + 2 * nv + 1 - j, base + 2 * nv - j, vl))
++                links.append((base + j + 1, base + 2 * nv - j, ul))
++        return flags, points, uvs, links
++    for j in range(nv + 1):
++        for i in range(nu + 1):
++            top, bottom, left, right = j == 0, j == nv, i == 0, i == nu
++            f = ((top and fixed["FixedTop"]) or (bottom and fixed["FixedBottom"]) or (left and fixed["FixedLeft"])
++                 or (right and fixed["FixedRight"]) or (top and left and fixed["FixedTopLeft"])
++                 or (top and right and fixed["FixedTopRight"]) or (bottom and left and fixed["FixedBottomLeft"])
++                 or (bottom and right and fixed["FixedBottomRight"]))
++            flags.append(1 if f else 0)
++            points.extend((-w / 2 + i * ul, 0.0, h / 2 - j * vl))
++            uvs.extend((i / nu, j / nv))
++    for j in range(nv + 1):
++        for i in range(nu + 1):
++            a = j * (nu + 1) + i
++            for b, rest in ((a + 1, ul) if i < nu else (None, 0.0), (a + nu + 1, vl) if j < nv else (None, 0.0)):
++                if b is not None and not (flags[a] and flags[b]):
++                    links.append((a, b, rest))
++    return flags, points, uvs, links
++
++
++def softbody_record(pkg: Package, cls: str, props: dict) -> Optional[dict]:
++    """The simulation settings and rest state of a placed soft body (stored values over the class defaults), the way
++    UESoftBody copies them from its actor each build (0x1099d090 in the game): friction and hitDamping clamped to 0..1,
++    dragForce to 0..10000."""
++    d = SOFTBODY_DEFAULTS[cls]
++    g = lambda k: props.get(k, d.get(k))
++    vec = lambda k: [float(x) for x in g(k)] if isinstance(g(k), (tuple, list)) and len(g(k)) == 3 else list(d[k])
++    nu, nv = max(1, int(_num(g("nbU"), 3))), max(1, int(_num(g("nbV"), 3)))
++    ul, vl = _num(g("ULength"), 10.0), _num(g("VLength"), 10.0)
++    state = _sb_state(pkg, props.get("SoftBody"))
++    expected = 2 * nu * (nv + 1) if cls == "ESBStripDoorActor" else (nu + 1) * (nv + 1)
++    source = "map"
++    if state is None or len(state[0]) != expected:
++        fixed = {k: bool(props.get(k, d.get(k, False))) for k in
++                 ("FixedTop", "FixedBottom", "FixedLeft", "FixedRight", "FixedTopLeft", "FixedTopRight",
++                  "FixedBottomLeft", "FixedBottomRight")}
++        state = _sb_built(cls, str(props.get("Tag", "")) + str(props.get("Location", "")), nu, nv, ul, vl, fixed)
++        source = "built"
++    flags, points, uvs, links = state
++    clamp = lambda v, lo, hi: max(lo, min(hi, v))
++    return {
++        "kind": "strip" if cls == "ESBStripDoorActor" else "patch", "source": source,
++        "nb_u": nu, "nb_v": nv, "u_length": ul, "v_length": vl,
++        "scale_u": _num(g("scaleU"), 1.0), "scale_v": _num(g("scaleV"), 1.0),
++        "gravity": vec("Gravity"), "wind_min": vec("windMin"), "wind_max": vec("windMax"),
++        "wind_u_scale": _num(g("windUScale"), 0.0), "wind_v_scale": _num(g("windVScale"), 0.0),
++        "wind_u_pan": _num(g("windUPan"), 0.0), "wind_v_pan": _num(g("windVPan"), 0.0),
++        "friction": clamp(_num(g("friction"), 0.0), 0.0, 1.0),
++        "nb_iter": int(_num(g("nbIter"), 1)), "nb_normalize_iter": int(_num(g("nbNormalizeIter"), 1)),
++        "coll_actor": bool(g("collActor")), "energy_factor": _num(g("EnergyFactor"), 0.0),
++        "hit_damping": clamp(_num(g("hitDamping"), 1.0), 0.0, 1.0),
++        "drag_force": clamp(_num(g("dragForce"), 60.0), 0.0, 10000.0),
++        "bullet_hit_factor": int(_num(g("BulletHitFactor"), 25)), "mass": _num(g("Mass"), 100.0),
++        "fixed": [i for i, f in enumerate(flags) if f],
++        "points": [round(float(x), 3) for x in points],
++        "uvs": [round(float(x), 5) for x in uvs],
++        "links": [[int(a), int(b), round(float(rest), 3)] for a, b, rest in links],
++    }
++
++
+ def extract_level(pkg: Package, pset: PackageSet) -> List[ActorRecord]:
+     records: List[ActorRecord] = []
+     zone_ambient = _zone_ambient(pkg)
+@@ -248,7 +427,7 @@ def extract_level(pkg: Package, pset: PackageSet) -> List[ActorRecord]:
+         if isinstance(mesh_ref, int) and mesh_ref != 0:
+             rec.mesh_ref = mesh_ref
+             rec.mesh_key = pset.import_path(pkg, mesh_ref)
+-            rec.kind = "mover" if (cls == "Mover" or "Mover" in cls or cls in ("SLift", "ESBStripDoor")) else "staticmesh"
++            rec.kind = "mover" if (cls == "Mover" or "Mover" in cls or cls == "SLift") else "staticmesh"
+             if any(w in rec.mesh_key.lower() for w in HIDDEN_MESH_WORDS):
+                 rec.hidden = True
+             smi = props.get("StaticMeshInstance")
+@@ -363,13 +542,18 @@ def extract_level(pkg: Package, pset: PackageSet) -> List[ActorRecord]:
+             rec.extra = {"team": "merc" if int(_num(props.get("TeamNumber"), 0)) == 1 else "spy"}
+         elif cls in ZONE_CLASSES:
+             rec.kind = "zone"
++            fog_color = props.get("DistanceFogColor")
+             rec.extra = {
+                 "location_name": str(props.get("LocationName", "")),
+                 "fog": bool(props.get("bDistanceFog")),
+-                "fog_color": list(props.get("DistanceFogColor")) if isinstance(props.get("DistanceFogColor"), (tuple, list)) else [0, 0, 0, 0],
+-                "fog_start": _num(props.get("DistanceFogStart"), 0.0),
+-                "fog_end": _num(props.get("DistanceFogEnd"), 0.0),
+-                "ambient": list(props.get("m_RefAmbientColor")) if isinstance(props.get("m_RefAmbientColor"), (tuple, list)) else [0, 0, 0, 0],
++                "fog_color": list(fog_color) if isinstance(fog_color, (tuple, list)) else list(ZONE_FOG_DEFAULTS["DistanceFogColor"]),
++                "fog_start": _num(props.get("DistanceFogStart"), ZONE_FOG_DEFAULTS["DistanceFogStart"]),
++                "fog_end": _num(props.get("DistanceFogEnd"), ZONE_FOG_DEFAULTS["DistanceFogEnd"]),
++                # Seconds the view's fog takes to move to this zone's (0: at once).
++                "fog_blend_time": _num(props.get("DistanceFogBlendTime"), ZONE_FOG_DEFAULTS["DistanceFogBlendTime"]),
++                # With bDistanceFog the main view clears to DistanceFogColor before drawing.
++                "clear_to_fog": bool(props.get("bClearToFogColor")),
++                "ambient": zone_ambient_color(props),
+                 "sky": cls == "SkyZoneInfo",
+             }
+         elif cls == "ERainVolume":
+@@ -378,34 +562,36 @@ def extract_level(pkg: Package, pset: PackageSet) -> List[ActorRecord]:
+             # BSP floors]. The client builds the sheets from these (SCCTEffects.cpp UpdateRainVolumes).
+             wp = props.get("m_weatherProperties") if isinstance(props.get("m_weatherProperties"), dict) else {}
+             size = props.get("m_RainSize")
++            # Fallbacks are the ERainVolume class defaults (maps store only what differs); m_RainFalloff has none (0 in
++            # the game, where RenderRain would divide by it): 100 here, the value every shipped volume but Stat*'s sets.
+             rec.extra["rain"] = {
+-                "size": list(size) if isinstance(size, (tuple, list)) and len(size) == 3 else [512.0, 512.0, 1024.0],
++                "size": list(size) if isinstance(size, (tuple, list)) and len(size) == 3 else [250.0, 250.0, 450.0],
+                 "falloff": _num(props.get("m_RainFalloff"), 100.0),
+-                "fade_scale": _num(props.get("m_RainFadeScale"), 0.5),
+-                "distance_to_camera": _num(props.get("m_DistanceToCamera"), 150.0),
+-                "thickness": _num(wp.get("m_RainThickness"), 250.0),
++                "fade_scale": _num(props.get("m_RainFadeScale"), -1.0),
++                "distance_to_camera": _num(props.get("m_DistanceToCamera"), 80.0),
++                # RenderRain draws no sheet farther than this from the camera.
++                "max_dist": _num(props.get("m_maxDistFromCamera"), 1000.0),
++                "thickness": _num(wp.get("m_RainThickness"), 80.0),
+                 "mat_scale": _num(wp.get("m_RainMatScale"), 10.0),
+             }
+             mref = wp.get("m_RainMaterial")
+             if isinstance(mref, int) and mref:
+                 rec.extra["rain"]["material"] = pset.import_path(pkg, mref)
+                 rec.extra["rain_material_ref"] = mref
+-        elif cls == "ESBPatchActor" and props.get("nbU") and props.get("nbV"):
+-            # Soft-body cloth patch the game builds at runtime: a grid of nbU x nbV cells of ULength x VLength (x
+-            # DrawScale), centred on the actor, in its local XZ plane (roll turns it flat). AquaE's sea is one (10 x 10,
+-            # 4000 x 3800 uu under the terrace, texture Aquarium_TXT.osc), the rest are awnings and banners. The
+-            # exporter builds it as a static grid; AmbientGlow is its only light (bIgnoreEchelonLighting).
++        elif cls in SOFTBODY_DEFAULTS:
++            # Soft body (ESBPatchActor cloth: AquaE's sea, awnings, flags; ESBStripDoorActor plastic strip curtains),
++            # simulated at runtime from its ESBPatch / ESBStripDoor object (softbody_record). AquaE's sea is a patch
++            # (10 x 10, 2000 x 1900 uu under the terrace); AmbientGlow is its only light (bIgnoreEchelonLighting).
++            # Maps store nbU, nbV and the rest only when they differ from the class default (ClarD's flags keep
++            # nbU 3), so every value falls back to it.
+             tex = props.get("Texture")
+             skins = object_refs(props.get("Skins"))
+             mref = tex if isinstance(tex, int) and tex else (skins[0] if skins and skins[0] else 0)
+-            if mref:
+-                rec.extra["patch"] = {
+-                    "nb_u": int(_num(props.get("nbU"), 1)), "nb_v": int(_num(props.get("nbV"), 1)),
+-                    "u_length": _num(props.get("ULength"), 100.0), "v_length": _num(props.get("VLength"), 100.0),
+-                    "scale_u": _num(props.get("scaleU"), 1.0), "scale_v": _num(props.get("scaleV"), 1.0),
+-                    "ambient_glow": int(_num(props.get("AmbientGlow"), 0)),
+-                    "unlit": bool(props.get("bUnlit")),
+-                }
++            body = softbody_record(pkg, cls, props) if mref else None
++            if body is not None:
++                body["ambient_glow"] = int(_num(props.get("AmbientGlow"), 0))
++                body["unlit"] = bool(props.get("bUnlit"))
++                rec.extra["softbody"] = body
+                 rec.extra["patch_material_ref"] = mref
+         elif rec.kind == "marker" and cdef.get("sm") and "StaticMesh" not in props:
+             # Class-default mesh (SLaserTrigger housings, SCamNetwork globes, SInfirmary cabinets): drawn by the
+@@ -417,9 +603,23 @@ def extract_level(pkg: Package, pset: PackageSet) -> List[ActorRecord]:
+                 rec.hidden = True
+                 rec.extra["draw_type"] = draw_type
+         records.append(rec)
++    _split_group_clashes(pkg, pset, records)
+     return records
+ 
+ 
++def _split_group_clashes(pkg: Package, pset: PackageSet, records: List[ActorRecord]) -> None:
++    """Mesh keys are Package.Name; where placed meshes of one name sit in different groups (CpusS's three
++    PCF09_STM...Porte doors, TSP21's Light / Object tsp02_lamp), those records key by their full path instead, so
++    each draws its own mesh rather than the first one loaded."""
++    paths: Dict[str, set] = {}
++    for rec in records:
++        if rec.mesh_ref:
++            paths.setdefault(rec.mesh_key, set()).add(pset.object_path(pkg, rec.mesh_ref))
++    for rec in records:
++        if rec.mesh_ref and len(paths.get(rec.mesh_key, ())) > 1:
++            rec.mesh_key = pset.object_path(pkg, rec.mesh_ref)
++
++
+ # LevelInfo.GlowThreshold class default (live LevelInfo0 / Entry): the native glow post pass brightpasses at T/255.
+ GLOW_THRESHOLD_DEFAULT = 224
+ 
+diff --git a/materials.py b/materials.py
+index 5e0ef50..58ff368 100644
+--- a/materials.py
++++ b/materials.py
+@@ -107,6 +107,18 @@ class ResolvedMaterial:
+     # Texture.AnimNext chain (animated texture, e.g. Aquarium Caustic1.C01..C16): {"frames": [Texture], "fps": float};
+     # `texture` stays the first frame.
+     flipbook: Optional[dict] = None
++    # Shader inputs with their own texture modifiers. UE2 transforms each stage of a Shader by its own modifier chain,
++    # so an Opacity or SpecularityMask that pans at another rate than the Diffuse (ClubD's CLU_Water_01_SH) cannot be
++    # baked into the diffuse's alpha: the exporter writes them as separate layers when they differ from the Diffuse.
++    opacity_anim: Optional[dict] = None
++    opacity_matrix: Optional[Tuple[float, float, float, float, float, float]] = None
++    opacity_layer: bool = False
++    spec_mask_anim: Optional[dict] = None
++    spec_mask_matrix: Optional[Tuple[float, float, float, float, float, float]] = None
++    # The env map's own 2D texture (a TexEnvMap over a Texture; cube maps leave it None): the client looks it up by the
++    # camera-space reflection instead of adding its mean colour.
++    env_texture: Optional[Texture] = None
++    env_key: str = ""
+ 
+     @property
+     def skip(self) -> bool:
+@@ -163,6 +175,19 @@ def _uv_anim(cls: str, props: dict) -> Optional[dict]:
+     return None
+ 
+ 
++def _copy_layers(result: ResolvedMaterial, inner: ResolvedMaterial) -> None:
++    """A FinalBlend or modifier around a Shader keeps the Shader's separately moving layers (when it has none itself)."""
++    if result.opacity_layer or result.opacity_anim or result.opacity_matrix:
++        return
++    if result.opacity is inner.opacity:
++        result.opacity_anim, result.opacity_matrix = inner.opacity_anim, inner.opacity_matrix
++        result.opacity_layer = inner.opacity_layer
++    if result.spec_mask is inner.spec_mask and result.spec_mask_anim is None and result.spec_mask_matrix is None:
++        result.spec_mask_anim, result.spec_mask_matrix = inner.spec_mask_anim, inner.spec_mask_matrix
++    if result.env_texture is None:
++        result.env_texture, result.env_key = inner.env_texture, inner.env_key
++
++
+ class MaterialResolver:
+     def __init__(self, pset: PackageSet):
+         self.pset = pset
+@@ -267,6 +292,7 @@ class MaterialResolver:
+                 op = self.resolve(owner, int(props["Opacity"]), depth + 1)
+                 if op.texture is not None:
+                     result.opacity = op.texture
++                    result.opacity_anim, result.opacity_matrix = op.uv_anim, op.uv_matrix
+                     # OB_Normal with an Opacity texture is alpha blended (it was exported opaque: AquaE's fog sheet
+                     # covered a wall, glass and water drew as solid slabs).
+                     if ob == 0:
+@@ -286,10 +312,12 @@ class MaterialResolver:
+                     import numpy as _np
+                     px = _np.asarray(env.texture.image.convert("RGB"), dtype=_np.float32) / 255.0
+                     result.env_color = tuple(float(c) for c in px.reshape(-1, 3).mean(0))
++                    result.env_texture, result.env_key = env.texture, env.key
+                 if props.get("SpecularityMask"):
+                     sm = self.resolve(owner, int(props["SpecularityMask"]), depth + 1)
+                     if sm.texture is not None:
+                         result.spec_mask, result.spec_mask_key = sm.texture, sm.key
++                        result.spec_mask_anim, result.spec_mask_matrix = sm.uv_anim, sm.uv_matrix
+             if props.get("SelfIllumination"):
+                 result.unlit = True
+                 si = self.resolve(owner, int(props["SelfIllumination"]), depth + 1)
+@@ -346,7 +374,15 @@ class MaterialResolver:
+                     return r.uv_anim, r.uv_matrix
+                 return None, None
+             anims = {k: _anim(p) for k, p in (("1", "Material1"), ("2", "Material2"), ("mask", "Mask"))}
+-            result.combine = {"anims": anims,
++            # Material2 an env map (TexEnvMap): looked up by the reflection, not the mesh UVs, and it may play an
++            # AnimNext chain (ClarD / Sche* puddles: final_flaque_envmap, rain ripples flaque_onde0000..). Baked
++            # through the UVs it stretched one ripple frame over the puddle as a large bright blot.
++            env2 = self._is_env_map(owner, props.get("Material2"))
++            flip2 = None
++            if env2:
++                r2 = self.resolve(owner, int(props["Material2"]), depth + 1)
++                flip2 = r2.flipbook
++            result.combine = {"anims": anims, "env2": env2, "flip2": flip2,
+                               "op": int(props.get("CombineOperation", 0) or 0),
+                               "alpha_op": int(props.get("AlphaOperation", 0) or 0),
+                               "mod": 4 if props.get("Modulate4X") else (2 if props.get("Modulate2X") else 1),
+@@ -384,6 +420,7 @@ class MaterialResolver:
+                             result.spec_mask, result.spec_mask_key = inner.spec_mask, inner.spec_mask_key
+                         if result.opacity is None and inner.opacity is not None:
+                             result.opacity, result.opacity_key = inner.opacity, getattr(inner, "opacity_key", "")
++                        _copy_layers(result, inner)
+                     if cls not in ("Shader", "FinalBlend"):
+                         result.translucent = result.translucent or inner.translucent
+                         result.masked = result.masked or inner.masked
+@@ -399,7 +436,16 @@ class MaterialResolver:
+                             result.spec_mask, result.spec_mask_key = inner.spec_mask, inner.spec_mask_key
+                         if result.opacity is None:
+                             result.opacity = inner.opacity   # a panner/scaler around an opacity Shader keeps its alpha
++                        _copy_layers(result, inner)
+                     break
++        if cls == "Shader" and result.opacity is not None:
++            # The Opacity moves on its own (another panner or rate than the Diffuse): a separate layer, not a bake.
++            result.opacity_layer = (result.opacity_anim, result.opacity_matrix) != (result.uv_anim, result.uv_matrix)
++        if cls == "Combiner" and result.combine and (result.combine.get("env2")
++                                                      or any(a or m for a, m in result.combine["anims"].values())):
++            # The inputs carry their own modifiers (exported per input): Material1's must not also apply to the whole
++            # Combiner, or it would move twice.
++            result.uv_anim, result.uv_matrix = None, None
+         if result.texture is None and cls == "MaterialSequence":
+             # Animated screens (security-room feeds, monitors, blinking mines) have no FallbackMaterial: show the
+             # sequence's first frame.
+diff --git a/packageset.py b/packageset.py
+index f1146d5..802ac62 100644
+--- a/packageset.py
++++ b/packageset.py
+@@ -72,7 +72,14 @@ class PackageSet:
+         other = self.get(root)
+         if other is None:
+             return None, None
+-        # match by name and class; groups are ignored (names are unique per package in practice)
++        # match by name and class; when the name is in several groups (CpusS: PCF09_STM.Portes.Porte,
++        # Spawn_merc.Porte and Spawn_spy.Porte), by the import's group path too
++        same = [x for x in other.exports if x.name.lower() == imp.name.lower() and x.class_name == imp.class_name]
++        if len(same) > 1:
++            wanted = self.object_path(pkg, ref).lower()
++            e = next((x for x in same if x.full_name.lower() == wanted), None)
++            if e is not None:
++                return other, e
+         e = other.find_export(imp.name, imp.class_name)
+         if e is None:
+             e = other.find_export(imp.name)
+@@ -86,3 +93,24 @@ class PackageSet:
+             return f"{pkg.path.stem}.{pkg.exports[ref - 1].name}"
+         root = self.root_package_of_import(pkg, ref) or "?"
+         return f"{root}.{pkg.imports[-ref - 1].name}"
++
++    @staticmethod
++    def object_path(pkg: Package, ref: int) -> str:
++        """Package.Group.Name for any ref, groups included (an import's outer chain, or an export's in pkg)."""
++        if ref == 0:
++            return "None"
++        parts = []
++        guard = 0
++        while ref != 0 and guard < 32:
++            guard += 1
++            if ref > 0:
++                e = pkg.exports[ref - 1]
++                parts.append(e.name)
++                ref = e.outer
++                if ref == 0:
++                    parts.append(pkg.path.stem)
++            else:
++                i = pkg.imports[-ref - 1]
++                parts.append(i.name)
++                ref = i.outer
++        return ".".join(reversed(parts))
+diff --git a/properties.py b/properties.py
+index 8a5a6f6..594dec5 100644
+--- a/properties.py
++++ b/properties.py
+@@ -180,8 +180,9 @@ def _read_typed_array(r: Reader, name: str, inner: str, size: int, depth: int):
+         else:
+             raise PackageError("type")
+         diff = (r.tell() - start) - (r.name_extra - extra0)
+-        # Tagged struct elements: the tag size leaves out each element's None terminator (SLift.DoorsAndSwitches).
+-        if (diff == size or (inner.startswith("Struct:") and diff == size + count)) and _peek_tag_valid(r):
++        # Tagged struct elements: the tag size leaves out none, some or all of the elements' None terminators
++        # (SLift.DoorsAndSwitches: 0 on ClubD, all on FactD, 1 of 2 on OffsD and SkysD, whose lift cars were lost).
++        if (diff == size or (inner.startswith("Struct:") and size <= diff <= size + count)) and _peek_tag_valid(r):
+             return v
+     except Exception:
+         pass

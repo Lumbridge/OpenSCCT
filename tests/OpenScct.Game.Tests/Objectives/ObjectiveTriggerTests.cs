@@ -144,6 +144,8 @@ public sealed class ObjectiveTriggerTests
     [Fact]
     public void Give_entry_returns_to_the_previous_state_on_release()
     {
+        // No selected gadget, so the menu's CanUse finds no mate to give to and clears the target: the release
+        // reports Leave, but the player still returns to the previous state.
         var w = new ObjWorld();
         TestPC pc = w.AddPlayer(spy: true, default);
         TestPC mate = w.AddPlayer(spy: true, default);
@@ -152,7 +154,8 @@ public sealed class ObjectiveTriggerTests
         var give = (SShareObjectInteraction)pc.IManager.Interactions[3]!;
         give.aActorToInteractWith = (SBasePawn)mate.Pawn!;
 
-        Assert.Equal(EMenuRelease.Give, ObjWorld.UseEntry(pc, give));
+        Assert.Equal(EMenuRelease.Leave, ObjWorld.UseEntry(pc, give));
+        Assert.Null(give.aActorToInteractWith);
         Assert.True(pc.IsInState(K.s_PlayerWalkingSt0H));
     }
 
