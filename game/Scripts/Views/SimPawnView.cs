@@ -198,6 +198,7 @@ public partial class SimPawnView : Node3D
         _model.Place(location, new FRotator(0, yaw, 0), prePivot);
         _drawYaw = yaw;
         SetAim(pawn, yaw);
+        SetDirections(pawn);
         Pose(pawn, alpha);
         _attachments?.Draw(pawn, dt);
         _goggleGlow?.Draw(pawn);
@@ -260,6 +261,35 @@ public partial class SimPawnView : Node3D
     }
 
     private int? _aimBone;
+
+    /// <summary>
+    /// The bone direction controllers the simulation holds (TurnHead's arm aim, aim-ik.md rule 5): each world rotation
+    /// (UE axes) taken into the skeleton's space for the applier, which gives the bone that rotation.
+    /// </summary>
+    private void SetDirections(SBasePawn pawn)
+    {
+        ChannelPoseApplier applier = _applier!;
+        applier.Directions.Clear();
+        IReadOnlyList<BoneDirection> all = pawn.PawnAnim.Directions.All;
+        if (all.Count == 0)
+        {
+            return;
+        }
+
+        Basis toSkeleton = _model!.Skeleton.GlobalTransform.Basis.Orthonormalized().Inverse();
+        for (int i = 0; i < all.Count; i++)
+        {
+            BoneDirection d = all[i];
+            int bone = BoneIndex(d.Bone);
+            if (bone < 0)
+            {
+                continue;
+            }
+
+            Quaternion rotation = (toSkeleton * UeSpace.RotationToGodot(d.Rotation)).GetRotationQuaternion();
+            applier.Directions[bone] = (rotation, d.Alpha);
+        }
+    }
 
     /// <summary>The skeleton index of a bone by its UE name (cached), or -1.</summary>
     public int BoneIndex(Name bone)
