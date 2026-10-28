@@ -66,6 +66,9 @@ public partial class App : Node
             OpenScctGame.Options.UserDataMigration.Run(OS.GetUserDataDir());
             OpenScctGame.Options.SettingsApplier.ApplyAtStart(GetViewport());
 
+            // The developer console on the key left of 1 (rl:qol.console); it keeps itself last in the tree.
+            GetTree().Root.CallDeferred(Node.MethodName.AddChild, new OpenScctGame.UI.DevConsole());
+
             // The player's Discord status and a friend's Join (docs/DISCORD.md).
             if (OpenScctGame.Discord.DiscordPresence.Wanted(this))
             {

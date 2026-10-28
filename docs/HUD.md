@@ -186,6 +186,33 @@ original's rules (spectators may not chat unless dead and the voice mode allows 
 characters a second, team lines to the sender's team) and sends each recipient a chat message with the sender's id,
 name and team; the client hands it to `HudConsole` ("Ghost: on my way"). Spec: `spec/hud/chat.md`.
 
+## Developer console
+
+`UI/DevConsole` (rl:qol.console, rl:input.console) opens and closes on the key left of 1 (backtick or tilde, by
+its place on the keyboard, so any layout), or on Chaos Theory's own console key, the apostrophe key, with
+`override_console_key` off. It works in the menus and in play, but not over an open chat line or a focused text box.
+It is a band over the top of the screen in a monospaced system font (Consolas, then other mono fonts). While it is
+open it takes every key press, click and mouse movement, so nothing reaches the game or the menus; releases still
+pass so no key stays held. Escape or the console key closes it; Up and Down walk the typed history.
+
+Commands (`UI/ConsoleCommands`, Godot-free; settings through `Options/SettingsConsole`):
+
+| Command | What |
+|---|---|
+| `help` | the list |
+| `current` | every settings.json key and value |
+| `get <key>`, `set <key> <value>` | a settings.json key; a group member with a dot (`controls_spy_kbm.look`); switches take on/off; the settings' limits apply; saved and applied at once |
+| `<key> [value]` | a settings key alone shows it, with a value sets it (Reloaded's `fps_spy`, `fps_merc`, `ws_fov`, `widescreen`) |
+| `login <password>` | the server's admin login (`!login`) |
+| `cmd <command>` | a server console command (docs/ONLINE.md), for the host and admins |
+| `practice on`, `practice off` | the server's practice mode (host and admins; `practice` alone says what it does) |
+| `resign`, `pings`, `practice`, `heal`, `regen`, `tank`, `kill`, `rmap_next`, `rmap_prev`, `map <name> [mode]` | sent as the chat command (`!resign`, `!next`, `!prev`...) |
+| `say <text>` | a chat line |
+| `quit` | closes the game |
+
+The server's system lines (answers to `cmd`, `!pings` and the others) are shown in it as they arrive. Not in smoke
+runs (it is added by `App` outside them).
+
 ## Options and settings
 
 The settings live in `user://settings.json`, JSON with comments and trailing commas allowed, keys named as
@@ -201,6 +228,7 @@ applies them at start and on save.
 | display | `display_mode` (Windowed, Fullscreen, BorderlessFullscreen), `display_monitor`, `resolution`, `vsync`, `widescreen`, `ws_fov` (95..112, default 112), `fps_spy`, `fps_merc` (Monitor by default, Unlimited or 30 to 240: docs/RENDERING.md, frame pacing), `resolution_scale` |
 | audio | `master_volume`, `sound_volume`, `music_volume`, `voice_output_volume` (Godot buses Master, SvmWorld and the effect buses, SvmMusic, SvmVoice) |
 | HUD | `show_scoreboard`, `show_ping`, `show_fps` |
+| console | `override_console_key` (true: the key left of 1; false: the apostrophe key) |
 
 `OptionsMenu` is the screen (from the main menu, or over the game with F12): Keys (rebinding the spy and merc layouts
 through `KeyBindingsModel`; click a key, press the new one, Escape cancels), Mouse, Controller, Display, Audio, HUD,

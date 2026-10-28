@@ -462,6 +462,15 @@ public sealed class GameSettings
     [JsonPropertyName("discord_presence")]
     public bool DiscordPresence { get; set; } = true;
 
+    // ---- console -------------------------------------------------------------------------------------------
+
+    /// <summary>
+    /// The developer console opens on the key left of 1 (backtick or tilde, by its place on the keyboard, whatever the
+    /// layout) instead of Chaos Theory's own console key, the apostrophe key (rl:input.console).
+    /// </summary>
+    [JsonPropertyName("override_console_key")]
+    public bool OverrideConsoleKey { get; set; } = true;
+
     /// <summary>Where the settings came from, for the options screen (not saved).</summary>
     [JsonIgnore]
     public string LoadNote { get; set; } = "";
