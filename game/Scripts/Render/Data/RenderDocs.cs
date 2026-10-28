@@ -143,9 +143,11 @@ public sealed record MaterialLayer(string Texture, UvAnim? Anim, UvAffine? Matri
 /// <summary>
 /// A UE2 Combiner whose inputs move on their own (materials.json flags "combine"): Material1, Material2 and the Mask with
 /// their own modifiers, combined per pixel by CombineOperation / AlphaOperation (docs/RENDERING.md#materials).
+/// <see cref="Env2"/>: Material2 is a TexEnvMap, looked up by the reflection; <see cref="Flip2"/> its AnimNext chain as
+/// an atlas (Second.Texture is then the atlas).
 /// </summary>
 public sealed record CombineEntry(int Op, int AlphaOp, float Modulate, bool InvertMask, MaterialLayer First, MaterialLayer Second,
-    MaterialLayer? Mask)
+    MaterialLayer? Mask, bool Env2 = false, FlipbookEntry? Flip2 = null)
 {
     public static CombineEntry? From(JsonElement c)
     {
@@ -161,11 +163,18 @@ public sealed record CombineEntry(int Op, int AlphaOp, float Modulate, bool Inve
         string? mask = MaterialsDoc.Str(c, "mask");
         return new CombineEntry(
             Int(c, "op"), Int(c, "alpha_op"), Math.Max(1, Int(c, "mod")), MaterialsDoc.Bool(c, "invert_mask"),
-            Layer(t1, "1"), Layer(t2, "2"), mask is null ? null : Layer(mask, "Mask"));
+            Layer(t1, "1"), Layer(t2, "2"), mask is null ? null : Layer(mask, "Mask"),
+            MaterialsDoc.Bool(c, "env2"),
+            c.TryGetProperty("flip2", out JsonElement f2) && f2.ValueKind == JsonValueKind.Object
+                ? new FlipbookEntry(t2, Int(f2, "cols"), Int(f2, "rows"), Int(f2, "frames"), Num(f2, "fps"))
+                : null);
     }
 
     private static int Int(JsonElement e, string name) =>
         e.TryGetProperty(name, out JsonElement v) && v.ValueKind == JsonValueKind.Number ? v.GetInt32() : 0;
+
+    private static float Num(JsonElement e, string name) =>
+        e.TryGetProperty(name, out JsonElement v) && v.ValueKind == JsonValueKind.Number ? v.GetSingle() : 0f;
 }
 
 /// <summary>An animated texture (Texture.AnimNext chain) as a row-major atlas of its frames, stepped at Fps.</summary>

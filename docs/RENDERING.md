@@ -188,7 +188,11 @@ old bake chose), `SPEC_LAYER` (the SpecularityMask). Otherwise Opacity stays bak
 under an oscillator; 98 materials in all): Material1, Material2 and the Mask each through their own modifiers after
 the Combiner's own, then CombineOperation (Material1, Material2, multiply, add, subtract, `lerp(M2, M1, mask.a)`,
 `M1 + M2 x mask.a`, mask colour), x Modulate2X / 4X, and AlphaOperation (mask alpha, multiply, add, Material1's,
-Material2's); InvertMask inverts the mask alpha; no Mask means Material1. Static Combiners stay a bake. `FLIPBOOK`
+Material2's); InvertMask inverts the mask alpha; no Mask means Material1. A Material2 that is a TexEnvMap (`env2`:
+ClarD's and Sche*'s puddles `SFX_SCH_xbox.FX.final_flaque_envmap`, the rain ripples `flaque_onde0000..` at 10 fps) is
+looked up by the camera-space reflection as `ENV_TEX` is and plays its AnimNext chain from an atlas (`flip2`); its
+static bake takes the env texture's mean colour (baked through the UVs it stretched one ripple frame over each puddle
+as a large bright blot). Static Combiners stay a bake. `FLIPBOOK`
 plays an animated texture (Texture.AnimNext chain: AquaE caustics `SC01` 16 frames, ClubD's pool caustic projectors,
 AquaE's rain projectors) from an atlas, one frame per 1 / MaxFrameRate s (MinFrameRate when unset, else 30 fps
 [estimate: the game then steps a frame per rendered frame]). The game's MaterialSequence screens still show their
@@ -220,6 +224,9 @@ settings' `filter_level` (rl:gfx.filtering: 0, 2, 4, 8 or 16, first run 4 as the
   glow `min(1, 2 x AmbientGlow / 255)` (measured on BankD). The vertex colour stores half the term so it stays exact
   in 8 bits.
 - `dynamic` is the sum of the dynamic world lights, the spot shadow light and the night vision boost.
+- Additive meshes with painted vertex colours (`authoredColors`, e.g. AquaD's caustic quads: 40 inside, 0 on the rim)
+  draw `tex x 2 x VC` alone: no AmbientGlow, no dynamic or spot light, so the rim fades out as in the original (with
+  them the quads filled to bright squares). They carry zone 255 (`MapBuilder.AuthoredOverlayZone`). Estimated.
 
 ## Dynamic lights
 
@@ -271,7 +278,9 @@ Cookies share a texture array (`svm_spot_cookies`, each resampled to 256 x 256; 
   slots; each follows its switch and light type. Cookie: EchelonLightMaterial.ProjectedLightingTexture
   (`echelon_texture_uri`), attenuation its AttenuationType (`echelon_attenuation`, written by the exporter since this
   change; linear, the class default, until the map is converted again), normal influence EchelonNormalInfluence
-  (default 1). Lights without a material get no cookie and linear attenuation (estimated).
+  (default 1). Lights without a material take the level's default Echelon light material: the soft round
+  `Echelon.spot_bw` cookie (the editor exe names `Lighting` `spot_bw` beside its built-in packages; AquaD's Seaside
+  spot was a hard-edged white rectangle without it) and linear attenuation (estimated).
 - Shadow lookups: one filtered lookup (four depth comparisons blended bilinearly, as hardware shadow filtering);
   with `SpotShadowSoftRadius` > 0 (1.5 texels, estimated) eight such lookups on a disc, as the sandbox's Reloaded
   `shadow_edge_smoothing` does. The stock game uses the single filtered lookup.

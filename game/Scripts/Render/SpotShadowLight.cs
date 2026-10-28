@@ -27,13 +27,18 @@ public sealed record SpotShadowShape(float Range, float SpotWidth, float SpotHei
         RenderK.TorchNearPlaneRatio, RenderK.TorchBrightness, RenderK.TorchHue, RenderK.TorchSaturation, 0f, RenderK.TorchAttenuation,
         RenderPack.TorchCookie);
 
-    /// <summary>A map LE_ESpotShadow light's shape (its cookie is a map texture, passed to the light separately).</summary>
+    /// <summary>
+    /// A map LE_ESpotShadow light's shape (its cookie is a map texture, passed to the light separately). A light without
+    /// an EchelonLightMaterial takes the level's DefaultEchelonLightMaterial, whose cookie is the soft round
+    /// <see cref="RenderPack.SpotCookie"/>.
+    /// </summary>
+    [Provenance(ProvenanceKind.Estimated, "the editor exe names Lighting spot_bw next to its built-in packages (DefaultEchelonLightMaterial, not traced); attenuation stays linear")]
     public static SpotShadowShape Of(LightEntry l, EchelonSpot e)
     {
         ArgumentNullException.ThrowIfNull(l);
         ArgumentNullException.ThrowIfNull(e);
         return new SpotShadowShape(MathF.Max(e.Range, 1f), MathF.Max(e.Width, 1f), MathF.Max(e.Height, 1f), e.NearPlaneRatio, l.Brightness,
-            l.Hue, l.Saturation, e.NormalInfluence, e.Attenuation, e.Texture ?? "");
+            l.Hue, l.Saturation, e.NormalInfluence, e.Attenuation, e.Texture ?? RenderPack.SpotCookie);
     }
 
     /// <summary>The apex distance behind the light in uu (p x Range / (1 - p)), or null for parallel rays.</summary>

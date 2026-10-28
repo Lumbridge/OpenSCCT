@@ -374,7 +374,15 @@ class MaterialResolver:
                     return r.uv_anim, r.uv_matrix
                 return None, None
             anims = {k: _anim(p) for k, p in (("1", "Material1"), ("2", "Material2"), ("mask", "Mask"))}
-            result.combine = {"anims": anims,
+            # Material2 an env map (TexEnvMap): looked up by the reflection, not the mesh UVs, and it may play an
+            # AnimNext chain (ClarD / Sche* puddles: final_flaque_envmap, rain ripples flaque_onde0000..). Baked
+            # through the UVs it stretched one ripple frame over the puddle as a large bright blot.
+            env2 = self._is_env_map(owner, props.get("Material2"))
+            flip2 = None
+            if env2:
+                r2 = self.resolve(owner, int(props["Material2"]), depth + 1)
+                flip2 = r2.flipbook
+            result.combine = {"anims": anims, "env2": env2, "flip2": flip2,
                               "op": int(props.get("CombineOperation", 0) or 0),
                               "alpha_op": int(props.get("AlphaOperation", 0) or 0),
                               "mod": 4 if props.get("Modulate4X") else (2 if props.get("Modulate2X") else 1),
@@ -433,7 +441,8 @@ class MaterialResolver:
         if cls == "Shader" and result.opacity is not None:
             # The Opacity moves on its own (another panner or rate than the Diffuse): a separate layer, not a bake.
             result.opacity_layer = (result.opacity_anim, result.opacity_matrix) != (result.uv_anim, result.uv_matrix)
-        if cls == "Combiner" and result.combine and any(a or m for a, m in result.combine["anims"].values()):
+        if cls == "Combiner" and result.combine and (result.combine.get("env2")
+                                                      or any(a or m for a, m in result.combine["anims"].values())):
             # The inputs carry their own modifiers (exported per input): Material1's must not also apply to the whole
             # Combiner, or it would move twice.
             result.uv_anim, result.uv_matrix = None, None

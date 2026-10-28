@@ -786,6 +786,13 @@ public static class MapBuilder
         private static readonly float[] SurfaceZoneOffsets = [2f, 8f, 32f];
 
         /// <summary>
+        /// Zone byte of an additive mesh with painted vertex colours: the world template lights it by its colours only
+        /// (svm_world.gdshaderinc SVM_OVERLAY_ZONE). UE2 maps have far fewer zones, so the value is free.
+        /// </summary>
+        [Provenance(ProvenanceKind.Estimated, "UE2 static meshes drawn with their own vertex colours take no lighting; AquaD caustics fade by them in the original")]
+        internal const byte AuthoredOverlayZone = 255;
+
+        /// <summary>
         /// Zones of a mesh's triangles placed by <paramref name="transform"/>, each from its triangle's surface (like the
         /// BSP), so decals and meshes spanning a portal take the zone of the room they face. Faces whose surface point
         /// is inside solid (zone 0: backs against walls, faces inside door frames) take the actor's zone, the one UE2
@@ -915,12 +922,20 @@ public static class MapBuilder
             Aabb box = Bounds(prims, transform);
             (int, int, int) cell = CellOf(box.GetCenter(), Bool(inst, "skyZone") || InSkyZone(box.GetCenter()));
             Vector4 vision = VisionOf(inst);
+            bool authored = Bool(inst, "authoredColors");
             foreach (MeshPrimitive prim in prims)
             {
                 SurfaceBuilder bucket = Bucket(cell, prim.Material, light, false, light == LightSource.Vertex);
                 bucket.Vision = vision;
                 byte[]? zones = light == LightSource.Vertex ? ZonesOf(prim, transform, location) : null;
-                if (light == LightSource.Vertex && glow > 0)
+                if (light == LightSource.Vertex && authored && _map.Materials.Find(prim.Material)?.Blend == MaterialBlend.Additive)
+                {
+                    // An additive overlay with painted colours (AquaD's caustic quads: 40 inside, 0 on the rim) is drawn by
+                    // its colours alone: no glow, no dynamic or spot light, which would fill the faded rim to a square.
+                    Array.Fill(zones!, AuthoredOverlayZone);
+                    bucket.Add(transform, prim, 0, zones);
+                }
+                else if (light == LightSource.Vertex && glow > 0)
                 {
                     AddGlowing(bucket, transform, prim, glow, zones);
                 }

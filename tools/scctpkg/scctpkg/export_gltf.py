@@ -529,6 +529,9 @@ def _combined_image(res: ResolvedMaterial):
     m = fit(c.get("mask"))
     if b is None:
         b = a
+    elif c.get("env2"):
+        # An env-mapped Material2 is looked up by the reflection, not the UVs: the bake takes its mean colour.
+        b = np.broadcast_to(b.reshape(-1, b.shape[-1]).mean(0), b.shape).copy()
     if m is None:
         m = a
     ma = m[..., 3:4] if m.shape[-1] == 4 else np.ones_like(a[..., :1])
@@ -572,13 +575,24 @@ def _combine_flags(key: str, res: ResolvedMaterial, tex_dir: Optional[Path], tex
     if not c or tex_dir is None or tex_uri is None or res.texture is None:
         return None
     anims = c.get("anims") or {}
-    if not any(a for a, _ in anims.values()):
+    env2 = bool(c.get("env2"))
+    if not env2 and not any(a for a, _ in anims.values()):
         return None
     out = {"op": c.get("op", 0), "alpha_op": c.get("alpha_op", 0), "mod": c.get("mod", 1),
            "invert_mask": bool(c.get("invert_mask"))}
+    if env2:
+        # Material2 is a TexEnvMap: the client looks it up by the reflection ("env2") and plays its AnimNext chain
+        # from an atlas ("flip2": {"cols", "rows", "frames", "fps"}, tex2 is then the atlas).
+        out["env2"] = True
+        flip = _flipbook_png(f"{key}__c2", c["flip2"], tex_dir, tex_uri) if c.get("flip2") else None
+        if flip:
+            out["flip2"] = {k: flip[k] for k in ("cols", "rows", "frames", "fps")}
     for slot, tex in (("1", res.texture), ("2", c.get("tex2")), ("mask", c.get("mask"))):
         name = "tex1" if slot == "1" else ("tex2" if slot == "2" else "mask")
-        uri = _texture_png(f"{key}__c{slot}", tex, tex_dir, tex_uri) if tex is not None else None
+        if slot == "2" and "flip2" in out:
+            uri = tex_uri.get(f"{key}__c2__flip")
+        else:
+            uri = _texture_png(f"{key}__c{slot}", tex, tex_dir, tex_uri) if tex is not None else None
         if uri is None and slot != "mask":
             return None
         if uri is not None:

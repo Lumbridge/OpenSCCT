@@ -134,6 +134,10 @@ uniform vec4 cm_anim_a = vec4(0.0);
 uniform vec4 cm_anim_b = vec4(0.0);
 uniform vec3 cm_row_u = vec3(1.0, 0.0, 0.0);
 uniform vec3 cm_row_v = vec3(0.0, 1.0, 0.0);
+// 1: Material2 is a TexEnvMap, looked up by the camera-space reflection (0.25 R.xy + 0.5, as ENV_TEX) instead of the
+// UVs; c2_flip plays its AnimNext chain from the atlas in tex_c2 (x columns, y rows, z frames, w frames per second).
+uniform int c2_env = 0;
+uniform vec4 c2_flip = vec4(1.0, 1.0, 1.0, 0.0);
 #endif
 
 #ifdef FLIPBOOK
@@ -390,7 +394,15 @@ void fragment() {
 	vec2 uv1 = svm_anim(svm_affine(uv, c1_row_u, c1_row_v), c1_anim_type, c1_anim_a, c1_anim_b, vec2(textureSize(tex_diffuse, 0)));
 	vec2 uv2 = svm_anim(svm_affine(uv, c2_row_u, c2_row_v), c2_anim_type, c2_anim_a, c2_anim_b, vec2(textureSize(tex_c2, 0)));
 	vec4 m1 = texture(tex_diffuse, uv1, svm_mip_bias);
-	vec4 m2 = texture(tex_c2, uv2, svm_mip_bias);
+	vec4 m2;
+	if (c2_env != 0) {
+		vec2 euv = reflect(normalize(VERTEX), normalize(NORMAL)).xy * 0.25 + 0.5;
+		float f2 = mod(floor(svm_time * c2_flip.w), c2_flip.z);
+		vec2 cell2 = vec2(mod(f2, c2_flip.x), floor(f2 / c2_flip.x));
+		m2 = textureGrad(tex_c2, (fract(euv) + cell2) / c2_flip.xy, dFdx(euv) / c2_flip.xy, dFdy(euv) / c2_flip.xy);
+	} else {
+		m2 = texture(tex_c2, uv2, svm_mip_bias);
+	}
 	vec4 mk = m1;
 	if (cmask_on != 0) {
 		vec2 uvm = svm_anim(svm_affine(uv, cm_row_u, cm_row_v), cm_anim_type, cm_anim_a, cm_anim_b, vec2(textureSize(tex_cmask, 0)));
@@ -444,10 +456,12 @@ void fragment() {
 #else
 	float zone = -1.0;
 #endif
-	vec3 spot = svm_spot_count > 0 ? svm_spot_light(v_wpos, wn, zone) : vec3(0.0);
+	// Zone 255 (MapBuilder.AuthoredOverlayZone): an additive mesh with painted colours, lit by its colours alone.
+	bool overlay = zone > 254.5;
+	vec3 spot = svm_spot_count > 0 && !overlay ? svm_spot_light(v_wpos, wn, zone) : vec3(0.0);
 #endif
 #if defined(LIGHT_LIGHTMAP) || defined(LIGHT_VERTEX)
-	vec3 dyn = (svm_dyn_light_count > 0 ? svm_dynamic(v_wpos, wn, zone) : vec3(0.0)) + spot;
+	vec3 dyn = (svm_dyn_light_count > 0 && !overlay ? svm_dynamic(v_wpos, wn, zone) : vec3(0.0)) + spot;
 #endif
 #if defined(LIGHT_LIGHTMAP)
 	vec3 lit = t.rgb * min(texture(tex_lightmap, UV2).rgb * lightmap_scale + vec3(svm_vision_ambient) + dyn, vec3(2.0));
