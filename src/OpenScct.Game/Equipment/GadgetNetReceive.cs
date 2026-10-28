@@ -24,6 +24,9 @@ public static class GadgetNetReceive
             case "SpawnGaz" when target is SStickyCam cam:
                 cam.SpawnGaz();
                 return true;
+            case "AskServerGiveObjectToPawn" when target is SGadget gad:
+                PC.AskServerGiveObjectToPawn(gad, c.Actor1 as SBasePawn, c.Int1);
+                return true;
             case "ServerStickyCamGas":
                 PC.ServerStickyCamGas(c.Int1, c.Int2);
                 return true;

@@ -91,6 +91,7 @@ public static class InteractionMenuRules
         SInteractObject? entry = manager.GetCurrentInteraction();
         if (entry is SShareObjectInteraction share)
         {
+            pc.GiveSelectedGadget(share);
             ObjectiveNatives.ChangeState(pc, pc.PreviousState, Name.None, true);
             return share.aActorToInteractWith is not null ? EMenuRelease.Give : EMenuRelease.Leave;
         }
