@@ -95,6 +95,7 @@ internal static class Program
                     Maps = maps,
                     Net = new OpenScct.Net.NetDriverSettings { LanPlay = options.LanPlay, IsLan = options.LanPlay, UpdateGate = options.UpdateGate },
                     GameOptions = options.Game,
+                    HostSettings = options.Game is { } game ? HostSettingsFor(maps, options.Map, game) : null,
                     PlayersToStart = options.Bots is not null ? 4 : options.PlayersToStart,
                     Classes = classes,
                 });
@@ -144,6 +145,18 @@ internal static class Program
         }
 
         return 0;
+    }
+
+    /// <summary>
+    /// The host's settings object for a <c>--game</c> server: the map's untouched match creation page for the URL's
+    /// mode (MatchSetup.Defaults), so a Disk Hunt server puts the menu's active disks in play and needs the menu's
+    /// disks to take, as a lobby launch does (docs/MODES.md).
+    /// </summary>
+    private static OpenScct.Game.SBase.USPersistentData HostSettingsFor(MapCatalog maps, string map, string gameOptions)
+    {
+        var url = new OpenScct.Game.SBase.USMatchInfo();
+        url.SetOptionString(gameOptions);
+        return OpenScct.Game.Modes.MatchSetup.Defaults(maps.GetMapSettings(map), url.GameMode, map).ToPersistentData();
     }
 
     private static int RunOnline(CliOptions options)

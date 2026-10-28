@@ -212,17 +212,13 @@ public sealed class DemoPlayer : IDisposable
         };
     }
 
-    /// <summary>The mode key of the recorded game options (Story, DiskHunt, Deathmatch, MercDeathMatch).</summary>
+    /// <summary>The mode key of the recorded game options (MapCatalog.ModeKey; Story when absent or unknown).</summary>
     public static string ModeKey(string gameOptions)
     {
         string mode = UcOptions.ParseOption(gameOptions ?? string.Empty, "GameMode");
-        return mode switch
-        {
-            "4" => "DiskHunt",
-            "6" => "Deathmatch",
-            "7" => "MercDeathMatch",
-            _ => "Story",
-        };
+        return byte.TryParse(mode, System.Globalization.NumberStyles.None, System.Globalization.CultureInfo.InvariantCulture, out byte id)
+            ? MapCatalog.ModeKey((EGameMode)id)
+            : "Story";
     }
 
     // ---- ticking (called by the play scene on its client ticks) -----------------------------------------------

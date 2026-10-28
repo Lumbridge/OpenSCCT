@@ -79,7 +79,7 @@ Who-hears-whom matches the original (rules in `VoiceRouting.cs`). Gaps:
 | Practice server mode, `!heal` `!regen` `!tank` `!kill` | done (extra ammunition not ported, `!regen`/`!tank` effects are our choice: docs/ONLINE.md "Practice servers") |
 | Client console, `set`/`get` | done (docs/HUD.md "Developer console") |
 | MSAA/SMAA | later (M) |
-| Extraction, Sabotage, Neutralization modes | later (L) |
+| Extraction, Sabotage, Neutralization modes | the rules play them (mission selection, Sabotage's bomb and no-modem reminder, Neutralization's HUD clear); the original's menu never offers them and no stock map has a mission or settings entry for them | n-a for stock maps (checked over all 85 converted maps); done for custom maps: the catalog and Create Session offer them only on a map with such a mission/entry, plus the mission reminder every mode uses (docs/MODES.md) |
 | Unverified Reloaded fixes: grab angle, jump lock-on 7.5 m, KO after interrupt, slow strafe, disk radar threshold, crosshair shift, sticky cam fixes | open: need decoding of the Reloaded patch values |
 | Signed releases, MMCSS voice thread, lobby music, join sound, local match log, scoreboard split size | open (small or optional) |
 

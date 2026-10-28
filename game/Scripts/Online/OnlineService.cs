@@ -392,7 +392,7 @@ public partial class OnlineService : Node
         {
             Map = map,
             Side = local?.Team == 1 ? PlaySide.Merc : PlaySide.Spy,
-            Mode = ModeKey(client.Lobby.Setup.Mode),
+            Mode = MapCatalog.ModeKey(client.Lobby.Setup.Mode),
             PlayerName = SettingsStore.Current.PlayerName,
             MapRoots = [.. App.From(this).Options.MapRoots],
         };
@@ -413,14 +413,6 @@ public partial class OnlineService : Node
             VoiceChat.ShowOverlay = true;
         }
     }
-
-    private static string ModeKey(EGameMode mode) => mode switch
-    {
-        EGameMode.GM_DiskHunt => "DiskHunt",
-        EGameMode.GM_DeathMatch => "Deathmatch",
-        EGameMode.GM_MercDeathMatch => "MercDeathMatch",
-        _ => "Story",
-    };
 
     /// <summary>The visit is about to close a session: a play scene on it stops first.</summary>
     private void OnSessionEnding(ClientSession session) => StopRound();

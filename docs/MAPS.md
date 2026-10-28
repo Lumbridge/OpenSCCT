@@ -60,8 +60,11 @@ only gives the starting values. The catalog keeps all four on every map and says
   playlist), the others the normal merc and spy starts (`spawn-selection.md` rule 8).
 
 Extraction, Sabotage and Neutralization (`EGameMode` 1 to 3) are not in the original's mode box and no stock map
-has a mission for them (`spec/game/game-modes.md`); the catalog does not offer them. The Sabotage (S) and
-Extraction (X) map variants are Story maps whose objectives are bombs or disks.
+has a mission or a settings entry for them (`spec/game/game-modes.md` rule 16). The catalog lists them
+(`MapCatalog.ExtraModes`, after the four menu modes) only for a map that has a mission or an `SMapSettings.Modes`
+entry of the mode, playable when that mission has objectives and the map has spy and merc starts; the Create
+Session page offers them from the map's settings entries (an OpenSCCT choice, for custom maps). The Sabotage (S)
+and Extraction (X) map variants are Story maps whose objectives are bombs or disks.
 
 ### Order
 
