@@ -37,6 +37,7 @@ public partial class HubHud : CanvasLayer
     private bool _local;
     private HubPlayerList? _playerList;
     private OpenScctGame.UI.ArmouryScreen? _armoury;
+    private HubLaptopPanel? _laptop;
 
     /// <summary>A chat line shows over its speaker's head this long (seconds).</summary>
     private const double BubbleSeconds = 6.0;
@@ -62,7 +63,7 @@ public partial class HubHud : CanvasLayer
         {
             Name = "Help", Position = new Vector2(16f, 40f), Modulate = new Color(1f, 1f, 1f, 0.75f),
             AutowrapMode = TextServer.AutowrapMode.WordSmart, MouseFilter = Control.MouseFilterEnum.Ignore,
-            Text = "Hub   J spy   K merc   N plaza   G emotes   U use   X stop   V vote   H watch   P players   O armoury   Enter/F5 chat   F6 team chat   Esc menu   Stand on a match pad to queue",
+            Text = "Hub   J spy   K merc   N plaza   G emotes   U use   X stop   H watch   P players   O armoury   Enter/F5 chat   F6 team chat   Esc menu   Stand on a match pad to queue; set its match at its laptop",
         };
         if (OpenScctGame.UI.UiArt.CaptionFont is { } caption)
         {
@@ -115,10 +116,24 @@ public partial class HubHud : CanvasLayer
         }
 
         ReadyActivities();
+        _laptopClient = Client;
+        if (_laptopClient is not null)
+        {
+            _laptopClient.LaptopOpened += OpenLaptop;
+        }
     }
+
+    /// <summary>The client whose laptop lines this HUD listens to (unhooked when it leaves).</summary>
+    private HubClient? _laptopClient;
 
     public override void _ExitTree()
     {
+        if (_laptopClient is not null)
+        {
+            _laptopClient.LaptopOpened -= OpenLaptop;
+            _laptopClient = null;
+        }
+
         if (Round?.Hud?.Source is HudSimReader reader)
         {
             reader.HidePlayers = false;
@@ -195,6 +210,10 @@ public partial class HubHud : CanvasLayer
         }
 
         string text = client.Queue.PadId is not null ? client.Queue.Text : Service?.MatchNote ?? string.Empty;
+        if (client.Queue.PadId is not null && Service?.DownloadNote is { } download)
+        {
+            text += "\n" + download;
+        }
         _queue.Visible = text.Length > 0;
         if (!_queue.Visible)
         {
@@ -322,7 +341,7 @@ public partial class HubHud : CanvasLayer
 
     public override void _UnhandledInput(InputEvent @event)
     {
-        if (@event is not InputEventKey { Pressed: true, Echo: false } key || Client is not { } client || _armoury is not null)
+        if (@event is not InputEventKey { Pressed: true, Echo: false } key || Client is not { } client || _armoury is not null || _laptop is not null)
         {
             return;
         }
@@ -387,10 +406,6 @@ public partial class HubHud : CanvasLayer
             case Key.X:
                 client.CancelActivity();
                 break;
-            case Key.V when client.Queue.PadId is { } votePad:
-                // On a pad: the vote moves on to the pad's next match.
-                client.Vote(votePad, -1);
-                break;
             case Key.H when client.Queue.PadId is { } watchPad:
                 client.Watch(watchPad);
                 break;
@@ -430,6 +445,48 @@ public partial class HubHud : CanvasLayer
             // The pointer is freed for the sliders; a click in the world captures it again once the list is closed.
             input.ReleasePointer();
             input.Enabled = false;
+        }
+    }
+
+    /// <summary>
+    /// A pad's laptop (the hub answered U at it): the pad's match settings as a lobby's Session Parameters. Apply sends
+    /// them; the hub checks the player still stands at the laptop.
+    /// </summary>
+    private void OpenLaptop(string padId)
+    {
+        if (Client is not { } client || _laptop is not null || _armoury is not null || Typing)
+        {
+            return;
+        }
+
+        if (_playerList is not null)
+        {
+            TogglePlayerList(client);
+        }
+
+        CloseEmoteMenu();
+        _laptop = new HubLaptopPanel(client, padId, Service?.Catalog.Maps) { Closed = CloseLaptop };
+        AddChild(_laptop);
+        if (Round?.Controls is { } input)
+        {
+            input.ReleasePointer();
+            input.Enabled = false;
+        }
+    }
+
+    private void CloseLaptop()
+    {
+        if (_laptop is not { } open)
+        {
+            return;
+        }
+
+        _laptop = null;
+        open.QueueFree();
+        if (Round?.Controls is { } input)
+        {
+            // A click in the world captures the pointer again (as after the player list).
+            input.Enabled = true;
         }
     }
 

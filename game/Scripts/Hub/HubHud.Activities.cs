@@ -171,6 +171,13 @@ public partial class HubHud
                 : string.Empty;
         }
 
+        // The hub checks the laptop's range from the pawn, not the camera.
+        FVector feet = client.LocalPlayer?.Pawn is { } pawn ? pawn.Location : at;
+        if (play.Nearest("laptop", feet, out float ld) is { } laptop && ld <= HubPads.LaptopUseRange)
+        {
+            return $"U  set the match of Pad {laptop.Id[^1]} (laptop)";
+        }
+
         if (play.Nearest("jukebox", at, out float jd) is not null && jd <= HubPlayK.JukeboxUseRange)
         {
             return $"U  next record   (playing \"{play.TrackTitle}\")";

@@ -90,6 +90,7 @@ public sealed class HubClient : IDisposable
     private readonly List<HubChatEntry> _chat = new();
     private readonly Dictionary<string, HubSign> _signs = new(StringComparer.Ordinal);
     private readonly Dictionary<string, HubPadInfo> _pads = new(StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<string, (LobbySetup Setup, bool Changed)> _padSetups = new(StringComparer.OrdinalIgnoreCase);
     private readonly Dictionary<int, HubRosterEntry> _roster = new();
     private readonly Dictionary<string, (string Text, double At)> _lastSaid = new(StringComparer.OrdinalIgnoreCase);
     private readonly HashSet<string> _chatMuted = new(StringComparer.OrdinalIgnoreCase);
@@ -167,6 +168,17 @@ public sealed class HubClient : IDisposable
     /// <summary>The match pads by id: their match (map code, mode, team size), state and lineup.</summary>
     public IReadOnlyDictionary<string, HubPadInfo> Pads => _pads;
 
+    /// <summary>
+    /// Each pad's full match settings (<c>hub padsetup</c>) and whether they were set at its laptop (else hub.json's).
+    /// </summary>
+    public IReadOnlyDictionary<string, (LobbySetup Setup, bool Changed)> PadSetups => _padSetups;
+
+    /// <summary>Raised when a pad's settings arrived or changed (its id).</summary>
+    public event Action<string>? PadSetupChanged;
+
+    /// <summary>Raised when the hub opens a pad's laptop for this player (he pressed U at it): the pad's id.</summary>
+    public event Action<string>? LaptopOpened;
+
     /// <summary>The player's own place in a queue.</summary>
     public HubQueueStatus Queue { get; private set; } = new(null, -1, string.Empty);
 
@@ -216,8 +228,12 @@ public sealed class HubClient : IDisposable
     /// <summary>Asks to be put back at the plaza.</summary>
     public void Respawn() => Session.SendText(HubProtocol.Respawn());
 
-    /// <summary>Votes for a pad's next match (0 its own, 1.. its choices).</summary>
-    public void Vote(string padId, int option) => Session.SendText(HubProtocol.Vote(padId, option));
+    /// <summary>Sets a pad's match from its laptop (the hub checks the player stands at it).</summary>
+    public void SetPadSetup(string padId, LobbySetup setup)
+    {
+        ArgumentNullException.ThrowIfNull(setup);
+        Session.SendText(HubProtocol.PadSetupRequest(padId, setup.ToOptions()));
+    }
 
     /// <summary>Asks to watch the match being played on a pad (the hub answers with a spectator's offer).</summary>
     public void Watch(string padId) => Session.SendText(HubProtocol.Watch(padId));
@@ -407,6 +423,17 @@ public sealed class HubClient : IDisposable
                     old.TeamSize != pad.TeamSize;
                 _pads[pad.Id] = pad;
                 PadChanged?.Invoke(pad, configChanged);
+                break;
+            case "padsetup" when fields.Count >= 3:
+            {
+                string id = fields[0];
+                _padSetups[id] = (LobbySetup.FromOptions(SessionProtocol.Text(fields, 2)), SessionProtocol.Int(fields, 1) == 1);
+                PadSetupChanged?.Invoke(id);
+                break;
+            }
+
+            case "laptop" when fields.Count >= 1:
+                LaptopOpened?.Invoke(SessionProtocol.Text(fields, 0));
                 break;
             case "queue":
                 string padId = SessionProtocol.Text(fields, 0);

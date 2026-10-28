@@ -1,11 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
+using System.Threading.Tasks;
 using System.Text;
 using OpenScct.Core;
 using OpenScct.Core.Engine;
 using OpenScct.Game.SBase;
 using OpenScct.Net;
+using OpenScct.Server.Online;
 
 namespace OpenScct.Server.Hub;
 
@@ -38,19 +41,22 @@ public sealed class HubPad
         Area = area;
         Number = number;
         State = config.Playable ? HubPadState.Idle : HubPadState.Off;
-        Options = HubConfig.Options(config);
+        Default = config;
     }
 
-    /// <summary>The matches the pad can be voted to: its own (0) and its choices.</summary>
-    public IReadOnlyList<HubPadConfig> Options { get; }
-
-    /// <summary>The option the pad queues for now.</summary>
-    public int Option { get; internal set; }
-
-    /// <summary>Each voter's option (only players on the pad count).</summary>
-    internal Dictionary<HubPlayer, int> Votes { get; } = new();
+    /// <summary>The pad's match as hub.json sets it: the pad goes back to it once nobody used it for a while.</summary>
+    public HubPadConfig Default { get; }
 
     public HubPadConfig Config { get; internal set; }
+
+    /// <summary>The match was changed at the pad's laptop (it is not <see cref="Default"/>).</summary>
+    public bool Customised { get; internal set; }
+
+    /// <summary>Level time of the last thing done on the pad (a change at its laptop, someone queued), for the reset.</summary>
+    internal float LastUsed { get; set; }
+
+    /// <summary>The <c>hub padsetup</c> line last broadcast.</summary>
+    internal string LastSetupLine { get; set; } = string.Empty;
 
     public HubPadArea Area { get; }
 
@@ -117,6 +123,12 @@ public sealed class HubPads
     public const uint CountdownColour = 0x6CF08AFFu;
     public const uint StartingColour = 0x6CD8FFFFu;
     public const uint OffColour = 0x8A9099FFu;
+
+    /// <summary>How far from a pad's laptop (flat, uu) a player may use it and apply its settings.</summary>
+    public const float LaptopUseRange = 200f;
+
+    /// <summary>Seconds a changed pad stays changed with nobody on it before it goes back to hub.json's match.</summary>
+    public const float ResetSeconds = 120f;
 
     private readonly HubServer _hub;
     private readonly List<HubPad> _pads = new();
@@ -188,25 +200,289 @@ public sealed class HubPads
         pad.CountdownEnd = -1f;
         pad.State = pad.Config.Playable ? HubPadState.Idle : HubPadState.Off;
         pad.LastLine = string.Empty;
+        pad.LastSetupLine = string.Empty;
         return true;
     }
 
-    /// <summary>Tells a player who just joined every pad's match and state.</summary>
+    /// <summary>Tells a player who just joined every pad's match, settings and state.</summary>
     internal void SendAll(PlayerSlot slot)
     {
         foreach (HubPad pad in _pads)
         {
             Send(slot, HubProtocol.Pad(Info(pad)));
+            Send(slot, pad.LastSetupLine.Length > 0 ? pad.LastSetupLine : SetupLine(pad));
         }
+    }
+
+    /// <summary>The full settings of a pad's match (the laptop's rows): its own, else the map's defaults.</summary>
+    public LobbySetup SetupOf(HubPad pad)
+    {
+        ArgumentNullException.ThrowIfNull(pad);
+        HubPadConfig c = pad.Config;
+        if (c.Setup is { } own)
+        {
+            return own with { Map = c.Map, Mode = c.Mode, MaxPlayers = c.Slots, Bots = c.Bots };
+        }
+
+        return LobbySetup.ForMap(c.Map, c.Mode, _hub.Settings.Maps?.GetMapSettings(c.Map), c.Slots) with { Bots = c.Bots };
+    }
+
+    private string SetupLine(HubPad pad) => HubProtocol.PadSetup(pad.Config.Id, SetupOf(pad).ToOptions(), pad.Customised);
+
+    /// <summary>
+    /// The settings a player applied at a pad's laptop (anyone at the laptop may): the pad's match becomes the
+    /// setup's map, mode and players (team size from Max Players: half of it a side, all of it in Merc Deathmatch),
+    /// its bots and the rest of its rules. The queue stays; everyone's ready flag and the countdown start over, as in
+    /// a lobby when the host changes the setup. Null when applied, else why not (said to the player).
+    /// </summary>
+    public string? ApplySetup(HubPlayer player, string padId, LobbySetup setup)
+    {
+        ArgumentNullException.ThrowIfNull(player);
+        ArgumentNullException.ThrowIfNull(setup);
+        if (Find(padId) is not { } pad)
+        {
+            return "There is no such pad.";
+        }
+
+        if (Launcher is null || _hub.Settings.Maps is not { } maps)
+        {
+            return "This hub cannot start matches.";
+        }
+
+        if (!AtLaptop(player, pad))
+        {
+            return $"Walk up to the laptop of {PadName(pad)} to change its match.";
+        }
+
+        if (pad.State == HubPadState.Starting)
+        {
+            return $"The match of {PadName(pad)} is starting; change it once it has gone.";
+        }
+
+        if (maps.FindMap(setup.Map) is null || maps.GetCatalogEntry(setup.Map) is null)
+        {
+            return Fetch(player, pad, setup);
+        }
+
+        return SetPad(player, pad, setup, maps);
+    }
+
+    /// <summary>The checked setup made the pad's match (the player stood at the laptop, the hub has the map).</summary>
+    private string? SetPad(HubPlayer player, HubPad pad, LobbySetup setup, MapCatalog maps)
+    {
+        if (maps.GetCatalogEntry(setup.Map) is not { } entry)
+        {
+            return $"This hub does not have the map {setup.Map}.";
+        }
+
+        if (!entry.PlayableModes.Contains(setup.Mode))
+        {
+            return $"{entry.Name} does not play {MapCatalog.ModeName(setup.Mode)} here.";
+        }
+
+        if (pad.State == HubPadState.Starting)
+        {
+            return $"The match of {PadName(pad)} is starting; change it once it has gone.";
+        }
+
+        // One game per trip from the hub: the match closes after its round, so no series, revenge or map rotation.
+        LobbySetup s = setup.Clamped() with { GamesInARow = 1, Revenge = false, RandomMap = false };
+        bool mercsOnly = s.Mode == EGameMode.GM_MercDeathMatch;
+        int players = Math.Clamp(s.MaxPlayers, LobbySetup.MinMaxPlayers, LobbySetup.MaxMaxPlayers);
+        int teamSize = mercsOnly ? players : Math.Clamp((players + 1) / 2, 1, 4);
+        int slots = mercsOnly ? teamSize : 2 * teamSize;
+        int minPlayers = s.Bots switch
+        {
+            BotFill.Fill => pad.Default.Bots == BotFill.Fill && pad.Default.MinPlayers > 0 ? pad.Default.MinPlayers : 1,
+            BotFill.PerSide => Math.Max(1, slots - 2 * s.BotsPerSide),
+            _ => 0,
+        };
+        var config = pad.Default with
+        {
+            Map = entry.Id, Mode = s.Mode, TeamSize = teamSize, Bots = s.Bots, MinPlayers = minPlayers,
+            Setup = s with { Map = entry.Id, MaxPlayers = slots },
+        };
+        if (!Reconfigure(pad.Config.Id, config, maps))
+        {
+            return "That match cannot be set on this pad.";
+        }
+
+        pad.Customised = true;
+        pad.LastUsed = _hub.World.TimeSeconds;
+        foreach (HubQueueEntry e in pad.Queue)
+        {
+            e.Ready = false;
+        }
+
+        string what = $"{pad.Config.Title} {pad.Config.Format}";
+        _hub.LogLine($"{player.Slot.Name} set {pad.Config.Id} at its laptop: {SetupOf(pad).Describe()}");
+        string note = $"{player.Slot.Name} set {PadName(pad)} to {what}. Ready up again (U).";
+        foreach (HubQueueEntry e in pad.Queue)
+        {
+            Send(e.Player.Slot, HubProtocol.Message(note));
+        }
+
+        if (!pad.Queue.Exists(e => ReferenceEquals(e.Player, player)))
+        {
+            Send(player.Slot, HubProtocol.Message($"{PadName(pad)} is now {what}."));
+        }
+
+        PadChanged?.Invoke(pad);
+        return null;
+    }
+
+    /// <summary>A map download the hub runs for a pad (a laptop picked a map the hub lacked).</summary>
+    private sealed record PendingFetch(HubPad Pad, HubPlayer Player, LobbySetup Setup, string Title, Task<OpenScct.Maps.InstalledContent> Task);
+
+    private readonly List<PendingFetch> _fetches = new();
+    private Task<OpenScct.Maps.ContentIndex>? _index;
+    private float _indexAt = float.NegativeInfinity;
+
+    /// <summary>Seconds the hub keeps a content index before fetching it again.</summary>
+    public const float IndexSeconds = 600f;
+
+    /// <summary>
+    /// The map is not on the hub: when the hub downloads content (<see cref="HubSettings.Content"/>) and the content
+    /// index has the map, its server pack (manifest and sim) is fetched in the background and the setup applied once
+    /// it is in. Returns what the player is told.
+    /// </summary>
+    private string Fetch(HubPlayer player, HubPad pad, LobbySetup setup)
+    {
+        if (_hub.Settings.Content is not { } store)
+        {
+            return $"This hub does not have the map {setup.Map}.";
+        }
+
+        if (_fetches.Exists(f => ReferenceEquals(f.Pad, pad)))
+        {
+            return $"{PadName(pad)} is waiting for a map download; try again once it is in.";
+        }
+
+        if (_index is not { IsCompletedSuccessfully: true } done || done.Result.FindMap(setup.Map) is not { } map)
+        {
+            RefreshIndex(force: _index is { IsCompleted: true });
+            return _index is { IsCompleted: false }
+                ? "The hub is reading the map list; try again in a moment."
+                : $"This hub does not have the map {setup.Map}, and the map list does not have it either.";
+        }
+
+        Task<OpenScct.Maps.InstalledContent> task = store.InstallMapAsync(map, _hub.Settings.ContentKind, null, System.Threading.CancellationToken.None);
+        _fetches.Add(new PendingFetch(pad, player, setup, map.DisplayTitle, task));
+        _hub.LogLine($"{player.Slot.Name} picked {map.Code} for {pad.Config.Id}: downloading it ({(_hub.Settings.ContentKind == OpenScct.Maps.ContentKind.Sim ? map.Sim : map.Full).Size / 1024} KiB)");
+        return $"The hub is downloading {map.DisplayTitle} for {PadName(pad)}; the pad switches to it once it is in.";
+    }
+
+    /// <summary>Fetches the content index when the hub downloads content and the last one is old (or failed).</summary>
+    private void RefreshIndex(bool force = false)
+    {
+        if (_hub.Settings.Content is not { } store)
+        {
+            return;
+        }
+
+        float now = _hub.World.TimeSeconds;
+        if (_index is { IsCompleted: false } || (!force && _index is { IsCompletedSuccessfully: true } && now - _indexAt < IndexSeconds))
+        {
+            return;
+        }
+
+        if (!force && _index is { IsFaulted: true } && now - _indexAt < 60f)
+        {
+            return;
+        }
+
+        _indexAt = now;
+        _index = store.FetchIndexAsync(System.Threading.CancellationToken.None);
+    }
+
+    /// <summary>Applies the setups whose map download finished (or tells the player why not).</summary>
+    private void FinishFetches()
+    {
+        for (int i = _fetches.Count - 1; i >= 0; i--)
+        {
+            PendingFetch f = _fetches[i];
+            if (!f.Task.IsCompleted)
+            {
+                continue;
+            }
+
+            _fetches.RemoveAt(i);
+            bool here = _hub.Players.Contains(f.Player);
+            string? said;
+            if (f.Task.IsCompletedSuccessfully && _hub.Settings.Maps is { } maps)
+            {
+                maps.Refresh();
+                _hub.LogLine($"{f.Pad.Config.Id}: {f.Setup.Map} downloaded");
+                said = SetPad(f.Player, f.Pad, f.Setup, maps);
+            }
+            else
+            {
+                string why = f.Task.Exception?.GetBaseException().Message ?? "cancelled";
+                _hub.LogLine($"{f.Pad.Config.Id}: downloading {f.Setup.Map} failed: {why}");
+                said = $"{f.Title} could not be downloaded: {why}";
+            }
+
+            if (said is not null && here)
+            {
+                Send(f.Player.Slot, HubProtocol.Message(said));
+            }
+        }
+    }
+
+    /// <summary>The pad whose laptop the player stands at (within <see cref="LaptopUseRange"/>), or null.</summary>
+    public HubPad? LaptopAt(PlayerSlot slot)
+    {
+        ArgumentNullException.ThrowIfNull(slot);
+        if (slot.Controller?.Pawn is not { bDeleteMe: false, Health: > 0 } pawn)
+        {
+            return null;
+        }
+
+        HubPad? best = null;
+        float bestD = LaptopUseRange;
+        foreach (HubPad pad in _pads)
+        {
+            float d = Flat(pawn.Location - pad.Area.Laptop);
+            if (d <= bestD && MathF.Abs(pawn.Location.Z - pad.Area.FloorZ) <= HubPadArea.StandHeight)
+            {
+                best = pad;
+                bestD = d;
+            }
+        }
+
+        return best;
+    }
+
+    private bool AtLaptop(HubPlayer player, HubPad pad) => ReferenceEquals(LaptopAt(player.Slot), pad);
+
+    private static float Flat(FVector d) => MathF.Sqrt(d.X * d.X + d.Y * d.Y);
+
+    /// <summary>A changed pad nobody used for <see cref="ResetSeconds"/> goes back to hub.json's match.</summary>
+    private void ResetIfUnused(HubPad pad, float now)
+    {
+        if (pad.Queue.Count > 0)
+        {
+            pad.LastUsed = now;
+            return;
+        }
+
+        if (!pad.Customised || now - pad.LastUsed < ResetSeconds || pad.State is HubPadState.Starting or HubPadState.Off)
+        {
+            return;
+        }
+
+        pad.Customised = false;
+        pad.Config = Launcher is null ? pad.Default with { Playable = false } : pad.Default;
+        pad.CountdownEnd = -1f;
+        pad.State = pad.Config.Playable ? HubPadState.Idle : HubPadState.Off;
+        pad.LastLine = string.Empty;
+        pad.LastSetupLine = string.Empty;
+        _hub.LogLine($"{pad.Config.Id}: back to its own match ({pad.Config.Map} {pad.Config.Format}), unused for {ResetSeconds:F0} s");
+        PadChanged?.Invoke(pad);
     }
 
     internal void Left(HubPlayer player)
     {
-        foreach (HubPad p in _pads)
-        {
-            p.Votes.Remove(player);
-        }
-
         if (player.Pad is { } pad)
         {
             pad.Queue.RemoveAll(e => ReferenceEquals(e.Player, player));
@@ -219,6 +495,8 @@ public sealed class HubPads
     {
         DrainMatches();
         FlushOffers(now);
+        RefreshIndex();
+        FinishFetches();
         foreach (HubPlayer p in players)
         {
             UpdatePresence(p, now);
@@ -226,6 +504,7 @@ public sealed class HubPads
 
         foreach (HubPad pad in _pads)
         {
+            ResetIfUnused(pad, now);
             Lineup(pad);
             TickPad(pad, now);
             Publish(pad, now);
@@ -270,11 +549,6 @@ public sealed class HubPads
         if (p.Pad is { } old)
         {
             old.Queue.RemoveAll(e => ReferenceEquals(e.Player, p));
-            if (old.Votes.Remove(p))
-            {
-                ApplyVotes(old);
-            }
-
             _hub.LogLine($"{p.Slot.Name} left the queue of {old.Config.Id}");
         }
 
@@ -443,15 +717,7 @@ public sealed class HubPads
         _pending.Add(new PendingOffers(match, offers, _hub.Master is not null ? now + MasterWaitSeconds : now));
         FlushOffers(now);
         _hub.Say($"{PadName(pad)}: {pad.Config.Title} {pad.Config.Format} is starting with {lineup.Count} player(s).");
-
-        // The votes were for this match. With choices and no votes, the next match is the next choice (a rotation).
-        bool voted = pad.Votes.Count > 0;
-        pad.Votes.Clear();
-        if (!voted && pad.Options.Count > 1)
-        {
-            SetOption(pad, (pad.Option + 1) % pad.Options.Count);
-        }
-
+        pad.LastUsed = now;
         PadChanged?.Invoke(pad);
     }
 
@@ -472,77 +738,6 @@ public sealed class HubPads
             {
                 Send(player.Slot, HubProtocol.Match(offer with { MasterId = masterId }));
             }
-        }
-    }
-
-    /// <summary>
-    /// A vote of a player on the pad for one of its options (while nobody counts down): the most votes pick the pad's
-    /// match; a tie keeps the current one. Option -1 moves the player's vote on to the next option (the V key).
-    /// False when the vote does not count.
-    /// </summary>
-    public bool Vote(HubPlayer player, string padId, int option)
-    {
-        if (option == -1 && Find(padId) is { Options.Count: > 1 } cycled)
-        {
-            option = ((cycled.Votes.TryGetValue(player, out int mine) ? mine : cycled.Option) + 1) % cycled.Options.Count;
-        }
-
-        if (Find(padId) is not { } pad || !ReferenceEquals(player.Pad, pad) || option < 0 || option >= pad.Options.Count ||
-            pad.State is HubPadState.Countdown or HubPadState.Starting or HubPadState.Off)
-        {
-            return false;
-        }
-
-        pad.Votes[player] = option;
-        ApplyVotes(pad);
-        return true;
-    }
-
-    private void ApplyVotes(HubPad pad)
-    {
-        if (pad.State is HubPadState.Countdown or HubPadState.Starting || pad.Options.Count < 2)
-        {
-            return;
-        }
-
-        var tally = Tally(pad);
-        int best = pad.Option;
-        for (int i = 0; i < tally.Length; i++)
-        {
-            if (tally[i] > tally[best])
-            {
-                best = i;
-            }
-        }
-
-        if (best != pad.Option)
-        {
-            SetOption(pad, best);
-            _hub.LogLine($"{pad.Config.Id}: voted to {pad.Config.Map} {pad.Config.Format}");
-        }
-    }
-
-    private static int[] Tally(HubPad pad)
-    {
-        var tally = new int[pad.Options.Count];
-        foreach (int v in pad.Votes.Values)
-        {
-            tally[v]++;
-        }
-
-        return tally;
-    }
-
-    private void SetOption(HubPad pad, int option)
-    {
-        pad.Option = option;
-        HubPadConfig c = pad.Options[option];
-        pad.Config = Launcher is null ? c with { Playable = false } : c;
-        pad.CountdownEnd = -1f;
-        pad.LastLine = string.Empty;
-        if (pad.State != HubPadState.Off)
-        {
-            pad.State = pad.Queue.Count > 0 ? HubPadState.Waiting : HubPadState.Idle;
         }
     }
 
@@ -612,6 +807,13 @@ public sealed class HubPads
         // The sign shows more than the line carries (who is ready, who is next), so it is set every tick; HubSigns
         // only sends it on when its text changed.
         _hub.Signs.Set("Pad." + pad.Config.Id, pad.Area.Anchor, SignText(pad, info, RunningMatch(pad)?.Live), Colour(pad.State), 1f, pad.Area.SignFace);
+        // The settings only change with the pad's match (the laptop, a reset): their line goes out then.
+        if (pad.LastSetupLine.Length == 0)
+        {
+            pad.LastSetupLine = SetupLine(pad);
+            _hub.Host.Broadcast(pad.LastSetupLine);
+        }
+
         string line = HubProtocol.Pad(info);
         if (line == pad.LastLine)
         {
@@ -698,24 +900,51 @@ public sealed class HubPads
             sb.Append('\n').Append(pad.MatchesRunning == 1 ? "1 match playing   H to watch" : $"{pad.MatchesRunning} matches playing   H to watch");
         }
 
-        if (pad.Options.Count > 1 && info.State is HubPadState.Idle or HubPadState.Waiting)
+        if (info.State is HubPadState.Idle or HubPadState.Waiting)
         {
-            int[] tally = Tally(pad);
-            sb.Append("\nVote with 1-").Append(pad.Options.Count.ToString(CultureInfo.InvariantCulture)).Append(" on the pad:");
-            for (int i = 0; i < pad.Options.Count; i++)
-            {
-                HubPadConfig o = pad.Options[i];
-                sb.Append(i == pad.Option ? "  >" : "   ").Append((i + 1).ToString(CultureInfo.InvariantCulture)).Append(' ')
-                    .Append(o.Title.Length > 0 ? o.Title : o.Map).Append(' ').Append(MapCatalog.ModeName(o.Mode));
-                if (tally[i] > 0)
-                {
-                    sb.Append(" (").Append(tally[i].ToString(CultureInfo.InvariantCulture)).Append(')');
-                }
-            }
+            sb.Append(pad.Customised ? "\nSet at the laptop: " : "\nChange the match at the laptop: ").Append(Rules(pad));
         }
 
         return sb.ToString();
     }
+
+    /// <summary>A short line of the match's rules for the sign: "10 min, lives 3/inf, bots fill".</summary>
+    private static string Rules(HubPad pad)
+    {
+        if (pad.Config.Setup is not { } s)
+        {
+            return "map defaults";
+        }
+
+        var parts = new List<string>(4);
+        parts.Add(s.TimeLimit > 0 ? string.Create(CultureInfo.InvariantCulture, $"{s.TimeLimit} min") : "no time limit");
+        if (s.Practice)
+        {
+            parts.Add("practice");
+        }
+        else if (s.Mode == EGameMode.GM_MercDeathMatch)
+        {
+            parts.Add(string.Create(CultureInfo.InvariantCulture, $"{s.ScoreLimit} kills"));
+        }
+        else
+        {
+            parts.Add($"lives {Lives(s.SpyLives)}/{Lives(s.MercLives)}");
+        }
+
+        if (s.Bots != BotFill.Off)
+        {
+            parts.Add(s.Bots == BotFill.Fill ? "bots fill" : string.Create(CultureInfo.InvariantCulture, $"{s.BotsPerSide} bot(s) a side"));
+        }
+
+        if (s.Alternate.On)
+        {
+            parts.Add("alternate");
+        }
+
+        return string.Join(", ", parts);
+    }
+
+    private static string Lives(int lives) => lives <= 0 ? "inf" : lives.ToString(CultureInfo.InvariantCulture);
 
     /// <summary>"Stand here to play", "Waiting for 1 merc", "Waiting for 2 more (bots fill the rest)".</summary>
     private static string Missing(HubPad pad, HubPadConfig c)

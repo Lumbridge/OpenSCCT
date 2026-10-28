@@ -311,7 +311,8 @@ def build_render(faces: list[T.Face]) -> dict[str, bytes]:
 
     by_material: dict[str, list] = {}
     for f in _split_floor(faces):
-        by_material.setdefault(f.material, []).append((f.corners, f.material, None))
+        if not L.MATERIALS[f.material].hidden:
+            by_material.setdefault(f.material, []).append((f.corners, f.material, None))
     for key in sorted(by_material):
         mi = add_material(key)
         add_instance(f"World_{key}", glb.mesh(f"Hub_World_{key}", *mesh_arrays(by_material[key]), material=mi),

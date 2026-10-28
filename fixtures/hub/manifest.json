@@ -124,17 +124,17 @@
   "render/textures/Hub_turf.png": {"sha256": "204020416c11b4631135a5bec4577960ba592d1f4da48cb4bebf19ff20f5581f", "size": 5875},
   "render/textures/Hub_water.png": {"sha256": "9f825689d2cb68ee24d4a47fef3a06cea5ecfde8e52c6d60d3e901f4f118f589", "size": 1281},
   "render/textures/Hub_wood.png": {"sha256": "3c4e00ca49c7016203017d2b49e1f5f0749b31947cfacac5ee796a64d75cf487", "size": 5681},
-  "render/world.glb": {"sha256": "5c42404c582afbdc1861de9f582733428ed478c523177776eb5ce7fcba5728cf", "size": 1959112},
-  "sim/collision.bin": {"sha256": "8acd9c116b33a0e5fb12d15d0c3c12cce6970ec92f9d81ac68162d8cd3185bf5", "size": 115744},
+  "render/world.glb": {"sha256": "6dc2cab1c00e2d75d8540ab0287cbd16c1fcc1840c76202dc6541e696ec171d2", "size": 2006888},
+  "sim/collision.bin": {"sha256": "9d14918c47c42701f1375b19ca12e8a69652c017db3421158f61607339022e01", "size": 132000},
   "sim/gameplay.json": {"sha256": "5af0abf713dca277570de0875a12d1aa7a1414fd3ce70640a3654d76c6f867d1", "size": 17602},
-  "sim/traversal.json": {"sha256": "bcb69a5b433bfe9587fad12e7ea0bbe8d00008b457f61aad852fad6ace6b3276", "size": 24772},
+  "sim/traversal.json": {"sha256": "a4bbcfe9190f53afc9e408b22730d342b733f810c6a0d13e91fcca945672b539", "size": 51327},
   "ui/mapinfo.json": {"sha256": "c9789a63ec2f151496d490849dbddd9dbb4c2a23e3a7b7391cf9c68191819f3d", "size": 347}
  },
  "format": "svmap",
  "formatVersion": "1.1.0",
  "hashes": {
-  "render": "49058cc9a8dbfbe332ee272284db6e13cc24ca2d382f61c2f4a13bff79b985d0",
-  "sim": "bd88cd424ec103908033bbc36bcde48a5278170e718a8cfe549f8cd5d02dc664",
+  "render": "b87c1a6b85660c72d3b579214ae2da56e4e78aae26d258f413ea06fd18842826",
+  "sim": "e3b49f5ab9a5f113503b9ba5eac02bcdd3acbb8b0da1cd67215970717efc6821",
   "ui": "bb83117e18352454707a18d11a8d12acee921d11b1cd2b11f99a0bee6d07f4f4"
  },
  "map": "Hub",

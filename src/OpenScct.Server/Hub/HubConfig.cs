@@ -39,10 +39,10 @@ public sealed record HubPadConfig
     public bool Playable { get; init; } = true;
 
     /// <summary>
-    /// The other matches the pad's players may vote for (hub.json <c>choices</c>: map, mode, team size); the pad's own
-    /// match is option 0. With choices and no votes the pad moves on to the next one after each match (a rotation).
+    /// The rest of the match as the pad's laptop set it (time limit, lives, respawn, disks, voice, alternate rules,
+    /// bot skill, practice): a lobby's Session Parameters. Null: the map's defaults (hub.json's pads).
     /// </summary>
-    public IReadOnlyList<HubPadChoice> Choices { get; init; } = [];
+    public LobbySetup? Setup { get; init; }
 
     public bool MercsOnly => Mode == EGameMode.GM_MercDeathMatch;
 
@@ -64,9 +64,6 @@ public sealed record HubPadConfig
 }
 
 /// <summary>Where a pad is on the hub map: its floor rectangle (UE x, y), the floor height and the sign's anchor.</summary>
-/// <summary>One more match a pad can be voted to (its bots and minimum players are the pad's).</summary>
-public sealed record HubPadChoice(string Map, EGameMode Mode, int TeamSize);
-
 public sealed record HubPadArea(string Id, float LoX, float LoY, float HiX, float HiY, float FloorZ, FVector? SignAnchor, HubSignFace SignFace = default)
 {
     /// <summary>A pawn location counts as on the pad up to this far above the floor (a jump stays on the pad).</summary>
@@ -80,13 +77,25 @@ public sealed record HubPadArea(string Id, float LoX, float LoY, float HiX, floa
     /// <summary>The map's sign anchor, else the pad's centre at <see cref="DefaultSignHeight"/>.</summary>
     public FVector Anchor => SignAnchor ?? Centre + new FVector(0f, 0f, DefaultSignHeight);
 
-    /// <summary>Where a player coming back from this pad's match is put: just off the pad's south edge, at standing height.</summary>
+    /// <summary>
+    /// Where a player coming back from this pad's match is put: just off the pad's south edge, at standing height. The
+    /// spots start 0.3 of the width in from the west edge, so the nearest stands about 130 uu east of the laptop's
+    /// solid desk (<see cref="Laptop"/>; the desk reaches 176 in).
+    /// </summary>
     public FVector ReturnPoint(int index)
     {
         float width = HiX - LoX;
-        float x = LoX + width * (0.2f + 0.15f * (index % 5));
+        float x = LoX + width * (0.3f + 0.15f * (index % 5));
         return new FVector(x, LoY - 160f - 96f * (index / 5 % 3), FloorZ + 86f);
     }
+
+    /// <summary>
+    /// Where the pad's laptop stands (its desk's foot): outside the south rail, west of the rail's gap, clear of the
+    /// spots players come back to (<see cref="ReturnPoint"/>). The laptop's screen faces south, to the walkway. The
+    /// desk (128 x 64, 72 high, centred here) is solid: the hub map's collision has it (tools/hubmap/layout.py
+    /// "{pad}Desk", the same numbers; keep the two in step).
+    /// </summary>
+    public FVector Laptop => new(LoX + 112f, LoY - 112f, FloorZ);
 
     public bool Contains(FVector location) =>
         location.X >= LoX && location.X <= HiX && location.Y >= LoY && location.Y <= HiY &&
@@ -206,22 +215,7 @@ public sealed record HubConfig
                 mode = entry.DefaultMode;
             }
 
-            // Choices on maps the server lacks are dropped; their modes are fixed the same way.
-            var choices = new List<HubPadChoice>();
-            foreach (HubPadChoice c in p.Choices)
-            {
-                MapCatalogEntry? ce = maps.FindMap(c.Map) is null ? null : maps.GetCatalogEntry(c.Map);
-                if (ce is null)
-                {
-                    log?.Invoke($"{p.Id}: choice {c.Map} is not installed on this server; left out");
-                    continue;
-                }
-
-                EGameMode cm = ce.PlayableModes.Contains(c.Mode) ? c.Mode : ce.DefaultMode;
-                choices.Add(c with { Map = ce.Id, Mode = cm, TeamSize = Math.Clamp(c.TeamSize, 1, cm == EGameMode.GM_MercDeathMatch ? 8 : 4) });
-            }
-
-            pads.Add(p with { Mode = mode, Title = entry.Name, Map = entry.Id, Choices = choices });
+            pads.Add(p with { Mode = mode, Title = entry.Name, Map = entry.Id, Setup = p.Setup is { } setup ? setup with { Map = entry.Id, Mode = mode } : null });
         }
 
         return this with { Pads = pads };
@@ -311,7 +305,6 @@ public sealed record HubConfig
                         _ => BotFill.Off,
                     },
                     MinPlayers = Int(p, "minPlayers", 0),
-                    Choices = ParseChoices(p),
                 });
             }
 
@@ -319,41 +312,6 @@ public sealed record HubConfig
         }
 
         return config;
-    }
-
-    private static List<HubPadChoice> ParseChoices(JsonElement pad)
-    {
-        var list = new List<HubPadChoice>();
-        if (!pad.TryGetProperty("choices", out JsonElement choices) || choices.ValueKind != JsonValueKind.Array)
-        {
-            return list;
-        }
-
-        foreach (JsonElement c in choices.EnumerateArray())
-        {
-            string map = Str(c, "map");
-            if (map.Length == 0)
-            {
-                continue;
-            }
-
-            LobbySetup.TryParseMode(Str(c, "mode"), out EGameMode mode);
-            list.Add(new HubPadChoice(map, mode == EGameMode.GM_Undefined ? EGameMode.GM_Multi : mode, Int(c, "teamSize", Int(pad, "teamSize", 2))));
-        }
-
-        return list;
-    }
-
-    /// <summary>The pad's own match and its choices as whole pad configs (option 0 first).</summary>
-    public static List<HubPadConfig> Options(HubPadConfig pad)
-    {
-        var list = new List<HubPadConfig> { pad with { Choices = [] } };
-        foreach (HubPadChoice c in pad.Choices)
-        {
-            list.Add(pad with { Map = c.Map, Mode = c.Mode, TeamSize = c.TeamSize, Choices = [], Title = string.Empty });
-        }
-
-        return list;
     }
 
     /// <summary>The pads of an areas.json (the <c>matchPads</c> area's <c>pads</c>).</summary>

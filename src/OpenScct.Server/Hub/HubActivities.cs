@@ -149,6 +149,12 @@ public sealed partial class HubActivities
             Send(slot, mark);
         }
 
+        // Each pad's laptop (the pads are made after the activities, so their marks go out here).
+        foreach (HubPad pad in _hub.Pads?.Pads ?? [])
+        {
+            Send(slot, HubPlayProtocol.Mark("laptop", "Laptop." + pad.Config.Id, pad.Area.Laptop, HubPads.LaptopUseRange));
+        }
+
         foreach (var (id, board) in _boards)
         {
             Send(slot, BoardLine(id, board.At, board.Text));
@@ -215,7 +221,7 @@ public sealed partial class HubActivities
         }
     }
 
-    /// <summary>U: ready up on a match pad, the jukebox when near it, else a range round at the firing line.</summary>
+    /// <summary>U: ready up on a match pad, a pad's laptop, the jukebox when near it, else a range round at the firing line.</summary>
     private void Use(PlayerSlot slot)
     {
         if (LivingPawn(slot) is not { } pawn)
@@ -226,6 +232,13 @@ public sealed partial class HubActivities
         // On a match pad the key readies the player up.
         if (_hub.Pads?.ToggleReady(slot) == true)
         {
+            return;
+        }
+
+        // At a pad's laptop the key opens it (the client shows the pad's settings).
+        if (_hub.Pads?.LaptopAt(slot) is { } laptop)
+        {
+            Send(slot, HubProtocol.Laptop(laptop.Config.Id));
             return;
         }
 
@@ -241,7 +254,7 @@ public sealed partial class HubActivities
             return;
         }
 
-        Send(slot, HubPlayProtocol.Toast("Nothing to use here. U works on a match pad (ready up), at the range's firing line and at the jukebox."));
+        Send(slot, HubPlayProtocol.Toast("Nothing to use here. U works on a match pad (ready up), at a pad's laptop (its match), at the range's firing line and at the jukebox."));
     }
 
     // ---- helpers ---------------------------------------------------------------------------------------------------

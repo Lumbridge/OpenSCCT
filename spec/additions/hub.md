@@ -195,11 +195,12 @@ A12. **Where.** From `fixtures/hubmap/areas.json` (next to the map's folder, or 
     <floorZ> <title>` (state 0 off, 1 idle, 2 waiting, 3 counting down, 4 starting). A player on a pad is sent his
     own place as `hub queue <pad> <side> <text>`, and `hub queue - -1` when he is on none. Signs are `hub sign <id> <x>
     <y> <z> <RRGGBBAA> <scale> <text>` (`\n` a line break, `\\` a backslash) and `hub unsign <id>`.
-27. **Votes and rotation.** A pad may list `choices` (map, mode, players per side) besides its own match (option 0).
-    A player on the pad votes with `hub vote <pad> <option>` (-1: the option after his current vote); only votes of
-    players on the pad count, and only while it is idle or waiting. The option with the most votes becomes the pad's
-    match at once (a tie keeps the current one). The votes are cleared when the pad starts a match; when that match had
-    no votes the pad moves on to its next option. The pad's sign lists the options with their votes.
+27. **Pad laptops.** Each pad has a laptop beside it. A player within 200 uu of it who presses U opens the pad's
+    match as a lobby's Session Parameters. Apply (`hub padsetup <pad> <options>`) sets the pad's map, mode, places
+    (half of Max Players a side, all of it in Merc Deathmatch), bots and rules, if the player still stands at that
+    laptop, the pad is not starting and the hub has the map in that mode. The queue stays, every ready flag clears and
+    the countdown starts over. A changed pad nobody queued on for 120 s goes back to its configured match. There are no
+    votes.
 28. **Watching.** A player asks `hub watch <pad>`; when the pad has a session in its lobby or round, he is sent its
     offer with team 255 and joins it as a spectator. A session has the config's `spectators` places (4 by default);
     spectators do not count as its players (it closes when its players left). The pad's sign shows the round in

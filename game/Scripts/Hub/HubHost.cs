@@ -73,6 +73,9 @@ public sealed class HubHost : IDisposable
                     Master = master,
                     HostKey = key,
                     HostAccount = hostAccount,
+                    // Maps a pad's laptop picks that this PC lacks come down whole into the player's own packs.
+                    Content = OpenScctGame.Online.ContentPacks.Store,
+                    ContentKind = OpenScct.Maps.ContentKind.Full,
                 });
             }
             catch (System.IO.IOException e)

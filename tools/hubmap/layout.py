@@ -53,6 +53,7 @@ class Material:
     tile: tuple[float, float] = (256.0, 256.0)   # world UV tile (uu) for faces without their own UVs
     unlit: bool = False      # fullbright: neon, signs, screens, the sky
     uv_anim: dict | None = None
+    hidden: bool = False     # collision only: its solids' faces are not drawn (something render-only draws them)
 
 
 MATERIALS: dict[str, Material] = {}
@@ -60,9 +61,10 @@ MATERIALS: dict[str, Material] = {}
 ART: dict[str, tuple[str, tuple, dict]] = {}
 
 
-def mat(key, art=None, surface=5, occlusion=8, climbable=False, tile=(256.0, 256.0), unlit=False, uv_anim=None):
+def mat(key, art=None, surface=5, occlusion=8, climbable=False, tile=(256.0, 256.0), unlit=False, uv_anim=None,
+        hidden=False):
     if key not in MATERIALS:
-        MATERIALS[key] = Material(key, surface, occlusion, climbable, art or key, tile, unlit, uv_anim)
+        MATERIALS[key] = Material(key, surface, occlusion, climbable, art or key, tile, unlit, uv_anim, hidden)
     return key
 
 
@@ -99,6 +101,10 @@ mat("hvac", tile=(128.0, 128.0))
 mat("screen", tile=(128.0, 128.0), unlit=True)
 for _n in ("green", "amber", "cyan", "magenta", "white", "ice", "sodium", "teal", "lab", "gold", "red"):
     mat(f"neon_{_n}", tile=(64.0, 64.0), unlit=True)
+# Collision under things drawn elsewhere: a render-only box or beam here, or a prop the client builds in code
+# (game/Scripts/Hub/HubProps.cs). The solid's own faces are not drawn, so nothing doubles up or z-fights.
+mat("hidden", hidden=True)
+mat("hidden_metal", surface=14, occlusion=4, hidden=True)
 
 
 @dataclass(frozen=True)
@@ -341,6 +347,19 @@ def railing(name, a, b, kit_rail=None):
     return SOLIDS[-1]
 
 
+def lips(s: Solid, faces, note, span=None, ident=None):
+    """LGs along the top edges of a box solid on the given faces ('n' 's' 'e' 'w'), each with the solid on its right
+    (as ledge() wants), so neighbouring lips share their corner ends. `span` (lo, hi) cuts every lip to that stretch
+    of its edge (x for n/s, y for e/w), for an edge partly buried under something else."""
+    (x0, y0, _), (x1, y1, z) = s.lo, s.hi
+    for f in faces:
+        a, b = (x0, x1) if f in "ns" else (y0, y1)
+        if span:
+            a, b = max(a, span[0]), min(b, span[1])
+        ends = {"s": ((a, y0), (b, y0)), "n": ((b, y1), (a, y1)), "w": ((x0, b), (x0, a)), "e": ((x1, a), (x1, b))}[f]
+        ledge(f"{ident or s.name}LG{f.upper()}", (*ends[0], z), (*ends[1], z), note)
+
+
 YAW_E, YAW_N, YAW_W, YAW_S = 0, 16384, 32768, 49152
 N, S, E, W = (0, 1), (0, -1), (1, 0), (-1, 0)
 
@@ -370,6 +389,7 @@ solid("FountainColumn", (CX - 64, CY - 64, 96), (CX + 64, CY + 64, 416), "darkpa
 ge("FountainLADDER", "LADDER", (CX, CY - 64 - 4, 96), (CX, CY - 64 - 4, 416), (CX, CY - 64 - 14, 96),
    note="from the basin up the column, top flush")
 ge("FountainTopLG", "LG", (CX - 64, CY - 64, 416), (CX + 64, CY - 64, 416), note="column top, south lip")
+lips(SOLIDS[-1], "new", "column top: hang over the basin", ident="FountainTop")
 
 spy_starts, merc_starts = [], []
 for ring, radius in enumerate(START_RINGS):
@@ -427,10 +447,12 @@ for k, (bx, by, n) in enumerate(((5344, 7500, N), (6944, 7500, N), (5344, 4788, 
         solid(f"PlazaBench{k}", (bx - 160, by - 28, 0), (bx + 160, by + 28, 40), "wood")
         yb = by + 28 if n[1] > 0 else by - 44
         solid(f"PlazaBenchBack{k}", (bx - 160, yb, 0), (bx + 160, yb + 16, 96), "wood")
+        lips(SOLIDS[-1], "sn", "bench back: vault over")
     else:
         solid(f"PlazaBench{k}", (bx - 28, by - 160, 0), (bx + 28, by + 160, 40), "wood")
         xb = bx + 28 if n[0] > 0 else bx - 44
         solid(f"PlazaBenchBack{k}", (xb, by - 160, 0), (xb + 16, by + 160, 96), "wood")
+        lips(SOLIDS[-1], "we", "bench back: vault over")
 art_mat("art_banner_spies", "sign", ["SPIES", "west side"], 256, 384)
 art_mat("art_banner_mercs", "sign", ["MERCS", "east side"], 256, 384, fg=(255, 168, 60))
 wall_sign("PlazaBanners", (PLAZA_LO[0] + 8, CY, 1000), 512, 768, E, "art_banner_spies", double=True)
@@ -444,8 +466,20 @@ for k, (text, centre, facing) in enumerate((("MATCH PADS", (CX + 1290, CY), E), 
                                             ("LOUNGE", (CX - 1000, CY - 1000), (-1, -1)))):
     art_mat(f"art_arrow_{k}", "floor_label", text, arrow=True, fg=(235, 240, 245), bg=(70, 72, 78), unlit=False)
     decal("PlazaArrows", centre, 640, 160, facing, f"art_arrow_{k}", z=0.7)
+# Collision for the props the client draws in code (game/Scripts/Hub/HubProps.cs; render there, solid here).
+# The jukebox: a cabinet 72 x 48 x 128 at the anchor the area gives the server (HubLayout.Jukebox).
+JUKEBOX = (PLAZA_HI[0] - 384, PLAZA_HI[1] - 384)
+solid("PlazaJukebox", (JUKEBOX[0] - 36, JUKEBOX[1] - 24, 0), (JUKEBOX[0] + 36, JUKEBOX[1] + 24, 128), "hidden")
+# The ball's goals on the plaza's west and east edges (HubActivities.BuildMarks: the edge, the plaza's middle,
+# HubPlayK.GoalHalfWidth 288): posts 10 x 10 x 120. The crossbar stays drawn only: it spans the walkways out of the
+# plaza to the range and the pads at 115 to 125, under a standing pawn's head (175), so a solid bar would wall them off.
+GOAL_HALF_WIDTH = 288.0
+for k, gx in enumerate((PLAZA_LO[0], PLAZA_HI[0])):
+    for j, gy in enumerate((CY - GOAL_HALF_WIDTH, CY + GOAL_HALF_WIDTH)):
+        solid(f"PlazaGoalPost{k}{j}", (gx - 5, gy - 5, 0), (gx + 5, gy + 5, 120), "hidden_metal")
 area("Plaza", "spawn", "Spawn plaza", PLAZA_LO, PLAZA_HI, "H1", centre=list(CENTRE), rings=list(START_RINGS),
-     spyStarts=len(spy_starts), mercStarts=len(merc_starts), signCentre=[CX, CY, sum(SIGN_Z) / 2])
+     spyStarts=len(spy_starts), mercStarts=len(merc_starts), signCentre=[CX, CY, sum(SIGN_Z) / 2],
+     jukebox=list(JUKEBOX))
 
 # ---- Traversal garden (north): the TestRange station kit at the same heights --------------------------------------
 NORTH_FACE = 11776.0
@@ -457,6 +491,7 @@ floor_zone(GARDEN_LO, GARDEN_HI, "turf")
 def ledge_block(ident, x0, x1, top, note):
     solid(ident, (x0, NORTH_FACE, 0), (x1, HALL_HI[1], top))
     ge(ident + "LG", "LG", (x0, NORTH_FACE, top), (x1, NORTH_FACE, top), note=note)
+    lips(SOLIDS[-1], "we", "block side")
 
 
 ledge_block("Ledge128", 3072, 3328, 128, "under the hang height: hop-up")
@@ -465,13 +500,16 @@ ledge_block("Ledge264", 4096, 4352, 264, "container lip height")
 ledge_block("Ledge320", 4608, 4864, 320, "highest standing-jump grab")
 solid("WallJump408", (5120, NORTH_FACE, 0), (5504, HALL_HI[1], 408))
 ge("WallJump408LG", "LG", (5120, NORTH_FACE, 408), (5504, NORTH_FACE, 408), note="wall jump: kick up to this lip")
+lips(SOLIDS[-1], "we", "block side")
 solid("Pipe512", (5760, NORTH_FACE, 0), (6016, HALL_HI[1], 512))
+lips(SOLIDS[-1], "we", "block side")
 PIPE_X, PIPE_Y = 5888.0, NORTH_FACE - 16
 # Drawn, not collided with: a climber hangs 35 from the GE line, inside any solid pipe thicker than a hair.
 box("GardenKit", (PIPE_X - 4, PIPE_Y - 4, 0.0), (PIPE_X + 4, PIPE_Y + 4, 512.0), "metal")
 ge("Pipe512PIPE", "PIPE", (PIPE_X, PIPE_Y, 0), (PIPE_X, PIPE_Y, 512), (PIPE_X, PIPE_Y - 10, 0),
    note="bottom, top flush with the block top, side 10 toward the climber")
 solid("Ladder320", (6272, NORTH_FACE, 0), (6528, HALL_HI[1], 320))
+lips(SOLIDS[-1], "we", "block side")
 LADDER_X, LADDER_Y = 6400.0, NORTH_FACE - 4
 ge("Ladder320LADDER", "LADDER", (LADDER_X, LADDER_Y, 0), (LADDER_X, LADDER_Y, 320), (LADDER_X, LADDER_Y - 10, 0),
    note="bottom, top flush with the block top, side 10 toward the climber")
@@ -494,6 +532,7 @@ solid("Step34", (6144, 10112, 0), (6400, 10368, 34))
 for k in range(10):
     solid(f"Stairs{k + 1}", (6528 + 32 * k, 10112, 0), (6560 + 32 * k, 10368, 16 * (k + 1)))
 solid("StairsLanding", (6848, 10112, 0), (7104, 10368, 160))
+lips(SOLIDS[-1], "sen", "landing lip")
 
 # Ramp up to a deck, a tower on the deck, and a zip line from the deck south toward the plaza.
 solid("Ramp384", (7424, 9984, 0), (8192, 10368, 384), "deck", up="+x")
@@ -502,14 +541,19 @@ solid("Tower600", (8704, 10112, 0), (8960, 10368, 600))
 TOWER_LADDER_X = 8704.0 - 4
 ge("Tower600LADDER", "LADDER", (TOWER_LADDER_X, 10240, 384), (TOWER_LADDER_X, 10240, 600), (TOWER_LADDER_X - 10, 10240, 384),
    note="from the deck to the tower top, flush")
-for side, (a, b) in {"S": ((8192, 9344), (8960, 9344)), "W": ((8192, 10368), (8192, 9984))}.items():
+# The deck's lips: the south face, the west face south of the ramp (the ramp top is flush with the deck north of
+# y 9984), the north face west of the tower and the east face south of it.
+for side, (a, b) in {"S": ((8192, 9344), (8960, 9344)), "W": ((8192, 9984), (8192, 9344)),
+                     "N": ((8704, 10368), (8192, 10368)), "E": ((8960, 9344), (8960, 10112))}.items():
     ge(f"Deck384LG{side}", "LG", (a[0], a[1], 384), (b[0], b[1], 384), note="deck lip")
+lips(next(s for s in SOLIDS if s.name == "Tower600"), "sne", "tower top (the ladder is on the west face)")
 # TestRange's zip line (1760 run, 320 drop), with its landing deck 208 under the low end.
 ZIP_HIGH: Vec3 = (8576.0, 9456.0, 688.0)
 ZIP_LOW: Vec3 = (8576.0, 7696.0, 368.0)
 ge("ZipLineZL", "ZL", ZIP_LOW, ZIP_HIGH, note="high end 304 over the deck, low end over the landing deck")
 solid("ZipLanding", (8448, 7424, 0), (8704, 7936, 160), "deck")
 ge("ZipLandingLGS", "LG", (8448, 7424, 160), (8704, 7424, 160), note="landing deck lip, climb back up")
+lips(SOLIDS[-1], "enw", "landing deck lip")
 
 
 def ladder_visual(g, x, y, z0, z1, along="x"):
@@ -644,6 +688,14 @@ for i in range(4):
         g1 = (mid[0] + RAIL_GAP / 2, mid[1]) if horizontal else (mid[0], mid[1] + RAIL_GAP / 2)
         rails.append(railing(f"{pad_id}Rail{side}0", lo_end, g0))
         rails.append(railing(f"{pad_id}Rail{side}1", g1, hi_end))
+    # The laptop's desk (HubProps.MakeLaptop draws it: a top 128 x 64 x 6 up to 72 on two leg panels 8 x 56), solid
+    # here in the same shapes so the floor under it still draws: centred on HubPadArea.Laptop, (x0 + 112, y0 - 112)
+    # (src/OpenScct.Server/Hub/HubConfig.cs; keep the two in step), with a lip on its south face.
+    lx, ly = x0 + 112, y0 - 112
+    for k, dx in enumerate((-56, 56)):
+        solid(f"{pad_id}DeskLeg{k}", (lx + dx - 4, ly - 28, 0), (lx + dx + 4, ly + 28, 66), "hidden")
+    solid(f"{pad_id}Desk", (lx - 64, ly - 32, 66), (lx + 64, ly + 32, 72), "hidden")
+    lips(SOLIDS[-1], "s", "desk top")
     # The sign gantry north of the court: two posts, a board facing south (and its back facing north).
     gy = y1 + GANTRY
     for k, gx in enumerate((x0 + 64, x1 - 96)):
@@ -679,6 +731,7 @@ for i in range(4):
 for k in range(4):
     solid(f"BleacherN{k}", (9152, 7424 + 128 * k, 0), (11584, 7552 + 128 * k, 32 * (k + 1)), "wood")
 solid("BleacherNRail", (9152, 7936, 0), (11584, 7952, 176), "metal")
+lips(SOLIDS[-1], "sn", "bleacher rail top")
 for k in range(5):
     solid(f"BleacherE{k}", (11648 + 128 * k, 4352, 0), (11776 + 128 * k, 7936, 32 * (k + 1)), "wood")
 for k in range(4):
@@ -703,13 +756,16 @@ FIRING_LINE = 3072.0
 floor_zone((FIRING_LINE, LANE[0]), (RANGE_HI[0], LANE[1]), "booth")
 floor_zone((576.0, LANE[0]), (FIRING_LINE, LANE[1]), "range")
 solid("RangeBerm", (512, LANE[0], 0), (576, LANE[1], 384), "darkpanel")
+lips(SOLIDS[-1], "e", "berm top, target side")
 solid("RangeCounter", (FIRING_LINE - 64, LANE[0], 0), (FIRING_LINE, LANE[1], 80), "booth")
 ledge("RangeCounterLGE", (FIRING_LINE, LANE[0], 80), (FIRING_LINE, LANE[1], 80), "counter top, shooter side")
+lips(SOLIDS[-1], "w", "counter top, range side")
 STALLS = 5
 STALL_W = (LANE[1] - LANE[0]) / STALLS
 for k in range(1, STALLS):
     y = LANE[0] + STALL_W * k
     solid(f"RangeStall{k}", (FIRING_LINE, y - 8, 0), (FIRING_LINE + 128, y + 8, 160), "darkpanel")
+    lips(SOLIDS[-1], "sn", "stall divider top")
 for k, y in enumerate((LANE[0] - 64, LANE[1])):
     solid(f"RangePost{k}", (RANGE_HI[0] - 64, y, 0), (RANGE_HI[0], y + 64, 480), "darkpanel")
 box("RangeBooth", (2944, LANE[0] - 64, 480), (RANGE_HI[0], LANE[1] + 64, 496), "darkpanel")
@@ -735,6 +791,7 @@ for k, y in enumerate((7536, 7856)):
     solid(f"RangeBoardPost{k}", (RANGE_BOARD[0] - 48, y, 0), (RANGE_BOARD[0] - 16, y + 32, 680), "metal")
 art_mat("art_board_range", "board", "AIM RANGE", "top scores")
 box("RangeBoard", (RANGE_BOARD[0] - 32, 7520, 256), (RANGE_BOARD[0] - 16, 7904, 672), "darkpanel", faces="tbnsw")
+solid("RangeBoard", (RANGE_BOARD[0] - 32, 7520, 256), (RANGE_BOARD[0] - 16, 7904, 672), "hidden")
 wall_sign("RangeBoard", (RANGE_BOARD[0] - 15.5, RANGE_BOARD[1], 464), 384, 416, E, "art_board_range")
 for k, ly in enumerate((5300, 6144, 6988)):
     light(f"RangeLight{k}", (1800, ly, 600), 200, 72, hue=28, saturation=160)
@@ -819,6 +876,7 @@ FINISH_DECK = (CZIP_LOW[0] - 240, ROUTE_Y - 128, CZIP_LOW[0] - 240 + 512, ROUTE_
 fx0, fy0, fx1, fy1, ftop = FINISH_DECK
 deck("CourseFinish", fx0, fx1, ftop, y=(fy0, fy1))
 ledge("CourseFinishLGW", (fx0, fy1, ftop), (fx0, fy0, ftop), "finish deck, west lip")
+lips(SOLIDS[-1], "sn", "finish deck, side lip", ident="CourseFinish")
 beam("CourseKit", CZIP_HIGH, CZIP_LOW, 3, "metal")
 beam("CourseKit", (CZIP_HIGH[0], ROUTE_Y, ETOP), (CZIP_HIGH[0], ROUTE_Y, CZIP_HIGH[2] + 24), 8, "metal")
 beam("CourseKit", (CZIP_LOW[0] + 200, ROUTE_Y, ftop), (CZIP_LOW[0] + 200, ROUTE_Y, CZIP_LOW[2] + 24), 8, "metal")
@@ -865,6 +923,8 @@ for k, x in enumerate((COURSE_BOARD[0] - 256, COURSE_BOARD[0] + 224)):
 art_mat("art_board_course", "board", "ASSAULT COURSE", "best times")
 box("CourseBoard", (COURSE_BOARD[0] - 224, COURSE_BOARD[1] - 32, 256), (COURSE_BOARD[0] + 224, COURSE_BOARD[1] - 16, 672),
     "darkpanel", faces="tbsew")
+solid("CourseBoard", (COURSE_BOARD[0] - 224, COURSE_BOARD[1] - 32, 256), (COURSE_BOARD[0] + 224, COURSE_BOARD[1] - 16, 672),
+      "hidden")
 wall_sign("CourseBoard", (COURSE_BOARD[0], COURSE_BOARD[1] - 15.5, 464), 448, 416, N, "art_board_course")
 for k, (lx, lz) in enumerate(((3800, 700), (4700, 700), (5600, 760), (6600, 1100), (7200, 1400), (8300, 1300),
                               (9100, 1200))):
@@ -881,6 +941,7 @@ for k, (sx, sy) in enumerate(((1536, 1536), (1536, 2560))):
     # Seat, back to the east (facing the screen on the west wall), arms, a coffee table in front.
     solid(f"LoungeSofa{k}", (sx - 48, sy - 256, 0), (sx + 48, sy + 256, 40), "sofa" if k == 0 else "sofa2")
     solid(f"LoungeSofaBack{k}", (sx + 48, sy - 256, 0), (sx + 80, sy + 256, 104), "sofa" if k == 0 else "sofa2")
+    lips(SOLIDS[-1], "we", "sofa back")
     for j, (y0_, y1_) in enumerate(((sy - 288, sy - 256), (sy + 256, sy + 288))):
         solid(f"LoungeSofaArm{k}{j}", (sx - 48, y0_, 0), (sx + 80, y1_, 64), "sofa" if k == 0 else "sofa2")
     solid(f"LoungeTable{k}", (sx - 256, sy - 128, 0), (sx - 160, sy + 128, 32), "wood")
@@ -888,7 +949,9 @@ for k, (sx, sy) in enumerate(((2240, 1600), (2240, 2496))):
     # Side sofas facing west too, a little further back.
     solid(f"LoungeSide{k}", (sx - 48, sy - 160, 0), (sx + 48, sy + 160, 40), "sofa2" if k == 0 else "sofa")
     solid(f"LoungeSideBack{k}", (sx + 48, sy - 160, 0), (sx + 80, sy + 160, 104), "sofa2" if k == 0 else "sofa")
+    lips(SOLIDS[-1], "we", "sofa back")
 solid("LoungeBar", (768, 640, 0), (2048, 704, 112), "wood")
+lips(SOLIDS[-1], "sn", "bar top")
 box("LoungeDressing", (768, 638, 96), (2048, 640, 104), "neon_magenta", faces="s")
 box("LoungeDressing", (764, 640, 112), (2052, 708, 116), "darkpanel")
 for k in range(5):
@@ -897,6 +960,7 @@ for k in range(5):
 for k, (px, py) in enumerate(((640, 3456), (2432, 3456), (2432, 896))):
     solid(f"LoungePlanter{k}", (px - 64, py - 64, 0), (px + 64, py + 64, 64), "concrete")
     solid(f"LoungeHedge{k}", (px - 56, py - 56, 64), (px + 56, py + 56, 128), "hedge")
+    lips(SOLIDS[-1], "nsew", "hedge top")
 SCREEN = (2.0, 2048.0, 704.0, 1536.0, 768.0)   # x, centre y, centre z, width, height
 art_mat("art_screen", "board", "OPENSCCT", "lounge  -  welcome", w=1024, h=512)
 box("LoungeScreen", (0.5, 2048 - 784, 304), (3.5, 2048 + 784, 1104), "darkpanel", faces="e")
@@ -933,15 +997,18 @@ art_mat("art_sign_tower", "sign", ["OPENSCCT"], 512, 128)
 for n in (S, W):
     wall_sign("WaterTower", (WT[0] + n[0] * 259, WT[1] + n[1] * 259, 900), 448, 112, n, "art_sign_tower")
 beam("WaterTower", (WT[0] + 300, WT[1] + 300, 0), (WT[0] + 300, WT[1] + 300, 1500), 10, "metal")
+solid("WaterTowerMast", (WT[0] + 295, WT[1] + 295, 0), (WT[0] + 305, WT[1] + 305, 1500), "hidden_metal")
 box("WaterTower", (WT[0] + 294, WT[1] + 294, 1500), (WT[0] + 306, WT[1] + 306, 1512), "neon_red")
 for k, (hx, hy) in enumerate(((10000, 9200), (11500, 9500), (1000, 9400), (1800, 10900), (10300, 3100),
                               (11500, 600 + 256))):
     solid(f"Hvac{k}", (hx - 128, hy - 96, 0), (hx + 128, hy + 96, 160), "metal")
+    lips(SOLIDS[-1], "nsew", "unit top")
     box("Hvac", (hx - 112, hy - 80, 160), (hx + 112, hy + 80, 161), "hvac", faces="t")
 art_mat("art_helipad", "helipad", unlit=False)
 decal("Helipad", (10880.0, 1920.0), 1280, 1280, N, "art_helipad", z=0.5)
 for k, (cx_, cy_) in enumerate(((10880 - 680, 1920), (10880 + 680, 1920), (10880, 1920 - 680), (10880, 1920 + 680))):
     box("Helipad", (cx_ - 12, cy_ - 12, 0), (cx_ + 12, cy_ + 12, 10), "neon_red")
+    solid(f"HelipadLight{k}", (cx_ - 12, cy_ - 12, 0), (cx_ + 12, cy_ + 12, 10), "hidden_metal")
 light("HelipadLight", (10880, 1920, 700), 110, 60, hue=0, saturation=200)
 light("WaterTowerLight", (WT[0], WT[1] - 500, 500), 120, 56, hue=85, saturation=180)
 
@@ -952,7 +1019,118 @@ LEVEL_INFO = {"Title": TITLE, "Author": "OpenSCCT", "RecommendedNumPlayers": 50,
 MAP_SETTINGS = {"Story": {"TimeLimit": 0, "SpiesLives": 99, "SentriesLives": 99, "RespawnTime": 3}}
 
 
+# ---- LG clearance (the ledge test's numbers: src/OpenScct.Physics PhysicsDriver.GE.cs CheckLedgeArms, K.Natives.cs)
+LG_ARMS = (39.0, 117.0)           # m_LedgeGrabArmsZone: the hang spot this far out from the line and below it
+LG_BOX = (35.0, 35.0, 87.5)       # K.LedgeClearanceExtent: the box traced to the hang spot and 50 above it
+LG_RAISE = 50.0                   # K.LedgeClearanceRaise
+LG_END_MARGIN = 24.5              # K.GE.LedgeEndMargin: no grab nearer an end than this
+LG_TOP = (18.8, 93.8)             # TestTopLedge: stand up 210.8 and forward 57.8 from the hang spot (over the top)
+LG_TOP_CROUCH = (36.7, 89.1, 50.0)   # crouched: up 206.1, forward 75.7, half height CrouchHeight 50
+
+
+def _overlaps(s: Solid, lo, hi, eps=0.01) -> bool:
+    """True when the box lo..hi cuts into the solid (touching faces do not count); wedges by their slope."""
+    if not all(lo[i] < s.hi[i] - eps and hi[i] > s.lo[i] + eps for i in range(3)):
+        return False
+    if s.up is None:
+        return True
+    axis = 0 if s.up[1] == "x" else 1
+    span = s.hi[axis] - s.lo[axis]
+    # The wedge's top at the box's highest point along the slope.
+    at = min(hi[axis], s.hi[axis]) if s.up[0] == "+" else max(lo[axis], s.lo[axis])
+    t = (at - s.lo[axis]) / span if s.up[0] == "+" else (s.hi[axis] - at) / span
+    return lo[2] < s.lo[2] + t * (s.hi[2] - s.lo[2]) - eps
+
+
+def _box_hits(centre, ext):
+    lo = tuple(centre[i] - ext[i] for i in range(3))
+    hi = tuple(centre[i] + ext[i] for i in range(3))
+    return [s.name for s in SOLIDS if _overlaps(s, lo, hi)] + (["floor"] if lo[2] < -0.01 else [])
+
+
+def ledge_report(g: GE) -> dict:
+    """How an LG works: the open side (away from its solid), whether a spy hangs on it (the floor or a deck in front
+    at least 204.5 under the line, room for the hang box) or only vaults or pulls up onto it from the ground (a waist
+    or feet ledge), whether the hang box (or the column in front of a low ledge) is clear, and whether the top has
+    room to pull up onto, standing or crouched. Called by _check() for every LG: generate.py refuses a layout with an
+    LG whose open side is blocked."""
+    (x0, y0, z), (x1, y1, z1) = g.points
+    if z != z1 or (x0 != x1 and y0 != y1):
+        return {"error": "not a level, axis-aligned edge"}
+    length = abs(x1 - x0) + abs(y1 - y0)
+    if length <= 2 * LG_END_MARGIN:
+        return {"error": f"{length:.0f} long: no grab spot past the 24.5 end margins"}
+    d = ((x1 - x0) / length, (y1 - y0) / length)
+    mid = ((x0 + x1) / 2, (y0 + y1) / 2)
+    sides = []
+    for n in ((d[1], -d[0]), (-d[1], d[0])):
+        probe = (mid[0] + 2 * n[0], mid[1] + 2 * n[1])
+        below = _box_hits((probe[0], probe[1], z - 2), (0.5, 0.5, 0.5))
+        above = _box_hits((probe[0], probe[1], z + 2), (0.5, 0.5, 0.5))
+        sides.append((n, bool(below), bool(above)))
+    solid_sides = [s for s in sides if s[1] and not s[2]]
+    open_sides = [s for s in sides if not s[1] and not s[2]]
+    if len(solid_sides) != 1 or len(open_sides) != 1:
+        return {"error": "not on a solid's top edge with open space on one side"}
+    n = open_sides[0][0]
+    # Grab spots along the middle: a box 35 wide past the end margin may meet what the ledge ends against (a post, a
+    # wall), which only shortens the grabbable stretch.
+    inset = LG_END_MARGIN + LG_BOX[0]
+    samples = [inset + (length - 2 * inset) * k / 4 for k in range(5)] if length > 2 * inset else [length / 2]
+    pts = [(x0 + d[0] * t, y0 + d[1] * t) for t in samples]
+    out, down = LG_ARMS
+    # The floor in front: the highest solid top under the hang column (or the hall floor).
+    floor = 0.0
+    for p in pts:
+        c = (p[0] + out * n[0], p[1] + out * n[1])
+        for s in SOLIDS:
+            if s.up is None and s.hi[2] <= z - 1 and _overlaps(s, (c[0] - LG_BOX[0], c[1] - LG_BOX[1], -1),
+                                                                    (c[0] + LG_BOX[0], c[1] + LG_BOX[1], z - 1)):
+                floor = max(floor, s.hi[2])
+    hang = z - down - LG_BOX[2] >= floor
+    hits, tops = [], []
+    for p in pts:
+        c = (p[0] + out * n[0], p[1] + out * n[1])
+        if hang:
+            h = set(_box_hits((c[0], c[1], z - down), LG_BOX)) | set(_box_hits((c[0], c[1], z - down + LG_RAISE), LG_BOX))
+        else:
+            # A waist / feet ledge: the column in front, from the floor to a pawn's height over the top, is open.
+            half = (z + LG_BOX[2] + LG_RAISE - floor) / 2
+            h = set(_box_hits((c[0], c[1], floor + half), (LG_BOX[0], LG_BOX[1], half - 0.5)))
+        hits.append(h)
+        up = (p[0] - LG_TOP[0] * n[0], p[1] - LG_TOP[0] * n[1], z + LG_TOP[1])
+        cu = (p[0] - LG_TOP_CROUCH[0] * n[0], p[1] - LG_TOP_CROUCH[0] * n[1],
+              z + LG_TOP_CROUCH[1] - (LG_BOX[2] - LG_TOP_CROUCH[2]))
+        tops.append(not _box_hits(up, LG_BOX) or not _box_hits(cu, (LG_BOX[0], LG_BOX[1], LG_TOP_CROUCH[2])))
+    # Usable when the middle and most of the samples are: something standing against one stretch (a gantry post
+    # behind a rail) only shortens it.
+    mid_k = len(pts) // 2
+
+    def usable(ok):
+        return ok[mid_k] and sum(ok) * 2 > len(ok)
+    return {"open": n, "floor": floor, "hang": hang, "clear": usable([not h for h in hits]),
+            "blocked": sorted(set().union(*hits)), "climb": usable(tops)}
+
+
+def _check_ledges() -> None:
+    bad = []
+    for g in GES:
+        if g.kind != "LG":
+            continue
+        r = ledge_report(g)
+        if "error" in r:
+            bad.append(f"{g.id}: {r['error']}")
+            continue
+        if not r["clear"]:
+            bad.append(f"{g.id}: the {'hang' if r['hang'] else 'front'} box on the open side hits {', '.join(r['blocked'])}")
+        if not r["climb"]:
+            bad.append(f"{g.id}: no room to pull up onto the top")
+    if bad:
+        raise ValueError("LG clearance:\n  " + "\n  ".join(bad))
+
+
 def _check() -> None:
+    _check_ledges()
     ids = [g.id for g in GES]
     if len(set(ids)) != len(ids):
         raise ValueError("duplicate GE id")

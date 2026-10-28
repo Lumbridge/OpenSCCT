@@ -13,8 +13,8 @@ how it is built, how to run it, and what it measured.
 | `game/Scripts/Hub/HubPadThemes.cs` | shows a pad's theme kit (`Apply(padId, themeId)`) and maps a map code to a theme (`ThemeForMap`) |
 | `fixtures/hub`, `fixtures/hubmap/areas.json` | the generated SVMap (tracked, like TestBox) and its area manifest |
 | `src/OpenScct.Server/Hub/HubActivities*.cs`, `HubLayout`, `HubScores`, `HubPlayProtocol`, `HubPlayState`, `HubPlayK` | the activities (H3): course time trial, aim range, emotes, jukebox, plaza ball, the score boards and their file |
-| `src/OpenScct.Server/Hub` | `HubServer` (the session, with its voice relay; `HubServer.Admin.cs` moderation and admin commands, `HubServer.Social.cs` the player list lines and local chat), `SHubGameInfo` (the rules on top of SGameInfo), `HubClient` (a visit: lines, chat, name tags, the roster, signs, pads, queue, match tickets), `HubVoice` (a visit's voice), `HubVoicePositions`, `HubSigns` (server-driven world text), `HubPads` (match pads, queues, votes, watching), `HubMatches` (the pads' match sessions), `HubConfig` (the pads' data), `HubProtocol`, `HubK` |
-| `fixtures/hubmap/hub.json` | the match pads' config: each pad's map, mode, team size, bots and vote choices; the countdown, spectator places and the match ports |
+| `src/OpenScct.Server/Hub` | `HubServer` (the session, with its voice relay; `HubServer.Admin.cs` moderation and admin commands, `HubServer.Social.cs` the player list lines and local chat), `SHubGameInfo` (the rules on top of SGameInfo), `HubClient` (a visit: lines, chat, name tags, the roster, signs, pads, queue, match tickets), `HubVoice` (a visit's voice), `HubVoicePositions`, `HubSigns` (server-driven world text), `HubPads` (match pads, queues, laptops, watching), `HubMatches` (the pads' match sessions), `HubConfig` (the pads' data), `HubProtocol`, `HubK` |
+| `fixtures/hubmap/hub.json` | the match pads' config: each pad's starting map, mode, team size and bots; the countdown, spectator places and the match ports |
 | `src/OpenScct.Game/Modes/PlayRules.cs` | the level service that turns damage and pawn attacks off (two gates in the ported code ask it) |
 | `src/OpenScct.Net/Replication/NetInterest.cs` | `INetInterest` and `DistanceInterest`, the opt-in interest layer of the server pass |
 | `src/OpenScct.Net/Voice/Proximity` | positional voice (falloff, occlusion, per-player volume and mute, the relay filter, `ProximityPlayback`) |
@@ -64,8 +64,8 @@ ping), "Join a hub by address", "Host a hub" with "Show it in the hub list"; Ref
   (Escape menu), which drops everyone in it.
 - **Join**: the hub's address (LAN or direct IP; the port defaults to 28886). In the hub: J play spy, K play merc, N back to the plaza, Enter or F5 to chat, F6 to chat to your side (Tab while
 typing goes everyone, your side, near you; `/l text` says it near you; Escape cancels), G emotes, U use (start an aim
-range round at the firing line, next jukebox record, ready on a pad), X stop your run or round, V on a pad to vote for
-its next match, H on a pad to watch its match, P the player list; leave from the Escape menu. The hub keys sit on keys the original's default layouts leave free. Names float over the other players' heads in their side's colour. Voice
+range round at the firing line, next jukebox record, ready on a pad, open a pad's laptop to set its match), X stop
+your run or round, H on a pad to watch its match, P the player list; leave from the Escape menu. The hub keys sit on keys the original's default layouts leave free. Names float over the other players' heads in their side's colour. Voice
 works as in a match (the options' Voice page: push to talk or voice activation; Caps Lock to talk, Y to your side
 only, F8 mutes the microphone), but each player is heard only near him: see "Proximity voice" below. The play scene
 needs the converted character content to draw pawns; without it the hub still plays.
@@ -93,7 +93,7 @@ the game or from Ubisoft, and no third-party art is used. The folder is about 3.
   middle of every side) with 64 corner posts, a sign gantry on its north side (a board with "PAD n / next match"
   facing south and north), wooden bleachers with amber step lights north of Pad3 and Pad4 and east of Pad2 and Pad4,
   a hanging "MATCH PADS" sign facing the plaza, and a theme kit per pad (below).
-- **Aim range**: a wooden booth with a counter on the firing line (LG on the shooter side) and five numbered stalls
+- **Aim range**: a wooden booth with a counter on the firing line (LGs on both faces) and five numbered stalls
   under a canopy with amber neon, painted targets on the berm, distance marks every 512 uu (5 M to 20 M), a
   leaderboard board at the north end facing the plaza.
 - **Movement course**: a cyan-edged track along y 1920 with numbered gates and floor arrows naming the move: 1 vault
@@ -104,6 +104,32 @@ the game or from Ubisoft, and no third-party art is used. The folder is about 3.
   the west wall with a scrolling ticker, a bar with stools and magenta neon, planters, warm light, "LOUNGE" signs.
 - **Rooftop dressing**: a water tower with "OPENSCCT" on it and a mast (north-east), air-conditioning units, a helipad
   (south-east).
+
+**Collision and ledges.** Collision comes only from `layout.py`'s `solid()` boxes and wedges; `box()`, `beam()`,
+signs, decals, skins and the theme kits draw only. Solid: every block, deck, wall, rail, post, bench, sofa, bar,
+stool, planter, hedge, tree trunk, berm, counter, stall divider, board and board post, the water tower's legs and
+mast, the air-conditioning units, the helipad's corner lights, and the props the client builds in code
+(`HubProps`): the jukebox (72 x 48 x 128 at the Plaza's `jukebox` anchor), the ball goals' posts (10 x 10 x 120 at
+the plaza's west and east edges, 288 either side of its middle) and each pad's laptop desk. Drawn only, on purpose:
+the goals' crossbar (it spans the walkways out of the plaza at 115 to 125, under a standing pawn's head), canopies,
+hanging signs, banners, the gantry boards (above any jump), the tree canopies, neon trims, ladder rungs, zip cables
+and the zip lines' end posts (they stand on the zip ends; a solid post would stop a rider), the garden pipe (a
+climber hangs inside any thicker pipe) and the theme kits' props on the pad corner posts (each client shows its own
+kit over the shared collision).
+
+LGs run along every top edge a spy can reach and use: the fountain basin and all four lips of its column, the bench
+backs (both faces), every garden block's front and side faces, the vault barrier, the stairs landing (south, east,
+north), the deck (south, west below the ramp, north, east), the tower top (south, north, east; the ladder is on the
+west), the zip landing deck (all four), the pad rails (both faces) and laptop desks (south), the bleachers' north rail
+(both faces), the range berm (east), counter (both faces) and stall dividers (both faces), the lounge's bar, sofa
+backs (both faces) and hedges (all four), and the air-conditioning units (all four). Lips under 205 over the floor in
+front are vault and pull-up ledges (the hang spot, 117 under the line, would be in the floor), as on the stock maps.
+The course keeps only its pieces' ledges plus the finish deck's side lips: a lip along a deck's pit side would let a
+spy shimmy past the fence or hang over the pit out of the fall reset, and the decks' gap ends would let him skip the
+hand over hand and the shimmy. `layout.py` checks every LG when the map is generated (`ledge_report`): it must sit on
+a solid's top edge with open space on one side, the hang box (39 out, 117 down, extent 35 x 35 x 87.5, and 50
+higher) or a low ledge's front column must be clear along the middle of its length, and the top must have room to
+pull up onto, standing or crouched.
 
 ### Anchors for the other hub features (fixtures/hubmap/areas.json)
 
@@ -117,6 +143,7 @@ the game or from Ubisoft, and no third-party art is used. The folder is about 3.
 | `route`, `checkpoints[]` (`id`, `kind`, `at`) | Course | the track's y range and the seven checkpoints (CP1 vault ... CP7 finish) |
 | `screenAnchor`, `screenYaw`, `screenSize`, `musicAnchor`, `seats` | Lounge | the big screen's face, a point for music, the sofa centres |
 | `signCentre` | Plaza | the centre of the hanging sign |
+| `jukebox` | Plaza | the jukebox's foot [x, y] (the server's `HubLayout.Jukebox`; the map has a solid cabinet there) |
 
 ### Pad themes
 
@@ -241,12 +268,28 @@ from the area manifest: each pad's `lo`/`hi`, and `signAnchor` [x, y, z] and `fl
 the sign floats 360 uu over the pad's centre). `HubPads.Reconfigure` changes a pad's match while the hub runs;
 clients are told and their pad hook runs.
 
-**Votes and rotation.** A pad's `choices` (map, mode, optional `teamSize`; bots and minimum players are the pad's) are
-the other matches it can play; its own match is option 1 on the sign. A player on the pad presses V to move his vote
-on to the next option (`hub vote <pad> -1`); while the pad is idle or waiting the most votes pick its match (a tie
-keeps the current one), and the sign lists the options with their votes. Votes end with the match they were for;
-with no votes the pad moves on to its next option after each match (a rotation). Choices on maps the server lacks
-are dropped, and their modes are checked as the pad's.
+**Pad laptops** (they replaced votes). Each pad has a laptop on a desk outside its south rail, west of the gap
+(`HubPadArea.Laptop`: 112 uu in from the pad's west edge, 112 uu south of it; a code-built prop, sent as a `laptop`
+mark, whose desk is solid in the map's collision: `layout.py` `PadnDesk`, 128 x 64 x 72, with an LG on its south face). Anyone standing within 200 uu of it presses U (`hubplay use`; the hub answers
+`hub laptop <pad>`) and gets the pad's match as a lobby's Session Parameters (`HubLaptopPanel`): map, mode, Max
+Players, voice, auto balance, alternate rules, time, lives, respawn, disks, bots and practice. There is no password,
+games in a row, revenge, random map or voice in lobby, because a hub match is one game with its own password and a lobby that launches at once.
+Apply sends `hub padsetup <pad> <options>`. The hub checks the player still stands at that laptop, the pad is not
+starting, it has the map and the map plays the mode. It then sets the pad's match: team size is half of Max Players
+(rounded up, at most 4), or all of it in Merc Deathmatch. Bots fill needs hub.json's `minPlayers` (else 1) people,
+and bots per side needs the places the bots leave. The queue stays; everyone on the pad is un-readied, the
+countdown starts over and they are told who changed it. Every client gets `hub padsetup <pad> <changed> <options>`
+when a pad's settings change, and the match starts with them. A changed pad that nobody queues on for 120 s goes back
+to its hub.json match. The sign's last line shows the rules in short. An older game's `hub vote` gets a message
+pointing at the laptops; hub.json `choices` are no longer read.
+
+**Maps from OpenSCCT-Content.** Choose Map on a laptop lists the player's maps and every map in the
+OpenSCCT-Content index (docs/CONTENT-PACKS.md). A map the player lacks shows its size and a Download button.
+- **Player's copy:** a player queued on a pad whose map they lack gets it downloaded while they wait; the queue
+  panel shows the progress. `HubService.WatchDownloads` refreshes the catalogs when a download lands.
+- **Hub's copy:** when a laptop applies a map the hub lacks, the hub downloads it (`HubSettings.Content`) and
+  switches the pad once it is in. `svm-server --hub` takes server packs (manifest and sim only) into `packs/` beside
+  the server; a hub a game hosts takes whole maps into the player's own packs.
 
 **Watching.** H on a pad whose match is in its lobby or being played asks `hub watch <pad>`; the hub answers with an
 offer as a spectator (team 255, the match's password) and the player joins it as one (`?Team=255`), then comes back

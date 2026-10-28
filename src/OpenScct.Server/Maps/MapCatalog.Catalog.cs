@@ -210,6 +210,21 @@ public sealed partial class MapCatalog
         return null;
     }
 
+    /// <summary>The shared catalog, with the entries downloaded maps bring for themselves.</summary>
+    private MapCatalogData LoadCatalogData()
+    {
+        var folders = new List<string>();
+        foreach (string root in _roots)
+        {
+            if (Directory.Exists(root))
+            {
+                folders.AddRange(Directory.EnumerateDirectories(root));
+            }
+        }
+
+        return MapCatalogData.Load(FindCatalogFolder()).WithMapEntries(folders);
+    }
+
     /// <summary>The catalog data (playlists, names, pictures), read once; empty without the catalog folder.</summary>
     public MapCatalogData CatalogData
     {
@@ -217,7 +232,7 @@ public sealed partial class MapCatalog
         {
             lock (_gate)
             {
-                return _catalogData ??= MapCatalogData.Load(FindCatalogFolder());
+                return _catalogData ??= LoadCatalogData();
             }
         }
     }
@@ -304,7 +319,7 @@ public sealed partial class MapCatalog
 
     private List<MapCatalogEntry> BuildCatalog()
     {
-        MapCatalogData data = MapCatalogData.Load(FindCatalogFolder());
+        MapCatalogData data = LoadCatalogData();
         _catalogData ??= data;
         var originalIndex = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
         for (int i = 0; i < data.OriginalOrder.Count; i++)

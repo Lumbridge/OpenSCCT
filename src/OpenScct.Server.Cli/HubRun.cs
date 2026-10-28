@@ -62,6 +62,8 @@ internal static class HubRun
                     Profile = options.NetProfile ?? OpenScct.Net.NetProfile.Enhanced,
                     Seed = options.Seed,
                     Maps = Catalog(options),
+                    // Maps a pad's laptop picks that the hub lacks are downloaded here (server packs only).
+                    Content = new OpenScct.Maps.ContentStore(PacksRoot, Http),
                     Classes = NetClasses.Create(),
                     InterestManagement = !options.NoInterest,
                     LanPlay = options.LanPlay,
@@ -263,6 +265,11 @@ internal static class HubRun
         return new HubSoakReport(seconds, all).ToString();
     }
 
+    /// <summary>The hub's downloaded content packs: <c>packs</c> next to the server.</summary>
+    private static string PacksRoot => Path.Combine(AppContext.BaseDirectory, "packs");
+
+    private static readonly System.Net.Http.HttpClient Http = new() { Timeout = TimeSpan.FromMinutes(10) };
+
     private static MapCatalog Catalog(CliOptions options)
     {
         MapCatalog defaults = MapCatalog.CreateDefault();
@@ -273,6 +280,7 @@ internal static class HubRun
         }
 
         roots.AddRange(defaults.Roots);
+        roots.Add(Path.Combine(PacksRoot, "svmap"));
         return new MapCatalog([.. roots]);
     }
 

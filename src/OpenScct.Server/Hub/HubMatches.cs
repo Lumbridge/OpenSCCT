@@ -150,9 +150,14 @@ public sealed class HubMatchLauncher : IHubMatchLauncher
         int humans = request.Players.Count;
         int maxPlayers = pad.Slots;
         var maps = new MapCatalog([.. _maps.Roots]);
-        LobbySetup setup = LobbySetup.ForMap(pad.Map, pad.Mode, maps.GetMapSettings(pad.Map), maxPlayers) with
+        // The laptop's settings when the pad has them, else the map's defaults.
+        LobbySetup setup = (pad.Setup ?? LobbySetup.ForMap(pad.Map, pad.Mode, maps.GetMapSettings(pad.Map), maxPlayers)) with
         {
+            Map = pad.Map,
+            Mode = pad.Mode,
+            MaxPlayers = maxPlayers,
             Bots = pad.Bots,
+            Revenge = false,
             GamesInARow = 1,
             RandomMap = false,
         };

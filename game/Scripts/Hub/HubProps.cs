@@ -10,7 +10,7 @@ namespace OpenScctGame.Hub;
 /// The activities' things in the world (an OpenSCCT addition), drawn from what the server said
 /// (<see cref="HubPlayState"/>): the course's gates (start green, checkpoints amber, the next one bright, finish
 /// white), the aim range's pop-up targets (the player's own red, other rounds' grey) and firing line, the jukebox,
-/// the plaza ball and its two goals. Plain shapes of our own; no game art. Never touches the simulation.
+/// the plaza ball and its two goals, and each match pad's laptop on its desk. Plain shapes of our own; no game art. Never touches the simulation.
 /// </summary>
 public partial class HubProps : Node3D
 {
@@ -121,6 +121,9 @@ public partial class HubProps : Node3D
                 break;
             }
 
+            case "laptop":
+                MakeLaptop(root, m.At);
+                break;
             case "goal":
             {
                 var post = Material(new Color(0.95f, 0.95f, 0.95f));
@@ -134,6 +137,35 @@ public partial class HubProps : Node3D
         }
 
         return root;
+    }
+
+    /// <summary>
+    /// A pad's laptop (<see cref="HubPadArea.Laptop"/>): a desk, the laptop open on it with its lit screen facing
+    /// south (where the player stands), and a glowing square on the floor in front marking where to stand.
+    /// </summary>
+    private void MakeLaptop(Node3D root, FVector at)
+    {
+        const float deskTop = 72f;
+        var frame = Material(new Color(0.16f, 0.17f, 0.2f));
+        Box(root, at + new FVector(0f, 0f, deskTop - 3f), new FVector(128f, 64f, 6f), Material(new Color(0.34f, 0.28f, 0.22f)));
+        Box(root, at + new FVector(-56f, 0f, (deskTop - 6f) / 2f), new FVector(8f, 56f, deskTop - 6f), frame);
+        Box(root, at + new FVector(56f, 0f, (deskTop - 6f) / 2f), new FVector(8f, 56f, deskTop - 6f), frame);
+
+        // The laptop: its base on the desk, the lid hinged at the base's back edge and leaning back 15 degrees.
+        var shell = Material(new Color(0.55f, 0.57f, 0.6f));
+        Box(root, at + new FVector(0f, -6f, deskTop + 1.5f), new FVector(44f, 30f, 3f), shell);
+        const float lean = 15f;
+        const float lidHeight = 28f;
+        float rad = Mathf.DegToRad(lean);
+        var hinge = at + new FVector(0f, 9f, deskTop + 3f);
+        var lidCentre = hinge + new FVector(0f, Mathf.Sin(rad) * lidHeight / 2f, Mathf.Cos(rad) * lidHeight / 2f);
+        Box(root, lidCentre, new FVector(44f, 2f, lidHeight), shell).RotationDegrees = new Vector3(lean, 0f, 0f);
+        var screenCentre = lidCentre + new FVector(0f, -1.2f * Mathf.Cos(rad), 1.2f * Mathf.Sin(rad));
+        Box(root, screenCentre, new FVector(40f, 0.5f, lidHeight - 4f), Material(new Color(0.35f, 0.85f, 1f), glow: true, unshaded: true))
+            .RotationDegrees = new Vector3(lean, 0f, 0f);
+
+        // Where to stand to use it.
+        Box(root, at + new FVector(0f, -88f, 1f), new FVector(96f, 64f, 2f), Material(new Color(0.35f, 0.85f, 1f, 0.25f), glow: true, unshaded: true));
     }
 
     private void HighlightNextCheckpoint(HubPlayState play)

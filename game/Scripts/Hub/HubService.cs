@@ -85,6 +85,48 @@ public partial class HubService : Node
     /// <summary>A line about the last pad match for the hub HUD ("Joining the match...", "The match is over"), or null.</summary>
     public string? MatchNote => _clock.NowMicroseconds < _noteUntil ? _matchNote : null;
 
+    /// <summary>The download of the queued pad's map (docs/CONTENT-PACKS.md), for the queue panel, else null.</summary>
+    public string? DownloadNote { get; private set; }
+
+    private int _contentGeneration = ContentPacks.Generation;
+
+    /// <summary>
+    /// Downloaded maps: the catalogs see a map once it is in, and a player queued on a pad whose map he lacks gets it
+    /// downloaded from OpenSCCT-Content while he waits, so he can play when the match starts.
+    /// </summary>
+    private void WatchDownloads(HubClient client)
+    {
+        if (ContentPacks.Generation != _contentGeneration)
+        {
+            _contentGeneration = ContentPacks.Generation;
+            Catalog.Maps.Refresh();
+            OnlineService.Get(GetTree()).Catalog.Maps.Refresh();
+        }
+
+        DownloadNote = null;
+        if (client.Queue.PadId is not { } padId || !client.Pads.TryGetValue(padId, out HubPadInfo? pad) || Catalog.Maps.FindMap(pad.Map) is not null)
+        {
+            return;
+        }
+
+        if (ContentPacks.Job(pad.Map) is not { } job)
+        {
+            if (ContentPacks.Find(pad.Map) is { } map)
+            {
+                job = ContentPacks.Download(map);
+            }
+            else
+            {
+                DownloadNote = ContentPacks.Index is null && ContentPacks.IndexError is null
+                    ? $"You do not have {pad.Title}; looking it up in the map list..."
+                    : $"You do not have {pad.Title}, and the map list does not have it.";
+                return;
+            }
+        }
+
+        DownloadNote = job.Describe();
+    }
+
     private string? _matchNote;
 
     /// <summary>Why the last visit ended, for the main menu, or null.</summary>
@@ -445,6 +487,8 @@ public partial class HubService : Node
             GoToMatch(client, offer);
             return;
         }
+
+        WatchDownloads(client);
 
         if (!client.SessionTickedElsewhere)
         {

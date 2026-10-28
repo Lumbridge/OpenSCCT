@@ -77,6 +77,234 @@
   },
   {
    "activeAtStart": true,
+   "id": "FountainTopLGN",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [6208.0, 6208.0, 416.0],
+    [6080.0, 6208.0, 416.0]
+   ],
+   "src": {"kind": "synthetic", "note": "column top: hang over the basin"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "FountainTopLGE",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [6208.0, 6080.0, 416.0],
+    [6208.0, 6208.0, 416.0]
+   ],
+   "src": {"kind": "synthetic", "note": "column top: hang over the basin"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "FountainTopLGW",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [6080.0, 6208.0, 416.0],
+    [6080.0, 6080.0, 416.0]
+   ],
+   "src": {"kind": "synthetic", "note": "column top: hang over the basin"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "PlazaBenchBack0LGS",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [5184.0, 7528.0, 96.0],
+    [5504.0, 7528.0, 96.0]
+   ],
+   "src": {"kind": "synthetic", "note": "bench back: vault over"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "PlazaBenchBack0LGN",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [5504.0, 7544.0, 96.0],
+    [5184.0, 7544.0, 96.0]
+   ],
+   "src": {"kind": "synthetic", "note": "bench back: vault over"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "PlazaBenchBack1LGS",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [6784.0, 7528.0, 96.0],
+    [7104.0, 7528.0, 96.0]
+   ],
+   "src": {"kind": "synthetic", "note": "bench back: vault over"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "PlazaBenchBack1LGN",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [7104.0, 7544.0, 96.0],
+    [6784.0, 7544.0, 96.0]
+   ],
+   "src": {"kind": "synthetic", "note": "bench back: vault over"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "PlazaBenchBack2LGS",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [5184.0, 4744.0, 96.0],
+    [5504.0, 4744.0, 96.0]
+   ],
+   "src": {"kind": "synthetic", "note": "bench back: vault over"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "PlazaBenchBack2LGN",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [5504.0, 4760.0, 96.0],
+    [5184.0, 4760.0, 96.0]
+   ],
+   "src": {"kind": "synthetic", "note": "bench back: vault over"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "PlazaBenchBack3LGS",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [6784.0, 4744.0, 96.0],
+    [7104.0, 4744.0, 96.0]
+   ],
+   "src": {"kind": "synthetic", "note": "bench back: vault over"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "PlazaBenchBack3LGN",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [7104.0, 4760.0, 96.0],
+    [6784.0, 4760.0, 96.0]
+   ],
+   "src": {"kind": "synthetic", "note": "bench back: vault over"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "PlazaBenchBack4LGW",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [4744.0, 5504.0, 96.0],
+    [4744.0, 5184.0, 96.0]
+   ],
+   "src": {"kind": "synthetic", "note": "bench back: vault over"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "PlazaBenchBack4LGE",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [4760.0, 5184.0, 96.0],
+    [4760.0, 5504.0, 96.0]
+   ],
+   "src": {"kind": "synthetic", "note": "bench back: vault over"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "PlazaBenchBack5LGW",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [4744.0, 7104.0, 96.0],
+    [4744.0, 6784.0, 96.0]
+   ],
+   "src": {"kind": "synthetic", "note": "bench back: vault over"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "PlazaBenchBack5LGE",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [4760.0, 6784.0, 96.0],
+    [4760.0, 7104.0, 96.0]
+   ],
+   "src": {"kind": "synthetic", "note": "bench back: vault over"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "PlazaBenchBack6LGW",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [7528.0, 5504.0, 96.0],
+    [7528.0, 5184.0, 96.0]
+   ],
+   "src": {"kind": "synthetic", "note": "bench back: vault over"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "PlazaBenchBack6LGE",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [7544.0, 5184.0, 96.0],
+    [7544.0, 5504.0, 96.0]
+   ],
+   "src": {"kind": "synthetic", "note": "bench back: vault over"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "PlazaBenchBack7LGW",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [7528.0, 7104.0, 96.0],
+    [7528.0, 6784.0, 96.0]
+   ],
+   "src": {"kind": "synthetic", "note": "bench back: vault over"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "PlazaBenchBack7LGE",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [7544.0, 6784.0, 96.0],
+    [7544.0, 7104.0, 96.0]
+   ],
+   "src": {"kind": "synthetic", "note": "bench back: vault over"}
+  },
+  {
+   "activeAtStart": true,
    "id": "Ledge128LG",
    "kind": "LG",
    "mask": 0,
@@ -86,6 +314,30 @@
     [3328.0, 11776.0, 128.0]
    ],
    "src": {"kind": "synthetic", "note": "under the hang height: hop-up"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Ledge128LGW",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [3072.0, 12288.0, 128.0],
+    [3072.0, 11776.0, 128.0]
+   ],
+   "src": {"kind": "synthetic", "note": "block side"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Ledge128LGE",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [3328.0, 11776.0, 128.0],
+    [3328.0, 12288.0, 128.0]
+   ],
+   "src": {"kind": "synthetic", "note": "block side"}
   },
   {
    "activeAtStart": true,
@@ -101,6 +353,30 @@
   },
   {
    "activeAtStart": true,
+   "id": "Ledge208LGW",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [3584.0, 12288.0, 208.0],
+    [3584.0, 11776.0, 208.0]
+   ],
+   "src": {"kind": "synthetic", "note": "block side"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Ledge208LGE",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [3840.0, 11776.0, 208.0],
+    [3840.0, 12288.0, 208.0]
+   ],
+   "src": {"kind": "synthetic", "note": "block side"}
+  },
+  {
+   "activeAtStart": true,
    "id": "Ledge264LG",
    "kind": "LG",
    "mask": 0,
@@ -110,6 +386,30 @@
     [4352.0, 11776.0, 264.0]
    ],
    "src": {"kind": "synthetic", "note": "container lip height"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Ledge264LGW",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [4096.0, 12288.0, 264.0],
+    [4096.0, 11776.0, 264.0]
+   ],
+   "src": {"kind": "synthetic", "note": "block side"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Ledge264LGE",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [4352.0, 11776.0, 264.0],
+    [4352.0, 12288.0, 264.0]
+   ],
+   "src": {"kind": "synthetic", "note": "block side"}
   },
   {
    "activeAtStart": true,
@@ -125,6 +425,30 @@
   },
   {
    "activeAtStart": true,
+   "id": "Ledge320LGW",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [4608.0, 12288.0, 320.0],
+    [4608.0, 11776.0, 320.0]
+   ],
+   "src": {"kind": "synthetic", "note": "block side"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Ledge320LGE",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [4864.0, 11776.0, 320.0],
+    [4864.0, 12288.0, 320.0]
+   ],
+   "src": {"kind": "synthetic", "note": "block side"}
+  },
+  {
+   "activeAtStart": true,
    "id": "WallJump408LG",
    "kind": "LG",
    "mask": 0,
@@ -134,6 +458,54 @@
     [5504.0, 11776.0, 408.0]
    ],
    "src": {"kind": "synthetic", "note": "wall jump: kick up to this lip"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "WallJump408LGW",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [5120.0, 12288.0, 408.0],
+    [5120.0, 11776.0, 408.0]
+   ],
+   "src": {"kind": "synthetic", "note": "block side"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "WallJump408LGE",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [5504.0, 11776.0, 408.0],
+    [5504.0, 12288.0, 408.0]
+   ],
+   "src": {"kind": "synthetic", "note": "block side"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Pipe512LGW",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [5760.0, 12288.0, 512.0],
+    [5760.0, 11776.0, 512.0]
+   ],
+   "src": {"kind": "synthetic", "note": "block side"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Pipe512LGE",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [6016.0, 11776.0, 512.0],
+    [6016.0, 12288.0, 512.0]
+   ],
+   "src": {"kind": "synthetic", "note": "block side"}
   },
   {
    "activeAtStart": true,
@@ -147,6 +519,30 @@
     [5888.0, 11750.0, 0.0]
    ],
    "src": {"kind": "synthetic", "note": "bottom, top flush with the block top, side 10 toward the climber"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Ladder320LGW",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [6272.0, 12288.0, 320.0],
+    [6272.0, 11776.0, 320.0]
+   ],
+   "src": {"kind": "synthetic", "note": "block side"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Ladder320LGE",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [6528.0, 11776.0, 320.0],
+    [6528.0, 12288.0, 320.0]
+   ],
+   "src": {"kind": "synthetic", "note": "block side"}
   },
   {
    "activeAtStart": true,
@@ -211,6 +607,42 @@
   },
   {
    "activeAtStart": true,
+   "id": "StairsLandingLGS",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [6848.0, 10112.0, 160.0],
+    [7104.0, 10112.0, 160.0]
+   ],
+   "src": {"kind": "synthetic", "note": "landing lip"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "StairsLandingLGE",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [7104.0, 10112.0, 160.0],
+    [7104.0, 10368.0, 160.0]
+   ],
+   "src": {"kind": "synthetic", "note": "landing lip"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "StairsLandingLGN",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [7104.0, 10368.0, 160.0],
+    [6848.0, 10368.0, 160.0]
+   ],
+   "src": {"kind": "synthetic", "note": "landing lip"}
+  },
+  {
+   "activeAtStart": true,
    "id": "Tower600LADDER",
    "kind": "LADDER",
    "mask": 0,
@@ -241,10 +673,70 @@
    "mask": 0,
    "platform": 0,
    "points": [
-    [8192.0, 10368.0, 384.0],
-    [8192.0, 9984.0, 384.0]
+    [8192.0, 9984.0, 384.0],
+    [8192.0, 9344.0, 384.0]
    ],
    "src": {"kind": "synthetic", "note": "deck lip"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Deck384LGN",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [8704.0, 10368.0, 384.0],
+    [8192.0, 10368.0, 384.0]
+   ],
+   "src": {"kind": "synthetic", "note": "deck lip"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Deck384LGE",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [8960.0, 9344.0, 384.0],
+    [8960.0, 10112.0, 384.0]
+   ],
+   "src": {"kind": "synthetic", "note": "deck lip"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Tower600LGS",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [8704.0, 10112.0, 600.0],
+    [8960.0, 10112.0, 600.0]
+   ],
+   "src": {"kind": "synthetic", "note": "tower top (the ladder is on the west face)"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Tower600LGN",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [8960.0, 10368.0, 600.0],
+    [8704.0, 10368.0, 600.0]
+   ],
+   "src": {"kind": "synthetic", "note": "tower top (the ladder is on the west face)"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Tower600LGE",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [8960.0, 10112.0, 600.0],
+    [8960.0, 10368.0, 600.0]
+   ],
+   "src": {"kind": "synthetic", "note": "tower top (the ladder is on the west face)"}
   },
   {
    "activeAtStart": true,
@@ -269,6 +761,42 @@
     [8704.0, 7424.0, 160.0]
    ],
    "src": {"kind": "synthetic", "note": "landing deck lip, climb back up"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "ZipLandingLGE",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [8704.0, 7424.0, 160.0],
+    [8704.0, 7936.0, 160.0]
+   ],
+   "src": {"kind": "synthetic", "note": "landing deck lip"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "ZipLandingLGN",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [8704.0, 7936.0, 160.0],
+    [8448.0, 7936.0, 160.0]
+   ],
+   "src": {"kind": "synthetic", "note": "landing deck lip"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "ZipLandingLGW",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [8448.0, 7936.0, 160.0],
+    [8448.0, 7424.0, 160.0]
+   ],
+   "src": {"kind": "synthetic", "note": "landing deck lip"}
   },
   {
    "activeAtStart": true,
@@ -464,6 +992,18 @@
   },
   {
    "activeAtStart": true,
+   "id": "Pad1DeskLGS",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [9264.0, 4464.0, 72.0],
+    [9392.0, 4464.0, 72.0]
+   ],
+   "src": {"kind": "synthetic", "note": "desk top"}
+  },
+  {
+   "activeAtStart": true,
    "id": "Pad2RailS0LGS",
    "kind": "LG",
    "mask": 0,
@@ -653,6 +1193,18 @@
     [11560.0, 5632.0, 96.0]
    ],
    "src": {"kind": "synthetic", "note": "rail top, east face"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Pad2DeskLGS",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [10544.0, 4464.0, 72.0],
+    [10672.0, 4464.0, 72.0]
+   ],
+   "src": {"kind": "synthetic", "note": "desk top"}
   },
   {
    "activeAtStart": true,
@@ -848,6 +1400,18 @@
   },
   {
    "activeAtStart": true,
+   "id": "Pad3DeskLGS",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [9264.0, 6128.0, 72.0],
+    [9392.0, 6128.0, 72.0]
+   ],
+   "src": {"kind": "synthetic", "note": "desk top"}
+  },
+  {
+   "activeAtStart": true,
    "id": "Pad4RailS0LGS",
    "kind": "LG",
    "mask": 0,
@@ -1040,6 +1604,54 @@
   },
   {
    "activeAtStart": true,
+   "id": "Pad4DeskLGS",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [10544.0, 6128.0, 72.0],
+    [10672.0, 6128.0, 72.0]
+   ],
+   "src": {"kind": "synthetic", "note": "desk top"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "BleacherNRailLGS",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [9152.0, 7936.0, 176.0],
+    [11584.0, 7936.0, 176.0]
+   ],
+   "src": {"kind": "synthetic", "note": "bleacher rail top"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "BleacherNRailLGN",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [11584.0, 7952.0, 176.0],
+    [9152.0, 7952.0, 176.0]
+   ],
+   "src": {"kind": "synthetic", "note": "bleacher rail top"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "RangeBermLGE",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [576.0, 4864.0, 384.0],
+    [576.0, 7424.0, 384.0]
+   ],
+   "src": {"kind": "synthetic", "note": "berm top, target side"}
+  },
+  {
+   "activeAtStart": true,
    "id": "RangeCounterLGE",
    "kind": "LG",
    "mask": 0,
@@ -1049,6 +1661,114 @@
     [3072.0, 7424.0, 80.0]
    ],
    "src": {"kind": "synthetic", "note": "counter top, shooter side"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "RangeCounterLGW",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [3008.0, 7424.0, 80.0],
+    [3008.0, 4864.0, 80.0]
+   ],
+   "src": {"kind": "synthetic", "note": "counter top, range side"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "RangeStall1LGS",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [3072.0, 5368.0, 160.0],
+    [3200.0, 5368.0, 160.0]
+   ],
+   "src": {"kind": "synthetic", "note": "stall divider top"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "RangeStall1LGN",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [3200.0, 5384.0, 160.0],
+    [3072.0, 5384.0, 160.0]
+   ],
+   "src": {"kind": "synthetic", "note": "stall divider top"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "RangeStall2LGS",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [3072.0, 5880.0, 160.0],
+    [3200.0, 5880.0, 160.0]
+   ],
+   "src": {"kind": "synthetic", "note": "stall divider top"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "RangeStall2LGN",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [3200.0, 5896.0, 160.0],
+    [3072.0, 5896.0, 160.0]
+   ],
+   "src": {"kind": "synthetic", "note": "stall divider top"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "RangeStall3LGS",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [3072.0, 6392.0, 160.0],
+    [3200.0, 6392.0, 160.0]
+   ],
+   "src": {"kind": "synthetic", "note": "stall divider top"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "RangeStall3LGN",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [3200.0, 6408.0, 160.0],
+    [3072.0, 6408.0, 160.0]
+   ],
+   "src": {"kind": "synthetic", "note": "stall divider top"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "RangeStall4LGS",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [3072.0, 6904.0, 160.0],
+    [3200.0, 6904.0, 160.0]
+   ],
+   "src": {"kind": "synthetic", "note": "stall divider top"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "RangeStall4LGN",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [3200.0, 6920.0, 160.0],
+    [3072.0, 6920.0, 160.0]
+   ],
+   "src": {"kind": "synthetic", "note": "stall divider top"}
   },
   {
    "activeAtStart": true,
@@ -1148,6 +1868,30 @@
   },
   {
    "activeAtStart": true,
+   "id": "CourseFinishLGS",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [8832.0, 1792.0, 800.0],
+    [9344.0, 1792.0, 800.0]
+   ],
+   "src": {"kind": "synthetic", "note": "finish deck, side lip"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "CourseFinishLGN",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [9344.0, 2048.0, 800.0],
+    [8832.0, 2048.0, 800.0]
+   ],
+   "src": {"kind": "synthetic", "note": "finish deck, side lip"}
+  },
+  {
+   "activeAtStart": true,
    "id": "CourseExitLADDER",
    "kind": "LADDER",
    "mask": 0,
@@ -1161,6 +1905,558 @@
     "kind": "synthetic",
     "note": "bottom, top flush with the finish deck, side 10 toward the climber"
    }
+  },
+  {
+   "activeAtStart": true,
+   "id": "LoungeSofaBack0LGW",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [1584.0, 1792.0, 104.0],
+    [1584.0, 1280.0, 104.0]
+   ],
+   "src": {"kind": "synthetic", "note": "sofa back"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "LoungeSofaBack0LGE",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [1616.0, 1280.0, 104.0],
+    [1616.0, 1792.0, 104.0]
+   ],
+   "src": {"kind": "synthetic", "note": "sofa back"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "LoungeSofaBack1LGW",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [1584.0, 2816.0, 104.0],
+    [1584.0, 2304.0, 104.0]
+   ],
+   "src": {"kind": "synthetic", "note": "sofa back"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "LoungeSofaBack1LGE",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [1616.0, 2304.0, 104.0],
+    [1616.0, 2816.0, 104.0]
+   ],
+   "src": {"kind": "synthetic", "note": "sofa back"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "LoungeSideBack0LGW",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [2288.0, 1760.0, 104.0],
+    [2288.0, 1440.0, 104.0]
+   ],
+   "src": {"kind": "synthetic", "note": "sofa back"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "LoungeSideBack0LGE",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [2320.0, 1440.0, 104.0],
+    [2320.0, 1760.0, 104.0]
+   ],
+   "src": {"kind": "synthetic", "note": "sofa back"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "LoungeSideBack1LGW",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [2288.0, 2656.0, 104.0],
+    [2288.0, 2336.0, 104.0]
+   ],
+   "src": {"kind": "synthetic", "note": "sofa back"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "LoungeSideBack1LGE",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [2320.0, 2336.0, 104.0],
+    [2320.0, 2656.0, 104.0]
+   ],
+   "src": {"kind": "synthetic", "note": "sofa back"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "LoungeBarLGS",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [768.0, 640.0, 112.0],
+    [2048.0, 640.0, 112.0]
+   ],
+   "src": {"kind": "synthetic", "note": "bar top"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "LoungeBarLGN",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [2048.0, 704.0, 112.0],
+    [768.0, 704.0, 112.0]
+   ],
+   "src": {"kind": "synthetic", "note": "bar top"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "LoungeHedge0LGN",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [696.0, 3512.0, 128.0],
+    [584.0, 3512.0, 128.0]
+   ],
+   "src": {"kind": "synthetic", "note": "hedge top"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "LoungeHedge0LGS",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [584.0, 3400.0, 128.0],
+    [696.0, 3400.0, 128.0]
+   ],
+   "src": {"kind": "synthetic", "note": "hedge top"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "LoungeHedge0LGE",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [696.0, 3400.0, 128.0],
+    [696.0, 3512.0, 128.0]
+   ],
+   "src": {"kind": "synthetic", "note": "hedge top"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "LoungeHedge0LGW",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [584.0, 3512.0, 128.0],
+    [584.0, 3400.0, 128.0]
+   ],
+   "src": {"kind": "synthetic", "note": "hedge top"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "LoungeHedge1LGN",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [2488.0, 3512.0, 128.0],
+    [2376.0, 3512.0, 128.0]
+   ],
+   "src": {"kind": "synthetic", "note": "hedge top"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "LoungeHedge1LGS",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [2376.0, 3400.0, 128.0],
+    [2488.0, 3400.0, 128.0]
+   ],
+   "src": {"kind": "synthetic", "note": "hedge top"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "LoungeHedge1LGE",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [2488.0, 3400.0, 128.0],
+    [2488.0, 3512.0, 128.0]
+   ],
+   "src": {"kind": "synthetic", "note": "hedge top"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "LoungeHedge1LGW",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [2376.0, 3512.0, 128.0],
+    [2376.0, 3400.0, 128.0]
+   ],
+   "src": {"kind": "synthetic", "note": "hedge top"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "LoungeHedge2LGN",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [2488.0, 952.0, 128.0],
+    [2376.0, 952.0, 128.0]
+   ],
+   "src": {"kind": "synthetic", "note": "hedge top"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "LoungeHedge2LGS",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [2376.0, 840.0, 128.0],
+    [2488.0, 840.0, 128.0]
+   ],
+   "src": {"kind": "synthetic", "note": "hedge top"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "LoungeHedge2LGE",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [2488.0, 840.0, 128.0],
+    [2488.0, 952.0, 128.0]
+   ],
+   "src": {"kind": "synthetic", "note": "hedge top"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "LoungeHedge2LGW",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [2376.0, 952.0, 128.0],
+    [2376.0, 840.0, 128.0]
+   ],
+   "src": {"kind": "synthetic", "note": "hedge top"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Hvac0LGN",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [10128.0, 9296.0, 160.0],
+    [9872.0, 9296.0, 160.0]
+   ],
+   "src": {"kind": "synthetic", "note": "unit top"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Hvac0LGS",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [9872.0, 9104.0, 160.0],
+    [10128.0, 9104.0, 160.0]
+   ],
+   "src": {"kind": "synthetic", "note": "unit top"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Hvac0LGE",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [10128.0, 9104.0, 160.0],
+    [10128.0, 9296.0, 160.0]
+   ],
+   "src": {"kind": "synthetic", "note": "unit top"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Hvac0LGW",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [9872.0, 9296.0, 160.0],
+    [9872.0, 9104.0, 160.0]
+   ],
+   "src": {"kind": "synthetic", "note": "unit top"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Hvac1LGN",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [11628.0, 9596.0, 160.0],
+    [11372.0, 9596.0, 160.0]
+   ],
+   "src": {"kind": "synthetic", "note": "unit top"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Hvac1LGS",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [11372.0, 9404.0, 160.0],
+    [11628.0, 9404.0, 160.0]
+   ],
+   "src": {"kind": "synthetic", "note": "unit top"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Hvac1LGE",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [11628.0, 9404.0, 160.0],
+    [11628.0, 9596.0, 160.0]
+   ],
+   "src": {"kind": "synthetic", "note": "unit top"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Hvac1LGW",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [11372.0, 9596.0, 160.0],
+    [11372.0, 9404.0, 160.0]
+   ],
+   "src": {"kind": "synthetic", "note": "unit top"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Hvac2LGN",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [1128.0, 9496.0, 160.0],
+    [872.0, 9496.0, 160.0]
+   ],
+   "src": {"kind": "synthetic", "note": "unit top"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Hvac2LGS",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [872.0, 9304.0, 160.0],
+    [1128.0, 9304.0, 160.0]
+   ],
+   "src": {"kind": "synthetic", "note": "unit top"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Hvac2LGE",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [1128.0, 9304.0, 160.0],
+    [1128.0, 9496.0, 160.0]
+   ],
+   "src": {"kind": "synthetic", "note": "unit top"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Hvac2LGW",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [872.0, 9496.0, 160.0],
+    [872.0, 9304.0, 160.0]
+   ],
+   "src": {"kind": "synthetic", "note": "unit top"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Hvac3LGN",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [1928.0, 10996.0, 160.0],
+    [1672.0, 10996.0, 160.0]
+   ],
+   "src": {"kind": "synthetic", "note": "unit top"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Hvac3LGS",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [1672.0, 10804.0, 160.0],
+    [1928.0, 10804.0, 160.0]
+   ],
+   "src": {"kind": "synthetic", "note": "unit top"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Hvac3LGE",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [1928.0, 10804.0, 160.0],
+    [1928.0, 10996.0, 160.0]
+   ],
+   "src": {"kind": "synthetic", "note": "unit top"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Hvac3LGW",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [1672.0, 10996.0, 160.0],
+    [1672.0, 10804.0, 160.0]
+   ],
+   "src": {"kind": "synthetic", "note": "unit top"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Hvac4LGN",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [10428.0, 3196.0, 160.0],
+    [10172.0, 3196.0, 160.0]
+   ],
+   "src": {"kind": "synthetic", "note": "unit top"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Hvac4LGS",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [10172.0, 3004.0, 160.0],
+    [10428.0, 3004.0, 160.0]
+   ],
+   "src": {"kind": "synthetic", "note": "unit top"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Hvac4LGE",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [10428.0, 3004.0, 160.0],
+    [10428.0, 3196.0, 160.0]
+   ],
+   "src": {"kind": "synthetic", "note": "unit top"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Hvac4LGW",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [10172.0, 3196.0, 160.0],
+    [10172.0, 3004.0, 160.0]
+   ],
+   "src": {"kind": "synthetic", "note": "unit top"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Hvac5LGN",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [11628.0, 952.0, 160.0],
+    [11372.0, 952.0, 160.0]
+   ],
+   "src": {"kind": "synthetic", "note": "unit top"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Hvac5LGS",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [11372.0, 760.0, 160.0],
+    [11628.0, 760.0, 160.0]
+   ],
+   "src": {"kind": "synthetic", "note": "unit top"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Hvac5LGE",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [11628.0, 760.0, 160.0],
+    [11628.0, 952.0, 160.0]
+   ],
+   "src": {"kind": "synthetic", "note": "unit top"}
+  },
+  {
+   "activeAtStart": true,
+   "id": "Hvac5LGW",
+   "kind": "LG",
+   "mask": 0,
+   "platform": 0,
+   "points": [
+    [11372.0, 952.0, 160.0],
+    [11372.0, 760.0, 160.0]
+   ],
+   "src": {"kind": "synthetic", "note": "unit top"}
   }
  ],
  "map": "Hub"

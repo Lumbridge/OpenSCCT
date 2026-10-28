@@ -37,6 +37,9 @@ public enum HubPadState : byte
 ///   hub pad &lt;id&gt; &lt;state&gt; &lt;seconds&gt; &lt;map&gt; &lt;mode&gt; &lt;teamSize&gt; &lt;spies&gt; &lt;spySlots&gt; &lt;mercs&gt; &lt;mercSlots&gt;
 ///           &lt;loX&gt; &lt;loY&gt; &lt;hiX&gt; &lt;hiY&gt; &lt;floorZ&gt; &lt;title&gt;      a pad's match and state (to everyone, on change)
 ///   hub queue &lt;padId|-&gt; &lt;side|-1&gt; &lt;text&gt;        the player's own place in a pad's queue ("-": in none)
+///   hub padsetup &lt;padId&gt; &lt;changed&gt; &lt;options&gt;   a pad's full match settings (LobbySetup options; changed 1: set at its
+///           laptop, 0: hub.json's); to everyone when they change
+///   hub laptop &lt;padId&gt;               open the pad's laptop (the player pressed U at it)
 ///   hub who &lt;playerId&gt; &lt;team&gt; &lt;pingMs&gt; &lt;signedIn&gt; &lt;name&gt;   one player of the hub (the player list; every few seconds)
 ///   hub gone &lt;playerId&gt;             he left
 ///   hub local &lt;playerId&gt; &lt;team&gt; &lt;text&gt;   a local chat line of a player near you
@@ -46,7 +49,7 @@ public enum HubPadState : byte
 /// client -> server
 ///   hub side &lt;0|1&gt;                 play the other side (respawns at the plaza)
 ///   hub respawn                       back to the plaza
-///   hub vote &lt;padId&gt; &lt;option&gt;      vote for the pad's next match (0 its own, 1.. its choices; -1 the next one)
+///   hub padsetup &lt;padId&gt; &lt;options&gt;   set the pad's match (LobbySetup options), from its laptop
 ///   hub watch &lt;padId&gt;               watch the pad's match being played
 ///   hub local &lt;text&gt;                say to the players near you (HubK.LocalChatRange)
 ///   hub look &lt;spyHex&gt; &lt;mercHex&gt;   wear these looks now (CosmeticLook hex; changed in the Armoury)
@@ -62,9 +65,9 @@ public static class HubProtocol
 
     /// <summary>
     /// Version of this line set (2: signs, pads, queues and matches; 3: signs mounted on boards; 4: votes, watching,
-    /// matches through the master, the roster and local chat; 5: looks).
+    /// matches through the master, the roster and local chat; 5: looks; 6: pad laptops replace votes).
     /// </summary>
-    public const int Version = 5;
+    public const int Version = 6;
 
     /// <summary>The login option a player back from a pad's match carries.</summary>
     public const string ReturnOption = "HubReturn";
@@ -78,7 +81,14 @@ public static class HubProtocol
 
     public static string Respawn() => SessionProtocol.Line(Command, "respawn");
 
-    public static string Vote(string padId, int option) => SessionProtocol.Line(Command, "vote", padId, option);
+    /// <summary>A pad's settings, server to client.</summary>
+    public static string PadSetup(string padId, string options, bool changed) => SessionProtocol.Line(Command, "padsetup", padId, changed ? 1 : 0, options);
+
+    /// <summary>Set a pad's match at its laptop, client to server.</summary>
+    public static string PadSetupRequest(string padId, string options) => SessionProtocol.Line(Command, "padsetup", padId, options);
+
+    /// <summary>Open the laptop of a pad.</summary>
+    public static string Laptop(string padId) => SessionProtocol.Line(Command, "laptop", padId);
 
     public static string Watch(string padId) => SessionProtocol.Line(Command, "watch", padId);
 
@@ -129,7 +139,7 @@ public static class HubProtocol
             "queue" => 3,
             "match" => 8,
             "look" => 2,
-            "vote" => 2,
+            "padsetup" => fromServer ? 3 : 2,
             "who" => 5,
             "local" => fromServer ? 3 : 1,
             _ => 1,

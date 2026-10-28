@@ -9,6 +9,7 @@
     <ProjectReference Include="..\OpenScct.Game\OpenScct.Game.csproj" />
     <ProjectReference Include="..\OpenScct.Net\OpenScct.Net.csproj" />
     <ProjectReference Include="..\OpenScct.Content\OpenScct.Content.csproj" />
+    <ProjectReference Include="..\OpenScct.Maps\OpenScct.Maps.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="BouncyCastle.Cryptography" />

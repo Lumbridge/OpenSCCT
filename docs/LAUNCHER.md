@@ -5,8 +5,10 @@
 keeps the previous build for rollback. It can also update itself.
 
 Releases carry our code builds only. Game content (maps, characters, UI) is built on the player's machine from
-their own Splinter Cell Chaos Theory install and is never downloaded. Extra maps made by the community can be
-downloaded from the SCCT-Maps repository (see "Downloaded maps").
+their own Splinter Cell Chaos Theory install. Maps can also be downloaded already converted from the
+OpenSCCT-Content repository (docs/CONTENT-PACKS.md). The game does this for a map the player lacks, from a hub
+pad's laptop or while queued on a pad. Extra maps made by the community can still be downloaded in their original
+form from the SCCT-Maps repository (see "Downloaded maps").
 
 ## Projects
 
@@ -209,7 +211,8 @@ repository is enough. It is encrypted with `ProtectedData` (DPAPI, `CurrentUser`
 ## Game content
 
 Maps, characters, UI, sounds and effects are converted on the player's machine from their own Splinter Cell Chaos
-Theory install; nothing derived from the game is ever downloaded.
+Theory install. Converted maps and shared packs can also come from OpenSCCT-Content (docs/CONTENT-PACKS.md). They
+install to `%LOCALAPPDATA%\OpenSCCT\packs`, and the content converted here always wins over them.
 
 **The builder ships with each build.** `tools/release/Build-ContentTools.ps1` (run by `New-Release.ps1`; skip with
 `-SkipContentTools`) puts `contenttools\` into the game build:

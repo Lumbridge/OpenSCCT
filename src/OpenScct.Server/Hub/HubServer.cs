@@ -45,6 +45,18 @@ public sealed record HubSettings
 
     public MapCatalog? Maps { get; init; }
 
+    /// <summary>
+    /// Where the hub downloads maps a pad's laptop picks that it lacks (server packs from OpenSCCT-Content,
+    /// docs/CONTENT-PACKS.md); its <c>svmap</c> must be one of <see cref="Maps"/>' roots. Null: installed maps only.
+    /// </summary>
+    public OpenScct.Maps.ContentStore? Content { get; init; }
+
+    /// <summary>
+    /// What the hub downloads: server packs (a dedicated hub), or whole maps (a hub a game hosts, whose packs folder
+    /// is the player's own: a server-only copy there would be a map the game lists but cannot draw).
+    /// </summary>
+    public OpenScct.Maps.ContentKind ContentKind { get; init; } = OpenScct.Maps.ContentKind.Sim;
+
     public NetClassRegistry? Classes { get; init; }
 
     /// <summary>Distance-based relevancy and update rates (docs/HUB.md); off replicates as a normal match does.</summary>
@@ -703,12 +715,21 @@ public sealed partial class HubServer : IDisposable
 
                 break;
             case "vote":
-                if (Pads is null || !Pads.Vote(player, SessionProtocol.Text(fields, 0), SessionProtocol.Int(fields, 1)))
+                // An older game's V key: pads are set at their laptops now.
+                connection.ControlChannel?.Send(ControlMessage.TextLine(HubProtocol.Message("Pads have no votes now: walk up to a pad's laptop and press U to set its match.")));
+                break;
+            case "padsetup":
+            {
+                string? refused = Pads is null
+                    ? "This hub has no match pads."
+                    : Pads.ApplySetup(player, SessionProtocol.Text(fields, 0), LobbySetup.FromOptions(SessionProtocol.Text(fields, 1)));
+                if (refused is not null)
                 {
-                    connection.ControlChannel?.Send(ControlMessage.TextLine(HubProtocol.Message("Votes count from players on the pad, before its countdown.")));
+                    connection.ControlChannel?.Send(ControlMessage.TextLine(HubProtocol.Message(refused)));
                 }
 
                 break;
+            }
             case "local":
                 SayLocal(player, SessionProtocol.Text(fields, 0), now);
                 break;

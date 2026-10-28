@@ -74,6 +74,74 @@ public sealed class MapCatalogData
         return Parse(File.ReadAllBytes(Path.Combine(folder, FileName)), folder);
     }
 
+    /// <summary>The file a downloaded map carries for itself (docs/CONTENT-PACKS.md "A map's catalog entry").</summary>
+    public const string EntryFile = "catalog/entry.json";
+
+    /// <summary>
+    /// The catalog with the entries downloaded maps bring (<c>&lt;map&gt;/catalog/entry.json</c>: a name and pictures)
+    /// for every map the shared catalog has no name or pictures for. The shared catalog's own entries win.
+    /// </summary>
+    public MapCatalogData WithMapEntries(IEnumerable<string> mapFolders)
+    {
+        ArgumentNullException.ThrowIfNull(mapFolders);
+        Dictionary<string, string>? names = null;
+        Dictionary<string, IReadOnlyDictionary<string, string>>? images = null;
+        foreach (string folder in mapFolders)
+        {
+            string file = Path.Combine(folder, EntryFile);
+            if (!File.Exists(file))
+            {
+                continue;
+            }
+
+            try
+            {
+                using JsonDocument doc = JsonDocument.Parse(File.ReadAllBytes(file));
+                JsonElement root = doc.RootElement;
+                string code = Str(root, "code") is { Length: > 0 } c ? c : Path.GetFileName(folder);
+                if (Str(root, "name") is { Length: > 0 } name && !Names.ContainsKey(code))
+                {
+                    names ??= new Dictionary<string, string>(Names, StringComparer.OrdinalIgnoreCase);
+                    names.TryAdd(code, name);
+                }
+
+                if (!Images.ContainsKey(code) && root.TryGetProperty("images", out JsonElement im) && im.ValueKind == JsonValueKind.Object)
+                {
+                    var kinds = new Dictionary<string, string>(StringComparer.Ordinal);
+                    string catalogDir = Path.GetFullPath(Path.Combine(folder, "catalog")) + Path.DirectorySeparatorChar;
+                    foreach (JsonProperty kind in im.EnumerateObject())
+                    {
+                        // Absolute, so Image() finds it whatever the shared catalog's folder; never outside catalog/.
+                        string path = Path.GetFullPath(Path.Combine(catalogDir, kind.Value.GetString() ?? string.Empty));
+                        if (path.StartsWith(catalogDir, StringComparison.OrdinalIgnoreCase))
+                        {
+                            kinds[kind.Name] = path;
+                        }
+                    }
+
+                    images ??= new Dictionary<string, IReadOnlyDictionary<string, string>>(Images, StringComparer.OrdinalIgnoreCase);
+                    images.TryAdd(code, kinds);
+                }
+            }
+            catch (Exception e) when (e is JsonException or IOException or InvalidOperationException)
+            {
+                // A broken entry only loses its name and pictures.
+            }
+        }
+
+        if (names is null && images is null)
+        {
+            return this;
+        }
+
+        return new MapCatalogData(Folder)
+        {
+            OriginalOrder = OriginalOrder, TrainingSpy = TrainingSpy, TrainingMerc = TrainingMerc, MenuMaps = MenuMaps,
+            Playlists = Playlists, Names = names ?? (IReadOnlyDictionary<string, string>)Names, VariantWords = VariantWords,
+            Images = images ?? (IReadOnlyDictionary<string, IReadOnlyDictionary<string, string>>)Images,
+        };
+    }
+
     /// <summary>Parses a catalog document whose images are relative to <paramref name="folder"/>.</summary>
     public static MapCatalogData Parse(ReadOnlySpan<byte> utf8, string folder)
     {
