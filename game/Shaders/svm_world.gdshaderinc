@@ -29,6 +29,10 @@ uniform int emf_mode = 0;
 // x HeatIntensity, y HeatOpacity, z EMF glow (EMFIntensity while bEMFIsOn), w EMFOpacity (0 hides the actor in EMF).
 // Merged geometry carries the values of each instance per vertex instead (CUSTOM0, w + 2); actors use the instance uniform.
 instance uniform vec4 svm_vision_actor = vec4(0.0, 1.0, 0.0, 1.0);
+// Set on solid and masked materials that carry a VISION_SEE_THROUGH next pass (MaterialCompiler.GetSeeThrough): in
+// thermal and EMF the solid pass leaves out a surface whose HeatOpacity (EMFOpacity) is partial, and the blended pass
+// draws it over what lies behind, by that opacity, writing no depth.
+uniform bool vision_see_through = false;
 // OpenSCCT's own cosmetics (actors only): a colour tint (rgb, a = strength; keeps each texel's brightness) and a hue
 // turn of the self-illumination (x radians, y > 0 on; keeps brightness), for goggle lenses and lamps; z > 0 turns the
 // diffuse too (the goggle beams, whose colour is their texture).
@@ -403,6 +407,12 @@ vec2 svm_uv(vec2 uv) {
 }
 
 void fragment() {
+#ifdef VISION_SEE_THROUGH
+	// The blended pass draws only in thermal and EMF.
+	if (svm_vision != 36 && svm_vision != 38) {
+		discard;
+	}
+#endif
 	vec2 uv = svm_uv(UV);
 #if defined(OPACITY_LAYER) || defined(SPEC_LAYER)
 	vec2 raw_uv = svm_affine(UV, base_row_u, base_row_v);
@@ -565,6 +575,16 @@ void fragment() {
 		if (v_vision.y <= 0.0) {
 			discard;
 		}
+		bool partial_heat = v_vision.y < 1.0;
+#if defined(VISION_SEE_THROUGH)
+		if (!partial_heat) {
+			discard;
+		}
+#else
+		if (vision_see_through && partial_heat) {
+			discard;
+		}
+#endif
 #if defined(BLEND_TRANSLUCENT)
 		c = vec3(0.0, 0.0, fade);
 		a = t.a * v_vision.y;
@@ -576,6 +596,10 @@ void fragment() {
 			heat = heat_mode == 1 ? 4.0 * l * v_vision.x : l + v_vision.x;
 		}
 		c = vec3(0.0, clamp(heat, 0.0, 1.0), fade);
+#if defined(VISION_SEE_THROUGH)
+		// A partly see-through solid surface: its heat and fade over what lies behind, by HeatOpacity.
+		a = v_vision.y;
+#endif
 #endif
 #endif
 	} else if (svm_vision == 38) {
@@ -584,13 +608,23 @@ void fragment() {
 		discard;
 #else
 		float opacity = v_vision.w;
-		// EMFOpacity 0 hides the actor; partial opacity is drawn as a 4 x 4 screen-door pattern.
+		// EMFOpacity 0 hides the actor; partial opacity is blended by the see-through pass where the material has one,
+		// else drawn as a 4 x 4 screen-door pattern (actors built outside the map: pawn weapons, gadgets).
 		const float bayer[16] = float[16](0.0, 8.0, 2.0, 10.0, 12.0, 4.0, 14.0, 6.0, 3.0, 11.0, 1.0, 9.0, 15.0, 7.0, 13.0, 5.0);
 		ivec2 q = ivec2(mod(FRAGCOORD.xy, 4.0));
 		float threshold = (bayer[q.y * 4 + q.x] + 0.5) / 16.0;
-		if (opacity <= 0.0 || (opacity < 0.99 && threshold >= opacity)) {
+		bool partial_emf = opacity < 0.99;
+#if defined(VISION_SEE_THROUGH)
+		// A partly see-through solid surface: blended over what lies behind, by EMFOpacity.
+		if (opacity <= 0.0 || !partial_emf) {
 			discard;
 		}
+		a = opacity;
+#else
+		if (opacity <= 0.0 || (vision_see_through && partial_emf) || (partial_emf && threshold >= opacity)) {
+			discard;
+		}
+#endif
 		vec3 r = reflect(normalize(VERTEX), normalize(NORMAL));
 		vec3 env = texture(svm_emf_env, r.xy * 0.25 + 0.5).rgb;
 		c = env * (1.0 - clamp(v_vision.z, 0.0, 1.0));
@@ -601,7 +635,13 @@ void fragment() {
 #endif
 	}
 	ALBEDO = c;
-#if defined(BLEND_TRANSLUCENT) || defined(BLEND_MASKED) || defined(BLEND_ADDITIVE) || defined(BLEND_MODULATE) || defined(BLEND_DARKEN)
+#if defined(SEE_THROUGH_CUT)
+	// A masked material's blended pass keeps the alpha cut of its solid pass.
+	if (t.a < 0.5) {
+		discard;
+	}
+#endif
+#if defined(BLEND_TRANSLUCENT) || defined(BLEND_MASKED) || defined(BLEND_ADDITIVE) || defined(BLEND_MODULATE) || defined(BLEND_DARKEN) || defined(VISION_SEE_THROUGH)
 	ALPHA = a;
 #endif
 #if defined(BLEND_MASKED)

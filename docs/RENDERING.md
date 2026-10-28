@@ -581,6 +581,17 @@ hot spots stopped at yellow, his head read cold, a wide halo ringed him). The co
 - Spawned gadget meshes (`EffectViews`) and the map's device nodes (`DeviceViews`) write their actor's live values
   (`GameplayObjects.VisionOf`) when they change, so a device whose bEMFIsOn goes off stops glowing; a map node keeps
   the map's HeatOpacity (not replicated).
+- Partly see-through actors: a solid or masked surface whose actor has HeatOpacity or EMFOpacity between 0 and 1
+  (about 5,000 placed actors over the maps: glass, crates, fake ceilings, partitions, hedges, wooden walls) draws in
+  thermal and EMF as a blended layer over what lies behind it, by that opacity: in thermal `(0, heat, fade)`, in EMF
+  its EMF colour; it writes no depth, so hot pawns and glowing devices behind it show through. The map's merged
+  geometry puts such instances in their own buckets and gameplay meshes (movers, actor-lit props) their own shared
+  mesh, each with `MaterialCompiler.GetSeeThrough`: the solid pass leaves the surface out in 36 and 38 (uniform
+  `vision_see_through`) and a next pass (`VISION_SEE_THROUGH`, blend_mix, depth_draw_never) draws it; every other
+  mode draws the solid pass alone. Live value changes of a device follow, since both passes test the value per
+  pixel. Estimated: the original is known to draw an actor below opacity 1 translucent (bridge docs/VISION_MODES.md),
+  the exact blend of a solid surface's heat is not decoded. Actors built outside the map (pawn weapons, gadgets)
+  keep the EMF screen door; soft bodies draw solid.
 - Particles draw the translucent thermal rule for alpha styles and nothing in EMF.
 - Not yet: the night glow term and its pre-draws, the heat-source pass (HeatRadius actors; SteeE has none), the
   EMF actor pass details (the original's electronics glow as outlines with halos; ours

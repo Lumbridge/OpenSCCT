@@ -66,6 +66,7 @@ public sealed class MaterialCompiler
     private readonly TextureCache _textures;
     private readonly Dictionary<string, Shader> _shaders = new(StringComparer.Ordinal);
     private readonly Dictionary<(string, LightSource), Material?> _materials = new();
+    private readonly Dictionary<(string, LightSource), Material?> _seeThrough = new();
 
     public MaterialCompiler(MaterialsDoc doc, TextureCache textures)
     {
@@ -222,6 +223,40 @@ public sealed class MaterialCompiler
         return material;
     }
 
+    /// <summary>
+    /// The material of <paramref name="name"/> for an actor whose HeatOpacity or EMFOpacity lies between 0 and 1 (glass,
+    /// crates, fake ceilings, partitions: about 5,000 placed actors over the maps). A solid or masked material gets a
+    /// second, blended pass: in thermal and EMF the solid pass leaves such a surface out and the blended pass draws its
+    /// vision value over what lies behind, by the opacity (docs/RENDERING.md#vision-modes). Every other mode draws the
+    /// solid pass alone. Translucent materials already blend by the opacity and are returned as they are.
+    /// </summary>
+    public Material? GetSeeThrough(string name, LightSource light)
+    {
+        ArgumentNullException.ThrowIfNull(name);
+        if (_seeThrough.TryGetValue((name, light), out Material? cached))
+        {
+            return cached;
+        }
+
+        Material? material = Get(name, light);
+        MaterialEntry? entry = _doc.Find(name);
+        if (material is not null && entry is { Blend: MaterialBlend.Opaque or MaterialBlend.Masked })
+        {
+            int counted = VisionMaterials;
+            ShaderMaterial solid = Compose(entry, light);
+            solid.SetShaderParameter(SeeThroughParameter, true);
+            solid.NextPass = Compose(entry, light, seeThroughPass: true);
+            VisionMaterials = counted;
+            material = solid;
+        }
+
+        _seeThrough[(name, light)] = material;
+        return material;
+    }
+
+    /// <summary>The template's flag that hands partly see-through surfaces to the blended pass in thermal and EMF.</summary>
+    public const string SeeThroughParameter = "vision_see_through";
+
     /// <summary>A material built from loose flags, for meshes outside the map (characters, animated props).</summary>
     public Material Build(MaterialEntry entry, LightSource light)
     {
@@ -241,7 +276,7 @@ public sealed class MaterialCompiler
         return Compose(entry, light);
     }
 
-    private ShaderMaterial Compose(MaterialEntry entry, LightSource light)
+    private ShaderMaterial Compose(MaterialEntry entry, LightSource light, bool seeThroughPass = false)
     {
         // Unlit materials draw fullbright; self-illumination keeps the lit diffuse under its mask (UE2 lerp).
         if (entry.Unlit && entry.SelfIllum is null)
@@ -271,7 +306,7 @@ public sealed class MaterialCompiler
         AddIf(extras, entry.Opacity is not null, "OPACITY_LAYER");
         AddIf(extras, combine is not null, "COMBINE");
         AddIf(extras, flipbook is not null, "FLIPBOOK");
-        Shader shader = ShaderFor(light, blend, entry.TwoSided, extras);
+        Shader shader = seeThroughPass ? SeeThroughShaderFor(light, blend, entry.TwoSided, extras) : ShaderFor(light, blend, entry.TwoSided, extras);
 
         var material = new ShaderMaterial { Shader = shader, ResourceName = entry.Name };
         Texture2D? diffuse = combine is not null ? _textures.Get(combine.First.Texture, mipmaps: true)
@@ -514,6 +549,42 @@ public sealed class MaterialCompiler
         }
 
         Define(code, coverage ? "ALPHA_COVERAGE" : null);
+
+        code.Append("#include \"").Append(TemplatePath).Append("\"\n");
+        shader = new Shader { Code = code.ToString(), ResourceName = "svm_world " + key };
+        _shaders[key] = shader;
+        return shader;
+    }
+
+    /// <summary>
+    /// The blended pass of a partly see-through solid or masked surface (<see cref="GetSeeThrough"/>): drawn only in
+    /// thermal and EMF, after the solid scene, blended by the actor's opacity and writing no depth. A masked material
+    /// keeps its alpha cut.
+    /// </summary>
+    private Shader SeeThroughShaderFor(LightSource light, MaterialBlend blend, bool twoSided, List<string> extras)
+    {
+        string key = $"seethrough|{light}|{blend}|{twoSided}|{string.Join(',', extras)}";
+        if (_shaders.TryGetValue(key, out Shader? shader))
+        {
+            return shader;
+        }
+
+        var code = new StringBuilder();
+        code.Append("shader_type spatial;\nrender_mode unshaded, fog_disabled, ").Append(twoSided ? "cull_disabled" : "cull_back")
+            .Append(", blend_mix, depth_draw_never;\n");
+        Define(code, light switch
+        {
+            LightSource.Lightmap => "LIGHT_LIGHTMAP",
+            LightSource.Vertex => "LIGHT_VERTEX",
+            LightSource.Actor => "LIGHT_ACTOR",
+            _ => null,
+        });
+        Define(code, "VISION_SEE_THROUGH");
+        Define(code, blend == MaterialBlend.Masked ? "SEE_THROUGH_CUT" : null);
+        foreach (string extra in extras)
+        {
+            Define(code, extra);
+        }
 
         code.Append("#include \"").Append(TemplatePath).Append("\"\n");
         shader = new Shader { Code = code.ToString(), ResourceName = "svm_world " + key };

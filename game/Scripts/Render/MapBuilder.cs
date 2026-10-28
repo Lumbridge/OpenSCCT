@@ -513,7 +513,7 @@ public static class MapBuilder
         private readonly HashSet<string> _usedLibraryMeshes = new(StringComparer.Ordinal);
         private readonly HashSet<string> _particleMeshes = new(StringComparer.Ordinal);
         private readonly Dictionary<int, MeshPrimitive[]> _primitives = [];
-        private readonly SortedDictionary<(int X, int Y, int Sky), Dictionary<(string, LightSource), SurfaceBuilder>> _cells = new();
+        private readonly SortedDictionary<(int X, int Y, int Sky), Dictionary<(string, LightSource, bool), SurfaceBuilder>> _cells = new();
         private readonly Dictionary<(string Mesh, LightSource Light, int Glow), ArrayMesh> _shared = [];
         private readonly Node3D _static = new() { Name = "Static" };
         private readonly Node3D _gameplay = new() { Name = "Gameplay" };
@@ -884,18 +884,18 @@ public static class MapBuilder
             return false;
         }
 
-        private SurfaceBuilder Bucket((int, int, int) cell, string material, LightSource light, bool uv2, bool colour)
+        private SurfaceBuilder Bucket((int, int, int) cell, string material, LightSource light, bool uv2, bool colour, bool seeThrough = false)
         {
-            if (!_cells.TryGetValue(cell, out Dictionary<(string, LightSource), SurfaceBuilder>? buckets))
+            if (!_cells.TryGetValue(cell, out Dictionary<(string, LightSource, bool), SurfaceBuilder>? buckets))
             {
                 buckets = [];
                 _cells[cell] = buckets;
             }
 
-            if (!buckets.TryGetValue((material, light), out SurfaceBuilder? b))
+            if (!buckets.TryGetValue((material, light, seeThrough), out SurfaceBuilder? b))
             {
                 b = new SurfaceBuilder(uv2, colour, hasVision: true);
-                buckets[(material, light)] = b;
+                buckets[(material, light, seeThrough)] = b;
             }
 
             // BSP and instances without values of their own draw at the Actor defaults.
@@ -955,10 +955,11 @@ public static class MapBuilder
             Aabb box = Bounds(prims, transform);
             (int, int, int) cell = CellOf(box.GetCenter(), Bool(inst, "skyZone") || InSkyZone(box.GetCenter()));
             Vector4 vision = VisionOf(inst);
+            bool seeThrough = SeeThrough(vision);
             bool authored = Bool(inst, "authoredColors");
             foreach (MeshPrimitive prim in prims)
             {
-                SurfaceBuilder bucket = Bucket(cell, prim.Material, light, false, light == LightSource.Vertex);
+                SurfaceBuilder bucket = Bucket(cell, prim.Material, light, false, light == LightSource.Vertex, seeThrough);
                 bucket.Vision = vision;
                 bucket.Echelon = echelon;
                 byte[]? zones = light == LightSource.Vertex ? ZonesOf(prim, transform, location) : null;
@@ -1054,6 +1055,13 @@ public static class MapBuilder
             return new Vector4(F("heat", 0f), F("heatOpacity", 1f), on ? F("emf", 0f) : 0f, F("emfOpacity", 1f));
         }
 
+        /// <summary>
+        /// Whether an actor is partly see-through in thermal or EMF vision (HeatOpacity or EMFOpacity between 0 and 1):
+        /// its surfaces take the blended vision pass (<see cref="MaterialCompiler.GetSeeThrough"/>).
+        /// </summary>
+        private static bool SeeThrough(Vector4 vision) =>
+            vision.Y is > 0f and < 1f || vision.W is > 0f and < RenderK.EmfOpaqueFrom;
+
         private static Aabb Bounds(MeshPrimitive[] prims, in Transform3D transform)
         {
             var box = new Aabb();
@@ -1073,13 +1081,14 @@ public static class MapBuilder
         {
             int glowKey = light == LightSource.Vertex ? glow : 0;
             // Vertex-lit gameplay meshes carry their zones per vertex, so they are not shared between actors.
-            string shareKey = light == LightSource.Vertex ? meshName + "@" + actor : meshName;
+            bool seeThrough = SeeThrough(vision);
+            string shareKey = (light == LightSource.Vertex ? meshName + "@" + actor : meshName) + (seeThrough ? "|seethrough" : "");
             if (!_shared.TryGetValue((shareKey, light, glowKey), out ArrayMesh? arrayMesh))
             {
                 arrayMesh = new ArrayMesh { ResourceName = meshName };
                 foreach (MeshPrimitive prim in Primitives(mesh))
                 {
-                    Material? material = _map.Compiler.Get(prim.Material, light);
+                    Material? material = seeThrough ? _map.Compiler.GetSeeThrough(prim.Material, light) : _map.Compiler.Get(prim.Material, light);
                     if (material is null)
                     {
                         continue;
@@ -1147,19 +1156,20 @@ public static class MapBuilder
 
         private void FlushCells()
         {
-            foreach (((int x, int y, int sky) cell, Dictionary<(string, LightSource), SurfaceBuilder> buckets) in _cells)
+            foreach (((int x, int y, int sky) cell, Dictionary<(string, LightSource, bool), SurfaceBuilder> buckets) in _cells)
             {
                 string baseName = string.Create(CultureInfo.InvariantCulture, $"{(cell.sky != 0 ? "Sky" : "Cell")}_{cell.x}_{cell.y}");
-                var keys = new List<(string, LightSource)>(buckets.Keys);
-                keys.Sort((a, b) => string.CompareOrdinal(a.Item1, b.Item1) != 0 ? string.CompareOrdinal(a.Item1, b.Item1) : a.Item2.CompareTo(b.Item2));
+                var keys = new List<(string, LightSource, bool)>(buckets.Keys);
+                keys.Sort((a, b) => string.CompareOrdinal(a.Item1, b.Item1) is var n and not 0 ? n
+                    : a.Item2 != b.Item2 ? a.Item2.CompareTo(b.Item2) : a.Item3.CompareTo(b.Item3));
 
                 // A cell with more materials than one mesh can hold (MoonD's cells pass 256) is split over several
                 // meshes, so no surface is dropped.
                 int part = 0;
                 var mesh = new ArrayMesh { ResourceName = baseName };
-                foreach ((string, LightSource) key in keys)
+                foreach ((string, LightSource, bool) key in keys)
                 {
-                    Material? material = _map.Compiler.Get(key.Item1, key.Item2);
+                    Material? material = key.Item3 ? _map.Compiler.GetSeeThrough(key.Item1, key.Item2) : _map.Compiler.Get(key.Item1, key.Item2);
                     if (material is null)
                     {
                         continue;
