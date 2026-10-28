@@ -45,6 +45,53 @@ public partial class SWeapon
     /// <summary>The owner's controller as an SPlayerController.</summary>
     public SPlayerController? OwnerPC => (Controller ?? Instigator?.Controller) as SPlayerController;
 
+    // ---- shot numbers (fire prediction, spec/net/lag-compensation.md) -------------------------------------------
+
+    /// <summary>
+    /// The owner's client: the number of its last shot sent. The server: the number of the last shot received. Both
+    /// start at 0 with the weapon, and shots travel reliably and in order, so the numbers agree.
+    /// </summary>
+    public int ShotCounter { get; private set; }
+
+    /// <summary>The server, during one client shot: its number when it seeds the spread (0: the random stream).</summary>
+    protected int ActiveShotId { get; private set; }
+
+    /// <summary>The server, during one client shot: the player whose client already drew the shot's impacts, or null.</summary>
+    protected PlayerController? PredictedBy { get; private set; }
+
+    /// <summary>The owner's client: the number of a new shot.</summary>
+    protected int NextShotId() => ++ShotCounter;
+
+    /// <summary>
+    /// The server, before a client's shot runs: a shot whose number follows the last one seeds the spread with it (a
+    /// number out of order falls back to the random stream, so a client cannot pick its spread); a predicted shot's
+    /// impacts are not sent back to its player.
+    /// </summary>
+    public void BeginClientShot(int ShotId, bool Predicted)
+    {
+        ActiveShotId = ShotId != 0 && ShotId == ShotCounter + 1 ? ShotId : 0;
+        if (ShotId != 0)
+        {
+            ShotCounter = ShotId;
+        }
+
+        PredictedBy = Predicted ? OwnerPC : null;
+    }
+
+    /// <summary>The server, after the shot: back to the random stream.</summary>
+    public void EndClientShot()
+    {
+        ActiveShotId = 0;
+        PredictedBy = null;
+    }
+
+    /// <summary>
+    /// Random call <paramref name="Call"/> of a trace: the shot's hashed number when <paramref name="ShotId"/> is set
+    /// (the server's numbered shot or the client's prediction of it), else FRand.
+    /// </summary>
+    protected float SpreadRandom(int ShotId, int Aim, uint Side, int Call) =>
+        ShotId != 0 ? ShotSpread.Unit(ShotId, Aim, Side, Call) : FRand();
+
     /// <summary>Fire through the current state.</summary>
     public void eventFire(float Value)
     {

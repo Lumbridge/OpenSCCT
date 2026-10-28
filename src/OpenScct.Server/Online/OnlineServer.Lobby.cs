@@ -470,7 +470,7 @@ public sealed partial class OnlineServer
         "status | players | kick <id|name> [reason] | ban <id|name> [minutes] [reason] | unban <account|install id|address|name> | " +
         "voiceban <id|name> | unvoiceban <id|name> | " +
         "map <name> [mode] | mode <name> | set <time|spylives|merclives|respawn|revenge|games|maxplayers|bots|botsperside|botskill|balance|alternate|practice> <value> | set alternate <ability|spygadgetN|mercgadgetN|spyslots|mercslots> <value> | " +
-        "practice [on|off] | launch | lobby | restart | next | say <text> | close";
+        "lagcomp [on|off|reset|<ms>] | practice [on|off] | launch | lobby | restart | next | say <text> | close";
 
     /// <summary>
     /// Runs an admin command (the dedicated server's console, an admin's <c>cmd</c> line, a listen host) and returns
@@ -570,11 +570,17 @@ public sealed partial class OnlineServer
                 ApplySetup(KeepPractice(LobbySetup.ForMap(Setup.Map, newMode, Maps.GetMapSettings(Setup.Map), Setup.MaxPlayers) with { AutoBalance = Setup.AutoBalance, Alternate = Setup.Alternate }), announce: true);
                 output.Add("next: " + Setup.Describe());
                 break;
+            case "lagcomp":
+                output.Add(LagCompensationCommand(arg) ?? LagCompensationUsage);
+                break;
+            case "set" when arg.Equals("lagcomp", StringComparison.OrdinalIgnoreCase):
+                output.Add(LagCompensationCommand(rest) ?? LagCompensationUsage);
+                break;
             case "set" when SetOption(arg, rest, out string? problem):
                 output.Add("next: " + Setup.Describe());
                 break;
             case "set":
-                output.Add("usage: set <time|spylives|merclives|respawn|revenge|games|maxplayers|bots|botsperside|botskill|balance|alternate|practice> <value>, or set alternate <spythermal|spynight|spygrab|spyelbow|spydrop|mercemf|mercmotion|mercelbow|mercdrop|merctorch|merclaser|mercberserk|merccharge|cinematic|spygadget1-8|mercgadget1-8|spyslots|mercslots> <value>");
+                output.Add("usage: set <time|spylives|merclives|respawn|revenge|games|maxplayers|bots|botsperside|botskill|balance|alternate|practice|lagcomp> <value>, or set alternate <spythermal|spynight|spygrab|spyelbow|spydrop|mercemf|mercmotion|mercelbow|mercdrop|merctorch|merclaser|mercberserk|merccharge|cinematic|spygadget1-8|mercgadget1-8|spyslots|mercslots> <value>");
                 break;
             case "practice":
                 if (arg.Length > 0 && SetOption("practice", arg, out _))
@@ -643,6 +649,33 @@ public sealed partial class OnlineServer
         }
 
         return output;
+    }
+
+    private const string LagCompensationUsage = "lagcomp: !lagcomp [on|off|reset|<ceiling>]";
+
+    /// <summary>
+    /// Lag compensation (rl:net.lagcomp, docs/NETCODE.md): <c>on</c>, <c>off</c>, <c>reset</c> (the default ceiling) or
+    /// a ceiling in ms (which turns it on); nothing only reports. Changes the running round at once and every later
+    /// round, and tells everyone. Returns the setting's line, or null for a bad argument.
+    /// </summary>
+    private string? LagCompensationCommand(string argument)
+    {
+        LagCompensation lag = Host.LagCompensation;
+        string before = lag.Describe();
+        if (lag.Command(argument) is not { } line)
+        {
+            return null;
+        }
+
+        _lagCompensation = lag.Enabled;
+        _lagCompensationCeilingMs = lag.CeilingMs;
+        if (line != before)
+        {
+            Announce(line);
+            Log(line);
+        }
+
+        return line;
     }
 
     private bool SetOption(string name, string value, out string? problem)
@@ -788,9 +821,19 @@ public sealed partial class OnlineServer
         switch (verb)
         {
             case "help":
-                SendMessage(p, "!map <name> [mode], !next, !prev, !pings, !resign, !login <password>" +
+                SendMessage(p, "!map <name> [mode], !next, !prev, !pings, !resign, !lagcomp [on|off|reset|<ms>], !login <password>" +
                     (CanControl(p) ? ", !voiceban <name>, !unvoiceban <name>" : string.Empty) +
                     (Setup.Practice ? ", " + PracticeHelp : string.Empty));
+                return true;
+            case "lagcomp":
+                if (arg.Length > 0 && !CanControl(p))
+                {
+                    SendMessage(p, "lagcomp: server-side setting");
+                    SendMessage(p, Host.LagCompensation.Describe());
+                    return true;
+                }
+
+                SendMessage(p, LagCompensationCommand(arg) ?? LagCompensationUsage);
                 return true;
             case "pings":
                 foreach (SessionPlayer other in _players)

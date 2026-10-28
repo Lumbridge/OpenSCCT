@@ -90,6 +90,9 @@ public sealed record OnlineClientSettings
     /// <summary>Install the gameplay services after each map load (see <see cref="ClientSettings.InstallGameplayServices"/>).</summary>
     public bool InstallGameplayServices { get; init; } = true;
 
+    /// <summary>Draw this player's own bullet impacts at once (see <see cref="ClientSettings.FirePrediction"/>).</summary>
+    public bool FirePrediction { get; init; } = true;
+
     /// <summary>
     /// Makes each map's session (null: a plain <see cref="ClientSession"/>). Bots and the game's play scene make their
     /// own, with the request's settings and transport.
@@ -548,6 +551,7 @@ public sealed class OnlineClient : IDisposable
             LoginOptions = LoginOptions(),
             Gameplay = true,
             InstallGameplayServices = Settings.InstallGameplayServices,
+            FirePrediction = Settings.FirePrediction,
             Maps = Maps,
             Classes = Classes,
             NetSpeed = Settings.NetSpeed,

@@ -112,6 +112,7 @@ public partial class OnlineService : Node
         Maps = Catalog.Maps,
         Classes = Classes,
         InstallGameplayServices = false,
+        FirePrediction = SettingsStore.Current.FirePrediction,
     };
 
     /// <summary>

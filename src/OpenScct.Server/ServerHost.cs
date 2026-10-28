@@ -77,6 +77,16 @@ public sealed record ServerSettings
     /// options), for rules built on SGameInfo (the hub's). Null spawns <see cref="SGameInfo"/>.
     /// </summary>
     public Func<Level, string, SGameInfo>? GameFactory { get; init; }
+
+    /// <summary>
+    /// Trace clients' shots against the other players where each client saw them (Reloaded's lag compensation,
+    /// <see cref="OpenScct.Server.LagCompensation"/>). Off by default; <see cref="ServerHost.LagCompensation"/> changes
+    /// it while the server runs.
+    /// </summary>
+    public bool LagCompensation { get; init; }
+
+    /// <summary>With <see cref="LagCompensation"/>: the longest rewind in milliseconds.</summary>
+    public int LagCompensationCeilingMs { get; init; } = OpenScct.Server.LagCompensation.DefaultCeilingMs;
 }
 
 /// <summary>What <see cref="ServerHost.LoginFilter"/> decides for a connection's Hello.</summary>
@@ -183,6 +193,9 @@ public sealed class ServerHost : INetworkNotify, IDisposable
         // Other players' pawns go to each viewer as position samples and action batches, whoever installs the game
         // rules (a play session's map loader installs its own).
         ProxySender = new PawnProxySender(Driver);
+        LagCompensation = LagCompensation.Install(World.Level);
+        LagCompensation.CeilingMs = Settings.LagCompensationCeilingMs;
+        LagCompensation.Enabled = Settings.LagCompensation;
         if (Game is not null)
         {
             GameplayServices.Install(World.Level, Map.Physics, maps.PawnAnimations);
@@ -227,6 +240,9 @@ public sealed class ServerHost : INetworkNotify, IDisposable
 
     /// <summary>With the game rules: the position samples of other players' pawns.</summary>
     public PawnProxySender? ProxySender { get; }
+
+    /// <summary>Lag compensation of the clients' shots (off unless <see cref="ServerSettings.LagCompensation"/>).</summary>
+    public LagCompensation LagCompensation { get; }
 
     /// <summary>With the game rules on a dedicated server: the match start.</summary>
     public DedicatedStartGate? StartGate { get; }
@@ -296,6 +312,7 @@ public sealed class ServerHost : INetworkNotify, IDisposable
         Driver.TickDispatch(nowMicros);
         BeforeWorldTick?.Invoke(this);
         World.Step();
+        LagCompensation.Record();
         Chat.Tick(World.TimeSeconds);
         DeviceEvents?.RelayTick(World);
         StartGate?.Tick(PendingClients());

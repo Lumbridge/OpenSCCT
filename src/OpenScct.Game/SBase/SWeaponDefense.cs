@@ -277,6 +277,8 @@ public partial class SWeaponDefense
     [PortOf("rep:SBase.SWeaponDefense.ServerSetAccurateRotation", Spec = "spec/combat/hit-zones-and-weapons.md#network")]
     public void ServerSetAccurateRotation(int Yaw, int Pitch, int Roll)
     {
+        // The owner keeps its own copy too: its fire prediction traces along it.
+        AccurateRotation = new FRotator(Pitch, Yaw, Roll);
         if (Role < ENetRole.ROLE_Authority && OwnerPC is { } pc)
         {
             CombatServices.Net(this).ServerCall(pc, new CombatCall(CNAME_ServerSetAccurateRotation)
@@ -284,10 +286,7 @@ public partial class SWeaponDefense
                 Target = this,
                 Rotation = new FRotator(Pitch, Yaw, Roll),
             });
-            return;
         }
-
-        AccurateRotation = new FRotator(Pitch, Yaw, Roll);
     }
 
     /// <summary>
@@ -300,7 +299,21 @@ public partial class SWeaponDefense
     {
         if (Role < ENetRole.ROLE_Authority && OwnerPC is { } client)
         {
-            CombatServices.Net(this).ServerCall(client, new CombatCall(CNAME_ServerFireWeapon) { Target = this, Int1 = iBulletInARow });
+            // The shot's number seeds its spread on both ends; with fire prediction the owner draws its impacts now.
+            int shot = NextShotId();
+            bool predicted = PredictsImpacts && FirePrediction.IsOn(this);
+            if (predicted)
+            {
+                PredictTraceFire(shot, InScope ? 0f : GetAccuracy());
+            }
+
+            CombatServices.Net(this).ServerCall(client, new CombatCall(CNAME_ServerFireWeapon)
+            {
+                Target = this,
+                Int1 = iBulletInARow,
+                Int2 = shot,
+                Bool1 = predicted,
+            });
             return;
         }
 
@@ -345,15 +358,7 @@ public partial class SWeaponDefense
             return;
         }
 
-        bool onMoverMoving = shooter.Base is Mover { Velocity: var mv } && !mv.IsZero();
-        AccurateRotation.GetAxes(out FVector X, out FVector Y, out FVector Z);
-        FVector startTrace = onMoverMoving
-            ? shooter.Location + new FVector(0f, 0f, shooter.bIsCrouched ? K.MoverAimCrouched : K.MoverAimStanding)
-            : shooter.Location + CombatServices.Ports(this).EyePosition(shooter);
-        float u1 = FRand() - 0.5f;
-        float u2 = FRand() - 0.5f;
-        FVector endTrace = startTrace + Y * (Accuracy * u1) * K.SpreadScale + Z * (Accuracy * u2) * K.SpreadScale + X * K.TraceLength;
-        FVector wStart = !TraceStartLocation.IsZero() ? TraceStartLocation : onMoverMoving ? startTrace : GetFireStart();
+        ShotRay(shooter, Accuracy, ActiveShotId, TraceStartLocation, out FVector startTrace, out FVector endTrace, out FVector wStart);
         BoneTraceResult hit = CombatServices.HitZones(this).TraceBone(this, endTrace, wStart, true);
         int roll = SvmMath.Trunc(FRand() * K.RandomRoll);
         Actor other = hit.Actor;
@@ -375,11 +380,11 @@ public partial class SWeaponDefense
 
                 FRotator front = hit.HitNormal.Rotation();
                 front.Roll = roll;
-                ImpactManager.AddImpact(this, CNAME_ImpactHole, hit.HitLocation + hit.HitNormal * 0.25f, front);
+                ImpactManager.AddImpact(this, CNAME_ImpactHole, hit.HitLocation + hit.HitNormal * 0.25f, front, PredictedBy);
                 FVector back = hit.HitLocation - hit.HitNormal * K.FakeCeilingExit;
                 FRotator backRot = (-hit.HitNormal).Rotation();
                 backRot.Roll = SvmMath.Trunc(FRand() * K.RandomRoll);
-                ImpactManager.AddImpact(this, CNAME_ImpactHoleBack, back, backRot);
+                ImpactManager.AddImpact(this, CNAME_ImpactHoleBack, back, backRot, PredictedBy);
                 TraceFire(Accuracy, YOffset, ZOffset, back);
                 return;
             }
@@ -436,7 +441,78 @@ public partial class SWeaponDefense
         Name effect = ImpactClass(hit.SurfaceType);
         FRotator r = hit.HitNormal.Rotation();
         r.Roll = roll;
-        ImpactManager.AddImpact(this, effect, hit.HitLocation, r);
+        ImpactManager.AddImpact(this, effect, hit.HitLocation, r, PredictedBy);
+    }
+
+    /// <summary>
+    /// The ray of one bullet (rule 10, shared by the server's trace and the owner's prediction): the aim point from the
+    /// eye (or the mover aim height), the spread in a square around <see cref="AccurateRotation"/> and the gun start.
+    /// The two spread numbers are the shot's hashed ones when <paramref name="ShotId"/> is set (calls 0 and 1, and 2
+    /// and 3 behind a fake ceiling), else FRand.
+    /// </summary>
+    private void ShotRay(Pawn shooter, float Accuracy, int ShotId, FVector TraceStartLocation, out FVector startTrace,
+        out FVector endTrace, out FVector wStart)
+    {
+        bool onMoverMoving = shooter.Base is Mover { Velocity: var mv } && !mv.IsZero();
+        AccurateRotation.GetAxes(out FVector X, out FVector Y, out FVector Z);
+        startTrace = onMoverMoving
+            ? shooter.Location + new FVector(0f, 0f, shooter.bIsCrouched ? K.MoverAimCrouched : K.MoverAimStanding)
+            : shooter.Location + CombatServices.Ports(this).EyePosition(shooter);
+        int call = TraceStartLocation.IsZero() ? 0 : 2;
+        float u1 = SpreadRandom(ShotId, AccurateRotation.Yaw, ShotSpread.Merc, call) - 0.5f;
+        float u2 = SpreadRandom(ShotId, AccurateRotation.Yaw, ShotSpread.Merc, call + 1) - 0.5f;
+        endTrace = startTrace + Y * (Accuracy * u1) * K.SpreadScale + Z * (Accuracy * u2) * K.SpreadScale + X * K.TraceLength;
+        wStart = !TraceStartLocation.IsZero() ? TraceStartLocation : onMoverMoving ? startTrace : GetFireStart();
+    }
+
+    /// <summary>Whether the owner predicts this gun's impacts (the shotgun draws its own pellet marks instead).</summary>
+    protected virtual bool PredictsImpacts => true;
+
+    /// <summary>
+    /// Fire prediction on the owner's client (spec/net/lag-compensation.md): the same ray as the server's trace with the
+    /// shot's hashed spread, traced against this machine's world and pawns, and the world hit's impact (or the fake
+    /// ceiling's two holes and the trace behind) drawn here at once. Nothing else: damage, tracers and pawn hits stay
+    /// with the server, which does not send this shot's impacts back to this player.
+    /// </summary>
+    [Provenance(ProvenanceKind.Estimated, "Our design of rl:net.fireprediction; the impact rolls are hashed on the client, not the server's FRand")]
+    private void PredictTraceFire(int ShotId, float Accuracy, FVector TraceStartLocation = default)
+    {
+        if (Instigator is not { } shooter)
+        {
+            return;
+        }
+
+        ShotRay(shooter, Accuracy, ShotId, TraceStartLocation, out _, out FVector endTrace, out FVector wStart);
+        BoneTraceResult hit = CombatServices.HitZones(this).TraceBone(this, endTrace, wStart, true);
+        Actor other = hit.Actor;
+        if (!hit.bHit || hit.bIsAFakeBackdrop || !(other.bWorldGeometry || other is Mover || other is LevelInfo))
+        {
+            return;
+        }
+
+        int call = TraceStartLocation.IsZero() ? 4 : 6;
+        int roll = SvmMath.Trunc(ShotSpread.Unit(ShotId, AccurateRotation.Yaw, ShotSpread.Merc, call) * K.RandomRoll);
+        if (hit.SurfaceType == ESurfaceType.SURFACE_FakeCeiling)
+        {
+            if (!TraceStartLocation.IsZero())
+            {
+                return;
+            }
+
+            FRotator front = hit.HitNormal.Rotation();
+            front.Roll = roll;
+            ImpactManager.AddImpactHere(XLevel, CNAME_ImpactHole, hit.HitLocation + hit.HitNormal * 0.25f, front);
+            FVector back = hit.HitLocation - hit.HitNormal * K.FakeCeilingExit;
+            FRotator backRot = (-hit.HitNormal).Rotation();
+            backRot.Roll = SvmMath.Trunc(ShotSpread.Unit(ShotId, AccurateRotation.Yaw, ShotSpread.Merc, call + 1) * K.RandomRoll);
+            ImpactManager.AddImpactHere(XLevel, CNAME_ImpactHoleBack, back, backRot);
+            PredictTraceFire(ShotId, Accuracy, back);
+            return;
+        }
+
+        FRotator r = hit.HitNormal.Rotation();
+        r.Roll = roll;
+        ImpactManager.AddImpactHere(XLevel, ImpactClass(hit.SurfaceType), hit.HitLocation, r);
     }
 
     private static readonly Name ImpactBeton = new("SImpactEffectBeton");

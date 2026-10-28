@@ -136,6 +136,9 @@ public partial class SWeaponDefense_Shotgun
         }
     }
 
+    /// <summary>The owner already draws its pellet marks at once (<see cref="SpawnImpacts"/>), so nothing is predicted.</summary>
+    protected override bool PredictsImpacts => false;
+
     /// <summary>The barrel smoke of each shot: an SSmokeCanonEmitter at each barrel, 22 uu along the FX bone, 3 uu to each side.</summary>
     [Uc("SBase.SWeaponDefense_Shotgun.CreateSmoke1", Sha1 = "d75ca1e15a97bd9960893ce4b334a2f728cdb4f7")]
     [PortOf("uc:SBase.SWeaponDefense_Shotgun:CreateSmoke1", Spec = "spec/equipment/merc-guns.md#rules")]

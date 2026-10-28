@@ -18,6 +18,7 @@ sibling editor build unless stated; game addresses come from the reflection dump
 | [`rep-inventory.md`](rep-inventory.md) | Weapons (rifle, sticky shocker, dummy), gadgets, flashlight, grenades, goggles. | 84 | 23 | 4 | 28 | 19 | 10 |
 | [`rep-objectives.md`](rep-objectives.md) | Missions, objectives, terminals, disk and drop zone, interaction objects and the interaction protocol, interaction manager. | 118 | 38 | 8 | 45 | 13 | 14 |
 | [`rep-map-actors.md`](rep-map-actors.md) | SteeE map actor presence on clients; movers, gameplay objects, glass, switches, crane, camera network, trigger lights, music, emitters. | 101 | 27 | 1 | 28 | 29 | 16 |
+| [`lag-compensation.md`](lag-compensation.md) | OpenSCCT's design of Reloaded's lag compensation and client fire prediction: pawn pill history, view time on calls, rewind window, shot numbers and hashed spread, predicted impacts. | 0 | 0 | 0 | 0 | 0 | 0 |
 | **distinct** | | 1036 | 246 | 35 | 601 | 84 | 70 |
 
 Coverage of the network-relevant set (every `rep:` unit plus every script or native function

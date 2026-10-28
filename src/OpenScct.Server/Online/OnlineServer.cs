@@ -139,6 +139,15 @@ public sealed record OnlineServerSettings
     public TimeProvider WallClock { get; init; } = TimeProvider.System;
 
     /// <summary>
+    /// Lag compensation of the players' shots on every round (<see cref="ServerSettings.LagCompensation"/>); off by
+    /// default. The console's <c>lagcomp</c> and the chat command <c>!lagcomp</c> change it while the session runs.
+    /// </summary>
+    public bool LagCompensation { get; init; }
+
+    /// <summary>The longest rewind of <see cref="LagCompensation"/>, in milliseconds.</summary>
+    public int LagCompensationCeilingMs { get; init; } = OpenScct.Server.LagCompensation.DefaultCeilingMs;
+
+    /// <summary>
     /// Relay voice chat (docs/VOICE.md) on every map of the session, lobby included, routed by the setup's voice mode,
     /// "Voice in Lobby" and the players' "Restrict Mic to Team".
     /// </summary>
@@ -297,6 +306,8 @@ public sealed partial class OnlineServer : IDisposable
     private string? _notice;
     private bool _closing;
     private bool _disposed;
+    private bool _lagCompensation;
+    private int _lagCompensationCeilingMs;
 
     /// <summary>A change of map in progress.</summary>
     private sealed record Travel(string Map, string? GameOptions, SessionPhase Next, long Deadline, ServerHost Old);
@@ -351,6 +362,8 @@ public sealed partial class OnlineServer : IDisposable
         _udp = udp;
         _now = nowMicros;
         _random = settings.MatchSeed * 0x9E3779B97F4A7C15UL + 1;
+        _lagCompensation = settings.LagCompensation;
+        _lagCompensationCeilingMs = settings.LagCompensationCeilingMs;
         Setup = settings.Setup.Clamped() with { MaxPlayers = Math.Max(settings.Setup.MaxPlayers, settings.MaxPlayers) };
         if (Maps.FindMap(Setup.Map) is null)
         {
@@ -590,6 +603,8 @@ public sealed partial class OnlineServer : IDisposable
             GameOptions = isLobby ? null : gameOptions,
             PlayersToStart = Math.Max(1, CountPlayers(spectators: false)),
             UseStartGate = !isLobby,
+            LagCompensation = _lagCompensation,
+            LagCompensationCeilingMs = _lagCompensationCeilingMs,
         };
         if (Settings.Net is { } net)
         {

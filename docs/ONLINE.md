@@ -614,10 +614,11 @@ Console (standard input, and `cmd <command>` from in-game admins): `status`, `pl
 `set alternate <item> <value>` (items: `spythermal`, `spynight`, `spygrab`, `spyelbow`, `spydrop`, `mercemf`,
 `mercmotion`, `mercelbow`, `mercdrop`, `merctorch`, `merclaser`, `mercberserk`, `merccharge`, `cinematic` on or off;
 `spygadget1` to `spygadget8`, `mercgadget1` to `mercgadget8` on or off; `spyslots`, `mercslots` 0 to 4),
-`practice [on|off]`, `launch`,
+`practice [on|off]`, `lagcomp [on|off|reset|<ms>]` (also `set lagcomp ...`; see "Lag compensation" below), `launch`,
 `lobby`, `next`, `say <text>`, `close`. Chat commands (rl:qol.chatcmds): `!map <name> [mode]`, `!next`, `!prev`
 (`!back`), `!pings` (ping, jitter and loss per player), `!resign` (give up the round: your lives are spent;
-`SPlayerController.ServerResign`), `!login <password>`, `!help`, and for the host
+`SPlayerController.ServerResign`), `!lagcomp` (everyone: the setting; the host and admins, or everyone on an open
+dedicated server: `!lagcomp on|off|reset|<ms>`), `!login <password>`, `!help`, and for the host
 and admins `!voiceban <id|name>` and `!unvoiceban <id|name>`, and on a practice server `!heal`, `!regen`, `!tank`,
 `!kill`. Ctrl+C, SIGTERM and `close` tell the players and the master before
 stopping.
@@ -646,6 +647,25 @@ mode. Reloaded's exact `!regen` and `!tank` effects are not decoded; the rate ab
 not ported (ammunition is kept by the owning client in this port; a server refill needs a client call).
 
 Bans (rl:ac.bans) are by install id and address (no hardware fingerprints), with an optional end.
+
+### Lag compensation
+
+Reloaded's server-side lag compensation (rl:net.lagcomp; how it works: docs/NETCODE.md "Lag compensation and fire
+prediction"). **Off by default.** Ways to turn it on:
+
+- dedicated server config: `"lagComp": true` (and optionally `"lagCompCeilingMs": 250`, 0 to 1000);
+- the server console (or an admin's `cmd`): `lagcomp on`, `lagcomp off`, `lagcomp reset` (ceiling back to 250 ms),
+  `lagcomp 200` (ceiling 200 ms, and on); `set lagcomp on` works too;
+- chat, as the host or an admin (everyone on a dedicated server without an admin password): `!lagcomp on`,
+  `!lagcomp off`, `!lagcomp reset`, `!lagcomp <ms>`. Plain `!lagcomp` tells anyone the setting.
+
+Each change answers in Reloaded's words (`lagcomp: on - ceiling 250ms`, `lagcomp: off`), is told to everyone and the
+server log, applies to the running round at once and stays for the session's later rounds (until the server restarts,
+when the config's value applies again). A player who may not change it gets `lagcomp: server-side setting`.
+
+Fire prediction is the client's side (Options, HUD page, "Fire prediction", settings key `fire_prediction`, on by
+default; also `set fire_prediction off` in the game's console). It needs nothing from the server and works with
+lagcomp on or off.
 
 ## Hosting from the game
 
@@ -890,7 +910,8 @@ dotnet run --project src/OpenScct.Server.Cli -- --online --master http://127.0.0
   destination address but not for another is not caught and shows as needs intro (the relay is still tried after
   a failed punch).
 - No IPv6 pinholes for listen hosts yet; LAN addresses sent to the master are IPv4 only.
-- `!lagcomp` of Reloaded is not ported; playlists (rl:qol.lobbymaps) are a plain rotation in the server config, and
+- Lag compensation is off by default and its 250 ms default ceiling is ours (Reloaded's was not decoded); it has not
+  been played over a real link yet. Playlists (rl:qol.lobbymaps) are a plain rotation in the server config, and
   the lobby's map picker lists every installed map.
 - Bots: the dedicated server's config file has no bot fields yet (the console's `set bots` works); its rotation
   entries could carry them.

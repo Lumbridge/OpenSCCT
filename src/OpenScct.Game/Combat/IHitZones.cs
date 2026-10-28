@@ -51,6 +51,20 @@ public interface IHitZones
     BoneTraceResult TraceBone(Actor Shooter, FVector TraceEnd, FVector TraceStart, bool bRealFire);
 }
 
+/// <summary>
+/// The pawns' pills at an earlier moment, for one shot: a server with lag compensation installs one so that a client's
+/// shot is traced against the pawns where that client saw them (docs/NETCODE.md, "Lag compensation"). Outside such a
+/// shot it holds nothing and the live pose applies.
+/// </summary>
+public interface IPillHistory
+{
+    /// <summary>
+    /// Adds the pills <paramref name="Pawn"/> had at the shot's moment to <paramref name="Shapes"/> and gives where it
+    /// stood then; false (nothing added) when the live pose applies.
+    /// </summary>
+    bool TryGetPills(SBasePawn Pawn, List<PillShape> Shapes, out FVector Origin);
+}
+
 /// <summary>One collision pill of a pawn's current pose in world space: a capsule from A to B, or a sphere at A.</summary>
 public readonly record struct PillShape(int Pill, FVector A, FVector B, float Radius, int Priority, bool IsSphere);
 
@@ -374,6 +388,7 @@ public sealed class TraceHitZones : IHitZones
         }
 
         IPillPose pose = level.GetService<IPillPose>() ?? Pose;
+        IPillHistory? past = level.GetService<IPillHistory>();
         foreach (Pawn p in level.DynamicActors<Pawn>())
         {
             if (p is not SBasePawn pawn || ReferenceEquals(pawn, source) || IsBaseOf(pawn, source))
@@ -381,13 +396,25 @@ public sealed class TraceHitZones : IHitZones
                 continue;
             }
 
-            if (PillLineCheck.DistToSegment(TraceStart, TraceEnd, pawn.Location) >= PawnPassScale * pawn.CollisionHeight)
+            // A rewound shot (lag compensation) sees the pawn where the shooter saw it; otherwise the live pose.
+            _shapes.Clear();
+            FVector origin = pawn.Location;
+            bool rewound = past is not null && past.TryGetPills(pawn, _shapes, out origin);
+            if (!rewound)
+            {
+                origin = pawn.Location;
+            }
+
+            if (PillLineCheck.DistToSegment(TraceStart, TraceEnd, origin) >= PawnPassScale * pawn.CollisionHeight)
             {
                 continue;
             }
 
-            _shapes.Clear();
-            pose.GetPills(pawn, _shapes);
+            if (!rewound)
+            {
+                pose.GetPills(pawn, _shapes);
+            }
+
             if (_shapes.Count == 0 ||
                 !PillLineCheck.Check(_shapes, TraceStart, TraceEnd, out float t, out FVector loc, out FVector n, out int pill) ||
                 !(t < bestT))

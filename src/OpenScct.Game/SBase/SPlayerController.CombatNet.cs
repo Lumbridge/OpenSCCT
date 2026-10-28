@@ -111,7 +111,10 @@ public partial class SPlayerController
                 rifle.ServerSetAccurateRotation(c.Rotation.Yaw, c.Rotation.Pitch, c.Rotation.Roll);
                 break;
             case "ServerFireWeapon" when target is SWeapon weapon:
+                // The shot's number and whether its impacts were predicted (spec/net/lag-compensation.md).
+                weapon.BeginClientShot(c.Int2, c.Bool1);
                 weapon.ServerFireWeapon(c.Int1);
+                weapon.EndClientShot();
                 break;
             case "ServerSetROF" when target is SWeaponDefense rifle:
                 rifle.ServerSetROF((SRateOfFireMode)c.Int1);
@@ -120,7 +123,9 @@ public partial class SPlayerController
                 pistol.ServerSwitchLaser(c.Bool1);
                 break;
             case "ServerFireWeaponWithLocation" when target is SWeaponAttaque pistol:
+                pistol.BeginClientShot(c.Int1, c.Bool1);
                 pistol.ServerFireWeaponWithLocation(c.Vector1, c.Rotation.Yaw, c.Rotation.Pitch, c.Rotation.Roll);
+                pistol.EndClientShot();
                 break;
             case "TorcheON" when target is SGadTorche torch:
                 torch.TorcheON();

@@ -19,7 +19,10 @@ namespace OpenScct.Server;
 /// Wire form: the function name, the target actor, then each field behind a bit saying whether it is set (as UE2
 /// writes parameters): Int1, Int2, Int3, Float1, Bool1, Vector1, Vector2 (exact floats, because the port also carries
 /// non-geometric values in vectors), Rotation (exact ints), Actor1, Actor2, DamageType, Name1. Actors go through the
-/// connection's object map (a dynamic actor without an acknowledged channel arrives as None).
+/// connection's object map (a dynamic actor without an acknowledged channel arrives as None). A call to the server
+/// then carries the server time at which the client showed other players when it made the call
+/// (<see cref="ClientSession.ViewTimeFixed"/>, behind a presence bit): a server with lag compensation traces the call's
+/// shots at that time (<see cref="LagCompensation"/>).
 /// </para>
 /// </summary>
 [Provenance(ProvenanceKind.Estimated, "One reliable net-layer function per call; the original sends each combat function on its own actor")]
@@ -50,7 +53,7 @@ public sealed class NetCombatBridge : ICombatNet
     public static RepExtension CreateExtension()
     {
         var extension = new RepExtension();
-        extension.Functions.Add(new RepExtensionFunction(FunctionName, Reliable: true, ClientToServer: true, Signature: "combat1",
+        extension.Functions.Add(new RepExtensionFunction(FunctionName, Reliable: true, ClientToServer: true, Signature: "combat2",
             ReceiveFromClient));
         extension.Functions.Add(new RepExtensionFunction(FunctionName + "ToClient", Reliable: true, ClientToServer: false,
             Signature: "combat1", ReceiveFromServer));
@@ -71,7 +74,7 @@ public sealed class NetCombatBridge : ICombatNet
     {
         if (_driver.IsServer && _driver.OwningConnection(Owner) is { } connection)
         {
-            Send(Owner, connection, FunctionName + "ToClient", Call);
+            Send(Owner, connection, FunctionName + "ToClient", Call, -1);
         }
     }
 
@@ -79,7 +82,9 @@ public sealed class NetCombatBridge : ICombatNet
     {
         if (!_driver.IsServer && _driver.ServerConnection is { } connection)
         {
-            Send(Sender, connection, FunctionName, Call);
+            // The view time of the moment the call is made, kept while the call waits.
+            long viewTime = _driver.World?.Level.GetService<ClientSession>()?.ViewTimeFixed ?? -1;
+            Send(Sender, connection, FunctionName, Call, viewTime);
         }
     }
 
@@ -91,23 +96,24 @@ public sealed class NetCombatBridge : ICombatNet
 
     private readonly List<Pending> _pending = new();
 
-    private readonly record struct Pending(PlayerController Controller, NetConnection Connection, string Function, CombatCall Call, long QueuedAt);
+    private readonly record struct Pending(PlayerController Controller, NetConnection Connection, string Function, CombatCall Call,
+        long ViewTime, long QueuedAt);
 
     /// <summary>Calls waiting for an actor they name to be known on the other side.</summary>
     public int Waiting => _pending.Count;
 
-    private void Send(PlayerController pc, NetConnection connection, string function, in CombatCall call)
+    private void Send(PlayerController pc, NetConnection connection, string function, in CombatCall call, long viewTime)
     {
         // A call naming an actor the other side does not have yet (a pawn spawned this tick, whose channel opening is
         // not acknowledged) waits, in order, until it is: the original sends such a call on that actor's own channel,
         // which carries the actor first.
         if (HasPendingFor(connection) || !Mapped(connection, call))
         {
-            _pending.Add(new Pending(pc, connection, function, call, _driver.Time));
+            _pending.Add(new Pending(pc, connection, function, call, viewTime, _driver.Time));
             return;
         }
 
-        SendNow(pc, connection, function, call);
+        SendNow(pc, connection, function, call, viewTime);
     }
 
     private readonly List<Inbound> _inbound = new();
@@ -159,7 +165,7 @@ public sealed class NetCombatBridge : ICombatNet
             }
 
             _pending.RemoveAt(i);
-            SendNow(p.Controller, p.Connection, p.Function, p.Call);
+            SendNow(p.Controller, p.Connection, p.Function, p.Call, p.ViewTime);
         }
     }
 
@@ -197,7 +203,7 @@ public sealed class NetCombatBridge : ICombatNet
         return connection.FindActorChannel(actor) is { Closing: false } channel && (channel.OpenAcked || !_driver.IsServer);
     }
 
-    private void SendNow(PlayerController pc, NetConnection connection, string function, in CombatCall call)
+    private void SendNow(PlayerController pc, NetConnection connection, string function, in CombatCall call, long viewTime)
     {
         ActorChannel? channel = _driver.ChannelForCall(pc, connection);
         RepFunction? f = channel?.Layout?.FindFunction(function);
@@ -211,22 +217,48 @@ public sealed class NetCombatBridge : ICombatNet
         Trace?.Add("send " + call.Function + " target " + call.Target?.GetType().Name);
         FOutBunch bunch = channel.BeginFunction(f, reliable: true);
         Write(bunch.Writer, call, connection);
+        if (function == FunctionName && Flag(bunch.Writer, viewTime >= 0))
+        {
+            bunch.Writer.WriteUInt64((ulong)viewTime);
+        }
+
         channel.SendFunction(bunch);
         Sent++;
     }
 
-    private static void ReceiveFromClient(Actor actor, FBitReader reader, NetConnection connection) => Receive(actor, reader, connection, true);
-
-    private static void ReceiveFromServer(Actor actor, FBitReader reader, NetConnection connection) => Receive(actor, reader, connection, false);
-
-    private static void Receive(Actor actor, FBitReader reader, NetConnection connection, bool fromOwner)
+    private static void ReceiveFromClient(Actor actor, FBitReader reader, NetConnection connection)
     {
         CombatCall call = Read(reader, connection);
+        long viewTime = reader.ReadBit() ? (long)reader.ReadUInt64() : -1;
         if (reader.IsError || actor is not SPlayerController { bDeleteMe: false } pc)
         {
             return;
         }
 
+        // The call's traces see the other players where this client saw them (when the server compensates lag).
+        LagCompensation? lag = pc.XLevel.GetService<LagCompensation>();
+        lag?.BeginShot(viewTime);
+        try
+        {
+            Receive(pc, call, true);
+        }
+        finally
+        {
+            lag?.EndShot();
+        }
+    }
+
+    private static void ReceiveFromServer(Actor actor, FBitReader reader, NetConnection connection)
+    {
+        CombatCall call = Read(reader, connection);
+        if (!reader.IsError && actor is SPlayerController { bDeleteMe: false } pc)
+        {
+            Receive(pc, call, false);
+        }
+    }
+
+    private static void Receive(SPlayerController pc, in CombatCall call, bool fromOwner)
+    {
         if (pc.XLevel.GetService<NetCombatBridge>() is not { } bridge)
         {
             pc.ReceiveCombatCall(call, fromOwner);

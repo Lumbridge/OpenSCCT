@@ -133,11 +133,21 @@ public partial class SWeaponAttaque
     {
         if (Role < ENetRole.ROLE_Authority && OwnerPC is { } client)
         {
+            // The shot's number seeds its spread on both ends; with fire prediction the owner draws its impact now.
+            int shot = NextShotId();
+            bool predicted = FirePrediction.IsOn(this);
+            if (predicted)
+            {
+                PredictTraceFireWithPos(shot, Position, new FRotator(Pitch, Yaw, Roll), DispersionActuelle);
+            }
+
             CombatServices.Net(this).ServerCall(client, new CombatCall(CNAME_ServerFireWeaponWithLocation)
             {
                 Target = this,
                 Vector1 = Position,
                 Rotation = new FRotator(Pitch, Yaw, Roll),
+                Int1 = shot,
+                Bool1 = predicted,
             });
             return;
         }
@@ -182,10 +192,7 @@ public partial class SWeaponAttaque
             return;
         }
 
-        FVector start = GetAxesAndLocation(Position, Orientation, out FVector X, out FVector Y, out FVector Z);
-        float u1 = FRand() - 0.5f;
-        float u2 = FRand() - 0.5f;
-        FVector end = start + Y * (Accuracy * u1) * K.SpreadScale + Z * (Accuracy * u2) * K.SpreadScale + X * ShootingRange;
+        FVector start = ShotRay(Position, Orientation, Accuracy, ActiveShotId, out FVector end);
         BoneTraceResult hit = CombatServices.HitZones(this).TraceBone(this, end, start, true);
         if (!hit.bHit)
         {
@@ -211,11 +218,11 @@ public partial class SWeaponAttaque
 
             if (IsMetal(hit.SurfaceType))
             {
-                ImpactManager.AddImpact(this, ImpactShockerMetal, impactAt, impactRot);
+                ImpactManager.AddImpact(this, ImpactShockerMetal, impactAt, impactRot, PredictedBy);
             }
             else if (hit.SurfaceType == ESurfaceType.SURFACE_MediumWater)
             {
-                ImpactManager.AddImpact(this, ImpactShockerMetal, impactAt, impactRot);
+                ImpactManager.AddImpact(this, ImpactShockerMetal, impactAt, impactRot, PredictedBy);
                 if (other is not LevelInfo)
                 {
                     ShockThroughWater(shooter, other, hit);
@@ -223,7 +230,7 @@ public partial class SWeaponAttaque
             }
             else
             {
-                ImpactManager.AddImpact(this, ImpactShocker, impactAt, impactRot);
+                ImpactManager.AddImpact(this, ImpactShocker, impactAt, impactRot, PredictedBy);
             }
 
             return;
@@ -243,7 +250,7 @@ public partial class SWeaponAttaque
             SPlayerController.IncStat(pc, static s => s.ShotsHit++);
         }
 
-        ImpactManager.AddImpact(this, ImpactShocker, impactAt, impactRot);
+        ImpactManager.AddImpact(this, ImpactShocker, impactAt, impactRot, PredictedBy);
     }
 
     /// <summary>Every pawn whose 100 uu downward trace hits the struck water actor is shocked (rule 11.4).</summary>
@@ -263,6 +270,55 @@ public partial class SWeaponAttaque
                 pawn.Controller?.PawnTakeDamage(0, shooter, hit.HitLocation, default, MyDamageType, hit.PillTag);
             }
         }
+    }
+
+    /// <summary>
+    /// The ray of one shot (rule 11.1 and 11.2, shared by the server's trace and the owner's prediction): the start
+    /// ahead of the pistol and the spread around its orientation, with the shot's hashed numbers when
+    /// <paramref name="ShotId"/> is set, else FRand.
+    /// </summary>
+    private FVector ShotRay(FVector Position, FRotator Orientation, float Accuracy, int ShotId, out FVector End)
+    {
+        FVector start = GetAxesAndLocation(Position, Orientation, out FVector X, out FVector Y, out FVector Z);
+        float u1 = SpreadRandom(ShotId, Orientation.Yaw, ShotSpread.Spy, 0) - 0.5f;
+        float u2 = SpreadRandom(ShotId, Orientation.Yaw, ShotSpread.Spy, 1) - 0.5f;
+        End = start + Y * (Accuracy * u1) * K.SpreadScale + Z * (Accuracy * u2) * K.SpreadScale + X * ShootingRange;
+        return start;
+    }
+
+    /// <summary>
+    /// Fire prediction on the owner's client (spec/net/lag-compensation.md): the server's ray with the shot's hashed
+    /// spread, traced here, and the shocker impact it would add (metal, water or plain; on a pawn too) drawn at once.
+    /// Damage, the shock and the water conduction stay with the server, which does not send this impact back.
+    /// </summary>
+    [Provenance(ProvenanceKind.Estimated, "Our design of rl:net.fireprediction; the impact roll is hashed on the client, not the server's FRand")]
+    private void PredictTraceFireWithPos(int ShotId, FVector Position, FRotator Orientation, float Accuracy)
+    {
+        if (Instigator is null)
+        {
+            return;
+        }
+
+        FVector start = ShotRay(Position, Orientation, Accuracy, ShotId, out FVector end);
+        BoneTraceResult hit = CombatServices.HitZones(this).TraceBone(this, end, start, true);
+        if (!hit.bHit)
+        {
+            return;
+        }
+
+        Actor other = hit.Actor;
+        bool world = other.bWorldGeometry || other is Mover || other is LevelInfo;
+        if ((world && hit.bIsAFakeBackdrop) || (!world && other is not SBasePawn))
+        {
+            return;
+        }
+
+        FRotator rot = hit.HitNormal.Rotation();
+        rot.Roll = SvmMath.Trunc(ShotSpread.Unit(ShotId, Orientation.Yaw, ShotSpread.Spy, 2) * K.RandomRoll);
+        Name type = world && (IsMetal(hit.SurfaceType) || hit.SurfaceType == ESurfaceType.SURFACE_MediumWater)
+            ? ImpactShockerMetal
+            : ImpactShocker;
+        ImpactManager.AddImpactHere(XLevel, type, hit.HitLocation + hit.HitNormal * K.ShockerImpactOffset, rot);
     }
 
     private static bool IsMetal(ESurfaceType s) =>

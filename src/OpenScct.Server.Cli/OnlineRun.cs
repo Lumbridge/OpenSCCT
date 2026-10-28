@@ -90,6 +90,8 @@ internal static class OnlineRun
                 : null,
             RequireAccounts = config.RequiresAccounts,
             DemoFolder = demoFolder,
+            LagCompensation = config.LagComp,
+            LagCompensationCeilingMs = config.LagCompCeilingMs,
         };
         if (config.RequireAccounts == true && settings.Master is null)
         {
