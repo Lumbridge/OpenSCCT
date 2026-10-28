@@ -38,6 +38,8 @@ public partial class SBasePawn
     [Provenance(ProvenanceKind.Decoded, "post-tick 0x11205ef0 then runs the script event UpdateEyeHeight when bUpdateEyeheight (spec/native/ANSWERS-anim.md A9)")]
     protected override void NativeTick(float DeltaSeconds)
     {
+        // The tick starts with the rain check (SBasePawn.Rain.cs).
+        TickRain(DeltaSeconds);
         AdvanceAnimation();
         base.NativeTick(DeltaSeconds);
         if (!bDeleteMe)

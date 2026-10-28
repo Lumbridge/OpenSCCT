@@ -76,6 +76,21 @@ The runtime lays each sub-emitter's stored values over its class defaults from `
 - The pawn skins effects put on: `SBasePawn.BeginStickySkin` draws the Stickess shaders over the shocked pawn's body
   (`StickySkins`, from `effects.json` "skins": the body Diffuse with SPersoTextures.sfx_perso.pan_sticky, a TexPanner of
   shadwagent_sticky_1 at 0.5 a second along V, as self-illumination and its mask; the template's `si_pan`).
+- The wet skins of a pawn in the rain (`SBasePawn.BeginWetSkin`, spec/equipment/rain.md): `WetSkins` puts the
+  SpecialVisionTextureModifiers' heat and EMF textures (shared/render vision.json: HEAT_SN02_SI_wet where the local
+  player is a spy, HEAT_sn02_wet elsewhere, heat_sn02_2_wet_head, DEF01_heat_bodu_sv) over the body while bWet, in
+  thermal and EMF only. Their normal-vision materials (wet_lit_ATT, wet_lit_ATT_SI, wet_lit_ATT_2, lit_def_fx) are
+  not converted, so the skins draw the surfaces' own textures and normal vision keeps the own skins and the camo; in
+  the converted data only the spy's head changes (wet heat HEATTEX_Heat instead of HEATTEX_Cool). The cooling itself
+  is the pawn's replicated HeatIntensity (down to 0.5 in rain), which every view draws.
+- The rain splashes (`SFlicFlocEmitter`, one per pawn on its 'B Head', spec/equipment/rain.md rules 4 and 5): the
+  simulation's emitter keeps what its script sets (rates, respawn, the particle budget, restarts, the puff trigger)
+  and `EffectViews.FlicFloc.cs` applies it to the drawn copy each frame (`ParticleEmitterSim.RateOverride`,
+  `RespawnOverride`, `SpawnBudget`, `Restart`, `OnSpawn`). Splashes start on the drawn body (the native's 11 bone
+  segments, matched to the converted skeletons by bone name), drips at the head with the pawn's horizontal speed.
+- The merc's gas mask (`SGasMask`, DEF_Gasmask on 'B Head', spec/equipment/gas-mask.md rule 6) is drawn as the
+  backpack is, at the drawn head bone. Content converted before the fx step listed SGasMask gets the class from
+  `FxLibrary`'s late classes and the mesh from meshes/SGameplayObjects.glb by the exporter's node naming.
 
 `CombatFxView` per shot: SMuzzleSticky for the Shocker; SMuzzleGenerique and sMuzzleCanon for the rifle, with the
 SDouilleEmitter casing (first person at the rifle's FX_DOUILLE bone); each impact mark draws its class's decal texture
