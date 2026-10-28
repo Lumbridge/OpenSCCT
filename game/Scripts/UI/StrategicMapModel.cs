@@ -37,10 +37,9 @@ public sealed record StrategicMapCamera(StrategicMapPoint Position, StrategicMap
 /// The strategic map of one map (spec/hud/strategic-map.md): its floors and their pictures, the snapshot camera and the
 /// legend, read from the converted map folder (<c>sim/gameplay.json</c> levelInfo, <c>ui/mapinfo.json</c>,
 /// <c>ui/strategicmap/floor&lt;n&gt;.png</c>). Loading never throws: a missing or broken file gives a map with nothing
-/// to show (the null guards Enhanced and Reloaded added for the F7 crash).
+/// to show (the null guards Enhanced and Reloaded added for the F7 crash; enh:fix.strategic_map is the same fix).
 /// </summary>
 [PortOf("rl:fix.f7_crash", Spec = "spec/hud/strategic-map.md#rules")]
-[PortOf("enh:fix.strategic_map", Spec = "spec/hud/strategic-map.md#rules")]
 public sealed class StrategicMapData
 {
     /// <summary>The folder of the floor pictures in a converted map (the maps step writes them).</summary>
