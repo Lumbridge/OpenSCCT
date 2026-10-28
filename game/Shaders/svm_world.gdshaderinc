@@ -466,8 +466,9 @@ void fragment() {
 #if defined(LIGHT_LIGHTMAP)
 	vec3 lit = t.rgb * min(texture(tex_lightmap, UV2).rgb * lightmap_scale + vec3(svm_vision_ambient) + dyn, vec3(2.0));
 #elif defined(LIGHT_VERTEX)
-	// COLOR holds half the light term (min(2, 2 x VC + glow) / 2), so the 2x stage is restored here.
-	vec3 lit = t.rgb * min(COLOR.rgb * 2.0 + dyn + vec3(svm_vision_ambient), vec3(2.0));
+	// COLOR holds half the light term (min(2, 2 x VC + glow) / 2), so the 2x stage is restored here. The overlay takes
+	// no vision ambient either: night vision's lift would fill its faded rim back to a square.
+	vec3 lit = t.rgb * min(COLOR.rgb * 2.0 + dyn + vec3(overlay ? 0.0 : svm_vision_ambient), vec3(2.0));
 #elif defined(LIGHT_ACTOR)
 	vec3 lit = t.rgb * min(v_light + spot + vec3(svm_vision_ambient), vec3(2.0));
 #else
