@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Concentus.Common;
+using OpenScct.Net.Voice.Dsp;
 using OpenScct.Provenance;
 
 namespace OpenScct.Net.Voice;
@@ -44,7 +45,10 @@ public sealed class VoiceClientStats
 /// server it takes part and which talkers it muted (Join, repeated every <see cref="VoiceK.JoinRefreshMs"/>), and raises
 /// <see cref="ActivityChanged"/> for the HUD's speaking indicators.
 /// <para>Single-threaded: capture, <see cref="Update"/>, the talkers and the transport callbacks all run on the
-/// client's thread (the Godot main thread in the game). No allocation per frame after the first frames of a talker.</para>
+/// client's thread (the Godot main thread in the game). No allocation per frame after the first frames of a talker.
+/// The microphone clean-up (<see cref="VoiceDsp"/>: echo, noise, automatic gain) runs before the gain and the gate, on
+/// that thread or, with <see cref="UseVoiceThread"/>, on the voice thread; the cleaned frames then come back to the
+/// client's thread in the next <see cref="SubmitCapture"/> or <see cref="Update"/>.</para>
 /// </summary>
 [PortOf("rl:voice.activation", Spec = "spec/reloaded/FEATURES.md#rlvoiceactivation---push-to-talk-and-voice-activation-gate")]
 [PortOf("rl:voice.mix", Spec = "spec/reloaded/FEATURES.md#rlvoicemix---volume-mute-indicators-and-per-player-control")]
@@ -56,6 +60,7 @@ public sealed class VoiceClient : IVoiceEndpoint, IDisposable
     private readonly VoiceEncoder _encoder;
     private readonly VoiceGate _gate = new();
     private readonly float[] _frame = new float[VoiceK.FrameSamples];
+    private readonly float[] _cleaned = new float[VoiceK.FrameSamples];
     private readonly short[] _pcm = new short[VoiceK.FrameSamples];
     private readonly byte[] _packet = new byte[VoiceK.MaxOpusPacketBytes];
     private readonly byte[] _datagram = new byte[VoiceWire.MaxDatagramBytes];
@@ -65,6 +70,8 @@ public sealed class VoiceClient : IVoiceEndpoint, IDisposable
     private readonly Dictionary<ushort, VoiceTalker> _talkerById = new();
     private readonly List<VoiceTalker> _talkers = new();
     private readonly List<ushort> _muted = new();
+    private readonly VoiceDsp _dsp = new();
+    private VoiceDspThread? _voiceThread;
     private SpeexResampler? _resampler;
     private int _captureRate = VoiceK.SampleRate;
     private int _frameFill;
@@ -114,6 +121,15 @@ public sealed class VoiceClient : IVoiceEndpoint, IDisposable
             }
         }
     }
+
+    /// <summary>
+    /// Run the microphone clean-up on the voice thread (an MMCSS "Pro Audio" thread on Windows) instead of the
+    /// client's own. The game sets it; tests leave it off, so a submitted frame is gated at once.
+    /// </summary>
+    public bool UseVoiceThread { get; set; }
+
+    /// <summary>The automatic gain in use (1 while it is off).</summary>
+    public float AutoGain => _dsp.AutoGain;
 
     /// <summary>The push to talk key ("all" channel) is held.</summary>
     public bool TalkKey { get; set; }
@@ -178,6 +194,8 @@ public sealed class VoiceClient : IVoiceEndpoint, IDisposable
         _server = EndpointId.None;
         _link = null;
         StopTransmitting(send: false);
+        _voiceThread?.Dispose();
+        _voiceThread = null;
     }
 
     /// <summary>Sets the rate of the samples <see cref="SubmitCapture"/> receives (the audio server's mix rate).</summary>
@@ -197,6 +215,7 @@ public sealed class VoiceClient : IVoiceEndpoint, IDisposable
     /// <summary>Microphone samples, mono, -1 to 1, at the capture rate.</summary>
     public void SubmitCapture(ReadOnlySpan<float> mono)
     {
+        TakeCleaned();
         if (_resampler is null)
         {
             Accumulate(mono);
@@ -221,12 +240,34 @@ public sealed class VoiceClient : IVoiceEndpoint, IDisposable
     }
 
     /// <summary>
+    /// What the voice output is playing (48 kHz mono, the mix of every talker as it is handed to the output): the echo
+    /// canceller's reference. Ignored while echo cancellation is off.
+    /// </summary>
+    public void SubmitPlayback(ReadOnlySpan<float> mono)
+    {
+        if (!Settings.EchoCancellation || mono.Length == 0)
+        {
+            return;
+        }
+
+        if (_voiceThread is not null)
+        {
+            _voiceThread.SubmitFar(mono);
+        }
+        else
+        {
+            _dsp.SubmitFarEnd(mono);
+        }
+    }
+
+    /// <summary>
     /// Receives from a local link, refreshes the join message, applies setting changes and updates the speaking
     /// indicators. Call once per frame on the client's thread.
     /// </summary>
     public void Update()
     {
         long now = _clock.NowMicroseconds;
+        TakeCleaned();
         if (_link is not null)
         {
             _link.Talker = _localTalker;
@@ -376,18 +417,55 @@ public sealed class VoiceClient : IVoiceEndpoint, IDisposable
             if (_frameFill == VoiceK.FrameSamples)
             {
                 _frameFill = 0;
-                ProcessFrame();
+                CleanFrame();
             }
         }
     }
 
-    private void ProcessFrame()
+    /// <summary>
+    /// A whole microphone frame: through the clean-up, here or on the voice thread. The thread is started when the
+    /// clean-up is wanted, and used until it has no frame left, so frames never overtake each other.
+    /// </summary>
+    private void CleanFrame()
     {
-        float gain = Settings.InputGain;
+        bool wanted = VoiceDsp.Wanted(Settings);
+        if (UseVoiceThread && wanted && _voiceThread is null)
+        {
+            _voiceThread = new VoiceDspThread(_dsp, Settings);
+        }
+
+        if (_voiceThread is not null && (wanted || !_voiceThread.Idle))
+        {
+            _voiceThread.SubmitMicrophone(_frame);
+            return;
+        }
+
+        // Also with every stage off: the clean-up notes the switch and starts afresh when one comes back on.
+        _dsp.Process(Settings, _frame);
+        ProcessFrame(_frame);
+    }
+
+    /// <summary>The voice thread's cleaned frames, gated and sent in order.</summary>
+    private void TakeCleaned()
+    {
+        if (_voiceThread is null)
+        {
+            return;
+        }
+
+        while (_voiceThread.TryTake(_cleaned))
+        {
+            ProcessFrame(_cleaned);
+        }
+    }
+
+    private void ProcessFrame(float[] frame)
+    {
+        float gain = Settings.AutoGain ? 1f : Settings.InputGain;
         double sum = 0;
         for (int i = 0; i < VoiceK.FrameSamples; i++)
         {
-            float s = Math.Clamp(_frame[i] * gain, -1f, 1f);
+            float s = Math.Clamp(frame[i] * gain, -1f, 1f);
             _pcm[i] = (short)(s * 32767f);
             sum += s * s;
         }

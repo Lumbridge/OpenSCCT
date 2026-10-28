@@ -13,10 +13,9 @@ namespace OpenScctGame.Options;
 
 // The Voice page: Reloaded's voice settings page (spec/game/lobby-and-match-creation.md "Data", rules 21 and 22) with
 // the rows the rewrite has: Device, Enable voice chat; Playback: Voice Chat Volume, Buffering; Microphone: Mute,
-// Microphone Volume; Transmission: the level bar, Activation threshold, Release time, Push to talk and its key; and
-// Test my microphone, which runs the whole send chain (gain, gate, Opus, a relay, the jitter buffer, decoding) and plays
-// back what other players would hear. Reloaded's Auto-Adjust Mic Volume, Noise suppression and Echo cancellation are
-// not built yet (docs/VOICE.md "Not done yet") and are left off the page.
+// Microphone Volume, Auto-Adjust Mic Volume, Noise suppression and its level, Echo cancellation; Transmission: the level
+// bar, Activation threshold, Release time, Push to talk and its key; and Test my microphone, which runs the whole send
+// chain (clean-up, gain, gate, Opus, a relay, the jitter buffer, decoding) and plays back what other players would hear.
 public partial class OptionsMenu
 {
     private const double MicTestSeconds = 3.0;
@@ -42,6 +41,12 @@ public partial class OptionsMenu
             v => _edit.VoiceJitterFrames = (int)v, "0");
         Check(g, "Mute microphone", "voice_muted", _edit.VoiceMuted, v => _edit.VoiceMuted = v);
         Slider(g, "Microphone Volume", "voice_input_gain", 0f, 4f, 0.05f, _edit.VoiceInputGain, v => _edit.VoiceInputGain = v);
+        Check(g, "Auto-Adjust Mic Volume (Microphone Volume is then not used)", "voice_auto_gain", _edit.VoiceAutoGain, v => _edit.VoiceAutoGain = v);
+        Check(g, "Noise suppression", "voice_noise_suppression", _edit.VoiceNoiseSuppression, v => _edit.VoiceNoiseSuppression = v);
+        Choice(g, "Noise suppression level", "voice_noise_suppression_level", GameSettings.NoiseLevels, _edit.VoiceNoiseLevel,
+            v => _edit.VoiceNoiseLevel = v, v => $"{v} ({GameSettings.NoiseLevelDecibels(v)} dB)");
+        Check(g, "Echo cancellation (experimental: for speakers)", "voice_echo_cancellation", _edit.VoiceEchoCancellation,
+            v => _edit.VoiceEchoCancellation = v);
 
         g.AddChild(new Label { Text = "Microphone level", CustomMinimumSize = new Vector2(320f, 0f) });
         _micLevel = new ProgressBar { Name = "MicLevel", MinValue = 0, MaxValue = 0.25, Step = 0.001, ShowPercentage = false, CustomMinimumSize = new Vector2(320f, 18f) };
@@ -134,7 +139,12 @@ public partial class OptionsMenu
                 }
             }
 
+            // The meter shows the level after the page's clean-up and gain, as the gate sees it. The echo canceller has
+            // no voices to cancel here.
             _meter.Settings.InputGain = _edit.VoiceInputGain;
+            _meter.Settings.AutoGain = _edit.VoiceAutoGain;
+            _meter.Settings.NoiseSuppression = _edit.VoiceNoiseSuppression;
+            _meter.Settings.NoiseSuppressionDecibels = GameSettings.NoiseLevelDecibels(_edit.VoiceNoiseLevel);
             level = _meter.InputLevel;
         }
 
@@ -212,7 +222,8 @@ public partial class OptionsMenu
             var settings = new VoiceSettings
             {
                 PushToTalk = false, ActivationThreshold = s.VoicePushToTalk ? 0f : s.VoiceThreshold, ActivationHoldMs = s.VoiceHoldMs,
-                InputGain = s.VoiceInputGain, JitterFrames = s.VoiceJitterFrames,
+                InputGain = s.VoiceInputGain, JitterFrames = s.VoiceJitterFrames, AutoGain = s.VoiceAutoGain,
+                NoiseSuppression = s.VoiceNoiseSuppression, NoiseSuppressionDecibels = GameSettings.NoiseLevelDecibels(s.VoiceNoiseLevel),
             };
             _talkerTransport = new VoiceTransport(_network.Bind("test-talker"));
             _talker = new VoiceClient(settings, _clock) { LocalTalker = 1 };
