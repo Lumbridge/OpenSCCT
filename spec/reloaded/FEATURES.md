@@ -196,6 +196,9 @@ difference is probably a Reloaded memory patch and needs its own spec entry.
 - **Priority:** P1 (original behaviour first, then this as a server option, default to match Reloaded).
 - **Open:** which actions Reloaded compensates (sticky cam only, or bullets and shocker too); the default
   ceiling. Measure on a sandbox host with `!lagcomp` output.
+- **Done (2026-10-28):** bone traces of every client combat call (merc guns, shotgun, spy pistol), off by
+  default, ceiling 250 ms (ours); spec/net/lag-compensation.md, docs/NETCODE.md. Sticky cam launches are not
+  rewound (projectiles).
 
 ### rl:net.fireprediction - Client fire prediction
 - **Players get:** impact effects and hit sounds appear at once on the shooter's screen instead of after a
@@ -209,6 +212,9 @@ difference is probably a Reloaded memory patch and needs its own spec entry.
   the predicted world, spawn effects and sounds, then reconcile with the server's authoritative impacts
   (drop duplicates by shot id). Damage is server-only.
 - **Priority:** P1.
+- **Done (2026-10-28):** merc rifle/SMG and spy pistol world impacts (and the pistol's shocker spark on pawns);
+  the server does not send a predicted shot's impacts back to its shooter instead of dropping duplicates. Client
+  option `fire_prediction`, on. spec/net/lag-compensation.md.
 
 ### rl:net.grenades - Server-simulated grenades and the "instas" fix
 - **Players get:** no more grenades exploding on impact ("instas"), no grenades seemingly dropping at the

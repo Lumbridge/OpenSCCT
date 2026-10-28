@@ -237,7 +237,8 @@ Not applicable (weapon firing states belong to the weapons spec).
 
 ## Network
 - Merc guns: the client chooses the aim (ServerSetAccurateRotation) and the moment; the server traces from its own
-  copy of the shooter's position against its own copy of the world and targets. There is no lag compensation.
+  copy of the shooter's position against its own copy of the world and targets. There is no lag compensation (the
+  rewrite has an optional one after Reloaded's: spec/net/lag-compensation.md).
 - Shocker gun: the client sends both the weapon position and the rotation; the server traces from that position.
   This is more client authoritative than the merc guns.
 - `MuzzleCount` and `bLaserOn` replicate from the server to all clients (reliable, Role == Authority).

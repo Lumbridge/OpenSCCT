@@ -263,7 +263,49 @@ a snap to the newest state would pop the pawn forward by the delay at every jump
 **Delay.** `ClientSession.InterpolationDelayTicks` = `ClientSettings.InterpolationIntervals` (2) send intervals of
 `ServerNetRate` (from Welcome): 6 ticks (100 ms) at 20 Hz, 2 ticks (33 ms) at Enhanced 60 Hz; also as
 `InterpolationDelayMs`. The client's view time of other players is `ClientSession.RenderTimeFixed` (server ticks x
-`NetTimeline.Fraction`); lag compensation should rewind to it.
+`NetTimeline.Fraction`); lag compensation rewinds to it (`ClientSession.ViewTimeFixed`, next section).
+
+### Lag compensation and fire prediction
+
+`rl:net.lagcomp` and `rl:net.fireprediction` (spec/reloaded/FEATURES.md; rules in spec/net/lag-compensation.md).
+
+**Lag compensation (server, off by default).** `LagCompensation` (`src/OpenScct.Server/Net/LagCompensation.cs`) is
+installed on every `ServerHost` level. When on, after each world step (`ServerHost.Tick`) it records every
+SBasePawn's hit pills (from the level's `IPillPose`, the same pose the hit trace uses) and where it stood, 64 ticks per
+pawn (a little over a second at 60 Hz); a pawn that is destroyed or not seen loses its history. Every combat call a
+client sends (`NetCombatBridge`, function `SvmCombatCall`) carries that client's view time,
+`ClientSession.ViewTimeFixed`: `RenderTimeFixed` when the client interpolates proxies, `RenderTimeFixed` plus the
+interpolation delay with the stock dead reckoning (which walks proxies on to the newest server time it knows); it is
+taken when the call is made, so a call that waits for an actor channel keeps it. While the server runs that call,
+`LagCompensation` is the level's `IPillHistory`: `TraceHitZones.TraceBone` asks it for each pawn's pills before the
+live pose, and gets them at `max(view time, now − ceiling)`, blended between the two recorded ticks around it by the
+view time's fixed fraction (never across a jump of 200 uu or more, a respawn). So every bone trace a client's call
+makes is rewound: the merc rifle and SMG (`SWeaponDefense.TraceFire`), the shotgun's nine pellets, the spy pistol
+(`SWeaponAttaque.TraceFireWithPos`) and the spy bullet laser's trace. The shooter is never rewound (the trace skips
+it), the world, movers and the water probe stay live, and nothing is moved: the trace only reads recorded pills.
+Shots of the host's own authority-side code and bots on the server have no view time and see the live pose.
+The setting: `ServerSettings.LagCompensation` and `LagCompensationCeilingMs` (default 250, 0 to 1000), changed at run
+time through `ServerHost.LagCompensation` (`Enabled`, `CeilingMs`, `Command`); online sessions keep it across rounds
+(`OnlineServerSettings`, console and chat commands: docs/ONLINE.md "Lag compensation").
+
+**Shot numbers and spread.** The owner's client numbers its merc gun and pistol shots (`SWeapon.ShotCounter`, sent as
+the `ServerFireWeapon` call's Int2 and the `ServerFireWeaponWithLocation` call's Int1). The server takes a number that
+follows the last one (`SWeapon.BeginClientShot`) as the seed of that shot's two spread numbers, as Reloaded's FRand
+hook does (reloaded-hooks.md rule 1): `ShotSpread.Unit(number, aim yaw, side, call)`, a 24-bit hash. A number out of
+order falls back to FRand and resyncs, so a client cannot pick a favourable spread by skipping numbers. Both ends
+therefore trace the same ray. Bots and the host's authority-side shots keep FRand.
+
+**Fire prediction (client, on by default).** `ClientSettings.FirePrediction` (from the game's `fire_prediction`
+option through `OnlineClientSettings`) installs the `FirePrediction` level service. The owner's client, when it sends a
+shot, traces the same ray itself (`SWeaponDefense.PredictTraceFire`, `SWeaponAttaque.PredictTraceFireWithPos`) against
+its own world and the proxies as it shows them, and adds the world hit's impact to its own impact table at once
+(`ImpactManager.AddImpactHere`: decal, spark, impact sound; the fake ceiling's two holes and the trace behind; the
+pistol's shocker spark, on a pawn too). The call says it was predicted (Bool1); the server's trace then passes that
+player to `ImpactManager.AddImpact`, which sends the impact to every other remote player but not to him, so it is
+drawn once. Damage, hit statistics, blood, tracers and every pawn reaction stay with the server. The shotgun already
+draws its pellet marks on the owner's client in the original (`SpawnImpacts`), so it predicts nothing more. When the
+two traces disagree (the target moved differently on the two machines) the shooter keeps his own picture of the
+impact; with lag compensation on they mostly agree.
 
 ### Function calls
 

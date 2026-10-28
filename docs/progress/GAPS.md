@@ -69,8 +69,8 @@ Who-hears-whom matches the original (rules in `VoiceRouting.cs`). Gaps:
 | Crash log, process priority/affinity | wave |
 | Flashlight in the scope, ledge assist (Reloaded natives) | wave (decode) |
 | `!resign`, jitter in `!pings` | wave |
-| Lag compensation (rl:net.lagcomp) | later (L) |
-| Client fire prediction (rl:net.fireprediction) | later (M) |
+| Lag compensation (rl:net.lagcomp) | wave (done, off by default: `lagcomp on`, `!lagcomp on` or config `lagComp`; docs/NETCODE.md "Lag compensation"; Reloaded's default ceiling not decoded, ours is 250 ms) |
+| Client fire prediction (rl:net.fireprediction) | wave (done for the merc rifles/SMG and the spy pistol's world impacts; option `fire_prediction`, on; pawn hits stay server-confirmed) |
 | Practice server mode, `!heal` `!regen` `!tank` `!kill` | wave (done; extra ammunition not ported, `!regen`/`!tank` effects are our choice: docs/ONLINE.md "Practice servers") |
 | Client console, `set`/`get` | wave (done: docs/HUD.md "Developer console") |
 | MSAA/SMAA | later (M) |

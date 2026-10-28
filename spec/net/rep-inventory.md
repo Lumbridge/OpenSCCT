@@ -205,7 +205,8 @@ actors). Server: traces, damage, charges, light state. Other clients: see muzzle
    quantisation off. Trace a throw at 30 and 144 client fps.
 4. Fire prediction added by Reloaded (`rl:net.fireprediction`) is client cosmetic; confirm that it does
    not change the RPCs above (its server side changes the first two FRand calls of TraceFire,
-   reloaded-hooks.md rule 1).
+   reloaded-hooks.md rule 1). The rewrite's version (spec/net/lag-compensation.md) adds a shot number and a
+   predicted bit to its own shot calls.
 
 ### Resolved
 
