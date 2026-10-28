@@ -116,6 +116,9 @@ public partial class LobbyRoomScreen : MenuPage
 
     public Button? ApplyButton { get; private set; }
 
+    /// <summary>"Maps": the host's map list with playlists and search.</summary>
+    public Button? MapsButton { get; private set; }
+
     public CheckBox? TeamVoiceOnlyBox { get; private set; }
 
     /// <summary>"Alternate": the Alternate Mode page, shown while the setup (or the host's edit) has it on.</summary>
@@ -147,6 +150,46 @@ public partial class LobbyRoomScreen : MenuPage
         {
             AlternateButton.Visible = s.CanControl ? Parameters.Setup.Alternate.On : s.Setup.Alternate.On;
         }
+    }
+
+    private PanelContainer? _mapsPanel;
+
+    /// <summary>
+    /// The host's map list (rl:qol.lobbymaps): the same pictures, playlist choice and search as Create Session, over the
+    /// page; a pick goes into Session Parameters, and Apply (or OK here) sends it.
+    /// </summary>
+    private void OpenMaps()
+    {
+        if (Session is not { CanControl: true } s || Parameters is null || _mapCatalog is null || IsInstanceValid(_mapsPanel))
+        {
+            return;
+        }
+
+        var panel = new PanelContainer { Name = "MapsPanel", AnchorLeft = 0.12f, AnchorRight = 0.88f, AnchorTop = 0.1f, AnchorBottom = 0.9f };
+        panel.AddThemeStyleboxOverride("panel", UiStyle.MenuPanelBox());
+        var column = new VBoxContainer { Name = "Column" };
+        column.AddThemeConstantOverride("separation", 8);
+        panel.AddChild(column);
+        column.AddChild(new Label { Name = "Title", Text = "Choose Map", HorizontalAlignment = HorizontalAlignment.Center, Modulate = UiStyle.MenuTitle });
+        var picker = new MapPickerView(Parameters, _mapCatalog, s.Maps, 420f, SettingsStore.Current.ActiveMapPlaylist, HostScreen.RememberPlaylist)
+        {
+            SizeFlagsVertical = SizeFlags.ExpandFill,
+        };
+        column.AddChild(picker);
+        var buttons = new HBoxContainer { Name = "Buttons", Alignment = BoxContainer.AlignmentMode.End };
+        buttons.AddThemeConstantOverride("separation", 12);
+        column.AddChild(buttons);
+        Button ok = UiStyle.MenuButton("OK", () =>
+        {
+            Apply();
+            panel.QueueFree();
+        }, "MapsOk");
+        Button close = UiStyle.MenuButton("Close", panel.QueueFree, "MapsClose");
+        ok.CustomMinimumSize = close.CustomMinimumSize = new Vector2(160f, 36f);
+        buttons.AddChild(close);
+        buttons.AddChild(ok);
+        _mapsPanel = panel;
+        AddChild(panel);
     }
 
     private void OpenAlternate()
@@ -246,6 +289,12 @@ public partial class LobbyRoomScreen : MenuPage
         Parameters.Changed += ShowAlternateButton;
         ShowMapPicture();
 
+        // The Choose Map arrows step through the host's playlist (rl:qol.lobbymaps), as on Create Session.
+        if (_mapCatalog is not null)
+        {
+            Parameters.MapFilter = MapPickerView.FilterFor(_mapCatalog, SettingsStore.Current.ActiveMapPlaylist);
+        }
+
         // Lobby_Create's "Alternate" button, shown while the setup has Alternate Mode: the host edits the page (OK
         // applies it), the others read it.
         var parameterButtons = new HBoxContainer { Name = "ParameterButtons", Alignment = BoxContainer.AlignmentMode.End };
@@ -254,6 +303,9 @@ public partial class LobbyRoomScreen : MenuPage
         AlternateButton = UiStyle.MenuButton("Alternate", OpenAlternate, "Alternate");
         AlternateButton.CustomMinimumSize = new Vector2(220f, 36f);
         parameterButtons.AddChild(AlternateButton);
+        MapsButton = UiStyle.MenuButton("Maps", OpenMaps, "Maps");
+        MapsButton.CustomMinimumSize = new Vector2(220f, 36f);
+        parameterButtons.AddChild(MapsButton);
         ApplyButton = UiStyle.MenuButton("Apply", Apply, "Apply");
         ApplyButton.CustomMinimumSize = new Vector2(220f, 36f);
         parameterButtons.AddChild(ApplyButton);
@@ -611,6 +663,12 @@ public partial class LobbyRoomScreen : MenuPage
 
         ParameterRows!.Editable = control;
         ApplyButton!.Visible = control;
+        MapsButton!.Visible = control && _mapCatalog is not null;
+        if (!control && IsInstanceValid(_mapsPanel))
+        {
+            _mapsPanel!.QueueFree();
+        }
+
         ShowAlternateButton();
         if (!control && IsInstanceValid(_alternate))
         {

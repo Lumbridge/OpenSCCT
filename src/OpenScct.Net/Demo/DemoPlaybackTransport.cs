@@ -61,5 +61,8 @@ public sealed class DemoPlaybackTransport : ITransport
 
     public string? RemoteAddress(EndpointId endpoint) => "demo";
 
+    /// <summary>The recorded packets carry the recorder connection's salt; the playing client takes it.</summary>
+    public bool AdoptsRemoteSalt => true;
+
     public void Dispose() => _disposed = true;
 }

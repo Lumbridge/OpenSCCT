@@ -94,6 +94,12 @@ public sealed class OnlineSettings
     /// <summary>This install's id, made once.</summary>
     public string InstallId { get; set; } = string.Empty;
 
+    /// <summary>
+    /// The install's player key (rl:ac.bans), made on first start and kept in <c>[player] key</c> (the private key):
+    /// it answers each server's join challenge, and servers ban by its public key.
+    /// </summary>
+    public OpenScct.Server.Online.PlayerKey Key { get; set; } = OpenScct.Server.Online.PlayerKey.Create();
+
     public static OnlineSettings Current => _current ??= Load();
 
     public OpenScct.Server.Online.ConnectPath Path => ConnectMode.ToLowerInvariant() switch
@@ -145,6 +151,14 @@ public sealed class OnlineSettings
             s.HostRequireAccounts = file.GetValue("host", "require_accounts", s.HostRequireAccounts).AsBool();
             s.HostRecordDemos = file.GetValue("host", "record_demos", s.HostRecordDemos).AsBool();
             s.InstallId = file.GetValue("player", "install_id", s.InstallId).AsString();
+            if (OpenScct.Server.Online.PlayerKey.FromPrivate(file.GetValue("player", "key", string.Empty).AsString()) is { } key)
+            {
+                s.Key = key;
+            }
+            else
+            {
+                upgraded = true;
+            }
         }
 
         if (s.InstallId.Length != 16)
@@ -186,6 +200,7 @@ public sealed class OnlineSettings
         file.SetValue("host", "require_accounts", HostRequireAccounts);
         file.SetValue("host", "record_demos", HostRecordDemos);
         file.SetValue("player", "install_id", InstallId);
+        file.SetValue("player", "key", Key.PrivateKey);
         return file.Save(path);
     }
 }

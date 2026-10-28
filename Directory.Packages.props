@@ -4,6 +4,8 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageVersion Include="AWSSDK.S3" Version="4.0.23.4" />
+    <!-- MIT licence. Ed25519 player keys (rl:ac.bans): .NET 10 has no Ed25519 of its own. -->
+    <PackageVersion Include="BouncyCastle.Cryptography" Version="2.6.2" />
     <PackageVersion Include="Concentus" Version="2.2.2" />
     <PackageVersion Include="LiteNetLib" Version="2.1.4" />
     <PackageVersion Include="Microsoft.Data.Sqlite" Version="10.0.14" />

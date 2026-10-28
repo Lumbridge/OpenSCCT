@@ -92,7 +92,7 @@ Rows, captions and ranges are the page's (spec rules 1 to 9):
 
 | Row | Range | Notes |
 |---|---|---|
-| Choose Map | the installed maps | changing it reloads the rules from the map's settings for the mode |
+| Choose Map | the installed maps of the map list's playlist | changing it reloads the rules from the map's settings for the mode |
 | Game Mode | the map's modes, then Merc Deathmatch | changing it reloads the rules |
 | Password | 16 of `a-z A-Z 0-9 . _ -` | |
 | Voice Chat | Modern, Classic, Team, Open | the hint under it: "Team always - hackable coms", "Living team - hackable coms", "Team always - no com hacking", "Everyone hears everyone" |
@@ -108,7 +108,14 @@ Rows, captions and ranges are the page's (spec rules 1 to 9):
 | Mercenary Lives | 0 to 10 ("Inf.") | |
 | Respawn Length (sec) | 1 to 15 | the map's own value is at least 5 (1 in Merc Deathmatch) |
 | Active Disks, Disks to Take | 1 to the map's most | Disk Hunt only; Disks to Take never above Active Disks |
-| Practice | off | Reloaded's practice server: unlimited lives, 1 s respawn, `!heal` `!regen` `!tank` `!kill`, no stats (docs/ONLINE.md, "Practice servers") |
+| Practice | off | Reloaded's practice server: unlimited lives, 1 s respawn, `!heal` `!regen` `!tank` `!kill` `!ammo`, no stats (docs/ONLINE.md, "Practice servers") |
+
+Under the rows, the Maps list (ours, `UI/MapPickerView.cs`): a picture per map of the selected mode, a click picks it.
+Above the pictures, Reloaded's playlist choice (rl:qol.lobbymaps): Standard, Extended, Classic, 3v3, Merc Deathmatch
+(each with its description as the tooltip, and the maps it names that are not installed) or All installed maps, and a
+search box (the map's name, its name without the variant word, or its code). The Choose Map arrows then step through
+the playlist. The choice is kept in the settings (`active_map_playlist`, Standard on a first run); without the
+catalog data every map shows under All.
 
 Added for hosting from the game (the original took them from Ubi.com or the LAN service): server name, UDP port
 (28888), the master server, list on the master, map the port with UPnP. The page keeps its last values
@@ -187,7 +194,9 @@ editable for the host (OK applies it), read only for everyone else.
   strings from it). The original's briefing picture (GetLevelBrief) is not converted, so page 1 shows the loading
   picture, and GUIController's objective names (TextSpy, TextSentry) show only when the text table has them.
 - Session Parameters: the Create Session rows. The host edits and presses Apply; any change un-readies the others
-  (the original's clients un-ready themselves), whose changed values blink for three seconds.
+  (the original's clients un-ready themselves), whose changed values blink for three seconds. The host's Maps button
+  opens the Create Session map list over the page (playlist choice, search, pictures); a picked map goes into the
+  rows, and OK applies it. The Choose Map arrows step through the host's playlist here too.
 - Chat: Say and TeamSay ("(Team) " prefix); a line within a second of the last one is not sent: "(Spam delay, 1 second)".
 - Page buttons: Leave, Options (the options over the lobby), Strategic Map (the selected map's strategic map, below),
   and Launch / Cancel for the host or Ready / Not Ready for the others. Launch needs everyone on a side ready; a player without the map, or with another version of it, is named.
@@ -226,8 +235,14 @@ chat, Voice Chat Volume, Buffering (jitter frames 1 to 12), Mute microphone, Mic
 bar with transmitting or silent, Activation threshold, Release time, Push to talk with the bound keys (Caps Lock, team
 Y, mute F8), and Test my microphone (three seconds through gain, gate, Opus, a relay and the jitter buffer, then played
 back). Settings keys are Reloaded's (`voice_push_to_talk`, `voice_activation_threshold`, `voice_activation_hold_ms`,
-`voice_input_gain`, `voice_output_volume`, `voice_jitter_frames`, `voice_muted`, `voice_input_device`) plus
-`allow_voice_chat`. Not built yet, so not shown: Auto-Adjust Mic Volume, Noise suppression, Echo cancellation.
+`voice_input_gain`, `voice_output_volume`, `voice_jitter_frames`, `voice_muted`, `voice_input_device`,
+`voice_auto_gain`, `voice_noise_suppression`, `voice_noise_suppression_level`, `voice_echo_cancellation`) plus
+`allow_voice_chat`. Auto-Adjust Mic Volume, Noise suppression with its level (Low, Standard, High, Extreme) and Echo
+cancellation (experimental) sit under Microphone Volume (docs/VOICE.md "Microphone clean-up"). The Keys page has
+"Separate spy and mercenary layouts" (`use_split_spy_merc_keyboard`, on): off, both sides play the spy's layout and a
+rebind on either side changes both (it takes effect on Save). The Controller page has "Analog slow walk"
+(`controller.slow_walk`). The Display page has Widescreen HUD (`widescreen_hud`) and small Enhanced Reality icons
+(`ws_er_small`) apart from Widescreen (`widescreen`, the Hor+ view).
 The key rows read "Bind: Capslock" as Reloaded's page writes them ("Bind: %s"). The options pages scroll up and down
 only, and a long device name is clipped to its column. The Display mode list reads "Borderless fullscreen" for
 Reloaded's `BorderlessFullscreen` value; the Keys page names the layout file, not its whole path.

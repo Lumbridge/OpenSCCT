@@ -83,6 +83,7 @@ from the highest set bit of the last byte (the UE2 packet trailer).
 | Field | Bits | Meaning |
 |---|---|---|
 | magic | 8 | 0xA7, drops stray datagrams early |
+| Salt | 32 | the connection's salt (below) |
 | Seq | 16 | sequence number of this packet |
 | HasAck | 1 | the fields below are present |
 | Ack | 16 | newest packet received from the other side |
@@ -95,6 +96,11 @@ from the highest set bit of the last byte (the UE2 packet trailer).
 
 Rules:
 
+- The connection salt: the side that connects (`NetDriver.Connect`) picks a random non-zero 32-bit salt; the server
+  takes it from the connection's first packet; both stamp it on every packet and drop any packet with another salt
+  (`NetStats.InWrongSalt`). Someone who cannot see the traffic cannot guess it, so a datagram spoofed from a
+  player's address, or a late one of an earlier connection on the same socket (an online session's travel), cannot
+  push the sequence on or close the connection. Demo playback takes the recorded salt (`ITransport.AdoptsRemoteSalt`).
 - A packet is processed only when it is newer than every packet processed before. Late and duplicated
   packets are dropped whole and never acked, so an ack bit means "processed".
 - A sent packet older than the newest ack with its bit clear is lost (NAK) at once. A packet with no ack
@@ -131,6 +137,8 @@ Channel 0, one message per reliable bunch. Closing it closes the connection.
 client                                  server
 Hello{protocolHash, contentHash,  --->  checks both hashes and the player count
       name, netSpeed}
+                                  <---  Challenge{nonce}          (servers with KeyChallenge only)
+Proof{publickey signature}        --->  checks the signature, adds ?SvmKey=<publickey> to the login
                                   <---  Welcome{playerId, map, serverTick, netRate}
                                         or Reject{reason, file} (connection lingers 2 s, then closes)
 Join                              --->  spawns the player's CubeWalker, starts replicating
@@ -143,6 +151,11 @@ Text (either way, any time)
   server's", and names the file that differs. M0 has a single content hash, so the file named is the
   server's map; a per-file manifest comes with `OpenScct.Content`.
 - A full server answers "The server is full".
+- Player keys (rl:ac.bans, `ServerHost.KeyChallenge`, on for every map of an online session): the server answers a
+  remote Hello with 16 random bytes; the client signs "OpenSCCT join|nonce|salt" with its Ed25519 key
+  (`Online.PlayerKey`, BouncyCastle) and answers "publickey signature", or an empty proof without a key. A good
+  signature gives the login the `SvmKey` option (a client's own is dropped), a bad one is refused ("The player key
+  check failed."). Loopback players (a listen host's own) are not asked.
 
 ### Actor channels
 
@@ -246,9 +259,8 @@ C keeps 85% within 5 uu, 99.5% within 15 uu and stays under 25 uu.
   them. Neither changes what reaches the game, but the UE2 behaviour should be checked in Ghidra
   (`UNetConnection::ReceivedPacket`) before deciding whether to match it.
 - No partial bunches: every bunch must fit in one packet.
-- No packet authentication or encryption: a spoofed packet with a valid header could push the receive
-  sequence ahead and stall a connection until it times out. A per-connection salt from the handshake (or
-  LiteNetLib's own connection check) is the planned guard.
+- No packet encryption or signing: the connection salt stops blind spoofing (see "Packets"), but someone who sees
+  the traffic (on the path) can still forge packets.
 - Relevancy: always relevant, owned or visible actors (`NetDriver.IsNetRelevantFor`). Still to port: UE2
   `IsNetRelevantFor` (line of sight, distance), priority sorting under the rate limit, `RelevantTimeout`
   before closing a channel, bNetTemporary and torn-off actors.

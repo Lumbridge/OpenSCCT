@@ -79,6 +79,8 @@ public sealed partial class NetConnection : INetObjectMap
     private bool _flushComplete;
     private long _lastSendTime;
 
+    private uint _salt;
+    private bool _saltKnown;
     private bool _hasReceived;
     private ushort _inSeq;
     private uint _inAckBits;
@@ -131,6 +133,21 @@ public sealed partial class NetConnection : INetObjectMap
     public int ConnectionId { get; }
 
     public EConnectionState State { get; internal set; }
+
+    /// <summary>
+    /// The connection's salt, stamped on every packet both ways (docs/NETCODE-M0.md "Packets"): the connecting side
+    /// picks it at random, the other side takes it from the first packet. A packet with another salt is dropped, so a
+    /// datagram spoofed from this endpoint, or a late one of an earlier connection on the same socket, cannot disturb
+    /// this one. 0 until known.
+    /// </summary>
+    public uint Salt => _salt;
+
+    /// <summary>Sets the salt before anything is sent (a client connecting out).</summary>
+    internal void SetSalt(uint salt)
+    {
+        _salt = salt;
+        _saltKnown = true;
+    }
 
     /// <summary>Marks a pending connection open once the handshake succeeded (the host decides when).</summary>
     public void SetOpen()
@@ -387,6 +404,16 @@ public sealed partial class NetConnection : INetObjectMap
         if (!PacketHeader.Read(_reader, out PacketHeader header))
         {
             Stats.InMalformed++;
+            return;
+        }
+
+        if (!_saltKnown)
+        {
+            SetSalt(header.Salt);
+        }
+        else if (header.Salt != _salt)
+        {
+            Stats.InWrongSalt++;
             return;
         }
 
@@ -800,6 +827,7 @@ public sealed partial class NetConnection : INetObjectMap
 
         var header = new PacketHeader
         {
+            Salt = _salt,
             Seq = _outSeq,
             HasAck = _hasReceived,
             Ack = _inSeq,

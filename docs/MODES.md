@@ -1,7 +1,7 @@
 # Game modes
 
 How the rewrite runs the generic match rules of every mode: Story, Disk Hunt, Deathmatch and Merc Deathmatch on
-stock maps, and the paths Extraction, Sabotage and Neutralization would take. The rules are specced in
+stock maps, and Extraction, Sabotage and Neutralization for custom maps built for them. The rules are specced in
 `spec/game/game-modes.md` (the per-mode view and the menu defaults), `spec/game/` (match flow) and
 `spec/objectives/` (objective types). Map-specific event chains are not part of this.
 
@@ -20,8 +20,10 @@ Deathmatch; absent means Extraction). The code branches on it in a few places on
 | Late joiners | play only in Merc Deathmatch, watch otherwise | `SGameInfo.Login`, `StartLateJoiner` |
 | Merc weapon | Merc Deathmatch: each Use press while dead picks the next gun (rifle, Uzi, shotgun) for the respawn, shown bottom right; other modes: the profile's gun | `SPlayerController.SpawnWeaponFor`, `ServerCycleRespawnWeapon`, `SHud.DrawRespawnWeapon` (spec/equipment/merc-guns.md) |
 | Spy inventory | the bomb gadget in Story and Sabotage | equipment loadouts |
-| Bomb spots | hidden outside Story | `SBombTargetObjectiveTrigger.PostBeginPlay` |
+| Bomb spots | hidden outside Story; the "secured" line in Story and Sabotage | `SBombTargetObjectiveTrigger.PostBeginPlay`, `Lock` |
 | Death | Disk Hunt: the carrier drops his disks | `SPlayerController.s_Dead`, `DropDisks` |
+| Mission reminder | Sabotage: a spy with no modem charge is told so | `SPlayerController.MissionReminder` |
+| Alarm list | Neutralization: a merc's HUD also drops its drawn actors | `SHud.EmptyAlarmsList` |
 
 Everything else (lives, respawn, spectating, scoring, time limit, end screen, rounds in a row) is the same code for
 every mode.
@@ -52,8 +54,34 @@ OpenSCCT.exe -- --svm-play=SteeE --mode=DiskHunt --side=spy
 OpenSCCT.exe -- --svm-play=SteeE --mode=Deathmatch --side=merc
 ```
 
-`--mode` takes Story, DiskHunt, Deathmatch or MercDeathMatch; `--rules=playlevel` uses the editor's Play Level URL
-instead (unlimited lives, no time limit, no disk counts).
+`--mode` takes Story, DiskHunt, Deathmatch or MercDeathMatch (and Extraction, Sabotage or Neutralization on a map
+built for them); `--rules=playlevel` uses the editor's Play Level URL instead (unlimited lives, no time limit, no disk
+counts).
+
+The dedicated server's own command line (`svm-server --map SteeE --game "?GameMode=4?..."`) installs the same
+settings object: `MatchSetup.Defaults` for the map and the URL's mode, given to the host as
+`ServerSettings.HostSettings`, so a dedicated Disk Hunt puts the menu's active disks in play and needs the menu's
+disks to take. An online session's server (`OnlineServer`) applies the lobby setup's counts instead.
+
+The mission reminder (every mode): a player standing still for 20 s gets the job in the game message area: a spy
+carrying the Story disk "go to the drop zone", a Sabotage spy without a modem charge the no-modem line, otherwise
+each mission not taken shows its description for his side (`spec/hud/messages.md` "Mission reminder").
+
+## Extraction, Sabotage and Neutralization
+
+No stock map uses them: over the 85 converted maps no `SMission` has `GameMode` 1, 2 or 3 and no `SMapSettings.Modes`
+entry has `GameModeId` 1, 2 or 3 (the "Extraction" and "Neutralization" missions of the Orphanage maps are nested
+Story zones), and the original's mode box never lists them. Their rules are complete as the script has them (the
+table above; `spec/game/game-modes.md` rule 16), so a custom SVMap map can use them:
+
+- give the map an `SMission` with `GameMode` 1, 2 or 3 and its objectives (disks and drop zones, bomb spots,
+  terminals), and an `SMapSettings.Modes` entry with that `GameModeId` for the menu's starting values;
+- the map catalog then lists the mode after the four menu modes (`MapCatalog.ExtraModes`; playable when the mission
+  has objectives and the map has spy and merc starts) and the Create Session page offers it from the settings entry;
+- `MatchSetup.Defaults` reads the entry like Story's, the URL carries `?GameMode=n`, and the spies win when every
+  objective of the mode's mission is taken, the mercs on time or lives.
+
+Offline: `--mode=Extraction`, `--mode=Sabotage` or `--mode=Neutralization`.
 
 ## Objective types
 
@@ -65,7 +93,10 @@ instead (unlimited lives, no time limit, no disk counts).
 | Disk Hunt disk | `SDisk` | Disk Hunt | `spec/objectives/disk-hunt.md` |
 | End zone | `SEndZoneTip` | tutorials | `spec/game/end-of-round.md` |
 
-The controller states that carry them are in `SPlayerController.Pickup.cs` (the generic pickup walk and pickup, the
+The pickup clips' `AnimNotifyPickup` script notify (registered in `Movement/MovementNotifies.cs`) puts the picked
+object in the hand and frees the hand of a Disk Hunt disk; `s_Pickup.EndState` still frees a hand that holds a disk
+when no notify fired (a pawn without animation content). The controller states that carry them are in
+`SPlayerController.Pickup.cs` (the generic pickup walk and pickup, the
 Story disk walk and drop) and `SPlayerController.PlaceBomb.cs` (the plant). Their animations are the execute-action
 cases 226 to 229, 244, 245, 322 and 323 in `Movement/InteractionActions.cs`.
 
@@ -76,7 +107,10 @@ walking over a dropped disk send it home; a dropped disk goes home on its own af
 
 Bomb spots in short: a spy with the modem plants (about 1 s), the charge counts down `CaptureTime` seconds, mercs can
 remove it from the menu and any damage defuses it; only one spot of an objective can be armed; the blast is the
-native gameplay-object blast (15 within 200 uu, SDamage_Explosion) and takes the objective.
+native gameplay-object blast (15 within 200 uu with linear falloff, SDamage_Explosion) and takes the objective.
+Pawns in reach go through their controller's `PawnTakeDamage` with the spy hold rule (`GadgetBlast.HurtPawn`,
+`spec/native/natives2-damage.md` rule 1.3.4), so the explosion reaction knocks them down; pawns just outside are
+shaken.
 
 ## End of round, per mode
 
@@ -90,6 +124,8 @@ Deathmatch mission has no objectives on stock maps, so Deathmatch ends on time o
   in a revenge pair, the team points carried swapped), or the lobby when the series is over or a side is empty.
 - `host.SwitchLevel(url)` then runs `ServerTravel` and `SGameInfo.ProcessServerTravel`, which give every client its
   travel URL (with its current team) and put the host's team in `Level.NextURL`.
+- An online session's server (`OnlineServer.NextRound`) loads the next game of the series itself: it travels to
+  `EndingMenuRules.NextRoundUrl` with every player, who logs in again with his side (docs/ONLINE.md "Results").
 - `GameFlow/TravelUrl.cs` is the engine side the next map needs: `Split` the map from the options,
   `NativeOptions` keeps the last value of a repeated key (the next-round URL holds GamesInARow twice), `Merge` applies
   a relative travel to a player's own options. Login's revenge rule then swaps each player's side and InitGame reads
@@ -106,7 +142,10 @@ in Merc Deathmatch, where he plays as a merc once ready (`spec/game/spectating.m
 
 - `tests/OpenScct.Game.Tests/Modes/`: Disk Hunt (`DiskHuntTests`), bomb spots (`BombTargetTests`), per-mode rules, late
   joiners and series (`ModeRulesTests`), the Story disk's carrier (`FlagCarryTests`), all with SteeE's own mode
-  settings (`ModeTestKit.cs`).
+  settings (`ModeTestKit.cs`). `BombTargetTests.The_blast_hits_pawns_within_the_damage_range_only` covers the blast
+  on pawns (it runs; it is no longer skipped). Extraction, Sabotage and Neutralization select their own mission on
+  a synthetic level (`ModeRulesTests.Extraction_Sabotage_and_Neutralization_select_their_own_mission`). The mission
+  reminder, the pickup notify, the `--game` host settings and the catalog's extra modes have no tests yet.
 - Client smokes (`tools/ci/godot-smoke.ps1 -Tests <name>`, need the converted SteeE): `play-diskhunt` (the spy walks
   to the nearest disk, picks it up through the Use menu and the server counts it, with the hand free again and the
   disk on his thigh), `play-deathmatch` (Deathmatch settings on the server, the spy killed and back with one life
@@ -114,17 +153,5 @@ in Merc Deathmatch, where he plays as a merc once ready (`spec/game/spectating.m
 
 ## Not done yet
 
-- The host does not yet load the next map of a series by itself: `OpenScct.Server` has to reload the map with the
-  `TravelUrl` result and log the players in again with their merged options.
-- The dedicated server command line does not install a `USPersistentData` from `MatchSetup`, so a dedicated Disk Hunt
-  puts every disk in play and needs all of them (the Play Level behaviour).
-- Script animation notifies are not dispatched yet; the pickup frees the hand at the end of `s_Pickup` instead of at
-  the notify (`spec/objectives/disk-hunt.md` open question 2).
-- Bomb blast effects on pawns: the bomb runs the gameplay-object blast (`SGamePlayObject.ProcessDamage`), which
-  still sends pawns `TakeDamage`; `SBasePawn` ignores that, so nobody is knocked down yet. The decoded rule
-  (`spec/native/natives2-damage.md` rule 1.3.4) routes pawns through `PawnTakeDamage` with falloff and the spy hold
-  rule (as `Equipment/GadgetBlast.HurtPawn` does), where combat turns SDamage_Explosion into the blast reaction. That
-  change belongs to the devices port and its tests; `BombTargetTests.The_blast_hits_pawns_within_the_damage_range_only`
-  is skipped until then.
-- No stock map uses Extraction, Sabotage or Neutralization; their mission selection and spy win are tested on a
-  synthetic level (`ModeRulesTests.Extraction_Sabotage_and_Neutralization_select_their_own_mission`), not on maps.
+- A dedicated `svm-server --game` run takes the menu's untouched disk counts; there is no option to set other ones
+  (the online session's lobby has them).

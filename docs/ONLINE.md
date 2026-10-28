@@ -141,8 +141,8 @@ each map's driver a new `SessionTransport` generation:
    retires that generation (it can no longer send), then loads the new map. A client still early is refused until
    the new map is up and simply resends its hello.
 
-Because the quiet time is longer than the grace, no late datagram of an old connection reaches a new one (our
-packets carry no connection salt; see Open items).
+Because the quiet time is longer than the grace, no late datagram of an old connection reaches a new one; and each
+connection has its own salt (docs/NETCODE-M0.md "Packets"), so one that did would be dropped.
 
 ### Session protocol
 
@@ -155,7 +155,8 @@ Team"; a player line carries it as flag 128). A bot's player line carries flag 2
 (0 off, 1 per side, 2 fill), `SvmBotsPerSide`, `SvmBotSkill` (0 Easy to 3 Expert), `SvmBal` (auto balance) and
 `SvmAlt` (Alternate Mode: eleven hex digits, the switch, the ability bits, the spy gadget mask and slots, the merc
 gadget mask and slots; `AlternateRules.ToOptions`). The whole line must stay under the control message's 512 bytes. A player's identity across maps is the session token in its login options
-(`?SvmToken=`), with its install id (`?SvmId=`, bans) and, for a listen host's own player, the host key (`?SvmHost=`).
+(`?SvmToken=`), with its install id (`?SvmId=`, bans), its proven player key (`?SvmKey=`, added by the server from the
+join challenge, below) and, for a listen host's own player, the host key (`?SvmHost=`).
 The Hello text that carries them may be up to 400 bytes (`ControlMessage.MaxLoginBytes`).
 
 ### Missing maps
@@ -451,8 +452,18 @@ svm-master admin unban <name|discord id|ip|cidr|ban id> --config svm-master.json
 svm-master admin bans | whois <name|discord id> | rename <name> <new> | release-name <name> | audit [N]
 svm-master admin unlock|lock <name|discord id> <all|spy|merc|item id...> | cosmetics
 ```
-Each server keeps its own `bans.json` as well. There, a signed-in player is banned by account id, and a guest as
-before (install id, address, name).
+Each server keeps its own `bans.json` as well. There, a signed-in player is banned by account id, every player with a
+key by his player key, and all by install id and address (a guest also by name).
+
+**Player keys** (rl:ac.bans). Each install makes an Ed25519 key pair on first start (`OnlineSettings.Key`, the private
+key in `user://online.cfg` `[player] key`; `Online.PlayerKey`, BouncyCastle, as .NET 10 has no Ed25519). Every map
+server of an online session answers a remote player's Hello with a random challenge, the game signs it with the
+connection's salt, and the server keeps the proven public key on the session player (`SessionPlayer.PublicKey`): the
+console's `players` shows its first 12 characters, `ban` bans it, `unban <key>` lifts it, rejoining a round matches a
+guest by it, and a session token that comes back on another map with another key is refused. A client without a key
+(bots, tools, the hub) joins without one; a wrong signature is refused. No hardware fingerprints are taken: a player
+can make a new key, as he can reset his install id, so a key ban stops the same install and nobody can play under
+someone else's key. Not done: the master does not see keys (its bans stay by account, Discord id and address).
 
 ## Admin portal
 
@@ -603,12 +614,15 @@ The old single-map flags (`--map`, `--game`, `--bots`) still run a bare `ServerH
 | `minPlayersToLaunch` | 2 | the lobby launches when this many are ready |
 | `launchCountdownSeconds` / `resultsSeconds` / `loadTimeoutSeconds` | 5 / 30 / 60 | |
 | `bansFile` | bans.json | next to the config |
+| `matchLog` | matches.jsonl | the match log (below), next to the config; `null` or `""` turns it off |
+| `playlist` | none | play a map playlist in turn instead of `rotation` (Standard, Extended, Classic, 3v3, Merc Deathmatch, All; docs/MAPS.md): each installed map of it once, in its order, with the maps' own settings |
+| `playlistMode` | the playlist's | the mode of the playlist's matches (Story, DiskHunt, Deathmatch, MercDeathmatch); a map that does not play it takes its default mode |
 | `master` | none | `{ url, inviteKey, listed, natPunch, relay }` |
 | `demos` | none | `{ upload }`: upload recorded demos to the master's bucket (default true; trusted servers only, see "Demos") |
 | `practice` | false | practice server (see "Practice servers"); the console's `practice on` and `practice off` change it while running |
 
 Console (standard input, and `cmd <command>` from in-game admins): `status`, `players`, `kick <id|name> [reason]`,
-`ban <id|name> [minutes] [reason]`, `unban <install id|address|name>`, `voiceban <id|name>`, `unvoiceban <id|name>`,
+`ban <id|name> [minutes] [reason]`, `unban <install id|player key|address|name>`, `voiceban <id|name>`, `unvoiceban <id|name>`,
 `map <name> [mode]`, `mode <name>`,
 `set time|spylives|merclives|respawn|score|revenge|games|maxplayers|bots|botsperside|botskill|balance|alternate|practice <value>`,
 `set alternate <item> <value>` (items: `spythermal`, `spynight`, `spygrab`, `spyelbow`, `spydrop`, `mercemf`,
@@ -620,7 +634,7 @@ Console (standard input, and `cmd <command>` from in-game admins): `status`, `pl
 `SPlayerController.ServerResign`), `!lagcomp` (everyone: the setting; the host and admins, or everyone on an open
 dedicated server: `!lagcomp on|off|reset|<ms>`), `!login <password>`, `!help`, and for the host
 and admins `!voiceban <id|name>` and `!unvoiceban <id|name>`, and on a practice server `!heal`, `!regen`, `!tank`,
-`!kill`. Ctrl+C, SIGTERM and `close` tell the players and the master before
+`!kill`, `!ammo`. Ctrl+C, SIGTERM and `close` tell the players and the master before
 stopping.
 
 ### Practice servers
@@ -635,7 +649,8 @@ the lives and respawn change from the next round. Its rounds:
   so turning practice off brings them back;
 - take the practice chat commands from every player, each acting on the sender only, during a round:
   `!heal` (full health, poison cured), `!regen` (on/off: 10 health back each second), `!tank` (on/off: no damage,
-  except the player's own `!kill` or resign, and kept at full health), `!kill` (dies at once, like a suicide);
+  except the player's own `!kill` or resign, and kept at full health), `!kill` (dies at once, like a suicide),
+  `!ammo` (the ammo crate's refill: a merc's weapon, and a bomb gadget, full again, with the crate sound);
   `!practice` says what the server does. Off a practice server they answer that they only work there;
 - are not sent to the master's results (`ReportResults` skips a round that had practice on at any time), so they count
   for no stats, XP or achievements.
@@ -644,9 +659,29 @@ Everything runs on the server (`OnlineServer.Practice.cs`); the tank rule is a l
 `SPlayerController.PawnTakeDamage` asks before any reaction, installed on the round's map on the server only. The
 server's info (flag bit 8) and its master listing say practice, and the server browser shows "(practice)" after the
 mode. Reloaded's exact `!regen` and `!tank` effects are not decoded; the rate above is ours. Its extra ammunition is
-not ported (ammunition is kept by the owning client in this port; a server refill needs a client call).
+not decoded either; `!ammo` is ours: ammunition is kept by the player's own machine, so the server sends it the ammo
+crate's `ReloadAmmoStock` call (a server-to-client function in the original too).
 
-Bans (rl:ac.bans) are by install id and address (no hardware fingerprints), with an optional end.
+Bans (rl:ac.bans) are by account, player key, install id and address (no hardware fingerprints), with an optional end.
+
+### Match log
+
+Reloaded wrote match lines to `ChaosTheory.log` (`[MatchInfo]`, rl:qol.matchlog) for community stats. The dedicated
+server appends one JSON line per finished round to `matches.jsonl` next to its config (`matchLog`; `MatchLog`,
+written when the results show, also for practice rounds, which the master never gets). Times are UTC. Fields:
+
+| Field | What |
+|---|---|
+| `utc`, `started`, `durationSeconds` | when the round ended and started (the match phase), and how long it ran |
+| `server`, `round` | the server's name and the session's round count |
+| `map`, `mode` | the map code and the mode's menu name |
+| `settings` | `timeLimit`, `spyLives`, `mercLives`, `respawnSeconds`, `killLimit`, `disks`, `disksToWin`, `revenge`, `gamesInARow`, `practice`, `alternate` |
+| `objectivesTaken`, `objectivesNeeded` | the mission's objectives |
+| `winner`, `endReason`, `gamesLeft` | spies, mercenaries or none; the end menu's words ("All objectives taken", "Mission timer elapsed", "Team eradicated", "Round stopped"); games of the series still to play |
+| `score` | `spies` and `mercenaries`: each side's players' scores added up |
+| `players` | each player: `name`, `side`, `score`, `kills`, `deaths`, `lives` (-1 unlimited), `bot`, `account` (signed in), `key` (player key), `pingMs` |
+
+A listen host keeps no match log. The optional upload to a stats site that the spec names is not done.
 
 ### Lag compensation
 
@@ -796,7 +831,7 @@ player waits at most a tenth of a second longer for the first answer.
    and `/etc/systemd/system/svm-server.service` the same with `Description=SVM dedicated server`,
    `After=network-online.target svm-master.service`, `WorkingDirectory=/opt/svm/server`,
    `ExecStart=/opt/svm/server/svm-server --config /opt/svm/server/svm-server.json` and
-   `ReadWritePaths=/opt/svm/server` (bans.json is written there). Then
+   `ReadWritePaths=/opt/svm/server` (bans.json and matches.jsonl are written there). Then
    `systemctl daemon-reload && systemctl enable --now svm-master svm-server`.
 
 8. **TLS proxy.** Install Caddy and put in `/etc/caddy/Caddyfile`:
@@ -899,19 +934,22 @@ dotnet run --project src/OpenScct.Server.Cli -- --online --master http://127.0.0
 
 ## Open items
 
-- Packets carry no per-connection salt or encryption (docs/NETCODE-M0.md). Travel relies on the quiet time being
-  longer than the server's grace; a spoofed datagram could still disturb a connection. A salt from the handshake
-  is the planned fix.
-- Hosts and clients are not authenticated beyond tokens and invite keys; signed player keys (rl:ac.bans) and signed
-  releases (rl:ac.release) are later work. Bans use the install id, which a player can reset.
+- Packets carry a per-connection salt but no encryption or signature (docs/NETCODE-M0.md): someone who can see the
+  traffic can still forge packets.
+- Hosts are not authenticated beyond tokens and invite keys; players prove their own key pair (rl:ac.bans), which a
+  player can make anew, as he can reset his install id. Signed releases (rl:ac.release) are later work.
 - The relay forwards LiteNetLib unconnected messages on LiteNetLib's receive threads; it has been run on localhost
   only. Its throughput on the VPS and the overhead budget (under 30 ms) need measuring in the CGNAT playtests.
 - The symmetric NAT test compares two ports of the same master address; a NAT that keeps the port for one
   destination address but not for another is not caught and shows as needs intro (the relay is still tried after
   a failed punch).
-- No IPv6 pinholes for listen hosts yet; LAN addresses sent to the master are IPv4 only.
+- No IPv6 pinholes for listen hosts: Godot's `Upnp` has no IPv6 firewall control (WANIPv6FirewallControl's
+  AddPinhole), so it would need our own UPnP SOAP client; a host behind an IPv6 firewall is reached through the
+  punch or the relay as before. The host's own addresses sent to the master (players on the same network try them
+  first) are its IPv4 ones, then up to two IPv6 ones (global or unique local, stable before temporary; no link-local).
 - Lag compensation is off by default and its 250 ms default ceiling is ours (Reloaded's was not decoded); it has not
-  been played over a real link yet. Playlists (rl:qol.lobbymaps) are a plain rotation in the server config, and
-  the lobby's map picker lists every installed map.
+  been played over a real link yet. The map list's playlists (rl:qol.lobbymaps) show variant words as part of the
+  name (Reloaded dims them, and has an option to put the word after the name); Reloaded's separate Merc Deathmatch
+  playlist choice (`active_map_playlist_mdm`) is one choice here.
 - Bots: the dedicated server's config file has no bot fields yet (the console's `set bots` works); its rotation
   entries could carry them.

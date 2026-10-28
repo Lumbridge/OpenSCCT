@@ -42,6 +42,12 @@ public interface ITransport : IDisposable
     /// </summary>
     bool IsLocalEndpoint(EndpointId endpoint) => false;
 
+    /// <summary>
+    /// True when a client connection takes its salt from the first packet it receives instead of choosing one (demo
+    /// playback: the recorded packets carry the recorder's salt). Real transports choose.
+    /// </summary>
+    bool AdoptsRemoteSalt => false;
+
     /// <summary>The remote address of an endpoint as text for logs, bans and the admin status ("ip:port"), or null.</summary>
     string? RemoteAddress(EndpointId endpoint) => null;
 }

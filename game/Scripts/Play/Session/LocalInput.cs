@@ -49,6 +49,29 @@ public sealed class LocalInput
     /// <summary>Alt is held (the free camera flies slowly).</summary>
     public bool Slow { get; set; }
 
+    /// <summary>
+    /// The controller's left stick (rl:input.pad), forward and right positive, -1 to 1; used instead of the direction
+    /// keys while <see cref="PadStick"/> is set (full circle movement and analog slow walk).
+    /// </summary>
+    public float PadForward { get; set; }
+
+    /// <inheritdoc cref="PadForward"/>
+    public float PadStrafe { get; set; }
+
+    /// <summary>The stick is pushed past its deadzone this frame.</summary>
+    public bool PadStick { get; set; }
+
+    /// <summary>Sets or (with a zero stick) clears the analog stick.</summary>
+    public void SetPadStick(float forward, float strafe)
+    {
+        PadForward = forward;
+        PadStrafe = strafe;
+        PadStick = forward != 0f || strafe != 0f;
+    }
+
+    /// <summary>The pad's triggers for the free camera: right minus left, -1 to 1 (up positive).</summary>
+    public float PadUp { get; set; }
+
     /// <summary>The index of a button name, or -1.</summary>
     public static int IndexOf(string button)
     {
@@ -100,6 +123,8 @@ public sealed class LocalInput
         Up = 0f;
         Fast = false;
         Slow = false;
+        SetPadStick(0f, 0f);
+        PadUp = 0f;
         EndTick();
     }
 
@@ -126,6 +151,9 @@ public sealed class LocalInput
         pc.bSpecialsChat = _buttons[16];
         pc.bZoomIn = _buttons[17];
         pc.bZoomOut = _buttons[18];
+        pc.bPadStickMove = PadStick;
+        pc.PadStickForward = PadForward;
+        pc.PadStickStrafe = PadStrafe;
     }
 }
 

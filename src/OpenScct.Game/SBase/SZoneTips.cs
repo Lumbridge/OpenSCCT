@@ -7,7 +7,9 @@ namespace OpenScct.Game.SBase;
 
 /// <summary>
 /// SBase.SZoneTips: an invisible cylinder that shows a map hint on the HUD while the player stands in it, in
-/// offline play only (spec/devices/zone-tips.md).
+/// offline play only (spec/devices/zone-tips.md). The original's offline game is standalone; the rewrite's is a listen
+/// server with the player as a client, so the player's own machine also shows them there
+/// (<see cref="IProfileOptions.OfflineSession"/>).
 /// </summary>
 public partial class SZoneTips
 {
@@ -16,7 +18,7 @@ public partial class SZoneTips
     [PortOf("uc:SBase.SZoneTips:Touch", Spec = "spec/devices/zone-tips.md#rules")]
     protected override void Touch(Actor Other)
     {
-        if (Level.NetMode == ENetMode.NM_Standalone && Other is Pawn { Controller: SPlayerController pc } && pc.myHUD is SHud)
+        if (Other is Pawn { Controller: SPlayerController pc } && ShowsHintsFor(pc) && pc.myHUD is SHud)
         {
             TargetController = pc;
             AddMessage(TargetController);
@@ -28,13 +30,20 @@ public partial class SZoneTips
     [PortOf("uc:SBase.SZoneTips:UnTouch", Spec = "spec/devices/zone-tips.md#rules")]
     protected override void UnTouch(Actor Other)
     {
-        if (Level.NetMode == ENetMode.NM_Standalone && Other is Pawn { Controller: SPlayerController pc } &&
-            ReferenceEquals(pc, TargetController))
+        if (Other is Pawn { Controller: SPlayerController pc } && ShowsHintsFor(pc) && ReferenceEquals(pc, TargetController))
         {
             RemoveMessage(TargetController);
             TargetController = null;
         }
     }
+
+    /// <summary>
+    /// A standalone game shows the hints (the original's test); so does the player's own machine in an offline
+    /// session of the rewrite.
+    /// </summary>
+    [Provenance(ProvenanceKind.Estimated, "OpenSCCT: offline play is a listen server, so the standalone test is widened to the offline session's local player")]
+    private bool ShowsHintsFor(SPlayerController pc) =>
+        Level.NetMode == ENetMode.NM_Standalone || (pc.LocalProfileOptions()?.OfflineSession ?? false);
 
     /// <summary>Shows the spy or merc text (two parts joined by a space), when in-game help allows it.</summary>
     [Uc("SBase.SZoneTips.AddMessage", Sha1 = "450ee1800f4dd27659c9e328ef63ae09edefe1c0")]

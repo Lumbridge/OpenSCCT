@@ -7,7 +7,7 @@ using OpenScct.Provenance;
 
 namespace OpenScct.Server.Online;
 
-// Practice server mode (spec/reloaded/FEATURES.md rl:net.practice): the chat commands !heal, !regen, !tank and !kill,
+// Practice server mode (spec/reloaded/FEATURES.md rl:net.practice): the chat commands !heal, !regen, !tank, !kill and !ammo,
 // and the regeneration they turn on. Everything runs on the server; health is replicated to the players as usual.
 public sealed partial class OnlineServer
 {
@@ -51,12 +51,12 @@ public sealed partial class OnlineServer
         _regen.Clear();
     }
 
-    private const string PracticeHelp = "!heal, !regen, !tank, !kill";
+    private const string PracticeHelp = "!heal, !regen, !tank, !kill, !ammo";
 
     /// <summary>The practice chat commands; false when <paramref name="verb"/> is not one.</summary>
     private bool OnPracticeCommand(SessionPlayer p, string verb)
     {
-        if (verb is not ("heal" or "regen" or "tank" or "kill" or "practice"))
+        if (verb is not ("heal" or "regen" or "tank" or "kill" or "ammo" or "practice"))
         {
             return false;
         }
@@ -113,6 +113,19 @@ public sealed partial class OnlineServer
                 }
 
                 SendMessage(p, tank ? "Tank on: you take no damage." : "Tank off.");
+                break;
+            case "ammo":
+                // Ammunition is kept by the player's own machine, so the refill is the ammo crate's call to it.
+                if (pc.Pawn is { Health: > 0 })
+                {
+                    pc.ReloadAmmoStock();
+                    SendMessage(p, "Ammunition refilled.");
+                }
+                else
+                {
+                    SendMessage(p, "You are not alive.");
+                }
+
                 break;
             case "kill":
                 if (pc.Pawn is { Health: > 0 } pawn)

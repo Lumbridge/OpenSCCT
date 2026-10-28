@@ -44,6 +44,10 @@ public sealed class PlaySession : IDisposable
     private double _alpha;
     private bool _disposed;
     private NetCombatBridge? _clientCombat;
+    private static int s_offlineSessions;
+
+    /// <summary>An offline session (one with its own host, not a round on a remote server) runs on this machine.</summary>
+    public static bool OfflineSessionRunning => System.Threading.Volatile.Read(ref s_offlineSessions) > 0;
 
     public PlaySession(PlaySettings settings, IClock clock)
     {
@@ -115,6 +119,9 @@ public sealed class PlaySession : IDisposable
         {
             RecordDemo(demos, map.Id);
         }
+
+        // The zone hints (SZoneTips) show for the local player, as in the original's standalone game.
+        System.Threading.Interlocked.Increment(ref s_offlineSessions);
     }
 
     /// <summary>The demo file this match records into (<see cref="PlaySettings.DemoFolder"/>), or null.</summary>
@@ -414,9 +421,11 @@ public sealed class PlaySession : IDisposable
             pc.aUp = Input.Up;
             if (pc.FreeCameraFlying != 0)
             {
-                // The cinematic free camera: the wheel steps its speed, Shift and Alt scale it.
+                // The cinematic free camera: the wheel (or the pad's shoulder buttons) steps its speed, Shift and Alt
+                // scale it, the pad's triggers fly it up and down.
                 pc.StepFreeCamSpeed(Input.Wheel);
                 pc.FreeCamSpeedFactor = Input.Fast ? CinematicCameraK.FastFactor : Input.Slow ? CinematicCameraK.SlowFactor : 1f;
+                pc.FreeCamPadUp = Input.PadUp;
             }
 
             foreach (InputCommand command in Input.Commands)
@@ -562,6 +571,7 @@ public sealed class PlaySession : IDisposable
             return;
         }
 
+        System.Threading.Interlocked.Decrement(ref s_offlineSessions);
         Bots?.Dispose();
         Client.Dispose();
         if (_listen is not null)
