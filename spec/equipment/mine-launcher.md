@@ -196,7 +196,10 @@ opens a menu to pick the type or remove the oldest mine. A merc can pick a mine 
     message (2 s).
 26. **GetBestMineIndexToRemove** (native, decoded 0x10ab24a0): among the interaction manager's objects that are mine
     interactions usable now, the one whose owner lies furthest along the view axis (the pawn's rotation, or the
-    desired rotation for a merc) from the eye; the selected interaction when none qualifies.
+    desired rotation for a merc) from the eye (Location + EyeHeight on Z + WalkBob); the selected interaction when none
+    goes further (strictly; a tie keeps the earlier one). Mine interactions are SMineProxInteraction and its subclasses
+    (trap mines, sticky cams). The Use menu's release on such an entry selects this index before the press
+    (interaction-system.md rule 14c).
 
 ## States
 ```mermaid
