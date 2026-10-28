@@ -362,6 +362,26 @@ CI's default set stays `boot` and `testbox`. With a renderer, `--svm-hud-capture
 `tests/OpenScct.Game.Tests/Hud/SoundArrowTests.cs`,
 `tests/OpenScct.Net.Tests/ChatMessageTests.cs`, `tests/OpenScct.Integration.Tests/ChatRelayTests.cs`.
 
+## Cinematic camera (Free Camera, Hide HUD)
+
+The Enhanced 4.0 binds `FreeCam` and `HideHud` (Options, Keys, "Cinematic Camera" rows) work when the host turned
+on Alternate Mode and its "Cinematic Camera" switch (offline they always work). Rules: spec/hud/cinematic-camera.md.
+
+- **Who:** a living player, at any time in the round. Without the switch the console says "Free look is not enabled
+  on this server." or "Hiding the hud is not enabled on this server."
+- **How:** the key runs `SPlayerController.FreeCam` / `HideHud` (`PlayerCommands`, `LocalInput.cs`), which asks the
+  server (`ServerRequestFreeCam` / `ServerRequestHideHud`); the server checks its GRI and answers
+  (`ClientStartFreeCam` / `ClientToggleHideHud`), and the player's machine starts the camera or flips the switch
+  (`SPlayerController.CinematicCamera.cs`). FreeCam again stops the camera at once, without asking.
+- **Free camera:** it starts where the view is. Mouse turns it; the movement keys fly it along the view; Jump goes
+  up and Crouch down; the wheel steps the speed (600 uu/s to start); Shift is fast, Alt slow. No collision. The pawn
+  stands where it was and takes no input; its body is drawn and the first-person weapon is not. The camera stops by
+  itself when the pawn dies. Other players only see the pawn standing still.
+- **Hide HUD:** `bCinematicHideHud` on the controller; `HudSimReader` adds it to the snapshot's `HideHud`, so the
+  pages hide as for `HUD.bHideHUD`, and the merc's aim point hides too.
+- **Not done:** pad controls for the free camera (triggers, shoulders); the server's relevancy still sees from the
+  pawn, so things far from it may be missing when the camera flies far away.
+
 ## Slice additions and gaps
 
 - `HudOptions.SliceExtras` writes the merc's fire mode and the vision mode as small lines (the original shows them on

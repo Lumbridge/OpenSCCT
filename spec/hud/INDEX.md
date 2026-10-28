@@ -14,6 +14,7 @@ IDs of each file are in that file's `Units:` header.
 | [spectator-page.md](spectator-page.md) | P_SpectatorMode, the page of a dead player or a spectator |
 | [scoreboard.md](scoreboard.md) | The connected players list and the mission status page |
 | [binoculars.md](binoculars.md) | P_BinocularsATT and P_BinocularsDEF, and the spy's objective markers in the binoculars |
+| [cinematic-camera.md](cinematic-camera.md) | The Enhanced cinematic camera: the FreeCam and HideHud binds, the server permission and the free camera |
 | [in-game-menu.md](in-game-menu.md) | The In-Game Menu (Escape, ShowMenu): its pages, keys, layout and the quit and lobby confirmations |
 
 ## Relevant units not specced here
