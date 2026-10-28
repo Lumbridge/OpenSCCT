@@ -2,6 +2,7 @@
 
 Units:
 - def:SBase.SCamera
+- rl:fix.camo_detection (camera part)
 - uc:SBase.SCamera:Destroyed
 - uc:SBase.SCamera:PreBeginPlay
 - uc:SBase.SCamera:SetLockedByChaff
@@ -92,6 +93,9 @@ Class defaults also set `TriggerMethode = TriggerControl`, `iPriority = 5`, `bCa
    are both strictly below `VisibilityConeAngle x 91` in absolute value; the distance is strictly below
    `VisibilityMaxDistance`. It stores the pawn in `DetectedPawn`, its location in `DetectedLocation`, returns
    true. The cone is checked against the head's current rotation, so a sweeping camera sees what it faces.
+   Reloaded (rl:fix.camo_detection, Enhanced builds) adds one test after the distance: a spy whose
+   `DesiredGlassEffect` is 255 (the camo suit is on) is skipped, and the walk goes on to the next pawn (its hook
+   0x1001a560 at game 0x10ab5f74).
 
 ## Native tick
 

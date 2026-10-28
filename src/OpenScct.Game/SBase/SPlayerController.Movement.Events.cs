@@ -93,6 +93,11 @@ public partial class SPlayerController
 
     public void eventWaistLedge(bool bCanGoNoCrouch)
     {
+        if (ReloadedWaistLedgeBlocked())
+        {
+            return;
+        }
+
         if (StateNode is IWaistLedge s)
         {
             s.WaistLedge(this, bCanGoNoCrouch);

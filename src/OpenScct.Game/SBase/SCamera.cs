@@ -70,6 +70,10 @@ public partial class SCamera
     [Provenance(ProvenanceKind.Decoded, "game 0x10ab5e5d: SingleLineCheck flags 0x286")]
     public const uint SightTraceFlags = 0x286;
 
+    /// <summary>A spy's DesiredGlassEffect while the camo suit is on (Enhanced): cameras do not see him under Reloaded.</summary>
+    [Provenance(ProvenanceKind.Decoded, "Reloaded.Core 0x1001a560: CMP byte [EBP + 0xab5], 0xff; natives2-events.md rule 6")]
+    public const byte CloakedGlass = 255;
+
     /// <summary>Radians to rotator units in CheckPresence (the engine's 10430.2 constant, not 32768 / pi).</summary>
     [Provenance(ProvenanceKind.Decoded, "game 0x10c10c5c = 10430.21875f, used at 0x10ab5ea5 and 0x10ab5eda")]
     public const float RadiansToRotator = 10430.21875f;
@@ -146,7 +150,9 @@ public partial class SCamera
     /// </summary>
     [UcNative("ASCamera::execCheckPresence", Exe = 0x10ab5dd0)]
     [PortOf("nat:SBase.SCamera.CheckPresence", Spec = "spec/devices/security-camera.md#detection")]
+    [PortOf("rl:fix.camo_detection", Spec = "spec/devices/security-camera.md#detection")]
     [Provenance(ProvenanceKind.Decoded, "game 0x10ab5df0: SPawnAttaque with Health > 0, line check 0x286 hitting nothing or the pawn, |pitch|,|yaw| < VisibilityConeAngle * 91, distance < VisibilityMaxDistance")]
+    [Provenance(ProvenanceKind.Decoded, "Reloaded.Core 0x1001a560 at game 0x10ab5f74: after the distance test, a pawn whose DesiredGlassEffect (+0xab5) is 0xff is skipped")]
     public bool CheckPresence()
     {
         float cone = VisibilityConeAngle * UnitsPerDegree;
@@ -175,6 +181,12 @@ public partial class SCamera
             }
 
             if (!(d.Size() < VisibilityMaxDistance))
+            {
+                continue;
+            }
+
+            // Reloaded (Enhanced builds): a spy wearing the camo suit is not seen (rl:fix.camo_detection).
+            if (pawn.DesiredGlassEffect == CloakedGlass)
             {
                 continue;
             }

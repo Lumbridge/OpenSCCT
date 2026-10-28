@@ -6,6 +6,7 @@ Units:
 - nat:SBase.SHud.DrawTargetName (rule 3e; also called by s_Hud_UseObject_CamNetwork.DrawHUD)
 - uc:SBase.SHud:NotifyHotSound
 - uc:SBase.SPlayerController:ClientNotifyNoise
+- rl:fix.crosshair_shift, rl:qol.crosshair (Reloaded's fixed reticle spot, rule 3)
 
 ## Purpose
 
@@ -87,6 +88,13 @@ Reticle (`Reticule` -> A_Reticule; nothing happens without a pawn, the areas kee
    1280 x 720, one unit up and left of SpotReticule (320.5, 240.5), and about half a unit nearer with the reticle
    opened by a strafe. Drawing only the parts shown now (half about (52, 42)) put the dot 11 units right and 20 down
    of the aim: 16 px right and 30 px down at 1280 x 720, where the shots do not go.
+   Reloaded replaces both stores of that position with constants (rl:fix.crosshair_shift; Reloaded 0x100a9140 and
+   0x100a9160 at game 0x10b286d6 and 0x10b286fa): the instance always sits at (257, 179), so the reticle stays put
+   whatever SpotReticule does (an aim kick no longer shifts it sideways). With Reloaded's `classic_crosshair` on
+   (rl:qol.crosshair, off by default) it sits at (254, 182): 3 units left and 3 down, the original off-centre look.
+   The capture above was taken under Reloaded, so its pixel is the (257, 179) placement; the rewrite's page renderer
+   draws that pixel with the instance at (256, 178), so it places the instance one unit up and left of Reloaded's
+   constants. The rewrite follows Reloaded: the reticle no longer follows SpotReticule.
 4. Hit marker: the inner `Reticule` instance (A_AllReticule) is red while `fDateLastShootedPawn + 0.4 > now`, white
    otherwise.
 5. Spread: the selected area's frame is `trunc(10 x GetAccuracy() / (MaxDispersion - MinDispersion))`, held (frames
@@ -175,5 +183,5 @@ merc's own machine.
    of rule 3 is the measured (64, 62) rather than computed from the elements' keys (no combination of first, last or
    current keys with or without hidden elements gives it); the original's dot moves about half a unit as the reticle
    opens.
-3. Whether Reloaded's wide-screen page maps a SpotReticule off the centre to the same pixel as the projection (the
-   port puts the reticle on the projected pixel); only an aim kick the view has not taken moves it off the centre.
+3. Resolved: Reloaded does not map SpotReticule at all for the reticle; it places it at a fixed spot (rule 3). The
+   reticle message still follows SpotReticule.

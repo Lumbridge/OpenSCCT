@@ -25,7 +25,7 @@ it is described here in our own terms.
   delay when it dead-reckons them (dead reckoning walks proxies on to the newest server time the client knows).
 - **Shot number.** Per weapon, on the owner's client: a counter of the merc gun or pistol shots it sent (starts at 0
   with the weapon actor). On the server: the last number received.
-- **Settings.** Server: the switch (off by default) and the ceiling in ms (default 250, 0 to 1000). Client: fire
+- **Settings.** Server: the switch (off by default) and the ceiling in ms (default 120, 0 to 500, both Reloaded's). Client: fire
   prediction (on by default).
 
 ## Rules
@@ -67,8 +67,9 @@ it is described here in our own terms.
 | Name | Value | Unit | Provenance | Source |
 |---|---|---|---|---|
 | History length | 64 | ticks | estimated | a second at 60 Hz plus margin |
-| Default ceiling | 250 | ms | estimated | Reloaded's default not decoded |
-| Largest ceiling | 1000 | ms | estimated | the history length |
+| Default ceiling | 120 | ms | decoded | Reloaded.Core 0x103603a4 (initial value) and `!lagcomp reset` 0x10076455 |
+| Largest ceiling | 500 | ms | decoded | Reloaded.Core `!lagcomp <n>` 0x10076435 (below 0 gives 0, above 500 gives 500) |
+| Reloaded's own default switch | on | | decoded | Reloaded.Core 0x103603a8 starts at 1; the rewrite keeps it off by default (our choice) |
 | Teleport distance (no blend) | 200 | uu | estimated | |
 | Spread mantissa | top 24 bits × 2^-24 | | decoded | Reloaded 0x100242f0 |
 | Seeded random calls per trace | 2 | calls | decoded | Reloaded 0x100242f0 |
@@ -89,6 +90,10 @@ messages; the server decides everything that matters.
 
 ## Open questions
 
-1. Reloaded's default ceiling, and whether it compensates only sticky cams (v3.0) or every shot (v4.0). Measure with
-   `!lagcomp` on a sandbox host, or decode the handler near the strings at RC@0x339530.
+1. Whether Reloaded compensates only sticky cams (v3.0) or every shot (v4.0). Resolved part: the default ceiling
+   (120 ms) and the range (0 to 500), decoded from the `!lagcomp` handler (Reloaded.Core 0x100758f0). That handler
+   also shows Reloaded's chat rules, which the rewrite does not copy exactly: it only runs on the host machine
+   (dedicated or listen; elsewhere "lagcomp: server-side setting"), plain `!lagcomp` toggles the switch, `reset`
+   only sets the ceiling back and a number only sets the ceiling (neither turns it on). The rewind it applies is
+   `clamp(round(shooter's delay in ms), 0, ceiling)` (Reloaded.Core 0x1000bfb0), as rule 3 here.
 2. Whether Reloaded's prediction also predicts pawn hits (blood, hit sounds). The rewrite does not.

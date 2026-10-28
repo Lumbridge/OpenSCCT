@@ -31,7 +31,7 @@ server's content must be rebuilt too) and the `ui` step (tutorial pictures, stra
 | Pad aim assist | `NativeFindTargetToSnap` never decoded; nothing sets `bSnappedToTarget` | done (decoded; spine height estimated) |
 | Merc squint | `NativeComputeSquinting` never decoded | done, sim only (no visible effect in the original either) |
 | Merc elbow turn / quick 180 | global `UpdateRotationDefenseur` / `NativeRotationCameraDefenseur` | n-a (never runs on PC) |
-| Free camera, hide HUD | Enhanced cinematic camera gated by `bAvlb_CinematicCamera`; ported (spec/hud/cinematic-camera.md); pad controls not wired | done |
+| Free camera, hide HUD | Enhanced cinematic camera gated by `bAvlb_CinematicCamera`; ported (spec/hud/cinematic-camera.md), speed, wheel steps, Shift x4 / Alt x0.25 and speed easing now Reloaded's decoded values; pad controls not wired | done |
 
 ## Effects and looks
 
@@ -69,18 +69,18 @@ Who-hears-whom matches the original (rules in `VoiceRouting.cs`). Gaps:
 | Per-view sensitivity multipliers stored but unused; clutch | done (scope now 0.75 sideways by Reloaded default; `vertical` meaning estimated) |
 | Sniper kick tied to mouse sensitivity (Reloaded fix) | done |
 | Invert X, feet/meters, Objective Sounds, wheel mode (profile options; profile is null) | done (wheel defaults to Gadget, as before) |
-| classic_crosshair, hack_alpha, Shocker snap option, location name on the HUD | hack_alpha and location done; classic_crosshair open (offset not decoded); Shocker snap open (the snap itself isn't in the game) |
+| classic_crosshair, hack_alpha, Shocker snap option, location name on the HUD | hack_alpha, location and classic_crosshair done (Reloaded's fixed reticle spots decoded); Shocker snap open (the snap itself isn't in the game) |
 | Anisotropic level, shadow quality, low-latency mode, window position | done (low latency: Ultra = On, Godot's floor) |
 | Crash log, process priority/affinity | done (client only; Godot-callback exceptions not caught) |
-| Flashlight in the scope, ledge assist (Reloaded natives) | done (also Reloaded's slow-strafe diagonal fix, found in the same function); two ledge patches need a reference-game check (spec/movement/ledge.md) |
+| Flashlight in the scope, ledge assist (Reloaded natives) | done (also Reloaded's slow-strafe diagonal fix, found in the same function); Reloaded's ledge test patches done: no auto hop onto low ledges, wider waist window, deeper hang window in the wall jump climb, waist grab blocked in the jump's first tick (spec/movement/ledge.md) |
 | `!resign`, jitter in `!pings` | done |
-| Lag compensation (rl:net.lagcomp) | done (off by default: `lagcomp on`, `!lagcomp on` or config `lagComp`; docs/NETCODE.md "Lag compensation"; Reloaded's default ceiling not decoded, ours is 250 ms) |
+| Lag compensation (rl:net.lagcomp) | done (off by default: `lagcomp on`, `!lagcomp on` or config `lagComp`; docs/NETCODE.md "Lag compensation"; ceiling 120 ms, 0 to 500, as Reloaded; Reloaded itself starts with it on) |
 | Client fire prediction (rl:net.fireprediction) | done (for the merc rifles/SMG and the spy pistol's world impacts; option `fire_prediction`, on; pawn hits stay server-confirmed) |
 | Practice server mode, `!heal` `!regen` `!tank` `!kill` | done (extra ammunition not ported, `!regen`/`!tank` effects are our choice: docs/ONLINE.md "Practice servers") |
 | Client console, `set`/`get` | done (docs/HUD.md "Developer console") |
 | MSAA/SMAA | later (M) |
 | Extraction, Sabotage, Neutralization modes | later (L) |
-| Unverified Reloaded fixes: grab angle, jump lock-on 7.5 m, KO after interrupt, slow strafe, disk radar threshold, crosshair shift, sticky cam fixes | open: need decoding of the Reloaded patch values |
+| Unverified Reloaded fixes: grab angle, jump lock-on 7.5 m, KO after interrupt, slow strafe, disk radar threshold, crosshair shift, sticky cam fixes | partial: jump lock-on (750 below, sight lines ignore volumes), KO after interrupt (second GotoWaitingState after a hack's fast leave), disk radar (200 uu/s), crosshair shift (fixed reticle spot), camo unseen by security cameras, CheckGEForWallJump's -10 preset done (spec/native/reloaded-hooks.md rules 29 to 37); grab angle: no Reloaded patch, script ported as is; sticky cam none-left and camo slot 2: Enhanced script, ported as is; east sound (SStickyCam angle defaults 12345678), the sticky cam leave hook and the camo motion-vision draw hook decoded, not ported |
 | Signed releases, MMCSS voice thread, lobby music, join sound, local match log, scoreboard split size | open (small or optional) |
 
 ## Front end

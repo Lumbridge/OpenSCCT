@@ -17,8 +17,11 @@ public partial class SPlayerController
     /// <summary>Which way the free camera looks.</summary>
     public FRotator FreeCamRotation;
 
-    /// <summary>The free camera's speed before Shift or Alt, in unreal units per second (the wheel steps it).</summary>
+    /// <summary>The free camera's chosen speed before Shift or Alt, in unreal units per second (the wheel steps it).</summary>
     public float FreeCamSpeed = CinematicCameraK.FreeCamSpeed;
+
+    /// <summary>The speed the free camera flies at now: it eases towards <see cref="FreeCamSpeed"/>.</summary>
+    public float FreeCamCurrentSpeed = CinematicCameraK.FreeCamSpeed;
 
     /// <summary>The speed factor the held keys give this tick (Shift fast, Alt slow), set by the input layer.</summary>
     public float FreeCamSpeedFactor = 1f;
@@ -171,6 +174,7 @@ public partial class SPlayerController
         FreeCamLocation = vCamLocation;
         FreeCamRotation = new FRotator(rCamRotation.Pitch, rCamRotation.Yaw, 0).Normalize();
         FreeCamSpeed = CinematicCameraK.FreeCamSpeed;
+        FreeCamCurrentSpeed = CinematicCameraK.FreeCamSpeed;
         FreeCameraFlying = 1;
         ViewTarget = this;
         if (PlayerReplicationInfo?.Team?.TeamIndex != 1)
@@ -204,9 +208,12 @@ public partial class SPlayerController
     /// <summary>
     /// Each local tick while the free camera flies, before PlayerTick: the mouse turns it and the movement keys fly it
     /// (Jump up, Crouch down), then the controller's input is cleared, so whatever state the controller is in the pawn
-    /// stands still and does nothing. The camera stops when the pawn dies or goes.
+    /// stands still and does nothing. The camera stops when the pawn dies or goes. As Reloaded's free camera tick: the
+    /// flying speed eases towards the chosen one (a quarter of a second to get there), each key axis counts fully (a
+    /// diagonal is faster), Shift gives four times the speed and Alt a quarter, and nothing collides.
     /// </summary>
-    [Provenance(ProvenanceKind.Estimated, "Enhanced 4.0 key rows: movement keys, Space and Ctrl up and down, wheel sets speed, Shift fast, Alt slow; mouse turn uses the merc mouse rate; pitch +-16000; no collision")]
+    [Provenance(ProvenanceKind.Decoded, "Reloaded 0x1000ea40: dt = clamp(now - last, 0, 0.1); speed += (chosen - speed) x clamp(4 dt, 0, 1); forward (W/S), side (D/A) and up (Space/Ctrl) unnormalised along the view, the flat side axis and world Z; x4 with Shift, else x0.25 with Alt; the controller's Location is written with no collision")]
+    [Provenance(ProvenanceKind.Estimated, "The turn: the merc mouse rate and pitch +-16000 (Reloaded's tick moves only; the turn is the controller's own rotation update, not decoded)")]
     public void TickFreeCamera(float DeltaTime)
     {
         if (FreeCameraFlying == 0)
@@ -234,7 +241,9 @@ public partial class SPlayerController
         float up = (aUp > 0f ? 1f : 0f) - (bCrouch != 0 ? 1f : 0f);
         FVector side = new FRotator(0, r.Yaw + 16384, 0).Vector();
         FVector move = r.Vector() * forward + side * right + new FVector(0f, 0f, up);
-        float speed = FreeCamSpeed * FreeCamSpeedFactor * DeltaTime;
+        float dt = SvmMath.Clamp(DeltaTime, 0f, CinematicCameraK.MaxStep);
+        FreeCamCurrentSpeed += (FreeCamSpeed - FreeCamCurrentSpeed) * SvmMath.Clamp(dt * CinematicCameraK.SpeedEaseRate, 0f, 1f);
+        float speed = FreeCamCurrentSpeed * FreeCamSpeedFactor * dt;
         FreeCamLocation += move * speed;
 
         // The pawn keeps standing where it was.
@@ -267,8 +276,8 @@ public partial class SPlayerController
         fThrowForce = 0f;
     }
 
-    /// <summary>The wheel steps the free camera's speed up or down (one step = x1.25), within limits.</summary>
-    [Provenance(ProvenanceKind.Estimated, "Enhanced 4.0 key rows: the mouse wheel sets the free camera speed; step and limits ours")]
+    /// <summary>The wheel steps the free camera's chosen speed up or down (one step = x1.2), within 30 to 12000.</summary>
+    [Provenance(ProvenanceKind.Decoded, "Reloaded 0x100b2010: wheel events 10 and 9 multiply the chosen speed by 1.2 and 1/1.2, clamped to 30..12000")]
     public void StepFreeCamSpeed(int steps)
     {
         float s = FreeCamSpeed;
@@ -294,20 +303,31 @@ public static class CinematicCameraK
     [Provenance(ProvenanceKind.Decoded, "Reloaded 0x10022f00: two camera speeds set to 600")]
     public const float FreeCamSpeed = 600f;
 
-    [Provenance(ProvenanceKind.Estimated, "Ours: Shift doubles the free camera speed")]
-    public const float FastFactor = 2f;
+    /// <summary>Shift: four times the speed (it wins over Alt).</summary>
+    [Provenance(ProvenanceKind.Decoded, "Reloaded 0x1000ea40: GetAsyncKeyState(VK_SHIFT) gives 4.0")]
+    public const float FastFactor = 4f;
 
-    [Provenance(ProvenanceKind.Estimated, "Ours: Alt gives a quarter of the free camera speed")]
+    /// <summary>Alt: a quarter of the speed.</summary>
+    [Provenance(ProvenanceKind.Decoded, "Reloaded 0x1000ea40: GetAsyncKeyState(VK_MENU) gives 0.25")]
     public const float SlowFactor = 0.25f;
 
-    [Provenance(ProvenanceKind.Estimated, "Ours: one wheel step")]
-    public const float SpeedStep = 1.25f;
+    /// <summary>One wheel step.</summary>
+    [Provenance(ProvenanceKind.Decoded, "Reloaded 0x100b2010: pow(1.2, +-1) x speed")]
+    public const float SpeedStep = 1.2f;
 
-    [Provenance(ProvenanceKind.Estimated, "Ours")]
-    public const float MinSpeed = 75f;
+    [Provenance(ProvenanceKind.Decoded, "Reloaded 0x100b2010: clamp low 30 (0x103411ac)")]
+    public const float MinSpeed = 30f;
 
-    [Provenance(ProvenanceKind.Estimated, "Ours")]
-    public const float MaxSpeed = 4800f;
+    [Provenance(ProvenanceKind.Decoded, "Reloaded 0x100b2010: clamp high 12000 (0x103411a8)")]
+    public const float MaxSpeed = 12000f;
+
+    /// <summary>How fast the flying speed catches up with the chosen one (fraction per second, capped at all of it).</summary>
+    [Provenance(ProvenanceKind.Decoded, "Reloaded 0x1000ea40: clamp(dt x 4, 0, 1)")]
+    public const float SpeedEaseRate = 4f;
+
+    /// <summary>The longest step the free camera takes in one tick.</summary>
+    [Provenance(ProvenanceKind.Decoded, "Reloaded 0x1000ea40: dt clamped to 0..0.1 s")]
+    public const float MaxStep = 0.1f;
 
     /// <summary>How far the free camera looks up or down (rotator units; 16384 is straight up).</summary>
     [Provenance(ProvenanceKind.Estimated, "Ours: just short of straight up and down")]

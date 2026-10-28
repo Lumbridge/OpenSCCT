@@ -1008,6 +1008,7 @@ public partial class SPlayerController
         {
             EnsureGoggle();
             CombatPlayerTick(DeltaTime);
+            ReloadedLocalTick();
         }
     }
 

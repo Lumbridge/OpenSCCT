@@ -653,13 +653,13 @@ Bans (rl:ac.bans) are by install id and address (no hardware fingerprints), with
 Reloaded's server-side lag compensation (rl:net.lagcomp; how it works: docs/NETCODE.md "Lag compensation and fire
 prediction"). **Off by default.** Ways to turn it on:
 
-- dedicated server config: `"lagComp": true` (and optionally `"lagCompCeilingMs": 250`, 0 to 1000);
-- the server console (or an admin's `cmd`): `lagcomp on`, `lagcomp off`, `lagcomp reset` (ceiling back to 250 ms),
+- dedicated server config: `"lagComp": true` (and optionally `"lagCompCeilingMs": 120`, 0 to 500);
+- the server console (or an admin's `cmd`): `lagcomp on`, `lagcomp off`, `lagcomp reset` (ceiling back to 120 ms, Reloaded's default),
   `lagcomp 200` (ceiling 200 ms, and on); `set lagcomp on` works too;
 - chat, as the host or an admin (everyone on a dedicated server without an admin password): `!lagcomp on`,
   `!lagcomp off`, `!lagcomp reset`, `!lagcomp <ms>`. Plain `!lagcomp` tells anyone the setting.
 
-Each change answers in Reloaded's words (`lagcomp: on - ceiling 250ms`, `lagcomp: off`), is told to everyone and the
+Each change answers in Reloaded's words (`lagcomp: on - ceiling 120ms`, `lagcomp: off`), is told to everyone and the
 server log, applies to the running round at once and stays for the session's later rounds (until the server restarts,
 when the config's value applies again). A player who may not change it gets `lagcomp: server-side setting`.
 
@@ -910,7 +910,7 @@ dotnet run --project src/OpenScct.Server.Cli -- --online --master http://127.0.0
   destination address but not for another is not caught and shows as needs intro (the relay is still tried after
   a failed punch).
 - No IPv6 pinholes for listen hosts yet; LAN addresses sent to the master are IPv4 only.
-- Lag compensation is off by default and its 250 ms default ceiling is ours (Reloaded's was not decoded); it has not
+- Lag compensation is off by default (Reloaded starts with it on; ceiling 120 ms as Reloaded); it has not
   been played over a real link yet. Playlists (rl:qol.lobbymaps) are a plain rotation in the server config, and
   the lobby's map picker lists every installed map.
 - Bots: the dedicated server's config file has no bot fields yet (the console's `set bots` works); its rotation

@@ -20,6 +20,14 @@ public static partial class MovementK
     [Provenance(ProvenanceKind.Decoded, "Reloaded.Core 0x1001ab50: bUsing (+0xc21) and fNormePadMove > 0.4 and not bFastSpeed (bit 5 of +0xc40): fNormePadMove = 0.4 (0x3ecccccd)")]
     public const float LedgeAssistNorm = 0.4f;
 
+    /// <summary>Reloaded's CheckGEForWallJump wrapper sets fGEZLocation to this (its default) before the test.</summary>
+    [Provenance(ProvenanceKind.Decoded, "Reloaded.Core 0x10023930: MOV [ECX + 0xb50], 0xc1200000 (-10.0)")]
+    public const float ReloadedWallJumpGEZPreset = -10f;
+
+    /// <summary>Reloaded sends no waist ledge grab until this long after the jump state was entered (1/64 s).</summary>
+    [Provenance(ProvenanceKind.Decoded, "Reloaded.Core 0x1001a1d0: (now - jump entry) in ns compared with 1e9 / 64")]
+    public const float ReloadedWaistAfterJump = 1f / 64f;
+
     [Provenance(ProvenanceKind.Decoded, "walking PlayerMove: aForward^2 + aStrafe^2 > 36000000")]
     public const float StickClampSquared = 36000000f;
 

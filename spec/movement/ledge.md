@@ -41,6 +41,7 @@ Units:
 - uc:SBase.SBasePawn:SendZipPToServer
 - nat:SBase.SPlayerController.TestTopLedge
 - nat:SBase.SPlayerController.bTestGrabLedgeGeo
+- rl:SBase.ASPlayerController.CheckLedgeArms (Reloaded's patches of the ledge arm test and the waist ledge event)
 - nat:SBase.SPlayerController.CheckBackFeetZone
 - rl:input.ledgeassist (Reloaded ledge assist, below)
 
@@ -99,14 +100,24 @@ rule: while `bUsing` is held (the Use key), in slow mode (`bFastSpeed` clear) an
 `fNormePadMove < 0.7` test (a slow diagonal gives 0.8 crouched, about 0.57 standing with Reloaded's diagonal scale)
 and turns back to grab the ledge (PlayerFallToBackGrab above). Without Use, or in fast mode, nothing changes.
 
-Two other Reloaded patches sit in the ledge code itself; both are decoded but not ported:
-- CheckLedgeArms (game 0x10aa4420): the conditional jump at 0x10aa470b (the `Fwd . N < -0.7` test of the walking
-  branch) is rewritten into a plain jump to the function's "no grab" exit, so AutoFeetLedge is never raised from
-  the arms test. Whether Reloaded raises it elsewhere (its foot climb fix, rl:fix.footclimb_fps) is open.
+Reloaded also patches the ledge code itself (all ported; spec/native/reloaded-hooks.md rule 30):
+- CheckLedgeArms (game 0x10aa4420), walking branch: the conditional jump at 0x10aa470b (the `Fwd . N < -0.7` test)
+  becomes a plain jump to the function's "no grab" exit, so AutoFeetLedge (the automatic hop onto a ledge 40 to 64
+  above the feet when running at it, which the walking states turn into a jump) is never raised. Nothing gives it
+  back: CheckLedgeArms is the only caller of the event in the game, Reloaded never raises it, and its physWalking
+  patches only swap operand addresses for a 0.001 constant (a frame rate fix). Net effect: running into a low
+  ledge no longer hops onto it; the player jumps himself (the jump then catches the ledge with the waist or hang
+  tests as usual).
+- CheckLedgeArms, waist branch: the window `Hp.Z - 18 < L.Z < Hp.Z + 22` becomes `Hp.Z - 24 < L.Z < Hp.Z + 23`
+  (Reloaded overwrites the two game doubles at start-up).
+- CheckLedgeArms, hang branch: `Hang.Z - 5 < Ref` becomes `Hang.Z - 20 < Ref` while the controller is in
+  `s_WallJumpSalto` (the wall jump climb); execCheckArmsZone's call to CheckLedgeArms goes through Reloaded
+  0x1001c330 / 0x1001c2a0, which sets the value from the controller's current state each time.
 - eventWaistLedge (game 0x10ab2df0): its entry jumps to Reloaded 0x1001a210, which sends the event only when at
   least 1/64 s (15.625 ms, the high resolution clock difference over 1e9) has passed since the local player last
   entered `s_PlayerJump` (a state entry hook stores the time). It stops a waist grab in the frame a jump starts at
-  high frame rates; at the rewrite's 60 Hz step the next tick is already past it.
+  high frame rates; at the rewrite's 60 Hz step it only blocks the tick the jump starts in. The rewrite keeps the
+  time on every controller (Reloaded: the local player only), so the server and the owner's prediction agree.
 
 ### GrabLedge (simulated)
 
@@ -278,9 +289,8 @@ repositioning moves set by the actions.
 Traces still useful to confirm the decoded top tests: pull up under a 150 uu ceiling, at a 30 uu thick wall top,
 with jump and with forward.
 
-- Reloaded's CheckLedgeArms patch turns off AutoFeetLedge from the arms test (above). Before porting it, check in
-  the reference game that running into a 40 to 64 uu ledge no longer climbs it, and whether another Reloaded hook
-  (physWalking 0x10ac6b40 is patched too) gives the foot climb back.
+- Reloaded's CheckLedgeArms patch turns off AutoFeetLedge (above, ported; the binary shows nothing that gives it
+  back). A reference-game check that running into a 40 to 64 uu ledge no longer hops onto it would still confirm it.
 
 ### Resolved
 

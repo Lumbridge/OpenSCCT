@@ -434,11 +434,19 @@ public sealed class MercHudPage : HudPage
 
         DriveArrows(reticule, s);
 
-        // Rule 3: the page instance goes to trunc(SpotReticule - half the A_Reticule box), the box as the original
-        // measures it (all its elements, hidden ones included; HudK.ReticleHalfBox), not the parts drawn now.
-        Vector2 aim = AimPoint(s);
-        reticule.PositionOverride = new Vector2(MathF.Truncate(aim.X - HudK.ReticleHalfBox.X), MathF.Truncate(aim.Y - HudK.ReticleHalfBox.Y));
+        // Rule 3 as Reloaded patches it (rl:fix.crosshair_shift): the page instance sits at a fixed spot, centred, or
+        // Reloaded's classic_crosshair spot; it no longer follows SpotReticule, so an aim kick does not move it sideways.
+        reticule.PositionOverride = ReticlePosition(Options.ClassicCrosshair);
     }
+
+    /// <summary>
+    /// Where the reticle's page instance goes (page units): Reloaded's fixed spot, centred (257, 179) or classic
+    /// (254, 182), drawn one unit up and left so the centre dot lands where the reference game draws it.
+    /// </summary>
+    [PortOf("rl:fix.crosshair_shift", Spec = "spec/hud/merc-reticle.md#rules")]
+    [PortOf("rl:qol.crosshair", Spec = "spec/hud/merc-reticle.md#rules")]
+    public static Vector2 ReticlePosition(bool classic) =>
+        (classic ? HudK.ReticleClassicSpot : HudK.ReticleCentredSpot) + HudK.ReticleDrawCalibration;
 
     /// <summary>
     /// The aim point in page units: SHud.SpotReticule (640 x 480 canvas units, stretched over the screen) brought to

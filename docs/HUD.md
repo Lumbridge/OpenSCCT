@@ -264,8 +264,9 @@ on the controller in use, scaled by `rumble_strength`. The Controller page's Tes
 **HUD extras.** `HudLocation` writes the name of the place the viewed pawn is in (the highest-priority named volume it
 touches, else its zone's name: the map data's LocationName) at the top centre (`show_location`; Enhanced's position
 is not decoded). `HudMarkers.HackAlpha` draws the icon of an objective being hacked at `hack_alpha` / 255.
-Not done: `classic_crosshair` (the reticle already sits on the aim point, centred at rest; the stock offset is not
-decoded) and Enhanced's Shocker snap option (the snap itself, FindAttClosestTarget, is not called yet).
+`classic_crosshair` (Options, HUD page, off by default) moves the merc reticle to Reloaded's classic spot, 3 page
+units left and 3 down of the centred one (`MercHudPage.ReticlePosition`, spec/hud/merc-reticle.md rule 3).
+Not done: Enhanced's Shocker snap option (the snap itself, FindAttClosestTarget, is not called yet).
 
 **Field of view.** `ViewFov` (Godot-free, unit tested) is Reloaded's rule 20 as its code does it (Reloaded.Core
 0x100a7080, 0x100a4ac0): with `widescreen` on the camera's FovAngle (horizontal over 4:3) keeps its 4:3 vertical angle
@@ -397,9 +398,11 @@ on Alternate Mode and its "Cinematic Camera" switch (offline they always work). 
   original. `HudOptions.KeyBoundTo` gives the key of a binding string from the player's layout.
 - The motion tracking lock boxes are drawn (brackets on the HUD, the clean view rectangles in the post pass,
   docs/RENDERING.md).
-- The merc's reticle sits on `SHud.SpotReticule` (spec/hud/merc-reticle.md rules 3 to 3d): HudMercAim runs PostRender's
+- The merc's aim point is `SHud.SpotReticule` (spec/hud/merc-reticle.md rules 3 to 3d): HudMercAim runs PostRender's
   part and HudDef's aim point helper before each snapshot, projecting the eye plus 15000 along MyDesiredRotation
-  through the last tick's calc view, and the page places A_Reticule with the original's half box (64, 62). Smoke
+  through the last tick's calc view. The reticle itself sits at Reloaded's fixed spot (centred, or classic with
+  `classic_crosshair`; rl:fix.crosshair_shift), not on the aim point, so an aim kick does not move it; the reticle
+  message and the binocular sights still follow the aim point. Smoke
   `play-reticle` (game/Scripts/Smoke/PlayReticleSmoke.cs) checks shots and a frag against the drawn dot. A noise from
   an actor the client does not have gives no sound arrow.
 - The original has no hit direction marker: damage feedback is the undirected wash or perturbation, the flash-bang

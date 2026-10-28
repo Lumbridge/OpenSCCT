@@ -284,7 +284,7 @@ makes is rewound: the merc rifle and SMG (`SWeaponDefense.TraceFire`), the shotg
 (`SWeaponAttaque.TraceFireWithPos`) and the spy bullet laser's trace. The shooter is never rewound (the trace skips
 it), the world, movers and the water probe stay live, and nothing is moved: the trace only reads recorded pills.
 Shots of the host's own authority-side code and bots on the server have no view time and see the live pose.
-The setting: `ServerSettings.LagCompensation` and `LagCompensationCeilingMs` (default 250, 0 to 1000), changed at run
+The setting: `ServerSettings.LagCompensation` and `LagCompensationCeilingMs` (default 120, 0 to 500: Reloaded's values), changed at run
 time through `ServerHost.LagCompensation` (`Enabled`, `CeilingMs`, `Command`); online sessions keep it across rounds
 (`OnlineServerSettings`, console and chat commands: docs/ONLINE.md "Lag compensation").
 

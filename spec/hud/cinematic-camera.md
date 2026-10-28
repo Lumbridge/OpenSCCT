@@ -56,6 +56,17 @@ The free camera (`ToggleFreeCamera`, native 1900):
 8. The controls (Enhanced 4.0 key rows): the movement keys fly it, Space and Ctrl go up and down, the mouse wheel
    sets the speed, Shift is fast and Alt is slow; on a pad the left stick moves, the triggers go up and down and the
    shoulder buttons set the speed. The camera passes through walls.
+8a. Reloaded's free camera tick (Reloaded 0x1000ea40, every frame on the player's machine while it flies): the step
+   is the time since its last tick, cut to 0..0.1 s. Two speeds: the chosen one (set to 600 at the start, the wheel
+   multiplies it by 1.2 per step up and divides by 1.2 per step down, kept within 30 to 12000, Reloaded 0x100b2010)
+   and the flying one, which moves towards the chosen one by `min(4 x step, 1)` of the gap each tick (about a quarter
+   of a second to catch up). Three axes, each -1..1: forward (forward key minus back key, W and S unless rebound),
+   side (D minus A), up (Space minus Ctrl); on a pad the left stick (with its dead zone) and the triggers, and for
+   each axis the keyboard wins when its value is at least as large. The move is `(forward x view axis + side x flat
+   right axis + up x world Z) x flying speed x step x factor`, the factor 4 while Shift is held, else 0.25 while
+   Alt is held, else 1; axes are not normalised, so a diagonal is faster. The camera's spot is written straight
+   into the controller's location: no collision. The view direction is the controller's own rotation (Reloaded's
+   tick only moves the camera).
 
 Hide HUD (`ToggleHideHud`, native 1901):
 
@@ -72,7 +83,7 @@ Hide HUD (`ToggleHideHud`, native 1901):
     held within +-16000; forward and back along the view, left and right flat, up with the Jump axis (aUp > 0)
     and down with Crouch. It then clears the controller's inputs (stick, mouse, every input byte), so whatever state
     the controller is in, the pawn stands still and does nothing; while flying only the FreeCam and HideHud commands
-    run. Speed: 600 uu/s, x1.25 or /1.25 per wheel step within 75 to 4800, x2 with Shift, x0.25 with Alt.
+    run. Speed as rule 8a (Reloaded's numbers).
 12. The free camera stops by itself (the saved view target and behind view come back) when the pawn dies or goes.
 13. The hide-HUD switch hides everything the HUD's `bHideHUD` hides, and the merc's aim point too (also hidden while
     the free camera flies, since the view is not the merc's).
@@ -82,10 +93,12 @@ Hide HUD (`ToggleHideHud`, native 1901):
 | Name | Value | Unit | Provenance | Source |
 |---|---|---|---|---|
 | Free camera speed | 600 | uu/s | decoded | Reloaded 0x10022f00 |
-| Wheel speed step | x1.25 | | estimated | ours |
-| Speed limits | 75 to 4800 | uu/s | estimated | ours |
-| Shift / Alt | x2 / x0.25 | | estimated | ours |
-| Pitch limit | +-16000 | rotator units | estimated | ours |
+| Wheel speed step | x1.2 | | decoded | Reloaded 0x100b2010 |
+| Speed limits | 30 to 12000 | uu/s | decoded | Reloaded 0x100b2010 |
+| Speed easing | min(4 x step, 1) of the gap per tick | | decoded | Reloaded 0x1000ea40 |
+| Longest step | 0.1 | s | decoded | Reloaded 0x1000ea40 |
+| Shift / Alt | x4 / x0.25 | | decoded | Reloaded 0x1000ea40 |
+| Pitch limit | +-16000 | rotator units | estimated | ours (Reloaded's tick does not turn the camera) |
 | Messages | "Free look is not enabled on this server.", "Hiding the hud is not enabled on this server." | | decoded | SPlayerController.FreeCam, HideHud |
 
 ## Network
@@ -113,12 +126,13 @@ the server's GRI and the answer comes back to the client's controller, where the
 - local/re-out/uc/SBase/SPlayerController.uc: FreeCam, HideHud, CinematicCameraGranted, ServerRequestFreeCam,
   ServerRequestHideHud, ClientStartFreeCam, ClientToggleHideHud, ClientSetCinematicCamera, PlayerTick (the
   FreeCameraFlying clears); the replication block.
-- Reloaded.Core v4.0d ToggleFreeCamera 0x10022f00, ToggleHideHud 0x10022e70 (spec/native/reloaded-hooks.md).
+- Reloaded.Core v4.0d ToggleFreeCamera 0x10022f00, ToggleHideHud 0x10022e70 (spec/native/reloaded-hooks.md); the
+  free camera tick 0x1000ea40 and the wheel speed steps in the input handler 0x100b2010.
 - Enhanced 4.0 GUI.int `[ExtraKeyRows]` Cinematic Camera section (the controls).
 
 ## Open questions
 
-1. The free camera's own tick inside Reloaded (turn rate, how the wheel and Shift/Alt scale the speed, collision)
-   was not decoded; rule 11 is the rewrite's estimate.
+1. The free camera's turn (rate and pitch limit) comes from the controller's rotation update, not Reloaded's tick
+   (rule 8a); the rewrite's turn in rule 11 is still its estimate. Speed, Shift/Alt and collision are decoded.
 2. Whether Reloaded stops the free camera when the pawn dies (rule 12 is ours).
 3. Pad controls (rule 8) are not wired in the rewrite yet.

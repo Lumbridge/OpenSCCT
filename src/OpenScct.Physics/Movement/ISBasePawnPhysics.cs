@@ -197,6 +197,9 @@ public interface ISPlayerControllerPhysics : IPhysicsEvents
     /// <summary>Length of the CheckGEForWallJump wall probes (500 by default).</summary>
     float fDistanceForContextualJump { get; }
 
+    /// <summary>True while the controller is in s_WallJumpSalto (Reloaded's ledge hang test reads it).</summary>
+    bool bInWallJumpSalto => false;
+
     /// <summary>True when this controller's pawn may be drop-attacked now.</summary>
     bool eventCanBeDropAttacked();
 

@@ -566,6 +566,11 @@ public sealed class GameSettings
     [Provenance(ProvenanceKind.Decoded, "spec/reloaded/FEATURES.md rl:qol.hackalpha hack_alpha = 178")]
     public int HackAlpha { get; set; } = 178;
 
+    /// <summary>The merc crosshair at the original off-centre spot (3 units left and 3 down) instead of centred.</summary>
+    [JsonPropertyName("classic_crosshair")]
+    [Provenance(ProvenanceKind.Decoded, "spec/reloaded/FEATURES.md rl:qol.crosshair classic_crosshair = false; Reloaded.Core 0x100a9140 / 0x100a9160")]
+    public bool ClassicCrosshair { get; set; }
+
     /// <summary>Profile bInFeet: the HUD's distances in feet instead of metres.</summary>
     [JsonPropertyName("hud_feet")]
     [Provenance(ProvenanceKind.Decoded, "SPlayerProfile bInFeet (no default: false, metres)")]

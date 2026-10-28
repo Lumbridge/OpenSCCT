@@ -12,7 +12,9 @@ rl:GUI.GUIController.LANParty_DumpPlayerInfo, rl:GUI.StrategicMap.UpdateTeamMate
 rl:GUI.GUIController.StepPlaylistMap, rl:GUI.GUIController.OpenSettingsTab,
 rl:SBase.SPlayerController.{ToggleFreeCamera, ToggleHideHud, RaiseChatLine, RaiseTeamChatLine,
 NativeOnlineFlags, NativeSetLiveState, NativeRenderCaps, NativeStoreRenderCaps, NativeRumbleEnable,
-NativeRumblePadStart, NativeRumblePadStop, NativeRumblePadTime, NativeRumblePadUpdate, NativeRumbleTriggers}
+NativeRumblePadStart, NativeRumblePadStop, NativeRumblePadTime, NativeRumblePadUpdate, NativeRumbleTriggers},
+rl:fix.jump_lockon, rl:fix.ko_after_interrupt, rl:fix.crosshair_shift, rl:qol.crosshair, rl:fix.disk_radar,
+rl:fix.camo_detection, rl:SBase.ASPlayerController.CheckLedgeArms
 
 ## Purpose
 
@@ -202,6 +204,49 @@ transfer study and the physics and net studies. Not analysed yet beyond the list
 | 0x10b26ce0 to 0x10b33094 | 17 unnamed functions in the Direct3D renderer range |
 | others | 0x109128b0, 0x10992100, 0x1099b130, 0x109ab740, 0x109ade10, 0x109e9890, 0x10a31fb0, 0x10a3d3b0, 0x10a415e0, 0x10a42620, 0x10a666d0, 0x10a96280, 0x10ab5df0, 0x10ab8cf0, 0x10aef530, 0x10af0390, 0x10af0730, 0x10af1d10, 0x10b08730 |
 
+Patches decoded so far (each rule lives in the subsystem spec named):
+
+29. **Drop-attack lock-on** (rl:fix.jump_lockon; physics-falling.md section 4). In physFalling's drop-attack scan
+    a hook after the horizontal speed test (game 0x10ad4bec, Reloaded 0x1001a2f0 / 0x1001a2c0) skips a target unless
+    `Location.Z - Other.Location.Z < 750`; both sight lines of the plain fall (0x10ad4cd5, 0x10ad4e9a) push trace
+    flags 0x2af instead of 0x29f (Others dropped, OnlyProjActor added, which alone selects nothing). The root-motion
+    fall (0x10ad3b6f) keeps 0x29f.
+30. **Ledge arm test** (CheckLedgeArms 0x10aa4420; ledge.md "Reloaded ledge assist"). The walking branch jumps to its
+    "no grab" exit (no AutoFeetLedge); the waist window's doubles 18 and 22 (0x10c10ff8, 0x10c10ff0) become 24 and 23;
+    the hang window's 5 (read through the pointer at 0x10aa4e8b) becomes a Reloaded double that execCheckArmsZone's
+    call (0x10aa56aa -> 0x1001c330 -> 0x1001c2a0) sets to 20 while the controller is in `s_WallJumpSalto`, else 5.
+    eventWaistLedge (0x10ab2df0 -> 0x1001a210) waits 1/64 s after the jump state was entered.
+31. **Merc reticle** (merc-reticle.md rule 3). The two stores of the reticle's page position (0x10b286d6, 0x10b286fa;
+    Reloaded 0x100a9140, 0x100a9160, installed by 0x100a9720) write constants instead of the SpotReticule-based
+    position: (257, 179), or (254, 182) with `classic_crosshair` (config byte 0x103ff835).
+32. **Disk carrier on the merc radar** (disk-flag.md rule 34). The merc update's speed test (0x10b27bf9) compares with
+    200 instead of 170 (0x1001ad50) and reads `ReceivedVelocity` except on a listen host (0x10b27bcf -> 0x1001ad60).
+33. **Security camera and camo** (security-camera.md rule 8). CheckPresence (0x10ab5f74 -> 0x1001a560) skips a pawn
+    whose `DesiredGlassEffect` is 255. A render hook in the scene traversal (0x10a3d6a4 -> 0x1001a5b0 / 0x1001a580)
+    sends a spy pawn with `GlassEffect` 255 down the plain draw path instead of the flagged-actor path while the local
+    goggle mode is 37 (motion tracking); the rewrite's renderer does not have that path yet.
+
+### State entry hooks
+
+Reloaded's GotoState wrapper (rule 3) calls its own state entry handler (Reloaded 0x10017d70) for the local player's
+controller with the new state's name. The handlers that matter for gameplay:
+
+34. `s_PlayerJump`: the high resolution time is stored (read by the waist ledge hook, rule 30).
+35. `s_Computer_FastLeave`, `s_Hack_FastLeave` (rl:fix.ko_after_interrupt): a flag makes the next frame call the
+    script's `GotoWaitingState` on the controller once (0x10017ca0, frame hook 0x100a74d0). The fast leaves' BeginState
+    already go to walking on the player's machine, but that inner ChangeState sends its PCChangeServerState before the
+    outer ChangeState sends the fast leave, so the server's controller stays in the fast leave state (the changelog's
+    symptom: the spy could not be knocked out or elbowed after interrupting). The second GotoWaitingState sends
+    walking again. The rewrite does the same
+    (SPlayerController.ReloadedStateHooks.cs).
+36. `s_UseObject_StickyCam_Leave` (0x10017cb0): flags the next frame to call `GotoWaitingState` (the quick exit of
+    rl:fix.stickycam_stuck), sets the input byte `bFireMode` while the pistol was out (cleared again on the next state
+    change), and either re-arms the sticky cam gadget (its `LastUsed = now - RefireRate - 0.1`, when `myHUD` field
+    +0x480 is 1) or moves `fDateLaunchedLastQuickGadget` back to `now - 1.85` so a quick gadget can fire at once. Not
+    ported.
+37. `s_Binoculars_Def` (0x10017c00): the sniper torch fix (rule 6). The `*_GoTo` states and `GameEnded`, `s_Dead`
+    set flags for Reloaded's own frame limiter and HUD (no gameplay effect).
+
 ## States
 
 None of their own. Free camera (rule 24) is a Reloaded mode on the local player.
@@ -272,6 +317,8 @@ replies. Everything else is local to one machine.
 2. Rule 13: compare the SFX types of the two versions one by one. Rule 21: the stock return value when
    the marker is off the map.
 3. Rule 2: name the two camera script functions (indices looked up at start-up).
-4. The direct code patches: physWalking, physFalling, ProcessServerMove, the ledge and arms tests and the
-   sticky camera view are gameplay; each needs a before/after reading and a note in the physics and net
-   specs.
+4. The direct code patches: physWalking (its operand patches point at a 0.001 constant), ProcessServerMove,
+   ExecuteAction's entry hook, physLedge, physRootMotion, TickSimulated, physRepositionning and the sticky camera
+   view are gameplay; each needs a before/after reading and a note in the physics and net specs. Decoded so far:
+   rules 29 to 33. The scene traversal hook of rule 33 (what the plain draw path gives a cloaked spy in motion
+   tracking vision) needs a renderer reading.

@@ -313,11 +313,15 @@ public sealed partial class PhysicsDriver
     /// <summary>
     /// The LG arm test (game 0x10aa4420): while walking the auto feet ledge (a ledge 40 to 64 above the feet, running
     /// at it); otherwise the waist ledge (standing room first, then crouched) and the hang (Ledge), each with its
-    /// position, facing, speed and clearance rules.
+    /// position, facing, speed and clearance rules. Reloaded patches this test: the auto feet ledge never fires, the
+    /// waist window is 24 below to 23 above (stock 18 and 22), and in s_WallJumpSalto the hang window starts 20 below
+    /// (stock 5); <see cref="ReloadedLedgeTest"/> picks Reloaded's numbers.
     /// </summary>
     [UcNative("ASPlayerController::CheckLedgeArms", Exe = 0x10aa4420, Editor = 0x111e95d0)]
     [PortOf("eng:ASPlayerController::CheckLedgeArms", Spec = "spec/native/physics-ge-queries.md#4-checkledgearmsge-second-ledge-waistledge-autofeetledge")]
+    [PortOf("rl:SBase.ASPlayerController.CheckLedgeArms", Spec = "spec/movement/ledge.md#reloaded-ledge-assist")]
     [Provenance(ProvenanceKind.Decoded, "spec/native/physics-ge-queries.md rule 4; ANSWERS-physics 11, 26")]
+    [Provenance(ProvenanceKind.Decoded, "Reloaded.Core start-up 0x1001c350: jump at game 0x10aa470b to the no-grab exit (no AutoFeetLedge); doubles 0x10c10ff8 18 -> 24 and 0x10c10ff0 22 -> 23; 0x10aa4e8b reads 0x10360ed8, set by 0x1001c2a0 to 20 in s_WallJumpSalto, else 5")]
     private void CheckLedgeArms(Pawn p, ISBasePawnPhysics sb, ISPlayerControllerPhysics pc, GERecord ge)
     {
         FVector loc = p.Location;
@@ -338,6 +342,11 @@ public sealed partial class PhysicsDriver
         bool facing = (fwd | n) < K.GE.GrabFacing;
         if (p.Physics == EPhysics.PHYS_Walking)
         {
+            if (ReloadedLedgeTest)
+            {
+                return;
+            }
+
             float top = c.Z + h;
             float dx = c.X + off * n.X - loc.X;
             float dy = c.Y + off * n.Y - loc.Y;
@@ -360,8 +369,10 @@ public sealed partial class PhysicsDriver
         float lz = StandingZ(p, sb);
         float wx = hp.X - loc.X;
         float wy = hp.Y - loc.Y;
-        if (facing && p.Velocity.Z > K.GE.WaistMinVelocityZ && p.Velocity.Z < K.GE.WaistMaxVelocityZ && lz > hp.Z + K.GE.WaistWindowLow &&
-            lz < hp.Z + K.GE.WaistWindowHigh && localV.X > K.GE.MinForwardSpeed && wx * wx + wy * wy < K.GE.WaistDistSq && !pc.bTestBackFeetGrab)
+        float waistLow = ReloadedLedgeTest ? K.GE.WaistWindowLowReloaded : K.GE.WaistWindowLow;
+        float waistHigh = ReloadedLedgeTest ? K.GE.WaistWindowHighReloaded : K.GE.WaistWindowHigh;
+        if (facing && p.Velocity.Z > K.GE.WaistMinVelocityZ && p.Velocity.Z < K.GE.WaistMaxVelocityZ && lz > hp.Z + waistLow &&
+            lz < hp.Z + waistHigh && localV.X > K.GE.MinForwardSpeed && wx * wx + wy * wy < K.GE.WaistDistSq && !pc.bTestBackFeetGrab)
         {
             var l = new FVector(loc.X, loc.Y, lz);
             var standUp = new FVector(l.X, l.Y, hp.Z + K.GE.WaistUp);
@@ -382,7 +393,8 @@ public sealed partial class PhysicsDriver
         }
 
         // Hang.
-        if (!LedgeHangAllowed(p, sb, ge, c, n, out FVector from, out FVector hang))
+        float hangLow = ReloadedLedgeTest && pc.bInWallJumpSalto ? K.GE.LedgeWindowLowSalto : K.GE.LedgeWindowLow;
+        if (!LedgeHangAllowed(p, sb, ge, c, n, hangLow, out FVector from, out FVector hang))
         {
             return;
         }
@@ -394,7 +406,8 @@ public sealed partial class PhysicsDriver
     }
 
     /// <summary>The hang rules of the ledge test before the clearance traces; gives the trace start and the hang spot.</summary>
-    private static bool LedgeHangAllowed(Pawn p, ISBasePawnPhysics sb, GERecord ge, FVector c, FVector n, out FVector from, out FVector hang)
+    private static bool LedgeHangAllowed(Pawn p, ISBasePawnPhysics sb, GERecord ge, FVector c, FVector n, float windowLow, out FVector from,
+        out FVector hang)
     {
         FVector loc = p.Location;
         FVector nh = new FVector(n.X, n.Y, 0f).SafeNormal();
@@ -404,7 +417,7 @@ public sealed partial class PhysicsDriver
         float endDist = SvmMath.Min(FVector.Dist(c, ge.P0), FVector.Dist(c, ge.P1));
         float hx = hang.X - loc.X;
         float hy = hang.Y - loc.Y;
-        return endDist >= K.GE.LedgeEndMargin && p.Velocity.Z > K.GE.LedgeMinVelocityZ && refZ > hang.Z + K.GE.LedgeWindowLow &&
+        return endDist >= K.GE.LedgeEndMargin && p.Velocity.Z > K.GE.LedgeMinVelocityZ && refZ > hang.Z + windowLow &&
                refZ < hang.Z + K.GE.LedgeWindowHigh && hx * hx + hy * hy < K.GE.LedgeDistSq;
     }
 

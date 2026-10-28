@@ -31,6 +31,9 @@ public sealed class HudOptions
     /// <summary>Reloaded's ping column next to the connected players list (rl:qol.scoreboard show_ping).</summary>
     public bool ShowPing { get; set; }
 
+    /// <summary>Reloaded's classic_crosshair: the merc reticle at the original off-centre spot (rl:qol.crosshair).</summary>
+    public bool ClassicCrosshair { get; set; }
+
     /// <summary>The name of the key a command is bound to in the player's layout (for the key tokens of page texts), or null.</summary>
     public Func<string, string?>? KeyName { get; set; }
 

@@ -5,6 +5,7 @@ Units:
 - eng:ASBasePawn::bCanLand
 - eng:ASBasePawn::processLanded
 - eng:AActor::TwoWallAdjust (used)
+- rl:fix.jump_lockon
 
 ## Purpose
 
@@ -63,6 +64,12 @@ Controller whose CanBeDropAttacked() returns true and whose SPawnType differs fr
    `(Z - H) - Other.Z + Other.H > -100` and Velocity.Z < -800: a zero-extent trace from Other.Location to
    Location (0x29f) that is clear or hits Other triggers: if Other is bStickySkinned,
    Controller.StickyBlast(Base) and keep scanning; else Controller.DropAttack(Other).
+3. Reloaded (rl:fix.jump_lockon, "jump lock-on only for enemies within 7.5 m vertically; works inside volumes"):
+   the homing of rule 1 also needs `Z - Other.Z < 750` (a target 7.5 m or more below is not locked on), and both
+   traces of rules 1 and 2 use flags 0x2af instead of 0x29f: Others (0x10) is gone and OnlyProjActor (0x20) alone
+   selects nothing, so volumes and other non-world actors between the two pawns no longer block the lock-on or the
+   trigger (Reloaded hooks at game 0x10ad4bec, 0x10ad4cd5, 0x10ad4e9a; spec/native/reloaded-hooks.md rule 29). The
+   root-motion fall's scan (physics-rootmotion-repositioning.md) is not patched and keeps 0x29f.
 
 ### 5. Sub-step loop
 

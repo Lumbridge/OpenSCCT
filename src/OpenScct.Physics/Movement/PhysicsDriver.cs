@@ -35,6 +35,12 @@ public sealed partial class PhysicsDriver : IActorPhysics
     /// <summary>The map's GE index, which the zone natives and the traversal modes search.</summary>
     public GEIndex GEs { get; }
 
+    /// <summary>
+    /// The ledge arm test as Reloaded patches it (no auto feet ledge, wider waist window, deeper hang window in the
+    /// wall jump climb; spec/movement/ledge.md). On, as in the reference game; off gives the stock test.
+    /// </summary>
+    public bool ReloadedLedgeTest { get; set; } = true;
+
     /// <summary>The physics driver of the level an actor is in, or null.</summary>
     public static PhysicsDriver? Of(Actor actor)
     {

@@ -148,6 +148,7 @@ public partial class OptionsRuntime : Node
         if (Hud is not null)
         {
             Hud.Options.ShowPing = s.ShowPing;
+            Hud.Options.ClassicCrosshair = s.ClassicCrosshair;
             Hud.Options.StretchHud = !s.Widescreen;
             Hud.ShowFps = s.ShowFps;
             Hud.ShowNet = s.ShowNet;

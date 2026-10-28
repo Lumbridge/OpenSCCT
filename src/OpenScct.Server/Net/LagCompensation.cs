@@ -24,11 +24,12 @@ namespace OpenScct.Server;
 public sealed class LagCompensation : IPillHistory
 {
     /// <summary>The ceiling a fresh server (and <c>!lagcomp reset</c>) uses.</summary>
-    [Provenance(ProvenanceKind.Estimated, "Reloaded's default ceiling was not decoded; 250 ms covers a 200 ms ping plus the view delay")]
-    public const int DefaultCeilingMs = 250;
+    [Provenance(ProvenanceKind.Decoded, "Reloaded.Core 0x103603a4 starts at 120 and !lagcomp reset writes 120 (0x10076455)")]
+    public const int DefaultCeilingMs = 120;
 
-    /// <summary>The largest ceiling accepted (the history holds a little more than this).</summary>
-    public const int MaxCeilingMs = 1000;
+    /// <summary>The largest ceiling accepted (the history holds more than this).</summary>
+    [Provenance(ProvenanceKind.Decoded, "Reloaded.Core !lagcomp <n> (0x10076435): below 0 gives 0, above 500 gives 500")]
+    public const int MaxCeilingMs = 500;
 
     /// <summary>Recorded ticks per pawn: one second at 60 Hz and a few more.</summary>
     private const int Frames = 64;
@@ -81,7 +82,7 @@ public sealed class LagCompensation : IPillHistory
 
     public float LastRewindMs { get; private set; }
 
-    /// <summary>The setting in Reloaded's words: "lagcomp: on - ceiling 250ms" or "lagcomp: off".</summary>
+    /// <summary>The setting in Reloaded's words: "lagcomp: on - ceiling 120ms" or "lagcomp: off".</summary>
     public string Describe() => _enabled
         ? string.Create(CultureInfo.InvariantCulture, $"lagcomp: on - ceiling {_ceilingMs}ms")
         : "lagcomp: off";

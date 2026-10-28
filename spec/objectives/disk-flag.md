@@ -16,6 +16,7 @@ Units:
 - uc:SBase.SPlayerController:s_FlagAndDropZone_GoTo.BeginState, uc:SBase.SPlayerController:s_FlagAndDropZone_GoTo.EndState, uc:SBase.SPlayerController:s_FlagAndDropZone_GoTo.NotifyBump, uc:SBase.SPlayerController:s_FlagAndDropZone_GoTo.NotifyHitWall, uc:SBase.SPlayerController:s_FlagAndDropZone_GoTo.PlayerMove, uc:SBase.SPlayerController:s_FlagAndDropZone_GoTo.TopSynchro
 - uc:SBase.SPlayerController:s_PutFlagInDropZone.BeginState, uc:SBase.SPlayerController:s_PutFlagInDropZone.EndState, uc:SBase.SPlayerController:s_PutFlagInDropZone.PawnTakeDamage, uc:SBase.SPlayerController:s_PutFlagInDropZone.AnimEnd, uc:SBase.SPlayerController:s_PutFlagInDropZone.PlayerMove
 - uc:SBase.SBasePawn:AnimNotifyPickup
+- rl:fix.disk_radar
 - partial: uc:SBase.SPlayerController:s_Dead.BeginState, uc:SBase.SPlayerController:s_PlayerFalling_OutOfWorld.BeginState, uc:SBase.SPlayerController:Destroyed (flag discard lines only); uc:SBase.SGameInfo:Killed (CarrierKiller line only)
 
 ## Purpose
@@ -110,6 +111,15 @@ Lock (alarm only; not reachable in SteeE):
 32. `s_Inactive` (after `Desactivate`): BeginState calls `StoppedMoving()` (which itself ends by entering `s_Initial`, and can arm the reset timer if away from home) and then `SetCollision(false, false, false)`; `Timer` does nothing.
 33. `LeaveCarrier` (event, native caller): `FlagCarrier.Controller.DiscardFlag()`. `Destroyed`: destroy the rack, then parent.
 
+Merc radar (rl:fix.disk_radar):
+
+34. The merc HUD's update (game 0x10b27bf9) puts a spy carrying the disk (`CarriedFlag` set) on the merc radar while
+    his speed is above a threshold: 170 uu/s in the stock game, 200 uu/s under Reloaded (its hook 0x1001ad50 swaps
+    the constant), so climbing a pole or a ladder with the disk no longer flashes him on the radar. Reloaded also
+    picks the speed it tests (hook 0x1001ad60): the pawn's `Velocity` on a listen host, its last replicated velocity
+    (`ReceivedVelocity`) on any other machine. A spy marked by the spy bullet shows whatever his speed (the radar
+    rules, not this spec).
+
 ### Throwing a hand item
 
 Rules T1 to T6 (SPlayerController ThrowObject and the s_Throw* states, SBasePawn.AnimNotifyThrow; decompiled
@@ -179,6 +189,7 @@ stateDiagram-v2
 | Hand attach | bone B L Hand, (8, -5, 0), rotation (-4000, 0, 0) drop / (-4000, 0, 16768) pickup notify | uu, rot | decoded | s_PutFlagInDropZone, AnimNotifyPickup |
 | Drop placement | B L Hand origin + (8, -5, 0) world | uu | decoded | SGamePlayObject.Throw |
 | Lid open | pitch +5000 at 20000/s | rot units | decoded | SFlagDropZone |
+| Carrier radar speed | 170 stock, 200 Reloaded | uu/s | decoded | game 0x10b27bf9, Reloaded.Core 0x1001ad50 (0x1032b820) |
 | Lid close delay | 1.5 | s | decoded | SFlagDropZone.Close |
 | Lid offset | (0, 0, 10) - 10 X | uu | decoded | SFlagDropZone.PostBeginPlay |
 | Unlock re-enable delay | 1.0 | s | decoded | s_TemporaryInactive.UnLock |

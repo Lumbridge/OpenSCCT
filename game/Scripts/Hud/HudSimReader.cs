@@ -467,8 +467,17 @@ public sealed class HudSimReader : IHudSource
     }
 
     /// <summary>
+    /// The disk carrier's speed the merc radar tests (Reloaded): the pawn's Velocity on a listen host, the last
+    /// replicated velocity (ReceivedVelocity) elsewhere, not the smoothed movement a client gives the proxy.
+    /// </summary>
+    [PortOf("rl:fix.disk_radar", Spec = "spec/objectives/disk-flag.md#rules")]
+    [Provenance(ProvenanceKind.Decoded, "Reloaded.Core 0x1001ad60 at game 0x10b27bcf: NetMode 2 reads Velocity (+0x8c), else ReceivedVelocity (+0x5d4)")]
+    private static float CarrierRadarSpeed(SPlayerController pc, SBasePawn q) =>
+        (pc.Level.NetMode == ENetMode.NM_ListenServer ? q.Velocity : q.ReceivedVelocity).Size();
+
+    /// <summary>
     /// Radar blips (Bridge radar notes 3.2 and 3.3): other pawns of the player's side are teammates; enemies show when
-    /// spy-bulleted by the player's side (and, for mercs, a spy carrying the disk faster than 170 uu/s); mercs also
+    /// spy-bulleted by the player's side (and, for mercs, a spy carrying the disk faster than 200 uu/s); mercs also
     /// get an alarm blip for every malfunctioning game object and every trigger in SHud.ObjectivesList (a terminal
     /// being hacked).
     /// </summary>
@@ -493,7 +502,7 @@ public sealed class HudSimReader : IHudSource
             {
                 s.Blips.Add(new HudBlip(HudBlipKind.Enemy, q.Location));
             }
-            else if (merc && q.CarriedFlag is not null && q.Velocity.Size() > HudK.FlagCarrierRadarSpeed)
+            else if (merc && q.CarriedFlag is not null && CarrierRadarSpeed(pc, q) > HudK.FlagCarrierRadarSpeed)
             {
                 s.Blips.Add(new HudBlip(HudBlipKind.Enemy, q.Location));
             }

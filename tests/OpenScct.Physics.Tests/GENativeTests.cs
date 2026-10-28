@@ -186,6 +186,11 @@ public sealed class GENativeTests
         p.m_CurrentArmsZone = V(39f, 0f, 0f);
         p.m_CurrentArmsRadius = 60f;
         p.Velocity = V(0f, 301f, 0f);
+
+        // Reloaded's test (the default) never raises it; the stock test does.
+        s.Driver.CheckArmsZone(p);
+        Assert.Equal(0, c.AutoFeetLedges);
+        s.Driver.ReloadedLedgeTest = false;
         s.Driver.CheckArmsZone(p);
         Assert.Equal(1, c.AutoFeetLedges);
 

@@ -61,9 +61,13 @@ public static class HudK
     [Provenance(ProvenanceKind.Decoded, "Bridge docs/overlays/radar.md 3.3")]
     public const int RadarAlarms = 5;
 
-    /// <summary>A disk carrier moving faster than this shows on the merc radar.</summary>
-    [Provenance(ProvenanceKind.Decoded, "Bridge docs/overlays/radar.md 3.3: |Velocity| > 170")]
-    public const float FlagCarrierRadarSpeed = 170f;
+    /// <summary>
+    /// A disk carrier moving faster than this shows on the merc radar: Reloaded's 200 (stock 170), so a spy climbing a
+    /// pole or a ladder with the disk no longer flashes on it (rl:fix.disk_radar).
+    /// </summary>
+    [Provenance(ProvenanceKind.Decoded, "Bridge docs/overlays/radar.md 3.3: |Velocity| > 170 (merc update game 0x10b27bf9)")]
+    [Provenance(ProvenanceKind.Decoded, "Reloaded.Core 0x1001ad50 replaces the 170.0 compare at game 0x10b27bf9 with 200.0 (0x1032b820)")]
+    public const float FlagCarrierRadarSpeed = 200f;
 
     // ---- reticle --------------------------------------------------------------------------------------------
 
@@ -75,13 +79,23 @@ public static class HudK
     public static readonly Vector2 ReticleCentre = new(320f, 240f);
 
     /// <summary>
-    /// Half the A_Reticule box the reticle driver centres on SpotReticule ((max - min) / 2 of its elements' rects,
-    /// accumulated from (0, 0); game 0x10b286a2 FUN_10ba4ab0). The elements' rect getter is not decoded: the half is
-    /// the one the original draws with (its centre dot one unit up and left of the aim point).
+    /// Reloaded's fixed spot of the reticle's page instance (rl:fix.crosshair_shift): it replaces the stock
+    /// ftol(SpotReticule - half the A_Reticule box) of the reticle driver, so the reticle no longer moves with the aim
+    /// point.
     /// </summary>
-    [OpenScct.Provenance.Provenance(OpenScct.Provenance.ProvenanceKind.Decoded, "reticle driver game 0x10b28550: pos = ftol(SpotReticule - (max - min) / 2), integer halves")]
-    [OpenScct.Provenance.Provenance(OpenScct.Provenance.ProvenanceKind.Measured, "sandbox capture at 1280 x 720: SpotReticule (320.5, 240.5), rond02 drawn from pixel (637, 357): instance at (256, 178)")]
-    public static readonly Vector2 ReticleHalfBox = new(64f, 62f);
+    [Provenance(ProvenanceKind.Decoded, "Reloaded.Core 0x100a9140 / 0x100a9160 at game 0x10b286d6 / 0x10b286fa: X 0x101, Y 0xb3 while classic_crosshair is off")]
+    public static readonly Vector2 ReticleCentredSpot = new(257f, 179f);
+
+    /// <summary>The same spot with Reloaded's classic_crosshair on: 3 units left and 3 down (rl:qol.crosshair).</summary>
+    [Provenance(ProvenanceKind.Decoded, "Reloaded.Core 0x100a9140 / 0x100a9160: X 0xfe, Y 0xb6 while classic_crosshair (0x103ff835) is on")]
+    public static readonly Vector2 ReticleClassicSpot = new(254f, 182f);
+
+    /// <summary>
+    /// Our page renderer draws the reticle's centre dot one unit right of and below the reference game's for the
+    /// same instance spot (its elements' rects are not decoded), so the spot is moved back by one unit.
+    /// </summary>
+    [Provenance(ProvenanceKind.Measured, "sandbox capture at 1280 x 720 (Reloaded on, centred): rond02 drawn from pixel (637, 357), which our renderer draws with the instance at (256, 178)")]
+    public static readonly Vector2 ReticleDrawCalibration = new(-1f, -1f);
 
     // ---- binoculars (spec/hud/binoculars.md) -------------------------------------------------------------------
 

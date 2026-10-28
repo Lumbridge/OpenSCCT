@@ -52,11 +52,18 @@ public partial class SPlayerController
         GetStateTable().Find(MovementStateNames.s_BarrierJumpDetect) is not null && SBPawn is { } pawn &&
         MovementNatives.Driver(this) is { } driver && driver.CheckBarrier(pawn);
 
-    /// <summary>The wall jump test of a running jump: a wall ahead and the ledge GE above it (see the physics driver).</summary>
+    /// <summary>
+    /// The wall jump test of a running jump: a wall ahead and the ledge GE above it (see the physics driver). Reloaded's
+    /// wrapper first puts fGEZLocation back to its default -10, so a ledge height left from an earlier wall jump never
+    /// carries into this one.
+    /// </summary>
     [UcNative("ASPlayerController::execCheckGEForWallJump", Exe = 0x10aa6250, Editor = 0x111eaf20)]
     [PortOf("nat:SBase.SPlayerController.CheckGEForWallJump", Spec = "spec/native/natives2-traversal.md#12-checkgeforwalljump-room-boxes-completes-physics-ge-queriesmd-rule-12")]
+    [PortOf("rl:SBase.SPlayerController.CheckGEForWallJump", Spec = "spec/native/reloaded-hooks.md#gameplay")]
+    [Provenance(ProvenanceKind.Decoded, "Reloaded.Core 0x10023930: fGEZLocation (+0xb50) = -10.0 (0xc1200000) before the original native")]
     public bool CheckGEForWallJump(FVector X, FVector Y, FVector Z, out float GEZPosition)
     {
+        fGEZLocation = MovementK.ReloadedWallJumpGEZPreset;
         GEZPosition = 0f;
         return SBPawn is { } pawn && MovementNatives.Driver(this) is { } driver && driver.CheckGEForWallJump(pawn, X, Y, Z, out GEZPosition);
     }

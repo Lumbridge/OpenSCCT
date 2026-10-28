@@ -57,7 +57,13 @@ public partial class SPlayerController
             PreviousState = StateNode.Name;
         }
 
-        return base.GotoState(NewState, Label);
+        EGotoState result = base.GotoState(NewState, Label);
+        if (result == EGotoState.GOTOSTATE_Success)
+        {
+            ReloadedStateEntered(NewState);
+        }
+
+        return result;
     }
 
     /// <summary>True for the player this machine controls (the host's own player, or a client's own copy).</summary>

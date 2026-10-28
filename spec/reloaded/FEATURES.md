@@ -186,7 +186,8 @@ difference is probably a Reloaded memory patch and needs its own spec entry.
 - **Players get:** sticky cams (v3.0) and possibly other shots (v4.0) feel responsive under latency.
 - **Evidence:** RL30, ENH 3.6; RC `!lagcomp` with `on|off|reset|<ceiling>` and "lagcomp: on - ceiling
   {}ms", "lagcomp: server-side setting" (RC@0x3394c4..0x3395c0).
-- **Config:** server-side, changed by chat command; no config key. Default ceiling unknown.
+- **Config:** server-side, changed by chat command; no config key. Decoded (Reloaded.Core 0x100758f0): on at
+  start-up, ceiling 120 ms, `reset` gives 120, a number is clamped to 0..500 (spec/net/lag-compensation.md).
 - **Stock:** none; clients see the server's view with full latency.
 - **Rewrite:** server keeps a ring buffer (about 1 s at 60 Hz) of hit volumes and launch-relevant state per
   pawn. A client fire or launch RPC carries its client time; the server rewinds to `min(estimated view
@@ -194,10 +195,9 @@ difference is probably a Reloaded memory patch and needs its own spec entry.
   chat command `!lagcomp` for admins. Must stay deterministic: rewind uses recorded tick states, not
   interpolation of floats from wall time.
 - **Priority:** P1 (original behaviour first, then this as a server option, default to match Reloaded).
-- **Open:** which actions Reloaded compensates (sticky cam only, or bullets and shocker too); the default
-  ceiling. Measure on a sandbox host with `!lagcomp` output.
+- **Open:** which actions Reloaded compensates (sticky cam only, or bullets and shocker too).
 - **Done (2026-10-28):** bone traces of every client combat call (merc guns, shotgun, spy pistol), off by
-  default, ceiling 250 ms (ours); spec/net/lag-compensation.md, docs/NETCODE.md. Sticky cam launches are not
+  default, ceiling 120 ms (Reloaded's, decoded later the same night); spec/net/lag-compensation.md, docs/NETCODE.md. Sticky cam launches are not
   rewound (projectiles).
 
 ### rl:net.fireprediction - Client fire prediction
@@ -726,6 +726,15 @@ Notes:
   slow-strafe speed must be measured or read from the decompiled Enhanced script (some may be in script,
   some in Reloaded memory patches). Tag each constant `measured` or `decoded` in the subsystem spec.
 - The camo and flashlight items apply only on Enhanced builds; since our target is Enhanced, they are on.
+- Decoded from Reloaded.Core (2026-10-28; spec/native/reloaded-hooks.md rules 29 to 37) and ported: jump_lockon
+  (physics-falling.md section 4 rule 3), ko_after_interrupt (state entry hook, rule 35), disk_radar (200 uu/s,
+  disk-flag.md rule 34), crosshair_shift (fixed reticle spot, merc-reticle.md rule 3), camo_detection for security
+  cameras (security-camera.md rule 8; the motion-vision draw hook is decoded but not ported). grab_angle: no
+  Reloaded patch touches the grab test (CanGrabPawn is script, iGrabAreaShift 7200 and fGrabHalfAngle 0.5 in the
+  Enhanced 4.0 package, ported as is), so the fix is in the shipped script or not identifiable without the stock
+  package. stickycam_none_left and camo_slot2: no Reloaded code; the Enhanced 4.0 script is ported as is.
+  stickycam_east_sound: Reloaded sets SStickyCam's default iReplicatedPitch and iReplicatedYaw to 12345678
+  (Reloaded.Core 0x1000f790) so that zero angles still replicate; not ported (spec/equipment/sticky-cam.md).
 
 ## 9. Anti-cheat and integrity
 
@@ -859,6 +868,8 @@ The rewrite never touches these checks. It provides its own protection:
 - **Config:** `classic_crosshair` = false.
 - **Rewrite:** HUD option; centred by default.
 - **Priority:** P0 (centred), P1 (option).
+- **Done (2026-10-28):** decoded (Reloaded.Core 0x100a9140 / 0x100a9160): the reticle's page instance at (257, 179),
+  or (254, 182) with the option; Options, HUD page, `classic_crosshair` (spec/hud/merc-reticle.md rule 3).
 
 ### rl:qol.matchlog - Match log
 - **Players get:** `ChaosTheory.log` with match info in UTC (mode, alternate rounds, time limit, number of

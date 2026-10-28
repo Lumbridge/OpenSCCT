@@ -504,9 +504,12 @@ public sealed partial class PhysicsDriver
     /// The drop-attack scan (section 4, and the root-motion variant): every SBasePawn of the other team that its
     /// controller lets be drop-attacked, last to first. Homing picks the target best lined up with the fall
     /// (cosine at least 0.92, in sight); the trigger, when the fall would not kill, raises StickyBlast (sticky-skinned
-    /// target, the scan goes on) or DropAttack. True when a trigger ends the scan.
+    /// target, the scan goes on) or DropAttack. True when a trigger ends the scan. In the plain fall Reloaded's fix
+    /// (rl:fix.jump_lockon) applies: homing ignores targets 750 or more below, and both sight lines ignore volumes and
+    /// other non-world actors.
     /// </summary>
     [Provenance(ProvenanceKind.Decoded, "spec/native/physics-falling.md section 4; physics-rootmotion-repositioning.md physFallingInRootMotion 2")]
+    [PortOf("rl:fix.jump_lockon", Spec = "spec/native/physics-falling.md#4-drop-attack-homing-and-trigger-authority-only")]
     [Provenance(ProvenanceKind.Estimated, "StickyBlast receives this pawn's Base as the spec reads; a DropAttack ends the falling scan (the spec does not say)")]
     private bool DropAttackScan(Pawn p, ISBasePawnPhysics sb, bool rootMotion)
     {
@@ -519,6 +522,7 @@ public sealed partial class PhysicsDriver
         Controller? ctrl = p.Controller;
         FVector fwd = p.Rotation.Vector();
         float h = p.CollisionHeight;
+        ETraceFlags sightFlags = rootMotion ? K.Flags.DropAttackSight : K.Flags.DropAttackSightReloaded;
         IReadOnlyList<Actor> actors = p.XLevel.Actors;
         for (int i = actors.Count - 1; i >= 0 && !p.bDeleteMe; i--)
         {
@@ -532,7 +536,8 @@ public sealed partial class PhysicsDriver
             FVector loc = p.Location;
             FVector oloc = other.Location;
             if (!rootMotion && oloc.Z + K.Fall.HomingHeight < loc.Z && p.Velocity.Z < 0f &&
-                (SvmMath.Abs(p.Velocity.X) > K.Fall.HomingMinSpeed || SvmMath.Abs(p.Velocity.Y) > K.Fall.HomingMinSpeed))
+                (SvmMath.Abs(p.Velocity.X) > K.Fall.HomingMinSpeed || SvmMath.Abs(p.Velocity.Y) > K.Fall.HomingMinSpeed) &&
+                loc.Z - oloc.Z < K.Fall.HomingMaxDrop)
             {
                 FVector t = (oloc - loc).SafeNormal();
                 FVector v = p.Velocity.SafeNormal() + fwd;
@@ -540,7 +545,7 @@ public sealed partial class PhysicsDriver
                 v = v.SafeNormal();
                 float cos = t | v;
                 if (cos >= best && !Collision.LineCheck(out _, p, oloc + new FVector(0f, 0f, K.Fall.HomingSightRaise), loc, default,
-                        K.Flags.DropAttackSight))
+                        sightFlags))
                 {
                     best = cos;
                     sb.m_AttackTarget = other;
@@ -562,7 +567,7 @@ public sealed partial class PhysicsDriver
                 continue;
             }
 
-            if (Collision.LineCheck(out FCheckResult sight, p, loc, oloc, default, K.Flags.DropAttackSight) && !ReferenceEquals(sight.Actor, other))
+            if (Collision.LineCheck(out FCheckResult sight, p, loc, oloc, default, sightFlags) && !ReferenceEquals(sight.Actor, other))
             {
                 continue;
             }

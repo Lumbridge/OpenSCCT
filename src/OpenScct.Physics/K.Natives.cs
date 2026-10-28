@@ -37,8 +37,16 @@ public static partial class K
         /// <summary>Falling narrow-top side probes.</summary>
         public const ETraceFlags SideProbe = (ETraceFlags)0x97;
 
-        /// <summary>Drop-attack line of sight.</summary>
+        /// <summary>Drop-attack line of sight (the root-motion fall keeps it).</summary>
         public const ETraceFlags DropAttackSight = (ETraceFlags)0x29f;
+
+        /// <summary>
+        /// Reloaded's drop-attack line of sight in the plain fall (rl:fix.jump_lockon): 0x29f with Others (0x10) swapped
+        /// for OnlyProjActor (0x20), which alone selects nothing, so volumes and other non-world actors no longer block
+        /// the lock-on and the trigger.
+        /// </summary>
+        [Provenance(ProvenanceKind.Decoded, "Reloaded.Core 0x1001a860 and 0x1001a870 replace PUSH 0x29f at game 0x10ad4cd5 and 0x10ad4e9a with PUSH 0x2af; physFallingInRootMotion 0x10ad3b6f is not patched")]
+        public const ETraceFlags DropAttackSightReloaded = (ETraceFlags)0x2af;
 
         /// <summary>Hand-over-hand legs probe (pawns only).</summary>
         public const ETraceFlags HohLegs = (ETraceFlags)0x201;
@@ -235,6 +243,10 @@ public static partial class K
 
         /// <summary>Homing needs a horizontal velocity component above this.</summary>
         public const float HomingMinSpeed = 40f;
+
+        /// <summary>Reloaded: homing only picks a target less than this far below (7.5 m; rl:fix.jump_lockon).</summary>
+        [Provenance(ProvenanceKind.Decoded, "Reloaded.Core 0x1001a2f0 at game 0x10ad4bec calls 0x1001a2c0: Location.Z - Other.Location.Z < 750, else the target is skipped")]
+        public const float HomingMaxDrop = 750f;
 
         /// <summary>The homing direction is lowered by this before normalising.</summary>
         public const float HomingDown = 3f;
@@ -559,6 +571,10 @@ public static partial class K
 
         public const float LedgeWindowLow = -5f;
 
+        /// <summary>Reloaded: the hang window's low end while the controller is in s_WallJumpSalto.</summary>
+        [Provenance(ProvenanceKind.Decoded, "Reloaded.Core 0x1001c2a0: the CheckLedgeArms 5.0 (game 0x10aa4e8b) becomes 20.0 in s_WallJumpSalto")]
+        public const float LedgeWindowLowSalto = -20f;
+
         public const float LedgeWindowHigh = 35f;
 
         public const float LedgeDistSq = 830f;
@@ -574,6 +590,13 @@ public static partial class K
         public const float WaistWindowLow = -18f;
 
         public const float WaistWindowHigh = 22f;
+
+        /// <summary>Reloaded's waist window: 24 below to 23 above.</summary>
+        [Provenance(ProvenanceKind.Decoded, "Reloaded.Core 0x1001c350 overwrites the game's doubles 0x10c10ff8 (18) with 24 and 0x10c10ff0 (22) with 23")]
+        public const float WaistWindowLowReloaded = -24f;
+
+        [Provenance(ProvenanceKind.Decoded, "Reloaded.Core 0x1001c350 overwrites the game's double 0x10c10ff0 (22) with 23")]
+        public const float WaistWindowHighReloaded = 23f;
 
         public const float WaistDistSq = 225f;
 

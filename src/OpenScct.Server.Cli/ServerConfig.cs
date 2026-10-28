@@ -232,7 +232,7 @@ internal sealed record ServerConfig
     /// </summary>
     public bool LagComp { get; init; }
 
-    /// <summary>The longest rewind of <see cref="LagComp"/> in milliseconds (0 to 1000).</summary>
+    /// <summary>The longest rewind of <see cref="LagComp"/> in milliseconds (0 to 500).</summary>
     public int LagCompCeilingMs { get; init; } = OpenScct.Server.LagCompensation.DefaultCeilingMs;
 
     /// <summary>The original's -lanplay switch (LAN tick cap and net speeds).</summary>

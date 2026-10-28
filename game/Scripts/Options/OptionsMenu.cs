@@ -515,6 +515,8 @@ public partial class OptionsMenu : Control
             v => _edit.FirePrediction = v);
         Check(g, "Location (the place you are in)", "show_location", _edit.ShowLocation, v => _edit.ShowLocation = v);
         Check(g, "Distances in feet", "hud_feet", _edit.HudFeet, v => _edit.HudFeet = v);
+        Check(g, "Classic crosshair position (merc, slightly off-centre)", "classic_crosshair", _edit.ClassicCrosshair,
+            v => _edit.ClassicCrosshair = v);
         // Reloaded's settings page offers 20 % to 100 %; stored 0 to 255.
         Slider(g, "Objective icon opacity while hacking (%)", "hack_alpha", 20f, 100f, 1f, Math.Max(20f, _edit.HackAlpha * 100f / 255f),
             v => _edit.HackAlpha = (int)MathF.Round(v * 255f / 100f), "0");

@@ -311,3 +311,12 @@ stateDiagram-v2
 ## Open questions
 - Scenario: fire a cam at a wall corner and record the cam location (confirms the probe order and push).
 - Whether Reloaded changes the gas scan (the emitter tick is not in the Reloaded hook list).
+- Reloaded's sticky cam code (2026-10-28 reading of Reloaded.Core): at start-up it sets SStickyCam's class defaults of
+  `iReplicatedPitch` and `iReplicatedYaw` to 12345678 (0x1000f790), so a cam whose angle is 0 (yaw 0 is east) still
+  replicates it instead of being taken for the default; this is the "activation sound for clients when fired east"
+  fix (rl:fix.stickycam_east_sound). Not ported: the rewrite's first bunch carries the cam's exact rotation and
+  PostNetBeginPlay sets both angles from it, so a client's cam already starts at the right angle; whether the
+  original's silence came from this alone is not known. The leave state hook (spec/native/reloaded-hooks.md rule 36,
+  rl:fix.stickycam_stuck) is not ported. No Reloaded code deals with launching with no cams left
+  (rl:fix.stickycam_none_left) or with the camo selection after a cam (rl:fix.camo_slot2): those are the Enhanced 4.0
+  script, which the rewrite ports as is (rules 1 and 2: no charge gives the empty click and nothing else).
