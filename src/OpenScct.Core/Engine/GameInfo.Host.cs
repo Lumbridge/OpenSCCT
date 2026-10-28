@@ -32,6 +32,8 @@ public readonly record struct GameCall(Name Function)
 
     public FRotator Rotation { get; init; }
 
+    public FVector Vector { get; init; }
+
     public Name Name1 { get; init; }
 
     public Name Name2 { get; init; }

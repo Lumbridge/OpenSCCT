@@ -17,8 +17,8 @@ Colliders, in this order:
    DT_StaticMesh, a StaticMesh, no Brush, bUseCylinderCollision false, and bCollideActors true. One collider per
    collision set the mesh has (per-polygon triangles and the simple-collision triangles from scctformats.smcollision),
    in mesh local space with the actor's transform, sharing vertices between actors of the same mesh. Kind: mover
-   (Mover and subclasses), glass (SVitre), gpo (SGamePlayObject and subclasses), attached (Base is a mover or animated
-   mesh), else meshPoly / meshHull. Gameplay objects also get colliders for their TriggeredMesh and DamagedMeshes
+   (Mover and subclasses), glass (SVitre), gpo (SBasicGamePlayObject and subclasses that are not bWorldGeometry),
+   attached (Base is a mover or animated mesh), else meshPoly / meshHull. Gameplay objects also get colliders for their TriggeredMesh and DamagedMeshes
    stages (startsDisabled; CSRC.variants says which stages use the mesh).
 4. Flags come from the actor's bCollideActors, bBlockActors, bBlockPlayers, bBlockZeroExtentTraces,
    bBlockNonZeroExtentTraces, bBlockCamera and bBulletGoTru, with the class defaults for what the map does not store.
@@ -461,7 +461,9 @@ class CollisionBuilder:
             return "mover", None
         if db.is_a(info.cls, "SBase.SVitre"):
             return "glass", None
-        if db.is_a(info.cls, "SBase.SGamePlayObject"):
+        # Gameplay objects (cameras, sensors, lasers, breakers ...) are not world geometry: traces see them as other
+        # actors (bullets from a pawn hit them) and their colliders follow the actor (a camera head turns).
+        if db.is_a(info.cls, "SBase.SBasicGamePlayObject") and not self.src.flag(info, "bWorldGeometry"):
             return "gpo", None
         base = self.src.value(info, "Base")
         if isinstance(base, Ref) and base.ref > 0:

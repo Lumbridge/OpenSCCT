@@ -449,6 +449,9 @@ public partial class SCamera
         public override void Code(Actor self, ref LatentFrame frame) => ((SCamera)self).PatrolCode(ref frame);
     }
 
+    /// <summary>The entry of s_Patrol's Begin label, where the state code loops back to.</summary>
+    private static readonly int PatrolBeginPc = UcMeta.s_Patrol.Labels[0].Pc;
+
     private void PatrolCode(ref LatentFrame f)
     {
         if (CheckPresence() && !bSomethingIsDetected)
@@ -456,7 +459,8 @@ public partial class SCamera
             Alert();
         }
 
-        f.Pc = 0;
+        // goto 'Begin' after the sleep (Pc 0 would mean "no code" and stop the checks after the first one).
+        f.Pc = PatrolBeginPc;
         Sleep(fCheckPeriode);
     }
 

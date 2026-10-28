@@ -134,6 +134,12 @@ Class defaults also set `TriggerMethode = TriggerControl`, `iPriority = 5`, `bCa
 - Render: the head turns through `DeviceViews` (the mesh follows Rotation, drawn where PreBeginPlay put it, 24 uu off
   the wall). The LED is `Skins[1]` drawn per surface from the gameplay pack's skin materials (renderpack
   `GAMEPLAY_SKINS`); the mount is drawn by `CameraMountViews`. Killed sparks stop spawning and die out in the views.
+- Collision: the camera's mesh colliders are converted as kind `gpo` (spec/svmap/1.1/collision.md), so they turn with
+  the head and bullet traces from a pawn hit them (a sticky shot locks the camera). The wall mount spawned at run
+  time has no mesh collider and collides as the default 22 uu cylinder at the camera's centre (open: the original
+  mount collides by its static mesh, if `camera_blindee_pied` has collision).
+- The head only turns on a client while the camera is relevant to it; relevancy looks from the server's copy of the
+  player's controller, which `UpdatePositionForServer` keeps at the client's camera (input-and-rotation.md rule 7).
 - Vision values (`HeatIntensity`, `EMFIntensity` 0.6 / 0.8 on 32 cameras) come from the map props through the
   gameplay mesh path.
 - The `Event` target `SAlarm` is ported elsewhere; until it is, the event reaches no behaviour.
