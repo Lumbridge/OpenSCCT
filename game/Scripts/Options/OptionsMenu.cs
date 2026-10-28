@@ -201,7 +201,8 @@ public partial class OptionsMenu : Control
         _keySource = new Label { Name = "Source", Modulate = UiStyle.Dim, AutowrapMode = TextServer.AutowrapMode.Arbitrary };
         page.AddChild(_keySource);
         var scroll = new ScrollContainer { Name = "Bindings", CustomMinimumSize = new Vector2(0f, 300f), SizeFlagsVertical = SizeFlags.ExpandFill };
-        _keyGrid = new GridContainer { Columns = 2, SizeFlagsHorizontal = SizeFlags.ExpandFill };
+        // Two side-by-side lists (label, key, gap, label, key) so the rows use the page's width.
+        _keyGrid = new GridContainer { Columns = 5, SizeFlagsHorizontal = SizeFlags.ExpandFill };
         _keyGrid.AddThemeConstantOverride("h_separation", 24);
         scroll.AddChild(_keyGrid);
         page.AddChild(scroll);
@@ -546,14 +547,17 @@ public partial class OptionsMenu : Control
         }
 
         _keyButtons.Clear();
-        foreach (KeyBindingRow r in _keys.Rows())
+        // The first half of the rows runs down the left list, the rest down the right one.
+        var rows = new List<KeyBindingRow>(_keys.Rows());
+        int half = (rows.Count + 1) / 2;
+        for (int i = 0; i < half; i++)
         {
-            _keyGrid.AddChild(new Label { Text = r.Label, SizeFlagsHorizontal = SizeFlags.ExpandFill, ClipText = true, CustomMinimumSize = new Vector2(520f, 0f) });
-            string key = r.Key;
-            var button = new Button { Name = key, Text = key, CustomMinimumSize = new Vector2(220f, 30f) };
-            button.Pressed += () => Listen(key);
-            _keyButtons[key] = button;
-            _keyGrid.AddChild(button);
+            AddKeyRow(rows[i]);
+            _keyGrid.AddChild(new Control { CustomMinimumSize = new Vector2(48f, 0f) });
+            if (i + half < rows.Count)
+            {
+                AddKeyRow(rows[i + half]);
+            }
         }
 
         if (_keySource is not null)
@@ -561,6 +565,16 @@ public partial class OptionsMenu : Control
             // The file's name, not the install's whole path.
             _keySource.Text = "Layout: " + System.IO.Path.GetFileName(_keys.Source);
         }
+    }
+
+    private void AddKeyRow(KeyBindingRow r)
+    {
+        _keyGrid!.AddChild(new Label { Text = r.Label, SizeFlagsHorizontal = SizeFlags.ExpandFill, ClipText = true, CustomMinimumSize = new Vector2(200f, 0f) });
+        string key = r.Key;
+        var button = new Button { Name = key, Text = key, CustomMinimumSize = new Vector2(220f, 30f) };
+        button.Pressed += () => Listen(key);
+        _keyButtons[key] = button;
+        _keyGrid.AddChild(button);
     }
 
     private void Listen(string key)
