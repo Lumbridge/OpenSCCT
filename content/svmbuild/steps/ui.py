@@ -1,8 +1,9 @@
 """P7 ui step: Magma pages, atlases, .mft fonts and Magma strings to shared/ui/ (svmbuild/uiconv, docs/HUD.md).
 
 Reads Menus/{Hud,Options,common}.mgm, Menus/Fonts/*.mft, Packages/Textures/{Hud,Options,common}_mgm.utx and
-SHudTextures.utx, and System/_PC_/Magma*.int. Missing optional files are listed in the manifest; a missing Hud.mgm
-fails the step, since the HUD cannot draw without it.
+SHudTextures.utx, System/_PC_/Magma*.int, and the stock key layouts System/Default_kbd_{0,1}.ini (copied to keys/).
+Missing optional files are listed in the manifest; a missing Hud.mgm fails the step, since the HUD cannot draw
+without it.
 """
 
 from __future__ import annotations
@@ -15,7 +16,7 @@ from ..sources import env
 
 class UiStep(Step):
     name = "ui"
-    version = 3
+    version = 4
     deps = ()
     per_map = False
     needs_game = True
@@ -31,7 +32,7 @@ class UiStep(Step):
         from ..uiconv import export  # noqa: PLC0415
 
         return {"packages": list(export.PACKAGES), "shud": list(export.SHUD_TEXTURES),
-                "strings": list(export.STRING_FILES), "language": env.language()}
+                "strings": list(export.STRING_FILES), "keys": list(export.KEY_FILES), "language": env.language()}
 
     def inputs(self, ctx: Context, unit: str | None) -> dict[str, str | None]:
         from ..uiconv.export import Sources  # noqa: PLC0415

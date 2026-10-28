@@ -210,9 +210,21 @@ repository is enough. It is encrypted with `ProtectedData` (DPAPI, `CurrentUser`
 
 ## Game content
 
-Maps, characters, UI, sounds and effects are converted on the player's machine from their own Splinter Cell Chaos
-Theory install. Converted maps and shared packs can also come from OpenSCCT-Content (docs/CONTENT-PACKS.md). They
-install to `%LOCALAPPDATA%\OpenSCCT\packs`, and the content converted here always wins over them.
+The original game is optional. With a Splinter Cell Chaos Theory install, maps, characters, UI, sounds and effects
+are converted on the player's machine from it. Without one, they are downloaded from OpenSCCT-Content
+(docs/CONTENT-PACKS.md) into `%LOCALAPPDATA%\OpenSCCT\packs`. Content converted here always wins over downloaded
+packs.
+
+**Without an install** (`PackedContent`): step 1 says the files will be downloaded, and step 3's button is
+"Download game files". The first download fetches the shared packs (core, chars, audio) and every playable `stock`
+map, about 1.9 GB. Later downloads fetch only newer copies of the shared packs and of maps already installed, so a
+map the player removed stays removed. Other maps come from the Maps window, or in game when a lobby or the hub picks
+them. The launcher fetches the index on each update check. When a newer pack is published, step 3 asks for a
+download before PLAY. PLAY needs the three shared packs. The game is then started without `--svm-content` and
+`--svm-game-root`, and finds the packs itself (`ContentPaths.Shared`). Downloaded files are in English, and the
+Language setting applies only to content built from an install. The stock key layouts come from the core pack's
+`ui/keys/` (the ui step copies `System\Default_kbd_0.ini` and `_1.ini` there). A pack published before the ui step
+v4 has no key layouts, and the game then uses its smaller built-in layout.
 
 **The builder ships with each build.** `tools/release/Build-ContentTools.ps1` (run by `New-Release.ps1`; skip with
 `-SkipContentTools`) puts `contenttools\` into the game build:
@@ -252,8 +264,8 @@ packages store French text, so without this a Steam copy showed French zone tips
 **The game finds it** through `--svm-content=<content>` (Play passes it; `SVM_CONTENT` also works): shared packs from
 `<content>\shared`, converted maps from `<content>\svmap` (`OpenScct.Server.ContentPaths`). The maps the game ships
 itself (the hub with `hubmap\hub.json`, TestBox) are in `maps\` next to the exe, copied from `fixtures\` by
-`New-Release.ps1`. A checkout still finds `.content` and `fixtures` as before. Play refuses to start until a content
-build has finished once.
+`New-Release.ps1`. A checkout still finds `.content` and `fixtures` as before. With an install, Play refuses to start until
+a content build has finished once.
 
 **Which install.** The builder reads a Versus folder (`System\_PC_` and `Packages`). The launcher finds it on its
 own at start (`GameLocator`): the Steam copy (app 13570) in any Steam library (Steam's path from the registry and
@@ -263,8 +275,8 @@ the Steam copy (2026-10-26): all 21 of its maps and every shared pack convert an
 its maps are the retail set (AQU03, BNK11, ...), not Enhanced SCCT Versus's 83. Props of maps the install does not
 have (the SteeE crane, `sqt13_anm`, and the other map anim packages) are skipped.
 
-A fresh player: install the launcher and press Install. The
-launcher finds the game, downloads the build, builds the content and then Play works.
+A fresh player: install the launcher and press Install. The launcher downloads the build, then builds the content
+from the game when it finds it, or downloads it when it does not, and then Play works.
 
 ## Downloaded maps
 

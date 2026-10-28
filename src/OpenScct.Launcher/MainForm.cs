@@ -24,9 +24,9 @@ using OpenScct.Launcher.Versioning;
 namespace OpenScct.Launcher.App;
 
 /// <summary>
-/// The launcher window, laid out as the three steps a player goes through: find Splinter Cell Chaos Theory, download
-/// OpenSCCT, prepare the game files from their copy. One big button always does the next thing and becomes PLAY when
-/// everything is ready. Less common actions (what's new, check again, roll back, settings) are in the row below it.
+/// The launcher window, laid out as the three steps a player goes through: find Splinter Cell Chaos Theory (optional),
+/// download OpenSCCT, prepare the game files (converted from their copy, or downloaded from OpenSCCT-Content when they
+/// have none). One big button always does the next thing and becomes PLAY when everything is ready. Less common actions (what's new, check again, roll back, settings) are in the row below it.
 /// </summary>
 internal sealed class MainForm : Form
 {
@@ -57,6 +57,7 @@ internal sealed class MainForm : Form
     private readonly LauncherLayout _layout = new(LauncherLayout.DefaultRoot);
     private readonly VersionStore _store;
     private readonly MapLibrary _maps;
+    private readonly ContentStore _packs;
     private readonly TokenStore _tokens;
     private readonly IGameProcessProbe _games = new GameProcessProbe();
     private readonly LauncherSwap? _swap;
@@ -66,6 +67,8 @@ internal sealed class MainForm : Form
     private UpdateCheck? _lastCheck;
     private CancellationTokenSource? _work;
     private bool _buildingContent;
+    private bool _downloadingContent;
+    private ContentIndex? _packIndex;
     private NextAction _next;
     private string _notesTitle = "What's new";
     private string _notesText = "Checking for releases...";
@@ -97,6 +100,7 @@ internal sealed class MainForm : Form
     {
         _store = new VersionStore(_layout);
         _maps = new MapLibrary(_layout.Maps);
+        _packs = new ContentStore(_layout.Packs, Http);
         _tokens = new TokenStore(_layout.Token, new DpapiProtector());
         _settings = LauncherSettings.Load(_layout.Settings);
         _service = CreateService();
@@ -108,7 +112,7 @@ internal sealed class MainForm : Form
         string? info = Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
         _launcherVersion = SemVersion.TryParse(info, out SemVersion? v) ? v : null;
 
-        _gameStep = new StepCard(1, "Find Splinter Cell Chaos Theory", _changeGame);
+        _gameStep = new StepCard(1, "Find Splinter Cell Chaos Theory (optional)", _changeGame);
         _installStep = new StepCard(2, "Download OpenSCCT");
         _filesStep = new StepCard(3, "Prepare the game files", _rebuild);
 
@@ -225,7 +229,7 @@ internal sealed class MainForm : Form
         };
 
         var tips = new ToolTip();
-        tips.SetToolTip(_changeGame, "Pick the folder you installed Splinter Cell Chaos Theory in.");
+        tips.SetToolTip(_changeGame, "Pick the folder you installed Splinter Cell Chaos Theory in. Without it the game files are downloaded.");
         tips.SetToolTip(_rebuild, "Prepare the game files again from your copy, for example if a map looks wrong.");
         tips.SetToolTip(_rollback, "Go back to the version you had before the last update.");
         tips.SetToolTip(_mapsButton, "Download new maps made by the community.");
@@ -353,12 +357,12 @@ internal sealed class MainForm : Form
         }
         else if (game.Length == 0)
         {
-            _gameStep.Set(StepState.Problem, "Not found on this PC. Install it from Steam, or choose the folder you installed it in.");
+            _gameStep.Set(StepState.Done, "Not found on this PC, so the game files are downloaded instead. If you have it, choose its folder to make them from your copy.");
             _changeGame.Text = "Choose folder...";
         }
         else
         {
-            _gameStep.Set(StepState.Problem, "This folder is not a Splinter Cell Chaos Theory install: " + game);
+            _gameStep.Set(StepState.Problem, "This folder is not a Splinter Cell Chaos Theory install, so the game files are downloaded instead: " + game);
             _changeGame.Text = "Choose folder...";
         }
     }
@@ -398,6 +402,12 @@ internal sealed class MainForm : Form
 
     private void RefreshFilesStep(SemVersion? current, bool busy)
     {
+        if (!GameFound)
+        {
+            RefreshPackFilesStep(current);
+            return;
+        }
+
         ContentState? state = ContentState.Load(_layout.Content);
         bool hasBuilder = current is not null && ContentBuildPlan.Python(_layout.VersionDir(current.ToString())) is not null;
         _rebuild.Visible = state is { Ok: true } && !_buildingContent;
@@ -439,22 +449,61 @@ internal sealed class MainForm : Form
         }
     }
 
+    /// <summary>Step 3 without an install: the game files come from OpenSCCT-Content.</summary>
+    private void RefreshPackFilesStep(SemVersion? current)
+    {
+        _rebuild.Visible = false;
+        if (_downloadingContent)
+        {
+            _filesStep.Set(StepState.Todo, "Downloading the maps, characters and sounds...");
+        }
+        else if (current is null)
+        {
+            _filesStep.Set(StepState.Waiting, "Downloaded once step 2 is done (you do not need your own copy of the game).");
+        }
+        else if (!PackedContent.Installed(_packs))
+        {
+            string size = _packIndex is { } index
+                ? " (about " + Gb(PackedContent.DownloadSize(PackedContent.SharedToFetch(index, _packs), PackedContent.MapsToFetch(index, _packs, firstDownload: true))) + ")"
+                : string.Empty;
+            _filesStep.Set(StepState.Todo, $"Downloads the maps, characters and sounds{size}. You can stop and carry on later.");
+        }
+        else if (!PacksCurrent())
+        {
+            _filesStep.Set(StepState.Todo, "Newer game files are available. Download them to play with everyone else.");
+        }
+        else
+        {
+            int maps = _packs.Installed().Count(p => !p.IsShared);
+            _filesStep.Set(StepState.Done, $"Ready: {maps} maps downloaded. Get more from Maps.");
+        }
+    }
+
+    /// <summary>The downloaded game files are installed and, when the index is known, none has a newer copy.</summary>
+    private bool PacksCurrent() =>
+        PackedContent.Installed(_packs)
+        && (_packIndex is not { } index
+            || (PackedContent.SharedToFetch(index, _packs).Count == 0 && PackedContent.MapsToFetch(index, _packs, firstDownload: false).Count == 0));
+
+    /// <summary>The game files are ready for the current version: built from the install, else downloaded.</summary>
+    private bool FilesReady(SemVersion? current) => GameFound ? ContentIsCurrent(current) : current is not null && PacksCurrent();
+
     /// <summary>The big button: the next thing to do, or PLAY.</summary>
     private void RefreshMainButton(SemVersion? current, bool busy)
     {
         (NextAction next, string text, bool enabled) = busy
-            ? (NextAction.Cancel, _buildingContent ? "Stop" : "Cancel", true)
-            : !GameFound
-                ? (NextAction.ChooseGame, "Choose game folder", true)
-                : current is null
-                    ? _lastCheck is { Latest: not null, GameUpdateAvailable: true }
-                        ? (NextAction.Install, "Install", true)
-                        : (NextAction.Check, _lastCheck is null ? "Check for updates" : "Check again", true)
-                    : _lastCheck is { GameUpdateAvailable: true }
-                        ? (NextAction.Update, "Update", true)
-                        : !ContentIsCurrent(current)
+            ? (NextAction.Cancel, _buildingContent || _downloadingContent ? "Stop" : "Cancel", true)
+            : current is null
+                ? _lastCheck is { Latest: not null, GameUpdateAvailable: true }
+                    ? (NextAction.Install, "Install", true)
+                    : (NextAction.Check, _lastCheck is null ? "Check for updates" : "Check again", true)
+                : _lastCheck is { GameUpdateAvailable: true }
+                    ? (NextAction.Update, "Update", true)
+                    : !FilesReady(current)
+                        ? GameFound
                             ? (NextAction.Prepare, "Prepare game files", ContentBuildPlan.Python(_layout.VersionDir(current.ToString())) is not null)
-                            : (NextAction.Play, "PLAY", true);
+                            : (NextAction.Prepare, "Download game files", true)
+                        : (NextAction.Play, "PLAY", true);
         _next = next;
         _check.Visible = next != NextAction.Check;
         _main.Text = text;
@@ -479,7 +528,7 @@ internal sealed class MainForm : Form
                 await RunAsync(UpdateGameAsync);
                 break;
             case NextAction.Prepare:
-                await RunAsync(BuildContentAsync);
+                await RunAsync(GameFound ? BuildContentAsync : DownloadContentAsync);
                 break;
             case NextAction.Play:
                 Play();
@@ -701,8 +750,71 @@ internal sealed class MainForm : Form
         }
     }
 
+    /// <summary>
+    /// Downloads the game files from OpenSCCT-Content for a player without an install: the shared packs, and the stock
+    /// maps the first time (later only newer copies of maps already downloaded). The store resumes a stopped download
+    /// and checks every archive and file.
+    /// </summary>
+    private async Task DownloadContentAsync(CancellationToken cancel)
+    {
+        _downloadingContent = true;
+        RefreshLocal();
+        try
+        {
+            SetStatus("Loading the list of game files...", Theme.Muted);
+            ContentIndex index = await _packs.FetchIndexAsync(cancel);
+            if (index.Problem is { } problem && index.Shared.Count == 0)
+            {
+                throw new IOException(problem);
+            }
+
+            _packIndex = index;
+            bool first = !PackedContent.Installed(_packs);
+            IReadOnlyList<ContentSharedPack> shared = PackedContent.SharedToFetch(index, _packs);
+            IReadOnlyList<ContentMap> maps = PackedContent.MapsToFetch(index, _packs, first);
+            int total = shared.Count + maps.Count;
+            int n = 0;
+            foreach (ContentSharedPack pack in shared)
+            {
+                n++;
+                string name = pack.Title.Length > 0 ? pack.Title : pack.Id;
+                await _packs.InstallSharedAsync(pack, PackReporter($"{name} ({n} of {total})"), cancel);
+            }
+
+            foreach (ContentMap map in maps)
+            {
+                n++;
+                await _packs.InstallMapAsync(map, ContentKind.Full, PackReporter($"{map.DisplayTitle} ({n} of {total})"), cancel);
+            }
+
+            SetStatus("All set. Press PLAY.", Theme.Accent);
+        }
+        finally
+        {
+            _downloadingContent = false;
+        }
+    }
+
+    /// <summary>The index of OpenSCCT-Content (fetched, else the cached copy), so step 3 can tell newer game files.</summary>
+    private async Task RefreshPackIndexAsync(CancellationToken cancel)
+    {
+        try
+        {
+            _packIndex = await _packs.FetchIndexAsync(cancel);
+        }
+        catch (Exception ex) when (ex is IOException or HttpRequestException)
+        {
+            // Offline with no cached index: step 3 only checks the packs are there.
+        }
+    }
+
     private async Task CheckAsync(CancellationToken cancel)
     {
+        if (!GameFound)
+        {
+            await RefreshPackIndexAsync(cancel);
+        }
+
         SetStatus("Looking for updates...", Theme.Muted);
         using var timeout = CancellationTokenSource.CreateLinkedTokenSource(cancel);
         timeout.CancelAfter(TimeSpan.FromSeconds(30));
@@ -778,9 +890,9 @@ internal sealed class MainForm : Form
         await CheckAsync(cancel);
 
         // A new install (or a changed builder) needs its game files before PLAY: carry straight on.
-        if (outcome == InstallOutcome.Activated && !ContentIsCurrent(_store.Current()) && GameFound)
+        if (outcome == InstallOutcome.Activated && !FilesReady(_store.Current()))
         {
-            await BuildContentAsync(cancel);
+            await (GameFound ? BuildContentAsync(cancel) : DownloadContentAsync(cancel));
         }
     }
 
@@ -844,16 +956,19 @@ internal sealed class MainForm : Form
             return;
         }
 
-        if (ContentState.Load(_layout.Content) is not { Ok: true })
+        // Content built from an install wins; without it the downloaded packs are enough (the game finds them itself).
+        bool built = ContentState.Load(_layout.Content) is { Ok: true };
+        if (!built && !PackedContent.Installed(_packs))
         {
-            SetStatus("Prepare the game files first (step 3).", Theme.Warning);
+            SetStatus("Get the game files first (step 3).", Theme.Warning);
             return;
         }
 
         string exe = _store.ExePath(current);
         try
         {
-            using Process? process = Process.Start(GameStart.Create(exe, _settings.OriginalGamePath, _layout.Content, mapsRoot: _layout.Maps));
+            using Process? process = Process.Start(GameStart.Create(exe, GameFound ? _settings.OriginalGamePath : null,
+                built ? _layout.Content : null, mapsRoot: _layout.Maps));
             SetStatus($"Started OpenSCCT {current}.", Theme.Accent);
             WindowState = FormWindowState.Minimized;
         }
@@ -948,6 +1063,22 @@ internal sealed class MainForm : Form
             _progressText.Text = p.Total > 0 ? $"{Mb(p.Received)} of {Mb(p.Total)}{rate}" : Mb(p.Received) + rate;
         });
     }
+
+    private Progress<PackProgress> PackReporter(string prefix)
+    {
+        _progress.Fraction = 0;
+        _progress.Visible = true;
+        return new Progress<PackProgress>(p =>
+        {
+            _progress.Fraction = p.Total > 0 ? (double)p.Received / p.Total : 1;
+            _progressText.Text = p.Extracting ? $"{prefix}: installing..." : $"{prefix}: {Mb(p.Received)} of {Mb(p.Total)}";
+        });
+    }
+
+    private static string Gb(long bytes) =>
+        bytes >= 1L << 30
+            ? (bytes / (double)(1L << 30)).ToString("0.0", CultureInfo.CurrentCulture) + " GB"
+            : Mb(bytes);
 
     /// <summary>
     /// "12 of 140 done · 3:05 so far · Working on characters, Ark and 2 more": what a content build is doing, with a

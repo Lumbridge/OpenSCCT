@@ -50,6 +50,9 @@ MENU_TEXTURES = {
 # layout's command lines (whose aliases are French: AliasHaut, AliasGauche...).
 STRING_FILES = ("Magma", "MagmaDynamic", "Engine", "GUI")
 
+# The stock key layouts (spy, merc), copied as they are to keys/: the game reads them when the player has no install.
+KEY_FILES = ("Default_kbd_0.ini", "Default_kbd_1.ini")
+
 
 @dataclass
 class Sources:
@@ -81,6 +84,9 @@ class Sources:
         root = self.game / "System" / "_PC_"
         return cd.localization_file(root, name) or root / f"{name}.int"
 
+    def keys(self, name: str) -> Path:
+        return self.game / "System" / name
+
     def all_inputs(self) -> list[Path]:
         files = [self.mgm(p) for p in PACKAGES] + [self.texture_package(p) for p in PACKAGES]
         files.append(self.shud_textures)
@@ -89,6 +95,7 @@ class Sources:
         if fonts.is_dir():
             files += sorted(fonts.glob("*.mft"))
         files += [self.strings(s) for s in STRING_FILES]
+        files += [self.keys(k) for k in KEY_FILES]
         return files
 
 
@@ -239,7 +246,17 @@ def export_ui(game: Path, out_dir: Path) -> Report:
         table[name] = strings.parse_int(path.read_bytes())
     _write_json(out_dir / "strings.json", table)
 
+    keys = []
+    for name in KEY_FILES:
+        path = src.keys(name)
+        if not path.is_file():
+            report.missing.append(f"System/{name}")
+            continue
+        (out_dir / "keys").mkdir(parents=True, exist_ok=True)
+        (out_dir / "keys" / name).write_bytes(path.read_bytes())
+        keys.append(f"keys/{name}")
+
     manifest = {"format": UI_FORMAT, "packages": report.packages, "fonts": report.fonts, "textures": report.textures,
-                "strings": "strings.json", "missing": sorted(report.missing), "warnings": report.warnings}
+                "strings": "strings.json", "keys": keys, "missing": sorted(report.missing), "warnings": report.warnings}
     _write_json(out_dir / "manifest.json", manifest)
     return report

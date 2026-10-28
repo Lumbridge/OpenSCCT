@@ -115,6 +115,12 @@ public sealed class InputBindings
             layout = KeyLayout.Load(original);
             source = original;
         }
+        else if (SharedLayout(file) is { } shared)
+        {
+            // No install: the stock layout the ui step copied into the shared content (built or downloaded).
+            layout = KeyLayout.Load(shared);
+            source = shared;
+        }
         else
         {
             layout = KeyLayout.Parse(FallbackLayout);
@@ -149,6 +155,13 @@ public sealed class InputBindings
         }
 
         return bindings;
+    }
+
+    /// <summary>The stock layout <paramref name="file"/> in the shared content's ui/keys, or null.</summary>
+    private static string? SharedLayout(string file)
+    {
+        string path = Path.Combine(OpenScctGame.Hud.HudAssets.DefaultRoot(), "keys", file);
+        return File.Exists(path) ? path : null;
     }
 
     /// <summary>

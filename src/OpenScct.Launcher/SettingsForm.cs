@@ -114,12 +114,12 @@ internal sealed class SettingsForm : Form
         Row(Theme.Wrapping(_tokenState));
         Row(_removeToken);
         Row(Theme.Flow(false, _prereleases, _checkOnStart), 6);
-        Row(Theme.Label("Original game", Theme.Heading, Theme.Accent), 18);
-        Row(Theme.Wrapping(Theme.Label("Splinter Cell Chaos Theory folder (read only; game content is built from it). Found by itself for the Steam copy.", Theme.Small, Theme.Muted)), 6);
+        Row(Theme.Label("Original game (optional)", Theme.Heading, Theme.Accent), 18);
+        Row(Theme.Wrapping(Theme.Label("Splinter Cell Chaos Theory folder (read only). With it, game content is built from your copy; without it, it is downloaded. Found by itself for the Steam copy.", Theme.Small, Theme.Muted)), 6);
         Row(game);
         Row(Theme.Wrapping(_gameState));
         Row(Theme.Label("Language", Theme.Heading, Theme.Accent), 18);
-        Row(Theme.Wrapping(Theme.Label("The game's text (maps, briefings, messages and menus) from your install's language files. Changing it builds the content again.", Theme.Small, Theme.Muted)), 6);
+        Row(Theme.Wrapping(Theme.Label("The game's text (maps, briefings, messages and menus) from your install's language files. Changing it builds the content again. Downloaded game files are in English.", Theme.Small, Theme.Muted)), 6);
         Row(_language);
         Row(Theme.Label("Folders", Theme.Heading, Theme.Accent), 18);
         Row(Link("Launcher and game versions: " + layout.Root, layout.Root), 6);
