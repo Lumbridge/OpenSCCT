@@ -128,6 +128,27 @@ public partial class MenuPage : Control
         AddChild(_bar);
     }
 
+    /// <summary>
+    /// Turns the page title into a splash line (the main menu's trivia): smaller, in sentence case, in the menu's
+    /// highlight green, still typed out. Call after <see cref="BuildFrame"/>.
+    /// </summary>
+    protected void UseSplashTitle()
+    {
+        if (_title is null)
+        {
+            return;
+        }
+
+        _title.Uppercase = false;
+        _title.LabelSettings.FontSize = UiStyle.IsOriginal ? 20 : UiArt.BodySize + 3;
+        _title.LabelSettings.FontColor = UiStyle.IsOriginal ? UiStyle.MenuFocus : UiArt.Accent;
+        _title.OffsetTop = 30f;
+        _title.OffsetLeft = 90f;
+        _title.OffsetRight = -90f;
+        _title.ClipText = true;
+        _title.TextOverrunBehavior = TextServer.OverrunBehavior.TrimEllipsis;
+    }
+
     /// <summary>The modern look's thin rules under the title and above the page buttons.</summary>
     private void AddRule(string name, bool top)
     {

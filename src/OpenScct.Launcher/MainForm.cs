@@ -147,7 +147,7 @@ internal sealed class MainForm : Form
             Margin = new Padding(0, 0, 12, 0),
             BackColor = Color.Transparent,
         };
-        Label title = Theme.Label("OpenSCCT", Theme.Title, Theme.Accent);
+        var title = new Wordmark { Margin = new Padding(3, 0, 3, 0) };
         Label subtitle = Theme.Label("Splinter Cell Chaos Theory Versus, rebuilt", Theme.Small, Theme.Muted);
         TableLayoutPanel header = Theme.Grid(Theme.Auto, Theme.Fill);
         Theme.AddRow(header, logo, Theme.Flow(true, title, subtitle));

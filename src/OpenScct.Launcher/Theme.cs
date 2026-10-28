@@ -228,3 +228,49 @@ internal sealed class GreenProgressBar : Control
         e.Graphics.DrawRectangle(pen, 0, 0, ClientSize.Width - 1, ClientSize.Height - 1);
     }
 }
+
+/// <summary>
+/// The OpenSCCT name in two tones, as game/branding's splash draws it (tools/branding/make_branding.py): "Open" in the
+/// light text colour and "SCCT" in the accent green.
+/// </summary>
+internal sealed class Wordmark : Control
+{
+    private const string Light = "Open";
+    private const string Bold = "SCCT";
+    private const TextFormatFlags Flags = TextFormatFlags.NoPadding | TextFormatFlags.NoPrefix | TextFormatFlags.SingleLine;
+
+    /// <summary>The splash's colour for "Open".</summary>
+    public static readonly Color LightColor = Color.FromArgb(225, 235, 228);
+
+    public Wordmark()
+    {
+        SetStyle(ControlStyles.SupportsTransparentBackColor | ControlStyles.OptimizedDoubleBuffer | ControlStyles.UserPaint
+                 | ControlStyles.AllPaintingInWmPaint | ControlStyles.ResizeRedraw, true);
+        BackColor = Color.Transparent;
+        Font = Theme.Title;
+        Text = Light + Bold;
+        AccessibleName = Light + Bold;
+        Size = GetPreferredSize(Size.Empty);
+    }
+
+    public override Size GetPreferredSize(Size proposedSize)
+    {
+        Size light = TextRenderer.MeasureText(Light, Font, Size.Empty, Flags);
+        Size bold = TextRenderer.MeasureText(Bold, Font, Size.Empty, Flags);
+        // A little room below for descenders and the label-like line height.
+        return new Size(light.Width + bold.Width + 2, Math.Max(light.Height, bold.Height) + 4);
+    }
+
+    protected override void OnFontChanged(EventArgs e)
+    {
+        base.OnFontChanged(e);
+        Size = GetPreferredSize(Size.Empty);
+    }
+
+    protected override void OnPaint(PaintEventArgs e)
+    {
+        int light = TextRenderer.MeasureText(e.Graphics, Light, Font, Size.Empty, Flags).Width;
+        TextRenderer.DrawText(e.Graphics, Light, Font, new Point(0, 0), LightColor, Flags);
+        TextRenderer.DrawText(e.Graphics, Bold, Font, new Point(light, 0), Theme.Accent, Flags);
+    }
+}
