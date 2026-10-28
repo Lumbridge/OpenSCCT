@@ -351,9 +351,10 @@ public partial class CombatFxView : Node3D
             Add("SBase.sMuzzleCanon", 1f, new FVector(1f, 1f, 1f));
         }
 
-        if (source is SWeaponDefense_Shotgun or SWeaponDefenseDummy_Shotgun)
+        if ((source is SWeaponDefense_Shotgun or SWeaponDefenseDummy_Shotgun) &&
+            _effects?.Spawn("SBase.SShotGunEmitter", origin, aim) is { } spray && source.Instigator is { } shooter)
         {
-            _effects?.Spawn("SBase.SShotGunEmitter", origin, aim);
+            AddShooterVelocity(spray, shooter);
         }
 
         FVector casing = origin;
@@ -369,6 +370,33 @@ public partial class CombatFxView : Node3D
         }
 
         return any;
+    }
+
+    /// <summary>
+    /// SShotGunEmitter.PostBeginPlay: the shooter's velocity along his own axes (each part cut to a whole number) is
+    /// added to the start velocity of all three sub-emitters, so the spray keeps up with a running merc. The start
+    /// velocity is in the emitter's own axes, so the shift is added before the particle is turned.
+    /// </summary>
+    [PortOf("uc:SBase.SShotGunEmitter:PostBeginPlay", Spec = "spec/equipment/merc-guns.md")]
+    private static void AddShooterVelocity(ParticleSystemSim spray, Pawn shooter)
+    {
+        shooter.Rotation.GetAxes(out FVector x, out FVector y, out FVector z);
+        var add = new FVector((int)shooter.Velocity.Dot(x), (int)shooter.Velocity.Dot(y), (int)shooter.Velocity.Dot(z));
+        if (add == FVector.Zero)
+        {
+            return;
+        }
+
+        int count = Math.Min(3, spray.Emitters.Count);
+        for (int i = 0; i < count; i++)
+        {
+            ParticleSpawnHook? before = spray.Emitters[i].OnSpawn;
+            spray.Emitters[i].OnSpawn = (ref Particle q) =>
+            {
+                q.Velocity += add;
+                before?.Invoke(ref q);
+            };
+        }
     }
 
     private StandardMaterial3D FlashMaterial(Color colour) => new()

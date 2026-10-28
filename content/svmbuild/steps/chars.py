@@ -4,7 +4,7 @@
 Sets: SPerso ATT_01 (spy) and DEF_01 (merc), every SWeaponFirst mesh except the PS2 variants, the SGoggle beams
 (goggle glow), and every skeletal mesh a map places (charconv.MAP_PROP_SETS: SAnimatedMesh props such as SteeE's
 crane, Aqua's palms and FactD's grilles, and the skeletal fish). Materials a class swaps into Skins at run time (the merc rifle's rate-of-fire screens)
-are exported with them. Then OpenSCCT's own cosmetic camos are painted over the body and gun textures (svmbuild/cosmetics.py).
+are exported with them, and the textures of the normal-vision wet skins (charconv.WET_SKINS). Then OpenSCCT's own cosmetic camos are painted over the body and gun textures (svmbuild/cosmetics.py).
 """
 
 from __future__ import annotations
@@ -17,7 +17,7 @@ from ..sources import env
 
 class CharsStep(Step):
     name = "chars"
-    version = 5
+    version = 6
     deps = ()
     per_map = False
     background = True   # no other step reads shared/chars; runs beside the maps

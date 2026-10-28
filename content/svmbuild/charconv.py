@@ -131,6 +131,55 @@ def export_skin_swaps(pset, keys, tex_dir: Path) -> list:
     return written
 
 
+# The normal-vision wet skins of SBasePawn.BeginWetSkin (spec/equipment/rain.md rule 3), per mesh: LitSpecularMaterials
+# of SPersoTextures that add an env map (Specular, a TexEnvMap over SPersoTextures.wet_envmap) through a
+# SpecularityMask to the body. Their Diffuse is the dry skin's own texture, so only the other inputs are exported.
+WET_SKINS = {
+    "ATT_01": ("SPersoTextures.wet_lit_ATT_SI", "SPersoTextures.wet_lit_ATT", "SPersoTextures.wet_lit_ATT_2"),
+    "DEF_01": ("SPersoTextures.lit_def_fx",),
+}
+_WET_INPUTS = (("Specular", "env"), ("SpecularityMask", "specMask"), ("SelfIllumination", "selfIllum"),
+               ("SelfIlluminationMask", "selfIllumMask"))
+
+
+def export_wet_skins(pset, mesh_name: str, tex_dir: Path) -> dict:
+    """{wet material path: {"env", "envColor", "specMask", "selfIllum", "selfIllumMask"}} for one mesh, the textures
+    written to tex_dir as textures/<key>.png. envColor is the env map's mean colour (as scctpkg's Shader env maps)."""
+    from scctpkg.export_gltf import _safe  # noqa: PLC0415
+    from scctpkg.materials import MaterialResolver  # noqa: PLC0415
+    from scctpkg.properties import read_properties, skip_state_frame  # noqa: PLC0415
+
+    resolver = MaterialResolver(pset)
+    out: dict = {}
+    for key in WET_SKINS.get(mesh_name, ()):
+        pkg_name, name = key.split(".", 1)
+        owner = pset.get(pkg_name)
+        e = owner.find_export(name, "LitSpecularMaterial") if owner is not None else None
+        if e is None:
+            raise ValueError(f"wet skin material not found: {key}")
+        r = owner.export_reader(e)
+        skip_state_frame(r, e.flags)
+        props = read_properties(r)
+        entry: dict = {}
+        for field, label in _WET_INPUTS:
+            ref = props.get(field)
+            if not isinstance(ref, int) or ref == 0:
+                continue
+            res = resolver.resolve(owner, ref)
+            if res.texture is None or res.texture.image is None or not res.key:
+                continue
+            tex_dir.mkdir(parents=True, exist_ok=True)
+            fname = _safe(res.key) + ".png"
+            if not (tex_dir / fname).exists():
+                res.texture.image.save(tex_dir / fname)
+            entry[label] = f"textures/{fname}"
+            if field == "Specular":
+                px = np.asarray(res.texture.image.convert("RGB"), dtype=np.float32) / 255.0
+                entry["envColor"] = [round(float(c), 4) for c in px.reshape(-1, 3).mean(0)]
+        out[owner.full_name(e.index + 1)] = entry
+    return out
+
+
 def _notify(db, pkg, ref: int, notes) -> dict:
     cd = db.cd
     from scctpkg.properties import skip_state_frame  # noqa: PLC0415
@@ -219,6 +268,9 @@ def export_set(game: Path, package: str, meshes, out_dir: Path, db, notes, work:
                 "animation": f"{anim_name}.anim.json" if anim_name else None,
                 "meshScale": list(mesh.mesh_scale), "meshOrigin": list(mesh.mesh_origin),
                 "rotOrigin": list(mesh.rot_origin)}
+            wet = export_wet_skins(pset, e.name, wdir / "textures")
+            if wet:
+                gltf["extras"]["svmap"]["wetSkins"] = wet
             (dest / f"{e.name}.glb").write_bytes(pack_glb(gltf, binary))
             tdir = wdir / "textures"
             if tdir.is_dir():
