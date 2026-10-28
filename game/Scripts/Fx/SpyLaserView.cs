@@ -217,6 +217,7 @@ public sealed partial class SpyLaserView : Node3D
                 AlbedoColor = new Color(1f, 0.08f, 0.05f, 0.7f),
                 Transparency = BaseMaterial3D.TransparencyEnum.Alpha,
                 BlendMode = BaseMaterial3D.BlendModeEnum.Add,
+                NextPass = ThermalBeamPass(null),
             };
         }
 
@@ -297,14 +298,36 @@ public sealed partial class SpyLaserView : Node3D
             return null;
         }
 
+        ImageTexture tex = ImageTexture.CreateFromImage(image);
         return new StandardMaterial3D
         {
             ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded,
             BlendMode = BaseMaterial3D.BlendModeEnum.Add,
             Transparency = BaseMaterial3D.TransparencyEnum.Alpha,
             CullMode = BaseMaterial3D.CullModeEnum.Disabled,
-            AlbedoTexture = ImageTexture.CreateFromImage(image),
+            AlbedoTexture = tex,
+            NextPass = ThermalBeamPass(tex),
         };
+    }
+
+    /// <summary>
+    /// The beam in thermal vision: an SLaserBeam (the spy pistol's beam, the merc's laser sight) is HeatIntensity 1 by
+    /// class default, so it draws hot like the map's detector beams. The additive red look adds only to the red channel,
+    /// which the thermal post pass does not read, so without this pass the beam vanished in thermal. The heat follows the
+    /// lit texels of <paramref name="mask"/> (the beam's core); null heats the whole mesh (the stand-in bar).
+    /// </summary>
+    [Provenance(ProvenanceKind.Decoded, "SBase.SLaserBeam defaults HeatIntensity 1.0")]
+    internal static ShaderMaterial ThermalBeamPass(Texture2D? mask)
+    {
+        var pass = new ShaderMaterial { Shader = GD.Load<Shader>(Lasers.ShaderPath) };
+        pass.SetShaderParameter("heat", Lasers.Vision.X);
+        pass.SetShaderParameter("thermal_only", true);
+        if (mask is not null)
+        {
+            pass.SetShaderParameter("mask", mask);
+        }
+
+        return pass;
     }
 
     /// <summary>The beam's body: two crossed quads along the mesh's X, mapped to the texture's bright core.</summary>

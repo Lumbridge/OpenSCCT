@@ -248,6 +248,7 @@ public sealed partial class MercLaserView : Node3D
                 AlbedoColor = new Color(1f, 0.1f, 0.1f, 0.6f),
                 Transparency = BaseMaterial3D.TransparencyEnum.Alpha,
                 BlendMode = BaseMaterial3D.BlendModeEnum.Add,
+                NextPass = OpenScctGame.Fx.SpyLaserView.ThermalBeamPass(null),
             };
         }
 

@@ -580,6 +580,10 @@ hot spots stopped at yellow, his head read cold, a wide halo ringed him). The co
 - Laser beams (`Lasers`: SLaserBeam's LasDetectBeam stretched from start to end; the tripwires' and the mines'
   SLaserBeam_MineLaser, length fTailleFaisceau) are vision-only nodes: drawn only in 36 and 38 (bHideInNormalVision),
   with their own material: the beam's HeatIntensity in thermal (tripwire 1, mine beam 0.4), full EMF glow in EMF.
+- Weapon lasers (the spy pistol's beam, the merc laser sight; both SLaserBeam, HeatIntensity 1) draw their additive
+  red look in every mode, which adds only red, a channel the thermal post does not read. Their material carries a
+  thermal pass (`SpyLaserView.ThermalBeamPass`, svm_laser.gdshader with thermal_only) that draws heat 1 with the
+  depth fade where the beam texture is lit (its core), so they show hot in thermal; EMF keeps the additive look.
 - Spawned gadget meshes (`EffectViews`) and the map's device nodes (`DeviceViews`) write their actor's live values
   (`GameplayObjects.VisionOf`) when they change, so a device whose bEMFIsOn goes off stops glowing; a map node keeps
   the map's HeatOpacity (not replicated).
