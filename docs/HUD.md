@@ -229,7 +229,7 @@ applies them at start and on save.
 | controller | `controller`: `enabled`, `deadzone_left` 0.25, `deadzone_right` 0.15, `vertical_scale` 0.75, `run_threshold` 0.95, `rumble` (off), `rumble_strength` 1.0, 8-way move per side, `look_speed`, the pad layouts (`Clutch1`, `Clutch2` hold the clutches) |
 | display | `display_mode` (Windowed, Fullscreen, BorderlessFullscreen), `display_monitor`, `resolution`, `window_position` (Default, Centered, Stretched), `vsync`, `widescreen`, `ws_fov` (95..112, default 112), `fps_spy`, `fps_merc` (Monitor by default, Unlimited or 30 to 240: docs/RENDERING.md, frame pacing), `resolution_scale`, `filter_level`, `shadow_quality`, `shadow_edge_smoothing`, `low_latency_mode`, `throttle_stop` (docs/RENDERING.md) |
 | audio | `master_volume`, `sound_volume`, `music_volume`, `objective_sounds` (profile bObjectiveSounds), `voice_output_volume` (Godot buses Master, SvmWorld and the effect buses, SvmMusic, SvmVoice) |
-| HUD | `show_scoreboard`, `show_ping`, `show_fps`, `show_net`, `show_location`, `hack_alpha` (0..255, 178), `hud_feet` (profile bInFeet), `fire_prediction` (on; docs/NETCODE.md "Lag compensation and fire prediction") |
+| HUD | `show_scoreboard`, `show_ping`, `show_fps`, `show_net`, `show_net_loss` (off), `show_location`, `hack_alpha` (0..255, 178), `hud_feet` (profile bInFeet), `fire_prediction` (on; docs/NETCODE.md "Lag compensation and fire prediction") |
 | console | `override_console_key` (true: the key left of 1; false: the apostrophe key) |
 
 `OptionsMenu` is the screen (from the main menu, or over the game with F12): Keys (rebinding the spy and merc layouts

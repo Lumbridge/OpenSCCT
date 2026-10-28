@@ -81,7 +81,13 @@ Who-hears-whom matches the original (rules in `VoiceRouting.cs`). Gaps:
 | MSAA/SMAA | later (M) |
 | Extraction, Sabotage, Neutralization modes | later (L) |
 | Unverified Reloaded fixes: grab angle, jump lock-on 7.5 m, KO after interrupt, slow strafe, disk radar threshold, crosshair shift, sticky cam fixes | open: need decoding of the Reloaded patch values |
-| Signed releases, MMCSS voice thread, lobby music, join sound, local match log, scoreboard split size | open (small or optional) |
+| Signed releases, MMCSS voice thread, lobby music, join sound, scoreboard split size | open (small or optional) |
+| Local match log (rl:qol.matchlog) | done (svm-server `matches.jsonl`, one JSON line per round; config `matchLog`; no stats upload; listen hosts keep none) |
+| Lobby map picker playlists, search, rotation by playlist (rl:qol.lobbymaps) | done (Create Session and the lobby's Maps button; `active_map_playlist`; svm-server `playlist`/`playlistMode`); variant words not dimmed, no separate Merc Deathmatch playlist choice |
+| Net readout extras (rl:net.stats): separate `show_net_loss`, host best/worst line | done (loss now off by default) |
+| Signed player keys (rl:ac.bans): Ed25519 per install, join challenge, bans by key | done (game and online servers; the hub and the master do not use keys yet) |
+| Per-connection packet salt (docs/ONLINE.md open item) | done (32-bit salt in every packet header; protocol svm-net/0.3) |
+| IPv6 LAN addresses, IPv6 pinholes | LAN addresses done (up to two IPv6 ones to the master); pinholes open (Godot's UPnP has no IPv6 firewall control) |
 
 ## Front end
 

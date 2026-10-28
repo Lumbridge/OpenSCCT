@@ -102,7 +102,7 @@ public partial class HostScreen : MenuPage
 
         // Every hostable map of the mode as a picture to click (the Choose Map arrows still step through them).
         VBoxContainer mapList = Panel(Body, "Maps", "Maps");
-        Picker = new MapPickerView(Model, maps, list);
+        Picker = new MapPickerView(Model, maps, list, playlist: SettingsStore.Current.ActiveMapPlaylist, playlistChosen: RememberPlaylist);
         mapList.AddChild(Picker);
         VBoxContainer net = Panel(Body, "Network", "Hosting");
         var grid = new GridContainer { Name = "NetGrid", Columns = 4 };
@@ -134,6 +134,17 @@ public partial class HostScreen : MenuPage
         PageButton("Back", () => FrontEnd.ShowMainMenu(GetTree()), "Back");
         HostButton = PageButton("Create", Host, "Host");
         HostButton.GrabFocus();
+    }
+
+    /// <summary>Keeps the map list's playlist for the next time (settings key <c>active_map_playlist</c>).</summary>
+    internal static void RememberPlaylist(string name)
+    {
+        GameSettings settings = SettingsStore.Current;
+        if (settings.ActiveMapPlaylist != name)
+        {
+            settings.ActiveMapPlaylist = name;
+            SettingsStore.Save(settings);
+        }
     }
 
     /// <summary>The last session's values when its map is still installed, else the first map's defaults.</summary>

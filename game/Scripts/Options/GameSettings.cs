@@ -556,6 +556,11 @@ public sealed class GameSettings
     [JsonPropertyName("show_net")]
     public bool ShowNet { get; set; }
 
+    /// <summary>Packet loss received and sent in the network readout (Reloaded's show_net_loss, added after v4.0b).</summary>
+    [JsonPropertyName("show_net_loss")]
+    [Provenance(ProvenanceKind.Decoded, "spec/reloaded/FEATURES.md rl:net.stats show_net_loss = false")]
+    public bool ShowNetLoss { get; set; }
+
     /// <summary>The name of the place the player is in (the map's zone and volume names), at the top of the screen.</summary>
     [JsonPropertyName("show_location")]
     [Provenance(ProvenanceKind.Decoded, "spec/reloaded/FEATURES.md rl:qol.location show_location = true")]
@@ -579,6 +584,14 @@ public sealed class GameSettings
     /// </summary>
     [JsonPropertyName("fire_prediction")]
     public bool FirePrediction { get; set; } = true;
+
+    /// <summary>
+    /// The map playlist the host's map lists show and the Choose Map arrows step through (rl:qol.lobbymaps): a playlist
+    /// name of the map catalog (Standard, Extended, Classic, 3v3, Merc Deathmatch) or "All" (every installed map).
+    /// </summary>
+    [JsonPropertyName("active_map_playlist")]
+    [Provenance(ProvenanceKind.Decoded, "spec/reloaded/FEATURES.md rl:qol.lobbymaps active_map_playlist first-run Standard")]
+    public string ActiveMapPlaylist { get; set; } = "Standard";
 
     // ---- Discord -------------------------------------------------------------------------------------------
 

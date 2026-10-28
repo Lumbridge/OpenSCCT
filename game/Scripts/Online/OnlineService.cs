@@ -103,6 +103,7 @@ public partial class OnlineService : Node
     {
         PlayerName = AccountSettings.Current.AccountName ?? SettingsStore.Current.PlayerName,
         InstallId = OnlineSettings.Current.InstallId,
+        Key = OnlineSettings.Current.Key,
         Password = password,
         HostKey = hostKey,
         Ticket = ticket,

@@ -510,7 +510,9 @@ public partial class OptionsMenu : Control
         Check(g, "Connected players list on (F10)", "show_scoreboard", _edit.ShowScoreboard, v => _edit.ShowScoreboard = v);
         Check(g, "Ping in the players list", "show_ping", _edit.ShowPing, v => _edit.ShowPing = v);
         Check(g, "Frame rate readout", "show_fps", _edit.ShowFps, v => _edit.ShowFps = v);
-        Check(g, "Network readout (ping, loss, corrections)", "show_net", _edit.ShowNet, v => _edit.ShowNet = v);
+        Check(g, "Network readout (ping, corrections; a host sees its players' best and worst ping)", "show_net", _edit.ShowNet,
+            v => _edit.ShowNet = v);
+        Check(g, "Packet loss in the network readout", "show_net_loss", _edit.ShowNetLoss, v => _edit.ShowNetLoss = v);
         Check(g, "Fire prediction (your bullet impacts show at once online)", "fire_prediction", _edit.FirePrediction,
             v => _edit.FirePrediction = v);
         Check(g, "Location (the place you are in)", "show_location", _edit.ShowLocation, v => _edit.ShowLocation = v);

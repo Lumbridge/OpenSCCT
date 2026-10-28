@@ -82,6 +82,12 @@ public sealed class CreateSessionModel
     /// <summary>The page's values.</summary>
     public LobbySetup Setup { get; private set; }
 
+    /// <summary>
+    /// The maps the Choose Map arrows step through (the map list's playlist, rl:qol.lobbymaps); null, or a filter no
+    /// map passes, steps through every map.
+    /// </summary>
+    public Func<string, bool>? MapFilter { get; set; }
+
     /// <summary>The session password (at most 16 of the allowed characters).</summary>
     public string Password { get; private set; } = string.Empty;
 
@@ -258,16 +264,26 @@ public sealed class CreateSessionModel
         {
             case SessionRow.Map when _maps.Count > 0:
             {
-                int at = 0;
-                for (int i = 0; i < _maps.Count; i++)
+                var maps = new List<string>();
+                foreach ((string id, _) in _maps)
                 {
-                    if (string.Equals(_maps[i].Id, Setup.Map, StringComparison.OrdinalIgnoreCase))
+                    if (MapFilter?.Invoke(id) ?? true)
                     {
-                        at = i;
+                        maps.Add(id);
                     }
                 }
 
-                SelectMap(_maps[Wrap(at + delta, _maps.Count)].Id);
+                if (maps.Count == 0)
+                {
+                    foreach ((string id, _) in _maps)
+                    {
+                        maps.Add(id);
+                    }
+                }
+
+                // From a map outside the list, the arrows go to the list's first (or last) map.
+                int at = maps.FindIndex(m => string.Equals(m, Setup.Map, StringComparison.OrdinalIgnoreCase));
+                SelectMap(maps[at < 0 ? (delta > 0 ? 0 : maps.Count - 1) : Wrap(at + delta, maps.Count)]);
                 return;
             }
 

@@ -297,6 +297,17 @@ public sealed class ServerHost : INetworkNotify, IDisposable
     public bool AcceptingConnections { get; set; } = true;
 
     /// <summary>
+    /// Asks each client to prove its player key (rl:ac.bans, <see cref="Online.PlayerKey"/>) before the Hello is decided:
+    /// the server answers the Hello with a random challenge, the client signs it with the connection's salt, and the
+    /// proven key reaches <see cref="LoginFilter"/> as the <c>?SvmKey=</c> option (a client's own <c>SvmKey</c> is
+    /// dropped). A client without a key answers empty and logs in without one; a wrong signature is refused.
+    /// </summary>
+    public bool KeyChallenge { get; set; }
+
+    /// <summary>A Hello waiting for the answer to its key challenge (kept in the connection's UserData).</summary>
+    private sealed record PendingHello(string Name, string Options, int NetSpeed, string Nonce);
+
+    /// <summary>
     /// Raised on the host's thread after the received messages are dispatched and before the world steps: server-side
     /// controllers (the bots of OpenScct.Bots) write their input bytes here, as the input layer of a local player would.
     /// </summary>
@@ -461,6 +472,9 @@ public sealed class ServerHost : INetworkNotify, IDisposable
             case EControlMessage.Hello:
                 ReceivedHello(connection, in message);
                 break;
+            case EControlMessage.Proof:
+                ReceivedProof(connection, message.Text);
+                break;
             case EControlMessage.Join:
                 if (connection.State == EConnectionState.USOCK_Open && connection.UserData is PlayerSlot slot && !connection.bJoined)
                 {
@@ -568,6 +582,55 @@ public sealed class ServerHost : INetworkNotify, IDisposable
             name = "Player";
         }
 
+        if (KeyChallenge && !connection.IsLocal)
+        {
+            string nonce = Convert.ToHexStringLower(System.Security.Cryptography.RandomNumberGenerator.GetBytes(16));
+            connection.UserData = new PendingHello(name, loginOptions, hello.NetSpeed, nonce);
+            connection.ControlChannel?.Send(ControlMessage.Challenge(nonce));
+            return;
+        }
+
+        Login(connection, name, loginOptions, hello.NetSpeed);
+    }
+
+    /// <summary>The client's answer to its key challenge: the Hello goes on with the proven key, or is refused.</summary>
+    private void ReceivedProof(NetConnection connection, string? answer)
+    {
+        if (connection.State != EConnectionState.USOCK_Pending || connection.UserData is not PendingHello pending)
+        {
+            return;
+        }
+
+        connection.UserData = null;
+        string options = WithoutOption(pending.Options, "SvmKey");
+        string? key = Online.PlayerKey.CheckAnswer(answer, pending.Nonce, connection.Salt, out string problem);
+        if (problem.Length > 0)
+        {
+            Reject(connection, problem, null);
+            return;
+        }
+
+        Login(connection, pending.Name, key is null ? options : options + "?SvmKey=" + key, pending.NetSpeed);
+    }
+
+    /// <summary>Login options without any <paramref name="key"/>=value pair.</summary>
+    private static string WithoutOption(string options, string key)
+    {
+        var sb = new System.Text.StringBuilder(options.Length);
+        foreach (string pair in options.Split('?', StringSplitOptions.RemoveEmptyEntries))
+        {
+            int eq = pair.IndexOf('=', StringComparison.Ordinal);
+            if (!string.Equals(eq >= 0 ? pair[..eq] : pair, key, StringComparison.OrdinalIgnoreCase))
+            {
+                sb.Append('?').Append(pair);
+            }
+        }
+
+        return sb.ToString();
+    }
+
+    private void Login(NetConnection connection, string name, string loginOptions, int netSpeed)
+    {
         if (LoginFilter is { } filter)
         {
             LoginDecision decision = filter(connection, name, loginOptions);
@@ -587,7 +650,7 @@ public sealed class ServerHost : INetworkNotify, IDisposable
         }
 
         connection.SetOpen();
-        int requested = hello.NetSpeed >= K.MinNetSpeed ? hello.NetSpeed : Driver.Settings.DefaultNetSpeed;
+        int requested = netSpeed >= K.MinNetSpeed ? netSpeed : Driver.Settings.DefaultNetSpeed;
         connection.CurrentNetSpeed = Math.Min(requested, Driver.Settings.MaxClientRate);
         var slot = new PlayerSlot(_nextPlayerId++, name, connection)
         {

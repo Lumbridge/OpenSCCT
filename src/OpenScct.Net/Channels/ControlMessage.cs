@@ -27,7 +27,16 @@ public enum EControlMessage : byte
     /// </summary>
     Chat = 5,
 
-    MAX = 6,
+    /// <summary>
+    /// Server to client, in answer to a Hello on a server that checks player keys: a random challenge (Text) for the
+    /// client to sign. The Welcome or Reject comes after the client's <see cref="Proof"/>.
+    /// </summary>
+    Challenge = 6,
+
+    /// <summary>Client to server: the signed challenge, "publickey signature" (Text), or empty without a key.</summary>
+    Proof = 7,
+
+    MAX = 8,
 }
 
 /// <summary>One control channel message. Which fields are used depends on <see cref="Type"/>.</summary>
@@ -110,6 +119,10 @@ public readonly record struct ControlMessage
 
     public static ControlMessage Join() => new() { Type = EControlMessage.Join };
 
+    public static ControlMessage Challenge(string nonce) => new() { Type = EControlMessage.Challenge, Text = nonce };
+
+    public static ControlMessage Proof(string? answer) => new() { Type = EControlMessage.Proof, Text = answer ?? string.Empty };
+
     public static ControlMessage TextLine(string text) => new() { Type = EControlMessage.Text, Text = text };
 
     /// <summary>A chat line a player typed (client to server); the server fills in the sender.</summary>
@@ -151,7 +164,7 @@ public readonly record struct ControlMessage
                 w.WriteString(Clip(Text, MaxReasonBytes), MaxReasonBytes);
                 w.WriteString(Clip(File, MaxReasonBytes), MaxReasonBytes);
                 break;
-            case EControlMessage.Text:
+            case EControlMessage.Text or EControlMessage.Challenge or EControlMessage.Proof:
                 w.WriteString(Clip(Text, MaxTextBytes), MaxTextBytes);
                 break;
             case EControlMessage.Chat:
@@ -222,6 +235,10 @@ public readonly record struct ControlMessage
 
             case EControlMessage.Join:
                 return Join();
+            case EControlMessage.Challenge:
+                return Challenge(r.ReadString(MaxTextBytes));
+            case EControlMessage.Proof:
+                return Proof(r.ReadString(MaxTextBytes));
             case EControlMessage.Chat:
             {
                 var scope = (EChatScope)r.ReadInt((uint)EChatScope.MAX);

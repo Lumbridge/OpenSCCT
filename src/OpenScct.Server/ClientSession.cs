@@ -40,6 +40,12 @@ public sealed record ClientSettings
     public string LoginOptions { get; init; } = string.Empty;
 
     /// <summary>
+    /// The player's key (rl:ac.bans): it signs the server's join challenge, so the server knows the player by it. Null
+    /// answers a challenge without a key (bots, tests, tools).
+    /// </summary>
+    public Online.PlayerKey? Key { get; init; }
+
+    /// <summary>
     /// Run the gameplay services on the loaded map (movement, devices, equipment and combat, the device events from
     /// the server) for a server running the SBase game rules, and report the player waiting once its controller
     /// arrives, as the client's loading page does (spec/game/match-lifecycle.md rule 11).
@@ -375,6 +381,13 @@ public sealed class ClientSession : INetworkNotify, IDisposable
                 }
 
                 ReceivedWelcome(connection, message);
+                break;
+            case EControlMessage.Challenge:
+                if (State == EClientState.Connecting)
+                {
+                    connection.ControlChannel?.Send(ControlMessage.Proof(Settings.Key?.AnswerChallenge(message.Text ?? string.Empty, connection.Salt)));
+                }
+
                 break;
             case EControlMessage.Reject:
                 RejectReason = message.Text;

@@ -18,12 +18,17 @@ public readonly record struct NetReadout(
     long OutPackets,
     long OutPacketsLost,
     long Corrections,
-    int ServerNetRate);
+    int ServerNetRate,
+    bool IsHost = false,
+    int Clients = 0,
+    int BestClientPingMs = 0,
+    int WorstClientPingMs = 0);
 
 /// <summary>
 /// Reloaded's network readout (rl:net.stats), drawn under the frame-rate readout: ping and jitter, packet loss each
-/// way, bytes a second each way, position corrections a second and the server's send rate. Rates are worked out
-/// over the last whole second.
+/// way (only with <see cref="ShowLoss"/>, Reloaded's <c>show_net_loss</c>), bytes a second each way, position
+/// corrections a second and the server's send rate. Rates are worked out over the last whole second. A listen host,
+/// whose own link is loopback, gets a second line with the best and worst ping of its connected players.
 /// </summary>
 public sealed class HudNet
 {
@@ -34,6 +39,7 @@ public sealed class HudNet
     private bool _hasFrom;
     private float _elapsed;
     private string _text = string.Empty;
+    private string _hostText = string.Empty;
 
     public MagmaDrawList DrawList { get; } = new();
 
@@ -43,6 +49,12 @@ public sealed class HudNet
     /// <summary>The last line drawn (empty before the first whole second).</summary>
     public string Text => _text;
 
+    /// <summary>The listen host's line (best and worst client ping), empty for a client or a host alone.</summary>
+    public string HostText => _hostText;
+
+    /// <summary>Show the packet loss each way (Reloaded's <c>show_net_loss</c>, off by default).</summary>
+    public bool ShowLoss { get; set; }
+
     public void Draw(Vector2 screen, float dt, bool shown, bool belowFps)
     {
         DrawList.Clear();
@@ -50,6 +62,7 @@ public sealed class HudNet
         {
             _hasFrom = false;
             _text = string.Empty;
+            _hostText = string.Empty;
             return;
         }
 
@@ -64,7 +77,8 @@ public sealed class HudNet
         _elapsed += Math.Max(0f, dt);
         if (_elapsed >= Window)
         {
-            _text = Format(_from, now, _elapsed);
+            _text = Format(_from, now, _elapsed, ShowLoss);
+            _hostText = FormatHost(now);
             _from = now;
             _elapsed = 0f;
         }
@@ -77,10 +91,22 @@ public sealed class HudNet
         float h = Mathf.Round(HudK.FpsTextHeight * screen.Y / MagmaRenderer.PageHeight);
         float y = belowFps ? 6f + h + 2f : 6f;
         DrawList.Items.Add(HudText.Item("Net", _text, new Rect2(0f, y, screen.X - 8f, h), h, MagmaAlign.Right, new Color(1f, 1f, 1f, 0.9f)));
+        if (_hostText.Length > 0)
+        {
+            DrawList.Items.Add(HudText.Item("NetHost", _hostText, new Rect2(0f, y + h + 2f, screen.X - 8f, h), h, MagmaAlign.Right,
+                new Color(1f, 1f, 1f, 0.9f)));
+        }
     }
 
+    /// <summary>The listen host's line: its connected players' best and worst ping (empty for a client or a host alone).</summary>
+    public static string FormatHost(NetReadout now) =>
+        now is { IsHost: true, Clients: > 0 }
+            ? string.Create(CultureInfo.InvariantCulture,
+                $"clients {now.Clients}  best {now.BestClientPingMs} ms  worst {now.WorstClientPingMs} ms")
+            : string.Empty;
+
     /// <summary>One readout line from two totals <paramref name="seconds"/> apart.</summary>
-    public static string Format(NetReadout from, NetReadout to, float seconds)
+    public static string Format(NetReadout from, NetReadout to, float seconds, bool showLoss = true)
     {
         float s = Math.Max(seconds, 0.001f);
         long inPackets = to.InPackets - from.InPackets;
@@ -94,7 +120,8 @@ public sealed class HudNet
         float corrections = (to.Corrections - from.Corrections) / s;
         string ping = to.HasRtt ? (to.RttMicros / 1000).ToString(CultureInfo.InvariantCulture) : "-";
         string jitter = to.HasRtt ? (to.JitterMicros / 1000).ToString(CultureInfo.InvariantCulture) : "-";
+        string loss = showLoss ? string.Create(CultureInfo.InvariantCulture, $"  loss in {lossIn:0.0}% out {lossOut:0.0}%") : string.Empty;
         return string.Create(CultureInfo.InvariantCulture,
-            $"ping {ping} ms  jitter {jitter}  loss in {lossIn:0.0}% out {lossOut:0.0}%  down {down:0.0} up {up:0.0} KB/s  corr {corrections:0.0}/s  {to.ServerNetRate} Hz");
+            $"ping {ping} ms  jitter {jitter}{loss}  down {down:0.0} up {up:0.0} KB/s  corr {corrections:0.0}/s  {to.ServerNetRate} Hz");
     }
 }
