@@ -1054,7 +1054,20 @@ public sealed partial class PhysicsDriver
         float dlen = d.Size();
         bool arrived = dlen <= step || dlen <= K.Traversal.SnapTolerance;
         FVector hold = arrived ? d : d.SafeNormal() * step;
-        bool settled = arrived && SameYaw(p.Rotation.Yaw, face);
+
+        // TopSynchro comes before the hold move, when the hold arrives and the yaw from the last call already faces
+        // the wall; NoGE follows a blocked hold move, so both can be raised in one call (editor 0x11204870). A detect
+        // state that took TopSynchro has left for its climb by then, and the climb ignores the NoGE: a low ledge whose
+        // waist hold reaches into the floor still climbs.
+        if (arrived && SameYaw(p.Rotation.Yaw, face))
+        {
+            pc?.eventTopSynchro();
+            if (p.bDeleteMe)
+            {
+                return;
+            }
+        }
+
         int newYaw = FixedTurn(p.Rotation.Yaw, face, K.RootMotion.TurnRate);
         MoveActor(p, hold, new FRotator(0, newYaw, 0), out FCheckResult holdHit);
         if (p.bDeleteMe)
@@ -1067,21 +1080,21 @@ public sealed partial class PhysicsDriver
         if (holdHit.bHit)
         {
             pc?.eventNoGE();
-        }
-        else if (settled)
-        {
-            pc?.eventTopSynchro();
-        }
-
-        if (p.bDeleteMe || p.Physics != EPhysics.PHYS_Ledge)
-        {
-            return;
+            if (p.bDeleteMe)
+            {
+                return;
+            }
         }
 
-        // 5. Only the NORMAL hang shimmies.
+        // 5. Only the NORMAL hang shimmies; the other holds stop here whatever the events did.
         if (type != 0)
         {
             p.Velocity = default;
+            return;
+        }
+
+        if (p.Physics != EPhysics.PHYS_Ledge)
+        {
             return;
         }
 
