@@ -1,6 +1,6 @@
 {
   "format": "svm.coverage/1",
-  "inputs": {"inventory":{"format":"svm.inventory/1","units":7412,"bytes":789772},"assemblies":["OpenSCCT.Launcher","OpenScct.Bots","OpenScct.Content","OpenScct.Core","OpenScct.Game","OpenScct.Launcher.Core","OpenScct.Maps","OpenScct.Net","OpenScct.Physics","OpenScct.Provenance","OpenScct.Server","OpenScctGame"],"attributes":7009,"statusFile":{"na":10,"units":0},"specIds":5471,"scenarios":43,"runnerReport":true,"timing":"DtReplay"},
+  "inputs": {"inventory":{"format":"svm.inventory/1","units":7412,"bytes":789772},"assemblies":["OpenSCCT.Launcher","OpenScct.Bots","OpenScct.Content","OpenScct.Core","OpenScct.Game","OpenScct.Launcher.Core","OpenScct.Maps","OpenScct.Net","OpenScct.Physics","OpenScct.Provenance","OpenScct.Server","OpenScctGame"],"attributes":7013,"statusFile":{"na":10,"units":0},"specIds":5473,"scenarios":43,"runnerReport":true,"timing":"DtReplay"},
   "summary": [
     {"key":"all","units":7412,"na":328,"specced":4282,"ported":3414,"verified":168,"bytes":789772,"naBytes":4563,"speccedBytes":468651,"portedBytes":418887,"verifiedBytes":38490},
     {"key":"slice","units":4246,"na":46,"specced":3417,"ported":2643,"verified":168,"bytes":398952,"naBytes":430,"speccedBytes":369108,"portedBytes":348530,"verifiedBytes":38490}
@@ -5818,7 +5818,7 @@
     "rl:SBase.SPlayerController.ToggleFreeCamera": {"ports":["OpenScct.Game: OpenScct.Game.SBase.SPlayerController.ToggleFreeCamera"],"specs":["spec/hud/cinematic-camera.md:3","spec/native/reloaded-hooks.md:3"],"status":"ported"},
     "rl:SBase.SPlayerController.ToggleHideHud": {"ports":["OpenScct.Game: OpenScct.Game.SBase.SPlayerController.ToggleHideHud"],"specs":["spec/hud/cinematic-camera.md:3","spec/native/reloaded-hooks.md:3"],"status":"ported"},
     "rl:audio.thread": {"ports":["OpenScct.Net: OpenScct.Net.Voice.Dsp.ProAudioThread"],"status":"ported"},
-    "rl:fix.camo_detection": {"ports":["OpenScct.Game: OpenScct.Game.SBase.SCamera.CheckPresence"],"specs":["spec/devices/security-camera.md:3","spec/native/reloaded-hooks.md:3"],"status":"ported"},
+    "rl:fix.camo_detection": {"ports":["OpenScct.Game: OpenScct.Game.SBase.SCamera.CheckPresence","OpenScctGame: OpenScctGame.Views.SimPawnView.DrawMotionCloak"],"specs":["spec/devices/security-camera.md:3","spec/native/reloaded-hooks.md:3"],"status":"ported"},
     "rl:fix.crosshair_shift": {"ports":["OpenScctGame: OpenScctGame.Hud.MercHudPage.ReticlePosition"],"specs":["spec/hud/merc-reticle.md:3","spec/native/reloaded-hooks.md:3"],"status":"ported"},
     "rl:fix.disk_radar": {"ports":["OpenScctGame: OpenScctGame.Hud.HudSimReader.CarrierRadarSpeed"],"specs":["spec/native/reloaded-hooks.md:3","spec/objectives/disk-flag.md:3"],"status":"ported"},
     "rl:fix.f7_crash": {"ports":["OpenScctGame: OpenScctGame.UI.StrategicMapData"],"specs":["spec/hud/strategic-map.md:3"],"status":"ported"},
@@ -5826,6 +5826,8 @@
     "rl:fix.jump_lockon": {"ports":["OpenScct.Physics: OpenScct.Physics.Movement.PhysicsDriver.DropAttackScan"],"specs":["spec/native/physics-falling.md:3","spec/native/reloaded-hooks.md:3"],"status":"ported"},
     "rl:fix.ko_after_interrupt": {"ports":["OpenScct.Game: OpenScct.Game.SBase.SPlayerController.ReloadedLocalTick","OpenScct.Game: OpenScct.Game.SBase.SPlayerController.ReloadedStateEntered"],"specs":["spec/native/reloaded-hooks.md:3"],"status":"ported"},
     "rl:fix.slow_strafe": {"ports":["OpenScct.Game: OpenScct.Game.Movement.ControlInput.Compute"],"status":"ported"},
+    "rl:fix.stickycam_east_sound": {"ports":["OpenScct.Game: OpenScct.Game.SBase.SStickyCam..ctor"],"specs":["spec/native/reloaded-hooks.md:3"],"status":"ported"},
+    "rl:fix.stickycam_stuck": {"ports":["OpenScct.Game: OpenScct.Game.SBase.SPlayerController.ReloadedStickyCamLeaveEntered","OpenScct.Game: OpenScct.Game.SBase.SPlayerController.ReloadedStickyLeaveTick"],"specs":["spec/native/reloaded-hooks.md:3"],"status":"ported"},
     "rl:gfx.fps": {"specs":["spec/native/reloaded-features-from-code.md:3"],"status":"specced"},
     "rl:gfx.fpscounter": {"specs":["spec/native/reloaded-features-from-code.md:3"],"status":"specced"},
     "rl:gfx.hud": {"specs":["spec/native/reloaded-features-from-code.md:3"],"status":"specced"},

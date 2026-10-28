@@ -20,9 +20,9 @@ count in the unit columns only.
 Inputs:
 
 - Inventory `re/inventory/inventory.json` (svm.inventory/1): 7,412 units, 789,772 bytecode bytes.
-- Assemblies: OpenSCCT.Launcher, OpenScct.Bots, OpenScct.Content, OpenScct.Core, OpenScct.Game, OpenScct.Launcher.Core, OpenScct.Maps, OpenScct.Net, OpenScct.Physics, OpenScct.Provenance, OpenScct.Server, OpenScctGame; 7,009 provenance attributes, 417 generated class skeletons.
+- Assemblies: OpenSCCT.Launcher, OpenScct.Bots, OpenScct.Content, OpenScct.Core, OpenScct.Game, OpenScct.Launcher.Core, OpenScct.Maps, OpenScct.Net, OpenScct.Physics, OpenScct.Provenance, OpenScct.Server, OpenScctGame; 7,013 provenance attributes, 417 generated class skeletons.
 - `coverage/status.yaml`: 10 n-a entries, 0 single-unit entries.
-- Specs: 5,471 unit ids in the `Units:` lists of 178 files.
+- Specs: 5,473 unit ids in the `Units:` lists of 178 files.
 - Scenarios: 43 with 454 covers entries; local runner report with 84 rows, 41 of 43 scenarios pass (DtReplay gate).
 - Issues: 0 errors, 62 warnings, 0 spec ids not in the inventory.
 
@@ -417,13 +417,13 @@ file formats, `rl:` Reloaded.Core behaviour). There is no full list of them yet,
 | rl:IpDrv | 1 | 1 | 0 | 0 |
 | rl:SBase | 28 | 28 | 8 | 0 |
 | rl:audio | 1 | 1 | 1 | 0 |
-| rl:fix | 8 | 8 | 8 | 0 |
+| rl:fix | 10 | 10 | 10 | 0 |
 | rl:gfx | 5 | 5 | 0 | 0 |
 | rl:input | 6 | 6 | 2 | 0 |
 | rl:net | 3 | 3 | 2 | 0 |
 | rl:qol | 2 | 2 | 1 | 0 |
 | rl:voice | 10 | 10 | 8 | 0 |
-| **all** | 448 | 448 | 283 | 0 |
+| **all** | 450 | 450 | 285 | 0 |
 
 ## By class
 
