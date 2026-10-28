@@ -602,7 +602,21 @@ def extract_level(pkg: Package, pset: PackageSet) -> List[ActorRecord]:
                 rec.hidden = True
                 rec.extra["draw_type"] = draw_type
         records.append(rec)
+    _split_group_clashes(pkg, pset, records)
     return records
+
+
+def _split_group_clashes(pkg: Package, pset: PackageSet, records: List[ActorRecord]) -> None:
+    """Mesh keys are Package.Name; where placed meshes of one name sit in different groups (CpusS's three
+    PCF09_STM...Porte doors, TSP21's Light / Object tsp02_lamp), those records key by their full path instead, so
+    each draws its own mesh rather than the first one loaded."""
+    paths: Dict[str, set] = {}
+    for rec in records:
+        if rec.mesh_ref:
+            paths.setdefault(rec.mesh_key, set()).add(pset.object_path(pkg, rec.mesh_ref))
+    for rec in records:
+        if rec.mesh_ref and len(paths.get(rec.mesh_key, ())) > 1:
+            rec.mesh_key = pset.object_path(pkg, rec.mesh_ref)
 
 
 # LevelInfo.GlowThreshold class default (live LevelInfo0 / Entry): the native glow post pass brightpasses at T/255.

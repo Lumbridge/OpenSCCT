@@ -153,6 +153,11 @@ within 2500 uu of the camera, else a BSP-only line check through `INetLineOfSigh
 from the map's collision), the pawn test with its per-pass cache and the SBasePawn partner rule, owner-only
 controllers, the flag and disk following their carrier, switches by distance, trigger lights and
 interactions. The original's four-slot channel cache per actor is kept as an ordered list without the limit.
+The camera is the server's copy of the player controller's spot: the client's camera solver keeps its own
+controller there and sends it with `UpdatePositionForServer` every 0.14 s (every tick while spectating,
+spec/net/move-protocol.md rule 17). Before that call was ported the server's controller stayed where its pawn was
+possessed, so switches, ammo stocks and infirmaries more than 2500 uu from the spawn never reached the client
+(MoonD's breaker could not be used) and the line checks ran from the spawn.
 
 ### Send budget and net speed
 

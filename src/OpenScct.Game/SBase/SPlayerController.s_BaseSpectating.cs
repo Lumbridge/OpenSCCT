@@ -107,7 +107,7 @@ public partial class SPlayerController
         }
 
         /// <summary>
-        /// Input, the view rotation, then the camera report to the server. Not ported here: the client position update.
+        /// Input and the view rotation, then the view to the server. Not ported here: the client position update (net).
         /// </summary>
         [Uc("SBase.SPlayerController.s_MultiSpectating.PlayerTick", Sha1 = "10e92149ac517996057b4f088a41342797a016cf")]
         [PortOf("uc:SBase.SPlayerController:s_MultiSpectating.PlayerTick", Spec = "spec/game/spectating.md#rules")]
@@ -116,7 +116,7 @@ public partial class SPlayerController
             var pc = (SPlayerController)self;
             pc.Ports.NativePlayerInput(pc, DeltaTime);
             PlayerMove(pc, DeltaTime);
-            pc.SendUpdatePositionForServer();
+            pc.UpdatePositionForServer(pc.Location, pc.Rotation);
         }
 
         /// <summary>Rotation only, no movement.</summary>

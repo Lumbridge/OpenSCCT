@@ -595,6 +595,13 @@ public sealed class NetMovementBridge : IMovementNet
         Send(PC, nameof(AskServerToStartCoopInteraction));
     }
 
+    /// <summary>UpdatePositionForServer(NewLocation, NewRotation): the client's camera spot (unreliable); the server runs the method of that name.</summary>
+    public void UpdatePositionForServer(SPlayerController PC, FVector NewLocation, FRotator NewRotation)
+    {
+        _args.Clear().Vector(0, NewLocation).Rotator(1, NewRotation);
+        Send(PC, nameof(UpdatePositionForServer));
+    }
+
     /// <summary>ServerPlayLandingSound is the pawn's function: it goes on the pawn's channel.</summary>
     public void ServerPlayLandingSound(SPlayerController PC)
     {
