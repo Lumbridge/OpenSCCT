@@ -9,8 +9,8 @@ namespace OpenScctGame.Render;
 
 /// <summary>
 /// The dynamic world lights of a map: lights the original does not bake (triggered STriggerLights, pulsing and
-/// other dynamic lights) that still light the world (bApplyToStaticLighting). The template adds them per pixel to
-/// the baked light term of BSP and static mesh surfaces, with the same falloff, colour and 2x gain as actor
+/// other bDynamicLight lights, with or without bApplyToStaticLighting) that still light the world. The template
+/// adds them per pixel to the baked light term of BSP and static mesh surfaces, with the same falloff, colour and 2x gain as actor
 /// lighting. They live in a float texture (one row per light: position, colour, spot, zone), a global shader parameter,
 /// so switching a light or animating its brightness is one texture update. A bAffectOwnZoneOnly light lights only
 /// surfaces of its zone (each vertex carries its zone in the colour alpha). docs/RENDERING.md#dynamic-lights.
@@ -87,11 +87,18 @@ public sealed class WorldLights
 
     public IReadOnlyList<LightEntry> Lights => _lights;
 
-    /// <summary>Lights the original keeps out of the baked light but applies to the world at run time.</summary>
+    /// <summary>
+    /// Lights the original keeps out of the baked light but applies to the world at run time: every bDynamicLight
+    /// light, whatever its bApplyToStaticLighting. The game keeps a light for run time when it is in-game or dynamic
+    /// (cooked light references, editor 0x110cd700; the in-game leaf light lists, UnVisi.cpp 0x1101dcb7), and the
+    /// static flag only decides what Build Lighting bakes. Seen in game: MoonD's flickering STriggerLights, saved with
+    /// bApplyToStaticLighting False and no in-game flag, light their wall (Reloaded Editor docs/MapBuilderPatterns.md).
+    /// </summary>
+    [Provenance(ProvenanceKind.Decoded, "editor 0x110cd700 and 0x1101dcb7: lights kept for run time are in-game or bDynamicLight")]
     public static bool IsDynamicWorldLight(LightEntry l)
     {
         ArgumentNullException.ThrowIfNull(l);
-        return l.Dynamic && l.ApplyStatic && l.Effect != RenderK.LE_ESpotShadow && l.Brightness > 0f;
+        return l.Dynamic && l.Effect != RenderK.LE_ESpotShadow && l.Brightness > 0f;
     }
 
     /// <summary>Switches a light (STriggerLight on and off); takes effect at the next <see cref="Update"/>.</summary>
@@ -145,15 +152,22 @@ public sealed class WorldLights
     public void Update(float time)
     {
         _time = time;
+
+        // Only lights that give light this frame take rows, so the shader's per-pixel loop skips the ones off.
+        int rows = 0;
         for (int i = 0; i < _lights.Count; i++)
         {
             LightEntry l = _lights[i];
-            Write(i, l, _on[i] ? Modulation(l, time) : 0f);
+            float m = _on[i] ? Modulation(l, time) : 0f;
+            if (m > 0f)
+            {
+                Write(rows++, l, m);
+            }
         }
 
         for (int i = 0; i < _spawned.Count; i++)
         {
-            Write(_lights.Count + i, _spawned[i], 1f);
+            Write(rows++, _spawned[i], 1f);
         }
 
         _texture.Update(_image);
@@ -165,7 +179,7 @@ public sealed class WorldLights
             RenderingServer.GlobalShaderParameterSet(s_textureName, _texture);
         }
 
-        RenderingServer.GlobalShaderParameterSet(s_countName, _lights.Count + _spawned.Count);
+        RenderingServer.GlobalShaderParameterSet(s_countName, rows);
     }
 
     private void Write(int row, LightEntry l, float m)

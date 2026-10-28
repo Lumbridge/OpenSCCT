@@ -198,8 +198,14 @@ calibration.
 ## Dynamic lights
 
 Lights the original keeps out of the baked light (bDynamicLight, triggered STriggerLights, pulsing lights) still
-light the world (`WorldLights`): `bDynamicLight` and `bApplyToStaticLighting`, not LE_ESpotShadow, brightness above
-0. They live in a float texture (one row per light: position and radius, colour, spot cone, own zone), a global
+light the world (`WorldLights`): `bDynamicLight`, not LE_ESpotShadow, brightness above 0, whatever
+`bApplyToStaticLighting` says. The game keeps a light for run time when it is in-game or dynamic (cooked light
+references, editor 0x110cd700; in-game leaf light lists, UnVisi.cpp 0x1101dcb7); the static flag only decides what
+Build Lighting bakes. Until this was fixed, dynamic lights saved with bApplyToStaticLighting False lit nothing: MoonD's
+40 STriggerLights (its park floods and lamps, seen lighting walls in the real game), StroD's 21 `lightsoutall` lights,
+OrphD/E/S/T's 20 switchable room lights, and plain dynamic fill lights on MissD/E/P, OffsD, ScheE/U, GhosS, KrauE/U,
+FactD/E/P/T and SancD. Only the lights that give light in a frame take rows, so lights switched off cost the shader
+nothing. They live in a float texture (one row per light: position and radius, colour, spot cone, own zone), a global
 shader parameter, and are summed per pixel into the baked term.
 
 - Colour, gain and radius are the actor model's (below). The falloff over the world is `1 - (d / R)^2`: in a sweep
