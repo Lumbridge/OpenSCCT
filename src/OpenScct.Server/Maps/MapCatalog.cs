@@ -466,9 +466,11 @@ public sealed partial class MapCatalog
 
         SvMap map = GetSvMap(folder);
         var settings = new USMapSettings { MapName = map.Id };
+        var modeKeys = new List<string>();
         foreach (KeyValuePair<string, PropBag> mode in map.Gameplay.MapSettings)
         {
             PropBag p = mode.Value;
+            modeKeys.Add(mode.Key);
             settings.Modes.Add(new FGameModeInfo
             {
                 TimeLimit = p.GetInt("TimeLimit"),
@@ -482,6 +484,7 @@ public sealed partial class MapCatalog
             });
         }
 
+        FillTexts(folder, settings, modeKeys);
         return settings;
     }
 

@@ -131,6 +131,9 @@ public sealed class ListenHost : IDisposable
                 RequireAccounts = request.RequireAccounts,
                 DemoFolder = request.DemoFolder,
                 HostAccount = request.HostAccount,
+
+                // The lobby's Ban keeps a banned player out for the rest of this hosting (no file: nothing is kept after).
+                Bans = new BanList(null, static () => DateTimeOffset.UtcNow),
                 Master = request.MasterUrl is { Length: > 0 } url
                     ? new MasterLinkSettings { Url = url, InviteKey = request.InviteKey, Listed = request.Listed }
                     : null,

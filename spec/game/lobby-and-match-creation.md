@@ -4,6 +4,10 @@ Units:
 - uc:GUI.Create_Match:{InitComponent, CaptionNewControls, LayoutLanPage, LoadMatchRules, LoadModeRules, SetMercDeathMatchRules, SetDiskLimits, ApplyMatchRules, RevengeChange, VoiceChatChange, InternalOnKeyEvent, Tick} (contract)
 - uc:GUI.Lobby_Create:{InitComponent, Tick, ButtonLaunch, ButtonClick, TeamVoiceOnlyChange, InternalOnKeyEvent} (contract)
 - uc:GUI.Ending_Menu:{Timer, ChooseRandomMap} (contract: random map)
+- uc:GUI.AlternateModeSettings:{InitComponent, AlternateKeyEvent, SpyGadgetChange, MercGadgetChange, Tick} (contract: Alternate Mode)
+- uc:GUI.Briefing:{InitComponent, RefreshText} (contract: briefing)
+- uc:GUI.BriefingDeux:{InitComponent} (contract: briefing)
+- uc:Engine.PersistentData:{SetGadgetRestriction, GetGadgetRestriction}
 
 Also read, not inventory units: the pages Game_Settings and Game_Settings_Client (the same values, read only for
 clients), GUIChatBox (the spam delay), JoinWithIp, LAN_Menu, LAN_Seek_Games_List and KickPlayerValidation (captions
@@ -46,7 +50,9 @@ Classic "Living team - hackable coms", Team "Team always - no com hacking", Open
 
 The Ubi.com page (not LAN) hides Password and Voice Chat and adds Game Type (Free, Ranking) and Level Gap; the
 dedicated server page adds Server Name (32 characters, default "Server") and "Minimum Players in Game" (1 to 4) and
-hides Max Players. Alternate Mode and Tutor Mode rows exist but are console features.
+hides Max Players. The LAN page also has "Alternate" (Alternate Mode, with its "Alternate Mode" button; section
+"Alternate Mode" below); Tutor Mode is an Ubi.com feature. Game_Settings has an "Auto balance" row, hidden and always
+checked (rule 23).
 
 Lobby room (`Lobby_Create`, title "Lobby Room"): two lists "Spies" and "Mercenaries" (a "Lvl" column, "Waiting for
 players" when empty), buttons "Switch Team", "Equipment", "Session Parameters", "Map / Mode", "Briefing", "Friends",
@@ -120,6 +126,44 @@ Voice (Reloaded):
     the Push To Talk key is held. Mute Microphone stops sending; everyone is still heard.
 22. Per-player volume: the overlay's scroll wheel sets one talker's volume, shown as a percentage; a click mutes or
     unmutes him. Volumes and mutes last for the session.
+
+Auto balance (Game_Settings, SGameInfo.PickTeam):
+23. Game_Settings' "Auto balance" row is hidden and always checked; the lobby sets SPersistentData.bAutoBalance once
+    no client is still connecting, and PickTeam, on the Lobby map only, then puts a player whose team is bigger than
+    the other on the smaller one. The launch URL carries BalanceTeams false. The rewrite makes it the host's choice
+    (off by default): a joiner asking for the bigger side goes to the smaller one, and a lobby switch that would leave
+    the new side two people ahead is refused. Bots are not counted.
+
+## Alternate Mode
+24. Create_Match's "Alternate" box sets SPersistentData.bAlternateMode (and the GRI's). Its "Alternate Mode" button,
+    and in the lobby the "Alternate" button (visible while the GRI's bAlternateMode is set), open AlternateModeSettings.
+25. The page has, for the spies: Thermal Vision, Night Vision, Grab Player, Elbow Hit, Lethal Drop Tech, the eight
+    gadgets of STeamInfo(Teams[0]).ClassInventory (captioned with each class's ItemName) and "Number of gadgets"; for
+    the mercs: EMF Vision, Motion Tracking Vision, Elbow Hit, Lethal Drop Tech, Torch Light, Laser Sight, Berserk,
+    Charge, their eight gadgets and "Number of gadgets"; and the Cinematic Camera box.
+26. A gadget box is checked when its bit of the side's restriction byte is set (GetGadgetRestriction: the byte AND
+    2^index); validation clears the byte and sets the bit of every checked box (SetGadgetRestriction toggles it). A set
+    bit allows the option (Loadouts' IsAllowed).
+27. "Number of gadgets" ranges 0 to 4; when four or fewer gadgets of the side are checked its maximum becomes that
+    count and a higher value drops to it.
+28. Validation (the A button) writes every box to SPersistentData; on the host it also copies them to the GRI's
+    bAvlb_* switches, each STeamInfo's bDisallowedInv and iNBGadgets, and the cinematic camera, which every
+    controller gets with ClientSetCinematicCamera. A client's page is read only and follows the GRI each tick.
+29. Create Session's Apply without Alternate resets the settings object (InitPersistentData: every ability but both
+    lethal drops, every gadget, four slots, no cinematic camera); in Deathmatch it then gives spies the lethal drop,
+    takes the mercs' EMF, motion tracking, laser and berserk away, and allows one gadget a side (spy restriction 64,
+    the flash bang; merc 128, the flare launcher; one slot each). The GRI's cinematic camera is on only in Alternate
+    Mode.
+
+## Briefing
+30. The lobby's "Briefing" opens GUI.Briefing for the local player's side (team 0 spies, anything else the mercs'
+    words): the level picture, "MISSION MAIN OBJECTIVE" with the map's ModesStrings[i].ExplicationModeSpy or
+    ExplicationModeSentry for i = SearchForGameMode(RulesModeFor(mode)), the mode picture (story, disk hunt, or
+    deathmatch for both deathmatches) beside GUIController's TextSpy or TextSentry for the mode, and the map's
+    ExpliMapInBriefSpy or ExpliMapInBriefSentry.
+31. Its A button ("Next") replaces it with BriefingDeux: the level's briefing picture (GetLevelBrief, the defender
+    picture when none), ModesStrings[j].ExpliModeInBriefSpy or ExpliModeInBriefSentry for j = SearchForGameMode(mode)
+    (the mode itself, not its rules mode), and LegendMapInBrief. Its A button ("Previous") goes back.
 
 ## States
 No states.

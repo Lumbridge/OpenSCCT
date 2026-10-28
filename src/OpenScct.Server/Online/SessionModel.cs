@@ -19,6 +19,9 @@ public sealed record LobbyPlayer(int Id, string Name, byte Team, SessionPlayerFl
     /// <summary>The player restricted his microphone to his team in the lobby.</summary>
     public bool TeamVoiceOnly => (Flags & SessionPlayerFlags.TeamVoice) != 0;
 
+    /// <summary>The host or an admin banned this player from voice: nobody hears him and he hears nobody.</summary>
+    public bool VoiceBanned => (Flags & SessionPlayerFlags.VoiceBanned) != 0;
+
     /// <summary>The server lets this player change the setup, launch and kick.</summary>
     public bool CanControl => (Flags & (SessionPlayerFlags.Control | SessionPlayerFlags.Host | SessionPlayerFlags.Admin)) != 0;
 

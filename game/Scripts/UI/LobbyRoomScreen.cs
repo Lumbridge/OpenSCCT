@@ -14,7 +14,8 @@ namespace OpenScctGame.UI;
 /// state, ping and voice (speaking, and the local player's volume and mute for him, Reloaded's per-player control),
 /// the spectators, "Switch Team", "Restrict Mic to Team", the Session Parameters (the Create Session rows: the host
 /// edits them and applies, a client reads them and sees changed values blink), the chat box with Say and TeamSay and
-/// its spam delay, kicking with "Do you want to kick", and the page buttons: Leave, Options and Launch (host; Cancel
+/// its spam delay, kicking with "Do you want to kick" (and, beyond the original, Ban and Voice Ban with the same
+/// question), and the page buttons: Leave, Options and Launch (host; Cancel
 /// while the launch counts down) or Ready / Not Ready (client).
 /// </summary>
 public partial class LobbyRoomScreen : MenuPage
@@ -47,11 +48,21 @@ public partial class LobbyRoomScreen : MenuPage
     private Control? _confirm;
     private Label? _confirmText;
     private int _confirmKick = -1;
+    private ConfirmAction _confirmAction;
     private int _shownMessages = -1;
     private double _countdownEnd;
     private float _lastCountdown;
     private LobbySetup? _modelSetup;
     private OpenScct.Server.MapCatalog? _mapCatalog;
+
+    /// <summary>What the Yes of the confirmation does.</summary>
+    private enum ConfirmAction
+    {
+        Kick,
+        Ban,
+        VoiceBan,
+        VoiceUnban,
+    }
 
     private sealed class PlayerRow
     {
@@ -74,6 +85,12 @@ public partial class LobbyRoomScreen : MenuPage
         public CheckBox? Mute { get; init; }
 
         public Button? Kick { get; init; }
+
+        public Button? Ban { get; init; }
+
+        public Button? VoiceBan { get; init; }
+
+        public bool VoiceBanned { get; set; }
 
         public string PlayerName { get; set; } = string.Empty;
     }
@@ -100,6 +117,53 @@ public partial class LobbyRoomScreen : MenuPage
     public Button? ApplyButton { get; private set; }
 
     public CheckBox? TeamVoiceOnlyBox { get; private set; }
+
+    /// <summary>"Alternate": the Alternate Mode page, shown while the setup (or the host's edit) has it on.</summary>
+    public Button? AlternateButton { get; private set; }
+
+    private AlternateModePanel? _alternate;
+
+    /// <summary>"Briefing": the setup's map and mode briefing for the local player's side (GUI.Briefing, BriefingDeux).</summary>
+    public Button? BriefingButton { get; private set; }
+
+    private void OpenBriefing()
+    {
+        if (Session is not { } s || FindChild("Briefing", recursive: false, owned: false) is not null)
+        {
+            return;
+        }
+
+        // A spectator reads the mercs' words, as the original's pages do for any team but the spies.
+        bool spy = Local()?.Side == HudSide.Spy;
+        string map = s.Setup.Map;
+        BriefingPages pages = BriefingPages.For(s.MapSettings(map), s.Setup.Mode, spy);
+        string title = (_mapCatalog is { } maps ? MapTitles.Of(maps, map) : map) + " - " + CreateSessionModel.ModeName(s.Setup.Mode);
+        AddChild(new BriefingPanel(pages, MapImages.Loading(_mapCatalog, map, !spy), title));
+    }
+
+    private void ShowAlternateButton()
+    {
+        if (AlternateButton is not null && Session is { } s && Parameters is not null)
+        {
+            AlternateButton.Visible = s.CanControl ? Parameters.Setup.Alternate.On : s.Setup.Alternate.On;
+        }
+    }
+
+    private void OpenAlternate()
+    {
+        if (Session is not { } s || Parameters is null || IsInstanceValid(_alternate))
+        {
+            return;
+        }
+
+        bool edit = s.CanControl;
+        _alternate = new AlternateModePanel(edit ? Parameters.Setup.Alternate : s.Setup.Alternate, edit, rules =>
+        {
+            Parameters.SetAlternate(rules);
+            Apply();
+        });
+        AddChild(_alternate);
+    }
 
     public override void _Ready()
     {
@@ -130,6 +194,9 @@ public partial class LobbyRoomScreen : MenuPage
         SwitchTeamButton.CustomMinimumSize = SpectateButton.CustomMinimumSize = new Vector2(180f, 40f);
         sideRow.AddChild(SwitchTeamButton);
         sideRow.AddChild(SpectateButton);
+        BriefingButton = UiStyle.MenuButton("Briefing", OpenBriefing, "Briefing");
+        BriefingButton.CustomMinimumSize = new Vector2(180f, 40f);
+        sideRow.AddChild(BriefingButton);
         TeamVoiceOnlyBox = new CheckBox { Name = "TeamVoiceOnly", Text = "Restrict Mic to Team" };
         TeamVoiceOnlyBox.Toggled += on => Session?.SetTeamVoiceOnly(on);
         sideRow.AddChild(TeamVoiceOnlyBox);
@@ -176,11 +243,20 @@ public partial class LobbyRoomScreen : MenuPage
         parameterLine.AddChild(ParameterRows);
         _mapCatalog = GetTree().Root.GetNodeOrNull<OpenScctGame.Online.OnlineService>(OpenScctGame.Online.OnlineService.NodeName)?.Catalog.Maps;
         Parameters.Changed += ShowMapPicture;
+        Parameters.Changed += ShowAlternateButton;
         ShowMapPicture();
+
+        // Lobby_Create's "Alternate" button, shown while the setup has Alternate Mode: the host edits the page (OK
+        // applies it), the others read it.
+        var parameterButtons = new HBoxContainer { Name = "ParameterButtons", Alignment = BoxContainer.AlignmentMode.End };
+        parameterButtons.AddThemeConstantOverride("separation", 12);
+        parameters.AddChild(parameterButtons);
+        AlternateButton = UiStyle.MenuButton("Alternate", OpenAlternate, "Alternate");
+        AlternateButton.CustomMinimumSize = new Vector2(220f, 36f);
+        parameterButtons.AddChild(AlternateButton);
         ApplyButton = UiStyle.MenuButton("Apply", Apply, "Apply");
         ApplyButton.CustomMinimumSize = new Vector2(220f, 36f);
-        ApplyButton.SizeFlagsHorizontal = SizeFlags.ShrinkEnd;
-        parameters.AddChild(ApplyButton);
+        parameterButtons.AddChild(ApplyButton);
 
         LeaveButton = PageButton("Leave", () => Session?.Leave(), "Leave");
         PageButton("Options", OpenOptions, "Options");
@@ -201,6 +277,7 @@ public partial class LobbyRoomScreen : MenuPage
         if (Parameters is not null)
         {
             Parameters.Changed -= ShowMapPicture;
+            Parameters.Changed -= ShowAlternateButton;
         }
     }
 
@@ -359,12 +436,19 @@ public partial class LobbyRoomScreen : MenuPage
         AddChild(options);
     }
 
-    private void AskKick(int id, string name)
+    private void AskKick(int id, string name, ConfirmAction action = ConfirmAction.Kick)
     {
         _confirmKick = id;
+        _confirmAction = action;
         if (_confirmText is not null)
         {
-            _confirmText.Text = "Do you want to kick " + name + "?";
+            _confirmText.Text = action switch
+            {
+                ConfirmAction.Ban => "Do you want to ban " + name + " from this server?",
+                ConfirmAction.VoiceBan => "Do you want to ban " + name + " from voice chat?",
+                ConfirmAction.VoiceUnban => "Do you want to let " + name + " use voice chat again?",
+                _ => "Do you want to kick " + name + "?",
+            };
         }
 
         if (_confirm is not null)
@@ -377,7 +461,18 @@ public partial class LobbyRoomScreen : MenuPage
     {
         if (yes && _confirmKick >= 0)
         {
-            Session?.Kick(_confirmKick);
+            switch (_confirmAction)
+            {
+                case ConfirmAction.Ban:
+                    Session?.Ban(_confirmKick);
+                    break;
+                case ConfirmAction.VoiceBan or ConfirmAction.VoiceUnban:
+                    Session?.SetVoiceBanned(_confirmKick, _confirmAction == ConfirmAction.VoiceBan);
+                    break;
+                default:
+                    Session?.Kick(_confirmKick);
+                    break;
+            }
         }
 
         _confirmKick = -1;
@@ -437,7 +532,7 @@ public partial class LobbyRoomScreen : MenuPage
 
             row.PlayerName = p.Name;
             row.Name.Text = p.Name + (p.IsVerified ? VerifiedMark : string.Empty) + (p.IsHost ? " (host)" : string.Empty) +
-                (p.TeamVoiceOnly ? " (mic: team)" : string.Empty) +
+                (p.TeamVoiceOnly ? " (mic: team)" : string.Empty) + (p.VoiceBanned ? " (voice banned)" : string.Empty) +
                 (p.MapNote.Length > 0 ? "  [" + p.MapNote + "]" : string.Empty);
             row.Name.Modulate = p.IsLocal ? UiStyle.SideColour(p.Side ?? HudSide.Spy) : UiStyle.MenuText;
             row.Rank.Show(OpenScct.Net.Cosmetics.PlayerRank.Unpack(p.Rank), withTitle: true);
@@ -447,6 +542,18 @@ public partial class LobbyRoomScreen : MenuPage
             if (row.Kick is not null)
             {
                 row.Kick.Visible = s.CanControl;
+            }
+
+            if (row.Ban is not null)
+            {
+                row.Ban.Visible = s.CanControl;
+            }
+
+            row.VoiceBanned = p.VoiceBanned;
+            if (row.VoiceBan is not null)
+            {
+                row.VoiceBan.Visible = s.CanControl;
+                row.VoiceBan.Text = p.VoiceBanned ? "Voice Unban" : "Voice Ban";
             }
         }
 
@@ -484,6 +591,11 @@ public partial class LobbyRoomScreen : MenuPage
 
         ParameterRows!.Editable = control;
         ApplyButton!.Visible = control;
+        ShowAlternateButton();
+        if (!control && IsInstanceValid(_alternate))
+        {
+            _alternate!.ShowRules(s.Setup.Alternate);
+        }
         TeamVoiceOnlyBox!.SetPressedNoSignal(s.TeamVoiceOnly);
         OnlineLobbyPlayer? local = Local();
         SwitchTeamButton!.Disabled = local is null || (local.Ready && !control) || s.Setup.Mode == OpenScct.Core.EGameMode.GM_MercDeathMatch;
@@ -527,6 +639,8 @@ public partial class LobbyRoomScreen : MenuPage
         Label? volumeText = null;
         CheckBox? mute = null;
         Button? kick = null;
+        Button? ban = null;
+        Button? voiceBan = null;
         // A bot never talks and follows the Bots setting: no volume, mute or kick on its row.
         if (!p.IsLocal && !p.IsBot)
         {
@@ -558,9 +672,26 @@ public partial class LobbyRoomScreen : MenuPage
             kick = new Button { Name = "Kick", Text = "Kick" };
             kick.Pressed += () => AskKick(id, player);
             line.AddChild(kick);
+            ban = new Button { Name = "Ban", Text = "Ban" };
+            ban.Pressed += () => AskKick(id, player, ConfirmAction.Ban);
+            line.AddChild(ban);
+            voiceBan = new Button { Name = "VoiceBan", Text = "Voice Ban" };
+            line.AddChild(voiceBan);
         }
 
-        return new PlayerRow { Line = line, Speaker = speaker, Name = name, Rank = rank, Ready = ready, Ping = ping, Volume = volume, VolumeText = volumeText, Mute = mute, Kick = kick };
+        var row = new PlayerRow
+        {
+            Line = line, Speaker = speaker, Name = name, Rank = rank, Ready = ready, Ping = ping, Volume = volume, VolumeText = volumeText,
+            Mute = mute, Kick = kick, Ban = ban, VoiceBan = voiceBan,
+        };
+        if (voiceBan is not null)
+        {
+            int id = p.Id;
+            string player = p.Name;
+            voiceBan.Pressed += () => AskKick(id, player, row.VoiceBanned ? ConfirmAction.VoiceUnban : ConfirmAction.VoiceBan);
+        }
+
+        return row;
     }
 
     public override void _Process(double delta)

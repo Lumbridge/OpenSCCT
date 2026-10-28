@@ -19,6 +19,8 @@ public partial class SPlayerController
     private static readonly Name VNAME_ServerSetVoiceChatTarget = new("ServerSetVoiceChatTarget");
     private static readonly Name VNAME_ServerClearVoiceChatTarget = new("ServerClearVoiceChatTarget");
     private static readonly Name VNAME_ServerSetVoiceComWhenGrabbing = new("ServerSetVoiceComWhenGrabbing");
+    private static readonly Name VNAME_ClientSetVoiceChatMode = new("ClientSetVoiceChatMode");
+    private static readonly Name VNAME_ServerGetVoiceChatters = new("ServerGetVoiceChatters");
 
     /// <summary>
     /// Server: a spy holding a merc pressed the Hack Comm key and talks with him (ServerSetVoiceComWhenGrabbing).
@@ -87,6 +89,88 @@ public partial class SPlayerController
 
         bSpecialsChat = val;
     }
+
+    /// <summary>
+    /// Owner to server, then server to the owner: the voice mode goes to this player's machine (the GRI's native list
+    /// never sends VoiceChatMode). The stock client asks once its voice starts; the rewrite's client asks once it has
+    /// its GRI, and the server also sends it at PostLogin and when the host changes the mode. Only the asker's own
+    /// machine is answered. Not ported: the chatter id list (the rewrite's relay has no chatter ids) and
+    /// UpdateVoiceChatMuting (the relay routes from the current state).
+    /// </summary>
+    [Uc("SBase.SPlayerController.ServerGetVoiceChatters", Sha1 = "50f35671750d24ace89ab791aace2a54040ee24c")]
+    [PortOf("uc:SBase.SPlayerController:ServerGetVoiceChatters", Spec = "spec/game/voice-chat.md#network")]
+    public void ServerGetVoiceChatters(PlayerController? Player)
+    {
+        if (Role < ENetRole.ROLE_Authority)
+        {
+            GameHost.ServerCall(this, new GameCall(VNAME_ServerGetVoiceChatters) { Actor = this });
+            return;
+        }
+
+        if (Level.NetMode is ENetMode.NM_DedicatedServer or ENetMode.NM_ListenServer && GameReplicationInfo is { } gri)
+        {
+            ClientSetVoiceChatMode(gri.VoiceChatMode);
+        }
+    }
+
+    /// <summary>
+    /// Server to client: the match's voice mode. It goes into the client's GRI (CanHackEnemyComs reads it there),
+    /// and Team mode takes the downed chat distance to 0. A call that arrives before the client has its GRI is kept
+    /// until the GRI is there.
+    /// </summary>
+    [Uc("SBase.SPlayerController.ClientSetVoiceChatMode", Sha1 = "5887e40ab30f295077b3c10e100162df286096cb")]
+    [PortOf("uc:SBase.SPlayerController:ClientSetVoiceChatMode", Spec = "spec/game/voice-chat.md#network")]
+    public void ClientSetVoiceChatMode(EVoiceChatMode _mode)
+    {
+        if (IsRemotePlayer)
+        {
+            GameHost.ClientCall(this, new GameCall(VNAME_ClientSetVoiceChatMode) { Int = (int)_mode });
+            return;
+        }
+
+        if (GameReplicationInfo is { } gri)
+        {
+            gri.VoiceChatMode = _mode;
+            _pendingVoiceChatMode = null;
+        }
+        else
+        {
+            _pendingVoiceChatMode = _mode;
+        }
+
+        fDistToTalkWhenOnGround = _mode == EVoiceChatMode.VCM_Team ? 0f : VoiceDefaultDistToTalkWhenOnGround;
+    }
+
+    /// <summary>
+    /// Client, each tick: once the GRI is there, a voice mode that came before it goes in, and the player's own
+    /// controller asks the server for the mode once (ServerGetVoiceChatters).
+    /// </summary>
+    private void ApplyPendingVoiceChatMode()
+    {
+        if (GameReplicationInfo is not { } gri)
+        {
+            return;
+        }
+
+        if (_pendingVoiceChatMode is { } mode)
+        {
+            gri.VoiceChatMode = mode;
+            _pendingVoiceChatMode = null;
+        }
+
+        if (!_askedVoiceChatMode && Player is UViewport)
+        {
+            _askedVoiceChatMode = true;
+            ServerGetVoiceChatters(this);
+        }
+    }
+
+    private EVoiceChatMode? _pendingVoiceChatMode;
+    private bool _askedVoiceChatMode;
+
+    /// <summary>The class default of fDistToTalkWhenOnGround (300 uu).</summary>
+    [Provenance(ProvenanceKind.Decoded, "SBase.u SPlayerController defaults fDistToTalkWhenOnGround")]
+    private const float VoiceDefaultDistToTalkWhenOnGround = 300f;
 
     /// <summary>Voice routing happens on a dedicated or listen server with a game.</summary>
     [Uc("SBase.SPlayerController.CanRouteVoice", Sha1 = "bd282dd30c892c01c36cef346dd273f8aca93dc8")]

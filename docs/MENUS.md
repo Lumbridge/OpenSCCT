@@ -74,7 +74,7 @@ The loading page between maps is the original's (GUI.loading): "Loading...", the
 
 ```
 Main menu ── Create a Session ──> Create Session ── Create ──> Lobby Room (host)
-          ── Find a Session  ──> Sessions (LAN, saved, master) ── Join ──> Loading ──> Lobby Room
+          ── Find a Session  ──> Sessions (LAN, saved, master; the selected one's players by side) ── Join ──> Loading ──> Lobby Room
           ── Join with IP    ──> Server Address, Server Port, Password ── Join ──┘
           ── Account         ──> Sign in with Discord ──> (browser) ──> pick a name ──> stats, achievements
 Lobby Room ── Launch (all ready) ──> Loading ──> round ──> results ── Next ──> next game of the series, or the Lobby Room
@@ -94,6 +94,8 @@ Rows, captions and ranges are the page's (spec rules 1 to 9):
 | Revenge | | two games, sides swapped for the second; hides Games in a Row |
 | Random Map | | after the series, the next map is drawn at random (never the same one twice in a row) |
 | Voice in Lobby | on | players talk in the lobby |
+| Auto balance | off | Game_Settings' row (hidden and always on in the original): a joiner asking for the bigger side goes to the smaller one, and nobody may switch to a side that would then be two people ahead |
+| Alternate | off | Alternate Mode; the "Alternate Mode" button under the rows opens its page (below) |
 | Games in a Row | 1 to 10 | |
 | Game Length (min) | 0 to 20, 0 is "Inf." | |
 | Spy Lives ("Kills to Win" in Merc Deathmatch) | 0 to 10 ("Inf."), kills 1 to 100 | |
@@ -110,13 +112,42 @@ docs/MAPS.md), else its id (`UI/MapTitles.cs`): Create Session, the lobby, the s
 loading page. The server's own chat line ("Next: ...") still names the id. The loading page of a round shows the
 mode and the map's words only; the join steps (direct, NAT punch, relay) show while joining.
 
+## Alternate Mode
+
+Create_Match's "Alternate" box and its page (GUI.AlternateModeSettings). With Alternate on, the host picks, per side:
+
+| Spies | Mercenaries |
+|---|---|
+| Thermal Vision, Night Vision, Grab Player, Elbow Hit, Lethal Drop Tech | EMF Vision, Motion Tracking Vision, Elbow Hit, Lethal Drop Tech, Torch Light, Laser Sight, Berserk, Charge |
+| the eight spy gadgets, each allowed or not | the eight merc gadgets, each allowed or not |
+| Number of gadgets 0 to 4 (never more than the gadgets allowed) | Number of gadgets 0 to 4 |
+
+and the Cinematic Camera. Untouched values are the stock ones (every ability but the lethal drops, every gadget,
+four slots, no cinematic camera). With Alternate off a match uses the stock values, except Deathmatch, which gives
+spies the lethal drop, takes the mercs' EMF and motion tracking vision, laser and berserk away and allows one gadget a
+side (flash bang, flare launcher), as Create_Match's Apply does. The values travel in the setup line (`SvmAlt`), go
+into the host's settings object (`AlternateRules.ApplyTo`) and from there into each round's replicated game info and
+team infos, which gate the abilities (goggle modes, grab, elbows, lethal drop, torch, laser, berserk, charge) and the
+gear menu's choices and slots. In the lobby, the "Alternate" button (shown while Alternate is on) opens the page:
+editable for the host (OK applies it), read only for everyone else.
+
 ## Lobby Room
 
 - Spies and Mercenaries lists ("Waiting for players" when a side is empty), spectators below. Each row: the speaking
   icon, name (host mark, "(mic: team)" for a player who restricted his mic, a missing or different map), Ready / Not
-  Ready, ping; for other players a volume slider (0 to 200%), Mute and, for the host, Kick ("Do you want to kick ...?").
-- Switch Team (not in Merc Deathmatch, not while ready), Spectate, Restrict Mic to Team, and a line about the local
-  microphone (transmitting or silent, push to talk or voice activation, the level).
+  Ready, ping, "(voice banned)"; for other players a volume slider (0 to 200%), Mute and, for the host, Kick ("Do you
+  want to kick ...?"), Ban ("Do you want to ban ... from this server?": his account, install id and address, for good)
+  and Voice Ban / Voice Unban ("Do you want to ban ... from voice chat?": nobody hears him and he hears nobody for the
+  rest of the visit).
+- Switch Team (not in Merc Deathmatch, not while ready), Spectate, Briefing, Restrict Mic to Team, and a line about
+  the local microphone (transmitting or silent, push to talk or voice activation, the level).
+- Briefing (GUI.Briefing, BriefingDeux): the setup's map and mode for the local player's side (a spectator reads the
+  mercs'). Page 1 "MISSION MAIN OBJECTIVE": the map's loading picture, the mode's objective
+  (ExplicationModeSpy / Sentry) and the map's briefing (ExpliMapInBriefSpy / Sentry); Next shows page 2, the mode's
+  briefing for the side (ExpliModeInBriefSpy / Sentry) and the map legend (LegendMapInBrief); Previous goes back. The
+  words are the map's own, converted into its `ui/mapinfo.json` (`MapCatalog.GetMapSettings` fills SMapSettings'
+  strings from it). The original's briefing picture (GetLevelBrief) is not converted, so page 1 shows the loading
+  picture, and GUIController's objective names (TextSpy, TextSentry) show only when the text table has them.
 - Session Parameters: the Create Session rows. The host edits and presses Apply; any change un-readies the others
   (the original's clients un-ready themselves), whose changed values blink for three seconds.
 - Chat: Say and TeamSay ("(Team) " prefix); a line within a second of the last one is not sent: "(Spam delay, 1 second)".
@@ -157,8 +188,9 @@ tools\godot\4.7.2-stable\Godot_v4.7.2-stable_mono_win64_console.exe --path game 
 
 ## Differences from the original
 
-- Host options the original had that the rewrite does not show: Alternate Mode, Tutor Mode, Game Type (Free or Ranking)
-  and Level Gap (Ubi.com and console features), Lock / Unlock (Ubi.com matches), Equipment, Briefing, Friends.
+- Host options the original had that the rewrite does not show: Tutor Mode, Game Type (Free or Ranking) and Level
+  Gap (Ubi.com features), Lock / Unlock (Ubi.com matches), Equipment, Friends. Alternate Mode is on the LAN page in
+  the original too, and the rewrite has it (above).
 - The original's random map pool is the stock maps numbered 01 to 12 without 07; the rewrite draws from the installed
   maps that have the mode.
 - Launch: the original waits (launching) when not everyone is ready; the rewrite says who is not ready. Reloaded lets a
