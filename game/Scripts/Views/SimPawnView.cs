@@ -281,6 +281,13 @@ public partial class SimPawnView : Node3D
         }
     }
 
+    /// <summary>
+    /// The local spy's view as drawn this frame (the controller's rotation plus the mouse turn not yet simulated), or
+    /// null: the arm aims at it (MeshAimIK.DrawnFullPair) instead of the last tick's step, so the drawn pistol and its
+    /// laser keep up with the camera as in the original. Set by <see cref="PawnViews.Draw"/> before each draw.
+    /// </summary>
+    public FRotator? DrawnView { get; set; }
+
     /// <summary>The world transform of one of the pawn's bones as last drawn, or false.</summary>
     public bool TryGetBone(Name bone, out Transform3D world)
     {
@@ -313,14 +320,17 @@ public partial class SimPawnView : Node3D
         }
 
         MeshAimIK aim = pawn.PawnAnim.Aim;
-        if (aim.FullYaw == 0f && aim.FullPitch == 0f)
+        (float fullYaw, float fullPitch) = DrawnView is { } view
+            ? aim.DrawnFullPair(view.Vector(), new FRotator(pawn.Rotation.Pitch, yaw, pawn.Rotation.Roll).Vector())
+            : (aim.FullYaw, aim.FullPitch);
+        if (fullYaw == 0f && fullPitch == 0f)
         {
             _applier.AimBone = -1;
             return;
         }
 
         _applier.AimBone = _aimBone ??= _applier.FindBone(MeshAimIK.FullAimBoneName);
-        Basis world = AimPose.WorldBasis(aim.FullYaw, aim.FullPitch, new FRotator(0, yaw, 0).Vector());
+        Basis world = AimPose.WorldBasis(fullYaw, fullPitch, new FRotator(0, yaw, 0).Vector());
         Basis skeleton = _model.Skeleton.GlobalTransform.Basis.Orthonormalized();
         _applier.AimRotation = (skeleton.Inverse() * world * skeleton).GetRotationQuaternion();
     }

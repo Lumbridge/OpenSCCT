@@ -710,7 +710,17 @@ public partial class PlayRoot : Node3D
 
         SBasePawn? firstPerson = session.FirstPersonOverride is { } fpOverride ? fpOverride()
             : pc is { bBehindView: false, FreeCameraFlying: 0 } ? session.LocalPawn : null;
-        Pawns?.Draw(alpha, dt, firstPerson);
+        // The local spy's arm aims at the view drawn this frame (its controller's rotation plus the mouse turn not yet
+        // simulated), as the camera does, so the pistol and its laser keep up with the mouse.
+        SBasePawn? aimer = session.LocalPawn is { SPawnType: not PawnType.SPAWNDEFENSE } spy && pc is not null && spy.Controller == pc ? spy : null;
+        FRotator drawnView = default;
+        if (aimer is not null)
+        {
+            FRotator pending = session.ViewOverride is null && _look.Active ? _look.Pending : default;
+            drawnView = new FRotator(pc!.Rotation.Pitch + pending.Pitch, pc.Rotation.Yaw + pending.Yaw, pc.Rotation.Roll);
+        }
+
+        Pawns?.Draw(alpha, dt, firstPerson, aimer, drawnView);
         Devices?.Draw(alpha, dt);
         Map?.SoftBodies?.Update(dt, session.Client.World.Level, Audio?.Sound, session.LocalPawn);
         if (Camera is not null)

@@ -132,6 +132,7 @@ public sealed class MeshAimIK
     public void Update(float dt)
     {
         DeltaTime = dt;
+        FullStepped = false;
         switch (Request)
         {
             case 4:
@@ -157,6 +158,9 @@ public sealed class MeshAimIK
                 ReturnPair(ref HohYaw, ref HohPitch);
                 ReturnPair(ref BtwYaw, ref BtwPitch);
                 Step(FullAimShare, Speed, ref FullYaw, ref FullPitch);
+                FullStepped = true;
+                FullYawTarget = _stepYawTarget;
+                FullPitchTarget = _stepPitchTarget;
                 break;
             default:
                 ReturnPair(ref LookYaw, ref LookPitch);
@@ -175,7 +179,59 @@ public sealed class MeshAimIK
     public void Reset()
     {
         LookYaw = LookPitch = Vertical = Single2 = HohYaw = HohPitch = BtwYaw = BtwPitch = FullYaw = FullPitch = 0f;
+        FullYawTarget = FullPitchTarget = 0f;
+        FullStepped = false;
         Request = 0;
+    }
+
+    // ---- drawing ahead (OpenSCCT's own; view data, the simulation never reads it) ---------------------------------
+
+    /// <summary>True when the last update stepped the AAFULL pair (a weapon aimed).</summary>
+    public bool FullStepped { get; private set; }
+
+    /// <summary>The AAFULL pair's target in the last update's step, within the limits (radians).</summary>
+    public float FullYawTarget { get; private set; }
+
+    public float FullPitchTarget { get; private set; }
+
+    private float _stepYawTarget;
+    private float _stepPitchTarget;
+
+    /// <summary>
+    /// The AAFULL pair to draw for a view the simulation has not aimed at yet: the pair's target for
+    /// <paramref name="viewDir"/> from <paramref name="originalDir"/> (the drawn facing), less the part of the last step's
+    /// target the IK speed has not reached yet. The original builds each frame's pose from that frame's view, so the arm
+    /// keeps up with the mouse there; ours steps once a tick on the request of the tick before and is drawn between
+    /// ticks, two to three ticks behind the camera's look-ahead. A turn faster than the IK speed still trails as it does
+    /// in the original.
+    /// </summary>
+    [Provenance(ProvenanceKind.Estimated, "frame-rate pose build of the original (UpdateAnimation per rendered frame) against our 60 Hz ticks; the target formula is 0x110fb890's")]
+    public (float Yaw, float Pitch) DrawnFullPair(FVector viewDir, FVector originalDir)
+    {
+        if (!FullStepped)
+        {
+            return (FullYaw, FullPitch);
+        }
+
+        (float yaw, float pitch) = Targets(viewDir, originalDir, FullAimShare);
+        yaw = Math.Clamp(yaw, FullAimShare * MinHori, FullAimShare * MaxHori) - (FullYawTarget - FullYaw);
+        pitch = Math.Clamp(pitch, FullAimShare * MinVert, FullAimShare * MaxVert) - (FullPitchTarget - FullPitch);
+        return (Math.Clamp(yaw, FullAimShare * MinHori, FullAimShare * MaxHori), Math.Clamp(pitch, FullAimShare * MinVert, FullAimShare * MaxVert));
+    }
+
+    /// <summary>0x110fb890's targets: share x asin(view z) and share x the signed horizontal angle from the original direction.</summary>
+    private static (float Yaw, float Pitch) Targets(FVector viewDir, FVector originalDir, float share)
+    {
+        float pitchTarget = SvmMath.Asin(Math.Clamp(viewDir.Z, -1f, 1f)) * share;
+        FVector a = new FVector(originalDir.X, originalDir.Y, 0f).SafeNormal();
+        FVector v = new FVector(viewDir.X, viewDir.Y, 0f).SafeNormal();
+        float yawTarget = SvmMath.Acos(Math.Clamp((v | a), -1f, 1f));
+        if ((v.Y * a.X) - (a.Y * v.X) > 0f)
+        {
+            yawTarget = -yawTarget;
+        }
+
+        return (yawTarget * share, pitchTarget);
     }
 
     private const float DegToRad = 0.017453f;
@@ -199,6 +255,8 @@ public sealed class MeshAimIK
         }
 
         float dYaw = (yawTarget * share) - yaw;
+        _stepYawTarget = Math.Clamp(yawTarget * share, share * MinHori, share * MaxHori);
+        _stepPitchTarget = Math.Clamp(pitchTarget, share * MinVert, share * MaxVert);
         float yawSpeed = speed;
         float pitchSpeed = speed;
         if (dPitch != 0f && dYaw != 0f)

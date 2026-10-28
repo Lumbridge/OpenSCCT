@@ -76,6 +76,12 @@ public sealed class LookAhead
     /// <summary>True while the last tick that took mouse counts turned exactly as predicted.</summary>
     public bool Active { get; private set; }
 
+    /// <summary>
+    /// The turn of the mouse counts not yet simulated, from the last <see cref="Offset"/>: the controller's rotation
+    /// plus this is the view drawn this frame (the local pawn's arm aims at it, SimPawnView.DrawnView).
+    /// </summary>
+    public FRotator Pending { get; private set; }
+
     /// <summary>The input turn of the last tick, drawn ahead of the blend for the rest of the tick.</summary>
     public FRotator TickTurn => _tickTurn;
 
@@ -148,6 +154,7 @@ public sealed class LookAhead
         ArgumentNullException.ThrowIfNull(mouse);
         if (!Active || pc is null)
         {
+            Pending = default;
             return default;
         }
 
@@ -157,6 +164,7 @@ public sealed class LookAhead
         FRotator pending = pendingX != 0f || pendingY != 0f
             ? Turn(pc, mouse, pendingX, pendingY, viewport, pc.Level?.m_dT ?? Sim.DeltaTime, _lastTurn.Yaw != 0, _lastTurn.Pitch != 0)
             : default;
+        Pending = pending;
         return new FRotator((int)(_tickTurn.Pitch * rest) + _lagTurn.Pitch + pending.Pitch,
             (int)(_tickTurn.Yaw * rest) + _lagTurn.Yaw + pending.Yaw, 0);
     }
