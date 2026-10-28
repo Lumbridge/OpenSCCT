@@ -93,6 +93,12 @@ public sealed record PlaySettings
     /// </summary>
     public OpenScct.Net.SimLinkProfile? SimLink { get; init; }
 
+    /// <summary>
+    /// With <see cref="PlayRules.MapSettings"/>: the original's offline launch rules (a tutorial or a Visit a Map: no
+    /// time limit, unlimited lives, 5 s respawn; <see cref="MatchSetup.WithOfflineRules"/>) instead of the map's entry.
+    /// </summary>
+    public bool OfflineRules { get; init; }
+
     /// <summary>Records the match as a demo into this folder (docs/DEMOS.md), or null for none.</summary>
     public string? DemoFolder { get; init; }
 
@@ -134,8 +140,11 @@ public sealed record PlaySettings
         return Rules == PlayRules.PlayLevel ? null : Setup(gameplay).ToPersistentData();
     }
 
-    private MatchSetup Setup(GameplayDoc gameplay) =>
-        MatchSetup.Defaults(PlayMapLoader.MapSettingsOf(Map, gameplay), GameMode, Map);
+    private MatchSetup Setup(GameplayDoc gameplay)
+    {
+        MatchSetup setup = MatchSetup.Defaults(PlayMapLoader.MapSettingsOf(Map, gameplay), GameMode, Map);
+        return OfflineRules ? setup.WithOfflineRules() : setup;
+    }
 
     /// <summary>The login options of the local player.</summary>
     public string LoginOptions =>
