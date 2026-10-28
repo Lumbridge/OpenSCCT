@@ -545,7 +545,13 @@ public sealed class MagmaRenderer
             float sv = (k.Tiling.Y >= 0f ? st[c].Y * k.Tiling.Y : 1f + st[c].Y * k.Tiling.Y) + k.Offset.Y;
             uvs[c] = new Vector2((region.L + su * (region.R - region.L)) / Math.Max(1, size.X),
                 (region.T + sv * (region.B - region.T)) / Math.Max(1, size.Y));
-            Color col = Clamp01((o?.Color ?? k.Colors[c]) * tint);
+            Color keyed = o?.Color ?? k.Colors[c];
+            if (o?.AlphaGain is { } gain)
+            {
+                keyed.A = Math.Min(1f, keyed.A * gain);
+            }
+
+            Color col = Clamp01(keyed * tint);
             // vc = min(255, trunc(C x scale)) per channel, alpha unscaled; the stage doubles it (MODULATE2X).
             var vc = new Color(Math.Min(1f, col.R * scale), Math.Min(1f, col.G * scale), Math.Min(1f, col.B * scale), col.A);
             colors[c] = dodge ? new Color(vc.R, vc.G, vc.B, 1f) : new Color(vc.R * 2f, vc.G * 2f, vc.B * 2f, vc.A);

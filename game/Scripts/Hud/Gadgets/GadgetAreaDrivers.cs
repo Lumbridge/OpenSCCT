@@ -286,6 +286,9 @@ public sealed class HeartSensorDriver : IHudAreaDriver
             return;
         }
 
+        StyleWave(idle);
+        StyleWave(hit);
+
         // The radar hides both cones every frame before this driver runs; showing without a restart keeps the
         // clocks, and which one was up last frame is remembered here.
         switch (_cone)
@@ -328,6 +331,20 @@ public sealed class HeartSensorDriver : IHudAreaDriver
 
         _lastFrame = frame;
     }
+
+    /// <summary>
+    /// One wave arc (onde2), held clearly visible until it reaches the radar edge and faded over the last quarter of its
+    /// trip (Ryan's comparison with the original); the second, faster arc (onde3) is hidden. Hiding it keeps its loop
+    /// action (actions fire whether the widget is drawn or not).
+    /// </summary>
+    [OpenScct.Provenance.Provenance(OpenScct.Provenance.ProvenanceKind.Estimated, "Matched by eye to the original: the keyed alpha falls linearly to 0 at the edge; x4 holds it full for 75% of the trip")]
+    private static void StyleWave(MagmaNode cone)
+    {
+        cone.Widget("onde2").AlphaGain = HeartWaveAlphaGain;
+        cone.Widget("onde3").Hidden = true;
+    }
+
+    private const float HeartWaveAlphaGain = 4f;
 
     /// <summary>Shows <paramref name="to"/> playing; when it was not up last frame it starts at <paramref name="other"/>'s frame.</summary>
     private void ShowPlaying(MagmaNode to, MagmaNode other)

@@ -19,6 +19,9 @@ public sealed class MagmaOverride
 
     public float? Rotation { get; set; }
 
+    /// <summary>Images: the keyframe alpha times this, capped at 1 (a fade that holds longer before it drops).</summary>
+    public float? AlphaGain { get; set; }
+
     /// <summary>Moves the widget's rect so its top-left corner is here (page units of its area), keeping the size.</summary>
     public Vector2? Pos { get; set; }
 
@@ -40,6 +43,7 @@ public sealed class MagmaOverride
         Text = null;
         Color = null;
         Rotation = null;
+        AlphaGain = null;
         Pos = null;
         Top = null;
         MoveTop = null;
