@@ -163,7 +163,9 @@ Client-only JSON, written with the canonical writer but hashed as raw bytes (ren
 - `lighting.json`: `lights` (exporter fields plus typed `props`), `zones` (fog, ambient, `zoneIndex`, typed
   `props`), `sky`, `look`, `lightmaps`.
 - `fx.json`: `emitters` keyed by Emitter actor: `class`, `gameplay`, typed `props`, `emitters` (its sub-emitters
-  from its own `Emitters` array: `object`, `class`, typed `props`, `texture`); `projectors`, `rain`, `patches`.
+  from its own `Emitters` array: `object`, `class`, typed `props`, `texture`); `spawnParticles` (optional: the
+  sub-emitters gameplay objects name in `SpawnableObjects[].SpawnParticle`, keyed by object path, in the same shape);
+  `projectors`, `rain`, `patches`.
 - `projectors.json` (optional): `projectors`, each texture projector with `location`, `rotation`, `scale`
   (DrawScale x DrawScale3D), `texture`, `size` (USize, VSize), `fov`, `maxTrace`, `fbBlend`, `matBlend`, the projection
   flags, `uvAnim` and `flipbook` when animated. A client that reads it leaves out the `projectorOf` instances.

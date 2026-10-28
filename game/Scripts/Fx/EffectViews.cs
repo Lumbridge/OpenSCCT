@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.Text.Json;
 using Godot;
 using OpenScct.Core;
 using OpenScct.Core.Engine;
@@ -203,6 +205,9 @@ public sealed partial class EffectViews : Node3D
             _tracked[a] = t;
             switch (fx.Kind)
             {
+                case "emitter" when a is SSpawnableEmitter spawnable:
+                    t.View = StartSpawnable(spawnable, fx);
+                    break;
                 case "emitter" when a is Emitter:
                     t.View = Start(fx, a.GetUcClass().Name);
 
@@ -363,6 +368,78 @@ public sealed partial class EffectViews : Node3D
         sim.Trace = _trace;
         Started[ShortName(fx.Path)] = Started.GetValueOrDefault(ShortName(fx.Path)) + 1;
         return new ParticleSystemView(sim, Library, this, name, fx.Float("HeatOpacity", RenderK.DefaultHeatOpacity));
+    }
+
+    /// <summary>
+    /// A damaged gameplay object's effect (SGamePlayObject.SpawnDamageEmitter): the class has no sub-emitters of its
+    /// own; the object's SpawnableObjects entry inserts the map's sub-emitter, made to reset on its trigger and not to
+    /// be switched by it, its start box scaled by the object's DrawScale3D for a Scaled entry, then triggered. The
+    /// map's own textures and meshes draw it.
+    /// </summary>
+    [Provenance(ProvenanceKind.Decoded, "SGamePlayObject.SpawnDamageEmitter: ResetOnTrigger = true, TriggerDisabled = false, StartLocationRange *= DrawScale3D when Scaled, Trigger(), Emitters[0] = SpawnParticle")]
+    [Provenance(ProvenanceKind.Estimated, "The script scales the map's shared sub-emitter in place, so in the original each later spawn of a Scaled entry compounds the scale; the port scales once")]
+    private ParticleSystemView? StartSpawnable(SSpawnableEmitter a, FxClass fx)
+    {
+        if (a.Emitters.Count == 0 || a.Emitters[0].Path is not { } path)
+        {
+            return null;
+        }
+
+        if (Map?.Emitters is not { } mapFx || !mapFx.SpawnParticles.TryGetValue(path, out FxSubEmitter? sub))
+        {
+            Missing.Add(path);
+            return null;
+        }
+
+        FVector? scale = null;
+        if (a.Owner is SGamePlayObject gpo)
+        {
+            foreach (FSpawnInfo info in gpo.SpawnableObjects)
+            {
+                if (ReferenceEquals(info.SpawnedActor, a) && info.Scaled)
+                {
+                    scale = gpo.DrawScale3D;
+                }
+            }
+        }
+
+        JsonElement? Get(string name)
+        {
+            switch (name)
+            {
+                case "ResetOnTrigger":
+                    return JsonTrue;
+                case "TriggerDisabled":
+                    return JsonFalse;
+                case "StartLocationRange" when scale is { } s:
+                    FxRangeVector r = sub.TryGet(name, out JsonElement v) ? FxRangeVector.From(v, default) : default;
+                    return ScaledRange(r, s);
+            }
+
+            return sub.TryGet(name, out JsonElement value) ? value : null;
+        }
+
+        ParticleParams p = ParticleParams.From(sub.Class, sub.ObjectPath, Get, sub.Texture);
+        if (p.MaxParticles <= 0)
+        {
+            return null;
+        }
+
+        var settings = new ParticleSystemParams(a.AutoDestroy, a.AutoReset, default, default);
+        var sim = new ParticleSystemSim([p], settings, _seed++ * 2246822519u) { Trace = _trace };
+        sim.Trigger();
+        string name = a.GetUcClass().Name;
+        Started[name] = Started.GetValueOrDefault(name) + 1;
+        return new ParticleSystemView(sim, mapFx, this, name, fx.Float("HeatOpacity", RenderK.DefaultHeatOpacity));
+    }
+
+    private static readonly JsonElement JsonTrue = JsonDocument.Parse("true").RootElement.Clone();
+    private static readonly JsonElement JsonFalse = JsonDocument.Parse("false").RootElement.Clone();
+
+    private static JsonElement ScaledRange(FxRangeVector r, FVector s)
+    {
+        string Range(FxRange x, float k) => string.Create(CultureInfo.InvariantCulture, $"{{\"Min\":{x.Min * k},\"Max\":{x.Max * k}}}");
+        return JsonDocument.Parse($"{{\"X\":{Range(r.X, s.X)},\"Y\":{Range(r.Y, s.Y)},\"Z\":{Range(r.Z, s.Z)}}}").RootElement.Clone();
     }
 
     /// <summary>The launch trail script spawns for a thrown grenade on every drawing machine (not for a quick throw).</summary>
