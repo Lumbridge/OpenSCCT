@@ -479,6 +479,19 @@ public partial class SPlayerController
     public void NativeComputeControlVariables(float dt) => ControlInput.Compute(this, dt, ref _lastUseForControl);
 
     /// <summary>
+    /// The controller's left stick this frame (rl:input.pad), forward and right positive, -1 to 1 after the deadzone; it
+    /// takes the place of the direction keys in <see cref="ControlInput"/> while <see cref="bPadStickMove"/> is set.
+    /// Local input only: not replicated (the moves carry the acceleration it gives).
+    /// </summary>
+    public float PadStickForward;
+
+    /// <inheritdoc cref="PadStickForward"/>
+    public float PadStickStrafe;
+
+    /// <summary>The stick is pushed this frame: the analog path of <see cref="ControlInput"/> replaces the keys.</summary>
+    public bool bPadStickMove;
+
+    /// <summary>
     /// The crouch key toggles the crouch latch once per press; the roll key asks for a roll when the spy is walking
     /// unarmed, pushing the stick at least 0.3, moving at 65 uu/s or more and past the roll cooldown.
     /// </summary>

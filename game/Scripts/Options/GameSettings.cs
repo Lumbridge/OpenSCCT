@@ -218,6 +218,18 @@ public sealed class PadSettings
     [Provenance(ProvenanceKind.Decoded, "rl:input.rumble controller_rumble_strength = 1.0")]
     public float RumbleStrength { get; set; } = 1f;
 
+    /// <summary>A part push of the left stick walks slower (Reloaded's analog slow walk); off, only its direction counts.</summary>
+    [JsonPropertyName("slow_walk")]
+    [Provenance(ProvenanceKind.Decoded, "rl:input.pad controller_left_stick_slow_walk_enabled = true")]
+    public bool SlowWalk { get; set; } = true;
+
+    /// <summary>
+    /// The controller prompt was answered (Reloaded's first-run "Would you like to enable native controller support?"):
+    /// asked once, when a controller is connected while controller support is off.
+    /// </summary>
+    [JsonPropertyName("prompted")]
+    public bool Prompted { get; set; }
+
     /// <summary>Snap spy movement to eight directions.</summary>
     [JsonPropertyName("spy_move8")]
     public bool SpyMove8 { get; set; }
@@ -364,6 +376,14 @@ public sealed class GameSettings
 
     public static readonly string[] WheelModes = ["Gadget", "Speed"];
 
+    /// <summary>
+    /// Separate spy and mercenary key layouts (rl:input.keyboard). Off, both sides play the spy's layout
+    /// (svm_keys_spy.ini) and a change on either side changes both.
+    /// </summary>
+    [JsonPropertyName("use_split_spy_merc_keyboard")]
+    [Provenance(ProvenanceKind.Estimated, "OpenSCCT choice: on, so layouts saved before the toggle existed keep both sides (Reloaded's first-run default is false, Ryan's config true)")]
+    public bool SplitKeyboard { get; set; } = true;
+
     /// <summary>The chosen gear (spec/additions/gear-change.md).</summary>
     [JsonPropertyName("loadout")]
     public LoadoutSettings Loadout { get; set; } = new();
@@ -416,10 +436,20 @@ public sealed class GameSettings
     [Provenance(ProvenanceKind.Decoded, "System/Default.ini [D3DDrv.D3DRenderDevice] UseVSync=False")]
     public bool VSync { get; set; }
 
-    /// <summary>Reloaded's widescreen: Hor+ view and the anchored HUD; off stretches the 4:3 picture and HUD (Options/ViewFov).</summary>
+    /// <summary>Reloaded's widescreen: the Hor+ view; off stretches the 4:3 picture (Options/ViewFov).</summary>
     [JsonPropertyName("widescreen")]
     [Provenance(ProvenanceKind.Decoded, "spec/reloaded/FEATURES.md rl:gfx.widescreen widescreen = true")]
     public bool Widescreen { get; set; } = true;
+
+    /// <summary>Reloaded's widescreen HUD: each HUD area keeps the 4:3 scale, anchored to its side; off stretches it as stock.</summary>
+    [JsonPropertyName("widescreen_hud")]
+    [Provenance(ProvenanceKind.Decoded, "spec/reloaded/FEATURES.md rl:gfx.hud widescreen_hud = true")]
+    public bool WidescreenHud { get; set; } = true;
+
+    /// <summary>Reloaded's ws_er_small: Enhanced Reality icons keep their 4:3 size on a wide screen instead of growing.</summary>
+    [JsonPropertyName("ws_er_small")]
+    [Provenance(ProvenanceKind.Decoded, "spec/reloaded/FEATURES.md rl:gfx.hud ws_er_small = true")]
+    public bool WideErSmall { get; set; } = true;
 
     /// <summary>ws_fov: the merc first-person field of view cap in degrees, horizontal at the current aspect.</summary>
     [JsonPropertyName("ws_fov")]
@@ -528,6 +558,38 @@ public sealed class GameSettings
     [JsonPropertyName("voice_input_gain")]
     [Provenance(ProvenanceKind.Decoded, "spec/reloaded/FEATURES.md rl:voice.gain voice_input_gain = 1.0")]
     public float VoiceInputGain { get; set; } = 1f;
+
+    /// <summary>"Auto-Adjust Mic Volume": automatic gain; Microphone Volume is not used while it is on.</summary>
+    [JsonPropertyName("voice_auto_gain")]
+    [Provenance(ProvenanceKind.Decoded, "spec/reloaded/FEATURES.md rl:voice.gain voice_auto_gain = true")]
+    public bool VoiceAutoGain { get; set; } = true;
+
+    /// <summary>"Noise suppression": steady background noise removed before the activation gate.</summary>
+    [JsonPropertyName("voice_noise_suppression")]
+    [Provenance(ProvenanceKind.Decoded, "spec/reloaded/FEATURES.md rl:voice.noise voice_noise_suppression = true")]
+    public bool VoiceNoiseSuppression { get; set; } = true;
+
+    /// <summary>How hard noise is suppressed: Low (15 dB), Standard (30), High (45) or Extreme (60).</summary>
+    [JsonPropertyName("voice_noise_suppression_level")]
+    [Provenance(ProvenanceKind.Decoded, "spec/reloaded/FEATURES.md rl:voice.noise voice_noise_suppression_level = \"Standard\"; Low 15, Standard 30, High 45, Extreme 60 dB")]
+    public string VoiceNoiseLevel { get; set; } = "Standard";
+
+    /// <summary>The suppression levels in the order the Voice page lists them.</summary>
+    public static readonly string[] NoiseLevels = ["Low", "Standard", "High", "Extreme"];
+
+    /// <summary>The most attenuation of a suppression level, in dB.</summary>
+    public static int NoiseLevelDecibels(string level) => level switch
+    {
+        "Low" => 15,
+        "High" => 45,
+        "Extreme" => 60,
+        _ => 30,
+    };
+
+    /// <summary>"Echo cancellation" (experimental): other players' voices taken back out of the microphone.</summary>
+    [JsonPropertyName("voice_echo_cancellation")]
+    [Provenance(ProvenanceKind.Decoded, "spec/reloaded/FEATURES.md rl:voice.echo voice_echo_cancellation = false")]
+    public bool VoiceEchoCancellation { get; set; }
 
     /// <summary>"Buffering": the jitter buffer in 20 ms frames, 1 to 12.</summary>
     [JsonPropertyName("voice_jitter_frames")]
@@ -671,6 +733,7 @@ public sealed class GameSettings
         VoiceInputGain = LookSettings.Range(VoiceInputGain, 0f, 8f);
         VoiceJitterFrames = Math.Clamp(VoiceJitterFrames, 1, 12);
         VoiceInputDevice ??= "";
+        VoiceNoiseLevel = OneOf(NoiseLevels, VoiceNoiseLevel, "Standard");
     }
 
     /// <summary><paramref name="value"/> when it is one of <paramref name="items"/> (any case, given back as listed), else the fallback or the first.</summary>

@@ -199,6 +199,9 @@ public partial class OptionsMenu : Control
         grid.AddChild(new Label { Text = "Key layout" });
         grid.AddChild(side);
         _controls["key_layout"] = side;
+        grid.AddChild(new Control());
+        // Reloaded's split layouts (rl:input.keyboard); off, both sides play the spy's keys. Takes effect on Save.
+        Check(grid, "Separate spy and mercenary layouts", "use_split_spy_merc_keyboard", _edit.SplitKeyboard, v => _edit.SplitKeyboard = v);
         page.AddChild(grid);
         _keySource = new Label { Name = "Source", Modulate = UiStyle.Dim, AutowrapMode = TextServer.AutowrapMode.Arbitrary };
         page.AddChild(_keySource);
@@ -293,7 +296,12 @@ public partial class OptionsMenu : Control
     {
         GridContainer g = Grid("Controller");
         PadSettings p = _edit.Pad;
-        Check(g, "Native controller support", "controller.enabled", p.Enabled, v => p.Enabled = v);
+        // Set here, the first-run question (PadMenus) is never asked.
+        Check(g, "Native controller support", "controller.enabled", p.Enabled, v =>
+        {
+            p.Enabled = v;
+            p.Prompted = true;
+        });
         Check(g, "Stick movement", "controller.move", p.Move, v => p.Move = v);
         Check(g, "Stick aiming", "controller.aim", p.Aim, v => p.Aim = v);
         Check(g, "Button binds", "controller.binds", p.Binds, v => p.Binds = v);
@@ -301,6 +309,7 @@ public partial class OptionsMenu : Control
         Slider(g, "Right stick deadzone", "controller.deadzone_right", 0f, 0.9f, 0.01f, p.DeadzoneRight, v => p.DeadzoneRight = v);
         Slider(g, "Vertical aim scale", "controller.vertical_scale", 0.1f, 3f, 0.05f, p.VerticalScale, v => p.VerticalScale = v);
         Slider(g, "Spy run threshold", "controller.run_threshold", 0.1f, 1f, 0.01f, p.RunThreshold, v => p.RunThreshold = v);
+        Check(g, "Analog slow walk (a part push walks slower)", "controller.slow_walk", p.SlowWalk, v => p.SlowWalk = v);
         Slider(g, "Look speed", "controller.look_speed", 100f, 3000f, 10f, p.LookSpeed, v => p.LookSpeed = v, "0");
         Check(g, "Spy eight-way movement", "controller.spy_move8", p.SpyMove8, v => p.SpyMove8 = v);
         Check(g, "Mercenary eight-way movement", "controller.merc_move8", p.MercMove8, v => p.MercMove8 = v);
@@ -453,7 +462,9 @@ public partial class OptionsMenu : Control
         Choice(g, "Window size", "resolution", Resolutions(), _edit.Resolution.Length == 0 ? DesktopLabel : _edit.Resolution,
             v => _edit.Resolution = v == DesktopLabel ? "" : v);
         Check(g, "Vertical sync", "vsync", _edit.VSync, v => _edit.VSync = v);
-        Check(g, "Widescreen (Hor+ view, anchored HUD)", "widescreen", _edit.Widescreen, v => _edit.Widescreen = v);
+        Check(g, "Widescreen (Hor+ view)", "widescreen", _edit.Widescreen, v => _edit.Widescreen = v);
+        Check(g, "Widescreen HUD (not stretched)", "widescreen_hud", _edit.WidescreenHud, v => _edit.WidescreenHud = v);
+        Check(g, "Small Enhanced Reality icons in widescreen", "ws_er_small", _edit.WideErSmall, v => _edit.WideErSmall = v);
         Slider(g, "Mercenary FOV cap (ws_fov)", "ws_fov", GameSettings.MinMercFov, GameSettings.MaxMercFov, 1, _edit.MercFovCap, v => _edit.MercFovCap = v, "0");
         // Max frame rate (Options/DisplayFrameCap): Monitor (the window's screen rate), Unlimited or 30 to 240.
         double hz = SettingsApplier.MonitorHz;
@@ -660,7 +671,8 @@ public partial class OptionsMenu : Control
         if (_keySource is not null)
         {
             // The file's name, not the install's whole path.
-            _keySource.Text = "Layout: " + System.IO.Path.GetFileName(_keys.Source);
+            _keySource.Text = "Layout: " + System.IO.Path.GetFileName(_keys.Source) +
+                (OpenScctGame.Controls.InputBindings.Shared ? " (shared by both sides)" : string.Empty);
         }
     }
 
@@ -732,10 +744,20 @@ public partial class OptionsMenu : Control
     /// <summary>Saves the edited settings and puts them into effect.</summary>
     public Error Save()
     {
+        bool splitChanged = _edit.SplitKeyboard != SettingsStore.Current.SplitKeyboard;
         Error result = SettingsStore.Save(_edit);
         SettingsApplier.ApplyDisplay(_edit, GetViewport());
         SettingsApplier.ApplyAudio(_edit);
         _edit = SettingsStore.Current.Clone();
+        if (splitChanged)
+        {
+            // The layout files the sides play changed: the page and a running round load them again.
+            OpenScctGame.Controls.InputBindings.RaiseReboundAll();
+            if (_keys is not null)
+            {
+                LoadLayout(_keys.Side);
+            }
+        }
         if (_note is not null)
         {
             _note.Text = result == Error.Ok ? "Saved to " + SettingsStore.FilePath : "Could not save the settings";

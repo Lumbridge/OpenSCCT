@@ -60,6 +60,7 @@ Who-hears-whom matches the original (rules in `VoiceRouting.cs`). Gaps:
 | Voice bans can't be set | done (console, chat and lobby) |
 | Hack Comm stops on any grab, including ledges, in the original; ours only in s_GrabbingPlayer | done |
 | Symmetric mute lists (Xbox Live) | by design: ours are one-way per listener |
+| Voice in offline play (`--svm-play`'s local listen server) | by design: the other players there are bots, which neither talk nor listen |
 
 ## Reloaded and Enhanced features
 
@@ -71,7 +72,12 @@ Who-hears-whom matches the original (rules in `VoiceRouting.cs`). Gaps:
 | Invert X, feet/meters, Objective Sounds, wheel mode (profile options; profile is null) | done (wheel defaults to Gadget, as before) |
 | classic_crosshair, hack_alpha, Shocker snap option, location name on the HUD | hack_alpha and location done; classic_crosshair open (offset not decoded); Shocker snap open (the snap itself isn't in the game) |
 | Anisotropic level, shadow quality, low-latency mode, window position | done (low latency: Ultra = On, Godot's floor) |
-| Crash log, process priority/affinity | done (client only; Godot-callback exceptions not caught) |
+| Crash log, process priority/affinity | done (priority/affinity on the client and `svm-server`; Godot-callback exceptions not caught) |
+| Microphone noise suppression, automatic gain, echo cancellation (rl:voice.noise, gain, echo) | done (our own managed DSP, docs/VOICE.md "Microphone clean-up"; not tuned against Reloaded's speexdsp) |
+| MMCSS "Pro Audio" voice thread (rl:audio.thread) | done (the microphone clean-up's thread) |
+| Analog stick movement, hot plug lines, first-run controller prompt (rl:input.pad) | done (the analog rule is ours: spec/native/input.md rule 9; stick-click/bumper swap open) |
+| Share one key layout for both sides (rl:input.keyboard) | done (default stays split) |
+| `widescreen_hud`, `ws_er_small` keys (rl:gfx.hud) | done (they followed `widescreen` before) |
 | Flashlight in the scope, ledge assist (Reloaded natives) | done (also Reloaded's slow-strafe diagonal fix, found in the same function); two ledge patches need a reference-game check (spec/movement/ledge.md) |
 | `!resign`, jitter in `!pings` | done |
 | Lag compensation (rl:net.lagcomp) | done (off by default: `lagcomp on`, `!lagcomp on` or config `lagComp`; docs/NETCODE.md "Lag compensation"; Reloaded's default ceiling not decoded, ours is 250 ms) |
@@ -81,7 +87,7 @@ Who-hears-whom matches the original (rules in `VoiceRouting.cs`). Gaps:
 | MSAA/SMAA | later (M) |
 | Extraction, Sabotage, Neutralization modes | later (L) |
 | Unverified Reloaded fixes: grab angle, jump lock-on 7.5 m, KO after interrupt, slow strafe, disk radar threshold, crosshair shift, sticky cam fixes | open: need decoding of the Reloaded patch values |
-| Signed releases, MMCSS voice thread, lobby music, join sound, local match log, scoreboard split size | open (small or optional) |
+| Signed releases, lobby music, join sound, local match log, scoreboard split size | open (small or optional) |
 
 ## Front end
 

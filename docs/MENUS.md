@@ -226,8 +226,14 @@ chat, Voice Chat Volume, Buffering (jitter frames 1 to 12), Mute microphone, Mic
 bar with transmitting or silent, Activation threshold, Release time, Push to talk with the bound keys (Caps Lock, team
 Y, mute F8), and Test my microphone (three seconds through gain, gate, Opus, a relay and the jitter buffer, then played
 back). Settings keys are Reloaded's (`voice_push_to_talk`, `voice_activation_threshold`, `voice_activation_hold_ms`,
-`voice_input_gain`, `voice_output_volume`, `voice_jitter_frames`, `voice_muted`, `voice_input_device`) plus
-`allow_voice_chat`. Not built yet, so not shown: Auto-Adjust Mic Volume, Noise suppression, Echo cancellation.
+`voice_input_gain`, `voice_output_volume`, `voice_jitter_frames`, `voice_muted`, `voice_input_device`,
+`voice_auto_gain`, `voice_noise_suppression`, `voice_noise_suppression_level`, `voice_echo_cancellation`) plus
+`allow_voice_chat`. Auto-Adjust Mic Volume, Noise suppression with its level (Low, Standard, High, Extreme) and Echo
+cancellation (experimental) sit under Microphone Volume (docs/VOICE.md "Microphone clean-up"). The Keys page has
+"Separate spy and mercenary layouts" (`use_split_spy_merc_keyboard`, on): off, both sides play the spy's layout and a
+rebind on either side changes both (it takes effect on Save). The Controller page has "Analog slow walk"
+(`controller.slow_walk`). The Display page has Widescreen HUD (`widescreen_hud`) and small Enhanced Reality icons
+(`ws_er_small`) apart from Widescreen (`widescreen`, the Hor+ view).
 The key rows read "Bind: Capslock" as Reloaded's page writes them ("Bind: %s"). The options pages scroll up and down
 only, and a long device name is clipped to its column. The Display mode list reads "Borderless fullscreen" for
 Reloaded's `BorderlessFullscreen` value; the Keys page names the layout file, not its whole path.

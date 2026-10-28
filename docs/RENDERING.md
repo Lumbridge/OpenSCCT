@@ -436,7 +436,9 @@ removes the file. Not measured.
 **Process options** (rl:gfx.system): `--priority=` (idle, low, below, normal, medium, above, high) and
 `--affinity=` (a mask such as `0xF`, or CPUs such as `0,2-3`) after `--` on the client's command line
 (`ProcessTuning`, `SVM_SYSTEM` lines in the log); with `throttle_stop` on, the Windows client opts out of power
-throttling at start (SetProcessInformation, execution speed). The dedicated server takes neither yet.
+throttling at start (SetProcessInformation, execution speed). The dedicated server (`svm-server`) takes the same
+two switches, as `--priority <p>` or `--priority=<p>` and the same for `--affinity`, in every mode; both read them
+through `OpenScct.Server.ProcessOptions` (affinity on Windows and Linux).
 
 **Crash reports** (rl:ac.crash): an exception nothing catches (any thread, or a faulted task nobody awaited) writes
 `crash-<utc>.log` into the user data folder, next to `settings.json`, with the build, the OS, the map and mode being
