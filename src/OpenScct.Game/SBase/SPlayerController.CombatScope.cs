@@ -135,8 +135,8 @@ public partial class SPlayerController
                     BinocularCannotBlockTime = K.BreathExhaustedLockout;
                 }
 
-                des.Pitch += SvmMath.Trunc(vAcc * k);
-                des.Yaw += SvmMath.Trunc(hAcc);
+                // OpenSCCT's own: the original applies the aim input a second time here, so the aim moves twice as
+                // fast while the breath is held. Ryan asked for the normal scope speed (2026-10-28).
             }
         }
         else if (bJustWasHoldBreath)
@@ -238,7 +238,9 @@ public partial class SPlayerController
         }
         else
         {
-            FRotator d = (des - view) * K.BreathHoldSnap;
+            // The gap is taken the short way round: Des and View sit on either side of the half-turn wrap when the
+            // aim crosses yaw 180, and the raw difference (near 65536) would spin the view about 72 degrees a tick.
+            FRotator d = (des - view).Normalize() * K.BreathHoldSnap;
             view = new FRotator(WrapAxis(view.Pitch + d.Pitch), WrapAxis(view.Yaw + d.Yaw), view.Roll);
             Rotation = view;
             UpdateDesiredRotation(view);

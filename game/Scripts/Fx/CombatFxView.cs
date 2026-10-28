@@ -237,10 +237,13 @@ public partial class CombatFxView : Node3D
         {
             // The local merc's first-person rifle.
             cameraRotation.GetAxes(out FVector x, out FVector y, out FVector z);
-            FVector muzzle = cameraLocation + (x * 60f) + (y * 9f) - (z * 9f);
+            // Scoped, the view model is hidden (s_Sniping AnimEnd clears bDrawWeapon) and its bones hold a stale pose,
+            // so the flash sits on the aim line in the middle of the scope.
+            bool scoped = viewer is { bBinocularVision: true };
+            FVector muzzle = scoped ? cameraLocation + (x * 60f) : cameraLocation + (x * 60f) + (y * 9f) - (z * 9f);
             at = UeSpace.ToGodot(muzzle);
             forward = UeSpace.DirectionToGodot(x);
-            if (FirstPerson?.Model is { } model && model.Skeleton.FindBone(BoneFx.ToString()) is var fx and >= 0)
+            if (!scoped && FirstPerson is { Shown: true, Model: { } model } && model.Skeleton.FindBone(BoneFx.ToString()) is var fx and >= 0)
             {
                 at = (model.Skeleton.GlobalTransform * model.Skeleton.GetBoneGlobalPose(fx)).Origin;
             }

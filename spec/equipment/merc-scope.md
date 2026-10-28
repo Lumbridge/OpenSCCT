@@ -103,7 +103,8 @@ Clip: FirstSnipStBg2 7 frames at 15 fps played at rate 1.6 on channel 6 = 0.292 
         same factor formulas;
       - steady hold: `reserve -= dt`; at `reserve <= 0` set `BinocularCannotBlockTime = 3`; factors 0; the aim
         input of Rule 6 is applied a second time (`Des.Pitch += int(vAcc k)`, `Des.Yaw += int(hAcc)`), so the aim
-        moves twice as fast while the breath is held.
+        moves twice as fast while the breath is held. OpenSCCT drops the second application (aim at the normal
+        scope speed while holding); the hold snap of Rule 9 is unchanged.
    2. Not holding (or blocked):
       - on the first tick after a hold: clear the flag; if lockout is not 3 set it to 1 s; add
         `int(FactorRight - pi/2)` to both yaws and `int(FactorUp - pi/2)` to both pitches (factors are 0 here, so
@@ -211,7 +212,7 @@ stateDiagram-v2
 - Breath reserve restored on re-entry within 5 s is truncated to whole seconds by `int()`.
 - At FOV 10 there is no pitch clamp at all; at FOV 20 the clamp is wider than at FOV 30 (as decoded).
 - A shot before the 0.292 s raise clip ends is refused (channel 6 animating).
-- Holding breath doubles aim speed (Rule 7.1).
+- Holding breath doubles aim speed in the original (Rule 7.1); OpenSCCT keeps the normal scope speed.
 - Stock: entering the scope turns the torch off and it stays off on exit. On Enhanced builds Reloaded.Core keeps it on
   (rl:fix.flashlight_sniper, enh:rules.flashlight_sniper; decoded in `merc-flashlight.md` rule 12): the torch is lit
   in the scope and after it, and the scope entry shows no "Torchlight off" message and plays no switch sound.
