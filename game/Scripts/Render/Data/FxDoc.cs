@@ -110,6 +110,12 @@ public sealed class FxDoc
 
     public List<RainEntry> Rain { get; } = [];
 
+    /// <summary>
+    /// The sub-emitters gameplay objects carry for their damage effects (SpawnableObjects[].SpawnParticle), by object
+    /// path; empty for content converted before they were exported.
+    /// </summary>
+    public Dictionary<string, FxSubEmitter> SpawnParticles { get; } = new(StringComparer.OrdinalIgnoreCase);
+
     /// <summary>Only the rain volumes of render/fx.json (empty when the file is missing).</summary>
     public static List<RainEntry> LoadRain(string path)
     {
@@ -183,6 +189,14 @@ public sealed class FxDoc
             return fx;
         }
 
+        if (fx._doc.RootElement.TryGetProperty("spawnParticles", out JsonElement spawn) && spawn.ValueKind == JsonValueKind.Object)
+        {
+            foreach (JsonProperty s in spawn.EnumerateObject())
+            {
+                fx.SpawnParticles[s.Name] = SubOf(s.Value, classes);
+            }
+        }
+
         foreach (JsonProperty e in emitters.EnumerateObject())
         {
             JsonElement props = e.Value.TryGetProperty("props", out JsonElement p) ? p : default;
@@ -191,9 +205,7 @@ public sealed class FxDoc
             {
                 foreach (JsonElement s in list.EnumerateArray())
                 {
-                    string cls = MaterialsDoc.Str(s, "class") ?? "";
-                    subs.Add(new FxSubEmitter(MaterialsDoc.Str(s, "object") ?? "", cls,
-                        s.TryGetProperty("props", out JsonElement sp) ? sp : default, classes.DefaultsOf(cls), MaterialsDoc.Str(s, "texture")));
+                    subs.Add(SubOf(s, classes));
                 }
             }
 
@@ -219,6 +231,13 @@ public sealed class FxDoc
         }
 
         return fx;
+    }
+
+    private static FxSubEmitter SubOf(JsonElement s, SharedClasses classes)
+    {
+        string cls = MaterialsDoc.Str(s, "class") ?? "";
+        return new FxSubEmitter(MaterialsDoc.Str(s, "object") ?? "", cls,
+            s.TryGetProperty("props", out JsonElement sp) ? sp : default, classes.DefaultsOf(cls), MaterialsDoc.Str(s, "texture"));
     }
 
     private static float Num(JsonElement e, string name, float fallback = 0f) =>

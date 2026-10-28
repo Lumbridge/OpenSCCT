@@ -52,6 +52,16 @@ The runtime lays each sub-emitter's stored values over its class defaults from `
 - Effects the original spawns on each drawing machine from script, never replicated: the launch trails
   (SSmokeLaunchEmitter on smoke, chaff, flash-bang and phosphorus grenades that are not quick-thrown, SFragLaunchEmitter
   on frags, removed when the frag explodes), and what `Spawn` is asked for.
+- A damaged gameplay object's effect (SGamePlayObject.SpawnDamageEmitter, an SSpawnableEmitter based on the object):
+  the class has no sub-emitters; the object's SpawnableObjects entry names a sub-emitter of the map
+  (SpawnParticle), which the maps step writes to `render/fx.json` `spawnParticles` (by object path, with its texture;
+  the MeshEmitter debris meshes go into the map library like the placed emitters'). The view builds the system from
+  it with ResetOnTrigger on, TriggerDisabled off and, for a Scaled entry, the start box times the object's
+  DrawScale3D, then triggers it, as the script does. MissD, MissE, MissP (26 each) and PrisD (2) use them; maps
+  converted before this have no `spawnParticles` and show nothing (rebuild the maps step).
+- The barrel smoke of the merc guns (SSmokeCanonEmitter): the rifle's and the Uzi's after a burst (CreateSmoke2),
+  the shotgun's two at the start of each pull (CreateSmoke1, at (22, +-3, -1) on the FX bone), spawned on the
+  drawing machine and kept on the simulation's FX bone of the gun.
 - The flash lights (SFlashLight, SFlashLight_FragGrenade, whose brightness fades from 255 over 0.5 s as its native tick).
   Light actors are bHidden (Engine.Light defaults) and still light: each one alive is handed to the map's dynamic world
   lights (`WorldLights.SetSpawned`, at most 16), so the frag's flash lights the walls and floor as the map's own dynamic

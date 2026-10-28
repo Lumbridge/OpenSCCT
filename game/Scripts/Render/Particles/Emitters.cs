@@ -58,6 +58,7 @@ public sealed class Emitters : IParticleAssets
         Root = new Node3D { Name = "Emitters" };
         parent.AddChild(Root);
         FxDoc fx = FxDoc.Load(Path.Combine(map.Folder, "render", "fx.json"), map.SharedRoot);
+        SpawnParticles = fx.SpawnParticles;
         foreach (FxEmitter e in fx.Emitters)
         {
             var subs = new List<ParticleParams>();
@@ -90,6 +91,12 @@ public sealed class Emitters : IParticleAssets
     }
 
     public Node3D Root { get; }
+
+    /// <summary>
+    /// The sub-emitters the map's gameplay objects insert into an SSpawnableEmitter when damaged (render/fx.json
+    /// spawnParticles), by object path; drawn by the gameplay effects view, with this map's textures and meshes.
+    /// </summary>
+    public IReadOnlyDictionary<string, FxSubEmitter> SpawnParticles { get; }
 
     /// <summary>Sub-emitters simulated and drawn.</summary>
     public int Count => SubEmitters;

@@ -24,6 +24,9 @@ public sealed class FxClass
     /// <summary>The sub-emitters with their properties over their class defaults (emitters only).</summary>
     public required IReadOnlyList<ParticleParams> Emitters { get; init; }
 
+    /// <summary>The sub-emitters' stored values and class defaults, in the order of <see cref="Emitters"/>.</summary>
+    public IReadOnlyList<FxSubEmitter> Sources { get; init; } = [];
+
     /// <summary>The asset properties of the class (StaticMesh, ImpactMaterial, ProjTexture, Skins...).</summary>
     public required IReadOnlyDictionary<string, string> Assets { get; init; }
 
@@ -136,6 +139,31 @@ public sealed class FxLibrary : IParticleAssets
 
         var settings = new ParticleSystemParams(c.Bool("AutoDestroy"), c.Bool("AutoReset"), default, default);
         return new ParticleSystemSim(c.Emitters, settings, seed);
+    }
+
+    /// <summary>
+    /// A new particle system of an Emitter class whose script changed a sub-emitter's values before it ran:
+    /// <paramref name="change"/> gives (sub-emitter index, property name) a new value, or null to keep the class's.
+    /// </summary>
+    public ParticleSystemSim? CreateSystem(string cls, uint seed, Func<int, string, JsonElement?> change)
+    {
+        ArgumentNullException.ThrowIfNull(change);
+        if (Find(cls) is not { Kind: "emitter", Emitters.Count: > 0 } c || c.Sources.Count != c.Emitters.Count)
+        {
+            return CreateSystem(cls, seed);
+        }
+
+        var emitters = new List<ParticleParams>(c.Sources.Count);
+        for (int i = 0; i < c.Sources.Count; i++)
+        {
+            FxSubEmitter sub = c.Sources[i];
+            int index = i;
+            emitters.Add(ParticleParams.From(sub.Class, sub.ObjectPath,
+                n => change(index, n) ?? (sub.TryGet(n, out JsonElement v) ? v : null), sub.Texture));
+        }
+
+        var settings = new ParticleSystemParams(c.Bool("AutoDestroy"), c.Bool("AutoReset"), default, default);
+        return new ParticleSystemSim(emitters, settings, seed);
     }
 
     public Texture2D? Texture(string? png) => png is null ? null : _textures.Get(png);
@@ -271,6 +299,7 @@ public sealed class FxLibrary : IParticleAssets
         foreach (JsonProperty c in list.EnumerateObject())
         {
             var emitters = new List<ParticleParams>();
+            var sources = new List<FxSubEmitter>();
             if (c.Value.TryGetProperty("emitters", out JsonElement subs) && subs.ValueKind == JsonValueKind.Array)
             {
                 foreach (JsonElement s in subs.EnumerateArray())
@@ -280,6 +309,7 @@ public sealed class FxLibrary : IParticleAssets
                     JsonElement props = s.TryGetProperty("props", out JsonElement sp) ? sp.Clone() : default;
                     string? texture = s.TryGetProperty("texture", out JsonElement st) ? st.GetString() : null;
                     emitters.Add(ParticleParams.From(cls, obj, props, classes.DefaultsOf(cls), texture));
+                    sources.Add(new FxSubEmitter(obj, cls, props, classes.DefaultsOf(cls), texture));
                 }
             }
 
@@ -303,6 +333,7 @@ public sealed class FxLibrary : IParticleAssets
                 Path = c.Name,
                 Kind = c.Value.TryGetProperty("kind", out JsonElement k) ? k.GetString() ?? "" : "",
                 Emitters = emitters,
+                Sources = sources,
                 Assets = assets,
                 Defaults = defaults is { } d ? d.Clone() : default,
             };

@@ -26,6 +26,7 @@ Units:
 - uc:SBase.SBasePawn:PlayFootStepLeft
 - uc:SBase.SBasePawn:PlayFootStepRight
 - uc:SBase.SBasePawn:PlayFootStepSound
+- uc:SBase.SBasePawn:FootPrint, uc:SBase.SFootPrint:PostBeginPlay (the footprint and its material)
 
 ## Purpose
 
@@ -230,7 +231,12 @@ stream that has the Sound's own name.
 
 27. `PlayFootStepLeft` / `PlayFootStepRight` (walk-cycle notifies): FootPrint for that foot (a line check from the
     foot bone 100 uu down; `SetSwitch(material.SurfaceType)`, footprints and splashes), then
-    `PlayFootStepSound(left)`.
+    `PlayFootStepSound(left)`. A footprint (SFootPrint, a projector 10 uu above the hit, MaxTraceDistance 20,
+    DrawScale 0.8, abandoned for 20 s) projects a material its PostBeginPlay builds: a Combiner whose colour is a
+    ConstantColor's (CO_Use_Color_From_Material2) and whose alpha is the texture's times the colour's (AO_Multiply),
+    alpha blended; the right foot uses a TexScaler of it with VScale -1 (mirrored). FootPrint sets the texture (sand
+    after sand, water after water or snow, phosphor otherwise) and the colour: StepColor with alpha
+    `byte(1 + StepColor.A x FootDirtyness)`.
 28. `PlayFootStepSound(bLeft)`: nothing while falling. Bone `B L Foot` or `B R Foot`; speed = horizontal velocity
     length, truncated to an int. On the local player's own pawn FootStepsVolume becomes LocalFootStepsVolume
     (stored: it stays). Crouched: when speed > RunningSpeed / 4, `SW_FootCrouch` at volume

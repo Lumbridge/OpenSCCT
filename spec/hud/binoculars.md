@@ -5,6 +5,8 @@ Units:
   0x10b350c0, key help 0x10b34f30, speak box 0x10b35370) and P_BinocularsDEF (init 0x10b33d70, update 0x10b342c0,
   key help 0x10b339f0, reticle message 0x10b347b0)
 - uc:SBase.SHud:s_H_Binoculars_Att.PostRender, uc:SBase.SHud:s_H_Binoculars_Def.PostRender
+- uc:SBase.SHud:s_H_Binoculars_Def.BeginState, uc:SBase.SHud:s_H_Binoculars_Def.EndState,
+  uc:SBase.SHud:s_H_Binoculars_Att.BeginState, uc:SBase.SHud:s_H_Binoculars_Att.EndState, uc:SBase.SHud:IsInBinocular
 - nat:SBase.SHud.DrawObjectivesBinocularsAtt (the drawing; the target choice is spec/equipment/spy-binoculars.md)
 
 ## Purpose
@@ -108,6 +110,21 @@ Spy markers (`DrawObjectivesBinocularsAtt`, called by `s_H_Binoculars_Att.PostRe
 17. Off-screen entries: the point is clamped to [X0, 640 - X0 - 16] x [Y0, 480 - Y0 - 16] (an entry behind the view is
     first pushed to the opposite edge) and the Att_Arrow texture drawn 32 x 32 centred there, turned by
     `Yaw = 16384 - atan2(sy - 240, sx - 320) x 10430.2` (the texture's arrow points down, so it points at the entry).
+
+HUD states and their sounds (on the player's machine; the controller puts the SHud in them):
+
+18. The merc's controller puts the SHud in `s_H_Binoculars_Def` when the rifle's raise clip ends
+    (`WeaponNotifiedSnipingDrawEnded`), and back to no state when the scope closes or a reload starts inside it.
+    The spy's controller puts it in `s_H_Binoculars_Att` when the binoculars come up and back to no state when they go
+    down. `IsInBinocular` is true in either state. Leaving either state records it in `PreviousState`.
+19. Entering `s_H_Binoculars_Def` plays `Snd_SwitchBinoculars` (JUMact, misc slot), the noise loop `Snd_BinocularNoise`
+    (JUMloop, ambient slot) and the analyse loop `Snd_BinocularAnalyzeLoop` (JUManalize_loop, interface slot), all
+    unattenuated; leaving it stops the two loops.
+20. Entering `s_H_Binoculars_Att` plays `Snd_SwitchBinoculars` (misc slot) and the attack loop `Snd_BinocularAttLoop`
+    (JUMloop, interface slot, unattenuated) and sets `BinocularSndRegular` to 0; leaving it stops the loop.
+21. While the spy looks through the binoculars his controller adds each move's time to `BinocularSndRegular`; once it
+    is above 5 s, 5 s come off it and `Snd_BinocularAnalyzeDetect` (JUManalize_detect, misc slot) plays: a blip every
+    5 s. (The original checks in the state's PostRender, once a frame; the port checks after each addition.)
 
 ## Constants
 

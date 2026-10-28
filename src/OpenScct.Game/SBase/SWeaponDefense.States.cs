@@ -193,6 +193,7 @@ public partial class SWeaponDefense
             }
 
             w.SetTimer(w.RateOfFire, true);
+            w.CreateSmoke1();
         }
 
         /// <summary>The shot clip's channel blends out.</summary>

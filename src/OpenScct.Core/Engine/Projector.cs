@@ -10,6 +10,15 @@ namespace OpenScct.Core.Engine;
 /// </summary>
 public partial class Projector
 {
+    /// <summary>
+    /// The colour a material built at run time draws the projection in (a Combiner taking its colour from a
+    /// ConstantColor and multiplying the texture's alpha by the colour's: SFootPrint), or null for the texture's own.
+    /// </summary>
+    public FColor? ProjectionTint;
+
+    /// <summary>The projection's texture is drawn upside down (a TexScaler with VScale -1: SFootPrint's right foot).</summary>
+    public bool ProjectionFlipV;
+
     /// <summary>AttachProjector (native 1202): attaches the projection to what it covers. Drawing only.</summary>
     [UcNative("AProjector::execAttachProjector")]
     [PortOf("nat:Engine.Projector.AttachProjector", Spec = "spec/equipment/flare.md#rules")]
@@ -61,6 +70,12 @@ public sealed class AbandonedProjection
 
     /// <summary>Counts the projections abandoned on this machine, so a view sees each one once.</summary>
     public required int Serial { get; init; }
+
+    /// <summary>The projector's <see cref="Projector.ProjectionTint"/>.</summary>
+    public FColor? Tint { get; init; }
+
+    /// <summary>The projector's <see cref="Projector.ProjectionFlipV"/>.</summary>
+    public bool FlipV { get; init; }
 }
 
 /// <summary>The abandoned projections of a level (one per machine, a level service made on first use).</summary>
@@ -98,6 +113,8 @@ public sealed class AbandonedProjectors
             FrameBufferBlendingOp = p.FrameBufferBlendingOp,
             Expires = expires,
             Serial = ++_serial,
+            Tint = p.ProjectionTint,
+            FlipV = p.ProjectionFlipV,
         });
     }
 

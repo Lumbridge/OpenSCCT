@@ -932,7 +932,7 @@ public partial class SPlayerController
         float v = WeaponRules.ThrowValue(e, pawn.WeaponLoaded != 0, K.ThrowTapWindow, K.ThrowRamp);
         if (e >= K.ThrowTapWindow)
         {
-            CombatFx.Notify(this, CombatFx.SetBallisticValue, v);
+            SetBallisticValue(v);
         }
 
         if (bAltFire != 0)
@@ -946,7 +946,7 @@ public partial class SPlayerController
             grenade.Use(v);
         }
 
-        CombatFx.Notify(this, CombatFx.SetBallisticValue, 0f);
+        SetBallisticValue(0f);
     }
 
     /// <summary>

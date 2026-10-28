@@ -423,7 +423,7 @@ public partial class SPlayerController
             pc.TimerUSe = now;
             pc.fGrabFromLedgeStartTime = now;
             pc.fThrowForce = 0f;
-            CombatFx.Notify(pc, CombatFx.SetBallisticValue, 0f);
+            pc.SetBallisticValue(0f);
             pc.bUsingNow = false;
         }
 

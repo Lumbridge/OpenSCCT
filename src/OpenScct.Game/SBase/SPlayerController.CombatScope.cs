@@ -410,7 +410,7 @@ public partial class SPlayerController
 
             pc.TimerUSe = 0f;
             pc.bUsingNow = false;
-            CombatFx.Notify(pc, CombatFx.SetBallisticValue, 0f);
+            pc.SetBallisticValue(0f);
             pc.bChangeZoom = true;
             pc.fBinocularZoomEffectTime = K.FirstZoomEffectTime;
             pc.fBinocularVisionFOV = K.ScopeFov1;
@@ -445,6 +445,7 @@ public partial class SPlayerController
             }
 
             CombatFx.Notify(pc, CombatFx.HudState);
+            GadgetHud.SetHudState(pc, Name.None);
             pc.ScopeResetFOV();
             pc.AudioZoomFactor = 0f;
             pc.ClearBinocularVoiceTarget();
@@ -638,6 +639,7 @@ public partial class SPlayerController
         public void WeaponNotifiedSnipingDrawEnded(SPlayerController self)
         {
             CombatFx.Notify(self, CombatFx.HudState, 1f);
+            GadgetHud.SetHudState(self, GadgetStates.s_H_Binoculars_Def);
             self.ScopeSetFOV(self.fBinocularVisionFOV);
         }
 
@@ -696,6 +698,7 @@ public partial class SPlayerController
             var pc = (SPlayerController)self;
             pc.bBinocularVision = true;
             CombatFx.Notify(pc, CombatFx.HudState);
+            GadgetHud.SetHudState(pc, Name.None);
             if (!pc.IsRemotePlayer)
             {
                 pc.SBPawn?.MyWeapon?.eventReload();

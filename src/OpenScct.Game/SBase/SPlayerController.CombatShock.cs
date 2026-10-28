@@ -660,7 +660,13 @@ public partial class SPlayerController
     /// <summary>True while the HUD is perturbed (shock, chaff).</summary>
     public bool IsHudPerturbed => myHUD is { bPerturbation: true };
 
-    /// <summary>The merc head-shot HUD shutdown (sticky-shock-effect.md rule 3.11); spies are not affected.</summary>
+    /// <summary>
+    /// The merc head-shot HUD shutdown (sticky-shock-effect.md rule 3.11, spec/hud/screen-effects.md rule 12); spies
+    /// are not affected. The HUD keeps the times and plays Snd_HudShutdown; bShutDown, the "System malfunction"
+    /// message and the "Rebooting" one 12 s later are the client HUD's (HudEffects, MercHudPage).
+    /// </summary>
+    [Uc("SBase.SHud.HudShutDown", Sha1 = "9b48ba9d88d58ed12b14cd49ffe9199eea2082e3")]
+    [PortOf("uc:SBase.SHud:HudShutDown", Spec = "spec/hud/screen-effects.md#rules")]
     public void HudShutDown(float CloseTime, float Length)
     {
         if (SPawnType != PawnType.SPAWNDEFENSE)
@@ -673,6 +679,7 @@ public partial class SPlayerController
             hud.HudShutDownLength = Length;
             hud.TimeToBeginShutDown = Level.TimeSeconds;
             hud.TimeToCloseShut = CloseTime;
+            ClientPlaySoundCombat(hud.Snd_HudShutdown);
         }
 
         CombatFx.Notify(this, CombatFx.HudShutDown, CloseTime, Length);
