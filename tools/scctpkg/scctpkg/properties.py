@@ -180,8 +180,9 @@ def _read_typed_array(r: Reader, name: str, inner: str, size: int, depth: int):
         else:
             raise PackageError("type")
         diff = (r.tell() - start) - (r.name_extra - extra0)
-        # Tagged struct elements: the tag size leaves out each element's None terminator (SLift.DoorsAndSwitches).
-        if (diff == size or (inner.startswith("Struct:") and diff == size + count)) and _peek_tag_valid(r):
+        # Tagged struct elements: the tag size leaves out none, some or all of the elements' None terminators
+        # (SLift.DoorsAndSwitches: 0 on ClubD, all on FactD, 1 of 2 on OffsD and SkysD, whose lift cars were lost).
+        if (diff == size or (inner.startswith("Struct:") and size <= diff <= size + count)) and _peek_tag_valid(r):
             return v
     except Exception:
         pass

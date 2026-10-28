@@ -72,7 +72,14 @@ class PackageSet:
         other = self.get(root)
         if other is None:
             return None, None
-        # match by name and class; groups are ignored (names are unique per package in practice)
+        # match by name and class; when the name is in several groups (CpusS: PCF09_STM.Portes.Porte,
+        # Spawn_merc.Porte and Spawn_spy.Porte), by the import's group path too
+        same = [x for x in other.exports if x.name.lower() == imp.name.lower() and x.class_name == imp.class_name]
+        if len(same) > 1:
+            wanted = self.object_path(pkg, ref).lower()
+            e = next((x for x in same if x.full_name.lower() == wanted), None)
+            if e is not None:
+                return other, e
         e = other.find_export(imp.name, imp.class_name)
         if e is None:
             e = other.find_export(imp.name)
@@ -86,3 +93,24 @@ class PackageSet:
             return f"{pkg.path.stem}.{pkg.exports[ref - 1].name}"
         root = self.root_package_of_import(pkg, ref) or "?"
         return f"{root}.{pkg.imports[-ref - 1].name}"
+
+    @staticmethod
+    def object_path(pkg: Package, ref: int) -> str:
+        """Package.Group.Name for any ref, groups included (an import's outer chain, or an export's in pkg)."""
+        if ref == 0:
+            return "None"
+        parts = []
+        guard = 0
+        while ref != 0 and guard < 32:
+            guard += 1
+            if ref > 0:
+                e = pkg.exports[ref - 1]
+                parts.append(e.name)
+                ref = e.outer
+                if ref == 0:
+                    parts.append(pkg.path.stem)
+            else:
+                i = pkg.imports[-ref - 1]
+                parts.append(i.name)
+                ref = i.outer
+        return ".".join(reversed(parts))

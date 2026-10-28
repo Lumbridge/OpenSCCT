@@ -198,6 +198,8 @@ class RenderBuilder:
             parts = sm.path.split(".")
             short = f"{parts[0]}.{parts[-1]}"
             out.setdefault(_safe(short), sm.path)
+            # Meshes of one name in several groups are keyed by their full path (scctpkg level._split_group_clashes).
+            out.setdefault(_safe(sm.path), sm.path)
         return out
 
     def _material_root(self, key: str) -> Optional[str]:
