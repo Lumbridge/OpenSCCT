@@ -3,6 +3,7 @@
 Units:
 - the merc page drivers of P_HudDEF for Reticule, ReticuleMessage, Pos_Merc and AlertMessage (native, unnamed)
 - nat:SBase.SHud.HudDef (its aim point helper, game 0x10af7cf0)
+- nat:SBase.SHud.DrawTargetName (rule 3e; also called by s_Hud_UseObject_CamNetwork.DrawHUD)
 - uc:SBase.SHud:NotifyHotSound
 - uc:SBase.SPlayerController:ClientNotifyNoise
 
@@ -41,8 +42,8 @@ and the motion tracking):
     the alpha).
 3b. Unless `bReticuleOff`, `P.WeaponLoaded == 0` or there is no PlayerOwner, the aim point is
     `P.Location + P.WalkBob + (0, 0, P.EyeHeight) + 15000 * vector(MyDesiredRotation)`: the eye as the native reads it
-    (the same point SPAWNDEFENSE.EyePosition gives) along the aim. The laser's target name pass (DrawTargetName) and the
-    HUD tracker's expiry run here too (spec/equipment/motion-tracking.md; not ported with the aim point).
+    (the same point SPAWNDEFENSE.EyePosition gives) along the aim. The laser's target name pass and the HUD tracker's
+    expiry run here too, before the aim point (rule 3e).
 3c. The point goes through the view of the frame (the controller's PlayerCalcView, with FovAngle, in an
     FCameraSceneNode) and the canvas' screen-to-canvas matrix: `SpotReticule = (x, y, 0)` in 640 x 480 units. A point
     on the view's axis lands on (320.5, 240.5) (measured). Nothing smooths it: when the aim is the view (the merc's
@@ -50,6 +51,28 @@ and the motion tracking):
 3d. The port projects through the last tick's calc view (vCamLocation, rCamRotation, FovAngle; FovAngle across the
     4:3 frame, wider screens adding width, as the renderer draws), the original's same-frame pairing of aim and view;
     the picture drawn between ticks turns with the camera, so the reticle keeps its place in the view.
+
+3e. **The laser's target name** (`DrawTargetName`, native 1809, game 0x10af7800, body 0x10af7920). The merc HUD's
+    aim point helper runs the body past the gates of rule 3b (and P.MyWeapon), and `s_Hud_UseObject_CamNetwork.DrawHUD`
+    calls the native after the goggles' tracker. Only while the viewed merc's laser sight is on
+    (`P.TorcheLaser.bInUse`):
+    - The HUD's own tracker `MyTrackingVision` (an SMotionTrackingVision, never activated) is spawned the first time,
+      with `PlayerOwner` the HUD's.
+    - When the laser has a target (`TorcheLaser.TargetPawn`, the laser native's pick): its lock in that tracker gets
+      `EndTime = now + TimeToStayLock` (1.5 s); with no lock yet, a new lock goes first in the list with `StartTime =
+      now`, the same `EndTime` and both flags clear, `nbCarName = 0`, and `Snd_TeamateInSight`
+      (Armes_impacts.Gadgets.Hud_viseProgress, volume 1, radius 100) plays when the target is a merc (any team). Then
+      `MyTargetName` = the target's player name.
+    - The tracker's HUD is drawn (`RenderMotionTracking`, spec/equipment/motion-tracking.md DrawHUD). A lock never
+      fades: its `bRemove` stays clear, so it is held until it expires.
+    - For the target's lock, once `now > StartTime + TimeToScanName` (1.5 s): a teammate (same `SPawnType` as P) sets
+      the lock's `ItsMyFriend` (so the tracker draws the friend marks and the blinking "Hold Fire") and writes the name
+      in `iColorFriend_R/G/B`; anyone else in `Hud_R/G/B` (the merc's 128, 93, 34), alpha 255, in the canvas font.
+      Place: X = `(SP1.X + SP2.X) / 2 - XL / 2` (XL, YL the size of the whole name), Y = `SP1.Y - YL`, truncated, at
+      ResolutionRatioX/Y. Typing: while `nbCarName < len - 1` it grows by one each frame and the first `nbCarName`
+      characters are drawn with a `_` after them; then the whole name.
+    Every call (laser on or off) then removes the first lock whose `EndTime` has passed, one a frame. The lock thus
+    stays 1.5 s after the laser leaves the target. The goggles' tracker never marks friends; only this one does.
 
 Reticle (`Reticule` -> A_Reticule; nothing happens without a pawn, the areas keep their visibility):
 
@@ -116,6 +139,10 @@ Alert box (`AlertMessage` -> A_MessageAlert):
 | Front / back yaw | 8192 / 24576 | rotator units | decoded | SHud.NotifyHotSound |
 | Arrow time | 1 | s | decoded | SHud.NotifyHotSound |
 | Posture frames | 0 to 4 standing, 10 to 14 crouched | frame | decoded | posture handler 0x10b283f0 |
+| Target lock hold | TimeToStayLock 1.5 | s | decoded | game 0x10af7aa8; SHud defaults |
+| Target name delay | TimeToScanName 1.5 | s | decoded | game 0x10af7b12; SHud defaults |
+| Target name typing | one character a frame, `_` cursor | | decoded | game 0x10af7c16 |
+| Sight sound radius | 100 | uu | decoded | game 0x10af7a1b |
 
 ## Network
 

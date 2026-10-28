@@ -115,3 +115,17 @@ na:
       Reloaded's client verification challenge (server request, client reply computed by a Reloaded
       native, server discards it). spec/native/reloaded-hooks.md rule 27: the rewrite does not
       reproduce it.
+
+  - globs:
+      - "nat:SBase.SHud.DrawBloodSplash"
+    reason: >-
+      Never drawn in the shipped game: the overlay runs only with SHud.bSplashBloodStart, which no script
+      line, no game native and no Reloaded code sets (spec/hud/screen-effects.md rule 17).
+
+  - globs:
+      - "uc:SBase.SPlayerController:UpdateRotationDefenseur"
+      - "nat:SBase.SPlayerController.NativeRotationCameraDefenseur"
+    reason: >-
+      The merc's pad view of the console builds. On PC the global UpdateRotation always takes
+      UpdateRotationDefenseur_Mouse, the scope state overrides the one script call, and no native in the
+      game or Reloaded.Core calls the event (spec/movement/input-and-rotation.md, view rotation).

@@ -69,20 +69,28 @@
       "program": "SCCT Versus",
       "sha256": "a98873aaec1de21fdcccc0afb9985e3ddcf38a9ddce1207214872d6428ec9950",
       "imageBase": "0x10900000",
-      "counts": {"namespaces": 2, "functions": 4, "labels": 0, "comments": 1},
+      "counts": {"namespaces": 3, "functions": 8, "labels": 0, "comments": 4},
       "namespaces": [
         {"path": "ASDamageVolume", "kind": "class"},
-        {"path": "ASGamePlayObject", "kind": "class"}
+        {"path": "ASGamePlayObject", "kind": "class"},
+        {"path": "ASHud", "kind": "class"}
       ],
       "functions": [
         {"address": "0x10a85f90", "namespace": "ASDamageVolume", "name": "Tick"},
         {"address": "0x10a86240", "namespace": "", "name": "eventbIsDamageVolumeSensitive"},
         {"address": "0x10904030", "namespace": "", "name": "appSeconds"},
-        {"address": "0x10a8fc90", "namespace": "ASGamePlayObject", "name": "ProcessDamage"}
+        {"address": "0x10a8fc90", "namespace": "ASGamePlayObject", "name": "ProcessDamage"},
+        {"address": "0x10af7380", "namespace": "ASHud", "name": "DrawBloodSplashBody"},
+        {"address": "0x10af7920", "namespace": "ASHud", "name": "DrawTargetNameBody"},
+        {"address": "0x10af7cf0", "namespace": "ASHud", "name": "HudDefAimPoint"},
+        {"address": "0x10a0af70", "namespace": "", "name": "PreRenderVisionLight"}
       ],
       "labels": [],
       "comments": [
-        {"address": "0x10a85f90", "type": "plate", "text": "Damage volume tick: real-time period (appSeconds), every touching actor, no Super.Tick"}
+        {"address": "0x10a85f90", "type": "plate", "text": "Damage volume tick: real-time period (appSeconds), every touching actor, no Super.Tick"},
+        {"address": "0x10af7380", "type": "plate", "text": "Blood splash overlay; never runs (bSplashBloodStart is never set); spec/hud/screen-effects.md rule 17"},
+        {"address": "0x10af7920", "type": "plate", "text": "Laser target lock, typed name and friend flag on the HUD tracker; spec/hud/merc-reticle.md rule 3e"},
+        {"address": "0x10a0af70", "type": "plate", "text": "Per-mode render interface light byte: 30 for night, int(SquintingFactor x 28) for normal"}
       ]
     }
   ]

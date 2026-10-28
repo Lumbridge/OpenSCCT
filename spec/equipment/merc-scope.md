@@ -66,7 +66,8 @@ Clip: FirstSnipStBg2 7 frames at 15 fps played at rate 1.6 on channel 6 = 0.292 
    SA_WALK_CR_2H or SA_WALK_ST_2H, `bBinocularVision = true`. Pressing B while scoped sets `bBinocularVision = false`.
 2. **BeginState** (in order): `iDateCheckBinoculars = 0`; on the owning client set `bBinocularVision = true` if
    `PreviousState == 's_Binoculars_Def_Reloading'` and play SA_BINOCULAR_USING; `bCanBeGrabbed = true` for mercs;
-   clear the HUD tracker locks; if the torch is on, `Torche.Unload()`; if the laser is on, remember
+   clear the HUD tracker locks; if the torch is on, `Torche.Unload()` (Reloaded turns it straight back on, Edge cases);
+   if the laser is on, remember
    `bLaserPreviously = true` and `TorcheLaser.Unload()`; `BinocularNoiseDuration = 15`, audio zoom 0.33; clear the
    voice target; spawn the HUD `SMotionTrackingVision` helper if missing; breath reset: if
    `now - BinocularBreathLastTimeSeconds > 5` then reserve 5, phase 0, factors 0, up and right true, else
@@ -211,9 +212,9 @@ stateDiagram-v2
 - At FOV 10 there is no pitch clamp at all; at FOV 20 the clamp is wider than at FOV 30 (as decoded).
 - A shot before the 0.292 s raise clip ends is refused (channel 6 animating).
 - Holding breath doubles aim speed (Rule 7.1).
-- Entering the scope turns the torch off and it stays off on exit. Enhanced 4.0 claims "flashlight stays on in Sniper
-  Mode" (spec/enhanced/FEATURES.md enh:rules.flashlight_sniper); the script still unloads it, so the behaviour must
-  come from Reloaded.Core (see `merc-flashlight.md` Open questions).
+- Stock: entering the scope turns the torch off and it stays off on exit. On Enhanced builds Reloaded.Core keeps it on
+  (rl:fix.flashlight_sniper, enh:rules.flashlight_sniper; decoded in `merc-flashlight.md` rule 12): the torch is lit
+  in the scope and after it, and the scope entry shows no "Torchlight off" message and plays no switch sound.
 - Reload inside the scope runs the scope EndState and BeginState around it; the ROF mode saved before the scope is
   kept correctly (EndState restores it, BeginState saves it again).
 - The scope cannot be entered with `bFireMode` held or during a HUD perturbation (chaff, shock).

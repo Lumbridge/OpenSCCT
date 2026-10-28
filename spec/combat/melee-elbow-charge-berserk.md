@@ -364,8 +364,10 @@ stateDiagram-v2
   `NativeRotationCameraDefenseur` (native 1383, editor 0x111edf60). With FRStep 3 it adds dt to FRTimeElapsed, turns
   MyDesiredRotation toward FRTarget and ends (FRStep 0, iDontUpdatePadInput 0) once the yaw gap is within the step
   of the tick; the same native also runs the double-tap quick turn (FRStep 0 to 2, aStrafe beyond 4000, FRTarget =
-  yaw + 0x7ff8 or - 0x7ff8 within fFastTurnBackDoubleTapSpeed). The per-tick turn amount sits in x87 code the
-  decompiler loses; read it from the disassembly. Not ported: the port stores FRTarget and nothing turns the merc.
+  yaw + 0x7ff8 or - 0x7ff8 within fFastTurnBackDoubleTapSpeed). Resolved for PC: its only caller, the global
+  `UpdateRotationDefenseur`, is never reached (spec/movement/input-and-rotation.md, view rotation), so on PC
+  ForceRotateTo stores FRTarget and nothing turns the merc, as in the port; the double-tap quick turn does not
+  exist on PC either.
 
 - Whether a proxy merc in our port draws the relayed 315 and 8 clips: not confirmed by reading (the relay and the
   shared ExecuteAction look complete); the two-world test of the brief settles it.

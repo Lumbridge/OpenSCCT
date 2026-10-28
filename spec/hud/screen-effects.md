@@ -5,6 +5,7 @@ Units:
   and timing), nat:SBase.SHud.SetHudPerturbationLength, nat:SBase.SHud.SetHudProjection, nat:SBase.SHud.DrawProjection
 - uc:SBase.SHud:HudShutDown, uc:SBase.SHud:StopHudShutDown, uc:SBase.SHud:StopHudPerturbation
 - nat:SBase.SPlayerController.ClientDamageHudEffect (HUD part)
+- nat:SBase.SHud.DrawBloodSplash (rule 17: decoded, never shown)
 - the merc page drivers of P_HudDEF for Perturb_Global, the shutdown, A_StickyShock(2), gouttes, Mousse and Flash
 
 ## Purpose
@@ -112,6 +113,16 @@ Merc page effects (P_HudDEF only; spies have none of these areas, and the native
 16. Droplets: while the pawn's `CurrentRainVolume` is set, `gouttes` (A_gouttelettes, 5 fps) is shown and played
     from 0 when hidden or past frame 50 (it loops itself every 9 s); when it clears, a playing loop caught at frame 45
     or later jumps to 50 (the outro, stops at 59), and a stopped one hides.
+17. Blood splash (`DrawBloodSplash(Canvas)`, native 1437, game 0x10af7600, body 0x10af7380), called by the global
+    `SHud.PostRender` every frame. It does nothing unless `bSplashBloodStart` is set and `fTimeBloodSplash[0] + 0.16
+    <= now`. Then, while `iNbBloodSplash < 5`, splash `i` (from the current count) is added once `i == 0` or
+    `fTimeBloodSplash[0] + 0.1 i < now`: its time is now, its place `x = 280 - 60 i + r`, `y = 220 - 40 i - r`
+    (`r = rand() % 50 + 10`, 0 for odd `i`), its size `50 + 20 i` (stored, not read by the draw). Each splash
+    is a tile from its place with alpha `255 - 150 (now - its time)` (gone below 1), 128 x 128 texels for even
+    splashes and 32 x 32 for odd ones, colour grey 0x808080 (the tile's far corner adds a canvas field at +0x2C that
+    was not identified); when all five have faded the count, the time and the flag are cleared. Nothing in the game sets `bSplashBloodStart`: no script line writes it, and the only
+    writes to that bit field in the game and in Reloaded.Core touch other bits (bProjection in DrawProjection and its
+    setter, bShowConnectedPlayers in Reloaded). The overlay never appears, and the rewrite does not draw it.
 
 ## Constants
 

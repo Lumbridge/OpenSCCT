@@ -348,11 +348,15 @@ public partial class SPlayerController
         }
 
         /// <summary>
-        /// Rule 2: lights off (the laser remembered), the breath reserve restored, the rifle raised in single shot,
-        /// the grenade charge cleared and the first zoom at 30 degrees.
+        /// Rule 2: the laser off (and remembered), the breath reserve restored, the rifle raised in single shot, the
+        /// grenade charge cleared and the first zoom at 30 degrees. The torch stays on: the script unloads it, and
+        /// Reloaded (Enhanced builds) turns it back on at once with no message or sound (rl:fix.flashlight_sniper).
         /// </summary>
         [Uc("SBase.SPlayerController.s_Binoculars_Def.BeginState", Sha1 = "1ecae974c731e23a29a01d340319aa2c2ce2dd7b")]
         [PortOf("uc:SBase.SPlayerController:s_Binoculars_Def.BeginState", Spec = "spec/equipment/merc-scope.md#rules")]
+        [PortOf("rl:fix.flashlight_sniper", Spec = "spec/equipment/merc-flashlight.md#rules")]
+        [Provenance(ProvenanceKind.Decoded, "Reloaded.Core state entry hook for s_Binoculars_Def (table 0x10017d70, handler 0x10017c00), the next-frame TorcheON (0x100a74d0) and the NativeTickTorche wrapper 0x10023df0")]
+        [Provenance(ProvenanceKind.Estimated, "The torch is simply left on: Reloaded's one-frame off and on (the server's light off, the two switch sounds elsewhere) is not reproduced")]
         public override void BeginState(Actor self)
         {
             var pc = (SPlayerController)self;
@@ -371,11 +375,6 @@ public partial class SPlayerController
             if (pawn is SPAWNDEFENSE merc)
             {
                 merc.bCanBeGrabbed = true;
-                if (merc.Torche is { bInUse: true } torch)
-                {
-                    torch.Unload();
-                }
-
                 if (merc.TorcheLaser is { bInUse: true } laser)
                 {
                     pc.bLaserPreviously = true;

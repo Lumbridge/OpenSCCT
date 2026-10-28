@@ -182,9 +182,14 @@ Each `int()` truncates toward zero, separately for yaw and pitch.
   fTurnValue)` with s = -1 when bInvertHorizontalAxisCamSpy else 1; Normalize; clamp Pitch to [-12000, 13000].
 - `SetRotation(V)`. The spy path never calls UpdateDesiredRotation.
 
-`UpdateRotationDefenseur(dt, maxPitch)` (only called by a few special states): when falling, zero fTurnValue;
+`UpdateRotationDefenseur(dt, maxPitch)`: when falling, zero fTurnValue;
 `SetRotation(NativeRotationCameraDefenseur(dt))`; send `UpdateDesiredRotation` when MyDesiredRotation changed or
-at least 0.2 s passed since LastDesiredRotationUpdate.
+at least 0.2 s passed since LastDesiredRotationUpdate. Nothing reaches it in the PC build: the global
+UpdateRotation always takes `UpdateRotationDefenseur_Mouse` for a merc, the one script call
+(`s_Binoculars_Def.UpdateRotationDefenseur_Mouse`) resolves to the scope state's own override, and neither the game
+nor Reloaded.Core calls the event natively (no code in either uses its name index 0x13c0dc, nor that of
+NativeRotationCameraDefenseur, 0x13c824). So NativeRotationCameraDefenseur (the merc pad view: pad acceleration,
+the snap, ForceRotateTo's turn and the double-tap quick turn) never runs on PC, and the rewrite does not port it.
 
 `UpdateDesiredRotation(Rot)` is an unreliable client-to-server function that sets MyDesiredRotation on the
 server.
