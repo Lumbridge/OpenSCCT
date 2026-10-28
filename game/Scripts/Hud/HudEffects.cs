@@ -40,6 +40,12 @@ public sealed class HudEffects
 
     public HudSfx Sfx { get; } = new();
 
+    /// <summary>
+    /// Raised for each notification of the local player as <see cref="Update"/> applies it (the controller, the event,
+    /// the HUD time): other presentation of the player's own events (the controller's rumble) listens here.
+    /// </summary>
+    public event Action<SPlayerController, SimEvent, float>? Applied;
+
     /// <summary>The last throw charge the simulation reported (SHud.SetBallisticValue).</summary>
     public float Ballistic { get; private set; }
 
@@ -134,6 +140,7 @@ public sealed class HudEffects
 
     private void Apply(SPlayerController pc, in SimEvent e, float now)
     {
+        Applied?.Invoke(pc, e, now);
         string what = e.What.ToString();
         bool merc = pc.SPawnType == PawnType.SPAWNDEFENSE;
         switch (what)

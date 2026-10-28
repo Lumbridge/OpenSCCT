@@ -73,6 +73,13 @@ public sealed class HudMarkers
     /// <summary>Reloaded's widescreen_hud (first-run default on).</summary>
     public bool WidescreenHud { get; set; } = true;
 
+    /// <summary>
+    /// Reloaded's hack_alpha (rl:qol.hackalpha), 0 to 1: the icon of an objective being hacked is drawn at this
+    /// opacity, so the spy can see past it. First run 178 of 255.
+    /// </summary>
+    [Provenance(ProvenanceKind.Decoded, "spec/reloaded/FEATURES.md rl:qol.hackalpha hack_alpha = 178 (0 to 255)")]
+    public float HackAlpha { get; set; } = 178f / 255f;
+
     public void Update(HudSnapshot s, float dt)
     {
         ArgumentNullException.ThrowIfNull(s);
@@ -120,7 +127,8 @@ public sealed class HudMarkers
             {
                 Color c = o.Role == HudErRole.DropZone ? (o.Alert ? Hacked : GpoColour)
                     : o.Triggering ? Hacked : o.Locked ? Locked : Idle;
-                Quad(path + "/icon", p, new Vector2(30f, 30f) * scale, new Rect2(tile + Vector2.One, 30f, 30f), c with { A = alpha * spread });
+                float hacking = o.Triggering && o.Role != HudErRole.DropZone ? HackAlpha : 1f;
+                Quad(path + "/icon", p, new Vector2(30f, 30f) * scale, new Rect2(tile + Vector2.One, 30f, 30f), c with { A = alpha * spread * hacking });
             }
 
             // Brackets: full-spread markers (triggering) pulse between 20 and 13 units out, the others sit at

@@ -120,6 +120,8 @@ Clip: FirstSnipStBg2 7 frames at 15 fps played at rate 1.6 on channel 6 = 0.292 
    dt (floor 0); `q = 0.5 * fSensibiliteSouris * dt * 50`. If `time > 0.24`: `kick = (0.4 - time) * 100 * q` and,
    when the zoom animation is finished, `FOV = target + (0.4 - time) * 20 * 0.6 * q`. Else `kick = -time * 100 * 0.4 * q`
    and `FOV = target + time * 20 * 0.4 * q`. Add `int(kick)` to View and Des pitch.
+   Reloaded (`rl:fix.sniper_kick`) gives every player the same kick: the port uses the profile's default
+   sensitivity (4, MouseSensitivity 40) in `q` instead of the player's (the value Reloaded uses is not decoded).
 9. **Commit.** If not steadily holding (`bHoldBreath == 0`, reserve <= 0, lockout > 0, or still inspiring): wrap View
    yaw and pitch into (-32767, 32768], add `int(FactorRight)` / `int(FactorUp)` to Des, Normalize and wrap Des,
    `SetRotation(View)`, `UpdateDesiredRotation(Des)`. While steadily holding: `View += (Des - View) * 0.2`, wrap,
