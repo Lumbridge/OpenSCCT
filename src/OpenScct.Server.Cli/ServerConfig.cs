@@ -37,6 +37,106 @@ internal sealed record RotationEntry
     public int? GamesInARow { get; init; }
 }
 
+/// <summary>
+/// Alternate Mode for every match of the rotation (docs/ONLINE.md "Dedicated server"): abilities left out keep the
+/// stock value; gadgets are the side's gear numbers 1 to 8 that may be taken (left out: all eight).
+/// </summary>
+internal sealed record AlternateConfig
+{
+    public bool On { get; init; } = true;
+
+    public bool? SpyThermalVision { get; init; }
+
+    public bool? SpyNightVision { get; init; }
+
+    public bool? SpyGrab { get; init; }
+
+    public bool? SpyElbow { get; init; }
+
+    public bool? SpyLethalDrop { get; init; }
+
+    public bool? MercEmfVision { get; init; }
+
+    public bool? MercMotionTracking { get; init; }
+
+    public bool? MercElbow { get; init; }
+
+    public bool? MercLethalDrop { get; init; }
+
+    public bool? MercTorch { get; init; }
+
+    public bool? MercLaser { get; init; }
+
+    public bool? MercBerserk { get; init; }
+
+    public bool? MercCharge { get; init; }
+
+    public bool? CinematicCamera { get; init; }
+
+    public List<int>? SpyGadgets { get; init; }
+
+    public int? SpySlots { get; init; }
+
+    public List<int>? MercGadgets { get; init; }
+
+    public int? MercSlots { get; init; }
+
+    /// <summary>The rules these values make, from the stock ones.</summary>
+    public AlternateRules ToRules()
+    {
+        AlternateRules r = AlternateRules.Default with { On = On };
+        void Set(bool? value, AlternateAbility ability)
+        {
+            if (value is { } v)
+            {
+                r = r.With(ability, v);
+            }
+        }
+
+        Set(SpyThermalVision, AlternateAbility.SpyThermalVision);
+        Set(SpyNightVision, AlternateAbility.SpyNightVision);
+        Set(SpyGrab, AlternateAbility.SpyGrab);
+        Set(SpyElbow, AlternateAbility.SpyElbow);
+        Set(SpyLethalDrop, AlternateAbility.SpyLethalDrop);
+        Set(MercEmfVision, AlternateAbility.MercEmfVision);
+        Set(MercMotionTracking, AlternateAbility.MercMotionTracking);
+        Set(MercElbow, AlternateAbility.MercElbow);
+        Set(MercLethalDrop, AlternateAbility.MercLethalDrop);
+        Set(MercTorch, AlternateAbility.MercTorch);
+        Set(MercLaser, AlternateAbility.MercLaser);
+        Set(MercBerserk, AlternateAbility.MercBerserk);
+        Set(MercCharge, AlternateAbility.MercCharge);
+        Set(CinematicCamera, AlternateAbility.CinematicCamera);
+        r = r with
+        {
+            SpyGadgets = Mask(SpyGadgets, r.SpyGadgets),
+            MercGadgets = Mask(MercGadgets, r.MercGadgets),
+            SpyGadgetCount = (byte)Math.Clamp(SpySlots ?? r.SpyGadgetCount, 0, AlternateRules.MaxGadgetCount),
+            MercGadgetCount = (byte)Math.Clamp(MercSlots ?? r.MercGadgetCount, 0, AlternateRules.MaxGadgetCount),
+        };
+        return r.Clamped();
+    }
+
+    private static byte Mask(List<int>? gadgets, byte fallback)
+    {
+        if (gadgets is null)
+        {
+            return fallback;
+        }
+
+        int mask = 0;
+        foreach (int g in gadgets)
+        {
+            if (g is >= 1 and <= AlternateRules.GadgetOptions)
+            {
+                mask |= 1 << (g - 1);
+            }
+        }
+
+        return (byte)mask;
+    }
+}
+
 /// <summary>The master a dedicated server lists itself on.</summary>
 internal sealed record MasterConfig
 {
@@ -134,6 +234,12 @@ internal sealed record ServerConfig
     /// <summary>The matches the server plays in turn; the first is the lobby's first setup.</summary>
     public List<RotationEntry> Rotation { get; init; } = [new RotationEntry()];
 
+    /// <summary>Auto balance in every match of the rotation: joiners go to the smaller side, no switch to the bigger one.</summary>
+    public bool AutoBalance { get; init; }
+
+    /// <summary>Alternate Mode (abilities and gadget restrictions) for every match of the rotation; null: off.</summary>
+    public AlternateConfig? Alternate { get; init; }
+
     public int MinPlayersToLaunch { get; init; } = 2;
 
     public float LaunchCountdownSeconds { get; init; } = 5f;
@@ -224,6 +330,8 @@ internal sealed record ServerConfig
                 DisksToWin = e.DisksToWin ?? s.DisksToWin,
                 Revenge = e.Revenge ?? s.Revenge,
                 GamesInARow = e.GamesInARow ?? s.GamesInARow,
+                AutoBalance = AutoBalance,
+                Alternate = Alternate?.ToRules() ?? s.Alternate,
                 Practice = Practice,
             };
             list.Add(s.Clamped());

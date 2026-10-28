@@ -1,6 +1,7 @@
 using OpenScct.Core;
 using OpenScct.Core.Engine;
 using OpenScct.Core.Uc;
+using OpenScct.Game.Equipment;
 using OpenScct.Game.Movement;
 using OpenScct.Provenance;
 
@@ -12,17 +13,36 @@ namespace OpenScct.Game.SBase;
 public partial class SPlayerController
 {
     /// <remarks>
-    /// Not ported here: PawnTakeDamage, PlayAnimDmg, ExplosionHit, CanBeBlasted and AltFire (combat and equipment
-    /// specs), and the split jump start, whose native reports nothing until the split jump states are ported.
+    /// ExplosionHit and CanBeBlasted run from the combat dispatch tables (CombatDispatch). Not ported here: the split
+    /// jump start, whose native reports nothing until the split jump states are ported.
     /// </remarks>
     [Uc("SBase.SPlayerController.s_PlayerJump")]
     public class s_PlayerJump : UcActorState, IPlayerMove, IMyProcessMove, IMyNotifyLanded, INotifyBump, IFeetLedge, IPipe,
-        INarrowLadder, IWaistLedge, ILedge, IHandOverHand, IZipLine, ICanBeDropAttacked, ICanBeElbowShocked
+        INarrowLadder, IWaistLedge, ILedge, IHandOverHand, IZipLine, ICanBeDropAttacked, ICanBeElbowShocked, IAltFire,
+        IPlayAnimDmg
     {
         public static readonly s_PlayerJump Instance = new(UcMeta.s_PlayerJump, null);
 
         protected s_PlayerJump(UcStateInfo info, ActorState? super)
             : base(info, super)
+        {
+        }
+
+        /// <summary>In the air only a merc whose team carries gadgets can use Alt-fire (his grenade); a spy cannot.</summary>
+        [Uc("SBase.SPlayerController.s_PlayerJump.AltFire", Sha1 = "11679d144727cb3d58fa0bf410458116ebee3314")]
+        [PortOf("uc:SBase.SPlayerController:s_PlayerJump.AltFire", Spec = "spec/movement/jump-fall-land.md#in-the-air-s")]
+        public void AltFire(SPlayerController self, float F)
+        {
+            if (self.SPawnType == PawnType.SPAWNDEFENSE && self.SBPawn is { } pawn && PawnInventory.TeamSlots(pawn) > 0)
+            {
+                self.AltFire(F);
+            }
+        }
+
+        /// <summary>No hit animation in the air.</summary>
+        [Uc("SBase.SPlayerController.s_PlayerJump.PlayAnimDmg", Sha1 = "23aff4eecf0e2e62053f2e78cf6e28d2d332361e")]
+        [PortOf("uc:SBase.SPlayerController:s_PlayerJump.PlayAnimDmg", Spec = "spec/movement/jump-fall-land.md#in-the-air-s")]
+        public void PlayAnimDmg(SPlayerController self, int PillTag, FVector Momentum)
         {
         }
 
@@ -66,7 +86,7 @@ public partial class SPlayerController
 
         /// <summary>The jump clip ended (base channel): the fall clip and PlayerFalling for the rest of the air time.</summary>
         [Uc("SBase.SPlayerController.s_PlayerJump.AnimEnd", Sha1 = "61d2debd3131d8879b62d863a902cc5498a80249")]
-        [PortOf("uc:SBase.SPlayerController:s_PlayerJump.AnimEnd", Spec = "spec/movement/jump-fall-land.md#in-the-air-s_playerjumpplayermove-playerfalling-inherits-it")]
+        [PortOf("uc:SBase.SPlayerController:s_PlayerJump.AnimEnd", Spec = "spec/movement/jump-fall-land.md#in-the-air-s")]
         public override void AnimEnd(Actor self, int Channel)
         {
             var pc = (SPlayerController)self;
@@ -84,7 +104,7 @@ public partial class SPlayerController
         /// grabs, then the steering (the back-ledge turn or the spy's air control) and the merc's facing.
         /// </summary>
         [Uc("SBase.SPlayerController.s_PlayerJump.PlayerMove", Sha1 = "ca0f0b3a96b62b8c95f335f324362e7b25464d6a")]
-        [PortOf("uc:SBase.SPlayerController:s_PlayerJump.PlayerMove", Spec = "spec/movement/jump-fall-land.md#in-the-air-s_playerjumpplayermove-playerfalling-inherits-it")]
+        [PortOf("uc:SBase.SPlayerController:s_PlayerJump.PlayerMove", Spec = "spec/movement/jump-fall-land.md#in-the-air-s")]
         public virtual void PlayerMove(SPlayerController self, float DeltaTime)
         {
             if (self.SBPawn is not { } pawn)
@@ -189,7 +209,7 @@ public partial class SPlayerController
 
         /// <summary>Only the pawn's acceleration.</summary>
         [Uc("SBase.SPlayerController.s_PlayerJump.MyProcessMove", Sha1 = "2865c07e4531add9d95668618fd88e9ab9efc288")]
-        [PortOf("uc:SBase.SPlayerController:s_PlayerJump.MyProcessMove", Spec = "spec/movement/jump-fall-land.md#in-the-air-s_playerjumpplayermove-playerfalling-inherits-it")]
+        [PortOf("uc:SBase.SPlayerController:s_PlayerJump.MyProcessMove", Spec = "spec/movement/jump-fall-land.md#in-the-air-s")]
         public virtual void MyProcessMove(SPlayerController self, float DeltaTime, FVector newAccel)
         {
             if (self.Pawn is { } pawn)
@@ -231,7 +251,7 @@ public partial class SPlayerController
 
         /// <summary>A mover carrying the pawn up slower than it rises is not a fall: the apex restarts here.</summary>
         [Uc("SBase.SPlayerController.s_PlayerJump.NotifyBump", Sha1 = "061be96c8fcb42f695dec09b8c3c226c9b787054")]
-        [PortOf("uc:SBase.SPlayerController:s_PlayerJump.NotifyBump", Spec = "spec/movement/jump-fall-land.md#in-the-air-s_playerjumpplayermove-playerfalling-inherits-it")]
+        [PortOf("uc:SBase.SPlayerController:s_PlayerJump.NotifyBump", Spec = "spec/movement/jump-fall-land.md#in-the-air-s")]
         public virtual bool NotifyBump(SPlayerController self, Actor Other)
         {
             if (Other is Mover && self.Pawn is { } pawn && Other.Velocity.Z < pawn.Velocity.Z)

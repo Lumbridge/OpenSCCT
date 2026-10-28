@@ -29,10 +29,10 @@ HUD and scoreboard drawing (HUD area):
 
 Gadget interactions (gadget area):
 - def/uc:SBase.SStickyCamInteraction, def/uc:SBase.SMineProxInteraction, def/uc:SBase.SMineTrapInteraction, def/uc:SBase.SPresDetectorInteraction, def/uc:SBase.SProjoInteraction, def/uc:SBase.SBombInteraction
-- nat:SBase.SPlayerController.GetBestMineIndexToRemove, uc:SBase.SPlayerController:s_StickyCam_MenuInteraction (all), uc:SBase.SPlayerController:s_PutMineOnWall_InteractionMenu (all)
+- uc:SBase.SPlayerController:s_StickyCam_MenuInteraction (all), uc:SBase.SPlayerController:s_PutMineOnWall_InteractionMenu (all)
 
 Team-mate and cooperative actions (controller/coop area):
-- nat:SBase.SPlayerController.CheckIfCanInteractWithMate, nat:SBase.SPlayerController.AreaIsSafeToInteract, uc:SBase.SPlayerController:DoCoopInteraction, uc:SBase.SPlayerController:AskServerToStartCoopInteraction, uc:SBase.SPlayerController:AskServerGiveObjectToPawn, uc:SBase.SPlayerController:UpdateMyInventoryChargeBaseOnMateBackpack, uc:SBase.SPlayerController:CountPoisonDrain, uc:SBase.SBasePawn:DetectedByMarqueurSpy
+- nat:SBase.SPlayerController.CheckIfCanInteractWithMate, nat:SBase.SPlayerController.AreaIsSafeToInteract, uc:SBase.SPlayerController:DoCoopInteraction, uc:SBase.SPlayerController:AskServerToStartCoopInteraction, uc:SBase.SPlayerController:UpdateMyInventoryChargeBaseOnMateBackpack, uc:SBase.SPlayerController:CountPoisonDrain, uc:SBase.SBasePawn:DetectedByMarqueurSpy
 
 Map systems that own the effect of a use (map systems area):
 - uc:SBase.SInfirmary:Use, uc:SBase.SAmmoStock:Use

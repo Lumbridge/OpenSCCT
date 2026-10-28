@@ -443,6 +443,42 @@ public static class K
     [Provenance(ProvenanceKind.Decoded, "FindTargetToCharge target point lowered 10")]
     public const float ChargeTargetDrop = 10f;
 
+    // ---- aim assist (NativeFindTargetToSnap, spec/equipment/spy-shocker.md rule 17) ---------------------------
+
+    [Provenance(ProvenanceKind.Decoded, "execNativeFindTargetToSnap game 0x10aab558: fNormePadCam above 0.1 (double 0x10c10ae8)")]
+    public const float SnapLookMin = 0.1f;
+
+    [Provenance(ProvenanceKind.Decoded, "execNativeFindTargetToSnap game 0x10aab55e: fNormePadCam below 0.82 (double 0x10c111d8)")]
+    public const float SnapLookMax = 0.82f;
+
+    [Provenance(ProvenanceKind.Decoded, "execNativeFindTargetToSnap game 0x10aab62a: squared speed above 4.0, the target's or the own pawn's")]
+    public const float SnapMovingSpeedSquared = 4f;
+
+    [Provenance(ProvenanceKind.Decoded, "execNativeFindTargetToSnap game 0x10aab823: aim X axis . line above 0.98 (double 0x10c111d0)")]
+    public const float SnapCone = 0.98f;
+
+    [Provenance(ProvenanceKind.Decoded, "execNativeFindTargetToSnap game 0x10aab731: the merc's line to the bone lowered by 10.0")]
+    public const float SnapMercDrop = 10f;
+
+    [Provenance(ProvenanceKind.Decoded, "execNativeFindTargetToSnap game 0x10aab8b3: distance clamped to 400 .. 2000")]
+    public const float SnapNear = 400f;
+
+    [Provenance(ProvenanceKind.Decoded, "as SnapNear")]
+    public const float SnapFar = 2000f;
+
+    [Provenance(ProvenanceKind.Decoded, "execNativeFindTargetToSnap game 0x10aab8f9: fSnapCoef = 1 - (d - 400) * 0.000625")]
+    public const float SnapFalloff = 0.000625f;
+
+    [Provenance(ProvenanceKind.Decoded, "execNativeFindTargetToSnap game 0x10aab944: fSnapAngleX/Y clamped to +-100 x fSnapCoef")]
+    public const float SnapMaxStep = 100f;
+
+    [Provenance(ProvenanceKind.Decoded, "execNativeFindTargetToSnap game 0x10aab99e: fSnapAngleY only when abs(int(target Velocity.Z)) >= 2")]
+    public const float SnapVerticalSpeed = 2f;
+
+    /// <summary>The B Spine1 bone above the pawn's Location, as a share of its collision half height.</summary>
+    [Provenance(ProvenanceKind.Estimated, "B Spine1 (name index 0x220, the native's aim bone) between the pelvis and Spine2 of the reference stance (IHitZones EstimatedPillPose); the simulation has no skeleton")]
+    public const float SnapSpineUp = 0.25f;
+
     [Provenance(ProvenanceKind.Decoded, "s_PlayerCharging.PlayerTick camera tilt every 0.35 s")]
     public const float ChargeTiltPeriod = 0.35f;
 

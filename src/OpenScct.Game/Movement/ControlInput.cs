@@ -25,15 +25,25 @@ public static class ControlInput
     [PortOf("nat:SBase.SPlayerController.NativeComputeControlVariables", Spec = "spec/native/input.md#3-imove-bits")]
     [Provenance(ProvenanceKind.Decoded, "editor 0x111f37d0 (iMove bits), 0x111e6460 (input mapping): 6000 x k per key, 2100 on a ledge or fence, 3000 stick up and down, camera-relative 2100 sideways, 4500 forward (3000 held)")]
     [Provenance(ProvenanceKind.Estimated, "stick up and down for a spy climbing (pipes, ladders, zip lines): the screen direction of the climb is taken as the screen's up (ClimbStickUp); the mouse path")]
+    [PortOf("rl:fix.slow_strafe", Spec = "spec/native/input.md#1-input-mapping-the-shared-body-editor-0x111e6460-game-0x10aaa910")]
+    [PortOf("rl:input.ledgeassist", Spec = "spec/movement/ledge.md#reloaded-ledge-assist")]
+    [Provenance(ProvenanceKind.Decoded, "Reloaded.Core 0x1001ab50 (hooked at game 0x10aaa973): a standing spy's diagonal scaled by 0.70710677 per axis; fNormePadMove capped to 0.4 while bUsing in slow mode (not bFastSpeed)")]
     public static void Compute(SPlayerController pc, float dt, ref bool lastUse)
     {
         float mode = pc.GetSpeedMode();
         float forward = Axis(pc.BT_Up, pc.BT_Down);
         float strafe = Axis(pc.BT_Right, pc.BT_Left);
-        pc.aForward = forward * MovementK.StickFullScale * mode;
-        pc.aStrafe = strafe * MovementK.StickFullScale * mode;
-        float norm = (SvmMath.Abs(strafe) + SvmMath.Abs(forward)) * mode;
+        float diagonal = DiagonalScale(pc, forward, strafe);
+        pc.aForward = forward * MovementK.StickFullScale * mode * diagonal;
+        pc.aStrafe = strafe * MovementK.StickFullScale * mode * diagonal;
+        float norm = ((SvmMath.Abs(strafe) * diagonal) + (SvmMath.Abs(forward) * diagonal)) * mode;
         pc.fNormePadMove = norm > 1f ? 1f : norm;
+        if (pc.bUsing != 0 && pc.fNormePadMove > MovementK.LedgeAssistNorm && !pc.bFastSpeed)
+        {
+            // Reloaded's ledge assist: Use held in slow mode keeps the move "slow", so walking off an edge still
+            // grabs it when the stick is diagonal (MyFalling's fNormePadMove < 0.7 test).
+            pc.fNormePadMove = MovementK.LedgeAssistNorm;
+        }
 
         pc.fTurnValue = pc.aTurn;
         pc.fLookUpValue = pc.aLookUp;
@@ -189,6 +199,14 @@ public static class ControlInput
         float k = 1f / SvmMath.Sqrt(v.X * v.X + v.Y * v.Y);
         return new FVector(v.X * k, v.Y * k, 0f);
     }
+
+    /// <summary>
+    /// Reloaded's per-axis scale of a key diagonal: 1/sqrt(2) when a standing (not crouched) spy holds a forward or
+    /// back key and a side key, else 1. The original applies it only when its pad code gave no analog scale this
+    /// frame; the rewrite's keys and pad both reach here as key bytes.
+    /// </summary>
+    private static float DiagonalScale(SPlayerController pc, float forward, float strafe) =>
+        forward != 0f && strafe != 0f && pc.Pawn is SPawnAttaque { bIsCrouched: false } ? MovementK.DiagonalAxisScale : 1f;
 
     private static float Axis(byte positive, byte negative) => (positive != 0 ? 1f : 0f) - (negative != 0 ? 1f : 0f);
 }

@@ -45,6 +45,8 @@ public static class HudMercAim
             return false;
         }
 
+        // PostRender's merc colour, which HudDef's target name writes enemies in.
+        (hud.Hud_R, hud.Hud_G, hud.Hud_B) = SHud.MercHudColour;
         FVector camera = pc.vCamLocation;
         FRotator view = pc.rCamRotation;
         float fov = pc.FovAngle;

@@ -214,6 +214,12 @@ public sealed class SessionPlayer
     /// <summary>The lobby's "Restrict Mic to Team" (SPlayerController.ServerSetTeamVoiceOnly), kept across the maps.</summary>
     public bool TeamVoiceOnly { get; internal set; }
 
+    /// <summary>
+    /// Banned from voice by the host or an admin (PlayerReplicationInfo.bVoiceBanned, which the original set from Xbox
+    /// Live), kept across the maps: nobody hears him and he hears nobody.
+    /// </summary>
+    public bool VoiceBanned { get; internal set; }
+
     /// <summary>The signed-in player's master account (from his ticket), or null for a guest or a bot.</summary>
     public long? AccountId { get; internal set; }
 
@@ -239,7 +245,7 @@ public sealed class SessionPlayer
         (IsSpectator ? SessionPlayerFlags.Spectator : 0) |
         (Slot is { Connection.bJoined: true } && phase is SessionPhase.Match or SessionPhase.Results ? SessionPlayerFlags.InGame : 0) |
         (Expected ? SessionPlayerFlags.Loading : 0) | (TeamVoiceOnly ? SessionPlayerFlags.TeamVoice : 0) |
-        (Verified ? SessionPlayerFlags.Verified : 0) |
+        (Verified ? SessionPlayerFlags.Verified : 0) | (VoiceBanned ? SessionPlayerFlags.VoiceBanned : 0) |
         (IsBot ? SessionPlayerFlags.Bot | (phase is SessionPhase.Match or SessionPhase.Results ? SessionPlayerFlags.InGame : 0) : 0);
 }
 
@@ -322,6 +328,7 @@ public sealed partial class OnlineServer : IDisposable
                 VoiceMember member = VoiceMember.Create((ushort)p.Id, p.IsSpectator ? -1 : p.Team);
                 member.Endpoint = slot.Connection.RemoteEndpoint;
                 member.TeamVoiceOnly = p.TeamVoiceOnly;
+                member.VoiceBanned = p.VoiceBanned;
                 roster.Add(member);
             }
 
@@ -619,6 +626,7 @@ public sealed partial class OnlineServer : IDisposable
             if (game.GameReplicationInfo is { } gri)
             {
                 Setup.ApplyTo(gri);
+                AlternateRules.ApplyTo(gri, game.PersistentData);
 
                 // The host's own "Allow VoiceChat" (the profile switch the server has no profile for).
                 gri.allowVoiceChat = Settings.Voice;
@@ -1453,7 +1461,8 @@ public sealed partial class OnlineServer : IDisposable
                 Ready = Settings.ReadyOnJoin,
                 Team = spectator ? SessionProtocol.SpectatorTeam
                     : dropped is not null ? dropped.Team
-                    : (byte)(requested is 0 or 1 ? requested : SmallerTeam()),
+                    : (byte)(requested is 0 or 1 && !(Setup.AutoBalance && CountTeam((byte)requested) > CountTeam((byte)(1 - requested)))
+                        ? requested : SmallerTeam()),
                 Rejoin = spectator ? null : dropped,
             };
             _players.Add(player);
@@ -1759,6 +1768,11 @@ public sealed partial class OnlineServer : IDisposable
         if (slot.Controller is SPlayerController pc)
         {
             pc.bTeamVoiceOnly = p.TeamVoiceOnly;
+        }
+
+        if (slot.Controller?.PlayerReplicationInfo is { } voicePri)
+        {
+            voicePri.bVoiceBanned = p.VoiceBanned;
         }
 
         // The session keeps the side the player chose in the lobby (the original's profile team): a revenge game logs

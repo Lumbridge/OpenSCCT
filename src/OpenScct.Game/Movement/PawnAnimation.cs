@@ -629,6 +629,9 @@ public sealed class PawnAnimation
     /// <summary>The mesh instance's aim and look-at bone control (AimAt requests and the angles the pose turns bones by).</summary>
     public OpenScct.Game.Animation.MeshAimIK Aim { get; } = new();
 
+    /// <summary>The mesh instance's bone direction controllers (SetBoneDirection: TurnHead's arm aim).</summary>
+    public OpenScct.Game.Animation.MeshBoneDirections Directions { get; } = new();
+
     /// <summary>Tick of the last <see cref="Advance"/>, so a pawn is advanced once per tick.</summary>
     public long LastAdvanceTick { get; internal set; } = -1;
 

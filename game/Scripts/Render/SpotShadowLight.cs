@@ -66,13 +66,35 @@ public sealed partial class SpotShadowLight : IDisposable
     /// <summary>Texels per slot row of the slot texture (the template's layout, svm_world.gdshaderinc).</summary>
     private const int SlotTexels = 8;
 
-    /// <summary>Atlas tiles are two shadow map heights wide; the atlas is two tiles across.</summary>
-    private const int TileWidth = RenderK.SpotShadowMapSize * 2;
+    /// <summary>
+    /// The shadow map height the next set of lights uses (Reloaded's shadow_quality, <see cref="MapSizeFor"/>): read
+    /// when the first light of a map takes the shared atlas, so a change applies from the next map.
+    /// </summary>
+    public static int MapSize { get; set; } = RenderK.SpotShadowMapSize;
 
-    private const int TileHeight = RenderK.SpotShadowMapSize;
+    /// <summary>The disc radius in texels that softens shadow edges (Reloaded's shadow_edge_smoothing); 0 for one lookup.</summary>
+    public static float SoftRadius { get; set; } = RenderK.SpotShadowSoftRadius;
+
+    /// <summary>
+    /// The map height for a shadow_quality: 256 texels x the quality (2, the documented default, is the stock 512),
+    /// a power of two from 128 to 2048 (an 8192 x 8192 atlas at the top).
+    /// </summary>
+    [Provenance(ProvenanceKind.Estimated, "rl:gfx.shadows maps shadow_quality to the atlas (1024 x value, 8 = 8K): the atlas is four map heights across, so the map is 256 x value")]
+    public static int MapSizeFor(float quality)
+    {
+        int size = (int)MathF.Round(256f * Math.Clamp(quality, 0.5f, 16f));
+        return Math.Clamp((int)System.Numerics.BitOperations.RoundUpToPowerOf2((uint)Math.Max(1, size)), 128, 2048);
+    }
+
+    private static int s_mapSize = RenderK.SpotShadowMapSize;
+
+    /// <summary>Atlas tiles are two shadow map heights wide; the atlas is two tiles across.</summary>
+    private static int TileWidth => s_mapSize * 2;
+
+    private static int TileHeight => s_mapSize;
     private const int AtlasColumns = 2;
-    private const int AtlasWidth = TileWidth * AtlasColumns;
-    private const int AtlasHeight = TileHeight * ((RenderK.SpotShadowSlots + AtlasColumns - 1) / AtlasColumns);
+    private static int AtlasWidth => TileWidth * AtlasColumns;
+    private static int AtlasHeight => TileHeight * ((RenderK.SpotShadowSlots + AtlasColumns - 1) / AtlasColumns);
 
     private static readonly StringName s_slotsName = ParamSlots;
     private static readonly StringName s_countName = ParamCount;
@@ -115,6 +137,11 @@ public sealed partial class SpotShadowLight : IDisposable
         ArgumentNullException.ThrowIfNull(shape);
         Shape = shape;
         EnsureGlobals(pack);
+        if (!s_atlas.IsValid && !s_atlasPending && Array.TrueForAll(s_slots, x => x is null))
+        {
+            s_mapSize = MapSize;
+        }
+
         _slot = Array.IndexOf(s_slots, null);
         if (_slot >= 0)
         {
@@ -260,7 +287,7 @@ public sealed partial class SpotShadowLight : IDisposable
         Vector2I origin = TileOrigin(_slot);
         SetRow(_slot, 6, new Vector4(origin.X / (float)AtlasWidth, origin.Y / (float)AtlasHeight, _size.X / (float)AtlasWidth,
             _size.Y / (float)AtlasHeight));
-        SetRow(_slot, 7, new Vector4(Zone, UeSpace.LengthToGodot(2f), 0.01f, RenderK.SpotShadowSoftRadius));
+        SetRow(_slot, 7, new Vector4(Zone, UeSpace.LengthToGodot(2f), 0.01f, SoftRadius));
         Flush();
     }
 
@@ -396,8 +423,8 @@ public sealed partial class SpotShadowLight : IDisposable
                 s_atlas = rd.TextureCreate(new RDTextureFormat
                 {
                     Format = RenderingDevice.DataFormat.R32Sfloat,
-                    Width = AtlasWidth,
-                    Height = AtlasHeight,
+                    Width = (uint)AtlasWidth,
+                    Height = (uint)AtlasHeight,
                     UsageBits = RenderingDevice.TextureUsageBits.SamplingBit | RenderingDevice.TextureUsageBits.StorageBit,
                 }, new RDTextureView());
             }

@@ -132,4 +132,3 @@ visible + frame 0 + play) are in `docs/HUD.md`.
 ## Open questions
 - The mine menu's greyed entries: the native reads the launcher's availability array; whether it greys every
   unavailable entry or only empty ones needs one capture.
-- The camera network's laser target name (DrawTargetName) is not drawn by the client yet.

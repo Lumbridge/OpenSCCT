@@ -18,6 +18,7 @@ public partial class SPlayerController
     private static readonly Name CNAME_ClientChaffed = new("ClientChaffed");
     private static readonly Name CNAME_ReloadMine = new("ReloadMine");
     private static readonly Name CNAME_TellClientToAddGadgetCharge = new("TellClientToAddGadgetCharge");
+    private static readonly Name CNAME_AskServerGiveObjectToPawn = new("AskServerGiveObjectToPawn");
     private static readonly ClassRef CREF_SMineLaser = new("SBase.SMineLaser");
     private static readonly ClassRef CREF_SMineProx = new("SBase.SMineProx");
     private static readonly ClassRef CREF_SMinePoison = new("SBase.SMinePoison");
@@ -98,6 +99,42 @@ public partial class SPlayerController
             }
 
             g = g.MyGadget?.SelectNext();
+        }
+    }
+
+    /// <summary>
+    /// The Give entry of the Use menu on release (interaction-system.md rule 14a, input machine): a "gave" message,
+    /// one charge off the selected gadget and the server call that gives it to the mate. The message reads its word
+    /// from menu slot 0 as the original does, which is the backpack entry, so the word is empty.
+    /// </summary>
+    [PortOf("uc:SBase.SPlayerController:s_MenuInteraction.PlayerMove", Spec = "spec/objectives/interaction-system.md#rules")]
+    public void GiveSelectedGadget(SShareObjectInteraction Share)
+    {
+        if (Share.aActorToInteractWith is not { } mate || SBPawn?.SelectedGadget is not { } gadget)
+        {
+            return;
+        }
+
+        string gave = (IManager?.Interactions[0] as SShareObjectInteraction)?.tGave ?? "";
+        GadgetHud.AddMessageToStack(this, $"1 {gadget.ItemName} {gave}", K.ShareMessageTime);
+        gadget.DecCharge();
+        AskServerGiveObjectToPawn(gadget, mate, 1);
+    }
+
+    /// <summary>Owner to server: the mate's own machine adds the charges (TellClientToAddGadgetCharge).</summary>
+    [Uc("SBase.SPlayerController.AskServerGiveObjectToPawn", Sha1 = "1587156c5f2999fe0ba10f8948ba803c25ee2877")]
+    [PortOf("uc:SBase.SPlayerController:AskServerGiveObjectToPawn", Spec = "spec/objectives/interaction-system.md#rules")]
+    [PortOf("rep:SBase.SPlayerController.AskServerGiveObjectToPawn", Spec = "spec/objectives/interaction-system.md#network")]
+    public void AskServerGiveObjectToPawn(SGadget? gad, SBasePawn? pw, int NB)
+    {
+        if (GadgetNet.ToServer(this, this, new CombatCall(CNAME_AskServerGiveObjectToPawn) { Target = gad, Actor1 = pw, Int1 = NB }))
+        {
+            return;
+        }
+
+        if (gad is not null && pw?.Controller is SPlayerController mate)
+        {
+            mate.TellClientToAddGadgetCharge(SGadget.GetUniqueIDByClass(new ClassRef(gad.GetUcClass().Path)), NB);
         }
     }
 

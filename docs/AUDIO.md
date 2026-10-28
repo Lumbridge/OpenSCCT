@@ -229,9 +229,13 @@ back, 11 to 15 starts a run, each one after a rule-15 loss; a bare count of 20 f
 down from the foot bone, sends the floor's SurfaceType to the sound system (SetSwitch, the next step's switch sound),
 spawns SFootPrintEffect on sand, SWaterFootStepEffect on medium water, SSparkWater on deep water and SDustEmitter on
 a fake ceiling above 200 uu/s, and while the feet are dirty (sand, snow, water: FootDirtyness falls by 1, 1 or
-0.05 / 0.02 a step) leaves an SFootPrint projection for 20 s. The print uses the class texture: the colour and the
-sand, water or phosphor texture the script sets on the shared combiner material are not drawn, and it is cast
-straight down under the pawn's yaw instead of along the foot bone (estimated).
+0.05 / 0.02 a step) leaves an SFootPrint projection for 20 s. The print draws what SFootPrint's run-time material
+draws (its PostBeginPlay builds a Combiner and a TexScaler): the sand, water (water and snow) or phosphor texture
+(all `sfx.FootPrints.step01`) as a mask, in the step's colour (StepColor: sand grey 140, snow (20, 25, 40), water
+black) at an opacity of the texture's alpha times `1 + StepColor.A x FootDirtyness` / 255, the right foot's print
+mirrored (V flipped). `CombatFxView.Decals.cs` draws it as a quad of the texture's size x DrawScale (25.6 uu, an
+orthographic projector's frustum) on the floor, its length along the walk. It is cast straight down under the pawn's
+yaw instead of along the foot bone, and the texture's axes on the floor are estimated.
 
 ## Not done yet
 

@@ -5,6 +5,7 @@ Units:
   uc:SBase.SGadGasMask:Load, uc:SBase.SGadGasMask:Unload, uc:SBase.SGadGasMask:Tick, uc:SBase.SGadGasMask:Destroyed,
   uc:SBase.SGadGasMask:PostBeginPlay, rep:SBase.SGadGasMask.SetAmbientSoundOnServer
 - uc:SBase.SBasePawn:SetGasMaskUseOnServer, rep:SBase.SBasePawn.bGasMask, rep:SBase.SBasePawn.SetGasMaskUseOnServer
+- def:SBase.SGasMask, uc:SBase.SGasMask:Tick
 - The smoke protection lives in the emitters' native ticks: ASSmokeEmitter::Tick (game 0x10a9a130) and the sticky
   cam gas scan (0x10aa31f0), see `smoke-grenade.md` and `sticky-cam.md`.
 
@@ -35,8 +36,10 @@ The merc's gas mask gives 30 s of air in total. While it is on, smoke clouds and
    `Merc_GasMaskTimeUsed`); at 0 the air is clamped to 0 and the mask comes off; under 7.5 s while the pawn's ambient
    sound is not the choking one, off and on again (which switches to the choking loop).
 5. **Load**: the selection hint (2 s). **Unload**: the mask comes off (selecting another gadget takes it off).
-6. **PostBeginPlay**: based on the owner; on the server a visual mask is spawned and attached to the head bone.
-   **Destroyed** removes it.
+6. **PostBeginPlay**: based on the owner; on the server a visual mask (SGasMask, DEF_Gasmask) is spawned, owned by
+   the merc, and attached to his 'B Head' bone. It is a simulated proxy that replicates its Instigator and not its
+   movement; its Tick attaches it to the Instigator's 'B Head' on every machine. So every merc carrying the gadget
+   (the default kit) shows the mask on his head, worn or not. **Destroyed** removes it.
 7. **Protection**: the smoke emitter skips a local player whose pawn wears the mask (`bGasMask`), so no cough, blur
    or faint; the sticky cam gas skips him too. Mercs knocked down by other means use the mask once more on entering
    the lying state (`knockout-and-terminate.md`): the mask comes off.

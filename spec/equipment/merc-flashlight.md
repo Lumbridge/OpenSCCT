@@ -8,6 +8,7 @@ Units:
   uc:SBase.SPAWNDEFENSE:Destroyed
 - uc:SBase.SPlayerController:GadTorcheSwitch
 - uc:SBase.SGoggle:GoggleUp.SwitchGoggle, uc:SBase.SGoggle:GoggleDown.SwitchGoggle (torch hand-off only)
+- rl:fix.flashlight_sniper, rl:SBase.SGadTorche.NativeTickTorche (rule 12)
 - nat:SBase.SGadTorche.NativeTickTorche (the chaff torch malfunction comes from the SProjChaffe C++ Explode override, game 0x10abe640 /
   ChaffExplodeEffect 0x10abe6d0, which has no UFunction id of its own)
 - rep:SBase.SGadTorche.bInUse, rep:SBase.SPAWNDEFENSE.Torche, rep:Engine.Actor.LightType
@@ -67,7 +68,7 @@ Other inputs: `GameReplicationInfo.bAvlb_MERC_Torche` (server setting), `SGoggle
    `LightType = LT_Steady`, `UsesLightBeam = true`, owner hears SndUse, `bInUse = true`.
    **TorcheOFF** (RPC): return if `!bInUse`; `LightType = LT_None`, `UsesLightBeam = false`, sound, `bInUse = false`.
 6. **Unload()**: message off if on, `TorcheOFF()`, `bInUse = false`. Called on goggle mode entry, scope entry
-   (`merc-scope.md` Rule 2), laser selection and the blocking case.
+   (`merc-scope.md` Rule 2; Reloaded relights it, rule 12), laser selection and the blocking case.
 7. **Tick**: `NativeTickTorche()` every tick on every machine (native 1300, decoded game 0x10ab6eb0; Reloaded wraps it
    at rva 0x23df0 and calls the stock body, forcing `bInUse` on for the call when one of its settings is set). It sets
    the instigator's `bIgnoreOwnEchelonLights` (a merc is never lit by his own torch). Off (or no instigator):
@@ -92,13 +93,25 @@ Other inputs: `GameReplicationInfo.bAvlb_MERC_Torche` (server setting), `SGoggle
     `bTorcheOn` and neither torch nor laser is on. The torch and the vision modes are never on together.
 11. **Laser exclusivity**: turning the laser on turns the torch off (server side in `TorcheLaser.TorcheON` and client
     side in `PadUpGadgetSwitch`), and vice versa.
+12. **The torch in the scope (Reloaded, Enhanced builds; rl:fix.flashlight_sniper).** Reloaded.Core keeps a table of
+    state entry hooks for the local player's controller; on entering `s_Binoculars_Def` (and only when the game's
+    version string is the Enhanced build's) its handler runs before the script's BeginState. For the local pawn,
+    a merc: once, it saves the torch's `TextTorcheOn` and `TextTorcheOff` lengths and its `SndUse` volume; it
+    remembers whether `Torche.bInUse` is set and, when it is, blanks both texts and silences the sound. BeginState
+    then unloads the torch as in the stock game (rule 6), silently. On the next frame Reloaded's frame routine calls
+    `TorcheON()` (the server RPC, rule 5) and sets `bInUse` locally, and the frame after that it puts the texts and
+    the volume back. Between the two, its NativeTickTorche wrapper sets `bInUse` for the duration of the native tick
+    (rule 7), so the local light is not dropped for that frame. Result: the torch stays on in the scope, and stays on
+    when the scope ends (its EndState does not touch the torch). The rewrite leaves the torch on at scope entry
+    (no unload), which is the same for the owner; other players miss Reloaded's one-frame off and on and its two
+    switch sounds.
 
 ## States
 ```mermaid
 stateDiagram-v2
     [*] --> Off
     Off --> On: Use (key E), bAvlb_MERC_Torche
-    On --> Off: Use, Unload, laser on, vision mode on, scope entered
+    On --> Off: Use, Unload, laser on, vision mode on (stock: scope entered)
     Off --> On: back to normal view with Goggle.bTorcheOn
     On --> Malfunction: Malfunction(t) (shock 4.5 s, chaff 5 s)
     Malfunction --> On: Timer, bInUse true
@@ -131,7 +144,8 @@ stateDiagram-v2
 ## Edge cases
 - In motion or EMF vision the torch key leaves the vision mode and turns the torch on in one press.
 - In night/thermal (spy only) or other non-5 modes the key just unloads torch and laser.
-- Entering the scope turns the torch off and the scope does not restore it.
+- Stock: entering the scope turns the torch off and the scope does not restore it. Enhanced with Reloaded: it stays on
+  (rule 12).
 - `bAvlb_MERC_Torche` false makes the key do nothing (and the vision hand-off cannot turn it on).
 - A malfunction that ends while the torch is stored off leaves it off even if it was on when the malfunction began
   and was toggled during it.
@@ -139,16 +153,18 @@ stateDiagram-v2
 ## Evidence
 - local/re-out/uc/SBase/SGadTorche.uc, SPAWNDEFENSE.uc, SGoggle.uc, SPlayerController.uc 3660 (GadTorcheSwitch),
   3931-4000 (ClientStickyShock), SProjChaffe.uc.
+- Reloaded.Core v4.0d: state entry hook table built at 0x10017d70 (s_Binoculars_Def -> 0x10017c00, gated by the
+  version check 0x100112c0), frame routine 0x100a74d0 (TorcheON by name, then the restore a frame later), the
+  NativeTickTorche wrapper 0x10023df0 (switch byte 0x1036ab94). SGadTorche offsets: bInUse +0x354, SndUse +0x358,
+  TextTorcheOn +0x35c, TextTorcheOff +0x368.
 - local/reflect/game.json: SGadTorche.NativeTickTorche points into Reloaded.Core.dll at 0x64773df0 (rva 0x23df0,
   native 1300); stock natives_all.txt lists the same native with a pointer outside the game image (another Reloaded
   load address). bInUse Net rep 13, LightType Net rep 1148.
 - local/reflect/game_cdo.json SBase.SGadTorche; Bridge docs/GADGET_TIMINGS.md rows "Chaff on devices", "Torch malfunction".
 
 ## Open questions
-- NativeTickTorche is replaced by Reloaded.Core.dll (rva 0x23df0). Decode both the stock body (find it in the game
-  image by the native index 1300 thunk) and the Reloaded one: light position and direction (head bone? view
-  rotation?), how `UsesLightBeam` is drawn, and whether Reloaded keeps the torch on in sniper mode
-  (enh:rules.flashlight_sniper says it stays on; the script turns it off).
+- NativeTickTorche is replaced by Reloaded.Core.dll (rva 0x23df0): decoded, a wrapper of the stock body that forces
+  `bInUse` for one call while its scope switch is set (rule 12). How `UsesLightBeam` is drawn is still open.
 - Native replication list of SGadTorche (does LightType or only bInUse reach other clients during a malfunction?).
   Trace: shock a merc whose torch is on and record the torch LightType on a third client.
 - Exact chaff radius rule for torches (owner location or torch location; 3D or 2D).

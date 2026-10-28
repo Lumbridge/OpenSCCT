@@ -36,7 +36,7 @@ public static class PawnMovementAnimation
             return;
         }
 
-        TurnHead(pawn);
+        TurnHead(pawn, dt);
         FVector v = pawn.Velocity;
         if (pawn.Base is { } floor)
         {
@@ -78,13 +78,14 @@ public static class PawnMovementAnimation
 
     /// <summary>
     /// The simulation's part of the script event SBasePawn.TurnHead, which the walk blender runs first: the packed
-    /// view and desired rotations the aim blends read (iYawPitchFromView, iDesiredYawPitch), and the IK type history.
-    /// The arm and head bone control it goes on to do is the view's (the pose).
+    /// view and desired rotations the aim blends read (iYawPitchFromView, iDesiredYawPitch), the IK type history, the
+    /// weapon aim (<see cref="AimWeapon"/>) and the arm cases (<see cref="ArmAim.Control"/>, stepped by the tick's
+    /// <paramref name="dt"/>). The view draws the bone turns they leave on the mesh instance.
     /// </summary>
     [Uc("SBase.SBasePawn.TurnHead", Sha1 = "fa2992fa34ca759dc05b2b534fbda9b5c59bef60")]
     [PortOf("uc:SBase.SBasePawn:TurnHead", Spec = "spec/native/ANSWERS-anim.md#a6-walk-blender-asbasepawnupdatemovementanimation-0x112008a0-complete")]
     [Provenance(ProvenanceKind.Decoded, "SBasePawn.TurnHead: PackW of the controller's rotation (spy not an autonomous proxy, or the merc), IK_Type_Previous on an IK change")]
-    public static void TurnHead(SBasePawn pawn)
+    public static void TurnHead(SBasePawn pawn, float dt = 0f)
     {
         System.ArgumentNullException.ThrowIfNull(pawn);
         if (pawn.Controller is { } c &&
@@ -104,13 +105,13 @@ public static class PawnMovementAnimation
 
         pawn.IK_Type_LastTick = pawn.IK_Type;
         AimWeapon(pawn);
+        ArmAim.Control(pawn, dt);
     }
 
     /// <summary>
     /// The IKT_WEAPONLOADED case of TurnHead: with a weapon loaded and no weapon transition, AimAt(AAFULL) toward the
     /// merc's desired rotation (iDesiredYawPitch) or the spy's view (iYawPitchFromView), keeping the pawn's roll, from
-    /// the pawn's facing, within 90 degrees each way. The other IK cases (the back-to-wall, grab and pipe arm
-    /// rotations, SetBoneDirection) are not ported.
+    /// the pawn's facing, within 90 degrees each way. The arm cases are <see cref="ArmAim"/>.
     /// </summary>
     [Uc("SBase.SBasePawn.TurnHead", Sha1 = "fa2992fa34ca759dc05b2b534fbda9b5c59bef60")]
     [PortOf("uc:SBase.SBasePawn:TurnHead", Spec = "spec/native/aim-ik.md#rules")]

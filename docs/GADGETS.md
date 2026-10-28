@@ -166,7 +166,6 @@ message to the mercs), map hints to `SHud.AddTutoMapMessage`. `GetPlayerProfile`
   at his eyes along his aim, the spy's at his eyes turned toward what his camera looks at.
 
 - The quick throw fires at once; the original throws at the clip's notify (0.4 s into ThroStAlMix).
-- The camera network's laser target name (`DrawTargetName`) and the motion tracker boxes inside the camera view.
 - Other players' laser beams (`NativeReplaceLaserDistant`) are drawn from the hand bone along the packed aim until
   that native is read; the local merc's beam and the torch follow the decoded natives
   (`game/Scripts/Render/MercLaserView.cs`, `FlashLightView.cs`). The torch uses the Faithful template's one spot slot,

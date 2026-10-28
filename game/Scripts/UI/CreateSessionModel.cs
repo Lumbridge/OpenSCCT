@@ -19,6 +19,12 @@ public enum SessionRow
     Revenge,
     RandomMap,
     VoiceInLobby,
+
+    /// <summary>Game_Settings' "Auto balance" (hidden and always on in the original).</summary>
+    AutoBalance,
+
+    /// <summary>Create_Match's "Alternate": the host's ability and gadget switches (AlternateModeSettings).</summary>
+    Alternate,
     GamesInARow,
     TimeLimit,
     SpyLives,
@@ -123,6 +129,8 @@ public sealed class CreateSessionModel
         SessionRow.Revenge => "Revenge",
         SessionRow.RandomMap => "Random Map",
         SessionRow.VoiceInLobby => "Voice in Lobby",
+        SessionRow.AutoBalance => "Auto balance",
+        SessionRow.Alternate => "Alternate",
         SessionRow.GamesInARow => "Games in a Row",
         SessionRow.TimeLimit => "Game Length (min)",
         SessionRow.SpyLives => Setup.Mode == EGameMode.GM_MercDeathMatch ? "Kills to Win" : "Spy Lives",
@@ -148,7 +156,9 @@ public sealed class CreateSessionModel
     };
 
     /// <summary>Whether a row is a check box.</summary>
-    public static bool IsCheck(SessionRow row) => row is SessionRow.Revenge or SessionRow.RandomMap or SessionRow.VoiceInLobby or SessionRow.Practice;
+    public static bool IsCheck(SessionRow row) =>
+        row is SessionRow.Revenge or SessionRow.RandomMap or SessionRow.VoiceInLobby or SessionRow.AutoBalance or SessionRow.Alternate
+            or SessionRow.Practice;
 
     /// <summary>The range of a number row (inclusive).</summary>
     public (int Min, int Max) Range(SessionRow row) => row switch
@@ -189,6 +199,8 @@ public sealed class CreateSessionModel
         SessionRow.Revenge => Setup.Revenge,
         SessionRow.RandomMap => Setup.RandomMap,
         SessionRow.VoiceInLobby => Setup.VoiceInLobby,
+        SessionRow.AutoBalance => Setup.AutoBalance,
+        SessionRow.Alternate => Setup.Alternate.On,
         SessionRow.Practice => Setup.Practice,
         _ => false,
     };
@@ -218,7 +230,8 @@ public sealed class CreateSessionModel
                 return OnlineBotRoster.FillName(Setup.Bots);
             case SessionRow.BotSkill:
                 return OnlineBotRoster.SkillNames[(int)Setup.BotSkill];
-            case SessionRow.Revenge or SessionRow.RandomMap or SessionRow.VoiceInLobby or SessionRow.Practice:
+            case SessionRow.Revenge or SessionRow.RandomMap or SessionRow.VoiceInLobby or SessionRow.AutoBalance or SessionRow.Alternate
+                or SessionRow.Practice:
                 return Checked(row) ? "Yes" : "No";
             case SessionRow.TimeLimit or SessionRow.MercLives:
                 return Number(row) == 0 ? InfiniteText : Number(row).ToString(CultureInfo.InvariantCulture);
@@ -275,7 +288,8 @@ public sealed class CreateSessionModel
             case SessionRow.BotSkill:
                 Set(Setup with { BotSkill = (OpenScct.Game.AI.AiSkill)Wrap((int)Setup.BotSkill + delta, OnlineBotRoster.SkillNames.Count) });
                 return;
-            case SessionRow.Revenge or SessionRow.RandomMap or SessionRow.VoiceInLobby or SessionRow.Practice:
+            case SessionRow.Revenge or SessionRow.RandomMap or SessionRow.VoiceInLobby or SessionRow.AutoBalance or SessionRow.Alternate
+                or SessionRow.Practice:
                 SetChecked(row, !Checked(row));
                 return;
             case SessionRow.Password or SessionRow.Map:
@@ -343,11 +357,20 @@ public sealed class CreateSessionModel
             case SessionRow.VoiceInLobby:
                 Set(Setup with { VoiceInLobby = on });
                 break;
+            case SessionRow.AutoBalance:
+                Set(Setup with { AutoBalance = on });
+                break;
+            case SessionRow.Alternate:
+                Set(Setup with { Alternate = Setup.Alternate with { On = on } });
+                break;
             case SessionRow.Practice:
                 Set(Setup with { Practice = on });
                 break;
         }
     }
+
+    /// <summary>The Alternate Mode page's values (abilities, gadgets and slots), clamped to the page's ranges.</summary>
+    public void SetAlternate(AlternateRules rules) => Set(Setup with { Alternate = rules.Clamped() });
 
     /// <summary>Another map: the rules reload from its settings for the mode (or its first mode when it lacks this one).</summary>
     public void SelectMap(string map)
@@ -397,7 +420,8 @@ public sealed class CreateSessionModel
         Set(fresh with
         {
             VoiceMode = Setup.VoiceMode, VoiceInLobby = Setup.VoiceInLobby, RandomMap = Setup.RandomMap, Revenge = Setup.Revenge,
-            Bots = Setup.Bots, BotsPerSide = Setup.BotsPerSide, BotSkill = Setup.BotSkill, Practice = Setup.Practice,
+            AutoBalance = Setup.AutoBalance, Alternate = Setup.Alternate, Practice = Setup.Practice,
+            Bots = Setup.Bots, BotsPerSide = Setup.BotsPerSide, BotSkill = Setup.BotSkill,
             GamesInARow = Setup.Revenge ? LobbySetup.RevengeGames : Setup.GamesInARow, MaxPlayers = Setup.MaxPlayers,
         });
     }

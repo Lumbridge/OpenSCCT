@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
 using OpenScct.Core.Engine;
+using OpenScct.Game.SBase;
 using OpenScct.Net;
 using OpenScct.Net.Discovery;
 
@@ -215,6 +216,13 @@ public sealed partial class OnlineServer
                 }
 
                 break;
+            case "voiceban" when CanControl(p):
+                if (FindPlayer(SessionProtocol.Text(f, 0)) is { } muted && !ReferenceEquals(muted, p))
+                {
+                    SetVoiceBanned(muted, SessionProtocol.Int(f, 1, 1) != 0, p.Name);
+                }
+
+                break;
             case "admin":
                 if (Settings.AdminPassword is { Length: > 0 } password && string.Equals(SessionProtocol.Text(f, 0) + (f.Count > 1 ? " " + f[1] : ""), password, StringComparison.Ordinal))
                 {
@@ -268,6 +276,15 @@ public sealed partial class OnlineServer
         if (p.IsSpectator && team != SessionProtocol.SpectatorTeam && CountHumans(spectators: false) >= Settings.MaxPlayers)
         {
             SendMessage(p, "The sides are full.");
+            return;
+        }
+
+        // Auto balance (SGameInfo.PickTeam with bPlayersBalanceTeams): nobody moves to a side that would then have two
+        // more people than the other.
+        if (Setup.AutoBalance && team is 0 or 1 && !p.IsBot &&
+            CountTeam(team) + 1 > CountTeam((byte)(1 - team)) - (p.Team == 1 - team ? 1 : 0) + 1)
+        {
+            SendMessage(p, "Auto balance is on: that side has more players.");
             return;
         }
 
@@ -342,6 +359,11 @@ public sealed partial class OnlineServer
             if (game.GameReplicationInfo is { } gri)
             {
                 Setup.ApplyTo(gri);
+                AlternateRules.ApplyTo(gri, game.PersistentData);
+                foreach (SPlayerController pc in game.XLevel.AllActors<SPlayerController>())
+                {
+                    pc.ServerGetVoiceChatters(pc);
+                }
             }
 
             _relay?.Invalidate();
@@ -405,6 +427,31 @@ public sealed partial class OnlineServer
         Kick(p, reason);
     }
 
+    /// <summary>
+    /// Bans a player from voice, or lifts it (SPlayerController.SetVoiceBanned): the relay sends nobody his voice and
+    /// him nobody's, in the lobby and in every round of the visit, until it is lifted or he leaves.
+    /// </summary>
+    public void SetVoiceBanned(SessionPlayer p, bool banned, string? by = null)
+    {
+        ArgumentNullException.ThrowIfNull(p);
+        if (p.IsBot || p.VoiceBanned == banned)
+        {
+            return;
+        }
+
+        p.VoiceBanned = banned;
+        if (p.Slot?.Controller?.PlayerReplicationInfo is { } pri)
+        {
+            pri.bVoiceBanned = banned;
+        }
+
+        _relay?.Invalidate();
+        BroadcastPlayer(p);
+        string who = by is { Length: > 0 } ? " by " + by : string.Empty;
+        Announce(banned ? $"{p.Name} was banned from voice chat{who}." : $"{p.Name} may use voice chat again{who}.");
+        Log((banned ? "voice ban " : "voice unban ") + p.Name);
+    }
+
     /// <summary>Sends a line from the server to every player's chat (and the lobby box).</summary>
     public void Say(string text)
     {
@@ -421,7 +468,8 @@ public sealed partial class OnlineServer
 
     public const string CommandHelp =
         "status | players | kick <id|name> [reason] | ban <id|name> [minutes] [reason] | unban <account|install id|address|name> | " +
-        "map <name> [mode] | mode <name> | set <time|spylives|merclives|respawn|revenge|games|maxplayers|bots|botsperside|botskill|practice> <value> | " +
+        "voiceban <id|name> | unvoiceban <id|name> | " +
+        "map <name> [mode] | mode <name> | set <time|spylives|merclives|respawn|revenge|games|maxplayers|bots|botsperside|botskill|balance|alternate|practice> <value> | set alternate <ability|spygadgetN|mercgadgetN|spyslots|mercslots> <value> | " +
         "practice [on|off] | launch | lobby | restart | next | say <text> | close";
 
     /// <summary>
@@ -486,6 +534,13 @@ public sealed partial class OnlineServer
             case "unban":
                 output.Add($"removed {Settings.Bans?.Remove(arg) ?? 0} ban(s)");
                 break;
+            case "voiceban" or "unvoiceban" when FindPlayer(arg) is { } voiced:
+                SetVoiceBanned(voiced, verb == "voiceban", "the admin");
+                output.Add(verb == "voiceban" ? $"{voiced.Name} is banned from voice" : $"{voiced.Name} may talk again");
+                break;
+            case "voiceban" or "unvoiceban":
+                output.Add($"no player '{arg}'");
+                break;
             case "map" when arg.Length > 0:
             {
                 LobbySetup setup = Setup;
@@ -500,7 +555,7 @@ public sealed partial class OnlineServer
                     break;
                 }
 
-                LobbySetup fresh = LobbySetup.ForMap(entry.Id, setup.Mode, Maps.GetMapSettings(entry.Id), Setup.MaxPlayers);
+                LobbySetup fresh = LobbySetup.ForMap(entry.Id, setup.Mode, Maps.GetMapSettings(entry.Id), Setup.MaxPlayers) with { AutoBalance = Setup.AutoBalance, Alternate = Setup.Alternate };
                 ApplySetup(KeepPractice(fresh), announce: true);
                 if (Phase != SessionPhase.Lobby)
                 {
@@ -512,14 +567,14 @@ public sealed partial class OnlineServer
             }
 
             case "mode" when LobbySetup.TryParseMode(arg + (rest.Length > 0 ? " " + rest : ""), out OpenScct.Core.EGameMode newMode):
-                ApplySetup(KeepPractice(LobbySetup.ForMap(Setup.Map, newMode, Maps.GetMapSettings(Setup.Map), Setup.MaxPlayers)), announce: true);
+                ApplySetup(KeepPractice(LobbySetup.ForMap(Setup.Map, newMode, Maps.GetMapSettings(Setup.Map), Setup.MaxPlayers) with { AutoBalance = Setup.AutoBalance, Alternate = Setup.Alternate }), announce: true);
                 output.Add("next: " + Setup.Describe());
                 break;
             case "set" when SetOption(arg, rest, out string? problem):
                 output.Add("next: " + Setup.Describe());
                 break;
             case "set":
-                output.Add("usage: set <time|spylives|merclives|respawn|revenge|games|maxplayers|bots|botsperside|botskill|practice> <value>");
+                output.Add("usage: set <time|spylives|merclives|respawn|revenge|games|maxplayers|bots|botsperside|botskill|balance|alternate|practice> <value>, or set alternate <spythermal|spynight|spygrab|spyelbow|spydrop|mercemf|mercmotion|mercelbow|mercdrop|merctorch|merclaser|mercberserk|merccharge|cinematic|spygadget1-8|mercgadget1-8|spyslots|mercslots> <value>");
                 break;
             case "practice":
                 if (arg.Length > 0 && SetOption("practice", arg, out _))
@@ -617,6 +672,9 @@ public sealed partial class OnlineServer
             "botsperside" when isInt => s with { BotsPerSide = n },
             "practice" when isBool => s with { Practice = on },
             "botskill" => Enum.TryParse(value, ignoreCase: true, out OpenScct.Game.AI.AiSkill skill) ? s with { BotSkill = skill } : null,
+            "balance" or "autobalance" when isBool => s with { AutoBalance = on },
+            "alternate" when isBool => s with { Alternate = s.Alternate with { On = on } },
+            "alternate" => SetAlternate(s, value),
             _ => null,
         };
         if (next is null)
@@ -627,6 +685,59 @@ public sealed partial class OnlineServer
 
         ApplySetup(next, announce: true);
         return true;
+    }
+
+    /// <summary>The ability names of <c>set alternate &lt;name&gt; &lt;on|off&gt;</c>.</summary>
+    public static IReadOnlyList<(string Key, AlternateAbility Ability)> AlternateKeys { get; } =
+    [
+        ("spythermal", AlternateAbility.SpyThermalVision), ("spynight", AlternateAbility.SpyNightVision),
+        ("spygrab", AlternateAbility.SpyGrab), ("spyelbow", AlternateAbility.SpyElbow), ("spydrop", AlternateAbility.SpyLethalDrop),
+        ("mercemf", AlternateAbility.MercEmfVision), ("mercmotion", AlternateAbility.MercMotionTracking),
+        ("mercelbow", AlternateAbility.MercElbow), ("mercdrop", AlternateAbility.MercLethalDrop), ("merctorch", AlternateAbility.MercTorch),
+        ("merclaser", AlternateAbility.MercLaser), ("mercberserk", AlternateAbility.MercBerserk), ("merccharge", AlternateAbility.MercCharge),
+        ("cinematic", AlternateAbility.CinematicCamera),
+    ];
+
+    /// <summary>
+    /// <c>set alternate &lt;item&gt; &lt;value&gt;</c>: an ability (<see cref="AlternateKeys"/>) on or off, a gadget
+    /// (<c>spygadget1</c> to <c>spygadget8</c>, <c>mercgadget1</c> to <c>mercgadget8</c>, in the side's gear order)
+    /// allowed or not, or a side's gadget slots (<c>spyslots</c>, <c>mercslots</c>, 0 to 4). Null for anything else.
+    /// </summary>
+    private static LobbySetup? SetAlternate(LobbySetup s, string value)
+    {
+        string[] p = value.ToLowerInvariant().Split(' ', 2, StringSplitOptions.RemoveEmptyEntries);
+        if (p.Length != 2)
+        {
+            return null;
+        }
+
+        bool on = p[1] is "1" or "on" or "true" or "yes";
+        bool isBool = on || p[1] is "0" or "off" or "false" or "no";
+        bool isInt = int.TryParse(p[1], NumberStyles.Integer, CultureInfo.InvariantCulture, out int n);
+        AlternateRules a = s.Alternate;
+        foreach ((string key, AlternateAbility ability) in AlternateKeys)
+        {
+            if (p[0] == key && isBool)
+            {
+                return s with { Alternate = a.With(ability, on) };
+            }
+        }
+
+        foreach ((string prefix, int team) in new[] { ("spygadget", 0), ("mercgadget", 1) })
+        {
+            if (p[0].StartsWith(prefix, StringComparison.Ordinal) && isBool &&
+                int.TryParse(p[0].AsSpan(prefix.Length), NumberStyles.None, CultureInfo.InvariantCulture, out int g) && g is >= 1 and <= AlternateRules.GadgetOptions)
+            {
+                return s with { Alternate = a.WithGadget(team, g - 1, on) };
+            }
+        }
+
+        return p[0] switch
+        {
+            "spyslots" when isInt => s with { Alternate = a with { SpyGadgetCount = (byte)Math.Clamp(n, 0, AlternateRules.MaxGadgetCount) } },
+            "mercslots" when isInt => s with { Alternate = a with { MercGadgetCount = (byte)Math.Clamp(n, 0, AlternateRules.MaxGadgetCount) } },
+            _ => null,
+        };
     }
 
     private static string TeamName(byte team) => team switch
@@ -659,9 +770,10 @@ public sealed partial class OnlineServer
 
     /// <summary>
     /// Chat commands (FEATURES rl:qol.chatcmds): <c>!map</c>, <c>!next</c>, <c>!prev</c> (<c>!back</c>), <c>!pings</c>,
-    /// <c>!resign</c>, <c>!login</c>, <c>!help</c>, and on a practice server <c>!heal</c>, <c>!regen</c>, <c>!tank</c>,
-    /// <c>!kill</c> (rl:net.practice). Map commands are open to everyone on a dedicated server without an admin password,
-    /// to the host and admins otherwise; the others act on the sender only. Every other line is chat.
+    /// <c>!resign</c>, <c>!login</c>, <c>!help</c>, for the host and admins <c>!voiceban</c> and <c>!unvoiceban</c>, and on
+    /// a practice server <c>!heal</c>, <c>!regen</c>, <c>!tank</c>, <c>!kill</c> (rl:net.practice). Map commands are open
+    /// to everyone on a dedicated server without an admin password, to the host and admins otherwise; the others act on
+    /// the sender only. Every other line is chat.
     /// </summary>
     private bool OnChatCommand(PlayerSlot slot, string text)
     {
@@ -677,26 +789,37 @@ public sealed partial class OnlineServer
         {
             case "help":
                 SendMessage(p, "!map <name> [mode], !next, !prev, !pings, !resign, !login <password>" +
+                    (CanControl(p) ? ", !voiceban <name>, !unvoiceban <name>" : string.Empty) +
                     (Setup.Practice ? ", " + PracticeHelp : string.Empty));
-                return true;
-            case "resign":
-                // Gives up the round: the last life is spent and the death message reads "has resigned"
-                // (SPlayerController.ServerResign, which refuses before the start, at the end and for spectators).
-                if (Phase == SessionPhase.Match && slot.Controller is OpenScct.Game.SBase.SPlayerController resigning)
-                {
-                    resigning.ServerResign();
-                }
-                else
-                {
-                    SendMessage(p, "There is no round to resign from.");
-                }
-
                 return true;
             case "pings":
                 foreach (SessionPlayer other in _players)
                 {
                     SendMessage(p, string.Create(CultureInfo.InvariantCulture,
-                        $"{other.Name}: ping {other.PingMs} ms, loss {Loss(other):F0}%"));
+                        $"{other.Name}: ping {other.PingMs} ms, jitter {JitterMs(other)} ms, loss {Loss(other):F0}%"));
+                }
+
+                return true;
+            case "resign":
+                // Gives up the round by spending the player's lives (SPlayerController.ServerResign, "has resigned").
+                if (Phase != SessionPhase.Match || slot.Controller is not SPlayerController resigning)
+                {
+                    SendMessage(p, "There is no round to resign from.");
+                    return true;
+                }
+
+                resigning.ServerResign();
+                return true;
+            case "voiceban" or "unvoiceban":
+                if (!CanControl(p))
+                {
+                    SendMessage(p, "Only the host or an admin may ban players from voice.");
+                    return true;
+                }
+
+                foreach (string line in Execute(verb + " " + arg))
+                {
+                    SendMessage(p, line);
                 }
 
                 return true;
@@ -730,6 +853,9 @@ public sealed partial class OnlineServer
         }
     }
 
+    /// <summary>The connection's smoothed round trip jitter (mean absolute change between samples), in milliseconds.</summary>
+    private static long JitterMs(SessionPlayer p) => p.Slot is { } s ? s.Connection.Stats.JitterMicros / 1000 : 0;
+
     private static float Loss(SessionPlayer p) => p.Slot is { } s ? Math.Max(s.Connection.InLoss, s.Connection.OutLoss) * 100f : 0f;
 
     /// <summary>The next or previous map of the rotation, or of every installed map when there is no rotation.</summary>
@@ -754,7 +880,7 @@ public sealed partial class OnlineServer
             }
 
             string map = maps[((at + step) % maps.Count + maps.Count) % maps.Count];
-            ApplySetup(KeepPractice(LobbySetup.ForMap(map, Setup.Mode, Maps.GetMapSettings(map), Setup.MaxPlayers)), announce: true);
+            ApplySetup(KeepPractice(LobbySetup.ForMap(map, Setup.Mode, Maps.GetMapSettings(map), Setup.MaxPlayers) with { AutoBalance = Setup.AutoBalance, Alternate = Setup.Alternate }), announce: true);
         }
 
         if (Phase != SessionPhase.Lobby)

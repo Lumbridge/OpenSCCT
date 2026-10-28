@@ -276,7 +276,7 @@ public partial class SPlayerController
             return;
         }
 
-        CombatFx.Notify(this, CombatFx.Vibration_Charge);
+        CombatFx.Notify(this, CombatFx.Vibration_Charge_Obstacle);
     }
 
     /// <summary>The 35 hp charge hit (sent by the charging owner, rule 19).</summary>

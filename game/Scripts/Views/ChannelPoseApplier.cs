@@ -172,6 +172,43 @@ public sealed class ChannelPoseApplier
     }
 
     /// <summary>
+    /// The bone direction controllers of this pose (SetBoneDirection, spec/native/aim-ik.md rule 5): bone index to the
+    /// rotation the bone takes in skeleton space and the alpha it is laid over the pose by. Set by the caller before
+    /// <see cref="Apply"/>; empty when no bone is held.
+    /// </summary>
+    public Dictionary<int, (Quaternion Rotation, float Alpha)> Directions { get; } = new();
+
+    /// <summary>
+    /// Gives each held bone its controller's rotation (after the aim turn, parent first): the bone's local rotation is
+    /// changed so that its skeleton-space rotation is the controller's, by the alpha, so the bones below it follow.
+    /// </summary>
+    [Provenance(ProvenanceKind.Estimated, "SetBoneDirection space 1 read as the bone's whole rotation replaced after its parent's space base is built (the native pose build's controller step is not decoded)")]
+    private void TurnDirectedBones()
+    {
+        if (Directions.Count == 0)
+        {
+            return;
+        }
+
+        foreach (int b in _order)
+        {
+            if (!Directions.TryGetValue(b, out (Quaternion Rotation, float Alpha) d) || !(d.Alpha > 0f))
+            {
+                continue;
+            }
+
+            Quaternion parent = Quaternion.Identity;
+            for (int p = _parent[b]; p >= 0; p = _parent[p])
+            {
+                parent = _rot[p].Normalized() * parent;
+            }
+
+            Quaternion local = (parent.Normalized().Inverse() * d.Rotation.Normalized()).Normalized();
+            _rot[b] = d.Alpha >= 1f ? local : _rot[b].Normalized().Slerp(local, d.Alpha).Normalized();
+        }
+    }
+
+    /// <summary>
     /// Extra turns laid over the blended pose before it is set (an OpenSCCT addition: the hub's emotes,
     /// game/Scripts/Hub/HubEmotePoses.cs): bone index to a turn in skeleton space about the bone's origin, applied
     /// parent first so a child's turn adds to its parent's. Cleared by the caller; empty for an ordinary pose.
@@ -249,6 +286,7 @@ public sealed class ChannelPoseApplier
         }
 
         TurnAimBone();
+        TurnDirectedBones();
         TurnExtraBones();
         if (ExtraShift != Vector3.Zero && RootBone >= 0)
         {

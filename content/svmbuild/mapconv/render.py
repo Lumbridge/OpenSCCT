@@ -85,6 +85,7 @@ class RenderBuilder:
         self.stats: Dict[str, Any] = {}
         self.files: Dict[str, bytes] = {}
         self._particle_refs: Optional[List[Ref]] = None
+        self._spawn_refs: Optional[List[Tuple[Ref, Optional[str], dict]]] = None
 
     # ---- export ------------------------------------------------------------------------------
 
@@ -160,6 +161,30 @@ class RenderBuilder:
             out.append((r, cls, decoded))
         return out
 
+    def _spawn_particles(self) -> List[Tuple[Ref, Optional[str], dict]]:
+        """The sub-emitters gameplay objects carry for their damage effects (SGamePlayObject SpawnableObjects[].
+        SpawnParticle, inserted into an empty SSpawnableEmitter at run time): (object ref, class, decoded properties),
+        each object once."""
+        if self._spawn_refs is not None:
+            return self._spawn_refs
+        out: List[Tuple[Ref, Optional[str], dict]] = []
+        seen = set()
+        for info in self.src.actors:
+            if info.category != "gameplay":
+                continue
+            entries = self.src.value(info, "SpawnableObjects")
+            if not isinstance(entries, list):
+                continue
+            for entry in entries:
+                r = entry.get("SpawnParticle") if isinstance(entry, dict) else None
+                if not isinstance(r, Ref) or r.ref == 0 or not r.path or r.is_class or r.path in seen:
+                    continue
+                seen.add(r.path)
+                cls, decoded, _refs, _pkg = self._decode_object(r.path)
+                out.append((r, cls, decoded))
+        self._spawn_refs = out
+        return out
+
     def _emitters(self) -> List[ActorInfo]:
         return [info for info in self.src.actors
                 if self.src.db.is_a(info.cls, "Engine.Emitter") and info.category not in ("editor", "skipped")]
@@ -170,13 +195,13 @@ class RenderBuilder:
         if self._particle_refs is not None:
             return self._particle_refs
         out: List[Ref] = []
-        for info in self._emitters():
-            for _r, cls, decoded in self._emitter_subs(info):
-                if not cls or not self.src.db.is_a(cls, "Engine.MeshEmitter"):
-                    continue
-                sm = decoded.get("StaticMesh")
-                if isinstance(sm, Ref) and sm.ref != 0 and sm.path and not sm.is_class and self.src.own(sm):
-                    out.append(sm)
+        subs = [s for info in self._emitters() for s in self._emitter_subs(info)] + self._spawn_particles()
+        for _r, cls, decoded in subs:
+            if not cls or not self.src.db.is_a(cls, "Engine.MeshEmitter"):
+                continue
+            sm = decoded.get("StaticMesh")
+            if isinstance(sm, Ref) and sm.ref != 0 and sm.path and not sm.is_class and self.src.own(sm):
+                out.append(sm)
         self._particle_refs = out
         return out
 
@@ -400,22 +425,25 @@ class RenderBuilder:
         return {"lights": lights, "zones": zones, "sky": scene.get("sky"), "look": scene.get("look"),
                 "lightmaps": lightmaps}
 
+    def _sub_json(self, r: Ref, cls: Optional[str], decoded: dict, textures: set) -> dict:
+        props = bag_to_json(decoded, default_resolver, self.src.notes, r.path)
+        sub = {"object": r.path, "class": cls, "props": props}
+        tex = props.get("Texture")
+        if isinstance(tex, dict) and "$asset" in tex:
+            parts = tex["$asset"].split(".")
+            png = f"textures/{_safe(parts[0] + '.' + parts[-1])}.png"
+            if png in textures:
+                sub["texture"] = png
+        return sub
+
     def build_fx(self, scene: dict, textures: set) -> dict:
         emitters = {}
         for info in self._emitters():
-            subs = []
-            for r, cls, decoded in self._emitter_subs(info):
-                props = bag_to_json(decoded, default_resolver, self.src.notes, r.path)
-                sub = {"object": r.path, "class": cls, "props": props}
-                tex = props.get("Texture")
-                if isinstance(tex, dict) and "$asset" in tex:
-                    parts = tex["$asset"].split(".")
-                    png = f"textures/{_safe(parts[0] + '.' + parts[-1])}.png"
-                    if png in textures:
-                        sub["texture"] = png
-                subs.append(sub)
+            subs = [self._sub_json(r, cls, decoded, textures) for r, cls, decoded in self._emitter_subs(info)]
             emitters[info.name] = {"class": info.cls, "gameplay": info.name in self.gameplay_ids,
                                    "props": self._typed(info), "emitters": subs}
+        # The gameplay objects' damage effects, by object path (the simulation names them by it).
+        spawn = {r.path: self._sub_json(r, cls, decoded, textures) for r, cls, decoded in self._spawn_particles()}
         extra = {"projectors": [], "rain": [], "patches": []}
         for a in scene["actors"]:
             if a.get("projector_of"):
@@ -427,7 +455,33 @@ class RenderBuilder:
         self.stats["emitters"] = len(emitters)
         self.stats["subEmitters"] = sum(len(e["emitters"]) for e in emitters.values())
         self.stats["particleMeshes"] = len({r.path for r in self._particle_meshes()})
-        return {"emitters": emitters, **extra}
+        self.stats["spawnParticles"] = len(spawn)
+        return {"emitters": emitters, "spawnParticles": spawn, **extra}
+
+    def write_spawn_particle_textures(self, tex_dir: Path) -> None:
+        """The PNGs of the gameplay objects' damage effect textures, named as the exporter names the placed emitters'
+        (textures/<Package.Name>.png), for those it did not write."""
+        from scctpkg import export_gltf  # noqa: PLC0415
+        from scctpkg.texture import read_texture  # noqa: PLC0415
+
+        for _r, _cls, decoded in self._spawn_particles():
+            tex = decoded.get("Texture")
+            if not isinstance(tex, Ref) or tex.ref == 0 or not tex.path or tex.is_class:
+                continue
+            parts = tex.path.split(".")
+            path = tex_dir / f"{_safe(parts[0] + '.' + parts[-1])}.png"
+            if path.is_file():
+                continue
+            pkg, e = self.src.ref_export(tex)
+            if pkg is None or e is None or e.class_name != "Texture":
+                self.src.notes.add("spawn-particle-texture", tex.path)
+                continue
+            tx = read_texture(pkg, e)
+            if tx is None or tx.image is None:
+                self.src.notes.add("spawn-particle-texture", tex.path)
+                continue
+            tex_dir.mkdir(parents=True, exist_ok=True)
+            export_gltf._write_png(tx.image, path)
 
     # ---- projectors.json ---------------------------------------------------------------------
 
@@ -526,6 +580,7 @@ class RenderBuilder:
         gltf, binary, scene = self.export()
         tex_dir = self.work / self.src.name / "textures"
         projectors = self.build_projectors(scene, tex_dir)   # writes its PNGs before the textures are collected
+        self.write_spawn_particle_textures(tex_dir)
         textures = {}
         renamed: Dict[str, str] = {}
         if tex_dir.is_dir():

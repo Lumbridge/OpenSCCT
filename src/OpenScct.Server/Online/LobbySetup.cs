@@ -114,6 +114,17 @@ public sealed record LobbySetup
     public bool RandomMap { get; init; }
 
     /// <summary>
+    /// "Auto balance" (Game_Settings' AutoBalance row, SPersistentData.bAutoBalance): a player who joins asking for the
+    /// bigger side goes to the smaller one, and in the lobby nobody may switch to a side that would then have two more
+    /// people than the other (SGameInfo.PickTeam with bPlayersBalanceTeams; bots are not counted). The original's row is hidden and always on; the rewrite makes it
+    /// the host's choice, off by default.
+    /// </summary>
+    public bool AutoBalance { get; init; }
+
+    /// <summary>Alternate Mode: the host's ability switches and gadget restrictions (<see cref="AlternateRules"/>).</summary>
+    public AlternateRules Alternate { get; init; } = AlternateRules.Default;
+
+    /// <summary>
     /// Server bots (not in the original, which has no bots in its network sessions): off, a number on each side, or
     /// filling the empty places. They join the lobby as rows and play the rounds on the server with the game's AI.
     /// </summary>
@@ -195,6 +206,7 @@ public sealed record LobbySetup
             Bots = Bots is BotFill.PerSide or BotFill.Fill ? Bots : BotFill.Off,
             BotsPerSide = Math.Clamp(BotsPerSide, 1, OnlineBotRoster.MaxPerSide),
             BotSkill = (OpenScct.Game.AI.AiSkill)Math.Clamp((int)BotSkill, 0, (int)OpenScct.Game.AI.AiSkill.Expert),
+            Alternate = Alternate.Clamped(),
         };
     }
 
@@ -246,6 +258,8 @@ public sealed record LobbySetup
         persistent.LevelName = Map;
         persistent.VoiceChatMode = VoiceMenuIndex(VoiceMode);
         persistent.allowVoiceChatInLobby = VoiceInLobby;
+        persistent.bAutoBalance = AutoBalance;
+        Alternate.ApplyTo(persistent, Mode);
     }
 
     /// <summary>
@@ -294,7 +308,8 @@ public sealed record LobbySetup
     public string ToOptions() =>
         ToMatchInfo().GetOptionsString() + string.Create(CultureInfo.InvariantCulture,
             $"?SvmDisks={Disks}?SvmDisksToWin={DisksToWin}?SvmDisksMax={DisksMax}?SvmVoice={VoiceMenuIndex(VoiceMode)}?SvmVoiceLobby={(VoiceInLobby ? 1 : 0)}?SvmRandomMap={(RandomMap ? 1 : 0)}") +
-        string.Create(CultureInfo.InvariantCulture, $"?SvmBots={(int)Bots}?SvmBotsPerSide={BotsPerSide}?SvmBotSkill={(int)BotSkill}?SvmPractice={(Practice ? 1 : 0)}");
+        string.Create(CultureInfo.InvariantCulture, $"?SvmBots={(int)Bots}?SvmBotsPerSide={BotsPerSide}?SvmBotSkill={(int)BotSkill}?SvmBal={(AutoBalance ? 1 : 0)}?SvmPr={(Practice ? 1 : 0)}") +
+        Alternate.ToOptions();
 
     /// <summary>Reads a setup from options (as <see cref="ToOptions"/> writes them); missing values keep <paramref name="fallback"/>'s.</summary>
     public static LobbySetup FromOptions(string options, LobbySetup? fallback = null)
@@ -327,7 +342,9 @@ public sealed record LobbySetup
             Bots = (BotFill)Math.Clamp(UcOptions.GetIntOption(options, "SvmBots", (int)f.Bots), 0, 255),
             BotsPerSide = UcOptions.GetIntOption(options, "SvmBotsPerSide", f.BotsPerSide),
             BotSkill = (OpenScct.Game.AI.AiSkill)Math.Clamp(UcOptions.GetIntOption(options, "SvmBotSkill", (int)f.BotSkill), 0, 255),
-            Practice = UcOptions.GetIntOption(options, "SvmPractice", f.Practice ? 1 : 0) != 0,
+            AutoBalance = UcOptions.GetIntOption(options, "SvmBal", f.AutoBalance ? 1 : 0) != 0,
+            Alternate = AlternateRules.FromOptions(options, f.Alternate),
+            Practice = UcOptions.GetIntOption(options, "SvmPr", f.Practice ? 1 : 0) != 0,
         }.Clamped();
     }
 
@@ -360,7 +377,7 @@ public sealed record LobbySetup
         int respawn = Practice ? MinRespawn : RespawnSeconds;
         string practice = Practice ? ", practice" : string.Empty;
         return string.Create(CultureInfo.InvariantCulture,
-            $"{Map} {ModeName(Mode)}{practice}, {time}, {rules}, respawn {respawn} s{series}{random}{bots}, voice {VoiceModeName(VoiceMode)}");
+            $"{Map} {ModeName(Mode)}{practice}, {time}, {rules}, respawn {respawn} s{series}{random}{bots}, voice {VoiceModeName(VoiceMode)}{(AutoBalance ? ", auto balance" : "")}{Alternate.Describe()}");
     }
 
     private static string Lives(int lives) => lives <= 0 ? "unlimited" : lives.ToString(CultureInfo.InvariantCulture);

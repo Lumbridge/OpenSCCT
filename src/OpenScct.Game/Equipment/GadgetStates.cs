@@ -29,6 +29,7 @@ public static class GadgetStates
     public static readonly Name s_Hud_UseObject_StickyCam = new("s_Hud_UseObject_StickyCam");
     public static readonly Name s_Hud_UseObject_CamNetwork = new("s_Hud_UseObject_CamNetwork");
     public static readonly Name s_H_Binoculars_Att = new("s_H_Binoculars_Att");
+    public static readonly Name s_H_Binoculars_Def = new("s_H_Binoculars_Def");
 
     // Gadget and mine states.
     public static readonly Name s_Activated = new("s_Activated");

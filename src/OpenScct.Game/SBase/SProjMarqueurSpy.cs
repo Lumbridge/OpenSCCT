@@ -23,7 +23,7 @@ public partial class SProjMarqueurSpy
     [PortOf("uc:SBase.SProjMarqueurSpy:PreBeginPlay", Spec = "spec/equipment/spy-bullet.md#rules")]
     protected override void PreBeginPlay()
     {
-        if (SLaserTrigger.InRain(Location))
+        if (GetRainVolume(Location) is not null)
         {
             HeatIntensity *= 0.5f;
         }

@@ -16,6 +16,8 @@ Units:
 - uc:SBase.SFlaque:Grow
 - uc:SBase.SFlaque:Reduce
 - rep:SBase.SFlaque.variation
+- uc:SBase.SSprinklerEmitter:PreBeginPlay
+- uc:SBase.SEffectWaterPipe:PostBeginPlay, uc:SBase.SEffectWaterPipe:Timer
 
 ## Purpose
 
@@ -49,7 +51,14 @@ puddles (DrawScale 5 or 10).
    collision follows the new size); X < 0.1 destroys the puddle. Starting at 0.1 a puddle reaches 1.5 after 14 s and
    would take 140 s to shrink away.
 6. SFlaque Destroyed clears its sprinkler's Flaque (no parent call).
-7. The WetVolume fields only place the puddle trace in script; any native wet effect is not known (open).
+7. SSprinklerEmitter PreBeginPlay (each machine, before the parent's): a trace from 50 to 500 uu below the emitter
+   (actors included); on a hit its second sub-emitter (the mist on the floor) starts its particles at the hit's
+   height: StartLocationRange.Z.Min = Max = hit Z - emitter Z (its X and Y spread of +-32 kept).
+8. SEffectWaterPipe (the SImpactWaterPipe spark emitter of a shot water pipe), PostBeginPlay on each drawing machine:
+   a trace from 30 uu ahead of it (its X axis) to 300 uu below that point (actors included); on a floor that is not
+   SURFACE_MediumWater or SURFACE_DeepWater an SFlaque 3 uu above the hit, turned to the emitter's yaw (pitch and roll
+   0), RemoteRole None, then Grow; a 4 s one-shot timer then Reduces it. It grows to 0.5 and takes 40 s to shrink away.
+9. The WetVolume fields only place the puddle trace in script; any native wet effect is not known (open).
 
 ## Network
 

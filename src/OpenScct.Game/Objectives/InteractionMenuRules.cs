@@ -91,6 +91,7 @@ public static class InteractionMenuRules
         SInteractObject? entry = manager.GetCurrentInteraction();
         if (entry is SShareObjectInteraction share)
         {
+            pc.GiveSelectedGadget(share);
             ObjectiveNatives.ChangeState(pc, pc.PreviousState, Name.None, true);
             return share.aActorToInteractWith is not null ? EMenuRelease.Give : EMenuRelease.Leave;
         }
@@ -109,12 +110,58 @@ public static class InteractionMenuRules
         pc.bCanCheckUsingButton = false;
         if (IsButtonEntry(entry))
         {
+            if (entry is SMineProxInteraction)
+            {
+                manager.SelectedInteractions = GetBestMineIndexToRemove(pc);
+            }
+
             return EMenuRelease.PressButton;
         }
 
         entry.iLastUsedTime = SvmMath.Trunc(pc.Level.TimeSeconds);
         InteractionInit(pc, entry, manager.SelectedSubInteractions);
         return EMenuRelease.InteractionInitSent;
+    }
+
+    /// <summary>
+    /// <c>SPlayerController.GetBestMineIndexToRemove</c> (mine-launcher.md rule 26): with several wall mines or sticky
+    /// cams in reach, the one the player looks at most squarely is removed. Among the menu's entries that are mine or
+    /// sticky cam entries usable now, the one whose object lies furthest along the view axis from the eye (the pawn's
+    /// rotation, or the desired rotation for a merc); the selection stays when none goes further. Ties keep the first.
+    /// </summary>
+    [UcNative("ASPlayerController::execGetBestMineIndexToRemove", Exe = 0x10ab24a0, Editor = 0x111f2030)]
+    [PortOf("nat:SBase.SPlayerController.GetBestMineIndexToRemove", Spec = "spec/equipment/mine-launcher.md#rules")]
+    [Provenance(ProvenanceKind.Decoded, "game 0x10ab24a0: X axis of UnitCoords / Rotation (MyDesiredRotation for SPAWNDEFENSE), eye = Location + EyeHeight Z + WalkBob, IsA SMineProxInteraction, CanUse, strict greater")]
+    public static int GetBestMineIndexToRemove(SPlayerController pc)
+    {
+        if (pc.IManager is not { } manager)
+        {
+            return 0;
+        }
+
+        int best = manager.SelectedInteractions;
+        if (pc.Pawn is not { } pawn)
+        {
+            return best;
+        }
+
+        FVector axis = FCoords.FromRotator(pc.SPawnType == PawnType.SPAWNDEFENSE ? pc.MyDesiredRotation : pawn.Rotation).XAxis;
+        FVector eye = pawn.Location + new FVector(0f, 0f, pawn.EyeHeight) + pawn.WalkBob;
+        for (int i = 0; i < manager.NbObjects && i < manager.Interactions.Length; i++)
+        {
+            if (manager.Interactions[i] is not SMineProxInteraction { Owner: { } placed } entry || !entry.CanUse(pc))
+            {
+                continue;
+            }
+
+            Actor? bestObject = (uint)best < (uint)manager.Interactions.Length ? manager.Interactions[best]?.Owner : null;
+            if (bestObject is null || ((placed.Location - eye) | axis) > ((bestObject.Location - eye) | axis))
+            {
+                best = i;
+            }
+        }
+
+        return best;
     }
 
     /// <summary>A plain switch (neither hackable nor a hold switch) or a wall gadget: pressed with a button animation.</summary>

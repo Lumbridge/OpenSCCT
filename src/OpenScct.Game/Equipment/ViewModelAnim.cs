@@ -143,6 +143,9 @@ public static class ViewModelClips
     public static readonly Name SnipeP190 = new("SnipeP190");
     public static readonly Name WaitP190 = new("WaitP190");
     public static readonly Name FirstButtStFd2 = new("FirstButtStFd2");
+    public static readonly Name FirstMineStBg2 = new("FirstMineStBg2");
+    public static readonly Name FirstMineStNt2 = new("FirstMineStNt2");
+    public static readonly Name FirstMineStEd2 = new("FirstMineStEd2");
     public static readonly Name FirstAtakChEd2 = new("FirstAtakChEd2");
     public static readonly Name FirstAtakChit2 = new("FirstAtakChit2");
     public static readonly Name FirstAtakCrFd2 = new("FirstAtakCrFd2");
@@ -208,6 +211,21 @@ public static class ViewModelClips
         if (Sequence == FirstButtStFd2)
         {
             return K.FirstButtStFd2;
+        }
+
+        if (Sequence == FirstMineStBg2)
+        {
+            return K.FirstMineStBg2;
+        }
+
+        if (Sequence == FirstMineStNt2)
+        {
+            return K.FirstMineStNt2;
+        }
+
+        if (Sequence == FirstMineStEd2)
+        {
+            return K.FirstMineStEd2;
         }
 
         if (Sequence == FirstAtakChEd2)

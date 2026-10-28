@@ -114,28 +114,68 @@ public partial class GamepadInput : Node
             RunThreshold(input, merc, move.Length(), pad.RunThreshold);
         }
 
+        // The clutches are held here, not sent as keys (rl:input.clutch).
+        bool clutchOne = false, clutchTwo = false;
+        if (pad.Binds)
+        {
+            foreach ((string control, string action) in pad.ButtonsOf(merc))
+            {
+                if (string.Equals(action, PadSettings.ClutchOneAction, StringComparison.OrdinalIgnoreCase))
+                {
+                    clutchOne |= IsDown(Device, control);
+                }
+                else if (string.Equals(action, PadSettings.ClutchTwoAction, StringComparison.OrdinalIgnoreCase))
+                {
+                    clutchTwo |= IsDown(Device, control);
+                }
+                else
+                {
+                    Hold(input, control, action, IsDown(Device, control));
+                }
+            }
+        }
+
         if (pad.Aim && Session is { } session)
         {
             Vector2 look = Stick(JoyAxis.RightX, JoyAxis.RightY, pad.DeadzoneRight);
             LookSettings group = Settings.LookOf(merc, pad: true);
             float k = pad.LookSpeed * (float)delta;
-            float multiplier = merc ? group.Look : (session.LocalPawn?.WeaponLoaded ?? 0) > 0 ? group.Look : group.FreeLook;
-            session.Input.MouseX += Response(look.X, group.LookResponse) * k * multiplier;
-            session.Input.MouseY -= Response(look.Y, group.LookResponse) * k * multiplier * pad.VerticalScale;
+            float clutch = group.ClutchOf(clutchOne, clutchTwo);
+            (float h, float v) = PadMultipliers(session);
+            session.Input.MouseX += Response(look.X * clutch, group.LookResponse) * k * h;
+            session.Input.MouseY -= Response(look.Y * clutch, group.LookResponse) * k * v * pad.VerticalScale;
             if (look != Vector2.Zero)
             {
                 Capture(input);
             }
         }
-
-        if (pad.Binds)
-        {
-            foreach ((string control, string action) in pad.ButtonsOf(merc))
-            {
-                Hold(input, control, action, IsDown(Device, control));
-            }
-        }
     }
+
+    /// <summary>
+    /// The controller groups' look multipliers for the view the player is in (free or gun look, scope or binoculars,
+    /// camera views, the vertical scales: rl:input.sens), divided by the mouse's: the session's mouse look scales every
+    /// count by the mouse groups, so the stick's counts end up with the controller groups' multipliers alone.
+    /// </summary>
+    private (float Horizontal, float Vertical) PadMultipliers(PlaySession session)
+    {
+        if (session.LocalController is not { } pc)
+        {
+            return (1f, 1f);
+        }
+
+        if (!ReferenceEquals(_padLookFor, Settings))
+        {
+            _padLookFor = Settings;
+            _padLook = SettingsApplier.MouseLookOf(Settings, pad: true);
+        }
+
+        (float ph, float pv) = _padLook.Multipliers(pc);
+        (float mh, float mv) = session.Mouse.Multipliers(pc);
+        return (ph / Math.Max(1e-3f, mh), pv / Math.Max(1e-3f, mv));
+    }
+
+    private GameSettings? _padLookFor;
+    private MouseLook _padLook = new();
 
     public override void _ExitTree() => ReleaseAll();
 

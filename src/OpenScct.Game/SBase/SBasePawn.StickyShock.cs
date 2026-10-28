@@ -103,7 +103,7 @@ public partial class SBasePawn
     [Provenance(ProvenanceKind.Estimated, "The Skins array is not modelled: the flag tells the pawn view to draw the Stickess shaders")]
     public void BeginStickySkin() => bStickySkinned = true;
 
-    /// <summary>Back to the pawn's own skin (the wet and phospho skins are chosen by the view from bWet and PhosphoSkinTime).</summary>
+    /// <summary>Back to the pawn's own skin, or the wet one while bWet (SimPawnView draws it; the phospho skin is not drawn yet).</summary>
     [Uc("SBase.SBasePawn.RestoreSkins", Sha1 = "5a7e2a9dc9224ca5320ea643b1b1f7dc0b82162e")]
     [PortOf("uc:SBase.SBasePawn:RestoreSkins", Spec = "spec/equipment/sticky-shock-effect.md#rules")]
     [Provenance(ProvenanceKind.Estimated, "The Skins array is not modelled: only the Stickess flag is cleared")]

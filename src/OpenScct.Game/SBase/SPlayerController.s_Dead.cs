@@ -94,6 +94,8 @@ public partial class SPlayerController
                 pc.DiscardFlag();
             }
 
+            (pc.myHUD as SHud)?.EmptyAlarmsList();
+
             pc.bBehindView = true;
             pc.CombatHeadCamera(false, default);
             pc.MovementCamera(ECamMode.ECM_Walking);

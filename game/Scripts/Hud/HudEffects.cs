@@ -40,6 +40,12 @@ public sealed class HudEffects
 
     public HudSfx Sfx { get; } = new();
 
+    /// <summary>
+    /// Raised for each notification of the local player as <see cref="Update"/> applies it (the controller, the event,
+    /// the HUD time): other presentation of the player's own events (the controller's rumble) listens here.
+    /// </summary>
+    public event Action<SPlayerController, SimEvent, float>? Applied;
+
     /// <summary>The last throw charge the simulation reported (SHud.SetBallisticValue).</summary>
     public float Ballistic { get; private set; }
 
@@ -75,6 +81,7 @@ public sealed class HudEffects
     private int _apparition;
     private int _disparition;
     private int _timeBeginClean;
+    private float _shutDownEndsAt = -1f;
 
     /// <summary>Queues an event raised by the simulation (any thread; drained by <see cref="Update"/>).</summary>
     public void Post(in SimEvent e)
@@ -123,6 +130,8 @@ public sealed class HudEffects
                 DrawProjection(pc.RendMap, now);
             }
 
+            StopHudShutDown(pc, now);
+
             if (pc.Pawn is not { Health: > 0 } || pc.bEndGame)
             {
                 Sfx.EndSleep();
@@ -134,6 +143,7 @@ public sealed class HudEffects
 
     private void Apply(SPlayerController pc, in SimEvent e, float now)
     {
+        Applied?.Invoke(pc, e, now);
         string what = e.What.ToString();
         bool merc = pc.SPawnType == PawnType.SPAWNDEFENSE;
         switch (what)
@@ -147,6 +157,7 @@ public sealed class HudEffects
             case "HudShutDown" when merc:
                 ShutDownTime = now;
                 ShutDowns++;
+                _shutDownEndsAt = MathF.Truncate(now) + MercHudPage.ShutDownSeconds;
                 if (pc.myHUD is SHud hud)
                 {
                     // SHud.HudShutDown: AddHudNumberMessageToStack(7, 3), "System malfunction".
@@ -182,6 +193,26 @@ public sealed class HudEffects
             case "GoggleMessage":
                 GoggleMessage(pc, e.Slot, e.Location.X);
                 break;
+        }
+    }
+
+    /// <summary>
+    /// The end of a merc HUD shutdown (rule 12): 12 whole seconds after it started the page clears bShutDown and calls
+    /// <c>SHud.StopHudShutDown</c>, which adds "Rebooting ..." (HUD number message 8) for 3 s.
+    /// </summary>
+    [Uc("SBase.SHud.StopHudShutDown", Sha1 = "31bedf577adc87bf49a88b511abed2a61338b765")]
+    [PortOf("uc:SBase.SHud:StopHudShutDown", Spec = "spec/hud/screen-effects.md#rules")]
+    private void StopHudShutDown(SPlayerController pc, float now)
+    {
+        if (_shutDownEndsAt < 0f || _shutDownEndsAt >= now)
+        {
+            return;
+        }
+
+        _shutDownEndsAt = -1f;
+        if (pc.SPawnType == PawnType.SPAWNDEFENSE && pc.myHUD is SHud hud)
+        {
+            HudMessages.AddHudNumberMessageToStack(hud, 8, 3, 0);
         }
     }
 
@@ -331,7 +362,7 @@ public sealed class HudEffects
         Sfx.Reset();
         Ballistic = 0f;
         PerturbedUntil = 0f;
-        FlashTime0 = ShutDownTime = -1f;
+        FlashTime0 = ShutDownTime = _shutDownEndsAt = -1f;
         Projection = NeigeDisp = false;
         _apparition = _disparition = _timeBeginClean = 0;
     }

@@ -10,12 +10,15 @@ using OpenScctGame.Render.Particles;
 
 namespace OpenScctGame.Fx;
 
-// The abandoned projections of the client world (Projector.AbandonProjector): the flare's burn mark.
+// The abandoned projections of the client world (Projector.AbandonProjector): the flare's burn mark, the shotgun's
+// pellet marks and the footprints.
 public partial class CombatFxView
 {
     private readonly Dictionary<int, MeshInstance3D> _projections = new();
     private readonly List<int> _projectionsGone = new();
     private readonly Dictionary<string, StandardMaterial3D?> _projectionMaterials = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, ShaderMaterial> _tintedProjectionMaterials = new(StringComparer.Ordinal);
+    private Shader? _tintedProjectionShader;
     private AbandonedProjectors? _projectionList;
     private int _lastProjection;
 
@@ -26,7 +29,7 @@ public partial class CombatFxView
     /// New projections get a quad on the first surface along their forward axis within MaxTraceDistance, facing out of
     /// it; each goes at its time.
     /// </summary>
-    [Provenance(ProvenanceKind.Estimated, "The projection is not decoded: a square of the texture's width x DrawScale on the surface hit along the projector's axis, alpha blended")]
+    [Provenance(ProvenanceKind.Estimated, "The projection is not decoded: a quad of the texture's size x DrawScale (an orthographic projector's frustum) on the surface hit along the projector's axis, alpha blended")]
     private void TrackProjections(Level level)
     {
         float now = level.Info.TimeSeconds;
@@ -99,35 +102,111 @@ public partial class CombatFxView
 
     private MeshInstance3D? ProjectionNode(Level level, AbandonedProjection p)
     {
-        if (ProjectionMaterial(p.ProjTexture.Path) is not { } material || GadgetWorld.Collision(level.Info) is not { } world)
+        if (ProjectionTexture(p.ProjTexture.Path) is not { } texture || GadgetWorld.Collision(level.Info) is not { } world)
         {
             return null;
         }
 
-        p.Rotation.GetAxes(out FVector x, out _, out _);
+        p.Rotation.GetAxes(out FVector x, out FVector y, out FVector z);
         FVector end = p.Location + (x * p.MaxTraceDistance);
         if (!world.LineCheck(out FCheckResult hit, null, end, p.Location, FVector.Zero, (ETraceFlags)ParticleK.TraceFlags) || !hit.bHit)
         {
             return null;
         }
 
-        float size = material.AlbedoTexture.GetWidth() * p.DrawScale;
+        // A projector of FOV near 0 is orthographic: its frustum is the texture's size times DrawScale.
         var node = new MeshInstance3D
         {
             Name = p.Class.ToString(),
-            Mesh = new QuadMesh { Size = Vector2.One * UeSpace.LengthToGodot(size) },
-            MaterialOverride = material,
+            Mesh = new QuadMesh
+            {
+                Size = new Vector2(UeSpace.LengthToGodot(texture.GetWidth() * p.DrawScale), UeSpace.LengthToGodot(texture.GetHeight() * p.DrawScale)),
+            },
             CastShadow = GeometryInstance3D.ShadowCastingSetting.Off,
         };
-        AddChild(node);
-        node.GlobalPosition = UeSpace.ToGodot(hit.Location + (hit.Normal * 0.4f));
+        if (p.Tint is { } tint)
+        {
+            node.MaterialOverride = TintedProjectionMaterial(p.ProjTexture.Path!, texture);
+            node.SetInstanceShaderParameter("svm_tint", new Color(tint.R / 255f, tint.G / 255f, tint.B / 255f, tint.A / 255f));
+            node.SetInstanceShaderParameter("svm_flip_v", p.FlipV ? 1f : 0f);
+        }
+        else if (ProjectionMaterial(p.ProjTexture.Path) is { } material)
+        {
+            node.MaterialOverride = material;
+        }
 
-        // The quad faces +Z; turn it to face out of the surface.
-        Vector3 n = UeSpace.DirectionToGodot(hit.Normal);
-        Vector3 up = MathF.Abs(n.Y) > 0.99f ? Vector3.Right : Vector3.Up;
-        node.LookAt(node.GlobalPosition - n, up);
+        AddChild(node);
+        node.GlobalTransform = new Transform3D(ProjectionBasis(hit.Normal, y, z), UeSpace.ToGodot(hit.Location + (hit.Normal * 0.4f)));
         return node;
     }
+
+    /// <summary>
+    /// The quad's frame on the surface: facing out of it (the quad's +Z), with the texture's U (the quad's +X) running
+    /// against the projector's Z axis laid onto the surface (its Y axis when Z is along the normal). For a footprint
+    /// cast straight down under the pawn's yaw the print's length runs along the walk, toes (U = 0) forward.
+    /// </summary>
+    [Provenance(ProvenanceKind.Estimated, "The projector's texture axes are not decoded: U against the projector's Z (the footprint texture's toes are at U = 0)")]
+    private static Basis ProjectionBasis(FVector surfaceNormal, FVector projectorY, FVector projectorZ)
+    {
+        Vector3 n = UeSpace.DirectionToGodot(surfaceNormal).Normalized();
+        Vector3 u = OnSurface(UeSpace.DirectionToGodot(projectorZ * -1f), n);
+        if (u.LengthSquared() < 1e-6f)
+        {
+            u = OnSurface(UeSpace.DirectionToGodot(projectorY), n);
+        }
+
+        if (u.LengthSquared() < 1e-6f)
+        {
+            u = OnSurface(MathF.Abs(n.Y) > 0.99f ? Vector3.Right : Vector3.Up, n);
+        }
+
+        u = u.Normalized();
+        return new Basis(u, n.Cross(u).Normalized(), n);
+    }
+
+    private static Vector3 OnSurface(Vector3 d, Vector3 n) => d - (n * d.Dot(n));
+
+    private Texture2D? ProjectionTexture(string? texture) =>
+        texture is not null && _library is { Available: true } lib ? lib.Texture(lib.TexturePng(texture)) : null;
+
+    /// <summary>
+    /// A projection whose material was built at run time (SFootPrint's Combiner): the colour is the tint's, the
+    /// opacity the texture's alpha times the tint's (CO_Use_Color_From_Material2, AO_Multiply), alpha blended; the
+    /// right foot's TexScaler turns the texture upside down.
+    /// </summary>
+    [Provenance(ProvenanceKind.Decoded, "SFootPrint.PostBeginPlay: Combiner CO_Use_Color_From_Material2, AO_Multiply; TexScaler VScale -1, VOffset 32; FrameBufferBlendingOp PB_AlphaBlend")]
+    private ShaderMaterial TintedProjectionMaterial(string path, Texture2D texture)
+    {
+        if (!_tintedProjectionMaterials.TryGetValue(path, out ShaderMaterial? material))
+        {
+            _tintedProjectionShader ??= new Shader { Code = TintedProjectionShaderCode };
+            material = new ShaderMaterial { Shader = _tintedProjectionShader };
+            material.SetShaderParameter("svm_tex", texture);
+            _tintedProjectionMaterials[path] = material;
+        }
+
+        return material;
+    }
+
+    // The tint is an sRGB colour; the unshaded albedo is linear.
+    private const string TintedProjectionShaderCode = @"
+shader_type spatial;
+render_mode unshaded, blend_mix, cull_disabled, depth_draw_never;
+
+uniform sampler2D svm_tex : filter_linear_mipmap, repeat_disable;
+instance uniform vec4 svm_tint = vec4(1.0);
+instance uniform float svm_flip_v = 0.0;
+
+void fragment() {
+    vec2 uv = UV;
+    if (svm_flip_v > 0.5) {
+        uv.y = 1.0 - uv.y;
+    }
+
+    ALBEDO = pow(svm_tint.rgb, vec3(2.2));
+    ALPHA = texture(svm_tex, uv).a * svm_tint.a;
+}
+";
 
     private StandardMaterial3D? ProjectionMaterial(string? texture)
     {

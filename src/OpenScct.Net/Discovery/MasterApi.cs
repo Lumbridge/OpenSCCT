@@ -164,6 +164,9 @@ public sealed record HeartbeatRequest
     /// <summary>The players' names, for the browser's details.</summary>
     public IReadOnlyList<string> PlayerNames { get; init; } = [];
 
+    /// <summary>Each name's side (0 spies, 1 mercs, 255 spectator), in the order of <see cref="PlayerNames"/>; older hosts send none.</summary>
+    public IReadOnlyList<byte> PlayerTeams { get; init; } = [];
+
     /// <summary>Only signed-in players (with a master ticket) may join.</summary>
     public bool RequireAccounts { get; init; }
 
@@ -316,6 +319,9 @@ public sealed record ServerEntry
     public int AgeSeconds { get; init; }
 
     public IReadOnlyList<string> PlayerNames { get; init; } = [];
+
+    /// <summary>Each name's side (0 spies, 1 mercs, 255 spectator), or empty when the host sent none.</summary>
+    public IReadOnlyList<byte> PlayerTeams { get; init; } = [];
 
     /// <summary>Only signed-in players may join.</summary>
     public bool RequireAccounts { get; init; }

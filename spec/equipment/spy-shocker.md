@@ -21,6 +21,7 @@ Units:
   uc:SBase.SPlayerController:s_PlayerWalkingWeapon.CanActivateLaser, uc:SBase.SPlayerController:CanActivateLaser,
   uc:SBase.SPlayerController:SwitchBinocularVision (spy branch), uc:SBase.SPlayerController:CheckIfCanFire (spy branch)
 - nat:SBase.SWeaponAttaque.TickSWeaponAttaque, nat:SBase.SPlayerController.NativeFindTargetToSnap,
+  uc:SBase.SPlayerController:ComputeTargetDistance,
   eng:ASPlayerController::NativePlayerCalcView (rule 1.3 of spec/native/camera.md: the laser placement)
 - rep:SBase.SWeaponAttaque.bLaserOn, rep:SBase.SWeaponAttaque.MuzzleCount, rep:SBase.SPawnAttaque.WeaponDummy
 
@@ -199,6 +200,28 @@ holstering, 7 other hand. Controller fields: `bFireMode` (InvButton alias FireMo
     capture's identical velocities, a tap-drawn and a hold-drawn spy are locked alike: both are locked while walking
     with the gun out (150.1 uu/s is just over the threshold), neither while standing. What differs for a merc is
     what he sees: the tap-drawn spy's laser dot (every machine draws every spy's dot, in every vision mode).
+17. **Aim assist** (`NativeFindTargetToSnap`, native 1384, decoded game 0x10aab540; the global
+    `ComputeTargetDistance` returns it, `s_PlayerCharging` replaces it with `FindTargetToCharge`). The global
+    `PlayerTick` of the local player sets `bSnappedToTarget = ComputeTargetDistance()` every tick for a merc, and for
+    a spy whose `WeaponLoaded` is 2. The native first clears `TargetPawn` and returns false unless
+    `0.1 < fNormePadCam < 0.82` (the look input moved, but not to full deflection). Then it walks the level's pawns in
+    list order and takes the first that passes every test:
+    - an SBasePawn (or subclass) not being destroyed, of the other side (`SPawnType` differs from the controller's);
+    - the target or the controller's own pawn moves (squared speed above 4, so over 2 uu/s);
+    - the aim point is the target's `B Spine1` bone origin. A merc aims from his pawn's `Location` along
+      `MyDesiredRotation`, with the line to the bone lowered by 10 uu; a spy aims from his pistol's `Location` along
+      the pistol's `Rotation` (no lowering). The aim's X axis dotted with the normalised line must exceed 0.98;
+    - a line trace (flags 0x286: level, movers, level geometry, first hit only, no pawns) from the aim start to the
+      bone hits nothing or the target itself.
+    For that target: `d = |line|` (with the merc's 10 uu lowering), `fSnapCoef = 1 - (clamp(d, 400, 2000) - 400) *
+    0.000625` (1 at 400 uu and closer, 0 at 2000 uu and farther). `R = line.Rotation()`; `fSnapAngleX = R.Yaw - aim
+    yaw`, `fSnapAngleY = R.Pitch - aim pitch` (integer differences turned to float), each clamped to
+    `+-100 fSnapCoef`; `fSnapAngleY` is 0 unless the target's vertical speed, truncated, is at least 2 in size.
+    `TargetPawn` = the target; returns true. The armed spy's view applies it (`UpdateCamRotation`:
+    `Yaw += int(fSnapAngleX * 50 * dt)`, `Pitch += int(fSnapAngleY * 50 * dt)`); the merc's mouse path does not read
+    it (only the merc pad view native `NativeRotationCameraDefenseur` does).
+    The port wraps the yaw and pitch differences to -32768..32767 (the native subtracts the raw values; both are the
+    same whenever the two rotations are normalised the same way).
 
 ## States
 ```mermaid
@@ -230,6 +253,13 @@ The pistol object itself only has the auto state `s_Selected` (held-fire repeat)
 | Draw clip | 0.267 | s | decoded (clip data) | SWeaponFirst.ukx DefaultP190 |
 | Shot sound radius | 200 | uu | decoded | ServerFireWeaponWithLocation |
 | Drawn pistol placement | crouched 38.4 up, 16.2 right; standing 46.3 up, 14.7 right; pitch 0.85 of the view | uu | measured | rule 14a |
+| Aim assist look input window | 0.1 < fNormePadCam < 0.82 | | decoded | game 0x10aab558 |
+| Aim assist moving test | squared speed > 4 (target or own pawn) | uu^2/s^2 | decoded | game 0x10aab62a |
+| Aim assist cone | dot > 0.98 | | decoded | game 0x10aab823 |
+| Aim assist range scale | 1 at 400, 0 at 2000 (slope 0.000625) | uu | decoded | game 0x10aab8b3 |
+| Aim assist step | +-100 x fSnapCoef, applied x 50 x dt | rotator units | decoded | game 0x10aab944; UpdateCamRotation |
+| Aim assist merc line lowering | 10 | uu | decoded | game 0x10aab731 |
+| Aim assist vertical gate | abs(int(target Velocity.Z)) >= 2 | uu/s | decoded | game 0x10aab986 |
 
 ## Network
 - Owning client: fire-mode timing, draw and holster states, snap, exec Fire, held repeat, energy check and
@@ -270,7 +300,7 @@ The pistol object itself only has the auto state `s_Selected` (held-fire repeat)
 - `InvButton` semantics: the byte is 1 while the key is held (capture, rule 15).
 - TickSWeaponAttaque: rule 14 (it does not write `DispersionActuelle`).
 - Why a tap-drawn spy "shows on motion tracking": not by the tracker (rule 16); the visible difference is the laser.
-- NativeFindTargetToSnap and `ComputeTargetDistance` (pad aim assist while aiming, `fSnapAngleX/Y`): not decoded.
+- NativeFindTargetToSnap and `ComputeTargetDistance` (pad aim assist while aiming, `fSnapAngleX/Y`): decoded, rule 17.
 - The pistol actor's world rotation on the client comes from the hand bone (attachment), not the camera: measured
   in rule 14a (pitch 0.85 of the view, yaw the view's, 16 uu right of the view line).
 - Where the drawn beam and dot start: rule 14b (sandbox capture local/lasers/capture.py --side spy with frames of

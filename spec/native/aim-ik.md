@@ -4,7 +4,14 @@ Units:
 - nat:SBase.SBasePawn.AimAt
 - eng:USkeletalMeshInstance::UpdateAnimation (its IK step)
 - eng:USkeletalMeshInstance::BuildPose (the per-bone IK turn)
-- uc:SBase.SBasePawn:TurnHead (the IKT_WEAPONLOADED case)
+- uc:SBase.SBasePawn:TurnHead (the IKT_WEAPONLOADED case and the arm cases)
+- uc:SBase.SBasePawn:ChangeRightArmRot
+- uc:SBase.SBasePawn:ChangeLeftArmRot
+- uc:SBase.SBasePawn:ChangeRightArmRotGrab
+- uc:SBase.SBasePawn:ChangeRightArmRotPipH2
+- uc:SBase.SBasePawn:ChangeRightArmRotPipH4
+- uc:SBase.SBasePawn:OrienteForVandamme
+- uc:SBase.SBasePawn:RemoveBTWArmControl
 
 ## Purpose
 
@@ -42,8 +49,7 @@ SBasePawn.eAimAtType: AAFULL 0, AAVERT 1, AAHOH 2, AABTW 3.
 2. **TurnHead, IKT_WEAPONLOADED**: with WeaponLoaded not 0 and bWeaponTransit clear, Orientation = (pitch, yaw) of
    iDesiredYawPitch for a merc (SPAWNDEFENSE) or iYawPitchFromView for a spy, roll = the pawn's roll, and
    `AimAt(AAFULL, vector(Orientation), vector(Rotation), -90, 90, -90, 90)`. Both packed values are replicated, so a
-   client asks for the aim of other players' pawns too. The other TurnHead cases (back to wall, grab, pipe and split
-   jump arm rotations through SetBoneDirection) are not covered here.
+   client asks for the aim of other players' pawns too. The arm cases are rule 5.
 3. **IK step** (0x110fbb90, the first thing UpdateAnimation 0x111056c0 does, after storing its time at +0x33c): by
    the request type, one pair steps toward the request and every other angle returns to 0; then the request is
    cleared, so a pawn whose script stops asking relaxes back.
@@ -65,6 +71,37 @@ SBasePawn.eAimAtType: AAFULL 0, AAVERT 1, AAHOH 2, AABTW 3.
    (x^2(1 - c) + c, xy(1 - c) + s z, xz(1 - c) - s y) and kin. Other bones: 5 by +0x31c / 2 (after bone 4's case),
    6 (B Head) by the look-at pair or +0x320 or half an AAHOH / AABTW pair, 21, 23 and 24 by the AAHOH and AABTW pairs.
 
+5. **TurnHead, arm cases** (bone direction controllers, Actor.SetBoneDirection with alpha 1 and space 1): with the
+   view's packed (yaw, pitch) from iYawPitchFromView, by IK_Type:
+   - IKT_JCVD (5), while bControlArmForVandamme (the split-jump draw notify played forward): OrienteForVandamme.
+   - IKT_BTW (3), while BTW is one of the four fire values (7 to 10): with the draw channel (14) playing backward
+     (holstering) the arm goes to a fixed pose off the pawn's yaw: stand left, right arm (pitch -4510, yaw +25000,
+     roll 22300); stand right, left arm (-7751, -11322, -1077); crouch left, right arm (-5800, +24600, 23000); crouch
+     right, left arm (-5500, -7700, -4160). Otherwise round a left corner the right arm aims at the view
+     (ChangeRightArmRot), round a right corner the left arm (ChangeLeftArmRot).
+   - IKT_GRAB_FIREMODE (2): ChangeRightArmRotGrab; during a weapon transition it releases the right arm instead.
+   - IKT_PIPH (4): PipHFire PipH4 (hanging by the legs) ChangeRightArmRotPipH4, PipH2 (by one hand)
+     ChangeRightArmRotPipH2.
+   Each arm function's target is the view plus a fixed offset per pose (pitch, yaw, roll):
+
+   | Function | Bone | Pitch | Yaw | Roll | Step per tick |
+   |---|---|---|---|---|---|
+   | ChangeRightArmRot | B R UpperArm | +19 | -586 | -28243 | 100000 m_dT |
+   | ChangeLeftArmRot | B L UpperArm | -470 | +588 | -3564 | 100000 m_dT |
+   | ChangeRightArmRotGrab | B R UpperArm | -2503 | +2770 | -27380 | 100000 m_dT |
+   | ChangeRightArmRotPipH4 | B R UpperArm | -1074 | +880 | -400 | 100000 m_dT |
+   | ChangeRightArmRotPipH2 | B R UpperArm | -1750 | -2040 | -24250 | 100000 m_dT |
+   | OrienteForVandamme | B R UpperArm | -1190 | -240 | -28075 | 150000 m_dT |
+
+   (the first two take the whole rotation as given for the fixed backward poses). The step: from the bone's world
+   rotation now (GetBoneRotation), each axis's signed 16-bit difference to the target is clamped to int(speed m_dT)
+   and taken off, and the result is set as the bone's controller. A controller stays until set again or released
+   (alpha 0). When a tick's case holds no bone after one that did (bDidWeTurnABone), TurnHead releases B R UpperArm,
+   B L UpperArm, B Head and a B Spine1 rotation. RemoveBTWArmControl (from SA_BTW_OUT) releases B R UpperArm and
+   B R ForeArm. The port reads space 1 as the bone's world frame set to the rotator's axes (the SPerso arm bones run
+   along their X axis, so the arm points along the view); a held bone's GetBoneRotation is its controller's rotation,
+   a free one is read from the drawn pose, and with no pose (a server) the target is taken at once.
+
 ## Constants
 
 | Name | Value | Unit | Provenance | Source |
@@ -73,11 +110,15 @@ SBasePawn.eAimAtType: AAFULL 0, AAVERT 1, AAHOH 2, AABTW 3.
 | IK speed, return speed | 8.0 | rad/s | decoded | constructor 0x1116cb80 |
 | Degrees to radians | 0.017453 | - | decoded | 0x10fdefb0 |
 | AAFULL bone | 4 | bone index | decoded | 0x111022f0 |
+| Arm step speed | 100000 | rotator units/s | decoded | SBasePawn.ChangeRightArmRot and kin |
+| Split-jump arm step speed | 150000 | rotator units/s | decoded | SBasePawn.OrienteForVandamme |
 
 ## Network
 
 Nothing of its own: TurnHead reads iDesiredYawPitch and iYawPitchFromView, which the pawn replicates
-(spec/net/proxy-pawns.md), and runs on every machine that ticks the pawn.
+(spec/net/proxy-pawns.md), and runs on every machine that ticks the pawn. The arm cases read IK_Type, BTW and
+PipHFire (replicated), the pawn's rotation, and bControlArmForVandamme, which the split-jump draw clip's notify sets
+on each machine that plays the clip.
 
 ## Open questions
 
@@ -85,3 +126,5 @@ Nothing of its own: TurnHead reads iDesiredYawPitch and iYawPitchFromView, which
    (vertical Z), so the turn is about the world's vertical and the horizontal axis across the facing; the play check
    (play-aim) shows the arms following the view up and down.
 2. The look-at (LookAt, native 1408) and the other IK types' steps are not ported.
+3. SetBoneDirection (native 1109) and the pose build's controller step are not decoded: space 1 is taken as the
+   bone's whole world rotation, laid after the parent's space base (rule 5).

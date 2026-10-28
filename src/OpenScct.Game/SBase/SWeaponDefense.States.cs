@@ -16,7 +16,9 @@ public partial class SWeaponDefense
     public static new readonly StateTable ClassStates = new(SWeapon.ClassStates,
         s_Selected.Instance, s_Firing.Instance, s_Reloading.Instance, s_FullReloading.Instance, s_FireGrenade.Instance,
         s_IdleInHolster.Instance, s_IdleGrabbed.Instance, s_Dmg_Electric.Instance, s_Dmg_Electric_End.Instance,
-        s_Sniping.Instance, s_ElbowShocking.Instance, s_Charging.Instance, s_Charging_End.Instance, s_Charging_Bump.Instance);
+        s_Sniping.Instance, s_ElbowShocking.Instance, s_Charging.Instance, s_Charging_End.Instance, s_Charging_Bump.Instance,
+        s_Interacting.Instance, s_DropMine_Grab.Instance, s_DropMine_UnGrab.Instance, s_DropMine_Loop.Instance,
+        s_DropMine.Instance, s_DropMine_Abort.Instance);
 
     public override StateTable GetStateTable() => ClassStates;
 
@@ -193,6 +195,7 @@ public partial class SWeaponDefense
             }
 
             w.SetTimer(w.RateOfFire, true);
+            w.CreateSmoke1();
         }
 
         /// <summary>The shot clip's channel blends out.</summary>

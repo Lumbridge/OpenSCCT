@@ -166,8 +166,8 @@ public static class GadgetHud
 
     /// <summary>
     /// SHud.GotoState for a gadget view (s_Hud_UseObject, s_Hud_UseObject_StickyCam, s_Hud_UseObject_CamNetwork,
-    /// s_H_Binoculars_Att, or None): the HUD enters the state when its port has it; the view name is raised for the
-    /// client HUD either way.
+    /// s_H_Binoculars_Att, s_H_Binoculars_Def, or None): the HUD enters the state when its port has it (the binocular
+    /// states play their sounds); the view name is raised for the client HUD either way.
     /// </summary>
     [Provenance(ProvenanceKind.Estimated, "The SHud states are drawing (HUD spec); the sim raises the name and enters a ported state only")]
     public static void SetHudState(SPlayerController PC, Name State)

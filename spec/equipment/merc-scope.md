@@ -66,7 +66,8 @@ Clip: FirstSnipStBg2 7 frames at 15 fps played at rate 1.6 on channel 6 = 0.292 
    SA_WALK_CR_2H or SA_WALK_ST_2H, `bBinocularVision = true`. Pressing B while scoped sets `bBinocularVision = false`.
 2. **BeginState** (in order): `iDateCheckBinoculars = 0`; on the owning client set `bBinocularVision = true` if
    `PreviousState == 's_Binoculars_Def_Reloading'` and play SA_BINOCULAR_USING; `bCanBeGrabbed = true` for mercs;
-   clear the HUD tracker locks; if the torch is on, `Torche.Unload()`; if the laser is on, remember
+   clear the HUD tracker locks; if the torch is on, `Torche.Unload()` (Reloaded turns it straight back on, Edge cases);
+   if the laser is on, remember
    `bLaserPreviously = true` and `TorcheLaser.Unload()`; `BinocularNoiseDuration = 15`, audio zoom 0.33; clear the
    voice target; spawn the HUD `SMotionTrackingVision` helper if missing; breath reset: if
    `now - BinocularBreathLastTimeSeconds > 5` then reserve 5, phase 0, factors 0, up and right true, else
@@ -120,12 +121,14 @@ Clip: FirstSnipStBg2 7 frames at 15 fps played at rate 1.6 on channel 6 = 0.292 
    dt (floor 0); `q = 0.5 * fSensibiliteSouris * dt * 50`. If `time > 0.24`: `kick = (0.4 - time) * 100 * q` and,
    when the zoom animation is finished, `FOV = target + (0.4 - time) * 20 * 0.6 * q`. Else `kick = -time * 100 * 0.4 * q`
    and `FOV = target + time * 20 * 0.4 * q`. Add `int(kick)` to View and Des pitch.
+   Reloaded (`rl:fix.sniper_kick`) gives every player the same kick: the port uses the profile's default
+   sensitivity (4, MouseSensitivity 40) in `q` instead of the player's (the value Reloaded uses is not decoded).
 9. **Commit.** If not steadily holding (`bHoldBreath == 0`, reserve <= 0, lockout > 0, or still inspiring): wrap View
    yaw and pitch into (-32767, 32768], add `int(FactorRight)` / `int(FactorUp)` to Des, Normalize and wrap Des,
    `SetRotation(View)`, `UpdateDesiredRotation(Des)`. While steadily holding: `View += (Des - View) * 0.2`, wrap,
    `SetRotation(View)`, `UpdateDesiredRotation(View)` (the aim snaps to the view). Finally
    `LocalMyDesiredRotation = Des`.
-10. **Moving while scoped** (PlayerMove): jump disabled; crouch allowed (own `ProcessCrouch`, 0.5 s guard); input
+10. **Moving while scoped** (PlayerMove): jump disabled; crouch allowed (own `ProcessCrouch`, 0.5 s guard: the stance changes inside the scope with SA_WAIT_CR2ST_2H or SA_WAIT_ST2CR_2H, and a blocked stand-up turns the latch back on); input
     curve standing `t = (-0.05 a/6000 + 0.15) a/6000 + 0.9`, crouched `t = (-0.02468 a/6000 + 0.05065) a/6000 + 0.3117`
     with `a = aForward`, both axes times `t`, then times 0.2; `GroundSpeed = RunningSpeed * |accel| / 3000`, zeroed
     below 15 uu/s crouched or 40 uu/s standing. Movement rules are owned by the locomotion spec.
@@ -209,9 +212,9 @@ stateDiagram-v2
 - At FOV 10 there is no pitch clamp at all; at FOV 20 the clamp is wider than at FOV 30 (as decoded).
 - A shot before the 0.292 s raise clip ends is refused (channel 6 animating).
 - Holding breath doubles aim speed (Rule 7.1).
-- Entering the scope turns the torch off and it stays off on exit. Enhanced 4.0 claims "flashlight stays on in Sniper
-  Mode" (spec/enhanced/FEATURES.md enh:rules.flashlight_sniper); the script still unloads it, so the behaviour must
-  come from Reloaded.Core (see `merc-flashlight.md` Open questions).
+- Stock: entering the scope turns the torch off and it stays off on exit. On Enhanced builds Reloaded.Core keeps it on
+  (rl:fix.flashlight_sniper, enh:rules.flashlight_sniper; decoded in `merc-flashlight.md` rule 12): the torch is lit
+  in the scope and after it, and the scope entry shows no "Torchlight off" message and plays no switch sound.
 - Reload inside the scope runs the scope EndState and BeginState around it; the ROF mode saved before the scope is
   kept correctly (EndState restores it, BeginState saves it again).
 - The scope cannot be entered with `bFireMode` held or during a HUD perturbation (chaff, shock).

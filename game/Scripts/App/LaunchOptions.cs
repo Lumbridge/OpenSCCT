@@ -29,6 +29,8 @@ public sealed class LaunchOptions
     public const string DifficultyPrefix = "--difficulty=";
     public const string RecordFlag = "--svm-record";
     public const string DemoPrefix = "--svm-demo=";
+    public const string PriorityPrefix = "--priority=";
+    public const string AffinityPrefix = "--affinity=";
     public const double DefaultSmokeTimeoutSeconds = 120.0;
     public const int DefaultBots = 3;
     public const int MaxBots = 15;
@@ -104,6 +106,12 @@ public sealed class LaunchOptions
     /// <summary>Arguments that were not recognised, kept so callers can report them.</summary>
     public IReadOnlyList<string> Unknown { get; private init; } = [];
 
+    /// <summary>The process priority asked for (rl:gfx.system <c>-priority</c>: idle, low, below, normal, medium, above, high), or null.</summary>
+    public string? Priority { get; private init; }
+
+    /// <summary>The CPUs the process may run on (rl:gfx.system <c>-affinity</c>: a mask such as 0xF, or a list such as 0,2-3), or null.</summary>
+    public string? Affinity { get; private init; }
+
     public static LaunchOptions Parse(IEnumerable<string> userArgs)
     {
         ArgumentNullException.ThrowIfNull(userArgs);
@@ -127,6 +135,8 @@ public sealed class LaunchOptions
         string difficulty = "normal";
         bool record = false;
         string? demo = null;
+        string? priority = null;
+        string? affinity = null;
         foreach (string arg in userArgs)
         {
             if (arg.StartsWith(SmokePrefix, StringComparison.Ordinal))
@@ -214,6 +224,14 @@ public sealed class LaunchOptions
             {
                 demo = arg[DemoPrefix.Length..].Trim('"');
             }
+            else if (arg.StartsWith(PriorityPrefix, StringComparison.Ordinal) && arg.Length > PriorityPrefix.Length)
+            {
+                priority = arg[PriorityPrefix.Length..].ToLowerInvariant();
+            }
+            else if (arg.StartsWith(AffinityPrefix, StringComparison.Ordinal) && arg.Length > AffinityPrefix.Length)
+            {
+                affinity = arg[AffinityPrefix.Length..];
+            }
             else
             {
                 unknown.Add(arg);
@@ -241,6 +259,8 @@ public sealed class LaunchOptions
             PlayDifficulty = difficulty,
             PlayRecord = record,
             DemoFile = demo,
+            Priority = priority,
+            Affinity = affinity,
             Unknown = unknown,
         };
     }

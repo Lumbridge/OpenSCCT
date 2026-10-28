@@ -13,6 +13,7 @@ below are optional files, optional fields and new collision chunks that 1.0 read
     classes.json           (1.1, optional) effective class defaults of the classes the actors use
     collision.bin          collision geometry and colliders (binary, chunked)
     traversal.json         geometric events (GEs): ledges, pipes, zip lines, ladders, fences, poles, HOH bars
+    rain.json              (1.1, optional) the rain volumes' boxes, which make pawns wet
   render/                  client only
     world.glb              world BSP, static mesh library and the instance table
     materials.json         (1.1) material blend flags, gameplay flags and the material object graph
@@ -133,6 +134,14 @@ overlaid with its props by the rules above.
 - Native maps may write the table from their engine's class defaults; a loader whose classes already hold these
   defaults only applies what differs.
 
+## `sim/rain.json` (1.1, optional)
+
+`{"format": "svm.rain/1", "volumes": [{"name", "location", "scale", "size", "falloff"}]}`: every ERainVolume of the
+map (also drawn from `render/fx.json` rain), written only when the map has one. `location` is the floor of the box,
+`scale` DrawScale x DrawScale3D, `size` m_RainSize, `falloff` m_RainFalloff; the box is (-X, -Y, 0)..(X, Y, Z) of
+size x scale from location. A pawn whose location is inside a box is in that rain volume. A reader without the file
+may take the same values from `render/fx.json` rain.
+
 ## `sim/traversal.json`
 
 As in 1.0, plus (optional) `activationMask` at the top (the LevelInfo value), and per GE `flags` (the original flag
@@ -163,7 +172,9 @@ Client-only JSON, written with the canonical writer but hashed as raw bytes (ren
 - `lighting.json`: `lights` (exporter fields plus typed `props`), `zones` (fog, ambient, `zoneIndex`, typed
   `props`), `sky`, `look`, `lightmaps`.
 - `fx.json`: `emitters` keyed by Emitter actor: `class`, `gameplay`, typed `props`, `emitters` (its sub-emitters
-  from its own `Emitters` array: `object`, `class`, typed `props`, `texture`); `projectors`, `rain`, `patches`.
+  from its own `Emitters` array: `object`, `class`, typed `props`, `texture`); `spawnParticles` (optional: the
+  sub-emitters gameplay objects name in `SpawnableObjects[].SpawnParticle`, keyed by object path, in the same shape);
+  `projectors`, `rain`, `patches`.
 - `projectors.json` (optional): `projectors`, each texture projector with `location`, `rotation`, `scale`
   (DrawScale x DrawScale3D), `texture`, `size` (USize, VSize), `fov`, `maxTrace`, `fbBlend`, `matBlend`, the projection
   flags, `uvAnim` and `flipbook` when animated. A client that reads it leaves out the `projectorOf` instances.

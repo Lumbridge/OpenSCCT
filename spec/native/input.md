@@ -44,6 +44,15 @@ PlayerTick) unless iDontUpdatePadInput is set.
    bInvertVerticalAxis.
 7. Any analog axis value the input bindings wrote into aForward or aStrafe is overwritten: movement comes only
    from the buttons.
+8. **Reloaded** (Reloaded.Core 0x1001ab50, entered from game 0x10aaa973 right after GetSpeedMode, replacing steps
+   3 and 4): each axis is also multiplied by a factor f, which is 1 unless the local player's pawn is a standing
+   spy (SPawnAttaque, not bIsCrouched) holding a forward or back key and a side key, and Reloaded's own pad code set
+   no analog scale this frame: then f = 0.70710677 on both axes (rl:fix.slow_strafe: a diagonal is no faster than a
+   straight line). `aForward = (BT_Up - BT_Down) x 6000 x k x f`, the same for aStrafe, and `fNormePadMove =
+   (|forward| f + |strafe| f) k`, capped at 1. Then the ledge assist (rl:input.ledgeassist): with `bUsing` held,
+   `bFastSpeed` clear and `fNormePadMove > 0.4`, `fNormePadMove = 0.4` (spec/movement/ledge.md, Reloaded ledge
+   assist). A second hook at 0x10aaaa32 (Reloaded 0x10019d30) replaces step 6's turn and look values; not decoded
+   here.
 
 ### 2. NativeComputeControlVariables(dt) (editor exec 0x111f37d0, game 0x10aaf400)
 

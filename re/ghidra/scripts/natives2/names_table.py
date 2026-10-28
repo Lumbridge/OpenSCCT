@@ -40,6 +40,10 @@ GAME_FUNCS = [
     (0x10a86240, 'eventbIsDamageVolumeSensitive', None),
     (0x10904030, 'appSeconds', None),
     (0x10a8fc90, 'ASGamePlayObject::ProcessDamage', None),
+    (0x10af7380, 'ASHud::DrawBloodSplashBody', None),
+    (0x10af7920, 'ASHud::DrawTargetNameBody', None),
+    (0x10af7cf0, 'ASHud::HudDefAimPoint', None),
+    (0x10a0af70, 'PreRenderVisionLight', None),
 ]
 
 EDITOR_COMMENTS = [
@@ -52,4 +56,7 @@ EDITOR_COMMENTS = [
 
 GAME_COMMENTS = [
     (0x10a85f90, 'Damage volume tick: real-time period (appSeconds), every touching actor, no Super.Tick'),
+    (0x10af7380, 'Blood splash overlay; never runs (bSplashBloodStart is never set); spec/hud/screen-effects.md rule 17'),
+    (0x10af7920, 'Laser target lock, typed name and friend flag on the HUD tracker; spec/hud/merc-reticle.md rule 3e'),
+    (0x10a0af70, 'Per-mode render interface light byte: 30 for night, int(SquintingFactor x 28) for normal'),
 ]

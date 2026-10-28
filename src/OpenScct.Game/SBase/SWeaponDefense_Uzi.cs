@@ -1,3 +1,4 @@
+using OpenScct.Core;
 using OpenScct.Provenance;
 
 namespace OpenScct.Game.SBase;
@@ -14,8 +15,9 @@ public partial class SWeaponDefense_Uzi
     [PortOf("uc:SBase.SWeaponDefense_Uzi:SpawnSFX", Spec = "spec/equipment/merc-guns.md#rules")]
     public override void SpawnSFX() => base.SpawnSFX();
 
-    /// <summary>The barrel smoke after a burst, 13 uu further back on the FX bone (a view effect).</summary>
+    /// <summary>The barrel smoke after a burst, 13 uu further back on the FX bone.</summary>
     [Uc("SBase.SWeaponDefense_Uzi.CreateSmoke2", Sha1 = "71bac8a7f0a73d87b0f423903c6005371e9b83e9")]
     [PortOf("uc:SBase.SWeaponDefense_Uzi:CreateSmoke2", Spec = "spec/equipment/merc-guns.md#rules")]
-    public override void CreateSmoke2() => base.CreateSmoke2();
+    [Provenance(ProvenanceKind.Decoded, "SWeaponDefense_Uzi.CreateSmoke2: SetRelativeLocation(vect(-13, 0, 0.5))")]
+    public override void CreateSmoke2() => SpawnBarrelSmoke(new FVector(-13f, 0f, 0.5f));
 }

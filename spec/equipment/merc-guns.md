@@ -14,6 +14,8 @@ Units:
   rep:SBase.SWeaponDefenseDummy_Shotgun.MaxProjDistance
 - uc:SBase.SShotGunProjector:PostBeginPlay
 - nat:SBase.SWeaponDefense_Shotgun.TraceFire (rules in spec/native/natives2-damage.md rule 7)
+- uc:SBase.SBasePawn:EventReloadAmmoNb1, uc:SBase.SBasePawn:EventReloadAmmoNb2, uc:SBase.SBasePawn:EventReloadAmmoNb3,
+  uc:SBase.SBasePawn:EventReloadAmmoNb4, uc:SBase.SBasePawn:EventReloadAmmoNb5, nat:SBase.SBasePawn.FinishReloadAnimation
 
 ## Purpose
 The two other merc guns of the team list (`STeamDefenseur.ClassWeapon` = rifle, Uzi, shotgun): how a merc gets them,
@@ -65,7 +67,8 @@ FirstReloStFd2S 46 (AnimNotify_Script EventReloadFirst1..5 at 0.788, 1.110, 1.44
 3. **Shotgun trigger.** The rifle's (`Fire`, `s_Firing`, auto-reload in `s_Selected` when the clip runs dry outside
    single shot) with `SwitchROF` empty, so it stays in ROF_Auto: held fire shoots every 1.15 s until the clip is
    empty. `FireWeapon` is the rifle's, then `ChangeEnumAction(SA_FIRE)` (the third-person pump, ReloStSpFd3).
-   `CreateSmoke2` is empty (no barrel smoke after a pull).
+   `CreateSmoke2` is empty (no barrel smoke after a pull); instead `CreateSmoke1`, at the start of every pull, spawns
+   two SSmokeCanonEmitter on the FX bone at (22, 3, -1) and (22, -3, -1), one per barrel.
 4. **Shotgun damage.** `ServerFireWeapon` is the rifle's; its `TraceFire` is the native one: nine pellets, the
    largest per actor, no tracer, no stats beyond ShotsFired (natives2-damage.md rule 7). It stores the near and far
    hit ranges in the third-person gun (`MinProjDistance`, `MaxProjDistance`, replicated).
@@ -76,6 +79,9 @@ FirstReloStFd2S 46 (AnimNotify_Script EventReloadFirst1..5 at 0.788, 1.110, 1.44
    notify per shell; `EventReloadFirstN` with `iNbAmmoToReload == N` jumps the clip to frame 39 (EndOfReloadFrame), so
    a reload of n shells lasts until notify n plus 6 frames (0.4 s); six shells play the whole clip (3 s). The clip
    end fills the clip as the rifle does (`min(Ammo, ClipMaxAmmo)`).
+   The third-person body clip ReloStSpFd2S (46 frames) works the same way: its `EventReloadAmmoNbN` notify (one per
+   shell) with `iNbAmmoToReload == N` calls the native `FinishReloadAnimation`, which, when the pawn's weapon is a
+   shotgun (or, without one, its third-person gun is the shotgun dummy), sets the weapon channel 21 to frame 41.1.
 6. **Shotgun pellet marks.** `SpawnSFX`: SMuzzleGenerique at (22, 0, -1) and SShotGunEmitter at (13, 0, 0) on FX, the
    casing; on a machine without authority also `SpawnImpacts`: trace from `GetFireStart()` along the FX bone's X for
    ShootingRange, first straight, then offset by -0.194 x (first range) along Y; both must hit; the ranges are the
