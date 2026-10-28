@@ -484,7 +484,7 @@ public sealed class NetLobbyGuestSmoke : SmokeTest
             s.Shot("lobby-after-revenge");
             return s.Pilot.Click(Room()!.LeaveButton, "Leave");
         });
-        yield return new("main menu", 30, _ => s.Tree.CurrentScene is MainMenu menu && s.Pilot.Click(menu.JoinButton, "Join with IP"));
+        yield return new("main menu", 30, _ => s.Tree.CurrentScene is MainMenu && FrontEnd.ShowJoinWithIp(s.Tree) is not null);
         yield return new("join with ip page", 10, _ => s.Tree.CurrentScene is JoinWithIpScreen);
         yield return new("server address", 10, _ => s.Typed("Address", address.Split(':')[0]));
         yield return new("server port", 10, _ => s.Typed("Port", address.Split(':')[1]));

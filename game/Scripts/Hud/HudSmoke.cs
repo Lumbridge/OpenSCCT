@@ -747,7 +747,7 @@ public sealed class HudSmoke : SmokeTest
         }
 
         Expect(menu.HostButton is not null &&
-            menu.JoinButton is not null && menu.OptionsButton is not null && menu.QuitButton is not null, "main menu buttons");
+            menu.FindButton is not null && menu.OptionsButton is not null && menu.QuitButton is not null, "main menu buttons");
     }
 
     private void CheckLobby(SceneTree tree)

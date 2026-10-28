@@ -7,7 +7,7 @@ namespace OpenScctGame.UI;
 /// <summary>
 /// The main menu in the original's multiplayer menu (Menu_Multi, "Enhanced Versus") and LAN Session page (LAN_Menu):
 /// Create a Session (host; also how to play offline), Find a Session (the server browser: LAN, saved addresses and the
-/// master's list), Join with IP, Options, Quit (docs/MENUS.md).
+/// master's list, and an address box for joining by IP), Options, Quit (docs/MENUS.md).
 /// </summary>
 public partial class MainMenu : MenuPage
 {
@@ -21,9 +21,6 @@ public partial class MainMenu : MenuPage
 
     /// <summary>Create a Session.</summary>
     public Button? HostButton { get; private set; }
-
-    /// <summary>Join with IP.</summary>
-    public Button? JoinButton { get; private set; }
 
     /// <summary>Find a Session (the server browser).</summary>
     public Button? FindButton { get; private set; }
@@ -57,14 +54,12 @@ public partial class MainMenu : MenuPage
         _rejoinPanel.AddChild(RejoinButton);
         _rejoinPanel.AddChild(UiStyle.MenuButton("Not now", () => _rejoin?.Decline(), "RejoinDecline"));
 
-        // LAN_Menu: "Create a Session", "Find a Session"; JoinWithIp.
-        VBoxContainer online = Panel(Body, "Online", "LAN and internet");
+        // LAN_Menu: "Create a Session", "Find a Session" (joining by IP is on the Find a Session page).
+        VBoxContainer online = Panel(Body, "Online", null);
         HostButton = UiStyle.MenuButton("Create a Session", () => FrontEnd.ShowHost(GetTree()), "Host");
         FindButton = UiStyle.MenuButton("Find a Session", () => FrontEnd.ShowServerBrowser(GetTree()), "FindGame");
-        JoinButton = UiStyle.MenuButton("Join with IP", () => FrontEnd.ShowJoinWithIp(GetTree()), "Join");
         online.AddChild(HostButton);
         online.AddChild(FindButton);
-        online.AddChild(JoinButton);
         online.AddChild(OpenScctGame.Hub.HubScreen.MenuButton(this));
         AccountButton = UiStyle.MenuButton("Account", () => FrontEnd.ShowAccount(GetTree()), "Account");
         online.AddChild(AccountButton);

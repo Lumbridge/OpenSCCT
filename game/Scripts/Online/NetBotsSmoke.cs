@@ -313,7 +313,7 @@ public sealed class NetBotsGuestSmoke : SmokeTest
         {
             s = sc;
             SettingsStore.Current.PlayerName = NetBotsSmoke.GuestName;
-            return !s.OpenMainMenu() && s.Tree.CurrentScene is MainMenu menu && s.Pilot.Click(menu.JoinButton, "Join with IP");
+            return !s.OpenMainMenu() && s.Tree.CurrentScene is MainMenu && FrontEnd.ShowJoinWithIp(s.Tree) is not null;
         });
         yield return new("join with ip page", 10, _ => s.Tree.CurrentScene is JoinWithIpScreen);
         yield return new("server address", 10, _ => s.Typed("Address", address.Split(':')[0]));
