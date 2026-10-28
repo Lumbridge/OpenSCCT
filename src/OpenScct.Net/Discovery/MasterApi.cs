@@ -167,6 +167,9 @@ public sealed record HeartbeatRequest
     /// <summary>Only signed-in players (with a master ticket) may join.</summary>
     public bool RequireAccounts { get; init; }
 
+    /// <summary>A practice server (rl:net.practice): unlimited lives, practice commands, no stats.</summary>
+    public bool Practice { get; init; }
+
     /// <summary>Account ids of the signed-in players on the server (for global ban kicks).</summary>
     public IReadOnlyList<long> AccountIds { get; init; } = [];
 
@@ -319,6 +322,9 @@ public sealed record ServerEntry
 
     /// <summary>A server the master trusts (one of its own): achievements count there.</summary>
     public bool Trusted { get; init; }
+
+    /// <summary>A practice server (rl:net.practice): unlimited lives, practice commands, no stats.</summary>
+    public bool Practice { get; init; }
 
     /// <summary>A game server or a hub.</summary>
     public ServerKind Kind { get; init; }

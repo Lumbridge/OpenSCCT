@@ -100,6 +100,7 @@ Rows, captions and ranges are the page's (spec rules 1 to 9):
 | Mercenary Lives | 0 to 10 ("Inf.") | |
 | Respawn Length (sec) | 1 to 15 | the map's own value is at least 5 (1 in Merc Deathmatch) |
 | Active Disks, Disks to Take | 1 to the map's most | Disk Hunt only; Disks to Take never above Active Disks |
+| Practice | off | Reloaded's practice server: unlimited lives, 1 s respawn, `!heal` `!regen` `!tank` `!kill`, no stats (docs/ONLINE.md, "Practice servers") |
 
 Added for hosting from the game (the original took them from Ubi.com or the LAN service): server name, UDP port
 (28888), the master server, list on the master, map the port with UPnP. The page keeps its last values

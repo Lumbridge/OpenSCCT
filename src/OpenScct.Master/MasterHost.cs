@@ -394,7 +394,7 @@ public sealed class MasterHost : IAsyncDisposable
             Players = h.Players, MaxPlayers = h.MaxPlayers, Password = h.Password, Dedicated = h.Dedicated, Protocol = h.Protocol,
             Content = h.Content, Version = h.Version, Reachability = Registry.Classify(r),
             AgeSeconds = (int)Math.Max(0, Registry.Now - r.LastSeen), PlayerNames = h.PlayerNames,
-            RequireAccounts = h.RequireAccounts, Trusted = r.Trusted, Kind = h.Kind, Region = h.Region,
+            RequireAccounts = h.RequireAccounts, Trusted = r.Trusted, Kind = h.Kind, Region = h.Region, Practice = h.Practice,
         };
     }
 

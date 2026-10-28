@@ -365,7 +365,7 @@ public sealed class MasterLink : IDisposable
             Phase = info.Phase, Players = info.Players, MaxPlayers = Math.Max(1, info.MaxPlayers), Password = info.HasPassword,
             Dedicated = info.Dedicated, Protocol = MasterApi.Hex(info.ProtocolHash), Content = MasterApi.Hex(info.ContentHash),
             Version = info.Version, Listed = Settings.Listed, NatPunch = Settings.NatPunch, Relay = Settings.Relay, PlayerNames = names,
-            RequireAccounts = Settings.RequireAccounts, AccountIds = AccountIds?.Invoke() ?? [], Kind = Settings.Kind, Region = Settings.Region ?? string.Empty,
+            RequireAccounts = Settings.RequireAccounts, Practice = info.Practice, AccountIds = AccountIds?.Invoke() ?? [], Kind = Settings.Kind, Region = Settings.Region ?? string.Empty,
             PlayerDetails = PlayerDetails?.Invoke() ?? [], RoundSecondsLeft = RoundSecondsLeft?.Invoke() ?? -1, CommandResults = TakeCommandResults(),
             RejoinAccounts = RejoinAccounts?.Invoke() ?? [],
         };

@@ -35,6 +35,9 @@ public enum SessionRow
 
     /// <summary>How well the bots play.</summary>
     BotSkill,
+
+    /// <summary>Practice server (Reloaded, rl:net.practice): unlimited lives, quick respawns, practice commands, no stats.</summary>
+    Practice,
 }
 
 /// <summary>
@@ -42,7 +45,7 @@ public enum SessionRow
 /// (spec/game/lobby-and-match-creation.md rules 1 to 9): the rows, their captions and ranges, which show in which
 /// mode, what a change of map or mode reloads, Revenge's two games, Merc Deathmatch's "Kills to Win", the disk clamps,
 /// the voice hint and the password's characters. Three rows are ours, not the original's (which has no bots in a
-/// network session): Bots (Off, Per Side, Fill Slots), Bots per Side and Bot Skill. The same rows make the lobby's Session Parameters, editable for the
+/// network session): Bots (Off, Per Side, Fill Slots), Bots per Side and Bot Skill. A fourth, Practice, is Reloaded's practice server mode. The same rows make the lobby's Session Parameters, editable for the
 /// host and read only for the others. Values are a <see cref="LobbySetup"/> (what the session protocol carries).
 /// </summary>
 public sealed class CreateSessionModel
@@ -130,6 +133,7 @@ public sealed class CreateSessionModel
         SessionRow.Bots => "Bots",
         SessionRow.BotsPerSide => "Bots per Side",
         SessionRow.BotSkill => "Bot Skill",
+        SessionRow.Practice => "Practice",
         _ => row.ToString(),
     };
 
@@ -144,7 +148,7 @@ public sealed class CreateSessionModel
     };
 
     /// <summary>Whether a row is a check box.</summary>
-    public static bool IsCheck(SessionRow row) => row is SessionRow.Revenge or SessionRow.RandomMap or SessionRow.VoiceInLobby;
+    public static bool IsCheck(SessionRow row) => row is SessionRow.Revenge or SessionRow.RandomMap or SessionRow.VoiceInLobby or SessionRow.Practice;
 
     /// <summary>The range of a number row (inclusive).</summary>
     public (int Min, int Max) Range(SessionRow row) => row switch
@@ -185,6 +189,7 @@ public sealed class CreateSessionModel
         SessionRow.Revenge => Setup.Revenge,
         SessionRow.RandomMap => Setup.RandomMap,
         SessionRow.VoiceInLobby => Setup.VoiceInLobby,
+        SessionRow.Practice => Setup.Practice,
         _ => false,
     };
 
@@ -213,7 +218,7 @@ public sealed class CreateSessionModel
                 return OnlineBotRoster.FillName(Setup.Bots);
             case SessionRow.BotSkill:
                 return OnlineBotRoster.SkillNames[(int)Setup.BotSkill];
-            case SessionRow.Revenge or SessionRow.RandomMap or SessionRow.VoiceInLobby:
+            case SessionRow.Revenge or SessionRow.RandomMap or SessionRow.VoiceInLobby or SessionRow.Practice:
                 return Checked(row) ? "Yes" : "No";
             case SessionRow.TimeLimit or SessionRow.MercLives:
                 return Number(row) == 0 ? InfiniteText : Number(row).ToString(CultureInfo.InvariantCulture);
@@ -270,7 +275,7 @@ public sealed class CreateSessionModel
             case SessionRow.BotSkill:
                 Set(Setup with { BotSkill = (OpenScct.Game.AI.AiSkill)Wrap((int)Setup.BotSkill + delta, OnlineBotRoster.SkillNames.Count) });
                 return;
-            case SessionRow.Revenge or SessionRow.RandomMap or SessionRow.VoiceInLobby:
+            case SessionRow.Revenge or SessionRow.RandomMap or SessionRow.VoiceInLobby or SessionRow.Practice:
                 SetChecked(row, !Checked(row));
                 return;
             case SessionRow.Password or SessionRow.Map:
@@ -338,6 +343,9 @@ public sealed class CreateSessionModel
             case SessionRow.VoiceInLobby:
                 Set(Setup with { VoiceInLobby = on });
                 break;
+            case SessionRow.Practice:
+                Set(Setup with { Practice = on });
+                break;
         }
     }
 
@@ -389,7 +397,7 @@ public sealed class CreateSessionModel
         Set(fresh with
         {
             VoiceMode = Setup.VoiceMode, VoiceInLobby = Setup.VoiceInLobby, RandomMap = Setup.RandomMap, Revenge = Setup.Revenge,
-            Bots = Setup.Bots, BotsPerSide = Setup.BotsPerSide, BotSkill = Setup.BotSkill,
+            Bots = Setup.Bots, BotsPerSide = Setup.BotsPerSide, BotSkill = Setup.BotSkill, Practice = Setup.Practice,
             GamesInARow = Setup.Revenge ? LobbySetup.RevengeGames : Setup.GamesInARow, MaxPlayers = Setup.MaxPlayers,
         });
     }

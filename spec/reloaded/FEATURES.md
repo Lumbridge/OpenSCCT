@@ -270,7 +270,8 @@ difference is probably a Reloaded memory patch and needs its own spec entry.
 - **Rewrite:** a server rules profile `practice` layered on the mode rules; commands only when the profile
   is active.
 - **Priority:** P2.
-- **Open:** exact effects of `!regen` and `!tank`.
+- **Open:** exact effects of `!regen` and `!tank` (the port's choices, 10 health a second and no damage, are in
+  docs/ONLINE.md "Practice servers"); the extra ammunition.
 
 ## 5. Voice chat
 

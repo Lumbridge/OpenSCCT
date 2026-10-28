@@ -593,13 +593,40 @@ The old single-map flags (`--map`, `--game`, `--bots`) still run a bare `ServerH
 | `bansFile` | bans.json | next to the config |
 | `master` | none | `{ url, inviteKey, listed, natPunch, relay }` |
 | `demos` | none | `{ upload }`: upload recorded demos to the master's bucket (default true; trusted servers only, see "Demos") |
+| `practice` | false | practice server (see "Practice servers"); the console's `practice on` and `practice off` change it while running |
 
 Console (standard input, and `cmd <command>` from in-game admins): `status`, `players`, `kick <id|name> [reason]`,
 `ban <id|name> [minutes] [reason]`, `unban <install id|address|name>`, `map <name> [mode]`, `mode <name>`,
-`set time|spylives|merclives|respawn|score|revenge|games|maxplayers <value>`, `launch`, `lobby`, `next`,
-`say <text>`, `close`. Chat commands (rl:qol.chatcmds): `!map <name> [mode]`, `!next`, `!prev` (`!back`),
-`!pings`, `!login <password>`, `!help`. Ctrl+C, SIGTERM and `close` tell the players and the master before
-stopping.
+`set time|spylives|merclives|respawn|score|revenge|games|maxplayers|bots|botsperside|botskill|practice <value>`,
+`practice [on|off]`, `launch`, `lobby`, `next`, `say <text>`, `close`. Chat commands (rl:qol.chatcmds):
+`!map <name> [mode]`, `!next`, `!prev` (`!back`), `!pings`, `!resign` (gives up the round: the last life is spent and
+the death message says the player resigned; `SPlayerController.ServerResign`), `!login <password>`, `!help`, and on
+a practice server `!heal`, `!regen`, `!tank`, `!kill`. Ctrl+C, SIGTERM and `close` tell the players and the master
+before stopping.
+
+### Practice servers
+
+A practice server (Reloaded's practice mode, rl:net.practice) is a switch of the session's setup (`LobbySetup.Practice`,
+`?SvmPractice=1` in the lobby protocol): the Create Session page's **Practice** row, the dedicated server's `practice`
+config field, or the console's `practice on|off` / `set practice on` (also from the game's console, see docs/HUD.md).
+It stays on through map changes, the rotation and `!next`. Turned on during a round, the commands work at once and
+the lives and respawn change from the next round. Its rounds:
+
+- launch with unlimited lives on both sides and the shortest respawn (1 s); the lobby keeps the values the host set,
+  so turning practice off brings them back;
+- take the practice chat commands from every player, each acting on the sender only, during a round:
+  `!heal` (full health, poison cured), `!regen` (on/off: 10 health back each second), `!tank` (on/off: no damage,
+  except the player's own `!kill` or resign, and kept at full health), `!kill` (dies at once, like a suicide);
+  `!practice` says what the server does. Off a practice server they answer that they only work there;
+- are not sent to the master's results (`ReportResults` skips a round that had practice on at any time), so they count
+  for no stats, XP or achievements.
+
+Everything runs on the server (`OnlineServer.Practice.cs`); the tank rule is a level service (`PracticeRules`) that
+`SPlayerController.PawnTakeDamage` asks before any reaction, installed on the round's map on the server only. The
+server's info (flag bit 8) and its master listing say practice, and the server browser shows "(practice)" after the
+mode. Reloaded's exact `!regen` and `!tank` effects are not decoded; the rate above is ours. Its extra ammunition is
+not ported (ammunition is kept by the owning client in this port; a server refill needs a client call).
+
 
 Bans (rl:ac.bans) are by install id and address (no hardware fingerprints), with an optional end.
 
@@ -844,7 +871,7 @@ dotnet run --project src/OpenScct.Server.Cli -- --online --master http://127.0.0
   destination address but not for another is not caught and shows as needs intro (the relay is still tried after
   a failed punch).
 - No IPv6 pinholes for listen hosts yet; LAN addresses sent to the master are IPv4 only.
-- `!resign`, `!lagcomp` and the practice commands of Reloaded are not ported; playlists (rl:qol.lobbymaps) are a
-  plain rotation in the server config, and the lobby's map picker lists every installed map.
+- Playlists (rl:qol.lobbymaps) are a plain rotation in the server config, and the lobby's map picker lists every
+  installed map.
 - Bots: the dedicated server's config file has no bot fields yet (the console's `set bots` works); its rotation
   entries could carry them.

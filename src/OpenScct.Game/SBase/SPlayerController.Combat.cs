@@ -123,6 +123,12 @@ public partial class SPlayerController
             return;
         }
 
+        // An OpenSCCT addition: a practice server's !tank takes no damage (spec/reloaded/FEATURES.md rl:net.practice).
+        if (Modes.PracticeRules.Of(this)?.IgnoresDamage(this, DamageType) == true)
+        {
+            return;
+        }
+
         if (StateNode is IPawnTakeDamage s)
         {
             s.PawnTakeDamage(this, Damage, instigatedBy, HitLocation, Momentum, DamageType, PillTag, PercentDamageRefillable);

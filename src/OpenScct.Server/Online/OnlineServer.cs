@@ -629,6 +629,7 @@ public sealed partial class OnlineServer : IDisposable
         {
             StartDemo(host, map, gameOptions!);
             _bots = StartBots(host);
+            StartPracticeRound(host);
         }
 
         HostStarted?.Invoke(host);
@@ -992,6 +993,7 @@ public sealed partial class OnlineServer : IDisposable
 
     private void TickMatch()
     {
+        TickPractice();
         if (CountHumans(spectators: false) == 0 && _now - _phaseStart > 5 * Second)
         {
             BackToLobby("Everyone left the round.");
@@ -1085,6 +1087,13 @@ public sealed partial class OnlineServer : IDisposable
             return;
         }
 
+        // A practice round (unlimited lives, !heal and !tank) is not a real match: it counts for no stats or achievements.
+        if (_practiceRound)
+        {
+            Log("practice round: results not reported to the master");
+            return;
+        }
+
         var rows = new List<ResultsReportRow>();
         foreach (ResultRow row in results.Rows)
         {
@@ -1161,7 +1170,7 @@ public sealed partial class OnlineServer : IDisposable
         if (Settings.Dedicated && Settings.Rotation.Count > 0)
         {
             _rotationIndex = (_rotationIndex + 1) % Settings.Rotation.Count;
-            ApplySetup(Settings.Rotation[_rotationIndex], announce: true);
+            ApplySetup(KeepPractice(Settings.Rotation[_rotationIndex]), announce: true);
         }
 
         if (Setup.RandomMap && RandomMap() is { } next)
@@ -1852,7 +1861,7 @@ public sealed partial class OnlineServer : IDisposable
             MaxPlayers = Settings.MaxPlayers, GamePort = GamePort, ProtocolHash = Host.Driver.ProtocolHash,
             ContentHash = Maps.FindMap(Setup.Map)?.ContentHash ?? 0, HasPassword = Settings.Password is { Length: > 0 },
             Dedicated = Settings.Dedicated, SecondsLeft = left, PlayerList = list,
-            MasterId = Master?.ServerId ?? string.Empty, RequireAccounts = RequireAccounts,
+            MasterId = Master?.ServerId ?? string.Empty, RequireAccounts = RequireAccounts, Practice = Setup.Practice,
         };
     }
 

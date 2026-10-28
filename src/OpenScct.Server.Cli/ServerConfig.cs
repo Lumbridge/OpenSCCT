@@ -160,6 +160,12 @@ internal sealed record ServerConfig
     [JsonIgnore]
     public bool RequiresAccounts => RequireAccounts ?? Master is { Url.Length: > 0, Listed: true };
 
+    /// <summary>
+    /// Practice server (rl:net.practice): unlimited lives, the shortest respawn, the !heal, !regen, !tank and !kill
+    /// chat commands, and no stats or achievements. The console's <c>practice on|off</c> changes it while running.
+    /// </summary>
+    public bool Practice { get; init; }
+
     public ulong Seed { get; init; } = 1;
 
     public static ServerConfig Load(string path)
@@ -218,6 +224,7 @@ internal sealed record ServerConfig
                 DisksToWin = e.DisksToWin ?? s.DisksToWin,
                 Revenge = e.Revenge ?? s.Revenge,
                 GamesInARow = e.GamesInARow ?? s.GamesInARow,
+                Practice = Practice,
             };
             list.Add(s.Clamped());
         }

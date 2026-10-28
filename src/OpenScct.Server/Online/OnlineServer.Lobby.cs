@@ -304,10 +304,16 @@ public sealed partial class OnlineServer
     private void ApplySetup(LobbySetup next, bool announce)
     {
         LobbySetup clamped = next.Clamped();
+        bool practiceChanged = clamped.Practice != Setup.Practice;
         bool mapChanged = !string.Equals(clamped.Map, Setup.Map, StringComparison.OrdinalIgnoreCase) || clamped.Mode != Setup.Mode;
         bool changed = clamped != Setup;
         Setup = clamped;
         _countdownEnd = -1;
+        if (practiceChanged)
+        {
+            PracticeChanged();
+        }
+
         foreach (SessionPlayer p in _players)
         {
             if (changed && !p.IsHost && !p.IsBot)
@@ -415,8 +421,8 @@ public sealed partial class OnlineServer
 
     public const string CommandHelp =
         "status | players | kick <id|name> [reason] | ban <id|name> [minutes] [reason] | unban <account|install id|address|name> | " +
-        "map <name> [mode] | mode <name> | set <time|spylives|merclives|respawn|revenge|games|maxplayers|bots|botsperside|botskill> <value> | " +
-        "launch | lobby | restart | next | say <text> | close";
+        "map <name> [mode] | mode <name> | set <time|spylives|merclives|respawn|revenge|games|maxplayers|bots|botsperside|botskill|practice> <value> | " +
+        "practice [on|off] | launch | lobby | restart | next | say <text> | close";
 
     /// <summary>
     /// Runs an admin command (the dedicated server's console, an admin's <c>cmd</c> line, a listen host) and returns
@@ -495,7 +501,7 @@ public sealed partial class OnlineServer
                 }
 
                 LobbySetup fresh = LobbySetup.ForMap(entry.Id, setup.Mode, Maps.GetMapSettings(entry.Id), Setup.MaxPlayers);
-                ApplySetup(fresh, announce: true);
+                ApplySetup(KeepPractice(fresh), announce: true);
                 if (Phase != SessionPhase.Lobby)
                 {
                     BackToLobby("The admin changed the map.");
@@ -506,14 +512,25 @@ public sealed partial class OnlineServer
             }
 
             case "mode" when LobbySetup.TryParseMode(arg + (rest.Length > 0 ? " " + rest : ""), out OpenScct.Core.EGameMode newMode):
-                ApplySetup(LobbySetup.ForMap(Setup.Map, newMode, Maps.GetMapSettings(Setup.Map), Setup.MaxPlayers), announce: true);
+                ApplySetup(KeepPractice(LobbySetup.ForMap(Setup.Map, newMode, Maps.GetMapSettings(Setup.Map), Setup.MaxPlayers)), announce: true);
                 output.Add("next: " + Setup.Describe());
                 break;
             case "set" when SetOption(arg, rest, out string? problem):
                 output.Add("next: " + Setup.Describe());
                 break;
             case "set":
-                output.Add("usage: set <time|spylives|merclives|respawn|revenge|games|maxplayers> <value>");
+                output.Add("usage: set <time|spylives|merclives|respawn|revenge|games|maxplayers|bots|botsperside|botskill|practice> <value>");
+                break;
+            case "practice":
+                if (arg.Length > 0 && SetOption("practice", arg, out _))
+                {
+                    output.Add(Setup.Practice ? "practice on" : "practice off");
+                }
+                else
+                {
+                    output.Add(Setup.Practice ? "practice is on (practice on|off)" : "practice is off (practice on|off)");
+                }
+
                 break;
             case "launch":
                 if (Phase == SessionPhase.Lobby)
@@ -549,7 +566,7 @@ public sealed partial class OnlineServer
                 break;
             case "next" when Settings.Rotation.Count > 0:
                 _rotationIndex = (_rotationIndex + 1) % Settings.Rotation.Count;
-                ApplySetup(Settings.Rotation[_rotationIndex], announce: true);
+                ApplySetup(KeepPractice(Settings.Rotation[_rotationIndex]), announce: true);
                 if (Phase != SessionPhase.Lobby)
                 {
                     BackToLobby(null);
@@ -598,6 +615,7 @@ public sealed partial class OnlineServer
                 _ => null,
             },
             "botsperside" when isInt => s with { BotsPerSide = n },
+            "practice" when isBool => s with { Practice = on },
             "botskill" => Enum.TryParse(value, ignoreCase: true, out OpenScct.Game.AI.AiSkill skill) ? s with { BotSkill = skill } : null,
             _ => null,
         };
@@ -641,8 +659,9 @@ public sealed partial class OnlineServer
 
     /// <summary>
     /// Chat commands (FEATURES rl:qol.chatcmds): <c>!map</c>, <c>!next</c>, <c>!prev</c> (<c>!back</c>), <c>!pings</c>,
-    /// <c>!login</c>, <c>!help</c>. Map commands are open to everyone on a dedicated server without an admin password,
-    /// to the host and admins otherwise. Every other line is chat.
+    /// <c>!resign</c>, <c>!login</c>, <c>!help</c>, and on a practice server <c>!heal</c>, <c>!regen</c>, <c>!tank</c>,
+    /// <c>!kill</c> (rl:net.practice). Map commands are open to everyone on a dedicated server without an admin password,
+    /// to the host and admins otherwise; the others act on the sender only. Every other line is chat.
     /// </summary>
     private bool OnChatCommand(PlayerSlot slot, string text)
     {
@@ -657,7 +676,21 @@ public sealed partial class OnlineServer
         switch (verb)
         {
             case "help":
-                SendMessage(p, "!map <name> [mode], !next, !prev, !pings, !login <password>");
+                SendMessage(p, "!map <name> [mode], !next, !prev, !pings, !resign, !login <password>" +
+                    (Setup.Practice ? ", " + PracticeHelp : string.Empty));
+                return true;
+            case "resign":
+                // Gives up the round: the last life is spent and the death message reads "has resigned"
+                // (SPlayerController.ServerResign, which refuses before the start, at the end and for spectators).
+                if (Phase == SessionPhase.Match && slot.Controller is OpenScct.Game.SBase.SPlayerController resigning)
+                {
+                    resigning.ServerResign();
+                }
+                else
+                {
+                    SendMessage(p, "There is no round to resign from.");
+                }
+
                 return true;
             case "pings":
                 foreach (SessionPlayer other in _players)
@@ -693,7 +726,7 @@ public sealed partial class OnlineServer
                 StepMap(verb == "next" ? 1 : -1);
                 return true;
             default:
-                return false;
+                return OnPracticeCommand(p, verb);
         }
     }
 
@@ -705,7 +738,7 @@ public sealed partial class OnlineServer
         if (Settings.Rotation.Count > 0)
         {
             _rotationIndex = ((_rotationIndex + step) % Settings.Rotation.Count + Settings.Rotation.Count) % Settings.Rotation.Count;
-            ApplySetup(Settings.Rotation[_rotationIndex], announce: true);
+            ApplySetup(KeepPractice(Settings.Rotation[_rotationIndex]), announce: true);
         }
         else
         {
@@ -721,7 +754,7 @@ public sealed partial class OnlineServer
             }
 
             string map = maps[((at + step) % maps.Count + maps.Count) % maps.Count];
-            ApplySetup(LobbySetup.ForMap(map, Setup.Mode, Maps.GetMapSettings(map), Setup.MaxPlayers), announce: true);
+            ApplySetup(KeepPractice(LobbySetup.ForMap(map, Setup.Mode, Maps.GetMapSettings(map), Setup.MaxPlayers)), announce: true);
         }
 
         if (Phase != SessionPhase.Lobby)

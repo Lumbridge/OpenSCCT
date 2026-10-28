@@ -125,6 +125,13 @@ public sealed record LobbySetup
     /// <summary>How well the bots play (docs/AI.md, "Difficulty").</summary>
     public OpenScct.Game.AI.AiSkill BotSkill { get; init; } = OpenScct.Game.AI.AiSkill.Normal;
 
+    /// <summary>
+    /// Practice server (FEATURES rl:net.practice): the round plays with unlimited lives on both sides and the
+    /// shortest respawn, players may use the practice chat commands (<c>!heal</c>, <c>!regen</c>, <c>!tank</c>,
+    /// <c>!kill</c>), and its results do not count for stats or achievements.
+    /// </summary>
+    public bool Practice { get; init; }
+
     /// <summary>A mode by its menu name or number.</summary>
     public static bool TryParseMode(string? text, out EGameMode mode)
     {
@@ -191,7 +198,7 @@ public sealed record LobbySetup
         };
     }
 
-    /// <summary>The match settings object the setup stands for.</summary>
+    /// <summary>The match settings object the setup stands for (the values as set, before the practice rules).</summary>
     public USMatchInfo ToMatchInfo() => new()
     {
         LevelName = Map,
@@ -213,7 +220,21 @@ public sealed record LobbySetup
     /// the number of players the server waits for.
     /// </summary>
     public string ToGameOptions(int players) =>
-        ToMatchInfo().GetOptionsString() + "?NBPlayers=" + Math.Max(1, players).ToString(CultureInfo.InvariantCulture);
+        RoundMatchInfo().GetOptionsString() + "?NBPlayers=" + Math.Max(1, players).ToString(CultureInfo.InvariantCulture);
+
+    /// <summary>The round's match settings: a practice round has unlimited lives on both sides and the shortest respawn.</summary>
+    private USMatchInfo RoundMatchInfo()
+    {
+        USMatchInfo m = ToMatchInfo();
+        if (Practice)
+        {
+            m.NumLivesATT = 0;
+            m.NumLivesDEF = 0;
+            m.TimesRespawn = MinRespawn;
+        }
+
+        return m;
+    }
 
     /// <summary>The disk counts and map in the host's settings object, as the match creation page stores them.</summary>
     public void ApplyTo(USPersistentData persistent)
@@ -273,7 +294,7 @@ public sealed record LobbySetup
     public string ToOptions() =>
         ToMatchInfo().GetOptionsString() + string.Create(CultureInfo.InvariantCulture,
             $"?SvmDisks={Disks}?SvmDisksToWin={DisksToWin}?SvmDisksMax={DisksMax}?SvmVoice={VoiceMenuIndex(VoiceMode)}?SvmVoiceLobby={(VoiceInLobby ? 1 : 0)}?SvmRandomMap={(RandomMap ? 1 : 0)}") +
-        string.Create(CultureInfo.InvariantCulture, $"?SvmBots={(int)Bots}?SvmBotsPerSide={BotsPerSide}?SvmBotSkill={(int)BotSkill}");
+        string.Create(CultureInfo.InvariantCulture, $"?SvmBots={(int)Bots}?SvmBotsPerSide={BotsPerSide}?SvmBotSkill={(int)BotSkill}?SvmPractice={(Practice ? 1 : 0)}");
 
     /// <summary>Reads a setup from options (as <see cref="ToOptions"/> writes them); missing values keep <paramref name="fallback"/>'s.</summary>
     public static LobbySetup FromOptions(string options, LobbySetup? fallback = null)
@@ -306,6 +327,7 @@ public sealed record LobbySetup
             Bots = (BotFill)Math.Clamp(UcOptions.GetIntOption(options, "SvmBots", (int)f.Bots), 0, 255),
             BotsPerSide = UcOptions.GetIntOption(options, "SvmBotsPerSide", f.BotsPerSide),
             BotSkill = (OpenScct.Game.AI.AiSkill)Math.Clamp(UcOptions.GetIntOption(options, "SvmBotSkill", (int)f.BotSkill), 0, 255),
+            Practice = UcOptions.GetIntOption(options, "SvmPractice", f.Practice ? 1 : 0) != 0,
         }.Clamped();
     }
 
@@ -328,8 +350,17 @@ public sealed record LobbySetup
             BotFill.Fill => string.Create(CultureInfo.InvariantCulture, $", {BotSkill} bots fill the places"),
             _ => string.Empty,
         };
+        if (Practice)
+        {
+            rules = Mode == EGameMode.GM_MercDeathMatch
+                ? string.Create(CultureInfo.InvariantCulture, $"kill limit {ScoreLimit}, unlimited lives")
+                : "unlimited lives";
+        }
+
+        int respawn = Practice ? MinRespawn : RespawnSeconds;
+        string practice = Practice ? ", practice" : string.Empty;
         return string.Create(CultureInfo.InvariantCulture,
-            $"{Map} {ModeName(Mode)}, {time}, {rules}, respawn {RespawnSeconds} s{series}{random}{bots}, voice {VoiceModeName(VoiceMode)}");
+            $"{Map} {ModeName(Mode)}{practice}, {time}, {rules}, respawn {respawn} s{series}{random}{bots}, voice {VoiceModeName(VoiceMode)}");
     }
 
     private static string Lives(int lives) => lives <= 0 ? "unlimited" : lives.ToString(CultureInfo.InvariantCulture);
