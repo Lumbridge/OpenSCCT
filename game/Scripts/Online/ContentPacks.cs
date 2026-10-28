@@ -28,12 +28,29 @@ public static class ContentPacks
     private static DateTime _indexAt;
     private static int _generation;
 
-    /// <summary>One map's download as a screen shows it.</summary>
+    /// <summary>One map's (or shared pack's) download as a screen shows it.</summary>
     public sealed class DownloadJob
     {
-        internal DownloadJob(ContentMap map) => Map = map;
+        internal DownloadJob(ContentMap map)
+        {
+            Map = map;
+            Title = map.DisplayTitle;
+        }
 
-        public ContentMap Map { get; }
+        internal DownloadJob(ContentSharedPack pack)
+        {
+            Shared = pack;
+            Title = pack.Title.Length > 0 ? pack.Title : pack.Id;
+        }
+
+        /// <summary>The map being downloaded, or null for a shared pack.</summary>
+        public ContentMap? Map { get; }
+
+        /// <summary>The shared pack being downloaded, or null for a map.</summary>
+        public ContentSharedPack? Shared { get; }
+
+        /// <summary>The map's title, or the shared pack's.</summary>
+        public string Title { get; }
 
         /// <summary>What is being fetched: the shared packs, then the map.</summary>
         public string Step { get; internal set; } = "Starting";
@@ -60,8 +77,8 @@ public static class ContentPacks
 
         /// <summary>"Downloading Aquarius: 12.3 / 31.0 MB", "Installing Aquarius", the error, or "Downloaded".</summary>
         public string Describe() =>
-            Error is { } e ? $"{Map.DisplayTitle}: {e}" :
-            Done ? $"{Map.DisplayTitle} downloaded" :
+            Error is { } e ? $"{Title}: {e}" :
+            Done ? $"{Title} downloaded" :
             Total > 0 ? string.Create(CultureInfo.InvariantCulture, $"{Step}: {Received / 1048576.0:0.0} / {Total / 1048576.0:0.0} MB") :
             Step;
     }
@@ -135,6 +152,60 @@ public static class ContentPacks
     /// <summary>The map of the index for a code, else null.</summary>
     public static ContentMap? Find(string code) => Index?.FindMap(code);
 
+    /// <summary>The download of a shared pack, running or finished, else null.</summary>
+    public static DownloadJob? SharedJob(string id) => Job(SharedKey(id));
+
+    private static string SharedKey(string id) => "shared:" + id;
+
+    /// <summary>
+    /// Downloads a shared pack (core, chars, audio) on its own, as the Content page's Download does; a running one
+    /// is returned as it is.
+    /// </summary>
+    public static DownloadJob DownloadShared(ContentSharedPack pack)
+    {
+        ArgumentNullException.ThrowIfNull(pack);
+        DownloadJob job;
+        lock (Gate)
+        {
+            if (Jobs.TryGetValue(SharedKey(pack.Id), out DownloadJob? running) && running.Running)
+            {
+                return running;
+            }
+
+            job = new DownloadJob(pack);
+            Jobs[SharedKey(pack.Id)] = job;
+        }
+
+        _ = Task.Run(() => RunSharedAsync(job, pack));
+        return job;
+    }
+
+    /// <summary>
+    /// Removes a downloaded map (its folder under packs\svmap and its entry) and forgets its finished download, so
+    /// the lobby and the hub offer it again. A running download is left alone.
+    /// </summary>
+    public static void Remove(string code)
+    {
+        lock (Gate)
+        {
+            if (Jobs.TryGetValue(code, out DownloadJob? job))
+            {
+                if (job.Running)
+                {
+                    return;
+                }
+
+                Jobs.Remove(code);
+            }
+        }
+
+        Store.RemoveMap(code);
+        Interlocked.Increment(ref _generation);
+    }
+
+    /// <summary>The player has converted shared content of their own (so the downloaded shared packs go unused).</summary>
+    public static bool UsesOwnSharedContent => HasOwnSharedContent();
+
     /// <summary>
     /// Downloads a map (once; a failed one may be started again). The shared packs come first when the player has
     /// no content of his own, or when the index's are newer than the ones downloaded before.
@@ -178,8 +249,27 @@ public static class ContentPacks
                 }
             }
 
-            job.Step = $"Downloading {job.Map.DisplayTitle}";
-            await store.InstallMapAsync(job.Map, ContentKind.Full, Progress(job), job.Stop.Token).ConfigureAwait(false);
+            job.Step = $"Downloading {job.Title}";
+            await store.InstallMapAsync(job.Map!, ContentKind.Full, Progress(job), job.Stop.Token).ConfigureAwait(false);
+            job.Done = true;
+            Interlocked.Increment(ref _generation);
+        }
+        catch (OperationCanceledException) when (job.Stop.IsCancellationRequested)
+        {
+            job.Error = "stopped";
+        }
+        catch (Exception e) when (e is HttpRequestException or System.IO.IOException or System.IO.InvalidDataException or UnauthorizedAccessException or TaskCanceledException)
+        {
+            job.Error = e is TaskCanceledException ? "the download timed out" : e.Message;
+        }
+    }
+
+    private static async Task RunSharedAsync(DownloadJob job, ContentSharedPack pack)
+    {
+        try
+        {
+            job.Step = $"Downloading {job.Title}";
+            await Store.InstallSharedAsync(pack, Progress(job), job.Stop.Token).ConfigureAwait(false);
             job.Done = true;
             Interlocked.Increment(ref _generation);
         }
@@ -211,7 +301,7 @@ public static class ContentPacks
         job.Total = p.Total;
         if (p.Extracting)
         {
-            job.Step = $"Installing {job.Map.DisplayTitle}";
+            job.Step = $"Installing {job.Title}";
             job.Total = 0;
         }
     });

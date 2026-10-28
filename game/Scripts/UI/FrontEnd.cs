@@ -71,6 +71,9 @@ public static class FrontEnd
     /// <summary>Demos (OpenSCCT's own): recorded matches to watch (docs/DEMOS.md).</summary>
     public static DemosScreen ShowDemos(SceneTree tree) => Show(tree, new DemosScreen());
 
+    /// <summary>Content (OpenSCCT's own): download, update and remove maps and shared packs (docs/CONTENT-PACKS.md).</summary>
+    public static ContentScreen ShowContent(SceneTree tree) => Show(tree, new ContentScreen());
+
     /// <summary>Create Session (map, mode, the session's options and rules, hosting).</summary>
     public static HostScreen ShowHost(SceneTree tree) => Show(tree, new HostScreen());
 

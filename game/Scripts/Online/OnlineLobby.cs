@@ -201,7 +201,7 @@ public sealed class OnlineLobby : IOnlineLobbySession
     {
         get
         {
-            if (_job is { } job && string.Equals(job.Map.Code, State.Setup.Map, StringComparison.OrdinalIgnoreCase))
+            if (_job is { } job && string.Equals(job.Map?.Code, State.Setup.Map, StringComparison.OrdinalIgnoreCase))
             {
                 if (job.Running)
                 {
@@ -211,16 +211,16 @@ public sealed class OnlineLobby : IOnlineLobbySession
                 if (job.Done)
                 {
                     return State.Local is { Map: MapState.Missing or MapState.Differs }
-                        ? new LobbyMapFetch($"{job.Map.DisplayTitle} downloaded; checking it against the host's...", false, false, 1, false)
+                        ? new LobbyMapFetch($"{job.Title} downloaded; checking it against the host's...", false, false, 1, false)
                         : null;
                 }
 
                 if (job.Error == "stopped")
                 {
-                    return new LobbyMapFetch($"Stopped downloading {job.Map.DisplayTitle}.", true, false, 0, false);
+                    return new LobbyMapFetch($"Stopped downloading {job.Title}.", true, false, 0, false);
                 }
 
-                return new LobbyMapFetch($"Could not download {job.Map.DisplayTitle}: {job.Error}", true, false, 0, true);
+                return new LobbyMapFetch($"Could not download {job.Title}: {job.Error}", true, false, 0, true);
             }
 
             if (State.Local is not { Map: MapState.Missing or MapState.Differs })
@@ -316,7 +316,7 @@ public sealed class OnlineLobby : IOnlineLobbySession
             Raise();
         }
 
-        if (_job is { Running: false } job && !string.Equals(job.Map.Code, State.Setup.Map, StringComparison.OrdinalIgnoreCase))
+        if (_job is { Running: false } job && !string.Equals(job.Map?.Code, State.Setup.Map, StringComparison.OrdinalIgnoreCase))
         {
             // A finished, failed or stopped download of a map the host has since changed away from.
             _job = null;
