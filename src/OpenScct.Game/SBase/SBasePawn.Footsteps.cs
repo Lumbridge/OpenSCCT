@@ -130,9 +130,9 @@ public partial class SBasePawn
     /// <summary>
     /// The footprint of one step: a line from the foot bone 100 uu down; the floor's surface type goes to the sound
     /// system (SetSwitch, the next footstep's switch sound), sand, water, snow and fake ceilings make their effects,
-    /// and dirty feet leave a print (an abandoned SFootPrint projection) that fades out over the next steps. The print
-    /// keeps its class's texture: the colour and the sand, water or phosphor texture the script sets on the shared
-    /// FootStepCombiner and FootStepColor material objects are not drawn.
+    /// and dirty feet leave a print (an abandoned SFootPrint projection) that fades out over the next steps: the sand,
+    /// water (water and snow) or phosphor (no surface effect) texture, in StepColor with an alpha of
+    /// 1 + StepColor.A x FootDirtyness, the right foot's texture upside down.
     /// </summary>
     [Uc("SBase.SBasePawn.FootPrint")]
     [PortOf("uc:SBase.SBasePawn:FootPrint", Spec = "spec/native/audio.md#footsteps-sbasepawn")]
@@ -153,23 +153,28 @@ public partial class SBasePawn
         }
 
         var surface = (ESurfaceType)hit.SurfaceType;
+        int printType = 0;
         FVector at = hit.Location + hit.Normal;
         SetSwitch(hit.SurfaceType);
         switch (surface)
         {
             case ESurfaceType.SURFACE_Sand:
                 SetFootDirt(1f, 1f, 140, 140, 140, 80);
+                printType = 1;
                 XLevel.SpawnActor(new SFootPrintEffect(), at, Rotation, this);
                 break;
             case ESurfaceType.SURFACE_MediumWater:
                 SetFootDirt(1f, 0.05f, 0, 0, 0, 170);
+                printType = 2;
                 XLevel.SpawnActor(new SWaterFootStepEffect(), at, Rotation, this);
                 break;
             case ESurfaceType.SURFACE_Snow:
                 SetFootDirt(1f, 1f, 20, 25, 40, 80);
+                printType = 2;
                 break;
             case ESurfaceType.SURFACE_DeepWater:
                 SetFootDirt(1f, 0.02f, 0, 0, 0, 170);
+                printType = 2;
                 if (driver.Collision.LineCheck(out FCheckResult water, this, Location + new FVector(0f, 0f, -100f),
                         Location + new FVector(0f, 0f, 50f), default, flags))
                 {
@@ -194,9 +199,18 @@ public partial class SBasePawn
             {
                 if (!bTrueIfLeftFoot)
                 {
-                    print.ProjTexture = print.RightFootTexture;
+                    print.UseRightFoot();
                 }
 
+                print.SetStepTexture(printType switch
+                {
+                    1 => print.FootStepSand,
+                    2 => print.FootStepWater,
+                    _ => print.FootStepPhospho,
+                });
+                FColor tint = StepColor;
+                tint.A = (byte)(1f + (StepColor.A * FootDirtyness));
+                print.StepTint = tint;
                 print.AttachProjector();
                 print.AbandonProjector(FootPrintLifetime);
                 print.Destroy();
