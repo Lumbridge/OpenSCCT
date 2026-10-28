@@ -69,10 +69,32 @@ public static class SettingsApplier
         if (viewport is not null)
         {
             viewport.AnisotropicFilteringLevel = level;
+            ApplyAntiAliasing(s, viewport);
         }
+
+        Render.Materials.MaterialCompiler.AlphaToCoverage = s.Msaa;
 
         Render.SpotShadowLight.MapSize = Render.SpotShadowLight.MapSizeFor(s.ShadowQuality);
         Render.SpotShadowLight.SoftRadius = s.ShadowEdgeSmoothing ? Render.RenderK.SpotShadowSoftRadius : 0f;
+    }
+
+    /// <summary>
+    /// Anti-aliasing (rl:gfx.aa) on the viewport that draws the game: MSAA of the 3D scene at msaa_samples when msaa is on,
+    /// and SMAA over the finished frame when smaa is on. Both apply at once; Godot runs SMAA after the compositor's
+    /// display-space pass, so it smooths the frame as shown, vision modes included. The sky zone, spot shadow, golden
+    /// and display check viewports keep both off.
+    /// </summary>
+    public static void ApplyAntiAliasing(GameSettings s, Viewport viewport)
+    {
+        ArgumentNullException.ThrowIfNull(s);
+        ArgumentNullException.ThrowIfNull(viewport);
+        viewport.Msaa3D = !s.Msaa ? Viewport.Msaa.Disabled : s.MsaaSamples switch
+        {
+            2 => Viewport.Msaa.Msaa2X,
+            4 => Viewport.Msaa.Msaa4X,
+            _ => Viewport.Msaa.Msaa8X,
+        };
+        viewport.ScreenSpaceAA = s.Smaa ? Viewport.ScreenSpaceAAEnum.Smaa : Viewport.ScreenSpaceAAEnum.Disabled;
     }
 
     /// <summary>The project settings file the engine reads at start (project.godot's application/config/project_settings_override).</summary>

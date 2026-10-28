@@ -49,6 +49,12 @@ public sealed class MaterialCompiler
     public const string MipBiasParameter = "svm_mip_bias";
     public const string VisionAmbientParameter = "svm_vision_ambient";
 
+    /// <summary>
+    /// Masked surfaces use alpha to coverage (rl:gfx.aa: the settings' msaa is on), so their cut edges are smoothed by
+    /// the MSAA samples. Read when a shader is made: a change applies from the next map.
+    /// </summary>
+    public static bool AlphaToCoverage { get; set; }
+
     /// <summary>The scale of the night boost, for calibration runs (1 is the measured value).</summary>
     public static float NightAmbientScale { get; set; } = 1f;
     public const string EmfEnvironmentParameter = "svm_emf_env";
@@ -443,7 +449,8 @@ public sealed class MaterialCompiler
 
     private Shader ShaderFor(LightSource light, MaterialBlend blend, bool twoSided, List<string> extras)
     {
-        string key = $"{light}|{blend}|{twoSided}|{string.Join(',', extras)}";
+        bool coverage = blend == MaterialBlend.Masked && AlphaToCoverage;
+        string key = $"{light}|{blend}|{twoSided}|{coverage}|{string.Join(',', extras)}";
         if (_shaders.TryGetValue(key, out Shader? shader))
         {
             return shader;
@@ -470,6 +477,11 @@ public sealed class MaterialCompiler
                 break;
         }
 
+        if (coverage)
+        {
+            modes.Add("alpha_to_coverage");
+        }
+
         var code = new StringBuilder();
         code.Append("shader_type spatial;\nrender_mode ").Append(string.Join(", ", modes)).Append(";\n");
         Define(code, light switch
@@ -492,6 +504,8 @@ public sealed class MaterialCompiler
         {
             Define(code, extra);
         }
+
+        Define(code, coverage ? "ALPHA_COVERAGE" : null);
 
         code.Append("#include \"").Append(TemplatePath).Append("\"\n");
         shader = new Shader { Code = code.ToString(), ResourceName = "svm_world " + key };
