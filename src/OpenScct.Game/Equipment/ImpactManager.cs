@@ -217,12 +217,13 @@ public static class ImpactManager
     /// <summary>
     /// Level.ImpactManager.AddImpact from a server trace (rule 3): broadcast to every client (sent to each remote
     /// player, the machines that have the always-relevant manager), and run here on a listen server or standalone.
+    /// <paramref name="Predicted"/>: the player whose client already drew this impact (fire prediction), left out.
     /// </summary>
     [Uc("Engine.SImpactManager.AddImpact")]
     [PortOf("uc:Engine.SImpactManager:AddImpact", Spec = "spec/equipment/impact-manager.md#network")]
     [PortOf("rep:Engine.SImpactManager.AddImpact", Spec = "spec/equipment/impact-manager.md#network")]
     [Provenance(ProvenanceKind.Estimated, "The broadcast travels as one server-to-owner combat call per remote player instead of on the manager's channel")]
-    public static void AddImpact(Actor Source, Name Type, FVector Loc, FRotator Rot)
+    public static void AddImpact(Actor Source, Name Type, FVector Loc, FRotator Rot, PlayerController? Predicted = null)
     {
         Level level = Source.XLevel;
         if (level.Info.NetMode == ENetMode.NM_Client)
@@ -233,7 +234,7 @@ public static class ImpactManager
         var call = new CombatCall(CNAME_AddImpact) { Name1 = Type, Vector1 = Loc, Rotation = Rot };
         foreach (SPlayerController pc in level.AllActors<SPlayerController>())
         {
-            if (!pc.bDeleteMe && pc.IsRemotePlayer)
+            if (!pc.bDeleteMe && pc.IsRemotePlayer && !ReferenceEquals(pc, Predicted))
             {
                 CombatServices.Net(pc).ClientCall(pc, call);
             }

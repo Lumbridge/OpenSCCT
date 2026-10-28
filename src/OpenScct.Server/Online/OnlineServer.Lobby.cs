@@ -416,6 +416,7 @@ public sealed partial class OnlineServer
     public const string CommandHelp =
         "status | players | kick <id|name> [reason] | ban <id|name> [minutes] [reason] | unban <account|install id|address|name> | " +
         "map <name> [mode] | mode <name> | set <time|spylives|merclives|respawn|revenge|games|maxplayers|bots|botsperside|botskill> <value> | " +
+        "lagcomp [on|off|reset|<ms>] | " +
         "launch | lobby | restart | next | say <text> | close";
 
     /// <summary>
@@ -509,11 +510,17 @@ public sealed partial class OnlineServer
                 ApplySetup(LobbySetup.ForMap(Setup.Map, newMode, Maps.GetMapSettings(Setup.Map), Setup.MaxPlayers), announce: true);
                 output.Add("next: " + Setup.Describe());
                 break;
+            case "lagcomp":
+                output.Add(LagCompensationCommand(arg) ?? LagCompensationUsage);
+                break;
+            case "set" when arg.Equals("lagcomp", StringComparison.OrdinalIgnoreCase):
+                output.Add(LagCompensationCommand(rest) ?? LagCompensationUsage);
+                break;
             case "set" when SetOption(arg, rest, out string? problem):
                 output.Add("next: " + Setup.Describe());
                 break;
             case "set":
-                output.Add("usage: set <time|spylives|merclives|respawn|revenge|games|maxplayers> <value>");
+                output.Add("usage: set <time|spylives|merclives|respawn|revenge|games|maxplayers|lagcomp> <value>");
                 break;
             case "launch":
                 if (Phase == SessionPhase.Lobby)
@@ -571,6 +578,33 @@ public sealed partial class OnlineServer
         }
 
         return output;
+    }
+
+    private const string LagCompensationUsage = "lagcomp: !lagcomp [on|off|reset|<ceiling>]";
+
+    /// <summary>
+    /// Lag compensation (rl:net.lagcomp, docs/NETCODE.md): <c>on</c>, <c>off</c>, <c>reset</c> (the default ceiling) or
+    /// a ceiling in ms (which turns it on); nothing only reports. Changes the running round at once and every later
+    /// round, and tells everyone. Returns the setting's line, or null for a bad argument.
+    /// </summary>
+    private string? LagCompensationCommand(string argument)
+    {
+        LagCompensation lag = Host.LagCompensation;
+        string before = lag.Describe();
+        if (lag.Command(argument) is not { } line)
+        {
+            return null;
+        }
+
+        _lagCompensation = lag.Enabled;
+        _lagCompensationCeilingMs = lag.CeilingMs;
+        if (line != before)
+        {
+            Announce(line);
+            Log(line);
+        }
+
+        return line;
     }
 
     private bool SetOption(string name, string value, out string? problem)
@@ -657,7 +691,17 @@ public sealed partial class OnlineServer
         switch (verb)
         {
             case "help":
-                SendMessage(p, "!map <name> [mode], !next, !prev, !pings, !login <password>");
+                SendMessage(p, "!map <name> [mode], !next, !prev, !pings, !lagcomp [on|off|reset|<ms>], !login <password>");
+                return true;
+            case "lagcomp":
+                if (arg.Length > 0 && !CanControl(p))
+                {
+                    SendMessage(p, "lagcomp: server-side setting");
+                    SendMessage(p, Host.LagCompensation.Describe());
+                    return true;
+                }
+
+                SendMessage(p, LagCompensationCommand(arg) ?? LagCompensationUsage);
                 return true;
             case "pings":
                 foreach (SessionPlayer other in _players)

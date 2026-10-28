@@ -58,6 +58,13 @@ public sealed record ClientSettings
     /// only the network bridges.
     /// </summary>
     public bool InstallGameplayServices { get; init; } = true;
+
+    /// <summary>
+    /// With <see cref="Gameplay"/>: draw the impacts of this player's own bullets at once from its own trace, instead
+    /// of a round trip later from the server (Reloaded's fire prediction, spec/net/lag-compensation.md). On by default,
+    /// as in Reloaded; the server then does not send this player those impacts, so they are never drawn twice.
+    /// </summary>
+    public bool FirePrediction { get; init; } = true;
 }
 
 public enum EClientState : byte
@@ -113,8 +120,14 @@ public sealed class ClientSession : INetworkNotify, IDisposable
             World.Level.SetService<IObjectiveNet>(new NetObjectiveBridge(Driver));
             World.Level.SetService<OpenScct.Game.Devices.IDeviceNet>(new NetDeviceBridge(Driver));
             Combat = NetCombatBridge.Install(World.Level, Driver);
+            if (Settings.FirePrediction)
+            {
+                World.Level.SetService(new OpenScct.Game.Combat.FirePrediction());
+            }
         }
 
+        // The combat calls to the server carry this session's view time (lag compensation).
+        World.Level.SetService(this);
         _connection = Driver.Connect(serverAddress, nowMicros);
         _connection.ControlChannel!.Send(ControlMessage.Hello(Driver.ProtocolHash, Settings.ContentHash,
             Settings.PlayerName + Settings.LoginOptions, Settings.NetSpeed));
@@ -188,6 +201,16 @@ public sealed class ClientSession : INetworkNotify, IDisposable
     /// <see cref="RenderTimeFixed"/>; lag compensation rewinds other players to it.
     /// </summary>
     public int InterpolationDelayTicks => Settings.InterpolationIntervals * ((Sim.Hz + ServerNetRate - 1) / ServerNetRate);
+
+    /// <summary>
+    /// The server time at which this client shows other players this tick (fixed point like <see cref="RenderTimeFixed"/>),
+    /// or -1 before any packet: the render time when it interpolates them; with the stock dead reckoning, which walks
+    /// them on to the newest server time it knows, that newer time. Combat calls to the server carry it, and a server
+    /// with lag compensation traces their shots there (<see cref="LagCompensation"/>).
+    /// </summary>
+    public long ViewTimeFixed => RenderTimeFixed < 0
+        ? -1
+        : PawnProxies == PawnProxyMode.Interpolate ? RenderTimeFixed : RenderTimeFixed + (long)InterpolationDelayTicks * NetTimeline.Fraction;
 
     /// <summary><see cref="InterpolationDelayTicks"/> in milliseconds.</summary>
     public float InterpolationDelayMs => InterpolationDelayTicks * Sim.DeltaTime * 1000f;

@@ -136,6 +136,9 @@ public partial class SWeaponDefense_Shotgun
         }
     }
 
+    /// <summary>The owner already draws its pellet marks at once (<see cref="SpawnImpacts"/>), so nothing is predicted.</summary>
+    protected override bool PredictsImpacts => false;
+
     /// <summary>The barrel smoke after a pull is the rifle's; the shotgun has none.</summary>
     [Uc("SBase.SWeaponDefense_Shotgun.CreateSmoke2", Sha1 = "23aff4eecf0e2e62053f2e78cf6e28d2d332361e")]
     [PortOf("uc:SBase.SWeaponDefense_Shotgun:CreateSmoke2", Spec = "spec/equipment/merc-guns.md#rules")]

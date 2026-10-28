@@ -456,6 +456,15 @@ public sealed class GameSettings
     [JsonPropertyName("show_net")]
     public bool ShowNet { get; set; }
 
+    // ---- network -------------------------------------------------------------------------------------------
+
+    /// <summary>
+    /// Fire prediction (rl:net.fireprediction): your own bullet impacts show at once instead of a round trip later.
+    /// On by default, as Reloaded always predicts; takes effect from the next server you join.
+    /// </summary>
+    [JsonPropertyName("fire_prediction")]
+    public bool FirePrediction { get; set; } = true;
+
     // ---- Discord -------------------------------------------------------------------------------------------
 
     /// <summary>Shows what the player is doing on their Discord profile, with Join for friends (docs/DISCORD.md).</summary>

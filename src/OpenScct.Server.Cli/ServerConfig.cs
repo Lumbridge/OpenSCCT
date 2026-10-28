@@ -125,6 +125,16 @@ internal sealed record ServerConfig
     public OpenScct.Net.NetProfile Profile =>
         OpenScct.Net.NetProfiles.TryParse(NetProfile, out OpenScct.Net.NetProfile p) ? p : OpenScct.Net.NetProfile.Enhanced;
 
+    /// <summary>
+    /// Lag compensation (Reloaded's <c>!lagcomp</c>): players' shots are traced against the other players where the
+    /// shooter saw them, at most <see cref="LagCompCeilingMs"/> back. Off by default; the console's <c>lagcomp on</c>
+    /// and an allowed player's <c>!lagcomp on</c> turn it on while the server runs.
+    /// </summary>
+    public bool LagComp { get; init; }
+
+    /// <summary>The longest rewind of <see cref="LagComp"/> in milliseconds (0 to 1000).</summary>
+    public int LagCompCeilingMs { get; init; } = OpenScct.Server.LagCompensation.DefaultCeilingMs;
+
     /// <summary>The original's -lanplay switch (LAN tick cap and net speeds).</summary>
     public bool LanPlay { get; init; }
 
