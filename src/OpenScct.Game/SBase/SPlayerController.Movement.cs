@@ -269,8 +269,8 @@ public partial class SPlayerController
     /// <summary>The input and control part of the global PlayerTick (input-and-rotation.md, frame order).</summary>
     /// <remarks>
     /// Not ported here: the free camera and console input clears (front end), the heartbeat sound stop, the gadget,
-    /// smoke and HUD parts, ClientUpdatePosition and UpdatePositionForServer (netcode) and the objective idle timer
-    /// (objectives spec). The specials chat (the Hack Comm key) follows the move as in the original.
+    /// smoke and HUD parts, ClientUpdatePosition (netcode) and the objective idle timer (objectives spec). The specials
+    /// chat (the Hack Comm key) follows the move as in the original, then the camera goes to the server every 0.14 s.
     /// </remarks>
     [Uc("SBase.SPlayerController.PlayerTick", Sha1 = "5e6178b93ec98230e270a689b61159665cd12ee7")]
     [PortOf("uc:SBase.SPlayerController:PlayerTick", Spec = "spec/movement/input-and-rotation.md#frame-order-global-playertick")]
@@ -335,6 +335,35 @@ public partial class SPlayerController
         UnCrouchAndUnDraw(pawn);
         eventPlayerMove(DeltaTime);
         UpdateSpecialsChat();
+        if (now - lastCameraReplicationPositionTime > CameraReplicationInterval)
+        {
+            lastCameraReplicationPositionTime = now;
+            UpdatePositionForServer(Location, Rotation);
+        }
+    }
+
+    [Provenance(ProvenanceKind.Decoded, "SPlayerController.PlayerTick: UpdatePositionForServer when TimeSeconds - lastCameraReplicationPositionTime > 0.14")]
+    private const float CameraReplicationInterval = 0.14f;
+
+    /// <summary>
+    /// Client to server (unreliable): the controller's spot and rotation, which the camera solver keeps at the view
+    /// (spec/native/camera.md). The server's copy takes them, so its relevancy pass sees from the player's camera
+    /// (spec/native/net-relevancy.md); without it the server's controller stayed where its pawn was possessed, and
+    /// switches, ammo stocks and infirmaries more than 2500 uu from the spawn never reached the client.
+    /// </summary>
+    [Uc("SBase.SPlayerController.UpdatePositionForServer", Sha1 = "d8bf78d23adf6705656c33139ddb952bc3bade24")]
+    [PortOf("uc:SBase.SPlayerController:UpdatePositionForServer", Spec = "spec/net/move-protocol.md#rules")]
+    [PortOf("rep:SBase.SPlayerController.UpdatePositionForServer", Spec = "spec/net/move-protocol.md#rules")]
+    public void UpdatePositionForServer(FVector NewLocation, FRotator NewRotation)
+    {
+        if (Role < ENetRole.ROLE_Authority)
+        {
+            MovementNet.Of(this).UpdatePositionForServer(this, NewLocation, NewRotation);
+            return;
+        }
+
+        SetLocation(NewLocation);
+        Rotation = NewRotation;
     }
 
     /// <summary>

@@ -61,6 +61,14 @@ public interface IMovementNet
     void AskServerToStartCoopInteraction(SPlayerController PC)
     {
     }
+
+    /// <summary>
+    /// UpdatePositionForServer(NewLocation, NewRotation), unreliable: the server runs
+    /// <see cref="SPlayerController.UpdatePositionForServer"/> on its copy. Without a network layer it is dropped.
+    /// </summary>
+    void UpdatePositionForServer(SPlayerController PC, FVector NewLocation, FRotator NewRotation)
+    {
+    }
 }
 
 /// <summary>The level's <see cref="IMovementNet"/>, and the RPC vector rounding.</summary>
