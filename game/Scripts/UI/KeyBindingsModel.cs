@@ -156,18 +156,25 @@ public sealed class KeyBindingsModel
     /// <summary>The UE2 key name of a key or mouse button press, or null.</summary>
     public static string? KeyOf(InputEvent e) => OpenScctGame.Controls.GodotKeys.ToIk(e);
 
-    /// <summary>Moves the command of <paramref name="oldKey"/> to <paramref name="newKey"/> (whatever that key did
-    /// is replaced) and clears <paramref name="oldKey"/>.</summary>
+    /// <summary>Moves the command of <paramref name="oldKey"/> to <paramref name="newKey"/>. When
+    /// <paramref name="newKey"/> already had a command, the two keys swap, so no command loses its key (and its row);
+    /// otherwise <paramref name="oldKey"/> is cleared.</summary>
     public void Rebind(string oldKey, string newKey)
     {
         ArgumentException.ThrowIfNullOrEmpty(oldKey);
         ArgumentException.ThrowIfNullOrEmpty(newKey);
-        if (string.Equals(oldKey, newKey, StringComparison.OrdinalIgnoreCase) || CommandOf(oldKey) is not { } command)
+        if (string.Equals(oldKey, newKey, StringComparison.OrdinalIgnoreCase) || CommandOf(oldKey) is not { Length: > 0 } command)
         {
             return;
         }
 
+        string displaced = CommandOf(newKey) ?? "";
+        if (displaced.StartsWith("Axis ", StringComparison.OrdinalIgnoreCase))
+        {
+            displaced = "";
+        }
+
         _bindings = _bindings.Rebind(newKey, command);
-        _bindings = _bindings.Rebind(oldKey, "");
+        _bindings = _bindings.Rebind(oldKey, displaced);
     }
 }

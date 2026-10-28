@@ -130,6 +130,7 @@ public sealed class InputBindings
         else if (File.Exists(userPath))
         {
             KeyLayout user = KeyLayout.Parse(File.ReadAllText(userPath));
+            DropMovedStockKeys(layout, user);
             foreach (KeyValuePair<string, string> b in user.Bindings)
             {
                 layout.Bind(b.Key, b.Value);
@@ -148,6 +149,31 @@ public sealed class InputBindings
         }
 
         return bindings;
+    }
+
+    /// <summary>
+    /// The user file holds the whole layout as it was saved, so a stock key it leaves out was moved or cleared by
+    /// the player: that key is dropped when the user file binds its command elsewhere. Only a stock key whose
+    /// command the user file has nowhere (a newer stock layout) is kept.
+    /// </summary>
+    private static void DropMovedStockKeys(KeyLayout layout, KeyLayout user)
+    {
+        var userCommands = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (string command in user.Bindings.Values)
+        {
+            if (command.Length > 0)
+            {
+                userCommands.Add(command);
+            }
+        }
+
+        foreach (string key in new List<string>(layout.Bindings.Keys))
+        {
+            if (!user.Bindings.ContainsKey(key) && userCommands.Contains(layout.Bindings[key]))
+            {
+                layout.Bind(key, "");
+            }
+        }
     }
 
     /// <summary>The gear picker's default key: free in both stock layouts and among the hub's keys.</summary>
