@@ -488,6 +488,47 @@ public sealed partial class PhysicsDriver
         }
     }
 
+    /// <summary>
+    /// The touch pass of CheckEncroachment for an encroacher at its new pose (a mover's step): touches it no longer
+    /// overlaps end, then every colliding actor it overlaps and does not block gets BeginTouch. This is how a mover
+    /// sets off a trigger with ClassProximityType Mover.
+    /// </summary>
+    [Provenance(ProvenanceKind.Decoded, "collision-movement.md CheckEncroachment (game 0x10a1c8d0): with bTouchNotify, EndTouch the touches no longer overlapping, then BeginTouch the overlapped actors that do not block the encroacher")]
+    public void EncroachTouches(Actor Actor)
+    {
+        NotNull(Actor);
+        if (!Actor.bCollideActors || Actor.bDeleteMe)
+        {
+            return;
+        }
+
+        for (int i = Actor.Touching.Count - 1; i >= 0; i--)
+        {
+            if (i < Actor.Touching.Count && (Actor.Touching[i].bDeleteMe || !Collision.IsOverlapping(Actor, Actor.Touching[i])))
+            {
+                Actor.EndTouch(Actor.Touching[i]);
+            }
+        }
+
+        if (Actor.bDeleteMe)
+        {
+            return;
+        }
+
+        Collision.GetCylinder(Actor, out float r, out float h, out _, out _, out _);
+        List<Actor> candidates = RentList();
+        try
+        {
+            candidates.AddRange(Collision.CylinderActors);
+            candidates.AddRange(Collision.TouchColliderOwners);
+            BeginTouches(Actor, candidates, Actor.Location, r, h, swept: false);
+        }
+        finally
+        {
+            ReturnList(candidates);
+        }
+    }
+
     private void BeginTouches(Actor actor, List<Actor> candidates, FVector start, float r, float h, bool swept)
     {
         CollisionWorld cw = Collision;

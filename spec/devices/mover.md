@@ -416,6 +416,13 @@ Shutter cycle from a hack: 10 s moving shut, 20 s held, 10 s reopening, 40 s tot
 - `SpecialBehaviors` matching in `Trigger` uses the interaction's owner, while `UnTrigger` and `IsTriggerable`
   compare `Other` directly: an SInteractObject sender matches in one and not the other.
 - `TriggerControl.SubUnTrigger` calls `BeginEvent` on `SavedTrigger` with no None check.
+- A mover's step runs the CheckEncroachment touch pass (spec/native/collision-movement.md): it BeginTouches the
+  colliding actors it overlaps and does not block, so a Trigger with TriggerType TT_ClassProximity and
+  ClassProximityType Mover fires when a mover runs into it (MoonD's ride gates: a hidden pacer mover returns into
+  its gate at the end of each lap). A mover that starts inside a trigger touches it on its first step.
+- A mover with a RotationRate and bFixedRotationDir spins through AActor::physicsRotation whenever it is not
+  interpolating, whether its Physics is PHYS_Rotating (MoonD carousel, ClarD, SlauS, Muse, Ziop and PrisD fans) or the
+  default PHYS_MovingBrush (Cine fans, ClarD Osprey rotors).
 
 ## Evidence
 

@@ -132,6 +132,7 @@ public sealed partial class PhysicsDriver : IActorPhysics
         else
         {
             startNewPhysics(Actor, DeltaSeconds, 0);
+            ActorRotation(Actor, DeltaSeconds);
         }
 
         if (!Actor.bDeleteMe)
