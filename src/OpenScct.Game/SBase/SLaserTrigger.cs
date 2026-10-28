@@ -1,7 +1,9 @@
 using System;
+using System.Collections.Generic;
 using OpenScct.Core;
 using OpenScct.Core.Engine;
 using OpenScct.Core.Uc;
+using OpenScct.Game.Combat;
 using OpenScct.Game.Devices;
 using OpenScct.Game.Equipment;
 using OpenScct.Provenance;
@@ -127,14 +129,16 @@ public partial class SLaserTrigger
     /// (SPawnType SPAWNOFFENSE; DetectedClass is not read) level with the beam (its height from the beam point nearest
     /// it within its half height): a spy away from the beam (flat distance minus radius above 0) brings the period
     /// down to distance / 650 + 0.01 (0.01 to 1 s); a spy on it sets the period to 0.016 s and blocks the beam at its
-    /// cylinder (a line check), or at the nearest beam point when it crosses at 250 to 460 uu/s. The nearest block cuts
+    /// body pills (a line check through its mesh's collision capsules in the current pose, so a curled roll can pass
+    /// under or over the beam), or at the nearest beam point when it crosses at 250 to 460 uu/s. The nearest block cuts
     /// the drawn beam (AdjustScale when the end moved); on the server it fires the Event with that spy.
     /// </summary>
     [UcNative("ASLaserTrigger::execCheckPresence", Exe = 0x10ab69c0)]
     [PortOf("nat:SBase.SLaserTrigger.CheckPresence", Spec = "spec/devices/laser-trigger.md#rules")]
-    [Provenance(ProvenanceKind.Estimated, "The pawn primitive's line check is GadgetWorld.SegmentCylinderHit (entry point, no pull-back)")]
+    [Provenance(ProvenanceKind.Decoded, "0x10ab6ba2: the pawn primitive's LineCheck (vtable +0x5c) takes flags 0x40093, which carry the pill bit 0x40000: the skeletal mesh's pill check (hit-zones.md rule 2), not the cylinder")]
     public void CheckPresence()
     {
+        IPillPose pose = XLevel.GetService<IPillPose>() ?? EstimatedPillPose.Instance;
         FVector best = LaserEndLocation;
         SBasePawn? blocker = null;
         fCheckFrequency = SensorK.LaserIdlePeriod;
@@ -177,9 +181,14 @@ public partial class SLaserTrigger
             {
                 hit = nearest;
             }
-            else if (!GadgetWorld.SegmentCylinderHit(Location, LaserEndLocation, p.Location, p.CollisionRadius, p.CollisionHeight, out hit))
+            else
             {
-                continue;
+                _pills.Clear();
+                pose.GetPills(p, _pills);
+                if (_pills.Count == 0 || !PillLineCheck.Check(_pills, Location, LaserEndLocation, out _, out hit, out _, out _))
+                {
+                    continue;
+                }
             }
 
             if (FVector.DistSquared(best, Location) > FVector.DistSquared(hit, Location))
@@ -200,6 +209,9 @@ public partial class SLaserTrigger
             TriggerEvent(Event, this, blocker);
         }
     }
+
+    /// <summary>The pills of the pawn CheckPresence is testing (reused between checks).</summary>
+    private readonly List<PillShape> _pills = [];
 
     /// <summary>A visible, unbroken tripwire is locked for StickyNeutralizationTime, whatever the chaff's length.</summary>
     [Uc("SBase.SLaserTrigger.SetLockedByChaff", Sha1 = "64a44721295809c2793de114d0f2e7e05e4e7a08")]

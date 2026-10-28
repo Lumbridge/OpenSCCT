@@ -138,10 +138,27 @@ public sealed class EstimatedPillPose : IPillPose
     private static readonly FVector Foot = new(0f, 9f, -0.90f);
     private static readonly FVector Toe = new(12f, 9f, -0.97f);
 
+    // A rolling spy (bIsRolling, crouched cylinder) is tucked into a ball in the lower half of its cylinder: head down
+    // by the knees, back rounded, hands at the shins. The pills top out about 5 uu above the cylinder's centre (about
+    // 55 uu above the floor), so a beam higher than that passes over the roll while it still trips a crouched walk.
+    private static readonly FVector RollHeadLow = new(16f, 0f, -0.20f);
+    private static readonly FVector RollHeadHigh = new(10f, 0f, -0.10f);
+    private static readonly FVector RollSpine2 = new(-6f, 6.2f, -0.15f);
+    private static readonly FVector RollPelvis = new(-10f, 4.8f, -0.60f);
+    private static readonly FVector RollUpperArm = new(2f, 15f, -0.20f);
+    private static readonly FVector RollForeArm = new(10f, 15f, -0.45f);
+    private static readonly FVector RollWrist = new(14f, 12f, -0.70f);
+    private static readonly FVector RollHand = new(12f, 10f, -0.80f);
+    private static readonly FVector RollThigh = new(-6f, 8f, -0.60f);
+    private static readonly FVector RollCalf = new(12f, 9f, -0.35f);
+    private static readonly FVector RollFoot = new(0f, 9f, -0.85f);
+    private static readonly FVector RollToe = new(8f, 9f, -0.95f);
+
     private EstimatedPillPose()
     {
     }
 
+    [Provenance(ProvenanceKind.Estimated, "Roll stance: a tucked ball in the crouched cylinder's lower half; the roll animation's real pose is not measured")]
     public void GetPills(SBasePawn Pawn, List<PillShape> Shapes)
     {
         float h = Pawn.CollisionHeight > 0f ? Pawn.CollisionHeight : 1f;
@@ -149,18 +166,19 @@ public sealed class EstimatedPillPose : IPillPose
         FVector At(FVector p, bool left) =>
             Pawn.Location + fwd * p.X + right * (left ? -p.Y : p.Y) + up * (p.Z * h);
 
-        Add(Shapes, 1, At(HeadLow, true), At(HeadHigh, true));
+        bool roll = Pawn.bIsRolling;
+        Add(Shapes, 1, At(roll ? RollHeadLow : HeadLow, true), At(roll ? RollHeadHigh : HeadHigh, true));
         for (int side = 0; side < 2; side++)
         {
             bool left = side == 0;
             int o = left ? 0 : 7;
-            Add(Shapes, 2 + o, At(Spine2, left), At(Pelvis, left));
-            Add(Shapes, 3 + o, At(UpperArm, left), At(ForeArm, left));
-            Add(Shapes, 4 + o, At(ForeArm, left), At(Wrist, left));
-            Add(Shapes, 5 + o, At(Hand, left), At(Hand, left));
-            Add(Shapes, 6 + o, At(Thigh, left), At(Calf, left));
-            Add(Shapes, 7 + o, At(Calf, left), At(Foot, left));
-            Add(Shapes, 8 + o, At(Foot, left), At(Toe, left));
+            Add(Shapes, 2 + o, At(roll ? RollSpine2 : Spine2, left), At(roll ? RollPelvis : Pelvis, left));
+            Add(Shapes, 3 + o, At(roll ? RollUpperArm : UpperArm, left), At(roll ? RollForeArm : ForeArm, left));
+            Add(Shapes, 4 + o, At(roll ? RollForeArm : ForeArm, left), At(roll ? RollWrist : Wrist, left));
+            Add(Shapes, 5 + o, At(roll ? RollHand : Hand, left), At(roll ? RollHand : Hand, left));
+            Add(Shapes, 6 + o, At(roll ? RollThigh : Thigh, left), At(roll ? RollCalf : Calf, left));
+            Add(Shapes, 7 + o, At(roll ? RollCalf : Calf, left), At(roll ? RollFoot : Foot, left));
+            Add(Shapes, 8 + o, At(roll ? RollFoot : Foot, left), At(roll ? RollToe : Toe, left));
         }
     }
 

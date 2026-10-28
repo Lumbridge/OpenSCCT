@@ -83,7 +83,11 @@ SGPOControl relay; `bTriggerOnceOnly` (125) has no reader in script or in the tr
      period `0.01` if `f <= 0.01`, `f + 0.01` if `f <= 1`, else `1.0`; `fCheckFrequency = min(fCheckFrequency, period)`;
    - on the beam: `fCheckFrequency = 0.016`; `across = |V| - |unit(Location - End) . V|`. When `250 < across <= 460`
      the block point is `N`; otherwise a zero-extent line check from the emitter to the end against the pawn's own
-     primitive (its cylinder), skipped when it misses, the block point its hit location;
+     primitive with trace flags 0x40093 (0x10ab6ba2). Those carry the pill bit 0x40000, so the skeletal mesh answers
+     with its pill check in the current pose (native/hit-zones.md rule 2), not its cylinder: a body the beam passes
+     beside, over or under (a curled roll) does not block it. Skipped when it misses, the block point its hit location.
+     A crouched roll (385 uu/s) straight across the beam lands in the 250 to 460 window and always trips; a dive roll
+     (603 uu/s) or a roll at an angle to the beam reaches the pill check;
    - the block point nearest the emitter wins (strictly nearer than the current best).
    When the best end differs from `PrevLaserEndLocation`: store it and AdjustScale to it. On the authority, with a
    blocker: `TriggerEvent(Event, self, blocker)` (every check while the spy stays on the beam).
@@ -128,7 +132,8 @@ class with these partials (the SBase package is registered for maps), so no regi
 
 ## Open questions
 
-- The pawn primitive's line check uses `GadgetWorld.SegmentCylinderHit` (entry point, no pull-back).
+- The pill check uses the shared IPillPose; the simulation has no skeleton, so EstimatedPillPose's roll stance (a
+  tucked ball topping out about 55 uu above the floor) stands in for the roll animation's real pose.
 - GetRainVolume (native 1789) is not ported; no converted map places an ERainVolume, so the beam is never halved.
 - Emitter.Kill: the sparks actor goes at once in the simulation; the drawn particles stop spawning and die out.
 - The TexScaler U scale is kept (`LaserScalerUScale`) but the views do not apply it; the normal-vision look reuses the
