@@ -314,7 +314,8 @@ public sealed class MaterialCompiler
 
         ApplyVision(material, VisionLookup switch
         {
-            VisionLookup.SkinBase => Pack?.VisionOfSkin(entry.Name),
+            // A cosmetic camo is named "<skin>+<pattern>": it keeps the heat and EMF textures of the skin it repaints.
+            VisionLookup.SkinBase => Pack?.VisionOfSkin(entry.Name is { } skin && skin.IndexOf('+') is var plus and > 0 ? skin[..plus] : entry.Name),
             VisionLookup.ModifierName => Pack?.VisionOfModifierName(entry.Name),
             _ => Pack?.VisionOf(entry.Source),
         });
@@ -417,6 +418,13 @@ public sealed class MaterialCompiler
             }
 
             material.SetShaderParameter("combine", new Vector4I(combine.Op, combine.AlphaOp, (int)combine.Modulate, combine.InvertMask ? 1 : 0));
+            if (combine.Env2)
+            {
+                // Material2 a TexEnvMap (ClarD / Sche* puddle ripples): by the reflection, playing its frames.
+                FlipbookEntry? f = combine.Flip2;
+                material.SetShaderParameter("c2_env", 1);
+                material.SetShaderParameter("c2_flip", f is null ? new Vector4(1f, 1f, 1f, 0f) : new Vector4(f.Cols, f.Rows, f.Frames, f.Fps));
+            }
         }
 
         if (flipbook is not null)

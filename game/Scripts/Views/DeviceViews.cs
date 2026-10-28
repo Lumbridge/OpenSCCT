@@ -541,6 +541,7 @@ public sealed class AnimatedMeshView
     private FRotator _prevRotation;
     private FRotator _rotation;
     private bool _lit;
+    private Vector4? _vision;
 
     internal AnimatedMeshView(string id, Actor actor, SkeletalModel model, RenderMap map)
     {
@@ -614,6 +615,16 @@ public sealed class AnimatedMeshView
         }
 
         Place(alpha);
+
+        // The actor's vision values (HeatIntensity 0.1 to 0.15 on the sharks, mantas and dolphins), as gameplay meshes
+        // take theirs: without them a skeletal prop draws cold in thermal.
+        Vector4 vision = GameplayObjects.VisionOf(_actor);
+        if (vision != _vision)
+        {
+            _vision = vision;
+            Model.SetVision(vision);
+        }
+
         if (_mesh is null)
         {
             Model.Sampler.Advance(dt);
