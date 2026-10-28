@@ -25,7 +25,7 @@ it is described here in our own terms.
   delay when it dead-reckons them (dead reckoning walks proxies on to the newest server time the client knows).
 - **Shot number.** Per weapon, on the owner's client: a counter of the merc gun or pistol shots it sent (starts at 0
   with the weapon actor). On the server: the last number received.
-- **Settings.** Server: the switch (off by default) and the ceiling in ms (default 120, 0 to 500, both Reloaded's). Client: fire
+- **Settings.** Server: the switch (on by default, as in Reloaded) and the ceiling in ms (default 120, 0 to 500, both Reloaded's). Client: fire
   prediction (on by default).
 
 ## Rules
@@ -69,7 +69,7 @@ it is described here in our own terms.
 | History length | 64 | ticks | estimated | a second at 60 Hz plus margin |
 | Default ceiling | 120 | ms | decoded | Reloaded.Core 0x103603a4 (initial value) and `!lagcomp reset` 0x10076455 |
 | Largest ceiling | 500 | ms | decoded | Reloaded.Core `!lagcomp <n>` 0x10076435 (below 0 gives 0, above 500 gives 500) |
-| Reloaded's own default switch | on | | decoded | Reloaded.Core 0x103603a8 starts at 1; the rewrite keeps it off by default (our choice) |
+| Reloaded's own default switch | on | | decoded | Reloaded.Core 0x103603a8 starts at 1; the rewrite starts with it on too |
 | Teleport distance (no blend) | 200 | uu | estimated | |
 | Spread mantissa | top 24 bits × 2^-24 | | decoded | Reloaded 0x100242f0 |
 | Seeded random calls per trace | 2 | calls | decoded | Reloaded 0x100242f0 |

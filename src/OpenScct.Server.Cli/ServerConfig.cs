@@ -227,10 +227,10 @@ internal sealed record ServerConfig
 
     /// <summary>
     /// Lag compensation (Reloaded's <c>!lagcomp</c>): players' shots are traced against the other players where the
-    /// shooter saw them, at most <see cref="LagCompCeilingMs"/> back. Off by default; the console's <c>lagcomp on</c>
-    /// and an allowed player's <c>!lagcomp on</c> turn it on while the server runs.
+    /// shooter saw them, at most <see cref="LagCompCeilingMs"/> back. On by default, as in Reloaded; the console's
+    /// <c>lagcomp off</c> and an allowed player's <c>!lagcomp off</c> turn it off while the server runs.
     /// </summary>
-    public bool LagComp { get; init; }
+    public bool LagComp { get; init; } = true;
 
     /// <summary>The longest rewind of <see cref="LagComp"/> in milliseconds (0 to 500).</summary>
     public int LagCompCeilingMs { get; init; } = OpenScct.Server.LagCompensation.DefaultCeilingMs;

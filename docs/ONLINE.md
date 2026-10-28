@@ -688,7 +688,7 @@ A listen host keeps no match log. The optional upload to a stats site that the s
 Reloaded's server-side lag compensation (rl:net.lagcomp; how it works: docs/NETCODE.md "Lag compensation and fire
 prediction"). **Off by default.** Ways to turn it on:
 
-- dedicated server config: `"lagComp": true` (and optionally `"lagCompCeilingMs": 120`, 0 to 500);
+- dedicated server config: `"lagComp": false` to turn it off (it is on by default, as in Reloaded) (and optionally `"lagCompCeilingMs": 120`, 0 to 500);
 - the server console (or an admin's `cmd`): `lagcomp on`, `lagcomp off`, `lagcomp reset` (ceiling back to 120 ms, Reloaded's default),
   `lagcomp 200` (ceiling 200 ms, and on); `set lagcomp on` works too;
 - chat, as the host or an admin (everyone on a dedicated server without an admin password): `!lagcomp on`,
@@ -947,8 +947,8 @@ dotnet run --project src/OpenScct.Server.Cli -- --online --master http://127.0.0
   AddPinhole), so it would need our own UPnP SOAP client; a host behind an IPv6 firewall is reached through the
   punch or the relay as before. The host's own addresses sent to the master (players on the same network try them
   first) are its IPv4 ones, then up to two IPv6 ones (global or unique local, stable before temporary; no link-local).
-- Lag compensation is off by default (Reloaded starts with it on; ceiling 120 ms as Reloaded); it has not
-  been played over a real link yet. The map list's playlists (rl:qol.lobbymaps) show variant words as part of the
+- Lag compensation is on by default, as in Reloaded (ceiling 120 ms as Reloaded); it has not been played over a
+  real link yet. The map list's playlists (rl:qol.lobbymaps) show variant words as part of the
   name (Reloaded dims them, and has an option to put the word after the name); Reloaded's separate Merc Deathmatch
   playlist choice (`active_map_playlist_mdm`) is one choice here.
 - Bots: the dedicated server's config file has no bot fields yet (the console's `set bots` works); its rotation

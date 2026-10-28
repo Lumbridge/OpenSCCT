@@ -269,7 +269,7 @@ a snap to the newest state would pop the pawn forward by the delay at every jump
 
 `rl:net.lagcomp` and `rl:net.fireprediction` (spec/reloaded/FEATURES.md; rules in spec/net/lag-compensation.md).
 
-**Lag compensation (server, off by default).** `LagCompensation` (`src/OpenScct.Server/Net/LagCompensation.cs`) is
+**Lag compensation (server, on by default as in Reloaded).** `LagCompensation` (`src/OpenScct.Server/Net/LagCompensation.cs`) is
 installed on every `ServerHost` level. When on, after each world step (`ServerHost.Tick`) it records every
 SBasePawn's hit pills (from the level's `IPillPose`, the same pose the hit trace uses) and where it stood, 64 ticks per
 pawn (a little over a second at 60 Hz); a pawn that is destroyed or not seen loses its history. Every combat call a

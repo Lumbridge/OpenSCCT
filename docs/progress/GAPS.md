@@ -84,7 +84,7 @@ Who-hears-whom matches the original (rules in `VoiceRouting.cs`). Gaps:
 | `widescreen_hud`, `ws_er_small` keys (rl:gfx.hud) | done (they followed `widescreen` before) |
 | Flashlight in the scope, ledge assist (Reloaded natives) | done (also Reloaded's slow-strafe diagonal fix, found in the same function); Reloaded's ledge test patches done: no auto hop onto low ledges, wider waist window, deeper hang window in the wall jump climb, waist grab blocked in the jump's first tick (spec/movement/ledge.md) |
 | `!resign`, jitter in `!pings` | done |
-| Lag compensation (rl:net.lagcomp) | done (off by default: `lagcomp on`, `!lagcomp on` or config `lagComp`; docs/NETCODE.md "Lag compensation"; ceiling 120 ms, 0 to 500, as Reloaded; Reloaded itself starts with it on) |
+| Lag compensation (rl:net.lagcomp) | done (on by default, as in Reloaded: `lagcomp off`, `!lagcomp off` or config `"lagComp": false` turn it off; docs/NETCODE.md "Lag compensation"; ceiling 120 ms, 0 to 500, as Reloaded) |
 | Client fire prediction (rl:net.fireprediction) | done (for the merc rifles/SMG and the spy pistol's world impacts; option `fire_prediction`, on; pawn hits stay server-confirmed) |
 | Practice server mode, `!heal` `!regen` `!tank` `!kill` | done (extra ammunition as our `!ammo` command, the ammo crate refill sent to the player's machine; `!regen`/`!tank`/`!ammo` effects are our choice: docs/ONLINE.md "Practice servers") |
 | Client console, `set`/`get` | done (docs/HUD.md "Developer console") |

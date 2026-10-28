@@ -87,10 +87,10 @@ public sealed record ServerSettings
 
     /// <summary>
     /// Trace clients' shots against the other players where each client saw them (Reloaded's lag compensation,
-    /// <see cref="OpenScct.Server.LagCompensation"/>). Off by default; <see cref="ServerHost.LagCompensation"/> changes
+    /// <see cref="OpenScct.Server.LagCompensation"/>). On by default, as in Reloaded; <see cref="ServerHost.LagCompensation"/> changes
     /// it while the server runs.
     /// </summary>
-    public bool LagCompensation { get; init; }
+    public bool LagCompensation { get; init; } = true;
 
     /// <summary>With <see cref="LagCompensation"/>: the longest rewind in milliseconds.</summary>
     public int LagCompensationCeilingMs { get; init; } = OpenScct.Server.LagCompensation.DefaultCeilingMs;

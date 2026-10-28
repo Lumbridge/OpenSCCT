@@ -139,10 +139,10 @@ public sealed record OnlineServerSettings
     public TimeProvider WallClock { get; init; } = TimeProvider.System;
 
     /// <summary>
-    /// Lag compensation of the players' shots on every round (<see cref="ServerSettings.LagCompensation"/>); off by
-    /// default. The console's <c>lagcomp</c> and the chat command <c>!lagcomp</c> change it while the session runs.
+    /// Lag compensation of the players' shots on every round (<see cref="ServerSettings.LagCompensation"/>); on by
+    /// default, as in Reloaded. The console's <c>lagcomp</c> and the chat command <c>!lagcomp</c> change it while the session runs.
     /// </summary>
-    public bool LagCompensation { get; init; }
+    public bool LagCompensation { get; init; } = true;
 
     /// <summary>The longest rewind of <see cref="LagCompensation"/>, in milliseconds.</summary>
     public int LagCompensationCeilingMs { get; init; } = OpenScct.Server.LagCompensation.DefaultCeilingMs;
