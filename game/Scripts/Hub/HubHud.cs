@@ -70,6 +70,8 @@ public partial class HubHud : CanvasLayer
             _help.AddThemeFontSizeOverride("font_size", OpenScctGame.UI.UiArt.CaptionSize);
         }
 
+        // Sized now, not first in _Process: a wrapping label with no width puts one letter per line.
+        _help.CustomMinimumSize = new Vector2(HelpWidth(), 0f);
         AddChild(_help);
         _queue = new Label { Name = "Queue", HorizontalAlignment = HorizontalAlignment.Center, Visible = false };
         _queue.AddThemeColorOverride("font_shadow_color", new Color(0f, 0f, 0f, 1f));
@@ -126,12 +128,14 @@ public partial class HubHud : CanvasLayer
     /// <summary>The key hints wrap within this share of the screen's width, clear of the top right readouts (frame rate, network, voice).</summary>
     private const float HelpWidthShare = 0.42f;
 
+    private float HelpWidth() => Mathf.Max(320f, GetViewport().GetVisibleRect().Size.X * HelpWidthShare);
+
     public override void _Process(double delta)
     {
         Vector2 size = GetViewport().GetVisibleRect().Size;
         if (_help is not null)
         {
-            float width = Mathf.Max(320f, size.X * HelpWidthShare);
+            float width = HelpWidth();
             if (!Mathf.IsEqualApprox(_help.CustomMinimumSize.X, width))
             {
                 _help.CustomMinimumSize = new Vector2(width, 0f);

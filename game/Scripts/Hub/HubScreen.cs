@@ -38,6 +38,7 @@ public partial class HubScreen : MenuPage
     private Label? _status;
     private Task<ServerListResponse>? _list;
     private ServerQuery? _query;
+    private double _requery;
     private bool _picked;
 
     /// <summary>The address typed last time (this process).</summary>
@@ -169,6 +170,14 @@ public partial class HubScreen : MenuPage
 
         if (_query is { } query)
         {
+            // The pings stay current while the page is open (a first answer is often slow).
+            _requery += delta;
+            if (_requery >= ServerQuery.RequerySeconds)
+            {
+                _requery = 0;
+                QueryAll(query);
+            }
+
             query.Poll();
             if (TakePings(query))
             {
@@ -220,13 +229,8 @@ public partial class HubScreen : MenuPage
         try
         {
             _query = new ServerQuery(new StopwatchClock());
-            foreach (Row r in _rows)
-            {
-                if (IPAddress.TryParse(r.Entry.Address, out IPAddress? ip) && r.Entry.Port > 0)
-                {
-                    _query.QueryServer(new IPEndPoint(ip, r.Entry.Port), r.Entry.Id);
-                }
-            }
+            _requery = 0;
+            QueryAll(_query);
         }
         catch (InvalidOperationException)
         {
@@ -240,6 +244,18 @@ public partial class HubScreen : MenuPage
             _status.Text = _rows.Count == 0
                 ? "No hub is listed right now. Host one, or join one by its address."
                 : string.Create(CultureInfo.InvariantCulture, $"{_rows.Count} hub(s) listed.");
+        }
+    }
+
+    /// <summary>Asks every listed hub for its info (the ping column).</summary>
+    private void QueryAll(ServerQuery query)
+    {
+        foreach (Row r in _rows)
+        {
+            if (IPAddress.TryParse(r.Entry.Address, out IPAddress? ip) && r.Entry.Port > 0)
+            {
+                query.QueryServer(new IPEndPoint(ip, r.Entry.Port), r.Entry.Id);
+            }
         }
     }
 

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
@@ -107,7 +108,9 @@ public sealed record ServerQueryResult(IPEndPoint From, IPEndPoint GameEndPoint,
 /// The browser's query socket: searches the LAN (a broadcast to the LAN port, plus the local machine) and asks
 /// single servers (from the master's list, the manual server list or a typed address) for their info, timing each
 /// answer for the ping column. Unanswered queries are sent again up to <see cref="Attempts"/> times, one second apart.
-/// Call <see cref="Poll"/> from the browser's thread.
+/// Answers are timed on the socket's receive thread as they arrive (not when the browser's frame polls), and a
+/// server's ping is the lowest of its last <see cref="PingSamples"/> answers, so a slow frame or a server tick does
+/// not show as a spike. Call <see cref="Poll"/> from the browser's thread.
 /// </summary>
 public sealed class ServerQuery : IDisposable
 {
@@ -135,6 +138,8 @@ public sealed class ServerQuery : IDisposable
     private readonly List<Pending> _pending = new();
     private readonly List<ServerQueryResult> _results = new();
     private readonly byte[] _buffer = new byte[DiscoveryPackets.QueryBytes];
+    private readonly ConcurrentQueue<(IPEndPoint From, ulong Nonce, ServerInfo Info, long Micros)> _arrived = new();
+    private readonly Dictionary<IPEndPoint, Queue<int>> _pings = new();
     private ulong _nonce;
     private bool _disposed;
 
@@ -142,11 +147,19 @@ public sealed class ServerQuery : IDisposable
 
     public const long RetryMicros = 1_000_000;
 
+    /// <summary>Answers per server the shown ping is the lowest of.</summary>
+    public const int PingSamples = 3;
+
+    /// <summary>How often the browser pages ask their servers again, in seconds.</summary>
+    public const double RequerySeconds = 3.0;
+
+    /// <param name="clock">A wall clock safe to read from the socket's receive thread (answers are timed there).</param>
     public ServerQuery(IClock clock, bool loopbackOnly = false)
     {
         _clock = clock ?? throw new ArgumentNullException(nameof(clock));
         _loopbackOnly = loopbackOnly;
-        _manager = new LiteNetManager(_listener) { UnconnectedMessagesEnabled = true, BroadcastReceiveEnabled = true };
+        // Unsynced: answers are taken (and timed) on the receive thread; Poll handles them on the browser's thread.
+        _manager = new LiteNetManager(_listener) { UnconnectedMessagesEnabled = true, BroadcastReceiveEnabled = true, UnsyncedEvents = true };
         _listener.NetworkReceiveUnconnectedEvent += OnUnconnected;
         bool started = loopbackOnly ? _manager.Start(IPAddress.Loopback, IPAddress.IPv6Loopback, 0) : _manager.Start();
         if (!started)
@@ -186,6 +199,8 @@ public sealed class ServerQuery : IDisposable
     {
         _results.Clear();
         _pending.Clear();
+        _pings.Clear();
+        _arrived.Clear();
     }
 
     /// <summary>Takes answers and resends unanswered queries.</summary>
@@ -196,7 +211,11 @@ public sealed class ServerQuery : IDisposable
             return;
         }
 
-        _manager.PollEvents();
+        while (_arrived.TryDequeue(out var a))
+        {
+            Take(a.From, a.Nonce, a.Info, a.Micros);
+        }
+
         long now = _clock.NowMicroseconds;
         for (int i = _pending.Count - 1; i >= 0; i--)
         {
@@ -245,45 +264,76 @@ public sealed class ServerQuery : IDisposable
         }
     }
 
+    /// <summary>The receive thread: stamps the answer's arrival and leaves it for <see cref="Poll"/>.</summary>
     private void OnUnconnected(IPEndPoint from, NetPacketReader reader, UnconnectedMessageType type)
     {
-        ReadOnlySpan<byte> data = reader.GetRemainingBytesSpan();
-        if (DiscoveryPackets.TryReadInfo(data, out ulong nonce, out ServerInfo info))
+        long now = _clock.NowMicroseconds;
+        if (DiscoveryPackets.TryReadInfo(reader.GetRemainingBytesSpan(), out ulong nonce, out ServerInfo info))
         {
-            long now = _clock.NowMicroseconds;
-            for (int i = 0; i < _pending.Count; i++)
-            {
-                Pending p = _pending[i];
-                if (p.Nonce != nonce)
-                {
-                    continue;
-                }
-
-                int ping = (int)Math.Clamp((now - p.SentAt) / 1000, 0, 9999);
-                var game = new IPEndPoint(from.Address, info.GamePort > 0 ? info.GamePort : from.Port);
-                var result = new ServerQueryResult(from, game, info, ping, p.Lan, p.Tag);
-                int same = _results.FindIndex(r => r.GameEndPoint.Equals(game) ||
-                    (p.Lan && r.FromLan && r.Info.GamePort == info.GamePort && r.Info.Name == info.Name));
-                if (same >= 0)
-                {
-                    _results[same] = result with { GameEndPoint = _results[same].GameEndPoint, From = _results[same].From };
-                }
-                else
-                {
-                    _results.Add(result);
-                }
-
-                Answered?.Invoke(result);
-                if (!p.Broadcast && !p.Lan)
-                {
-                    _pending.RemoveAt(i);
-                }
-
-                break;
-            }
+            _arrived.Enqueue((from, nonce, info, now));
         }
 
         reader.Recycle();
+    }
+
+    private void Take(IPEndPoint from, ulong nonce, ServerInfo info, long arrivedMicros)
+    {
+        for (int i = 0; i < _pending.Count; i++)
+        {
+            Pending p = _pending[i];
+            if (p.Nonce != nonce)
+            {
+                continue;
+            }
+
+            // An answer to an earlier copy that lands after a resend reads short (0 at worst).
+            int sample = (int)Math.Clamp((arrivedMicros - p.SentAt) / 1000, 0, 9999);
+            var game = new IPEndPoint(from.Address, info.GamePort > 0 ? info.GamePort : from.Port);
+            int ping = Smoothed(game, sample);
+            var result = new ServerQueryResult(from, game, info, ping, p.Lan, p.Tag);
+            int same = _results.FindIndex(r => r.GameEndPoint.Equals(game) ||
+                (p.Lan && r.FromLan && r.Info.GamePort == info.GamePort && r.Info.Name == info.Name));
+            if (same >= 0)
+            {
+                _results[same] = result with { GameEndPoint = _results[same].GameEndPoint, From = _results[same].From };
+            }
+            else
+            {
+                _results.Add(result);
+            }
+
+            Answered?.Invoke(result);
+            if (!p.Broadcast && !p.Lan)
+            {
+                _pending.RemoveAt(i);
+            }
+
+            break;
+        }
+    }
+
+    /// <summary>The lowest of the server's last <see cref="PingSamples"/> answers, <paramref name="sample"/> included.</summary>
+    private int Smoothed(IPEndPoint game, int sample)
+    {
+        if (!_pings.TryGetValue(game, out Queue<int>? samples))
+        {
+            samples = new Queue<int>(PingSamples);
+            _pings[game] = samples;
+        }
+
+        if (samples.Count == PingSamples)
+        {
+            samples.Dequeue();
+        }
+
+        samples.Enqueue(sample);
+        int lowest = int.MaxValue;
+        foreach (int s in samples)
+        {
+            lowest = Math.Min(lowest, s);
+        }
+
+        return lowest;
     }
 
     public void Dispose()

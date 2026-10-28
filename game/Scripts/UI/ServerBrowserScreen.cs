@@ -64,6 +64,9 @@ public partial class ServerBrowserScreen : MenuPage
 
         public IPEndPoint? Endpoint { get; set; }
 
+        /// <summary>The server's answer last taken into the row (each new answer is a new result).</summary>
+        public ServerQueryResult? Seen { get; set; }
+
         /// <summary>The players and their sides (the server's own answer, else the master's list).</summary>
         public IReadOnlyList<ServerInfoPlayer> PlayerList { get; set; } = [];
     }
@@ -81,6 +84,7 @@ public partial class ServerBrowserScreen : MenuPage
     private readonly List<Row> _rows = new();
     private OnlineService? _service;
     private ServerQuery? _query;
+    private double _requery;
     private MasterClient? _master;
     private Task<ServerListResponse>? _list;
     private PendingJoin? _join;
@@ -270,15 +274,8 @@ public partial class ServerBrowserScreen : MenuPage
             return;
         }
 
-        _query.SearchLan(OnlineSettings.Current.LanPort);
-        foreach (string saved in OnlineSettings.Current.ServerList)
-        {
-            if (TryEndpoint(saved, out IPEndPoint? endpoint))
-            {
-                _query.QueryServer(endpoint, "saved:" + saved);
-            }
-        }
-
+        _requery = 0;
+        QueryAll(_query, listed: false);
         OnlineSettings s = OnlineSettings.Current;
         if (s.MasterUrl.Length > 0)
         {
@@ -313,6 +310,14 @@ public partial class ServerBrowserScreen : MenuPage
         bool changed = false;
         if (_query is { } query)
         {
+            // The pings stay current while the page is open (a first answer is often slow).
+            _requery += delta;
+            if (_requery >= ServerQuery.RequerySeconds)
+            {
+                _requery = 0;
+                QueryAll(query, listed: true);
+            }
+
             int before = query.Results.Count;
             query.Poll();
             changed |= MergeAnswers(query);
@@ -399,6 +404,34 @@ public partial class ServerBrowserScreen : MenuPage
         return true;
     }
 
+    /// <summary>
+    /// Asks the LAN, the saved addresses and (with <paramref name="listed"/>) the master's direct servers for their info.
+    /// </summary>
+    private void QueryAll(ServerQuery query, bool listed)
+    {
+        query.SearchLan(OnlineSettings.Current.LanPort);
+        foreach (string saved in OnlineSettings.Current.ServerList)
+        {
+            if (TryEndpoint(saved, out IPEndPoint? endpoint))
+            {
+                query.QueryServer(endpoint, "saved:" + saved);
+            }
+        }
+
+        if (!listed)
+        {
+            return;
+        }
+
+        foreach (Row row in _rows)
+        {
+            if (row.Entry is { Reachability: Reachability.Direct } e && IPAddress.TryParse(e.Address, out IPAddress? ip))
+            {
+                query.QueryServer(new IPEndPoint(ip, e.Port), row.Key);
+            }
+        }
+    }
+
     private void MergeList(ServerListResponse list)
     {
         foreach (ServerEntry e in list.Servers)
@@ -456,11 +489,12 @@ public partial class ServerBrowserScreen : MenuPage
 
             string key = r.Tag is { } tag ? tag : "lan:" + LiteNetLibTransport.FormatEndPoint(r.GameEndPoint);
             Row row = Find(key) ?? Add(key, r.FromLan ? "LAN" : "Saved");
-            if (row.PingMs == r.PingMs && row.Endpoint is not null)
+            if (ReferenceEquals(row.Seen, r))
             {
                 continue;
             }
 
+            row.Seen = r;
             row.PingMs = r.PingMs;
             row.Endpoint = r.GameEndPoint;
             row.Name = r.Info.Name;

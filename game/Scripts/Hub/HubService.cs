@@ -47,6 +47,18 @@ public partial class HubService : Node
     private HubPadView? _padView;
     private long _noteUntil;
 
+    // The loading page over the hub while it loads: frames drawn before the map load, then the frames the player has
+    // stood in the hub (it fades once the world has drawn a few frames around him), and when it went up.
+    private HubLoadingScreen? _cover;
+    private int _coverFrames;
+    private long _coverSince;
+
+    /// <summary>Frames the player stands in the hub before the loading page fades.</summary>
+    private const int CoverFramesInHub = 10;
+
+    /// <summary>The loading page never stays longer than this (seconds), whatever the hub sends.</summary>
+    private const int CoverMaxSeconds = 30;
+
     // A hub from the master's list: its id, the ways in still to try, and the master's answer being waited for.
     private readonly Queue<JoinAttempt> _attempts = new();
     private string? _masterId;
@@ -350,6 +362,7 @@ public partial class HubService : Node
         _hud = null;
         _signs = null;
         _padView = null;
+        CloseCover();
         _voice?.Detach();
         if (Client is { } client)
         {
@@ -451,15 +464,80 @@ public partial class HubService : Node
 
         if (_round is null && client.Session.Map is { } map && client.LocalPlayer is not null)
         {
-            Enter(client, map.Name);
+            if (!Catalog.CanRender(map.Name))
+            {
+                Status = $"{map.Name} has no render content in this install.";
+                CloseCover();
+            }
+            else if (_cover is null)
+            {
+                // The loading page first: the map loads in one go on the main thread, so the page is drawn a few
+                // frames before (as the match LoadingScreen does) and stays up over the load.
+                OpenCover(client, map.Name);
+            }
+            else if (++_coverFrames >= LoadingScreen.FramesBeforeLoad)
+            {
+                Enter(client, map.Name);
+                _coverFrames = 0;
+                _cover.Status = "Waiting for the hub to place you...";
+            }
         }
-        else if (_round is null)
+        else if (_round is not null)
+        {
+            UpdateCover();
+        }
+        else
         {
             long waited = (_clock.NowMicroseconds - _start) / 1_000_000;
             Status = client.Welcomed
                 ? $"Loading {client.ServerName}..."
                 : string.Create(System.Globalization.CultureInfo.InvariantCulture,
                     $"Connecting to {_target}... {waited} s (gives up after {(int)OpenScct.Net.K.InitialConnectTimeout} s)");
+        }
+    }
+
+    /// <summary>Puts the loading page up over the hub page (it outlives the scene change to the play scene).</summary>
+    private void OpenCover(HubClient client, string map)
+    {
+        _cover = new HubLoadingScreen { HubName = client.ServerName, Map = map, Merc = client.Team == 1, Maps = Catalog.Maps };
+        GetTree().Root.AddChild(_cover);
+        _cover.Status = "Loading the hub map...";
+        _coverFrames = 0;
+        _coverSince = _clock.NowMicroseconds;
+    }
+
+    /// <summary>Fades the loading page once the player has stood in the drawn hub a few frames (or the load failed).</summary>
+    private void UpdateCover()
+    {
+        if (_cover is not { } cover)
+        {
+            return;
+        }
+
+        bool timedOut = _clock.NowMicroseconds - _coverSince > CoverMaxSeconds * 1_000_000L;
+        bool failed = _round is { LoadError: not null };
+        if (_round?.Session?.LocalPawn is not null)
+        {
+            _coverFrames++;
+        }
+
+        if (failed || timedOut || _coverFrames >= CoverFramesInHub)
+        {
+            _cover = null;
+            cover.FadeOut();
+        }
+    }
+
+    /// <summary>Takes the loading page down at once (the visit ended or went to a match).</summary>
+    private void CloseCover()
+    {
+        if (_cover is { } cover)
+        {
+            _cover = null;
+            if (GodotObject.IsInstanceValid(cover))
+            {
+                cover.QueueFree();
+            }
         }
     }
 
@@ -536,6 +614,7 @@ public partial class HubService : Node
         _hud = null;
         _signs = null;
         _padView = null;
+        CloseCover();
         _voice?.Detach();
         Client = null;
         client.Session.Disconnect();
