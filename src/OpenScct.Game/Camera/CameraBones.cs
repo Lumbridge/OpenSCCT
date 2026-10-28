@@ -6,7 +6,8 @@ namespace OpenScct.Game.Camera;
 
 /// <summary>
 /// Where a pawn's bones are, for the views that hang on a bone (the first-person view with m_bAttachToBone, the
-/// centred transition of mode 34). The simulation keeps no skeletal pose; the machine that draws can install one
+/// centred transition of mode 34) and for TurnHead's arm aim, which steps an arm from where it is drawn (GetBoneRotation,
+/// Animation.ArmAim). The simulation keeps no skeletal pose; the machine that draws can install one
 /// with <see cref="Level.SetService{T}"/> from its posed meshes. Without it the views use the pawn's cylinder.
 /// </summary>
 public interface ICameraBones

@@ -171,7 +171,7 @@ All fire-transition states stamp m_LastSpecialMoveTime in EndState. After a land
 spy whose PreviousState was s_PipH_Fire2 or s_PipH_Fire4 to that state.
 
 Arm IK: NotifyTakeArmControlForPipH2 / PipH4 (clip notifies) set PipHFire and the IK type IKT_PIPH;
-ChangeRightArmRotPipH2 / PipH4 aim the right arm at the view (animation spec).
+ChangeRightArmRotPipH2 / PipH4 aim the right arm at the view (spec/native/aim-ik.md rule 5).
 
 ## States
 

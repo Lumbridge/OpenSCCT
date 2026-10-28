@@ -330,6 +330,7 @@ public static class TraversalActions
                 AnimateBTW(pawn);
                 break;
             case SBasePawn.SA_BTW_OUT:
+                OpenScct.Game.Animation.ArmAim.RemoveBTWArmControl(pawn);
                 pawn.PawnAnim.Stop(SBasePawn.DRAWCHANNEL);
                 pawn.OldBTW = pawn.BTW;
                 pawn.BTW = BTW_.NOBTW;
