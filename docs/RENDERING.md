@@ -349,7 +349,9 @@ ignored) are left out when the file is there.
   PB_None and PB_Modulate both DESTCOLOR, SRCCOLOR (frame x texture x 2). The texture is not lit.
 - Surfaces turned away from the projector are skipped unless `bProjectOnBackfaces` (the original fades them through a
   generated attenuation texture, here a hard cut on the normal rebuilt from depth).
-- Animated textures: AnimNext flipbooks and TexPanner / TexOscillator, as in the world materials.
+- Animated textures: AnimNext flipbooks and TexPanner / TexOscillator, as in the world materials. A static TexScaler
+  or TexRotator over the texture (`uvMatrix`) transforms the projected coordinates: AquaE's rain (`Aquarium_TXT.Puie.Rain`,
+  UScale 0.1) tiles its drops 10 times over the projector; without it each drop was a blob 10 times too big.
 - Thermal and EMF draw no projections.
 - Not reproduced: MaterialBlendingOp (the projected texture mixed with the surface's own material: PB_Modulate 2x,
   PB_AlphaBlend by the projected alpha; PB_Add leaves it out), `bGradient` (no placed projector sets it), and

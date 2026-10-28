@@ -21,6 +21,9 @@ uniform vec3 proj_z = vec3(0.0, 1.0, 0.0);
 uniform vec4 proj_shape = vec4(1.0, 1.0, 0.0, 0.0);
 // Flipbook: cols, rows, frames, fps (frames < 2: none).
 uniform vec4 proj_flip = vec4(1.0, 1.0, 1.0, 0.0);
+// A static TexScaler / TexRotator over the texture, as svm_world's svm_affine rows (AquaE's rain tiles 10 times).
+uniform vec3 uv_row_u = vec3(1.0, 0.0, 0.0);
+uniform vec3 uv_row_v = vec3(0.0, 1.0, 0.0);
 // UV animation as in svm_world: type 1 pan (a.xy direction, a.z rate), 2 oscillate.
 uniform int uv_anim_type = 0;
 uniform vec4 uv_anim_a = vec4(0.0);
@@ -62,6 +65,7 @@ void fragment() {
 			discard;
 		}
 	}
+	uv = vec2(dot(uv_row_u, vec3(uv, 1.0)), dot(uv_row_v, vec3(uv, 1.0)));
 	float t = svm_time;
 	if (uv_anim_type == 1) {
 		uv += uv_anim_a.xy * uv_anim_a.z * t;

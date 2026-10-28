@@ -86,6 +86,12 @@ public sealed class MapProjectors
             material.SetShaderParameter("proj_flip", new Vector4(fb.Cols, fb.Rows, fb.Frames, fb.Fps));
         }
 
+        if (p.UvMatrix is { } m)
+        {
+            material.SetShaderParameter("uv_row_u", m.RowU);
+            material.SetShaderParameter("uv_row_v", m.RowV);
+        }
+
         if (p.UvAnim is { Code: 1 or 2 } anim)
         {
             material.SetShaderParameter("uv_anim_type", anim.Code);

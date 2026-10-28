@@ -521,6 +521,10 @@ class RenderBuilder:
                      "projectActor": bool(self.src.value(info, "bProjectActor", True))}
             if res.uv_anim:
                 entry["uvAnim"] = res.uv_anim
+            if res.uv_matrix:
+                # A static TexScaler / TexRotator over the texture (AquaE's rain: Puie.Rain, UScale 0.1, tiles the
+                # drops 10 times over the projector), as the exporter's [a, b, c, d, e, f].
+                entry["uvMatrix"] = [float(v) for v in res.uv_matrix]
             if res.flipbook:
                 fb = export_gltf._flipbook_png(res.key, res.flipbook, tex_dir, tex_uri)
                 if fb:
