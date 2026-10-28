@@ -10,6 +10,7 @@ Units:
 - uc:SBase.SPlayerController:UnPossess
 - uc:SBase.SPlayerController:EnterStartState
 - uc:SBase.SPlayerController:ClientRestart
+- uc:SBase.SPlayerController:ClientSetRotation
 - uc:SBase.SPlayerController:GivePawn
 - uc:SBase.SPlayerController:StandardReactionsToDamage (spawn protection clause only)
 - uc:SBase.SPlayerController:WaitingForPawn.BeginState
@@ -63,7 +64,9 @@ side, and the short explosion immunity after spawning.
    `Pawn.PlayTeleportEffect(true, true)`.
 7. Camera rotation: team 0 (spy) gets the start rotation plus `iSpyCam_InitAngle_Hor` on Yaw and
    `iSpyCam_InitAngle_Ver` on Pitch, each wrapped once into -32768..32767, sent with
-   `ClientSetRotation`; any other team gets `ClientSetRotation(Pawn.Rotation)`.
+   `ClientSetRotation`; any other team gets `ClientSetRotation(Pawn.Rotation)`. SPlayerController's
+   `ClientSetRotation` runs the Engine one (controller rotation, pawn yaw) and then sets `MyDesiredRotation` and
+   `LocalMyDesiredRotation` to the new controller rotation, so the aim does not swing back to the old one.
 8. `AddDefaultInventory(Pawn)`: `SBasePawn.UpdateInventory(GameMode)` then `AddDefaultGadgets(GameMode)`
    (inventory spec).
 9. `TriggerEvent(StartSpot.Event, StartSpot, Pawn)` (nothing when Event is None).

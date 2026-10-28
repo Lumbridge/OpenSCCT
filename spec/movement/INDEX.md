@@ -1421,7 +1421,6 @@ coverage can track it.
 - uc:SBase.SPlayerController:SendPawnPosition
 - uc:SBase.SPlayerController:PCChangeClientStateForMercGrabbedFromLedge
 - uc:SBase.SPlayerController:MirrorStateForMercGrabbedFromLedge
-- uc:SBase.SPlayerController:ClientSetRotation
 - uc:SBase.SPlayerController:ForceRotateTo
 - uc:SBase.SPlayerController:ClientStopRM
 - uc:SBase.SPlayerController:AntiBugTellServerIAmDead
