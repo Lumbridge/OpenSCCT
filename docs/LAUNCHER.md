@@ -38,7 +38,7 @@ come with .NET 10. The test project uses the repository's pinned xunit.v3 versio
 
 ## Version and build number
 
-The version is `VersionPrefix` in `Directory.Build.props` (0.8.25; a release passes `-p:Version`), and the build number
+The version is `VersionPrefix` in `Directory.Build.props` (0.8.26; a release passes `-p:Version`), and the build number
 is the UTC timestamp of the commit the build is made from, `yyyyMMdd.HHmm` (`Directory.Build.targets`). Both are stamped
 into every assembly; `OpenScct.Net.Discovery.BuildInfo` reads them back for the server browser, the master and the
 menus, which show "OpenSCCT 0.5.0  build 20261026.1737 (a82eaa0)" in the bottom-right corner of the main menu and
@@ -268,7 +268,15 @@ launcher finds the game, downloads the build, builds the content and then Play w
 
 ## Downloaded maps
 
-The **Maps** button (bottom row) opens a list of the maps in [SCCT-Maps](https://github.com/Lumbridge/SCCT-Maps),
+The **Maps** button (bottom row) lists every playable map of
+[OpenSCCT-Content](https://github.com/Lumbridge/OpenSCCT-Content) (docs/CONTENT-PACKS.md). These maps are already
+converted, so Download puts them in `packs\` and they are ready to play without "Prepare the game files". A map
+the player's own converted content has shows as "Converted from your game". Players with no converted game files
+get the shared packs with their first map. Maps an older launcher downloaded from SCCT-Maps still show as "old
+download". Removing one prepares the game files again; nothing new is downloaded from SCCT-Maps there. The lobby's
+missing-map download (docs/ONLINE.md "Missing maps") still reads SCCT-Maps, as described below.
+
+Before 0.8.26 the Maps button opened a list of the maps in [SCCT-Maps](https://github.com/Lumbridge/SCCT-Maps),
 read the way the SCCT Map Manager reads it (its `docs/publishing.md`): original maps (`release/<Package>/<version>`,
 newest version, names from `release/names.json`), community (with `community/_shared`), enhanced, recovered and
 ported maps, the ports released as assets (`asset-catalog.json`), and the stock SCCT Versus 4.0 maps
