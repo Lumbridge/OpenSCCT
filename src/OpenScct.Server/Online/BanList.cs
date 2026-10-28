@@ -17,6 +17,9 @@ public sealed record BanEntry
 
     public string? InstallId { get; init; }
 
+    /// <summary>The player's proven key (<see cref="PlayerKey"/>), or null when he had none.</summary>
+    public string? PlayerKey { get; init; }
+
     public string? Address { get; init; }
 
     /// <summary>A name that is banned (guests' bans and bans made before accounts); null for a signed-in player's ban.</summary>
@@ -34,8 +37,8 @@ public sealed record BanEntry
 
 /// <summary>
 /// The server's bans, kept in a JSON file (FEATURES rl:ac.bans: bans by player id and address, no hardware
-/// fingerprints). The player id is the client's install id until signed player keys exist. The wall clock comes from
-/// the host process, as the simulation libraries never read it.
+/// fingerprints). A player is matched by his master account, his signed player key, his install id, his address or
+/// (guests) his name. The wall clock comes from the host process, as the simulation libraries never read it.
 /// </summary>
 public sealed class BanList
 {
@@ -65,7 +68,7 @@ public sealed class BanList
     public IReadOnlyList<BanEntry> Entries => _entries;
 
     /// <summary>The ban matching any of the given identities, or null.</summary>
-    public BanEntry? Find(string? installId, string? address, string? name, long? accountId = null)
+    public BanEntry? Find(string? installId, string? address, string? name, long? accountId = null, string? playerKey = null)
     {
         DateTimeOffset now = _now();
         string? ip = IpOf(address);
@@ -77,6 +80,7 @@ public sealed class BanList
             }
 
             if ((e.AccountId is { } account && account == accountId) ||
+                (e.PlayerKey is { Length: > 0 } key && key == playerKey) ||
                 (e.InstallId is { Length: > 0 } id && id == installId) ||
                 (e.Address is { Length: > 0 } a && a == ip) ||
                 (e.Name is { Length: > 0 } n && string.Equals(n, name, StringComparison.OrdinalIgnoreCase)))
@@ -91,9 +95,10 @@ public sealed class BanList
     /// <summary>
     /// Bans a player for <paramref name="minutes"/> (0: for good) and saves the list. A signed-in player
     /// (<paramref name="accountId"/>) is banned by account, install id and address; his name is kept as the label
-    /// only, as the account already covers it.
+    /// only, as the account already covers it. A player with a proven key is banned by it too.
     /// </summary>
-    public BanEntry Add(string? installId, string? address, string? name, string reason, int minutes, long? accountId = null)
+    public BanEntry Add(string? installId, string? address, string? name, string reason, int minutes, long? accountId = null,
+        string? playerKey = null)
     {
         DateTimeOffset now = _now();
         string? cleanName = string.IsNullOrEmpty(name) ? null : name;
@@ -101,6 +106,7 @@ public sealed class BanList
         {
             AccountId = accountId,
             InstallId = string.IsNullOrEmpty(installId) ? null : installId,
+            PlayerKey = string.IsNullOrEmpty(playerKey) ? null : playerKey,
             Address = IpOf(address),
             Name = accountId is null ? cleanName : null,
             Label = cleanName,
@@ -113,11 +119,15 @@ public sealed class BanList
         return entry;
     }
 
-    /// <summary>Removes bans matching an account id, install id, address, name or label; returns how many.</summary>
+    /// <summary>
+    /// Removes bans matching an account id, player key (or its first 12 or more characters, as the console shows it),
+    /// install id, address, name or label; returns how many.
+    /// </summary>
     public int Remove(string what)
     {
         long? account = long.TryParse(what, NumberStyles.None, CultureInfo.InvariantCulture, out long a) ? a : null;
         int n = _entries.RemoveAll(e => (account is not null && e.AccountId == account) || e.InstallId == what || e.Address == what ||
+            (what.Length >= 12 && e.PlayerKey is { } key && key.StartsWith(what, StringComparison.Ordinal)) ||
             string.Equals(e.Name, what, StringComparison.OrdinalIgnoreCase) || string.Equals(e.Label, what, StringComparison.OrdinalIgnoreCase));
         if (n > 0)
         {

@@ -151,6 +151,7 @@ public partial class OptionsRuntime : Node
             Hud.Options.StretchHud = !s.Widescreen;
             Hud.ShowFps = s.ShowFps;
             Hud.ShowNet = s.ShowNet;
+            Hud.Net.ShowLoss = s.ShowNetLoss;
             Hud.ShowLocation = s.ShowLocation;
             Hud.DistanceInFeet = s.HudFeet;
             Hud.Markers.HackAlpha = s.HackAlpha / 255f;

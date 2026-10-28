@@ -10,4 +10,7 @@
     <ProjectReference Include="..\OpenScct.Net\OpenScct.Net.csproj" />
     <ProjectReference Include="..\OpenScct.Content\OpenScct.Content.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="BouncyCastle.Cryptography" />
+  </ItemGroup>
 </Project>

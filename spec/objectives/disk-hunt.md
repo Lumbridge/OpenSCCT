@@ -186,5 +186,7 @@ stateDiagram-v2
 
 1. The order of `AllActors` and `Triggers` in the original is the map's; random picks will not match the original's
    C runtime sequence, so a difftest can only compare counts and group spread.
-2. Whether a dedicated server animates pawns so that `AnimNotifyPickup` runs there (the rewrite runs the hand
-   release at `s_Pickup.EndState` until script anim notifies are dispatched).
+2. Whether the original's dedicated server animates pawns so that `AnimNotifyPickup` runs there. The rewrite's
+   servers play the pawn clips and dispatch their script notifies (`Movement/MovementNotifies.cs` registers
+   `AnimNotifyPickup`); as a safety net for a pawn with no animation content, `s_Pickup.EndState` still frees a hand
+   that holds a disk (an OpenSCCT choice: the original would leave the disk in the hand).

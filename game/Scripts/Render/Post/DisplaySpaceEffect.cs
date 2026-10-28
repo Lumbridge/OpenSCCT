@@ -118,6 +118,8 @@ public partial class DisplaySpaceEffect : CompositorEffect
     private volatile DisplayPostSettings _settings = new();
     private uint _frame;
     private uint _grain = 0x2545F491u;
+    // The colour buffer as a storage image (a copy of it with MSAA, rl:gfx.aa).
+    private readonly StorageColor _storage = new("display post");
 
     public DisplaySpaceEffect()
     {
@@ -180,6 +182,7 @@ public partial class DisplaySpaceEffect : CompositorEffect
         {
             // On the render thread, between frames: the pass stops drawing before its resources go.
             _rd = null;
+            _storage.Free();
             foreach (Rid rid in rids)
             {
                 if (rid.IsValid)
@@ -443,7 +446,12 @@ public partial class DisplaySpaceEffect : CompositorEffect
         uint views = buffers.GetViewCount();
         for (uint view = 0; view < views; view++)
         {
-            Rid color = buffers.GetColorLayer(view);
+            Rid color = _storage.Begin(_rd, buffers.GetColorLayer(view), size);
+            if (!color.IsValid)
+            {
+                continue;
+            }
+
             Rid depth = buffers.GetDepthLayer(view);
             if (glow)
             {
@@ -473,6 +481,8 @@ public partial class DisplaySpaceEffect : CompositorEffect
             {
                 Main(values, StageFog | StageGlow | StageVision, color, depth, size);
             }
+
+            _storage.End();
         }
     }
 
