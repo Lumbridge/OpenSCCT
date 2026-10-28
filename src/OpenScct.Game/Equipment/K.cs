@@ -147,8 +147,17 @@ public static partial class K
     [Provenance(ProvenanceKind.Decoded, "SWeaponFirst.ukx WaitP190 5 frames at 15 fps")]
     public static readonly ClipData WaitP190 = new(5, 15f);
 
-    [Provenance(ProvenanceKind.Estimated, "FirstButtStFd2 clip data not decoded: about the strike's 0.6 s")]
-    public static readonly ClipData FirstButtStFd2 = new(10, 15f);
+    [Provenance(ProvenanceKind.Decoded, "SWeaponFirst.ukx FirstButtStFd2 17 frames at 15 fps")]
+    public static readonly ClipData FirstButtStFd2 = new(17, 15f);
+
+    [Provenance(ProvenanceKind.Decoded, "SWeaponFirst.ukx FirstMineStBg2 7 frames at 15 fps")]
+    public static readonly ClipData FirstMineStBg2 = new(7, 15f);
+
+    [Provenance(ProvenanceKind.Decoded, "SWeaponFirst.ukx FirstMineStNt2 11 frames at 15 fps")]
+    public static readonly ClipData FirstMineStNt2 = new(11, 15f);
+
+    [Provenance(ProvenanceKind.Decoded, "SWeaponFirst.ukx FirstMineStEd2 15 frames at 15 fps")]
+    public static readonly ClipData FirstMineStEd2 = new(15, 15f);
 
     [Provenance(ProvenanceKind.Estimated, "FirstAtakChEd2 clip data not decoded: the 0.4 s charge run-out")]
     public static readonly ClipData FirstAtakChEd2 = new(7, 15f);

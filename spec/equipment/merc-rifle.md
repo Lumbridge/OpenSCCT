@@ -21,6 +21,14 @@ Units:
   uc:SBase.SWeaponDefense:s_IdleInHolster.EndState, uc:SBase.SWeaponDefense:s_IdleGrabbed.Tick, uc:SBase.SWeaponDefense:s_IdleGrabbed.AnimEnd,
   uc:SBase.SWeaponDefense:s_IdleGrabbed.BeginState
 - uc:SBase.SWeaponDefense:s_Dmg_Electric.BeginState, uc:SBase.SWeaponDefense:s_Dmg_Electric.EndState, uc:SBase.SWeaponDefense:s_Dmg_Electric_End.BeginState
+- uc:SBase.SWeaponDefense:s_Interacting.BeginState, uc:SBase.SWeaponDefense:s_Interacting.AnimEnd,
+  uc:SBase.SWeaponDefense:s_DropMine_Grab.BeginState, uc:SBase.SWeaponDefense:s_DropMine_Grab.AnimEnd,
+  uc:SBase.SWeaponDefense:s_DropMine_Grab.AnimateUnDraw_GRAB, uc:SBase.SWeaponDefense:s_DropMine_UnGrab.BeginState,
+  uc:SBase.SWeaponDefense:s_DropMine_UnGrab.AnimEnd, uc:SBase.SWeaponDefense:s_DropMine_UnGrab.AnimateUnDraw_GRAB,
+  uc:SBase.SWeaponDefense:s_DropMine_Loop.BeginState, uc:SBase.SWeaponDefense:s_DropMine_Loop.AnimateUnDraw_GRAB,
+  uc:SBase.SWeaponDefense:s_DropMine.BeginState, uc:SBase.SWeaponDefense:s_DropMine.AnimEnd,
+  uc:SBase.SWeaponDefense:s_DropMine.AnimateUnDraw_GRAB, uc:SBase.SWeaponDefense:s_DropMine_Abort.BeginState,
+  uc:SBase.SWeaponDefense:s_DropMine_Abort.AnimateUnDraw_GRAB
 - uc:SBase.SWeaponDefense:AnimateDraw, uc:SBase.SWeaponDefense:AnimateUnDraw, uc:SBase.SWeaponDefense:AnimateUnDraw_GRAB,
   uc:SBase.SWeaponDefense:AnimateWaiting, uc:SBase.SWeaponDefense:AnimEnd, uc:SBase.SWeaponDefense:AnimateReanimate,
   uc:SBase.SWeaponDefense:AnimateJump, uc:SBase.SWeaponDefense:AnimateLand, uc:SBase.SWeaponDefense:AnimateLandHigh,
@@ -295,6 +303,16 @@ native TraceFire override (nat:SBase.SWeaponDefense_Shotgun.TraceFire at 0x10ab9
     empty, `Reload` and `FullReload` return false, `GetFireStart` is the eye point, `RenderHUD` prints the name and
     ammo (debug). In SWeaponDefense `AltFire`, `DrawDispersionReticle`, `SpawnFireTrace` and `CreateSmoke1` are empty;
     `DisplayDebug` prints state and ammo.
+27. **Hand moves** (owner's machine). While the merc works an object (`s_InteractWithObjectWaitingEvent`) the rifle
+    goes to `s_Interacting`: laser off, the button clip FirstButtStFd2 on channel 0; any clip end turns the laser back
+    on, and the end on channel 0 plays the idle loop and returns to `s_Selected`. A wall mine drives four states from
+    the controller's mine states: `s_DropMine_Grab` (FirstMineStBg2, then `s_DropMine_Loop`), `s_DropMine_Loop`
+    (FirstMineStNt2 looping), `s_DropMine` (FirstMineStEd2, the mine set) and `s_DropMine_UnGrab` (FirstMineStBg2
+    backward, the mine put away); each turns the laser off at its start, and the last two play the idle loop, turn the
+    laser back on and return to `s_Selected` at their end on channel 0. `s_DropMine_Abort` plays the idle loop and
+    returns to the state before. In all five mine states `AnimateUnDraw_GRAB` (being grabbed) turns the laser back on,
+    goes to `s_Selected` and plays the grab clip FirstGrbdStBg2. Clip lengths: FirstButtStFd2 17 frames, FirstMineStBg2
+    7, FirstMineStNt2 11, FirstMineStEd2 15, all at 15 fps.
 
 ## States
 ```mermaid

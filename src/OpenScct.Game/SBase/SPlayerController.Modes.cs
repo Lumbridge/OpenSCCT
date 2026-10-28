@@ -100,6 +100,23 @@ public partial class SPlayerController
         }
     }
 
+    /// <summary>
+    /// A controller that goes away (a player who disconnects) drops his flag on the server first, so the disk does not
+    /// leave with him (disk-flag.md rule 16). The pawn must still exist, so the server destroys the controller before
+    /// the pawn.
+    /// </summary>
+    [Uc("SBase.SPlayerController.Destroyed", Sha1 = "5de7db05a9439460ffcc6eb895c0764956873def")]
+    [PortOf("uc:SBase.SPlayerController:Destroyed", Spec = "spec/objectives/disk-flag.md#rules")]
+    protected override void Destroyed()
+    {
+        if (Role == ENetRole.ROLE_Authority)
+        {
+            DiscardFlag();
+        }
+
+        base.Destroyed();
+    }
+
     /// <summary>A living spy at a bomb spot starts the plant (bomb-target.md rule 4).</summary>
     [Uc("SBase.SPlayerController.ServerPlaceBomb", Sha1 = "305d9639cf247d1ed70681cde98b2c09324b28da")]
     [PortOf("uc:SBase.SPlayerController:ServerPlaceBomb", Spec = "spec/objectives/bomb-target.md#rules")]
