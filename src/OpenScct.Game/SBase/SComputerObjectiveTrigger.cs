@@ -1,5 +1,6 @@
 using OpenScct.Core;
 using OpenScct.Core.Engine;
+using OpenScct.Core.Uc;
 using OpenScct.Game.Objectives;
 using OpenScct.Provenance;
 
@@ -244,7 +245,24 @@ public partial class SComputerObjectiveTrigger
             return;
         }
 
-        LocalSkinState = SkinState;
+        if (SkinState != LocalSkinState)
+        {
+            // The screen (Skins[1]): the mesh's own standby material when idle, else the state's skin.
+            LocalSkinState = SkinState;
+            while (Skins.Count < 2)
+            {
+                Skins.Add(AssetRef.None);
+            }
+
+            Skins[1] = SkinState switch
+            {
+                SKIN_Triggering => SkinTriggering,
+                SKIN_Locked => SkinLocked,
+                SKIN_Hacked => SkinHacked,
+                _ => AssetRef.None,
+            };
+        }
+
         if (Role == ENetRole.ROLE_Authority)
         {
             // The native reads Objective without a guard; a terminal without an objective keeps counting here.

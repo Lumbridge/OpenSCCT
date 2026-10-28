@@ -32,7 +32,8 @@ with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "class_defaul
     CLASS_DEFAULTS: Dict[str, dict] = json.load(_f)
 # "trigger_" is not a helper word: trigger_hack, trigger_urgence, trigger_scan and Trigger_Vert are the hack panels,
 # emergency buttons and scanners the game draws. A sprite SInterrupteur (trigger_standard) is hidden by its DrawType.
-HIDDEN_MESH_WORDS = ("help_path", "path_circle", "fakewarp", "nullobj", "_collision", "blocking")
+# Not "fakewarp": fakewarp_aqa is the big Aqua* tank's backdrop (green sand floor and algae wall), drawn by the game.
+HIDDEN_MESH_WORDS = ("help_path", "path_circle", "nullobj", "_collision", "blocking")
 DT_STATICMESH = 8
 
 # UE2 ELightType / ELightEffect values, read from the live game's Engine.Actor enums.

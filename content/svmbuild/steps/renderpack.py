@@ -62,8 +62,12 @@ VISION_DEFAULTS = {
 GAMEPLAY_PACKAGE = "SGameplayObjects"
 # Materials gameplay actors put in Skins at run time over the gameplay meshes (no mesh section uses them), exported
 # with the gameplay meshes: the camera and sensor LEDs (SCamera / SVolumetricSensor LightGreen, LightRed, LightOff,
-# skin 1) and the yellow LED four sensors are placed with.
+# skin 1), the yellow LED four sensors are placed with, and the terminal screens (SComputerObjectiveTrigger
+# SkinTriggering, SkinLocked, SkinHacked, skin 1; spec/objectives/terminal-hack.md rule 31).
 GAMEPLAY_SKINS = (
+    "SGameplayObjectsTex.Neutralisation.FX_neutre_hack_heat",
+    "SGameplayObjectsTex.Neutralisation.FX_neutre_locked_heat",
+    "SGameplayObjectsTex.Neutralisation.FX_hacked",
     "SGameplayObjectsTex_led.SGPO.heat_SI_alarm_greenA",
     "SGameplayObjectsTex_led.SGPO.heat_SI_alarm_green_cligA",
     "SGameplayObjectsTex_led.SGPO.heat_si_alarm_redA",
