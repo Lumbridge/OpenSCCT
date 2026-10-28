@@ -266,12 +266,57 @@ public sealed class ActorLighting
             spot);
     }
 
+    private static readonly StringName EchelonMeta = "svm_echelon_ignore";
+
+    /// <summary>
+    /// The spot shadow lights an actor skips, as the template's Echelon code (<see cref="RenderMap.EchelonCode"/>).
+    /// An LE_ESpotShadow light lights an actor unless the light is static and the actor has bIgnoreEchelonLighting,
+    /// the light is dynamic and the actor has bIgnoreDynamicEchelonLighting, the light is in the actor's
+    /// IgnoredEchelonLights or the actor's GlassEffect is set.
+    /// </summary>
+    [Provenance(ProvenanceKind.Decoded, "game 0x10a37310, called by the actor light gathering 0x10a37610 for LightEffect 22 only")]
+    public static int EchelonCode(RenderMap map, GameplayActor actor)
+    {
+        ArgumentNullException.ThrowIfNull(map);
+        ArgumentNullException.ThrowIfNull(actor);
+        int flags = actor.Int("GlassEffect") != 0
+            ? 3
+            : (actor.Bool("bIgnoreEchelonLighting") ? 1 : 0) | (actor.Bool("bIgnoreDynamicEchelonLighting") ? 2 : 0);
+        List<string>? lights = null;
+        if (actor.TryGet("IgnoredEchelonLights", out System.Text.Json.JsonElement list) && list.ValueKind == System.Text.Json.JsonValueKind.Array)
+        {
+            foreach (System.Text.Json.JsonElement item in list.EnumerateArray())
+            {
+                // {"$actor": "STriggerLight6899"} or {"$asset": "AquaE.Light7159"}: the light's name is the last part.
+                string? path = item.ValueKind != System.Text.Json.JsonValueKind.Object ? null
+                    : item.TryGetProperty("$actor", out System.Text.Json.JsonElement a) ? a.GetString()
+                    : item.TryGetProperty("$asset", out System.Text.Json.JsonElement b) ? b.GetString() : null;
+                if (!string.IsNullOrEmpty(path))
+                {
+                    (lights ??= []).Add(path[(path.LastIndexOf('.') + 1)..]);
+                }
+            }
+        }
+
+        return map.EchelonCode(flags, lights);
+    }
+
+    /// <summary>Sets the Echelon code of an actor-lit instance (<see cref="EchelonCode"/>); kept by later <see cref="Apply"/> calls.</summary>
+    public static void SetEchelonIgnore(GeometryInstance3D node, int code)
+    {
+        ArgumentNullException.ThrowIfNull(node);
+        node.SetMeta(EchelonMeta, (float)code);
+        Vector4 ambient = node.GetInstanceShaderParameter(AmbientParam).AsVector4();
+        node.SetInstanceShaderParameter(AmbientParam, new Vector4(ambient.X, ambient.Y, ambient.Z, code));
+    }
+
     /// <summary>Writes a light set onto a drawn instance (its material must use the actor-lit template).</summary>
     public static void Apply(GeometryInstance3D node, ActorLightSet set)
     {
         ArgumentNullException.ThrowIfNull(node);
         ArgumentNullException.ThrowIfNull(set);
-        node.SetInstanceShaderParameter(AmbientParam, new Vector4(set.Ambient.X, set.Ambient.Y, set.Ambient.Z, 0f));
+        float echelon = node.HasMeta(EchelonMeta) ? (float)node.GetMeta(EchelonMeta) : 0f;
+        node.SetInstanceShaderParameter(AmbientParam, new Vector4(set.Ambient.X, set.Ambient.Y, set.Ambient.Z, echelon));
         for (int i = 0; i < RenderK.MaxActorLights; i++)
         {
             PackedLight p = i < set.Count ? set.Lights[i] : default;

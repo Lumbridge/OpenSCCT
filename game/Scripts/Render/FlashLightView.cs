@@ -162,7 +162,7 @@ public sealed partial class FlashLightView : Node
 
         var shape = new SpotShadowShape(MathF.Max(best.EchelonRange, 1f), best.SpotWidth, best.SpotHeight, best.NearPlaneRatio,
             best.LightBrightness, best.LightHue, best.LightSaturation, best.EchelonNormalInfluence, RenderK.TorchAttenuation,
-            RenderPack.TorchCookie);
+            RenderPack.TorchCookie, best.bDynamicLight);
         if (_projo is not null && _projo.Shape != shape)
         {
             _projo.On = false;

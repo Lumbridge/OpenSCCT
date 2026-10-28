@@ -303,7 +303,8 @@ class RenderBuilder:
             for k_src, k_dst in (("prepivot", "prePivot"), ("vertex_lit", "vertexLit"), ("authored_vc", "authoredColors"),
                                  ("vc_max", "bakedColorMax"), ("unlit", "unlit"), ("ambient_glow", "ambientGlow"),
                                  ("cull_distance", "cullDistance"), ("sky_zone", "skyZone"), ("skins", "skins"),
-                                 ("projector_of", "projectorOf"), ("keypos", "keyPos"), ("basepos", "basePos")):
+                                 ("projector_of", "projectorOf"), ("keypos", "keyPos"), ("basepos", "basePos"),
+                                 ("echelon_ignore", "echelonIgnore"), ("ignored_echelon_lights", "ignoredEchelonLights")):
                 if k_src in a:
                     entry[k_dst] = a[k_src]
             if a["name"] in vision:

@@ -13,6 +13,8 @@ internal sealed class SurfaceBuilder
     private readonly List<Vector2> _uv2s = [];
     private readonly List<Color> _colours = [];
     private readonly List<float> _vision = [];
+    private readonly List<float> _echelon = [];
+    private bool _anyEchelon;
     private readonly List<int> _indices = [];
 
     public SurfaceBuilder(bool hasUv2, bool hasColour, bool hasVision = false)
@@ -36,6 +38,12 @@ internal sealed class SurfaceBuilder
 
     /// <summary>The vision values the next <see cref="Add"/> writes (merged surfaces only).</summary>
     public Vector4 Vision { get; set; } = DefaultVision;
+
+    /// <summary>
+    /// The Echelon code the next <see cref="Add"/> writes (RenderMap.EchelonCode: the spot shadow lights the surface
+    /// skips), carried in CUSTOM1 when any vertex has one.
+    /// </summary>
+    public int Echelon { get; set; }
 
     public bool HasUv2 { get; }
 
@@ -105,6 +113,8 @@ internal sealed class SurfaceBuilder
             _colours.Add(c);
         }
 
+        _echelon.Add(Echelon);
+        _anyEchelon |= Echelon != 0;
         if (HasVision)
         {
             // w + 2 marks the stream as present: a mesh without CUSTOM0 reads w below 1.5.
@@ -139,6 +149,12 @@ internal sealed class SurfaceBuilder
         {
             arrays[(int)Mesh.ArrayType.Custom0] = _vision.ToArray();
             flags = (Mesh.ArrayFormat)((long)Mesh.ArrayCustomFormat.RgbaFloat << (int)Mesh.ArrayFormat.FormatCustom0Shift);
+        }
+
+        if (_anyEchelon)
+        {
+            arrays[(int)Mesh.ArrayType.Custom1] = _echelon.ToArray();
+            flags |= (Mesh.ArrayFormat)((long)Mesh.ArrayCustomFormat.RFloat << (int)Mesh.ArrayFormat.FormatCustom1Shift);
         }
 
         mesh.AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, arrays, null, null, flags);

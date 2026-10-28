@@ -91,6 +91,7 @@ public sealed class MapSpotLights : IDisposable
                 light = new SpotShadowLight(_parent, _map.Pack, SpotShadowShape.Of(l, e), cookie)
                 {
                     Zone = l.OwnZoneOnly ? l.ZoneIndex : -1,
+                    LightName = l.Name,
                 };
                 _drawn[l] = light;
             }

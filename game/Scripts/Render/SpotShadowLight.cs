@@ -19,13 +19,15 @@ namespace OpenScctGame.Render;
 /// <param name="NormalInfluence">EchelonNormalInfluence: 0 lights every surface fully, 1 by N.L.</param>
 /// <param name="Attenuation">EchelonLightingMaterial.AttenuationType: 0 none, 1 linear, 2 late.</param>
 /// <param name="Cookie">Object path of the projected texture in the render pack.</param>
+/// <param name="Dynamic">bDynamicLight: actors with bIgnoreDynamicEchelonLighting skip it, those with
+/// bIgnoreEchelonLighting skip the others (game 0x10a37310).</param>
 public sealed record SpotShadowShape(float Range, float SpotWidth, float SpotHeight, float NearPlaneRatio, float Brightness, byte Hue,
-    byte Saturation, float NormalInfluence, int Attenuation, string Cookie)
+    byte Saturation, float NormalInfluence, int Attenuation, string Cookie, bool Dynamic = false)
 {
     /// <summary>The merc torch, SGadTorche (spec/equipment/merc-flashlight.md): Echelon.Torche cookie, linear attenuation, no normal influence.</summary>
     public static SpotShadowShape Torch { get; } = new(RenderK.TorchRange, RenderK.TorchSpotSize, RenderK.TorchSpotSize,
         RenderK.TorchNearPlaneRatio, RenderK.TorchBrightness, RenderK.TorchHue, RenderK.TorchSaturation, 0f, RenderK.TorchAttenuation,
-        RenderPack.TorchCookie);
+        RenderPack.TorchCookie, Dynamic: true);
 
     /// <summary>
     /// A map LE_ESpotShadow light's shape (its cookie is a map texture, passed to the light separately). A light without
@@ -38,7 +40,7 @@ public sealed record SpotShadowShape(float Range, float SpotWidth, float SpotHei
         ArgumentNullException.ThrowIfNull(l);
         ArgumentNullException.ThrowIfNull(e);
         return new SpotShadowShape(MathF.Max(e.Range, 1f), MathF.Max(e.Width, 1f), MathF.Max(e.Height, 1f), e.NearPlaneRatio, l.Brightness,
-            l.Hue, l.Saturation, e.NormalInfluence, e.Attenuation, e.Texture ?? RenderPack.SpotCookie);
+            l.Hue, l.Saturation, e.NormalInfluence, e.Attenuation, e.Texture ?? RenderPack.SpotCookie, l.Dynamic);
     }
 
     /// <summary>The apex distance behind the light in uu (p x Range / (1 - p)), or null for parallel rays.</summary>
@@ -67,6 +69,7 @@ public sealed partial class SpotShadowLight : IDisposable
     public const string ParamDepth = "svm_spot_depth";
     public const string ParamCookies = "svm_spot_cookies";
     public const string ParamAttenuation = "svm_spot_atten";
+    public const string ParamIgnore = "svm_spot_ignore";
 
     /// <summary>Texels per slot row of the slot texture (the template's layout, svm_world.gdshaderinc).</summary>
     private const int SlotTexels = 8;
@@ -107,6 +110,13 @@ public sealed partial class SpotShadowLight : IDisposable
     private static readonly StringName s_cookiesName = ParamCookies;
 
     private static bool s_globalsAdded;
+
+    // The map's IgnoredEchelonLights groups (RenderMap.EchelonGroups; group 0 is empty) and the slot x group table the
+    // template reads (1 where the group ignores the light in that slot), rebuilt when a slot or the groups change.
+    private static IReadOnlyList<IReadOnlySet<string>> s_ignoreGroups = [];
+    private static Image? s_ignore;
+    private static ImageTexture? s_ignoreTexture;
+    private static bool s_ignoreDirty = true;
 
     // The slots (shared by every spot shadow light), their parameter rows and the atlas.
     private static readonly SpotShadowLight?[] s_slots = new SpotShadowLight?[RenderK.SpotShadowSlots];
@@ -151,6 +161,7 @@ public sealed partial class SpotShadowLight : IDisposable
         if (_slot >= 0)
         {
             s_slots[_slot] = this;
+            s_ignoreDirty = true;
         }
 
         EnsureAtlas();
@@ -202,6 +213,9 @@ public sealed partial class SpotShadowLight : IDisposable
     }
 
     public SpotShadowShape Shape { get; }
+
+    /// <summary>The light actor's name (map lights), matched against IgnoredEchelonLights; null for the torch.</summary>
+    public string? LightName { get; init; }
 
     /// <summary>Where the light is and where it points (UE), as last placed.</summary>
     public (FVector Location, FRotator Rotation) Placement { get; private set; }
@@ -272,7 +286,7 @@ public sealed partial class SpotShadowLight : IDisposable
         SetRow(_slot, 1, new Vector4(b.Row1.X, b.Row1.Y, b.Row1.Z, view.Origin.Y));
         SetRow(_slot, 2, new Vector4(b.Row2.X, b.Row2.Y, b.Row2.Z, view.Origin.Z));
         float range = UeSpace.LengthToGodot(Shape.Range);
-        SetRow(_slot, 3, new Vector4(1f, range, Shape.NormalInfluence, Shape.Attenuation));
+        SetRow(_slot, 3, new Vector4(Shape.Dynamic ? 2f : 1f, range, Shape.NormalInfluence, Shape.Attenuation));
         Vector3 c = _colour * Scale;
         SetRow(_slot, 4, new Vector4(c.X, c.Y, c.Z, UeSpace.LengthToGodot(_apex)));
         float aspect = _size.X / (float)_size.Y;
@@ -303,6 +317,11 @@ public sealed partial class SpotShadowLight : IDisposable
 
     private static void Flush()
     {
+        if (s_ignoreDirty)
+        {
+            RebuildIgnore();
+        }
+
         s_rowsTexture?.Update(s_rows);
         int count = 0;
         for (int i = 0; i < s_slots.Length; i++)
@@ -329,12 +348,66 @@ public sealed partial class SpotShadowLight : IDisposable
             RenderingServer.GlobalShaderParameterAdd(ParamDepth, RenderingServer.GlobalShaderParameterType.Sampler2D, s_noDepth);
             RenderingServer.GlobalShaderParameterAdd(ParamCookies, RenderingServer.GlobalShaderParameterType.Sampler2Darray, Cookies());
             RenderingServer.GlobalShaderParameterAdd(ParamAttenuation, RenderingServer.GlobalShaderParameterType.Sampler2D, Ramps(null));
+            s_ignore = Image.CreateEmpty(RenderK.SpotShadowSlots, 1, false, Image.Format.Rf);
+            s_ignoreTexture = ImageTexture.CreateFromImage(s_ignore);
+            RenderingServer.GlobalShaderParameterAdd(ParamIgnore, RenderingServer.GlobalShaderParameterType.Sampler2D, s_ignoreTexture);
             s_globalsAdded = true;
         }
 
         if (pack is not null)
         {
             RenderingServer.GlobalShaderParameterSet(ParamAttenuation, Ramps(pack));
+        }
+    }
+
+    /// <summary>
+    /// Sets the map's IgnoredEchelonLights groups (<see cref="RenderMap.EchelonGroups"/>): surfaces of group g skip the
+    /// slots whose light group g names (game 0x10a37310).
+    /// </summary>
+    public static void SetIgnoreGroups(IReadOnlyList<IReadOnlySet<string>> groups)
+    {
+        ArgumentNullException.ThrowIfNull(groups);
+        EnsureGlobals();
+        s_ignoreGroups = groups;
+        RebuildIgnore();
+    }
+
+    private static void RebuildIgnore()
+    {
+        s_ignoreDirty = false;
+        if (!s_globalsAdded)
+        {
+            return;
+        }
+
+        int rows = Math.Max(1, s_ignoreGroups.Count);
+        var image = Image.CreateEmpty(RenderK.SpotShadowSlots, rows, false, Image.Format.Rf);
+        for (int slot = 0; slot < s_slots.Length; slot++)
+        {
+            if (s_slots[slot]?.LightName is not { } name)
+            {
+                continue;
+            }
+
+            for (int g = 1; g < s_ignoreGroups.Count; g++)
+            {
+                if (s_ignoreGroups[g].Contains(name))
+                {
+                    image.SetPixel(slot, g, new Color(1f, 0f, 0f));
+                }
+            }
+        }
+
+        if (s_ignore is not null && s_ignore.GetSize() == image.GetSize())
+        {
+            s_ignore = image;
+            s_ignoreTexture!.Update(image);
+        }
+        else
+        {
+            s_ignore = image;
+            s_ignoreTexture = ImageTexture.CreateFromImage(image);
+            RenderingServer.GlobalShaderParameterSet(ParamIgnore, s_ignoreTexture);
         }
     }
 
@@ -462,6 +535,7 @@ public sealed partial class SpotShadowLight : IDisposable
         {
             SetRow(_slot, 3, Vector4.Zero);
             s_slots[_slot] = null;
+            s_ignoreDirty = true;
             Flush();
         }
 

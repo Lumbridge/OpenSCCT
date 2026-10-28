@@ -265,6 +265,10 @@ public static class GameplayObjects
             if (actors.Find(g.ActorId) is { } actor)
             {
                 g.Node.SetInstanceShaderParameter(VisionActorParameter, actor.Vision());
+                if (g.Light == LightSource.Actor)
+                {
+                    ActorLighting.SetEchelonIgnore(g.Node, ActorLighting.EchelonCode(map, actor));
+                }
             }
         }
     }

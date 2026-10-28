@@ -147,7 +147,7 @@ uniform vec4 flipbook = vec4(1.0, 1.0, 1.0, 30.0);
 
 #ifdef LIGHT_ACTOR
 // Actor lighting (docs/RENDERING.md#actor-lighting): ambient plus the four strongest lights, set per instance in
-// the svm_one_light layout below.
+// the svm_one_light layout below. svm_ambient.w holds the actor's Echelon code (v_echelon).
 instance uniform vec4 svm_ambient = vec4(0.0);
 instance uniform vec4 svm_l0_pos = vec4(0.0);
 instance uniform vec4 svm_l0_col = vec4(0.0);
@@ -216,7 +216,8 @@ vec3 svm_one_light(vec4 pos, vec4 col, vec4 spot, vec3 wp, vec3 wn, int falloff)
 // docs/RENDERING.md#spot-shadow-lights), per pixel on the light stage: colour x cookie x attenuation x shadow, N.L by
 // the normal influence. One row of svm_spots per slot:
 //   0-2 world to the light camera's view (3 x 4; the camera sits at the frustum's apex)
-//   3   x on, y range (m), z normal influence, w attenuation (0 none, 1 linear, 2 late)
+//   3   x on (1 a static light, 2 bDynamicLight), y range (m), z normal influence, w attenuation (0 none, 1 linear,
+//       2 late)
 //   4   rgb gain x colour, a distance from the apex to the light (m): the lit span starts there
 //   5   x, y the view to clip scale (perspective: divided by depth), z 1 for parallel rays, w cookie layer
 //   6   the slot's tile of the depth atlas (uv origin, uv size)
@@ -226,8 +227,14 @@ global uniform int svm_spot_count;
 global uniform sampler2D svm_spot_depth;
 global uniform sampler2DArray svm_spot_cookies;
 global uniform sampler2D svm_spot_atten;
+// IgnoredEchelonLights: one row per group of the map's lists (row 0 none), one texel per slot, 1 where the group
+// ignores the slot's light (SpotShadowLight.SetIgnoreGroups).
+global uniform sampler2D svm_spot_ignore;
 varying vec3 v_wpos;
 varying vec3 v_wnormal;
+// The surface's Echelon code (RenderMap.EchelonCode): bit 0 skips static spot shadow lights, bit 1 dynamic ones, the
+// rest the IgnoredEchelonLights group. Actors: svm_ambient.w; other surfaces: CUSTOM1.x (0 without the stream).
+varying flat float v_echelon;
 
 // One filtered shadow lookup (the depth map compared at the four nearest texels, blended bilinearly, as hardware
 // shadow filtering does), kept inside the slot's tile. 1 lit, 0 shadowed.
@@ -258,9 +265,14 @@ float svm_spot_shadow(vec4 tile, vec2 suv, float zref, float soft) {
 	return sum * 0.125;
 }
 
-vec3 svm_spot_slot(int i, vec3 wp, vec3 wn, float zone) {
+// ignore: the surface's Echelon code (v_echelon; game 0x10a37310).
+vec3 svm_spot_slot(int i, vec3 wp, vec3 wn, float zone, int ignore) {
 	vec4 a = texelFetch(svm_spots, ivec2(3, i), 0);
-	if (a.x < 0.5) {
+	if (a.x < 0.5 || (ignore & (a.x > 1.5 ? 2 : 1)) != 0) {
+		return vec3(0.0);
+	}
+	int group = ignore >> 2;
+	if (group > 0 && group < textureSize(svm_spot_ignore, 0).y && texelFetch(svm_spot_ignore, ivec2(i, group), 0).r > 0.5) {
 		return vec3(0.0);
 	}
 	vec4 e = texelFetch(svm_spots, ivec2(7, i), 0);
@@ -296,11 +308,12 @@ vec3 svm_spot_slot(int i, vec3 wp, vec3 wn, float zone) {
 	return c.rgb * cookie * atten * mix(1.0, ndl, a.z) * shadow;
 }
 
-// Every spot shadow light at a surface point; zone is the surface's zone (-1 unknown: own-zone lights still reach it).
-vec3 svm_spot_light(vec3 wp, vec3 wn, float zone) {
+// Every spot shadow light at a surface point; zone is the surface's zone (-1 unknown: own-zone lights still reach it),
+// ignore its Echelon flags (svm_spot_slot).
+vec3 svm_spot_light(vec3 wp, vec3 wn, float zone, int ignore) {
 	vec3 sum = vec3(0.0);
 	for (int i = 0; i < svm_spot_count; i++) {
-		sum += svm_spot_slot(i, wp, wn, zone);
+		sum += svm_spot_slot(i, wp, wn, zone, ignore);
 	}
 	return sum;
 }
@@ -338,6 +351,11 @@ void vertex() {
 #if defined(LIGHT_LIGHTMAP) || defined(LIGHT_VERTEX) || defined(LIGHT_ACTOR)
 	v_wpos = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
 	v_wnormal = MODEL_NORMAL_MATRIX * NORMAL;
+#ifdef LIGHT_ACTOR
+	v_echelon = svm_ambient.w;
+#else
+	v_echelon = CUSTOM1.x;
+#endif
 #endif
 #ifdef LIGHT_ACTOR
 	vec3 wp = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
@@ -456,9 +474,10 @@ void fragment() {
 #else
 	float zone = -1.0;
 #endif
+	int echelon_ignore = int(v_echelon + 0.5);
 	// Zone 255 (MapBuilder.AuthoredOverlayZone): an additive mesh with painted colours, lit by its colours alone.
 	bool overlay = zone > 254.5;
-	vec3 spot = svm_spot_count > 0 && !overlay ? svm_spot_light(v_wpos, wn, zone) : vec3(0.0);
+	vec3 spot = svm_spot_count > 0 && !overlay ? svm_spot_light(v_wpos, wn, zone, echelon_ignore) : vec3(0.0);
 #endif
 #if defined(LIGHT_LIGHTMAP) || defined(LIGHT_VERTEX)
 	vec3 dyn = (svm_dyn_light_count > 0 && !overlay ? svm_dynamic(v_wpos, wn, zone) : vec3(0.0)) + spot;

@@ -437,6 +437,17 @@ def extract_level(pkg: Package, pset: PackageSet) -> List[ActorRecord]:
             # store near-black colours but show their green texture in the game.
             if props.get("bUnlit"):
                 rec.extra["unlit"] = True
+            # The Echelon spot lights (LE_ESpotShadow) the actor skips (game 0x10a37310): 1 the static ones
+            # (bIgnoreEchelonLighting), 2 the bDynamicLight ones (bIgnoreDynamicEchelonLighting), both with a
+            # GlassEffect, and the lights named in IgnoredEchelonLights. 17208 mesh actors carry the first flag.
+            echelon = (1 if props.get("bIgnoreEchelonLighting") else 0) | (2 if props.get("bIgnoreDynamicEchelonLighting") else 0)
+            if int(_num(props.get("GlassEffect"), 0)):
+                echelon = 3
+            if echelon:
+                rec.extra["echelon_ignore"] = echelon
+            ignored = sorted({pkg.object_name(ref) for ref in object_refs(props.get("IgnoredEchelonLights")) if ref != 0})
+            if ignored:
+                rec.extra["ignored_echelon_lights"] = ignored
             # Actor.AmbientGlow (0-255; 5611 mesh actors on 83 maps) raises the actor's own lighting on top of its baked
             # vertex colours: BankD's sky-zone skyline has glow 180 and near-black colours, and the game draws it lit.
             glow = int(_num(props.get("AmbientGlow"), 0))

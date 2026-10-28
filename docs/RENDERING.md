@@ -270,6 +270,22 @@ the map 512 high and as wide as SpotWidth / SpotHeight allows), kept as linear d
 per pixel, to the light stage of every lit surface (lightmapped, vertex lit and actor lit) each light's colour x 2 x
 the cookie at the projected point x the attenuation ramp at d / EchelonRange (d from the light) x the shadow term,
 with N.L (towards the apex) weighted by the normal influence. Own-zone lights light only world surfaces of their zone.
+Actors skip some of them (game 0x10a37310, asked by the actor light gathering for LE_ESpotShadow lights only): a
+static light when the actor has bIgnoreEchelonLighting, a bDynamicLight one when it has bIgnoreDynamicEchelonLighting,
+any light in its IgnoredEchelonLights, and every one when its GlassEffect is set. Mesh actors carry these widely
+(over the shipped maps: 17208 static mesh actors with bIgnoreEchelonLighting, 3713 with the dynamic flag, 761 with
+IgnoredEchelonLights, 106 with GlassEffect; on AquaE the kitchen's metal shutters and first-aid cabinets, which were
+washed out by the spots in front of them).
+
+- The converter writes each mesh instance's `echelonIgnore` (1 static, 2 dynamic, 3 both or GlassEffect) and
+  `ignoredEchelonLights` (light actor names) into world.glb (`scctpkg level.py`, patch 0005); gameplay actors are read
+  from gameplay.json (`ActorLighting.EchelonCode`). Maps converted before this have neither and take every light.
+- `RenderMap.EchelonCode` turns them into one code: the flags plus 4 x a group number, one per distinct
+  IgnoredEchelonLights list of the map. Merged surfaces carry it per vertex (CUSTOM1), actor-lit nodes in
+  `svm_ambient.w`.
+- The slot row says whether its light is dynamic (row 3 x: 1 static, 2 dynamic), and `svm_spot_ignore` (one texel
+  per slot, one row per group) says which slots each group skips; `SpotShadowLight` rebuilds it when a slot changes
+  hands, from its `LightName`.
 Cookies share a texture array (`svm_spot_cookies`, each resampled to 256 x 256; layer 0 white).
 
 - Map LE_ESpotShadow lights (`MapSpotLights`, 364 over all maps) are not in the baked light: the bridge found FactD's

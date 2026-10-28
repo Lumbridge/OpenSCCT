@@ -146,6 +146,37 @@ public sealed class RenderMap
     /// <summary>The map's gameplay actors (sim/gameplay.json over sim/classes.json).</summary>
     public GameplayActors Actors { get; internal set; } = new();
 
+    private readonly List<IReadOnlySet<string>> _echelonGroups = [new HashSet<string>()];
+    private readonly Dictionary<string, int> _echelonGroupIds = new(StringComparer.Ordinal) { [""] = 0 };
+
+    /// <summary>
+    /// The distinct IgnoredEchelonLights lists of the map's surfaces, by group number (0: no list), for the spot
+    /// slots' ignore table (<see cref="SpotShadowLight.SetIgnoreGroups"/>).
+    /// </summary>
+    public IReadOnlyList<IReadOnlySet<string>> EchelonGroups => _echelonGroups;
+
+    /// <summary>
+    /// The template's Echelon code of a surface: its flags (1 skips static spot shadow lights, 2 dynamic ones) plus
+    /// 4 x the group of its IgnoredEchelonLights (light actor names).
+    /// </summary>
+    public int EchelonCode(int flags, IEnumerable<string>? ignoredLights)
+    {
+        int group = 0;
+        if (ignoredLights is not null)
+        {
+            var names = new SortedSet<string>(ignoredLights, StringComparer.Ordinal);
+            string key = string.Join('|', names);
+            if (!_echelonGroupIds.TryGetValue(key, out group))
+            {
+                group = _echelonGroups.Count;
+                _echelonGroups.Add(new HashSet<string>(names, StringComparer.Ordinal));
+                _echelonGroupIds[key] = group;
+            }
+        }
+
+        return (flags & 3) | (group << 2);
+    }
+
     /// <summary>LevelInfo.MTVSlope of the map (motion vision ramp).</summary>
     public int MtvSlope => Actors.LevelInfo?.Int("MTVSlope", RenderK.DefaultMtvSlope) ?? RenderK.DefaultMtvSlope;
 
@@ -434,6 +465,7 @@ public static class MapBuilder
         }
 
         OpenScctGame.Render.GameplayObjects.ApplyVision(map, map.Actors);
+        SpotShadowLight.SetIgnoreGroups(map.EchelonGroups);
         if (options.Emitters)
         {
             map.Emitters = new Particles.Emitters(map, root);
@@ -893,6 +925,7 @@ public static class MapBuilder
             bool gameplay = Bool(inst, "gameplay") || Str(inst, "kind") == "mover";
             bool unlit = Bool(inst, "unlit");
             int glow = inst.TryGetProperty("ambientGlow", out JsonElement g) ? g.GetInt32() : 0;
+            int echelon = EchelonOf(inst);
             FVector location = Vec(inst, "location");
             FRotator rotation = Rot(inst, "rotation");
             FVector scale = inst.TryGetProperty("scale", out _) ? Vec(inst, "scale") : new FVector(1f, 1f, 1f);
@@ -915,7 +948,7 @@ public static class MapBuilder
 
             if (gameplay || light == LightSource.Actor)
             {
-                AddGameplay(actor, cls, meshName, mesh, transform, location, light, glow, hidden, VisionOf(inst));
+                AddGameplay(actor, cls, meshName, mesh, transform, location, light, glow, hidden, VisionOf(inst), echelon);
                 return;
             }
 
@@ -927,6 +960,7 @@ public static class MapBuilder
             {
                 SurfaceBuilder bucket = Bucket(cell, prim.Material, light, false, light == LightSource.Vertex);
                 bucket.Vision = vision;
+                bucket.Echelon = echelon;
                 byte[]? zones = light == LightSource.Vertex ? ZonesOf(prim, transform, location) : null;
                 if (light == LightSource.Vertex && authored && _map.Materials.Find(prim.Material)?.Blend == MaterialBlend.Additive)
                 {
@@ -982,6 +1016,29 @@ public static class MapBuilder
         private static byte ToByte(float v) => (byte)Math.Clamp((int)MathF.Round(v * 255f), 0, 255);
 
         /// <summary>
+        /// An instance's Echelon code (<see cref="RenderMap.EchelonCode"/>) from its extras "echelonIgnore" (the
+        /// flags) and "ignoredEchelonLights" (light actor names); 0 for maps converted before they were exported.
+        /// </summary>
+        private int EchelonOf(JsonElement inst)
+        {
+            int flags = inst.TryGetProperty("echelonIgnore", out JsonElement f) && f.ValueKind == JsonValueKind.Number ? f.GetInt32() : 0;
+            List<string>? lights = null;
+            if (inst.TryGetProperty("ignoredEchelonLights", out JsonElement l) && l.ValueKind == JsonValueKind.Array)
+            {
+                lights = [];
+                foreach (JsonElement n in l.EnumerateArray())
+                {
+                    if (n.ValueKind == JsonValueKind.String && n.GetString() is { Length: > 0 } name)
+                    {
+                        lights.Add(name);
+                    }
+                }
+            }
+
+            return _map.EchelonCode(flags, lights);
+        }
+
+        /// <summary>
         /// An instance's vision values (instance extras "vision": the actor's HeatIntensity, HeatOpacity, EMFIntensity,
         /// EMFOpacity and bEMFIsOn), in the template's layout; the Actor defaults without them.
         /// </summary>
@@ -1012,7 +1069,7 @@ public static class MapBuilder
         }
 
         private void AddGameplay(string actor, string cls, string meshName, int mesh, in Transform3D transform, FVector location,
-            LightSource light, int glow, bool hidden, Vector4 vision)
+            LightSource light, int glow, bool hidden, Vector4 vision, int echelon)
         {
             int glowKey = light == LightSource.Vertex ? glow : 0;
             // Vertex-lit gameplay meshes carry their zones per vertex, so they are not shared between actors.
@@ -1028,7 +1085,7 @@ public static class MapBuilder
                         continue;
                     }
 
-                    var surface = new SurfaceBuilder(false, light == LightSource.Vertex);
+                    var surface = new SurfaceBuilder(false, light == LightSource.Vertex) { Echelon = light == LightSource.Vertex ? echelon : 0 };
                     byte[]? zones = light == LightSource.Vertex ? ZonesOf(prim, transform, location) : null;
                     if (light == LightSource.Vertex && glow > 0)
                     {
@@ -1049,6 +1106,11 @@ public static class MapBuilder
             var node = new MeshInstance3D { Name = actor.Length > 0 ? actor : meshName, Mesh = arrayMesh, Transform = transform, Visible = !hidden };
             _gameplay.AddChild(node);
             node.SetInstanceShaderParameter(OpenScctGame.Render.GameplayObjects.VisionActorParameter, vision);
+            if (light == LightSource.Actor)
+            {
+                ActorLighting.SetEchelonIgnore(node, echelon);
+            }
+
             _map.Stats.GameplayNodes++;
             _map.Stats.GameplaySurfaces += arrayMesh.GetSurfaceCount();
             foreach (MeshPrimitive prim in Primitives(mesh))
