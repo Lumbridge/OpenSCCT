@@ -599,7 +599,16 @@ primitive's point check always passes). Rifle tracers crossing a body push the f
 BulletHitFactor x 100 in the shot's direction and play shotSound. Drawn fullbright: UESoftBody::Render makes no
 lighting calls.
 
-Not done: shots without a tracer do not push (the client sees no shot line for them); collision planes, spheres,
+Explosions do not push soft bodies, as in the original: `SBExplosionHit` (native 1153, exec 0x109e2030, UESBPatch
+vtable slot 0xcc at 0x1099d5b0: the centre taken into local space, every particle pushed straight away from it by
+`500 x (1 + FRand)` uu with no falloff, the Momentum argument unused) has no caller in the script packages or the
+binary. Shots: the original's SBBulletHit pushes the up to four particles the last line check through the body stored
+(UESBPatch + 0x15c, cleared after the push); a server trace that passes through (bBulletGoTru, BulletWentTru) sends
+SBBulletHitClient(Momentum), which on another machine pushes only what that machine's own last trace through the
+body stored, so the push of another player's shot shows mainly where the trace ran.
+
+Not done: shots without a tracer do not push (the client sees no shot line for them; soft bodies are not in the
+simulation, so the server's pass-through trace and SBBulletHitClient are not ported); collision planes, spheres,
 boxes and Attach (no placed body uses them); dragForce (only applies when the actor moves); the noise tables are seeded
 here, random per level in the original; the colliders are pawns only.
 
