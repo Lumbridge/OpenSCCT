@@ -108,12 +108,16 @@ public partial class DisplaySpaceEffect : CompositorEffect
     private Rid _lut;
     private Rid _sonar;
     private readonly Rid[] _params = new Rid[2];
-    // The blur pyramid: the vision levels (RenderK.BlurTargets) then the glow's two further runs (GlowExtraTargets).
-    private static readonly Vector2I[] LevelSizes = [.. RenderK.BlurTargets, .. RenderK.GlowExtraTargets];
-    private readonly Rid[] _levels = new Rid[LevelSizes.Length];
-    // Uniform sets of the pyramid passes that read a level or the bright target (made once: they hold only this
-    // effect's own resources and are freed before them).
-    private readonly Rid[] _levelSets = new Rid[LevelSizes.Length];
+    // The blur pyramid: the vision levels (RenderK.BlurTargets) then the glow's two further runs (GlowExtraTargets),
+    // at the frame's detail scale (RenderK.PostDetailScale): remade when the frame width crosses its thresholds.
+    private static readonly Vector2I[] BaseLevelSizes = [.. RenderK.BlurTargets, .. RenderK.GlowExtraTargets];
+    private Vector2I[] _levelSizes = BaseLevelSizes;
+    private Vector2I _brightSize = RenderK.GlowBrightTarget;
+    private Vector2I _detail = Vector2I.One;
+    private readonly Rid[] _levels = new Rid[BaseLevelSizes.Length];
+    // Uniform sets of the pyramid passes that read a level or the bright target (made once per detail scale: they hold
+    // only this effect's own resources and are freed before them).
+    private readonly Rid[] _levelSets = new Rid[BaseLevelSizes.Length];
     private RenderPack? _uploaded;
     private volatile DisplayPostSettings _settings = new();
     private uint _frame;
@@ -234,12 +238,39 @@ public partial class DisplaySpaceEffect : CompositorEffect
         // One parameter block per stage, so the second dispatch of a frame never sees the first one's block rewritten.
         _params[0] = _rd.UniformBufferCreate(ParamVectors * 16);
         _params[1] = _rd.UniformBufferCreate(ParamVectors * 16);
-        for (int i = 0; i < _levels.Length; i++)
+        MakeTargets(Vector2I.One);
+    }
+
+    /// <summary>The pyramid levels and the bright target at <paramref name="detail"/> (x and y factors), freeing the old ones.</summary>
+    private void MakeTargets(Vector2I detail)
+    {
+        RenderingDevice rd = _rd!;
+        foreach (Rid set in _levelSets)
         {
-            _levels[i] = Target(LevelSizes[i]);
+            if (set.IsValid && rd.UniformSetIsValid(set))
+            {
+                rd.FreeRid(set);
+            }
         }
 
-        _bright = Target(RenderK.GlowBrightTarget);
+        foreach (Rid texture in (Rid[])[.. _levels, _bright])
+        {
+            if (texture.IsValid)
+            {
+                rd.FreeRid(texture);
+            }
+        }
+
+        Array.Fill(_levelSets, default);
+        _detail = detail;
+        _levelSizes = Array.ConvertAll(BaseLevelSizes, v => v * detail);
+        _brightSize = RenderK.GlowBrightTarget * detail;
+        for (int i = 0; i < _levels.Length; i++)
+        {
+            _levels[i] = Target(_levelSizes[i]);
+        }
+
+        _bright = Target(_brightSize);
     }
 
     private Rid Target(Vector2I size) => _rd!.TextureCreate(new RDTextureFormat
@@ -390,6 +421,11 @@ public partial class DisplaySpaceEffect : CompositorEffect
             return;
         }
 
+        if (RenderK.PostDetailScale(size.X) is var detail && detail != _detail)
+        {
+            MakeTargets(detail);
+        }
+
         DisplayPostSettings s = _settings;
         if (s.Pack is not null && !ReferenceEquals(s.Pack, _uploaded))
         {
@@ -472,9 +508,9 @@ public partial class DisplaySpaceEffect : CompositorEffect
                 }
 
                 Blur(color, size, _levels[0], new Vector2(0f, 1f), fromFrame: true);
-                Blur(_levels[0], RenderK.BlurTargets[0], _levels[1], new Vector2(1f, 0f), fromFrame: false);
-                Blur(_levels[1], RenderK.BlurTargets[1], _levels[2], new Vector2(0f, 1f), fromFrame: false);
-                Blur(_levels[2], RenderK.BlurTargets[2], _levels[3], new Vector2(1f, 0f), fromFrame: false);
+                Blur(_levels[0], _levelSizes[0], _levels[1], new Vector2(1f, 0f), fromFrame: false);
+                Blur(_levels[1], _levelSizes[1], _levels[2], new Vector2(0f, 1f), fromFrame: false);
+                Blur(_levels[2], _levelSizes[2], _levels[3], new Vector2(1f, 0f), fromFrame: false);
                 Main(values, StageVision, color, depth, size);
             }
             else
@@ -540,7 +576,7 @@ public partial class DisplaySpaceEffect : CompositorEffect
     private void Blur(Rid source, Vector2I sourceSize, Rid target, Vector2 axis, bool fromFrame)
     {
         int index = Array.IndexOf(_levels, target);
-        Vector2I size = LevelSizes[index];
+        Vector2I size = _levelSizes[index];
         Rid spare = _levels[index == _levels.Length - 1 ? 0 : _levels.Length - 1];
         UniformSlots slots = _blurSlots ??= new UniformSlots(RenderingDevice.UniformType.SamplerWithTexture,
             RenderingDevice.UniformType.Image, RenderingDevice.UniformType.Image);
@@ -600,14 +636,14 @@ public partial class DisplaySpaceEffect : CompositorEffect
     {
         GlowPass(color, size, 0f, cut);
         Rid source = _bright;
-        Vector2I sourceSize = RenderK.GlowBrightTarget;
+        Vector2I sourceSize = _brightSize;
         // Levels 1 (256), 3 (128), 5 (64) and 7 (32) are the pyramid; 0, 2, 4 and 6 the vertical halves between them.
         for (int i = 0; i < _levels.Length; i += 2)
         {
             Blur(source, sourceSize, _levels[i], new Vector2(0f, 1f), fromFrame: false);
-            Blur(_levels[i], LevelSizes[i], _levels[i + 1], new Vector2(1f, 0f), fromFrame: false);
+            Blur(_levels[i], _levelSizes[i], _levels[i + 1], new Vector2(1f, 0f), fromFrame: false);
             source = _levels[i + 1];
-            sourceSize = LevelSizes[i + 1];
+            sourceSize = _levelSizes[i + 1];
         }
 
         GlowPass(color, size, 1f, cut);
@@ -626,7 +662,7 @@ public partial class DisplaySpaceEffect : CompositorEffect
         slots.Set(4, color);
         slots.Set(5, _bright);
         Rid set = UniformSetCacheRD.GetCache(_glowShader, 0, slots.Array);
-        Vector2I target = RenderK.GlowBrightTarget;
+        Vector2I target = _brightSize;
         Vector4 w = RenderK.GlowLevelWeights;
         Span<float> push =
         [

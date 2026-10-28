@@ -525,8 +525,11 @@ random angle in [0, 1) radian and moved by a random offset in [0, 1) each frame 
 run 0x10967d70 twice and thermal and EMF composite 0x10967e30). One pass draws its source into a smaller target with
 a 4-tap filter along one axis, taps at +-1 and +-3 source texels from the target texel's centre, bilinear, weights
 0.332 and 0.168 (ps_1_1 0x34e9b8). Run 1 draws the frame into 512 x 256 (vertical taps) then 256 x 256 (horizontal);
-run 2 draws that into 256 x 128 then 128 x 128 (render targets 0x30e6c..0x30e78, default sizes from 0x1090ab98; a
-high-detail switch doubles them above 800 pixels of width, not used). The composite (fixed function: texture factor
+run 2 draws that into 256 x 128 then 128 x 128 (render targets 0x30e6c..0x30e78, default sizes from 0x1090ab98). The
+render device's high-detail switch (0x10c78b98, taken as on) doubles the widths of every post target (this pyramid,
+the glow's runs and its bright target) above 640 pixels of frame width and the heights above 800
+(`RenderK.PostDetailScale`); at the default sizes a 2000-pixel frame blurred the heat four times too wide (the spy's
+hot spots stopped at yellow, his head read cold, a wide halo ringed him). The composite (fixed function: texture factor
 0x80 blends the levels, vertex alpha 0xC8 blends them over the frame): `h = lerp(frame, lerp(blur1, blur2, 128/255),
 200/255)`.
 

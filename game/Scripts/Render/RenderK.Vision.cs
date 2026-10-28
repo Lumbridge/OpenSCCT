@@ -66,6 +66,21 @@ public static partial class RenderK
     public static readonly Vector2I[] BlurTargets = [new(512, 256), new(256, 256), new(256, 128), new(128, 128)];
 
     /// <summary>
+    /// The detail switch of the post targets (blur pyramid and glow bright target) for a frame <paramref name="width"/>
+    /// pixels wide: with the switch on, the widths double above 640 and the heights above 800 (the x sizes come from
+    /// 0x10c78b5c, the y sizes from 0x10c78ba0). At the default sizes a 2000-pixel frame blurred the heat four times wider
+    /// than the original's captures: the pawn's hot spots stopped at yellow, the head read cold and a wide blue halo
+    /// ringed the body.
+    /// </summary>
+    [Provenance(ProvenanceKind.Decoded, "0x1095c330: 0x10c78b98 == 1 && width > 0x280 -> 0x10c78b5c = 0x10c78b80 = 0x200, and width > 800 -> 0x10c78ba0 = 0x200 (else 0x100); targets from them x 2, / 2, >> 2, >> 3")]
+    [Provenance(ProvenanceKind.Estimated, "the switch 0x10c78b98 (set by the render device's vtable slot at 0x10c0c254) taken as on: Default.ini HighDetailActors=True, and the original's thermal halo in 2000-pixel captures is the doubled targets' width")]
+    public static Vector2I PostDetailScale(int width) =>
+        new(PostHighDetail && width > 640 ? 2 : 1, PostHighDetail && width > 800 ? 2 : 1);
+
+    /// <summary>The render device's high-detail switch for the post targets (see <see cref="PostDetailScale"/>).</summary>
+    public const bool PostHighDetail = true;
+
+    /// <summary>
     /// The composite of the two blurred levels back over the sharp heat: frame = lerp(sharp, lerp(blur1, blur2, 128/255),
     /// 200/255) (fixed-function BLENDFACTORALPHA with factor 128, frame blend SRCALPHA with vertex alpha 200).
     /// </summary>
