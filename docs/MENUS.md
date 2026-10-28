@@ -1,7 +1,8 @@
 # Menus
 
 The front end: the main menu, Create Session, Find a Session (the server browser), Join with IP, the Lobby Room, the
-loading page, the results, and the options' Voice page. The rules come from the original's own pages, decoded in
+loading page, the results, the options' Voice page, and the Tutorials pages (tutorial maps, tips, gadget details, the
+HUD and keyboard pictures, Visit a Map). The rules come from the original's own pages, decoded in
 `spec/game/lobby-and-match-creation.md` (Enhanced 4.0's GUI package and Reloaded's voice page); the session behind them
 is in `docs/ONLINE.md`, voice in `docs/VOICE.md`, and the way to test it with two computers in `docs/NETWORK-TEST.md`.
 
@@ -10,7 +11,9 @@ is in `docs/ONLINE.md`, voice in `docs/VOICE.md`, and the way to test it with tw
 | `game/Scripts/UI/MenuPage.cs` | the PC page look: background, typed title, corner brackets, framed panels, page buttons, `Shot` |
 | `game/Scripts/UI/UiStyle.cs` | the look switch (`Look`), `MenuTheme` (the PC button and list boxes, the style colours), `MenuBackdrop`, `MenuTexture` |
 | `game/Scripts/UI/UiArt.cs`, `UiBox.cs`, `UiCorner.cs`, `UiRule.cs`, `UiWordmark.cs` | the modern look: our own art, drawn at the window's size |
-| `game/Scripts/UI/MainMenu.cs` | Create a Session (also how to play offline), Find a Session (joining by IP is on that page), Account, Achievements, Armoury, Options, Quit |
+| `game/Scripts/UI/MainMenu.cs` | Create a Session (also how to play offline), Find a Session (joining by IP is on that page), Account, Achievements, Armoury, Tutorials, Options, Quit |
+| `game/Scripts/UI/Tutorials/` | Tutorials (`TutorialsScreen`), the tutorial maps (`TutorialMapsScreen`), Tips (`TipsScreen`), Gadget Details (`GadgetDetailsScreen`), View HUD and the keyboard pictures (`HudLegendScreen`), Visit a Map (`VisitMapScreen`), the lobby's first-time box (`FirstTimeMapPrompt`) |
+| `game/Scripts/Tutorials/` | the tutorial progress file (`TutorialProfile`, `user://tutorials.json`), the pages' words (`TutorialText`), offline play of a tutorial or a visit and the round's end (`TutorialPlay`, `TutorialRoundWatch`) |
 | `game/Scripts/UI/RankIcons.cs` | Rank pictures drawn from SVG (level insignia, prestige and master emblems) and `RankBadge` (emblem, level, title), used by the menus, lobby, results, F8 and hub tags |
 | `game/Scripts/UI/AccountScreen.cs` | Account: sign in with Discord (code, browser, wait), pick or change the name, the rank (emblem, level, XP bar, Prestige, prestige emblems, title picker; spec/additions/progression.md), stats, an achievements summary with links to Achievements and the Armoury, sign out (docs/ONLINE.md "Accounts") |
 | `game/Scripts/UI/AchievementsScreen.cs` | Achievements (OpenSCCT's own): every achievement by group (filter buttons), what to do, what it unlocks, progress or earned date; the list is the shared catalogue, so it is complete even with an older master |
@@ -77,6 +80,8 @@ Main menu ── Create a Session ──> Create Session ── Create ──> L
           ── Find a Session  ──> Sessions (LAN, saved, master; the selected one's players by side) ── Join ──> Loading ──> Lobby Room
           ── Join with IP    ──> Server Address, Server Port, Password ── Join ──┘
           ── Account         ──> Sign in with Discord ──> (browser) ──> pick a name ──> stats, achievements
+          ── Tutorials       ──> View HUD, Tips, Gadget Details, Spy / Mercenary Tutorial Maps ── a map ──> Loading ──> tutorial
+                             ──> Visit a Map ── Launch ──> Loading ──> the map alone, help paths shown ──> (end) Tutorials
 Lobby Room ── Launch (all ready) ──> Loading ──> round ──> results ── Next ──> next game of the series, or the Lobby Room
 ```
 
@@ -111,6 +116,37 @@ Every page names a map the same way: the catalog's name of the original's map li
 docs/MAPS.md), else its id (`UI/MapTitles.cs`): Create Session, the lobby, the server browser's Map column and the
 loading page. The server's own chat line ("Next: ...") still names the id. The loading page of a round shows the
 mode and the map's words only; the join steps (direct, NAT punch, relay) show while joining.
+
+## Tutorials
+
+The original's tutorial pages (GUI.Tutorials_Page and the pages it opens; spec/game/tutorials.md), from the main
+menu's Tutorials button:
+
+| Page | What it shows |
+|---|---|
+| Tutorials | View HUD, Tips, Gadget Details, Spy Tutorial Maps, Mercenary Tutorial Maps, Visit a Map, and a line of the player's progress (ours) |
+| Spy / Mercenary Tutorial Maps | a tick and a name per map: spies `TSP20` to `TSP23` and the Exam `TSP29`, mercs `TME30`, `TME32`, `TME33`; a row plays the map (greyed when the map is not converted) |
+| Tips | nine tips per side, Switch Team; a tip shows its picture, legend and explanation (keys named from the player's layout), Next wraps |
+| Gadget Details | the side's eight gadgets, Switch Team; a gadget shows its HUD icon, explanation and legend, Next wraps |
+| View HUD | the spy or merc HUD picture with its labels; A switches side; Keyboard shows the keyboard pictures (Configuration 1 and 2) |
+| Visit a Map | the host maps that play Story, the side's picture, Switch Team, Launch |
+
+A tutorial or a visit is played offline, alone (no bots), in Story with the original's offline rules: no time limit,
+unlimited lives, 5 s respawn. When a tutorial round ends with the player's side winning, the map is marked done (the
+spy exam also marks the exam passed); 10 s after the end the next spy or merc tutorial not done starts, or the
+Tutorials page opens once the exam (spies) or all three (mercs) are done. A visit shows the map's help paths (the
+in-game help is on for the visit only) and ends back on the Tutorials page. The progress and the maps already played
+are kept in `user://tutorials.json`.
+
+In the Lobby Room, the first Launch or Ready on a map the player has not played opens "This is the first time you
+have played this map..." (GUI.FirstTimeToPlayThisMap); OK remembers the map and the press goes on.
+
+Texts come from the converted GUI.int and pictures from `Tutorials_PC` (the ui content step; rebuild it with
+`python -m svmbuild ui`, see content/README.md). Without them the pages open with their titles and
+empty texts. Differences from the original: the TutoOrExam page (the online button's exam gate) is not shown; the
+keyboard pictures, which no PC menu opened, are reachable from View HUD; leaving a tutorial through the In-Game Menu
+returns to the main menu; the tutorial maps' zone hints do not show yet (they are standalone only, and offline play is a
+listen server).
 
 ## Alternate Mode
 

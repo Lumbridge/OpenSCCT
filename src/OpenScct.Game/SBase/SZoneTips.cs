@@ -42,7 +42,7 @@ public partial class SZoneTips
     public void AddMessage(SPlayerController _Ctrl)
     {
         IDeviceHooks? hooks = XLevel.GetService<IDeviceHooks>();
-        if (hooks is null || (bShowOnlyWithIngameHelp && hooks.GetPlayerProfile() is not { bDisplayHelpInGame: true }))
+        if (hooks is null || (bShowOnlyWithIngameHelp && !SHelpPath.DisplayHelpInGame(XLevel)))
         {
             return;
         }

@@ -394,6 +394,12 @@ public partial class LobbyRoomScreen : MenuPage
             return;
         }
 
+        // A map the profile has not played yet: the first-time box first, then the press goes on (Lobby_Create).
+        if (FirstTimeMapPrompt.OpenIfFirstTime(this, s.Setup.Map, PressMain))
+        {
+            return;
+        }
+
         if (s.CanControl)
         {
             s.Start(GetTree());

@@ -88,8 +88,9 @@ Who-hears-whom matches the original (rules in `VoiceRouting.cs`). Gaps:
 | Session player names in the server browser | wave |
 | Briefing page | wave |
 | Strategic Map (in-game menu and lobby) | later (M) |
-| Tutorials hub, gadget encyclopedia, Visit a Map with help paths, first-time-map prompt | later (L) |
-| HUD legend and keyboard pictures pages | open (S) |
+| Tutorials hub, gadget encyclopedia, Visit a Map with help paths, first-time-map prompt | wave |
+| HUD legend and keyboard pictures pages | wave |
+| Tutorial zone hints (SZoneTips) offline: standalone only in the original, and offline play is a listen server here | open (M) |
 | Video: post quality, brightness pattern, keep-settings countdown | open (S) |
 | Main menu quit confirmation | open (S) |
 | Per-player loading list | open (S) |
