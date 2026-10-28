@@ -1,4 +1,6 @@
 using System;
+using OpenScct.Maps;
+using System.Globalization;
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
@@ -138,7 +140,7 @@ public sealed class OnlineLobby : IOnlineLobbySession
 
     public void Leave()
     {
-        _fetch?.Cancel();
+        // A map download carries on: the map is kept for next time.
         _service.Changed -= Raise;
         _service.Leave();
     }
@@ -187,70 +189,137 @@ public sealed class OnlineLobby : IOnlineLobbySession
 
     // ---- the setup's map, when this player lacks it ----
 
-    private OpenScctGame.Online.MapFetch? _fetch;
+    private ContentPacks.DownloadJob? _job;
+    private int _generation = ContentPacks.Generation;
 
+    /// <summary>
+    /// The line under the lobby status when the local player lacks the setup's map (or has another version): the map
+    /// from OpenSCCT-Content (docs/CONTENT-PACKS.md) whose content hash is the host's, with a Download button and the
+    /// download's progress, or why there is none to download.
+    /// </summary>
     public LobbyMapFetch? MapFetch
     {
         get
         {
-            if (_fetch is { } fetch)
+            if (_job is { } job && string.Equals(job.Map.Code, State.Setup.Map, StringComparison.OrdinalIgnoreCase))
             {
-                (MapFetchStage stage, string text, double fraction) = fetch.Snapshot();
-                return stage switch
+                if (job.Running)
                 {
-                    MapFetchStage.Listing or MapFetchStage.Downloading or MapFetchStage.Converting => new LobbyMapFetch(text, false, true, fraction, false),
-                    MapFetchStage.Done => new LobbyMapFetch(text, false, false, 1, false),
-                    _ => new LobbyMapFetch(text, MapOffered, false, 0, stage == MapFetchStage.Failed),
-                };
+                    return new LobbyMapFetch(job.Describe(), false, true, job.Fraction, false);
+                }
+
+                if (job.Done)
+                {
+                    return State.Local is { Map: MapState.Missing or MapState.Differs }
+                        ? new LobbyMapFetch($"{job.Map.DisplayTitle} downloaded; checking it against the host's...", false, false, 1, false)
+                        : null;
+                }
+
+                if (job.Error == "stopped")
+                {
+                    return new LobbyMapFetch($"Stopped downloading {job.Map.DisplayTitle}.", true, false, 0, false);
+                }
+
+                return new LobbyMapFetch($"Could not download {job.Map.DisplayTitle}: {job.Error}", true, false, 0, true);
             }
 
-            return MapOffered
-                ? new LobbyMapFetch($"You don't have the map {State.Setup.Map}. The host got it from the community maps: download it to play.",
-                    true, false, 0, false)
-                : null;
+            if (State.Local is not { Map: MapState.Missing or MapState.Differs })
+            {
+                return null;
+            }
+
+            string map = State.Setup.Map;
+            if (Downloadable(out ContentMap? pack, out string? why))
+            {
+                string verb = State.Local.Map == MapState.Missing ? "You don't have" : "Your copy differs from the host's for";
+                return new LobbyMapFetch(
+                    string.Create(CultureInfo.InvariantCulture, $"{verb} {pack!.DisplayTitle}. Download it ({pack.Full.Size / 1048576.0:0} MB) to play."),
+                    true, false, 0, false);
+            }
+
+            return why is null ? null : new LobbyMapFetch(why, false, false, 0, true);
         }
     }
 
-    /// <summary>The local player lacks the setup's map (or has another version) and the host said where it is.</summary>
-    private bool MapOffered =>
-        State.SetupSource is not null && State.Local is { Map: MapState.Missing or MapState.Differs };
+    /// <summary>
+    /// The setup's map as OpenSCCT-Content has it, when downloading it would give the host's version: the index's
+    /// copy has the host's content hash, and a copy converted from the player's own install (which wins over a
+    /// download) does not stand in the way. Otherwise <paramref name="why"/> says what the player can do, or is null
+    /// while the index is still loading.
+    /// </summary>
+    private bool Downloadable(out ContentMap? pack, out string? why)
+    {
+        pack = null;
+        why = null;
+        string map = State.Setup.Map;
+        string? hostHash = State.SetupContentHash != 0
+            ? State.SetupContentHash.ToString("x16", CultureInfo.InvariantCulture)
+            : null;
+        if (ContentPacks.Index is not { } index)
+        {
+            why = ContentPacks.IndexError is { } error
+                ? $"You don't have the host's {map}, and the map list could not be read: {error}"
+                : null;
+            return false;
+        }
+
+        ContentMap? found = index.FindMap(map, hostHash);
+        if (found is null)
+        {
+            why = $"You don't have the host's {map}, and OpenSCCT-Content does not have it. Ask the host to share it.";
+            return false;
+        }
+
+        if (hostHash is not null && !string.Equals(found.ContentHash, hostHash, StringComparison.OrdinalIgnoreCase))
+        {
+            why = $"The host's {found.DisplayTitle} is a different version from OpenSCCT-Content's. Ask the host to share theirs.";
+            return false;
+        }
+
+        // A map converted from the player's install is found before downloaded ones, so a download would not replace it.
+        if (State.Local?.Map == MapState.Differs && _client.Maps.FindFolder(map) is { } folder &&
+            !System.IO.Path.GetFullPath(folder).StartsWith(System.IO.Path.GetFullPath(ContentPacks.Store.SvMapRoot), StringComparison.OrdinalIgnoreCase))
+        {
+            why = $"Your copy of {found.DisplayTitle} (converted from your game) differs from the host's.";
+            return false;
+        }
+
+        pack = found;
+        return true;
+    }
 
     public void StartMapFetch()
     {
-        if (_fetch is { Finished: false } || State.SetupSource is not { } source)
+        if (_job is { Running: true } || !Downloadable(out ContentMap? pack, out _))
         {
             return;
         }
 
-        _fetch = OpenScctGame.Online.MapFetch.Start(State.Setup.Map, source);
+        _job = ContentPacks.Download(pack!);
     }
 
-    public void CancelMapFetch() => _fetch?.Cancel();
+    public void CancelMapFetch() => _job?.Cancel();
 
     public void UpdateMapFetch()
     {
-        if (_fetch is not { Finished: true } fetch)
+        if (ContentPacks.Generation != _generation)
         {
-            return;
-        }
-
-        if (fetch.Snapshot().Stage == MapFetchStage.Done)
-        {
-            // The new map is on disk: read the content folders again and tell the server.
+            // A map came in: read the content folders again and tell the server.
+            _generation = ContentPacks.Generation;
             _client.Maps.Refresh();
             if (!ReferenceEquals(_service.Catalog.Maps, _client.Maps))
             {
                 _service.Catalog.Maps.Refresh();
             }
 
-            _fetch = null;
             _client.RecheckMap();
             Raise();
         }
-        else if (!string.Equals(fetch.Map, State.Setup.Map, StringComparison.OrdinalIgnoreCase))
+
+        if (_job is { Running: false } job && !string.Equals(job.Map.Code, State.Setup.Map, StringComparison.OrdinalIgnoreCase))
         {
-            // A failed or stopped fetch of a map the host has since changed away from.
-            _fetch = null;
+            // A finished, failed or stopped download of a map the host has since changed away from.
+            _job = null;
         }
     }
 

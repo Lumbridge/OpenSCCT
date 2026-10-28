@@ -274,7 +274,7 @@ converted, so Download puts them in `packs\` and they are ready to play without 
 the player's own converted content has shows as "Converted from your game". Players with no converted game files
 get the shared packs with their first map. Maps an older launcher downloaded from SCCT-Maps still show as "old
 download". Removing one prepares the game files again; nothing new is downloaded from SCCT-Maps there. The lobby's
-missing-map download (docs/ONLINE.md "Missing maps") still reads SCCT-Maps, as described below.
+missing-map download (docs/ONLINE.md "Missing maps") uses OpenSCCT-Content too.
 
 Before 0.8.26 the Maps button opened a list of the maps in [SCCT-Maps](https://github.com/Lumbridge/SCCT-Maps),
 read the way the SCCT Map Manager reads it (its `docs/publishing.md`): original maps (`release/<Package>/<version>`,

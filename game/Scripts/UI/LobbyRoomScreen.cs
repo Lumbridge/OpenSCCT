@@ -392,8 +392,9 @@ public partial class LobbyRoomScreen : MenuPage
     }
 
     /// <summary>
-    /// The line under the status when the local player lacks the setup's map and the host got it from the community
-    /// maps: what is missing, a Download button (Stop while it runs) and the progress (docs/ONLINE.md "Missing maps").
+    /// The line under the status when the local player lacks the setup's map (or has another version): what is
+    /// missing, a Download button from OpenSCCT-Content (Stop while it runs) and the progress (docs/ONLINE.md
+    /// "Missing maps").
     /// </summary>
     private void BuildMapFetchBar()
     {

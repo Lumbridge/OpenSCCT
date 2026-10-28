@@ -161,27 +161,24 @@ The Hello text that carries them may be up to 400 bytes (`ControlMessage.MaxLogi
 
 ### Missing maps
 
-After each `setup` line, a host whose map came from the SCCT-Maps repository (downloaded through the launcher's
-Maps window) sends `mapsource <map> <fingerprint> <commit> <id>`: the repository id last, so it keeps its spaces.
-`OnlineServerSettings.MapSource` gives it; the game's host uses `MapDownloads.SourceOf` (the downloaded map whose
-codes include the setup's map, and only when the host's own install has no map of that name). A `setup` line clears
-the client's `LobbyState.SetupSource`; older clients ignore the new line.
+A player whose `mapcheck` says Missing or Differs sees a line under the lobby status (`LobbyRoomScreen`,
+`OnlineLobby.MapFetch`). Since 0.8.26 it comes from OpenSCCT-Content (docs/CONTENT-PACKS.md):
+- **Lookup:** the setup's map in the content index whose `contentHash` is the host's (the `setup` line's content
+  hash, as `x16` hex).
+- **Download:** when it is there, a Download button (Stop while it runs) installs the converted map into
+  `%LOCALAPPDATA%\OpenSCCT\packs` (`ContentPacks`). The shared packs come first for a player with no converted game
+  files. No content builder runs.
+- **After the download:** the catalogs are read again (`MapCatalog.Refresh`) and the client sends `mapcheck` again
+  (`OnlineClient.RecheckMap`), so the host sees the player turn ready to play.
+- **Nothing to download:** the line says why when:
+  - the index has no map of that code
+  - its copy is a different version from the host's (ask the host to share theirs)
+  - the player's differing copy was converted from their own install, which wins over a download
+- **Leaving the lobby** does not stop a running download.
 
-A player whose `mapcheck` says Missing or Differs while a source is known sees a line under the lobby status with a
-Download button (`LobbyRoomScreen`, `OnlineLobby.MapFetch`). `MapFetch` then, in the background: reads the
-repository's tree at the host's commit and takes the package with the host's id and fingerprint (so both have the
-same files), downloads it into the launcher's maps folder (`--svm-map-downloads=`, default
-`%LOCALAPPDATA%\OpenSCCT\maps`), and runs the content builder shipped beside the exe (`contenttools`, or a
-checkout's `content` with Python from PATH) for that map only: `maps-catalog renderpack maps audio-map --maps <codes>
---addons <maps\game>` in the content's language (`content-build.json`), output in `<content>\map-fetch.log`. When it
-ends the catalog is read again (`MapCatalog.Refresh`) and the client sends `mapcheck` again (`OnlineClient.RecheckMap`),
-so the host sees the player turn ready to play. `content-build.json`'s `downloadedMaps` moves on with it, so the
-launcher does not prepare the game files again for that map.
-
-It refuses when the player's own install has a map of that name (the install's copy always wins), when the build
-has no builder that reads downloaded maps, or when the game was not started with its content and game folders. Not
-done: a dedicated server (svm-server) has no `MapSource` yet, and a map the host converted from its own install
-cannot be fetched.
+Hosts still send `mapsource <map> <fingerprint> <commit> <id>` after each `setup` line for a map they downloaded from
+SCCT-Maps (`MapDownloads.SourceOf`), for clients before 0.8.26, which fetched and converted it from there. 0.8.26
+clients ignore it.
 
 ### Bots
 

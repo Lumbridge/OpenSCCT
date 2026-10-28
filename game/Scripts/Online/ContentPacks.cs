@@ -44,8 +44,19 @@ public static class ContentPacks
 
         public bool Done { get; internal set; }
 
-        /// <summary>Why it failed, else null.</summary>
+        /// <summary>Why it failed (or "stopped"), else null.</summary>
         public string? Error { get; internal set; }
+
+        /// <summary>Still downloading or installing.</summary>
+        public bool Running => !Done && Error is null;
+
+        /// <summary>The share received of what is downloading now (0 to 1; 0 while installing).</summary>
+        public double Fraction => Total > 0 ? Math.Clamp((double)Received / Total, 0, 1) : 0;
+
+        internal CancellationTokenSource Stop { get; } = new();
+
+        /// <summary>Stops the download (a half-made map is never installed).</summary>
+        public void Cancel() => Stop.Cancel();
 
         /// <summary>"Downloading Aquarius: 12.3 / 31.0 MB", "Installing Aquarius", the error, or "Downloaded".</summary>
         public string Describe() =>
@@ -161,16 +172,20 @@ public static class ContentPacks
                     if (!store.HasShared(pack))
                     {
                         job.Step = $"Downloading {(pack.Title.Length > 0 ? pack.Title : pack.Id)}";
-                        await store.InstallSharedAsync(pack, Progress(job), CancellationToken.None).ConfigureAwait(false);
+                        await store.InstallSharedAsync(pack, Progress(job), job.Stop.Token).ConfigureAwait(false);
                         Interlocked.Increment(ref _generation);
                     }
                 }
             }
 
             job.Step = $"Downloading {job.Map.DisplayTitle}";
-            await store.InstallMapAsync(job.Map, ContentKind.Full, Progress(job), CancellationToken.None).ConfigureAwait(false);
+            await store.InstallMapAsync(job.Map, ContentKind.Full, Progress(job), job.Stop.Token).ConfigureAwait(false);
             job.Done = true;
             Interlocked.Increment(ref _generation);
+        }
+        catch (OperationCanceledException) when (job.Stop.IsCancellationRequested)
+        {
+            job.Error = "stopped";
         }
         catch (Exception e) when (e is HttpRequestException or System.IO.IOException or System.IO.InvalidDataException or UnauthorizedAccessException or TaskCanceledException)
         {
