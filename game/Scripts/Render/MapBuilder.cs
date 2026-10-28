@@ -1065,16 +1065,21 @@ public static class MapBuilder
             }
         }
 
+        /// <summary>Godot's limit on surfaces in one mesh (RenderingServer MAX_MESH_SURFACES).</summary>
+        private const int MaxSurfacesPerMesh = 256;
+
         private void FlushCells()
         {
             foreach (((int x, int y, int sky) cell, Dictionary<(string, LightSource), SurfaceBuilder> buckets) in _cells)
             {
-                var mesh = new ArrayMesh
-                {
-                    ResourceName = string.Create(CultureInfo.InvariantCulture, $"{(cell.sky != 0 ? "Sky" : "Cell")}_{cell.x}_{cell.y}"),
-                };
+                string baseName = string.Create(CultureInfo.InvariantCulture, $"{(cell.sky != 0 ? "Sky" : "Cell")}_{cell.x}_{cell.y}");
                 var keys = new List<(string, LightSource)>(buckets.Keys);
                 keys.Sort((a, b) => string.CompareOrdinal(a.Item1, b.Item1) != 0 ? string.CompareOrdinal(a.Item1, b.Item1) : a.Item2.CompareTo(b.Item2));
+
+                // A cell with more materials than one mesh can hold (MoonD's cells pass 256) is split over several
+                // meshes, so no surface is dropped.
+                int part = 0;
+                var mesh = new ArrayMesh { ResourceName = baseName };
                 foreach ((string, LightSource) key in keys)
                 {
                     Material? material = _map.Compiler.Get(key.Item1, key.Item2);
@@ -1089,24 +1094,36 @@ public static class MapBuilder
                         continue;
                     }
 
+                    if (mesh.GetSurfaceCount() == MaxSurfacesPerMesh)
+                    {
+                        AddCellMesh(mesh, cell.sky);
+                        part++;
+                        mesh = new ArrayMesh { ResourceName = string.Create(CultureInfo.InvariantCulture, $"{baseName}_{part}") };
+                    }
+
                     b.AddTo(mesh, material);
                     _map.Stats.Vertices += b.VertexCount;
                 }
 
-                if (mesh.GetSurfaceCount() == 0)
-                {
-                    continue;
-                }
-
-                _static.AddChild(new MeshInstance3D
-                {
-                    Name = mesh.ResourceName,
-                    Mesh = mesh,
-                    Layers = cell.sky != 0 ? RenderLayers.Sky : RenderLayers.World,
-                });
-                _map.Stats.StaticNodes++;
-                _map.Stats.StaticSurfaces += mesh.GetSurfaceCount();
+                AddCellMesh(mesh, cell.sky);
             }
+        }
+
+        private void AddCellMesh(ArrayMesh mesh, int sky)
+        {
+            if (mesh.GetSurfaceCount() == 0)
+            {
+                return;
+            }
+
+            _static.AddChild(new MeshInstance3D
+            {
+                Name = mesh.ResourceName,
+                Mesh = mesh,
+                Layers = sky != 0 ? RenderLayers.Sky : RenderLayers.World,
+            });
+            _map.Stats.StaticNodes++;
+            _map.Stats.StaticSurfaces += mesh.GetSurfaceCount();
         }
 
         private static string? Str(JsonElement e, string name) =>
