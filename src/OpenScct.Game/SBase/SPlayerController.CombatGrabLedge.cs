@@ -20,7 +20,6 @@ public partial class SPlayerController
     private static readonly Name LNAME_s_GrabbedFromLedge_Begin = new("s_GrabbedFromLedge_Begin");
     private static readonly Name LNAME_GrabLgBgRail = new("GrabLgBgRail");
     private static readonly Name LNAME_s_Selected = new("s_Selected");
-    private static readonly Name LNAME_Vibration_Grab_Kill = new("Vibration_Grab_Kill");
     private static readonly AssetRef LSND_LedgeGrabAttack = new("Interface.Objectifs.Jingl_AsomDrop_Attac");
     private static readonly AssetRef LSND_LedgeGrabDefence = new("Interface.Objectifs.Jingl_AsomDrop_Def");
 
@@ -420,7 +419,7 @@ public partial class SPlayerController
             float now = pc.Level.TimeSeconds;
             pc.SetTimer(K.LedgeGrabTimeout, false);
             pc.bCanStop = false;
-            CombatFx.Notify(pc, LNAME_Vibration_Grab_Kill);
+            CombatFx.Notify(pc, CombatFx.Vibration_Grab_Kill);
             pc.TimerUSe = now;
             pc.fGrabFromLedgeStartTime = now;
             pc.fThrowForce = 0f;

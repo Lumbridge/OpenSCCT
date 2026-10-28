@@ -17,11 +17,21 @@ public partial class SPlayerController
     public override void ClientSetMusic(AssetRef NewSong, EMusicTransition NewTransition)
     {
         if (NewTransition == EMusicTransition.MTRAN_None &&
-            XLevel?.GetService<IDeviceHooks>()?.GetPlayerProfile() is { bObjectiveSounds: false })
+            (XLevel?.GetService<IDeviceHooks>()?.GetPlayerProfile() is { bObjectiveSounds: false } ||
+             LocalProfileOptions() is { ObjectiveSounds: false }))
         {
             return;
         }
 
         base.ClientSetMusic(NewSong, NewTransition);
     }
+
+    /// <summary>
+    /// The profile choices of this machine's own player (<see cref="IProfileOptions"/>, from the settings file), or
+    /// null for any other controller (a remote player on a server) or without the service.
+    /// </summary>
+    public IProfileOptions? LocalProfileOptions() =>
+        XLevel is { } level && ReferenceEquals(level.Info.LocalPlayerController, this) && !IsRemotePlayer
+            ? level.GetService<IProfileOptions>()
+            : null;
 }

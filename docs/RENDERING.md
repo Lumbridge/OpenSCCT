@@ -181,9 +181,10 @@ detail at any distance, which is why distant brick and tiles read sharp and grai
 graph (`materials.json` graph) leads from a material input (Diffuse, SelfIllumination, SelfIlluminationMask,
 SpecularityMask) to its texture, and `mips.json` gives the count; unknown textures (combined, derived) keep mipmaps.
 On the SteeE goldens this alone raised median SSIM from 0.970 to 0.991 and dark-room from 0.995 to 0.9999 (a
--0.5 LOD bias with mipmaps reached 0.984, -1.5 0.980). Colour textures are filtered anisotropically (Godot's 4x
-default; the sandbox's Reloaded config sets `filter_level` 4). `--svm-mip-bias=` keeps a LOD bias switch for
-calibration.
+-0.5 LOD bias with mipmaps reached 0.984, -1.5 0.980). Colour textures are filtered anisotropically at the
+settings' `filter_level` (rl:gfx.filtering: 0, 2, 4, 8 or 16, first run 4 as the sandbox's Reloaded config):
+`SettingsApplier.ApplyRendering` sets the root viewport's level and the project default for viewports made later.
+`--svm-mip-bias=` keeps a LOD bias switch for calibration.
 
 ## Baked light
 
@@ -256,8 +257,12 @@ Cookies share a texture array (`svm_spot_cookies`, each resampled to 256 x 256; 
 - The 2x gain is estimated (the Echelon light pass is not decoded); colour is FGetHSV x brightness / 255 as for
   other lights. `Place(location, rotation)` moves it; views put the torch on the merc's `Laser` bone (NativeTickTorche is not decoded; the UE5 client found
   that bone). `On` follows LightType.
-- The sandbox's Reloaded config smooths shadow edges with eight blended lookups and scales shadow maps
-  (`shadow_edge_smoothing`, `shadow_quality` 8); the port uses one hard lookup for now.
+- Shadow settings (rl:gfx.shadows): `shadow_quality` sets the map height of the spot shadow lights,
+  256 x the quality as a power of two from 128 to 2048 (`SpotShadowLight.MapSizeFor`: 2 is the old fixed 512, the
+  first run's 3 gives 1024, the sandbox's 8 gives 2048, an 8192 x 8192 R32F atlas of 256 MB); it is read when the
+  first light of a map makes the shared atlas, so a change applies from the next map. `shadow_edge_smoothing`
+  switches the eight-lookup disc (`SpotShadowSoftRadius`, 1.5 texels) on or off. Reloaded's `shadow_optimized`
+  (per-light resolution by screen size) is not done.
 
 ## Actor lighting
 
@@ -420,7 +425,23 @@ chooses the side's cap every frame, and `DisplayFramePacer` (under the root wind
 checks the window's screen, every second it reads that screen's refresh rate again, and on a change it applies the cap
 again (`SVM_DISPLAY screen N at R Hz`). Godot's own limiter holds a cap to a frame time standard
 deviation of 0.01 to 0.07 ms (measured below), so Reloaded's limiter (absolute deadlines, then sleep and spin: rules
-16 and 17) is not ported. The latency modes (`low_latency_mode`) and the frame-rate readout's 1 % lows are not done yet.
+16 and 17) is not ported. The frame-rate readout's 1 % lows are not done yet.
+
+**Input latency** (rl:gfx.pacing, `low_latency_mode` Off, On, Ultra; Off by default). The swap chain and the frame
+queue are read only at start, so Save writes `user://render_override.cfg`, which project.godot names as its
+`application/config/project_settings_override`: On and Ultra ask for 2 swap chain images (Godot's lowest; its default
+is 3). Godot allows a frame queue of 2 or 3 only, so Ultra cannot queue less than On and is the same for now; Off
+removes the file. Not measured.
+
+**Process options** (rl:gfx.system): `--priority=` (idle, low, below, normal, medium, above, high) and
+`--affinity=` (a mask such as `0xF`, or CPUs such as `0,2-3`) after `--` on the client's command line
+(`ProcessTuning`, `SVM_SYSTEM` lines in the log); with `throttle_stop` on, the Windows client opts out of power
+throttling at start (SetProcessInformation, execution speed). The dedicated server takes neither yet.
+
+**Crash reports** (rl:ac.crash): an exception nothing catches (any thread, or a faulted task nobody awaited) writes
+`crash-<utc>.log` into the user data folder, next to `settings.json`, with the build, the OS, the map and mode being
+played and the managed stack (`CrashLog`). Exceptions inside Godot's callbacks are caught and printed by Godot;
+native crashes keep Godot's handler.
 
 `--svm-smoke=frame-rate` (`Smoke/FrameRateSmoke.cs`) checks it through the player's path: the spy plays SteeE as the
 launchers run it, and for each case of `SVM_FRAMERATE_CASES` (default `monitor,60,144,165,240,unlimited,monitor-vsync,

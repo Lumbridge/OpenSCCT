@@ -810,7 +810,7 @@ public partial class SPlayerController
                     pc.CombatPorts.ChangeEnumAction(pawn, SBasePawn.SA_WANTS_TO_UNCROUCH, false);
                 }
 
-                CombatFx.Notify(pc, CombatFx.Vibration_Grab);
+                CombatFx.Notify(pc, CombatFx.Vibration_Grab_Kill);
                 pc.bUsing = 0;
             }
 
@@ -967,7 +967,7 @@ public partial class SPlayerController
         {
             var pc = (SPlayerController)self;
             pc.PlayerTick(DeltaTime);
-            CombatFx.Notify(pc, CombatFx.Vibration_Grab);
+            CombatFx.Notify(pc, CombatFx.Vibration_Grabbed);
             if (!pc.IsRemotePlayer && pc.SBPawn is { m_AttackedBy: null } && pc.GetStateName() == GNAME_s_GrabbedByPlayer)
             {
                 pc.eventChangeState(GNAME_s_GrabbedByPlayer_Released_Grabbing_LD);
@@ -1261,7 +1261,7 @@ public partial class SPlayerController
             var pc = (SPlayerController)self;
             pc.fGrabDate = pc.Level.TimeSeconds;
             pc.fTempsAvantClignote = K.StrangleBlinkDelay;
-            CombatFx.Notify(pc, CombatFx.Vibration_Grab);
+            CombatFx.Notify(pc, CombatFx.Vibration_Grab_Kill);
             if (pc.SBPawn?.MyWeapon is SWeaponDefense rifle)
             {
                 rifle.bDrawWeapon = false;

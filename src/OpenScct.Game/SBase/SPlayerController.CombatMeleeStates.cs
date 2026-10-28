@@ -350,7 +350,7 @@ public partial class SPlayerController
             if (now - pc.fGrabDate > K.ChargeTiltPeriod)
             {
                 pc.fGrabDate = now;
-                CombatFx.Notify(pc, CombatFx.Vibration_Charge);
+                CombatFx.Notify(pc, CombatFx.Vibration_Charge_Course);
             }
 
             if (before < pc.fRespawnDate && now >= pc.fRespawnDate)
@@ -464,7 +464,7 @@ public partial class SPlayerController
                 self.DestroyGPO(gpo, (int)self.iChargeDamage, SDamageType.SDamage_Charged);
             }
 
-            CombatFx.Notify(self, CombatFx.Vibration_Charge);
+            CombatFx.Notify(self, CombatFx.Vibration_Charge_Obstacle);
             self.SetHudPerturbationLength(K.ChargeWallPerturbation);
             self.eventChangeState(MNAME_s_PlayerCharging_HitWall);
             return false;
@@ -916,7 +916,7 @@ public partial class SPlayerController
                 self.DestroyGPO(gpo, (int)self.iChargeDamage, SDamageType.SDamage_Charged);
             }
 
-            CombatFx.Notify(self, CombatFx.Vibration_Charge);
+            CombatFx.Notify(self, CombatFx.Vibration_Charge_Obstacle);
             self.SetHudPerturbationLength(K.ChargeWallPerturbation);
             return false;
         }

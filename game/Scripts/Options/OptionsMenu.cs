@@ -10,10 +10,12 @@ namespace OpenScctGame.Options;
 
 /// <summary>
 /// The options (rl:qol.settingsui): player name and pages for keys (the spy and merc layouts, click a key and press
-/// the new one, Escape cancels), mouse (profile sensitivity, inversion, Reloaded's per-side look), controller
-/// (Reloaded's SDL defaults), display (mode, monitor, resolution, vsync, merc FOV cap, the per-side frame caps,
-/// render scale), audio (master, effects, music), voice (Reloaded's voice page: OptionsMenu.Voice.cs) and HUD
-/// (scoreboard, ping, frame-rate readout). Save writes
+/// the new one, Escape cancels), mouse (profile sensitivity, inversions, the wheel, Reloaded's per-side and per-view
+/// look with its clutches and their keys), controller (Reloaded's SDL defaults, vibration, the pad look groups),
+/// display (mode, monitor, resolution, window position, vsync, merc FOV cap, the per-side frame caps, render scale,
+/// texture filtering, shadows, input lag, power throttling), audio (master, effects, music, objective sounds), voice
+/// (Reloaded's voice page: OptionsMenu.Voice.cs) and HUD (scoreboard, ping, frame-rate and network readouts, location,
+/// hack icon opacity, distance unit). Save writes
 /// <c>user://settings.json</c> and applies at once; Back discards. From the main menu it is a screen; in play (F12)
 /// an overlay.
 /// </summary>
@@ -215,10 +217,76 @@ public partial class OptionsMenu : Control
         Slider(g, "Mouse sensitivity", "mouse_sensitivity", GameSettings.MinSensitivity, GameSettings.MaxSensitivity, 1, _edit.MouseSensitivity,
             v => _edit.MouseSensitivity = v, "0");
         Check(g, "Invert mouse", "invert_y", _edit.InvertY, v => _edit.InvertY = v);
-        Slider(g, "Spy free look (gun holstered)", "controls_spy_kbm.free_look", 0.1f, 4f, 0.05f, _edit.SpyKbm.FreeLook, v => _edit.SpyKbm.FreeLook = v);
-        Slider(g, "Spy gun look (gun drawn)", "controls_spy_kbm.look", 0.1f, 4f, 0.05f, _edit.SpyKbm.Look, v => _edit.SpyKbm.Look = v);
-        Slider(g, "Mercenary look", "controls_merc_kbm.look", 0.1f, 4f, 0.05f, _edit.MercKbm.Look, v => _edit.MercKbm.Look = v);
+        Check(g, "Invert X axis (spy)", "invert_x_spy", _edit.InvertXSpy, v => _edit.InvertXSpy = v);
+        Choice(g, "Mouse wheel", "mouse_wheel", GameSettings.WheelModes, _edit.MouseWheel, v => _edit.MouseWheel = v,
+            m => m == "Gadget" ? "Changes gadget" : "Walk and run");
+        LookRows(g, "controls_spy_kbm", () => _edit.SpyKbm, merc: false);
+        LookRows(g, "controls_merc_kbm", () => _edit.MercKbm, merc: true);
+        ClutchKeyRow(g, "Spy and mercenary clutch key", "clutch_one_key", () => _edit.ClutchOneKey, v => _edit.ClutchOneKey = v);
+        ClutchKeyRow(g, "Mercenary second clutch key", "clutch_two_key", () => _edit.ClutchTwoKey, v => _edit.ClutchTwoKey = v);
         return Page("Mouse", g);
+    }
+
+    /// <summary>
+    /// One side's look group (rl:input.sens and rl:input.clutch): the looks, the scope or binoculars, the camera
+    /// views, the vertical scales and the clutches.
+    /// </summary>
+    private void LookRows(GridContainer g, string key, Func<LookSettings> of, bool merc, bool skipLooks = false)
+    {
+        // The edited settings are read when changed: Save swaps them for a fresh copy.
+        LookSettings l = of();
+        string side = merc ? "Mercenary" : "Spy";
+        if (!skipLooks)
+        {
+            if (merc)
+            {
+                Slider(g, "Mercenary look", key + ".look", 0.1f, 4f, 0.05f, l.Look, v => of().Look = v);
+            }
+            else
+            {
+                Slider(g, "Spy free look (gun holstered)", key + ".free_look", 0.1f, 4f, 0.05f, l.FreeLook, v => of().FreeLook = v);
+                Slider(g, "Spy gun look (gun drawn)", key + ".look", 0.1f, 4f, 0.05f, l.Look, v => of().Look = v);
+            }
+        }
+
+        Slider(g, merc ? "Mercenary sniper scope" : "Spy binoculars", key + ".scope", 0.1f, 4f, 0.05f, l.Scope, v => of().Scope = v);
+        if (merc)
+        {
+            // 2.45 turns the scope up and down as fast as sideways; 1 is the stock (legacy) speed.
+            Slider(g, "Mercenary scope vertical (1 = stock)", key + ".scope_vertical", 0.5f, 4f, 0.05f, l.ScopeVertical, v => of().ScopeVertical = v);
+        }
+
+        Slider(g, side + " vertical", key + ".vertical", 0.1f, 8f, 0.05f, l.Vertical, v => of().Vertical = v);
+        Slider(g, side + (merc ? " camera views" : " sticky camera and Cam Net"), key + ".cam", 0.1f, 4f, 0.05f, l.Cam, v => of().Cam = v);
+        Check(g, side + " clutch", key + ".clutch_one_enabled", l.ClutchOneEnabled, v => of().ClutchOneEnabled = v);
+        Slider(g, side + " clutch multiplier", key + ".clutch_one", 0.1f, 4f, 0.05f, l.ClutchOne > 0f ? l.ClutchOne : 1f, v => of().ClutchOne = v);
+        if (merc)
+        {
+            Check(g, "Mercenary second clutch", key + ".clutch_two_enabled", l.ClutchTwoEnabled, v => of().ClutchTwoEnabled = v);
+            Slider(g, "Mercenary second clutch multiplier", key + ".clutch_two", 0.1f, 4f, 0.05f, l.ClutchTwo > 0f ? l.ClutchTwo : 1f, v => of().ClutchTwo = v);
+        }
+    }
+
+    /// <summary>The clutch whose key waits for a press, or null.</summary>
+    private (Button Button, Action<string> Set)? _listeningClutch;
+
+    /// <summary>A key or mouse button held for a clutch: click, then press it (Escape clears it).</summary>
+    private void ClutchKeyRow(GridContainer g, string label, string key, Func<string> current, Action<string> set)
+    {
+        var button = new Button { Name = Safe(key), Text = current().Length == 0 ? "(none)" : current(), CustomMinimumSize = new Vector2(220f, 30f) };
+        button.Pressed += () =>
+        {
+            button.Text = "press a key...";
+            _listeningClutch = (button, v =>
+            {
+                set(v);
+                button.Text = v.Length == 0 ? "(none)" : v;
+            });
+        };
+        g.AddChild(new Label { Text = label, CustomMinimumSize = new Vector2(320f, 0f) });
+        g.AddChild(button);
+        g.AddChild(new Control());
+        _controls[key] = button;
     }
 
     private Control PadPage()
@@ -236,11 +304,20 @@ public partial class OptionsMenu : Control
         Slider(g, "Look speed", "controller.look_speed", 100f, 3000f, 10f, p.LookSpeed, v => p.LookSpeed = v, "0");
         Check(g, "Spy eight-way movement", "controller.spy_move8", p.SpyMove8, v => p.SpyMove8 = v);
         Check(g, "Mercenary eight-way movement", "controller.merc_move8", p.MercMove8, v => p.MercMove8 = v);
+        Check(g, "Vibration", "controller.rumble", p.Rumble, v => p.Rumble = v);
+        Slider(g, "Vibration strength", "controller.rumble_strength", 0f, 100f, 1f, p.RumbleStrength * 100f, v => p.RumbleStrength = v / 100f, "0");
+        g.AddChild(new Label { Text = "Test vibration", CustomMinimumSize = new Vector2(320f, 0f) });
+        // Reloaded's trigger test: the blast's rumble (both motors, 0.35 s) at the strength set above.
+        g.AddChild(UiStyle.MenuButton("Test", () => PadRumble.Play(PadMenus.CurrentDevice(), new RumbleShape(7, 65535, 65535, 0.35f), _edit.Pad.RumbleStrength),
+            "RumbleTest"));
+        g.AddChild(new Control());
         Slider(g, "Spy free look", "controls_spy_pad.free_look", 0.1f, 4f, 0.05f, _edit.SpyPad.FreeLook, v => _edit.SpyPad.FreeLook = v);
         Slider(g, "Spy gun look", "controls_spy_pad.look", 0.1f, 4f, 0.05f, _edit.SpyPad.Look, v => _edit.SpyPad.Look = v);
         Choice(g, "Spy look response", "controls_spy_pad.look_response", GameSettings.Responses, _edit.SpyPad.LookResponse, v => _edit.SpyPad.LookResponse = v);
+        LookRows(g, "controls_spy_pad", () => _edit.SpyPad, merc: false, skipLooks: true);
         Slider(g, "Mercenary look", "controls_merc_pad.look", 0.1f, 4f, 0.05f, _edit.MercPad.Look, v => _edit.MercPad.Look = v);
         Choice(g, "Mercenary look response", "controls_merc_pad.look_response", GameSettings.Responses, _edit.MercPad.LookResponse, v => _edit.MercPad.LookResponse = v);
+        LookRows(g, "controls_merc_pad", () => _edit.MercPad, merc: true, skipLooks: true);
         Godot.Collections.Array<int> pads = Input.GetConnectedJoypads();
         string names = pads.Count == 0 ? "No controller connected" : string.Join(", ", System.Linq.Enumerable.Select(pads, i => Input.GetJoyName(i)));
         g.AddChild(new Label { Text = "Detected" });
@@ -385,6 +462,18 @@ public partial class OptionsMenu : Control
         Choice(g, "Max frame rate as mercenary", "fps_merc", DisplayFrameCap.Choices(_edit.FpsMerc, hz), DisplayFrameCap.Label(_edit.FpsMerc, hz),
             v => _edit.FpsMerc = DisplayFrameCap.Parse(v) ?? _edit.FpsMerc);
         Slider(g, "Render scale", "resolution_scale", 0.5f, 1f, 0.05f, _edit.RenderScale, v => _edit.RenderScale = v);
+        Choice(g, "Window position (windowed)", "window_position", GameSettings.WindowPositions, _edit.WindowPosition, v => _edit.WindowPosition = v,
+            w => w switch { "Default" => "Top left", "Stretched" => "Fill the screen", _ => w });
+        Choice(g, "Texture filtering", "filter_level", ["0", "2", "4", "8", "16"], _edit.FilterLevel.ToString(CultureInfo.InvariantCulture),
+            v => _edit.FilterLevel = int.Parse(v, CultureInfo.InvariantCulture), v => v == "0" ? "Trilinear (off)" : v + "x anisotropic");
+        Slider(g, "Shadow quality (next map)", "shadow_quality", 0.5f, 16f, 0.5f, _edit.ShadowQuality, v => _edit.ShadowQuality = v, "0.0");
+        Check(g, "Smooth shadow edges", "shadow_edge_smoothing", _edit.ShadowEdgeSmoothing, v => _edit.ShadowEdgeSmoothing = v);
+        Choice(g, "Reduce input lag (restart)", "low_latency_mode", GameSettings.LatencyModes, _edit.LowLatencyMode, v => _edit.LowLatencyMode = v);
+        if (OperatingSystem.IsWindows())
+        {
+            Check(g, "Stop Windows power throttling (restart)", "throttle_stop", _edit.ThrottleStop, v => _edit.ThrottleStop = v);
+        }
+
         return Page("Display", g);
     }
 
@@ -411,6 +500,7 @@ public partial class OptionsMenu : Control
         Slider(g, "Master", "master_volume", 0f, 100f, 1f, _edit.MasterVolume * 100f, v => _edit.MasterVolume = v / 100f, "0");
         Slider(g, "Effects", "sound_volume", 0f, 100f, 1f, _edit.SoundVolume * 100f, v => _edit.SoundVolume = v / 100f, "0");
         Slider(g, "Music", "music_volume", 0f, 100f, 1f, _edit.MusicVolume * 100f, v => _edit.MusicVolume = v / 100f, "0");
+        Check(g, "Objective sounds", "objective_sounds", _edit.ObjectiveSounds, v => _edit.ObjectiveSounds = v);
         return Page("Audio", g);
     }
 
@@ -421,6 +511,11 @@ public partial class OptionsMenu : Control
         Check(g, "Ping in the players list", "show_ping", _edit.ShowPing, v => _edit.ShowPing = v);
         Check(g, "Frame rate readout", "show_fps", _edit.ShowFps, v => _edit.ShowFps = v);
         Check(g, "Network readout (ping, loss, corrections)", "show_net", _edit.ShowNet, v => _edit.ShowNet = v);
+        Check(g, "Location (the place you are in)", "show_location", _edit.ShowLocation, v => _edit.ShowLocation = v);
+        Check(g, "Distances in feet", "hud_feet", _edit.HudFeet, v => _edit.HudFeet = v);
+        // Reloaded's settings page offers 20 % to 100 %; stored 0 to 255.
+        Slider(g, "Objective icon opacity while hacking (%)", "hack_alpha", 20f, 100f, 1f, Math.Max(20f, _edit.HackAlpha * 100f / 255f),
+            v => _edit.HackAlpha = (int)MathF.Round(v * 255f / 100f), "0");
         Check(g, "Discord status (shows your game, lets friends join)", "discord_presence", _edit.DiscordPresence, v => _edit.DiscordPresence = v);
         return Page("HUD", g);
     }
@@ -588,6 +683,14 @@ public partial class OptionsMenu : Control
 
     public override void _Input(InputEvent @event)
     {
+        if (_listeningClutch is { } clutch && @event is InputEventKey { Pressed: true } or InputEventMouseButton { Pressed: true })
+        {
+            GetViewport().SetInputAsHandled();
+            _listeningClutch = null;
+            clutch.Set(@event is InputEventKey { Keycode: Key.Escape } ? "" : KeyBindingsModel.KeyOf(@event) ?? "");
+            return;
+        }
+
         if (_listening is not null && @event is InputEventKey { Pressed: true } or InputEventMouseButton { Pressed: true })
         {
             string old = _listening;

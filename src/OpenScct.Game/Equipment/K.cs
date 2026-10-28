@@ -476,6 +476,14 @@ public static partial class K
     [Provenance(ProvenanceKind.Decoded, "UpdateRotationDefenseur kick q = 0.5 * sensitivity * dt * 50")]
     public const float KickQ = 25f;
 
+    /// <summary>
+    /// The sensitivity the scope kick is worked out with (rl:fix.sniper_kick): Reloaded and Enhanced give every player
+    /// the same kick, where the stock kick grew with the mouse sensitivity (up to 10x between the slider's ends). The
+    /// profile's default (MouseSensitivity 40, read as 4) keeps the stock kick of a default player.
+    /// </summary>
+    [Provenance(ProvenanceKind.Estimated, "rl:fix.sniper_kick: kick no longer tied to sensitivity; the fixed value Reloaded uses is not decoded, the profile default 40 / 10 is used")]
+    public const float KickSensitivity = 4f;
+
     // ---- inventory (spec/equipment/inventory-selection.md, loadouts.md) ---------------------------------
 
     [Provenance(ProvenanceKind.Decoded, "STeamInfo.iNBGadgets / HUD slot range 0..3")]

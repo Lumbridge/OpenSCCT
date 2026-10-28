@@ -202,7 +202,8 @@ public partial class SPlayerController
         if (fBinocularKickTime > 0f)
         {
             fBinocularKickTime = SvmMath.Max(fBinocularKickTime - dt, 0f);
-            float q = K.KickQ * fSensibiliteSouris * dt;
+            // Reloaded's fix (rl:fix.sniper_kick): the same kick for every player, whatever his mouse sensitivity.
+            float q = K.KickQ * K.KickSensitivity * dt;
             float time = fBinocularKickTime;
             float kick;
             if (time > K.KickSplit)

@@ -9,18 +9,22 @@ using OpenScctGame.UI;
 
 namespace OpenScctGame.Play;
 
-/// <summary>The gear change's services on a level the game loads (spec/additions/gear-change.md).</summary>
+/// <summary>
+/// The player's own services on a level the game loads: the gear change's (spec/additions/gear-change.md) and the
+/// profile choices of the settings file (objective sounds, the mouse wheel).
+/// </summary>
 public static class GearServices
 {
     /// <summary>
-    /// Adds the saved gear and the HUD line for the server's answer. Only the local player's kit reads the saved gear,
-    /// so a server level loaded in this process is not affected.
+    /// Adds the saved gear, the HUD line for the server's answer and the profile choices. Only the local player reads
+    /// them (his kit, his controller's profile), so a server level loaded in this process is not affected.
     /// </summary>
     public static void Install(Level level)
     {
         ArgumentNullException.ThrowIfNull(level);
         level.SetService<ILoadoutSource>(new SettingsLoadoutSource());
         level.SetService<IGearChangeFeedback>(new HudGearFeedback(level));
+        level.SetService<OpenScct.Game.Devices.IProfileOptions>(new SettingsProfileOptions());
     }
 }
 

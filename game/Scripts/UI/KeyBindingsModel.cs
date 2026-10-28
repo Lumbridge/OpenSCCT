@@ -78,7 +78,18 @@ public sealed class KeyBindingsModel
             ("", "(nothing)"),
             (OpenScctGame.Options.PadSettings.MenuAction, "Menu"),
         };
-        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "", OpenScctGame.Options.PadSettings.MenuAction };
+        // The sensitivity clutches are held by the controller itself (rl:input.clutch); the second is the merc's.
+        choices.Add((OpenScctGame.Options.PadSettings.ClutchOneAction, "Sensitivity clutch"));
+        if (Side == PlaySide.Merc || otherTeam)
+        {
+            choices.Add((OpenScctGame.Options.PadSettings.ClutchTwoAction, "Second sensitivity clutch"));
+        }
+
+        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            "", OpenScctGame.Options.PadSettings.MenuAction, OpenScctGame.Options.PadSettings.ClutchOneAction,
+            OpenScctGame.Options.PadSettings.ClutchTwoAction,
+        };
         foreach (KeyBindingRow row in Rows())
         {
             if (!otherTeam && !UsedBy(row.Command, Side))
