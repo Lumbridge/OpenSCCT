@@ -72,7 +72,11 @@ public partial class OptionsMenu : Control
 
     public override void _Ready() => Build();
 
-    public override void _Process(double delta) => UpdateVoicePage();
+    public override void _Process(double delta)
+    {
+        UpdateVoicePage();
+        TickKeep();
+    }
 
     public override void _ExitTree()
     {
@@ -199,6 +203,9 @@ public partial class OptionsMenu : Control
         grid.AddChild(new Label { Text = "Key layout" });
         grid.AddChild(side);
         _controls["key_layout"] = side;
+        grid.AddChild(new Control());
+        // Reloaded's split layouts (rl:input.keyboard); off, both sides play the spy's keys. Takes effect on Save.
+        Check(grid, "Separate spy and mercenary layouts", "use_split_spy_merc_keyboard", _edit.SplitKeyboard, v => _edit.SplitKeyboard = v);
         page.AddChild(grid);
         _keySource = new Label { Name = "Source", Modulate = UiStyle.Dim, AutowrapMode = TextServer.AutowrapMode.Arbitrary };
         page.AddChild(_keySource);
@@ -218,6 +225,7 @@ public partial class OptionsMenu : Control
             v => _edit.MouseSensitivity = v, "0");
         Check(g, "Invert mouse", "invert_y", _edit.InvertY, v => _edit.InvertY = v);
         Check(g, "Invert X axis (spy)", "invert_x_spy", _edit.InvertXSpy, v => _edit.InvertXSpy = v);
+        Check(g, "Shocker lock-on snap when drawing (spy)", "shocker_snap", _edit.ShockerSnap, v => _edit.ShockerSnap = v);
         Choice(g, "Mouse wheel", "mouse_wheel", GameSettings.WheelModes, _edit.MouseWheel, v => _edit.MouseWheel = v,
             m => m == "Gadget" ? "Changes gadget" : "Walk and run");
         LookRows(g, "controls_spy_kbm", () => _edit.SpyKbm, merc: false);
@@ -293,7 +301,12 @@ public partial class OptionsMenu : Control
     {
         GridContainer g = Grid("Controller");
         PadSettings p = _edit.Pad;
-        Check(g, "Native controller support", "controller.enabled", p.Enabled, v => p.Enabled = v);
+        // Set here, the first-run question (PadMenus) is never asked.
+        Check(g, "Native controller support", "controller.enabled", p.Enabled, v =>
+        {
+            p.Enabled = v;
+            p.Prompted = true;
+        });
         Check(g, "Stick movement", "controller.move", p.Move, v => p.Move = v);
         Check(g, "Stick aiming", "controller.aim", p.Aim, v => p.Aim = v);
         Check(g, "Button binds", "controller.binds", p.Binds, v => p.Binds = v);
@@ -301,6 +314,7 @@ public partial class OptionsMenu : Control
         Slider(g, "Right stick deadzone", "controller.deadzone_right", 0f, 0.9f, 0.01f, p.DeadzoneRight, v => p.DeadzoneRight = v);
         Slider(g, "Vertical aim scale", "controller.vertical_scale", 0.1f, 3f, 0.05f, p.VerticalScale, v => p.VerticalScale = v);
         Slider(g, "Spy run threshold", "controller.run_threshold", 0.1f, 1f, 0.01f, p.RunThreshold, v => p.RunThreshold = v);
+        Check(g, "Analog slow walk (a part push walks slower)", "controller.slow_walk", p.SlowWalk, v => p.SlowWalk = v);
         Slider(g, "Look speed", "controller.look_speed", 100f, 3000f, 10f, p.LookSpeed, v => p.LookSpeed = v, "0");
         Check(g, "Spy eight-way movement", "controller.spy_move8", p.SpyMove8, v => p.SpyMove8 = v);
         Check(g, "Mercenary eight-way movement", "controller.merc_move8", p.MercMove8, v => p.MercMove8 = v);
@@ -453,7 +467,9 @@ public partial class OptionsMenu : Control
         Choice(g, "Window size", "resolution", Resolutions(), _edit.Resolution.Length == 0 ? DesktopLabel : _edit.Resolution,
             v => _edit.Resolution = v == DesktopLabel ? "" : v);
         Check(g, "Vertical sync", "vsync", _edit.VSync, v => _edit.VSync = v);
-        Check(g, "Widescreen (Hor+ view, anchored HUD)", "widescreen", _edit.Widescreen, v => _edit.Widescreen = v);
+        Check(g, "Widescreen (Hor+ view)", "widescreen", _edit.Widescreen, v => _edit.Widescreen = v);
+        Check(g, "Widescreen HUD (not stretched)", "widescreen_hud", _edit.WidescreenHud, v => _edit.WidescreenHud = v);
+        Check(g, "Small Enhanced Reality icons in widescreen", "ws_er_small", _edit.WideErSmall, v => _edit.WideErSmall = v);
         Slider(g, "Mercenary FOV cap (ws_fov)", "ws_fov", GameSettings.MinMercFov, GameSettings.MaxMercFov, 1, _edit.MercFovCap, v => _edit.MercFovCap = v, "0");
         // Max frame rate (Options/DisplayFrameCap): Monitor (the window's screen rate), Unlimited or 30 to 240.
         double hz = SettingsApplier.MonitorHz;
@@ -466,8 +482,19 @@ public partial class OptionsMenu : Control
             w => w switch { "Default" => "Top left", "Stretched" => "Fill the screen", _ => w });
         Choice(g, "Texture filtering", "filter_level", ["0", "2", "4", "8", "16"], _edit.FilterLevel.ToString(CultureInfo.InvariantCulture),
             v => _edit.FilterLevel = int.Parse(v, CultureInfo.InvariantCulture), v => v == "0" ? "Trilinear (off)" : v + "x anisotropic");
+        Check(g, "Anti-aliasing: MSAA", "msaa", _edit.Msaa, v => _edit.Msaa = v);
+        Choice(g, "MSAA samples", "msaa_samples", ["2", "4", "8"], _edit.MsaaSamples.ToString(CultureInfo.InvariantCulture),
+            v => _edit.MsaaSamples = int.Parse(v, CultureInfo.InvariantCulture), v => v + "x");
+        Check(g, "Anti-aliasing: SMAA", "smaa", _edit.Smaa, v => _edit.Smaa = v);
         Slider(g, "Shadow quality (next map)", "shadow_quality", 0.5f, 16f, 0.5f, _edit.ShadowQuality, v => _edit.ShadowQuality = v, "0.0");
         Check(g, "Smooth shadow edges", "shadow_edge_smoothing", _edit.ShadowEdgeSmoothing, v => _edit.ShadowEdgeSmoothing = v);
+
+        // Video_Settings' Post-Render Quality (Normal, High) and its Brightness Configuration button (GUI.Mire).
+        Choice(g, "Post-render quality", "post_quality", GameSettings.PostQualities, GameSettings.PostQualities[Math.Clamp(_edit.PostQuality, 0, 1)],
+            v => _edit.PostQuality = Array.IndexOf(GameSettings.PostQualities, v));
+        g.AddChild(new Label { Text = "Brightness", CustomMinimumSize = new Vector2(320f, 0f) });
+        g.AddChild(UiStyle.MenuButton("Brightness configuration", OpenBrightnessTest, "BrightnessConfiguration"));
+        g.AddChild(new Control());
         Choice(g, "Reduce input lag (restart)", "low_latency_mode", GameSettings.LatencyModes, _edit.LowLatencyMode, v => _edit.LowLatencyMode = v);
         if (OperatingSystem.IsWindows())
         {
@@ -509,8 +536,12 @@ public partial class OptionsMenu : Control
         GridContainer g = Grid("HUD");
         Check(g, "Connected players list on (F10)", "show_scoreboard", _edit.ShowScoreboard, v => _edit.ShowScoreboard = v);
         Check(g, "Ping in the players list", "show_ping", _edit.ShowPing, v => _edit.ShowPing = v);
+        Choice(g, "Split the players list at team size", "scoreboard_split_team_size", ["1", "2", "3", "4"],
+            _edit.ScoreboardSplitTeamSize.ToString(CultureInfo.InvariantCulture), v => _edit.ScoreboardSplitTeamSize = int.Parse(v, CultureInfo.InvariantCulture));
         Check(g, "Frame rate readout", "show_fps", _edit.ShowFps, v => _edit.ShowFps = v);
-        Check(g, "Network readout (ping, loss, corrections)", "show_net", _edit.ShowNet, v => _edit.ShowNet = v);
+        Check(g, "Network readout (ping, corrections; a host sees its players' best and worst ping)", "show_net", _edit.ShowNet,
+            v => _edit.ShowNet = v);
+        Check(g, "Packet loss in the network readout", "show_net_loss", _edit.ShowNetLoss, v => _edit.ShowNetLoss = v);
         Check(g, "Fire prediction (your bullet impacts show at once online)", "fire_prediction", _edit.FirePrediction,
             v => _edit.FirePrediction = v);
         Check(g, "Location (the place you are in)", "show_location", _edit.ShowLocation, v => _edit.ShowLocation = v);
@@ -662,7 +693,8 @@ public partial class OptionsMenu : Control
         if (_keySource is not null)
         {
             // The file's name, not the install's whole path.
-            _keySource.Text = "Layout: " + System.IO.Path.GetFileName(_keys.Source);
+            _keySource.Text = "Layout: " + System.IO.Path.GetFileName(_keys.Source) +
+                (OpenScctGame.Controls.InputBindings.Shared ? " (shared by both sides)" : string.Empty);
         }
     }
 
@@ -734,16 +766,112 @@ public partial class OptionsMenu : Control
     /// <summary>Saves the edited settings and puts them into effect.</summary>
     public Error Save()
     {
+        GameSettings before = SettingsStore.Current.Clone();
+        bool screenChanged = !string.Equals(before.DisplayMode, _edit.DisplayMode, StringComparison.Ordinal) || before.Monitor != _edit.Monitor ||
+            !string.Equals(before.Resolution, _edit.Resolution, StringComparison.Ordinal);
+        bool splitChanged = _edit.SplitKeyboard != before.SplitKeyboard;
         Error result = SettingsStore.Save(_edit);
         SettingsApplier.ApplyDisplay(_edit, GetViewport());
         SettingsApplier.ApplyAudio(_edit);
         _edit = SettingsStore.Current.Clone();
+        if (splitChanged)
+        {
+            // The layout files the sides play changed: the page and a running round load them again.
+            OpenScctGame.Controls.InputBindings.RaiseReboundAll();
+            if (_keys is not null)
+            {
+                LoadLayout(_keys.Side);
+            }
+        }
         if (_note is not null)
         {
             _note.Text = result == Error.Ok ? "Saved to " + SettingsStore.FilePath : "Could not save the settings";
         }
 
+        if (screenChanged && DisplayServer.GetName() != "headless")
+        {
+            AskKeepScreen(before);
+        }
+
         return result;
+    }
+
+    /// <summary>Seconds the "keep these settings?" question waits before it puts the old screen back.</summary>
+    [OpenScct.Provenance.Provenance(OpenScct.Provenance.ProvenanceKind.Decoded, "GUI.Validate_VideoSettings s_Init: TimeTest + 15")]
+    public const int KeepSeconds = 15;
+
+    private ConfirmBox? _keep;
+    private double _keepEnd;
+
+    /// <summary>
+    /// GUI.Validate_VideoSettings: after a change of the screen (display mode, monitor, window size), "Do you want to
+    /// keep these settings? Original settings will be reset in: 15" counting down; Yes keeps them, No or the end of
+    /// the count puts the old ones back (saved and applied). The original asked after its resolution and quality rows;
+    /// the rewrite asks after the rows that can leave the player without a usable screen.
+    /// </summary>
+    [OpenScct.Provenance.PortOf("uc:GUI.Validate_VideoSettings:s_Init@code", Spec = "spec/game/lobby-and-match-creation.md#front-end-pages")]
+    [OpenScct.Provenance.PortOf("uc:GUI.Validate_VideoSettings:YesButtonClick", Spec = "spec/game/lobby-and-match-creation.md#front-end-pages")]
+    [OpenScct.Provenance.PortOf("uc:GUI.Validate_VideoSettings:NoButtonClick", Spec = "spec/game/lobby-and-match-creation.md#front-end-pages")]
+    private void AskKeepScreen(GameSettings before)
+    {
+        _keep?.Answer(true);
+        _keepEnd = Time.GetTicksMsec() / 1000.0 + KeepSeconds;
+        _keep = ConfirmBox.Open(this, new ConfirmBox
+        {
+            Name = "KeepScreen",
+            Question = KeepText(KeepSeconds),
+            Yes = () => _keep = null,
+            No = () =>
+            {
+                _keep = null;
+                GameSettings back = SettingsStore.Current.Clone();
+                back.DisplayMode = before.DisplayMode;
+                back.Monitor = before.Monitor;
+                back.Resolution = before.Resolution;
+                SettingsStore.Save(back);
+                SettingsApplier.ApplyDisplay(back, GetViewport());
+                _edit.DisplayMode = back.DisplayMode;
+                _edit.Monitor = back.Monitor;
+                _edit.Resolution = back.Resolution;
+                RebuildPages();
+                if (_note is not null)
+                {
+                    _note.Text = "The screen settings were put back.";
+                }
+            },
+        });
+    }
+
+    private static string KeepText(int seconds) =>
+        OpenScctGame.Tutorials.TutorialText.Lines(OpenScctGame.Tutorials.TutorialText.Caption("Validate_VideoSettings", "KeepText",
+            "Do you want to keep these settings?|Original settings will be reset in:")) + " " + seconds.ToString(CultureInfo.InvariantCulture);
+
+    /// <summary>The countdown of the keep question; at 0 it answers No.</summary>
+    private void TickKeep()
+    {
+        if (_keep is null || !IsInstanceValid(_keep))
+        {
+            _keep = null;
+            return;
+        }
+
+        int left = (int)Math.Ceiling(_keepEnd - Time.GetTicksMsec() / 1000.0);
+        if (left <= 0)
+        {
+            _keep.Answer(false);
+            return;
+        }
+
+        _keep.SetQuestion(KeepText(left));
+    }
+
+    /// <summary>The brightness test pattern (GUI.Mire) over the options.</summary>
+    private void OpenBrightnessTest()
+    {
+        if (GetNodeOrNull("BrightnessTest") is null)
+        {
+            AddChild(new BrightnessTest());
+        }
     }
 
     /// <summary>Back to Reloaded's first-run values in the editor (not saved until Save).</summary>

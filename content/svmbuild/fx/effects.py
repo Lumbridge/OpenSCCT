@@ -76,7 +76,9 @@ STICKY_SKINS = (
 )
 
 # Properties of an effect class whose assets are drawn (static meshes, skins, textures, materials).
-ASSET_PROPS = ("StaticMesh", "Skins", "Texture", "ProjTexture", "ImpactMaterial", "MaterialHeat", "OverlayMaterial")
+# LightOn and LightOff are the skins SMineProx swaps into Skins[1] at run time (its light on and off).
+ASSET_PROPS = ("StaticMesh", "Skins", "Texture", "ProjTexture", "ImpactMaterial", "MaterialHeat", "OverlayMaterial", "LightOn",
+               "LightOff")
 
 # Sub-emitter properties that name assets.
 EMITTER_ASSET_PROPS = ("Texture", "StaticMesh", "TextureInThermicVisionPSX2")

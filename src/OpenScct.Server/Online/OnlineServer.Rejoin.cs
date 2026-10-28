@@ -16,6 +16,9 @@ internal sealed record DroppedPlayer
 
     public string? InstallId { get; init; }
 
+    /// <summary>The guest's proven player key; when known, he is matched by it instead of his install id.</summary>
+    public string? PublicKey { get; init; }
+
     public string Name { get; init; } = string.Empty;
 
     /// <summary>The session side (0 spies, 1 mercs), as the lobby gave it (a revenge game's login swaps it).</summary>
@@ -35,8 +38,9 @@ internal sealed record DroppedPlayer
 
     public int Lives { get; init; }
 
-    public bool Matches(long? accountId, string? installId) =>
-        accountId is not null ? AccountId == accountId : AccountId is null && InstallId is { Length: > 0 } id && id == installId;
+    public bool Matches(long? accountId, string? installId, string? publicKey) =>
+        accountId is not null ? AccountId == accountId
+        : AccountId is null && (PublicKey is { } key ? key == publicKey : InstallId is { Length: > 0 } id && id == installId);
 }
 
 public sealed partial class OnlineServer
@@ -55,11 +59,11 @@ public sealed partial class OnlineServer
             return;
         }
 
-        _dropped.RemoveAll(d => d.Matches(p.AccountId, p.InstallId));
+        _dropped.RemoveAll(d => d.Matches(p.AccountId, p.InstallId, p.PublicKey));
         PlayerReplicationInfo? pri = Phase == SessionPhase.Match ? controller?.PlayerReplicationInfo : null;
         _dropped.Add(new DroppedPlayer
         {
-            AccountId = p.AccountId, InstallId = p.InstallId, Name = p.Name, Team = p.Team, Round = RoundsStarted,
+            AccountId = p.AccountId, InstallId = p.InstallId, PublicKey = p.PublicKey, Name = p.Name, Team = p.Team, Round = RoundsStarted,
             HasStats = pri is not null, Score = pri?.Score ?? 0f, Kills = pri?.Kills ?? 0, Deaths = pri?.Deaths ?? 0,
             Lives = pri?.NumLives ?? 0,
         });
@@ -67,8 +71,9 @@ public sealed partial class OnlineServer
     }
 
     /// <summary>The dropped player a joining player is (by account, or install id for a guest), or null.</summary>
-    private DroppedPlayer? FindDropped(long? accountId, string installId) =>
-        Phase == SessionPhase.Lobby ? null : _dropped.Find(d => d.Matches(accountId, installId.Length > 0 ? installId : null));
+    private DroppedPlayer? FindDropped(long? accountId, string installId, string playerKey) =>
+        Phase == SessionPhase.Lobby ? null
+        : _dropped.Find(d => d.Matches(accountId, installId.Length > 0 ? installId : null, playerKey.Length > 0 ? playerKey : null));
 
     /// <summary>Accounts that dropped out of the round and may rejoin (the master offers them the rejoin at sign-in).</summary>
     private IReadOnlyList<long> RejoinAccounts()

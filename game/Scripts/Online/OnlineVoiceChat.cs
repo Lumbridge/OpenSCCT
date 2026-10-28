@@ -110,7 +110,7 @@ public partial class OnlineVoiceChat : Node
         ArgumentNullException.ThrowIfNull(client);
         Detach();
         _client = client;
-        var voice = new VoiceClient(_settings, clock);
+        var voice = new VoiceClient(_settings, clock) { UseVoiceThread = true };
         Voice = new OnlineVoice(client, voice);
         if (Audio is not null)
         {
@@ -188,8 +188,20 @@ public partial class OnlineVoiceChat : Node
 
     private void OnSaved(GameSettings settings) => ApplySettings(settings);
 
-    /// <summary>The options' Voice page in the voice client's settings.</summary>
-    public void ApplySettings(GameSettings s) => CopySettings(s, _settings);
+    /// <summary>
+    /// The options' Voice page in the voice client's settings. The synthetic microphone skips the clean-up: a steady
+    /// tone is exactly what noise suppression takes away.
+    /// </summary>
+    public void ApplySettings(GameSettings s)
+    {
+        CopySettings(s, _settings);
+        if (ToneHz > 0)
+        {
+            _settings.AutoGain = false;
+            _settings.NoiseSuppression = false;
+            _settings.EchoCancellation = false;
+        }
+    }
 
     /// <summary>The options' Voice page into <paramref name="into"/> (the hub's voice reads it too).</summary>
     public static void CopySettings(GameSettings s, VoiceSettings into)
@@ -204,6 +216,10 @@ public partial class OnlineVoiceChat : Node
         into.InputGain = s.VoiceInputGain;
         into.OutputVolume = s.VoiceVolume;
         into.JitterFrames = s.VoiceJitterFrames;
+        into.AutoGain = s.VoiceAutoGain;
+        into.NoiseSuppression = s.VoiceNoiseSuppression;
+        into.NoiseSuppressionDecibels = GameSettings.NoiseLevelDecibels(s.VoiceNoiseLevel);
+        into.EchoCancellation = s.VoiceEchoCancellation;
     }
 
     private void FeedTone(double delta)
@@ -212,6 +228,11 @@ public partial class OnlineVoiceChat : Node
         {
             return;
         }
+
+        // Set after the settings were first applied: take the clean-up off now.
+        _settings.AutoGain = false;
+        _settings.NoiseSuppression = false;
+        _settings.EchoCancellation = false;
 
         if (_tonePlayer is null && !_toneDirect)
         {

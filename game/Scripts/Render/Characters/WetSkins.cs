@@ -15,9 +15,11 @@ namespace OpenScctGame.Render.Characters;
 /// SPersoTextures.alpha_ATT02.HEAT_SN02_SI_wet over Skins 0 where this machine's player is a spy, HEAT_sn02_wet
 /// elsewhere, and heat_sn02_2_wet_head over Skins 1; on the merc DEF01_heat_bodu_sv over Skins 0 and 2. Each is a
 /// SpecialVisionTextureModifier: in thermal and EMF its heat and EMF textures (shared/render vision.json, under the
-/// base materials wet_lit_ATT_SI, wet_lit_ATT, wet_lit_ATT_2 and lit_def_fx), in normal vision its base material. Those
-/// base materials are not converted, so each skin draws the surface's own textures with the wet modifier's vision
-/// textures; only the spy's head changes in the converted data (its wet heat is HEATTEX_Heat, the dry one HEATTEX_Cool).
+/// base materials wet_lit_ATT_SI, wet_lit_ATT, wet_lit_ATT_2 and lit_def_fx), in normal vision its base material. The
+/// base materials are LitSpecularMaterials: the dry skin's own diffuse plus the wet env map (SPersoTextures.wet_envmap,
+/// looked up by the camera-space reflection) added through a SpecularityMask, and on wet_lit_ATT_SI and lit_def_fx a
+/// self-illumination. The chars step writes their textures with the mesh (glb extras svmap.wetSkins); an older build
+/// without them draws the surface's own textures with only the wet modifier's vision textures.
 /// Built once per mesh file and side of the local player.
 /// </summary>
 public sealed class WetSkins
@@ -82,6 +84,7 @@ public sealed class WetSkins
 
         using GlbDocument glb = GlbDocument.Load(glbPath);
         Dictionary<string, MaterialEntry> own = OwnMaterials(glb.Root);
+        Dictionary<string, WetInputs> wet = WetMaterials(glb.Root);
         foreach ((string surface, string spyMachine, string mercMachine) in table)
         {
             if (!own.TryGetValue(surface, out MaterialEntry? e))
@@ -89,20 +92,71 @@ public sealed class WetSkins
                 continue;
             }
 
-            // The surface's own look under the wet skin's name, so the vision lookup finds the wet modifier's textures.
-            skins._bySurface[surface] = compiler.Build(new MaterialEntry
-            {
-                Name = localSpy ? spyMachine : mercMachine,
-                Texture = e.Texture,
-                SelfIllum = e.SelfIllum,
-                SelfIllumMask = e.SelfIllumMask,
-                Masked = e.Masked,
-                Translucent = e.Translucent,
-                TwoSided = e.TwoSided,
-            }, LightSource.Actor);
+            // Under the wet skin's name, so the vision lookup finds the wet modifier's textures.
+            string name = localSpy ? spyMachine : mercMachine;
+            skins._bySurface[surface] = compiler.Build(wet.TryGetValue(name, out WetInputs? w)
+                ? new MaterialEntry
+                {
+                    Name = name,
+                    Texture = e.Texture,
+                    SelfIllum = w.SelfIllum,
+                    SelfIllumMask = w.SelfIllumMask,
+                    SpecMask = w.SpecMask,
+                    EnvTexture = w.Env,
+                    EnvColor = w.EnvColor,
+                    Masked = e.Masked,
+                    Translucent = e.Translucent,
+                    TwoSided = e.TwoSided,
+                }
+                : new MaterialEntry
+                {
+                    Name = name,
+                    Texture = e.Texture,
+                    SelfIllum = e.SelfIllum,
+                    SelfIllumMask = e.SelfIllumMask,
+                    Masked = e.Masked,
+                    Translucent = e.Translucent,
+                    TwoSided = e.TwoSided,
+                }, LightSource.Actor);
         }
 
         return skins;
+    }
+
+    /// <summary>The inputs of one wet LitSpecularMaterial as the chars step wrote them (texture paths beside the mesh).</summary>
+    private sealed record WetInputs(string? Env, Vector3? EnvColor, string? SpecMask, string? SelfIllum, string? SelfIllumMask);
+
+    /// <summary>The glb's svmap.wetSkins: wet material path to its env map, env colour, specularity mask and glow.</summary>
+    [Provenance(ProvenanceKind.Decoded, "SPersoTextures wet_lit_ATT_SI, wet_lit_ATT, wet_lit_ATT_2, lit_def_fx: LitSpecularMaterial Specular (TexEnvMap envmap_wet), SpecularityMask, SelfIllumination(Mask)")]
+    [Provenance(ProvenanceKind.Estimated, "The specular term is drawn as the map Shaders' env maps are (env texture by the camera-space reflection, added through the mask's alpha)")]
+    private static Dictionary<string, WetInputs> WetMaterials(JsonElement root)
+    {
+        var result = new Dictionary<string, WetInputs>(StringComparer.OrdinalIgnoreCase);
+        if (!root.TryGetProperty("extras", out JsonElement ex) || !ex.TryGetProperty("svmap", out JsonElement svmap) ||
+            !svmap.TryGetProperty("wetSkins", out JsonElement wet) || wet.ValueKind != JsonValueKind.Object)
+        {
+            return result;
+        }
+
+        foreach (JsonProperty m in wet.EnumerateObject())
+        {
+            Vector3? colour = null;
+            if (m.Value.TryGetProperty("envColor", out JsonElement c) && c.ValueKind == JsonValueKind.Array && c.GetArrayLength() == 3)
+            {
+                colour = new Vector3(c[0].GetSingle(), c[1].GetSingle(), c[2].GetSingle());
+            }
+
+            string? env = MaterialsDoc.Str(m.Value, "env");
+            string? mask = MaterialsDoc.Str(m.Value, "specMask");
+            result[m.Name] = new WetInputs(
+                env is not null && mask is not null ? env : null,
+                env is not null && mask is not null ? colour ?? Vector3.Zero : null,
+                env is not null ? mask : null,
+                MaterialsDoc.Str(m.Value, "selfIllum"),
+                MaterialsDoc.Str(m.Value, "selfIllumMask"));
+        }
+
+        return result;
     }
 
     /// <summary>The mesh's own materials as the character loader reads them (diffuse, self-illumination, blending).</summary>

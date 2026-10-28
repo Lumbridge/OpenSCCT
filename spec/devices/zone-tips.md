@@ -41,6 +41,13 @@ ends the game when touched.
    clear the target.
 4. `RemoveMessage(PC)`: unless `bStayPermanently`, `AddTutoMapMessage("")` (clears the hint).
 5. In any network mode (listen host included) nothing is shown: the SteeE Story slice never shows these hints online.
+
+### The rewrite
+
+5a. OpenSCCT's offline play (tutorials, Visit a Map, offline matches) is a listen server with the player connected
+    as a client, so the standalone test would never pass. The player's own machine therefore also counts as
+    standalone while an offline session runs on it (`IProfileOptions.OfflineSession`): Touch and UnTouch run for its
+    local controller in the client's world, where the HUD is. Online sessions stay as rule 5.
 6. SEndZoneTip `Touch` (non-simulated): the parent behaviour, then for a pawn with an SPlayerController remember its
    team (`SPawnType`) and go to `s_DelayBeforeEnd`. `BeginState`: with `EndGameDelay > 0` start a timer of that many
    seconds; else immediately `ReplicateWinningReason(team, END_TEAMDEATH)` and `sEndGame()`. `Timer`: the same end

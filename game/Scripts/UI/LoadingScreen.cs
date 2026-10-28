@@ -60,6 +60,7 @@ public partial class LoadingScreen : MenuPage
         });
         modeRow.AddChild(new Label { Name = "Mode", Text = LobbySetup.ModeName(Mode), Modulate = UiStyle.MenuTitle, VerticalAlignment = VerticalAlignment.Center });
         Body.AddChild(modeRow);
+        Body.AddChild(LoadingTip.Label(LoadingTip.Pick(Merc)));
     }
 
     public override void _Process(double delta)
@@ -74,12 +75,6 @@ public partial class LoadingScreen : MenuPage
         Then?.Invoke();
     }
 
-    /// <summary>The mode of a play settings mode key (Story, DiskHunt, Deathmatch, MercDeathMatch).</summary>
-    public static EGameMode ModeOf(string? key) => key?.ToUpperInvariant() switch
-    {
-        "DISKHUNT" => EGameMode.GM_DiskHunt,
-        "DEATHMATCH" => EGameMode.GM_DeathMatch,
-        "MERCDEATHMATCH" => EGameMode.GM_MercDeathMatch,
-        _ => EGameMode.GM_Multi,
-    };
+    /// <summary>The mode of a play settings mode key (MapCatalog.ModeOfKey; Story for an unknown one).</summary>
+    public static EGameMode ModeOf(string? key) => MapCatalog.ModeOfKey(key) ?? EGameMode.GM_Multi;
 }

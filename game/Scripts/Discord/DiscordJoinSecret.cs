@@ -14,8 +14,10 @@ public enum DiscordJoinKind
 /// The join secret on the player's Discord status (docs/DISCORD.md): "oscct1|m|&lt;master server id&gt;",
 /// "oscct1|a|&lt;host:port&gt;" or "oscct1|h|&lt;host:port&gt;". Discord hands it only to friends the player let in.
 /// A listed server goes by its master id so friends reach it the way the browser does (NAT punch, relay, tickets).
+/// A server with a password carries "mp" or "ap" instead (<see cref="NeedsPassword"/>): the password itself never goes
+/// to Discord; the friend's game asks for it. Older builds do not know those kinds and ignore the Join.
 /// </summary>
-public sealed record DiscordJoinSecret(DiscordJoinKind Kind, string Value)
+public sealed record DiscordJoinSecret(DiscordJoinKind Kind, string Value, bool NeedsPassword = false)
 {
     private const string Prefix = "oscct1";
 
@@ -27,7 +29,7 @@ public sealed record DiscordJoinSecret(DiscordJoinKind Kind, string Value)
         DiscordJoinKind.Master => "m",
         DiscordJoinKind.Hub => "h",
         _ => "a",
-    } + "|" + Value;
+    } + (NeedsPassword && Kind != DiscordJoinKind.Hub ? "p" : string.Empty) + "|" + Value;
 
     /// <summary>The secret's text, or null when it would not fit Discord's limit.</summary>
     public string? Format()
@@ -51,12 +53,12 @@ public sealed record DiscordJoinSecret(DiscordJoinKind Kind, string Value)
 
         DiscordJoinKind? kind = parts[1] switch
         {
-            "m" => DiscordJoinKind.Master,
-            "a" => DiscordJoinKind.Address,
+            "m" or "mp" => DiscordJoinKind.Master,
+            "a" or "ap" => DiscordJoinKind.Address,
             "h" => DiscordJoinKind.Hub,
             _ => null,
         };
-        return kind is { } k ? new DiscordJoinSecret(k, parts[2].Trim()) : null;
+        return kind is { } k ? new DiscordJoinSecret(k, parts[2].Trim(), parts[1].EndsWith('p')) : null;
     }
 
     /// <summary>False for addresses only this PC can reach (a friend could never join them).</summary>

@@ -505,10 +505,16 @@ public sealed class MasterLink : IDisposable
         }
     }
 
-    /// <summary>The host's own IPv4 addresses with the game port (for players behind the same router).</summary>
+    /// <summary>
+    /// The host's own addresses with the game port (for players behind the same router): its IPv4 addresses, then up
+    /// to two IPv6 ones (global or unique local, the stable ones before temporary privacy addresses; never link-local,
+    /// which needs the interface's scope). The game socket listens on both, so a player whose network has IPv6 can
+    /// reach the host on it without a NAT in the way.
+    /// </summary>
     public static IReadOnlyList<string> LanAddresses(int port)
     {
         var list = new List<string>();
+        var v6 = new List<(IPAddress Address, bool Temporary)>();
         try
         {
             foreach (NetworkInterface nic in NetworkInterface.GetAllNetworkInterfaces())
@@ -520,15 +526,27 @@ public sealed class MasterLink : IDisposable
 
                 foreach (UnicastIPAddressInformation a in nic.GetIPProperties().UnicastAddresses)
                 {
-                    if (a.Address.AddressFamily == AddressFamily.InterNetwork && list.Count < 8)
+                    if (a.Address.AddressFamily == AddressFamily.InterNetwork && list.Count < 6)
                     {
                         list.Add(LiteNetLibTransport.FormatEndPoint(new IPEndPoint(a.Address, port)));
+                    }
+                    else if (a.Address.AddressFamily == AddressFamily.InterNetworkV6 && !a.Address.IsIPv6LinkLocal &&
+                        !a.Address.IsIPv6SiteLocal && !a.Address.IsIPv6Multicast && !a.Address.IsIPv4MappedToIPv6 &&
+                        !IPAddress.IPv6Loopback.Equals(a.Address))
+                    {
+                        v6.Add((a.Address, OperatingSystem.IsWindows() && a.SuffixOrigin == SuffixOrigin.Random));
                     }
                 }
             }
         }
         catch (NetworkInformationException)
         {
+        }
+
+        v6.Sort((x, y) => x.Temporary.CompareTo(y.Temporary));
+        for (int i = 0; i < v6.Count && i < 2; i++)
+        {
+            list.Add(LiteNetLibTransport.FormatEndPoint(new IPEndPoint(v6[i].Address, port)));
         }
 
         return list;

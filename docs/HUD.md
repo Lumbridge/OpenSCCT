@@ -122,7 +122,7 @@ top-level area of a page starts hidden and stopped at frame 0; each driver shows
 | Reticule, ReticuleMessage, Pos_Merc, AlertMessage (merc) | reticle per weapon kind with spread and hit colour, laser gate, sound arrows, reticle message at the aim point, posture icon, alert box (merc-reticle.md) |
 | merc effects | perturbation, shutdown and reboot, foam, droplets, sticky shock, flash white-out (screen-effects.md) |
 | Ballistic | the charge gauge |
-| PCConnectedPlayers | up to four rows while shown (F10); Reloaded's ping column when `show_ping` is on; OpenSCCT's Rank column (level tag, spec/additions/progression.md) when a listed player has a rank |
+| PCConnectedPlayers | up to four rows while shown (F10); Reloaded's ping column when `show_ping` is on; OpenSCCT's Rank column (level tag, spec/additions/progression.md) when a listed player has a rank; Reloaded's split (`scoreboard_split_team_size`, 1 to 4, default 3): once the bigger team has that many players (and both teams someone), the list shows the spies and a drawn column beside it the mercs, each up to four rows |
 | Radar | dish, blips, edge arrows (spy teammates and enemies, merc alarms and hacked terminals) |
 | P_SpectatorMode | objectives, time, lives, watched player, respawn countdown, tip (spectator-page.md) |
 | P_BinocularsATT / DEF | zoom label and marker, scope ring animations, sights and axes at the aim point, breath gauge, range finder, key help, Hack prompt, reticle message (binoculars.md) |
@@ -208,7 +208,7 @@ Commands (`UI/ConsoleCommands`, Godot-free; settings through `Options/SettingsCo
 | `login <password>` | the server's admin login (`!login`) |
 | `cmd <command>` | a server console command (docs/ONLINE.md), for the host and admins |
 | `practice on`, `practice off` | the server's practice mode (host and admins; `practice` alone says what it does) |
-| `resign`, `pings`, `practice`, `heal`, `regen`, `tank`, `kill`, `rmap_next`, `rmap_prev`, `map <name> [mode]` | sent as the chat command (`!resign`, `!next`, `!prev`...) |
+| `resign`, `pings`, `practice`, `heal`, `regen`, `tank`, `kill`, `ammo`, `rmap_next`, `rmap_prev`, `map <name> [mode]` | sent as the chat command (`!resign`, `!next`, `!prev`...) |
 | `say <text>` | a chat line |
 | `quit` | closes the game |
 
@@ -224,12 +224,12 @@ applies them at start and on save.
 
 | Group | Keys |
 |---|---|
-| player | `player_name`, `mouse_sensitivity` (4..40), `invert_y`, `invert_x_spy` (profile InvertX), `mouse_wheel` (Gadget, Speed: profile SelectedMouse 0 and 1), `clutch_one_key`, `clutch_two_key` |
+| player | `player_name`, `mouse_sensitivity` (4..40), `invert_y`, `invert_x_spy` (profile InvertX), `shocker_snap` (on: drawing the Shocker turns the spy to the nearest merc in front of him; enh:rules.shocker_snap), `mouse_wheel` (Gadget, Speed: profile SelectedMouse 0 and 1), `clutch_one_key`, `clutch_two_key`, `use_split_spy_merc_keyboard` (on: separate layouts) |
 | look per team | `controls_spy_kbm`, `controls_merc_kbm` (`look`, `free_look`, `scope`, `scope_vertical`, `vertical`, `cam`, `look_response`, `clutch_one`, `clutch_one_enabled`, `clutch_two`, `clutch_two_enabled`), and the same for `controls_spy_pad`, `controls_merc_pad` |
-| controller | `controller`: `enabled`, `deadzone_left` 0.25, `deadzone_right` 0.15, `vertical_scale` 0.75, `run_threshold` 0.95, `rumble` (off), `rumble_strength` 1.0, 8-way move per side, `look_speed`, the pad layouts (`Clutch1`, `Clutch2` hold the clutches) |
-| display | `display_mode` (Windowed, Fullscreen, BorderlessFullscreen), `display_monitor`, `resolution`, `window_position` (Default, Centered, Stretched), `vsync`, `widescreen`, `ws_fov` (95..112, default 112), `fps_spy`, `fps_merc` (Monitor by default, Unlimited or 30 to 240: docs/RENDERING.md, frame pacing), `resolution_scale`, `filter_level`, `shadow_quality`, `shadow_edge_smoothing`, `low_latency_mode`, `throttle_stop` (docs/RENDERING.md) |
+| controller | `controller`: `enabled`, `deadzone_left` 0.25, `deadzone_right` 0.15, `vertical_scale` 0.75, `run_threshold` 0.95, `slow_walk` (on), `prompted`, `rumble` (off), `rumble_strength` 1.0, 8-way move per side, `look_speed`, the pad layouts (`Clutch1`, `Clutch2` hold the clutches) |
+| display | `display_mode` (Windowed, Fullscreen, BorderlessFullscreen), `display_monitor`, `resolution`, `window_position` (Default, Centered, Stretched), `vsync`, `widescreen`, `widescreen_hud`, `ws_er_small`, `ws_fov` (95..112, default 112), `fps_spy`, `fps_merc` (Monitor by default, Unlimited or 30 to 240: docs/RENDERING.md, frame pacing), `resolution_scale`, `filter_level`, `msaa`, `msaa_samples`, `smaa`, `shadow_quality`, `shadow_edge_smoothing`, `post_quality` (0 Normal: no glow, 1 High), `low_latency_mode`, `throttle_stop` (docs/RENDERING.md) |
 | audio | `master_volume`, `sound_volume`, `music_volume`, `objective_sounds` (profile bObjectiveSounds), `voice_output_volume` (Godot buses Master, SvmWorld and the effect buses, SvmMusic, SvmVoice) |
-| HUD | `show_scoreboard`, `show_ping`, `show_fps`, `show_net`, `show_location`, `hack_alpha` (0..255, 178), `hud_feet` (profile bInFeet), `fire_prediction` (on; docs/NETCODE.md "Lag compensation and fire prediction") |
+| HUD | `show_scoreboard`, `show_ping`, `scoreboard_split_team_size` (1..4, 3), `show_fps`, `show_net`, `show_net_loss` (off), `show_location`, `hack_alpha` (0..255, 178), `hud_feet` (profile bInFeet), `fire_prediction` (on; docs/NETCODE.md "Lag compensation and fire prediction") |
 | console | `override_console_key` (true: the key left of 1; false: the apostrophe key) |
 
 `OptionsMenu` is the screen (from the main menu, or over the game with F12): Keys (rebinding the spy and merc layouts
@@ -237,6 +237,18 @@ through `KeyBindingsModel`; click a key, press the new one, Escape cancels), Mou
 then Save, Defaults, Back. `OptionsRuntime` applies the mouse look multipliers per team, the HUD switches, the frame
 cap of the side played (not in headless or smoke runs), the field of view and the controller; `GamepadInput` maps Godot joypads to the
 layouts with Reloaded's SDL defaults (radial dead zones, response curves, the spy's run threshold).
+
+**Analog movement** (rl:input.pad): the left stick reaches the sim as a stick, not as keys. `GamepadInput` puts it in
+`LocalInput.PadForward`/`PadStrafe` (after the deadzone and the optional eight-way snap; with `slow_walk` off only its
+direction), `LocalInput.ApplyButtons` copies it onto the controller (`SPlayerController.PadStickForward`,
+`PadStickStrafe`, `bPadStickMove`), and `ControlInput.Compute` (the NativeComputeControlVariables port) uses it in
+place of the direction keys: `aForward`/`aStrafe` = stick x 6000 x speed mode, so any direction and a part push walks
+slower; `fNormePadMove` is the stick's length x speed mode, and Reloaded's key diagonal fix does not apply. The keys
+bound to BT_Up/Down/Left/Right are still held past 0.38 for everything that reads the key bytes. Moves carry the
+acceleration, so online play needs nothing more. **Hot plug**: `PadMenus` shows "Gamepad connected: name" or
+"Gamepad disconnected" for three seconds at the bottom of the screen, and asks once "Would you like to enable native
+controller support?" when a controller is connected while controller support is off (`controller.prompted`; setting
+the option on the Controller page counts as the answer).
 
 **Look multipliers** (rl:input.sens, `MouseLook.Multipliers`): the view picks the group's field. A sticky camera or
 the camera network takes `cam`; the binoculars and the merc's sniper scope take `scope`, the merc's vertical also
@@ -266,15 +278,17 @@ touches, else its zone's name: the map data's LocationName) at the top centre (`
 is not decoded). `HudMarkers.HackAlpha` draws the icon of an objective being hacked at `hack_alpha` / 255.
 `classic_crosshair` (Options, HUD page, off by default) moves the merc reticle to Reloaded's classic spot, 3 page
 units left and 3 down of the centred one (`MercHudPage.ReticlePosition`, spec/hud/merc-reticle.md rule 3).
-Not done: Enhanced's Shocker snap option (the snap itself, FindAttClosestTarget, is not called yet).
 
 **Field of view.** `ViewFov` (Godot-free, unit tested) is Reloaded's rule 20 as its code does it (Reloaded.Core
 0x100a7080, 0x100a4ac0): with `widescreen` on the camera's FovAngle (horizontal over 4:3) keeps its 4:3 vertical angle
 and wider screens add width, `2 atan(tan(fov / 2) x 3/4 x aspect)`, with the aspect capped at 16:9; the result is
 capped at `ws_fov` in every view but the spy's sticky camera and the merc's camera network (Reloaded's GotoState hook
 sets its exempt flag for `s_UseObject_StickyCam` and `s_UseObject_CamNetwork` only). The merc's FovAngle is 95 (read
-live), 111 degrees at 16:9. With `widescreen` off the 4:3 horizontal angle is stretched over the screen and every HUD
-page is stretched too (`HudOptions.StretchHud`), as the unpatched game. `OptionsRuntime` installs it as
+live), 111 degrees at 16:9. With `widescreen` off the 4:3 horizontal angle is stretched over the screen. The HUD
+follows its own key, `widescreen_hud` (rl:gfx.hud, on): off, every HUD page is stretched (`HudOptions.StretchHud`), as
+the unpatched game. `ws_er_small` (on) keeps the Enhanced Reality icons at their 4:3 size on a wide screen; off they
+grow with the width (`HudLayout.HudScreen`: either `widescreen` or `widescreen_hud` gives the wide ER canvas).
+`OptionsRuntime` installs the view policy as
 `FaithfulView.VerticalFovPolicy`.
 
 **Widescreen layout** (`Hud/HudLayout`, Godot-free, unit tested in `tests/OpenScctGame.Logic.Tests/LayoutTests.cs`):
@@ -408,14 +422,13 @@ on Alternate Mode and its "Cinematic Camera" switch (offline they always work). 
 - The original has no hit direction marker: damage feedback is the undirected wash or perturbation, the flash-bang
   only whites out a player facing it (the simulation's ClientDamage cone and trace), and the merc's directional cue
   is the sound arrows.
-- The Reloaded scoreboard look is not decoded (the original list and status page are used). (The coop icons follow
+- The Reloaded scoreboard look is not decoded: the original list and status page are used, with Reloaded's ping column and team split drawn in the list's own layout. (The coop icons follow
   the decoded spy driver: `InteractionPrompts.cs`, spec/objectives/team-interactions.md.)
 - Binoculars: the range finder traces from the rifle's FX bone (the original's bone is unidentified); markers behind
   the view get no edge arrow (the projector gives no point); only objective triggers are listed (not secondary
   objective props).
 - Reloaded's second FOV path (CL = 0 in 0x100a7080: another runtime factor and 4/3) is used by a few draw paths not
-  identified yet. The settings file has no `widescreen_hud` or `ws_er_small` keys (`HudMarkers` keeps Reloaded's
-  defaults); with `widescreen` off the HUD is stretched too.
+  identified yet.
 - The merc's HUD in the original also shows Enhanced Reality markers (terminals with their distances, seen in the
   sandbox captures); `HudMarkers` draws them for the spy only.
 - Map-specific HUD (per-map tutorial chains, set pieces, map-placed devices) is not covered in this wave.

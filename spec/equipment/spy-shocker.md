@@ -80,7 +80,9 @@ holstering, 7 other hand. Controller fields: `bFireMode` (InvButton alias FireMo
    At AnimEnd of the transition channel (14) on the controlling machine: mark finished and set
    `bForceExitFireMode` if the head-room box trace is blocked. When finished (and, with a target, at once) set the
    final rotation, camera mode SecondPerson (Cr), pawn action SA_WALK_ST_2H / CR_2H and state
-   `s_PlayerWalkingSt2H` / `s_PlayerWalkingCr2H`. (Enhanced makes the snap optional; `spec/enhanced/FEATURES.md`.)
+   `s_PlayerWalkingSt2H` / `s_PlayerWalkingCr2H`. (Enhanced makes the snap optional; `spec/enhanced/FEATURES.md`.
+   The rewrite's option is the client setting `shocker_snap`, on by default: off, `BeginState` finds no target. The
+   search runs on the spy's own machine only; the server takes his aim from his moves.)
 4. **Weapon side of the draw**: the body anim notify calls `SPawnAttaque.NotifyDrawWeapon` -> weapon
    `AnimateDrawWeapon`: attach to `B R Hand`, play DrawP190, `SetWeaponLoaded(3)`, `LastShot = now + 0.1`. Weapon
    `AnimEnd` (channel 0): from 3 play SnipeP190 and set 2; from 4 play WaitP190 and set 0. Every weapon AnimEnd sets

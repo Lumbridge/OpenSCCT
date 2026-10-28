@@ -34,6 +34,12 @@ public sealed class HudOptions
     /// <summary>Reloaded's classic_crosshair: the merc reticle at the original off-centre spot (rl:qol.crosshair).</summary>
     public bool ClassicCrosshair { get; set; }
 
+    /// <summary>
+    /// Reloaded's scoreboard_split_team_size (1 to 4): once the bigger team has this many players, the connected
+    /// players list shows a column per team; 0 never splits.
+    /// </summary>
+    public int ScoreboardSplit { get; set; } = 3;
+
     /// <summary>The name of the key a command is bound to in the player's layout (for the key tokens of page texts), or null.</summary>
     public Func<string, string?>? KeyName { get; set; }
 
@@ -169,6 +175,7 @@ public abstract class HudPage
         {
             DrawPings(s);
             DrawRanks(s);
+            DrawSplitColumn(s);
         }
     }
 
@@ -545,10 +552,11 @@ public abstract class HudPage
         }
 
         string infinite = Assets.Localize("MagmaDynamic", "Magma", "Inifite_Short", "Inf.");
+        List<HudPlayerRow> rows = ListRows(s);
         for (int i = 0; i < HudSimReader.MaxConnectedPlayers; i++)
         {
             string n = (i + 1).ToString(CultureInfo.InvariantCulture);
-            HudPlayerRow? row = i < s.Players.Count ? s.Players[i] : null;
+            HudPlayerRow? row = i < rows.Count ? rows[i] : null;
             list.Widget("PCTextPlayer" + n).Hidden = row is null;
             list.Widget("PCText_ObjOrKills" + n).Hidden = row is null || row.Spectator;
             list.Widget("PCText_Lives" + n).Hidden = row is null || row.Spectator;
@@ -567,6 +575,76 @@ public abstract class HudPage
     }
 
     /// <summary>
+    /// The rows of the connected players list: the list as read (spies, mercs, spectators, four rows), or, once the
+    /// bigger team has <see cref="HudOptions.ScoreboardSplit"/> players and both teams have someone, the spies only:
+    /// the mercs then get their own column beside it (<see cref="DrawSplitColumn"/>). That is Reloaded's split
+    /// (rl:qol.scoreboard, scoreboard_split_team_size); its drawing is not decoded, so the column copies the list's.
+    /// </summary>
+    protected List<HudPlayerRow> ListRows(HudSnapshot s)
+    {
+        ArgumentNullException.ThrowIfNull(s);
+        return SplitTeams(s) ? TeamRows(s, 0) : s.Players;
+    }
+
+    /// <summary>Whether the list splits into a column per team.</summary>
+    protected bool SplitTeams(HudSnapshot s)
+    {
+        ArgumentNullException.ThrowIfNull(s);
+        if (Options.ScoreboardSplit <= 0)
+        {
+            return false;
+        }
+
+        int spies = 0, mercs = 0;
+        foreach (HudScoreRow r in s.Score)
+        {
+            if (r.Spectator)
+            {
+                continue;
+            }
+
+            if (r.Team == 0)
+            {
+                spies++;
+            }
+            else
+            {
+                mercs++;
+            }
+        }
+
+        return spies > 0 && mercs > 0 && Math.Max(spies, mercs) >= Options.ScoreboardSplit;
+    }
+
+    /// <summary>A team's players as list rows (at most four, the list's rows).</summary>
+    private static List<HudPlayerRow> TeamRows(HudSnapshot s, int team)
+    {
+        var rows = new List<HudPlayerRow>();
+        foreach (HudScoreRow r in s.Score)
+        {
+            if (!r.Spectator && r.Team == team && rows.Count < HudSimReader.MaxConnectedPlayers)
+            {
+                rows.Add(new HudPlayerRow(r.Name, r.Team, false, r.ObjOrKills, r.Lives, r.Ping, r.Rank));
+            }
+        }
+
+        return rows;
+    }
+
+    /// <summary>Page width of the list's own columns (PCConnectedPlayers: name 20 to 170, kills to 200, lives to 255).</summary>
+    private const float ListWidth = 255f;
+
+    /// <summary>The list's lives title starts this far from the list's left (PCText_LivesTitle rect 205).</summary>
+    private const float LivesTitleLeft = 205f;
+
+    /// <summary>Gap between the split's two columns.</summary>
+    private const float SplitGap = 20f;
+
+    /// <summary>Page width the ping and rank columns add right of the lives.</summary>
+    private float ExtraColumnsWidth(List<HudPlayerRow> rows) =>
+        (Options.ShowPing ? HudK.PingGap + 40f : 0f) + (rows.Exists(p => p.Rank != 0) ? HudK.PingGap + 50f : 0f);
+
+    /// <summary>
     /// Reloaded's ping column beside the connected players list (rl:qol.scoreboard): drawn as extra text right of the
     /// lives column, row by row, with the list's own anchoring.
     /// </summary>
@@ -577,20 +655,21 @@ public abstract class HudPage
             return;
         }
 
+        List<HudPlayerRow> rows = ListRows(s);
         var colour = new Color(1f, 1f, 1f, 1f);
         Rect4 t = title.PageRect;
         ExtraText("Extras/PingTitle", "Ping", new Rect4(t.R + HudK.PingGap, t.T, t.R + HudK.PingGap + 40f, t.B), title.Anchor,
             MagmaAlign.Left, colour, HudK.PingTextHeight);
-        for (int i = 0; i < s.Players.Count && i < HudSimReader.MaxConnectedPlayers; i++)
+        for (int i = 0; i < rows.Count && i < HudSimReader.MaxConnectedPlayers; i++)
         {
             string n = (i + 1).ToString(CultureInfo.InvariantCulture);
-            if (s.Players[i].Spectator || DrawList.Find("PCConnectedPlayers/PCText_Lives" + n) is not { } lives)
+            if (rows[i].Spectator || DrawList.Find("PCConnectedPlayers/PCText_Lives" + n) is not { } lives)
             {
                 continue;
             }
 
             Rect4 r = lives.PageRect;
-            ExtraText("Extras/Ping" + n, (s.Players[i].Ping * HudK.PingUnit).ToString(CultureInfo.InvariantCulture),
+            ExtraText("Extras/Ping" + n, (rows[i].Ping * HudK.PingUnit).ToString(CultureInfo.InvariantCulture),
                 new Rect4(r.R + HudK.PingGap, r.T, r.R + HudK.PingGap + 40f, r.B), lives.Anchor, MagmaAlign.Left, colour, HudK.PingTextHeight);
         }
     }
@@ -601,7 +680,8 @@ public abstract class HudPage
     /// </summary>
     protected void DrawRanks(HudSnapshot s)
     {
-        if (!s.ShowPlayers || !s.Players.Exists(p => p.Rank != 0) ||
+        List<HudPlayerRow> rows = ListRows(s);
+        if (!s.ShowPlayers || !rows.Exists(p => p.Rank != 0) ||
             DrawList.Find("PCConnectedPlayers/PCText_LivesTitle") is not { } title)
         {
             return;
@@ -612,17 +692,78 @@ public abstract class HudPage
         Rect4 t = title.PageRect;
         ExtraText("Extras/RankTitle", "Rank", new Rect4(t.R + shift, t.T, t.R + shift + 50f, t.B), title.Anchor,
             MagmaAlign.Left, colour, HudK.PingTextHeight);
-        for (int i = 0; i < s.Players.Count && i < HudSimReader.MaxConnectedPlayers; i++)
+        for (int i = 0; i < rows.Count && i < HudSimReader.MaxConnectedPlayers; i++)
         {
             string n = (i + 1).ToString(CultureInfo.InvariantCulture);
-            if (s.Players[i].Spectator || DrawList.Find("PCConnectedPlayers/PCText_Lives" + n) is not { } lives)
+            if (rows[i].Spectator || DrawList.Find("PCConnectedPlayers/PCText_Lives" + n) is not { } lives)
             {
                 continue;
             }
 
             Rect4 r = lives.PageRect;
-            ExtraText("Extras/Rank" + n, OpenScct.Net.Cosmetics.PlayerRank.Unpack(s.Players[i].Rank).Tag,
+            ExtraText("Extras/Rank" + n, OpenScct.Net.Cosmetics.PlayerRank.Unpack(rows[i].Rank).Tag,
                 new Rect4(r.R + shift, r.T, r.R + shift + 50f, r.B), lives.Anchor, MagmaAlign.Left, colour, HudK.PingTextHeight);
+        }
+    }
+
+    /// <summary>
+    /// The mercenaries' column of a split list, right of the spies' (the list itself), in the list's layout: a title
+    /// row (the side's name, Kills, Lives, and Ping and Rank when shown), then one row per merc, the name in the
+    /// mercs' colour (the list marks sides with its icons).
+    /// </summary>
+    protected void DrawSplitColumn(HudSnapshot s)
+    {
+        if (!s.ShowPlayers || !SplitTeams(s) || DrawList.Find("PCConnectedPlayers/PCText_LivesTitle") is not { } title)
+        {
+            return;
+        }
+
+        List<HudPlayerRow> spies = TeamRows(s, 0);
+        List<HudPlayerRow> mercs = TeamRows(s, 1);
+        Rect4 t = title.PageRect;
+        float x = t.L - LivesTitleLeft + ListWidth + ExtraColumnsWidth(spies) + SplitGap;
+        float y = t.T;
+        var white = new Color(1f, 1f, 1f, 1f);
+        float h = HudK.PingTextHeight;
+        MagmaAnchor a = title.Anchor;
+        string infinite = Assets.Localize("MagmaDynamic", "Magma", "Inifite_Short", "Inf.");
+        bool ranks = mercs.Exists(p => p.Rank != 0);
+        ExtraText("Extras/SplitTitle", "Mercenaries", new Rect4(x + 20f, y, x + 120f, y + 20f), a, MagmaAlign.Left, HudK.MercColour, h);
+        ExtraText("Extras/SplitKillsTitle", "Kills", new Rect4(x + 170f, y, x + 200f, y + 20f), a, MagmaAlign.Left, white, h);
+        ExtraText("Extras/SplitLivesTitle", "Lives", new Rect4(x + 210f, y, x + ListWidth, y + 20f), a, MagmaAlign.Left, white, h);
+        float extra = x + ListWidth + HudK.PingGap;
+        if (Options.ShowPing)
+        {
+            ExtraText("Extras/SplitPingTitle", "Ping", new Rect4(extra, y, extra + 40f, y + 20f), a, MagmaAlign.Left, white, h);
+        }
+
+        float rank = extra + (Options.ShowPing ? 40f + HudK.PingGap : 0f);
+        if (ranks)
+        {
+            ExtraText("Extras/SplitRankTitle", "Rank", new Rect4(rank, y, rank + 50f, y + 20f), a, MagmaAlign.Left, white, h);
+        }
+
+        for (int i = 0; i < mercs.Count; i++)
+        {
+            HudPlayerRow row = mercs[i];
+            string n = (i + 1).ToString(CultureInfo.InvariantCulture);
+            float top = y + 10f * (i + 1);
+            ExtraText("Extras/SplitName" + n, row.Name, new Rect4(x + 20f, top, x + 170f, top + 20f), a, MagmaAlign.Left, HudK.MercColour, h);
+            ExtraText("Extras/SplitKills" + n, row.ObjOrKills.ToString(CultureInfo.InvariantCulture), new Rect4(x + 170f, top, x + 200f, top + 20f), a,
+                MagmaAlign.Left, white, h);
+            ExtraText("Extras/SplitLives" + n, row.Lives >= HudK.InfiniteLives ? infinite : row.Lives.ToString(CultureInfo.InvariantCulture),
+                new Rect4(x + 210f, top, x + 240f, top + 20f), a, MagmaAlign.Left, white, h);
+            if (Options.ShowPing)
+            {
+                ExtraText("Extras/SplitPing" + n, (row.Ping * HudK.PingUnit).ToString(CultureInfo.InvariantCulture),
+                    new Rect4(extra, top, extra + 40f, top + 20f), a, MagmaAlign.Left, white, h);
+            }
+
+            if (ranks && row.Rank != 0)
+            {
+                ExtraText("Extras/SplitRank" + n, OpenScct.Net.Cosmetics.PlayerRank.Unpack(row.Rank).Tag, new Rect4(rank, top, rank + 50f, top + 20f), a,
+                    MagmaAlign.Left, white, h);
+            }
         }
     }
 

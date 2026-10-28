@@ -420,8 +420,29 @@ public partial class PlayRoot : Node3D
         long corrections = session.LocalController is { } pc
             ? session.Client.Movement.PeekEndpoint(pc)?.Client?.CorrectionsApplied ?? 0
             : 0;
+        // A listen host's own player is on loopback: its line is the other players' pings (their PRI.Ping, set by the
+        // server from each connection's round trip; bots and the host have none).
+        bool host = session.Client.Connection.IsLocal;
+        int clients = 0;
+        int best = int.MaxValue;
+        int worst = 0;
+        if (host && (session.LocalController?.GameReplicationInfo ?? session.Client.World.Level.Info.GRI) is { } gri)
+        {
+            foreach (OpenScct.Core.Engine.PlayerReplicationInfo? pri in gri.PRIArray)
+            {
+                if (pri is { bDeleteMe: false, Ping: > 0 })
+                {
+                    int ms = pri.Ping * OpenScctGame.Hud.HudK.PingUnit;
+                    clients++;
+                    best = Math.Min(best, ms);
+                    worst = Math.Max(worst, ms);
+                }
+            }
+        }
+
         return new NetReadout(stats.HasRtt, stats.RttMicros, stats.JitterMicros, stats.InBytes, stats.OutBytes,
-            stats.InPackets, stats.InPacketsLost, stats.OutPackets, stats.OutPacketsLost, corrections, session.Client.ServerNetRate);
+            stats.InPackets, stats.InPacketsLost, stats.OutPackets, stats.OutPacketsLost, corrections, session.Client.ServerNetRate,
+            host, clients, clients > 0 ? best : 0, worst);
     }
 
     /// <summary>
@@ -691,7 +712,7 @@ public partial class PlayRoot : Node3D
             : pc is { bBehindView: false, FreeCameraFlying: 0 } ? session.LocalPawn : null;
         Pawns?.Draw(alpha, dt, firstPerson);
         Devices?.Draw(alpha, dt);
-        Map?.SoftBodies?.Update(dt, session.Client.World.Level, Audio?.Sound);
+        Map?.SoftBodies?.Update(dt, session.Client.World.Level, Audio?.Sound, session.LocalPawn);
         if (Camera is not null)
         {
             (FVector location, FRotator rotation, float _) = Camera.Current;

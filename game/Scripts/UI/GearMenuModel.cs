@@ -72,7 +72,12 @@ public sealed class GearMenuModel
 
     public string ChosenWeapon { get; private set; }
 
-    public string Rule => Hub ? HubRule : MatchRule;
+    public string Rule => RuleText ?? (Hub ? HubRule : MatchRule);
+
+    /// <summary>The line about when new gear goes on, when it is neither the match's nor the hub's (the lobby's).</summary>
+    public string? RuleText { get; init; }
+
+    public const string LobbyRule = "Your gear goes on when the round starts; you can still change it in the round.";
 
     /// <summary>The side's portrait (<c>STeamInfo.MaterialOfMesh[0]</c>, e.g. GUIContent.New_Menu.MN_ATTperso), or "".</summary>
     public string Portrait { get; init; } = "";
@@ -104,6 +109,47 @@ public sealed class GearMenuModel
         return new GearMenuModel(spy, team.iNBGadgets, options, team.bDisallowedInv, weapons, saved, hub)
         {
             Portrait = team.MaterialOfMesh.Count > 0 ? team.MaterialOfMesh[0].Path ?? "" : "",
+        };
+    }
+
+    /// <summary>
+    /// The picker of the Lobby Room's Equipment button (Lobby_Create opens Edit_Profile): the side's options, weapons
+    /// and portrait from the team class defaults, and the slots and allowed gadgets the session's setup will give
+    /// that side (its Alternate Mode values, or the stock ones with Deathmatch's rule), as the round's team info will
+    /// hold them. Null for a spectator.
+    /// </summary>
+    public static GearMenuModel? ForLobby(int team, OpenScct.Server.Online.LobbySetup setup, LoadoutSettings saved)
+    {
+        ArgumentNullException.ThrowIfNull(setup);
+        if (team is not (0 or 1))
+        {
+            return null;
+        }
+
+        var pd = new USPersistentData();
+        setup.Alternate.ApplyTo(pd, setup.Mode);
+        STeamInfo info = team == 0 ? new STeamAttaquant() : new STeamDefenseur();
+        info.iNBGadgets = team == 0 ? pd.b_SPY_NBGadget : pd.b_MERC_NBGadget;
+        info.bDisallowedInv = team == 0 ? pd.b_SPY_GadgetRestriction : pd.b_MERC_GadgetRestriction;
+        var options = new List<string>();
+        for (int i = 0; i < info.ClassInventory.Count && i < 8; i++)
+        {
+            options.Add(info.ClassInventory[i].Path ?? "");
+        }
+
+        var weapons = new List<string>();
+        if (team == 1)
+        {
+            foreach (ClassRef w in info.ClassWeapon)
+            {
+                weapons.Add(w.Path ?? "");
+            }
+        }
+
+        return new GearMenuModel(team == 0, info.iNBGadgets, options, info.bDisallowedInv, weapons, saved, hub: false)
+        {
+            Portrait = info.MaterialOfMesh.Count > 0 ? info.MaterialOfMesh[0].Path ?? "" : "",
+            RuleText = LobbyRule,
         };
     }
 

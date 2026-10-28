@@ -13,7 +13,8 @@ Status column: **done** (ported in the 2026-10-28 overnight wave, not yet played
 **partial** (what is left is named), **n-a** (decoded and found to be dead code in the original), **open** (not
 started), **later** (large, left for a planned piece of work).
 
-Content rebuild needed before some rows show in game: the `maps` step (rain `sim/rain.json` for the 12 rain maps, the
+Content rebuild needed before some rows show in game: the `chars` step (normal-vision wet skins), the `fx` step (the
+armed proximity mine's light), the `maps` step (rain `sim/rain.json` for the 12 rain maps, the
 damaged-object particles of MissD/E/P and PrisD, the strategic map pictures; rain changes those maps' sim hash, so the
 server's content must be rebuilt too) and the `ui` step (tutorial pictures, strategic map markers).
 
@@ -27,28 +28,31 @@ server's content must be rebuilt too) and the `ui` step (tutorial pictures, stra
 | Rifle interact and mine states | `SWeaponDefense` s_Interacting and s_DropMine* (clips, laser off/on); the controller already enters them | done |
 | Give gadget to a teammate | share menu Give (`AskServerGiveObjectToPawn`); receive side exists | done (the original's empty "gave" word kept) |
 | Best mine to remove | `GetBestMineIndexToRemove` picks which mine/sticky cam the menu removes | done (decoded: furthest along the view axis) |
-| Small state overrides | ladder-boost quick gadget, crouch in the scope, inert body drop attack, jump AltFire gate, `KilledBy` zone kills, `EmptyAlarmsList`, body shotgun partial reload, AnimNotifyNoise/RMColOn, visitor goggle reset, `ClientSetRotation`, `DistantClientReinit` | done, except `EmptyAlarmsList` per spectator HUD frame and `ServerVerifyViewTarget`; `KilledBy` has no caller yet |
+| Small state overrides | ladder-boost quick gadget, crouch in the scope, inert body drop attack, jump AltFire gate, `KilledBy` zone kills, `EmptyAlarmsList`, body shotgun partial reload, AnimNotifyNoise/RMColOn, visitor goggle reset, `ClientSetRotation`, `DistantClientReinit` | done (`EmptyAlarmsList` every spectator HUD frame and `ServerVerifyViewTarget` added later in the wave); `KilledBy` n-a: decoded, nothing in Versus calls it (spec/combat/environmental-damage.md rule 4) |
 | Pad aim assist | `NativeFindTargetToSnap` never decoded; nothing sets `bSnappedToTarget` | done (decoded; spine height estimated) |
 | Merc squint | `NativeComputeSquinting` never decoded | done, sim only (no visible effect in the original either) |
 | Merc elbow turn / quick 180 | global `UpdateRotationDefenseur` / `NativeRotationCameraDefenseur` | n-a (never runs on PC) |
-| Free camera, hide HUD | Enhanced cinematic camera gated by `bAvlb_CinematicCamera`; ported (spec/hud/cinematic-camera.md), speed, wheel steps, Shift x4 / Alt x0.25 and speed easing now Reloaded's decoded values; pad controls not wired | done |
+| Free camera, hide HUD | Enhanced cinematic camera gated by `bAvlb_CinematicCamera`; ported (spec/hud/cinematic-camera.md), with pad controls (triggers up and down, shoulder buttons speed: our mapping); speed, wheel steps, Shift x4 / Alt x0.25 and speed easing are Reloaded's decoded values | done |
 
 ## Effects and looks
 
 | Gap | What the original does | Status |
 |---|---|---|
 | Merc gas mask | `SGasMask` on bone B Head for every merc with the gadget; ours is spawned unattached and never drawn | done |
-| Wet skins, head rain splashes | `BeginWetSkin` (HEAT_*_wet), `SFlicFlocEmitter` | done for thermal/EMF and splashes; normal-vision wet materials not converted |
+| Wet skins, head rain splashes | `BeginWetSkin` (HEAT_*_wet), `SFlicFlocEmitter` | done (normal-vision wet LitSpecularMaterials: env map through the specularity mask; needs the chars rebuild) |
 | Binocular HUD sounds | s_H_Binoculars_Def/_Att loops and the 5 s detect blip | done |
 | HUD shutdown sounds, throw charge tick | Snd_HudShutdown, msg 8, Hud_viseProgress | done |
-| Shotgun barrel smoke, shotgun spray velocity | CreateSmoke1 (two SSmokeCanonEmitters); SShotGunEmitter adds the shooter's velocity | smoke done (also the rifle and Uzi burst smoke); spray velocity open (needs CombatFxView.cs) |
+| Shotgun barrel smoke, shotgun spray velocity | CreateSmoke1 (two SSmokeCanonEmitters); SShotGunEmitter adds the shooter's velocity | done (also the rifle and Uzi burst smoke) |
 | Footprints | tint combiner, StepColor, per-surface texture, mirrored right foot | done (texture orientation estimated; existing decals are no longer world-aligned) |
 | Sprinkler splash height, water-pipe puddle | floor trace; SFlaque grow and shrink | done (sprinkler puddles now drawn too) |
 | Damaged gameplay object particles | `SSpawnableEmitter` with the map's own SpawnParticle (80 entries, 25 maps) | done, needs the maps rebuild (the data is on 4 maps, not 25) |
-| Soft bodies | explosion push and untraced bullet hits | n-a for explosions (SBExplosionHit has no caller); untraced bullet hits open (soft bodies are not in the sim) |
-| Blood splash overlay, blood drop trail | `SHud.DrawBloodSplash` (native), `SBloodSplat` | overlay n-a (nothing sets bSplashBloodStart); blood drop trail open (spawner not found) |
+| Soft bodies | explosion push and untraced bullet hits | n-a for explosions (SBExplosionHit has no caller); untraced hits partial: the local merc's own rounds push along his aim, other players' only through tracers (docs/RENDERING.md "Soft bodies") |
+| Blood splash overlay, blood drop trail | `SHud.DrawBloodSplash` (native), `SBloodSplat` | n-a: nothing sets bSplashBloodStart; the blood drop fields are never read and SImpactEffectBlood, the only SBloodSplat spawner, is never spawned (spec/combat/health.md edge cases) |
 | Merc target name | `SHud.DrawTargetName` (native) | done (decoded) |
-| Local spy shadow | `SetupOldSchoolShadow` ShadowProjector | open |
+| Local spy shadow | `SetupOldSchoolShadow` ShadowProjector | n-a: ShadowDarkness 0 keeps it detached after its first tick (spec/game/respawn-and-spawning.md rule 25) |
+| Effect lights on actors | muzzle flashes, flash lights and the flare light pawns, weapons and props | done |
+| Beam noise, mine light skins | BeamEmitter low/high frequency noise (the damaged neons' SElectricArcEmitter); SMineProx swaps Skins[1] | done (beam branches n-a: no SCCT beam has a BranchEmitter); the armed mine light needs the fx rebuild |
+| Audio: Doppler, bone-following sources | rule 17 | open (needs the DirectSound distance factor decoded; docs/AUDIO.md) |
 
 ## Voice
 
@@ -60,6 +64,7 @@ Who-hears-whom matches the original (rules in `VoiceRouting.cs`). Gaps:
 | Voice bans can't be set | done (console, chat and lobby) |
 | Hack Comm stops on any grab, including ledges, in the original; ours only in s_GrabbingPlayer | done |
 | Symmetric mute lists (Xbox Live) | by design: ours are one-way per listener |
+| Voice in offline play (`--svm-play`'s local listen server) | by design: the other players there are bots, which neither talk nor listen |
 
 ## Reloaded and Enhanced features
 
@@ -69,19 +74,35 @@ Who-hears-whom matches the original (rules in `VoiceRouting.cs`). Gaps:
 | Per-view sensitivity multipliers stored but unused; clutch | done (scope now 0.75 sideways by Reloaded default; `vertical` meaning estimated) |
 | Sniper kick tied to mouse sensitivity (Reloaded fix) | done |
 | Invert X, feet/meters, Objective Sounds, wheel mode (profile options; profile is null) | done (wheel defaults to Gadget, as before) |
-| classic_crosshair, hack_alpha, Shocker snap option, location name on the HUD | hack_alpha, location and classic_crosshair done (Reloaded's fixed reticle spots decoded); Shocker snap open (the snap itself isn't in the game) |
+| classic_crosshair, hack_alpha, Shocker snap option, location name on the HUD | hack_alpha, location, the Shocker snap (its draw-state turn ported, option `shocker_snap`, on) and classic_crosshair (Reloaded's fixed reticle spots decoded) done |
 | Anisotropic level, shadow quality, low-latency mode, window position | done (low latency: Ultra = On, Godot's floor) |
-| Crash log, process priority/affinity | done (client only; Godot-callback exceptions not caught) |
+| Crash log, process priority/affinity | done (priority/affinity on the client and `svm-server`; Godot-callback exceptions not caught) |
+| Microphone noise suppression, automatic gain, echo cancellation (rl:voice.noise, gain, echo) | done (our own managed DSP, docs/VOICE.md "Microphone clean-up"; not tuned against Reloaded's speexdsp) |
+| MMCSS "Pro Audio" voice thread (rl:audio.thread) | done (the microphone clean-up's thread) |
+| Analog stick movement, hot plug lines, first-run controller prompt (rl:input.pad) | done (the analog rule is ours: spec/native/input.md rule 9; stick-click/bumper swap open) |
+| Share one key layout for both sides (rl:input.keyboard) | done (default stays split) |
+| `widescreen_hud`, `ws_er_small` keys (rl:gfx.hud) | done (they followed `widescreen` before) |
 | Flashlight in the scope, ledge assist (Reloaded natives) | done (also Reloaded's slow-strafe diagonal fix, found in the same function); Reloaded's ledge test patches done: no auto hop onto low ledges, wider waist window, deeper hang window in the wall jump climb, waist grab blocked in the jump's first tick (spec/movement/ledge.md) |
 | `!resign`, jitter in `!pings` | done |
 | Lag compensation (rl:net.lagcomp) | done (off by default: `lagcomp on`, `!lagcomp on` or config `lagComp`; docs/NETCODE.md "Lag compensation"; ceiling 120 ms, 0 to 500, as Reloaded; Reloaded itself starts with it on) |
 | Client fire prediction (rl:net.fireprediction) | done (for the merc rifles/SMG and the spy pistol's world impacts; option `fire_prediction`, on; pawn hits stay server-confirmed) |
-| Practice server mode, `!heal` `!regen` `!tank` `!kill` | done (extra ammunition not ported, `!regen`/`!tank` effects are our choice: docs/ONLINE.md "Practice servers") |
+| Practice server mode, `!heal` `!regen` `!tank` `!kill` | done (extra ammunition as our `!ammo` command, the ammo crate refill sent to the player's machine; `!regen`/`!tank`/`!ammo` effects are our choice: docs/ONLINE.md "Practice servers") |
 | Client console, `set`/`get` | done (docs/HUD.md "Developer console") |
-| MSAA/SMAA | later (M) |
-| Extraction, Sabotage, Neutralization modes | later (L) |
+| MSAA/SMAA (rl:gfx.aa) | done: Display options msaa, msaa_samples, smaa (first run all off, 4 samples), applied at once; alpha to coverage on masked surfaces from the next map; with MSAA the post passes run on a copy of the resolved frame (docs/RENDERING.md "Anti-aliasing"). Not yet seen running with MSAA on |
+| Map BeamEmitter / SparkEmitter, mirrors (RENDERING.md open issues) | n-a: sparks were already drawn (rule 22) and beams as straight strips; no map places a beam, the one map spark emitter (PanaD/PanaS Emitter241) waits for its event; every PF_Mirrored BSP surface (MuseD/E/T, OffsD, ScheU, SteeD/E/P/T, TermD) is also PF_Invisible, and UE2 leaves invisible surfaces out of drawing, so no map shows a mirror (the DTK_mirroir "mirrors" of ClarD and CpusS are plain textured meshes, already drawn) |
+| Extraction, Sabotage, Neutralization modes | the rules play them (mission selection, Sabotage's bomb and no-modem reminder, Neutralization's HUD clear); the original's menu never offers them and no stock map has a mission or settings entry for them | n-a for stock maps (checked over all 85 converted maps); done for custom maps: the catalog and Create Session offer them only on a map with such a mission/entry, plus the mission reminder every mode uses (docs/MODES.md) |
 | Unverified Reloaded fixes: grab angle, jump lock-on 7.5 m, KO after interrupt, slow strafe, disk radar threshold, crosshair shift, sticky cam fixes | partial: jump lock-on (750 below, sight lines ignore volumes), KO after interrupt (second GotoWaitingState after a hack's fast leave), disk radar (200 uu/s), crosshair shift (fixed reticle spot), camo unseen by security cameras, CheckGEForWallJump's -10 preset done (spec/native/reloaded-hooks.md rules 29 to 37); grab angle: no Reloaded patch, script ported as is; sticky cam none-left and camo slot 2: Enhanced script, ported as is; east sound (SStickyCam angle defaults 12345678), the sticky cam leave hook and the camo motion-vision draw hook decoded, not ported |
-| Signed releases, MMCSS voice thread, lobby music, join sound, local match log, scoreboard split size | open (small or optional) |
+| Signed releases | open (small or optional) |
+| Menu and lobby music (enh:audio.lobby_music: the Entry and Lobby levels' Songs, already converted by the maps step) | done (`FrontEndAudio`; docs/AUDIO.md "Front end") |
+| Lobby join sound (rl:qol.lobby, rl:audio.join) | done (Reloaded's sound not decoded: ours is Interface.Menu.bip_message) |
+| Scoreboard split at team size, Merc Deathmatch result lines (rl:qol.scoreboard) | done (Reloaded's drawing not decoded: the mercs' column copies the list's layout; the lines are the results headline; Reloaded's "Elapsed Time" line not shown) |
+| Enhanced tips on the loading pages (enh:ui.tips) | done (the team's converted aTipStrings) |
+| Local match log (rl:qol.matchlog) | done (svm-server `matches.jsonl`, one JSON line per round; config `matchLog`; no stats upload; listen hosts keep none) |
+| Lobby map picker playlists, search, rotation by playlist (rl:qol.lobbymaps) | done (Create Session and the lobby's Maps button; `active_map_playlist`; svm-server `playlist`/`playlistMode`); variant words not dimmed, no separate Merc Deathmatch playlist choice |
+| Net readout extras (rl:net.stats): separate `show_net_loss`, host best/worst line | done (loss now off by default) |
+| Signed player keys (rl:ac.bans): Ed25519 per install, join challenge, bans by key | done (game and online servers; the hub and the master do not use keys yet) |
+| Per-connection packet salt (docs/ONLINE.md open item) | done (32-bit salt in every packet header; protocol svm-net/0.3) |
+| IPv6 LAN addresses, IPv6 pinholes | LAN addresses done (up to two IPv6 ones to the master); pinholes open (Godot's UPnP has no IPv6 firewall control) |
 
 ## Front end
 
@@ -95,11 +116,13 @@ Who-hears-whom matches the original (rules in `VoiceRouting.cs`). Gaps:
 | Strategic Map (in-game menu, F7 and lobby; spec/hud/strategic-map.md) | done (needs the maps and ui steps rebuilt for the pictures) |
 | Tutorials hub, gadget encyclopedia, Visit a Map with help paths, first-time-map prompt | done, needs the ui rebuild (TutoOrExam gate skipped) |
 | HUD legend and keyboard pictures pages | done |
-| Tutorial zone hints (SZoneTips) offline: standalone only in the original, and offline play is a listen server here | open (M) |
-| Video: post quality, brightness pattern, keep-settings countdown | open (S) |
-| Main menu quit confirmation | open (S) |
-| Per-player loading list | open (S) |
-| Lobby Equipment button | open (S) |
+| Tutorial zone hints (SZoneTips) offline: standalone only in the original, and offline play is a listen server here | done (shown for the local player while an offline session runs: spec/devices/zone-tips.md rule 5a) |
+| Video: post quality, brightness pattern, keep-settings countdown | done (post quality's native effect not decoded: Normal drops the glow; the countdown follows display mode, monitor and window size) |
+| Main menu quit confirmation | done |
+| Per-player loading list | done (client side from the replicated PRIs and the session list; no protocol change) |
+| Lobby Equipment button | done (online Lobby Room; the offline lobby has none) |
+| Server browser mode legend (LegendModeServer) | n-a (no page or native opens it; placeholder captions) |
+| Discord Join to a password server | done (secret kinds `mp`/`ap`; the friend's game asks for the password) |
 
 ## Out of scope or done under other names
 

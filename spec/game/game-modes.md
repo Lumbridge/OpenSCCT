@@ -117,8 +117,14 @@ Joining and watching:
 Modes without stock maps:
 
 16. Extraction, Sabotage and Neutralization select their own missions like any mode; the only other code that tests
-    them is the bomb gadget (Sabotage), the bomb lock message (Sabotage), and the spy's idle mission reminder
-    (Sabotage when the spy has no modem charge left). An absent `GameMode` option means Extraction.
+    them is the bomb gadget (Sabotage), the bomb lock message (Sabotage), the spy's idle mission reminder
+    (Sabotage when the spy has no modem charge left, `spec/hud/messages.md` "Mission reminder") and the HUD's alarm
+    list clear (`SHud.EmptyAlarmsList`: in Neutralization a merc's HUD also drops its drawn actors). An absent
+    `GameMode` option means Extraction. The original's mode box never lists them (`moListEditBox_GameMode`: its
+    extras are DiskHunt, Multi, DeathMatch and MercDeathMatch only). Checked 2026-10-28 over the 85 converted maps:
+    no `SMission` has `GameMode` 1, 2 or 3 (220 missions of modes 4 to 6, 33 nested ones undefined) and no
+    `SMapSettings.Modes` entry has `GameModeId` 1, 2 or 3; the missions named "Extraction" or "Neutralization" on
+    the Orphanage maps are nested Story zones.
 
 ## States
 

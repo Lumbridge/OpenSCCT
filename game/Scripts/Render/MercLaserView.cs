@@ -183,6 +183,7 @@ public sealed partial class MercLaserView : Node3D
     /// direction; a line to there stops it at the first hit, else it ends 15000 uu from the start. The corona sits at
     /// the start, turned along the beam.
     /// </summary>
+    [PortOf("nat:SBase.SGadTorcheLaser.NativeReplaceLaserDistant", Spec = "spec/equipment/merc-laser.md#rules")]
     [Provenance(ProvenanceKind.Decoded, "NativeReplaceLaserDistant game 0x10a99430: end raise 55.5 / 48.0, corona at the beam start")]
     [Provenance(ProvenanceKind.Decoded, "NativeReplaceLaserDistant game 0x10a99430: the start is the third-person gun's FX bone (the drawn M160 on B R Hand)")]
     [Provenance(ProvenanceKind.Estimated, "Only while the drawn rifle is missing: the right hand bone 24 uu along the aim stands in")]

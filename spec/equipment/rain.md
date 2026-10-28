@@ -39,7 +39,12 @@ beams that start in the rain are half as warm.
    wet and back at HeatIntensity exactly 1, the event RestoreSkins (bWet still set, so it puts the wet skin back),
    then bWet is cleared. BeginWetSkin puts the wet skins on: the spy's Skins 0 is HEAT_SN02_SI_wet where this
    machine's player is a spy and HEAT_sn02_wet otherwise, Skins 1 heat_sn02_2_wet_head; the merc's Skins 0 and 2
-   DEF01_heat_bodu_sv. RestoreSkins chooses the wet skin first while bWet.
+   DEF01_heat_bodu_sv. RestoreSkins chooses the wet skin first while bWet. In normal vision each of those modifiers
+   draws its base material, a LitSpecularMaterial: the dry skin's texture as Diffuse, the shared wet env map
+   (TexEnvMap over SPersoTextures.wet_envmap) as Specular and a SpecularityMask (ATT_spec_mask for the spy's body,
+   ATT_2_wet for his head, DEF_01_A_Body_envmap for the merc). wet_lit_ATT_SI (the spy's body seen by a spy) also
+   glows through Shadw_agent_SI and lit_def_fx through DEF_01_Body_SI; wet_lit_ATT (the spy seen by a merc) has no
+   glow.
 4. **Splashes** (SFlicFlocEmitter): SBasePawn.PostBeginPlay spawns one per pawn on every machine, owned by and based
    on the pawn. PreBeginPlay turns its three sub-emitters off, hides it and attaches it to the pawn's 'B Head' at
    (3, -8, 0). Its Tick acts when the pawn's CurrentRainVolume changes, for a spy always and for a merc only where

@@ -115,6 +115,12 @@ Possession (`SPlayerController.Possess(aPawn)`, server):
 25. Else: `bFireMode = 0`, `LocalMyDesiredRotation = Rotation`, set up the pawn's blob shadow,
     `Pawn.ClientRestart()`, `SetViewTarget(Pawn)`, `bBehindView = Pawn.PointOfView()`, clear saved moves,
     `EnterStartState()`.
+    The blob shadow (`SBasePawn.SetupOldSchoolShadow`, spies only, once per pawn) is a ShadowProjector under the own
+    spy: light straight above at 300 uu, the root bone followed, cull distance 600, gradient, then its texture's
+    ShadowDarkness set to 0. ShadowProjector.UpdateShadow, run from InitShadow and every Tick, detaches the projector
+    first and attaches it again only while ShadowDarkness is not 0, and nothing writes ShadowDarkness again (no
+    script; UShadowBitmapMaterial::Get, editor 0x110f7410, does not touch it). So the shadow is detached on its
+    first tick and never seen; OpenSCCT does not draw it.
 26. `WaitingForPawn`: BeginState sets a 0.2 s looping timer and calls `AskForPawn()`; Timer calls
     AskForPawn; PlayerTick runs the global tick, then if the pawn has arrived sets `Pawn.Controller = self`,
     `bUpdateEyeheight = true` and calls ClientRestart, else re-arms the 0.2 s timer if it stopped or is

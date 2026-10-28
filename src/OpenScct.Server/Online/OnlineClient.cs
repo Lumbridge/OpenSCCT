@@ -43,6 +43,9 @@ public sealed record OnlineClientSettings
     /// <summary>The install's id (bans and returning players); empty sends none.</summary>
     public string InstallId { get; init; } = string.Empty;
 
+    /// <summary>The install's player key (rl:ac.bans): it answers each map server's join challenge. Null: none.</summary>
+    public PlayerKey? Key { get; init; }
+
     /// <summary>Preferred side when joining a lobby: 0 spies, 1 mercs, -1 the smaller one.</summary>
     public int PreferredTeam { get; init; } = -1;
 
@@ -549,6 +552,7 @@ public sealed class OnlineClient : IDisposable
         {
             PlayerName = Settings.PlayerName,
             LoginOptions = LoginOptions(),
+            Key = Settings.Key,
             Gameplay = true,
             InstallGameplayServices = Settings.InstallGameplayServices,
             FirePrediction = Settings.FirePrediction,

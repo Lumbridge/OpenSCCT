@@ -53,6 +53,13 @@ PlayerTick) unless iDontUpdatePadInput is set.
    `bFastSpeed` clear and `fNormePadMove > 0.4`, `fNormePadMove = 0.4` (spec/movement/ledge.md, Reloaded ledge
    assist). A second hook at 0x10aaaa32 (Reloaded 0x10019d30) replaces step 6's turn and look values; not decoded
    here.
+9. **Rewrite, the analog stick** (rl:input.pad; Reloaded's own pad code and the console path are not decoded, so
+   this is our rule): while the local controller's stick is pushed past its deadzone, the stick (forward s_f and
+   right s_s, each -1 to 1) takes the place of the direction keys in steps 3 and 4: `aForward = s_f x 6000 x k`,
+   `aStrafe = s_s x 6000 x k`, `fNormePadMove = sqrt(s_f^2 + s_s^2) x k` capped at 1, and rule 8's diagonal factor is 1
+   (Reloaded applies it only when its pad code gave no analog scale). The ledge assist and everything after apply as
+   for the keys. Any direction and a part push (a slower walk) follow from the movement script's use of aForward and
+   aStrafe.
 
 ### 2. NativeComputeControlVariables(dt) (editor exec 0x111f37d0, game 0x10aaf400)
 

@@ -9,8 +9,8 @@ namespace OpenScct.Game.Movement;
 /// The script notifies of the movement clips (AnimNotify_Script NotifyName to the SBasePawn function), registered
 /// with the level's <see cref="AnimNotifyHandlers"/>: the split jump's push, the Vandamme pistol draw and the
 /// hand-over-hand fire poses, the root-motion collision switch and the noise notify (SBasePawn.Movement.Notifies.cs),
-/// the back-to-wall draw and the hand-item throw (SBasePawn.BtwFireNotifies.cs), and the shotgun's per-shell reload
-/// notifies (SBasePawn.ReloadNotifies.cs).
+/// the back-to-wall draw and the hand-item throw (SBasePawn.BtwFireNotifies.cs), the shotgun's per-shell reload
+/// notifies (SBasePawn.ReloadNotifies.cs) and the pickup clips' hand notify (Objectives/DiskCarryRules.cs).
 /// </summary>
 public static class MovementNotifies
 {
@@ -27,6 +27,7 @@ public static class MovementNotifies
     private static readonly Name NotifyUndrawWeapon = new("NotifyUndrawWeapon");
     private static readonly Name RMColOn = new("RMColOn");
     private static readonly Name AnimNotifyNoise = new("AnimNotifyNoise");
+    private static readonly Name AnimNotifyPickup = new("AnimNotifyPickup");
     private static readonly Name[] EventReloadAmmoNb =
     [
         new("EventReloadAmmoNb1"), new("EventReloadAmmoNb2"), new("EventReloadAmmoNb3"), new("EventReloadAmmoNb4"),
@@ -52,6 +53,15 @@ public static class MovementNotifies
 
         handlers.Register(RMColOn, a => (a as SBasePawn)?.RMColOn());
         handlers.Register(AnimNotifyNoise, a => (a as SBasePawn)?.AnimNotifyNoise());
+
+        // The pickup clips: the picked object (or the Story disk) goes to the hand; a Disk Hunt disk frees the hand.
+        handlers.Register(AnimNotifyPickup, a =>
+        {
+            if (a is SBasePawn pawn)
+            {
+                Objectives.DiskCarryRules.AnimNotifyPickup(pawn);
+            }
+        });
 
         // The shotgun's body reload clip: one notify per shell; the last shell loaded skips to the clip's end.
         handlers.Register(EventReloadAmmoNb[0], a => (a as SBasePawn)?.EventReloadAmmoNb1());

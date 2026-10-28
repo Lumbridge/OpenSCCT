@@ -12,7 +12,7 @@ PACKAGE_DIRS = (("Textures", "*.utx"), ("StaticMeshes", "*.usx"))
 
 class FxStep(Step):
     name = "fx"
-    version = 1
+    version = 2
     deps = ()
     per_map = False
     needs_game = True

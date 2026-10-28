@@ -193,11 +193,23 @@ Notable differences from other UE2 builds (this engine has no `StartLocationShap
     alpha test, ZTest and ZWrite, and the section's material as the texture only when it is a bitmap, unlit.
 
 ### Beams (UBeamEmitter)
-25. A beam particle joins its location to an end point given by DetermineEndPointBy (PTEP_Velocity: the velocity;
-    PTEP_Distance: pick(BeamDistanceRange) along the velocity; PTEP_Offset / PTEP_OffsetAsAbsolute: a BeamEndPoints
-    offset; PTEP_Actor: an actor's location; PTEP_TraceOffset: a trace along the offset), with LowFrequencyPoints and
-    HighFrequencyPoints along it displaced by pick(LowFrequencyNoiseRange) and pick(HighFrequencyNoiseRange), drawn as a
-    camera-facing strip of half width Size.X with the texture scaled by BeamTextureUScale and BeamTextureVScale.
+25. A beam's points are made once, when its particle spawns (after the common spawn), and kept for its life. The
+    direction D and the end point by DetermineEndPointBy: PTEP_Velocity D = Velocity x MaxLifetime; PTEP_Distance D =
+    the normalised velocity x pick(BeamDistanceRange); PTEP_Offset end = start + a BeamEndPoints offset (one entry
+    picked by Weight, a point picked in its range); PTEP_Actor the matching HitActors entry's location (it can
+    trigger the owner); PTEP_TraceOffset as PTEP_Offset but traced from the start and cut at the hit; PTEP_OffsetAsAbsolute
+    the offset itself. Without a BeamEndPoints entry those four leave D zero and no end point, so the beam is only its
+    noise around the start (SElectricArcEmitter, the damaged neons' arcs on KrauE, KrauU and SlauS). Low points:
+    the first is the start, low point i (1 to LowFrequencyPoints - 1) is start + D x i / (LowFrequencyPoints - 1) +
+    pick(LowFrequencyNoiseRange) (picks Y, then X, then Z). High points: the first is the start; high point j (1 to
+    HighFrequencyPoints - 1) blends the two low points around j / (HighFrequencyPoints - 1) of the way along and adds
+    pick(HighFrequencyNoiseRange); its texture U is j / (HighFrequencyPoints - 1). With an end point the last low and
+    the last high point are set to it. Branches (UseBranching) start beams of the BranchEmitter sub-emitter at high
+    points inside BranchHFPointsRange with BranchProbability; no SCCT beam names a BranchEmitter, and
+    SElectricArcEmitter's range (-1, 1) holds no high point, so none ever spawns.
+    Drawing: a camera-facing strip through the high points; at each point the half width Size.X lies across the line
+    from the point before it (before the first: the first point mirrored through the second) and the camera; the
+    vertex on the + side has V 0, the other BeamTextureVScale, both U = BeamTextureUScale x the point's U.
 
 ## Constants
 | Name | Value | Provenance | Source |

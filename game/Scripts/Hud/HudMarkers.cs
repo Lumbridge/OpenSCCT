@@ -73,6 +73,9 @@ public sealed class HudMarkers
     /// <summary>Reloaded's widescreen_hud (first-run default on).</summary>
     public bool WidescreenHud { get; set; } = true;
 
+    /// <summary>Reloaded's widescreen (first-run default on); either it or widescreen_hud gives the wide ER canvas.</summary>
+    public bool Widescreen { get; set; } = true;
+
     /// <summary>
     /// Reloaded's hack_alpha (rl:qol.hackalpha), 0 to 1: the icon of an objective being hacked is drawn at this
     /// opacity, so the spy can see past it. First run 178 of 255.
@@ -98,7 +101,7 @@ public sealed class HudMarkers
 
         // The ER canvas spans HudScreenRight x HudScreenBottom (HudLayout): with ws_er_small the icons keep the 4:3
         // scale H / 480, without it the 640 wide canvas is kept and they grow with the width.
-        float pageS = HudLayout.ErScale(screen.X, screen.Y, widescreen: true, WidescreenHud, ErSmall);
+        float pageS = HudLayout.ErScale(screen.X, screen.Y, Widescreen, WidescreenHud, ErSmall);
         bool moving = s.PawnSpeed > 0f;
         DrawGpos(s, screen, pageS, moving);
         var labelled = new List<(float D, HudObjective O, Vector2 P)>();

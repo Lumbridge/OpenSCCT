@@ -20,7 +20,8 @@ public enum VoicePlaybackPacing
 /// bus, whose <see cref="AudioEffectCapture"/> hands the samples (at the mix rate, mixed to mono) to the
 /// <see cref="VoiceClient"/>. Playback: one <see cref="AudioStreamGenerator"/> player at 48 kHz per talker on the
 /// <c>SvmVoice</c> bus (FEATURES rl:voice.mix), fed frame by frame from the talker's jitter buffer, so the audio output's
-/// clock drives the playout. The bus volume is the player's voice volume.
+/// clock drives the playout. The bus volume is the player's voice volume. With echo cancellation on, the mix of what
+/// was handed to the output goes back to the client as the canceller's reference.
 /// </summary>
 public partial class VoiceAudio : Node
 {
@@ -47,6 +48,7 @@ public partial class VoiceAudio : Node
     private readonly Dictionary<ushort, TalkerOutput> _players = new();
     private readonly float[] _frame = new float[VoiceK.FrameSamples];
     private readonly Vector2[] _push = new Vector2[VoiceK.FrameSamples];
+    private float[] _mix = new float[VoiceK.FrameSamples * OutputQueueFrames];
     private AudioEffectCapture? _capture;
     private bool _usingMicrophone;
     private double _clockFrames;
@@ -303,6 +305,9 @@ public partial class VoiceAudio : Node
             _clockFrames -= clockFrames;
         }
 
+        // The mix handed to the output this process frame: the echo canceller's reference (FEATURES rl:voice.echo).
+        bool reference = client.Settings.EchoCancellation;
+        int mixed = 0;
         foreach (VoiceTalker talker in client.Talkers)
         {
             if (!_players.TryGetValue(talker.Id, out TalkerOutput? output))
@@ -333,10 +338,40 @@ public partial class VoiceAudio : Node
                     }
 
                     output.Playback.PushBuffer(_push);
+                    if (reference)
+                    {
+                        MixReference(f, master);
+                        mixed = Math.Max(mixed, f + 1);
+                    }
                 }
 
                 PlayedFrames++;
             }
+        }
+
+        if (mixed > 0)
+        {
+            client.SubmitPlayback(_mix.AsSpan(0, mixed * VoiceK.FrameSamples));
+            Array.Clear(_mix, 0, mixed * VoiceK.FrameSamples);
+        }
+    }
+
+    /// <summary>
+    /// Adds the frame just pushed (the talker's <paramref name="index"/>th this process frame) to the reference mix,
+    /// at the voice bus volume the output plays it at.
+    /// </summary>
+    private void MixReference(int index, float busVolume)
+    {
+        int need = (index + 1) * VoiceK.FrameSamples;
+        if (_mix.Length < need)
+        {
+            Array.Resize(ref _mix, need);
+        }
+
+        int at = index * VoiceK.FrameSamples;
+        for (int i = 0; i < VoiceK.FrameSamples; i++)
+        {
+            _mix[at + i] += _frame[i] * busVolume;
         }
     }
 

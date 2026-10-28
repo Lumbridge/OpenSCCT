@@ -12,7 +12,7 @@ Units:
 - uc:SBase.SWeaponDefenseDummy_Shotgun:Tick, uc:SBase.SWeaponDefenseDummy_Shotgun:ClientFireMuzzle,
   uc:SBase.SWeaponDefenseDummy_Shotgun:SpawnImpacts, rep:SBase.SWeaponDefenseDummy_Shotgun.MinProjDistance,
   rep:SBase.SWeaponDefenseDummy_Shotgun.MaxProjDistance
-- uc:SBase.SShotGunProjector:PostBeginPlay
+- uc:SBase.SShotGunProjector:PostBeginPlay, uc:SBase.SShotGunEmitter:PostBeginPlay
 - nat:SBase.SWeaponDefense_Shotgun.TraceFire (rules in spec/native/natives2-damage.md rule 7)
 - uc:SBase.SBasePawn:EventReloadAmmoNb1, uc:SBase.SBasePawn:EventReloadAmmoNb2, uc:SBase.SBasePawn:EventReloadAmmoNb3,
   uc:SBase.SBasePawn:EventReloadAmmoNb4, uc:SBase.SBasePawn:EventReloadAmmoNb5, nat:SBase.SBasePawn.FinishReloadAnimation
@@ -94,6 +94,10 @@ FirstReloStFd2S 46 (AnimNotify_Script EventReloadFirst1..5 at 0.788, 1.110, 1.44
    plus SShotGunEmitter) where the shooter has no first-person gun or it is someone else's shot on the server (not a
    dedicated server), and `SpawnImpacts` (rule 6's marks from the replicated ranges, from the first-person FX bone
    when this machine has the gun, else the dummy's) on the server and on every machine but the shooter's.
+8. **Spray keeps up with the shooter.** `SShotGunEmitter.PostBeginPlay`, when it has an owner: the shooter's
+   (`Owner.Instigator`) velocity is split along the axes of his rotation, each part cut to a whole number, and added
+   to both ends of the start velocity range of all three sub-emitters (pellet streaks, smoke, sparks). The range is in
+   the emitter's own axes (PTRS_Actor), so the shift is too.
 
 ## States
 The rifle's; the shotgun redefines `s_Reloading` (extends the rifle's) and `s_FullReloading`, BeginState only.

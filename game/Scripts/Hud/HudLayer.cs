@@ -282,6 +282,19 @@ public partial class HudLayer : CanvasLayer
 
     public override void _Process(double delta) => Step((float)delta);
 
+    /// <summary>
+    /// SHud.PostRender's spectator branch: while the player spectates a pawn (and the machine is not a dedicated
+    /// server) the alarm list, its sound and the gameplay object markers are emptied every frame.
+    /// </summary>
+    [OpenScct.Provenance.PortOf("uc:SBase.SHud:PostRender", Spec = "spec/hud/counters-and-prompts.md#rules")]
+    private static void SpectatorClearsAlarms(SPlayerController pc, SHud hud)
+    {
+        if (pc.ViewTarget is SBasePawn && HudK.IsSpectating(pc) && pc.Level.GRI is { ServerOnly: false })
+        {
+            hud.EmptyAlarmsList();
+        }
+    }
+
     /// <summary>One HUD frame: effects and message driver, snapshot, pages, then the draw.</summary>
     public void Step(float dt)
     {
@@ -314,6 +327,7 @@ public partial class HudLayer : CanvasLayer
             if (pc.myHUD is SHud shud)
             {
                 HudMessages.Tick(shud, shud.sTutoMap.Length > 4);
+                SpectatorClearsAlarms(pc, shud);
             }
 
             // The merc's aim point (SHud.SpotReticule) before the snapshot reads it (spec/hud/merc-reticle.md rule 3).

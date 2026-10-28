@@ -4,17 +4,21 @@ namespace OpenScct.Net;
 /// Header at the start of every packet. Acks are piggybacked: <see cref="Ack"/> is the newest packet received
 /// from the other side and bit i of <see cref="AckBits"/> says whether packet Ack-1-i was received too.
 /// Times are in 0.1 ms units and wrap; the echo pair lets the sender measure round trip time without a
-/// synchronised clock.
+/// synchronised clock. <see cref="Salt"/> ties every packet to one connection: the side that connects picks it, the
+/// other side learns it from the first packet, and both drop packets with any other salt (a spoofed or late datagram).
 /// </summary>
 internal struct PacketHeader
 {
     public const byte Magic = 0xA7;
 
     /// <summary>Header size when every optional part is present.</summary>
-    public const int MaxBits = 8 + 16 + 1 + 16 + 32 + 16 + 16 + 32 + 16 + 1;
+    public const int MaxBits = 8 + 32 + 16 + 1 + 16 + 32 + 16 + 16 + 32 + 16 + 1;
 
     /// <summary>Header size without acks.</summary>
-    public const int MinBits = 8 + 16 + 1 + 32 + 16 + 1;
+    public const int MinBits = 8 + 32 + 16 + 1 + 32 + 16 + 1;
+
+    /// <summary>The connection's salt (chosen by the connecting side, never 0 on a real connection).</summary>
+    public uint Salt;
 
     public ushort Seq;
     public bool HasAck;
@@ -42,6 +46,7 @@ internal struct PacketHeader
     public readonly void Write(FBitWriter w)
     {
         w.WriteByte(Magic);
+        w.WriteUInt32(Salt);
         w.WriteUInt16(Seq);
         w.WriteBit(HasAck);
         if (HasAck)
@@ -65,6 +70,7 @@ internal struct PacketHeader
             return false;
         }
 
+        header.Salt = r.ReadUInt32();
         header.Seq = r.ReadUInt16();
         header.HasAck = r.ReadBit();
         if (header.HasAck)

@@ -8,6 +8,9 @@ Units:
 - uc:GUI.Briefing:{InitComponent, RefreshText} (contract: briefing)
 - uc:GUI.BriefingDeux:{InitComponent} (contract: briefing)
 - uc:Engine.PersistentData:{SetGadgetRestriction, GetGadgetRestriction}
+- uc:GUI.ConfirmQuitPage:{YesButtonClick, NoButtonClick} (contract: front-end pages)
+- uc:GUI.Validate_VideoSettings:{s_Init@code, YesButtonClick, NoButtonClick} (contract: front-end pages)
+- uc:GUI.Lobby_Create:ButtonClick (Equipment, front-end pages)
 
 Also read, not inventory units: the pages Game_Settings and Game_Settings_Client (the same values, read only for
 clients), GUIChatBox (the spam delay), JoinWithIp, LAN_Menu, LAN_Seek_Games_List and KickPlayerValidation (captions
@@ -164,6 +167,26 @@ Auto balance (Game_Settings, SGameInfo.PickTeam):
 31. Its A button ("Next") replaces it with BriefingDeux: the level's briefing picture (GetLevelBrief, the defender
     picture when none), ModesStrings[j].ExpliModeInBriefSpy or ExpliModeInBriefSentry for j = SearchForGameMode(mode)
     (the mode itself, not its rules mode), and LegendMapInBrief. Its A button ("Previous") goes back.
+
+## Front-end pages
+
+Smaller pages around the lobby and the options (GUI package; captions from Enhanced's GUI.int):
+
+32. ConfirmQuitPage (the main menu's Quit): "Are you sure|you want to quit?" with Cancel and Quit Game. Quit Game
+    quits the program; Cancel closes the page.
+33. Lobby_Create's "Equipment" button opens Edit_Profile, the player's gear page (gadget slots, the merc's weapon;
+    Edit_Gadgets picks a slot's gadget). The kit is the profile's: Loading_Menu.SetInventory sends it to the server
+    when the round loads, after BuildInventoryList swaps out any gadget the host's restriction bans for the first
+    allowed one no slot holds (or none). The host greys the button while the launch counts down.
+34. Video_Settings has Screen Resolution, Shadows Quality and Post-Render Quality (Normal or High, both rows from
+    sQuality; post quality clamped to 0..1) and a "Brightness Configuration" button that opens Mire: the calibrage
+    picture over the whole page and "Adjust your screen brightness so that you can see|the left square checked.|The
+    other two squares should stay black." OK opens Validate_VideoSettings: the new values are applied at once and
+    "Do you want to keep these settings?|Original settings will be reset in:" counts down from 15 s (refreshed five
+    times a second); Yes keeps them, No or the end of the count puts the old resolution and qualities back. In the
+    lobby while a match launches, the old values come back at once.
+35. LegendModeServer (a "Modes" box with Mode 1, Mode 2 and Other Mode beside a square, a triangle and a circle) is
+    never opened by any page or native: dead in Enhanced 4.0.
 
 ## States
 No states.

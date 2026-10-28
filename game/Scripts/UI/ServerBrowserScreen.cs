@@ -197,12 +197,36 @@ public partial class ServerBrowserScreen : MenuPage
         _status = new Label { Name = "Status", Modulate = UiStyle.MenuFocus, AutowrapMode = TextServer.AutowrapMode.WordSmart };
         column.AddChild(_status);
         Refresh();
-        if (DiscordJoinId is { Length: > 0 } discordJoin)
+        if (DiscordJoinId is { Length: > 0 } discordJoin && AskJoinPassword)
         {
-            JoinByMasterId(discordJoin, JoinIdName);
+            // A Discord Join to a server with a password: the password box first, then Join.
+            _passwordJoinId = discordJoin;
+            ShowStatus($"{JoinIdName} has a password. Type it in the password box and press Join.");
+            _password?.GrabFocus();
+        }
+        else if (DiscordJoinId is { Length: > 0 } discordJoin2)
+        {
+            JoinByMasterId(discordJoin2, JoinIdName);
             _joinPassword = JoinIdPassword;
         }
+
+        if (_password is not null)
+        {
+            _password.TextSubmitted += _ =>
+            {
+                if (_passwordJoinId is not null)
+                {
+                    Join();
+                }
+            };
+        }
     }
+
+    /// <summary>A Discord Join to a server with a password: ask for it before joining (docs/DISCORD.md).</summary>
+    public bool AskJoinPassword { get; init; }
+
+    /// <summary>The master id of the Discord Join waiting for its password, or null.</summary>
+    private string? _passwordJoinId;
 
     /// <summary>Asks the master how to reach a listed server by its id and joins it (no password).</summary>
     private void JoinByMasterId(string serverId, string name)
@@ -609,6 +633,15 @@ public partial class ServerBrowserScreen : MenuPage
     private void Join()
     {
         SaveSettings();
+        if (_passwordJoinId is { } waiting && _join is null)
+        {
+            // The Discord Join waiting for its password: join that server with what was typed.
+            _passwordJoinId = null;
+            JoinByMasterId(waiting, JoinIdName);
+            _joinPassword = _password?.Text.Length > 0 ? _password.Text : null;
+            return;
+        }
+
         if (Table?.GetSelected() is not { } item || Find(item.GetMetadata(0).AsString()) is not { } row)
         {
             ShowStatus("Pick a server, or type an address and use Join address.");

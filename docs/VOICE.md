@@ -146,11 +146,46 @@ the rest quieter.
 `VoiceSettings` holds the Reloaded keys: `Enabled` (the stock "Allow VoiceChat"), `PushToTalk`
 (`voice_push_to_talk`), `MicMuted` (`voice_muted`), `ActivationThreshold`, `ActivationHoldMs`, `InputGain`
 (`voice_input_gain`), `OutputVolume` (`voice_output_volume`, the `SvmVoice` bus volume) and `JitterFrames`
-(`voice_jitter_frames`). Per talker: `VoiceChat.SetMuted` (one way, also stops the server sending him) and
+(`voice_jitter_frames`), and the microphone clean-up: `AutoGain` (`voice_auto_gain`), `NoiseSuppression`
+(`voice_noise_suppression`), `NoiseSuppressionDecibels` (`voice_noise_suppression_level` Low 15, Standard 30, High 45,
+Extreme 60) and `EchoCancellation` (`voice_echo_cancellation`). The game's settings have Reloaded's defaults (auto gain
+and Standard suppression on, echo cancellation off); a bare `VoiceSettings` has all three off, so tests and the
+synthetic test tone pass untouched. Per talker: `VoiceChat.SetMuted` (one way, also stops the server sending him) and
 `VoiceChat.SetVolume` (0 to 2). `VoiceAudio.StartMicrophone(device)` picks an input device by name and reports
 `MicrophoneProblem` ("the system reports no microphones", a missing device falls back to the system's choice).
 `game/project.godot` enables `audio/driver/enable_input`; Godot opens the microphone only when the capture player
 starts. Persisting the settings belongs to the options screen.
+
+## Microphone clean-up
+
+`OpenScct.Net.Voice.Dsp.VoiceDsp` runs on each 20 ms microphone frame after the resampler (48 kHz) and before the
+gain and the gate (FEATURES rl:voice.noise, rl:voice.gain, rl:voice.echo). All of it is our own managed code: no
+native library and no package. Reloaded uses speexdsp; its tuning is not decoded, so ours follows the textbook
+methods.
+
+- **Echo cancellation** (`VoiceEchoCanceller`, experimental, off by default): a partitioned-block frequency-domain
+  adaptive filter (overlap-save, 256-sample blocks, 38 partitions: about 200 ms of echo tail), the method of
+  speexdsp's MDF. The reference is the voice mix `VoiceAudio` hands to the output (`VoiceClient.SubmitPlayback`), so
+  only other players' voices are cancelled, as in Reloaded; at most 100 ms of it waits for the microphone. A filter
+  that makes the signal louder is not used and is cleared if it stays that way; once converged, a block whose residual
+  is above the echo estimate counts as double talk and the filter learns 20 times slower.
+- **Noise suppression** (`VoiceNoiseSuppressor`, on, Standard): a spectral Wiener filter (512-point frames, half
+  overlap, square-root Hann windows) with the decision-directed a priori SNR. The noise estimate tracks the minimum of
+  the smoothed power per bin (falls quickly, rises about 2.5 dB a second, starts from the first 0.15 s); the gain floor
+  is the level's attenuation. With echo cancellation on, a quarter of the echo estimate counts as disturbance too
+  (residual echo suppression).
+- **Automatic gain** (`VoiceAutoGain`, on): aims speech at -20 dBFS RMS; only frames 12 dB over the tracked floor (and
+  over -50 dBFS) move it; down 1 dB a frame, up 0.1 dB a frame, -20 to +30 dB, never clipping. Microphone Volume is
+  not used while it is on.
+- Delay: with echo or noise on, 5 to 11 ms (the 256-sample blocks); the gain stage adds none. Switching the echo or
+  noise stage starts both afresh.
+- **The voice thread** (`VoiceDspThread`, FEATURES rl:audio.thread): in the game (`VoiceClient.UseVoiceThread`, set
+  by the online and hub voice chats) the clean-up runs on its own thread, registered with MMCSS as "Pro Audio"
+  (`ProAudioThread`: `AvSetMmThreadCharacteristicsW` from avrt.dll, nothing elsewhere). Microphone and reference
+  frames reach it through one queue in submission order; cleaned frames come back to the main thread on the next
+  capture or `Update` and are gated and sent there. The thread starts when a stage is first on and stops on
+  `Disconnect`. Tests and the options meter run the clean-up inline.
+- The Voice page meter and Test my microphone use the page's clean-up settings (the meter has no voices to cancel).
 
 ## HUD
 
@@ -211,8 +246,9 @@ Talker ids on the wire are PlayerReplicationInfo ids plus one (`VoiceK.TalkerOf`
 
 ## Not done yet
 
-- Noise suppression, automatic gain and echo cancellation (FEATURES rl:voice.noise, gain, echo; P1 and P2). The
-  microphone test is on the Voice page.
-- Offline play (the local listen server of `--svm-play`) has no voice.
+- Offline play (the local listen server of `--svm-play`) has no voice. Left so on purpose: its other players are
+  bots, which neither talk nor listen, so there is nobody to hear.
+- The clean-up is not tuned against Reloaded's (its speexdsp settings are not decoded), and the echo canceller
+  does not follow a drift between the output and capture clocks beyond trimming the reference backlog.
 - Downed chat waits for the native code that finds chat partners (spec open question 1).
 - The lobby rules apply on the online session's lobby level, through the session's own directory.

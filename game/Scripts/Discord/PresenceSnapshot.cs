@@ -193,42 +193,34 @@ public static class PresenceSnapshot
 
     /// <summary>
     /// How friends join this visit: a listed server by its master id (as the browser joins), else the address the
-    /// player typed, else for the player's own server its master id or public address.
+    /// player typed, else for the player's own server its master id or public address. A server with a password says
+    /// so in the secret (the password stays here: the friend's game asks for it).
     /// </summary>
     private static DiscordJoinSecret? OnlineJoin(OnlineService online, OnlineClient client)
     {
         if (online.Hosting is { } host)
         {
-            if (host.Request.Password is { Length: > 0 })
-            {
-                return null;
-            }
-
+            bool locked = host.Request.Password is { Length: > 0 };
             MasterLink? master = host.Server.Master;
             if (master?.ServerId is { Length: > 0 } id)
             {
-                return new DiscordJoinSecret(DiscordJoinKind.Master, id);
+                return new DiscordJoinSecret(DiscordJoinKind.Master, id, locked);
             }
 
             return master?.PublicAddress is { } address && DiscordJoinSecret.Shareable(address)
-                ? new DiscordJoinSecret(DiscordJoinKind.Address, address)
+                ? new DiscordJoinSecret(DiscordJoinKind.Address, address, locked)
                 : null;
         }
 
-        if (client.Settings.Password is { Length: > 0 })
-        {
-            // Friends would need the password too; Discord is no place for it.
-            return null;
-        }
-
+        bool password = client.Settings.Password is { Length: > 0 };
         JoinTarget target = client.Target;
         if (target.MasterId is { Length: > 0 } masterId)
         {
-            return new DiscordJoinSecret(DiscordJoinKind.Master, masterId);
+            return new DiscordJoinSecret(DiscordJoinKind.Master, masterId, password);
         }
 
         return target.Attempts is [{ Kind: ConnectKind.Direct, IsLan: false } attempt] && DiscordJoinSecret.Shareable(attempt.Address)
-            ? new DiscordJoinSecret(DiscordJoinKind.Address, attempt.Address)
+            ? new DiscordJoinSecret(DiscordJoinKind.Address, attempt.Address, password)
             : null;
     }
 
@@ -239,6 +231,9 @@ public static class PresenceSnapshot
             EGameMode.GM_DiskHunt => "Disk Hunt",
             EGameMode.GM_DeathMatch => "Deathmatch",
             EGameMode.GM_MercDeathMatch => "Merc Deathmatch",
+            EGameMode.GM_Extraction => "Extraction",
+            EGameMode.GM_Sabotage => "Sabotage",
+            EGameMode.GM_Neutralization => "Neutralization",
             _ => "Story",
         };
         return map.Length > 0 ? name + " on " + map : name;
