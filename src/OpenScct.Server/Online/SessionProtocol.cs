@@ -44,6 +44,9 @@ public enum SessionPlayerFlags
 
     /// <summary>A signed-in player: the name is the account's claimed name, checked with the master's ticket.</summary>
     Verified = 512,
+
+    /// <summary>The host or an admin banned this player from voice (PlayerReplicationInfo.bVoiceBanned).</summary>
+    VoiceBanned = 1024,
 }
 
 /// <summary>
@@ -65,7 +68,8 @@ public enum SessionPlayerFlags
 ///   kicked &lt;reason&gt;
 /// client -> server
 ///   team &lt;0|1|255&gt;    ready &lt;0|1&gt;    setup &lt;options&gt;    launch    lobby    teamvoice &lt;0|1&gt;
-///   mapcheck &lt;map&gt; &lt;mapState&gt;    kick &lt;id&gt;    ban &lt;id&gt;    admin &lt;password&gt;    cmd &lt;console command&gt;
+///   mapcheck &lt;map&gt; &lt;mapState&gt;    kick &lt;id&gt;    ban &lt;id&gt;    voiceban &lt;id&gt; &lt;0|1&gt;    admin &lt;password&gt;
+///   cmd &lt;console command&gt;
 /// </code>
 /// </summary>
 public static class SessionProtocol

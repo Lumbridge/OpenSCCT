@@ -46,7 +46,7 @@ public sealed record LobbyMessage(string Text, string? Sender, HudSide? Side, bo
 
 /// <summary>A player as an online lobby lists it: the base line, its id, ping, host mark and whether it has the map.</summary>
 public sealed record OnlineLobbyPlayer(int Id, string Name, HudSide? Side, bool Ready, bool IsLocal, bool IsHost, int PingMs, string MapNote,
-    bool TeamVoiceOnly = false, bool IsBot = false, bool IsVerified = false, int Rank = 0);
+    bool TeamVoiceOnly = false, bool IsBot = false, bool IsVerified = false, int Rank = 0, bool VoiceBanned = false);
 
 /// <summary>
 /// An online lobby (docs/ONLINE.md): on top of the sides and ready flags, the server and its setup (map, mode and the
@@ -83,6 +83,12 @@ public interface IOnlineLobbySession : ILobbySession
     void Chat(string text, bool teamOnly);
 
     void Kick(int playerId);
+
+    /// <summary>Bans a player from the server (his account, install id and address) and kicks him.</summary>
+    void Ban(int playerId);
+
+    /// <summary>Bans a player from voice chat for the visit, or lifts it.</summary>
+    void SetVoiceBanned(int playerId, bool banned);
 
     /// <summary>A map's settings (its modes and their values), for the Session Parameters rows.</summary>
     OpenScct.Game.SBase.USMapSettings? MapSettings(string map);

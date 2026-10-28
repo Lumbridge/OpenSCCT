@@ -142,6 +142,7 @@ public sealed partial class MapCatalog
             _catalogData = null;
             _entries.Clear();
             _cache.Clear();
+            _texts.Clear();
         }
     }
 

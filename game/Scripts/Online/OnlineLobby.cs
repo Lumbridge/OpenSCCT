@@ -79,7 +79,7 @@ public sealed class OnlineLobby : IOnlineLobbySession
                     _ => string.Empty,
                 };
                 HudSide? side = p.IsSpectator ? null : p.Team == 1 ? HudSide.Merc : HudSide.Spy;
-                list.Add(new OnlineLobbyPlayer(p.Id, p.Name, side, p.Ready, p.Id == State.LocalId, p.IsHost, p.PingMs, note, p.TeamVoiceOnly, p.IsBot, p.IsVerified, p.Rank));
+                list.Add(new OnlineLobbyPlayer(p.Id, p.Name, side, p.Ready, p.Id == State.LocalId, p.IsHost, p.PingMs, note, p.TeamVoiceOnly, p.IsBot, p.IsVerified, p.Rank, p.VoiceBanned));
             }
 
             return list;
@@ -155,6 +155,10 @@ public sealed class OnlineLobby : IOnlineLobbySession
     public void Chat(string text, bool teamOnly) => _client.Chat(text, teamOnly);
 
     public void Kick(int playerId) => _client.Kick(playerId);
+
+    public void Ban(int playerId) => _client.Ban(playerId);
+
+    public void SetVoiceBanned(int playerId, bool banned) => _client.SetVoiceBanned(playerId, banned);
 
     public OpenScct.Game.SBase.USMapSettings? MapSettings(string map) => _client.Maps.GetMapSettings(map);
 

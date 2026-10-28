@@ -245,6 +245,11 @@ public partial class SPlayerController
             UpdateDownedChat();
         }
 
+        if (Role < ENetRole.ROLE_Authority)
+        {
+            ApplyPendingVoiceChatMode();
+        }
+
         bool movement = MovementService.Of(this) is not null;
         if (movement && Player is UViewport)
         {

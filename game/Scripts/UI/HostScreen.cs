@@ -41,6 +41,33 @@ public partial class HostScreen : MenuPage
     /// <summary>Create (the page's A button).</summary>
     public Button? HostButton { get; private set; }
 
+    /// <summary>"Alternate Mode": opens the Alternate Mode page (enabled while Alternate is checked).</summary>
+    public Button? AlternateButton { get; private set; }
+
+    public override void _ExitTree()
+    {
+        if (Model is not null)
+        {
+            Model.Changed -= ShowAlternateButton;
+        }
+    }
+
+    private void ShowAlternateButton()
+    {
+        if (AlternateButton is not null && Model is not null)
+        {
+            AlternateButton.Disabled = !Model.Setup.Alternate.On;
+        }
+    }
+
+    private void OpenAlternate()
+    {
+        if (Model is { } model)
+        {
+            AddChild(new AlternateModePanel(model.Setup.Alternate, editable: true, model.SetAlternate));
+        }
+    }
+
     public override void _Ready()
     {
         Name = "Host";
@@ -64,6 +91,14 @@ public partial class HostScreen : MenuPage
         }
 
         Body.AddChild(Rows);
+
+        // Create_Match's "Alternate Mode" button: the ability and gadget switches, once Alternate is checked.
+        AlternateButton = UiStyle.MenuButton("Alternate Mode", OpenAlternate, "AlternateMode");
+        AlternateButton.CustomMinimumSize = new Vector2(220f, 36f);
+        AlternateButton.SizeFlagsHorizontal = SizeFlags.ShrinkBegin;
+        Body.AddChild(AlternateButton);
+        Model.Changed += ShowAlternateButton;
+        ShowAlternateButton();
 
         // Every hostable map of the mode as a picture to click (the Choose Map arrows still step through them).
         VBoxContainer mapList = Panel(Body, "Maps", "Maps");
