@@ -113,7 +113,7 @@ pawn itself, posed by death animations, kept until `UnPossess` destroys it at re
    facing; also sent to the server as `ServerSetVelocityForDyingPawn(100 * v)`, which sets PHYS_Falling and velocity
    v); a merc switches to third person (bBehindView, camera detached, walking camera). Merc weapon `AnimateFall`.
    Timer (10 s): action SA_LAND_INERTE (101), `ChangeState('s_Dead')`. Landing (owner): SA_LAND_INERTE and
-   `ChangeState('s_LandingInerte')` (unless GameEnded); weapon `AnimateLand`. `DropAttack` events are ignored.
+   `ChangeState('s_LandingInerte')` (unless GameEnded); weapon `AnimateLand` when the weapon is out (WeaponLoaded not 0). `DropAttack` events are ignored.
    `NotifyBump` on the owner: if the bumped actor is an SBasePawn whose top (Z + 0.8 * CollisionHeight) is at or
    below our feet (Z - CollisionHeight): a sticky-skinned target triggers `StickyBlast(Other)`, else
    `TellServerToFallAttack(Other)` (a falling corpse can drop-attack someone, `drop-attack.md`).
