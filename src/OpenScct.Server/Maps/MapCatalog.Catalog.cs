@@ -504,12 +504,13 @@ public sealed partial class MapCatalog
             return MapKind.Training;
         }
 
-        if (originalIndex.Count > 0)
+        if (originalIndex.ContainsKey(id))
         {
-            return originalIndex.ContainsKey(id) ? MapKind.Versus : MapKind.Test;
+            return MapKind.Versus;
         }
 
-        // Without the catalog data: converted maps are hostable, our own are test maps.
+        // Maps outside the original's host list (community maps, downloads) are hostable when converted from a real
+        // map; our own (synthetic: the hub, TestBox) are test maps.
         return manifest?.Source.IsConverted == true ? MapKind.Versus : MapKind.Test;
     }
 
