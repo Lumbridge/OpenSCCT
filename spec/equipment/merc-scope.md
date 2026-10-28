@@ -125,7 +125,7 @@ Clip: FirstSnipStBg2 7 frames at 15 fps played at rate 1.6 on channel 6 = 0.292 
    `SetRotation(View)`, `UpdateDesiredRotation(Des)`. While steadily holding: `View += (Des - View) * 0.2`, wrap,
    `SetRotation(View)`, `UpdateDesiredRotation(View)` (the aim snaps to the view). Finally
    `LocalMyDesiredRotation = Des`.
-10. **Moving while scoped** (PlayerMove): jump disabled; crouch allowed (own `ProcessCrouch`, 0.5 s guard); input
+10. **Moving while scoped** (PlayerMove): jump disabled; crouch allowed (own `ProcessCrouch`, 0.5 s guard: the stance changes inside the scope with SA_WAIT_CR2ST_2H or SA_WAIT_ST2CR_2H, and a blocked stand-up turns the latch back on); input
     curve standing `t = (-0.05 a/6000 + 0.15) a/6000 + 0.9`, crouched `t = (-0.02468 a/6000 + 0.05065) a/6000 + 0.3117`
     with `a = aForward`, both axes times `t`, then times 0.2; `GroundSpeed = RunningSpeed * |accel| / 3000`, zeroed
     below 15 uu/s crouched or 40 uu/s standing. Movement rules are owned by the locomotion spec.
