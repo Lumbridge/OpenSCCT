@@ -108,8 +108,32 @@ public static class ContentBuildPlan
         && Directory.Exists(Path.Combine(path, "Packages"));
 }
 
-/// <summary>Progress of a content build: units done of the units planned, and the last line the builder printed.</summary>
-public sealed record ContentProgress(int Done, int Total, string Line);
+/// <summary>
+/// Progress of a content build: units done of the units planned, the last line the builder printed, and the units
+/// running now as player-facing names, oldest first (empty with a builder from before its "start" lines).
+/// </summary>
+public sealed record ContentProgress(int Done, int Total, string Line, IReadOnlyList<string> Running)
+{
+    public ContentProgress(int done, int total, string line)
+        : this(done, total, line, [])
+    {
+    }
+
+    /// <summary>A player-facing name for one unit: the map's name for per-map steps, else what the step makes.</summary>
+    public static string Describe(string step, string unit) => step switch
+    {
+        "maps" => unit,
+        "audio-map" => unit + " sounds",
+        "classes" => "game settings",
+        "chars" => "characters",
+        "audio" => "sounds",
+        "ui" => "menus",
+        "maps-catalog" => "map list",
+        "renderpack" => "shaders",
+        "fx" => "effects",
+        _ => unit is "-" or "" ? step : $"{step} {unit}",
+    };
+}
 
 /// <summary>What was last built into the content folder (content-build.json), so the launcher knows whether to build again.</summary>
 public sealed class ContentState
@@ -198,7 +222,7 @@ public static class ContentBuilder
             log?.Invoke(line);
             if (counter.Read(line))
             {
-                progress?.Report(new ContentProgress(counter.Done, counter.Total, line.Trim()));
+                progress?.Report(new ContentProgress(counter.Done, counter.Total, line.Trim(), counter.RunningNames()));
             }
         }
 
@@ -229,7 +253,12 @@ public static class ContentBuilder
     {
         private readonly HashSet<string> _steps = new(StringComparer.Ordinal);
 
+        // "step unit" of the units that printed "start" and no result yet, in start order.
+        private readonly List<(string Step, string Unit)> _running = [];
+
         public int Total { get; private set; } = 1;
+
+        public IReadOnlyList<string> RunningNames() => _running.Select(r => ContentProgress.Describe(r.Step, r.Unit)).ToList();
 
         public int Done { get; private set; }
 
@@ -269,9 +298,17 @@ public static class ContentBuilder
                 return true;
             }
 
+            // "start <step> <unit>": real work began on a unit (SVM_PROGRESS).
+            if (parts[0] == "start" && parts.Length >= 3 && _steps.Contains(parts[1]))
+            {
+                _running.Add((parts[1], parts[2]));
+                return true;
+            }
+
             // "<step> <unit> <status> <seconds>s <key>"
             if (_steps.Contains(parts[0]) && parts.Length >= 4 && parts[3].EndsWith('s'))
             {
+                _running.Remove((parts[0], parts[1]));
                 Done = Math.Min(Total, Done + 1);
                 if (parts[2] == "failed")
                 {

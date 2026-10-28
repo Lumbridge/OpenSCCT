@@ -522,6 +522,9 @@ class Graph:
                 if state is not None:
                     produced[(step.name, unit)] = entry["outputsDigest"]
                     return UnitResult(step.name, unit, state, key, time.perf_counter() - t0, entry.get("stats", {}))
+        if os.environ.get("SVM_PROGRESS"):
+            # The launcher shows what is running so a slow unit does not look frozen (workers print too).
+            print(f"start {step.name} {unit or '-'}", flush=True)
         if out is not None:
             out.clear()
         try:

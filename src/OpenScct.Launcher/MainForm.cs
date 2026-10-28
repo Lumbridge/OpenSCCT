@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
@@ -615,13 +616,34 @@ internal sealed class MainForm : Form
         SetStatus("Preparing the game files. The first time takes a few minutes; you can stop and carry on later.", Theme.Muted);
         string logPath = Path.Combine(_layout.Content, "build.log");
         Directory.CreateDirectory(_layout.Content);
+
+        // The text under the bar redraws every second as well as on each builder line, so a slow unit still shows a
+        // moving clock and what it is working on instead of looking frozen.
+        var started = Stopwatch.StartNew();
+        var sinceLast = Stopwatch.StartNew();
+        ContentProgress? last = null;
+        void ShowProgress()
+        {
+            _progressText.Text = ContentProgressText(last, started.Elapsed, sinceLast.Elapsed);
+        }
+
+        using var ticker = new System.Windows.Forms.Timer { Interval = 1000 };
+        ticker.Tick += (_, _) => ShowProgress();
+        ShowProgress();
+        ticker.Start();
         try
         {
             await using var log = new StreamWriter(logPath, append: false) { AutoFlush = true };
             var progress = new Progress<ContentProgress>(p =>
             {
+                if (last is null || p.Done != last.Done)
+                {
+                    sinceLast.Restart();
+                }
+
+                last = p;
                 _progress.Fraction = p.Total > 0 ? (double)p.Done / p.Total : 0;
-                _progressText.Text = p.Total > 0 ? $"{p.Done} of {p.Total} done" : string.Empty;
+                ShowProgress();
             });
             object gate = new();
             string downloaded = DownloadedMapsFor(current);
@@ -640,6 +662,7 @@ internal sealed class MainForm : Form
         }
         finally
         {
+            ticker.Stop();
             _buildingContent = false;
         }
     }
@@ -891,6 +914,45 @@ internal sealed class MainForm : Form
             _progressText.Text = p.Total > 0 ? $"{Mb(p.Received)} of {Mb(p.Total)}{rate}" : Mb(p.Received) + rate;
         });
     }
+
+    /// <summary>
+    /// "12 of 140 done · 3:05 so far · Working on characters, Ark and 2 more": what a content build is doing, with a
+    /// note once nothing has finished for a while (some units take minutes).
+    /// </summary>
+    private static string ContentProgressText(ContentProgress? p, TimeSpan elapsed, TimeSpan sinceLast)
+    {
+        var parts = new List<string>();
+        if (p is { Total: > 0 })
+        {
+            parts.Add($"{p.Done} of {p.Total} done");
+        }
+        else
+        {
+            parts.Add("Starting up");
+        }
+
+        parts.Add(Clock(elapsed) + " so far");
+        if (p is { Running.Count: > 0 })
+        {
+            IReadOnlyList<string> running = p.Running;
+            string names = running.Count <= 3
+                ? string.Join(", ", running)
+                : string.Join(", ", running.Take(2)) + $" and {running.Count - 2} more";
+            parts.Add("Working on " + names);
+        }
+
+        if (sinceLast >= TimeSpan.FromSeconds(45))
+        {
+            parts.Add($"still working ({Clock(sinceLast)} on this part, some take a few minutes)");
+        }
+
+        return string.Join("  ·  ", parts);
+    }
+
+    private static string Clock(TimeSpan t) =>
+        t.TotalHours >= 1
+            ? $"{(int)t.TotalHours}:{t.Minutes:00}:{t.Seconds:00}"
+            : $"{(int)t.TotalMinutes}:{t.Seconds:00}";
 
     private static string Mb(double bytes) => (bytes / (1024 * 1024)).ToString("0.0", CultureInfo.CurrentCulture) + " MB";
 

@@ -58,6 +58,8 @@ public sealed record BuilderTool(string Python, string? WorkingDirectory)
 
         info.Environment["PYTHONUNBUFFERED"] = "1";
         info.Environment["PYTHONIOENCODING"] = "utf-8";
+        // "start <step> <unit>" lines as each unit begins real work (older builders ignore it).
+        info.Environment["SVM_PROGRESS"] = "1";
         Directory.CreateDirectory(info.WorkingDirectory);
 
         using var process = new Process { StartInfo = info, EnableRaisingEvents = true };
