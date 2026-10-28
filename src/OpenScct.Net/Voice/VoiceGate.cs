@@ -10,6 +10,7 @@ public sealed class VoiceSettings
     private float _inputGain = 1f;
     private float _outputVolume = 1f;
     private int _jitterFrames = VoiceK.DefaultJitterFrames;
+    private int _noiseDecibels = 30;
 
     /// <summary>Voice on at all (the stock profile's "Allow VoiceChat"). Off: nothing is sent or received.</summary>
     public bool Enabled { get; set; } = true;
@@ -54,6 +55,25 @@ public sealed class VoiceSettings
         get => _jitterFrames;
         set => _jitterFrames = Math.Clamp(value, VoiceK.MinJitterFrames, VoiceK.MaxJitterFrames);
     }
+
+    /// <summary>
+    /// Noise suppression before the gate (<c>voice_noise_suppression</c>). Reloaded's default is on (the game's
+    /// settings); a bare VoiceSettings has it off, so test tones pass untouched.
+    /// </summary>
+    public bool NoiseSuppression { get; set; }
+
+    /// <summary>The suppression's most attenuation in dB (<c>voice_noise_suppression_level</c>: 15, 30, 45 or 60).</summary>
+    public int NoiseSuppressionDecibels
+    {
+        get => _noiseDecibels;
+        set => _noiseDecibels = Math.Clamp(value, 15, 60);
+    }
+
+    /// <summary>Automatic gain (<c>voice_auto_gain</c>); <see cref="InputGain"/> is not used while it is on.</summary>
+    public bool AutoGain { get; set; }
+
+    /// <summary>Echo cancellation against the voice playback (<c>voice_echo_cancellation</c>, experimental).</summary>
+    public bool EchoCancellation { get; set; }
 
     public VoiceSettings Clone() => (VoiceSettings)MemberwiseClone();
 }

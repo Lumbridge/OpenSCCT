@@ -6,6 +6,7 @@ Units:
   uc:SBase.SHud:AddHudNumberMessageToStack, uc:SBase.SHud:SetGameMessage
 - uc:SBase.SGameMessages:GetString (every switch), uc:SBase.SDeathMessage:GetString, uc:Engine.GameMessage:GetString
 - the HUD page's message driver (native, game 0x10b32c30)
+- uc:SBase.SPlayerController:PlayerTick (the mission reminder at its end)
 
 ## Purpose
 
@@ -87,7 +88,18 @@ The page's message driver (every HUD draw, both pages):
    starts (or the end time goes back to 0). The area shows the head's text alone (shown from frame 0 when it was
    hidden), and hides when the queue is empty.
 
-## Constants
+### Mission reminder
+
+The last part of the controller's global `PlayerTick`, on the player's own machine (after the camera update; states
+that do not call the global `PlayerTick`, such as `s_Dead` and `s_WaitRespawn`, skip it):
+
+10. While the pawn's velocity is not zero, `fLastTimeMoved = now`.
+11. Otherwise, once `now - fLastTimeMoved > fTimeMissionMessage` (20 s): a spy carrying the Story disk gets
+    SGameMessages 53 ("go to the drop zone"); else a spy in Sabotage whose modem (`FindGadgetType(SGadBomb)`) has
+    `Charge == 0` (no modem reads 0) gets 55; neither resets the wait, so the line is queued again whenever it is no
+    longer in the queue. Else every `SMission` not taken queues its `Description` (spies) or `DescriptionDEF`
+    (mercs) with `SetGameMessage(text, 3)` and resets the wait.
+
 
 | Name | Value | Unit | Provenance | Source |
 |---|---|---|---|---|
@@ -95,6 +107,8 @@ The page's message driver (every HUD draw, both pages):
 | MaxStackedMessages | 2 | entries | decoded | def:SBase.SHud |
 | GameMessageDisplayTime | 5 | s | decoded | def:SBase.SHud; driver 0x10b32c30 |
 | AlarmListBlinkingTime | 3 | s | decoded | def:SBase.SHud |
+| fTimeMissionMessage | 20 | s | decoded | def:SBase.SPlayerController |
+| Mission reminder priority | 3 | | decoded | SPlayerController.PlayerTick |
 | Alarm long time | 5 | s | decoded | SHud.LocalizedMessage (Duration 500 or more) |
 | Death message priority | 2 own team, 1 other | | decoded | SHud.LocalizedMessage |
 | Other classes' priority | 1 | | decoded | SHud.LocalizedMessage |

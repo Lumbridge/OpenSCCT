@@ -226,12 +226,13 @@ public partial class SPlayerController
         }
 
         /// <summary>
-        /// The carried flag, or else the newest disk, moves to the thigh (server). Until script animation notifies are
-        /// dispatched, a disk still in the hand gets the pickup notify here first, which frees the hand.
+        /// The carried flag, or else the newest disk, moves to the thigh (server). The pickup clip's AnimNotifyPickup
+        /// normally freed the hand already (Movement/MovementNotifies.cs); a disk still in the hand (a pawn with no
+        /// animation, or a pickup cut short before the notify) gets the notify here first, so the hand is free.
         /// </summary>
         [Uc("SBase.SPlayerController.s_Pickup.EndState", Sha1 = "974d465f9b303f25b1ba69542ff802acea6ffd03")]
         [PortOf("uc:SBase.SPlayerController:s_Pickup.EndState", Spec = "spec/objectives/disk-hunt.md#rules")]
-        [Provenance(ProvenanceKind.Estimated, "AnimNotifyPickup run at the end of the pickup when the animation did not raise it (disk-hunt.md open question 2)")]
+        [Provenance(ProvenanceKind.Estimated, "OpenSCCT safety net: AnimNotifyPickup run at the end of the pickup when the clip did not raise it (the original leaves the disk in the hand)")]
         public override void EndState(Actor self)
         {
             var pc = (SPlayerController)self;

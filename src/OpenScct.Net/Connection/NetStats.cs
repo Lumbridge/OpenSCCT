@@ -19,6 +19,9 @@ public sealed class NetStats
 
     public long InMalformed { get; internal set; }
 
+    /// <summary>Packets dropped because they carried another connection's salt (spoofed, or late from an earlier connection).</summary>
+    public long InWrongSalt { get; internal set; }
+
     /// <summary>Packets we sent that the other side reported missing (or that timed out).</summary>
     public long OutPacketsLost { get; internal set; }
 

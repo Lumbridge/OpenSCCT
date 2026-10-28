@@ -144,7 +144,9 @@ Reloaded v4.0d binary and are marked "v4.0".
   Reloaded settings).
 - **Evidence:** ENH36, ENHP.
 - **Priority:** P1.
-- **Open:** no matching key in Ryan's v4.0d config; find where v4.0 stores it (profile or removed).
+- **Rewrite:** a client option (the snap runs on the spy's own machine), `shocker_snap` in the settings file and
+  "Shocker lock-on snap when drawing (spy)" on the Mouse page, on by default (docs/HUD.md).
+- **Open:** no matching key in Ryan's v4.0d config; where v4.0 stores it (profile or removed) is not known.
 
 ### enh:rules.smg - Submachine gun history
 - v3.2 lowered its rate of fire and visual recoil; v3.4 reset its properties to default. Current

@@ -149,9 +149,13 @@ public partial class OptionsRuntime : Node
         {
             Hud.Options.ShowPing = s.ShowPing;
             Hud.Options.ScoreboardSplit = s.ScoreboardSplitTeamSize;
-            Hud.Options.StretchHud = !s.Widescreen;
+            Hud.Options.StretchHud = !s.WidescreenHud;
+            Hud.Markers.Widescreen = s.Widescreen;
+            Hud.Markers.WidescreenHud = s.WidescreenHud;
+            Hud.Markers.ErSmall = s.WideErSmall;
             Hud.ShowFps = s.ShowFps;
             Hud.ShowNet = s.ShowNet;
+            Hud.Net.ShowLoss = s.ShowNetLoss;
             Hud.ShowLocation = s.ShowLocation;
             Hud.DistanceInFeet = s.HudFeet;
             Hud.Markers.HackAlpha = s.HackAlpha / 255f;

@@ -79,7 +79,7 @@ public partial class HubVoiceChat : Node
     {
         ArgumentNullException.ThrowIfNull(client);
         Detach();
-        var voice = new VoiceClient(_settings, clock);
+        var voice = new VoiceClient(_settings, clock) { UseVoiceThread = true };
         Voice = new HubVoice(client, voice);
         if (Audio is not null)
         {

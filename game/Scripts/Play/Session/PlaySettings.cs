@@ -4,6 +4,7 @@ using OpenScct.Content;
 using OpenScct.Core;
 using OpenScct.Game.Modes;
 using OpenScct.Game.SBase;
+using OpenScct.Server;
 
 namespace OpenScctGame.Play.Session;
 
@@ -105,15 +106,12 @@ public sealed record PlaySettings
     /// <summary>The team index the login asks for.</summary>
     public int Team => Side == PlaySide.Spy ? 0 : 1;
 
-    /// <summary>The mode id of <see cref="Mode"/> (Story 5, DiskHunt 4, Deathmatch 6, MercDeathMatch 7).</summary>
-    public EGameMode GameMode => Mode.ToUpperInvariant() switch
-    {
-        "STORY" => EGameMode.GM_Multi,
-        "DISKHUNT" => EGameMode.GM_DiskHunt,
-        "DEATHMATCH" => EGameMode.GM_DeathMatch,
-        "MERCDEATHMATCH" => EGameMode.GM_MercDeathMatch,
-        _ => throw new ArgumentException($"Unknown mode '{Mode}' (Story, DiskHunt, Deathmatch, MercDeathMatch)."),
-    };
+    /// <summary>
+    /// The mode id of <see cref="Mode"/> (Story 5, DiskHunt 4, Deathmatch 6, MercDeathMatch 7; Extraction 1, Sabotage 2
+    /// and Neutralization 3 for maps built for them).
+    /// </summary>
+    public EGameMode GameMode => MapCatalog.ModeOfKey(Mode)
+        ?? throw new ArgumentException($"Unknown mode '{Mode}' (Story, DiskHunt, Deathmatch, MercDeathMatch, Extraction, Sabotage, Neutralization).");
 
     /// <summary>The map URL options the game rules start with (InitGame).</summary>
     public string GameOptions(GameplayDoc gameplay)

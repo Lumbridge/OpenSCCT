@@ -423,7 +423,7 @@ public sealed partial class OnlineServer
         }
 
         // A signed-in player is banned by his account (with install id and address); his name is only the ban's label.
-        Settings.Bans?.Add(p.InstallId, p.Address, p.Name, reason, minutes, p.Verified ? p.AccountId : null);
+        Settings.Bans?.Add(p.InstallId, p.Address, p.Name, reason, minutes, p.Verified ? p.AccountId : null, p.PublicKey);
         Kick(p, reason);
     }
 
@@ -467,7 +467,7 @@ public sealed partial class OnlineServer
     // ---- commands -----------------------------------------------------------------------------------------------
 
     public const string CommandHelp =
-        "status | players | kick <id|name> [reason] | ban <id|name> [minutes] [reason] | unban <account|install id|address|name> | " +
+        "status | players | kick <id|name> [reason] | ban <id|name> [minutes] [reason] | unban <account|player key|install id|address|name> | " +
         "voiceban <id|name> | unvoiceban <id|name> | " +
         "map <name> [mode] | mode <name> | set <time|spylives|merclives|respawn|revenge|games|maxplayers|bots|botsperside|botskill|balance|alternate|practice> <value> | set alternate <ability|spygadgetN|mercgadgetN|spyslots|mercslots> <value> | " +
         "lagcomp [on|off|reset|<ms>] | practice [on|off] | launch | lobby | restart | next | say <text> | close";
@@ -500,7 +500,7 @@ public sealed partial class OnlineServer
                 foreach (SessionPlayer p in _players)
                 {
                     output.Add(string.Create(CultureInfo.InvariantCulture,
-                        $"  {p.Id,3} {p.Name,-20} {TeamName(p.Team),-10} {(p.Ready ? "ready" : "     ")} {p.PingMs,4} ms  {p.Address}{(p.IsHost ? " host" : "")}{(p.IsAdmin ? " admin" : "")}{(p.Slot is null ? " (loading)" : "")}{(p.IsBot ? "" : p.AccountId is { } account ? $" (signed in, account {account})" : " (guest)")}"));
+                        $"  {p.Id,3} {p.Name,-20} {TeamName(p.Team),-10} {(p.Ready ? "ready" : "     ")} {p.PingMs,4} ms  {p.Address}{(p.IsHost ? " host" : "")}{(p.IsAdmin ? " admin" : "")}{(p.Slot is null ? " (loading)" : "")}{(p.IsBot ? "" : p.AccountId is { } account ? $" (signed in, account {account})" : " (guest)")}{(p.PublicKey is { } key ? " key " + PlayerKey.Short(key) : "")}"));
                 }
 
                 break;

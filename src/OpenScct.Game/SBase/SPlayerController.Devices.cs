@@ -40,13 +40,19 @@ public partial class SPlayerController
         gpo?.eventTakeDamage(Damage, Pawn, FVector.Zero, new FVector(0f, 0f, 1f), Type, 0);
 
     /// <summary>
-    /// The ammo crate (runs on the owning client): a merc, or anyone carrying a bomb gadget (which is refilled and
-    /// recharged), gets the weapon refilled and the crate sound.
+    /// The ammo crate (server to the owning client, where it runs): a merc, or anyone carrying a bomb gadget (which is
+    /// refilled and recharged), gets the weapon refilled and the crate sound. A practice server's <c>!ammo</c> sends it too.
     /// </summary>
     [Uc("SBase.SPlayerController.ReloadAmmoStock", Sha1 = "49fdd95af9f7448491c021b759791241a7afd45d")]
     [PortOf("uc:SBase.SPlayerController:ReloadAmmoStock", Spec = "spec/devices/infirmary-ammo.md#rules")]
     public void ReloadAmmoStock()
     {
+        if (IsRemotePlayer)
+        {
+            GameHost.ClientCall(this, new GameCall(CNAME_ReloadAmmoStock));
+            return;
+        }
+
         if (SBPawn is not { } pawn)
         {
             return;
@@ -84,6 +90,8 @@ public partial class SPlayerController
             PlayOwnedSound(AmmoStockSound, ESoundSlot.SLOT_Misc, 1f, false, DeviceK.AmmoSoundRadius);
         }
     }
+
+    private static readonly Name CNAME_ReloadAmmoStock = new("ReloadAmmoStock");
 
     /// <summary>
     /// Clamps a camera angle to within [Min, Max] of its limit centre, the short way round. Equal angles fall

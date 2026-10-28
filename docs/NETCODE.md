@@ -637,9 +637,11 @@ error.
 ## Measuring in play
 
 - **Network readout** (`rl:net.stats`, Options > HUD > "Network readout", `show_net`): one line under the frame-rate
-  readout, refreshed every second: ping and jitter (the connection's smoothed RTT), packet loss in and out, KB/s
-  down and up, position corrections applied per second and the server's send rate. Source: the client
-  connection's `NetStats` and `ClientMoves.CorrectionsApplied` (`game/Scripts/Hud/HudNet.cs`, read in `PlayRoot.ReadNet`).
+  readout, refreshed every second: ping and jitter (the connection's smoothed RTT), packet loss in and out (only with
+  "Packet loss in the network readout", `show_net_loss`, off by default as in Reloaded), KB/s down and up, position
+  corrections applied per second and the server's send rate. A listen host (its own link is loopback) gets a second
+  line: how many players have a ping and the best and worst of them (`PRI.Ping`). Source: the client connection's
+  `NetStats` and `ClientMoves.CorrectionsApplied` (`game/Scripts/Hud/HudNet.cs`, read in `PlayRoot.ReadNet`).
 - **Simulated bad link** (`--svm-simlink=A|B|C|D` with `--svm-play=<map>`): the local player's link to the host goes
   through `SimLinkNetwork` with that profile (A 0 ms; B 60 ms, 1% loss; C 120 ms +/-20, 2% loss; D 250 ms, 5% loss)
   on the real clock. It forces the inline host. Offline play only; online games use the real link.

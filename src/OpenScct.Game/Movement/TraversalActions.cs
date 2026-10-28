@@ -59,7 +59,7 @@ public static class TraversalActions
             case SBasePawn.SA_LEDGE_GRAB:
                 pawn.bBeginSpecial12Anim = false;
                 pawn.TypeLedge = LedgeType.LEDGE_NORMAL;
-                pawn.PawnAnim.Stop(MovementK.DoubleJumpChannel);
+                pawn.PawnAnim.SetBlendParams(MovementK.DoubleJumpChannel, 0f);
                 PawnActions.SetPhysics(pawn, EPhysics.PHYS_Ledge);
                 Once(pawn, "LedgStAlBg0", 0.08f, 2f);
                 break;
@@ -68,7 +68,7 @@ public static class TraversalActions
                 pawn.RightAnim = new Name("LedgStAlRt0");
                 pawn.LeftAnim = new Name("LedgStAlLt0");
                 pawn.fBlendCoeffWalkAnim = LedgeShimmyCoeff;
-                pawn.PawnAnim.Stop(MovementK.DoubleJumpChannel);
+                pawn.PawnAnim.SetBlendParams(MovementK.DoubleJumpChannel, 0f);
                 PawnActions.SetPhysics(pawn, EPhysics.PHYS_Ledge);
                 Loop(pawn, "LedgStAlNt0", 0f);
                 break;

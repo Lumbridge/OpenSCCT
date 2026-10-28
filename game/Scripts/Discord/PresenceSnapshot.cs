@@ -231,6 +231,9 @@ public static class PresenceSnapshot
             EGameMode.GM_DiskHunt => "Disk Hunt",
             EGameMode.GM_DeathMatch => "Deathmatch",
             EGameMode.GM_MercDeathMatch => "Merc Deathmatch",
+            EGameMode.GM_Extraction => "Extraction",
+            EGameMode.GM_Sabotage => "Sabotage",
+            EGameMode.GM_Neutralization => "Neutralization",
             _ => "Story",
         };
         return map.Length > 0 ? name + " on " + map : name;

@@ -340,6 +340,8 @@ Modern, Classic, Team and Open (see `spec/enhanced/FEATURES.md`, `enh:voice.mode
 - **Config:** `voice_input_gain` = 1.0 (ignored while auto gain is on); `voice_auto_gain` = true.
 - **Rewrite:** simple gain stage; AGC from the chosen DSP library (speexdsp-style AGC or WebRTC AGC2).
 - **Priority:** P1.
+- **Done (2026-10-28):** our own managed speex-style AGC (`VoiceAutoGain`, docs/VOICE.md "Microphone clean-up"):
+  speech aimed at -20 dBFS, moved only by frames well over the noise floor; Auto-Adjust Mic Volume on the Voice page.
 
 ### rl:voice.noise - Noise suppression
 - **Players get:** steady background noise (fan, hum, room tone) removed before the gate.
@@ -348,6 +350,8 @@ Modern, Classic, Team and Open (see `spec/enhanced/FEATURES.md`, `enh:voice.mode
 - **Rewrite:** RNNoise or a speexdsp-equivalent suppressor through P/Invoke, mapped to the same four levels
   (maximum attenuation). Runs before the activation gate.
 - **Priority:** P1.
+- **Done (2026-10-28):** a managed spectral Wiener suppressor instead of a native library (`VoiceNoiseSuppressor`),
+  the four levels as gain floors, before the gate.
 
 ### rl:voice.echo - Echo cancellation
 - **Players get:** play on speakers without sending everyone's voices back (experimental).
@@ -355,6 +359,9 @@ Modern, Classic, Team and Open (see `spec/enhanced/FEATURES.md`, `enh:voice.mode
 - **Rewrite:** we generate the voice playback mix ourselves, so it is the far-end reference for an echo
   canceller (speexdsp or WebRTC AEC3). Voice only, like Reloaded.
 - **Priority:** P2.
+- **Done (2026-10-28):** a managed partitioned-block frequency-domain adaptive filter (MDF's method,
+  `VoiceEchoCanceller`, about 200 ms of tail) against the voice mix the game plays, plus residual echo suppression in
+  the noise stage; off by default.
 
 ### rl:voice.jitter - Jitter buffer
 - **Players get:** a trade between delay and crackle.
@@ -424,6 +431,8 @@ Faithful renderer rather than ports.
   16:9). ER world icons scale by viewport height. `widescreen_hud=false` stretches as stock.
 - **Priority:** P0 (simple HUD in the slice), P1 (full Magma HUD).
 - **Open:** the per-element anchor table; derive from reference screenshots at 4:3 and 16:9.
+- **Done (2026-10-28):** `widescreen_hud` and `ws_er_small` are their own settings (Display page); before, both
+  followed `widescreen`.
 
 ### rl:gfx.modes - Resolution, refresh, display mode, monitor, window position and render scale
 - **Players get:** every driver resolution (v1.1); highest refresh rate forced; Steam Deck native
@@ -610,6 +619,8 @@ Faithful renderer rather than ports.
   Stock aliases (`AliasHaut`, `AliasBas`, `AliasGauche`, `AliasDroite`, `GadgetQuickChoice`, `SwitchHeadset`)
   map to named actions.
 - **Priority:** P0.
+- **Done (2026-10-28):** the share toggle (Keys page): off, both sides load the spy's layout and user file. Our
+  default is on (split), so layouts saved before the toggle keep both sides.
 
 ### rl:input.pad - Native controller support
 - **Players get:** XInput, PlayStation, Switch and other pads (SDL mapping database) with full 360 degree
@@ -631,6 +642,8 @@ Faithful renderer rather than ports.
 - **Priority:** P1 (Ryan wants it; not needed for the slice gate).
 - **Open:** default pad button layout per team (only the action names are known); capture from the
   Reloaded binds page in a sandbox.
+- **Done (2026-10-28):** the left stick is an analog move (spec/native/input.md rule 9: full circle, analog slow walk,
+  `slow_walk`), hot plug lines and the once-only first-run prompt. Left: swapping stick clicks with bumpers.
 
 ### rl:input.padbinds - Controller binds and hybrid input
 - **Players get:** bind pages for spy (Use/Grab, Last Sticky Cam, Hack Comms, Use Gadget, Back To Wall,
@@ -909,6 +922,8 @@ The rewrite never touches these checks. It provides its own protection:
 - **Evidence:** RC "Pro Audio" next to `ntdll.dll` and `kernel32.dll` (likely MMCSS task registration).
 - **Rewrite:** register the voice capture and encode thread with MMCSS "Pro Audio" on Windows if needed.
 - **Priority:** P2.
+- **Done (2026-10-28):** the microphone clean-up runs on a voice thread registered as "Pro Audio"
+  (`ProAudioThread`, `VoiceDspThread`); the encoder stays on the main thread with the gate.
 
 ## 12. Appendix A: every key in Ryan's SCCT_Versus.config (v4.0d)
 

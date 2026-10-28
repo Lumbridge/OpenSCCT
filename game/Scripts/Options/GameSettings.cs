@@ -218,6 +218,18 @@ public sealed class PadSettings
     [Provenance(ProvenanceKind.Decoded, "rl:input.rumble controller_rumble_strength = 1.0")]
     public float RumbleStrength { get; set; } = 1f;
 
+    /// <summary>A part push of the left stick walks slower (Reloaded's analog slow walk); off, only its direction counts.</summary>
+    [JsonPropertyName("slow_walk")]
+    [Provenance(ProvenanceKind.Decoded, "rl:input.pad controller_left_stick_slow_walk_enabled = true")]
+    public bool SlowWalk { get; set; } = true;
+
+    /// <summary>
+    /// The controller prompt was answered (Reloaded's first-run "Would you like to enable native controller support?"):
+    /// asked once, when a controller is connected while controller support is off.
+    /// </summary>
+    [JsonPropertyName("prompted")]
+    public bool Prompted { get; set; }
+
     /// <summary>Snap spy movement to eight directions.</summary>
     [JsonPropertyName("spy_move8")]
     public bool SpyMove8 { get; set; }
@@ -357,12 +369,27 @@ public sealed class GameSettings
     [Provenance(ProvenanceKind.Decoded, "SPlayerProfile InvertX (no default: false); SetPadInvertX sets bInvertHorizontalAxisCamSpy")]
     public bool InvertXSpy { get; set; }
 
+    /// <summary>
+    /// Drawing the Shocker turns the spy toward the nearest merc in front of him (the stock lock-on snap); Enhanced lets
+    /// it be turned off (enh:rules.shocker_snap).
+    /// </summary>
+    [JsonPropertyName("shocker_snap")]
+    public bool ShockerSnap { get; set; } = true;
+
     /// <summary>The mouse wheel: "Gadget" (profile SelectedMouse 0, changes gadgets) or "Speed" (1, walk and run).</summary>
     [JsonPropertyName("mouse_wheel")]
     [Provenance(ProvenanceKind.Estimated, "OpenSCCT choice: Gadget, as the rewrite has always played; DefaultProfile.ini has SelectedMouse=1 (Speed)")]
     public string MouseWheel { get; set; } = "Gadget";
 
     public static readonly string[] WheelModes = ["Gadget", "Speed"];
+
+    /// <summary>
+    /// Separate spy and mercenary key layouts (rl:input.keyboard). Off, both sides play the spy's layout
+    /// (svm_keys_spy.ini) and a change on either side changes both.
+    /// </summary>
+    [JsonPropertyName("use_split_spy_merc_keyboard")]
+    [Provenance(ProvenanceKind.Estimated, "OpenSCCT choice: on, so layouts saved before the toggle existed keep both sides (Reloaded's first-run default is false, Ryan's config true)")]
+    public bool SplitKeyboard { get; set; } = true;
 
     /// <summary>The chosen gear (spec/additions/gear-change.md).</summary>
     [JsonPropertyName("loadout")]
@@ -416,10 +443,20 @@ public sealed class GameSettings
     [Provenance(ProvenanceKind.Decoded, "System/Default.ini [D3DDrv.D3DRenderDevice] UseVSync=False")]
     public bool VSync { get; set; }
 
-    /// <summary>Reloaded's widescreen: Hor+ view and the anchored HUD; off stretches the 4:3 picture and HUD (Options/ViewFov).</summary>
+    /// <summary>Reloaded's widescreen: the Hor+ view; off stretches the 4:3 picture (Options/ViewFov).</summary>
     [JsonPropertyName("widescreen")]
     [Provenance(ProvenanceKind.Decoded, "spec/reloaded/FEATURES.md rl:gfx.widescreen widescreen = true")]
     public bool Widescreen { get; set; } = true;
+
+    /// <summary>Reloaded's widescreen HUD: each HUD area keeps the 4:3 scale, anchored to its side; off stretches it as stock.</summary>
+    [JsonPropertyName("widescreen_hud")]
+    [Provenance(ProvenanceKind.Decoded, "spec/reloaded/FEATURES.md rl:gfx.hud widescreen_hud = true")]
+    public bool WidescreenHud { get; set; } = true;
+
+    /// <summary>Reloaded's ws_er_small: Enhanced Reality icons keep their 4:3 size on a wide screen instead of growing.</summary>
+    [JsonPropertyName("ws_er_small")]
+    [Provenance(ProvenanceKind.Decoded, "spec/reloaded/FEATURES.md rl:gfx.hud ws_er_small = true")]
+    public bool WideErSmall { get; set; } = true;
 
     /// <summary>ws_fov: the merc first-person field of view cap in degrees, horizontal at the current aspect.</summary>
     [JsonPropertyName("ws_fov")]
@@ -451,6 +488,21 @@ public sealed class GameSettings
     [JsonPropertyName("filter_level")]
     [Provenance(ProvenanceKind.Decoded, "spec/reloaded/FEATURES.md rl:gfx.filtering filter_level first-run 4, range 0 to 16")]
     public int FilterLevel { get; set; } = 4;
+
+    /// <summary>Multisample anti-aliasing of the 3D scene (Reloaded's msaa, first run off); masked surfaces then use alpha to coverage (from the next map).</summary>
+    [JsonPropertyName("msaa")]
+    [Provenance(ProvenanceKind.Decoded, "spec/reloaded/FEATURES.md rl:gfx.aa msaa first-run false")]
+    public bool Msaa { get; set; }
+
+    /// <summary>MSAA samples per pixel: 2, 4 or 8 (Reloaded's msaa_samples, first run 4).</summary>
+    [JsonPropertyName("msaa_samples")]
+    [Provenance(ProvenanceKind.Decoded, "spec/reloaded/FEATURES.md rl:gfx.aa msaa_samples first-run 4")]
+    public int MsaaSamples { get; set; } = 4;
+
+    /// <summary>SMAA over the finished frame (Reloaded's smaa, first run off); it combines with MSAA.</summary>
+    [JsonPropertyName("smaa")]
+    [Provenance(ProvenanceKind.Decoded, "spec/reloaded/FEATURES.md rl:gfx.aa smaa first-run false")]
+    public bool Smaa { get; set; }
 
     /// <summary>Shadow map scale (Reloaded's shadow_quality, 0.5 to 16, first run 3): a spot light's map is 256 x this texels high.</summary>
     [JsonPropertyName("shadow_quality")]
@@ -541,6 +593,38 @@ public sealed class GameSettings
     [Provenance(ProvenanceKind.Decoded, "spec/reloaded/FEATURES.md rl:voice.gain voice_input_gain = 1.0")]
     public float VoiceInputGain { get; set; } = 1f;
 
+    /// <summary>"Auto-Adjust Mic Volume": automatic gain; Microphone Volume is not used while it is on.</summary>
+    [JsonPropertyName("voice_auto_gain")]
+    [Provenance(ProvenanceKind.Decoded, "spec/reloaded/FEATURES.md rl:voice.gain voice_auto_gain = true")]
+    public bool VoiceAutoGain { get; set; } = true;
+
+    /// <summary>"Noise suppression": steady background noise removed before the activation gate.</summary>
+    [JsonPropertyName("voice_noise_suppression")]
+    [Provenance(ProvenanceKind.Decoded, "spec/reloaded/FEATURES.md rl:voice.noise voice_noise_suppression = true")]
+    public bool VoiceNoiseSuppression { get; set; } = true;
+
+    /// <summary>How hard noise is suppressed: Low (15 dB), Standard (30), High (45) or Extreme (60).</summary>
+    [JsonPropertyName("voice_noise_suppression_level")]
+    [Provenance(ProvenanceKind.Decoded, "spec/reloaded/FEATURES.md rl:voice.noise voice_noise_suppression_level = \"Standard\"; Low 15, Standard 30, High 45, Extreme 60 dB")]
+    public string VoiceNoiseLevel { get; set; } = "Standard";
+
+    /// <summary>The suppression levels in the order the Voice page lists them.</summary>
+    public static readonly string[] NoiseLevels = ["Low", "Standard", "High", "Extreme"];
+
+    /// <summary>The most attenuation of a suppression level, in dB.</summary>
+    public static int NoiseLevelDecibels(string level) => level switch
+    {
+        "Low" => 15,
+        "High" => 45,
+        "Extreme" => 60,
+        _ => 30,
+    };
+
+    /// <summary>"Echo cancellation" (experimental): other players' voices taken back out of the microphone.</summary>
+    [JsonPropertyName("voice_echo_cancellation")]
+    [Provenance(ProvenanceKind.Decoded, "spec/reloaded/FEATURES.md rl:voice.echo voice_echo_cancellation = false")]
+    public bool VoiceEchoCancellation { get; set; }
+
     /// <summary>"Buffering": the jitter buffer in 20 ms frames, 1 to 12.</summary>
     [JsonPropertyName("voice_jitter_frames")]
     [Provenance(ProvenanceKind.Estimated, "docs/VOICE.md: default 3 (Reloaded ships 2 to 4), range 1 to 12")]
@@ -576,6 +660,11 @@ public sealed class GameSettings
     [JsonPropertyName("show_net")]
     public bool ShowNet { get; set; }
 
+    /// <summary>Packet loss received and sent in the network readout (Reloaded's show_net_loss, added after v4.0b).</summary>
+    [JsonPropertyName("show_net_loss")]
+    [Provenance(ProvenanceKind.Decoded, "spec/reloaded/FEATURES.md rl:net.stats show_net_loss = false")]
+    public bool ShowNetLoss { get; set; }
+
     /// <summary>The name of the place the player is in (the map's zone and volume names), at the top of the screen.</summary>
     [JsonPropertyName("show_location")]
     [Provenance(ProvenanceKind.Decoded, "spec/reloaded/FEATURES.md rl:qol.location show_location = true")]
@@ -599,6 +688,14 @@ public sealed class GameSettings
     /// </summary>
     [JsonPropertyName("fire_prediction")]
     public bool FirePrediction { get; set; } = true;
+
+    /// <summary>
+    /// The map playlist the host's map lists show and the Choose Map arrows step through (rl:qol.lobbymaps): a playlist
+    /// name of the map catalog (Standard, Extended, Classic, 3v3, Merc Deathmatch) or "All" (every installed map).
+    /// </summary>
+    [JsonPropertyName("active_map_playlist")]
+    [Provenance(ProvenanceKind.Decoded, "spec/reloaded/FEATURES.md rl:qol.lobbymaps active_map_playlist first-run Standard")]
+    public string ActiveMapPlaylist { get; set; } = "Standard";
 
     // ---- Discord -------------------------------------------------------------------------------------------
 
@@ -672,6 +769,7 @@ public sealed class GameSettings
         ShadowQuality = LookSettings.Range(ShadowQuality, 0.5f, 16f);
         PostQuality = Math.Clamp(PostQuality, 0, 1);
         ScoreboardSplitTeamSize = Math.Clamp(ScoreboardSplitTeamSize, 1, 4);
+        MsaaSamples = MsaaSamples <= 2 ? 2 : MsaaSamples <= 4 ? 4 : 8;
         HackAlpha = Math.Clamp(HackAlpha, 0, 255);
         if (Array.IndexOf(DisplayModes, DisplayMode) < 0)
         {
@@ -693,6 +791,7 @@ public sealed class GameSettings
         VoiceInputGain = LookSettings.Range(VoiceInputGain, 0f, 8f);
         VoiceJitterFrames = Math.Clamp(VoiceJitterFrames, 1, 12);
         VoiceInputDevice ??= "";
+        VoiceNoiseLevel = OneOf(NoiseLevels, VoiceNoiseLevel, "Standard");
     }
 
     /// <summary><paramref name="value"/> when it is one of <paramref name="items"/> (any case, given back as listed), else the fallback or the first.</summary>

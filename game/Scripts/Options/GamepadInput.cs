@@ -10,8 +10,9 @@ namespace OpenScctGame.Options;
 
 /// <summary>
 /// Controller play (rl:input.pad): the controller in use (the last one that sent input, else the first connected)
-/// drives the local player through the side's key layout. The left stick holds the keys bound to BT_Up/Down/Left/Right
-/// (radial deadzone, optional eight-way snap), the right stick adds look counts (deadzone, response curve, vertical
+/// drives the local player through the side's key layout. The left stick (radial deadzone, optional eight-way snap) is
+/// the analog move (<see cref="LocalInput.PadForward"/>: full circle, a part push walks slower) and also holds the keys
+/// bound to BT_Up/Down/Left/Right past <see cref="MovePress"/>; the right stick adds look counts (deadzone, response curve, vertical
 /// scale, the side's pad look multiplier), and each button presses the key its action is bound to in the side's pad
 /// layout (<see cref="PadSettings.SpyButtons"/>, <see cref="PadSettings.MercButtons"/>, remapped on the options'
 /// Controller page). Presses go in as real key and mouse events, so everything that reads keys (the play menu, the
@@ -51,6 +52,7 @@ public partial class GamepadInput : Node
     private InputBindings? _keysFor;
     private bool _wasMerc;
     private bool _wasFast;
+    private bool _stickSet;
 
     private static ulong s_drivenFrame = ulong.MaxValue;
 
@@ -107,12 +109,24 @@ public partial class GamepadInput : Node
                 move = new Vector2(Mathf.Cos(a), Mathf.Sin(a)) * move.Length();
             }
 
+            // The direction keys still go down past MovePress (the menus and every reader of the key bytes see them),
+            // but the move itself is the analog stick: any direction, and a part push walks slower unless slow walk is
+            // off, when only the direction counts.
             Hold(input, "MoveUp", "BT_Up", move.Y < -MovePress);
             Hold(input, "MoveDown", "BT_Down", move.Y > MovePress);
             Hold(input, "MoveLeft", "BT_Left", move.X < -MovePress);
             Hold(input, "MoveRight", "BT_Right", move.X > MovePress);
+            Vector2 analog = pad.SlowWalk || move == Vector2.Zero ? move : move.Normalized();
+            Session?.Input.SetPadStick(-analog.Y, analog.X);
+            _stickSet = true;
             RunThreshold(input, merc, move.Length(), pad.RunThreshold);
         }
+        else
+        {
+            ClearStick();
+        }
+
+        bool flying = FreeCamera();
 
         // The clutches are held here, not sent as keys (rl:input.clutch).
         bool clutchOne = false, clutchTwo = false;
@@ -120,7 +134,12 @@ public partial class GamepadInput : Node
         {
             foreach ((string control, string action) in pad.ButtonsOf(merc))
             {
-                if (string.Equals(action, PadSettings.ClutchOneAction, StringComparison.OrdinalIgnoreCase))
+                if (flying && IsFreeCamControl(control))
+                {
+                    // The free camera has the triggers and the shoulder buttons (FreeCamera above).
+                    Hold(input, control, action, false);
+                }
+                else if (string.Equals(action, PadSettings.ClutchOneAction, StringComparison.OrdinalIgnoreCase))
                 {
                     clutchOne |= IsDown(Device, control);
                 }
@@ -178,6 +197,48 @@ public partial class GamepadInput : Node
     private MouseLook _padLook = new();
 
     public override void _ExitTree() => ReleaseAll();
+
+    private bool _lbWas;
+    private bool _rbWas;
+
+    /// <summary>The triggers and shoulder buttons the free camera takes while it flies.</summary>
+    private static bool IsFreeCamControl(string control) => control is "LT" or "RT" or "LB" or "RB";
+
+    /// <summary>
+    /// The cinematic free camera's pad controls (Enhanced 4.0, spec/hud/cinematic-camera.md rule 8): while it flies the
+    /// triggers fly it up (right) and down (left) and the shoulder buttons step its speed (right faster, left slower,
+    /// one step per press). The left stick moves it and the right stick turns it as they always do. True while it flies.
+    /// </summary>
+    private bool FreeCamera()
+    {
+        if (Session is not { LocalController: { FreeCameraFlying: not 0 } } session)
+        {
+            if (Session is { } idle)
+            {
+                idle.Input.PadUp = 0f;
+            }
+
+            _lbWas = _rbWas = false;
+            return false;
+        }
+
+        session.Input.PadUp = Godot.Input.GetJoyAxis(Device, JoyAxis.TriggerRight) - Godot.Input.GetJoyAxis(Device, JoyAxis.TriggerLeft);
+        bool lb = IsDown(Device, "LB");
+        bool rb = IsDown(Device, "RB");
+        if (rb && !_rbWas)
+        {
+            session.Input.Wheel++;
+        }
+
+        if (lb && !_lbWas)
+        {
+            session.Input.Wheel--;
+        }
+
+        _lbWas = lb;
+        _rbWas = rb;
+        return true;
+    }
 
     /// <summary>A pad control is down: a button, or a trigger past <see cref="TriggerPress"/>.</summary>
     public static bool IsDown(int device, string control) => control switch
@@ -371,8 +432,24 @@ public partial class GamepadInput : Node
         return found;
     }
 
+    /// <summary>Lets go of the analog stick this node set.</summary>
+    private void ClearStick()
+    {
+        if (_stickSet)
+        {
+            _stickSet = false;
+            Session?.Input.SetPadStick(0f, 0f);
+        }
+    }
+
     private void ReleaseAll()
     {
+        ClearStick();
+        if (Session is { } session)
+        {
+            session.Input.PadUp = 0f;
+        }
+
         if (_held.Count == 0)
         {
             return;

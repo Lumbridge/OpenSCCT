@@ -79,6 +79,16 @@ public sealed class InputBindings
     public IReadOnlyList<KeyAction> Actions(string key) =>
         _resolved.TryGetValue(key, out List<KeyAction>? actions) ? actions : Array.Empty<KeyAction>();
 
+    /// <summary>Both sides play one layout, the spy's (the setting use_split_spy_merc_keyboard is off).</summary>
+    public static bool Shared => !OpenScctGame.Options.SettingsStore.Current.SplitKeyboard;
+
+    /// <summary>Tells running rounds and pages that every side's layout may have changed (the split was switched).</summary>
+    public static void RaiseReboundAll()
+    {
+        Rebound?.Invoke(PlaySide.Spy);
+        Rebound?.Invoke(PlaySide.Merc);
+    }
+
     /// <summary>The game root: <c>--svm-game-root=</c>, then <c>SVM_GAME_ROOT</c>, then the reference install.</summary>
     public static string GameRoot(string? option)
     {
@@ -94,7 +104,9 @@ public sealed class InputBindings
     /// <summary>Loads the layout of <paramref name="side"/>, applies the user file and seeds the InputMap.</summary>
     public static InputBindings Load(PlaySide side, string? gameRoot = null, bool seedInputMap = true)
     {
-        string file = side == PlaySide.Spy ? "Default_kbd_0.ini" : "Default_kbd_1.ini";
+        // Shared layouts (rl:input.keyboard, use_split_spy_merc_keyboard off): both sides play the spy's files.
+        PlaySide fileSide = Shared ? PlaySide.Spy : side;
+        string file = fileSide == PlaySide.Spy ? "Default_kbd_0.ini" : "Default_kbd_1.ini";
         string original = Path.Combine(GameRoot(gameRoot), "System", file);
         KeyLayout layout;
         string source;
@@ -109,7 +121,7 @@ public sealed class InputBindings
             source = "built-in";
         }
 
-        string userFile = side == PlaySide.Spy ? "user://svm_keys_spy.ini" : "user://svm_keys_merc.ini";
+        string userFile = fileSide == PlaySide.Spy ? "user://svm_keys_spy.ini" : "user://svm_keys_merc.ini";
         string userPath = ProjectSettings.GlobalizePath(userFile);
         if (OpenScctGame.Options.SettingsStore.Isolated)
         {
@@ -182,6 +194,12 @@ public sealed class InputBindings
         }
 
         Rebound?.Invoke(Side);
+        if (Shared)
+        {
+            // One layout for both sides: the other side's round changes too.
+            Rebound?.Invoke(Side == PlaySide.Spy ? PlaySide.Merc : PlaySide.Spy);
+        }
+
         return updated;
     }
 

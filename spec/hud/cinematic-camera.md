@@ -73,6 +73,10 @@ Hide HUD (`ToggleHideHud`, native 1901):
     and down with Crouch. It then clears the controller's inputs (stick, mouse, every input byte), so whatever state
     the controller is in, the pawn stands still and does nothing; while flying only the FreeCam and HideHud commands
     run. Speed: 600 uu/s, x1.25 or /1.25 per wheel step within 75 to 4800, x2 with Shift, x0.25 with Alt.
+11a. On a pad (rule 8): the left stick flies it and the right stick turns it as they move and turn the pawn; the
+    right trigger goes up and the left trigger down (analog, added to the Jump and Crouch keys, capped at full
+    speed); each press of the right shoulder button is one speed step up, the left one step down. While it flies the
+    triggers and shoulder buttons do nothing else.
 12. The free camera stops by itself (the saved view target and behind view come back) when the pawn dies or goes.
 13. The hide-HUD switch hides everything the HUD's `bHideHUD` hides, and the merc's aim point too (also hidden while
     the free camera flies, since the view is not the merc's).
@@ -121,4 +125,5 @@ the server's GRI and the answer comes back to the client's controller, where the
 1. The free camera's own tick inside Reloaded (turn rate, how the wheel and Shift/Alt scale the speed, collision)
    was not decoded; rule 11 is the rewrite's estimate.
 2. Whether Reloaded stops the free camera when the pawn dies (rule 12 is ours).
-3. Pad controls (rule 8) are not wired in the rewrite yet.
+3. The pad mapping of rule 11a (which trigger is up, one speed step per shoulder press) is ours; Enhanced's exact
+   pad code was not decoded.

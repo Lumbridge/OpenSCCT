@@ -91,7 +91,7 @@ public sealed class ConsoleCommands(IConsoleHost host)
                 // The host or an admin turns the server's practice mode on or off.
                 output.Add(Server(() => _host.ServerCommand("practice " + arg), true, string.Empty));
                 break;
-            case "resign" or "pings" or "practice" or "heal" or "regen" or "tank" or "kill":
+            case "resign" or "pings" or "practice" or "heal" or "regen" or "tank" or "kill" or "ammo":
                 output.Add(Server(() => _host.Chat("!" + verb), true, string.Empty));
                 break;
             case "rmap_next" or "rmap_prev":

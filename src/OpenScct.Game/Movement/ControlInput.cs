@@ -28,15 +28,35 @@ public static class ControlInput
     [PortOf("rl:fix.slow_strafe", Spec = "spec/native/input.md#1-input-mapping-the-shared-body-editor-0x111e6460-game-0x10aaa910")]
     [PortOf("rl:input.ledgeassist", Spec = "spec/movement/ledge.md#reloaded-ledge-assist")]
     [Provenance(ProvenanceKind.Decoded, "Reloaded.Core 0x1001ab50 (hooked at game 0x10aaa973): a standing spy's diagonal scaled by 0.70710677 per axis; fNormePadMove capped to 0.4 while bUsing in slow mode (not bFastSpeed)")]
+    [PortOf("rl:input.pad", Spec = "spec/native/input.md#1-input-mapping-the-shared-body-editor-0x111e6460-game-0x10aaa910")]
+    [Provenance(ProvenanceKind.Estimated, "the analog stick path: aForward and aStrafe = stick x 6000 x speed mode, fNormePadMove = stick length x speed mode (Reloaded's pad hook and the console path are not decoded; the stick reaches the native's outputs as the keys do)")]
     public static void Compute(SPlayerController pc, float dt, ref bool lastUse)
     {
         float mode = pc.GetSpeedMode();
-        float forward = Axis(pc.BT_Up, pc.BT_Down);
-        float strafe = Axis(pc.BT_Right, pc.BT_Left);
-        float diagonal = DiagonalScale(pc, forward, strafe);
-        pc.aForward = forward * MovementK.StickFullScale * mode * diagonal;
-        pc.aStrafe = strafe * MovementK.StickFullScale * mode * diagonal;
-        float norm = ((SvmMath.Abs(strafe) * diagonal) + (SvmMath.Abs(forward) * diagonal)) * mode;
+        float forward;
+        float strafe;
+        float norm;
+        if (pc.bPadStickMove)
+        {
+            // The analog stick (rl:input.pad), as the console pad path feeds the same native: any direction, and a
+            // part push walks slower. Reloaded's diagonal fix does not apply (it is for keys only), and the move norm
+            // is the stick's own length.
+            forward = Clamp1(pc.PadStickForward);
+            strafe = Clamp1(pc.PadStickStrafe);
+            pc.aForward = forward * MovementK.StickFullScale * mode;
+            pc.aStrafe = strafe * MovementK.StickFullScale * mode;
+            norm = SvmMath.Sqrt((forward * forward) + (strafe * strafe)) * mode;
+        }
+        else
+        {
+            forward = Axis(pc.BT_Up, pc.BT_Down);
+            strafe = Axis(pc.BT_Right, pc.BT_Left);
+            float diagonal = DiagonalScale(pc, forward, strafe);
+            pc.aForward = forward * MovementK.StickFullScale * mode * diagonal;
+            pc.aStrafe = strafe * MovementK.StickFullScale * mode * diagonal;
+            norm = ((SvmMath.Abs(strafe) * diagonal) + (SvmMath.Abs(forward) * diagonal)) * mode;
+        }
+
         pc.fNormePadMove = norm > 1f ? 1f : norm;
         if (pc.bUsing != 0 && pc.fNormePadMove > MovementK.LedgeAssistNorm && !pc.bFastSpeed)
         {
@@ -209,4 +229,6 @@ public static class ControlInput
         forward != 0f && strafe != 0f && pc.Pawn is SPawnAttaque { bIsCrouched: false } ? MovementK.DiagonalAxisScale : 1f;
 
     private static float Axis(byte positive, byte negative) => (positive != 0 ? 1f : 0f) - (negative != 0 ? 1f : 0f);
+
+    private static float Clamp1(float v) => v > 1f ? 1f : v < -1f ? -1f : float.IsNaN(v) ? 0f : v;
 }

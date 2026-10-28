@@ -135,7 +135,9 @@ public static class GameplayObjects
     public static int ShowMode(RenderMap map, string mode)
     {
         ArgumentNullException.ThrowIfNull(map);
-        bool story = string.Equals(mode, "Story", StringComparison.OrdinalIgnoreCase);
+        // The Story disk and drop zones are not mode-gated in the original; only Disk Hunt and the deathmatches leave
+        // them out here (the missions that use them are deactivated there).
+        bool story = mode.ToUpperInvariant() is "STORY" or "EXTRACTION" or "SABOTAGE" or "NEUTRALIZATION";
         bool diskHunt = string.Equals(mode, "DiskHunt", StringComparison.OrdinalIgnoreCase);
         int shown = 0;
         var spawned = new List<(string Id, ArrayMesh Mesh, FVector Location, FRotator Rotation, GameplayMesh Owner)>();

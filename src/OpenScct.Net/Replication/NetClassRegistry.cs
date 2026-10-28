@@ -223,7 +223,8 @@ public sealed class NetClassRegistry
 /// <summary>Version tag of our wire format, part of the protocol hash.</summary>
 public static class NetProtocol
 {
-    public const string Version = "svm-net/0.2";
+    /// <summary>0.3: the packet header carries the connection salt; the handshake has the player key challenge.</summary>
+    public const string Version = "svm-net/0.3";
 }
 
 /// <summary>FNV-1a 64-bit over UTF-16 code units: stable across processes and platforms.</summary>

@@ -57,6 +57,11 @@ internal sealed record CliOptions
                             stochastic or always
           --bots <script>   with --game: also run four bot clients in this process over UDP on
                             localhost (scripts: spies, mercs, timeout) and print a report at the end
+
+        Every mode:
+          --priority <p>    process priority: idle, low, below, normal, medium, above or high
+          --affinity <cpus> the CPUs to run on: a mask (0xF, 15) or a list (0,2-3)
+                            (both also as --priority=<p> and --affinity=<cpus>, as the game takes them)
           --help            show this text
         """;
 
@@ -141,6 +146,12 @@ internal sealed record CliOptions
 
     public string? Motd { get; init; }
 
+    /// <summary><c>--priority</c>: the process priority class name (Reloaded's switch), or null.</summary>
+    public string? Priority { get; init; }
+
+    /// <summary><c>--affinity</c>: the CPUs the process may run on (a mask or a list), or null.</summary>
+    public string? Affinity { get; init; }
+
     /// <summary>--max was given.</summary>
     public bool MaxGiven { get; init; }
 
@@ -188,15 +199,32 @@ internal sealed record CliOptions
                 return false;
             }
 
-            if (i + 1 >= args.Length)
+            // "--name=value" (the client's form of --priority= and --affinity=) or "--name value".
+            string value;
+            int equals = arg.IndexOf('=', StringComparison.Ordinal);
+            if (equals > 2)
+            {
+                value = arg[(equals + 1)..];
+                arg = arg[..equals];
+            }
+            else if (i + 1 >= args.Length)
             {
                 error = $"{arg} needs a value.";
                 return false;
             }
+            else
+            {
+                value = args[++i];
+            }
 
-            string value = args[++i];
             switch (arg)
             {
+                case "--priority" when ProcessOptions.PriorityOf(value) is not null:
+                    options = options with { Priority = value };
+                    break;
+                case "--affinity" when ProcessOptions.AffinityOf(value, Environment.ProcessorCount) is not null:
+                    options = options with { Affinity = value };
+                    break;
                 case "--port" when TryInt(value, 1, 65535, out int port):
                     options = options with { Port = port, PortGiven = true };
                     break;

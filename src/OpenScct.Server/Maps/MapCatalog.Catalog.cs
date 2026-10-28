@@ -31,7 +31,7 @@ public enum MapKind
 /// settings entry for it, and its objectives.
 /// </summary>
 /// <param name="Mode">Story is <see cref="EGameMode.GM_Multi"/>.</param>
-/// <param name="Name">Story, Disk Hunt, Deathmatch or Merc Deathmatch.</param>
+/// <param name="Name">Story, Disk Hunt, Deathmatch or Merc Deathmatch (Extraction, Sabotage or Neutralization on a map built for them).</param>
 /// <param name="Playable">The map has what the mode plays with (missions, disks, starts).</param>
 /// <param name="HasSettings">The map has an <c>SMapSettings</c> entry for the mode (Merc Deathmatch reads Deathmatch's).</param>
 /// <param name="Objectives">Story: objectives of the mission; Disk Hunt: disks placed; 0 otherwise.</param>
@@ -125,6 +125,14 @@ public sealed partial class MapCatalog
     public static IReadOnlyList<EGameMode> MenuModes { get; } =
         [EGameMode.GM_Multi, EGameMode.GM_DiskHunt, EGameMode.GM_DeathMatch, EGameMode.GM_MercDeathMatch];
 
+    /// <summary>
+    /// The modes the rules play but the original's menu never offers (no stock map has a mission or a settings entry
+    /// for them, docs/MODES.md): listed after <see cref="MenuModes"/> only for a map that has a mission or a settings
+    /// entry of the mode (an OpenSCCT choice, for custom maps).
+    /// </summary>
+    public static IReadOnlyList<EGameMode> ExtraModes { get; } =
+        [EGameMode.GM_Extraction, EGameMode.GM_Sabotage, EGameMode.GM_Neutralization];
+
     private List<MapCatalogEntry>? _catalog;
     private List<MapPlaylist>? _playlists;
     private MapCatalogData? _catalogData;
@@ -159,13 +167,32 @@ public sealed partial class MapCatalog
         _ => "Undefined",
     };
 
-    /// <summary>The <c>PlaySettings.Mode</c> name of a mode (Story, DiskHunt, Deathmatch, MercDeathMatch).</summary>
+    /// <summary>
+    /// The <c>PlaySettings.Mode</c> name of a mode (Story, DiskHunt, Deathmatch, MercDeathMatch, Extraction, Sabotage,
+    /// Neutralization); Story for any other.
+    /// </summary>
     public static string ModeKey(EGameMode mode) => mode switch
     {
         EGameMode.GM_DiskHunt => "DiskHunt",
         EGameMode.GM_DeathMatch => "Deathmatch",
         EGameMode.GM_MercDeathMatch => "MercDeathMatch",
+        EGameMode.GM_Extraction => "Extraction",
+        EGameMode.GM_Sabotage => "Sabotage",
+        EGameMode.GM_Neutralization => "Neutralization",
         _ => "Story",
+    };
+
+    /// <summary>The mode of a <see cref="ModeKey"/> name (any case), or null for an unknown one.</summary>
+    public static EGameMode? ModeOfKey(string? key) => key?.ToUpperInvariant() switch
+    {
+        "STORY" => EGameMode.GM_Multi,
+        "DISKHUNT" => EGameMode.GM_DiskHunt,
+        "DEATHMATCH" => EGameMode.GM_DeathMatch,
+        "MERCDEATHMATCH" => EGameMode.GM_MercDeathMatch,
+        "EXTRACTION" => EGameMode.GM_Extraction,
+        "SABOTAGE" => EGameMode.GM_Sabotage,
+        "NEUTRALIZATION" => EGameMode.GM_Neutralization,
+        _ => null,
     };
 
     /// <summary>The map catalog data folder (<c>shared/maps</c> beside an SVMap root), or null.</summary>
@@ -478,7 +505,7 @@ public sealed partial class MapCatalog
     private static IReadOnlyList<MapModeInfo> ModesOf(MapKind kind, MapFacts facts)
     {
         var list = new List<MapModeInfo>(MenuModes.Count);
-        foreach (EGameMode mode in MenuModes)
+        foreach (EGameMode mode in MenuModes.Concat(ExtraModes.Where(m => facts.Mission(m) is not null || facts.SettingsFor(m) is not null)))
         {
             EGameMode rulesMode = mode == EGameMode.GM_MercDeathMatch ? EGameMode.GM_DeathMatch : mode;
             MapModeSettingsFacts? s = facts.SettingsFor(rulesMode);
@@ -513,6 +540,14 @@ public sealed partial class MapCatalog
                     break;
                 case EGameMode.GM_DeathMatch:
                     playable = kind != MapKind.Training && facts.SpyStarts > 0 && facts.MercStarts > 0;
+                    break;
+                case EGameMode.GM_Extraction:
+                case EGameMode.GM_Sabotage:
+                case EGameMode.GM_Neutralization:
+                    // As Story: the mode's mission and its objectives (StartMatch resets only the mode's missions).
+                    objectives = mission?.Objectives ?? 0;
+                    needed = mission?.MinimumObjectives ?? 0;
+                    playable = kind != MapKind.Training && objectives > 0 && facts.SpyStarts > 0 && facts.MercStarts > 0;
                     break;
                 default:
                     playable = kind != MapKind.Training && facts.SpyStarts + facts.MercStarts + facts.MercDeathmatchStarts > 0;
