@@ -74,7 +74,7 @@ public sealed class DeviceViews
             if (IsSkeletal(actor))
             {
                 string asset = actor.Mesh.Path!;
-                string? glb = SkeletalModel.FindGlb(asset, sharedRoot ?? map.SharedRoot);
+                string? glb = SkeletalModel.FindMapGlb(asset, map.Folder, sharedRoot ?? map.SharedRoot);
                 if (glb is null)
                 {
                     _missing.Add(asset);
@@ -689,6 +689,6 @@ public sealed class AnimatedMeshView
             _prevRotation.Pitch + (int)(FRotator.NormalizeAxis(_rotation.Pitch - _prevRotation.Pitch) * a),
             _prevRotation.Yaw + (int)(FRotator.NormalizeAxis(_rotation.Yaw - _prevRotation.Yaw) * a),
             _prevRotation.Roll + (int)(FRotator.NormalizeAxis(_rotation.Roll - _prevRotation.Roll) * a));
-        Model.Place(location, rotation, _actor.PrePivot, _actor.DrawScale);
+        Model.Place(location, rotation, _actor.PrePivot, _actor.DrawScale3D * _actor.DrawScale);
     }
 }

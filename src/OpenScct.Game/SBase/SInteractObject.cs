@@ -222,7 +222,7 @@ public partial class SInteractObject
     public void UnTriggerEventServer(Name EventName, Actor? Other, Pawn? EventInstigator) =>
         UntriggerEvent(EventName, Other, EventInstigator);
 
-    /// <summary>Sets the menu priority; the manager orders its menu by priority whenever it walks it.</summary>
+    /// <summary>Sets the menu priority; menus read it when they insert the object (already listed menus keep their order).</summary>
     [UcNative("ASInteractObject::execSetPriority", Exe = 0x10AF6E70, Editor = 0x111BC260)]
     [PortOf("nat:SBase.SInteractObject.SetPriority", Spec = "spec/objectives/interaction-system.md#rules")]
     [Provenance(ProvenanceKind.Estimated, "Expected iPriority = n plus a re-sort")]

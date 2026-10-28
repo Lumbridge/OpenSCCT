@@ -400,9 +400,13 @@ suit or armour, a light colour, the spy pistol, or one of the three merc guns. A
 - a camo texture, which the content builder paints over the player's own retail texture (`content/svmbuild/cosmetics.py`,
   in the chars step), upscaled to 2048 for suits and armour and 1024 for guns (map camos 1024), with a flat 256 px
   picture per pattern in `chars/thumbs/` for the menus;
-- a tint, a colour that keeps each texel's brightness;
+- a tint, a colour drawn at the retail suit's mean brightness (`SVM_TINT_REF`), the suit's detail kept in proportion;
 - a light hue, which turns the goggle lenses, helmet lamp and the normal goggle beam to a new hue at the same
   brightness. The merc's motion and EMF beams keep their colours, and the torch stays white.
+
+Camo and tint texels go through `svm_cosmetic_level` (world shader) before the light: up to 0.2 they are kept, above
+that they rise at 0.375 of the rate, so white ends at 0.5, the range the retail textures are painted for under the
+original's 2x lighting. Pale suits light up without clipping to white; the polished camos (sheen) are left alone.
 
 How a look gets into a match:
 1. `AccountInfo.Unlocked` lists what the earned achievements unlock. The join ticket carries the same set as bits

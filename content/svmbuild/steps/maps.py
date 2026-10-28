@@ -22,13 +22,13 @@ def _own_code() -> list[Path]:
     files = []
     for sub in ("mapconv", "sources", "writers"):
         files += sorted((CONTENT / sub).glob("*.py"))
-    files += [CONTENT / "svmap.py", CONTENT / "canonical.py"]
+    files += [CONTENT / "svmap.py", CONTENT / "canonical.py", CONTENT / "charconv.py"]
     return files
 
 
 class MapsStep(Step):
     name = "maps"
-    version = 4
+    version = 5
     deps = ("classes",)
     # The map folder holds audio/, which a rebuild or restore of this step removes: audio-map puts it back.
     followers = ("audio-map",)

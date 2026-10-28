@@ -49,7 +49,10 @@ Without the pack the client still draws, with a seeded stand-in grain, no therma
   `AnimatedProps.Build` at the first frame of their first sequence and lit for their mesh's bounding sphere (the
   crane, at DrawScale 10, reaches 2440 uu from its centre). Skinned meshes cull with a 64 m margin, since the pose
   moves vertices away from the rest box. In play, `DeviceViews` draws every SAnimatedMesh (all 54 placed meshes of
-  the map anim packages are exported by the chars step, `charconv.MAP_PROP_SETS`) and the skeletal fish: a prop
+  the map anim packages are exported by the chars step, `charconv.MAP_PROP_SETS`; every converted map also carries
+  the ones it places in `render/chars/` (`mapconv/props.py`), which `SkeletalModel.FindMapGlb` reads first, so a
+  downloaded map whose anim package the player's install lacks, such as Polar Base's map17_anm, still draws them) and
+  the skeletal fish: a prop
   shows its actor's animation channel (backwards and looping included, the client's proxy follows the server's
   SimAnim), a fish loops the AnimsFish sequence its script chose and is drawn between ticks as it swims. Static-mesh
   fish are gameplay nodes that follow their actor (spec/devices/fish.md).
@@ -223,6 +226,12 @@ settings' `filter_level` (rl:gfx.filtering: 0, 2, 4, 8 or 16, first run 4 as the
 - **Static meshes:** `display = min(1, tex x min(2, 2 x VC + glow + dynamic))`, VC the instance's baked colour and
   glow `min(1, 2 x AmbientGlow / 255)` (measured on BankD). The vertex colour stores half the term so it stays exact
   in 8 bits.
+- **UseVertexColor meshes:** the game modulates the actor's ambient by the mesh's own vertex colours, so the converter
+  folds the glow into the baked colours (`export_gltf._fold_vertex_color_glow`: `+ min(127.5, glow) / 2 x mesh colour`,
+  the mesh colours read as B, G, R, A) and writes no `ambientGlow`. Measured on Polar Base's mountains (AmbientGlow
+  150, navy mesh colours, baked light up to 23) against four night frames of the original: the plain glow drew them
+  flat white (mean error 6 to 46 per view), the fold 0.7 to 1.5. 32 meshes have UseVertexColor (skies, beams, mall
+  floors); maps converted before this change keep the white mountains until their render step is rebuilt.
 - `dynamic` is the sum of the dynamic world lights, the spot shadow light and the night vision boost.
 - Additive meshes with painted vertex colours (`authoredColors`, e.g. AquaD's caustic quads: 40 inside, 0 on the rim)
   draw `tex x 2 x VC` alone: no AmbientGlow, no dynamic or spot light, so the rim fades out as in the original (with

@@ -47,10 +47,10 @@ public static class AnimatedProps
             }
 
             string asset = assetEl.GetString() ?? "";
-            string? glb = SkeletalModel.FindGlb(asset, sharedRoot);
+            string? glb = SkeletalModel.FindMapGlb(asset, map.Folder, sharedRoot);
             if (glb is null)
             {
-                map.Warnings.Add("skeletal mesh not in the shared packs: " + asset);
+                map.Warnings.Add("skeletal mesh not in the map or the shared packs: " + asset);
                 continue;
             }
 
@@ -63,7 +63,8 @@ public static class AnimatedProps
                 : default;
             FVector prePivot = Vec(p, "PrePivot");
             float drawScale = p.TryGetProperty("DrawScale", out JsonElement ds) ? ds.GetSingle() : 1f;
-            model.Place(location, rotation, prePivot, drawScale);
+            FVector drawScale3D = p.TryGetProperty("DrawScale3D", out _) ? Vec(p, "DrawScale3D") : new FVector(1f, 1f, 1f);
+            model.Place(location, rotation, prePivot, drawScale3D * drawScale);
             if (p.TryGetProperty("Animations", out JsonElement anims) && anims.ValueKind == JsonValueKind.Array && anims.GetArrayLength() > 0)
             {
                 model.Sampler.Play(anims[0].GetString() ?? "", 0f, false);

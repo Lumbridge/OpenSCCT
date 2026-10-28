@@ -20,6 +20,8 @@ below are optional files, optional fields and new collision chunks that 1.0 read
     lighting.json          (1.1) lights, zones, sky zone, look settings, lightmaps
     fx.json                (1.1) emitters with their sub-emitters, projectors, rain, cloth
     textures/*.png         (1.1) textures and lightmaps named by world.glb and the JSON files
+    chars/<Package>/       (1.1, optional) the skeletal meshes the map's actors draw (SAnimatedMesh props, DT_Mesh
+                           fish) as the shared chars lay them out: <Mesh>.glb, <Animation>.anim.json, textures/
   audio/                   client only (later)
   ui/                      client only
     mapinfo.json           (1.1) map name and briefing texts per game mode
@@ -158,7 +160,8 @@ glTF 2.0 binary in render space. Scene roots: `World` (the BSP meshes; children 
 draws `Library` directly. Document extras `{"svmap": {"map", "instances": [...]}}`: one entry per placed mesh
 actor, `{"actor", "class", "kind", "mesh" (library node name), "location", "rotation" (UE rotator), "scale",
 "hidden", "gameplay"}` plus `prePivot`, `vertexLit`, `unlit`, `ambientGlow`, `cullDistance`, `skyZone`, `skins`,
-`keyPos`, `basePos` where they apply, and `softBody` on soft bodies (ESBPatchActor, ESBStripDoorActor: kind, nbU,
+`keyPos`, `basePos` where they apply (an actor whose mesh has UseVertexColor carries its AmbientGlow folded into
+its vertex colours and no `ambientGlow`), and `softBody` on soft bodies (ESBPatchActor, ESBStripDoorActor: kind, nbU,
 nbV, the simulation settings over the class defaults, collSound and shotSound paths, and the saved rest state as
 `points`, `uvs`, `fixed` particle indices and `links` [a, b, rest length]; library vertex i and i + N are particle i). Transforms are in UE space; the client converts them through `UeSpace`.
 Images are PNG files under `render/textures/` named by relative URI.

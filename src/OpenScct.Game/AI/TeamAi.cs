@@ -474,7 +474,10 @@ public sealed class TeamAi
         }
 
         bool wanted = slot == 2 ? mate.Health != SHealMateInteraction.DefaultHealth(mate) : mate.bSpyBulletOn;
-        SInteractObject? entry = Pc.IManager?.Interactions[slot];
+        // The built-in entries move down as touched objects are inserted ahead of them: find the entry by class.
+        SInteractObject? entry = Pc.IManager is { } manager
+            ? Array.Find(manager.Interactions, e => slot == 2 ? e is SHealMateInteraction : e is SRemoveSpyBulletInteraction)
+            : null;
         if (Pc.IsInState(NAME_s_MenuInteraction))
         {
             _pressSince = -1f;

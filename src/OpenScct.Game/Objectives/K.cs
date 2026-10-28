@@ -17,6 +17,9 @@ public static class K
     [Provenance(ProvenanceKind.Decoded, "SInteractionManager.PostBeginPlay: slots 0 to 4 are the fixed mate and Exit entries")]
     public const int FixedEntries = 5;
 
+    [Provenance(ProvenanceKind.Decoded, "game 0x10ABF4C0: AddInteractionObj only inserts at slots 0 to 9")]
+    public const int MenuInsertLastSlot = 9;
+
     [Provenance(ProvenanceKind.Decoded, "SPlayerController.DoInteraction: aStrafe^2 + aForward^2 > 4000^2 blocks the menu")]
     public const float MenuSpeedLimit = 4000f;
 

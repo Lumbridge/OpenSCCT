@@ -448,6 +448,27 @@ def _read_color_stream(pkg: Package, ref: int) -> Optional[np.ndarray]:
         return None
 
 
+def _fold_vertex_color_glow(colors: np.ndarray, sm: StaticMesh, glow: int) -> Optional[np.ndarray]:
+    """The AmbientGlow of an actor whose mesh has UseVertexColor, folded into its baked colours; None for any other.
+
+    The game modulates such an actor's ambient by the mesh's own vertex colours (its colour-stream rebuild, game
+    0x10a4ca50, also multiplies the light by them and copies their alpha; RenderStaticMesh 0x10a4cea0 binds them as a
+    stream when StaticMesh.UseVertexColor). Measured on Polar Base's mountains (PB_montagnes, AmbientGlow 150, mesh
+    colours navy, baked light up to 23) against the original's frames at four night views: light =
+    2 x baked + min(1, 2 x glow / 255) / 2 x mesh colour, which as the importer's half-scale colour is
+    baked + min(127.5, glow) / 2 x mesh colour / 255 (hill medians 13-15/15-17/30-34 against the original's
+    15/17/34; the full glow term drew them flat white, none drew them black). The 32 UseVertexColor meshes are mostly
+    sky domes, beams and mall floors. The mesh's ColorStream is stored as D3D memory (B, G, R, A), unlike the
+    instance stream (FColor operator<<, R, G, B, A): read either way the hills turn red, the original's are blue."""
+    if glow <= 0 or not sm.props.get("UseVertexColor") or sm.colors is None or len(sm.colors) != len(colors):
+        return None
+    mesh_rgb = sm.colors[:, [2, 1, 0]].astype(np.float32) / 255.0
+    out = colors.copy()
+    term = min(127.5, float(glow)) * 0.5 * mesh_rgb
+    out[:, :3] = np.minimum(255.0, np.round(colors[:, :3].astype(np.float32) + term)).astype(np.uint8)
+    return out
+
+
 def _write_png(image, out: Path) -> None:
     """Write a PNG only when its bytes changed: a decoder fix must reach the export (an existence check kept stale
     images), while unchanged files keep their timestamps."""
@@ -1170,6 +1191,7 @@ def export_map(map_path: Path, pset: PackageSet, out_root: Path, include_bsp: bo
         return sm_cache[key]
 
     for rec in records:
+        glow_folded_into_colors = False
         entry = {"name": rec.name, "class": rec.cls, "kind": rec.kind, "location": list(rec.location),
                  "rotation": list(rec.rotation), "scale": list(rec.scale), "tag": rec.tag, "hidden": rec.hidden}
         if sky_zone is not None and model is not None and rec.cls != "SkyZoneInfo" and point_zone(model, rec.location) == sky_zone:
@@ -1264,7 +1286,12 @@ def export_map(map_path: Path, pset: PackageSet, out_root: Path, include_bsp: bo
             if smi_ref and loaded is not None and not rec.hidden and not rec.extra.get("unlit") and authored is None:
                 colors = _read_color_stream(pkg, int(smi_ref))
                 owner, sm = loaded
+                folded_glow = False
                 if colors is not None and len(colors) == len(sm.positions):
+                    baked_max = int(colors[:, :3].max()) if len(colors) else 0
+                    folded = _fold_vertex_color_glow(colors, sm, int(rec.extra.get("ambient_glow", 0)))
+                    if folded is not None:
+                        colors, folded_glow = folded, True
                     h = hashlib.md5(colors.tobytes()).hexdigest()[:8]
                     vkey = f"{key}|{h}|{skin_sig}"
                     if vkey not in color_variants:
@@ -1284,7 +1311,10 @@ def export_map(map_path: Path, pset: PackageSet, out_root: Path, include_bsp: bo
                         entry["vertex_lit"] = True
                         # Brightest baked channel (0-255): all-black baked colours mean the mesh got no static light
                         # (BankD's skyline, ClubD's sky), where AmbientGlow / zone ambient stand in (importer).
-                        entry["vc_max"] = int(colors[:, :3].max()) if len(colors) else 0
+                        entry["vc_max"] = baked_max
+                        if folded_glow:
+                            # The glow is in the colours now (_fold_vertex_color_glow); the importer must not add it again.
+                            glow_folded_into_colors = True
         if rec.kind == "light" and rec.extra.get("echelon_material_ref"):
             # ESpotShadow projected texture (EchelonLightingMaterial.ProjectedLightingTexture) for the importer's light
             # function over the frustum box (docs/LIGHTING_BALANCE.md "Projected lighting texture").
@@ -1363,6 +1393,8 @@ def export_map(map_path: Path, pset: PackageSet, out_root: Path, include_bsp: bo
                 stats["patches"] = stats.get("patches", 0) + 1
         entry.update({k: v for k, v in rec.extra.items() if k not in ("skin_refs", "proj_texture_ref", "rain_material_ref",
                                                                        "patch_material_ref")})
+        if glow_folded_into_colors:
+            entry.pop("ambient_glow", None)
         scene_actors.append(entry)
 
     # Swap meshes: library nodes for the meshes gameplay objects change to at run time.

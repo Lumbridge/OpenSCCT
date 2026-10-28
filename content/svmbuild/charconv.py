@@ -21,7 +21,7 @@ from __future__ import annotations
 import json
 import shutil
 from pathlib import Path
-from typing import Dict
+from typing import Dict, Optional
 
 import numpy as np
 
@@ -232,18 +232,25 @@ def animation_document(db, pkg, export, notes) -> dict:
 
 def export_set(game: Path, package: str, meshes, out_dir: Path, db, notes, work: Path) -> dict:
     import_formats()
-    from scctpkg.export_skel_gltf import export_skeletal  # noqa: PLC0415
     from scctpkg.package import Package  # noqa: PLC0415
     from scctpkg.packageset import PackageSet  # noqa: PLC0415
-    from scctpkg.skeletalmesh import read_skeletal_mesh  # noqa: PLC0415
 
     path = Path(game) / "Packages" / "Animations" / f"{package}.ukx"
     pkg = Package.load(path)
     pset = PackageSet([Path(game) / "Packages"])
     pset.register(pkg)
+    return export_package(pkg, pset, meshes, out_dir / package, db, notes, work, package)
+
+
+def export_package(pkg, pset, meshes, dest: Path, db, notes, work: Path, package: Optional[str] = None) -> dict:
+    """Exports the named skeletal meshes of one loaded animation package (all but the PS2 ones when meshes is empty)
+    to dest: <Mesh>.glb, <Animation>.anim.json and textures/. pset resolves the skins' texture packages."""
+    from scctpkg.export_skel_gltf import export_skeletal  # noqa: PLC0415
+    from scctpkg.skeletalmesh import read_skeletal_mesh  # noqa: PLC0415
+
+    package = package or pkg.path.stem
     wanted = [e for e in pkg.exports_of_class("SkeletalMesh") if e.size > 0 and
               ((e.name in meshes) if meshes else not e.name.upper().endswith("_PS2"))]
-    dest = out_dir / package
     dest.mkdir(parents=True, exist_ok=True)
     stats: Dict[str, object] = {"meshes": [], "failed": [], "animations": []}
     anims_used = set()

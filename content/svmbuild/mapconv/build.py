@@ -11,6 +11,7 @@ from ..svmap import LATEST_VERSION, write_svmap
 from ..writers.collision import KINDS, read_collision
 from .collision import CollisionBuilder
 from .gameplay import build_class_table, build_gameplay
+from .props import build_skeletal_props
 from .rain import build_rain
 from .render import RenderBuilder
 from .source import MapSource
@@ -56,6 +57,9 @@ def build_map(game: Path, name: str, out_dir: Path, db, *, map_sha256: str, clas
                            {gameplay["levelInfo"]["id"]})
         render_files = rb.build(zone_index, ui)
         rstats = rb.stats
+        # The skeletal props the map places travel with it (render/chars/): a downloaded map's anim package is often
+        # not in the player's install, so the shared chars lack them.
+        render_files.update(build_skeletal_props(src, db, Path(out_dir).parent / ".work" / f"{name}-props", rstats))
         timings["render"] = time.perf_counter() - t
 
     title = str(src.level_info.props.get("Title") or ui.get("MapName") or name)

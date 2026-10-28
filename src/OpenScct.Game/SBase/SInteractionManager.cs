@@ -1,3 +1,4 @@
+using System;
 using OpenScct.Core;
 using OpenScct.Core.Engine;
 using OpenScct.Game.Objectives;
@@ -5,8 +6,10 @@ using OpenScct.Provenance;
 
 namespace OpenScct.Game.SBase;
 
-// A player's Use menu, written from spec/objectives/interaction-system.md. Slots 0 to 4 hold the fixed entries,
-// touched objects follow. The menu shows the usable entries ordered by iPriority (lowest first), ties in slot order.
+// A player's Use menu, written from spec/objectives/interaction-system.md. PostBeginPlay puts the five built-in entries
+// (priority 999999) in slots 0 to 4; touched objects are inserted ahead of them in iPriority order (lowest first, ties
+// in touch order), so the slot order is the menu order: the HUD lists the usable slots top to bottom and the selection
+// walks them.
 public partial class SInteractionManager
 {
     /// <summary>The player this menu belongs to (its owner).</summary>
@@ -36,21 +39,44 @@ public partial class SInteractionManager
 
     // ---- list upkeep ----------------------------------------------------------------------------------------
 
-    /// <summary>Server: appends a touched object to the menu and mirrors it to the owning client.</summary>
+    /// <summary>
+    /// Server: inserts a touched object into the menu, kept in iPriority order (game 0x10ABF4C0). The object goes
+    /// before the first of the first ten entries whose priority is strictly higher, so equal priorities keep touch
+    /// order and the five built-in entries (priority 999999) stay at the end, Exit last. An object already listed
+    /// before that point, or with no higher entry among the first ten, is not added. The owning client is told the
+    /// slot, then the selection goes back to the first usable entry.
+    /// </summary>
     [UcNative("ASInteractionManager::execAddInteractionObj", Exe = 0x10ABF470, Editor = 0x112229F0)]
     [PortOf("nat:SBase.SInteractionManager.AddInteractionObj", Spec = "spec/objectives/interaction-system.md#rules")]
-    [Provenance(ProvenanceKind.Estimated, "List upkeep: no duplicates, appended after the last entry, at most MAXITEM")]
+    [Provenance(ProvenanceKind.Decoded, "game 0x10ABF4C0: scan slots 0..9 while < NbObjects; same object: stop; new iPriority < slot iPriority: insert there (0x10ABF400), Ev_AddObjetOnClient unless the owner is local, SelectFirstViewAbleItem (0x10ABEE10)")]
     public void AddInteractionObj(SInteractObject? Object)
     {
-        if (Object is null || IndexOf(Object) >= 0 || NbObjects >= MAXITEM)
+        if (Object is null)
         {
             return;
         }
 
-        int i = NbObjects;
-        Interactions[i] = Object;
-        NbObjects = i + 1;
-        Ev_AddObjetOnClient(Object, i);
+        for (int i = 0; i < NbObjects && i < Interactions.Length; i++)
+        {
+            if (i > K.MenuInsertLastSlot)
+            {
+                return;
+            }
+
+            SInteractObject? slot = Interactions[i];
+            if (ReferenceEquals(slot, Object))
+            {
+                return;
+            }
+
+            if (slot is null || Object.iPriority < slot.iPriority)
+            {
+                InsertAt(Object, i);
+                Ev_AddObjetOnClient(Object, i);
+                SelectFirstViewAbleItem();
+                return;
+            }
+        }
     }
 
     /// <summary>Server: removes an object from the menu and mirrors the removal to the owning client.</summary>
@@ -68,51 +94,52 @@ public partial class SInteractionManager
         Ev_RemoveInteractionObjOnClient(Object);
     }
 
-    /// <summary>Places an object at a slot (the client side of AddObjetOnClient).</summary>
+    /// <summary>
+    /// Inserts an object at a slot, moving the later entries down one (the client side of AddObjetOnClient). The
+    /// server's own manager is skipped when the slot already holds the object: the original does not send the call
+    /// to a local owner, while the port's net layer runs it locally.
+    /// </summary>
     [UcNative("ASInteractionManager::execAddObjectAtIndex", Exe = 0x10ABF390)]
     [PortOf("nat:SBase.SInteractionManager.AddObjectAtIndex", Spec = "spec/objectives/interaction-system.md#rules")]
-    [Provenance(ProvenanceKind.Estimated, "Slot write that grows NbObjects to cover the slot")]
+    [Provenance(ProvenanceKind.Decoded, "game 0x10ABF390 calls the insert at 0x10ABF400")]
     public void AddObjectAtIndex(SInteractObject? Object, int i)
     {
-        if (i < 0 || i >= MAXITEM)
+        if (i >= 0 && i < NbObjects && i < Interactions.Length && ReferenceEquals(Interactions[i], Object))
         {
             return;
         }
 
-        Interactions[i] = Object;
-        if (i >= NbObjects)
-        {
-            NbObjects = i + 1;
-        }
+        InsertAt(Object, i);
     }
 
-    /// <summary>Removes an object and closes the gap; the selection keeps pointing at the same entry when it can.</summary>
+    /// <summary>
+    /// Removes an object and closes the gap (game 0x10ABF5F0). A removal at or before the selection moves it up one,
+    /// not below slot 0.
+    /// </summary>
     [UcNative("ASInteractionManager::execRemoveObject", Exe = 0x10ABF5A0)]
     [PortOf("nat:SBase.SInteractionManager.RemoveObject", Spec = "spec/objectives/interaction-system.md#rules")]
-    [Provenance(ProvenanceKind.Estimated, "Removal shifts the later slots down")]
+    [Provenance(ProvenanceKind.Decoded, "game 0x10ABF5F0: shift later slots down, clear the last, index <= Selected: Selected-- (min 0), NbObjects--")]
     public void RemoveObject(SInteractObject? Object)
     {
         int index = Object is null ? -1 : IndexOf(Object);
-        if (index < K.FixedEntries)
+        if (index < 0)
         {
             return;
         }
 
-        for (int i = index; i < NbObjects - 1; i++)
+        int last = index;
+        for (; last < NbObjects - 1; last++)
         {
-            Interactions[i] = Interactions[i + 1];
+            Interactions[last] = Interactions[last + 1];
+        }
+
+        Interactions[last] = null;
+        if (index <= SelectedInteractions)
+        {
+            SelectedInteractions = Math.Max(SelectedInteractions - 1, 0);
         }
 
         NbObjects--;
-        Interactions[NbObjects] = null;
-        if (SelectedInteractions > index)
-        {
-            SelectedInteractions--;
-        }
-        else if (SelectedInteractions >= NbObjects)
-        {
-            SelectedInteractions = NbObjects - 1;
-        }
     }
 
     [Uc("SBase.SInteractionManager.Ev_AddObjetOnClient", Sha1 = "ea54c07d533d920682d1b12741a22792739ecd1d")]
@@ -169,47 +196,58 @@ public partial class SInteractionManager
     [PortOf("nat:SBase.SInteractionManager.GetCurrentSubInteraction", Spec = "spec/objectives/interaction-system.md#rules")]
     public int GetCurrentSubInteraction() => SelectedSubInteractions;
 
-    /// <summary>Selects the first usable entry of the menu order. False when none is usable.</summary>
+    /// <summary>
+    /// Selects slot 0 when it is usable, otherwise the next usable slot (game 0x10ABEE10); the selected entry gets
+    /// the focus. Always true.
+    /// </summary>
     [UcNative("ASInteractionManager::execSelectFirstViewAbleItem", Exe = 0x10ABEDF0, Editor = 0x11222970)]
     [PortOf("nat:SBase.SInteractionManager.SelectFirstViewAbleItem", Spec = "spec/objectives/interaction-system.md#rules")]
-    [Provenance(ProvenanceKind.Estimated, "Lowest iPriority first (RE+ saw Use above Exit at a terminal); spec open question 1")]
+    [Provenance(ProvenanceKind.Decoded, "game 0x10ABEE10: Selected = Sub = 0; slot 0 CanUse or SelectNextItem; SetFocus(true) on the selection unless it has bHasFocus")]
     public bool SelectFirstViewAbleItem()
     {
+        SelectedInteractions = 0;
         SelectedSubInteractions = 0;
-        int first = FindAfter(int.MinValue, -1, forward: true);
-        if (first < 0)
+        if (Slot(0) is not { } first || !first.CanUse(PlayerOwner))
         {
-            return false;
+            SelectNextItem();
         }
 
-        SelectedInteractions = first;
+        if (Slot(SelectedInteractions) is { bHasFocus: false } selected)
+        {
+            selected.bHasFocus = true;
+            selected.SetFocus(true);
+        }
+
         return true;
     }
 
-    /// <summary>Moves the selection to the next usable entry, wrapping at the end. False when it did not move.</summary>
+    /// <summary>
+    /// Moves the selection to the next usable slot, wrapping at the end (game 0x10ABEED0); the old entry loses the
+    /// focus and the new one gets it. Always true.
+    /// </summary>
     [UcNative("ASInteractionManager::execSelectNextItem", Exe = 0x10ABEEB0)]
     [PortOf("nat:SBase.SInteractionManager.SelectNextItem", Spec = "spec/objectives/interaction-system.md#rules")]
-    [Provenance(ProvenanceKind.Estimated, "Menu order by iPriority, wrapping")]
+    [Provenance(ProvenanceKind.Decoded, "game 0x10ABEED0: slot order, wrapping, at most NbObjects steps")]
     public bool SelectNextItem() => Step(forward: true);
 
-    /// <summary>Moves the selection to the previous usable entry, wrapping at the start. False when it did not move.</summary>
+    /// <summary>Moves the selection to the previous usable slot, wrapping at the start (game 0x10ABEFF0). Always true.</summary>
     [UcNative("ASInteractionManager::execSelectPreviousItem", Exe = 0x10ABEFF0)]
     [PortOf("nat:SBase.SInteractionManager.SelectPreviousItem", Spec = "spec/objectives/interaction-system.md#rules")]
-    [Provenance(ProvenanceKind.Estimated, "Menu order by iPriority, wrapping")]
+    [Provenance(ProvenanceKind.Decoded, "game 0x10ABEFF0: slot order, wrapping, at most NbObjects steps")]
     public bool SelectPreviousItem() => Step(forward: false);
 
-    /// <summary>Positive when <paramref name="NewObj"/> comes before <paramref name="CurrentObj"/> in the menu.</summary>
+    /// <summary>0 for the same object, 3 when <paramref name="CurrentObj"/>'s priority is not above <paramref name="NewObj"/>'s, else 1.</summary>
     [UcNative("ASInteractionManager::execCheckPriority", Exe = 0x10ABF130, Editor = 0x11221D40)]
     [PortOf("nat:SBase.SInteractionManager.CheckPriority", Spec = "spec/objectives/interaction-system.md#rules")]
-    [Provenance(ProvenanceKind.Estimated, "Compares iPriority, lower first")]
+    [Provenance(ProvenanceKind.Decoded, "editor 0x11221D40: same object 0, else (Current.iPriority <= New.iPriority) * 2 + 1; no script caller")]
     public int CheckPriority(SInteractObject? CurrentObj, SInteractObject? NewObj)
     {
-        if (CurrentObj is null || NewObj is null)
+        if (ReferenceEquals(CurrentObj, NewObj))
         {
-            return NewObj is null ? 0 : 1;
+            return 0;
         }
 
-        return CurrentObj.iPriority.CompareTo(NewObj.iPriority);
+        return (CurrentObj?.iPriority ?? 0) <= (NewObj?.iPriority ?? 0) ? 3 : 1;
     }
 
     /// <summary>Facing dot product and distance from the owner's pawn to <paramref name="Obj"/>.</summary>
@@ -246,56 +284,59 @@ public partial class SInteractionManager
         return -1;
     }
 
-    private bool Step(bool forward)
+    private SInteractObject? Slot(int i) => i >= 0 && i < Interactions.Length ? Interactions[i] : null;
+
+    // Game 0x10ABF400: insert at slot i moving the later entries down. A full list drops the entry in slot 13 and
+    // keeps the last one (Exit); slot 14 itself takes no insert.
+    private void InsertAt(SInteractObject? Object, int i)
     {
-        SInteractObject? current = GetCurrentInteraction();
-        int next = current is null
-            ? FindAfter(forward ? int.MinValue : int.MaxValue, forward ? -1 : int.MaxValue, forward)
-            : FindAfter(current.iPriority, SelectedInteractions, forward);
-        if (next < 0)
+        int max = Interactions.Length;
+        if (i < 0 || i >= max - 1)
         {
-            next = FindAfter(forward ? int.MinValue : int.MaxValue, forward ? -1 : int.MaxValue, forward);
+            return;
         }
 
-        if (next < 0 || next == SelectedInteractions)
+        int last = NbObjects >= max ? max - 3 : NbObjects - 1;
+        for (int k = last; k >= i; k--)
         {
-            return false;
+            Interactions[k + 1] = Interactions[k];
         }
 
-        SelectedInteractions = next;
-        SelectedSubInteractions = 0;
-        return true;
+        NbObjects = Math.Clamp(NbObjects + 1, 0, max);
+        Interactions[i] = Object;
     }
 
-    // The usable entry right after (forward) or before the (priority, slot) key in menu order, or -1.
-    private int FindAfter(int priority, int slot, bool forward)
+    // Game 0x10ABEED0 / 0x10ABEFF0: unfocus the selection, then walk the slots (wrapping) to the first usable one
+    // and focus it; after NbObjects steps without one the selection stays where the walk ended.
+    private bool Step(bool forward)
     {
-        SPlayerController? pc = PlayerOwner;
-        int best = -1;
-        int bestPriority = 0;
-        for (int i = 0; i < NbObjects; i++)
+        if (Slot(SelectedInteractions) is { } current)
         {
-            if (Interactions[i] is not { bDeleteMe: false } e || !e.CanUse(pc))
+            current.SetFocus(false);
+            current.bHasFocus = false;
+        }
+
+        SPlayerController? pc = PlayerOwner;
+        for (int n = 0; n < NbObjects;)
+        {
+            n++;
+            if (forward)
             {
-                continue;
+                SelectedInteractions = SelectedInteractions < NbObjects - 1 ? SelectedInteractions + 1 : 0;
+            }
+            else
+            {
+                SelectedInteractions = SelectedInteractions < 1 ? NbObjects - 1 : SelectedInteractions - 1;
             }
 
-            int p = e.iPriority;
-            bool beyond = forward ? (p > priority || (p == priority && i > slot)) : (p < priority || (p == priority && i < slot));
-            if (!beyond)
+            if (Slot(SelectedInteractions) is { bDeleteMe: false } e && e.CanUse(pc))
             {
-                continue;
-            }
-
-            bool better = best < 0 ||
-                (forward ? (p < bestPriority || (p == bestPriority && i < best)) : (p > bestPriority || (p == bestPriority && i > best)));
-            if (better)
-            {
-                best = i;
-                bestPriority = p;
+                e.SetFocus(true);
+                e.bHasFocus = true;
+                return true;
             }
         }
 
-        return best;
+        return true;
     }
 }

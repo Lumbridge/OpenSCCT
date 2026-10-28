@@ -65,6 +65,22 @@ public sealed class SkeletalModel
         return File.Exists(path) ? path : null;
     }
 
+    /// <summary>
+    /// A skeletal mesh a map places (an SAnimatedMesh prop, a DT_Mesh fish): the map's own copy
+    /// (<c>render/chars/&lt;Package&gt;/&lt;Mesh&gt;.glb</c>, which the converter writes so a downloaded map does not need its
+    /// anim package in the player's install), else the shared one.
+    /// </summary>
+    public static string? FindMapGlb(string asset, string? mapFolder, string? sharedRoot = null)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(asset);
+        if (!string.IsNullOrEmpty(mapFolder) && FindGlb(asset, Path.Combine(mapFolder, "render")) is { } own)
+        {
+            return own;
+        }
+
+        return FindGlb(asset, sharedRoot);
+    }
+
     /// <summary>The shared folder next to the executable for an export, else the project's .content/shared.</summary>
     public static string DefaultSharedRoot()
     {
@@ -225,6 +241,10 @@ public sealed class SkeletalModel
                     }, LightSource.Actor);
                     if (made is ShaderMaterial shiny)
                     {
+                        // Painted in screen colours: the world shader brings its texels into the retail range
+                        // (svm_cosmetic_level) so pale camos light up without clipping to white.
+                        shiny.SetShaderParameter(CamoParameter, true);
+
                         // The world shader's sheen (svm_sheen): on the golden and mastercraft camos a full gold mirror that stays bright
                         // in any light (a special finish), on the pyre camo glossy black lacquer with near-white
                         // highlights that darkens in shadow like everything else.
@@ -567,8 +587,9 @@ public sealed class SkeletalModel
     }
 
     /// <summary>
-    /// A colour tint over every mesh (each texel keeps its brightness and takes <paramref name="rgb"/>'s colour);
-    /// <paramref name="strength"/> 0 is none.
+    /// A colour tint over every mesh: a texel of the retail suits' mean brightness takes <paramref name="rgb"/>,
+    /// brighter and darker texels in proportion (the world shader's SVM_TINT_REF), brought into the retail range
+    /// (svm_cosmetic_level); <paramref name="strength"/> 0 is none.
     /// </summary>
     public void SetTint(Vector3 rgb, float strength)
     {
@@ -599,6 +620,7 @@ public sealed class SkeletalModel
     }
 
     public static readonly StringName TintParameter = "svm_tint";
+    public static readonly StringName CamoParameter = "svm_camo";
     public static readonly StringName SheenParameter = "svm_sheen";
     public static readonly StringName SheenTintParameter = "svm_sheen_tint";
     public static readonly StringName SheenMirrorParameter = "svm_sheen_mirror";
@@ -681,11 +703,22 @@ public sealed class SkeletalModel
     /// <summary>The skin key over material slot <paramref name="slot"/> (package and name), or null for the mesh's own.</summary>
     public string? SlotSkin(int slot) => _slotSkins.TryGetValue(slot, out string? key) ? key : null;
 
-    public void Place(FVector location, FRotator rotation, FVector prePivot, float drawScale = 1f)
+    public void Place(FVector location, FRotator rotation, FVector prePivot, float drawScale = 1f) =>
+        Place(location, rotation, prePivot, new FVector(drawScale, drawScale, drawScale));
+
+    /// <summary>
+    /// Places the model with the actor's scale per axis, <paramref name="actorScale"/> = DrawScale x DrawScale3D (UE2's
+    /// actor LocalToWorld scales in the actor's own axes, after the mesh's RotOrigin; Polar's wind sock has DrawScale3D
+    /// 1, 1.5, 1).
+    /// </summary>
+    public void Place(FVector location, FRotator rotation, FVector prePivot, FVector actorScale)
     {
         Root.Transform = UeSpace.TransformToGodot(location + prePivot, rotation);
+        // Scaled multiplies in the parent's (actor's) axes, so the UE axes of DrawScale3D map to Godot X, Z, Y as any
+        // direction does.
         Pivot.Transform = new Transform3D(UeSpace.RotationToGodot(RotOrigin), Vector3.Zero)
-            .Scaled(UeSpace.DirectionToGodot(new FVector(MeshScale.X, MeshScale.Y, MeshScale.Z)) * drawScale);
+            .Scaled(UeSpace.DirectionToGodot(new FVector(MeshScale.X, MeshScale.Y, MeshScale.Z)))
+            .Scaled(UeSpace.DirectionToGodot(actorScale));
     }
 
     /// <summary>Samples the current sequence and poses the skeleton.</summary>

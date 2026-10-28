@@ -53,6 +53,34 @@ varying vec4 v_vision;
 uniform float svm_sheen = 0.0;
 uniform vec3 svm_sheen_tint = vec3(1.0, 0.8, 0.36);
 uniform float svm_sheen_mirror = 0.0;
+// OpenSCCT's own: set on cosmetic camo materials (SkeletalModel.Cosmetic); like a body tint (svm_tint) it puts each
+// texel through svm_cosmetic_level before the light.
+uniform bool svm_camo = false;
+
+// The retail suits' mean texel luminance (SPersoTextures Shadw_agent 0.112, Shadw_agent_2 0.119, DEF_01_A_Body 0.143):
+// a body tint draws a texel of this brightness in the tint's own colour, brighter and darker texels in proportion, so a
+// pale tint makes a pale suit (it used to keep each texel's brightness, which left every tint as dark as the retail suit).
+const float SVM_TINT_REF = 0.125;
+
+// OpenSCCT's own: the brightness of a cosmetic texel (camo or tint) brought into the range the original's textures are
+// painted for. The original lights a texture by up to 2x (min(2, light term)), so its suits keep their texels low (mean
+// 0.11 to 0.14; 99% below 0.42 on the spy, 0.7 on the merc) and a texel above 0.5 clips to white in any good light. The
+// camos are painted in screen colours (snow white 0xF0F4F8) and blew out to flat white with a glow halo. Up to 0.2
+// (the retail suits' range) a texel is kept; above, its luminance rises at 0.375 of the rate, 1.0 ending at 0.5, with a
+// soft knee from 0.1 to 0.3; the hue stays. So a white suit at full light reaches about white, lit, without clipping.
+vec3 svm_cosmetic_level(vec3 c) {
+	const float knee = 0.2;
+	const float width = 0.1;
+	const float slope = 0.375;
+	float l = dot(c, vec3(0.3, 0.59, 0.11));
+	if (l <= knee - width) {
+		return c;
+	}
+	float m = l <= knee + width
+		? l - (1.0 - slope) * (l - knee + width) * (l - knee + width) / (4.0 * width)
+		: knee + slope * (l - knee);
+	return clamp(c * (m / l), 0.0, 1.0);
+}
 
 uniform sampler2D tex_diffuse : filter_linear_mipmap_anisotropic, repeat_enable, hint_default_white;
 
@@ -471,8 +499,12 @@ void fragment() {
 #endif
 	if (svm_tint.a > 0.0) {
 		const vec3 luma = vec3(0.3, 0.59, 0.11);
-		vec3 recolour = svm_tint.rgb * (dot(t.rgb, luma) / max(dot(svm_tint.rgb, luma), 0.05));
+		vec3 recolour = svm_tint.rgb * (dot(t.rgb, luma) / SVM_TINT_REF);
 		t.rgb = mix(t.rgb, clamp(recolour, 0.0, 1.0), svm_tint.a);
+	}
+	// Camos and tints only: the polished camos (svm_sheen) keep their own finish.
+	if ((svm_camo || svm_tint.a > 0.0) && svm_sheen <= 0.0) {
+		t.rgb = svm_cosmetic_level(t.rgb);
 	}
 	if (svm_glow_hue.z > 0.0) {
 		t.rgb = clamp(svm_hue_turn(t.rgb, svm_glow_hue.x), 0.0, 1.0);
