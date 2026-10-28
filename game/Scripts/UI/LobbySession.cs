@@ -103,6 +103,9 @@ public interface IOnlineLobbySession : ILobbySession
 
     void SetTeamVoiceOnly(bool only);
 
+    /// <summary>Sends the saved Armoury looks (as shared with others) to the server, worn from the next round.</summary>
+    void SendLook();
+
     /// <summary>The local player's volume for another player's voice, 0 to 2.</summary>
     float VoiceVolume(string playerName);
 

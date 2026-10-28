@@ -45,8 +45,8 @@ public partial class ArmouryScreen : MenuPage
     private (CosmeticSlot Slot, CosmeticItem? Item)? _tryOn;
 
     /// <summary>
-    /// Set when the page is opened over the hub instead of as a menu screen: Back and Escape call it, and the
-    /// Achievements button is left out. Saved choices reach the hub through the saved settings (HubService).
+    /// Set when the page is opened over the hub or the lobby instead of as a menu screen: Back and Escape call it, and the
+    /// Achievements button is left out. Saved choices reach the hub through the saved settings (HubService); the lobby sends them on Back.
     /// </summary>
     public Action? Closed { get; init; }
 

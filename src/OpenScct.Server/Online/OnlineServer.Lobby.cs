@@ -5,6 +5,7 @@ using System.Text;
 using OpenScct.Core.Engine;
 using OpenScct.Game.SBase;
 using OpenScct.Net;
+using OpenScct.Net.Cosmetics;
 using OpenScct.Net.Discovery;
 
 namespace OpenScct.Server.Online;
@@ -146,6 +147,12 @@ public sealed partial class OnlineServer
             case "ready" when Phase is SessionPhase.Lobby or SessionPhase.Results:
                 p.Ready = SessionProtocol.Int(f, 0) != 0;
                 BroadcastPlayer(p);
+                break;
+            case "look" when !p.IsBot:
+                // OpenSCCT's own: a look changed in the Armoury over the lobby. Kept to what the player unlocks; it is
+                // worn from the next match login (MatchLoginOptions), not on a pawn already in a round.
+                p.SpyLook = CosmeticLook.ParseHex(SessionProtocol.Text(f, 0)).Validate(CosmeticSide.Spy, p.Unlocks);
+                p.MercLook = CosmeticLook.ParseHex(SessionProtocol.Text(f, 1)).Validate(CosmeticSide.Merc, p.Unlocks);
                 break;
             case "teamvoice":
                 // The lobby's "Restrict Mic to Team" (Lobby_Create.TeamVoiceOnlyChange -> ServerSetTeamVoiceOnly).

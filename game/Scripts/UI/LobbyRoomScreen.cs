@@ -131,6 +131,9 @@ public partial class LobbyRoomScreen : MenuPage
     /// <summary>"Briefing": the setup's map and mode briefing for the local player's side (GUI.Briefing, BriefingDeux).</summary>
     public Button? BriefingButton { get; private set; }
 
+    /// <summary>OpenSCCT's own: opens the Armoury over the lobby to change cosmetics.</summary>
+    public Button? ArmouryButton { get; private set; }
+
     private void OpenBriefing()
     {
         if (Session is not { } s || FindChild("Briefing", recursive: false, owned: false) is not null)
@@ -279,6 +282,9 @@ public partial class LobbyRoomScreen : MenuPage
         BriefingButton = UiStyle.MenuButton("Briefing", OpenBriefing, "Briefing");
         BriefingButton.CustomMinimumSize = new Vector2(180f, 40f);
         sideRow.AddChild(BriefingButton);
+        ArmouryButton = UiStyle.MenuButton("Armoury", OpenArmoury, "Armoury");
+        ArmouryButton.CustomMinimumSize = new Vector2(180f, 40f);
+        sideRow.AddChild(ArmouryButton);
 
         // The chat box beside the lists, with the voice line (microphone state, Restrict Mic to Team) at its foot:
         // all the talking in one place.
@@ -533,6 +539,29 @@ public partial class LobbyRoomScreen : MenuPage
 
         s.Chat(chat.Text, teamOnly);
         chat.Text = string.Empty;
+    }
+
+    /// <summary>
+    /// OpenSCCT's own: the Armoury over the lobby. Picks are saved as from the main menu; on Back the saved looks go to
+    /// the server, which keeps what the player unlocks and puts them on from the next round.
+    /// </summary>
+    private void OpenArmoury()
+    {
+        if (FindChild("Armoury", recursive: false, owned: false) is not null)
+        {
+            return;
+        }
+
+        ArmouryScreen? armoury = null;
+        armoury = new ArmouryScreen
+        {
+            Closed = () =>
+            {
+                Session?.SendLook();
+                armoury?.QueueFree();
+            },
+        };
+        AddChild(armoury);
     }
 
     private void OpenOptions()

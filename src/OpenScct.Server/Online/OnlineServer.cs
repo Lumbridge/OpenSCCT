@@ -244,6 +244,9 @@ public sealed class SessionPlayer
     /// <summary>The player joined with a valid master ticket: his name is his account's claimed name.</summary>
     public bool Verified { get; internal set; }
 
+    /// <summary>What the player's ticket (or the listen host's account) unlocks; none for guests and bots. A look changed in the lobby is checked against it.</summary>
+    public CosmeticUnlocks Unlocks { get; internal set; } = CosmeticUnlocks.None;
+
     /// <summary>The checked cosmetic looks (only what the ticket unlocks; retail for guests and bots).</summary>
     public CosmeticLook SpyLook { get; internal set; }
 
@@ -1513,14 +1516,16 @@ public sealed partial class OnlineServer : IDisposable
                 ? hostAccount.Name
                 : UniqueName(Settings.Master is not null ? PlayerNames.GuestName(name, installId) : name);
             bool masterAdmin = ticket is { IsAdmin: true } && Master is { Trusted: true } && Settings.Master?.ServerKey is { Length: > 0 };
+            CosmeticUnlocks unlocks = UnlocksOf(ticket, hostAccount);
             player = new SessionPlayer(_nextPlayerId++, shown, token == 0 ? NewToken() : token)
             {
                 InstallId = installId.Length > 0 ? installId : null,
                 PublicKey = playerKey.Length > 0 ? playerKey : null,
                 AccountId = ticket?.AccountId ?? hostAccount?.AccountId,
                 Verified = ticket is not null || hostAccount is not null,
-                SpyLook = CheckedLook(options, "SvmLookS", CosmeticSide.Spy, UnlocksOf(ticket, hostAccount)),
-                MercLook = CheckedLook(options, "SvmLookM", CosmeticSide.Merc, UnlocksOf(ticket, hostAccount)),
+                Unlocks = unlocks,
+                SpyLook = CheckedLook(options, "SvmLookS", CosmeticSide.Spy, unlocks),
+                MercLook = CheckedLook(options, "SvmLookM", CosmeticSide.Merc, unlocks),
                 Rank = PlayerRanks.Checked(UcOptions.ParseOption(options, "SvmTitle"), ticket, hostAccount),
                 IsAdmin = masterAdmin,
                 IsHost = host,

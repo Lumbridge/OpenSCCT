@@ -124,6 +124,10 @@ public sealed class OnlineClient : IDisposable
     private readonly ulong _token;
     private readonly List<ResultRow> _rows = new();
     private SessionTransport? _transport;
+
+    /// <summary>The looks last sent with <see cref="SetLook"/>, or null for the settings' own.</summary>
+    private string? _spyLook;
+    private string? _mercLook;
     private ITransport? _inner;
     private int _attempt = -1;
     private long _attemptStart;
@@ -238,6 +242,17 @@ public sealed class OnlineClient : IDisposable
     public void SetTeam(int team) => SendLine(SessionProtocol.Line("team", team));
 
     public void SetReady(bool ready) => SendLine(SessionProtocol.Line("ready", ready));
+
+    /// <summary>
+    /// A look changed in the Armoury over the lobby (CosmeticLook hex per side): the server keeps what the player
+    /// unlocks and uses it from the next round. A later reconnect logs in with it too.
+    /// </summary>
+    public void SetLook(string spyLook, string mercLook)
+    {
+        _spyLook = spyLook;
+        _mercLook = mercLook;
+        SendLine(SessionProtocol.Line("look", spyLook, mercLook));
+    }
 
     /// <summary>The lobby's "Restrict Mic to Team": in the lobby the other team stops hearing this player.</summary>
     public void SetTeamVoiceOnly(bool only) => SendLine(SessionProtocol.Line("teamvoice", only));
@@ -524,12 +539,12 @@ public sealed class OnlineClient : IDisposable
             options += "?SvmTicket=" + Clean(ticket);
         }
 
-        if (Settings.SpyLook is { Length: > 0 } spyLook && spyLook != "0")
+        if ((_spyLook ?? Settings.SpyLook) is { Length: > 0 } spyLook && spyLook != "0")
         {
             options += "?SvmLookS=" + Clean(spyLook);
         }
 
-        if (Settings.MercLook is { Length: > 0 } mercLook && mercLook != "0")
+        if ((_mercLook ?? Settings.MercLook) is { Length: > 0 } mercLook && mercLook != "0")
         {
             options += "?SvmLookM=" + Clean(mercLook);
         }

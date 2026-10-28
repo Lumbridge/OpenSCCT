@@ -170,6 +170,12 @@ public sealed class OnlineLobby : IOnlineLobbySession
 
     public void SetTeamVoiceOnly(bool only) => _client.SetTeamVoiceOnly(only);
 
+    public void SendLook()
+    {
+        OpenScctGame.Options.GameSettings s = OpenScctGame.Options.SettingsStore.Current;
+        _client.SetLook(s.SharedLook(OpenScct.Net.Cosmetics.CosmeticSide.Spy).ToHex(), s.SharedLook(OpenScct.Net.Cosmetics.CosmeticSide.Merc).ToHex());
+    }
+
     private OpenScct.Server.Online.OnlineVoice? Voice => _service.VoiceChat?.Voice;
 
     public float VoiceVolume(string playerName) => Voice?.VolumeOf(playerName) ?? 1f;
