@@ -433,7 +433,12 @@ public sealed class ContentStore
             }
 
             long size = f.Value.TryGetProperty("size", out JsonElement s) && s.TryGetInt64(out long n) ? n : -1;
-            string want = f.Value.TryGetProperty("sha256", out JsonElement h) ? h.GetString() ?? string.Empty : string.Empty;
+
+            // sim/*.json digests are of the canonical JSON (svmbuild canonical.file_digest, SvMapHash.FileDigest), not
+            // the raw bytes, so only their size is checked here: the archive's SHA-256 was checked against the index,
+            // and the game checks the canonical sim hash when it loads the map.
+            bool canonical = f.Name.StartsWith("sim/", StringComparison.Ordinal) && f.Name.EndsWith(".json", StringComparison.Ordinal);
+            string want = !canonical && f.Value.TryGetProperty("sha256", out JsonElement h) ? h.GetString() ?? string.Empty : string.Empty;
             if ((size >= 0 && new FileInfo(path).Length != size) || (want.Length > 0 && !string.Equals(Sha256Of(path), want, StringComparison.OrdinalIgnoreCase)))
             {
                 throw new InvalidDataException($"{f.Name} in the map pack does not match its manifest.");
