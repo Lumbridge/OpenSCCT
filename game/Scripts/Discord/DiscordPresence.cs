@@ -305,12 +305,36 @@ public partial class DiscordPresence : Node
                     hub.Leave(showMenu: false);
                 }
 
+                if (join.NeedsPassword)
+                {
+                    // The friend's server has a password: the browser asks for it before it joins.
+                    if (online.Client is not null)
+                    {
+                        online.Leave();
+                    }
+
+                    FrontEnd.Show(tree, new ServerBrowserScreen { DiscordJoinId = join.Value, AskJoinPassword = true });
+                    break;
+                }
+
                 FrontEnd.ShowServerBrowser(tree, join.Value);
                 break;
             default:
                 if (hub.Client is not null)
                 {
                     hub.Leave(showMenu: false);
+                }
+
+                if (join.NeedsPassword)
+                {
+                    // Join with IP, the address filled in and the password box waiting.
+                    if (online.Client is not null)
+                    {
+                        online.Leave();
+                    }
+
+                    FrontEnd.Show(tree, new JoinWithIpScreen { PresetAddress = join.Value });
+                    break;
                 }
 
                 online.Join(JoinTarget.FromAddress(join.Value));

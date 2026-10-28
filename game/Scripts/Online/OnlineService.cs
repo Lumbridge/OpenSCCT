@@ -408,6 +408,9 @@ public partial class OnlineService : Node
         };
         client.SessionTickedElsewhere = true;
         _round = PlayRoot.Enter(GetTree(), config);
+
+        // Loading_Menu's list: who is ready, still loading or not in yet, until the round starts.
+        _round.AddChild(new RoundStartList(client));
         if (VoiceChat is not null)
         {
             VoiceChat.ShowOverlay = true;

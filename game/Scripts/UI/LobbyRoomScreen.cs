@@ -141,6 +141,40 @@ public partial class LobbyRoomScreen : MenuPage
         AddChild(new BriefingPanel(pages, MapImages.Loading(_mapCatalog, map, !spy), title));
     }
 
+    /// <summary>"Equipment" (Lobby_Create's Button3, which opens Edit_Profile): the gear picker for the local player's side.</summary>
+    public Button? EquipmentButton { get; private set; }
+
+    /// <summary>
+    /// The gear picker over the lobby, for the side the local player is on and the setup's gadget rules; OK saves the
+    /// choice, which the server takes when the round spawns the player (spec/additions/gear-change.md).
+    /// </summary>
+    [OpenScct.Provenance.PortOf("uc:GUI.Lobby_Create:ButtonClick", Spec = "spec/game/lobby-and-match-creation.md#front-end-pages")]
+    private void OpenEquipment()
+    {
+        if (Session is not { } s || FindChild("GearMenu", recursive: false, owned: false) is not null)
+        {
+            return;
+        }
+
+        int team = Local()?.Side switch
+        {
+            HudSide.Spy => 0,
+            HudSide.Merc => 1,
+            _ => -1,
+        };
+        GearMenuModel? model = GearMenuModel.ForLobby(team, s.Setup, SettingsStore.Current.Loadout);
+        var gear = new GearMenu(model) { OwnKeys = true };
+        gear.Applied += m =>
+        {
+            GameSettings settings = SettingsStore.Current;
+            m.SaveTo(settings.Loadout);
+            SettingsStore.Save(settings);
+            gear.QueueFree();
+        };
+        gear.Closed += gear.QueueFree;
+        AddChild(gear);
+    }
+
     private void ShowAlternateButton()
     {
         if (AlternateButton is not null && Session is { } s && Parameters is not null)
@@ -194,6 +228,9 @@ public partial class LobbyRoomScreen : MenuPage
         SwitchTeamButton.CustomMinimumSize = SpectateButton.CustomMinimumSize = new Vector2(180f, 40f);
         sideRow.AddChild(SwitchTeamButton);
         sideRow.AddChild(SpectateButton);
+        EquipmentButton = UiStyle.MenuButton(GearMenuModel.Title, OpenEquipment, "Equipment");
+        EquipmentButton.CustomMinimumSize = new Vector2(180f, 40f);
+        sideRow.AddChild(EquipmentButton);
         BriefingButton = UiStyle.MenuButton("Briefing", OpenBriefing, "Briefing");
         BriefingButton.CustomMinimumSize = new Vector2(180f, 40f);
         sideRow.AddChild(BriefingButton);
@@ -502,6 +539,31 @@ public partial class LobbyRoomScreen : MenuPage
         }
     }
 
+    /// <summary>
+    /// Reloaded's join notification (rl:qol.lobby, rl:audio.join): a sound when a person (not a bot) comes into the
+    /// lobby after the page opened.
+    /// </summary>
+    private void NoteJoins(IOnlineLobbySession s)
+    {
+        bool first = _seenMembers is null;
+        _seenMembers ??= new HashSet<int>();
+        bool joined = false;
+        foreach (OnlineLobbyPlayer p in s.Members)
+        {
+            if (_seenMembers.Add(p.Id) && !first && !p.IsLocal && !p.IsBot)
+            {
+                joined = true;
+            }
+        }
+
+        if (joined)
+        {
+            OpenScctGame.Audio.FrontEndAudio.Get(GetTree()).PlayJoin();
+        }
+    }
+
+    private HashSet<int>? _seenMembers;
+
     private OnlineLobbyPlayer? Local()
     {
         if (Session is null)
@@ -620,6 +682,8 @@ public partial class LobbyRoomScreen : MenuPage
         OnlineLobbyPlayer? local = Local();
         SwitchTeamButton!.Disabled = local is null || (local.Ready && !control) || s.Setup.Mode == OpenScct.Core.EGameMode.GM_MercDeathMatch;
         SpectateButton!.Disabled = local is null || local.Side is null || (local.Ready && !control);
+        EquipmentButton!.Disabled = local?.Side is null || s.Launching;
+        NoteJoins(s);
         MainButton!.Text = LobbyRoomModel.MainButton(control, local?.Ready ?? false, s.Launching);
         MainButton.Disabled = local is null;
 

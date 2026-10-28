@@ -81,7 +81,11 @@ Who-hears-whom matches the original (rules in `VoiceRouting.cs`). Gaps:
 | MSAA/SMAA | later (M) |
 | Extraction, Sabotage, Neutralization modes | later (L) |
 | Unverified Reloaded fixes: grab angle, jump lock-on 7.5 m, KO after interrupt, slow strafe, disk radar threshold, crosshair shift, sticky cam fixes | open: need decoding of the Reloaded patch values |
-| Signed releases, MMCSS voice thread, lobby music, join sound, local match log, scoreboard split size | open (small or optional) |
+| Signed releases, MMCSS voice thread, local match log | open (small or optional) |
+| Menu and lobby music (enh:audio.lobby_music: the Entry and Lobby levels' Songs, already converted by the maps step) | done (`FrontEndAudio`; docs/AUDIO.md "Front end") |
+| Lobby join sound (rl:qol.lobby, rl:audio.join) | done (Reloaded's sound not decoded: ours is Interface.Menu.bip_message) |
+| Scoreboard split at team size, Merc Deathmatch result lines (rl:qol.scoreboard) | done (Reloaded's drawing not decoded: the mercs' column copies the list's layout; the lines are the results headline; Reloaded's "Elapsed Time" line not shown) |
+| Enhanced tips on the loading pages (enh:ui.tips) | done (the team's converted aTipStrings) |
 
 ## Front end
 
@@ -96,10 +100,12 @@ Who-hears-whom matches the original (rules in `VoiceRouting.cs`). Gaps:
 | Tutorials hub, gadget encyclopedia, Visit a Map with help paths, first-time-map prompt | done, needs the ui rebuild (TutoOrExam gate skipped) |
 | HUD legend and keyboard pictures pages | done |
 | Tutorial zone hints (SZoneTips) offline: standalone only in the original, and offline play is a listen server here | open (M) |
-| Video: post quality, brightness pattern, keep-settings countdown | open (S) |
-| Main menu quit confirmation | open (S) |
-| Per-player loading list | open (S) |
-| Lobby Equipment button | open (S) |
+| Video: post quality, brightness pattern, keep-settings countdown | done (post quality's native effect not decoded: Normal drops the glow; the countdown follows display mode, monitor and window size) |
+| Main menu quit confirmation | done |
+| Per-player loading list | done (client side from the replicated PRIs and the session list; no protocol change) |
+| Lobby Equipment button | done (online Lobby Room; the offline lobby has none) |
+| Server browser mode legend (LegendModeServer) | n-a (no page or native opens it; placeholder captions) |
+| Discord Join to a password server | done (secret kinds `mp`/`ap`; the friend's game asks for the password) |
 
 ## Out of scope or done under other names
 

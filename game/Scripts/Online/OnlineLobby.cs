@@ -270,6 +270,7 @@ public sealed class OnlineLobby : IOnlineLobbySession
         return new MatchResult
         {
             Map = results.Map,
+            Mode = client.Lobby.Setup.Mode,
             Winner = results.WinningTeam switch
             {
                 0 => HudSide.Spy,

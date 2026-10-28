@@ -115,7 +115,8 @@ starts with it, and it must be exact within one step. It reads back exact (maxim
 3. Composite (ps 0x10c4ed00) back into 0x30e68: `0.4 L1 + 0.6 L2 + 0.7 L3 + 0.9 L4`, bilinear.
 4. The final composite samples it bilinear over the whole screen.
 
-At threshold 255 nothing passes (L is at most 1), so the passes are skipped (SteeE and four other maps). 79 maps glow
+The options' Post-render quality Normal (`post_quality` 0, the original Video Options row whose native effect is
+not decoded) runs the view at threshold 255. At threshold 255 nothing passes (L is at most 1), so the passes are skipped (SteeE and four other maps). 79 maps glow
 (65 at 224; AquaE 250, PolaE 230, ClubD 227). Only the normal view (and binoculars over it) glows: the night pass
 (0x10963090) reads the scene before any composite and runs the driver in mode 1 with its own tint (not ported, see open
 issues); thermal, motion and EMF have their own passes. With FlashColor.A set the driver runs mode 2 (ps 0x10c4e920,

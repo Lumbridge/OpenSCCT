@@ -60,6 +60,7 @@ public partial class LoadingScreen : MenuPage
         });
         modeRow.AddChild(new Label { Name = "Mode", Text = LobbySetup.ModeName(Mode), Modulate = UiStyle.MenuTitle, VerticalAlignment = VerticalAlignment.Center });
         Body.AddChild(modeRow);
+        Body.AddChild(LoadingTip.Label(LoadingTip.Pick(Merc)));
     }
 
     public override void _Process(double delta)

@@ -48,9 +48,13 @@ A joinable game puts a join secret on the status (Discord passes it only to frie
 | `oscct1\|m\|<id>` | a server on the master, by its id | joined from the master's list, or hosting a server the master registered |
 | `oscct1\|a\|<host:port>` | a server by address | joined by a typed public address, or hosting with a public address but no master id |
 | `oscct1\|h\|<host:port>` | a hub by address | in a hub joined by address |
+| `oscct1\|mp\|<id>`, `oscct1\|ap\|<host:port>` | as `m` and `a`, for a server with a password | the same, when the server has one |
 
-No secret (status only) for password servers (the password would have to travel with it), a hub pad's match, a hub
-this PC hosts (loopback only), offline play, or a loopback/LAN-only address.
+A password server's secret only says that it has one: the password never goes to Discord. On such a Join the
+friend's game asks for it: a master id opens the server browser with "... has a password. Type it in the password
+box and press Join", and an address opens Join with IP with the address filled in and the password box focused.
+Builds older than this ignore the `mp` and `ap` kinds. No secret (status only) for a hub pad's match, a hub this PC
+hosts (loopback only), offline play, or a loopback/LAN-only address.
 
 On Join the game waits until the player is in the menus (a running match finishes or is left first), leaves the
 current visit, and goes the normal way: a master id opens the server browser and asks the master how to reach it
@@ -64,5 +68,4 @@ alone; the join arrives over the pipe once the game is up.
 ## Open items
 
 - Join and Ask to Join over the local pipe are the old Rich Presence API: check them with a second Discord account.
-- A password server could prompt for the password on a Discord Join instead of having no Join.
 - Per-map large images (asset key per map) once the art exists.

@@ -80,7 +80,12 @@ public partial class ResultsScreen : Control
             HudSide.Merc => "MERCENARIES WIN",
             _ => "NO WINNER",
         };
-        Headline = UiStyle.Title(headline, result.Winner is { } w ? UiStyle.SideColour(w) : UiStyle.Text);
+
+        // Merc Deathmatch has one side: Reloaded names the player with the most kills instead.
+        string? deathmatch = result.DeathmatchLine();
+        Headline = deathmatch is not null
+            ? UiStyle.Title(deathmatch, UiStyle.SideColour(HudSide.Merc))
+            : UiStyle.Title(headline, result.Winner is { } w ? UiStyle.SideColour(w) : UiStyle.Text);
         Headline.Name = "Headline";
         column.AddChild(Headline);
         string detail = MatchResult.ReasonText(result.Reason);

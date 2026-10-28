@@ -69,4 +69,8 @@ Everything is read on the player's own machine from replicated PRIs and the miss
 ## Open questions
 
 1. Reloaded's own scoreboard drawing (team columns at `scoreboard_split_team_size`, ping column look) is not
-   decoded; the rewrite adds the ping as a column of the HUD list.
+   decoded; the rewrite adds the ping as a column of the HUD list and, once the bigger team reaches the split
+   size (its settings text: "Team size at which the scoreboard splits into a column per team, sized on the bigger
+   team"), draws the mercs in a second column in the list's layout. Reloaded's Merc Deathmatch lines ("{} wins with
+   {} kills", "Draw at {} kills", "No kills scored") are shown as the results headline; where Reloaded draws them is
+   not decoded.
