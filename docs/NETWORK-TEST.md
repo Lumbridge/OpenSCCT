@@ -11,10 +11,10 @@ the `net-lobby` smoke (`docs/MENUS.md`); this is the version with real people, r
   browser greys out another build ("another build"), and the lobby names a player whose map differs.
 - The same converted maps: copy `.content` (or the release's `maps` folder) from PC 1 to PC 2, so the map content
   hashes match. The lobby says "missing map" or "different map version" otherwise.
-- A headset with a microphone on each PC. In Profile Options, Voice: pick the microphone under Device (or leave
+- A headset with a microphone on each PC. In Options, Voice: pick the microphone under Device (or leave
   "System default"), press Test my microphone, speak, and listen to the playback. If it says "Nothing was captured",
   check Windows' privacy settings (Microphone access for desktop apps) and the communications device.
-- Each player sets his own name in Profile Options (Player name), so the lobby can tell them apart.
+- Each player sets his own name in Options (Player name), so the lobby can tell them apart.
 
 ## 2. Network
 

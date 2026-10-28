@@ -77,7 +77,7 @@ public partial class MainMenu : MenuPage
         _accounts.Changed += ShowAccount;
         ShowAccount();
 
-        OptionsButton = UiStyle.MenuButton("Profile Options", () => FrontEnd.ShowOptions(GetTree()), "Options");
+        OptionsButton = UiStyle.MenuButton("Options", () => FrontEnd.ShowOptions(GetTree()), "Options");
         Body.AddChild(OptionsButton);
         _status = new Label
         {

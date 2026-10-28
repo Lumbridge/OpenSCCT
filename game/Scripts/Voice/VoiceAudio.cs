@@ -33,12 +33,22 @@ public partial class VoiceAudio : Node
     /// <summary>Decoded frames kept queued in a talker's generator (40 ms) when the output paces playback.</summary>
     private const int OutputQueueFrames = 2;
 
+    /// <summary>Godot's name for the system's input device.</summary>
+    private const string DefaultInputDevice = "Default";
+
+    /// <summary>
+    /// The capture bus read this process frame, shared by every voice node: each one reading the capture effect itself
+    /// would split the samples between them (the hub's voice chat and the Options meter got a share each).
+    /// </summary>
+    private static float[] s_mono = [];
+    private static int s_monoCount;
+    private static ulong s_monoFrame = ulong.MaxValue;
+
     private readonly Dictionary<ushort, TalkerOutput> _players = new();
     private readonly float[] _frame = new float[VoiceK.FrameSamples];
     private readonly Vector2[] _push = new Vector2[VoiceK.FrameSamples];
-    private float[] _mono = [];
     private AudioEffectCapture? _capture;
-    private AudioStreamPlayer? _microphone;
+    private bool _usingMicrophone;
     private double _clockFrames;
 
     /// <summary>The client whose microphone and talkers this node serves.</summary>
@@ -88,23 +98,26 @@ public partial class VoiceAudio : Node
         Client?.SetCaptureRate(CaptureRate);
     }
 
-    /// <summary>Starts the microphone on the capture bus (needs the project setting audio/driver/enable_input).</summary>
+    /// <summary>
+    /// Starts the microphone on the capture bus (needs the project setting audio/driver/enable_input). Every user shares
+    /// one microphone stream (<see cref="SharedMicrophone"/>): Godot's input start and stop are not counted, so a
+    /// second stream stopping, or a stream stopped and another started in the same frame, silences the input.
+    /// </summary>
     public bool StartMicrophone(string? device = null)
     {
         EnsureBuses();
-        if (!string.IsNullOrEmpty(device))
+        MicrophoneProblem = null;
+        string wanted = string.IsNullOrEmpty(device) ? DefaultInputDevice : device;
+        if (AudioServer.InputDevice != wanted)
         {
-            foreach (string name in AudioServer.GetInputDeviceList())
+            if (Array.IndexOf(AudioServer.GetInputDeviceList(), wanted) >= 0)
             {
-                if (name == device)
-                {
-                    AudioServer.InputDevice = device;
-                }
+                AudioServer.InputDevice = wanted;
             }
-
-            if (AudioServer.InputDevice != device)
+            else
             {
                 MicrophoneProblem = $"'{device}' is not connected - falling back to the system's choice";
+                AudioServer.InputDevice = DefaultInputDevice;
             }
         }
 
@@ -120,17 +133,23 @@ public partial class VoiceAudio : Node
             return false;
         }
 
-        _microphone ??= new AudioStreamPlayer { Name = "VoiceMicrophone", Stream = new AudioStreamMicrophone(), Bus = CaptureBus };
-        if (!_microphone.IsInsideTree())
+        if (!_usingMicrophone)
         {
-            AddChild(_microphone);
+            _usingMicrophone = true;
+            SharedMicrophone.Acquire();
         }
 
-        _microphone.Play();
         return true;
     }
 
-    public void StopMicrophone() => _microphone?.Stop();
+    public void StopMicrophone()
+    {
+        if (_usingMicrophone)
+        {
+            _usingMicrophone = false;
+            SharedMicrophone.Release();
+        }
+    }
 
     /// <summary>Output volume of every voice, 0 to 1 (<c>voice_output_volume</c>).</summary>
     public static void SetVolume(float volume)
@@ -188,25 +207,89 @@ public partial class VoiceAudio : Node
             return;
         }
 
-        int available = _capture.GetFramesAvailable();
-        if (available <= 0)
+        ulong frame = Engine.GetProcessFrames();
+        if (s_monoFrame != frame)
+        {
+            s_monoFrame = frame;
+            s_monoCount = 0;
+            int available = _capture.GetFramesAvailable();
+            if (available > 0)
+            {
+                Vector2[] stereo = _capture.GetBuffer(available);
+                if (s_mono.Length < stereo.Length)
+                {
+                    s_mono = new float[stereo.Length];
+                }
+
+                for (int i = 0; i < stereo.Length; i++)
+                {
+                    s_mono[i] = 0.5f * (stereo[i].X + stereo[i].Y);
+                }
+
+                s_monoCount = stereo.Length;
+            }
+        }
+
+        if (s_monoCount <= 0)
         {
             return;
         }
 
-        Vector2[] stereo = _capture.GetBuffer(available);
-        if (_mono.Length < stereo.Length)
+        CapturedFrames += s_monoCount;
+        client.SubmitCapture(s_mono.AsSpan(0, s_monoCount));
+    }
+
+    /// <summary>
+    /// The one microphone stream on the capture bus, counted by its users. It plays while anyone uses it and stops a
+    /// moment after the last one lets go, so a user handing over to the next (the Options meter to Test my microphone)
+    /// never stops and restarts Godot's input.
+    /// </summary>
+    private sealed partial class SharedMicrophone : AudioStreamPlayer
+    {
+        private const double StopAfterSeconds = 2.0;
+
+        private static SharedMicrophone? s_instance;
+        private static int s_users;
+        private double _idle;
+
+        public static void Acquire()
         {
-            _mono = new float[stereo.Length];
+            s_users++;
+            if ((s_instance is null || !IsInstanceValid(s_instance)) && Engine.GetMainLoop() is SceneTree tree)
+            {
+                s_instance = new SharedMicrophone
+                {
+                    Name = "VoiceMicrophone", Stream = new AudioStreamMicrophone(), Bus = CaptureBus, ProcessMode = ProcessModeEnum.Always,
+                };
+                tree.Root.CallDeferred(Node.MethodName.AddChild, s_instance);
+            }
         }
 
-        for (int i = 0; i < stereo.Length; i++)
+        public static void Release() => s_users = Math.Max(0, s_users - 1);
+
+        public override void _Process(double delta)
         {
-            _mono[i] = 0.5f * (stereo[i].X + stereo[i].Y);
+            if (s_users > 0)
+            {
+                _idle = 0;
+                if (!Playing)
+                {
+                    Play();
+                }
+            }
+            else if (Playing && (_idle += delta) >= StopAfterSeconds)
+            {
+                Stop();
+            }
         }
 
-        CapturedFrames += stereo.Length;
-        client.SubmitCapture(_mono.AsSpan(0, stereo.Length));
+        public override void _ExitTree()
+        {
+            if (s_instance == this)
+            {
+                s_instance = null;
+            }
+        }
     }
 
     private void PumpPlayback(VoiceClient client, double delta)
