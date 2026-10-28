@@ -432,7 +432,8 @@ constants unless one carries its own.
 
 | Rule | Why |
 |---|---|
-| physicsRotation, PendingTouch.PostTouch in performPhysics | not decoded (the script sets Rotation itself) |
+| pawn physicsRotation, PendingTouch.PostTouch in performPhysics | not decoded (the script sets Rotation itself) |
+| actor physicsRotation render gate | ported (`PhysicsDriver.Rotation.cs`, game 0x10a2b130 / 0x10a2bb20 / fixedTurn 0x10a2b210): a non-pawn with a RotationRate turns unless bInterpolating; the original skips a PHYS_Rotating actor not rendered in the last second, which the sim has no time for, so it always turns |
 | FollowParent (12), Flying (16) | not decoded |
 | FindBase (8 uu down), FindSpot search, moveSmooth | not decoded (UE2 lineage) |
 | TwoWallAdjust | assumed standard UE2 (walking open question 2) |

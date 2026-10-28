@@ -215,6 +215,16 @@ public sealed class DeviceNatives : IActorNatives
             }
         }
 
+        // The touch pass of CheckEncroachment: a mover running into a trigger (ClassProximityType Mover) touches it.
+        if (Driver is not null && Actor.bCollideActors)
+        {
+            Driver.EncroachTouches(Actor);
+            if (Actor.bDeleteMe)
+            {
+                return false;
+            }
+        }
+
         MoveRiders(Actor, oldLocation, oldRotation);
         return true;
     }
