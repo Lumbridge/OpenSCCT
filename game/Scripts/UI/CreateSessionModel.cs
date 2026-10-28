@@ -97,7 +97,11 @@ public sealed class CreateSessionModel
     /// <summary>The rows in page order: Map / Mode, then the session rows, then the rules boxes.</summary>
     public static IReadOnlyList<SessionRow> Rows { get; } = Enum.GetValues<SessionRow>();
 
-    /// <summary>The modes the current map offers, as the page lists them: the map's own entries, then Merc Deathmatch.</summary>
+    /// <summary>
+    /// The modes the current map offers, as the page lists them: the map's own entries, then Merc Deathmatch. An
+    /// Extraction, Sabotage or Neutralization entry (no stock map has one; a custom map may) is listed too, which the
+    /// original's box never does (docs/MODES.md).
+    /// </summary>
     public IReadOnlyList<EGameMode> Modes
     {
         get
@@ -107,7 +111,8 @@ public sealed class CreateSessionModel
             {
                 foreach (FGameModeInfo entry in s.Modes)
                 {
-                    if (entry.GameModeId is EGameMode.GM_Multi or EGameMode.GM_DiskHunt or EGameMode.GM_DeathMatch && !modes.Contains(entry.GameModeId))
+                    if (entry.GameModeId is EGameMode.GM_Multi or EGameMode.GM_DiskHunt or EGameMode.GM_DeathMatch or EGameMode.GM_Extraction
+                            or EGameMode.GM_Sabotage or EGameMode.GM_Neutralization && !modes.Contains(entry.GameModeId))
                     {
                         modes.Add(entry.GameModeId);
                     }

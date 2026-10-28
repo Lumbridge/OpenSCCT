@@ -60,6 +60,13 @@ public sealed record ServerSettings
     /// </summary>
     public string? GameOptions { get; init; }
 
+    /// <summary>
+    /// With <see cref="GameOptions"/>: the host's settings object the rules read (<c>SPersistentData</c>: Disk Hunt's
+    /// disk counts), installed as the level's service before the map loads. Null leaves an empty one (the Play Level
+    /// behaviour: every disk in play, all of them to take).
+    /// </summary>
+    public USPersistentData? HostSettings { get; init; }
+
     /// <summary>With <see cref="GameOptions"/>: players that must be in and waiting before a dedicated server starts the match.</summary>
     public int PlayersToStart { get; init; } = 2;
 
@@ -169,6 +176,11 @@ public sealed class ServerHost : INetworkNotify, IDisposable
         World.Level.SetService<OpenScct.Game.Devices.IDeviceNet>(new NetDeviceBridge(Driver));
         Movement = NetMovementBridge.Install(World.Level, Driver);
         Chat = new ChatRelay(() => _players);
+
+        if (Settings.HostSettings is { } hostSettings)
+        {
+            World.Level.SetService(hostSettings);
+        }
 
         // The engine spawns the game info after the map's actors and before the begin-play passes.
         string? options = Settings.GameOptions;

@@ -572,5 +572,10 @@ void fragment() {
 #endif
 #if defined(BLEND_MASKED)
 	ALPHA_SCISSOR_THRESHOLD = 0.5;
+#if defined(ALPHA_COVERAGE)
+	// MSAA on (rl:gfx.aa): alpha to coverage over a band about a texel wide around the cut, as Godot's own materials.
+	ALPHA_ANTIALIASING_EDGE = 0.3;
+	ALPHA_TEXTURE_COORDINATE = uv * vec2(textureSize(tex_diffuse, 0));
+#endif
 #endif
 }
