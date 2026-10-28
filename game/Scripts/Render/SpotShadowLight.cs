@@ -244,14 +244,20 @@ public sealed partial class SpotShadowLight : IDisposable
         }
     }
 
-    /// <summary>The light colour of the 2x stage: FGetHSV(hue, saturation) x brightness / 255.</summary>
+    /// <summary>
+    /// The light colour of the 2x stage: FGetHSV(hue, saturation) x brightness / 255, each channel capped at
+    /// <see cref="RenderK.SpotShadowColourCap"/>. Without the cap AquaD's sun shafts (brightness 500 to 650) added three
+    /// to four times the light and clipped the temple floor to white.
+    /// </summary>
     [Provenance(ProvenanceKind.Decoded, "FGetHSV, editor 0x11096ab0 (as actor lighting)")]
     public static Vector3 Colour(SpotShadowShape shape)
     {
         ArgumentNullException.ThrowIfNull(shape);
         var entry = new LightEntry("spot", default, default, shape.Brightness, shape.Hue, shape.Saturation, 0f, 0, RenderK.LE_ESpotShadow,
             1, true, false, true, true, null, 32f, 0f, false);
-        return ActorLighting.Colour(entry);
+        Vector3 c = ActorLighting.Colour(entry);
+        float cap = RenderK.SpotShadowColourCap;
+        return new Vector3(MathF.Min(c.X, cap), MathF.Min(c.Y, cap), MathF.Min(c.Z, cap));
     }
 
     /// <summary>Moves the light to a UE location and rotation (its axis is the rotation's forward); the camera sits at the apex.</summary>

@@ -305,7 +305,9 @@ Cookies share a texture array (`svm_spot_cookies`, each resampled to 256 x 256; 
   0.0025, brightness 304, hue 21, saturation 255 (white), cookie `Echelon.flashlight` (Echelon.Torche's
   ProjectedLightingTexture), linear attenuation (`Engine.linear_attenuation`), normal influence 0.
 - The 2x gain is estimated (the Echelon light pass is not decoded); colour is FGetHSV x brightness / 255 as for
-  other lights. `Place(location, rotation)` moves it; views put the torch on the merc's `Laser` bone (NativeTickTorche is not decoded; the UE5 client found
+  other lights, each channel capped at 1 (`RenderK.SpotShadowColourCap`, estimated: colours reaching the
+  fixed-function or ps_1_x stages are clamped, and the bridge measured RiveD's brightness-3000 spot lifting the
+  game's luma only from 20 to 35). Uncapped, AquaD's sun shafts (500 to 650) clipped the Greek Temple floor to white. `Place(location, rotation)` moves it; views put the torch on the merc's `Laser` bone (NativeTickTorche is not decoded; the UE5 client found
   that bone). `On` follows LightType.
 - Shadow settings (rl:gfx.shadows): `shadow_quality` sets the map height of the spot shadow lights,
   256 x the quality as a power of two from 128 to 2048 (`SpotShadowLight.MapSizeFor`: 2 is the old fixed 512, the
