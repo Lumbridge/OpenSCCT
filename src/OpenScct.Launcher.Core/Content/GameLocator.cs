@@ -65,17 +65,14 @@ public static partial class GameLocator
         return null;
     }
 
+    /// <summary>The Versus folder of the Steam copy (app 13570) in any Steam library, or null.</summary>
+    public static string? FindSteam() => SteamCandidates().Select(Normalize).FirstOrDefault(p => p is not null);
+
     private static IEnumerable<string> Candidates()
     {
-        foreach (string library in SteamLibraries())
+        foreach (string steam in SteamCandidates())
         {
-            string steamapps = Path.Combine(library, "steamapps");
-            string manifest = Path.Combine(steamapps, $"appmanifest_{SteamAppId}.acf");
-            string? installDir = File.Exists(manifest) ? VdfValue(SafeRead(manifest), "installdir") : null;
-            if (installDir is not null)
-            {
-                yield return Path.Combine(steamapps, "common", installDir);
-            }
+            yield return steam;
         }
 
         string[] roots = [
@@ -86,6 +83,21 @@ public static partial class GameLocator
         {
             yield return Path.Combine(root, "Ubisoft", "Tom Clancy's Splinter Cell Chaos Theory");
             yield return Path.Combine(root, "Steam", "steamapps", "common", "Splinter Cell Chaos Theory");
+        }
+    }
+
+    /// <summary>The install folder of app 13570 in each Steam library that has its manifest.</summary>
+    private static IEnumerable<string> SteamCandidates()
+    {
+        foreach (string library in SteamLibraries())
+        {
+            string steamapps = Path.Combine(library, "steamapps");
+            string manifest = Path.Combine(steamapps, $"appmanifest_{SteamAppId}.acf");
+            string? installDir = File.Exists(manifest) ? VdfValue(SafeRead(manifest), "installdir") : null;
+            if (installDir is not null)
+            {
+                yield return Path.Combine(steamapps, "common", installDir);
+            }
         }
     }
 

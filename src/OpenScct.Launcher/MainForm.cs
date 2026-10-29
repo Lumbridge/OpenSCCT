@@ -78,7 +78,11 @@ internal sealed class MainForm : Form
     private Control? _more;
 
     private readonly Button _changeGame = Theme.Button("Change...");
+    private readonly Button _useSteam = Theme.Button("Use Steam copy");
     private readonly Button _useDownloads = Theme.Button("Use downloads");
+
+    /// <summary>The Steam copy's Versus folder, looked for once when the window opens; null when there is none.</summary>
+    private string? _steamGame;
     private readonly Button _rebuild = Theme.Button("Rebuild");
     private readonly StepCard _gameStep;
     private readonly StepCard _installStep;
@@ -117,7 +121,7 @@ internal sealed class MainForm : Form
         string? info = Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
         _launcherVersion = SemVersion.TryParse(info, out SemVersion? v) ? v : null;
 
-        _gameStep = new StepCard(1, "Choose where the game files come from", _changeGame, _useDownloads);
+        _gameStep = new StepCard(1, "Choose where the game files come from", _changeGame, _useSteam, _useDownloads);
         _installStep = new StepCard(2, "Download OpenSCCT");
         _filesStep = new StepCard(3, "Prepare the game files", _rebuild);
 
@@ -236,13 +240,15 @@ internal sealed class MainForm : Form
 
         var tips = new ToolTip();
         tips.SetToolTip(_changeGame, "Pick the folder you installed Splinter Cell Chaos Theory in. Without it the game files are downloaded.");
-        tips.SetToolTip(_useDownloads, "Stop using your game folder: the game files are downloaded instead.");
+        tips.SetToolTip(_useSteam, "Make the game files from your Steam copy of Splinter Cell Chaos Theory.");
+        tips.SetToolTip(_useDownloads,"Stop using your game folder: the game files are downloaded instead.");
         tips.SetToolTip(_rebuild, "Prepare the game files again from your copy, for example if a map looks wrong.");
         tips.SetToolTip(_rollback, "Go back to the version you had before the last update.");
         tips.SetToolTip(_mapsButton, "Download new maps made by the community.");
 
         _main.Click += async (_, _) => await DoNextAsync();
         _changeGame.Click += (_, _) => ChooseGameFolder();
+        _useSteam.Click += (_, _) => UseSteamCopy();
         _useDownloads.Click += (_, _) => UseDownloadedFiles();
         _rebuild.Click += async (_, _) => await RunAsync(BuildContentAsync);
         _whatsNew.Click += (_, _) => ShowWhatsNew();
@@ -282,6 +288,7 @@ internal sealed class MainForm : Form
     {
         base.OnShown(e);
         NormaliseGameFolder();
+        _steamGame = GameLocator.FindSteam();
         _service.TryFinishPending();
         RefreshLocal();
         _pendingTimer.Start();
@@ -330,6 +337,7 @@ internal sealed class MainForm : Form
         RefreshFilesStep(current, busy);
 
         _changeGame.Enabled = !busy;
+        _useSteam.Enabled = !busy;
         _useDownloads.Enabled = !busy;
         _rollback.Enabled = _store.Previous() is not null && !busy;
         _check.Enabled = !busy;
@@ -350,6 +358,9 @@ internal sealed class MainForm : Form
     {
         string game = _settings.OriginalGamePath ?? string.Empty;
         _useDownloads.Visible = game.Length > 0;
+        // Only when Steam has the game and it is not the folder in use already.
+        _useSteam.Visible = _steamGame is not null
+            && !(GameFound && string.Equals(Path.GetFullPath(game), Path.GetFullPath(_steamGame), StringComparison.OrdinalIgnoreCase));
         if (GameFound)
         {
             _gameStep.Set(StepState.Done, "Made from your copy of Splinter Cell Chaos Theory: " + game);
@@ -594,6 +605,26 @@ internal sealed class MainForm : Form
         _settings.OriginalGamePath = versus;
         _settings.Save(_layout.Settings);
         SetStatus(changed ? "Game folder saved." : "That is the folder already in use.", Theme.Accent);
+        RefreshLocal();
+    }
+
+    /// <summary>Uses the Steam copy found when the window opened as the game folder.</summary>
+    private void UseSteamCopy()
+    {
+        if (_work is not null)
+        {
+            return;
+        }
+
+        if (GameLocator.Normalize(_steamGame) is not { } versus)
+        {
+            SetStatus("The Steam copy of Splinter Cell Chaos Theory was not found. Choose its folder instead.", Theme.Warning);
+            return;
+        }
+
+        _settings.OriginalGamePath = versus;
+        _settings.Save(_layout.Settings);
+        SetStatus("Using your Steam copy: " + versus, Theme.Accent);
         RefreshLocal();
     }
 
