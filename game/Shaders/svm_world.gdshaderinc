@@ -668,7 +668,8 @@ void fragment() {
 		float band = fract((uv.x + uv.y) * 0.5 - svm_time * 0.18);
 		float glint = smoothstep(0.0, 0.035, band) * (1.0 - smoothstep(0.035, 0.09, band));
 		vec3 metal = mix(c, refl, mix(0.75, 0.95, svm_sheen_mirror) * svm_sheen);
-		vec3 shine = svm_sheen_tint * (spec * 1.8 + spec2 * 0.5 + rim * 0.6 + glint * 0.5) * shade * svm_sheen;
+		// The moving glint belongs to the full mirror (gold camos) only; lacquer (pyre) stays still.
+		vec3 shine = svm_sheen_tint * (spec * 1.8 + spec2 * 0.5 + rim * 0.6 + glint * 0.5 * svm_sheen_mirror) * shade * svm_sheen;
 		c = min(metal + shine, vec3(1.0));
 	}
 	float a = t.a;

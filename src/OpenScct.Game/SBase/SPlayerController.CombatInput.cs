@@ -273,9 +273,19 @@ public partial class SPlayerController
         }
     }
 
-    /// <summary>The laser key (exec SwitchLaser): only the weapon states toggle the spy laser.</summary>
+    /// <summary>
+    /// The laser key (exec SwitchLaser): only the weapon states toggle the spy laser. A merc's laser key toggles his
+    /// laser sight as the Action 1 key does (GadLaserSwitch, merc-laser.md rule 1a).
+    /// </summary>
+    [Provenance(ProvenanceKind.Estimated, "OpenSCCT addition: the original's SwitchLaser only reaches the spy pistol, so a merc's Laser key did nothing")]
     public void eventSwitchLaser()
     {
+        if (SBPawn is SPAWNDEFENSE)
+        {
+            eventGadLaserSwitch();
+            return;
+        }
+
         if (StateNode is ISwitchLaser s)
         {
             s.SwitchLaser(this);

@@ -37,6 +37,9 @@ def:SBase.SGadTorcheLaser (ItemName localized "Laser"):
    (`merc-flashlight.md` Rule 2). It sets `bNoReticule = true` only if `SBPawn.PadUpGadget` is set and is not the
    laser class, else false; mercs never set `PadUpGadget` (their override does not use it), so for mercs this
    always clears `bNoReticule`. Then `PadUpGadgetSwitch(class SGadTorcheLaser)`.
+1a. **Laser key** (OpenSCCT addition): the key list's "Laser" row (`SwitchLaser`, L in the stock merc layout) only
+   reaches the spy pistol in the original (`SWeaponAttaque(MyWeapon).ServerSwitchLaser`), so a merc pressing it got
+   nothing while his laser sight sat on "Action 1". In the port a merc's `SwitchLaser` runs `GadLaserSwitch` (rule 1).
 2. **PadUpGadgetSwitch(Laser)**: blocking case if scoped (`bBinocularVision`), the Projo interaction is in use, or in
    `s_InteractWithObject`: when the vision mode is 37 or 38, call `Goggle.ResetVisionMode()` and continue to step 3;
    otherwise unload torch and laser and stop. Step 3: if the weapon is not in `s_Reloading`: `Torche.Unload()`,

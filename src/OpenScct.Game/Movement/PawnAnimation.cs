@@ -310,7 +310,7 @@ public sealed class PawnAnimationSource : IPawnAnimationSource
         if (rt.TryGetProperty("rot", out JsonElement rot) && rot.ValueKind == JsonValueKind.Array && rot.GetArrayLength() == n &&
             n > 1)
         {
-            yaw = ReadRootYaw(rot, n);
+            yaw = ReadRootYaw(rot, n, relativeWhenUpright: true);
             for (int k = 0; k < n; k++)
             {
                 yaw[k] = -yaw[k];
@@ -322,15 +322,20 @@ public sealed class PawnAnimationSource : IPawnAnimationSource
 
     /// <summary>
     /// The root keys' turn about the mesh's up axis, in rotator units relative to the first key (unwrapped), from the
-    /// converted quaternions (x, y, z, w).
+    /// converted quaternions (x, y, z, w). With <paramref name="relativeWhenUpright"/>, keys whose first key has its X
+    /// axis upright (a track keyed in a turned basis, such as the merc's AtakStAlTu) are read relative to that first
+    /// key (inverse of the first times the key), whose turn is then about the vertical.
     /// </summary>
     [Provenance(ProvenanceKind.Measured, "golden traversal.spy-ledge-pull-up: the pawn's yaw during LedgStAlUp0 follows the root keys' turn about Z (+1375 at the last key)")]
-    private static float[] ReadRootYaw(JsonElement rot, int frames)
+    [Provenance(ProvenanceKind.Estimated, "Def AtakStAlTu root track: every key is (-0.5, 0.5, -0.5, -0.5) times a turn about local Z; read raw the X axis is upright and the yaw came out 0 or a half turn (the berserk left the merc a half turn round, the camera snapped at the end); read relative to the first key it turns one full turn, as the root bone does and melee rule 27 states")]
+    private static float[] ReadRootYaw(JsonElement rot, int frames, bool relativeWhenUpright = false)
     {
         var yaw = new float[frames];
         float first = 0f;
         float previous = 0f;
         float unwrap = 0f;
+        bool relative = false;
+        float ix = 0f, iy = 0f, iz = 0f, iw = 1f;
         int i = 0;
         foreach (JsonElement q in rot.EnumerateArray())
         {
@@ -338,6 +343,21 @@ public sealed class PawnAnimationSource : IPawnAnimationSource
             float y = q[1].GetSingle();
             float z = q[2].GetSingle();
             float w = q[3].GetSingle();
+            if (i == 0 && relativeWhenUpright)
+            {
+                float fx = 1f - (2f * ((y * y) + (z * z)));
+                float fy = 2f * ((w * z) + (x * y));
+                relative = (fx * fx) + (fy * fy) < UprightAxisSquared;
+                (ix, iy, iz, iw) = (-x, -y, -z, w);
+            }
+
+            if (relative)
+            {
+                // The inverse of the first key times this key (Hamilton product).
+                (x, y, z, w) = ((iw * x) + (ix * w) + (iy * z) - (iz * y), (iw * y) - (ix * z) + (iy * w) + (iz * x),
+                    (iw * z) + (ix * y) - (iy * x) + (iz * w), (iw * w) - (ix * x) - (iy * y) - (iz * z));
+            }
+
             // The yaw of the key's X axis; where that axis stands nearly upright (a pawn lying down) the yaw is not
             // defined and the previous key's is kept.
             float ax = 1f - (2f * ((y * y) + (z * z)));

@@ -64,15 +64,20 @@ public partial class SWeaponDefense
         LocalMessage(TextReloading, MessageTime, K.ReloadMessagePriority);
     }
 
+    /// <summary>
+    /// The end of a reload clip on the action channel: s_Firing or s_Selected. Every channel then goes to the global
+    /// AnimEnd, as in the script: the in-scope reload starts while the scope lowering clip still plays on the snipe
+    /// channel, and only the global AnimEnd blends that channel out.
+    /// </summary>
     private void ReloadEnd(int Channel)
     {
-        if (Channel != ACTIONCHANNEL)
+        if (Channel == ACTIONCHANNEL)
         {
-            return;
+            ViewAnim.SetAlpha(ACTIONCHANNEL, 0f);
+            GotoState(FireHeld ? CNAME_s_Firing : CNAME_s_Selected);
         }
 
-        ViewAnim.SetAlpha(ACTIONCHANNEL, 0f);
-        GotoState(FireHeld ? CNAME_s_Firing : CNAME_s_Selected);
+        AnimEnd(Channel);
     }
 
     /// <summary>s_Selected (auto): the idle weapon with the auto-reload and the holster checks.</summary>
