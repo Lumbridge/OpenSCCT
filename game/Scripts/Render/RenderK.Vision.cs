@@ -215,10 +215,10 @@ public static partial class RenderK
     /// <summary>
     /// Cap of a spot shadow light's brightest colour channel (the colour is scaled down, keeping its hue; FactD's
     /// orange window patches, docs/RENDERING.md#spot-shadow-lights), before <see cref="SpotShadowGain"/>: a colour handed to the
-    /// fixed-function or ps_1_x stages is clamped to [0, 1], so a light far above brightness 310 (0.8213 x Br / 255 = 1)
-    /// lights no more than one at 310. The bridge measured the game against this: RiveD's Light3248 at brightness 3000
-    /// lifts the spawn's luma only from 20 to 35, and its tuned projector cap (brightness 620 at gain 1) is the same
-    /// light term (2) as this cap at gain 2. The merc torch (304) is below it.
+    /// fixed-function or ps_1_x stages is clamped to [0, 1], so a light far above brightness 620 (FDynamicLight's colour
+    /// 0.8213 x Br / 510 = 1, game 0x10a1de70) lights no more than one at 620. The bridge measured the game against
+    /// this: RiveD's Light3248 at brightness 3000 lifts the spawn's luma only from 20 to 35, and its tuned projector cap
+    /// (brightness 620) is this cap. The merc torch (304) is below it.
     /// </summary>
     [Provenance(ProvenanceKind.Estimated, "bridge docs/LIGHTING_BALANCE.md 'Projector brightness cap' (RiveD, MissD survey against the game); the Echelon light pass is not decoded")]
     public const float SpotShadowColourCap = 1f;

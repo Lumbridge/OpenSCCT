@@ -264,14 +264,17 @@ public sealed partial class SpotShadowLight : IDisposable
     }
 
     /// <summary>
-    /// The light colour of the 2x stage: FGetHSV(hue, saturation) x brightness / 255, scaled down so its brightest
-    /// channel is at most <see cref="RenderK.SpotShadowColourCap"/> (the hue is kept). Without the cap AquaD's sun shafts
+    /// The light colour of the 2x stage: the light's FDynamicLight colour, FGetHSV(hue, saturation) x brightness / 510
+    /// (FDynamicLight::Update, game 0x10a1de70), scaled down so its brightest channel is at most
+    /// <see cref="RenderK.SpotShadowColourCap"/> (the hue is kept). Taken as brightness / 255 before, the lights below the
+    /// cap (the tutorials' brightness 150 to 200 spots, TermD's, the merc torch) drew twice as bright as the original
+    /// (TSP21 spy-0 luma 1.43, MuseD merc-0 1.28). Without the cap AquaD's sun shafts
     /// (brightness 500 to 650) added three to four times the light and clipped the temple floor to white. A cap per
     /// channel turned FactD's orange window patches (hue 14 to 21, brightness 400 to 1200) white; keeping the hue
     /// matched the original's colours better on all of FactD's spy views (mean RGB error 6.5 to 5.6 on spy-0,
     /// 1.26 to 1.07 on spy-180).
     /// </summary>
-    [Provenance(ProvenanceKind.Decoded, "FGetHSV, editor 0x11096ab0 (as actor lighting); the cap is ActorLightRules.SpotShadowColour, shared with the bots")]
+    [Provenance(ProvenanceKind.Decoded, "FGetHSV, editor 0x11096ab0; Color = HSV x brightness / 510, game 0x10a1de70; the cap is ActorLightRules.SpotShadowColour, shared with the bots")]
     public static Vector3 Colour(SpotShadowShape shape)
     {
         ArgumentNullException.ThrowIfNull(shape);

@@ -84,6 +84,14 @@ public static class ActorLightRules
     [Provenance(ProvenanceKind.Estimated, "docs/RENDERING.md#spot-shadow-lights: fixed-function colours clamp to [0, 1]; FactD hue match")]
     public const float SpotShadowColourCap = 1f;
 
+    /// <summary>
+    /// FDynamicLight's colour scale: FDynamicLight::Update (game 0x10a1de70, also run by the LE_ESpotShadow light's
+    /// FDynamicLight made at 0x10992980) sets Color = FGetHSV x LightBrightness x 0.0019607844 (1 / 510) x the light
+    /// type x LevelInfo.Brightness, half the brightness / 255 of the other light paths here.
+    /// </summary>
+    [Provenance(ProvenanceKind.Decoded, "FDynamicLight::Update, game 0x10a1de70: Color = HSV x LightBrightness / 510")]
+    public const float SpotShadowColourScale = 0.5f;
+
     /// <summary>NearPlaneRatio from which a spot shadow light's rays are parallel (an orthographic box).</summary>
     [Provenance(ProvenanceKind.Estimated, "FactD's Light17985 has 1.0; p / (1 - p) diverges")]
     public const float SpotParallelRatio = 0.999f;
@@ -317,13 +325,14 @@ public static class ActorLightRules
     // ---- spot shadow lights ----------------------------------------------------------------------------------
 
     /// <summary>
-    /// A spot shadow light's colour before the gain: FGetHSV(hue, saturation) x brightness / 255, scaled down so its
-    /// brightest channel is at most <see cref="SpotShadowColourCap"/> (the hue is kept).
+    /// A spot shadow light's colour before the gain: its FDynamicLight colour, FGetHSV(hue, saturation) x brightness / 510
+    /// (<see cref="SpotShadowColourScale"/>), scaled down so its brightest channel is at most
+    /// <see cref="SpotShadowColourCap"/> (the hue is kept).
     /// </summary>
-    [Provenance(ProvenanceKind.Estimated, "docs/RENDERING.md#spot-shadow-lights: hue-keeping cap (FactD window patches)")]
+    [Provenance(ProvenanceKind.Estimated, "colour decoded (game 0x10a1de70, / 510); the hue-keeping cap is docs/RENDERING.md#spot-shadow-lights (FactD window patches)")]
     public static LightRgb SpotShadowColour(byte hue, byte saturation, float brightness)
     {
-        LightRgb c = Colour(hue, saturation, brightness);
+        LightRgb c = Colour(hue, saturation, brightness) * SpotShadowColourScale;
         float top = c.Max;
         return top > SpotShadowColourCap ? c * (SpotShadowColourCap / top) : c;
     }
