@@ -34,6 +34,9 @@ public sealed class HudOptions
     /// <summary>Reloaded's classic_crosshair: the merc reticle at the original off-centre spot (rl:qol.crosshair).</summary>
     public bool ClassicCrosshair { get; set; }
 
+    /// <summary>The merc's custom crosshair; while it is off the original reticle draws.</summary>
+    public OpenScctGame.Options.CrosshairSettings Crosshair { get; set; } = new();
+
     /// <summary>
     /// Reloaded's scoreboard_split_team_size (1 to 4): once the bigger team has this many players, the connected
     /// players list shows a column per team; 0 never splits.

@@ -136,6 +136,7 @@ public partial class OptionsMenu : Control
         _tabs.AddChild(AudioPage());
         _tabs.AddChild(VoicePage());
         _tabs.AddChild(HudPage());
+        _tabs.AddChild(CrosshairPage());
         column.AddChild(_tabs);
 
         _note = new Label { Name = "Note", Modulate = UiStyle.Dim, Text = _edit.LoadNote, AutowrapMode = TextServer.AutowrapMode.WordSmart };

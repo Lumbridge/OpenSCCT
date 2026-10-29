@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using Godot;
 using OpenScct.Provenance;
@@ -61,6 +62,8 @@ public sealed class MercHudPage : HudPage
     private int _shutDowns;
     private int _flashes;
     private bool _alert;
+    private float _spreadUnits;
+    private WhiteRegion? _white;
 
     public MercHudPage(HudAssets assets, HudOptions? options = null)
         : base(assets, PageName, options)
@@ -404,7 +407,8 @@ public sealed class MercHudPage : HudPage
             _ => ReticleArea,
         };
         MagmaNode? area = inner?.FindArea(name);
-        if (area is { Visible: false })
+        bool custom = Options.Crosshair.Custom;
+        if (area is { Visible: false } && !custom)
         {
             area.SetVisible(true);
         }
@@ -415,7 +419,7 @@ public sealed class MercHudPage : HudPage
             // The weapon reticles the init hid stay hidden when the instance's children follow it.
             foreach (MagmaNode r in inner?.Children ?? [])
             {
-                r.SetVisible(ReferenceEquals(r, area));
+                r.SetVisible(ReferenceEquals(r, area) && !custom);
             }
 
             DriveArrowsHidden(reticule);
@@ -425,6 +429,12 @@ public sealed class MercHudPage : HudPage
         {
             area.SetFrame(Math.Max(0, s.ReticleFrame));
             area.Playing = false;
+            _spreadUnits = SpreadUnits(area);
+            // The custom crosshair replaces the weapon reticle's lines; the sound arrows around them stay.
+            if (custom && area.Visible)
+            {
+                area.SetVisible(false);
+            }
         }
 
         if (inner is not null)
@@ -447,6 +457,65 @@ public sealed class MercHudPage : HudPage
     [PortOf("rl:qol.crosshair", Spec = "spec/hud/merc-reticle.md#rules")]
     public static Vector2 ReticlePosition(bool classic) =>
         (classic ? HudK.ReticleClassicSpot : HudK.ReticleCentredSpot) + HudK.ReticleDrawCalibration;
+
+    /// <summary>
+    /// How far the weapon reticle's lines have moved out from frame 0 at its current frame, in page units: the
+    /// original's own spread, so a dynamic custom crosshair opens as much as the original reticle would.
+    /// </summary>
+    private static float SpreadUnits(MagmaNode area)
+    {
+        float most = 0f;
+        float frame = area.FrameF;
+        foreach (MagmaWidget w in area.Area.Widgets)
+        {
+            if (MagmaEval.Evaluate(w, 0f, out MagmaKey k0) && MagmaEval.Evaluate(w, frame, out MagmaKey k1))
+            {
+                Vector2 c0 = k0.Pos + new Vector2((k0.Rect.L + k0.Rect.R) / 2f, (k0.Rect.T + k0.Rect.B) / 2f);
+                Vector2 c1 = k1.Pos + new Vector2((k1.Rect.L + k1.Rect.R) / 2f, (k1.Rect.T + k1.Rect.B) / 2f);
+                most = Math.Max(most, (c1 - c0).Length());
+            }
+        }
+
+        return most;
+    }
+
+    /// <summary>
+    /// The custom crosshair (<see cref="HudOptions.Crosshair"/>), over the page where the reticle's centre dot is,
+    /// or on the aim point with follow recoil on; red after a hit like the original.
+    /// </summary>
+    protected override void DrawCanvas(Vector2 screen, HudSnapshot s)
+    {
+        OpenScctGame.Options.CrosshairSettings c = Options.Crosshair;
+        if (!c.Custom || !s.HasPawn || !s.ShowReticle || Area("Reticule") is not { Visible: true })
+        {
+            return;
+        }
+
+        _white ??= WhiteRegion.Find(Assets);
+        if (_white is not { } white)
+        {
+            return;
+        }
+
+        Vector2 spot = HudK.ReticleCentre + (Options.ClassicCrosshair ? HudK.ReticleClassicSpot - HudK.ReticleCentredSpot : Vector2.Zero);
+        Vector2 page = c.FollowRecoil ? AimPoint(s) : spot;
+        Vector2 centre = Renderer.ToScreen(page, Renderer.StretchAll ? MagmaAnchor.Stretch : MagmaAnchor.Center);
+        List<CrosshairQuad> quads = CrosshairShape.Build(c, centre, screen.Y, _spreadUnits * Renderer.S, s.ReticleHit);
+        for (int i = 0; i < quads.Count; i++)
+        {
+            CrosshairQuad q = quads[i];
+            DrawList.Items.Add(new MagmaDrawItem
+            {
+                Path = "Extras/Crosshair/" + i.ToString(CultureInfo.InvariantCulture),
+                Kind = MagmaWidgetKind.Image,
+                Package = white.Package,
+                Texture = white.Texture,
+                Points = [q.A, q.B, q.C, q.D],
+                Uvs = [white.Uv, white.Uv, white.Uv, white.Uv],
+                Colors = [q.Colour, q.Colour, q.Colour, q.Colour],
+            });
+        }
+    }
 
     /// <summary>
     /// The aim point in page units: SHud.SpotReticule (640 x 480 canvas units, stretched over the screen) brought to

@@ -701,6 +701,10 @@ public sealed class GameSettings
     [Provenance(ProvenanceKind.Decoded, "spec/reloaded/FEATURES.md rl:qol.crosshair classic_crosshair = false; Reloaded.Core 0x100a9140 / 0x100a9160")]
     public bool ClassicCrosshair { get; set; }
 
+    /// <summary>The merc's CS2-style custom crosshair (off: the original reticle).</summary>
+    [JsonPropertyName("crosshair")]
+    public CrosshairSettings Crosshair { get; set; } = new();
+
     /// <summary>Profile bInFeet: the HUD's distances in feet instead of metres.</summary>
     [JsonPropertyName("hud_feet")]
     [Provenance(ProvenanceKind.Decoded, "SPlayerProfile bInFeet (no default: false, metres)")]
@@ -780,6 +784,8 @@ public sealed class GameSettings
         Loadout ??= new LoadoutSettings();
         CosmeticsSpy ??= [];
         CosmeticsMerc ??= [];
+        Crosshair ??= new CrosshairSettings();
+        Crosshair.Clamp();
         Loadout.Clamp();
         SpyKbm.Clamp();
         MercKbm.Clamp();

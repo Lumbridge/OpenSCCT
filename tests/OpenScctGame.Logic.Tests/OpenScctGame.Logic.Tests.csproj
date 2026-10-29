@@ -9,6 +9,7 @@
   -->
   <ItemGroup>
     <Compile Include="..\..\game\Scripts\Options\GameSettings.cs" Link="Linked\GameSettings.cs" />
+    <Compile Include="..\..\game\Scripts\Options\CrosshairSettings.cs" Link="Linked\CrosshairSettings.cs" />
     <Compile Include="..\..\game\Scripts\Options\DisplayFrameCap.cs" Link="Linked\DisplayFrameCap.cs" />
     <Compile Include="..\..\game\Scripts\Options\ViewFov.cs" Link="Linked\ViewFov.cs" />
     <Compile Include="..\..\game\Scripts\Options\UserDataMigration.cs" Link="Linked\UserDataMigration.cs" />
