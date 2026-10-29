@@ -131,7 +131,7 @@ public sealed class ServerBots : IDisposable
         NavGraph spyNav = Nav.Get(Host.Map, spy: true, mask);
         NavGraph mercNav = Nav.Get(Host.Map, spy: false, mask);
         MapCatalog maps = Settings.Maps ?? MapCatalog.CreateDefault();
-        AiLightField light = AiMapLight.Load(maps.FindFolder(Host.Map.Name), physics.Collision);
+        AiLightField light = AiMapLight.Load(maps.FindFolder(Host.Map.Name), physics.Collision, Host.Map.Loaded);
         spyNav.ApplyLight(light);
         mercNav.ApplyLight(light);
         World = new AiWorld(Host.World.Level, physics.Collision, spyNav, mercNav, light);

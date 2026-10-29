@@ -32,7 +32,7 @@ OpenSCCT.exe -- --svm-play=SteeE --side=spy --bots=3 --difficulty=normal   # a 2
 | `src/OpenScct.Game/AI/AiController.cs` | one bot: perception, memory, the side's brain, turn-rate limited view, stance key |
 | `src/OpenScct.Game/AI/AiInput.cs` | a tick of input (bytes, view, aim, two commands) and `AiViewport` |
 | `src/OpenScct.Game/AI/AiWorld.cs` | per level: graphs, light field, noise board, team boards, HUD message tap, smoke and torch lists |
-| `src/OpenScct.Game/AI/AiLightField.cs` | the pawn lighting rule (zone ambient + four strongest lights) and the torch spot |
+| `src/OpenScct.Game/AI/AiLightField.cs` | the pawn light level by the renderer's rules (`Lighting/ActorLightRules.cs`): zone ambient, four strongest lights, spot shadow lights and torches, trigger light switches |
 | `src/OpenScct.Game/AI/AiPerception.cs` | `AiSight`, `AiNoiseBoard` (MakeNoise hearing and sounds), `AiMemory` |
 | `src/OpenScct.Game/AI/NavBuilder.cs`, `NavGraph.cs`, `NavFollower.cs` | navigation from collision and GEs, A*, following with keys |
 | `src/OpenScct.Game/AI/AiBrain.cs`, `SpyAi.cs`, `MercAi.cs` | utility choice and the two sides' goals |
@@ -74,14 +74,39 @@ that fills in `SpotSeconds / strength`; at 1 the contact is confirmed and its po
 
 ### Light (`AiLightField`)
 
-The rule the renderer lights pawns with (docs/RENDERING.md, "Actor lighting"), Godot-free: the zone ambient plus the
-four strongest lights (`bApplyToInGameLighting`, on, not ESpotShadow; own-zone lights only in their zone), ranked by
-`brightness x (1 - d^2 / (R + r)^2)` with suns first and spots outside their cone at 0, each adding
-`k C S(d / R) max(0, N.L)` (k 2, suns 1.75; C the FGetHSV colour; R = 25 (LightRadius + 1); S the smoothstep), capped
-at 2; the level is the luminance. N faces the observer, so a spy lit from behind stays dark to a merc in front. A
-merc torch that is on adds `colour x 2 x (1 - d / 1500)` inside its 400 x 400 spot at 1500 uu when the line from the
-torch is open (the spot shadow light; the 2x gain is estimated as in the renderer). The lights come from the map's
-`render/lighting.json`; a server with only the sim part reads every point as 0.6 (`AiLightField.Unknown`).
+The rules the renderer lights pawns with, Godot-free in `OpenScct.Game.Lighting.ActorLightRules`, which the renderer's
+`ActorLighting`, `SpotShadowLight` and `WorldLights` call too (docs/RENDERING.md, "Actor lighting", "Dynamic lights",
+"Spot shadow lights"). A pawn's term is `min(2, min(2, A + four lights) + spot shadow lights)`, the level its
+luminance:
+
+- **A**: the zone ambient of the pawn's zone (m_RefAmbientColor / 255, each channel at most 1; pawns take no
+  AmbientGlow). The 2x `ZoneAmbientVertexGain` is for baked static meshes, not actors.
+- **Four lights**: the lights kept for run time, `bApplyToInGameLighting` or `bDynamicLight`, with a light type, not
+  ESpotShadow (until now the bots took only the in-game ones); own-zone lights only in their zone; ranked by
+  `brightness x (1 - d^2 / (R + r)^2)`, suns first, spots outside their cone at 0; each adds
+  `k C S(d / R) max(0, N.L)` (k 2, suns 1.75; C the FGetHSV colour; R = 25 (LightRadius + 1); S the smoothstep; the
+  spot ramp from phi to theta = 0.05 phi), LE_QuadraticNonIncidence with `1 / (8 d^2 / R^2)`, LE_PointAmbient also
+  its attenuated colour whatever the normal. The light type scales the colour at the level's time (pulse, subtle
+  pulse, blink; flicker at its mean 0.375, strobe on).
+- **Spot shadow lights**: every map LE_ESpotShadow light with brightness above 0 (window and sun projectors,
+  searchlight patches) and every other merc torch that is on: `2 C' x attenuation x mix(1, N.L, influence)` inside
+  the decoded frustum (apex `p x Range / (1 - p)` behind the light, +-SpotWidth x +-SpotHeight at the range: the torch
+  lights 800 x 800 uu at 1500 uu, where the bots read 400 x 400 before), C' the colour scaled so its brightest channel
+  is at most 1, the attenuation the linear or late ramp over the depth past the light, and only where the line from
+  the light (the torch: the merc's eye) to the pawn is open. Own-zone limits do not apply to actors (as on screen).
+  The cookie is taken as 1 (its texture is not on the server).
+- **Switches**: every STriggerLight of the map switches the lights of its name (its actor id), as the client's
+  `DeviceViews` does; the field follows them each tick (`AiWorld.BeginTick`).
+
+N faces the observer, so a spy lit from behind stays dark to a merc in front. Route costs and hiding spots
+(`LevelAround`) count every light as facing and take animated lights at their mean. The lights come from the map's
+`render/lighting.json`; a server with only the sim part reads every point as 0.6 (`AiLightField.Unknown`), plus the
+torches.
+
+The original has no light meter for its AI to copy: Versus has no bots, `SCamera.CheckPresence` (game 0x10ab5df0)
+detects by cone, range and an open line with no light test, and `Pawn.Visibility` / `bLightingVisibility` are only
+read by `MakeNoise` (Visibility below 2 scales loudness by 0.3); no decoded native sets them from the lighting. The screen
+is the only judge of how lit a spy is, so the bots read the screen's rules.
 
 ### Hearing (`AiNoiseBoard`)
 
@@ -293,7 +318,11 @@ tracking, and the harder mercs kill more. The reports are in `local/test-results
   taken as open, map events that open routes are not followed (map-specific, later).
 - **Pipes**: the movement port's pipe hold compares NewZipP with ZipP, which a plain grab does not set (see the
   traversal tests); a pipe link that fails is left out for a minute.
-- **Torch placement** in the light rule is the merc's eye along its view (NativeTickTorche is not decoded).
+- **Torch placement** in the light rule is the merc's eye along its view (NativeTickTorche is not decoded; the
+  renderer puts it on the `Laser` bone).
+- **Light the bots do not see**: lights spawned by effects on clients (muzzle flashes, SFlashLight, flares, spy
+  shock bullets: `EffectViews`), map lights riding movers or bones (`MoveLight`), spot shadow cookies (taken as 1)
+  and glass: a shadow line through a window mesh with collision cuts the projector's patch that the screen draws.
 - **HUD noise markers** (`ClientNotifyNoise`) are not read by the bots; the sounds behind them are.
 - **A drop attack on a pawn hanging from a ledge** (fixed): `s_FallDropAttacked` plays SA_FALL_INERTE (106), whose
   falling physics and clip are the combat port's case; the walking-side fall group caught the action first, so the

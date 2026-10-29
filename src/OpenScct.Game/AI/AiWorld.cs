@@ -93,6 +93,8 @@ public sealed class AiWorld
             }
         }
 
+        Light.Time = Level.TimeSeconds;
+        Light.FollowSwitches();
         _torches.Clear();
         foreach (SPAWNDEFENSE m in Level.DynamicActors<SPAWNDEFENSE>())
         {
@@ -164,27 +166,27 @@ public sealed class AiWorld
 
     // ---- light ------------------------------------------------------------------------------------------------
 
+    private readonly List<(FVector Location, FRotator Aim, bool Clear)> _torchPoses = [];
+
     /// <summary>
-    /// The light level on <paramref name="target"/> as seen from <paramref name="eye"/>: the map's lights by the actor
-    /// lighting rule, plus every merc torch that is on and has an open line to it.
+    /// The light level on <paramref name="target"/> as seen from <paramref name="eye"/>, as the screen lights it: the
+    /// map's lights and spot shadow lights by the actor lighting rules (<see cref="AiLightField"/>), plus every other
+    /// merc torch that is on (a spot shadow light, its line open), all under the same saturation.
     /// </summary>
     public float LightOn(Pawn target, FVector eye)
     {
         ArgumentNullException.ThrowIfNull(target);
-        float level = Light.LevelAt(target.Location, target.CollisionRadius + target.CollisionHeight * 0.5f, eye);
+        _torchPoses.Clear();
         foreach (SPAWNDEFENSE m in _torches)
         {
-            if (ReferenceEquals(m, target))
+            if (!ReferenceEquals(m, target))
             {
-                continue;
+                FVector torch = AiSight.Eye(m);
+                _torchPoses.Add((torch, m.Controller?.Rotation ?? m.Rotation, LineOpen(torch, target.Location)));
             }
-
-            FVector torch = AiSight.Eye(m);
-            FRotator aim = m.Controller?.Rotation ?? m.Rotation;
-            level += AiLightField.TorchLevel(torch, aim, target.Location, LineOpen(torch, target.Location));
         }
 
-        return level;
+        return Light.LevelAt(target.Location, target.CollisionRadius + target.CollisionHeight * 0.5f, eye, _torchPoses);
     }
 
     /// <summary>The light around a floor point (for hiding spots); the unknown level without light data.</summary>

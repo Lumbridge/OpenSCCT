@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Godot;
 using OpenScct.Core;
+using OpenScct.Game.Lighting;
 using OpenScct.Provenance;
 using OpenScctGame.Render.Data;
 
@@ -236,28 +237,11 @@ public sealed class WorldLights
     public static float Modulation(LightEntry l, float time)
     {
         ArgumentNullException.ThrowIfNull(l);
-        switch (l.LightType)
-        {
-            case 2:
-                return 0.6f + (0.39f * MathF.Sin(PulseAngle(l, time)));
-            case 3:
-                double index = (time * 2293760.0 / ((int)l.Period + 1)) + ((int)l.Phase << 8);
-                return ((long)index & 1) != 0 ? 0f : 1f;
-            case 4:
-                float r = FrameRandom(l, time);
-                return r < 0.5f ? 0f : r;
-            case 5:
-                return StrobeOff(time) ? 0f : 1f;
-            case 7:
-                return 0.9f + (0.09f * MathF.Sin(PulseAngle(l, time)));
-            default:
-                return 1f;
-        }
+        // The curves are ActorLightRules.Modulation (shared with the bots); the flicker's value and the strobe switch
+        // are kept here, per frame.
+        return ActorLightRules.Modulation(l.LightType, l.Period, l.Phase, time,
+            l.LightType == 4 ? FrameRandom(l, time) : 1f, l.LightType == 5 && StrobeOff(time));
     }
-
-    // time x 219.9115 (35 x 2 pi) / max(1, period) + (phase << 8), in double as the x87 code keeps it.
-    private static float PulseAngle(LightEntry l, float time) =>
-        (float)(((time * 219.9115 / Math.Max(1, (int)l.Period)) + ((int)l.Phase << 8)) % (2.0 * Math.PI));
 
     // The shared strobe switch (a static in the original): toggled whenever a new scene time is seen.
     private static float s_strobeTime = float.NaN;

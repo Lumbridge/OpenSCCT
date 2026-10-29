@@ -2,13 +2,15 @@ using System;
 using System.Collections.Generic;
 using Godot;
 using OpenScct.Core;
+using OpenScct.Game.Lighting;
 using OpenScct.Provenance;
 using OpenScctGame.Render.Data;
 
 namespace OpenScctGame.Render;
 
 /// <summary>
-/// The original's lighting of actors (pawns, weapons, runtime props and static meshes without baked colours):
+/// The original's lighting of actors (pawns, weapons, runtime props and static meshes without baked colours), by the
+/// shared <see cref="ActorLightRules"/> (which the bots' light field also reads):
 /// <c>display = texture x min(2, A + sum k C S(d / R) max(0, N.L))</c> over the four strongest lights, with
 /// S(x) = 1 - 3x^2 + 2x^3, k = 2 for point lights and 1.75 for suns, C the light's FGetHSV colour x brightness / 255
 /// and A the zone ambient plus AmbientGlow. The light set is chosen on the CPU and handed to the template as
@@ -34,7 +36,7 @@ public sealed class ActorLighting
             // (as WorldLights), with a light type, and not the runtime ESpotShadow projectors, which have their own
             // path. A light not initially on (STriggerLight.bInitialyOn) starts off. Dynamic lights without the in-game
             // flag were left out until AquaE's kiosk (SGamePlayObject2126, beside STriggerLight303) drew black.
-            if ((l.ApplyInGame || l.Dynamic) && l.LightType != 0 && l.Effect != RenderK.LE_ESpotShadow)
+            if (ActorLightRules.LightsActors(l.ApplyInGame, l.Dynamic, l.LightType, l.Effect))
             {
                 _lights.Add(l);
                 if (!l.InitiallyOn)
@@ -159,71 +161,27 @@ public sealed class ActorLighting
         }
     }
 
-    /// <summary>LightBrightness x (1 - |L - C|^2 / (R + r)^2); spots outside their cone score 0.</summary>
-    [Provenance(ProvenanceKind.Decoded, "actor light cache ranking, editor 0x111a3f60")]
+    /// <summary>LightBrightness x (1 - |L - C|^2 / (R + r)^2); spots outside their cone score 0 (<see cref="ActorLightRules.Score"/>).</summary>
     public static float Score(LightEntry l, FVector center, float radius)
     {
-        if (l.Effect == RenderK.LE_Sunlight)
-        {
-            return float.MaxValue;
-        }
-
-        float r = WorldRadius(l);
-        float d2 = FVector.DistSquared(l.Location, center);
-        float reach = r + radius;
-        float score = l.Brightness * (1f - (d2 / (reach * reach)));
-        if (score <= 0f)
-        {
-            return 0f;
-        }
-
-        if (IsSpot(l))
-        {
-            FVector dir = l.Rotation.Vector();
-            FVector to = center - l.Location;
-            float len = to.Size();
-            if (len > radius)
-            {
-                float cosHalfPhi = MathF.Cos(SpotPhi(l) * 0.5f);
-                float c = (to | dir) / len;
-                // Widen the cone by the actor's angular size so a sphere half in the cone still counts.
-                float slack = MathF.Asin(Math.Clamp(radius / len, 0f, 1f));
-                if (MathF.Acos(Math.Clamp(c, -1f, 1f)) - slack > MathF.Acos(cosHalfPhi))
-                {
-                    return 0f;
-                }
-            }
-        }
-
-        return score;
+        ArgumentNullException.ThrowIfNull(l);
+        return ActorLightRules.Score(l.Effect, l.Location, l.Rotation, l.Brightness, l.Radius, l.Cone, center, radius);
     }
 
     /// <summary>R = 25 x (LightRadius + 1).</summary>
-    public static float WorldRadius(LightEntry l) => RenderK.LightRadiusUnits * (l.Radius + 1f);
+    public static float WorldRadius(LightEntry l) => ActorLightRules.WorldRadius(l.Radius);
 
-    public static bool IsSpot(LightEntry l) => l.Effect is RenderK.LE_StaticSpot or RenderK.LE_Spotlight;
+    public static bool IsSpot(LightEntry l) => ActorLightRules.IsSpot(l.Effect);
 
     /// <summary>Full cone angle in radians: 1.15 acos((1 - LightCone / 256)^2).</summary>
-    public static float SpotPhi(LightEntry l)
-    {
-        float k = 1f - (l.Cone / 256f);
-        return RenderK.SpotPhiScale * MathF.Acos(Math.Clamp(k * k, -1f, 1f));
-    }
+    public static float SpotPhi(LightEntry l) => ActorLightRules.SpotPhi(l.Cone);
 
-    /// <summary>
-    /// FGetHSV(hue, saturation, 255) x brightness / 255: a hue triangle (red to green to blue, 85 steps a ramp) pulled
-    /// toward white by saturation / 255, at the V 255 scale 0.8213.
-    /// </summary>
-    [Provenance(ProvenanceKind.Decoded, "FGetHSV, editor 0x11096ab0; FDynamicLight::Update colour, editor 0x111af860")]
+    /// <summary>FGetHSV(hue, saturation, 255) x brightness / 255 (<see cref="ActorLightRules.Colour"/>).</summary>
     public static Vector3 Colour(LightEntry l)
     {
-        int h = l.Hue;
-        Vector3 hue = h < 86 ? new Vector3((85 - h) / 85f, h / 85f, 0f)
-            : h < 171 ? new Vector3(0f, (170 - h) / 85f, (h - 85) / 85f)
-            : new Vector3((h - 170) / 85f, 0f, (255 - h) / 84f);
-        float s = l.Saturation / 255f;
-        Vector3 c = hue + (s * (Vector3.One - hue));
-        return c * RenderK.HsvFullBrightness * (l.Brightness / 255f);
+        ArgumentNullException.ThrowIfNull(l);
+        LightRgb c = ActorLightRules.Colour(l.Hue, l.Saturation, l.Brightness);
+        return new Vector3(c.R, c.G, c.B);
     }
 
     /// <summary>

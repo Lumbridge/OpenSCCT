@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using Godot;
 using OpenScct.Core;
+using OpenScct.Game.Lighting;
 using OpenScct.Provenance;
 using OpenScctGame.Render.Data;
 
@@ -270,16 +271,12 @@ public sealed partial class SpotShadowLight : IDisposable
     /// matched the original's colours better on all of FactD's spy views (mean RGB error 6.5 to 5.6 on spy-0,
     /// 1.26 to 1.07 on spy-180).
     /// </summary>
-    [Provenance(ProvenanceKind.Decoded, "FGetHSV, editor 0x11096ab0 (as actor lighting)")]
+    [Provenance(ProvenanceKind.Decoded, "FGetHSV, editor 0x11096ab0 (as actor lighting); the cap is ActorLightRules.SpotShadowColour, shared with the bots")]
     public static Vector3 Colour(SpotShadowShape shape)
     {
         ArgumentNullException.ThrowIfNull(shape);
-        var entry = new LightEntry("spot", default, default, shape.Brightness, shape.Hue, shape.Saturation, 0f, 0, RenderK.LE_ESpotShadow,
-            1, true, false, true, true, null, 32f, 0f, false);
-        Vector3 c = ActorLighting.Colour(entry);
-        float cap = RenderK.SpotShadowColourCap;
-        float top = MathF.Max(c.X, MathF.Max(c.Y, c.Z));
-        return top > cap ? c * (cap / top) : c;
+        LightRgb c = ActorLightRules.SpotShadowColour(shape.Hue, shape.Saturation, shape.Brightness);
+        return new Vector3(c.R, c.G, c.B);
     }
 
     /// <summary>Moves the light to a UE location and rotation (its axis is the rotation's forward); the camera sits at the apex.</summary>

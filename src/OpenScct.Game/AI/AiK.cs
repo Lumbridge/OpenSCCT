@@ -1,3 +1,4 @@
+using OpenScct.Game.Lighting;
 using OpenScct.Provenance;
 
 namespace OpenScct.Game.AI;
@@ -8,54 +9,43 @@ namespace OpenScct.Game.AI;
 /// </summary>
 public static class AiK
 {
-    // ---- the pawn lighting rule (docs/RENDERING.md, "Actor lighting"), shared with the renderer ----------------
+    // ---- the pawn lighting rule: OpenScct.Game.Lighting.ActorLightRules, shared with the renderer -------------
 
-    /// <summary>Lights that light one actor (Actor.MaxLights default).</summary>
-    [Provenance(ProvenanceKind.Decoded, "Engine.u Actor.MaxLights default 4")]
-    public const int MaxActorLights = 4;
+    public const int MaxActorLights = ActorLightRules.MaxActorLights;
 
-    /// <summary>Point light gain (the colour carries /510 and the stage modulates 2x).</summary>
-    [Provenance(ProvenanceKind.Decoded, "RenderingModeNormal::SetLight falloff f(d) = 2 S(d/R), editor 0x10f29790")]
-    public const float PointLightGain = 2f;
+    public const float PointLightGain = ActorLightRules.PointLightGain;
 
-    /// <summary>LE_Sunlight gain, unattenuated.</summary>
-    [Provenance(ProvenanceKind.Decoded, "RenderingModeNormal::SetLight sun branch 1.75 x C")]
-    public const float SunLightGain = 1.75f;
+    public const float SunLightGain = ActorLightRules.SunLightGain;
 
-    /// <summary>FGetHSV brightness at V 255.</summary>
-    [Provenance(ProvenanceKind.Decoded, "FGetHSV, editor 0x11096ab0")]
-    public const float HsvFullBrightness = 0.8213f;
+    public const float HsvFullBrightness = ActorLightRules.HsvFullBrightness;
 
-    /// <summary>World light radius in uu per LightRadius unit: R = 25 x (LightRadius + 1).</summary>
-    [Provenance(ProvenanceKind.Decoded, "AActor::WorldLightRadius, editor 0x10f57a20")]
-    public const float LightRadiusUnits = 25f;
+    public const float LightRadiusUnits = ActorLightRules.LightRadiusUnits;
 
-    /// <summary>Spot cone: Phi = 1.15 acos((1 - LightCone / 256)^2).</summary>
-    [Provenance(ProvenanceKind.Decoded, "RenderingModeNormal::SetLight spot branch")]
-    public const float SpotPhiScale = 1.15f;
+    public const float SpotPhiScale = ActorLightRules.SpotPhiScale;
 
-    /// <summary>The display term is capped at 2 (min(2, A + sum)).</summary>
-    [Provenance(ProvenanceKind.Decoded, "docs/RENDERING.md actor lighting: tex x min(2, A + sum)")]
-    public const float LightCap = 2f;
+    public const float LightCap = ActorLightRules.LightCap;
 
-    [Provenance(ProvenanceKind.Decoded, "Engine.u ELightEffect: 19 LE_Sunlight")]
-    public const int LE_Sunlight = 19;
+    public const int LE_Sunlight = ActorLightRules.LE_Sunlight;
 
-    [Provenance(ProvenanceKind.Decoded, "Engine.u ELightEffect: 22 LE_ESpotShadow")]
-    public const int LE_ESpotShadow = 22;
+    public const int LE_ESpotShadow = ActorLightRules.LE_ESpotShadow;
 
-    [Provenance(ProvenanceKind.Decoded, "Engine.u ELightEffect: 8 LE_StaticSpot")]
-    public const int LE_StaticSpot = 8;
+    public const int LE_StaticSpot = ActorLightRules.LE_StaticSpot;
 
-    [Provenance(ProvenanceKind.Decoded, "Engine.u ELightEffect: 12 LE_Spotlight")]
-    public const int LE_Spotlight = 12;
+    public const int LE_Spotlight = ActorLightRules.LE_Spotlight;
 
-    /// <summary>The merc torch's range (EchelonRange) and spot size at that range (SpotWidth and SpotHeight).</summary>
+    /// <summary>
+    /// The merc torch's range (EchelonRange) and spot size at that range (SpotWidth and SpotHeight, half extents: the
+    /// lit patch is 800 x 800 uu at the range, docs/RENDERING.md#spot-shadow-lights).
+    /// </summary>
     [Provenance(ProvenanceKind.Decoded, "spec/equipment/merc-flashlight.md: EchelonRange 1500, SpotWidth / SpotHeight 400")]
     public const float TorchRange = 1500f;
 
     [Provenance(ProvenanceKind.Decoded, "spec/equipment/merc-flashlight.md: SpotWidth 400")]
     public const float TorchSpotSize = 400f;
+
+    /// <summary>The torch's NearPlaneRatio (its apex sits 3.76 uu behind the light).</summary>
+    [Provenance(ProvenanceKind.Decoded, "SBase.SGadTorche defaults NearPlaneRatio 0.0025")]
+    public const float TorchNearPlaneRatio = 0.0025f;
 
     /// <summary>The torch light: brightness 304, hue 21, saturation 255.</summary>
     [Provenance(ProvenanceKind.Decoded, "spec/equipment/merc-flashlight.md: LightBrightness 304, LightHue 21, LightSaturation 255")]
@@ -68,8 +58,7 @@ public static class AiK
     public const byte TorchSaturation = 255;
 
     /// <summary>The spot shadow light's gain (the Echelon light pass is not decoded; the renderer uses 2).</summary>
-    [Provenance(ProvenanceKind.Estimated, "docs/RENDERING.md spot shadow lights: colour x 2 x cookie x linear attenuation")]
-    public const float TorchGain = 2f;
+    public const float TorchGain = ActorLightRules.SpotShadowGain;
 
     /// <summary>Night vision's light boost on lit surfaces: 1.4 x 30 / 255.</summary>
     [Provenance(ProvenanceKind.Measured, "docs/RENDERING.md vision modes: mode 34 boost 1.4 x 30 / 255")]
