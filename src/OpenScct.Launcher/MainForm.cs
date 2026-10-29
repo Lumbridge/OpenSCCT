@@ -79,7 +79,7 @@ internal sealed class MainForm : Form
 
     private readonly Button _changeGame = Theme.Button("Change...");
     private readonly Button _useSteam = Theme.Button("Use Steam copy");
-    private readonly Button _useDownloads = Theme.Button("Use downloads");
+    private readonly Button _useDownloads = Theme.Button("Download instead");
 
     /// <summary>The Steam copy's Versus folder, looked for once when the window opens; null when there is none.</summary>
     private string? _steamGame;
@@ -241,7 +241,7 @@ internal sealed class MainForm : Form
         var tips = new ToolTip();
         tips.SetToolTip(_changeGame, "Pick the folder you installed Splinter Cell Chaos Theory in. Without it the game files are downloaded.");
         tips.SetToolTip(_useSteam, "Make the game files from your Steam copy of Splinter Cell Chaos Theory.");
-        tips.SetToolTip(_useDownloads,"Stop using your game folder: the game files are downloaded instead.");
+        tips.SetToolTip(_useDownloads,"Stop using your copy of the game: the game files are downloaded instead (you do not need your own copy).");
         tips.SetToolTip(_rebuild, "Prepare the game files again from your copy, for example if a map looks wrong.");
         tips.SetToolTip(_rollback, "Go back to the version you had before the last update.");
         tips.SetToolTip(_mapsButton, "Download new maps made by the community.");
