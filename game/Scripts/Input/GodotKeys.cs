@@ -14,6 +14,8 @@ public static class GodotKeys
         ["LeftMouse"] = MouseButton.Left,
         ["RightMouse"] = MouseButton.Right,
         ["MiddleMouse"] = MouseButton.Middle,
+        ["MouseX1"] = MouseButton.Xbutton1,
+        ["MouseX2"] = MouseButton.Xbutton2,
         ["MouseWheelUp"] = MouseButton.WheelUp,
         ["MouseWheelDown"] = MouseButton.WheelDown,
     };
@@ -31,9 +33,14 @@ public static class GodotKeys
             map[d.ToString(System.Globalization.CultureInfo.InvariantCulture)] = Key.Key0 + d;
         }
 
-        for (int f = 1; f <= 12; f++)
+        for (int f = 1; f <= 24; f++)
         {
             map["F" + f.ToString(System.Globalization.CultureInfo.InvariantCulture)] = Key.F1 + (f - 1);
+        }
+
+        for (int d = 0; d <= 9; d++)
+        {
+            map["NumPad" + d.ToString(System.Globalization.CultureInfo.InvariantCulture)] = Key.Kp0 + d;
         }
 
         map["Shift"] = Key.Shift;
@@ -55,6 +62,25 @@ public static class GodotKeys
         map["Left"] = Key.Left;
         map["Right"] = Key.Right;
         map["Tilde"] = Key.Quoteleft;
+        map["CapsLock"] = Key.Capslock;
+        map["Pause"] = Key.Pause;
+        map["NumLock"] = Key.Numlock;
+        map["ScrollLock"] = Key.Scrolllock;
+        map["GreyStar"] = Key.KpMultiply;
+        map["GreyPlus"] = Key.KpAdd;
+        map["GreyMinus"] = Key.KpSubtract;
+        map["GreySlash"] = Key.KpDivide;
+        map["NumPadPeriod"] = Key.KpPeriod;
+        map["Semicolon"] = Key.Semicolon;
+        map["Equals"] = Key.Equal;
+        map["Comma"] = Key.Comma;
+        map["Minus"] = Key.Minus;
+        map["Period"] = Key.Period;
+        map["Slash"] = Key.Slash;
+        map["LeftBracket"] = Key.Bracketleft;
+        map["Backslash"] = Key.Backslash;
+        map["RightBracket"] = Key.Bracketright;
+        map["SingleQuote"] = Key.Apostrophe;
         return map;
     }
 
