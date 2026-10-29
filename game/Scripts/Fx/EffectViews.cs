@@ -5,6 +5,7 @@ using System.Text.Json;
 using Godot;
 using OpenScct.Core;
 using OpenScct.Core.Engine;
+using OpenScct.Core.Uc;
 using OpenScct.Game.SBase;
 using OpenScct.Physics.Collision;
 using OpenScct.Provenance;
@@ -32,6 +33,12 @@ namespace OpenScctGame.Fx;
 public sealed partial class EffectViews : Node3D
 {
     private const int DT_StaticMesh = 8;
+
+    // The effect classes, for the light defaults of a spawned cosmetic emitter.
+    private static readonly UcClassIndex Classes = new(CorePackage.Info, EnginePackage.Info, SBasePackage.Info);
+
+    // A spawned class's defaults when it gives light (bDynamicLight with a light type), else null; by class path.
+    private readonly Dictionary<string, Actor?> _lightDefaults = new(StringComparer.OrdinalIgnoreCase);
 
     private readonly Dictionary<Actor, Tracked> _tracked = new(ReferenceEqualityComparer.Instance);
     private readonly List<Loose> _loose = [];
@@ -285,6 +292,7 @@ public sealed partial class EffectViews : Node3D
         var loose = new Loose(view, ShortName(cls), location, rotation, life > 0f ? life : float.PositiveInfinity, fx.Bool("AutoDestroy"))
         {
             Follow = follow,
+            LightDefaults = LightDefaultsOf(cls),
         };
         _loose.Add(loose);
         if (loose.Class == "SEffectWaterPipe")
@@ -469,6 +477,15 @@ public sealed partial class EffectViews : Node3D
                 {
                     _worldLights.Add(WorldLightOf(a, light.LightEnergy * 255f));
                 }
+            }
+        }
+
+        // Spawned emitters that give light (the Shocker's impact sparks) light the world while they live.
+        foreach (Loose l in _loose)
+        {
+            if (l.LightDefaults is { } d)
+            {
+                _worldLights.Add(SpawnedLightOf(d, l.Location));
             }
         }
 
@@ -766,6 +783,39 @@ public sealed partial class EffectViews : Node3D
     };
 
     /// <summary>
+    /// The defaults of a spawned effect class when they give light (bDynamicLight and a light type other than none), else
+    /// null. The Shocker's SSparkShocker and SSparkShockerMetal are such: a blinking pale blue light where the shot hit.
+    /// </summary>
+    [Provenance(ProvenanceKind.Decoded, "SSparkShocker / SSparkShockerMetal defaults: bDynamicLight, LT_Blink, LightBrightness 150, LightHue 145, LightSaturation 174, LightRadius 1.8 / 5, AutoDestroy")]
+    private Actor? LightDefaultsOf(string cls)
+    {
+        if (!_lightDefaults.TryGetValue(cls, out Actor? a))
+        {
+            a = Classes.Find(cls)?.Create() as Actor;
+            if (a is not { bDynamicLight: true } || a.LightType == ELightType.LT_None)
+            {
+                a = null;
+            }
+
+            _lightDefaults[cls] = a;
+        }
+
+        return a;
+    }
+
+    /// <summary>
+    /// A spawned emitter's own light at <paramref name="at"/>, from its class defaults, with its light type (the sparks'
+    /// LT_Blink switches it on and off as the map's blinking lights do).
+    /// </summary>
+    [Provenance(ProvenanceKind.Estimated, "The world falloff, gain and radius are those of the map's dynamic lights (docs/RENDERING.md#dynamic-lights)")]
+    private LightEntry SpawnedLightOf(Actor d, FVector at) => new(
+        d.GetUcClass().Name, at, default, d.LightBrightness, d.LightHue, d.LightSaturation, d.LightRadius, d.LightCone,
+        (int)d.LightEffect, (int)d.LightType, true, true, true, true, null, d.LightPeriod, d.LightPhase, d.bAffectOwnZoneOnly)
+    {
+        ZoneIndex = Map?.ZoneIndexAt(at) ?? -1,
+    };
+
+    /// <summary>
     /// A static mesh attached to a pawn's bone (the backpack on 'B Spine2'): the drawn bone's frame turned by the
     /// actor's RelativeRotation and moved by its RelativeLocation, then its scale and PrePivot; false when it is not
     /// attached or the bone is not drawn. <paramref name="pawnShown"/> is false while the pawn's view is hidden (the
@@ -899,5 +949,8 @@ public sealed partial class EffectViews : Node3D
         public float Age { get; set; }
 
         public Actor? Follow { get; set; }
+
+        /// <summary>The class defaults whose light this effect gives while it lives (null: no light).</summary>
+        public Actor? LightDefaults { get; init; }
     }
 }
