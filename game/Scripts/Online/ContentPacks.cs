@@ -81,6 +81,16 @@ public static class ContentPacks
             Done ? $"{Title} downloaded" :
             Total > 0 ? string.Create(CultureInfo.InvariantCulture, $"{Step}: {Received / 1048576.0:0.0} / {Total / 1048576.0:0.0} MB") :
             Step;
+
+        /// <summary>Describe() for the job's own row, which already shows the title: "Downloading 12.3 / 31.0 MB".
+        /// A step that fetches a shared pack first keeps that pack's name.</summary>
+        public string DescribeBrief()
+        {
+            string step = Step == $"Downloading {Title}" ? "Downloading" : Step == $"Installing {Title}" ? "Installing" : Step;
+            return Error is not null || Done ? Describe() :
+                Total > 0 ? string.Create(CultureInfo.InvariantCulture, $"{step} {Received / 1048576.0:0.0} / {Total / 1048576.0:0.0} MB") :
+                step;
+        }
     }
 
     public static ContentStore Store

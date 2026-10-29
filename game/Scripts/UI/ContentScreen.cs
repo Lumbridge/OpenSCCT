@@ -112,7 +112,9 @@ public partial class ContentScreen : MenuPage
         {
             if (JobOf(view) is { Running: true } job)
             {
-                view.Status.Text = job.Describe();
+                view.Status.Text = job.DescribeBrief();
+                view.Status.TooltipText = job.Describe();
+                view.Status.MouseFilter = MouseFilterEnum.Pass;
                 view.Bar.Value = (float)job.Fraction;
             }
         }
@@ -337,7 +339,7 @@ public partial class ContentScreen : MenuPage
         ContentPacks.DownloadJob? job = ContentPacks.Job(code);
         var status = new Label
         {
-            Text = StatusText(state, map, pack), CustomMinimumSize = new Vector2(260f, 0f), ClipText = true,
+            Text = StatusText(state, map, pack), CustomMinimumSize = new Vector2(260f, 0f), SizeFlagsHorizontal = SizeFlags.ExpandFill, ClipText = true,
             Modulate = state switch
             {
                 MapState.Downloaded => UiStyle.MenuFocus,
@@ -442,13 +444,19 @@ public partial class ContentScreen : MenuPage
         ContentPacks.DownloadJob? job = ContentPacks.SharedJob(pack.Id);
         var status = new Label
         {
-            CustomMinimumSize = new Vector2(260f, 0f), ClipText = true,
+            CustomMinimumSize = new Vector2(260f, 0f), SizeFlagsHorizontal = SizeFlags.ExpandFill, SizeFlagsStretchRatio = 2f,
+            ClipText = true,
             Text = has ? "Downloaded" + Version(pack.Version)
                 : older ? "Update available" + Version(pack.Version)
-                : own ? "Not needed (your game files have it)"
-                : "Not downloaded (maps download it when needed)",
+                : own ? "Not needed"
+                : "Not downloaded",
             Modulate = has ? UiStyle.MenuFocus : older ? Colors.Orange : UiStyle.Dim,
         };
+        if (!has && !older)
+        {
+            status.TooltipText = own ? "Your converted game files have it." : "Maps download it when they need it.";
+            status.MouseFilter = MouseFilterEnum.Pass;
+        }
         if (job is { Running: false, Error: { } error })
         {
             status.Text = error == "stopped" ? "Stopped" : "Failed: " + error;
