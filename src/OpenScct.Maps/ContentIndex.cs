@@ -46,6 +46,9 @@ public sealed record ContentMap
 
     public string Version { get; init; } = string.Empty;
 
+    /// <summary>Where the pack was converted from (<c>source.kind</c>: install, repo or release), empty when not given.</summary>
+    public string SourceKind { get; init; } = string.Empty;
+
     /// <summary>Mode names (Story, DiskHunt, Deathmatch, MercDeathmatch, ...).</summary>
     public IReadOnlyList<string> Modes { get; init; } = [];
 
@@ -235,6 +238,7 @@ public sealed record ContentIndex
                         Title = Str(m, "title"),
                         Category = Str(m, "category"),
                         Version = Str(m, "version"),
+                        SourceKind = m.TryGetProperty("source", out JsonElement source) ? Str(source, "kind") : string.Empty,
                         Modes = Strings(m, "modes"),
                         ContentHash = Str(m, "contentHash").ToLowerInvariant(),
                         ManifestSha256 = Str(m, "manifestSha256").ToLowerInvariant(),

@@ -36,19 +36,36 @@ public static class PackedContent
 
     /// <summary>
     /// The maps to fetch: with <paramref name="firstDownload"/> every playable stock map not installed as the index
-    /// has it; otherwise only installed maps the index has a newer copy of (a map the player removed stays removed).
+    /// has it, without the retail copies (AQU03, BNK11, ...) of maps the Enhanced SCCT Versus set has under the same
+    /// title (AquaD, BankD, ...), so the menus list each map once; otherwise only installed maps the index has a newer
+    /// copy of (a map the player removed stays removed). A lobby that picks a retail copy still downloads it.
     /// </summary>
     public static IReadOnlyList<ContentMap> MapsToFetch(ContentIndex index, ContentStore store, bool firstDownload)
     {
         ArgumentNullException.ThrowIfNull(index);
         ArgumentNullException.ThrowIfNull(store);
-        return index.PlayableMaps()
+        List<ContentMap> playable = index.PlayableMaps().ToList();
+        if (!firstDownload)
+        {
+            return playable.Where(m => !store.Has(m) && store.InstalledMap(m.Code) is not null).ToList();
+        }
+
+        List<ContentMap> stock = playable.Where(m => string.Equals(m.Category, FirstCategory, StringComparison.Ordinal)).ToList();
+        return stock
+            .Where(m => !IsRetailTwin(m, stock))
             .Where(m => !store.Has(m))
-            .Where(m => firstDownload
-                ? string.Equals(m.Category, FirstCategory, StringComparison.Ordinal)
-                : store.InstalledMap(m.Code) is not null)
             .ToList();
     }
+
+    /// <summary>A stock map converted from a retail install whose title another stock map from the map repository has.</summary>
+    private static bool IsRetailTwin(ContentMap map, IReadOnlyList<ContentMap> stock) =>
+        string.Equals(map.SourceKind, RetailSource, StringComparison.Ordinal) &&
+        stock.Any(o => !ReferenceEquals(o, map) &&
+                       !string.Equals(o.SourceKind, RetailSource, StringComparison.Ordinal) &&
+                       string.Equals(o.DisplayTitle, map.DisplayTitle, StringComparison.OrdinalIgnoreCase));
+
+    /// <summary><c>source.kind</c> of a pack converted from a retail install.</summary>
+    private const string RetailSource = "install";
 
     /// <summary>Bytes the fetch would download.</summary>
     public static long DownloadSize(IEnumerable<ContentSharedPack> shared, IEnumerable<ContentMap> maps) =>
