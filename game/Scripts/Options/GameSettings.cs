@@ -335,7 +335,10 @@ public sealed class GameSettings
     [JsonPropertyName("player_name")]
     public string PlayerName { get; set; } = "Player";
 
-    /// <summary>The profile's MouseSensitivity (4 to 40); the game divides it by 10.</summary>
+    /// <summary>
+    /// The look sensitivity over Reloaded's (4 to 40, decimals allowed): 40 turns exactly as Reloaded does, other
+    /// values scale the turn in proportion (Reloaded itself ignores the profile's value; MouseLook).
+    /// </summary>
     [JsonPropertyName("mouse_sensitivity")]
     [Provenance(ProvenanceKind.Decoded, "DefaultProfile.ini MouseSensitivity=40.0")]
     public float MouseSensitivity { get; set; } = 40f;

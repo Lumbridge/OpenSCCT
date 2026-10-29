@@ -222,8 +222,9 @@ public partial class OptionsMenu : Control
     private Control MousePage()
     {
         GridContainer g = Grid("Mouse");
-        Slider(g, "Mouse sensitivity", "mouse_sensitivity", GameSettings.MinSensitivity, GameSettings.MaxSensitivity, 1, _edit.MouseSensitivity,
-            v => _edit.MouseSensitivity = v, "0");
+        // 40 is Reloaded's speed; the looks below are Reloaded's own settings and scale it per view.
+        Slider(g, "Mouse sensitivity (40 = Reloaded)", "mouse_sensitivity", GameSettings.MinSensitivity, GameSettings.MaxSensitivity, 0.01f,
+            _edit.MouseSensitivity, v => _edit.MouseSensitivity = v, "0.00", typed: true);
         Check(g, "Invert mouse", "invert_y", _edit.InvertY, v => _edit.InvertY = v);
         Check(g, "Invert X axis (spy)", "invert_x_spy", _edit.InvertXSpy, v => _edit.InvertXSpy = v);
         Check(g, "Shocker lock-on snap when drawing (spy)", "shocker_snap", _edit.ShockerSnap, v => _edit.ShockerSnap = v);
@@ -249,24 +250,33 @@ public partial class OptionsMenu : Control
         {
             if (merc)
             {
-                Slider(g, "Mercenary look", key + ".look", 0.1f, 4f, 0.05f, l.Look, v => of().Look = v);
+                Slider(g, "Mercenary look", key + ".look", 0.1f, 4f, SensStep, l.Look, v => of().Look = v, SensFormat, typed: true);
             }
             else
             {
-                Slider(g, "Spy free look (gun holstered)", key + ".free_look", 0.1f, 4f, 0.05f, l.FreeLook, v => of().FreeLook = v);
-                Slider(g, "Spy gun look (gun drawn)", key + ".look", 0.1f, 4f, 0.05f, l.Look, v => of().Look = v);
+                Slider(g, "Spy free look (gun holstered)", key + ".free_look", 0.1f, 4f, SensStep, l.FreeLook, v => of().FreeLook = v, SensFormat, typed: true);
+                Choice(g, "Spy free look response", key + ".look_response", GameSettings.Responses, l.LookResponse, v => of().LookResponse = v);
+                Slider(g, "Spy gun look (gun drawn)", key + ".look", 0.1f, 4f, SensStep, l.Look, v => of().Look = v, SensFormat, typed: true);
             }
         }
 
-        Slider(g, merc ? "Mercenary sniper scope" : "Spy binoculars", key + ".scope", 0.1f, 4f, 0.05f, l.Scope, v => of().Scope = v);
+        Slider(g, merc ? "Mercenary sniper scope" : "Spy binoculars", key + ".scope", 0.1f, 4f, SensStep, l.Scope, v => of().Scope = v, SensFormat,
+            typed: true);
         if (merc)
         {
             // 2.45 turns the scope up and down as fast as sideways; 1 is the stock (legacy) speed.
-            Slider(g, "Mercenary scope vertical (1 = stock)", key + ".scope_vertical", 0.5f, 4f, 0.05f, l.ScopeVertical, v => of().ScopeVertical = v);
+            Slider(g, "Mercenary scope vertical (1 = stock)", key + ".scope_vertical", 0.5f, 4f, SensStep, l.ScopeVertical,
+                v => of().ScopeVertical = v, SensFormat, typed: true);
         }
 
-        Slider(g, side + " vertical", key + ".vertical", 0.1f, 8f, 0.05f, l.Vertical, v => of().Vertical = v);
-        Slider(g, side + (merc ? " camera views" : " sticky camera and Cam Net"), key + ".cam", 0.1f, 4f, 0.05f, l.Cam, v => of().Cam = v);
+        if (skipLooks)
+        {
+            // Reloaded's mouse path ignores the groups' vertical; only the controller's uses it.
+            Slider(g, side + " vertical", key + ".vertical", 0.1f, 8f, SensStep, l.Vertical, v => of().Vertical = v, SensFormat, typed: true);
+        }
+
+        Slider(g, side + (merc ? " camera views" : " sticky camera and Cam Net"), key + ".cam", 0.1f, 4f, SensStep, l.Cam, v => of().Cam = v,
+            SensFormat, typed: true);
         Check(g, side + " clutch", key + ".clutch_one_enabled", l.ClutchOneEnabled, v => of().ClutchOneEnabled = v);
         Slider(g, side + " clutch multiplier", key + ".clutch_one", 0.1f, 4f, 0.05f, l.ClutchOne > 0f ? l.ClutchOne : 1f, v => of().ClutchOne = v);
         if (merc)
@@ -333,11 +343,11 @@ public partial class OptionsMenu : Control
         g.AddChild(UiStyle.MenuButton("Test", () => PadRumble.Play(PadMenus.CurrentDevice(), new RumbleShape(7, 65535, 65535, 0.35f), _edit.Pad.RumbleStrength),
             "RumbleTest"));
         g.AddChild(new Control());
-        Slider(g, "Spy free look", "controls_spy_pad.free_look", 0.1f, 4f, 0.05f, _edit.SpyPad.FreeLook, v => _edit.SpyPad.FreeLook = v);
-        Slider(g, "Spy gun look", "controls_spy_pad.look", 0.1f, 4f, 0.05f, _edit.SpyPad.Look, v => _edit.SpyPad.Look = v);
+        Slider(g, "Spy free look", "controls_spy_pad.free_look", 0.1f, 4f, SensStep, _edit.SpyPad.FreeLook, v => _edit.SpyPad.FreeLook = v, SensFormat, typed: true);
+        Slider(g, "Spy gun look", "controls_spy_pad.look", 0.1f, 4f, SensStep, _edit.SpyPad.Look, v => _edit.SpyPad.Look = v, SensFormat, typed: true);
         Choice(g, "Spy look response", "controls_spy_pad.look_response", GameSettings.Responses, _edit.SpyPad.LookResponse, v => _edit.SpyPad.LookResponse = v);
         LookRows(g, "controls_spy_pad", () => _edit.SpyPad, merc: false, skipLooks: true);
-        Slider(g, "Mercenary look", "controls_merc_pad.look", 0.1f, 4f, 0.05f, _edit.MercPad.Look, v => _edit.MercPad.Look = v);
+        Slider(g, "Mercenary look", "controls_merc_pad.look", 0.1f, 4f, SensStep, _edit.MercPad.Look, v => _edit.MercPad.Look = v, SensFormat, typed: true);
         Choice(g, "Mercenary look response", "controls_merc_pad.look_response", GameSettings.Responses, _edit.MercPad.LookResponse, v => _edit.MercPad.LookResponse = v);
         LookRows(g, "controls_merc_pad", () => _edit.MercPad, merc: true, skipLooks: true);
         Godot.Collections.Array<int> pads = Input.GetConnectedJoypads();
@@ -594,14 +604,47 @@ public partial class OptionsMenu : Control
         }
     }
 
+    /// <summary>The step of the look sensitivities: three decimals, as Reloaded's settings page shows them (%.3f).</summary>
+    private const float SensStep = 0.001f;
+
+    private const string SensFormat = "0.000";
+
+    /// <param name="typed">An editable number box in place of the value label, so an exact value can be typed.</param>
     private void Slider(GridContainer grid, string label, string key, float min, float max, float step, float value, Action<float> changed,
-        string format = "0.00")
+        string format = "0.00", bool typed = false)
     {
         var slider = new HSlider
         {
             Name = Safe(key), MinValue = min, MaxValue = max, Step = step, Value = value,
             CustomMinimumSize = new Vector2(320f, 24f), SizeFlagsHorizontal = SizeFlags.ExpandFill,
         };
+        grid.AddChild(new Label { Text = label, CustomMinimumSize = new Vector2(320f, 0f) });
+        grid.AddChild(slider);
+        _controls[key] = slider;
+        if (typed)
+        {
+            var box = new SpinBox
+            {
+                Name = Safe(key) + "_Value", MinValue = min, MaxValue = max, Step = step, Value = value, Rounded = false,
+                CustomArrowStep = step * 10f, SelectAllOnFocus = true, CustomMinimumSize = new Vector2(110f, 0f),
+            };
+
+            // The two stay in step without echoing: SetValueNoSignal does not raise value_changed.
+            slider.ValueChanged += v =>
+            {
+                box.SetValueNoSignal(v);
+                changed((float)v);
+            };
+            slider.DragEnded += _ => changed((float)slider.Value);
+            box.ValueChanged += v =>
+            {
+                slider.SetValueNoSignal(v);
+                changed((float)v);
+            };
+            grid.AddChild(box);
+            return;
+        }
+
         var shown = new Label { Text = value.ToString(format, CultureInfo.InvariantCulture), CustomMinimumSize = new Vector2(70f, 0f) };
         void Apply(double v)
         {
@@ -612,10 +655,7 @@ public partial class OptionsMenu : Control
         // A click on the track moves the grabber without value_changed (Godot's Slider blocks it on press).
         slider.ValueChanged += Apply;
         slider.DragEnded += _ => Apply(slider.Value);
-        grid.AddChild(new Label { Text = label, CustomMinimumSize = new Vector2(320f, 0f) });
-        grid.AddChild(slider);
         grid.AddChild(shown);
-        _controls[key] = slider;
     }
 
     private void Check(GridContainer grid, string label, string key, bool value, Action<bool> changed)

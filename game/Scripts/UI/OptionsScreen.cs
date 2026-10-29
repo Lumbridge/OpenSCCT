@@ -58,7 +58,7 @@ public partial class OptionsScreen : Control
             Name = "Sensitivity",
             MinValue = UiSettings.MinSensitivity,
             MaxValue = UiSettings.MaxSensitivity,
-            Step = 1,
+            Step = 0.01,
             Value = settings.MouseSensitivity,
             CustomMinimumSize = new Vector2(280f, 24f),
             SizeFlagsHorizontal = SizeFlags.ExpandFill,
@@ -101,7 +101,7 @@ public partial class OptionsScreen : Control
         LoadLayout(PlaySide.Spy);
     }
 
-    private static string Format(float v) => v.ToString("0", CultureInfo.InvariantCulture);
+    private static string Format(float v) => v.ToString("0.00", CultureInfo.InvariantCulture);
 
     /// <summary>Shows the key layout of <paramref name="side"/>.</summary>
     public void LoadLayout(PlaySide side)

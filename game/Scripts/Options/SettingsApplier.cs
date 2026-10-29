@@ -319,6 +319,8 @@ public static class SettingsApplier
         return basis with
         {
             MouseSensitivity = s.MouseSensitivity,
+            Pad = pad,
+            SpyFreeLookResponse = spy.LookResponse,
             SpyFreeLook = spy.FreeLook,
             SpyGunLook = spy.Look,
             SpyScope = spy.Scope,

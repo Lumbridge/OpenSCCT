@@ -222,15 +222,16 @@ public sealed class LookAhead
         ArgumentNullException.ThrowIfNull(o);
         int pitch = o.iPitch;
         int yaw = o.iYaw;
-        float scale = K.CamTurnScale * pc.fSensibiliteSouris * dt * pc.DesiredFOV / K.CamTurnFovReference;
+        // The dead zone is on aTurn and aLookUp, the turn by fTurnValue and fLookUpValue (0.75 of them).
+        float scale = K.CamTurnScale * MouseLook.SensibiliteFor(pc) * dt * pc.DesiredFOV / K.CamTurnFovReference;
         if (turning || SvmMath.Abs(turn) > K.CamInputDeadZone)
         {
-            yaw += SvmMath.Trunc(scale * turn);
+            yaw += SvmMath.Trunc(scale * turn * MovementK.LookScale);
         }
 
         if (lookingUp || SvmMath.Abs(lookUp) > K.CamInputDeadZone)
         {
-            pitch += SvmMath.Trunc(scale * lookUp);
+            pitch += SvmMath.Trunc(scale * lookUp * MovementK.LookScale);
         }
 
         pitch &= 65535;
@@ -258,14 +259,17 @@ public sealed class LookAhead
     {
         ArgumentNullException.ThrowIfNull(pc);
         ArgumentNullException.ThrowIfNull(mouse);
-        (_, _, float turn, float lookUp) = mouse.Axes(pc, countsX, countsY, viewport.Width, viewport.Height);
+        (_, _, float aTurn, float aLookUp) = mouse.Axes(pc, countsX, countsY, viewport.Width, viewport.Height);
         if (pc.SBPawn?.UsedObject is SOrientableObject cam && GadgetStates.InStickyCamViewState(pc))
         {
-            return CamTurn(pc, cam, turn, lookUp, dt, camTurning, camLookingUp);
+            return CamTurn(pc, cam, aTurn, aLookUp, dt, camTurning, camLookingUp);
         }
 
+        // fTurnValue and fLookUpValue (ControlInput).
+        float turn = aTurn * MovementK.LookScale;
+        float lookUp = aLookUp * MovementK.LookScale;
         float r = pc.bBinocularVision ? MovementK.BinocularRotationRatio : 1f;
-        float sens = mouse.SensibiliteSouris;
+        float sens = MouseLook.SensibiliteFor(pc);
         float k = MovementK.RotationRateScale;
         if (pc.SBPawn is SPAWNDEFENSE)
         {

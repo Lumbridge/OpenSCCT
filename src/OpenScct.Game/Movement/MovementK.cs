@@ -37,6 +37,14 @@ public static partial class MovementK
     [Provenance(ProvenanceKind.Decoded, "UpdateRotationAttaquant_Mouse, UpdateCamRotation: rate scale 50")]
     public const float RotationRateScale = 50f;
 
+    /// <summary>
+    /// fTurnValue and fLookUpValue are this times aTurn and aLookUp. The native also clamps them to +-2000, but
+    /// Reloaded shrinks a larger aTurn and aLookUp to fit and raises fSensibiliteSouris by the same factor, so the turn
+    /// is as if there were no clamp (rl:input.mouse, fast flicks).
+    /// </summary>
+    [Provenance(ProvenanceKind.Decoded, "game 0x10aaaa32: fld aTurn, fmul 0.75 (0x10c10a28), clamp -2000..2000; Reloaded.Core 0x10019b20 at that address: |aTurn| or |aLookUp| above 2666.666 divides both by k and multiplies fSensibiliteSouris by k")]
+    public const float LookScale = 0.75f;
+
     /// <summary>NativeComputeControlVariables: on a ledge or a fence the raw stick beyond this sets a direction bit.</summary>
     [Provenance(ProvenanceKind.Decoded, "NativeComputeControlVariables editor 0x111f37d0: 2100")]
     public const float LedgeStick = 2100f;

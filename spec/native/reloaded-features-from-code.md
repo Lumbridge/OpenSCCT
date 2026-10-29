@@ -145,8 +145,25 @@ that offers both ER icon behaviours (FEATURES `rl:gfx.widescreen`, `rl:gfx.hud`)
     `vertical`, `cam`, one clutch; merc `look` (with a curve), `scope`, `scope_vertical`, `vertical`, `cam`,
     two clutches; stick and bumper swaps for pads. Curves: `Linear`, `CurveSoft`, `CurveMedium`,
     `CurveAggressive`. They act inside the game's input handling: Reloaded redirects two places of the
-    `NativePlayerInput` body (game 0x10aaa973 and 0x10aaaa32) to its own code. The exact scaling was not
-    decoded (Open questions).
+    `NativePlayerInput` body (game 0x10aaa973 and 0x10aaaa32) to its own code.
+23a. The mouse look, end to end (decoded 2026-10-29):
+    - Reloaded reads the mouse once a frame with DirectInput GetDeviceState (0x100b6920, hooked at game
+      0x10b10d06 and 0x10b10d23), so one axis event carries the frame's counts.
+    - It forces every axis binding's Speed to 1.0 (0x100b6d30 at the binding parser, game 0x109fda59), so the
+      INI's `Speed=6.00` has no effect. The axis exec stores `counts x Invert x Speed x 0.1` (game 0x109fc165).
+    - Before that store (0x100b6d00 at game 0x109fc177) it multiplies by the look multiplier / 10. Mouse
+      multiplier (0x100b6b70): spy gun look when WeaponLoaded is 2, else free look over its curve's divisor
+      (Linear 1, Soft 0.5, Medium 0.4, Aggressive 1/3); times binoculars under bBinocularVision. Merc look; in the
+      scope times scope, the vertical axis also times scope vertical. The groups' `vertical` and the curves
+      elsewhere are pad only. In a camera view the multiplier is 1.0.
+    - UInput::ReadInput then scales every input float by 2 / DeltaTime (game 0x109fea16), which cancels the
+      DeltaTime of UpdateCamRotation and UpdateRotationAttaquant_Mouse: the turn per count is frame-rate free.
+    - At 0x10aaaa32 (0x10019b20) Reloaded sets fSensibiliteSouris to 4.0 every frame, or in a camera view (flag
+      0x1036abbc) to 0.4 while scaling aTurn and aLookUp by the side's camera setting x 10 (spy sticky camera,
+      merc Cam Net). The profile's MouseSensitivity has no effect. When |aTurn| or |aLookUp| exceeds 2666.666 it
+      divides both by k and multiplies fSensibiliteSouris by k, so the 0.75 scale's +-2000 clamp never bites.
+    - Result: a count turns `0.75 x 0.1 x 1 / 10 x 2 x 4 x 50 = 3 x multiplier x SizeX / 640` rotation units
+      (before the binoculars' 0.5 ratio and the int truncation per frame).
 
 Rewrite needs: the same groups and fields applied in the PlayerInput port (FEATURES `rl:input.sens`).
 
@@ -242,8 +259,7 @@ Nothing else here is networked.
 
 ## Open questions
 
-1. The sensitivity scaling inside the two `NativePlayerInput` redirects (rule 23): read the two stubs at
-   Reloaded 0x1001ad20 and 0x10019d30 (not recognised as functions by analysis).
+1. Resolved (rule 23a): 0x1001ad20 is the movement keys' hook, 0x10019d30 the look one.
 2. Which view class is exempt from the `ws_fov` cap (rule 20; Reloaded flag at 0x1036abbc).
 3. The fields of the 64-byte client string and the five status bytes in `SCLIREGI` (rule 9), and the extended
    fields of `SSRVINEX` (rule 12). Only needed if the rewrite ever wants to read Reloaded's browser, which

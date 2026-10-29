@@ -16,7 +16,8 @@ namespace OpenScct.Game.Movement;
 /// from the normalised stick's direction on the screen (any speed mode), and left, right,
 /// forward and back from the move in the camera's flattened axes measured along the pawn's own axes, so the keys
 /// are camera relative: with the pawn facing the camera, the left key moves it to its right. The mouse axes go to
-/// fTurnValue and fLookUpValue unchanged.
+/// fTurnValue and fLookUpValue times 0.75, with no clamp (<see cref="MovementK.LookScale"/>); fNormePadCam is the
+/// length of (aTurn, aLookUp) over 6000.
 /// </para>
 /// </summary>
 public static class ControlInput
@@ -65,9 +66,9 @@ public static class ControlInput
             pc.fNormePadMove = MovementK.LedgeAssistNorm;
         }
 
-        pc.fTurnValue = pc.aTurn;
-        pc.fLookUpValue = pc.aLookUp;
-        float cam = SvmMath.Sqrt(pc.fTurnValue * pc.fTurnValue + pc.fLookUpValue * pc.fLookUpValue) / MovementK.StickFullScale;
+        pc.fTurnValue = pc.aTurn * MovementK.LookScale;
+        pc.fLookUpValue = pc.aLookUp * MovementK.LookScale;
+        float cam = SvmMath.Sqrt(pc.aTurn * pc.aTurn + pc.aLookUp * pc.aLookUp) / MovementK.StickFullScale;
         pc.fNormePadCam = cam > 1f ? 1f : cam;
 
         bool use = pc.bUsing != 0;

@@ -161,7 +161,7 @@ public partial class GamepadInput : Node
         {
             Vector2 look = Stick(JoyAxis.RightX, JoyAxis.RightY, pad.DeadzoneRight);
             LookSettings group = Settings.LookOf(merc, pad: true);
-            float k = pad.LookSpeed * (float)delta;
+            float k = pad.LookSpeed * (float)delta * LegacyUnitsPerCount / MouseLook.UnitsPerCount;
             float clutch = group.ClutchOf(clutchOne, clutchTwo);
             (float h, float v) = PadMultipliers(session);
             session.Input.MouseX += Response(look.X * clutch, group.LookResponse) * k * h;
@@ -195,6 +195,13 @@ public partial class GamepadInput : Node
         (float mh, float mv) = session.Mouse.Multipliers(pc);
         return (ph / Math.Max(1e-3f, mh), pv / Math.Max(1e-3f, mv));
     }
+
+    /// <summary>
+    /// Rotation units a count turned (at 640 wide, multiplier 1, sensitivity 40) when the stick speeds were tuned: Speed
+    /// 6 x 4 x 50 x the tick. The mouse now turns <see cref="MouseLook.UnitsPerCount"/>, so the stick's counts are
+    /// scaled by the ratio and the controller turns as before.
+    /// </summary>
+    private const float LegacyUnitsPerCount = 6f * 4f * 50f * OpenScct.Core.Sim.DeltaTime;
 
     private GameSettings? _padLookFor;
     private MouseLook _padLook = new();

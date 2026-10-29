@@ -569,8 +569,8 @@ Faithful renderer rather than ports.
   no per-frame clamp. Reticle bloom must use the turn rate, not the sensitivity slider (check what Reloaded
   does). Calibrate so that Ryan's current values give the same yaw units per count as the reference game.
 - **Priority:** P0.
-- **Open:** the exact Reloaded sensitivity formula (yaw units per count per setting). Measure in a test
-  slot by posting known mouse deltas to our own sandbox window and reading Rotation from memory.
+- **Resolved:** the formula is decoded in `spec/native/reloaded-features-from-code.md` rule 23a: a count
+  turns 3 x multiplier x viewport width / 640 rotation units, independent of the frame rate.
 
 ### rl:input.sens - Per-team and per-view sensitivity
 - **Players get:** separate spy and merc profiles for mouse and controller: spy free look (gun holstered),
