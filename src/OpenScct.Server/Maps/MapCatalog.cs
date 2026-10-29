@@ -243,6 +243,13 @@ public sealed partial class MapCatalog
         }
     }
 
+    /// <summary>
+    /// Makes the builder of a map found in a folder that has none registered (map id, folder), or returns null for the
+    /// plain load (<see cref="LoadSvMap"/>). Lets a map downloaded after the catalog was made load the same way as the
+    /// maps registered at start. The builder it returns is registered, so it is made once per map.
+    /// </summary>
+    public Func<string, string, Func<World, bool, MapInfo>?>? FolderBuilder { get; set; }
+
     /// <summary>Adds a map built in code; <c>build(world, isClient)</c> loads it into the world's level.</summary>
     public void Register(string name, Func<World, bool, MapInfo> build)
     {
@@ -300,6 +307,15 @@ public sealed partial class MapCatalog
         lock (_gate)
         {
             _builders.TryGetValue(mapName, out builder);
+        }
+
+        if (builder is null && FolderBuilder is { } makeBuilder && FindFolder(mapName) is { } found &&
+            makeBuilder(mapName, found) is { } made)
+        {
+            lock (_gate)
+            {
+                builder = _builders.TryGetValue(mapName, out Func<World, bool, MapInfo>? existing) ? existing : _builders[mapName] = made;
+            }
         }
 
         try

@@ -23,6 +23,12 @@ public sealed class PlayCatalog
         var roots = new List<string>(extraRoots);
         roots.AddRange(MapCatalog.CreateDefault().Roots);
         Maps = new MapCatalog(roots.ToArray());
+
+        // A map downloaded while the game runs (the in-game map downloader) plays through the same loader; without it
+        // the plain load has no movement service, so the pawns stand in their bind pose.
+        Maps.FolderBuilder = (id, folder) => Directory.Exists(Path.Combine(folder, "render"))
+            ? (world, isClient) => Loader(id).Load(world, isClient)
+            : null;
         foreach (MapListEntry entry in Maps.ListMaps())
         {
             if (entry.Folder is { } folder && Directory.Exists(Path.Combine(folder, "render")))
