@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using Godot;
 using OpenScctGame.Hud;
 using OpenScctGame.Play.Session;
@@ -8,7 +7,7 @@ using OpenScctGame.Play.Session;
 namespace OpenScctGame.UI;
 
 /// <summary>
-/// Options: player name, mouse sensitivity and inversion, and the key bindings of the spy and merc layouts (click a
+/// Options: player name, mouse inversion, and the key bindings of the spy and merc layouts (click a
 /// key, then press the new key or mouse button; Escape cancels). Name and mouse go to user://settings.cfg; each key
 /// change is saved at once by the input layer.
 /// </summary>
@@ -18,12 +17,9 @@ public partial class OptionsScreen : Control
     private KeyBindingsModel? _model;
     private GridContainer? _keys;
     private Label? _source;
-    private Label? _sensitivityValue;
     private string? _listening;
 
     public LineEdit? NameEdit { get; private set; }
-
-    public HSlider? Sensitivity { get; private set; }
 
     public CheckBox? Invert { get; private set; }
 
@@ -52,21 +48,6 @@ public partial class OptionsScreen : Control
         NameEdit = new LineEdit { Name = "PlayerName", Text = settings.PlayerName, MaxLength = 24, SizeFlagsHorizontal = SizeFlags.ExpandFill };
         grid.AddChild(NameEdit);
         grid.AddChild(new Control());
-        grid.AddChild(new Label { Text = "Mouse sensitivity" });
-        Sensitivity = new HSlider
-        {
-            Name = "Sensitivity",
-            MinValue = UiSettings.MinSensitivity,
-            MaxValue = UiSettings.MaxSensitivity,
-            Step = 0.01,
-            Value = settings.MouseSensitivity,
-            CustomMinimumSize = new Vector2(280f, 24f),
-            SizeFlagsHorizontal = SizeFlags.ExpandFill,
-        };
-        _sensitivityValue = new Label { Text = Format(settings.MouseSensitivity), CustomMinimumSize = new Vector2(60f, 0f) };
-        Sensitivity.ValueChanged += v => _sensitivityValue.Text = Format((float)v);
-        grid.AddChild(Sensitivity);
-        grid.AddChild(_sensitivityValue);
         grid.AddChild(new Label { Text = "Invert mouse" });
         Invert = new CheckBox { Name = "Invert", ButtonPressed = settings.InvertMouse };
         grid.AddChild(Invert);
@@ -101,7 +82,6 @@ public partial class OptionsScreen : Control
         LoadLayout(PlaySide.Spy);
     }
 
-    private static string Format(float v) => v.ToString("0.00", CultureInfo.InvariantCulture);
 
     /// <summary>Shows the key layout of <paramref name="side"/>.</summary>
     public void LoadLayout(PlaySide side)
@@ -187,11 +167,6 @@ public partial class OptionsScreen : Control
         if (NameEdit is not null && NameEdit.Text.Trim().Length > 0)
         {
             settings.PlayerName = NameEdit.Text.Trim();
-        }
-
-        if (Sensitivity is not null)
-        {
-            settings.MouseSensitivity = (float)Sensitivity.Value;
         }
 
         if (Invert is not null)

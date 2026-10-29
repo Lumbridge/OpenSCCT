@@ -776,7 +776,7 @@ public sealed class HudSmoke : SmokeTest
 
         Expect(options.Tabs?.GetTabCount() == 7, $"option pages {options.Tabs?.GetTabCount()}");
         Expect(options.KeyButtons.Count > 0, "key bindings listed");
-        foreach (string key in new[] { "mouse_sensitivity", "invert_y", "controls_spy_kbm.free_look", "controls_merc_kbm.look", "controller.enabled",
+        foreach (string key in new[] { "invert_y", "controls_spy_kbm.free_look", "controls_merc_kbm.look", "controller.enabled",
                      "controller.deadzone_left", "display_mode", "resolution", "vsync", "widescreen", "ws_fov", "fps_spy", "fps_merc", "master_volume",
                      "sound_volume", "music_volume", "voice_output_volume", "show_scoreboard", "show_ping" })
         {

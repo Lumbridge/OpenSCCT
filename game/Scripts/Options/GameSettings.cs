@@ -310,12 +310,6 @@ public sealed class GameSettings
 
     public static readonly string[] DisplayModes = ["BorderlessFullscreen", "Fullscreen", "Windowed"];
 
-    /// <summary>Mouse sensitivity range of the profile (the options slider of the original).</summary>
-    [Provenance(ProvenanceKind.Decoded, "MouseLook: profile MouseSensitivity clamped to 4..40, default 40")]
-    public const float MinSensitivity = 4f;
-
-    public const float MaxSensitivity = 40f;
-
     [Provenance(ProvenanceKind.Decoded, "spec/native/reloaded-features-from-code.md rule 20: ws_fov range 95 to 112")]
     public const float MinMercFov = 95f;
 
@@ -334,14 +328,6 @@ public sealed class GameSettings
 
     [JsonPropertyName("player_name")]
     public string PlayerName { get; set; } = "Player";
-
-    /// <summary>
-    /// The look sensitivity over Reloaded's (4 to 40, decimals allowed): 40 turns exactly as Reloaded does, other
-    /// values scale the turn in proportion (Reloaded itself ignores the profile's value; MouseLook).
-    /// </summary>
-    [JsonPropertyName("mouse_sensitivity")]
-    [Provenance(ProvenanceKind.Decoded, "DefaultProfile.ini MouseSensitivity=40.0")]
-    public float MouseSensitivity { get; set; } = 40f;
 
     [JsonPropertyName("invert_y")]
     public bool InvertY { get; set; }
@@ -778,7 +764,6 @@ public sealed class GameSettings
             PlayerName = PlayerName[..24];
         }
 
-        MouseSensitivity = LookSettings.Range(MouseSensitivity, MinSensitivity, MaxSensitivity);
         SpyKbm ??= new LookSettings();
         MercKbm ??= new LookSettings();
         SpyPad ??= new LookSettings();

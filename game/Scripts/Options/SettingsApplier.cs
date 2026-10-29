@@ -306,7 +306,7 @@ public static class SettingsApplier
     }
 
     /// <summary>
-    /// The mouse look of the play session from the profile sensitivity, the sides' look multipliers per view and the
+    /// The mouse look of the play session from the sides' look multipliers per view and the
     /// profile's inversions (the clutch is left as it is: <see cref="OptionsRuntime"/> sets it while one is held).
     /// </summary>
     /// <param name="pad">The controller groups' multipliers instead of the mouse's (the controller's view scaling).</param>
@@ -318,7 +318,6 @@ public static class SettingsApplier
         LookSettings merc = s.LookOf(merc: true, pad);
         return basis with
         {
-            MouseSensitivity = s.MouseSensitivity,
             Pad = pad,
             SpyFreeLookResponse = spy.LookResponse,
             SpyFreeLook = spy.FreeLook,

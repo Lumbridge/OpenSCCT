@@ -46,7 +46,6 @@ public static class SettingsStore
         {
             UiSettings ui = UiSettings.Current;
             s.PlayerName = ui.PlayerName;
-            s.MouseSensitivity = ui.MouseSensitivity;
             s.InvertY = ui.InvertMouse;
             s.Clamp();
         }
@@ -85,7 +84,6 @@ public static class SettingsStore
         SettingsApplier.WriteStartOverrides(settings);
         UiSettings ui = UiSettings.Current;
         ui.PlayerName = settings.PlayerName;
-        ui.MouseSensitivity = settings.MouseSensitivity;
         ui.InvertMouse = settings.InvertY;
         ui.Save();
         Saved?.Invoke(settings);

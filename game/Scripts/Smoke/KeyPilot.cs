@@ -42,10 +42,10 @@ public sealed class KeyPilot
     public const float ReferenceWidth = 1280f;
 
     /// <summary>
-    /// Rotation units per mouse count divided out of an aim error to get counts: the aim helpers were tuned at
-    /// sensitivity 20 (40 units a count), and a count turns the view in proportion to the sensitivity.
+    /// Rotation units per mouse count divided out of an aim error to get counts: the mouse's turn per count at the
+    /// reference width with a look multiplier of 1.
     /// </summary>
-    public static float UnitsPerCount => 2f * OpenScctGame.Options.SettingsStore.Current.MouseSensitivity;
+    public static float UnitsPerCount => OpenScctGame.Play.Session.MouseLook.UnitsPerCount * ReferenceWidth / 640f;
 
     public const float ReferenceHeight = 720f;
 

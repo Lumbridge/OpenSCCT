@@ -21,8 +21,7 @@ namespace OpenScctGame.Play.Session;
 /// aTurn and aLookUp by the camera setting x 10. The profile's MouseSensitivity has no effect in Reloaded.</item>
 /// </list>
 /// So a count turns <c>3 x multiplier x SizeX / 640</c> rotation units (spy free look 1.4 at 1920 wide: 12.6), at
-/// any tick rate. <see cref="MouseSensitivity"/> is ours on top: 40 (the default) is Reloaded's speed, other values
-/// scale it in proportion.
+/// any tick rate. As in Reloaded, the look multipliers are the only sensitivity settings.
 /// </summary>
 public sealed record MouseLook
 {
@@ -60,19 +59,12 @@ public sealed record MouseLook
     /// <summary>The curves in <see cref="CurveDivisors"/> order (the settings' Responses).</summary>
     private static readonly string[] CurveNames = ["Linear", "CurveSoft", "CurveMedium", "CurveAggressive"];
 
-    /// <summary>The mouse sensitivity that gives Reloaded's speed (Reloaded's own profile default).</summary>
-    public const float ReloadedMouseSensitivity = 40f;
-
     /// <summary>
-    /// Rotation units a count turns at a 640-pixel-wide viewport with a multiplier of 1 and the default sensitivity:
+    /// Rotation units a count turns at a 640-pixel-wide viewport with a multiplier of 1:
     /// 0.75 x 0.1 x Speed / 10 x 2 x 4 x 50 = 3.
     /// </summary>
     public static float UnitsPerCount => OpenScct.Game.Movement.MovementK.LookScale * AxisEventScale / MultiplierDivisor * ReadInputScale
         * ReloadedSensibilite * OpenScct.Game.Movement.MovementK.RotationRateScale;
-
-    /// <summary>The look sensitivity on top of Reloaded's (40 = Reloaded; other values scale the turn in proportion).</summary>
-    [Provenance(ProvenanceKind.Estimated, "ours: Reloaded overrides the profile's MouseSensitivity every frame, so the slider is kept as a scale where its default 40 is Reloaded's speed")]
-    public float MouseSensitivity { get; init; } = ReloadedMouseSensitivity;
 
     /// <summary>The look mode of the controller groups (GamepadInput's counts): the vertical scales apply, as Reloaded's pad path does.</summary>
     public bool Pad { get; init; }
@@ -162,8 +154,7 @@ public sealed record MouseLook
     {
         ArgumentNullException.ThrowIfNull(pc);
         (float h, float v) = Multipliers(pc);
-        float user = Math.Max(0f, MouseSensitivity) / ReloadedMouseSensitivity;
-        float k = AxisSpeed * AxisEventScale / MultiplierDivisor * (ReadInputScale / OpenScct.Core.Sim.DeltaTime) * user * Scale * Clutch;
+        float k = AxisSpeed * AxisEventScale / MultiplierDivisor * (ReadInputScale / OpenScct.Core.Sim.DeltaTime) * Scale * Clutch;
         float mouseX = countsX * k * h;
         float mouseY = (InvertY ? -countsY : countsY) * k * v;
         float view = InCameraView(pc) ? CameraAxisScale : 1f;

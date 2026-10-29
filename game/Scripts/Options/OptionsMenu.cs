@@ -222,9 +222,6 @@ public partial class OptionsMenu : Control
     private Control MousePage()
     {
         GridContainer g = Grid("Mouse");
-        // 40 is Reloaded's speed; the looks below are Reloaded's own settings and scale it per view.
-        Slider(g, "Mouse sensitivity (40 = Reloaded)", "mouse_sensitivity", GameSettings.MinSensitivity, GameSettings.MaxSensitivity, 0.01f,
-            _edit.MouseSensitivity, v => _edit.MouseSensitivity = v, "0.00", typed: true);
         Check(g, "Invert mouse", "invert_y", _edit.InvertY, v => _edit.InvertY = v);
         Check(g, "Invert X axis (spy)", "invert_x_spy", _edit.InvertXSpy, v => _edit.InvertXSpy = v);
         Check(g, "Shocker lock-on snap when drawing (spy)", "shocker_snap", _edit.ShockerSnap, v => _edit.ShockerSnap = v);

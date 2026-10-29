@@ -28,7 +28,6 @@ public sealed class GameSettingsTests : IDisposable
         Assert.Equal(DisplayFrameCap.Monitor, s.FpsMerc);
         Assert.False(s.VSync);
         Assert.Equal("BorderlessFullscreen", s.DisplayMode);
-        Assert.Equal(40f, s.MouseSensitivity);
         Assert.Equal(1.4f, s.SpyKbm.FreeLook);
         Assert.Equal(1f, s.SpyKbm.Look);
         Assert.Equal(1f, s.MercKbm.Look);
@@ -51,7 +50,7 @@ public sealed class GameSettingsTests : IDisposable
     {
         var s = new GameSettings
         {
-            MercFovCap = 500f, FpsSpy = 10, FpsMerc = 999, MasterVolume = 3f, MusicVolume = -1f, MouseSensitivity = 1f,
+            MercFovCap = 500f, FpsSpy = 10, FpsMerc = 999, MasterVolume = 3f, MusicVolume = -1f,
             Monitor = 0, DisplayMode = "Nonsense", Resolution = "12x9", PlayerName = "  ", RenderScale = 0.1f,
         };
         s.Pad.DeadzoneLeft = 5f;
@@ -62,7 +61,6 @@ public sealed class GameSettingsTests : IDisposable
         Assert.Equal(GameSettings.MaxFps, s.FpsMerc);
         Assert.Equal(1f, s.MasterVolume);
         Assert.Equal(0f, s.MusicVolume);
-        Assert.Equal(GameSettings.MinSensitivity, s.MouseSensitivity);
         Assert.Equal(1, s.Monitor);
         Assert.Equal("BorderlessFullscreen", s.DisplayMode);
         Assert.Equal("", s.Resolution);
