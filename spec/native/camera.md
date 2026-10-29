@@ -185,7 +185,16 @@ to the camera spot). P = m_camParam[m_camMode]; dt = Level.m_dT; "approach x tow
 4. Smooth to sticky camera (0x111f1400, game 0x10ab01e0): the view looks from the used object to the pawn; the
    target is 30 uu along the controller's forward axis from the object; the camera moves from m_PrevPosition toward
    it at 2000 uu/s and, within 80 uu of the object, the controller changes state: `ChangeState('s_UseObject_StickyCam',
-   None, true)` (the hardcoded name 0x192 of the name table); without a used object, the default view.
+   None, true)` (the hardcoded name 0x192 of the name table); without a used object, the default view. The step is
+   `2000 x Level.m_dT` (LevelInfo +0x54c), capped at the distance left; no light or visibility input.
+   Reloaded (start-up patch, Reloaded 0x1001c350, jumps written at game 0x10ab035f and 0x10ab03d4; ported as
+   PlayerCalcView.SmoothStickySlowStart, the frame milliseconds read as m_dT x 1000):
+   at 0x10ab035f (Reloaded 0x1001a8d0/0x1001a880) it reads the LevelInfo (global 0x1036abb0) TimeSeconds (+0x3b0);
+   when it went backward, or moved more than 4 x m_dT since the last fly-in frame (so on every new fly-in), a timer
+   is set to 100. At 0x10ab03d4 (Reloaded 0x1001a950/0x1001a8f0), while the timer is above 0: timer -= frame
+   milliseconds x 0.34 (floored at 0), and the step (already capped at the distance left) is x 0.66. Both run per
+   call, and the view is solved three times a frame (rule 1), so the fly-in moves at 66% for its first ~0.1 s
+   (about 18 calls), then at full speed (3 x 2000 uu/s per second of frames).
 
 ### 5. First-person view (editor 0x111f5230, game 0x10a98390)
 

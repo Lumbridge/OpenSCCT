@@ -326,7 +326,9 @@ public static class PlayerCalcView
 
         FVector target = used.Location + PC.Rotation.Vector() * CameraK.SmoothStickyLead;
         ViewActor = used;
-        CameraLocation = CameraMath.Approach(camera.m_PrevPosition, target, CameraK.SmoothStickySpeed * PC.Level.m_dT);
+        float step = SvmMath.Min(FVector.Dist(camera.m_PrevPosition, target), CameraK.SmoothStickySpeed * PC.Level.m_dT);
+        step *= SmoothStickySlowStart(PC, camera);
+        CameraLocation = CameraMath.Approach(camera.m_PrevPosition, target, step);
         CameraRotation = PC.Pawn is { } pawn ? (pawn.Location - used.Location).Rotation() : used.Rotation;
         camera.m_PrevPosition = CameraLocation;
 
@@ -335,6 +337,37 @@ public static class PlayerCalcView
         {
             PC.eventChangeState(NAME_s_UseObject_StickyCam, Name.None, true);
         }
+    }
+
+    /// <summary>
+    /// Reloaded's fly-in slow start (camera.md rule 4.4), the scale of this call's step: a new fly-in (Level.TimeSeconds
+    /// went back, or moved more than 4 x m_dT since the last fly-in call) sets a timer to 100; while it is above 0 each
+    /// call drains it by 0.34 x the frame time in milliseconds and the step is x 0.66. The view is solved three times a
+    /// frame, so the slow part lasts about 0.1 s.
+    /// </summary>
+    [Provenance(ProvenanceKind.Decoded, "Reloaded 0x1001a880 (timer set), 0x1001a950 / 0x1001a8f0 (drain and x0.66 on the capped step); the frame time global 0x1036e2bc is read here as Level.m_dT x 1000")]
+    private static float SmoothStickySlowStart(SPlayerController PC, SPlayerCam camera)
+    {
+        float now = PC.Level.TimeSeconds;
+        float dt = PC.Level.m_dT;
+        if (camera.SmoothStickyLastTime > now || now - camera.SmoothStickyLastTime > dt * CameraK.SmoothStickySlowGap)
+        {
+            camera.SmoothStickySlowTimer = CameraK.SmoothStickySlowTimer;
+        }
+
+        camera.SmoothStickyLastTime = now;
+        if (camera.SmoothStickySlowTimer == 0f)
+        {
+            return 1f;
+        }
+
+        camera.SmoothStickySlowTimer -= dt * 1000f * CameraK.SmoothStickySlowDrain;
+        if (!(camera.SmoothStickySlowTimer > 0f))
+        {
+            camera.SmoothStickySlowTimer = 0f;
+        }
+
+        return CameraK.SmoothStickySlowScale;
     }
 
     private static bool IsPaused(SPlayerController PC) => PC.Level.Pauser is not null;

@@ -27,6 +27,12 @@ public partial class SPlayerCam
     private bool _hasPrevPawn;
     private SPlayerCam? _classDefaults;
 
+    /// <summary>Reloaded's fly-in slow start: Level.TimeSeconds at the last fly-in call (global 0x1036ab8c).</summary>
+    internal float SmoothStickyLastTime;
+
+    /// <summary>Reloaded's fly-in slow start: the timer, the step is slowed while it is above 0 (global 0x1036ab90).</summary>
+    internal float SmoothStickySlowTimer;
+
     /// <summary>The class default object (reset speeds are scaled from it).</summary>
     internal SPlayerCam ClassDefaults => _classDefaults ??= GetUcClass().Create() as SPlayerCam ?? this;
 

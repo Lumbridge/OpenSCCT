@@ -55,6 +55,22 @@ public static class CameraK
     /// <summary>Smooth-to-sticky camera: arrival distance from the used object.</summary>
     public const float SmoothStickyArrive = 80f;
 
+    /// <summary>Reloaded fly-in slow start: the timer a new fly-in starts at.</summary>
+    [Provenance(ProvenanceKind.Decoded, "Reloaded 0x1001a8ba: mov [0x1036ab90], 0x42c80000 (100.0)")]
+    public const float SmoothStickySlowTimer = 100f;
+
+    /// <summary>Reloaded fly-in slow start: a new fly-in is a TimeSeconds gap over this many m_dT since the last call.</summary>
+    [Provenance(ProvenanceKind.Decoded, "Reloaded 0x1001a8ad: m_dT x [0x10346630] (4.0)")]
+    public const float SmoothStickySlowGap = 4f;
+
+    /// <summary>Reloaded fly-in slow start: timer drain per call, per millisecond of frame time.</summary>
+    [Provenance(ProvenanceKind.Decoded, "Reloaded 0x1001a90c: frame ms x [0x103464b8] (0.34)")]
+    public const float SmoothStickySlowDrain = 0.34f;
+
+    /// <summary>Reloaded fly-in slow start: the step scale while the timer runs.</summary>
+    [Provenance(ProvenanceKind.Decoded, "Reloaded 0x1001a93a: step x [0x103464e0] (0.66)")]
+    public const float SmoothStickySlowScale = 0.66f;
+
     /// <summary>The spy's first-person view on a bone is raised this far in world Z (game 0x10a98390).</summary>
     public const float SpyBoneLift = 15f;
 
