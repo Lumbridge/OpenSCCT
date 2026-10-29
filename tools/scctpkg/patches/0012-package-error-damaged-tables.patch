@@ -1,0 +1,19 @@
+diff --git a/package.py b/package.py
+index 0b6f888..17650b5 100644
+--- a/package.py
++++ b/package.py
+@@ -226,7 +226,13 @@ class Package:
+         tag, version, licensee, flags = struct.unpack_from("<IHHI", data, 0)
+         pkg = cls(path=path, data=data, version=version, licensee=licensee,
+                   flags=flags, compressed=compressed)
+-        pkg._read_tables()
++        try:
++            pkg._read_tables()
++        except PackageError:
++            raise
++        except (IndexError, struct.error, ValueError, OverflowError) as e:
++            # Damaged or foreign tables (an offset past the end of the file, say): callers skip a PackageError.
++            raise PackageError(f"{path.name}: unreadable tables: {type(e).__name__}: {e}") from e
+         return pkg
+ 
+     def _read_tables(self) -> None:
