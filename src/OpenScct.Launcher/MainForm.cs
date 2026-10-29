@@ -78,6 +78,7 @@ internal sealed class MainForm : Form
     private Control? _more;
 
     private readonly Button _changeGame = Theme.Button("Change...");
+    private readonly Button _useDownloads = Theme.Button("Use downloads");
     private readonly Button _rebuild = Theme.Button("Rebuild");
     private readonly StepCard _gameStep;
     private readonly StepCard _installStep;
@@ -116,7 +117,7 @@ internal sealed class MainForm : Form
         string? info = Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
         _launcherVersion = SemVersion.TryParse(info, out SemVersion? v) ? v : null;
 
-        _gameStep = new StepCard(1, "Find Splinter Cell Chaos Theory (optional)", _changeGame);
+        _gameStep = new StepCard(1, "Find Splinter Cell Chaos Theory (optional)", _changeGame, _useDownloads);
         _installStep = new StepCard(2, "Download OpenSCCT");
         _filesStep = new StepCard(3, "Prepare the game files", _rebuild);
 
@@ -235,12 +236,14 @@ internal sealed class MainForm : Form
 
         var tips = new ToolTip();
         tips.SetToolTip(_changeGame, "Pick the folder you installed Splinter Cell Chaos Theory in. Without it the game files are downloaded.");
+        tips.SetToolTip(_useDownloads, "Stop using your game folder: the game files are downloaded instead.");
         tips.SetToolTip(_rebuild, "Prepare the game files again from your copy, for example if a map looks wrong.");
         tips.SetToolTip(_rollback, "Go back to the version you had before the last update.");
         tips.SetToolTip(_mapsButton, "Download new maps made by the community.");
 
         _main.Click += async (_, _) => await DoNextAsync();
         _changeGame.Click += (_, _) => ChooseGameFolder();
+        _useDownloads.Click += (_, _) => UseDownloadedFiles();
         _rebuild.Click += async (_, _) => await RunAsync(BuildContentAsync);
         _whatsNew.Click += (_, _) => ShowWhatsNew();
         _check.Click += async (_, _) => await RunAsync(CheckAsync);
@@ -327,6 +330,7 @@ internal sealed class MainForm : Form
         RefreshFilesStep(current, busy);
 
         _changeGame.Enabled = !busy;
+        _useDownloads.Enabled = !busy;
         _rollback.Enabled = _store.Previous() is not null && !busy;
         _check.Enabled = !busy;
         _settingsButton.Enabled = !busy;
@@ -345,6 +349,7 @@ internal sealed class MainForm : Form
     private void RefreshGameStep()
     {
         string game = _settings.OriginalGamePath ?? string.Empty;
+        _useDownloads.Visible = game.Length > 0;
         if (GameFound)
         {
             _gameStep.Set(StepState.Done, "Found: " + game);
@@ -589,6 +594,20 @@ internal sealed class MainForm : Form
         _settings.OriginalGamePath = versus;
         _settings.Save(_layout.Settings);
         SetStatus(changed ? "Game folder saved." : "That is the folder already in use.", Theme.Accent);
+        RefreshLocal();
+    }
+
+    /// <summary>Forgets the game folder: the game files are downloaded instead (files made from it are kept).</summary>
+    private void UseDownloadedFiles()
+    {
+        if (_work is not null || _settings.OriginalGamePath is null)
+        {
+            return;
+        }
+
+        _settings.OriginalGamePath = null;
+        _settings.Save(_layout.Settings);
+        SetStatus("Using the downloaded game files. Choose a folder in step 1 to use your own copy again.", Theme.Accent);
         RefreshLocal();
     }
 
@@ -1076,6 +1095,9 @@ internal sealed class MainForm : Form
 
         IReadOnlyList<string> failed = InstallReset.Run(_layout, Program.ExePath);
         _packIndex = null;
+        // From scratch means the defaults too: the downloaded game files, until the player chooses a folder again.
+        _settings.OriginalGamePath = null;
+        _settings.Save(_layout.Settings);
         SetStatus(
             failed.Count == 0
                 ? "Install reset. Press the button to download and prepare the game again."

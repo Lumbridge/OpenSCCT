@@ -21,8 +21,8 @@ internal enum StepState
 }
 
 /// <summary>
-/// One numbered step of the main window: a badge, a title, one line saying where it stands, and an optional small
-/// button on the right.
+/// One numbered step of the main window: a badge, a title, one line saying where it stands, and optional small
+/// buttons on the right (stacked).
 /// </summary>
 internal sealed class StepCard : TableLayoutPanel
 {
@@ -31,7 +31,7 @@ internal sealed class StepCard : TableLayoutPanel
     private readonly Label _title;
     private readonly Label _detail;
 
-    public StepCard(int number, string title, Button? action = null)
+    public StepCard(int number, string title, params Button[] actions)
     {
         _number = number;
         ColumnCount = 3;
@@ -64,11 +64,32 @@ internal sealed class StepCard : TableLayoutPanel
 
         Controls.Add(_badge, 0, 0);
         Controls.Add(text, 1, 0);
-        if (action is not null)
+        if (actions.Length == 1)
         {
-            action.Anchor = AnchorStyles.Right;
-            action.Margin = new Padding(12, 0, 0, 0);
-            Controls.Add(action, 2, 0);
+            actions[0].Anchor = AnchorStyles.Right;
+            actions[0].Margin = new Padding(12, 0, 0, 0);
+            Controls.Add(actions[0], 2, 0);
+        }
+        else if (actions.Length > 1)
+        {
+            var stack = new FlowLayoutPanel
+            {
+                FlowDirection = FlowDirection.TopDown,
+                WrapContents = false,
+                AutoSize = true,
+                AutoSizeMode = AutoSizeMode.GrowAndShrink,
+                Anchor = AnchorStyles.Right,
+                Margin = new Padding(12, 0, 0, 0),
+                BackColor = Theme.Panel,
+            };
+            for (int i = 0; i < actions.Length; i++)
+            {
+                actions[i].Anchor = AnchorStyles.Left | AnchorStyles.Right;
+                actions[i].Margin = new Padding(0, i == 0 ? 0 : 6, 0, 0);
+                stack.Controls.Add(actions[i]);
+            }
+
+            Controls.Add(stack, 2, 0);
         }
 
         Set(StepState.Waiting, string.Empty);

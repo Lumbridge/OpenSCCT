@@ -127,7 +127,7 @@ internal sealed class SettingsForm : Form
         Button reset = Theme.Button("Reset install...");
         reset.Click += (_, _) => ConfirmReset();
         Row(Theme.Label("Reset", Theme.Heading, Theme.Accent), 18);
-        Row(Theme.Wrapping(Theme.Label("Removes every downloaded game version, the built and downloaded game files and maps, so the next start installs from scratch. Keeps these settings, the token and your game settings and saves.", Theme.Small, Theme.Muted)), 6);
+        Row(Theme.Wrapping(Theme.Label("Removes every downloaded game version, the built and downloaded game files and maps, so the next start installs from scratch with the downloaded game files (the game folder is cleared). Keeps the other settings, the token and your game settings and saves.", Theme.Small, Theme.Muted)), 6);
         Row(reset);
         Row(buttons, 16);
         Controls.Add(root);
@@ -143,7 +143,7 @@ internal sealed class SettingsForm : Form
     {
         DialogResult answer = MessageBox.Show(
             this,
-            "Remove all downloaded game versions, game files and maps?\n\nThe launcher will download and prepare everything again. Your launcher settings and your game settings and saves are kept.",
+            "Remove all downloaded game versions, game files and maps?\n\nThe launcher will download everything again and forget your game folder. Your other launcher settings and your game settings and saves are kept.",
             "Reset install",
             MessageBoxButtons.OKCancel,
             MessageBoxIcon.Warning,

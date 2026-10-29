@@ -31,6 +31,7 @@ src/OpenScct.Launcher.Core/     update logic, no UI (net10.0)
 src/OpenScct.Launcher/          WinForms app (net10.0-windows): main window, settings, DPAPI, theme
 tests/OpenScct.Launcher.Tests/  tests for the core library (fake HTTP handler, temp folders)
 tools/release/New-Release.ps1   packs a build into release assets and prints the gh command
+tools/release/Update-Launcher.ps1  swaps a new launcher onto the latest release (no game version)
 ```
 
 The app has no third-party packages: WinForms, `HttpClient`, `System.Text.Json`, `ZipFile` and `ProtectedData` all
@@ -76,6 +77,13 @@ release's launcher asset name to decide whether it needs to update itself. A fra
    launcher only (run it again to retry a failed upload).
 4. Check the draft on GitHub and publish it. The launcher ignores drafts, and the next release's delta is made
    against the newest published one.
+
+**Launcher-only changes** need no game version, which would make players download the game and prepare their game
+files again. Bump only `LauncherVersion`, commit and push, then run
+`tools\release\Update-Launcher.ps1 -Notes "- what changed"`: it builds the launcher (or reuses the kept copy), puts
+its checksum in `game-files`, replaces `OpenSCCT.Launcher.exe` on the latest version release with the new label, and
+adds a "Launcher <version>" section to that release's notes. Players' launchers see the higher label and update
+themselves. Changes to the content builder (`content/`, `tools/scctpkg`) ship with a game version, never this way.
 
 The script refuses a build that has original game file types or converted content folders (`maps`, `svmap`,
 `shared`, `.content`, `packs`) in it, runs `tools/ci/no_game_data.ps1 --all` on the staged files, leaves out
