@@ -161,6 +161,13 @@ public sealed class ContentState
     [JsonPropertyName("ok")]
     public bool Ok { get; set; }
 
+    /// <summary>
+    /// A complete set of this version's content is there: this run finished, or an earlier finished run of the same
+    /// version that this stopped or failed one built over (the game can still start with it).
+    /// </summary>
+    [JsonPropertyName("playable")]
+    public bool Playable { get; set; }
+
     [JsonPropertyName("maps")]
     public int Maps { get; set; }
 
@@ -198,6 +205,12 @@ public sealed class ContentState
         && string.Equals(DownloadedMaps ?? string.Empty, downloadedMaps ?? string.Empty, StringComparison.Ordinal)
         && ContentBuildPlan.NormaliseLanguage(Language) == ContentBuildPlan.NormaliseLanguage(language)
         && string.Equals(Path.GetFullPath(Game ?? "."), Path.GetFullPath(game ?? "."), StringComparison.OrdinalIgnoreCase);
+
+    /// <summary>
+    /// Whether the game can start with this content under <paramref name="version"/>, even if it was made from another
+    /// folder, in another language or without the latest downloaded maps (a new version needs it made again).
+    /// </summary>
+    public bool PlayableFor(string version) => (Ok || Playable) && string.Equals(Version, version, StringComparison.OrdinalIgnoreCase);
 }
 
 /// <summary>
@@ -226,6 +239,7 @@ public static class ContentBuilder
             }
         }
 
+        bool hadPlayable = ContentState.Load(contentRoot)?.PlayableFor(version) == true;
         // Arguments() starts with "-u -m svmbuild", which the shared runner adds itself.
         int exitCode = await new OpenScct.Maps.BuilderTool(python, contentRoot)
             .RunAsync(ContentBuildPlan.Arguments(gamePath, contentRoot, jobs, language, addons).Skip(3), contentRoot, OnLine, cancel)
@@ -237,6 +251,7 @@ public static class ContentBuilder
             Language = language,
             DownloadedMaps = string.IsNullOrEmpty(downloadedMaps) ? null : downloadedMaps,
             Ok = exitCode == 0,
+            Playable = exitCode == 0 || hadPlayable,
             Maps = counter.Maps,
             Failed = counter.Failed,
             FinishedAt = DateTimeOffset.UtcNow,

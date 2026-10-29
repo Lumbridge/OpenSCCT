@@ -267,10 +267,10 @@ itself (the hub with `hubmap\hub.json`, TestBox) are in `maps\` next to the exe,
 `New-Release.ps1`. A checkout still finds `.content` and `fixtures` as before. With an install, Play refuses to start until
 a content build has finished once.
 
-**Which install.** The builder reads a Versus folder (`System\_PC_` and `Packages`). The launcher finds it on its
-own at start (`GameLocator`): the Steam copy (app 13570) in any Steam library (Steam's path from the registry and
-`steamapps\libraryfolders.vdf`, then `appmanifest_13570.acf`'s install folder, then its `Versus` subfolder), then
-common Ubisoft and Steam folders. A folder picked in Settings may be the game root or its Versus folder. Checked on
+**Which install.** The builder reads a Versus folder (`System\_PC_` and `Packages`). The launcher does not look
+for one: a new player gets the downloaded game files, and uses an install only by choosing its folder in step 1 or
+Settings (`GameLocator.Normalize` takes the game root, its Versus folder, or any folder inside it such as `System`;
+`GameLocator.Find` still knows the Steam libraries and common folders but the launcher no longer calls it). Checked on
 the Steam copy (2026-10-26): all 21 of its maps and every shared pack convert and validate, about 470 MB in 45 s;
 its maps are the retail set (AQU03, BNK11, ...), not Enhanced SCCT Versus's 83. Props of maps the install does not
 have (the SteeE crane, `sqt13_anm`, and the other map anim packages) are skipped.

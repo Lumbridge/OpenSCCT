@@ -278,7 +278,7 @@ internal sealed class MainForm : Form
     protected override async void OnShown(EventArgs e)
     {
         base.OnShown(e);
-        FindGameIfUnset();
+        NormaliseGameFolder();
         _service.TryFinishPending();
         RefreshLocal();
         _pendingTimer.Start();
@@ -293,25 +293,15 @@ internal sealed class MainForm : Form
     }
 
     /// <summary>
-    /// The player's Chaos Theory Versus folder, found without asking (their Steam libraries, then common folders)
-    /// when none is set or the set one is gone. Step 1's Change button can still pick another.
+    /// Tidies a game folder the player chose (the Versus folder for its root). No folder is looked for: without one the
+    /// game files are downloaded, and step 1's Choose folder makes them from the player's own copy instead.
     /// </summary>
-    private void FindGameIfUnset()
+    private void NormaliseGameFolder()
     {
-        if (GameLocator.Normalize(_settings.OriginalGamePath) is { } set)
+        if (GameLocator.Normalize(_settings.OriginalGamePath) is { } set
+            && !string.Equals(set, _settings.OriginalGamePath, StringComparison.OrdinalIgnoreCase))
         {
-            if (!string.Equals(set, _settings.OriginalGamePath, StringComparison.OrdinalIgnoreCase))
-            {
-                _settings.OriginalGamePath = set;
-                _settings.Save(_layout.Settings);
-            }
-
-            return;
-        }
-
-        if (GameLocator.Find() is { } found)
-        {
-            _settings.OriginalGamePath = found;
+            _settings.OriginalGamePath = set;
             _settings.Save(_layout.Settings);
         }
     }
@@ -362,7 +352,7 @@ internal sealed class MainForm : Form
         }
         else if (game.Length == 0)
         {
-            _gameStep.Set(StepState.Done, "Not found on this PC, so the game files are downloaded instead. If you have it, choose its folder to make them from your copy.");
+            _gameStep.Set(StepState.Done, "Optional. The game files are downloaded for you. If you have Splinter Cell Chaos Theory, you can choose its folder to make them from your copy instead.");
             _changeGame.Text = "Choose folder...";
         }
         else
@@ -415,15 +405,18 @@ internal sealed class MainForm : Form
 
         ContentState? state = ContentState.Load(_layout.Content);
         bool hasBuilder = current is not null && ContentBuildPlan.Python(_layout.VersionDir(current.ToString())) is not null;
-        // Downloaded game files the player can keep playing with until the ones from their copy are made.
-        bool fallback = !ContentIsCurrent(current) && DownloadedFilesPlayable(current);
+        // Game files the player can keep playing with until new ones are made from this copy: ones made before for this
+        // version (another folder, language or set of downloaded maps), else the downloaded ones.
+        bool keepBuilt = !ContentIsCurrent(current) && BuiltFilesPlayable(current);
+        bool fallback = !ContentIsCurrent(current) && (keepBuilt || DownloadedFilesPlayable(current));
+        string have = keepBuilt ? "the game files you already have" : "the downloaded game files";
         _rebuild.Visible = (state is { Ok: true } || fallback) && !_buildingContent;
         _rebuild.Text = fallback ? "Prepare" : "Rebuild";
         _rebuild.Enabled = !busy && GameFound && hasBuilder;
         if (_buildingContent)
         {
             _filesStep.Set(StepState.Todo, fallback
-                ? "Converting the maps, characters and sounds from your copy... Press Stop to keep playing with the downloaded game files."
+                ? $"Converting the maps, characters and sounds from your copy... Press Stop to keep playing with {have}."
                 : "Converting the maps, characters and sounds from your copy...");
         }
         else if (!GameFound || current is null)
@@ -436,9 +429,18 @@ internal sealed class MainForm : Form
         }
         else if (fallback)
         {
-            _filesStep.Set(state is { Ok: false } ? StepState.Problem : StepState.Todo, state is { Ok: false }
-                ? "Making the game files from your copy did not finish. PLAY uses the downloaded game files; press Prepare to try again."
-                : "PLAY uses the downloaded game files. Press Prepare to make them from your copy instead (takes a few minutes).");
+            string why = state is { Ok: false }
+                ? "Making the game files from your copy did not finish."
+                : keepBuilt && !string.Equals(Path.GetFullPath(state!.Game ?? "."), Path.GetFullPath(_settings.OriginalGamePath ?? "."), StringComparison.OrdinalIgnoreCase)
+                    ? "Your game folder changed."
+                    : keepBuilt && ContentBuildPlan.NormaliseLanguage(state!.Language) != ContentBuildPlan.NormaliseLanguage(_settings.Language)
+                        ? "Your language changed in Settings."
+                        : keepBuilt
+                            ? "Your downloaded maps changed."
+                            : string.Empty;
+            _filesStep.Set(state is { Ok: false } ? StepState.Problem : StepState.Todo, why.Length > 0
+                ? $"{why} PLAY uses {have}; press Prepare to make them again from your copy (optional)."
+                : $"PLAY uses {have}. Press Prepare to make them from your copy instead (optional, takes a few minutes).");
         }
         else if (state is null)
         {
@@ -507,6 +509,10 @@ internal sealed class MainForm : Form
     /// <summary>The downloaded game files (OpenSCCT-Content) are installed and current: PLAY works with them.</summary>
     private bool DownloadedFilesPlayable(SemVersion? current) => current is not null && PacksCurrent();
 
+    /// <summary>Game files made from an install for the current version are there (maybe from another folder).</summary>
+    private bool BuiltFilesPlayable(SemVersion? current) =>
+        current is not null && ContentState.Load(_layout.Content)?.PlayableFor(current.ToString()) == true;
+
     /// <summary>The big button: the next thing to do, or PLAY.</summary>
     private void RefreshMainButton(SemVersion? current, bool busy)
     {
@@ -518,7 +524,7 @@ internal sealed class MainForm : Form
                     : (NextAction.Check, _lastCheck is null ? "Check for updates" : "Check again", true)
                 : _lastCheck is { GameUpdateAvailable: true }
                     ? (NextAction.Update, "Update", true)
-                    : !FilesReady(current) && !DownloadedFilesPlayable(current)
+                    : !FilesReady(current) && !DownloadedFilesPlayable(current) && !(GameFound && BuiltFilesPlayable(current))
                         ? GameFound
                             ? (NextAction.Prepare, "Prepare game files", ContentBuildPlan.Python(_layout.VersionDir(current.ToString())) is not null)
                             : (NextAction.Prepare, "Download game files", true)
@@ -979,7 +985,7 @@ internal sealed class MainForm : Form
         // Content built from an install wins; without it the downloaded packs are enough (the game finds them itself).
         // Built content that is out of date (a new version, another game folder) gives way to current downloaded files.
         bool packs = PackedContent.Installed(_packs);
-        bool built = ContentIsCurrent(current) || (!packs && ContentState.Load(_layout.Content) is { Ok: true });
+        bool built = ContentIsCurrent(current) || BuiltFilesPlayable(current) || (!packs && ContentState.Load(_layout.Content) is { Ok: true });
         if (!built && !packs)
         {
             SetStatus("Get the game files first (step 3).", Theme.Warning);
