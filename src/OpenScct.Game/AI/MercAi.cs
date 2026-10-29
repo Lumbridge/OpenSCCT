@@ -4,8 +4,50 @@ using OpenScct.Core;
 using OpenScct.Core.Engine;
 using OpenScct.Game.Combat;
 using OpenScct.Game.SBase;
+using OpenScct.Physics.Collision;
 
 namespace OpenScct.Game.AI;
+
+/// <summary>Tuning of the merc bot's close fighting (choices of the bots, not game values; docs/AI.md).</summary>
+public static class MercAiK
+{
+    /// <summary>A downed spy is finished from this far (path start distance, uu).</summary>
+    public const float FinishRange = 1500f;
+
+    /// <summary>A downed spy out of sight is still taken as down this long after he was last seen lying (a charge or spin KO lasts 3 s).</summary>
+    public const float FinishMemorySeconds = 3f;
+
+    /// <summary>The merc walks up to a downed spy until this close (horizontal), then turns to him and presses Use.</summary>
+    public const float FinishWalkUntil = 140f;
+
+    /// <summary>The Use press for the finishing move only this far inside the game's 250 uu search (the press acts a tick later).</summary>
+    public const float ReachMargin = 25f;
+
+    /// <summary>The finishing press wants the body facing the downed spy at least this much (the game takes over -0.5).</summary>
+    public const float TerminateFacingDot = 0.3f;
+
+    /// <summary>
+    /// The aim at a lying spy, as a share of his collision height below his centre: the server's estimated pill pose
+    /// keeps the calves and feet on the centre line from -0.5 to -0.97 (IHitZones.cs), and the body on screen lies on
+    /// the floor, so a low aim hits both.
+    /// </summary>
+    public const float LyingAimDrop = 0.6f;
+
+    /// <summary>A spy this close (horizontal) is at point blank: the rifle may be blocked by his body.</summary>
+    public const float PointBlank = 110f;
+
+    /// <summary>A merc whose walk is stopped by a spy's body within this slack (uu, beyond the radii) feels him.</summary>
+    public const float TouchSlack = 6f;
+
+    /// <summary>The walk counts as stopped below this speed along the pushed direction (uu/s).</summary>
+    public const float BlockedSpeed = 40f;
+
+    /// <summary>After feeling a spy the merc stops and looks at the spot this long.</summary>
+    public const float FeltLookSeconds = 2f;
+
+    /// <summary>A charge is not started with a team mate this close to its line or to the spy (the charge knocks mates down too).</summary>
+    public const float ChargeMateClearance = 120f;
+}
 
 /// <summary>
 /// A merc bot. Goals, scored every decision period:
@@ -15,7 +57,10 @@ namespace OpenScct.Game.AI;
 /// holding fire with a teammate in the line, reloading on an empty clip.</item>
 /// <item>At close quarters in Engage, the Use key as a player presses it (melee-elbow-charge-berserk.md rule 1),
 /// taken by the difficulty's melee use when the controller's rules allow it: the charge with forward held at a spy 140
-/// to 550 uu ahead, Use alone within elbow reach (the berserk spin when ready, else the elbow).</item>
+/// to 550 uu ahead, Use alone within elbow reach (the berserk spin when ready, else the elbow). At point blank, where
+/// the spy's body blocks the muzzle, the strike is always taken, else the merc steps back to shoot.</item>
+/// <item><b>Finish</b>: a spy it saw go down: walk up, face him and press Use when the game's finishing search would
+/// take him (then Use again to kill at once), shooting him low until then.</item>
 /// <item><b>Respond</b>: a terminal is being hacked (the HUD's objective radar and messages): run to it.</item>
 /// <item><b>Frag</b>: a spy it just lost behind cover, 400 to 1600 uu away: throw a frag grenade at the spot.</item>
 /// <item><b>Investigate</b>: a noise, a teammate's callout or a lost spy: go to the place, torch on in the dark,
@@ -30,6 +75,7 @@ public sealed class MercAi : AiBrain
     public const int GRespond = 2;
     public const int GInvestigate = 3;
     public const int GFrag = 4;
+    public const int GFinish = 5;
 
     private AiContact? _target;
     private float _trackSince = -1f;
@@ -62,6 +108,10 @@ public sealed class MercAi : AiBrain
     private bool _meleeWanted;
     private float _useAt = -10f;
     private bool _wasCharging;
+    private SBasePawn? _downed;
+    private float _downedSeenAt = -100f;
+    private float _feltAt = -100f;
+    private FVector _feltSpot;
 
     private static readonly Name NameCharging = new("s_PlayerCharging");
     private static readonly Name NameReloading = new("s_Reloading");
@@ -95,8 +145,14 @@ public sealed class MercAi : AiBrain
     /// <summary>Use presses at elbow reach (the berserk spin when it is ready, else the elbow).</summary>
     public int CloseStrikes { get; private set; }
 
+    /// <summary>Use presses for the finishing move on a downed spy.</summary>
+    public int Terminates { get; private set; }
+
+    /// <summary>Times a spy was felt (the merc's walk stopped against him).</summary>
+    public int Touches { get; private set; }
+
     public override string Status => string.Create(System.Globalization.CultureInfo.InvariantCulture,
-        $"merc {GoalName(Goal)} post {_post?.TriggerName ?? "-"} bursts {Bursts} charges {Charges} strikes {CloseStrikes} frags {FragsThrown} path {Follower.NextIndex}/{Follower.Path.Count}");
+        $"merc {GoalName(Goal)} post {_post?.TriggerName ?? "-"} bursts {Bursts} charges {Charges} strikes {CloseStrikes} finishes {Terminates} frags {FragsThrown} path {Follower.NextIndex}/{Follower.Path.Count}");
 
     public static string GoalName(int goal) => goal switch
     {
@@ -104,6 +160,7 @@ public sealed class MercAi : AiBrain
         GRespond => "respond",
         GInvestigate => "investigate",
         GFrag => "frag",
+        GFinish => "finish",
         _ => "guard",
     };
 
@@ -114,6 +171,7 @@ public sealed class MercAi : AiBrain
         _burstStart = -1f;
         _fragPhase = 0;
         _post = null;
+        _downed = null;
     }
 
     // ---- choice ----------------------------------------------------------------------------------------------
@@ -125,7 +183,7 @@ public sealed class MercAi : AiBrain
             return GFrag;
         }
 
-        Span<AiOption> options = stackalloc AiOption[5];
+        Span<AiOption> options = stackalloc AiOption[6];
         int n = 0;
         options[n++] = new AiOption(GGuard, 0.4f);
         _target = null;
@@ -148,6 +206,13 @@ public sealed class MercAi : AiBrain
         if (_target is not null)
         {
             options[n++] = new AiOption(GEngage, 2f);
+        }
+
+        // A spy it saw go down: finish him (the finishing move, or the rifle) before he gets up.
+        if (DownedSpy(now) is { } downed)
+        {
+            _downed = downed;
+            options[n++] = new AiOption(GFinish, 2.2f);
         }
 
         _alert = HackAlert();
@@ -185,6 +250,36 @@ public sealed class MercAi : AiBrain
         }
 
         return Pick(options[..n]);
+    }
+
+    /// <summary>
+    /// The nearest spy the merc saw lying on the ground (a body on the floor, as the screen shows it): in sight now, or
+    /// seen lying within <see cref="MercAiK.FinishMemorySeconds"/>.
+    /// </summary>
+    private SBasePawn? DownedSpy(float now)
+    {
+        SBasePawn? best = null;
+        float bestD = MercAiK.FinishRange;
+        foreach (AiContact c in Bot.Memory.Contacts)
+        {
+            if (c.Visible && c.Pawn is SPawnAttaque { Health: > 0, bLyingOnGround: true } spy && (spy.Location - Pawn.Location).Size() < bestD)
+            {
+                bestD = (spy.Location - Pawn.Location).Size();
+                best = spy;
+            }
+        }
+
+        if (best is not null)
+        {
+            _downedSeenAt = now;
+            return best;
+        }
+
+        // Out of sight now: still taken as down for a moment where he fell (a spy seen standing again is not).
+        return _downed is { Health: > 0, bDeleteMe: false } last && Bot.Memory.Find(last) is { Visible: false } &&
+            now - _downedSeenAt < MercAiK.FinishMemorySeconds
+            ? last
+            : null;
     }
 
     /// <summary>A terminal being hacked, as the merc HUD's objective radar shows it (the trigger's replicated state).</summary>
@@ -233,6 +328,12 @@ public sealed class MercAi : AiBrain
             _fragPhase = 0;
         }
 
+        if (from == GFinish)
+        {
+            _burstStart = -1f;
+            _downed = null;
+        }
+
         if (from == GGuard)
         {
             World.Teams[1].Release(Bot);
@@ -263,6 +364,22 @@ public sealed class MercAi : AiBrain
             return;
         }
 
+        // The finishing move holds the merc (knockout-and-terminate.md rules 38 to 40): no keys, except a fresh Use
+        // press while holding the spy, which kills him at once (else the 10 s timer does).
+        string stateName = state.ToString();
+        if (stateName.StartsWith("s_TerminatePawn", StringComparison.Ordinal))
+        {
+            plan.Pitch = Pc.Rotation.Pitch;
+            if (stateName == "s_TerminatePawn_Maintain" && now - _useAt > 0.25f)
+            {
+                _useAt = now;
+                plan.Keys.bUsing = 1;
+            }
+
+            return;
+        }
+
+        Feel(now);
         switch (Goal)
         {
             case GEngage:
@@ -277,9 +394,23 @@ public sealed class MercAi : AiBrain
             case GFrag:
                 Frag(now, ref plan);
                 break;
+            case GFinish:
+                Finish(now, ref plan);
+                break;
             default:
                 Guard(now, ref plan);
                 break;
+        }
+
+        if (Goal is not (GEngage or GFinish) && now - _feltAt < MercAiK.FeltLookSeconds)
+        {
+            // Something stopped the walk: stand and look at it (down at the feet for a crouched spy).
+            plan.Keys.BT_Up = 0;
+            plan.Keys.BT_Down = 0;
+            plan.Keys.BT_Left = 0;
+            plan.Keys.BT_Right = 0;
+            plan.MoveYaw = null;
+            LookAt(_feltSpot, ref plan);
         }
 
         Reload(ref plan);
@@ -347,29 +478,23 @@ public sealed class MercAi : AiBrain
             return;
         }
 
+        if (c.Pawn is SPawnAttaque { bLyingOnGround: true } down)
+        {
+            // He went down in front of the merc (an elbow, a charge, a spin): finish him.
+            _downed = down;
+            _downedSeenAt = now;
+            Finish(now, ref plan);
+            return;
+        }
+
         if (_trackSince < 0f)
         {
             _trackSince = now;
         }
 
-        // The aim error: a fresh draw every 0.25 s, from the first-shot spread to the settled one while tracking.
-        float tracked = now - _trackSince;
-        float spread = SvmMath.Lerp(Difficulty.AimErrorDegrees, Difficulty.AimSettledDegrees,
-            SvmMath.Clamp(tracked / SvmMath.Max(0.05f, Difficulty.AimSettleSeconds), 0f, 1f));
-        if (now - _errorAt > 0.25f)
-        {
-            _errorAt = now;
-            _errorYaw = (Bot.Random.FRand() + Bot.Random.FRand() - 1f) * spread;
-            _errorPitch = (Bot.Random.FRand() + Bot.Random.FRand() - 1f) * spread * 0.6f;
-        }
-
-        FVector aimPoint = c.Pawn.Location - new FVector(0f, 0f, c.Pawn.bIsCrouched ? 5f : 20f) +
-            c.Pawn.Velocity * (Difficulty.ReactionTime * 0.5f * Difficulty.LeadFactor);
-        FRotator aim = (aimPoint - AiSight.Eye(Pawn)).Rotation();
-        const float unitsPerDegree = 65536f / 360f;
-        plan.Yaw = (aim.Yaw + (int)(_errorYaw * unitsPerDegree)) & 0xFFFF;
-        plan.Pitch = aim.Pitch + (int)(_errorPitch * unitsPerDegree);
-        plan.Tolerance = 65536;
+        float spread = Spread(now);
+        FVector aimPoint = AimPoint(c.Pawn) + c.Pawn.Velocity * (Difficulty.ReactionTime * 0.5f * Difficulty.LeadFactor);
+        Aim(aimPoint, ref plan);
 
         // Movement: the better mercs side-step between bursts at range.
         if (Difficulty.Skill >= AiSkill.Hard && (c.Pawn.Location - Pawn.Location).Size() > 600f)
@@ -390,16 +515,78 @@ public sealed class MercAi : AiBrain
             }
         }
 
+        // At point blank the spy's body can block the muzzle (CheckIfCanFire, merc-rifle.md rule 3): the rifle does not
+        // fire, as a player sees; the elbow or the spin then, else a step back to shoot.
+        bool pointBlank = NavFollower.Horizontal(c.Pawn.Location - Pawn.Location) < MercAiK.PointBlank;
+        bool muzzleBlocked = pointBlank && !Pc.CheckIfCanFire();
         bool reacted = c.VisibleSince >= 0f && now - c.VisibleSince >= Difficulty.ReactionTime;
-        if (reacted && c.Pawn is SBasePawn spy && Melee(now, spy, ref plan))
+        if (reacted && c.Pawn is SBasePawn spy && Melee(now, spy, muzzleBlocked, ref plan))
         {
             _burstStart = -1f;
             return;
         }
 
-        float error = AimErrorTo(c.Pawn.Location);
+        if (muzzleBlocked)
+        {
+            plan.Keys.BT_Down = 1;
+            plan.Keys.BT_Up = 0;
+            _burstStart = -1f;
+            return;
+        }
+
+        if (!reacted)
+        {
+            _burstStart = -1f;
+            return;
+        }
+
+        Shoot(now, c.Pawn.Location, spread, ref plan);
+    }
+
+    /// <summary>The aim error: a fresh draw every 0.25 s, from the first-shot spread to the settled one while tracking.</summary>
+    private float Spread(float now)
+    {
+        float tracked = _trackSince < 0f ? 0f : now - _trackSince;
+        float spread = SvmMath.Lerp(Difficulty.AimErrorDegrees, Difficulty.AimSettledDegrees,
+            SvmMath.Clamp(tracked / SvmMath.Max(0.05f, Difficulty.AimSettleSeconds), 0f, 1f));
+        if (now - _errorAt > 0.25f)
+        {
+            _errorAt = now;
+            _errorYaw = (Bot.Random.FRand() + Bot.Random.FRand() - 1f) * spread;
+            _errorPitch = (Bot.Random.FRand() + Bot.Random.FRand() - 1f) * spread * 0.6f;
+        }
+
+        return spread;
+    }
+
+    /// <summary>Where to shoot a spy: the chest, lower for a crouched one, the legs of one lying on the ground.</summary>
+    private static FVector AimPoint(Pawn spy) =>
+        spy is SBasePawn { bLyingOnGround: true }
+            ? spy.Location - new FVector(0f, 0f, spy.CollisionHeight * MercAiK.LyingAimDrop)
+            : spy.Location - new FVector(0f, 0f, spy.bIsCrouched ? 5f : 20f);
+
+    /// <summary>The view on <paramref name="point"/> with the current aim error.</summary>
+    private void Aim(FVector point, ref AiPlan plan)
+    {
+        FRotator aim = (point - AiSight.Eye(Pawn)).Rotation();
+        const float unitsPerDegree = 65536f / 360f;
+        if (plan.Keys.BT_Up != 0 && plan.Yaw is { } moving && plan.MoveYaw is null)
+        {
+            // A walk already planned goes on in its own direction (camera-relative keys).
+            plan.MoveYaw = moving;
+        }
+
+        plan.Yaw = (aim.Yaw + (int)(_errorYaw * unitsPerDegree)) & 0xFFFF;
+        plan.Pitch = aim.Pitch + (int)(_errorPitch * unitsPerDegree);
+        plan.Tolerance = 65536;
+    }
+
+    /// <summary>Short bursts at <paramref name="target"/> while the view is on it, not through a team mate, with a loaded clip.</summary>
+    private void Shoot(float now, FVector target, float spread, ref AiPlan plan)
+    {
+        float error = AimErrorTo(target);
         bool onTarget = error < spread + 3f;
-        if (!reacted || !onTarget || TeammateInTheWay(c.Pawn.Location) || Pawn.MyWeapon is not SWeaponDefense w || w.ClipAmmo <= 0)
+        if (!onTarget || TeammateInTheWay(target) || Pawn.MyWeapon is not SWeaponDefense w || w.ClipAmmo <= 0)
         {
             _burstStart = -1f;
             return;
@@ -430,6 +617,171 @@ public sealed class MercAi : AiBrain
     }
 
     /// <summary>
+    /// A spy lies on the ground: walk up to him, turn to him and press Use when the game's finishing search would
+    /// take him (FindPawnToReanimateOrTerminate, knockout-and-terminate.md rule 36); shoot him (low) while he is in
+    /// sight and the press is not there yet.
+    /// </summary>
+    private void Finish(float now, ref AiPlan plan)
+    {
+        if (_downed is not { } spy || spy.bDeleteMe || spy.Health <= 0)
+        {
+            return;
+        }
+
+        AiContact? c = Bot.Memory.Find(spy);
+        bool seen = c is { Visible: true };
+        FVector at = seen || c is null ? spy.Location : c.Position;
+        bool known = seen || now - _downedSeenAt < MercAiK.FinishMemorySeconds;
+        if (known && TerminateReady(spy))
+        {
+            // No stick on the press: Use with forward is the charge.
+            LookAt(AimPoint(spy), ref plan);
+            plan.Keys = default;
+            plan.MoveYaw = null;
+            if (now - _useAt > 0.25f)
+            {
+                _useAt = now;
+                Terminates++;
+                plan.Keys.bUsing = 1;
+            }
+
+            return;
+        }
+
+        FVector feet = at - new FVector(0f, 0f, spy.CollisionHeight);
+        FVector away = new FVector(Pawn.Location.X - at.X, Pawn.Location.Y - at.Y, 0f).SafeNormal();
+        if (NavFollower.Horizontal(at - Pawn.Location) > MercAiK.FinishWalkUntil)
+        {
+            int node = Follower.Graph.NearestNode(feet + (away * 100f) + new FVector(0f, 0f, 60f), 0f, 300f);
+            if (node < 0 || !MoveTo(Follower.Graph.Node(node).Floor, now, ref plan, sneak: false))
+            {
+                plan.Yaw = NavFollower.YawTo(Pawn.Location, at);
+                plan.Tolerance = 3000;
+                plan.Keys.BT_Up = World.LineOpen(Pawn.Location, at) ? (byte)1 : (byte)0;
+            }
+        }
+
+        if (!seen)
+        {
+            if (World.LineOpen(AiSight.Eye(Pawn), at))
+            {
+                LookAt(at, ref plan);
+            }
+
+            return;
+        }
+
+        if (_trackSince < 0f)
+        {
+            _trackSince = now;
+        }
+
+        float spread = Spread(now);
+        Aim(AimPoint(spy), ref plan);
+        if (NavFollower.Horizontal(at - Pawn.Location) < MercAiK.PointBlank && !Pc.CheckIfCanFire())
+        {
+            // The body under the muzzle (the finishing search refused here: a step, a wall): a step back to shoot.
+            plan.Keys.BT_Down = 1;
+            plan.Keys.BT_Up = 0;
+            plan.MoveYaw = null;
+            return;
+        }
+
+        Shoot(now, AimPoint(spy), spread, ref plan);
+    }
+
+    /// <summary>
+    /// The finishing search's own test for <paramref name="spy"/> (FindPawnToReanimateOrTerminate, rule 36), with a
+    /// margin: in a walking state that acts on the Use press, no menu entry to open first, the spy alive and
+    /// finishable, within 250 uu and in front of the body, the feet within 10 uu in height and the clearance box free
+    /// from the merc to the spot 110 uu behind the spy.
+    /// </summary>
+    private bool TerminateReady(SBasePawn spy)
+    {
+        if (Pawn is not SPAWNDEFENSE me || !spy.bCanBeTerminated || spy.Health <= 0 || me.Physics != EPhysics.PHYS_Walking ||
+            !Pc.GetStateName().ToString().StartsWith("s_PlayerWalking", StringComparison.Ordinal) ||
+            (Pc.IManager?.HasUsableInteractions() ?? false) || me.bStickyShocking)
+        {
+            return false;
+        }
+
+        FVector to = spy.Location - me.Location;
+        if (to.Size() >= K.ReviveRange - MercAiK.ReachMargin || (to.SafeNormal() | me.Rotation.Vector().SafeNormal()) <= MercAiK.TerminateFacingDot)
+        {
+            return false;
+        }
+
+        FVector feet = spy.Location - new FVector(0f, 0f, spy.CollisionHeight);
+        if (MathF.Abs(me.Location.Z - me.CollisionHeight - feet.Z) >= K.TerminateHeightTolerance)
+        {
+            return false;
+        }
+
+        if (TraceHitZones.CollisionOf(Pc) is not { } world)
+        {
+            return true;
+        }
+
+        FVector spot = feet - spy.Rotation.Vector() * K.TerminateStandOffset;
+        FVector from = me.Location - new FVector(0f, 0f, me.CollisionHeight - K.TerminateClearanceRaise);
+        return !world.LineCheck(out _, me, spot + new FVector(0f, 0f, K.TerminateClearanceRaise), from, K.TerminateClearanceExtent,
+            ETraceFlags.TRACE_AllColliding);
+    }
+
+    /// <summary>
+    /// The merc's walk stopped against a spy's body (a player sees his walk blocked by something): the spot is noted
+    /// as a sure contact and the merc stops and looks there. A spy who keeps still beside a merc that stands still
+    /// gives no cue.
+    /// </summary>
+    private void Feel(float now)
+    {
+        if (Pawn.Physics != EPhysics.PHYS_Walking)
+        {
+            return;
+        }
+
+        FVector push = new(Pawn.Acceleration.X, Pawn.Acceleration.Y, 0f);
+        if (push.SizeSquared() < 1f)
+        {
+            return;
+        }
+
+        push = push.SafeNormal();
+        if ((Pawn.Velocity | push) > MercAiK.BlockedSpeed)
+        {
+            return;
+        }
+
+        foreach (Pawn p in Bot.Enemies)
+        {
+            // A lying body does not block (collision (1, 0, 0)).
+            if (p is not SBasePawn { bLyingOnGround: false } spy)
+            {
+                continue;
+            }
+
+            FVector to = spy.Location - Pawn.Location;
+            float flat = NavFollower.Horizontal(to);
+            if (flat > Pawn.CollisionRadius + spy.CollisionRadius + MercAiK.TouchSlack ||
+                MathF.Abs(to.Z) > Pawn.CollisionHeight + spy.CollisionHeight ||
+                (new FVector(to.X, to.Y, 0f).SafeNormal() | push) < 0.5f)
+            {
+                continue;
+            }
+
+            if (now - _feltAt > MercAiK.FeltLookSeconds)
+            {
+                Touches++;
+            }
+
+            _feltAt = now;
+            _feltSpot = spy.Location;
+            Bot.Memory.Report(spy, spy.Location, now, 0.9f, AiContactSource.Heard);
+            return;
+        }
+    }
+
+    /// <summary>
     /// The Use key at close quarters (melee-elbow-charge-berserk.md rule 1), pressed only when the controller would
     /// take it: a charge (forward held) needs the spy 140 to 550 uu ahead in the view and the charge cone, a clear
     /// line, the charge and spin cooldowns and no reload; Use alone needs the spy within elbow reach in front, out of
@@ -437,7 +789,7 @@ public sealed class MercAi : AiBrain
     /// the difficulty's melee use, looked at once a second; the better mercs never charge or strike a spy holding
     /// his shocker on them (rule 19: the merc would shock himself). True when Use is pressed this tick.
     /// </summary>
-    private bool Melee(float now, SBasePawn spy, ref AiPlan plan)
+    private bool Melee(float now, SBasePawn spy, bool forced, ref AiPlan plan)
     {
         if (Difficulty.MeleeUse <= 0f || Pawn is not SPAWNDEFENSE merc || merc.bIsCrouched || merc.Physics != EPhysics.PHYS_Walking ||
             !Pc.GetStateName().ToString().StartsWith("s_PlayerWalking", StringComparison.Ordinal) ||
@@ -451,7 +803,7 @@ public sealed class MercAi : AiBrain
         GameReplicationInfo? gri = Pc.GameReplicationInfo;
         bool charge = dist > AiK.MercChargeMin && dist < AiK.MercChargeReach && ChargeAllowed(now, merc, gri) &&
             AimErrorTo(spy.Location) < AiK.MercChargeAimDegrees && World.LineOpen(merc.Location, spy.Location) &&
-            World.LineOpen(AiSight.Eye(merc), spy.Location);
+            World.LineOpen(AiSight.Eye(merc), spy.Location) && !MateNearLine(merc.Location, spy.Location, MercAiK.ChargeMateClearance);
         bool strike = !charge && dist < AiK.MercElbowReach && (to.SafeNormal() | merc.Rotation.Vector()) > K.ElbowMercCone + 0.1f &&
             !spy.bStickyShocking && now - spy.iLastWakeTime > K.ElbowWakeProtection && StrikeAllowed(now, merc, gri) && !MateNear(merc);
         if (!charge && !strike)
@@ -465,8 +817,9 @@ public sealed class MercAi : AiBrain
             _meleeWanted = Bot.Random.FRand() < Difficulty.MeleeUse;
         }
 
-        // Use needs a fresh press (the edge of BT_UseJusteAppuye): released for a moment between two.
-        if (!_meleeWanted || now - _useAt < 0.25f)
+        // Use needs a fresh press (the edge of BT_UseJusteAppuye): released for a moment between two. A strike whose
+        // rifle is blocked by the spy's body is not left to the roll (a player has nothing else at that range).
+        if (!(_meleeWanted || (forced && strike)) || now - _useAt < 0.25f)
         {
             return false;
         }
@@ -512,6 +865,28 @@ public sealed class MercAi : AiBrain
             !rifle.IsInState(NameFireGrenade);
         bool elbow = (gri is null || gri.bAvlb_MERC_Elbow) && !rifle.IsInState(NameReloading) && !rifle.IsInState(NameFiring);
         return spin || elbow;
+    }
+
+    /// <summary>A living team mate within <paramref name="clearance"/> of the segment, or of its end (the charge's path and its victim).</summary>
+    private bool MateNearLine(FVector from, FVector to, float clearance)
+    {
+        FVector d = to - from;
+        float len2 = d.SizeSquared();
+        foreach (SPAWNDEFENSE mate in World.Level.DynamicActors<SPAWNDEFENSE>())
+        {
+            if (ReferenceEquals(mate, Pawn) || mate.bDeleteMe || mate.Health <= 0)
+            {
+                continue;
+            }
+
+            float t = len2 > 0f ? SvmMath.Clamp(((mate.Location - from) | d) / len2, 0f, 1f) : 0f;
+            if ((from + d * t - mate.Location).SizeSquared() < clearance * clearance)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /// <summary>A living team mate within the spin's clearance.</summary>

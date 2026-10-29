@@ -29,14 +29,18 @@ public struct NavCommand
 /// Walks a pawn along a <see cref="NavGraph"/> path with the keys a player would press: it faces the next waypoint and
 /// holds forward, passes waypoints early when the next is in a clear straight line, crouches for crawl edges, walks
 /// off ledges for drops, and plays each traversal link as the recorded moves do (docs/spikes/R4-traversal.md): run at
-/// the wall, stop, jump and hold forward for a ledge; walk into a pipe and hold forward to climb it; run, jump under a
-/// zip line and ride. A walker that makes no progress plans again around the place; a link that fails is left out of
-/// the side's plans for a while.
+/// the wall, stop, jump and hold forward for a ledge; walk into a pipe or a ladder and hold forward to climb it (back
+/// to climb a ladder down from its top); run into a fence, climb, cross the top and climb down; walk in under a
+/// horizontal pipe, jump, go hand over hand and drop at the far end; run, jump under a zip line and ride. A walker that makes no progress plans again around the place; a link that fails is left out of
+/// the side's plans for a while, and so are the edges across a place where a walker stuck twice (a closed door).
 /// </summary>
 public sealed class NavFollower
 {
     private const ETraceFlags WorldFlags = ETraceFlags.TRACE_Blocking | ETraceFlags.TRACE_Level | ETraceFlags.TRACE_LevelGeometry |
         ETraceFlags.TRACE_Volumes | ETraceFlags.TRACE_Others;
+
+    /// <summary>What shuts a way at run time as well: the world and movers (doors).</summary>
+    private const ETraceFlags BarrierFlags = WorldFlags | ETraceFlags.TRACE_Movers;
 
     private readonly AiWorld _world;
     private readonly bool _spy;
@@ -64,6 +68,7 @@ public sealed class NavFollower
         Hang,
         Climb,
         Ride,
+        Bar,
     }
 
     private TPhase _phase;
@@ -166,7 +171,7 @@ public sealed class NavFollower
             penalty = n => (_avoid.Contains(n) ? 5000f : 0f) + (inner?.Invoke(n) ?? 0f);
         }
 
-        if (!g.FindPath(from, to, _path, _stealth, penalty, _world.BadLinks(_spy)))
+        if (!g.FindPath(from, to, _path, _stealth, penalty, _world.BadLinks(_spy), float.MaxValue, _world.BadEdges(_spy)))
         {
             Failed = true;
             return false;
@@ -578,6 +583,26 @@ public sealed class NavFollower
             return true;
         }
 
+        // Stuck where it stuck a little while ago (a closed door, a mover, a wall the graph thinks is open): the edges
+        // across the way ahead are left out of the side's plans for a while, so this and later plans go round (a pipe,
+        // another door) even after the goal is set again.
+        FVector at = pawn.Location;
+        bool again = _stuckTime >= 0f && now - _stuckTime < AiK.StuckRepeatSeconds && Horizontal(at - _stuckAt) < AiK.StuckRepeatRadius &&
+            MathF.Abs(at.Z - _stuckAt.Z) < 80f;
+        _stuckAt = at;
+        _stuckTime = now;
+        if (again && pawn is SBasePawn walker && BlockAhead(walker))
+        {
+            _stuckTime = -1f;
+            if (++_replans > 6 || !Plan(pawn))
+            {
+                Failed = true;
+                return false;
+            }
+
+            return true;
+        }
+
         // Stuck: every other time wiggle free first, else avoid the place ahead and plan again from here; after a
         // few tries the goal is given up.
         if ((_replans & 1) == 0)
@@ -601,6 +626,107 @@ public sealed class NavFollower
         return true;
     }
 
+    private FVector _stuckAt;
+    private float _stuckTime = -1f;
+    private readonly List<int> _across = new();
+
+    /// <summary>
+    /// The way ahead is shut: the edges across a line in front of the walker are left out of the side's plans (a
+    /// closed door hit by a trace toward the next waypoint gives a wider line along its face). False when there is
+    /// nothing to block (no waypoint ahead, or a pawn in the way: he moves on).
+    /// </summary>
+    private bool BlockAhead(SBasePawn pawn)
+    {
+        FVector at = pawn.Location;
+        int k = _next;
+        while (k < _path.Count - 1 && Horizontal(_path[k].Point - at) < 24f)
+        {
+            k++;
+        }
+
+        if (k >= _path.Count || PawnInTheWay(pawn, _path[k].Point, AiK.PawnAheadGap, out _, out _))
+        {
+            return false;
+        }
+
+        FVector to = _path[k].Point - at;
+        float len = Horizontal(to);
+        if (len < 1f)
+        {
+            return false;
+        }
+
+        var dir = new FVector(to.X / len, to.Y / len, 0f);
+        FVector end = at + dir * AiK.StuckProbe;
+        FVector center;
+        FVector normal;
+        float half;
+        if (_world.Collision.LineCheck(out FCheckResult hit, pawn, end, at, default, BarrierFlags))
+        {
+            center = hit.Location;
+            normal = new FVector(hit.Normal.X, hit.Normal.Y, 0f);
+            normal = normal.Size() > 0.3f ? normal.SafeNormal() : -dir;
+            half = hit.Actor is Mover ? AiK.DoorBlockHalfWidth : AiK.StuckBlockHalfWidth;
+        }
+        else
+        {
+            center = at + dir * MathF.Min(len, 48f);
+            normal = -dir;
+            half = AiK.StuckBlockHalfWidth;
+        }
+
+        return BlockAcross(Feet(pawn).Z, center, normal, half) > 0;
+    }
+
+    /// <summary>
+    /// Leaves out of the side's plans (for <see cref="AiK.BlockedEdgeSeconds"/>) the edges that cross the line through
+    /// <paramref name="center"/> along a face whose normal is <paramref name="normal"/>, <paramref name="halfWidth"/>
+    /// each way, near the floor height <paramref name="floorZ"/>. Returns the count of edges left out.
+    /// </summary>
+    public int BlockAcross(float floorZ, FVector center, FVector normal, float halfWidth)
+    {
+        var along = new FVector(-normal.Y, normal.X, 0f);
+        float size = along.Size();
+        if (size < 0.01f)
+        {
+            return 0;
+        }
+
+        along *= halfWidth / size;
+        Graph.EdgesAcross(center - along, center + along, floorZ, 60f, _across);
+        if (_across.Count > 0)
+        {
+            _world.MarkBadEdges(_spy, _across);
+        }
+
+        return _across.Count;
+    }
+
+    /// <summary>Plans again from here (after <see cref="BlockAcross"/>); false when the goal cannot be reached now.</summary>
+    public bool Replan(Pawn pawn)
+    {
+        ArgumentNullException.ThrowIfNull(pawn);
+        if (!_hasGoal)
+        {
+            return false;
+        }
+
+        if (++_replans > 6 || !Plan(pawn))
+        {
+            Failed = true;
+            return false;
+        }
+
+        return true;
+    }
+
+    /// <summary>The walk goes on after a pause the follower did not steer (a door opened on the way): no stuck count for it.</summary>
+    public void Resume()
+    {
+        _progressAt = -1f;
+        _wiggleUntil = -1f;
+    }
+
     // ---- traversal -------------------------------------------------------------------------------------------
 
     private NavCommand Traverse(SBasePawn pawn, float now, int viewYaw, NavStep step)
@@ -613,17 +739,45 @@ public sealed class NavFollower
         {
             Enter(TPhase.Approach, now);
             _tries = 0;
+            _lined = false;
+            _crossed = false;
         }
 
         switch (_phase)
         {
             case TPhase.Approach:
             {
-                float d = Horizontal(link.Start - at);
+                // Under a bar: first to a spot behind the jump spot, then walk in along the bar, so the body faces
+                // the way the hands will go (the move along the bar follows the body, not the view).
+                FVector spot = link.Start;
+                if (link.Kind == NavEdgeKind.HandOverHand && !_lined)
+                {
+                    spot = link.Start - YawVector(link.Yaw) * AiK.HohRunIn;
+                    if (Horizontal(spot - at) < 14f)
+                    {
+                        _lined = true;
+                        spot = link.Start;
+                    }
+                }
+
+                float d = Horizontal(spot - at);
+                if (link.Kind == NavEdgeKind.HandOverHand && _lined && d > 8f)
+                {
+                    cmd.Yaw = YawTo(at, spot);
+                    cmd.Tolerance = 2500;
+                    cmd.Keys.BT_Up = 1;
+                    if (now - _phaseAt > 10f)
+                    {
+                        return Fail(pawn, link, step);
+                    }
+
+                    return cmd;
+                }
+
                 if (d > 12f)
                 {
                     // Close in slowly and only when facing the spot, so a running pawn does not overshoot it.
-                    cmd.Yaw = YawTo(at, link.Start);
+                    cmd.Yaw = YawTo(at, spot);
                     cmd.Tolerance = d > 120f ? 6000 : 2500;
                     cmd.Keys.BT_Up = (byte)(d > 40f || Speed(pawn) < 120f ? 1 : 0);
                     cmd.Keys.FastSpeed = d > 100f;
@@ -655,7 +809,12 @@ public sealed class NavFollower
                     return cmd;
                 }
 
-                Enter(link.Kind == NavEdgeKind.ZipLine ? TPhase.RunUp : TPhase.Press, now);
+                Enter(link.Kind switch
+                {
+                    NavEdgeKind.ZipLine => TPhase.RunUp,
+                    NavEdgeKind.HandOverHand => TPhase.Settle,
+                    _ => TPhase.Press,
+                }, now);
                 _slowSince = -1f;
                 return cmd;
 
@@ -663,14 +822,28 @@ public sealed class NavFollower
                 cmd.Yaw = link.Yaw;
                 cmd.Keys.BT_Up = 1;
                 cmd.Keys.FastSpeed = true;
-                if (link.Kind == NavEdgeKind.PipeClimb)
+                if (link.Kind is NavEdgeKind.PipeClimb or NavEdgeKind.LadderUp or NavEdgeKind.LadderDown or NavEdgeKind.FenceClimb)
                 {
-                    // Walk into the pipe: the grab comes from the arms zone.
-                    if (pawn.Physics == EPhysics.PHYS_OnPipe)
+                    // Walk into the pipe or ladder (the arms zone grabs it), walk off toward the ladder from its top
+                    // (the feet zone hangs the pawn on), run into the fence (the wall hit grabs it).
+                    if (link.Kind == NavEdgeKind.LadderDown)
+                    {
+                        cmd.Keys.FastSpeed = false;
+                    }
+
+                    bool on = link.Kind switch
+                    {
+                        NavEdgeKind.PipeClimb => pawn.Physics == EPhysics.PHYS_OnPipe,
+                        NavEdgeKind.LadderUp => pawn.Physics == EPhysics.PHYS_OnLadder || InState(pawn, "s_GrabLadder"),
+                        NavEdgeKind.FenceClimb => pawn.Physics == EPhysics.PHYS_OnVerticalPlane || InState(pawn, "GrabFence") ||
+                            InState(pawn, "OnFence"),
+                        _ => pawn.Physics is not (EPhysics.PHYS_Walking or EPhysics.PHYS_Falling),
+                    };
+                    if (on)
                     {
                         Enter(TPhase.Climb, now);
                     }
-                    else if (now - _phaseAt > 3f)
+                    else if (now - _phaseAt > 3f || (link.Kind == NavEdgeKind.LadderDown && pawn.Physics == EPhysics.PHYS_Falling))
                     {
                         return Fail(pawn, link, step);
                     }
@@ -727,6 +900,13 @@ public sealed class NavFollower
 
             case TPhase.Air:
                 cmd.Tolerance = 65536;
+                if (pawn.Physics == EPhysics.PHYS_OnPipeH || InState(pawn, "s_GrabPipH"))
+                {
+                    Enter(TPhase.Bar, now);
+                    _slowSince = -1f;
+                    return cmd;
+                }
+
                 if (pawn.Physics == EPhysics.PHYS_Ledge)
                 {
                     Enter(TPhase.Hang, now);
@@ -747,6 +927,7 @@ public sealed class NavFollower
                         return Fail(pawn, link, step);
                     }
 
+                    _lined = false;
                     Enter(TPhase.Approach, now);
                 }
                 else if (now - _phaseAt > 3f)
@@ -776,20 +957,89 @@ public sealed class NavFollower
                 return cmd;
 
             case TPhase.Climb:
+            {
                 cmd.Tolerance = 65536;
-                cmd.Keys.BT_Up = 1;
                 cmd.Keys.FastSpeed = true;
-                if (pawn.Physics == EPhysics.PHYS_Walking && now - _phaseAt > 0.5f)
+
+                // Up the pipe or ladder; down a ladder from its top; up a fence, over the top, then down the far side
+                // (back on the stick climbs down until the feet land).
+                bool down = link.Kind == NavEdgeKind.LadderDown;
+                if (link.Kind == NavEdgeKind.FenceClimb)
+                {
+                    FVector mid = (link.Start + link.End) * 0.5f;
+                    FVector face = YawVector(link.Yaw);
+                    _crossed |= ((at.X - mid.X) * face.X) + ((at.Y - mid.Y) * face.Y) > 0f;
+                    down = _crossed;
+                }
+
+                if (down)
+                {
+                    cmd.Keys.BT_Down = 1;
+                }
+                else
+                {
+                    cmd.Keys.BT_Up = 1;
+                }
+
+                float t = now - _phaseAt;
+                if (pawn.Physics == EPhysics.PHYS_Walking && t > 0.5f && (MathF.Abs(feet.Z - link.End.Z) < 80f || t > 2.5f))
                 {
                     return Done(pawn, link, step);
                 }
 
-                if (now - _phaseAt > link.Height / AiK.PipeClimbSpeed + 8f)
+                float speed = link.Kind switch
+                {
+                    NavEdgeKind.PipeClimb => AiK.PipeClimbSpeed,
+                    NavEdgeKind.FenceClimb => AiK.FenceSpeed * 0.5f,
+                    _ => AiK.LadderSpeed,
+                };
+                if (t > link.Height / speed + 8f)
                 {
                     return Fail(pawn, link, step);
                 }
 
                 return cmd;
+            }
+
+            case TPhase.Bar:
+            {
+                // Hand over hand to the far end (forward), then the crouch button lets go.
+                cmd.Tolerance = 65536;
+                float t = now - _phaseAt;
+                bool atEnd = Horizontal(at - link.End) < 24f;
+                if (Speed(pawn) < 10f && t > 0.8f)
+                {
+                    _slowSince = _slowSince < 0f ? now : _slowSince;
+                }
+                else
+                {
+                    _slowSince = -1f;
+                }
+
+                if (pawn.Physics is EPhysics.PHYS_OnPipeH or EPhysics.PHYS_RootMotion || InState(pawn, "s_GrabPipH") || InState(pawn, "s_OnPipeH"))
+                {
+                    if (atEnd || (_slowSince >= 0f && now - _slowSince > 0.4f))
+                    {
+                        cmd.Keys.bCrouch = 1;
+                    }
+                    else
+                    {
+                        cmd.Keys.BT_Up = 1;
+                    }
+                }
+                else if (pawn.Physics == EPhysics.PHYS_Walking && t > 0.5f)
+                {
+                    return Done(pawn, link, step);
+                }
+
+                if (t > (link.Start - link.End).Size() / AiK.HohSpeed + 8f)
+                {
+                    cmd.Keys.bCrouch = 1;
+                    return Fail(pawn, link, step, cmd);
+                }
+
+                return cmd;
+            }
 
             case TPhase.Ride:
                 cmd.Tolerance = 65536;
@@ -817,6 +1067,15 @@ public sealed class NavFollower
         _ = feet;
         return cmd;
     }
+
+    private bool _lined;
+    private bool _crossed;
+
+    private static FVector YawVector(int yaw) => new FRotator(0, yaw, 0).Vector();
+
+    /// <summary>True when the pawn's controller is in a state whose name starts with <paramref name="prefix"/>.</summary>
+    private static bool InState(Pawn pawn, string prefix) =>
+        pawn.Controller is { } c && c.GetStateName().ToString().StartsWith(prefix, StringComparison.Ordinal);
 
     private void Enter(TPhase phase, float now)
     {

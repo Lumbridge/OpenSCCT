@@ -25,6 +25,7 @@ public abstract class AiBrain
     {
         Bot = bot ?? throw new ArgumentNullException(nameof(bot));
         Follower = new NavFollower(bot.World, Spy);
+        Doors = new DoorAi(bot, Follower, Spy);
     }
 
     public AiController Bot { get; }
@@ -40,6 +41,9 @@ public abstract class AiBrain
     protected abstract bool Spy { get; }
 
     public NavFollower Follower { get; }
+
+    /// <summary>Closed doors on the route: opened through their switch, waited for, or planned round.</summary>
+    public DoorAi Doors { get; }
 
     /// <summary>The goal chosen last (a brain's own id).</summary>
     public int Goal { get; private set; } = -1;
@@ -108,6 +112,7 @@ public abstract class AiBrain
     public virtual void Reset()
     {
         Follower.Clear();
+        Doors.Reset();
         Goal = -1;
     }
 
@@ -133,6 +138,12 @@ public abstract class AiBrain
                 _failedAt = now;
                 return false;
             }
+        }
+
+        // A closed door on the route takes the keys while it is opened or waited for.
+        if (Doors.Steer(now, ref plan))
+        {
+            return true;
         }
 
         NavCommand c = Follower.Steer(Pawn, now, Pc.Rotation.Yaw & 0xFFFF, sneak);

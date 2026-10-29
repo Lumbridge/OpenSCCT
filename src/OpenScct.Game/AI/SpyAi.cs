@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using OpenScct.Core;
 using OpenScct.Core.Engine;
 using OpenScct.Game.SBase;
+using OpenScct.Provenance;
 
 namespace OpenScct.Game.AI;
 
@@ -16,8 +17,15 @@ namespace OpenScct.Game.AI;
 /// <item><b>Evade</b>: when a merc it sees faces it and it is lit, or it was hurt: run to the darkest nearby spot out
 /// of the merc's line of sight, with a quick-launched smoke grenade at the feet when the merc is close.</item>
 /// <item><b>Hide</b>: a merc in sight that does not face it while it stands in the dark: crouch, freeze and watch.</item>
-/// <item><b>Shock</b>: a merc close by and turned away (or in its face): draw the shocker, aim, fire, holster.</item>
+/// <item><b>Shock</b>: a merc closing in, facing the spy at mid range, or guarding the target terminal: draw the
+/// shocker (a tap of the fire-mode key), wait for the armed stance, aim, fire, holster.</item>
+/// <item><b>Grab</b>: a merc alone, turned away and in reach (in the dark, guarding the target or in the way): creep
+/// up behind him, press Use (the grab), then Use again (the neck break; Fire knocks out when there is no room).</item>
+/// <item><b>Drop</b>: a merc standing under a drop of the spy's graph: walk to the edge and step off onto his head
+/// (the drop attack knocks him down).</item>
 /// </list>
+/// Rolls (the roll key while running) dodge a merc that is shooting or watching, and speed up a run on a long straight
+/// stretch with no merc about. A drawn shocker is holstered whenever no shock is under way.
 /// Night vision goes on in the dark and off in the light, thermal when smoke is near.
 /// </summary>
 public sealed class SpyAi : AiBrain
@@ -27,8 +35,35 @@ public sealed class SpyAi : AiBrain
     public const int GEvade = 2;
     public const int GHide = 3;
     public const int GShock = 4;
+    public const int GGrab = 5;
+    public const int GDrop = 6;
 
     private static readonly Name NAME_s_MenuInteraction = new("s_MenuInteraction");
+    private static readonly Name NAME_s_PlayerWalkingMario_T_0HTo2H = new("s_PlayerWalkingMario_T_0HTo2H");
+    private static readonly Name NAME_s_PlayerWalkingMario_T_2HToOH = new("s_PlayerWalkingMario_T_2HToOH");
+    private static readonly Name NAME_s_GrabbingPlayer = new("s_GrabbingPlayer");
+
+    private enum ShockPhase : byte
+    {
+        None,
+        Draw,
+        Aim,
+        Check,
+    }
+
+    private enum GrabPhase : byte
+    {
+        Approach,
+        Press,
+        Hold,
+    }
+
+    private enum DropPhase : byte
+    {
+        Walk,
+        Step,
+        Fall,
+    }
 
     private enum HackPhase : byte
     {
@@ -48,11 +83,53 @@ public sealed class SpyAi : AiBrain
     private FVector _hideSpot;
     private float _hideSpotAt = -10f;
     private Pawn? _threat;
-    private float _smokeAt = -100f;
     private float _visionAt = -100f;
-    private int _shockPhase;
+    private float _exposure;
+
+    // Shock.
+    private ShockPhase _shockPhase;
     private float _shockAt;
+    private float _shockStart;
+    private int _shockTries;
+    private int _shots;
     private float _shockCooldownUntil;
+    private SBasePawn? _shockTarget;
+    private SBasePawn? _shockCandidate;
+    private bool _shockUrgent;
+    private float _shockRollAt = -100f;
+    private bool _shockRollOk;
+    private SBasePawn? _shockedPawn;
+    private float _shockedAt = -100f;
+    private float _holsterTapAt = -100f;
+
+    // Grab and drop (melee).
+    private float _meleeRollAt = -100f;
+    private bool _meleeRollOk;
+    private SBasePawn? _grabTarget;
+    private SBasePawn? _grabCandidate;
+    private GrabPhase _grab;
+    private float _grabAt;
+    private float _grabStart;
+    private int _grabPresses;
+    private float _grabCooldownUntil;
+    private SBasePawn? _dropTarget;
+    private SBasePawn? _dropCandidate;
+    private FVector _dropTop;
+    private FVector _dropLand;
+    private FVector _dropTopCand;
+    private FVector _dropLandCand;
+    private DropPhase _drop;
+    private float _dropAt;
+    private float _dropStart;
+    private float _dropCooldownUntil;
+    private float _dropSearchAt = -100f;
+    private float _letGoAt = -100f;
+
+    // Rolls.
+    private float _rollAt = -100f;
+    private float _rollLookAt = -100f;
+    private int _rollTicks;
+
     private float _hideCooldownUntil;
     private int _failures;
     private float _lastFailAt = -10f;
@@ -72,12 +149,42 @@ public sealed class SpyAi : AiBrain
     /// <summary>Use requests sent (Use held until the menu opened).</summary>
     public int Requests { get; private set; }
 
-    public int SmokesThrown { get; private set; }
+    /// <summary>Smokes the gadget layer threw (SpyGadgets.cs plays the smoke now).</summary>
+    public int SmokesThrown => Bot.Gadgets.Smokes;
 
     public int ShocksFired { get; private set; }
 
+    /// <summary>The terminal the spy is going for, if any (SpyGadgets reads it).</summary>
+    public SComputerObjectiveTrigger? Target => _target;
+
+    /// <summary>At the terminal: settling, asking or hacking (no gadget then).</summary>
+    public bool AtTerminal => Goal == GHack && _hack != HackPhase.Walk;
+
+    /// <summary>In a melee move (a grab or a drop under way): no gadget then.</summary>
+    public bool InMelee => (Goal == GGrab && _grabTarget is not null) || (Goal == GDrop && _dropTarget is not null) || InGrabStates();
+
+    /// <summary>Shots that left the merc sticky-shocked.</summary>
+    public int ShockHits { get; private set; }
+
+    /// <summary>Fire-mode taps that holstered a gun left out.</summary>
+    public int HolsterTaps { get; private set; }
+
+    /// <summary>Use presses at a merc's back, grabs that held, and neck breaks asked for.</summary>
+    public int GrabPresses { get; private set; }
+
+    public int Grabs { get; private set; }
+
+    public int NeckBreaks { get; private set; }
+
+    /// <summary>Steps off a ledge onto a merc, and the drop attacks that landed.</summary>
+    public int DropTries { get; private set; }
+
+    public int DropAttacks { get; private set; }
+
+    public int Rolls { get; private set; }
+
     public override string Status => string.Create(System.Globalization.CultureInfo.InvariantCulture,
-        $"spy {GoalName(Goal)} {_hack} target {_target?.TriggerName ?? "-"} path {Follower.NextIndex}/{Follower.Path.Count} links {Follower.LinksDone}/{Follower.LinksFailed} hacked {Hacked}");
+        $"spy {GoalName(Goal)} {_hack} target {_target?.TriggerName ?? "-"} path {Follower.NextIndex}/{Follower.Path.Count} links {Follower.LinksDone}/{Follower.LinksFailed} hacked {Hacked} shock {ShockHits}/{ShocksFired} grab {NeckBreaks}/{Grabs}/{GrabPresses} drop {DropAttacks}/{DropTries} rolls {Rolls}");
 
     public static string GoalName(int goal) => goal switch
     {
@@ -85,6 +192,8 @@ public sealed class SpyAi : AiBrain
         GEvade => "evade",
         GHide => "hide",
         GShock => "shock",
+        GGrab => "grab",
+        GDrop => "drop",
         _ => "idle",
     };
 
@@ -93,7 +202,11 @@ public sealed class SpyAi : AiBrain
         base.Reset();
         _target = null;
         _hack = HackPhase.Walk;
-        _shockPhase = 0;
+        _shockPhase = ShockPhase.None;
+        _shockTarget = null;
+        _grabTarget = null;
+        _dropTarget = null;
+        _rollTicks = 0;
     }
 
     // ---- choice ----------------------------------------------------------------------------------------------
@@ -107,26 +220,65 @@ public sealed class SpyAi : AiBrain
             return GHack;
         }
 
-        if (Goal == GShock && _shockPhase != 0 && now - _shockAt < 3f)
+        // A shock, a grab or a drop under way is finished (each has its own time limit).
+        if (Goal == GShock && _shockPhase != ShockPhase.None && now - _shockStart < SpyAiK.ShockGiveUpSeconds)
         {
             return GShock;
         }
 
+        if (Goal == GGrab && _grabTarget is not null && (_grab != GrabPhase.Approach || InGrabStates()))
+        {
+            return GGrab;
+        }
+
+        if (InGrabStates())
+        {
+            return GGrab;
+        }
+
+        if (Goal == GDrop && _dropTarget is not null && _drop != DropPhase.Walk)
+        {
+            return GDrop;
+        }
+
         float exposure = Exposure(now, out Pawn? threat, out float threatDistance, out bool threatFacing);
         _threat = threat;
+        _exposure = exposure;
         float myLight = World.LightOn(Pawn, threat is null ? AiSight.Eye(Pawn) + Pawn.Rotation.Vector() * 300f : AiSight.Eye(threat));
-        Span<AiOption> options = stackalloc AiOption[5];
+        Span<AiOption> options = stackalloc AiOption[8];
         int n = 0;
         options[n++] = new AiOption(GIdle, 0.05f);
         if (NextTerminal(now) is not null)
         {
             // Right after a shock the guard is stunned: the moment to hack.
-            options[n++] = new AiOption(GHack, 0.6f + (now > _shockCooldownUntil - 8f && now < _shockCooldownUntil - 3f ? 0.6f : 0f));
+            options[n++] = new AiOption(GHack, 0.6f + (now - _shockedAt < SpyAiK.StunHackWindow ? 0.6f : 0f));
         }
 
         if (exposure > 0.25f || hurt)
         {
             options[n++] = new AiOption(GEvade, 0.4f + exposure + (hurt ? 0.8f : 0f));
+        }
+
+        // Melee: a grab from behind, or a drop onto a merc's head, when the difficulty's melee use rolls for it.
+        if (now - _meleeRollAt > SpyAiK.MeleeRollSeconds)
+        {
+            _meleeRollAt = now;
+            _meleeRollOk = Bot.Random.FRand() < Difficulty.MeleeUse;
+        }
+
+        if (_meleeRollOk && !hurt && Bot.Gadgets.Active == SpyGadgetAct.None)
+        {
+            float grab = GrabChoice(now, myLight);
+            if (grab > 0f)
+            {
+                options[n++] = new AiOption(GGrab, grab);
+            }
+
+            float drop = DropChoice(now);
+            if (drop > 0f)
+            {
+                options[n++] = new AiOption(GDrop, drop);
+            }
         }
 
         // Freeze in the dark while a merc goes by, a few seconds at a time (then the plan goes on round it).
@@ -136,15 +288,297 @@ public sealed class SpyAi : AiBrain
             options[n++] = new AiOption(GHide, 0.75f);
         }
 
-        // The shocker on a merc in the way: close, or guarding the terminal the spy wants (it stuns, it does not kill).
-        bool inTheWay = threat is not null && _target is { } t && (threat.Location - t.Location).Size() < 900f;
-        if (threat is not null && threatDistance < 650f && Pawn.MyWeapon is SStickyShocker && now > _shockCooldownUntil &&
-            (threatDistance < 350f || (inTheWay && !threatFacing)) && Bot.Random.FRand() < Difficulty.GadgetUse + 0.2f)
+        // The shocker (it stuns, it does not kill): a merc closing in, one facing the spy at mid range, or one guarding
+        // the terminal the spy wants.
+        float shock = ShockChoice(now, exposure, hurt);
+        if (shock > 0f)
         {
-            options[n++] = new AiOption(GShock, 0.5f + Difficulty.GadgetUse * 0.6f);
+            options[n++] = new AiOption(GShock, shock);
         }
 
-        return Pick(options[..n]);
+        int pick = Pick(options[..n]);
+        if (pick == GShock && Goal != GShock)
+        {
+            StartShock(now);
+        }
+
+        if (pick == GGrab && Goal != GGrab)
+        {
+            _grabTarget = _grabCandidate;
+            _grab = GrabPhase.Approach;
+            _grabStart = now;
+            _grabAt = now;
+            _grabPresses = 0;
+        }
+
+        if (pick == GDrop && Goal != GDrop)
+        {
+            _dropTarget = _dropCandidate;
+            _dropTop = _dropTopCand;
+            _dropLand = _dropLandCand;
+            _drop = DropPhase.Walk;
+            _dropStart = now;
+            _dropAt = now;
+        }
+
+        return pick;
+    }
+
+    /// <summary>
+    /// The shock's score, or 0. A merc in sight with an open line, not shocked already, and the spy with the gun and the
+    /// energy for a shot (15): within 550 uu and facing the spy (closing in), within 350 (in its face), facing the spy
+    /// at mid range while the spy is exposed, or guarding the target terminal. Looked at with the difficulty's gadget
+    /// use once a second or so.
+    /// </summary>
+    private float ShockChoice(float now, float exposure, bool hurt)
+    {
+        _shockCandidate = null;
+        if (now < _shockCooldownUntil || Bot.Gadgets.Active != SpyGadgetAct.None || Pawn.MyWeapon is not SWeaponAttaque || Pawn is not SPawnAttaque { EnergyLevel: >= SpyAiK.ShotEnergy } ||
+            Pawn.Physics != EPhysics.PHYS_Walking || Pawn.HandItem is not null)
+        {
+            return 0f;
+        }
+
+        if (now - _shockRollAt > SpyAiK.ShockRollSeconds)
+        {
+            _shockRollAt = now;
+            _shockRollOk = Bot.Random.FRand() < 0.25f + Difficulty.GadgetUse * 0.75f;
+        }
+
+        if (!_shockRollOk)
+        {
+            return 0f;
+        }
+
+        FVector eye = AiSight.Eye(Pawn);
+        float best = 0f;
+        foreach (AiContact c in Bot.Memory.Contacts)
+        {
+            if (!c.Visible || !c.Confirmed || c.Pawn is not SBasePawn m || !Shockable(m, now))
+            {
+                continue;
+            }
+
+            float d = (m.Location - Pawn.Location).Size();
+            if (d > SpyAiK.ShockRange || !World.LineOpen(eye, AiSight.Eye(m)))
+            {
+                continue;
+            }
+
+            bool facing = Faces(m, Pawn.Location, 0.75f);
+            float bonus = 0f;
+            if (d < 550f && facing)
+            {
+                bonus = 0.6f + (hurt ? 0.5f : 0f);
+            }
+            else if (d < 350f)
+            {
+                bonus = 0.5f;
+            }
+            else if (facing && d < 1000f && exposure > 0.35f)
+            {
+                bonus = 0.3f + (hurt ? 0.3f : 0f);
+            }
+
+            if (_target is { } t && (m.Location - t.Location).Size() < 900f)
+            {
+                bonus = SvmMath.Max(bonus, facing ? 0.3f : 0.45f);
+            }
+
+            if (bonus > best)
+            {
+                best = bonus;
+                _shockCandidate = m;
+                _shockUrgent = facing && d < 700f;
+            }
+        }
+
+        return _shockCandidate is null ? 0f : 0.45f + Difficulty.GadgetUse * 0.5f + best;
+    }
+
+    /// <summary>A merc the shocker can stun: alive, on its feet, not shocked now nor by this spy in the last seconds.</summary>
+    private bool Shockable(SBasePawn m, float now) =>
+        m is SPAWNDEFENSE && m.Health > 0 && !m.bDeleteMe && !m.bStickyShocking && !m.bLyingOnGround && !m.bSleeping && !FallingDown(m) &&
+        !(ReferenceEquals(m, _shockedPawn) && now - _shockedAt < SpyAiK.ReshockSeconds);
+
+    /// <summary>A pawn going down (knocked out, gassed): its fall shows on screen.</summary>
+    private static bool FallingDown(Pawn m) =>
+        m.Controller is SPlayerController pc && pc.GetStateName().ToString().StartsWith("s_FallDown", StringComparison.Ordinal);
+
+    /// <summary>True when <paramref name="m"/> faces <paramref name="point"/> (cosine above <paramref name="cos"/>).</summary>
+    private static bool Faces(Pawn m, FVector point, float cos)
+    {
+        FVector to = point - m.Location;
+        to.Z = 0f;
+        float len = to.Size();
+        if (len < 1f)
+        {
+            return true;
+        }
+
+        FVector view = m.Rotation.Vector();
+        view.Z = 0f;
+        float vl = view.Size();
+        return vl > 0.01f && (to | view) / (len * vl) > cos;
+    }
+
+    /// <summary>
+    /// The grab's score, or 0: a merc in sight on the spy's floor within 1400 uu, turned away from the spy, on his
+    /// feet, alone (no other merc known within 1200 uu of him), not shocked in the last 5.5 s (the server refuses a
+    /// grab within 5 s of a shock), and worth it: the spy in the dark, the merc guarding the target or in the way.
+    /// </summary>
+    private float GrabChoice(float now, float myLight)
+    {
+        _grabCandidate = null;
+        if (now < _grabCooldownUntil || Pawn.Physics != EPhysics.PHYS_Walking || Pawn.HandItem is not null ||
+            GameReplicationInfoGrabOff())
+        {
+            return 0f;
+        }
+
+        float bestScore = 0f;
+        foreach (AiContact c in Bot.Memory.Contacts)
+        {
+            // Seen now, or seen for sure a moment ago (the spy looked away on its walk).
+            bool known = (c.Visible && c.Confirmed) || (now - c.Time < SpyAiK.GrabMemorySeconds && c.Confidence > 0.8f);
+            if (!known || c.Pawn is not SPAWNDEFENSE m || !OnFeet(m) ||
+                (ReferenceEquals(m, _shockedPawn) && now - _shockedAt < SpyAiK.GrabAfterShockSeconds))
+            {
+                continue;
+            }
+
+            FVector to = Pawn.Location - m.Location;
+            float d = NavFollower.Horizontal(to);
+            if (d > SpyAiK.GrabNoticeRange || MathF.Abs(Feet.Z - NavFollower.Feet(m).Z) > 60f)
+            {
+                continue;
+            }
+
+            // Turned away: the spy in the rear half of his view, well behind him when close.
+            if (Faces(m, Pawn.Location, d < 500f ? -0.3f : 0f) || !Alone(m))
+            {
+                continue;
+            }
+
+            bool guarding = _target is { } t && (m.Location - t.Location).Size() < 900f;
+            bool inTheWay = d < 500f;
+            bool dark = myLight < 0.3f;
+            if (!guarding && !inTheWay && !dark)
+            {
+                continue;
+            }
+
+            float score = 0.7f + Difficulty.MeleeUse * 0.5f + (guarding ? 0.3f : 0f) + (inTheWay ? 0.2f : 0f) - d / 4000f;
+            if (score > bestScore)
+            {
+                bestScore = score;
+                _grabCandidate = m;
+            }
+        }
+
+        return bestScore;
+    }
+
+    private bool GameReplicationInfoGrabOff() => Pc.GameReplicationInfo is { bAvlb_SPY_Grab: false };
+
+    /// <summary>A merc walking on his feet (the grab and the drop want him there).</summary>
+    private static bool OnFeet(SBasePawn m) =>
+        m.Health > 0 && !m.bDeleteMe && !m.bStickyShocking && !m.bLyingOnGround && !m.bSleeping && !FallingDown(m) &&
+        m.Physics == EPhysics.PHYS_Walking;
+
+    /// <summary>No other merc the spy knows of within 1200 uu of <paramref name="m"/>.</summary>
+    private bool Alone(Pawn m)
+    {
+        foreach (AiContact c in Bot.Memory.Contacts)
+        {
+            if (!ReferenceEquals(c.Pawn, m) && c.Pawn.Health > 0 && c.Confidence > 0.35f && (c.Position - m.Location).Size() < 1200f)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    /// The drop's score, or 0: a merc in sight standing below the spy (120 to 650 uu down, within 1000 uu across) on the
+    /// landing of a drop edge of the spy's graph near the spy, not facing it, not wearing the shocker's sticky skin (a
+    /// drop on him blasts the spy). Searched at most twice a second.
+    /// </summary>
+    private float DropChoice(float now)
+    {
+        _dropCandidate = null;
+        if (now < _dropCooldownUntil || Pawn.Physics != EPhysics.PHYS_Walking || now - _dropSearchAt < 0.5f)
+        {
+            return 0f;
+        }
+
+        _dropSearchAt = now;
+        FVector feet = Feet;
+        float bestCost = float.MaxValue;
+        foreach (AiContact c in Bot.Memory.Contacts)
+        {
+            if (!c.Visible || !c.Confirmed || c.Pawn is not SPAWNDEFENSE m || !OnFeet(m) || m.bStickySkinned ||
+                m.Velocity.Size() > 200f || Faces(m, Pawn.Location, 0.5f))
+            {
+                continue;
+            }
+
+            FVector mf = NavFollower.Feet(m);
+            float below = feet.Z - mf.Z;
+            if (below < SpyAiK.DropMinHeight || below > SpyAiK.DropMaxHeight || NavFollower.Horizontal(mf - feet) > 1000f)
+            {
+                continue;
+            }
+
+            if (FindDropOnto(mf, out FVector top, out FVector land, out float cost) && cost < bestCost)
+            {
+                bestCost = cost;
+                _dropCandidate = m;
+                _dropTopCand = top;
+                _dropLandCand = land;
+            }
+        }
+
+        return _dropCandidate is null ? 0f : 0.8f + Difficulty.MeleeUse * 0.5f - bestCost / 3000f;
+    }
+
+    /// <summary>A drop edge near the spy whose landing is within 70 uu of <paramref name="mercFeet"/>.</summary>
+    private bool FindDropOnto(FVector mercFeet, out FVector top, out FVector land, out float cost)
+    {
+        top = default;
+        land = default;
+        cost = float.MaxValue;
+        NavGraph g = Follower.Graph;
+        List<int> nodes = NodesAround(Pawn.Location, 1000f);
+        for (int i = 0; i < nodes.Count; i++)
+        {
+            int n = nodes[i];
+            foreach ((int to, NavEdgeKind kind, _, _) in g.EdgesOf(n))
+            {
+                if (kind != NavEdgeKind.Drop)
+                {
+                    continue;
+                }
+
+                FVector l = g.Node(to).Floor;
+                if (NavFollower.Horizontal(l - mercFeet) > SpyAiK.DropLandingReach || MathF.Abs(l.Z - mercFeet.Z) > 40f)
+                {
+                    continue;
+                }
+
+                FVector f = g.Node(n).Floor;
+                float c = (f - Pawn.Location).Size();
+                if (c < cost)
+                {
+                    cost = c;
+                    top = f;
+                    land = l;
+                }
+            }
+        }
+
+        return cost < float.MaxValue;
     }
 
     /// <summary>
@@ -159,7 +593,8 @@ public sealed class SpyAi : AiBrain
         float best = 0f;
         foreach (AiContact c in Bot.Memory.Contacts)
         {
-            if (!c.Visible || !c.Confirmed)
+            // A merc frozen by a shock (its sparks show) cannot shoot.
+            if (!c.Visible || !c.Confirmed || c.Pawn is SBasePawn { bStickyShocking: true })
             {
                 continue;
             }
@@ -196,9 +631,22 @@ public sealed class SpyAi : AiBrain
             _hack = HackPhase.Walk;
         }
 
-        if (from == GShock)
+        // A drawn gun left by a shock is holstered by Act's holster check.
+        if (from == GShock && _shockPhase != ShockPhase.None)
         {
-            _shockPhase = 0;
+            EndShock(now, SpyAiK.ShockAbortCooldown);
+        }
+
+        if (from == GGrab)
+        {
+            _grabTarget = null;
+            _grabCooldownUntil = SvmMath.Max(_grabCooldownUntil, now + 3f);
+        }
+
+        if (from == GDrop)
+        {
+            _dropTarget = null;
+            _dropCooldownUntil = SvmMath.Max(_dropCooldownUntil, now + 3f);
         }
 
         if (from == GHide)
@@ -219,6 +667,11 @@ public sealed class SpyAi : AiBrain
     protected override void Act(float now, ref AiPlan plan)
     {
         Vision(now, ref plan);
+        if (LetGoOntoMerc(now, ref plan))
+        {
+            return;
+        }
+
         switch (Goal)
         {
             case GHack:
@@ -233,10 +686,77 @@ public sealed class SpyAi : AiBrain
             case GShock:
                 Shock(now, ref plan);
                 break;
+            case GGrab:
+                Grab(now, ref plan);
+                break;
+            case GDrop:
+                Drop(now, ref plan);
+                break;
             default:
                 Wander(now, ref plan);
                 break;
         }
+
+        Roll(now, ref plan);
+        Holster(now, ref plan);
+    }
+
+    /// <summary>
+    /// A gun out with no shock under way (a goal changed mid-shock, a team goal took over, a roll with the fire-mode key)
+    /// is holstered: one tick of the fire-mode key in the armed stance (a fresh press holsters, spy-shocker.md rule 5),
+    /// then at least a second before the next try, so the key is seen released in between.
+    /// </summary>
+    private void Holster(float now, ref AiPlan plan)
+    {
+        // A gadget sequence (heartbeat sweep, aimed throw, cam) owns the fire-mode key and the drawn gun.
+        if (Pawn.WeaponLoaded is not (1 or 2 or 7) || Pawn.bWeaponTransit || (Goal == GShock && _shockPhase != ShockPhase.None) ||
+            Bot.Gadgets.Active != SpyGadgetAct.None ||
+            Pc.IsInState(NAME_s_PlayerWalkingMario_T_0HTo2H) || Pc.IsInState(NAME_s_PlayerWalkingMario_T_2HToOH) ||
+            now - _holsterTapAt < SpyAiK.HolsterRetrySeconds)
+        {
+            return;
+        }
+
+        _holsterTapAt = now;
+        HolsterTaps++;
+        plan.Keys.bFireMode = 1;
+    }
+
+    /// <summary>
+    /// Hanging from a ledge right above a merc on his feet (not wearing sticky skin): let go onto his head (back on the
+    /// stick, which OnLedge reads), when the melee roll allows it.
+    /// </summary>
+    private bool LetGoOntoMerc(float now, ref AiPlan plan)
+    {
+        if (Pawn.Physics != EPhysics.PHYS_Ledge || !_meleeRollOk)
+        {
+            return false;
+        }
+
+        foreach (AiContact c in Bot.Memory.Contacts)
+        {
+            if (c.Pawn is not SPAWNDEFENSE m || !OnFeet(m) || m.bStickySkinned || now - c.Time > 1f)
+            {
+                continue;
+            }
+
+            float below = Pawn.Location.Z - m.Location.Z;
+            if (NavFollower.Horizontal(m.Location - Pawn.Location) < SpyAiK.LetGoReach && below > 120f && below < SpyAiK.DropMaxHeight + 200f)
+            {
+                plan.Keys = default;
+                plan.Keys.BT_Down = 1;
+                plan.Yaw = null;
+                if (now - _letGoAt > 2f)
+                {
+                    DropTries++;
+                }
+
+                _letGoAt = now;
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /// <summary>Nothing to do (every terminal given up for now): walk to a nearby spot, so a stuck spy moves on.</summary>
@@ -384,7 +904,9 @@ public sealed class SpyAi : AiBrain
             case HackPhase.Settle:
                 plan.Yaw = _useYaw;
                 plan.Crouched = null;
-                if (now - _hackAt < 0.4f || !Pawn.Velocity.IsZero() || NavFollower.YawError(Pc.Rotation.Yaw & 0xFFFF, _useYaw) > 600)
+
+                // The gun out (the holster check puts it away): the Use key would not reach the terminal.
+                if (now - _hackAt < 0.4f || Pawn.WeaponLoaded != 0 || !Pawn.Velocity.IsZero() || NavFollower.YawError(Pc.Rotation.Yaw & 0xFFFF, _useYaw) > 600)
                 {
                     if (now - _hackAt > 3f)
                     {
@@ -504,19 +1026,6 @@ public sealed class SpyAi : AiBrain
         Pawn? threat = _threat;
         FVector threatEye = threat is not null ? AiSight.Eye(threat) : (Bot.Memory.Best()?.Position ?? Pawn.Location);
 
-        // A smoke grenade at the feet when a merc is close and facing (quick launch, the left key while holstered).
-        if (threat is not null && (threat.Location - Pawn.Location).Size() < 750f && now - _smokeAt > 8f &&
-            Pawn.WeaponLoaded == 0 && Bot.Random.FRand() < Difficulty.GadgetUse * 0.1f)
-        {
-            int slot = GadgetSlot<SGadSmokeGrenade>(out SGadSmokeGrenade? smoke);
-            if (slot >= 0 && smoke is { Charge: > 0 })
-            {
-                plan.Keys.Press(AiCommand.GadgetQuickChoice, slot);
-                _smokeAt = now;
-                SmokesThrown++;
-            }
-        }
-
         if (now - _hideSpotAt > 1.5f || (Pawn.Location - _hideSpot).Size() < 40f)
         {
             _hideSpot = FindHideSpot(threatEye);
@@ -569,67 +1078,533 @@ public sealed class SpyAi : AiBrain
         }
     }
 
+    private void StartShock(float now)
+    {
+        _shockTarget = _shockCandidate;
+        _shockPhase = ShockPhase.Draw;
+        _shockStart = now;
+        _shockAt = now;
+        _shockTries = 0;
+        _shots = 0;
+
+        // A merc closing in: the quick draw (a tap), not the evasion's silent long press.
+        if (_shockUrgent)
+        {
+            Bot.Evasion.QuickDrawUntil = now + SpyAiK.DrawWaitSeconds;
+        }
+    }
+
+    private void EndShock(float now, float cooldown)
+    {
+        _shockPhase = ShockPhase.None;
+        _shockTarget = null;
+        _shockCooldownUntil = now + cooldown;
+    }
+
+    /// <summary>Drawn, armed and out of the draw: a Fire press reaches the pistol (spy-shocker.md rules 7 and 8).</summary>
+    private bool ReadyToFire() =>
+        Pawn.WeaponLoaded == 2 && !Pawn.bWeaponTransit && !Pc.IsInState(NAME_s_PlayerWalkingMario_T_0HTo2H) &&
+        !Pc.IsInState(NAME_s_PlayerWalkingMario_T_2HToOH);
+
+    /// <summary>The merc's chest.</summary>
+    private static FVector AimPoint(Pawn m) => m.Location + new FVector(0f, 0f, SpyAiK.AimChestUp);
+
+    /// <summary>
+    /// The shock, through the keys: a tap of the fire-mode key draws (released inside 0.5 s: with the laser; the
+    /// evasion may hold it past 0.5 s for the silent draw); Fire only once the armed stance is reached (the draw
+    /// transition ignores Fire and the pistol refuses a shot in transit); one more shot on a miss; the holster check
+    /// puts the gun away after.
+    /// </summary>
     private void Shock(float now, ref AiPlan plan)
     {
-        Pawn? target = _threat;
-        if (target is null || target.Health <= 0)
+        SBasePawn? target = _shockTarget;
+        if (_shockPhase == ShockPhase.None)
         {
-            _shockPhase = 0;
+            // Done: keep still a moment while the holster check puts the gun away.
+            plan.Crouched = null;
+            return;
+        }
+
+        if (target is null || target.Health <= 0 || target.bDeleteMe || now - _shockStart > SpyAiK.ShockGiveUpSeconds)
+        {
+            EndShock(now, SpyAiK.ShockAbortCooldown);
             return;
         }
 
         plan.Crouched = null;
-        LookAt(target.Location, ref plan);
+        LookAt(AimPoint(target), ref plan);
         plan.Tolerance = 65536;
         switch (_shockPhase)
         {
-            case 0:
-                // Draw: a short tap of the fire-mode key draws the shocker (with its laser).
-                _shockPhase = 1;
-                _shockAt = now;
-                plan.Keys.bFireMode = 1;
-                return;
-            case 1:
-                if (now - _shockAt < 0.08f)
+            case ShockPhase.Draw:
+                if (ReadyToFire())
+                {
+                    _shockPhase = ShockPhase.Aim;
+                    _shockAt = now;
+                    return;
+                }
+
+                if (Pawn.WeaponLoaded != 0 || Pc.IsInState(NAME_s_PlayerWalkingMario_T_0HTo2H))
+                {
+                    // Drawing.
+                    return;
+                }
+
+                if (now - _shockAt < SpyAiK.TapSeconds)
                 {
                     plan.Keys.bFireMode = 1;
                     return;
                 }
 
-                if (Pawn.WeaponLoaded != 0)
+                if (now - _shockAt > SpyAiK.DrawWaitSeconds)
                 {
-                    _shockPhase = 2;
+                    // No draw (another state took the press): once more, then give up.
+                    if (++_shockTries >= 2)
+                    {
+                        EndShock(now, SpyAiK.ShockAbortCooldown);
+                        return;
+                    }
+
                     _shockAt = now;
-                }
-                else if (now - _shockAt > 1.5f)
-                {
-                    _shockPhase = 0;
                 }
 
                 return;
-            case 2:
-                if (AimErrorTo(target.Location) < 2f + Difficulty.AimSettledDegrees || now - _shockAt > 1.2f)
+
+            case ShockPhase.Aim:
+                if (!ReadyToFire())
+                {
+                    if (Pawn.WeaponLoaded == 0)
+                    {
+                        _shockPhase = ShockPhase.Draw;
+                        _shockAt = now;
+                    }
+
+                    return;
+                }
+
+                if (now - _shockAt < SvmMath.Min(Difficulty.ReactionTime, SpyAiK.MaxAimSettle))
+                {
+                    return;
+                }
+
+                if (AimErrorTo(AimPoint(target)) < 2f + Difficulty.AimSettledDegrees || now - _shockAt > SpyAiK.MaxAimSeconds)
                 {
                     plan.Keys.Press(AiCommand.Fire);
                     plan.Keys.bFire = 1;
                     ShocksFired++;
-                    _shockPhase = 3;
+                    _shots++;
+                    _shockPhase = ShockPhase.Check;
                     _shockAt = now;
                 }
 
                 return;
+
             default:
-                if (now - _shockAt > 0.6f)
+                if (target.bStickyShocking)
                 {
-                    // Holster with another tap and go back to the plan while the merc is stunned (the sticky shock
-                    // freezes it for seconds; it does not kill).
-                    plan.Keys.bFireMode = 1;
-                    _shockPhase = 0;
-                    _shockCooldownUntil = now + 8f;
+                    ShockHits++;
+                    _shockedPawn = target;
+                    _shockedAt = now;
+                    EndShock(now, SpyAiK.ShockCooldown);
+                    return;
+                }
+
+                if (now - _shockAt > SpyAiK.HitWaitSeconds)
+                {
+                    if (_shots < 2 && Pawn is SPawnAttaque { EnergyLevel: >= SpyAiK.ShotEnergy })
+                    {
+                        _shockPhase = ShockPhase.Aim;
+                        _shockAt = now - SpyAiK.MaxAimSettle;
+                    }
+                    else
+                    {
+                        EndShock(now, SpyAiK.ShockMissCooldown);
+                    }
                 }
 
                 return;
         }
+    }
+
+    // ---- grab ------------------------------------------------------------------------------------------------
+
+    /// <summary>
+    /// The grab (spy-grab.md rules 1 to 4 and 13): creep to a spot behind the merc on the side the grab test favours
+    /// (his yaw + 7200), walk the last steps straight at him so the spy faces him, press Use when the controller's own
+    /// test passes (within 160 uu, he in front within 41 degrees, his shifted facing within 60 degrees of the spy's);
+    /// held, release Use and press it again (the neck break); after a few presses with no room for it, Fire (the
+    /// knock-out). The 15 s hold chokes him anyway.
+    /// </summary>
+    private void Grab(float now, ref AiPlan plan)
+    {
+        SBasePawn? m = _grabTarget;
+        if (_grab == GrabPhase.Hold || InGrabStates())
+        {
+            GrabHold(now, ref plan);
+            return;
+        }
+
+        if (m is null || !OnFeet(m) || now - _grabStart > SpyAiK.GrabApproachSeconds)
+        {
+            EndGrab(now, SpyAiK.GrabFailCooldown);
+            return;
+        }
+
+        float d = NavFollower.Horizontal(m.Location - Pawn.Location);
+
+        // He turned round: no grab (the shocker or the evasion takes over).
+        if (d < 800f && Faces(m, Pawn.Location, 0.3f))
+        {
+            EndGrab(now, SpyAiK.GrabFailCooldown);
+            return;
+        }
+
+        if (_grab == GrabPhase.Press)
+        {
+            plan.Crouched = null;
+            plan.Yaw = NavFollower.YawTo(Pawn.Location, m.Location);
+            plan.Tolerance = 65536;
+            if (now - _grabAt < SpyAiK.UsePressSeconds)
+            {
+                plan.Keys.bUsing = 1;
+                return;
+            }
+
+            if (now - _grabAt > SpyAiK.GrabAnswerSeconds)
+            {
+                _grab = GrabPhase.Approach;
+                _grabAt = now;
+            }
+
+            return;
+        }
+
+        FVector shifted = new FRotator(0, (m.Rotation.Yaw + SpyAiK.GrabAreaShift) & 0xFFFF, 0).Vector();
+        shifted.Z = 0f;
+        FVector toMerc = m.Location - Pawn.Location;
+        toMerc.Z = 0f;
+        bool lined = d > 1f && (shifted | toMerc) / d > SpyAiK.GrabLineCos;
+        if (d > SpyAiK.GrabFinalReach || !lined)
+        {
+            FVector behind = m.Location - shifted.SafeNormal() * SpyAiK.GrabBehind;
+            FVector floor = new(behind.X, behind.Y, NavFollower.Feet(m).Z);
+            if (!MoveTo(floor, now, ref plan, sneak: true, Difficulty.Stealth, DangerPenalty(Difficulty.Stealth * 0.5f)) && Follower.Failed)
+            {
+                EndGrab(now, SpyAiK.GrabFailCooldown);
+            }
+
+            return;
+        }
+
+        // The last steps: straight at him, standing at the walk (silent: walking steps play no sound), so the pawn
+        // turns to face him. Standing, as the grab from a crouch first has to stand the spy up.
+        plan.Crouched = false;
+        plan.Yaw = NavFollower.YawTo(Pawn.Location, m.Location);
+        plan.Tolerance = 3000;
+        plan.Keys = default;
+        plan.Keys.BT_Up = (byte)(d > SpyAiK.GrabStopDistance ? 1 : 0);
+        plan.Keys.FastSpeed = false;
+        if (!Pawn.bIsCrouched && Pc.CanGrabPawn(m) && now - _grabAt > SpyAiK.GrabAnswerSeconds)
+        {
+            _grab = GrabPhase.Press;
+            _grabAt = now;
+            _grabPresses++;
+            GrabPresses++;
+            plan.Keys.bUsing = 1;
+            if (_grabPresses > 3)
+            {
+                EndGrab(now, SpyAiK.GrabFailCooldown);
+            }
+        }
+    }
+
+    private void GrabHold(float now, ref AiPlan plan)
+    {
+        plan.Crouched = null;
+        plan.Yaw = null;
+        if (_grab != GrabPhase.Hold)
+        {
+            _grab = GrabPhase.Hold;
+            _grabAt = now;
+            _grabPresses = 0;
+            Grabs++;
+        }
+
+        if (!InGrabStates())
+        {
+            EndGrab(now, SpyAiK.GrabDoneCooldown);
+            return;
+        }
+
+        if (!Pc.IsInState(NAME_s_GrabbingPlayer))
+        {
+            // Getting into the hold (or letting go): Use released so the next press is a fresh one.
+            _grabAt = now;
+            return;
+        }
+
+        float since = now - _grabAt;
+        if (since < SpyAiK.GrabHoldWait)
+        {
+            return;
+        }
+
+        if (since < SpyAiK.GrabHoldWait + SpyAiK.UsePressSeconds)
+        {
+            if (_grabPresses < SpyAiK.NeckBreakPresses)
+            {
+                plan.Keys.bUsing = 1;
+            }
+            else if (since - SpyAiK.GrabHoldWait < Sim.DeltaTime * 1.5f)
+            {
+                // No room to drop him for the neck break: knock him out (Fire).
+                plan.Keys.Press(AiCommand.Fire);
+            }
+
+            return;
+        }
+
+        _grabPresses++;
+        if (_grabPresses <= SpyAiK.NeckBreakPresses)
+        {
+            NeckBreaks++;
+        }
+
+        _grabAt = now;
+    }
+
+    private void EndGrab(float now, float cooldown)
+    {
+        _grabTarget = null;
+        _grab = GrabPhase.Approach;
+        _grabCooldownUntil = now + cooldown;
+        Follower.Clear();
+    }
+
+    /// <summary>The spy's grab states, from the request to the release.</summary>
+    private bool InGrabStates()
+    {
+        string s = Pc.GetStateName().ToString();
+        return s.StartsWith("s_Grabbing", StringComparison.Ordinal) || s.StartsWith("s_Grab_", StringComparison.Ordinal) ||
+            s.StartsWith("s_ReleaseGrabbedPlayer", StringComparison.Ordinal);
+    }
+
+    // ---- drop attack -----------------------------------------------------------------------------------------
+
+    private static readonly Name NAME_s_DropAttack_Landing = new("s_DropAttack_Landing");
+
+    /// <summary>
+    /// The drop attack (drop-attack.md rules 1 and 3): walk to the top of the drop edge whose landing is under the
+    /// merc, stand, walk off toward him (not run, as the follower's drops), steer at him while falling; landing on
+    /// him knocks him down.
+    /// </summary>
+    private void Drop(float now, ref AiPlan plan)
+    {
+        SBasePawn? m = _dropTarget;
+        if (m is null || m.Health <= 0 || m.bDeleteMe || now - _dropStart > SpyAiK.DropGiveUpSeconds)
+        {
+            EndDrop(now);
+            return;
+        }
+
+        if (Pc.IsInState(NAME_s_DropAttack_Landing))
+        {
+            DropAttacks++;
+            EndDrop(now);
+            return;
+        }
+
+        switch (_drop)
+        {
+            case DropPhase.Walk:
+                // He walked off the landing, or would blast the spy: no drop.
+                if (!OnFeet(m) || m.bStickySkinned || NavFollower.Horizontal(NavFollower.Feet(m) - _dropLand) > SpyAiK.DropLandingReach + 40f)
+                {
+                    EndDrop(now);
+                    return;
+                }
+
+                if (NavFollower.Horizontal(Feet - _dropTop) < 28f && MathF.Abs(Feet.Z - _dropTop.Z) < 40f)
+                {
+                    _drop = DropPhase.Step;
+                    _dropAt = now;
+                    DropTries++;
+                    return;
+                }
+
+                if (!MoveTo(_dropTop, now, ref plan, sneak: true, Difficulty.Stealth) && Follower.Failed)
+                {
+                    EndDrop(now);
+                }
+
+                return;
+
+            case DropPhase.Step:
+                // Standing (a slow crouched walk off an edge catches the ledge), walking at him.
+                plan.Crouched = false;
+                plan.Yaw = NavFollower.YawTo(Pawn.Location, m.Location);
+                plan.Tolerance = 2500;
+                plan.Keys = default;
+                plan.Keys.BT_Up = (byte)(Pawn.bIsCrouched ? 0 : 1);
+                plan.Keys.FastSpeed = false;
+                if (Pawn.Physics == EPhysics.PHYS_Falling)
+                {
+                    _drop = DropPhase.Fall;
+                    _dropAt = now;
+                }
+                else if (now - _dropAt > SpyAiK.DropStepSeconds)
+                {
+                    EndDrop(now);
+                }
+
+                return;
+
+            default:
+                plan.Crouched = null;
+                if (Pawn.Physics == EPhysics.PHYS_Ledge)
+                {
+                    // Caught the edge: let go.
+                    plan.Keys = default;
+                    plan.Keys.BT_Down = 1;
+                    return;
+                }
+
+                if (Pawn.Physics != EPhysics.PHYS_Falling)
+                {
+                    if (now - _dropAt > 0.3f)
+                    {
+                        EndDrop(now);
+                    }
+
+                    return;
+                }
+
+                // Air steering toward his head.
+                plan.Yaw = NavFollower.YawTo(Pawn.Location, m.Location);
+                plan.Tolerance = 4000;
+                plan.Keys = default;
+                plan.Keys.BT_Up = (byte)(NavFollower.Horizontal(m.Location - Pawn.Location) > 25f ? 1 : 0);
+                return;
+        }
+    }
+
+    private void EndDrop(float now)
+    {
+        _dropTarget = null;
+        _drop = DropPhase.Walk;
+        _dropCooldownUntil = now + SpyAiK.DropCooldown;
+        Follower.Clear();
+    }
+
+    // ---- roll ------------------------------------------------------------------------------------------------
+
+    /// <summary>
+    /// The roll key (roll.md: walking, unarmed, moving at 65 uu/s or more, 0.5 s between rolls; a standing run gives
+    /// the dive at about 600 uu/s for a second, which the keys do not steer): evading, or running for a terminal
+    /// while a merc sees the spy or it was just hurt, a roll is a dodge; running with no merc about, a faster stretch.
+    /// Only along a straight, open stretch of the route at least as long as the roll, with the view and the body on it.
+    /// </summary>
+    private void Roll(float now, ref AiPlan plan)
+    {
+        if (_rollTicks > 0)
+        {
+            _rollTicks--;
+            plan.Keys.bRoll = 1;
+            return;
+        }
+
+        bool urgent;
+        if (Goal == GEvade)
+        {
+            urgent = true;
+        }
+        else if (Goal == GHack && _hack == HackPhase.Walk)
+        {
+            urgent = _exposure > 0.35f || now - Bot.HurtAt < 3f;
+            if (!urgent && (plan.Crouched == true || MercsAbout(now)))
+            {
+                return;
+            }
+        }
+        else
+        {
+            return;
+        }
+
+        if (now - _rollAt < (urgent ? SpyAiK.RollDodgeCooldown : SpyAiK.RollRunCooldown) || now - _rollLookAt < 0.5f ||
+            Pawn.Physics != EPhysics.PHYS_Walking || Pawn.WeaponLoaded != 0 || (Pawn.bIsCrouched && !urgent) ||
+            Bot.Gadgets.Active != SpyGadgetAct.None ||
+            plan.Keys.BT_Up == 0 || (plan.Keys.BT_Down | plan.Keys.BT_Left | plan.Keys.BT_Right) != 0 || plan.MoveYaw is not null ||
+            plan.Yaw is not int yaw || NavFollower.Horizontal(Pawn.Velocity) < 200f ||
+            NavFollower.YawError(Pc.Rotation.Yaw & 0xFFFF, yaw) > 1200 || NavFollower.YawError(Pawn.Rotation.Yaw & 0xFFFF, yaw) > 1800)
+        {
+            return;
+        }
+
+        _rollLookAt = now;
+        if (StraightAhead() < (urgent ? SpyAiK.RollDodgeClear : SpyAiK.RollRunClear) ||
+            Bot.Random.FRand() > (urgent ? 0.3f + 0.6f * Difficulty.Stealth : 0.15f + 0.5f * Difficulty.Stealth))
+        {
+            return;
+        }
+
+        _rollAt = now;
+        _rollTicks = 2;
+        plan.Keys.bRoll = 1;
+        Rolls++;
+    }
+
+    /// <summary>
+    /// The length of the route ahead that is one straight walk on one level (within about 11 degrees of the
+    /// direction to the next waypoint, no drops, crawls or links), with a clear line along it.
+    /// </summary>
+    private float StraightAhead()
+    {
+        IReadOnlyList<NavStep> path = Follower.Path;
+        int i = Follower.NextIndex;
+        if (i >= path.Count || Follower.ActiveLink >= 0)
+        {
+            return 0f;
+        }
+
+        FVector feet = Feet;
+        FVector dir = path[i].Point - feet;
+        dir.Z = 0f;
+        float first = dir.Size();
+        if (first < 1f)
+        {
+            return 0f;
+        }
+
+        dir *= 1f / first;
+        float best = 0f;
+        FVector far = feet;
+        for (; i < path.Count; i++)
+        {
+            NavStep s = path[i];
+            if (s.Link >= 0 || s.Kind != NavEdgeKind.Walk)
+            {
+                break;
+            }
+
+            FVector d = s.Point - feet;
+            if (MathF.Abs(d.Z) > 40f)
+            {
+                break;
+            }
+
+            d.Z = 0f;
+            float l = d.Size();
+            if (l > 1f && (d | dir) / l < 0.98f)
+            {
+                break;
+            }
+
+            best = l;
+            far = s.Point;
+        }
+
+        return best > 0f && Follower.Clear(feet, far, crouched: false) ? best : 0f;
     }
 
     private void Vision(float now, ref AiPlan plan)
@@ -659,4 +1634,143 @@ public sealed class SpyAi : AiBrain
             plan.Keys.Press(AiCommand.SwitchHeadset, want == SGoggle.REN_ThermalVision ? 2 : 1);
         }
     }
+}
+
+/// <summary>Constants of the spy bots' shock, grab, drop and roll (play choices unless decoded).</summary>
+public static class SpyAiK
+{
+    [Provenance(ProvenanceKind.Decoded, "spy-shocker.md: SStickyShocker EnergyNeeded 15")]
+    public const float ShotEnergy = 15f;
+
+    [Provenance(ProvenanceKind.Estimated, "Bot play choice: a sure shot with the aim error of the presets")]
+    public const float ShockRange = 1300f;
+
+    [Provenance(ProvenanceKind.Estimated, "Bot play choice: how often the gadget-use roll for a shock is made")]
+    public const float ShockRollSeconds = 1.5f;
+
+    [Provenance(ProvenanceKind.Decoded, "spy-shocker-owner-notes.md / sticky-shock-effect.md: re-shock after 12.5 s")]
+    public const float ReshockSeconds = 12.5f;
+
+    [Provenance(ProvenanceKind.Estimated, "Bot play choice: draw (up to 1 s), aim, two shots")]
+    public const float ShockGiveUpSeconds = 4.5f;
+
+    [Provenance(ProvenanceKind.Estimated, "Bot play choice")]
+    public const float ShockAbortCooldown = 3f;
+
+    [Provenance(ProvenanceKind.Estimated, "Bot play choice")]
+    public const float ShockCooldown = 8f;
+
+    [Provenance(ProvenanceKind.Estimated, "Bot play choice")]
+    public const float ShockMissCooldown = 5f;
+
+    /// <summary>The draw tap: released well inside the 0.5 s hold (spy-shocker.md rule 1).</summary>
+    [Provenance(ProvenanceKind.Estimated, "Bot play choice under the decoded 0.5 s hold; the capture's tap was 6 frames")]
+    public const float TapSeconds = 0.08f;
+
+    /// <summary>Wait for a draw to start: the evasion's long press (0.55 s) plus the transition (0.3 s).</summary>
+    [Provenance(ProvenanceKind.Estimated, "spy-shocker.md rule 15: hold 0.5 s + 18 frames of transition, with a margin")]
+    public const float DrawWaitSeconds = 1.1f;
+
+    [Provenance(ProvenanceKind.Estimated, "Bot play choice: the reaction time, at most this, before the first shot")]
+    public const float MaxAimSettle = 0.4f;
+
+    [Provenance(ProvenanceKind.Estimated, "Bot play choice")]
+    public const float MaxAimSeconds = 1.2f;
+
+    [Provenance(ProvenanceKind.Estimated, "Bot play choice: the shot is a trace, the shock shows at once")]
+    public const float HitWaitSeconds = 0.35f;
+
+    [Provenance(ProvenanceKind.Estimated, "Bot play choice: the merc's chest above his Location")]
+    public const float AimChestUp = 20f;
+
+    /// <summary>The window after a shock in which the hack scores higher (the merc is frozen, then shaken).</summary>
+    [Provenance(ProvenanceKind.Decoded, "spy-shocker-owner-notes.md: freeze 3.5 s, electric 4.5 s")]
+    public const float StunHackWindow = 4.5f;
+
+    [Provenance(ProvenanceKind.Estimated, "Bot play choice: the key seen released between two holster taps")]
+    public const float HolsterRetrySeconds = 1f;
+
+    [Provenance(ProvenanceKind.Estimated, "Bot play choice: how often the melee-use roll is made")]
+    public const float MeleeRollSeconds = 2f;
+
+    [Provenance(ProvenanceKind.Decoded, "spy-grab.md rule 5: TimeShockForGrab < now - 5.0 (plus a margin)")]
+    public const float GrabAfterShockSeconds = 5.5f;
+
+    [Provenance(ProvenanceKind.Estimated, "Bot play choice")]
+    public const float GrabNoticeRange = 1400f;
+
+    [Provenance(ProvenanceKind.Estimated, "Bot play choice: a merc seen for sure this long ago still counts for a grab")]
+    public const float GrabMemorySeconds = 1.5f;
+
+    [Provenance(ProvenanceKind.Decoded, "spy-grab.md Data: iGrabAreaShift 7200")]
+    public const int GrabAreaShift = 7200;
+
+    /// <summary>The approach line within about 45 degrees of the merc's shifted facing before the last steps.</summary>
+    [Provenance(ProvenanceKind.Estimated, "Bot play choice inside the decoded 0.5 facing test")]
+    public const float GrabLineCos = 0.7f;
+
+    [Provenance(ProvenanceKind.Estimated, "Bot play choice")]
+    public const float GrabFinalReach = 230f;
+
+    [Provenance(ProvenanceKind.Estimated, "Bot play choice: behind the merc, inside fGrabDistance 160 once walked in")]
+    public const float GrabBehind = 110f;
+
+    [Provenance(ProvenanceKind.Estimated, "Bot play choice: inside fGrabDistance 160, outside the two radii")]
+    public const float GrabStopDistance = 100f;
+
+    [Provenance(ProvenanceKind.Estimated, "Bot play choice: a short press of Use")]
+    public const float UsePressSeconds = 0.1f;
+
+    [Provenance(ProvenanceKind.Estimated, "Bot play choice")]
+    public const float GrabAnswerSeconds = 1f;
+
+    [Provenance(ProvenanceKind.Estimated, "Bot play choice")]
+    public const float GrabApproachSeconds = 12f;
+
+    [Provenance(ProvenanceKind.Estimated, "Bot play choice")]
+    public const float GrabFailCooldown = 6f;
+
+    [Provenance(ProvenanceKind.Estimated, "Bot play choice")]
+    public const float GrabDoneCooldown = 10f;
+
+    /// <summary>Use released this long in the hold before the neck-break press (the press edge).</summary>
+    [Provenance(ProvenanceKind.Estimated, "Bot play choice")]
+    public const float GrabHoldWait = 0.5f;
+
+    [Provenance(ProvenanceKind.Estimated, "Bot play choice: neck-break presses before the knock-out")]
+    public const int NeckBreakPresses = 3;
+
+    [Provenance(ProvenanceKind.Estimated, "Bot play choice: a drop worth taking")]
+    public const float DropMinHeight = 120f;
+
+    [Provenance(ProvenanceKind.Estimated, "Under the spy graph's 700 uu drops (docs/AI.md)")]
+    public const float DropMaxHeight = 650f;
+
+    [Provenance(ProvenanceKind.Estimated, "Bot play choice: the landing under the merc's feet, within the two radii")]
+    public const float DropLandingReach = 70f;
+
+    [Provenance(ProvenanceKind.Estimated, "Bot play choice")]
+    public const float DropGiveUpSeconds = 12f;
+
+    [Provenance(ProvenanceKind.Estimated, "Bot play choice")]
+    public const float DropStepSeconds = 3f;
+
+    [Provenance(ProvenanceKind.Estimated, "Bot play choice")]
+    public const float DropCooldown = 6f;
+
+    [Provenance(ProvenanceKind.Estimated, "Bot play choice: the merc's head under the hanging spy")]
+    public const float LetGoReach = 45f;
+
+    [Provenance(ProvenanceKind.Estimated, "Bot play choice over the decoded 0.5 s roll cooldown")]
+    public const float RollDodgeCooldown = 1.5f;
+
+    [Provenance(ProvenanceKind.Estimated, "Bot play choice")]
+    public const float RollRunCooldown = 4f;
+
+    /// <summary>The straight route a roll needs: the dive clears 350 uu and travels about 600 (roll.md).</summary>
+    [Provenance(ProvenanceKind.Estimated, "roll.md: 350 uu clearance, 603 uu/s for about 1 s")]
+    public const float RollDodgeClear = 450f;
+
+    [Provenance(ProvenanceKind.Estimated, "roll.md: 350 uu clearance, 603 uu/s for about 1 s")]
+    public const float RollRunClear = 650f;
 }

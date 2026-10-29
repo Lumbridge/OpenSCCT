@@ -159,6 +159,13 @@ public static class AiSight
                 break;
         }
 
+        // Close enough to touch is measured on the floor, not from the eye: a crouched or lying body at the feet is
+        // 100 to 150 uu below a standing merc's eye, and the "dark shape shows" rule never held for it.
+        if (mode is AiVisionMode.Normal or AiVisionMode.Night && distance < 250f && SvmMath.Sqrt(to.X * to.X + to.Y * to.Y) < 100f)
+        {
+            strength = SvmMath.Max(strength, 0.5f);
+        }
+
         // The spy's cloak (GlassEffect 0 to 255) hides it in the light-based modes.
         if (mode is AiVisionMode.Normal or AiVisionMode.Night && target.GlassEffect > 0)
         {
@@ -457,6 +464,9 @@ public enum AiContactSource : byte
     Heard,
     Told,
     Alert,
+
+    /// <summary>A mark on the spy's radar from its heartbeat sensor (SpyGadgets.cs).</summary>
+    Sensed,
 }
 
 /// <summary>What a bot remembers of one enemy.</summary>

@@ -25,6 +25,18 @@ public enum NavEdgeKind : byte
 
     /// <summary>Jump at a zip line (ZL) under its high end and ride it down.</summary>
     ZipLine = 5,
+
+    /// <summary>Walk into a ladder (LADDER) at its foot, climb it and step off at the top (both sides).</summary>
+    LadderUp = 6,
+
+    /// <summary>Walk onto a ladder (LADDER) from its top and climb down it (both sides).</summary>
+    LadderDown = 7,
+
+    /// <summary>Jump at a horizontal pipe (HOH) from under it, go hand over hand to its far end and drop.</summary>
+    HandOverHand = 8,
+
+    /// <summary>Run into a climbable fence under its top (FENCE), climb it, cross the top and climb down the far side.</summary>
+    FenceClimb = 9,
 }
 
 /// <summary>A node: a floor point where the walker fits, standing or only crouched.</summary>
@@ -86,7 +98,7 @@ public sealed record NavProfile
 public sealed class NavGraph
 {
     /// <summary>Format of <see cref="Write"/>; a cache with another version is rebuilt.</summary>
-    public const int FormatVersion = 5;
+    public const int FormatVersion = 6;
 
     private readonly NavNode[] _nodes;
     private readonly int[] _edgeStart;
@@ -303,11 +315,12 @@ public sealed class NavGraph
     /// <summary>
     /// A* from <paramref name="from"/> to <paramref name="to"/>. The cost of an edge is its length (or time for
     /// traversal) times <c>1 + stealth x light</c> of the node it reaches (when the graph has light), plus
-    /// <paramref name="penalty"/>(node) when given. Links in <paramref name="badLinks"/> are not taken. Fills
-    /// <paramref name="path"/> with the steps (start excluded); false when unreachable.
+    /// <paramref name="penalty"/>(node) when given. Links in <paramref name="badLinks"/> and edges (by index) in
+    /// <paramref name="badEdges"/> are not taken. Fills <paramref name="path"/> with the steps (start excluded); false
+    /// when unreachable.
     /// </summary>
     public bool FindPath(int from, int to, List<NavStep> path, float stealth = 0f, Func<int, float>? penalty = null,
-        IReadOnlySet<int>? badLinks = null, float maxCost = float.MaxValue)
+        IReadOnlySet<int>? badLinks = null, float maxCost = float.MaxValue, IReadOnlySet<int>? badEdges = null)
     {
         ArgumentNullException.ThrowIfNull(path);
         path.Clear();
@@ -353,7 +366,7 @@ public sealed class NavGraph
             for (int e = _edgeStart[n]; e < _edgeStart[n + 1]; e++)
             {
                 int link = _edgeLink[e];
-                if (link >= 0 && badLinks is not null && badLinks.Contains(link))
+                if ((link >= 0 && badLinks is not null && badLinks.Contains(link)) || (badEdges is not null && badEdges.Contains(e)))
                 {
                     continue;
                 }
@@ -410,7 +423,7 @@ public sealed class NavGraph
     /// Costs from <paramref name="from"/> to every node (Dijkstra, plain lengths), up to <paramref name="maxCost"/>;
     /// unreached nodes read infinity.
     /// </summary>
-    public float[] CostsFrom(int from, float maxCost = float.MaxValue, IReadOnlySet<int>? badLinks = null)
+    public float[] CostsFrom(int from, float maxCost = float.MaxValue, IReadOnlySet<int>? badLinks = null, IReadOnlySet<int>? badEdges = null)
     {
         var costs = new float[_nodes.Length];
         Array.Fill(costs, float.PositiveInfinity);
@@ -431,7 +444,7 @@ public sealed class NavGraph
 
             for (int e = _edgeStart[n]; e < _edgeStart[n + 1]; e++)
             {
-                if (_edgeLink[e] >= 0 && badLinks is not null && badLinks.Contains(_edgeLink[e]))
+                if ((_edgeLink[e] >= 0 && badLinks is not null && badLinks.Contains(_edgeLink[e])) || (badEdges is not null && badEdges.Contains(e)))
                 {
                     continue;
                 }
@@ -448,6 +461,52 @@ public sealed class NavGraph
 
         return costs;
     }
+
+    /// <summary>
+    /// The walk, crouch and drop edges (by index, both ways) whose line crosses the line <paramref name="a"/> to
+    /// <paramref name="b"/> seen from above, with an end within <paramref name="zRange"/> of <paramref name="floorZ"/>.
+    /// Links are left out (they fail on their own). Fills <paramref name="into"/> (cleared first, sorted).
+    /// </summary>
+    public void EdgesAcross(FVector a, FVector b, float floorZ, float zRange, List<int> into)
+    {
+        ArgumentNullException.ThrowIfNull(into);
+        into.Clear();
+        FVector mid = (a + b) * 0.5f;
+        float half = MathF.Sqrt((b.X - a.X) * (b.X - a.X) + (b.Y - a.Y) * (b.Y - a.Y)) * 0.5f;
+        var near = new List<int>();
+        NodesNear(new FVector(mid.X, mid.Y, floorZ), half + Profile.Spacing * 4f, near);
+        foreach (int n in near)
+        {
+            FVector p = _nodes[n].Floor;
+            for (int e = _edgeStart[n]; e < _edgeStart[n + 1]; e++)
+            {
+                if (_edgeLink[e] >= 0)
+                {
+                    continue;
+                }
+
+                FVector q = _nodes[_edgeTo[e]].Floor;
+                if ((MathF.Abs(p.Z - floorZ) <= zRange || MathF.Abs(q.Z - floorZ) <= zRange) && Crosses(p, q, a, b))
+                {
+                    into.Add(e);
+                }
+            }
+        }
+
+        into.Sort();
+    }
+
+    /// <summary>True when the segments p-q and a-b cross in the horizontal plane.</summary>
+    private static bool Crosses(FVector p, FVector q, FVector a, FVector b)
+    {
+        float d1 = Side(a, b, p);
+        float d2 = Side(a, b, q);
+        float d3 = Side(p, q, a);
+        float d4 = Side(p, q, b);
+        return ((d1 > 0f && d2 < 0f) || (d1 < 0f && d2 > 0f)) && ((d3 > 0f && d4 < 0f) || (d3 < 0f && d4 > 0f));
+    }
+
+    private static float Side(FVector a, FVector b, FVector p) => (b.X - a.X) * (p.Y - a.Y) - (b.Y - a.Y) * (p.X - a.X);
 
     private float Heuristic(int a, int b)
     {

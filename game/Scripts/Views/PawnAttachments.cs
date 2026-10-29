@@ -118,7 +118,10 @@ public sealed class PawnAttachments
             Place(dummy.Mesh.Path!, dummy.InHand ? BoneRightHand : BoneHolster, null, dt, null, PawnCosmetics.GunItem(pawn));
             DrawVision(dummy.Mesh.Path!, dummy);
         }
-        else if (pawn is SPawnAttaque && pawn.MyWeapon is SWeaponAttaque { bDeleteMe: false } pistol && !pistol.Mesh.IsNone)
+        // MyWeapon replicates to the owner only (bNetOwner); other players' spies (bots too) have the pistol in
+        // WeaponDummy, which replicates to everyone.
+        else if (pawn is SPawnAttaque spy && (spy.MyWeapon ?? spy.WeaponDummy) is SWeaponAttaque { bDeleteMe: false } pistol &&
+                 !pistol.Mesh.IsNone)
         {
             // TickSWeaponAttaque (spy-shocker.md rule 14.1): the holster at 0, the other hand at 7 with its relative
             // place, else the right hand.

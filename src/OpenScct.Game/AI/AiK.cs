@@ -160,6 +160,51 @@ public static class AiK
     [Provenance(ProvenanceKind.Measured, "docs/spikes/R4-traversal.md spy-zip-line-13: 423.3 uu/s")]
     public const float ZipSpeed = 423.3f;
 
+    /// <summary>Ladder climb speed (uu/s), both ways.</summary>
+    [Provenance(ProvenanceKind.Decoded, "spec/movement/ladder.md: SpeedForLadder 126")]
+    public const float LadderSpeed = 126f;
+
+    /// <summary>A ladder is caught from a spot this far out from its line on the climber's side.</summary>
+    [Provenance(ProvenanceKind.Decoded, "PhysicsDriver.GE CheckLadderArms: K.GE.LadderSpot 35")]
+    public const float LadderGrabOut = 35f;
+
+    /// <summary>Getting on a ladder from the top starts from this far back from its line.</summary>
+    [Provenance(ProvenanceKind.Decoded, "PhysicsDriver.GE CheckLadderFeet: K.GE.LadderTopSpot 72")]
+    public const float LadderTopBack = 72f;
+
+    /// <summary>Hand over hand speed (uu/s).</summary>
+    [Provenance(ProvenanceKind.Measured, "spec/movement/pipe-horizontal.md: 105 uu/s measured for a request of 126")]
+    public const float HohSpeed = 105f;
+
+    /// <summary>The hand over hand move stops this far from the end of the bar.</summary>
+    [Provenance(ProvenanceKind.Decoded, "spec/movement/pipe-horizontal.md physOnPipeH: stops 27 from an end")]
+    public const float HohEndStop = 27f;
+
+    /// <summary>
+    /// Bar heights over the floor a standing jump catches: the HOH arm test wants the bar under 168 above the pawn's
+    /// centre while it rises (centre at floor + 87.5, JumpZ 610 rises 124), and the bar over a standing pawn's head.
+    /// </summary>
+    [Provenance(ProvenanceKind.Estimated, "CheckHOHArms (arms zone 128, height margin 40), standing centre 87.5, 124 uu jump rise")]
+    public const float HohJumpMin = 190f;
+
+    [Provenance(ProvenanceKind.Estimated, "CheckHOHArms (arms zone 128, height margin 40), standing centre 87.5, 124 uu jump rise")]
+    public const float HohJumpMax = 360f;
+
+    /// <summary>Where the jump to a bar is made: this far in from its end (the grab wants 35 from either end).</summary>
+    public const float HohGrabIn = 80f;
+
+    /// <summary>The walk-in before a jump to a bar, along the bar (a standing spy's body faces where he walks, and the move along the bar follows the body).</summary>
+    public const float HohRunIn = 64f;
+
+    /// <summary>Fence climb speed (uu/s), up, down and sideways.</summary>
+    [Provenance(ProvenanceKind.Decoded, "spec/movement/fence.md OnFence: newAccel 120")]
+    public const float FenceSpeed = 120f;
+
+    /// <summary>Fence tops (over the floor on either side) the links take.</summary>
+    public const float FenceMinHeight = 120f;
+
+    public const float FenceMaxHeight = 900f;
+
     /// <summary>The top of a pipe exit: 177.9 up and 91 across from the hold.</summary>
     [Provenance(ProvenanceKind.Measured, "docs/spikes/R4-traversal.md spy-pipe-climb-up: s_TopPipe +177.9 up, 91 across")]
     public const float PipeTopAcross = 91f;
@@ -222,6 +267,24 @@ public static class AiK
 
     /// <summary>Seconds a navigation link that failed is left out of plans.</summary>
     public const float BadLinkSeconds = 60f;
+
+    /// <summary>Seconds the walk edges across a shut way (a closed door, a place a walker stuck at twice) are left out of plans.</summary>
+    public const float BlockedEdgeSeconds = 60f;
+
+    /// <summary>A walker stuck again within this distance (uu) and <see cref="StuckRepeatSeconds"/> of its last stuck place takes the way ahead as shut.</summary>
+    public const float StuckRepeatRadius = 128f;
+
+    /// <summary>See <see cref="StuckRepeatRadius"/>.</summary>
+    public const float StuckRepeatSeconds = 20f;
+
+    /// <summary>How far ahead (uu) a stuck walker looks for what shuts its way.</summary>
+    public const float StuckProbe = 160f;
+
+    /// <summary>Half the width (uu) of the line left out across a closed door (a double glass door is about 256 wide).</summary>
+    public const float DoorBlockHalfWidth = 160f;
+
+    /// <summary>Half the width (uu) of the line left out across a place a walker stuck at twice with no door in front.</summary>
+    public const float StuckBlockHalfWidth = 64f;
 
     /// <summary>A walker about to drop waits up to this long for a teammate under the landing spot to move on.</summary>
     public const float DropYieldSeconds = 4f;

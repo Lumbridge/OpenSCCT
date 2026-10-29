@@ -18,6 +18,8 @@ public sealed class AiWorld
     private readonly List<SComputerObjectiveTrigger> _terminals = new();
     private readonly Dictionary<int, float>[] _badLinks = [new(), new()];
     private readonly HashSet<int>[] _badLinkSets = [new(), new()];
+    private readonly Dictionary<int, float>[] _badEdges = [new(), new()];
+    private readonly HashSet<int>[] _badEdgeSets = [new(), new()];
     private long _gatheredTick = -1;
 
     public AiWorld(Level level, ICollisionWorld collision, NavGraph spyNav, NavGraph mercNav, AiLightField? light = null)
@@ -233,22 +235,47 @@ public sealed class AiWorld
     public IReadOnlySet<int> BadLinks(bool spy)
     {
         int side = spy ? 0 : 1;
-        HashSet<int> set = _badLinkSets[side];
+        return Expire(_badLinkSets[side], _badLinks[side]);
+    }
+
+    // ---- edges that are shut (closed doors, movers, places a walker stuck at twice) -----------------------------
+
+    /// <summary>Leaves edges <paramref name="edges"/> of the side's graph out of plans for <see cref="AiK.BlockedEdgeSeconds"/>.</summary>
+    public void MarkBadEdges(bool spy, IReadOnlyList<int> edges)
+    {
+        ArgumentNullException.ThrowIfNull(edges);
+        int side = spy ? 0 : 1;
+        foreach (int e in edges)
+        {
+            _badEdges[side][e] = Now + AiK.BlockedEdgeSeconds;
+            _badEdgeSets[side].Add(e);
+        }
+    }
+
+    /// <summary>The edges of the side's graph that are left out now.</summary>
+    public IReadOnlySet<int> BadEdges(bool spy)
+    {
+        int side = spy ? 0 : 1;
+        return Expire(_badEdgeSets[side], _badEdges[side]);
+    }
+
+    private HashSet<int> Expire(HashSet<int> set, Dictionary<int, float> until)
+    {
         if (set.Count > 0)
         {
             _expired.Clear();
-            foreach (int link in set)
+            foreach (int k in set)
             {
-                if (_badLinks[side].TryGetValue(link, out float until) && until < Now)
+                if (until.TryGetValue(k, out float t) && t < Now)
                 {
-                    _expired.Add(link);
+                    _expired.Add(k);
                 }
             }
 
-            foreach (int link in _expired)
+            foreach (int k in _expired)
             {
-                set.Remove(link);
-                _badLinks[side].Remove(link);
+                set.Remove(k);
+                until.Remove(k);
             }
         }
 

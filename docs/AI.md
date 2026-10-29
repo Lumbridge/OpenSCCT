@@ -35,7 +35,9 @@ OpenSCCT.exe -- --svm-play=SteeE --side=spy --bots=3 --difficulty=normal   # a 2
 | `src/OpenScct.Game/AI/AiLightField.cs` | the pawn light level by the renderer's rules (`Lighting/ActorLightRules.cs`): zone ambient, four strongest lights, spot shadow lights and torches, trigger light switches |
 | `src/OpenScct.Game/AI/AiPerception.cs` | `AiSight`, `AiNoiseBoard` (MakeNoise hearing and sounds), `AiMemory` |
 | `src/OpenScct.Game/AI/NavBuilder.cs`, `NavGraph.cs`, `NavFollower.cs` | navigation from collision and GEs, A*, following with keys |
+| `src/OpenScct.Game/AI/DoorAi.cs` | closed doors on a route: wait, hack the door's switch, or shut its edges |
 | `src/OpenScct.Game/AI/AiBrain.cs`, `SpyAi.cs`, `MercAi.cs` | utility choice and the two sides' goals |
+| `src/OpenScct.Game/AI/Evasion.cs`, `SpyGadgets.cs` | a spy's play round the motion tracker; its smoke, flash, chaff, heartbeat and sticky cam |
 | `src/OpenScct.Game/AI/TeamAi.cs` | team play: revive, heal and unspy a mate, climb on a mate's boost or hoist, offer a boost |
 | `src/OpenScct.Game/AI/AiDifficulty.cs`, `AiK.cs` | presets and constants (decoded ones carry their provenance) |
 | `src/OpenScct.Bots/ServerBots.cs` | adds bots to a `ServerHost` (login, per-tick drive) |
@@ -63,7 +65,7 @@ network test players for the netcode checks (docs/NETCODE.md, "Bot matches").
 
 | Mode (RendMap) | Shows the target when |
 |---|---|
-| Normal (5) | the light on the side of the target facing the observer is above the threshold for the distance: `LightThreshold x (0.5 + d / 1000)`; a running target shows 1.5 times better; within 100 uu a dark shape shows anyway |
+| Normal (5) | the light on the side of the target facing the observer is above the threshold for the distance: `LightThreshold x (0.5 + d / 1000)`; a running target shows 1.5 times better; within 100 uu on the floor (and 250 uu in all) a dark shape shows anyway, so a body crouched or lying at the feet shows to a standing observer |
 | Night (34) | as normal with the light boosted: `(L + 1.4 x 30 / 255) x 4` (the mode's boost and post gain) |
 | Thermal (36) | always (pawns are hot), strength `1 - d / 5000` |
 | Motion (37) | never by sight: only while the bot's own goggle tracker holds a lock on the target and the target is within the view (`AiMotionSense`, the game's scan: 150 uu/s, 2600 uu plus the radius, an open line, no cloaked spy; spec/equipment/motion-tracking.md); a lock out of view is only the detect sound (`AiMotionSense.LastBeep`) |
@@ -145,16 +147,29 @@ trigger's replicated `bTriggering`); localized messages to bot controllers are t
   Fell_MinHeightForDmg 600), mercs to 400 (their damage starts at 450); deeper than the damage height costs extra.
   The landing floor must go on for two cells past the landing node in the direction of the drop: a narrow shelf over
   a deeper drop catches a walker by the arms or lets it fall on past, so it is no landing.
-- **Traversal links** (spies): ledges (LG) whose lip is 215 to 320 uu above a floor with a wall under it, one link
-  every 96 uu along the lip; vertical pipes (PIPE) from 100 uu out on the climber's side to the floor 60 to 120 uu
-  beyond the top; zip lines (ZL) from a run-up 250 to 330 uu under the line near its high end to the floor under the
-  low end. Only GEs active under the level's activation mask at the start take part. Ladders, fences, poles and
-  hand-over-hand bars get no links while the movement port has no states for them.
+- **Traversal links**: ladders (LADDER) for both sides, up from the grab spot 35 uu out on the climber's side to the
+  floor beyond the top, and down from the floor 72 uu back from the top. For spies also: ledges (LG) whose lip is 215
+  to 320 uu above a floor with a wall under it, one link every 96 uu along the lip; vertical pipes (PIPE) from 100 uu
+  out on the climber's side to the floor 60 to 120 uu beyond the top; zip lines (ZL) from a run-up 250 to 330 uu under
+  the line near its high end to the floor under the low end; horizontal pipes (HOH) 190 to 360 uu above a floor, from
+  80 uu in from one end (walked into along the bar, then a jump straight up), hand over hand to the far end and a
+  drop; fences (FENCE) from the floor on one side, up, over the top and down to the floor on the other, at up to four
+  spots along the fence. Only GEs active under the level's activation mask at the start take part. Poles get no links
+  (no pole states, and no converted map has a POLE GE). Wall jumps, splits, back-to-wall gaps and barrier hops are not
+  planned: they come from geometry, not GEs. Pipe-to-bar and bar-to-zip chains are not planned either.
 
 Graphs are cached per map (name, sim hash, activation mask) and profile: in memory for the process and on disk
 (`%LOCALAPPDATA%/SVM/ai-nav`, or `SVM_AI_NAV_CACHE`; empty disables it), never in the checkout. SteeE builds in a few
 seconds in a Debug build and loads from the cache in a moment. Node light levels (`ApplyLight`) let a route weigh the
 dark: the stealth cost is `cost x (1 + 3 stealth x light)`, plus a danger cost near believed enemies.
+
+Doors are planned as open. `DoorAi` (from `AiBrain.MoveTo`) looks about 220 uu along the route for a closed mover. It
+waits for one that is opening and leaves bump-opened or trigger-opened doors to the walk. A door opened by a switch the
+bot's side can use, on its side of the door (a hack panel such as Cinema's), it opens as a player would: walk to the
+use spot, hold Use until the menu opens, select the switch with S, let go, and keep off the keys through the hack. A
+door nobody on the side can open, or one whose hack failed twice, is shut. A walker that sticks twice within 128 uu and
+20 s does the same: the walk edges across a line in front of it (160 uu each way along a door's face, 64 otherwise)
+are left out of the side's plans for 60 s, so later plans, even for a new goal, go another way.
 
 `NavFollower` plays a path with keys: it faces the next waypoint and holds forward, passes waypoints early when the
 next is in a clear straight line, crouches for crawl edges, stands and walks (not runs) off ledges for drops and lets
@@ -177,14 +192,23 @@ A utility choice every decision period (the difficulty's), with noise and a bonu
 | Spy goal | When | What |
 |---|---|---|
 | Hack | a terminal is left | the cheapest terminal (distance plus known danger, teammates' claims pushed back); sneak there crouched (silent) by a dark route, or run when no merc is about; stand still, hold Use until the menu opens, release; wait while the terminal states hack |
-| Evade | a merc it sees faces it while it is lit, or it was hurt | run to the best spot within 900 uu: out of the merc's line, dark, away; a quick-launched smoke at the feet when the merc is close |
+| Evade | a merc it sees faces it while it is lit, or it was hurt | run to the best spot within 900 uu: out of the merc's line, dark, away (gadgets: see "Spy gadgets") |
 | Hide | a merc nearby looks elsewhere and the spy is in the dark | crouch, freeze and watch, up to 5 s at a time |
-| Shock | a merc very close, or guarding the target terminal with its back turned | draw the shocker, aim, fire, holster; the stun window is the moment to hack |
+| Shock | a merc within 550 uu facing the spy, any merc within 350 uu, one facing it at mid range while it is exposed, or one near the target terminal; the spy has the pistol and 15 energy; gadget use rolls for it | tap the fire-mode key (the evasion's silent long press unless the merc is closing in), wait for the armed stance (Fire is ignored during the draw), aim at the chest after the reaction time, Fire; one more shot on a miss; then the holster; the 4.5 s after a hit favour the hack |
+| Grab | a merc seen in the last 1.5 s, on the spy's floor, turned away, alone (no other merc known within 1200 uu), not shocked in the last 5.5 s, and the spy in the dark or the merc near the target terminal or within 500 uu; melee use rolls for it | creep to a spot behind him (his yaw + 7200), walk the last steps standing, press Use when the controller's grab test passes; in the hold release Use and press it again (neck break), Fire (knock-out) after three tries |
+| Drop | a merc standing still 120 to 650 uu below, on the landing of a drop edge of the spy's graph near the spy, not facing it, without sticky skin; melee use rolls for it | walk to the top of that drop, stand, walk off toward him, steer at him in the air (the drop attack knocks him down); a spy hanging from a ledge right above a merc lets go onto him |
+
+A drawn shocker with no shock under way (a goal or team goal took over, a roll with the fire-mode key) is holstered
+with one fire-mode tap at least a second apart; the gadget layer's sequences (heartbeat, aimed throw, cam) own the key
+while they run. Spies roll (the roll key, unarmed, running) to dodge while evading or when seen or hurt on the way to a
+terminal, and to go faster with no merc about, only along a straight open stretch of the route at least 450 (dodge) or
+650 uu (speed) long, the view and the body lined up.
 
 Spies switch night vision on in the dark and off in the light, and thermal near smoke.
 
 | Merc goal | When | What |
 |---|---|---|
+| Finish | a spy it saw go down (lying, in sight or seen lying in the last 3 s) | run to him, face him, press Use when the game's finishing search would take him (FindPawnToReanimateOrTerminate: 250 uu, in front, feet within 10 uu, clear box to the spot 110 uu behind him), then Use again in the hold to kill at once; shoot him low (0.6 of his height under his centre) until then |
 | Engage | a confirmed spy in sight | after the reaction time aim at the chest (leading by the lead factor) with an error that shrinks from the first-shot to the settled spread while tracking; fire short bursts, not through a teammate; side-step at range (hard and expert); reload on an empty clip |
 | Respond | a terminal is being hacked (the nearest merc goes, with teamwork) | run to a spot 200 to 600 uu from the use spot that sees it, watching the spot |
 | Frag | a spy lost behind cover 400 to 1600 uu away in the last 4 s | select the frag, aim a full-strength throw on a low arc, tap the throw key |
@@ -204,6 +228,11 @@ berserk spin when ready, the elbow while it cools). Each chance is taken by Mele
 and expert mercs leave a spy holding his shocker alone (a charge into him shocks the merc). During a charge or a spin
 the bot leaves the keys and the view to the state.
 
+At point blank (under 110 uu), when the spy's body blocks the muzzle (the game's CheckIfCanFire), the strike is always
+taken; without one the merc steps back to shoot. A charge is not started with a team mate within 120 uu of its line or
+of the spy. A merc whose walk is stopped against a spy's body (a player sees his walk blocked) stops and looks at the
+spot for 2 s; a spy who keeps still beside a still merc gives no cue.
+
 ### Spies and the motion tracker (`SpyEvasion`, Evasion.cs)
 
 After the spy brain plans a tick, the evasion adjusts it from what the bot knows of the mercs (its memory, never a
@@ -215,6 +244,28 @@ does not evade. The creep is kept for the dark: when the light on the spy, as a 
 above 0.25 (the level the hide choice calls dark; a map without light data reads 0.6 everywhere), the merc sees the
 spy whatever its speed and the bot walks on at full speed (with creeping everywhere, Normal spies crossed TestBox at
 88 uu/s under the guards' eyes and reached a terminal in 1 of 12 matches).
+
+### Spy gadgets (`SpyGadgets`, SpyGadgets.cs)
+
+After the spy brain (and before the evasion) the bot may use a gadget of its loadout, looked at every 0.25 s while it
+walks free (not shocking, in a melee move, at the terminal or helping a mate). Everything goes through the keys:
+GadgetQuickChoice with the Shocker holstered (the quick launch: 2 s apart, the grenade pops where it first lands at
+the feet), SelectGadget, the fire-mode key held past 0.5 s to draw (no laser) and tapped to holster, AltFire tapped for
+an aimed throw at full strength (2010 uu/s, falling at 750 uu/s^2: the bot aims the low arc) or to shoot a cam, Use for
+the cam's gas. Charges and refire times are checked; a use counts when the gadget's LastUsed changes.
+
+| Gadget | When | What |
+|---|---|---|
+| Flash-bang | a seen merc faces the spy 200 to 1800 uu away | holstered: quick launch at the feet (it flashes every merc within 2500 uu facing it with an open line); drawn: thrown at him (it pops on touch). He counts as blind for 4 s (`IsBlinded`) |
+| Smoke | the spy was just hurt, or a facing merc is within 1100 uu; the last 450 uu to a terminal with a merc about (once per terminal) | quick launch at the feet (a 300 uu cloud for 10 s that blocks the merc's sight) |
+| Smoke | a seen guard of the target terminal without a gas mask, within 1200 uu | thrown at him: he coughs, faints after 6 s inside |
+| Chaff | a merc within 550 uu closing in | quick launch at the feet: within 300 uu his goggles go back to normal vision and his HUD is jammed while he stays; torches fail for 5 s |
+| Chaff | a guard of the target terminal (believed within 800 uu of it), 300 to 1500 uu away, open line | thrown short of his feet (bursts at the 3 s fuse) |
+| Heartbeat | on the way to a terminal (400 to 3500 uu out), or when no merc is known; no merc in sight | select the sensor, draw, sweep the view +-60 degrees toward the terminal (all round when nothing is known) for 1.6 to 2.4 s while walking on, holster. Each merc the radar shows (2200 uu, 30 degree half cone, through walls) goes into memory at confidence 0.8 (`AiContactSource.Sensed`), blurred by 3 % of its distance |
+| Sticky cam | a guard standing still near the target terminal | a wall is searched (33 lines round the guard) where the cam's gas point lands within 90 uu of him: the cam faces the spy after the entry and the gas goes 192 uu along its view. Shoot it, watch through it (the bot's sight then comes from the cam), press Use when a merc is within 168 uu of the gas point with an open line, leave with Alt-fire 1.5 s later, when hurt, when a merc is believed within 600 uu of the spy's body, or after 7.5 to 15 s |
+
+GadgetUse sets how readily each gadget is tried, the aim tolerance of a throw and the pause between uses; below 0.3
+(Easy) only the quick launches are used.
 
 ### Helping team mates (`TeamAi.cs`)
 
@@ -242,6 +293,12 @@ a while. A bot caught hanging from a ledge on the way keeps its route's goal, so
 (steered at the mate himself it planned anew from the hang, whose first point was the floor below, and let go of
 the ledge every time it caught it); off the route the walk climbs or lets go. The bots' choice of when to help is their own (the original has no bots); every move they make is the
 original's (spec/objectives/team-interactions.md, spec/movement/coop.md, spec/combat/knockout-and-terminate.md).
+
+Every Use press of a team goal is made only when the game's own search would take it, 25 uu inside its reach, with no
+movement key on that tick: a merc's Use that finds nothing is the berserk spin or the elbow, and Use with forward is the
+charge. A revive presses only while the mate still sleeps (one who is getting up, revived by this bot or another, ends
+the goal) and within 225 uu in 3D (a mate lying lower or higher gets a step closer). A menu press waits until the bot
+and the mate are nearly still, the bot is within 175 uu and both facings are above 0.8.
 
 ### Goggles, torch and the host's ability switches
 
@@ -312,10 +369,15 @@ tracking, and the harder mercs kill more. The reports are in `local/test-results
   triangles 33.2 uu), so a 35 uu pawn reaches the 64 uu use spot and terminals block players again in offline play
   with bots (`PlaySettings.TerminalsBlockPlayers` defaults to blocking; false still lets players walk through them).
   A spy stuck in that walk gives the terminal up after 8 s.
-- **Spies cannot kill yet**: grab, neck snap, drop attack and elbow are not used; the shocker only stuns. Spies win by
-  objectives or the clock.
+- **Spy melee**: the bots break necks (grab from behind, Use twice; or choke after 15 s), knock mercs down by dropping
+  on them from drop edges or a ledge hang, and shock (stun). They grab standing: the port's grab from a crouch fell
+  through to the elbow in a TestBox run. They do not elbow on purpose, and do not use the hoist ledge grab or drops
+  from pipes and zip lines.
+- **Sticky cam for server bots**: the smooth entry into a cam view ends in the camera code of the machine that draws
+  it; a server bot draws none, so the bot changes to the view after the flight time. The bot cannot turn the cam (no
+  mouse), so it places the cam where the cam's own facing puts the gas on the guard.
 - **Map changes at run time**: the graphs use the GE activation mask at the start and the static geometry; doors are
-  taken as open, map events that open routes are not followed (map-specific, later).
+  planned as open and handled on the way (`DoorAi`); other map events that open routes are not followed.
 - **Pipes**: the movement port's pipe hold compares NewZipP with ZipP, which a plain grab does not set (see the
   traversal tests); a pipe link that fails is left out for a minute.
 - **Torch placement** in the light rule is the merc's eye along its view (NativeTickTorche is not decoded; the

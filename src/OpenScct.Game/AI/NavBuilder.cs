@@ -16,10 +16,12 @@ namespace OpenScct.Game.AI;
 /// <item>walk and crouch edges to the neighbouring nodes a swept body reaches with at most a step (MAXSTEPHEIGHT) up,
 /// standing when both ends and the sweep fit a standing pawn, crouched otherwise (vents, crawl spaces);</item>
 /// <item>drops off ledges, one way, cleared all the way down and no deeper than the side's fall damage height;</item>
-/// <item>for spies, the traversal links of the active GEs: ledges a standing jump catches (LG), vertical pipes
-/// (PIPE) from the foot to the floor beside the top, and zip lines (ZL) from a run-up under the high end to the
-/// floor under the low end. Ladders, fences, poles and hand-over-hand bars get no links while the movement port has
-/// no states for them.</item>
+/// <item>the traversal links of the active GEs: for both sides ladders (LADDER), up from the foot and down from the
+/// top; for spies also ledges a standing jump catches (LG), vertical pipes (PIPE) from the foot to the floor beside
+/// the top, zip lines (ZL) from a run-up under the high end to the floor under the low end, horizontal pipes (HOH)
+/// a standing jump catches, hand over hand to the far end and a drop, and fences (FENCE, the climbable fence's top
+/// line) from the floor on one side to the floor on the other. Poles get no links (the movement port has no pole
+/// states, and no converted map has a POLE GE).</item>
 /// </list>
 /// </summary>
 public sealed class NavBuilder
@@ -66,7 +68,7 @@ public sealed class NavBuilder
         var b = new NavBuilder(world, profile, min, max);
         b.SampleFloors();
         b.Connect();
-        if (profile.Traversal && ges is not null)
+        if (ges is not null)
         {
             b.AddLinks(ges, activationMask);
         }
@@ -305,6 +307,18 @@ public sealed class NavBuilder
                 continue;
             }
 
+            // Ladders are the only traversal both sides use (spec/movement/ladder.md).
+            if (ge.Kind == GEKind.LADDER)
+            {
+                AddLadder(ge);
+                continue;
+            }
+
+            if (!_profile.Traversal)
+            {
+                continue;
+            }
+
             switch (ge.Kind)
             {
                 case GEKind.LG:
@@ -315,6 +329,12 @@ public sealed class NavBuilder
                     break;
                 case GEKind.ZL:
                     AddZip(ge);
+                    break;
+                case GEKind.HOH:
+                    AddHandOverHand(ge);
+                    break;
+                case GEKind.FENCE:
+                    AddFence(ge);
                     break;
             }
         }
@@ -436,6 +456,188 @@ public sealed class NavBuilder
 
         AddLink(new NavLink(NavEdgeKind.PipeClimb, bottom, top, new FVector(approach.X, approach.Y, fz), FaceYaw(-toClimber),
             _nodes[top].Floor, ge.Index, height), (height / AiK.PipeClimbSpeed + 3f) * AiK.CrouchSpeed);
+    }
+
+    /// <summary>
+    /// A ladder (bottom, top, a point toward the climber): up from the grab spot 35 out on the climber's side to the
+    /// floor beyond the top, and down from the floor 72 back from the top (walking toward the ladder) to that spot.
+    /// </summary>
+    private void AddLadder(GERecord ge)
+    {
+        ReadOnlySpan<FVector> p = ge.Points;
+        if (p.Length < 3)
+        {
+            return;
+        }
+
+        FVector bottomP = p[0].Z <= p[1].Z ? p[0] : p[1];
+        FVector topP = p[0].Z <= p[1].Z ? p[1] : p[0];
+        var toClimber = new FVector(p[2].X - p[0].X, p[2].Y - p[0].Y, 0f);
+        float len = toClimber.Size();
+        float height = topP.Z - bottomP.Z;
+        if (len < 0.5f || height < 64f)
+        {
+            return;
+        }
+
+        toClimber *= 1f / len;
+        FVector grab = bottomP + toClimber * AiK.LadderGrabOut;
+        if (FloorNear(grab, bottomP.Z + 60f, bottomP.Z - 60f) is not { } fz)
+        {
+            return;
+        }
+
+        int bottom = NearestTo(new FVector(grab.X, grab.Y, fz), 40f);
+        if (bottom < 0 || !_nodes[bottom].Standing)
+        {
+            return;
+        }
+
+        var start = new FVector(grab.X, grab.Y, fz);
+        int top = -1;
+        foreach (float across in stackalloc float[] { 60f, 90f, 120f })
+        {
+            FVector exit = topP - toClimber * across;
+            if (FloorNear(exit, topP.Z + 60f, topP.Z - 80f) is { } tz)
+            {
+                top = NearestTo(new FVector(exit.X, exit.Y, tz), 48f);
+                if (top >= 0)
+                {
+                    break;
+                }
+            }
+        }
+
+        if (top < 0)
+        {
+            return;
+        }
+
+        float climb = (height / AiK.LadderSpeed + 4f) * AiK.CrouchSpeed;
+        AddLink(new NavLink(NavEdgeKind.LadderUp, bottom, top, start, FaceYaw(-toClimber), _nodes[top].Floor, ge.Index, height), climb);
+
+        // Down from the top: walk toward the ladder from 72 back; the feet test hangs the pawn on at the top.
+        FVector back = topP - toClimber * AiK.LadderTopBack;
+        if (FloorNear(back, topP.Z + 60f, topP.Z - 80f) is { } bz)
+        {
+            int from = NearestTo(new FVector(back.X, back.Y, bz), 40f);
+            if (from >= 0 && _nodes[from].Standing)
+            {
+                AddLink(new NavLink(NavEdgeKind.LadderDown, from, bottom, new FVector(back.X, back.Y, bz), FaceYaw(toClimber), start,
+                    ge.Index, height), climb + AiK.CrouchSpeed);
+            }
+        }
+    }
+
+    /// <summary>
+    /// A horizontal pipe a standing jump catches: from the floor under it, 80 in from one end, along it to the far
+    /// end and down to the floor there; one link each way.
+    /// </summary>
+    private void AddHandOverHand(GERecord ge)
+    {
+        FVector p0 = ge.P0;
+        FVector p1 = ge.P1;
+        var along = new FVector(p1.X - p0.X, p1.Y - p0.Y, 0f);
+        float length = along.Size();
+        if (length < 2f * AiK.HohGrabIn + 32f || MathF.Abs(p1.Z - p0.Z) > 16f)
+        {
+            return;
+        }
+
+        along *= 1f / length;
+        float barZ = (p0.Z + p1.Z) * 0.5f;
+        for (int way = 0; way < 2; way++)
+        {
+            FVector a = way == 0 ? p0 : p1;
+            FVector d = way == 0 ? along : -along;
+            FVector at = a + d * AiK.HohGrabIn;
+            if (FloorNear(at, barZ - AiK.HohJumpMin + 20f, barZ - AiK.HohJumpMax) is not { } fz || barZ - fz < AiK.HohJumpMin ||
+                FloorNear(at - d * AiK.HohRunIn, fz + 12f, fz - 12f) is null)
+            {
+                continue;
+            }
+
+            int from = NearestTo(new FVector(at.X, at.Y, fz), 24f);
+            if (from < 0 || !_nodes[from].Standing)
+            {
+                continue;
+            }
+
+            // The far end: the hands stop 27 short of it, then the drop (the feet hang about 200 under the bar).
+            FVector end = a + d * (length - AiK.HohEndStop - 8f);
+            if (FloorNear(end, barZ - 150f, barZ - 200f - _profile.MaxDrop) is not { } ez)
+            {
+                continue;
+            }
+
+            int to = NearestTo(new FVector(end.X, end.Y, ez), 48f);
+            if (to < 0)
+            {
+                continue;
+            }
+
+            float fall = MathF.Max(0f, barZ - 200f - ez);
+            float cost = ((length - AiK.HohGrabIn) / AiK.HohSpeed + 4f) * AiK.CrouchSpeed + (fall > _profile.SafeDrop ? 600f : 0f);
+            AddLink(new NavLink(NavEdgeKind.HandOverHand, from, to, new FVector(at.X, at.Y, fz), FaceYaw(d), _nodes[to].Floor, ge.Index,
+                barZ - fz), cost);
+        }
+    }
+
+    /// <summary>
+    /// A fence under a FENCE line: from the floor on one side, facing it, over the top to the floor on the other side,
+    /// at a few spots along it; both ways. The fence itself must stand under the line (a wall the body runs into).
+    /// </summary>
+    private void AddFence(GERecord ge)
+    {
+        FVector p0 = ge.P0;
+        FVector p1 = ge.P1;
+        var along = new FVector(p1.X - p0.X, p1.Y - p0.Y, 0f);
+        float length = along.Size();
+        float margin = 80f + _profile.Radius;
+        if (length < 2f * margin || MathF.Abs(p1.Z - p0.Z) > 16f)
+        {
+            return;
+        }
+
+        along *= 1f / length;
+        var side = new FVector(-along.Y, along.X, 0f);
+        float topZ = (p0.Z + p1.Z) * 0.5f;
+        float reach = _profile.Radius + 25f;
+        int samples = Math.Clamp((int)((length - 2f * margin) / 256f) + 1, 1, 4);
+        for (int i = 0; i < samples; i++)
+        {
+            float t = samples == 1 ? length * 0.5f : margin + (length - 2f * margin) * (i / (float)(samples - 1));
+            FVector at = p0 + along * t;
+            for (int way = 0; way < 2; way++)
+            {
+                FVector s = way == 0 ? side : -side;
+                FVector near = at + s * reach;
+                FVector far = at - s * reach;
+                if (FloorNear(near, topZ - AiK.FenceMinHeight, topZ - AiK.FenceMaxHeight) is not { } nz ||
+                    FloorNear(far, topZ - 60f, topZ - AiK.FenceMaxHeight) is not { } fz)
+                {
+                    continue;
+                }
+
+                // The fence: a standing body walking at it from the near side is stopped.
+                var body = new FVector(near.X, near.Y, nz + Lift(_profile.StandingHeight));
+                if (!_world.LineCheck(out _, null, body - s * (reach + 20f), body, Body(_profile.StandingHeight), WorldFlags))
+                {
+                    continue;
+                }
+
+                int from = NearestTo(new FVector(near.X, near.Y, nz), 40f);
+                int to = NearestTo(new FVector(far.X, far.Y, fz), 48f);
+                if (from < 0 || to < 0 || !_nodes[from].Standing)
+                {
+                    continue;
+                }
+
+                float cost = ((topZ - nz + topZ - fz) / AiK.FenceSpeed + 5f) * AiK.CrouchSpeed;
+                AddLink(new NavLink(NavEdgeKind.FenceClimb, from, to, new FVector(near.X, near.Y, nz), FaceYaw(-s), _nodes[to].Floor, ge.Index,
+                    topZ - nz), cost);
+            }
+        }
     }
 
     private void AddZip(GERecord ge)

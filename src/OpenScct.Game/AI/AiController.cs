@@ -56,6 +56,7 @@ public sealed class AiController
         Random = world.Level.World.CreateRandom(1000 + index, 77);
         TeamPlay = new TeamAi(this);
         Evasion = new SpyEvasion(this);
+        Gadgets = new SpyGadgets(this);
         _nextSight = index * 0.017f;
     }
 
@@ -104,6 +105,9 @@ public sealed class AiController
 
     /// <summary>A spy bot's play around the merc's motion tracker (Evasion.cs), applied after the brain.</summary>
     public SpyEvasion Evasion { get; }
+
+    /// <summary>A spy bot's gadgets: smoke, flash-bang, chaff, heartbeat, sticky cam (SpyGadgets.cs), after the brain.</summary>
+    public SpyGadgets Gadgets { get; }
 
     /// <summary>A merc bot's motion tracking: what its goggle tracker shows (AiPerception.cs).</summary>
     public AiMotionSense Motion { get; } = new();
@@ -185,6 +189,7 @@ public sealed class AiController
 
         if (pawn is SPawnAttaque)
         {
+            Gadgets.Apply(ref plan, now);
             Evasion.Apply(ref plan, now);
         }
 
@@ -309,11 +314,20 @@ public sealed class AiController
                 Motion.Update(Controller, eye, Controller.Rotation, Controller.FovAngle, now);
             }
 
+            // Through a sticky cam the screen shows the cam's picture: the spy sees from the cam, not its eye.
+            FVector sightEye = eye;
+            FRotator sightView = Controller.Rotation;
+            if (pawn is SPawnAttaque && Gadgets.CamView(out FVector camEye, out FRotator camView))
+            {
+                sightEye = camEye;
+                sightView = camView;
+            }
+
             foreach (Pawn enemy in Enemies)
             {
                 AiSighting s = mode == AiVisionMode.Motion
                     ? Motion.Look(Controller, eye, Controller.Rotation, Controller.FovAngle, enemy)
-                    : AiSight.Look(World, eye, Controller.Rotation, Controller.FovAngle, mode, enemy, Difficulty);
+                    : AiSight.Look(World, sightEye, sightView, Controller.FovAngle, mode, enemy, Difficulty);
                 AiContact c = Memory.For(enemy);
                 if (s.Visible)
                 {

@@ -6,6 +6,7 @@ using OpenScct.Core.Engine;
 using OpenScct.Game.Movement;
 using OpenScct.Game.SBase;
 using OpenScct.Provenance;
+using CombatK = OpenScct.Game.Combat.K;
 
 namespace OpenScct.Game.AI;
 
@@ -112,6 +113,21 @@ public static class TeamAiK
 
     /// <summary>After a mate loses health, this long before the bot goes to heal or unspy him (he is in a fight).</summary>
     public const float MateUnderFireSeconds = 6f;
+
+    /// <summary>
+    /// The bot presses Use only this far inside the game's own reach (revive 250, menu 200): the press acts a tick
+    /// later, after both pawns moved, and a merc's Use that finds nothing is the berserk spin or the elbow.
+    /// </summary>
+    public const float ReachMargin = 25f;
+
+    /// <summary>The revive press wants the body facing the mate at least this much (the game takes over -0.5).</summary>
+    public const float ReviveFacingDot = -0.2f;
+
+    /// <summary>The menu press wants both facings this much (the game takes over 0.75).</summary>
+    public const float MenuFacingDot = 0.8f;
+
+    /// <summary>The menu press waits until the bot and the mate are this slow (uu/s).</summary>
+    public const float MenuStillSpeed = 40f;
 }
 
 /// <summary>
@@ -436,7 +452,9 @@ public sealed class TeamAi
             return true;
         }
 
-        if (!mate.bLyingOnGround)
+        // Lying but no longer asleep: he is getting up (revived by this bot or another). A press now finds nobody to
+        // revive, and a merc's Use that finds nothing is the berserk spin or the elbow, into the mate: done.
+        if (!mate.bLyingOnGround || !mate.bSleeping)
         {
             return false;
         }
@@ -451,15 +469,63 @@ public sealed class TeamAi
         }
 
         LookAt(pawn, mate.Location, ref plan);
-        if (now - _lastUse > 0.4f && AimError(pawn, mate.Location) < 30f)
+        if (to.Size() >= CombatK.ReviveRange - TeamAiK.ReachMargin && d > 40f)
         {
-            // Use is a press: the walking states look for a mate to revive on its rising edge.
+            // Close on the floor but out of the search's 3D reach (he lies lower or higher): a step closer.
+            if (WalkStraight(pawn, Floor(mate.Location, pawn), ref plan))
+            {
+                plan.Yaw = NavFollower.YawTo(pawn.Location, mate.Location);
+            }
+
+            return true;
+        }
+
+        if (now - _lastUse > 0.4f && AimError(pawn, mate.Location) < 30f && Walking() && ReviveReach(pawn, mate))
+        {
+            // Use is a press: the walking states look for a mate to revive on its rising edge. No stick on that tick
+            // (a merc's Use with forward held is the charge).
             _lastUse = now;
+            plan.Keys = default;
             plan.Keys.bUsing = 1;
         }
 
         return true;
     }
+
+    /// <summary>
+    /// The revive search's own test for this mate (FindPawnToReanimate, knockout-and-terminate.md rule 33: same side,
+    /// alive, asleep, within 250 uu, in front of the body), inside <see cref="TeamAiK.ReachMargin"/> and facing him a
+    /// little more than the game asks.
+    /// </summary>
+    public static bool ReviveReach(SBasePawn me, SBasePawn mate)
+    {
+        ArgumentNullException.ThrowIfNull(me);
+        ArgumentNullException.ThrowIfNull(mate);
+        return !ReferenceEquals(me, mate) && mate.SPawnType == me.SPawnType && mate.Health > 0 && mate.bSleeping &&
+            FVector.Dist(mate.Location, me.Location) < CombatK.ReviveRange - TeamAiK.ReachMargin &&
+            ((mate.Location - me.Location).SafeNormal() | me.Rotation.Vector().SafeNormal()) > TeamAiK.ReviveFacingDot;
+    }
+
+    /// <summary>
+    /// The mate menu entries' reach (<see cref="SMateInteraction.MateInReach"/>: 200 uu, in front, facing each other at
+    /// 0.75) with a margin, both pawns nearly still: the menu then opens on the press, never the spin.
+    /// </summary>
+    private static bool MenuReach(SBasePawn me, SBasePawn mate)
+    {
+        FVector to = mate.Location - me.Location;
+        if (to.Size() >= SMateInteraction.MateRange - TeamAiK.ReachMargin ||
+            me.Velocity.SizeSquared() > TeamAiK.MenuStillSpeed * TeamAiK.MenuStillSpeed ||
+            mate.Velocity.SizeSquared() > TeamAiK.MenuStillSpeed * TeamAiK.MenuStillSpeed)
+        {
+            return false;
+        }
+
+        FVector facing = me.Rotation.Vector();
+        return (to.SafeNormal() | facing) > TeamAiK.MenuFacingDot && -(mate.Rotation.Vector().SafeNormal() | facing) > TeamAiK.MenuFacingDot;
+    }
+
+    /// <summary>The controller is in a walking state (the states that act on the Use press).</summary>
+    private bool Walking() => Pc.GetStateName().ToString().StartsWith("s_PlayerWalking", StringComparison.Ordinal);
 
     /// <summary>
     /// Heal Mate or Unspy Mate: stand in front of the mate, facing him (the mate search wants both), hold Use until
@@ -531,12 +597,15 @@ public sealed class TeamAi
             return true;
         }
 
-        if (SMateInteraction.MateInReach(pawn, mate))
+        if (SMateInteraction.MateInReach(pawn, mate) && (_pressSince >= 0f || MenuReach(pawn, mate)))
         {
-            // In front of him, facing him, both ways: press Use. The walking states act on the press only (its rising
-            // edge), so a press that opened nothing is let go and made again.
+            // In front of him, facing him, both ways, well inside the reach and both still: press Use. The walking
+            // states act on the press only (its rising edge), so a press that opened nothing is let go and made again.
+            // A press at the edge of the reach could open nothing a tick later, and a merc's Use that opens nothing is
+            // the berserk spin or the elbow, into the mate. No stick while pressing (Use with forward is the charge).
             LookAt(pawn, mate.Location, ref plan);
-            if (entry?.CanUse(Pc) == true)
+            plan.Keys = default;
+            if (_pressSince >= 0f || entry?.CanUse(Pc) == true)
             {
                 if (_pressSince < 0f)
                 {
@@ -553,6 +622,8 @@ public sealed class TeamAi
 
             return true;
         }
+
+        _pressSince = -1f;
 
         // The mate search wants the bot in front of the mate and the bot's pawn facing him. A standing spy does not
         // turn his body with the view, so the bot walks up to him along the line he faces: from a staging point

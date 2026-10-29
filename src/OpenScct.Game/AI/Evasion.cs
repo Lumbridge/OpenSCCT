@@ -50,6 +50,12 @@ public sealed class SpyEvasion
     /// <summary>Draws made with the long press.</summary>
     public int HoldDraws { get; private set; }
 
+    /// <summary>
+    /// Until this time a draw stays the brain's quick tap (a merc closing in: the shot cannot wait the 0.5 s of the
+    /// silent draw). Set by the spy brain's shock.
+    /// </summary>
+    public float QuickDrawUntil { get; set; } = -1f;
+
     /// <summary>The tracker's range as the bot plays it: 2600 + the spy's radius, plus a margin by difficulty.</summary>
     [Provenance(ProvenanceKind.Decoded, "SMotionTrackingVision MaxDetectedDistance 2600 + CollisionRadius (GetActors)")]
     public static float TrackedRange(SBasePawn spy, AiDifficulty difficulty)
@@ -195,7 +201,8 @@ public sealed class SpyEvasion
             return;
         }
 
-        if (plan.Keys.bFireMode != 0 && spy.WeaponLoaded == 0 && (threat || _bot.Difficulty.Stealth >= EvasionK.FreezeStealth))
+        if (plan.Keys.bFireMode != 0 && spy.WeaponLoaded == 0 && now >= QuickDrawUntil &&
+            (threat || _bot.Difficulty.Stealth >= EvasionK.FreezeStealth))
         {
             _holding = true;
             _holdDrawUntil = now + EvasionK.HoldDrawSeconds;
