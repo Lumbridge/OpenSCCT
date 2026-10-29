@@ -9,7 +9,7 @@ namespace OpenScct.Game.Camera;
 /// Where the view comes from each frame (spec/native/camera.md rules 1, 2, 4 and 5): the controller's calc view
 /// picks a view source by state, the camera solves the following camera or the first-person view, and the result
 /// lands in vCamLocation and rCamRotation. Run it on the machine that draws, after the tick, through
-/// <see cref="FrameView"/> (the original solves it three times a frame).
+/// <see cref="FrameView"/> (the original solves it three times a frame, twice while the HUD is in a state).
 /// </summary>
 public static class PlayerCalcView
 {
@@ -43,9 +43,17 @@ public static class PlayerCalcView
     public const int ViewSolvesPerFrame = 3;
 
     /// <summary>
+    /// The view solves of a frame while the HUD is in one of its states (sticky cam, camera network, binoculars): their
+    /// PostRender never reaches SHud's own one (super.PostRender in a state is HUD.PostRender), so the third solve, in
+    /// the Enhanced Reality markers drawn from HudAtt / HudDef (0x10af8e07), does not happen.
+    /// </summary>
+    [Provenance(ProvenanceKind.Measured, "Original sticky cam fly-in sampled by memory (TestRange, 2026-10-29, ~240 fps): 4000 uu/s steady = 2 x 2000 x m_dT per frame, 2640 uu/s (x0.66) for the first 0.145 s = Reloaded's timer drained by 2 calls a frame")]
+    public const int HudStateViewSolvesPerFrame = 2;
+
+    /// <summary>
     /// The view of one drawn frame as the original's engine makes it: <see cref="ViewSolvesPerFrame"/> calc views with
-    /// bUpdate in a row; the last one is the view drawn. The spy lasers' view update still runs once per tick (its own
-    /// Level.TimeSeconds guard).
+    /// bUpdate in a row (<see cref="HudStateViewSolvesPerFrame"/> while the HUD is in a state); the last one is the view
+    /// drawn. The spy lasers' view update still runs once per tick (its own Level.TimeSeconds guard).
     /// </summary>
     [PortOf("eng:ASPlayerController::NativePlayerCalcView", Spec = "spec/native/camera.md#1-calc-view-dispatch")]
     public static void FrameView(SPlayerController PC, out Actor? ViewActor, out FVector CameraLocation, out FRotator CameraRotation)
@@ -53,7 +61,10 @@ public static class PlayerCalcView
         ViewActor = null;
         CameraLocation = default;
         CameraRotation = default;
-        for (int i = 0; i < ViewSolvesPerFrame; i++)
+        int solves = PC.myHUD is SHud { StateNode: var hudState } && !ReferenceEquals(hudState, ActorState.None)
+            ? HudStateViewSolvesPerFrame
+            : ViewSolvesPerFrame;
+        for (int i = 0; i < solves; i++)
         {
             NativeGlobalPlayerCalcView(PC, out ViewActor, out CameraLocation, out CameraRotation);
         }
@@ -342,8 +353,8 @@ public static class PlayerCalcView
     /// <summary>
     /// Reloaded's fly-in slow start (camera.md rule 4.4), the scale of this call's step: a new fly-in (Level.TimeSeconds
     /// went back, or moved more than 4 x m_dT since the last fly-in call) sets a timer to 100; while it is above 0 each
-    /// call drains it by 0.34 x the frame time in milliseconds and the step is x 0.66. The view is solved three times a
-    /// frame, so the slow part lasts about 0.1 s.
+    /// call drains it by 0.34 x the frame time in milliseconds and the step is x 0.66. The fly-in view is solved twice a
+    /// frame, so the slow part lasts about 0.15 s.
     /// </summary>
     [Provenance(ProvenanceKind.Decoded, "Reloaded 0x1001a880 (timer set), 0x1001a950 / 0x1001a8f0 (drain and x0.66 on the capped step); the frame time global 0x1036e2bc is read here as Level.m_dT x 1000")]
     private static float SmoothStickySlowStart(SPlayerController PC, SPlayerCam camera)

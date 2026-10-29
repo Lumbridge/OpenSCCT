@@ -103,6 +103,12 @@ shake, tilt and hit roll fields.
    height, ideal and final distance) and of the other view sources moves three steps per frame: the rates of the
    mode table are a third of what the player sees. The rewrite solves the view three times per tick
    (PlayerCalcView.FrameView).
+   The third call (0x10af8e07) is in the Enhanced Reality markers (ERDrawObjectives 0x10af8c00), drawn from HudAtt
+   (EnhancedRealityLevel != 0) and HudDef (== 1), which only SHud's own PostRender calls. In the HUD's states
+   (s_Hud_UseObject_StickyCam, s_Hud_UseObject_CamNetwork, the binocular states) PostRender calls super.PostRender,
+   which is Engine.HUD's (debug and messages), so only two solves run: measured on the sticky cam fly-in
+   (2026-10-29, memory sampling at ~240 fps) as a steady 4000 uu/s, 2 x 2000 x m_dT. The rewrite solves twice while
+   the HUD is in a state.
 
 ### 2. Default view (editor 0x111e3830, game 0x10ab00e0)
 
@@ -193,8 +199,9 @@ to the camera spot). P = m_camParam[m_camMode]; dt = Level.m_dT; "approach x tow
    when it went backward, or moved more than 4 x m_dT since the last fly-in frame (so on every new fly-in), a timer
    is set to 100. At 0x10ab03d4 (Reloaded 0x1001a950/0x1001a8f0), while the timer is above 0: timer -= frame
    milliseconds x 0.34 (floored at 0), and the step (already capped at the distance left) is x 0.66. Both run per
-   call, and the view is solved three times a frame (rule 1), so the fly-in moves at 66% for its first ~0.1 s
-   (about 18 calls), then at full speed (3 x 2000 uu/s per second of frames).
+   call, and during the fly-in the view is solved twice a frame (rule 1.4, the HUD is in s_Hud_UseObject_StickyCam),
+   so the fly-in moves at 2640 uu/s (66%) for about 70 calls, then at 4000 uu/s. Measured on the original
+   (2026-10-29, ~240 fps): 2640 uu/s for 0.145 s, then a steady 4000 uu/s.
 
 ### 5. First-person view (editor 0x111f5230, game 0x10a98390)
 
