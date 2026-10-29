@@ -22,6 +22,9 @@ public partial class VisitMapScreen : MenuPage
     [Provenance(ProvenanceKind.Decoded, "GUI.Visit_Map_Set.InitComponent: SetWithMapName(\"AquaE\")")]
     private const string FirstMap = "AquaE";
 
+    /// <summary>The frame's title and buttons (78 each) and the map panel's caption, map name and padding above the list.</summary>
+    private const float ChromeHeight = 156f + 96f;
+
     private static string? _lastMap;
     private static PlaySide _lastSide = PlaySide.Spy;
 
@@ -30,6 +33,7 @@ public partial class VisitMapScreen : MenuPage
     private Label? _side;
     private Label? _mapName;
     private Button? _launch;
+    private ScrollContainer? _scroll;
     private string? _map;
 
     public static VisitMapScreen Show(SceneTree tree) => FrontEnd.Show(tree, new VisitMapScreen());
@@ -54,9 +58,10 @@ public partial class VisitMapScreen : MenuPage
 
         VBoxContainer mapColumn = Panel(row, "Maps", TutorialText.Caption(Section, "ImageMap.Caption", "Choose Map"));
         mapColumn.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+        ((Control)mapColumn.GetParent()).SizeFlagsHorizontal = SizeFlags.ExpandFill;
         _mapName = new Label { Name = "MapName", Modulate = UiStyle.MenuFocus };
         mapColumn.AddChild(_mapName);
-        var scroll = new ScrollContainer
+        var scroll = _scroll = new ScrollContainer
         {
             Name = "MapScroll", CustomMinimumSize = new Vector2(0f, 360f), HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled,
             SizeFlagsHorizontal = SizeFlags.ExpandFill,
@@ -88,7 +93,25 @@ public partial class VisitMapScreen : MenuPage
             : visitable.Count > 0 ? visitable[0].Id : null;
         Select(pick);
         ShowSide();
+        GetViewport().SizeChanged += Fit;
+        Fit();
         _launch.GrabFocus();
+    }
+
+    public override void _ExitTree()
+    {
+        if (GetViewport() is { } viewport)
+        {
+            viewport.SizeChanged -= Fit;
+        }
+    }
+
+    /// <summary>The page fills the window: the body spans most of its width and the map list the height left over.</summary>
+    private void Fit()
+    {
+        Vector2 size = GetViewportRect().Size;
+        Body.CustomMinimumSize = new Vector2(Math.Max(1100f, size.X - 160f), 0f);
+        _scroll!.CustomMinimumSize = new Vector2(0f, Math.Max(360f, size.Y - ChromeHeight));
     }
 
     /// <summary>The maps a visit can play: the host list's maps with Story that this machine can render.</summary>
