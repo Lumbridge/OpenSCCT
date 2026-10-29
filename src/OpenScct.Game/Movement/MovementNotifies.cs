@@ -25,6 +25,7 @@ public static class MovementNotifies
     private static readonly Name NotifyChangeHandWeapon = new("NotifyChangeHandWeapon");
     private static readonly Name AnimNotifyThrow = new("AnimNotifyThrow");
     private static readonly Name NotifyUndrawWeapon = new("NotifyUndrawWeapon");
+    private static readonly Name NotifyDrawWeapon = new("NotifyDrawWeapon");
     private static readonly Name RMColOn = new("RMColOn");
     private static readonly Name AnimNotifyNoise = new("AnimNotifyNoise");
     private static readonly Name AnimNotifyPickup = new("AnimNotifyPickup");
@@ -69,6 +70,16 @@ public static class MovementNotifies
         handlers.Register(EventReloadAmmoNb[2], a => (a as SBasePawn)?.EventReloadAmmoNb3());
         handlers.Register(EventReloadAmmoNb[3], a => (a as SBasePawn)?.EventReloadAmmoNb4());
         handlers.Register(EventReloadAmmoNb[4], a => (a as SBasePawn)?.EventReloadAmmoNb5());
+
+        // The spy's draw clips (DrawStSpBg2, DrawCrSpBg2): the pistol goes to the hand and plays its own draw (3), its
+        // AnimEnd arms it (2) (spy-shocker.md rule 4).
+        handlers.Register(NotifyDrawWeapon, a =>
+        {
+            if (a is SPawnAttaque spy)
+            {
+                Equipment.PawnWeapons.NotifyDrawWeapon(spy);
+            }
+        });
 
         // The spy's holster clips (DrawStSpEd2, DrawCrSpEd2): the pistol goes away (4), its AnimEnd unloads it (0).
         handlers.Register(NotifyUndrawWeapon, a =>
