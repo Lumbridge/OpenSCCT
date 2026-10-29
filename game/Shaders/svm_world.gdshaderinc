@@ -103,7 +103,14 @@ uniform sampler2D tex_self_illum_mask : filter_linear_mipmap_anisotropic, repeat
 uniform sampler2D tex_spec_mask : filter_linear_mipmap_anisotropic, repeat_enable, hint_default_white;
 uniform vec3 env_color = vec3(0.0);
 #ifdef ENV_TEX
-// The env map's own texture, looked up by the camera-space reflection like the EMF scene (0.25 R.xy + 0.5).
+// The env map's own texture, looked up by the camera-space reflection: u, v = R.xy x env_uv_map.x + env_uv_map.y.
+// Map materials take the fixed-function stage (game 0x1096d6f0: D3DTSS_TCI_CAMERASPACEREFLECTIONVECTOR through the
+// TexEnvMap's identity matrix, wrapped): R.xy as it is. Skinned characters keep the EMF scene's 0.25 R.xy + 0.5.
+uniform vec2 env_uv_map = vec2(1.0, 0.0);
+// 1: a world-space TexEnvMap (EnvMapType EM_WorldSpace, TexCoordSource TCS_WorldEnvMapCoords): the camera-space
+// reflection is turned to world space (game 0x1096d6f0 case 10: the view matrix, transposed, as the texture transform)
+// and u, v are its UE X and Y.
+uniform int env_world = 0;
 uniform sampler2D tex_env : filter_linear, repeat_enable, hint_default_black;
 #endif
 #ifdef SPEC_LAYER
@@ -166,7 +173,7 @@ uniform vec4 cm_anim_a = vec4(0.0);
 uniform vec4 cm_anim_b = vec4(0.0);
 uniform vec3 cm_row_u = vec3(1.0, 0.0, 0.0);
 uniform vec3 cm_row_v = vec3(0.0, 1.0, 0.0);
-// 1: Material2 is a TexEnvMap, looked up by the camera-space reflection (0.25 R.xy + 0.5, as ENV_TEX) instead of the
+// 1: Material2 is a TexEnvMap, looked up by the camera-space reflection (R.xy, as ENV_TEX on map materials) instead of the
 // UVs; c2_flip plays its AnimNext chain from the atlas in tex_c2 (x columns, y rows, z frames, w frames per second).
 uniform int c2_env = 0;
 uniform vec4 c2_flip = vec4(1.0, 1.0, 1.0, 0.0);
@@ -361,6 +368,17 @@ global uniform int svm_dyn_light_count;
 // 3 (1-x)^2), w 1 to honour bAffectOwnZoneOnly on world surfaces. (1, 1, 0, 1) is the decoded actor model.
 global uniform vec4 svm_dyn_tune;
 
+// The falloff of the dynamic world lights: BSP takes them through the attenuation texture pass (1 - x^2, measured);
+// static meshes through the D3D vertex lights, the actor falloff 1 - 3x^2 + 2x^3 (RenderingModeNormal::SetLight).
+int svm_dyn_falloff() {
+#ifdef LIGHT_VERTEX
+	// Calibration modes other than the default (1) apply to both.
+	return abs(svm_dyn_tune.z - 1.0) < 0.5 ? 0 : int(svm_dyn_tune.z);
+#else
+	return int(svm_dyn_tune.z);
+#endif
+}
+
 vec3 svm_dynamic(vec3 wp, vec3 wn, float zone) {
 	vec3 sum = vec3(0.0);
 	for (int i = 0; i < svm_dyn_light_count; i++) {
@@ -372,9 +390,23 @@ vec3 svm_dynamic(vec3 wp, vec3 wn, float zone) {
 		vec4 c = texelFetch(svm_dyn_lights, ivec2(1, i), 0);
 		vec4 s = texelFetch(svm_dyn_lights, ivec2(2, i), 0);
 		p.w *= svm_dyn_tune.y;
-		sum += svm_one_light(p, c, s, wp, wn, int(svm_dyn_tune.z));
+		sum += svm_one_light(p, c, s, wp, wn, svm_dyn_falloff());
 	}
 	return sum * svm_dyn_tune.x;
+}
+
+// The zone ambient of world surfaces (m_RefAmbientColor x gain, WorldLights.ZoneAmbientTexture), one texel per zone.
+global uniform sampler2D svm_zone_ambient;
+
+global uniform vec2 svm_zone_ambient_gain;
+
+vec3 svm_zone_amb(float zone) {
+#if defined(LIGHT_LIGHTMAP)
+	float k = svm_zone_ambient_gain.x;
+#else
+	float k = svm_zone_ambient_gain.y;
+#endif
+	return zone >= 0.0 && zone < 254.5 ? texelFetch(svm_zone_ambient, ivec2(int(zone), 0), 0).rgb * k : vec3(0.0);
 }
 #endif
 
@@ -452,7 +484,7 @@ void fragment() {
 	vec4 m1 = texture(tex_diffuse, uv1, svm_mip_bias);
 	vec4 m2;
 	if (c2_env != 0) {
-		vec2 euv = reflect(normalize(VERTEX), normalize(NORMAL)).xy * 0.25 + 0.5;
+		vec2 euv = reflect(normalize(VERTEX), normalize(NORMAL)).xy;
 		float f2 = mod(floor(svm_time * c2_flip.w), c2_flip.z);
 		vec2 cell2 = vec2(mod(f2, c2_flip.x), floor(f2 / c2_flip.x));
 		m2 = textureGrad(tex_c2, (fract(euv) + cell2) / c2_flip.xy, dFdx(euv) / c2_flip.xy, dFdy(euv) / c2_flip.xy);
@@ -522,7 +554,7 @@ void fragment() {
 	vec3 spot = svm_spot_count > 0 && !overlay ? svm_spot_light(v_wpos, wn, zone, echelon_ignore) : vec3(0.0);
 #endif
 #if defined(LIGHT_LIGHTMAP) || defined(LIGHT_VERTEX)
-	vec3 dyn = (svm_dyn_light_count > 0 && !overlay ? svm_dynamic(v_wpos, wn, zone) : vec3(0.0)) + spot;
+	vec3 dyn = (svm_dyn_light_count > 0 && !overlay ? svm_dynamic(v_wpos, wn, zone) : vec3(0.0)) + spot + svm_zone_amb(zone);
 #endif
 #if defined(LIGHT_LIGHTMAP)
 	vec3 lit = t.rgb * min(texture(tex_lightmap, UV2).rgb * lightmap_scale + vec3(svm_vision_ambient) + dyn, vec3(2.0));
@@ -555,7 +587,12 @@ void fragment() {
 #endif
 #ifdef ENV_TEX
 	vec3 er = reflect(normalize(VERTEX), normalize(NORMAL));
-	vec3 env_added = texture(tex_env, er.xy * 0.25 + 0.5).rgb;
+	vec2 env_r = er.xy;
+	if (env_world != 0) {
+		// Godot world (x, y, z) is UE (X, Z, Y).
+		env_r = (INV_VIEW_MATRIX * vec4(er, 0.0)).xz;
+	}
+	vec3 env_added = texture(tex_env, env_r * env_uv_map.x + env_uv_map.y).rgb;
 #else
 	vec3 env_added = env_color;
 #endif

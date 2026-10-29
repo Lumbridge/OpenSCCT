@@ -73,12 +73,14 @@ public sealed class MapProjectors
         p.Rotation.GetAxes(out FVector x, out FVector y, out FVector z);
         (float halfW, float halfH, float apex) = Shape(p);
         float farScale = apex > 0f ? (p.MaxTrace + apex) / apex : 1f;
-        var material = new ShaderMaterial { Shader = ShaderFor(p.FrameBufferBlending) };
+        var material = new ShaderMaterial { Shader = ShaderFor(p.FrameBufferBlending, p.ProjectStaticMesh) };
         material.SetShaderParameter("proj_tex", texture);
         material.SetShaderParameter("proj_origin", new Vector4(0f, 0f, 0f, UeSpace.LengthToGodot(p.MaxTrace)) + Pos4(p.Location));
         material.SetShaderParameter("proj_x", UeSpace.DirectionToGodot(x));
-        material.SetShaderParameter("proj_y", UeSpace.DirectionToGodot(y));
-        material.SetShaderParameter("proj_z", UeSpace.DirectionToGodot(z));
+        // The texture axes carry DrawScale3D's sign (u = dot(P-L, Y) / (USize x DrawScale3D.Y), signed): the Mission
+        // bunker signs (DrawScale3D.Z -1, pitch and roll 180) read upside down and mirrored with the size alone.
+        material.SetShaderParameter("proj_y", UeSpace.DirectionToGodot(p.Scale.Y < 0f ? y * -1f : y));
+        material.SetShaderParameter("proj_z", UeSpace.DirectionToGodot(p.Scale.Z < 0f ? z * -1f : z));
         material.SetShaderParameter("proj_shape", new Vector4(UeSpace.LengthToGodot(halfW), UeSpace.LengthToGodot(halfH),
             UeSpace.LengthToGodot(apex), p.ProjectOnBackfaces ? 1f : 0f));
         if (p.Flipbook is { } fb)
@@ -163,7 +165,11 @@ public sealed class MapProjectors
         return st.Commit();
     }
 
-    private static Shader ShaderFor(int frameBufferBlending)
+    /// <param name="frameBufferBlending">EProjectorBlending of the frame buffer.</param>
+    /// <param name="staticMeshes">bProjectStaticMesh: false skips pixels whose visible surface is a baked static mesh
+    /// (the world template writes <see cref="Materials.MaterialCompiler.StencilStaticMesh"/> there).</param>
+    [Provenance(ProvenanceKind.Estimated, "bProjectStaticMesh by the stencil of the visible surface: vertex-lit static meshes are skipped, actor-lit ones (no baked colours) still receive")]
+    private static Shader ShaderFor(int frameBufferBlending, bool staticMeshes)
     {
         // PB_AlphaBlend and PB_Add blend as named; PB_None and PB_Modulate both modulate 2x (SetProjectorMaterial).
         (string define, string blend) = frameBufferBlending switch
@@ -172,15 +178,19 @@ public sealed class MapProjectors
             3 => ("PROJ_ADD", "blend_add"),
             _ => ("PROJ_MODULATE", "blend_mul"),
         };
-        if (!Shaders.TryGetValue(define, out Shader? shader))
+        string key = staticMeshes ? define : define + " NO_STATIC_MESH";
+        if (!Shaders.TryGetValue(key, out Shader? shader))
         {
+            string stencil = staticMeshes
+                ? ""
+                : $"stencil_mode read, compare_not_equal, {Materials.MaterialCompiler.StencilStaticMesh};\n";
             shader = new Shader
             {
                 Code = "shader_type spatial;\nrender_mode unshaded, fog_disabled, cull_disabled, depth_test_disabled, depth_draw_never, "
-                    + blend + ";\n#define " + define + "\n#include \"" + ShaderInclude + "\"\n",
-                ResourceName = "svm_projector " + define,
+                    + blend + ";\n" + stencil + "#define " + define + "\n#include \"" + ShaderInclude + "\"\n",
+                ResourceName = "svm_projector " + key,
             };
-            Shaders[define] = shader;
+            Shaders[key] = shader;
         }
 
         return shader;

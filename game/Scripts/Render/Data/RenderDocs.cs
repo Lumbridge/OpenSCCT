@@ -236,6 +236,9 @@ public sealed class MaterialEntry
     /// <summary>The env map's 2D texture, looked up by the camera-space reflection; null keeps EnvColor.</summary>
     public string? EnvTexture { get; init; }
 
+    /// <summary>"env_world": the TexEnvMap is world space (TCS_WorldEnvMapCoords): looked up by the world-space reflection.</summary>
+    public bool EnvWorld { get; init; }
+
     public CombineEntry? Combine { get; init; }
 
     public FlipbookEntry? Flipbook { get; init; }
@@ -341,6 +344,7 @@ public sealed class MaterialsDoc
                         ? LayerOf(f, "spec_mask", Str(f, "spec_mask"))
                         : null,
                     EnvTexture = has ? Str(f, "env_texture") : null,
+                    EnvWorld = has && Bool(f, "env_world"),
                     Combine = has && f.TryGetProperty("combine", out JsonElement comb) ? CombineEntry.From(comb) : null,
                     Flipbook = has && f.TryGetProperty("flipbook", out JsonElement fb) ? FlipbookEntry.From(fb) : null,
                     Mirror = has && Bool(f, "mirror"),

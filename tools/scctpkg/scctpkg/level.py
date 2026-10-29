@@ -385,6 +385,7 @@ def softbody_record(pkg: Package, cls: str, props: dict) -> Optional[dict]:
 def extract_level(pkg: Package, pset: PackageSet) -> List[ActorRecord]:
     records: List[ActorRecord] = []
     zone_ambient = _zone_ambient(pkg)
+    sky_zones = {e.index + 1 for e in pkg.exports if e.class_name == "SkyZoneInfo"}
     for e in pkg.exports:
         cls = e.class_name
         if cls in SKIP_CLASSES or e.size <= 0:
@@ -451,11 +452,13 @@ def extract_level(pkg: Package, pset: PackageSet) -> List[ActorRecord]:
             # Actor.AmbientGlow (0-255; 5611 mesh actors on 83 maps) raises the actor's own lighting on top of its baked
             # vertex colours: BankD's sky-zone skyline has glow 180 and near-black colours, and the game draws it lit.
             glow = int(_num(props.get("AmbientGlow"), 0))
-            if props.get("bSpecialLit"):
+            region = props.get("Region") if isinstance(props.get("Region"), dict) else {}
+            if props.get("bSpecialLit") or region.get("Zone") in sky_zones:
                 # bSpecialLit meshes take the zone ambient instead of baked light: ClubD's sky backdrop (CLU_warp,
                 # baked colours all 0) sits in SkyZoneInfo1724 with m_RefAmbientColor 149 and the game draws it at
-                # tex x 2 x 149/255 [I from the classic frame, ClubD p3].
-                region = props.get("Region") if isinstance(props.get("Region"), dict) else {}
+                # tex x 2 x 149/255 [I from the classic frame, ClubD p3]. Every mesh of a sky zone takes it too (the
+                # client adds no zone ambient in sky zones): ClubD's skyline towers (CLU_warp_imm, baked colours 0,
+                # not bSpecialLit) show their lit facades and window grid in the original, black without it.
                 glow = max(glow, zone_ambient.get(region.get("Zone"), 0))
             if glow > 0:
                 rec.extra["ambient_glow"] = glow

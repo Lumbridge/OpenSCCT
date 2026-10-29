@@ -213,7 +213,8 @@ public static partial class RenderK
     public const float SpotShadowGain = 2f;
 
     /// <summary>
-    /// Cap of a spot shadow light's colour per channel, before <see cref="SpotShadowGain"/>: a colour handed to the
+    /// Cap of a spot shadow light's brightest colour channel (the colour is scaled down, keeping its hue; FactD's
+    /// orange window patches, docs/RENDERING.md#spot-shadow-lights), before <see cref="SpotShadowGain"/>: a colour handed to the
     /// fixed-function or ps_1_x stages is clamped to [0, 1], so a light far above brightness 310 (0.8213 x Br / 255 = 1)
     /// lights no more than one at 310. The bridge measured the game against this: RiveD's Light3248 at brightness 3000
     /// lifts the spawn's luma only from 20 to 35, and its tuned projector cap (brightness 620 at gain 1) is the same

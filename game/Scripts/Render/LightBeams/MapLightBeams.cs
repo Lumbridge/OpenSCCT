@@ -10,7 +10,8 @@ namespace OpenScctGame.Render.LightBeams;
 
 /// <summary>
 /// The light beams of the map's lights (UsesLightBeam with a LightBeamMesh, docs/RENDERING.md#light-beams): the
-/// beam slice mesh stretched along the light, multiplying the frame. A beam shows while its light is on and keeps its
+/// beam slice mesh stretched along the light, each slice adding the light that its light's shadow map and projected
+/// texture let through (additive). A beam shows while its light is on and keeps its
 /// beam: lights the simulation holds (STriggerLight, light movers) are read live each tick, so a switched-off or
 /// alarm-switched light drops its beam (STriggerLight.LightOff clears UsesLightBeam) and a moving light carries it;
 /// the other lights follow <see cref="RenderMap.IsLightOn"/>.
@@ -20,9 +21,9 @@ public sealed class MapLightBeams
 {
     public const string ShaderPath = "res://Shaders/svm_light_beam.gdshader";
 
-    /// <summary>Per-slice display boost per unit of LightBrightness / 255 x sqrt(LightBeamInitialAlpha).</summary>
-    [Provenance(ProvenanceKind.Measured, "bridge FactD beam_isolate sweeps: boost linear in brightness and sqrt(alpha), LightBeamGain 0.2 matched the game")]
-    public const float BeamGain = 0.2f;
+    /// <summary>Light each slice adds per unit of LightBrightness / 255 x sqrt(LightBeamInitialAlpha), x the light colour and cookie.</summary>
+    [Provenance(ProvenanceKind.Measured, "MissP far-180 golden: STriggerLight1096's beam (brightness 100, alpha 5) over the black sky reads 85 to 92 of 255 in the game; 0.046 gives 87 to 104. Linear in brightness and sqrt(alpha): bridge FactD sweeps")]
+    public const float BeamGain = 0.046f;
 
     /// <summary>NearPlaneRatio outside (0, 1] (MissE's Light315 stores 500) is taken as this.</summary>
     [Provenance(ProvenanceKind.Estimated, "bridge SCCTLightBeams.cpp fallback; the native's handling of such values is not decoded")]
@@ -54,6 +55,15 @@ public sealed class MapLightBeams
         parent.AddChild(root);
         var shader = GD.Load<Shader>(ShaderPath);
         var meshes = new Dictionary<string, ArrayMesh>(StringComparer.OrdinalIgnoreCase);
+        var spots = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (Data.LightEntry l in map.Lighting.Lights)
+        {
+            if (l.Echelon is not null)
+            {
+                spots.Add(l.Name);
+            }
+        }
+
         foreach (LightBeamEntry e in doc.Beams)
         {
             if (!doc.Meshes.TryGetValue(e.Mesh, out (Vector3[] Positions, int[] Indices) raw))
@@ -81,13 +91,28 @@ public sealed class MapLightBeams
                 Layers = RenderLayers.World,
             };
             root.AddChild(node);
-            var beam = new Beam(e, node);
+            var beam = new Beam(e, node) { Spot = spots.Contains(e.Name) };
             beam.Apply(e.LightOn && e.InitiallyOn, e.Location, e.Rotation, e.EchelonRange, e.SpotWidth, e.SpotHeight,
                 e.NearPlaneRatio, e.FalloffScale, e.Alpha, e.Brightness);
             beams._beams.Add(beam);
         }
 
+        beams.UpdateSlots();
         return beams;
+    }
+
+    /// <summary>
+    /// Points each LE_ESpotShadow light's beam at the spot shadow slot its light holds this frame (its frustum and shadow
+    /// map cut the beam); a beam whose light holds no slot is not drawn. Call after the spot lights are placed
+    /// (MapSpotLights.Update).
+    /// </summary>
+    [Provenance(ProvenanceKind.Estimated, "a light without a shadow map this frame draws no beam (the game gives every drawn Echelon light one; our slots go to the nearest)")]
+    public void UpdateSlots()
+    {
+        foreach (Beam b in _beams)
+        {
+            b.SetSlot(b.Spot ? SpotShadowLight.SlotOf(b.Entry.Name) : -1);
+        }
     }
 
     /// <summary>
@@ -125,6 +150,24 @@ public sealed class MapLightBeams
     private sealed class Beam(LightBeamEntry entry, MeshInstance3D node)
     {
         private (bool, FVector, FRotator, float, float, float, float, float, int, float)? _last;
+        private bool _on;
+        private int _slot = -2;
+
+        /// <summary>The light is an LE_ESpotShadow light: its shadow map cuts the beam.</summary>
+        public bool Spot { get; init; }
+
+        /// <summary>Uses the light's spot shadow slot (-1: none) and shows the beam when it is on and, for a spot light, has one.</summary>
+        public void SetSlot(int slot)
+        {
+            if (slot == _slot)
+            {
+                return;
+            }
+
+            _slot = slot;
+            ((ShaderMaterial)node.MaterialOverride).SetShaderParameter("beam_slot", slot);
+            node.Visible = _on && (!Spot || slot >= 0);
+        }
 
         public LightBeamEntry Entry { get; } = entry;
 
@@ -132,11 +175,14 @@ public sealed class MapLightBeams
 
         /// <summary>
         /// Shapes and shows the beam: length EchelonRange x LightBeamFalloffScale, the section at the light
-        /// NearPlaneRatio x the spot, growing to the spot at EchelonRange; per-slice boost
-        /// <see cref="BeamGain"/> x LightBrightness / 255 x sqrt(LightBeamInitialAlpha) x the light colour.
+        /// NearPlaneRatio x the spot, growing to the spot at EchelonRange; each slice adds
+        /// <see cref="BeamGain"/> x LightBrightness / 255 x sqrt(LightBeamInitialAlpha) x the light colour (x the cookie and
+        /// shadow term of a spot shadow light, in the shader).
         /// </summary>
         [Provenance(ProvenanceKind.Decoded, "beam setup 0x1097ba8a..0x1097bbb3 (bridge SCCTReaderBeams.cpp): unit mesh stretched to EchelonRange x FalloffScale, near section NearPlaneRatio x spot")]
-        [Provenance(ProvenanceKind.Estimated, "the slice fade 1 - x along the beam (bridge LightBeamFade 1); no shadow buffer cut")]
+        [Provenance(ProvenanceKind.Estimated, "the slice fade 1 - x along the beam (bridge LightBeamFade 1)")]
+        [Provenance(ProvenanceKind.Decoded, "beam setup 0x1097b3d0..0x1097bc12: stage flags from the light's shadow buffer (light flags bit) and its EchelonLightMaterial textures (+0x50, +0x54), the light's projection to c8: shadow map and projected texture cut and tint the slices")]
+        [Provenance(ProvenanceKind.Measured, "additive: MissP's lamp beam shows over the black sky (a multiply draws nothing there); tinted by the cookie: RiveE's Mall_tibu.lightECHL beams read teal (spy-90 SSIM 0.69 to 0.95)")]
         public void Apply(bool on, FVector location, FRotator rotation, float range, float width, float height, float nearRatio,
             float falloff, int alpha, float brightness)
         {
@@ -149,7 +195,8 @@ public sealed class MapLightBeams
             }
 
             _last = key;
-            node.Visible = on;
+            _on = on;
+            node.Visible = on && (!Spot || _slot >= 0);
             if (!on)
             {
                 return;

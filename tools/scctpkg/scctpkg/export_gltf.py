@@ -661,6 +661,8 @@ def _layer_flags(key: str, res: ResolvedMaterial, tex_dir: Optional[Path], tex_u
         uri = _texture_png(res.env_key or f"{key}__env", env, tex_dir, tex_uri)
         if uri:
             out["env_texture"] = uri
+            if getattr(res, "env_world", False):
+                out["env_world"] = True
     if res.flipbook:
         fb = _flipbook_png(key, res.flipbook, tex_dir, tex_uri)
         if fb:

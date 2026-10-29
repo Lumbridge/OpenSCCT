@@ -10,8 +10,9 @@ namespace OpenScctGame.Render;
 
 /// <summary>The shape and colour of an LE_ESpotShadow light (Echelon spot: the merc torch, window and sun projectors).</summary>
 /// <param name="Range">EchelonRange in uu: the light reaches this far along its axis.</param>
-/// <param name="SpotWidth">SpotWidth in uu: the lit width at <paramref name="Range"/>.</param>
-/// <param name="SpotHeight">SpotHeight in uu.</param>
+/// <param name="SpotWidth">SpotWidth in uu: half the lit width at <paramref name="Range"/> (editor 0x111a5480 maps
+/// +-SpotWidth to the cookie's edges).</param>
+/// <param name="SpotHeight">SpotHeight in uu: half the lit height at <paramref name="Range"/>.</param>
 /// <param name="NearPlaneRatio">NearPlaneRatio p: the frustum's apex sits p x Range / (1 - p) behind the light.</param>
 /// <param name="Brightness">LightBrightness.</param>
 /// <param name="Hue">LightHue.</param>
@@ -55,7 +56,7 @@ public sealed record SpotShadowShape(float Range, float SpotWidth, float SpotHei
 /// <summary>
 /// An LE_ESpotShadow light drawn the Faithful way (docs/RENDERING.md#spot-shadow-lights). The frustum is the decoded
 /// one: its apex sits NearPlaneRatio x EchelonRange / (1 - NearPlaneRatio) behind the light, the near plane at the
-/// light and the far plane, SpotWidth x SpotHeight, EchelonRange further on; geometry between the apex and the light
+/// light and the far plane, 2 SpotWidth x 2 SpotHeight, EchelonRange further on; geometry between the apex and the light
 /// never shadows. A camera at the apex renders the world's depth into the light's tile of a shared shadow atlas (kept
 /// as linear distance), and the world template adds, per pixel, to the light stage of every surface it reaches:
 /// colour x cookie(uv) x attenuation(d / Range) x shadow. Each light holds one of the template's
@@ -197,12 +198,12 @@ public sealed partial class SpotShadowLight : IDisposable
         if (_parallel)
         {
             _camera.Projection = Camera3D.ProjectionType.Orthogonal;
-            _camera.Size = UeSpace.LengthToGodot(shape.SpotHeight);
+            _camera.Size = UeSpace.LengthToGodot(2f * shape.SpotHeight);
         }
         else
         {
             _camera.Projection = Camera3D.ProjectionType.Perspective;
-            _camera.Fov = Mathf.RadToDeg(2f * MathF.Atan(shape.SpotHeight * 0.5f / (_apex + shape.Range)));
+            _camera.Fov = Mathf.RadToDeg(2f * MathF.Atan(shape.SpotHeight / (_apex + shape.Range)));
         }
 
         _viewport.AddChild(_camera);
@@ -232,6 +233,23 @@ public sealed partial class SpotShadowLight : IDisposable
     /// <summary>False when every slot was taken: the light draws nothing.</summary>
     public bool HasSlot => _slot >= 0;
 
+    /// <summary>
+    /// The template slot of the map light <paramref name="lightName"/> while it is drawn (on, with a slot), else -1. Its
+    /// light beam reads the slot's frustum and shadow map (MapLightBeams).
+    /// </summary>
+    public static int SlotOf(string lightName)
+    {
+        for (int i = 0; i < s_slots.Length; i++)
+        {
+            if (s_slots[i] is { _on: true, _disposed: false } l && string.Equals(l.LightName, lightName, StringComparison.OrdinalIgnoreCase))
+            {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
     /// <summary>LightType != LT_None: the shadow pass runs and the template adds the light.</summary>
     public bool On
     {
@@ -245,9 +263,12 @@ public sealed partial class SpotShadowLight : IDisposable
     }
 
     /// <summary>
-    /// The light colour of the 2x stage: FGetHSV(hue, saturation) x brightness / 255, each channel capped at
-    /// <see cref="RenderK.SpotShadowColourCap"/>. Without the cap AquaD's sun shafts (brightness 500 to 650) added three
-    /// to four times the light and clipped the temple floor to white.
+    /// The light colour of the 2x stage: FGetHSV(hue, saturation) x brightness / 255, scaled down so its brightest
+    /// channel is at most <see cref="RenderK.SpotShadowColourCap"/> (the hue is kept). Without the cap AquaD's sun shafts
+    /// (brightness 500 to 650) added three to four times the light and clipped the temple floor to white. A cap per
+    /// channel turned FactD's orange window patches (hue 14 to 21, brightness 400 to 1200) white; keeping the hue
+    /// matched the original's colours better on all of FactD's spy views (mean RGB error 6.5 to 5.6 on spy-0,
+    /// 1.26 to 1.07 on spy-180).
     /// </summary>
     [Provenance(ProvenanceKind.Decoded, "FGetHSV, editor 0x11096ab0 (as actor lighting)")]
     public static Vector3 Colour(SpotShadowShape shape)
@@ -257,7 +278,8 @@ public sealed partial class SpotShadowLight : IDisposable
             1, true, false, true, true, null, 32f, 0f, false);
         Vector3 c = ActorLighting.Colour(entry);
         float cap = RenderK.SpotShadowColourCap;
-        return new Vector3(MathF.Min(c.X, cap), MathF.Min(c.Y, cap), MathF.Min(c.Z, cap));
+        float top = MathF.Max(c.X, MathF.Max(c.Y, c.Z));
+        return top > cap ? c * (cap / top) : c;
     }
 
     /// <summary>Moves the light to a UE location and rotation (its axis is the rotation's forward); the camera sits at the apex.</summary>
@@ -299,12 +321,14 @@ public sealed partial class SpotShadowLight : IDisposable
         Vector4 frustum;
         if (_parallel)
         {
+            // Parallel rays: x / SpotWidth, y / SpotHeight span -1..1 (editor 0x111a5480, scale 1 / SpotWidth).
             float h = UeSpace.LengthToGodot(Shape.SpotHeight);
-            frustum = new Vector4(2f / (h * aspect), 2f / h, 1f, _cookieLayer);
+            frustum = new Vector4(1f / (h * aspect), 1f / h, 1f, _cookieLayer);
         }
         else
         {
-            float tanH = Shape.SpotHeight * 0.5f / (_apex + Shape.Range);
+            // x scale apex / (p x SpotWidth) over the depth from the apex: +-SpotWidth at the far plane (editor 0x111a5480).
+            float tanH = Shape.SpotHeight / (_apex + Shape.Range);
             frustum = new Vector4(1f / (tanH * aspect), 1f / tanH, 0f, _cookieLayer);
         }
 

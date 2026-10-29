@@ -729,6 +729,7 @@ public partial class PlayRoot : Node3D
             FirstPerson?.Draw(pc, location, rotation, dt, alpha);
             Fx?.Draw(dt, location, rotation, pc);
             FlashLight?.Draw(session.Client.World.Level, session.LocalPawn, location);
+            Map?.LightBeams?.UpdateSlots();   // after the spot lights took this frame's slots
             MercLasers?.Draw(session.Client.World.Level, session.LocalPawn);
             SpyLasers?.Draw(session.Client.World.Level);
             LaserTriggers?.Draw(session.Client.World.Level);

@@ -249,9 +249,6 @@ public sealed class RenderMap
 
     public List<string> Warnings { get; } = [];
 
-    /// <summary>Bounds of the sky zones (collision ZONE records flagged skyZone), in Godot space.</summary>
-    public List<Aabb> SkyBoxes { get; } = [];
-
     /// <summary>Gameplay mesh actors by actor id (movers, SGamePlayObjects, switches...).</summary>
     public Dictionary<string, GameplayMesh> Gameplay { get; } = new(StringComparer.Ordinal);
 
@@ -431,28 +428,16 @@ public static class MapBuilder
         var compiler = new MaterialCompiler(materials, textures) { LightmapScale = options.LightmapScale, Pack = pack };
         MaterialCompiler.SetEmfEnvironment(pack?.Texture(RenderPack.EmfEnvironment));
         CollisionWorld? zones = null;
-        var skyBoxes = new List<Aabb>();
         string collisionPath = Path.Combine(mapFolder, CollisionFile);
         if (options.LoadZones && File.Exists(collisionPath))
         {
-            CollisionData collision = CollisionReader.Load(collisionPath);
-            zones = CollisionWorld.Build(collision);
-            foreach (CollisionZone z in collision.Zones)
-            {
-                if ((z.Flags & CollisionZoneFlags.SkyZone) != 0)
-                {
-                    Vector3 a = UeSpace.ToGodot(z.AabbMin);
-                    Vector3 b = UeSpace.ToGodot(z.AabbMax);
-                    skyBoxes.Add(new Aabb(a.Min(b), (a - b).Abs()).Grow(UeSpace.LengthToGodot(1f)));
-                }
-            }
+            zones = CollisionWorld.Build(CollisionReader.Load(collisionPath));
         }
 
         using GlbDocument glb = GlbDocument.Load(glbPath);
         string mapId = Path.GetFileName(Path.GetFullPath(mapFolder));
         var root = new Node3D { Name = "RenderMap" };
         var map = new RenderMap(mapFolder, mapId, root, materials, lighting, textures, compiler, new ActorLighting(lighting), zones);
-        map.SkyBoxes.AddRange(skyBoxes);
         map.Pack = pack;
         map.Actors = GameplayActors.Load(mapFolder);
         List<OpenScctGame.Render.Projectors.ProjectorEntry>? projectors = OpenScctGame.Render.Projectors.ProjectorsDoc.Load(mapFolder);
@@ -712,6 +697,10 @@ public static class MapBuilder
                 // BSP primitives can span the map: split them per triangle into cells.
                 AddSplitByCell(prim, light, sky);
                 _map.Stats.Triangles += prim.Indices.Length / 3;
+                if (sky)
+                {
+                    _map.Stats.SkyTriangles += prim.Indices.Length / 3;
+                }
             }
         }
 
@@ -726,7 +715,7 @@ public static class MapBuilder
                 Vector3 c = Pos(prim, prim.Indices[t + 2]);
                 Vector3 center = (a + b + c) / 3f;
                 byte zone = ZoneOfSurface(center, (b - a).Cross(c - a));
-                (int, int, int) cell = CellOf(center, sky || InSkyZone(center));
+                (int, int, int) cell = CellOf(center, sky);
                 if (!byCell.TryGetValue(cell, out List<int>? tris))
                 {
                     tris = [];
@@ -866,24 +855,6 @@ public static class MapBuilder
             return ((int)MathF.Floor(godot.X / size), (int)MathF.Floor(godot.Z / size), sky ? 1 : 0);
         }
 
-        /// <summary>
-        /// True when a BSP triangle lies in a sky zone (its centre inside the zone's bounds). Sky zone geometry is
-        /// drawn only by the sky view, as UE2 draws it only in the sky pass.
-        /// </summary>
-        private bool InSkyZone(Vector3 center)
-        {
-            foreach (Aabb box in _map.SkyBoxes)
-            {
-                if (box.HasPoint(center))
-                {
-                    _map.Stats.SkyTriangles++;
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
         private SurfaceBuilder Bucket((int, int, int) cell, string material, LightSource light, bool uv2, bool colour, bool seeThrough = false)
         {
             if (!_cells.TryGetValue(cell, out Dictionary<(string, LightSource, bool), SurfaceBuilder>? buckets))
@@ -953,7 +924,7 @@ public static class MapBuilder
             }
 
             Aabb box = Bounds(prims, transform);
-            (int, int, int) cell = CellOf(box.GetCenter(), Bool(inst, "skyZone") || InSkyZone(box.GetCenter()));
+            (int, int, int) cell = CellOf(box.GetCenter(), Bool(inst, "skyZone"));
             Vector4 vision = VisionOf(inst);
             bool seeThrough = SeeThrough(vision);
             bool authored = Bool(inst, "authoredColors");

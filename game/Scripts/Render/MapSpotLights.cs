@@ -115,7 +115,7 @@ public sealed class MapSpotLights : IDisposable
         FVector dir = l.Rotation.Vector();
         float t = Math.Clamp((camera - l.Location) | dir, 0f, e.Range);
         float p = Math.Clamp(e.NearPlaneRatio, 0f, 1f);
-        float half = 0.5f * MathF.Max(e.Width, e.Height) * (p + ((1f - p) * t / MathF.Max(1f, e.Range)));
+        float half = MathF.Max(e.Width, e.Height) * (p + ((1f - p) * t / MathF.Max(1f, e.Range)));
         return MathF.Max(0f, FVector.Dist(camera, l.Location + (dir * t)) - half);
     }
 

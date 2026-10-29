@@ -35,6 +35,7 @@ public sealed class GoldenSmoke : SmokeTest
     private RenderSmokeArgs _args = null!;
     private RenderMap? _map;
     private OffscreenView? _view;
+    private MapSpotLights? _spots;
     private DisplayCheck? _check;
     private List<GoldenShot> _shots = [];
     private int _index;
@@ -113,6 +114,10 @@ public sealed class GoldenSmoke : SmokeTest
             _report["dynTune"] = tune.ToString();
         }
 
+        // The map's LE_ESpotShadow lights (window and sun patches, cookies) as the game draws them each frame
+        // (PlayRoot -> FlashLightView -> MapSpotLights), nearest the camera first.
+        _spots = new MapSpotLights(_map, _view.Viewport);
+        _report["spotLights"] = _spots.Count;
         List<AnimatedProp> props = AnimatedProps.Build(_map, _map.Root);
         _report["gameMode"] = _args.GameMode;
         _report["mipBias"] = _args.MipBias;
@@ -177,6 +182,9 @@ public sealed class GoldenSmoke : SmokeTest
         {
             Setup(shot);
         }
+
+        _spots?.Update(shot.CameraLocation);
+        _map!.LightBeams?.UpdateSlots();
 
         if (++_waited <= _args.SettleFrames)
         {
@@ -253,6 +261,8 @@ public sealed class GoldenSmoke : SmokeTest
         _result = Verdict();
         _phase = Phase.Teardown;
         _waited = 0;
+        _spots?.Dispose();
+        _spots = null;
         _view?.Dispose();
         _view = null;
         return SmokeResult.Running;

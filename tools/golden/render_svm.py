@@ -104,7 +104,13 @@ def main():
     cut = argv.index('--') if '--' in argv else len(argv)
     args = parser.parse_args(argv[:cut])
     extra = argv[cut + 1:]
-    log = os.path.join(tempfile.gettempdir(), 'svm-render-%d.log' % os.getpid())
+    # Render the checkout's converted content. Without a content folder the client looks in the downloaded packs
+    # (%LOCALAPPDATA%\OpenSCCT\packs) before <repo>/.content, so a map downloaded once (PolaE, AquaE, ...) rendered
+    # from that stale copy instead of the map just rebuilt.
+    content = os.environ.get('SVM_CONTENT') or os.path.join(REPO, '.content')
+    if os.path.isdir(content) and not any(a.startswith('--svm-content=') for a in extra):
+        extra = ['--svm-content=' + content] + extra
+    log =os.path.join(tempfile.gettempdir(), 'svm-render-%d.log' % os.getpid())
     command = [args.godot, '--path', os.path.abspath(args.game), '--log-file', log, '--resolution', '640x360',
                '--', '--svm-smoke=' + args.test, '--svm-smoke-timeout=%d' % int(args.timeout - 30)] + extra
     if args.visible:

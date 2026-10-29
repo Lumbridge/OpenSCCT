@@ -21,6 +21,8 @@ public sealed class WorldLights
     public const string TextureParameter = "svm_dyn_lights";
     public const string CountParameter = "svm_dyn_light_count";
     public const string TuneParameter = "svm_dyn_tune";
+    public const string ZoneAmbientParameter = "svm_zone_ambient";
+    public const string ZoneAmbientGainParameter = "svm_zone_ambient_gain";
 
     // The names Update writes every frame, made once (a name passed as a string makes a StringName per call).
     private static readonly StringName s_textureName = TextureParameter;
@@ -62,6 +64,33 @@ public sealed class WorldLights
         _image = Image.CreateEmpty(4, _lights.Count + MaxSpawned, false, Image.Format.Rgbaf);
         _texture = ImageTexture.CreateFromImage(_image);
         EnsureGlobals();
+        RenderingServer.GlobalShaderParameterSet(ZoneAmbientParameter, ZoneAmbientTexture(lighting));
+        RenderingServer.GlobalShaderParameterSet(ZoneAmbientGainParameter,
+            new Vector2(RenderK.ZoneAmbientLightmapGain, RenderK.ZoneAmbientVertexGain));
+    }
+
+    /// <summary>
+    /// The zone ambient of world surfaces, one texel per zone index (256 x 1): m_RefAmbientColor / 255, which the
+    /// template adds, times <see cref="RenderK.ZoneAmbientVertexGain"/> or <see cref="RenderK.ZoneAmbientLightmapGain"/>,
+    /// to the light term of static mesh and BSP surfaces of that zone (docs/RENDERING.md#baked-light). Sky zones are
+    /// left out (their backdrops take the zone ambient through bSpecialLit, in the converter).
+    /// </summary>
+    [Provenance(ProvenanceKind.Measured, "zone ambient goldens: OrphD/E/T outdoor, SancD Church, MissD/E spy spawn")]
+    public static ImageTexture ZoneAmbientTexture(LightingDoc lighting)
+    {
+        ArgumentNullException.ThrowIfNull(lighting);
+        Image image = Image.CreateEmpty(256, 1, false, Image.Format.Rgbaf);
+        foreach (ZoneEntry z in lighting.Zones)
+        {
+            if (z.Sky || z.ZoneIndex < 0 || z.ZoneIndex > 255)
+            {
+                continue;
+            }
+
+            image.SetPixel(z.ZoneIndex, 0, new Color(z.Ambient.R, z.Ambient.G, z.Ambient.B, 0f));
+        }
+
+        return ImageTexture.CreateFromImage(image);
     }
 
     public int Count => _lights.Count;
@@ -272,6 +301,9 @@ public sealed class WorldLights
             ImageTexture.CreateFromImage(empty));
         RenderingServer.GlobalShaderParameterAdd(CountParameter, RenderingServer.GlobalShaderParameterType.Int, 0);
         RenderingServer.GlobalShaderParameterAdd(TuneParameter, RenderingServer.GlobalShaderParameterType.Vec4, DefaultTune);
+        RenderingServer.GlobalShaderParameterAdd(ZoneAmbientParameter, RenderingServer.GlobalShaderParameterType.Sampler2D,
+            ImageTexture.CreateFromImage(Image.CreateEmpty(256, 1, false, Image.Format.Rgbaf)));
+        RenderingServer.GlobalShaderParameterAdd(ZoneAmbientGainParameter, RenderingServer.GlobalShaderParameterType.Vec2, Vector2.Zero);
         s_globalsAdded = true;
     }
 }

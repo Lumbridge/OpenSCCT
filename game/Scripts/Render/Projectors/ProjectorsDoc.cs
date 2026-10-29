@@ -14,7 +14,8 @@ public sealed record ProjectorFlipbook(string Texture, int Cols, int Rows, int F
 /// One texture projector of render/projectors.json (Projector, DynamicProjector; docs/RENDERING.md#projectors).
 /// Scale is DrawScale x DrawScale3D, Size the texture's USize and VSize, the blend ops are EProjectorBlending
 /// (0 PB_None, 1 PB_Modulate, 2 PB_AlphaBlend, 3 PB_Add). UvMatrix is a static TexScaler / TexRotator over the
-/// texture (null for none), applied to the projected coordinates.
+/// texture (null for none), applied to the projected coordinates. ProjectStaticMesh is bProjectStaticMesh (false: static
+/// meshes do not receive the projection; 39 placed, the Mission bunker signs among them).
 /// </summary>
 public sealed record ProjectorEntry(
     string Name,
@@ -30,7 +31,8 @@ public sealed record ProjectorEntry(
     bool ProjectOnBackfaces,
     UvAnim? UvAnim,
     ProjectorFlipbook? Flipbook,
-    UvAffine? UvMatrix = null);
+    UvAffine? UvMatrix = null,
+    bool ProjectStaticMesh = true);
 
 /// <summary>render/projectors.json (optional: older content has none and keeps its PROJ_ decal meshes).</summary>
 public static class ProjectorsDoc
@@ -77,7 +79,8 @@ public static class ProjectorsDoc
                 p.TryGetProperty("backfaces", out JsonElement bf) && bf.ValueKind == JsonValueKind.True,
                 p.TryGetProperty("uvAnim", out JsonElement uv) ? UvAnim.From(uv) : null,
                 flipbook,
-                p.TryGetProperty("uvMatrix", out JsonElement m) ? UvAffine.From(m) : null));
+                p.TryGetProperty("uvMatrix", out JsonElement m) ? UvAffine.From(m) : null,
+                !p.TryGetProperty("projectStaticMesh", out JsonElement psm) || psm.ValueKind != JsonValueKind.False));
         }
 
         return list;

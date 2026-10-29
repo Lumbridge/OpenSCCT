@@ -180,9 +180,13 @@ public sealed class MaterialCompiler
             yield return (sim, Mipmapped(m, "SelfIlluminationMask"));
         }
 
-        if (m.EnvColor is not null && m.SpecMask is { } sm)
+        if (m.EnvColor is not null)
         {
-            yield return (sm, Mipmapped(m, "SpecularityMask"));
+            if (m.SpecMask is { } sm)
+            {
+                yield return (sm, Mipmapped(m, "SpecularityMask"));
+            }
+
             if (m.EnvTexture is { } env)
             {
                 yield return (env, false);
@@ -292,7 +296,13 @@ public sealed class MaterialCompiler
         MaterialBlend blend = entry.Blend;
         bool selfIllum = entry.SelfIllum is not null;
         bool selfIllumMask = selfIllum && entry.SelfIllumMask is not null;
-        bool env = entry.EnvColor is not null && entry.SpecMask is not null;
+        // A Shader's Specular is added through its SpecularityMask's alpha, or whole when it has none and its env map is a
+        // 2D texture looked up by the reflection (146 map materials: StroD's chrome vases crypt_txt.sphear, AquaE's kiosk
+        // screen, glass, signs); those used to lose the env map. Without a mask and without the env texture (the gameplay
+        // pack's materials.json carries neither the texture nor the OB_Brighten blend: PolaE's first-aid cabinet glass
+        // fist_aid_glass, Brighten over a dark env map) the mean colour over the whole surface is not drawn: it turned the
+        // glass opaque white (PolaE spy-180 SSIM 0.989 to 0.975).
+        bool env = entry.EnvColor is not null && (entry.SpecMask is not null || entry.EnvTexture is not null);
         bool uvAnim = entry.UvAnim is { Code: > 0 };
         CombineEntry? combine = entry.Combine;
         FlipbookEntry? flipbook = combine is null ? entry.Flipbook : null;
@@ -331,10 +341,25 @@ public sealed class MaterialCompiler
 
         if (env)
         {
-            SetTexture(material, "tex_spec_mask", _textures.Get(entry.SpecMask, Mipmapped(entry, "SpecularityMask")));
+            if (entry.SpecMask is not null)
+            {
+                SetTexture(material, "tex_spec_mask", _textures.Get(entry.SpecMask, Mipmapped(entry, "SpecularityMask")));
+            }
+
             if (entry.EnvTexture is { } envTexture)
             {
                 SetTexture(material, "tex_env", _textures.Get(envTexture, mipmaps: false));
+                // A world-space TexEnvMap (ClubD's terrace glass, CLU_envmap01): the reflection is turned to world space first.
+                if (entry.EnvWorld)
+                {
+                    material.SetShaderParameter("env_world", 1);
+                }
+
+                // Map and gameplay meshes use R.xy (the fixed-function stage); skinned characters keep 0.25 R.xy + 0.5.
+                if (VisionLookup == VisionLookup.SkinBase)
+                {
+                    material.SetShaderParameter("env_uv_map", new Vector2(0.25f, 0.5f));
+                }
             }
 
             if (entry.SpecMaskLayer is { } sm)
@@ -490,6 +515,15 @@ public sealed class MaterialCompiler
         }
     }
 
+    /// <summary>Stencil value solid BSP surfaces write (MapProjectors reads the stencil).</summary>
+    public const int StencilBsp = 1;
+
+    /// <summary>Stencil value solid vertex-lit (baked) static mesh surfaces write: bProjectStaticMesh off skips it.</summary>
+    public const int StencilStaticMesh = 2;
+
+    /// <summary>Stencil value other solid world surfaces write (actor-lit meshes).</summary>
+    public const int StencilOther = 3;
+
     private Shader ShaderFor(LightSource light, MaterialBlend blend, bool twoSided, List<string> extras)
     {
         bool coverage = blend == MaterialBlend.Masked && AlphaToCoverage;
@@ -527,6 +561,17 @@ public sealed class MaterialCompiler
 
         var code = new StringBuilder();
         code.Append("shader_type spatial;\nrender_mode ").Append(string.Join(", ", modes)).Append(";\n");
+        if (blend is MaterialBlend.Opaque or MaterialBlend.Masked)
+        {
+            // Solid surfaces mark what they are in the stencil: projectors with bProjectStaticMesh off skip static meshes.
+            code.Append("stencil_mode write, compare_always, ").Append(light switch
+            {
+                LightSource.Lightmap => StencilBsp,
+                LightSource.Vertex => StencilStaticMesh,
+                _ => StencilOther,
+            }).Append(";\n");
+        }
+
         Define(code, light switch
         {
             LightSource.Lightmap => "LIGHT_LIGHTMAP",

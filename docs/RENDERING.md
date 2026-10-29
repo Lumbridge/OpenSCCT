@@ -43,8 +43,12 @@ Without the pack the client still draws, with a seeded stand-in grain, no therma
 - Gameplay meshes (movers, SGamePlayObject, switches, help paths) and meshes without baked colours keep a node of
   their own, named by actor id, so views can move, hide and relight them (`RenderMap.Gameplay`). Hidden ones are
   built with `Visible = false`. Their vision values are instance uniforms.
-- Sky zone geometry (BSP nodes with `sky: true`, triangles inside a `skyZone` ZONE record's bounds, instances flagged
-  `skyZone`) goes on the sky layer, drawn only by the sky view.
+- Sky zone geometry goes on the sky layer, drawn only by the sky view: the BSP node with `sky: true` (every polygon
+  whose front zone, iZone[1], is the zone holding the SkyZoneInfo) and the instances flagged `skyZone` (actor location
+  in that zone, UModel::PointRegion). Nothing else is moved by position: the sky ZONE record's bounds are not a test,
+  since a zone number can also cover a stray corner of the play area (PanaS has 64 zones; four polygons of a 128 uu
+  niche at x 8416 share the sky zone's number 10, so its bounds spanned the map and the spawn office was drawn only
+  by the sky view, SSIM 0.34; per polygon it is 0.98, like PanaD).
 - Skeletal props (`SAnimatedMesh`, DrawType DT_Mesh with a mesh from the shared packs) are placed by
   `AnimatedProps.Build` at the first frame of their first sequence and lit for their mesh's bounding sphere (the
   crane, at DrawScale 10, reaches 2440 uu from its centre). Skinned meshes cull with a 64 m margin, since the pose
@@ -180,7 +184,7 @@ outdoor zones end at 8000).
 |---|---|
 | light | `LIGHT_LIGHTMAP` (BSP, UV2), `LIGHT_VERTEX` (baked colours), `LIGHT_ACTOR` (actor lighting), none (fullbright) |
 | blend | opaque; masked (alpha test 0.5); translucent (SRCALPHA, INVSRCALPHA); additive (ONE, ONE, also standing in for the screen blend ONE, INVSRCCOLOR); modulate (dest x src x 2); darken (dest x (1 - src)) |
-| extras | `SELF_ILLUM` (+ `_MASK`): lit diffuse lerped to SelfIllumination by the mask alpha; `ENV_COLOR`: the env map x SpecularityMask alpha, added (`ENV_TEX`: the env map's own 2D texture looked up by the camera-space reflection `0.25 R.xy + 0.5` like the EMF scene; without it, cube maps, its mean colour); `UV_ANIM`: panner, friendly panner, oscillator (pan and stretch), constant rotator; `OPACITY_LAYER`, `SPEC_LAYER`, `COMBINE`, `FLIPBOOK`: below |
+| extras | `SELF_ILLUM` (+ `_MASK`): lit diffuse lerped to SelfIllumination by the mask alpha; `ENV_COLOR`: the env map x SpecularityMask alpha, added, or the whole env map when the Shader has no SpecularityMask and its env map is a 2D texture (146 map materials, StroD's chrome vases `crypt_txt.sphear`, AquaE's kiosk screen; they used to drop it; without the mask and without the texture nothing is added: the gameplay pack's materials.json has neither the env texture nor the OB_Brighten blend of PolaE's first-aid cabinet glass `fist_aid_glass`, and its mean colour over the whole pane drew it opaque white, PolaE spy-180 0.975 against 0.989) (`ENV_TEX`: the env map's own 2D texture looked up by the camera-space reflection R, u, v = R.xy wrapped, the fixed-function stage of game 0x1096d6f0: TexCoordSource 11 sets D3DTSS_TCI_CAMERASPACEREFLECTIONVECTOR through the TexEnvMap's identity matrix; the old `0.25 R.xy + 0.5` of the EMF scene sampled every env map's bright centre on surfaces facing the camera, so VertE/X's door frames and BankP's signs drew white; skinned characters keep `0.25 R.xy + 0.5`, `env_uv_map`; a world-space TexEnvMap (TexCoordSource 10 TCS_WorldEnvMapCoords / EnvMapType EM_WorldSpace, `env_world` in materials.json, scctpkg patch 0008) turns R to world space first (0x1096d6f0 case 10: the view matrix as the texture transform) and takes its UE X and Y (ClubD/E/S/T's terrace glass `CLU_Glass_SH` over `CLU_envmap01`: the R.xy lookup read the map's black corner and the glass vanished, far-180 0.754 against 0.819 now); without it, cube maps, its mean colour); `UV_ANIM`: panner, friendly panner, oscillator (pan and stretch), constant rotator; `OPACITY_LAYER`, `SPEC_LAYER`, `COMBINE`, `FLIPBOOK`: below |
 
 **Layers.** UE2 moves each input of a Shader or Combiner by its own modifier chain. The exporter writes an input
 apart when its modifiers differ from the Diffuse's, and the template evaluates it on its own, starting from the mesh's
@@ -193,7 +197,7 @@ the Combiner's own, then CombineOperation (Material1, Material2, multiply, add, 
 `M1 + M2 x mask.a`, mask colour), x Modulate2X / 4X, and AlphaOperation (mask alpha, multiply, add, Material1's,
 Material2's); InvertMask inverts the mask alpha; no Mask means Material1. A Material2 that is a TexEnvMap (`env2`:
 ClarD's and Sche*'s puddles `SFX_SCH_xbox.FX.final_flaque_envmap`, the rain ripples `flaque_onde0000..` at 10 fps) is
-looked up by the camera-space reflection as `ENV_TEX` is and plays its AnimNext chain from an atlas (`flip2`); its
+looked up by the camera-space reflection as `ENV_TEX` is (R.xy) and plays its AnimNext chain from an atlas (`flip2`); its
 static bake takes the env texture's mean colour (baked through the UVs it stretched one ripple frame over each puddle
 as a large bright blot). Static Combiners stay a bake. `FLIPBOOK`
 plays an animated texture (Texture.AnimNext chain: AquaE caustics `SC01` 16 frames, ClubD's pool caustic projectors,
@@ -232,7 +236,21 @@ settings' `filter_level` (rl:gfx.filtering: 0, 2, 4, 8 or 16, first run 4 as the
   150, navy mesh colours, baked light up to 23) against four night frames of the original: the plain glow drew them
   flat white (mean error 6 to 46 per view), the fold 0.7 to 1.5. 32 meshes have UseVertexColor (skies, beams, mall
   floors); maps converted before this change keep the white mountains until their render step is rebuilt.
-- `dynamic` is the sum of the dynamic world lights, the spot shadow light and the night vision boost.
+- **Sky zone meshes** take the sky zone's ambient (m_RefAmbientColor) as their AmbientGlow, like bSpecialLit meshes
+  (`level.py`, `max(AmbientGlow, zone ambient)`; the client adds no zone ambient in sky zones). ClubD's skyline towers
+  (CLU_warp_imm, baked colours 0, AmbientGlow 20, sky zone ambient 149) drew black facades with only the self-lit
+  windows; the original shows the facades and their full window grid (ClubD spy-180 SSIM 0.80 to 0.91). Sky zones
+  with ambient: Club* 149, PrisD 147, TermD 185.
+- `dynamic` is the sum of the dynamic world lights, the spot shadow light, the zone ambient and the night vision
+  boost.
+- **Zone ambient** (`m_RefAmbientColor`, `svm_zone_ambient`, one texel per zone): static meshes add
+  `2 x ambient / 255` of their zone (`RenderK.ZoneAmbientVertexGain`, the 2x stage on the colour stream), BSP
+  lightmaps nothing (`ZoneAmbientLightmapGain` 0: Build Lighting bakes it into the lightmaps). Measured: OrphD/E/T's
+  outdoor zone (ambient 21, its trees, fences and terrain meshes baked near black) spy views went from SSIM 0.19-0.35
+  (luma 0.07-0.24) to 0.76-0.93 (0.78-0.93); SancD's Church (11) merc views 0.87/0.92 to 0.99/1.00, MissD's spy spawn
+  (40) 0.78-0.83 to 0.97-0.99. Adding it to the lightmaps too overshot those (MissD spy luma 1.2-1.5, SancD merc-180
+  2.1). Sky zones are left out (their backdrops take it through bSpecialLit in the converter); only 12 maps have a
+  non-black zone ambient.
 - Additive meshes with painted vertex colours (`authoredColors`, e.g. AquaD's caustic quads: 40 inside, 0 on the rim)
   draw `tex x 2 x VC` alone: no AmbientGlow, no dynamic or spot light, so the rim fades out as in the original (with
   them the quads filled to bright squares). They carry zone 255 (`MapBuilder.AuthoredOverlayZone`). Estimated.
@@ -252,7 +270,12 @@ shader parameter, and are summed per pixel into the baked term.
 
 - Colour, gain and radius are the actor model's (below). The falloff over the world is `1 - (d / R)^2`: in a sweep
   (gain, radius, falloff) on the SteeE shop and yard views it matched far better than the actor falloff (shop SSIM
-  0.70 to 0.81, luma ratio 0.54 to 1.00). Measured, not decoded.
+  0.70 to 0.81, luma ratio 0.54 to 1.00). Measured, not decoded. That is the BSP's: the editor builds BSP dynamic
+  light passes on an attenuation texture (`FBspLightAttenuationTexture`, `FBspQuadraticLightAttenuationTexture`).
+  Static meshes take dynamic lights through the D3D vertex lights like actors (`RenderingModeNormal::SetLight`,
+  2 S(d / R), editor 0x10f29790), so vertex-lit surfaces use the actor falloff `1 - 3x^2 + 2x^3`
+  (`svm_dyn_falloff`). KrauE's lab door at the merc start (two own-zone STriggerLights, radius 18): merc-180 SSIM
+  0.815 to 0.844, luma 1.33 to 1.23; SteeE unchanged.
 - Light types (FDynamicLight::Update, game 0x10a1de70, evaluated once a frame; `WorldLights.Modulation`, shared by
   the world term, actor lighting and coronas): pulse `0.6 + 0.39 sin(a)`, subtle pulse `0.9 + 0.09 sin(a)` with
   `a = t x 35 x 2 pi / max(1, LightPeriod) + (LightPhase << 8)` radians; blink off while the integer part of
@@ -270,9 +293,13 @@ shader parameter, and are summed per pixel into the baked term.
 
 `SpotShadowLight` draws an LE_ESpotShadow light (Echelon spot: the merc torch, searchlights, window and sun
 projectors) with its own shadow pass. The frustum is the decoded one (editor 0x111a5480): its apex sits
-`p x EchelonRange / (1 - p)` behind the light (p = NearPlaneRatio), the near plane at the light (p x SpotWidth by
-p x SpotHeight) and the far plane SpotWidth x SpotHeight, EchelonRange further on; geometry between the apex and the
-light never shadows. From p 0.999 the rays are taken as parallel (an orthographic box; FactD's Light17985 has 1.0).
+`p x EchelonRange / (1 - p)` behind the light (p = NearPlaneRatio), the near plane at the light (2p x SpotWidth by
+2p x SpotHeight) and the far plane 2 SpotWidth x 2 SpotHeight, EchelonRange further on; geometry between the apex and
+the light never shadows. SpotWidth and SpotHeight are half extents: the light's projection scales x by
+`apex / (p x SpotWidth)` over the depth from the apex (parallel rays: `1 / SpotWidth`) and maps -1..1 onto the cookie.
+Until this was read the frustum was half as wide and high: MuseD/E/T's rooftop floodlight (Light16, SpotWidth 700)
+lit a narrow strip, spy-0 SSIM 0.45 (luma 0.25) against 0.91 (0.94) now. From p 0.999 the rays are taken as parallel
+(an orthographic box; FactD's Light17985 has 1.0).
 A camera at the apex renders the world into the light's tile of a shared 2048 x 2048 R32F atlas (tiles 1024 x 512,
 the map 512 high and as wide as SpotWidth / SpotHeight allows), kept as linear distance along the axis by
 `svm_spot_depth.glsl`. The template has `SpotShadowSlots` (8) slots, one float-texture row each (`svm_spots`); it adds,
@@ -310,14 +337,18 @@ Cookies share a texture array (`svm_spot_cookies`, each resampled to 256 x 256; 
   with `SpotShadowSoftRadius` > 0 (1.5 texels, estimated) eight such lookups on a disc, as the sandbox's Reloaded
   `shadow_edge_smoothing` does. The stock game uses the single filtered lookup.
 
-- `SpotShadowShape.Torch` is SGadTorche's (spec/equipment/merc-flashlight.md): range 1500, 400 x 400, near ratio
-  0.0025, brightness 304, hue 21, saturation 255 (white), cookie `Echelon.flashlight` (Echelon.Torche's
-  ProjectedLightingTexture), linear attenuation (`Engine.linear_attenuation`), normal influence 0.
+- `SpotShadowShape.Torch` is SGadTorche's (spec/equipment/merc-flashlight.md): range 1500, SpotWidth and
+  SpotHeight 400 (half extents), near ratio 0.0025, brightness 304, hue 21, saturation 255 (white), cookie
+  `Echelon.flashlight` (Echelon.Torche's ProjectedLightingTexture), linear attenuation (`Engine.linear_attenuation`),
+  normal influence 0.
 - The 2x gain is estimated (the Echelon light pass is not decoded); colour is FGetHSV x brightness / 255 as for
-  other lights, each channel capped at 1 (`RenderK.SpotShadowColourCap`, estimated: colours reaching the
-  fixed-function or ps_1_x stages are clamped, and the bridge measured RiveD's brightness-3000 spot lifting the
-  game's luma only from 20 to 35). Uncapped, AquaD's sun shafts (500 to 650) clipped the Greek Temple floor to white. `Place(location, rotation)` moves it; views put the torch on the merc's `Laser` bone (NativeTickTorche is not decoded; the UE5 client found
-  that bone). `On` follows LightType.
+  other lights, scaled down so its brightest channel is at most 1 (`RenderK.SpotShadowColourCap`, estimated: colours
+  reaching the fixed-function or ps_1_x stages are clamped, and the bridge measured RiveD's brightness-3000 spot
+  lifting the game's luma only from 20 to 35). Uncapped, AquaD's sun shafts (500 to 650) clipped the Greek Temple
+  floor to white. The cap keeps the hue: capped per channel, FactD's orange window patches (hue 14 to 21, brightness
+  400 to 1200) were drawn white; scaled, the mean RGB error of FactD's spy views dropped (spy-0 6.5 to 5.6, spy-180
+  1.26 to 1.07) and SSIM rose slightly. `Place(location, rotation)` moves it; views put the torch on the merc's
+  `Laser` bone (NativeTickTorche is not decoded; the UE5 client found that bone). `On` follows LightType.
 - Shadow settings (rl:gfx.shadows): `shadow_quality` sets the map height of the spot shadow lights,
   256 x the quality as a power of two from 128 to 2048 (`SpotShadowLight.MapSizeFor`: 2 is the old fixed 512, the
   first run's 3 gives 1024, the sandbox's 8 gives 2048, an 8192 x 8192 R32F atlas of 256 MB); it is read when the
@@ -334,9 +365,10 @@ lighting:
 `S(x) = 1 - 3x^2 + 2x^3`, `k = 2` for point lights and `1.75` for suns (no falloff), `C = FGetHSV(hue, saturation,
 255) x brightness / 255` (0.8213 at V 255), `R = 25 (LightRadius + 1)`, `A` = zone ambient plus AmbientGlow / 255.
 Lights are ranked by `brightness x (1 - d^2 / (R + r)^2)`, suns first; spots score 0 outside their cone and use
-`phi = 1.15 acos((1 - LightCone / 256)^2)`, `theta = 0.05 phi`. Only `bApplyToInGameLighting` lights that are on
-take part, and own-zone lights only for actors in their zone. The light type scales each chosen light's colour (as
-for the world lights); ranking uses LightBrightness alone. LE_QuadraticNonIncidence (20) uses the D3D attenuation
+`phi = 1.15 acos((1 - LightCone / 256)^2)`, `theta = 0.05 phi`. Only lights kept for run time
+(`bApplyToInGameLighting` or `bDynamicLight`) that are on take part (dynamic ones without the in-game flag were left
+out until AquaE's kiosk beside STriggerLight303 drew black), and own-zone lights only for actors in their zone. The
+light type scales each chosen light's colour (as for the world lights); ranking uses LightBrightness alone. LE_QuadraticNonIncidence (20) uses the D3D attenuation
 `1 / (8 d^2 / R^2)` (with half the point gain, as the 2 of the point fit is not there); LE_PointAmbient (21) also
 adds its attenuated colour whatever the normal (its D3D ambient). LE_Cylinder and LE_NonIncidence stay plain points
 (not decoded). The set is chosen on the CPU and handed over as
@@ -369,7 +401,8 @@ frustum box draw with no depth test, rebuild each pixel's world point from the d
 onto it, so BSP, static meshes and actors all receive it. The converter's `PROJ_` decal meshes (BSP only, blend
 ignored) are left out when the file is there.
 
-- Mapping: u = dot(P - L, Y) / (USize x DrawScale x DrawScale3D.Y) + 0.5, v likewise with Z and VSize, depth
+- Mapping: u = dot(P - L, Y) / (USize x DrawScale x DrawScale3D.Y) + 0.5, v likewise with Z and VSize (signed: the
+  Mission bunker signs, DrawScale3D.Z -1 with pitch and roll 180, read upside down when only the size was kept), depth
   dot(P - L, X) in 0..MaxTraceDistance (live `Projector.Matrix`, bridge). With FOV > 0 the frustum holds that size at
   the projector and widens from an apex behind it (estimate; FOV 1, ShadD's signs, stays the texture's size).
 - Frame buffer blend (`SetProjectorMaterial`, game 0x10972320): PB_AlphaBlend SRCALPHA, INVSRCALPHA; PB_Add ONE, ONE;
@@ -380,9 +413,17 @@ ignored) are left out when the file is there.
   or TexRotator over the texture (`uvMatrix`) transforms the projected coordinates: AquaE's rain (`Aquarium_TXT.Puie.Rain`,
   UScale 0.1) tiles its drops 10 times over the projector; without it each drop was a blob 10 times too big.
 - Thermal and EMF draw no projections.
+- `bProjectStaticMesh` false (39 placed, the Mission bunker signs among them; `projectStaticMesh` in the file): solid
+  world surfaces write a stencil value by kind (`MaterialCompiler.StencilBsp` 1 lightmapped BSP,
+  `StencilStaticMesh` 2 vertex-lit static meshes, `StencilOther` 3 the rest) and such a projector draws only where the
+  stencil is not 2. MissE's "Bunker West" sign no longer lands on the railing in front of the wall. Actor-lit meshes
+  (no baked colours) still receive it (estimate).
 - Not reproduced: MaterialBlendingOp (the projected texture mixed with the surface's own material: PB_Modulate 2x,
   PB_AlphaBlend by the projected alpha; PB_Add leaves it out), `bGradient` (no placed projector sets it), and
-  `bProjectActor` / `bProjectBSP` / `bProjectStaticMesh` filtering (the depth buffer does not say what drew it).
+  `bProjectActor` / `bProjectBSP` filtering (every placed projector keeps both on).
+- Most maps have no texture projector (`projectors.json` empty: VertE, FactD, RiveE, MounS, ScheU). Their window,
+  grate, ceiling-grid and caustic patterns are LE_ESpotShadow lights (shadow map and cookie, see
+  [Spot shadow lights](#spot-shadow-lights)), not projectors.
 
 ## Light beams
 
@@ -393,8 +434,21 @@ Lights with `UsesLightBeam` and a `LightBeamMesh` (200 placed, `TestMapStaticM.A
 - Length EchelonRange x LightBeamFalloffScale; the section at distance t is the spot (SpotWidth x SpotHeight) x
   (NearPlaneRatio + (1 - NearPlaneRatio) t / EchelonRange) (game 0x1097ba8a, bridge). NearPlaneRatio outside (0, 1]
   is taken as 0.1 (estimate).
-- Each slice multiplies the frame by 1 + 0.2 x LightBrightness / 255 x sqrt(LightBeamInitialAlpha) x light colour,
-  fading as 1 - x along the beam (bridge FactD measurement; the fade is an estimate). No shadow buffer cut yet.
+- Each slice adds `BeamGain` (0.046) x LightBrightness / 255 x sqrt(LightBeamInitialAlpha) x light colour to the frame,
+  fading as 1 - x along the beam (the fade is an estimate). Additive: MissP's lamp beam (STriggerLight1096, brightness
+  100, alpha 5) shows over the black sky at 85 to 92 of 255 in the game, which a multiply cannot draw (0.046 gives 87
+  to 104). The sqrt(alpha) and linear brightness are the bridge's FactD sweeps.
+- A beam of an LE_ESpotShadow light (196 of the 202) is cut and tinted by that light: the game's beam setup
+  (0x1097b3d0..0x1097bc12) picks its stages from the light's shadow buffer and its EchelonLightMaterial textures and
+  hands the beam's vertex shader the light's projection. The shader projects each slice pixel through the light's spot
+  shadow slot (`SpotShadowLight.SlotOf`, the same frustum and filtered depth test as the world template) and
+  multiplies the slice by the slot's cookie there: sun beams draw as shafts between the window bars and stop at the
+  walls, RiveE's caustic light (`Mall_tibu.lightECHL`) throws teal shafts. A spot light without a slot this frame (not
+  among the `SpotShadowMapLights` nearest) draws no beam (estimate). `MapLightBeams.UpdateSlots` runs each frame after
+  the spot lights take their slots (PlayRoot after `FlashLightView.Draw`, golden renders after `MapSpotLights.Update`).
+- Golden (2026-10-29, with the spot lights drawn): RiveE spy-90 SSIM 0.693 to 0.952, spy-270 0.659 to 0.938; FactD
+  spy-0 0.766 to 0.886 (the uncut multiplied beam of Light274 had enclosed the camera and tinted the whole room red);
+  MissP far-180 0.706 to 0.875, far-0 0.723 to 0.871.
 - On while LightType != LT_None and UsesLightBeam: lights the simulation holds (STriggerLight, light movers such as
   BankD's Mover3569) are read live after each tick, so `LightOff` (which clears UsesLightBeam) and alarm switches drop
   the beam and a moving light carries it; other lights follow `RenderMap.IsLightOn`.
@@ -765,10 +819,15 @@ exports those three (`SKIN_SWAPS` in `content/svmbuild/charconv.py`); `play-merc
   (SGoggle.CurrentMode and PlayerController.RendMap set, bGogglesUp cleared) and plays the mode's side (spy for 34
   and 36, merc for 37 and 38). Without a goggle key press the motion tracker actor does not exist (no lock brackets;
   the HUD is hidden anyway). The merc plays in first person: golden renders hide the pawn when `behindView` is 0.
+- `render_svm.py` passes `--svm-content=<repo>/.content` (or `SVM_CONTENT`) unless given one: without a content folder
+  the client looks in the downloaded packs (`%LOCALAPPDATA%\OpenSCCT\packs\svmap`) before the checkout, and a map
+  downloaded once (PolaE, AquaE, MoonD, ShipD here) rendered from that stale copy, not from the map just rebuilt.
 - `render_svm.py` runs the client with a GPU renderer on a desktop of its own (CreateDesktop, never shown), so no
   window appears. `--svm-smoke=golden` renders every recorded camera at the capture's size, with the recorded side's
   pawn at the recorded placement playing the recorded sequence and frame, and the Story objective props
-  (`--svm-golden-mode=`). Calibration switches: `--svm-lightmap-scale=`, `--svm-glow-gate=0|1`, `--svm-dyn-tune=`,
+  (`--svm-golden-mode=`). The map's LE_ESpotShadow lights are drawn as in play (`MapSpotLights`, nearest the camera,
+  updated each frame, then the light beams' slots); before 2026-10-29 golden renders left them out, so window, grate
+  and caustic patterns and beam cuts were missing from every golden. Calibration switches: `--svm-lightmap-scale=`, `--svm-glow-gate=0|1`, `--svm-dyn-tune=`,
   `--svm-mip-drop=`, `--svm-mip-bias=`, `--svm-rendmap=`, `--svm-night-boost=`, `--svm-pawn-heat=`,
   `--svm-golden-only=`, `--svm-golden-debug=coronas`.
 - `score.py` reports per pose SSIM on display luma (Gaussian window, sigma 1.5), the luma ratio and the dark-corner

@@ -30,9 +30,11 @@ public sealed class ActorLighting
         ArgumentNullException.ThrowIfNull(lighting);
         foreach (LightEntry l in lighting.Lights)
         {
-            // Lights that reach actors: bApplyToInGameLighting, with a light type, and not the runtime ESpotShadow
-            // projectors, which have their own path. A light not initially on (STriggerLight.bInitialyOn) starts off.
-            if (l.ApplyInGame && l.LightType != 0 && l.Effect != RenderK.LE_ESpotShadow)
+            // Lights that reach actors: the ones the game keeps for run time, bApplyToInGameLighting or bDynamicLight
+            // (as WorldLights), with a light type, and not the runtime ESpotShadow projectors, which have their own
+            // path. A light not initially on (STriggerLight.bInitialyOn) starts off. Dynamic lights without the in-game
+            // flag were left out until AquaE's kiosk (SGamePlayObject2126, beside STriggerLight303) drew black.
+            if ((l.ApplyInGame || l.Dynamic) && l.LightType != 0 && l.Effect != RenderK.LE_ESpotShadow)
             {
                 _lights.Add(l);
                 if (!l.InitiallyOn)

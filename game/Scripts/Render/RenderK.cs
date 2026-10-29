@@ -35,6 +35,14 @@ public static partial class RenderK
     [Provenance(ProvenanceKind.Measured, "BankD skyline sweep of the glow term: best match at a cap of 1")]
     public const float AmbientGlowCap = 1f;
 
+    /// <summary>Gain of the zone ambient (m_RefAmbientColor / 255) on lightmapped BSP surfaces.</summary>
+    [Provenance(ProvenanceKind.Measured, "zone ambient goldens, docs/RENDERING.md#baked-light")]
+    public const float ZoneAmbientLightmapGain = 0f;
+
+    /// <summary>Gain of the zone ambient (m_RefAmbientColor / 255) on baked static meshes, added before the 2x stage.</summary>
+    [Provenance(ProvenanceKind.Measured, "OrphD/E/T outdoor goldens (zone Outside, ambient 21), docs/RENDERING.md#baked-light")]
+    public const float ZoneAmbientVertexGain = 2f;
+
     /// <summary>
     /// Top mip levels the original leaves out of world textures at its shipped TextureDetailWorld=Normal setting
     /// (the textures read softer than the full-size images).

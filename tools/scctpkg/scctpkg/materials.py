@@ -119,6 +119,9 @@ class ResolvedMaterial:
     # camera-space reflection instead of adding its mean colour.
     env_texture: Optional[Texture] = None
     env_key: str = ""
+    # The TexEnvMap is world space (EnvMapType EM_WorldSpace / TexCoordSource TCS_WorldEnvMapCoords 10): the game turns
+    # the camera-space reflection into world space before the lookup (ApplyTexModifier case 10), ClubD's CLU_envmap01.
+    env_world: bool = False
 
     @property
     def skip(self) -> bool:
@@ -186,6 +189,7 @@ def _copy_layers(result: ResolvedMaterial, inner: ResolvedMaterial) -> None:
         result.spec_mask_anim, result.spec_mask_matrix = inner.spec_mask_anim, inner.spec_mask_matrix
     if result.env_texture is None:
         result.env_texture, result.env_key = inner.env_texture, inner.env_key
+        result.env_world = inner.env_world
 
 
 class MaterialResolver:
@@ -207,6 +211,16 @@ class MaterialResolver:
             return False
         _, e = self.pset.resolve(pkg, ref)
         return e is not None and e.class_name in ("TexEnvMap", "Cubemap")
+
+    def _is_world_env_map(self, pkg: Package, ref) -> bool:
+        """A TexEnvMap whose TexCoordSource is TCS_WorldEnvMapCoords (10; EnvMapType EM_WorldSpace)."""
+        if not isinstance(ref, int) or ref == 0:
+            return False
+        owner, e = self.pset.resolve(pkg, ref)
+        if e is None or e.class_name != "TexEnvMap" or owner is None:
+            return False
+        props = self._props(owner, e)
+        return int(props.get("TexCoordSource", 11) or 0) == 10 or props.get("EnvMapType") == 0
 
     def texture_for(self, pkg: Package, e: Export) -> Optional[Texture]:
         key = f"{pkg.path.stem}.{e.name}"
@@ -313,6 +327,7 @@ class MaterialResolver:
                     px = _np.asarray(env.texture.image.convert("RGB"), dtype=_np.float32) / 255.0
                     result.env_color = tuple(float(c) for c in px.reshape(-1, 3).mean(0))
                     result.env_texture, result.env_key = env.texture, env.key
+                    result.env_world = self._is_world_env_map(owner, props.get("Specular"))
                 if props.get("SpecularityMask"):
                     sm = self.resolve(owner, int(props["SpecularityMask"]), depth + 1)
                     if sm.texture is not None:
