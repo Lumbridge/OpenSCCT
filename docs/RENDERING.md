@@ -374,6 +374,10 @@ adds its attenuated colour whatever the normal (its D3D ambient). LE_Cylinder an
 (not decoded). The set is chosen on the CPU and handed over as
 instance uniforms; the shader evaluates it per vertex. The spot shadow light and the night boost are added per pixel.
 
+The rules (light choice, ranking, falloff, colour, light types, the spot shadow frustum and colour cap) live
+Godot-free in `src/OpenScct.Game/Lighting/ActorLightRules.cs`; `ActorLighting`, `SpotShadowLight` and `WorldLights`
+call them, and so do the bots' light field (docs/AI.md, "Light"), so what a bot judges lit is what the screen draws.
+
 ## Coronas
 
 Lights with `bCorona` draw `Skins[0]` as a camera-facing additive quad at the light (`Coronas`, `svm_corona.gdshader`):
@@ -758,8 +762,39 @@ at most 120 times a second and only bodies seen in the last 5 s. Pawns (collActo
 Location + Velocity x 0.08: a particle inside leaves by the nearest of top, bottom or side and takes the pawn's velocity
 over the step as a push; a moving pawn plays collSound (once per 0.5 s). Soft bodies never block movement (the
 primitive's point check always passes). Rifle tracers crossing a body push the four corners of the crossed cell by
-BulletHitFactor x 100 in the shot's direction and play shotSound. Drawn fullbright: UESoftBody::Render makes no
-lighting calls.
+BulletHitFactor x 100 in the shot's direction and play shotSound.
+
+Soft bodies are lit as actors (decoded). FDynamicActor::Render (0x10a14fe0) hands DrawType 13 to the body's vtable
+slot 0x78. For the patch, strip door and rope classes that slot calls slot 0x80, the draw at 0x10999f90. (The base
+slot 0x78 at 0x10999ce0, which an earlier note took for the draw, only batches the actor's projectors, Actor+0x21c, for
+the projector flush 0x10a3b900 / 0x10a4a9c0.) The draw, through RenderingModeNormal (vtable 0x10c0be78:
++0xc SetLight 0x10978cc0, +0x10 SetAmbientLight, +0x14 EnableLighting, +0x24 SetMaterial), does this:
+- PushState, then cull mode 2 (none).
+- `EnableLighting(UseDynamic 1, UseStatic 0, Modulate2X 0, no lightmap, LitSphere = the FDynamicActor's bounding
+  sphere)`.
+- SetLight for each light in the actor's list, then `SetAmbientLight(FDynamicActor+0xb8)`. Lights are skipped only in
+  RendMap 0x23.
+- SetMaterial(Skins[0], else Texture), then one DrawIndexedPrimitive.
+- The actor's projectors drawn unlit on top. Lights off, `EnableLighting(0, 1)`, PopState.
+
+So a body takes the same light set and ambient as any actor (the actor lighting model above: zone ambient plus
+AmbientGlow, the four strongest lights, D3D vertex lighting). It has no baked light, and a bUnlit one draws
+fullbright. The patch's vertex stream (0x10afef20) is position, normal, UV (32 bytes). It has one face of
+`(c, c + nU + 1, c + 1), (c + 1, c + nU + 1, c + nU + 2)` per cell. Each normal is the average of the four neighbour
+cross products, `du x dv`. With culling off, D3D lights the back the same as the front, so the client's back face keeps
+the front normal. The converter writes no vertex colours for soft bodies, only `unlit` (Actor.bUnlit: 5 of AquaD's
+14 bodies, ClubD's ESBPatchActor7813) and `ambientGlow`. `SoftBodyViews.Relight` applies the light set from the rest
+bounds at build time and whenever the gameplay meshes are relit.
+
+Before this change every body drew fullbright. Golden survey before and after:
+- DeftS merc-180, the plastic curtain ESBPatchActor2857 in a doorway that the original draws black: SSIM 0.740 to
+  1.000, luma ratio 911 to 1.07.
+- ScheE merc-0, the overhead cloth ESBPatchActor243: SSIM 0.837 to 0.881, luma 1.67 to 0.88.
+- AquaD/E/T, ClubD and MuseD: unchanged within 0.001.
+
+AquaD/E/T's sea (ESBPatchActor370, AmbientGlow 30, translucent combiner `Aquarium_TXT.osc`, not bUnlit) is now lit
+like the rest. The earlier note that the game shows it near white was not checked against a capture, and no golden view
+shows it.
 
 Explosions do not push soft bodies, as in the original: `SBExplosionHit` (native 1153, exec 0x109e2030, UESBPatch
 vtable slot 0xcc at 0x1099d5b0: the centre taken into local space, every particle pushed straight away from it by

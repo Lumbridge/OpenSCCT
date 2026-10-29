@@ -1,0 +1,36 @@
+diff --git a/export_gltf.py b/export_gltf.py
+index 1342834..5f5b5f2 100644
+--- a/export_gltf.py
++++ b/export_gltf.py
+@@ -1374,24 +1374,17 @@ def export_map(map_path: Path, pset: PackageSet, out_root: Path, include_bsp: bo
+                 pname = _safe(f"PATCH_{rec.name}")
+                 body = rec.extra["softbody"]
+                 glow = int(body.get("ambient_glow", 0))
+-                # UESoftBody::Render makes no lighting calls: soft bodies (DrawType 13) draw fullbright. AquaD's sea has
+-                # no light in reach and zone ambient 0, yet the game shows near-white crests (matched live only with
+-                # the light term at 1.0). The lit path below stays for reference.
+-                unlit = True
++                # Soft bodies are lit as actors (UESoftBody render, game 0x10999f90: EnableLighting(dynamic, no static),
++                # the FDynamicActor's lights and its ambient): no vertex colours, so the client lights them with the
++                # actor model; AmbientGlow goes to the ambient. Actor.bUnlit ones draw fullbright.
++                unlit = bool(body.get("unlit"))
+                 prims = _patch_prims(body, pres, writer, tex_dir, tex_uri, unlit)
+-                if not unlit:
+-                    # No baked light (the game builds the patch at runtime); AmbientGlow adds to lighting like on static
+-                    # meshes (ambient_glow -> Custom Primitive Data 28 on M_SCCT_VertexLit, capped there), not as a
+-                    # vertex colour: baked colours go through the display-space gamma and left AquaE's sea near black.
+-                    col = np.zeros((len(prims[0][0]), 4), np.uint8)
+-                    col[:, 3] = 255
+-                    prims = [tuple(pr) + (None, col) for pr in prims]
++                if unlit:
++                    entry["unlit"] = True
++                elif glow > 0:
+                     entry["ambient_glow"] = min(glow, 255)
+                 writer.node(pname, writer.mesh(pname, prims), extras={"scct_kind": "library"})
+                 entry.update({"kind": "staticmesh", "mesh": pname, "mesh_available": True})
+-                if not unlit:
+-                    vertex_lit.append({"name": pname, "base": pname})
+-                    entry["vertex_lit"] = True
+                 stats["patches"] = stats.get("patches", 0) + 1
+         entry.update({k: v for k, v in rec.extra.items() if k not in ("skin_refs", "proj_texture_ref", "rain_material_ref",
+                                                                        "patch_material_ref")})

@@ -352,6 +352,8 @@ public sealed class RenderMap
                 ActorLighting.Apply(g.Node, LightActor(at, g.Radius, g.AmbientGlow));
             }
         }
+
+        SoftBodies?.Relight(this);
     }
 }
 
@@ -911,9 +913,12 @@ public static class MapBuilder
                 return;
             }
 
+            // Soft bodies are lit as actors (SoftBodyViews.Relight), bUnlit ones fullbright.
             if (!hidden && inst.TryGetProperty("softBody", out JsonElement softBody)
-                && _map.SoftBodies?.Add(actor, softBody, transform, location, prims, _map.Compiler, VisionOf(inst)) == true)
+                && _map.SoftBodies?.Add(actor, softBody, transform, location, prims, _map.Compiler, VisionOf(inst),
+                    unlit ? LightSource.None : LightSource.Actor, glow, echelon) == true)
             {
+                _map.SoftBodies.Relight(_map);
                 return;
             }
 

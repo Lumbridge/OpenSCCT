@@ -17,8 +17,8 @@ namespace OpenScctGame.Render.SoftBodies;
 /// The map's soft bodies (ESBPatchActor cloth and ESBStripDoorActor strip curtains): each one a mesh whose vertices
 /// follow its <see cref="SoftBodySim"/>, stepped on this machine only. Pawns push them aside (collActor), rifle
 /// tracers and this machine's own merc shots through them push the hit cell, and they play their collSound and
-/// shotSound. Drawn fullbright, as
-/// UESoftBody::Render makes no lighting calls. docs/RENDERING.md "Soft bodies".
+/// shotSound. Lit as actors (the soft body render, game 0x10999f90: the FDynamicActor's lights and ambient, no baked
+/// light), bUnlit ones fullbright. docs/RENDERING.md "Soft bodies".
 /// </summary>
 public sealed class SoftBodyViews
 {
@@ -50,10 +50,12 @@ public sealed class SoftBodyViews
     /// <summary>
     /// Adds the soft body of a placed instance: <paramref name="prim"/> is its library mesh, the body at rest with
     /// vertex i (and i + N for the back face) on particle i. False when the block or the mesh does not match, and
-    /// the instance is then drawn as a plain mesh.
+    /// the instance is then drawn as a plain mesh. <paramref name="light"/> is <see cref="LightSource.Actor"/> (lit with
+    /// <paramref name="ambientGlow"/> and the Echelon code <paramref name="echelon"/>, see <see cref="Relight"/>) or
+    /// <see cref="LightSource.None"/> for a bUnlit body.
     /// </summary>
     internal bool Add(string actor, JsonElement softBody, in Transform3D transform, FVector location, MeshPrimitive[] prims,
-        MaterialCompiler compiler, Vector4 vision)
+        MaterialCompiler compiler, Vector4 vision, LightSource light = LightSource.None, int ambientGlow = 0, int echelon = 0)
     {
         if (prims.Length != 1 || SoftBodySim.Read(softBody) is not { } sim || prims[0].VertexCount != sim.Count * 2)
         {
@@ -61,20 +63,47 @@ public sealed class SoftBodyViews
         }
 
         MeshPrimitive prim = prims[0];
-        Material? material = compiler.Get(prim.Material, LightSource.None);
-        var body = new Body(actor, sim, transform, location, prim, material);
+        Material? material = compiler.Get(prim.Material, light);
+        var body = new Body(actor, sim, transform, location, prim, material) { Light = light, AmbientGlow = ambientGlow };
         if (body.Front.Count == 0)
         {
             return false;
         }
 
         body.Node.SetInstanceShaderParameter(GameplayObjects.VisionActorParameter, vision);
+        if (light == LightSource.Actor)
+        {
+            ActorLighting.SetEchelonIgnore(body.Node, echelon);
+        }
+
         _root.AddChild(body.Node);
         body.Rebuild();
         body.Notifier.Aabb = body.Mesh.GetAabb().Grow(UeSpace.LengthToGodot(SoftBodyK.PositionClamp) * 0.25f);
         body.Node.AddChild(body.Notifier);
+        Aabb rest = transform * body.Mesh.GetAabb();
+        body.Center = UeSpace.ToUe(rest.GetCenter());
+        body.Radius = UeSpace.UnitsPerMetre * rest.Size.Length() * 0.5f;
         _bodies.Add(body);
         return true;
+    }
+
+    /// <summary>
+    /// Lights every actor-lit body as an actor (UESoftBody render, game 0x10999f90: EnableLighting with dynamic lights
+    /// only, the FDynamicActor's light list through SetLight and its AmbientColor through SetAmbientLight), from its
+    /// rest bounding sphere. The map calls this when it builds and whenever the gameplay meshes are relit.
+    /// </summary>
+    [Provenance(ProvenanceKind.Decoded, "0x10999f90: mode->EnableLighting(RI, 1, 0, 0, NULL, FDynamicActor sphere), SetLight per light of the actor's list, SetAmbientLight(FDynamicActor+0xb8); no static (vertex colour) light")]
+    [Provenance(ProvenanceKind.Estimated, "The light set is chosen once from the rest bounds, not each frame from the moving body")]
+    public void Relight(RenderMap map)
+    {
+        ArgumentNullException.ThrowIfNull(map);
+        foreach (Body body in _bodies)
+        {
+            if (body.Light == LightSource.Actor)
+            {
+                ActorLighting.Apply(body.Node, map.LightActor(body.Center, body.Radius, body.AmbientGlow));
+            }
+        }
     }
 
     /// <summary>
@@ -384,6 +413,15 @@ public sealed class SoftBodyViews
 
         public FVector Location { get; }
 
+        public LightSource Light { get; init; }
+
+        public int AmbientGlow { get; init; }
+
+        /// <summary>Rest bounding sphere (uu) the actor light set is chosen for.</summary>
+        public FVector Center { get; set; }
+
+        public float Radius { get; set; }
+
         public ArrayMesh Mesh { get; }
 
         public MeshInstance3D Node { get; }
@@ -408,7 +446,11 @@ public sealed class SoftBodyViews
 
         public FVector DirectionToLocal(FVector world) => UeSpace.DirectionToUe(_toLocal.Basis * UeSpace.DirectionToGodot(world));
 
-        /// <summary>Writes the particles into the mesh (both faces) with normals from the front triangles.</summary>
+        /// <summary>
+        /// Writes the particles into the mesh (both faces) with normals from the front triangles. The back face keeps
+        /// the front normal: the original draws one face with culling off under D3D vertex lighting, which lights both
+        /// sides by the same normal (the patch's normals, 0x10afef20, are its grid's du x dv, as here).
+        /// </summary>
         public void Rebuild()
         {
             for (int i = 0; i < _n; i++)
@@ -438,7 +480,7 @@ public sealed class SoftBodyViews
             {
                 Vector3 n = _normals[i].LengthSquared() > 1e-12f ? _normals[i].Normalized() : Vector3.Up;
                 _normals[i] = n;
-                _normals[i + _n] = -n;
+                _normals[i + _n] = n;
             }
 
             var arrays = new Godot.Collections.Array();
