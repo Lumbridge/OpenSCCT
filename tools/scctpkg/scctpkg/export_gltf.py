@@ -28,7 +28,7 @@ from .bsp import BspPolygon, extract_polygons, point_zone, read_model, PF_MIRROR
 from .bsplight import read_bsp_lighting, lightmap_image, BspLighting
 import hashlib
 from .level import ActorRecord, extract_level, extract_look
-from .materials import MaterialResolver, ResolvedMaterial
+from .materials import MaterialResolver, ResolvedMaterial, chain_layer
 from .package import Package
 from .packageset import PackageSet
 from .staticmesh import StaticMesh, read_static_mesh
@@ -309,10 +309,11 @@ def _bsp_primitives(polys: List[BspPolygon], pkg: Package, resolver: MaterialRes
             writer.material_flags.setdefault(mkey, {"masked": bool(res.masked) if res else False,
                                                     "two_sided": bool(res.two_sided) if res else False,
                                                     "translucent": bool(res.translucent) if res else False})["unlit"] = True
-        else:
-            # Lightmapped surfaces too: their SpecularityMask limits the env-map energy / gloss, and a masked
-            # SelfIllumination glows on top of the lightmap (MaskedSelfIllum in M_SCCT_Lightmapped).
-            _self_illum_flags(writer, mkey, res, tex_dir, tex_uri)
+        # Lightmapped surfaces too: their SpecularityMask limits the env-map energy / gloss, and a masked
+        # SelfIllumination glows on top of the lightmap (MaskedSelfIllum in M_SCCT_Lightmapped). PF_Unlit surfaces keep
+        # it as well: unlit only drops the lighting, the Shader's self-illumination pass still draws (TME30/32/33's wall
+        # trims, TME_FXwallRay_SVTM on PF_Unlit polys, drew as their black FXwallRayBlack diffuse without the yellow ray).
+        _self_illum_flags(writer, mkey, res, tex_dir, tex_uri)
         if lm_uri and lightmapped is not None and all(e["name"] != _safe(mkey) for e in lightmapped):
             lightmapped.append({"name": _safe(mkey), "base": key, "texture": uri, "lightmap": lm_uri,
                                 "two_sided": bool(res.two_sided) if res else False,
@@ -711,9 +712,18 @@ def _self_illum_flags(writer: "GltfWriter", key: str, res: Optional[ResolvedMate
     si = _texture_png(res.self_illum_key, res.self_illum, tex_dir, tex_uri)
     mask = _texture_png(res.self_illum_mask_key, res.self_illum_mask, tex_dir, tex_uri)
     if si and mask:
-        writer.material_flags[key].update({"self_illum": si, "self_illum_mask": mask})
-        if getattr(res, "self_illum_anim", False) and res.uv_anim:
-            writer.material_flags[key]["self_illum_anim"] = True
+        flags = writer.material_flags[key]
+        flags.update({"self_illum": si, "self_illum_mask": mask})
+        # Each of the two moves by its own modifier chain (outer ones first), starting from the mesh's own UVs:
+        # "self_illum_layer" / "self_illum_mask_layer" = {"anim", "matrix" (before the anim), "post" (after it)}, and
+        # "uv_matrix" for the client to undo the Diffuse's transform baked into the UVs. Written whenever anything in
+        # the material moves; without them both follow the Diffuse.
+        si_chain, mask_chain = res.self_illum_chain, res.self_illum_mask_chain
+        if si_chain or mask_chain or res.uv_anim or res.uv_matrix:
+            flags["self_illum_layer"] = chain_layer(si_chain)
+            flags["self_illum_mask_layer"] = chain_layer(mask_chain)
+            if res.uv_matrix is not None:
+                flags["uv_matrix"] = list(res.uv_matrix)
 
 
 def _uv_transform(uv: Optional[np.ndarray], res: Optional[ResolvedMaterial]) -> Optional[np.ndarray]:

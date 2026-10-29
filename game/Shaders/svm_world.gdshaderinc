@@ -97,6 +97,26 @@ uniform vec2 si_pan = vec2(0.0);
 #ifdef SELF_ILLUM_MASK
 uniform sampler2D tex_self_illum_mask : filter_linear_mipmap_anisotropic, repeat_enable, hint_default_white;
 #endif
+#ifdef SI_LAYER
+// The SelfIllumination and its mask each by their own modifier chain from the mesh's own UVs (layer layout below), with
+// a second static transform after the animation (si_post_*, sim_post_*): a TexPanner over a TexScaler.
+uniform int si_anim_type = 0;
+uniform vec4 si_anim_a = vec4(0.0);
+uniform vec4 si_anim_b = vec4(0.0);
+uniform vec4 si_anim_c = vec4(0.0);
+uniform vec3 si_row_u = vec3(1.0, 0.0, 0.0);
+uniform vec3 si_row_v = vec3(0.0, 1.0, 0.0);
+uniform vec3 si_post_u = vec3(1.0, 0.0, 0.0);
+uniform vec3 si_post_v = vec3(0.0, 1.0, 0.0);
+uniform int sim_anim_type = 0;
+uniform vec4 sim_anim_a = vec4(0.0);
+uniform vec4 sim_anim_b = vec4(0.0);
+uniform vec4 sim_anim_c = vec4(0.0);
+uniform vec3 sim_row_u = vec3(1.0, 0.0, 0.0);
+uniform vec3 sim_row_v = vec3(0.0, 1.0, 0.0);
+uniform vec3 sim_post_u = vec3(1.0, 0.0, 0.0);
+uniform vec3 sim_post_v = vec3(0.0, 1.0, 0.0);
+#endif
 #endif
 
 #ifdef ENV_COLOR
@@ -118,6 +138,7 @@ uniform sampler2D tex_env : filter_linear, repeat_enable, hint_default_black;
 uniform int sm_anim_type = 0;
 uniform vec4 sm_anim_a = vec4(0.0);
 uniform vec4 sm_anim_b = vec4(0.0);
+uniform vec4 sm_anim_c = vec4(0.0);
 uniform vec3 sm_row_u = vec3(1.0, 0.0, 0.0);
 uniform vec3 sm_row_v = vec3(0.0, 1.0, 0.0);
 #endif
@@ -129,13 +150,14 @@ uniform vec3 sm_row_v = vec3(0.0, 1.0, 0.0);
 uniform int uv_anim_type = 0;
 uniform vec4 uv_anim_a = vec4(0.0);
 uniform vec4 uv_anim_b = vec4(0.0);
+uniform vec4 uv_anim_c = vec4(0.0);
 uniform vec2 tex_size = vec2(256.0);
 #endif
 
 // Separate layers (UE2 transforms each Shader / Combiner input by its own modifier chain): each has an animation of the
 // UV_ANIM layout and a static transform (rows dotted with (u, v, 1)). They start from the mesh's own UVs: base_row_u / v
 // undo the static transform the exporter baked into the UVs for the Diffuse.
-#if defined(OPACITY_LAYER) || defined(SPEC_LAYER)
+#if defined(OPACITY_LAYER) || defined(SPEC_LAYER) || defined(SI_LAYER)
 uniform vec3 base_row_u = vec3(1.0, 0.0, 0.0);
 uniform vec3 base_row_v = vec3(0.0, 1.0, 0.0);
 #endif
@@ -145,6 +167,7 @@ uniform sampler2D tex_opacity : filter_linear_mipmap_anisotropic, repeat_enable,
 uniform int op_anim_type = 0;
 uniform vec4 op_anim_a = vec4(0.0);
 uniform vec4 op_anim_b = vec4(0.0);
+uniform vec4 op_anim_c = vec4(0.0);
 uniform vec3 op_row_u = vec3(1.0, 0.0, 0.0);
 uniform vec3 op_row_v = vec3(0.0, 1.0, 0.0);
 // 1: the opacity is the texture's luminance (its alpha is flat), as the exporter's opacity bake picks.
@@ -161,16 +184,19 @@ uniform ivec4 combine = ivec4(0, 0, 1, 0);
 uniform int c1_anim_type = 0;
 uniform vec4 c1_anim_a = vec4(0.0);
 uniform vec4 c1_anim_b = vec4(0.0);
+uniform vec4 c1_anim_c = vec4(0.0);
 uniform vec3 c1_row_u = vec3(1.0, 0.0, 0.0);
 uniform vec3 c1_row_v = vec3(0.0, 1.0, 0.0);
 uniform int c2_anim_type = 0;
 uniform vec4 c2_anim_a = vec4(0.0);
 uniform vec4 c2_anim_b = vec4(0.0);
+uniform vec4 c2_anim_c = vec4(0.0);
 uniform vec3 c2_row_u = vec3(1.0, 0.0, 0.0);
 uniform vec3 c2_row_v = vec3(0.0, 1.0, 0.0);
 uniform int cm_anim_type = 0;
 uniform vec4 cm_anim_a = vec4(0.0);
 uniform vec4 cm_anim_b = vec4(0.0);
+uniform vec4 cm_anim_c = vec4(0.0);
 uniform vec3 cm_row_u = vec3(1.0, 0.0, 0.0);
 uniform vec3 cm_row_v = vec3(0.0, 1.0, 0.0);
 // 1: Material2 is a TexEnvMap, looked up by the camera-space reflection (R.xy, as ENV_TEX on map materials) instead of the
@@ -433,17 +459,27 @@ void vertex() {
 #endif
 }
 
-// One animated texture modifier (the UV_ANIM layout) at the scene time.
-vec2 svm_anim(vec2 uv, int type, vec4 a, vec4 b, vec2 size) {
+// One animated texture modifier (the UV_ANIM layout) at the scene time (Level.TimeSeconds).
+vec2 svm_anim(vec2 uv, int type, vec4 a, vec4 b, vec4 c, vec2 size) {
 	float t = svm_time;
 	if (type == 1) {
-		uv += a.xy * a.z * t;
+		// UTexPanner / UTexFriendlyPanner::GetMatrix (0x10997eb0, 0x10997fe0): the offset wraps, frac(t x rate x dir).
+		uv += fract(a.xy * a.z * t);
 	} else if (type == 2) {
-		// OT_Pan wobbles the coordinate; the stretch types scale about the middle.
-		float su = a.x * sin(6.2831853 * a.y * t);
-		float sv = b.x * sin(6.2831853 * b.y * t);
-		uv.x = a.z >= 1.0 ? (uv.x - 0.5) * (1.0 + su) + 0.5 : uv.x + su;
-		uv.y = b.z >= 1.0 ? (uv.y - 0.5) * (1.0 + sv) + 0.5 : uv.y + sv;
+		// UTexOscillator::GetMatrix (0x10998680), per axis with p = frac(t x rate): OT_Pan offsets by
+		// amp sin(2 pi (p + phase)), OT_Stretch scales by 1 + amp sin(2 pi (p + phase)), OT_StretchRepeat by
+		// 1 + amp sin(2 pi phase + p pi / 2); the stretch is about (UOffset / USize, VOffset / VSize). c = (U phase,
+		// V phase, UOffset, VOffset). OT_Jitter (random, no map uses it) stays still.
+		vec2 p = fract(vec2(a.y, b.y) * t);
+		vec2 amp = vec2(a.x, b.x);
+		vec2 kind = vec2(a.z, b.z);
+		vec2 s = amp * sin(6.2831853 * (p + c.xy));
+		vec2 sr = amp * sin(6.2831853 * c.xy + p * 1.5707964);
+		vec2 pivot = c.zw / size;
+		vec2 stretch = (uv - pivot) * (1.0 + mix(s, sr, step(1.5, kind))) + pivot;
+		vec2 pan = uv + s;
+		uv.x = kind.x > 2.5 ? uv.x : (kind.x > 0.5 ? stretch.x : pan.x);
+		uv.y = kind.y > 2.5 ? uv.y : (kind.y > 0.5 ? stretch.y : pan.y);
 	} else if (type == 3) {
 		vec2 pivot = a.zw / size;
 		float r = a.x * t;
@@ -461,7 +497,7 @@ vec2 svm_affine(vec2 uv, vec3 row_u, vec3 row_v) {
 
 vec2 svm_uv(vec2 uv) {
 #ifdef UV_ANIM
-	uv = svm_anim(uv, uv_anim_type, uv_anim_a, uv_anim_b, tex_size);
+	uv = svm_anim(uv, uv_anim_type, uv_anim_a, uv_anim_b, uv_anim_c, tex_size);
 #endif
 	return uv;
 }
@@ -474,13 +510,13 @@ void fragment() {
 	}
 #endif
 	vec2 uv = svm_uv(UV);
-#if defined(OPACITY_LAYER) || defined(SPEC_LAYER)
+#if defined(OPACITY_LAYER) || defined(SPEC_LAYER) || defined(SI_LAYER)
 	vec2 raw_uv = svm_affine(UV, base_row_u, base_row_v);
 #endif
 #if defined(COMBINE)
 	// Each input through its own modifiers (after the Combiner's own), then CombineOperation / AlphaOperation.
-	vec2 uv1 = svm_anim(svm_affine(uv, c1_row_u, c1_row_v), c1_anim_type, c1_anim_a, c1_anim_b, vec2(textureSize(tex_diffuse, 0)));
-	vec2 uv2 = svm_anim(svm_affine(uv, c2_row_u, c2_row_v), c2_anim_type, c2_anim_a, c2_anim_b, vec2(textureSize(tex_c2, 0)));
+	vec2 uv1 = svm_anim(svm_affine(uv, c1_row_u, c1_row_v), c1_anim_type, c1_anim_a, c1_anim_b, c1_anim_c, vec2(textureSize(tex_diffuse, 0)));
+	vec2 uv2 = svm_anim(svm_affine(uv, c2_row_u, c2_row_v), c2_anim_type, c2_anim_a, c2_anim_b, c2_anim_c, vec2(textureSize(tex_c2, 0)));
 	vec4 m1 = texture(tex_diffuse, uv1, svm_mip_bias);
 	vec4 m2;
 	if (c2_env != 0) {
@@ -493,7 +529,7 @@ void fragment() {
 	}
 	vec4 mk = m1;
 	if (cmask_on != 0) {
-		vec2 uvm = svm_anim(svm_affine(uv, cm_row_u, cm_row_v), cm_anim_type, cm_anim_a, cm_anim_b, vec2(textureSize(tex_cmask, 0)));
+		vec2 uvm = svm_anim(svm_affine(uv, cm_row_u, cm_row_v), cm_anim_type, cm_anim_a, cm_anim_b, cm_anim_c, vec2(textureSize(tex_cmask, 0)));
 		mk = texture(tex_cmask, uvm, svm_mip_bias);
 	}
 	float ma = combine.w != 0 ? 1.0 - mk.a : mk.a;
@@ -525,7 +561,7 @@ void fragment() {
 	vec4 t = texture(tex_diffuse, uv, svm_mip_bias);
 #endif
 #ifdef OPACITY_LAYER
-	vec2 opuv = svm_anim(svm_affine(raw_uv, op_row_u, op_row_v), op_anim_type, op_anim_a, op_anim_b, vec2(textureSize(tex_opacity, 0)));
+	vec2 opuv = svm_anim(svm_affine(raw_uv, op_row_u, op_row_v), op_anim_type, op_anim_a, op_anim_b, op_anim_c, vec2(textureSize(tex_opacity, 0)));
 	vec4 op = texture(tex_opacity, opuv, svm_mip_bias);
 	t.a = op_lum != 0 ? dot(op.rgb, vec3(0.299, 0.587, 0.114)) : op.a;
 #endif
@@ -569,10 +605,21 @@ void fragment() {
 #endif
 	vec3 c = min(lit, vec3(1.0));
 #ifdef SELF_ILLUM
+#ifdef SI_LAYER
+	vec2 siuv = svm_affine(svm_anim(svm_affine(raw_uv, si_row_u, si_row_v), si_anim_type, si_anim_a, si_anim_b, si_anim_c,
+		vec2(textureSize(tex_self_illum, 0))), si_post_u, si_post_v);
+#else
 	vec2 siuv = uv + si_pan * svm_time;
+#endif
 	vec4 si = texture(tex_self_illum, siuv);
 #ifdef SELF_ILLUM_MASK
-	float m = texture(tex_self_illum_mask, siuv).a;
+#ifdef SI_LAYER
+	vec2 simuv = svm_affine(svm_anim(svm_affine(raw_uv, sim_row_u, sim_row_v), sim_anim_type, sim_anim_a, sim_anim_b, sim_anim_c,
+		vec2(textureSize(tex_self_illum_mask, 0))), sim_post_u, sim_post_v);
+#else
+	vec2 simuv = siuv;
+#endif
+	float m = texture(tex_self_illum_mask, simuv).a;
 #else
 	float m = si.a;
 #endif
@@ -581,7 +628,7 @@ void fragment() {
 #endif
 #ifdef ENV_COLOR
 #ifdef SPEC_LAYER
-	vec2 smuv = svm_anim(svm_affine(raw_uv, sm_row_u, sm_row_v), sm_anim_type, sm_anim_a, sm_anim_b, vec2(textureSize(tex_spec_mask, 0)));
+	vec2 smuv = svm_anim(svm_affine(raw_uv, sm_row_u, sm_row_v), sm_anim_type, sm_anim_a, sm_anim_b, sm_anim_c, vec2(textureSize(tex_spec_mask, 0)));
 #else
 	vec2 smuv = uv;
 #endif

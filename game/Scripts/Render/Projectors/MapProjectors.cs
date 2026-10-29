@@ -77,10 +77,12 @@ public sealed class MapProjectors
         material.SetShaderParameter("proj_tex", texture);
         material.SetShaderParameter("proj_origin", new Vector4(0f, 0f, 0f, UeSpace.LengthToGodot(p.MaxTrace)) + Pos4(p.Location));
         material.SetShaderParameter("proj_x", UeSpace.DirectionToGodot(x));
-        // The texture axes carry DrawScale3D's sign (u = dot(P-L, Y) / (USize x DrawScale3D.Y), signed): the Mission
-        // bunker signs (DrawScale3D.Z -1, pitch and roll 180) read upside down and mirrored with the size alone.
+        // u runs along Y with DrawScale3D.Y's sign. v runs down the projector's Z (texture row 0 at +Z) whatever the sign
+        // of DrawScale3D.Z: the Mission bunker signs (DrawScale3D.Z -1) and the TME/GhosS ARGUS logo decals
+        // (DrawScale3D.Z +1) have the same axes (X -X, Y -Y, Z up) and both read upright in the original; with v along
+        // +Z for a positive scale the TME decals above the doors drew upside down (golden TME30 merc-0).
         material.SetShaderParameter("proj_y", UeSpace.DirectionToGodot(p.Scale.Y < 0f ? y * -1f : y));
-        material.SetShaderParameter("proj_z", UeSpace.DirectionToGodot(p.Scale.Z < 0f ? z * -1f : z));
+        material.SetShaderParameter("proj_z", UeSpace.DirectionToGodot(z * -1f));
         material.SetShaderParameter("proj_shape", new Vector4(UeSpace.LengthToGodot(halfW), UeSpace.LengthToGodot(halfH),
             UeSpace.LengthToGodot(apex), p.ProjectOnBackfaces ? 1f : 0f));
         if (p.Flipbook is { } fb)

@@ -81,10 +81,15 @@ class ResolvedMaterial:
     self_illum: Optional[Texture] = None
     self_illum_mask_key: str = ""
     self_illum_mask: Optional[Texture] = None
-    # An animated modifier (TexPanner, ...) wraps the Shader that carries the SelfIllumination: UE2 transforms every
-    # stage of the wrapped Shader, so the glow moves with the diffuse (AquaE info kiosks scroll their text; the glow
-    # layer drawn static showed a fixed "INFORMATION" over the scroll). False when only the Diffuse is animated.
-    self_illum_anim: bool = False
+    # The texture-coordinate modifiers from this material down to its texture, outermost first: ("matrix", (a..f)) for
+    # a static one, ("anim", uv_anim dict) for an animated one. UE2 multiplies each modifier's matrix onto the ones
+    # around it (Outer x Inner, row vectors), so the outer one transforms the coordinates first. A modifier around a
+    # Shader transforms every stage of it (AquaE's info kiosks scroll text and glow together); a Shader input's own
+    # modifiers move that input alone (TSP's door light lines, TME's wall-trim ray: a panned SelfIllumination over an
+    # unpanned SelfIlluminationMask).
+    chain: tuple = ()
+    self_illum_chain: tuple = ()
+    self_illum_mask_chain: tuple = ()
     # Static texture-coordinate transform of a TexScaler / fixed TexRotator in the chain: (a, b, c, d, e, f) with
     # u' = a*u + c*v + e, v' = b*u + d*v + f (UE2 row-vector texture matrix). Baked into the exported UVs.
     uv_matrix: Optional[Tuple[float, float, float, float, float, float]] = None
@@ -176,6 +181,31 @@ def _uv_anim(cls: str, props: dict) -> Optional[dict]:
                 "rotation_type": int(props.get("TexRotationType", 0) or 0),
                 "u_offset": float(props.get("UOffset", 0.0) or 0.0), "v_offset": float(props.get("VOffset", 0.0) or 0.0)}
     return None
+
+
+def _affine_then(first, second):
+    """`first` applied, then `second` ((a, b, c, d, e, f): u' = a*u + c*v + e, v' = b*u + d*v + f)."""
+    a1, b1, c1, d1, e1, f1 = first
+    a2, b2, c2, d2, e2, f2 = second
+    return (a2 * a1 + c2 * b1, b2 * a1 + d2 * b1, a2 * c1 + c2 * d1, b2 * c1 + d2 * d1,
+            a2 * e1 + c2 * f1 + e2, b2 * e1 + d2 * f1 + f2)
+
+
+def chain_layer(chain) -> dict:
+    """A modifier chain (outermost first) as the client's layer: the static transforms before the first animated
+    modifier ("matrix"), that modifier ("anim") and the static transforms after it ("post"). A second animated modifier
+    in one chain is dropped (only AquaE's sea nests two, and its Combiner inputs take one each)."""
+    pre, anim, post = None, None, None
+    for kind, value in chain:
+        if kind == "anim":
+            if anim is None:
+                anim = value
+            continue
+        if anim is None:
+            pre = value if pre is None else _affine_then(pre, value)
+        else:
+            post = value if post is None else _affine_then(post, value)
+    return {"anim": anim, "matrix": list(pre) if pre else None, "post": list(post) if post else None}
 
 
 def _copy_layers(result: ResolvedMaterial, inner: ResolvedMaterial) -> None:
@@ -291,7 +321,15 @@ class MaterialResolver:
                         result.flipbook = self._anim_frames(owner, result.texture)
             return result
         props = self._props(owner, e)
-        if cls == "Shader":
+        if cls in ("Shader", "LitSpecularMaterial"):
+            # LitSpecularMaterial (SCCT) has a Shader's Diffuse / Specular / SpecularityMask / SelfIllumination(Mask)
+            # without the blending inputs. RenderingModeNormal::SetMaterial (0x10979b60) draws it through
+            # SetLitSpecularMaterial and, when SelfIllumination is set, adds a pass alpha-blending (SRCALPHA,
+            # INVSRCALPHA) the self-illumination through the mask's alpha (the SI's own alpha when the mask is the same
+            # object). Read as a plain diffuse it lost that pass: the tutorial door numbers (TSP door01_0N_LS, a panned
+            # green line under the number in the diffuse alpha). Its Specular is not the Shader's env-map add (not
+            # decoded: SetLitSpecularMaterial is unnamed): adding it as one lit SteeE's and PolaE's floors with
+            # reflections the original does not show (SteeE far-0 SSIM 0.988 -> 0.906), so only the Shader takes it.
             # UE2 EOutputBlending: 0 Normal, 1 Masked, 2 Modulate, 3 Translucent, 4 Invisible, 5 Brighten, 6 Darken
             ob = int(props.get("OutputBlending", 0) or 0)
             result.two_sided = bool(props.get("TwoSided"))
@@ -319,7 +357,7 @@ class MaterialResolver:
                 result.additive = True
             # Self-illuminated shaders (lamps, neon, screens) are drawn at full brightness by the game; with a
             # SelfIlluminationMask only the mask's alpha is fullbright.
-            if self._is_env_map(owner, props.get("Specular")):
+            if cls == "Shader" and self._is_env_map(owner, props.get("Specular")):
                 result.env_map = True
                 env = self.resolve(owner, int(props["Specular"]), depth + 1)
                 if env.texture is not None and env.texture.image is not None:
@@ -338,16 +376,18 @@ class MaterialResolver:
                 si = self.resolve(owner, int(props["SelfIllumination"]), depth + 1)
                 if si.texture is not None:
                     result.self_illum, result.self_illum_key = si.texture, si.key
+                    result.self_illum_chain = si.chain
                 if props.get("SelfIlluminationMask"):
                     sm = self.resolve(owner, int(props["SelfIlluminationMask"]), depth + 1)
                     if sm.texture is not None:
                         result.self_illum_mask, result.self_illum_mask_key = sm.texture, sm.key
+                        result.self_illum_mask_chain = sm.chain
             elif ob == 5 and props.get("Diffuse") and self._is_env_map(owner, props.get("Specular")):
                 # Glass: lit diffuse plus an environment reflection, brightening what is behind it. Glow and FX
                 # shaders (light rays, holograms, lens flares) stay fullbright; not on bUnlit actors either (their
                 # __unlit variant, export_gltf.py).
                 result.additive_gain = LIT_BRIGHTEN_GAIN
-            elif props.get("Specular") and not props.get("SpecularityMask"):
+            elif cls == "Shader" and props.get("Specular") and not props.get("SpecularityMask"):
                 # An unmasked Specular is added on top of the lit diffuse at full strength. A plain texture there
                 # (Bunker.whiteglow_1: Diffuse = Specular = White_0, the MissE corridor lamp's glow card) reads as
                 # fullbright in the game; cube maps and env-map modifiers (reflections) stay lit.
@@ -405,6 +445,7 @@ class MaterialResolver:
                               "invert_mask": bool(props.get("InvertMask"))}
         result.uv_matrix = _static_uv_matrix(cls, props)
         result.uv_anim = _uv_anim(cls, props)
+        own = (("anim", result.uv_anim),) if result.uv_anim else (("matrix", result.uv_matrix),) if result.uv_matrix else ()
         for pname in _CHAIN_PROPS.get(cls, ("Material", "Diffuse")):
             sub = props.get(pname)
             if isinstance(sub, int) and sub != 0:
@@ -414,10 +455,13 @@ class MaterialResolver:
                     result.flipbook = inner.flipbook
                     result.two_sided = result.two_sided or inner.two_sided
                     result.unlit = result.unlit or inner.unlit
+                    if cls != "Combiner":
+                        result.chain = own + inner.chain
                     if result.self_illum is None and inner.self_illum is not None:
                         result.self_illum, result.self_illum_key = inner.self_illum, inner.self_illum_key
                         result.self_illum_mask, result.self_illum_mask_key = inner.self_illum_mask, inner.self_illum_mask_key
-                        result.self_illum_anim = inner.self_illum_anim or result.uv_anim is not None
+                        result.self_illum_chain = own + inner.self_illum_chain
+                        result.self_illum_mask_chain = own + inner.self_illum_mask_chain
                     if result.uv_matrix is None:
                         result.uv_matrix = inner.uv_matrix   # one static modifier per chain (nesting is not composed)
                     if result.uv_anim is None:

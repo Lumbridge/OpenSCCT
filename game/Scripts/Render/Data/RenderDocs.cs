@@ -27,8 +27,11 @@ public enum MaterialBlend
     Darken,
 }
 
-/// <summary>An animated texture coordinate modifier (TexPanner, TexFriendlyPanner, TexOscillator, TexRotator).</summary>
-public sealed record UvAnim(string Type, Vector4 A, Vector4 B)
+/// <summary>
+/// An animated texture coordinate modifier (TexPanner, TexFriendlyPanner, TexOscillator, TexRotator). C is the
+/// oscillator's (U phase, V phase, UOffset, VOffset): the phases in cycles, the stretch pivot in texels.
+/// </summary>
+public sealed record UvAnim(string Type, Vector4 A, Vector4 B, Vector4 C = default)
 {
     /// <summary>Shader code of the type: 1 panner (A.xy direction, A.z rate), 2 oscillator, 3 rotator.</summary>
     public int Code => Type switch
@@ -72,7 +75,8 @@ public sealed record UvAnim(string Type, Vector4 A, Vector4 B)
             case "oscillator":
                 return new UvAnim(type,
                     new Vector4(Num(e, "UOscillationAmplitude"), Num(e, "UOscillationRate"), Num(e, "UOscillationType"), 0f),
-                    new Vector4(Num(e, "VOscillationAmplitude"), Num(e, "VOscillationRate"), Num(e, "VOscillationType"), 0f));
+                    new Vector4(Num(e, "VOscillationAmplitude"), Num(e, "VOscillationRate"), Num(e, "VOscillationType"), 0f),
+                    new Vector4(Num(e, "UOscillationPhase"), Num(e, "VOscillationPhase"), Num(e, "UOffset"), Num(e, "VOffset")));
 
             case "rotator":
             {
@@ -137,8 +141,11 @@ public readonly record struct UvAffine(Vector3 RowU, Vector3 RowV)
     }
 }
 
-/// <summary>One input of a material evaluated on its own: its texture, animated modifier and static transform.</summary>
-public sealed record MaterialLayer(string Texture, UvAnim? Anim, UvAffine? Matrix);
+/// <summary>
+/// One input of a material evaluated on its own: its texture, the static transform before its animated modifier, the
+/// modifier, and the static transform after it (<paramref name="Post"/>, self-illumination layers only).
+/// </summary>
+public sealed record MaterialLayer(string Texture, UvAnim? Anim, UvAffine? Matrix, UvAffine? Post = null);
 
 /// <summary>
 /// A UE2 Combiner whose inputs move on their own (materials.json flags "combine"): Material1, Material2 and the Mask with
@@ -232,6 +239,14 @@ public sealed class MaterialEntry
 
     /// <summary>The SpecularityMask's own modifiers when they differ from the Diffuse's (the mask texture is SpecMask).</summary>
     public MaterialLayer? SpecMaskLayer { get; init; }
+
+    /// <summary>
+    /// The SelfIllumination's and its mask's own modifier chains ("self_illum_layer", "self_illum_mask_layer"), from the
+    /// mesh's own UVs; null: both follow the Diffuse.
+    /// </summary>
+    public MaterialLayer? SelfIllumLayer { get; init; }
+
+    public MaterialLayer? SelfIllumMaskLayer { get; init; }
 
     /// <summary>The env map's 2D texture, looked up by the camera-space reflection; null keeps EnvColor.</summary>
     public string? EnvTexture { get; init; }
@@ -343,6 +358,8 @@ public sealed class MaterialsDoc
                     SpecMaskLayer = has && (f.TryGetProperty("spec_mask_anim", out _) || f.TryGetProperty("spec_mask_matrix", out _))
                         ? LayerOf(f, "spec_mask", Str(f, "spec_mask"))
                         : null,
+                    SelfIllumLayer = has ? ChainLayerOf(f, "self_illum_layer", Str(f, "self_illum")) : null,
+                    SelfIllumMaskLayer = has ? ChainLayerOf(f, "self_illum_mask_layer", Str(f, "self_illum_mask")) : null,
                     EnvTexture = has ? Str(f, "env_texture") : null,
                     EnvWorld = has && Bool(f, "env_world"),
                     Combine = has && f.TryGetProperty("combine", out JsonElement comb) ? CombineEntry.From(comb) : null,
@@ -376,6 +393,15 @@ public sealed class MaterialsDoc
             : new MaterialLayer(texture,
                 f.TryGetProperty(prefix + "_anim", out JsonElement a) ? UvAnim.From(a) : null,
                 f.TryGetProperty(prefix + "_matrix", out JsonElement m) ? UvAffine.From(m) : null);
+
+    /// <summary>A layer written as one object: {"anim", "matrix" (before the anim), "post" (after it)}.</summary>
+    private static MaterialLayer? ChainLayerOf(JsonElement f, string name, string? texture) =>
+        texture is null || !f.TryGetProperty(name, out JsonElement l) || l.ValueKind != JsonValueKind.Object
+            ? null
+            : new MaterialLayer(texture,
+                l.TryGetProperty("anim", out JsonElement a) ? UvAnim.From(a) : null,
+                l.TryGetProperty("matrix", out JsonElement m) ? UvAffine.From(m) : null,
+                l.TryGetProperty("post", out JsonElement q) ? UvAffine.From(q) : null);
 
     private static void ApplyList(MaterialsDoc doc, JsonElement root, string list, Func<JsonElement, MaterialBlend> blendOf)
     {

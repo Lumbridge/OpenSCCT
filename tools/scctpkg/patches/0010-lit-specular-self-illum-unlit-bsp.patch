@@ -1,0 +1,59 @@
+diff --git a/export_gltf.py b/export_gltf.py
+index 5f5b5f2..f618057 100644
+--- a/export_gltf.py
++++ b/export_gltf.py
+@@ -309,10 +309,11 @@ def _bsp_primitives(polys: List[BspPolygon], pkg: Package, resolver: MaterialRes
+             writer.material_flags.setdefault(mkey, {"masked": bool(res.masked) if res else False,
+                                                     "two_sided": bool(res.two_sided) if res else False,
+                                                     "translucent": bool(res.translucent) if res else False})["unlit"] = True
+-        else:
+-            # Lightmapped surfaces too: their SpecularityMask limits the env-map energy / gloss, and a masked
+-            # SelfIllumination glows on top of the lightmap (MaskedSelfIllum in M_SCCT_Lightmapped).
+-            _self_illum_flags(writer, mkey, res, tex_dir, tex_uri)
++        # Lightmapped surfaces too: their SpecularityMask limits the env-map energy / gloss, and a masked
++        # SelfIllumination glows on top of the lightmap (MaskedSelfIllum in M_SCCT_Lightmapped). PF_Unlit surfaces keep
++        # it as well: unlit only drops the lighting, the Shader's self-illumination pass still draws (TME30/32/33's wall
++        # trims, TME_FXwallRay_SVTM on PF_Unlit polys, drew as their black FXwallRayBlack diffuse without the yellow ray).
++        _self_illum_flags(writer, mkey, res, tex_dir, tex_uri)
+         if lm_uri and lightmapped is not None and all(e["name"] != _safe(mkey) for e in lightmapped):
+             lightmapped.append({"name": _safe(mkey), "base": key, "texture": uri, "lightmap": lm_uri,
+                                 "two_sided": bool(res.two_sided) if res else False,
+diff --git a/materials.py b/materials.py
+index 10f2805..6980741 100644
+--- a/materials.py
++++ b/materials.py
+@@ -291,7 +291,15 @@ class MaterialResolver:
+                         result.flipbook = self._anim_frames(owner, result.texture)
+             return result
+         props = self._props(owner, e)
+-        if cls == "Shader":
++        if cls in ("Shader", "LitSpecularMaterial"):
++            # LitSpecularMaterial (SCCT) has a Shader's Diffuse / Specular / SpecularityMask / SelfIllumination(Mask)
++            # without the blending inputs. RenderingModeNormal::SetMaterial (0x10979b60) draws it through
++            # SetLitSpecularMaterial and, when SelfIllumination is set, adds a pass alpha-blending (SRCALPHA,
++            # INVSRCALPHA) the self-illumination through the mask's alpha (the SI's own alpha when the mask is the same
++            # object). Read as a plain diffuse it lost that pass: the tutorial door numbers (TSP door01_0N_LS, a panned
++            # green line under the number in the diffuse alpha). Its Specular is not the Shader's env-map add (not
++            # decoded: SetLitSpecularMaterial is unnamed): adding it as one lit SteeE's and PolaE's floors with
++            # reflections the original does not show (SteeE far-0 SSIM 0.988 -> 0.906), so only the Shader takes it.
+             # UE2 EOutputBlending: 0 Normal, 1 Masked, 2 Modulate, 3 Translucent, 4 Invisible, 5 Brighten, 6 Darken
+             ob = int(props.get("OutputBlending", 0) or 0)
+             result.two_sided = bool(props.get("TwoSided"))
+@@ -319,7 +327,7 @@ class MaterialResolver:
+                 result.additive = True
+             # Self-illuminated shaders (lamps, neon, screens) are drawn at full brightness by the game; with a
+             # SelfIlluminationMask only the mask's alpha is fullbright.
+-            if self._is_env_map(owner, props.get("Specular")):
++            if cls == "Shader" and self._is_env_map(owner, props.get("Specular")):
+                 result.env_map = True
+                 env = self.resolve(owner, int(props["Specular"]), depth + 1)
+                 if env.texture is not None and env.texture.image is not None:
+@@ -347,7 +355,7 @@ class MaterialResolver:
+                 # shaders (light rays, holograms, lens flares) stay fullbright; not on bUnlit actors either (their
+                 # __unlit variant, export_gltf.py).
+                 result.additive_gain = LIT_BRIGHTEN_GAIN
+-            elif props.get("Specular") and not props.get("SpecularityMask"):
++            elif cls == "Shader" and props.get("Specular") and not props.get("SpecularityMask"):
+                 # An unmasked Specular is added on top of the lit diffuse at full strength. A plain texture there
+                 # (Bunker.whiteglow_1: Diffuse = Specular = White_0, the MissE corridor lamp's glow card) reads as
+                 # fullbright in the game; cube maps and env-map modifiers (reflections) stay lit.

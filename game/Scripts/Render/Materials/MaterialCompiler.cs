@@ -296,6 +296,8 @@ public sealed class MaterialCompiler
         MaterialBlend blend = entry.Blend;
         bool selfIllum = entry.SelfIllum is not null;
         bool selfIllumMask = selfIllum && entry.SelfIllumMask is not null;
+        // The glow and its mask move by their own modifier chains (TSP's door light lines, TME's wall-trim ray).
+        bool selfIllumLayer = selfIllumMask && entry.SelfIllumLayer is not null && entry.SelfIllumMaskLayer is not null;
         // A Shader's Specular is added through its SpecularityMask's alpha, or whole when it has none and its env map is a
         // 2D texture looked up by the reflection (146 map materials: StroD's chrome vases crypt_txt.sphear, AquaE's kiosk
         // screen, glass, signs); those used to lose the env map. Without a mask and without the env texture (the gameplay
@@ -309,6 +311,7 @@ public sealed class MaterialCompiler
         var extras = new List<string>();
         AddIf(extras, selfIllum, "SELF_ILLUM");
         AddIf(extras, selfIllumMask, "SELF_ILLUM_MASK");
+        AddIf(extras, selfIllumLayer, "SI_LAYER");
         AddIf(extras, env, "ENV_COLOR");
         AddIf(extras, env && entry.EnvTexture is not null, "ENV_TEX");
         AddIf(extras, env && entry.SpecMaskLayer is not null, "SPEC_LAYER");
@@ -336,6 +339,12 @@ public sealed class MaterialCompiler
             if (selfIllumMask)
             {
                 SetTexture(material, "tex_self_illum_mask", _textures.Get(entry.SelfIllumMask, Mipmapped(entry, "SelfIlluminationMask")));
+            }
+
+            if (selfIllumLayer)
+            {
+                SetLayer(material, "si", entry.SelfIllumLayer!);
+                SetLayer(material, "sim", entry.SelfIllumMaskLayer!);
             }
         }
 
@@ -386,6 +395,7 @@ public sealed class MaterialCompiler
             material.SetShaderParameter("uv_anim_type", a.Code);
             material.SetShaderParameter("uv_anim_a", a.A);
             material.SetShaderParameter("uv_anim_b", a.B);
+            material.SetShaderParameter("uv_anim_c", a.C);
             if (diffuse is not null)
             {
                 material.SetShaderParameter("tex_size", new Vector2(diffuse.GetWidth(), diffuse.GetHeight()));
@@ -451,7 +461,7 @@ public sealed class MaterialCompiler
     /// </summary>
     private void ApplyLayers(ShaderMaterial material, MaterialEntry entry, CombineEntry? combine, FlipbookEntry? flipbook)
     {
-        if (entry.Opacity is not null || entry.SpecMaskLayer is not null)
+        if (entry.Opacity is not null || entry.SpecMaskLayer is not null || entry.SelfIllumLayer is not null)
         {
             UvAffine undo = entry.UvMatrix?.Inverse() ?? UvAffine.Identity;
             material.SetShaderParameter("base_row_u", undo.RowU);
@@ -493,7 +503,10 @@ public sealed class MaterialCompiler
         }
     }
 
-    /// <summary>A layer's animation and static transform, as the shader's &lt;prefix&gt;_anim_* and &lt;prefix&gt;_row_* uniforms.</summary>
+    /// <summary>
+    /// A layer's animation and static transforms, as the shader's &lt;prefix&gt;_anim_*, &lt;prefix&gt;_row_* and (when the
+    /// layer has one) &lt;prefix&gt;_post_* uniforms.
+    /// </summary>
     private static void SetLayer(ShaderMaterial material, string prefix, MaterialLayer layer)
     {
         UvAffine m = layer.Matrix ?? UvAffine.Identity;
@@ -504,6 +517,13 @@ public sealed class MaterialCompiler
             material.SetShaderParameter(prefix + "_anim_type", a.Code);
             material.SetShaderParameter(prefix + "_anim_a", a.A);
             material.SetShaderParameter(prefix + "_anim_b", a.B);
+            material.SetShaderParameter(prefix + "_anim_c", a.C);
+        }
+
+        if (layer.Post is { } post)
+        {
+            material.SetShaderParameter(prefix + "_post_u", post.RowU);
+            material.SetShaderParameter(prefix + "_post_v", post.RowV);
         }
     }
 

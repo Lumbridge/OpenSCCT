@@ -184,13 +184,34 @@ outdoor zones end at 8000).
 |---|---|
 | light | `LIGHT_LIGHTMAP` (BSP, UV2), `LIGHT_VERTEX` (baked colours), `LIGHT_ACTOR` (actor lighting), none (fullbright) |
 | blend | opaque; masked (alpha test 0.5); translucent (SRCALPHA, INVSRCALPHA); additive (ONE, ONE, also standing in for the screen blend ONE, INVSRCCOLOR); modulate (dest x src x 2); darken (dest x (1 - src)) |
-| extras | `SELF_ILLUM` (+ `_MASK`): lit diffuse lerped to SelfIllumination by the mask alpha; `ENV_COLOR`: the env map x SpecularityMask alpha, added, or the whole env map when the Shader has no SpecularityMask and its env map is a 2D texture (146 map materials, StroD's chrome vases `crypt_txt.sphear`, AquaE's kiosk screen; they used to drop it; without the mask and without the texture nothing is added: the gameplay pack's materials.json has neither the env texture nor the OB_Brighten blend of PolaE's first-aid cabinet glass `fist_aid_glass`, and its mean colour over the whole pane drew it opaque white, PolaE spy-180 0.975 against 0.989) (`ENV_TEX`: the env map's own 2D texture looked up by the camera-space reflection R, u, v = R.xy wrapped, the fixed-function stage of game 0x1096d6f0: TexCoordSource 11 sets D3DTSS_TCI_CAMERASPACEREFLECTIONVECTOR through the TexEnvMap's identity matrix; the old `0.25 R.xy + 0.5` of the EMF scene sampled every env map's bright centre on surfaces facing the camera, so VertE/X's door frames and BankP's signs drew white; skinned characters keep `0.25 R.xy + 0.5`, `env_uv_map`; a world-space TexEnvMap (TexCoordSource 10 TCS_WorldEnvMapCoords / EnvMapType EM_WorldSpace, `env_world` in materials.json, scctpkg patch 0008) turns R to world space first (0x1096d6f0 case 10: the view matrix as the texture transform) and takes its UE X and Y (ClubD/E/S/T's terrace glass `CLU_Glass_SH` over `CLU_envmap01`: the R.xy lookup read the map's black corner and the glass vanished, far-180 0.754 against 0.819 now); without it, cube maps, its mean colour); `UV_ANIM`: panner, friendly panner, oscillator (pan and stretch), constant rotator; `OPACITY_LAYER`, `SPEC_LAYER`, `COMBINE`, `FLIPBOOK`: below |
+| extras | `SELF_ILLUM` (+ `_MASK`): lit diffuse lerped to SelfIllumination by the mask alpha; `ENV_COLOR`: the env map x SpecularityMask alpha, added, or the whole env map when the Shader has no SpecularityMask and its env map is a 2D texture (146 map materials, StroD's chrome vases `crypt_txt.sphear`, AquaE's kiosk screen; they used to drop it; without the mask and without the texture nothing is added: the gameplay pack's materials.json has neither the env texture nor the OB_Brighten blend of PolaE's first-aid cabinet glass `fist_aid_glass`, and its mean colour over the whole pane drew it opaque white, PolaE spy-180 0.975 against 0.989) (`ENV_TEX`: the env map's own 2D texture looked up by the camera-space reflection R, u, v = R.xy wrapped, the fixed-function stage of game 0x1096d6f0: TexCoordSource 11 sets D3DTSS_TCI_CAMERASPACEREFLECTIONVECTOR through the TexEnvMap's identity matrix; the old `0.25 R.xy + 0.5` of the EMF scene sampled every env map's bright centre on surfaces facing the camera, so VertE/X's door frames and BankP's signs drew white; skinned characters keep `0.25 R.xy + 0.5`, `env_uv_map`; a world-space TexEnvMap (TexCoordSource 10 TCS_WorldEnvMapCoords / EnvMapType EM_WorldSpace, `env_world` in materials.json, scctpkg patch 0008) turns R to world space first (0x1096d6f0 case 10: the view matrix as the texture transform) and takes its UE X and Y (ClubD/E/S/T's terrace glass `CLU_Glass_SH` over `CLU_envmap01`: the R.xy lookup read the map's black corner and the glass vanished, far-180 0.754 against 0.819 now); without it, cube maps, its mean colour); `UV_ANIM`: panner, friendly panner, oscillator (pan and stretch), constant rotator (maths under Layers); `OPACITY_LAYER`, `SPEC_LAYER`, `SI_LAYER`, `COMBINE`, `FLIPBOOK`: below |
 
 **Layers.** UE2 moves each input of a Shader or Combiner by its own modifier chain. The exporter writes an input
 apart when its modifiers differ from the Diffuse's, and the template evaluates it on its own, starting from the mesh's
 own UVs (`uv_matrix`, the transform baked into the UVs, is undone first): `OPACITY_LAYER` (an Opacity panning at its
 own rate, ClubD's `CLU_Water_01_SH`: alpha from that texture's alpha, or its luminance when the alpha is flat, as the
-old bake chose), `SPEC_LAYER` (the SpecularityMask). Otherwise Opacity stays baked into the diffuse's alpha.
+old bake chose), `SPEC_LAYER` (the SpecularityMask), `SI_LAYER` (the SelfIllumination and its SelfIlluminationMask,
+each by its own chain). Otherwise Opacity stays baked into the diffuse's alpha. A modifier chain runs outermost first
+(UE2 multiplies each modifier's matrix onto the ones around it, Outer x Inner with row vectors [estimate: the
+accumulation in the D3D material code is not decoded]): a modifier around a Shader moves every stage of it, a Shader
+input's own modifiers move that input alone. The converter keeps each material's chain (scctpkg patch 0011,
+`materials.py` `chain` / `self_illum_chain` / `self_illum_mask_chain`) and writes `self_illum_layer` and
+`self_illum_mask_layer` (`{"anim", "matrix" before it, "post" after it}`) whenever anything in a masked
+self-illuminated material moves; without them the glow and its mask follow the Diffuse. So the tutorial's panned glows
+move over still diffuses and masks: TSP's door light lines (`TSP_door01_0N_SVTM`, `TSP_LightLineGreen_PAN` -0.5 a
+second under the door number in the diffuse alpha), the floor grating's lit band (`TSP_light02carp_SVTM`,
+`TSP_Light02carp_PAN` 0.8 a second under `Tsp_blackpanelSI`), the floor glass, TME's wall-trim ray
+(`TME_FXwallRay_SVTM` / `TME_FXwall_SHDR`: `FXwallRay` panned 0.5 a second as SelfIllumination, the same texture unpanned
+as the mask) and door strips; BankD's screens pan the mask over a still glow. The modifier maths (GetMatrix, slot 0x8c,
+at Level.TimeSeconds, which golden renders set to the capture's time): TexPanner (0x10997eb0) offsets by
+`frac(t x PanRate x PanDirection.Vector().xy)`; TexFriendlyPanner (0x10997fe0) `u x scaleU + frac(t x PanRate x PanU)`,
+same for v (no map scales, and the client leaves the scale out); TexOscillator (0x10998680) per axis with `p = frac(t x rate)`: OT_Pan offsets by
+`amp sin(2 pi (p + phase))`, OT_Stretch scales by `1 + amp sin(2 pi (p + phase))` and OT_StretchRepeat by
+`1 + amp sin(2 pi phase + p pi / 2)` about `(UOffset / USize, VOffset / VSize)` (was the texture's middle), OT_Jitter is
+random (no map uses it, drawn still); TexRotator (0x109981f0) TR_ConstantlyRotating turns by `Rotation x t` (rotator
+units a second, FRotationMatrix, about `UOffset / USize, VOffset / VSize`), TR_OscillatingRotation by
+`Rotation + OscillationAmplitude x sin(2 pi frac(OscillationRate x t / 65536))` (no map uses it); TexScaler and a
+TR_FixedRotation TexRotator are static (their cached `M`).
 `COMBINE` evaluates a Combiner whose inputs animate (AquaE's sea `Aquarium_TXT.osc`: two panners at different rates
 under an oscillator; 98 materials in all): Material1, Material2 and the Mask each through their own modifiers after
 the Combiner's own, then CombineOperation (Material1, Material2, multiply, add, subtract, `lerp(M2, M1, mask.a)`,
@@ -341,10 +362,16 @@ Cookies share a texture array (`svm_spot_cookies`, each resampled to 256 x 256; 
   SpotHeight 400 (half extents), near ratio 0.0025, brightness 304, hue 21, saturation 255 (white), cookie
   `Echelon.flashlight` (Echelon.Torche's ProjectedLightingTexture), linear attenuation (`Engine.linear_attenuation`),
   normal influence 0.
-- The 2x gain is estimated (the Echelon light pass is not decoded); colour is FGetHSV x brightness / 255 as for
-  other lights, scaled down so its brightest channel is at most 1 (`RenderK.SpotShadowColourCap`, estimated: colours
-  reaching the fixed-function or ps_1_x stages are clamped, and the bridge measured RiveD's brightness-3000 spot
-  lifting the game's luma only from 20 to 35). Uncapped, AquaD's sun shafts (500 to 650) clipped the Greek Temple
+- The 2x gain is estimated (the Echelon light pass is not decoded); colour is the light's FDynamicLight colour,
+  FGetHSV x brightness / 510 (FDynamicLight::Update, game 0x10a1de70: `x 0.0019607844 x light type x
+  LevelInfo.Brightness`; the LE_ESpotShadow light's FDynamicLight, made at 0x10992980, runs it too;
+  `ActorLightRules.SpotShadowColourScale`), scaled down so its brightest channel is at most 1
+  (`RenderK.SpotShadowColourCap`, estimated: colours reaching the fixed-function or ps_1_x stages are clamped, and the
+  bridge measured RiveD's brightness-3000 spot lifting the game's luma only from 20 to 35; the cap now sits at
+  brightness 620, the bridge's tuned projector cap). Taken as brightness / 255 before, every spot below the cap drew
+  twice as bright: the tutorials' brightness-150/200 spots (TSP20-29 luma 1.38-1.48, SSIM 0.81-0.83, now 0.97-1.01,
+  0.88-0.91), TermD merc-0/180 (1.39/1.26 to 0.98/0.99) and the merc torch (MuseD/E merc-0 1.28 to 1.00); lights above
+  it (FactD, MuseD's floodlight, AquaD's sun shafts) are unchanged. Uncapped, AquaD's sun shafts (500 to 650) clipped the Greek Temple
   floor to white. The cap keeps the hue: capped per channel, FactD's orange window patches (hue 14 to 21, brightness
   400 to 1200) were drawn white; scaled, the mean RGB error of FactD's spy views dropped (spy-0 6.5 to 5.6, spy-180
   1.26 to 1.07) and SSIM rose slightly. `Place(location, rotation)` moves it; views put the torch on the merc's
@@ -405,8 +432,10 @@ frustum box draw with no depth test, rebuild each pixel's world point from the d
 onto it, so BSP, static meshes and actors all receive it. The converter's `PROJ_` decal meshes (BSP only, blend
 ignored) are left out when the file is there.
 
-- Mapping: u = dot(P - L, Y) / (USize x DrawScale x DrawScale3D.Y) + 0.5, v likewise with Z and VSize (signed: the
-  Mission bunker signs, DrawScale3D.Z -1 with pitch and roll 180, read upside down when only the size was kept), depth
+- Mapping: u = dot(P - L, Y) / (USize x DrawScale x DrawScale3D.Y) + 0.5 (signed), v = dot(P - L, -Z) / (VSize x
+  DrawScale x |DrawScale3D.Z|) + 0.5: texture row 0 towards +Z whatever DrawScale3D.Z's sign. The Mission bunker signs
+  (DrawScale3D.Z -1, pitch and roll 180) and the TME/GhosS ARGUS decals (DrawScale3D.Z +1) share the axes X -X, Y -Y,
+  Z up and both read upright in the original (empirical from the goldens, not decoded), depth
   dot(P - L, X) in 0..MaxTraceDistance (live `Projector.Matrix`, bridge). With FOV > 0 the frustum holds that size at
   the projector and widens from an apex behind it (estimate; FOV 1, ShadD's signs, stays the texture's size).
 - Frame buffer blend (`SetProjectorMaterial`, game 0x10972320): PB_AlphaBlend SRCALPHA, INVSRCALPHA; PB_Add ONE, ONE;
