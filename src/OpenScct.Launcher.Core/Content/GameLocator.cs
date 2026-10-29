@@ -21,7 +21,8 @@ public static partial class GameLocator
 
     /// <summary>
     /// The Versus folder for a path the player picked: the path itself when it has System and Packages, else its
-    /// Versus subfolder when that has them; null when neither does.
+    /// Versus subfolder when that has them, else the nearest parent that has them (a player who picks the System
+    /// folder, where the game's exe is, or a folder inside Packages); null when none does.
     /// </summary>
     public static string? Normalize(string? path)
     {
@@ -30,13 +31,38 @@ public static partial class GameLocator
             return null;
         }
 
-        if (ContentBuildPlan.LooksLikeOriginalInstall(path))
+        string full;
+        try
         {
-            return Path.GetFullPath(path);
+            full = Path.GetFullPath(path);
+        }
+        catch (Exception ex) when (ex is ArgumentException or NotSupportedException or PathTooLongException)
+        {
+            return null;
         }
 
-        string versus = Path.Combine(path, "Versus");
-        return ContentBuildPlan.LooksLikeOriginalInstall(versus) ? Path.GetFullPath(versus) : null;
+        if (ContentBuildPlan.LooksLikeOriginalInstall(full))
+        {
+            return full;
+        }
+
+        string versus = Path.Combine(full, "Versus");
+        if (ContentBuildPlan.LooksLikeOriginalInstall(versus))
+        {
+            return versus;
+        }
+
+        // System\_PC_ is two levels down, Packages\<kind> one: three parents cover every folder of an install.
+        DirectoryInfo? parent = Directory.GetParent(full.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
+        for (int i = 0; i < 3 && parent is not null; i++, parent = parent.Parent)
+        {
+            if (ContentBuildPlan.LooksLikeOriginalInstall(parent.FullName))
+            {
+                return parent.FullName;
+            }
+        }
+
+        return null;
     }
 
     private static IEnumerable<string> Candidates()

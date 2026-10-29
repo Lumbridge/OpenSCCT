@@ -79,7 +79,7 @@ def read_packages(game: Path) -> tuple[dict[str, sound.SoundObject], dict[str, d
     from ..paths import import_scctpkg  # noqa: PLC0415
 
     import_scctpkg()
-    from scctpkg.package import Package  # noqa: PLC0415
+    from scctpkg.package import Package, PackageError  # noqa: PLC0415
 
     objects: dict[str, sound.SoundObject] = {}
     packages: dict[str, dict] = {}
@@ -87,7 +87,11 @@ def read_packages(game: Path) -> tuple[dict[str, sound.SoundObject], dict[str, d
     seen: set[str] = set()
     duplicates: list[str] = []
     for f in package_files(game):
-        pkg = Package.load(f)
+        try:
+            pkg = Package.load(f)
+        except PackageError as ex:  # one unreadable package (a damaged or foreign download) is reported and skipped
+            problems.append(f"Packages/Sounds/{f.name}: unreadable package: {ex}")
+            continue
         count = 0
         for e in pkg.exports:
             if e.class_name != "Sound":

@@ -415,11 +415,16 @@ internal sealed class MainForm : Form
 
         ContentState? state = ContentState.Load(_layout.Content);
         bool hasBuilder = current is not null && ContentBuildPlan.Python(_layout.VersionDir(current.ToString())) is not null;
-        _rebuild.Visible = state is { Ok: true } && !_buildingContent;
+        // Downloaded game files the player can keep playing with until the ones from their copy are made.
+        bool fallback = !ContentIsCurrent(current) && DownloadedFilesPlayable(current);
+        _rebuild.Visible = (state is { Ok: true } || fallback) && !_buildingContent;
+        _rebuild.Text = fallback ? "Prepare" : "Rebuild";
         _rebuild.Enabled = !busy && GameFound && hasBuilder;
         if (_buildingContent)
         {
-            _filesStep.Set(StepState.Todo, "Converting the maps, characters and sounds from your copy...");
+            _filesStep.Set(StepState.Todo, fallback
+                ? "Converting the maps, characters and sounds from your copy... Press Stop to keep playing with the downloaded game files."
+                : "Converting the maps, characters and sounds from your copy...");
         }
         else if (!GameFound || current is null)
         {
@@ -428,6 +433,12 @@ internal sealed class MainForm : Form
         else if (!hasBuilder)
         {
             _filesStep.Set(StepState.Problem, $"Version {current} cannot prepare game files. Update OpenSCCT (step 2).");
+        }
+        else if (fallback)
+        {
+            _filesStep.Set(state is { Ok: false } ? StepState.Problem : StepState.Todo, state is { Ok: false }
+                ? "Making the game files from your copy did not finish. PLAY uses the downloaded game files; press Prepare to try again."
+                : "PLAY uses the downloaded game files. Press Prepare to make them from your copy instead (takes a few minutes).");
         }
         else if (state is null)
         {
@@ -491,7 +502,10 @@ internal sealed class MainForm : Form
             || (PackedContent.SharedToFetch(index, _packs).Count == 0 && PackedContent.MapsToFetch(index, _packs, firstDownload: false).Count == 0));
 
     /// <summary>The game files are ready for the current version: built from the install, else downloaded.</summary>
-    private bool FilesReady(SemVersion? current) => GameFound ? ContentIsCurrent(current) : current is not null && PacksCurrent();
+    private bool FilesReady(SemVersion? current) => GameFound ? ContentIsCurrent(current) : DownloadedFilesPlayable(current);
+
+    /// <summary>The downloaded game files (OpenSCCT-Content) are installed and current: PLAY works with them.</summary>
+    private bool DownloadedFilesPlayable(SemVersion? current) => current is not null && PacksCurrent();
 
     /// <summary>The big button: the next thing to do, or PLAY.</summary>
     private void RefreshMainButton(SemVersion? current, bool busy)
@@ -504,7 +518,7 @@ internal sealed class MainForm : Form
                     : (NextAction.Check, _lastCheck is null ? "Check for updates" : "Check again", true)
                 : _lastCheck is { GameUpdateAvailable: true }
                     ? (NextAction.Update, "Update", true)
-                    : !FilesReady(current)
+                    : !FilesReady(current) && !DownloadedFilesPlayable(current)
                         ? GameFound
                             ? (NextAction.Prepare, "Prepare game files", ContentBuildPlan.Python(_layout.VersionDir(current.ToString())) is not null)
                             : (NextAction.Prepare, "Download game files", true)
@@ -963,8 +977,10 @@ internal sealed class MainForm : Form
         }
 
         // Content built from an install wins; without it the downloaded packs are enough (the game finds them itself).
-        bool built = ContentState.Load(_layout.Content) is { Ok: true };
-        if (!built && !PackedContent.Installed(_packs))
+        // Built content that is out of date (a new version, another game folder) gives way to current downloaded files.
+        bool packs = PackedContent.Installed(_packs);
+        bool built = ContentIsCurrent(current) || (!packs && ContentState.Load(_layout.Content) is { Ok: true });
+        if (!built && !packs)
         {
             SetStatus("Get the game files first (step 3).", Theme.Warning);
             return;
@@ -973,7 +989,7 @@ internal sealed class MainForm : Form
         string exe = _store.ExePath(current);
         try
         {
-            using Process? process = Process.Start(GameStart.Create(exe, GameFound ? _settings.OriginalGamePath : null,
+            using Process? process = Process.Start(GameStart.Create(exe, built && GameFound ? _settings.OriginalGamePath : null,
                 built ? _layout.Content : null, mapsRoot: _layout.Maps));
             SetStatus($"Started OpenSCCT {current}.", Theme.Accent);
             WindowState = FormWindowState.Minimized;
