@@ -1016,6 +1016,12 @@ internal sealed class MainForm : Form
         _settings.Save(_layout.Settings);
         _service = CreateService();
         _lastCheck = null;
+        if (dialog.ResetRequested && !ResetInstall())
+        {
+            RefreshLocal();
+            return;
+        }
+
         RefreshLocal();
 
         // Text is part of the game files: a new language prepares them again (the cache redoes only the text steps
@@ -1029,6 +1035,25 @@ internal sealed class MainForm : Form
                 await BuildContentAsync(cancel);
             }
         });
+    }
+
+    /// <summary>Deletes what the launcher installed (<see cref="InstallReset"/>); false when a game is running.</summary>
+    private bool ResetInstall()
+    {
+        if (_games.Running().Count > 0)
+        {
+            SetStatus("Close OpenSCCT before resetting the install.", Theme.Warning);
+            return false;
+        }
+
+        IReadOnlyList<string> failed = InstallReset.Run(_layout, Program.ExePath);
+        _packIndex = null;
+        SetStatus(
+            failed.Count == 0
+                ? "Install reset. Press the button to download and prepare the game again."
+                : "Install reset, but some files are in use and were kept: " + string.Join(", ", failed),
+            failed.Count == 0 ? Theme.Accent : Theme.Warning);
+        return true;
     }
 
     private void OnPendingTick()

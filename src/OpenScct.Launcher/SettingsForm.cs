@@ -124,12 +124,36 @@ internal sealed class SettingsForm : Form
         Row(Theme.Label("Folders", Theme.Heading, Theme.Accent), 18);
         Row(Link("Launcher and game versions: " + layout.Root, layout.Root), 6);
         Row(Link("Game settings and saves (never changed by the launcher): " + LauncherLayout.GameUserData, LauncherLayout.GameUserData));
+        Button reset = Theme.Button("Reset install...");
+        reset.Click += (_, _) => ConfirmReset();
+        Row(Theme.Label("Reset", Theme.Heading, Theme.Accent), 18);
+        Row(Theme.Wrapping(Theme.Label("Removes every downloaded game version, the built and downloaded game files and maps, so the next start installs from scratch. Keeps these settings, the token and your game settings and saves.", Theme.Small, Theme.Muted)), 6);
+        Row(reset);
         Row(buttons, 16);
         Controls.Add(root);
         Load += (_, _) => Theme.FitToContent(this, root);
     }
 
     public LauncherSettings Result { get; private set; }
+
+    /// <summary>The player asked to reset the install (the settings in <see cref="Result"/> are saved first).</summary>
+    public bool ResetRequested { get; private set; }
+
+    private void ConfirmReset()
+    {
+        DialogResult answer = MessageBox.Show(
+            this,
+            "Remove all downloaded game versions, game files and maps?\n\nThe launcher will download and prepare everything again. Your launcher settings and your game settings and saves are kept.",
+            "Reset install",
+            MessageBoxButtons.OKCancel,
+            MessageBoxIcon.Warning,
+            MessageBoxDefaultButton.Button2);
+        if (answer == DialogResult.OK)
+        {
+            ResetRequested = true;
+            Save();
+        }
+    }
 
     private static LinkLabel Link(string text, string folder)
     {
