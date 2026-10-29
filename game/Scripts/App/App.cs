@@ -38,7 +38,7 @@ public partial class App : Node
         OpenScctGame.Online.MapDownloads.Configure(Options);
         foreach (string arg in Options.Unknown)
         {
-            if (arg != BackgroundWindow.Flag)
+            if (arg != BackgroundWindow.Flag && !OpenScctGame.Controls.InputMirror.IsFlag(arg))
             {
                 GD.PushWarning($"Unknown argument '{arg}'.");
             }
@@ -49,6 +49,12 @@ public partial class App : Node
             // Test runs leave the person at the machine their focus and their mouse.
             OpenScctGame.Controls.Pointer.Detached = true;
             AddChild(new BackgroundWindow { Name = "BackgroundWindow" });
+        }
+
+        // Input sent by a mirror tool (OpenSCCT-DevTools), to drive the original game and this one side by side.
+        if (OpenScctGame.Controls.InputMirror.Wanted(OS.GetCmdlineUserArgs()) is { } mirrorPort)
+        {
+            AddChild(new OpenScctGame.Controls.InputMirror(mirrorPort));
         }
 
         // Controller use of the menus (focus, B and Start back out).
