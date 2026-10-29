@@ -570,7 +570,7 @@ Faithful renderer rather than ports.
   does). Calibrate so that Ryan's current values give the same yaw units per count as the reference game.
 - **Priority:** P0.
 - **Resolved:** the formula is decoded in `spec/native/reloaded-features-from-code.md` rule 23a: a count
-  turns 3 x multiplier x viewport width / 640 rotation units, independent of the frame rate.
+  turns 3 x multiplier rotation units, independent of the frame rate and the window size.
 
 ### rl:input.sens - Per-team and per-view sensitivity
 - **Players get:** separate spy and merc profiles for mouse and controller: spy free look (gun holstered),

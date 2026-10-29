@@ -15,13 +15,14 @@ namespace OpenScctGame.Play.Session;
 /// <item>Reloaded's look multiplier (hook at game 0x109fc177, 0x100b6d00): <c>aMouseX x multiplier / 10</c>.</item>
 /// <item>UInput::ReadInput scales every input float by 2 / DeltaTime (game 0x109fea16), which cancels the DeltaTime
 /// of the rotation code, so the turn per count does not depend on the frame time.</item>
-/// <item>The native mapping to 640 x 480: aTurn = SizeX aMouseX / 640, aLookUp = SizeY aMouseY / 480; fTurnValue is
-/// 0.75 aTurn (<see cref="OpenScct.Game.Movement.ControlInput"/>).</item>
+/// <item>The native mapping to 640 x 480: aTurn = SizeX aMouseX / 640, aLookUp = SizeY aMouseY / 480, where SizeX and
+/// SizeY (Player+0xa0, +0xa4) read 640 and 480 in a match whatever the window size (read live, Reloaded V4.0c at
+/// 2560 x 1440), so aTurn = aMouseX; fTurnValue is 0.75 aTurn (<see cref="OpenScct.Game.Movement.ControlInput"/>).</item>
 /// <item>Reloaded sets fSensibiliteSouris every frame (0x10019b20): 4.0, or 0.4 in a camera view where it also scales
 /// aTurn and aLookUp by the camera setting x 10. The profile's MouseSensitivity has no effect in Reloaded.</item>
 /// </list>
-/// So a count turns <c>3 x multiplier x SizeX / 640</c> rotation units (spy free look 1.4 at 1920 wide: 12.6), at
-/// any tick rate. As in Reloaded, the look multipliers are the only sensitivity settings.
+/// So a count turns <c>3 x multiplier</c> rotation units (spy free look 1.4: 4.2), at any tick rate and any window
+/// size. As in Reloaded, the look multipliers are the only sensitivity settings.
 /// </summary>
 public sealed record MouseLook
 {
@@ -60,7 +61,7 @@ public sealed record MouseLook
     private static readonly string[] CurveNames = ["Linear", "CurveSoft", "CurveMedium", "CurveAggressive"];
 
     /// <summary>
-    /// Rotation units a count turns at a 640-pixel-wide viewport with a multiplier of 1:
+    /// Rotation units a count turns with a multiplier of 1:
     /// 0.75 x 0.1 x Speed / 10 x 2 x 4 x 50 = 3.
     /// </summary>
     public static float UnitsPerCount => OpenScct.Game.Movement.MovementK.LookScale * AxisEventScale / MultiplierDivisor * ReadInputScale
@@ -133,13 +134,12 @@ public sealed record MouseLook
 
     /// <summary>
     /// Writes the look axes of one tick: aMouseX and aMouseY from the counts, then aTurn and aLookUp by the input
-    /// mapping for a viewport of <paramref name="sizeX"/> by <paramref name="sizeY"/> pixels; and Reloaded's
-    /// sensitivity and the profile's spy X inversion.
+    /// mapping; and Reloaded's sensitivity and the profile's spy X inversion.
     /// </summary>
-    public void Apply(SPlayerController pc, float countsX, float countsY, int sizeX, int sizeY)
+    public void Apply(SPlayerController pc, float countsX, float countsY)
     {
         ArgumentNullException.ThrowIfNull(pc);
-        (pc.aMouseX, pc.aMouseY, pc.aTurn, pc.aLookUp) = Axes(pc, countsX, countsY, sizeX, sizeY);
+        (pc.aMouseX, pc.aMouseY, pc.aTurn, pc.aLookUp) = Axes(pc, countsX, countsY);
         pc.fSensibiliteSouris = SensibiliteFor(pc);
         pc.bInvertHorizontalAxisCamSpy = InvertXSpy;
     }
@@ -149,8 +149,9 @@ public sealed record MouseLook
     /// without writing them. aTurn and aLookUp include Reloaded's camera-view scale (camera setting x 10).
     /// </summary>
     [Provenance(ProvenanceKind.Decoded, "aMouseX = counts x Speed x 0.1 x multiplier / 10 x 2 / DeltaTime (game 0x109fc165, Reloaded 0x100b6d00, ReadInput 0x109fea16); aTurn = SizeX aMouseX / 640 (game 0x10aaa919)")]
+    [Provenance(ProvenanceKind.Measured, "live read of the original in a match (Reloaded V4.0c, 2560 x 1440 window): Player+0xa0 = 640, +0xa4 = 480, fSensibiliteSouris 4.0")]
     [Provenance(ProvenanceKind.Estimated, "ReadInput's DeltaTime is our fixed tick (the counts are summed per tick, as Reloaded sums them per frame)")]
-    public (float MouseX, float MouseY, float Turn, float LookUp) Axes(SPlayerController pc, float countsX, float countsY, int sizeX, int sizeY)
+    public (float MouseX, float MouseY, float Turn, float LookUp) Axes(SPlayerController pc, float countsX, float countsY)
     {
         ArgumentNullException.ThrowIfNull(pc);
         (float h, float v) = Multipliers(pc);
@@ -158,7 +159,7 @@ public sealed record MouseLook
         float mouseX = countsX * k * h;
         float mouseY = (InvertY ? -countsY : countsY) * k * v;
         float view = InCameraView(pc) ? CameraAxisScale : 1f;
-        return (mouseX, mouseY, Math.Max(1, sizeX) * mouseX / 640f * view, Math.Max(1, sizeY) * mouseY / 480f * view);
+        return (mouseX, mouseY, mouseX * view, mouseY * view);
     }
 
     /// <summary>

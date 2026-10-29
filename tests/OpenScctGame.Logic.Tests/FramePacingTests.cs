@@ -241,7 +241,7 @@ public sealed class FramePacingTests
         {
             s.Input.MouseX += pending;
             pending = 0f;
-            look.BeforeTick(s.LocalController, s.Mouse, s.Input.MouseX, s.Input.MouseY, s.ViewportSize);
+            look.BeforeTick(s.LocalController, s.Mouse, s.Input.MouseX, s.Input.MouseY);
         };
         session.AfterClientTick = (s, _) => look.AfterTick(s.LocalController, s.View);
 
@@ -266,7 +266,7 @@ public sealed class FramePacingTests
                 continue;
             }
 
-            FRotator offset = lookAhead ? look.Offset(pc, session.Mouse, pending, 0f, session.ViewportSize, session.Alpha) : default;
+            FRotator offset = lookAhead ? look.Offset(pc, session.Mouse, pending, 0f, session.Alpha) : default;
             (FVector location, FRotator rotation, float _) = ViewBlend.Blend(session.PreviousView, session.View, session.Alpha);
             FRotator drawnRotation = new(rotation.Pitch + offset.Pitch, rotation.Yaw + offset.Yaw, rotation.Roll);
             float orbit = lookAhead ? look.OrbitDistance(pc) : 0f;

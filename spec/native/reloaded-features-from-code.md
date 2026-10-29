@@ -162,8 +162,11 @@ that offers both ER icon behaviours (FEATURES `rl:gfx.widescreen`, `rl:gfx.hud`)
       0x1036abbc) to 0.4 while scaling aTurn and aLookUp by the side's camera setting x 10 (spy sticky camera,
       merc Cam Net). The profile's MouseSensitivity has no effect. When |aTurn| or |aLookUp| exceeds 2666.666 it
       divides both by k and multiplies fSensibiliteSouris by k, so the 0.75 scale's +-2000 clamp never bites.
-    - Result: a count turns `0.75 x 0.1 x 1 / 10 x 2 x 4 x 50 = 3 x multiplier x SizeX / 640` rotation units
-      (before the binoculars' 0.5 ratio and the int truncation per frame).
+    - aTurn = SizeX x aMouseX / 640 with SizeX, SizeY at Player+0xa0, +0xa4, which read 640 and 480 in a match
+      whatever the window size (live read of Reloaded V4.0c at 2560 x 1440), so the window size does not change
+      the turn.
+    - Result: a count turns `0.75 x 0.1 x 1 / 10 x 2 x 4 x 50 = 3 x multiplier` rotation units (before the
+      binoculars' 0.5 ratio and the int truncation per frame).
 
 Rewrite needs: the same groups and fields applied in the PlayerInput port (FEATURES `rl:input.sens`).
 

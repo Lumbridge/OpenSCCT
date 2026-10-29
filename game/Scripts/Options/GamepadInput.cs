@@ -197,11 +197,12 @@ public partial class GamepadInput : Node
     }
 
     /// <summary>
-    /// Rotation units a count turned (at 640 wide, multiplier 1, sensitivity 40) when the stick speeds were tuned: Speed
-    /// 6 x 4 x 50 x the tick. The mouse now turns <see cref="MouseLook.UnitsPerCount"/>, so the stick's counts are
-    /// scaled by the ratio and the controller turns as before.
+    /// Rotation units a count turned (multiplier 1, sensitivity 40, the 1280-wide reference window) when the stick
+    /// speeds were tuned: Speed 6 x 1280 / 640 x 4 x 50 x the tick. The mouse now turns
+    /// <see cref="MouseLook.UnitsPerCount"/> at any window size, so the stick's counts are scaled by the ratio and the
+    /// controller turns as it did in a 1280-wide window.
     /// </summary>
-    private const float LegacyUnitsPerCount = 6f * 4f * 50f * OpenScct.Core.Sim.DeltaTime;
+    private const float LegacyUnitsPerCount = 6f * (1280f / 640f) * 4f * 50f * OpenScct.Core.Sim.DeltaTime;
 
     private GameSettings? _padLookFor;
     private MouseLook _padLook = new();

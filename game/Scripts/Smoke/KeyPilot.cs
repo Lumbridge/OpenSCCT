@@ -42,10 +42,10 @@ public sealed class KeyPilot
     public const float ReferenceWidth = 1280f;
 
     /// <summary>
-    /// Rotation units per mouse count divided out of an aim error to get counts: the mouse's turn per count at the
-    /// reference width with a look multiplier of 1.
+    /// Rotation units per mouse count divided out of an aim error to get counts: the mouse's turn per count with a
+    /// look multiplier of 1.
     /// </summary>
-    public static float UnitsPerCount => OpenScctGame.Play.Session.MouseLook.UnitsPerCount * ReferenceWidth / 640f;
+    public static float UnitsPerCount => OpenScctGame.Play.Session.MouseLook.UnitsPerCount;
 
     public const float ReferenceHeight = 720f;
 

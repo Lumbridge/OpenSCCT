@@ -417,7 +417,7 @@ public sealed class PlaySession : IDisposable
         if (LocalController is { } pc)
         {
             Input.ApplyButtons(pc);
-            Mouse.Apply(pc, Input.MouseX, Input.MouseY, ViewportSize.Width, ViewportSize.Height);
+            Mouse.Apply(pc, Input.MouseX, Input.MouseY);
             pc.aUp = Input.Up;
             if (pc.FreeCameraFlying != 0)
             {

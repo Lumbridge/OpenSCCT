@@ -499,7 +499,7 @@ public partial class PlayRoot : Node3D
         }
 
         // The mouse counts this tick takes, for the drawn view's look-ahead.
-        _look.BeforeTick(session.LocalController, session.Mouse, session.Input.MouseX, session.Input.MouseY, session.ViewportSize);
+        _look.BeforeTick(session.LocalController, session.Mouse, session.Input.MouseX, session.Input.MouseY);
     }
 
     private void AfterTick(PlaySession session, long tick)
@@ -670,7 +670,7 @@ public partial class PlayRoot : Node3D
         // The mouse turn not yet simulated is drawn now (no frame of delay, as the original's per-frame controller).
         (float pendingX, float pendingY) = Controls?.PendingMouse ?? (0f, 0f);
         FRotator look = session.ViewOverride is not null ? default
-            : _look.Offset(pc, session.Mouse, pendingX + session.Input.MouseX, pendingY + session.Input.MouseY, session.ViewportSize, alpha);
+            : _look.Offset(pc, session.Mouse, pendingX + session.Input.MouseX, pendingY + session.Input.MouseY, alpha);
         if (Camera is not null && View is not null && Camera.Apply(session.PreviousView, session.View, alpha, look, _look.OrbitDistance(pc)))
         {
             // Materials, light types and the map's emitters at the drawn moment between ticks (they moved only at the

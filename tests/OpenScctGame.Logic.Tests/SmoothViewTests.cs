@@ -200,7 +200,7 @@ public sealed class SmoothViewTests
         {
             s.Input.MouseX += pending;
             pending = 0f;
-            look.BeforeTick(s.LocalController, s.Mouse, s.Input.MouseX, s.Input.MouseY, s.ViewportSize);
+            look.BeforeTick(s.LocalController, s.Mouse, s.Input.MouseX, s.Input.MouseY);
         };
         session.AfterClientTick = (s, _) => look.AfterTick(s.LocalController, s.View);
 
@@ -224,7 +224,7 @@ public sealed class SmoothViewTests
                 continue;
             }
 
-            FRotator offset = lookAhead ? look.Offset(pc, session.Mouse, pending, 0f, session.ViewportSize, session.Alpha) : default;
+            FRotator offset = lookAhead ? look.Offset(pc, session.Mouse, pending, 0f, session.Alpha) : default;
             int drawn = ViewBlend.Blend(session.PreviousView, session.View, session.Alpha).Rotation.Yaw + offset.Yaw;
             float wanted = session.View.Rotation.Yaw + (pending * unitsPerCount);
             if (micros > 5_300_000)

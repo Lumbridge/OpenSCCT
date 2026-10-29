@@ -86,7 +86,7 @@ public sealed class LookAhead
     public FRotator TickTurn => _tickTurn;
 
     /// <summary>Before a client tick, after its input is filled: the counts the tick will take, and the rotation before it.</summary>
-    public void BeforeTick(SPlayerController? pc, MouseLook mouse, float countsX, float countsY, (int Width, int Height) viewport)
+    public void BeforeTick(SPlayerController? pc, MouseLook mouse, float countsX, float countsY)
     {
         ArgumentNullException.ThrowIfNull(mouse);
         _hadCounts = pc is not null && (countsX != 0f || countsY != 0f);
@@ -99,7 +99,7 @@ public sealed class LookAhead
         Name state = pc.GetStateName();
         _stateChanged = state != _state;
         _state = state;
-        _predicted = Turn(pc, mouse, countsX, countsY, viewport, pc.Level?.m_dT ?? Sim.DeltaTime);
+        _predicted = Turn(pc, mouse, countsX, countsY, pc.Level?.m_dT ?? Sim.DeltaTime);
     }
 
     /// <summary>After the tick and its calc view: whether the tick turned as predicted.</summary>
@@ -149,7 +149,7 @@ public sealed class LookAhead
     /// trails the controller by a tick, the rest of the tick before's and all of the last tick's) and the turn of the
     /// counts not yet simulated. Zero while <see cref="Active"/> is false.
     /// </summary>
-    public FRotator Offset(SPlayerController? pc, MouseLook mouse, float pendingX, float pendingY, (int Width, int Height) viewport, float alpha)
+    public FRotator Offset(SPlayerController? pc, MouseLook mouse, float pendingX, float pendingY, float alpha)
     {
         ArgumentNullException.ThrowIfNull(mouse);
         if (!Active || pc is null)
@@ -162,7 +162,7 @@ public sealed class LookAhead
         // A cam turns only past its dead zone a tick; the counts of the tick so far are drawn as the turn they make
         // in that tick when the last tick turned (a steady turn), not held back until enough have come.
         FRotator pending = pendingX != 0f || pendingY != 0f
-            ? Turn(pc, mouse, pendingX, pendingY, viewport, pc.Level?.m_dT ?? Sim.DeltaTime, _lastTurn.Yaw != 0, _lastTurn.Pitch != 0)
+            ? Turn(pc, mouse, pendingX, pendingY, pc.Level?.m_dT ?? Sim.DeltaTime, _lastTurn.Yaw != 0, _lastTurn.Pitch != 0)
             : default;
         Pending = pending;
         return new FRotator((int)(_tickTurn.Pitch * rest) + _lagTurn.Pitch + pending.Pitch,
@@ -254,12 +254,12 @@ public sealed class LookAhead
     /// <paramref name="dt"/> seconds (pitch clamped as the model clamps it), from the controller's rotation now.
     /// </summary>
     [Provenance(ProvenanceKind.Decoded, "spec/movement/input-and-rotation.md, UpdateRotationAttaquant_Mouse and UpdateCamRotation: int(input x ratio x sensitivity x dt x 50) per axis, the pitch clamps and the armed spy's pitch repulsion")]
-    public static FRotator Turn(SPlayerController pc, MouseLook mouse, float countsX, float countsY, (int Width, int Height) viewport, float dt,
+    public static FRotator Turn(SPlayerController pc, MouseLook mouse, float countsX, float countsY, float dt,
         bool camTurning = false, bool camLookingUp = false)
     {
         ArgumentNullException.ThrowIfNull(pc);
         ArgumentNullException.ThrowIfNull(mouse);
-        (_, _, float aTurn, float aLookUp) = mouse.Axes(pc, countsX, countsY, viewport.Width, viewport.Height);
+        (_, _, float aTurn, float aLookUp) = mouse.Axes(pc, countsX, countsY);
         if (pc.SBPawn?.UsedObject is SOrientableObject cam && GadgetStates.InStickyCamViewState(pc))
         {
             return CamTurn(pc, cam, aTurn, aLookUp, dt, camTurning, camLookingUp);
