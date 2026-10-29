@@ -117,7 +117,7 @@ internal sealed class MainForm : Form
         string? info = Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
         _launcherVersion = SemVersion.TryParse(info, out SemVersion? v) ? v : null;
 
-        _gameStep = new StepCard(1, "Find Splinter Cell Chaos Theory (optional)", _changeGame, _useDownloads);
+        _gameStep = new StepCard(1, "Choose where the game files come from", _changeGame, _useDownloads);
         _installStep = new StepCard(2, "Download OpenSCCT");
         _filesStep = new StepCard(3, "Prepare the game files", _rebuild);
 
@@ -352,12 +352,12 @@ internal sealed class MainForm : Form
         _useDownloads.Visible = game.Length > 0;
         if (GameFound)
         {
-            _gameStep.Set(StepState.Done, "Found: " + game);
+            _gameStep.Set(StepState.Done, "Made from your copy of Splinter Cell Chaos Theory: " + game);
             _changeGame.Text = "Change...";
         }
         else if (game.Length == 0)
         {
-            _gameStep.Set(StepState.Done, "Optional. The game files are downloaded for you. If you have Splinter Cell Chaos Theory, you can choose its folder to make them from your copy instead.");
+            _gameStep.Set(StepState.Choice, "Downloaded for you (no need to change anything). If you have Splinter Cell Chaos Theory, you can choose its folder to make them from your copy instead.");
             _changeGame.Text = "Choose folder...";
         }
         else

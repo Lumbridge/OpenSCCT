@@ -16,6 +16,9 @@ internal enum StepState
     /// <summary>Done.</summary>
     Done,
 
+    /// <summary>A choice with a default already in place: nothing to do, but nothing done yet either.</summary>
+    Choice,
+
     /// <summary>Needs the player's help (game not found, a build that failed).</summary>
     Problem,
 }
@@ -109,6 +112,7 @@ internal sealed class StepCard : TableLayoutPanel
             StepState.Done => (Theme.AccentDim, Color.White, Theme.Text, Theme.Muted),
             StepState.Todo => (Theme.Accent, Theme.Background, Theme.Accent, Theme.Text),
             StepState.Problem => (Theme.Warning, Theme.Background, Theme.Warning, Theme.Text),
+            StepState.Choice => (Theme.Border, Theme.Text, Theme.Text, Theme.Muted),
             _ => (Theme.Border, Theme.Muted, Theme.Muted, Theme.Muted),
         };
         _badge.Fill = badgeBack;
