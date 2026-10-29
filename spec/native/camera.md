@@ -96,6 +96,13 @@ shake, tilt and hit roll fields.
 3. The result is also stored in vCamLocation and rCamRotation. With bUpdate, once per Level.TimeSeconds, every live
    SBasePawn whose native weapon slot holds an SWeaponAttaque gets a view-dependent weapon update (editor
    0x111d8f90; not decoded here).
+4. Calls per frame (measured 2026-10-29, Frida on the running game, Play Level SteeE as the spy): the engine runs
+   NativePlayerCalcView (game 0x10aafe70) with bUpdate three times per rendered frame, from 0x109ebbb9 (the scene
+   draw 0x109ebb20), 0x109e3f35 and 0x10af8e07; the following solver (game 0x10a94e00) runs on each, so it ran 3600
+   times in 1200 frames. Each solve steps by the frame's full Level.m_dT, so every ease of rule 3 (offset, target
+   height, ideal and final distance) and of the other view sources moves three steps per frame: the rates of the
+   mode table are a third of what the player sees. The rewrite solves the view three times per tick
+   (PlayerCalcView.FrameView).
 
 ### 2. Default view (editor 0x111e3830, game 0x10ab00e0)
 

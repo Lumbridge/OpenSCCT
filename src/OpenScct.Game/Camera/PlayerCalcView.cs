@@ -8,7 +8,8 @@ namespace OpenScct.Game.Camera;
 /// <summary>
 /// Where the view comes from each frame (spec/native/camera.md rules 1, 2, 4 and 5): the controller's calc view
 /// picks a view source by state, the camera solves the following camera or the first-person view, and the result
-/// lands in vCamLocation and rCamRotation. Run it on the machine that draws, once per frame after the tick.
+/// lands in vCamLocation and rCamRotation. Run it on the machine that draws, after the tick, through
+/// <see cref="FrameView"/> (the original solves it three times a frame).
 /// </summary>
 public static class PlayerCalcView
 {
@@ -31,6 +32,31 @@ public static class PlayerCalcView
         StickyCam,
         Spectating,
         OutOfWorld,
+    }
+
+    /// <summary>
+    /// How many times the original's engine solves the local player's view (NativePlayerCalcView with bUpdate) in
+    /// one rendered frame, each with that frame's full m_dT. Every ease of the following camera (the zoom into the
+    /// armed view, the rise after a roll, the offset and target height) so moves this many steps per frame.
+    /// </summary>
+    [Provenance(ProvenanceKind.Measured, "Frida count on the running original (SCCT Versus, Play Level SteeE, 2026-10-29): in 5 s, 1200 scene draws (0x109ebb20), 3600 NativePlayerCalcView calls (0x10aafe70) all with bUpdate 1 from 0x109ebbb9, 0x109e3f35 and 0x10af8e07 (1200 each), and 3600 follow-solver runs (0x10a94e00)")]
+    public const int ViewSolvesPerFrame = 3;
+
+    /// <summary>
+    /// The view of one drawn frame as the original's engine makes it: <see cref="ViewSolvesPerFrame"/> calc views with
+    /// bUpdate in a row; the last one is the view drawn. The spy lasers' view update still runs once per tick (its own
+    /// Level.TimeSeconds guard).
+    /// </summary>
+    [PortOf("eng:ASPlayerController::NativePlayerCalcView", Spec = "spec/native/camera.md#1-calc-view-dispatch")]
+    public static void FrameView(SPlayerController PC, out Actor? ViewActor, out FVector CameraLocation, out FRotator CameraRotation)
+    {
+        ViewActor = null;
+        CameraLocation = default;
+        CameraRotation = default;
+        for (int i = 0; i < ViewSolvesPerFrame; i++)
+        {
+            NativeGlobalPlayerCalcView(PC, out ViewActor, out CameraLocation, out CameraRotation);
+        }
     }
 
     /// <summary>NativeGlobalPlayerCalcView: the controller's calc view with bUpdate.</summary>
