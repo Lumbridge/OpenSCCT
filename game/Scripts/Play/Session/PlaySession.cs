@@ -447,7 +447,7 @@ public sealed class PlaySession : IDisposable
         _previousView = _view;
         if (LocalController is { } viewer)
         {
-            PlayerCalcView.NativeGlobalPlayerCalcView(viewer, out _, out FVector location, out FRotator rotation);
+            PlayerCalcView.FrameView(viewer, out _, out FVector location, out FRotator rotation);
             _view = new ViewSample(Client.LocalTick, location, rotation, viewer.FovAngle, true);
         }
 
