@@ -205,11 +205,14 @@ public static class PawnActions
 
     /// <summary>
     /// A draw or holster: the clip on the draw channel (AnimEnd 14 ends the weapon transit) and the weapon state
-    /// (equipment's SetWeaponLoaded, at the start of the clip here). The spy's holster is the exception: its clip's
-    /// NotifyUndrawWeapon sets 4 and the pistol's AnimEnd sets 0 (spy-shocker.md rules 4 and 5), so the weapon stays
-    /// out until then (the heart sensor keeps scanning meanwhile, as in the original).
+    /// (equipment's SetWeaponLoaded, at the start of the clip here). The spy's pistol is the exception both ways: the
+    /// draw clip's NotifyDrawWeapon sets 3 and plays the pistol's DrawP190, whose AnimEnd sets 2; the holster clip's
+    /// NotifyUndrawWeapon sets 4 and the pistol's AnimEnd sets 0 (spy-shocker.md rules 4 and 5). So the weapon stays
+    /// holstered until the draw notify and out until the holster ends (the heart sensor keeps scanning meanwhile, as
+    /// in the original).
     /// </summary>
     [Provenance(ProvenanceKind.Estimated, "When in the clip the weapon is loaded belongs to the equipment port (draw notifies)")]
+    [Provenance(ProvenanceKind.Measured, "spy-shocker.md rule 15 (local/difftest/shocker-draw tap.jsonl): WeaponLoaded stays 0 at the draw action, 3 at the notify three ticks later, 2 after DrawP190")]
     private static void Draw(SBasePawn pawn, Name sequence, int weaponLoaded, float rate = 1f)
     {
         pawn.bWeaponTransit = true;
@@ -218,11 +221,12 @@ public static class PawnActions
             Once(pawn, SBasePawn.DRAWCHANNEL, sequence, 0f, rate);
         }
 
-        // Only when the holster clip is really playing with its notifies; otherwise unload at once as before.
+        // Only when the spy's clip is really playing with its notifies; otherwise load or unload at once as before
+        // (a merc, or a spy copy without its pistol).
         PawnAnimChannel draw = pawn.PawnAnim[SBasePawn.DRAWCHANNEL];
-        bool spyHolsterByNotify = weaponLoaded == 0 && !sequence.IsNone && pawn is SPawnAttaque { MyWeapon: SWeaponAttaque } &&
-            draw.Sequence == sequence && draw.bAnimNotify;
-        if (!spyHolsterByNotify)
+        bool spyPistolByNotify = (weaponLoaded == 0 || weaponLoaded == 2) && !sequence.IsNone &&
+            pawn is SPawnAttaque { MyWeapon: SWeaponAttaque } && draw.Sequence == sequence && draw.bAnimNotify;
+        if (!spyPistolByNotify)
         {
             MovementService.HooksOf(pawn).SetWeaponLoaded(pawn, weaponLoaded);
         }
