@@ -85,7 +85,11 @@ internal sealed class MainForm : Form
     private readonly GreenProgressBar _progress = new();
     private readonly Label _progressText = Theme.Label(string.Empty, Theme.Small, Theme.Muted);
     private readonly Button _main = Theme.Button("PLAY", primary: true);
-    private readonly Label _status = Theme.Label(string.Empty, Theme.Body, Theme.Muted);
+    private readonly LinkLabel _status = new()
+    {
+        AutoSize = true, Font = Theme.Body, ForeColor = Theme.Muted, BackColor = Color.Transparent,
+        LinkColor = Theme.Accent, ActiveLinkColor = Theme.Text, VisitedLinkColor = Theme.Accent,
+    };
     private readonly Button _whatsNew = Theme.Button("What's new");
     private readonly Button _check = Theme.Button("Check for updates");
     private readonly Button _rollback = Theme.Button("Roll back");
@@ -175,6 +179,7 @@ internal sealed class MainForm : Form
         _main.Anchor = AnchorStyles.Right | AnchorStyles.Top;
         Theme.Wrapping(_status);
         _status.Margin = new Padding(0, 8, 16, 0);
+        _status.LinkClicked += (_, e) => ShowInExplorer(e.Link?.LinkData as string);
         TableLayoutPanel actions = Theme.Grid(Theme.Fill, Theme.Auto);
         actions.Margin = new Padding(0, 14, 0, 0);
         Theme.AddRow(actions, _status, _main);
@@ -741,7 +746,8 @@ internal sealed class MainForm : Form
                 cancel, _settings.Language, downloaded.Length > 0 ? _maps.GameFolder : null, downloaded);
             SetStatus(state.Ok
                 ? "All set. Press PLAY."
-                : $"Some files could not be prepared ({state.Failed}). Press the button to try again. Details: {logPath}", state.Ok ? Theme.Accent : Theme.Error);
+                : $"Some files could not be prepared ({state.Failed}). Press the button to try again. Details: {logPath}", state.Ok ? Theme.Accent : Theme.Error,
+                state.Ok ? null : logPath);
         }
         finally
         {
@@ -1184,10 +1190,32 @@ internal sealed class MainForm : Form
         }
     }
 
-    private void SetStatus(string text, Color color)
+    private void SetStatus(string text, Color color, string? path = null)
     {
         _status.Text = text;
         _status.ForeColor = color;
+
+        // A file named in the status opens its folder with the file selected.
+        _status.Links.Clear();
+        int at = path is null ? -1 : text.IndexOf(path, StringComparison.Ordinal);
+        if (at >= 0)
+        {
+            _status.Links.Add(at, path!.Length, path);
+        }
+    }
+
+    private static void ShowInExplorer(string? path)
+    {
+        if (path is null)
+        {
+            return;
+        }
+
+        string args = File.Exists(path) ? "/select,\"" + path + "\"" : "\"" + Path.GetDirectoryName(path) + "\"";
+        if (File.Exists(path) || Directory.Exists(Path.GetDirectoryName(path)))
+        {
+            using Process? explorer = Process.Start(new ProcessStartInfo("explorer.exe", args) { UseShellExecute = false });
+        }
     }
 
     protected override void Dispose(bool disposing)
