@@ -83,11 +83,45 @@ public sealed class NetDeviceEvents
         return source.RemoteRole < ENetRole.ROLE_SimulatedProxy && (source.bStatic || source.bNoDelete || source.RemoteRole == ENetRole.ROLE_None);
     }
 
-    /// <summary>Server: sends this tick's relayed events to every joined client with a LevelInfo channel.</summary>
+    /// <summary>
+    /// Server: sends this tick's relayed events to every joined client with a LevelInfo channel. Events raised after
+    /// the last step (by the calls received before this one) were sent by <see cref="RelayLate"/>.
+    /// </summary>
     public void RelayTick(World world)
     {
         ArgumentNullException.ThrowIfNull(world);
-        ReadOnlySpan<SimEvent> events = world.Events.Current;
+        Relay(world, world.Events.Current);
+    }
+
+    /// <summary>
+    /// Server: sends the relayed events the world raised since its last step (a player's shot or use received before
+    /// the step breaks a vase whose stage triggers its shatter emitter): call it before each step, which drops them.
+    /// Events already sent are not sent again.
+    /// </summary>
+    [Provenance(ProvenanceKind.Estimated, "Same relay as RelayTick for the events raised between ticks (the original's broadcast calls are sent whenever they are made)")]
+    public void RelayLate(World world)
+    {
+        ArgumentNullException.ThrowIfNull(world);
+        ReadOnlySpan<SimEvent> late = world.Events.Late;
+        if (world.TickCount != _lateTick)
+        {
+            _lateTick = world.TickCount;
+            _lateTaken = 0;
+        }
+
+        if (late.Length > _lateTaken)
+        {
+            ReadOnlySpan<SimEvent> fresh = late[_lateTaken..];
+            _lateTaken = late.Length;
+            Relay(world, fresh);
+        }
+    }
+
+    private long _lateTick = -1;
+    private int _lateTaken;
+
+    private void Relay(World world, ReadOnlySpan<SimEvent> events)
+    {
         if (events.Length == 0 || !_driver.IsServer)
         {
             return;

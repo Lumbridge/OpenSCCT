@@ -215,6 +215,7 @@ public sealed class ServerHost : INetworkNotify, IDisposable
             DeviceEvents = NetDeviceEvents.InstallServer(World.Level, Driver);
             HearSound = NetHearSound.InstallServer(World, Driver);
             BeforeWorldTick += static host => host.HearSound?.RelayLate();
+            BeforeWorldTick += static host => host.DeviceEvents?.RelayLate(host.World);
             if (Settings.UseStartGate ?? Settings.NetMode == ENetMode.NM_DedicatedServer)
             {
                 StartGate = new DedicatedStartGate(Game, Settings.PlayersToStart);
