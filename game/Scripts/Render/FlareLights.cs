@@ -12,7 +12,8 @@ namespace OpenScctGame.Render;
 /// lights a flare as an unshadowed point light kept to its own zone (bAffectOwnZoneOnly), so it stops in a hard line at
 /// a zone portal and shines through walls inside its zone. Here a flare lights every surface its radius reaches that
 /// it can see: six cameras around each of the nearest flares render the world's depth (one cube face each, pawns
-/// included) into a shared atlas every frame, and the world template tests each pixel against the face it falls in.
+/// included) into a shared atlas, a few faces a frame, and the world template tests each pixel against the face it
+/// falls in.
 /// The light's colour, radius and falloff stay those of the flare's dynamic light (the world's dynamic lights on BSP
 /// and static meshes, the actor model on actors), so only what the flare can see changes. The light source wavers a
 /// little with the flame, so the shadows move as a flare's do.
@@ -52,8 +53,14 @@ public sealed partial class FlareLights : Node3D
     /// <summary>How far the light source wavers with the flame (uu, each axis).</summary>
     private const float WaverUnits = 1.5f;
 
-    /// <summary>Frames a newly placed cube waits for its first depth before it lights (its tile holds old depth).</summary>
-    private const int WarmFrames = 2;
+    /// <summary>
+    /// Cube faces rendered per frame for a flare at rest: each face is refreshed every third frame, a third of the cost
+    /// of all six. The depth lags the waver by up to two frames, well inside the bias.
+    /// </summary>
+    private const int FacesPerFrame = 2;
+
+    /// <summary>A flare moving more than this per frame (uu: thrown, still flying) renders all six faces each frame.</summary>
+    private const float MovingUnits = 1f;
 
     // The faces' forward and up axes (Godot space); the shader picks the same face for a direction.
     private static readonly Vector3[] FaceForward =
@@ -131,8 +138,9 @@ public sealed partial class FlareLights : Node3D
             Flare f = _frame[i];
             Cube? cube = CubeOf(f.Key);
             FVector at = f.Light.Location + Waver(time, f.Light.Seed);
-            cube?.Place(UeSpace.ToGodot(at));
-            if (cube is not null && !cube.Lights)
+            bool dark = cube is not null && !cube.Lights;
+            cube?.Render(UeSpace.ToGodot(f.Light.Location), UeSpace.ToGodot(at));
+            if (dark)
             {
                 // Its tile still holds another light's depth: dark until its own depth is in.
                 continue;
@@ -237,8 +245,9 @@ public sealed partial class FlareLights : Node3D
     {
         if (_faceSize == 0)
         {
-            // Half the spot shadow map: a flare's reach is short and its shadows are soft.
-            _faceSize = Math.Clamp(SpotShadowLight.MapSize / 2, 128, 512);
+            // A quarter of the spot shadow map: a flare's reach is short and its shadows are soft (about 5 uu a texel at
+            // the end of its reach at 256).
+            _faceSize = Math.Clamp(SpotShadowLight.MapSize / 4, 128, 256);
         }
 
         if (_atlas.IsValid || _atlasPending)
@@ -310,10 +319,15 @@ public sealed partial class FlareLights : Node3D
     /// <summary>The six shadow cameras of one flare, writing row <see cref="Row"/> of the atlas.</summary>
     private sealed class Cube : IDisposable
     {
+        private const int AllFaces = (1 << 6) - 1;
+
         private readonly SubViewport[] _viewports = new SubViewport[6];
         private readonly Camera3D[] _cameras = new Camera3D[6];
         private readonly ShadowDepthCapture[] _captures = new ShadowDepthCapture[6];
-        private int _age;
+        private int _rendered;
+        private int _readyFrames;
+        private int _next;
+        private Vector3? _last;
 
         public Cube(Node parent, int row, int size, Func<Rid> atlas)
         {
@@ -329,6 +343,7 @@ public sealed partial class FlareLights : Node3D
                     Name = $"FlareShadow{row}_{f}",
                     Size = new Vector2I(size, size),
                     Msaa3D = Godot.Viewport.Msaa.Disabled,
+                    PositionalShadowAtlasSize = 0,
                     RenderTargetUpdateMode = SubViewport.UpdateMode.Disabled,
                 };
                 _cameras[f] = new Camera3D
@@ -339,7 +354,7 @@ public sealed partial class FlareLights : Node3D
                     Fov = fov,
                     Near = near,
                     Far = far,
-                    CullMask = RenderLayers.World,
+                    CullMask = RenderLayers.FlareShadow,
                     Environment = FaithfulView.CreateEnvironment(),
                     Attributes = FaithfulView.CreateAttributes(),
                     Compositor = new Compositor { CompositorEffects = new Godot.Collections.Array<CompositorEffect> { _captures[f] } },
@@ -356,8 +371,8 @@ public sealed partial class FlareLights : Node3D
         /// <summary>The flare the cube follows, or null while free.</summary>
         public object? Key { get; private set; }
 
-        /// <summary>The cube's depth is its own flare's: the flare may light with it.</summary>
-        public bool Lights => _age >= WarmFrames && Array.TrueForAll(_captures, c => c.Ready);
+        /// <summary>Every face has rendered for the cube's own flare (a frame ago or more): the flare may light with it.</summary>
+        public bool Lights => _readyFrames >= 1 && Array.TrueForAll(_captures, c => c.Ready);
 
         /// <summary>The faces see a little past 90 degrees, so a lookup at a face's edge stays inside its tile.</summary>
         public static float Widen(int size) => 1f + (4f / Math.Max(1, size));
@@ -365,11 +380,9 @@ public sealed partial class FlareLights : Node3D
         public void Take(object key)
         {
             Key = key;
-            _age = 0;
-            foreach (SubViewport v in _viewports)
-            {
-                v.RenderTargetUpdateMode = SubViewport.UpdateMode.Always;
-            }
+            _rendered = 0;
+            _readyFrames = 0;
+            _last = null;
         }
 
         public void Release()
@@ -381,23 +394,47 @@ public sealed partial class FlareLights : Node3D
             }
         }
 
-        /// <summary>Puts the six cameras at <paramref name="at"/> (Godot space).</summary>
-        public void Place(Vector3 at)
+        /// <summary>
+        /// Renders this frame's faces from <paramref name="at"/> (Godot space, the wavering source): all six while the
+        /// cube is new or the flare (<paramref name="flare"/>, without the waver) is moving, else the next
+        /// <see cref="FacesPerFrame"/> in turn.
+        /// </summary>
+        public void Render(Vector3 flare, Vector3 at)
         {
-            for (int f = 0; f < 6; f++)
+            bool moving = _last is not { } last || last.DistanceTo(flare) > UeSpace.LengthToGodot(MovingUnits);
+            _last = flare;
+            if (moving || _rendered != AllFaces)
             {
-                Vector3 forward = FaceForward[f];
-                Vector3 up = FaceUp[f];
-                _cameras[f].GlobalTransform = new Transform3D(new Basis(forward.Cross(up), up, -forward), at);
+                for (int f = 0; f < 6; f++)
+                {
+                    RenderFace(f, at);
+                }
+
+                return;
+            }
+
+            for (int i = 0; i < FacesPerFrame; i++)
+            {
+                RenderFace(_next, at);
+                _next = (_next + 1) % 6;
             }
         }
 
-        /// <summary>Counts the frames the cube has rendered for its flare.</summary>
+        private void RenderFace(int f, Vector3 at)
+        {
+            Vector3 forward = FaceForward[f];
+            Vector3 up = FaceUp[f];
+            _cameras[f].GlobalTransform = new Transform3D(new Basis(forward.Cross(up), up, -forward), at);
+            _viewports[f].RenderTargetUpdateMode = SubViewport.UpdateMode.Once;
+            _rendered |= 1 << f;
+        }
+
+        /// <summary>Counts the frames since every face rendered for the cube's flare.</summary>
         public void Tick()
         {
-            if (Key is not null && _age < WarmFrames)
+            if (Key is not null && _rendered == AllFaces && _readyFrames < 2)
             {
-                _age++;
+                _readyFrames++;
             }
         }
 

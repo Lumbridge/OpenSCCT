@@ -201,6 +201,37 @@ public partial class SimPawnView : Node3D
         _model.Root.Visible = !hidden;
     }
 
+    private bool _shadowOnly;
+
+    /// <summary>
+    /// The pawn is seen from its own eyes: its meshes leave the world layer for <see cref="RenderLayers.ShadowOnly"/>,
+    /// so the main view does not draw them but the flares' shadow cameras do (the merc's whole shadow, not the
+    /// first-person arms). Applied every frame while on, so attachments made later follow.
+    /// </summary>
+    public void SetShadowOnly(bool on)
+    {
+        if (on || _shadowOnly)
+        {
+            MoveLayer(this, on ? RenderLayers.World : RenderLayers.ShadowOnly, on ? RenderLayers.ShadowOnly : RenderLayers.World);
+        }
+
+        _shadowOnly = on;
+    }
+
+    private static void MoveLayer(Node node, uint from, uint to)
+    {
+        if (node is GeometryInstance3D g && (g.Layers & from) != 0)
+        {
+            g.Layers = (g.Layers & ~from) | to;
+        }
+
+        int count = node.GetChildCount();
+        for (int i = 0; i < count; i++)
+        {
+            MoveLayer(node.GetChild(i), from, to);
+        }
+    }
+
     private Vector4? _visionDrawn;
 
     /// <summary>

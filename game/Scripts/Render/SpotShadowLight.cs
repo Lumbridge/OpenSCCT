@@ -189,7 +189,7 @@ public sealed partial class SpotShadowLight : IDisposable
             KeepAspect = Camera3D.KeepAspectEnum.Height,
             Near = near,
             Far = far,
-            CullMask = RenderLayers.World,
+            CullMask = RenderLayers.SpotShadow,
             Environment = FaithfulView.CreateEnvironment(),
             Attributes = FaithfulView.CreateAttributes(),
             Compositor = new Compositor { CompositorEffects = new Godot.Collections.Array<CompositorEffect> { _capture } },

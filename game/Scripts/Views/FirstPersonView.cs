@@ -148,6 +148,12 @@ public partial class FirstPersonView : Node3D
         _model = SkeletalModel.Load(glb);
         _arms = _model.SplitPart(ArmsMaterial);
         AddChild(_model.Root);
+        // Arms and gun float at the eye: the main view draws them, the shadow cameras do not (RenderLayers.FirstPerson).
+        foreach (MeshInstance3D mesh in _model.Root.FindChildren("*", nameof(MeshInstance3D), true, false))
+        {
+            mesh.Layers = RenderLayers.FirstPerson;
+        }
+
         _applier = new ChannelPoseApplier(_model.Skeleton);
     }
 

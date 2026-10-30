@@ -11,6 +11,8 @@
 //   other modes draw the normal scene.
 
 global uniform float svm_time;
+// The shadow cameras' marker layer (RenderLayers.ShadowPass): they keep only depth, so the lighting is skipped.
+const uint SVM_SHADOW_PASS = 262144u;
 // Texture LOD bias of colour textures (0 at the original's DefaultTexMipBias; a calibration switch).
 global uniform float svm_mip_bias;
 global uniform int svm_vision;
@@ -671,25 +673,30 @@ void fragment() {
 	float zone = -1.0;
 #endif
 	int echelon_ignore = int(v_echelon + 0.5);
+	// A shadow camera keeps only depth: no lighting (RenderLayers.ShadowPass).
+	bool shadow_pass = (CAMERA_VISIBLE_LAYERS & SVM_SHADOW_PASS) != 0u;
 	// Zone 255 (MapBuilder.AuthoredOverlayZone): an additive mesh with painted colours, lit by its colours alone.
 	bool overlay = zone > 254.5;
-	vec3 spot = svm_spot_count > 0 && !overlay ? svm_spot_light(v_wpos, wn, zone, echelon_ignore) : vec3(0.0);
+	bool unlit = overlay || shadow_pass;
+	vec3 spot = svm_spot_count > 0 && !unlit ? svm_spot_light(v_wpos, wn, zone, echelon_ignore) : vec3(0.0);
 #endif
 #if defined(LIGHT_LIGHTMAP) || defined(LIGHT_VERTEX)
-	vec3 dyn = (svm_dyn_light_count > 0 && !overlay ? svm_dynamic(v_wpos, wn, zone) : vec3(0.0)) + spot + svm_zone_amb(zone);
-	// The flares, with the dynamic world lights' gain, radius scale and falloff.
-	dyn += svm_flare_count > 0 && !overlay ? svm_flare_light(v_wpos, wn, svm_dyn_tune.y, svm_dyn_falloff()) * svm_dyn_tune.x : vec3(0.0);
+	vec3 dyn = (svm_dyn_light_count > 0 && !unlit ? svm_dynamic(v_wpos, wn, zone) : vec3(0.0)) + spot + svm_zone_amb(zone);
+	// The flares, with the dynamic world lights' gain, radius scale and falloff. They add past the 2x cap of the baked
+	// and dynamic light (an OpenSCCT addition, docs/RENDERING.md#flare-lights): under a bright baked light the term is
+	// already at the cap, so a flare would add nothing there.
+	vec3 flare = svm_flare_count > 0 && !unlit ? svm_flare_light(v_wpos, wn, svm_dyn_tune.y, svm_dyn_falloff()) * svm_dyn_tune.x : vec3(0.0);
 #endif
 #if defined(LIGHT_LIGHTMAP)
-	vec3 lit = t.rgb * min(texture(tex_lightmap, UV2).rgb * lightmap_scale + vec3(svm_vision_ambient) + dyn, vec3(2.0));
+	vec3 lit = t.rgb * (min(texture(tex_lightmap, UV2).rgb * lightmap_scale + vec3(svm_vision_ambient) + dyn, vec3(2.0)) + flare);
 #elif defined(LIGHT_VERTEX)
 	// COLOR holds half the light term (min(2, 2 x VC + glow) / 2), so the 2x stage is restored here. The overlay takes
 	// no vision ambient either: night vision's lift would fill its faded rim back to a square.
-	vec3 lit = t.rgb * min(COLOR.rgb * 2.0 + dyn + vec3(overlay ? 0.0 : svm_vision_ambient), vec3(2.0));
+	vec3 lit = t.rgb * (min(COLOR.rgb * 2.0 + dyn + vec3(overlay ? 0.0 : svm_vision_ambient), vec3(2.0)) + flare);
 #elif defined(LIGHT_ACTOR)
-	// The flares per pixel, with the actor model's falloff (their shadows fall across the actor).
-	vec3 flare = svm_flare_count > 0 ? svm_flare_light(v_wpos, wn, 1.0, 0) : vec3(0.0);
-	vec3 lit = t.rgb * min(v_light + spot + flare + vec3(svm_vision_ambient), vec3(2.0));
+	// The flares per pixel, with the actor model's falloff (their shadows fall across the actor), past the 2x cap.
+	vec3 flare = svm_flare_count > 0 && !unlit ? svm_flare_light(v_wpos, wn, 1.0, 0) : vec3(0.0);
+	vec3 lit = t.rgb * (min(v_light + spot + vec3(svm_vision_ambient), vec3(2.0)) + flare);
 #else
 	vec3 lit = t.rgb;
 #endif

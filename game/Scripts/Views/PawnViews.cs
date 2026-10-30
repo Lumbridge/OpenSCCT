@@ -104,7 +104,10 @@ public partial class PawnViews : Node3D
         }
     }
 
-    /// <summary>Draws every pawn; <paramref name="firstPerson"/> (the local pawn seen from its eyes) is hidden.</summary>
+    /// <summary>
+    /// Draws every pawn; <paramref name="firstPerson"/> (the local pawn seen from its eyes) is hidden from the main view
+    /// but still casts the flares' shadows (<see cref="SimPawnView.SetShadowOnly"/>).
+    /// </summary>
     public void Draw(float alpha, float dt, SBasePawn? firstPerson, SBasePawn? localAimer = null, FRotator localView = default)
     {
         foreach (KeyValuePair<SBasePawn, SimPawnView> kv in _views)
@@ -112,10 +115,7 @@ public partial class PawnViews : Node3D
             SimPawnView view = kv.Value;
             view.DrawnView = ReferenceEquals(kv.Key, localAimer) ? localView : null;
             view.Draw(alpha, dt);
-            if (ReferenceEquals(kv.Key, firstPerson))
-            {
-                view.Visible = false;
-            }
+            view.SetShadowOnly(ReferenceEquals(kv.Key, firstPerson));
         }
     }
 }

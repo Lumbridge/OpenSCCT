@@ -392,12 +392,22 @@ Blue Room) and shines through walls inside its zone. Here a flare lights what it
   (`svm_flares`, up to 8 flares, the nearest to the camera), with the same colour, brightness, radius and falloff: the
   dynamic world lights' gain, radius scale and falloff on BSP and static meshes, the actor model on actors, per pixel.
 - The nearest 4 lit flares each get a depth cube: six 90-degree cameras (a little wider, so lookups at a face's edge
-  stay in its tile) render the world layer, pawns included, every frame into a face of a shared R32F atlas (six faces
-  across, one cube per row; the face is half the spot shadow map, 128 to 512) through the spot lights' depth copy
+  stay in its tile) render the world layer, pawns included, into a face of a shared R32F atlas (six faces across, one
+  cube per row; the face is a quarter of the spot shadow map, 128 to 256) through the spot lights' depth copy
   (`ShadowDepthCapture`). The template picks the face by the major axis of the surface point less the light (+X, -X,
   +Y, -Y, +Z, -Z; up +Y, except -Z for +Y and +Z for -Y) and compares on a nine-tap disc (1.5 texels), with a 3 uu
-  bias plus 1% of the depth after moving the point 3 uu along its normal. A cube that just changed flare waits two
-  frames for its own depth before its flare lights.
+  bias plus 1% of the depth after moving the point 3 uu along its normal. A cube that just changed flare renders all
+  six faces and waits a frame for its own depth before its flare lights.
+- Cost: a flare at rest refreshes two faces a frame (each face every third frame); one moving more than 1 uu a frame
+  (thrown, still flying) refreshes all six. The shadow cameras set the `ShadowPass` layer in their cull mask, and the
+  template skips its lighting when it sees it (`CAMERA_VISIBLE_LAYERS`): they keep only depth. The spot lights' shadow
+  cameras set it too.
+- The local pawn seen from its own eyes is hidden from the main view but drawn on the `ShadowOnly` layer, which only
+  the flares' cameras see, so the merc's whole body casts its shadow. The first-person arms and gun are on the
+  `FirstPerson` layer, drawn by the main view only: they float at the eye, so no shadow camera sees them.
+- The flare adds after the 2x cap of the baked and dynamic light (`t x (min(baked + dyn, 2) + flare)`, then the
+  usual cap at 1): the original caps the sum, so a surface already lit to the cap by its lightmap, baked colours or
+  actor light took no flare light at all.
 - The light source wavers up to 1.5 uu with the flame, so the shadows move a little, as a burning flare's do.
 - Flares past the 4 cubes light unshadowed; past 8 they are dark.
 
