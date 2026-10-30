@@ -20,7 +20,8 @@ namespace OpenScctGame.Render;
 /// mode (the class does not hide in normal vision). The beam is the SLaserBeam class mesh
 /// (SGameplayObjects.Objects.LaserBeam, 1 uu along X) stretched from its start to the end (DrawScale3D.X = length + 1).
 /// The local merc's beam runs from his first-person rifle's FX bone to the point the simulation's placement found
-/// (SGadTorcheLaser.HitLocation); he sees no corona of his own (decoded: bCorona cleared on the owner's machine).
+/// (SGadTorcheLaser.HitLocation), hidden where his first-person arms and rifle are drawn (the original's weapon
+/// overlay); he sees no corona of his own (decoded: bCorona cleared on the owner's machine).
 /// Other mercs' beams follow NativeReplaceLaserDistant from the FX bone of the rifle drawn in their hands, with the SCoronaLight glint (sfx.Flare.ATT_flare, at least
 /// 15 pixels) at the beam's start.
 /// </summary>
@@ -63,7 +64,7 @@ public sealed partial class MercLaserView : Node3D
 
     private readonly List<(SBasePawn Pawn, FVector Start, FVector End, bool Local)> _drawn = new();
 
-    /// <summary>Where the local merc's drawn beam mesh begins (UE): the first-person rifle's muzzle.</summary>
+    /// <summary>Where the local merc's drawn beam mesh begins (UE): his rifle's FX bone pulled back 50 uu (the gun covers it).</summary>
     public FVector DrawnFrom { get; private set; }
 
     private bool _localFromFx;
@@ -123,18 +124,17 @@ public sealed partial class MercLaserView : Node3D
             FVector d = end - start;
             float length = d.Size();
             FRotator rotation = length > 0f ? d.Rotation() : default;
-            // The original draws the first-person rifle over the world (the weapon overlay), so the 50 uu of the local
-            // beam behind the muzzle are hidden by the gun. The first-person model here is drawn in the world, where that
-            // stretch passed in front of it as a thick bar; the drawn mesh starts at the muzzle instead.
-            float behindMuzzle = isLocal && _localFromFx ? MathF.Min(K.LaserFireStartPullBack, length) : 0f;
-            FVector from = length > 0f ? start + (d * (behindMuzzle / length)) : start;
-            DrawnFrom = isLocal ? from : DrawnFrom;
-            beam.Transform = UeSpace.TransformToGodot(from, rotation, new FVector(MathF.Max(length - behindMuzzle, 0.01f) + 1f, 1f, 1f), default);
+            // The whole beam is drawn, from 50 uu behind the muzzle: the original draws the first-person rifle over the
+            // world (the weapon overlay), so the gun covers that stretch on screen and the beam leaves the drawn gun
+            // wherever its silhouette ends. The first-person model here is drawn in the world and marks its pixels in
+            // the stencil (FirstPersonView.MaskShaderPath), which the beam skips. Starting the mesh at the FX bone
+            // instead left a gap: the bone sits ahead of the drawn barrel, so the beam floated in front of the gun.
+            DrawnFrom = isLocal ? start : DrawnFrom;
+            beam.Transform = UeSpace.TransformToGodot(start, rotation, new FVector(MathF.Max(length, 0.01f) + 1f, 1f, 1f), default);
             beam.Visible = true;
             if (PackMesh && _beamLook is not null)
             {
-                // The original's weapon overlay hides the start of the local merc's beam, glow quad included; the drawn
-                // mesh here starts at the muzzle, where that quad sat as a red flare.
+                // The glow quad at the local merc's beam start sits inside his rifle, where the overlay hides it.
                 OpenScctGame.Fx.SpyLaserView.ApplyBeamLook(beam, _beamLook, _finLook, showFin: !(isLocal && _localFromFx));
             }
 
@@ -164,7 +164,6 @@ public sealed partial class MercLaserView : Node3D
     /// ticks the beam swung off the muzzle when turning; the original places it from each frame's view, and its beam
     /// stays on the screen centre (as the spy pistol's laser does, MeshAimIK.DrawnFullPair).
     /// </summary>
-    [Provenance(ProvenanceKind.Estimated, "The drawn mesh starts at the muzzle: the original's weapon overlay hides the 50 uu behind it")]
     [Provenance(ProvenanceKind.Estimated, "The drawn end follows the frame's view centre (the original's per-frame placement); the simulation's HitLocation still drives the mark")]
     private (FVector Start, FVector End, FVector Corona) LocalBeam(SGadTorcheLaser laser, SBasePawn pawn, (FVector Location, FRotator Rotation)? view)
     {
@@ -273,13 +272,15 @@ public sealed partial class MercLaserView : Node3D
                 _beamLookTried = true;
                 _beamLook = OpenScctGame.Fx.SpyLaserView.AdditiveBeamMaterial(Map);
                 _finLook = OpenScctGame.Fx.SpyLaserView.AdditiveBeamMaterial(Map, OpenScctGame.Fx.SpyLaserView.FinTexture);
+                UnderFirstPerson(_beamLook);
+                UnderFirstPerson(_finLook);
             }
 
             OpenScctGame.Fx.SpyLaserView.ApplyBeamLook(beam, _beamLook, _finLook, showFin: true);
         }
         else
         {
-            beam.MaterialOverride = new StandardMaterial3D
+            var standIn = new StandardMaterial3D
             {
                 ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded,
                 AlbedoColor = new Color(1f, 0.1f, 0.1f, 0.6f),
@@ -287,6 +288,8 @@ public sealed partial class MercLaserView : Node3D
                 BlendMode = BaseMaterial3D.BlendModeEnum.Add,
                 NextPass = OpenScctGame.Fx.SpyLaserView.ThermalBeamPass(null),
             };
+            UnderFirstPerson(standIn);
+            beam.MaterialOverride = standIn;
         }
 
         _dotMaterial ??= new StandardMaterial3D
@@ -311,6 +314,37 @@ public sealed partial class MercLaserView : Node3D
         _beams[laser] = (beam, dot);
         return (beam, dot);
     }
+
+    /// <summary>
+    /// The beam is hidden where the local merc's first-person arms and rifle are drawn (they mark the stencil,
+    /// MaterialCompiler.StencilFirstPerson), as the original's weapon overlay draws the gun over it; its thermal pass
+    /// too, which is moved to the transparent pass so the gun has marked the stencil before it draws.
+    /// </summary>
+    [Provenance(ProvenanceKind.Estimated, "The first-person gun covers the beam through the stencil (the original's weapon overlay draws it over the world)")]
+    private static void UnderFirstPerson(StandardMaterial3D? material)
+    {
+        if (material is null)
+        {
+            return;
+        }
+
+        material.StencilMode = BaseMaterial3D.StencilModeEnum.Custom;
+        material.StencilFlags = (int)BaseMaterial3D.StencilFlagsEnum.Read;
+        material.StencilCompare = BaseMaterial3D.StencilCompareEnum.NotEqual;
+        material.StencilReference = Materials.MaterialCompiler.StencilFirstPerson;
+        if (material.NextPass is ShaderMaterial thermal)
+        {
+            s_maskedThermal ??= new Shader
+            {
+                Code = "shader_type spatial;\nrender_mode unshaded, fog_disabled, cull_disabled, depth_draw_opaque;\n"
+                    + $"stencil_mode read, compare_not_equal, {Materials.MaterialCompiler.StencilFirstPerson};\n"
+                    + "#define SVM_FIRST_PERSON_MASK\n#include \"res://Shaders/svm_laser.gdshaderinc\"\n",
+            };
+            thermal.Shader = s_maskedThermal;
+        }
+    }
+
+    private static Shader? s_maskedThermal;
 
     private Mesh BeamMeshOrStandIn()
     {

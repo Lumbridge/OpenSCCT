@@ -488,12 +488,13 @@ public sealed class PlayLasersSmoke : SmokeTest
             return Fail(string.Create(CultureInfo.InvariantCulture, $"the merc's beam starts {off:F1} uu from his rifle's FX bone pulled back 50 uu: {st.Sample}"));
         }
 
-        // What he sees: the stretch behind the muzzle is hidden by the rifle in the original (the weapon overlay).
-        float drawn = FVector.Dist(lasers.DrawnFrom, muzzle);
+        // What he sees: the whole beam is drawn from its start; the rifle covers the stretch behind the muzzle (the
+        // original's weapon overlay, here the first-person model's stencil mark).
+        float drawn = FVector.Dist(lasers.DrawnFrom, lasers.LocalStart);
         st.WorstMuzzle = MathF.Max(st.WorstMuzzle, drawn);
         if (drawn > StartTolerance)
         {
-            return Fail(string.Create(CultureInfo.InvariantCulture, $"the merc's drawn beam begins {drawn:F1} uu from his rifle's muzzle: {st.Sample}"));
+            return Fail(string.Create(CultureInfo.InvariantCulture, $"the merc's drawn beam begins {drawn:F1} uu from its start: {st.Sample}"));
         }
 
         if (st.Frames < CheckFrames)

@@ -545,6 +545,12 @@ public sealed class MaterialCompiler
     /// <summary>Stencil value other solid world surfaces write (actor-lit meshes).</summary>
     public const int StencilOther = 3;
 
+    /// <summary>
+    /// Stencil value the merc's first-person arms and rifle write over their own (Shaders/svm_first_person_mask.gdshader):
+    /// his laser beam skips those pixels, as the original's weapon overlay covers it.
+    /// </summary>
+    public const int StencilFirstPerson = 4;
+
     private Shader ShaderFor(LightSource light, MaterialBlend blend, bool twoSided, List<string> extras)
     {
         bool coverage = blend == MaterialBlend.Masked && AlphaToCoverage;

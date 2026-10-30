@@ -132,6 +132,15 @@ public partial class FirstPersonView : Node3D
     /// <summary>The material drawn over view model slot <paramref name="slot"/> last frame (null: the mesh's own), for tests.</summary>
     public string? SlotSkin(int slot) => _model?.SlotSkin(slot);
 
+    /// <summary>
+    /// Laid over every mesh of the view model: marks its pixels in the stencil (MaterialCompiler.StencilFirstPerson) so
+    /// the merc's laser beam, drawn from 50 uu behind the muzzle, is hidden where the gun covers it, as the original's
+    /// weapon overlay does (spec/equipment/merc-laser.md rule 9a).
+    /// </summary>
+    public const string MaskShaderPath = "res://Shaders/svm_first_person_mask.gdshader";
+
+    private static ShaderMaterial? s_mask;
+
     private void Load(string asset)
     {
         _asset = asset;
@@ -147,6 +156,12 @@ public partial class FirstPersonView : Node3D
 
         _model = SkeletalModel.Load(glb);
         _arms = _model.SplitPart(ArmsMaterial);
+        s_mask ??= new ShaderMaterial { Shader = GD.Load<Shader>(MaskShaderPath), RenderPriority = (int)Material.RenderPriorityMin };
+        foreach (MeshInstance3D mesh in _model.Meshes)
+        {
+            mesh.MaterialOverlay = s_mask;
+        }
+
         AddChild(_model.Root);
         // Arms and gun float at the eye: the main view draws them, the shadow cameras do not (RenderLayers.FirstPerson).
         foreach (MeshInstance3D mesh in _model.Root.FindChildren("*", nameof(MeshInstance3D), true, false))

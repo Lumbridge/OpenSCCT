@@ -90,8 +90,9 @@ def:SBase.SGadTorcheLaser (ItemName localized "Laser"):
    (LaserBeamShader) whose first 50 uu lie inside the rifle, which the weapon overlay draws over the world. The
    port's simulation places the aimed rifle's `FX` bone there (CombatNatives.MercAimFxCoords: laser, muzzle
    clearance, tracers and the laser's fire start of rule 6); the view draws the local beam from the first-person
-   rifle's `FX` bone pulled back 50 uu (within 1 uu of the original's start), its mesh from the muzzle on, since the
-   first-person model here is drawn in the world and the hidden stretch passed in front of it. Other mercs' beams
+   rifle's `FX` bone pulled back 50 uu (within 1 uu of the original's start), the whole mesh drawn and hidden where
+   the first-person arms and rifle mark the stencil (the model here is drawn in the world, not as an overlay; the
+   bone sits ahead of the drawn barrel, so a mesh started there floated in front of the gun). Other mercs' beams
    (and bots') start at the `FX` bone of the M160 drawn in their right hand (SWeaponDefenseDummy on `B R Hand`).
    The SWeaponDefense actor itself sits at the eye with the aim's rotation (hidden: drawn as the view model).
 10. **ThrowSpyBullet(Target)** (client -> server reliable): if `Target.Health > 0`: `Target.HitBySpyBullet(1)` and
