@@ -77,6 +77,7 @@ public sealed class MaterialCompiler
         EnsureGlobals();
         WorldLights.EnsureGlobals();
         SpotShadowLight.EnsureGlobals();
+        FlareLights.EnsureGlobals();
     }
 
     /// <summary>Lightmap scale of BSP surfaces; <see cref="RenderK.LightmapScale"/> unless a calibration run sets it.</summary>

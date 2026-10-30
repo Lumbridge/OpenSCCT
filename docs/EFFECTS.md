@@ -66,8 +66,8 @@ The runtime lays each sub-emitter's stored values over its class defaults from `
   Light actors are bHidden (Engine.Light defaults) and still light: each one alive is handed to the map's dynamic world
   lights (`WorldLights.SetSpawned`, at most 16), so the frag's flash lights the walls and floor as the map's own dynamic
   lights do (the same colour, gain, radius and `1 - (d / R)^2` world falloff; SFlashLight is bAffectOwnZoneOnly, so only
-  its zone; the burning flare, SFlareEmitter, is bAffectOwnZoneOnly too but lights every zone its radius reaches, as in
-  the original). The muzzle actors' own lights join them for their 0.1 s (SMuzzleGenerique and sMuzzleCanon for the rifle,
+  its zone; the burning flare, SFlareEmitter, is bAffectOwnZoneOnly too, but its light goes to `FlareLights` instead,
+  an OpenSCCT addition that lights what the flare can see in every zone, with shadows: docs/RENDERING.md#flare-lights). The muzzle actors' own lights join them for their 0.1 s (SMuzzleGenerique and sMuzzleCanon for the rifle,
   SMuzzleSticky for the Shocker: steady LE_PointAmbient, brightness 255, LightRadius 1, so 50 uu). The same set also
   lights the actors (`ActorLighting.SetSpawned`): every pawn, weapon and prop picks its four lights from the map's
   lights and these together, from the frame after (the pawns are lit before the effects are drawn).

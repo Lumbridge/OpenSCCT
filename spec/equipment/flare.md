@@ -26,7 +26,8 @@ spec/devices/ball-trap.md).
   `ExploWallOut` 0, `ActorReboundFactor` 0.5. Fields `CourseEmitter`, `BaseToFollow` (game +0x354, +0x358).
 - `SFlareEmitter` (an Emitter, `RemoteRole` SimulatedProxy, `bNoDelete` false): `LifeSpan` 20, `LightType` LT_Steady,
   `LightEffect` LE_PointAmbient, `LightBrightness` 200, `LightRadius` 25, `LightSaturation` 250, `LightPhase` 1,
-  `bDynamicLight`, `bAffectOwnZoneOnly` (ignored: the flare lights across zones, as the original does), `SoundEffect` Flare_loop; three sprite sub-emitters (flare_anm 175 particles
+  `bDynamicLight`, `bAffectOwnZoneOnly` (the rewrite draws the flare's light
+  with shadows in every zone instead, an addition: docs/RENDERING.md#flare-lights), `SoundEffect` Flare_loop; three sprite sub-emitters (flare_anm 175 particles
   at 10/s for 2.5 s, flare_fixe sparks 20 at once up to 600 uu up, flare_anm 200 following the first), none respawned.
 - `SFlareCourseEmitter` (an Emitter, not replicated): `LifeSpan` 5, `AutoDestroy`, steady light 200 radius 6, two
   sprite sub-emitters (flare_burn, flare_anm).

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using Godot;
 using OpenScct.Core;
 using OpenScct.Game.Lighting;
@@ -134,7 +133,7 @@ public sealed partial class SpotShadowLight : IDisposable
 
     private readonly SubViewport _viewport;
     private readonly Camera3D _camera;
-    private readonly SpotDepthCapture _capture;
+    private readonly ShadowDepthCapture _capture;
     private readonly Vector3 _colour;
     private readonly int _slot;
     private readonly Vector2I _size;
@@ -176,7 +175,7 @@ public sealed partial class SpotShadowLight : IDisposable
         _apex = apex ?? 0f;
         float near = UeSpace.LengthToGodot(MathF.Max(1f, _apex));
         float far = UeSpace.LengthToGodot(_apex + shape.Range);
-        _capture = new SpotDepthCapture(_size, near, far, TileOrigin(_slot), _parallel);
+        _capture = new ShadowDepthCapture(_size, near, far, TileOrigin(_slot), _parallel, static () => s_atlas);
         _viewport = new SubViewport
         {
             Name = "SpotShadow",
@@ -595,144 +594,6 @@ public sealed partial class SpotShadowLight : IDisposable
         if (atlas.IsValid)
         {
             RenderingServer.CallOnRenderThread(Callable.From(() => RenderingServer.GetRenderingDevice()?.FreeRid(atlas)));
-        }
-    }
-
-    /// <summary>
-    /// The light's depth copy: after its camera's opaque pass, the depth buffer becomes linear distance along the axis in
-    /// the light's tile of the shared R32F atlas the template samples.
-    /// </summary>
-    private sealed partial class SpotDepthCapture : CompositorEffect
-    {
-        public const string ShaderPath = "res://Shaders/svm_spot_depth.glsl";
-
-        private readonly Vector2I _size;
-        private readonly float _near;
-        private readonly float _far;
-        private readonly Vector2I _origin;
-        private readonly bool _parallel;
-        private RenderingDevice? _rd;
-        private Rid _shader;
-        private Rid _pipeline;
-        private Rid _sampler;
-
-        public SpotDepthCapture(Vector2I size, float near, float far, Vector2I origin, bool parallel)
-        {
-            _size = size;
-            _near = near;
-            _far = far;
-            _origin = origin;
-            _parallel = parallel;
-            EffectCallbackType = EffectCallbackTypeEnum.PostOpaque;
-            AccessResolvedDepth = true;
-            RenderingServer.CallOnRenderThread(Callable.From(Init));
-        }
-
-        /// <summary>The pipeline is made and the atlas exists: the light's tile is written each frame it renders.</summary>
-        public bool Ready => _pipeline.IsValid && s_atlas.IsValid;
-
-        private volatile bool _released;
-
-        private void Init()
-        {
-            if (_released)
-            {
-                return;
-            }
-
-            _rd = RenderingServer.GetRenderingDevice();
-            if (_rd is null)
-            {
-                return;
-            }
-
-            _shader = ComputeShaderSource.CreateShader(_rd, ShaderPath, "svm_spot_depth", out string? error);
-            if (!_shader.IsValid)
-            {
-                GD.PushError("svm_spot_depth: " + error);
-                return;
-            }
-
-            _pipeline = _rd.ComputePipelineCreate(_shader);
-            _sampler = _rd.SamplerCreate(new RDSamplerState
-            {
-                MinFilter = RenderingDevice.SamplerFilter.Nearest,
-                MagFilter = RenderingDevice.SamplerFilter.Nearest,
-            });
-        }
-
-        /// <summary>Frees the render device objects on the render thread (once); the effect draws nothing after.</summary>
-        public void Release()
-        {
-            _released = true;
-            if (_rd is not { } rd)
-            {
-                return;
-            }
-
-            Rid[] rids = [_pipeline, _shader, _sampler];
-            _rd = null;
-            RenderingServer.CallOnRenderThread(Callable.From(() =>
-            {
-                foreach (Rid rid in rids)
-                {
-                    if (rid.IsValid)
-                    {
-                        rd.FreeRid(rid);
-                    }
-                }
-            }));
-        }
-
-        public override void _Notification(int what)
-        {
-            if (what == NotificationPredelete)
-            {
-                Release();
-            }
-
-            base._Notification(what);
-        }
-
-        private Post.UniformSlots? _slots;
-        private readonly byte[] _push = new byte[32];
-
-        public override void _RenderCallback(int effectCallbackType, RenderData renderData)
-        {
-            // Release the scene buffers' managed wrapper here, on the render thread. Left to the garbage collector it can
-            // hold the last reference to a freed viewport's buffers, whose destructor then frees GPU resources on the
-            // finalizer thread (free_rid errors) and crashes the process at exit after a play session was left.
-            // The frame's render data gets a new managed wrapper every call: released here it is not left to the finalizer
-            // (a finalizable object and a tracked handle per frame for the garbage collector).
-            using RenderData? frameData = renderData;
-            using RenderSceneBuffers? sceneBuffers = renderData?.GetRenderSceneBuffers();
-            Rid atlas = s_atlas;
-            if (_rd is null || !_pipeline.IsValid || !atlas.IsValid || sceneBuffers is not RenderSceneBuffersRD buffers)
-            {
-                return;
-            }
-
-            Vector2I size = buffers.GetInternalSize();
-            if (size != _size)
-            {
-                return;
-            }
-
-            // The uniform list and the constant bytes are kept from frame to frame (no wrappers made per frame).
-            Post.UniformSlots slots = _slots ??= new Post.UniformSlots(RenderingDevice.UniformType.SamplerWithTexture,
-                RenderingDevice.UniformType.Image);
-            slots.Set(0, _sampler, buffers.GetDepthLayer(0));
-            slots.Set(1, atlas);
-            Rid set = UniformSetCacheRD.GetCache(_shader, 0, slots.Array);
-            Span<float> push = [_near, _far, size.X, size.Y, _origin.X, _origin.Y, _parallel ? 1f : 0f, 0f];
-            MemoryMarshal.AsBytes(push).CopyTo(_push);
-            byte[] bytes = _push;
-            long list = _rd.ComputeListBegin();
-            _rd.ComputeListBindComputePipeline(list, _pipeline);
-            _rd.ComputeListBindUniformSet(list, set, 0);
-            _rd.ComputeListSetPushConstant(list, bytes, (uint)bytes.Length);
-            _rd.ComputeListDispatch(list, (uint)((size.X + 7) / 8), (uint)((size.Y + 7) / 8), 1);
-            _rd.ComputeListEnd();
         }
     }
 }

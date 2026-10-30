@@ -383,6 +383,24 @@ Cookies share a texture array (`svm_spot_cookies`, each resampled to 256 x 256; 
   switches the eight-lookup disc (`SpotShadowSoftRadius`, 1.5 texels) on or off. Reloaded's `shadow_optimized`
   (per-light resolution by screen size) is not done.
 
+## Flare lights
+
+An OpenSCCT addition (`FlareLights`): the original lights a burning flare (SFlareEmitter) as an unshadowed point light
+kept to its own zone (`bAffectOwnZoneOnly`), so its light stops in a hard line at a zone portal (AquaD's Entrance and
+Blue Room) and shines through walls inside its zone. Here a flare lights what it can see, in every zone:
+- The flare's light leaves the spawned dynamic lights (`WorldLights`, `ActorLighting`) and goes to its own rows
+  (`svm_flares`, up to 8 flares, the nearest to the camera), with the same colour, brightness, radius and falloff: the
+  dynamic world lights' gain, radius scale and falloff on BSP and static meshes, the actor model on actors, per pixel.
+- The nearest 4 lit flares each get a depth cube: six 90-degree cameras (a little wider, so lookups at a face's edge
+  stay in its tile) render the world layer, pawns included, every frame into a face of a shared R32F atlas (six faces
+  across, one cube per row; the face is half the spot shadow map, 128 to 512) through the spot lights' depth copy
+  (`ShadowDepthCapture`). The template picks the face by the major axis of the surface point less the light (+X, -X,
+  +Y, -Y, +Z, -Z; up +Y, except -Z for +Y and +Z for -Y) and compares on a nine-tap disc (1.5 texels), with a 3 uu
+  bias plus 1% of the depth after moving the point 3 uu along its normal. A cube that just changed flare waits two
+  frames for its own depth before its flare lights.
+- The light source wavers up to 1.5 uu with the flame, so the shadows move a little, as a burning flare's do.
+- Flares past the 4 cubes light unshadowed; past 8 they are dark.
+
 ## Actor lighting
 
 Pawns, skeletal props and meshes without baked colours (`ActorLighting`), decoded from the editor build's actor

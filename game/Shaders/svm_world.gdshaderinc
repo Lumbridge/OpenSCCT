@@ -386,6 +386,88 @@ vec3 svm_spot_light(vec3 wp, vec3 wn, float zone, int ignore) {
 	}
 	return sum;
 }
+
+// The burning flares (FlareLights, an OpenSCCT addition): point lights in every zone, shadowed by a depth cube. One row
+// of svm_flares per flare:
+//   0-2 the light in the svm_one_light layout (position and radius, colour, spot / effect)
+//   3   x the cube's row of svm_flare_depth (-1 unshadowed), y bias (m), z normal offset (m), w softening disc (texels)
+//   4   x the faces' view to clip scale, y face size (texels), z bias per metre
+// svm_flare_depth holds six faces across (+X, -X, +Y, -Y, +Z, -Z) and one cube per row, as linear depth along each
+// face's axis.
+global uniform sampler2D svm_flares;
+global uniform int svm_flare_count;
+global uniform sampler2D svm_flare_depth;
+
+// One filtered lookup inside a face's tile (as svm_spot_lookup): 1 lit, 0 shadowed.
+float svm_flare_lookup(vec2 t0, vec2 ts, vec2 suv, float zref) {
+	vec2 atlas = vec2(textureSize(svm_flare_depth, 0));
+	vec2 lo = t0 * atlas + 0.5;
+	vec2 hi = (t0 + ts) * atlas - 1.5;
+	vec2 p = clamp((t0 + suv * ts) * atlas - 0.5, lo, max(lo, hi));
+	vec2 base = floor(p);
+	vec2 f = p - base;
+	vec4 d = textureGather(svm_flare_depth, (base + 1.0) / atlas, 0);
+	vec4 lit = step(vec4(zref), d);
+	return mix(mix(lit.w, lit.z, f.x), mix(lit.x, lit.y, f.x), f.y);
+}
+
+// The shadow of the flare at d (the surface point less the light): the face d falls in, its depth compared on a disc.
+float svm_flare_shadow(vec3 d, vec4 sh, vec4 ex) {
+	vec3 a = abs(d);
+	float face;
+	vec3 fwd;
+	vec3 up;
+	if (a.x >= a.y && a.x >= a.z) {
+		face = d.x > 0.0 ? 0.0 : 1.0;
+		fwd = vec3(d.x > 0.0 ? 1.0 : -1.0, 0.0, 0.0);
+		up = vec3(0.0, 1.0, 0.0);
+	} else if (a.y >= a.z) {
+		face = d.y > 0.0 ? 2.0 : 3.0;
+		fwd = vec3(0.0, d.y > 0.0 ? 1.0 : -1.0, 0.0);
+		up = vec3(0.0, 0.0, d.y > 0.0 ? -1.0 : 1.0);
+	} else {
+		face = d.z > 0.0 ? 4.0 : 5.0;
+		fwd = vec3(0.0, 0.0, d.z > 0.0 ? 1.0 : -1.0);
+		up = vec3(0.0, 1.0, 0.0);
+	}
+	float z = dot(d, fwd);
+	if (z <= 1e-4) {
+		return 1.0;
+	}
+	vec3 right = cross(fwd, up);
+	vec2 ndc = vec2(dot(d, right), dot(d, up)) / z * ex.x;
+	vec2 suv = vec2(ndc.x, -ndc.y) * 0.5 + 0.5;
+	vec2 atlas = vec2(textureSize(svm_flare_depth, 0));
+	vec2 ts = vec2(ex.y) / atlas;
+	vec2 t0 = vec2(face, sh.x) * ts;
+	float zref = z - sh.y - ex.z * z;
+	vec2 step_uv = sh.w / ex.y * vec2(1.0);
+	float sum = svm_flare_lookup(t0, ts, suv, zref);
+	for (int k = 0; k < 8; k++) {
+		float an = float(k) * 0.78539816 + 0.39269908;
+		sum += svm_flare_lookup(t0, ts, suv + vec2(cos(an), sin(an)) * step_uv, zref);
+	}
+	return sum / 9.0;
+}
+
+// Every flare at a surface point: rscale scales the radius, falloff as svm_one_light.
+vec3 svm_flare_light(vec3 wp, vec3 wn, float rscale, int falloff) {
+	vec3 sum = vec3(0.0);
+	for (int i = 0; i < svm_flare_count; i++) {
+		vec4 p = texelFetch(svm_flares, ivec2(0, i), 0);
+		p.w *= rscale;
+		vec3 l = svm_one_light(p, texelFetch(svm_flares, ivec2(1, i), 0), texelFetch(svm_flares, ivec2(2, i), 0), wp, wn, falloff);
+		if (dot(l, l) <= 0.0) {
+			continue;
+		}
+		vec4 sh = texelFetch(svm_flares, ivec2(3, i), 0);
+		if (sh.x >= 0.0) {
+			l *= svm_flare_shadow(wp + wn * sh.z - p.xyz, sh, texelFetch(svm_flares, ivec2(4, i), 0));
+		}
+		sum += l;
+	}
+	return sum;
+}
 #endif
 
 #if defined(LIGHT_LIGHTMAP) || defined(LIGHT_VERTEX)
@@ -595,6 +677,8 @@ void fragment() {
 #endif
 #if defined(LIGHT_LIGHTMAP) || defined(LIGHT_VERTEX)
 	vec3 dyn = (svm_dyn_light_count > 0 && !overlay ? svm_dynamic(v_wpos, wn, zone) : vec3(0.0)) + spot + svm_zone_amb(zone);
+	// The flares, with the dynamic world lights' gain, radius scale and falloff.
+	dyn += svm_flare_count > 0 && !overlay ? svm_flare_light(v_wpos, wn, svm_dyn_tune.y, svm_dyn_falloff()) * svm_dyn_tune.x : vec3(0.0);
 #endif
 #if defined(LIGHT_LIGHTMAP)
 	vec3 lit = t.rgb * min(texture(tex_lightmap, UV2).rgb * lightmap_scale + vec3(svm_vision_ambient) + dyn, vec3(2.0));
@@ -603,7 +687,9 @@ void fragment() {
 	// no vision ambient either: night vision's lift would fill its faded rim back to a square.
 	vec3 lit = t.rgb * min(COLOR.rgb * 2.0 + dyn + vec3(overlay ? 0.0 : svm_vision_ambient), vec3(2.0));
 #elif defined(LIGHT_ACTOR)
-	vec3 lit = t.rgb * min(v_light + spot + vec3(svm_vision_ambient), vec3(2.0));
+	// The flares per pixel, with the actor model's falloff (their shadows fall across the actor).
+	vec3 flare = svm_flare_count > 0 ? svm_flare_light(v_wpos, wn, 1.0, 0) : vec3(0.0);
+	vec3 lit = t.rgb * min(v_light + spot + flare + vec3(svm_vision_ambient), vec3(2.0));
 #else
 	vec3 lit = t.rgb;
 #endif

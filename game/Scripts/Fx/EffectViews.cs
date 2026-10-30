@@ -73,6 +73,27 @@ public sealed partial class EffectViews : Node3D
     /// <summary>Lights other views add for the next <see cref="Draw"/> only (the muzzle flashes' lights).</summary>
     public List<LightEntry> ExtraLights { get; } = [];
 
+    private FlareLights? _flares;
+    private float _flareTime;
+
+    /// <summary>The burning flares' shadowed lights (made with the first flare).</summary>
+    private FlareLights Flares
+    {
+        get
+        {
+            if (_flares is null)
+            {
+                _flares = new FlareLights { Name = "FlareLights" };
+                AddChild(_flares);
+            }
+
+            return _flares;
+        }
+    }
+
+    /// <summary>Flares lit last frame and how many of them had a cube shadow (0, 0 before the first flare).</summary>
+    public (int Lit, int Shadowed) FlareStats => _flares is null ? (0, 0) : (_flares.Lit, _flares.Shadowed);
+
     /// <summary>Flash lights the last <see cref="Draw"/> handed to the world's dynamic lights.</summary>
     public int WorldLit { get; private set; }
 
@@ -475,7 +496,16 @@ public sealed partial class EffectViews : Node3D
                 PlaceLight(light, a);
                 if (light.Visible)
                 {
-                    _worldLights.Add(WorldLightOf(a, light.LightEnergy * 255f));
+                    LightEntry entry = WorldLightOf(a, light.LightEnergy * 255f);
+                    if (a is SFlareEmitter)
+                    {
+                        // The burning flare lights what it can see, in every zone, with shadows (FlareLights).
+                        Flares.Add(a, entry, cameraLocation);
+                    }
+                    else
+                    {
+                        _worldLights.Add(entry);
+                    }
                 }
             }
         }
@@ -495,6 +525,8 @@ public sealed partial class EffectViews : Node3D
         ExtraLights.Clear();
         Map?.WorldLights.SetSpawned(_worldLights);
         Map?.ActorLighting.SetSpawned(_worldLights);
+        _flareTime += dt;
+        _flares?.Flush(_flareTime);
         WorldLit = Map?.WorldLights.SpawnedCount ?? 0;
         PeakWorldLit = Math.Max(PeakWorldLit, WorldLit);
         _worldLights.Clear();
@@ -774,13 +806,12 @@ public sealed partial class EffectViews : Node3D
     /// light applied to the world (UE2 lights a spawned bDynamicLight actor's surroundings each frame).
     /// </summary>
     [Provenance(ProvenanceKind.Estimated, "The world falloff, gain and radius are those of the map's dynamic lights (docs/RENDERING.md#dynamic-lights)")]
-    [Provenance(ProvenanceKind.Measured, "The burning flare lights across zone boundaries in the original (seen by Ryan at AquaD's Entrance / Blue Room boundary), although SFlareEmitter is bAffectOwnZoneOnly")]
     private LightEntry WorldLightOf(Actor a, float brightness) => new(
         a.GetUcClass().Name, a.Location, a.Rotation, brightness, a.LightHue, a.LightSaturation, a.LightRadius, a.LightCone,
-        (int)a.LightEffect, 1, true, true, true, true, null, a.LightPeriod, a.LightPhase, a.bAffectOwnZoneOnly && a is not SFlareEmitter)
+        (int)a.LightEffect, 1, true, true, true, true, null, a.LightPeriod, a.LightPhase, a.bAffectOwnZoneOnly)
     {
-        // SFlashLight is bAffectOwnZoneOnly: it lights only the surfaces of the zone it is in. The burning flare lights
-        // every zone its radius reaches (world surfaces, meshes and actors).
+        // SFlashLight is bAffectOwnZoneOnly: it lights only the surfaces of the zone it is in. The burning flare's light
+        // goes to FlareLights instead, which keeps to what the flare can see.
         ZoneIndex = Map?.ZoneIndexAt(a.Location) ?? -1,
     };
 
