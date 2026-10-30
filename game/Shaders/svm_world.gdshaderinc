@@ -365,7 +365,11 @@ vec3 svm_spot_slot(int i, vec3 wp, vec3 wn, float zone, int ignore) {
 		return vec3(0.0);
 	}
 	vec3 cookie = texture(svm_spot_cookies, vec3(suv, f.w)).rgb;
-	float atten = a.w < 0.5 ? 1.0 : texture(svm_spot_atten, vec2((z - c.a) / a.y, a.w < 1.5 ? 0.25 : 0.75)).r;
+	// Clamped to the ramp's end texel centres: a global sampler repeats, and at the far end of the range the filter
+	// would blend the last (dark) texel with the first (full bright) one, drawing a bright ring at the range's edge.
+	vec2 aw = vec2(textureSize(svm_spot_atten, 0));
+	float au = clamp((z - c.a) / a.y, 0.5 / aw.x, 1.0 - 0.5 / aw.x);
+	float atten = a.w < 0.5 ? 1.0 : texture(svm_spot_atten, vec2(au, a.w < 1.5 ? 0.25 : 0.75)).r;
 	// N.L towards the apex (parallel rays: along the axis), in the light's view space.
 	vec3 nv = vec3(dot(r0.xyz, wn), dot(r1.xyz, wn), dot(r2.xyz, wn));
 	vec3 l = f.z > 0.5 ? vec3(0.0, 0.0, 1.0) : normalize(-v);
