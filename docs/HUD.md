@@ -315,7 +315,13 @@ grow with the width (`HudLayout.HudScreen`: either `widescreen` or `widescreen_h
   and they grow with the width (`HudMarkers.ErSmall`, `WidescreenHud`; the settings file has no keys for them yet).
 - Full-frame overlays: P_StickyCam, P_CamNetWork and the binocular pages are stretched over the picture
   (`StretchAll`; centred at 4:3 the sticky cam's scope effect left bare bands at the sides of a 16:9 screen); the
-  merc's gas mask (`MaskGas` on P_HudDEF) covers the picture.
+  merc's gas mask (`MaskGas` on P_HudDEF) covers the picture: in a centre-anchored area an unrotated image edge
+  within 2 page units of the 4:3 border is pulled out to the screen border (the mask's tint starts at x 1).
+- Texture addressing: an image whose texture coordinates stay inside 0..1 (give or take 0.05) samples clamped; tiled
+  or scrolled ones (shock edges, the end-of-round noise) repeat. The gas mask's quarters are offset 0.01, and
+  repeating wrapped their outer edge round to the clear lens centre, a light strip at each side of a wide screen.
+- Near-black art: a texture whose every visible texel is RGB 12 or less loads as pure black (`HudAssets`), its alpha
+  untouched. Only `maskgaz` qualifies: its DXT black is flat 4 x 4 patches of RGB 0 to 10, magnified to visible blocks.
 
 `--svm-smoke=aspect` plays SteeE as the spy and as the merc at 1024 x 768, 1152 x 720, 1280 x 720 and 1680 x 720 and
 checks each: the window is stretched only at 21:9 and the play view is then 1280 x 720; the camera's vertical angle

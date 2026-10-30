@@ -49,6 +49,12 @@ public sealed class MagmaDrawItem
 
     public MagmaBlend Blend { get; init; }
 
+    /// <summary>
+    /// Sample the texture clamped to its edges instead of repeating it: set for images whose texture coordinates stay
+    /// inside the texture (a nudge of a few hundredths aside), so the far edge does not wrap round to the near one.
+    /// </summary>
+    public bool Clamp { get; init; }
+
     // Texts
     public string Text { get; init; } = "";
 
@@ -137,6 +143,12 @@ public sealed class MagmaRenderer
 {
     public const float PageWidth = 640f;
     public const float PageHeight = 480f;
+
+    /// <summary>Page units from the 4:3 border within which a centre-anchored image edge still reaches the screen border.</summary>
+    private const float PageEdgeSlack = 2f;
+
+    /// <summary>How far texture coordinates may leave 0..1 and still sample clamped (the HUD's edge nudges are 0.01 to 0.02).</summary>
+    private const float UvNudge = 0.05f;
 
     private readonly Dictionary<MagmaNode, Dictionary<string, MagmaListRows>> _lists = new();
     private readonly Dictionary<(MagmaNode, string), List<MagmaNode>> _rowNodes = new();
@@ -487,14 +499,15 @@ public sealed class MagmaRenderer
             Vector2 p = c0 + new Vector2(d.X * cs - d.Y * sn, d.X * sn + d.Y * cs) + origin;
             points[c] = ToScreen(p, anchor);
             // Centre-anchored areas on a wide screen: edges at or past the 4:3 page border reach the screen border.
+            // Full-frame layers are often placed a unit or two in (the gas mask's tint starts at x 1): they count too.
             if (anchor == MagmaAnchor.Center && rot == 0f)
             {
-                if (p.X <= 0f)
+                if (p.X <= PageEdgeSlack)
                 {
                     points[c].X = Math.Min(points[c].X, 0f);
                 }
 
-                if (p.X >= PageWidth)
+                if (p.X >= PageWidth - PageEdgeSlack)
                 {
                     points[c].X = Math.Max(points[c].X, Screen.X);
                 }
@@ -532,6 +545,7 @@ public sealed class MagmaRenderer
         ReadOnlySpan<Vector2> st = [new(0f, 0f), new(1f, 0f), new(1f, 1f), new(0f, 1f)];
         var uvs = new Vector2[4];
         var colors = new Color[4];
+        bool clamp = true;
         float scale = w.Blend switch
         {
             MagmaBlend.Dodge2X or MagmaBlend.Burn2X => 1f,
@@ -543,6 +557,9 @@ public sealed class MagmaRenderer
         {
             float su = (k.Tiling.X >= 0f ? st[c].X * k.Tiling.X : 1f + st[c].X * k.Tiling.X) + k.Offset.X;
             float sv = (k.Tiling.Y >= 0f ? st[c].Y * k.Tiling.Y : 1f + st[c].Y * k.Tiling.Y) + k.Offset.Y;
+            // Tiled or scrolled images (shock edges, noise) need the repeat; the rest (the gas mask's quarters,
+            // offset 0.01) would wrap their far edge round to the opposite one and show it as a strip.
+            clamp &= su >= -UvNudge && su <= 1f + UvNudge && sv >= -UvNudge && sv <= 1f + UvNudge;
             uvs[c] = new Vector2((region.L + su * (region.R - region.L)) / Math.Max(1, size.X),
                 (region.T + sv * (region.B - region.T)) / Math.Max(1, size.Y));
             Color keyed = o?.Color ?? k.Colors[c];
@@ -562,17 +579,17 @@ public sealed class MagmaRenderer
         {
             foreach ((Vector2[] p, Vector2[] uv, Color[] col) in Clip(points, uvs, colors))
             {
-                Add(into, path, anchor, pageRect, package.Name, material.Texture, p, uv, col, w.Blend);
+                Add(into, path, anchor, pageRect, package.Name, material.Texture, p, uv, col, w.Blend, clamp);
             }
 
             return;
         }
 
-        Add(into, path, anchor, pageRect, package.Name, material.Texture, points, uvs, colors, w.Blend);
+        Add(into, path, anchor, pageRect, package.Name, material.Texture, points, uvs, colors, w.Blend, clamp);
     }
 
     private static void Add(MagmaDrawList into, string path, MagmaAnchor anchor, Rect4 pageRect, string package, string texture,
-        Vector2[] points, Vector2[] uvs, Color[] colors, MagmaBlend blend) =>
+        Vector2[] points, Vector2[] uvs, Color[] colors, MagmaBlend blend, bool clamp) =>
         into.Items.Add(new MagmaDrawItem
         {
             Path = path,
@@ -585,6 +602,7 @@ public sealed class MagmaRenderer
             Uvs = uvs,
             Colors = colors,
             Blend = blend,
+            Clamp = clamp,
         });
 
     private static Color Clamp01(Color c) =>

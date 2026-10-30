@@ -220,11 +220,58 @@ public sealed class HudAssets
             Image image = Image.LoadFromFile(file);
             if (image is not null && !image.IsEmpty())
             {
+                BlackenNearBlack(image);
                 texture = ImageTexture.CreateFromImage(image);
             }
         }
 
         _textures[file] = texture;
         return texture;
+    }
+
+    /// <summary>Brightest channel value (0..255) a texture's visible texels may have and still count as black art.</summary>
+    private const int NearBlack = 12;
+
+    /// <summary>
+    /// A texture whose every visible texel is near-black is black art shaped by its alpha (the gas mask's
+    /// <c>maskgaz</c>): its colour is set to pure black. The DXT compression stored that black as flat 4 x 4 patches of
+    /// RGB 0 to 10, which the mask magnifies to blocks about 25 pixels wide; the alpha, which shapes it, is left as is.
+    /// </summary>
+    private static void BlackenNearBlack(Image image)
+    {
+        if (image.IsCompressed())
+        {
+            return;
+        }
+
+        image.Convert(Image.Format.Rgba8);
+        byte[] data = image.GetData();
+        bool any = false;
+        for (int i = 0; i < data.Length; i += 4)
+        {
+            if (data[i + 3] == 0)
+            {
+                continue;
+            }
+
+            if (data[i] > NearBlack || data[i + 1] > NearBlack || data[i + 2] > NearBlack)
+            {
+                return;
+            }
+
+            any |= data[i] != 0 || data[i + 1] != 0 || data[i + 2] != 0;
+        }
+
+        if (!any)
+        {
+            return;
+        }
+
+        for (int i = 0; i < data.Length; i += 4)
+        {
+            data[i] = data[i + 1] = data[i + 2] = 0;
+        }
+
+        image.SetData(image.GetWidth(), image.GetHeight(), image.HasMipmaps(), Image.Format.Rgba8, data);
     }
 }

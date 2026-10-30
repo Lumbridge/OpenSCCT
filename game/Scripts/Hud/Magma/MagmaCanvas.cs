@@ -51,9 +51,12 @@ public partial class MagmaCanvas : Node2D
         while (start < items.Count)
         {
             bool dodge = IsDodge(items[start]);
+            bool? clamp = ClampOf(items[start]);
             int end = start + 1;
-            while (end < items.Count && IsDodge(items[end]) == dodge)
+            while (end < items.Count && IsDodge(items[end]) == dodge &&
+                   (clamp is null || ClampOf(items[end]) is null || ClampOf(items[end]) == clamp))
             {
+                clamp ??= ClampOf(items[end]);
                 end++;
             }
 
@@ -65,6 +68,8 @@ public partial class MagmaCanvas : Node2D
             }
 
             b.Material = dodge ? DodgeMaterial() : null;
+            // Repeat is per canvas item, so a run shares it: clamped images must not wrap their far edge round.
+            b.TextureRepeat = clamp == true ? TextureRepeatEnum.Disabled : TextureRepeatEnum.Enabled;
             b.Visible = true;
             // A dodge run reads the screen as drawn so far, HUD included: copy the back buffer just before it.
             _copies[batch - 1].Visible = dodge;
@@ -87,6 +92,9 @@ public partial class MagmaCanvas : Node2D
 
     private static bool IsDodge(MagmaDrawItem item) =>
         item.Kind == MagmaWidgetKind.Image && item.Blend is MagmaBlend.Dodge or MagmaBlend.Dodge2X or MagmaBlend.Dodge4X;
+
+    /// <summary>An image's sampling (clamped or repeated); null for texts, which sit inside their font page either way.</summary>
+    private static bool? ClampOf(MagmaDrawItem item) => item.Kind == MagmaWidgetKind.Image ? item.Clamp : null;
 
     private ShaderMaterial DodgeMaterial() => _dodge ??= new ShaderMaterial { Shader = new Shader { Code = DodgeShader } };
 
