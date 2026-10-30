@@ -381,11 +381,11 @@ public partial class SWeaponDefense
 
                 FRotator front = hit.HitNormal.Rotation();
                 front.Roll = roll;
-                ImpactManager.AddImpact(this, CNAME_ImpactHole, hit.HitLocation + hit.HitNormal * 0.25f, front, PredictedBy);
+                ImpactManager.AddImpact(this, CNAME_ImpactHole, hit.HitLocation + hit.HitNormal * 0.25f, front, PredictedBy, other);
                 FVector back = hit.HitLocation - hit.HitNormal * K.FakeCeilingExit;
                 FRotator backRot = (-hit.HitNormal).Rotation();
                 backRot.Roll = SvmMath.Trunc(FRand() * K.RandomRoll);
-                ImpactManager.AddImpact(this, CNAME_ImpactHoleBack, back, backRot, PredictedBy);
+                ImpactManager.AddImpact(this, CNAME_ImpactHoleBack, back, backRot, PredictedBy, other);
                 TraceFire(Accuracy, YOffset, ZOffset, back);
                 return;
             }
@@ -442,7 +442,7 @@ public partial class SWeaponDefense
         Name effect = ImpactClass(hit.SurfaceType);
         FRotator r = hit.HitNormal.Rotation();
         r.Roll = roll;
-        ImpactManager.AddImpact(this, effect, hit.HitLocation, r, PredictedBy);
+        ImpactManager.AddImpact(this, effect, hit.HitLocation, r, PredictedBy, hit.Actor);
     }
 
     /// <summary>
@@ -502,18 +502,18 @@ public partial class SWeaponDefense
 
             FRotator front = hit.HitNormal.Rotation();
             front.Roll = roll;
-            ImpactManager.AddImpactHere(XLevel, CNAME_ImpactHole, hit.HitLocation + hit.HitNormal * 0.25f, front);
+            ImpactManager.AddImpactHere(XLevel, CNAME_ImpactHole, hit.HitLocation + hit.HitNormal * 0.25f, front, other);
             FVector back = hit.HitLocation - hit.HitNormal * K.FakeCeilingExit;
             FRotator backRot = (-hit.HitNormal).Rotation();
             backRot.Roll = SvmMath.Trunc(ShotSpread.Unit(ShotId, AccurateRotation.Yaw, ShotSpread.Merc, call + 1) * K.RandomRoll);
-            ImpactManager.AddImpactHere(XLevel, CNAME_ImpactHoleBack, back, backRot);
+            ImpactManager.AddImpactHere(XLevel, CNAME_ImpactHoleBack, back, backRot, other);
             PredictTraceFire(ShotId, Accuracy, back);
             return;
         }
 
         FRotator r = hit.HitNormal.Rotation();
         r.Roll = roll;
-        ImpactManager.AddImpactHere(XLevel, ImpactClass(hit.SurfaceType), hit.HitLocation, r);
+        ImpactManager.AddImpactHere(XLevel, ImpactClass(hit.SurfaceType), hit.HitLocation, r, other);
     }
 
     private static readonly Name ImpactBeton = new("SImpactEffectBeton");

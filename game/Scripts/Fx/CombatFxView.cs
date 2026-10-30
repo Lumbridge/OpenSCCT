@@ -502,6 +502,7 @@ public partial class CombatFxView : Node3D
 
             if (m.Serial == serial)
             {
+                node.Visible = m.DecalShown;
                 continue;
             }
 
@@ -518,7 +519,7 @@ public partial class CombatFxView : Node3D
             Vector3 n = UeSpace.DirectionToGodot(x);
             Vector3 up = MathF.Abs(n.Y) > 0.99f ? Vector3.Right : Vector3.Up;
             node.LookAt(node.GlobalPosition - n, up);
-            node.Visible = true;
+            node.Visible = m.DecalShown;
             Marks++;
             LastMarkAt = at;
             if (!m.Spark.IsNone)

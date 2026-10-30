@@ -44,6 +44,22 @@ public sealed class ImpactMark
     public int Serial { get; internal set; }
 
     public bool Live => Timer != -1;
+
+    /// <summary>The gameplay actor the decal was projected on (null for the level's geometry or none known).</summary>
+    public Actor? Surface { get; internal set; }
+
+    /// <summary>True when the surface was already not drawn when the mark was added: the decal found nothing.</summary>
+    public bool SurfaceGone { get; internal set; }
+
+    /// <summary>
+    /// The decal is drawn: a projector is drawn as part of the surfaces it was attached to, so a decal on a gameplay
+    /// actor goes while that actor is not drawn (a broken vase), and one whose actor was already gone shows nothing.
+    /// </summary>
+    [Provenance(ProvenanceKind.Estimated, "UE2 projectors attach to the colliding static-mesh actors and BSP in their frustum when shown and are drawn with them; not decoded for this build")]
+    public bool DecalShown => !SurfaceGone && (Surface is null || IsDrawn(Surface));
+
+    /// <summary>True while <paramref name="a"/> is drawn (a projector on it is drawn with it).</summary>
+    public static bool IsDrawn(Actor a) => !a.bDeleteMe && !a.bHidden && a.DrawType != EDrawType.DT_None;
 }
 
 /// <summary>
@@ -147,7 +163,7 @@ public sealed class ImpactTable
     /// </summary>
     [Uc("Engine.SImpactManager.AddImpact")]
     [PortOf("uc:Engine.SImpactManager:AddImpact", Spec = "spec/equipment/impact-manager.md#rules")]
-    public ImpactMark Add(ImpactEffectDefaults type, FVector Loc, FRotator Rot, float now)
+    public ImpactMark Add(ImpactEffectDefaults type, FVector Loc, FRotator Rot, float now, Actor? Surface = null)
     {
         Update(now);
         int found = -1;
@@ -181,6 +197,8 @@ public sealed class ImpactTable
         m.Unlit = type.bUnlit;
         Rot.GetAxes(out FVector X, out _, out _);
         m.DecalLocation = Loc + X * K.ImpactDecalOffset;
+        m.Surface = Surface is LevelInfo ? null : Surface;
+        m.SurfaceGone = m.Surface is not null && !ImpactMark.IsDrawn(m.Surface);
         Added++;
         return m;
     }
@@ -218,12 +236,13 @@ public static class ImpactManager
     /// Level.ImpactManager.AddImpact from a server trace (rule 3): broadcast to every client (sent to each remote
     /// player, the machines that have the always-relevant manager), and run here on a listen server or standalone.
     /// <paramref name="Predicted"/>: the player whose client already drew this impact (fire prediction), left out.
+    /// <paramref name="Surface"/>: the actor the trace hit, which carries the decal (sent along with the call).
     /// </summary>
     [Uc("Engine.SImpactManager.AddImpact")]
     [PortOf("uc:Engine.SImpactManager:AddImpact", Spec = "spec/equipment/impact-manager.md#network")]
     [PortOf("rep:Engine.SImpactManager.AddImpact", Spec = "spec/equipment/impact-manager.md#network")]
     [Provenance(ProvenanceKind.Estimated, "The broadcast travels as one server-to-owner combat call per remote player instead of on the manager's channel")]
-    public static void AddImpact(Actor Source, Name Type, FVector Loc, FRotator Rot, PlayerController? Predicted = null)
+    public static void AddImpact(Actor Source, Name Type, FVector Loc, FRotator Rot, PlayerController? Predicted = null, Actor? Surface = null)
     {
         Level level = Source.XLevel;
         if (level.Info.NetMode == ENetMode.NM_Client)
@@ -231,7 +250,7 @@ public static class ImpactManager
             return;
         }
 
-        var call = new CombatCall(CNAME_AddImpact) { Name1 = Type, Vector1 = Loc, Rotation = Rot };
+        var call = new CombatCall(CNAME_AddImpact) { Name1 = Type, Vector1 = Loc, Rotation = Rot, Actor1 = Surface is LevelInfo ? null : Surface };
         foreach (SPlayerController pc in level.AllActors<SPlayerController>())
         {
             if (!pc.bDeleteMe && pc.IsRemotePlayer && !ReferenceEquals(pc, Predicted))
@@ -242,7 +261,7 @@ public static class ImpactManager
 
         if (level.Info.NetMode != ENetMode.NM_DedicatedServer)
         {
-            AddImpactHere(level, Type, Loc, Rot);
+            AddImpactHere(level, Type, Loc, Rot, Surface);
         }
     }
 
@@ -251,11 +270,11 @@ public static class ImpactManager
     [PortOf("uc:Engine.SImpactEffectBase:Effects", Spec = "spec/equipment/impact-manager.md#rules")]
     [PortOf("uc:Engine.SImpactEffectBase:Timer", Spec = "spec/equipment/impact-manager.md#rules")]
     [Provenance(ProvenanceKind.Estimated, "The impact sound is raised at once; its travel delay (distance / 43561 s, about a tick at 1000 uu) is left to the view")]
-    public static ImpactMark AddImpactHere(Level level, Name Type, FVector Loc, FRotator Rot)
+    public static ImpactMark AddImpactHere(Level level, Name Type, FVector Loc, FRotator Rot, Actor? Surface = null)
     {
         ImpactTable table = ImpactTable.Of(level);
         ImpactEffectDefaults type = table.Defaults(Type);
-        ImpactMark mark = table.Add(type, Loc, Rot, level.TimeSeconds);
+        ImpactMark mark = table.Add(type, Loc, Rot, level.TimeSeconds, Surface);
         SimEvents events = level.World.Events;
         events.Add(new SimEvent
         {

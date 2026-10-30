@@ -103,7 +103,7 @@ public static class GadgetNetReceive
                 PC.LoseStickyCam((byte)c.Int1);
                 return true;
             case "AddImpact":
-                ImpactManager.AddImpactHere(PC.XLevel, c.Name1, c.Vector1, c.Rotation);
+                ImpactManager.AddImpactHere(PC.XLevel, c.Name1, c.Vector1, c.Rotation, c.Actor1);
                 return true;
             case "ReloadStickyCam":
                 PC.ReloadStickyCam((byte)c.Int1);

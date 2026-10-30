@@ -56,6 +56,11 @@ Impact classes (class defaults; materials and sounds are package paths):
       any other type keeps the effect hidden.
    5. The decal takes the slot effect's ImpactMaterial, sits 10 uu along Rot's forward axis from Loc (Rot faces out
       of the surface, so the decal sits just in front of it) and projects back along -X, and is shown.
+      A shown projector attaches to the colliding static-mesh actors and BSP in its frustum and is drawn as part of
+      them (UE2 projector behaviour, not decoded for this build). So a decal on a gameplay object is not drawn while
+      that object is not drawn (a broken vase, DrawType DT_None), and the shot that breaks a one-hit object leaves no
+      decal on it (its collision is already off). The port records the actor the trace hit with the mark (sent with
+      the call) instead of projecting.
    6. Effects(): spawn the type's spark emitter at the mark, then play SndBullet (volume 0.8, radius 100) after
       `distance to the local player's controller / 43561` seconds.
 4. **Timer** (every second): each slot whose timer has passed hides its effect and decal and is freed.

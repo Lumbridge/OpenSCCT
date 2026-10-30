@@ -218,11 +218,11 @@ public partial class SWeaponAttaque
 
             if (IsMetal(hit.SurfaceType))
             {
-                ImpactManager.AddImpact(this, ImpactShockerMetal, impactAt, impactRot, PredictedBy);
+                ImpactManager.AddImpact(this, ImpactShockerMetal, impactAt, impactRot, PredictedBy, other);
             }
             else if (hit.SurfaceType == ESurfaceType.SURFACE_MediumWater)
             {
-                ImpactManager.AddImpact(this, ImpactShockerMetal, impactAt, impactRot, PredictedBy);
+                ImpactManager.AddImpact(this, ImpactShockerMetal, impactAt, impactRot, PredictedBy, other);
                 if (other is not LevelInfo)
                 {
                     ShockThroughWater(shooter, other, hit);
@@ -230,7 +230,7 @@ public partial class SWeaponAttaque
             }
             else
             {
-                ImpactManager.AddImpact(this, ImpactShocker, impactAt, impactRot, PredictedBy);
+                ImpactManager.AddImpact(this, ImpactShocker, impactAt, impactRot, PredictedBy, other);
             }
 
             return;
@@ -318,7 +318,7 @@ public partial class SWeaponAttaque
         Name type = world && (IsMetal(hit.SurfaceType) || hit.SurfaceType == ESurfaceType.SURFACE_MediumWater)
             ? ImpactShockerMetal
             : ImpactShocker;
-        ImpactManager.AddImpactHere(XLevel, type, hit.HitLocation + hit.HitNormal * K.ShockerImpactOffset, rot);
+        ImpactManager.AddImpactHere(XLevel, type, hit.HitLocation + hit.HitNormal * K.ShockerImpactOffset, rot, world ? other : null);
     }
 
     private static bool IsMetal(ESurfaceType s) =>
