@@ -197,6 +197,7 @@ public sealed class ServerHost : INetworkNotify, IDisposable
 
         Map = map!;
         Driver.MapBinding.Bind(Map.MapActors);
+        Driver.MapBinding.CapturePlaced(Driver.Classes);
         if (Map.Physics is { } physics)
         {
             Driver.Relevancy.LineOfSight = new PhysicsLineOfSight(physics);

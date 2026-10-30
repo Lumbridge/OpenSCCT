@@ -42,6 +42,9 @@ public sealed class ActorChannel : Channel
     private int[] _recent = [];
     private object?[] _recentObjects = [];
     private bool[] _dirty = [];
+
+    // Map actors: properties the map placed away from the class default, not yet sent on this channel (rule 14a).
+    private bool[]? _placedUnsent;
     private Retirement[] _retirement = [];
     private int[] _written = [];
     private bool[] _writtenMapped = [];
@@ -120,6 +123,7 @@ public sealed class ActorChannel : Channel
         _recent = new int[layout.WordCount];
         _recentObjects = new object?[layout.ObjectCount];
         layout.CopyDefaults(_recent, _recentObjects);
+        _placedUnsent = Connection.Driver.MapBinding.PlacedDiffers(actor)?.Clone() as bool[];
         _dirty = new bool[layout.PropertyCount];
         _retirement = new Retirement[layout.PropertyCount];
         _written = new int[layout.PropertyCount];
@@ -265,7 +269,7 @@ public sealed class ActorChannel : Channel
 
                 if ((memo != 2 && !(driver.PropertyPush is { } push && push(actor, connection, p))) ||
                     (memo == 2 && driver.PropertyWithhold is { } withhold && withhold(actor, connection, p)) ||
-                    RepLayout.Same(p, words, _recent, objects, _recentObjects))
+                    (RepLayout.Same(p, words, _recent, objects, _recentObjects) && !(_placedUnsent?[i] ?? false)))
                 {
                     continue;
                 }
@@ -319,6 +323,10 @@ public sealed class ActorChannel : Channel
                 Array.Copy(words, p.WordOffset, _recent, p.WordOffset, p.Words);
                 Array.Copy(objects, p.ObjectOffset, _recentObjects, p.ObjectOffset, p.Objects);
                 _dirty[i] = false;
+                if (_placedUnsent is not null)
+                {
+                    _placedUnsent[i] = false;
+                }
             }
             else
             {

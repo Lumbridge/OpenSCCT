@@ -202,6 +202,18 @@ booleans not listed in the defaults file are false):
     (observed in RE+ testing; native ticking such as particles still runs). `Emitter` with
     `bNetworkTrigger` switches itself to `ROLE_SimulatedProxy` and `bAlwaysRelevant` in `PreBeginPlay`
     so that `Trigger` can reach clients through `ReplicateTrigger`.
+14a. **Map actor baseline (an OpenSCCT addition).** The original opens every channel against the class
+    defaults (`SetChannelActor` copies the class defaults into `Recent`, then zeroes config properties; no
+    case for map actors; decoded, editor 0x11140b30). A map actor's property that the map placed away from
+    its default and that the server later sets back to the default before a client's channel opens is
+    therefore never sent to that client, which keeps the map's value (a late joiner, or a client coming back
+    into relevancy after its channel closed). The rewrite keeps the original rule and adds one: once the map has
+    loaded on the server (after its begin-play passes, before any client joins), it records for each
+    `bStatic` or `bNoDelete` map actor which replicated properties differ from the class default; a channel to
+    that actor also sends those properties, whenever their condition holds, until it has sent each once, even
+    if the value now equals the default. A property equal to its default both in the map and now is still not
+    sent. Not covered: a property the server's own begin-play moves away from a non-default map value is
+    recorded at its new value.
 15. **Client to server.** A client can only call functions on actors it owns (its player controller,
     its pawn, its inventory, gadgets, the goggle beam). Map interactions therefore go through the player
     controller (`InteractionInit`, `Interaction`, `InteractionPost`, `DestroyGPO`) or through owned

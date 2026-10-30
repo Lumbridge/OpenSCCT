@@ -1453,6 +1453,7 @@ public sealed class NetMapBinding
 {
     private Actor?[] _actors = [];
     private readonly Dictionary<int, int> _indexByActorId = new();
+    private readonly Dictionary<int, bool[]> _placedByActorId = new();
 
     public int Count => _actors.Length;
 
@@ -1462,6 +1463,7 @@ public sealed class NetMapBinding
         ArgumentNullException.ThrowIfNull(actors);
         _actors = new Actor?[actors.Count];
         _indexByActorId.Clear();
+        _placedByActorId.Clear();
         for (int i = 0; i < actors.Count; i++)
         {
             _actors[i] = actors[i];
@@ -1477,6 +1479,59 @@ public sealed class NetMapBinding
 
     /// <summary>The map actor at <paramref name="index"/>, or null.</summary>
     public Actor? Get(int index) => (uint)index < (uint)_actors.Length && _actors[index] is { bDeleteMe: false } a ? a : null;
+
+    /// <summary>
+    /// Server: records, for each bound bStatic or bNoDelete actor, which replicated properties the map placed at a
+    /// value other than the class default. Call once after <see cref="Bind"/>, when the map has loaded and before any
+    /// client connects. The original opens every channel against the class defaults only, so a map actor's property
+    /// set back to its default before a client's channel opens never reaches that client, which keeps the map's
+    /// value; a channel to a map actor sends these properties in its first update as well (an OpenSCCT addition,
+    /// spec/net/model.md rule 14a).
+    /// </summary>
+    [Provenance(ProvenanceKind.Estimated, "OpenSCCT addition (spec/net/model.md rule 14a): the original's SetChannelActor (editor 0x11140b30) baselines map actors on class defaults only")]
+    public void CapturePlaced(NetClassRegistry classes)
+    {
+        ArgumentNullException.ThrowIfNull(classes);
+        _placedByActorId.Clear();
+        foreach (Actor? actor in _actors)
+        {
+            if (actor is not { bDeleteMe: false } || !(actor.bStatic || actor.bNoDelete) ||
+                classes.Find(actor.GetType()) is not { } info)
+            {
+                continue;
+            }
+
+            RepLayout layout = info.Layout;
+            var placed = new int[layout.WordCount];
+            var placedObjects = new object?[layout.ObjectCount];
+            var defaults = new int[layout.WordCount];
+            var defaultObjects = new object?[layout.ObjectCount];
+            layout.Capture(actor, placed, placedObjects);
+            layout.CopyDefaults(defaults, defaultObjects);
+            RepProperty[] props = layout.Properties;
+            bool[]? differs = null;
+            for (int i = 0; i < props.Length; i++)
+            {
+                if (!RepLayout.Same(props[i], placed, defaults, placedObjects, defaultObjects))
+                {
+                    differs ??= new bool[props.Length];
+                    differs[i] = true;
+                }
+            }
+
+            if (differs is not null)
+            {
+                _placedByActorId[actor.ActorId] = differs;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Per replicated property of <paramref name="actor"/>, whether the map placed it at a value other than the class
+    /// default (<see cref="CapturePlaced"/>); null when none was, or the actor is not a bound map actor.
+    /// </summary>
+    internal bool[]? PlacedDiffers(Actor actor) =>
+        IndexOf(actor) >= 0 && _placedByActorId.TryGetValue(actor.ActorId, out bool[]? differs) ? differs : null;
 
     /// <summary>
     /// UE2 client map setup: map actors that are bStatic or bNoDelete exchange Role and RemoteRole (a class with

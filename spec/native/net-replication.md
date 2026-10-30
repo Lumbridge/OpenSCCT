@@ -118,7 +118,8 @@ Connection: `SentTemporaries` (bNetTemporary actors already sent), `LastServerTi
     actor's cache, sizes `Retirement` to the class's replicated properties, and, for non-temporary
     actors, fills `Recent` from the class defaults and then zeroes the class's config properties in
     it (so a property equal to its default is not sent in the first bunch, while config values,
-    which may differ between machines, always are).
+    which may differ between machines, always are). Map actors get no special case here; the rewrite
+    adds one (`spec/net/model.md` rule 14a).
 
 ### Values
 
