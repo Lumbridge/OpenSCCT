@@ -408,6 +408,12 @@ Blue Room) and shines through walls inside its zone. Here a flare lights what it
 - The flare adds after the 2x cap of the baked and dynamic light (`t x (min(baked + dyn, 2) + flare)`, then the
   usual cap at 1): the original caps the sum, so a surface already lit to the cap by its lightmap, baked colours or
   actor light took no flare light at all.
+- A flare is `LE_PointAmbient`, which the actor model lights with its attenuated colour whatever the normal. On BSP
+  and static meshes its N.L wraps instead (`(N.L + 0.5) / 1.5`): a surface facing the flare is lit as with plain N.L,
+  one edge-on to it a third as much, so a flare stuck to a ceiling (the Pirates' Room ducts in AquaD) lights the
+  ceiling round it, which plain N.L met edge-on and left dark. The shadow keeps the wrapped light off the far side of
+  walls. The shadow's normal offset grows by 3 shadow texels of the distance (a texel spans 2 / face size of it), so a
+  surface nearly edge-on to the flare is not striped by its own depth.
 - The light source wavers up to 1.5 uu with the flame, so the shadows move a little, as a burning flare's do.
 - Flares past the 4 cubes light unshadowed; past 8 they are dark.
 

@@ -452,19 +452,42 @@ float svm_flare_shadow(vec3 d, vec4 sh, vec4 ex) {
 	return sum / 9.0;
 }
 
-// Every flare at a surface point: rscale scales the radius, falloff as svm_one_light.
+// How far a flare's light wraps past a surface's edge-on angle on BSP and static meshes: (N.L + w) / (1 + w).
+const float SVM_FLARE_WRAP = 0.5;
+// The shadow's normal offset grows with distance by this many shadow texels (a texel spans 2 / face size of the
+// distance): past the softening disc, so a surface nearly edge-on to the flare (the ceiling round one stuck to it)
+// is not shadowed by its own depth in stripes.
+const float SVM_FLARE_OFFSET_TEXELS = 3.0;
+
+// Every flare at a surface point: rscale scales the radius, falloff as svm_one_light. A flare is LE_PointAmbient, which
+// the actor model (falloff 0) lights with its attenuated colour whatever the normal. On BSP and static meshes the N.L
+// term wraps instead (SVM_FLARE_WRAP): a surface facing the flare is lit as before, one edge-on to it (the ceiling
+// round a flare stuck to it, the wall beside one lying against it) a third as much, where N.L alone left it dark. The
+// shadow still keeps the light off the far side of walls.
 vec3 svm_flare_light(vec3 wp, vec3 wn, float rscale, int falloff) {
 	vec3 sum = vec3(0.0);
 	for (int i = 0; i < svm_flare_count; i++) {
 		vec4 p = texelFetch(svm_flares, ivec2(0, i), 0);
 		p.w *= rscale;
-		vec3 l = svm_one_light(p, texelFetch(svm_flares, ivec2(1, i), 0), texelFetch(svm_flares, ivec2(2, i), 0), wp, wn, falloff);
+		vec4 col = texelFetch(svm_flares, ivec2(1, i), 0);
+		vec4 spot = texelFetch(svm_flares, ivec2(2, i), 0);
+		vec3 l;
+		if (falloff != 0 && spot.w < -3.5) {
+			// The light term towards the light itself (N.L = 1), scaled by the wrapped N.L.
+			vec3 to_light = normalize(p.xyz - wp);
+			float wrap = max(0.0, (dot(wn, to_light) + SVM_FLARE_WRAP) / (1.0 + SVM_FLARE_WRAP));
+			l = svm_one_light(p, col, spot, wp, to_light, falloff) * wrap;
+		} else {
+			l = svm_one_light(p, col, spot, wp, wn, falloff);
+		}
 		if (dot(l, l) <= 0.0) {
 			continue;
 		}
 		vec4 sh = texelFetch(svm_flares, ivec2(3, i), 0);
 		if (sh.x >= 0.0) {
-			l *= svm_flare_shadow(wp + wn * sh.z - p.xyz, sh, texelFetch(svm_flares, ivec2(4, i), 0));
+			vec4 ex = texelFetch(svm_flares, ivec2(4, i), 0);
+			float offset = sh.z + SVM_FLARE_OFFSET_TEXELS * 2.0 / ex.y * distance(wp, p.xyz);
+			l *= svm_flare_shadow(wp + wn * offset - p.xyz, sh, ex);
 		}
 		sum += l;
 	}
