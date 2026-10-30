@@ -143,7 +143,7 @@ public sealed class SmoothViewTests
 
     /// <summary>
     /// The cam views' turn the look-ahead draws ahead (s_UseObject.UpdateRotation): a tick turns only past the dead
-    /// zone (150 on aTurn), by int(50 x sensitivity x dt x FOV / 110 x aTurn), within the cam's yaw window; during a
+    /// zone (150 on aTurn), by int(50 x sensitivity x dt x FOV / 110 x fTurnValue), fTurnValue = 0.75 aTurn, within the cam's yaw window; during a
     /// steady turn the part of a tick's counts under the dead zone is drawn too.
     /// </summary>
     [Fact]
@@ -157,8 +157,8 @@ public sealed class SmoothViewTests
         float dt = Sim.DeltaTime;
 
         Assert.Equal(default, LookAhead.CamTurn(pc, cam, 120f, 0f, dt));
-        Assert.Equal(new FRotator(0, (int)(50f * 4f * dt * 120f), 0), LookAhead.CamTurn(pc, cam, 120f, 0f, dt, turning: true));
-        Assert.Equal(new FRotator(0, (int)(50f * 4f * dt * 300f), 0), LookAhead.CamTurn(pc, cam, 300f, 0f, dt));
+        Assert.Equal(new FRotator(0, (int)(50f * 4f * dt * 120f * 0.75f), 0), LookAhead.CamTurn(pc, cam, 120f, 0f, dt, turning: true));
+        Assert.Equal(new FRotator(0, (int)(50f * 4f * dt * 300f * 0.75f), 0), LookAhead.CamTurn(pc, cam, 300f, 0f, dt));
 
         // A window of 2000 either side of yaw 0 stops the turn at its end.
         cam.YawConstraint = new FVector(0f, -2000f, 2000f);
@@ -180,8 +180,7 @@ public sealed class SmoothViewTests
     /// The merc turns with a steady mouse on a 144 Hz screen through the play session (listen server inline, the
     /// client's controller, the calc view). The drawn yaw is compared with the yaw the counts delivered so far make:
     /// the simulation's yaw after its last tick plus the counts not yet simulated times the decoded turn per count
-    /// (UpdateRotationAttaquant_Mouse: int(aTurn x sensitivity x dt x 50), aTurn = 1280 x 6 x counts / 640, profile
-    /// sensitivity 40 / 10: 40 rotation units a count at 60 Hz). Drawn between the last two ticks the view is one to
+    /// (MouseLook.UnitsPerCount x the view's look multiplier: 3 x multiplier rotation units a count at any tick rate). Drawn between the last two ticks the view is one to
     /// two ticks late; with the look-ahead it is within the integer truncation of the turn.
     /// </summary>
     [Theory]
@@ -191,7 +190,7 @@ public sealed class SmoothViewTests
     {
         Assert.SkipWhen(MapCatalog.CreateDefault().FindFolder("SteeE") is null, "SteeE has not been converted into .content/svmap.");
         const float countsPerFrame = 3f;
-        const float unitsPerCount = 40f;
+        float unitsPerCount = 0f;
         var clock = new VirtualClock();
         using var session = new PlaySession(new PlaySettings { Map = "SteeE", HostMode = PlayHostMode.Inline, Bots = 0, Side = PlaySide.Merc }, clock);
         var look = new LookAhead();
@@ -226,6 +225,7 @@ public sealed class SmoothViewTests
 
             FRotator offset = lookAhead ? look.Offset(pc, session.Mouse, pending, 0f, session.Alpha) : default;
             int drawn = ViewBlend.Blend(session.PreviousView, session.View, session.Alpha).Rotation.Yaw + offset.Yaw;
+            unitsPerCount = MouseLook.UnitsPerCount * session.Mouse.Multipliers(pc).Horizontal;
             float wanted = session.View.Rotation.Yaw + (pending * unitsPerCount);
             if (micros > 5_300_000)
             {
@@ -251,8 +251,8 @@ public sealed class SmoothViewTests
         }
         else
         {
-            // The old drawing: a whole tick of turn (3 counts x 2.4 frames x 40) behind, or more.
-            Assert.True(lags.Average() > 200f, $"drawing between ticks alone should lag a tick or more (mean {lags.Average():F1})");
+            // The old drawing: about a whole tick of turn (3 counts x 2.4 frames x units per count) behind, or more.
+            Assert.True(lags.Average() > 5f * unitsPerCount, $"drawing between ticks alone should lag a tick or more (mean {lags.Average():F1})");
         }
     }
 }
