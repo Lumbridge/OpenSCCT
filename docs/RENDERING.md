@@ -434,6 +434,10 @@ light type scales each chosen light's colour (as for the world lights); ranking 
 adds its attenuated colour whatever the normal (its D3D ambient). LE_Cylinder and LE_NonIncidence stay plain points
 (not decoded). The set is chosen on the CPU and handed over as
 instance uniforms; the shader evaluates it per vertex. The spot shadow light and the night boost are added per pixel.
+The first-person arms and gun take the set at the eye (a 64 uu sphere) without the own-zone filter
+(`FirstPersonView.LightAtEye`, estimated): on AquaE, in front of the Tech Room door, the eye is in zone 9 and the gun's
+only light, own-zone Light15411, is 9 uu over the portal in zone 13. The filter drew the gun black there, while the
+original lights it.
 
 The rules (light choice, ranking, falloff, colour, light types, the spot shadow frustum and colour cap) live
 Godot-free in `src/OpenScct.Game/Lighting/ActorLightRules.cs`; `ActorLighting`, `SpotShadowLight` and `WorldLights`

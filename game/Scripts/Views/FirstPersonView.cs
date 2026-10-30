@@ -80,9 +80,20 @@ public partial class FirstPersonView : Node3D
         if (_relightClock <= 0f && Map is not null)
         {
             _relightClock = 0.1f;
-            _model.Light(Map.LightActor(cameraLocation, 64f, 0));
+            _model.Light(LightAtEye(Map, cameraLocation));
         }
     }
+
+    /// <summary>
+    /// The view model's light set: the eye zone's ambient and the lights reaching a 64 uu sphere at the eye, with no
+    /// own-zone filter (zone -1). On AquaE, 5 m in front of the Tech Room door, the eye is in zone 9 and the only
+    /// light on the gun, Light15411 (bAffectOwnZoneOnly), sits 9 uu over the portal in zone 13: the own-zone filter
+    /// drew the gun black where the original lights it. The original's first-person weapon is not lit by the eye's
+    /// zone; which zone it takes is not decoded.
+    /// </summary>
+    [Provenance(ProvenanceKind.Estimated, "Original first-person gun lit by an own-zone light of the next zone (AquaE Tech Room door, Ryan's capture 2026-10-30); actor light gathering game 0x10a37610")]
+    internal static ActorLightSet LightAtEye(RenderMap map, FVector eye) =>
+        map.ActorLighting.Select(eye, 64f, map.AmbientAt(eye, 0), -1);
 
     /// <summary>
     /// The weapon's Skins over the view model's material slots: the rifle's rate-of-fire screen is Skins[3], which
