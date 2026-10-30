@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using Godot;
 using OpenScct.Core;
 using OpenScct.Core.Engine;
+using BoneTraceResult = OpenScct.Game.Combat.BoneTraceResult;
+using CombatServices = OpenScct.Game.Combat.CombatServices;
+using IHitZones = OpenScct.Game.Combat.IHitZones;
 using OpenScct.Game.Equipment;
 using OpenScct.Game.SBase;
 using OpenScct.Physics.Collision;
@@ -71,7 +74,8 @@ public sealed partial class MercLaserView : Node3D
     /// <summary>True when the beam mesh came from the render pack (else a thin stand-in).</summary>
     public bool PackMesh { get; private set; }
 
-    public void Draw(Level? level, SBasePawn? local)
+    /// <param name="view">The camera as drawn this frame (location and rotation, UE), or null.</param>
+    public void Draw(Level? level, SBasePawn? local, (FVector Location, FRotator Rotation)? view = null)
     {
         BeamsDrawn = 0;
         LocalVisible = false;
@@ -114,7 +118,7 @@ public sealed partial class MercLaserView : Node3D
 
             var pawn = (SBasePawn)laser.Instigator!;
             bool isLocal = ReferenceEquals(pawn, local);
-            (FVector start, FVector end, FVector corona) = isLocal ? LocalBeam(laser, pawn) : DistantBeam(pawn);
+            (FVector start, FVector end, FVector corona) = isLocal ? LocalBeam(laser, pawn, view) : DistantBeam(pawn);
             (MeshInstance3D beam, MeshInstance3D dot) = NodesFor(laser);
             FVector d = end - start;
             float length = d.Size();
@@ -153,12 +157,16 @@ public sealed partial class MercLaserView : Node3D
     }
 
     /// <summary>
-    /// The local merc's beam: from the drawn rifle's FX bone pulled back 50 uu to the simulation's end point (the
-    /// original's starts 15.4 forward, 12.0 right and 12.7 under his eye, merc-laser.md rule 9a; the first-person
-    /// rifle's FX bone puts it within 1 uu of that).
+    /// The local merc's beam: from the drawn rifle's FX bone pulled back 50 uu to the point under the centre of the
+    /// view drawn this frame (the original's starts 15.4 forward, 12.0 right and 12.7 under his eye, merc-laser.md rule
+    /// 9a; the first-person rifle's FX bone puts it within 1 uu of that). The simulation's end point (HitLocation) is
+    /// placed once a tick from the last tick's view, while the rifle is drawn with the camera's look-ahead, so between
+    /// ticks the beam swung off the muzzle when turning; the original places it from each frame's view, and its beam
+    /// stays on the screen centre (as the spy pistol's laser does, MeshAimIK.DrawnFullPair).
     /// </summary>
     [Provenance(ProvenanceKind.Estimated, "The drawn mesh starts at the muzzle: the original's weapon overlay hides the 50 uu behind it")]
-    private (FVector Start, FVector End, FVector Corona) LocalBeam(SGadTorcheLaser laser, SBasePawn pawn)
+    [Provenance(ProvenanceKind.Estimated, "The drawn end follows the frame's view centre (the original's per-frame placement); the simulation's HitLocation still drives the mark")]
+    private (FVector Start, FVector End, FVector Corona) LocalBeam(SGadTorcheLaser laser, SBasePawn pawn, (FVector Location, FRotator Rotation)? view)
     {
         FVector end = laser.HitLocation;
         FVector start = laser.BeamStart;
@@ -167,6 +175,11 @@ public sealed partial class MercLaserView : Node3D
             model.Skeleton.FindBone(BoneFx.ToString()) is var fx and >= 0)
         {
             FVector muzzle = UeSpace.ToUe((model.Skeleton.GlobalTransform * model.Skeleton.GetBoneGlobalPose(fx)).Origin);
+            if (view is { } v)
+            {
+                end = CentreEnd(laser, pawn, muzzle, v.Location, v.Rotation.Vector());
+            }
+
             FVector dir = end - muzzle;
             float size = dir.Size();
             start = size > 0f ? muzzle - (dir * (K.LaserFireStartPullBack / size)) : muzzle;
@@ -174,6 +187,30 @@ public sealed partial class MercLaserView : Node3D
         }
 
         return (start, end, start);
+    }
+
+    /// <summary>
+    /// The end of the local beam for the drawn view: the first hit on the line from the camera along its centre (the
+    /// simulation's trace, bullets' pass-through rules, the merc himself ignored), then the line from the pulled-back
+    /// muzzle to that point, so a wall right in front of the barrel still stops the beam.
+    /// </summary>
+    private static FVector CentreEnd(SGadTorcheLaser laser, SBasePawn pawn, FVector muzzle, FVector eye, FVector viewDir)
+    {
+        IHitZones zones = CombatServices.HitZones(laser);
+        Actor shooter = pawn.MyWeapon ?? (Actor)pawn;
+        FVector far = eye + (viewDir * K.TraceLength);
+        BoneTraceResult centre = zones.TraceBone(shooter, far, eye, false);
+        FVector aim = centre.bHit ? centre.HitLocation : far;
+        FVector d = aim - muzzle;
+        float size = d.Size();
+        if (size <= K.LaserFireStartPullBack)
+        {
+            return aim;
+        }
+
+        FVector from = muzzle - (d * (K.LaserFireStartPullBack / size));
+        BoneTraceResult hit = zones.TraceBone(shooter, aim, from, false);
+        return hit.bHit ? hit.HitLocation : aim;
     }
 
     /// <summary>
