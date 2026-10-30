@@ -774,11 +774,13 @@ public sealed partial class EffectViews : Node3D
     /// light applied to the world (UE2 lights a spawned bDynamicLight actor's surroundings each frame).
     /// </summary>
     [Provenance(ProvenanceKind.Estimated, "The world falloff, gain and radius are those of the map's dynamic lights (docs/RENDERING.md#dynamic-lights)")]
+    [Provenance(ProvenanceKind.Measured, "The burning flare lights across zone boundaries in the original (seen by Ryan at AquaD's Entrance / Blue Room boundary), although SFlareEmitter is bAffectOwnZoneOnly")]
     private LightEntry WorldLightOf(Actor a, float brightness) => new(
         a.GetUcClass().Name, a.Location, a.Rotation, brightness, a.LightHue, a.LightSaturation, a.LightRadius, a.LightCone,
-        (int)a.LightEffect, 1, true, true, true, true, null, a.LightPeriod, a.LightPhase, a.bAffectOwnZoneOnly)
+        (int)a.LightEffect, 1, true, true, true, true, null, a.LightPeriod, a.LightPhase, a.bAffectOwnZoneOnly && a is not SFlareEmitter)
     {
-        // SFlashLight is bAffectOwnZoneOnly: it lights only the surfaces of the zone it is in.
+        // SFlashLight is bAffectOwnZoneOnly: it lights only the surfaces of the zone it is in. The burning flare lights
+        // every zone its radius reaches (world surfaces, meshes and actors).
         ZoneIndex = Map?.ZoneIndexAt(a.Location) ?? -1,
     };
 
