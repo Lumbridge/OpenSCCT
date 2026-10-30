@@ -133,6 +133,12 @@ public partial class SGadget
     [Provenance(ProvenanceKind.Decoded, "gadget-natives.md rule 2: Charge -= n here, ServerDecCharge(n) without authority, no floor, no LastUsed")]
     public void DecCharge(int NbCharge = 1)
     {
+        // An OpenSCCT addition: a practice round's gadgets never run out (no charge used here or on the server).
+        if (Modes.PracticeRules.IsOn(this))
+        {
+            return;
+        }
+
         Charge -= NbCharge;
         if (Role < ENetRole.ROLE_Authority && OwnerPawn?.Controller is PlayerController pc)
         {
@@ -144,7 +150,13 @@ public partial class SGadget
     [UcNative("ASGadget::execServerDecCharge", Exe = 0x10a9fab0)]
     [Uc("SBase.SGadget.ServerDecCharge", Sha1 = "524e4374619fcf931f609460ce00706ad787a3fd")]
     [PortOf("nat:SBase.SGadget.ServerDecCharge", Spec = "spec/equipment/gadget-natives.md#rules")]
-    public void ServerDecCharge(int NbCharge = 1) => Charge -= NbCharge;
+    public void ServerDecCharge(int NbCharge = 1)
+    {
+        if (!Modes.PracticeRules.IsOn(this))
+        {
+            Charge -= NbCharge;
+        }
+    }
 
     /// <summary>AddCharge (native, decoded): more charges here; a machine without authority also asks the server.</summary>
     [UcNative("ASGadget::execAddCharge", Exe = 0x10a9faf0)]

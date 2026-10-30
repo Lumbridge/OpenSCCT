@@ -137,8 +137,9 @@ public sealed record LobbySetup
     public OpenScct.Game.AI.AiSkill BotSkill { get; init; } = OpenScct.Game.AI.AiSkill.Normal;
 
     /// <summary>
-    /// Practice server (FEATURES rl:net.practice): the round plays with unlimited lives on both sides and the
-    /// shortest respawn, players may use the practice chat commands (<c>!heal</c>, <c>!regen</c>, <c>!tank</c>,
+    /// Practice server (FEATURES rl:net.practice): the round plays with no time limit, unlimited lives on both sides
+    /// and the shortest respawn (and, OpenSCCT additions, unlimited ammunition, gadget charges and gas mask air and
+    /// instant gear changes: <see cref="OpenScct.Game.Modes.PracticeRules"/>), players may use the practice chat commands (<c>!heal</c>, <c>!regen</c>, <c>!tank</c>,
     /// <c>!kill</c>), and its results do not count for stats or achievements.
     /// </summary>
     public bool Practice { get; init; }
@@ -234,12 +235,13 @@ public sealed record LobbySetup
     public string ToGameOptions(int players) =>
         RoundMatchInfo().GetOptionsString() + "?NBPlayers=" + Math.Max(1, players).ToString(CultureInfo.InvariantCulture);
 
-    /// <summary>The round's match settings: a practice round has unlimited lives on both sides and the shortest respawn.</summary>
+    /// <summary>The round's match settings: a practice round has no time limit, unlimited lives on both sides and the shortest respawn.</summary>
     private USMatchInfo RoundMatchInfo()
     {
         USMatchInfo m = ToMatchInfo();
         if (Practice)
         {
+            m.TimeLimit = 0;
             m.NumLivesATT = 0;
             m.NumLivesDEF = 0;
             m.TimesRespawn = MinRespawn;
@@ -358,7 +360,7 @@ public sealed record LobbySetup
                 $"disks {DisksToWin} of {Disks}, lives {Lives(SpyLives)} spy / {Lives(MercLives)} merc"),
             _ => string.Create(CultureInfo.InvariantCulture, $"lives {Lives(SpyLives)} spy / {Lives(MercLives)} merc"),
         };
-        string time = TimeLimit > 0 ? string.Create(CultureInfo.InvariantCulture, $"{TimeLimit} min") : "no time limit";
+        string time = TimeLimit > 0 && !Practice ? string.Create(CultureInfo.InvariantCulture, $"{TimeLimit} min") : "no time limit";
         string series = Revenge ? ", revenge" : GamesInARow > 1 ? string.Create(CultureInfo.InvariantCulture, $", {GamesInARow} games") : string.Empty;
         string random = RandomMap ? ", random map" : string.Empty;
         string bots = Bots switch

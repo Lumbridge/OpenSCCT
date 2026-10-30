@@ -27,6 +27,8 @@ provenance tag. The numbers are our own and live in `OpenScct.Game.Equipment.Gea
      - the pawn is alive;
      - it spawned at most `GearK.SwapWindowSeconds` (10 s) ago (`LastStartTime`);
      - nothing of its kit has been used (`Loadouts.HasUsedKit`, see below).
+   - **Practice round** (`PracticeRules.On`): **now** whenever the pawn is alive. Supplies never run out there, so
+     a swap cannot be used to refill.
    - **Hub** (`SHubGameInfo`): **now** while the player has a pawn, at most once every
      `HubK.GearChangeCooldownSeconds` (10 s). Otherwise the answer is **Cooldown**, sent with the seconds left.
 4. **Nothing used** means all of these:

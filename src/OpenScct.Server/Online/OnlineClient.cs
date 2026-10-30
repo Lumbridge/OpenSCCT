@@ -586,9 +586,31 @@ public sealed class OnlineClient : IDisposable
         ClientSession session = Settings.SessionFactory?.Invoke(request) ?? new ClientSession(transport, address, _now, settings);
         Session = session;
         CurrentMap = map;
+        ApplyPractice();
         session.SessionLineReceived += OnLine;
         session.ChatReceived += OnChat;
         SessionStarted?.Invoke(session);
+    }
+
+    /// <summary>
+    /// The lobby's practice switch on this player's world (an OpenSCCT addition): ammunition, gadget charges and gas
+    /// mask air are spent on the player's own machine, so it needs the practice rules as well as the server.
+    /// </summary>
+    private void ApplyPractice()
+    {
+        if (Session?.World.Level is not { } level)
+        {
+            return;
+        }
+
+        if (level.GetService<OpenScct.Game.Modes.PracticeRules>() is { } rules)
+        {
+            rules.On = Lobby.Setup.Practice;
+        }
+        else if (Lobby.Setup.Practice)
+        {
+            level.SetService(new OpenScct.Game.Modes.PracticeRules { On = true });
+        }
     }
 
     private void EndSession()
@@ -726,6 +748,7 @@ public sealed class OnlineClient : IDisposable
                 Lobby.SetupContentHash = content;
                 Lobby.Setup = LobbySetup.FromOptions(SessionProtocol.Text(f, 1), Lobby.Setup);
                 Lobby.SetupSource = null;
+                ApplyPractice();
                 CheckMap();
                 break;
             }

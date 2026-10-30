@@ -37,6 +37,9 @@ public sealed class GearMenuModel
 
     public const string HubRule = "New gear goes on now; you can change it every 10 s.";
 
+    /// <summary>A practice round's rule (an OpenSCCT addition): any change goes on at once.</summary>
+    public const string PracticeRule = "Practice: new gear goes on now.";
+
     private readonly IReadOnlyList<string> _options;
     private readonly byte _allowed;
 
@@ -109,6 +112,7 @@ public sealed class GearMenuModel
         return new GearMenuModel(spy, team.iNBGadgets, options, team.bDisallowedInv, weapons, saved, hub)
         {
             Portrait = team.MaterialOfMesh.Count > 0 ? team.MaterialOfMesh[0].Path ?? "" : "",
+            RuleText = !hub && OpenScct.Game.Modes.PracticeRules.IsOn(pc) ? PracticeRule : null,
         };
     }
 

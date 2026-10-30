@@ -159,7 +159,12 @@ public partial class SGadGasMask
     {
         if (OwnerPawn is { bGasMask: true } pawn)
         {
-            MaskDuration -= DeltaTime;
+            // An OpenSCCT addition: a practice round's mask never runs out of air.
+            if (!Modes.PracticeRules.IsOn(this))
+            {
+                MaskDuration -= DeltaTime;
+            }
+
             if (Role == ENetRole.ROLE_Authority && (pawn.Controller as SPlayerController)?.PlayerReplicationInfo?.Stats is { } stats)
             {
                 stats.Merc_GasMaskTimeUsed += DeltaTime + SvmMath.Min(MaskDuration, 0f);

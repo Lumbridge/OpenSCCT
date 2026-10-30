@@ -153,7 +153,16 @@ public partial class SSpyBulletLauncher
             }
         }
 
-        Charge--;
+        UseCharge();
+    }
+
+    /// <summary>One bullet used; a practice round's launcher never runs out (an OpenSCCT addition).</summary>
+    private void UseCharge()
+    {
+        if (!Modes.PracticeRules.IsOn(this))
+        {
+            Charge--;
+        }
     }
 
     /// <summary>Rule 3, anything else: a zone marker at the hit facing out along the normal, the owner's text.</summary>
@@ -163,7 +172,7 @@ public partial class SSpyBulletLauncher
         (Shooter.Controller as SPlayerController)?.ClientPlaySoundCombat(HitWallSound);
         LocalMessage(MessageOnWall, K.SpyBulletWallMessageTime);
         Shooter.PlaySound(FireSound, ESoundSlot.SLOT_Misc, 1f, false, K.SpyBulletSoundRadius);
-        Charge--;
+        UseCharge();
     }
 
     /// <summary>The native's message event: the owner's "zone radar activated" text.</summary>

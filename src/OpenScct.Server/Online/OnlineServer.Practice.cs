@@ -35,12 +35,14 @@ public sealed partial class OnlineServer
         _practice.Clear();
         _regen.Clear();
         _practiceRound = Setup.Practice;
+        _practice.On = Setup.Practice;
         host.World.Level.SetService(_practice);
     }
 
     /// <summary>Practice turned on or off: turning it off clears every switch.</summary>
     private void PracticeChanged()
     {
+        _practice.On = Setup.Practice;
         if (Setup.Practice)
         {
             _practiceRound |= Phase is SessionPhase.Loading or SessionPhase.Match;
@@ -69,7 +71,7 @@ public sealed partial class OnlineServer
 
         if (verb == "practice")
         {
-            SendMessage(p, "Practice server: unlimited lives, quick respawns. Commands: " + PracticeHelp + ".");
+            SendMessage(p, "Practice server: no time limit, unlimited lives, ammo, gadgets and gas mask air, instant gear changes, quick respawns. Commands: " + PracticeHelp + ".");
             return true;
         }
 

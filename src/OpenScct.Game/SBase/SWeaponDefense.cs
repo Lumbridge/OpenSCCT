@@ -214,7 +214,8 @@ public partial class SWeaponDefense
         FRotator aim = OwnerPC?.MyDesiredRotation ?? Instigator?.Rotation ?? Rotation;
         ServerSetAccurateRotation(aim.Yaw, aim.Pitch, aim.Roll);
         ServerFireWeapon(BulletInARow);
-        if (ClipAmmo > 0)
+        // An OpenSCCT addition: a practice round's rifle never runs out (the clip stays full).
+        if (ClipAmmo > 0 && !Modes.PracticeRules.IsOn(this))
         {
             ClipAmmo -= 1;
             Ammo -= 1;

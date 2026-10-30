@@ -274,7 +274,9 @@ difference is probably a Reloaded memory patch and needs its own spec entry.
 - **Evidence:** RC@0x3395e0..0x3396d0, console command `practice`.
 - **Stock:** none.
 - **Rewrite:** a server rules profile `practice` layered on the mode rules; commands only when the profile
-  is active.
+  is active. The port's round has no time limit, unlimited lives, and (its own choice for the "lots of ammo")
+  ammunition, gadget charges and gas mask air that are never used up and gear changes that go on at once
+  (`PracticeRules.On`, set on the server's level and, from the lobby setup, on each client's).
 - **Priority:** P2.
 - **Open:** exact effects of `!regen` and `!tank` (the port's choices, 10 health a second and no damage, are in
   docs/ONLINE.md "Practice servers"); the extra ammunition.

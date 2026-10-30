@@ -9,13 +9,15 @@ public partial class SGameInfo
 {
     /// <summary>
     /// The match rule: the new kit goes on now while the pawn is alive, spawned at most
-    /// <see cref="GearK.SwapWindowSeconds"/> ago and has used nothing of its kit; otherwise at the next spawn.
+    /// <see cref="GearK.SwapWindowSeconds"/> ago and has used nothing of its kit; otherwise at the next spawn. In a
+    /// practice round it goes on now whenever the pawn is alive.
     /// </summary>
     public virtual GearChangeResult CanChangeGearNow(SPlayerController PC, out float WaitSeconds)
     {
         WaitSeconds = 0f;
         if (PC.Pawn is SBasePawn { bDeleteMe: false, Health: > 0 } pawn &&
-            Level.TimeSeconds - pawn.LastStartTime <= GearK.SwapWindowSeconds && !Loadouts.HasUsedKit(pawn))
+            (Modes.PracticeRules.IsOn(this) ||
+             (Level.TimeSeconds - pawn.LastStartTime <= GearK.SwapWindowSeconds && !Loadouts.HasUsedKit(pawn))))
         {
             return GearChangeResult.Now;
         }
