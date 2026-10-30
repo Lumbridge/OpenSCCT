@@ -477,10 +477,13 @@ public sealed partial class EffectViews : Node3D
             if (t.Mesh is { } mesh)
             {
                 FVector scale = a.DrawScale3D * a.DrawScale;
-                bool onBone = BoneMeshFrame(a, scale, out Transform3D boneFrame, out bool pawnShown);
+                bool onBone = BoneMeshFrame(a, scale, out Transform3D boneFrame, out bool pawnShown, out bool pawnShadowOnly);
                 mesh.Transform = onBone ? boneFrame : UeSpace.TransformToGodot(a.Location, a.Rotation, scale, a.PrePivot);
                 bool visionOnly = a.bHideInNormalVision;
                 mesh.Visible = !a.bHidden && (!visionOnly || rendMap is 36 or 38) && (!onBone || pawnShown);
+                // On the pawn seen from its own eyes it follows the body to the shadow-only layer: out of the main view,
+                // still in the flares' shadows (SimPawnView.SetShadowOnly).
+                mesh.Layers = onBone && pawnShadowOnly ? RenderLayers.ShadowOnly : RenderLayers.World;
                 Vector4 vision = GameplayObjects.VisionOf(a);
                 if (vision != t.Vision)
                 {
@@ -851,13 +854,14 @@ public sealed partial class EffectViews : Node3D
     /// <summary>
     /// A static mesh attached to a pawn's bone (the backpack on 'B Spine2'): the drawn bone's frame turned by the
     /// actor's RelativeRotation and moved by its RelativeLocation, then its scale and PrePivot; false when it is not
-    /// attached or the bone is not drawn. <paramref name="pawnShown"/> is false while the pawn's view is hidden (the
-    /// own pawn in first person).
+    /// attached or the bone is not drawn. <paramref name="pawnShown"/> is false while the pawn's view is hidden;
+    /// <paramref name="pawnShadowOnly"/> is true for the own pawn in first person (drawn only by the flares' shadows).
     /// </summary>
-    private bool BoneMeshFrame(Actor a, FVector scale, out Transform3D frame, out bool pawnShown)
+    private bool BoneMeshFrame(Actor a, FVector scale, out Transform3D frame, out bool pawnShown, out bool pawnShadowOnly)
     {
         frame = default;
         pawnShown = false;
+        pawnShadowOnly = false;
         if (a.AttachmentBone.IsNone || a.Base is not SBasePawn pawn || Pawns is null || !Pawns.TryGetBone(pawn, a.AttachmentBone, out Transform3D bone))
         {
             return false;
@@ -867,7 +871,9 @@ public sealed partial class EffectViews : Node3D
         Basis basis = boneBasis * UeSpace.RotationToGodot(a.RelativeRotation) * Basis.FromScale(UeSpace.DirectionToGodot(scale));
         Vector3 origin = bone.Origin + (boneBasis * UeSpace.ToGodot(a.RelativeLocation)) - (basis * UeSpace.ToGodot(a.PrePivot));
         frame = new Transform3D(basis, origin);
-        pawnShown = Pawns.ViewOf(pawn)?.Visible ?? false;
+        Views.SimPawnView? view = Pawns.ViewOf(pawn);
+        pawnShown = view?.Visible ?? false;
+        pawnShadowOnly = view?.ShadowOnly ?? false;
         return true;
     }
 

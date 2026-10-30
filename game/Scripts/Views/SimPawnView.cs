@@ -203,6 +203,9 @@ public partial class SimPawnView : Node3D
 
     private bool _shadowOnly;
 
+    /// <summary>The pawn is seen from its own eyes: its meshes are on <see cref="RenderLayers.ShadowOnly"/>.</summary>
+    public bool ShadowOnly => _shadowOnly;
+
     /// <summary>
     /// The pawn is seen from its own eyes: its meshes leave the world layer for <see cref="RenderLayers.ShadowOnly"/>,
     /// so the main view does not draw them but the flares' shadow cameras do (the merc's whole shadow, not the
