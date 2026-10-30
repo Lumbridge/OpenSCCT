@@ -161,8 +161,10 @@ SDamageType indices used below: 0 NoDamageType, 1 SDamage_Charged, 4 SDamage_Exp
       restore the saved value. Everything `ProcessDamage` causes (blast damage, events, chained objects) sees the
       wrapper's instigator.
    This override does not check `bDamageable`; the native does (rule 9).
-9. `ProcessDamage(Damage)` (native, contract inferred from the script around it and from SteeE data; see Open
-   questions):
+9. `ProcessDamage(Damage)` (native). The early contract below, inferred from the script and the SteeE data, is
+   superseded where it differs by "Native ProcessDamage (decoded)" further down, which the port follows: stages are
+   re-applied on every call, a None-mesh stage sets DrawType to DT_None and keeps the mesh, and spawns are removed
+   once the percent passes their band.
    a. No effect unless `bDamageable` and not already destroyed.
    b. `HitPoints = max(HitPoints - Damage, 0)`.
    c. Damage percent `d = (InitialHitPoints - HitPoints) * 100 / InitialHitPoints` (integer).
@@ -338,6 +340,12 @@ SteeE archetypes (instance data):
 
 ## Network
 
+- A broken object (a None-mesh stage) reaches clients as `DrawType` DT_None, which is sent in the first bunch too
+  (the class default is DT_Sprite), so a client whose channel to the object opens after the break also stops
+  drawing it. A cleared `StaticMesh` would not have reached such a client: its first bunch compares against the class
+  default, which is also None. The client turns the object's colliders off when DT_None arrives (the server's
+  SetCollision flags are first-bunch only).
+
 - Server: Trigger, damage, ProcessDamage, reset timers, chaff, pushing.
 - Clients: see the result through Actor replication once `bSkipActorPropertyReplication` is cleared (rule 4):
   `RepSkin`, `bHidden`, blocking flags, trace flags, `AmbientGlow`, `DrawType`. `StaticMesh` has a script condition of
@@ -380,6 +388,10 @@ SteeE archetypes (instance data):
    its centre; these would also confirm the decoded rules end to end.
 3. Mesh replication on a client in a two-machine session (the native list sends `StaticMesh` on every change while
    `DT_StaticMesh`, net/model.md rule 8): check the client can walk through the breached wall.
+5. A reset (`s_WaitForDamageReset.Timer`) restores the mesh with SetStaticMesh, which does not change the draw
+   type, so an object whose stage set DT_None would come back solid but undrawn (CpusS `SGamePlayObject22139` and
+   `22142`, ResetDamageTime 12). The port draws it again (DT_StaticMesh with its mesh's collision). Scenario: break
+   one of them and watch it 12 s later.
 
 ### Resolved
 

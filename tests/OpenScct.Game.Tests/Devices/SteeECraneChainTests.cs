@@ -320,7 +320,7 @@ public sealed class SteeECraneChainTests
         {
             Assert.Equal(0, explosive.HitPoints);
             Assert.True(explosive.bAlreadyDestroyed);
-            Assert.True(explosive.StaticMesh.IsNone);
+            Assert.Equal(EDrawType.DT_None, explosive.DrawType);
             Assert.False(explosive.bCollideActors);
             Assert.IsType<SGrenadeExplosion>(explosive.SpawnableObjects[0].SpawnedActor);
             Assert.Same(c.Spy, explosive.Instigator);

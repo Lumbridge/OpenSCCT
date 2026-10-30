@@ -21,12 +21,6 @@ public partial class SGamePlayObject
 
     public override StateTable GetStateTable() => ClassStates;
 
-    /// <summary>Percent of the damage stage applied last (-1 for none yet).</summary>
-    private int _appliedStagePercent = -1;
-
-    /// <summary>SpawnableObjects entries already spawned (bit i for entry i).</summary>
-    private ulong _spawnedEntries;
-
     // ---- start-up -----------------------------------------------------------------------------------------
 
     /// <summary>A prop that is neither pickable nor pushable counts as world geometry.</summary>
@@ -287,47 +281,59 @@ public partial class SGamePlayObject
     }
 
     /// <summary>
-    /// Native damage processing (contract from the script around it and the SteeE data): hit points down, the
-    /// damage stage reached, the spawns of the damage band, and at 0 hit points the destruction (sound, lights off,
-    /// the radius blast, the shake, the reset timer).
+    /// The native damage processing (natives2-damage.md rule 1): hit points down; at 0 the destruction (sound, noise,
+    /// the radius blast and shake, lights off, the reset wait); then, on every call, the spawn bands and the damage
+    /// stage of the current damage percent.
     /// </summary>
     [UcNative("ASGamePlayObject::execProcessDamage", Exe = 0x10a8fc40)]
-    [PortOf("nat:SBase.SGamePlayObject.ProcessDamage", Spec = "spec/devices/gameplay-object.md#damage")]
-    [Provenance(ProvenanceKind.Estimated, "gameplay-object.md rule 9 contract; percent rounding, stage, band and blast rules are open question 1")]
+    [PortOf("nat:SBase.SGamePlayObject.ProcessDamage", Spec = "spec/native/natives2-damage.md#1-sgameplayobjectprocessdamagedamage")]
+    [Provenance(ProvenanceKind.Decoded, "natives2-damage.md rule 1 (game 0x10a8fc40): order, percent formula, bands, stage and collision")]
     public void ProcessDamage(int Damage)
     {
-        if (!bDamageable || bAlreadyDestroyed || Damage <= 0)
+        if (!bDamageable || bAlreadyDestroyed)
         {
             return;
         }
 
+        // Damage 0 still runs the rest (the stage is re-applied and its event fired again).
         HitPoints = SvmMath.Max(HitPoints - Damage, 0);
-        int percent = InitialHitPoints > 0 ? (InitialHitPoints - HitPoints) * 100 / InitialHitPoints : 100;
+        if (HitPoints == 0)
+        {
+            bAlreadyDestroyed = true;
+            PlaySound(DestroySound, ESoundSlot.SLOT_Misc, 1f, false, DeviceK.DamageSoundRadius, 1f);
+            if (!DestroySound.IsNone)
+            {
+                NotifyNoise(DeviceK.DestroyNoise);
+            }
+
+            // The blast and the shake run only for an object that damages actors in a positive range (0x10a8fd86).
+            if (bCanDamageActor && DamageActorRange > 0)
+            {
+                DamageActorsInRange();
+            }
+
+            foreach (STriggerLight? light in ObjectLights)
+            {
+                (light as IObjectLight)?.LightOff();
+            }
+
+            if (ResetDamageTime > 0)
+            {
+                eventWaitReset();
+            }
+        }
+
+        int percent = DamagePercent();
+        UpdateDamageBands(percent);
         ApplyDamageStage(percent);
-        SpawnDamageBand(percent);
-        if (HitPoints > 0)
-        {
-            return;
-        }
-
-        PlaySound(DestroySound, ESoundSlot.SLOT_Misc, 1f, false, DeviceK.DamageSoundRadius, 1f);
-        bAlreadyDestroyed = true;
-        foreach (STriggerLight? light in ObjectLights)
-        {
-            (light as IObjectLight)?.LightOff();
-        }
-
-        // The blast and the shake run only for an object that damages actors in a positive range (0x10a8fd86).
-        if (bCanDamageActor && DamageActorRange > 0)
-        {
-            DamageActorsInRange();
-        }
-
-        if (ResetDamageTime > 0)
-        {
-            eventWaitReset();
-        }
     }
+
+    /// <summary>
+    /// <c>int((1 - HitPoints / InitialHitPoints) x 100)</c>, 100 without initial hit points. The game computes it on
+    /// the x87 stack; the ratio is taken in double before truncating (natives2-damage.md rule 1.4).
+    /// </summary>
+    private int DamagePercent() =>
+        InitialHitPoints > 0 ? (int)((1.0 - ((double)HitPoints / InitialHitPoints)) * 100.0) : 100;
 
     /// <summary>Dispatches ProcessDamage through the current state (s_WaitForDamageReset ignores it).</summary>
     public void eventProcessDamage(int Damage)
@@ -342,72 +348,129 @@ public partial class SGamePlayObject
         }
     }
 
-    /// <summary>The DamagedMeshes entry with the highest Percent reached, applied once when first reached.</summary>
+    /// <summary>
+    /// The damage stage, re-applied on every call (natives2-damage.md rule 1.6): the DamagedMeshes entry with the
+    /// highest Percent not above <paramref name="percent"/> (the first on a tie). A Skin stage only changes the skin;
+    /// otherwise a None mesh stops drawing the object (DrawType none, the mesh is kept) and a mesh is swapped in.
+    /// Collision goes off for a stage that leaves nothing at 0 hit points or that disables it (attached actors are
+    /// destroyed), else back to the initial blocking. The stage's event is fired with no instigator.
+    /// </summary>
+    [Provenance(ProvenanceKind.Decoded, "natives2-damage.md rule 1.6 (game 0x10a8fc40)")]
     private void ApplyDamageStage(int percent)
     {
         int best = -1;
         for (int i = 0; i < DamagedMeshes.Count; i++)
         {
-            FDamagedMesh stage = DamagedMeshes[i];
-            if (stage.Percent <= percent && (best < 0 || stage.Percent > DamagedMeshes[best].Percent))
+            int stagePercent = DamagedMeshes[i].Percent;
+            if (stagePercent <= percent && (best < 0 || stagePercent > DamagedMeshes[best].Percent))
             {
                 best = i;
             }
         }
 
-        if (best < 0 || DamagedMeshes[best].Percent <= _appliedStagePercent)
+        if (best < 0)
         {
             return;
         }
 
         FDamagedMesh entry = DamagedMeshes[best];
-        _appliedStagePercent = entry.Percent;
-
-        // A stage with a Skin and no mesh only changes the skin (the SteeE lamps); without either the object vanishes.
-        if (!entry.StaticMesh.IsNone || entry.Skin.IsNone)
-        {
-            SetStaticMesh(entry.StaticMesh);
-        }
-
         if (!entry.Skin.IsNone)
         {
             SetSkin(entry.Skin);
         }
+        else if (entry.StaticMesh.IsNone)
+        {
+            SetDrawType(EDrawType.DT_None);
 
-        if (entry.bDisableCollision)
+            // This port's collision is the mesh's own colliders: an object no longer drawn has none, on every machine
+            // (a client does the same when the draw type arrives, PawnProxies NetReceive).
+            Natives?.SetStaticMesh(this, default);
+        }
+        else
+        {
+            SetDrawType(EDrawType.DT_StaticMesh);
+            SetStaticMesh(entry.StaticMesh);
+        }
+
+        if (entry.Skin.IsNone && entry.StaticMesh.IsNone && HitPoints == 0)
         {
             SetCollision(false, false, false);
+            DestroyAttached(keepPawns: true);
+        }
+        else if (entry.bDisableCollision)
+        {
+            SetCollision(false, false, false);
+            DestroyAttached(keepPawns: false);
+        }
+        else
+        {
+            SetCollision(true, InitialBlockActors, InitialBlockPlayers);
+        }
+
+        if (!bBlockActors && !bBlockPlayers)
+        {
             bBlockZeroExtentTraces = false;
             bBlockNonZeroExtentTraces = false;
         }
 
         EEventType type = entry.EventType;
-        FireTypedEvent(entry.Event, ref type, Instigator);
+        FireTypedEvent(entry.Event, ref type, null);
         entry.EventType = type;
         DamagedMeshes[best] = entry;
     }
 
-    /// <summary>Spawns, once each, the SpawnableObjects whose band holds the damage percent.</summary>
-    private void SpawnDamageBand(int percent)
+    /// <summary>Destroys the actors attached to the object (pawns kept when <paramref name="keepPawns"/>).</summary>
+    private void DestroyAttached(bool keepPawns)
     {
-        for (int i = 0; i < SpawnableObjects.Count && i < 64; i++)
+        foreach (Actor attached in Attached.ToArray())
+        {
+            if (!(keepPawns && attached is Pawn))
+            {
+                attached.Destroy();
+            }
+        }
+    }
+
+    /// <summary>
+    /// The SpawnableObjects bands, on every call (natives2-damage.md rule 1.5): an entry with nothing spawned whose band
+    /// holds <paramref name="percent"/> spawns (its particle effect on every machine, else its class with the object's
+    /// owner and instigator); an entry whose percent went past its band removes what it spawned.
+    /// </summary>
+    [Provenance(ProvenanceKind.Decoded, "natives2-damage.md rule 1.5 (game 0x10a8fc40)")]
+    private void UpdateDamageBands(int percent)
+    {
+        for (int i = 0; i < SpawnableObjects.Count; i++)
         {
             FSpawnInfo info = SpawnableObjects[i];
-            ulong bit = 1UL << i;
-            if ((_spawnedEntries & bit) != 0 || percent < info.MinPercent || percent > info.MaxPercent)
+            if (info.SpawnedActor is null)
             {
-                continue;
-            }
+                if (percent < info.MinPercent || percent > info.MaxPercent)
+                {
+                    continue;
+                }
 
-            _spawnedEntries |= bit;
-            if (!info.SpawnParticle.IsNone)
-            {
-                SpawnDamageEmitter(i);
+                if (!info.SpawnParticle.IsNone)
+                {
+                    SpawnDamageEmitter(i);
+                }
+                else if (!info.SpawnClass.IsNone)
+                {
+                    info.SpawnedActor = DeviceClasses.Spawn(this, info.SpawnClass, Owner, Name.None, Location, Rotation);
+                    SpawnableObjects[i] = info;
+                }
             }
-            else
+            else if (percent > info.MaxPercent)
             {
-                info.SpawnedActor = DeviceClasses.Spawn(this, info.SpawnClass, this, Name.None, Location, Rotation);
-                SpawnableObjects[i] = info;
+                if (!info.SpawnParticle.IsNone)
+                {
+                    KillDamageEmitter(i);
+                }
+                else
+                {
+                    info.SpawnedActor.Destroy();
+                    info.SpawnedActor = null;
+                    SpawnableObjects[i] = info;
+                }
             }
         }
     }
@@ -706,8 +769,7 @@ public partial class SGamePlayObject
         bAlreadyDestroyed = false;
         bDamageable = true;
         HitPoints = InitialHitPoints;
-        _appliedStagePercent = -1;
-        _spawnedEntries = 0;
+        RestoreDrawType();
         SetStaticMesh(InitialStaticMesh);
         SetSkin(InitialSkin);
         foreach (STriggerLight? light in ObjectLights)
@@ -755,6 +817,21 @@ public partial class SGamePlayObject
         }
 
         GotoState(Name.None);
+    }
+
+    /// <summary>
+    /// A None damage stage stops drawing the object (DT_None) and the reset's SetStaticMesh does not change the draw
+    /// type, so a reset object would come back solid but unseen (CpusS has two that vanish and reset after 12 s).
+    /// It is drawn again here.
+    /// </summary>
+    [Provenance(ProvenanceKind.Estimated, "gameplay-object.md open question: does the original draw a reset object whose stage set DT_None")]
+    private void RestoreDrawType()
+    {
+        if (DrawType == EDrawType.DT_None && !InitialStaticMesh.IsNone)
+        {
+            SetDrawType(EDrawType.DT_StaticMesh);
+            Natives?.SetStaticMesh(this, StaticMesh);
+        }
     }
 
     protected override void CleanupDestroyedReferences()

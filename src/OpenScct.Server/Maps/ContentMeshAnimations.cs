@@ -6,7 +6,7 @@ using OpenScct.Core.Engine;
 using OpenScct.Game.Devices;
 using UcAsset = OpenScct.Core.Uc.AssetRef;
 
-namespace OpenScctGame.Play.Session;
+namespace OpenScct.Server;
 
 /// <summary>
 /// The animation sequences of a map's skeletal mesh actors (SVMap 1.1 <c>animations</c>) as the devices read them:

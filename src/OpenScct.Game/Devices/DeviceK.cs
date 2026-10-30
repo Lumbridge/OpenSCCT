@@ -29,6 +29,9 @@ public static class DeviceK
     [Provenance(ProvenanceKind.Decoded, "SBase.SBasicGamePlayObject.TakeDamage sticky spark class")]
     public static readonly ClassRef SparkShockerClass = new("SBase.SSparkShocker");
 
+    [Provenance(ProvenanceKind.Decoded, "natives2-damage.md rule 1.3.3: ProcessDamage raises NotifyNoise(0.5) at destruction when the object has a DestroySound")]
+    public const float DestroyNoise = 0.5f;
+
     [Provenance(ProvenanceKind.Decoded, "SBase.SGamePlayObject.Trigger destroy-on-event momentum (0, 0, 200)")]
     public const float DestroyOnEventMomentumZ = 200f;
 

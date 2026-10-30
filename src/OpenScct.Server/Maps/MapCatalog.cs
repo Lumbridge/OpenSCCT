@@ -518,13 +518,18 @@ public sealed partial class MapCatalog
         }
     }
 
-    /// <summary>Loads an SVMap: its actors, client preparation, physics, and the identity the handshake compares.</summary>
+    /// <summary>
+    /// Loads an SVMap: its actors, client preparation, physics, and the identity the handshake compares. The level
+    /// gets the map's mesh animations first, as a play session's loader gives them, so a dedicated server plays its
+    /// animated props (AquaE's falling crate and breaking amphoras, SteeE's crane) and fires their notify events.
+    /// </summary>
     public static MapInfo LoadSvMap(World world, SvMap map, bool isClient, ActorClassRegistry? classes = null,
         Action<Level>? beforeBeginPlay = null)
     {
         ArgumentNullException.ThrowIfNull(world);
         ArgumentNullException.ThrowIfNull(map);
         Level level = world.Level;
+        level.SetService<IMeshAnimations>(new ContentMeshAnimations(map.Gameplay));
         level.BeginLoad();
         MapLoadResult loaded = new MapLoader(classes ?? CreateMapClasses()).Load(world, map);
         if (isClient)

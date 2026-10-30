@@ -11,7 +11,7 @@ using Xunit;
 namespace OpenScct.Integration.Tests;
 
 /// <summary>
-/// spec/devices/vitre.md rules 1 and 2 over the wire: a SteeE pane broken on the server loses its mesh and its
+/// spec/devices/vitre.md rules 1 and 2 over the wire: a SteeE pane broken on the server stops being drawn and loses its
 /// collision on the server and on a connected client (the client used to keep the pane's colliders, so its own
 /// moves still bumped into the empty frame). Skipped without the converted SteeE.
 /// </summary>
@@ -70,17 +70,17 @@ public sealed class VitreNetTests
 
         Assert.NotNull(pane);
         Assert.NotNull(copy);
-        Assert.False(copy.StaticMesh.IsNone);
+        Assert.NotEqual(EDrawType.DT_None, copy.DrawType);
 
         pane.eventTakeDamage(1, null, pane.Location, default, SDamageType.SDTBase);
-        Assert.True(pane.StaticMesh.IsNone);
+        Assert.Equal(EDrawType.DT_None, pane.DrawType);
         Assert.False(AnyColliderOn(serverCw, pane));
-        for (int n = 0; n < 10 * Sim.Hz && !copy.StaticMesh.IsNone; n++)
+        for (int n = 0; n < 10 * Sim.Hz && copy.DrawType != EDrawType.DT_None; n++)
         {
             rig.Step();
         }
 
-        Assert.True(copy.StaticMesh.IsNone, "the client pane kept its mesh");
+        Assert.True(copy.DrawType == EDrawType.DT_None, "the client pane is still drawn");
         Assert.False(AnyColliderOn(clientCw, copy), "the client pane kept its collision");
     }
 }

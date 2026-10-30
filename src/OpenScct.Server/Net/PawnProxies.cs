@@ -447,6 +447,7 @@ public static class PawnProxyReceiver
         private int _aim;
         private Actor? _meshActor;
         private AssetRef _mesh;
+        private EDrawType _drawType;
 
         [UcNative("ASBasePawn::PreNetReceive", Editor = 0x111f8c60)]
         [PortOf("eng:ASBasePawn::PreNetReceive", Spec = "spec/native/net-proxy.md#client-proxy-tick-ticksimulated-every-frame-for-a-simulated-pawn")]
@@ -456,6 +457,7 @@ public static class PawnProxyReceiver
             _simInterpolate = _mover?.SimInterpolate ?? default;
             _meshActor = actor;
             _mesh = actor.StaticMesh;
+            _drawType = actor.DrawType;
             _pawn = actor as SBasePawn;
             if (_pawn is not null)
             {
@@ -529,11 +531,14 @@ public static class PawnProxyReceiver
         }
 
         /// <summary>
-        /// A received StaticMesh (a broken pane, a swapped gameplay prop) takes the collision of the new mesh on the
-        /// client too, as the engine's collision is the mesh's own: the same collider switch as the server's
-        /// SetStaticMesh (spec/devices/vitre.md rule 2). Before this a client kept the broken pane's colliders.
+        /// A received StaticMesh (a swapped gameplay prop) takes the collision of the new mesh on the client too, as the
+        /// engine's collision is the mesh's own: the same collider switch as the server's SetStaticMesh. A static mesh
+        /// actor whose DrawType became DT_None (a broken pane or vase, natives2-damage.md rule 1.6: the mesh is kept)
+        /// has no collision left, and gets the mesh's back when it is drawn again (a reset). The server turns it off
+        /// with SetCollision, whose flags reach a client only in the first bunch. Before this a client kept the broken
+        /// pane's colliders.
         /// </summary>
-        [Provenance(ProvenanceKind.Estimated, "Static mesh collision follows the actor's mesh on every machine; the client applies it when the mesh arrives")]
+        [Provenance(ProvenanceKind.Estimated, "Static mesh collision follows the actor's mesh and draw type on every machine; the client applies it when they arrive")]
         private void PostMesh(Actor actor)
         {
             if (!ReferenceEquals(_meshActor, actor))
@@ -542,9 +547,11 @@ public static class PawnProxyReceiver
             }
 
             _meshActor = null;
-            if (actor.StaticMesh != _mesh)
+            bool drawn = actor.DrawType != EDrawType.DT_None;
+            bool wasDrawn = _drawType != EDrawType.DT_None;
+            if (actor.StaticMesh != _mesh || (drawn != wasDrawn && !actor.StaticMesh.IsNone))
             {
-                actor.XLevel?.GetService<IActorNatives>()?.SetStaticMesh(actor, actor.StaticMesh);
+                actor.XLevel?.GetService<IActorNatives>()?.SetStaticMesh(actor, drawn ? actor.StaticMesh : default);
             }
         }
     }

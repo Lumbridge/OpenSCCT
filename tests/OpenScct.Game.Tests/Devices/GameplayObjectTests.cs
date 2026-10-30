@@ -156,7 +156,7 @@ public sealed class GameplayObjectTests
         // The stage event destroyed the door (credited through Other.Instigator), whose own stage fired its dust.
         Assert.Equal(0, door.HitPoints);
         Assert.Same(spy, door.Instigator);
-        Assert.True(door.StaticMesh.IsNone);
+        Assert.Equal(EDrawType.DT_None, door.DrawType);
         Assert.Single(dust.Calls);
         Assert.Same(door, dust.Calls[0].Other);
 
@@ -188,7 +188,7 @@ public sealed class GameplayObjectTests
     }
 
     [Fact]
-    public void StagesApplyOnceInOrderAndTheirEventsAlternate()
+    public void StagesApplyInOrderAreReappliedOnEveryHitAndTheirEventsAlternate()
     {
         DeviceScene s = DeviceScene.Create();
         SGamePlayObject gpo = s.Add(new SGamePlayObject
@@ -214,8 +214,10 @@ public sealed class GameplayObjectTests
         gpo.eventTakeDamage(1, null, default, default, SDamageType.SDTBase);
         Assert.Equal(Broken, gpo.StaticMesh);
         Assert.Single(three.Calls);
+
+        // The native re-applies the current stage on every call and fires its event again (natives2-damage.md rule 1.6).
         gpo.eventTakeDamage(1, null, default, default, SDamageType.SDTBase);
-        Assert.Single(three.Calls);
+        Assert.Equal(2, three.Calls.Count);
         Assert.Single(half.Calls);
     }
 
@@ -409,14 +411,14 @@ public sealed class GameplayObjectTests
 
         pane.eventTakeDamage(1, null, default, default, SDamageType.SDTFlash);
         Assert.Equal(0, pane.HitPoints);
-        Assert.True(pane.StaticMesh.IsNone);
+        Assert.Equal(EDrawType.DT_None, pane.DrawType);
         Assert.False(s.Collision.GetCollider(colliders[0]).Enabled);
         Assert.IsType<SVitreEmitter>(pane.SpawnableObjects[0].SpawnedActor);
         Assert.Equal(new AssetRef("Squ_Fenetre_ouverte1"), outside.AmbientSound);
 
         // A broken pane stays broken: triggers do nothing.
         s.Level.TriggerEvent("pane", null, null);
-        Assert.True(pane.StaticMesh.IsNone);
+        Assert.Equal(EDrawType.DT_None, pane.DrawType);
     }
 
     [Fact]
