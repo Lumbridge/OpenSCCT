@@ -55,6 +55,11 @@ jobs:
           tools/linux/build.sh
       - name: Smoke the exported native runtime
         run: tools/linux/smoke.sh
+      - name: Install and smoke the Flatpak sandbox
+        run: |
+          flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+          flatpak install --user --noninteractive --assumeyes local/dist/OpenSCCT-linux-x86_64.flatpak
+          tools/linux/smoke-flatpak.sh
       - uses: actions/upload-artifact@v7
         with:
           name: openscct-linux-flatpak

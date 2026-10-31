@@ -86,6 +86,7 @@ so it can run in nested containers; this does not weaken the installed applicati
 
 The `linux-export` GitHub Actions workflow builds the bundle, checks the native boot/TestBox smokes and uploads
 an `openscct-linux-flatpak` artifact. Its ordinary run downloads toolchains, not game content.
+It also installs the bundle and runs boot/TestBox inside the Flatpak sandbox using `tools/linux/smoke-flatpak.sh`.
 
 Third-party notices for the engine, runtime, fonts and dependencies ship with the export and Flatpak.
 Application source licensing is unchanged from upstream.
