@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>io.github.Lumbridge.OpenSCCT</id>
+  <name>OpenSCCT</name>
+  <summary>A community rewrite of Chaos Theory Versus</summary>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>LicenseRef-proprietary</project_license>
+  <description>
+    <p>OpenSCCT recreates spies versus mercenaries using Godot and C#.
+    This experimental native Linux port includes controller support, offline bots,
+    multiplayer and an initial content download screen.</p>
+    <p>Game content downloads separately on first launch. This fan project is
+    not affiliated with or endorsed by Ubisoft.</p>
+  </description>
+  <launchable type="desktop-id">io.github.Lumbridge.OpenSCCT.desktop</launchable>
+  <url type="homepage">https://github.com/Lumbridge/OpenSCCT</url>
+  <url type="bugtracker">https://github.com/Lumbridge/OpenSCCT/issues</url>
+  <content_rating type="oars-1.1">
+    <content_attribute id="violence-realistic">intense</content_attribute>
+    <content_attribute id="social-chat">intense</content_attribute>
+  </content_rating>
+
+</component>
