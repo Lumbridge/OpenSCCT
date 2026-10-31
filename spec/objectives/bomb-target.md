@@ -154,6 +154,10 @@ stateDiagram-v2
 
 ## Network
 
+The interaction's `UsableBy` is not a replicated field. `Update(Remove)` refreshes it on each machine together
+with the label: mercs while armed, spies while unarmed. A client must not keep the planting-side default after
+receiving the removal label.
+
 Server-side logic. `bSkinState` and `bRemove` replicate (reliable, authority); `Update` is a reliable simulated
 multicast; `ActivateBombTarget` is a reliable client-to-server function of the gadget and `ServerPlaceBomb` one of
 the controller. The skin swap (rule 14) runs on each machine from the replicated flag.

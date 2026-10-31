@@ -58,6 +58,8 @@ public partial class CombatFxView : Node3D
     private readonly Dictionary<string, StandardMaterial3D?> _decals = new(StringComparer.Ordinal);
     private SWeaponDefense? _rifle;
     private int _clip;
+    private readonly Dictionary<SCamNetwork, float> _cameraSparks = new();
+    private readonly List<SCamNetwork> _recoveredCameras = new();
 
     public CombatFxView()
     {
@@ -162,7 +164,42 @@ public partial class CombatFxView : Node3D
         TrackTracers(level);
         TrackMarks(level);
         TrackProjections(level);
+        TrackDisabledCameras(level);
         _effects?.OnTick(level);
+    }
+
+    private void TrackDisabledCameras(Level level)
+    {
+        _recoveredCameras.Clear();
+        foreach (SCamNetwork camera in _cameraSparks.Keys)
+        {
+            if (camera.bDeleteMe || !camera.IsShotDisabled || !ReferenceEquals(camera.XLevel, level))
+            {
+                _recoveredCameras.Add(camera);
+            }
+        }
+
+        foreach (SCamNetwork camera in _recoveredCameras) _cameraSparks.Remove(camera);
+        foreach (SCamNetwork camera in level.AllActors<SCamNetwork>())
+        {
+            if (!camera.IsShotDisabled || camera.bHidden || camera.bDeleteMe ||
+                (_cameraSparks.TryGetValue(camera, out float next) && level.TimeSeconds < next))
+            {
+                continue;
+            }
+
+            _cameraSparks[camera] = level.TimeSeconds + 0.6f;
+            FVector at = camera.Location + camera.Rotation.Vector() * 8f;
+            AddCameraSmoke(at);
+            if (_effects?.Spawn("SBase.SSparkShocker", at, camera.Rotation) is not null)
+            {
+                Sparks++;
+            }
+            else
+            {
+                AddBurst(new Name("SSparkShocker"), at, camera.Rotation);
+            }
+        }
     }
 
     /// <summary>Each frame: places the new flashes, fades the flashes and bursts, flies the tracers.</summary>
@@ -344,9 +381,12 @@ public partial class CombatFxView : Node3D
             return any;
         }
 
-        Add("SBase.SMuzzleGenerique", 1.5f + (rng.Next() * 2f), firstPerson ? new FVector(3.5f + (rng.Next() * 2f), 1f, 1f) : new FVector(1f, 1f, 1f));
+        bool pistol = source is MercSidearm or MercSidearmDummy;
+        bool suppressed = source is MercSidearm { Kind: 0 } or MercSidearmDummy { Kind: 0 };
+        bool revolver = source is MercSidearm { Kind: 2 } or MercSidearmDummy { Kind: 2 };
+        if (!suppressed) Add("SBase.SMuzzleGenerique", pistol ? 0.6f : 1.5f + (rng.Next() * 2f), firstPerson ? new FVector(3.5f + (rng.Next() * 2f), 1f, 1f) : new FVector(1f, 1f, 1f));
         // The first-person Uzi and shotgun have no barrel flash; both shotguns add their spray (merc-guns.md).
-        if (!(firstPerson && source is SWeaponDefense_Uzi or SWeaponDefense_Shotgun))
+        if (!pistol && !(firstPerson && source is SWeaponDefense_Uzi or SWeaponDefense_Shotgun))
         {
             Add("SBase.sMuzzleCanon", 1f, new FVector(1f, 1f, 1f));
         }
@@ -364,7 +404,7 @@ public partial class CombatFxView : Node3D
             casing = UeSpace.ToUe(t.Origin);
         }
 
-        if (_effects?.Spawn("SBase.SDouilleEmitter", casing, aim) is not null)
+        if (!revolver && _effects?.Spawn("SBase.SDouilleEmitter", casing, aim) is not null)
         {
             Casings++;
         }
@@ -581,6 +621,43 @@ public partial class CombatFxView : Node3D
     }
 
     // ---- materials -------------------------------------------------------------------------------------------
+
+    private void AddCameraSmoke(FVector location)
+    {
+        var smoke = new CpuParticles3D
+        {
+            Name = "DisabledCameraSmoke",
+            Amount = 5,
+            Lifetime = 1.4,
+            OneShot = true,
+            Explosiveness = 0.2f,
+            Direction = Vector3.Up,
+            Spread = 18f,
+            InitialVelocityMin = 0.12f,
+            InitialVelocityMax = 0.25f,
+            Gravity = new Vector3(0f, 0.06f, 0f),
+            ScaleAmountMin = 0.5f,
+            ScaleAmountMax = 1.2f,
+            ColorRamp = new Gradient
+            {
+                Offsets = [0f, 0.2f, 1f],
+                Colors = [new Color(0.3f, 0.3f, 0.32f, 0f), new Color(0.3f, 0.3f, 0.32f, 0.3f), new Color(0.4f, 0.4f, 0.42f, 0f)],
+            },
+            Mesh = new QuadMesh { Size = Vector2.One * UeSpace.LengthToGodot(18f) },
+            MaterialOverride = new StandardMaterial3D
+            {
+                ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded,
+                BillboardMode = BaseMaterial3D.BillboardModeEnum.Enabled,
+                Transparency = BaseMaterial3D.TransparencyEnum.Alpha,
+                VertexColorUseAsAlbedo = true,
+                AlbedoTexture = _flashTexture,
+            },
+            Emitting = true,
+        };
+        AddChild(smoke);
+        smoke.GlobalPosition = UeSpace.ToGodot(location);
+        _bursts.Add(new Burst(smoke, 3f));
+    }
 
     /// <summary>
     /// The decal of an impact class: its ImpactMaterial texture, alpha-blended (SBulletImpact: frame buffer alpha

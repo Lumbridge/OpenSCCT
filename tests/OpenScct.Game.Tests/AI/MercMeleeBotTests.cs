@@ -198,6 +198,17 @@ public sealed class MercMeleeBotTests
     }
 
     [Fact]
+    public void AMercFollowsThroughAfterKnockingASpyDown()
+    {
+        using Scene? s = Start(450f, AiDifficulty.For(AiSkill.Hard) with { MeleeUse = 1f });
+        Assert.SkipWhen(s is null, "The TestBox fixture is not in this checkout.");
+        (HashSet<string> merc, HashSet<string> spy, string trace) = Play(s!, 8f);
+        Assert.Contains("s_Charge_GoBackward", spy);
+        Assert.True(((MercAi)s!.Merc.Brain!).Terminates > 0 || s.Spy.Pawn!.Health <= 0,
+            "The merc lost the spy after its own knockdown: " + trace);
+    }
+
+    [Fact]
     public void AMercBotElbowsASpyInReachWhileItsSpinCoolsDown()
     {
         using Scene? s = Start(100f, AiDifficulty.For(AiSkill.Hard) with { MeleeUse = 1f });
@@ -205,6 +216,8 @@ public sealed class MercMeleeBotTests
 
         // A spin just made: the Use key gives the elbow for the next 3 s (rule 1).
         s!.Merc.Controller.fLastBerserkTime = s.Merc.Controller.Level.TimeSeconds;
+        // Isolate melee from the four-second wake protection; faster spotting otherwise correctly shoots first.
+        s.Spy.Pawn!.iLastWakeTime = -100;
         (HashSet<string> merc, HashSet<string> spy, string trace) = Play(s, 2.5f);
         Assert.True(merc.Contains("s_ElbowShooting"), "the merc bot did not elbow: " + trace);
         Assert.True(spy.Contains("s_ElbowShot_GoBackward"), "the elbow did not knock the spy back: " + trace);

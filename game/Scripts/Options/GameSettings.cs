@@ -62,6 +62,12 @@ public sealed class LoadoutSettings
 /// <summary>Look sensitivities of one side and device, as Reloaded's control groups hold them.</summary>
 public sealed class LookSettings
 {
+    [JsonPropertyName("walk_behavior")]
+    public string WalkBehavior { get; set; } = "Toggle";
+
+    [JsonPropertyName("scope_behavior")]
+    public string ScopeBehavior { get; set; } = "Toggle";
+
     /// <summary>Spy: free look with the gun holstered (merc: unused).</summary>
     [JsonPropertyName("free_look")]
     public float FreeLook { get; set; } = 1.4f;
@@ -127,11 +133,13 @@ public sealed class LookSettings
     public float ClutchOf(bool one, bool two) =>
         (one && ClutchOneEnabled && ClutchOne > 0f ? ClutchOne : 1f) * (two && ClutchTwoEnabled && ClutchTwo > 0f ? ClutchTwo : 1f);
 
-    internal void Clamp()
+    internal void Clamp(float freeLookMax = 10f)
     {
+        WalkBehavior = WalkBehavior == "Hold" ? "Hold" : "Toggle";
+        ScopeBehavior = ScopeBehavior == "Hold" ? "Hold" : "Toggle";
         ClutchOne = Range(ClutchOne, 0f, 10f);
         ClutchTwo = Range(ClutchTwo, 0f, 10f);
-        FreeLook = Range(FreeLook, 0.05f, 10f);
+        FreeLook = Range(FreeLook, 0.05f, freeLookMax);
         Look = Range(Look, 0.05f, 10f);
         Scope = Range(Scope, 0.05f, 10f);
         ScopeVertical = Range(ScopeVertical, 0.05f, 10f);
@@ -181,7 +189,7 @@ public sealed class PadSettings
         ["B"] = "bCrouch",
         ["X"] = "bUsing",
         ["Y"] = "SwitchHeadset",
-        ["LB"] = merc ? "" : "bUseBackToWall",
+        ["LB"] = merc ? "Action:swapweapon" : "bUseBackToWall",
         ["RB"] = "bRoll",
         ["LT"] = "bAltFire",
         ["RT"] = "bFire",
@@ -680,6 +688,12 @@ public sealed class GameSettings
     [Provenance(ProvenanceKind.Decoded, "spec/reloaded/FEATURES.md rl:qol.location show_location = true")]
     public bool ShowLocation { get; set; } = true;
 
+    [JsonPropertyName("teammate_names_spy")]
+    public bool TeammateNamesSpy { get; set; }
+
+    [JsonPropertyName("teammate_names_merc")]
+    public bool TeammateNamesMerc { get; set; }
+
     /// <summary>Enhanced Reality icon opacity while its objective is being hacked, 0 to 255 (shown as a percentage).</summary>
     [JsonPropertyName("hack_alpha")]
     [Provenance(ProvenanceKind.Decoded, "spec/reloaded/FEATURES.md rl:qol.hackalpha hack_alpha = 178")]
@@ -775,11 +789,28 @@ public sealed class GameSettings
         Crosshair ??= new CrosshairSettings();
         Crosshair.Clamp();
         Loadout.Clamp();
-        SpyKbm.Clamp();
+        // Legacy mouse responses are fixed gain, not curves. Bake the gain into sensitivity once.
+        float gain = SpyKbm.LookResponse switch
+        {
+            "CurveSoft" => 2f, "CurveMedium" => 2.5f, "CurveAggressive" => 3f, _ => 1f,
+        };
+        if (gain != 1f)
+        {
+            SpyKbm.FreeLook = LookSettings.Range(SpyKbm.FreeLook, 0.05f, 10f) * gain;
+        }
+        SpyKbm.LookResponse = "Linear";
+        SpyKbm.Clamp(30f);
         MercKbm.Clamp();
         SpyPad.Clamp();
         MercPad.Clamp();
         Pad.Clamp();
+        // Old pad identifiers resolved a keyboard key; retain the intended action after wheel migration.
+        foreach (var buttons in new[] { Pad.SpyButtons, Pad.MercButtons })
+            foreach (string key in new List<string>(buttons.Keys))
+                buttons[key] = buttons[key] switch
+                {
+                    "ChangeSpeed" => "Action:speed", "WheelUp" => "Action:wheelup", "WheelDown" => "Action:wheeldown", _ => buttons[key],
+                };
         ClutchOneKey = (ClutchOneKey ?? "").Trim();
         ClutchTwoKey = (ClutchTwoKey ?? "").Trim();
         MouseWheel = OneOf(WheelModes, MouseWheel);

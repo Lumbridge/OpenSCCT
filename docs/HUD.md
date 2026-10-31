@@ -232,11 +232,12 @@ applies them at start and on save.
 | HUD | `show_scoreboard`, `show_ping`, `scoreboard_split_team_size` (1..4, 3), `show_fps`, `show_net`, `show_net_loss` (off), `show_location`, `hack_alpha` (0..255, 178), `hud_feet` (profile bInFeet), `fire_prediction` (on; docs/NETCODE.md "Lag compensation and fire prediction") |
 | console | `override_console_key` (true: the key left of 1; false: the apostrophe key) |
 
-`OptionsMenu` is the screen (from the main menu, or over the game with F12): Keys (rebinding the spy and merc layouts
-through `KeyBindingsModel`; click a key, press the new one, Escape cancels), Mouse, Controller, Display, Audio, HUD,
-then Save, Defaults, Back. `OptionsRuntime` applies the mouse look multipliers per team, the HUD switches, the frame
-cap of the side played (not in headless or smoke runs), the field of view and the controller; `GamepadInput` maps Godot joypads to the
-layouts with Reloaded's SDL defaults (radial dead zones, response curves, the spy's run threshold).
+`OptionsMenu` is the screen from the main menu or the in-game F12 overlay. Spy and Mercenary each contain
+Bindings, Mouse & Aim, Controller and Crosshair sections; General Controls holds shared input/device settings,
+followed by Display, Audio, Voice and HUD (docs/MENUS.md). Settings and bindings are staged until Apply or
+Save & Close; Back confirms discarding edits. `OptionsRuntime` applies role sensitivity, HUD switches, frame caps,
+FOV and controller settings. `GamepadInput` retains keyboard-linked assignments and supports independent action
+bindings, alongside radial dead zones, response curves and the spy's run threshold.
 
 **Analog movement** (rl:input.pad): the left stick reaches the sim as a stick, not as keys. `GamepadInput` puts it in
 `LocalInput.PadForward`/`PadStrafe` (after the deadzone and the optional eight-way snap; with `slow_walk` off only its
@@ -386,7 +387,7 @@ CI's default set stays `boot` and `testbox`. With a renderer, `--svm-hud-capture
 
 ## Cinematic camera (Free Camera, Hide HUD)
 
-The Enhanced 4.0 binds `FreeCam` and `HideHud` (Options, Keys, "Cinematic Camera" rows) work when the host turned
+The Enhanced 4.0 binds `FreeCam` and `HideHud` (Options, Spy or Mercenary, Bindings, Interface rows) work when the host turned
 on Alternate Mode and its "Cinematic Camera" switch (offline they always work). Rules: spec/hud/cinematic-camera.md.
 
 - **Who:** a living player, at any time in the round. Without the switch the console says "Free look is not enabled
@@ -444,3 +445,11 @@ on Alternate Mode and its "Cinematic Camera" switch (offline they always work). 
 - The connected players list is shown from the start of a match: that is Reloaded's default (`show_scoreboard`
   true, spec/hud/scoreboard.md rule 2); the unpatched game starts with it hidden (`SHud.bShowConnectedPlayers`
   false). F10 toggles it and the setting is remembered.
+# Optional teammate names
+
+Each role's settings page has **Show teammate names through walls**, saved independently as
+`teammate_names_spy` and `teammate_names_merc` (both default off). Living teammates' replicated player names
+draw above their collision bounds as HUD text without a depth test. Labels exclude the local player, enemies,
+dead pawns and spectators, and hide outside the view or when the player HUD is hidden. They smoothly shrink
+from 18 to 10 HUD pixels and fade from full to 25% opacity between 5 and 100 metres, retaining that minimum
+beyond 100 metres. Role reset restores the toggle to off; Apply uses the new setting immediately.

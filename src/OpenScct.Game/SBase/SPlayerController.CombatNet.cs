@@ -107,11 +107,22 @@ public partial class SPlayerController
             case "ServerSound" when target is SWeapon weapon:
                 weapon.ServerSound(new AssetRef(c.Name1.ToString()), (ESoundSlot)c.Int1, c.Int2);
                 break;
+            case "SelectCarriedWeapon" when ReferenceEquals(target, Pawn):
+                ReceiveWeaponSelection(c.Int1, c.Int2);
+                break;
+            case "ReloadCarriedPrimary" when target is SWeaponDefense primary:
+                primary.RequestCarriedReload();
+                break;
+            case "ReloadSidearm" when target is MercSidearm sidearm:
+                sidearm.Reload();
+                break;
             case "ServerSetAccurateRotation" when target is SWeaponDefense rifle:
                 rifle.ServerSetAccurateRotation(c.Rotation.Yaw, c.Rotation.Pitch, c.Rotation.Roll);
                 break;
             case "ServerFireWeapon" when target is SWeapon weapon:
                 // The shot's number and whether its impacts were predicted (spec/net/lag-compensation.md).
+                if (weapon.Instigator is SBasePawn { SidearmWeapon: not null } &&
+                    (c.Int2 <= 0 || c.Int2 != weapon.ShotCounter + 1)) break;
                 weapon.BeginClientShot(c.Int2, c.Bool1);
                 weapon.ServerFireWeapon(c.Int1);
                 weapon.EndClientShot();
@@ -202,6 +213,14 @@ public partial class SPlayerController
     {
         switch (c.Function.ToString())
         {
+            case "CarriedWeaponSelected" when SBPawn is { } selectedPawn:
+                if (selectedPawn.ActiveWeaponSlot != c.Int1) SidearmEquipment.Select(selectedPawn, c.Int1, true);
+                if (!c.Bool1) selectedPawn.WeaponSwitchUntil = selectedPawn.Level.TimeSeconds + c.Float1;
+                break;
+            case "WeaponAmmoState" when c.Target is SWeaponDefense checkedWeapon:
+                if (c.Int3 == checkedWeapon.ShotCounter) { checkedWeapon.ClipAmmo = c.Int1; checkedWeapon.Ammo = c.Int2; }
+                break;
+
             case "ClientDamage":
                 ClientDamage(c.Vector1, c.DamageType, c.Vector2, c.Actor1 as Pawn);
                 break;

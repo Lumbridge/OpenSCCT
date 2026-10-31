@@ -126,7 +126,7 @@ public partial class SessionRowsView : VBoxContainer
         top.AddThemeConstantOverride("separation", 2);
         AddChild(top);
         AddChild(new Control { Name = "Gap", CustomMinimumSize = new Vector2(0f, 6f) });
-        var columns = new HBoxContainer { Name = "Columns" };
+        var columns = new BoxContainer { Name = "Columns" };
         columns.AddThemeConstantOverride("separation", 32);
         AddChild(columns);
         VBoxContainer match = CompactColumn(columns, "Match");
@@ -158,7 +158,7 @@ public partial class SessionRowsView : VBoxContainer
             SessionRow.AutoBalance);
     }
 
-    private static VBoxContainer CompactColumn(HBoxContainer parent, string name)
+    private static VBoxContainer CompactColumn(BoxContainer parent, string name)
     {
         var column = new VBoxContainer { Name = name, SizeFlagsHorizontal = SizeFlags.ExpandFill };
         column.AddThemeConstantOverride("separation", 2);

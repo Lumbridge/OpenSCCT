@@ -178,6 +178,44 @@ public sealed class JumpFallTests
     }
 
     [Fact]
+    public void CrouchingInMidairLandsInAFullRollAndStaysCrouched()
+    {
+        PawnRig rig = Rig(PawnTeam.Spy);
+        rig.Hold(Forward, 40);
+        rig.Step(RunJump);
+        rig.Hold(Forward, 10);
+        Assert.Equal(EPhysics.PHYS_Falling, rig.Pawn.Physics);
+        rig.Step(new PlayerInputFrame { BT_Up = 1, bCrouch = 1 });
+        Assert.True(rig.Controller.bCrouchWithRoll);
+
+        int landingFrames = 0;
+        while (!rig.Controller.IsInState(MovementStateNames.s_PlayerRolling) && landingFrames++ < 90)
+        {
+            rig.Step(Forward);
+        }
+
+        Assert.True(rig.Controller.IsInState(MovementStateNames.s_PlayerRolling));
+        Assert.Equal(EPhysics.PHYS_Walking, rig.Pawn.Physics);
+        Assert.True(rig.Pawn.bIsRolling);
+        Assert.True(rig.Pawn.bIsCrouched);
+        Assert.StartsWith("RollStAlFd", rig.Pawn.PawnAnim[15].Sequence.ToString(), StringComparison.OrdinalIgnoreCase);
+
+        rig.Hold(Forward, 12);
+        Assert.True(rig.Controller.IsInState(MovementStateNames.s_PlayerRolling));
+        Assert.Equal(1f, rig.Pawn.PawnAnim[15].BlendAlpha);
+        Assert.InRange(rig.Pawn.PawnAnim[15].Frame, 0.1f, 0.4f);
+        for (int channel = 4; channel < 14; channel++)
+        {
+            Assert.Equal(0f, rig.Pawn.PawnAnim[channel].BlendAlpha);
+        }
+
+        rig.Hold(Forward, 90);
+        Assert.True(rig.Controller.IsInState(MovementStateNames.s_PlayerWalkingCr0H));
+        Assert.False(rig.Pawn.bIsRolling);
+        Assert.True(rig.Pawn.bIsCrouched);
+    }
+
+    [Fact]
     public void RunningSpyDivesAndStandsBackUp()
     {
         // At 423.5 uu/s the dive magnitude clamps to 4700: SA_ROLLINGUP in s_PlayerRollingUp, then up again (roll.md).

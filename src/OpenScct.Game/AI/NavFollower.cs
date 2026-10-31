@@ -142,6 +142,16 @@ public sealed class NavFollower
         _replans = 0;
         Arrived = false;
         Failed = false;
+        if (pawn.Physics == EPhysics.PHYS_OnLadder)
+        {
+            // A pawn can grab a ladder automatically from a plain walk edge, or lose its path during a goal change.
+            // It has no floor node halfway down: finish the climb before asking A* for a new floor route.
+            _path.Clear();
+            _next = 0;
+            _phase = TPhase.None;
+            return true;
+        }
+
         return Plan(pawn);
     }
 
@@ -202,6 +212,23 @@ public sealed class NavFollower
 
         FVector at = pawn.Location;
         FVector feet = Feet(pawn);
+        if (_phase == TPhase.None && pawn.Physics == EPhysics.PHYS_OnLadder)
+        {
+            cmd.Crouched = null;
+            cmd.Tolerance = 65536;
+            cmd.Keys.FastSpeed = true;
+            if (_goal.Z > feet.Z + 80f)
+            {
+                cmd.Keys.BT_Up = 1;
+            }
+            else
+            {
+                cmd.Keys.BT_Down = 1;
+            }
+
+            return cmd;
+        }
+
         if (_phase == TPhase.None && Horizontal(_goal - at) < 20f && MathF.Abs(_goal.Z - feet.Z) < 80f)
         {
             Arrived = true;

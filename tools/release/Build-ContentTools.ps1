@@ -73,7 +73,7 @@ $pth = Join-Path $python "python$tag._pth"
 ) | Set-Content -LiteralPath $pth -Encoding ascii
 
 # Our sources, tracked files only.
-$trees = @('content/svmbuild', 'tools/scctpkg/scctpkg', 're/formats/scctformats', 'spec/svmap')
+$trees = @('content/svmbuild', 'content/assets/sidearms/export', 'content/assets/sidearms/CREDITS.txt', 'tools/scctpkg/scctpkg', 're/formats/scctformats', 'spec/svmap')
 $files = & git -C $repoRoot ls-files -- @trees
 if ($LASTEXITCODE -ne 0) { throw 'git ls-files failed.' }
 foreach ($file in $files) {

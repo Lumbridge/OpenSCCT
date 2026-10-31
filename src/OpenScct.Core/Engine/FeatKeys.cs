@@ -58,6 +58,8 @@ public static class FeatKeys
         MercSniperKills, MercHeadshots, MercTerminateKills, MercGrenadeKills, MercMineKills, MercHipfireKills, MercMarks,
         MercChargeHits, MercTaserHits, MercMinesPlaced, MercBerserkHits,
         GunKills("ar"), GunKills("smg"), GunKills("shotgun"),
+        GunKills("suppressed"), GunKills("automatic"), GunKills("magnum44"), GunKills("desert_eagle"),
+        GunHeadshots("suppressed"), GunHeadshots("automatic"), GunHeadshots("magnum44"), GunHeadshots("desert_eagle"),
         GunHeadshots("ar"), GunHeadshots("smg"), GunHeadshots("shotgun"),
     ];
 }

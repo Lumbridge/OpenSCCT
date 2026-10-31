@@ -24,6 +24,7 @@ public static class DeviceClasses
     public static Actor? Spawn(Actor spawner, ClassRef Class, Actor? SpawnOwner, Name SpawnTag, FVector SpawnLocation,
         FRotator SpawnRotation)
     {
+        if (OpenScct.Game.Equipment.SidearmEquipment.Spawn(spawner, Class, SpawnOwner, SpawnLocation, SpawnRotation) is { } addition) return addition;
         UcClassInfo? info = (spawner.XLevel.GetService<UcClassIndex>() ?? Index).Find(Class);
         if (info?.Create() is not Actor actor)
         {

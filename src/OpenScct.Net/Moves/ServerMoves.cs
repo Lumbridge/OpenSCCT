@@ -45,6 +45,9 @@ public sealed class ServerMoves
     /// <summary>Apply Reloaded's MyServerMoveWithPCRot wrapper (MaxTimeMargin infinite during the call). On by default.</summary>
     public bool ReloadedPCRot { get; set; } = true;
 
+    public bool FixedTickSimulation { get; set; }
+    public float? CommandDeltaTime { get; set; }
+
     // ---- PlayerController fields --------------------------------------------------------------------------------
 
     /// <summary>
@@ -189,7 +192,7 @@ public sealed class ServerMoves
     private void ProcessBigMove(in BigServerMoveData move, bool resend)
     {
         // Accepted when the epochs differ by less than 1 s (trunc of the difference is 0) and the stamp is new.
-        if (SvmMath.Trunc(move.MSATime - Controller.MirrorStateAcknowledgementTime) != 0 || move.TimeStamp <= BigServerMoveLastActionTime)
+        if (SvmMath.Trunc(move.MSATime - Controller.MirrorStateAcknowledgementTime) != 0 || (!FixedTickSimulation && move.TimeStamp <= BigServerMoveLastActionTime))
         {
             MovesIgnored++;
             return;
@@ -242,6 +245,13 @@ public sealed class ServerMoves
 
         ProcessServerMove(resend ? EServerMoveKind.BigResend : EServerMoveKind.Big, move.TimeStamp, move.InAccel, move.ClientLoc, move.View,
             (byte)move.iDiversInfos, -1, 0, snapped);
+        if (FixedTickSimulation && snapped && Pawn is IMoveCommandPawn animation)
+        {
+            // The action packet carries the completed client step. Consume the matching root cursor too;
+            // otherwise the next command applies the same clip displacement a second time.
+            animation.ConsumeMoveRootMotion();
+            animation.AdvanceMoveAnimation(CommandDeltaTime ?? Sim.DeltaTime);
+        }
         BigServerMoveLastActionTime = move.TimeStamp;
     }
 
@@ -310,7 +320,7 @@ public sealed class ServerMoves
     public void ProcessServerMove(EServerMoveKind kind, float TimeStamp, FVector InAccel, FVector ClientLoc, int View, byte DiversInfos,
         int OldTimeDelta, int OldAccel, bool snapped)
     {
-        if (Controller.bWaitingForReinit || TimeStamp <= CurrentTimeStamp)
+        if (Controller.bWaitingForReinit || (!FixedTickSimulation && TimeStamp <= CurrentTimeStamp))
         {
             MovesIgnored++;
             return;
@@ -338,8 +348,8 @@ public sealed class ServerMoves
         }
 
         // 11.2, 11.3 the delta and the time-margin guard.
-        float deltaTime = Math.Min(MaxResponseTime, TimeStamp - CurrentTimeStamp);
-        if (ServerTimeStamp > 0f)
+        float deltaTime = CommandDeltaTime ?? Math.Min(MaxResponseTime, TimeStamp - CurrentTimeStamp);
+        if (!FixedTickSimulation && ServerTimeStamp > 0f)
         {
             TimeMargin = Math.Max(0f, TimeMargin + deltaTime - MoveK.TimeMarginFactor * (now - ServerTimeStamp));
             if (TimeMargin > MaxTimeMargin)
@@ -362,7 +372,7 @@ public sealed class ServerMoves
         }
 
         // 11.5 the physics check.
-        if (clientPhysics != Pawn.Physics)
+        if (!FixedTickSimulation && clientPhysics != Pawn.Physics)
         {
             if (now - fLastTimePhysicsChecked > MoveK.PhysicsMismatchReinit && Pawn.IsAlive)
             {
@@ -415,9 +425,9 @@ public sealed class ServerMoves
         }
 
         // 11.9 apply. The PCRot form has no root motion step: it applies and goes on to the correction.
-        bool rootOnly = !pcRot && physics == EPhysics.PHYS_RootMotion && !Pawn.bUseRootMotionAdditionnalPhysics;
+        bool rootOnly = !FixedTickSimulation && !pcRot && physics == EPhysics.PHYS_RootMotion && !Pawn.bUseRootMotionAdditionnalPhysics;
         if (!rootOnly && !snapped && !Controller.IsPaused && deltaTime > 0f &&
-            (clientPhysics == Pawn.Physics || Pawn.Physics == EPhysics.PHYS_Repositionnal))
+            (FixedTickSimulation || clientPhysics == Pawn.Physics || Pawn.Physics == EPhysics.PHYS_Repositionnal))
         {
             Apply(deltaTime, accel, jump);
         }
@@ -443,7 +453,17 @@ public sealed class ServerMoves
             return;
         }
 
-        Pawn.MoveAutonomous(deltaTime, accel, jump);
+        if (FixedTickSimulation)
+        {
+            while (deltaTime > 0f)
+            {
+                float step = deltaTime <= Sim.DeltaTime + MoveK.SplitEpsilon ? deltaTime : Sim.DeltaTime;
+                Pawn.MoveAutonomous(step, accel, jump);
+                deltaTime -= step;
+                jump = false;
+            }
+        }
+        else Pawn.MoveAutonomous(deltaTime, accel, jump);
         MovesApplied++;
     }
 
@@ -469,6 +489,9 @@ public sealed class ServerMoves
     /// <summary>Rule 12 (rule 14's intervals for PCRot): when to correct, which form, and when to reinit.</summary>
     private void DecideCorrection(bool pcRot, float timeStamp, FVector clientLoc, EPhysics clientPhysics, int clientZone, float now)
     {
+        // Sequenced acknowledgements reconcile this state with replay. The decoded shift/reinit policy would
+        // discard valid traversal history and is reserved for the original transport.
+        if (FixedTickSimulation) return;
         float errorSquared;
         float forced = pcRot ? MoveK.ForcedCorrectionIntervalPCRot : MoveK.ForcedCorrectionInterval;
         float gap = pcRot ? MoveK.MinCorrectionGapPCRot : MoveK.MinCorrectionGap;

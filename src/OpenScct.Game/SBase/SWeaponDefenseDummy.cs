@@ -69,7 +69,9 @@ public partial class SWeaponDefenseDummy
         {
             MyMuzzleCount += 1;
             bool remoteHere = Instigator?.Controller is SPlayerController { IsRemotePlayer: true };
-            if (Instigator is SBasePawn { MyWeapon: null } || remoteHere)
+            bool carriedRemote = Instigator is SBasePawn { SidearmWeapon: not null } carried &&
+                !ReferenceEquals(carried, Level.GetLocalPlayerController()?.Pawn);
+            if (Instigator is SBasePawn { MyWeapon: null } || remoteHere || carriedRemote)
             {
                 ClientFireMuzzle();
             }

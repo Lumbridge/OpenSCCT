@@ -19,6 +19,10 @@ public enum CosmeticSlot : byte
     GunAr = 3,
     GunSmg = 4,
     GunShotgun = 5,
+    Suppressed = 6,
+    Automatic = 7,
+    Magnum44 = 8,
+    DesertEagle = 9,
 }
 
 public enum CosmeticKind : byte
@@ -136,7 +140,7 @@ public static class CosmeticCatalog
     /// <summary>The slots a side's look uses.</summary>
     public static IReadOnlyList<CosmeticSlot> SlotsOf(CosmeticSide side) => side == CosmeticSide.Spy
         ? [CosmeticSlot.Body, CosmeticSlot.Light, CosmeticSlot.Pistol]
-        : [CosmeticSlot.Body, CosmeticSlot.Light, CosmeticSlot.GunAr, CosmeticSlot.GunSmg, CosmeticSlot.GunShotgun];
+        : [CosmeticSlot.Body, CosmeticSlot.Light, CosmeticSlot.GunAr, CosmeticSlot.GunSmg, CosmeticSlot.GunShotgun, CosmeticSlot.Suppressed, CosmeticSlot.Automatic, CosmeticSlot.Magnum44, CosmeticSlot.DesertEagle];
 
     public static IEnumerable<CosmeticItem> For(CosmeticSide side, CosmeticSlot slot) => All.Where(i => i.Side == side && i.Slot == slot);
 
@@ -148,6 +152,10 @@ public static class CosmeticCatalog
         CosmeticSlot.GunAr => "Assault rifle",
         CosmeticSlot.GunSmg => "SMG",
         CosmeticSlot.GunShotgun => "Shotgun",
+        CosmeticSlot.Suppressed => "Suppressed pistol",
+        CosmeticSlot.Automatic => "Automatic pistol",
+        CosmeticSlot.Magnum44 => ".44 Magnum",
+        CosmeticSlot.DesertEagle => "Desert Eagle",
         _ => slot.ToString(),
     };
 
@@ -329,6 +337,11 @@ public static class CosmeticCatalog
         {
             Add($"merc.{gun}.galaxy", PatternName(patterns, "galaxy"), CosmeticSide.Merc, slot, CosmeticKind.Texture, pattern: "galaxy");
         }
+
+        foreach (var pistol in OpenScct.Core.Engine.Sidearms.All)
+            foreach (string camo in new[] { "night_ops", "cryo", "woodland", "desert", "digital", "red_tiger", "blue_tiger", "golden" })
+                Add($"merc.{pistol.Id}.{camo}", PatternName(patterns, camo), CosmeticSide.Merc,
+                    (CosmeticSlot)(6 + (int)pistol.Kind), CosmeticKind.Texture, pattern: camo);
 
         if (bit - 1 > MaxBit)
         {

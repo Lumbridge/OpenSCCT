@@ -85,6 +85,11 @@ vec3 svm_cosmetic_level(vec3 c) {
 }
 
 uniform sampler2D tex_diffuse : filter_linear_mipmap_anisotropic, repeat_enable, hint_default_white;
+#ifdef NORMAL_MAP
+uniform sampler2D tex_normal : filter_linear_mipmap_anisotropic, repeat_enable, hint_normal;
+varying vec3 v_wtangent;
+varying vec3 v_wbinormal;
+#endif
 
 #ifdef LIGHT_LIGHTMAP
 uniform sampler2D tex_lightmap : filter_linear, repeat_disable, hint_default_white;
@@ -565,6 +570,10 @@ void vertex() {
 #ifdef LIGHT_ACTOR
 	vec3 wp = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
 	vec3 wn = normalize(MODEL_NORMAL_MATRIX * NORMAL);
+#ifdef NORMAL_MAP
+	v_wtangent = normalize(MODEL_NORMAL_MATRIX * TANGENT);
+	v_wbinormal = normalize(MODEL_NORMAL_MATRIX * BINORMAL);
+#endif
 	vec3 sum = svm_ambient.rgb;
 	sum += svm_one_light(svm_l0_pos, svm_l0_col, svm_l0_spot, wp, wn, 0);
 	sum += svm_one_light(svm_l1_pos, svm_l1_col, svm_l1_spot, wp, wn, 0);
@@ -617,7 +626,35 @@ vec2 svm_uv(vec2 uv) {
 	return uv;
 }
 
+#if !defined(BLEND_MASKED) && !defined(BLEND_TRANSLUCENT) && !defined(BLEND_ADDITIVE) && !defined(BLEND_MODULATE) && !defined(BLEND_DARKEN) && !defined(VISION_SEE_THROUGH)
+#define SVM_DEPTH_SOLID
+#endif
+
+#ifdef COMBINE
+vec3 svm_combine_rgb(vec3 first, vec3 second, vec3 mask, float alpha) {
+	if (combine.x == 1) { return second; }
+	if (combine.x == 2) { return first * second; }
+	if (combine.x == 3) { return first + second; }
+	if (combine.x == 4) { return first - second; }
+	if (combine.x == 5) { return mix(first, second, alpha); }
+	if (combine.x == 6) { return first + second * alpha; }
+	if (combine.x == 7) { return mask; }
+	return first;
+}
+#endif
+
 void fragment() {
+	// Depth cameras need coverage only. Blended surfaces write no opaque depth, and ordinary solid surfaces
+	// need none of the material textures or colour stages. Masked materials keep their exact alpha test below.
+#ifdef SVM_DEPTH_SOLID
+	if ((CAMERA_VISIBLE_LAYERS & SVM_SHADOW_PASS) != 0u) {
+		ALBEDO = vec3(0.0);
+	} else {
+#elif defined(BLEND_TRANSLUCENT) || defined(BLEND_ADDITIVE) || defined(BLEND_MODULATE) || defined(BLEND_DARKEN) || defined(VISION_SEE_THROUGH)
+	if ((CAMERA_VISIBLE_LAYERS & SVM_SHADOW_PASS) != 0u) {
+		discard;
+	}
+#endif
 #ifdef VISION_SEE_THROUGH
 	// The blended pass draws only in thermal and EMF.
 	if (svm_vision != 36 && svm_vision != 38) {
@@ -648,24 +685,15 @@ void fragment() {
 		mk = texture(tex_cmask, uvm, svm_mip_bias);
 	}
 	float ma = combine.w != 0 ? 1.0 - mk.a : mk.a;
-	vec3 crgb = m1.rgb;
-	if (combine.x == 1) {
-		crgb = m2.rgb;
-	} else if (combine.x == 2) {
-		crgb = m1.rgb * m2.rgb;
-	} else if (combine.x == 3) {
-		crgb = m1.rgb + m2.rgb;
-	} else if (combine.x == 4) {
-		crgb = m1.rgb - m2.rgb;
-	} else if (combine.x == 5) {
-		crgb = mix(m2.rgb, m1.rgb, ma);
-	} else if (combine.x == 6) {
-		crgb = m1.rgb + m2.rgb * ma;
-	} else if (combine.x == 7) {
-		crgb = mk.rgb;
-	}
 	float ca = combine.y == 1 ? m1.a * m2.a : combine.y == 2 ? m1.a + m2.a : combine.y == 3 ? m1.a : combine.y == 4 ? m2.a : ma;
+#ifdef COMBINE_LIGHT_FIRST
+	// Native root Combiner (0x10970ad0) applies lighting to the first texture stage. The later wave/foam
+	// input keeps its authored colour; lighting the final combination made Aquarium's sea almost black.
+	vec4 t = vec4(m1.rgb, clamp(ca, 0.0, 1.0));
+#else
+	vec3 crgb = svm_combine_rgb(m1.rgb, m2.rgb, mk.rgb, ma);
 	vec4 t = clamp(vec4(crgb * float(combine.z), ca), 0.0, 1.0);
+#endif
 #elif defined(FLIPBOOK)
 	// The frame of the scene time, one atlas cell; gradients from the tiled UVs keep the mip level across cell edges.
 	float frame = mod(floor(svm_time * flipbook.w), flipbook.z);
@@ -694,6 +722,10 @@ void fragment() {
 	}
 #if defined(LIGHT_LIGHTMAP) || defined(LIGHT_VERTEX) || defined(LIGHT_ACTOR)
 	vec3 wn = normalize(v_wnormal) * (FRONT_FACING ? 1.0 : -1.0);
+#ifdef NORMAL_MAP
+	vec3 detail = texture(tex_normal, uv, svm_mip_bias).xyz * 2.0 - 1.0;
+	wn = normalize(mat3(normalize(v_wtangent), normalize(v_wbinormal), wn) * detail);
+#endif
 #if defined(LIGHT_LIGHTMAP) || defined(LIGHT_VERTEX)
 	float zone = floor(COLOR.a * 255.0 + 0.5);
 #else
@@ -723,9 +755,20 @@ void fragment() {
 #elif defined(LIGHT_ACTOR)
 	// The flares per pixel, with the actor model's falloff (their shadows fall across the actor), past the 2x cap.
 	vec3 flare = svm_flare_count > 0 && !unlit ? svm_flare_light(v_wpos, wn, 1.0, 0) : vec3(0.0);
-	vec3 lit = t.rgb * (min(v_light + spot + vec3(svm_vision_ambient), vec3(2.0)) + flare);
+	vec3 actor_light = v_light;
+#ifdef NORMAL_MAP
+	actor_light = svm_ambient.rgb;
+	actor_light += svm_one_light(svm_l0_pos, svm_l0_col, svm_l0_spot, v_wpos, wn, 0);
+	actor_light += svm_one_light(svm_l1_pos, svm_l1_col, svm_l1_spot, v_wpos, wn, 0);
+	actor_light += svm_one_light(svm_l2_pos, svm_l2_col, svm_l2_spot, v_wpos, wn, 0);
+	actor_light += svm_one_light(svm_l3_pos, svm_l3_col, svm_l3_spot, v_wpos, wn, 0);
+#endif
+	vec3 lit = t.rgb * (min(actor_light + spot + vec3(svm_vision_ambient), vec3(2.0)) + flare);
 #else
 	vec3 lit = t.rgb;
+#endif
+#ifdef COMBINE_LIGHT_FIRST
+	lit = clamp(svm_combine_rgb(min(lit, vec3(1.0)), m2.rgb, mk.rgb, ma) * float(combine.z), 0.0, 1.0);
 #endif
 	vec3 c = min(lit, vec3(1.0));
 #ifdef SELF_ILLUM
@@ -806,7 +849,9 @@ void fragment() {
 #elif defined(BLEND_ADDITIVE)
 	a = 1.0;
 #endif
-	if (svm_vision == 36) {
+	// A shadow camera always uses physical coverage. Vision modes change the main colour/depth picture, not the
+	// cached occluders; in particular a thermal glass cut or EMF screen door must not persist in a map-light tile.
+	if (svm_vision == 36 && (CAMERA_VISIBLE_LAYERS & SVM_SHADOW_PASS) == 0u) {
 		// Thermal Z pass: heat in G, the depth fade in B. Additive, modulating and darkening surfaces are left out.
 #if defined(BLEND_ADDITIVE) || defined(BLEND_MODULATE) || defined(BLEND_DARKEN)
 		discard;
@@ -843,7 +888,7 @@ void fragment() {
 #endif
 #endif
 #endif
-	} else if (svm_vision == 38) {
+	} else if (svm_vision == 38 && (CAMERA_VISIBLE_LAYERS & SVM_SHADOW_PASS) == 0u) {
 		// EMF: the environment map by camera-space reflection, darkened by the actor's EMF glow (the post pass inverts).
 #if defined(BLEND_ADDITIVE) || defined(BLEND_MODULATE) || defined(BLEND_DARKEN)
 		discard;
@@ -892,5 +937,8 @@ void fragment() {
 	ALPHA_ANTIALIASING_EDGE = 0.3;
 	ALPHA_TEXTURE_COORDINATE = uv * vec2(textureSize(tex_diffuse, 0));
 #endif
+#endif
+#ifdef SVM_DEPTH_SOLID
+	}
 #endif
 }

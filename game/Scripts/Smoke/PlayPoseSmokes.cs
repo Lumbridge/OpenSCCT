@@ -32,8 +32,11 @@ public sealed class DrawnPoseTrack
 
     private Vector3[] _start = [];
     private Vector3[] _now = [];
+    private Vector3[] _clipStart = [];
+    private Name _clip;
     private FVector _startLocation;
     private double _time;
+    private float _boneExcursion;
     private bool _open;
 
     public DrawnPoseTrack(SimPawnView view, string label)
@@ -49,6 +52,11 @@ public sealed class DrawnPoseTrack
     public int MovingWindows { get; private set; }
 
     public int AnimatedWindows { get; private set; }
+
+    public List<string> FrozenWindows { get; } = new();
+
+    /// <summary>Largest bone displacement within each base clip, including actions played while stationary.</summary>
+    public Dictionary<Name, float> ClipBoneMotion { get; } = new();
 
     /// <summary>The lowest foot bone over the pawn's floor (cylinder bottom while walking), lowest and highest seen, uu.</summary>
     public float MinFoot { get; private set; } = float.NaN;
@@ -101,6 +109,7 @@ public sealed class DrawnPoseTrack
         {
             _now = new Vector3[count];
             _start = new Vector3[count];
+            _clipStart = new Vector3[count];
             _open = false;
         }
 
@@ -116,6 +125,19 @@ public sealed class DrawnPoseTrack
             {
                 lowest = Math.Min(lowest, (world * local).Y * 100f);
             }
+        }
+
+        Name clip = pawn.PawnAnim[0].Sequence;
+        if (_clip != clip)
+        {
+            _clip = clip;
+            Array.Copy(_now, _clipStart, count);
+        }
+        else
+        {
+            ClipBoneMotion.TryGetValue(clip, out float excursion);
+            for (int b = 0; b < count; b++) excursion = Math.Max(excursion, _now[b].DistanceTo(_clipStart[b]));
+            ClipBoneMotion[clip] = excursion;
         }
 
         string stance = pawn.bIsCrouched ? "Cr" : "St";
@@ -182,8 +204,16 @@ public sealed class DrawnPoseTrack
             Array.Copy(_now, _start, count);
             _startLocation = pawn.Location;
             _time = 0;
+            _boneExcursion = 0f;
             _open = true;
             return;
+        }
+
+        // A complete walk cycle can end on its starting pose. Measure the excursion throughout
+        // the window, rather than mistaking matching end points for a frozen skeleton.
+        for (int b = 0; b < count; b++)
+        {
+            _boneExcursion = Math.Max(_boneExcursion, (_now[b] - _start[b]).Length());
         }
 
         _time += dt;
@@ -200,16 +230,16 @@ public sealed class DrawnPoseTrack
             return;
         }
 
-        float bones = 0f;
-        for (int b = 0; b < count; b++)
-        {
-            bones = Math.Max(bones, (_now[b] - _start[b]).Length());
-        }
-
         MovingWindows++;
-        if (bones >= AnimatedBoneMotion)
+        if (_boneExcursion >= AnimatedBoneMotion)
         {
             AnimatedWindows++;
+        }
+        else if (FrozenWindows.Count < 8)
+        {
+            FrozenWindows.Add($"{pawn.XLevel.TickCount}: speed={speed:F0} bones={_boneExcursion:F3} " +
+                string.Join(", ", Enumerable.Range(0, PawnAnimation.ChannelCount).Where(i => i == 0 || a[i].BlendAlpha > 0.1f)
+                    .Select(i => $"c{i}:{a[i].Sequence}@{a[i].Frame:F3}/{a[i].BlendAlpha:F2}")));
         }
     }
 
@@ -258,6 +288,12 @@ public abstract class PlayPoseSmoke : SmokeTest
 
     protected abstract int Bots { get; }
 
+    protected virtual OpenScct.Net.SimLinkProfile? NetworkLink => null;
+
+    protected virtual double ShotInterval => 2.0;
+
+    protected virtual PlayRoot StartPlay(SmokeContext context) => PlayInspectSmoke.StartPlay(context, Bots, link: NetworkLink);
+
     /// <summary>The play scene under test (null before it starts).</summary>
     protected PlayRoot? Root => _root;
 
@@ -269,6 +305,8 @@ public abstract class PlayPoseSmoke : SmokeTest
 
     /// <summary>The verdict from the tracks once the timeline ran.</summary>
     protected abstract SmokeResult Verdict(DrawnPoseTrack? local, IReadOnlyList<DrawnPoseTrack> others);
+
+    protected virtual bool ReadyForVerdict => true;
 
     /// <summary>Called each frame while the keys play (extra per-step checks).</summary>
     protected virtual void OnFrame(PlaySession session, string step)
@@ -285,7 +323,7 @@ public abstract class PlayPoseSmoke : SmokeTest
 
         if (_root is null)
         {
-            _root = PlayInspectSmoke.StartPlay(context, Bots);
+            _root = StartPlay(context);
             _lastUsec = Time.GetTicksUsec();
             return SmokeResult.Running;
         }
@@ -313,7 +351,8 @@ public abstract class PlayPoseSmoke : SmokeTest
         if (_keys is null)
         {
             SPlayerController? pc = session.LocalController;
-            bool walking = pc is not null && (pc.IsInState("s_PlayerWalkingCr0H") || pc.IsInState("s_PlayerWalkingSt0H"));
+            bool walking = pc is not null && (pc.IsInState("s_PlayerWalkingCr0H") || pc.IsInState("s_PlayerWalkingSt0H") ||
+                pc.IsInState("s_PlayerWalkingCr2H") || pc.IsInState("s_PlayerWalkingSt2H"));
             if (local is not null && _root.Pawns?.ViewOf(local) is not null && walking)
             {
                 _keys = KeyPilot.Attach(_root);
@@ -323,7 +362,7 @@ public abstract class PlayPoseSmoke : SmokeTest
             }
             else if (context.ElapsedSeconds > PlayInspectSmoke.SpawnTimeoutSeconds)
             {
-                return Finish(SmokeResult.Fail($"the spy was not drawn walking after {PlayInspectSmoke.SpawnTimeoutSeconds:F0} s"));
+                return Finish(SmokeResult.Fail($"the pawn was not drawn walking after {PlayInspectSmoke.SpawnTimeoutSeconds:F0} s ({pc?.GetStateName()})"));
             }
 
             return SmokeResult.Running;
@@ -350,11 +389,11 @@ public abstract class PlayPoseSmoke : SmokeTest
         if (_keys.Step != _lastStep || _seconds >= _nextShot)
         {
             _lastStep = _keys.Step;
-            _nextShot = _seconds + 2.0;
+            _nextShot = _seconds + ShotInterval;
             SaveShot(_keys.Step.Length == 0 ? "end" : _keys.Step.Replace(' ', '-'));
         }
 
-        if (!_keys.Done)
+        if (!_keys.Done || !ReadyForVerdict)
         {
             return SmokeResult.Running;
         }

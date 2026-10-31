@@ -22,7 +22,16 @@ public readonly record struct NetReadout(
     bool IsHost = false,
     int Clients = 0,
     int BestClientPingMs = 0,
-    int WorstClientPingMs = 0);
+    int WorstClientPingMs = 0,
+    float BufferMs = 0,
+    long BufferUnderflows = 0,
+    long MovesReplayed = 0,
+    float CorrectionDistance = 0,
+    long AnimationGaps = 0,
+    float SnapshotAgeMs = 0,
+    long PoseResets = 0,
+    long PredictionResets = 0,
+    long StateGaps = 0);
 
 /// <summary>
 /// Reloaded's network readout (rl:net.stats), drawn under the frame-rate readout: ping and jitter, packet loss each
@@ -121,7 +130,9 @@ public sealed class HudNet
         string ping = to.HasRtt ? (to.RttMicros / 1000).ToString(CultureInfo.InvariantCulture) : "-";
         string jitter = to.HasRtt ? (to.JitterMicros / 1000).ToString(CultureInfo.InvariantCulture) : "-";
         string loss = showLoss ? string.Create(CultureInfo.InvariantCulture, $"  loss in {lossIn:0.0}% out {lossOut:0.0}%") : string.Empty;
+        string smoothing = to.BufferMs > 0 ? string.Create(CultureInfo.InvariantCulture,
+            $"  buffer {to.BufferMs:0} ms  age {to.SnapshotAgeMs:0} ms  underrun {to.BufferUnderflows - from.BufferUnderflows}  replay {to.MovesReplayed - from.MovesReplayed}  adjust {to.CorrectionDistance:0.0} uu  anim gaps {to.AnimationGaps - from.AnimationGaps}  state gaps {to.StateGaps - from.StateGaps}  resets pose {to.PoseResets - from.PoseResets} owner {to.PredictionResets - from.PredictionResets}") : string.Empty;
         return string.Create(CultureInfo.InvariantCulture,
-            $"ping {ping} ms  jitter {jitter}{loss}  down {down:0.0} up {up:0.0} KB/s  corr {corrections:0.0}/s  {to.ServerNetRate} Hz");
+            $"ping {ping} ms  jitter {jitter}{loss}  down {down:0.0} up {up:0.0} KB/s  corr {corrections:0.0}/s  {to.ServerNetRate} Hz{smoothing}");
     }
 }

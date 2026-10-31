@@ -36,6 +36,9 @@ public readonly struct Name : IEquatable<Name>
     /// <summary>Returns the name for <paramref name="text"/> without interning it, or None if it was never interned.</summary>
     public static Name Find(string? text) => new(NameTable.Find(text));
 
+    /// <summary>Interns decoded text, reusing an existing name without allocating another string.</summary>
+    public static Name FromSpan(ReadOnlySpan<char> text) => new(NameTable.Intern(text));
+
     /// <summary>Number of names in the table, including None.</summary>
     public static int TableCount => NameTable.Count;
 
@@ -120,6 +123,13 @@ public readonly struct Name : IEquatable<Name>
                 s_map[text] = index;
                 return index;
             }
+        }
+
+        public static int Intern(ReadOnlySpan<char> text)
+        {
+            if (text.IsEmpty) return 0;
+            return s_map.GetAlternateLookup<ReadOnlySpan<char>>().TryGetValue(text, out int index)
+                ? index : Intern(text.ToString());
         }
 
         public static string Get(int index)

@@ -269,6 +269,12 @@ public partial class ResultsScreen : Control
             notes.Add(string.Create(CultureInfo.InvariantCulture, $"Level up! Level {award.LevelAfter}"));
         }
 
+        foreach (var pistol in OpenScct.Core.Engine.Sidearms.All)
+        {
+            if (award.LevelBefore < pistol.Level && award.LevelAfter >= pistol.Level) notes.Add("Pistol unlocked: " + pistol.Name);
+            if (progress.Prestige == 0 && award.LevelBefore < pistol.Level + 5 && award.LevelAfter >= pistol.Level + 5) notes.Add(pistol.Name + ": Night Ops skin unlocked");
+            if (progress.Prestige == 0 && award.LevelBefore < pistol.Level + 10 && award.LevelAfter >= pistol.Level + 10) notes.Add(pistol.Name + ": Cryo skin unlocked");
+        }
         notes.AddRange(award.NewTitles.Select(id => TitleCatalog.Find(id) is { } t ? "Title unlocked: " + t.Text : null).OfType<string>());
         if (rank.CanPrestige)
         {

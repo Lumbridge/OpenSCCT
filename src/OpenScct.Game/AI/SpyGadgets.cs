@@ -302,7 +302,7 @@ public sealed class SpyGadgets
             return false;
         }
 
-        FVector at = guard.Visible ? guard.Pawn.Location : guard.Position;
+        FVector at = guard.Position;
         float d = (at - spy.Location).Size();
         if (d < SpyGadgetK.GuardMin || d > SpyGadgetK.GuardMax)
         {
@@ -311,7 +311,7 @@ public sealed class SpyGadgets
 
         _nextGuard = now + SpyGadgetK.GuardPause;
         float use = _bot.Difficulty.GadgetUse;
-        bool moving = guard.Visible && guard.Pawn.Velocity.Size() > 120f;
+        bool moving = guard.BodyVisible && guard.Velocity.Size() > 120f;
 
         // A cam whose gas point lands on the guard's spot.
         if (!moving && now >= _nextCam && Roll(use * 0.6f) && Slot(spy, out SGadStickyCam? cam) is >= 0 and var camSlot &&
@@ -330,7 +330,7 @@ public sealed class SpyGadgets
         if (now >= _nextChaff && Roll(use * 0.5f) && Slot(spy, out SGadChaffeGrenade? chaff) is >= 0 and var chaffSlot && Ready(chaff!, now))
         {
             // At his feet, a little short (it bounces on).
-            FVector feet = at - new FVector(0f, 0f, guard.Pawn.CollisionHeight) + (spy.Location - at).SafeNormal() * 60f;
+            FVector feet = at - new FVector(0f, 0f, guard.Pose?.CollisionHeight ?? AiK.StandingHeight) + (spy.Location - at).SafeNormal() * 60f;
             StartAimed(SpyGadgetAct.Chaff, chaffSlot, chaff!, guard.Pawn, feet, now);
             return true;
         }
@@ -628,9 +628,9 @@ public sealed class SpyGadgets
     private void Quick(SBasePawn spy, float now, ref AiPlan plan)
     {
         StandStill(ref plan);
-        if (_target is not null)
+        if (_target is not null && _bot.Memory.Find(_target) is { } contact)
         {
-            LookAt(_target.Location, ref plan);
+            LookAt(contact.Position, ref plan);
         }
 
         if (!_pressed)
@@ -889,12 +889,12 @@ public sealed class SpyGadgets
             }
 
             bool fresh = c.Visible || c.Confidence > 0.6f && now - c.Time < 0.5f;
-            if (!fresh || cam.Smoke_NbDoses <= 0 || now < cam.NextUseTime || c.Visible && m.bGasMask)
+            if (!fresh || cam.Smoke_NbDoses <= 0 || now < cam.NextUseTime || c.BodyVisible && m.bGasMask)
             {
                 continue;
             }
 
-            FVector at = c.Visible ? m.Location + m.Velocity * SpyGadgetK.GasLead : c.Position;
+            FVector at = c.Position + (c.BodyVisible ? c.Velocity * SpyGadgetK.GasLead : default);
             if ((at - gas).Size() < SpyGadgetK.GasReach && _bot.World.LineOpen(cam.Location, at) && !_usingHeld)
             {
                 plan.Keys.bUsing = 1;
@@ -1011,12 +1011,12 @@ public sealed class SpyGadgets
     {
         FVector eye = AiSight.Eye(spy);
         FVector point = _aimPoint;
-        if (_target is not null && _bot.Memory.Find(_target) is { Visible: true })
+        if (_target is not null && _bot.Memory.Find(_target) is { Visible: true } contact)
         {
             // Smoke and flash go at the body (they pop on touch); chaff at the feet, as planned.
-            point = _act == SpyGadgetAct.Chaff ? _aimPoint : _target.Location;
+            point = _act == SpyGadgetAct.Chaff ? _aimPoint : contact.Position;
             float t0 = (point - eye).Size() / SpyGadgetK.ThrowSpeed;
-            point += _target.Velocity * (t0 * _bot.Difficulty.LeadFactor);
+            point += contact.Velocity * (t0 * _bot.Difficulty.LeadFactor);
         }
 
         FVector to = point - eye;

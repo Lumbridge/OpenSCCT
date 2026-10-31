@@ -77,6 +77,9 @@ Common to all five slide states: `UpdateCamRotation(dt)`, the move direction is 
 
 Native slide (PHYS_Linear, decoded in physics-traversal.md physLinear and physics-ge-queries.md 5): the pawn is held
 under the cable by m_ZipLineArmsZone.Z (lowered by the speed-pose height change) and snapped at 500 uu/s. The speed
+pose's hang point uses the actor transform without adding PrePivot again; the lowered zone already accounts for
+the shorter cylinder (physics-traversal.md rule 1).
+The speed
 eases toward GroundSpeed: above it by 0.03 (GroundSpeed - s) per call, below it through MycalcVelocity. Motion
 against the downhill direction is zeroed. NoGE is raised when the hold move is blocked by a non-pawn (a pawn gets
 DropAttack instead); the low end is reached as a NotifyHitWall from the slide move. m_geoNormal from CheckZipArms

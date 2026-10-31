@@ -41,16 +41,16 @@ public static class PawnCosmetics
         bool mine = ReferenceEquals(pawn.Level?.GetLocalPlayerController()?.PlayerReplicationInfo, pri);
         if (mine)
         {
-            return settings.CosmeticsHideMine ? settings.OwnLook(SideOf(pawn)) : new CosmeticLook(pri.SvmLook);
+            return settings.CosmeticsHideMine ? settings.OwnLook(SideOf(pawn)) : new CosmeticLook(pri.SvmLook, pri.SvmLookExtra);
         }
 
-        return settings.CosmeticsHideOthers ? CosmeticLook.Default : new CosmeticLook(pri.SvmLook);
+        return settings.CosmeticsHideOthers ? CosmeticLook.Default : new CosmeticLook(pri.SvmLook, pri.SvmLookExtra);
     }
 
     public static CosmeticSide SideOf(Pawn pawn) => pawn is SPAWNDEFENSE ? CosmeticSide.Merc : CosmeticSide.Spy;
 
     /// <summary>The look's gun item for the merc's current gun class, or the spy's pistol item.</summary>
-    public static CosmeticItem? GunItem(Pawn pawn)
+    public static CosmeticItem? GunItem(Pawn pawn, SWeapon? carriedWeapon = null)
     {
         CosmeticLook look = LookOf(pawn);
         if (pawn is not SBasePawn sb)
@@ -63,8 +63,12 @@ public static class PawnCosmetics
             return look[CosmeticSlot.Pistol];
         }
 
-        return SGameInfo.GunClassOf(sb.MyWeapon) switch
+        return SGameInfo.GunClassOf(carriedWeapon ?? sb.MyWeapon) switch
         {
+            "suppressed" => look[CosmeticSlot.Suppressed],
+            "automatic" => look[CosmeticSlot.Automatic],
+            "magnum44" => look[CosmeticSlot.Magnum44],
+            "desert_eagle" => look[CosmeticSlot.DesertEagle],
             "ar" => look[CosmeticSlot.GunAr],
             "smg" => look[CosmeticSlot.GunSmg],
             "shotgun" => look[CosmeticSlot.GunShotgun],

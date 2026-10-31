@@ -270,6 +270,24 @@ public static class Achievements
                 Both(camo)));
         }
 
+        foreach (var pistol in OpenScct.Core.Engine.Sidearms.All)
+        {
+            var requirements = new List<string>();
+            foreach (var tier in s_gunLadder)
+            {
+                string id = "sidearm_" + pistol.Id + "_" + tier.Camo;
+                requirements.Add(id);
+                string key = tier.Headshots ? FeatKeys.GunHeadshots(pistol.Id) : FeatKeys.GunKills(pistol.Id);
+                list.Add(Count(id, pistol.Name + ": " + tier.Title,
+                    $"Get {tier.Count} {(tier.Headshots ? "headshot kills" : "kills")} with the {pistol.Name}.", W,
+                    p => p.Feat(key), tier.Count, $"merc.{pistol.Id}.{tier.Camo}"));
+            }
+            list.Add(new Achievement("sidearm_" + pistol.Id + "_gold", pistol.Name + ": Gold",
+                "Complete all five mastery milestones for this pistol.", W,
+                p => (requirements.Count(p.Earned.Contains), requirements.Count), [$"merc.{pistol.Id}.golden"],
+                (p, _, _) => requirements.All(p.Earned.Contains)));
+        }
+
         foreach (string reward in list.SelectMany(a => a.Rewards))
         {
             if (CosmeticCatalog.Find(reward) is null)

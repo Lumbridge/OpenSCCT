@@ -73,6 +73,9 @@ public sealed record AiDifficulty
     /// <summary>Random spread added to every option's score (0: always the best option).</summary>
     public float DecisionNoise { get; init; } = 0.15f;
 
+    /// <summary>Time spent searching reachable hiding places after losing a contact.</summary>
+    public float SearchSeconds { get; init; } = 10f;
+
     /// <summary>How readily the bot uses gadgets and vision modes (0 never, 1 whenever they help).</summary>
     public float GadgetUse { get; init; } = 0.6f;
 
@@ -96,7 +99,7 @@ public sealed record AiDifficulty
             Skill = AiSkill.Easy, ReactionTime = 0.9f, AimErrorDegrees = 10f, AimSettledDegrees = 4f, AimSettleSeconds = 2f,
             TurnRateDegrees = 200f, LeadFactor = 0f, SightRange = 2000f, LightThreshold = 0.3f, FocusHalfAngle = 25f,
             PeripheralFactor = 0.3f, SpotSeconds = 1.2f, HearingScale = 0.6f, SoundThreshold = 0.25f, MemoryHalfLife = 3f,
-            DecisionPeriod = 0.5f, DecisionNoise = 0.35f, GadgetUse = 0.2f, Teamwork = 0.1f, Stealth = 0.2f, MeleeUse = 0.15f,
+            DecisionPeriod = 0.5f, DecisionNoise = 0.35f, SearchSeconds = 5f, GadgetUse = 0.2f, Teamwork = 0.1f, Stealth = 0.2f, MeleeUse = 0.15f,
         },
         AiSkill.Normal => new AiDifficulty(),
         AiSkill.Hard => new AiDifficulty
@@ -104,14 +107,14 @@ public sealed record AiDifficulty
             Skill = AiSkill.Hard, ReactionTime = 0.28f, AimErrorDegrees = 4f, AimSettledDegrees = 0.8f, AimSettleSeconds = 0.8f,
             TurnRateDegrees = 540f, LeadFactor = 0.8f, SightRange = 3500f, LightThreshold = 0.12f, FocusHalfAngle = 40f,
             PeripheralFactor = 0.65f, SpotSeconds = 0.4f, HearingScale = 1.2f, SoundThreshold = 0.08f, MemoryHalfLife = 10f,
-            DecisionPeriod = 0.2f, DecisionNoise = 0.08f, GadgetUse = 0.85f, Teamwork = 0.8f, Stealth = 0.85f, MeleeUse = 0.7f,
+            DecisionPeriod = 0.2f, DecisionNoise = 0.08f, SearchSeconds = 14f, GadgetUse = 0.85f, Teamwork = 0.8f, Stealth = 0.85f, MeleeUse = 0.7f,
         },
         AiSkill.Expert => new AiDifficulty
         {
             Skill = AiSkill.Expert, ReactionTime = 0.18f, AimErrorDegrees = 2.5f, AimSettledDegrees = 0.4f, AimSettleSeconds = 0.5f,
             TurnRateDegrees = 720f, LeadFactor = 1f, SightRange = 4000f, LightThreshold = 0.08f, FocusHalfAngle = 45f,
             PeripheralFactor = 0.8f, SpotSeconds = 0.25f, HearingScale = 1.4f, SoundThreshold = 0.05f, MemoryHalfLife = 15f,
-            DecisionPeriod = 0.15f, DecisionNoise = 0.03f, GadgetUse = 1f, Teamwork = 1f, Stealth = 1f, MeleeUse = 0.9f,
+            DecisionPeriod = 0.15f, DecisionNoise = 0.03f, SearchSeconds = 18f, GadgetUse = 1f, Teamwork = 1f, Stealth = 1f, MeleeUse = 0.9f,
         },
         _ => throw new ArgumentOutOfRangeException(nameof(skill), skill, "Unknown skill."),
     };

@@ -49,11 +49,18 @@ public static class UcText
             return fallback;
         }
 
+        // SVMap 1.1 preserves a static array's sparse element updates inside this wrapper. Its localized values
+        // are still indexed strings; treating the wrapper itself as the array left gadget-menu labels blank.
+        if (v.ValueKind == JsonValueKind.Object && v.TryGetProperty("$elements", out JsonElement elements))
+        {
+            v = elements;
+        }
+
         JsonElement e = default;
         bool found = v.ValueKind switch
         {
             JsonValueKind.Object => v.TryGetProperty(index.ToString(System.Globalization.CultureInfo.InvariantCulture), out e),
-            JsonValueKind.Array when index < v.GetArrayLength() => (e = v[index]).ValueKind != JsonValueKind.Undefined,
+            JsonValueKind.Array when index >= 0 && index < v.GetArrayLength() => (e = v[index]).ValueKind != JsonValueKind.Undefined,
             _ => false,
         };
         return found && e.ValueKind == JsonValueKind.String ? e.GetString() ?? fallback : fallback;

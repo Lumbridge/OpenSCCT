@@ -72,6 +72,9 @@ public static class AiK
     [Provenance(ProvenanceKind.Decoded, "docs/RENDERING.md vision modes: thermal Z pass (0, heat, 1 - viewZ / 5000)")]
     public const float ThermalRange = 5000f;
 
+    /// <summary>Body detail retained by motion vision's blurred normal scene (bot perception tuning).</summary>
+    public const float MotionSightFactor = 0.65f;
+
     /// <summary>A smoke cloud's effect radius (SSmokeEmitter.RadiusEffect) and life.</summary>
     [Provenance(ProvenanceKind.Decoded, "spec/equipment/smoke-grenade.md: RadiusEffect 300, LifeSpan 10")]
     public const float SmokeRadius = 300f;

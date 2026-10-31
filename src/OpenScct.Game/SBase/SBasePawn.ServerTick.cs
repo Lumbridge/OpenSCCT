@@ -21,6 +21,7 @@ public partial class SBasePawn
     [PortOf("eng:ASBasePawn::Tick", Spec = "spec/native/net-moves.md#rules")]
     protected override void CatchUpRemoteAutonomous(PlayerController pc)
     {
+        if (XLevel.GetService<OpenScct.Game.Animation.INetworkPawnCommands>()?.DrivesPawn(this) == true) return;
         float now = XLevel.TimeSeconds;
         float elapsed = now - pc.ServerTimeStamp;
         if (Physics is EPhysics.PHYS_RootMotion or EPhysics.PHYS_FollowParent ||

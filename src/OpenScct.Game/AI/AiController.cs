@@ -325,40 +325,24 @@ public sealed class AiController
 
             foreach (Pawn enemy in Enemies)
             {
-                AiSighting s = mode == AiVisionMode.Motion
-                    ? Motion.Look(Controller, eye, Controller.Rotation, Controller.FovAngle, enemy)
-                    : AiSight.Look(World, sightEye, sightView, Controller.FovAngle, mode, enemy, Difficulty);
-                AiContact c = Memory.For(enemy);
-                if (s.Visible)
+                AiSighting s = AiSight.Look(World, sightEye, sightView, Controller.FovAngle, mode, enemy, Difficulty);
+                bool bodyVisible = s.Visible;
+                if (mode == AiVisionMode.Motion)
                 {
-                    float rate = s.Strength / SvmMath.Max(0.05f, Difficulty.SpotSeconds);
-                    c.Spot = SvmMath.Min(1.5f, c.Spot + rate * AiK.SightSeconds);
-                    if (!c.Visible)
+                    AiSighting tracked = Motion.Look(Controller, eye, Controller.Rotation, Controller.FovAngle, enemy);
+                    if (tracked.Strength > s.Strength)
                     {
-                        c.VisibleSince = now;
-                    }
-
-                    c.Visible = true;
-                    if (c.Confirmed)
-                    {
-                        c.Position = enemy.Location;
-                        c.Velocity = enemy.Velocity;
-                        c.Time = now;
-                        c.Confidence = 1f;
-                        c.Source = AiContactSource.Seen;
-                        World.Teams[Team & 1].Call(enemy, enemy.Location, now, Difficulty.Teamwork, this);
-                    }
-                    else if (c.Spot > 0.3f)
-                    {
-                        // Something is there: a rough position, not yet sure what.
-                        Memory.Report(enemy, enemy.Location, now, 0.3f * c.Spot, AiContactSource.Seen);
+                        s = tracked;
                     }
                 }
-                else
+                AiContact c = Memory.Observe(enemy, s, now, AiK.SightSeconds, Difficulty, bodyVisible);
+                if (c.Visible && c.Confirmed)
                 {
-                    c.Visible = false;
+                    World.Teams[Team & 1].Call(enemy, c.Position, now, Difficulty.Teamwork, this);
                 }
             }
+
+            Memory.EndLook(now);
         }
 
         // Hearing: every noise of the last tick that reaches this pawn and is not its own side's.

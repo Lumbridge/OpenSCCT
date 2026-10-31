@@ -2,6 +2,7 @@ using System;
 using OpenScct.Core;
 using OpenScct.Core.Engine;
 using OpenScct.Core.Uc;
+using OpenScct.Game.SBase;
 using OpenScct.Net;
 
 namespace OpenScct.Server;
@@ -23,19 +24,22 @@ public sealed class NetHearSound : ISimEventSink
     private readonly World _world;
     private readonly NetDriver _driver;
     private readonly NetCallArgs _args = new();
+    private readonly PawnSoundReplication? _pawnSounds;
+    private long _legacySent;
 
     private NetHearSound(World world, NetDriver driver, ISimEventSink? next)
     {
         _world = world;
         _driver = driver;
         Next = next;
+        if (driver.Settings.PawnProxies == PawnProxyMode.Snapshots) _pawnSounds = PawnSoundReplication.Of(driver);
     }
 
     /// <summary>The sink this one passes every event on to.</summary>
     public ISimEventSink? Next { get; }
 
     /// <summary>ClientHearSound calls sent.</summary>
-    public long Sent { get; private set; }
+    public long Sent => _legacySent + (_pawnSounds?.Sent ?? 0);
 
     /// <summary>The relay of <paramref name="world"/> (made and installed on first use; server only).</summary>
     public static NetHearSound InstallServer(World world, NetDriver driver)
@@ -55,7 +59,7 @@ public sealed class NetHearSound : ISimEventSink
 
     public void OnSimEvents(long tick, ReadOnlySpan<SimEvent> events)
     {
-        RelayAll(events);
+        RelayAll(events, tick);
         Next?.OnSimEvents(tick, events);
     }
 
@@ -76,14 +80,14 @@ public sealed class NetHearSound : ISimEventSink
         {
             ReadOnlySpan<SimEvent> fresh = late[_lateTaken..];
             _lateTaken = late.Length;
-            RelayAll(fresh);
+            RelayAll(fresh, _world.TickCount + 1);
         }
     }
 
     private long _lateTick = -1;
     private int _lateTaken;
 
-    private void RelayAll(ReadOnlySpan<SimEvent> events)
+    private void RelayAll(ReadOnlySpan<SimEvent> events, long tick)
     {
         if (_driver.IsServer && _driver.ClientConnections.Count > 0)
         {
@@ -91,15 +95,15 @@ public sealed class NetHearSound : ISimEventSink
             for (int i = 0; i < events.Length; i++)
             {
                 ref readonly SimEvent e = ref events[i];
-                if (e.Kind == SimEventKind.PlaySound && !e.Heard && !e.What.IsNone)
+                if (e.Kind is SimEventKind.PlaySound or SimEventKind.StopSound && !e.Heard && !e.What.IsNone)
                 {
-                    Relay(e, devices);
+                    Relay(e, devices, tick);
                 }
             }
         }
     }
 
-    private void Relay(in SimEvent e, bool devices)
+    private void Relay(in SimEvent e, bool devices, long tick)
     {
         Actor? source = e.ActorId == 0 ? null : _world.Level.FindActor(e.ActorId);
         if (source is { bDeleteMe: true })
@@ -111,6 +115,9 @@ public sealed class NetHearSound : ISimEventSink
         {
             return;
         }
+
+        bool pawnSound = source is SBasePawn && _driver.Settings.PawnProxies == PawnProxyMode.Snapshots;
+        if (e.Kind == SimEventKind.StopSound && !pawnSound) return;
 
         PlayerController? owner = e.Owned ? RemoteOwnerOf(source) : null;
         float radius = e.Radius == 0f ? SoundK.HearRadiusForZero : e.Radius;
@@ -124,15 +131,14 @@ public sealed class NetHearSound : ISimEventSink
             }
 
             FVector ear = pc.ViewTarget?.Location ?? pc.Pawn?.Location ?? pc.Location;
-            if (!e.NoAttenuate && FVector.DistSquared(ear, e.Location) > reach * reach)
+            // A listener may have moved out of hearing range since a looping sound began.
+            if (e.Kind != SimEventKind.StopSound && !e.NoAttenuate && FVector.DistSquared(ear, e.Location) > reach * reach)
             {
                 continue;
             }
 
-            if (Send(pc, source, e))
-            {
-                Sent++;
-            }
+            if (pawnSound) _pawnSounds!.Send(pc, (SBasePawn)source!, e, tick);
+            else if (Send(pc, source, e)) _legacySent++;
         }
     }
 

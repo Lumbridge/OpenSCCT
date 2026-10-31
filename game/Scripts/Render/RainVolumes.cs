@@ -37,6 +37,7 @@ public sealed class RainVolumes
 
     private readonly List<Volume> _volumes = [];
     private readonly ImmediateMesh _mesh = new();
+    private FVector? _drawnCamera;
 
     private sealed record Volume(RainEntry Entry, FVector Min, FVector Max, ShaderMaterial Material);
 
@@ -82,7 +83,7 @@ public sealed class RainVolumes
         {
             Name = "RainVolumes",
             Mesh = _mesh,
-            Layers = RenderLayers.World,
+            Layers = RenderLayers.Effects,
             CastShadow = GeometryInstance3D.ShadowCastingSetting.Off,
             // The sheets follow the camera: never cull the mesh by its stale bounds.
             ExtraCullMargin = 16384f,
@@ -101,6 +102,10 @@ public sealed class RainVolumes
     [Provenance(ProvenanceKind.Decoded, "AERainVolume::RenderRain, game 0x10a04d70 (ERainVolume fields at 0x304..0x328 in reverse declaration order)")]
     public void Update(FVector camera)
     {
+        // Only placement and vertex alpha depend on the eye position. The material's panner reads scene time in
+        // the shader, so an idle camera needs no new surfaces for the same sheets.
+        if (_drawnCamera == camera) return;
+        _drawnCamera = camera;
         _mesh.ClearSurfaces();
         Sheets = 0;
         foreach (Volume v in _volumes)

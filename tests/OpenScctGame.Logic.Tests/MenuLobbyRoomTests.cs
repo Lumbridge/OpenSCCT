@@ -12,10 +12,10 @@ public sealed class MenuLobbyRoomTests
     [Fact]
     public void TheMainButtonIsLaunchForTheHostAndReadyForAClient()
     {
-        Assert.Equal("Launch", LobbyRoomModel.MainButton(host: true, ready: false, countingDown: false));
-        Assert.Equal("Cancel", LobbyRoomModel.MainButton(host: true, ready: false, countingDown: true));
+        Assert.Equal("Start match", LobbyRoomModel.MainButton(host: true, ready: false, countingDown: false));
+        Assert.Equal("Cancel countdown", LobbyRoomModel.MainButton(host: true, ready: false, countingDown: true));
         Assert.Equal("Ready", LobbyRoomModel.MainButton(host: false, ready: false, countingDown: false));
-        Assert.Equal("Not Ready", LobbyRoomModel.MainButton(host: false, ready: true, countingDown: true));
+        Assert.Equal("Not ready", LobbyRoomModel.MainButton(host: false, ready: true, countingDown: true));
     }
 
     [Fact]

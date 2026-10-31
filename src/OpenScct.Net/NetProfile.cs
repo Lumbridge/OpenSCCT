@@ -7,8 +7,8 @@ namespace OpenScct.Net;
 public enum NetProfile : byte
 {
     /// <summary>
-    /// As decoded: replication at 20 Hz on the internet, 35 Hz with the lanplay switch, and the driver settings as
-    /// given (the game build's shared adaptive send budget by default).
+    /// The original rate preset: replication at 20 Hz on the internet, 35 Hz with the lanplay switch.
+    /// Uses the same modern synchronization and independent client budgets as Enhanced.
     /// </summary>
     Stock,
 
@@ -34,22 +34,17 @@ public static class NetProfiles
         requested > 0 ? requested : DefaultRate(profile, lanPlay);
 
     /// <summary>
-    /// The driver settings of a host running <paramref name="profile"/> at <paramref name="netRate"/>. Stock keeps
-    /// <paramref name="net"/> as given. Enhanced uses the per-client budget and makes the tick cap of the update
-    /// frequency gate (GetMaxTickRate) the host's own rate, so an actor's frequency is judged against the passes the
-    /// host really runs.
+    /// Both profiles use explicit pawn snapshots and independent budgets. The rate preset determines the
+    /// replication passes against which the update frequency gate is evaluated.
     /// </summary>
-    public static NetDriverSettings Apply(NetDriverSettings net, NetProfile profile, int netRate) => profile switch
-    {
-        NetProfile.Enhanced => net with
+    public static NetDriverSettings Apply(NetDriverSettings net, NetProfile profile, int netRate) =>
+        net with
         {
             Budget = SendBudgetMode.PerClientAdaptive,
             NetServerMaxTickRate = netRate,
             LanServerMaxTickRate = netRate,
-            PawnProxies = PawnProxyMode.Interpolate,
-        },
-        _ => net,
-    };
+            PawnProxies = PawnProxyMode.Snapshots,
+        };
 
     /// <summary>Parses <c>stock</c> or <c>enhanced</c> (any case).</summary>
     public static bool TryParse(string? text, out NetProfile profile)

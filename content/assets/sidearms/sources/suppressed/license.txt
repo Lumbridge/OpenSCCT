@@ -1,0 +1,11 @@
+Model Information:
+* title:	HP USP 45
+* source:	https://sketchfab.com/3d-models/hp-usp-45-e27cf9dcff6b411cb5e7fe0544e402e4
+* author:	Joche007 (https://sketchfab.com/fkboy123)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "HP USP 45" (https://sketchfab.com/3d-models/hp-usp-45-e27cf9dcff6b411cb5e7fe0544e402e4) by Joche007 (https://sketchfab.com/fkboy123) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

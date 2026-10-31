@@ -32,6 +32,7 @@ public sealed class HubSoakTests
     public void FiftyVisitorsStayInWithinTheBandwidthBudget()
     {
         using var rig = new HubTests.Rig(50, "A", seed: 9);
+        rig.Server.Host.PlayerLeft += slot => _output.WriteLine($"left {slot.Name}: {slot.Connection.CloseReason}");
         var ticks = new List<double>();
         var watch = Stopwatch.StartNew();
         long measureFrom = 0;
@@ -53,6 +54,13 @@ public sealed class HubSoakTests
             $"{Seconds} s simulated in {wall:F1} s; {rig.Server.Status()}; chat said {rig.Soak.ChatSaid}, side requests {rig.Soak.SideRequests}"));
         _output.WriteLine(report.ToString());
         _output.WriteLine(string.Create(CultureInfo.InvariantCulture, $"steady state down per client (server side) {steadyDown:F0} B/s"));
+        _output.WriteLine($"pawn snapshots {rig.Server.Host.PawnStates.SnapshotsSent}, transitions {rig.Server.Host.PawnStates.AnimationRecords}, resyncs {rig.Server.Host.PawnStates.HistoryResyncs}, budget deferrals {rig.Server.Host.PawnStates.BudgetDeferrals}");
+        var first = rig.Server.Players[0].Slot.Connection;
+        _output.WriteLine($"control bytes={first.ControlChannel?.PayloadBytesSent} total bytes={first.Stats.OutBytes}");
+        foreach (var state in rig.Server.Host.Driver.ActorStates)
+            foreach (var channel in state.Channels)
+                if (ReferenceEquals(channel.Connection, first) && rig.Server.Host.Driver.IsNetOwner(state.Actor, first))
+                    _output.WriteLine($"owner {state.Actor.GetType().Name}: bytes={channel.PayloadBytesSent} initial={channel.SentInitial}/{channel.OpenAcked} dirty={channel.HasDirtyProperties} updates={channel.PropertyBunchesSent}");
         var sorted = new List<double>(rig.ServerTickMs);
         sorted.Sort();
         OpenScct.Server.PawnProxySender proxies = rig.Server.Host.ProxySender!;
@@ -70,6 +78,9 @@ public sealed class HubSoakTests
         Assert.False(rig.Server.Game.bGameEnded);
         Assert.True(steadyDown < MeanDownLimit, $"steady state down {steadyDown:F0} B/s per client");
         Assert.True(rig.Server.Host.Driver.Stats.InterestDeferred > 0);
+        int seen = 0;
+        foreach (HubBotReport visitor in report.Bots) seen += visitor.PawnsSeen;
+        Assert.True(seen >= report.Joined * 2, $"crowd budget starved pawn initialization: {seen} total peer views for {report.Joined} visitors");
     }
 
     private static long ServerOutBytes(HubServer server)

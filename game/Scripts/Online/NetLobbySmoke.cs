@@ -196,10 +196,17 @@ public sealed class NetLobbySmoke : SmokeTest
         yield return new("turn player 2 down", 20, _ =>
         {
             s.Shot("lobby-speaking");
-            var slider = (HSlider?)Room()!.PlayerLine(GuestName)?.FindChild("Volume", recursive: true, owned: false);
+            var playerLine = Room()!.PlayerLine(GuestName);
+            if (playerLine?.GetNodeOrNull<PopupPanel>("PlayerMenu") is { Visible: false })
+            {
+                s.Pilot.Click(playerLine.FindChild("PlayerActions", true, false) as Button, "player actions");
+                return false;
+            }
+            var slider = (HSlider?)playerLine?.FindChild("Volume", recursive: true, owned: false);
             float now = Room()!.Session!.VoiceVolume(GuestName);
             if (Math.Abs(now - 0.4f) < 0.06f)
             {
+                playerLine?.GetNodeOrNull<PopupPanel>("PlayerMenu")?.Hide();
                 Voice()!.ClearHeard();
                 return true;
             }
@@ -222,17 +229,19 @@ public sealed class NetLobbySmoke : SmokeTest
             return s.Expect(ratio is > 0.3 and < 0.5, $"volume ratio {ratio:0.00} (expected about 0.4)");
         });
         yield return new("say hello", 10, _ => s.Typed("ChatLine", "hello from player 1"));
-        yield return new("send", 10, _ => s.Pilot.Click(s.Pilot.FindButton("Say"), "Say"));
+        yield return new("send", 10, _ => s.Pilot.Click(s.Pilot.FindButton("SendChat"), "Say"));
         yield return new("player 2 ready", 90, _ => Guest() is { Ready: true });
         yield return new("change respawn", 10, _ =>
         {
+            if (Room()!.MatchSettingsPanel is { Visible: false })
+                return s.Pilot.Click(s.Pilot.FindButton("MatchSettings"), "Edit match settings") && false;
             s.Shot("lobby-guest-ready");
             return s.Pilot.Click(Room()!.ParameterRows!.Find("RespawnNext"), "Respawn Length next");
         });
         yield return new("apply", 10, _ => s.Pilot.Click(Room()!.ApplyButton, "Apply"));
         yield return new("the change un-readies player 2", 20, _ => Guest() is { Ready: false });
         yield return new("player 2 ready again", 60, _ => Guest() is { Ready: true });
-        yield return new("launch", 10, _ => Room()!.MainButton?.Text == "Launch" && s.Pilot.Click(Room()!.MainButton, "Launch"));
+        yield return new("launch", 10, _ => Room()!.MainButton?.Text == "Start match" && s.Pilot.Click(Room()!.MainButton, "Launch"));
 
         foreach (NetLobbyStep step in RoundSteps(() => s, 1, Voice, () => _fullRms))
         {
@@ -402,16 +411,16 @@ public sealed class NetLobbyGuestSmoke : SmokeTest
         yield return new("unrestrict", 10, _ => s.Pilot.Click(Room()!.TeamVoiceOnlyBox, "Restrict Mic to Team"));
         yield return new("unrestricted", 20, _ => Me() is { TeamVoiceOnly: false });
         yield return new("chat", 10, _ => s.Typed("ChatLine", "hello from player 2"));
-        yield return new("say", 10, _ => s.Pilot.Click(s.Pilot.FindButton("Say"), "Say"));
+        yield return new("say", 10, _ => s.Pilot.Click(s.Pilot.FindButton("SendChat"), "Say"));
         yield return new("my line in the chat box", 20, _ => s.Text("Messages").Contains("Guest: hello from player 2", StringComparison.Ordinal));
         yield return new("the host's hello", 120, _ => s.Text("Messages").Contains("Host: hello from player 1", StringComparison.Ordinal));
         yield return new("ready", 10, _ => Room()!.MainButton?.Text == "Ready" && s.Pilot.Click(Room()!.MainButton, "Ready"));
-        yield return new("is ready", 20, _ => Me() is { Ready: true } && Room()!.MainButton?.Text == "Not Ready");
+        yield return new("is ready", 20, _ => Me() is { Ready: true } && Room()!.MainButton?.Text == "Not ready");
         yield return new("un-readied by the host's change", 120, _ => Me() is { Ready: false });
-        yield return new("respawn blinks", 10, _ =>
+        yield return new("respawn change notice", 10, _ =>
         {
-            s.Shot("lobby-blink");
-            return s.Expect(Room()!.ParameterRows!.Blink!.Blinking(SessionRow.Respawn, Time.GetTicksMsec() / 1000.0), "Respawn Length blinks after the host's change");
+            s.Shot("lobby-settings-changed");
+            return s.Expect(s.Text("Messages").Contains("Host changed", StringComparison.Ordinal), "settings changes appear in activity history");
         });
         yield return new("ready again", 10, _ => Room()!.MainButton?.Text == "Ready" && s.Pilot.Click(Room()!.MainButton, "Ready"));
 

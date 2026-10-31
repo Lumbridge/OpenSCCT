@@ -178,17 +178,23 @@ public sealed class AiWorld
     public float LightOn(Pawn target, FVector eye)
     {
         ArgumentNullException.ThrowIfNull(target);
+        return LightAt(target.Location, target.CollisionRadius + target.CollisionHeight * 0.5f, eye, target);
+    }
+
+    /// <summary>The same light rule at a hypothetical body position, for inspecting a search location.</summary>
+    public float LightAt(FVector point, float radius, FVector eye, Pawn? self = null)
+    {
         _torchPoses.Clear();
         foreach (SPAWNDEFENSE m in _torches)
         {
-            if (!ReferenceEquals(m, target))
+            if (!ReferenceEquals(m, self))
             {
                 FVector torch = AiSight.Eye(m);
-                _torchPoses.Add((torch, m.Controller?.Rotation ?? m.Rotation, LineOpen(torch, target.Location)));
+                _torchPoses.Add((torch, m.Controller?.Rotation ?? m.Rotation, LineOpen(torch, point)));
             }
         }
 
-        return Light.LevelAt(target.Location, target.CollisionRadius + target.CollisionHeight * 0.5f, eye, _torchPoses);
+        return Light.LevelAt(point, radius, eye, _torchPoses);
     }
 
     /// <summary>The light around a floor point (for hiding spots); the unknown level without light data.</summary>
@@ -290,6 +296,7 @@ public sealed class AiTeamBoard
 {
     private readonly List<Callout> _callouts = new();
     private readonly Dictionary<Actor, object> _claims = new(ReferenceEqualityComparer.Instance);
+    private readonly Dictionary<object, (FVector At, float Until)> _searchClaims = new(ReferenceEqualityComparer.Instance);
 
     public AiTeamBoard(int team)
     {
@@ -322,7 +329,7 @@ public sealed class AiTeamBoard
         for (int i = _callouts.Count - 1; i >= 0; i--)
         {
             Callout c = _callouts[i];
-            if (now - c.Time > 10f || c.Enemy.bDeleteMe || c.Enemy.Health <= 0)
+            if (now - c.Time > 10f)
             {
                 _callouts.RemoveAt(i);
             }
@@ -345,9 +352,28 @@ public sealed class AiTeamBoard
     public bool IsClaimedByOther(Actor target, object owner) =>
         _claims.TryGetValue(target, out object? holder) && !ReferenceEquals(holder, owner);
 
+    public void ClaimSearch(FVector at, object owner, float now) => _searchClaims[owner] = (at, now + 2f);
+
+    public bool SearchClaimedByOther(FVector at, object owner, float now)
+    {
+        foreach (KeyValuePair<object, (FVector At, float Until)> claim in _searchClaims)
+        {
+            if (!ReferenceEquals(claim.Key, owner) && claim.Value.Until > now &&
+                (claim.Value.At - at).SizeSquared() < 240f * 240f)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public void ReleaseSearch(object owner) => _searchClaims.Remove(owner);
+
     /// <summary>Releases every claim of <paramref name="owner"/>.</summary>
     public void Release(object owner)
     {
+        ReleaseSearch(owner);
         _released.Clear();
         foreach (KeyValuePair<Actor, object> kv in _claims)
         {

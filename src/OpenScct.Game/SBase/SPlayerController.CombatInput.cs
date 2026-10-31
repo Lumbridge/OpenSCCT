@@ -353,6 +353,7 @@ public partial class SPlayerController
             return;
         }
 
+        if (pawn.MyWeapon is MercSidearm { ReloadUntil: > 0 }) return;
         switch (pawn.SelectedGadget)
         {
             case SGadGrenLauncher grenade:

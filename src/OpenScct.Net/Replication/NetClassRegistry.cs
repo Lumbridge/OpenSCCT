@@ -151,7 +151,9 @@ public sealed class NetClassRegistry
     /// server and client, before the protocol hash is computed.
     /// </summary>
     public NetClassInfo Extend<T>(RepExtension extension)
-        where T : Actor
+        where T : Actor => Extend(typeof(T), extension);
+
+    public NetClassInfo Extend(Type type, RepExtension extension)
     {
         ArgumentNullException.ThrowIfNull(extension);
         lock (_classes)
@@ -161,14 +163,25 @@ public sealed class NetClassRegistry
                 throw new InvalidOperationException("Classes cannot be extended after the protocol hash was computed.");
             }
 
-            if (!_byType.TryGetValue(typeof(T), out NetClassInfo? old))
+            if (!_byType.TryGetValue(type, out NetClassInfo? old))
             {
-                throw new InvalidOperationException($"{typeof(T).Name} is not a registered class.");
+                throw new InvalidOperationException($"{type.Name} is not a registered class.");
             }
 
             if (old.Extension is not null)
             {
-                throw new InvalidOperationException($"{typeof(T).Name} already has an extension.");
+                if (extension.Properties.Count == 0 && extension.Functions.Count == 0)
+                    throw new InvalidOperationException($"{type.Name} already has an extension.");
+                foreach (RepExtensionProperty p in extension.Properties)
+                    foreach (RepExtensionProperty prior in old.Extension.Properties)
+                        if (p.Name == prior.Name) throw new InvalidOperationException($"{type.Name}.{p.Name} is already extended.");
+                foreach (RepExtensionFunction f in extension.Functions)
+                    foreach (RepExtensionFunction prior in old.Extension.Functions)
+                        if (f.Name == prior.Name) throw new InvalidOperationException($"{type.Name}.{f.Name} is already extended.");
+                var merged = new RepExtension();
+                merged.Properties.AddRange(old.Extension.Properties); merged.Properties.AddRange(extension.Properties);
+                merged.Functions.AddRange(old.Extension.Functions); merged.Functions.AddRange(extension.Functions);
+                extension = merged;
             }
 
             var info = new NetClassInfo(this, old.ClassIndex, old.Type, old.UcClass, old.Factory, extension, old.Path);
@@ -224,7 +237,7 @@ public sealed class NetClassRegistry
 public static class NetProtocol
 {
     /// <summary>0.3: the packet header carries the connection salt; the handshake has the player key challenge.</summary>
-    public const string Version = "svm-net/0.3";
+    public const string Version = "svm-net/0.4";
 }
 
 /// <summary>FNV-1a 64-bit over UTF-16 code units: stable across processes and platforms.</summary>

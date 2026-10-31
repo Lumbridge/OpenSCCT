@@ -273,6 +273,7 @@ public static class Loadouts
         Pawn.GearGrantUntil = Pawn.Level.TimeSeconds + GearK.GrantSeconds;
         Pawn.GearGrantGadgets = Team(Pawn) is null ? K.TeamOptions : PawnInventory.TeamSlots(Pawn);
         Pawn.GearGrantWeapon = true;
+        Pawn.GearGrantSidearm = Pawn is SPAWNDEFENSE;
         Pawn.GearGrantBomb = Pawn is SPawnAttaque && IsBombMode(Mode);
     }
 
@@ -298,6 +299,15 @@ public static class Loadouts
             }
 
             Pawn.GearGrantWeapon = false;
+            return true;
+        }
+
+        if (Sidearms.Find(Class.Path) is { } sidearm)
+        {
+            if (!Pawn.GearGrantSidearm || Pawn.GearGrantGadgets <= 0 || Pawn.SidearmWeapon is not null ||
+                !SidearmEquipment.Available(Pawn, sidearm.Kind)) return false;
+            Pawn.GearGrantSidearm = false;
+            Pawn.GearGrantGadgets--;
             return true;
         }
 
@@ -347,7 +357,7 @@ public static class Loadouts
     {
         for (SGadget? g = Pawn.MyGadget; g is not null; g = g.MyGadget)
         {
-            if (g.IsAPadUpGadget || PawnInventory.IsA(g, GadBomb))
+            if (g is SidearmCarry || g.IsAPadUpGadget || PawnInventory.IsA(g, GadBomb))
             {
                 continue;
             }
@@ -358,7 +368,9 @@ public static class Loadouts
             }
         }
 
-        return Pawn.MyWeapon switch
+        if (Pawn.SidearmWeapon is { } sidearm && (sidearm.Ammo != Pawn.GearSidearmStartAmmo ||
+            sidearm.ClipAmmo != Pawn.GearSidearmStartClip)) return true;
+        return (Pawn.PrimaryWeapon ?? Pawn.MyWeapon) switch
         {
             SWeaponDefense rifle => rifle.Ammo != Pawn.GearStartAmmo || rifle.ClipAmmo != Pawn.GearStartClipAmmo,
             SWeapon weapon => weapon.Ammo != Pawn.GearStartAmmo,

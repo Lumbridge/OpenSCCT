@@ -258,6 +258,23 @@ public sealed class FBitReader
         return Encoding.UTF8.GetString(bytes);
     }
 
+    /// <summary>Reads an interned name in string wire format; repeated names require no string allocation.</summary>
+    public Name ReadName(int maxBytes = 1024)
+    {
+        uint count = ReadIntPacked();
+        if (IsError || count > maxBytes || count * 8 > BitsLeft)
+        {
+            IsError = true;
+            return default;
+        }
+        if (count == 0) return default;
+        Span<byte> bytes = count <= 1024 ? stackalloc byte[(int)count] : new byte[count];
+        Span<char> characters = count <= 1024 ? stackalloc char[(int)count] : new char[count];
+        ReadBytes(bytes);
+        int length = Encoding.UTF8.GetChars(bytes, characters);
+        return Name.FromSpan(characters[..length]);
+    }
+
     public float ReadQuantizedFloat(float min, float max, int bits) =>
         NetQuantize.DequantizeFloat((uint)ReadBits(bits), min, max, bits);
 

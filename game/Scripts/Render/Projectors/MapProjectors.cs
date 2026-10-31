@@ -120,7 +120,7 @@ public sealed class MapProjectors
             Mesh = BoxMesh(corners),
             MaterialOverride = material,
             CastShadow = GeometryInstance3D.ShadowCastingSetting.Off,
-            Layers = RenderLayers.World,
+            Layers = RenderLayers.Effects,
         };
     }
 

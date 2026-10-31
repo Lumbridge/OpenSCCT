@@ -24,8 +24,8 @@ namespace OpenScct.Server;
 public sealed class LagCompensation : IPillHistory
 {
     /// <summary>The ceiling a fresh server (and <c>!lagcomp reset</c>) uses.</summary>
-    [Provenance(ProvenanceKind.Decoded, "Reloaded.Core 0x103603a4 starts at 120 and !lagcomp reset writes 120 (0x10076455)")]
-    public const int DefaultCeilingMs = 120;
+    [Provenance(ProvenanceKind.Estimated, "Modern synchronization: 200 ms RTT plus up to 100 ms presentation buffering")]
+    public const int DefaultCeilingMs = 300;
 
     /// <summary>The largest ceiling accepted (the history holds more than this).</summary>
     [Provenance(ProvenanceKind.Decoded, "Reloaded.Core !lagcomp <n> (0x10076435): below 0 gives 0, above 500 gives 500")]
@@ -178,6 +178,7 @@ public sealed class LagCompensation : IPillHistory
 
         long nowFixed = _level.TickCount * NetTimeline.Fraction;
         long ceilingFixed = (long)_ceilingMs * Sim.Hz * NetTimeline.Fraction / 1000;
+        if (ViewTimeFixed > nowFixed) return;
         long rewind = Math.Clamp(nowFixed - ViewTimeFixed, 0, ceilingFixed);
         if (rewind == 0)
         {
@@ -219,6 +220,7 @@ public sealed class LagCompensation : IPillHistory
         }
 
         private long _firstTick = -1;
+        private uint _reset;
 
         public long NewestTick { get; private set; } = -1;
 
@@ -227,6 +229,11 @@ public sealed class LagCompensation : IPillHistory
 
         public void Add(long tick, SBasePawn pawn, IPillPose pose)
         {
+            if (_reset != pawn.NetworkResetId || (NewestTick >= 0 && FVector.Dist(_origins[Slot(NewestTick)], pawn.Location) >= TeleportDistance))
+            {
+                _firstTick = tick;
+                _reset = pawn.NetworkResetId;
+            }
             int i = Slot(tick);
             _ticks[i] = tick;
             _origins[i] = pawn.Location;
@@ -255,11 +262,7 @@ public sealed class LagCompensation : IPillHistory
                 return false;
             }
 
-            if (tick < OldestTick)
-            {
-                tick = OldestTick;
-                fraction = 0;
-            }
+            if (tick < OldestTick) return false;
 
             int a = Slot(tick);
             if (_ticks[a] != tick)

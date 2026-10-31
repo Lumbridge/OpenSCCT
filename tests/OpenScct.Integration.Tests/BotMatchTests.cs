@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Threading;
 using OpenScct.Bots;
 using OpenScct.Core;
+using OpenScct.Game.Movement;
 using OpenScct.Game.SBase;
 using OpenScct.Net;
 using OpenScct.Server;
@@ -44,6 +45,21 @@ public sealed class BotMatchTests
     /// their routes do not depend on which match of the run built <see cref="Nav"/> first.
     /// </summary>
     private static readonly NavCache StallNav = new();
+
+    [Theory]
+    [InlineData(NetProfile.Stock, "100", 141UL)]
+    [InlineData(NetProfile.Stock, "150", 142UL)]
+    [InlineData(NetProfile.Stock, "200", 143UL)]
+    [InlineData(NetProfile.Enhanced, "100", 141UL)]
+    [InlineData(NetProfile.Enhanced, "150", 142UL)]
+    [InlineData(NetProfile.Enhanced, "200", 143UL)]
+    public void FourDedicatedClientsFinishAtHighPingWithChangingDirectedLinks(NetProfile preset, string link, ulong seed)
+    {
+        Assert.NotNull(WalkerRig.Maps.FindFolder(MapCatalog.TestBox));
+        StallNav.Prepare(WalkerRig.Maps, MapCatalog.TestBox, terminalsBlockPlayers: false);
+        RunOverSimLink(MapCatalog.TestBox, link, "spies", seed, maxFrames: 3L * 60 * Sim.Hz,
+            stalls: new SimRandom(seed, 0, 1), nav: StallNav, preset: preset, changingLinks: true);
+    }
 
     /// <summary>The settings of a Story script on <paramref name="map"/>.</summary>
     private static BotMatchSettings Settings(string map, string script, ulong seed, NavCache? nav = null) => new()
@@ -156,10 +172,20 @@ public sealed class BotMatchTests
         BotMatchReport report = match.Report(watch.Elapsed.TotalSeconds);
         _output.WriteLine(string.Create(CultureInfo.InvariantCulture, $"UDP {map} spies: {frame} frames in {watch.Elapsed.TotalSeconds:F1} s of real time"));
         _output.WriteLine(report.ToString());
+        _output.WriteLine($"  pawn payload: snapshots {match.Server.PawnStates.SnapshotPayloadBytes} B / {match.Server.PawnStates.SnapshotsSent}, " +
+            $"transitions {match.Server.PawnStates.AnimationPayloadBytes} B / {match.Server.PawnStates.AnimationRecords}, owner actions {match.Server.Movement.OwnerActionsSent}");
         foreach (BotClient bot in match.Bots)
         {
             _output.WriteLine($"  {bot.Name}: {bot.Brain.Status}");
+            if (!report.Ended && bot.Controller is { } client)
+            {
+                _output.WriteLine($"    client {client.GetStateName()} at {client.Pawn?.Location}, physics {client.Pawn?.Physics}, used {(client.Pawn as SBasePawn)?.UsedObject?.GetType().Name}, view {client.Rotation.Yaw}");
+            }
         }
+        if (!report.Ended)
+            foreach (PlayerSlot slot in match.Server.Players)
+                if (slot.Connection.Actor is SPlayerController authority)
+                    _output.WriteLine($"    server {slot.Name}: {authority.GetStateName()} at {authority.Pawn?.Location}, physics {authority.Pawn?.Physics}, used {(authority.Pawn as SBasePawn)?.UsedObject?.GetType().Name}");
 
         AssertMatch(report, StoryScripts.Expected("spies"), checkObjectives: true);
     }
@@ -175,11 +201,21 @@ public sealed class BotMatchTests
     private const int CatchUpStep = 200;
 
     private void RunOverSimLink(string map, string profile, string script, ulong seed, long maxFrames = 60L * 60 * 12,
-        SimRandom? stalls = null, NavCache? nav = null)
+        SimRandom? stalls = null, NavCache? nav = null, NetProfile preset = NetProfile.Enhanced, bool changingLinks = false)
     {
         var clock = new VirtualClock();
         var network = new SimLinkNetwork(clock, seed, SimLinkProfile.Get(profile));
-        using var match = new BotMatch(Settings(map, script, seed, nav), network.Bind, "server", clock.NowMicroseconds);
+        using var match = new BotMatch(Settings(map, script, seed, nav) with { Profile = preset }, network.Bind, "server", clock.NowMicroseconds);
+        Assert.Equal(NetProfiles.DefaultRate(preset, lanPlay: false), match.Server.NetRate);
+        match.Server.PlayerLeft += slot => _output.WriteLine($"  disconnected {slot.Name}: {slot.Connection.CloseReason}");
+        int restLogs = 0;
+        match.RestDiverged += (bot, error) =>
+        {
+            if (restLogs++ >= 12 || bot.Controller is not { } pc || match.ServerController(bot) is not { } authority) return;
+            var moves = ((NetMovementBridge)pc.XLevel.GetService<IMovementNet>()!).EndpointOf(pc)!.Client!;
+            var endpoint = ((NetMovementBridge)authority.XLevel.GetService<IMovementNet>()!).EndpointOf(authority)!;
+            _output.WriteLine($"REST {bot.Name} {error:F2} client {pc.GetStateName()} {pc.Pawn?.Location} zone {(pc.Pawn as SBasePawn)?.ZoneConfig} height {pc.Pawn?.CollisionHeight} crouch {pc.Pawn?.bIsCrouched}, server {authority.GetStateName()} {authority.Pawn?.Location} zone {(authority.Pawn as SBasePawn)?.ZoneConfig} height {authority.Pawn?.CollisionHeight} crouch {authority.Pawn?.bIsCrouched}; corrections {moves.AuthoritativeCorrectionsReceived}/{moves.CorrectionsObsoletedByState}/{moves.CorrectionsApplied}, stateTime {pc.MirrorStateLastTime}, stamp {moves.CurrentTimeStamp}, server [{endpoint.Sequenced!.DescribePending()}], client [{((OpenScct.Net.Moves.SequencedMoveTransport)moves.Transport).DescribePending()}]");
+        };
         var watch = Stopwatch.StartNew();
         long frame = 0;
         long endFrame = -1;
@@ -193,6 +229,18 @@ public sealed class BotMatchTests
             }
 
             clock.AdvanceTo(now);
+            if (changingLinks && frame == 600)
+            {
+                SimLinkProfile link = SimLinkProfile.Get(profile);
+                network.SetLinkProfile("Spy1", "server", link with { OneWayLatencyMs = 150 });
+                network.SetLinkProfile("server", "Spy1", link with { OneWayLatencyMs = 50 });
+                network.PauseLink("server", "Merc2", clock.NowMicroseconds + 250_000);
+            }
+            if (changingLinks && frame == 900)
+            {
+                network.SetLinkProfile("Spy1", "server", null);
+                network.SetLinkProfile("server", "Spy1", null);
+            }
             match.Step(clock.NowMicroseconds);
             if (match.Ended && endFrame < 0)
             {
@@ -210,20 +258,32 @@ public sealed class BotMatchTests
         _output.WriteLine(string.Create(CultureInfo.InvariantCulture,
             $"{map} {profile} {script}: {frame} frames ({frame / (double)Sim.Hz:F0} s simulated) in {watch.Elapsed.TotalSeconds:F1} s"));
         _output.WriteLine(report.ToString());
+        _output.WriteLine($"  pawn payload: snapshots {match.Server.PawnStates.SnapshotPayloadBytes} B / {match.Server.PawnStates.SnapshotsSent}, " +
+            $"transitions {match.Server.PawnStates.AnimationPayloadBytes} B / {match.Server.PawnStates.AnimationRecords}, owner actions {match.Server.Movement.OwnerActionsSent}");
         foreach (BotClient bot in match.Bots)
         {
             _output.WriteLine($"  {bot.Name}: {bot.Brain.Status}");
+            if (bot.Session.State != EClientState.Joined)
+                _output.WriteLine($"    connection {bot.Session.State}: {bot.Session.Connection?.CloseReason}");
         }
 
-        AssertMatch(report, StoryScripts.Expected(script), checkObjectives: script == "spies", maxReinits: script == "mercs" ? MercsReinits : 0);
+        if (!report.Ended)
+        {
+            foreach (BotClient bot in match.Bots)
+                if (bot.Controller is { } client)
+                    _output.WriteLine($"    client {bot.Name}: {client.GetStateName()} at {client.Pawn?.Location}, physics {client.Pawn?.Physics}, used {(client.Pawn as SBasePawn)?.UsedObject?.GetType().Name}, view {client.Rotation.Yaw}");
+            foreach (PlayerSlot slot in match.Server.Players)
+                if (slot.Connection.Actor is SPlayerController authority)
+                    _output.WriteLine($"    server {slot.Name}: {authority.GetStateName()} at {authority.Pawn?.Location}, physics {authority.Pawn?.Physics}, used {(authority.Pawn as SBasePawn)?.UsedObject?.GetType().Name}");
+        }
+        AssertMatch(report, StoryScripts.Expected(script), checkObjectives: script == "spies");
+        if (changingLinks)
+            foreach (BotClient bot in match.Bots)
+            {
+                var transport = ((NetMovementBridge)bot.Controller!.XLevel.GetService<IMovementNet>()!).EndpointOf(bot.Controller)!.Sequenced!;
+                Assert.True(transport.ResynchronizationRequests == 0, $"{bot.Name}: {transport.DescribePending()}; first resync: {transport.FirstResynchronization}");
+            }
     }
-
-    /// <summary>
-    /// Reinits a client may need in the eliminations script: a spy hit near a roof edge can leave its server copy
-    /// held at the lip while the client falls, and the divergence check then reinitialises the pawn, as designed
-    /// (docs/NETCODE.md, open items). Every other script must need none.
-    /// </summary>
-    private const int MercsReinits = 2;
 
     private static void AssertMatch(BotMatchReport report, (int Team, EEndReason Reason) expected, bool checkObjectives, int maxReinits = 0)
     {

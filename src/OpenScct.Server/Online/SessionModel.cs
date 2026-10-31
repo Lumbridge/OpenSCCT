@@ -81,6 +81,7 @@ public sealed record SessionMessage(string Text, string? Sender = null, byte Tea
 /// <summary>The lobby as a client holds it: the server, the match setup, the players and the phase.</summary>
 public sealed class LobbyState
 {
+    public bool SidearmsUnrestricted { get; internal set; }
     private readonly List<LobbyPlayer> _players = new();
     private readonly List<SessionMessage> _messages = new();
 

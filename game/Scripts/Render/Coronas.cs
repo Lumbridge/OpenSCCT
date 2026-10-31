@@ -63,7 +63,7 @@ public sealed class Coronas
                 Position = UeSpace.ToGodot(c.Location),
                 ExtraCullMargin = UeSpace.LengthToGodot(c.MaxSize * 2f),
                 Visible = false,
-                Layers = RenderLayers.World,
+                Layers = RenderLayers.Effects,
             };
             root.AddChild(node);
             _coronas.Add((c, node));

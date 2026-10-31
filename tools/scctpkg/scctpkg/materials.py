@@ -413,13 +413,10 @@ class MaterialResolver:
                 if isinstance(ref, int) and ref != 0:
                     return self.resolve(owner, ref, depth + 1).texture
                 return None
-            # UCombiner::RequiresSorting: either input alpha-blended (bAlphaTexture) sorts the whole Combiner, which
-            # then blends with its combined alpha (EAlphaOperation). AquaE/D/T's sea (osc -> comb: FX_sea, FX_onde
-            # with bAlphaTexture) is dark water showing only the FX_sea sparkle alpha; drawn opaque it was flat grey.
-            for pname in ("Material1", "Material2"):
-                tx = _tex(pname)
-                if tx is not None and tx.props.get("bAlphaTexture"):
-                    result.translucent = True
+            # The native stage builder (0x1096d9d0) combines RGBA without inheriting framebuffer blending from
+            # either input. The root material builder (0x10970ad0) reads bAlphaTexture only for a root Texture.
+            # A Combiner needs an explicit Shader / FinalBlend wrapper to blend with the framebuffer; its input
+            # alpha can instead be a colour mask (AquaD/E/T's sea), even when RequiresSorting returns true.
             # Each input's own texture modifiers (the sea's two TexPanners), lost in the t=0 bake: exported with the
             # separate inputs so the importer can animate them ("combine" flags, export_gltf.py).
             def _anim(pname):
@@ -481,13 +478,14 @@ class MaterialResolver:
                             result.opacity, result.opacity_key = inner.opacity, getattr(inner, "opacity_key", "")
                         _copy_layers(result, inner)
                     if cls not in ("Shader", "FinalBlend"):
-                        result.translucent = result.translucent or inner.translucent
-                        result.masked = result.masked or inner.masked
-                        result.invisible = result.invisible or inner.invisible
-                        result.additive = result.additive or inner.additive
-                        result.additive_gain = min(result.additive_gain, inner.additive_gain)
-                        result.darken = result.darken or inner.darken
-                        result.modulate = result.modulate or inner.modulate
+                        if cls != "Combiner":
+                            result.translucent = result.translucent or inner.translucent
+                            result.masked = result.masked or inner.masked
+                            result.invisible = result.invisible or inner.invisible
+                            result.additive = result.additive or inner.additive
+                            result.additive_gain = min(result.additive_gain, inner.additive_gain)
+                            result.darken = result.darken or inner.darken
+                            result.modulate = result.modulate or inner.modulate
                         result.env_map = result.env_map or inner.env_map
                         if result.env_color is None:
                             result.env_color = inner.env_color

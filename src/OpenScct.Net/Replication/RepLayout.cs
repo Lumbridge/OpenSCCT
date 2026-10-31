@@ -553,7 +553,7 @@ public sealed class RepLayout
         {
             var w = new int[WordCount];
             var o = new object?[ObjectCount];
-            UObject? cdo = ClassInfo?.Create() ?? CreateDefault();
+            UObject? cdo = ClassInfo?.Type == Type ? ClassInfo.Create() : CreateDefault();
             if (cdo is not null)
             {
                 Capture(cdo, w, o);

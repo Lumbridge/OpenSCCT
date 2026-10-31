@@ -12,9 +12,10 @@ internal static class SoftBodyK
     [Provenance(ProvenanceKind.Decoded, "0x1099a6f0: dt clamped to 0.005..0.05")]
     public const float MaxStep = 0.05f;
 
-    /// <summary>The client steps a soft body at most this often (the step is banked between frames).</summary>
-    [Provenance(ProvenanceKind.Decoded, "Reloaded editor SoftBodyStepModel: the game client steps soft bodies at most 120 times a second")]
-    public const float StepInterval = 1f / 120f;
+    /// <summary>Fixed cosmetic physics step; solver iterations must not speed up with the render frame rate.</summary>
+    [Provenance(ProvenanceKind.Measured, "Aquarium original at 60 FPS: UESoftBody+0x12c settles at 0.01665 s; this is the reference cadence")]
+    [Provenance(ProvenanceKind.Estimated, "Hold the reference cadence at higher FPS: distance-constraint stiffness depends on the number of solver passes per second")]
+    public const float StepInterval = 1f / 60f;
 
     /// <summary>Weight of the new step in the smoothed step (smoothed = new * w + smoothed * (1 - w)).</summary>
     [Provenance(ProvenanceKind.Decoded, "0x1099a6f0: weight 0.05 at 0x10c4da08")]

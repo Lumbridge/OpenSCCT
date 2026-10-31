@@ -311,6 +311,8 @@ public sealed class HudSnapshot
 
     // Merc weapon
     public bool HasWeapon { get; set; }
+    public string ActiveWeaponName { get; set; } = "";
+    public bool HasSidearm { get; set; }
 
     public int ClipAmmo { get; set; }
 
@@ -484,6 +486,8 @@ public sealed class HudSnapshot
         EnergyLevelMax = 0;
         FastSpeed = true;
         HasWeapon = false;
+        ActiveWeaponName = "";
+        HasSidearm = false;
         ClipAmmo = Ammo = FireMode = 0;
         FireModeName = "";
         ShowReticle = ReticleHit = false;

@@ -17,7 +17,7 @@ from ..sources import env
 
 class CharsStep(Step):
     name = "chars"
-    version = 6
+    version = 8
     deps = ()
     per_map = False
     background = True   # no other step reads shared/chars; runs beside the maps
@@ -26,7 +26,7 @@ class CharsStep(Step):
     code_files = ("content/svmbuild/charconv.py", "content/svmbuild/sources/animations.py",
                   "content/svmbuild/sources/classdb.py", "content/svmbuild/sources/typedprops.py",
                   "content/svmbuild/writers/glb.py", "content/svmbuild/canonical.py", "content/svmbuild/cosmetics.py",
-                  "content/svmbuild/skeleton.py", "content/svmbuild/gunskin.py")
+                  "content/svmbuild/skeleton.py", "content/svmbuild/gunskin.py", "content/svmbuild/sidearms.py", "content/svmbuild/sidearm_models.py", "content/svmbuild/pistol_arms.py")
 
     def extra_code(self) -> list[Path]:
         return env.code_files()
@@ -54,6 +54,8 @@ class CharsStep(Step):
             tex = ctx.game / "Packages" / "Textures" / f"{name}.utx"
             if tex.is_file():
                 out[ctx.game_path(tex)] = ctx.hasher.sha256(tex)
+        from ..sidearms import source_files, SOURCE
+        for f in source_files(): out["sidearms/" + f.relative_to(SOURCE).as_posix()] = ctx.hasher.sha256(f)
         return out
 
     def output_dir(self, ctx: Context, unit: str | None) -> Path | None:
@@ -70,8 +72,10 @@ class CharsStep(Step):
             raise ValueError("chars failed: " + "; ".join(failed[:10]))
         from ..cosmetics import build_all  # noqa: PLC0415
 
+        from ..sidearms import install_models
         cosmetics = build_all(out_dir)
+        sidearms = install_models(out_dir)
         summary = {"meshes": sum(len(v["meshes"]) for k, v in stats.items() if not k.startswith("_")),
                    "animations": sum(len(v["animations"]) for k, v in stats.items() if not k.startswith("_")),
-                   "cosmetics": cosmetics, "detail": stats}
+                   "cosmetics": cosmetics, "sidearms": sidearms, "detail": stats}
         return StepOutput(stats=summary)

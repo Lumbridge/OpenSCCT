@@ -178,6 +178,11 @@ public abstract partial class Actor
     /// </summary>
     public void RestoreStateFrame(in LatentFrame frame)
     {
+        if (frame.StateId == 0 && frame.Pc == LatentFrame.NoCode)
+        {
+            _state = ActorState.None; _codeState = null; _frame = frame;
+            return;
+        }
         ActorState state = GetStateTable().FindById(frame.StateId)
             ?? throw new InvalidOperationException($"{ClassName} has no state with id {frame.StateId}.");
         ActorState? codeState = null;

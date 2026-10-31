@@ -1,4 +1,5 @@
 using System;
+using OpenScct.Net.Cosmetics;
 using System.Collections.Generic;
 using Godot;
 using OpenScct.Core;
@@ -35,6 +36,7 @@ public partial class SimPawnView : Node3D
     private GoggleGlowView? _goggleGlow;
     private FVector _prevLocation;
     private FVector _location;
+    private uint _networkReset;
     private FVector _prevPrePivot;
     private FVector _prePivot;
     private int _prevYaw;
@@ -44,7 +46,7 @@ public partial class SimPawnView : Node3D
     private StickySkins? _stickySkins;
     private string? _glb;
     private SkinShown _skinShown;
-    private long _lookDrawn = -1;
+    private CosmeticLook _lookDrawn = new(-1, -1);
 
     private readonly List<PoseTurn> _overlayTurns = new();
 
@@ -157,12 +159,12 @@ public partial class SimPawnView : Node3D
     private void DrawCosmetics(SBasePawn pawn)
     {
         OpenScct.Net.Cosmetics.CosmeticLook look = PawnCosmetics.LookOf(pawn);
-        if (look.Packed == _lookDrawn || _model is null)
+        if (look == _lookDrawn || _model is null)
         {
             return;
         }
 
-        _lookDrawn = look.Packed;
+        _lookDrawn = look;
         PawnCosmetics.ApplyItem(_model, look[OpenScct.Net.Cosmetics.CosmeticSlot.Body]);
         _model.SetGlowHue(PawnCosmetics.HueTurn(look[OpenScct.Net.Cosmetics.CosmeticSlot.Light], PawnCosmetics.SideOf(pawn)));
     }
@@ -262,10 +264,16 @@ public partial class SimPawnView : Node3D
             return;
         }
 
-        _prevLocation = _placed ? _location : pawn.Location;
+        FVector shown = pawn.Location + pawn.NetworkCorrectionOffset;
+        if (_networkReset != pawn.NetworkResetId || (_placed && (shown - _location).SizeSquared() > 40000f))
+        {
+            _placed = false;
+            _networkReset = pawn.NetworkResetId;
+        }
+        _prevLocation = _placed ? _location : shown;
         _prevPrePivot = _placed ? _prePivot : pawn.PrePivot;
         _prevYaw = _placed ? _yaw : pawn.Rotation.Yaw;
-        _location = pawn.Location;
+        _location = shown;
         _prePivot = pawn.PrePivot;
         _yaw = pawn.Rotation.Yaw;
         PawnAnimation anim = pawn.PawnAnim;
@@ -287,7 +295,7 @@ public partial class SimPawnView : Node3D
             return;
         }
 
-        Visible = !pawn.bHidden && !pawn.bDeleteMe;
+        Visible = !pawn.bHidden && !pawn.bDeleteMe && (pawn.Role != OpenScct.Core.Engine.ENetRole.ROLE_SimulatedProxy || pawn.NetworkPoseReady);
         alpha = Math.Clamp(alpha, 0f, 1f);
         FVector location = _prevLocation + (_location - _prevLocation) * alpha;
         // The mesh is drawn at Location + PrePivot. A crouch or stand-up moves the cylinder and changes PrePivot by the

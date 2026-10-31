@@ -685,8 +685,11 @@ public sealed record ResultsReportRow
 /// <summary>
 /// The master's answer to a round report. Masters before demos answered with an empty body, so read it as optional.
 /// </summary>
+public sealed record EquipmentAccountState(int Rank, byte[] Unlocks);
+
 public sealed record ResultsResponse
 {
+    public IReadOnlyDictionary<long, EquipmentAccountState> Equipment { get; init; } = new Dictionary<long, EquipmentAccountState>();
     /// <summary>The stored round's id (demos of the round are uploaded under it).</summary>
     public long? MatchId { get; init; }
 }

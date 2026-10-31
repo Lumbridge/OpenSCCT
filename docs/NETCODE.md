@@ -1,7 +1,7 @@
 # Netcode
 
-`OpenScct.Net` reproduces the UE2 network model that SCCT Versus uses, so that movement, corrections and
-replication behave like the original under the same conditions. The original's rules are specified in
+`OpenScct.Net` reproduces the UE2 packet and actor model and adds modern movement and pawn synchronization.
+The original's rules are specified in
 `spec/net/*.md` (script side) and `spec/native/net-*.md` (engine side, decoded from the executable); this
 file says how `OpenScct.Net`, `OpenScct.Server` and `OpenScct.Server.Cli` implement them. The M0 transport, packet and
 bunch layers are described in `docs/NETCODE-M0.md` and are unchanged except where noted below.
@@ -179,11 +179,11 @@ rewrite's side of `rl:net.rates` (spec/reloaded/FEATURES.md).
 |---|---|---|
 | Replication rate (`ServerHost.NetRate`) | 20 Hz, 35 Hz with lanplay (`K.NetServerMaxTickRate`, `K.LanServerMaxTickRate`) | 60 Hz, every world tick (`K.EnhancedServerTickRate` = `Sim.Hz`) |
 | Tick cap of the frequency gate (`GetMaxTickRate`) | 20 / 35 | the replication rate |
-| Send budget | `NetDriverSettings.Budget` as given (`SharedAdaptive` by default) | `SendBudgetMode.PerClientAdaptive` |
-| Other players' pawns on a client (`NetDriverSettings.PawnProxies`) | dead reckoning (`PawnProxyMode.DeadReckoning`) | interpolation buffer (`PawnProxyMode.Interpolate`, Proxy pawn interpolation below) |
+| Send budget | `SendBudgetMode.PerClientAdaptive` | `SendBudgetMode.PerClientAdaptive` |
+| Other players' pawns on a client (`NetDriverSettings.PawnProxies`) | explicit snapshots (`PawnProxyMode.Snapshots`) | explicit snapshots (`PawnProxyMode.Snapshots`) |
 
-**Who runs what.** The library default (`ServerSettings`, `OnlineServerSettings`) is Stock, so tests, bot matches and
-tools keep the decoded behaviour. The hosts players play on choose Enhanced: `svm-server` single-map servers
+**Who runs what.** The library default (`ServerSettings`, `OnlineServerSettings`) is the Stock rate preset.
+Both presets use modern synchronization. The hosts players play on choose Enhanced: `svm-server` single-map servers
 (`Program`), the online server (`svm-server --config` / `--online`, `OnlineRun`), the hub's matches
 (`HubMatchLauncher`), the game's online host (`game/Scripts/Online/ListenHost.cs`) and the game's own play session
 (`PlaySession`, `--svm-play`). The hub map itself stays Stock with its per-connection budget. A client learns the
@@ -218,12 +218,99 @@ decoded; it does not cap the Enhanced send rate. A congested link lowers its own
 down to the row minimum (8000 B/s dedicated internet, 7000 listen, 15000 on a LAN), which still carries the
 measured average.
 
-### Proxy pawn interpolation (Enhanced)
+### Modern pawn synchronization (both profiles)
 
-`rl:net.clientsync` (spec/reloaded/FEATURES.md). Stock clients show other players' pawns by the original's dead
-reckoning (`PawnProxyReceiver.Tick`, below). Enhanced clients show them from an interpolation buffer, about two
-server send intervals in the past, so a remote player moves along the path the server simulated instead of being
-walked on the last velocity and pulled back.
+The estimated design is specified separately in `spec/net/modern-synchronization.md`. The wire protocol is
+`svm-net/0.4`; the compatibility hash also includes handwritten extension signatures. Mismatched builds are rejected
+during Hello, before any actor data is read. Generated declarations remain unchanged.
+
+`SequencedMoveTransport` sends individual fixed-step inputs with explicit input ticks in sequence with redundant older commands. Each
+command records separate reliable fences for controls before physics and after completion. The tick is sealed
+after flushing animation-end actions, so traversal actions and state changes retain their movement boundary. The server
+drains a bounded contiguous run before its world tick; duplicate commands never execute again. Idle and interaction
+states send heartbeats. Catch-up has a per-tick work limit and a simulation-time credit limit.
+A two-tick input playout cushion anchors each pawn lifetime to the host clock. Normal jitter then preserves one
+input tick per host tick instead of alternating held and burst-stepped authority poses. After an outage, older
+commands still catch up within the existing work and credit bounds.
+Pre-controls, physics and post-controls share the input's clock; authored presentation events retain the host tick.
+Commands use compact sequences, control fences, ordinary tick deltas and packed view angles. Recovery rotates
+through the region around the oldest missing input while reserving slots for recent inputs, so distant gaps after
+an outage cannot hold a stop or action behind an entire pending window.
+
+Owner acknowledgements contain the processed sequence, buffered-receipt bits, source stamp, server tick and reset epoch.
+The client rotates redundant inputs through missing entries; a reliable control backlog does not make it resend
+inputs the server already holds or advance recovery by a fixed prefix per round trip. Divergence
+adds transform, velocity, physics, zone and base, including a dynamic base's authoritative transform; unchanged acknowledgements stay compact. Movement reset epochs
+change on possession and explicit placement, independently of the original mirrored-state acknowledgement time.
+A 256-tick history reserves up to four movement splits per tick (1,024 command slots). It retains inputs, body heading,
+latent state and timer cursors, paired/interaction references, traversal fields and root/channel
+state. Reconciliation restores the acknowledged state and replays newer inputs before the world tick, including
+while menus are open. Newer authoritative action state supersedes corrections from earlier state history.
+Replay suppresses network calls, damage, animation notifies and simulation presentation events. Historical touch
+callbacks are suppressed; the live contact set is reconciled once at the resulting present position.
+Recorded collision inputs stage other pawn cylinders and moving-base poses during replay, restore live actors
+afterwards, and reproduce rider translation and rotation without advancing another actor's gameplay.
+Collision state changes immediately; the local mesh and ordinary pawn camera retain a decaying 100 ms visual
+offset. The camera offset is swept against world collision. Teleports, possession changes and reinitializations
+cut render history, and exhausted command history requests a controlled reinitialization.
+
+`PawnStateReplication` records explicit transforms and all 25 authored animation channels every simulation tick.
+A bounded 512-entry journal records completed authored channel changes as they happen, preserving multiple plays
+and clears on one channel in the same tick. Normal locomotion copies and continuous phase edits use snapshots.
+Snapshots carry a server tick and pawn reset identity, physics, stance, collision dimensions, aim, weapon state,
+root locks, moving base and paired-action references. Reliable ordered descriptors identify clip transitions;
+unreliable phase samples refer to those descriptors. Retransmission never calls `ExecuteAction` on a proxy.
+Cooperative readiness and grab/termination eligibility travel with that state too: another owner's interaction
+search reads the same helper state as its displayed pose. Snapshots include four preceding animation phase ticks
+to recover the authority's held or burst-stepped phases. Shared locomotion cycles and repeated phases are encoded
+compactly; descriptor scalars retain full precision while common zero/one values and empty queues are omitted.
+Root cursors retain full numeric values with compact common scalars and signed integer encodings. Aim/view yaw
+can reuse the already transmitted body yaw; divergent directions and all pitch values remain explicit.
+Timestamped reliable body-state keys preserve physics, stance, visibility, attachment and paired-action changes that occur
+between movement snapshots. A state sequence detects a missing key without blocking newer movement packets.
+Historical keys can fill motion history without replacing its newest receive reference. Actor reference codes
+remain in the buffered state and resolve again during presentation, including when the actor arrives after the key.
+Legacy pawn properties carried by this timeline are withheld for remote proxies, so an unrelated property arrival
+cannot change their pose ahead of display time.
+This includes direct channel changes outside the action dispatcher. Spawn and relevancy return send current
+descriptors, and reliable phase recovery checkpoints run every 500 ms. Snapshot sending is independent of
+descriptor retransmissions. Budget refill precedes acknowledgements and pawn traffic; background actor replication
+spends the remaining budget. The configured per-client bandwidth ceiling remains in force.
+
+Externally authored native actions on an owned pawn use an ordered reliable owner stream with pawn identity,
+movement epoch, source tick and sequence. This delivers the victim half of grabs and the partner half of
+cooperative actions. The complete originating movement command scopes its input owner, preventing its own
+predicted actions from being echoed back. Receiving an owner action suppresses duplicate effects and invalidates
+older correction context; the owner's normal completion and recovery callbacks remain active.
+
+Pawn animation sounds use an ordered reliable play/stop stream on the listener's channel. Stops survive loss,
+and the client releases events at their displayed server tick. A missing pawn reference does not hold other
+players' sounds; obsolete one-shots expire while stops remain useful after an outage. Sound-name definitions are
+sent once per connection and repeated events use compact ids. Known animation names are decoded without making
+another string. The server relays late sounds/effects again after input callbacks, before opening its next tick,
+so actions emitted in those callbacks are not cleared before their relay sees them.
+
+`PresentationClock` varies delay with observed lateness and changes playback speed rather than rewinding displayed
+time. The supported range is two to six simulation ticks (33–100 ms); current 30 Hz pawn snapshots use a four-tick
+minimum, and Stock's 20 Hz preset uses six. Movement and channel phase sample the same displayed server time.
+Extrapolation stops after 100 ms, including animation phase; then the proxy holds safely. No proxy root physics,
+gameplay notifies, damage or interactions run during presentation. Rewind uses the actual displayed time and is
+cleared by pawn lifetime resets and teleports; the default ceiling is now 300 ms. The rendered client reports its
+frame interpolation fraction, so a shot uses the last displayed frame's time even if simulation catches up through
+several ticks before the next draw. Headless clients use the current presentation simulation time.
+
+Diagnostics include interpolation delay/underflows, snapshot age, replay count, correction distance, missing descriptors,
+snapshot, transition and body-state counts/bytes, state gaps, pose/prediction resets, budget deferrals, and the existing
+byte/packet/loss statistics. The parity audit
+and its validation boundaries are in `docs/NETCODE-PARITY.md`.
+
+The social hub uses Stock's 20 Hz preset with a 5,000 B/s per-visitor ceiling for its 50-player crowd budget.
+Match gameplay retains Enhanced as its normal 60 Hz default. Both use the same modern synchronization paths.
+
+### Legacy proxy interpolation (retained library helpers)
+
+The older dead-reckoning and inferred-snapshot helpers remain for decoded behavior tests and low-level library
+callers. They are no longer selected by either host profile. The following describes those retained helpers.
 
 **Toggle.** `NetDriverSettings.PawnProxies`: `NetProfiles.Apply` sets `PawnProxyMode.Interpolate` for the Enhanced
 profile, so it follows `--net stock|enhanced` and `"netProfile"`. The server sends its mode in Welcome
@@ -284,7 +371,7 @@ makes is rewound: the merc rifle and SMG (`SWeaponDefense.TraceFire`), the shotg
 (`SWeaponAttaque.TraceFireWithPos`) and the spy bullet laser's trace. The shooter is never rewound (the trace skips
 it), the world, movers and the water probe stay live, and nothing is moved: the trace only reads recorded pills.
 Shots of the host's own authority-side code and bots on the server have no view time and see the live pose.
-The setting: `ServerSettings.LagCompensation` and `LagCompensationCeilingMs` (default 120, 0 to 500: Reloaded's values), changed at run
+The setting: `ServerSettings.LagCompensation` and `LagCompensationCeilingMs` (modern default 300, range 0 to 500), changed at run
 time through `ServerHost.LagCompensation` (`Enabled`, `CeilingMs`, `Command`); online sessions keep it across rounds
 (`OnlineServerSettings`, console and chat commands: docs/ONLINE.md "Lag compensation").
 

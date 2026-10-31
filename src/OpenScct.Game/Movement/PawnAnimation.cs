@@ -575,6 +575,7 @@ public sealed class PawnAnimChannel
     internal float QueuedTween;
     internal bool QueuedLoop;
     internal bool QueuedBackward;
+    internal int NetworkChangeDepth;
 
     internal void Clear()
     {
@@ -607,7 +608,7 @@ public sealed class PawnAnimChannel
 /// one update in the same tick, a clip started by physics or by an AnimEnd gets its first update on the next tick.
 /// The walk blender (<see cref="PawnMovementAnimation"/>) drives channels 1 to 13 after physics.
 /// </summary>
-public sealed class PawnAnimation
+public sealed partial class PawnAnimation
 {
     /// <summary>Channels 0 to LASTCHANNEL (24).</summary>
     public const int ChannelCount = SBasePawn.LASTCHANNEL + 1;
@@ -691,6 +692,7 @@ public sealed class PawnAnimation
     public bool PlayAnim(int channel, PawnClip clip, float rate, float tweenTime, bool loop, bool backward = false,
         bool continueAtFrame = false, bool mirror = false)
     {
+        using var change = TrackAuthoredChange(channel);
         ArgumentNullException.ThrowIfNull(clip);
         if (!IsValidChannel(channel) || clip.Frames < 1)
         {
@@ -861,6 +863,7 @@ public sealed class PawnAnimation
     [PortOf("nat:Engine.Actor.PlayAnimAfter", Spec = "spec/native/anim.md#4-other-channel-natives")]
     public void PlayAnimAfter(int channel, PawnClip? clip, float rate, float tweenTime, bool loop = false, bool backward = false)
     {
+        using var change = TrackAuthoredChange(channel);
         if (!IsValidChannel(channel))
         {
             return;
@@ -878,6 +881,7 @@ public sealed class PawnAnimation
     /// <summary>Stops and clears a channel.</summary>
     public void Stop(int channel)
     {
+        using var change = TrackAuthoredChange(channel);
         PawnAnimChannel c = _channels[channel];
         c.Clear();
     }
@@ -889,6 +893,7 @@ public sealed class PawnAnimation
     /// </summary>
     public void SetSequence(int channel, PawnClip clip)
     {
+        using var change = TrackAuthoredChange(channel);
         ArgumentNullException.ThrowIfNull(clip);
         PawnAnimChannel c = _channels[channel];
         if (c.Sequence == clip.Name && c.Clip is not null)
@@ -918,6 +923,7 @@ public sealed class PawnAnimation
     [PortOf("eng:ASBasePawn::UpdateMovementAnimation", Spec = "spec/native/ANSWERS-anim.md#a3-channel-helpers-used-by-the-walk-blender-and-executeaction")]
     public void SetAnimSequence(int channel, PawnClip clip)
     {
+        using var change = TrackAuthoredChange(channel);
         ArgumentNullException.ThrowIfNull(clip);
         if (!IsValidChannel(channel))
         {
@@ -938,6 +944,7 @@ public sealed class PawnAnimation
     /// <summary>SetAnimSequence with None: the channel keeps its timing but holds no sequence (base rate 0).</summary>
     public void ClearSequence(int channel)
     {
+        using var change = TrackAuthoredChange(channel);
         if (!IsValidChannel(channel))
         {
             return;
@@ -964,6 +971,7 @@ public sealed class PawnAnimation
     [PortOf("nat:SBase.SBasePawn.ExecuteAction", Spec = "spec/native/anim.md#4-other-channel-natives")]
     public void SetChannelRateScale(int channel, float scale)
     {
+        using var change = TrackAuthoredChange(channel, phase: true, procedural: true);
         if (IsValidChannel(channel))
         {
             PawnAnimChannel c = _channels[channel];
@@ -979,6 +987,7 @@ public sealed class PawnAnimation
     [PortOf("nat:Engine.Actor.SetAnimFrame", Spec = "spec/native/anim.md#4-other-channel-natives")]
     public void SetAnimFrame(int channel, float time, bool unitFlag)
     {
+        using var change = TrackAuthoredChange(channel, phase: true, procedural: true);
         if (!IsValidChannel(channel))
         {
             return;
@@ -1024,6 +1033,7 @@ public sealed class PawnAnimation
     [Provenance(ProvenanceKind.Decoded, "SetBlendParams 0x111005a0: channel 0 only logs; times above 1 become 1; the timed blend is cancelled")]
     public bool SetBlendParams(int channel, float alpha, float inTime = 0f, float outTime = 0f, Name bone = default, bool globalPose = false)
     {
+        using var change = TrackAuthoredChange(channel);
         if (channel <= 0 || !IsValidChannel(channel))
         {
             return false;
@@ -1045,6 +1055,7 @@ public sealed class PawnAnimation
     [PortOf("nat:Engine.Actor.AnimBlendToAlpha", Spec = "spec/native/anim.md#3-blending-animblendparams-animblendtoalpha-pose-build")]
     public void BlendToAlpha(int channel, float target, float time)
     {
+        using var change = TrackAuthoredChange(channel);
         if (!IsValidChannel(channel))
         {
             return;
@@ -1097,6 +1108,7 @@ public sealed class PawnAnimation
     [PortOf("eng:ASBasePawn::UpdateMovementAnimation", Spec = "spec/native/ANSWERS-anim.md#a3-channel-helpers-used-by-the-walk-blender-and-executeaction")]
     public void CopyAnimation(int from, int to)
     {
+        using var change = TrackAuthoredChange(to, procedural: true);
         if (!IsValidChannel(from) || !IsValidChannel(to))
         {
             return;
@@ -1127,6 +1139,7 @@ public sealed class PawnAnimation
     [PortOf("nat:Engine.Actor.EnableChannelNotify", Spec = "spec/native/anim.md#4-other-channel-natives")]
     public void EnableChannelNotify(int channel, bool enable)
     {
+        using var change = TrackAuthoredChange(channel);
         if (IsValidChannel(channel))
         {
             _channels[channel].bNotifyIgnore = !enable;
@@ -1136,6 +1149,7 @@ public sealed class PawnAnimation
     /// <summary>The mirror flag of a channel (the climb step flips channel 0's).</summary>
     public void SetMirror(int channel, bool mirror)
     {
+        using var change = TrackAuthoredChange(channel);
         if (IsValidChannel(channel))
         {
             _channels[channel].bMirror = mirror;

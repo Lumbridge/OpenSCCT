@@ -440,27 +440,27 @@ public sealed class SpyAi : AiBrain
         foreach (AiContact c in Bot.Memory.Contacts)
         {
             // Seen now, or seen for sure a moment ago (the spy looked away on its walk).
-            bool known = (c.Visible && c.Confirmed) || (now - c.Time < SpyAiK.GrabMemorySeconds && c.Confidence > 0.8f);
-            if (!known || c.Pawn is not SPAWNDEFENSE m || !OnFeet(m) ||
+            bool known = now - c.PoseTime < SpyAiK.GrabMemorySeconds && c.Confidence > 0.8f;
+            if (!known || c.Pose is not { OnFeet: true } pose || c.Pawn is not SPAWNDEFENSE m ||
                 (ReferenceEquals(m, _shockedPawn) && now - _shockedAt < SpyAiK.GrabAfterShockSeconds))
             {
                 continue;
             }
 
-            FVector to = Pawn.Location - m.Location;
+            FVector to = Pawn.Location - pose.Position;
             float d = NavFollower.Horizontal(to);
-            if (d > SpyAiK.GrabNoticeRange || MathF.Abs(Feet.Z - NavFollower.Feet(m).Z) > 60f)
+            if (d > SpyAiK.GrabNoticeRange || MathF.Abs(Feet.Z - pose.Feet.Z) > 60f)
             {
                 continue;
             }
 
             // Turned away: the spy in the rear half of his view, well behind him when close.
-            if (Faces(m, Pawn.Location, d < 500f ? -0.3f : 0f) || !Alone(m))
+            if (d > 1f && (to | pose.Rotation.Vector()) / d > (d < 500f ? -0.3f : 0f) || !Alone(m, pose.Position))
             {
                 continue;
             }
 
-            bool guarding = _target is { } t && (m.Location - t.Location).Size() < 900f;
+            bool guarding = _target is { } t && (pose.Position - t.Location).Size() < 900f;
             bool inTheWay = d < 500f;
             bool dark = myLight < 0.3f;
             if (!guarding && !inTheWay && !dark)
@@ -487,11 +487,11 @@ public sealed class SpyAi : AiBrain
         m.Physics == EPhysics.PHYS_Walking;
 
     /// <summary>No other merc the spy knows of within 1200 uu of <paramref name="m"/>.</summary>
-    private bool Alone(Pawn m)
+    private bool Alone(Pawn m, FVector at)
     {
         foreach (AiContact c in Bot.Memory.Contacts)
         {
-            if (!ReferenceEquals(c.Pawn, m) && c.Pawn.Health > 0 && c.Confidence > 0.35f && (c.Position - m.Location).Size() < 1200f)
+            if (!ReferenceEquals(c.Pawn, m) && c.Confidence > 0.35f && (c.Position - at).Size() < 1200f)
             {
                 return false;
             }
@@ -735,13 +735,13 @@ public sealed class SpyAi : AiBrain
 
         foreach (AiContact c in Bot.Memory.Contacts)
         {
-            if (c.Pawn is not SPAWNDEFENSE m || !OnFeet(m) || m.bStickySkinned || now - c.Time > 1f)
+            if (c.Pawn is not SPAWNDEFENSE || c.Pose is not { OnFeet: true, StickySkinned: false } pose || now - c.PoseTime > 1f)
             {
                 continue;
             }
 
-            float below = Pawn.Location.Z - m.Location.Z;
-            if (NavFollower.Horizontal(m.Location - Pawn.Location) < SpyAiK.LetGoReach && below > 120f && below < SpyAiK.DropMaxHeight + 200f)
+            float below = Pawn.Location.Z - pose.Position.Z;
+            if (NavFollower.Horizontal(pose.Position - Pawn.Location) < SpyAiK.LetGoReach && below > 120f && below < SpyAiK.DropMaxHeight + 200f)
             {
                 plan.Keys = default;
                 plan.Keys.BT_Down = 1;
@@ -1024,7 +1024,8 @@ public sealed class SpyAi : AiBrain
     private void Evade(float now, ref AiPlan plan)
     {
         Pawn? threat = _threat;
-        FVector threatEye = threat is not null ? AiSight.Eye(threat) : (Bot.Memory.Best()?.Position ?? Pawn.Location);
+        FVector threatEye = (threat is not null ? Bot.Memory.Find(threat)?.BelievedEye : null) ??
+            Bot.Memory.Best()?.BelievedEye ?? Pawn.Location;
 
         if (now - _hideSpotAt > 1.5f || (Pawn.Location - _hideSpot).Size() < 40f)
         {
@@ -1071,9 +1072,9 @@ public sealed class SpyAi : AiBrain
     private void Hide(ref AiPlan plan)
     {
         plan.Crouched = true;
-        if (_threat is not null)
+        if (_threat is not null && Bot.Memory.Find(_threat) is { } contact)
         {
-            LookAt(_threat.Location, ref plan);
+            LookAt(contact.Position, ref plan);
             plan.Tolerance = 65536;
         }
     }
@@ -1106,9 +1107,6 @@ public sealed class SpyAi : AiBrain
         Pawn.WeaponLoaded == 2 && !Pawn.bWeaponTransit && !Pc.IsInState(NAME_s_PlayerWalkingMario_T_0HTo2H) &&
         !Pc.IsInState(NAME_s_PlayerWalkingMario_T_2HToOH);
 
-    /// <summary>The merc's chest.</summary>
-    private static FVector AimPoint(Pawn m) => m.Location + new FVector(0f, 0f, SpyAiK.AimChestUp);
-
     /// <summary>
     /// The shock, through the keys: a tap of the fire-mode key draws (released inside 0.5 s: with the laser; the
     /// evasion may hold it past 0.5 s for the silent draw); Fire only once the armed stance is reached (the draw
@@ -1125,14 +1123,16 @@ public sealed class SpyAi : AiBrain
             return;
         }
 
-        if (target is null || target.Health <= 0 || target.bDeleteMe || now - _shockStart > SpyAiK.ShockGiveUpSeconds)
+        AiContact? contact = target is not null ? Bot.Memory.Find(target) : null;
+        if (target is null || contact?.Pose is not { Alive: true } || now - _shockStart > SpyAiK.ShockGiveUpSeconds)
         {
             EndShock(now, SpyAiK.ShockAbortCooldown);
             return;
         }
 
         plan.Crouched = null;
-        LookAt(AimPoint(target), ref plan);
+        FVector aimPoint = contact.Position + new FVector(0f, 0f, SpyAiK.AimChestUp);
+        LookAt(aimPoint, ref plan);
         plan.Tolerance = 65536;
         switch (_shockPhase)
         {
@@ -1171,6 +1171,12 @@ public sealed class SpyAi : AiBrain
                 return;
 
             case ShockPhase.Aim:
+                if (!contact.BodyVisible)
+                {
+                    EndShock(now, SpyAiK.ShockAbortCooldown);
+                    return;
+                }
+
                 if (!ReadyToFire())
                 {
                     if (Pawn.WeaponLoaded == 0)
@@ -1187,7 +1193,7 @@ public sealed class SpyAi : AiBrain
                     return;
                 }
 
-                if (AimErrorTo(AimPoint(target)) < 2f + Difficulty.AimSettledDegrees || now - _shockAt > SpyAiK.MaxAimSeconds)
+                if (AimErrorTo(aimPoint) < 2f + Difficulty.AimSettledDegrees || now - _shockAt > SpyAiK.MaxAimSeconds)
                 {
                     plan.Keys.Press(AiCommand.Fire);
                     plan.Keys.bFire = 1;
@@ -1200,7 +1206,7 @@ public sealed class SpyAi : AiBrain
                 return;
 
             default:
-                if (target.bStickyShocking)
+                if (contact.BodyVisible && target.bStickyShocking)
                 {
                     ShockHits++;
                     _shockedPawn = target;
@@ -1244,16 +1250,19 @@ public sealed class SpyAi : AiBrain
             return;
         }
 
-        if (m is null || !OnFeet(m) || now - _grabStart > SpyAiK.GrabApproachSeconds)
+        AiContact? contact = m is not null ? Bot.Memory.Find(m) : null;
+        if (m is null || contact?.Pose is not { OnFeet: true } pose || now - contact.PoseTime > SpyAiK.GrabMemorySeconds ||
+            now - _grabStart > SpyAiK.GrabApproachSeconds)
         {
             EndGrab(now, SpyAiK.GrabFailCooldown);
             return;
         }
 
-        float d = NavFollower.Horizontal(m.Location - Pawn.Location);
+        FVector toSpy = Pawn.Location - pose.Position;
+        float d = NavFollower.Horizontal(toSpy);
 
         // He turned round: no grab (the shocker or the evasion takes over).
-        if (d < 800f && Faces(m, Pawn.Location, 0.3f))
+        if (d > 1f && d < 800f && (toSpy | pose.Rotation.Vector()) / d > 0.3f)
         {
             EndGrab(now, SpyAiK.GrabFailCooldown);
             return;
@@ -1262,7 +1271,7 @@ public sealed class SpyAi : AiBrain
         if (_grab == GrabPhase.Press)
         {
             plan.Crouched = null;
-            plan.Yaw = NavFollower.YawTo(Pawn.Location, m.Location);
+            plan.Yaw = NavFollower.YawTo(Pawn.Location, pose.Position);
             plan.Tolerance = 65536;
             if (now - _grabAt < SpyAiK.UsePressSeconds)
             {
@@ -1279,15 +1288,15 @@ public sealed class SpyAi : AiBrain
             return;
         }
 
-        FVector shifted = new FRotator(0, (m.Rotation.Yaw + SpyAiK.GrabAreaShift) & 0xFFFF, 0).Vector();
+        FVector shifted = new FRotator(0, (pose.Rotation.Yaw + SpyAiK.GrabAreaShift) & 0xFFFF, 0).Vector();
         shifted.Z = 0f;
-        FVector toMerc = m.Location - Pawn.Location;
+        FVector toMerc = pose.Position - Pawn.Location;
         toMerc.Z = 0f;
         bool lined = d > 1f && (shifted | toMerc) / d > SpyAiK.GrabLineCos;
         if (d > SpyAiK.GrabFinalReach || !lined)
         {
-            FVector behind = m.Location - shifted.SafeNormal() * SpyAiK.GrabBehind;
-            FVector floor = new(behind.X, behind.Y, NavFollower.Feet(m).Z);
+            FVector behind = pose.Position - shifted.SafeNormal() * SpyAiK.GrabBehind;
+            FVector floor = new(behind.X, behind.Y, pose.Feet.Z);
             if (!MoveTo(floor, now, ref plan, sneak: true, Difficulty.Stealth, DangerPenalty(Difficulty.Stealth * 0.5f)) && Follower.Failed)
             {
                 EndGrab(now, SpyAiK.GrabFailCooldown);
@@ -1299,12 +1308,12 @@ public sealed class SpyAi : AiBrain
         // The last steps: straight at him, standing at the walk (silent: walking steps play no sound), so the pawn
         // turns to face him. Standing, as the grab from a crouch first has to stand the spy up.
         plan.Crouched = false;
-        plan.Yaw = NavFollower.YawTo(Pawn.Location, m.Location);
+        plan.Yaw = NavFollower.YawTo(Pawn.Location, pose.Position);
         plan.Tolerance = 3000;
         plan.Keys = default;
         plan.Keys.BT_Up = (byte)(d > SpyAiK.GrabStopDistance ? 1 : 0);
         plan.Keys.FastSpeed = false;
-        if (!Pawn.bIsCrouched && Pc.CanGrabPawn(m) && now - _grabAt > SpyAiK.GrabAnswerSeconds)
+        if (!Pawn.bIsCrouched && contact.BodyVisible && Pc.CanGrabPawn(m) && now - _grabAt > SpyAiK.GrabAnswerSeconds)
         {
             _grab = GrabPhase.Press;
             _grabAt = now;
@@ -1401,7 +1410,8 @@ public sealed class SpyAi : AiBrain
     private void Drop(float now, ref AiPlan plan)
     {
         SBasePawn? m = _dropTarget;
-        if (m is null || m.Health <= 0 || m.bDeleteMe || now - _dropStart > SpyAiK.DropGiveUpSeconds)
+        AiContact? contact = m is not null ? Bot.Memory.Find(m) : null;
+        if (m is null || contact?.Pose is not { Alive: true } pose || now - _dropStart > SpyAiK.DropGiveUpSeconds)
         {
             EndDrop(now);
             return;
@@ -1418,7 +1428,8 @@ public sealed class SpyAi : AiBrain
         {
             case DropPhase.Walk:
                 // He walked off the landing, or would blast the spy: no drop.
-                if (!OnFeet(m) || m.bStickySkinned || NavFollower.Horizontal(NavFollower.Feet(m) - _dropLand) > SpyAiK.DropLandingReach + 40f)
+                if (!pose.OnFeet || pose.StickySkinned || now - contact.PoseTime > 1f ||
+                    NavFollower.Horizontal(pose.Feet - _dropLand) > SpyAiK.DropLandingReach + 40f)
                 {
                     EndDrop(now);
                     return;
@@ -1442,7 +1453,7 @@ public sealed class SpyAi : AiBrain
             case DropPhase.Step:
                 // Standing (a slow crouched walk off an edge catches the ledge), walking at him.
                 plan.Crouched = false;
-                plan.Yaw = NavFollower.YawTo(Pawn.Location, m.Location);
+                plan.Yaw = NavFollower.YawTo(Pawn.Location, contact.Position);
                 plan.Tolerance = 2500;
                 plan.Keys = default;
                 plan.Keys.BT_Up = (byte)(Pawn.bIsCrouched ? 0 : 1);
@@ -1480,10 +1491,10 @@ public sealed class SpyAi : AiBrain
                 }
 
                 // Air steering toward his head.
-                plan.Yaw = NavFollower.YawTo(Pawn.Location, m.Location);
+                plan.Yaw = NavFollower.YawTo(Pawn.Location, contact.Position);
                 plan.Tolerance = 4000;
                 plan.Keys = default;
-                plan.Keys.BT_Up = (byte)(NavFollower.Horizontal(m.Location - Pawn.Location) > 25f ? 1 : 0);
+                plan.Keys.BT_Up = (byte)(NavFollower.Horizontal(contact.Position - Pawn.Location) > 25f ? 1 : 0);
                 return;
         }
     }

@@ -29,6 +29,8 @@ public sealed record BotMatchSettings
 
     public ENetMode NetMode { get; init; } = ENetMode.NM_DedicatedServer;
 
+    public NetProfile Profile { get; init; } = NetProfile.Enhanced;
+
     /// <summary>Server driver settings; null keeps the server default.</summary>
     public NetDriverSettings? ServerNet { get; init; }
 
@@ -115,6 +117,7 @@ public sealed class BotMatch : IDisposable
     private readonly (FVector Client, FVector Server)[] _restAt;
     private readonly bool _ownsServer;
     private bool _disposed;
+    public event Action<BotClient, float>? RestDiverged;
 
     /// <summary>
     /// Creates the server (bound with <paramref name="bind"/>(<c>"server"</c>)) and the bots (bound with their names,
@@ -138,6 +141,7 @@ public sealed class BotMatch : IDisposable
             MaxPlayers = Math.Max(4, settings.Bots.Count),
             MatchSeed = settings.Seed,
             NetMode = settings.NetMode,
+            Profile = settings.Profile,
             Classes = classes,
             Maps = maps,
         };
@@ -294,6 +298,7 @@ public sealed class BotMatch : IDisposable
         if (_restFrames[i] % Sim.Hz == 0 && _restFrames[i] >= RestSampleFrom)
         {
             _restSamples[i].Add(error);
+            if (error > 2f) RestDiverged?.Invoke(bot, error);
         }
     }
 

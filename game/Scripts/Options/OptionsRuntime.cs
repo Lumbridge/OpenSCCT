@@ -56,6 +56,7 @@ public partial class OptionsRuntime : Node
     public override void _Ready()
     {
         CapFrames = DisplayServer.GetName() != "headless" && GetNodeOrNull<App>(App.NodePath) is not { IsSmokeRun: true };
+        if (PlayInput is { } actionInput) actionInput.Controller = () => Session?.LocalController;
         Gamepad = new GamepadInput { PlayInput = PlayInput, Session = Session };
         AddChild(Gamepad);
         SettingsStore.Saved += OnSaved;
@@ -159,6 +160,8 @@ public partial class OptionsRuntime : Node
             Hud.ShowNet = s.ShowNet;
             Hud.Net.ShowLoss = s.ShowNetLoss;
             Hud.ShowLocation = s.ShowLocation;
+            Hud.TeammateNames.ShowSpy = s.TeammateNamesSpy;
+            Hud.TeammateNames.ShowMerc = s.TeammateNamesMerc;
             Hud.DistanceInFeet = s.HudFeet;
             Hud.Markers.HackAlpha = s.HackAlpha / 255f;
         }

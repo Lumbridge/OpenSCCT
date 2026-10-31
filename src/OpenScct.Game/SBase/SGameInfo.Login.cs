@@ -167,15 +167,18 @@ public partial class SGameInfo
             pri.PlayerID = CurrentID++;
             pri.MyMeshNum = inMesh;
             // OpenSCCT's own: the cosmetic look the online server checked against the player's unlocks.
-            if (long.TryParse(ParseOption(Options, "SvmLook"), System.Globalization.NumberStyles.HexNumber,
-                System.Globalization.CultureInfo.InvariantCulture, out long look))
+            if (System.UInt128.TryParse(ParseOption(Options, "SvmLook"), System.Globalization.NumberStyles.HexNumber,
+                System.Globalization.CultureInfo.InvariantCulture, out System.UInt128 look))
             {
-                pri.SvmLookLow = (int)(look & 0xFFFFFFFFL);
+                pri.SvmLookLow = (int)(look & 0xFFFFFFFFu);
                 pri.SvmLookHigh = (int)(look >> 32);
+                pri.SvmLookExtraLow = (int)(look >> 64);
+                pri.SvmLookExtraHigh = (int)(look >> 96);
             }
 
             // OpenSCCT's own: the level, prestige and title the online server checked against the player's ticket.
             pri.SvmRank = GetIntOption(Options, "SvmRank", 0);
+            pri.SvmSidearmsUnrestricted = GetIntOption(Options, "SvmSidearmsAll", 1) == 1;
         }
 
         Name pawnClassName = pri?.Team is STeamInfo team && inMesh < team.PawnList.Count ? team.PawnList[inMesh] : Name.None;

@@ -26,6 +26,9 @@ public partial class PlayerReplicationInfo : ReplicationInfo
     public int SvmLookLow;
 
     public int SvmLookHigh;
+    public int SvmLookExtraLow;
+    public int SvmLookExtraHigh;
+    public long SvmLookExtra => ((long)SvmLookExtraHigh << 32) | (uint)SvmLookExtraLow;
 
     /// <summary>The look as one value.</summary>
     public long SvmLook => ((long)SvmLookHigh << 32) | (uint)SvmLookLow;
@@ -35,4 +38,5 @@ public partial class PlayerReplicationInfo : ReplicationInfo
     /// guests and bots), set by the server at login from its checked <c>?SvmRank=</c> option and replicated to every client.
     /// </summary>
     public int SvmRank;
+    public bool SvmSidearmsUnrestricted;
 }

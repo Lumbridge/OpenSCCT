@@ -70,6 +70,7 @@ public sealed class PawnProxySender
     private readonly HashSet<(int Pawn, NetConnection Viewer)> _rotationPushes = new();
     private readonly HashSet<(int Pawn, NetConnection Viewer)> _aimDue = new();
     private long _pass;
+    private readonly List<SBasePawn> _pawns = new();
 
     public PawnProxySender(NetDriver driver)
     {
@@ -118,6 +119,8 @@ public sealed class PawnProxySender
         float now = level.TimeSeconds;
         INetInterest? interest = _driver.Settings.Interest;
         IReadOnlyList<NetConnection> viewers = _driver.ClientConnections;
+        _pawns.Clear();
+        foreach (SBasePawn pawn in level.DynamicActors<SBasePawn>()) _pawns.Add(pawn);
         for (int v = 0; v < viewers.Count; v++)
         {
             NetConnection viewer = viewers[v];
@@ -126,14 +129,32 @@ public sealed class PawnProxySender
                 continue;
             }
 
-            foreach (SBasePawn pawn in level.DynamicActors<SBasePawn>())
+            for (int p = 0; p < _pawns.Count; p++)
             {
-                if (pawn.bDeleteMe || ReferenceEquals(pawn.Controller, pc) || viewer.FindActorChannel(pawn) is not { OpenAcked: true, Closing: false })
+                SBasePawn pawn = _pawns[(p + (int)(_pass % _pawns.Count)) % _pawns.Count];
+                if (pawn.bDeleteMe || ReferenceEquals(pawn.Controller, pc))
                 {
                     continue;
                 }
 
-                Sample(pawn, viewer, pc, now, interest is null || viewer.IsRecorder ? 1f : interest.ProxySampleScale(pawn, _driver.ViewerFor(viewer)));
+                if (viewer.FindActorChannel(pawn) is not { OpenAcked: true, Closing: false })
+                {
+                    if (_driver.Settings.PawnProxies == PawnProxyMode.Snapshots)
+                    {
+                        pawn.bCompressedPosition = true;
+                        _driver.EnsureActivePawnChannel(pawn, viewer);
+                    }
+                    continue;
+                }
+
+                if (_driver.Settings.PawnProxies == PawnProxyMode.Snapshots)
+                {
+                    int interval = interest is null || viewer.IsRecorder ? 2
+                        : Math.Max(2, (int)MathF.Ceiling(Sim.Hz * MinInterval * interest.ProxySampleScale(pawn, _driver.ViewerFor(viewer))));
+                    level.GetService<PawnStateReplication>()?.Send(pawn, viewer, interval);
+                }
+                else
+                    Sample(pawn, viewer, pc, now, interest is null || viewer.IsRecorder ? 1f : interest.ProxySampleScale(pawn, _driver.ViewerFor(viewer)));
             }
         }
 
@@ -309,10 +330,19 @@ public sealed class PawnProxySender
     /// for it; a change held back goes with the next one.
     /// </summary>
     [Provenance(ProvenanceKind.Decoded, "net-proxy.md rule 3: iDesiredYawPitch and iYawPitchFromView pushed if changed when 0.09 s passed since LastAimTime")]
-    private bool WithholdsAim(Actor actor, NetConnection viewer, RepProperty property) =>
-        actor is SBasePawn && !_aimDue.Contains((actor.ActorId, viewer)) &&
-        (string.Equals(property.Name, "iDesiredYawPitch", StringComparison.OrdinalIgnoreCase) ||
-         string.Equals(property.Name, "iYawPitchFromView", StringComparison.OrdinalIgnoreCase));
+    private bool WithholdsAim(Actor actor, NetConnection viewer, RepProperty property)
+    {
+        if (actor is not SBasePawn pawn) return false;
+        if (_driver.Settings.PawnProxies == PawnProxyMode.Snapshots && !ReferenceEquals(pawn.Controller, viewer.Actor) &&
+            property.Name is "Location" or "Velocity" or "Rotation" or "Physics" or "CollisionRadius" or "CollisionHeight" or "PrePivot" or
+                  "Health" or "bIsCrouched" or "bLyingOnGround" or "bSleeping" or "bHidden" or "ZoneConfigForClient" or "BTW" or "PipHFire" or
+                "WeaponLoaded" or "IK_Type" or "m_PawnNoMoreGrabbed" or "iDesiredYawPitch" or "iYawPitchFromView" or
+                "iNbActionForDistantClient" or "AllActions" or "fRepTimeOfLastActionChange")
+            return true;
+        return !_aimDue.Contains((actor.ActorId, viewer)) &&
+            (string.Equals(property.Name, "iDesiredYawPitch", StringComparison.OrdinalIgnoreCase) ||
+             string.Equals(property.Name, "iYawPitchFromView", StringComparison.OrdinalIgnoreCase));
+    }
 
     /// <summary>The shortest-arc yaw difference in rotator units (0 to 32768).</summary>
     private static int YawDifference(int a, int b)

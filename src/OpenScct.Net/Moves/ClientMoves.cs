@@ -24,6 +24,8 @@ public sealed class ClientMoves
         Pawn = pawn ?? throw new ArgumentNullException(nameof(pawn));
         Controller = controller ?? throw new ArgumentNullException(nameof(controller));
         Transport = transport ?? throw new ArgumentNullException(nameof(transport));
+        SavedMoves = new SavedMoveList(transport is SequencedMoveTransport ? SequencedMoveTransport.Capacity : MoveK.SavedMoveRing,
+            preallocate: transport is SequencedMoveTransport);
     }
 
     public IMovePawn Pawn { get; }
@@ -54,7 +56,88 @@ public sealed class ClientMoves
     /// <summary>The short move toggle (one process-wide flag in the original, per controller here).</summary>
     public bool ShortMoveToggle;
 
-    public SavedMoveList SavedMoves { get; } = new();
+    public SavedMoveList SavedMoves { get; }
+
+    public long MovesReplayed { get; private set; }
+    public long AuthoritativeCorrectionsReceived { get; private set; }
+    public long CorrectionsObsoletedByState { get; private set; }
+    public float LastCorrectionDistance { get; private set; }
+    private FVector _authoritativeVelocity;
+    private EPhysics _authoritativePhysics;
+    private byte _authoritativeZone;
+    private bool Modern => Transport is SequencedMoveTransport;
+    private uint _correctionEpoch, _acknowledgedSequence;
+
+    public void ResetPredictionHistory()
+    {
+        SavedMoves.Clear(); bUpdatePosition = false; UpdatingSMove = null;
+        _acknowledgedSequence = 0; fPendingDeltaTime = 0f; NumberOfBigServerMoveToReSend = 0;
+    }
+
+    public void AcknowledgePrediction(uint epoch, uint sequence, float stamp)
+    {
+        if (_correctionEpoch == epoch && sequence <= _acknowledgedSequence) return;
+        _correctionEpoch = epoch; _acknowledgedSequence = sequence; CurrentTimeStamp = stamp;
+        bUpdatePosition = false; UpdatingSMove = null;
+    }
+
+    public void ReceiveAuthoritativeState(uint epoch, uint sequence, float stamp, FVector location, FVector velocity, EPhysics physics, byte zone, Actor? @base,
+        FVector? basePosition = null, FRotator baseRotation = default)
+    {
+        if (Pawn is not IMovePrediction prediction || (_correctionEpoch == epoch && sequence <= _acknowledgedSequence)) return;
+        _correctionEpoch = epoch; _acknowledgedSequence = sequence;
+        AuthoritativeCorrectionsReceived++;
+        CurrentTimeStamp = stamp;
+        if (Pawn is IMoveCommandPawn { CommandSimulationEnabled: false }) { bUpdatePosition = false; return; }
+        for (SavedMove? move = SavedMoves.FirstSMove; move is not null; move = move.NextMove)
+        {
+            if (move.Sequence == sequence && move.Epoch == epoch)
+            {
+                if (!prediction.PredictionHistoryComplete(move.Slot))
+                { ((SequencedMoveTransport)Transport).RequestResynchronization(); return; }
+                if (!prediction.CanReplayPrediction(move.Slot)) { CorrectionsObsoletedByState++; return; }
+                if (basePosition is { } baseAt)
+                    prediction.RebaseAuthoritativeState(move.Slot, @base, baseAt, baseRotation, ref location, ref velocity);
+                if ((move.SavedLocation - location).SizeSquared() < MoveK.CorrectionErrorSquared &&
+                    (move.SavedVelocity - velocity).SizeSquared() < 1f && move.SavedPhysics == physics &&
+                    move.ZoneConfig == zone && ReferenceEquals(move.SavedBase, @base)) return;
+                UpdatingSMove = move; vUpdateLocation = location; _authoritativeVelocity = velocity;
+                _authoritativePhysics = physics; _authoritativeZone = zone; aUpdateBase = @base; bUpdatePosition = true;
+                return;
+            }
+            if (ReferenceEquals(move, SavedMoves.LastSMove)) break;
+        }
+        ((SequencedMoveTransport)Transport).RequestResynchronization();
+    }
+
+    public void EnsurePredictionStep()
+    {
+        if (!Modern) return;
+        if (SavedMoves.LastSMove is not { } last || last.TimeStamp < Controller.TimeSeconds - MoveK.SplitEpsilon)
+        {
+            if (Pawn is IMoveCommandPawn { CommandSimulationEnabled: true })
+                Pawn.MoveAutonomous(Sim.DeltaTime, default, false);
+            fPendingDeltaTime = Sim.DeltaTime;
+            var transport = (SequencedMoveTransport)Transport;
+            transport.Heartbeat = true;
+            try { RealReplicateMove(Controller.TimeSeconds, default, CurrentDiversInfos(), allowBig: true); }
+            finally { transport.Heartbeat = false; }
+            fPendingDeltaTime = 0f;
+        }
+    }
+
+    public void FinishPredictionTick()
+    {
+        if (!Modern) return;
+        EnsurePredictionStep();
+        if (SavedMoves.LastSMove is { } move && Pawn is IMovePrediction prediction)
+        {
+            move.SavedLocation = Pawn.Location; move.SavedPhysics = Pawn.Physics;
+            move.SavedVelocity = Pawn.Velocity; move.SavedBase = Pawn.Base; move.ZoneConfig = Pawn.ZoneConfig;
+            prediction.CapturePrediction(move.Slot);
+        }
+        (Transport as SequencedMoveTransport)?.SealPredictionTick();
+    }
 
     // ---- corrections ------------------------------------------------------------------------------------------
 
@@ -140,6 +223,13 @@ public sealed class ClientMoves
     [Provenance(ProvenanceKind.Decoded, "net-moves.md rule 2, game 0x10aad5c0")]
     private void Batch(float deltaTime, FVector accel, float now, byte divers)
     {
+        if (Modern)
+        {
+            fPendingDeltaTime = deltaTime;
+            RealReplicateMove(now, accel, divers, allowBig: true);
+            fPendingDeltaTime = 0f;
+            return;
+        }
         float maxPending = MoveK.MaxPendingWindow * Math.Min(1f, Transport.OutstandingReliable / (float)MoveK.MaxAcceptableUnAckBunch);
         bool actions = Pawn.ActionsWaitForBigMove;
         if (!actions && (fPendingDeltaTime <= 0f || (ePendingPhysics == Pawn.Physics && PendingDiversInfo == divers)))
@@ -199,7 +289,17 @@ public sealed class ClientMoves
         }
 
         EPhysics physics = Pawn.Physics;
-        SavedMoves.Add(TimeStamp, Pawn.Location, physics, (byte)(DiversInfos & 3));
+        SavedMove saved = SavedMoves.Add(TimeStamp, Pawn.Location, physics, (byte)(DiversInfos & 3));
+        saved.DeltaTime = Modern ? Math.Max(0f, fPendingDeltaTime)
+            : fPendingDeltaTime > 0f ? fPendingDeltaTime : Sim.DeltaTime;
+        saved.SavedVelocity = Pawn.Velocity; saved.SavedBase = Pawn.Base;
+        saved.Acceleration = Accel; saved.Jump = Controller.bPressedJump;
+        if (Transport is SequencedMoveTransport sequenced)
+        {
+            sequenced.DeltaTime = saved.DeltaTime;
+            saved.Sequence = sequenced.NextSequence; saved.Epoch = sequenced.CommandEpoch;
+        }
+        if (Modern && Pawn is IMovePrediction prediction) prediction.CapturePrediction(saved.Slot);
         FVector velocity = Pawn.bTestBackFeetGrab ? default
             : physics == EPhysics.PHYS_RootMotion ? new FVector(Pawn.Rotation.Yaw, 0f, 0f)
             : Pawn.Velocity;
@@ -216,7 +316,7 @@ public sealed class ClientMoves
             return;
         }
 
-        if (physics is EPhysics.PHYS_RootMotion or EPhysics.PHYS_FollowParent)
+        if (!Modern && physics is EPhysics.PHYS_RootMotion or EPhysics.PHYS_FollowParent)
         {
             return;
         }
@@ -236,7 +336,7 @@ public sealed class ClientMoves
             return;
         }
 
-        if (ShortMoveToggle)
+        if (Modern || ShortMoveToggle)
         {
             ScriptMyShortServerMove(TimeStamp, Pawn.Location, MovePacking.PackView(pitch, Pawn.Rotation.Yaw), DiversInfos, oldTimeDelta,
                 oldAccel);
@@ -430,6 +530,33 @@ public sealed class ClientMoves
     [PortOf("uc:SBase.SPlayerController:ClientUpdatePosition", Spec = "spec/net/move-protocol.md#rules")]
     public void ClientUpdatePosition()
     {
+        if (Modern && Pawn is IMoveCommandPawn { CommandSimulationEnabled: false }) { bUpdatePosition = false; return; }
+        if (Modern && Pawn is IMovePrediction prediction)
+        {
+            bUpdatePosition = false;
+            if (UpdatingSMove is not { } acknowledged) return;
+            if (!prediction.CanReplayPrediction(acknowledged.Slot)) return;
+            FVector previous = Pawn.Location;
+            prediction.BeginPredictionReplay();
+            try
+            {
+                prediction.RestorePrediction(acknowledged.Slot, vUpdateLocation, _authoritativeVelocity, _authoritativePhysics, aUpdateBase, _authoritativeZone);
+                for (SavedMove? move = acknowledged.NextMove; move is not null && move.Epoch == acknowledged.Epoch && move.Sequence > acknowledged.Sequence; move = move.NextMove)
+                {
+                    if (!prediction.PredictionHistoryComplete(move.Slot))
+                    { ((SequencedMoveTransport)Transport).RequestResynchronization(); break; }
+                    prediction.ReplayPrediction(move.Slot, move.DeltaTime, move.Acceleration, move.Jump);
+                    move.SavedLocation = Pawn.Location; move.SavedPhysics = Pawn.Physics;
+                    move.SavedVelocity = Pawn.Velocity; move.SavedBase = Pawn.Base; move.ZoneConfig = Pawn.ZoneConfig;
+                    prediction.CapturePrediction(move.Slot); MovesReplayed++;
+                    if (ReferenceEquals(move, SavedMoves.LastSMove)) break;
+                }
+                LastCorrectionDistance = (Pawn.Location - previous).Size();
+                CorrectionsApplied++;
+            }
+            finally { prediction.EndPredictionReplay(previous); }
+            return;
+        }
         if (Pawn.Physics is EPhysics.PHYS_RootMotion or EPhysics.PHYS_FollowParent)
         {
             return;
@@ -501,6 +628,7 @@ public sealed class ClientMoves
     [PortOf("uc:SBase.SPlayerController:ClientReinitPawnBecauseOfDivergences", Spec = "spec/net/state-sync.md#rules")]
     public void ClientReinitPawnBecauseOfDivergences(byte RT, float MSATime, FVector vPos, FRotator rRot, Actor? aBase)
     {
+        if (Modern) { SavedMoves.Clear(); bUpdatePosition = false; UpdatingSMove = null; _acknowledgedSequence = 0; }
         Controller.MirrorStateAcknowledgementTime = MSATime;
         Pawn.ReinitBecauseOfDivergences();
         FVector location = aBase is { bIsAMover: true } ? aBase.Location + vPos : vPos;

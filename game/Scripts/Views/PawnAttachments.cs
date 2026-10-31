@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Godot;
 using OpenScct.Core;
 using OpenScct.Core.Engine;
+using OpenScct.Game.Animation;
 using OpenScct.Game.Equipment;
 using OpenScct.Game.SBase;
 using OpenScct.Provenance;
@@ -62,7 +63,7 @@ public sealed class PawnAttachments
     {
         foreach (Attached a in _models.Values)
         {
-            if (a.Used)
+            if (a.Used && a.Bone != BoneHolster)
             {
                 frame = a.Frame;
                 model = a.Model;
@@ -113,10 +114,20 @@ public sealed class PawnAttachments
             a.Used = false;
         }
 
-        if (pawn is SPAWNDEFENSE merc && merc.WeaponDummy is { bDeleteMe: false } dummy && !dummy.Mesh.IsNone)
+        NetworkPawnAttachments presentation = NetworkPawnAttachments.For(pawn);
+        SWeaponDefense? selectedWeapon = presentation.ActiveSlot == 0 ? pawn.PrimaryWeapon as SWeaponDefense : pawn.SidearmWeapon;
+        SWeaponDefenseDummy? selectedDummy = selectedWeapon?.Dummy ?? (pawn as SPAWNDEFENSE)?.WeaponDummy;
+        if (pawn is SPAWNDEFENSE merc && selectedDummy is { bDeleteMe: false } dummy && !dummy.Mesh.IsNone)
         {
-            Place(dummy.Mesh.Path!, dummy.InHand ? BoneRightHand : BoneHolster, null, dt, null, PawnCosmetics.GunItem(pawn));
+            Place(dummy.Mesh.Path!, (presentation.WeaponInHand ?? dummy.InHand) ? BoneRightHand : BoneHolster, null, dt, null,
+                PawnCosmetics.GunItem(pawn, selectedWeapon));
             DrawVision(dummy.Mesh.Path!, dummy);
+            SWeaponDefense? holstered = presentation.ActiveSlot == 0 ? merc.SidearmWeapon : merc.PrimaryWeapon as SWeaponDefense;
+            if (holstered is { bDeleteMe: false, Dummy: { } carried } && !carried.Mesh.IsNone)
+            {
+                Place(carried.Mesh.Path!, BoneHolster, null, dt, null, PawnCosmetics.GunItem(pawn, holstered));
+                DrawVision(carried.Mesh.Path!, carried);
+            }
         }
         // MyWeapon replicates to the owner only (bNetOwner); other players' spies (bots too) have the pistol in
         // WeaponDummy, which replicates to everyone.

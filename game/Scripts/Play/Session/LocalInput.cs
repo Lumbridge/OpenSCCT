@@ -167,8 +167,8 @@ public static class PlayerCommands
     public static readonly IReadOnlyList<string> Known =
     [
         "Fire", "AltFire", "Jump", "GadgetQuickChoice", "SelectGadget", "SwitchHeadset", "SwitchBinocularVision",
-        "ChangeSpeed", "GadLaserSwitch", "GadTorcheSwitch", "SwitchLaser", "WheelUp", "WheelDown", "ZoomIn", "ZoomOut",
-        "SwitchROF", "PrevStickyCam", "PerformCoopMvt", "FreeCam", "HideHud",
+        "SetWalk", "SetScope", "Walk", "Run", "NextGadget", "PreviousGadget", "ChangeSpeed", "GadLaserSwitch", "GadTorcheSwitch", "SwitchLaser", "WheelUp", "WheelDown", "ZoomIn", "ZoomOut",
+        "SwapWeapon", "SwitchROF", "PrevStickyCam", "PerformCoopMvt", "FreeCam", "HideHud",
     ];
 
     /// <summary>
@@ -214,6 +214,39 @@ public static class PlayerCommands
             case "SWITCHBINOCULARVISION":
                 pc.eventSwitchBinocularVision();
                 return true;
+            case "SETWALK":
+                pc.bFastSpeed = command.Arg == 0;
+                return true;
+            case "WALK":
+                pc.bFastSpeed = !pc.bFastSpeed;
+                return true;
+            case "RUN":
+                if (pc.StateNode is SPlayerController.IWheel) pc.eventWheelUp();
+                else pc.bFastSpeed = true;
+                return true;
+            case "SETSCOPE":
+                if (pc.SBPawn is SPAWNDEFENSE && pc.bBinocularVision != (command.Arg != 0))
+                {
+                    if (command.Arg != 0) pc.eventSwitchBinocularVision();
+                    else pc.bBinocularVision = false;
+                }
+                return true;
+            case "NEXTGADGET":
+            case "PREVIOUSGADGET":
+                if (pc.StateNode is SPlayerController.IWheel)
+                {
+                    if (name == "NEXTGADGET") pc.eventWheelUp(); else pc.eventWheelDown();
+                }
+                else if (pc.SBPawn is { } gadgetPawn)
+                {
+                    if (name == "NEXTGADGET")
+                    {
+                        OpenScct.Game.Equipment.PawnInventory.NextGadget(gadgetPawn);
+                        gadgetPawn.SelectedGadget?.Load();
+                    }
+                    else OpenScct.Game.Equipment.PawnInventory.PrevGadget(gadgetPawn);
+                }
+                return true;
             case "CHANGESPEED":
                 pc.ChangeSpeed();
                 return true;
@@ -237,6 +270,9 @@ public static class PlayerCommands
                 return true;
             case "ZOOMOUT":
                 pc.eventZoomOut();
+                return true;
+            case "SWAPWEAPON":
+                pc.SwapWeapon();
                 return true;
             case "SWITCHROF":
                 pc.eventSwitchROF();

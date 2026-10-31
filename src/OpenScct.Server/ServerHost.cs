@@ -206,6 +206,7 @@ public sealed class ServerHost : INetworkNotify, IDisposable
         // Other players' pawns go to each viewer as position samples and action batches, whoever installs the game
         // rules (a play session's map loader installs its own).
         ProxySender = new PawnProxySender(Driver);
+        PawnStates = new PawnStateReplication(Driver);
         LagCompensation = LagCompensation.Install(World.Level);
         LagCompensation.CeilingMs = Settings.LagCompensationCeilingMs;
         LagCompensation.Enabled = Settings.LagCompensation;
@@ -254,6 +255,8 @@ public sealed class ServerHost : INetworkNotify, IDisposable
 
     /// <summary>With the game rules: the position samples of other players' pawns.</summary>
     public PawnProxySender? ProxySender { get; }
+
+    public PawnStateReplication PawnStates { get; }
 
     /// <summary>Lag compensation of the clients' shots (off unless <see cref="ServerSettings.LagCompensation"/>).</summary>
     public LagCompensation LagCompensation { get; }
@@ -334,9 +337,18 @@ public sealed class ServerHost : INetworkNotify, IDisposable
     public void Tick(long nowMicros)
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
+        PawnStates.BeginServerTick();
         Driver.TickDispatch(nowMicros);
+        Driver.PrepareSendFrame(nowMicros);
+        Movement.BeforeServerTick();
         BeforeWorldTick?.Invoke(this);
+        // Controller input and deferred actions can emit presentation events in the callbacks above. Relay
+        // their remaining late events before the world opens (and clears) its next event buffer.
+        World.Level.GetService<NetHearSound>()?.RelayLate();
+        World.Level.GetService<NetDeviceEvents>()?.RelayLate(World);
         World.Step();
+        Movement.AfterTick();
+        PawnStates.Record();
         LagCompensation.Record();
         Chat.Tick(World.TimeSeconds);
         DeviceEvents?.RelayTick(World);
@@ -347,7 +359,9 @@ public sealed class ServerHost : INetworkNotify, IDisposable
         if (_flushAccumulator >= Sim.Hz)
         {
             _flushAccumulator -= Sim.Hz;
+            if (Driver.Settings.PawnProxies == PawnProxyMode.Snapshots) Driver.ReplicatePriorityOwners();
             ProxySender?.Pass(World.Level);
+            World.Level.GetService<PawnSoundReplication>()?.Flush(World.TickCount);
             Driver.TickFlush(nowMicros, replicate: true);
             Combat?.Pump();
             FlushCount++;

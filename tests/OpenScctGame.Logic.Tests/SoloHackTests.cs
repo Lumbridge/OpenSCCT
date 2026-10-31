@@ -114,7 +114,13 @@ public sealed class SoloHackTests
                 return;
             }
 
+            PilotPhase before = pilot.Phase;
             pilot.Tick(s);
+            if (pilot.Phase != before && pilot.Phase is PilotPhase.Face or PilotPhase.PressUse or PilotPhase.ReleaseUse or PilotPhase.Done)
+            {
+                _output.WriteLine($"pilot {pilot.Phase}: client {s.LocalController?.Pawn?.Location} server {s.ServerController?.Pawn?.Location} " +
+                    $"usable {s.LocalController?.IManager?.HasUsableInteractions()}/{s.ServerController?.IManager?.HasUsableInteractions()} view {s.LocalController?.Rotation}");
+            }
         };
 
         var seen = new List<string>();

@@ -9,6 +9,7 @@ using OpenScct.Game.AI;
 using OpenScct.Game.Camera;
 using OpenScct.Game.SBase;
 using OpenScct.Net;
+using OpenScct.Physics.Collision;
 using OpenScct.Server;
 
 namespace OpenScctGame.Play.Session;
@@ -34,12 +35,15 @@ public sealed class PlaySession : IDisposable
     private readonly ListenServer? _listen;
     private readonly LoopbackNetwork? _network;
     private readonly bool _remote;
+    private readonly Action<long>? _stepPeers;
     private readonly long _start;
     private readonly List<string> _log = new();
     private readonly object _logGate = new();
     private long _ticks;
     private ViewSample _view;
     private ViewSample _previousView;
+    private SBasePawn? _viewPawn;
+    private uint _viewReset;
     private Pawn? _possessed;
     private double _alpha;
     private bool _disposed;
@@ -69,7 +73,7 @@ public sealed class PlaySession : IDisposable
             Map = map.Id,
             MaxPlayers = 16,
             NetRate = settings.NetRate,
-            Profile = NetProfile.Enhanced,
+            Profile = settings.NetworkProfile,
             MatchSeed = settings.MatchSeed,
             NetMode = ENetMode.NM_ListenServer,
             Maps = Catalog,
@@ -114,6 +118,7 @@ public sealed class PlaySession : IDisposable
         }
 
         Client.World.Level.Info.m_dT = Sim.DeltaTime;
+        Client.BeforeWorldTick += ApplyClientInput;
         InstallCombatNet();
         if (settings.DemoFolder is { Length: > 0 } demos)
         {
@@ -225,7 +230,8 @@ public sealed class PlaySession : IDisposable
     /// input and the calc view as for an offline match, has no host of its own, and leaves the client session to the
     /// visit when disposed.
     /// </summary>
-    public PlaySession(PlaySettings settings, IClock clock, ClientSession client, MapCatalog catalog, string mapFolder, PlayMapLoader loader)
+    public PlaySession(PlaySettings settings, IClock clock, ClientSession client, MapCatalog catalog, string mapFolder,
+        PlayMapLoader loader, Action<long>? stepPeers = null)
     {
         Settings = settings ?? throw new ArgumentNullException(nameof(settings));
         Clock = clock ?? throw new ArgumentNullException(nameof(clock));
@@ -234,8 +240,10 @@ public sealed class PlaySession : IDisposable
         MapFolder = mapFolder ?? throw new ArgumentNullException(nameof(mapFolder));
         Loader = loader ?? throw new ArgumentNullException(nameof(loader));
         _remote = true;
+        _stepPeers = stepPeers;
         _start = clock.NowMicroseconds;
         Client.World.Level.Info.m_dT = Sim.DeltaTime;
+        Client.BeforeWorldTick += ApplyClientInput;
         InstallClientCalls(Client);
     }
 
@@ -369,6 +377,7 @@ public sealed class PlaySession : IDisposable
     public void Step(long nowMicros)
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
+        _stepPeers?.Invoke(nowMicros);
         if (_listen is null && !_remote)
         {
             Host.World.Level.Info.m_dT = Sim.DeltaTime * Host.World.Level.Info.TimeDilation;
@@ -409,7 +418,7 @@ public sealed class PlaySession : IDisposable
         _listen?.Stop();
     }
 
-    private void TickClient(long now)
+    private void ApplyClientInput(ClientSession client)
     {
         Level level = Client.World.Level;
         level.Info.m_dT = Sim.DeltaTime * level.Info.TimeDilation;
@@ -438,7 +447,12 @@ public sealed class PlaySession : IDisposable
         }
 
         Input.EndTick();
+    }
+
+    private void TickClient(long now)
+    {
         Client.Tick(now);
+        if (Client.Map is null) Input.EndTick();
         if (!ReferenceEquals(_clientCombat, Client.Combat))
         {
             _clientCombat?.Pump();
@@ -448,7 +462,23 @@ public sealed class PlaySession : IDisposable
         if (LocalController is { } viewer)
         {
             PlayerCalcView.FrameView(viewer, out _, out FVector location, out FRotator rotation);
+            if (viewer.Pawn is SBasePawn { NetworkCorrectionSeconds: > 0f } corrected &&
+                PlayerCalcView.SourceOf(viewer) is PlayerCalcView.EViewSource.Default)
+            {
+                FVector shown = location + corrected.NetworkCorrectionOffset;
+                if (OpenScct.Game.Movement.MovementNatives.Driver(corrected) is { } driver &&
+                    driver.Collision.LineCheck(out var hit, corrected, shown, location, new FVector(4f, 4f, 4f),
+                        ETraceFlags.TRACE_Level | ETraceFlags.TRACE_Movers | ETraceFlags.TRACE_LevelGeometry))
+                    shown = hit.Location + hit.Normal;
+                location = shown;
+            }
             _view = new ViewSample(Client.LocalTick, location, rotation, viewer.FovAngle, true);
+            if (viewer.Pawn is SBasePawn viewed && (!ReferenceEquals(viewed, _viewPawn) || _viewReset != viewed.NetworkResetId))
+            {
+                _viewPawn = viewed;
+                _viewReset = viewed.NetworkResetId;
+                _previousView = _view;
+            }
         }
 
         if (ViewOverride is { } viewOverride)
@@ -565,6 +595,7 @@ public sealed class PlaySession : IDisposable
         }
 
         _disposed = true;
+        Client.BeforeWorldTick -= ApplyClientInput;
         Stop();
         if (_remote)
         {

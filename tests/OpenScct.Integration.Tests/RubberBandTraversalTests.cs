@@ -151,8 +151,8 @@ public sealed class RubberBandTraversalTests
         };
         foreach ((string scenario, EPhysics physics) in scenarios)
         {
-            data.Add(scenario, "loopback", physics);
-            data.Add(scenario, "C", physics);
+            foreach (string link in new[] { "loopback", "C", "100", "150", "200" })
+                data.Add(scenario, link, physics);
         }
 
         return data;

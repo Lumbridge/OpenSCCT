@@ -9,6 +9,58 @@ namespace OpenScct.Game.Tests.Devices;
 /// <summary>spec/devices/cam-network.md: the camera actor, the ring, the turn limits and the shared use.</summary>
 public sealed class CamNetworkTests
 {
+    [Fact]
+    public void DisabledLensStaysOffWhenMercChangesVisionAndRestoresOnRecovery()
+    {
+        DeviceScene s = DeviceScene.Create();
+        SCamNetwork cam = s.Add(new SCamNetwork());
+        s.Begin();
+        cam.SwitchToVision(1);
+        cam.eventTakeDamage(0, new SBasePawn { SPawnType = PawnType.SPAWNOFFENSE }, default, default, SDamageType.SDTStickyShocker);
+        Assert.Equal(cam.mOff, cam.Skins[1]);
+        cam.SwitchToVision(2);
+        Assert.Equal(cam.mOff, cam.Skins[1]);
+        s.StepSeconds(30.1f);
+        Assert.Equal(cam.mEMF, cam.Skins[1]);
+    }
+
+    [Fact]
+    public void SpyShotsDisableTheFeedForThirtySecondsAndRefreshTheCountdown()
+    {
+        DeviceScene s = DeviceScene.Create();
+        SCamNetwork cam = s.Add(new SCamNetwork());
+        SBasePawn spy = s.Add(new SBasePawn { SPawnType = PawnType.SPAWNOFFENSE });
+        s.Begin();
+        cam.eventTakeDamage(0, spy, cam.Location, default, SDamageType.SDTStickyShocker);
+        Assert.Equal(30, cam.DisabledSeconds);
+        s.StepSeconds(10);
+        Assert.InRange(cam.DisabledSeconds, 20, 21);
+        cam.eventTakeDamage(0, spy, cam.Location, default, SDamageType.SDTStickyShocker);
+        Assert.Equal(30, cam.DisabledSeconds);
+        s.StepSeconds(29);
+        Assert.True(cam.IsShotDisabled);
+        s.StepSeconds(1.1f);
+        Assert.False(cam.IsShotDisabled);
+        Assert.False(cam.bDeleteMe);
+    }
+
+    [Fact]
+    public void MercShotsAndOtherDamageCannotDisableTheCamera()
+    {
+        DeviceScene s = DeviceScene.Create();
+        SCamNetwork cam = s.Add(new SCamNetwork());
+        SBasePawn merc = s.Add(new SPAWNDEFENSE());
+        SBasePawn spy = s.Add(new SBasePawn { SPawnType = PawnType.SPAWNOFFENSE });
+        s.Begin();
+        cam.eventTakeDamage(10, merc, default, default, SDamageType.SDTStickyShocker);
+        cam.eventTakeDamage(100, spy, default, default, SDamageType.SDamage_Explosion);
+        cam.eventTakeDamage(10, null, default, default, SDamageType.SDTStickyShocker);
+        Assert.False(cam.IsShotDisabled);
+        cam.Role = ENetRole.ROLE_SimulatedProxy;
+        cam.eventTakeDamage(0, spy, default, default, SDamageType.SDTStickyShocker);
+        Assert.False(cam.IsShotDisabled);
+    }
+
     [Theory]
     [InlineData(1000, 2000, -13000, 13000, 2000)]
     [InlineData(1000, 20000, -13000, 13000, 14000)]

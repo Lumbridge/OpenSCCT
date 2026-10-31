@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Godot;
 using OpenScct.Game.SBase;
 using OpenScct.Provenance;
@@ -334,7 +335,7 @@ public partial class GamepadInput : Node
     /// </summary>
     private void RunThreshold(PlayInput input, bool merc, float deflection, float threshold)
     {
-        if (merc || Session?.LocalController is not { } pc || deflection <= 0f)
+        if (merc || (input.Bindings?.Layout.Bindings.Values.Any(c => c.Contains("Walk", StringComparison.OrdinalIgnoreCase)) ?? false) || Session?.LocalController is not { } pc || deflection <= 0f)
         {
             return;
         }
@@ -355,7 +356,10 @@ public partial class GamepadInput : Node
     {
         if (down)
         {
-            if (_held.ContainsKey(control) || KeyFor(input, action) is not { } key)
+            string? resolved = action.StartsWith(UI.ControlActions.PadPrefix, StringComparison.Ordinal)
+                ? UI.ControlActions.VirtualPrefix + control + ":" + action[UI.ControlActions.PadPrefix.Length..]
+                : KeyFor(input, action);
+            if (_held.ContainsKey(control) || resolved is not { } key)
             {
                 return;
             }
@@ -365,19 +369,25 @@ public partial class GamepadInput : Node
                 Capture(input);
             }
 
-            Send(GetViewport(), key, true);
+            SendControl(input, key, true);
             if (key.StartsWith("MouseWheel", StringComparison.OrdinalIgnoreCase))
             {
                 // The wheel has no hold: one notch per press.
-                Send(GetViewport(), key, false);
+                SendControl(input, key, false);
             }
 
             _held[control] = key;
         }
         else if (_held.Remove(control, out string? key) && !key.StartsWith("MouseWheel", StringComparison.OrdinalIgnoreCase))
         {
-            Send(GetViewport(), key, false);
+            SendControl(input, key, false);
         }
+    }
+
+    private void SendControl(PlayInput? input, string key, bool pressed)
+    {
+        if (key.StartsWith(UI.ControlActions.VirtualPrefix, StringComparison.Ordinal)) input?.Key(key, pressed);
+        else Send(IsInsideTree() ? GetViewport() : null, key, pressed);
     }
 
     /// <summary>
@@ -471,7 +481,7 @@ public partial class GamepadInput : Node
         {
             if (!key.StartsWith("MouseWheel", StringComparison.OrdinalIgnoreCase))
             {
-                Send(viewport, key, false);
+                SendControl(PlayInput, key, false);
             }
         }
 

@@ -691,7 +691,8 @@ public sealed partial class PhysicsDriver
             zone.Z -= sb.DefaultCollisionHeight - sb.ZipHeight;
         }
 
-        FVector c = ProjectOnLine(ArmsZonePoint(p, zone), sb.ZipP1, sb.ZipP2);
+        // The speed-pose offset is already in zone. ToWorld here is the actor transform, without the mesh PrePivot.
+        FVector c = ProjectOnLine(ToWorld(p, zone), sb.ZipP1, sb.ZipP2);
         FVector down = (sb.ZipP1.Z <= sb.ZipP2.Z ? sb.ZipP1 - sb.ZipP2 : sb.ZipP2 - sb.ZipP1).SafeNormal();
         FVector cable = sb.ZipP1 - sb.ZipP2;
         var horizontal = new FVector(cable.X, cable.Y, 0f);

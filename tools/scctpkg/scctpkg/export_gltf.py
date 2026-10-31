@@ -570,7 +570,7 @@ def _combined_image(res: ResolvedMaterial):
     elif op == 4:
         rgb = rgb1 - rgb2
     elif op == 5:
-        rgb = rgb1 * ma + rgb2 * (1.0 - ma)
+        rgb = rgb1 * (1.0 - ma) + rgb2 * ma
     elif op == 6:
         rgb = rgb1 + rgb2 * ma
     elif op == 7:
@@ -851,6 +851,7 @@ def export_package(usx_path: Path, pset: PackageSet, out_root: Path, extra_mater
     resolver = MaterialResolver(pset)
     writer = GltfWriter()
     stats = {"package": name, "meshes": 0, "failed": [], "skins": {}}
+    writer.tex_dir, writer.tex_uri = tex_dir, tex_uri
     for path in extra_materials or []:
         pkg_name, _, rest = path.partition(".")
         owner = pset.get(pkg_name)

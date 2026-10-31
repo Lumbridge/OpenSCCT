@@ -442,7 +442,16 @@ public partial class PlayRoot : Node3D
 
         return new NetReadout(stats.HasRtt, stats.RttMicros, stats.JitterMicros, stats.InBytes, stats.OutBytes,
             stats.InPackets, stats.InPacketsLost, stats.OutPackets, stats.OutPacketsLost, corrections, session.Client.ServerNetRate,
-            host, clients, clients > 0 ? best : 0, worst);
+            host, clients, clients > 0 ? best : 0, worst,
+            session.Client.InterpolationDelayMs, session.Client.Presentation.Underflows,
+            session.LocalController is { } owner ? session.Client.Movement.PeekEndpoint(owner)?.Client?.MovesReplayed ?? 0 : 0,
+            session.LocalController is { } mover ? session.Client.Movement.PeekEndpoint(mover)?.Client?.LastCorrectionDistance ?? 0f : 0f,
+            session.Client.PawnStates?.MissingDescriptors ?? 0,
+            session.Client.PawnStates is { LatestSnapshotTick: >= 0 } poses
+                ? Math.Max(0, session.Client.Driver.Timeline.RenderTimeFixed(session.Client.LocalTick, 0) - poses.LatestSnapshotTick * NetTimeline.Fraction) * (Sim.DeltaTime * 1000f / NetTimeline.Fraction) : 0,
+            session.Client.PawnStates?.Resets ?? 0,
+            session.LocalController is { } predicted ? session.Client.Movement.PeekEndpoint(predicted)?.Sequenced?.HistoryResets ?? 0 : 0,
+            session.Client.PawnStates?.StateGaps ?? 0);
     }
 
     /// <summary>
@@ -721,6 +730,7 @@ public partial class PlayRoot : Node3D
         }
 
         Pawns?.Draw(alpha, dt, firstPerson, aimer, drawnView);
+        session.Client.ReportRenderedFrame(alpha);
         Devices?.Draw(alpha, dt);
         Map?.SoftBodies?.Update(dt, session.Client.World.Level, Audio?.Sound, session.LocalPawn);
         if (Camera is not null)

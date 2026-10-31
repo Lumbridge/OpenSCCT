@@ -64,10 +64,10 @@ public sealed partial class NetConnection : INetObjectMap
     private readonly FInBunch _queuedInBunch = new();
     private readonly FOutBunch _outBunch;
     private readonly SentPacket[] _sent = new SentPacket[SentWindow];
-    private readonly List<ReliableBunch> _reliableOut = new(64);
-    private readonly Stack<ReliableBunch> _reliablePool = new();
-    private readonly Stack<QueuedBunch> _queuedPool = new();
-    private ReliableBunch[] _ackedScratch = new ReliableBunch[64];
+    private readonly List<ReliableBunch> _reliableOut = new(K.RELIABLE_BUFFER);
+    private readonly Stack<ReliableBunch> _reliablePool = new(K.RELIABLE_BUFFER);
+    private readonly Stack<QueuedBunch> _queuedPool = new(K.RELIABLE_BUFFER);
+    private ReliableBunch[] _ackedScratch = new ReliableBunch[K.RELIABLE_BUFFER];
     private readonly int _maxPacketBits;
     private readonly int _bodyMaxBits;
     private readonly int _maxPayloadBits;
@@ -123,6 +123,14 @@ public sealed partial class NetConnection : INetObjectMap
         _body = new FBitWriter(_bodyMaxBits);
         _packet = new FBitWriter(_maxPacketBits);
         _outBunch = new FOutBunch(_maxPayloadBits);
+        // Keep one channel window available on both sides before simulation starts. A later reorder/loss peak
+        // must not allocate a few additional packet records merely because warm-up happened on a quieter link.
+        int payloadBytes = (_maxPayloadBits + 7) >> 3;
+        for (int i = 0; i < K.RELIABLE_BUFFER; i++)
+        {
+            _reliablePool.Push(new ReliableBunch(payloadBytes));
+            _queuedPool.Push(new QueuedBunch(payloadBytes));
+        }
     }
 
     public NetDriver Driver => _driver;
@@ -791,6 +799,7 @@ public sealed partial class NetConnection : INetObjectMap
         w.WriteInt((uint)payloadBits, BunchLengthMax);
         w.AppendBits(payload, payloadBits);
         Stats.OutBunches++;
+        if (Channels[chIndex] is { } channel) channel.PayloadBytesSent += (payloadBits + 7) >> 3;
         return _outSeq;
     }
 
@@ -811,7 +820,7 @@ public sealed partial class NetConnection : INetObjectMap
             return;
         }
 
-        if (!force && _body.NumBits == 0 && !_ackPending && !_flushComplete &&
+        if (!force && _body.NumBits == 0 && !_ackPending && (!_flushComplete || _driver.Settings.PawnProxies == PawnProxyMode.Snapshots) &&
             now - _lastSendTime < _driver.KeepAliveMicros)
         {
             return;

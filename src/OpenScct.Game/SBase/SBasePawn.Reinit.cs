@@ -6,6 +6,15 @@ namespace OpenScct.Game.SBase;
 // The server pawn's side of a forced reinit (spec/net/proxy-pawns.md rule 7).
 public partial class SBasePawn
 {
+    public uint NetworkResetId { get; private set; } = 1;
+
+    public OpenScct.Core.FVector NetworkCorrectionOffset { get; set; }
+    public float NetworkCorrectionSeconds { get; set; }
+    public bool NetworkPoseReady { get; set; } = true;
+    public NetworkPawnAttachments? NetworkAttachments { get; set; }
+
+    public void ResetNetworkHistory() { NetworkResetId++; NetworkAttachments = null; }
+
     /// <summary>
     /// A forced reinit (type 0, from ReinitPawnBecauseOfDivergences): the action batch time goes back to -1, so the
     /// other players' copies start a new action epoch with the next batch.
@@ -14,6 +23,7 @@ public partial class SBasePawn
     [PortOf("uc:SBase.SBasePawn:DistantClientReinit", Spec = "spec/net/proxy-pawns.md#rules")]
     public void DistantClientReinit(byte RT)
     {
+        ResetNetworkHistory();
         if (RT == 0)
         {
             fRepTimeOfLastActionChange = ProxyAnimation.ReinitBatchTime;

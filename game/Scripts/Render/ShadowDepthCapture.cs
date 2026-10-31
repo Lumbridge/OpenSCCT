@@ -19,6 +19,7 @@ internal sealed partial class ShadowDepthCapture : CompositorEffect
     private readonly Vector2I _origin;
     private readonly bool _parallel;
     private readonly Func<Rid> _atlas;
+    private readonly Func<Rid>? _staticAtlas;
     private RenderingDevice? _rd;
     private Rid _shader;
     private Rid _pipeline;
@@ -30,7 +31,7 @@ internal sealed partial class ShadowDepthCapture : CompositorEffect
     /// <param name="origin">The tile's first texel in the atlas.</param>
     /// <param name="parallel">True for an orthographic camera.</param>
     /// <param name="atlas">The atlas texture, read each frame (invalid while it is not made yet).</param>
-    public ShadowDepthCapture(Vector2I size, float near, float far, Vector2I origin, bool parallel, Func<Rid> atlas)
+    public ShadowDepthCapture(Vector2I size, float near, float far, Vector2I origin, bool parallel, Func<Rid> atlas, Func<Rid>? staticAtlas = null)
     {
         _size = size;
         _near = near;
@@ -38,13 +39,14 @@ internal sealed partial class ShadowDepthCapture : CompositorEffect
         _origin = origin;
         _parallel = parallel;
         _atlas = atlas ?? throw new ArgumentNullException(nameof(atlas));
+        _staticAtlas = staticAtlas;
         EffectCallbackType = EffectCallbackTypeEnum.PostOpaque;
         AccessResolvedDepth = true;
         RenderingServer.CallOnRenderThread(Callable.From(Init));
     }
 
     /// <summary>The pipeline is made and the atlas exists: the tile is written each frame the camera renders.</summary>
-    public bool Ready => _pipeline.IsValid && _atlas().IsValid;
+    public bool Ready => _pipeline.IsValid && _atlas().IsValid && (_staticAtlas is null || _staticAtlas().IsValid);
 
     private volatile bool _released;
 
@@ -122,7 +124,8 @@ internal sealed partial class ShadowDepthCapture : CompositorEffect
         using RenderData? frameData = renderData;
         using RenderSceneBuffers? sceneBuffers = renderData?.GetRenderSceneBuffers();
         Rid atlas = _atlas();
-        if (_rd is null || !_pipeline.IsValid || !atlas.IsValid || sceneBuffers is not RenderSceneBuffersRD buffers)
+        Rid staticAtlas = _staticAtlas?.Invoke() ?? default;
+        if (_rd is null || !_pipeline.IsValid || !atlas.IsValid || (_staticAtlas is not null && !staticAtlas.IsValid) || sceneBuffers is not RenderSceneBuffersRD buffers)
         {
             return;
         }
@@ -135,11 +138,12 @@ internal sealed partial class ShadowDepthCapture : CompositorEffect
 
         // The uniform list and the constant bytes are kept from frame to frame (no wrappers made per frame).
         Post.UniformSlots slots = _slots ??= new Post.UniformSlots(RenderingDevice.UniformType.SamplerWithTexture,
-            RenderingDevice.UniformType.Image);
+            RenderingDevice.UniformType.Image, RenderingDevice.UniformType.SamplerWithTexture);
         slots.Set(0, _sampler, buffers.GetDepthLayer(0));
         slots.Set(1, atlas);
+        slots.Set(2, _sampler, staticAtlas.IsValid ? staticAtlas : buffers.GetDepthLayer(0));
         Rid set = UniformSetCacheRD.GetCache(_shader, 0, slots.Array);
-        Span<float> push = [_near, _far, size.X, size.Y, _origin.X, _origin.Y, _parallel ? 1f : 0f, 0f];
+        Span<float> push = [_near, _far, size.X, size.Y, _origin.X, _origin.Y, _parallel ? 1f : 0f, staticAtlas.IsValid ? 1f : 0f];
         MemoryMarshal.AsBytes(push).CopyTo(_push);
         byte[] bytes = _push;
         long list = _rd.ComputeListBegin();

@@ -137,10 +137,13 @@ public sealed class QuadBuffer
     public void SetBounds(List<SpriteQuad> quads)
     {
         ArgumentNullException.ThrowIfNull(quads);
-        if (quads.Count == 0)
-        {
-            return;
-        }
+        if (quads.Count > 0) _mesh.CustomAabb = Bounds(quads);
+    }
+
+    /// <summary>Exact world bounds of the generated corners, before uploading a layer.</summary>
+    public static Aabb Bounds(List<SpriteQuad> quads)
+    {
+        if (quads.Count == 0) return default;
 
         Vector3 min = UeSpace.ToGodot(quads[0].C0);
         Vector3 max = min;
@@ -152,7 +155,7 @@ public sealed class QuadBuffer
             Grow(ref min, ref max, UeSpace.ToGodot(q.C3));
         }
 
-        _mesh.CustomAabb = new Aabb(min, max - min);
+        return new Aabb(min, max - min);
     }
 
     private static void Grow(ref Vector3 min, ref Vector3 max, Vector3 p)

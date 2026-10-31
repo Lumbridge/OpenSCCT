@@ -29,6 +29,7 @@ public sealed class DeviceViews
     private readonly List<MeshFollower> _meshes = [];
     private readonly List<AnimatedMeshView> _animated = [];
     private readonly List<LightSwitch> _lights = [];
+    private readonly List<(SFlagDropZone Zone, GameplayMesh Mesh)> _covers = [];
     private readonly Dictionary<string, Mesh?> _meshByAsset = new(StringComparer.OrdinalIgnoreCase);
     private readonly HashSet<string> _missing = new(StringComparer.OrdinalIgnoreCase);
     private float _relightClock;
@@ -69,6 +70,12 @@ public sealed class DeviceViews
             if (actor is STriggerLight light)
             {
                 _lights.Add(new LightSwitch(record.Id, light));
+            }
+
+            if (actor is SFlagDropZone zone &&
+                map.Gameplay.TryGetValue(record.Id + "_Cover", out GameplayMesh? coverMesh))
+            {
+                _covers.Add((zone, coverMesh));
             }
 
             if (IsSkeletal(actor))
@@ -144,6 +151,7 @@ public sealed class DeviceViews
     {
         if (level is not null)
         {
+            BindCovers(level);
             Rebind(level);
             Mounts.OnTick(level);
         }
@@ -169,6 +177,26 @@ public sealed class DeviceViews
             {
                 _lights[i] = l with { Shown = on };
                 _map.SetLightOn(l.Id, on);
+            }
+        }
+    }
+
+    private void BindCovers(Level level)
+    {
+        for (int i = _covers.Count - 1; i >= 0; i--)
+        {
+            (SFlagDropZone zone, GameplayMesh mesh) = _covers[i];
+            foreach (SBasicGamePlayObject cover in level.DynamicActors<SBasicGamePlayObject>())
+            {
+                bool belongs = ReferenceEquals(cover.Owner, zone) ||
+                    (cover.Owner is null && FVector.DistSquared(cover.Location, mesh.Location) <= 9f);
+                if (!cover.bDeleteMe && belongs && cover.StaticMesh == SFlagDropZone.LidMesh)
+                {
+                    // Cover is transient and Owner goes only to the owning connection. Other clients bind by placement.
+                    _meshes.Add(new MeshFollower(cover, mesh, false, (mesh.Location, zone.Rotation)));
+                    _covers.RemoveAt(i);
+                    break;
+                }
             }
         }
     }
@@ -308,6 +336,10 @@ public sealed class MeshFollower
     private FRotator _rotation;
     private bool _meshMissing;
     private readonly Mesh? _mesh0;
+    private Material? _wholeSkin;
+    private Mesh? _drawMesh;
+    private bool _skinDirty = true;
+    private bool _drawnVisible;
     private Vector4 _vision;
 
     /// <summary>
@@ -331,6 +363,9 @@ public sealed class MeshFollower
         Asset = actor.StaticMesh.Path;
         ShownAsset = Asset;
         _mesh0 = entry.Node.Mesh;
+        _drawMesh = _mesh0;
+        _wholeSkin = entry.Node.MaterialOverride;
+        _drawnVisible = _visible0;
         _vision = entry.Node.GetInstanceShaderParameter(GameplayObjects.VisionActorParameter).AsVector4();
         Replaceable = !actor.bStatic && !actor.bNoDelete;
         Moved = mapPlace is { } m && Away(_location0 - m.Location, _rotation0, m.Rotation);
@@ -351,6 +386,7 @@ public sealed class MeshFollower
     /// <summary>Follows <paramref name="actor"/>, the server's copy of the destroyed map actor, from its current state.</summary>
     internal void Rebind(Actor actor)
     {
+        _skinDirty = true;
         // _hidden0 stays the map's: a copy that arrives hidden hides the node.
         Actor = actor;
         _prevLocation = _location = actor.Location;
@@ -377,6 +413,7 @@ public sealed class MeshFollower
 
     internal void OnTick()
     {
+        _skinDirty = true;
         _prevLocation = _location;
         _prevRotation = _rotation;
         _location = Actor.Location;
@@ -417,6 +454,8 @@ public sealed class MeshFollower
         if (mesh is not null)
         {
             Entry.Node.Mesh = mesh;
+            _drawMesh = mesh;
+            _skinDirty = true;
         }
     }
 
@@ -438,24 +477,34 @@ public sealed class MeshFollower
 
         string? skin0 = Actor.Skins.Count > 0 ? Actor.Skins[0].Path : null;
         Material? whole = skin0 is null ? null : GameplaySkins.For(pack, skin0, seconds);
-        if (!ReferenceEquals(node.MaterialOverride, whole))
-        {
-            node.MaterialOverride = whole;
-        }
-
-        if (node.Mesh is not { } mesh)
+        if (!_skinDirty && ReferenceEquals(_wholeSkin, whole))
         {
             return;
         }
 
-        int surfaces = mesh.GetSurfaceCount();
+        _skinDirty = false;
+        if (!ReferenceEquals(_wholeSkin, whole))
+        {
+            _wholeSkin = whole;
+            node.MaterialOverride = whole;
+        }
+
+        if (_drawMesh is not { } mesh)
+        {
+            return;
+        }
+
+        int surfaces = _surfaceSkins.Length;
         if (!ReferenceEquals(_skinnedMesh, mesh))
         {
             // A swapped mesh: its surfaces start from their own materials.
             _skinnedMesh = mesh;
+            surfaces = mesh.GetSurfaceCount();
             _surfaceSkins = new string?[surfaces];
+            _skinSections = new int[surfaces];
             for (int i = 0; i < surfaces; i++)
             {
+                _skinSections[i] = GameplayObjects.SectionOf(mesh, i);
                 node.SetSurfaceOverrideMaterial(i, null);
             }
         }
@@ -463,7 +512,7 @@ public sealed class MeshFollower
         int count = Actor.Skins.Count;
         for (int i = 0; i < surfaces; i++)
         {
-            int slot = GameplayObjects.SectionOf(mesh, i);
+            int slot = _skinSections[i];
             string? skin = whole is null && slot >= 0 && slot < count ? Actor.Skins[slot].Path : null;
             if (!string.Equals(_surfaceSkins[i], skin, StringComparison.OrdinalIgnoreCase))
             {
@@ -476,6 +525,7 @@ public sealed class MeshFollower
     // The skin path each surface last drew (null: the mesh's own material).
     private string?[] _surfaceSkins = [];
     private Mesh? _skinnedMesh;
+    private int[] _skinSections = [];
 
     [Provenance(ProvenanceKind.Estimated, "Movers drawn between the last two ticks (linear location, shortest-way rotation)")]
     internal void Draw(float alpha)
@@ -490,7 +540,12 @@ public sealed class MeshFollower
         bool visible = Actor.bHidden == _hidden0 ? _visible0 : !Actor.bHidden;
         // A stage that removes the mesh (a broken window pane, spec/devices/vitre.md rule 2) hides the node.
         bool meshGone = Asset is not null && Actor.StaticMesh.IsNone && Actor.DrawType == EDrawType.DT_StaticMesh;
-        node.Visible = visible && !_meshMissing && !meshGone && !Actor.bDeleteMe && Actor.DrawType != EDrawType.DT_None;
+        bool shown = visible && !_meshMissing && !meshGone && !Actor.bDeleteMe && Actor.DrawType != EDrawType.DT_None;
+        if (shown != _drawnVisible)
+        {
+            _drawnVisible = shown;
+            node.Visible = shown;
+        }
 
         // The live vision values (a switched-off device stops glowing in EMF); HeatOpacity, not replicated, stays the map's.
         Vector4 vision = GameplayObjects.VisionOf(Actor) with { Y = _vision.Y };
@@ -500,7 +555,7 @@ public sealed class MeshFollower
             node.SetInstanceShaderParameter(GameplayObjects.VisionActorParameter, vision);
         }
 
-        if (!Moved || !node.Visible)
+        if (!Moved || !shown)
         {
             return;
         }

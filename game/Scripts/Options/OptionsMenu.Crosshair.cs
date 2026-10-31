@@ -62,6 +62,7 @@ public partial class OptionsMenu
         page.AddChild(top);
 
         GridContainer g = Grid("Crosshair");
+        Section(g, "Appearance", "");
         Check(g, "Custom crosshair", "crosshair.custom", c.Custom, v => _edit.Crosshair.Custom = v);
         Choice(g, "Style", "crosshair.style", CrosshairSettings.StyleNames, CrosshairSettings.StyleNames[c.Style],
             v => _edit.Crosshair.Style = Array.IndexOf(CrosshairSettings.StyleNames, v));
@@ -72,11 +73,12 @@ public partial class OptionsMenu
             _edit.Crosshair.Blue = Byte(col.B);
             _edit.Crosshair.Alpha = Byte(col.A);
         });
-        Slider(g, "Length", "crosshair.length", 0f, 60f, 1f, c.Length, v => _edit.Crosshair.Length = (int)v, "0");
-        Slider(g, "Thickness", "crosshair.thickness", 0f, 32f, 1f, c.Thickness, v => _edit.Crosshair.Thickness = (int)v, "0");
-        Slider(g, "Gap", "crosshair.gap", -20f, 40f, 1f, Math.Clamp(c.Gap, -20, 40), v => _edit.Crosshair.Gap = (int)v, "0");
+        Slider(g, "Crosshair line length", "crosshair.length", 0f, 60f, 1f, c.Length, v => _edit.Crosshair.Length = (int)v, "0");
+        Slider(g, "Crosshair line thickness", "crosshair.thickness", 0f, 32f, 1f, c.Thickness, v => _edit.Crosshair.Thickness = (int)v, "0");
+        Slider(g, "Gap around centre", "crosshair.gap", -20f, 40f, 1f, Math.Clamp(c.Gap, -20, 40), v => _edit.Crosshair.Gap = (int)v, "0");
         Check(g, "Centre dot", "crosshair.center_dot", c.CenterDot, v => _edit.Crosshair.CenterDot = v);
         Check(g, "T style (no top line)", "crosshair.t_style", c.TStyle, v => _edit.Crosshair.TStyle = v);
+        Section(g, "Outline", "");
         Choice(g, "Outline", "crosshair.outline_mode", CrosshairSettings.OutlineNames, CrosshairSettings.OutlineNames[c.OutlineMode],
             v => _edit.Crosshair.OutlineMode = Array.IndexOf(CrosshairSettings.OutlineNames, v));
         ColourRow(g, "Outline colour", "crosshair.outline_colour", c.OutlineRed, c.OutlineGreen, c.OutlineBlue, c.OutlineAlpha, col =>
@@ -86,8 +88,10 @@ public partial class OptionsMenu
             _edit.Crosshair.OutlineBlue = Byte(col.B);
             _edit.Crosshair.OutlineAlpha = Byte(col.A);
         });
+        Section(g, "Combat feedback", "");
         Check(g, "Follow recoil (moves with the aim kick)", "crosshair.follow_recoil", c.FollowRecoil, v => _edit.Crosshair.FollowRecoil = v);
-        Check(g, "Red flash on a hit (as the original)", "crosshair.hit_flash", c.HitFlash, v => _edit.Crosshair.HitFlash = v);
+        Check(g, "Flash red when you hit a target", "crosshair.hit_flash", c.HitFlash, v => _edit.Crosshair.HitFlash = v);
+        Section(g, "Dynamic & split styles", "These values control how dynamic and split crosshair styles expand and separate.");
         Slider(g, "Dynamic spread limit", "crosshair.dynamic_spread_limit", 0f, 255f, 1f, c.DynamicSpreadLimit,
             v => _edit.Crosshair.DynamicSpreadLimit = (int)v, "0");
         Slider(g, "Split distance (split style)", "crosshair.split_distance", 0f, 127f, 1f, c.SplitDistance,
@@ -95,9 +99,10 @@ public partial class OptionsMenu
         Slider(g, "Inner split opacity", "crosshair.inner_split_alpha", 0f, 1f, 0.01f, c.InnerSplitAlpha, v => _edit.Crosshair.InnerSplitAlpha = v);
         Slider(g, "Outer split opacity", "crosshair.outer_split_alpha", 0.3f, 1f, 0.01f, c.OuterSplitAlpha, v => _edit.Crosshair.OuterSplitAlpha = v);
         Slider(g, "Outer split size", "crosshair.split_size_ratio", 0f, 1f, 0.01f, c.SplitSizeRatio, v => _edit.Crosshair.SplitSizeRatio = v);
-        Slider(g, "Sizes are pixels at screen height", "crosshair.screen_height", 240f, 2160f, 1f, Math.Clamp(c.ScreenHeight, 240, 2160),
+        Section(g, "Size scaling", "Dimensions are measured in pixels at this reference screen height, then scaled to your display.");
+        Slider(g, "Reference screen height (pixels)", "crosshair.screen_height", 240f, 2160f, 1f, Math.Clamp(c.ScreenHeight, 240, 2160),
             v => _edit.Crosshair.ScreenHeight = (int)v, "0");
-        page.AddChild(g);
+        page.AddChild(SectionedContent(g));
         return Page("Crosshair", page);
     }
 

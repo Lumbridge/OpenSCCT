@@ -58,9 +58,9 @@ public static class SettingsStore
     {
         ArgumentNullException.ThrowIfNull(settings);
         settings.Clamp();
-        _current = settings;
         if (Isolated)
         {
+            _current = settings;
             Saved?.Invoke(settings);
             return Error.Ok;
         }
@@ -81,6 +81,8 @@ public static class SettingsStore
             result = Error.FileNoPermission;
         }
 
+        if (result != Error.Ok) return result;
+        _current = settings;
         SettingsApplier.WriteStartOverrides(settings);
         UiSettings ui = UiSettings.Current;
         ui.PlayerName = settings.PlayerName;

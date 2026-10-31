@@ -39,7 +39,7 @@ public sealed class LobbyRoomModel
 
     /// <summary>The caption of the page's main button: the host launches (or cancels a countdown), a client is ready or not.</summary>
     public static string MainButton(bool host, bool ready, bool countingDown) =>
-        host ? countingDown ? "Cancel" : "Launch" : ready ? "Not Ready" : "Ready";
+        LobbyPresentation.MainAction(host, ready, countingDown);
 
     /// <summary>The rows whose values differ between two setups (what a client sees blink after the host changed them).</summary>
     public static IReadOnlyList<SessionRow> Differences(LobbySetup before, LobbySetup after)

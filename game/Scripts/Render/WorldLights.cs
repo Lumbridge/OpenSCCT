@@ -28,7 +28,6 @@ public sealed class WorldLights
     // The names Update writes every frame, made once (a name passed as a string makes a StringName per call).
     private static readonly StringName s_textureName = TextureParameter;
     private static readonly StringName s_countName = CountParameter;
-    private static readonly StringName s_tuneName = TuneParameter;
     private bool _textureSet;
     public const int MaxLights = 256;
 
@@ -44,6 +43,11 @@ public sealed class WorldLights
     private readonly bool[] _on;
     private readonly Image _image;
     private readonly ImageTexture _texture;
+    private readonly PackedLight[] _packed;
+    private readonly float[] _zones;
+    private readonly bool[] _written;
+    private bool _dirty;
+    private int _lastRows = -1;
 
     public WorldLights(LightingDoc lighting)
     {
@@ -63,6 +67,9 @@ public sealed class WorldLights
         }
 
         _image = Image.CreateEmpty(4, _lights.Count + MaxSpawned, false, Image.Format.Rgbaf);
+        _packed = new PackedLight[_lights.Count + MaxSpawned];
+        _zones = new float[_packed.Length];
+        _written = new bool[_packed.Length];
         _texture = ImageTexture.CreateFromImage(_image);
         EnsureGlobals();
         RenderingServer.GlobalShaderParameterSet(ZoneAmbientParameter, ZoneAmbientTexture(lighting));
@@ -200,8 +207,14 @@ public sealed class WorldLights
             Write(rows++, _spawned[i], 1f);
         }
 
-        _texture.Update(_image);
-        RenderingServer.GlobalShaderParameterSet(s_tuneName, Tune);
+        // Steady lights and an unchanged spawned-light list need no CPU-to-GPU transfer. Effects call this again
+        // after SetTime, often with exactly the same rows; compare the packed values rather than the scene time.
+        if (_dirty)
+        {
+            _texture.Update(_image);
+            _dirty = false;
+        }
+
         if (!_textureSet)
         {
             // The same texture every frame (only its pixels change): set once, a texture variant is a finalizable wrapper.
@@ -209,16 +222,30 @@ public sealed class WorldLights
             RenderingServer.GlobalShaderParameterSet(s_textureName, _texture);
         }
 
-        RenderingServer.GlobalShaderParameterSet(s_countName, rows);
+        if (rows != _lastRows)
+        {
+            _lastRows = rows;
+            RenderingServer.GlobalShaderParameterSet(s_countName, rows);
+        }
     }
 
     private void Write(int row, LightEntry l, float m)
     {
         PackedLight p = ActorLighting.PackWorld(l, m);
+        float zone = l.OwnZoneOnly ? l.ZoneIndex : -1f;
+        if (_written[row] && _packed[row] == p && _zones[row] == zone)
+        {
+            return;
+        }
+
+        _written[row] = true;
+        _packed[row] = p;
+        _zones[row] = zone;
+        _dirty = true;
         _image.SetPixel(0, row, new Color(p.Pos.X, p.Pos.Y, p.Pos.Z, p.Pos.W));
         _image.SetPixel(1, row, new Color(p.Col.X, p.Col.Y, p.Col.Z, p.Col.W));
         _image.SetPixel(2, row, new Color(p.Spot.X, p.Spot.Y, p.Spot.Z, p.Spot.W));
-        _image.SetPixel(3, row, new Color(l.OwnZoneOnly ? l.ZoneIndex : -1f, 0f, 0f, 0f));
+        _image.SetPixel(3, row, new Color(zone, 0f, 0f, 0f));
     }
 
     /// <summary>

@@ -4,6 +4,31 @@ using OpenScct.Core.Engine;
 
 namespace OpenScct.Net.Moves;
 
+/// <summary>Pawn-specific movement state held in a preallocated prediction ring.</summary>
+public interface IMovePrediction
+{
+    bool PredictionHistoryComplete(int slot) => true;
+    bool CanReplayPrediction(int slot) => true;
+    void RebaseAuthoritativeState(int slot, Actor? @base, FVector basePosition, FRotator baseRotation,
+        ref FVector position, ref FVector velocity) { }
+    void CapturePrediction(int slot);
+    void RestorePrediction(int slot, FVector location, FVector velocity, EPhysics physics, Actor? @base, byte zone);
+    void ReplayPrediction(int slot, float deltaTime, FVector acceleration, bool jump);
+    void BeginPredictionReplay();
+    void EndPredictionReplay(FVector previousLocation);
+}
+
+public interface IMoveCommandPawn
+{
+    void BeginMoveCommand() { }
+    void EndMoveCommand() { }
+    bool CommandSimulationEnabled { get; }
+    void ConsumeMoveRootMotion();
+    void SetCommandTime(float stamp);
+    void SetCommandTime(float stamp, long inputTick) => SetCommandTime(stamp);
+    void AdvanceMoveAnimation(float deltaTime);
+}
+
 /// <summary>
 /// What the move protocol reads and drives on the player's pawn (SBasePawn). The pawn movement port implements it;
 /// the protocol never moves the pawn itself, it asks through <see cref="MoveAutonomous"/>, <see cref="MovePawn"/>

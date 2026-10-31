@@ -213,7 +213,7 @@ public sealed class PerceptionMotionTests
     private static float Speed(Pawn p) => SvmMath.Sqrt(p.Velocity.X * p.Velocity.X + p.Velocity.Y * p.Velocity.Y);
 
     [Fact]
-    public void AMercBotInMotionVisionSeesTheSpyOnlyWhileItsTrackerLocksIt()
+    public void MotionVisionShowsTheLitBodyWhileItsTrackerOnlyLocksFastMovement()
     {
         using Scene? s = Start(800f);
         Assert.SkipWhen(s is null, "The TestBox fixture is not in this checkout.");
@@ -228,11 +228,11 @@ public sealed class PerceptionMotionTests
 
         Assert.True(Walking(s.Spy), "the spy left its walk: " + life);
 
-        // Standing still in full view: no lock, nothing shown, not seen by sight either in motion vision.
+        // Standing still in full view: no tracker bracket, but the normally lit body still appears in the scene.
         s.Step(1.5f);
         Assert.Equal(-1, tracker.FindLock(s.Spy.Pawn!));
         Assert.False(Shown(s));
-        Assert.False(AiSight.Look(s.Merc.World, AiSight.Eye(s.Merc.Pawn!), s.Merc.Controller.Rotation, s.Merc.Controller.FovAngle,
+        Assert.True(AiSight.Look(s.Merc.World, AiSight.Eye(s.Merc.Pawn!), s.Merc.Controller.Rotation, s.Merc.Controller.FovAngle,
             AiVisionMode.Motion, s.Spy.Pawn!, s.Merc.Difficulty).Visible);
 
         // Running across (423.5 uu/s): the next scan locks it and the bracket shows.
@@ -293,11 +293,8 @@ public sealed class PerceptionMotionTests
     /// <summary>The spy bot knows the merc (seen, sure) where it stands.</summary>
     private static void Knows(Scene s)
     {
-        AiContact c = s.Spy.Memory.For(s.Merc.Pawn!);
-        c.Visible = true;
-        c.Confidence = 1f;
-        c.Position = s.Merc.Pawn!.Location;
-        c.Time = s.Spy.World.Now;
+        s.Spy.Memory.Observe(s.Merc.Pawn!, new AiSighting(true, 1f, 900f, 1f, true), s.Spy.World.Now, 2f,
+            s.Spy.Difficulty);
     }
 
     [Theory]
@@ -345,6 +342,7 @@ public sealed class PerceptionMotionTests
         s!.Spy.World.Light = Dark;
         // Facing away: creep, do not freeze.
         s.Merc.Pawn!.Rotation = new FRotator(0, (s.Merc.Controller.Rotation.Yaw + 32768) & 0xFFFF, 0);
+        Knows(s); // A new visual observation, rather than reading a changed live pose through old memory.
         AiPlan plan = Walk();
         s.Spy.Evasion.Apply(ref plan, s.Spy.World.Now);
         Assert.Equal(SpyEvasionAct.Creep, s.Spy.Evasion.Last);

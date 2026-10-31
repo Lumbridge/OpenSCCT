@@ -8,17 +8,20 @@ namespace OpenScct.Net.Cosmetics;
 /// What a player wears on one side: one item per slot, packed as a byte per <see cref="CosmeticSlot"/> holding the
 /// item's bit + 1 (0 is the retail look). Sent at join as <c>?SvmLook=</c> (hex) and replicated to every client.
 /// </summary>
-public readonly record struct CosmeticLook(long Packed)
+public readonly record struct CosmeticLook(long Packed, long Extra = 0)
 {
     public static CosmeticLook Default => new(0);
 
-    public CosmeticItem? this[CosmeticSlot slot] => CosmeticCatalog.ByBit((int)((Packed >> (8 * (int)slot)) & 0xFF) - 1);
+    public bool IsDefault => Packed == 0 && Extra == 0;
+    public CosmeticItem? this[CosmeticSlot slot] => CosmeticCatalog.ByBit((int)(((int)slot < 8 ? Packed : Extra) >> (8 * ((int)slot % 8)) & 0xFF) - 1);
 
     public CosmeticLook With(CosmeticSlot slot, CosmeticItem? item)
     {
-        int shift = 8 * (int)slot;
+        int shift = 8 * ((int)slot % 8);
         long value = item is null ? 0 : item.Bit + 1;
-        return new CosmeticLook((Packed & ~(0xFFL << shift)) | (value << shift));
+        return (int)slot < 8
+            ? new CosmeticLook((Packed & ~(0xFFL << shift)) | (value << shift), Extra)
+            : new CosmeticLook(Packed, (Extra & ~(0xFFL << shift)) | (value << shift));
     }
 
     /// <summary>The look from item ids (unknown ids, and items of another side or slot, are left out).</summary>
@@ -53,10 +56,11 @@ public readonly record struct CosmeticLook(long Packed)
         return clean;
     }
 
-    public string ToHex() => Packed.ToString("x", CultureInfo.InvariantCulture);
+    public string ToHex() => (((UInt128)(ulong)Extra << 64) | (ulong)Packed).ToString("x", CultureInfo.InvariantCulture);
 
     public static CosmeticLook ParseHex(string? text) =>
-        long.TryParse(text, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out long packed) ? new CosmeticLook(packed) : Default;
+        UInt128.TryParse(text, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out UInt128 packed)
+            ? new CosmeticLook(unchecked((long)(ulong)packed), unchecked((long)(ulong)(packed >> 64))) : Default;
 
     /// <summary>The low and high halves, for replication as two ints.</summary>
     public (int Low, int High) Split() => ((int)(Packed & 0xFFFFFFFFL), (int)(Packed >> 32));

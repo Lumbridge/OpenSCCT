@@ -230,6 +230,7 @@ public partial class SWeaponDefense_Shotgun
 
             if (victim is SBasePawn pawn)
             {
+                pawn.LastBulletWeapon = this;
                 pawn.Controller?.PawnTakeDamage(damage, shooter, _pelletHit[i], momentum, MyDamageType, _pelletPill[i], PercentDamageRefillable);
             }
             else

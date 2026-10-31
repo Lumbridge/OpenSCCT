@@ -53,6 +53,9 @@ notify object.
    entry is 0 when `bChainedAnims`; `iCurrentAnim = 0`; `PlayAnim(Animations[0])` then `FreezeAnimAt(0.0)`
    (the mesh shows frame 0, not moving).
 2. Auto state `s_Wait`. `BeginState`: if `bAutoStart`, clear it and go to `s_AnimateForward`.
+   The port defers this actor's initial-state entry until rule 1 has prepared the channel and loop counts. Its
+   level startup currently requests `SetInitialState` before `PostNetBeginPlay`; entering immediately starts an
+   automatic prop and then freezes it permanently (Aquarium's two palms). Triggered props still start frozen.
    `Trigger(Other, EventInstigator)`: if `EventInstigator != None` store it as `Instigator`; go to
    `s_AnimateForward`. `UnTrigger`: go to `s_AnimateBackward`.
 3. `s_AnimateForward.BeginState`: `iLoopLeft = LoopStatus[iCurrentAnim] - 1`; `PlayAnim(Animations[iCurrentAnim])`

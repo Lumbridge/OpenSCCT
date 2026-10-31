@@ -38,13 +38,23 @@ public partial class SBasePawn
     [Provenance(ProvenanceKind.Decoded, "post-tick 0x11205ef0 then runs the script event UpdateEyeHeight when bUpdateEyeheight (spec/native/ANSWERS-anim.md A9)")]
     protected override void NativeTick(float DeltaSeconds)
     {
+        if (Role == ENetRole.ROLE_SimulatedProxy &&
+            XLevel.GetService<OpenScct.Game.Animation.INetworkPawnPose>()?.Tick(this, DeltaSeconds) == true)
+        {
+            OldPhysics = Physics;
+            return;
+        }
+
         // The tick starts with the rain check (SBasePawn.Rain.cs).
         TickRain(DeltaSeconds);
-        AdvanceAnimation();
+        var commandService = XLevel.GetService<OpenScct.Game.Animation.INetworkPawnCommands>();
+        if (Role == ENetRole.ROLE_AutonomousProxy) commandService?.BeforeOwnerAnimation(this);
+        bool commands = commandService?.DrivesPawn(this) == true;
+        if (!commands) AdvanceAnimation();
         base.NativeTick(DeltaSeconds);
         if (!bDeleteMe)
         {
-            UpdateMovementAnimation(DeltaSeconds);
+            if (!commands) UpdateMovementAnimation(DeltaSeconds);
             OldPhysics = Physics;
 
             // The post-tick ends with the script event UpdateEyeHeight while bUpdateEyeheight (SBasePawn.EyeHeight.cs).
@@ -73,6 +83,12 @@ public partial class SBasePawn
 
     private System.Action<int>? _raiseAnimEnd;
     private System.Func<bool>? _inRootMotion;
+
+    public void AdvancePredictionAnimation(float deltaTime)
+    {
+        PawnAnim.Owner ??= this;
+        PawnAnim.Advance(deltaTime, _raiseAnimEnd ??= RaiseAnimEnd, _inRootMotion ??= InRootMotion);
+    }
 
     private bool InRootMotion() => Physics == EPhysics.PHYS_RootMotion;
 
@@ -317,6 +333,7 @@ public partial class SBasePawn
 
         sAction = Action;
         ExecuteAction(Action);
+        if (XLevel.World.IsReplaying) return;
         float now = Level.TimeSeconds;
         if (now - fTimeOfLastActionChange > ActionBatchWindow && iNbActionsSent >= iNbActionInTable)
         {
@@ -340,9 +357,14 @@ public partial class SBasePawn
     [PortOf("nat:SBase.SBasePawn.ExecuteAction", Spec = "spec/movement/native-contracts.md#per-native-contracts")]
     public void ExecuteAction(int Action)
     {
+        // Received action batches call this native directly. Keeping these flags only in the local combat-port
+        // wrapper left the authority asleep after it had played SA_STANDUP and returned to walking.
+        OpenScct.Game.Combat.CombatNatives.ApplyActionFlags(this, Action);
         OpenScct.Game.Animation.ActionAnimation.Entry entry = OpenScct.Game.Animation.ActionAnimation.Begin(this, Action);
         PawnActions.Execute(this, Action);
         OpenScct.Game.Animation.ActionAnimation.End(this, Action, entry);
+        if (XLevel is { } level && !level.World.IsReplaying)
+            level.GetService<OpenScct.Game.Animation.INetworkPawnActions>()?.Authored(this, Action);
     }
 
     /// <summary>

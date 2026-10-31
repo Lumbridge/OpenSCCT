@@ -17,8 +17,29 @@ namespace OpenScct.Server;
 /// controller's ScriptMyProcessMove and the level's physics for MoveAutonomous, and the physics driver's sweeps for
 /// the correction and the big move snap.
 /// </summary>
-public sealed class SBasePawnMoves : IMovePawn
+public sealed partial class SBasePawnMoves : IMovePawn, IMovePrediction, IMoveCommandPawn
 {
+    public bool CommandDriven { get; set; }
+    public bool ModernCommands { get; set; }
+    public bool CommandSimulationEnabled => P is { Health: > 0, m_AttackedBy: null } && !_pc.bGameEnded && _pc.StateNode is not SPlayerController.s_Inactive;
+    private float _commandTime;
+    private long _commandTick;
+    public void SetCommandTime(float stamp) { _commandTime = stamp; _commandTick = (long)Math.Round(stamp * Sim.Hz); }
+    public void SetCommandTime(float stamp, long inputTick) { _commandTime = stamp; _commandTick = inputTick; }
+    private OpenScct.Game.Animation.INetworkPawnActions? _commandActions;
+    private SBasePawn? _previousInputOwner;
+    public void BeginMoveCommand()
+    {
+        _commandActions = _pc.XLevel.GetService<OpenScct.Game.Animation.INetworkPawnActions>();
+        if (_commandActions is null) return;
+        _previousInputOwner = _commandActions.InputOwner;
+        _commandActions.InputOwner = P;
+    }
+    public void EndMoveCommand()
+    {
+        if (_commandActions is not null) _commandActions.InputOwner = _previousInputOwner;
+        _commandActions = null; _previousInputOwner = null;
+    }
     private readonly SPlayerController _pc;
 
     public SBasePawnMoves(SPlayerController pc)
@@ -120,10 +141,12 @@ public sealed class SBasePawnMoves : IMovePawn
             return 0;
         }
 
-        int count = Math.Clamp(p.iNbActionInTable, 0, Math.Min(6, p.AllActions.Length));
+        int end = Math.Clamp(p.iNbActionInTable, 0, Math.Min(6, p.AllActions.Length));
+        int count = ModernCommands ? Math.Min(end, p.iNbAction) : end;
+        int first = end - count;
         for (int i = 0; i < count && i < actions.Length; i++)
         {
-            actions[i] = p.AllActions[i];
+            actions[i] = p.AllActions[first + i];
         }
 
         p.iNbActionsSent = count;
@@ -195,11 +218,34 @@ public sealed class SBasePawnMoves : IMovePawn
             return;
         }
 
+        using var clock = CommandDriven ? p.XLevel.CommandTime(_commandTick, _commandTime, deltaTime) : default;
+        // Traversal RPCs were received on the host clock. Their next-physics guard must not hold older queued
+        // input ticks until that wall-clock receive time; each sequenced command is already executed once.
+        if (CommandDriven && p.fLastRootMotionTimeCalled > _commandTime) p.fLastRootMotionTimeCalled = _commandTime;
         _pc.bPressedJump = jump || _pc.bPressedJump;
         _pc.ScriptMyProcessMove(deltaTime, acceleration);
         FVector a = p.Acceleration;
         p.Acceleration = new FVector(SvmMath.Trunc(a.X), SvmMath.Trunc(a.Y), SvmMath.Trunc(a.Z));
         p.XLevel.PhysicsDriver?.performPhysics(p, deltaTime);
+        if (CommandDriven) AdvanceMoveAnimation(deltaTime);
+    }
+
+    public void ConsumeMoveRootMotion()
+    {
+        if (P is not { Physics: EPhysics.PHYS_RootMotion } pawn) return;
+        PawnRootMotion root = pawn.NetworkRootMotion;
+        if (root.RootLockType == 0) root.LockRootMotion(pawn.iLockRootMotionType);
+        root.AdvanceRootMotion(out _, out _);
+        pawn.fLastRootMotionTimeCalled = _commandTime;
+    }
+
+    public void AdvanceMoveAnimation(float deltaTime)
+    {
+        if (P is not { } pawn) return;
+        using var clock = CommandDriven ? pawn.XLevel.CommandTime(_commandTick, _commandTime, deltaTime) : default;
+        pawn.AdvancePredictionAnimation(deltaTime);
+        pawn.UpdateMovementAnimation(deltaTime);
+        pawn.OldPhysics = pawn.Physics;
     }
 
     /// <summary>
@@ -275,6 +321,8 @@ public sealed class SBasePawnMoves : IMovePawn
         {
             MovementNatives.SetPhysics(p, EPhysics.PHYS_Walking);
             p.bIsRolling = false;
+            p.NetworkCorrectionOffset = default; p.NetworkCorrectionSeconds = 0f;
+            p.ResetNetworkHistory();
         }
     }
 
@@ -416,11 +464,12 @@ public sealed class SPlayerControllerMoves : IMoveController, IMoveControllerTim
 /// elsewhere), the traversal helpers and action packets go as the controller's replicated functions, and received
 /// move functions reach the controller's protocol objects. Install one per level with <see cref="Install"/>.
 /// </summary>
-public sealed class NetMovementBridge : IMovementNet
+public sealed partial class NetMovementBridge : IMovementNet, IMoveEndpointSource, OpenScct.Game.Animation.INetworkPawnCommands
 {
     private readonly NetDriver _driver;
     private readonly NetCallArgs _args = new();
     private readonly Dictionary<Actor, MoveEndpoint> _endpoints = new();
+    private readonly List<Actor> _deadEndpoints = new();
     private readonly int[] _actions = new int[6];
 
     public NetMovementBridge(NetDriver driver)
@@ -433,10 +482,15 @@ public sealed class NetMovementBridge : IMovementNet
     {
         var bridge = new NetMovementBridge(driver);
         level.SetService<IMovementNet>(bridge);
+        level.SetService<IMoveEndpointSource>(bridge);
+        level.SetService<OpenScct.Game.Animation.INetworkPawnCommands>(bridge);
+        level.SetService(bridge);
+        if (driver.IsServer) level.SetService<OpenScct.Game.Animation.INetworkPawnActions>(bridge);
         NetMoveTransport.Register(driver, bridge.EndpointOf);
         if (driver.IsServer)
         {
             MovementServerFunctions.Register(driver, bridge.EndpointOf);
+            driver.DeferReceivedFunction = bridge.DeferMovementCall;
         }
 
         return bridge;
@@ -458,21 +512,34 @@ public sealed class NetMovementBridge : IMovementNet
 
         var pawn = new SBasePawnMoves(pc);
         var adapter = new SPlayerControllerMoves(pc);
-        var transport = new NetMoveTransport(_driver, pc);
+        IMoveTransport transport = new NetMoveTransport(_driver, pc);
+        bool modern = _driver.IsServer ? _driver.Settings.PawnProxies == PawnProxyMode.Snapshots
+            : pc.XLevel.GetService<ClientSession>()?.PawnProxies == PawnProxyMode.Snapshots;
+        SequencedMoveTransport? sequenced = modern ? new SequencedMoveTransport(_driver, pc, pawn, adapter, transport) : null;
+        transport = sequenced ?? transport;
+        pawn.CommandDriven = modern && _driver.IsServer;
+        pawn.ModernCommands = modern;
+        if (sequenced is not null && _driver.IsServer)
+        {
+            sequenced.ApplyControls = sequence => ApplyMovementCalls(pc, sequence);
+            sequenced.PredictionReset = () => ResetMovementCalls(pc);
+        }
         if (_driver.IsServer)
         {
             var server = new ServerMoves(pawn, adapter, transport)
             {
                 ClientNetSpeed = _driver.OwningConnection(pc)?.CurrentNetSpeed ?? K.ConfiguredInternetSpeed,
+                FixedTickSimulation = modern,
             };
             adapter.Server = server;
-            endpoint = new MoveEndpoint(server, null);
+            endpoint = new MoveEndpoint(server, null, sequenced);
         }
         else
         {
             var client = new ClientMoves(pawn, adapter, transport);
             adapter.Client = client;
-            endpoint = new MoveEndpoint(null, client);
+            if (sequenced is not null) sequenced.PredictionReset = client.ResetPredictionHistory;
+            endpoint = new MoveEndpoint(null, client, sequenced);
         }
 
         _endpoints[pc] = endpoint;
@@ -483,6 +550,66 @@ public sealed class NetMovementBridge : IMovementNet
     /// <summary>The protocol objects of <paramref name="controller"/> if they exist already (no side effects), for readouts.</summary>
     public MoveEndpoint? PeekEndpoint(Actor controller) =>
         _endpoints.TryGetValue(controller, out MoveEndpoint? endpoint) ? endpoint : null;
+
+    public bool DrivesPawn(SBasePawn pawn) => pawn.Role == ENetRole.ROLE_Authority && pawn.Health > 0 && pawn.m_AttackedBy is null &&
+        pawn.Controller is SPlayerController pc && !pc.bGameEnded && pc.StateNode is not SPlayerController.s_Inactive && PeekEndpoint(pc)?.Sequenced is not null;
+
+    public void BeforeOwnerAnimation(SBasePawn pawn)
+    {
+        // Dead pawns advance on the authoritative world clock. AfterTick intentionally does not transmit their
+        // input; recording an untransmitted heartbeat here would exhaust prediction during the death timeline.
+        if (pawn.Health > 0 && pawn.Controller is SPlayerController { bWaitingForReinit: false } pc)
+            EndpointOf(pc)?.Client?.EnsurePredictionStep();
+    }
+
+    public void BeforeClientTick()
+    {
+        ApplyOwnerActions();
+        foreach (var kv in _endpoints)
+            if (kv.Value.Client is { bUpdatePosition: true } client) client.ClientUpdatePosition();
+    }
+
+    public void BeforeServerTick()
+    {
+        var connections = _driver.ClientConnections;
+        for (int i = 0; i < connections.Count; i++)
+            if (connections[i].Actor is SPlayerController { Pawn: not null } pc) EndpointOf(pc);
+        foreach (var kv in _endpoints)
+            if (!kv.Key.bDeleteMe && kv.Value.Server is { } server) kv.Value.Sequenced?.PumpServer(server);
+    }
+
+    public void AfterTick()
+    {
+        foreach (var kv in _endpoints) if (kv.Key.bDeleteMe) _deadEndpoints.Add(kv.Key);
+        foreach (Actor actor in _deadEndpoints)
+        {
+            _endpoints.Remove(actor); _pawns.Remove(actor);
+            if (actor is SPlayerController departed) { _controls.Remove(departed); _ownerActionSequences.Remove(departed); }
+        }
+        _deadEndpoints.Clear();
+        foreach (var kv in _endpoints)
+        {
+            if (kv.Key.bDeleteMe) continue;
+            if (_driver.IsServer && kv.Value.Server is { } server) kv.Value.Sequenced?.SendAcknowledgement(server);
+            else if (kv.Key is SPlayerController { Pawn: SBasePawn { Health: > 0 } pawn } pc)
+            {
+                if (pawn.NetworkCorrectionSeconds > 0f)
+                {
+                    float left = System.Math.Max(0f, pawn.NetworkCorrectionSeconds - Sim.DeltaTime);
+                    pawn.NetworkCorrectionOffset *= left / pawn.NetworkCorrectionSeconds;
+                    pawn.NetworkCorrectionSeconds = left;
+                }
+                if (!pc.bWaitingForReinit)
+                {
+                    // AnimEnd can author another action after the controller's SendActions pass. Flush it in
+                    // this command's completion fence so its state, collision and pose share the same boundary.
+                    if (kv.Value.Sequenced is not null) pawn.SendActions();
+                    kv.Value.Client?.FinishPredictionTick();
+                }
+            }
+        }
+        if (_driver.IsServer) FlushOwnerActions();
+    }
 
     private readonly Dictionary<Actor, Pawn?> _pawns = new();
 
@@ -498,6 +625,7 @@ public sealed class NetMovementBridge : IMovementNet
         }
 
         _pawns[pc] = pc.Pawn;
+        endpoint.Sequenced?.ResetLifetime();
         server.fLastTimePhysicsChecked = pc.Level?.TimeSeconds ?? 0f;
     }
 
@@ -519,6 +647,7 @@ public sealed class NetMovementBridge : IMovementNet
 
     public void MyReplicateMoveWithoutMoving(SPlayerController PC, float LeftTime, FVector NewAccel)
     {
+        if (PC.XLevel.World.IsReplaying) return;
         if (!_driver.IsServer && EndpointOf(PC)?.Client is { } client)
         {
             client.MyReplicateMoveWithoutMoving(LeftTime, NewAccel, PC.Level.XLevel.DeltaTime);
@@ -568,7 +697,13 @@ public sealed class NetMovementBridge : IMovementNet
     {
         ArgumentNullException.ThrowIfNull(Actions);
         Array.Clear(_actions);
-        Array.Copy(Actions, _actions, Math.Min(Actions.Length, 6));
+        if (PeekEndpoint(PC)?.Sequenced is not null && PC.Pawn is SBasePawn pawn)
+        {
+            int end = Math.Clamp(Count, 0, Math.Min(Actions.Length, 6));
+            Count = Math.Clamp(pawn.iNbAction, 0, end);
+            Array.Copy(Actions, end - Count, _actions, 0, Count);
+        }
+        else Array.Copy(Actions, _actions, Math.Min(Actions.Length, 6));
         MovePacking.CompressActions(_actions, Count, out int val0, out int val1);
         _args.Clear().Float(0, PC.Level.TimeSeconds).Float(1, PC.MirrorStateAcknowledgementTime).Int(2, val0).Int(3, val1);
         if (bWithVelocity)

@@ -92,6 +92,8 @@ public sealed class MercAi : AiBrain
     private float _lookAt;
     private int _lookYaw;
     private FVector _investigate;
+    private AiContact? _investigating;
+    private FVector _searchFloor;
     private float _investigateArrived = -1f;
     private float _fragAt = -100f;
     private int _fragPhase;
@@ -131,7 +133,10 @@ public sealed class MercAi : AiBrain
     public MercAi(AiController bot)
         : base(bot)
     {
+        Search = new AiSearch(bot.World, bot, 1);
     }
+
+    public AiSearch Search { get; }
 
     protected override bool Spy => false;
 
@@ -152,7 +157,7 @@ public sealed class MercAi : AiBrain
     public int Touches { get; private set; }
 
     public override string Status => string.Create(System.Globalization.CultureInfo.InvariantCulture,
-        $"merc {GoalName(Goal)} post {_post?.TriggerName ?? "-"} bursts {Bursts} charges {Charges} strikes {CloseStrikes} finishes {Terminates} frags {FragsThrown} path {Follower.NextIndex}/{Follower.Path.Count}");
+        $"merc {GoalName(Goal)} post {_post?.TriggerName ?? "-"} bursts {Bursts} charges {Charges} strikes {CloseStrikes} finishes {Terminates} frags {FragsThrown} search {Search.Inspections}/{Search.Plans} path {Follower.NextIndex}/{Follower.Path.Count}");
 
     public static string GoalName(int goal) => goal switch
     {
@@ -172,6 +177,8 @@ public sealed class MercAi : AiBrain
         _fragPhase = 0;
         _post = null;
         _downed = null;
+        _investigating = null;
+        Search.Reset();
     }
 
     // ---- choice ----------------------------------------------------------------------------------------------
@@ -187,17 +194,19 @@ public sealed class MercAi : AiBrain
         int n = 0;
         options[n++] = new AiOption(GGuard, 0.4f);
         _target = null;
+        _investigating = null;
         AiContact? lost = null;
         foreach (AiContact c in Bot.Memory.Contacts)
         {
-            if (c.Visible && c.Confirmed && (c.Pawn.Location - Pawn.Location).Size() < AiK.MercEngageRange)
+            if (c.Visible && c.Confirmed && (c.Position - Pawn.Location).Size() < AiK.MercEngageRange)
             {
-                if (_target is null || (c.Pawn.Location - Pawn.Location).SizeSquared() < (_target.Pawn.Location - Pawn.Location).SizeSquared())
+                if (_target is null || (c.Position - Pawn.Location).SizeSquared() < (_target.Position - Pawn.Location).SizeSquared())
                 {
                     _target = c;
                 }
             }
-            else if (c.Confidence > 0.2f && (lost is null || c.Confidence > lost.Confidence))
+            else if ((c.Confidence > 0.2f || c.Visible && c.Spot > 0f) && (c.Visible || Search.CanSearch(c, now)) &&
+                (lost is null || c.Visible && !lost.Visible || c.Visible == lost.Visible && c.Confidence > lost.Confidence))
             {
                 lost = c;
             }
@@ -231,7 +240,9 @@ public sealed class MercAi : AiBrain
 
         if (lost is not null)
         {
-            options[n++] = new AiOption(GInvestigate, 0.55f + 0.6f * lost.Confidence + (now - Bot.HurtAt < 3f ? 0.5f : 0f));
+            _investigating = lost;
+            options[n++] = new AiOption(GInvestigate, (lost.Visible ? 0.95f : 0.55f) + 0.6f * lost.Confidence +
+                (now - Bot.HurtAt < 3f ? 0.5f : 0f));
             float d = (lost.Position - Pawn.Location).Size();
             if (lost.Source is AiContactSource.Seen or AiContactSource.Told && now - lost.Time < 4f && lost.Confidence > 0.45f &&
                 d is > 400f and < 1600f && now - _fragAt > 10f &&
@@ -262,9 +273,10 @@ public sealed class MercAi : AiBrain
         float bestD = MercAiK.FinishRange;
         foreach (AiContact c in Bot.Memory.Contacts)
         {
-            if (c.Visible && c.Pawn is SPawnAttaque { Health: > 0, bLyingOnGround: true } spy && (spy.Location - Pawn.Location).Size() < bestD)
+            if (c.BodyVisible && c.Pose is { Alive: true, Downed: true } pose && c.Pawn is SPawnAttaque spy &&
+                (pose.Position - Pawn.Location).Size() < bestD)
             {
-                bestD = (spy.Location - Pawn.Location).Size();
+                bestD = (pose.Position - Pawn.Location).Size();
                 best = spy;
             }
         }
@@ -276,7 +288,7 @@ public sealed class MercAi : AiBrain
         }
 
         // Out of sight now: still taken as down for a moment where he fell (a spy seen standing again is not).
-        return _downed is { Health: > 0, bDeleteMe: false } last && Bot.Memory.Find(last) is { Visible: false } &&
+        return _downed is { } last && Bot.Memory.Find(last) is { BodyVisible: false, Pose: { Alive: true, Downed: true } } &&
             now - _downedSeenAt < MercAiK.FinishMemorySeconds
             ? last
             : null;
@@ -338,6 +350,11 @@ public sealed class MercAi : AiBrain
         {
             World.Teams[1].Release(Bot);
             _post = null;
+        }
+
+        if (from == GInvestigate)
+        {
+            World.Teams[1].ReleaseSearch(Bot);
         }
 
         Follower.Clear();
@@ -473,12 +490,12 @@ public sealed class MercAi : AiBrain
     private void Engage(float now, ref AiPlan plan)
     {
         AiContact? c = _target;
-        if (c is null || c.Pawn.Health <= 0 || !c.Visible)
+        if (c is null || !c.Visible || c.BodyVisible && c.Pose is { Alive: false })
         {
             return;
         }
 
-        if (c.Pawn is SPawnAttaque { bLyingOnGround: true } down)
+        if (c.BodyVisible && c.Pose is { Downed: true } && c.Pawn is SPawnAttaque down)
         {
             // He went down in front of the merc (an elbow, a charge, a spin): finish him.
             _downed = down;
@@ -493,11 +510,12 @@ public sealed class MercAi : AiBrain
         }
 
         float spread = Spread(now);
-        FVector aimPoint = AimPoint(c.Pawn) + c.Pawn.Velocity * (Difficulty.ReactionTime * 0.5f * Difficulty.LeadFactor);
+        FVector aimPoint = c.Position - new FVector(0f, 0f, c.Pose is { Downed: true } p ? p.CollisionHeight * MercAiK.LyingAimDrop : 20f);
+        aimPoint += c.Velocity * (Difficulty.ReactionTime * 0.5f * Difficulty.LeadFactor);
         Aim(aimPoint, ref plan);
 
         // Movement: the better mercs side-step between bursts at range.
-        if (Difficulty.Skill >= AiSkill.Hard && (c.Pawn.Location - Pawn.Location).Size() > 600f)
+        if (Difficulty.Skill >= AiSkill.Hard && (c.Position - Pawn.Location).Size() > 600f)
         {
             if (now - _strafeAt > 0.8f)
             {
@@ -517,10 +535,10 @@ public sealed class MercAi : AiBrain
 
         // At point blank the spy's body can block the muzzle (CheckIfCanFire, merc-rifle.md rule 3): the rifle does not
         // fire, as a player sees; the elbow or the spin then, else a step back to shoot.
-        bool pointBlank = NavFollower.Horizontal(c.Pawn.Location - Pawn.Location) < MercAiK.PointBlank;
+        bool pointBlank = NavFollower.Horizontal(c.Position - Pawn.Location) < MercAiK.PointBlank;
         bool muzzleBlocked = pointBlank && !Pc.CheckIfCanFire();
         bool reacted = c.VisibleSince >= 0f && now - c.VisibleSince >= Difficulty.ReactionTime;
-        if (reacted && c.Pawn is SBasePawn spy && Melee(now, spy, muzzleBlocked, ref plan))
+        if (reacted && c.BodyVisible && c.Pawn is SBasePawn spy && Melee(now, spy, muzzleBlocked, ref plan))
         {
             _burstStart = -1f;
             return;
@@ -540,7 +558,7 @@ public sealed class MercAi : AiBrain
             return;
         }
 
-        Shoot(now, c.Pawn.Location, spread, ref plan);
+        Shoot(now, aimPoint, spread, ref plan);
     }
 
     /// <summary>The aim error: a fresh draw every 0.25 s, from the first-shot spread to the settled one while tracking.</summary>
@@ -558,12 +576,6 @@ public sealed class MercAi : AiBrain
 
         return spread;
     }
-
-    /// <summary>Where to shoot a spy: the chest, lower for a crouched one, the legs of one lying on the ground.</summary>
-    private static FVector AimPoint(Pawn spy) =>
-        spy is SBasePawn { bLyingOnGround: true }
-            ? spy.Location - new FVector(0f, 0f, spy.CollisionHeight * MercAiK.LyingAimDrop)
-            : spy.Location - new FVector(0f, 0f, spy.bIsCrouched ? 5f : 20f);
 
     /// <summary>The view on <paramref name="point"/> with the current aim error.</summary>
     private void Aim(FVector point, ref AiPlan plan)
@@ -623,19 +635,23 @@ public sealed class MercAi : AiBrain
     /// </summary>
     private void Finish(float now, ref AiPlan plan)
     {
-        if (_downed is not { } spy || spy.bDeleteMe || spy.Health <= 0)
+        if (_downed is not { } spy || Bot.Memory.Find(spy) is not { Pose: { Alive: true, Downed: true } pose } c)
         {
             return;
         }
 
-        AiContact? c = Bot.Memory.Find(spy);
-        bool seen = c is { Visible: true };
-        FVector at = seen || c is null ? spy.Location : c.Position;
+        bool seen = c.BodyVisible;
+        FVector at = pose.Position;
         bool known = seen || now - _downedSeenAt < MercAiK.FinishMemorySeconds;
-        if (known && TerminateReady(spy))
+        if (!known)
+        {
+            return;
+        }
+
+        if (TerminateReady(pose))
         {
             // No stick on the press: Use with forward is the charge.
-            LookAt(AimPoint(spy), ref plan);
+            LookAt(pose.Body, ref plan);
             plan.Keys = default;
             plan.MoveYaw = null;
             if (now - _useAt > 0.25f)
@@ -648,7 +664,7 @@ public sealed class MercAi : AiBrain
             return;
         }
 
-        FVector feet = at - new FVector(0f, 0f, spy.CollisionHeight);
+        FVector feet = pose.Feet;
         FVector away = new FVector(Pawn.Location.X - at.X, Pawn.Location.Y - at.Y, 0f).SafeNormal();
         if (NavFollower.Horizontal(at - Pawn.Location) > MercAiK.FinishWalkUntil)
         {
@@ -661,13 +677,11 @@ public sealed class MercAi : AiBrain
             }
         }
 
+        // Keep the camera on the fallen body while approaching it, including when the last sight was a moment ago.
+        // Looking at the cylinder centre/horizon made the prone body fall outside the view at close range.
+        LookAt(pose.Body, ref plan);
         if (!seen)
         {
-            if (World.LineOpen(AiSight.Eye(Pawn), at))
-            {
-                LookAt(at, ref plan);
-            }
-
             return;
         }
 
@@ -677,7 +691,7 @@ public sealed class MercAi : AiBrain
         }
 
         float spread = Spread(now);
-        Aim(AimPoint(spy), ref plan);
+        Aim(pose.Body, ref plan);
         if (NavFollower.Horizontal(at - Pawn.Location) < MercAiK.PointBlank && !Pc.CheckIfCanFire())
         {
             // The body under the muzzle (the finishing search refused here: a step, a wall): a step back to shoot.
@@ -687,7 +701,7 @@ public sealed class MercAi : AiBrain
             return;
         }
 
-        Shoot(now, AimPoint(spy), spread, ref plan);
+        Shoot(now, pose.Body, spread, ref plan);
     }
 
     /// <summary>
@@ -696,22 +710,22 @@ public sealed class MercAi : AiBrain
     /// finishable, within 250 uu and in front of the body, the feet within 10 uu in height and the clearance box free
     /// from the merc to the spot 110 uu behind the spy.
     /// </summary>
-    private bool TerminateReady(SBasePawn spy)
+    private bool TerminateReady(AiObservedPose spy)
     {
-        if (Pawn is not SPAWNDEFENSE me || !spy.bCanBeTerminated || spy.Health <= 0 || me.Physics != EPhysics.PHYS_Walking ||
+        if (Pawn is not SPAWNDEFENSE me || !spy.Finishable || !spy.Alive || me.Physics != EPhysics.PHYS_Walking ||
             !Pc.GetStateName().ToString().StartsWith("s_PlayerWalking", StringComparison.Ordinal) ||
             (Pc.IManager?.HasUsableInteractions() ?? false) || me.bStickyShocking)
         {
             return false;
         }
 
-        FVector to = spy.Location - me.Location;
+        FVector to = spy.Position - me.Location;
         if (to.Size() >= K.ReviveRange - MercAiK.ReachMargin || (to.SafeNormal() | me.Rotation.Vector().SafeNormal()) <= MercAiK.TerminateFacingDot)
         {
             return false;
         }
 
-        FVector feet = spy.Location - new FVector(0f, 0f, spy.CollisionHeight);
+        FVector feet = spy.Feet;
         if (MathF.Abs(me.Location.Z - me.CollisionHeight - feet.Z) >= K.TerminateHeightTolerance)
         {
             return false;
@@ -940,6 +954,56 @@ public sealed class MercAi : AiBrain
 
     private void Investigate(float now, ref AiPlan plan)
     {
+        if (_investigating is { Visible: true } shape)
+        {
+            // Inspect a shape before committing to an attack. Walking through it while waiting to identify it
+            // let close spies pass behind the camera and made the merc miss its melee opportunity.
+            LookAt(shape.Position, ref plan);
+            return;
+        }
+
+        if (_investigating is { } contact)
+        {
+            if (!Search.Next(contact, Pawn, Pc, Difficulty, now, out FVector searchFloor))
+            {
+                Follower.Clear();
+                return;
+            }
+
+            if ((_searchFloor - searchFloor).SizeSquared() > 40f * 40f || !Follower.HasGoal)
+            {
+                _searchFloor = searchFloor;
+                _investigateArrived = -1f;
+            }
+
+            FVector point = searchFloor + new FVector(0f, 0f, AiK.SpyCrouchHeight);
+            if (_investigateArrived < 0f)
+            {
+                if (!MoveTo(searchFloor, now, ref plan, sneak: false))
+                {
+                    Search.SkipGoal();
+                    return;
+                }
+
+                if (Follower.Arrived || (Feet - searchFloor).Size() < 80f)
+                {
+                    _investigateArrived = now;
+                }
+            }
+
+            LookAt(point, ref plan);
+            if (_investigateArrived >= 0f && now - _investigateArrived > 1f)
+            {
+                LookRound(now, ref plan, point);
+                if (now - _investigateArrived > 2f)
+                {
+                    Search.SkipGoal();
+                }
+            }
+
+            return;
+        }
+
         int node = Follower.Graph.NearestNode(_investigate + new FVector(0f, 0f, 60f), 0f, 300f);
         if (node < 0)
         {
@@ -966,15 +1030,6 @@ public sealed class MercAi : AiBrain
         }
 
         LookRound(now, ref plan, _investigate);
-        if (now - _investigateArrived > 4f)
-        {
-            // Nothing here: the contact fades faster.
-            AiContact? best = Bot.Memory.Best();
-            if (best is not null && best.Confidence > 0f && !best.Visible)
-            {
-                best.Confidence *= 0.3f;
-            }
-        }
     }
 
     private void Guard(float now, ref AiPlan plan)
@@ -1159,9 +1214,9 @@ public sealed class MercAi : AiBrain
             return;
         }
 
-        bool searching = Goal is GInvestigate or GRespond;
+        bool searching = Goal is GInvestigate or GRespond or GFinish;
         int mode = AiSight.RendMapOf(Pc);
-        if (now - _visionAt > 4f && Goal != GEngage)
+        if ((now - _visionAt > 4f || Goal == GFinish && now - _visionAt > 0.75f) && Goal != GEngage)
         {
             // Motion tracking for a noise (something moved there) and on some dark posts; the torch (normal view)
             // for a terminal alert, since a hacker stands still and motion tracking does not show it.

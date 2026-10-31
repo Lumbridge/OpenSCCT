@@ -71,6 +71,7 @@ public partial class CosmeticPreview : Control
         _camera = new Camera3D
         {
             Name = "Camera", Fov = FieldOfView, Near = 0.02f, Far = 100f, Current = true,
+            CullMask = RenderLayers.MainView,
             Environment = FaithfulView.CreateEnvironment(), Attributes = FaithfulView.CreateAttributes(),
             Compositor = new Compositor
             {
@@ -138,6 +139,10 @@ public partial class CosmeticPreview : Control
     /// <summary>The model a slot is seen on: the side's character for a body or light, else that gun.</summary>
     public static string AssetFor(CosmeticSide side, CosmeticSlot slot) => slot switch
     {
+        CosmeticSlot.Suppressed => "OpenScctSidearms.suppressed",
+        CosmeticSlot.Automatic => "OpenScctSidearms.automatic",
+        CosmeticSlot.Magnum44 => "OpenScctSidearms.magnum44",
+        CosmeticSlot.DesertEagle => "OpenScctSidearms.desert_eagle",
         CosmeticSlot.Pistol => "SWeaponFirst.p190",
         CosmeticSlot.GunAr => "SWeaponFirst.M160",
         CosmeticSlot.GunSmg => "SWeaponFirst.Hk81",

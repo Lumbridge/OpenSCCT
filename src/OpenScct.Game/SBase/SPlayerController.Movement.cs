@@ -534,7 +534,7 @@ public partial class SPlayerController
     [PortOf("uc:SBase.SPlayerController:ChangeSpeed", Spec = "spec/movement/input-and-rotation.md#speed-mode-getspeedmode-changespeed")]
     public virtual void ChangeSpeed()
     {
-        if (SBPawn is SPawnAttaque)
+        if (SBPawn is not null)
         {
             bFastSpeed = !bFastSpeed;
         }
@@ -550,11 +550,13 @@ public partial class SPlayerController
             return MovementK.SpeedModeBinoculars;
         }
 
-        if (SBPawn is null || SBPawn is SPAWNDEFENSE || bFastSpeed)
+        if (SBPawn is null || bFastSpeed)
         {
             return MovementK.SpeedModeFull;
         }
 
+        // Mercenary walking is an intentional addition: half-speed input while standing or crouched.
+        if (SBPawn is SPAWNDEFENSE) return 0.5f;
         return IsInState(MovementStateNames.s_PlayerWalkingWeapon) ? MovementK.SpeedModeWeaponSlow : MovementK.SpeedModeSlow;
     }
 

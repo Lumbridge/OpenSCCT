@@ -88,7 +88,7 @@ public sealed class MapLightBeams
                 Mesh = mesh,
                 MaterialOverride = new ShaderMaterial { Shader = shader },
                 CastShadow = GeometryInstance3D.ShadowCastingSetting.Off,
-                Layers = RenderLayers.World,
+                Layers = RenderLayers.Effects,
             };
             root.AddChild(node);
             var beam = new Beam(e, node) { Spot = spots.Contains(e.Name) };

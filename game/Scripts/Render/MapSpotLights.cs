@@ -25,6 +25,7 @@ public sealed class MapSpotLights : IDisposable
     private readonly List<(float Distance, LightEntry Light)> _ranked = [];
     private readonly HashSet<LightEntry> _keep = new(ReferenceEqualityComparer.Instance);
     private readonly List<LightEntry> _drop = [];
+    private readonly Plane[] _frustum = new Plane[6];
 
     public MapSpotLights(RenderMap map, Node parent)
     {
@@ -82,13 +83,20 @@ public sealed class MapSpotLights : IDisposable
             _drawn.Remove(l);
         }
 
+        if (_keep.Count == 0)
+        {
+            return;
+        }
+
+        Camera3D? cameraNode = _parent.GetViewport().GetCamera3D();
+        if (cameraNode is not null) ViewFrustum.Read(cameraNode, _frustum);
         foreach (LightEntry l in _keep)
         {
             if (!_drawn.TryGetValue(l, out SpotShadowLight? light))
             {
                 EchelonSpot e = l.Echelon!;
                 Texture2D? cookie = e.Texture is null ? null : _map.Textures.Get(e.Texture, mipmaps: false);
-                light = new SpotShadowLight(_parent, _map.Pack, SpotShadowShape.Of(l, e), cookie)
+                light = new SpotShadowLight(_parent, _map.Pack, SpotShadowShape.Of(l, e), cookie, cacheStatic: !l.Dynamic)
                 {
                     Zone = l.OwnZoneOnly ? l.ZoneIndex : -1,
                     LightName = l.Name,
@@ -98,6 +106,10 @@ public sealed class MapSpotLights : IDisposable
 
             light.Scale = WorldLights.Modulation(l, _map.Time);
             light.Place(l.Location, l.Rotation);
+            if (cameraNode is not null)
+            {
+                light.CullShadow(_frustum);
+            }
             if (!light.On)
             {
                 light.On = true;

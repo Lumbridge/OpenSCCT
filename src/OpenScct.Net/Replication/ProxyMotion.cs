@@ -51,6 +51,21 @@ public sealed class ProxyMotion
 
     public long NewestTick => _count > 0 ? At(_count - 1).Tick : -1;
 
+    public long OldestTick => _count > 0 ? At(0).Tick : -1;
+
+    /// <summary>The received samples enclosing an interpolated display interval; false for extrapolation.</summary>
+    public bool TryGetInterval(long fromTime, long toTime, out long firstTick, out long lastTick)
+    {
+        firstTick = lastTick = -1;
+        if (_count == 0 || toTime < fromTime || fromTime < OldestTick * NetTimeline.Fraction ||
+            toTime > NewestTick * NetTimeline.Fraction) return false;
+        int first = 0;
+        while (first + 1 < _count && At(first + 1).Tick * NetTimeline.Fraction <= fromTime) first++;
+        int last = first;
+        while (last + 1 < _count && At(last).Tick * NetTimeline.Fraction < toTime) last++;
+        firstTick = At(first).Tick; lastTick = At(last).Tick; return true;
+    }
+
     public FVector LatestLocation => _latest.Location;
 
     public FRotator LatestRotation => _latest.Rotation;
@@ -73,6 +88,7 @@ public sealed class ProxyMotion
     /// <summary>Records the actor's replicated values as the state at server tick <paramref name="tick"/>.</summary>
     internal void EndReceive(Actor actor, long tick)
     {
+        if (tick < NewestTick) return;
         _latest = new Snapshot { Tick = tick, Location = actor.Location, Rotation = actor.Rotation, Velocity = actor.Velocity };
         _hasLatest = true;
         Push(_latest);
@@ -98,6 +114,7 @@ public sealed class ProxyMotion
     /// </summary>
     public void Push(long tick, in ProxyState state)
     {
+        if (tick < NewestTick) return;
         _latest = new Snapshot
         {
             Tick = tick, Location = state.Location, Rotation = state.Rotation, Velocity = state.Velocity, Aim = state.Aim,
@@ -105,6 +122,21 @@ public sealed class ProxyMotion
         };
         _hasLatest = true;
         Push(_latest);
+    }
+
+    /// <summary>Insert an explicitly timestamped recovery key without replacing a newer receive reference.</summary>
+    public void Recover(long tick, in ProxyState state)
+    {
+        if (tick >= NewestTick) { Push(tick, state); return; }
+        if (_count == Capacity && tick < At(0).Tick) return;
+        int index = 0;
+        while (index < _count && At(index).Tick < tick) index++;
+        var recovered = new Snapshot
+        { Tick = tick, Location = state.Location, Rotation = state.Rotation, Velocity = state.Velocity, Aim = state.Aim, View = state.View };
+        if (index < _count && At(index).Tick == tick) { At(index) = recovered; return; }
+        if (_count == Capacity) { _start = (_start + 1) & (Capacity - 1); _count--; index--; }
+        for (int i = _count; i > index; i--) At(i) = At(i - 1);
+        At(index) = recovered; _count++;
     }
 
     /// <summary>Forgets every buffered state (the next one pushed is shown at once: a snap).</summary>
@@ -202,7 +234,7 @@ public sealed class ProxyMotion
         if (renderTimeFixed >= newestFixed)
         {
             long ahead = renderTimeFixed - newestFixed;
-            long limit = (long)maxExtrapolationTicks * NetTimeline.Fraction;
+            long limit = (long)System.Math.Max(0, maxExtrapolationTicks) * NetTimeline.Fraction;
             if (ahead > limit)
             {
                 ahead = limit;
@@ -211,6 +243,7 @@ public sealed class ProxyMotion
             float seconds = ahead * (Sim.DeltaTime / NetTimeline.Fraction);
             state = ToState(newest);
             state.Location = newest.Location + newest.Velocity * seconds;
+            if (renderTimeFixed - newestFixed > limit) state.Velocity = default;
             return true;
         }
 

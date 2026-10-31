@@ -13,7 +13,7 @@ Rules:
   game-extension  original game file type (.sdc .usx .utx .utc .ukx .uax .uas .mux .u .int)
   media           DDS, glTF/GLB, OGG, WAV or image files (by extension or content) outside fixtures/,
                   docs/images/, game/branding/ and tools/branding/discord/ (our own art)
-  size            file larger than 5 MB
+  size            file larger than 5 MB, except exact reviewed art hashes in asset-provenance.json (up to 64 MB)
   ue-package      content starts with the UE package tag C1 83 2A 9E
   pe-binary       Windows executable or DLL (the game, the editor and Reloaded.Core are PE files)
   decompiled      text that looks like decompiled or disassembled code: tool banners, Ghidra
@@ -32,6 +32,8 @@ from __future__ import annotations
 
 import argparse
 import fnmatch
+import hashlib
+import json
 import os
 import re
 import stat
@@ -42,6 +44,9 @@ from pathlib import Path, PurePosixPath
 from typing import IO, Callable, Iterable, Iterator, Sequence
 
 MAX_BYTES = 5 * 1024 * 1024
+MAX_ART_BYTES = 64 * 1024 * 1024
+ART_PREFIX = "content/assets/sidearms/"
+ART_MANIFEST = "tools/ci/asset-provenance.json"
 HEAD_BYTES = 8192
 
 LOCAL_PREFIXES = ("local/", ".content/", "tools/godot/", "re/.venv-ghidra/", "game/.godot/")
@@ -252,7 +257,7 @@ def bad_filename_reason(path: str) -> str | None:
     return None
 
 
-def check_entry(entry: Entry) -> list[Finding]:
+def check_entry(entry: Entry, approved_art: dict[str, dict] | None = None) -> list[Finding]:
     """Applies every rule to one file."""
     findings: list[Finding] = []
 
@@ -276,12 +281,19 @@ def check_entry(entry: Entry) -> list[Finding]:
         add("ghidra-project", f"Ghidra project file ({ext})")
     if ext in GAME_EXTENSIONS:
         add("game-extension", f"original game file type ({ext})")
-    media_allowed = _starts_with_any(low, MEDIA_ALLOWED_PREFIXES)
+    # Reviewed third-party/original art is approved by exact path, size and SHA-256, never by opening an entire
+    # directory to arbitrary media. Release contenttools carries byte-identical copies under its repo/ prefix.
+    art_path = low.removeprefix("contenttools/repo/")
+    approval = (approved_art or {}).get(art_path) if art_path.startswith(ART_PREFIX) else None
+    approved = bool(approval and not entry.is_link and entry.size <= MAX_ART_BYTES and
+                    entry.size == approval.get("bytes") and
+                    hashlib.sha256(entry.load(entry.size)).hexdigest() == approval.get("sha256"))
+    media_allowed = approved or _starts_with_any(low, MEDIA_ALLOWED_PREFIXES)
     media_reported = False
     if ext in MEDIA_EXTENSIONS and not media_allowed:
         add("media", f"{ext} file outside {MEDIA_ALLOWED_TEXT}")
         media_reported = True
-    if entry.size > MAX_BYTES:
+    if entry.size > MAX_BYTES and not approved:
         add("size", f"{entry.size / (1024 * 1024):.1f} MB, over the 5 MB limit")
 
     if entry.is_link:
@@ -405,7 +417,7 @@ def iter_staged_entries(root: Path) -> Iterator[Entry]:
             if len(header) != 3 or header[1] != b"blob":
                 raise GuardError(f"git cat-file could not read {rel}")
             size = int(header[2])
-            keep = MAX_BYTES if size <= MAX_BYTES else HEAD_BYTES
+            keep = min(size, MAX_ART_BYTES) if rel.lower().startswith(ART_PREFIX) else MAX_BYTES if size <= MAX_BYTES else HEAD_BYTES
             content = _read_exact(proc.stdout, size, keep)
             proc.stdout.read(1)  # newline after each object
             yield Entry(rel, size, lambda n, data=content: data[:n])
@@ -434,13 +446,32 @@ def iter_tree_entries(base: Path, excludes: Sequence[str] = ()) -> Iterator[Entr
                 yield entry
 
 
-def scan(entries: Iterable[Entry]) -> tuple[int, list[Finding]]:
+def scan(entries: Iterable[Entry], approved_art: dict[str, dict] | None = None) -> tuple[int, list[Finding]]:
     count = 0
     findings: list[Finding] = []
     for entry in entries:
         count += 1
-        findings.extend(check_entry(entry))
+        findings.extend(check_entry(entry, approved_art))
     return count, findings
+
+
+def load_art_manifest(data: bytes) -> dict[str, dict]:
+    try:
+        manifest = json.loads(data)
+        assets = manifest["assets"]
+        if manifest["credits"] != "content/assets/sidearms/CREDITS.txt" or not manifest["license"] or not isinstance(assets, dict):
+            raise ValueError("missing credits, license or asset table")
+        for path, item in assets.items():
+            if (not path.startswith(ART_PREFIX) or ".." in PurePosixPath(path).parts or
+                    not re.fullmatch(r"[0-9a-f]{64}", item["sha256"]) or
+                    not 0 < item["bytes"] <= MAX_ART_BYTES):
+                raise ValueError(f"invalid art entry {path}")
+        normalized = {path.lower(): item for path, item in assets.items()}
+        if len(normalized) != len(assets):
+            raise ValueError("art paths must also be unique on Windows")
+        return normalized
+    except (KeyError, TypeError, ValueError) as exc:
+        raise GuardError(f"invalid {ART_MANIFEST}: {exc}") from exc
 
 
 def _parser() -> argparse.ArgumentParser:
@@ -480,11 +511,20 @@ def main(argv: Sequence[str] | None = None) -> int:
                 raise GuardError(f"{base} is not a directory")
             where = str(base)
             entries: Iterable[Entry] = iter_tree_entries(base, args.exclude)
+            manifest_file = Path(__file__).with_name("asset-provenance.json")
+            approved_art = load_art_manifest(manifest_file.read_bytes()) if manifest_file.exists() else {}
         else:
             root = repo_root(Path(args.root) if args.root else Path.cwd())
             where = f"{root} (staged)" if args.staged else str(root)
             entries = iter_staged_entries(root) if args.staged else iter_worktree_entries(root)
-        count, findings = scan(entries)
+            if args.staged:
+                staged_art = subprocess.run(["git", "-C", str(root), "show", f":{ART_MANIFEST}"],
+                                            stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+                approved_art = load_art_manifest(staged_art.stdout) if staged_art.returncode == 0 else {}
+            else:
+                manifest_file = root / ART_MANIFEST
+                approved_art = load_art_manifest(manifest_file.read_bytes()) if manifest_file.exists() else {}
+        count, findings = scan(entries, approved_art)
     except GuardError as exc:
         print(f"no_game_data: {exc}", file=sys.stderr)
         return 2

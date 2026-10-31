@@ -19,6 +19,20 @@ public sealed class GameSettingsTests : IDisposable
     }
 
     [Fact]
+    public void TeammateNamesPersistIndependentlyPerRole()
+    {
+        var defaults = GameSettings.FromJson("{}");
+        Assert.False(defaults.TeammateNamesSpy);
+        Assert.False(defaults.TeammateNamesMerc);
+        var spy = new GameSettings { TeammateNamesSpy = true }.Clone();
+        Assert.True(spy.TeammateNamesSpy);
+        Assert.False(spy.TeammateNamesMerc);
+        var merc = GameSettings.FromJson("{\"teammate_names_merc\":true}");
+        Assert.False(merc.TeammateNamesSpy);
+        Assert.True(merc.TeammateNamesMerc);
+    }
+
+    [Fact]
     public void DefaultsAreReloadedsFirstRunValues()
     {
         var s = new GameSettings();

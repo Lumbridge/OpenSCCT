@@ -63,6 +63,7 @@ public sealed class ParticleSystemView
                     Name = $"{i}_{p.Name}",
                     Multimesh = mm,
                     CastShadow = GeometryInstance3D.ShadowCastingSetting.Off,
+                    Layers = RenderLayers.Effects,
                     ExtraCullMargin = 64f,
                 };
                 if (!p.UseMeshBlendMode)
@@ -83,6 +84,7 @@ public sealed class ParticleSystemView
                 Name = $"{i}_{p.Name}",
                 Mesh = arrayMesh,
                 CastShadow = GeometryInstance3D.ShadowCastingSetting.Off,
+                Layers = RenderLayers.Effects,
                 ExtraCullMargin = 64f,
                 MaterialOverride = MaterialFor(p, assets, heatOpacity, i, false),
             };
@@ -126,7 +128,7 @@ public sealed class ParticleSystemView
     private readonly List<int> _drawnPer = [];
 
     /// <summary>Rebuilds every sub-emitter's geometry for the owner and camera of this frame.</summary>
-    public void Draw(in ParticleOwner owner, in ParticleCamera camera)
+    public void Draw(in ParticleOwner owner, in ParticleCamera camera, ReadOnlySpan<Plane> frustum = default)
     {
         int total = 0;
         _drawnPer.Clear();
@@ -137,6 +139,15 @@ public sealed class ParticleSystemView
             if (e.Disabled)
             {
                 Clear(layer);
+                _drawnPer.Add(0);
+                continue;
+            }
+
+            if (e.Params.Kind == ParticleKind.Sprite && !frustum.IsEmpty && !SpriteMayBeVisible(e, owner, frustum))
+            {
+                // Reject before computing camera-facing axes, spin and UV cells. The box contains every possible
+                // orientation of every live sprite, so long streaks and particles away from their owner stay visible.
+                layer.Show(false);
                 _drawnPer.Add(0);
                 continue;
             }
@@ -156,12 +167,12 @@ public sealed class ParticleSystemView
                 case ParticleKind.Beam:
                     _quads.Clear();
                     ParticleGeometry.Beams(e, camera, owner, _quads);
-                    n = FillQuads(layer, _quads);
+                    n = DrawQuads(layer, _quads, frustum);
                     break;
                 default:
                     _quads.Clear();
                     ParticleGeometry.Sprites(e, camera, owner, _quads);
-                    n = FillQuads(layer, _quads);
+                    n = DrawQuads(layer, _quads, frustum);
                     break;
             }
 
@@ -170,6 +181,26 @@ public sealed class ParticleSystemView
         }
 
         Drawn = total;
+    }
+
+    private static bool SpriteMayBeVisible(ParticleEmitterSim emitter, in ParticleOwner owner, ReadOnlySpan<Plane> frustum)
+    {
+        Vector3 min = Vector3.One * float.PositiveInfinity, max = Vector3.One * float.NegativeInfinity;
+        bool any = false;
+        ReadOnlySpan<Particle> particles = emitter.Particles;
+        int used = Math.Min(emitter.ActiveParticles, particles.Length);
+        for (int i = 0; i < used; i++)
+        {
+            ref readonly Particle particle = ref particles[i];
+            if (!particle.Alive) continue;
+            Vector3 center = UeSpace.ToGodot(ParticleGeometry.World(emitter.Params, particle.Location, owner));
+            float sx = MathF.Abs(particle.Size.X), sy = MathF.Abs(particle.Size.Y);
+            Vector3 extent = Vector3.One * UeSpace.LengthToGodot(sx + Math.Max(sx, sy));
+            min = min.Min(center - extent);
+            max = max.Max(center + extent);
+            any = true;
+        }
+        return any && ViewFrustum.Intersects(new Aabb(min, max - min), frustum);
     }
 
     public void Free()
@@ -182,7 +213,7 @@ public sealed class ParticleSystemView
         if (layer.Quads is not null)
         {
             // The surface is kept for the next quads; hidden, it draws nothing.
-            layer.Node!.Visible = false;
+            layer.Show(false);
         }
         else
         {
@@ -193,6 +224,19 @@ public sealed class ParticleSystemView
         {
             mm.VisibleInstanceCount = 0;
         }
+    }
+
+    private static int DrawQuads(Layer layer, List<SpriteQuad> quads, ReadOnlySpan<Plane> frustum)
+    {
+        if (quads.Count > 0 && !frustum.IsEmpty && !ViewFrustum.Intersects(QuadBuffer.Bounds(quads), frustum))
+        {
+            // Simulation keeps advancing; only building and uploading invisible geometry is skipped. Re-entering
+            // the view draws the current particles at once, including beams spanning several rooms.
+            layer.Show(false);
+            return 0;
+        }
+
+        return FillQuads(layer, quads);
     }
 
     private static int FillQuads(Layer layer, List<SpriteQuad> quads)
@@ -206,7 +250,7 @@ public sealed class ParticleSystemView
 
         if (layer.Quads is { } buffer && buffer.Fill(quads))
         {
-            layer.Node!.Visible = true;
+            layer.Show(true);
             return n;
         }
 
@@ -277,11 +321,11 @@ public sealed class ParticleSystemView
         arrays[(int)Mesh.ArrayType.TexUV2] = uv2.AsSpan(0, capacity * 4).ToArray();
         arrays[(int)Mesh.ArrayType.Color] = c.AsSpan(0, capacity * 4).ToArray();
         arrays[(int)Mesh.ArrayType.Index] = idx.AsSpan(0, capacity * 6).ToArray();
-        mesh.AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, arrays);
+        mesh.AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, arrays, flags: Mesh.ArrayFormat.FlagUseDynamicUpdate);
         arrays.Dispose();
         layer.Quads = QuadBuffer.For(mesh, capacity, n);
         layer.Quads?.SetBounds(quads);
-        layer.Node!.Visible = true;
+        layer.Show(true);
         return n;
     }
 
@@ -412,6 +456,15 @@ public sealed class ParticleSystemView
 
         /// <summary>The quad surface written in place each frame, once it is built (sprites and beams).</summary>
         public QuadBuffer? Quads { get; set; }
+
+        private bool _shown = true;
+
+        public void Show(bool shown)
+        {
+            if (_shown == shown) return;
+            _shown = shown;
+            Node!.Visible = shown;
+        }
 
         public void Ensure(int vertices, int indices)
         {

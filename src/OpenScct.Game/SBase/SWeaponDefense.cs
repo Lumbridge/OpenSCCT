@@ -179,6 +179,7 @@ public partial class SWeaponDefense
     [PortOf("uc:SBase.SWeaponDefense:Fire", Spec = "spec/equipment/merc-rifle.md#rules")]
     public override void Fire(float Value)
     {
+        if (!SidearmEquipment.Ready(this)) return;
         if (ClipAmmo == 0)
         {
             ServerSound(EmptySound, ESoundSlot.SLOT_None, (int)K.WeaponSoundRadius);
@@ -318,7 +319,8 @@ public partial class SWeaponDefense
             return;
         }
 
-        BulletInARow = iBulletInARow;
+        if (!AcceptCarriedShot()) return;
+        BulletInARow = Instigator is SBasePawn { SidearmWeapon: not null } ? System.Math.Clamp(iBulletInARow, 0, ClipMaxAmmo) : iBulletInARow;
         if (OwnerPC is { } pc)
         {
             SPlayerController.IncStat(pc, static s => s.ShotsFired++);
@@ -326,11 +328,11 @@ public partial class SWeaponDefense
 
         DispersionActuelle = InScope ? 0f : GetAccuracy();
         TraceFire(DispersionActuelle, 0f, 0f);
-        Instigator?.PlaySound(FireSingleShotSound, ESoundSlot.SLOT_None, null, false, K.ShotSoundRadius);
+        Instigator?.PlaySound(FireSingleShotSound, ESoundSlot.SLOT_None, null, false, (this is MercSidearm { Kind: 0 } ? K.ShotSoundRadius * 0.25f : K.ShotSoundRadius));
         if (Dummy is { } dummy)
         {
             dummy.AddMuzzleCount();
-            dummy.NotifyNoise(1f);
+            dummy.NotifyNoise(this is MercSidearm { Kind: 0 } ? 0.25f : 1f);
         }
     }
 
@@ -418,6 +420,7 @@ public partial class SWeaponDefense
             SPlayerController.IncStat(pc, static s => s.ShotsHit++);
         }
 
+        victim.LastBulletWeapon = this;
         FVector momentum = (hit.HitLocation - startTrace) * K.BulletMomentumScale;
         if (InScope)
         {
@@ -602,6 +605,7 @@ public partial class SWeaponDefense
             return;
         }
 
+        if (this is MercSidearm) return;
         ROFMode = newROFMode;
     }
 
@@ -669,6 +673,7 @@ public partial class SWeaponDefense
 
         if (ClipAmmo < ClipMaxAmmo && Ammo - ClipAmmo > 0)
         {
+            RequestCarriedReload();
             GotoState(CNAME_s_Reloading);
             return true;
         }

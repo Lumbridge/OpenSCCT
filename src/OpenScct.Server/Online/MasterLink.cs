@@ -169,6 +169,9 @@ public sealed class MasterLink : IDisposable
     /// apart. A post that failed every try comes out of <see cref="Notice"/> at a later tick. The task ends with the
     /// stored round's id (for <see cref="UploadDemo"/>), or null when the round was not taken or the master is older.
     /// </summary>
+    private readonly ConcurrentQueue<IReadOnlyDictionary<long, EquipmentAccountState>> _equipment = new();
+    public bool TryTakeEquipment(out IReadOnlyDictionary<long, EquipmentAccountState> state) => _equipment.TryDequeue(out state!);
+
     public Task<long?> ReportResults(ResultsReport report)
     {
         ArgumentNullException.ThrowIfNull(report);
@@ -193,6 +196,7 @@ public sealed class MasterLink : IDisposable
             try
             {
                 ResultsResponse answer = await _client.ReportResultsAsync(report).ConfigureAwait(false);
+                if (answer.Equipment.Count > 0) _equipment.Enqueue(answer.Equipment);
                 return answer.MatchId;
             }
             catch (Exception e) when (e is MasterException or System.Net.Http.HttpRequestException or TaskCanceledException or ObjectDisposedException)

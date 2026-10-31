@@ -222,7 +222,7 @@ public readonly record struct ControlMessage
                 string files = r.ReadString(MaxFilesBytes);
 
                 // Last and optional (one message per bunch): a server without it shows its pawns the Stock way.
-                var proxies = r.AtEnd ? PawnProxyMode.DeadReckoning : (PawnProxyMode)Math.Min(r.ReadIntPacked(), (uint)PawnProxyMode.Interpolate);
+                var proxies = r.AtEnd ? PawnProxyMode.DeadReckoning : (PawnProxyMode)Math.Min(r.ReadIntPacked(), (uint)PawnProxyMode.Snapshots);
                 return Welcome(playerId, map, tick, rate, content, files.Length == 0 ? null : files, proxies);
             }
 

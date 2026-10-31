@@ -55,6 +55,7 @@ public sealed record OnlineLobbyPlayer(int Id, string Name, HudSide? Side, bool 
 /// </summary>
 public interface IOnlineLobbySession : ILobbySession
 {
+    bool SidearmsUnrestricted => false;
     string ServerName { get; }
 
     /// <summary>The match the lobby sets up.</summary>

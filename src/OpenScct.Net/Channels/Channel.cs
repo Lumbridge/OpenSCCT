@@ -30,6 +30,7 @@ public abstract class Channel
 
     /// <summary>Reliable bunches received ahead of a gap.</summary>
     public int NumInRec { get; private set; }
+    public long PayloadBytesSent { get; internal set; }
 
     internal bool OpenSent;
 

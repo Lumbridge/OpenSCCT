@@ -1,5 +1,6 @@
 using OpenScct.Core;
 using OpenScct.Core.Engine;
+using OpenScct.Core.Uc;
 using OpenScct.Game.Objectives;
 using OpenScct.Provenance;
 
@@ -19,6 +20,8 @@ public partial class SComputerInteraction
     protected override void PostBeginPlay()
     {
         base.PostBeginPlay();
+        // Localized inherited defaults can differ in the installed content even when code generation saw them equal.
+        Description = UcText.Get("SBase.SComputerInteraction", nameof(Description), Description);
         ObjectiveTrigger = Owner as SObjectiveTrigger;
     }
 

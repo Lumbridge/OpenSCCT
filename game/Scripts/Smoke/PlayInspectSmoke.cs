@@ -54,7 +54,8 @@ public sealed class PlayInspectSmoke : SmokeTest
     /// A play scene on SteeE as the spy, the way <c>--svm-play=SteeE --side=spy --rules=playlevel --bots=N
     /// --difficulty=normal</c> starts one (host thread, wall clock, HUD), added to the tree.
     /// </summary>
-    public static PlayRoot StartPlay(SmokeContext context, int bots = BotCount, string difficulty = "normal")
+    public static PlayRoot StartPlay(SmokeContext context, int bots = BotCount, string difficulty = "normal",
+        OpenScct.Net.SimLinkProfile? link = null, OpenScct.Net.NetProfile? profile = null)
     {
         ArgumentNullException.ThrowIfNull(context);
         PlayConfig launcher = PlayConfig.FromOptions(context.App.Options);
@@ -66,7 +67,9 @@ public sealed class PlayInspectSmoke : SmokeTest
                 Side = PlaySide.Spy,
                 Mode = "Story",
                 Rules = PlayRules.PlayLevel,
-                HostMode = PlayHostMode.Thread,
+                HostMode = link is null ? PlayHostMode.Thread : PlayHostMode.Inline,
+                SimLink = link,
+                NetworkProfile = profile ?? launcher.Settings.NetworkProfile,
                 Bots = bots,
                 Difficulty = difficulty,
             },

@@ -1,4 +1,6 @@
 using Godot;
+using System;
+using OpenScctGame.Controls;
 
 namespace OpenScctGame.Voice;
 
@@ -25,6 +27,30 @@ public static class VoiceInput
         Ensure(PushToTalk, Key.Capslock);
         Ensure(TeamPushToTalk, Key.Y);
         Ensure(ToggleMute, Key.F8);
+    }
+
+    /// <summary>Commit the active role's voice shortcuts, including intentionally unbound shortcuts.</summary>
+    public static void BindLayout(InputBindings bindings) => BindLayout(bindings.Layout);
+
+    public static void BindLayout(KeyLayout layout)
+    {
+        foreach ((string command, string action) in new[]
+        {
+            ("PushToTalk", PushToTalk), ("TeamPushToTalk", TeamPushToTalk), ("ToggleVoiceMute", ToggleMute),
+        })
+        {
+            if (InputMap.HasAction(action)) InputMap.EraseAction(action);
+            InputMap.AddAction(action);
+            foreach (string key in layout.Bindings.Keys)
+            {
+                foreach (KeyAction part in layout.Resolve(key))
+                    if (part.Kind == KeyActionKind.Command && part.Name.Equals(command, StringComparison.OrdinalIgnoreCase) && GodotKeys.ToEvent(key) is { } ev)
+                    {
+                        InputMap.ActionAddEvent(action, ev);
+                        break;
+                    }
+            }
+        }
     }
 
     private static void Ensure(string action, Key key)

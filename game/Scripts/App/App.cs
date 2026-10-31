@@ -44,7 +44,7 @@ public partial class App : Node
             }
         }
 
-        if (BackgroundWindow.Wanted(Options.SmokeTest is not null, OS.GetCmdlineUserArgs()))
+        if (BackgroundWindow.Wanted(Options.SmokeTest is not null || Diagnostics.FpsBenchmark.Wanted, OS.GetCmdlineUserArgs()))
         {
             // Test runs leave the person at the machine their focus and their mouse.
             OpenScctGame.Controls.Pointer.Detached = true;
@@ -74,8 +74,16 @@ public partial class App : Node
         {
             // Settings saved before the rename to OpenSCCT, then the player's saved window, audio and frame-cap
             // settings (user://settings.json).
-            OpenScctGame.Options.UserDataMigration.Run(OS.GetUserDataDir());
-            OpenScctGame.Options.SettingsApplier.ApplyAtStart(GetViewport());
+            if (Diagnostics.FpsBenchmark.Wanted)
+            {
+                Diagnostics.FpsBenchmark.Configure(GetViewport());
+                AddChild(new Diagnostics.FpsBenchmark());
+            }
+            else
+            {
+                OpenScctGame.Options.UserDataMigration.Run(OS.GetUserDataDir());
+                OpenScctGame.Options.SettingsApplier.ApplyAtStart(GetViewport());
+            }
             if (OpenScctGame.Options.SettingsStore.Current.ThrottleStop)
             {
                 ProcessTuning.StopPowerThrottling();

@@ -136,6 +136,11 @@ public sealed class SkeletalModel
         foreach (MeshInstance3D mesh in FindAll<MeshInstance3D>(scene))
         {
             mesh.ExtraCullMargin = CullMargin;
+            if (!template.Warm && (template.CullBounds ??= new AnimatedCullBounds(template.Sampler)).TryGet(mesh, skeleton, out Aabb bounds))
+            {
+                mesh.CustomAabb = bounds;
+                mesh.ExtraCullMargin = 0f;
+            }
             model._meshes.Add(mesh);
             if (mesh.Mesh is null)
             {
@@ -186,6 +191,7 @@ public sealed class SkeletalModel
     {
         /// <summary>Materials made for skins (UE2 Skins[]) over a slot, by the slot's own material and the skin.</summary>
         public Dictionary<(string Own, string Skin), Material?> Swaps { get; } = new();
+        public AnimatedCullBounds? CullBounds { get; set; }
 
         /// <summary>
         /// <paramref name="own"/>'s material drawing the texture of the material <paramref name="skin"/> (package and
@@ -205,6 +211,7 @@ public sealed class SkeletalModel
                 {
                     Name = skin,
                     Texture = uri,
+                    NormalTexture = entry.NormalTexture,
                     Masked = entry.Masked,
                     Translucent = entry.Translucent,
                     TwoSided = entry.TwoSided,
@@ -235,7 +242,7 @@ public sealed class SkeletalModel
                 {
                     made = Compiler.Build(new MaterialEntry
                     {
-                        Name = e.Name + "+" + pattern, Source = e.Source, Texture = uri, Masked = e.Masked, Translucent = e.Translucent,
+                        Name = e.Name + "+" + pattern, Source = e.Source, Texture = uri, NormalTexture = e.NormalTexture, Masked = e.Masked, Translucent = e.Translucent,
                         TwoSided = e.TwoSided, Unlit = e.Unlit, SelfIllum = e.SelfIllum, SelfIllumMask = e.SelfIllumMask, SpecMask = e.SpecMask,
                         EnvColor = e.EnvColor, UvAnim = e.UvAnim, ListBlend = e.ListBlend,
                     }, LightSource.Actor);
@@ -713,12 +720,14 @@ public sealed class SkeletalModel
     /// </summary>
     public void Place(FVector location, FRotator rotation, FVector prePivot, FVector actorScale)
     {
-        Root.Transform = UeSpace.TransformToGodot(location + prePivot, rotation);
+        Transform3D root = UeSpace.TransformToGodot(location + prePivot, rotation);
+        if (Root.Transform != root) Root.Transform = root;
         // Scaled multiplies in the parent's (actor's) axes, so the UE axes of DrawScale3D map to Godot X, Z, Y as any
         // direction does.
-        Pivot.Transform = new Transform3D(UeSpace.RotationToGodot(RotOrigin), Vector3.Zero)
+        Transform3D pivot = new Transform3D(UeSpace.RotationToGodot(RotOrigin), Vector3.Zero)
             .Scaled(UeSpace.DirectionToGodot(new FVector(MeshScale.X, MeshScale.Y, MeshScale.Z)))
             .Scaled(UeSpace.DirectionToGodot(actorScale));
+        if (Pivot.Transform != pivot) Pivot.Transform = pivot;
     }
 
     /// <summary>Samples the current sequence and poses the skeleton.</summary>
@@ -842,11 +851,19 @@ public sealed class SkeletalModel
             }
 
             JsonElement ex = m.TryGetProperty("extras", out JsonElement e) ? e : default;
+            string? normalTexture = null;
+            if (m.TryGetProperty("normalTexture", out JsonElement nt))
+            {
+                int ti = nt.GetProperty("index").GetInt32();
+                int ii = ti >= 0 && ti < textures.Count ? textures[ti] : -1;
+                normalTexture = ii >= 0 && ii < images.Count ? images[ii] : null;
+            }
             bool hasEx = ex.ValueKind == JsonValueKind.Object;
             result[name] = new MaterialEntry
             {
                 Name = name,
                 Texture = texture,
+                NormalTexture = normalTexture,
                 SelfIllum = hasEx ? MaterialsDoc.Str(ex, "scct_self_illum") : null,
                 SelfIllumMask = hasEx ? MaterialsDoc.Str(ex, "scct_self_illum_mask") : null,
                 Masked = m.TryGetProperty("alphaMode", out JsonElement am) && am.GetString() == "MASK",

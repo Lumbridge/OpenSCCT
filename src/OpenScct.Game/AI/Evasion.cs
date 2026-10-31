@@ -85,7 +85,7 @@ public sealed class SpyEvasion
                 continue;
             }
 
-            FVector at = c.Visible ? c.Pawn.Location : c.Position;
+            FVector at = c.Position;
             float dist = (at - spy.Location).Size();
             if (dist > range || !_bot.World.LineOpen(at, spy.Location))
             {
@@ -93,11 +93,11 @@ public sealed class SpyEvasion
             }
 
             threat = true;
-            if (c.Visible && dist < EvasionK.FreezeRange * d.Stealth + 400f)
+            if (c.BodyVisible && c.Pose is { } pose && dist < EvasionK.FreezeRange * d.Stealth + 400f)
             {
-                FVector toSpy = spy.Location - c.Pawn.Location;
+                FVector toSpy = spy.Location - at;
                 float len = toSpy.Size();
-                FRotator view = c.Pawn.Rotation;
+                FRotator view = pose.Rotation;
                 if (len < 1f || (toSpy | view.Vector()) / len > EvasionK.FacingCos)
                 {
                     looking = true;
@@ -171,7 +171,7 @@ public sealed class SpyEvasion
                 continue;
             }
 
-            FVector at = c.Visible ? AiSight.Eye(c.Pawn) : c.Position + new FVector(0f, 0f, c.Pawn.EyeHeight);
+            FVector at = c.BelievedEye;
             if (_bot.World.LightOn(spy, at) > EvasionK.LitLevel)
             {
                 return true;

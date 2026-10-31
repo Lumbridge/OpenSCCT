@@ -78,6 +78,7 @@ public partial class HudLayer : CanvasLayer
     public OpenScctGame.Hud.Gadgets.GadgetHudViews? GadgetViews { get; private set; }
 
     public HudMarkers Markers { get; } = new();
+    public HudTeammateNames TeammateNames { get; } = new();
 
     /// <summary>The merc's motion tracking brackets (HudMotionTracking.cs), drawn after the markers.</summary>
     public HudMotionTracking Motion { get; } = new();
@@ -338,6 +339,13 @@ public partial class HudLayer : CanvasLayer
             _mercAimRan = false;
         }
 
+        // A hidden CanvasLayer still receives _Process. Keep timed effects and incoming messages above alive, but
+        // leave the draw lists alone until it is shown again (the original's bHideHUD path likewise omits them).
+        if (!Visible)
+        {
+            return;
+        }
+
         Snapshot.Clear();
         Source?.Fill(Snapshot);
         Snapshot.EnhancedReality |= Options.EnhancedReality;
@@ -409,9 +417,11 @@ public partial class HudLayer : CanvasLayer
         // The laser's target name: the merc HUD's aim point helper past its gates, or the camera network's HUD state.
         bool mercPage = playerPage && Snapshot.Side == HudSide.Merc;
         bool camNetwork = IsCamNetworkPage(page);
+        SCamNetwork? disabledCamera = camNetwork && pc?.SBPawn?.UsedObject is SCamNetwork { IsShotDisabled: true } camera ? camera : null;
         bool targetName = camNetwork || (mercPage && _mercAimRan && pc?.myHUD is SHud aimHud && aimHud.TargetNameInAimHelper());
-        Motion.Update(mercPage || camNetwork ? pc : null, screen, Projector, Options.StretchHud, Assets, targetName);
+        Motion.Update((mercPage || camNetwork) && disabledCamera is null ? pc : null, screen, Projector, Options.StretchHud, Assets, targetName);
         _canvasList.Clear();
+        TeammateNames.Draw(playerPage && Snapshot.Valid && !Snapshot.HideHud ? pc : null, Projector, screen);
         if (Snapshot.RespawnWeapon is { } weapon && !Snapshot.HideHud && Assets?.TextureSize(HudRespawnWeaponDrawer.Package, HudRespawnWeaponDrawer.Atlas) is { } atlas)
         {
             // BeginRespawnWeaponPick names the key bound to Use: here the bUsing button's key.
@@ -441,6 +451,24 @@ public partial class HudLayer : CanvasLayer
         _overlayList.Clear();
         if (_white is { } overlayWhite)
         {
+            if (Snapshot.Valid && disabledCamera is not null)
+            {
+                Color black = Colors.Black;
+                _overlayList.Items.Add(new MagmaDrawItem
+                {
+                    Path = "CamNetwork/Disabled", Kind = MagmaWidgetKind.Image,
+                    Package = overlayWhite.Package, Texture = overlayWhite.Texture,
+                    Points = [Vector2.Zero, new Vector2(screen.X, 0), screen, new Vector2(0, screen.Y)],
+                    Uvs = [overlayWhite.Uv, overlayWhite.Uv, overlayWhite.Uv, overlayWhite.Uv],
+                    Colors = [black, black, black, black],
+                });
+                float height = 24f * screen.Y / MagmaRenderer.PageHeight;
+                string message = string.Create(System.Globalization.CultureInfo.InvariantCulture,
+                    $"CAMERA DISABLED - RECONNECTING IN {disabledCamera.DisabledSeconds}s");
+                _overlayList.Items.Add(HudText.Item("CamNetwork/Countdown", message,
+                    new Rect2(0, (screen.Y - height) / 2, screen.X, height), height, MagmaAlign.Center, Colors.White));
+            }
+
             foreach (IHudOverlay o in _overlays)
             {
                 o.Draw(_overlayList, screen, overlayWhite);
@@ -453,6 +481,7 @@ public partial class HudLayer : CanvasLayer
             _items.AddRange(page.DrawList.Items);
             _items.AddRange(Interaction.DrawList.Items);
             _items.AddRange(Markers.DrawList.Items);
+            _items.AddRange(TeammateNames.DrawList.Items);
             _items.AddRange(Motion.DrawList.Items);
             _items.AddRange(_canvasList.Items);
             _items.AddRange(Console.DrawList.Items);

@@ -296,9 +296,16 @@ public sealed class ChannelPoseApplier
 
         for (int b = 0; b < _count; b++)
         {
-            _skeleton.SetBonePosePosition(b, _pos[b]);
-            _skeleton.SetBonePoseRotation(b, _rot[b].Normalized());
-            _skeleton.SetBonePoseScale(b, _scale[b]);
+            if (_scale[b].X > 0f && _scale[b].Y > 0f && _scale[b].Z > 0f)
+            {
+                _skeleton.SetBonePose(b, new Transform3D(new Basis(_rot[b].Normalized()).ScaledLocal(_scale[b]), _pos[b]));
+            }
+            else
+            {
+                _skeleton.SetBonePosePosition(b, _pos[b]);
+                _skeleton.SetBonePoseRotation(b, _rot[b].Normalized());
+                _skeleton.SetBonePoseScale(b, _scale[b]);
+            }
         }
 
         Array.Copy(_pos, _fromPos, _count);
@@ -368,10 +375,10 @@ public sealed class ChannelPoseApplier
             {
                 case Animation.TrackType.Position3D:
                 {
-                    Vector3 p = (Vector3)animation.PositionTrackInterpolate(track, wrap ? length : t);
+                    Vector3 p = animation.PositionTrackInterpolate(track, wrap ? length : t);
                     if (wrap)
                     {
-                        p = p.Lerp((Vector3)animation.PositionTrackInterpolate(track, 0.0), wrapAlpha);
+                        p = p.Lerp(animation.PositionTrackInterpolate(track, 0.0), wrapAlpha);
                     }
 
                     if (ch.Mirror)
@@ -413,7 +420,7 @@ public sealed class ChannelPoseApplier
 
                 case Animation.TrackType.Scale3D:
                 {
-                    Vector3 s = (Vector3)animation.ScaleTrackInterpolate(track, wrap ? length : t);
+                    Vector3 s = animation.ScaleTrackInterpolate(track, wrap ? length : t);
                     if (tween < 1f)
                     {
                         s = _fromScale[target].Lerp(s, tween);

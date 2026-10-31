@@ -10,6 +10,30 @@ namespace OpenScct.Game.SBase;
 /// </summary>
 public partial class SCamNetwork
 {
+    public const float ShotDisableDuration = 30f;
+
+    /// <summary>Server-driven countdown, replicated even to mercs who enter the feed later.</summary>
+    public int DisabledSeconds;
+    private float _shotDisabledUntil;
+    private bool _disabledLens;
+    private OpenScct.Core.Uc.AssetRef _enabledLens;
+
+    public bool IsShotDisabled => DisabledSeconds > 0;
+
+    protected override void TakeDamage(int Damage, Pawn? EventInstigator, FVector HitLocation, FVector Momentum,
+        SDamageType DamageType, int PillTag = 0)
+    {
+        if (Role != ENetRole.ROLE_Authority || EventInstigator is not SBasePawn { SPawnType: PawnType.SPAWNOFFENSE } ||
+            DamageType != SDamageType.SDTStickyShocker)
+        {
+            return;
+        }
+
+        _shotDisabledUntil = Level.TimeSeconds + ShotDisableDuration;
+        DisabledSeconds = (int)ShotDisableDuration;
+        UpdateDisabledLens();
+    }
+
     /// <summary>
     /// The ring's entry camera: the first network camera in list order with bFirstCam, else the last one in the list
     /// (the gadget's search, rule 3).
@@ -87,11 +111,38 @@ public partial class SCamNetwork
 
     private void SetLensSkin(OpenScct.Core.Uc.AssetRef skin)
     {
+        if (_disabledLens)
+        {
+            _enabledLens = skin;
+            skin = mOff;
+        }
+
         while (Skins.Count < 2)
         {
             Skins.Add(OpenScct.Core.Uc.AssetRef.None);
         }
 
         Skins[1] = skin;
+    }
+
+    // Runs on clients too: the replicated countdown drives the world model as well as the feed overlay.
+    private void UpdateDisabledLens()
+    {
+        if (IsShotDisabled == _disabledLens)
+        {
+            return;
+        }
+
+        if (IsShotDisabled)
+        {
+            _enabledLens = Skins.Count > 1 ? Skins[1] : OpenScct.Core.Uc.AssetRef.None;
+            SetLensSkin(mOff);
+            _disabledLens = true;
+        }
+        else
+        {
+            _disabledLens = false;
+            SetLensSkin(_enabledLens);
+        }
     }
 }

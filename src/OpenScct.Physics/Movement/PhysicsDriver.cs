@@ -417,7 +417,7 @@ public sealed partial class PhysicsDriver : IActorPhysics
 
     private static void NotifyBump(Actor actor, Actor other)
     {
-        if (actor.bDeleteMe || other.bDeleteMe)
+        if (actor.bDeleteMe || other.bDeleteMe || actor.XLevel.World.IsReplaying)
         {
             return;
         }

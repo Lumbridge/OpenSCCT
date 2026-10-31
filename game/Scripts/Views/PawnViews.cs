@@ -110,6 +110,7 @@ public partial class PawnViews : Node3D
     /// </summary>
     public void Draw(float alpha, float dt, SBasePawn? firstPerson, SBasePawn? localAimer = null, FRotator localView = default)
     {
+        if (!Visible) return;
         foreach (KeyValuePair<SBasePawn, SimPawnView> kv in _views)
         {
             SimPawnView view = kv.Value;

@@ -104,20 +104,25 @@ public static class ActionAnimation
         switch (action)
         {
             case SBasePawn.SA_GRAB:
+                CombatActionAnimation.Execute(pawn, action);
                 WalkSet(pawn, SBasePawn.SA_GRAB);
                 break;
             case SBasePawn.SA_GRAB_AVOIDED:
+                CombatActionAnimation.Execute(pawn, action);
                 WalkSet(pawn, SBasePawn.SA_WALK_ST_0H);
                 break;
             case SBasePawn.SA_GRABBED_AVOID:
+                CombatActionAnimation.Execute(pawn, action);
                 WalkSet(pawn, SBasePawn.SA_WALK_ST_2H);
                 a.BlendToAlpha(SBasePawn.PALMCHANNEL, 0f, 0.2f);
                 break;
             case SBasePawn.SA_GRABBED_CATCH:
+                CombatActionAnimation.Execute(pawn, action);
                 a.SetBlendParams(SBasePawn.INTERACTCHANNEL, 0f, bone: BoneSpine1);
                 a.BlendToAlpha(SBasePawn.PALMCHANNEL, 0f, 0.2f);
                 break;
             case SBasePawn.SA_GRABBED:
+                CombatActionAnimation.Execute(pawn, action);
                 if (pawn.m_AttackedBy is not null)
                 {
                     WalkSet(pawn, SBasePawn.SA_GRABBED);

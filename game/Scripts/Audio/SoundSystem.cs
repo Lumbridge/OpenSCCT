@@ -1028,6 +1028,10 @@ public sealed partial class SoundSystem : Node3D, ISimEventSink
             {
                 Name = "Voice3D" + index,
                 AttenuationModel = AudioStreamPlayer3D.AttenuationModelEnum.Disabled,
+                // Godot's high-shelf attenuation also responds to VolumeDb when distance attenuation is
+                // disabled. Our own distance/occlusion gain must not additionally muffle quiet sources.
+                AttenuationFilterDb = 0f,
+                AttenuationFilterCutoffHz = 20500f,
                 MaxDistance = 0f,
                 DopplerTracking = AudioStreamPlayer3D.DopplerTrackingEnum.Disabled,
                 Bus = ReverbBuses.WorldBus,
@@ -1041,6 +1045,9 @@ public sealed partial class SoundSystem : Node3D, ISimEventSink
         // StringName (a finalizable wrapper) per voice per frame.
         private string _bus3D;
         private string _bus2D;
+        private float _db3D = float.NaN, _db2D = float.NaN;
+        private float _pitch3D = float.NaN, _pitch2D = float.NaN;
+        private Vector3? _position3D;
 
         public AudioStreamPlayer3D Player3D { get; }
 
@@ -1117,12 +1124,14 @@ public sealed partial class SoundSystem : Node3D, ISimEventSink
             {
                 Player3D.Stream = stream;
                 Player3D.PitchScale = Pitch;
+                _pitch3D = Pitch;
                 Player3D.Play();
             }
             else
             {
                 Player2D.Stream = stream;
                 Player2D.PitchScale = Pitch;
+                _pitch2D = Pitch;
                 Player2D.Play();
             }
         }
@@ -1132,20 +1141,20 @@ public sealed partial class SoundSystem : Node3D, ISimEventSink
             float db = Mathf.LinearToDb(Math.Max(gain, AudioK.MinVolume));
             if (Positional)
             {
-                Player3D.VolumeDb = db;
-                Player3D.PitchScale = pitch;
+                if (_db3D != db) { _db3D = db; Player3D.VolumeDb = db; }
+                if (_pitch3D != pitch) { _pitch3D = pitch; Player3D.PitchScale = pitch; }
                 if (!string.Equals(_bus3D, bus, StringComparison.Ordinal))
                 {
                     _bus3D = bus;
                     Player3D.Bus = bus;
                 }
 
-                Player3D.Position = position;
+                if (_position3D != position) { _position3D = position; Player3D.Position = position; }
             }
             else
             {
-                Player2D.VolumeDb = db;
-                Player2D.PitchScale = pitch;
+                if (_db2D != db) { _db2D = db; Player2D.VolumeDb = db; }
+                if (_pitch2D != pitch) { _pitch2D = pitch; Player2D.PitchScale = pitch; }
                 if (!string.Equals(_bus2D, bus, StringComparison.Ordinal))
                 {
                     _bus2D = bus;

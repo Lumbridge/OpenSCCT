@@ -435,7 +435,12 @@ internal sealed partial class AccountApi
 
         long matchId = _store.RecordMatch(report, serverName, counted);
 
-        return Results.Json(new ResultsResponse { MatchId = matchId }, MasterApi.Json);
+        var equipment = new Dictionary<long, EquipmentAccountState>();
+        foreach (var row in report.Rows)
+            if (row.AccountId is { } account)
+                equipment[account] = new EquipmentAccountState(_store.ProgressionOf(account).Rank.Pack(),
+                    OpenScct.Net.Cosmetics.CosmeticUnlocks.Of(_store.Unlocked(account)).ToBytes());
+        return Results.Json(new ResultsResponse { MatchId = matchId, Equipment = equipment }, MasterApi.Json);
     }
 
     /// <summary>A round with a winner and at least one signed-in player on each team.</summary>

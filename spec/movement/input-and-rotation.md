@@ -375,3 +375,12 @@ No states of its own. PlayerTick dispatches to the current state's PlayerMove.
 4. Does NativePlayerInput run for live players. Resolved: its body (the button and mouse mapping) does:
    NativeComputeControlVariables runs the same function every live PlayerTick unless iDontUpdatePadInput is set.
    Evidence: input.md rule 2.2 (ANSWERS-actions 6).
+
+## Rewrite addition: explicit Walk binding
+
+The options expose Walk on both roles, with role-specific Hold/Toggle input behavior and running as the default.
+SetWalk requests set bFastSpeed explicitly; the existing ChangeSpeed command also permits mercenaries.
+A mercenary with bFastSpeed false uses a 0.5 input speed-mode scale before existing weapon movement curves.
+This intentional addition replaces the original mercenary exemption; standing and crouched slower movement and
+returning to normal speed are checked by WalkingTests.MercCanWalkSlowerAndReturnToRunning. Binocular speed mode
+retains its existing precedence. Input behavior clears on focus/menu cleanup and new possession.

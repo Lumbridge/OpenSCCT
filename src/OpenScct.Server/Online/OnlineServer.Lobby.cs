@@ -44,6 +44,7 @@ public sealed partial class OnlineServer
     private void SendWelcome(SessionPlayer p)
     {
         Send(p, SessionProtocol.Line("hello", SessionProtocol.Version, p.Id, Settings.Dedicated, Settings.MaxPlayers, Settings.Name));
+        Send(p, SessionProtocol.Line("sidearms", Settings.Master is null ? 1 : 0));
         SendSetup(p);
         foreach (SessionPlayer other in _players)
         {

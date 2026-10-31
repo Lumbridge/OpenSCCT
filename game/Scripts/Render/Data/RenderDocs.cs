@@ -211,6 +211,9 @@ public sealed class MaterialEntry
 
     public string? Texture { get; init; }
 
+    /// <summary>Tangent-space normal map for authored glTF assets.</summary>
+    public string? NormalTexture { get; init; }
+
     public bool Masked { get; init; }
 
     public bool Translucent { get; init; }
@@ -255,6 +258,9 @@ public sealed class MaterialEntry
     public bool EnvWorld { get; init; }
 
     public CombineEntry? Combine { get; init; }
+
+    /// <summary>A root Combiner lights its first texture stage before combining, rather than its final colour.</summary>
+    public bool LightBeforeCombine { get; init; }
 
     public FlipbookEntry? Flipbook { get; init; }
 
@@ -330,19 +336,31 @@ public sealed class MaterialsDoc
 
         using JsonDocument json = JsonDocument.Parse(File.ReadAllBytes(path));
         JsonElement root = json.RootElement;
+        if (root.TryGetProperty("graph", out JsonElement graph) && graph.ValueKind == JsonValueKind.Object)
+        {
+            foreach (JsonProperty g in graph.EnumerateObject())
+            {
+                string cls = Str(g.Value, "class") ?? "";
+                JsonElement props = g.Value.TryGetProperty("props", out JsonElement gp) ? gp.Clone() : default;
+                doc._graph[g.Name] = (cls, props);
+            }
+        }
+
         if (root.TryGetProperty("materials", out JsonElement materials))
         {
             foreach (JsonProperty m in materials.EnumerateObject())
             {
                 JsonElement f = m.Value.TryGetProperty("flags", out JsonElement flags) ? flags : default;
                 bool has = f.ValueKind == JsonValueKind.Object;
+                string? source = m.Value.TryGetProperty("source", out JsonElement s) ? s.GetString() : null;
+                bool opaqueCombiner = doc.IsBareCombiner(source);
                 doc._byName[m.Name] = new MaterialEntry
                 {
                     Name = m.Name,
-                    Source = m.Value.TryGetProperty("source", out JsonElement s) ? s.GetString() : null,
+                    Source = source,
                     Texture = has ? Str(f, "texture") : null,
-                    Masked = has && Bool(f, "masked"),
-                    Translucent = has && Bool(f, "translucent"),
+                    Masked = has && Bool(f, "masked") && !opaqueCombiner,
+                    Translucent = has && Bool(f, "translucent") && !opaqueCombiner,
                     TwoSided = has && Bool(f, "two_sided"),
                     Unlit = has && Bool(f, "unlit"),
                     SelfIllum = has ? Str(f, "self_illum") : null,
@@ -363,6 +381,7 @@ public sealed class MaterialsDoc
                     EnvTexture = has ? Str(f, "env_texture") : null,
                     EnvWorld = has && Bool(f, "env_world"),
                     Combine = has && f.TryGetProperty("combine", out JsonElement comb) ? CombineEntry.From(comb) : null,
+                    LightBeforeCombine = opaqueCombiner,
                     Flipbook = has && f.TryGetProperty("flipbook", out JsonElement fb) ? FlipbookEntry.From(fb) : null,
                     Mirror = has && Bool(f, "mirror"),
                     Projector = has && Bool(f, "projector"),
@@ -371,19 +390,34 @@ public sealed class MaterialsDoc
             }
         }
 
-        if (root.TryGetProperty("graph", out JsonElement graph) && graph.ValueKind == JsonValueKind.Object)
-        {
-            foreach (JsonProperty g in graph.EnumerateObject())
-            {
-                string cls = Str(g.Value, "class") ?? "";
-                JsonElement props = g.Value.TryGetProperty("props", out JsonElement gp) ? gp.Clone() : default;
-                doc._graph[g.Name] = (cls, props);
-            }
-        }
-
         ApplyList(doc, root, "additive", _ => MaterialBlend.Additive);
         ApplyList(doc, root, "modulate", e => Str(e, "mode") == "darken" ? MaterialBlend.Darken : MaterialBlend.Modulate);
         return doc;
+    }
+
+    private bool IsBareCombiner(string? path)
+    {
+        // Older packs inferred framebuffer alpha blending from either Combiner input. Native 0x10970ad0 only
+        // inherits bAlphaTexture for a root Texture; 0x1096d9d0 uses input alpha within the combination itself.
+        // Follow coordinate modifiers only: Shader / FinalBlend and other explicit material states keep their blend.
+        for (int depth = 0; path is not null && depth < 16 && _graph.TryGetValue(path, out var node); depth++)
+        {
+            string cls = node.Class[(node.Class.LastIndexOf('.') + 1)..];
+            if (cls == "Combiner")
+            {
+                return true;
+            }
+
+            if (cls is not ("TexPanner" or "TexFriendlyPanner" or "TexScaler" or "TexRotator" or "TexOscillator" or "TexEnvMap"))
+            {
+                return false;
+            }
+
+            path = node.Props.ValueKind == JsonValueKind.Object && node.Props.TryGetProperty("Material", out JsonElement material)
+                && material.ValueKind == JsonValueKind.Object ? Str(material, "$asset") : null;
+        }
+
+        return false;
     }
 
     /// <summary>A layer of the flags: the texture plus "&lt;prefix&gt;_anim" and "&lt;prefix&gt;_matrix".</summary>

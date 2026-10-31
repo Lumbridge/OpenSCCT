@@ -211,9 +211,9 @@ public sealed class LadderTests
 
         (CollisionDataBuilder level, TraversalDoc ges) = LadderLevel();
         PawnRig rig = PawnRig.Create(PawnTeam.Spy, level.Build(), ges, options);
-        if (PawnActions.Clip(rig.Pawn, new Name("LaddStAlBu0")).Root is null)
+        PawnClip top = PawnActions.Clip(rig.Pawn, new Name("LaddStAlBu0"));
+        if (top.Root is null && top.RootTrack is null)
         {
-            // The animation port does not load keyed root tracks yet (29 keys over 31 frames for this clip).
             Assert.Skip("LaddStAlBu0 has no root track in the animation source");
         }
 

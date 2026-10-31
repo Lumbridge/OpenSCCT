@@ -70,6 +70,7 @@ public static class PawnAnimNotifies
     [Provenance(ProvenanceKind.Estimated, "AnimNotify_Script calls the owner's function NotifyName; AnimNotify_StopSound stops the sound on the owner (the native bodies are not decoded)")]
     public static void Fire(Actor owner, int channel, UAnimNotify notify)
     {
+        if (owner.XLevel.World.IsReplaying) return;
         ArgumentNullException.ThrowIfNull(owner);
         ArgumentNullException.ThrowIfNull(notify);
         switch (notify)

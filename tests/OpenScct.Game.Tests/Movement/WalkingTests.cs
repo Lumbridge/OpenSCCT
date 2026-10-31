@@ -11,6 +11,25 @@ namespace OpenScct.Game.Tests.Movement;
 /// <summary>Walking speeds, input mapping and stance (spec/movement/walking.md, input-and-rotation.md).</summary>
 public sealed class WalkingTests
 {
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void MercCanWalkSlowerAndReturnToRunning(bool crouched)
+    {
+        PawnRig run = Rig(PawnTeam.Merc, crouched: crouched);
+        PawnRig walk = Rig(PawnTeam.Merc, crouched: crouched);
+        run.SetFastSpeed(true);
+        walk.SetFastSpeed(false);
+        run.Hold(Forward, 60);
+        walk.Hold(Forward, 60);
+        float slow = walk.Sample().Vel.Size2D();
+        float fast = run.Sample().Vel.Size2D();
+        Assert.True(slow > 0 && slow < fast, $"walking {slow}, running {fast}");
+        walk.Controller.ChangeSpeed();
+        walk.Hold(Forward, 60);
+        Assert.Equal(fast, walk.Sample().Vel.Size2D(), 1);
+    }
+
     [Fact]
     public void SpySpawnsCrouchedUnarmedAndStandsWithTheRig()
     {

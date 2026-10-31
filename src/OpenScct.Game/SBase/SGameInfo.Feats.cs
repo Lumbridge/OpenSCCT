@@ -12,6 +12,7 @@ public partial class SGameInfo
     /// <summary>The merc gun class of a weapon for the camo ladders ("ar", "smg", "shotgun"), or null.</summary>
     public static string? GunClassOf(SWeapon? weapon) => weapon switch
     {
+        MercSidearm pistol => pistol.Definition.Id,
         SWeaponDefense_Uzi => "smg",
         SWeaponDefense_Shotgun => "shotgun",
         SWeaponDefense => "ar",
@@ -104,7 +105,7 @@ public partial class SGameInfo
             return;
         }
 
-        if (GunClassOf(merc.MyWeapon) is not { } gun)
+        if (GunClassOf(killedPawn is SBasePawn { LastBulletWeapon: { } damageWeapon } && ReferenceEquals(damageWeapon.Instigator, merc) ? damageWeapon : merc.MyWeapon) is not { } gun)
         {
             return;
         }

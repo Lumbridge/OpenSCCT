@@ -22,6 +22,8 @@ public enum ProxyMotionMode : byte
 /// </summary>
 public enum PawnProxyMode : byte
 {
+    /// <summary>Explicit transform and pose snapshots on a shared server timeline.</summary>
+    Snapshots = 2,
     /// <summary>Stock: the original's dead reckoning (spec/native/net-proxy.md rules 1 to 15).</summary>
     DeadReckoning = 0,
 
@@ -559,12 +561,7 @@ public sealed class NetDriver : IDisposable
     public void TickFlush(long now, bool replicate = true)
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
-        Time = now;
-        // A clock that steps back (a caller switching clocks) must not count as negative time: the refill would turn
-        // into a send debt of twice the step, and every unreliable call would be dropped until it was paid off.
-        FrameMicros = _lastFlush < 0 ? 0 : Math.Max(0, now - _lastFlush);
-        _lastFlush = now;
-        RefillBudget(FrameMicros);
+        PrepareSendFrame(now);
         if (IsServer && replicate && World is not null)
         {
             ServerReplicateActors(now);
@@ -579,6 +576,19 @@ public sealed class NetDriver : IDisposable
                 connection.FlushNet(now);
             }
         }
+    }
+
+    /// <summary>Refill before priority state is queued. TickFlush may call this again at the same time.</summary>
+    public void PrepareSendFrame(long now)
+    {
+        ObjectDisposedException.ThrowIf(_disposed, this);
+        if (_lastFlush == now) return;
+        Time = now;
+        // A clock that steps back (a caller switching clocks) must not count as negative time: the refill would turn
+        // into a send debt of twice the step, and every unreliable call would be dropped until it was paid off.
+        FrameMicros = _lastFlush < 0 ? 0 : Math.Max(0, now - _lastFlush);
+        _lastFlush = now;
+        RefillBudget(FrameMicros);
 
         RemoveClosedConnections();
     }
@@ -605,6 +615,65 @@ public sealed class NetDriver : IDisposable
     }
 
     // ---- send budget and adaptive speed ----------------------------------------------------------------------
+
+    /// <summary>Publish possession and owner state before remote pawn traffic can consume this frame's budget.</summary>
+    private readonly Dictionary<NetConnection, Pawn?> _priorityPawns = new(ReferenceEqualityComparer.Instance);
+
+    public void ReplicatePriorityOwners()
+    {
+        if (!IsServer || World is null) return;
+        long stamp = ++_captureStamp;
+        PropagateDirty(stamp);
+        foreach (NetConnection connection in _connections)
+        {
+            if (!connection.bJoined || connection.State != EConnectionState.USOCK_Open || connection.Actor is not { } actor) continue;
+            if (actor is PlayerController pc)
+            {
+                foreach (Actor owned in World.Level.DynamicActors<Actor>())
+                    if (!ReferenceEquals(owned, actor) && !ReferenceEquals(owned, pc.Pawn) && !ReferenceEquals(owned, pc.PlayerReplicationInfo) &&
+                        IsNetOwner(owned, connection)) PriorityActor(connection, owned, stamp);
+                PriorityActor(connection, pc.Pawn, stamp);
+                PriorityActor(connection, pc.PlayerReplicationInfo, stamp);
+                bool mappedPawn = pc.Pawn is not null && connection.FindActorChannel(pc.Pawn) is { OpenAcked: true };
+                bool newPawn = !_priorityPawns.TryGetValue(connection, out Pawn? sentPawn) || !ReferenceEquals(sentPawn, pc.Pawn);
+                if (PriorityActor(connection, actor, stamp, force: mappedPawn && newPawn) && mappedPawn)
+                    _priorityPawns[connection] = pc.Pawn;
+            }
+            else PriorityActor(connection, actor, stamp);
+        }
+    }
+
+    private bool PriorityActor(NetConnection connection, Actor? actor, long stamp, bool force = false)
+    {
+        if (actor is null || actor.bDeleteMe || actor.RemoteRole == ENetRole.ROLE_None || !connection.IsNetReady) return false;
+        ActorChannel? channel = connection.FindActorChannel(actor);
+        if (!force && channel is { SentInitial: true, OpenAcked: true }) return true;
+        if (channel is null && Classes.Find(actor.GetType()) is { } info) channel = OpenActorChannel(connection, actor, info);
+        if (channel is not { Closing: false, IsNetReady: true }) return false;
+        channel.RelevantTime = Time;
+        channel.ActorDirty = true;
+        return channel.ReplicateActor(stamp) != ActorChannel.ReplicateResult.Deferred;
+    }
+
+    /// <summary>Open relevant player bodies before background map replication consumes the frame.</summary>
+    public void EnsureActivePawnChannel(Pawn pawn, NetConnection connection)
+    {
+        if (!IsServer || !connection.IsNetReady || pawn.bDeleteMe || pawn.RemoteRole == ENetRole.ROLE_None) return;
+        ActorChannel? channel = connection.FindActorChannel(pawn);
+        if (channel is { OpenAcked: true } || channel is { Closing: true }) return;
+        NetViewer viewer = ViewerOf(connection);
+        if (Settings.Interest is { } interest)
+        {
+            NetInterestDecision decision = interest.Evaluate(pawn, viewer, channel is not null);
+            if (decision.Cull || (channel is null && decision.MinUpdateSeconds > 0f)) return;
+        }
+        Relevancy.BeginPass();
+        if (!Relevancy.IsRelevant(pawn, viewer)) return;
+        if (channel is null && Classes.Find(pawn.GetType()) is { } info) channel = OpenActorChannel(connection, pawn, info);
+        if (channel is null || !channel.IsNetReady) return;
+        channel.RelevantTime = Time;
+        channel.ReplicateActor(++_captureStamp);
+    }
 
     /// <summary>
     /// GetMaxTickRate: a dedicated server's tick cap (the lanplay one with <see cref="NetDriverSettings.LanPlay"/>),
@@ -698,7 +767,10 @@ public sealed class NetDriver : IDisposable
         {
             int speed = connection.CurrentNetSpeed;
             NetSpeedRow client = Settings.Conf.Client;
-            Adapt(ref speed, connection.AvgLag, client, client.StepUp, client.Min(lan), client.Max(lan), now);
+            float lag = connection.AvgLag;
+            if (Settings.PawnProxies == PawnProxyMode.Snapshots && connection.Stats.HasRtt)
+                lag = Math.Max(0f, lag - connection.Stats.MinimumRttMicros / 1_000_000f);
+            Adapt(ref speed, lag, client, client.StepUp, client.Min(lan), client.Max(lan), now);
             connection.CurrentNetSpeed = speed;
             return;
         }
@@ -709,7 +781,10 @@ public sealed class NetDriver : IDisposable
             // Enhanced: this connection's own rate from its own lag, with the whole step.
             int max = Settings.MaxClientRate;
             int own = connection.SendRate;
-            Adapt(ref own, connection.AvgLag, row, row.StepUp, Math.Min(row.Min(lan), max), max, now);
+            float lag = connection.AvgLag;
+            if (Settings.PawnProxies == PawnProxyMode.Snapshots && connection.Stats.HasRtt)
+                lag = Math.Max(0f, lag - connection.Stats.MinimumRttMicros / 1_000_000f);
+            Adapt(ref own, lag, row, row.StepUp, Math.Min(row.Min(lan), max), max, now);
             connection.SendRate = own;
             return;
         }
@@ -1136,6 +1211,7 @@ public sealed class NetDriver : IDisposable
     [UcNative("AActor::ProcessRemoteFunction", Exe = 0x10a29830, Editor = 0x1118fa40)]
     public ENetCallResult ProcessRemoteFunction(Actor actor, string functionName, NetCallArgs? args = null)
     {
+        if (World?.IsReplaying == true) return ENetCallResult.Absorbed;
         ArgumentNullException.ThrowIfNull(actor);
         ArgumentNullException.ThrowIfNull(functionName);
         RepFunction? f = Classes.Find(actor.GetType())?.Layout.FindFunction(functionName);
@@ -1342,8 +1418,11 @@ public sealed class NetDriver : IDisposable
         }
 
         Stats.CallsReceived++;
-        handler(actor, f, args, connection);
+        if (DeferReceivedFunction?.Invoke(actor, f, args, connection, handler) != true)
+            handler(actor, f, args, connection);
     }
+
+    public Func<Actor, RepFunction, NetCallArgs, NetConnection, NetFunctionHandler, bool>? DeferReceivedFunction { get; set; }
 
     // ---- callbacks from connections ------------------------------------------------------------------------
 
@@ -1407,6 +1486,7 @@ public sealed class NetDriver : IDisposable
             }
 
             _connections.RemoveAt(i);
+            _priorityPawns.Remove(connection);
             if (connection.IsRecorder)
             {
                 continue;

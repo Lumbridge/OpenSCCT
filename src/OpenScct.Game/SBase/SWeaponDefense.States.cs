@@ -27,7 +27,7 @@ public partial class SWeaponDefense
     /// <summary>One more shot of the trigger pull when the muzzle is clear (rules 4 and 5), with the rumble.</summary>
     private bool TryShot()
     {
-        if (!(OwnerPC?.CheckIfCanFire() ?? true))
+        if (!SidearmEquipment.Ready(this) || !(OwnerPC?.CheckIfCanFire() ?? true))
         {
             return false;
         }

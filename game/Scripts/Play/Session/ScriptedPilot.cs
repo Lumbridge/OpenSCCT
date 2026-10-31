@@ -201,6 +201,20 @@ public sealed class ScriptedPilot
 
                 if (_phaseTicks > 30)
                 {
+                    // The route stops within a tolerance, and smoke tests deliberately offset the use spot.
+                    // Walk up to the actual interaction prompt before pressing Use, as a player would; otherwise
+                    // an 18 uu arrival tolerance plus a 30 uu offset can stop just outside the usable radius.
+                    if (pc?.IManager?.HasUsableInteractions() != true)
+                    {
+                        input.Set("BT_Up", true);
+                        if (_phaseTicks > 150)
+                        {
+                            Fail($"no usable interaction at {pawn?.Location}");
+                        }
+
+                        break;
+                    }
+
                     Next(PilotPhase.PressUse);
                 }
 

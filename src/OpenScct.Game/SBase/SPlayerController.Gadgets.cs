@@ -127,6 +127,7 @@ public partial class SPlayerController
     [PortOf("rep:SBase.SPlayerController.AskServerGiveObjectToPawn", Spec = "spec/objectives/interaction-system.md#network")]
     public void AskServerGiveObjectToPawn(SGadget? gad, SBasePawn? pw, int NB)
     {
+        if (gad is OpenScct.Game.Equipment.SidearmCarry) return;
         if (GadgetNet.ToServer(this, this, new CombatCall(CNAME_AskServerGiveObjectToPawn) { Target = gad, Actor1 = pw, Int1 = NB }))
         {
             return;

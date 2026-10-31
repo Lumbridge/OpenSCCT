@@ -8,8 +8,15 @@ namespace OpenScct.Net.Moves;
 /// <summary>One saved move (SBase.SSavedMove): the stamp it was sent with and the pawn's state at that moment.</summary>
 public sealed class SavedMove
 {
+    public int Slot;
+    public uint Sequence, Epoch;
+    public float DeltaTime;
+    public FVector Acceleration;
+    public bool Jump;
     public float TimeStamp;
     public FVector SavedLocation;
+    public FVector SavedVelocity;
+    public Actor? SavedBase;
     public EPhysics SavedPhysics;
     public byte ZoneConfig;
 
@@ -26,7 +33,16 @@ public sealed class SavedMove
 [UcNative("ASPlayerController::GetFreeSMove", Editor = 0x111e7160)]
 public sealed class SavedMoveList
 {
-    private readonly SavedMove[] _moves = new SavedMove[MoveK.SavedMoveRing];
+    private readonly SavedMove[] _moves;
+
+    public SavedMoveList(int capacity = MoveK.SavedMoveRing, bool preallocate = false)
+    {
+        _moves = new SavedMove[capacity];
+        if (preallocate)
+            for (int i = 0; i < _moves.Length; i++) _moves[i] = new SavedMove { Slot = i };
+    }
+
+    public void Clear() { _count = 0; _oldest = 0; }
     private int _count;
     private int _oldest;
 
@@ -43,7 +59,7 @@ public sealed class SavedMoveList
         SavedMove? newest = LastSMove;
         if (_count < _moves.Length)
         {
-            move = _moves[_count] ??= new SavedMove();
+            move = _moves[_count] ??= new SavedMove { Slot = _count };
             _count++;
         }
         else

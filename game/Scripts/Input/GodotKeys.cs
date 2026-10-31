@@ -20,6 +20,24 @@ public static class GodotKeys
         ["MouseWheelDown"] = MouseButton.WheelDown,
     };
 
+    /// <summary>Readable presentation only; saved IK names remain unchanged.</summary>
+    public static string DisplayName(string key)
+    {
+        if (key.StartsWith("NumPad", StringComparison.OrdinalIgnoreCase)) return "Numpad " + key[6..].Replace("Period", ".", StringComparison.OrdinalIgnoreCase);
+        return key.ToUpperInvariant() switch
+        {
+            "GREYSLASH" => "Numpad /", "GREYSTAR" => "Numpad *", "GREYPLUS" => "Numpad +", "GREYMINUS" => "Numpad -",
+            "LEFTMOUSE" => "Left mouse button", "RIGHTMOUSE" => "Right mouse button", "MIDDLEMOUSE" => "Middle mouse button",
+            "MOUSEX1" => "Mouse button 4", "MOUSEX2" => "Mouse button 5", "MOUSEWHEELUP" => "Mouse wheel up", "MOUSEWHEELDOWN" => "Mouse wheel down",
+            "PAGEUP" => "Page Up", "PAGEDOWN" => "Page Down", "CAPSLOCK" => "Caps Lock", "NUMLOCK" => "Num Lock", "SCROLLLOCK" => "Scroll Lock",
+            "UP" => "Up arrow", "DOWN" => "Down arrow", "LEFT" => "Left arrow", "RIGHT" => "Right arrow",
+            "SPACE" => "Space", "CTRL" => "Ctrl", "TILDE" => "Backtick / tilde", "SINGLEQUOTE" => "Apostrophe (')",
+            "SEMICOLON" => "Semicolon (;)", "EQUALS" => "Equals (=)", "COMMA" => "Comma (,)", "MINUS" => "Minus (-)",
+            "PERIOD" => "Period (.)", "SLASH" => "Slash (/)", "BACKSLASH" => "Backslash (\\)",
+            "LEFTBRACKET" => "Left bracket ([)", "RIGHTBRACKET" => "Right bracket (])", _ => key,
+        };
+    }
+
     private static Dictionary<string, Key> Build()
     {
         var map = new Dictionary<string, Key>(StringComparer.OrdinalIgnoreCase);

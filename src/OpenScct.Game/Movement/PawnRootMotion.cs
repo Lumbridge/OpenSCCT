@@ -15,6 +15,16 @@ namespace OpenScct.Game.Movement;
 /// </summary>
 public sealed class PawnRootMotion : IRootMotionMesh
 {
+    public readonly record struct State(int LockType, FVector LockedRoot, FVector LastRoot, float LastYaw, int LockYaw, int Carried, int Serial);
+
+    public State Capture() => new(RootLockType, LockedRoot, _lastRoot, _lastRootYaw, _lockYaw, _carried, _serial);
+
+    public void Restore(in State state)
+    {
+        RootLockType = state.LockType; LockedRoot = state.LockedRoot; _lastRoot = state.LastRoot;
+        _lastRootYaw = state.LastYaw; _lockYaw = state.LockYaw; _carried = state.Carried; _serial = state.Serial;
+    }
+
     private readonly SBasePawn _pawn;
     private FVector _lastRoot;
     private float _lastRootYaw;

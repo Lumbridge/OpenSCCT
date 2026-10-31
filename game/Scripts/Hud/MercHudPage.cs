@@ -612,6 +612,8 @@ public sealed class MercHudPage : HudPage
                 HudK.MercColour);
         }
 
+        ExtraText("Extras/Weapon", s.HasSidearm && !s.AmmoOff ? s.ActiveWeaponName : "",
+            new Rect4(49f, 306f, 225f, 322f), MagmaAnchor.Left, MagmaAlign.Center, HudK.MercColour);
         ExtraText("Extras/Vision", s.VisionName, new Rect4(49f, 326f, 178f, 340f), MagmaAnchor.Left, MagmaAlign.Center,
             HudK.MercColour);
     }

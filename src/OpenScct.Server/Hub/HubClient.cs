@@ -110,8 +110,8 @@ public sealed class HubClient : IDisposable
                 (Settings.InstallId.Length > 0 ? "?SvmId=" + OptionText(Settings.InstallId) : string.Empty) +
                 (Settings.Ticket is { Length: > 0 } ticket ? "?SvmTicket=" + OptionText(ticket) : string.Empty) +
                 (Settings.Title is { Length: > 0 } title ? "?SvmTitle=" + OptionText(title) : string.Empty) +
-                (Settings.SpyLook.Packed != 0 ? "?SvmLookS=" + Settings.SpyLook.ToHex() : string.Empty) +
-                (Settings.MercLook.Packed != 0 ? "?SvmLookM=" + Settings.MercLook.ToHex() : string.Empty) +
+                (!Settings.SpyLook.IsDefault ? "?SvmLookS=" + Settings.SpyLook.ToHex() : string.Empty) +
+                (!Settings.MercLook.IsDefault ? "?SvmLookM=" + Settings.MercLook.ToHex() : string.Empty) +
                 (Settings.HostKey is { Length: > 0 } hostKey ? "?SvmHost=" + OptionText(hostKey) : string.Empty),
             Gameplay = true,
             InstallGameplayServices = Settings.InstallGameplayServices,

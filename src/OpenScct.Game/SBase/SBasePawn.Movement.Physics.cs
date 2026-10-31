@@ -11,6 +11,8 @@ public partial class SBasePawn : ISBasePawnPhysics
 {
     private PawnRootMotion? _rootMotion;
 
+    public PawnRootMotion NetworkRootMotion => _rootMotion ??= new PawnRootMotion(this);
+
     ref FVector ISBasePawnPhysics.ZipP1 => ref ZipP1;
 
     ref FVector ISBasePawnPhysics.ZipP2 => ref ZipP2;

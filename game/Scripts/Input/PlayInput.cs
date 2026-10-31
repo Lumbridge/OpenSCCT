@@ -16,6 +16,9 @@ public partial class PlayInput : Node
 {
     private readonly HashSet<string> _down = new(StringComparer.OrdinalIgnoreCase);
     private readonly List<int> _pressedSinceTick = new();
+    private object? _actionPawn;
+    private readonly InputActionState _actionState = new();
+    public Func<OpenScct.Game.SBase.SPlayerController?>? Controller { get; set; }
     private float _mouseX;
     private float _mouseY;
 
@@ -168,6 +171,15 @@ public partial class PlayInput : Node
             return;
         }
 
+        object? pawn = Controller?.Invoke()?.SBPawn;
+        if (!ReferenceEquals(pawn, _actionPawn))
+        {
+            _actionPawn = pawn;
+            _actionState.Clear();
+            input.Commands.Add(new InputCommand("SetWalk", 0));
+            input.Commands.Add(new InputCommand("SetScope", 0));
+        }
+
         // Buttons released earlier, that were held for the last tick, go up now.
         foreach (int i in _pressedSinceTick)
         {
@@ -187,8 +199,31 @@ public partial class PlayInput : Node
                 input.Wheel--;
             }
 
-            foreach (KeyAction a in Bindings.Actions(ik))
+            foreach (KeyAction a in ActionsOf(ik))
             {
+                bool merc = Bindings.Side == PlaySide.Merc;
+                var behavior = Options.SettingsStore.Current.LookOf(merc, false);
+                if (a.Kind == KeyActionKind.Command && a.Name is "Walk" or "ChangeSpeed")
+                {
+                    bool pulse = ik.StartsWith("MouseWheel", StringComparison.OrdinalIgnoreCase);
+                    if (pulse && Controller?.Invoke()?.StateNode is OpenScct.Game.SBase.SPlayerController.IWheel)
+                    {
+                        if (pressed) input.Commands.Add(new InputCommand("WheelDown"));
+                    }
+                    else
+                    {
+                        bool walk = _actionState.Walk(ik, pressed, behavior.WalkBehavior == "Hold", pulse);
+                        input.Commands.Add(new InputCommand("SetWalk", walk ? 1 : 0));
+                    }
+                    continue;
+                }
+                if (a.Kind == KeyActionKind.Command && a.Name == "Run" && pressed && Controller?.Invoke()?.StateNode is not OpenScct.Game.SBase.SPlayerController.IWheel) _actionState.Run();
+                if (merc && behavior.ScopeBehavior == "Hold" && a.Kind == KeyActionKind.Command && a.Name == "SwitchBinocularVision" && !ik.StartsWith("MouseWheel", StringComparison.OrdinalIgnoreCase))
+                {
+                    bool scope = _actionState.Scope(ik, pressed);
+                    input.Commands.Add(new InputCommand("SetScope", scope ? 1 : 0));
+                    continue;
+                }
                 switch (a.Kind)
                 {
                     case KeyActionKind.Button when LocalInput.IndexOf(a.Name) is var b and >= 0:
@@ -211,9 +246,10 @@ public partial class PlayInput : Node
         }
 
         _pending.Clear();
+        if (_actionState.ScopeHeld) input.Commands.Add(new InputCommand("SetScope", 1));
         foreach (string ik in _down)
         {
-            foreach (KeyAction a in Bindings.Actions(ik))
+            foreach (KeyAction a in ActionsOf(ik))
             {
                 if (a.Kind == KeyActionKind.Axis && string.Equals(a.Name, "aUp", StringComparison.OrdinalIgnoreCase))
                 {
@@ -231,13 +267,19 @@ public partial class PlayInput : Node
         _mouseY = 0f;
     }
 
+    private IReadOnlyList<KeyAction> ActionsOf(string key) => key.StartsWith(UI.ControlActions.VirtualPrefix, StringComparison.Ordinal)
+        ? UI.ControlActions.VirtualActions(key) : Bindings?.Actions(key) ?? Array.Empty<KeyAction>();
+
     /// <summary>Releases every button (focus lost, pointer released).</summary>
     public void ClearHeld(LocalInput input)
     {
+        _actionState.Clear();
         _down.Clear();
         _pending.Clear();
         _pressedSinceTick.Clear();
         input.Clear();
+        input.Commands.Add(new InputCommand("SetWalk", 0));
+        input.Commands.Add(new InputCommand("SetScope", 0));
     }
 
     private bool IsButtonHeldElsewhere(string button, string releasedKey)
@@ -249,7 +291,7 @@ public partial class PlayInput : Node
                 continue;
             }
 
-            foreach (KeyAction a in Bindings.Actions(ik))
+            foreach (KeyAction a in ActionsOf(ik))
             {
                 if (a.Kind == KeyActionKind.Button && string.Equals(a.Name, button, StringComparison.OrdinalIgnoreCase))
                 {

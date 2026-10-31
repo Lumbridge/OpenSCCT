@@ -6,6 +6,12 @@ public static class RenderLayers
     /// <summary>The world: BSP, static meshes, actors (Godot's default layer 1).</summary>
     public const uint World = 1u;
 
+    /// <summary>Fixed merged BSP and static geometry, cached separately in map-light shadow maps.</summary>
+    public const uint StaticWorld = 1u << 16;
+
+    /// <summary>Colour-only effects: visible in the main view, excluded from custom depth cameras.</summary>
+    public const uint Effects = 1u << 15;
+
     /// <summary>The sky zone's geometry: seen only by the sky view, as in UE2's sky pass.</summary>
     public const uint Sky = 1u << 1;
 
@@ -34,8 +40,8 @@ public static class RenderLayers
     public const uint MainView = 0xFFFFFu & ~Sky & ~ShadowOnly & ~ShadowPass;
 
     /// <summary>What a spot light's shadow camera draws.</summary>
-    public const uint SpotShadow = World | ShadowPass;
+    public const uint SpotShadow = World | StaticWorld | ShadowPass;
 
     /// <summary>What a flare's shadow camera draws: the world and the local pawn's hidden body.</summary>
-    public const uint FlareShadow = World | ShadowOnly | ShadowPass;
+    public const uint FlareShadow = World | StaticWorld | ShadowOnly | ShadowPass;
 }

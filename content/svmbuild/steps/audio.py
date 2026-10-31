@@ -22,14 +22,14 @@ def audio_code() -> list[Path]:
 
 class AudioStep(Step):
     name = "audio"
-    version = 2
+    version = 3
     deps = ()
     per_map = False
     needs_game = True
     description = "P6: every .uax Sound (RIFF waves, stream and list sounds), .mux maps, class sound refs (shared/audio/)."
 
     def extra_code(self) -> list[Path]:
-        return env.code_files() + audio_code() + [REPO_ROOT / "content" / "svmbuild" / "sources" / "classdb.py",
+        return env.code_files() + audio_code() + [REPO_ROOT / "content" / "svmbuild" / "sidearms.py"] + [REPO_ROOT / "content" / "svmbuild" / "sources" / "classdb.py",
                                                   REPO_ROOT / "content" / "svmbuild" / "sources" / "typedprops.py"]
 
     def inputs(self, ctx: Context, unit: str | None) -> dict[str, str | None]:
@@ -54,6 +54,8 @@ class AudioStep(Step):
         stats = build_library(ctx.game, out_dir, db)
         if stats["problems"]:
             raise ValueError("sounds that did not decode: " + "; ".join(stats["problems"][:10]))
+        from ..sidearms import install_audio
+        install_audio(out_dir)
         flat = {k: v for k, v in stats.items() if not isinstance(v, (dict, list))}
         flat["detail"] = stats
         return StepOutput(stats=flat)

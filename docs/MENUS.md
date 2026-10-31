@@ -110,7 +110,7 @@ Main menu ── Create a Session ──> Create Session ── Create ──> L
           ── Account         ──> Sign in with Discord ──> (browser) ──> pick a name ──> stats, achievements
           ── Tutorials       ──> View HUD, Tips, Gadget Details, Spy / Mercenary Tutorial Maps ── a map ──> Loading ──> tutorial
                              ──> Visit a Map ── Launch ──> Loading ──> the map alone, help paths shown ──> (end) Tutorials
-Lobby Room ── Launch (all ready) ──> Loading ──> round ──> results ── Next ──> next game of the series, or the Lobby Room
+Lobby Room ── Start match (server validates readiness) ──> Loading ──> round ──> results ── Next ──> next game of the series, or the Lobby Room
 ```
 
 ## Create Session
@@ -205,36 +205,41 @@ editable for the host (OK applies it), read only for everyone else.
 
 ## Lobby Room
 
-- Spies and Mercenaries lists ("Waiting for players" when a side is empty), spectators below. Each row: the speaking
-  icon, name (host mark, "(mic: team)" for a player who restricted his mic, a missing or different map), Ready / Not
-  Ready, ping, "(voice banned)"; for other players a volume slider (0 to 200%), Mute and, for the host, Kick ("Do you
-  want to kick ...?"), Ban ("Do you want to ban ... from this server?": his account, install id and address, for good)
-  and Voice Ban / Voice Unban ("Do you want to ban ... from voice chat?": nobody hears him and he hears nobody for the
-  rest of the visit).
-- Switch Team (not in Merc Deathmatch, not while ready), Spectate, Equipment, Briefing, Restrict Mic to Team, and a
-  line about the local microphone (transmitting or silent, push to talk or voice activation, the level).
-- Equipment (Lobby_Create's button, which opens Edit_Profile): the gear picker of the round (`GearMenu`) for the
-  local player's side, with the slots and allowed gadgets the session's setup will give that side (Alternate Mode,
-  or the stock rules with Deathmatch's one gadget). OK saves the choice to the settings file; the server takes it
-  when the round spawns the player (spec/additions/gear-change.md). Greyed for a spectator and while the launch counts
-  down.
-- Briefing (GUI.Briefing, BriefingDeux): the setup's map and mode for the local player's side (a spectator reads the
-  mercs'). Page 1 "MISSION MAIN OBJECTIVE": the map's loading picture, the mode's objective
-  (ExplicationModeSpy / Sentry) and the map's briefing (ExpliMapInBriefSpy / Sentry); Next shows page 2, the mode's
-  briefing for the side (ExpliModeInBriefSpy / Sentry) and the map legend (LegendMapInBrief); Previous goes back. The
-  words are the map's own, converted into its `ui/mapinfo.json` (`MapCatalog.GetMapSettings` fills SMapSettings'
-  strings from it). The original's briefing picture (GetLevelBrief) is not converted, so page 1 shows the loading
-  picture, and GUIController's objective names (TextSpy, TextSentry) show only when the text table has them.
-- Session Parameters: the Create Session rows. The host edits and presses Apply; any change un-readies the others
-  (the original's clients un-ready themselves), whose changed values blink for three seconds. The host's Maps button
-  opens the Create Session map list over the page (playlist choice, search, pictures); a picked map goes into the
-  rows, and OK applies it. The Choose Map arrows step through the host's playlist here too.
-- Chat: Say and TeamSay ("(Team) " prefix); a line within a second of the last one is not sent: "(Spam delay, 1 second)".
-- Page buttons: Leave, Options (the options over the lobby), Strategic Map (the selected map's strategic map, below),
-  and Launch / Cancel for the host or Ready / Not Ready for the others. Launch needs everyone on a side ready; a player without the map, or with another version of it, is named.
+The lobby presents the live match overview, team cards, chat/activity and match tools. At window widths of 1100
+pixels or more it uses two columns; smaller windows stack the panels. The preparation footer and primary action
+stay outside the scrolling body. Offline lobbies reuse the overview, team cards, role and readiness presentation,
+without online chat, spectators or moderation.
+
+- The overview shows the map preview/title, mode, objective summary and essential rules. Unlimited lives and
+  mode-specific disk/kill targets are named explicitly. Briefing contains the full map-specific instructions.
+- Team cards show occupants and open slots; rows keep speaking, name, local/host markers, readiness and ping.
+  Spectators have a separate list. Join Spies, Join Mercenaries and Spectate honor existing team/ready/mode rules.
+- The preparation footer shows the local role and normalized equipment selection. Change equipment opens the
+  existing gear picker with the live match's restrictions. It is disabled for spectators and during countdown.
+- Chat uses an All/Team selector and one Send button; Enter uses the selected channel. Pending text survives
+  session updates. Team chat from spectators is refused without clearing the draft or sending it publicly.
+- The player actions button opens per-player voice volume (0–200%), mute and permitted host moderation.
+  Kick, Ban and Voice Ban/Unban retain confirmation; losing host control dismisses pending moderation.
+- Edit match settings opens the host draft; View rules opens the same panel read-only for other players.
+  Apply changes sends the draft to the server; Discard changes restores the current server settings. Escape
+  confirms before discarding an edited draft. Map picking and Alternate rules update the draft rather than
+  applying implicitly. Changes received while a host draft is edited are flagged for review.
+- The live overview never previews unapplied settings. Applied changes appear as readable activity notices
+  instead of blinking values. Server changes still control readiness invalidation and launch behavior.
+- Start match / Cancel countdown is the host's primary action; clients use Ready / Not ready. Countdown,
+  named unready players, map mismatches, download progress/failure and waiting-for-host messages are shown beside
+  the action. Button availability uses existing session capabilities; the server checks launch requests again.
+  No new requirement for players on both teams is introduced.
+- Briefing, Strategic map, Cosmetics and Options live together under Match tools. The briefing still uses the
+  map's converted side-specific mode/objective/legend text; spectators read the mercenary briefing.
+
+`--svm-smoke=lobby-layout` checks host/client/offline layouts at 1024×768, 1280×720 and 1920×1080, settings
+Apply/Discard and remote changes, chat routing/draft preservation, voice volume, moderation confirmation, team
+selection, spectator restrictions, countdown captions and map-download status. `SVM_PLAY_SHOTS` saves rendered
+review images. The existing two-process net-lobby smoke uses the new player menu, settings panel and activity notices.
 
 Per-player volume and mute (rl:voice.mix) are Reloaded's: its overlay sets a player's volume with the scroll wheel and
-mutes with a click. The rewrite puts the same control on each lobby row and shows Reloaded's overlay in the round
+mutes with a click. The rewrite puts the same control in each lobby player menu and shows Reloaded's overlay in the round
 ("Guest - volume 40%", "Your microphone is muted"). Choices last for the visit, kept by player name.
 
 ## Strategic map
@@ -270,15 +275,74 @@ back). Settings keys are Reloaded's (`voice_push_to_talk`, `voice_activation_thr
 `voice_input_gain`, `voice_output_volume`, `voice_jitter_frames`, `voice_muted`, `voice_input_device`,
 `voice_auto_gain`, `voice_noise_suppression`, `voice_noise_suppression_level`, `voice_echo_cancellation`) plus
 `allow_voice_chat`. Auto-Adjust Mic Volume, Noise suppression with its level (Low, Standard, High, Extreme) and Echo
-cancellation (experimental) sit under Microphone Volume (docs/VOICE.md "Microphone clean-up"). The Keys page has
-"Separate spy and mercenary layouts" (`use_split_spy_merc_keyboard`, on): off, both sides play the spy's layout and a
-rebind on either side changes both (it takes effect on Save). The Controller page has "Analog slow walk"
-(`controller.slow_walk`) and, for each side, the stick click and bumper swaps (`swap_ls_lb`, `swap_rs_rb` in
-`controls_spy_pad` / `controls_merc_pad`, rl:input.pad). The Display page has Widescreen HUD (`widescreen_hud`) and small Enhanced Reality icons
-(`ws_er_small`) apart from Widescreen (`widescreen`, the Hor+ view).
-The key rows read "Bind: Capslock" as Reloaded's page writes them ("Bind: %s"). The options pages scroll up and down
-only, and a long device name is clipped to its column. The Display mode list reads "Borderless fullscreen" for
-Reloaded's `BorderlessFullscreen` value; the Keys page names the layout file, not its whole path.
+cancellation (experimental) sit under Microphone Volume (docs/VOICE.md "Microphone clean-up").
+
+## Role configuration and shared controls
+
+Options has **Spy**, **Mercenary**, **General Controls**, Display, Audio, Voice and HUD tabs. Each role contains
+Bindings, Mouse & Aim, Controller and Crosshair sections. The spy retains its original contextual reticle;
+the existing custom mercenary crosshair editor and preview live under Mercenary. Role frame caps and the mercenary
+FOV cap are under Mouse & Aim. Shared device settings and vertical mouse inversion live in
+General Controls. Detailed scope, camera and held-sensitivity modifiers are under Advanced settings.
+
+Bindings are action-based and grouped by movement, combat, gadgets, vision, communication and interface. They show
+unbound actions as well as existing keys. Focusing or hovering an action shows its verified description and the
+other actions on that key. The internal `FireMode` is the spy's ready/holster input (tap draws with laser, hold
+past 0.5 seconds draws without it); mercenary **Switch fire mode** uses `bROF`, switching burst/full auto.
+`bHoldBreath` steadies the merc scope but also operates the spy's selected cloak, so the spy shows a separate
+role-specific description. Roll is spy-only. Gadget quick-use, alternate action and cloak/breath can be rebound
+independently without deleting the other commands from their original combined key.
+
+The options are organized for this game rather than matching the original menu. Inactive original shortcuts
+(controls reference, HUD help and the legacy Quit command) are not offered as normal actions. Existing custom
+configuration data is retained without advertising nonfunctional features. Keyboard-only menu/chat handlers reject
+mouse assignments with an explanation rather than accepting a shortcut that cannot work. Voice shortcuts are
+connected to the active role's voice InputMap, with the existing defaults represented in older key layouts.
+
+Conflicts offer Replace, Share key, Swap (when there is one source key), or Cancel. Clear removes only the selected
+action. Custom command chains and aliases remain supported. Shared layouts are explicitly labeled **Use the same
+bindings for both roles** (`use_split_spy_merc_keyboard` is its inverse): both roles then edit the Spy layout;
+the separate Mercenary layout is retained. Existing controller assignments preserve their old full-key
+behavior and are shown as saved assignments; the normal choices offer independent actions (`Action:<stable-id>`) do not require a keyboard binding and do not run
+other actions sharing a keyboard key. Existing controller values are retained.
+
+All edits, including keyboard bindings, remain in memory until **Apply** or **Save & Close**. Back confirms
+before discarding unapplied changes. Section and role resets are staged; reset-all requires confirmation. Display
+changes retain the 15-second rollback question, and Save & Close waits for its answer. Settings remain in
+`user://settings.json`; key files remain `user://svm_keys_spy.ini` and `user://svm_keys_merc.ini` in Engine.Input
+format. New complete snapshots preserve aliases and intentionally cleared keys across reloads; older overlays
+are still accepted. Merely opening Options does not create key files.
+
+The redundant mouse **Spy free look response** selector is removed. Loading/clamping an old profile folds its
+fixed gain (1, 2, 2.5 or 3) into `controls_spy_kbm.free_look`, then sets `look_response` to Linear. The free-look
+range extends to 30 so every valid legacy sensitivity retains its turning speed; repeated loads do not multiply
+again. Controller curves remain: the inner 75% is linear and the outer 25% ramps to 2x, 2.5x or 3x. **Hold to
+modify sensitivity** replaces the clutch label. For mouse input its multiplier scales sensitivity directly;
+controller input is scaled before its curve. The merc's two enabled held modifiers multiply together.
+
+Options pages scroll vertically and wrap setting labels. Long controller choices have full-text tooltips. The
+Display mode list reads "Borderless fullscreen" for Reloaded's `BorderlessFullscreen` value. `--svm-smoke=options`
+checks draft/apply/discard, shared and separate layouts, independent controller dispatch, and every role subsection
+(including Advanced) at 1024x768, 1280x720 and 1920x1080. `SVM_PLAY_SHOTS` saves rendered review images.
+
+## Walk, gadgets and scope input
+
+Both roles now expose **Walk**, **Next gadget** and **Previous gadget** as independent bindable actions.
+Running is the default. Role Bindings sections offer Hold or Toggle for Walk, and the Mercenary offers Hold or
+Toggle for scope aiming. These behavior choices apply to keyboard, mouse and controller. A scroll notch cannot
+be held, so wheel-bound Walk and scope always toggle. Hold sources are tracked separately: releasing one source
+does not release another held source. Focus/menu cleanup clears held actions, and new possession restores running.
+
+The Mercenary's new walk mode uses 0.5 input scale, including crouched movement; existing movement curves and
+stance limits still apply. It is intentionally additional behavior rather than original-game parity. Scope and
+other contextual wheel handlers continue to control zoom, camera views, interaction menus and mine selection.
+
+The old shared wheel dropdown is removed. On load, legacy gadget-wheel bindings become NextGadget / PreviousGadget;
+legacy speed-wheel bindings become Run / Walk, and ChangeSpeed becomes Walk. Run is retained as a hidden
+compatibility command for old shortcuts, rather than offered as a normal action. Migration preserves other commands
+and aliases, is idempotent, and is written with the next binding edit. Existing controller identifiers migrate to
+equivalent action identifiers. Behavior settings persist as walk_behavior / scope_behavior in the role's keyboard
+control group; the default is Toggle to preserve existing tap-based controls.
 
 ## Display page (the original's Video Options)
 

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using Godot;
 using OpenScctGame.Hud;
 using OpenScctGame.Play.Session;
@@ -9,15 +10,9 @@ using OpenScctGame.UI;
 namespace OpenScctGame.Options;
 
 /// <summary>
-/// The options (rl:qol.settingsui): player name and pages for keys (the spy and merc layouts, click a key and press
-/// the new one, Escape cancels), mouse (profile sensitivity, inversions, the wheel, Reloaded's per-side and per-view
-/// look with its clutches and their keys), controller (Reloaded's SDL defaults, vibration, the pad look groups),
-/// display (mode, monitor, resolution, window position, vsync, merc FOV cap, the per-side frame caps, render scale,
-/// texture filtering, shadows, input lag, power throttling), audio (master, effects, music, objective sounds), voice
-/// (Reloaded's voice page: OptionsMenu.Voice.cs) and HUD (scoreboard, ping, frame-rate and network readouts, location,
-/// hack icon opacity, distance unit). Save writes
-/// <c>user://settings.json</c> and applies at once; Back discards. From the main menu it is a screen; in play (F12)
-/// an overlay.
+/// Role-specific configuration, shared controls and display/audio/HUD settings.
+/// Settings and keyboard edits remain in a draft until Apply. Back confirms discarding changes.
+/// Main-menu screen or in-game overlay, with display rollback and role-specific crosshair previews.
 /// </summary>
 public partial class OptionsMenu : Control
 {
@@ -25,8 +20,6 @@ public partial class OptionsMenu : Control
     private readonly Dictionary<string, Control> _controls = new(StringComparer.Ordinal);
     private GameSettings _edit = SettingsStore.Current.Clone();
     private KeyBindingsModel? _keys;
-    private GridContainer? _keyGrid;
-    private Label? _keySource;
     private Label? _note;
     private string? _listening;
     private TabContainer? _tabs;
@@ -76,6 +69,7 @@ public partial class OptionsMenu : Control
     {
         UpdateVoicePage();
         TickKeep();
+        if (_dirtyLabel is not null) _dirtyLabel.Text = HasUnsavedChanges ? "Unsaved changes" : "All changes applied";
     }
 
     public override void _ExitTree()
@@ -87,6 +81,7 @@ public partial class OptionsMenu : Control
 
     private void Build()
     {
+        EnsureDrafts();
         Theme = UiStyle.Theme;
         SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
         if (Overlay)
@@ -129,32 +124,35 @@ public partial class OptionsMenu : Control
         }
 
         _tabs = new TabContainer { Name = "Tabs", CustomMinimumSize = new Vector2(0f, 440f), SizeFlagsVertical = SizeFlags.ExpandFill };
-        _tabs.AddChild(KeysPage());
-        _tabs.AddChild(MousePage());
+        _tabs.AddChild(RolePage(PlaySide.Spy));
+        _tabs.AddChild(RolePage(PlaySide.Merc));
         _tabs.AddChild(PadPage());
         _tabs.AddChild(DisplayPage());
         _tabs.AddChild(AudioPage());
         _tabs.AddChild(VoicePage());
         _tabs.AddChild(HudPage());
-        _tabs.AddChild(CrosshairPage());
+
         column.AddChild(_tabs);
 
         _note = new Label { Name = "Note", Modulate = UiStyle.Dim, Text = _edit.LoadNote, AutowrapMode = TextServer.AutowrapMode.WordSmart };
         column.AddChild(_note);
+        _dirtyLabel = Help("All changes applied");
+        column.AddChild(_dirtyLabel);
         var buttons = new HBoxContainer { Name = "Buttons", Alignment = BoxContainer.AlignmentMode.Center };
         foreach (Button b in new[]
                  {
-                     UiStyle.MenuButton("Save", () => Save(), "Save"),
-                     UiStyle.MenuButton("Defaults", Defaults, "Defaults"),
+                     UiStyle.MenuButton("Apply", () => Save(), "Save"),
+                     UiStyle.MenuButton("Save & Close", SaveAndClose, "SaveAndClose"),
+                     UiStyle.MenuButton("Reset all", ConfirmDefaults, "Defaults"),
                      UiStyle.MenuButton("Back", Back, "Back"),
                  })
         {
-            b.CustomMinimumSize = new Vector2(200f, 44f);
+            b.CustomMinimumSize = new Vector2(160f, 44f);
             buttons.AddChild(b);
         }
 
         column.AddChild(buttons);
-        LoadLayout(PlaySide.Spy);
+        LoadLayout(_bindingSide);
     }
 
     /// <summary>
@@ -193,47 +191,6 @@ public partial class OptionsMenu : Control
 
     // ---- pages ---------------------------------------------------------------------------------------------
 
-    private Control KeysPage()
-    {
-        var page = new VBoxContainer { Name = "Keys" };
-        GridContainer grid = Grid("Layout");
-        var side = new OptionButton { Name = "Side" };
-        side.AddItem("Spy", (int)PlaySide.Spy);
-        side.AddItem("Mercenary", (int)PlaySide.Merc);
-        side.ItemSelected += index => LoadLayout((PlaySide)side.GetItemId((int)index));
-        grid.AddChild(new Label { Text = "Key layout" });
-        grid.AddChild(side);
-        _controls["key_layout"] = side;
-        grid.AddChild(new Control());
-        // Reloaded's split layouts (rl:input.keyboard); off, both sides play the spy's keys. Takes effect on Save.
-        Check(grid, "Separate spy and mercenary layouts", "use_split_spy_merc_keyboard", _edit.SplitKeyboard, v => _edit.SplitKeyboard = v);
-        page.AddChild(grid);
-        _keySource = new Label { Name = "Source", Modulate = UiStyle.Dim, AutowrapMode = TextServer.AutowrapMode.Arbitrary };
-        page.AddChild(_keySource);
-        var scroll = new ScrollContainer { Name = "Bindings", CustomMinimumSize = new Vector2(0f, 300f), SizeFlagsVertical = SizeFlags.ExpandFill };
-        // Two side-by-side lists (label, key, gap, label, key) so the rows use the page's width.
-        _keyGrid = new GridContainer { Columns = 5, SizeFlagsHorizontal = SizeFlags.ExpandFill };
-        _keyGrid.AddThemeConstantOverride("h_separation", 24);
-        scroll.AddChild(_keyGrid);
-        page.AddChild(scroll);
-        return page;
-    }
-
-    private Control MousePage()
-    {
-        GridContainer g = Grid("Mouse");
-        Check(g, "Invert mouse", "invert_y", _edit.InvertY, v => _edit.InvertY = v);
-        Check(g, "Invert X axis (spy)", "invert_x_spy", _edit.InvertXSpy, v => _edit.InvertXSpy = v);
-        Check(g, "Shocker lock-on snap when drawing (spy)", "shocker_snap", _edit.ShockerSnap, v => _edit.ShockerSnap = v);
-        Choice(g, "Mouse wheel", "mouse_wheel", GameSettings.WheelModes, _edit.MouseWheel, v => _edit.MouseWheel = v,
-            m => m == "Gadget" ? "Changes gadget" : "Walk and run");
-        LookRows(g, "controls_spy_kbm", () => _edit.SpyKbm, merc: false);
-        LookRows(g, "controls_merc_kbm", () => _edit.MercKbm, merc: true);
-        ClutchKeyRow(g, "Spy and mercenary clutch key", "clutch_one_key", () => _edit.ClutchOneKey, v => _edit.ClutchOneKey = v);
-        ClutchKeyRow(g, "Mercenary second clutch key", "clutch_two_key", () => _edit.ClutchTwoKey, v => _edit.ClutchTwoKey = v);
-        return Page("Mouse", g);
-    }
-
     /// <summary>
     /// One side's look group (rl:input.sens and rl:input.clutch): the looks, the scope or binoculars, the camera
     /// views, the vertical scales and the clutches.
@@ -247,39 +204,38 @@ public partial class OptionsMenu : Control
         {
             if (merc)
             {
-                Slider(g, "Mercenary look", key + ".look", 0.1f, 4f, SensStep, l.Look, v => of().Look = v, SensFormat, typed: true);
+                Slider(g, "Mercenary look", key + ".look", 0.05f, 10f, SensStep, l.Look, v => of().Look = v, SensFormat, typed: true);
             }
             else
             {
-                Slider(g, "Spy free look (gun holstered)", key + ".free_look", 0.1f, 4f, SensStep, l.FreeLook, v => of().FreeLook = v, SensFormat, typed: true);
-                Choice(g, "Spy free look response", key + ".look_response", GameSettings.Responses, l.LookResponse, v => of().LookResponse = v);
-                Slider(g, "Spy gun look (gun drawn)", key + ".look", 0.1f, 4f, SensStep, l.Look, v => of().Look = v, SensFormat, typed: true);
+                Slider(g, "Spy free look (gun holstered)", key + ".free_look", 0.05f, 30f, SensStep, l.FreeLook, v => of().FreeLook = v, SensFormat, typed: true);
+                Slider(g, "Spy gun look (gun drawn)", key + ".look", 0.05f, 10f, SensStep, l.Look, v => of().Look = v, SensFormat, typed: true);
             }
         }
 
-        Slider(g, merc ? "Mercenary sniper scope" : "Spy binoculars", key + ".scope", 0.1f, 4f, SensStep, l.Scope, v => of().Scope = v, SensFormat,
+        Slider(g, merc ? "Mercenary sniper scope" : "Spy binoculars", key + ".scope", 0.05f, 10f, SensStep, l.Scope, v => of().Scope = v, SensFormat,
             typed: true);
         if (merc)
         {
             // 2.45 turns the scope up and down as fast as sideways; 1 is the stock (legacy) speed.
-            Slider(g, "Mercenary scope vertical (1 = stock)", key + ".scope_vertical", 0.5f, 4f, SensStep, l.ScopeVertical,
+            Slider(g, "Mercenary scope vertical (1 = stock)", key + ".scope_vertical", 0.05f, 10f, SensStep, l.ScopeVertical,
                 v => of().ScopeVertical = v, SensFormat, typed: true);
         }
 
         if (skipLooks)
         {
             // Reloaded's mouse path ignores the groups' vertical; only the controller's uses it.
-            Slider(g, side + " vertical", key + ".vertical", 0.1f, 8f, SensStep, l.Vertical, v => of().Vertical = v, SensFormat, typed: true);
+            Slider(g, side + " up/down sensitivity", key + ".vertical", 0.05f, 10f, SensStep, l.Vertical, v => of().Vertical = v, SensFormat, typed: true);
         }
 
-        Slider(g, side + (merc ? " camera views" : " sticky camera and Cam Net"), key + ".cam", 0.1f, 4f, SensStep, l.Cam, v => of().Cam = v,
+        Slider(g, side + (merc ? " camera views" : " sticky camera and Cam Net"), key + ".cam", 0.05f, 10f, SensStep, l.Cam, v => of().Cam = v,
             SensFormat, typed: true);
-        Check(g, side + " clutch", key + ".clutch_one_enabled", l.ClutchOneEnabled, v => of().ClutchOneEnabled = v);
-        Slider(g, side + " clutch multiplier", key + ".clutch_one", 0.1f, 4f, 0.05f, l.ClutchOne > 0f ? l.ClutchOne : 1f, v => of().ClutchOne = v);
+        Check(g, side + " hold to modify sensitivity", key + ".clutch_one_enabled", l.ClutchOneEnabled, v => of().ClutchOneEnabled = v);
+        Slider(g, side + " held sensitivity multiplier", key + ".clutch_one", 0.1f, 10f, 0.05f, l.ClutchOne > 0f ? l.ClutchOne : 1f, v => of().ClutchOne = v);
         if (merc)
         {
-            Check(g, "Mercenary second clutch", key + ".clutch_two_enabled", l.ClutchTwoEnabled, v => of().ClutchTwoEnabled = v);
-            Slider(g, "Mercenary second clutch multiplier", key + ".clutch_two", 0.1f, 4f, 0.05f, l.ClutchTwo > 0f ? l.ClutchTwo : 1f, v => of().ClutchTwo = v);
+            Check(g, "Mercenary second sensitivity modifier", key + ".clutch_two_enabled", l.ClutchTwoEnabled, v => of().ClutchTwoEnabled = v);
+            Slider(g, "Mercenary second held multiplier", key + ".clutch_two", 0.1f, 10f, 0.05f, l.ClutchTwo > 0f ? l.ClutchTwo : 1f, v => of().ClutchTwo = v);
         }
 
         if (skipLooks)
@@ -291,24 +247,39 @@ public partial class OptionsMenu : Control
     }
 
     /// <summary>The clutch whose key waits for a press, or null.</summary>
-    private (Button Button, Action<string> Set)? _listeningClutch;
+    private (Button Button, Action<string> Set, string Original)? _listeningClutch;
 
-    /// <summary>A key or mouse button held for a clutch: click, then press it (Escape clears it).</summary>
+    /// <summary>A key or mouse button held for a modifier: Escape cancels; Clear explicitly unbinds it.</summary>
     private void ClutchKeyRow(GridContainer g, string label, string key, Func<string> current, Action<string> set)
     {
-        var button = new Button { Name = Safe(key), Text = current().Length == 0 ? "(none)" : current(), CustomMinimumSize = new Vector2(220f, 30f) };
+        var button = new Button { Name = Safe(key), Text = current().Length == 0 ? "(none)" : OpenScctGame.Controls.GodotKeys.DisplayName(current()), CustomMinimumSize = new Vector2(220f, 30f) };
         button.Pressed += () =>
         {
-            button.Text = "press a key...";
+            _listening = null;
+            _listeningAction = null;
+            string original = current();
+            button.Text = "Press key (Esc cancels)";
             _listeningClutch = (button, v =>
             {
                 set(v);
-                button.Text = v.Length == 0 ? "(none)" : v;
-            });
+                button.Text = v.Length == 0 ? "(none)" : OpenScctGame.Controls.GodotKeys.DisplayName(v);
+                if (key.StartsWith("clutch_one_key", StringComparison.Ordinal))
+                    foreach ((string id, Control control) in _controls)
+                        if (id.StartsWith("clutch_one_key", StringComparison.Ordinal) && control is Button other) other.Text = button.Text;
+            }, original);
         };
-        g.AddChild(new Label { Text = label, CustomMinimumSize = new Vector2(320f, 0f) });
+        g.AddChild(new Label { Text = label, AutowrapMode = TextServer.AutowrapMode.WordSmart, CustomMinimumSize = new Vector2(300f, 0f) });
         g.AddChild(button);
-        g.AddChild(new Control());
+        var clear = new Button { Text = "Clear" };
+        clear.Pressed += () =>
+        {
+            _listeningClutch = null;
+            set(""); button.Text = "(none)";
+            if (key.StartsWith("clutch_one_key", StringComparison.Ordinal))
+                foreach ((string id, Control control) in _controls)
+                    if (id.StartsWith("clutch_one_key", StringComparison.Ordinal) && control is Button other) other.Text = "(none)";
+        };
+        g.AddChild(clear);
         _controls[key] = button;
     }
 
@@ -317,22 +288,19 @@ public partial class OptionsMenu : Control
         GridContainer g = Grid("Controller");
         PadSettings p = _edit.Pad;
         // Set here, the first-run question (PadMenus) is never asked.
-        Check(g, "Native controller support", "controller.enabled", p.Enabled, v =>
+        Check(g, "Enable controller", "controller.enabled", p.Enabled, v =>
         {
             p.Enabled = v;
             p.Prompted = true;
         });
-        Check(g, "Stick movement", "controller.move", p.Move, v => p.Move = v);
-        Check(g, "Stick aiming", "controller.aim", p.Aim, v => p.Aim = v);
-        Check(g, "Button binds", "controller.binds", p.Binds, v => p.Binds = v);
+        Check(g, "Enable stick movement", "controller.move", p.Move, v => p.Move = v);
+        Check(g, "Enable stick aiming", "controller.aim", p.Aim, v => p.Aim = v);
+        Check(g, "Enable controller buttons", "controller.binds", p.Binds, v => p.Binds = v);
         Slider(g, "Left stick deadzone", "controller.deadzone_left", 0f, 0.9f, 0.01f, p.DeadzoneLeft, v => p.DeadzoneLeft = v);
         Slider(g, "Right stick deadzone", "controller.deadzone_right", 0f, 0.9f, 0.01f, p.DeadzoneRight, v => p.DeadzoneRight = v);
-        Slider(g, "Vertical aim scale", "controller.vertical_scale", 0.1f, 3f, 0.05f, p.VerticalScale, v => p.VerticalScale = v);
-        Slider(g, "Spy run threshold", "controller.run_threshold", 0.1f, 1f, 0.01f, p.RunThreshold, v => p.RunThreshold = v);
-        Check(g, "Analog slow walk (a part push walks slower)", "controller.slow_walk", p.SlowWalk, v => p.SlowWalk = v);
-        Slider(g, "Look speed", "controller.look_speed", 100f, 3000f, 10f, p.LookSpeed, v => p.LookSpeed = v, "0");
-        Check(g, "Spy eight-way movement", "controller.spy_move8", p.SpyMove8, v => p.SpyMove8 = v);
-        Check(g, "Mercenary eight-way movement", "controller.merc_move8", p.MercMove8, v => p.MercMove8 = v);
+        Slider(g, "Up/down sensitivity multiplier", "controller.vertical_scale", 0.1f, 3f, 0.05f, p.VerticalScale, v => p.VerticalScale = v);
+        Check(g, "Movement speed follows stick tilt", "controller.slow_walk", p.SlowWalk, v => p.SlowWalk = v);
+        Slider(g, "Base controller turning speed", "controller.look_speed", 100f, 3000f, 10f, p.LookSpeed, v => p.LookSpeed = v, "0");
         Check(g, "Vibration", "controller.rumble", p.Rumble, v => p.Rumble = v);
         Slider(g, "Vibration strength", "controller.rumble_strength", 0f, 100f, 1f, p.RumbleStrength * 100f, v => p.RumbleStrength = v / 100f, "0");
         g.AddChild(new Label { Text = "Test vibration", CustomMinimumSize = new Vector2(320f, 0f) });
@@ -340,46 +308,45 @@ public partial class OptionsMenu : Control
         g.AddChild(UiStyle.MenuButton("Test", () => PadRumble.Play(PadMenus.CurrentDevice(), new RumbleShape(7, 65535, 65535, 0.35f), _edit.Pad.RumbleStrength),
             "RumbleTest"));
         g.AddChild(new Control());
-        Slider(g, "Spy free look", "controls_spy_pad.free_look", 0.1f, 4f, SensStep, _edit.SpyPad.FreeLook, v => _edit.SpyPad.FreeLook = v, SensFormat, typed: true);
-        Slider(g, "Spy gun look", "controls_spy_pad.look", 0.1f, 4f, SensStep, _edit.SpyPad.Look, v => _edit.SpyPad.Look = v, SensFormat, typed: true);
-        Choice(g, "Spy look response", "controls_spy_pad.look_response", GameSettings.Responses, _edit.SpyPad.LookResponse, v => _edit.SpyPad.LookResponse = v);
-        LookRows(g, "controls_spy_pad", () => _edit.SpyPad, merc: false, skipLooks: true);
-        Slider(g, "Mercenary look", "controls_merc_pad.look", 0.1f, 4f, SensStep, _edit.MercPad.Look, v => _edit.MercPad.Look = v, SensFormat, typed: true);
-        Choice(g, "Mercenary look response", "controls_merc_pad.look_response", GameSettings.Responses, _edit.MercPad.LookResponse, v => _edit.MercPad.LookResponse = v);
-        LookRows(g, "controls_merc_pad", () => _edit.MercPad, merc: true, skipLooks: true);
         Godot.Collections.Array<int> pads = Input.GetConnectedJoypads();
         string names = pads.Count == 0 ? "No controller connected" : string.Join(", ", System.Linq.Enumerable.Select(pads, i => Input.GetJoyName(i)));
-        g.AddChild(new Label { Text = "Detected" });
+        g.AddChild(new Label { Text = "Connected controllers" });
         g.AddChild(new Label { Name = "Pads", Text = names, Modulate = UiStyle.Dim });
         g.AddChild(new Control());
 
         var content = new VBoxContainer { Name = "ControllerContent", SizeFlagsHorizontal = SizeFlags.ExpandFill };
-        content.AddChild(g);
-        content.AddChild(new HSeparator());
-        GridContainer layout = Grid("PadLayout");
-        var side = new OptionButton { Name = "PadSide", CustomMinimumSize = new Vector2(320f, 0f), SizeFlagsHorizontal = SizeFlags.ExpandFill };
-        side.AddItem("Spy", (int)PlaySide.Spy);
-        side.AddItem("Mercenary", (int)PlaySide.Merc);
-        side.Selected = _padSide == PlaySide.Merc ? 1 : 0;
-        side.ItemSelected += index =>
+        GridContainer mouse = Grid("SharedInput");
+        Check(mouse, "Invert vertical mouse movement", "invert_y", _edit.InvertY, v => _edit.InvertY = v);
+        Check(mouse, "Use the same bindings for both roles", "use_split_spy_merc_keyboard", !_edit.SplitKeyboard, v =>
         {
-            _padSide = (PlaySide)side.GetItemId((int)index);
-            RebuildPadButtons();
-        };
-        layout.AddChild(new Label { Text = "Button layout", CustomMinimumSize = new Vector2(320f, 0f) });
-        layout.AddChild(side);
-        layout.AddChild(UiStyle.MenuButton("Reset buttons", ResetPadButtons, "ResetPadButtons"));
-        _controls["controller.layout_side"] = side;
-        content.AddChild(layout);
-        _padGrid = Grid("PadButtons");
-        content.AddChild(_padGrid);
-        RebuildPadButtons();
-        return Page("Controller", content);
+            _edit.SplitKeyboard = !v;
+            RebuildKeys();
+        });
+        content.AddChild(new Label { Text = "Mouse & Keyboard", Modulate = UiStyle.MenuFocus });
+        content.AddChild(Help("These settings apply to both roles. Set role-specific sensitivity and bindings in Spy or Mercenary."));
+        content.AddChild(mouse);
+        content.AddChild(Help("Shared bindings use the Spy layout. Changes in either role affect both while sharing is enabled. Your separate Mercenary layout is retained."));
+        content.AddChild(new HSeparator());
+        content.AddChild(new Label { Text = "Controller", Modulate = UiStyle.MenuFocus });
+        // Keep device setup and vibration together; detailed stick behavior is a separate group.
+        var tuning = Grid("ControllerTuning");
+        Node[] cells = g.GetChildren().ToArray();
+        for (int row = 1; row <= 8; row++)
+            for (int col = 0; col < 3; col++)
+            {
+                Node child = cells[row * 3 + col];
+                g.RemoveChild(child);
+                tuning.AddChild(child);
+            }
+        content.AddChild(g);
+        var advanced = new VBoxContainer { Visible = false, SizeFlagsHorizontal = SizeFlags.ExpandFill };
+        advanced.AddChild(new Label { Text = "Stick behavior", Modulate = UiStyle.MenuFocus });
+        advanced.AddChild(Help("Deadzones ignore small stick movements near the center; increase them if the view or character drifts. Movement speed follows stick tilt lets a partial push move more slowly."));
+        advanced.AddChild(tuning);
+        advanced.AddChild(Help("Base turning speed affects both roles and combines with each role's sensitivity. The up/down multiplier changes vertical turning relative to horizontal. Spy and Mercenary tabs contain response curves, role sensitivity and button assignments."));
+        AddAdvanced(content, advanced);
+        return Page("General Controls", content);
     }
-
-    /// <summary>The side whose controller buttons the Controller page shows.</summary>
-    private PlaySide _padSide = PlaySide.Spy;
-    private GridContainer? _padGrid;
 
     /// <summary>Pad control names as the options list them.</summary>
     private static string PadControlLabel(string control) => control switch
@@ -400,24 +367,19 @@ public partial class OptionsMenu : Control
     };
 
     /// <summary>One row per pad control: what it does on the shown side (saved with Save, like the other settings).</summary>
-    private void RebuildPadButtons()
+    private void RebuildPadButtons(PlaySide padSide, GridContainer padGrid)
     {
-        if (_padGrid is null)
+        foreach (Node child in padGrid.GetChildren())
         {
-            return;
-        }
-
-        foreach (Node child in _padGrid.GetChildren())
-        {
-            _padGrid.RemoveChild(child);
+            padGrid.RemoveChild(child);
             child.QueueFree();
         }
 
-        bool merc = _padSide == PlaySide.Merc;
+        bool merc = padSide == PlaySide.Merc;
         Dictionary<string, string> buttons = _edit.Pad.ButtonsOf(merc);
-        var model = new KeyBindingsModel(_padSide);
-        List<(string Action, string Label)> choices = model.PadChoices();
-        List<(string Action, string Label)> every = model.PadChoices(otherTeam: true);
+        var model = ModelOf(padSide);
+        List<(string Action, string Label)> choices = model.PadChoices(forSide: padSide, wheelMode: _edit.MouseWheel);
+        List<(string Action, string Label)> every = model.PadChoices(otherTeam: true, forSide: padSide, wheelMode: _edit.MouseWheel);
         foreach (string control in PadSettings.Controls)
         {
             string current = buttons.TryGetValue(control, out string? a) ? a : "";
@@ -427,48 +389,35 @@ public partial class OptionsMenu : Control
             {
                 // A saved action this team does not use, or one its layout has no key for: kept, and shown as such.
                 int other = every.FindIndex(c => string.Equals(c.Action, current, StringComparison.OrdinalIgnoreCase));
-                items.Add((current, other >= 0 ? every[other].Label + " (other team only)" : current + " (no key in this layout)"));
+                items.Add((current, other >= 0 ? every[other].Label + " (saved)" : current + " (saved custom assignment)"));
                 selected = items.Count - 1;
             }
 
             var option = new OptionButton
             {
-                Name = "Pad_" + control, ClipText = true, CustomMinimumSize = new Vector2(320f, 0f), SizeFlagsHorizontal = SizeFlags.ExpandFill,
+                Name = "Pad_" + control, ClipText = true, FitToLongestItem = false, CustomMinimumSize = new Vector2(320f, 0f), SizeFlagsHorizontal = SizeFlags.ExpandFill,
             };
             for (int i = 0; i < items.Count; i++)
             {
                 option.AddItem(items[i].Label, i);
+                option.SetItemTooltip(i, items[i].Label);
             }
 
             option.Selected = selected;
             string c = control;
             // The edited settings are read when chosen: Save swaps them for a fresh copy.
             option.ItemSelected += index => _edit.Pad.ButtonsOf(merc)[c] = items[(int)index].Action;
-            _padGrid.AddChild(new Label { Text = PadControlLabel(control), CustomMinimumSize = new Vector2(320f, 0f) });
-            _padGrid.AddChild(option);
-            _padGrid.AddChild(new Control());
-            _controls["controller.buttons." + control] = option;
+            padGrid.AddChild(new Label { Text = PadControlLabel(control), CustomMinimumSize = new Vector2(320f, 0f) });
+            padGrid.AddChild(option);
+            padGrid.AddChild(new Control());
+            _controls[(merc ? "controls_merc_pad.buttons." : "controls_spy_pad.buttons.") + control] = option;
         }
-    }
-
-    /// <summary>The shown side's controller buttons back to the defaults (saved with Save).</summary>
-    private void ResetPadButtons()
-    {
-        if (_padSide == PlaySide.Merc)
-        {
-            _edit.Pad.MercButtons = PadSettings.DefaultButtons(merc: true);
-        }
-        else
-        {
-            _edit.Pad.SpyButtons = PadSettings.DefaultButtons();
-        }
-
-        RebuildPadButtons();
     }
 
     private Control DisplayPage()
     {
         GridContainer g = Grid("Display");
+        Section(g, "Screen", "Choose the display, window mode and resolution.");
         Choice(g, "Display mode", "display_mode", GameSettings.DisplayModes, _edit.DisplayMode, v => _edit.DisplayMode = v, DisplayModeLabel);
         int screens = Math.Max(1, DisplayServer.GetScreenCount());
         var monitors = new string[screens];
@@ -482,16 +431,11 @@ public partial class OptionsMenu : Control
         Choice(g, "Window size", "resolution", Resolutions(), _edit.Resolution.Length == 0 ? DesktopLabel : _edit.Resolution,
             v => _edit.Resolution = v == DesktopLabel ? "" : v);
         Check(g, "Vertical sync", "vsync", _edit.VSync, v => _edit.VSync = v);
-        Check(g, "Widescreen (Hor+ view)", "widescreen", _edit.Widescreen, v => _edit.Widescreen = v);
-        Check(g, "Widescreen HUD (not stretched)", "widescreen_hud", _edit.WidescreenHud, v => _edit.WidescreenHud = v);
+        Section(g, "Widescreen layout", "Widen the view and adjust how the HUD fits a widescreen display.");
+        Check(g, "Wider field of view on widescreen", "widescreen", _edit.Widescreen, v => _edit.Widescreen = v);
+        Check(g, "Fit HUD to widescreen", "widescreen_hud", _edit.WidescreenHud, v => _edit.WidescreenHud = v);
         Check(g, "Small Enhanced Reality icons in widescreen", "ws_er_small", _edit.WideErSmall, v => _edit.WideErSmall = v);
-        Slider(g, "Mercenary FOV cap (ws_fov)", "ws_fov", GameSettings.MinMercFov, GameSettings.MaxMercFov, 1, _edit.MercFovCap, v => _edit.MercFovCap = v, "0");
-        // Max frame rate (Options/DisplayFrameCap): Monitor (the window's screen rate), Unlimited or 30 to 240.
-        double hz = SettingsApplier.MonitorHz;
-        Choice(g, "Max frame rate as spy", "fps_spy", DisplayFrameCap.Choices(_edit.FpsSpy, hz), DisplayFrameCap.Label(_edit.FpsSpy, hz),
-            v => _edit.FpsSpy = DisplayFrameCap.Parse(v) ?? _edit.FpsSpy);
-        Choice(g, "Max frame rate as mercenary", "fps_merc", DisplayFrameCap.Choices(_edit.FpsMerc, hz), DisplayFrameCap.Label(_edit.FpsMerc, hz),
-            v => _edit.FpsMerc = DisplayFrameCap.Parse(v) ?? _edit.FpsMerc);
+        Section(g, "Image quality", "Lower render scale improves performance at the cost of sharpness. Texture filtering keeps angled surfaces clearer; anti-aliasing smooths jagged edges.");
         Slider(g, "Render scale", "resolution_scale", 0.5f, 1f, 0.05f, _edit.RenderScale, v => _edit.RenderScale = v);
         Choice(g, "Window position (windowed)", "window_position", GameSettings.WindowPositions, _edit.WindowPosition, v => _edit.WindowPosition = v,
             w => w switch { "Default" => "Top left", "Stretched" => "Fill the screen", _ => w });
@@ -505,18 +449,19 @@ public partial class OptionsMenu : Control
         Check(g, "Smooth shadow edges", "shadow_edge_smoothing", _edit.ShadowEdgeSmoothing, v => _edit.ShadowEdgeSmoothing = v);
 
         // Video_Settings' Post-Render Quality (Normal, High) and its Brightness Configuration button (GUI.Mire).
-        Choice(g, "Post-render quality", "post_quality", GameSettings.PostQualities, GameSettings.PostQualities[Math.Clamp(_edit.PostQuality, 0, 1)],
+        Choice(g, "Post-processing quality", "post_quality", GameSettings.PostQualities, GameSettings.PostQualities[Math.Clamp(_edit.PostQuality, 0, 1)],
             v => _edit.PostQuality = Array.IndexOf(GameSettings.PostQualities, v));
         g.AddChild(new Label { Text = "Brightness", CustomMinimumSize = new Vector2(320f, 0f) });
         g.AddChild(UiStyle.MenuButton("Brightness configuration", OpenBrightnessTest, "BrightnessConfiguration"));
         g.AddChild(new Control());
+        Section(g, "Performance", "These settings require restarting the game.");
         Choice(g, "Reduce input lag (restart)", "low_latency_mode", GameSettings.LatencyModes, _edit.LowLatencyMode, v => _edit.LowLatencyMode = v);
         if (OperatingSystem.IsWindows())
         {
             Check(g, "Stop Windows power throttling (restart)", "throttle_stop", _edit.ThrottleStop, v => _edit.ThrottleStop = v);
         }
 
-        return Page("Display", g);
+        return Page("Display", SectionedContent(g));
     }
 
     private const string DesktopLabel = "Desktop";
@@ -539,38 +484,77 @@ public partial class OptionsMenu : Control
     private Control AudioPage()
     {
         GridContainer g = Grid("Audio");
-        Slider(g, "Master", "master_volume", 0f, 100f, 1f, _edit.MasterVolume * 100f, v => _edit.MasterVolume = v / 100f, "0");
-        Slider(g, "Effects", "sound_volume", 0f, 100f, 1f, _edit.SoundVolume * 100f, v => _edit.SoundVolume = v / 100f, "0");
-        Slider(g, "Music", "music_volume", 0f, 100f, 1f, _edit.MusicVolume * 100f, v => _edit.MusicVolume = v / 100f, "0");
+        Section(g, "Volume", "Adjust the overall volume or individual sound categories. Voice volume is on the Voice tab.");
+        Slider(g, "Overall volume", "master_volume", 0f, 100f, 1f, _edit.MasterVolume * 100f, v => _edit.MasterVolume = v / 100f, "0");
+        Slider(g, "Sound effects volume", "sound_volume", 0f, 100f, 1f, _edit.SoundVolume * 100f, v => _edit.SoundVolume = v / 100f, "0");
+        Slider(g, "Music volume", "music_volume", 0f, 100f, 1f, _edit.MusicVolume * 100f, v => _edit.MusicVolume = v / 100f, "0");
+        Section(g, "Gameplay audio", "");
         Check(g, "Objective sounds", "objective_sounds", _edit.ObjectiveSounds, v => _edit.ObjectiveSounds = v);
-        return Page("Audio", g);
+        return Page("Audio", SectionedContent(g));
     }
 
     private Control HudPage()
     {
         GridContainer g = Grid("HUD");
-        Check(g, "Connected players list on (F10)", "show_scoreboard", _edit.ShowScoreboard, v => _edit.ShowScoreboard = v);
-        Check(g, "Ping in the players list", "show_ping", _edit.ShowPing, v => _edit.ShowPing = v);
-        Choice(g, "Split the players list at team size", "scoreboard_split_team_size", ["1", "2", "3", "4"],
+        Section(g, "Player list", "");
+        Check(g, "Show connected players", "show_scoreboard", _edit.ShowScoreboard, v => _edit.ShowScoreboard = v);
+        Check(g, "Show latency in player list", "show_ping", _edit.ShowPing, v => _edit.ShowPing = v);
+        Choice(g, "Split player list when team size reaches", "scoreboard_split_team_size", ["1", "2", "3", "4"],
             _edit.ScoreboardSplitTeamSize.ToString(CultureInfo.InvariantCulture), v => _edit.ScoreboardSplitTeamSize = int.Parse(v, CultureInfo.InvariantCulture));
-        Check(g, "Frame rate readout", "show_fps", _edit.ShowFps, v => _edit.ShowFps = v);
+        Section(g, "Performance & network information", "Show diagnostic information while playing.");
+        Check(g, "Show frames per second (FPS)", "show_fps", _edit.ShowFps, v => _edit.ShowFps = v);
         Check(g, "Network readout (ping, corrections; a host sees its players' best and worst ping)", "show_net", _edit.ShowNet,
             v => _edit.ShowNet = v);
         Check(g, "Packet loss in the network readout", "show_net_loss", _edit.ShowNetLoss, v => _edit.ShowNetLoss = v);
+        Section(g, "Online feedback", "");
         Check(g, "Fire prediction (your bullet impacts show at once online)", "fire_prediction", _edit.FirePrediction,
             v => _edit.FirePrediction = v);
-        Check(g, "Location (the place you are in)", "show_location", _edit.ShowLocation, v => _edit.ShowLocation = v);
-        Check(g, "Distances in feet", "hud_feet", _edit.HudFeet, v => _edit.HudFeet = v);
+        Section(g, "Gameplay display", "");
+        Check(g, "Show current location", "show_location", _edit.ShowLocation, v => _edit.ShowLocation = v);
+        Check(g, "Use feet for distances", "hud_feet", _edit.HudFeet, v => _edit.HudFeet = v);
         Check(g, "Classic crosshair position (merc, slightly off-centre)", "classic_crosshair", _edit.ClassicCrosshair,
             v => _edit.ClassicCrosshair = v);
         // Reloaded's settings page offers 20 % to 100 %; stored 0 to 255.
         Slider(g, "Objective icon opacity while hacking (%)", "hack_alpha", 20f, 100f, 1f, Math.Max(20f, _edit.HackAlpha * 100f / 255f),
             v => _edit.HackAlpha = (int)MathF.Round(v * 255f / 100f), "0");
+        Section(g, "Discord", "Choose whether Discord displays your game and lets friends join.");
         Check(g, "Discord status (shows your game, lets friends join)", "discord_presence", _edit.DiscordPresence, v => _edit.DiscordPresence = v);
-        return Page("HUD", g);
+        return Page("HUD", SectionedContent(g));
     }
 
     // ---- building blocks -----------------------------------------------------------------------------------
+
+    private static void Section(GridContainer grid, string title, string description = "")
+    {
+        var heading = new VBoxContainer();
+        heading.SetMeta("options_section", true);
+        heading.AddChild(new Label { Text = title, Modulate = UiStyle.MenuFocus });
+        if (description.Length > 0) heading.AddChild(Help(description));
+        grid.AddChild(heading);
+    }
+
+    private static VBoxContainer SectionedContent(GridContainer source)
+    {
+        var content = new VBoxContainer { SizeFlagsHorizontal = SizeFlags.ExpandFill };
+        content.AddThemeConstantOverride("separation", 12);
+        GridContainer? group = null;
+        foreach (Node child in source.GetChildren())
+        {
+            source.RemoveChild(child);
+            if (child.HasMeta("options_section"))
+            {
+                content.AddChild(child);
+                group = null;
+            }
+            else
+            {
+                if (group is null) { group = Grid("Settings"); content.AddChild(group); }
+                group.AddChild(child);
+            }
+        }
+        source.QueueFree();
+        return content;
+    }
 
     private static GridContainer Grid(string name)
     {
@@ -591,7 +575,7 @@ public partial class OptionsMenu : Control
     private void Row(GridContainer grid, string label, string key, Control control, Action<Control> changed)
     {
         control.Name = Safe(key);
-        grid.AddChild(new Label { Text = label, CustomMinimumSize = new Vector2(320f, 0f) });
+        grid.AddChild(new Label { Text = label, AutowrapMode = TextServer.AutowrapMode.WordSmart, CustomMinimumSize = new Vector2(300f, 0f) });
         grid.AddChild(control);
         grid.AddChild(new Control());
         _controls[key] = control;
@@ -615,7 +599,7 @@ public partial class OptionsMenu : Control
             Name = Safe(key), MinValue = min, MaxValue = max, Step = step, Value = value,
             CustomMinimumSize = new Vector2(320f, 24f), SizeFlagsHorizontal = SizeFlags.ExpandFill,
         };
-        grid.AddChild(new Label { Text = label, CustomMinimumSize = new Vector2(320f, 0f) });
+        grid.AddChild(new Label { Text = label, AutowrapMode = TextServer.AutowrapMode.WordSmart, CustomMinimumSize = new Vector2(300f, 0f) });
         grid.AddChild(slider);
         _controls[key] = slider;
         if (typed)
@@ -659,7 +643,7 @@ public partial class OptionsMenu : Control
     {
         var box = new CheckBox { Name = Safe(key), ButtonPressed = value };
         box.Toggled += v => changed(v);
-        grid.AddChild(new Label { Text = label, CustomMinimumSize = new Vector2(320f, 0f) });
+        grid.AddChild(new Label { Text = label, AutowrapMode = TextServer.AutowrapMode.WordSmart, CustomMinimumSize = new Vector2(300f, 0f) });
         grid.AddChild(box);
         grid.AddChild(new Control());
         _controls[key] = box;
@@ -677,7 +661,7 @@ public partial class OptionsMenu : Control
         // Clipped to the column: a long item (a microphone's device name) must not widen the whole page.
         var option = new OptionButton
         {
-            Name = Safe(key), ClipText = true, CustomMinimumSize = new Vector2(320f, 0f), SizeFlagsHorizontal = SizeFlags.ExpandFill,
+            Name = Safe(key), ClipText = true, FitToLongestItem = false, CustomMinimumSize = new Vector2(320f, 0f), SizeFlagsHorizontal = SizeFlags.ExpandFill,
         };
         for (int i = 0; i < items.Length; i++)
         {
@@ -690,7 +674,7 @@ public partial class OptionsMenu : Control
         }
 
         option.ItemSelected += index => changed(items[(int)index]);
-        grid.AddChild(new Label { Text = label, CustomMinimumSize = new Vector2(320f, 0f) });
+        grid.AddChild(new Label { Text = label, AutowrapMode = TextServer.AutowrapMode.WordSmart, CustomMinimumSize = new Vector2(300f, 0f) });
         grid.AddChild(option);
         grid.AddChild(new Control());
         _controls[key] = option;
@@ -703,54 +687,19 @@ public partial class OptionsMenu : Control
     /// <summary>Shows the key layout of <paramref name="side"/>.</summary>
     public void LoadLayout(PlaySide side)
     {
-        _keys = new KeyBindingsModel(side);
+        _bindingSide = side;
+        _keys = ModelOf(side);
         _listening = null;
         RebuildKeys();
     }
 
     private void RebuildKeys()
     {
-        if (_keyGrid is null || _keys is null)
-        {
-            return;
-        }
-
-        foreach (Node child in _keyGrid.GetChildren())
-        {
-            _keyGrid.RemoveChild(child);
-            child.QueueFree();
-        }
-
         _keyButtons.Clear();
-        // The first half of the rows runs down the left list, the rest down the right one.
-        var rows = new List<KeyBindingRow>(_keys.Rows());
-        int half = (rows.Count + 1) / 2;
-        for (int i = 0; i < half; i++)
-        {
-            AddKeyRow(rows[i]);
-            _keyGrid.AddChild(new Control { CustomMinimumSize = new Vector2(48f, 0f) });
-            if (i + half < rows.Count)
-            {
-                AddKeyRow(rows[i + half]);
-            }
-        }
-
-        if (_keySource is not null)
-        {
-            // The file's name, not the install's whole path.
-            _keySource.Text = "Layout: " + System.IO.Path.GetFileName(_keys.Source) +
-                (OpenScctGame.Controls.InputBindings.Shared ? " (shared by both sides)" : string.Empty);
-        }
-    }
-
-    private void AddKeyRow(KeyBindingRow r)
-    {
-        _keyGrid!.AddChild(new Label { Text = r.Label, SizeFlagsHorizontal = SizeFlags.ExpandFill, ClipText = true, CustomMinimumSize = new Vector2(200f, 0f) });
-        string key = r.Key;
-        var button = new Button { Name = key, Text = key, CustomMinimumSize = new Vector2(220f, 30f) };
-        button.Pressed += () => Listen(key);
-        _keyButtons[key] = button;
-        _keyGrid.AddChild(button);
+        foreach ((PlaySide side, GridContainer grid) in _roleGrids)
+            BuildActionRows(side, grid);
+        _keys = ModelOf(_bindingSide);
+        foreach ((PlaySide side, GridContainer grid) in _rolePadGrids) RebuildPadButtons(side, grid);
     }
 
     private void Listen(string key)
@@ -758,17 +707,19 @@ public partial class OptionsMenu : Control
         _listening = key;
         if (_keyButtons.TryGetValue(key, out Button? b))
         {
-            b.Text = "press a key...";
+            b.Text = "Press a key...";
         }
     }
 
     public override void _Input(InputEvent @event)
     {
+        if (_dialogOpen || (_keep is not null && IsInstanceValid(_keep))) return;
         if (_listeningClutch is { } clutch && @event is InputEventKey { Pressed: true } or InputEventMouseButton { Pressed: true })
         {
             GetViewport().SetInputAsHandled();
             _listeningClutch = null;
-            clutch.Set(@event is InputEventKey { Keycode: Key.Escape } ? "" : KeyBindingsModel.KeyOf(@event) ?? "");
+            if (@event is InputEventKey { Keycode: Key.Escape }) clutch.Button.Text = clutch.Original.Length == 0 ? "(none)" : OpenScctGame.Controls.GodotKeys.DisplayName(clutch.Original);
+            else clutch.Set(KeyBindingsModel.KeyOf(@event) ?? clutch.Original);
             return;
         }
 
@@ -779,13 +730,20 @@ public partial class OptionsMenu : Control
             if (@event is InputEventKey { Keycode: Key.Escape })
             {
                 _listening = null;
+                _listeningAction = null;
                 RebuildKeys();
                 return;
             }
 
             if (KeyBindingsModel.KeyOf(@event) is { } key)
             {
-                Rebind(old, key);
+                if (_listeningAction is { } action)
+                {
+                    _listening = null;
+                    _listeningAction = null;
+                    AssignAction(_bindingSide, action, key);
+                }
+                else Rebind(old, key);
             }
 
             return;
@@ -798,7 +756,7 @@ public partial class OptionsMenu : Control
         }
     }
 
-    /// <summary>Moves the command of <paramref name="oldKey"/> to <paramref name="newKey"/> (saved by the input layer at once).</summary>
+    /// <summary>Moves the command of <paramref name="oldKey"/> to <paramref name="newKey"/> (staged until Apply).</summary>
     public void Rebind(string oldKey, string newKey)
     {
         _listening = null;
@@ -815,10 +773,30 @@ public partial class OptionsMenu : Control
         bool screenChanged = !string.Equals(before.DisplayMode, _edit.DisplayMode, StringComparison.Ordinal) || before.Monitor != _edit.Monitor ||
             !string.Equals(before.Resolution, _edit.Resolution, StringComparison.Ordinal);
         bool splitChanged = _edit.SplitKeyboard != before.SplitKeyboard;
+        // No disk or live input mutation takes place before Apply.
+        foreach (KeyBindingsModel model in ModelsToCommit())
+        {
+            if (!model.Commit())
+            {
+                if (_note is not null) _note.Text = "Could not save bindings. Your draft is still open; retry Apply.";
+                return Error.FileCantWrite;
+            }
+        }
         Error result = SettingsStore.Save(_edit);
+        if (result != Error.Ok)
+        {
+            if (_note is not null) _note.Text = "Could not save settings. Your draft is still open; retry Apply.";
+            return result;
+        }
+        foreach (KeyBindingsModel model in ModelsToCommit()) model.Draft?.Accept();
         SettingsApplier.ApplyDisplay(_edit, GetViewport());
         SettingsApplier.ApplyAudio(_edit);
         _edit = SettingsStore.Current.Clone();
+        _baseline = _edit.ToJson();
+        // Voice reads its own InputMap. Apply the played role, or Spy outside a round, without seeding gameplay keys.
+        PlaySide voiceSide = GetTree().CurrentScene?.FindChildren("*", nameof(OpenScctGame.Controls.PlayInput), true, false)
+            .OfType<OpenScctGame.Controls.PlayInput>().FirstOrDefault(p => p.Bindings is not null)?.Bindings?.Side ?? PlaySide.Spy;
+        OpenScctGame.Voice.VoiceInput.BindLayout(ModelOf(voiceSide).Draft!.Layout);
         if (splitChanged)
         {
             // The layout files the sides play changed: the page and a running round load them again.
@@ -833,6 +811,7 @@ public partial class OptionsMenu : Control
             _note.Text = result == Error.Ok ? "Saved to " + SettingsStore.FilePath : "Could not save the settings";
         }
 
+        RebuildPages();
         if (screenChanged && DisplayServer.GetName() != "headless")
         {
             AskKeepScreen(before);
@@ -865,10 +844,16 @@ public partial class OptionsMenu : Control
         {
             Name = "KeepScreen",
             Question = KeepText(KeepSeconds),
-            Yes = () => _keep = null,
+            Yes = () =>
+            {
+                _keep = null;
+                if (_closeAfterKeep) CloseMenu();
+                _closeAfterKeep = false;
+            },
             No = () =>
             {
                 _keep = null;
+                _closeAfterKeep = false;
                 GameSettings back = SettingsStore.Current.Clone();
                 back.DisplayMode = before.DisplayMode;
                 back.Monitor = before.Monitor;
@@ -878,6 +863,7 @@ public partial class OptionsMenu : Control
                 _edit.DisplayMode = back.DisplayMode;
                 _edit.Monitor = back.Monitor;
                 _edit.Resolution = back.Resolution;
+                _baseline = _edit.ToJson();
                 RebuildPages();
                 if (_note is not null)
                 {
@@ -924,6 +910,7 @@ public partial class OptionsMenu : Control
     {
         string name = _edit.PlayerName;
         _edit = new GameSettings { PlayerName = name };
+        foreach (PlaySide side in new[] { PlaySide.Spy, PlaySide.Merc }) ResetBindings(side);
         RebuildPages();
     }
 
@@ -934,7 +921,13 @@ public partial class OptionsMenu : Control
             return;
         }
 
+        StopMeter();
+        _micTest?.Dispose();
+        _micTest = null;
         int tab = _tabs.CurrentTab;
+        var sections = new Dictionary<string, int>();
+        foreach (Node role in _tabs.GetChildren())
+            if (role.GetNodeOrNull<TabContainer>("Sections") is { } nested) sections[role.Name] = nested.CurrentTab;
         foreach (Node child in GetChildren())
         {
             RemoveChild(child);
@@ -942,16 +935,37 @@ public partial class OptionsMenu : Control
         }
 
         _controls.Clear();
+        _roleGrids.Clear();
+        _bindingHelp.Clear();
+        _sharingLabels.Clear();
+        _rolePadGrids.Clear();
+        _listening = null;
+        _listeningAction = null;
+        _listeningClutch = null;
         _keyButtons.Clear();
         Build();
         if (_tabs is not null)
         {
-            _tabs.CurrentTab = tab;
+            _tabs.CurrentTab = Math.Min(tab, _tabs.GetTabCount() - 1);
+            foreach (Node role in _tabs.GetChildren())
+                if (role.GetNodeOrNull<TabContainer>("Sections") is { } nested && sections.TryGetValue(role.Name, out int selected))
+                    nested.CurrentTab = selected;
         }
     }
 
     /// <summary>Leaves without saving.</summary>
     public void Back()
+    {
+        if (_dialogOpen) return;
+        if (HasUnsavedChanges)
+        {
+            Confirm("Discard changes?", "Discard all unapplied settings and binding changes?", CloseMenu, "Discard");
+            return;
+        }
+        CloseMenu();
+    }
+
+    private void CloseMenu()
     {
         if (Overlay)
         {

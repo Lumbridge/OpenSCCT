@@ -230,17 +230,17 @@ public abstract partial class Actor
         if (oldBase is not null && !oldBase.bWorldGeometry)
         {
             oldBase.Attached.Remove(this);
-            oldBase.eventDetach(this);
+            if (XLevel?.World.IsReplaying != true) oldBase.eventDetach(this);
         }
 
         Base = NewBase;
         if (NewBase is not null && !NewBase.bWorldGeometry)
         {
             NewBase.Attached.Add(this);
-            NewBase.eventAttach(this);
+            if (XLevel?.World.IsReplaying != true) NewBase.eventAttach(this);
         }
 
-        if (bNotifyActor)
+        if (bNotifyActor && XLevel?.World.IsReplaying != true)
         {
             eventBaseChange();
         }
@@ -251,6 +251,7 @@ public abstract partial class Actor
     [Provenance(ProvenanceKind.Estimated, "UE2 AActor::BeginTouch order; to be confirmed in the game exe")]
     public void BeginTouch(Actor Other)
     {
+        if (XLevel?.World.IsReplaying == true) return;
         if (ReferenceEquals(Other, this) || Touching.Contains(Other))
         {
             return;
@@ -269,6 +270,7 @@ public abstract partial class Actor
     [UcNative("AActor::EndTouch")]
     public void EndTouch(Actor Other, bool NoNotifySelf = false)
     {
+        if (XLevel?.World.IsReplaying == true) return;
         if (!NoNotifySelf)
         {
             eventUnTouch(Other);

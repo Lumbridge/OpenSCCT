@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using OpenScct.Core.Engine;
 using OpenScct.Core.Uc;
 using OpenScct.Game.Equipment;
 using OpenScct.Game.SBase;
@@ -44,14 +45,18 @@ public sealed class GearMenuModel
     private readonly byte _allowed;
 
     public GearMenuModel(bool spy, int slots, IReadOnlyList<string> options, byte allowedMask, IReadOnlyList<string> weapons,
-        LoadoutSettings saved, bool hub)
+        LoadoutSettings saved, bool hub, int currentLevel = 1, bool unrestricted = false)
     {
         ArgumentNullException.ThrowIfNull(options);
         ArgumentNullException.ThrowIfNull(weapons);
         ArgumentNullException.ThrowIfNull(saved);
         Spy = spy;
         Slots = Math.Clamp(slots, 0, LoadoutSettings.Slots);
-        _options = options;
+        var choices = new List<string>(options);
+        if (!spy) foreach (var pistol in Sidearms.All) choices.Add(pistol.CarryId);
+        _options = choices;
+        CurrentLevel = currentLevel;
+        Unrestricted = unrestricted;
         _allowed = allowedMask;
         Weapons = weapons;
         Hub = hub;
@@ -61,6 +66,8 @@ public sealed class GearMenuModel
     }
 
     public bool Spy { get; }
+    public int CurrentLevel { get; }
+    public bool Unrestricted { get; }
 
     public bool Hub { get; }
 
@@ -86,7 +93,7 @@ public sealed class GearMenuModel
     public string Portrait { get; init; } = "";
 
     /// <summary>The picker for the player's current side, or null before the player has a team.</summary>
-    public static GearMenuModel? For(SPlayerController? pc, LoadoutSettings saved, bool hub)
+    public static GearMenuModel? For(SPlayerController? pc, LoadoutSettings saved, bool hub, int currentLevel = 1, bool unrestricted = false)
     {
         if (pc?.PlayerReplicationInfo?.Team is not STeamInfo team)
         {
@@ -109,7 +116,9 @@ public sealed class GearMenuModel
             }
         }
 
-        return new GearMenuModel(spy, team.iNBGadgets, options, team.bDisallowedInv, weapons, saved, hub)
+        return new GearMenuModel(spy, team.iNBGadgets, options, team.bDisallowedInv, weapons, saved, hub, (pc.PlayerReplicationInfo.SvmRank & 255),
+            pc.Level.NetMode == ENetMode.NM_Standalone || pc.PlayerReplicationInfo.SvmSidearmsUnrestricted ||
+            OpenScct.Game.Modes.PracticeRules.IsOn(pc))
         {
             Portrait = team.MaterialOfMesh.Count > 0 ? team.MaterialOfMesh[0].Path ?? "" : "",
             RuleText = !hub && OpenScct.Game.Modes.PracticeRules.IsOn(pc) ? PracticeRule : null,
@@ -122,7 +131,7 @@ public sealed class GearMenuModel
     /// that side (its Alternate Mode values, or the stock ones with Deathmatch's rule), as the round's team info will
     /// hold them. Null for a spectator.
     /// </summary>
-    public static GearMenuModel? ForLobby(int team, OpenScct.Server.Online.LobbySetup setup, LoadoutSettings saved)
+    public static GearMenuModel? ForLobby(int team, OpenScct.Server.Online.LobbySetup setup, LoadoutSettings saved, int currentLevel = 1, bool unrestricted = false)
     {
         ArgumentNullException.ThrowIfNull(setup);
         if (team is not (0 or 1))
@@ -150,7 +159,7 @@ public sealed class GearMenuModel
             }
         }
 
-        return new GearMenuModel(team == 0, info.iNBGadgets, options, info.bDisallowedInv, weapons, saved, hub: false)
+        return new GearMenuModel(team == 0, info.iNBGadgets, options, info.bDisallowedInv, weapons, saved, hub: false, currentLevel, unrestricted)
         {
             Portrait = info.MaterialOfMesh.Count > 0 ? info.MaterialOfMesh[0].Path ?? "" : "",
             RuleText = LobbyRule,
@@ -160,6 +169,7 @@ public sealed class GearMenuModel
     /// <summary>The name a class path shows (its localized ItemName), or "Empty".</summary>
     public static string NameOf(string path)
     {
+        if (Sidearms.Find(path) is { } pistol) return pistol.Name;
         if (string.IsNullOrEmpty(path))
         {
             return Empty;
@@ -181,6 +191,7 @@ public sealed class GearMenuModel
     /// <summary>Whether the host allows the team option holding <paramref name="path"/>.</summary>
     public bool IsAllowed(string path)
     {
+        if (Sidearms.Find(path) is { } pistol) return !Spy && Sidearms.Available(pistol.Kind, CurrentLevel, Unrestricted);
         int option = IndexOf(path);
         return option >= 0 && ((_allowed >> option) & 1) != 0;
     }
@@ -215,7 +226,7 @@ public sealed class GearMenuModel
 
         for (int i = 0; i < Slots; i++)
         {
-            if (i != slot && Same(Gadgets[i], option))
+            if (i != slot && (Same(Gadgets[i], option) || (Sidearms.Find(option) is not null && Sidearms.Find(Gadgets[i]) is not null)))
             {
                 Gadgets[i] = Gadgets[slot];
             }
@@ -283,6 +294,11 @@ public sealed class GearMenuModel
         for (int s = 0; s < Slots; s++)
         {
             string g = Gadgets[s];
+            if (Sidearms.Find(g) is not null)
+            {
+                if (Spy || Array.FindIndex(Gadgets, 0, s, x => Sidearms.Find(x) is not null) >= 0) Gadgets[s] = "";
+                continue;
+            }
             bool duplicate = false;
             for (int e = 0; e < s; e++)
             {
@@ -328,7 +344,7 @@ public sealed class GearMenuModel
     {
         for (int i = 0; i < Slots; i++)
         {
-            if (i != slot && Same(Gadgets[i], option))
+            if (i != slot && (Same(Gadgets[i], option) || (Sidearms.Find(option) is not null && Sidearms.Find(Gadgets[i]) is not null)))
             {
                 return true;
             }

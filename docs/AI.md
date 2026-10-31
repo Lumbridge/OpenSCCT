@@ -2,8 +2,8 @@
 
 The original game has no bots. SVM adds them so a player can fill a match alone and so matches can be played
 headless for tests. The bots are meant to play fair: they act only through a player's input and perceive only what a
-player could see or hear. This wave builds the foundations and a first competent spy and merc, with difficulty
-presets.
+player could see or hear. Their utility decisions, observed contact snapshots and spatial searches run locally,
+with difficulty presets and without gameplay recordings, trained models, a GPU or an external AI service.
 
 ```powershell
 OpenSCCT.exe -- --svm-play=SteeE --side=spy --bots=3 --difficulty=normal   # a 2v2 with three bots
@@ -34,6 +34,7 @@ OpenSCCT.exe -- --svm-play=SteeE --side=spy --bots=3 --difficulty=normal   # a 2
 | `src/OpenScct.Game/AI/AiWorld.cs` | per level: graphs, light field, noise board, team boards, HUD message tap, smoke and torch lists |
 | `src/OpenScct.Game/AI/AiLightField.cs` | the pawn light level by the renderer's rules (`Lighting/ActorLightRules.cs`): zone ambient, four strongest lights, spot shadow lights and torches, trigger light switches |
 | `src/OpenScct.Game/AI/AiPerception.cs` | `AiSight`, `AiNoiseBoard` (MakeNoise hearing and sounds), `AiMemory` |
+| `src/OpenScct.Game/AI/AiSearch.cs` | reachable search locations, observed travel direction, visual inspection and teammate assignments |
 | `src/OpenScct.Game/AI/NavBuilder.cs`, `NavGraph.cs`, `NavFollower.cs` | navigation from collision and GEs, A*, following with keys |
 | `src/OpenScct.Game/AI/DoorAi.cs` | closed doors on a route: wait, hack the door's switch, or shut its edges |
 | `src/OpenScct.Game/AI/AiBrain.cs`, `SpyAi.cs`, `MercAi.cs` | utility choice and the two sides' goals |
@@ -53,25 +54,27 @@ network test players for the netcode checks (docs/NETCODE.md, "Bot matches").
 
 ### Sight (`AiSight.Look`)
 
-1. On screen: within the horizontal FovAngle of the controller's view (plus 4 degrees). Inside the difficulty's
-   focus angle a target counts fully; outside it (peripheral) range and strength are scaled by the peripheral
-   factor.
+1. On screen: body samples inside a rectangular view, with the renderer's 4:3 reference FovAngle and Hor+ at a fixed
+   16:9 bot viewport. Pitch and both screen axes count. Inside the difficulty's focus angle a target counts fully;
+   outside it (peripheral) range and strength are scaled by the peripheral factor.
 2. In range: the difficulty's sight range (thermal: at most 5000 uu, its fade depth).
-3. A line: from the eye (location + 60 standing, + 30 crouched) to three points up the target's body (head, chest,
-   feet) through level geometry and movers; the share that is open scales the strength. Smoke clouds (a 300 uu
+3. A line: from the eye (location + 60 standing, + 30 crouched) to five body samples (head, chest, feet, shoulders)
+   through level geometry and movers; each sample must also be on screen. A prone body's samples follow the body
+   along the floor, below its unchanged collision cylinder's centre. The share that is open scales strength. Smoke clouds (a 300 uu
    sphere round each `SSmokeEmitter`) block normal, night and motion vision; thermal sees through at 0.8; EMF draws no
    particles.
 4. Lit enough, by vision mode:
 
 | Mode (RendMap) | Shows the target when |
 |---|---|
-| Normal (5) | the light on the side of the target facing the observer is above the threshold for the distance: `LightThreshold x (0.5 + d / 1000)`; a running target shows 1.5 times better; within 100 uu on the floor (and 250 uu in all) a dark shape shows anyway, so a body crouched or lying at the feet shows to a standing observer |
+| Normal (5) | strength is `clamp(L / (LightThreshold x (0.5 + d / 1000)), 0, 1)`; dim light accumulates evidence slowly instead of falling below a hard invisibility cutoff. A running target shows 1.5 times better; within 100 uu on the floor (and 250 uu in all) a dark shape shows anyway |
 | Night (34) | as normal with the light boosted: `(L + 1.4 x 30 / 255) x 4` (the mode's boost and post gain) |
 | Thermal (36) | always (pawns are hot), strength `1 - d / 5000` |
-| Motion (37) | never by sight: only while the bot's own goggle tracker holds a lock on the target and the target is within the view (`AiMotionSense`, the game's scan: 150 uu/s, 2600 uu plus the radius, an open line, no cloaked spy; spec/equipment/motion-tracking.md); a lock out of view is only the detect sound (`AiMotionSense.LastBeep`) |
+| Motion (37) | the normal scene is still drawn under the blurred colour pass: ordinary body sight at 0.65 strength, plus the bot's own tracker brackets at full strength (`AiMotionSense`, spec/equipment/motion-tracking.md). A stationary or prone body can therefore be seen without a lock. Fully cloaked spy bodies are hidden, matching the renderer. A lock out of view is only a beep |
 | EMF (38) | a spy only with its electronics on (`PawnVision.IsSpyEmfVisible`: weapon out, goggles on, binoculars, spy bullet, cloak, phosphorus); mercs always |
 
-A cloaked spy (`GlassEffect`) is up to 85 % harder to see in the light-based modes. Each look feeds a spotting meter
+A cloaked spy (`GlassEffect`) is up to 85 % harder to see in normal view; night vision draws the opaque body as the
+renderer does. Each look feeds a spotting meter
 that fills in `SpotSeconds / strength`; at 1 the contact is confirmed and its position known exactly.
 
 ### Light (`AiLightField`)
@@ -134,6 +137,33 @@ the teamwork knob's weight and delay. Mercs see terminals being hacked as the HU
 trigger's replicated `bTriggering`); localized messages to bot controllers are tapped from the objective net calls
 (`AiObjectiveTap`).
 
+Direct confirmed sight also stores an immutable `AiObservedPose`: position, velocity, facing, stance and visible
+combat state. Remembered grabs, drops, evasion, gadget aim and finishing approaches use these observations rather
+than following a hidden enemy's live transform. A tracker bracket supplies a position, not hidden posture or health.
+Contacts and team callouts expire by time, without polling an unseen enemy's health. Repeated or older callouts cannot
+refresh confidence or rewind newer evidence. Missing pawns are marked unseen at the end of every sight scan.
+
+A brief loss of sight preserves recognition for 1.5 s and the original reaction start for gaps below 0.5 s. A merc
+inspects an unconfirmed visible shape before attacking, rather than turning away or walking through it while its
+spotting meter fills. When approaching a downed spy it watches the remembered prone body instead of the standing
+collision centre, and uses normal vision and the torch when appropriate.
+
+### Searching after a lost contact (`AiSearch`)
+
+Search locations spread from the last observed position through the side's navigation graph. The uncertainty radius
+grows with elapsed time (250 to 1200 uu), with the last observed velocity a directional prior and travel distance a
+cost. Each expansion visits at most 4096 graph entries and retains at most 32 spaced locations. Failed route choices
+are limited to one per 0.4 s; the normal follower still handles doors and blocked edges.
+
+Looking at a location supplies negative evidence only through the bot's view, clear geometry, smoke, range and
+lighting, using the same spotting time. EMF cannot rule out an unarmed spy. Inspected places and failed approaches
+are remembered for that search. Team assignments prefer separate areas and expire after 2 s without renewal.
+
+Search duration is 5/10/14/18 s for Easy/Normal/Hard/Expert. Exhaustion discounts confidence once, rather than every
+frame, and a fresh report at the same location must wait 3 s before another search. Repeated callouts cannot keep
+restarting the deadline. A displaced observation can start a new search immediately. Reports include search plans
+and visual inspections. These are bounded heuristic beliefs; learned policies and human imitation remain future work.
+
 ## Navigation
 
 `NavBuilder.Build(collision, min, max, profile, GEs, activationMask)`:
@@ -142,7 +172,9 @@ trigger's replicated `bTriggering`); localized messages to bot controllers are t
   normal Z >= MINFLOORZ 0.7; a node where the crouched body fits, flagged standing when the standing body fits too.
 - **Walk and crouch edges** to the eight neighbours a swept body reaches with at most MAXSTEPHEIGHT 34 up, standing when
   both ends and the sweep fit a standing pawn, crouched otherwise (vents and crawl spaces; a crouched merc is 136 tall
-  and fits fewer of them).
+  and fits fewer of them). A small step can leave a gap of two or three sampled cells because the lower cylinder
+  overlaps its riser. Short connections across those gaps require continuous walkable floor at half-cell intervals
+  and a clear body sweep; they never bridge unsupported holes. Navigation cache version 7 rebuilds older graphs.
 - **Drops**: one way, up to three cells out, cleared all the way down; spies to 700 uu (a few points of damage past
   Fell_MinHeightForDmg 600), mercs to 400 (their damage starts at 450); deeper than the damage height costs extra.
   The landing floor must go on for two cells past the landing node in the direction of the drop: a narrow shelf over
@@ -170,6 +202,9 @@ use spot, hold Use until the menu opens, select the switch with S, let go, and k
 door nobody on the side can open, or one whose hack failed twice, is shut. A walker that sticks twice within 128 uu and
 20 s does the same: the walk edges across a line in front of it (160 uu each way along a door's face, 64 otherwise)
 are left out of the side's plans for 60 s, so later plans, even for a new goal, go another way.
+
+An automatic ladder grab or a route change halfway along a ladder is recovered before replanning: climb toward the
+goal's height, then plan again from a floor. A missing floor node in midair must not strand the controller on a rung.
 
 `NavFollower` plays a path with keys: it faces the next waypoint and holds forward, passes waypoints early when the
 next is in a clear straight line, crouches for crawl edges, stands and walks (not runs) off ledges for drops and lets
@@ -212,7 +247,7 @@ Spies switch night vision on in the dark and off in the light, and thermal near 
 | Engage | a confirmed spy in sight | after the reaction time aim at the chest (leading by the lead factor) with an error that shrinks from the first-shot to the settled spread while tracking; fire short bursts, not through a teammate; side-step at range (hard and expert); reload on an empty clip |
 | Respond | a terminal is being hacked (the nearest merc goes, with teamwork) | run to a spot 200 to 600 uu from the use spot that sees it, watching the spot |
 | Frag | a spy lost behind cover 400 to 1600 uu away in the last 4 s | select the frag, aim a full-strength throw on a low arc, tap the throw key |
-| Investigate | a noise, a callout, a lost spy, or hurt by something unseen | go there watching the place, look round, give up after 4 s |
+| Investigate | a visible shape, noise, callout, lost spy, or hurt by something unseen | inspect visible shapes without attacking; search reachable locations around lost contacts, retaining checked places and dividing areas with teammates |
 | Guard | otherwise | a post beside an untaken terminal no teammate holds, look round, change post every 12 to 30 s |
 
 Mercs light the torch in the dark (on below light 0.15, off above 0.35) while responding, investigating or engaging
@@ -331,6 +366,7 @@ and the mate are nearly still, the bot is within 175 uu and both facings are abo
 | HearingScale / SoundThreshold | 0.6 / 0.25 | 1 / 0.12 | 1.2 / 0.08 | 1.4 / 0.05 |
 | MemoryHalfLife (s) | 3 | 6 | 10 | 15 |
 | DecisionPeriod (s) / DecisionNoise | 0.5 / 0.35 | 0.25 / 0.15 | 0.2 / 0.08 | 0.15 / 0.03 |
+| SearchSeconds | 5 | 10 | 14 | 18 |
 | GadgetUse / Teamwork / Stealth | 0.2 / 0.1 / 0.2 | 0.6 / 0.5 / 0.6 | 0.85 / 0.8 / 0.85 | 1 / 1 / 1 |
 | MeleeUse | 0.15 | 0.45 | 0.7 | 0.9 |
 
@@ -347,7 +383,12 @@ and the mate are nearly still, the bot is within 175 uu and both facings are abo
   SteeE's normal match runs when SteeE is converted, every difficulty with `SVM_AI_MATCHES=1`. Reports go to
   `local/test-results/ai/`.
 
-## Matches (Debug build, 2v2, both sides at the same difficulty, terminals not blocking players)
+## Historical matches (before the vision and search improvements)
+
+These earlier Debug 2v2 results used equal difficulty and terminals that did not block players; they are not a
+current balance benchmark. Current converted-map tests keep production terminal collision and report wall time.
+The synthetic TestBox objective checks retain their explicit collision workaround because that fixture's
+primitive terminal collider overlaps the use spot. Set `SVM_AI_MATCHES=1` for all difficulties and AquaE/ClubD matches.
 
 | Map | Difficulty | End | Round | Kills (spies / mercs) | Merc bursts / frags |
 |---|---|---|---|---|---|
@@ -390,5 +431,6 @@ tracking, and the harder mercs kill more. The reports are in `local/test-results
   falling physics and clip are the combat port's case; the walking-side fall group caught the action first, so the
   pawn stayed in PHYS_Ledge with no control for the rest of the match. The group now hands 106 (and the landings 92
   and 101) on (DropAttackedOnLedgeTests).
-- **Balance**: mercs need better search (flashlight sweeps, patrol routes through dark rooms) and ambushes; spies need
-  melee kills and team tactics. These are the next steps of the plan ("AI bots").
+- **Balance**: search and vision have automated coverage, but perception thresholds, the motion blur factor and
+  approximate prone samples still need visual gameplay calibration. Strategic patrols, coordinated ambushes,
+  additional objective modes and training learned policies remain future work.

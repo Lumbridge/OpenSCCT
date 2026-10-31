@@ -216,6 +216,13 @@ public sealed class AnimTimingTests
             }
 
             string key = side + name;
+            // A proxy is hidden until its pose baseline is ready. Its initial orientation is a placement,
+            // and must not count as a rendered turn from the uninitialized channel's default rotation.
+            if (side == "client " && !p.NetworkPoseReady)
+            {
+                last.Remove(key);
+                continue;
+            }
             bool standing = p.Velocity.Size2D() <= 1f;
             if (last.TryGetValue(key, out int previous) && standing)
             {

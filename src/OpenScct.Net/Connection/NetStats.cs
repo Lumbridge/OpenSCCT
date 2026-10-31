@@ -43,6 +43,8 @@ public sealed class NetStats
     /// <summary>Last raw round trip sample in microseconds.</summary>
     public long LastRttMicros { get; private set; }
 
+    public long MinimumRttMicros { get; private set; }
+
     internal void AddRttSample(long micros)
     {
         if (!HasRtt)
@@ -64,5 +66,6 @@ public sealed class NetStats
         }
 
         LastRttMicros = micros;
+        if (MinimumRttMicros == 0 || micros < MinimumRttMicros) MinimumRttMicros = micros;
     }
 }

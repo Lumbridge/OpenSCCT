@@ -23,7 +23,13 @@ public partial class SCamNetwork
     [PortOf("uc:SBase.SCamNetwork:Tick", Spec = "spec/equipment/camera-network-gadget.md#rules")]
     protected override void Tick(float DeltaTime)
     {
+        if (Role == ENetRole.ROLE_Authority)
+        {
+            DisabledSeconds = System.Math.Max(0, (int)System.MathF.Ceiling(_shotDisabledUntil - Level.TimeSeconds));
+        }
+
         ComputeEnergyLevel(DeltaTime);
+        UpdateDisabledLens();
         if (iReplicatedVisionMode != iCurrentVisionMode)
         {
             SwitchToVision(iReplicatedVisionMode);

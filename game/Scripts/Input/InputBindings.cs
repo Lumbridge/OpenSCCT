@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
+using System.Linq;
 using Godot;
 using OpenScctGame.Play.Session;
 
@@ -102,10 +102,10 @@ public sealed class InputBindings
     }
 
     /// <summary>Loads the layout of <paramref name="side"/>, applies the user file and seeds the InputMap.</summary>
-    public static InputBindings Load(PlaySide side, string? gameRoot = null, bool seedInputMap = true)
+    public static InputBindings Load(PlaySide side, string? gameRoot = null, bool seedInputMap = true, bool? sharedOverride = null, bool draft = false, bool defaults = false)
     {
         // Shared layouts (rl:input.keyboard, use_split_spy_merc_keyboard off): both sides play the spy's files.
-        PlaySide fileSide = Shared ? PlaySide.Spy : side;
+        PlaySide fileSide = (sharedOverride ?? Shared) ? PlaySide.Spy : side;
         string file = fileSide == PlaySide.Spy ? "Default_kbd_0.ini" : "Default_kbd_1.ini";
         string original = Path.Combine(GameRoot(gameRoot), "System", file);
         KeyLayout layout;
@@ -129,25 +129,30 @@ public sealed class InputBindings
 
         string userFile = fileSide == PlaySide.Spy ? "user://svm_keys_spy.ini" : "user://svm_keys_merc.ini";
         string userPath = ProjectSettings.GlobalizePath(userFile);
-        if (OpenScctGame.Options.SettingsStore.Isolated)
+        bool completeSnapshot = false;
+        if (defaults || OpenScctGame.Options.SettingsStore.Isolated)
         {
             // Smoke runs play the stock layout and leave the player's key file alone (SettingsStore.Isolated).
         }
         else if (File.Exists(userPath))
         {
-            KeyLayout user = KeyLayout.Parse(File.ReadAllText(userPath));
-            DropMovedStockKeys(layout, user);
-            foreach (KeyValuePair<string, string> b in user.Bindings)
-            {
-                layout.Bind(b.Key, b.Value);
-            }
+            string userText = File.ReadAllText(userPath);
+            completeSnapshot = userText.StartsWith(KeyLayout.SnapshotMarker, StringComparison.Ordinal);
+            layout = KeyLayout.ApplyOverrides(layout, userText);
         }
-        else
+        else if (!draft)
         {
             TryWrite(userPath, layout);
         }
 
-        AddGearKey(layout);
+        if (!completeSnapshot)
+        {
+            AddGearKey(layout);
+            if (!layout.Bindings.Keys.Any(key => layout.Resolve(key).Any(a => string.Equals(a.Name, "SwapWeapon", StringComparison.OrdinalIgnoreCase))) &&
+                !layout.Bindings.ContainsKey("G")) layout.Bind("G", "SwapWeapon");
+            AddVoiceKeys(layout);
+        }
+        layout.UpgradeWheelBindings(OpenScctGame.Options.SettingsStore.Current.MouseWheel);
         var bindings = new InputBindings(layout, source, userFile, side, seedInputMap);
         if (seedInputMap)
         {
@@ -162,31 +167,6 @@ public sealed class InputBindings
     {
         string path = Path.Combine(OpenScctGame.Hud.HudAssets.DefaultRoot(), "keys", file);
         return File.Exists(path) ? path : null;
-    }
-
-    /// <summary>
-    /// The user file holds the whole layout as it was saved, so a stock key it leaves out was moved or cleared by
-    /// the player: that key is dropped when the user file binds its command elsewhere. Only a stock key whose
-    /// command the user file has nowhere (a newer stock layout) is kept.
-    /// </summary>
-    private static void DropMovedStockKeys(KeyLayout layout, KeyLayout user)
-    {
-        var userCommands = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-        foreach (string command in user.Bindings.Values)
-        {
-            if (command.Length > 0)
-            {
-                userCommands.Add(command);
-            }
-        }
-
-        foreach (string key in new List<string>(layout.Bindings.Keys))
-        {
-            if (!user.Bindings.ContainsKey(key) && userCommands.Contains(layout.Bindings[key]))
-            {
-                layout.Bind(key, "");
-            }
-        }
     }
 
     /// <summary>The gear picker's default key: free in both stock layouts and among the hub's keys.</summary>
@@ -210,6 +190,17 @@ public sealed class InputBindings
         if (!layout.Bindings.ContainsKey(GearKey))
         {
             layout.Bind(GearKey, OpenScctGame.Play.PlayMenu.GearCommand);
+        }
+    }
+
+    /// <summary>Represent the existing voice InputMap defaults in old layouts without changing their behavior.</summary>
+    private static void AddVoiceKeys(KeyLayout layout)
+    {
+        foreach ((string key, string command) in new[] { ("CapsLock", "PushToTalk"), ("Y", "TeamPushToTalk"), ("F8", "ToggleVoiceMute") })
+        {
+            if (layout.Bindings.Keys.Any(k => layout.Resolve(k).Any(a => a.Name.Equals(command, StringComparison.OrdinalIgnoreCase)))) continue;
+            string existing = layout.Bindings.TryGetValue(key, out string? raw) ? raw : "";
+            layout.Bind(key, existing.Length == 0 ? command : existing + " | " + command);
         }
     }
 
@@ -242,9 +233,19 @@ public sealed class InputBindings
         return updated;
     }
 
+    /// <summary>Commit a whole options draft. Editing never calls this method.</summary>
+    public bool SaveDraft(KeyLayout draft)
+    {
+        if (!OpenScctGame.Options.SettingsStore.Isolated && !TryWrite(ProjectSettings.GlobalizePath(UserFile), draft)) return false;
+        UserFileSaved?.Invoke();
+        RaiseReboundAll();
+        return true;
+    }
+
     /// <summary>One InputMap action per bound key, holding that key's event.</summary>
     public void SeedInputMap()
     {
+        OpenScctGame.Voice.VoiceInput.BindLayout(this);
         foreach (StringName action in InputMap.GetActions())
         {
             if (action.ToString().StartsWith(ActionPrefix, StringComparison.Ordinal))
@@ -276,16 +277,10 @@ public sealed class InputBindings
 
         try
         {
-            var sb = new StringBuilder();
-            sb.Append("; OpenSCCT key layout. Same format as the game's Default_kbd_*.ini: IK_<key>=<alias or command>.\n");
-            sb.Append("[Engine.Input]\n");
-            foreach (KeyValuePair<string, string> b in layout.Bindings)
-            {
-                sb.Append("IK_").Append(b.Key).Append('=').Append(b.Value).Append('\n');
-            }
-
             Directory.CreateDirectory(Path.GetDirectoryName(path) ?? ".");
-            File.WriteAllText(path, sb.ToString());
+            string temp = path + ".tmp";
+            File.WriteAllText(temp, layout.ToIni());
+            File.Move(temp, path, overwrite: true);
             return true;
         }
         catch (IOException e)

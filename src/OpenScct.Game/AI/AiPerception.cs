@@ -26,7 +26,7 @@ public readonly record struct AiSighting(bool Visible, float Strength, float Dis
 /// FovAngle), along an open line from the eye (the level geometry and movers, smoke clouds for the modes that draw
 /// them), within range, and lit enough for the vision mode: in normal view by the pawn lighting rule on the side that
 /// faces the observer plus every torch on it; night vision boosts the light; thermal shows heat through smoke and in
-/// the dark, fading with depth; motion vision shows nothing by sight (only the tracker's locks, <see cref="AiMotionSense"/>);
+/// the dark, fading with depth; motion vision retains the blurred normal scene, supplemented by the tracker's locks;
 /// EMF shows only electronics (a spy with its weapon out, its
 /// goggles on, binoculars, a spy bullet, a cloak or a phosphorus mark). Nothing hidden is read (no position of a pawn
 /// out of view, no state of another player's controller).
@@ -34,6 +34,23 @@ public readonly record struct AiSighting(bool Visible, float Strength, float Dis
 public static class AiSight
 {
     private static readonly float[] HeightFractions = [0.8f, 0.1f, -0.7f];
+
+    /// <summary>
+    /// Tests the rectangular view, with the renderer's 4:3 reference FOV and Hor+ at a fixed 16:9 bot viewport.
+    /// Both axes and pitch matter; a circular cone incorrectly cuts off the picture's corners.
+    /// </summary>
+    public static bool InView(FVector to, FRotator view, float fovDegrees)
+    {
+        view.GetAxes(out FVector forward, out FVector right, out FVector up);
+        float depth = to | forward;
+        float vertical = SvmMath.Tan(SvmMath.Clamp(fovDegrees, 1f, 170f) * (MathF.PI / 360f)) * 0.75f;
+        return depth > 0f && MathF.Abs(to | right) <= depth * vertical * (16f / 9f) && MathF.Abs(to | up) <= depth * vertical;
+    }
+
+    /// <summary>The visible body's centre; a prone model is below its unchanged collision cylinder's centre.</summary>
+    public static FVector BodyCenter(Pawn pawn) => pawn is SBasePawn { bLyingOnGround: true }
+        ? pawn.Location - new FVector(0f, 0f, pawn.CollisionHeight * MercAiK.LyingAimDrop)
+        : pawn.Location;
 
     /// <summary>The eye of <paramref name="pawn"/> (its location raised by the stance's eye height).</summary>
     public static FVector Eye(Pawn pawn)
@@ -73,23 +90,23 @@ public static class AiSight
         ArgumentNullException.ThrowIfNull(world);
         ArgumentNullException.ThrowIfNull(target);
         ArgumentNullException.ThrowIfNull(difficulty);
-        FVector to = target.Location - eye;
+        if (mode == AiVisionMode.Motion && target is SPawnAttaque && target.GlassEffect == byte.MaxValue)
+        {
+            return default;
+        }
+
+        FVector center = BodyCenter(target);
+        FVector to = center - eye;
         float distance = to.Size();
         if (distance < 1f)
         {
             return new AiSighting(true, 1f, distance, 1f, true);
         }
 
-        // The view: a target outside the horizontal FOV, or the 4:3 vertical one, is not on screen.
+        // Focus controls attention, rather than clipping the picture to a cone round the actor's centre.
         FVector forward = view.Vector();
         float cos = (to | forward) / distance;
         float angle = SvmMath.Acos(SvmMath.Clamp(cos, -1f, 1f)) * (180f / MathF.PI);
-        float halfFov = fovDegrees * 0.5f;
-        if (angle > halfFov + 4f)
-        {
-            return default;
-        }
-
         bool inFocus = angle <= difficulty.FocusHalfAngle;
         float range = difficulty.SightRange * (inFocus ? 1f : difficulty.PeripheralFactor);
         if (mode == AiVisionMode.Thermal)
@@ -102,13 +119,21 @@ public static class AiSight
             return default;
         }
 
-        // The line: three points up the target's body; the share that is open is how much of it shows.
+        // Test the actual body samples against both the view and collision. A visible head/shoulder or prone torso
+        // still counts when the collision centre is off screen. Prone samples follow the body along the floor.
         bool smokeBlocks = mode is AiVisionMode.Normal or AiVisionMode.Night or AiVisionMode.Motion;
         int open = 0;
-        foreach (float f in HeightFractions)
+        bool prone = target is SBasePawn { bLyingOnGround: true };
+        FVector along = new FRotator(0, target.Rotation.Yaw, 0).Vector();
+        FVector across = new FRotator(0, target.Rotation.Yaw + 16384, 0).Vector();
+        const int samples = 5;
+        for (int i = 0; i < samples; i++)
         {
-            FVector p = target.Location + new FVector(0f, 0f, target.CollisionHeight * f);
-            if (world.LineOpen(eye, p) && !(smokeBlocks && world.SmokeBetween(eye, p)))
+            FVector p = i < 3
+                ? prone ? center + along * ((i - 1) * target.CollisionHeight * 0.55f)
+                    : center + new FVector(0f, 0f, target.CollisionHeight * HeightFractions[i])
+                : center + across * ((i == 3 ? -1f : 1f) * target.CollisionRadius * 0.7f);
+            if (InView(p - eye, view, fovDegrees) && world.LineOpen(eye, p) && !(smokeBlocks && world.SmokeBetween(eye, p)))
             {
                 open++;
             }
@@ -119,7 +144,7 @@ public static class AiSight
             return default;
         }
 
-        float exposure = open / (float)HeightFractions.Length;
+        float exposure = open / (float)samples;
         float light = 0f;
         float strength;
         switch (mode)
@@ -142,8 +167,11 @@ public static class AiSight
                 strength = 1f - distance / (range + 1f);
                 break;
             case AiVisionMode.Motion:
-                // Motion vision shows a target only through the tracker's locks (AiMotionSense), never by sight.
-                return default;
+                // The renderer still draws the normal scene (docs/RENDERING.md, vision modes). The blurred colour
+                // pass reduces detail; its tracker adds sharp brackets, but is not the only way to see a body.
+                light = world.LightOn(target, eye);
+                strength = LitStrength(light, distance, difficulty) * AiK.MotionSightFactor;
+                break;
             case AiVisionMode.Night:
                 light = (world.LightOn(target, eye) + AiK.NightBoost) * AiK.NightGain;
                 strength = LitStrength(light, distance, difficulty);
@@ -161,13 +189,13 @@ public static class AiSight
 
         // Close enough to touch is measured on the floor, not from the eye: a crouched or lying body at the feet is
         // 100 to 150 uu below a standing merc's eye, and the "dark shape shows" rule never held for it.
-        if (mode is AiVisionMode.Normal or AiVisionMode.Night && distance < 250f && SvmMath.Sqrt(to.X * to.X + to.Y * to.Y) < 100f)
+        if (mode is AiVisionMode.Normal or AiVisionMode.Night or AiVisionMode.Motion && distance < 250f && SvmMath.Sqrt(to.X * to.X + to.Y * to.Y) < 100f)
         {
             strength = SvmMath.Max(strength, 0.5f);
         }
 
-        // The spy's cloak (GlassEffect 0 to 255) hides it in the light-based modes.
-        if (mode is AiVisionMode.Normal or AiVisionMode.Night && target.GlassEffect > 0)
+        // Glass is drawn in normal view only; night vision still draws the opaque body, like SimPawnView.
+        if (mode == AiVisionMode.Normal && target.GlassEffect > 0)
         {
             strength *= 1f - 0.85f * (target.GlassEffect / 255f);
         }
@@ -188,10 +216,12 @@ public static class AiSight
         if (distance < 100f)
         {
             // Close enough to touch: a dark shape still shows.
-            return SvmMath.Max(0.5f, light / needed - 0.5f);
+            return SvmMath.Clamp(SvmMath.Max(0.5f, light / SvmMath.Max(0.001f, needed)), 0f, 1f);
         }
 
-        return SvmMath.Clamp(light / needed - 0.5f, 0f, 1f);
+        // Dim visible bodies accumulate evidence slowly. The old subtraction made every target below half the
+        // threshold completely invisible, however long the merc watched it. True darkness still gives no evidence.
+        return SvmMath.Clamp(light / SvmMath.Max(0.001f, needed), 0f, 1f);
     }
 
     private static float BotSpeed(Pawn p) => SvmMath.Sqrt(p.Velocity.X * p.Velocity.X + p.Velocity.Y * p.Velocity.Y);
@@ -202,8 +232,8 @@ public static class AiSight
 /// the tracker (SGoggle.MotionTrackingVision, run by the game's own scan on the bot's controller) locks pawns that
 /// move at 150 uu/s or more within range and in sight, and a lock's bracket is drawn while it lasts, following the
 /// locked pawn, when the pawn is in front of the view. A lock out of view is only the detect sound: something moved
-/// within range, no direction (<see cref="LastBeep"/>). Nothing else is read: a still, slow, cloaked or hidden spy
-/// does not show.
+/// within range, no direction (<see cref="LastBeep"/>). This class reads only tracker brackets; ordinary body sight
+/// through the motion pass is evaluated separately by <see cref="AiSight"/>.
 /// </summary>
 public sealed class AiMotionSense
 {
@@ -469,6 +499,26 @@ public enum AiContactSource : byte
     Sensed,
 }
 
+/// <summary>A visual snapshot. Remembered targets never supply their live pose after leaving sight.</summary>
+public readonly record struct AiObservedPose(FVector Position, FVector Velocity, FRotator Rotation, float CollisionHeight,
+    float EyeHeight, bool Alive, bool Downed, bool Finishable, bool OnFeet, bool StickySkinned)
+{
+    public FVector Feet => Position - new FVector(0f, 0f, CollisionHeight);
+
+    public FVector Body => Downed ? Position - new FVector(0f, 0f, CollisionHeight * MercAiK.LyingAimDrop) : Position;
+
+    public static AiObservedPose Capture(Pawn pawn)
+    {
+        SBasePawn? p = pawn as SBasePawn;
+        bool alive = pawn.Health > 0 && !pawn.bDeleteMe;
+        bool down = p?.bLyingOnGround == true;
+        return new(pawn.Location, pawn.Velocity, pawn.Rotation, pawn.CollisionHeight,
+            pawn.bIsCrouched ? AiK.EyeHeightCrouched : AiK.EyeHeightStanding, alive, down, p?.bCanBeTerminated == true,
+            alive && pawn.Physics == EPhysics.PHYS_Walking && !down && p?.bSleeping != true && p?.bStickyShocking != true,
+            p?.bStickySkinned == true);
+    }
+}
+
 /// <summary>What a bot remembers of one enemy.</summary>
 public sealed class AiContact
 {
@@ -500,6 +550,19 @@ public sealed class AiContact
     public float VisibleSince = -1f;
 
     public AiContactSource Source;
+
+    /// <summary>The last confirmed direct view of the body; tracker brackets and callouts cannot reveal posture.</summary>
+    public AiObservedPose? Pose { get; internal set; }
+
+    public float PoseTime { get; internal set; } = -100f;
+
+    public float LastVisibleAt { get; internal set; } = -100f;
+
+    public float LastConfirmedAt { get; internal set; } = -100f;
+
+    public FVector BelievedEye => Position + new FVector(0f, 0f, Pose?.EyeHeight ?? AiK.EyeHeightStanding);
+
+    public bool BodyVisible => Visible && Pose is not null && PoseTime >= LastVisibleAt;
 
     /// <summary>True once the spotting meter filled during the current run of sightings.</summary>
     public bool Confirmed => Spot >= 1f;
@@ -544,7 +607,74 @@ public sealed class AiMemory
         return null;
     }
 
-    /// <summary>Decays every contact by <paramref name="dt"/> seconds and drops the dead and the forgotten.</summary>
+    /// <summary>Accumulates sight evidence and records only the pose the observer actually sees.</summary>
+    public AiContact Observe(Pawn pawn, AiSighting sight, float now, float seconds, AiDifficulty difficulty, bool bodyVisible = true)
+    {
+        AiContact c = For(pawn);
+        if (!sight.Visible)
+        {
+            c.Visible = false;
+            return c;
+        }
+
+        // A brief occlusion or looking down at a knocked-down target must not restart identification from zero.
+        bool recognized = now - c.LastConfirmedAt < 1.5f && c.Confidence > 0.2f;
+        c.Spot = SvmMath.Min(1.5f, c.Spot + sight.Strength * seconds / SvmMath.Max(0.05f, difficulty.SpotSeconds));
+        if (recognized)
+        {
+            c.Spot = SvmMath.Max(1f, c.Spot);
+        }
+
+        if (c.VisibleSince < 0f || now - c.LastVisibleAt > 0.5f)
+        {
+            c.VisibleSince = now;
+        }
+
+        c.Visible = true;
+        c.LastVisibleAt = now;
+        if (c.Confirmed)
+        {
+            // A held tracker bracket exposes its position, but not hidden posture, facing or health.
+            c.Velocity = bodyVisible ? pawn.Velocity
+                : now > c.Time ? (pawn.Location - c.Position) / SvmMath.Max(0.01f, now - c.Time) : c.Velocity;
+            c.Position = pawn.Location;
+            c.Time = now;
+            c.LastConfirmedAt = now;
+            c.Confidence = 1f;
+            c.Source = AiContactSource.Seen;
+            if (bodyVisible)
+            {
+                c.Pose = AiObservedPose.Capture(pawn);
+                c.PoseTime = now;
+            }
+        }
+        else
+        {
+            // This deliberately bypasses Report's visible-contact guard: the old call silently discarded every
+            // partial sighting because Visible had just been set. A coarse location represents an unconfirmed shape.
+            c.Position = new FVector(MathF.Round(pawn.Location.X / 64f) * 64f, MathF.Round(pawn.Location.Y / 64f) * 64f,
+                MathF.Round(pawn.Location.Z / 64f) * 64f);
+            c.Time = now;
+            c.Confidence = 0.3f * c.Spot;
+            c.Source = AiContactSource.Seen;
+        }
+
+        return c;
+    }
+
+    /// <summary>Ends a sight scan, including contacts whose old pawn no longer appears in the living-player list.</summary>
+    public void EndLook(float now)
+    {
+        foreach (AiContact c in _contacts)
+        {
+            if (c.LastVisibleAt < now)
+            {
+                c.Visible = false;
+            }
+        }
+    }
+
+    /// <summary>Decays contacts from elapsed time, without consulting an unseen enemy's health or deletion state.</summary>
     public void Decay(float dt, AiDifficulty difficulty)
     {
         ArgumentNullException.ThrowIfNull(difficulty);
@@ -552,17 +682,10 @@ public sealed class AiMemory
         for (int i = _contacts.Count - 1; i >= 0; i--)
         {
             AiContact c = _contacts[i];
-            if (c.Pawn.bDeleteMe || c.Pawn.Health <= 0)
-            {
-                _contacts.RemoveAt(i);
-                continue;
-            }
-
             if (!c.Visible)
             {
                 c.Confidence *= k;
                 c.Spot = SvmMath.Max(0f, c.Spot - dt / SvmMath.Max(0.1f, difficulty.SpotSeconds * 2f));
-                c.VisibleSince = -1f;
             }
 
             if (c.Confidence < 0.02f && c.Spot <= 0f)
@@ -576,7 +699,7 @@ public sealed class AiMemory
     public void Report(Pawn pawn, FVector position, float now, float confidence, AiContactSource source)
     {
         AiContact c = For(pawn);
-        if (c.Visible)
+        if (c.Visible || now <= c.Time)
         {
             return;
         }
@@ -584,6 +707,7 @@ public sealed class AiMemory
         if (confidence >= c.Confidence || now - c.Time > 1f)
         {
             c.Position = position;
+            c.Velocity = default; // A position-only report cannot supply a new direction of travel.
             c.Time = now;
             c.Confidence = SvmMath.Max(c.Confidence, confidence);
             c.Source = source;

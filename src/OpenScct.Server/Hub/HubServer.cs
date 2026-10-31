@@ -32,11 +32,10 @@ public sealed record HubSettings
     public int NetRate { get; init; }
 
     /// <summary>
-    /// Network profile of the hub itself. Enhanced (the default, as in matches): replication every tick, a send budget
-    /// per client and interpolated pawn proxies. Stock replicates at 20 Hz with a per-connection budget, which made
-    /// movement in the hub snap.
+    /// The hub uses the 20 Hz Stock rate preset with modern interpolation and independent visitor budgets.
+    /// Matches continue to default to Enhanced. Callers can select Enhanced for a higher-bandwidth hub.
     /// </summary>
-    public NetProfile Profile { get; init; } = NetProfile.Enhanced;
+    public NetProfile Profile { get; init; } = NetProfile.Stock;
 
     public ulong Seed { get; init; } = 1;
 
@@ -63,6 +62,9 @@ public sealed record HubSettings
     public bool InterestManagement { get; init; } = true;
 
     public DistanceInterestSettings Interest { get; init; } = new();
+
+    /// <summary>Per-visitor download budget, including packet overhead. The crowd uses interest management within it.</summary>
+    public int MaxClientRate { get; init; } = 5000;
 
     public NetUpdateGate UpdateGate { get; init; } = NetUpdateGate.DecodedGuarded;
 
@@ -275,6 +277,7 @@ public sealed partial class HubServer : IDisposable
                 LanPlay = Settings.LanPlay,
                 IsLan = Settings.LanPlay,
                 Interest = Interest,
+                MaxClientRate = Settings.MaxClientRate,
                 // The game's one shared send budget would split one client's rate between fifty clients: each
                 // connection pays for its own sends, as stock UE2 does.
                 Budget = SendBudgetMode.PerConnection,
@@ -473,7 +476,10 @@ public sealed partial class HubServer : IDisposable
             return;
         }
 
-        (pri.SvmLookLow, pri.SvmLookHigh) = (SGameInfo.TeamIndexOf(pc) == 1 ? player.MercLook : player.SpyLook).Split();
+        var look = SGameInfo.TeamIndexOf(pc) == 1 ? player.MercLook : player.SpyLook;
+        (pri.SvmLookLow, pri.SvmLookHigh) = look.Split();
+        pri.SvmLookExtraLow = (int)look.Extra;
+        pri.SvmLookExtraHigh = (int)(look.Extra >> 32);
     }
 
     /// <summary>Takes a player's pawn away and puts him back at the plaza once his client has let go of it.</summary>
@@ -616,7 +622,7 @@ public sealed partial class HubServer : IDisposable
         int rank = OpenScct.Server.Online.PlayerRanks.Checked(ReadText(options, "SvmTitle"), ticket, hostAccount);
         CosmeticLook look = team == 1 ? mercLook : spyLook;
         return LoginDecision.Allow(clean, string.Create(CultureInfo.InvariantCulture,
-            $"?Team={team}?Mesh={mesh}{(rank != 0 ? $"?SvmRank={rank}" : string.Empty)}{(look.Packed != 0 ? "?SvmLook=" + look.ToHex() : string.Empty)}"));
+            $"?SvmSidearmsAll={(Settings.Master is null ? 1 : 0)}?Team={team}?Mesh={mesh}{(rank != 0 ? $"?SvmRank={rank}" : string.Empty)}{(!look.IsDefault ? "?SvmLook=" + look.ToHex() : string.Empty)}"));
     }
 
     private void OnJoined(PlayerSlot slot)

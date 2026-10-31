@@ -199,6 +199,12 @@ stateDiagram-v2
 
 ## Network
 
+The drop zone's `Cover` is transient. Its lid is a separately replicated `SBasicGamePlayObject`; the renderer binds
+it by mesh and placement when `Owner` is absent (Actor's owner replication is restricted to `bNetOwner`). The lid
+node must then follow that actor's replicated rotation rather than remain at the map's closed pose.
+The server-driven lid enables both `bReplicateMovement` and `bUpdateSimulatedPosition`: without the latter, the
+simulated-proxy rotation gate sends only the initial pose, leaving a lid that arrived open stuck open after delivery.
+
 - Server: every rule above except the input-machine parts of `s_FlagAndDropZone_GoTo` and `s_Pickup` (repositioning, `SetHandItemFromInteraction` call, animation actions). `Touch` pickups and returns, timers, throws and deliveries are server-only.
 - `SetHandItemFromInteraction`, `DiscardPickup`, `DiscardFlag`, `SGamePlayObject.Throw` are reliable client-to-server functions; only `SetHandItemFromInteraction` is called by a client in this flow.
 - `SetFlagCarrier(bool)` is a reliable simulated multicast (flag 0x01000000) that sets `FlagTaken` on every machine.

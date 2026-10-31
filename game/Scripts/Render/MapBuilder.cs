@@ -816,12 +816,10 @@ public static class MapBuilder
         internal const byte AuthoredOverlayZone = 255;
 
         /// <summary>
-        /// Zones of a mesh's triangles placed by <paramref name="transform"/>, each from its triangle's surface (like the
-        /// BSP), so decals and meshes spanning a portal take the zone of the room they face. Faces whose surface point
-        /// is inside solid (zone 0: backs against walls, faces inside door frames) take the actor's zone, the one UE2
-        /// lights the whole actor by.
+        /// Mesh actors take zone-restricted lighting from their point region. An origin in solid is zone 0, not an
+        /// unknown zone to replace with the room in front of a face (AquaE's temple Techroom sign).
         /// </summary>
-        private byte[] ZonesOf(MeshPrimitive prim, in Transform3D transform, FVector actorLocation)
+        private byte[] ZonesOf(MeshPrimitive prim, FVector actorLocation)
         {
             var zones = new byte[prim.Indices.Length / 3];
             if (_map.Zones is null)
@@ -829,22 +827,8 @@ public static class MapBuilder
                 return zones;
             }
 
-            bool mirrored = transform.Basis.Determinant() < 0f;
-            byte? actorZone = null;
-            for (int t = 0; t + 2 < prim.Indices.Length; t += 3)
-            {
-                Vector3 a = transform * Pos(prim, prim.Indices[t]);
-                Vector3 b = transform * Pos(prim, prim.Indices[t + 1]);
-                Vector3 c = transform * Pos(prim, prim.Indices[t + 2]);
-                Vector3 front = (b - a).Cross(c - a) * (mirrored ? -1f : 1f);
-                byte zone = ZoneOfSurface((a + b + c) / 3f, front);
-                if (zone == 0)
-                {
-                    zone = actorZone ??= (byte)Math.Clamp(_map.Zones.GetZoneIndex(actorLocation), 0, 255);
-                }
-
-                zones[t / 3] = zone;
-            }
+            byte actorZone = (byte)Math.Clamp(_map.Zones.GetZoneIndex(actorLocation), 0, 255);
+            Array.Fill(zones, actorZone);
 
             return zones;
         }
@@ -935,18 +919,22 @@ public static class MapBuilder
             bool authored = Bool(inst, "authoredColors");
             foreach (MeshPrimitive prim in prims)
             {
-                SurfaceBuilder bucket = Bucket(cell, prim.Material, light, false, light == LightSource.Vertex, seeThrough);
+                // bUnlit skips lighting, but an additive overlay still needs its painted intensity and faded rim.
+                bool overlay = authored && prim.Colours is not null &&
+                    _map.Materials.Find(prim.Material)?.Blend == MaterialBlend.Additive;
+                LightSource surfaceLight = overlay ? LightSource.Vertex : light;
+                SurfaceBuilder bucket = Bucket(cell, prim.Material, surfaceLight, false, surfaceLight == LightSource.Vertex, seeThrough);
                 bucket.Vision = vision;
                 bucket.Echelon = echelon;
-                byte[]? zones = light == LightSource.Vertex ? ZonesOf(prim, transform, location) : null;
-                if (light == LightSource.Vertex && authored && _map.Materials.Find(prim.Material)?.Blend == MaterialBlend.Additive)
+                byte[]? zones = surfaceLight == LightSource.Vertex ? ZonesOf(prim, location) : null;
+                if (overlay)
                 {
                     // An additive overlay with painted colours (AquaD's caustic quads: 40 inside, 0 on the rim) is drawn by
                     // its colours alone: no glow, no dynamic or spot light, which would fill the faded rim to a square.
                     Array.Fill(zones!, AuthoredOverlayZone);
                     bucket.Add(transform, prim, 0, zones);
                 }
-                else if (light == LightSource.Vertex && glow > 0)
+                else if (surfaceLight == LightSource.Vertex && glow > 0)
                 {
                     AddGlowing(bucket, transform, prim, glow, zones);
                 }
@@ -1071,7 +1059,7 @@ public static class MapBuilder
                     }
 
                     var surface = new SurfaceBuilder(false, light == LightSource.Vertex) { Echelon = light == LightSource.Vertex ? echelon : 0 };
-                    byte[]? zones = light == LightSource.Vertex ? ZonesOf(prim, transform, location) : null;
+                    byte[]? zones = light == LightSource.Vertex ? ZonesOf(prim, location) : null;
                     if (light == LightSource.Vertex && glow > 0)
                     {
                         AddGlowing(surface, Transform3D.Identity, prim, glow, zones);
@@ -1179,11 +1167,21 @@ public static class MapBuilder
                 return;
             }
 
+            bool animatedShadow = false;
+            if (sky == 0)
+            {
+                for (int surface = 0; surface < mesh.GetSurfaceCount(); surface++)
+                {
+                    if (mesh.SurfaceGetMaterial(surface) is not ShaderMaterial { Shader: { } shader }) continue;
+                    animatedShadow |= shader.HasMeta("svm_shadow_animated") && shader.GetMeta("svm_shadow_animated").AsBool();
+                }
+            }
+
             _static.AddChild(new MeshInstance3D
             {
                 Name = mesh.ResourceName,
                 Mesh = mesh,
-                Layers = sky != 0 ? RenderLayers.Sky : RenderLayers.World,
+                Layers = sky != 0 ? RenderLayers.Sky : animatedShadow ? RenderLayers.World : RenderLayers.StaticWorld,
             });
             _map.Stats.StaticNodes++;
             _map.Stats.StaticSurfaces += mesh.GetSurfaceCount();

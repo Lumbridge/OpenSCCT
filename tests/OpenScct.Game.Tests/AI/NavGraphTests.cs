@@ -3,6 +3,7 @@ using System.IO;
 using OpenScct.Content;
 using OpenScct.Content.Collision;
 using OpenScct.Core;
+using OpenScct.Core.Engine;
 using OpenScct.Game.AI;
 using OpenScct.Game.Movement;
 using OpenScct.Physics.Collision;
@@ -44,6 +45,31 @@ public sealed class NavGraphTests
         var path = new List<NavStep>();
         Assert.True(g.FindPath(g.NearestNode(V(-160f, -160f, 1f)), g.NearestNode(V(160f, 160f, 1f)), path));
         Assert.All(path, s => Assert.Equal(NavEdgeKind.Walk, s.Kind));
+    }
+
+    [Theory]
+    [InlineData(PawnTeam.Spy)]
+    [InlineData(PawnTeam.Merc)]
+    public void TheFollowerCrossesASmallStepWhoseRiserSeparatesSampledNodes(PawnTeam team)
+    {
+        CollisionDataBuilder level = Floor();
+        level.AddBox(V(-400f, -400f, 0f), V(0f, 400f, 32f));
+        PawnRig rig = Rig(level, null, V(-160f, 0f, 32f), team, yaw: 0);
+        AiWorld world = World(rig, V(-256f, -128f, -100f), V(256f, 128f, 300f));
+        var follower = new NavFollower(world, team == PawnTeam.Spy);
+        Assert.True(Follow(rig, follower, V(160f, 0f, 0f), 8f), "the walker could not step down across the sampled-node gap");
+        Assert.True(Follow(rig, follower, V(-160f, 0f, 32f), 8f), "the walker could not step back up");
+    }
+
+    [Fact]
+    public void SmallStepConnectionsCannotBridgeAnUnsupportedGap()
+    {
+        var level = new CollisionDataBuilder();
+        level.AddBox(V(-400f, -400f, -64f), V(-16f, 400f, 16f));
+        level.AddBox(V(16f, -400f, -64f), V(400f, 400f, 0f));
+        NavGraph graph = Build(level, NavProfile.Spy, null, V(-256f, -128f, -100f), V(256f, 128f, 300f));
+        var path = new List<NavStep>();
+        Assert.False(graph.FindPath(graph.NearestNode(V(-128f, 0f, 17f)), graph.NearestNode(V(128f, 0f, 1f)), path));
     }
 
     [Fact]
@@ -276,6 +302,36 @@ public sealed class NavGraphTests
         Assert.True(ok, string.Join("\n", trace));
         Assert.True(rig.Pawn.Location.Z < 150f, $"z {rig.Pawn.Location.Z}");
         Assert.False(mate.Pawn.bLyingOnGround, "the walker dropped on the mate");
+    }
+
+    [Theory]
+    [InlineData(PawnTeam.Spy)]
+    [InlineData(PawnTeam.Merc)]
+    public void TheFollowerRecoversALadderGrabAfterItsRouteWasCleared(PawnTeam team)
+    {
+        CollisionDataBuilder level = Floor();
+        level.AddBox(V(-300f, 105f, 0f), V(300f, 900f, 400f));
+        TraversalDoc ges = Doc(Ge(0, GEKind.LADDER, V(0f, 100f, 0f), V(0f, 100f, 400f), V(0f, 90f, 0f)));
+        PawnRig rig = Rig(level, ges, V(0f, 20f, 0f), team);
+        for (int i = 0; i < 200 && rig.Pawn.Physics != EPhysics.PHYS_OnLadder; i++)
+        {
+            rig.Step(new PlayerInputFrame { BT_Up = 1 });
+        }
+
+        Assert.Equal(EPhysics.PHYS_OnLadder, rig.Pawn.Physics);
+        for (int i = 0; i < 90; i++)
+        {
+            rig.Step(new PlayerInputFrame { BT_Up = 1 });
+        }
+        AiWorld world = World(rig, V(-400f, -300f, -100f), V(400f, 1000f, 600f), ges);
+        var follower = new NavFollower(world, team == PawnTeam.Spy);
+        FVector goal = V(0f, -150f, 0f);
+        Assert.True(follower.SetGoal(rig.Pawn, goal));
+        NavCommand command = follower.Steer(rig.Pawn, rig.Level.TimeSeconds, rig.Controller.Rotation.Yaw, sneak: false);
+        Assert.Equal(1, command.Keys.BT_Down);
+        Assert.Equal(0, command.Keys.BT_Up);
+        Assert.True(Follow(rig, follower, goal, 12f));
+        Assert.Equal(EPhysics.PHYS_Walking, rig.Pawn.Physics);
     }
 
     [Fact]

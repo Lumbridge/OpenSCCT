@@ -152,6 +152,18 @@ public static class PawnInventory
             DeleteGadget(Pawn, g);
         }
 
+        SWeapon? active = Pawn.MyWeapon;
+        (Pawn.PrimaryWeapon as SWeaponDefense)?.Dummy?.Destroy();
+        Pawn.SidearmWeapon?.Dummy?.Destroy();
+        Pawn.PrimaryWeapon?.Destroy();
+        if (!ReferenceEquals(Pawn.SidearmWeapon, Pawn.PrimaryWeapon)) Pawn.SidearmWeapon?.Destroy();
+        Pawn.PrimaryWeapon = null;
+        Pawn.SidearmWeapon = null;
+        Pawn.ActiveWeaponSlot = 0;
+        Pawn.WeaponSwitchUntil = 0;
+        Pawn.WeaponFireLatch = false;
+        Pawn.WeaponSwitching = false;
+        Pawn.MyWeapon = active;
         DeleteWeapon(Pawn);
         if (Pawn is SPAWNDEFENSE merc)
         {
@@ -298,10 +310,20 @@ public static class PawnInventory
     /// <summary>The selection steps shared by SelectGagdet and SPlayerController.SelectGadget.</summary>
     internal static void SelectSlot(SBasePawn Pawn, int num)
     {
+        SGadget? slotGadget = null;
+        bool hasCarry = false;
+        int slotIndex = 0;
+        for (SGadget? gadget = Pawn.MyGadget; gadget is not null; gadget = gadget.MyGadget)
+        {
+            hasCarry |= gadget is SidearmCarry;
+            if (gadget is not SidearmCarry && !IsSelectable(gadget)) continue;
+            if (slotIndex++ == num) slotGadget = gadget;
+        }
+        if (hasCarry && (slotGadget is null || !IsSelectable(slotGadget))) return;
         SGadget? before = Pawn.SelectedGadget;
         before?.Unload();
-        Pawn.SelectedGadget = Pawn.MyGadget?.SelectNext();
-        for (int i = 0; i < num; i++)
+        Pawn.SelectedGadget = hasCarry ? slotGadget : Pawn.MyGadget?.SelectNext();
+        for (int i = 0; !hasCarry && i < num; i++)
         {
             NextGadget(Pawn);
         }

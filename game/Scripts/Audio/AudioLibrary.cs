@@ -82,6 +82,8 @@ public sealed class AudioLibrary
         string? mapDir = mapFolder is null ? null : System.IO.Path.Combine(mapFolder, "audio");
         var lib = new AudioLibrary(sharedDir, mapDir);
         lib.ReadShared(System.IO.Path.Combine(sharedDir, "audio.json"));
+        string sidearms = System.IO.Path.Combine(sharedDir, "sidearms.json");
+        if (File.Exists(sidearms)) lib.ReadShared(sidearms);
         if (mapDir is not null && System.IO.File.Exists(System.IO.Path.Combine(mapDir, "audio.json")))
         {
             lib.Map = MapAudioDoc.Load(System.IO.Path.Combine(mapDir, "audio.json"));

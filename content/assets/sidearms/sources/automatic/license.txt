@@ -1,0 +1,11 @@
+Model Information:
+* title:	G18
+* source:	https://sketchfab.com/3d-models/g18-fdd5cdd7b31c49f2b16a868ebdf4a75f
+* author:	IVA (https://sketchfab.com/dxmhl)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "G18" (https://sketchfab.com/3d-models/g18-fdd5cdd7b31c49f2b16a868ebdf4a75f) by IVA (https://sketchfab.com/dxmhl) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

@@ -183,6 +183,9 @@ public partial class SWeapon
         if (Other is SBasePawn pawn)
         {
             pawn.MyWeapon = this;
+            if (pawn is SPAWNDEFENSE && this is not MercSidearm) pawn.PrimaryWeapon = this;
+            if (pawn is SPAWNDEFENSE && pawn.SidearmWeapon is not null)
+                OpenScct.Game.Equipment.SidearmEquipment.FollowPawnRelevance(pawn, this);
             SBPawn = pawn;
         }
 
@@ -230,6 +233,8 @@ public partial class SWeapon
     protected override void NativeTick(float DeltaSeconds)
     {
         base.NativeTick(DeltaSeconds);
+        OpenScct.Game.Equipment.SidearmEquipment.Tick(this);
+        if (this is SWeaponDefense carried) carried.TickCarriedAmmo();
         ViewAnim.Advance(DeltaSeconds, this, static (a, c) => a.eventAnimEnd(c));
     }
 }

@@ -53,6 +53,31 @@ public sealed class Level
 
     public World World { get; }
 
+    public ReplayClock ReplayTime(long tick, float seconds, float delta)
+    {
+        if (!World.IsReplaying) throw new InvalidOperationException("Replay time requires a prediction replay scope.");
+        return new ReplayClock(this, tick, seconds, delta);
+    }
+
+    public ReplayClock CommandTime(long tick, float seconds, float delta) => new(this, tick, seconds, delta);
+
+    public readonly struct ReplayClock : IDisposable
+    {
+        private readonly Level _level;
+        private readonly long _tick;
+        private readonly float _seconds, _delta;
+        internal ReplayClock(Level level, long tick, float seconds, float delta)
+        {
+            _level = level; _tick = level.TickCount; _seconds = level.TimeSeconds; _delta = level.DeltaTime;
+            level.TickCount = tick; level.TimeSeconds = level.Info.TimeSeconds = seconds; level.DeltaTime = delta;
+        }
+        public void Dispose()
+        {
+            if (_level is null) return;
+            _level.TickCount = _tick; _level.TimeSeconds = _level.Info.TimeSeconds = _seconds; _level.DeltaTime = _delta;
+        }
+    }
+
     /// <summary>The LevelInfo actor (always the first actor).</summary>
     public LevelInfo Info { get; }
 

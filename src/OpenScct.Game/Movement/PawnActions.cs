@@ -187,10 +187,14 @@ public static class PawnActions
                 break;
 
             // ---- roll ----
+            // Landing can start a roll while still falling. Set walking before playing it so another landing
+            // callback cannot reset its blend into channel 0 with SA_ROLL_LAND.
             case SBasePawn.SA_ROLLING:
+                Walking(pawn);
                 Animation.ActionAnimation.PlayRoll(pawn, up: false);
                 break;
             case SBasePawn.SA_ROLLINGUP:
+                Walking(pawn);
                 Animation.ActionAnimation.PlayRoll(pawn, up: true);
                 break;
             case SBasePawn.SA_ROLL_LAND:

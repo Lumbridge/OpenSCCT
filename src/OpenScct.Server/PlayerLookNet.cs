@@ -15,6 +15,9 @@ public static class PlayerLookNet
         extension.Properties.Add(new RepExtensionProperty("SvmLookLow", nameof(PlayerReplicationInfo.SvmLookLow), RepLeafKind.Int));
         extension.Properties.Add(new RepExtensionProperty("SvmLookHigh", nameof(PlayerReplicationInfo.SvmLookHigh), RepLeafKind.Int));
         extension.Properties.Add(new RepExtensionProperty("SvmRank", nameof(PlayerReplicationInfo.SvmRank), RepLeafKind.Int));
+        extension.Properties.Add(new("SvmSidearmsUnrestricted", nameof(PlayerReplicationInfo.SvmSidearmsUnrestricted), RepLeafKind.Bool));
+        extension.Properties.Add(new("SvmLookExtraLow", nameof(PlayerReplicationInfo.SvmLookExtraLow), RepLeafKind.Int));
+        extension.Properties.Add(new("SvmLookExtraHigh", nameof(PlayerReplicationInfo.SvmLookExtraHigh), RepLeafKind.Int));
         return extension;
     }
 }

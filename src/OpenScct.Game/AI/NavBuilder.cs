@@ -203,7 +203,7 @@ public sealed class NavBuilder
         float horizontal = k * _profile.Spacing * (diagonal ? 1.4142f : 1f);
         if (MathF.Abs(dz) <= _profile.StepUp)
         {
-            if (k != 1 || m <= n)
+            if (m <= n || k > 1 && (MathF.Abs(dz) < 1f || !ContinuousStep(a, b, k)))
             {
                 return;
             }
@@ -288,6 +288,28 @@ public sealed class NavBuilder
         var from = new FVector(a.X, a.Y, z + Lift(h));
         var to = new FVector(b.X, b.Y, z + Lift(h));
         return !_world.LineCheck(out _, null, to, from, Body(h), WorldFlags);
+    }
+
+    /// <summary>
+    /// A short step can leave a hole in sampled nodes: the lower cylinder overlaps the riser, even though a walking
+    /// pawn steps across it. Bridge only continuous support within MAXSTEPHEIGHT, with the usual body sweep.
+    /// </summary>
+    private bool ContinuousStep(FVector a, FVector b, int cells)
+    {
+        float last = a.Z;
+        int samples = cells * 2;
+        for (int i = 1; i <= samples; i++)
+        {
+            FVector point = a + (b - a) * (i / (float)samples);
+            if (FloorNear(point, last + _profile.StepUp + 2f, last - _profile.StepUp - 2f) is not { } height)
+            {
+                return false;
+            }
+
+            last = height;
+        }
+
+        return MathF.Abs(last - b.Z) < 2f;
     }
 
     private void AddBoth(int n, int m, NavEdgeKind kind, float cost)

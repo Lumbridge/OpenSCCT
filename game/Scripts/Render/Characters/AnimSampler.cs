@@ -80,6 +80,7 @@ public sealed class AnimSampler
     }
 
     public Skeleton3D Skeleton { get; }
+    internal Ue2PoseApplier.PoseState? LastPose { get; set; }
 
     public IEnumerable<string> ClipNames => _clips.Keys;
 

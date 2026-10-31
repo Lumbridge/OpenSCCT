@@ -6,6 +6,8 @@ Samples that would trip the guard are assembled at run time, so this file stays 
 from __future__ import annotations
 
 import os
+import hashlib
+import json
 import shutil
 import subprocess
 import sys
@@ -227,6 +229,40 @@ def test_size_limit_applies_in_fixtures(tmp_path: Path) -> None:
     assert rules_for(tmp_path, "fixtures/big.bin", b"\0" * (5 * MB + 1)) == ["size"]
 
 
+@pytest.mark.parametrize("prefix", ["", "contenttools/repo/"])
+def test_reviewed_art_requires_exact_path_size_and_hash(tmp_path: Path, prefix: str) -> None:
+    path = "content/assets/sidearms/export/reviewed.png"
+    data = b"\x89PNG\r\n\x1a\n" + b"a" * (5 * MB)
+    approval = {path: {"bytes": len(data), "sha256": hashlib.sha256(data).hexdigest()}}
+    write(tmp_path, prefix + path, data)
+    assert ngd.scan(ngd.iter_tree_entries(tmp_path), approval)[1] == []
+    write(tmp_path, prefix + path, data[:-1] + b"b")
+    assert sorted(f.rule for f in ngd.scan(ngd.iter_tree_entries(tmp_path), approval)[1]) == ["media", "size"]
+    write(tmp_path, prefix + path, data)
+    write(tmp_path, prefix + path.replace("reviewed", "unreviewed"), data)
+    findings = ngd.scan(ngd.iter_tree_entries(tmp_path), approval)[1]
+    assert all("unreviewed" in f.path for f in findings)
+    assert sorted(f.rule for f in findings) == ["media", "size"]
+
+
+@pytest.mark.parametrize("kind", ["package", "executable"])
+def test_reviewed_art_cannot_exempt_original_packages_or_executables(tmp_path: Path, kind: str) -> None:
+    path = "content/assets/sidearms/export/payload.glb"
+    data = ngd.UE_PACKAGE_MAGIC + b"\0" * 100 if kind == "package" else pe_header()
+    write(tmp_path, path, data)
+    approval = {path: {"bytes": len(data), "sha256": hashlib.sha256(data).hexdigest()}}
+    assert [f.rule for f in ngd.scan(ngd.iter_tree_entries(tmp_path), approval)[1]] == ["ue-package" if kind == "package" else "pe-binary"]
+
+
+def test_art_manifest_normalizes_path_case(tmp_path: Path) -> None:
+    path = "content/assets/sidearms/export/OpenSCCT.png"
+    data = b"\x89PNG\r\n\x1a\n" + b"x" * 100
+    manifest = {"license": "CC-BY-4.0", "credits": "content/assets/sidearms/CREDITS.txt",
+                "assets": {path: {"bytes": len(data), "sha256": hashlib.sha256(data).hexdigest()}}}
+    write(tmp_path, path, data)
+    assert ngd.scan(ngd.iter_tree_entries(tmp_path), ngd.load_art_manifest(json.dumps(manifest).encode()))[1] == []
+
+
 def test_large_file_still_gets_magic_check(tmp_path: Path) -> None:
     data = bytes((0xC1, 0x83, 0x2A, 0x9E)) + b"\0" * (6 * MB)
     assert rules_for(tmp_path, "data/huge.bin", data) == ["size", "ue-package"]
@@ -408,6 +444,23 @@ def worktree_paths(repo: Path) -> list[tuple[str, str]]:
 def staged_paths(repo: Path) -> list[tuple[str, str]]:
     _, findings = ngd.scan(ngd.iter_staged_entries(repo))
     return sorted((f.path, f.rule) for f in findings)
+
+
+@needs_git
+def test_staged_reviewed_art_uses_its_complete_blob_and_staged_provenance(repo: Path) -> None:
+    path = "content/assets/sidearms/export/reviewed.png"
+    data = b"\x89PNG\r\n\x1a\n" + b"a" * (5 * MB)
+    manifest = {"license": "CC-BY-4.0", "credits": "content/assets/sidearms/CREDITS.txt",
+                "assets": {path: {"bytes": len(data), "sha256": hashlib.sha256(data).hexdigest()}}}
+    art = write(repo, path, data)
+    provenance = write(repo, ngd.ART_MANIFEST, json.dumps(manifest))
+    git(repo, "add", path, ngd.ART_MANIFEST)
+    # Working-tree edits cannot change what the staged check approves.
+    art.write_bytes(data[:-1] + b"b")
+    provenance.write_text("{}", encoding="utf-8")
+    assert ngd.main(["--root", str(repo), "--staged"]) == 0
+    git(repo, "add", path)
+    assert ngd.main(["--root", str(repo), "--staged"]) == 1
 
 
 @needs_git

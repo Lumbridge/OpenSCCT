@@ -1,0 +1,342 @@
+{
+  "license": "CC-BY-4.0 with original OpenSCCT additions",
+  "credits": "content/assets/sidearms/CREDITS.txt",
+  "assets": {
+    "content/assets/sidearms/automatic-preview.png": {
+      "bytes": 374801,
+      "sha256": "dbd051b175003f11b760f3316bc636d1129d2a187eebb55882e42a1bf7f53a97"
+    },
+    "content/assets/sidearms/automatic.blend": {
+      "bytes": 12650972,
+      "sha256": "ccff123a3d75f5dffc246730870b5602b50472522d073f97765fbf955eff5a86"
+    },
+    "content/assets/sidearms/desert_eagle-preview.png": {
+      "bytes": 404052,
+      "sha256": "035d9be6bc6fe4faa6faa03504e91e27289ce6a56c648fcdff293f860a5fdb72"
+    },
+    "content/assets/sidearms/desert_eagle.blend": {
+      "bytes": 44535594,
+      "sha256": "a551fd3e4d202f37a07013748a61d12bb7a8e88c300fbacbff2612d7e93bf953"
+    },
+    "content/assets/sidearms/export/arms_base.glb": {
+      "bytes": 1794056,
+      "sha256": "e24eb7c667d1193fb2feb6230ca93b8fdfe3675cad7af8fd72d9730e81f17ef7"
+    },
+    "content/assets/sidearms/export/automatic.glb": {
+      "bytes": 765184,
+      "sha256": "214cbb83510a9de7061d004b15df1e0a859a99c9495834cc043b97a7cce47f63"
+    },
+    "content/assets/sidearms/export/desert_eagle.glb": {
+      "bytes": 969120,
+      "sha256": "2aa74a9d17c1e9f60b0154720b181f9ae4e3adf5f2a8321d64ea8dc69bbe3770"
+    },
+    "content/assets/sidearms/export/magnum44.glb": {
+      "bytes": 1059652,
+      "sha256": "b7ea3347cdfd3bd7d8751c029ab5cc4d782747f7b2b366e1229418f8f3a62702"
+    },
+    "content/assets/sidearms/export/magnum44_loader.glb": {
+      "bytes": 321904,
+      "sha256": "f026d6e750bcdc7ad377c260c96f789be257668d8d15f5d461b2ea02314f9ba6"
+    },
+    "content/assets/sidearms/export/suppressed.glb": {
+      "bytes": 1582724,
+      "sha256": "60d0480acd920c0a102bc3f1def5e74819f154b9d2af5e8cf01c1f81c9cd3c18"
+    },
+    "content/assets/sidearms/export/textures/automatic_icon.png": {
+      "bytes": 29118,
+      "sha256": "1bf52bacb6e13bb159c408125f0272df7ea711f73bfcbd3e884b7b965c3f4783"
+    },
+    "content/assets/sidearms/export/textures/desert_eagle_icon.png": {
+      "bytes": 33501,
+      "sha256": "628c51bea7716dc4f5dd28e9345804607ca96e9565c7efebe218f7a0cff30c8f"
+    },
+    "content/assets/sidearms/export/textures/magnum44_icon.png": {
+      "bytes": 32459,
+      "sha256": "162601c64f8beab718eb75bbcedaec32495cb4957d547f494bebe9208f7de30c"
+    },
+    "content/assets/sidearms/export/textures/OpenScctSidearms_arms_arms_baseColor.png": {
+      "bytes": 4194179,
+      "sha256": "91d7e763b6e37d4c26f7921757b3dd554338f710dd321cf33f4ba1b662e5e56a"
+    },
+    "content/assets/sidearms/export/textures/OpenScctSidearms_arms_arms_metallicRoughness.png": {
+      "bytes": 2261591,
+      "sha256": "0061ce86faecd3da280bc41933f1e4d746e50d1a25d7ba803d5a2d73c0991173"
+    },
+    "content/assets/sidearms/export/textures/OpenScctSidearms_arms_arms_normal.png": {
+      "bytes": 6634108,
+      "sha256": "c95f33cd6ec062f7df8543b810a38470768b894cfb5c57ac35c8290d9a3a3fcd"
+    },
+    "content/assets/sidearms/export/textures/OpenScctSidearms_automatic_g18.001_baseColor.png": {
+      "bytes": 1865439,
+      "sha256": "6dcba66e60ba9aef9111c3195e2df9bf78f9b5766305bc7fca44074cbea0e6c5"
+    },
+    "content/assets/sidearms/export/textures/OpenScctSidearms_automatic_g18.001_metallicRoughness.png": {
+      "bytes": 3592868,
+      "sha256": "d06842c02ece6127a75fadfa6f89b623e8c2827f628ba335a65dc58b418583c6"
+    },
+    "content/assets/sidearms/export/textures/OpenScctSidearms_automatic_g18.001_normal.png": {
+      "bytes": 6526738,
+      "sha256": "79abd0e2f53e41971d70566c500edd403ddca8700197814e206efaa9e5cb47a3"
+    },
+    "content/assets/sidearms/export/textures/OpenScctSidearms_brass.png": {
+      "bytes": 259,
+      "sha256": "2e61b80bbfff6d263756c2830f86decf4b01917255560d7c81b2652331697ff3"
+    },
+    "content/assets/sidearms/export/textures/OpenScctSidearms_desert_eagle_Bullet_baseColor.png": {
+      "bytes": 343104,
+      "sha256": "9c98b13c8b57befecc99058a7aa7e75500607e3f2b68e0838335dc082140d80e"
+    },
+    "content/assets/sidearms/export/textures/OpenScctSidearms_desert_eagle_Bullet_metallicRoughness.png": {
+      "bytes": 298902,
+      "sha256": "399bc5d6b9f31b6b00722c5c84b7d26d274957c1686e52c477c8c0b7987ce227"
+    },
+    "content/assets/sidearms/export/textures/OpenScctSidearms_desert_eagle_Bullet_normal.png": {
+      "bytes": 101517,
+      "sha256": "824afdbfa4c95d7f4723bc50e0819a269acdf31e8a27f787bb90f9e4ca341a56"
+    },
+    "content/assets/sidearms/export/textures/OpenScctSidearms_desert_eagle_Magazine_baseColor.png": {
+      "bytes": 7204755,
+      "sha256": "86b5f4e9f0426213605a130050db5847cee45d7ac682d2b07bffdf4df2c7e672"
+    },
+    "content/assets/sidearms/export/textures/OpenScctSidearms_desert_eagle_Magazine_metallicRoughness.png": {
+      "bytes": 6447787,
+      "sha256": "c6f907a9b3f4361d097bd990455abc2616439870784ea0f33ee85a3b4736e583"
+    },
+    "content/assets/sidearms/export/textures/OpenScctSidearms_desert_eagle_Magazine_normal.png": {
+      "bytes": 2485126,
+      "sha256": "b1d5f0567c1416d51604367c6dabfbbdfe518c4dd4abf12a89ce6b2a325f4c67"
+    },
+    "content/assets/sidearms/export/textures/OpenScctSidearms_desert_eagle_MainBody_baseColor.png": {
+      "bytes": 5359121,
+      "sha256": "c1ca785c7a8af946acd257f89cf0793ba2b8051498e263bf7aa496e0c5a24c70"
+    },
+    "content/assets/sidearms/export/textures/OpenScctSidearms_desert_eagle_MainBody_metallicRoughness.png": {
+      "bytes": 4912138,
+      "sha256": "529be0caafc2b7a69f617c6c5df75e39f3164e556ba4541c32d99c2eac04ac3d"
+    },
+    "content/assets/sidearms/export/textures/OpenScctSidearms_desert_eagle_MainBody_normal.png": {
+      "bytes": 3515710,
+      "sha256": "79e13e00ba7db65b13a81511a680ca071ee8af5b308d3f073385fae9dbdfdad4"
+    },
+    "content/assets/sidearms/export/textures/OpenScctSidearms_desert_eagle_Slide_baseColor.png": {
+      "bytes": 5890157,
+      "sha256": "935981df5129b0d4d7d16a76f265dd55594057440a137330b516f61b74173f8e"
+    },
+    "content/assets/sidearms/export/textures/OpenScctSidearms_desert_eagle_Slide_metallicRoughness.png": {
+      "bytes": 4475506,
+      "sha256": "ce5cd9fb14988b994379b1cc8e2e8df460bc7e31ab4cb9815615fe5e8c574fe2"
+    },
+    "content/assets/sidearms/export/textures/OpenScctSidearms_desert_eagle_Slide_normal.png": {
+      "bytes": 2839246,
+      "sha256": "41868981539898f1cba469bf55c338925eafb43ae6a26222e081e9fb806cc5c1"
+    },
+    "content/assets/sidearms/export/textures/OpenScctSidearms_loader.png": {
+      "bytes": 259,
+      "sha256": "79bc54c17e2a1c0a74a37247719a4ac432421d566fb0d9fb9d6a309f2cae4a15"
+    },
+    "content/assets/sidearms/export/textures/OpenScctSidearms_magnum44_Taurus_baseColor.png": {
+      "bytes": 3140365,
+      "sha256": "17a372fb3d7d4f8e10b37b4bcd66f52ee02290a9a62f331d3f748fff9c931b1f"
+    },
+    "content/assets/sidearms/export/textures/OpenScctSidearms_magnum44_Taurus_metallicRoughness.png": {
+      "bytes": 5148762,
+      "sha256": "890a66c676be05f5fea80a43b65859549a22dbab973d3819deaef75e94acc2c6"
+    },
+    "content/assets/sidearms/export/textures/OpenScctSidearms_magnum44_Taurus_normal.png": {
+      "bytes": 3733202,
+      "sha256": "2f8b85df7eec4b686fc4e460ec25dab891bc006de92736e701a28c666c3522da"
+    },
+    "content/assets/sidearms/export/textures/OpenScctSidearms_suppressed_Material2_baseColor.png": {
+      "bytes": 400681,
+      "sha256": "eb7761b34c2909a68b7ce35657a5c86f3552ccaa7748d86a7ea5f36f9a25dc3d"
+    },
+    "content/assets/sidearms/export/textures/OpenScctSidearms_suppressed_Material2_metallicRoughness.png": {
+      "bytes": 1848851,
+      "sha256": "d66117513d4edba74dff09e0d3e752c558e8882a329769c9f0c11d01f4e4ad7c"
+    },
+    "content/assets/sidearms/export/textures/OpenScctSidearms_suppressed_Material2_normal.png": {
+      "bytes": 5391593,
+      "sha256": "4251c942c2d2ac10fe4b8cd76901d0b35334bb05c94d7f00b62ebd2a0d8b6ff6"
+    },
+    "content/assets/sidearms/export/textures/OpenScctSidearms_suppressed_Material2_specularf0.png": {
+      "bytes": 314485,
+      "sha256": "08d25fd37152642b874307e11d3ce602cf3559587e135f634816aaf12f0e1d11"
+    },
+    "content/assets/sidearms/export/textures/OpenScctSidearms_suppressor.png": {
+      "bytes": 259,
+      "sha256": "0279f13ea95bf1935c36525d660ea3173c97f27443c8995b7de050ebe8dd8878"
+    },
+    "content/assets/sidearms/export/textures/suppressed_icon.png": {
+      "bytes": 31218,
+      "sha256": "8a391da3588899dc758d0f8ab6071eb4c42f4e7d651f8f132d4fe066c71caa64"
+    },
+    "content/assets/sidearms/magnum44-preview.png": {
+      "bytes": 389200,
+      "sha256": "2946c92c4c7f42547c790c274fafa35f380754c2154153c1a3cd17420fb025be"
+    },
+    "content/assets/sidearms/magnum44.blend": {
+      "bytes": 12709758,
+      "sha256": "9bcb0a03bb0a52a8b33b6682fd32786acf900ab514e55c574ffaf06c997e5c09"
+    },
+    "content/assets/sidearms/sources/arms/scene.bin": {
+      "bytes": 1716736,
+      "sha256": "c4d1fab4c450b2ec047330ebd442bf2f95424c922d0b5ff55ab9076b032cb51c"
+    },
+    "content/assets/sidearms/sources/arms/scene.gltf": {
+      "bytes": 140816,
+      "sha256": "b0797f3f4c13b56a47b59f5cd1792ff025513dd59365ce0b61b4110617bced17"
+    },
+    "content/assets/sidearms/sources/arms/textures/arms_baseColor.png": {
+      "bytes": 4194179,
+      "sha256": "91d7e763b6e37d4c26f7921757b3dd554338f710dd321cf33f4ba1b662e5e56a"
+    },
+    "content/assets/sidearms/sources/arms/textures/arms_metallicRoughness.png": {
+      "bytes": 2261591,
+      "sha256": "0061ce86faecd3da280bc41933f1e4d746e50d1a25d7ba803d5a2d73c0991173"
+    },
+    "content/assets/sidearms/sources/arms/textures/arms_normal.png": {
+      "bytes": 6634108,
+      "sha256": "c95f33cd6ec062f7df8543b810a38470768b894cfb5c57ac35c8290d9a3a3fcd"
+    },
+    "content/assets/sidearms/sources/arms/textures/beretta_baseColor.png": {
+      "bytes": 5767527,
+      "sha256": "7665313bf17dd48d5fdfcbad042cd95dbe038cfe2f9f2c9eb165975967bbb4a9"
+    },
+    "content/assets/sidearms/sources/arms/textures/beretta_metallicRoughness.png": {
+      "bytes": 3962807,
+      "sha256": "8d230df786f96caa3bc5552a86997acbcffd07a55821e6ada4636b1f7952089f"
+    },
+    "content/assets/sidearms/sources/arms/textures/beretta_normal.png": {
+      "bytes": 3452208,
+      "sha256": "bbc1327a75c92fa648528f1d4f45d6c37ccdcf5e26f48e2c15c0020dce70b3b8"
+    },
+    "content/assets/sidearms/sources/automatic/scene.bin": {
+      "bytes": 875176,
+      "sha256": "89d30c06b6e4e4765fff36597c4b93ea14b0918d0fd356759769636b4079114e"
+    },
+    "content/assets/sidearms/sources/automatic/scene.gltf": {
+      "bytes": 15985,
+      "sha256": "a2ddf5fdb359665297e8c601f13408905dcce438014eab4aa10efcf5081a9b67"
+    },
+    "content/assets/sidearms/sources/automatic/textures/g18.001_baseColor.png": {
+      "bytes": 4352821,
+      "sha256": "6dfef023f4ec12c25ad007346d42b2d55bef2e63377551db0f9963ff9c9ab6b9"
+    },
+    "content/assets/sidearms/sources/automatic/textures/g18.001_metallicRoughness.png": {
+      "bytes": 10449923,
+      "sha256": "c7b35e82e0b966475df522b2ae22b6bcbfd4d0b4aec4adcd09b407b76dabe891"
+    },
+    "content/assets/sidearms/sources/automatic/textures/g18.001_normal.png": {
+      "bytes": 24501053,
+      "sha256": "84a058341d99f4a2336f4645ae9ba721c29ce58ef5d3fddd4a8c802e6f0f4d18"
+    },
+    "content/assets/sidearms/sources/desert_eagle/scene.bin": {
+      "bytes": 872876,
+      "sha256": "26ce03e03a1bd7345e1bf3b6376a2cc62766ccc719ba6ad9c91ad9846b866bb0"
+    },
+    "content/assets/sidearms/sources/desert_eagle/scene.gltf": {
+      "bytes": 69170,
+      "sha256": "0efae375c194146cc990ea2b91e2aa7275274cfb8403d3fdfe5c3157c619111c"
+    },
+    "content/assets/sidearms/sources/desert_eagle/textures/Bullet_baseColor.png": {
+      "bytes": 327659,
+      "sha256": "65998e0e129f57992a316e5912f9321133ecc80db909f30e09a9bc292925b9d6"
+    },
+    "content/assets/sidearms/sources/desert_eagle/textures/Bullet_metallicRoughness.png": {
+      "bytes": 249710,
+      "sha256": "91cbe61deb407cfc9cc8952155f8780bb43c1e554df56b8d4ff7f35bf3c31231"
+    },
+    "content/assets/sidearms/sources/desert_eagle/textures/Bullet_normal.png": {
+      "bytes": 75375,
+      "sha256": "4dcab6595f4b80843e399d3f67bf7592ec62abf24869d18eaf827bbbeb020046"
+    },
+    "content/assets/sidearms/sources/desert_eagle/textures/Magazine_baseColor.png": {
+      "bytes": 6755410,
+      "sha256": "3f7fd5f112158e7703c3d3e3e5564a8dd23f4a51c4b3b8ede35f317760140dba"
+    },
+    "content/assets/sidearms/sources/desert_eagle/textures/Magazine_metallicRoughness.png": {
+      "bytes": 5618417,
+      "sha256": "2dc5cace4ac54791012c28407dcb3fd1e69be2a6c1f7d53b2a1455dd1d3cbec4"
+    },
+    "content/assets/sidearms/sources/desert_eagle/textures/Magazine_normal.png": {
+      "bytes": 1658549,
+      "sha256": "e5ffefbe1852f26a827453f29712fb6be906457d20aef237ab63be6bb393c032"
+    },
+    "content/assets/sidearms/sources/desert_eagle/textures/MainBody_baseColor.png": {
+      "bytes": 21309724,
+      "sha256": "5cc73299f5fb74035cd370da2916cdf24eead6c35ee6311fbf90e511f0e082a1"
+    },
+    "content/assets/sidearms/sources/desert_eagle/textures/MainBody_metallicRoughness.png": {
+      "bytes": 16939674,
+      "sha256": "c5752340139286d786afb538db883d6c7d578d5f5754fbc688ce4334be7ab20c"
+    },
+    "content/assets/sidearms/sources/desert_eagle/textures/MainBody_normal.png": {
+      "bytes": 7892010,
+      "sha256": "dedf351bc4aa37be2ca2091632413044130aca2bbe47acbf344cbe0eeb8ddb85"
+    },
+    "content/assets/sidearms/sources/desert_eagle/textures/Slide_baseColor.png": {
+      "bytes": 22980052,
+      "sha256": "4c0ab4d8d50c9758122814fac7da034d5bf4daae4d1adb0314b86a801e03708a"
+    },
+    "content/assets/sidearms/sources/desert_eagle/textures/Slide_metallicRoughness.png": {
+      "bytes": 15817856,
+      "sha256": "c5eee807d66196d57c8eaf9fd52975a51f2a1e80995c741caae6c0d946d48580"
+    },
+    "content/assets/sidearms/sources/desert_eagle/textures/Slide_normal.png": {
+      "bytes": 5904043,
+      "sha256": "6438f03912a820947b15953911c4734afb54e0c4cc9d4c408995395fa3b6f4ff"
+    },
+    "content/assets/sidearms/sources/magnum44/scene.bin": {
+      "bytes": 1069536,
+      "sha256": "6b12d41670461b3613e35bb23c2a17c77a22531a5c626d469c9e884ab1ea7806"
+    },
+    "content/assets/sidearms/sources/magnum44/scene.gltf": {
+      "bytes": 104196,
+      "sha256": "834195a832d225cfd673d6ab2d8e0e6e3f1ea6b2d4f5f37e32a3c26876c97a57"
+    },
+    "content/assets/sidearms/sources/magnum44/textures/Taurus_baseColor.jpeg": {
+      "bytes": 3330962,
+      "sha256": "c9dba93245939cd09e68c30e8d0f45df50236eae0766d188953dc2516c08579f"
+    },
+    "content/assets/sidearms/sources/magnum44/textures/Taurus_metallicRoughness.png": {
+      "bytes": 14767968,
+      "sha256": "cca042dfabef84ebd646f4f9609d8adcf0227e9d28ca4f5579b34d737c0501e5"
+    },
+    "content/assets/sidearms/sources/magnum44/textures/Taurus_normal.png": {
+      "bytes": 9366467,
+      "sha256": "acbf12e78b73c7c3d5407a8dafa0f02563354719b49dcf9cc63aa2846084040c"
+    },
+    "content/assets/sidearms/sources/suppressed/scene.bin": {
+      "bytes": 1232776,
+      "sha256": "65e95fcabea244e1f6277e240adc4100ab330aad6969eaba53facfdc9356002b"
+    },
+    "content/assets/sidearms/sources/suppressed/scene.gltf": {
+      "bytes": 12093,
+      "sha256": "a340ab2ad5c2c47088d68eaba6c113ca7152d7cd2d4dcbbbe14bf63b67e3122b"
+    },
+    "content/assets/sidearms/sources/suppressed/textures/Material2_baseColor.png": {
+      "bytes": 588123,
+      "sha256": "80ee438fc31ce4a814b1236776fb04bb1fd0dc1e558d9c987b2a7b0d6fbc9b76"
+    },
+    "content/assets/sidearms/sources/suppressed/textures/Material2_metallicRoughness.png": {
+      "bytes": 3976260,
+      "sha256": "7b1a3ce4893b01fa73db731985a6f7772c698637a8df2f4bd221c668b82d0c80"
+    },
+    "content/assets/sidearms/sources/suppressed/textures/Material2_normal.png": {
+      "bytes": 14094250,
+      "sha256": "fd1e41b2587a7d5eac22d8694609844a8bd5f57bf1c8c208394504510b6cbfbf"
+    },
+    "content/assets/sidearms/sources/suppressed/textures/Material2_specularf0.png": {
+      "bytes": 246564,
+      "sha256": "d285d1a36dcca38df31b1ca1660fba518d783564baf9bf674a399fac97e87bdf"
+    },
+    "content/assets/sidearms/suppressed-preview.png": {
+      "bytes": 379701,
+      "sha256": "1f52daba4c95e2f80e413d0a06687dc8d5d24370a05ae9566b69a4e44a10b03d"
+    },
+    "content/assets/sidearms/suppressed.blend": {
+      "bytes": 8718286,
+      "sha256": "c1f9f846ffb430103a03fc4c53b5999f31014995f72704c09654c6828f5b0802"
+    }
+  }
+}

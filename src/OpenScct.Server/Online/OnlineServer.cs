@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using OpenScct.Content;
 using OpenScct.Core;
 using OpenScct.Core.Engine;
 using OpenScct.Game.GameFlow;
@@ -530,6 +532,16 @@ public sealed partial class OnlineServer : IDisposable
 
         _lan?.Poll(nowMicros);
         Master?.Tick(nowMicros, Info);
+        while (Master is { } master && master.TryTakeEquipment(out var equipment))
+            foreach (var player in _players)
+                if (player.AccountId is { } account && equipment.TryGetValue(account, out var current))
+                {
+                    var old = PlayerRank.Unpack(player.Rank);
+                    player.Rank = PlayerRank.Unpack(current.Rank).WithTitle(old.TitleBit).Pack();
+                    player.Unlocks = new CosmeticUnlocks(current.Unlocks);
+                    if (player.Slot?.Controller?.PlayerReplicationInfo is { } pri) pri.SvmRank = player.Rank;
+                    Send(null, RankLine(player));
+                }
         if (_closeAt >= 0 && nowMicros >= _closeAt)
         {
             CloseRequested = true;
@@ -1287,8 +1299,19 @@ public sealed partial class OnlineServer : IDisposable
         return map;
     }
 
-    private bool HasMode(string map, EGameMode mode) =>
-        Maps.GetMapSettings(map) is not { } settings || settings.SearchForGameMode(USMatchInfo.RulesModeFor(mode)) >= 0;
+    private bool HasMode(string map, EGameMode mode)
+    {
+        try
+        {
+            return Maps.GetMapSettings(map) is not { } settings || settings.SearchForGameMode(USMatchInfo.RulesModeFor(mode)) >= 0;
+        }
+        catch (Exception e) when (e is SvMapFormatException or IOException)
+        {
+            // An incomplete/unsupported conversion is not a rotation candidate. One bad installed map must not
+            // terminate a running session when the revenge pair returns to the lobby.
+            return false;
+        }
+    }
 
     private void BackToLobby(string? why)
     {
@@ -1715,8 +1738,8 @@ public sealed partial class OnlineServer : IDisposable
     }
 
     /// <summary>The login options of a player for the current map's game rules (its side, and the series count for the revenge swap).</summary>
-    private string MatchLoginOptions(SessionPlayer p) => "?Team=" + p.Team.ToString(CultureInfo.InvariantCulture) + SeriesOptions(Host.Game) +
-        (p.Team switch { 0 => p.SpyLook, 1 => p.MercLook, _ => CosmeticLook.Default } is { Packed: not 0 } look ? "?SvmLook=" + look.ToHex() : string.Empty) +
+    private string MatchLoginOptions(SessionPlayer p) => (Settings.Master is null ? "?SvmSidearmsAll=1" : "?SvmSidearmsAll=0") + "?Team=" + p.Team.ToString(CultureInfo.InvariantCulture) + SeriesOptions(Host.Game) +
+        (p.Team switch { 0 => p.SpyLook, 1 => p.MercLook, _ => CosmeticLook.Default } is var look && !look.IsDefault ? "?SvmLook=" + look.ToHex() : string.Empty) +
         (p.Rank != 0 ? "?SvmRank=" + p.Rank.ToString(CultureInfo.InvariantCulture) : string.Empty) +
         (p.Rejoin is not null ? "?SvmRejoin=1" : string.Empty);
 

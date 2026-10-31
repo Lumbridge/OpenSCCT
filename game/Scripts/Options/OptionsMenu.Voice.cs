@@ -33,29 +33,33 @@ public partial class OptionsMenu
     {
         GridContainer g = Grid("Voice");
         string[] devices = InputDevices();
-        Choice(g, "Device", "voice_input_device", devices, _edit.VoiceInputDevice.Length == 0 ? SystemDevice : _edit.VoiceInputDevice,
+        Section(g, "Voice chat & playback", "");
+        Choice(g, "Microphone device", "voice_input_device", devices, _edit.VoiceInputDevice.Length == 0 ? SystemDevice : _edit.VoiceInputDevice,
             v => _edit.VoiceInputDevice = v == SystemDevice ? string.Empty : v);
         Check(g, "Enable voice chat", "allow_voice_chat", _edit.VoiceEnabled, v => _edit.VoiceEnabled = v);
-        Slider(g, "Voice Chat Volume", "voice_output_volume", 0f, 100f, 1f, _edit.VoiceVolume * 100f, v => _edit.VoiceVolume = v / 100f, "0");
-        Slider(g, "Buffering (20 ms frames)", "voice_jitter_frames", VoiceK.MinJitterFrames, VoiceK.MaxJitterFrames, 1f, _edit.VoiceJitterFrames,
+        Slider(g, "Other players’ voice volume", "voice_output_volume", 0f, 100f, 1f, _edit.VoiceVolume * 100f, v => _edit.VoiceVolume = v / 100f, "0");
+        Slider(g, "Playback buffer (20 ms per step)", "voice_jitter_frames", VoiceK.MinJitterFrames, VoiceK.MaxJitterFrames, 1f, _edit.VoiceJitterFrames,
             v => _edit.VoiceJitterFrames = (int)v, "0");
+        Section(g, "Microphone", "Automatic microphone volume overrides the manual gain setting.");
         Check(g, "Mute microphone", "voice_muted", _edit.VoiceMuted, v => _edit.VoiceMuted = v);
-        Slider(g, "Microphone Volume", "voice_input_gain", 0f, 4f, 0.05f, _edit.VoiceInputGain, v => _edit.VoiceInputGain = v);
-        Check(g, "Auto-Adjust Mic Volume (Microphone Volume is then not used)", "voice_auto_gain", _edit.VoiceAutoGain, v => _edit.VoiceAutoGain = v);
+        Slider(g, "Microphone gain multiplier", "voice_input_gain", 0f, 4f, 0.05f, _edit.VoiceInputGain, v => _edit.VoiceInputGain = v);
+        Check(g, "Automatic microphone volume", "voice_auto_gain", _edit.VoiceAutoGain, v => _edit.VoiceAutoGain = v);
         Check(g, "Noise suppression", "voice_noise_suppression", _edit.VoiceNoiseSuppression, v => _edit.VoiceNoiseSuppression = v);
         Choice(g, "Noise suppression level", "voice_noise_suppression_level", GameSettings.NoiseLevels, _edit.VoiceNoiseLevel,
             v => _edit.VoiceNoiseLevel = v, v => $"{v} ({GameSettings.NoiseLevelDecibels(v)} dB)");
         Check(g, "Echo cancellation (experimental: for speakers)", "voice_echo_cancellation", _edit.VoiceEchoCancellation,
             v => _edit.VoiceEchoCancellation = v);
 
+        Section(g, "Transmission", "The activation threshold sets how loud your microphone must be to transmit. The release delay keeps transmission open briefly after your voice drops below the threshold.");
         g.AddChild(new Label { Text = "Microphone level", CustomMinimumSize = new Vector2(320f, 0f) });
         _micLevel = new ProgressBar { Name = "MicLevel", MinValue = 0, MaxValue = 0.25, Step = 0.001, ShowPercentage = false, CustomMinimumSize = new Vector2(320f, 18f) };
         g.AddChild(_micLevel);
         _micState = new Label { Name = "MicState", CustomMinimumSize = new Vector2(70f, 0f), AutowrapMode = TextServer.AutowrapMode.WordSmart };
         g.AddChild(_micState);
-        Slider(g, "Activation threshold", "voice_activation_threshold", 0f, 0.25f, 0.001f, _edit.VoiceThreshold, v => _edit.VoiceThreshold = v, "0.000");
-        Slider(g, "Release time (ms)", "voice_activation_hold_ms", 0f, 2000f, 10f, _edit.VoiceHoldMs, v => _edit.VoiceHoldMs = (int)v, "0");
-        Check(g, "Push to talk", "voice_push_to_talk", _edit.VoicePushToTalk, v => _edit.VoicePushToTalk = v);
+        Slider(g, "Voice activation threshold", "voice_activation_threshold", 0f, 0.25f, 0.001f, _edit.VoiceThreshold, v => _edit.VoiceThreshold = v, "0.000");
+        Slider(g, "Transmission release delay (ms)", "voice_activation_hold_ms", 0f, 2000f, 10f, _edit.VoiceHoldMs, v => _edit.VoiceHoldMs = (int)v, "0");
+        Section(g, "Voice shortcuts", "Change these shortcuts in the role Bindings sections. Push to talk requires holding a shortcut to transmit.");
+        Check(g, "Require push to talk", "voice_push_to_talk", _edit.VoicePushToTalk, v => _edit.VoicePushToTalk = v);
         g.AddChild(new Label { Text = "Push To Talk key" });
         g.AddChild(new Label
         {
@@ -67,6 +71,7 @@ public partial class OptionsMenu
         g.AddChild(new Label { Name = "MuteKey", Text = BindText(VoiceInput.ToggleMute), Modulate = UiStyle.Dim });
         g.AddChild(new Control());
 
+        Section(g, "Test your microphone", "");
         _micTestButton = UiStyle.MenuButton("Test my microphone", StartMicTest, "MicTest");
         _micTestButton.CustomMinimumSize = new Vector2(300f, 40f);
         g.AddChild(_micTestButton);
@@ -77,7 +82,7 @@ public partial class OptionsMenu
         };
         g.AddChild(_micTestState);
         g.AddChild(new Control());
-        return Page("Voice", g);
+        return Page("Voice", SectionedContent(g));
     }
 
     private static string[] InputDevices()
@@ -94,19 +99,18 @@ public partial class OptionsMenu
         return list.ToArray();
     }
 
-    /// <summary>"Bind: X" as Reloaded's page writes the key, or "Bind: none - Nobody can hear you".</summary>
+    /// <summary>All active keyboard or mouse shortcuts; an unbound PTT key does not disable voice activation.</summary>
     private static string BindText(string action)
     {
         VoiceInput.EnsureActions();
+        var names = new List<string>();
         foreach (InputEvent e in InputMap.ActionGetEvents(action))
         {
             if (e is InputEventKey k)
-            {
-                return "Bind: " + OS.GetKeycodeString(k.PhysicalKeycode != Key.None ? k.PhysicalKeycode : k.Keycode);
-            }
+                names.Add(OS.GetKeycodeString(k.PhysicalKeycode != Key.None ? k.PhysicalKeycode : k.Keycode));
+            else if (KeyBindingsModel.KeyOf(e) is { } mouse) names.Add(OpenScctGame.Controls.GodotKeys.DisplayName(mouse));
         }
-
-        return "Bind: none - Nobody can hear you";
+        return names.Count == 0 ? "Unbound" : string.Join(", ", names);
     }
 
     /// <summary>The microphone meter runs while the Voice page shows (outside an online visit, which has its own).</summary>

@@ -49,6 +49,14 @@ public partial class SPlayerController
     {
         if (IsRemotePlayer)
         {
+            if (SBPawn is { SidearmWeapon: { } sidearm } carried)
+            {
+                sidearm.FullReload();
+                if (carried.PrimaryWeapon is SWeaponDefense primary)
+                {
+                    primary.Ammo = primary.MaxAmmo; primary.ClipAmmo = primary.ClipMaxAmmo; primary.PublishCarriedAmmo();
+                }
+            }
             GameHost.ClientCall(this, new GameCall(CNAME_ReloadAmmoStock));
             return;
         }
@@ -85,6 +93,8 @@ public partial class SPlayerController
             if (pawn.MyWeapon is { } weapon)
             {
                 hooks?.FullReload(weapon);
+                if (pawn.PrimaryWeapon is { } primary && !ReferenceEquals(primary, weapon)) hooks?.FullReload(primary);
+                if (pawn.SidearmWeapon is { } sidearm && !ReferenceEquals(sidearm, weapon)) hooks?.FullReload(sidearm);
             }
 
             PlayOwnedSound(AmmoStockSound, ESoundSlot.SLOT_Misc, 1f, false, DeviceK.AmmoSoundRadius);

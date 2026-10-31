@@ -123,9 +123,14 @@ public sealed partial class SpotShadowLight : IDisposable
     private static readonly SpotShadowLight?[] s_slots = new SpotShadowLight?[RenderK.SpotShadowSlots];
     private static Image? s_rows;
     private static ImageTexture? s_rowsTexture;
+    private static readonly Vector4[] s_rowValues = new Vector4[SlotTexels * RenderK.SpotShadowSlots];
+    private static bool s_rowsDirty;
+    private static int s_lastCount;
     private static ImageTexture? s_noDepth;
     private static readonly Texture2Drd s_atlasTexture = new();
     private static Rid s_atlas;
+    private static Rid s_staticAtlas;
+    private static bool s_staticAtlasPending;
     private static bool s_atlasPending;
 
     // The cookies in the template's texture array: layer 0 is white (no cookie).
@@ -142,12 +147,20 @@ public sealed partial class SpotShadowLight : IDisposable
     private readonly int _cookieLayer;
     private bool _on;
     private bool _disposed;
+    private bool _placed;
+    private bool _cameraVisible = true;
+    private Aabb _influenceBounds;
+    private readonly SubViewport? _staticViewport;
+    private readonly Camera3D? _staticCamera;
+    private readonly ShadowDepthCapture? _staticCapture;
+    private bool _staticDirty = true;
+    private (bool Live, FVector Location, FRotator Rotation, float Scale, int Zone, float Soft)? _lastPush;
 
     /// <param name="parent">Node the light's shadow viewport goes under.</param>
     /// <param name="pack">The render pack (attenuation ramps; the cookie when <paramref name="cookie"/> is null).</param>
     /// <param name="shape">The light.</param>
     /// <param name="cookie">The projected texture, else the pack's <see cref="SpotShadowShape.Cookie"/> (none: white).</param>
-    public SpotShadowLight(Node parent, RenderPack? pack, SpotShadowShape shape, Texture2D? cookie = null)
+    public SpotShadowLight(Node parent, RenderPack? pack, SpotShadowShape shape, Texture2D? cookie = null, bool cacheStatic = false)
     {
         ArgumentNullException.ThrowIfNull(parent);
         ArgumentNullException.ThrowIfNull(shape);
@@ -166,6 +179,7 @@ public sealed partial class SpotShadowLight : IDisposable
         }
 
         EnsureAtlas();
+        if (cacheStatic) EnsureStaticAtlas();
         float aspect = shape.SpotWidth / MathF.Max(1f, shape.SpotHeight);
         _size = aspect >= 2f
             ? new Vector2I(TileWidth, Math.Max(1, (int)MathF.Round(TileWidth / aspect)))
@@ -175,7 +189,8 @@ public sealed partial class SpotShadowLight : IDisposable
         _apex = apex ?? 0f;
         float near = UeSpace.LengthToGodot(MathF.Max(1f, _apex));
         float far = UeSpace.LengthToGodot(_apex + shape.Range);
-        _capture = new ShadowDepthCapture(_size, near, far, TileOrigin(_slot), _parallel, static () => s_atlas);
+        _capture = new ShadowDepthCapture(_size, near, far, TileOrigin(_slot), _parallel, static () => s_atlas,
+            cacheStatic ? () => _staticCapture is { Ready: true } && !_staticDirty ? s_staticAtlas : default : null);
         _viewport = new SubViewport
         {
             Name = "SpotShadow",
@@ -204,6 +219,29 @@ public sealed partial class SpotShadowLight : IDisposable
         {
             _camera.Projection = Camera3D.ProjectionType.Perspective;
             _camera.Fov = Mathf.RadToDeg(2f * MathF.Atan(shape.SpotHeight / (_apex + shape.Range)));
+        }
+
+        if (cacheStatic)
+        {
+            _staticCapture = new ShadowDepthCapture(_size, near, far, TileOrigin(_slot), _parallel, static () => s_staticAtlas);
+            _staticViewport = new SubViewport
+            {
+                Name = "StaticShadow", Size = _size, Msaa3D = Godot.Viewport.Msaa.Disabled,
+                RenderTargetUpdateMode = SubViewport.UpdateMode.Disabled,
+            };
+            _staticCamera = new Camera3D
+            {
+                Name = "StaticLightCamera", KeepAspect = _camera.KeepAspect, Near = near, Far = far,
+                Projection = _camera.Projection, Fov = _camera.Fov, Size = _camera.Size,
+                CullMask = RenderLayers.StaticWorld | RenderLayers.ShadowPass,
+                Environment = FaithfulView.CreateEnvironment(), Attributes = FaithfulView.CreateAttributes(),
+                Compositor = new Compositor { CompositorEffects = new Godot.Collections.Array<CompositorEffect> { _staticCapture } },
+                Current = true,
+            };
+            _staticViewport.AddChild(_staticCamera);
+            // Child viewports render before their parent: populate the static tile before the dynamic pass reads it.
+            _viewport.AddChild(_staticViewport);
+            _camera.CullMask = RenderLayers.World | RenderLayers.ShadowPass;
         }
 
         _viewport.AddChild(_camera);
@@ -257,7 +295,7 @@ public sealed partial class SpotShadowLight : IDisposable
         set
         {
             _on = value;
-            _viewport.RenderTargetUpdateMode = value && HasSlot ? SubViewport.UpdateMode.Always : SubViewport.UpdateMode.Disabled;
+            UpdateShadowViewport();
             Push();
         }
     }
@@ -284,9 +322,69 @@ public sealed partial class SpotShadowLight : IDisposable
     /// <summary>Moves the light to a UE location and rotation (its axis is the rotation's forward); the camera sits at the apex.</summary>
     public void Place(FVector location, FRotator rotation)
     {
-        Placement = (location, rotation);
-        _camera.Transform = FaithfulView.CameraTransform(location - (rotation.Vector() * _apex), rotation);
+        if (!_placed || Placement != (location, rotation))
+        {
+            _placed = true;
+            Placement = (location, rotation);
+            _camera.Transform = FaithfulView.CameraTransform(location - (rotation.Vector() * _apex), rotation);
+            if (_staticCamera is not null)
+            {
+                _staticCamera.Transform = _camera.Transform;
+                _staticDirty = true;
+            }
+            // Bounds of the complete lit frustum, including the volume used by light beams. A shadow map outside
+            // the viewing frustum cannot affect that view; keep its atlas tile and refresh it when visible again.
+            rotation.GetAxes(out FVector forward, out FVector right, out FVector up);
+            Vector3 first = UeSpace.ToGodot(location);
+            _influenceBounds = new Aabb(first, Vector3.Zero);
+            float nearRatio = _parallel ? 1f : Math.Clamp(Shape.NearPlaneRatio, 0f, 1f);
+            for (int end = 0; end < 2; end++)
+            {
+                FVector center = location + forward * (end * Shape.Range);
+                float scale = end == 0 ? nearRatio : 1f;
+                for (int x = -1; x <= 1; x += 2)
+                    for (int y = -1; y <= 1; y += 2)
+                        _influenceBounds = _influenceBounds.Expand(UeSpace.ToGodot(center + right * (x * Shape.SpotWidth * scale) + up * (y * Shape.SpotHeight * scale)));
+            }
+        }
+
+        if (_staticViewport is not null && _staticDirty) UpdateShadowViewport();
+
         Push();
+    }
+
+    /// <summary>Conservative culling of the shadow pass, keeping the light and its atlas slot intact.</summary>
+    public void CullShadow(ReadOnlySpan<Plane> frustum)
+    {
+        bool visible = true;
+        Vector3 center = _influenceBounds.GetCenter();
+        Vector3 half = _influenceBounds.Size * 0.5f;
+        foreach (Plane plane in frustum)
+        {
+            Vector3 n = plane.Normal.Abs();
+            if (plane.DistanceTo(center) > n.Dot(half))
+            {
+                visible = false;
+                break;
+            }
+        }
+
+        if (_cameraVisible != visible)
+        {
+            _cameraVisible = visible;
+            UpdateShadowViewport();
+        }
+    }
+
+    private void UpdateShadowViewport()
+    {
+        bool draw = _on && HasSlot && _cameraVisible;
+        _viewport.RenderTargetUpdateMode = draw ? SubViewport.UpdateMode.Always : SubViewport.UpdateMode.Disabled;
+        if (draw && _staticDirty && _staticCapture is { Ready: true } && _staticViewport is not null)
+        {
+            _staticViewport.RenderTargetUpdateMode = SubViewport.UpdateMode.Once;
+            _staticDirty = false;
+        }
     }
 
     /// <summary>Writes the light into its slot of the template (or clears the slot when off).</summary>
@@ -299,6 +397,13 @@ public sealed partial class SpotShadowLight : IDisposable
         }
 
         bool live = _on && !_disposed && _camera.IsInsideTree() && _capture.Ready;
+        var state = (live, Placement.Location, Placement.Rotation, Scale, Zone, SoftRadius);
+        if (_lastPush == state)
+        {
+            return;
+        }
+
+        _lastPush = state;
         if (!live)
         {
             SetRow(_slot, 3, Vector4.Zero);
@@ -342,7 +447,18 @@ public sealed partial class SpotShadowLight : IDisposable
     private static Vector2I TileOrigin(int slot) =>
         slot < 0 ? Vector2I.Zero : new Vector2I(slot % AtlasColumns * TileWidth, slot / AtlasColumns * TileHeight);
 
-    private static void SetRow(int slot, int texel, Vector4 v) => s_rows!.SetPixel(texel, slot, new Color(v.X, v.Y, v.Z, v.W));
+    private static void SetRow(int slot, int texel, Vector4 v)
+    {
+        int index = slot * SlotTexels + texel;
+        if (s_rowValues[index] == v)
+        {
+            return;
+        }
+
+        s_rowValues[index] = v;
+        s_rowsDirty = true;
+        s_rows!.SetPixel(texel, slot, new Color(v.X, v.Y, v.Z, v.W));
+    }
 
     private static void Flush()
     {
@@ -351,7 +467,11 @@ public sealed partial class SpotShadowLight : IDisposable
             RebuildIgnore();
         }
 
-        s_rowsTexture?.Update(s_rows);
+        if (s_rowsDirty)
+        {
+            s_rowsTexture?.Update(s_rows);
+            s_rowsDirty = false;
+        }
         int count = 0;
         for (int i = 0; i < s_slots.Length; i++)
         {
@@ -361,7 +481,11 @@ public sealed partial class SpotShadowLight : IDisposable
             }
         }
 
-        RenderingServer.GlobalShaderParameterSet(s_countName, count);
+        if (count != s_lastCount)
+        {
+            s_lastCount = count;
+            RenderingServer.GlobalShaderParameterSet(s_countName, count);
+        }
     }
 
     /// <summary>Registers the template's spot slots (once per process), with the attenuation ramps of the pack.</summary>
@@ -540,6 +664,29 @@ public sealed partial class SpotShadowLight : IDisposable
         }));
     }
 
+    private static void EnsureStaticAtlas()
+    {
+        if (s_staticAtlas.IsValid || s_staticAtlasPending) return;
+        s_staticAtlasPending = true;
+        RenderingServer.CallOnRenderThread(Callable.From(() =>
+        {
+            RenderingDevice? rd = RenderingServer.GetRenderingDevice();
+            if (rd is not null)
+            {
+                using var format = new RDTextureFormat
+                {
+                    Format = RenderingDevice.DataFormat.R32Sfloat,
+                    Width = (uint)AtlasWidth, Height = (uint)AtlasHeight,
+                    UsageBits = RenderingDevice.TextureUsageBits.SamplingBit | RenderingDevice.TextureUsageBits.StorageBit,
+                };
+                using var view = new RDTextureView();
+                s_staticAtlas = rd.TextureCreate(format, view);
+            }
+
+            s_staticAtlasPending = false;
+        }));
+    }
+
     /// <summary>The atlas, once made, goes to the template's depth slot.</summary>
     private static void BindAtlas()
     {
@@ -572,6 +719,7 @@ public sealed partial class SpotShadowLight : IDisposable
         // The effect is a resource the managed side keeps alive: without the garbage collector running before the
         // process quits its predelete never comes, so its render device objects are freed here.
         _capture.Release();
+        _staticCapture?.Release();
         if (Array.TrueForAll(s_slots, s => s is null))
         {
             ReleaseShared();
@@ -590,10 +738,16 @@ public sealed partial class SpotShadowLight : IDisposable
         s_cookies.Clear();
         RenderingServer.GlobalShaderParameterSet(s_cookiesName, Cookies());
         Rid atlas = s_atlas;
+        Rid staticAtlas = s_staticAtlas;
         s_atlas = default;
+        s_staticAtlas = default;
         if (atlas.IsValid)
         {
             RenderingServer.CallOnRenderThread(Callable.From(() => RenderingServer.GetRenderingDevice()?.FreeRid(atlas)));
+        }
+        if (staticAtlas.IsValid)
+        {
+            RenderingServer.CallOnRenderThread(Callable.From(() => RenderingServer.GetRenderingDevice()?.FreeRid(staticAtlas)));
         }
     }
 }

@@ -67,6 +67,8 @@ public sealed record PlaySettings
     /// </summary>
     public int NetRate { get; init; }
 
+    public OpenScct.Net.NetProfile NetworkProfile { get; init; } = OpenScct.Net.NetProfile.Enhanced;
+
     public ulong MatchSeed { get; init; } = 1;
 
     /// <summary>Extra SVMap roots searched before the defaults.</summary>

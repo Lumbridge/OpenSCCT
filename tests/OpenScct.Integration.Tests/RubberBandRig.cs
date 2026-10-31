@@ -45,6 +45,7 @@ internal sealed class RubberBandRun
     private readonly List<RubberSample> _samples = new();
     private readonly List<RubberCorrection> _corrections = new();
     private readonly List<int> _reinits = new();
+    private readonly StringBuilder _trace = new();
 
     private RubberBandRun(string scenario)
     {
@@ -226,6 +227,9 @@ internal sealed class RubberBandRun
             }
 
             run._samples.Add(new RubberSample(f, cp.Location, sp.Location, cp.Physics, sp.Physics, client.GetStateName(), server.GetStateName()));
+            if (Environment.GetEnvironmentVariable("SVM_NET_TRACE") == "1" &&
+                (relative == "moveset/spy-fence-climb" ? f is >= 325 and <= 380 : f is >= 15 and <= 80))
+                run._trace.AppendLine($"f{f}: c={cp.Location} {cp.Physics} {client.GetStateName()} clip={cp.PawnAnim[0].Sequence}@{cp.PawnAnim[0].Frame:F4} root={cp.NetworkRootMotion.Capture()} s={sp.Location} {sp.Physics} {server.GetStateName()} clip={sp.PawnAnim[0].Sequence}@{sp.PawnAnim[0].Frame:F4} stamp={serverMoves.CurrentTimeStamp:F5} ack={clientMoves.CurrentTimeStamp:F5}");
         }
 
         run.MovesIgnored = serverMoves.MovesIgnored - ignored;
@@ -295,6 +299,7 @@ internal sealed class RubberBandRun
         RubberSample last = Last;
         sb.Append(CultureInfo.InvariantCulture,
             $"end client {last.ClientState}/{last.ClientPhysics} at {last.Client}, server {last.ServerState}/{last.ServerPhysics} at {last.Server}");
+        sb.AppendLine().Append(_trace);
         return sb.ToString();
     }
 

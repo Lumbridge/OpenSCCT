@@ -51,8 +51,9 @@ Without the pack the client still draws, with a seeded stand-in grain, no therma
   by the sky view, SSIM 0.34; per polygon it is 0.98, like PanaD).
 - Skeletal props (`SAnimatedMesh`, DrawType DT_Mesh with a mesh from the shared packs) are placed by
   `AnimatedProps.Build` at the first frame of their first sequence and lit for their mesh's bounding sphere (the
-  crane, at DrawScale 10, reaches 2440 uu from its centre). Skinned meshes cull with a 64 m margin, since the pose
-  moves vertices away from the rest box. In play, `DeviceViews` draws every SAnimatedMesh (all 54 placed meshes of
+  crane, at DrawScale 10, reaches 2440 uu from its centre). Map props use conservative bounds over every linear-keyed
+  pose (`AnimatedCullBounds`: parent offsets/scales and inverse-bind influence radii), rather than extending every
+  rest box by 64 m. Characters and unsupported curves or morphs keep the 64 m margin. In play, `DeviceViews` draws every SAnimatedMesh (all 54 placed meshes of
   the map anim packages are exported by the chars step, `charconv.MAP_PROP_SETS`; every converted map also carries
   the ones it places in `render/chars/` (`mapconv/props.py`), which `SkeletalModel.FindMapGlb` reads first, so a
   downloaded map whose anim package the player's install lacks, such as Polar Base's map17_anm, still draws them) and
@@ -214,13 +215,21 @@ units a second, FRotationMatrix, about `UOffset / USize, VOffset / VSize`), TR_O
 TR_FixedRotation TexRotator are static (their cached `M`).
 `COMBINE` evaluates a Combiner whose inputs animate (AquaE's sea `Aquarium_TXT.osc`: two panners at different rates
 under an oscillator; 98 materials in all): Material1, Material2 and the Mask each through their own modifiers after
-the Combiner's own, then CombineOperation (Material1, Material2, multiply, add, subtract, `lerp(M2, M1, mask.a)`,
+the Combiner's own, then CombineOperation (Material1, Material2, multiply, add, subtract, `lerp(M1, M2, mask.a)`,
 `M1 + M2 x mask.a`, mask colour), x Modulate2X / 4X, and AlphaOperation (mask alpha, multiply, add, Material1's,
 Material2's); InvertMask inverts the mask alpha; no Mask means Material1. A Material2 that is a TexEnvMap (`env2`:
 ClarD's and Sche*'s puddles `SFX_SCH_xbox.FX.final_flaque_envmap`, the rain ripples `flaque_onde0000..` at 10 fps) is
 looked up by the camera-space reflection as `ENV_TEX` is (R.xy) and plays its AnimNext chain from an atlas (`flip2`); its
 static bake takes the env texture's mean colour (baked through the UVs it stretched one ripple frame over each puddle
-as a large bright blot). Static Combiners stay a bake. `FLIPBOOK`
+as a large bright blot). A bare Combiner under coordinate modifiers stays opaque: input alpha is used by the
+combination, not inherited as framebuffer blending. Shader / FinalBlend wrappers keep their explicit blend.
+The root Combiner path (game `0x10970ad0`) lights its first texture stage before the combination, leaving the
+later wave/foam input at its authored colour. `COMBINE_LIGHT_FIRST` preserves that order; a Shader containing a
+Combiner keeps its final diffuse lighting. `0x1096d9d0` case 5 sets the second input as D3DTA_TEXTURE (2), the
+first as D3DTA_CURRENT (1), and blends by the mask alpha. The previously reversed lerp and inherited alpha blend
+made Aquarium's ocean transparent and lost its bright waves. Existing packs are corrected from their material
+graph when loaded; the converter also writes the corrected blend flags and static bake. Static Combiners stay
+a bake. `FLIPBOOK`
 plays an animated texture (Texture.AnimNext chain: AquaE caustics `SC01` 16 frames, ClubD's pool caustic projectors,
 AquaE's rain projectors) from an atlas, one frame per 1 / MaxFrameRate s (MinFrameRate when unset, else 30 fps
 [estimate: the game then steps a frame per rendered frame]). The game's MaterialSequence screens still show their
@@ -274,7 +283,9 @@ settings' `filter_level` (rl:gfx.filtering: 0, 2, 4, 8 or 16, first run 4 as the
   non-black zone ambient.
 - Additive meshes with painted vertex colours (`authoredColors`, e.g. AquaD's caustic quads: 40 inside, 0 on the rim)
   draw `tex x 2 x VC` alone: no AmbientGlow, no dynamic or spot light, so the rim fades out as in the original (with
-  them the quads filled to bright squares). They carry zone 255 (`MapBuilder.AuthoredOverlayZone`). Estimated.
+  them the quads filled to bright squares). This also applies to bUnlit actors: skipping lighting must not discard
+  their painted colour stream (AquaE's StaticMeshActor14218 on the temple floor and StaticMeshActor12295 on its
+  wall otherwise draw fullbright rectangles). They carry zone 255 (`MapBuilder.AuthoredOverlayZone`). Estimated.
 
 ## Dynamic lights
 
@@ -305,9 +316,11 @@ shader parameter, and are summed per pixel into the baked term.
 - Animated lights that are baked (bApplyToStaticLighting without bDynamicLight: 13, pulse and subtle pulse, all also
   in-game lights) stay steady on the world, as the baked light is; they animate on actors.
 - `bAffectOwnZoneOnly` lights light only surfaces of their zone. Each triangle carries its zone in the vertex colour
-  alpha: the zone of a point 2, 8 or 32 uu in front of it through the collision BSP; mesh faces that land in solid
-  take the actor's zone. A vertex shared by triangles of two zones is written once per zone, so no triangle blends
-  zones. Without the rule SteeE's storage view reads 3.4x too bright.
+  alpha. BSP takes the zone of a point 2, 8 or 32 uu in front of the face through the collision BSP. Static meshes
+  take their actor's point region for every face, including zone 0 when the origin is inside solid (AquaE's temple
+  Techroom sign, StaticMeshActor3884). Sampling the room in front of a mesh instead lets room-restricted lights
+  brighten wall-mounted signs whose actor is outside that room. A vertex shared by BSP triangles of two zones is
+  written once per zone, so no triangle blends zones. Without the rule SteeE's storage view reads 3.4x too bright.
 - `WorldLights.SetTune` (`--svm-dyn-tune=gain,radius,falloff,ownzone`) overrides the calibration for sweeps.
 
 ## Spot shadow lights
@@ -327,6 +340,12 @@ the map 512 high and as wide as SpotWidth / SpotHeight allows), kept as linear d
 per pixel, to the light stage of every lit surface (lightmapped, vertex lit and actor lit) each light's colour x 2 x
 the cookie at the projected point x the attenuation ramp at d / EchelonRange (d from the light) x the shadow term,
 with N.L (towards the apex) weighted by the normal influence. Own-zone lights light only world surfaces of their zone.
+Fixed map lights keep merged static geometry in a second atlas. Their live pass draws moving geometry and combines
+the nearest static/live depth; a moved light invalidates its static tile. Animated masked surfaces stay in the live
+pass. A light volume wholly outside the main camera skips its shadow viewport and refreshes on return. Neither
+optimization removes the light or its beam slot. Colour-only effects have their own layer outside the depth cameras;
+opaque shadow fragments skip the colour stages, while masked fragments retain the alpha test. Parameter textures
+upload only when their packed values change. The shadow resolution and filtering settings are unchanged.
 Actors skip some of them (game 0x10a37310, asked by the actor light gathering for LE_ESpotShadow lights only): a
 static light when the actor has bIgnoreEchelonLighting, a bDynamicLight one when it has bIgnoreDynamicEchelonLighting,
 any light in its IgnoredEchelonLights, and every one when its GlassEffect is set. Mesh actors carry these widely
@@ -593,6 +612,10 @@ views and the HUD.
 
 ## Frame pacing
 
+`tools/benchmark` records FPS, slowest-1% frame times,
+allocations and GC pauses through the normal play path against recorded original-game cameras. GPU timing is opt-in
+because timestamp queries/readbacks can affect throughput. Raw captures stay in `local/fps`; see the benchmark README.
+
 The frame rate is the player's (Options, Display; `settings.json`). Reloaded caps each side: `fps_spy` in game as a
 spy, `fps_merc` otherwise (merc, menus, lobby), 30 to 240 (spec/native/reloaded-features-from-code.md rule 15). Two
 values are additions Ryan asked for (2026-10-25): **Monitor** (-1, the default), the refresh rate of the screen the
@@ -771,6 +794,9 @@ viewport's camera, spark lines, beam strips, `svm_particle.gdshaderinc`). The ru
 `spec/native/emitters.md`; the gameplay effects and their converted assets: `docs/EFFECTS.md`. `Trigger(tag)` is
 Emitter.Trigger; `RenderMap.SetTime` steps every system at 60 Hz up to the scene time (going back restarts them).
 SteeE: 57 sprite emitters (flames, flares and smoke always on; explosions, sparks and debris wait for their events).
+The view rejects sprite layers against conservative live-particle bounds before building their quads, and checks
+exact generated bounds before uploading sprite/beam layers. Simulation continues off screen; a returning layer
+uploads the current particles immediately. Colour-only effects stay out of custom shadow-depth cameras.
 Mesh emitters (Fact parts, ORP lamps and mannequins, Aquarium vase shards and fish, Missile bricks, Stee debris)
 draw their static mesh from the map library: the converter adds each MeshEmitter's StaticMesh as a library node
 flagged `particle` (render.py `_particle_meshes`), MapBuilder builds it actor-lit into `RenderMap.ParticleMeshes`,
@@ -789,6 +815,9 @@ class default and baked into the lightmaps: they stay put. The places are taken 
 simulated, so a moving emitter is one frame behind.
 
 ## Rain volumes
+
+Rain geometry is retained while the camera position is unchanged. Its material panner still reads scene time every
+frame; moving the camera rebuilds the same sheets and vertex alpha as before.
 
 The simulation knows the same boxes (sim/rain.json, or render/fx.json rain for older conversions): pawns standing in
 one are wet (spec/equipment/rain.md). `RainVolumes` draws the map's ERainVolumes (`render/fx.json` rain; ClarD, Orph*, Skys*, Stat*, Aqua*) as
@@ -824,8 +853,13 @@ The step is UESoftBody::Update (0x1099a6f0, UESBPatch vtable; the strip door use
 0.005..0.05 s and smoothed (5 % new), wind per free particle from the level's 2D Perlin noise at its u, v plus two
 timers advancing by windUPan / windVPan (between windMin and windMax per axis), acceleration = Gravity (local space) +
 (wind + pushes) x nbU x nbV / Mass, Verlet with EnergyFactor taking that share of the speed, then nbIter passes of
-pawn collision and nbNormalizeIter passes over the links; positions held within 1000 uu of the actor. The client steps
-at most 120 times a second and only bodies seen in the last 5 s. Pawns (collActor) are upright cylinders at
+pawn collision and nbNormalizeIter passes over the links; positions held within 1000 uu of the actor. The client uses
+fixed 60 Hz cosmetic physics steps, independently of render FPS, and only steps bodies seen in the last 5 s. A frame
+banks its elapsed time, consumes whole steps and retains the remainder; slow frames take several steps and upload
+the mesh once. The reference is the original at 60 FPS (Aquarium's native smoothed step measured 0.01665 s). The
+earlier render-driven cap of 120 steps/s changed the number of distance-constraint passes as FPS increased, making
+the optimized build's sea heave faster. The diagnostic kept 60 solver steps/s at both 240 and 30 render FPS; texture
+panners and oscillators keep their original rates. Pawns (collActor) are upright cylinders at
 Location + Velocity x 0.08: a particle inside leaves by the nearest of top, bottom or side and takes the pawn's velocity
 over the step as a push; a moving pawn plays collSound (once per 0.5 s). Soft bodies never block movement (the
 primitive's point check always passes). Rifle tracers crossing a body push the four corners of the crossed cell by
@@ -852,6 +886,9 @@ cross products, `du x dv`. With culling off, D3D lights the back the same as the
 the front normal. The converter writes no vertex colours for soft bodies, only `unlit` (Actor.bUnlit: 5 of AquaD's
 14 bodies, ClubD's ESBPatchActor7813) and `ambientGlow`. `SoftBodyViews.Relight` applies the light set from the rest
 bounds at build time and whenever the gameplay meshes are relit.
+The mesh topology, material and UVs stay on the GPU. Simulation steps update positions, packed octahedral normals
+and bounds in place; unfamiliar vertex layouts fall back to rebuilding the surface. This avoids making a new mesh
+surface and finalizable array wrappers at every cloth step.
 
 Before this change every body drew fullbright. Golden survey before and after:
 - DeftS merc-180, the plastic curtain ESBPatchActor2857 in a doorway that the original draws black: SSIM 0.740 to
@@ -859,9 +896,10 @@ Before this change every body drew fullbright. Golden survey before and after:
 - ScheE merc-0, the overhead cloth ESBPatchActor243: SSIM 0.837 to 0.881, luma 1.67 to 0.88.
 - AquaD/E/T, ClubD and MuseD: unchanged within 0.001.
 
-AquaD/E/T's sea (ESBPatchActor370, AmbientGlow 30, translucent combiner `Aquarium_TXT.osc`, not bUnlit) is now lit
-like the rest. The earlier note that the game shows it near white was not checked against a capture, and no golden view
-shows it.
+AquaD/E/T's sea (ESBPatchActor370, AmbientGlow 30, opaque combiner `Aquarium_TXT.osc`, not bUnlit) uses the root
+Combiner's lighting order above. The 2026-10-31 Seaside diagnostic and original sandbox capture confirmed its
+dark water and bright waves. GPU positions matched all 242 simulated front/back vertices exactly; the opacity
+problem was material state, not the in-place cloth uploads.
 
 Explosions do not push soft bodies, as in the original: `SBExplosionHit` (native 1153, exec 0x109e2030, UESBPatch
 vtable slot 0xcc at 0x1099d5b0: the centre taken into local space, every particle pushed straight away from it by

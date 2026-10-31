@@ -244,7 +244,7 @@ public partial class ArmouryScreen : MenuPage
         b.Icon = item is null ? null : CosmeticThumbs.For(item, ThumbSize);
         b.ExpandIcon = false;
         b.TooltipText = open ? (item is null ? "The original look." : CosmeticCatalog.Describe(item))
-            : "Locked. Unlocked by: " + (from is null ? "an achievement" : from.Title + " (" + from.Description + ")");
+            : "Locked. Unlocked by: " + (from is null ? LevelSkinRequirement(item) : from.Title + " (" + from.Description + ")");
         if (chosen)
         {
             b.Modulate = UiStyle.MenuFocus;
@@ -384,4 +384,14 @@ public partial class ArmouryScreen : MenuPage
         Text = text, AutowrapMode = TextServer.AutowrapMode.WordSmart, CustomMinimumSize = new Vector2(ListWidth - 40f, 0f),
         Modulate = UiStyle.MenuFocus,
     };
+    private static string LevelSkinRequirement(CosmeticItem? item)
+    {
+        if (item is not null && (int)item.Slot >= 6 && (int)item.Slot <= 9)
+        {
+            var pistol = OpenScct.Core.Engine.Sidearms.Get((OpenScct.Core.Engine.SidearmKind)((int)item.Slot - 6));
+            if (item.Pattern is "night_ops" or "cryo") return "account level " + (pistol.Level + (item.Pattern == "night_ops" ? 5 : 10));
+        }
+        return "an achievement";
+    }
+
 }

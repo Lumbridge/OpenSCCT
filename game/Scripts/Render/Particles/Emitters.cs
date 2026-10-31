@@ -25,6 +25,7 @@ public sealed class Emitters : IParticleAssets
     private readonly Dictionary<string, Entry> _byId = new(StringComparer.OrdinalIgnoreCase);
     private readonly RenderMap _map;
     private float _time;
+    private readonly Plane[] _frustum = new Plane[6];
 
     /// <summary>Shorter rests wait for the next frame (float noise of the scene time).</summary>
     private const float MinStep = 1e-5f;
@@ -220,11 +221,15 @@ public sealed class Emitters : IParticleAssets
         ParticleCamera view = camera is null
             ? new ParticleCamera(default, new FVector(0f, 1f, 0f), new FVector(0f, 0f, 1f), new FVector(1f, 0f, 0f))
             : CameraOf(camera);
+        if (camera is not null)
+        {
+            ViewFrustum.Read(camera, _frustum);
+        }
         int total = 0;
         foreach (Entry e in _entries)
         {
             var owner = new ParticleOwner(e.Location, e.Rotation, default, e.Sim.GlobalOffset);
-            e.View.Draw(owner, view);
+            e.View.Draw(owner, view, camera is null ? default : _frustum);
             total += e.View.Drawn;
         }
 

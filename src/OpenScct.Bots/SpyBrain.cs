@@ -201,31 +201,31 @@ public sealed class SpyBrain : BotBrain
                     }
 
                     Enter(EPhase.Settle, now);
-                    return Face();
+                    return Face(context);
                 }
 
                 return walk;
 
             case EPhase.Settle:
-                if (now - _phaseTime < SettleSeconds || !context.Pawn.Velocity.IsZero())
+                if (now - _phaseTime < SettleSeconds || !context.Pawn.Velocity.IsZero() || !FacingUseSpot(context))
                 {
-                    return Face();
+                    return Face(context);
                 }
 
                 _asks++;
                 Requests++;
                 Enter(EPhase.PressUse, now);
-                return Face(use: true);
+                return Face(context, use: true);
 
             case EPhase.PressUse:
                 // Hold Use until the menu opens, then release it: the menu sends InteractionInit for its entry.
                 if (InState(context, NAME_s_MenuInteraction) || now - _phaseTime > UseHoldSeconds)
                 {
                     Enter(EPhase.Asked, now);
-                    return Face();
+                    return Face(context);
                 }
 
-                return Face(use: true);
+                return Face(context, use: true);
 
             case EPhase.Asked:
                 if (_target is null || IsTaken(context, _target))
@@ -253,7 +253,7 @@ public sealed class SpyBrain : BotBrain
                     }
                 }
 
-                return Face();
+                return Face(context);
 
             case EPhase.Hacking:
                 if (_target is null)
@@ -306,7 +306,15 @@ public sealed class SpyBrain : BotBrain
 
     private readonly List<SComputerObjectiveTrigger> _forget = new();
 
-    private BotInput Face(bool use = false) => new() { View = new FRotator(0, _yaw, 0), bUsing = (byte)(use ? 1 : 0) };
+    private bool FacingUseSpot(BotContext context) => Math.Abs((int)(short)(context.Pawn.Rotation.Yaw - _yaw)) <= 1024;
+
+    private BotInput Face(BotContext context, bool use = false) => new()
+    {
+        View = new FRotator(0, _yaw, 0), bUsing = (byte)(use ? 1 : 0),
+        // A holstered spy turns its body with movement, independently of its camera. Settle the body as a player
+        // would with a brief forward press; changing only the view can leave every subsequent Use facing away.
+        BT_Up = (byte)(!InTerminalStates(context) && !FacingUseSpot(context) ? 1 : 0),
+    };
 
     // While the terminal states run, the spy leaves the view alone (the walk to the spot turns it).
     private static BotInput Idle() => BotInput.Idle;

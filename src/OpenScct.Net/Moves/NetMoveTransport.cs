@@ -8,10 +8,11 @@ namespace OpenScct.Net.Moves;
 /// <summary>The move protocol objects of one player controller on one machine.</summary>
 public sealed class MoveEndpoint
 {
-    public MoveEndpoint(ServerMoves? server, ClientMoves? client)
+    public MoveEndpoint(ServerMoves? server, ClientMoves? client, SequencedMoveTransport? sequenced = null)
     {
         Server = server;
         Client = client;
+        Sequenced = sequenced;
     }
 
     /// <summary>The server half (on the server), or null.</summary>
@@ -19,6 +20,13 @@ public sealed class MoveEndpoint
 
     /// <summary>The owning client's half (on that client), or null.</summary>
     public ClientMoves? Client { get; }
+
+    public SequencedMoveTransport? Sequenced { get; }
+}
+
+public interface IMoveEndpointSource
+{
+    MoveEndpoint? EndpointOf(Actor controller);
 }
 
 /// <summary>

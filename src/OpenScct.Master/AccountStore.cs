@@ -657,7 +657,13 @@ internal sealed partial class AccountStore : IDisposable
             }
         }
 
-        return ids;
+        var progress = ProgressionOf(accountId);
+        foreach (var pistol in OpenScct.Core.Engine.Sidearms.All)
+        {
+            if (progress.BestLevel >= pistol.Level + 5) ids.Add($"merc.{pistol.Id}.night_ops");
+            if (progress.BestLevel >= pistol.Level + 10) ids.Add($"merc.{pistol.Id}.cryo");
+        }
+        return ids.Distinct(StringComparer.Ordinal).ToList();
     }
 
     /// <summary>Unlocks (or with <paramref name="unlock"/> false, takes back) cosmetics; returns how many rows changed.</summary>

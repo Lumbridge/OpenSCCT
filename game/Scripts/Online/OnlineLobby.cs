@@ -42,6 +42,7 @@ public sealed class OnlineLobby : IOnlineLobbySession
 
     public string Map => State.Setup.Map;
 
+    public bool SidearmsUnrestricted => State.SidearmsUnrestricted || State.Setup.Practice;
     public string ServerName => State.ServerName;
 
     public LobbySetup Setup => State.Setup;

@@ -742,6 +742,9 @@ public sealed class OnlineClient : IDisposable
                 }
 
                 break;
+            case "sidearms":
+                Lobby.SidearmsUnrestricted = SessionProtocol.Int(f, 0) != 0;
+                break;
             case "setup":
             {
                 MasterApi.TryParseHex(SessionProtocol.Text(f, 0), out ulong content);

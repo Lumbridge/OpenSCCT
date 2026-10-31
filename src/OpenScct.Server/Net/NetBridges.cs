@@ -102,6 +102,7 @@ public sealed class NetGameHost : IGameHost
 
     public void ClientCall(PlayerController target, in GameCall call)
     {
+        if (_driver.World?.IsReplaying == true) return;
         // resetConnectionPing is the engine's own (net-driver.md rule 9): it resets the server's adaptive net speed
         // for the player's connection and is never sent.
         if (_driver.IsServer && call.Function == NAME_resetConnectionPing)

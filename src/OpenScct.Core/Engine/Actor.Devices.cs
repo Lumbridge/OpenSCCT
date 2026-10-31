@@ -123,6 +123,7 @@ public abstract partial class Actor
     public void eventTakeDamage(int Damage, Pawn? EventInstigator, FVector HitLocation, FVector Momentum,
         SDamageType DamageType, int PillTag = 0)
     {
+        if (XLevel?.World.IsReplaying == true) return;
         if (StateNode is ITakeDamage s)
         {
             s.TakeDamage(this, Damage, EventInstigator, HitLocation, Momentum, DamageType, PillTag);

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using System.Text.Json;
 using Godot;
 using OpenScct.Core;
@@ -107,8 +108,8 @@ public sealed class SoftBodyViews
     }
 
     /// <summary>
-    /// Each frame: banks <paramref name="dt"/> and, once a step's worth (1/120 s) is in, steps every body drawn in the
-    /// last 5 s with the banked time against the pawns of <paramref name="level"/>. Tracers, and the shots of
+    /// Each frame: banks <paramref name="dt"/> and, once a fixed step's worth (1/60 s) is in, steps every body drawn in the
+    /// last 5 s with whole fixed steps against the pawns of <paramref name="level"/>. Tracers, and the shots of
     /// <paramref name="localPawn"/>'s merc gun, that cross a body push it.
     /// </summary>
     public void Update(float dt, Level? level, SoundSystem? sound, SBasePawn? localPawn = null)
@@ -127,13 +128,13 @@ public sealed class SoftBodyViews
         }
 
         _bank = MathF.Min(_bank + dt, SoftBodyK.MaxStep);
-        if (_bank < SoftBodyK.StepInterval)
+        int steps = (int)(_bank / SoftBodyK.StepInterval);
+        if (steps == 0)
         {
             return;
         }
 
-        float step = _bank;
-        _bank = 0f;
+        _bank = MathF.Max(0f, _bank - (steps * SoftBodyK.StepInterval));
         foreach (Body body in _bodies)
         {
             if (body.Notifier.IsOnScreen())
@@ -148,14 +149,20 @@ public sealed class SoftBodyViews
             }
 
             Colliders(body, level);
-            if (body.Sim.Step(step, _colliders) && now > body.LastCollSound + SoftBodyK.CollSoundInterval)
+            bool touched = false;
+            for (int i = 0; i < steps; i++)
+            {
+                touched |= body.Sim.Step(SoftBodyK.StepInterval, _colliders);
+            }
+
+            if (touched && now > body.LastCollSound + SoftBodyK.CollSoundInterval)
             {
                 body.LastCollSound = now;
                 Play(sound, body.Sim.CollSound, body.Location);
             }
 
             body.Rebuild();
-            Steps++;
+            Steps += steps;
         }
     }
 
@@ -362,6 +369,10 @@ public sealed class SoftBodyViews
         private readonly int[] _indices;
         private readonly Material? _material;
         private readonly Transform3D _toLocal;
+        private byte[]? _vertexData;
+        private int _normalOffset;
+        private int _normalStride;
+        private Rid _meshRid;
 
         public Body(string actor, SoftBodySim sim, in Transform3D transform, FVector location, MeshPrimitive prim, Material? material)
         {
@@ -483,17 +494,52 @@ public sealed class SoftBodyViews
                 _normals[i + _n] = n;
             }
 
-            var arrays = new Godot.Collections.Array();
+            if (_vertexData is not null)
+            {
+                // Fixed topology: keep indices, UVs and material on the GPU. Only positions and packed normals
+                // change. The layout guard below leaves unfamiliar formats on the original rebuild path.
+                Span<byte> data = _vertexData;
+                Vector3 min = _verts[0], max = min;
+                for (int i = 0; i < _verts.Length; i++)
+                {
+                    MemoryMarshal.Write(data.Slice(i * 12, 12), in _verts[i]);
+                    Vector2 oct = _normals[i].OctahedronEncode();
+                    uint packed = (uint)Math.Clamp(oct.X * 65535f, 0f, 65535f)
+                        | ((uint)Math.Clamp(oct.Y * 65535f, 0f, 65535f) << 16);
+                    MemoryMarshal.Write(data.Slice(_normalOffset + i * _normalStride, 4), in packed);
+                    min = min.Min(_verts[i]);
+                    max = max.Max(_verts[i]);
+                }
+                RenderingServer.MeshSurfaceUpdateVertexRegion(_meshRid, 0, 0, _vertexData);
+                Mesh.CustomAabb = new Aabb(min, max - min).Grow(0.001f);
+                return;
+            }
+
+            using var arrays = new Godot.Collections.Array();
             arrays.Resize((int)Godot.Mesh.ArrayType.Max);
             arrays[(int)Godot.Mesh.ArrayType.Vertex] = _verts;
             arrays[(int)Godot.Mesh.ArrayType.Normal] = _normals;
             arrays[(int)Godot.Mesh.ArrayType.TexUV] = _uvs;
             arrays[(int)Godot.Mesh.ArrayType.Index] = _indices;
             Mesh.ClearSurfaces();
-            Mesh.AddSurfaceFromArrays(Godot.Mesh.PrimitiveType.Triangles, arrays);
+            Mesh.AddSurfaceFromArrays(Godot.Mesh.PrimitiveType.Triangles, arrays, flags: Godot.Mesh.ArrayFormat.FlagUseDynamicUpdate);
             if (_material is not null)
             {
                 Mesh.SurfaceSetMaterial(0, _material);
+            }
+
+            var format = (RenderingServer.ArrayFormat)(long)Mesh.SurfaceGetFormat(0);
+            int count = _verts.Length;
+            _normalOffset = (int)RenderingServer.MeshSurfaceGetFormatOffset(format, count, (int)RenderingServer.ArrayType.Normal);
+            _normalStride = (int)RenderingServer.MeshSurfaceGetFormatNormalTangentStride(format, count);
+            if ((format & RenderingServer.ArrayFormat.FlagCompressAttributes) == 0
+                && RenderingServer.MeshSurfaceGetFormatVertexStride(format, count) == 12
+                && _normalOffset == count * 12 && _normalStride is 4 or 8)
+            {
+                _meshRid = Mesh.GetRid();
+                using Godot.Collections.Dictionary surface = RenderingServer.MeshGetSurface(_meshRid, 0);
+                byte[] data = surface["vertex_data"].AsByteArray();
+                if (data.Length == count * (12 + _normalStride)) _vertexData = data;
             }
         }
     }

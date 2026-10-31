@@ -1,4 +1,5 @@
 using System;
+using OpenScct.Game.Equipment;
 using System.Collections.Generic;
 using Godot;
 using OpenScct.Core;
@@ -309,12 +310,14 @@ public partial class GearMenu : MenuPage
     private void BuildGadgets(GearMenuModel m)
     {
         GearTile? first = null;
-        for (int i = 0; i < OptionAt.Length && i < m.Options.Count; i++)
+        for (int i = 0; i < m.Options.Count; i++)
         {
             string option = m.Options[i];
-            Vector2 at = OptionAt[i];
+            Vector2 at = m.Spy ? OptionAt[i] : new(0.12f + (i % 4) * 0.205f, 0.06f + (i / 4) * 0.18f);
             GearTile tile = Tile(false, Page(at.X, at.Y, 0.14f, 0.14f), GadgetAtlas(), Item(option), 1f, GridTile);
             tile.Name = $"Option{i + 1}";
+            tile.TooltipText = Sidearms.Find(option)?.Description ?? GearMenuModel.NameOf(option);
+            tile.MouseEntered += () => ShowItem(option, true);
             tile.Disabled = !m.IsAllowed(option);
             tile.FocusMode = tile.Disabled ? FocusModeEnum.None : FocusModeEnum.All;
             tile.Pressed += () =>
@@ -326,6 +329,11 @@ public partial class GearMenu : MenuPage
             if (m.IsEquipped(option))
             {
                 Text(GearMenuModel.Equipped, Page(at.X, at.Y + 0.14f, 0.15f, 0.05f), 11f, HorizontalAlignment.Center, UiStyle.MenuFocus);
+            }
+            else if (Sidearms.Find(option) is { } pistol)
+            {
+                Text("Level " + pistol.Level, Page(at.X, at.Y + 0.14f, 0.15f, 0.05f), 11f,
+                    HorizontalAlignment.Center, tile.Disabled ? UiStyle.Dim : UiStyle.MenuText);
             }
 
             if (!tile.Disabled && (first is null || string.Equals(option, m.Gadgets[_slot], StringComparison.OrdinalIgnoreCase)))
@@ -357,7 +365,9 @@ public partial class GearMenu : MenuPage
 
         if (_description is not null)
         {
-            _description.Text = item?.ItemDescription ?? "";
+            _description.Text = Sidearms.Find(path) is { } pistol
+                ? pistol.Description + (_model?.IsAllowed(path) == false ? " Locked: this slot will be empty until unlocked." : "")
+                : item?.ItemDescription ?? "";
         }
 
         if (_quickUse is not null)
@@ -387,6 +397,18 @@ public partial class GearMenu : MenuPage
             Region = item is null ? new Rect2() : new Rect2(item.IconU + inset, item.IconV + inset, tile, tile),
             HasIcon = item is not null,
         };
+        if (item is SidearmCarry carry)
+        {
+            string icon = System.IO.Path.Combine(OpenScctGame.Render.Characters.SkeletalModel.DefaultSharedRoot(), "chars", "OpenScctSidearms", "textures",
+                Sidearms.Get((SidearmKind)carry.Kind).Id + "_icon.png");
+            if (System.IO.File.Exists(icon))
+            {
+                Image image = Image.LoadFromFile(icon);
+                t.Atlas = ImageTexture.CreateFromImage(image);
+                t.Region = new Rect2(Vector2.Zero, image.GetSize());
+                t.IconScale = Math.Min(PageScale, Math.Min(rect.Size.X, rect.Size.Y) * .75f / Math.Max(image.GetWidth(), image.GetHeight()));
+            }
+        }
         _layer!.AddChild(t);
         return t;
     }
@@ -429,7 +451,9 @@ public partial class GearMenu : MenuPage
 
         if (!Items.TryGetValue(path, out Inventory? item))
         {
-            item = Classes.Find(path)?.Create() as Inventory;
+            item = Sidearms.Find(path) is { } pistol
+                ? new SidearmCarry { Kind = (int)pistol.Kind, ItemName = pistol.Name, ItemLongName = pistol.Name, ItemDescription = pistol.Description }
+                : Classes.Find(path)?.Create() as Inventory;
             Items[path] = item;
         }
 

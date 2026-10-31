@@ -15,6 +15,31 @@ namespace OpenScct.Physics.Tests;
 public sealed class StuckTouchTests
 {
     [Fact]
+    public void PredictionReplayReconcilesOnlyPresentContactsWithoutRepeatingTriggerEffects()
+    {
+        Scene s = Scene.Create(Floor().Build());
+        TestTrigger trigger = s.Level.SpawnActor(new TestTrigger(), V(300f, 0f, 64f), default)!;
+        s.Collision.NotifyCollisionChanged();
+        TestPawn p = s.Spawn(new TestPawn(), V(300f, 0f, StandZ() + 1f), EPhysics.PHYS_None);
+        s.Driver.EncroachTouches(p);
+        Assert.Equal(1, trigger.Touches);
+        s.Level.World.IsReplaying = true;
+        s.Driver.FarMoveActor(p, V(0f, 0f, p.Location.Z), bNoCheck: true);
+        s.Driver.FarMoveActor(p, V(300f, 0f, p.Location.Z), bNoCheck: true);
+        s.Level.World.IsReplaying = false;
+        s.Driver.EncroachTouches(p);
+        Assert.Equal(1, trigger.Touches);
+        Assert.Equal(0, trigger.UnTouches);
+        Assert.Contains(trigger, p.Touching);
+        s.Level.World.IsReplaying = true;
+        s.Driver.FarMoveActor(p, V(0f, 0f, p.Location.Z), bNoCheck: true);
+        s.Level.World.IsReplaying = false;
+        s.Driver.EncroachTouches(p);
+        Assert.Equal(1, trigger.UnTouches);
+        Assert.DoesNotContain(trigger, p.Touching);
+    }
+
+    [Fact]
     public void WalkingPastATriggersCornerTouchesItOnlyWhereTheCylindersMeet()
     {
         Scene s = Scene.Create(Floor().Build());

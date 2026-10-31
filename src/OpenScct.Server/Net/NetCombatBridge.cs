@@ -80,6 +80,7 @@ public sealed class NetCombatBridge : ICombatNet
 
     public void ServerCall(PlayerController Sender, in CombatCall Call)
     {
+        if (_driver.World?.IsReplaying == true) return;
         if (!_driver.IsServer && _driver.ServerConnection is { } connection)
         {
             // The view time of the moment the call is made, kept while the call waits.

@@ -96,7 +96,8 @@ service), shifts the pitch of 3D sources for Doppler (rule 17: `SoundRules.Doppl
 source's movement over the update along the line between them, `(c - 0.5 vl) / (c - 0.5 vs)` with c = 343 m/s over
 the DirectSound distance factor 0.0127 m per uu, about 27,000 uu/s; a source faster than 300 uu/s or of the viewed
 actor counts as still; at most a percent or two at running speeds), computes the gain itself (Godot's attenuation is off on every
-`AudioStreamPlayer3D`, which only pans): `volume x fade x R / (R + 0.5 (d - R))` beyond the radius for 3D sources,
+`AudioStreamPlayer3D`, which only pans; its attenuation filter is also disabled with 0 dB and a 20500 Hz cutoff):
+`volume x fade x R / (R + 0.5 (d - R))` beyond the radius for 3D sources,
 plain volume for 2D ones. Occlusion (rule 18) shrinks R for a 3D source whose actor's SoundOcclusion is not
 OCCLUSION_None: two line checks (listener to source and back, movers and level geometry) give the thickness between
 the first surfaces seen from each end and their materials' OcclusionType (collision TFLX); the factor

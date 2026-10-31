@@ -51,7 +51,12 @@ public sealed record AiBotReport(
     int Smokes,
     int Shocks,
     string Goals,
-    string Status);
+    string Status)
+{
+    public int SearchInspections { get; init; }
+
+    public int SearchPlans { get; init; }
+}
 
 /// <summary>The outcome of a server bot match.</summary>
 public sealed record AiBotMatchReport(
@@ -77,7 +82,7 @@ public sealed record AiBotMatchReport(
         {
             sb.AppendLine();
             sb.Append(string.Create(CultureInfo.InvariantCulture,
-                $"  {b.Name} ({(b.Team == 0 ? "spy" : "merc")}, {b.Skill}): kills {b.Kills} deaths {b.Deaths} score {b.Score:F0}, links {b.LinksDone}/{b.LinksFailed} failed, hacked {b.Hacked} (uses {b.UseRequests}), bursts {b.Bursts}, frags {b.Frags}, smokes {b.Smokes}, shocks {b.Shocks}; goals {b.Goals}; {b.Status}"));
+                $"  {b.Name} ({(b.Team == 0 ? "spy" : "merc")}, {b.Skill}): kills {b.Kills} deaths {b.Deaths} score {b.Score:F0}, links {b.LinksDone}/{b.LinksFailed} failed, hacked {b.Hacked} (uses {b.UseRequests}), bursts {b.Bursts}, frags {b.Frags}, smokes {b.Smokes}, shocks {b.Shocks}, searches {b.SearchPlans} inspected {b.SearchInspections}; goals {b.Goals}; {b.Status}"));
         }
 
         return sb.ToString();
@@ -210,7 +215,11 @@ public sealed class AiBotMatch : IDisposable
             var merc = brain as MercAi;
             bots.Add(new AiBotReport(pri?.PlayerName ?? "?", team, bot.Difficulty.Skill, pri?.Kills ?? 0, deaths, pri?.Score ?? 0f,
                 bot.ThinkTicks, brain?.Follower.LinksDone ?? 0, brain?.Follower.LinksFailed ?? 0, spy?.Hacked ?? 0, spy?.Requests ?? 0,
-                merc?.Bursts ?? 0, merc?.FragsThrown ?? 0, spy?.SmokesThrown ?? 0, spy?.ShocksFired ?? 0, Goals(brain), bot.Status));
+                merc?.Bursts ?? 0, merc?.FragsThrown ?? 0, spy?.SmokesThrown ?? 0, spy?.ShocksFired ?? 0, Goals(brain), bot.Status)
+            {
+                SearchInspections = merc?.Search.Inspections ?? 0,
+                SearchPlans = merc?.Search.Plans ?? 0,
+            });
         }
 
         GameReplicationInfo? gri = Host.Game?.GameReplicationInfo;
@@ -227,7 +236,7 @@ public sealed class AiBotMatch : IDisposable
         }
 
         var sb = new StringBuilder();
-        for (int g = 0; g < 5; g++)
+        for (int g = 0; g < brain.GoalCounts.Length; g++)
         {
             if (brain.GoalCounts[g] == 0)
             {

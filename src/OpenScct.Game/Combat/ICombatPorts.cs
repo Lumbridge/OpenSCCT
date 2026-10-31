@@ -88,7 +88,10 @@ public sealed class CombatPortsLocal : ICombatPorts
     public void ChangeEnumAction(SBasePawn Pawn, int Action, bool Forced)
     {
         Pawn.ChangeEnumAction(Action, Forced);
-        CombatNatives.ApplyActionFlags(Pawn, Action);
+        // The owner and received batches apply native flags through ExecuteAction. Server-only state entries
+        // can request these flags without authoring the remote owner's animation a second time.
+        if (Pawn.Controller is null || Pawn.Controller.RemoteRole == ENetRole.ROLE_AutonomousProxy)
+            CombatNatives.ApplyActionFlags(Pawn, Action);
     }
 
     public void GotoWaitingState(SPlayerController PC) => PC.GotoState(CombatNatives.WaitingStateFor(PC));

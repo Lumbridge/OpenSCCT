@@ -8,6 +8,7 @@ namespace OpenScct.Net;
 // rule 18) and channel lookups.
 public sealed partial class NetConnection
 {
+    public int ReceivedReliableSequence(Actor actor) => FindActorChannel(actor) is { } channel ? InReliable[channel.ChIndex] : 0;
     /// <summary>The open actor channel of <paramref name="actor"/> on this connection, or null.</summary>
     public ActorChannel? FindActorChannel(Actor actor) =>
         ActorChannelByActorId.TryGetValue(actor.ActorId, out ActorChannel? channel) && ReferenceEquals(channel.Actor, actor) ? channel : null;

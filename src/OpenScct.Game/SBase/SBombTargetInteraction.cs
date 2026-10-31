@@ -36,6 +36,9 @@ public partial class SBombTargetInteraction
     public void Update(bool Remove)
     {
         bRemove = Remove;
+        // UsableBy is not replicated; the multicast must refresh the client's side filter as well as its label.
+        UsableBy = Remove ? Usable.U_SPAWNDEFENSE : Usable.U_SPAWNOFFENSE;
+        Description = Remove ? DescriptionRemove : ClassDefaults.Description;
         Pawn? local = Level.GetLocalPlayerController()?.Pawn;
         if (local is not null)
         {

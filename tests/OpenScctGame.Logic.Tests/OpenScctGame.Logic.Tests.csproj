@@ -8,6 +8,7 @@
     without the Godot runtime. Only files that use no Godot type may be listed.
   -->
   <ItemGroup>
+    <Compile Include="..\..\game\Scripts\UI\GearMenuModel.cs" Link="Linked\GearMenuModel.cs" />
     <Compile Include="..\..\game\Scripts\Options\GameSettings.cs" Link="Linked\GameSettings.cs" />
     <Compile Include="..\..\game\Scripts\Options\CrosshairSettings.cs" Link="Linked\CrosshairSettings.cs" />
     <Compile Include="..\..\game\Scripts\Options\DisplayFrameCap.cs" Link="Linked\DisplayFrameCap.cs" />
@@ -22,11 +23,14 @@
     <Compile Include="..\..\game\Scripts\Input\KeyTokens.cs" Link="Linked\KeyTokens.cs" />
     <!-- The English names of the key bindings and the Magma text table, with the layout parser they read. -->
     <Compile Include="..\..\game\Scripts\UI\EnglishText.cs" Link="Linked\EnglishText.cs" />
+    <Compile Include="..\..\game\Scripts\UI\ControlActions.cs" Link="Linked\ControlActions.cs" />
     <Compile Include="..\..\game\Scripts\UI\BindingLabels.cs" Link="Linked\BindingLabels.cs" />
+    <Compile Include="..\..\game\Scripts\Input\InputActionState.cs" Link="Linked\InputActionState.cs" />
     <Compile Include="..\..\game\Scripts\Input\KeyLayout.cs" Link="Linked\KeyLayout.cs" />
     <Compile Include="..\..\game\Scripts\UI\InGameMenuModel.cs" Link="Linked\InGameMenuModel.cs" />
     <!-- The Create Session page and the Lobby Room's rules (docs/MENUS.md). -->
     <Compile Include="..\..\game\Scripts\UI\CreateSessionModel.cs" Link="Linked\CreateSessionModel.cs" />
+    <Compile Include="..\..\game\Scripts\UI\LobbyPresentation.cs" Link="Linked\LobbyPresentation.cs" />
     <Compile Include="..\..\game\Scripts\UI\LobbyRoomModel.cs" Link="Linked\LobbyRoomModel.cs" />
     <!-- The play session (the listen server, the loopback client and the bots), for the client-side view checks. -->
     <Compile Include="..\..\game\Scripts\Play\Session\*.cs" Link="Linked\Session\%(Filename)%(Extension)" />

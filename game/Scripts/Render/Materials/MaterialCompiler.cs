@@ -310,6 +310,7 @@ public sealed class MaterialCompiler
         CombineEntry? combine = entry.Combine;
         FlipbookEntry? flipbook = combine is null ? entry.Flipbook : null;
         var extras = new List<string>();
+        AddIf(extras, combine is not null && entry.LightBeforeCombine && light != LightSource.None, "COMBINE_LIGHT_FIRST");
         AddIf(extras, selfIllum, "SELF_ILLUM");
         AddIf(extras, selfIllumMask, "SELF_ILLUM_MASK");
         AddIf(extras, selfIllumLayer, "SI_LAYER");
@@ -320,6 +321,7 @@ public sealed class MaterialCompiler
         AddIf(extras, entry.Opacity is not null, "OPACITY_LAYER");
         AddIf(extras, combine is not null, "COMBINE");
         AddIf(extras, flipbook is not null, "FLIPBOOK");
+        AddIf(extras, entry.NormalTexture is not null && light == LightSource.Actor, "NORMAL_MAP");
         Shader shader = seeThroughPass ? SeeThroughShaderFor(light, blend, entry.TwoSided, extras) : ShaderFor(light, blend, entry.TwoSided, extras);
 
         var material = new ShaderMaterial { Shader = shader, ResourceName = entry.Name };
@@ -327,6 +329,7 @@ public sealed class MaterialCompiler
             : flipbook is not null ? _textures.Get(flipbook.Texture, mipmaps: true)
             : _textures.Get(entry.Texture, Mipmapped(entry, "Diffuse"));
         SetTexture(material, "tex_diffuse", diffuse);
+        if (entry.NormalTexture is { } normal) SetTexture(material, "tex_normal", _textures.Get(normal));
         ApplyLayers(material, entry, combine, flipbook);
         if (light == LightSource.Lightmap)
         {
@@ -624,6 +627,8 @@ public sealed class MaterialCompiler
 
         code.Append("#include \"").Append(TemplatePath).Append("\"\n");
         shader = new Shader { Code = code.ToString(), ResourceName = "svm_world " + key };
+        shader.SetMeta("svm_shadow_animated", blend == MaterialBlend.Masked &&
+            (extras.Contains("UV_ANIM") || extras.Contains("FLIPBOOK") || extras.Contains("OPACITY_LAYER") || extras.Contains("COMBINE")));
         _shaders[key] = shader;
         return shader;
     }

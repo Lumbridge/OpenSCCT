@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 
 namespace OpenScctGame.Controls;
 
@@ -108,6 +109,80 @@ public sealed class KeyLayout
         {
             _bindings[key] = command.Trim();
         }
+    }
+
+    /// <summary>Read old overlay files or a complete snapshot whose missing keys are intentionally unbound.</summary>
+    public static KeyLayout ApplyOverrides(KeyLayout stock, string saved)
+    {
+        KeyLayout user = Parse(saved);
+        if (saved.StartsWith(SnapshotMarker, StringComparison.Ordinal)) return user;
+        KeyLayout merged = stock.Clone();
+        merged.ImportAliases(user);
+        var commands = new HashSet<string>(user.Bindings.Values, StringComparer.OrdinalIgnoreCase);
+        foreach (string key in new List<string>(merged.Bindings.Keys))
+            if (!user.Bindings.ContainsKey(key) && commands.Contains(merged.Bindings[key])) merged.Bind(key, "");
+        foreach ((string key, string command) in user.Bindings) merged.Bind(key, command);
+        return merged;
+    }
+
+    public void UpgradeWheelBindings(string legacyMode)
+    {
+        foreach (var binding in Bindings.ToArray())
+        {
+            var parts = Expanded(binding.Value);
+            bool changed = false;
+            for (int i = 0; i < parts.Count; i++)
+            {
+                string replacement = parts[i].ToUpperInvariant() switch
+                {
+                    "WHEELUP" => legacyMode == "Speed" ? "Run" : "NextGadget",
+                    "WHEELDOWN" => legacyMode == "Speed" ? "Walk" : "PreviousGadget",
+                    "CHANGESPEED" => "Walk", _ => parts[i],
+                };
+                changed |= replacement != parts[i];
+                parts[i] = replacement;
+            }
+            if (changed) Bind(binding.Key, string.Join(" | ", parts));
+        }
+    }
+
+    public void ImportAliases(KeyLayout source)
+    {
+        foreach ((string name, string command) in source.Aliases) _aliases[name] = command;
+    }
+
+    public const string SnapshotMarker = "; OpenSCCT complete layout v2";
+
+    /// <summary>Lossless draft copy, including custom aliases and command arguments.</summary>
+    public KeyLayout Clone() => Parse(ToIni());
+
+    public string ToIni()
+    {
+        var text = new System.Text.StringBuilder(SnapshotMarker + "\n[Engine.Input]\n");
+        int index = 0;
+        foreach ((string alias, string command) in _aliases)
+        {
+            text.Append($"Aliases[{index++}]=(Command=\"{command}\",Alias=\"{alias}\")\n");
+        }
+        foreach ((string key, string command) in _bindings)
+        {
+            text.Append("IK_").Append(key).Append('=').Append(command).Append('\n');
+        }
+        return text.ToString();
+    }
+
+    /// <summary>Expand aliases without parsing away custom arguments or axis modifiers.</summary>
+    public List<string> Expanded(string command, int depth = 0)
+    {
+        var parts = new List<string>();
+        foreach (string raw in command.Split('|', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries))
+        {
+            if (depth < 8 && _aliases.TryGetValue(raw, out string? alias))
+                parts.AddRange(Expanded(alias, depth + 1));
+            else
+                parts.Add(raw);
+        }
+        return parts;
     }
 
     /// <summary>The resolved parts of <paramref name="key"/>'s binding, empty when unbound.</summary>

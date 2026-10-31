@@ -18,6 +18,13 @@ public sealed record SimLinkProfile(
     float ReorderPercent = 0f,
     int ReorderDelayMs = 0)
 {
+    /// <summary>Optional directed delay, instead of half the RTT. Used by asymmetric link tests.</summary>
+    public int? OneWayLatencyMs { get; init; }
+
+    public static readonly SimLinkProfile Ping100 = new("100", 100, 20, 2f, 1f, 1f, 30);
+    public static readonly SimLinkProfile Ping150 = new("150", 150, 20, 2f, 1f, 1f, 30);
+    public static readonly SimLinkProfile Ping200 = new("200", 200, 20, 2f, 1f, 1f, 30);
+    public static readonly SimLinkProfile Stress300 = new("300", 300, 40, 5f, 2f, 2f, 50);
     /// <summary>Perfect link: 0 ms, no loss.</summary>
     public static readonly SimLinkProfile A = new("A", 0, 0, 0f);
 
@@ -36,6 +43,10 @@ public sealed record SimLinkProfile(
         "B" => B,
         "C" => C,
         "D" => D,
+        "100" => Ping100,
+        "150" => Ping150,
+        "200" => Ping200,
+        "300" => Stress300,
         _ => throw new ArgumentOutOfRangeException(nameof(name), name, "Known profiles are A, B, C and D."),
     };
 }
@@ -48,16 +59,26 @@ public sealed record SimLinkProfile(
 public sealed class SimLinkNetwork
 {
     private readonly Dictionary<string, SimLinkTransport> _bound = new(StringComparer.Ordinal);
-    private readonly Stack<byte[]> _pool = new();
+    private readonly Stack<byte[]> _pool;
     private long _sequence;
+    private readonly Dictionary<(string From, string To), SimLinkProfile> _profiles = new();
+    private readonly Dictionary<(string From, string To), long> _outages = new();
 
-    public SimLinkNetwork(IClock clock, ulong seed, SimLinkProfile profile, int maxDatagramSize = 1500)
+    public SimLinkNetwork(IClock clock, ulong seed, SimLinkProfile profile, int maxDatagramSize = 1500,
+        int maxBufferedDatagrams = 4096)
     {
         ArgumentNullException.ThrowIfNull(clock);
         ArgumentNullException.ThrowIfNull(profile);
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(maxDatagramSize);
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(maxBufferedDatagrams);
         Clock = clock;
         Profile = profile;
         MaxDatagramSize = maxDatagramSize;
+        MaxBufferedDatagrams = maxBufferedDatagrams;
+        // Reserve the link's entire transit budget before simulation starts. A late jitter/loss peak must
+        // neither allocate on the simulation thread nor grow an unbounded queue during a long outage.
+        _pool = new Stack<byte[]>(maxBufferedDatagrams);
+        for (int i = 0; i < maxBufferedDatagrams; i++) _pool.Push(new byte[maxDatagramSize]);
         Random = new SimRandom(seed, stream: 0x51, purpose: 1);
     }
 
@@ -67,6 +88,11 @@ public sealed class SimLinkNetwork
     public SimLinkProfile Profile { get; set; }
 
     public int MaxDatagramSize { get; }
+
+    public int MaxBufferedDatagrams { get; }
+
+    /// <summary>Datagrams dropped because the bounded transit budget was exhausted. Also counted in Lost.</summary>
+    public long QueueDrops { get; private set; }
 
     internal SimRandom Random { get; }
 
@@ -79,6 +105,16 @@ public sealed class SimLinkNetwork
     public long Reordered { get; private set; }
 
     public long Delivered { get; internal set; }
+
+    /// <summary>Overrides one direction only. Null restores the network-wide profile.</summary>
+    public void SetLinkProfile(string from, string to, SimLinkProfile? profile)
+    {
+        if (profile is null) _profiles.Remove((from, to));
+        else _profiles[(from, to)] = profile;
+    }
+
+    /// <summary>Drops newly sent datagrams on one directed link until the injected clock reaches this time.</summary>
+    public void PauseLink(string from, string to, long untilMicroseconds) => _outages[(from, to)] = untilMicroseconds;
 
     public SimLinkTransport Bind(string address)
     {
@@ -99,8 +135,16 @@ public sealed class SimLinkNetwork
 
     internal void Send(SimLinkTransport from, SimLinkTransport to, ReadOnlySpan<byte> datagram)
     {
+        MaximumDatagramBytes = Math.Max(MaximumDatagramBytes, datagram.Length);
         Sent++;
-        SimLinkProfile p = Profile;
+        var key = (from.Address, to.Address);
+        if (_outages.TryGetValue(key, out long until) && Clock.NowMicroseconds < until)
+        {
+            Lost++;
+            return;
+        }
+
+        SimLinkProfile p = _profiles.GetValueOrDefault(key) ?? Profile;
         if (p.LossPercent > 0f && Random.FRand() * 100f < p.LossPercent)
         {
             Lost++;
@@ -115,9 +159,11 @@ public sealed class SimLinkNetwork
         }
     }
 
+    public int MaximumDatagramBytes { get; private set; }
+
     private void Schedule(SimLinkTransport from, SimLinkTransport to, ReadOnlySpan<byte> datagram, SimLinkProfile p)
     {
-        long delay = p.LatencyMs * 1000L / 2;
+        long delay = p.OneWayLatencyMs is { } oneWay ? oneWay * 1000L : p.LatencyMs * 1000L / 2;
         if (p.JitterMs > 0)
         {
             float spread = (Random.FRand() * 2f - 1f) * (p.JitterMs * 500f);
@@ -135,7 +181,12 @@ public sealed class SimLinkNetwork
             delay = 0;
         }
 
-        byte[] buffer = _pool.Count > 0 ? _pool.Pop() : new byte[MaxDatagramSize];
+        if (!_pool.TryPop(out byte[]? buffer))
+        {
+            QueueDrops++;
+            Lost++;
+            return;
+        }
         datagram.CopyTo(buffer);
         to.Enqueue(new SimLinkTransport.InFlight(buffer, datagram.Length, from), Clock.NowMicroseconds + delay, _sequence++);
     }
@@ -162,7 +213,7 @@ public sealed class SimLinkTransport : ITransport
     }
 
     private readonly SimLinkNetwork _network;
-    private readonly PriorityQueue<InFlight, DeliveryKey> _inbound = new(256, KeyComparer.Instance);
+    private readonly PriorityQueue<InFlight, DeliveryKey> _inbound;
     private readonly List<SimLinkTransport> _peers = new();
     private readonly List<bool> _closed = new();
     private readonly Dictionary<SimLinkTransport, int> _peerIds = new(ReferenceEqualityComparer.Instance);
@@ -171,6 +222,7 @@ public sealed class SimLinkTransport : ITransport
     internal SimLinkTransport(SimLinkNetwork network, string address)
     {
         _network = network;
+        _inbound = new PriorityQueue<InFlight, DeliveryKey>(network.MaxBufferedDatagrams, KeyComparer.Instance);
         Address = address;
     }
 

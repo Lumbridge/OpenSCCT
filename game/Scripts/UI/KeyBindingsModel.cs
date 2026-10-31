@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Godot;
 using OpenScctGame.Play.Session;
 
@@ -13,19 +14,22 @@ public sealed record KeyBindingRow(string Key, string Command, string Label);
 
 /// <summary>
 /// The options screen's view of a side's key layout (OpenScctGame.Controls.InputBindings, the original Default_kbd_0/1.ini
-/// plus the player's changes). Rebinding moves a command to a new key and clears the old one; every change is saved
-/// to the side's user file by the input layer.
+/// plus the player's changes). Options use a staged ActionBindingDraft; older callers can still rebind immediately.
 /// </summary>
 public sealed class KeyBindingsModel
 {
     private OpenScctGame.Controls.InputBindings _bindings;
 
-    public KeyBindingsModel(PlaySide side)
+    public KeyBindingsModel(PlaySide side, bool staged = false, bool? shared = null, bool defaults = false)
     {
         Side = side;
-        _bindings = OpenScctGame.Controls.InputBindings.Load(side, null, seedInputMap: false);
+        _bindings = OpenScctGame.Controls.InputBindings.Load(side, null, seedInputMap: false, sharedOverride: shared, draft: staged, defaults: defaults);
+        if (staged) Draft = new ActionBindingDraft(_bindings.Layout);
     }
 
+    public ActionBindingDraft? Draft { get; }
+    public bool Commit() => Draft is null || _bindings.SaveDraft(Draft.Layout);
+    private OpenScctGame.Controls.KeyLayout Layout => Draft?.Layout ?? _bindings.Layout;
     public PlaySide Side { get; }
 
     /// <summary>Where the layout came from (an ini path, or "built-in").</summary>
@@ -38,7 +42,7 @@ public sealed class KeyBindingsModel
     public List<KeyBindingRow> Rows()
     {
         var rows = new List<KeyBindingRow>();
-        foreach ((string key, string command) in _bindings.Layout.Bindings)
+        foreach ((string key, string command) in Layout.Bindings)
         {
             if (command.Length > 0 && !command.StartsWith("Axis ", StringComparison.OrdinalIgnoreCase))
             {
@@ -71,18 +75,19 @@ public sealed class KeyBindingsModel
     /// Both stock layouts bind the same shared key list, so the other team's actions (<see cref="SpyOnly"/>,
     /// <see cref="MercOnly"/>) are left out unless <paramref name="otherTeam"/> is set (to name a saved choice).
     /// </remarks>
-    public List<(string Action, string Label)> PadChoices(bool otherTeam = false)
+    public List<(string Action, string Label)> PadChoices(bool otherTeam = false, PlaySide? forSide = null, string wheelMode = "Gadget")
     {
+        PlaySide role = forSide ?? Side;
         var choices = new List<(string Action, string Label)>
         {
             ("", "(nothing)"),
             (OpenScctGame.Options.PadSettings.MenuAction, "Menu"),
         };
         // The sensitivity clutches are held by the controller itself (rl:input.clutch); the second is the merc's.
-        choices.Add((OpenScctGame.Options.PadSettings.ClutchOneAction, "Sensitivity clutch"));
-        if (Side == PlaySide.Merc || otherTeam)
+        choices.Add((OpenScctGame.Options.PadSettings.ClutchOneAction, "Hold to modify sensitivity"));
+        if (role == PlaySide.Merc || otherTeam)
         {
-            choices.Add((OpenScctGame.Options.PadSettings.ClutchTwoAction, "Second sensitivity clutch"));
+            choices.Add((OpenScctGame.Options.PadSettings.ClutchTwoAction, "Second held sensitivity modifier"));
         }
 
         var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
@@ -90,26 +95,21 @@ public sealed class KeyBindingsModel
             "", OpenScctGame.Options.PadSettings.MenuAction, OpenScctGame.Options.PadSettings.ClutchOneAction,
             OpenScctGame.Options.PadSettings.ClutchTwoAction,
         };
-        foreach (KeyBindingRow row in Rows())
+        foreach (ControlAction action in otherTeam ? ControlActions.All : ControlActions.ForRole(role == PlaySide.Merc, wheelMode))
+            if (ControlActions.Direct(action)) choices.Add((ControlActions.PadPrefix + action.Id, action.Label));
+
+        // Keep legacy choices and their behavior. They activate a whole keyboard binding, not an independent action.
+        foreach (KeyBindingRow row in otherTeam ? Rows().OrderBy(r => r.Key, StringComparer.OrdinalIgnoreCase) : Enumerable.Empty<KeyBindingRow>())
         {
-            if (!otherTeam && !UsedBy(row.Command, Side))
+            if (!otherTeam && (!UsedBy(row.Command, role) || !Layout.Expanded(row.Command).Any(p => ControlActions.ForRole(role == PlaySide.Merc, wheelMode).Any(a => a.Matches(p))))) continue;
+            foreach (var a in Layout.Resolve(row.Key))
             {
-                continue;
-            }
-
-            foreach (OpenScctGame.Controls.KeyAction a in _bindings.Actions(row.Key))
-            {
-                if (a.Kind == OpenScctGame.Controls.KeyActionKind.Axis)
-                {
-                    continue;
-                }
-
-                if (seen.Add(a.Name))
-                {
-                    choices.Add((a.Name, row.Label));
-                }
-
-                break;
+                if (a.Kind == OpenScctGame.Controls.KeyActionKind.Axis) continue;
+                string label = string.Join(" / ", Layout.Expanded(row.Command).Select(p =>
+                    ControlActions.ForRole(role == PlaySide.Merc, wheelMode).FirstOrDefault(c => c.Matches(p))?.Label ??
+                    (ControlActions.All.Any(c => c.Matches(p)) ? null : p)).Where(p => p is not null).Distinct());
+                if (label.Length == 0) label = "Other role actions";
+                if (seen.Add(a.Name)) choices.Add((a.Name, "Keyboard-linked: " + label));
             }
         }
 
@@ -151,7 +151,7 @@ public sealed class KeyBindingsModel
     ];
 
     /// <summary>The command bound to <paramref name="key"/>, or null.</summary>
-    public string? CommandOf(string key) => _bindings.Layout.Bindings.TryGetValue(key, out string? c) ? c : null;
+    public string? CommandOf(string key) => Layout.Bindings.TryGetValue(key, out string? c) ? c : null;
 
     /// <summary>The UE2 key name of a key or mouse button press, or null.</summary>
     public static string? KeyOf(InputEvent e) => OpenScctGame.Controls.GodotKeys.ToIk(e);
@@ -174,6 +174,12 @@ public sealed class KeyBindingsModel
             displaced = "";
         }
 
+        if (Draft is not null)
+        {
+            Draft.Layout.Bind(newKey, command);
+            Draft.Layout.Bind(oldKey, displaced);
+            return;
+        }
         _bindings = _bindings.Rebind(newKey, command);
         _bindings = _bindings.Rebind(oldKey, displaced);
     }

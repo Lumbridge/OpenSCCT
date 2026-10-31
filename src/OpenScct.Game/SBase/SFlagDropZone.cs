@@ -28,6 +28,12 @@ public partial class SFlagDropZone
     protected override void PostBeginPlay()
     {
         base.PostBeginPlay();
+        if (Role < ENetRole.ROLE_Authority)
+        {
+            SetCollision(true, true, false);
+            return;
+        }
+
         Rotation.GetAxes(out FVector x, out _, out _);
         Cover = ObjectiveNatives.Spawn<SBasicGamePlayObject>(this, this,
             Location + new FVector(0f, 0f, K.LidOffsetUp) - x * K.LidOffsetBack, Rotation);
@@ -40,6 +46,8 @@ public partial class SFlagDropZone
             Cover.SetPhysics(EPhysics.PHYS_Rotating);
             Cover.bMovable = true;
             Cover.bReplicateMovement = true;
+            // Simulated proxies otherwise receive Rotation only in the initial bunch, so an open lid never closes.
+            Cover.bUpdateSimulatedPosition = true;
             Cover.bRotateToDesired = true;
             Cover.DesiredRotation = Rotation;
             Cover.RotationRate = new FRotator(K.LidRotationRate, 0, 0);

@@ -139,7 +139,10 @@ right, then 79.4 (crouched 92.7) forward. The first argument (bIsLeftPart in the
 ### physLinear(dt) (7, zip line) with SetZipSpeed and UnZipSpeed
 
 1. Clear bSimulateGravity. Zone = m_ZipLineArmsZone, with Z lowered by Default.CollisionHeight - ZipHeight in the
-   speed pose (bIsZipSpeed). C = Proj(ToWorld(zone), ZipP1, ZipP2).
+   speed pose (bIsZipSpeed). C = Proj(ToWorld(zone), ZipP1, ZipP2). This is the actor's Location/Rotation transform,
+   without the mesh PrePivot adjustment used by GE zone searches. Applying that adjustment here lowers the hang
+   point twice in the speed pose and adds an unintended downhill move on every hold (game 0x10acf860,
+   editor 0x11208af0: actor ToWorld vtable slot 0xac, followed by PointProjToLine).
 2. When the cable has a horizontal extent: Snap(C - (0, 0, zone.Z)) with yaw FixedTurn at 3000 toward the
    cable's horizontal direction (masked to multiples of 4). A hit on that move: an SBasePawn gets
    Controller.DropAttack(it); anything else Controller.NoGE().

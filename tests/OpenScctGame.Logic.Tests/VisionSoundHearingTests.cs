@@ -106,10 +106,12 @@ public sealed class VisionSoundHearingTests
             var sound = new Recorder();
             PlayAudioRouter.Install(session.Client, sound);
             int switches = 0;
+            bool playerSeen = false;
             for (int i = 0; i < 20 * Sim.Hz; i++)
             {
                 clock.Advance(1_000_000 / Sim.Hz);
                 session.Step(clock.NowMicroseconds);
+                playerSeen |= session.LocalPawn is not null;
                 if (session.LocalPawn is not null && i % Sim.Hz == 0)
                 {
                     switches += session.ServerSnapshot(h =>
@@ -131,7 +133,8 @@ public sealed class VisionSoundHearingTests
                 }
             }
 
-            Assert.True(session.LocalPawn is not null, "the player never got a pawn");
+            Assert.True(playerSeen, "the player never got a pawn");
+            Assert.NotEqual(OpenScct.Server.EClientState.Disconnected, session.Client.State);
             Assert.True(switches > 0, "no merc bot switched its vision mode");
             List<SimEvent> heard = sound.Events.Where(e => VisionSounds.Contains(e.What.ToString())).ToList();
             Assert.True(heard.Count == 0, "vision sounds reached the spy: " + string.Join(", ", heard.Select(e => e.What + " on " + e.ActorId)));

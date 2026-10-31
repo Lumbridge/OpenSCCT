@@ -36,6 +36,20 @@ public partial class SAnimatedMesh
     private FAnimRep _followed;
     private bool _following;
     private bool _loop;
+    private bool _channelInitialized;
+    private bool _initialStatePending;
+
+    /// <summary>Enter the auto state only after PostNetBeginPlay has prepared and frozen the initial pose.</summary>
+    protected override void SetInitialState()
+    {
+        if (!_channelInitialized)
+        {
+            _initialStatePending = true;
+            return;
+        }
+
+        base.SetInitialState();
+    }
 
     /// <summary>The sequence on the channel, or null.</summary>
     public MeshAnimSequence? AnimSequence => _sequence;
@@ -72,6 +86,7 @@ public partial class SAnimatedMesh
 
         if (Role != ENetRole.ROLE_Authority)
         {
+            EnterPreparedInitialState();
             return;
         }
 
@@ -89,6 +104,19 @@ public partial class SAnimatedMesh
         }
 
         FreezeAnimAt(0f);
+        EnterPreparedInitialState();
+    }
+
+    private void EnterPreparedInitialState()
+    {
+        // Level's startup passes currently request the auto state before PostNetBeginPlay. Starting an automatic
+        // prop there plays it before its loop counts exist, then FreezeAnimAt above stops it permanently.
+        _channelInitialized = true;
+        if (_initialStatePending)
+        {
+            _initialStatePending = false;
+            eventSetInitialState();
+        }
     }
 
     /// <summary>Global version: any end goes back to s_Wait.</summary>
