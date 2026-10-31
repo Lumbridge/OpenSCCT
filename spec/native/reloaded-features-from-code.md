@@ -124,10 +124,22 @@ queue (FEATURES `rl:gfx.fps`, `rl:gfx.pacing`).
 
 20. **FOV.** With `widescreen` on, every camera FOV the game sets (a 4:3 horizontal FOV) is converted to
     keep the 4:3 vertical view (Hor+): `fov = 2 × atan(tan(fov43 / 2) × 3/4 × aspect)`, where aspect is the
-    render width over height. A second path scales by another runtime factor and 4/3 instead (its use was
-    not identified). The result is then capped at `ws_fov` (console range 95 to 112, the settings slider
-    the same) except for one view class that Reloaded marks (the merc's first person is capped, which is
-    what the UI calls "Mercenary FOV cap").
+    render width over height. A second path scales by another runtime factor and 4/3 instead. The result is
+    then capped at `ws_fov` (console range 95 to 112, the settings slider the same) except for one view class
+    that Reloaded marks (the merc's first person is capped, which is what the UI calls "Mercenary FOV cap").
+    Where it applies (Reloaded.Core widescreen setup 0x100a9720; each hook reads `Controller.FovAngle`, +0x308):
+    - The main 3D view: game 0x10a0b126, right after the viewport actor's PlayerCalcView (vtable +0x14c) and
+      before the camera scene node is built (0x10a164b0); and game 0x109ec46b (scene node 0x10a165a0). Both use
+      the first path only. This is every player view, the spy's third-person camera included; `ws_er_small` plays
+      no part here.
+    - Two HUD sites (game 0x10afb10c and 0x10af8e07): the first path, then with `ws_er_small` the second path.
+    - Motion-tracking vision (game 0x10ac05ba, in its Tick): converted only when `ws_er_small` is off or the
+      goggles are in `REN_MotionTrackingVision` (SPlayerController.Goggle +0x79c, SGoggle.CurrentMode +0x330 ==
+      37); the hook also sets the ER-icon scale factors read by hooks 0x100a7400, 0x100a7480 and 0x100a9620.
+    The D3D projection hook 0x100a6260 then keeps the horizontal scale (_11) and sets _22 = _11 x aspect
+    (aspect capped at 16:9) when the stock matrix has _11 / _22 = 0.75, so the converted FovAngle is the
+    horizontal angle across the picture: with a 4:3 FovAngle of 75 (the spy), 91.3 degrees across 16:9, 59.8
+    vertical, the same vertical angle as at 4:3.
 21. **HUD extents.** The Enhanced scripts read two controller fields, `HudScreenRight` and `HudScreenBottom`,
     as the virtual screen for world-to-HUD projection (Enhanced Reality icons, arrows). Reloaded sets them
     every frame: 640 and 480 by default; with `widescreen` or `widescreen_hud` on, either

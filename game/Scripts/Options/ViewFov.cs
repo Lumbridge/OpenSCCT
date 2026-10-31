@@ -27,6 +27,7 @@ public static class ViewFov
     /// <summary>The horizontal angle across a screen of <paramref name="aspect"/> (width over height, capped at 16:9), in degrees.</summary>
     [Provenance(ProvenanceKind.Decoded, "spec/native/reloaded-features-from-code.md rule 20: fov = 2 atan(tan(fov43 / 2) x 3/4 x aspect), capped at ws_fov")]
     [Provenance(ProvenanceKind.Decoded, "Reloaded.Core 0x100a7080: 2 atan(tan(2 atan(0.75 tan(fov / 2)) / 2) x aspect), then min(ws_fov) unless 0x1036abbc")]
+    [Provenance(ProvenanceKind.Decoded, "Reloaded.Core hooks 0x100a71f0 / 0x100a72f0 on game 0x10a0b126 / 0x109ec46b: the main view's FovAngle takes this path only, ws_er_small not read; projection hook 0x100a6260 keeps the horizontal scale")]
     public static float ScreenHorizontal(float fov43, float aspect, bool widescreen, float? cap)
     {
         if (!(aspect > 0f) || !(fov43 > 0f))
