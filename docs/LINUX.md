@@ -25,6 +25,10 @@ maps are optional; more maps are available later under **Content**. Archives use
 map-manifest verification. Completed packs survive cancellation; an interrupted archive restarts on retry.
 Downloaded game content is not bundled in the Flatpak or committed to the repository.
 
+If setup reports an incomplete selected content folder, correct the `--svm-content` argument or `SVM_CONTENT`
+environment variable. Remove both overrides to use downloaded packs. Setup does not modify a supplied converted
+content folder, and downloading packs elsewhere cannot repair it.
+
 Use **Create a Session** and **Bots: Fill Slots** for a solo match. For local play, turn public listing and UPnP
 off and leave the master URL empty. After downloading content, direct offline practice also works:
 

@@ -28,11 +28,7 @@ public partial class LinuxSetupScreen : Control
 
     public string? Failure { get; private set; }
 
-    public static bool Needed => ContentPaths.Shared is not { } shared ||
-        !File.Exists(Path.Combine(shared, "classes.json")) ||
-        !Directory.Exists(Path.Combine(shared, "ui")) ||
-        !Directory.Exists(Path.Combine(shared, "chars")) ||
-        !Directory.Exists(Path.Combine(shared, "audio")) ||
+    public static bool Needed => !LinuxSetupContent.SharedReady(ContentPaths.Shared) ||
         !(HasMap(ContentPaths.SvMap) || HasMap(Path.Combine(ContentPaths.PacksFolder, "svmap")));
 
     private static bool HasMap(string? root) => root is not null && Directory.Exists(root) &&
@@ -98,6 +94,16 @@ public partial class LinuxSetupScreen : Control
             }
         };
         buttons.AddChild(_cancel);
+        if (LinuxSetupContent.OverrideProblem(ContentPaths.Root) is { } problem)
+        {
+            Failure = problem;
+            _status.Text = problem;
+            _download.Disabled = true;
+            _allMaps.Disabled = true;
+            SetProcess(false);
+            _cancel.GrabFocus();
+            return;
+        }
         ContentPacks.RefreshIndex();
         _allMaps.GrabFocus();
     }
