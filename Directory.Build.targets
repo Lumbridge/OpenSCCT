@@ -6,7 +6,12 @@
     VersionPrefix in Directory.Build.props; tools/release/New-Release.ps1 overrides it with -p:Version.
   -->
   <Target Name="OpenScctBuildNumber" BeforeTargets="GetAssemblyAttributes;GenerateAssemblyInfo" Condition="'$(OpenScctBuildNumber)' == ''">
-    <Exec EnvironmentVariables="TZ=UTC" Command="git -c log.showSignature=false log -1 --format=%25%25cd --date=format-local:%25%25Y%25%25m%25%25d.%25%25H%25%25M" WorkingDirectory="$(MSBuildThisFileDirectory)" ConsoleToMSBuild="true"
+    <PropertyGroup>
+      <!-- cmd.exe consumes doubled percent signs; POSIX shells pass single ones straight to git. -->
+      <OpenScctGitPercent Condition="'$(OS)' == 'Windows_NT'">%25%25</OpenScctGitPercent>
+      <OpenScctGitPercent Condition="'$(OS)' != 'Windows_NT'">%25</OpenScctGitPercent>
+    </PropertyGroup>
+    <Exec EnvironmentVariables="TZ=UTC" Command="git -c log.showSignature=false log -1 --format=$(OpenScctGitPercent)cd --date=format-local:$(OpenScctGitPercent)Y$(OpenScctGitPercent)m$(OpenScctGitPercent)d.$(OpenScctGitPercent)H$(OpenScctGitPercent)M" WorkingDirectory="$(MSBuildThisFileDirectory)" ConsoleToMSBuild="true"
           IgnoreExitCode="true" StandardOutputImportance="low" StandardErrorImportance="low" EchoOff="true">
       <Output TaskParameter="ConsoleOutput" PropertyName="OpenScctGitStamp" />
       <Output TaskParameter="ExitCode" PropertyName="OpenScctGitExit" />
