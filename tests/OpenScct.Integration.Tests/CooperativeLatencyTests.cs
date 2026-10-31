@@ -35,7 +35,9 @@ public sealed class CooperativeLatencyTests
     [InlineData(NetProfile.Enhanced, "200", true)]
     public void TwoOwnersBoostThenHoistOnSteeEAndAllViewersRecoverThePairedClips(NetProfile profile, string link, bool immediate)
     {
+        Assert.SkipWhen(WalkerRig.Maps.FindFolder("SteeE") is null, "SteeE has not been converted into .content/svmap.");
         string folder = Assert.IsType<string>(WalkerRig.Maps.FindFolder("SteeE"));
+        Assert.SkipWhen(PlayMapLoader.FindCharsDir(folder) is null, "The converted character clips are not in .content/shared/chars.");
         string chars = Assert.IsType<string>(PlayMapLoader.FindCharsDir(folder));
         var clock = new VirtualClock();
         var network = new SimLinkNetwork(clock, 438, SimLinkProfile.Get(link));
