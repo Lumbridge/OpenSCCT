@@ -127,7 +127,7 @@ public static class ContentPacks
         {
             lock (Gate)
             {
-                return _index is { IsFaulted: true } t ? t.Exception?.GetBaseException().Message : null;
+                return _index is { IsFaulted: true } t ? NetworkDiagnostics.Describe(t.Exception!) : null;
             }
         }
     }
@@ -146,7 +146,20 @@ public static class ContentPacks
 
             _indexAt = DateTime.UtcNow;
             ContentStore store = _store ??= new ContentStore(ContentPaths.PacksFolder, Http);
-            _index = Task.Run(() => store.FetchIndexAsync(CancellationToken.None));
+            _index = Task.Run(() => FetchIndexLoggedAsync(store));
+        }
+    }
+
+    private static async Task<ContentIndex> FetchIndexLoggedAsync(ContentStore store)
+    {
+        try
+        {
+            return await store.FetchIndexAsync(CancellationToken.None).ConfigureAwait(false);
+        }
+        catch (Exception error)
+        {
+            NetworkDiagnostics.Report("content index download", error);
+            throw;
         }
     }
 
@@ -270,7 +283,8 @@ public static class ContentPacks
         }
         catch (Exception e) when (e is HttpRequestException or System.IO.IOException or System.IO.InvalidDataException or UnauthorizedAccessException or TaskCanceledException)
         {
-            job.Error = e is TaskCanceledException ? "the download timed out" : e.Message;
+            NetworkDiagnostics.Report("content download: " + job.Title, e);
+            job.Error = e is TaskCanceledException ? "the download timed out" : NetworkDiagnostics.Describe(e);
         }
     }
 
@@ -289,7 +303,8 @@ public static class ContentPacks
         }
         catch (Exception e) when (e is HttpRequestException or System.IO.IOException or System.IO.InvalidDataException or UnauthorizedAccessException or TaskCanceledException)
         {
-            job.Error = e is TaskCanceledException ? "the download timed out" : e.Message;
+            NetworkDiagnostics.Report("content download: " + job.Title, e);
+            job.Error = e is TaskCanceledException ? "the download timed out" : NetworkDiagnostics.Describe(e);
         }
     }
 
