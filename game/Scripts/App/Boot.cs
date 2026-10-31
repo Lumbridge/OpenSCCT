@@ -35,7 +35,17 @@ public partial class Boot : Node
         }
         else if (!app.IsSmokeRun)
         {
-            Callable.From(() => OpenScctGame.UI.FrontEnd.ShowMainMenu(GetTree())).CallDeferred();
+            Callable.From(() =>
+            {
+                if (System.OperatingSystem.IsLinux() && UI.LinuxSetupScreen.Needed)
+                {
+                    UI.FrontEnd.Show(GetTree(), new UI.LinuxSetupScreen());
+                }
+                else
+                {
+                    UI.FrontEnd.ShowMainMenu(GetTree());
+                }
+            }).CallDeferred();
         }
     }
 }

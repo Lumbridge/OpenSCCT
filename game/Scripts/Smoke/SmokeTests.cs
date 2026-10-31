@@ -30,6 +30,8 @@ public static class SmokeTests
 
     public static SmokeTest? Create(string name) => name switch
     {
+        // Opt-in network test: excludes ~490 MiB of downloads from the ordinary smoke suite.
+        LinuxSetupSmoke.TestName => new LinuxSetupSmoke(),
         BootSmoke.TestName => new BootSmoke(),
         SidearmMenuSmoke.TestName => new SidearmMenuSmoke(),
         LobbyLayoutSmoke.TestName => new LobbyLayoutSmoke(),

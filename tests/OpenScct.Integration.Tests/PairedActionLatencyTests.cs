@@ -14,6 +14,15 @@ namespace OpenScct.Integration.Tests;
 
 public sealed class PairedActionLatencyTests
 {
+    private static string RequireCharacterContent()
+    {
+        string? folder = WalkerRig.Maps.FindFolder("SteeE");
+        Assert.SkipWhen(folder is null, "SteeE has not been converted into .content/svmap.");
+        string? chars = PlayMapLoader.FindCharsDir(folder!);
+        Assert.SkipWhen(chars is null, "The converted character clips are not in .content/shared/chars.");
+        return chars!;
+    }
+
     [Theory]
     [InlineData(NetProfile.Stock, "100", 0)]
     [InlineData(NetProfile.Stock, "200", 0)]
@@ -25,6 +34,7 @@ public sealed class PairedActionLatencyTests
     [InlineData(NetProfile.Enhanced, "200", 2)]
     public void LethalDamageDeathPoseAndRespawnRemainAuthoritativeAcrossPawnLifetimes(NetProfile profile, string link, int victimIndex)
     {
+        string chars = RequireCharacterContent();
         var clock = new VirtualClock();
         var network = new SimLinkNetwork(clock, 420, SimLinkProfile.Get(link));
         using var match = new BotMatch(new BotMatchSettings
@@ -46,7 +56,6 @@ public sealed class PairedActionLatencyTests
         var deathClips = new System.Collections.Generic.HashSet<Name>(body.SPawnType == PawnType.SPAWNDEFENSE
             ? [body.ADeathStForward2H, body.ADeathStBack2H, body.ADeathStLeft2H, body.ADeathStRight2H, body.ADeathStDown2H]
             : [body.ADeathStForward, body.ADeathStBack, body.ADeathStLeft, body.ADeathStRight, body.ADeathStDown]);
-        string chars = Assert.IsType<string>(PlayMapLoader.FindCharsDir(WalkerRig.Maps.FindFolder("SteeE")!));
         PawnAnimationSource animations = PawnAnimationSource.FromContent(chars);
         foreach (Name clip in deathClips)
             Assert.True(animations.TryGetClip(body, clip, out PawnClip authored) && authored.Frames > 2,
@@ -137,6 +146,7 @@ public sealed class PairedActionLatencyTests
     [InlineData(NetProfile.Enhanced, "200")]
     public void TwoOwnersCompleteAGrabKnockoutAndRecoveryWithoutDuplicateDamageOrPredictionResets(NetProfile profile, string link)
     {
+        string chars = RequireCharacterContent();
         var clock = new VirtualClock();
         var network = new SimLinkNetwork(clock, 208, SimLinkProfile.Get(link));
         using var match = new BotMatch(new BotMatchSettings
@@ -201,7 +211,6 @@ public sealed class PairedActionLatencyTests
         recordedSpy = sourceSpy; recordedMerc = sourceMerc;
         var localSpy = Assert.IsAssignableFrom<SBasePawn>(spyOwner.Pawn);
         var localMerc = Assert.IsAssignableFrom<SBasePawn>(mercOwner.Pawn);
-        string chars = Assert.IsType<string>(PlayMapLoader.FindCharsDir(WalkerRig.Maps.FindFolder("SteeE")!));
         PawnAnimationSource animations = PawnAnimationSource.FromContent(chars);
         Assert.True(animations.TryGetClip(sourceMerc, new Name("GrbdStAlWkA"), out PawnClip wake) && wake.Frames > 2,
             "Paired-action parity requires the converted character clips, not two-frame stand-ins.");
