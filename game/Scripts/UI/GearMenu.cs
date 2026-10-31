@@ -399,6 +399,8 @@ public partial class GearMenu : MenuPage
         };
         if (item is SidearmCarry carry)
         {
+            // Sidearms have their own pictures, not a tile in the retail gadget atlas.
+            t.HasIcon = false;
             string icon = System.IO.Path.Combine(OpenScctGame.Render.Characters.SkeletalModel.DefaultSharedRoot(), "chars", "OpenScctSidearms", "textures",
                 Sidearms.Get((SidearmKind)carry.Kind).Id + "_icon.png");
             if (System.IO.File.Exists(icon))
@@ -407,6 +409,7 @@ public partial class GearMenu : MenuPage
                 t.Atlas = ImageTexture.CreateFromImage(image);
                 t.Region = new Rect2(Vector2.Zero, image.GetSize());
                 t.IconScale = Math.Min(PageScale, Math.Min(rect.Size.X, rect.Size.Y) * .75f / Math.Max(image.GetWidth(), image.GetHeight()));
+                t.HasIcon = true;
             }
         }
         _layer!.AddChild(t);

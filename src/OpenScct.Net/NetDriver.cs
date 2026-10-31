@@ -646,6 +646,9 @@ public sealed class NetDriver : IDisposable
     private bool PriorityActor(NetConnection connection, Actor? actor, long stamp, bool force = false)
     {
         if (actor is null || actor.bDeleteMe || actor.RemoteRole == ENetRole.ROLE_None || !connection.IsNetReady) return false;
+        // Temporary effects close and release their channel after their initial bunch. Its absence must not
+        // reopen the same owned effect every frame; the normal replication pass has the same send-once gate.
+        if (connection.SentTemporaries.Contains(actor.ActorId)) return false;
         ActorChannel? channel = connection.FindActorChannel(actor);
         if (!force && channel is { SentInitial: true, OpenAcked: true }) return true;
         if (channel is null && Classes.Find(actor.GetType()) is { } info) channel = OpenActorChannel(connection, actor, info);

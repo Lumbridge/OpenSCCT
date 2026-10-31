@@ -9,6 +9,8 @@ namespace OpenScct.Game.SBase;
 /// <summary>Merc pistols use the existing trace, prediction, hit zones and gadget presentation, with independent triggers.</summary>
 public sealed class MercSidearm : SWeaponDefense
 {
+    // The authored idle is a one-second clip; a four-second breathing cycle keeps it from bobbing rapidly at rest.
+    private const float IdleAnimationRate = 0.25f;
     public int Kind;
     public float ReloadUntil;
     public float NextShotAt;
@@ -121,7 +123,12 @@ public sealed class MercSidearm : SWeaponDefense
         NativeTickSWeaponDefense(delta);
         Configure();
         if (!ViewAnim.IsAnimating(MVTCHANNEL) || ViewAnim.Sequence(MVTCHANNEL) == ViewModelClips.FirstWaitStFd2 ||
-            ViewAnim.Sequence(MVTCHANNEL) == ViewModelClips.FirstWalkStFd2) AnimateWaiting();
+            ViewAnim.Sequence(MVTCHANNEL) == ViewModelClips.FirstWalkStFd2)
+        {
+            AnimateWaiting();
+            if (ViewAnim.Sequence(MVTCHANNEL) == ViewModelClips.FirstWaitStFd2)
+                ViewAnim.Loop(MVTCHANNEL, ViewModelClips.FirstWaitStFd2, IdleAnimationRate);
+        }
         if (!ViewAnim.IsAnimating(ACTIONCHANNEL)) ViewAnim.SetAlpha(ACTIONCHANNEL, 0);
         SidearmEquipment.Tick(this);
         if (!FireHeld) _triggerDown = false;

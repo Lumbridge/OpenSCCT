@@ -64,7 +64,7 @@ public sealed partial class MercLaserView : Node3D
 
     private readonly List<(SBasePawn Pawn, FVector Start, FVector End, bool Local)> _drawn = new();
 
-    /// <summary>Where the local merc's drawn beam mesh begins (UE): his rifle's FX bone pulled back 50 uu (the gun covers it).</summary>
+    /// <summary>Where the local beam begins (UE): the drawn FX bone, pulled back 50 uu for the rifle's overlay.</summary>
     public FVector DrawnFrom { get; private set; }
 
     private bool _localFromFx;
@@ -157,7 +157,7 @@ public sealed partial class MercLaserView : Node3D
     }
 
     /// <summary>
-    /// The local merc's beam: from the drawn rifle's FX bone pulled back 50 uu to the point under the centre of the
+    /// The local merc's beam: from the drawn weapon's FX bone (pulled back 50 uu for the rifle) to the point under the centre of the
     /// view drawn this frame (the original's starts 15.4 forward, 12.0 right and 12.7 under his eye, merc-laser.md rule
     /// 9a; the first-person rifle's FX bone puts it within 1 uu of that). The simulation's end point (HitLocation) is
     /// placed once a tick from the last tick's view, while the rifle is drawn with the camera's look-ahead, so between
@@ -174,15 +174,18 @@ public sealed partial class MercLaserView : Node3D
             model.Skeleton.FindBone(BoneFx.ToString()) is var fx and >= 0)
         {
             FVector muzzle = UeSpace.ToUe((model.Skeleton.GlobalTransform * model.Skeleton.GetBoneGlobalPose(fx)).Origin);
+            // The rifle's weapon overlay hides its pulled-back segment. The authored pistols need the beam to
+            // begin at their barrel; pulling it back 50 uu exposes it behind and beside the shorter weapon.
+            float pullBack = pawn.MyWeapon is MercSidearm ? 0f : K.LaserFireStartPullBack;
             if (view is { } v)
             {
-                end = CentreEnd(laser, pawn, muzzle, v.Location, v.Rotation.Vector());
+                end = CentreEnd(laser, pawn, muzzle, v.Location, v.Rotation.Vector(), pullBack);
             }
 
             FVector dir = end - muzzle;
             float size = dir.Size();
-            start = size > 0f ? muzzle - (dir * (K.LaserFireStartPullBack / size)) : muzzle;
-            _localFromFx = size > K.LaserFireStartPullBack;
+            start = size > 0f ? muzzle - (dir * (pullBack / size)) : muzzle;
+            _localFromFx = size > pullBack;
         }
 
         return (start, end, start);
@@ -190,10 +193,10 @@ public sealed partial class MercLaserView : Node3D
 
     /// <summary>
     /// The end of the local beam for the drawn view: the first hit on the line from the camera along its centre (the
-    /// simulation's trace, bullets' pass-through rules, the merc himself ignored), then the line from the pulled-back
-    /// muzzle to that point, so a wall right in front of the barrel still stops the beam.
+    /// simulation's trace, bullets' pass-through rules, the merc himself ignored), then the line from the muzzle
+    /// (with the weapon's pullback) to that point, so a wall right in front of the barrel still stops the beam.
     /// </summary>
-    private static FVector CentreEnd(SGadTorcheLaser laser, SBasePawn pawn, FVector muzzle, FVector eye, FVector viewDir)
+    private static FVector CentreEnd(SGadTorcheLaser laser, SBasePawn pawn, FVector muzzle, FVector eye, FVector viewDir, float pullBack)
     {
         IHitZones zones = CombatServices.HitZones(laser);
         Actor shooter = pawn.MyWeapon ?? (Actor)pawn;
@@ -202,12 +205,12 @@ public sealed partial class MercLaserView : Node3D
         FVector aim = centre.bHit ? centre.HitLocation : far;
         FVector d = aim - muzzle;
         float size = d.Size();
-        if (size <= K.LaserFireStartPullBack)
+        if (size <= pullBack)
         {
             return aim;
         }
 
-        FVector from = muzzle - (d * (K.LaserFireStartPullBack / size));
+        FVector from = muzzle - (d * (pullBack / size));
         BoneTraceResult hit = zones.TraceBone(shooter, aim, from, false);
         return hit.bHit ? hit.HitLocation : aim;
     }

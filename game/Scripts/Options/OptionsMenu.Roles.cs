@@ -219,6 +219,13 @@ public partial class OptionsMenu
             : "Sensitivity controls how far the view turns for the same mouse movement. Free look is used with the weapon holstered; gun look is used with it drawn."));
         content.AddChild(UiStyle.MenuButton("Reset mouse & aim", () => ResetLook(side, false), "ResetMouse"));
         var basic = Grid("MouseAim");
+        Check(basic, "Invert vertical mouse movement (both roles)", "invert_y." + side, _edit.InvertY, v =>
+        {
+            _edit.InvertY = v;
+            foreach (PlaySide role in new[] { PlaySide.Spy, PlaySide.Merc })
+                if (_controls.TryGetValue("invert_y." + role, out Control? control) && control is CheckBox box)
+                    box.SetPressedNoSignal(v);
+        });
         if (!merc)
         {
             Check(basic, "Invert horizontal free look", "invert_x_spy", _edit.InvertXSpy, v => _edit.InvertXSpy = v);

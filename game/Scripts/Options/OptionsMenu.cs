@@ -315,18 +315,6 @@ public partial class OptionsMenu : Control
         g.AddChild(new Control());
 
         var content = new VBoxContainer { Name = "ControllerContent", SizeFlagsHorizontal = SizeFlags.ExpandFill };
-        GridContainer mouse = Grid("SharedInput");
-        Check(mouse, "Invert vertical mouse movement", "invert_y", _edit.InvertY, v => _edit.InvertY = v);
-        Check(mouse, "Use the same bindings for both roles", "use_split_spy_merc_keyboard", !_edit.SplitKeyboard, v =>
-        {
-            _edit.SplitKeyboard = !v;
-            RebuildKeys();
-        });
-        content.AddChild(new Label { Text = "Mouse & Keyboard", Modulate = UiStyle.MenuFocus });
-        content.AddChild(Help("These settings apply to both roles. Set role-specific sensitivity and bindings in Spy or Mercenary."));
-        content.AddChild(mouse);
-        content.AddChild(Help("Shared bindings use the Spy layout. Changes in either role affect both while sharing is enabled. Your separate Mercenary layout is retained."));
-        content.AddChild(new HSeparator());
         content.AddChild(new Label { Text = "Controller", Modulate = UiStyle.MenuFocus });
         // Keep device setup and vibration together; detailed stick behavior is a separate group.
         var tuning = Grid("ControllerTuning");

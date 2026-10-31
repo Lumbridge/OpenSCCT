@@ -125,3 +125,7 @@ The tools live in the OpenSCCT-Content repository (`tools/`); its `docs/PUBLISHI
 3. `publish` creates a release `content-<yyyy.MM.dd>[-n]` holding only the new archives, then rewrites `index.json` to point at them and commits it.
 
 Older releases stay, so a host and its players can use the same pack until the index moves on.
+
+Releases that add models, icons, finishes or sounds must also refresh the affected shared packs. Shipping the new
+content builder with the client only updates players who convert an install; players using downloaded content keep
+the assets named by this index. Check the shared archives for the new assets before calling the deploy complete.
