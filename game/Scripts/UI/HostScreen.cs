@@ -235,10 +235,13 @@ public partial class HostScreen : MenuPage
             RequireAccounts = s.HostRequireAccounts && s.MasterUrl.Length > 0,
             DemoFolder = s.HostRecordDemos ? OpenScctGame.Play.Demo.DemoLibrary.SavedFolder : null,
         };
-        if (!service.Host(request) && _status is not null)
+        AccountService.Get(GetTree()).PrepareAppearance(() =>
         {
-            _status.Text = service.LastError ?? "Could not host.";
-        }
+            if (!service.Host(request) && _status is not null)
+            {
+                _status.Text = service.LastError ?? "Could not host.";
+            }
+        });
     }
 
     /// <summary>The page's port as text (tests).</summary>

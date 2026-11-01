@@ -1,5 +1,9 @@
 # OpenSCCT
 
+Visit the [player hub](https://master.lumbridge.co.uk) for live servers, player profiles, leaderboards and match
+history. Sign in with Discord to manage your account, profile privacy and unlocked appearance. See the
+[player hub guide](docs/PLAYER-HUB.md) for synchronization and privacy details.
+
 An open rewrite of **Splinter Cell: Chaos Theory Versus** (spies vs. mercs) in Godot 4 and C#.
 It plays like the original, runs on modern Windows, and updates itself.
 

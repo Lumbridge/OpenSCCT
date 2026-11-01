@@ -59,6 +59,8 @@ public static class MasterApi
 
     public const string ProfilePath = "/api/v1/account/profile";
 
+    public const string AppearancePath = "/api/v1/account/appearance";
+
     public const string ResultsPath = "/api/v1/results";
 
     /// <summary>Ready round demos for signed-in players (<c>?page=</c>, from 0).</summary>
@@ -494,6 +496,9 @@ public sealed record AccountInfo
     public string? Name { get; init; }
 
     public bool Admin { get; init; }
+
+    /// <summary>True when appearance can be synchronized separately using revision-checked writes.</summary>
+    public bool AppearanceSync { get; init; }
 
     /// <summary>When the name may next be changed (null: now).</summary>
     public DateTimeOffset? NameChangeAllowed { get; init; }

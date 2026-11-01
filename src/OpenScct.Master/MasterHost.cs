@@ -32,10 +32,12 @@ public sealed class MasterHost : IAsyncDisposable
     private readonly Prober? _prober;
     private readonly Timer _sweeper;
     private readonly RateLimiter _limiter;
+    private readonly RateLimiter _webLimiter;
     private readonly AccountStore? _store;
     private readonly TicketSigner? _signer;
     private readonly AccountApi? _accounts;
     private readonly Admin.AdminPortal? _portal;
+    private readonly Player.PlayerPortal? _players;
     private readonly DemoStorage? _demos;
     private bool _disposed;
 
@@ -56,8 +58,11 @@ public sealed class MasterHost : IAsyncDisposable
         {
             _portal = new Admin.AdminPortal(options, store, registry, ClientIp, () => (RelayForwarded, Introductions), _demos);
             _accounts.AdminCallback = _portal.CallbackAsync;
+            _players = new Player.PlayerPortal(options, store, registry, ClientIp);
+            _accounts.PlayerCallback = _players.CallbackAsync;
         }
         _limiter = new RateLimiter(options.RequestsPerMinute);
+        _webLimiter = new RateLimiter(options.RequestsPerMinute);
         _sweeper = new Timer(_ => Sweep(), null, Timeout.Infinite, Timeout.Infinite);
     }
 
@@ -168,6 +173,7 @@ public sealed class MasterHost : IAsyncDisposable
         Registry.Sweep();
         _prober?.Sweep();
         _limiter.Sweep();
+        _webLimiter.Sweep();
         _accounts?.Links.Sweep();
         _portal?.Sample(Registry.Now);
     }
@@ -178,8 +184,8 @@ public sealed class MasterHost : IAsyncDisposable
     {
         _app.Use(async (context, next) =>
         {
-            if (context.Request.Path.StartsWithSegments("/api", StringComparison.Ordinal) &&
-                !context.Request.Path.Equals(MasterApi.StatusPath, StringComparison.Ordinal))
+            if (context.Request.Path.StartsWithSegments("/api", StringComparison.OrdinalIgnoreCase) &&
+                !context.Request.Path.Equals(MasterApi.StatusPath, StringComparison.OrdinalIgnoreCase))
             {
                 if (Options.InviteKeys.Count > 0)
                 {
@@ -203,13 +209,12 @@ public sealed class MasterHost : IAsyncDisposable
                     return;
                 }
             }
-            else if (context.Request.Path.StartsWithSegments("/link", StringComparison.Ordinal) ||
-                context.Request.Path.StartsWithSegments("/auth", StringComparison.Ordinal) ||
-                (context.Request.Path.StartsWithSegments("/admin", StringComparison.Ordinal) &&
-                    !context.Request.Path.StartsWithSegments("/admin/assets", StringComparison.Ordinal)))
+            else if (!context.Request.Path.StartsWithSegments("/web/assets", StringComparison.OrdinalIgnoreCase) &&
+                !context.Request.Path.StartsWithSegments("/admin/assets", StringComparison.OrdinalIgnoreCase) &&
+                !context.Request.Path.Equals(MasterApi.StatusPath, StringComparison.OrdinalIgnoreCase))
             {
-                // The browser side of the sign-in: no invite key (a browser has none), but the same limit.
-                if (!_limiter.Allow(ClientIp(context)))
+                // Browsers never receive the game invite key. Their independent budget cannot starve game heartbeats.
+                if (!_webLimiter.Allow(ClientIp(context)))
                 {
                     context.Response.StatusCode = StatusCodes.Status429TooManyRequests;
                     await context.Response.WriteAsync("Too many requests; wait a minute.").ConfigureAwait(false);
@@ -220,6 +225,7 @@ public sealed class MasterHost : IAsyncDisposable
             await next(context).ConfigureAwait(false);
         });
 
+        Web.WebHtml.MapAssets(_app);
         _app.MapPost(MasterApi.HeartbeatPath, (HttpContext context, HeartbeatRequest request) => Heartbeat(context, request));
         _app.MapGet(MasterApi.ListPath, (HttpContext context) => List(context));
         _app.MapGet(MasterApi.ListPath + "/{id}", (HttpContext context, string id) => Get(context, id));
@@ -240,6 +246,7 @@ public sealed class MasterHost : IAsyncDisposable
         {
             _accounts.Map(_app);
             _portal?.Map(_app);
+            _players?.Map(_app);
         }
         else
         {

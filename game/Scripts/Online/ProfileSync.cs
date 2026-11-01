@@ -30,12 +30,17 @@ public static class ProfileSync
     ];
 
     /// <summary>This PC's record, from the current settings and the key files.</summary>
-    public static string Build()
+    public static string Build(bool separateAppearance = false)
     {
         JsonObject settings = JsonNode.Parse(SettingsStore.Current.ToJson())?.AsObject() ?? new JsonObject();
         foreach (string key in LocalKeys)
         {
             settings.Remove(key);
+        }
+
+        if (separateAppearance)
+        {
+            foreach (string key in AppearanceKeys) settings.Remove(key);
         }
 
         var record = new JsonObject
@@ -53,7 +58,7 @@ public static class ProfileSync
     /// <see cref="SettingsStore"/> and put into effect, and its key layouts written (a missing one leaves this PC's
     /// file as it is). False when the record cannot be read. The play scene reads the key files at each round's start.
     /// </summary>
-    public static bool Apply(string data)
+    public static bool Apply(string data, bool separateAppearance = false)
     {
         JsonObject record;
         try
@@ -84,6 +89,12 @@ public static class ProfileSync
                 }
             }
 
+            // Revision-managed appearance belongs to another stream; an older settings document must not reset it.
+            if (separateAppearance)
+            {
+                foreach (string key in AppearanceKeys) remote[key] = local[key]?.DeepClone();
+            }
+
             try
             {
                 GameSettings merged = GameSettings.FromJson(remote.ToJsonString());
@@ -100,6 +111,8 @@ public static class ProfileSync
         WriteText(MercKeysFile, record["keys_merc"]);
         return true;
     }
+
+    private static readonly string[] AppearanceKeys = ["cosmetics_spy", "cosmetics_merc", "title"];
 
     private static string? ReadText(string file)
     {

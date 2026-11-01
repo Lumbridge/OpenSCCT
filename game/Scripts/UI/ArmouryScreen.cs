@@ -26,7 +26,7 @@ public partial class ArmouryScreen : MenuPage
     private const int ThumbSize = 40;
 
     /// <summary>The frame's title and buttons and the page's side switch above the split.</summary>
-    private const float ChromeHeight = 104f + 64f + 52f;
+    private const float ChromeHeight = 104f + 64f + 52f + 48f;
 
     private ScrollContainer? _listScroll;
     private ScrollContainer? _kitScroll;
@@ -55,6 +55,8 @@ public partial class ArmouryScreen : MenuPage
         Name = "Armoury";
         BuildFrame("Armoury", BodyWidth);
         _service = AccountService.Get(GetTree());
+        _service.AppearanceChanged += OnAppearanceChanged;
+        Body.AddChild(new AppearanceSyncPanel());
         var sides = new HBoxContainer { Name = "Sides" };
         sides.AddChild(UiStyle.MenuButton("Spy", () => ShowSide(CosmeticSide.Spy), "SideSpy"));
         sides.AddChild(UiStyle.MenuButton("Mercenary", () => ShowSide(CosmeticSide.Merc), "SideMerc"));
@@ -110,10 +112,16 @@ public partial class ArmouryScreen : MenuPage
 
     public override void _ExitTree()
     {
+        if (_service is not null) _service.AppearanceChanged -= OnAppearanceChanged;
         if (GetViewport() is { } viewport)
         {
             viewport.SizeChanged -= FitHeight;
         }
+    }
+
+    private void OnAppearanceChanged()
+    {
+        if (_content is not null && _kit is not null) ShowSide(_side);
     }
 
     public override void _Process(double delta)

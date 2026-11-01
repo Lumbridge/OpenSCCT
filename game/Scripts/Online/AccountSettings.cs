@@ -33,6 +33,15 @@ public sealed class AccountSettings
     /// <summary>The account this PC last synced its settings with (0: none yet).</summary>
     public long SyncedAccountId { get; set; }
 
+    /// <summary>Appearance baseline and unsent choices survive restarts and temporary loss of connectivity.</summary>
+    public long AppearanceAccountId { get; set; }
+
+    public string AppearanceMaster { get; set; } = string.Empty;
+
+    public string AppearanceBaseline { get; set; } = string.Empty;
+
+    public bool AppearanceDirty { get; set; }
+
     /// <summary>Smoke runs: always signed out, nothing written.</summary>
     public static bool Isolated => OpenScctGame.Options.SettingsStore.Isolated;
 
@@ -62,6 +71,10 @@ public sealed class AccountSettings
             ? when
             : null;
         s.SyncedAccountId = file.GetValue("profile", "synced_account", s.SyncedAccountId).AsInt64();
+        s.AppearanceAccountId = file.GetValue("appearance", "account", 0L).AsInt64();
+        s.AppearanceMaster = file.GetValue("appearance", "master", string.Empty).AsString();
+        s.AppearanceBaseline = file.GetValue("appearance", "baseline", string.Empty).AsString();
+        s.AppearanceDirty = file.GetValue("appearance", "dirty", false).AsBool();
         return s;
     }
 
@@ -79,6 +92,10 @@ public sealed class AccountSettings
         file.SetValue("account", "admin", Admin);
         file.SetValue("profile", "updated", ProfileUpdated?.ToString("O", CultureInfo.InvariantCulture) ?? string.Empty);
         file.SetValue("profile", "synced_account", SyncedAccountId);
+        file.SetValue("appearance", "account", AppearanceAccountId);
+        file.SetValue("appearance", "master", AppearanceMaster);
+        file.SetValue("appearance", "baseline", AppearanceBaseline);
+        file.SetValue("appearance", "dirty", AppearanceDirty);
         return file.Save(path);
     }
 

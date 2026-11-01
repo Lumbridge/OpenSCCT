@@ -413,13 +413,18 @@ public partial class HubScreen : MenuPage
     private void Host()
     {
         HubService service = HubService.Get(GetTree());
-        if (service.HostAndJoin(HubService.DefaultPort, PlayerName, Team))
+        string name = PlayerName;
+        int team = Team;
+        AccountService.Get(GetTree()).PrepareAppearance(() =>
         {
-            LastAddress = service.Host!.LocalAddress;
-        }
-        else if (_status is not null)
-        {
-            _status.Text = service.LastError;
-        }
+            if (service.HostAndJoin(HubService.DefaultPort, name, team))
+            {
+                LastAddress = service.Host!.LocalAddress;
+            }
+            else if (_status is not null)
+            {
+                _status.Text = service.LastError;
+            }
+        });
     }
 }

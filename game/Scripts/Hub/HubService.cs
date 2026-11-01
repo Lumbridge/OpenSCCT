@@ -173,6 +173,12 @@ public partial class HubService : Node
     /// <summary>Joins the hub at <paramref name="address"/> as <paramref name="name"/> on <paramref name="team"/> (0 spies, 1 mercs).</summary>
     public void Join(string address, string name, int team)
     {
+        string target = Normalise(address);
+        AccountService.Get(GetTree()).PrepareAppearance(() => JoinPrepared(target, name, team));
+    }
+
+    private void JoinPrepared(string address, string name, int team)
+    {
         Leave(showMenu: false);
         LastError = null;
         ForgetListed();
@@ -185,6 +191,12 @@ public partial class HubService : Node
     /// browser does (a NAT punch is left out: the relay covers those hosts).
     /// </summary>
     public void JoinListed(string serverId, string displayName, string name, int team)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(serverId);
+        AccountService.Get(GetTree()).PrepareAppearance(() => JoinListedPrepared(serverId, displayName, name, team));
+    }
+
+    private void JoinListedPrepared(string serverId, string displayName, string name, int team)
     {
         ArgumentException.ThrowIfNullOrEmpty(serverId);
         Leave(showMenu: false);
@@ -702,6 +714,11 @@ public partial class HubService : Node
 
     /// <summary>Back from a pad's match: joins the hub again (spawned beside the pad) with a note on the HUD.</summary>
     public void ReturnFromMatch(string padId, string? note)
+    {
+        AccountService.Get(GetTree()).PrepareAppearance(() => ReturnFromMatchPrepared(padId, note));
+    }
+
+    private void ReturnFromMatchPrepared(string padId, string? note)
     {
         Note(note ?? "Back from the match.");
         if (_masterId is not null)

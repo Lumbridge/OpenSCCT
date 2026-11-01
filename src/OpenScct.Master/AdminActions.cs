@@ -38,6 +38,11 @@ internal sealed class AdminActions(AccountStore store)
     /// <summary>Bans an address or CIDR range, an account (and its Discord id) or a Discord id with no account yet.</summary>
     public AdminResult Ban(string target, double? days, string reason)
     {
+        if (days is { } duration && (!double.IsFinite(duration) || duration <= 0 || duration > 36500))
+        {
+            return AdminResult.Refused("A temporary ban must be a positive duration of at most 36,500 days; omit the duration only for a permanent ban.");
+        }
+
         long? until = days is > 0 and { } n ? store.Now + (long)(n * 86400) : null;
         if (AccountStore.NormalizeIp(target) is { } ip)
         {

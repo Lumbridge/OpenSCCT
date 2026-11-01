@@ -29,7 +29,6 @@ internal sealed partial class AdminPortal
     private readonly Func<HttpContext, IPAddress> _clientIp;
     private readonly Func<(long RelayForwarded, long Introductions)> _udpStats;
     private readonly DemoStorage? _demos;
-    private long _nextCommandId = 1;
 
     public AdminPortal(MasterOptions options, AccountStore store, ServerRegistry registry, Func<HttpContext, IPAddress> clientIp,
         Func<(long RelayForwarded, long Introductions)> udpStats, DemoStorage? demos = null)
@@ -41,6 +40,7 @@ internal sealed partial class AdminPortal
         _actions = new AdminActions(store);
         _clientIp = clientIp;
         _udpStats = udpStats;
+        _store.InterruptAdminCommands();
     }
 
     private bool SecureCookies => _options.PublicBaseUrl.StartsWith("https:", StringComparison.OrdinalIgnoreCase);
@@ -52,6 +52,8 @@ internal sealed partial class AdminPortal
         Route(app, "POST", "/admin/logout", c => Post(c, (_, _) => Task.FromResult(Logout(c))));
 
         Route(app, "GET", "/admin", c => Get(c, Dashboard));
+        Route(app, "GET", "/admin/search", c => Get(c, Search));
+        Route(app, "GET", "/admin/commands", c => Get(c, Commands));
         Route(app, "GET", "/admin/servers", c => Get(c, Servers));
         Route(app, "GET", "/admin/servers/{id}", c => Get(c, (cx, a) => Server(cx, a, Arg(c, "id"), null, false)));
         Route(app, "POST", "/admin/servers/blocks", c => Post(c, (a, f) => Task.FromResult(BlockAction(c, a, f))));
@@ -150,7 +152,7 @@ internal sealed partial class AdminPortal
         Secure(context);
         return Results.Content(
             "<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta http-equiv=\"refresh\" content=\"0;url=/admin\">" +
-            "<title>Signed in</title><link rel=\"stylesheet\" href=\"/admin/assets/admin.css\"></head><body><main id=\"main\">" +
+            $"<title>Signed in</title><link rel=\"stylesheet\" href=\"{H(Web.WebHtml.AssetUrl("/web/assets/site.css"))}\"><link rel=\"stylesheet\" href=\"{H(Web.WebHtml.AssetUrl("/admin/assets/admin.css"))}\"></head><body class=\"admin\"><main id=\"main\">" +
             "<p><a href=\"/admin\">Continue to the admin portal</a></p></main></body></html>",
             "text/html; charset=utf-8", Encoding.UTF8);
     }

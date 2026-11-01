@@ -125,6 +125,31 @@ public sealed class MasterClient : IDisposable
     public Task<ProfileData> PutProfileAsync(ProfileData profile, CancellationToken cancellationToken = default) =>
         SendAsync<ProfileData>(HttpMethod.Put, MasterApi.ProfilePath, profile, cancellationToken);
 
+    public Task<AccountAppearance> AppearanceAsync(CancellationToken cancellationToken = default) =>
+        SendAsync<AccountAppearance>(HttpMethod.Get, MasterApi.AppearancePath, null, cancellationToken);
+
+    /// <summary>Saves an appearance; validation/conflict results include the current version, without throwing.</summary>
+    public async Task<AppearanceUpdateResult> UpdateAppearanceAsync(AppearanceUpdateRequest appearance, CancellationToken cancellationToken = default)
+    {
+        using HttpRequestMessage message = Request(HttpMethod.Put, MasterApi.AppearancePath, appearance);
+        using HttpResponseMessage response = await Send(message, cancellationToken).ConfigureAwait(false);
+        if (response.StatusCode is not (HttpStatusCode.Conflict or HttpStatusCode.BadRequest))
+        {
+            await EnsureOk(response, cancellationToken).ConfigureAwait(false);
+        }
+
+        AppearanceUpdateResult result = await Read<AppearanceUpdateResult>(response, cancellationToken).ConfigureAwait(false);
+        // Middleware and older masters can return an ordinary error object on this path. It is not an
+        // appearance snapshot, and must never become an empty selection offered by the Reload action.
+        if (result.Appearance is not { Revision: > 0 } || result.Appearance.Spy is null || result.Appearance.Merc is null ||
+            (!response.IsSuccessStatusCode && result.Success))
+        {
+            throw new MasterException(result.Error ?? "The master returned an invalid appearance response.", (int)response.StatusCode);
+        }
+
+        return result;
+    }
+
     /// <summary>
     /// A trusted server's finished round (needs <see cref="ServerKey"/>). The answer carries the stored round's id;
     /// it is empty (no id) from masters before demos.
