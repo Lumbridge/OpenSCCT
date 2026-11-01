@@ -215,8 +215,9 @@ public partial class CombatFxView : Node3D
         {
             Flash f = _flashes[i];
             f.Age += dt;
-            if (f.Age >= f.Life)
+            if (f.Age >= f.Life || (f.FirstPerson && viewer is { bBinocularVision: true }))
             {
+                f.Node.Visible = false;
                 f.Node.QueueFree();
                 _flashes.RemoveAt(i);
                 continue;
@@ -273,14 +274,17 @@ public partial class CombatFxView : Node3D
         if (p.Kind == SpawnSFX)
         {
             // The local merc's first-person rifle.
+            if (viewer is { bBinocularVision: true })
+            {
+                // The scope hides the rifle; its muzzle flash must not cover the sight either.
+                return;
+            }
+
             cameraRotation.GetAxes(out FVector x, out FVector y, out FVector z);
-            // Scoped, the view model is hidden (s_Sniping AnimEnd clears bDrawWeapon) and its bones hold a stale pose,
-            // so the flash sits on the aim line in the middle of the scope.
-            bool scoped = viewer is { bBinocularVision: true };
-            FVector muzzle = scoped ? cameraLocation + (x * 60f) : cameraLocation + (x * 60f) + (y * 9f) - (z * 9f);
+            FVector muzzle = cameraLocation + (x * 60f) + (y * 9f) - (z * 9f);
             at = UeSpace.ToGodot(muzzle);
             forward = UeSpace.DirectionToGodot(x);
-            if (!scoped && FirstPerson is { Shown: true, Model: { } model } && model.Skeleton.FindBone(BoneFx.ToString()) is var fx and >= 0)
+            if (FirstPerson is { Shown: true, Model: { } model } && model.Skeleton.FindBone(BoneFx.ToString()) is var fx and >= 0)
             {
                 at = (model.Skeleton.GlobalTransform * model.Skeleton.GetBoneGlobalPose(fx)).Origin;
             }
@@ -327,7 +331,11 @@ public partial class CombatFxView : Node3D
             Visible = !meshes,
         };
         node.AddChild(quad);
-        _flashes.Add(new Flash(node, light, quad, light.LightEnergy, 0.1f) { WorldLights = MuzzleLights(p.Kind, UeSpace.ToUe(at)) });
+        _flashes.Add(new Flash(node, light, quad, light.LightEnergy, 0.1f)
+        {
+            FirstPerson = p.Kind == SpawnSFX,
+            WorldLights = MuzzleLights(p.Kind, UeSpace.ToUe(at)),
+        });
         MuzzleFlashes++;
         LastFlashAt = at;
         string kind = p.Kind.ToString();
@@ -785,6 +793,8 @@ public partial class CombatFxView : Node3D
         public float Life { get; } = life;
 
         public float Age { get; set; }
+
+        public bool FirstPerson { get; init; }
 
         public LightEntry[] WorldLights { get; init; } = [];
     }
