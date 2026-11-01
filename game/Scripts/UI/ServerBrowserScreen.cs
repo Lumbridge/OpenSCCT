@@ -121,7 +121,7 @@ public partial class ServerBrowserScreen : MenuPage
     {
         Name = "ServerBrowser";
         // The list takes the screen's whole width (less the page margins), so long server and map names fit.
-        BuildFrame("Sessions", Mathf.Max(1120f, GetViewportRect().Size.X - 72f));
+        BuildFrame("Sessions", GetViewportRect().Size.X - 72f);
         _service = OnlineService.Get(GetTree());
         OnlineSettings settings = OnlineSettings.Current;
         VBoxContainer column = Body;
@@ -136,7 +136,8 @@ public partial class ServerBrowserScreen : MenuPage
         masterRow.AddChild(RefreshButton);
         column.AddChild(masterRow);
 
-        Table = new Tree { Name = "Servers", Columns = 8, HideRoot = true, ColumnTitlesVisible = true, CustomMinimumSize = new Vector2(1080f, 380f), SizeFlagsHorizontal = SizeFlags.ExpandFill, SelectMode = Tree.SelectModeEnum.Row };
+        // Keep the table inside the page. Its own scrollbar exposes the less frequently used columns on small windows.
+        Table = new Tree { Name = "Servers", Columns = 8, HideRoot = true, ColumnTitlesVisible = true, CustomMinimumSize = new Vector2(0f, 380f), SizeFlagsHorizontal = SizeFlags.ExpandFill, SelectMode = Tree.SelectModeEnum.Row };
         string[] titles = ["Server", "Map", "Mode", "Players", "Ping", "State", "Reached by", "Joinable"];
         for (int i = 0; i < titles.Length; i++)
         {
@@ -307,6 +308,9 @@ public partial class ServerBrowserScreen : MenuPage
     public override void _Process(double delta)
     {
         base._Process(delta);
+        PreferredBodyWidth = AvailableBodyWidth;
+        if (Table is not null)
+            Table.CustomMinimumSize = new Vector2(0f, Math.Max(220f, GetViewportRect().Size.Y - 390f));
         bool changed = false;
         if (_query is { } query)
         {

@@ -93,6 +93,26 @@ and the session's player list); nothing new travels.
 The main menu's Quit asks first (GUI.ConfirmQuitPage, `ConfirmBox`): "Are you sure you want to quit?", Cancel or
 Quit Game; Escape cancels.
 
+## Screen sizes and resizing
+
+Menu pages fit their content width to the viewport, with centered reading widths and footer actions on wide screens.
+Narrow windows stack session rule groups, lobby columns, cosmetic lists/details and tutorial panels; long pages
+scroll vertically. Options keeps Apply/Back and the binding explanation visible while the settings and bindings
+scroll. The full-screen map chooser uses the remaining modal height in both picture and list modes, and its grid
+recalculates columns when a window shrinks. The Sessions table keeps its column widths and scrolls internally on
+small screens.
+
+The `menu-layout`, `options`, `lobby-layout` and `front-end-layout` smokes cover 800×600, 1024×768, 1280×720,
+1280×800, 1920×1080, 2560×1440, 3440×1440, 3840×1080 and 3840×2160. The options, lobby and front-end checks also
+resize existing controls back down after 4K. They check control bounds, text, footer visibility and map scrolling;
+windowed runs save images with `SVM_PLAY_SHOTS`. These checks cover the standard fixture states, rather than every
+possible signed-in account, server listing or cosmetic unlock state. Demos is not opened by the layout smoke because
+opening it prunes the player's old demo cache.
+
+```powershell
+tools/ci/godot-smoke.ps1 -Tests menu-layout,options,lobby-layout,front-end-layout -ExpectedFailures @()
+```
+
 ## Menu music and sounds
 
 The menus play the original's menu-level music (`game/Scripts/Audio/FrontEndAudio.cs`, docs/AUDIO.md "Front end"):

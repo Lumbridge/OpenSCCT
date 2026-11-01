@@ -52,7 +52,7 @@ public partial class StatsScreen : MenuPage
         Refresh();
     }
 
-    private void FitWidth() => Body.CustomMinimumSize = new Vector2(Math.Clamp(GetViewportRect().Size.X - 80, 280, 900), 0);
+    private void FitWidth() => PreferredBodyWidth = Math.Min(AvailableBodyWidth, 900f);
 
     public override void _ExitTree()
     {

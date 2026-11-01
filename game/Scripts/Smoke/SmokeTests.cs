@@ -26,7 +26,7 @@ public static class SmokeTests
             RangeTraversalSmoke.TestName, RangeMotionSmoke.TestName, RangeBotsSmoke.TestName, RangeSimSmoke.TestName,
             PlayShockerSmoke.TestName, PlayMotionSmoke.TestName, PlayMercSmoke.TestName, PlaySidearmSmoke.TestName, SidearmMenuSmoke.TestName, SmoothSmoke.TestName,
             MapShotsSmoke.TestName, PlayReticleSmoke.TestName, AnimBonesSmoke.TestName, PlayHitchSmoke.TestName, PlayLasersSmoke.TestName,
-            FrameRateSmoke.TestName, GoggleGlowSmoke.TestName, LobbyLayoutSmoke.TestName, OptionsSmoke.TestName, MenuLayoutSmoke.TestName, MenuArtSmoke.TestName, PlayHurtSmoke.TestName, Hub.HubSmoke.TestName];
+            FrameRateSmoke.TestName, GoggleGlowSmoke.TestName, LobbyLayoutSmoke.TestName, OptionsSmoke.TestName, FrontEndLayoutSmoke.TestName, MenuLayoutSmoke.TestName, MenuArtSmoke.TestName, PlayHurtSmoke.TestName, Hub.HubSmoke.TestName];
 
     public static SmokeTest? Create(string name) => name switch
     {
@@ -63,6 +63,7 @@ public static class SmokeTests
         SidearmMenuSmoke.TestName => new SidearmMenuSmoke(),
         LobbyLayoutSmoke.TestName => new LobbyLayoutSmoke(),
         OptionsSmoke.TestName => new OptionsSmoke(),
+        FrontEndLayoutSmoke.TestName => new FrontEndLayoutSmoke(),
         StatsSmoke.TestName => new StatsSmoke(),
         MenuLayoutSmoke.TestName => new MenuLayoutSmoke(),
         MenuArtSmoke.TestName => new MenuArtSmoke(),

@@ -487,7 +487,7 @@ public partial class AccountScreen : MenuPage
         PlayerRank rank = RankBadge.OfAccount(info);
         rankPanel.AddChild(new RankBadge(72, 26) { Name = "Badge" }.Show(rank, withTitle: true));
 
-        var bar = new UiProgress { Name = "XpBar", Value = rank.Fraction, Fill = RankIcons.ColourOf(rank), CustomMinimumSize = new Vector2(700f, 8f) };
+        var bar = new UiProgress { Name = "XpBar", Value = rank.Fraction, Fill = RankIcons.ColourOf(rank), CustomMinimumSize = new Vector2(0f, 8f) };
         rankPanel.AddChild(bar);
         rankPanel.AddChild(Text(rank.AtCap
             ? string.Create(CultureInfo.InvariantCulture, $"Level {ProgressionK.MaxLevel}: the top of this prestige.    {progress.TotalXp:N0} XP in all")
@@ -602,7 +602,7 @@ public partial class AccountScreen : MenuPage
 
     private static Label Text(string text) => new()
     {
-        Text = text, AutowrapMode = TextServer.AutowrapMode.WordSmart, CustomMinimumSize = new Vector2(700f, 0f),
+        Text = text, AutowrapMode = TextServer.AutowrapMode.WordSmart,
     };
 
     private void ShowStatus(string text)

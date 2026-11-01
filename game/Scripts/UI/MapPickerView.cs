@@ -42,8 +42,10 @@ public partial class MapPickerView : VBoxContainer
         BuildFilterBar(maps, playlist, playlistChosen);
         var scroll = new ScrollContainer
         {
-            Name = "MapScroll", CustomMinimumSize = new Vector2(0f, height), HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled,
+            // Do not propagate the grid's previous column widths as a minimum when the window shrinks.
+            Name = "MapScroll", CustomMinimumSize = new Vector2(0f, height), HorizontalScrollMode = ScrollContainer.ScrollMode.ShowNever,
             SizeFlagsHorizontal = SizeFlags.ExpandFill,
+            SizeFlagsVertical = SizeFlags.ExpandFill,
         };
         AddChild(scroll);
         scroll.AddChild(Grid);

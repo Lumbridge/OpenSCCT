@@ -29,8 +29,8 @@ public partial class LobbyRoomScreen
         _mapCatalog = GetTree().Root.GetNodeOrNull<OpenScctGame.Online.OnlineService>(OpenScctGame.Online.OnlineService.NodeName)?.Catalog.Maps;
         BuildMapFetchBar();
         // GUI.Lobby_Create: teams flank the central actions; map below left, chat below right.
-        // Keep these landmarks in place at 1024px too instead of stacking the teams.
-        var teams = new HBoxContainer { Name = "LobbyTeams" };
+        // Keep these landmarks at 1024px; stack them when a smaller screen cannot fit readable player rows.
+        var teams = new LobbyColumns { Name = "LobbyTeams" };
         teams.AddThemeConstantOverride("separation", 12);
         Body.AddChild(teams);
         var spies = new VBoxContainer { SizeFlagsHorizontal = SizeFlags.ExpandFill };
@@ -56,7 +56,7 @@ public partial class LobbyRoomScreen
         SpectateButton = LobbyPanels.Button("Spectate", session.Spectate, "Spectate"); SpectateButton.SizeFlagsHorizontal = SizeFlags.ExpandFill; sideActions.AddChild(SpectateButton);
 
         foreach (Control action in actions.GetChildren()) action.CustomMinimumSize = new Vector2(0, 32);
-        var lower = new HBoxContainer { Name = "LobbyDetails", SizeFlagsVertical = SizeFlags.ExpandFill };
+        var lower = new LobbyColumns { Name = "LobbyDetails", SizeFlagsVertical = SizeFlags.ExpandFill };
         lower.AddThemeConstantOverride("separation", 12);
         Body.AddChild(lower);
         var left = new VBoxContainer { SizeFlagsHorizontal = SizeFlags.ExpandFill };
@@ -124,7 +124,7 @@ public partial class LobbyRoomScreen
         body.AddChild(_settingsDraftNote);
         var scroll = new ScrollContainer { HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled, SizeFlagsVertical = SizeFlags.ExpandFill };
         body.AddChild(scroll); scroll.AddChild(ParameterRows!);
-        var buttons = new HBoxContainer(); body.AddChild(buttons);
+        var buttons = new HFlowContainer { Name = "SettingsButtons" }; body.AddChild(buttons);
         MapsButton = LobbyPanels.Button("Choose map", OpenMaps, "Maps"); buttons.AddChild(MapsButton);
         AlternateButton = LobbyPanels.Button("Alternate rules", OpenAlternate, "Alternate"); buttons.AddChild(AlternateButton);
         ApplyButton = LobbyPanels.Button("Apply changes", Apply, "Apply"); buttons.AddChild(ApplyButton);

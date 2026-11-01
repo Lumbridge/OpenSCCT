@@ -30,6 +30,8 @@ public partial class ArmouryScreen : MenuPage
 
     private ScrollContainer? _listScroll;
     private ScrollContainer? _kitScroll;
+    private BoxContainer? _split;
+    private readonly List<GridContainer> _itemGrids = new();
     private VBoxContainer? _content;
     private VBoxContainer? _kit;
     private CosmeticPreview? _preview;
@@ -57,22 +59,26 @@ public partial class ArmouryScreen : MenuPage
         _service = AccountService.Get(GetTree());
         _service.AppearanceChanged += OnAppearanceChanged;
         Body.AddChild(new AppearanceSyncPanel());
-        var sides = new HBoxContainer { Name = "Sides" };
-        sides.AddChild(UiStyle.MenuButton("Spy", () => ShowSide(CosmeticSide.Spy), "SideSpy"));
-        sides.AddChild(UiStyle.MenuButton("Mercenary", () => ShowSide(CosmeticSide.Merc), "SideMerc"));
-        sides.AddChild(new Control { SizeFlagsHorizontal = SizeFlags.ExpandFill });
+        var sides = new HFlowContainer { Name = "Sides" };
+        foreach (var (title, side) in new[] { ("Spy", CosmeticSide.Spy), ("Mercenary", CosmeticSide.Merc) })
+        {
+            var button = UiStyle.MenuButton(title, () => ShowSide(side), "Side" + (side == CosmeticSide.Spy ? "Spy" : "Merc"));
+            button.CustomMinimumSize = new Vector2(120f, 44f);
+            sides.AddChild(button);
+        }
         sides.AddChild(VisibilityBox("HideOthers", "Hide others' cosmetics", SettingsStore.Current.CosmeticsHideOthers,
             (s, on) => s.CosmeticsHideOthers = on));
         sides.AddChild(VisibilityBox("HideMine", "Hide my cosmetics from others", SettingsStore.Current.CosmeticsHideMine,
             (s, on) => s.CosmeticsHideMine = on));
         Body.AddChild(sides);
 
-        var split = new HBoxContainer { Name = "Split" };
+        var split = _split = new BoxContainer { Name = "Split" };
         split.AddThemeConstantOverride("separation", 20);
         Body.AddChild(split);
         _listScroll = new ScrollContainer
         {
             Name = "ListScroll", CustomMinimumSize = new Vector2(ListWidth, 0f), HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled,
+            SizeFlagsHorizontal = SizeFlags.ExpandFill,
         };
         split.AddChild(_listScroll);
         _content = new VBoxContainer { Name = "Content", SizeFlagsHorizontal = SizeFlags.ExpandFill };
@@ -82,6 +88,7 @@ public partial class ArmouryScreen : MenuPage
         _kitScroll = new ScrollContainer
         {
             Name = "KitScroll", CustomMinimumSize = new Vector2(KitWidth, 0f), HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled,
+            SizeFlagsHorizontal = SizeFlags.ExpandFill,
         };
         split.AddChild(_kitScroll);
         var kitFrame = new VBoxContainer { Name = "KitFrame", SizeFlagsHorizontal = SizeFlags.ExpandFill };
@@ -100,7 +107,6 @@ public partial class ArmouryScreen : MenuPage
             PageButton("Achievements", () => FrontEnd.ShowAchievements(GetTree()), "Achievements");
         }
 
-        GetViewport().SizeChanged += FitHeight;
         FitHeight();
         if (AccountService.HasMaster && AccountSettings.Current.SignedIn)
         {
@@ -113,10 +119,6 @@ public partial class ArmouryScreen : MenuPage
     public override void _ExitTree()
     {
         if (_service is not null) _service.AppearanceChanged -= OnAppearanceChanged;
-        if (GetViewport() is { } viewport)
-        {
-            viewport.SizeChanged -= FitHeight;
-        }
     }
 
     private void OnAppearanceChanged()
@@ -127,6 +129,7 @@ public partial class ArmouryScreen : MenuPage
     public override void _Process(double delta)
     {
         base._Process(delta);
+        FitHeight();
         if (_refresh is { IsCompleted: true } refresh)
         {
             _refresh = null;
@@ -161,9 +164,15 @@ public partial class ArmouryScreen : MenuPage
     /// <summary>The list and the kit panel fill the window's height between the side switch and the page buttons.</summary>
     private void FitHeight()
     {
-        float height = Math.Max(320f, GetViewportRect().Size.Y - ChromeHeight);
-        _listScroll!.CustomMinimumSize = new Vector2(ListWidth, height);
-        _kitScroll!.CustomMinimumSize = new Vector2(KitWidth, height);
+        if (_split is null || _listScroll is null || _kitScroll is null) return;
+        float width = Math.Min(BodyWidth, AvailableBodyWidth);
+        bool stacked = width < BodyWidth;
+        _split.Vertical = stacked;
+        float height = Math.Max(240f, GetViewportRect().Size.Y - ChromeHeight);
+        _listScroll.CustomMinimumSize = new Vector2(stacked ? 0f : ListWidth, height);
+        _kitScroll.CustomMinimumSize = new Vector2(stacked ? 0f : KitWidth, height);
+        int columns = (stacked ? width : ListWidth) >= 680f ? 2 : 1;
+        foreach (var grid in _itemGrids) grid.Columns = columns;
     }
 
     private void BuildKit()
@@ -172,8 +181,9 @@ public partial class ArmouryScreen : MenuPage
         frame.AddThemeStyleboxOverride("panel", UiStyle.ThumbBox());
         _kit!.AddChild(frame);
         _preview = new CosmeticPreview(new Vector2(KitWidth - 44f, 330f));
+        _preview.CustomMinimumSize = new Vector2(0f, 330f);
         frame.AddChild(_preview);
-        _viewName = new Label { Name = "ViewName", Modulate = UiStyle.MenuFocus, HorizontalAlignment = HorizontalAlignment.Center };
+        _viewName = new Label { Name = "ViewName", Modulate = UiStyle.MenuFocus, HorizontalAlignment = HorizontalAlignment.Center, AutowrapMode = TextServer.AutowrapMode.WordSmart };
         _kit.AddChild(_viewName);
         _views = new HFlowContainer { Name = "Views" };
         _views.AddThemeConstantOverride("h_separation", 6);
@@ -187,7 +197,7 @@ public partial class ArmouryScreen : MenuPage
         var hint = new Label
         {
             Text = "Point at an item to try it on. Drag the model to turn it.", Modulate = UiStyle.Dim,
-            AutowrapMode = TextServer.AutowrapMode.WordSmart, CustomMinimumSize = new Vector2(KitWidth - 44f, 0f),
+            AutowrapMode = TextServer.AutowrapMode.WordSmart,
         };
         hint.AddThemeFontSizeOverride("font_size", 13);
         _kit.AddChild(hint);
@@ -202,6 +212,7 @@ public partial class ArmouryScreen : MenuPage
 
         _side = side;
         _tryOn = null;
+        _itemGrids.Clear();
         foreach (Node child in _content!.GetChildren())
         {
             _content.RemoveChild(child);
@@ -222,6 +233,7 @@ public partial class ArmouryScreen : MenuPage
         {
             VBoxContainer panel = Panel(_content, "Slot" + slot, CosmeticCatalog.SlotName(slot, side));
             var grid = new GridContainer { Name = "Items", Columns = 2 };
+            _itemGrids.Add(grid);
             grid.AddThemeConstantOverride("h_separation", 6);
             grid.AddThemeConstantOverride("v_separation", 4);
             panel.AddChild(grid);
@@ -234,6 +246,7 @@ public partial class ArmouryScreen : MenuPage
         }
 
         RefreshKit();
+        FitHeight();
     }
 
     private Button ItemButton(CosmeticSide side, CosmeticSlot slot, CosmeticItem? item, bool chosen, bool open, AchievementInfo? from)
@@ -246,7 +259,9 @@ public partial class ArmouryScreen : MenuPage
         }
 
         Button b = UiStyle.MenuButton(text, () => Choose(side, slot, item), "Item" + (item?.Id ?? slot + ".retail").Replace('.', '_'));
-        b.CustomMinimumSize = new Vector2(340f, 44f);
+        b.CustomMinimumSize = new Vector2(300f, 44f);
+        b.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+        b.ClipText = true;
         b.Alignment = HorizontalAlignment.Left;
         b.Disabled = !open;
         b.Icon = item is null ? null : CosmeticThumbs.For(item, ThumbSize);
@@ -344,7 +359,8 @@ public partial class ArmouryScreen : MenuPage
             };
             row.AddChild(icon);
             row.AddChild(new Label { Text = CosmeticCatalog.SlotName(slot, _side), Modulate = UiStyle.Dim, CustomMinimumSize = new Vector2(130f, 0f) });
-            row.AddChild(new Label { Text = chosen[slot]?.Name ?? "Retail", Modulate = UiStyle.MenuText });
+            row.AddChild(new Label { Text = chosen[slot]?.Name ?? "Retail", Modulate = UiStyle.MenuText,
+                AutowrapMode = TextServer.AutowrapMode.WordSmart, SizeFlagsHorizontal = SizeFlags.ExpandFill });
             _equipped.AddChild(row);
         }
     }
@@ -389,7 +405,7 @@ public partial class ArmouryScreen : MenuPage
 
     private static Label Note(string text) => new()
     {
-        Text = text, AutowrapMode = TextServer.AutowrapMode.WordSmart, CustomMinimumSize = new Vector2(ListWidth - 40f, 0f),
+        Text = text, AutowrapMode = TextServer.AutowrapMode.WordSmart,
         Modulate = UiStyle.MenuFocus,
     };
     private static string LevelSkinRequirement(CosmeticItem? item)

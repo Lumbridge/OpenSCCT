@@ -31,6 +31,8 @@ public partial class StrategicMapScreen : MenuPage
     private readonly StrategicMapModel _model;
     private StrategicMapView? _view;
     private Label? _floor;
+    private BoxContainer? _row;
+    private Control? _floors, _legend;
     private double _timer;
 
     public StrategicMapScreen(StrategicMapData data)
@@ -53,15 +55,17 @@ public partial class StrategicMapScreen : MenuPage
     [PortOf("def:GUI.StrategicMap", Spec = "spec/hud/strategic-map.md#rules")]
     public override void _Ready()
     {
-        BuildFrame(PageTitle, 1000f);
+        BuildFrame(PageTitle, 1320f);
         float side = Math.Clamp(GetViewportRect().Size.Y * 0.58f, 256f, 760f);
 
-        var row = new HBoxContainer { Name = "Row", Alignment = BoxContainer.AlignmentMode.Center };
+        var row = new BoxContainer { Name = "Row", Alignment = BoxContainer.AlignmentMode.Center };
+        _row = row;
         row.AddThemeConstantOverride("separation", 24);
         Body.AddChild(row);
 
         // GUI.StrategicMap: Up above Down, at the picture's lower left; shown only for a map with more than one floor.
         var floors = new VBoxContainer { Name = "Floors", CustomMinimumSize = new Vector2(150f, 0f), SizeFlagsVertical = SizeFlags.ShrinkEnd };
+        _floors = floors;
         floors.AddThemeConstantOverride("separation", 8);
         row.AddChild(floors);
         if (_model.HasFloorButtons)
@@ -76,6 +80,7 @@ public partial class StrategicMapScreen : MenuPage
         row.AddChild(_view);
 
         VBoxContainer legend = Panel(row, "Legend", null, 300f);
+        _legend = legend.GetParent<Control>();
         legend.GetParent<Control>().SizeFlagsVertical = SizeFlags.ShrinkBegin;
         legend.AddChild(new Label
         {
@@ -93,6 +98,16 @@ public partial class StrategicMapScreen : MenuPage
     public override void _Process(double delta)
     {
         base._Process(delta);
+        if (_row is not null && _view is not null && _floors is not null && _legend is not null)
+        {
+            float width = Math.Min(PreferredBodyWidth, AvailableBodyWidth);
+            float reserved = _floors.GetCombinedMinimumSize().X + _legend.GetCombinedMinimumSize().X + 2 * _row.GetThemeConstant("separation");
+            _row.Vertical = width < reserved + 400f;
+            float side = Math.Min(Math.Clamp(GetViewportRect().Size.Y * 0.58f, 256f, 760f),
+                _row.Vertical ? width : Math.Max(1f, width - reserved));
+            _view.CustomMinimumSize = new Vector2(side, side);
+            _view.SizeFlagsHorizontal = SizeFlags.ShrinkCenter;
+        }
         _timer += delta;
         if (_timer < StrategicMapModel.TimerSeconds)
         {

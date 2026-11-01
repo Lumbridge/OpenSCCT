@@ -59,11 +59,11 @@ public partial class VisitMapScreen : MenuPage
         VBoxContainer mapColumn = Panel(row, "Maps", TutorialText.Caption(Section, "ImageMap.Caption", "Choose Map"));
         mapColumn.SizeFlagsHorizontal = SizeFlags.ExpandFill;
         ((Control)mapColumn.GetParent()).SizeFlagsHorizontal = SizeFlags.ExpandFill;
-        _mapName = new Label { Name = "MapName", Modulate = UiStyle.MenuFocus };
+        _mapName = new Label { Name = "MapName", Modulate = UiStyle.MenuFocus, AutowrapMode = TextServer.AutowrapMode.WordSmart };
         mapColumn.AddChild(_mapName);
         var scroll = _scroll = new ScrollContainer
         {
-            Name = "MapScroll", CustomMinimumSize = new Vector2(0f, 360f), HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled,
+            Name = "MapScroll", CustomMinimumSize = new Vector2(0f, 360f), HorizontalScrollMode = ScrollContainer.ScrollMode.ShowNever,
             SizeFlagsHorizontal = SizeFlags.ExpandFill,
         };
         mapColumn.AddChild(scroll);
@@ -81,7 +81,7 @@ public partial class VisitMapScreen : MenuPage
 
         if (visitable.Count == 0)
         {
-            mapColumn.AddChild(new Label { Text = "No converted map to visit (convert the maps first).", Modulate = UiStyle.Dim });
+            mapColumn.AddChild(new Label { Text = "No converted map to visit (convert the maps first).", Modulate = UiStyle.Dim, AutowrapMode = TextServer.AutowrapMode.WordSmart });
         }
 
         PageButton("Back", () => TutorialsScreen.Show(GetTree()), "Back");
@@ -93,25 +93,22 @@ public partial class VisitMapScreen : MenuPage
             : visitable.Count > 0 ? visitable[0].Id : null;
         Select(pick);
         ShowSide();
-        GetViewport().SizeChanged += Fit;
         Fit();
         _launch.GrabFocus();
     }
 
-    public override void _ExitTree()
+    public override void _Process(double delta)
     {
-        if (GetViewport() is { } viewport)
-        {
-            viewport.SizeChanged -= Fit;
-        }
+        base._Process(delta);
+        Fit();
     }
 
     /// <summary>The page fills the window: the body spans most of its width and the map list the height left over.</summary>
     private void Fit()
     {
         Vector2 size = GetViewportRect().Size;
-        Body.CustomMinimumSize = new Vector2(Math.Max(1100f, size.X - 160f), 0f);
-        _scroll!.CustomMinimumSize = new Vector2(0f, Math.Max(360f, size.Y - ChromeHeight));
+        PreferredBodyWidth = AvailableBodyWidth;
+        _scroll!.CustomMinimumSize = new Vector2(0f, Math.Max(240f, size.Y - ChromeHeight));
     }
 
     /// <summary>The maps a visit can play: the host list's maps with Story that this machine can render.</summary>

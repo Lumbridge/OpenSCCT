@@ -24,6 +24,7 @@ public partial class SessionRowsView : VBoxContainer
     private Label? _hint;
     private LineEdit? _password;
     private bool _editable = true;
+    private BoxContainer? _columns;
 
     /// <param name="compact">The lobby's layout (<see cref="BuildCompact"/>) instead of the page's three rule boxes.</param>
     public SessionRowsView(CreateSessionModel model, IReadOnlyCollection<SessionRow> rows, bool showPassword, bool compact = false)
@@ -80,7 +81,8 @@ public partial class SessionRowsView : VBoxContainer
 
         var top = new VBoxContainer { Name = "MapMode" };
         var session = new VBoxContainer { Name = "Session" };
-        var boxes = new HBoxContainer { Name = "RuleBoxes" };
+        var boxes = new BoxContainer { Name = "RuleBoxes" };
+        _columns = boxes;
         boxes.AddThemeConstantOverride("separation", 12);
         AddChild(top);
         AddChild(session);
@@ -127,6 +129,7 @@ public partial class SessionRowsView : VBoxContainer
         AddChild(top);
         AddChild(new Control { Name = "Gap", CustomMinimumSize = new Vector2(0f, 6f) });
         var columns = new BoxContainer { Name = "Columns" };
+        _columns = columns;
         columns.AddThemeConstantOverride("separation", 32);
         AddChild(columns);
         VBoxContainer match = CompactColumn(columns, "Match");
@@ -194,7 +197,7 @@ public partial class SessionRowsView : VBoxContainer
         return false;
     }
 
-    private static VBoxContainer Box(HBoxContainer parent, string name)
+    private static VBoxContainer Box(BoxContainer parent, string name)
     {
         var frame = new PanelContainer { Name = name, SizeFlagsHorizontal = SizeFlags.ExpandFill };
         frame.AddThemeStyleboxOverride("panel", UiStyle.MenuPanelBox());
@@ -275,10 +278,11 @@ public partial class SessionRowsView : VBoxContainer
             var value = new Label
             {
                 Name = row + "Value", HorizontalAlignment = HorizontalAlignment.Center,
-                SizeFlagsHorizontal = _compact && !wide ? SizeFlags.ExpandFill : SizeFlags.Fill,
+                SizeFlagsHorizontal = wide || _compact ? SizeFlags.ExpandFill : SizeFlags.Fill,
+                AutowrapMode = wide ? TextServer.AutowrapMode.WordSmart : TextServer.AutowrapMode.Off,
                 CustomMinimumSize = new Vector2(
                     _compact ? (wide ? 280f : 0f) : row is SessionRow.Map ? 300f : row is SessionRow.Mode or SessionRow.VoiceChat ? 170f : 44f, 0f),
-                // Sized to its text (an overrun behaviour would let the row shrink it to "ENHANCED STEEL SQU...").
+                // Long map names wrap on narrow windows instead of being ellipsized or widening the page.
             };
             cell.AddChild(value);
             _values[row] = value;
@@ -333,6 +337,11 @@ public partial class SessionRowsView : VBoxContainer
 
     public override void _Process(double delta)
     {
+        if (_columns is not null)
+        {
+            // Use the viewport, not our minimum-inflated width, so a row can recover after shrinking.
+            _columns.Vertical = GetViewportRect().Size.X < 1200f;
+        }
         if (Blink is null)
         {
             return;

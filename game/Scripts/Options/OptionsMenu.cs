@@ -23,6 +23,10 @@ public partial class OptionsMenu : Control
     private Label? _note;
     private string? _listening;
     private TabContainer? _tabs;
+    private Control? _frame;
+    private VBoxContainer? _column;
+    private readonly List<GridContainer> _settingsGrids = new();
+    private Vector2 _layoutSize = new(-1, -1);
 
     public OptionsMenu()
     {
@@ -67,8 +71,10 @@ public partial class OptionsMenu : Control
 
     public override void _Process(double delta)
     {
+        UpdateLayout();
         UpdateVoicePage();
         TickKeep();
+        if (_note is not null) _note.Visible = !string.IsNullOrWhiteSpace(_note.Text);
         if (_dirtyLabel is not null) _dirtyLabel.Text = HasUnsavedChanges ? "Unsaved changes" : "All changes applied";
     }
 
@@ -123,7 +129,7 @@ public partial class OptionsMenu : Control
             column.AddChild(player);
         }
 
-        _tabs = new TabContainer { Name = "Tabs", CustomMinimumSize = new Vector2(0f, 440f), SizeFlagsVertical = SizeFlags.ExpandFill };
+        _tabs = new TabContainer { Name = "Tabs", SizeFlagsVertical = SizeFlags.ExpandFill };
         _tabs.AddChild(RolePage(PlaySide.Spy));
         _tabs.AddChild(RolePage(PlaySide.Merc));
         _tabs.AddChild(PadPage());
@@ -153,6 +159,8 @@ public partial class OptionsMenu : Control
 
         column.AddChild(buttons);
         LoadLayout(_bindingSide);
+        _layoutSize = new Vector2(-1, -1);
+        UpdateLayout();
     }
 
     /// <summary>
@@ -163,9 +171,10 @@ public partial class OptionsMenu : Control
     {
         var frame = new Control
         {
-            Name = "Frame", AnchorLeft = 0.08f, AnchorRight = 0.92f, AnchorTop = 0.04f, AnchorBottom = 0.96f,
-            CustomMinimumSize = new Vector2(860f, 0f),
+            Name = "Frame", AnchorLeft = 0.5f, AnchorRight = 0.5f, AnchorBottom = 1f,
+            OffsetTop = 16f, OffsetBottom = -16f,
         };
+        _frame = frame;
         AddChild(frame);
         var fill = new ColorRect { Name = "Fill", Color = UiStyle.Background with { A = 0.96f }, MouseFilter = MouseFilterEnum.Ignore };
         fill.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
@@ -177,16 +186,54 @@ public partial class OptionsMenu : Control
         var margin = new MarginContainer { Name = "Margin" };
         foreach (string side in new[] { "margin_left", "margin_right" })
         {
-            margin.AddThemeConstantOverride(side, 24);
+            margin.AddThemeConstantOverride(side, 12);
         }
 
         margin.AddThemeConstantOverride("margin_top", 8);
         margin.AddThemeConstantOverride("margin_bottom", 16);
         panel.AddChild(margin);
         var column = new VBoxContainer { Name = "Column" };
+        _column = column;
         column.AddThemeConstantOverride("separation", 10);
         margin.AddChild(column);
         return column;
+    }
+
+    private float FrameWidth => MathF.Min(1500f, MathF.Max(0f, Size.X - 32f));
+
+    /// <summary>Keep controls readable on narrow windows without spreading settings across an ultrawide screen.</summary>
+    private void UpdateLayout()
+    {
+        if (_frame is null || _layoutSize == Size) return;
+        _layoutSize = Size;
+        float width = FrameWidth;
+        _column?.AddThemeConstantOverride("separation", Size.Y < 720f ? 6 : 10);
+        _frame.OffsetLeft = -width / 2f;
+        _frame.OffsetRight = width / 2f;
+        // Leave room for the panel, nested tabs, scroll bar and the numeric value column.
+        float flexible = MathF.Max(360f, width - 272f);
+        float labelWidth = MathF.Min(300f, flexible * 0.46f);
+        float inputWidth = MathF.Min(320f, flexible * 0.54f);
+        foreach (GridContainer grid in _settingsGrids)
+        {
+            if (!IsInstanceValid(grid) || grid.IsQueuedForDeletion()) continue;
+            int index = 0;
+            foreach (Node node in grid.GetChildren())
+            {
+                if (node is not Control control) continue;
+                int column = index++ % 3;
+                if (column == 2) continue;
+                if (!control.HasMeta("wide_minimum_width"))
+                    control.SetMeta("wide_minimum_width", control.CustomMinimumSize.X);
+                float normal = (float)control.GetMeta("wide_minimum_width");
+                if (normal >= 220f)
+                    control.CustomMinimumSize = new Vector2(MathF.Min(normal, column == 0 ? labelWidth : inputWidth), control.CustomMinimumSize.Y);
+                if (control is Label label) label.AutowrapMode = TextServer.AutowrapMode.WordSmart;
+            }
+        }
+        if (_crosshairTop is not null) _crosshairTop.Vertical = width < 1000f;
+        int columns = width < 1100f ? 3 : 6;
+        if (_roleGrids.Values.Any(grid => grid.Columns != columns)) RebuildKeys();
     }
 
     // ---- pages ---------------------------------------------------------------------------------------------
@@ -527,7 +574,7 @@ public partial class OptionsMenu : Control
         grid.AddChild(heading);
     }
 
-    private static VBoxContainer SectionedContent(GridContainer source)
+    private VBoxContainer SectionedContent(GridContainer source)
     {
         var content = new VBoxContainer { SizeFlagsHorizontal = SizeFlags.ExpandFill };
         content.AddThemeConstantOverride("separation", 12);
@@ -550,11 +597,12 @@ public partial class OptionsMenu : Control
         return content;
     }
 
-    private static GridContainer Grid(string name)
+    private GridContainer Grid(string name)
     {
         var grid = new GridContainer { Name = name, Columns = 3, SizeFlagsHorizontal = SizeFlags.ExpandFill };
         grid.AddThemeConstantOverride("h_separation", 16);
         grid.AddThemeConstantOverride("v_separation", 6);
+        _settingsGrids.Add(grid);
         return grid;
     }
 
@@ -689,6 +737,7 @@ public partial class OptionsMenu : Control
 
     private void RebuildKeys()
     {
+        _layoutSize = new Vector2(-1, -1);
         _keyButtons.Clear();
         foreach ((PlaySide side, GridContainer grid) in _roleGrids)
             BuildActionRows(side, grid);
@@ -936,6 +985,7 @@ public partial class OptionsMenu : Control
         }
 
         _controls.Clear();
+        _settingsGrids.Clear();
         _roleGrids.Clear();
         _bindingHelp.Clear();
         _sharingLabels.Clear();

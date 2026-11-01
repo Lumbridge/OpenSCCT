@@ -59,7 +59,7 @@ public partial class ResultsScreen : Control
     public override void _Ready()
     {
         Theme = UiStyle.MenuTheme;
-        SetAnchorsPreset(LayoutPreset.FullRect);
+        SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
         AddChild(UiStyle.MenuBackdrop());
         MatchResult result = Result ?? new MatchResult { Reason = MatchEndReason.Aborted };
 
@@ -72,7 +72,21 @@ public partial class ResultsScreen : Control
             AddChild(_canvas);
         }
 
-        VBoxContainer column = UiStyle.CentreColumn(this, 820f);
+        var scroll = new ScrollContainer
+        {
+            Name = "ResultsScroll", AnchorRight = 1f, AnchorBottom = 1f,
+            OffsetLeft = 24f, OffsetTop = 24f, OffsetRight = -24f, OffsetBottom = -24f,
+            HorizontalScrollMode = ScrollContainer.ScrollMode.ShowNever,
+        };
+        AddChild(scroll);
+        var centre = new CenterContainer { Name = "Centre", SizeFlagsHorizontal = SizeFlags.ExpandFill, SizeFlagsVertical = SizeFlags.ExpandFill };
+        scroll.AddChild(centre);
+        var column = new VBoxContainer { Name = "Column" };
+        column.AddThemeConstantOverride("separation", 10);
+        centre.AddChild(column);
+        void Fit() => column.CustomMinimumSize = new Vector2(Math.Min(820f, Math.Max(1f, Size.X - 66f)), 0f);
+        Resized += Fit;
+        Fit();
         _column = column;
         string headline = result.Winner switch
         {
@@ -87,6 +101,7 @@ public partial class ResultsScreen : Control
             ? UiStyle.Title(deathmatch, UiStyle.SideColour(HudSide.Merc))
             : UiStyle.Title(headline, result.Winner is { } w ? UiStyle.SideColour(w) : UiStyle.Text);
         Headline.Name = "Headline";
+        Headline.AutowrapMode = TextServer.AutowrapMode.WordSmart;
         column.AddChild(Headline);
         string detail = MatchResult.ReasonText(result.Reason);
         if (result.ObjectivesTotal > 0)
@@ -94,7 +109,8 @@ public partial class ResultsScreen : Control
             detail += string.Create(CultureInfo.InvariantCulture, $" - objectives {result.ObjectivesTaken} / {result.ObjectivesTotal}");
         }
 
-        column.AddChild(new Label { Name = "Reason", Text = detail, HorizontalAlignment = HorizontalAlignment.Center, Modulate = UiStyle.Dim });
+        column.AddChild(new Label { Name = "Reason", Text = detail, HorizontalAlignment = HorizontalAlignment.Center, Modulate = UiStyle.Dim,
+            AutowrapMode = TextServer.AutowrapMode.WordSmart });
 
         Table = new GridContainer { Name = "Table", Columns = 6 };
         Table.AddThemeConstantOverride("h_separation", 28);
@@ -122,7 +138,8 @@ public partial class ResultsScreen : Control
         column.AddChild(RematchButton);
         if (Online is { } online)
         {
-            Waiting = new Label { Name = "Waiting", HorizontalAlignment = HorizontalAlignment.Center, Modulate = UiStyle.Dim };
+            Waiting = new Label { Name = "Waiting", HorizontalAlignment = HorizontalAlignment.Center, Modulate = UiStyle.Dim,
+                AutowrapMode = TextServer.AutowrapMode.WordSmart };
             column.AddChild(Waiting);
             LobbyButton = UiStyle.MenuButton("Back to lobby", online.BackToLobby, "BackToLobby");
             LobbyButton.Visible = online.Lobby.CanControl;
@@ -142,7 +159,7 @@ public partial class ResultsScreen : Control
             Unlocks = new Label
             {
                 Name = "Unlocks", HorizontalAlignment = HorizontalAlignment.Center, Modulate = UiStyle.MenuFocus,
-                AutowrapMode = TextServer.AutowrapMode.WordSmart, CustomMinimumSize = new Vector2(780f, 0f), Visible = false,
+                AutowrapMode = TextServer.AutowrapMode.WordSmart, Visible = false,
             };
             column.AddChild(Unlocks);
         }
@@ -352,18 +369,24 @@ public partial class ResultsScreen : Control
         PlayerRank r = PlayerRank.Unpack(rank);
         if (r.IsNone)
         {
-            AddCell(name, colour);
+            Table!.AddChild(NameLabel(name, colour));
             return;
         }
 
         var cell = new HBoxContainer();
         cell.AddThemeConstantOverride("separation", 8);
         cell.AddChild(new RankBadge(22).Show(r));
-        cell.AddChild(new Label { Text = name, Modulate = colour });
+        cell.AddChild(NameLabel(name, colour));
         Table!.AddChild(cell);
     }
 
     private void AddCell(string text, Color colour) => Table!.AddChild(new Label { Text = text, Modulate = colour });
+
+    private static Label NameLabel(string name, Color colour) => new()
+    {
+        Text = name, Modulate = colour, CustomMinimumSize = new Vector2(120f, 0f),
+        AutowrapMode = TextServer.AutowrapMode.WordSmart, SizeFlagsHorizontal = SizeFlags.ExpandFill,
+    };
 
     public override void _ExitTree()
     {

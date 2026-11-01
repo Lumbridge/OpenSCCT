@@ -5,8 +5,11 @@ using Godot;
 using OpenScct.Core;
 using OpenScct.Core.Engine;
 using OpenScct.Game.SBase;
+using OpenScct.Server;
 using OpenScct.Server.Online;
 using OpenScctGame.Hud;
+using OpenScctGame.Online;
+using OpenScctGame.Options;
 using OpenScctGame.UI;
 using LobbyPlayer = OpenScctGame.UI.LobbyPlayer;
 
@@ -17,17 +20,40 @@ public sealed class LobbyLayoutSmoke : SmokeTest
     public const string TestName = "lobby-layout";
     public override string Name => TestName;
     private readonly List<string> _problems = new();
-    private readonly Vector2I[] _sizes = [new(1280, 720), new(1024, 768), new(1920, 1080), new(2560, 1440)];
+    private readonly Vector2I[] _sizes =
+    [
+        new(800, 600), new(1024, 768), new(1280, 720), new(1280, 800), new(1920, 1080),
+        new(2560, 1440), new(3440, 1440), new(3840, 1080), new(3840, 2160),
+    ];
     private int _frame, _size, _variant;
     private Control? _screen;
     private FixtureLobby? _session;
+    private IReadOnlyList<(string Id, string Title)>? _maps;
+    private bool _savedMapList;
+    private string? _savedPlaylist;
+    private bool _liveResize;
+    private Button? _lastMapTile;
+
+    private Vector2I ViewportSize => _liveResize ? new Vector2I(800, 600) : _sizes[_size];
+    private string Resolution => $"{ViewportSize.X}x{ViewportSize.Y}" + (_liveResize ? "-resized" : "");
 
     public override SmokeResult Step(SmokeContext context)
     {
+        if (_maps is null)
+        {
+            _savedMapList = SettingsStore.Current.MapListView;
+            _savedPlaylist = SettingsStore.Current.ActiveMapPlaylist;
+            SettingsStore.Current.ActiveMapPlaylist = MapCatalog.AllMapsPlaylist;
+            // Create the same catalog service the live lobby uses, so its actual map chooser opens.
+            MapCatalog catalog = OnlineService.Get(context.Tree).Catalog.Maps;
+            _maps = catalog.GetHostMaps().Select(map => (map.Id, MapTitles.Of(catalog, map.Id))).ToArray();
+            if (_maps.Count == 0)
+                _maps = Enumerable.Range(1, 80).Select(i => ($"LayoutMap{i}", $"Map {i:00}")).ToArray();
+        }
         if (_screen is null)
         {
             Resize(context.Tree, _sizes[_size]);
-            _session = new FixtureLobby { CanControl = _variant != 1 };
+            _session = new FixtureLobby { CanControl = _variant != 1, Maps = _maps };
             if (_variant == 2)
             {
                 var offline = new LobbyScreen { Session = _session }; _screen = offline;
@@ -62,24 +88,147 @@ public sealed class LobbyLayoutSmoke : SmokeTest
             if (_frame < 16) return SmokeResult.Running;
             if (_frame == 16)
             {
-                _problems.AddRange(LayoutCheck.Problems(roomScreen, _sizes[_size].X).Select(p => "Lobby overview: " + p));
+                CheckLayout(roomScreen, "Lobby overview");
                 CheckLandmarks(roomScreen);
-                MenuPage.Shot(roomScreen, $"lobby-overview-{_sizes[_size].X}-{_variant}");
+                MenuPage.Shot(roomScreen, $"lobby-overview-{Resolution}-{_variant}");
                 Click(roomScreen, "MatchSettings");
                 return SmokeResult.Running;
             }
             if (_frame < 22) return SmokeResult.Running;
-
+            if (_frame == 22)
+            {
+                CheckLayout(roomScreen, "Lobby settings");
+                CheckSettings(roomScreen);
+                MenuPage.Shot(roomScreen, $"lobby-settings-{Resolution}-{_variant}");
+                if (_session!.CanControl)
+                {
+                    SettingsStore.Current.MapListView = false;
+                    Click(roomScreen, "Maps");
+                    return SmokeResult.Running;
+                }
+            }
+            if (_session!.CanControl)
+            {
+                if (_frame < 28) return SmokeResult.Running;
+                if (_frame == 28)
+                {
+                    CheckMapChooser(roomScreen, list: false);
+                    ScrollToLastMap(roomScreen);
+                    return SmokeResult.Running;
+                }
+                if (_frame < 34) return SmokeResult.Running;
+                if (_frame == 34)
+                {
+                    CheckLastMapVisible(roomScreen);
+                    SettingsStore.Current.MapListView = true;
+                    return SmokeResult.Running;
+                }
+                if (_frame < 40) return SmokeResult.Running;
+                if (_frame == 40)
+                {
+                    CheckMapChooser(roomScreen, list: true);
+                    ScrollToLastMap(roomScreen);
+                    return SmokeResult.Running;
+                }
+                if (_frame < 46) return SmokeResult.Running;
+                CheckLastMapVisible(roomScreen);
+                if (_size == _sizes.Length - 1 && !_liveResize)
+                {
+                    // Shrink the existing controls after 4K, without rebuilding the modal or its grid.
+                    _liveResize = true;
+                    Resize(context.Tree, ViewportSize);
+                    SettingsStore.Current.MapListView = false;
+                    _frame = 22;
+                    return SmokeResult.Running;
+                }
+                if (_liveResize)
+                {
+                    CheckSettings(roomScreen);
+                    ((Control)roomScreen.FindChild("MapsPanel", true, false)!).Visible = false;
+                    roomScreen.MatchSettingsPanel!.Visible = false;
+                    CheckLayout(roomScreen, "Lobby after live resize");
+                    CheckLandmarks(roomScreen);
+                }
+                Click(roomScreen, "MapsClose");
+            }
         }
-        string where = $"Lobby {_sizes[_size].X} variant {_variant}";
-        _problems.AddRange(LayoutCheck.Problems(_screen, _sizes[_size].X).Select(p => where + ": " + p));
-        MenuPage.Shot(_screen, $"lobby-{_sizes[_size].X}-{_variant}");
+        else
+        {
+            CheckLayout(_screen, "Offline lobby");
+            foreach (Button button in ((MenuPage)_screen).PageButtons)
+                Expect(ViewportRect.Encloses(button.GetGlobalRect()), "offline footer action visible: " + button.Name);
+            MenuPage.Shot(_screen, $"lobby-offline-{Resolution}");
+        }
         _screen.QueueFree(); _screen = null;
+        _liveResize = false;
         if (++_variant < 3) return SmokeResult.Running;
         _variant = 0;
         if (++_size < _sizes.Length) return SmokeResult.Running;
-        return _problems.Count == 0 ? SmokeResult.Pass("host/client/offline, settings drafts, chat, teams, status and responsive layouts")
+        SettingsStore.Current.MapListView = _savedMapList;
+        SettingsStore.Current.ActiveMapPlaylist = _savedPlaylist!;
+        return _problems.Count == 0 ? SmokeResult.Pass("host/client/offline, settings, map pictures/list scrolling, 9 resolutions from 800x600 to 3840x2160 and live resize from 4K to 800x600")
             : SmokeResult.Fail(string.Join("; ", _problems.Take(15)));
+    }
+
+    private Rect2 ViewportRect => new(Vector2.Zero, ViewportSize);
+
+    private void CheckLayout(Node root, string where)
+    {
+        _problems.AddRange(LayoutCheck.Problems(root, ViewportSize.X).Select(p => $"{where} {Resolution} variant {_variant}: {p}"));
+        _problems.AddRange(LayoutCheck.BoundsProblems(root, ViewportSize).Select(p => $"{where} {Resolution} variant {_variant}: {p}"));
+    }
+
+    private void ScrollToLastMap(LobbyRoomScreen room)
+    {
+        if (room.FindChild("MapPicker", true, false) is not MapPickerView picker || picker.Grid.GetParent() is not ScrollContainer scroll) return;
+        _lastMapTile = picker.Grid.GetChildren().OfType<Button>().LastOrDefault(tile => tile.IsVisibleInTree());
+        if (_lastMapTile is not null) scroll.EnsureControlVisible(_lastMapTile);
+    }
+
+    private void CheckLastMapVisible(LobbyRoomScreen room)
+    {
+        if (_lastMapTile is null || room.FindChild("MapScroll", true, false) is not ScrollContainer scroll)
+        {
+            Expect(false, "last map can be reached");
+            return;
+        }
+        Expect(scroll.GetGlobalRect().Grow(1f).Encloses(_lastMapTile.GetGlobalRect()), "last map is fully visible after scrolling");
+        if (((Control)_lastMapTile.GetParent()).Size.Y > scroll.Size.Y)
+            Expect(scroll.ScrollVertical > 0, "long map browser scrolls down to its last map");
+    }
+
+    private void CheckSettings(LobbyRoomScreen room)
+    {
+        Control panel = room.MatchSettingsPanel!;
+        Expect(ViewportRect.Encloses(panel.GetGlobalRect()), "settings panel stays inside viewport");
+        foreach (Button button in panel.FindChildren("*", nameof(Button), true, false).OfType<Button>())
+            if (button.IsVisibleInTree() && button.GetParent().Name == "SettingsButtons")
+                Expect(panel.GetGlobalRect().Encloses(button.GetGlobalRect()), "settings action visible: " + button.Name);
+    }
+
+    private void CheckMapChooser(LobbyRoomScreen room, bool list)
+    {
+        if (room.FindChild("MapsPanel", true, false) is not Control panel ||
+            panel.FindChild("MapPicker", true, false) is not MapPickerView picker ||
+            picker.FindChild("MapScroll", true, false) is not ScrollContainer scroll)
+        {
+            Expect(false, "map chooser opens");
+            return;
+        }
+        CheckLayout(panel, list ? "Map list" : "Map pictures");
+        Expect(ViewportRect.Encloses(panel.GetGlobalRect()), "map chooser stays inside viewport");
+        Expect(Math.Abs(scroll.GetGlobalRect().End.Y - picker.GetGlobalRect().End.Y) <= 1f,
+            "map scroll uses all available picker height");
+        Expect(scroll.Size.Y >= panel.Size.Y - 180f, "map scroll occupies the modal body");
+        Expect(picker.Grid.GetChildCount() > 0, "map chooser contains maps");
+        Expect(picker.Grid.Columns == 1 || !list, "map list uses one column");
+        foreach (string name in new[] { "MapsClose", "MapsOk" })
+        {
+            var button = (Control)panel.FindChild(name, true, false)!;
+            Expect(panel.GetGlobalRect().Encloses(button.GetGlobalRect()) && button.GetGlobalRect().Position.Y >= scroll.GetGlobalRect().End.Y,
+                "map chooser footer stays visible below scroll: " + name);
+        }
+        MenuPage.Shot(room, $"lobby-map-{(list ? "list" : "pictures")}-{Resolution}");
     }
 
     private void CheckLandmarks(LobbyRoomScreen room)
@@ -87,17 +236,25 @@ public sealed class LobbyLayoutSmoke : SmokeTest
         Rect2 Rect(string name) => ((Control)room.FindChild(name, true, false)!).GetGlobalRect();
         var spies = Rect("Spies"); var mercs = Rect("Mercs"); var actions = Rect("LobbyActions");
         var map = Rect("MatchOverview"); var chat = Rect("Chat");
-        Expect(spies.End.X <= actions.Position.X && actions.End.X <= mercs.Position.X, "teams flank the central actions");
-        Expect(map.Position.Y >= spies.End.Y && chat.Position.Y >= mercs.End.Y && map.End.X <= chat.Position.X, "map below left, chat below right");
+        if (room.FindChild("LobbyTeams", true, false) is LobbyColumns { Vertical: true })
+        {
+            Expect(spies.End.Y <= actions.Position.Y && actions.End.Y <= mercs.Position.Y, "narrow lobby stacks teams and actions");
+            Expect(map.Position.Y >= mercs.End.Y && chat.Position.Y >= map.End.Y, "narrow lobby stacks map and chat");
+        }
+        else
+        {
+            Expect(spies.End.X <= actions.Position.X && actions.End.X <= mercs.Position.X, "teams flank the central actions");
+            Expect(map.Position.Y >= spies.End.Y && chat.Position.Y >= mercs.End.Y && map.End.X <= chat.Position.X, "map below left, chat below right");
+        }
         var picture = room.MapPicture!;
         Expect(picture.Picture is not null, "preview check uses a texture");
-        if (_sizes[_size].Y >= 1080)
-            Expect(picture.Size.Y >= _sizes[_size].Y * 0.35f, "map preview uses available vertical space");
+        if (ViewportSize.Y >= 1080)
+            Expect(picture.Size.Y >= ViewportSize.Y * 0.35f, "map preview uses available vertical space");
         foreach (var button in room.PageButtons)
-            Expect(new Rect2(Vector2.Zero, _sizes[_size]).Encloses(button.GetGlobalRect()), "footer action visible: " + button.Name);
+            Expect(ViewportRect.Encloses(button.GetGlobalRect()), "footer action visible: " + button.Name);
     }
 
-    private void Expect(bool condition, string message) { if (!condition) _problems.Add(message); }
+    private void Expect(bool condition, string message) { if (!condition) _problems.Add($"{Resolution} variant {_variant}: {message}"); }
     private static void Click(Node root, string name) => (root.FindChild(name, true, false) as Button)?.EmitSignal(BaseButton.SignalName.Pressed);
 
     private void CheckInteractions(LobbyRoomScreen room, FixtureLobby session)
@@ -213,7 +370,7 @@ public sealed class LobbyLayoutSmoke : SmokeTest
         public IReadOnlyList<OnlineLobbyPlayer> Members => _members;
         public IReadOnlyList<LobbyPlayer> Players => _members.Where(p => p.Side is not null).Select(p => new LobbyPlayer(p.Name, p.Side!.Value, p.Ready, p.IsLocal, p.IsBot)).ToArray();
         public IReadOnlyList<LobbyMessage> Messages => Array.Empty<LobbyMessage>();
-        public IReadOnlyList<(string Id, string Title)> Maps => new[] { ("TestBox", "Test Box") };
+        public IReadOnlyList<(string Id, string Title)> Maps { get; init; } = new[] { ("TestBox", "Test Box") };
         public event Action? Changed;
         public void Notify() => Changed?.Invoke();
         public void SetSide(HudSide side) { _members[0] = _members[0] with { Side = side, Ready = false }; Notify(); }

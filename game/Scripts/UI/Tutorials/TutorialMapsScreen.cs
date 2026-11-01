@@ -39,7 +39,7 @@ public partial class TutorialMapsScreen : MenuPage
         VBoxContainer column = Panel(Body, "Maps", null);
         var grid = new MapBrowserGrid();
         column.AddChild(grid.ViewToggle);
-        var scroll = new ScrollContainer { CustomMinimumSize = new Vector2(0, 360), HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled, SizeFlagsHorizontal = SizeFlags.ExpandFill };
+        var scroll = new ScrollContainer { CustomMinimumSize = new Vector2(0, 360), HorizontalScrollMode = ScrollContainer.ScrollMode.ShowNever, SizeFlagsHorizontal = SizeFlags.ExpandFill };
         column.AddChild(scroll);
         scroll.AddChild(grid);
         Button? first = null;

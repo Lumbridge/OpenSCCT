@@ -36,6 +36,8 @@ public partial class AchievementsScreen : MenuPage
     private UiProgress? _overall;
     private ScrollContainer? _listScroll;
     private ScrollContainer? _detailScroll;
+    private BoxContainer? _split;
+    private readonly List<GridContainer> _grids = new();
     private VBoxContainer? _list;
     private VBoxContainer? _detail;
     private CosmeticPreview? _preview;
@@ -75,12 +77,13 @@ public partial class AchievementsScreen : MenuPage
 
         Body.AddChild(filters);
 
-        var split = new HBoxContainer { Name = "Split" };
+        var split = _split = new BoxContainer { Name = "Split" };
         split.AddThemeConstantOverride("separation", 20);
         Body.AddChild(split);
         _listScroll = new ScrollContainer
         {
             Name = "ListScroll", CustomMinimumSize = new Vector2(ListWidth, 0f), HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled,
+            SizeFlagsHorizontal = SizeFlags.ExpandFill,
         };
         split.AddChild(_listScroll);
         _list = new VBoxContainer { Name = "List", SizeFlagsHorizontal = SizeFlags.ExpandFill };
@@ -90,6 +93,7 @@ public partial class AchievementsScreen : MenuPage
         _detailScroll = new ScrollContainer
         {
             Name = "DetailScroll", CustomMinimumSize = new Vector2(DetailWidth, 0f), HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled,
+            SizeFlagsHorizontal = SizeFlags.ExpandFill,
         };
         split.AddChild(_detailScroll);
         var detailFrame = new VBoxContainer { Name = "DetailFrame", SizeFlagsHorizontal = SizeFlags.ExpandFill };
@@ -99,7 +103,6 @@ public partial class AchievementsScreen : MenuPage
 
         PageButton("Back", () => FrontEnd.ShowMainMenu(GetTree()), "Back").GrabFocus();
         PageButton("Armoury", () => FrontEnd.ShowArmoury(GetTree()), "Armoury");
-        GetViewport().SizeChanged += FitHeight;
         FitHeight();
         if (AccountService.HasMaster && AccountSettings.Current.SignedIn)
         {
@@ -109,17 +112,10 @@ public partial class AchievementsScreen : MenuPage
         Rebuild();
     }
 
-    public override void _ExitTree()
-    {
-        if (GetViewport() is { } viewport)
-        {
-            viewport.SizeChanged -= FitHeight;
-        }
-    }
-
     public override void _Process(double delta)
     {
         base._Process(delta);
+        FitHeight();
         if (_refresh is { IsCompleted: true } refresh)
         {
             _refresh = null;
@@ -156,9 +152,15 @@ public partial class AchievementsScreen : MenuPage
     /// <summary>The list and the detail fill the page's height and scroll on their own, so the preview stays in view.</summary>
     private void FitHeight()
     {
-        float height = Math.Max(320f, GetViewportRect().Size.Y - ChromeHeight);
-        _listScroll!.CustomMinimumSize = new Vector2(ListWidth, height);
-        _detailScroll!.CustomMinimumSize = new Vector2(DetailWidth, height);
+        if (_split is null || _listScroll is null || _detailScroll is null) return;
+        float width = Math.Min(BodyWidth, AvailableBodyWidth);
+        bool stacked = width < BodyWidth;
+        _split.Vertical = stacked;
+        float height = Math.Max(240f, GetViewportRect().Size.Y - ChromeHeight);
+        _listScroll.CustomMinimumSize = new Vector2(stacked ? 0f : ListWidth, height);
+        _detailScroll.CustomMinimumSize = new Vector2(stacked ? 0f : DetailWidth, height);
+        int columns = Math.Clamp((int)(((stacked ? width : ListWidth) - 18f + 8f) / (TileSize.X + 8f)), 1, TileColumns);
+        foreach (var grid in _grids) grid.Columns = columns;
     }
 
     private Button Filter(string text, AchievementCategory? category)
@@ -212,6 +214,7 @@ public partial class AchievementsScreen : MenuPage
         }
 
         _tiles.Clear();
+        _grids.Clear();
         _shown = null;
         AccountInfo? account = _service?.Account;
         _reported = account?.Achievements.ToDictionary(a => a.Id, StringComparer.Ordinal)
@@ -246,6 +249,7 @@ public partial class AchievementsScreen : MenuPage
             int groupEarned = group.Count(a => ProgressOf(a).Done);
             _list.AddChild(GroupHeader(group.Key, groupEarned, group.Count()));
             var grid = new GridContainer { Name = "Group" + group.Key, Columns = TileColumns };
+            _grids.Add(grid);
             grid.AddThemeConstantOverride("h_separation", 8);
             grid.AddThemeConstantOverride("v_separation", 8);
             _list.AddChild(grid);
@@ -258,6 +262,7 @@ public partial class AchievementsScreen : MenuPage
 
         Achievement? selected = Achievements.All.FirstOrDefault(a => a.Id == _selected && _tiles.ContainsKey(a.Id)) ?? first;
         Select(selected);
+        FitHeight();
     }
 
     private static Control GroupHeader(AchievementCategory c, int earned, int total)
@@ -283,7 +288,7 @@ public partial class AchievementsScreen : MenuPage
             row.AddChild(new Label
             {
                 Text = note, Modulate = UiStyle.Dim, VerticalAlignment = VerticalAlignment.Center, SizeFlagsHorizontal = SizeFlags.ExpandFill,
-                ClipText = true, TextOverrunBehavior = TextServer.OverrunBehavior.TrimEllipsis,
+                AutowrapMode = TextServer.AutowrapMode.WordSmart,
             });
         }
 
@@ -296,6 +301,7 @@ public partial class AchievementsScreen : MenuPage
         var tile = new Button
         {
             Name = "Achievement_" + a.Id, ToggleMode = true, ButtonGroup = _tileGroup, CustomMinimumSize = TileSize,
+            SizeFlagsHorizontal = SizeFlags.ExpandFill,
             FocusMode = FocusModeEnum.All, ThemeTypeVariation = UiStyle.TileVariation, TooltipText = a.Title + ": " + a.Description,
         };
         var row = new HBoxContainer { Name = "Row", MouseFilter = MouseFilterEnum.Ignore };
@@ -324,6 +330,8 @@ public partial class AchievementsScreen : MenuPage
         var title = new Label
         {
             Name = "Title", Text = a.Title, ClipText = true, TextOverrunBehavior = TextServer.OverrunBehavior.TrimEllipsis,
+            AutowrapMode = TextServer.AutowrapMode.WordSmart, MaxLinesVisible = 2,
+            CustomMinimumSize = new Vector2(0f, 38f),
             MouseFilter = MouseFilterEnum.Ignore, Modulate = p.Done ? UiStyle.MenuFocus : UiStyle.MenuText,
         };
         title.AddThemeFontSizeOverride("font_size", 16);
@@ -437,7 +445,7 @@ public partial class AchievementsScreen : MenuPage
             stack.AddChild(locked);
         }
 
-        _itemName = new Label { Name = "ItemName", Modulate = UiStyle.MenuFocus, HorizontalAlignment = HorizontalAlignment.Center };
+        _itemName = new Label { Name = "ItemName", Modulate = UiStyle.MenuFocus, HorizontalAlignment = HorizontalAlignment.Center, AutowrapMode = TextServer.AutowrapMode.WordSmart };
         _detail.AddChild(_itemName);
 
         if (rewards.Count > 1)
@@ -480,6 +488,6 @@ public partial class AchievementsScreen : MenuPage
 
     private static Label Wrapped(string text, Color colour) => new()
     {
-        Text = text, Modulate = colour, AutowrapMode = TextServer.AutowrapMode.WordSmart, CustomMinimumSize = new Vector2(DetailWidth - 44f, 0f),
+        Text = text, Modulate = colour, AutowrapMode = TextServer.AutowrapMode.WordSmart,
     };
 }

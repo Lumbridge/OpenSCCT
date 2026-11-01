@@ -36,7 +36,9 @@ public partial class ContentScreen : MenuPage
         UiStyle.MenuButton("Content", () => FrontEnd.ShowContent(from.GetTree()), "Content");
 
     /// <summary>One row's live parts: what it was built with, and the bits a running download updates.</summary>
-    private sealed record RowView(string Key, bool Shared, string? BuiltWith, Label Status, UiProgress Bar);
+    private sealed record RowView(string Key, bool Shared, string? BuiltWith, Label Status, UiProgress Bar, BoxContainer Row);
+
+    private bool CompactRows => Math.Min(PreferredBodyWidth, AvailableBodyWidth) < 900f;
 
     private enum MapState
     {
@@ -63,7 +65,7 @@ public partial class ContentScreen : MenuPage
         _search = new LineEdit { Name = "Search", PlaceholderText = "Search maps", SizeFlagsHorizontal = SizeFlags.ExpandFill, ClearButtonEnabled = true };
         _search.TextChanged += _ => Fill();
         filters.AddChild(_search);
-        _category = new OptionButton { Name = "Category", CustomMinimumSize = new Vector2(200f, 0f) };
+        _category = new OptionButton { Name = "Category", CustomMinimumSize = new Vector2(200f, 0f), FitToLongestItem = false, ClipText = true };
         _category.AddItem(AllCategories);
         _category.ItemSelected += _ => Fill();
         filters.AddChild(_category);
@@ -77,6 +79,7 @@ public partial class ContentScreen : MenuPage
         mapScroll.AddChild(_maps);
 
         VBoxContainer shared = Panel(Body, "Shared", "Shared packs (characters, sounds, the game's common files)");
+        shared.GetNode<Label>("Caption").AutowrapMode = TextServer.AutowrapMode.WordSmart;
         _shared = new VBoxContainer { Name = "SharedRows", SizeFlagsHorizontal = SizeFlags.ExpandFill };
         shared.AddChild(_shared);
 
@@ -110,6 +113,7 @@ public partial class ContentScreen : MenuPage
 
         foreach (RowView view in _views)
         {
+            if (view.Row.Vertical != CompactRows) view.Row.Vertical = CompactRows;
             if (JobOf(view) is { Running: true } job)
             {
                 view.Status.Text = job.DescribeBrief();
@@ -301,9 +305,14 @@ public partial class ContentScreen : MenuPage
     {
         var column = new VBoxContainer { Name = "Map" };
         column.AddThemeConstantOverride("separation", 2);
-        var row = new HBoxContainer();
+        var row = new BoxContainer { Vertical = CompactRows };
         row.AddThemeConstantOverride("separation", 12);
         column.AddChild(row);
+        var summary = new VBoxContainer { Name = "Summary", SizeFlagsHorizontal = SizeFlags.ExpandFill };
+        var details = new HBoxContainer { Name = "Details", SizeFlagsVertical = SizeFlags.ShrinkCenter };
+        details.AddThemeConstantOverride("separation", 12);
+        row.AddChild(summary);
+        row.AddChild(details);
 
         var tooltip = new List<string> { $"Map code {code}" };
         if (map is not null)
@@ -324,13 +333,14 @@ public partial class ContentScreen : MenuPage
             tooltip.Add("Downloaded " + pack.InstalledAt.ToLocalTime().ToString("g", CultureInfo.CurrentCulture));
         }
 
-        row.AddChild(new Label
+        summary.AddChild(new Label
         {
-            Text = title, SizeFlagsHorizontal = SizeFlags.ExpandFill, ClipText = true, TooltipText = string.Join("\n", tooltip),
+            Name = "MapTitle", Text = title, SizeFlagsHorizontal = SizeFlags.ExpandFill,
+            AutowrapMode = TextServer.AutowrapMode.WordSmart, TooltipText = string.Join("\n", tooltip),
             MouseFilter = MouseFilterEnum.Pass,
         });
-        row.AddChild(new Label { Text = category, CustomMinimumSize = new Vector2(110f, 0f), Modulate = UiStyle.Dim });
-        row.AddChild(new Label
+        details.AddChild(new Label { Text = category, CustomMinimumSize = new Vector2(110f, 0f), Modulate = UiStyle.Dim, AutowrapMode = TextServer.AutowrapMode.WordSmart });
+        details.AddChild(new Label
         {
             Text = map is null ? string.Empty : Mb(map.Full.Size), CustomMinimumSize = new Vector2(80f, 0f),
             HorizontalAlignment = HorizontalAlignment.Right, Modulate = UiStyle.Dim,
@@ -339,7 +349,8 @@ public partial class ContentScreen : MenuPage
         ContentPacks.DownloadJob? job = ContentPacks.Job(code);
         var status = new Label
         {
-            Text = StatusText(state, map, pack), CustomMinimumSize = new Vector2(260f, 0f), SizeFlagsHorizontal = SizeFlags.ExpandFill, ClipText = true,
+            Text = StatusText(state, map, pack), SizeFlagsHorizontal = SizeFlags.ExpandFill,
+            AutowrapMode = TextServer.AutowrapMode.WordSmart,
             Modulate = state switch
             {
                 MapState.Downloaded => UiStyle.MenuFocus,
@@ -356,11 +367,12 @@ public partial class ContentScreen : MenuPage
             status.Modulate = Colors.Orange;
         }
 
-        row.AddChild(status);
+        summary.AddChild(status);
 
         var buttons = new HBoxContainer { CustomMinimumSize = new Vector2(190f, 0f), Alignment = BoxContainer.AlignmentMode.End };
         buttons.AddThemeConstantOverride("separation", 6);
-        row.AddChild(buttons);
+        details.AddChild(new Control { SizeFlagsHorizontal = SizeFlags.ExpandFill });
+        details.AddChild(buttons);
         if (job is { Running: true } running)
         {
             buttons.AddChild(SmallButton("Stop", running.Cancel));
@@ -385,7 +397,7 @@ public partial class ContentScreen : MenuPage
 
         var bar = new UiProgress { Name = "Progress", Visible = job is { Running: true }, Value = (float)(job?.Fraction ?? 0) };
         column.AddChild(bar);
-        _views.Add(new RowView(code, false, JobState(job), status, bar));
+        _views.Add(new RowView(code, false, JobState(job), status, bar, row));
         return column;
     }
 
@@ -408,7 +420,7 @@ public partial class ContentScreen : MenuPage
             {
                 Text = (have > 0 ? $"{have} shared packs downloaded." : "No shared packs downloaded.") +
                     (own ? " Your converted game files supply the shared content." : string.Empty),
-                Modulate = UiStyle.Dim,
+                Modulate = UiStyle.Dim, AutowrapMode = TextServer.AutowrapMode.WordSmart,
             });
             return;
         }
@@ -423,19 +435,25 @@ public partial class ContentScreen : MenuPage
     {
         var column = new VBoxContainer { Name = "Pack" };
         column.AddThemeConstantOverride("separation", 2);
-        var row = new HBoxContainer();
+        var row = new BoxContainer { Vertical = CompactRows };
         row.AddThemeConstantOverride("separation", 12);
         column.AddChild(row);
+        var summary = new VBoxContainer { Name = "Summary", SizeFlagsHorizontal = SizeFlags.ExpandFill };
+        var details = new HBoxContainer { Name = "Details", SizeFlagsVertical = SizeFlags.ShrinkCenter };
+        details.AddThemeConstantOverride("separation", 12);
+        row.AddChild(summary);
+        row.AddChild(details);
 
         string title = pack.Title.Length > 0 ? pack.Title : pack.Id;
         bool has = store.HasShared(pack);
         bool older = !has && installed.Any(c => c.IsShared && string.Equals(c.Code, pack.Id, StringComparison.OrdinalIgnoreCase));
-        row.AddChild(new Label
+        summary.AddChild(new Label
         {
-            Text = title, SizeFlagsHorizontal = SizeFlags.ExpandFill, ClipText = true, MouseFilter = MouseFilterEnum.Pass,
+            Name = "PackTitle", Text = title, SizeFlagsHorizontal = SizeFlags.ExpandFill,
+            AutowrapMode = TextServer.AutowrapMode.WordSmart, MouseFilter = MouseFilterEnum.Pass,
             TooltipText = pack.Contents.Count > 0 ? "Holds " + string.Join(", ", pack.Contents) : pack.Id,
         });
-        row.AddChild(new Label
+        details.AddChild(new Label
         {
             Text = Mb(pack.Download.Size), CustomMinimumSize = new Vector2(80f, 0f), HorizontalAlignment = HorizontalAlignment.Right,
             Modulate = UiStyle.Dim,
@@ -444,8 +462,7 @@ public partial class ContentScreen : MenuPage
         ContentPacks.DownloadJob? job = ContentPacks.SharedJob(pack.Id);
         var status = new Label
         {
-            CustomMinimumSize = new Vector2(260f, 0f), SizeFlagsHorizontal = SizeFlags.ExpandFill, SizeFlagsStretchRatio = 2f,
-            ClipText = true,
+            SizeFlagsHorizontal = SizeFlags.ExpandFill, AutowrapMode = TextServer.AutowrapMode.WordSmart,
             Text = has ? "Downloaded" + Version(pack.Version)
                 : older ? "Update available" + Version(pack.Version)
                 : own ? "Not needed"
@@ -465,9 +482,10 @@ public partial class ContentScreen : MenuPage
             status.Modulate = Colors.Orange;
         }
 
-        row.AddChild(status);
+        summary.AddChild(status);
         var buttons = new HBoxContainer { CustomMinimumSize = new Vector2(190f, 0f), Alignment = BoxContainer.AlignmentMode.End };
-        row.AddChild(buttons);
+        details.AddChild(new Control { SizeFlagsHorizontal = SizeFlags.ExpandFill });
+        details.AddChild(buttons);
         if (job is { Running: true } running)
         {
             buttons.AddChild(SmallButton("Stop", running.Cancel));
@@ -484,7 +502,7 @@ public partial class ContentScreen : MenuPage
 
         var bar = new UiProgress { Name = "Progress", Visible = job is { Running: true }, Value = (float)(job?.Fraction ?? 0) };
         column.AddChild(bar);
-        _views.Add(new RowView(pack.Id, true, JobState(job), status, bar));
+        _views.Add(new RowView(pack.Id, true, JobState(job), status, bar, row));
         return column;
     }
 

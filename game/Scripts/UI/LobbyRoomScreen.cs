@@ -207,13 +207,18 @@ public partial class LobbyRoomScreen : MenuPage
             return;
         }
 
-        var panel = new PanelContainer { Name = "MapsPanel", AnchorLeft = 0.12f, AnchorRight = 0.88f, AnchorTop = 0.1f, AnchorBottom = 0.9f };
+        var panel = new PanelContainer
+        {
+            Name = "MapsPanel", AnchorRight = 1f, AnchorBottom = 1f,
+            OffsetLeft = 16f, OffsetTop = 16f, OffsetRight = -16f, OffsetBottom = -16f,
+        };
         panel.AddThemeStyleboxOverride("panel", UiStyle.MenuPanelBox());
         var column = new VBoxContainer { Name = "Column" };
         column.AddThemeConstantOverride("separation", 8);
         panel.AddChild(column);
         column.AddChild(new Label { Name = "Title", Text = "Choose Map", HorizontalAlignment = HorizontalAlignment.Center, Modulate = UiStyle.MenuTitle });
-        var picker = new MapPickerView(Parameters, _mapCatalog, s.Maps, 420f, SettingsStore.Current.ActiveMapPlaylist, HostScreen.RememberPlaylist)
+        // The modal supplies the height; a fixed scroll minimum would push its footer off short screens.
+        var picker = new MapPickerView(Parameters, _mapCatalog, s.Maps, 0f, SettingsStore.Current.ActiveMapPlaylist, HostScreen.RememberPlaylist)
         {
             SizeFlagsVertical = SizeFlags.ExpandFill,
         };
@@ -814,8 +819,6 @@ public partial class LobbyRoomScreen : MenuPage
             return;
         }
 
-        if (ParameterRows?.FindChild("Columns", true, false) is BoxContainer ruleColumns)
-            ruleColumns.Vertical = GetTree().Root.Size.X < 1100;
         double now = Time.GetTicksMsec() / 1000.0;
         if (Math.Abs(s.Countdown - _lastCountdown) > 0.05f)
         {

@@ -16,7 +16,11 @@ public sealed class OptionsSmoke : SmokeTest
     public override string Name => TestName;
     private OptionsMenu? _options;
     private readonly List<string> _problems = new();
-    private readonly Vector2I[] _sizes = [new(1280, 720), new(1024, 768), new(1920, 1080)];
+    private readonly Vector2I[] _sizes =
+    [
+        new(1280, 720), new(800, 600), new(1024, 768), new(1280, 800), new(1920, 1080),
+        new(2560, 1440), new(3440, 1440), new(3840, 1080), new(3840, 2160), new(1280, 720),
+    ];
     private int _size, _tab, _section, _frames;
     private bool _advanced;
 
@@ -45,10 +49,20 @@ public sealed class OptionsSmoke : SmokeTest
             }
         }
         if (_frames < 8) return SmokeResult.Running;
-        string where = $"{_sizes[_size].X} options {_tab}/{_section} advanced={_advanced}";
+        string where = $"{_sizes[_size].X}x{_sizes[_size].Y} options {_tab}/{_section} advanced={_advanced}";
         var problems = LayoutCheck.Problems(_options, _sizes[_size].X);
+        problems.AddRange(LayoutCheck.BoundsProblems(_options, _sizes[_size]));
+        foreach (Node node in _options.FindChildren("ActionList", nameof(ScrollContainer), true, false))
+        {
+            if (node is not ScrollContainer list || !list.IsVisibleInTree()) continue;
+            if (list.Size.Y < 96f) problems.Add($"bindings list has only {list.Size.Y:0}px of visible height");
+            if (list.ScrollVertical == 0 && list.FindChild("Actions", true, false) is GridContainer actions &&
+                actions.GetChildren().OfType<Button>().FirstOrDefault() is { } first &&
+                first.GetGlobalRect().End.Y > list.GetGlobalRect().End.Y + 1f)
+                problems.Add("initial bindings view hides the first action below its instructions");
+        }
         _problems.AddRange(problems.Select(p => where + ": " + p));
-        MenuPage.Shot(tree.Root, $"options-{_sizes[_size].X}-{_tab}-{_section}-{_advanced}");
+        MenuPage.Shot(tree.Root, $"options-{_sizes[_size].X}x{_sizes[_size].Y}-{_tab}-{_section}-{_advanced}");
         _frames = 0;
         if (_tab < 2)
         {
@@ -60,7 +74,7 @@ public sealed class OptionsSmoke : SmokeTest
         if (++_tab < _options.Tabs!.GetTabCount()) return SmokeResult.Running;
         _tab = 0;
         if (++_size < _sizes.Length) { Resize(tree, _sizes[_size]); return SmokeResult.Running; }
-        return _problems.Count == 0 ? SmokeResult.Pass("draft/apply/discard, role bindings, native controller actions, all subsections at 1024/1280/1920")
+        return _problems.Count == 0 ? SmokeResult.Pass("draft/apply/discard, role bindings, all subsections and advanced settings from 800x600 to 4K, including shrinking after 4K")
             : SmokeResult.Fail(string.Join("; ", _problems.Take(12)));
     }
 

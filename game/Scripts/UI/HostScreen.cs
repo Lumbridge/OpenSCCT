@@ -29,6 +29,7 @@ public partial class HostScreen : MenuPage
     private Label? _requireNote;
     private LineEdit? _master;
     private Label? _status;
+    private GridContainer? _networkGrid;
 
     /// <summary>The page's rules (tests and the menu pilot read and drive it).</summary>
     public CreateSessionModel? Model { get; private set; }
@@ -106,6 +107,7 @@ public partial class HostScreen : MenuPage
         mapList.AddChild(Picker);
         VBoxContainer net = Panel(Body, "Network", "Hosting");
         var grid = new GridContainer { Name = "NetGrid", Columns = 4 };
+        _networkGrid = grid;
         grid.AddThemeConstantOverride("h_separation", 12);
         net.AddChild(grid);
         _name = Field(grid, "Server Name", new LineEdit
@@ -191,6 +193,12 @@ public partial class HostScreen : MenuPage
         _requireAccounts.Disabled = !master;
         _requireNote.Visible = !master;
         _requireNote.Text = "Signed-in players only needs a master server: players get their tickets from it.";
+    }
+
+    public override void _Process(double delta)
+    {
+        base._Process(delta);
+        if (_networkGrid is not null) _networkGrid.Columns = AvailableBodyWidth < 1000f ? 2 : 4;
     }
 
     private static T Field<T>(GridContainer grid, string label, T control)

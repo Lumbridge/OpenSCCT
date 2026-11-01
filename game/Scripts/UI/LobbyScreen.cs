@@ -32,7 +32,7 @@ public partial class LobbyScreen : MenuPage
     {
         BuildFrame("Lobby", 0);
         LobbyPanels.ExpandBody(Body);
-        var teams = new HBoxContainer { Name = "Teams" };
+        var teams = new LobbyColumns { Name = "Teams" };
         teams.AddThemeConstantOverride("separation", 12); Body.AddChild(teams);
         _spies = LobbyPanels.Card(teams, "Spies", "Spies");
         var actions = new VBoxContainer { Name = "LobbyActions", SizeFlagsHorizontal = SizeFlags.ExpandFill, SizeFlagsStretchRatio = 0.65f };

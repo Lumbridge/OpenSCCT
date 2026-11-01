@@ -15,6 +15,8 @@ public partial class TipsScreen : MenuPage
 {
     private const string ListSection = "Tutorials_List";
     private const string TipSection = "Tutorials_Tuto";
+    private BoxContainer? _top;
+    private TextureRect? _picture;
 
     /// <summary>0 spies, 1 mercs.</summary>
     public int Team { get; init; }
@@ -42,6 +44,17 @@ public partial class TipsScreen : MenuPage
         }
     }
 
+    public override void _Process(double delta)
+    {
+        base._Process(delta);
+        if (_top is not null) _top.Vertical = AvailableBodyWidth < 820f;
+        if (_picture is not null)
+        {
+            float side = Mathf.Clamp((GetViewportRect().Size.Y - 156f) * 0.55f, 160f, 360f);
+            _picture.CustomMinimumSize = new Vector2(side, side);
+        }
+    }
+
     [PortOf("uc:GUI.Tutorials_List:RefreshList", Spec = "spec/game/tutorials.md#rules")]
     [PortOf("uc:GUI.Tutorials_List:ListClick", Spec = "spec/game/tutorials.md#rules")]
     [PortOf("uc:GUI.Tutorials_List:SwitchTeam", Spec = "spec/game/tutorials.md#rules")]
@@ -61,7 +74,7 @@ public partial class TipsScreen : MenuPage
 
         if (titles.Count == 0)
         {
-            column.AddChild(new Label { Text = "The tips need the converted menu texts (the ui content step).", Modulate = UiStyle.Dim });
+            column.AddChild(new Label { Text = "The tips need the converted menu texts (the ui content step).", Modulate = UiStyle.Dim, AutowrapMode = TextServer.AutowrapMode.WordSmart });
         }
 
         PageButton("Back", () => TutorialsScreen.Show(GetTree()), "Back");
@@ -74,26 +87,29 @@ public partial class TipsScreen : MenuPage
     private void BuildTip()
     {
         string side = Team == 0 ? "SPY" : "SENTRY";
-        var top = new HBoxContainer { Name = "Top" };
+        var top = _top = new BoxContainer { Name = "Top" };
         top.AddThemeConstantOverride("separation", 24);
         Body.AddChild(top);
-        top.AddChild(new TextureRect
+        var texture = UiStyle.Assets?.Texture("Tutorials_PC", $"{side}_Tuto{Tip + 1:00}");
+        _picture = new TextureRect
         {
             Name = "Picture", CustomMinimumSize = new Vector2(360f, 360f), ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
             StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered,
-            Texture = UiStyle.Assets?.Texture("Tutorials_PC", $"{side}_Tuto{Tip + 1:00}"),
-        });
-        VBoxContainer legend = Panel(top, "Legend", null, 400f);
+            Texture = texture, Visible = texture is not null,
+        };
+        top.AddChild(_picture);
+        VBoxContainer legend = Panel(top, "Legend", null);
+        ((Control)legend.GetParent()).SizeFlagsHorizontal = SizeFlags.ExpandFill;
         legend.AddChild(new Label
         {
             Name = "Text", Text = TutorialText.Lines(TutorialText.Item(TipSection, side + "_TutoLegend", Tip)),
-            AutowrapMode = TextServer.AutowrapMode.WordSmart, Modulate = UiStyle.MenuFocus, CustomMinimumSize = new Vector2(380f, 0f),
+            AutowrapMode = TextServer.AutowrapMode.WordSmart, Modulate = UiStyle.MenuFocus,
         });
         PlaySide playSide = Team == 0 ? PlaySide.Spy : PlaySide.Merc;
         Body.AddChild(new Label
         {
             Name = "Explanation", Text = TutorialText.WithKeys(TutorialText.Item(TipSection, side + "_TutoExpli", Tip), playSide),
-            AutowrapMode = TextServer.AutowrapMode.WordSmart, Modulate = UiStyle.MenuText, CustomMinimumSize = new Vector2(860f, 0f),
+            AutowrapMode = TextServer.AutowrapMode.WordSmart, Modulate = UiStyle.MenuText,
         });
 
         int count = Titles(Team).Count;

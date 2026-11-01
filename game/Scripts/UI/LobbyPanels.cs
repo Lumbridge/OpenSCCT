@@ -55,6 +55,19 @@ public static class LobbyPanels
 
 public partial class LobbyColumns : BoxContainer
 {
+    public float StackBelow { get; set; } = 900f;
     public LobbyColumns() { SizeFlagsHorizontal = SizeFlags.ExpandFill; AddThemeConstantOverride("separation", 12); }
-    public override void _Process(double delta) => Vertical = GetTree().Root.Size.X < 1100;
+    public override void _Process(double delta)
+    {
+        // A wide child can force its parent beyond the viewport before it has reflowed.
+        // Prefer the enclosing scroll's available width so that cannot keep the row horizontal.
+        float width = GetParent() is Control parent ? parent.Size.X : Size.X;
+        for (Node? node = GetParent(); node is not null; node = node.GetParent())
+            if (node is ScrollContainer scroll)
+            {
+                width = scroll.Size.X - (scroll.GetVScrollBar().Visible ? scroll.GetVScrollBar().Size.X : 0f);
+                break;
+            }
+        Vertical = width < StackBelow;
+    }
 }

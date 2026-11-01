@@ -171,13 +171,26 @@ public partial class LegendPicture : Control
     private static readonly Color SpotBack = new(0f, 0f, 0f, 100f / 255f);
 
     private readonly System.Collections.Generic.List<(Label Label, Rect2 Place)> _spots = [];
+    private bool _layoutPending;
 
     public Texture2D? Texture { get; init; }
 
     public LegendPicture()
     {
         MouseFilter = MouseFilterEnum.Ignore;
-        Resized += Layout;
+        Resized += () =>
+        {
+            Layout();
+            // Label text shaping and its minimum-height changes finish after the resize notification.
+            _layoutPending = true;
+        };
+    }
+
+    public override void _Process(double delta)
+    {
+        if (!_layoutPending) return;
+        _layoutPending = false;
+        Layout();
     }
 
     /// <summary>Adds a label at <paramref name="place"/> (fractions of the page).</summary>
@@ -187,12 +200,14 @@ public partial class LegendPicture : Control
         var label = new Label
         {
             Text = text, HorizontalAlignment = align, VerticalAlignment = VerticalAlignment.Center, MouseFilter = MouseFilterEnum.Ignore,
+            AutowrapMode = TextServer.AutowrapMode.WordSmart,
             LabelSettings = new LabelSettings { FontColor = UiStyle.MenuFocus, FontSize = 12 },
         };
         label.AddThemeStyleboxOverride("normal", box);
         AddChild(label);
         _spots.Add((label, place));
         Layout();
+        _layoutPending = true;
     }
 
     private Rect2 Fitted()
@@ -208,9 +223,11 @@ public partial class LegendPicture : Control
         int font = Math.Max(9, (int)(page.Size.Y / PageHeight * 11f));
         foreach ((Label label, Rect2 place) in _spots)
         {
+            // Drop the old font's minimum width before fitting a previously large label to a smaller window.
+            label.LabelSettings.FontSize = font;
+            label.UpdateMinimumSize();
             label.Position = page.Position + (place.Position * page.Size);
             label.Size = place.Size * page.Size;
-            label.LabelSettings.FontSize = font;
         }
 
         QueueRedraw();

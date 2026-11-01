@@ -35,6 +35,12 @@ public partial class MenuPage : Control
 
     private CenterContainer? _centre;
 
+    /// <summary>Desired reading width; the page clamps it to the available window width.</summary>
+    protected float PreferredBodyWidth { get; set; }
+
+    /// <summary>Width available to the page, reserving room for a vertical scrollbar.</summary>
+    protected float AvailableBodyWidth => Math.Max(1f, Size.X - 66f);
+
     /// <summary>The page title (typed out when the page opens).</summary>
     public string TitleText
     {
@@ -83,6 +89,7 @@ public partial class MenuPage : Control
     /// <summary>Builds the frame: background, title, corner brackets, body and the button bar. Call first in _Ready.</summary>
     protected void BuildFrame(string title, float bodyWidth = 1100f)
     {
+        PreferredBodyWidth = bodyWidth;
         Theme = UiStyle.MenuTheme;
         SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
         AddChild(UiStyle.MenuBackdrop());
@@ -156,6 +163,28 @@ public partial class MenuPage : Control
         };
         _bar.AddThemeConstantOverride("separation", 24);
         AddChild(_bar);
+        Resized += FitPageWidth;
+        scroll.Resized += FitPageWidth;
+        FitPageWidth();
+    }
+
+    private void FitPageWidth()
+    {
+        // Expanded lobby bodies manage their own width directly in BodyScroll.
+        if (_centre is not null && IsInstanceValid(_centre) && Body.GetParent() == _centre)
+        {
+            var minimum = new Vector2(Math.Min(PreferredBodyWidth, AvailableBodyWidth), Body.CustomMinimumSize.Y);
+            if (Body.CustomMinimumSize != minimum) Body.CustomMinimumSize = minimum;
+        }
+        if (_bar is not null)
+        {
+            float width = Math.Min(1100f, Math.Max(1f, Size.X - 48f));
+            _bar.AnchorLeft = _bar.AnchorRight = 0.5f;
+            _bar.OffsetLeft = -width / 2f;
+            _bar.OffsetRight = width / 2f;
+            int separation = Size.X < 1000 ? 12 : 24;
+            if (_bar.GetThemeConstant("separation") != separation) _bar.AddThemeConstantOverride("separation", separation);
+        }
     }
 
     /// <summary>
@@ -212,6 +241,7 @@ public partial class MenuPage : Control
 
     public override void _Process(double delta)
     {
+        FitPageWidth();
         if (_title is null)
         {
             return;

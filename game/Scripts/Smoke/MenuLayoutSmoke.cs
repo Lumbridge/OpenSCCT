@@ -8,14 +8,19 @@ using OpenScctGame.UI;
 namespace OpenScctGame.Smoke;
 
 /// <summary>
-/// <c>--svm-smoke=menu-layout</c>: every options tab and the Create Session page as the front end opens them, checked
-/// for text a player cannot read (<see cref="LayoutCheck"/>) and saved with <c>SVM_PLAY_SHOTS</c>.
+/// <c>--svm-smoke=menu-layout</c>: options and Create Session across small, 4:3, 16:10, widescreen, ultrawide and 4K
+/// viewports, checked for unreadable text and off-screen controls, and saved with <c>SVM_PLAY_SHOTS</c>.
 /// </summary>
 public sealed class MenuLayoutSmoke : SmokeTest
 {
     public const string TestName = "menu-layout";
 
     private const int SettleFrames = 6;
+    private readonly Vector2I[] _sizes =
+    [
+        new(800, 600), new(1024, 768), new(1280, 720), new(1280, 800), new(1920, 1080),
+        new(2560, 1440), new(3440, 1440), new(3840, 1080), new(3840, 2160),
+    ];
 
     private readonly List<string> _problems = new();
     private readonly List<string> _seen = new();
@@ -23,6 +28,7 @@ public sealed class MenuLayoutSmoke : SmokeTest
     private int _stage;
     private int _tab;
     private int _frames;
+    private int _size;
     private bool _savedMapList;
 
     public override string Name => TestName;
@@ -36,11 +42,13 @@ public sealed class MenuLayoutSmoke : SmokeTest
         switch (_stage)
         {
             case 0:
-                // Headless the window is 64 px wide: lay the pages out at the game's own 1280 x 720.
-                if (tree.Root.Size.X < 1280)
+                if (_size == 0) _savedMapList = SettingsStore.Current.MapListView;
+                if (DisplayServer.GetName() != "headless")
                 {
-                    tree.Root.Size = new Vector2I(1280, 720);
+                    DisplayServer.WindowSetMode(DisplayServer.WindowMode.Windowed);
+                    DisplayServer.WindowSetSize(_sizes[_size]);
                 }
+                tree.Root.Size = _sizes[_size];
 
                 _options = (OptionsMenu)FrontEnd.ShowOptions(tree);
                 _stage = 1;
@@ -63,8 +71,8 @@ public sealed class MenuLayoutSmoke : SmokeTest
                 }
 
                 string title = tabs.GetTabTitle(_tab);
-                Check(tabs.GetCurrentTabControl() ?? (Node)tabs, width, "Options " + title);
-                MenuPage.Shot(tree.Root, $"menu-layout-options-{_tab}-{title}");
+                Check(_options, width, "Options " + title);
+                MenuPage.Shot(tree.Root, $"menu-layout-{_sizes[_size].X}x{_sizes[_size].Y}-options-{_tab}-{title}");
                 _frames = 0;
                 if (++_tab >= tabs.GetTabCount())
                 {
@@ -74,7 +82,6 @@ public sealed class MenuLayoutSmoke : SmokeTest
 
                 return SmokeResult.Running;
             case 2:
-                _savedMapList = SettingsStore.Current.MapListView;
                 SettingsStore.Current.MapListView = false;
                 FrontEnd.ShowHost(tree);
                 _stage = 3;
@@ -87,7 +94,7 @@ public sealed class MenuLayoutSmoke : SmokeTest
                 }
 
                 Check(tree.CurrentScene!, width, "Create Session");
-                MenuPage.Shot(tree.Root, "menu-layout-create-session");
+                MenuPage.Shot(tree.Root, $"menu-layout-{_sizes[_size].X}x{_sizes[_size].Y}-create-session");
                 if (tree.CurrentScene!.FindChild("MapPicker", true, false) is Control picker)
                 {
                     for (Node? parent = picker.GetParent(); parent is not null; parent = parent.GetParent())
@@ -107,7 +114,7 @@ public sealed class MenuLayoutSmoke : SmokeTest
                             _problems.Add("Map title missing or outside its card: " + tile.Name);
                     }
                 }
-                MenuPage.Shot(tree.Root, "menu-layout-map-titles");
+                MenuPage.Shot(tree.Root, $"menu-layout-{_sizes[_size].X}x{_sizes[_size].Y}-map-titles");
                 SettingsStore.Current.MapListView = true;
                 _stage = 5;
                 _frames = 0;
@@ -124,10 +131,18 @@ public sealed class MenuLayoutSmoke : SmokeTest
                             _problems.Add("Map list row is not compact/full-width: " + tile.Name);
                     }
                 }
-                MenuPage.Shot(tree.Root, "menu-layout-map-list");
+                Check(tree.CurrentScene!, width, "Create Session list");
+                MenuPage.Shot(tree.Root, $"menu-layout-{_sizes[_size].X}x{_sizes[_size].Y}-map-list");
                 SettingsStore.Current.MapListView = _savedMapList;
+                if (++_size < _sizes.Length)
+                {
+                    _stage = 0;
+                    _tab = 0;
+                    _frames = 0;
+                    return SmokeResult.Running;
+                }
                 return _problems.Count == 0
-                    ? SmokeResult.Pass("checked " + string.Join(", ", _seen))
+                    ? SmokeResult.Pass($"options tabs and Create Session picture/list views at {_sizes.Length} viewport sizes from 800x600 to 4K")
                     : SmokeResult.Fail(string.Join("; ", _problems.Take(12)));
             default:
                 return SmokeResult.Running;
@@ -136,10 +151,12 @@ public sealed class MenuLayoutSmoke : SmokeTest
 
     private void Check(Node page, float width, string where)
     {
+        where = $"{_sizes[_size].X}x{_sizes[_size].Y} " + where;
         _seen.Add(where);
         foreach (string p in LayoutCheck.Problems(page, width))
         {
             _problems.Add(where + ": " + p);
         }
+        _problems.AddRange(LayoutCheck.BoundsProblems(page, _sizes[_size]).Select(p => where + ": " + p));
     }
 }

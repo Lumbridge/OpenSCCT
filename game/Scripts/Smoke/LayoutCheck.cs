@@ -10,6 +10,33 @@ namespace OpenScctGame.Smoke;
 /// </summary>
 public static class LayoutCheck
 {
+    /// <summary>Interactive controls must fit horizontally; only scrollable content may extend vertically.</summary>
+    public static List<string> BoundsProblems(Node root, Vector2 viewport)
+    {
+        var found = new List<string>();
+        foreach (Node node in root.FindChildren("*", nameof(Control), recursive: true, owned: false))
+        {
+            if (node is not Control c || !c.IsVisibleInTree() ||
+                c is not (BaseButton or Label or LineEdit or TextEdit or Tree or TabContainer or ScrollContainer)) continue;
+            Rect2 rect = c.GetGlobalRect();
+            float left = 0f, right = viewport.X;
+            bool scrollsVertically = false;
+            for (Node? parent = c.GetParent(); parent is not null; parent = parent.GetParent())
+            {
+                if (parent is not ScrollContainer scroll) continue;
+                Rect2 area = scroll.GetGlobalRect();
+                left = Mathf.Max(left, area.Position.X);
+                right = Mathf.Min(right, area.End.X);
+                scrollsVertically |= scroll.VerticalScrollMode != ScrollContainer.ScrollMode.Disabled;
+            }
+            if (rect.Position.X < left - 1f || rect.End.X > right + 1f)
+                found.Add($"{c.GetPath()}: horizontal bounds {rect.Position.X:0}..{rect.End.X:0} outside {left:0}..{right:0}");
+            if (!scrollsVertically && (rect.Position.Y < -1f || rect.End.Y > viewport.Y + 1f))
+                found.Add($"{c.GetPath()}: vertical bounds {rect.Position.Y:0}..{rect.End.Y:0} outside viewport height {viewport.Y:0}");
+        }
+        return found;
+    }
+
     public static List<string> Problems(Node root, float windowWidth)
     {
         var found = new List<string>();

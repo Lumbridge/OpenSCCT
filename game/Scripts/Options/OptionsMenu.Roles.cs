@@ -45,7 +45,13 @@ public partial class OptionsMenu
         string role = merc ? "Mercenary" : "Spy";
         var page = new VBoxContainer { Name = role, SizeFlagsHorizontal = SizeFlags.ExpandFill };
         var header = new HBoxContainer();
-        header.AddChild(new Label { Text = role + " configuration", SizeFlagsHorizontal = SizeFlags.ExpandFill });
+        var sharing = new Label
+        {
+            Text = role + " configuration", SizeFlagsHorizontal = SizeFlags.ExpandFill,
+            AutowrapMode = TextServer.AutowrapMode.WordSmart, MouseFilter = MouseFilterEnum.Pass,
+        };
+        _sharingLabels[side] = sharing;
+        header.AddChild(sharing);
         header.AddChild(UiStyle.MenuButton("Reset " + role, () => Confirm("Reset " + role,
             "Reset this role's bindings, mouse, controller and crosshair settings? Shared keyboard changes affect both roles.",
             () => ResetRole(side), "Reset role"), "Reset" + role));
@@ -66,14 +72,11 @@ public partial class OptionsMenu
 
     private Control RoleBindingsPage(PlaySide side)
     {
-        var content = new VBoxContainer { Name = "Bindings", SizeFlagsHorizontal = SizeFlags.ExpandFill };
-        var header = new HBoxContainer();
-        header.AddChild(Help("Select an action to rebind. Esc cancels; Clear unbinds it."));
+        var page = new VBoxContainer { Name = "Bindings", SizeFlagsHorizontal = SizeFlags.ExpandFill };
+        var content = new VBoxContainer { Name = "BindingList", SizeFlagsHorizontal = SizeFlags.ExpandFill };
         var reset = new Button { Text = "Reset bindings", CustomMinimumSize = new Vector2(170, 32) };
         reset.Pressed += () => Confirm("Reset bindings", "Reset this role's keyboard bindings? Shared layouts affect both roles.",
             () => { ResetBindings(side); RebuildKeys(); }, "Reset bindings");
-        header.AddChild(reset);
-        content.AddChild(header);
         bool merc = side == PlaySide.Merc;
         var behavior = new HBoxContainer();
         void BehaviorChoice(string label, string key, string value, Action<string> change)
@@ -91,41 +94,50 @@ public partial class OptionsMenu
             v => _edit.LookOf(merc, false).WalkBehavior = v);
         if (merc) BehaviorChoice("Scope aim:", "scope_behavior", _edit.MercKbm.ScopeBehavior,
             v => _edit.MercKbm.ScopeBehavior = v);
+        behavior.AddChild(new Control { SizeFlagsHorizontal = SizeFlags.ExpandFill });
+        behavior.AddChild(reset);
         content.AddChild(behavior);
-        var sharing = Help("");
-        _sharingLabels[side] = sharing;
-        content.AddChild(sharing);
         var grid = new GridContainer { Name = "Actions", Columns = 6, SizeFlagsHorizontal = SizeFlags.ExpandFill };
         grid.AddThemeConstantOverride("h_separation", 12);
-        content.AddChild(Page("ActionList", grid));
+        content.AddChild(grid);
         _roleGrids[side] = grid;
-        var help = Help("Select or focus an action to see what it does. Existing combined bindings stay intact until edited.");
+        // Binding controls scroll with the actions on short screens; the live explanation remains visible below.
+        page.AddChild(Page("ActionList", content));
+        var help = Help("Select an action to rebind. Esc cancels; Clear unbinds it. Combined bindings stay intact until edited.");
         help.CustomMinimumSize = new Vector2(0, 44);
+        help.MaxLinesVisible = 2;
+        help.TextOverrunBehavior = TextServer.OverrunBehavior.TrimEllipsis;
+        help.MouseFilter = MouseFilterEnum.Pass;
+        help.TooltipText = help.Text;
         _bindingHelp[side] = help;
-        content.AddChild(help);
-        return content;
+        page.AddChild(help);
+        return page;
     }
 
     private void BuildActionRows(PlaySide side, GridContainer grid)
     {
-        var scroll = grid.GetParent() as ScrollContainer;
+        var scroll = grid.GetParent()?.GetParent() as ScrollContainer;
         int scrollOffset = scroll?.ScrollVertical ?? 0;
+        grid.Columns = FrameWidth < 1100f ? 3 : 6;
+        int actionsPerRow = grid.Columns / 3;
         foreach (Node child in grid.GetChildren()) { grid.RemoveChild(child); child.QueueFree(); }
         var model = ModelOf(side);
         ActionBindingDraft draft = model.Draft!;
         var actions = ControlActions.ForRole(side == PlaySide.Merc, _edit.MouseWheel).ToArray();
-        _sharingLabels[side].Text = _edit.SplitKeyboard ? "Separate role bindings" : "Shared bindings: edits here affect both roles (Spy layout).";
+        _sharingLabels[side].Text = (side == PlaySide.Merc ? "Mercenary" : "Spy") + " configuration\n" +
+            (_edit.SplitKeyboard ? "Separate bindings" : "Shared bindings (Spy layout)");
+        _sharingLabels[side].TooltipText = _edit.SplitKeyboard ? "Separate role bindings" : "Shared bindings: edits here affect both roles (Spy layout).";
         string category = "";
         int inCategory = 0;
         foreach (ControlAction action in actions)
         {
             if (category != action.Category)
             {
-                if (inCategory % 2 != 0) for (int i = 0; i < 3; i++) grid.AddChild(new Control());
+                if (inCategory % actionsPerRow != 0) for (int i = 0; i < 3; i++) grid.AddChild(new Control());
                 category = action.Category;
                 inCategory = 0;
                 grid.AddChild(new Label { Text = category, Modulate = UiStyle.MenuFocus });
-                for (int i = 0; i < 5; i++) grid.AddChild(new Control());
+                for (int i = 0; i < grid.Columns - 1; i++) grid.AddChild(new Control());
             }
             inCategory++;
             string[] keys = draft.Keys(action).ToArray();
@@ -137,12 +149,12 @@ public partial class OptionsMenu
                 _listeningClutch = null;
                 _bindingSide = side; _keys = model; _listeningAction = action; _listening = action.Id;
                 button.Text = "Press key...";
-                _bindingHelp[side].Text = action.Description + " Press a key; Esc cancels capture.";
+                ShowBindingHelp(side, action.Description + " Press a key; Esc cancels capture.");
             };
             // Show every behavior sharing a key, including the other role's actions and custom commands.
             string combined = string.Join("\n", keys.Select(k => OpenScctGame.Controls.GodotKeys.DisplayName(k) + ": " + DescribeBinding(draft, k, side)));
             button.TooltipText += combined.Length > 0 ? "\n" + combined : "";
-            void Explain() => _bindingHelp[side].Text = action.Description + (combined.Length > 0 ? "\n" + combined : " Currently unbound.");
+            void Explain() => ShowBindingHelp(side, action.Description + (combined.Length > 0 ? "\n" + combined : " Currently unbound."));
             button.FocusEntered += Explain;
             button.MouseEntered += Explain;
             foreach (string key in keys) if (side == _bindingSide) _keyButtons[key] = button;
@@ -151,7 +163,7 @@ public partial class OptionsMenu
             clear.Pressed += () => { draft.Remove(action); RebuildKeys(); };
             grid.AddChild(clear);
         }
-        if (inCategory % 2 != 0) for (int i = 0; i < 3; i++) grid.AddChild(new Control());
+        if (inCategory % actionsPerRow != 0) for (int i = 0; i < 3; i++) grid.AddChild(new Control());
         // Unknown/custom chains retain their exact command text and can still be moved as a whole.
         foreach (var row in model.Rows().Where(r => draft.Layout.Expanded(r.Command).Any(p => !ControlActions.All.Any(a => a.Matches(p)))))
         {
@@ -174,12 +186,18 @@ public partial class OptionsMenu
             .Where(p => p is not null).Distinct());
     }
 
+    private void ShowBindingHelp(PlaySide side, string text)
+    {
+        _bindingHelp[side].Text = text;
+        _bindingHelp[side].TooltipText = text;
+    }
+
     private void AssignAction(PlaySide side, ControlAction action, string key)
     {
         if ((action.Category == "Interface" || action.Id is "chat" or "teamchat" or "er") &&
             OpenScctGame.Controls.GodotKeys.ToEvent(key) is not InputEventKey)
         {
-            _bindingHelp[side].Text = "This shortcut requires a keyboard key in the current build. Its binding was left unchanged.";
+            ShowBindingHelp(side, "This shortcut requires a keyboard key in the current build. Its binding was left unchanged.");
             RebuildKeys();
             return;
         }

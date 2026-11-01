@@ -79,7 +79,7 @@ public partial class GadgetDetailsScreen : MenuPage
 
         if (titles.Count == 0)
         {
-            column.AddChild(new Label { Text = "The gadget pages need the converted menu texts (the ui content step).", Modulate = UiStyle.Dim });
+            column.AddChild(new Label { Text = "The gadget pages need the converted menu texts (the ui content step).", Modulate = UiStyle.Dim, AutowrapMode = TextServer.AutowrapMode.WordSmart });
         }
 
         PageButton("Back", () => TutorialsScreen.Show(GetTree()), "Back");
@@ -109,7 +109,7 @@ public partial class GadgetDetailsScreen : MenuPage
         Body.AddChild(new Label
         {
             Name = "Explanation", Text = TutorialText.Item(GadgetSection, side + "_TutorialText", Gadget),
-            AutowrapMode = TextServer.AutowrapMode.WordSmart, Modulate = UiStyle.MenuText, CustomMinimumSize = new Vector2(860f, 0f),
+            AutowrapMode = TextServer.AutowrapMode.WordSmart, Modulate = UiStyle.MenuText,
         });
 
         PageButton("Back", () => Show(GetTree(), Team), "Back");

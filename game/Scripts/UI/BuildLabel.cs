@@ -19,7 +19,7 @@ public static class BuildLabel
             HorizontalAlignment = HorizontalAlignment.Right,
             VerticalAlignment = VerticalAlignment.Bottom,
             Modulate = UiStyle.Dim,
-            MouseFilter = Control.MouseFilterEnum.Ignore,
+            MouseFilter = Control.MouseFilterEnum.Pass,
         };
         label.AddThemeFontSizeOverride("font_size", 14);
         label.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.BottomRight, Control.LayoutPresetMode.Minsize, 12);

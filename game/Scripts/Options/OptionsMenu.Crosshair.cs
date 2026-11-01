@@ -12,6 +12,7 @@ namespace OpenScctGame.Options;
 public partial class OptionsMenu
 {
     private Label? _crosshairCodeNote;
+    private BoxContainer? _crosshairTop;
 
     private Control CrosshairPage()
     {
@@ -19,7 +20,8 @@ public partial class OptionsMenu
         var page = new VBoxContainer { Name = "CrosshairContent", SizeFlagsHorizontal = SizeFlags.ExpandFill };
         page.AddThemeConstantOverride("separation", 10);
 
-        var top = new HBoxContainer { Name = "Top" };
+        var top = new BoxContainer { Name = "Top" };
+        _crosshairTop = top;
         top.AddThemeConstantOverride("separation", 16);
         top.AddChild(new CrosshairPreview(() => _edit.Crosshair) { Name = "Preview", CustomMinimumSize = new Vector2(260f, 160f) });
 
@@ -35,7 +37,7 @@ public partial class OptionsMenu
         };
         _controls["crosshair_code"] = code;
         share.AddChild(code);
-        var buttons = new HBoxContainer();
+        var buttons = new HFlowContainer();
         var import = new Button { Name = "CrosshairImport", Text = "Import code", CustomMinimumSize = new Vector2(150f, 32f) };
         import.Pressed += () => ImportCrosshair(code.Text);
         var copy = new Button { Name = "CrosshairCopy", Text = "Copy my code", CustomMinimumSize = new Vector2(150f, 32f) };
