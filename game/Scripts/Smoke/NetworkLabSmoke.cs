@@ -157,6 +157,8 @@ public sealed class NetworkLabSmoke(bool host, bool observer = false, bool secon
                     hud.Snapshot.Spectator.Watched, hud.Snapshot.Spectator.RespawnIn, hud.Snapshot.Spectator.NoRespawn,
                     hud.Snapshot.Spectator.Lives, hud.Snapshot.Spectator.TeamLives,
                     panel = hud.Spectator?.Panel?.Visible, hud.Snapshot.Valid, hud.Snapshot.HideHud,
+                    hackSeconds = hud.Snapshot.HackCountdown?.Seconds,
+                    roundText = OpenScctGame.Hud.HudK.ChronoText(hud.Snapshot.TimeLimit, hud.Snapshot.ElapsedTime),
                 } : null,
                 inputSent = _pilot?.Sent, inputDelivered = _pilot?.Delivered, inputPath = _pilot?.Notes,
                 memoryBytes = GC.GetTotalMemory(false), allocatedBytes = GC.GetTotalAllocatedBytes(false),
@@ -169,6 +171,7 @@ public sealed class NetworkLabSmoke(bool host, bool observer = false, bool secon
                 grenades = session is null ? [] : Grenades(session.World, session.Connection),
                 gasClouds = session is null ? [] : GasClouds(session.World),
                 stickyCameras = session is null ? [] : StickyCameras(session.World),
+                hackingPanels = session is null ? [] : HackingPanels(session.World),
                 gasFx = _root?.Fx?.Effects is { } fx ? new
                 {
                     particles = fx.ParticlesOf("SStickyCamEmitter"), peak = fx.PeakParticles.GetValueOrDefault("SStickyCamEmitter"),
@@ -300,6 +303,36 @@ public sealed class NetworkLabSmoke(bool host, bool observer = false, bool secon
                         }
                         if (_hub) hub.Host!.Inspect(s => Place(s.Host));
                         else online.Hosting!.Inspect(s => Place(s.Host));
+                        break;
+                    case "place-at-panel":
+                        if (!host || _hub || _dedicated) throw new ArgumentException("Panel placement requires a regular listen host.");
+                        string panelPlayer = command.GetProperty("player").GetString()!;
+                        string panelEvent = command.GetProperty("event").GetString()!;
+                        online.Hosting!.Inspect(s =>
+                        {
+                            try
+                            {
+                                SPlayerController pc = s.Host.Players.Single(p => p.Name == panelPlayer).Controller as SPlayerController
+                                    ?? throw new InvalidOperationException("No panel-test player.");
+                                SBasePawn pawn = pc.SBPawn ?? throw new InvalidOperationException("No panel-test pawn.");
+                                SInterrupteur panel = s.Host.World.Level.Actors.OfType<SInterrupteur>().Single(p => !p.bDeleteMe && p.Event == new Name(panelEvent));
+                                panel.GetUseSpot(pawn, out FVector spot, out FVector facing);
+                                spot.Z = panel.Location.Z;
+                                var extent = new FVector(pawn.CollisionRadius, pawn.CollisionRadius, pawn.CollisionHeight);
+                                var collision = s.Host.Map.Physics?.Collision;
+                                if (collision is null || !collision.LineCheck(out var floor, pawn,
+                                    spot - new FVector(0, 0, 256), spot, extent, PlayInspector.WorldTrace) || floor.Normal.Z < .7f ||
+                                    !pawn.SetLocation(floor.Location + new FVector(0, 0, 2)))
+                                    throw new InvalidOperationException("Panel use spot has no clear supported placement.");
+                                pawn.Rotation = new FRotator(0, facing.Rotation().Yaw, 0);
+                                pc.SetViewRotation(pawn.Rotation);
+                                pawn.Velocity = pawn.Acceleration = default;
+                                pawn.ResetNetworkHistory();
+                                s.Host.Movement.PeekEndpoint(pc)?.Sequenced?.ResetLifetime();
+                                Ack(id, null);
+                            }
+                            catch (Exception e) { Ack(id, e.Message); }
+                        });
                         break;
                     case "sticky-camera":
                         if (!host || _hub || _dedicated) throw new ArgumentException("Sticky-camera fixture requires a regular listen host.");

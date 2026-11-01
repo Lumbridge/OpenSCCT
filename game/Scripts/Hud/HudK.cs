@@ -188,8 +188,9 @@ public static class HudK
     [Provenance(ProvenanceKind.Decoded, "Bridge docs/overlays/spyhud.md 8: NumLives >= 100 -> Inifite_Short")]
     public const int InfiniteLives = 100;
 
-    /// <summary>The time-limit countdown: minutes left and 59 - seconds elapsed in the minute (docs/HUD.md).</summary>
-    [Provenance(ProvenanceKind.Decoded, "Bridge docs/HUD.md: rem = TimeLimit - ElapsedTime / 60 - 1, '%u:%02u' of (rem, 59 - Elapsed % 60)")]
+    /// <summary>The remaining whole seconds on the same replicated clock used by the match timeout.</summary>
+    // Intentional display correction: the original page used limit * 60 - elapsed - 1. The gameplay
+    // timeout is elapsed >= limit * 60, so subtracting that extra second showed zero while play remained.
     public static string? ChronoText(int timeLimit, int elapsed)
     {
         if (timeLimit <= 0)
@@ -197,18 +198,18 @@ public static class HudK
             return null;
         }
 
-        int rem = timeLimit - elapsed / 60 - 1;
-        if (rem < 0)
-        {
-            return null;
-        }
-
-        return string.Create(System.Globalization.CultureInfo.InvariantCulture, $"{rem}:{59 - elapsed % 60:00}");
+        return CountdownText(Math.Max(0, timeLimit * 60 - elapsed));
     }
 
-    /// <summary>The countdown boxes: "0:%02u".</summary>
-    public static string CountdownText(int seconds) =>
-        string.Create(System.Globalization.CultureInfo.InvariantCulture, $"0:{Math.Max(0, seconds):00}");
+    /// <summary>Whole seconds still remaining: a positive final fraction is one second, never zero.</summary>
+    public static int RemainingSeconds(float seconds) => (int)MathF.Ceiling(Math.Max(0f, seconds));
+
+    /// <summary>The countdown boxes, with minutes carried for durations of a minute or more.</summary>
+    public static string CountdownText(int seconds)
+    {
+        int remaining = Math.Max(0, seconds);
+        return string.Create(System.Globalization.CultureInfo.InvariantCulture, $"{remaining / 60}:{remaining % 60:00}");
+    }
 
     // ---- counters, spectator, effects -----------------------------------------------------------------------
 

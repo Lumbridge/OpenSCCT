@@ -103,6 +103,29 @@ public class ReplicationInfoAndNetModeTests
     }
 
     [Fact]
+    public void PreciseElapsedTime_and_reset_use_world_time_inside_nested_movement_command_scopes()
+    {
+        GameWorld w = new GameWorld().Load(Story, MatchLifecycleTests.TwoSides);
+        w.Run(35.5f);
+        w.Gri.ElapsedTime = 20;
+        w.Gri.SecondCount = w.Level.TimeSeconds - .25f;
+        float worldTime = w.Level.TimeSeconds;
+        using (w.Level.CommandTime(60, 1f, Sim.DeltaTime))
+        {
+            Assert.Equal(20.25f, w.Gri.PreciseElapsedTime(), 4);
+            using (w.Level.CommandTime(120, 2f, Sim.DeltaTime))
+            {
+                Assert.Equal(20.25f, w.Gri.PreciseElapsedTime(), 4);
+                w.Gri.Reset();
+                Assert.Equal(worldTime, w.Gri.SecondCount);
+                Assert.Equal(0f, w.Gri.PreciseElapsedTime(), 4);
+            }
+        }
+        Assert.Equal(worldTime, w.Level.TimeSeconds);
+        Assert.Equal(0f, w.Gri.PreciseElapsedTime(), 4);
+    }
+
+    [Fact]
     public void A_client_copy_blanks_the_server_strings_and_never_counts()
     {
         var w = new GameWorld(ENetMode.NM_Client);

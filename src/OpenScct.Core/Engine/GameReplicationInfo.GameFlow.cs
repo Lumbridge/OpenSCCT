@@ -18,7 +18,7 @@ public partial class GameReplicationInfo
             AdminEmail = string.Empty;
         }
 
-        SecondCount = Level.TimeSeconds;
+        SecondCount = XLevel.WorldTimeSeconds;
         SetTimer(1f, true);
     }
 
@@ -59,7 +59,7 @@ public partial class GameReplicationInfo
     [PortOf("uc:Engine.GameReplicationInfo:Reset", Spec = "spec/game/replication-info.md#rules")]
     public override void Reset()
     {
-        SecondCount = Level.TimeSeconds;
+        SecondCount = XLevel.WorldTimeSeconds;
         ElapsedTime = 0;
         RemainingMinute = TimeLimit * 60;
         bStopCountDown = false;
@@ -80,7 +80,7 @@ public partial class GameReplicationInfo
             return;
         }
 
-        if (Level.TimeSeconds - SecondCount >= Level.TimeDilation)
+        if (XLevel.WorldTimeSeconds - SecondCount >= Level.TimeDilation)
         {
             ElapsedTime++;
             if (RemainingMinute != 0)
@@ -100,7 +100,9 @@ public partial class GameReplicationInfo
 
     [Uc("Engine.GameReplicationInfo.PreciseElapsedTime", Sha1 = "bba6b6494e01acfc78ada8f655c88198c51f2371")]
     [PortOf("uc:Engine.GameReplicationInfo:PreciseElapsedTime", Spec = "spec/game/replication-info.md#rules")]
-    public float PreciseElapsedTime() => ElapsedTime + (Level.TimeSeconds - SecondCount) / Level.TimeDilation;
+    // Match deadlines are advanced by world ticks. A movement command can temporarily replace TimeSeconds
+    // with the client's older input time; mixing it with SecondCount makes valid future deadlines negative.
+    public float PreciseElapsedTime() => ElapsedTime + (XLevel.WorldTimeSeconds - SecondCount) / Level.TimeDilation;
 
     [Uc("Engine.GameReplicationInfo.AddPRI", Sha1 = "0ca37458a568c5b7be211a0cac07ab67ccc31916")]
     [PortOf("uc:Engine.GameReplicationInfo:AddPRI", Spec = "spec/game/replication-info.md#rules")]

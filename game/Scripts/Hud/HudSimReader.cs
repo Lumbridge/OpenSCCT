@@ -147,9 +147,9 @@ public sealed class HudSimReader : IHudSource
         {
             s.HackingText = shud.ObjectiveHackingSpy;
             s.SecuredText = shud.ObjectiveSecuredSpy;
-            ReadCountdowns(shud, gri?.ElapsedTime ?? 0, s);
+            ReadCountdowns(shud, gri?.PreciseElapsedTime() ?? 0f, s);
             ReadMessages(shud, s);
-            ReadAlarm(shud, gri?.ElapsedTime ?? 0, s);
+            ReadAlarm(shud, gri?.PreciseElapsedTime() ?? 0f, s);
             s.ShowPlayers = shud.bShowConnectedPlayers;
             s.Tutorial = shud.sTutoMap.Length > 4 ? shud.sTutoMap : "";
             s.SleepingText = shud.TextSleeping;
@@ -165,8 +165,8 @@ public sealed class HudSimReader : IHudSource
             }
         }
 
-        // ProcessSFX 0x10a9239f: %i of trunc(fLyingOnGroundTime + fLyingOnGroundDuration - now), not clamped.
-        s.SleepSeconds = (int)(pc.fLyingOnGroundTime + pc.fLyingOnGroundDuration - info.TimeSeconds);
+        // Use the same local deadline as s_LyingOnGround's timer, including its final partial second.
+        s.SleepSeconds = HudK.RemainingSeconds(pc.fLyingOnGroundTime + pc.fLyingOnGroundDuration - info.TimeSeconds);
         s.RespawnWeapon = HudRespawnWeaponDrawer.Read(pc);
         ReadEffects(pc, pawn, shud, effects, s);
         ReadObjectives(pc, pawn, level, gri, s);
@@ -283,26 +283,26 @@ public sealed class HudSimReader : IHudSource
     }
 
     /// <summary>
-    /// ChronoHack: the first STriggerInteraction in ActorToDraw with MinTriggerTime != 0, trunc(MTT - Elapsed) + 1
-    /// (at least 0). ChronoObjectif(2): the first two SObjectives with MinTriggerTime != 0, trunc(MTT - Elapsed).
+    /// The first hacking panel and first two objective deadlines. Use the fractional match clock and round the
+    /// remaining duration up once, so positive time never displays zero and exact seconds gain no extra second.
     /// </summary>
-    private static void ReadCountdowns(SHud hud, int elapsed, HudSnapshot s)
+    private static void ReadCountdowns(SHud hud, float elapsed, HudSnapshot s)
     {
         foreach (Actor? a in hud.ActorToDraw)
         {
             if (a is STriggerInteraction { bDeleteMe: false } t && t.MinTriggerTime != 0f && s.HackCountdown is null)
             {
-                s.HackCountdown = new HudCountdown(Math.Max(0, (int)(t.MinTriggerTime - elapsed) + 1));
+                s.HackCountdown = new HudCountdown(HudK.RemainingSeconds(t.MinTriggerTime - elapsed));
             }
             else if (a is SObjective { bDeleteMe: false } o && o.MinTriggerTime != 0f && s.ObjectiveCountdowns.Count < 2)
             {
-                s.ObjectiveCountdowns.Add(new HudCountdown(Math.Max(0, (int)(o.MinTriggerTime - elapsed))));
+                s.ObjectiveCountdowns.Add(new HudCountdown(HudK.RemainingSeconds(o.MinTriggerTime - elapsed)));
             }
         }
     }
 
     /// <summary>The alarm box (spec/hud/counters-and-prompts.md rule 1).</summary>
-    private static void ReadAlarm(SHud hud, int elapsed, HudSnapshot s)
+    private static void ReadAlarm(SHud hud, float elapsed, HudSnapshot s)
     {
         float best = 0f;
         foreach (SAlarm? a in hud.AlarmsList)
@@ -315,7 +315,7 @@ public sealed class HudSimReader : IHudSource
 
         if (best > 0f)
         {
-            s.AlarmSeconds = (int)best;
+            s.AlarmSeconds = HudK.RemainingSeconds(best);
         }
     }
 
@@ -663,8 +663,7 @@ public sealed class HudSimReader : IHudSource
         v.Objectives = gri.GameMode == EGameMode.GM_DiskHunt
             ? string.Create(CultureInfo.InvariantCulture, $"{Math.Max(0, gri.NumDisks - left)}/{gri.NumDisksToWin}")
             : string.Create(CultureInfo.InvariantCulture, $"{Math.Max(0, gri.NumObjectives - left)}/{gri.NumObjectives}");
-        int rem = gri.TimeLimit - gri.ElapsedTime / 60 - 1;
-        v.RemainingTime = rem < 0 ? inf : string.Create(CultureInfo.InvariantCulture, $"{rem}:{59 - gri.ElapsedTime % 60:00}");
+        v.RemainingTime = HudK.ChronoText(gri.TimeLimit, gri.ElapsedTime) ?? inf;
         if (pc.PlayerReplicationInfo is not { } pri)
         {
             return;
@@ -710,7 +709,7 @@ public sealed class HudSimReader : IHudSource
 
         if (pri.NumLives > 0 && !pc.IsInState(HudK.NAME_s_Spectating_Visitor))
         {
-            int sec = (int)(pc.fRespawnDate - pc.Level.TimeSeconds + 1f);
+            int sec = HudK.RemainingSeconds(pc.fRespawnDate - pc.Level.TimeSeconds);
             v.RespawnIn = sec is > 0 and < HudK.RespawnShownBelow ? sec : 0;
         }
         else

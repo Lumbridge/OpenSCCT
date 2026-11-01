@@ -109,6 +109,7 @@ public sealed class HudSmoke(bool spectatorOnly = false) : SmokeTest
             case 7:
                 Capture(context, "binoculars-merc");
                 LeaveBinoculars();
+                CheckTimedCountdowns();
                 CheckCounters();
                 CheckSpectator();
                 return Running();
@@ -252,9 +253,9 @@ public sealed class HudSmoke(bool spectatorOnly = false) : SmokeTest
         Expect(snap.Side == HudSide.Spy, $"side {snap.Side}");
         Expect(snap.Health == 60 && snap.EnergyLevel == 50f && snap.EnergyLevelMax == 100, $"spy health {snap.Health} energy {snap.EnergyLevel}/{snap.EnergyLevelMax}");
         MagmaDrawList list = layer.Spy!.DrawList;
-        ExpectText(list, "Chrono/Chrono", "8:44");
+        ExpectText(list, "Chrono/Chrono", "8:45");
         ExpectText(list, "Objectif/Story/Objectif", "3");
-        ExpectText(list, "ChronoHack/Chrono_Hack", "0:06");
+        ExpectText(list, "ChronoHack/Chrono_Hack", "0:05");
         ExpectText(list, "ChronoObjectif/Chrono_Objectif", "0:07");
         ExpectText(list, "ChronoAlarm/Chrono_Alarm", "0:25");
         ExpectText(list, "Gadget/NomGadget", s.Gadget.ItemName);
@@ -485,7 +486,7 @@ public sealed class HudSmoke(bool spectatorOnly = false) : SmokeTest
         ExpectText(list, "Ammo/TextAmmoStock", "17/92");
         ExpectText(list, "Extras/FireMode", s.Rifle.GetROFName());
         ExpectText(list, "Extras/Vision", "Motion tracking");
-        ExpectText(list, "Chrono/Chrono", "8:44");
+        ExpectText(list, "Chrono/Chrono", "8:45");
         ExpectText(list, "Objectif/Story/Objectif", "3");
         ExpectText(list, "ChronoObjectif/Chrono_Objectif", "0:07");
         ExpectText(list, "ReticuleMessage/messageReticule", "Reloading");
@@ -712,6 +713,46 @@ public sealed class HudSmoke(bool spectatorOnly = false) : SmokeTest
         }
     }
 
+    private void CheckTimedCountdowns()
+    {
+        var scene = new Scene();
+        GameReplicationInfo gri = scene.World.Level.Info.GRI!;
+        float now = scene.World.Level.TimeSeconds;
+        gri.SecondCount = now - 0.25f;
+        float elapsed = gri.PreciseElapsedTime();
+        STriggerInteraction hack = scene.SpyHud.ActorToDraw.OfType<STriggerInteraction>().Single();
+        var sleep = new HudSfx();
+        sleep.AddVisualSfx(SFXType.SFXT_TextureColorSleep, 255f, 255f, 10f,
+            SFXAttenuation.SFXA_Constant, now, dontKill: true);
+        sleep.Process(now);
+
+        foreach ((float remaining, int shown) in new (float, int)[] { (2f, 2), (1.25f, 2), (0.75f, 1), (0.01f, 1), (0f, 0), (-0.1f, 0) })
+        {
+            scene.Alarm.StartTime = elapsed + remaining - scene.Alarm.Duration;
+            hack.MinTriggerTime = elapsed + remaining;
+            scene.Objective.MinTriggerTime = elapsed + remaining;
+            scene.SpyPc.fLyingOnGroundTime = now + remaining - scene.SpyPc.fLyingOnGroundDuration;
+            var snapshot = new HudSnapshot();
+            HudSimReader.Read(scene.SpyPc, snapshot);
+            Expect(snapshot.HackCountdown?.Seconds == shown, $"hack has {shown} seconds at {remaining} remaining ({snapshot.HackCountdown?.Seconds})");
+            Expect(snapshot.ObjectiveCountdowns.Count == 1 && snapshot.ObjectiveCountdowns[0].Seconds == shown,
+                $"objective has {shown} seconds at {remaining} remaining");
+            Expect(snapshot.AlarmSeconds == (shown > 0 ? shown : null),
+                $"alarm has {shown} seconds at {remaining} remaining ({snapshot.AlarmSeconds})");
+            Expect(snapshot.SleepSeconds == shown, $"knockout has {shown} seconds at {remaining} remaining ({snapshot.SleepSeconds})");
+
+            var list = new MagmaDrawList();
+            sleep.Draw(list, Screen, new WhiteRegion("", "", Vector2.Zero), "Sleeping", snapshot.SleepSeconds);
+            if (shown > 0)
+                ExpectText(list, "Sfx/SleepTime", shown.ToString(CultureInfo.InvariantCulture));
+            else
+                Expect(!list.Any("Sfx/SleepTime"), "expired knockout has no remaining-time label");
+        }
+
+        foreach ((int seconds, string text) in new[] { (-1, "0:00"), (0, "0:00"), (1, "0:01"), (59, "0:59"), (60, "1:00"), (90, "1:30"), (600, "10:00") })
+            Expect(HudK.CountdownText(seconds) == text, $"countdown {seconds} formats as {text}");
+    }
+
     private void CheckCounters()
     {
         HudLayer layer = _layer!;
@@ -746,14 +787,48 @@ public sealed class HudSmoke(bool spectatorOnly = false) : SmokeTest
         Expect(layer.ActivePage is SpectatorHudPage, $"spectator page active ({layer.ActivePage?.GetType().Name})");
         MagmaDrawList list = layer.Spectator!.DrawList;
         ExpectText(list, "Spectator/textNbObjectives", "1/4");
-        ExpectText(list, "Spectator/textNbRemainingTime", "8:44");
+        ExpectText(list, "Spectator/textNbRemainingTime", "8:45");
         ExpectText(list, "Spectator/textNbDeaths", "4");
         ExpectText(list, "Spectator/textPlayerWatched", "Ghost");
         ExpectText(list, "Spectator/textRespawnTime", "7");
         ExpectContains(list, "Spectator/textTip", "spy tip");
         Expect(list.Find("Spectator/textNoRespawnLeft") is null, "respawn left");
         Expect(!layer.Spy!.Root.Visible && !layer.Merc!.Root.Visible, "player pages hidden while spectating");
+        CheckClockBoundaries();
         _extra = null;
+    }
+
+    private void CheckClockBoundaries()
+    {
+        Expect(HudK.ChronoText(10, 0) == "10:00", "round begins with its full remaining duration");
+        Expect(HudK.ChronoText(1, 59) == "0:01", "one second remains before the authoritative time limit");
+        Expect(HudK.ChronoText(1, 60) == "0:00", "round reaches zero at its time limit");
+        Expect(HudK.ChronoText(1, 61) == "0:00", "expired finite clock stays zero");
+        Expect(HudK.ChronoText(0, 61) is null, "unlimited round hides the player countdown");
+        SPlayerController pc = _scene!.SpyPc;
+        GameReplicationInfo gri = pc.GameReplicationInfo!;
+        int limit = gri.TimeLimit, elapsed = gri.ElapsedTime;
+        float respawn = pc.fRespawnDate;
+        var snapshot = new HudSnapshot();
+        gri.TimeLimit = 1;
+        gri.ElapsedTime = 60;
+        pc.fRespawnDate = Now + 10f;
+        HudSimReader.Read(pc, snapshot);
+        Expect(snapshot.Spectator.RemainingTime == "0:00", "spectator finite expiry is zero, not infinite");
+        Expect(snapshot.Spectator.RespawnIn == 10, "a ten-second respawn does not display eleven");
+        snapshot.Clear();
+        pc.fRespawnDate = Now + 0.25f;
+        HudSimReader.Read(pc, snapshot);
+        Expect(snapshot.Spectator.RespawnIn == 1, "respawn final fraction remains visible");
+        snapshot.Clear();
+        gri.TimeLimit = 0;
+        pc.fRespawnDate = Now;
+        HudSimReader.Read(pc, snapshot);
+        Expect(snapshot.Spectator.RemainingTime == HudK.InfiniteShort, "unlimited spectator clock is infinite");
+        Expect(snapshot.Spectator.RespawnIn == 0, "respawn countdown expires at the deadline");
+        gri.TimeLimit = limit;
+        gri.ElapsedTime = elapsed;
+        pc.fRespawnDate = respawn;
     }
 
     private GameStatusPage? _status;
@@ -1015,7 +1090,7 @@ public sealed class HudSmoke(bool spectatorOnly = false) : SmokeTest
         {
             World = new World(1, ENetMode.NM_Standalone);
             Level level = World.Level;
-            var gri = new GameReplicationInfo { TimeLimit = 10, ElapsedTime = 75, NumObjectives = 4, GameMode = EGameMode.GM_Multi };
+            var gri = Spawn(level, new GameReplicationInfo { TimeLimit = 10, ElapsedTime = 75, NumObjectives = 4, GameMode = EGameMode.GM_Multi }, default);
             var spies = new STeamInfo { TeamIndex = 0, iNBGadgets = 4 };
             spies.aTipStrings.Add("A spy tip.");
             gri.Teams[0] = spies;

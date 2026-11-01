@@ -41,7 +41,7 @@ param(
     [string]$DedicatedExe,
     [ValidateSet('host','guest','observer','observer2')][string]$Role = 'host',
     [string]$CommandJson,
-    [ValidateSet('startup','load-timeout','jump','ledge','stall','grab','fire','gadget','sticky-gas','camera-network','audio','outage','stance','soak','death','elimination','roundtrip','rejoin','spectator','stale-combat')][string]$Scenario = 'startup',
+    [ValidateSet('startup','load-timeout','jump','ledge','stall','grab','fire','gadget','sticky-gas','camera-network','door-timer','audio','outage','stance','soak','death','elimination','roundtrip','rejoin','spectator','stale-combat')][string]$Scenario = 'startup',
     [ValidateRange(30,900)][int]$TimeoutSeconds = 180
 )
 $ErrorActionPreference = 'Stop'
@@ -385,6 +385,56 @@ switch ($Action) {
                 return
             }
             $startup = Assert-Startup
+            if ($Scenario -eq 'door-timer') {
+                if ($Map -ne 'PolaE' -or $Hub -or $Dedicated) { throw 'Door timer acceptance requires PolaE in a regular listen session.' }
+                $spyRole = if ($ReverseRoles) { 'guest' } else { 'host' }
+                $mercRole = if ($ReverseRoles) { 'host' } else { 'guest' }
+                $spyName = if ($ReverseRoles) { 'LabGuest' } else { 'LabHost' }
+                Invoke-Lab 'host' @{op='place-at-panel';player=$spyName;event='porteSpawn'}
+                $panel = @((Read-Json (Join-Path $RunDirectory 'server-status.json')).server.hackingPanels | Where-Object eventName -eq 'porteSpawn')[0]
+                Invoke-Lab $spyRole @{op='face';yaw=$panel.useYaw}
+                Invoke-Lab $spyRole @{op='input';steps=@(@{label='panel placement settles';seconds=2})}
+                $began = [DateTimeOffset]::UtcNow
+                $input = Send-Lab $spyRole @{op='input';steps=@(@{label='hack panel with Use';seconds=0.3;tap=@('Use')},@{label='watch authored hack';seconds=8})}
+                $positive = [Collections.Generic.HashSet[int]]::new()
+                $shots = [Collections.Generic.HashSet[int]]::new()
+                $evidence = [Collections.Generic.List[object]]::new()
+                $finished = $false
+                $started = $false
+                $firstDeadline = $null
+                $maxError = 0.0
+                $until = [DateTimeOffset]::UtcNow.AddSeconds(16)
+                while ([DateTimeOffset]::UtcNow -lt $until) {
+                    $source = @((Read-Json (Join-Path $RunDirectory 'server-status.json')).server.hackingPanels | Where-Object eventName -eq 'porteSpawn')[0]
+                    $spyStatus = Read-Json (Join-Path $RunDirectory "$spyRole-status.json")
+                    $mercStatus = Read-Json (Join-Path $RunDirectory "$mercRole-status.json")
+                    $copy = @($spyStatus.hackingPanels | Where-Object eventName -eq 'porteSpawn')[0]
+                    $shown = $spyStatus.hud.hackSeconds
+                    $remaining = [double]$source.deadline - [double]$source.precise
+                    $evidence.Add(@{utc=[DateTimeOffset]::UtcNow;authority=$source;owner=$copy;shown=$shown;mercShown=$mercStatus.hud.hackSeconds;ownerState=$spyStatus.localController.state})
+                    if ($source.deadline -ne 0 -and !$started) { $started = $true; $firstDeadline = [DateTimeOffset]::UtcNow }
+                    $hackAge = if ($started) { ([DateTimeOffset]::UtcNow - $firstDeadline).TotalSeconds } else { 0 }
+                    if ($started -and $hackAge -gt 0.4 -and $hackAge -lt ($source.duration - 0.25) -and $spyStatus.localController.state -eq 's_Hack_Use') {
+                        if ($remaining -le 0) { throw "Hack deadline already expired during active hacking: deadline=$($source.deadline), authority clock=$($source.precise)." }
+                        if ($null -eq $shown -or $shown -le 0) { throw "Hack has $remaining seconds left but owner HUD shows '$shown'." }
+                        $errorSeconds = [Math]::Abs([double]$shown - [Math]::Ceiling($remaining))
+                        $maxError = [Math]::Max($maxError,$errorSeconds)
+                        if ($errorSeconds -gt 1) { throw "Hack timer differs by $errorSeconds seconds from authority." }
+                        if ($null -ne $mercStatus.hud.hackSeconds -and [Math]::Abs([double]$mercStatus.hud.hackSeconds - [Math]::Ceiling($remaining)) -gt 1) {
+                            throw 'Merc hack countdown differs from authority.'
+                        }
+                        $null = $positive.Add([int]$shown)
+                        if ($Windowed -and $shown -in @(4,2) -and $shots.Add([int]$shown)) {
+                            Invoke-Lab $spyRole @{op='capture'}
+                        }
+                    }
+                    if ($started -and !$source.usable -and $null -eq $shown) { $finished = $true; break }
+                    Start-Sleep -Milliseconds 100
+                }
+                Wait-Ack $spyRole $input
+                Write-Json (Join-Path $RunDirectory 'door-timer-result.json') @{started=$started;finished=$finished;positive=@($positive);maxDisplayError=$maxError;placementFixture=$true;normalUseInput=$true;spyRole=$spyRole;samples=$evidence}
+                if (!$finished -or $positive.Count -lt 3) { throw "Door hack failed completion/countdown coverage: finished=$finished values=$($positive -join ',')." }
+            }
             if ($Scenario -eq 'audio') {
                 if ($Map -ne 'SteeE' -or $Hub -or $Dedicated) { throw 'Audio acceptance requires the SteeE clear lane in a regular listen session.' }
                 $spyRole = if ($ReverseRoles) { 'guest' } else { 'host' }

@@ -323,6 +323,35 @@ public sealed class SwitchHackTests
     }
 
     [Fact]
+    public void Hack_started_from_an_old_nested_input_command_has_a_five_second_world_deadline()
+    {
+        (ObjWorld w, SInterrupteur sw, EventCounter target) = Loaded(hack: 5);
+        w.Run(35.5f);
+        w.Gri.ElapsedTime = 20;
+        w.Gri.SecondCount = w.Level.TimeSeconds - .25f;
+        TestPC spy = SpyAt(w, sw);
+        float before = ObjectiveNatives.PreciseElapsedTime(w.Level.Info);
+        using (w.Level.CommandTime(60, 1f, Sim.DeltaTime))
+        {
+            ObjWorld.UseEntry(spy, sw.InteractionObj!);
+            spy.GotoState(K.s_Hack_Enter);
+            using (w.Level.CommandTime(120, 2f, Sim.DeltaTime))
+            {
+                spy.GotoState(K.s_Hack_Use);
+                Assert.Equal(before + 5f, sw.TriggerInteraction!.MinTriggerTime, 4);
+                Assert.Equal(before, ObjectiveNatives.PreciseElapsedTime(w.Level.Info), 4);
+            }
+        }
+        Assert.Equal(5f, spy.TimerRate);
+        Assert.Equal(5f, sw.TriggerInteraction!.MinTriggerTime - ObjectiveNatives.PreciseElapsedTime(w.Level.Info), 4);
+        w.Run(4.9f);
+        Assert.Equal(0, target.Triggers);
+        w.Run(.3f);
+        Assert.Equal(1, target.Triggers);
+        Assert.Equal(0f, sw.TriggerInteraction.MinTriggerTime);
+    }
+
+    [Fact]
     public void Cancelled_hack_fires_nothing_and_can_be_retried()
     {
         (ObjWorld w, SInterrupteur sw, EventCounter target) = Loaded(hack: 5);
