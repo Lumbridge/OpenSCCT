@@ -27,6 +27,7 @@ internal sealed partial class PlayerPortal(MasterOptions options, AccountStore s
     {
         Get(app, "/", Home);
         Get(app, "/download", Download);
+        app.MapGet("/changelog", (Func<HttpContext, Task<IResult>>)Changelog);
         Get(app, "/servers", Servers);
         Get(app, "/players", Players);
         Get(app, "/players/{id:long}", c => Profile(c, Id(c)));
@@ -90,7 +91,8 @@ internal sealed partial class PlayerPortal(MasterOptions options, AccountStore s
     private IResult Show(HttpContext c, string title, string active, string body, string? notice = null, bool bad = false, int status = 200)
     {
         Viewer? viewer = Current(c);
-        return Page(c, title, active, body, viewer?.Account.Name ?? (viewer is null ? null : "My account"), viewer?.Session.Csrf, notice, bad, status);
+        return Page(c, title, active, body, viewer?.Account.Name ?? (viewer is null ? null : "My account"), viewer?.Session.Csrf, notice, bad, status,
+            isAdmin: viewer is not null && _options.IsAdmin(viewer.Account.DiscordId));
     }
 
     private IResult NotFound(HttpContext c, string title = "Player unavailable") =>

@@ -13,8 +13,14 @@ Both ship with `svm-master`; no JavaScript build service, separate web host, or 
 - **Leaderboards:** compare lifetime XP, wins or kills. Private, unnamed and actively banned accounts are excluded.
   These are lifetime totals from counted rounds, not seasonal rankings or an estimate of missing historical data.
 - **Matches:** browse recorded rounds and their team scoreboards. Uncounted rounds are labelled.
+- **Changelog:** read recent published updates at `/changelog`, also linked from the main navigation, footer and
+  download page. Release notes come from the public GitHub releases, refresh at most every ten minutes, and keep
+  the last successful results if GitHub is temporarily unavailable. Drafts, prereleases and content storage releases
+  are excluded; the full release archive remains linked on GitHub.
 - **My account:** sign in with the same Discord identity used in the game. Claim/change your player name, manage
   website privacy and sign-ins, prestige when eligible, and select your unlocked cosmetics and title.
+  Use **Sign out** in the header on any page to end this browser's player session, including on mobile.
+  Signed-in accounts on the admin allowlist also see an **Admin** link to the separately authenticated portal.
 
 The existing name reservation/cooldown, prestige and unlock rules apply on the website. No web form grants XP,
 unlocks or an administrative role. Prestige resets the current level and level-specific unlocks under the same

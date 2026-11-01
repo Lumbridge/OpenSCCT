@@ -37,7 +37,7 @@ internal static class WebHtml
     }
 
     public static IResult Page(HttpContext context, string title, string active, string body, string? name = null, string? csrf = null,
-        string? notice = null, bool bad = false, int status = 200)
+        string? notice = null, bool bad = false, int status = 200, bool isAdmin = false)
     {
         Secure(context);
         var html = new StringBuilder("<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">");
@@ -49,14 +49,19 @@ internal static class WebHtml
             .Append($"<header class=\"site-header\"><div class=\"header-inner\"><a class=\"site-brand\" href=\"/\"><img src=\"{H(AssetUrl("/web/assets/mark.svg"))}\" alt=\"\" width=\"36\" height=\"36\"><span>OpenSCCT<small>SPIES VS MERCENARIES</small></span></a>")
             .Append("<button class=\"menu-toggle button secondary\" type=\"button\" aria-expanded=\"false\" aria-controls=\"primary-navigation\">Menu</button><nav id=\"primary-navigation\" class=\"primary-nav\" aria-label=\"Main navigation\">");
         foreach ((string url, string label, string key) in new[] { ("/", "Overview", "home"), ("/servers", "Servers", "servers"),
-            ("/players", "Players", "players"), ("/leaderboards", "Leaderboards", "leaderboards"), ("/matches", "Matches", "matches") })
+            ("/players", "Players", "players"), ("/leaderboards", "Leaderboards", "leaderboards"), ("/matches", "Matches", "matches"),
+            ("/changelog", "Changelog", "changelog") })
             html.Append("<a href=\"").Append(url).Append('"').Append(active == key ? " aria-current=\"page\"" : "").Append('>').Append(label).Append("</a>");
-        html.Append("</nav><div class=\"header-actions\">").Append(Link("/download", "Get the game", "button compact"));
+        html.Append("</nav><div class=\"header-actions\">").Append(Link("/download", "Get the game", "button compact header-download"));
         html.Append(name is not null ? Link("/account", name, "account-link") : Link("/account", "Sign in", "account-link"));
+        if (isAdmin && name is not null) html.Append(Link("/admin", "Admin", "button secondary compact header-admin"));
+        if (name is not null && !string.IsNullOrEmpty(csrf))
+            html.Append("<form class=\"header-signout\" method=\"post\" action=\"/account/logout\">").Append(Csrf(csrf))
+                .Append("<button class=\"button secondary compact\" type=\"submit\" aria-label=\"Sign out of this browser\">Sign out</button></form>");
         html.Append("</div></div></header><main id=\"main\" class=\"site-main\">");
         if (!string.IsNullOrEmpty(notice)) html.Append("<div role=\"status\" class=\"notice ").Append(bad ? "bad" : "ok").Append("\">").Append(H(notice)).Append("</div>");
         html.Append(body).Append("</main><footer class=\"site-footer\"><div><span class=\"footer-brand\">OpenSCCT</span><p>Spies vs. Mercenaries on modern PCs.</p></div>")
-            .Append("<nav aria-label=\"Footer\"><a href=\"/download\">Getting started</a><a href=\"https://github.com/Lumbridge/OpenSCCT\">Project</a>")
+            .Append("<nav aria-label=\"Footer\"><a href=\"/download\">Getting started</a><a href=\"/changelog\">Changelog</a><a href=\"https://github.com/Lumbridge/OpenSCCT\">Project</a>")
             .Append("<a href=\"https://github.com/Lumbridge/OpenSCCT/blob/main/docs/legal/PRIVACY.md\">Privacy</a><a href=\"https://github.com/Lumbridge/OpenSCCT/blob/main/docs/legal/TERMS.md\">Terms</a></nav>")
             .Append("<small>Community project. Not affiliated with Ubisoft.</small></footer></body></html>");
         return Results.Content(html.ToString(), "text/html; charset=utf-8", Encoding.UTF8, status);

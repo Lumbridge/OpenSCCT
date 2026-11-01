@@ -67,7 +67,7 @@ internal sealed partial class PlayerPortal
         Link("https://github.com/Lumbridge/OpenSCCT/releases/latest/download/OpenSCCT.Launcher.exe", "Download launcher ↗", "button") +
         "<span class=\"platform\">Windows 64-bit · Automatic game updates</span><p class=\"account-side-note\">You do not need your own copy of Splinter Cell: Chaos Theory. " +
         "If you already own it, you can choose to prepare game files from your installation instead.</p>" +
-        Link("https://github.com/Lumbridge/OpenSCCT/releases/latest", "Release notes and other downloads →", "text-link") + "</section>" +
+        Link("/changelog", "See what's new →", "text-link") + "</section>" +
         "<section class=\"panel\"><h2>Install and play</h2><ol class=\"download-steps\"><li><strong>Install with the launcher</strong><p>Run OpenSCCT.Launcher.exe and choose Install. Keep the launcher in a writable folder.</p></li>" +
         "<li><strong>Get the game files</strong><p>Follow Download game files. The launcher checks and prepares the files before your first launch.</p></li>" +
         "<li><strong>Start playing</strong><p>Launch the game and open Find a Session to join a game or hub. You can also practice offline. Sign in through Account to save your progress.</p></li></ol></section></div>" +
