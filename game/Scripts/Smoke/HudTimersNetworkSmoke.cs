@@ -76,7 +76,7 @@ public sealed class HudTimersNetworkSmoke : SmokeTest
                     if (_match.ServerController(bot) is not { } source ||
                         owner.StateNode is not SPlayerController.s_MultiSpectating_WhenKilled ||
                         source.StateNode is not SPlayerController.s_MultiSpectating_WhenKilled) continue;
-                    float authorityLeft = Math.Max(0, source.fRespawnDate - source.Level.TimeSeconds);
+                    float authorityLeft = Math.Max(0, source.fRespawnDate - source.XLevel.WorldTimeSeconds);
                     if (authorityLeft <= 0.1f) continue;
                     _respawnSamples++;
                     float error = Math.Abs(_snapshot.Spectator.RespawnIn - MathF.Ceiling(authorityLeft));

@@ -7,6 +7,7 @@ using System.Text.Json;
 using OpenScct.Core;
 using OpenScct.Game.Movement;
 using OpenScct.Game.Combat;
+using OpenScct.Game.Camera;
 using OpenScct.Game.SBase;
 using OpenScct.Net;
 using OpenScct.Server;
@@ -70,6 +71,9 @@ public static class NetworkLabState
     public static object? Controller(SPlayerController? pc) => pc is null ? null : new
     {
         name = pc.PlayerReplicationInfo?.PlayerName, team = pc.PlayerReplicationInfo?.Team?.TeamIndex,
+        gameEnded = pc.bGameEnded, winningTeam = pc.GameReplicationInfo?.WinningTeam,
+        behindView = pc.bBehindView, firstPersonWithPawn = pc.bFirstPersonWithPawn,
+        camera = Camera(pc),
         state = pc.GetStateName().ToString(), pawn = pc.Pawn?.ActorId, fastSpeed = pc.bFastSpeed,
         health = (pc.Pawn as SBasePawn)?.Health, lives = pc.PlayerReplicationInfo?.NumLives,
         deaths = pc.PlayerReplicationInfo?.Deaths, kills = pc.PlayerReplicationInfo?.Kills,
@@ -78,7 +82,18 @@ public static class NetworkLabState
         target = (pc.PC_spectated as SPlayerController)?.PlayerReplicationInfo?.PlayerName ??
             (pc.SpecTarget as SBasePawn)?.PlayerReplicationInfo?.PlayerName,
         view = pc.ViewTarget?.ActorId, targetPawn = pc.SpecTarget?.ActorId,
+        canStop = pc.bCanStop, ledgeGrabStarted = pc.fGrabFromLedgeStartTime,
+        ledgeGrabs = pc.PlayerReplicationInfo?.Stats?.Spy_LedgeGrabs,
+        ledgeGrabDeaths = pc.PlayerReplicationInfo?.Stats?.Merc_DeathFromLedgeGrab,
     };
+
+    private static object? Camera(SPlayerController pc) => PlayerCamera.Of(pc) is { } camera ? new
+    {
+        state = camera.GetStateName().ToString(), mode = camera.m_camMode.ToString(),
+        presetDistance = camera.GetCurrentDistance(), distance = camera.m_prevDistance, idealDistance = camera.m_prevIdealDistance,
+        attached = camera.m_bAttachToBone, parentBone = camera.m_parentBone.ToString(),
+        previousPosition = new[] { camera.m_PrevPosition.X, camera.m_PrevPosition.Y, camera.m_PrevPosition.Z },
+    } : null;
 
     public static object[] Pawns(World world, NetConnection? connection = null)
     {
@@ -143,12 +158,24 @@ public static class NetworkLabState
         wakeTime = p.iLastWakeTime, time = p.Level.TimeSeconds, poseReady = p.NetworkPoseReady,
         attacker = p.m_AttackedBy?.ActorId, target = p.m_AttackTarget?.ActorId,
         attackerName = p.m_AttackedBy?.PlayerReplicationInfo?.PlayerName, targetName = p.m_AttackTarget?.PlayerReplicationInfo?.PlayerName,
+        repositionTarget = new[] { p.vVandammePos.X, p.vVandammePos.Y, p.vVandammePos.Z },
+        repositionByServer = p.bServerControlsRepos, rootMotionLastTime = p.fLastRootMotionTimeCalled,
+        supported = Supported(p),
         channels = Enumerable.Range(0, PawnAnimation.ChannelCount).Select(i => new
         {
             i, sequence = p.PawnAnim[i].Sequence.ToString(), frame = p.PawnAnim[i].Frame,
             alpha = p.PawnAnim[i].BlendAlpha, bone = p.PawnAnim[i].StartBone.ToString(), rate = p.PawnAnim[i].Rate,
         }).ToArray(),
     };
+
+    private static bool? Supported(SBasePawn pawn)
+    {
+        var collision = MovementNatives.Driver(pawn)?.Collision;
+        if (collision is null) return null;
+        var extent = new FVector(pawn.CollisionRadius, pawn.CollisionRadius, pawn.CollisionHeight);
+        return collision.LineCheck(out var hit, pawn, pawn.Location - new FVector(0, 0, 12),
+            pawn.Location + new FVector(0, 0, 2), extent, PlayInspector.WorldTrace) && hit.Normal.Z >= .7f;
+    }
 
     private static SGadGasMask? GasMask(SBasePawn p)
     {

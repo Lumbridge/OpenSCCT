@@ -566,6 +566,9 @@ public sealed partial class NetMovementBridge : IMovementNet, IMoveEndpointSourc
         pawn.Controller is SPlayerController pc && !SBasePawnMoves.IsCorpse(pc, pawn) && !pc.bGameEnded &&
         pc.StateNode is not SPlayerController.s_Inactive && PeekEndpoint(pc)?.Sequenced is not null;
 
+    public bool RepositionsHeldPawnOnWorldClock(SBasePawn pawn) => pawn.m_AttackedBy is not null &&
+        pawn.Controller is SPlayerController pc && PeekEndpoint(pc)?.Sequenced is not null;
+
     public void BeforeOwnerAnimation(SBasePawn pawn)
     {
         if (pawn.Controller is not SPlayerController { bWaitingForReinit: false } pc) return;
@@ -625,7 +628,9 @@ public sealed partial class NetMovementBridge : IMovementNet, IMoveEndpointSourc
                     // AnimEnd can author another action after the controller's SendActions pass. Flush it in
                     // this command's completion fence so its state, collision and pose share the same boundary.
                     if (kv.Value.Sequenced is not null) pawn.SendActions();
-                    if (!SBasePawnMoves.IsCorpse(pc, pawn)) kv.Value.Client?.FinishPredictionTick();
+                    // Landing can report lethal damage and enter s_Dead during this command. Its completion
+                    // fence must still carry those reliable calls; only creation of a new corpse heartbeat stops.
+                    kv.Value.Client?.FinishPredictionTick(ensureStep: !SBasePawnMoves.IsCorpse(pc, pawn));
                 }
             }
         }

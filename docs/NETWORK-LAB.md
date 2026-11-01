@@ -28,6 +28,15 @@ pwsh tools/network-lab.ps1 -Action Run -Map AquaE -Scenario sticky-gas -Windowed
 # Merc camera entry, idle/turning stability, switching, disabled overlay and exit.
 pwsh tools/network-lab.ps1 -Action Run -Map AquaE -Scenario camera-network -Windowed -NetworkProfile lan
 
+# Polar Base spawn-door hack countdown, using normal Use after placement at the panel.
+pwsh tools/network-lab.ps1 -Action Run -Map PolaE -Scenario door-timer -Windowed -NetworkProfile typical
+pwsh tools/network-lab.ps1 -Action Run -Map PolaE -Scenario door-timer -ReverseRoles -Windowed -NetworkProfile typical
+
+# Natural jump/hang and Use pull over Steel Squat's rail; merc teammate observes, then victim respawns.
+pwsh tools/network-lab.ps1 -Action Run -Map SteeE -Scenario ledge-kill -Lives 2 -RespawnSeconds 15 -Observer -ObserverTeam 1 -Windowed -NetworkProfile typical
+# Remote spy pulls the final merc; independent spy observer receives the round outcome.
+pwsh tools/network-lab.ps1 -Action Run -Map SteeE -Scenario ledge-kill -Lives 1 -ReverseRoles -Observer -ObserverTeam 0 -Windowed -NetworkProfile typical
+
 # Lethal Use release or the original hold timeout, followed by spectator delay and respawn.
 pwsh tools/network-lab.ps1 -Action Run -Dedicated -Map AquaE -Scenario grab -GrabOutcome neck-break -Lives 2 -Observer -Windowed -NetworkProfile asymmetric
 pwsh tools/network-lab.ps1 -Action Run -Map AquaE -Scenario grab -GrabOutcome timeout -Lives 2 -Observer -Windowed -NetworkProfile rough
@@ -84,6 +93,25 @@ Single fire mode is reserved for the original scope behavior. Target placement/a
 firing and reloading use bound inputs. This proves those actions for the recorded pose/profile, not the
 entire moving-target/headshot/cover-rewind matrix.
 
+The `door-timer` scenario places the spy at Polar Base's authored `porteSpawn` panel, then uses the bound
+Use input to hack it. It samples the displayed countdown against the authoritative precise deadline,
+requires a positive active countdown and normal completion/removal, and saves `door-timer-result.json`.
+The merc does not receive this spy interaction HUD. `-ReverseRoles` tests the spy across the UDP proxy.
+
+The `ledge-kill` scenario uses Steel Squat's authored GE59/GE54 lip and rail. Initial supported positions
+and facing are fixtures; normal Jump must reach `OnLedge`, the native two-ledge geometry and merc reach
+must pass, and normal Use must start the pull. No state, animation, damage or kill is forced. It checks
+the reach/pull, merc fall and landing clips on owners and observer, supported corpse agreement within
+3 uu, exactly one credited kill/death/life, and a spectator/respawn or final-round outcome. A living merc
+observer prevents team elimination; `-Lives 1 -ObserverTeam 1` instead checks permanent teammate spectating.
+Rendered runs save a bounded eight-second screenshot sequence at 250 ms intervals; state traces sample
+at 50 ms, while cumulative simulation and actual renderer channel histories retain brief phases every
+render frame. The owner must also leave the pull's head camera on death. In continuing rounds only,
+the observer moves to the courtyard after the gameplay assertions for a clearer corpse screenshot.
+`ledge-kill-result.json` records observed/drawn clips, corpse copies, owner camera flags and outcome. Inspect the images
+before claiming visual parity: these checks establish the recorded rail, roles and network profile,
+not every map rail or native-original animation parity.
+
 ## Network conditions
 
 Only the guest traverses the fault-injection proxy; other clients provide a healthy-peer comparison.
@@ -132,6 +160,7 @@ The proxy's local control file accepts `upDelayMs` from 0 to 14,000; queues reta
 pwsh tools/network-lab.ps1 -Action Start -Map AquaE -Windowed -NetworkProfile rough
 pwsh tools/network-lab.ps1 -Action Send -RunDirectory <printed-directory> -Role guest -CommandJson '{"op":"input","steps":[{"label":"jump","seconds":1,"tap":["Jump"]},{"label":"land","seconds":4}]}'
 pwsh tools/network-lab.ps1 -Action Send -RunDirectory <printed-directory> -Role guest -CommandJson '{"op":"capture"}'
+pwsh tools/network-lab.ps1 -Action Send -RunDirectory <printed-directory> -Role observer -CommandJson '{"op":"capture-sequence","seconds":8,"interval":0.25}'
 pwsh tools/network-lab.ps1 -Action Status -RunDirectory <printed-directory>
 pwsh tools/network-lab.ps1 -Action Stop -RunDirectory <printed-directory>
 python tools/network-lab-report.py --since 20261101 --output local/network-lab/evidence-index

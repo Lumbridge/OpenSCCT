@@ -41,7 +41,7 @@ param(
     [string]$DedicatedExe,
     [ValidateSet('host','guest','observer','observer2')][string]$Role = 'host',
     [string]$CommandJson,
-    [ValidateSet('startup','load-timeout','jump','ledge','stall','grab','fire','gadget','sticky-gas','camera-network','door-timer','audio','outage','stance','soak','death','elimination','roundtrip','rejoin','spectator','stale-combat')][string]$Scenario = 'startup',
+    [ValidateSet('startup','load-timeout','jump','ledge','ledge-kill','stall','grab','fire','gadget','sticky-gas','camera-network','door-timer','audio','outage','stance','soak','death','elimination','roundtrip','rejoin','spectator','stale-combat')][string]$Scenario = 'startup',
     [ValidateRange(30,900)][int]$TimeoutSeconds = 180
 )
 $ErrorActionPreference = 'Stop'
@@ -288,7 +288,7 @@ if ($Action -in @('Start','Run')) {
             $joinPort = (Read-Json $proxyReady).port
         }
         $contentRoot = Join-Path $repo '.content'
-        Write-Json (Join-Path $RunDirectory 'config.json') @{map=$Map;contentRoot=$contentRoot; hub=[bool]$Hub; dedicated=[bool]$Dedicated;port=$port; joinPort=$joinPort; loadDelayMs=$LoadDelayMs;players=$roles.Count;hostTeam=$(if($ReverseRoles){1}else{0});observerTeam=$ObserverTeam;observer2Team=$(if($SecondObserverTeam -ge 0){$SecondObserverTeam}else{$ObserverTeam});lives=$Lives;respawnSeconds=$RespawnSeconds;sampleIntervalMs=$(if($Scenario -eq 'soak'){1000}elseif($Scenario -eq 'audio'){50}else{100})}
+        Write-Json (Join-Path $RunDirectory 'config.json') @{map=$Map;contentRoot=$contentRoot; hub=[bool]$Hub; dedicated=[bool]$Dedicated;port=$port; joinPort=$joinPort; loadDelayMs=$LoadDelayMs;players=$roles.Count;hostTeam=$(if($ReverseRoles){1}else{0});observerTeam=$ObserverTeam;observer2Team=$(if($SecondObserverTeam -ge 0){$SecondObserverTeam}else{$ObserverTeam});lives=$Lives;respawnSeconds=$RespawnSeconds;sampleIntervalMs=$(if($Scenario -eq 'soak'){1000}elseif($Scenario -in @('audio','ledge-kill')){50}else{100});recordAnimationPhases=($Scenario -eq 'ledge-kill')}
         if ($Dedicated) {
             if (!(Test-Path -LiteralPath $dedicatedExe)) { throw 'Build the dedicated lab server before using -SkipBuild.' }
             $serverArgs = @('"' + $RunDirectory + '"', "$processLifetime")
@@ -822,6 +822,117 @@ switch ($Action) {
                 if (@($joined.pawns | Where-Object name -eq 'LabHost').Count -ne 1) { throw 'Rejoining guest has a missing or duplicate host baseline.' }
                 if ($Windowed) { foreach ($roleName in $roles) { Invoke-Lab $roleName @{op='capture'} } }
                 Write-Json (Join-Path $RunDirectory 'rejoin-result.json') @{startup=$rejoinStartup;before=$old.localController;after=$joined.localController;source=$server}
+            }
+            if ($Scenario -eq 'ledge-kill') {
+                if ($Map -ne 'SteeE' -or $Hub -or $Lives -lt 1) { throw 'Ledge kill requires SteeE, regular session and at least one counted life.' }
+                $spyRole = if ($ReverseRoles) { 'guest' } else { 'host' }
+                $mercRole = if ($ReverseRoles) { 'host' } else { 'guest' }
+                $spyName = if ($ReverseRoles) { 'LabGuest' } else { 'LabHost' }
+                $mercName = if ($ReverseRoles) { 'LabHost' } else { 'LabGuest' }
+                # Only placement is a fixture. Both the hang and attack must enter through gameplay input.
+                Invoke-Lab $spyRole @{op='input';steps=@(@{label='stand for ledge approach';seconds=0.2;tap=@('Jump')},@{label='settle stance';seconds=3})}
+                Invoke-Lab 'host' @{op='place';player=$spyName;position=@(-2450,1305,-1038);yaw=16384;requireSupport=$true}
+                Invoke-Lab 'host' @{op='place';player=$mercName;position=@(-2450,1410,-718);yaw=49152;requireSupport=$true}
+                Invoke-Lab $spyRole @{op='face';yaw=16384}
+                Invoke-Lab $mercRole @{op='face';yaw=49152}
+                if ($Observer) {
+                    if ($ObserverTeam -eq 0) { Invoke-Lab 'observer' @{op='input';steps=@(@{label='stand spy observer';seconds=0.2;tap=@('Jump')},@{label='observer stance settles';seconds=2})} }
+                    Invoke-Lab 'host' @{op='place';player='LabObserver';position=@(-2300,1410,-718);yaw=32768;requireSupport=$true}
+                    Invoke-Lab 'observer' @{op='face';yaw=32768;pitch=-5000}
+                    $viewAid = if ($ObserverTeam -eq 1) { 'GadTorcheSwitch' } else { 'SwitchHeadset 1' }
+                    Invoke-Lab 'observer' @{op='input';steps=@(@{label='illuminate ledge observer';seconds=0.5;tap=@($viewAid)})}
+                }
+                Invoke-Lab $spyRole @{op='input';steps=@(@{label='ledge fixture settles';seconds=2})}
+                $mercBefore = (Read-Json (Join-Path $RunDirectory "$mercRole-status.json")).localController
+                $spyBefore = (Read-Json (Join-Path $RunDirectory "$spyRole-status.json")).localController
+                $beforeSource = (Read-Json (Join-Path $RunDirectory 'server-status.json')).server
+                $mercStatsBefore = @($beforeSource.players | Where-Object name -eq $mercName)[0].controller
+                $spyStatsBefore = @($beforeSource.players | Where-Object name -eq $spyName)[0].controller
+                $since = [DateTimeOffset]::UtcNow
+                Invoke-Lab $spyRole @{op='input';steps=@(@{label='jump naturally onto authored GE59';seconds=0.15;tap=@('Jump')},@{label='settle in hanging pose';seconds=1.6})}
+                $hang = Read-Json (Join-Path $RunDirectory "$spyRole-status.json")
+                $source = (Read-Json (Join-Path $RunDirectory 'server-status.json')).server
+                $sourceSpy = @($source.players | Where-Object name -eq $spyName)[0].controller
+                if ($hang.localController.state -ne 'OnLedge' -or $sourceSpy.state -ne 'OnLedge' -or !$hang.controls.ledgeGeometry -or
+                    !@($hang.controls.candidates | Where-Object { $_.name -eq $mercName -and $_.ledgeReachable }).Count) {
+                    throw "Normal jump did not reach a valid ledge pull: owner=$($hang.localController.state), authority=$($sourceSpy.state), geometry=$($hang.controls.ledgeGeometry)."
+                }
+                if ($Windowed) { foreach ($roleName in $roles) { Invoke-Lab $roleName @{op='capture-sequence';seconds=8;interval=0.25} } }
+                $pullSince = [DateTimeOffset]::UtcNow
+                Invoke-Lab $spyRole @{op='input';steps=@(@{label='pull merc using normal Use';seconds=0.15;tap=@('Use')})}
+                $deadline = [DateTimeOffset]::UtcNow.AddSeconds(8)
+                do {
+                    $source = (Read-Json (Join-Path $RunDirectory 'server-status.json')).server
+                    $sourceMerc = @($source.players | Where-Object name -eq $mercName)[0].controller
+                    $mercState = Read-Json (Join-Path $RunDirectory "$mercRole-status.json")
+                    if ($sourceMerc.health -le 0 -and $mercState.localController.health -le 0) { break }
+                    if ([DateTimeOffset]::UtcNow -gt $deadline) { throw "Merc survived normal ledge pull: owner=$($mercState.localController.state), authority=$($sourceMerc.state)." }
+                    Start-Sleep -Milliseconds 100
+                } while ($true)
+                Invoke-Lab $spyRole @{op='input';steps=@(@{label='ledge landing animation finishes';seconds=1.7})}
+                $source = (Read-Json (Join-Path $RunDirectory 'server-status.json')).server
+                $sourceMerc = @($source.players | Where-Object name -eq $mercName)[0].controller
+                $sourceSpy = @($source.players | Where-Object name -eq $spyName)[0].controller
+                $corpseSource = $source.pawns | Where-Object name -eq $mercName | Select-Object -First 1
+                if (!$corpseSource) { throw 'Authority removed the ledge corpse before its landing animation could finish.' }
+                $copies = @()
+                foreach ($roleName in $roles) {
+                    $state = Read-Json (Join-Path $RunDirectory "$roleName-status.json")
+                    $body = $state.pawns | Where-Object name -eq $mercName | Select-Object -First 1
+                    if (!$body -or $body.health -gt 0 -or $body.physics -in @('PHYS_Falling','PHYS_FollowParent','PHYS_Repositionnal') -or !$body.supported) { throw "$roleName sees an alive, attached or unsupported ledge corpse." }
+                    $distance = [Math]::Sqrt([Math]::Pow($body.position[0]-$corpseSource.position[0],2)+[Math]::Pow($body.position[1]-$corpseSource.position[1],2)+[Math]::Pow($body.position[2]-$corpseSource.position[2],2))
+                    if ($distance -gt 3) { throw "$roleName ledge corpse differs from authority by $distance uu." }
+                    if ($body.channels[0].sequence -ne $corpseSource.channels[0].sequence -or $body.channels[0].sequence -notmatch '^(LandStXxFd2|Xxxx)') { throw "$roleName does not share the settled ledge death clip: $($body.channels[0].sequence)/$($corpseSource.channels[0].sequence)." }
+                    $spyClips = @($state.animationPhases | Where-Object name -eq $spyName | ForEach-Object clips | Sort-Object -Unique)
+                    $mercClips = @($state.animationPhases | Where-Object id -eq $body.id | ForEach-Object clips | Sort-Object -Unique)
+                    if ('GrabLgBgRail' -notin $spyClips -or 'GrabLgEdRail' -notin $spyClips -or 'GrbdStLgRail' -notin $mercClips -or 'FallStAlFr0' -notin $mercClips -or 'LandStXxFd2' -notin $mercClips) { throw "$roleName missed a ledge-pull animation phase: spy=$($spyClips -join ','), merc=$($mercClips -join ',')." }
+                    $drawnSpy = @($state.animationPhases | Where-Object name -eq $spyName | ForEach-Object drawn | Sort-Object -Unique)
+                    $drawnMerc = @($state.animationPhases | Where-Object id -eq $body.id | ForEach-Object drawn | Sort-Object -Unique)
+                    if ($Windowed -and ('GrabLgBgRail' -notin $drawnSpy -or 'GrabLgEdRail' -notin $drawnSpy -or 'GrbdStLgRail' -notin $drawnMerc -or 'FallStAlFr0' -notin $drawnMerc -or 'LandStXxFd2' -notin $drawnMerc)) { throw "$roleName never submitted every ledge phase to its renderer: spy=$($drawnSpy -join ','), merc=$($drawnMerc -join ',')." }
+                    $copies += @{role=$roleName;body=$body;error=$distance;spyClips=$spyClips;mercClips=$mercClips;drawnSpy=$drawnSpy;drawnMerc=$drawnMerc}
+                }
+                if (!$corpseSource.supported -or $corpseSource.health -gt 0) { throw 'Authority ledge corpse has no support or remains alive.' }
+                $mercAtDeath = (Read-Json (Join-Path $RunDirectory "$mercRole-status.json")).localController
+                if ($mercAtDeath.firstPersonWithPawn) { throw 'Merc death retained the ledge pull head-camera flag.' }
+                if ($sourceMerc.deaths -ne $mercBefore.deaths+1 -or $sourceMerc.lives -ne $mercBefore.lives-1 -or $sourceSpy.kills -ne $spyBefore.kills+1 -or $sourceSpy.ledgeGrabs -ne $spyStatsBefore.ledgeGrabs+1 -or $sourceMerc.ledgeGrabDeaths -ne $mercStatsBefore.ledgeGrabDeaths+1) { throw 'Ledge kill did not account for exactly one grab, kill, death and life.' }
+                if ($sourceSpy.state -ne 'OnLedge' -and !$source.ended) { throw 'Spy did not return to hanging after the pull.' }
+                if ($Windowed) { foreach ($roleName in $roles) { Invoke-Lab $roleName @{op='capture'} } }
+                if ($Observer -and !$source.ended) {
+                    # The upper-rail view proves the pull, but the courtyard corpse is below it.
+                    # Move only the observer after all corpse checks; keep the attacker/victim untouched.
+                    Invoke-Lab 'host' @{op='place';player='LabObserver';positions=@(@(-2350,1240,-1038),@(-2650,1240,-1038),@(-2516,1090,-1055.14));yaw=32768;requireSupport=$true}
+                    Invoke-Lab 'observer' @{op='input';steps=@(@{label='courtyard corpse observer settles';seconds=0.3})}
+                    $watcher = Own-Pawn (Read-Json (Join-Path $RunDirectory 'observer-status.json'))
+                    $dx = $corpseSource.position[0] - $watcher.position[0]
+                    $dy = $corpseSource.position[1] - $watcher.position[1]
+                    $dz = $corpseSource.position[2] - $corpseSource.height + 20 - $watcher.position[2] - $watcher.eyeHeight
+                    Invoke-Lab 'observer' @{op='face';yaw=[int]([Math]::Atan2($dy,$dx)*65536/(2*[Math]::PI));pitch=[int]([Math]::Atan2($dz,[Math]::Sqrt($dx*$dx+$dy*$dy))*65536/(2*[Math]::PI))}
+                    if ($Windowed) { Invoke-Lab 'observer' @{op='capture'} }
+                }
+                $outcome = ''
+                if ($source.ended) {
+                    if ($Lives -ne 1 -or $source.winningTeam -ne 0) { throw 'Final merc ledge death did not award the spy team the round.' }
+                    foreach ($roleName in $roles) {
+                        $ended = (Read-Json (Join-Path $RunDirectory "$roleName-status.json")).localController
+                        if (!$ended.gameEnded -or $ended.state -ne 'GameEnded' -or $ended.winningTeam -ne 0) { throw "$roleName did not receive the spy-winning game outcome." }
+                    }
+                    $outcome = 'final merc eliminated; spy team won'
+                } elseif ($Lives -eq 1) {
+                    $survivors = @($source.players | Where-Object { $_.controller.team -eq 1 -and $_.controller.health -gt 0 })
+                    if (!$survivors.Count) { throw 'Merc team exhausted but round continues.' }
+                    $null = Wait-SpectatorTarget $mercRole @($survivors.name)
+                    $outcome = 'permanent spectator follows living merc teammate'
+                } else {
+                    Invoke-Lab $spyRole @{op='input';steps=@(@{label='ledge victim spectator transition';seconds=6.2})}
+                    $spectator = Read-Json (Join-Path $RunDirectory "$mercRole-status.json")
+                    if (!$spectator.localController.spectating -or ($Windowed -and $spectator.hud.page -ne 'SpectatorHudPage')) { throw 'Ledge death did not transition to spectator.' }
+                    if ($Windowed) { Invoke-Lab $mercRole @{op='capture'} }
+                    $after = Wait-Respawn $mercRole $mercBefore.pawn
+                    if ($after.localController.deaths -ne $sourceMerc.deaths -or $after.localController.lives -ne $sourceMerc.lives) { throw 'Ledge death owner accounting changed across respawn.' }
+                    Assert-NoHealthyDeath $mercName $since
+                    $outcome = 'spectator then fresh playable respawn'
+                }
+                Write-Json (Join-Path $RunDirectory 'ledge-kill-result.json') @{spyRole=$spyRole;mercRole=$mercRole;placementFixture=$true;normalJump=$true;normalUse=$true;hang=$hang.localController;corpseSource=$corpseSource;copies=$copies;killer=$sourceSpy;victim=$sourceMerc;victimOwner=$mercAtDeath;outcome=$outcome;ended=$source.ended;winningTeam=$source.winningTeam}
             }
             if ($Scenario -eq 'ledge') {
                 if ($Map -ne 'AquaE' -or $Hub) { throw 'The Seaside ledge fixture requires Aquarius in a regular session.' }

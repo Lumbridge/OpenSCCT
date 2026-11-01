@@ -709,7 +709,7 @@ public sealed class HudSimReader : IHudSource
 
         if (pri.NumLives > 0 && !pc.IsInState(HudK.NAME_s_Spectating_Visitor))
         {
-            int sec = HudK.RemainingSeconds(pc.fRespawnDate - pc.Level.TimeSeconds);
+            int sec = HudK.RemainingSeconds(pc.fRespawnDate - pc.XLevel.WorldTimeSeconds);
             v.RespawnIn = sec is > 0 and < HudK.RespawnShownBelow ? sec : 0;
         }
         else

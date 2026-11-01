@@ -126,11 +126,12 @@ public sealed class ClientMoves
         }
     }
 
-    public void FinishPredictionTick()
+    public void FinishPredictionTick(bool ensureStep = true)
     {
         if (!Modern) return;
-        EnsurePredictionStep();
-        if (SavedMoves.LastSMove is { } move && Pawn is IMovePrediction prediction)
+        if (ensureStep) EnsurePredictionStep();
+        if (SavedMoves.LastSMove is { } move && move.TimeStamp >= Controller.TimeSeconds - MoveK.SplitEpsilon &&
+            Pawn is IMovePrediction prediction)
         {
             move.SavedLocation = Pawn.Location; move.SavedPhysics = Pawn.Physics;
             move.SavedVelocity = Pawn.Velocity; move.SavedBase = Pawn.Base; move.ZoneConfig = Pawn.ZoneConfig;
