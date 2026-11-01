@@ -62,6 +62,7 @@ public static class ControlActions
         A("vision2", "Vision", "Second vision mode", "Toggle the role's second vision mode, when allowed by match settings.", "SwitchHeadset 2", "SwitchHeadset 2"),
         A("visioncycle", "Vision", "Cycle vision modes", "Cycle the available vision modes.", "SwitchHeadset 3", "SwitchHeadset 3"),
         A("scope", "Vision", "Binoculars / sniper scope", "Toggle the role's zoom view. A spy with the weapon drawn first requests holstering it.", "SwitchBinocularVision", "SwitchBinocularVision"),
+        A("perspective", "Vision", "First / third person", "Use first person for tight spaces. Toggle switches perspective on each press; Hold uses first person until released. Wheel bindings always toggle. The perspective behavior above also applies to controller bindings.", "SwitchSpyPerspective", "SwitchSpyPerspective") with { Merc = false },
         A("zoomin", "Vision", "Zoom in", "Increase zoom in views that support it.", "Button bZoomIn | Function ZoomIn", "ZoomIn", "bZoomIn"),
         A("zoomout", "Vision", "Zoom out", "Decrease zoom in views that support it.", "Button bZoomOut | Function ZoomOut", "ZoomOut", "bZoomOut"),
         A("er", "Vision", "Toggle Enhanced Reality", "Toggle the Enhanced Reality display.", "SwitchEnhancedReality", "SwitchEnhancedReality"),

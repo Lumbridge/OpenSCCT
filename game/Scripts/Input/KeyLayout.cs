@@ -158,7 +158,7 @@ public sealed class KeyLayout
 
     public string ToIni()
     {
-        var text = new System.Text.StringBuilder(SnapshotMarker + "\n[Engine.Input]\n");
+        var text = new System.Text.StringBuilder(SnapshotMarker + "\n" + DefaultKeyLayout.PerspectiveBindingMarker + "\n[Engine.Input]\n");
         int index = 0;
         foreach ((string alias, string command) in _aliases)
         {

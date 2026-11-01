@@ -1,5 +1,7 @@
 using System;
 using OpenScct.Core;
+using OpenScct.Game.Camera;
+using OpenScct.Game.SBase;
 using OpenScct.Provenance;
 using OpenScctGame.Play.Session;
 using OpenScctGame.Render;
@@ -29,12 +31,16 @@ public sealed class PlayCamera
     /// <summary>The camera of the last frame (uu, rotator, horizontal FOV in degrees).</summary>
     public (FVector Location, FRotator Rotation, float Fov) Current { get; private set; }
 
+    /// <summary>No collision-free eye position exists, so the world must be covered for this frame.</summary>
+    public bool Occluded { get; private set; }
+
     /// <summary>
     /// Places the view between <paramref name="previous"/> and <paramref name="current"/>, turned further by
     /// <paramref name="look"/> (the mouse turn not yet drawn); false before the first view.
     /// </summary>
     [Provenance(ProvenanceKind.Estimated, "Render interpolation between the last two simulated views (the original renders each frame's own view)")]
-    public bool Apply(ViewSample previous, ViewSample current, float alpha, FRotator look = default, float orbit = 0f)
+    public bool Apply(ViewSample previous, ViewSample current, float alpha, FRotator look = default, float orbit = 0f,
+        SPlayerController? controller = null)
     {
         if (!current.Valid)
         {
@@ -55,6 +61,18 @@ public sealed class PlayCamera
             }
 
             camera.Rotation = turned;
+        }
+        Occluded = false;
+        // Recheck the final rendered location: interpolation and reconciliation can cross a corner even
+        // when both simulation samples were clear. The volume encloses every near-plane corner at this FOV.
+        // Also protect the return to third person, including its pending mouse orbit.
+        if ((current.SpyFirstPerson || previous.SpyFirstPerson) && controller?.Pawn is SPawnAttaque pawn
+            && ReferenceEquals(controller.ViewTarget, pawn)
+            && PlayerCalcView.SourceOf(controller) == PlayerCalcView.EViewSource.Default
+            && controller.FreeCameraFlying == 0)
+        {
+            Occluded = !SpyPerspectiveCamera.TryConstrain(pawn, camera.Location, out camera.Location,
+                _view.CameraClearance(camera.Fov), withinBody: current.SpyFirstPerson);
         }
         _view.SetUeCamera(camera.Location, camera.Rotation, camera.Fov, cut);
         Current = camera;

@@ -25,7 +25,8 @@ public static class ViewBlend
 
     /// <summary>True when the view from <paramref name="previous"/> to <paramref name="current"/> is drawn as a cut.</summary>
     public static bool IsCut(ViewSample previous, ViewSample current) =>
-        !previous.Valid || (current.Location - previous.Location).SizeSquared() > CutDistance * CutDistance;
+        !previous.Valid || previous.SpyFirstPerson != current.SpyFirstPerson
+        || (current.Location - previous.Location).SizeSquared() > CutDistance * CutDistance;
 
     /// <summary>The camera <paramref name="alpha"/> of the way from <paramref name="a"/> to <paramref name="b"/>.</summary>
     public static (FVector Location, FRotator Rotation, float Fov) Blend(ViewSample a, ViewSample b, float alpha)
@@ -175,7 +176,7 @@ public sealed class LookAhead
     /// rule 3.11), so turning the rotation ahead moves it round the target (<c>PlayCamera.Apply</c>). 0 otherwise.
     /// </summary>
     public float OrbitDistance(SPlayerController? pc) =>
-        Active && _follow && pc?.m_camera is { } cam ? cam.m_prevDistance : 0f;
+        Active && _follow && pc is { SpyFirstPersonActive: false, m_camera: { } cam } ? cam.m_prevDistance : 0f;
 
     /// <summary>
     /// The camera is the following view of the pawn's behind view (SPlayerCam s_Following: the controller placed
@@ -184,7 +185,7 @@ public sealed class LookAhead
     public static bool FollowView(SPlayerController pc, ViewSample view)
     {
         ArgumentNullException.ThrowIfNull(pc);
-        return view.Valid && pc.bBehindView && pc.Pawn is not null && pc.m_camera is { } cam && cam.GetStateName() == NAME_s_Following
+        return view.Valid && !pc.SpyFirstPersonActive && pc.bBehindView && pc.Pawn is not null && pc.m_camera is { } cam && cam.GetStateName() == NAME_s_Following
             && view.Rotation.Yaw == pc.Rotation.Yaw && view.Rotation.Pitch == pc.Rotation.Pitch;
     }
 
@@ -192,7 +193,7 @@ public sealed class LookAhead
     public static bool OwnView(SPlayerController pc, ViewSample view)
     {
         ArgumentNullException.ThrowIfNull(pc);
-        return view.Valid && !pc.bBehindView && pc.Pawn is { } pawn && ReferenceEquals(pc.ViewTarget ?? pawn, pawn)
+        return view.Valid && (!pc.bBehindView || pc.SpyFirstPersonActive) && pc.Pawn is { } pawn && ReferenceEquals(pc.ViewTarget ?? pawn, pawn)
             && view.Rotation.Yaw == pc.Rotation.Yaw && view.Rotation.Pitch == pc.Rotation.Pitch;
     }
 

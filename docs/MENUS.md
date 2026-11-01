@@ -350,6 +350,14 @@ checks draft/apply/discard, shared and separate layouts, independent controller 
 
 ## Walk, gadgets and scope input
 
+Spies can switch between third and first person with **X** (rebind **First / third person** under
+**Options → Spy → Bindings**). **Perspective** selects **Toggle** or **Hold**; the same choice applies to
+controller assignments, while wheel bindings always toggle. Existing X bindings are preserved. First person
+uses a collision-checked eye position inside the current standing or crouching body, with a final rendered-frame
+check that includes the near plane. Perspective changes cut immediately. If solid geometry leaves no safe eye
+position, the world is obscured until the view is clear. Binoculars, remote cameras and scripted views take
+priority; focus loss and a new possession reset the perspective to third person.
+
 Both roles now expose **Walk**, **Next gadget** and **Previous gadget** as independent bindable actions.
 Running is the default. Role Bindings sections offer Hold or Toggle for Walk, and the Mercenary offers Hold or
 Toggle for scope aiming. These behavior choices apply to keyboard, mouse and controller. A scroll notch cannot

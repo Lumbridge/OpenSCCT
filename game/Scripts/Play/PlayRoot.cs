@@ -111,6 +111,7 @@ public partial class PlayRoot : Node3D
     private VirtualClock? _virtualClock;
     private Label? _status;
     private Label? _prompt;
+    private ColorRect? _cameraOcclusion;
     private int _lastRendMap = -1;
     private bool _lastBinoculars;
     private int _lastRemanenceCaptures;
@@ -257,6 +258,14 @@ public partial class PlayRoot : Node3D
             View.Camera.MakeCurrent();
             GameplayObjects.ShowMode(Map, settings.Mode);
             Camera = new PlayCamera(View);
+            var cameraMask = new CanvasLayer { Name = "CameraOcclusion", Layer = HudLayer.DefaultLayer - 1 };
+            _cameraOcclusion = new ColorRect
+            {
+                Name = "BlockedView", Color = Colors.Black, Visible = false, MouseFilter = Control.MouseFilterEnum.Ignore,
+            };
+            cameraMask.AddChild(_cameraOcclusion);
+            AddChild(cameraMask);
+            _cameraOcclusion.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
             Pawns = new PawnViews { Map = Map, SharedRoot = Map.SharedRoot };
             AddChild(Pawns);
             FirstPerson = new FirstPersonView { Map = Map, SharedRoot = Map.SharedRoot };
@@ -618,8 +627,10 @@ public partial class PlayRoot : Node3D
         (float pendingX, float pendingY) = Controls?.PendingMouse ?? (0f, 0f);
         FRotator look = session.ViewOverride is not null ? default
             : _look.Offset(pc, session.Mouse, pendingX + session.Input.MouseX, pendingY + session.Input.MouseY, alpha);
-        if (Camera is not null && View is not null && Camera.Apply(session.PreviousView, session.View, alpha, look, _look.OrbitDistance(pc)))
+        if (Camera is not null && View is not null && Camera.Apply(session.PreviousView, session.View, alpha, look,
+            _look.OrbitDistance(pc), session.ViewOverride is null ? pc : null))
         {
+            if (_cameraOcclusion is not null) _cameraOcclusion.Visible = Camera.Occluded;
             // Materials, light types and the map's emitters at the drawn moment between ticks (they moved only at the
             // 60 Hz ticks before, so they held still in most frames above 60 fps).
             Map?.SetTime(_time.At(alpha));
@@ -659,7 +670,7 @@ public partial class PlayRoot : Node3D
         }
 
         SBasePawn? firstPerson = session.FirstPersonOverride is { } fpOverride ? fpOverride()
-            : pc is { bBehindView: false, FreeCameraFlying: 0 } ? session.LocalPawn : null;
+            : pc is { FreeCameraFlying: 0 } && (!pc.bBehindView || session.View.SpyFirstPerson) ? session.LocalPawn : null;
         // The local spy's arm aims at the view drawn this frame (its controller's rotation plus the mouse turn not yet
         // simulated), as the camera does, so the pistol and its laser keep up with the mouse.
         SBasePawn? aimer = session.LocalPawn is { SPawnType: not PawnType.SPAWNDEFENSE } spy && pc is not null && spy.Controller == pc ? spy : null;

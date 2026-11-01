@@ -15,7 +15,8 @@ using OpenScct.Server;
 namespace OpenScctGame.Play.Session;
 
 /// <summary>A camera result of one client tick: the view the calc view produced and the FOV.</summary>
-public readonly record struct ViewSample(long Tick, FVector Location, FRotator Rotation, float Fov, bool Valid);
+public readonly record struct ViewSample(long Tick, FVector Location, FRotator Rotation, float Fov, bool Valid,
+    bool SpyFirstPerson = false);
 
 /// <summary>
 /// An offline match through the online path: a listen <see cref="ServerHost"/> with the map (loaded by
@@ -472,7 +473,7 @@ public sealed class PlaySession : IDisposable
                     shown = hit.Location + hit.Normal;
                 location = shown;
             }
-            _view = new ViewSample(Client.LocalTick, location, rotation, viewer.FovAngle, true);
+            _view = new ViewSample(Client.LocalTick, location, rotation, viewer.FovAngle, true, viewer.SpyFirstPersonActive);
             if (viewer.Pawn is SBasePawn viewed && (!ReferenceEquals(viewed, _viewPawn) || _viewReset != viewed.NetworkResetId))
             {
                 _viewPawn = viewed;

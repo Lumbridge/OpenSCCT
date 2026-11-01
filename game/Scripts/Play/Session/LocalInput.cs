@@ -167,27 +167,34 @@ public static class PlayerCommands
     public static readonly IReadOnlyList<string> Known =
     [
         "Fire", "AltFire", "Jump", "GadgetQuickChoice", "LaunchGadget", "LongRoll", "SelectGadget", "SwitchHeadset", "SwitchBinocularVision",
-        "SetWalk", "SetScope", "Walk", "Run", "NextGadget", "PreviousGadget", "ChangeSpeed", "GadLaserSwitch", "GadTorcheSwitch", "SwitchLaser", "WheelUp", "WheelDown", "ZoomIn", "ZoomOut",
+        "SetWalk", "SetScope", "SwitchSpyPerspective", "SetSpyFirstPerson", "Walk", "Run", "NextGadget", "PreviousGadget", "ChangeSpeed", "GadLaserSwitch", "GadTorcheSwitch", "SwitchLaser", "WheelUp", "WheelDown", "ZoomIn", "ZoomOut",
         "SwapWeapon", "SwitchROF", "PrevStickyCam", "PerformCoopMvt", "FreeCam", "HideHud",
         "PadCloakQuick", "PadCameraGas", "PadCameraExit",
     ];
 
     /// <summary>
     /// Runs <paramref name="command"/> on <paramref name="pc"/>; false when the port has no such command. While the
-    /// cinematic free camera flies only FreeCam and HideHud run: the pawn takes no orders (the other commands are
-    /// swallowed).
+    /// cinematic free camera flies, pawn commands are swallowed. FreeCam, HideHud and releasing the suspended spy
+    /// perspective still run, so a held perspective cannot latch when released during free-camera use.
     /// </summary>
     public static bool Execute(SPlayerController pc, InputCommand command)
     {
         ArgumentNullException.ThrowIfNull(pc);
         string name = command.Name.ToUpperInvariant();
-        if (pc.FreeCameraFlying != 0 && name is not ("FREECAM" or "HIDEHUD"))
+        if (pc.FreeCameraFlying != 0 && name is not ("FREECAM" or "HIDEHUD")
+            && !(name == "SETSPYFIRSTPERSON" && command.Arg == 0))
         {
             return true;
         }
 
         switch (name)
         {
+            case "SWITCHSPYPERSPECTIVE":
+                pc.SwitchSpyPerspective();
+                return true;
+            case "SETSPYFIRSTPERSON":
+                pc.SetSpyFirstPerson(command.Arg != 0);
+                return true;
             case "FREECAM":
                 pc.FreeCam();
                 return true;

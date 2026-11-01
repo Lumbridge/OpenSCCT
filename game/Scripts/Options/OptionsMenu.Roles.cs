@@ -94,6 +94,8 @@ public partial class OptionsMenu
             v => _edit.LookOf(merc, false).WalkBehavior = v);
         if (merc) BehaviorChoice("Scope aim:", "scope_behavior", _edit.MercKbm.ScopeBehavior,
             v => _edit.MercKbm.ScopeBehavior = v);
+        else BehaviorChoice("Perspective:", "perspective_behavior", _edit.SpyKbm.PerspectiveBehavior,
+            v => _edit.SpyKbm.PerspectiveBehavior = v);
         behavior.AddChild(new Control { SizeFlagsHorizontal = SizeFlags.ExpandFill });
         behavior.AddChild(reset);
         content.AddChild(behavior);

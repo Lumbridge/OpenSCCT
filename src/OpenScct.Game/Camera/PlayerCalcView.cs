@@ -191,7 +191,13 @@ public static class PlayerCalcView
         }
 
         float dt = PC.Level.m_dT;
-        if (PC.bBehindView && !PC.bFirstPersonWithPawn)
+        if (PC.SpyFirstPersonActive && PC.SBPawn is SPawnAttaque spy)
+        {
+            SpyPerspectiveCamera.TryConstrain(spy, SpyPerspectiveCamera.EyeLocation(spy), out CameraLocation);
+            FRotator effects = bUpdate ? camera.UpdateView(PC.Rotation) : PC.Rotation;
+            CameraRotation = new FRotator(effects.Pitch, effects.Yaw, 0);
+        }
+        else if (PC.bBehindView && !PC.bFirstPersonWithPawn)
         {
             if (camera.StateNode is SPlayerCam.IBehindView)
             {

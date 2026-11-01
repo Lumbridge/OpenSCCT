@@ -39,4 +39,14 @@ public sealed class ViewCutTests
         var b = new ViewSample(2, default, default, 75f, true);
         Assert.True(ViewBlend.IsCut(default, b));
     }
+
+    [Theory]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    public void PerspectiveSwitchCutsEvenWhenAWallPushesTheFollowingCameraClose(bool previousFirst, bool currentFirst)
+    {
+        var previous = new ViewSample(1, new FVector(-5f, 0f, 20f), default, 75f, true, previousFirst);
+        var current = new ViewSample(2, new FVector(0f, 0f, 20f), default, 75f, true, currentFirst);
+        Assert.True(ViewBlend.IsCut(previous, current));
+    }
 }

@@ -7,6 +7,8 @@ namespace OpenScctGame.Controls;
 public static class DefaultKeyLayout
 {
     public const string GearKey = "I";
+    public const string SpyPerspectiveKey = "X";
+    public const string PerspectiveBindingMarker = "; OpenSCCT spy perspective binding v1";
 
     /// <summary>Both original Default_kbd_0/1.ini layouts resolve to these same bindings.</summary>
     public static KeyLayout Create() => KeyLayout.Parse(StockLayout);
@@ -31,6 +33,10 @@ public static class DefaultKeyLayout
             }
         }
 
+        // Older complete snapshots predate this action. Add its default only when the key is free;
+        // new snapshots carry the marker even when the player deliberately leaves it unbound.
+        if (saved?.Contains(PerspectiveBindingMarker, StringComparison.Ordinal) != true)
+            AddIfFree(layout, SpyPerspectiveKey, "SwitchSpyPerspective");
         layout.UpgradeWheelBindings(wheelMode);
         return layout;
     }

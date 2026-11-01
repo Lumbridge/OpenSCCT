@@ -305,6 +305,7 @@ public partial class PlayInput : Node
             _actionState.Clear();
             input.Commands.Add(new InputCommand("SetWalk", 0));
             input.Commands.Add(new InputCommand("SetScope", 0));
+            input.Commands.Add(new InputCommand("SetSpyFirstPerson", 0));
         }
 
         // Buttons released earlier, that were held for the last tick, go up now.
@@ -330,6 +331,16 @@ public partial class PlayInput : Node
             {
                 bool merc = Bindings.Side == PlaySide.Merc;
                 var behavior = Options.SettingsStore.Current.LookOf(merc, false);
+                if (a.Kind == KeyActionKind.Command && a.Name.Equals("SwitchSpyPerspective", StringComparison.OrdinalIgnoreCase))
+                {
+                    if (!merc)
+                    {
+                        bool firstPerson = _actionState.SpyPerspective(ik, pressed, behavior.PerspectiveBehavior == "Hold",
+                            ik.StartsWith("MouseWheel", StringComparison.OrdinalIgnoreCase));
+                        input.Commands.Add(new InputCommand("SetSpyFirstPerson", firstPerson ? 1 : 0));
+                    }
+                    continue;
+                }
                 if (a.Kind == KeyActionKind.Command && a.Name is "Walk" or "ChangeSpeed")
                 {
                     bool pulse = ik.StartsWith("MouseWheel", StringComparison.OrdinalIgnoreCase);
@@ -375,6 +386,8 @@ public partial class PlayInput : Node
         _pending.Clear();
         if (_padWalk is { } padWalk) input.Commands.Add(new InputCommand("SetWalk", padWalk ? 1 : 0));
         if (_actionState.ScopeHeld) input.Commands.Add(new InputCommand("SetScope", 1));
+        if (_actionState.SpyFirstPersonRequested && Bindings.Side == PlaySide.Spy)
+            input.Commands.Add(new InputCommand("SetSpyFirstPerson", 1));
         foreach (string ik in _down)
         {
             foreach (KeyAction a in ActionsOf(ik))
@@ -411,6 +424,7 @@ public partial class PlayInput : Node
         input.Clear();
         input.Commands.Add(new InputCommand("SetWalk", 0));
         input.Commands.Add(new InputCommand("SetScope", 0));
+        input.Commands.Add(new InputCommand("SetSpyFirstPerson", 0));
     }
 
     private bool IsButtonHeldElsewhere(string button, string releasedKey)

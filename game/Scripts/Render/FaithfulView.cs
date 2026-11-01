@@ -1,6 +1,7 @@
 using System;
 using Godot;
 using OpenScct.Core;
+using OpenScct.Game.Camera;
 using OpenScct.Provenance;
 using OpenScctGame.Render.Data;
 using OpenScctGame.Render.Post;
@@ -269,6 +270,20 @@ public partial class FaithfulView : Node3D
     {
         float half = Mathf.DegToRad(horizontalDegrees) * 0.5f;
         return Mathf.RadToDeg(2f * MathF.Atan(MathF.Tan(half) / RenderK.FovReferenceAspect));
+    }
+
+    /// <summary>A sphere around the eye enclosing the near plane, including its pixel-centre offset, in uu.</summary>
+    public float CameraClearance(float fovDegrees)
+    {
+        Vector2 size = IsInsideTree() ? GetViewport().GetVisibleRect().Size : new Vector2(1280f, 720f);
+        float width = Math.Max(1f, size.X), height = Math.Max(1f, size.Y);
+        float vertical = _verticalFovPolicy?.Invoke(fovDegrees, width / height) ?? VerticalFov(fovDegrees);
+        float near = Camera.Near * UeSpace.UnitsPerMetre;
+        float halfHeight = near * MathF.Tan(Mathf.DegToRad(vertical) * 0.5f);
+        float halfWidth = halfHeight * width / height;
+        halfWidth *= 1f + 2f * RenderK.PixelCenterOffset / width;
+        halfHeight *= 1f + 2f * RenderK.PixelCenterOffset / height;
+        return Math.Max(SpyPerspectiveCamera.DefaultClearance, MathF.Sqrt(near * near + halfWidth * halfWidth + halfHeight * halfHeight) + 1f);
     }
 
     /// <summary>

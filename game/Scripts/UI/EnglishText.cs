@@ -39,6 +39,7 @@ public static class EnglishText
         ["HackComm"] = "Hack enemy communications",
         ["Btw"] = "Back to wall",
         ["SwitchBinocularVision"] = "Binoculars or scope",
+        ["SwitchSpyPerspective"] = "First / third person",
         ["SwitchLaser"] = "Weapon laser",
         ["Reload"] = "Reload",
         ["ROF"] = "Rate of fire",

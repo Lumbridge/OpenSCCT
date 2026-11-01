@@ -84,6 +84,10 @@ public sealed class LookSettings
     [JsonPropertyName("scope_behavior")]
     public string ScopeBehavior { get; set; } = "Toggle";
 
+    /// <summary>Spy first-person perspective; the keyboard group's choice also applies to controller bindings.</summary>
+    [JsonPropertyName("perspective_behavior")]
+    public string PerspectiveBehavior { get; set; } = "Toggle";
+
     /// <summary>Spy: free look with the gun holstered (merc: unused).</summary>
     [JsonPropertyName("free_look")]
     public float FreeLook { get; set; } = 1.4f;
@@ -157,6 +161,7 @@ public sealed class LookSettings
     {
         WalkBehavior = WalkBehavior == "Hold" ? "Hold" : "Toggle";
         ScopeBehavior = ScopeBehavior == "Hold" ? "Hold" : "Toggle";
+        PerspectiveBehavior = PerspectiveBehavior == "Hold" ? "Hold" : "Toggle";
         ClutchOne = Range(ClutchOne, 0f, 10f);
         ClutchTwo = Range(ClutchTwo, 0f, 10f);
         FreeLook = Range(FreeLook, 0.05f, freeLookMax);
