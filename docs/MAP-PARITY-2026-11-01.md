@@ -108,3 +108,39 @@ dotnet test --project tests/OpenScct.Integration.Tests --filter-class OpenScct.I
 `--content`, `--game`, `--maps` and `--out` select the inventory inputs and output. Source packages are read-only.
 The detailed `parity.md`/`parity.json` are under `local/test-results/map-parity`; loader reports are under
 `local/content`. Vulkan previews are under `local/destructible-fx-previews`. These derived artifacts stay local.
+
+## Release and deployment
+
+[OpenSCCT 0.8.57](https://github.com/Lumbridge/OpenSCCT/releases/tag/v0.8.57) was published from
+`918351d333a337f0fd9362ab852fb164f2366e88`. The gameplay/rendering changes are in `cf7f180`; the final commit
+adds the three Godot resource-ID sidecars generated during import. Both final platform builds report clean
+source trees. Launcher 0.8.25 is unchanged. Concurrent website/lobby work was excluded from these builds.
+
+The [content release](https://github.com/Lumbridge/OpenSCCT-Content/releases/tag/content-2026.11.01-3),
+index commit `5ade6e2151506ffdf59685981fa50856b5c82067`, updates 14 maps: ClarD, DeftD, DeftS, PanaD,
+PanaS, ShadD, ShadP, StatD, StatE, StatS, SteeD, SteeE, SteeP and SteeT. Its 28 full/simulation archives
+contain the 586 sprite records and their textures. Published simulation hashes, existing lighting properties
+and shared-pack dependencies are preserved. These packs were prepared from the published map sources,
+because local development conversions contain other differences and are not a publishing mirror.
+
+- All 14 new index entries and 28 GitHub archive digests/sizes match the prepared packs. The broader content
+  verifier passed for 323 locally available archives and all 333 remote URLs.
+- All 14 exact server map packages passed canonical content, derivation and runtime-loading checks.
+- Five exported Windows smokes passed against published content: boot, testbox, destructible effects,
+  light sprites and crane animation. All 2,004 Windows payloads were verified from 126 public storage blobs.
+- Linux [workflow 41350927659](https://github.com/Lumbridge/OpenSCCT/actions/runs/41350927659) passed export,
+  native runtime and installed Flatpak smoke checks. Public launcher, Flatpak and checksum downloads match
+  their local hashes. The functional-code [CI run](https://github.com/Lumbridge/OpenSCCT/actions/runs/41350243832)
+  passed Windows, Linux and Godot jobs; the final commit changes only resource-ID sidecars.
+- Master, dedicated server and EU Hub binaries were deployed from `918351d`. The dedicated server's 14 map
+  copies now match the published simulation packages; the hub retains its links to those files, including
+  four newly added rain-file links. Previous map directories and service/config backups are retained.
+- Public status reports game 0.8.57, master commit `918351d`, latest 0.8.57 and minimum 0.8.56.
+
+An additional check of 162 map roots in the content publishing staging area found six existing issues outside
+these 14 updated packs: actor-count mismatches in DOC14, Hotel2, MHO05_MOD and SKY08; missing outfit/skin class
+defaults in ShipD; and an invalid map ID in `new-island`. These remain outstanding and are not covered by the
+earlier clean 85-map repository sweep. The broader retail comparison and Easter-egg limits above also remain.
+
+Deployment and checksum evidence is under `local/deploy-map-0.8.57`; content preparation evidence and original
+manifest backups are under `OpenSCCT-Content/staging/sprites-0.8.57` in the sibling content checkout.
