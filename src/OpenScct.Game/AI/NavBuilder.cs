@@ -808,7 +808,13 @@ public sealed class NavBuilder
     {
         var start = new FVector(p.X, p.Y, top);
         var end = new FVector(p.X, p.Y, bottom);
-        if (!_world.LineCheck(out FCheckResult hit, CollisionProbe, end, start, extent ?? FloorProbe, WorldFlags) || hit.Normal.Z < _profile.MinFloorNormalZ)
+        FVector probe = extent ?? FloorProbe;
+        // A probe starting inside a tall riser reports its start as a hit, not a supporting surface.
+        // Accepting it fabricates intermediate treads and makes an unclimbable desk a walkable staircase.
+        // Mesh/corner sweeps can instead report a slanted surface without the penetration flag.
+        if (!_world.LineCheck(out FCheckResult hit, CollisionProbe, end, start, probe, WorldFlags) ||
+            hit.bStartPenetrating || hit.Normal.Z < _profile.MinFloorNormalZ ||
+            _world.OverlapMoveShape(out _, CollisionProbe, start, probe, WorldFlags))
         {
             return null;
         }

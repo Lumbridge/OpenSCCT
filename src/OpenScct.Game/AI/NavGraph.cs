@@ -98,7 +98,7 @@ public sealed record NavProfile
 public sealed class NavGraph
 {
     /// <summary>Format of <see cref="Write"/>; a cache with another version is rebuilt.</summary>
-    public const int FormatVersion = 12;
+    public const int FormatVersion = 13;
 
     private readonly NavNode[] _nodes;
     private readonly int[] _edgeStart;
