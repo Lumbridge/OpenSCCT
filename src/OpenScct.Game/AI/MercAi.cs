@@ -862,7 +862,7 @@ public sealed class MercAi : AiBrain
     private bool ChargeAllowed(float now, SPAWNDEFENSE merc, GameReplicationInfo? gri)
     {
         float since = now - Pc.fLastChargingTime;
-        return (gri is null || gri.bAvlb_MERC_Charge) && now - Pc.fLastBerserkTime > Pc.fSecondBetweenChargeAndBerserk &&
+        return (gri is null || gri.bAvlb_MERC_Charge) && Pc.CanChargeAfterBerserk &&
             !(merc.MyWeapon?.IsInState(NameReloading) ?? false) &&
             (since > Pc.iSecondBetweenTwoChargesWithoutEnnemy || since > Pc.iSecondBetweenTwoChargesWithEnnemy);
     }

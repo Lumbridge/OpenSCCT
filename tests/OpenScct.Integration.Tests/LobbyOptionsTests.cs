@@ -47,6 +47,72 @@ public sealed class LobbyOptionsTests
         rig.Server.Status() + " | " + string.Join(" | ", rig.Clients.Select(c =>
             $"{c.Settings.PlayerName}: {c.State} {c.CurrentMap} {c.Error} team={c.Lobby.Local?.Team} ready={c.Lobby.Local?.Ready}"));
 
+    [Theory]
+    [InlineData("kick")]
+    [InlineData("ban")]
+    [InlineData("voiceban")]
+    [InlineData("chatvoiceban")]
+    [InlineData("commandban")]
+    public void OpenDedicatedPlayersCanConfigureButCannotModerate(string action)
+    {
+        Assert.SkipWhen(TestBoxMissing, "The TestBox fixture is not in this checkout.");
+        var settings = OnlineRig.Settings(MapCatalog.TestBox) with
+        {
+            Dedicated = true, OpenMapCommands = true, AutoLaunch = false,
+        };
+        (OnlineRig rig, SimLinkNetwork network) = Create(settings);
+        using (rig)
+        {
+            OnlineClient player = Join(rig, network, "Player", 0);
+            OnlineClient other = Join(rig, network, "Other", 1);
+            Assert.True(rig.RunUntil(() => player.State == OnlineClientState.Lobby &&
+                other.State == OnlineClientState.Lobby && player.Lobby.Players.Count == 2, 10), Describe(rig));
+            Assert.True(player.Lobby.CanControl);
+            Assert.False(player.Lobby.Local!.CanModerate);
+            player.SetSetup(player.Lobby.Setup with { RespawnSeconds = 3 });
+            Assert.True(rig.RunUntil(() => other.Lobby.Setup.RespawnSeconds == 3, 5), Describe(rig));
+            int id = other.Lobby.Local!.Id;
+            switch (action)
+            {
+                case "kick": player.Kick(id); break;
+                case "ban": player.Ban(id); break;
+                case "voiceban": player.SetVoiceBanned(id, true); break;
+                case "chatvoiceban": player.Chat("!voiceban Other"); break;
+                case "commandban": player.Command("ban Other"); break;
+            }
+            rig.RunUntil(() => false, 2);
+            Assert.Equal(OnlineClientState.Lobby, other.State);
+            Assert.Equal(2, player.Lobby.Players.Count);
+            Assert.False(other.Lobby.Local!.VoiceBanned);
+        }
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void HostAndAuthenticatedAdminRetainModeration(bool dedicated)
+    {
+        Assert.SkipWhen(TestBoxMissing, "The TestBox fixture is not in this checkout.");
+        var settings = Listen() with
+        {
+            Dedicated = dedicated, AdminPassword = "test-admin", AutoLaunch = false,
+        };
+        (OnlineRig rig, SimLinkNetwork network) = Create(settings);
+        using (rig)
+        {
+            OnlineClient moderator = Join(rig, network, "Moderator", 0, dedicated ? null : "k");
+            OnlineClient other = Join(rig, network, "Other", 1);
+            Assert.True(rig.RunUntil(() => moderator.State == OnlineClientState.Lobby &&
+                other.State == OnlineClientState.Lobby && moderator.Lobby.Players.Count == 2, 10), Describe(rig));
+            if (dedicated) moderator.Admin("test-admin");
+            Assert.True(rig.RunUntil(() => moderator.Lobby.Local!.CanModerate, 5), Describe(rig));
+            moderator.SetVoiceBanned(other.Lobby.Local!.Id, true);
+            Assert.True(rig.RunUntil(() => other.Lobby.Local!.VoiceBanned, 5), Describe(rig));
+            moderator.Kick(other.Lobby.Local.Id);
+            Assert.True(rig.RunUntil(() => other.State != OnlineClientState.Lobby, 5), Describe(rig));
+        }
+    }
+
     [Fact]
     public void EveryCreateSessionOptionRoundTripsWithinThePagesRanges()
     {

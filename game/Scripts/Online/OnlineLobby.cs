@@ -40,6 +40,8 @@ public sealed class OnlineLobby : IOnlineLobbySession
 
     public bool CanControl => State.CanControl;
 
+    public bool CanModerate => State.Local?.CanModerate ?? false;
+
     public string Map => State.Setup.Map;
 
     public bool SidearmsUnrestricted => State.SidearmsUnrestricted || State.Setup.Practice;

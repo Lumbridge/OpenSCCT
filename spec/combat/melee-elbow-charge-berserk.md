@@ -78,7 +78,8 @@ revive is possible.
 ### Who presses Use and what happens
 1. Merc (`s_PlayerWalkingWeapon.PlayerMove`, after the walking speed scaling of this frame): if Use was just pressed,
    `aForward >= fPadXMaxLu * fChargeSeuilPad` (250), not crouched, (`now - fLastChargingTime > 4`, or
-   `> 2 and FindTargetToCharge()`), `now - fLastBerserkTime > 3`, the weapon is not reloading, no usable interaction,
+   `> 2 and FindTargetToCharge()`), `now - fLastBerserkTime > 3`, more than 3 seconds since the last spin ended,
+   the weapon is not reloading, no usable interaction,
    and the charge option is on: action SA_CHARGING (4), weapon state `s_Charging`, `ChangeState('s_PlayerCharging')`.
    Else, if Use was just pressed and the merc is not shocking: try `DoInteraction()`, then
    `FindPawnToReanimateOrTerminate()` (`knockout-and-terminate.md`); if neither, berserk when: not crouched,
@@ -194,7 +195,10 @@ revive is possible.
 ### Merc berserk spin
 23. `s_Berserk360.BeginState`: reticle and laser off; owner cross-eye blur 1 to 0 over 3.5 s; camera on 'B Head'
     (13, 0, 9), third person, weapon hidden. EndState: owner resets the merc camera, shows the weapon, fires again if
-    held; laser and reticle back.
+    held; laser and reticle back. OpenSCCT starts a separate charge recovery window on exit, including an
+    interrupted spin: charging stays blocked for `fSecondBetweenChargeAndBerserk` (3 s by default) after the
+    exit. Players and bots use the same check. Prediction replay does not change this recovery timestamp;
+    `fLastBerserkTime` remains the spin start time for the existing spin-repeat cooldown.
 24. Hits (server `NotifyBump`): another SBasePawn that is not already in `s_Charge_GoBackward`, while the channel 0
     clip position is below 0.8 (GetAnimParams frames are normalised 0 to 1, anim.md Data):
     `PawnTakeDamage(35, me, Other.Location, Other - me, SDamage_Charged, 100)` (the 100

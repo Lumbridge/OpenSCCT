@@ -28,6 +28,13 @@ public partial class SPlayerController
     private static readonly AssetRef MSND_RifleButt = new("Sound_Persos.divers.Coup_crosse1");
     private static readonly AssetRef MSND_Elbow = new("Sound_Persos.divers.Coup_coude1");
 
+    private float _lastBerserkEndTime = float.NegativeInfinity;
+
+    /// <summary>Charging requires a full recovery interval after the spin finishes or is interrupted.</summary>
+    public bool CanChargeAfterBerserk => !IsInState(WNAME_s_Berserk360) &&
+        Level.TimeSeconds - fLastBerserkTime > fSecondBetweenChargeAndBerserk &&
+        Level.TimeSeconds - _lastBerserkEndTime > fSecondBetweenChargeAndBerserk;
+
     /// <summary>The rifle butt sound when the weapon is drawn, else the elbow sound.</summary>
     private AssetRef MeleeSound => SBPawn is { WeaponLoaded: not 0 } ? MSND_RifleButt : MSND_Elbow;
 

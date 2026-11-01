@@ -101,6 +101,8 @@ time the player launches a map.
 - The in-game help is a profile option of the level (`IProfileOptions.DisplayHelpInGame`), set by a Visit a Map
   launch and cleared when the visit's play scene closes or the Tutorials page opens.
 - TutoOrExam is not shown (the rewrite does not gate online play on the exam); the exam is the spy page's fifth row.
+- Lobby Launch and Ready proceed immediately without the first-time map prompt from rule 13. Existing played-map
+  history is retained in the profile for compatibility.
 - The keyboard pictures open from a Keyboard button on the View HUD page.
 - Texts come from the converted GUI.int; pictures from `Tutorials_PC` (ui content step).
 

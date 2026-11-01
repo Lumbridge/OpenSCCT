@@ -114,7 +114,7 @@ Who-hears-whom matches the original (rules in `VoiceRouting.cs`). Gaps:
 | Session player names in the server browser | done (internet sides need the master redeployed) |
 | Briefing page | done (page 1 uses the loading picture; briefing picture not converted) |
 | Strategic Map (in-game menu, F7 and lobby; spec/hud/strategic-map.md) | done (needs the maps and ui steps rebuilt for the pictures) |
-| Tutorials hub, gadget encyclopedia, Visit a Map with help paths, first-time-map prompt | done, needs the ui rebuild (TutoOrExam gate skipped) |
+| Tutorials hub, gadget encyclopedia, Visit a Map with help paths | done, needs the ui rebuild (TutoOrExam gate skipped; first-time-map prompt removed) |
 | HUD legend and keyboard pictures pages | done |
 | Tutorial zone hints (SZoneTips) offline: standalone only in the original, and offline play is a listen server here | done (shown for the local player while an offline session runs: spec/devices/zone-tips.md rule 5a) |
 | Video: post quality, brightness pattern, keep-settings countdown | done (post quality's native effect not decoded: Normal drops the glow; the countdown follows display mode, monitor and window size) |

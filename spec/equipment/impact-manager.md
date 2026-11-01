@@ -60,7 +60,8 @@ Impact classes (class defaults; materials and sounds are package paths):
       them (UE2 projector behaviour, not decoded for this build). So a decal on a gameplay object is not drawn while
       that object is not drawn (a broken vase, DrawType DT_None), and the shot that breaks a one-hit object leaves no
       decal on it (its collision is already off). The port records the actor the trace hit with the mark (sent with
-      the call) instead of projecting.
+      the call) instead of projecting. Pawn hits keep their target identity and spawn the impact sparks without a
+      decal, since the projector does not attach to skeletal meshes. This also applies to predicted Shocker hits.
    6. Effects(): spawn the type's spark emitter at the mark, then play SndBullet (volume 0.8, radius 100) after
       `distance to the local player's controller / 43561` seconds.
 4. **Timer** (every second): each slot whose timer has passed hides its effect and decal and is freed.
@@ -90,6 +91,8 @@ None (the manager has no states; slots are free or timed).
   impacts made after it.
 - Port note: our combat bridge carries owner-only calls, so the broadcast is sent as one server-to-owner call per
   connected player (the same set of machines as the manager's channels, since the manager is always relevant).
+- Pawn impacts also carry a decal-suppression flag, so a destroyed pawn whose actor reference arrives as null
+  cannot leave a floating world decal.
 
 ## Edge cases
 - When all 50 slots are busy the oldest mark is replaced at once, even if it is younger than 15 s.

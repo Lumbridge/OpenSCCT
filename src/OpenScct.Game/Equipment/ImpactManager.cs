@@ -56,12 +56,16 @@ public sealed class ImpactMark
     /// <summary>True when the surface was already not drawn when the mark was added: the decal found nothing.</summary>
     public bool SurfaceGone { get; internal set; }
 
+    /// <summary>The hit cannot receive a decal, even if its actor reference is no longer available on the client.</summary>
+    public bool DecalSuppressed { get; internal set; }
+
     /// <summary>
     /// The decal is drawn: a projector is drawn as part of the surfaces it was attached to, so a decal on a gameplay
     /// actor goes while that actor is not drawn (a broken vase), and one whose actor was already gone shows nothing.
+    /// Pawns receive the impact's sparks but no decal: the projector does not attach to skeletal meshes.
     /// </summary>
     [Provenance(ProvenanceKind.Estimated, "UE2 projectors attach to the colliding static-mesh actors and BSP in their frustum when shown and are drawn with them; not decoded for this build")]
-    public bool DecalShown => !SurfaceGone && (Surface is null || IsDrawn(Surface));
+    public bool DecalShown => !DecalSuppressed && !SurfaceGone && (Surface is null || IsDrawn(Surface));
 
     /// <summary>True while <paramref name="a"/> is drawn (a projector on it is drawn with it).</summary>
     public static bool IsDrawn(Actor a) => !a.bDeleteMe && !a.bHidden && a.DrawType != EDrawType.DT_None;
@@ -168,7 +172,7 @@ public sealed class ImpactTable
     /// </summary>
     [Uc("Engine.SImpactManager.AddImpact")]
     [PortOf("uc:Engine.SImpactManager:AddImpact", Spec = "spec/equipment/impact-manager.md#rules")]
-    public ImpactMark Add(ImpactEffectDefaults type, FVector Loc, FRotator Rot, float now, Actor? Surface = null)
+    public ImpactMark Add(ImpactEffectDefaults type, FVector Loc, FRotator Rot, float now, Actor? Surface = null, bool SuppressDecal = false)
     {
         Update(now);
         int found = -1;
@@ -206,6 +210,7 @@ public sealed class ImpactTable
         m.SurfaceLocation = m.Surface?.Location ?? default;
         m.SurfaceRotation = m.Surface?.Rotation ?? default;
         m.SurfaceGone = m.Surface is not null && !ImpactMark.IsDrawn(m.Surface);
+        m.DecalSuppressed = SuppressDecal || Surface is Pawn;
         Added++;
         return m;
     }
@@ -257,7 +262,12 @@ public static class ImpactManager
             return;
         }
 
-        var call = new CombatCall(CNAME_AddImpact) { Name1 = Type, Vector1 = Loc, Rotation = Rot, Actor1 = Surface is LevelInfo ? null : Surface };
+        var call = new CombatCall(CNAME_AddImpact)
+        {
+            Name1 = Type, Vector1 = Loc, Rotation = Rot, Actor1 = Surface is LevelInfo ? null : Surface,
+            // A destroyed pawn may arrive as null; keep that hit from becoming a floating world decal.
+            Bool1 = Surface is Pawn,
+        };
         foreach (SPlayerController pc in level.AllActors<SPlayerController>())
         {
             if (!pc.bDeleteMe && pc.IsRemotePlayer && !ReferenceEquals(pc, Predicted))
@@ -277,11 +287,11 @@ public static class ImpactManager
     [PortOf("uc:Engine.SImpactEffectBase:Effects", Spec = "spec/equipment/impact-manager.md#rules")]
     [PortOf("uc:Engine.SImpactEffectBase:Timer", Spec = "spec/equipment/impact-manager.md#rules")]
     [Provenance(ProvenanceKind.Estimated, "The impact sound is raised at once; its travel delay (distance / 43561 s, about a tick at 1000 uu) is left to the view")]
-    public static ImpactMark AddImpactHere(Level level, Name Type, FVector Loc, FRotator Rot, Actor? Surface = null)
+    public static ImpactMark AddImpactHere(Level level, Name Type, FVector Loc, FRotator Rot, Actor? Surface = null, bool SuppressDecal = false)
     {
         ImpactTable table = ImpactTable.Of(level);
         ImpactEffectDefaults type = table.Defaults(Type);
-        ImpactMark mark = table.Add(type, Loc, Rot, level.TimeSeconds, Surface);
+        ImpactMark mark = table.Add(type, Loc, Rot, level.TimeSeconds, Surface, SuppressDecal);
         SimEvents events = level.World.Events;
         events.Add(new SimEvent
         {

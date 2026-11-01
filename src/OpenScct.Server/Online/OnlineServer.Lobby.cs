@@ -210,21 +210,21 @@ public sealed partial class OnlineServer
             case "lobby" when CanControl(p) && Phase is SessionPhase.Results or SessionPhase.Match or SessionPhase.Loading:
                 BackToLobby($"{p.Name} went back to the lobby.");
                 break;
-            case "kick" when CanControl(p):
+            case "kick" when CanModerate(p):
                 if (FindPlayer(SessionProtocol.Text(f, 0)) is { } kicked && !ReferenceEquals(kicked, p))
                 {
                     Kick(kicked, $"Kicked by {p.Name}.");
                 }
 
                 break;
-            case "ban" when CanControl(p):
+            case "ban" when CanModerate(p):
                 if (FindPlayer(SessionProtocol.Text(f, 0)) is { } banned && !ReferenceEquals(banned, p))
                 {
                     Ban(banned, 0, $"Banned by {p.Name}.");
                 }
 
                 break;
-            case "voiceban" when CanControl(p):
+            case "voiceban" when CanModerate(p):
                 if (FindPlayer(SessionProtocol.Text(f, 0)) is { } muted && !ReferenceEquals(muted, p))
                 {
                     SetVoiceBanned(muted, SessionProtocol.Int(f, 1, 1) != 0, p.Name);
@@ -255,9 +255,11 @@ public sealed partial class OnlineServer
         }
     }
 
-    /// <summary>The host, an admin, or on an open dedicated server anyone, may change the setup and kick.</summary>
+    /// <summary>The host, an admin, or on an open dedicated server anyone, may change the setup.</summary>
     private bool CanControl(SessionPlayer p) =>
         p.IsHost || p.IsAdmin || (Settings.Dedicated && Settings.OpenMapCommands && Settings.AdminPassword is not { Length: > 0 });
+
+    private static bool CanModerate(SessionPlayer p) => p.IsHost || p.IsAdmin;
 
     private bool CanLaunch(SessionPlayer p) => CanControl(p) || (Settings.Dedicated && !p.IsSpectator);
 
@@ -831,7 +833,7 @@ public sealed partial class OnlineServer
         {
             case "help":
                 SendMessage(p, "!map <name> [mode], !next, !prev, !pings, !resign, !lagcomp [on|off|reset|<ms>], !login <password>" +
-                    (CanControl(p) ? ", !voiceban <name>, !unvoiceban <name>" : string.Empty) +
+                    (CanModerate(p) ? ", !voiceban <name>, !unvoiceban <name>" : string.Empty) +
                     (Setup.Practice ? ", " + PracticeHelp : string.Empty));
                 return true;
             case "lagcomp":
@@ -863,7 +865,7 @@ public sealed partial class OnlineServer
                 resigning.ServerResign();
                 return true;
             case "voiceban" or "unvoiceban":
-                if (!CanControl(p))
+                if (!CanModerate(p))
                 {
                     SendMessage(p, "Only the host or an admin may ban players from voice.");
                     return true;

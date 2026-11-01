@@ -22,8 +22,10 @@ public sealed record LobbyPlayer(int Id, string Name, byte Team, SessionPlayerFl
     /// <summary>The host or an admin banned this player from voice: nobody hears him and he hears nobody.</summary>
     public bool VoiceBanned => (Flags & SessionPlayerFlags.VoiceBanned) != 0;
 
-    /// <summary>The server lets this player change the setup, launch and kick.</summary>
+    /// <summary>The server lets this player change the setup and launch.</summary>
     public bool CanControl => (Flags & (SessionPlayerFlags.Control | SessionPlayerFlags.Host | SessionPlayerFlags.Admin)) != 0;
+
+    public bool CanModerate => IsHost || IsAdmin;
 
     public bool IsSpectator => Team == SessionProtocol.SpectatorTeam;
 
@@ -116,7 +118,7 @@ public sealed class LobbyState
 
     public bool IsHost => Local?.IsHost ?? false;
 
-    /// <summary>The local player may change the setup, launch and kick: the host, or an admin.</summary>
+    /// <summary>The local player may change the setup and launch: the host, or an admin.</summary>
     public bool CanControl => Local?.CanControl ?? false;
 
     public int Count(byte team) => _players.FindAll(p => p.Team == team).Count;

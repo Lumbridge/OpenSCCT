@@ -860,6 +860,12 @@ public partial class SPlayerController
         public override void EndState(Actor self)
         {
             var pc = (SPlayerController)self;
+            // Prediction can replay an old animation completion; it must not change the live recovery window.
+            if (!pc.XLevel.World.IsReplaying)
+            {
+                pc._lastBerserkEndTime = pc.Level.TimeSeconds;
+            }
+
             if (!pc.IsRemotePlayer)
             {
                 pc.ResetMercCam();

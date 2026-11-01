@@ -39,7 +39,7 @@ public partial class SPlayerController
         if (merc && aForward >= chargeStick && !pawn.bIsCrouched &&
             (now - fLastChargingTime > iSecondBetweenTwoChargesWithoutEnnemy ||
              (now - fLastChargingTime > iSecondBetweenTwoChargesWithEnnemy && FindTargetToCharge())) &&
-            now - fLastBerserkTime > fSecondBetweenChargeAndBerserk && !(pawn.MyWeapon?.IsInState(WNAME_s_Reloading) ?? false) &&
+            CanChargeAfterBerserk && !(pawn.MyWeapon?.IsInState(WNAME_s_Reloading) ?? false) &&
             !interactions && chargeOn)
         {
             pawn.ChangeEnumAction(SBasePawn.SA_CHARGING);

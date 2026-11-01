@@ -12,7 +12,7 @@ is in `docs/ONLINE.md`, voice in `docs/VOICE.md`, and the way to test it with tw
 | `game/Scripts/UI/UiStyle.cs` | the look switch (`Look`), `MenuTheme` (the PC button and list boxes, the style colours), `MenuBackdrop`, `MenuTexture` |
 | `game/Scripts/UI/UiArt.cs`, `UiBox.cs`, `UiCorner.cs`, `UiRule.cs`, `UiWordmark.cs` | the modern look: our own art, drawn at the window's size |
 | `game/Scripts/UI/MainMenu.cs` | Create a Session (also how to play offline), Find a Session (joining by IP is on that page), Account, Achievements, Armoury, Tutorials, Options, Quit |
-| `game/Scripts/UI/Tutorials/` | Tutorials (`TutorialsScreen`), the tutorial maps (`TutorialMapsScreen`), Tips (`TipsScreen`), Gadget Details (`GadgetDetailsScreen`), View HUD and the keyboard pictures (`HudLegendScreen`), Visit a Map (`VisitMapScreen`), the lobby's first-time box (`FirstTimeMapPrompt`) |
+| `game/Scripts/UI/Tutorials/` | Tutorials (`TutorialsScreen`), the tutorial maps (`TutorialMapsScreen`), Tips (`TipsScreen`), Gadget Details (`GadgetDetailsScreen`), View HUD and the keyboard pictures (`HudLegendScreen`), Visit a Map (`VisitMapScreen`) |
 | `game/Scripts/Tutorials/` | the tutorial progress file (`TutorialProfile`, `user://tutorials.json`), the pages' words (`TutorialText`), offline play of a tutorial or a visit and the round's end (`TutorialPlay`, `TutorialRoundWatch`) |
 | `game/Scripts/UI/RankIcons.cs` | Rank pictures drawn from SVG (level insignia, prestige and master emblems) and `RankBadge` (emblem, level, title), used by the menus, lobby, results, F8 and hub tags |
 | `game/Scripts/UI/AccountScreen.cs` | Account: sign in with Discord (code, browser, wait), pick or change the name, the rank (emblem, level, XP bar, Prestige, prestige emblems, title picker; spec/additions/progression.md), stats, an achievements summary with links to Achievements and the Armoury, sign out (docs/ONLINE.md "Accounts") |
@@ -194,8 +194,7 @@ Tutorials page opens once the exam (spies) or all three (mercs) are done. A visi
 in-game help is on for the visit only) and ends back on the Tutorials page. The progress and the maps already played
 are kept in `user://tutorials.json`.
 
-In the Lobby Room, the first Launch or Ready on a map the player has not played opens "This is the first time you
-have played this map..." (GUI.FirstTimeToPlayThisMap); OK remembers the map and the press goes on.
+In the Lobby Room, Launch and Ready proceed immediately, including on maps the player has not played before.
 
 Texts come from the converted GUI.int and pictures from `Tutorials_PC` (the ui content step; rebuild it with
 `python -m svmbuild ui`, see content/README.md). Without them the pages open with their titles and

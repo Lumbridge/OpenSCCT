@@ -19,9 +19,25 @@ public sealed class MercAndDropTests
     private static readonly Name s_PlayerCharging = new("s_PlayerCharging");
     private static readonly Name s_Berserk360 = new("s_Berserk360");
 
-    private static PawnRig MercRig()
+    private sealed class SpinAnimations : IPawnAnimationSource
     {
-        PawnRig rig = Rig(PawnTeam.Merc);
+        private static readonly PawnClip Spin = new(new Name("AtakStAlTu"), 21, 15f);
+
+        public bool TryGetClip(SBasePawn pawn, Name sequence, out PawnClip clip)
+        {
+            if (sequence == Spin.Name)
+            {
+                clip = Spin;
+                return true;
+            }
+
+            return PawnAnimationSource.Default.TryGetClip(pawn, sequence, out clip);
+        }
+    }
+
+    private static PawnRig MercRig(PawnRigOptions? options = null)
+    {
+        PawnRig rig = Rig(PawnTeam.Merc, options: options);
         // A match long under way: no charge or berserk in the last seconds.
         rig.Controller.fLastChargingTime = -100f;
         rig.Controller.fLastBerserkTime = -100f;
@@ -45,6 +61,86 @@ public sealed class MercAndDropTests
         rig.Step(NoInput with { bUsing = 1 });
         Assert.True(rig.Controller.IsInState(s_Berserk360), rig.Controller.GetStateName().ToString());
         Assert.Equal(rig.Level.TimeSeconds, rig.Controller.fLastBerserkTime, 3);
+    }
+
+    [Theory]
+    [InlineData(false, false)]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    [InlineData(true, true)]
+    public void AChargeWaitsThreeSecondsAfterTheSpinEnds(bool hasTarget, bool interrupted)
+    {
+        PawnRig rig = MercRig(new PawnRigOptions { Animations = new SpinAnimations() });
+        rig.Pawn.MyWeapon = rig.Level.SpawnActor(new SWeapon(), rig.Pawn.Location, default);
+        rig.Step(NoInput with { bUsing = 1 });
+        Assert.True(rig.Controller.IsInState(s_Berserk360));
+        if (interrupted)
+        {
+            rig.Hold(NoInput, 15);
+            rig.Pawn.ChangeEnumAction(SBasePawn.SA_WALK_ST_2H);
+            rig.Controller.eventChangeState(MovementStateNames.s_PlayerWalkingSt2H);
+        }
+
+        for (int i = 0; i < 300 && rig.Controller.IsInState(s_Berserk360); i++)
+        {
+            rig.Step(NoInput);
+        }
+
+        Assert.True(rig.Controller.IsInState(MovementStateNames.s_PlayerWalkingSt2H));
+        float spinEnded = rig.Level.TimeSeconds;
+        float spinStarted = rig.Controller.fLastBerserkTime;
+        if (hasTarget)
+        {
+            // Exercise the shorter charge cooldown when a homing target is available.
+            RigMate spy = rig.AddMate(PawnTeam.Spy, V(0f, 1000f, 0f), 0);
+            rig.Controller.TargetPawn = spy.Pawn;
+            rig.Controller.fLastChargingTime = spinEnded;
+        }
+
+        rig.Hold(Up, 170);
+        Assert.True(rig.Level.TimeSeconds - spinStarted > 3f);
+        rig.Step(Up with { bUsing = 1 });
+        Assert.False(rig.Controller.IsInState(s_PlayerCharging));
+        Assert.True(rig.Level.TimeSeconds - spinEnded < 3f);
+        Assert.Equal(spinStarted, rig.Controller.fLastBerserkTime);
+
+        // A fresh press after the recovery window can charge again.
+        rig.Hold(Up, 12);
+        rig.Step(Up with { bUsing = 1 });
+        Assert.True(rig.Controller.IsInState(s_PlayerCharging), rig.Controller.GetStateName().ToString());
+    }
+
+    [Theory]
+    [InlineData(-1f)]
+    [InlineData(1f)]
+    public void ReplayingASpinExitDoesNotChangeTheLiveChargeCooldown(float replayOffset)
+    {
+        PawnRig rig = MercRig();
+        rig.Controller.GotoState(s_Berserk360);
+        rig.Controller.GotoState(MovementStateNames.s_PlayerWalkingSt2H);
+        float spinEnded = rig.Level.TimeSeconds;
+        rig.Hold(Up, 120);
+
+        rig.World.IsReplaying = true;
+        try
+        {
+            using (rig.Level.ReplayTime(0, spinEnded + replayOffset, Sim.DeltaTime))
+            {
+                rig.Controller.GotoState(s_Berserk360);
+                rig.Controller.GotoState(MovementStateNames.s_PlayerWalkingSt2H);
+            }
+        }
+        finally
+        {
+            rig.World.IsReplaying = false;
+        }
+
+        rig.Hold(Up, 50);
+        rig.Step(Up with { bUsing = 1 });
+        Assert.False(rig.Controller.IsInState(s_PlayerCharging));
+        rig.Hold(Up, 12);
+        rig.Step(Up with { bUsing = 1 });
+        Assert.True(rig.Controller.IsInState(s_PlayerCharging), rig.Controller.GetStateName().ToString());
     }
 
     [Fact]

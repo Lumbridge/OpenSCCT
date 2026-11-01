@@ -392,12 +392,6 @@ public partial class LobbyRoomScreen : MenuPage
             return;
         }
 
-        // A map the profile has not played yet: the first-time box first, then the press goes on (Lobby_Create).
-        if (FirstTimeMapPrompt.OpenIfFirstTime(this, s.Setup.Map, PressMain))
-        {
-            return;
-        }
-
         if (s.CanControl)
         {
             s.Start(GetTree());
@@ -484,7 +478,7 @@ public partial class LobbyRoomScreen : MenuPage
 
     private void AskKick(int id, string name, ConfirmAction action = ConfirmAction.Kick)
     {
-        if (Session is not { CanControl: true }) return;
+        if (Session is not { CanModerate: true }) return;
         _confirmKick = id;
         _confirmAction = action;
         if (_confirmText is not null)
@@ -507,7 +501,7 @@ public partial class LobbyRoomScreen : MenuPage
 
     private void ConfirmKick(bool yes)
     {
-        if (yes && _confirmKick >= 0 && Session is { CanControl: true })
+        if (yes && _confirmKick >= 0 && Session is { CanModerate: true })
         {
             switch (_confirmAction)
             {
@@ -615,7 +609,7 @@ public partial class LobbyRoomScreen : MenuPage
             row.VoiceBanned = p.VoiceBanned;
             if (row.Admin is not null)
             {
-                row.Admin.Visible = s.CanControl;
+                row.Admin.Visible = s.CanModerate;
                 row.Admin.GetPopup().SetItemText(AdminVoiceBan, p.VoiceBanned ? "Voice Unban" : "Voice Ban");
             }
         }

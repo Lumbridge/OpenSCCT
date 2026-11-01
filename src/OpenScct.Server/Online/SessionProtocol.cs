@@ -33,7 +33,7 @@ public enum SessionPlayerFlags
     InGame = 16,
     Loading = 32,
 
-    /// <summary>May change the setup, launch and kick (the host, an admin, anyone on an open dedicated server).</summary>
+    /// <summary>May change the setup and launch (the host, an admin, anyone on an open dedicated server).</summary>
     Control = 64,
 
     /// <summary>The lobby's "Restrict Mic to Team" is on: the other team does not hear this player in the lobby.</summary>

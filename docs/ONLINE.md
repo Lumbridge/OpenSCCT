@@ -59,9 +59,11 @@ master see (`SessionPhase`):
    `OpenScct.Game.Modes.MatchSetup.Defaults`), and our own bot rows (Bots, Bots per Side, Bot Skill; see "Bots"
    below). Any change of the setup un-readies the players (the host need not be
    ready); Merc Deathmatch moves everyone to the mercenaries and Switch Team does nothing there.
-   - Who may change the setup, launch and kick: on a listen host, the host's own player (it proves it with the
-     host key); on a dedicated server, everyone unless an admin password is set, then admins (`#svm admin`,
-     `!login`). Reloaded's rule (rl:net.dedicated).
+   - Who may change the setup: the listen host (proved by its host key) or an authenticated admin; on a dedicated
+     server, everyone when `openMapCommands` is enabled and no admin password is set. Admins authenticate with
+     `#svm admin` or `!login`. Dedicated players may also request launch, subject to the readiness checks below.
+   - Kick, ban and server-wide voice bans require the listen host or an authenticated admin. Public match-setting
+     permission never grants moderation rights; the server rejects these requests and the client hides the controls.
    - Launch: "Could not start. Not all players are ready" until every player on a side is ready (the host need not
      be), and nobody lacks the map or has a different version of it (the lobby names who). Nobody on a side stops
      it too; an empty side does not (Reloaded lets a host start with an empty team). A dedicated lobby launches on

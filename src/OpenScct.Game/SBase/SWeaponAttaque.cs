@@ -252,7 +252,7 @@ public partial class SWeaponAttaque
             SPlayerController.IncStat(pc, static s => s.ShotsHit++);
         }
 
-        ImpactManager.AddImpact(this, ImpactShocker, impactAt, impactRot, PredictedBy);
+        ImpactManager.AddImpact(this, ImpactShocker, impactAt, impactRot, PredictedBy, victim);
     }
 
     /// <summary>Every pawn whose 100 uu downward trace hits the struck water actor is shocked (rule 11.4).</summary>
@@ -320,7 +320,7 @@ public partial class SWeaponAttaque
         Name type = world && (IsMetal(hit.SurfaceType) || hit.SurfaceType == ESurfaceType.SURFACE_MediumWater)
             ? ImpactShockerMetal
             : ImpactShocker;
-        ImpactManager.AddImpactHere(XLevel, type, hit.HitLocation + hit.HitNormal * K.ShockerImpactOffset, rot, world ? other : null);
+        ImpactManager.AddImpactHere(XLevel, type, hit.HitLocation + hit.HitNormal * K.ShockerImpactOffset, rot, other);
     }
 
     private static bool IsMetal(ESurfaceType s) =>

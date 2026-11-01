@@ -61,8 +61,11 @@ public interface IOnlineLobbySession : ILobbySession
     /// <summary>The match the lobby sets up.</summary>
     OpenScct.Server.Online.LobbySetup Setup { get; }
 
-    /// <summary>The local player may change the setup, launch and kick.</summary>
+    /// <summary>The local player may change the setup and launch.</summary>
     bool CanControl { get; }
+
+    /// <summary>Only a host or authenticated admin may moderate other players.</summary>
+    bool CanModerate => IsHost;
 
     /// <summary>Seconds left of the launch countdown, or 0.</summary>
     float Countdown { get; }
