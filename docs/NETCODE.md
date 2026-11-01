@@ -6,6 +6,16 @@ The original's rules are specified in
 file says how `OpenScct.Net`, `OpenScct.Server` and `OpenScct.Server.Cli` implement them. The M0 transport, packet and
 bunch layers are described in `docs/NETCODE-M0.md` and are unchanged except where noted below.
 
+Recently reordered packets (up to 32 packets behind the newest) may deliver reliable bunches to their
+channel's ordered, duplicate-suppressing queue. They do not update the snapshot timeline, apply stale
+unreliable properties, or receive packet acknowledgements. The last restriction preserves property-loss
+recovery: an acknowledgement still means the whole packet was processed. This prevents a delayed reliable
+control from unnecessarily blocking movement commands fenced behind it until retransmission.
+An unreliable extension can explicitly opt into late delivery only when it validates its own lifetime and
+sequence. Currently only `SvmMoveCommands` does so: epoch, pawn identity and command sequence still govern
+acceptance, ownership checks still apply, and ordinary calls/properties in the same packet remain excluded.
+The opt-in is part of the handshake hash (`move-commands-13:reordered`); previous builds are rejected.
+
 ## The original
 
 SCCT Versus netcode is mostly script-level, on top of the standard UE2 actor replication.
@@ -115,6 +125,15 @@ exchange is done in `OpenScct.Net` before the spawn), applies the properties, ru
 first bunch, recomputes `bNetOwner`, and makes an autonomous player controller the local player. Closing a
 channel destroys a dynamic actor, not a `bNetTemporary` or torn-off one.
 
+The modern gameplay registry opts all `SProjGrenade` subclasses into
+`RepExtension.PersistentActorChannel`. Their authored `bNetTemporary` default remains intact, but the
+network layer uses a normal channel: reliable opening, property updates, and reliable destruction.
+The original disposable opening could disappear entirely under packet loss/reordering, making a
+damaging grenade invisible to a player. Cosmetic temporaries retain the one-shot behavior described
+above. This delivery policy participates in the compatibility hash (`persistent-actor-channel-1`).
+Loss tests cover an opening dropped during an outage, a dropped destruction, and a projectile that
+expires before its opening arrives; recovery creates at most one copy and leaves no surviving ghost.
+
 ### The server pass
 
 `NetDriver.TickFlush(replicate: true)` runs spec/native/net-replication.md rules 1 to 8: dirty propagation
@@ -221,7 +240,7 @@ measured average.
 ### Modern pawn synchronization (both profiles)
 
 The estimated design is specified separately in `spec/net/modern-synchronization.md`. The wire protocol is
-`svm-net/0.4`; the compatibility hash also includes handwritten extension signatures. Mismatched builds are rejected
+`svm-net/0.5`; the compatibility hash also includes handwritten extension signatures. Mismatched builds are rejected
 during Hello, before any actor data is read. Generated declarations remain unchanged.
 
 `SequencedMoveTransport` sends individual fixed-step inputs with explicit input ticks in sequence with redundant older commands. Each
@@ -229,13 +248,25 @@ command records separate reliable fences for controls before physics and after c
 after flushing animation-end actions, so traversal actions and state changes retain their movement boundary. The server
 drains a bounded contiguous run before its world tick; duplicate commands never execute again. Idle and interaction
 states send heartbeats. Catch-up has a per-tick work limit and a simulation-time credit limit.
-A two-tick input playout cushion anchors each pawn lifetime to the host clock. Normal jitter then preserves one
+A two-tick input playout cushion (plus up to four measured jitter ticks) anchors each pawn lifetime to the newest
+input in its first received batch. Normal jitter then preserves one
 input tick per host tick instead of alternating held and burst-stepped authority poses. After an outage, older
 commands still catch up within the existing work and credit bounds.
 Pre-controls, physics and post-controls share the input's clock; authored presentation events retain the host tick.
 Commands use compact sequences, control fences, ordinary tick deltas and packed view angles. Recovery rotates
 through the region around the oldest missing input while reserving slots for recent inputs, so distant gaps after
 an outage cannot hold a stop or action behind an entire pending window.
+Simulation credit retains up to the 256-tick input-history window, with at most eight commands applied per pump
+and at most one full simulation step across commands sharing an input tick. Idle clients resume full-rate
+recovery when acknowledgements fall behind ordinary transit.
+
+The `move-commands-13` format omits repeated control fences, acceleration, position, view, stance bits, action fields and base
+references within a batch. Each batch begins with an empty reference; there is no dependency on a previous
+packet, and timestamps, input ticks and sequences remain explicit. Changed vectors use relative packed coordinates
+when smaller, retaining the same 1/16 uu precision and original coordinate bounds. This lets active recovery fit the existing
+client bandwidth floor without reducing simulation precision or increasing the budget. The extension signature
+changes the protocol hash: clients using earlier movement formats are rejected during the handshake and must be updated
+alongside the host.
 
 Owner acknowledgements contain the processed sequence, buffered-receipt bits, source stamp, server tick and reset epoch.
 The client rotates redundant inputs through missing entries; a reliable control backlog does not make it resend
@@ -396,6 +427,25 @@ impact; with lag compensation on they mostly agree.
 
 ### Function calls
 
+Merc rifles, Uzi, shotgun and carried sidearms share authoritative ammunition and reload accounting.
+Owner prediction is reconciled against the existing carried-ammo revision and shot number. Reliable shot
+requests require consecutive sequence numbers and the current living possessed pawn. Each merc shot also
+carries its owner simulation time; this is separate from the displayed-target time
+used for hit rewind. Fire-rate validation follows cumulative weapon intervals instead of datagram arrival
+spacing, allowing delayed reliable batches without treating ordinary jitter as rapid fire. The shot clock
+may lead elapsed server time by at most one second, and non-finite, repeated or too-fast timestamps are
+rejected. This bounds catch-up rather than permitting an unlimited burst. Internal/local shots retain their
+server-clock rate gate. Both peers must use the new combat contract.
+
+The current owner combat contract is `combat5-pawn-lifetime`. All owner combat calls include the possessed
+pawn's identity captured when queued. The server discards requests from an earlier possession, including
+targetless self-damage and dying-velocity calls, before dispatch or lag compensation. A missing/deleted
+reference cannot stand in for an unpossessed sender. Pending outgoing calls also expire on possession change.
+
+The authority cancels a pending reload when the weapon is no longer usable. Shotgun reload completion
+uses the authored shell notify and frame-39 skip, matching the owner's shortened animation; it does not
+replay the owner's reload sound or action merely to update server ammunition.
+
 `NetDriver.ProcessRemoteFunction(actor, name, args)` is `AActor::ProcessRemoteFunction`: static, standalone
 and dying actors run locally; a non-simulated, non-native call on a proxy is swallowed; a net function whose
 condition (evaluated once, in the actor's current flags) holds goes to the owning connection (server) or the
@@ -511,12 +561,35 @@ Online sessions (lobby, map travel, results, the master, NAT punch and relay) si
 - Handshake: Hello carries the protocol hash (and optionally a content hash); Welcome carries the map, its
   content hash and its sim file digests; a client whose copy differs leaves with "Your game's version is not
   the same as the server's" and names the differing file.
+- Gameplay Hello also carries the shared character-content hash. Both roles' animation JSON (canonicalized)
+  and skeletal GLBs participate; texture differences do not. A mismatch is rejected as `shared/chars` before
+  map loading or spawning, including the Hub. The catalog caches the digest for its loaded content lifetime.
 - `ServerHost` ticks the world at 60 Hz and runs a network frame at `NetRate` (the profile's rate unless
   overridden; see "Send rate and budget: Stock and Enhanced"); it installs the bridges, spawns
   an M0 `CubeWalker` per player unless told not to, and raises `PlayerJoined` so a game can give the connection
   its player controller. `ListenServer`, ports and `svm-server` are as in M0.
 
 ## Game sessions
+
+The server's `NetGameHost` validates the original parameterless `AntiBugTellServerIAmDead` recovery RPC
+against its current pawn. It can repair a genuinely dead body, but is ignored for a healthy pawn or a
+possession gap. Without this boundary a delayed notification from the previous life could return a
+fresh respawn to death/spectating without changing its health or spending a life. The original offline
+state implementation remains unchanged; connected spy/merc regressions cover the stale notification
+and the valid dead-body repair.
+`PCChangeServerState` is checked at the same authority boundary for `s_Dead`, `s_LandingInerte` and
+`PlayerFallingInerte`. These are exclusively dead-body states. A late corpse animation can emit a
+death-state request with a newly received acknowledgement stamp after respawn, so timestamp matching
+does not substitute for checking the current authority pawn's health.
+Rejected explicit death-state requests for a living pawn resend its possession and valid authority state.
+Parameterless death reminders for a healthy pawn are simply ignored: re-running spawn setup for each old
+reminder would disturb the player's current life. On the client,
+a changed pawn reference clears the previous body's pending prediction/correction before replay. If the
+new actor reference resolves after the possession RPCs, the movement bridge completes `ClientRestart`
+once, so a mirrored walking state cannot leave the player using the old spectator camera.
+Possession establishes both controller-to-pawn and pawn-to-controller references. Held combat/inventory
+calls require both links before running, so the initial loadout cannot be processed without its owning
+controller and silently fail to send its weapon requests.
 
 With a game configured (the default when a map is given) `ServerHost` hosts the game itself:
 

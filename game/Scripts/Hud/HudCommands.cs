@@ -32,6 +32,21 @@ public partial class HudCommands : Node
     /// <summary>The play input's layout, and the input to stop while a menu is open.</summary>
     public PlayInput? PlayInput { get; set; }
 
+    public override void _Ready()
+    {
+        if (PlayInput is { } input) input.LocalCommand += OnLocalCommand;
+    }
+
+    public override void _ExitTree()
+    {
+        if (PlayInput is { } input) input.LocalCommand -= OnLocalCommand;
+    }
+
+    private void OnLocalCommand(string command)
+    {
+        if (PlayInput?.Enabled == true && !(Status?.IsOpen ?? false) && !(Blocked?.Invoke() ?? false)) Run(command);
+    }
+
     public override void _Input(InputEvent @event)
     {
         if (@event is not InputEventKey { Pressed: true, Echo: false } || PlayInput?.Bindings is not { } bindings ||

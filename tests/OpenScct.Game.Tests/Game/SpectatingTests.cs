@@ -10,6 +10,20 @@ public class SpectatingTests
 {
     private const string Story = MatchLifecycleTests.SteeEStory;
 
+    [Theory]
+    [InlineData("s_MultiSpectating", true)]
+    [InlineData("s_MultiSpectating_WhenKilled", true)]
+    [InlineData("s_Spectating_Visitor", true)]
+    [InlineData("s_Dead", false)]
+    [InlineData("s_PlayerWalkingCr0H", false)]
+    public void RealControllerStatesExposeTheSpectatorStatusUsedByTheHud(string state, bool expected)
+    {
+        GameWorld world = new GameWorld().Load(Story);
+        var pc = world.Level.Spawn<SPlayerController>()!;
+        pc.GotoState(state);
+        Assert.Equal(expected, pc.IsSpectating());
+    }
+
     private static (GameWorld W, SPlayerController[] P) Match(params string[] joins) =>
         DeathLivesRespawnTests.Match(Story, joins);
 

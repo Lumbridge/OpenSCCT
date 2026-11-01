@@ -243,7 +243,8 @@ public sealed partial class CollisionWorld
                     continue;
                 }
 
-                SyncCollider(c);
+                if (!bruteForce && !SyncColliderForQuery(c, p, p, q.NodeE)) continue;
+                if (bruteForce) SyncCollider(c);
                 if (c.Set is null || !CollisionMath.BoxesTouch(c.Min - q.NodeE, c.Max + q.NodeE, p, p) || !ColliderPasses(di, ref q))
                 {
                     continue;
@@ -372,7 +373,8 @@ public sealed partial class CollisionWorld
                     continue;
                 }
 
-                SyncCollider(c);
+                if (!bruteForce && !SyncColliderForQuery(c, smin, smax)) continue;
+                if (bruteForce) SyncCollider(c);
                 if (c.Set is null || !CollisionMath.BoxesTouch(c.Min, c.Max, smin, smax) || !ColliderPasses(di, ref q))
                 {
                     continue;

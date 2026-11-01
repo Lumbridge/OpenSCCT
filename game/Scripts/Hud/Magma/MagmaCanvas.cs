@@ -36,16 +36,41 @@ public partial class MagmaCanvas : Node2D
     private readonly List<MagmaBatch> _batches = new();
     private readonly List<BackBufferCopy> _copies = new();
     private ShaderMaterial? _dodge;
+    private HudAssets? _drawnAssets;
+    private readonly Dictionary<TextLayoutKey, TextLine[]> _textLayouts = new();
+    private readonly Queue<TextLayoutKey> _textLayoutOrder = new();
+    private const int MaxTextLayouts = 256;
+    private readonly record struct TextLayoutKey(MagmaFont Font, string Text, Rect2 Rect, float Height, float XScale, float Tracking);
+    internal readonly record struct TextLine(string Text, float Top, float Width);
 
     public HudAssets? Assets { get; set; }
 
     /// <summary>Items submitted last, for checks.</summary>
     public int ItemCount { get; private set; }
 
+    /// <summary>Number of changed command batches submitted; used by the focused performance check.</summary>
+    internal long RedrawCount { get; private set; }
+    internal long TextLayoutMisses { get; private set; }
+    internal int RegionalCopyCount { get; private set; }
+
+    /// <summary>Diagnostic override for pixel comparisons against full-screen back-buffer copies.</summary>
+    internal bool FullViewportCopies { get; set; }
+
     public void Submit(IReadOnlyList<MagmaDrawItem> items)
     {
         ArgumentNullException.ThrowIfNull(items);
         ItemCount = items.Count;
+        RegionalCopyCount = 0;
+        bool assetsChanged = !ReferenceEquals(_drawnAssets, Assets);
+        if (assetsChanged)
+        {
+            _drawnAssets = Assets;
+            _textLayouts.Clear();
+            _textLayoutOrder.Clear();
+        }
+        // The normal HUD is untransformed. Other callers retain full copies if their canvas transforms it.
+        bool regionalCopies = !FullViewportCopies && IsInsideTree() && GetGlobalTransformWithCanvas() == Transform2D.Identity;
+        Rect2 viewport = regionalCopies ? GetViewportRect() : default;
         int batch = 0;
         int start = 0;
         while (start < items.Count)
@@ -61,19 +86,30 @@ public partial class MagmaCanvas : Node2D
             }
 
             MagmaBatch b = Batch(batch++);
-            b.Items.Clear();
-            for (int i = start; i < end; i++)
-            {
-                b.Items.Add(items[i]);
-            }
-
-            b.Material = dodge ? DodgeMaterial() : null;
+            bool changed = b.SetItems(items, start, end);
+            Material? material = dodge ? DodgeMaterial() : null;
+            if (b.Material != material) b.Material = material;
             // Repeat is per canvas item, so a run shares it: clamped images must not wrap their far edge round.
-            b.TextureRepeat = clamp == true ? TextureRepeatEnum.Disabled : TextureRepeatEnum.Enabled;
-            b.Visible = true;
+            TextureRepeatEnum repeat = clamp == true ? TextureRepeatEnum.Disabled : TextureRepeatEnum.Enabled;
+            if (b.TextureRepeat != repeat) b.TextureRepeat = repeat;
+            if (!b.Visible) b.Visible = true;
             // A dodge run reads the screen as drawn so far, HUD included: copy the back buffer just before it.
-            _copies[batch - 1].Visible = dodge;
-            b.QueueRedraw();
+            BackBufferCopy copy = _copies[batch - 1];
+            if (copy.Visible != dodge) copy.Visible = dodge;
+            if (dodge)
+            {
+                Rect2 bounds = default;
+                bool bounded = regionalCopies && TryCopyRect(items, start, end, viewport, out bounds);
+                if (bounded) RegionalCopyCount++;
+                BackBufferCopy.CopyModeEnum mode = bounded ? BackBufferCopy.CopyModeEnum.Rect : BackBufferCopy.CopyModeEnum.Viewport;
+                if (copy.CopyMode != mode) copy.CopyMode = mode;
+                if (bounded && copy.Rect != bounds) copy.Rect = bounds;
+            }
+            if (changed || assetsChanged)
+            {
+                b.QueueRedraw();
+                RedrawCount++;
+            }
             start = end;
         }
 
@@ -81,13 +117,47 @@ public partial class MagmaCanvas : Node2D
         {
             if (_batches[i].Items.Count > 0)
             {
-                _batches[i].Items.Clear();
+                _batches[i].ClearItems();
                 _batches[i].QueueRedraw();
+                RedrawCount++;
             }
 
             _batches[i].Visible = false;
             _copies[i].Visible = false;
         }
+    }
+
+    /// <summary>
+    /// The dodge shader reads only SCREEN_UV with nearest filtering. A padded union covers every sampled pixel;
+    /// unknown/non-finite geometry and full-screen runs keep the original full-viewport copy.
+    /// </summary>
+    internal static bool TryCopyRect(IReadOnlyList<MagmaDrawItem> items, int start, int end, Rect2 viewport, out Rect2 bounds)
+    {
+        bounds = default;
+        if (!(viewport.Size.X > 0f && viewport.Size.Y > 0f)) return false;
+        float left = float.PositiveInfinity, top = float.PositiveInfinity;
+        float right = float.NegativeInfinity, bottom = float.NegativeInfinity;
+        for (int i = start; i < end; i++)
+        {
+            MagmaDrawItem item = items[i];
+            if (!IsDodge(item) || item.Points.Length < 3) return false;
+            foreach (Vector2 point in item.Points)
+            {
+                if (!float.IsFinite(point.X) || !float.IsFinite(point.Y)) return false;
+                left = Math.Min(left, point.X);
+                top = Math.Min(top, point.Y);
+                right = Math.Max(right, point.X);
+                bottom = Math.Max(bottom, point.Y);
+            }
+        }
+        if (!float.IsFinite(left)) return false;
+        left = Math.Max(viewport.Position.X, MathF.Floor(left) - 1f);
+        top = Math.Max(viewport.Position.Y, MathF.Floor(top) - 1f);
+        right = Math.Min(viewport.End.X, MathF.Ceiling(right) + 1f);
+        bottom = Math.Min(viewport.End.Y, MathF.Ceiling(bottom) + 1f);
+        if (right <= left || bottom <= top) return false;
+        bounds = new Rect2(left, top, right - left, bottom - top);
+        return bounds.Size.X * bounds.Size.Y < viewport.Size.X * viewport.Size.Y;
     }
 
     private static bool IsDodge(MagmaDrawItem item) =>
@@ -152,22 +222,39 @@ public partial class MagmaCanvas : Node2D
         }
 
         font.LoadPages(file => Assets!.LoadTexture(file));
-        foreach ((string line, float y) in Layout(font, item))
+        foreach (TextLine line in CachedLayout(font, item))
         {
-            float width = font.Measure(line, item.HeightPx, item.XScale, item.TrackingPx);
             float x = item.Align switch
             {
-                MagmaAlign.Center => item.Rect.Position.X + (item.Rect.Size.X - width) * 0.5f,
-                MagmaAlign.Right => item.Rect.End.X - width,
+                MagmaAlign.Center => item.Rect.Position.X + (item.Rect.Size.X - line.Width) * 0.5f,
+                MagmaAlign.Right => item.Rect.End.X - line.Width,
                 _ => item.Rect.Position.X,
             };
             if (item.Shadow.A > 0f)
             {
-                DrawRun(target, font, line, new Vector2(x, y) + item.ShadowOffsetPx, item, item.Shadow);
+                DrawRun(target, font, line.Text, new Vector2(x, line.Top) + item.ShadowOffsetPx, item, item.Shadow);
             }
 
-            DrawRun(target, font, line, new Vector2(x, y), item, item.Color);
+            DrawRun(target, font, line.Text, new Vector2(x, line.Top), item, item.Color);
         }
+    }
+
+    internal TextLine[] CachedLayout(MagmaFont font, MagmaDrawItem item)
+    {
+        var key = new TextLayoutKey(font, item.Text, item.Rect, item.HeightPx, item.XScale, item.TrackingPx);
+        if (_textLayouts.TryGetValue(key, out TextLine[]? cached)) return cached;
+        List<(string Line, float Top)> layout = Layout(font, item);
+        var lines = new TextLine[layout.Count];
+        for (int i = 0; i < lines.Length; i++)
+        {
+            (string line, float top) = layout[i];
+            lines[i] = new TextLine(line, top, font.Measure(line, item.HeightPx, item.XScale, item.TrackingPx));
+        }
+        if (_textLayouts.Count == MaxTextLayouts) _textLayouts.Remove(_textLayoutOrder.Dequeue());
+        _textLayouts.Add(key, lines);
+        _textLayoutOrder.Enqueue(key);
+        TextLayoutMisses++;
+        return lines;
     }
 
     /// <summary>Lines of a text item with the top of each line: explicit line breaks, and word wrap in rects taller
@@ -239,6 +326,7 @@ public partial class MagmaCanvas : Node2D
 public partial class MagmaBatch : Node2D
 {
     private readonly MagmaCanvas? _owner;
+    private readonly MagmaDrawList _snapshot = new();
 
     public MagmaBatch()
     {
@@ -249,7 +337,21 @@ public partial class MagmaBatch : Node2D
         _owner = owner;
     }
 
-    public List<MagmaDrawItem> Items { get; } = new();
+    public List<MagmaDrawItem> Items => _snapshot.Items;
+
+    internal bool SetItems(IReadOnlyList<MagmaDrawItem> source, int start, int end)
+    {
+        bool changed = Items.Count != end - start;
+        for (int i = start; !changed && i < end; i++)
+            changed = !Items[i - start].SameDraw(source[i]);
+        if (!changed) return false;
+
+        _snapshot.Clear();
+        for (int i = start; i < end; i++) _snapshot.Add(source[i].Kind).CopyFrom(source[i]);
+        return true;
+    }
+
+    internal void ClearItems() => _snapshot.Clear();
 
     public override void _Draw() => _owner?.DrawItems(this, Items);
 }

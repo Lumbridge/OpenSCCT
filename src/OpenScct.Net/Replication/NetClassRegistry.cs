@@ -179,6 +179,8 @@ public sealed class NetClassRegistry
                     foreach (RepExtensionFunction prior in old.Extension.Functions)
                         if (f.Name == prior.Name) throw new InvalidOperationException($"{type.Name}.{f.Name} is already extended.");
                 var merged = new RepExtension();
+                merged.InterpolateMovement = old.Extension.InterpolateMovement || extension.InterpolateMovement;
+                merged.PersistentActorChannel = old.Extension.PersistentActorChannel || extension.PersistentActorChannel;
                 merged.Properties.AddRange(old.Extension.Properties); merged.Properties.AddRange(extension.Properties);
                 merged.Functions.AddRange(old.Extension.Functions); merged.Functions.AddRange(extension.Functions);
                 extension = merged;
@@ -236,8 +238,8 @@ public sealed class NetClassRegistry
 /// <summary>Version tag of our wire format, part of the protocol hash.</summary>
 public static class NetProtocol
 {
-    /// <summary>0.3: the packet header carries the connection salt; the handshake has the player key challenge.</summary>
-    public const string Version = "svm-net/0.4";
+    /// <summary>0.5: the gameplay Hello also identifies shared character animation and skeletal content.</summary>
+    public const string Version = "svm-net/0.5";
 }
 
 /// <summary>FNV-1a 64-bit over UTF-16 code units: stable across processes and platforms.</summary>

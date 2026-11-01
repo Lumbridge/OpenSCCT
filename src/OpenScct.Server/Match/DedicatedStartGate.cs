@@ -55,7 +55,11 @@ public sealed class DedicatedStartGate
         float now = _game.Level.TimeSeconds;
         if (_startAt >= 0f)
         {
-            if (now >= _startAt)
+            if (pendingClients != 0 || !AllWaiting())
+            {
+                _startAt = -1f;
+            }
+            else if (now >= _startAt)
             {
                 Start();
             }
@@ -77,20 +81,22 @@ public sealed class DedicatedStartGate
 
     private bool AllWaiting()
     {
-        if (_game.GameReplicationInfo is not { } gri || gri.PRIArray.Count < PlayersToStart)
+        if (_game.GameReplicationInfo is not { } gri)
         {
             return false;
         }
 
+        int players = 0;
         for (int i = 0; i < gri.PRIArray.Count; i++)
         {
+            if (!gri.PRIArray[i].bOnlySpectator) players++;
             if (!gri.PRIArray[i].bWaitingPlayer)
             {
                 return false;
             }
         }
 
-        return true;
+        return players >= PlayersToStart;
     }
 
     private void Start()

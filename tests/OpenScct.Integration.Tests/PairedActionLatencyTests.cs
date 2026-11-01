@@ -124,6 +124,89 @@ public sealed class PairedActionLatencyTests
         }
     }
 
+    [Theory]
+    [InlineData(0, false)]
+    [InlineData(2, false)]
+    [InlineData(0, true)]
+    [InlineData(2, true)]
+    public void DeadOwnerCompletesRootMotionAndAirborneLandingWithTheAuthoritativeCorpse(int victimIndex, bool airborne)
+    {
+        string chars = RequireCharacterContent();
+        var clock = new VirtualClock();
+        var network = new SimLinkNetwork(clock, 429, SimLinkProfile.Get("100"));
+        using var match = new BotMatch(new BotMatchSettings
+        {
+            Map = MapCatalog.TestBox, Maps = WalkerRig.Maps, Classes = WalkerRig.Classes,
+            Bots = BotMatchSettings.TwoVersusTwo(_ => new IdleBrain { Stand = airborne }, _ => new IdleBrain()),
+            Profile = NetProfile.Enhanced,
+        }, network.Bind, "server", 0);
+        long frame = 0;
+        void Tick()
+        {
+            clock.AdvanceTo(VirtualClock.TickToMicroseconds(++frame, Sim.Hz)); match.Step(clock.NowMicroseconds);
+        }
+        for (int i = 0; i < 900; i++) Tick();
+        BotClient victim = match.Bots[victimIndex];
+        SPlayerController authority = match.ServerController(victim)!;
+        var source = Assert.IsAssignableFrom<SBasePawn>(authority.Pawn);
+        var owned = Assert.IsAssignableFrom<SBasePawn>(victim.Controller!.Pawn);
+        PawnAnimationSource animations = PawnAnimationSource.FromContent(chars);
+        void UseClips(Level level) => level.SetService(new MovementService(animations, level.GetService<MovementService>()?.Hooks));
+        UseClips(match.Server.World.Level);
+        foreach (BotClient client in match.Bots) UseClips(client.Session.World.Level);
+        bool hit = false;
+        match.Server.BeforeWorldTick += _ =>
+        {
+            if (hit) return;
+            hit = true;
+            if (airborne)
+            {
+                FVector at = source.Location + new FVector(0, 0, 300);
+                foreach (SBasePawn pawn in new[] { source, owned })
+                {
+                    Assert.True(MovementNatives.Driver(pawn)!.FarMoveActor(pawn, at));
+                    pawn.Velocity = pawn.Acceleration = default;
+                    ((SPlayerController)pawn.Controller!).GotoState(new Name("PlayerFalling"));
+                    pawn.SetPhysics(EPhysics.PHYS_Falling);
+                }
+                source.ResetNetworkHistory();
+                match.Server.Movement.PeekEndpoint(authority)!.Sequenced!.ResetLifetime();
+            }
+            authority.PawnTakeDamage(200, null, source.Location, new FVector(-1, 0, 0), SDamageType.SDTBase, 1, 0);
+        };
+        for (int i = 0; i < 360; i++) Tick();
+        Assert.True(source.Health <= 0 && owned.Health <= 0);
+        // SA_LAND_INERTE deliberately holds the final frame in root motion with walking support in the
+        // original. Grounded death clips switch back to Walking; neither path may keep falling or drifting.
+        EPhysics settled = airborne ? EPhysics.PHYS_RootMotion : EPhysics.PHYS_Walking;
+        Assert.True(source.Physics == settled && owned.Physics == settled,
+            $"Source {source.Physics} {authority.GetStateName()} {source.Location} {source.PawnAnim[0].Sequence}/{source.PawnAnim[0].Frame}, owner {owned.Physics} {victim.Controller.GetStateName()} {owned.Location} {owned.PawnAnim[0].Sequence}/{owned.PawnAnim[0].Frame}");
+        if (airborne)
+        {
+            Assert.Equal(EPhysics.PHYS_Walking, source.RootMotionAdditionnalPhysics);
+            Assert.Equal(EPhysics.PHYS_Walking, owned.RootMotionAdditionnalPhysics);
+            Assert.Equal(new Name("LandStXxBk2"), source.PawnAnim[0].Sequence);
+            Assert.InRange(source.PawnAnim[0].Frame, 0.94f, 1f);
+        }
+        Assert.InRange((source.Location - owned.Location).Size(), 0, 2);
+        Assert.Equal(source.PawnAnim[0].Sequence, owned.PawnAnim[0].Sequence);
+        Assert.False(victim.Controller.StateNode is SPlayerController.PlayerFallingInerte);
+        Assert.False(authority.StateNode is SPlayerController.PlayerFallingInerte);
+        FVector restingSource = source.Location, restingOwner = owned.Location;
+        for (int i = 0; i < 30; i++) Tick();
+        Assert.InRange((source.Location - restingSource).Size(), 0, 0.05f);
+        Assert.InRange((owned.Location - restingOwner).Size(), 0, 0.05f);
+        foreach (BotClient viewer in match.Bots)
+        {
+            if (ReferenceEquals(viewer, victim)) continue;
+            var shown = Assert.IsAssignableFrom<SBasePawn>(viewer.Session.Driver.FindActorByNetGuid((uint)source.ActorId));
+            Assert.InRange((source.Location - shown.Location).Size(), 0, 2);
+            Assert.Equal(source.PawnAnim[0].Sequence, shown.PawnAnim[0].Sequence);
+        }
+        var transport = victim.Session.Movement.PeekEndpoint(victim.Controller)!.Sequenced!;
+        Assert.True(transport.ResynchronizationRequests == 0, transport.FirstResynchronization);
+    }
+
     private sealed class IdleBrain : BotBrain
     {
         public bool Stand;
@@ -140,11 +223,12 @@ public sealed class PairedActionLatencyTests
     }
 
     [Theory]
-    [InlineData(NetProfile.Stock, "100")]
-    [InlineData(NetProfile.Stock, "200")]
-    [InlineData(NetProfile.Enhanced, "100")]
-    [InlineData(NetProfile.Enhanced, "200")]
-    public void TwoOwnersCompleteAGrabKnockoutAndRecoveryWithoutDuplicateDamageOrPredictionResets(NetProfile profile, string link)
+    [InlineData(NetProfile.Stock, "100", 0)]
+    [InlineData(NetProfile.Stock, "200", 0)]
+    [InlineData(NetProfile.Enhanced, "100", 0)]
+    [InlineData(NetProfile.Enhanced, "200", 0)]
+    [InlineData(NetProfile.Enhanced, "100", 600)]
+    public void TwoOwnersCompleteAGrabKnockoutAndRecoveryWithoutDuplicateDamageOrPredictionResets(NetProfile profile, string link, int serverLeadTicks)
     {
         string chars = RequireCharacterContent();
         var clock = new VirtualClock();
@@ -166,7 +250,7 @@ public sealed class PairedActionLatencyTests
         {
             long displayed = viewer.Session.RenderTimeFixed;
             long tick = displayed / NetTimeline.Fraction;
-            if (tick < 1025 || tick + 1 >= match.Server.World.TickCount ||
+            if (tick < 1025 + serverLeadTicks || tick + 1 >= match.Server.World.TickCount ||
                 viewer.Session.Driver.FindActorByNetGuid((uint)source.ActorId) is not SBasePawn { NetworkPoseReady: true } shown ||
                 !viewer.Session.PawnStates!.IsPoseBuffered(shown, displayed)) return;
             NetworkAnimChannel a = history[tick], b = history[tick + 1];
@@ -199,6 +283,11 @@ public sealed class PairedActionLatencyTests
                 if (viewer == match.Bots[0] || viewer == match.Bots[2]) continue;
                 Compare(viewer, recordedSpy, spyHistory); Compare(viewer, recordedMerc, mercHistory);
             }
+        }
+        for (int i = 0; i < serverLeadTicks; i++)
+        {
+            clock.AdvanceTo(VirtualClock.TickToMicroseconds(++frame, Sim.Hz));
+            match.Server.Tick(clock.NowMicroseconds);
         }
         for (int i = 0; i < 900; i++) Tick();
         BotClient spy = match.Bots[0], merc = match.Bots[2];

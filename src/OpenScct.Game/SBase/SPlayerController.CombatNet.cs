@@ -43,6 +43,12 @@ public partial class SPlayerController
         }
     }
 
+    // Ownership can outlive possession while a corpse or its equipment is still replicated. A delayed shot
+    // must belong to the current living pawn before it can consume a shot number, trace or produce effects.
+    private bool CanReceiveWeaponShot(SWeapon weapon) =>
+        Pawn is SBasePawn { Health: > 0, bDeleteMe: false } pawn && !weapon.bDeleteMe &&
+        ReferenceEquals(weapon.Instigator, pawn) && ReferenceEquals(pawn.Controller, this);
+
     private void ReceiveFromOwner(in CombatCall c)
     {
         Actor? target = c.Target;
@@ -123,13 +129,12 @@ public partial class SPlayerController
             case "ServerSetAccurateRotation" when target is SWeaponDefense rifle:
                 rifle.ServerSetAccurateRotation(c.Rotation.Yaw, c.Rotation.Pitch, c.Rotation.Roll);
                 break;
-            case "ServerFireWeapon" when target is SWeapon weapon:
+            case "ServerFireWeapon" when target is SWeapon weapon && CanReceiveWeaponShot(weapon):
                 // The shot's number and whether its impacts were predicted (spec/net/lag-compensation.md).
-                if (weapon.Instigator is SBasePawn { SidearmWeapon: not null } &&
-                    (c.Int2 <= 0 || c.Int2 != weapon.ShotCounter + 1)) break;
-                weapon.BeginClientShot(c.Int2, c.Bool1);
-                weapon.ServerFireWeapon(c.Int1);
-                weapon.EndClientShot();
+                if (c.Int2 <= 0 || c.Int2 != weapon.ShotCounter + 1) break;
+                weapon.BeginClientShot(c.Int2, c.Bool1, c.Float1);
+                try { weapon.ServerFireWeapon(c.Int1); }
+                finally { weapon.EndClientShot(); }
                 break;
             case "ServerSetROF" when target is SWeaponDefense rifle:
                 rifle.ServerSetROF((SRateOfFireMode)c.Int1);
@@ -137,10 +142,10 @@ public partial class SPlayerController
             case "ServerSwitchLaser" when target is SWeaponAttaque pistol:
                 pistol.ServerSwitchLaser(c.Bool1);
                 break;
-            case "ServerFireWeaponWithLocation" when target is SWeaponAttaque pistol:
+            case "ServerFireWeaponWithLocation" when target is SWeaponAttaque pistol && CanReceiveWeaponShot(pistol):
                 pistol.BeginClientShot(c.Int1, c.Bool1);
-                pistol.ServerFireWeaponWithLocation(c.Vector1, c.Rotation.Yaw, c.Rotation.Pitch, c.Rotation.Roll);
-                pistol.EndClientShot();
+                try { pistol.ServerFireWeaponWithLocation(c.Vector1, c.Rotation.Yaw, c.Rotation.Pitch, c.Rotation.Roll); }
+                finally { pistol.EndClientShot(); }
                 break;
             case "TorcheON" when target is SGadTorche torch:
                 torch.TorcheON();

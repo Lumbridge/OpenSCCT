@@ -70,6 +70,9 @@ public sealed record ServerSettings
     /// <summary>With <see cref="GameOptions"/>: players that must be in and waiting before a dedicated server starts the match.</summary>
     public int PlayersToStart { get; init; } = 2;
 
+    /// <summary>Bounded receive-silence grace while an accepted gameplay client builds its rendered scene.</summary>
+    public float SceneLoadTimeoutSeconds { get; init; } = 60f;
+
     /// <summary>Seconds a refused connection stays open so the reason gets through (it is sent reliably).</summary>
     public float RejectLingerSeconds { get; init; } = 2f;
 
@@ -155,6 +158,7 @@ public sealed class ServerHost : INetworkNotify, IDisposable
     private int _flushAccumulator;
     private int _nextPlayerId = 1;
     private bool _disposed;
+    private readonly ulong _characterContentHash;
 
     public ServerHost(ITransport transport, ServerSettings? settings = null)
     {
@@ -169,6 +173,7 @@ public sealed class ServerHost : INetworkNotify, IDisposable
 
         World = new World(Settings.MatchSeed, Settings.NetMode);
         MapCatalog maps = Settings.Maps ?? MapCatalog.CreateDefault();
+        _characterContentHash = Settings.GameOptions is null ? 0 : maps.CharacterContentHash;
         Driver = new NetDriver(transport, Settings.Classes ?? NetClasses.Create(), this, isServer: true,
             NetProfiles.Apply(Settings.Net, Settings.Profile, NetRate)) { World = World };
         World.Level.SetService<IObjectiveNet>(new NetObjectiveBridge(Driver));
@@ -353,6 +358,11 @@ public sealed class ServerHost : INetworkNotify, IDisposable
         Chat.Tick(World.TimeSeconds);
         DeviceEvents?.RelayTick(World);
         StartGate?.Tick(PendingClients());
+        foreach (PlayerSlot player in _players)
+        {
+            if (player.Controller?.PlayerReplicationInfo?.bWaitingPlayer == true)
+                player.Connection.ReceiveTimeoutNotBeforeMicros = 0;
+        }
         CloseExpiredRejections(nowMicros);
         Recorder?.Scan();
         _flushAccumulator += NetRate;
@@ -578,6 +588,10 @@ public sealed class ServerHost : INetworkNotify, IDisposable
                 {
                     pawn.Destroy();
                 }
+
+                // Logout checks the round while the departing controller is still linked. Refresh the
+                // displayed aggregate after removal so spectators do not retain that player's lives.
+                Game?.UpdateTeamNumLives();
             }
 
             slot.Walker = null;
@@ -597,6 +611,12 @@ public sealed class ServerHost : INetworkNotify, IDisposable
         if (hello.ProtocolHash != Driver.ProtocolHash || (hello.ContentHash != 0 && hello.ContentHash != Map.ContentHash))
         {
             Reject(connection, ControlMessage.VersionMismatchText, hello.ProtocolHash != Driver.ProtocolHash ? "OpenScct.Net" : Map.ContentFile);
+            return;
+        }
+
+        if (Settings.GameOptions is not null && hello.CharacterHash != _characterContentHash)
+        {
+            Reject(connection, ControlMessage.VersionMismatchText, MapCatalog.CharacterContentFile);
             return;
         }
 
@@ -686,6 +706,8 @@ public sealed class ServerHost : INetworkNotify, IDisposable
         };
         connection.UserData = slot;
         _players.Add(slot);
+        if (Game is not null)
+            connection.ReceiveTimeoutNotBeforeMicros = Driver.Time + (long)(Math.Max(0, Settings.SceneLoadTimeoutSeconds) * 1_000_000);
         connection.ControlChannel?.Send(ControlMessage.Welcome(slot.PlayerId, Map.Name, (uint)World.TickCount, NetRate,
             Map.ContentHash, Map.FileListing, Driver.Settings.PawnProxies));
     }

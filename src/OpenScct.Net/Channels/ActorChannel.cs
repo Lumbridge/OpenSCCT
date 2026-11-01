@@ -9,7 +9,8 @@ namespace OpenScct.Net;
 /// Replicates one actor over one connection (UE2 UActorChannel), following spec/native/net-replication.md rules
 /// 9 to 18 and 23 to 25.
 /// <list type="bullet">
-/// <item>The first bunch is reliable (unreliable, and closing the channel, for bNetTemporary actors) and carries
+/// <item>The first bunch is reliable (unreliable, and closing the channel, for bNetTemporary actors unless their
+/// class opts into persistent delivery) and carries
 /// the spawn information: a map actor (bStatic or bNoDelete) as its SVMap actor index, a dynamic one as its class,
 /// location and rotation. Later property bunches are unreliable.</item>
 /// <item>Properties are compared with the channel's shadow (<c>Recent</c>), which starts as the class defaults with
@@ -156,7 +157,7 @@ public sealed class ActorChannel : Channel
         NetDriver driver = connection.Driver;
         RepLayout layout = info.Layout;
         bool first = !_sentInitial;
-        bool temporary = actor.bNetTemporary;
+        bool temporary = actor.bNetTemporary && info.Extension?.PersistentActorChannel != true;
         bool reliable = first && !temporary;
 
         // Rule 9: the first time the opening is seen acknowledged, resend what went out unreliably before it.
@@ -393,6 +394,30 @@ public sealed class ActorChannel : Channel
     }
 
     // ---- receiving -----------------------------------------------------------------------------------------
+
+    /// <summary>Late datagrams may fill gaps only in explicitly sequenced extension protocols.</summary>
+    internal void ReceivedReorderedFunctions(FInBunch bunch)
+    {
+        if (Actor is null || Actor.bDeleteMe || Layout is not { } layout) return;
+        FBitReader reader = bunch.Reader;
+        NetDriver driver = Connection.Driver;
+        while (!reader.AtEnd)
+        {
+            int function = (int)reader.ReadInt((uint)layout.MaxRepIndex) - layout.PropertyCount;
+            if (reader.IsError || function < 0 || function >= layout.Functions.Length) return;
+            RepFunction call = layout.Functions[function];
+            // Stop at any ordinary call/property: its arguments have no reorder-safe contract.
+            if (call.IsReliable || call.Extension is not { AcceptReordered: true }) return;
+            driver.ReceivingTick = bunch.PacketTick;
+            driver.ReceivedFunction(this, call, reader);
+            if (reader.IsError)
+            {
+                Connection.Close("Malformed reordered function call");
+                return;
+            }
+            if (Actor is null || Actor.bDeleteMe || Connection.State == EConnectionState.USOCK_Closed) return;
+        }
+    }
 
     protected internal override void ReceivedBunch(FInBunch bunch)
     {
@@ -655,7 +680,8 @@ public sealed class ActorChannel : Channel
         else
         {
             driver.RemoveNetGuid(NetGuid);
-            if (!actor.bDeleteMe && !actor.bNetTemporary && !actor.bStatic && !actor.bNoDelete)
+            if (!actor.bDeleteMe && (!actor.bNetTemporary || ClassInfo?.Extension?.PersistentActorChannel == true) &&
+                !actor.bStatic && !actor.bNoDelete)
             {
                 actor.XLevel.Destroy(actor);
             }

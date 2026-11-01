@@ -627,6 +627,7 @@ public sealed partial class OnlineServer : IDisposable
             SpawnWalkers = false,
             GameOptions = isLobby ? null : gameOptions,
             PlayersToStart = Math.Max(1, CountPlayers(spectators: false)),
+            SceneLoadTimeoutSeconds = Settings.LoadTimeoutSeconds,
             UseStartGate = !isLobby,
             LagCompensation = _lagCompensation,
             LagCompensationCeilingMs = _lagCompensationCeilingMs,
@@ -1018,7 +1019,7 @@ public sealed partial class OnlineServer : IDisposable
         var missing = new List<SessionPlayer>();
         foreach (SessionPlayer p in _players)
         {
-            if (p.Slot is null && !p.IsBot)
+            if (!p.IsBot && p.Slot?.Controller?.PlayerReplicationInfo?.bWaitingPlayer != true)
             {
                 missing.Add(p);
             }
@@ -1026,7 +1027,15 @@ public sealed partial class OnlineServer : IDisposable
 
         foreach (SessionPlayer p in missing)
         {
-            KeepDropped(p, null);
+            KeepDropped(p, p.Slot?.Controller);
+            if (p.Slot is { } slot)
+            {
+                // A connected renderer can time out too. Remove its gameplay connection/PRI, not just the
+                // session roster entry, or the start gate will keep seeing an unready ghost participant.
+                _byConnection.Remove(slot.Connection);
+                p.Slot = null;
+                slot.Connection.Close("Map loading timed out");
+            }
             RemovePlayer(p, $"{p.Name} did not load in time.");
         }
 
@@ -1037,7 +1046,8 @@ public sealed partial class OnlineServer : IDisposable
             return;
         }
 
-        gate.PlayersToStart = Math.Min(gate.PlayersToStart, Math.Max(1, Host.Game?.GameReplicationInfo?.PRIArray.Count ?? present));
+        int readyPlayers = Host.Game?.GameReplicationInfo?.PRIArray.Count(p => !p.bOnlySpectator && p.bWaitingPlayer) ?? present;
+        gate.PlayersToStart = Math.Min(gate.PlayersToStart, Math.Max(1, readyPlayers));
         _phaseStart = _now;
     }
 

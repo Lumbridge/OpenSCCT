@@ -79,7 +79,7 @@ public sealed class MapCatalogData
 
     /// <summary>
     /// The catalog with the entries downloaded maps bring (<c>&lt;map&gt;/catalog/entry.json</c>: a name and pictures)
-    /// for every map the shared catalog has no name or pictures for. The shared catalog's own entries win.
+    /// filling missing names and individual pictures. Existing shared pictures win when their files exist.
     /// </summary>
     public MapCatalogData WithMapEntries(IEnumerable<string> mapFolders)
     {
@@ -105,22 +105,26 @@ public sealed class MapCatalogData
                     names.TryAdd(code, name);
                 }
 
-                if (!Images.ContainsKey(code) && root.TryGetProperty("images", out JsonElement im) && im.ValueKind == JsonValueKind.Object)
+                if (root.TryGetProperty("images", out JsonElement im) && im.ValueKind == JsonValueKind.Object)
                 {
-                    var kinds = new Dictionary<string, string>(StringComparer.Ordinal);
+                    var current = images ?? Images;
+                    var kinds = current.TryGetValue(code, out var existing)
+                        ? new Dictionary<string, string>(existing, StringComparer.Ordinal)
+                        : new Dictionary<string, string>(StringComparer.Ordinal);
                     string catalogDir = Path.GetFullPath(Path.Combine(folder, "catalog")) + Path.DirectorySeparatorChar;
                     foreach (JsonProperty kind in im.EnumerateObject())
                     {
                         // Absolute, so Image() finds it whatever the shared catalog's folder; never outside catalog/.
                         string path = Path.GetFullPath(Path.Combine(catalogDir, kind.Value.GetString() ?? string.Empty));
-                        if (path.StartsWith(catalogDir, StringComparison.OrdinalIgnoreCase))
+                        if (path.StartsWith(catalogDir, StringComparison.OrdinalIgnoreCase) && File.Exists(path) &&
+                            (!kinds.TryGetValue(kind.Name, out string? prior) || !File.Exists(Path.GetFullPath(Path.Combine(Folder, prior)))))
                         {
                             kinds[kind.Name] = path;
                         }
                     }
 
                     images ??= new Dictionary<string, IReadOnlyDictionary<string, string>>(Images, StringComparer.OrdinalIgnoreCase);
-                    images.TryAdd(code, kinds);
+                    images[code] = kinds;
                 }
             }
             catch (Exception e) when (e is JsonException or IOException or InvalidOperationException)

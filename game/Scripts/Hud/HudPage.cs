@@ -433,26 +433,22 @@ public abstract class HudPage
         var tl = new Vector2(l + inset, t + inset);
         var br = new Vector2(r - inset, b - inset);
         float thickness = Mathf.Max(2f, (r - l) * 0.1f);
-        DrawList.Items.Add(Bar("Extras/GadgetCrossA", tl, br, thickness, white));
-        DrawList.Items.Add(Bar("Extras/GadgetCrossB", new Vector2(br.X, tl.Y), new Vector2(tl.X, br.Y), thickness, white));
+        Bar("Extras/GadgetCrossA", tl, br, thickness, white);
+        Bar("Extras/GadgetCrossB", new Vector2(br.X, tl.Y), new Vector2(tl.X, br.Y), thickness, white);
     }
 
     /// <summary>A solid bar from <paramref name="from"/> to <paramref name="to"/>, <paramref name="thickness"/> pixels wide.</summary>
-    private static MagmaDrawItem Bar(string path, Vector2 from, Vector2 to, float thickness, WhiteRegion white)
+    private void Bar(string path, Vector2 from, Vector2 to, float thickness, WhiteRegion white)
     {
         Vector2 dir = (to - from).Normalized();
         Vector2 side = new Vector2(-dir.Y, dir.X) * (thickness / 2f);
         Color c = GadgetCrossColour;
-        return new MagmaDrawItem
-        {
-            Path = path,
-            Kind = MagmaWidgetKind.Image,
-            Package = white.Package,
-            Texture = white.Texture,
-            Points = [from + side, to + side, to - side, from - side],
-            Uvs = [white.Uv, white.Uv, white.Uv, white.Uv],
-            Colors = [c, c, c, c],
-        };
+        MagmaDrawItem item = DrawList.Add(MagmaWidgetKind.Image);
+        item.Path = path;
+        item.Package = white.Package;
+        item.Texture = white.Texture;
+        item.SetGeometry([from + side, to + side, to - side, from - side],
+            [white.Uv, white.Uv, white.Uv, white.Uv], [c, c, c, c]);
     }
 
     /// <summary>
@@ -855,16 +851,12 @@ public abstract class HudPage
         Rect4 g = mat.Region;
         var uv0 = new Vector2(g.L / size.X, g.T / size.Y);
         var uv1 = new Vector2(g.R / size.X, g.B / size.Y);
-        DrawList.Items.Add(new MagmaDrawItem
-        {
-            Path = path,
-            Kind = MagmaWidgetKind.Image,
-            Package = hud.Name,
-            Texture = mat.Texture,
-            Points = [p0, new Vector2(p1.X, p0.Y), p1, new Vector2(p0.X, p1.Y)],
-            Uvs = [uv0, new Vector2(uv1.X, uv0.Y), uv1, new Vector2(uv0.X, uv1.Y)],
-            Colors = [colour, colour, colour, colour],
-        });
+        MagmaDrawItem item = DrawList.Add(MagmaWidgetKind.Image);
+        item.Path = path;
+        item.Package = hud.Name;
+        item.Texture = mat.Texture;
+        item.SetGeometry([p0, new Vector2(p1.X, p0.Y), p1, new Vector2(p0.X, p1.Y)],
+            [uv0, new Vector2(uv1.X, uv0.Y), uv1, new Vector2(uv0.X, uv1.Y)], [colour, colour, colour, colour]);
     }
 
     /// <summary>The page position of a top-level instance from its first key.</summary>
@@ -921,21 +913,18 @@ public abstract class HudPage
         Vector2 p0 = Renderer.ToScreen(new Vector2(pageRect.L, pageRect.T), anchor);
         Vector2 p1 = Renderer.ToScreen(new Vector2(pageRect.R, pageRect.B), anchor);
         float height = Mathf.Round(pageHeight * Renderer.S);
-        DrawList.Items.Add(new MagmaDrawItem
-        {
-            Path = path,
-            Kind = MagmaWidgetKind.Text,
-            Anchor = anchor,
-            PageRect = pageRect,
-            Text = text,
-            Font = HudAssets.DefaultFont,
-            Rect = new Rect2(p0, p1 - p0),
-            HeightPx = height,
-            Align = align,
-            Color = color,
-            Shadow = new Color(0f, 0f, 0f, color.A),
-            ShadowOffsetPx = new Vector2(1f, 1f) * Renderer.S,
-            TrackingPx = 0.045f * height,
-        });
+        MagmaDrawItem item = DrawList.Add(MagmaWidgetKind.Text);
+        item.Path = path;
+        item.Anchor = anchor;
+        item.PageRect = pageRect;
+        item.Text = text;
+        item.Font = HudAssets.DefaultFont;
+        item.Rect = new Rect2(p0, p1 - p0);
+        item.HeightPx = height;
+        item.Align = align;
+        item.Color = color;
+        item.Shadow = new Color(0f, 0f, 0f, color.A);
+        item.ShadowOffsetPx = new Vector2(1f, 1f) * Renderer.S;
+        item.TrackingPx = 0.045f * height;
     }
 }

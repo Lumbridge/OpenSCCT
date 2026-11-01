@@ -110,6 +110,10 @@ public sealed class LookSettings
     [JsonPropertyName("look_response")]
     public string LookResponse { get; set; } = "Linear";
 
+    /// <summary>The spy controller's response with its weapon drawn, independent of free look.</summary>
+    [JsonPropertyName("gun_look_response")]
+    public string GunLookResponse { get; set; } = "Linear";
+
     /// <summary>The first sensitivity clutch: a held button multiplies the look by this (rl:input.clutch).</summary>
     [JsonPropertyName("clutch_one")]
     public float ClutchOne { get; set; }
@@ -165,6 +169,7 @@ public sealed class LookSettings
         {
             LookResponse = "Linear";
         }
+        if (Array.IndexOf(GameSettings.Responses, GunLookResponse) < 0) GunLookResponse = LookResponse;
     }
 
     internal static float Range(float v, float min, float max) => float.IsFinite(v) ? Math.Clamp(v, min, max) : min;
@@ -173,15 +178,35 @@ public sealed class LookSettings
 /// <summary>Native controller settings (Reloaded's controller_* keys).</summary>
 public sealed class PadSettings
 {
-    /// <summary>On by default: a plugged-in controller works without a trip to the options.</summary>
+    /// <summary>Reloaded asks once before enabling native controller support.</summary>
     [JsonPropertyName("enabled")]
-    [Provenance(ProvenanceKind.Estimated, "OpenSCCT choice: on by default (Reloaded's controller_enabled default is false, rl:input.pad)")]
-    public bool Enabled { get; set; } = true;
+    [Provenance(ProvenanceKind.Decoded, "Reloaded controller_enabled defaults false, rl:input.pad")]
+    public bool Enabled { get; set; }
+
+    public const int CurrentLayoutVersion = 1;
+
+    /// <summary>Zero preserves the earlier OpenSCCT layout and movement behavior.</summary>
+    [JsonPropertyName("layout_version")]
+    public int LayoutVersion { get; set; } = CurrentLayoutVersion;
+
+    [JsonPropertyName("spy_layout_version")]
+    public int? SpyLayoutVersion { get; set; }
+
+    [JsonPropertyName("merc_layout_version")]
+    public int? MercLayoutVersion { get; set; }
+
+    public int LayoutVersionOf(bool merc) => (merc ? MercLayoutVersion : SpyLayoutVersion) ?? LayoutVersion;
 
     /// <summary>The pad controls a layout binds, in the order the options list them (Xbox names).</summary>
-    public static readonly string[] Controls =
+    public static readonly string[] PhysicalControls =
     [
         "A", "B", "X", "Y", "LB", "RB", "LT", "RT", "LS", "RS", "DpadUp", "DpadDown", "DpadLeft", "DpadRight", "Start", "Back",
+    ];
+
+    public static readonly string[] Controls =
+    [
+        .. PhysicalControls, "B:Hold", "LS+Y", "LS+X", "LS+B", "LS+A",
+        "LB+Y", "LB+X", "LB+B", "LB+A", "LB+DpadDown", "LB+Back",
     ];
 
     /// <summary>The menu command (<c>ShowMenu</c>; Escape when the layout binds no key to it).</summary>
@@ -196,10 +221,47 @@ public sealed class PadSettings
     /// <summary>The prefix of a binding that presses a key directly (the hub's own keys, which are not layout commands).</summary>
     public const string KeyPrefix = "Key:";
 
-    /// <summary>The default pad layout: stock action names on the usual pad positions (Reloaded's own is not decoded).</summary>
-    [Provenance(ProvenanceKind.Estimated, "Default pad layout per team not decoded (FEATURES open question 4)")]
-    /// <remarks>The merc's has nothing on the spy-only back to wall (LB) and walk speed (LS) buttons.</remarks>
+    public const string WallLaserAction = "Pad:walllaser";
+    public const string SpyFireAction = "Pad:spyfire";
+    public const string SpyGadgetAction = "Pad:spygadget";
+    public const string MercGadgetAction = "Pad:mercgadget";
+    public const string CrouchAction = "Pad:crouch";
+    public const string LongRollAction = "Pad:longroll";
+
+    /// <summary>Reloaded's native controller layout, including held-button combinations.</summary>
     public static Dictionary<string, string> DefaultButtons(bool merc = false) => new(StringComparer.Ordinal)
+    {
+        ["A"] = "Action:use",
+        ["B"] = CrouchAction,
+        ["X"] = merc ? "Action:reload" : "Action:ready",
+        ["Y"] = "Action:jump",
+        ["LB"] = merc ? ClutchOneAction : "Action:coop",
+        ["RB"] = merc ? "Action:scope" : "Action:roll",
+        ["LT"] = merc ? MercGadgetAction : SpyGadgetAction,
+        ["RT"] = merc ? "Action:fire" : SpyFireAction,
+        ["LS"] = "",
+        ["RS"] = merc ? ClutchTwoAction : ClutchOneAction,
+        ["DpadUp"] = merc ? "Action:torch" : "Action:sticky",
+        ["DpadDown"] = merc ? "Action:laser" : WallLaserAction,
+        ["DpadLeft"] = "Action:vision1",
+        ["DpadRight"] = "Action:vision2",
+        ["Start"] = "Action:menu",
+        ["Back"] = "Action:hackcomms",
+        ["B:Hold"] = merc ? "" : LongRollAction,
+        ["LS+Y"] = "Action:slot1",
+        ["LS+X"] = "Action:slot2",
+        ["LS+B"] = "Action:slot3",
+        ["LS+A"] = "Action:slot4",
+        ["LB+Y"] = merc ? "" : "Action:launch1",
+        ["LB+X"] = merc ? "" : "Action:launch2",
+        ["LB+B"] = merc ? "" : "Action:launch3",
+        ["LB+A"] = merc ? "" : "Action:launch4",
+        ["LB+DpadDown"] = merc ? "Action:rof" : "Action:scope",
+        ["LB+Back"] = "Action:session",
+    };
+
+    /// <summary>The previous defaults, used only when loading an existing unversioned profile.</summary>
+    internal static Dictionary<string, string> LegacyButtons(bool merc = false) => new(StringComparer.Ordinal)
     {
         ["A"] = "Jump",
         ["B"] = "bCrouch",
@@ -221,12 +283,20 @@ public sealed class PadSettings
 
     /// <summary>The spy's pad layout: control name to action (a layout command or button, <see cref="KeyPrefix"/> + a key, or "" for none).</summary>
     [JsonPropertyName("spy_buttons")]
+    [JsonObjectCreationHandling(JsonObjectCreationHandling.Replace)]
     public Dictionary<string, string> SpyButtons { get; set; } = DefaultButtons();
 
     [JsonPropertyName("merc_buttons")]
+    [JsonObjectCreationHandling(JsonObjectCreationHandling.Replace)]
     public Dictionary<string, string> MercButtons { get; set; } = DefaultButtons(merc: true);
 
     public Dictionary<string, string> ButtonsOf(bool merc) => merc ? MercButtons : SpyButtons;
+
+    public void ResetButtons(bool merc)
+    {
+        if (merc) { MercButtons = DefaultButtons(true); MercLayoutVersion = CurrentLayoutVersion; }
+        else { SpyButtons = DefaultButtons(); SpyLayoutVersion = CurrentLayoutVersion; }
+    }
 
     [JsonPropertyName("move")]
     public bool Move { get; set; } = true;
@@ -252,6 +322,10 @@ public sealed class PadSettings
     [JsonPropertyName("run_threshold")]
     [Provenance(ProvenanceKind.Decoded, "rl:input.pad controller_walk_threshold 0.95")]
     public float RunThreshold { get; set; } = 0.95f;
+
+    /// <summary>Reloaded presses a trigger above raw SDL value 7680 out of 32767.</summary>
+    [JsonPropertyName("trigger_threshold")]
+    public float TriggerThreshold { get; set; } = 7680f / 32767f;
 
     /// <summary>Controller vibration (Reloaded's controller_rumble_enabled, off on a first run).</summary>
     [JsonPropertyName("rumble")]
@@ -293,6 +367,7 @@ public sealed class PadSettings
         DeadzoneRight = LookSettings.Range(DeadzoneRight, 0f, 0.9f);
         VerticalScale = LookSettings.Range(VerticalScale, 0.1f, 3f);
         RunThreshold = LookSettings.Range(RunThreshold, 0.1f, 1f);
+        TriggerThreshold = LookSettings.Range(TriggerThreshold, 0f, 0.99f);
         RumbleStrength = LookSettings.Range(RumbleStrength, 0f, 1f);
         LookSpeed = LookSettings.Range(LookSpeed, 50f, 5000f);
         SpyButtons = CleanButtons(SpyButtons, merc: false);
@@ -300,9 +375,9 @@ public sealed class PadSettings
     }
 
     /// <summary>Known controls only; a control the file leaves out gets its default (an empty value stays unbound).</summary>
-    private static Dictionary<string, string> CleanButtons(Dictionary<string, string>? saved, bool merc)
+    private Dictionary<string, string> CleanButtons(Dictionary<string, string>? saved, bool merc)
     {
-        Dictionary<string, string> clean = DefaultButtons(merc);
+        Dictionary<string, string> clean = LayoutVersionOf(merc) == 0 ? LegacyButtons(merc) : DefaultButtons(merc);
         if (saved is null)
         {
             return clean;
@@ -371,7 +446,7 @@ public sealed class GameSettings
     [Provenance(ProvenanceKind.Decoded, "spec/reloaded/FEATURES.md appendix A controls_spy_config_controller")]
     public LookSettings SpyPad { get; set; } = new()
     {
-        FreeLook = 1.6f, Look = 1.2f, Scope = 0.75f, Vertical = 3.5f, Cam = 1.8f, LookResponse = "CurveAggressive",
+        FreeLook = 1.6f, Look = 1.2f, Scope = 0.75f, Vertical = 3.5f, Cam = 1.8f, LookResponse = "CurveAggressive", GunLookResponse = "CurveSoft",
         ClutchOne = 2f, ClutchOneEnabled = true,
     };
 
@@ -925,10 +1000,36 @@ public sealed class GameSettings
     /// <summary>Reads settings; unknown keys are ignored and missing ones keep their defaults.</summary>
     public static GameSettings FromJson(string json)
     {
+        using JsonDocument document = JsonDocument.Parse(json, new JsonDocumentOptions { CommentHandling = JsonCommentHandling.Skip, AllowTrailingCommas = true });
         GameSettings s = JsonSerializer.Deserialize<GameSettings>(json, Json) ?? new GameSettings();
+        s.PreserveControllerProfile(document.RootElement);
         s.Upgrade();
         s.Clamp();
         return s;
+    }
+
+    /// <summary>New defaults apply to new profiles; loading an older profile keeps its controls and aim.</summary>
+    private void PreserveControllerProfile(JsonElement root)
+    {
+        if (root.ValueKind != JsonValueKind.Object) return;
+        JsonElement controller = root.TryGetProperty("controller", out JsonElement value) && value.ValueKind == JsonValueKind.Object ? value : default;
+        bool Has(JsonElement group, string key) => group.ValueKind == JsonValueKind.Object && group.TryGetProperty(key, out _);
+        Pad ??= new PadSettings();
+        if (!Has(controller, "layout_version")) Pad.LayoutVersion = 0;
+        if (Pad.LayoutVersion == 0)
+        {
+            if (!Has(controller, "enabled")) Pad.Enabled = true;
+            if (!Has(controller, "trigger_threshold")) Pad.TriggerThreshold = 0.5f;
+        }
+        // Replace is intentional: Populate would merge new combinations into a saved old layout.
+        if (!Has(controller, "spy_buttons")) Pad.SpyButtons = Pad.LayoutVersionOf(false) == 0 ? PadSettings.LegacyButtons() : PadSettings.DefaultButtons();
+        if (!Has(controller, "merc_buttons")) Pad.MercButtons = Pad.LayoutVersionOf(true) == 0 ? PadSettings.LegacyButtons(true) : PadSettings.DefaultButtons(true);
+        foreach ((string name, LookSettings look) in new[] { ("controls_spy_pad", SpyPad), ("controls_merc_pad", MercPad) })
+        {
+            if (look is null || Pad.LayoutVersionOf(name == "controls_merc_pad") != 0) continue;
+            JsonElement group = root.TryGetProperty(name, out value) ? value : default;
+            if (!Has(group, "gun_look_response")) look.GunLookResponse = look.LookResponse;
+        }
     }
 
     /// <summary>

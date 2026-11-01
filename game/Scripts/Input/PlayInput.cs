@@ -21,6 +21,7 @@ public partial class PlayInput : Node
     public Func<OpenScct.Game.SBase.SPlayerController?>? Controller { get; set; }
     private float _mouseX;
     private float _mouseY;
+    private bool? _padWalk;
     private bool _captureOnStart = true;
     private bool _waitForJoinFrame = true;
     private bool _requestJoinFocus = true;
@@ -50,6 +51,17 @@ public partial class PlayInput : Node
 
     /// <summary>The input the held keys are written to (released together when the pointer is freed).</summary>
     public LocalInput? Target { get; set; }
+
+    /// <summary>Controller interface commands bypass keyboard bindings and their unrelated actions.</summary>
+    public event Action<string>? LocalCommand;
+
+    public void SendLocalCommand(string command) => LocalCommand?.Invoke(command);
+
+    /// <summary>The gamepad must obey the same native focus guard as keyboard input.</summary>
+    public bool HasInputFocus => !RequireCapture || HasPlayFocus;
+
+    /// <summary>While an analog stick drives movement, its run threshold owns walk/run for that tick.</summary>
+    public void SetPadWalk(bool? walk) => _padWalk = walk;
 
     /// <summary>When false (scripted runs), real input is ignored.</summary>
     public bool Enabled { get; set; } = true;
@@ -361,6 +373,7 @@ public partial class PlayInput : Node
         }
 
         _pending.Clear();
+        if (_padWalk is { } padWalk) input.Commands.Add(new InputCommand("SetWalk", padWalk ? 1 : 0));
         if (_actionState.ScopeHeld) input.Commands.Add(new InputCommand("SetScope", 1));
         foreach (string ik in _down)
         {
@@ -388,6 +401,7 @@ public partial class PlayInput : Node
     /// <summary>Releases every button (focus lost, pointer released).</summary>
     public void ClearHeld(LocalInput input)
     {
+        _padWalk = null;
         _actionState.Clear();
         _down.Clear();
         _pending.Clear();

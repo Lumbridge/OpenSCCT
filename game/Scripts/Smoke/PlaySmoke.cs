@@ -76,6 +76,7 @@ public abstract class PlaySmoke : SmokeTest
                 Render = true,
                 Hud = !headless,
                 TicksPerFrame = TicksPerFrame,
+                CaptureFrameHistory = true,
                 Pilot = Piloted ? _pilot : null,
             };
             _root = PlayRoot.Create(config);

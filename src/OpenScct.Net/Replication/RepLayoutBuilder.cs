@@ -19,7 +19,14 @@ public sealed record RepExtensionProperty(string Name, string Member, RepLeafKin
 /// Client-to-server extension functions are accepted only from the connection that owns the actor.
 /// </summary>
 public sealed record RepExtensionFunction(string Name, bool Reliable, bool ClientToServer, string Signature,
-    Action<Actor, FBitReader, NetConnection> Receive);
+    Action<Actor, FBitReader, NetConnection> Receive)
+{
+    /// <summary>
+    /// The payload validates its own lifetime and sequence and is safe to receive from a recently reordered
+    /// packet. Ordinary calls and properties never opt in. Ownership checks still apply.
+    /// </summary>
+    public bool AcceptReordered { get; init; }
+}
 
 /// <summary>Hand-written members appended to the generated layout of a runtime-only class.</summary>
 public sealed class RepExtension
@@ -30,6 +37,10 @@ public sealed class RepExtension
 
     /// <summary>Clients interpolate the class's Location, Rotation and Velocity (<see cref="ProxyMotion"/>).</summary>
     public bool InterpolateMovement { get; set; }
+
+    /// <summary>Keep an actor channel for authored bNetTemporary actors: reliable spawn/destruction and normal updates.
+    /// Gameplay projectiles need this; disposable cosmetic effects retain their original one-shot delivery.</summary>
+    public bool PersistentActorChannel { get; set; }
 }
 
 /// <summary>Where the server takes property conditions from.</summary>
@@ -151,6 +162,7 @@ internal sealed class RepLayoutBuilder
         }
 
         string signature = RepLayout.SignatureOf(_properties, _functions);
+        if (_extension?.PersistentActorChannel == true) signature += ";persistent-actor-channel-1";
         return new RepLayout(_class, _type, _properties.ToArray(), _functions.ToArray(), _conditions.ToArray(), _words, _objects,
             _extension?.InterpolateMovement ?? false, signature);
     }

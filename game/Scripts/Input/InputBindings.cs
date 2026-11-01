@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using Godot;
 using OpenScctGame.Play.Session;
 
@@ -79,6 +78,10 @@ public sealed class InputBindings
     public IReadOnlyList<KeyAction> Actions(string key) =>
         _resolved.TryGetValue(key, out List<KeyAction>? actions) ? actions : Array.Empty<KeyAction>();
 
+    /// <summary>An isolated in-memory layout for runtime checks; does not seed InputMap or read/write user files.</summary>
+    internal static InputBindings FromLayout(KeyLayout layout, PlaySide side) => new(layout, "in-memory",
+        side == PlaySide.Spy ? "user://svm_keys_spy.ini" : "user://svm_keys_merc.ini", side, seedsInputMap: false);
+
     /// <summary>Both sides play one layout, the spy's (the setting use_split_spy_merc_keyboard is off).</summary>
     public static bool Shared => !OpenScctGame.Options.SettingsStore.Current.SplitKeyboard;
 
@@ -123,36 +126,30 @@ public sealed class InputBindings
         }
         else
         {
-            layout = KeyLayout.Parse(FallbackLayout);
+            layout = DefaultKeyLayout.Create();
             source = "built-in";
         }
 
         string userFile = fileSide == PlaySide.Spy ? "user://svm_keys_spy.ini" : "user://svm_keys_merc.ini";
         string userPath = ProjectSettings.GlobalizePath(userFile);
-        bool completeSnapshot = false;
+        string? userText = null;
+        bool writeInitialSnapshot = false;
         if (defaults || OpenScctGame.Options.SettingsStore.Isolated)
         {
             // Smoke runs play the stock layout and leave the player's key file alone (SettingsStore.Isolated).
         }
         else if (File.Exists(userPath))
         {
-            string userText = File.ReadAllText(userPath);
-            completeSnapshot = userText.StartsWith(KeyLayout.SnapshotMarker, StringComparison.Ordinal);
-            layout = KeyLayout.ApplyOverrides(layout, userText);
+            userText = File.ReadAllText(userPath);
         }
         else if (!draft)
         {
-            TryWrite(userPath, layout);
+            writeInitialSnapshot = true;
         }
 
-        if (!completeSnapshot)
-        {
-            AddGearKey(layout);
-            if (!layout.Bindings.Keys.Any(key => layout.Resolve(key).Any(a => string.Equals(a.Name, "SwapWeapon", StringComparison.OrdinalIgnoreCase))) &&
-                !layout.Bindings.ContainsKey("G")) layout.Bind("G", "SwapWeapon");
-            AddVoiceKeys(layout);
-        }
-        layout.UpgradeWheelBindings(OpenScctGame.Options.SettingsStore.Current.MouseWheel);
+        layout = DefaultKeyLayout.ApplyProfile(layout, userText, OpenScctGame.Options.SettingsStore.Current.MouseWheel);
+        // Loading tips can be the first caller. Persist the same complete layout the first round will use.
+        if (writeInitialSnapshot) TryWrite(userPath, layout);
         var bindings = new InputBindings(layout, source, userFile, side, seedInputMap);
         if (seedInputMap)
         {
@@ -170,39 +167,7 @@ public sealed class InputBindings
     }
 
     /// <summary>The gear picker's default key: free in both stock layouts and among the hub's keys.</summary>
-    public const string GearKey = "I";
-
-    /// <summary>
-    /// An OpenSCCT addition (spec/additions/gear-change.md): the stock layouts have no gear picker command, so
-    /// <see cref="GearKey"/> runs it when no key does and that key is free. A key the player moves it to is kept by
-    /// the user file like any other binding.
-    /// </summary>
-    private static void AddGearKey(KeyLayout layout)
-    {
-        foreach (string command in layout.Bindings.Values)
-        {
-            if (string.Equals(command, OpenScctGame.Play.PlayMenu.GearCommand, StringComparison.OrdinalIgnoreCase))
-            {
-                return;
-            }
-        }
-
-        if (!layout.Bindings.ContainsKey(GearKey))
-        {
-            layout.Bind(GearKey, OpenScctGame.Play.PlayMenu.GearCommand);
-        }
-    }
-
-    /// <summary>Represent the existing voice InputMap defaults in old layouts without changing their behavior.</summary>
-    private static void AddVoiceKeys(KeyLayout layout)
-    {
-        foreach ((string key, string command) in new[] { ("CapsLock", "PushToTalk"), ("Y", "TeamPushToTalk"), ("F8", "ToggleVoiceMute") })
-        {
-            if (layout.Bindings.Keys.Any(k => layout.Resolve(k).Any(a => a.Name.Equals(command, StringComparison.OrdinalIgnoreCase)))) continue;
-            string existing = layout.Bindings.TryGetValue(key, out string? raw) ? raw : "";
-            layout.Bind(key, existing.Length == 0 ? command : existing + " | " + command);
-        }
-    }
+    public const string GearKey = DefaultKeyLayout.GearKey;
 
     /// <summary>
     /// Changes one key and saves the user file. The InputMap is only reseeded by a layout that seeds it (the options
@@ -294,40 +259,4 @@ public sealed class InputBindings
 
         return false;
     }
-
-    /// <summary>
-    /// The control scheme used when the game's System folder is missing: the commands the input system needs, bound
-    /// to the keys the task names (WASD, Shift Use, Space Jump, C crouch, Z back to wall, Q roll, E fire mode, F rate
-    /// of fire, mouse buttons, 1 to 4 gadgets, Tab / F1 / F2 vision, B binoculars, R reload, middle mouse speed).
-    /// </summary>
-    private const string FallbackLayout = """
-        [Engine.Input]
-        IK_W=Button BT_Up
-        IK_S=Button BT_Down
-        IK_A=Button BT_Left
-        IK_D=Button BT_Right
-        IK_Shift=InvButton bUsing
-        IK_Space=Function Jump | Axis aUp Speed=+280.0
-        IK_C=Button bCrouch
-        IK_Z=InvButton bUseBackToWall
-        IK_Q=Button bRoll | GadLaserSwitch
-        IK_E=InvButton bFireMode | GadTorcheSwitch
-        IK_F=Button bROF
-        IK_R=Button bReload
-        IK_B=SwitchBinocularVision
-        IK_LeftMouse=Button bFire | Function Fire | GadgetQuickChoice 0
-        IK_RightMouse=Button bAltFire | Function AltFire | GadgetQuickChoice 1 | Button bHoldBreath
-        IK_MiddleMouse=ChangeSpeed
-        IK_1=SelectGadget 0
-        IK_2=SelectGadget 1
-        IK_3=SelectGadget 2
-        IK_4=SelectGadget 3
-        IK_Tab=SwitchHeadset 3
-        IK_F1=SwitchHeadset 1
-        IK_F2=SwitchHeadset 2
-        IK_MouseX=Axis aMouseX Speed=6.00
-        IK_MouseY=Axis aMouseY Speed=6.00
-        IK_MouseWheelUp=WheelUp
-        IK_MouseWheelDown=WheelDown
-        """;
 }

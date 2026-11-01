@@ -33,9 +33,15 @@ public sealed class AmmoStockMenuTests
             }
         }
         for (int i = 0; i < 1800 && (session.LocalPawn is null || session.ServerController?.Pawn is null ||
-            session.LocalController!.IsInState("WaitingForPawn")); i++) Tick();
+            session.LocalController!.IsInState("WaitingForPawn") ||
+            session.ServerController.Pawn is not SBasePawn { MyWeapon: SWeaponDefense } ||
+            session.LocalPawn.MyWeapon is not SWeaponDefense); i++) Tick();
         Assert.NotNull(session.LocalPawn);
         var pawn = (SBasePawn)session.ServerController!.Pawn!;
+        // Possession and the profile's inventory grant use separate reliable actor channels. The crate
+        // test begins after the bounded initial loadout exchange, not merely after the pawn appears.
+        Assert.IsAssignableFrom<SWeaponDefense>(pawn.MyWeapon);
+        Assert.IsAssignableFrom<SWeaponDefense>(session.LocalPawn!.MyWeapon);
         var crates = new List<SAmmoStock>();
         foreach (var crate in session.Host!.World.Level.AllActors<SAmmoStock>()) crates.Add(crate);
         Assert.NotEmpty(crates);
@@ -53,7 +59,11 @@ public sealed class AmmoStockMenuTests
             Assert.Contains(session.LocalController.IManager!.Interactions, x => x is SAmmoStockInteraction);
             Assert.True(session.LocalController.IManager.HasUsableInteractions());
             Assert.Contains(session.LocalController.IManager.Interactions, x => x is SLeaveInteraction && x.CanUse(session.LocalController));
-            var gun = Assert.IsAssignableFrom<SWeaponDefense>(pawn.MyWeapon);
+            Assert.True(pawn.MyWeapon is SWeaponDefense,
+                $"Authority weapon missing: health={pawn.Health}, deleted={pawn.bDeleteMe}, state={session.ServerController.GetStateName()}, " +
+                $"samePawn={ReferenceEquals(pawn, session.ServerController.Pawn)}, position={pawn.Location}, client={session.LocalController.GetStateName()}, " +
+                $"clientHealth={session.LocalPawn.Health}, crate={crate.ActorId}");
+            var gun = (SWeaponDefense)pawn.MyWeapon!;
             gun.Ammo = gun.ClipAmmo = 1;
             gun.PublishCarriedAmmo();
             Tick(30);

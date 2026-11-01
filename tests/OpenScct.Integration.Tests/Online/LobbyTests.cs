@@ -62,6 +62,102 @@ public sealed class LobbyTests
     }
 
     [Fact]
+    public void RoundWaitsForBothRenderedScenesBeforeSpawningPlayers()
+    {
+        Assert.SkipWhen(TestBoxMissing, "The TestBox fixture is not in this checkout.");
+        var settings = OnlineRig.Settings(MapCatalog.TestBox) with
+        {
+            Dedicated = false, HostKey = "k", AutoLaunch = false,
+        };
+        (OnlineRig rig, SimLinkNetwork network) = Create(settings, SimLinkProfile.A);
+        using (rig)
+        {
+            OnlineClient host = Join(rig, network, "Host", 0, s => s with { HostKey = "k", AutoReportReady = false });
+            OnlineClient laptop = Join(rig, network, "Laptop", 1, s => s with { AutoReportReady = false });
+            Assert.True(rig.RunUntil(() => host.State == OnlineClientState.Lobby && laptop.State == OnlineClientState.Lobby &&
+                host.Lobby.Players.Count == 2, 10), Describe(rig));
+            laptop.SetReady(true);
+            Assert.True(rig.RunUntil(() => host.Lobby.Players.All(p => p.Name == "Host" || p.Ready), 5), Describe(rig));
+            host.Launch();
+            Assert.True(rig.RunUntil(() => host.State == OnlineClientState.Loading && laptop.State == OnlineClientState.Loading &&
+                host.Session?.LocalPlayer is not null && laptop.Session?.LocalPlayer is not null, 15), Describe(rig));
+            host.Session!.MarkReadyToPlay();
+            rig.RunUntil(() => false, 10);
+            Assert.True(host.Session.ReportedWaiting);
+            Assert.False(laptop.Session!.ReportedWaiting);
+            Assert.Equal(SessionPhase.Loading, rig.Server.Phase);
+            Assert.False(rig.Server.Host.StartGate!.Started);
+            Assert.Null(host.Session.LocalPlayer!.Pawn);
+            laptop.Session.MarkReadyToPlay();
+            Assert.True(rig.RunUntil(() => host.State == OnlineClientState.Match && laptop.State == OnlineClientState.Match &&
+                host.Session.LocalPlayer.Pawn is not null && laptop.Session.LocalPlayer!.Pawn is not null, 10), Describe(rig));
+        }
+    }
+
+    [Fact]
+    public void SceneLoadingCanExceedTheNormalIdleTimeoutButReadyPlayersStillTimeOut()
+    {
+        Assert.SkipWhen(TestBoxMissing, "The TestBox fixture is not in this checkout.");
+        var settings = OnlineRig.Settings(MapCatalog.TestBox) with
+        {
+            Dedicated = false, HostKey = "k", AutoLaunch = false, LoadTimeoutSeconds = 45,
+        };
+        (OnlineRig rig, SimLinkNetwork network) = Create(settings, SimLinkProfile.A);
+        using (rig)
+        {
+            OnlineClient host = Join(rig, network, "Host", 0, s => s with { HostKey = "k", AutoReportReady = false });
+            OnlineClient laptop = Join(rig, network, "Laptop", 1, s => s with { AutoReportReady = false });
+            Assert.True(rig.RunUntil(() => host.State == OnlineClientState.Lobby && laptop.State == OnlineClientState.Lobby && host.Lobby.Players.Count == 2, 10), Describe(rig));
+            laptop.SetReady(true);
+            Assert.True(rig.RunUntil(() => host.Lobby.Players.All(p => p.Name == "Host" || p.Ready), 5), Describe(rig));
+            host.Launch();
+            Assert.True(rig.RunUntil(() => host.State == OnlineClientState.Loading && laptop.State == OnlineClientState.Loading &&
+                host.Session?.LocalPlayer is not null && laptop.Session?.LocalPlayer is not null, 15), Describe(rig));
+            host.Session!.MarkReadyToPlay();
+            rig.ShouldTickClient = c => c != laptop;
+            rig.RunUntil(() => false, 20);
+            Assert.Contains(rig.Server.Host.Players, p => p.Name == "Laptop");
+            Assert.False(rig.Server.Host.StartGate!.Started);
+            rig.ShouldTickClient = null;
+            laptop.Session!.MarkReadyToPlay();
+            Assert.True(rig.RunUntil(() => host.State == OnlineClientState.Match && laptop.State == OnlineClientState.Match &&
+                laptop.Session.LocalPlayer!.Pawn is not null, 10), Describe(rig));
+            rig.ShouldTickClient = c => c != laptop;
+            rig.RunUntil(() => false, 17);
+            Assert.DoesNotContain(rig.Server.Host.Players, p => p.Name == "Laptop");
+        }
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void ConnectedClientThatNeverFinishesItsSceneLoadTimesOutWithoutBlockingReadyPlayers(bool keepsPumpingNetwork)
+    {
+        Assert.SkipWhen(TestBoxMissing, "The TestBox fixture is not in this checkout.");
+        var settings = OnlineRig.Settings(MapCatalog.TestBox) with
+        {
+            Dedicated = false, HostKey = "k", AutoLaunch = false, LoadTimeoutSeconds = 20,
+        };
+        (OnlineRig rig, SimLinkNetwork network) = Create(settings, SimLinkProfile.A);
+        using (rig)
+        {
+            OnlineClient host = Join(rig, network, "Host", 0, s => s with { HostKey = "k", AutoReportReady = false });
+            OnlineClient stuck = Join(rig, network, "Stuck", 1, s => s with { AutoReportReady = false });
+            Assert.True(rig.RunUntil(() => host.State == OnlineClientState.Lobby && stuck.State == OnlineClientState.Lobby &&
+                host.Lobby.Players.Count == 2, 10), Describe(rig));
+            stuck.SetReady(true);
+            Assert.True(rig.RunUntil(() => host.Lobby.Players.All(p => p.Name == "Host" || p.Ready), 5), Describe(rig));
+            host.Launch();
+            Assert.True(rig.RunUntil(() => host.Session?.LocalPlayer is not null && stuck.Session?.LocalPlayer is not null, 15), Describe(rig));
+            host.Session!.MarkReadyToPlay();
+            if (!keepsPumpingNetwork) rig.ShouldTickClient = c => c != stuck;
+            Assert.True(rig.RunUntil(() => host.State == OnlineClientState.Match && host.Session.LocalPlayer!.Pawn is not null, 30), Describe(rig));
+            Assert.DoesNotContain(rig.Server.Players, p => p.Name == "Stuck");
+            Assert.Equal(1, rig.Server.Host.StartGate!.PlayersToStart);
+        }
+    }
+
+    [Fact]
     public void PlayersMeetInTheLobbyPickSidesAndLaunchARound()
     {
         Assert.SkipWhen(TestBoxMissing, "The TestBox fixture is not in this checkout.");

@@ -56,6 +56,9 @@ public partial class SWeapon
     /// <summary>The server, during one client shot: its number when it seeds the spread (0: the random stream).</summary>
     protected int ActiveShotId { get; private set; }
 
+    /// <summary>Owner simulation time for the current reliable shot, distinct from its displayed target time.</summary>
+    protected float? ActiveClientShotTime { get; private set; }
+
     /// <summary>The server, during one client shot: the player whose client already drew the shot's impacts, or null.</summary>
     protected PlayerController? PredictedBy { get; private set; }
 
@@ -67,7 +70,7 @@ public partial class SWeapon
     /// number out of order falls back to the random stream, so a client cannot pick its spread); a predicted shot's
     /// impacts are not sent back to its player.
     /// </summary>
-    public void BeginClientShot(int ShotId, bool Predicted)
+    public void BeginClientShot(int ShotId, bool Predicted, float? TimeStamp = null)
     {
         ActiveShotId = ShotId != 0 && ShotId == ShotCounter + 1 ? ShotId : 0;
         if (ShotId != 0)
@@ -76,6 +79,7 @@ public partial class SWeapon
         }
 
         PredictedBy = Predicted ? OwnerPC : null;
+        ActiveClientShotTime = TimeStamp;
     }
 
     /// <summary>The server, after the shot: back to the random stream.</summary>
@@ -83,6 +87,7 @@ public partial class SWeapon
     {
         ActiveShotId = 0;
         PredictedBy = null;
+        ActiveClientShotTime = null;
     }
 
     /// <summary>

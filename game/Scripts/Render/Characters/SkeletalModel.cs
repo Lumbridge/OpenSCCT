@@ -758,16 +758,29 @@ public sealed class SkeletalModel
     /// <summary>Samples the current sequence and poses the skeleton.</summary>
     public void Pose() => Ue2PoseApplier.Apply(Sampler);
 
+    private Vector4? _visionDrawn;
+    private int _visionMeshCount;
+
     /// <summary>
     /// The actor's vision values on every mesh: HeatIntensity, HeatOpacity, EMF glow (EMFIntensity while bEMFIsOn) and
     /// EMFOpacity (0 hides the pawn in EMF vision). docs/RENDERING.md#vision-modes.
     /// </summary>
     public void SetVision(Vector4 vision)
     {
+        // SplitPart can add a cosmetic mesh after the first vision update. A changed count resubmits to every
+        // mesh, while an unchanged model/value avoids redundant native instance-parameter calls.
+        if (_visionDrawn == vision && _visionMeshCount == _meshes.Count)
+        {
+            return;
+        }
+
         foreach (MeshInstance3D mesh in _meshes)
         {
             mesh.SetInstanceShaderParameter(GameplayObjects.VisionActorParameter, vision);
         }
+
+        _visionDrawn = vision;
+        _visionMeshCount = _meshes.Count;
     }
 
     public const string CloakShaderPath = "res://Shaders/svm_cloak.gdshader";

@@ -29,7 +29,7 @@ namespace OpenScctGame.Hud;
 /// (<c>python -m svmbuild ui</c>); headless it checks the draw lists, not pixels. With a renderer and
 /// <c>--svm-hud-capture=dir</c> it also saves each screen as a PNG there (for a look, kept out of git).
 /// </summary>
-public sealed class HudSmoke : SmokeTest
+public sealed class HudSmoke(bool spectatorOnly = false) : SmokeTest
 {
     public const string TestName = "hud";
 
@@ -49,10 +49,18 @@ public sealed class HudSmoke : SmokeTest
     private ResultsScreen? _results;
     private readonly string? _captureDir = CaptureDir();
 
-    public override string Name => TestName;
+    public const string SpectatorTestName = "hud-spectator";
+    public override string Name => spectatorOnly ? SpectatorTestName : TestName;
 
     public override SmokeResult Step(SmokeContext context)
     {
+        if (spectatorOnly)
+        {
+            if (_phase++ == 0) return Setup(context);
+            if (_phase == 2) { CheckSpectator(); return Running(); }
+            Capture(context, "spectator");
+            return _failures.Count == 0 ? SmokeResult.Pass() : SmokeResult.Fail(string.Join("; ", _failures));
+        }
         if (_wait > 0)
         {
             _wait--;
@@ -278,10 +286,10 @@ public sealed class HudSmoke : SmokeTest
         Expect(layer.Spy.Radar?.Teammates == 1, $"spy radar teammates {layer.Spy.Radar?.Teammates}");
         // Objective markers: the terminal in front of the spy, red while hacked, with its percent or distance.
         HudObjective? lab = snap.Objectives.Find(o => o.Name == "Laboratory");
-        Expect(layer.Markers.DrawList.Find("ER/Laboratory/icon") is { } marker && marker.Colors[0].R > marker.Colors[0].G,
+        Expect(layer.Markers.DrawList.Find("ER/Trigger/Laboratory/icon") is { } marker && marker.Colors[0].R > marker.Colors[0].G,
             $"hacked terminal marker drawn red (markers {layer.Markers.DrawList.Items.Count}, taken {lab?.Taken}, " +
             $"at {s.Project(lab?.Location ?? default)}, pawn {snap.PawnLocation})");
-        Expect(layer.Markers.DrawList.TextOf("ER/Laboratory/state") == s.SpyHud.ObjectiveHackingSpy, "marker shows Under hacking");
+        Expect(layer.Markers.DrawList.TextOf("ER/Trigger/Laboratory/state") == s.SpyHud.ObjectiveHackingSpy, "marker shows Under hacking");
         Expect(layer.Markers.DrawList.Find("GPO/1/icon") is { } gpo && gpo.Colors[0].R > gpo.Colors[0].B, "GPO marker drawn orange");
         Expect(snap.Objectives.Exists(o => o.Name == "Laboratory" && o.Percent == 60), "terminal capture 60 %");
         // Console line (TeamMessage) and the damage wash (ClientDamageHudEffect: red 120 for a spy).
@@ -423,11 +431,11 @@ public sealed class HudSmoke : SmokeTest
         // F9: Enhanced Reality off, then on again.
         HudCommands.SwitchEnhancedReality(s.SpyPc, layer.Options);
         Run(2);
-        Expect(s.SpyHud.EnhancedRealityLevel == 0 && layer.Markers.DrawList.Find("ER/Laboratory/icon") is null, "Enhanced Reality off hides the markers");
+        Expect(s.SpyHud.EnhancedRealityLevel == 0 && layer.Markers.DrawList.Find("ER/Trigger/Laboratory/icon") is null, "Enhanced Reality off hides the markers");
         ExpectContains(layer.Spy.DrawList, "SystemMessage/messageSystem", s.SpyPc.EROff);
         HudCommands.SwitchEnhancedReality(s.SpyPc, layer.Options);
         Run(2);
-        Expect(s.SpyHud.EnhancedRealityLevel == 1 && layer.Markers.DrawList.Find("ER/Laboratory/icon") is not null, "Enhanced Reality back on");
+        Expect(s.SpyHud.EnhancedRealityLevel == 1 && layer.Markers.DrawList.Find("ER/Trigger/Laboratory/icon") is not null, "Enhanced Reality back on");
     }
 
     // ---- merc page ------------------------------------------------------------------------------------------
@@ -723,18 +731,14 @@ public sealed class HudSmoke : SmokeTest
         Run(1);
     }
 
-    /// <summary>The spectator page: the spy watches after his death (BaseSpectating counts as spectating).</summary>
+    /// <summary>The spectator page: the spy watches after his death through the real killed-player state.</summary>
     private void CheckSpectator()
     {
         HudLayer layer = _layer!;
         Scene s = _scene!;
         _viewer = s.SpyPc;
-        s.SpyPc.GotoState(new Name("BaseSpectating"));
-        if (!HudK.IsSpectating(s.SpyPc))
-        {
-            _notes.Add("spectating=forced");
-            _extra = snap => snap.Spectator.Active = true;
-        }
+        s.SpyPc.GotoState(new Name("s_MultiSpectating_WhenKilled"));
+        Expect(HudK.IsSpectating(s.SpyPc), "killed player recognized as spectating without a forced snapshot");
 
         s.SpyPc.SpecTarget = (SBasePawn)s.MatePawn;
         s.SpyPc.fRespawnDate = Now + 6.5f;
@@ -848,7 +852,7 @@ public sealed class HudSmoke : SmokeTest
 
         Expect(options.Tabs?.GetTabCount() == 7, $"option pages {options.Tabs?.GetTabCount()}");
         Expect(options.KeyButtons.Count > 0, "key bindings listed");
-        foreach (string key in new[] { "invert_y", "controls_spy_kbm.free_look", "controls_merc_kbm.look", "controller.enabled",
+        foreach (string key in new[] { "invert_y.Spy", "invert_y.Merc", "controls_spy_kbm.free_look", "controls_merc_kbm.look", "controller.enabled",
                      "controller.deadzone_left", "display_mode", "resolution", "vsync", "widescreen", "ws_fov", "fps_spy", "fps_merc", "master_volume",
                      "sound_volume", "music_volume", "voice_output_volume", "show_scoreboard", "show_ping" })
         {
@@ -1037,6 +1041,7 @@ public sealed class HudSmoke : SmokeTest
             // A hack 6 s into the 10 s capture, counting down to ElapsedTime 82.
             Mission.GameMode = EGameMode.GM_Multi;
             Mission.TotalObjectivesLeft = 3;
+            Terminal.bActive = true; // A real hack can only run on an active terminal; ER hides inactive devices.
             Terminal.CaptureTime = 4;
             Terminal.bTriggering = true;
             Objective.MinTriggerTime = 82f;

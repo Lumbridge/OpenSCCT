@@ -99,6 +99,34 @@ public sealed class NetGameHost : IGameHost
     {
         _driver = driver ?? throw new ArgumentNullException(nameof(driver));
         _fallback = fallback ?? NullGameHost.Instance;
+        if (driver.IsServer)
+        {
+            // The original parameterless repair RPC can arrive after respawn. A client reporting its old
+            // death must not put a healthy replacement (or the possession gap) back into s_Dead.
+            driver.Functions.Register("SBase.SPlayerController", "AntiBugTellServerIAmDead", (self, _, _, _) =>
+            {
+                if (self is SPlayerController { Pawn: SBasePawn { Health: <= 0, bDeleteMe: false } } pc)
+                    pc.eventAntiBugTellServerIAmDead();
+            });
+            driver.Functions.Register("SBase.SPlayerController", "PCChangeServerState", (self, _, args, _) =>
+            {
+                if (self is not SPlayerController pc) return;
+                Name state = args.Values[1].AsName;
+                // A corpse's late AnimEnd may use a freshly replicated acknowledgement stamp. Death
+                // remains an authority decision even when the state request's stamp still matches.
+                if ((state == new Name("s_Dead") || state == new Name("s_LandingInerte") || state == new Name("PlayerFallingInerte")) &&
+                    pc.Pawn is not SBasePawn { Health: <= 0, bDeleteMe: false })
+                {
+                    if (pc.Pawn is { Health: > 0, bDeleteMe: false })
+                    {
+                        pc.GivePawn(pc.Pawn);
+                        pc.eventMirrorState(pc.GetStateName(), bDontSaveCurrentState: true);
+                    }
+                    return;
+                }
+                pc.PCChangeServerState(args.Values[0].F, state, args.Values[2].AsName, args.Values[3].AsBool);
+            });
+        }
     }
 
     private static readonly Name NAME_resetConnectionPing = new("resetConnectionPing");

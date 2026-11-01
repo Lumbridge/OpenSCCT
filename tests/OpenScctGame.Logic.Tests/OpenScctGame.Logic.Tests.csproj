@@ -8,6 +8,8 @@
     without the Godot runtime. Only files that use no Godot type may be listed.
   -->
   <ItemGroup>
+    <Compile Include="..\..\game\Scripts\Play\PlayFrameStats.cs" Link="Linked\PlayFrameStats.cs" />
+    <Compile Include="..\..\game\Scripts\Render\Gltf\GlbDocument.cs" Link="Linked\GlbDocument.cs" />
     <Compile Include="..\..\game\Scripts\UI\StatsModel.cs" Link="Linked\StatsModel.cs" />
     <Compile Include="..\..\game\Scripts\UI\LinuxSetupContent.cs" Link="Linked\LinuxSetupContent.cs" />
     <Compile Include="..\..\game\Scripts\UI\GearMenuModel.cs" Link="Linked\GearMenuModel.cs" />
@@ -28,6 +30,9 @@
     <Compile Include="..\..\game\Scripts\UI\ControlActions.cs" Link="Linked\ControlActions.cs" />
     <Compile Include="..\..\game\Scripts\UI\BindingLabels.cs" Link="Linked\BindingLabels.cs" />
     <Compile Include="..\..\game\Scripts\Input\InputActionState.cs" Link="Linked\InputActionState.cs" />
+    <Compile Include="..\..\game\Scripts\Input\DefaultKeyLayout.cs" Link="Linked\DefaultKeyLayout.cs" />
+    <Compile Include="..\..\game\Scripts\Options\PadBindingState.cs" Link="Linked\PadBindingState.cs" />
+    <Compile Include="..\..\game\Scripts\Options\PadActionState.cs" Link="Linked\PadActionState.cs" />
     <Compile Include="..\..\game\Scripts\Input\KeyLayout.cs" Link="Linked\KeyLayout.cs" />
     <Compile Include="..\..\game\Scripts\UI\InGameMenuModel.cs" Link="Linked\InGameMenuModel.cs" />
     <!-- The Create Session page and the Lobby Room's rules (docs/MENUS.md). -->

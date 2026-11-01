@@ -62,6 +62,12 @@ public sealed class ListenHost : IDisposable
     private readonly LoopbackNetwork _network;
     private readonly IClock _clock;
     private readonly ConcurrentQueue<string> _commands = new();
+    private readonly ConcurrentQueue<Action<OnlineServer>> _inspections = new();
+
+    /// <summary>Runs diagnostics or controlled test setup between ticks on the owning server thread.</summary>
+    public void Inspect(Action<OnlineServer> action) => _inspections.Enqueue(action);
+    /// <summary>Optional diagnostic observer, called on the server thread even while the host's renderer loads.</summary>
+    public event Action<OnlineServer>? Ticked;
     private readonly ConcurrentQueue<string> _notes = new();
     private readonly CancellationTokenSource _stop = new();
     private readonly Thread _thread;
@@ -174,6 +180,8 @@ public sealed class ListenHost : IDisposable
         {
             Server.RunRealtime(_clock, _stop.Token, s =>
             {
+                while (_inspections.TryDequeue(out var inspect)) inspect(s);
+                Ticked?.Invoke(s);
                 while (_commands.TryDequeue(out string? line))
                 {
                     foreach (string reply in s.Execute(line))

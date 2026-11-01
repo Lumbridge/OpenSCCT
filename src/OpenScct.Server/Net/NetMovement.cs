@@ -556,17 +556,26 @@ public sealed partial class NetMovementBridge : IMovementNet, IMoveEndpointSourc
 
     public void BeforeOwnerAnimation(SBasePawn pawn)
     {
-        // Dead pawns advance on the authoritative world clock. AfterTick intentionally does not transmit their
-        // input; recording an untransmitted heartbeat here would exhaust prediction during the death timeline.
-        if (pawn.Health > 0 && pawn.Controller is SPlayerController { bWaitingForReinit: false } pc)
-            EndpointOf(pc)?.Client?.EnsurePredictionStep();
+        if (pawn.Controller is not SPlayerController { bWaitingForReinit: false } pc) return;
+        if (pawn.Health > 0) EndpointOf(pc)?.Client?.EnsurePredictionStep();
+        else
+        {
+            // Autonomous pawns do not run Actor.NativeTick physics. Once input prediction stops at death,
+            // the body must still consume root motion and fall/land; those callbacks finish the death states.
+            // Do not record an unsent prediction heartbeat during the death/respawn delay.
+            pawn.Acceleration = default;
+            pawn.XLevel.PhysicsDriver?.performPhysics(pawn, Sim.DeltaTime);
+        }
     }
 
     public void BeforeClientTick()
     {
         ApplyOwnerActions();
         foreach (var kv in _endpoints)
+        {
+            if (kv.Key is SPlayerController pc) NoteNewPawn(pc, kv.Value);
             if (kv.Value.Client is { bUpdatePosition: true } client) client.ClientUpdatePosition();
+        }
     }
 
     public void BeforeServerTick()
@@ -591,7 +600,7 @@ public sealed partial class NetMovementBridge : IMovementNet, IMoveEndpointSourc
         {
             if (kv.Key.bDeleteMe) continue;
             if (_driver.IsServer && kv.Value.Server is { } server) kv.Value.Sequenced?.SendAcknowledgement(server);
-            else if (kv.Key is SPlayerController { Pawn: SBasePawn { Health: > 0 } pawn } pc)
+            else if (kv.Key is SPlayerController { Pawn: SBasePawn pawn } pc)
             {
                 if (pawn.NetworkCorrectionSeconds > 0f)
                 {
@@ -604,7 +613,7 @@ public sealed partial class NetMovementBridge : IMovementNet, IMoveEndpointSourc
                     // AnimEnd can author another action after the controller's SendActions pass. Flush it in
                     // this command's completion fence so its state, collision and pose share the same boundary.
                     if (kv.Value.Sequenced is not null) pawn.SendActions();
-                    kv.Value.Client?.FinishPredictionTick();
+                    if (pawn.Health > 0) kv.Value.Client?.FinishPredictionTick();
                 }
             }
         }
@@ -619,12 +628,25 @@ public sealed partial class NetMovementBridge : IMovementNet, IMoveEndpointSourc
     [Provenance(ProvenanceKind.Estimated, "net-moves.md rule 11.5 read as continuous mismatch of the current pawn")]
     private void NoteNewPawn(SPlayerController pc, MoveEndpoint endpoint)
     {
-        if (endpoint.Server is not { } server || (_pawns.TryGetValue(pc, out Pawn? last) && ReferenceEquals(last, pc.Pawn)))
+        if (_pawns.TryGetValue(pc, out Pawn? last) && ReferenceEquals(last, pc.Pawn))
         {
             return;
         }
 
         _pawns[pc] = pc.Pawn;
+        // Possession and the new command epoch can arrive in different packets. Never replay a previous
+        // body's saved controller/animation state onto its replacement while waiting for that epoch.
+        endpoint.Client?.ResetPredictionHistory();
+        if (endpoint.Client is not null && pc.Pawn is { bDeleteMe: false } fresh)
+        {
+            // GivePawn/ClientRestart can precede the pawn's actor channel. If the controller's Pawn
+            // reference resolves later, finish possession here even if a mirrored walking state has
+            // already replaced WaitingForPawn. Otherwise the camera stays on the old spectator target.
+            fresh.Controller = pc;
+            if (fresh.Health > 0 && !ReferenceEquals(pc.ViewTarget, fresh) && !(pc.PlayerReplicationInfo?.bOnlySpectator ?? false))
+                pc.ClientRestart();
+        }
+        if (endpoint.Server is not { } server) return;
         endpoint.Sequenced?.ResetLifetime();
         server.fLastTimePhysicsChecked = pc.Level?.TimeSeconds ?? 0f;
     }

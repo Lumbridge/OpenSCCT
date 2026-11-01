@@ -13,6 +13,48 @@ namespace OpenScct.Integration.Tests;
 
 public sealed class PawnSynchronizationTests
 {
+    [Theory]
+    [InlineData(NetProfile.Stock)]
+    [InlineData(NetProfile.Enhanced)]
+    public void StanceTransitionsInterpolateTheMeshAnchorWithoutSinkingTheCollisionShape(NetProfile profile)
+    {
+        using var rig = WalkerRig.Create(SimLinkProfile.Ping200, 423, 1,
+            new ServerSettings { SpawnWalkers = false, Profile = profile }, new ClientSettings { Gameplay = true });
+        Level level = rig.Server.World.Level;
+        rig.Server.PlayerJoined += slot =>
+        {
+            var pc = level.Spawn<PlayerController>()!;
+            pc.Player = new SimNetConnection(); pc.RemoteRole = ENetRole.ROLE_AutonomousProxy;
+            slot.Connection.Actor = pc;
+        };
+        level.SetService(new MovementService());
+        var pawn = level.Spawn<SPawnAttaque>()!;
+        pawn.bAlwaysRelevant = true; pawn.RemoteRole = ENetRole.ROLE_SimulatedProxy;
+        rig.Server.BeforeWorldTick += host =>
+        {
+            bool crouched = ((host.World.TickCount + 1) / 17 & 1) != 0;
+            pawn.Physics = EPhysics.PHYS_None;
+            pawn.bIsCrouched = crouched;
+            pawn.ZoneConfig = (byte)(crouched ? 1 : 0);
+            pawn.CollisionHeight = crouched ? 50 : 87.5f;
+            pawn.PrePivot = new FVector(0, 0, crouched ? 37.5f : 0);
+            pawn.Location = new FVector(100, 100, 1000 + pawn.CollisionHeight);
+            pawn.Velocity = default;
+        };
+        int samples = 0;
+        for (int n = 0; n < 1000; n++)
+        {
+            rig.Step();
+            ClientSession client = rig.Clients[0];
+            if (n < 240 || client.Driver.FindActorByNetGuid((uint)pawn.ActorId) is not SBasePawn copy ||
+                !client.PawnStates!.IsMotionBuffered(copy, client.RenderTimeFixed)) continue;
+            Assert.InRange(MathF.Abs(copy.Location.Z - copy.CollisionHeight - 1000), 0, 0.1f);
+            Assert.InRange(MathF.Abs(copy.Location.Z + copy.PrePivot.Z - 1087.5f), 0, 0.1f);
+            samples++;
+        }
+        Assert.True(samples > 500, $"Only {samples} buffered stance samples.");
+    }
+
     private readonly record struct BodyState(EPhysics Physics, byte Zone, bool Crouched, bool Sleeping, bool Lying, bool Hidden,
         bool Boost, bool Hoist, bool Grabbable, bool Terminable, bool Shocking, int Health,
         float Radius, float Height, FVector Pivot, NetworkPawnAttachments Attachments, bool Paired)

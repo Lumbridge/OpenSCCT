@@ -54,6 +54,10 @@ public sealed record ClientSettings
     /// </summary>
     public bool Gameplay { get; init; }
 
+    /// <summary>Headless clients are ready when their controller arrives. Rendered clients call
+    /// <see cref="ClientSession.MarkReadyToPlay"/> after their scene finishes loading.</summary>
+    public bool AutoReportReady { get; init; } = true;
+
     /// <summary>
     /// The view layer's host: the game rules' presentation calls for this player (sounds, messages, menus, HUD) and
     /// the server's calls no port runs arrive here. Null drops them.
@@ -103,6 +107,7 @@ public sealed class ClientSession : INetworkNotify, IDisposable
     private int _moveCount;
     private readonly ITransport _transport;
     private readonly bool _ownsTransport;
+    private readonly MapCatalog _maps;
     private NetConnection? _connection;
     private bool _disposed;
 
@@ -117,6 +122,8 @@ public sealed class ClientSession : INetworkNotify, IDisposable
         _transport = transport;
         _ownsTransport = ownsTransport;
         Settings = settings ?? new ClientSettings();
+        _maps = Settings.Maps ?? MapCatalog.CreateDefault();
+        _readyToPlay = Settings.AutoReportReady;
         World = new World(0, ENetMode.NM_Client);
         Driver = new NetDriver(transport, Settings.Classes ?? NetClasses.Create(), this, isServer: false, Settings.Net) { World = World };
         var gameHost = new NetGameHost(Driver, Settings.ViewHost);
@@ -138,7 +145,7 @@ public sealed class ClientSession : INetworkNotify, IDisposable
         World.Level.SetService(this);
         _connection = Driver.Connect(serverAddress, nowMicros);
         _connection.ControlChannel!.Send(ControlMessage.Hello(Driver.ProtocolHash, Settings.ContentHash,
-            Settings.PlayerName + Settings.LoginOptions, Settings.NetSpeed));
+            Settings.PlayerName + Settings.LoginOptions, Settings.NetSpeed, Settings.Gameplay ? _maps.CharacterContentHash : 0));
         _connection.FlushNet(nowMicros, force: true);
     }
 
@@ -162,6 +169,11 @@ public sealed class ClientSession : INetworkNotify, IDisposable
 
     /// <summary>True once the player reported waiting to the server (<c>PlayerWaitingToPlayToServer(true)</c>).</summary>
     public bool ReportedWaiting { get; private set; }
+
+    private bool _readyToPlay;
+
+    /// <summary>Releases the loading gate. The next network tick reports readiness once the controller exists.</summary>
+    public void MarkReadyToPlay() => _readyToPlay = true;
 
     /// <summary>
     /// Raised each tick after the packets were received and before the world ticks: the place to write the local
@@ -363,7 +375,7 @@ public sealed class ClientSession : INetworkNotify, IDisposable
     /// <summary>The loading page's s_Client: the player is in the map and waits for the match.</summary>
     private void ReportWaiting()
     {
-        if (!Settings.Gameplay || ReportedWaiting || LocalPlayer is not { bDeleteMe: false } pc)
+        if (!Settings.Gameplay || !_readyToPlay || ReportedWaiting || LocalPlayer is not { bDeleteMe: false } pc)
         {
             return;
         }
@@ -457,7 +469,7 @@ public sealed class ClientSession : INetworkNotify, IDisposable
         MapName = message.Text;
         ServerNetRate = message.NetRate is >= 1 and <= Sim.Hz ? message.NetRate : K.NetServerMaxTickRate;
         PawnProxies = message.PawnProxies;
-        MapCatalog maps = Settings.Maps ?? MapCatalog.CreateDefault();
+        MapCatalog maps = _maps;
         if (!maps.TryLoad(World, MapName ?? string.Empty, isClient: true, out MapInfo? map, out string? error))
         {
             RejectReason = error;

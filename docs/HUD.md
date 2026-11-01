@@ -239,6 +239,37 @@ Save & Close; Back confirms discarding edits. `OptionsRuntime` applies role sens
 FOV and controller settings. `GamepadInput` retains keyboard-linked assignments and supports independent action
 bindings, alongside radial dead zones, response curves and the spy's run threshold.
 
+**First-time controller layout** (Reloaded, `controller.layout_version` 1): controller support starts off and
+the first connected pad prompts to enable it. Bindings call independent actions, so changing or removing keyboard
+bindings does not change controller behavior. Existing unversioned settings retain their earlier controls and aim;
+"Reset controller for this role" opts that role into the new layout.
+
+| Control | Spy | Mercenary |
+|---|---|---|
+| A / B / Y | Use or grab / crouch (tap) / jump | Use or melee / crouch / jump |
+| X | Draw or holster | Reload |
+| LT / RT | Use gadget / fire; short taps quick-use slots 2 / 1 while unarmed | Use gadget (hold breath while scoped) / fire |
+| LB / RB | Co-op (release) / roll | 0.5× sensitivity while held / scope |
+| Right stick click | 2× sensitivity while held | 2× sensitivity while held |
+| D-pad up / down | Last sticky camera / back to wall, or weapon laser with gun drawn | Flashlight / laser |
+| D-pad left / right | Night / thermal vision | Motion / EMF vision |
+| Back / Start | Hack communications / menu | Hack communications / menu |
+| Left stick click + Y / X / B / A | Select gadget slot 1 / 2 / 3 / 4 | Select gadget slot 1 / 2 / 3 / 4 |
+| LB + Y / X / B / A | Select and fire gadget slot 1 / 2 / 3 / 4 (gun drawn) | Unassigned in Reloaded's native bindings |
+| LB + D-pad down | Binoculars | Rate of fire |
+| LB + Back | Session status | Session status |
+| Hold B (200 ms) | Long roll | Unassigned |
+
+Combinations consume their standalone actions; releasing a modifier cannot trigger the face button still held.
+Spy LT also toggles the selected cloak on a 200 ms hold, or turns an active cloak off on a short tap. In camera
+views, RT releases sticky-camera gas and B leaves the view. Long roll pulses crouch when needed to stand first.
+Triggers press above 7680/32767 (about 23.4%). Spy free look uses Aggressive and gun look uses Soft response.
+These are the defaults with analog slow walk enabled and stick/bumper swaps disabled. The built-in keyboard
+fallback now contains the same resolved stock actions as the original INIs; additions and wheel preferences are
+applied before the first saved snapshot, so first launch and later launches agree without original key files.
+The `controller-defaults` smoke exercises both roles with the fallback and with an empty keyboard layout;
+logic tests cover contextual trigger timing and execute gadget, cloak, camera and long-roll commands.
+
 **Analog movement** (rl:input.pad): the left stick reaches the sim as a stick, not as keys. `GamepadInput` puts it in
 `LocalInput.PadForward`/`PadStrafe` (after the deadzone and the optional eight-way snap; with `slow_walk` off only its
 direction), `LocalInput.ApplyButtons` copies it onto the controller (`SPlayerController.PadStickForward`,

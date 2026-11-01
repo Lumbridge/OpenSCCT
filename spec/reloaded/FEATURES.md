@@ -642,8 +642,15 @@ Faithful renderer rather than ports.
   rescale, curves, 8-way snap (movement only), walk threshold and slow walk feeding the UE2 movement input
   (aForward/aStrafe and speed control), vertical scale. Same keys under `input.pad`.
 - **Priority:** P1 (Ryan wants it; not needed for the slice gate).
-- **Open:** default pad button layout per team (only the action names are known); capture from the
-  Reloaded binds page in a sandbox.
+- **Decoded (2026-11-01):** native default bindings in `Reloaded.Core.dll` at `0x100b3e50` (spy) and
+  `0x100b4f30` (merc), with the trigger comparator at `0x100b6090` and the 200 ms hold test at `0x100b5bd1`.
+  Source: Enhanced SCCT Versus v4.0 Public Beta 3, DLL SHA-256
+  `6b9d4444e7e05f7c04767509599df97c0f0fd9fc61686821cc8333066995dc46`.
+  First-time rewrite profiles use these layouts, independent action dispatch and modifier/hold resolution;
+  `docs/HUD.md` lists the controls. Existing profiles retain their saved behavior. Merc launch combinations
+  shown in Reloaded's UI are absent from its native initializer, so they remain unassigned.
+  Action callbacks distinguish armed slot launch (`0x100b0750`) from unarmed quick-use, and short trigger
+  releases from 200 ms holds (cloak, scoped breath, camera gas/exit and the crouched long-roll pulse).
 - **Done (2026-10-28):** the left stick is an analog move (spec/native/input.md rule 9: full circle, analog slow walk,
   `slow_walk`), hot plug lines and the once-only first-run prompt. Swapping stick clicks with bumpers (2026-10-28):
   `swap_ls_lb` and `swap_rs_rb` in the controller groups (`controls_spy_pad`, `controls_merc_pad`), off by default;
@@ -1072,7 +1079,7 @@ The importer maps those that still have a meaning and ignores the rest.
 2. Lag-compensation scope and default ceiling; fire-prediction scope.
 3. Which "R" fixes live in Enhanced script and which in Reloaded memory patches (decompile Enhanced
    `SBase.u`, compare with traces).
-4. Default pad layouts per team.
+4. Default pad layouts per team resolved on 2026-11-01; see `rl:input.pad` and `docs/HUD.md`.
 5. Voice masking in stock Versus; positional proximity talk; Godot default capture role on Windows.
 6. HUD anchor table for widescreen; ER icon scaling rule.
 7. `hack_alpha` default scale; the "Streaming" lobby label.

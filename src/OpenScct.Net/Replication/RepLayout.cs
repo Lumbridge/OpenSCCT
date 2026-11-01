@@ -614,6 +614,7 @@ public sealed class RepLayout
             if (f.Extension is { } ext)
             {
                 sb.Append(ext.Signature);
+                if (ext.AcceptReordered) sb.Append(":reordered");
             }
 
             foreach (RepParam p in f.Parameters)

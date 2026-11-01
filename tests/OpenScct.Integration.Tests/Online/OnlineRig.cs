@@ -82,12 +82,15 @@ internal sealed class OnlineRig : IDisposable
         AfterServerTick?.Invoke(now);
         foreach (OnlineClient c in _clients)
         {
-            c.Tick(now);
+            if (ShouldTickClient?.Invoke(c) != false) c.Tick(now);
         }
     }
 
     /// <summary>Runs after each server tick, before the clients (bots, terminal unblocking).</summary>
     public Action<long>? AfterServerTick { get; set; }
+
+    /// <summary>Models a renderer blocked loading its scene while the other processes keep ticking.</summary>
+    public Func<OnlineClient, bool>? ShouldTickClient { get; set; }
 
     /// <summary>Steps until <paramref name="done"/> holds or <paramref name="seconds"/> of clock time pass; false on timeout.</summary>
     public bool RunUntil(Func<bool> done, double seconds)

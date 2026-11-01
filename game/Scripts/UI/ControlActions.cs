@@ -40,6 +40,14 @@ public static class ControlActions
         A("breath", "Combat", "Hold breath", "Hold to steady the mercenary sniper scope when available.", "Button bHoldBreath", "bHoldBreath"),
         A("quick1", "Gadgets", "Quick-use gadget slot 1", "While the spy is unarmed, quick-use slot 1: quick-launch a supported grenade or use cloak when applicable.", "GadgetQuickChoice 0", "GadgetQuickChoice 0") with { Merc = false },
         A("quick2", "Gadgets", "Quick-use gadget slot 2", "While the spy is unarmed, quick-launch a supported gadget from slot 2. Cloak is excluded from this shortcut.", "GadgetQuickChoice 1", "GadgetQuickChoice 1") with { Merc = false },
+        A("launch1", "Gadgets", "Launch gadget slot 1", "Select and fire gadget slot 1 with the weapon drawn.", "LaunchGadget 0", "LaunchGadget 0") with { Merc = false },
+        A("launch2", "Gadgets", "Launch gadget slot 2", "Select and fire gadget slot 2 with the weapon drawn.", "LaunchGadget 1", "LaunchGadget 1") with { Merc = false },
+        A("launch3", "Gadgets", "Launch gadget slot 3", "Select and fire gadget slot 3 with the weapon drawn.", "LaunchGadget 2", "LaunchGadget 2") with { Merc = false },
+        A("launch4", "Gadgets", "Launch gadget slot 4", "Select and fire gadget slot 4 with the weapon drawn.", "LaunchGadget 3", "LaunchGadget 3") with { Merc = false },
+        A("longroll", "Movement", "Long roll", "Stand from crouch when needed and roll.", "LongRoll | Button bRoll", "LongRoll") with { Merc = false },
+        A("cloakquick", "Gadgets", "Toggle selected cloak", "Use the selected cloak.", "PadCloakQuick", "PadCloakQuick") with { Merc = false, Available = false },
+        A("cameragas", "Gadgets", "Release sticky camera gas", "Release gas from the camera being used.", "PadCameraGas", "PadCameraGas") with { Merc = false, Available = false },
+        A("cameraexit", "Gadgets", "Leave camera", "Leave the current sticky camera or camera network view.", "PadCameraExit", "PadCameraExit") with { Available = false },
         A("slot1", "Gadgets", "Select gadget slot 1", "Select the gadget in slot 1.", "SelectGadget 0", "SelectGadget 0"),
         A("slot2", "Gadgets", "Select gadget slot 2", "Select the gadget in slot 2.", "SelectGadget 1", "SelectGadget 1"),
         A("slot3", "Gadgets", "Select gadget slot 3", "Select the gadget in slot 3.", "SelectGadget 2", "SelectGadget 2"),
@@ -59,7 +67,7 @@ public static class ControlActions
         A("er", "Vision", "Toggle Enhanced Reality", "Toggle the Enhanced Reality display.", "SwitchEnhancedReality", "SwitchEnhancedReality"),
         A("wheelup", "Gadgets", "Mouse wheel up action", "Uses the shared mouse-wheel preference: gadget selection or movement speed.", "WheelUp", "WheelUp") with { Available = false },
         A("wheeldown", "Gadgets", "Mouse wheel down action", "Uses the shared mouse-wheel preference: gadget selection or movement speed.", "WheelDown", "WheelDown") with { Available = false },
-        A("hackcomms", "Communication", "Hack enemy communications", "Request communications hacking when available.", "Button bSpecialsChat", "bSpecialsChat") with { Merc = false },
+        A("hackcomms", "Communication", "Hack enemy communications", "Request communications hacking when available.", "Button bSpecialsChat", "bSpecialsChat"),
         A("chat", "Communication", "Chat", "Open public text chat.", "Talk", "Talk"),
         A("teamchat", "Communication", "Team chat", "Open team text chat.", "TeamTalk", "TeamTalk"),
         A("voice", "Communication", "Push to talk", "Hold to transmit on the all channel; also forces transmission in voice activation mode.", "PushToTalk", "PushToTalk"),
@@ -79,7 +87,7 @@ public static class ControlActions
 
     public const string PadPrefix = "Action:";
     public const string VirtualPrefix = "svm-action:";
-    public static bool Direct(ControlAction action) => action.Category is not ("Communication" or "Interface") && action.Id != "er" || action.Id is "freecam" or "hidehud";
+    public static bool Direct(ControlAction action) => action.Category is not ("Communication" or "Interface") && action.Id != "er" || action.Id is "freecam" or "hidehud" or "hackcomms" or "session" or "menu";
     private static readonly IReadOnlyDictionary<string, IReadOnlyList<KeyAction>> DirectActions = All.Where(Direct)
         .ToDictionary(a => a.Id, a => (IReadOnlyList<KeyAction>)KeyLayout.Parse("[Engine.Input]\nIK_X=" + a.Command).Resolve("X"));
 
@@ -114,7 +122,7 @@ public static class ControlActions
         int start = words[0].ToUpperInvariant() is "BUTTON" or "INVBUTTON" or "FUNCTION" or "AXIS" ? 1 : 0;
         if (start >= words.Length) return raw;
         string name = words[start];
-        return name.Equals("SelectGadget", StringComparison.OrdinalIgnoreCase) || name.Equals("GadgetQuickChoice", StringComparison.OrdinalIgnoreCase) ||
+        return name.Equals("SelectGadget", StringComparison.OrdinalIgnoreCase) || name.Equals("GadgetQuickChoice", StringComparison.OrdinalIgnoreCase) || name.Equals("LaunchGadget", StringComparison.OrdinalIgnoreCase) ||
             name.Equals("SwitchHeadset", StringComparison.OrdinalIgnoreCase) ? name + " " + (words.Length > start + 1 ? words[start + 1] : "0") : name;
     }
 }

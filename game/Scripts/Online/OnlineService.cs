@@ -38,6 +38,8 @@ public partial class OnlineService : Node
     private OnlineClientState _shownState = (OnlineClientState)(-1);
     private PlayRoot? _round;
     private ClientSession? _roundRefused;
+    private ClientSession? _loadingSession;
+    private int _loadingFrames;
     private Action<string?>? _hubReturn;
     private bool _hubPlayed;
 
@@ -113,6 +115,7 @@ public partial class OnlineService : Node
         Maps = Catalog.Maps,
         Classes = Classes,
         InstallGameplayServices = false,
+        AutoReportReady = false,
         FirePrediction = SettingsStore.Current.FirePrediction,
     };
 
@@ -388,6 +391,21 @@ public partial class OnlineService : Node
             return;
         }
 
+        // Travel and session creation can finish in one process frame. Draw the side-specific loading artwork
+        // before PlayRoot.Enter blocks the main thread, including when joining a round already in progress.
+        if (!ReferenceEquals(_loadingSession, session))
+        {
+            _loadingSession = session;
+            _loadingFrames = 0;
+            FrontEnd.ShowConnecting(GetTree(), this);
+            return;
+        }
+
+        if (++_loadingFrames < LoadingScreen.FramesBeforeLoad)
+        {
+            return;
+        }
+
         OnlinePlayer? local = client.Lobby.Local;
         var settings = new PlaySettings
         {
@@ -423,6 +441,8 @@ public partial class OnlineService : Node
 
     private void StopRound()
     {
+        _loadingSession = null;
+        _loadingFrames = 0;
         if (_round is { } round)
         {
             _round = null;

@@ -568,7 +568,7 @@ public sealed class PawnStateReplication : INetworkPawnPose, IPawnAnimationTrans
         if (!accept || r.IsError) return;
         frame.Tick = tick; frame.Epoch = epoch;
         track.StateSequence = Math.Max(track.StateSequence, frame.StateSequence);
-        track.Motion.Recover(tick, frame.Motion);
+        track.Motion.Recover(tick, MeshAnchorMotion(frame));
         stream.PresentationRecordsReceived++;
     }
 
@@ -591,7 +591,7 @@ public sealed class PawnStateReplication : INetworkPawnPose, IPawnAnimationTrans
             NetworkAnimChannel c = frame.Pose[i];
             t.Channels[i].Push(new Phase { Tick = tick, Revision = frame.Revisions[i], Frame = c.Frame, Rate = c.Rate, Alpha = c.Alpha, Tween = c.TweenWeight, Snapshot = true });
         }
-        t.Motion.Recover(tick, frame.Motion); t.Newest = tick; stream.SnapshotsReceived++;
+        t.Motion.Recover(tick, MeshAnchorMotion(frame)); t.Newest = tick; stream.SnapshotsReceived++;
         stream.LatestSnapshotTick = Math.Max(stream.LatestSnapshotTick, tick);
     }
 
@@ -618,6 +618,9 @@ public sealed class PawnStateReplication : INetworkPawnPose, IPawnAnimationTrans
         }
         pawn.NetworkPoseReady = t.Ready;
         t.Motion.Sample(RenderTimeFixed, 6, out ProxyState motion);
+        // Interpolate the mesh anchor, then reconstruct the cylinder centre using the displayed stance.
+        // Interpolating centre height while switching PrePivot discretely sinks/floats crouch transitions.
+        motion.Location -= f.PrePivot;
         if (RenderTimeFixed > t.Newest * NetTimeline.Fraction) Underflows++;
         bool wasReplaying = pawn.XLevel.World.IsReplaying;
         pawn.XLevel.World.IsReplaying = true;
@@ -660,6 +663,13 @@ public sealed class PawnStateReplication : INetworkPawnPose, IPawnAnimationTrans
         if (!run.IsNone) pawn.RunAnim = run;
         pawn.PawnAnim.Owner = pawn; pawn.OldRotYaw = pawn.Rotation.Yaw;
         ZoneRegions.SetActorZone(pawn);
+    }
+
+    private static ProxyState MeshAnchorMotion(Frame frame)
+    {
+        ProxyState motion = frame.Motion;
+        motion.Location += frame.PrePivot;
+        return motion;
     }
 
     private static int Slot(long tick) => (int)(tick & (History - 1));

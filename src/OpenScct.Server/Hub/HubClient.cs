@@ -27,6 +27,9 @@ public sealed record HubClientSettings
     /// <summary>Install the gameplay services on the client world (bots and tests; the play scene installs its own).</summary>
     public bool InstallGameplayServices { get; init; } = true;
 
+    /// <summary>Rendered clients report readiness explicitly after their play scene loads.</summary>
+    public bool AutoReportReady { get; init; } = true;
+
     public NetDriverSettings Net { get; init; } = new();
 
     /// <summary>Carry voice chat on the visit's transport (<see cref="HubClient.Voice"/>, read by <see cref="HubVoice"/>).</summary>
@@ -115,6 +118,7 @@ public sealed class HubClient : IDisposable
                 (Settings.HostKey is { Length: > 0 } hostKey ? "?SvmHost=" + OptionText(hostKey) : string.Empty),
             Gameplay = true,
             InstallGameplayServices = Settings.InstallGameplayServices,
+            AutoReportReady = Settings.AutoReportReady,
             Maps = Settings.Maps,
             Classes = Settings.Classes,
             Net = Settings.Net,

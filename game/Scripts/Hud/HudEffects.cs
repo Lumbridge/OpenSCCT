@@ -174,6 +174,11 @@ public sealed class HudEffects
                     ? (SFXType)e.Slot
                     : end > start ? SFXType.SFXT_TextureColorSleep : SFXType.SFXT_TextureColor;
                 SFXAttenuation evolution = time > 0f ? SFXAttenuation.SFXA_Linear : SFXAttenuation.SFXA_Constant;
+                // Wake-up replaces the held knockout overlay. Allocating another slot leaves the original
+                // dontKill sleep slot opaque forever, even after the pawn has stood up and can move again.
+                if ((type == SFXType.SFXT_TextureColorSleep || e.Slot == 0 && end <= start) &&
+                    Sfx.Find(SFXType.SFXT_TextureColorSleep) is >= 0 and var sleepSlot)
+                    Sfx.SfxForceSlot(sleepSlot);
                 Sfx.AddVisualSfx(type, start, end, time, evolution, now, dontKill: type == SFXType.SFXT_TextureColorSleep || end > start);
                 break;
             }

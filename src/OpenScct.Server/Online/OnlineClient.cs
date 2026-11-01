@@ -93,6 +93,9 @@ public sealed record OnlineClientSettings
     /// <summary>Install the gameplay services after each map load (see <see cref="ClientSettings.InstallGameplayServices"/>).</summary>
     public bool InstallGameplayServices { get; init; } = true;
 
+    /// <summary>False for a rendered visit: each play scene reports ready after loading.</summary>
+    public bool AutoReportReady { get; init; } = true;
+
     /// <summary>Draw this player's own bullet impacts at once (see <see cref="ClientSettings.FirePrediction"/>).</summary>
     public bool FirePrediction { get; init; } = true;
 
@@ -569,6 +572,7 @@ public sealed class OnlineClient : IDisposable
             LoginOptions = LoginOptions(),
             Key = Settings.Key,
             Gameplay = true,
+            AutoReportReady = Settings.AutoReportReady,
             InstallGameplayServices = Settings.InstallGameplayServices,
             FirePrediction = Settings.FirePrediction,
             Maps = Maps,

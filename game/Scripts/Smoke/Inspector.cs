@@ -168,6 +168,16 @@ public sealed class PlayInspector
     /// <summary>The issues so far, in the order first seen.</summary>
     public IReadOnlyList<InspectIssue> Issues => _ordered;
 
+    public IEnumerable<InspectPose> PoseChecks => _poses.Values;
+
+    /// <summary>Starts a new pose observation window after explicit test fixture setup.</summary>
+    public void ResetPoseChecks()
+    {
+        _poses.Clear();
+        _issues.Clear();
+        _ordered.Clear();
+    }
+
     /// <summary>Seconds inspected.</summary>
     public double Seconds => _seconds;
 

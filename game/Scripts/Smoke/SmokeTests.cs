@@ -8,7 +8,7 @@ public static class SmokeTests
 {
     public static IReadOnlyList<string> Names { get; } =
         [MineLightSmoke.TestName, AmmoMenuHudSmoke.TestName, LandingBlendSmoke.TestName, GlassBlendSmoke.TestName, ScopeLifecycleSmoke.TestName, SidearmReloadPoseSmoke.TestName, MenuEscapeSmoke.TestName, FittedSkinsSmoke.TestName, ViewmodelLightSmoke.TestName, StatsSmoke.TestName, StartupWeaponsSmoke.TestName, LaserAlignmentSmoke.TestName, BootSmoke.TestName, TestBoxSmoke.TestName, SelfTestFailSmoke.TestName, SteeERenderSmoke.TestName, GoldenSmoke.TestName,
-            JoinFocusSmoke.TestName, Hud.HudSmoke.TestName, RainHudSmoke.TestName, AudioSmoke.TestName, PlaySpySmoke.TestName, PlayCraneSmoke.TestName,
+            JoinFocusSmoke.TestName, ControllerDefaultsSmoke.TestName, Hud.HudSmoke.TestName, RainHudSmoke.TestName, AudioSmoke.TestName, PlaySpySmoke.TestName, PlayCraneSmoke.TestName,
             PlayDiskHuntSmoke.TestName, PlayDeathmatchSmoke.TestName, Voice.VoiceSmoke.TestName,
             Online.OnlineSmoke.TestName, Online.NetLobbySmoke.TestName, Online.NetLobbySmoke.GuestTestName, Online.NetBotsSmoke.TestName, Online.NetBotsSmoke.GuestTestName, GadgetsSmoke.TestName, PlayBotsSmoke.TestName, UI.InGameMenuSmoke.TestName,
             PlayCombatSmoke.TestName, PlayAudioSmoke.TestName, PlayAudioMercSmoke.TestName, PlayAudioKrauSmoke.TestName,
@@ -30,6 +30,18 @@ public static class SmokeTests
 
     public static SmokeTest? Create(string name) => name switch
     {
+        PresentationPerformanceSmoke.TestName => new PresentationPerformanceSmoke(),
+        HudPerformanceSmoke.TestName => new HudPerformanceSmoke(),
+        HudGameplayParitySmoke.SpyName => new HudGameplayParitySmoke(),
+        HudGameplayParitySmoke.MercName => new HudGameplayParitySmoke(true),
+        HudOutputReplaySmoke.TestName => new HudOutputReplaySmoke(),
+        HudCopyPixelsSmoke.TestName => new HudCopyPixelsSmoke(),
+        RenderPerformanceParitySmoke.TestName => new RenderPerformanceParitySmoke(),
+        NetworkLabSmoke.HostName => new NetworkLabSmoke(true),
+        NetworkLabSmoke.GuestName => new NetworkLabSmoke(false),
+        NetworkLabSmoke.ObserverName => new NetworkLabSmoke(false, true),
+        NetworkLabSmoke.Observer2Name => new NetworkLabSmoke(false, true, true),
+        Hud.HudSmoke.SpectatorTestName => new Hud.HudSmoke(spectatorOnly: true),
         MineLightSmoke.TestName => new MineLightSmoke(),
         AmmoMenuHudSmoke.TestName => new AmmoMenuHudSmoke(),
         LandingBlendSmoke.TestName => new LandingBlendSmoke(),
@@ -41,6 +53,7 @@ public static class SmokeTests
         FittedSkinsSmoke.TestName => new FittedSkinsSmoke(),
         ViewmodelLightSmoke.TestName => new ViewmodelLightSmoke(),
         JoinFocusSmoke.TestName => new JoinFocusSmoke(),
+        ControllerDefaultsSmoke.TestName => new ControllerDefaultsSmoke(),
         LaserAlignmentSmoke.TestName => new LaserAlignmentSmoke(),
         // Opt-in network test: excludes ~490 MiB of downloads from the ordinary smoke suite.
         LinuxSetupSmoke.TestName => new LinuxSetupSmoke(),

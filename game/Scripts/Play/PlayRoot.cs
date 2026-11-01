@@ -40,6 +40,9 @@ public sealed record PlayConfig
     /// </summary>
     public int TicksPerFrame { get; init; }
 
+    /// <summary>Retain full-session timing samples for diagnostic percentiles (off in ordinary gameplay).</summary>
+    public bool CaptureFrameHistory { get; init; }
+
     /// <summary>A scripted local player instead of the keyboard and mouse, or null.</summary>
     public ScriptedPilot? Pilot { get; init; }
 
@@ -89,77 +92,6 @@ public sealed record PlayConfig
         }
 
         return new PlayConfig { Settings = settings, GameRoot = options.GameRoot };
-    }
-}
-
-/// <summary>Per-frame costs of the play scene, in milliseconds.</summary>
-public sealed class PlayFrameStats
-{
-    private readonly List<double> _sim = [];
-    private readonly List<double> _view = [];
-    private readonly List<double> _frame = [];
-
-    public int Frames => _frame.Count;
-
-    public long Ticks { get; internal set; }
-
-    /// <summary>Milliseconds the scripted pilot took (route planning), kept out of the simulation cost.</summary>
-    public double PilotMs { get; internal set; }
-
-    /// <summary>The simulation milliseconds of the last frame.</summary>
-    public double LastSimMs { get; private set; }
-
-    /// <summary>The view milliseconds of the last frame.</summary>
-    public double LastViewMs { get; private set; }
-
-    internal void Add(double simMs, double viewMs, double frameMs)
-    {
-        LastSimMs = simMs;
-        LastViewMs = viewMs;
-        _sim.Add(simMs);
-        _view.Add(viewMs);
-        _frame.Add(frameMs);
-    }
-
-    /// <summary>Simulation (server and client ticks) and view (camera, pawns, devices) costs: mean, 95th percentile and max.</summary>
-    public string Summary()
-    {
-        return string.Create(CultureInfo.InvariantCulture,
-            $"frames={Frames} ticks={Ticks} pilot ms={PilotMs:F0} sim ms/frame mean={Mean(_sim):F2} p95={Percentile(_sim, 0.95):F2} max={Max(_sim):F2} view ms/frame mean={Mean(_view):F2} p95={Percentile(_view, 0.95):F2} max={Max(_view):F2} frame ms mean={Mean(_frame):F2}");
-    }
-
-    private static double Mean(List<double> v)
-    {
-        double sum = 0;
-        foreach (double x in v)
-        {
-            sum += x;
-        }
-
-        return v.Count > 0 ? sum / v.Count : 0;
-    }
-
-    private static double Max(List<double> v)
-    {
-        double max = 0;
-        foreach (double x in v)
-        {
-            max = Math.Max(max, x);
-        }
-
-        return max;
-    }
-
-    private static double Percentile(List<double> v, double p)
-    {
-        if (v.Count == 0)
-        {
-            return 0;
-        }
-
-        var sorted = new List<double>(v);
-        sorted.Sort();
-        return sorted[Math.Min(sorted.Count - 1, (int)(p * sorted.Count))];
     }
 }
 
@@ -237,7 +169,7 @@ public partial class PlayRoot : Node3D
 
     public string? LoadError { get; private set; }
 
-    public PlayFrameStats Stats { get; } = new();
+    public PlayFrameStats Stats { get; private set; } = new();
 
     /// <summary>Seconds the map render and the session took to build.</summary>
     public double LoadSeconds { get; private set; }
@@ -248,6 +180,7 @@ public partial class PlayRoot : Node3D
         ArgumentNullException.ThrowIfNull(config);
         var root = GD.Load<PackedScene>(ScenePath).Instantiate<PlayRoot>();
         root.Config = config;
+        root.Stats = new PlayFrameStats(config.CaptureFrameHistory);
         return root;
     }
 
@@ -276,9 +209,10 @@ public partial class PlayRoot : Node3D
         {
             Load();
             IsLoaded = true;
+            Session?.Client.MarkReadyToPlay();
             _status.Text = "";
         }
-        catch (Exception ex) when (ex is FileNotFoundException or DirectoryNotFoundException or SvMapFormatException or IOException
+        catch (Exception ex) when (ex is FileNotFoundException or DirectoryNotFoundException or SvMapFormatException or IOException or InvalidDataException
             or InvalidOperationException or ArgumentException or UnauthorizedAccessException)
         {
             LoadError = ex.Message;

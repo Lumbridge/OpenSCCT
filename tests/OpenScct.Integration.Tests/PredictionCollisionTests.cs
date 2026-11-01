@@ -3,6 +3,7 @@ using OpenScct.Core;
 using OpenScct.Core.Engine;
 using OpenScct.Game.Devices;
 using OpenScct.Game.Movement;
+using OpenScct.Game.SBase;
 using OpenScct.Physics.Collision;
 using OpenScct.Server;
 using Xunit;
@@ -22,6 +23,38 @@ public sealed class PredictionCollisionTests
         var data = new CollisionDataBuilder();
         data.AddBox(new FVector(-4000, -4000, -100), new FVector(4000, 4000, 0));
         return data;
+    }
+
+    [Theory]
+    [InlineData(PawnTeam.Spy, "PlayerFalling")]
+    [InlineData(PawnTeam.Spy, "s_PlayerJump")]
+    [InlineData(PawnTeam.Merc, "PlayerFalling")]
+    public void GroundedCorrectionCompletesLandingAfterReplayingAirborneInputs(PawnTeam team, string state)
+    {
+        PawnRig rig = PawnRig.Create(team, Floor().Build());
+        rig.Place(new FVector(0, 0, 140), default, default, false);
+        rig.Controller.Role = ENetRole.ROLE_AutonomousProxy;
+        rig.Controller.RemoteRole = ENetRole.ROLE_Authority;
+        rig.Pawn.Role = ENetRole.ROLE_AutonomousProxy;
+        rig.Controller.GotoState(new Name(state));
+        rig.Pawn.Physics = EPhysics.PHYS_Falling;
+        rig.Controller.fZMaxFalling = 200;
+        var moves = new SBasePawnMoves(rig.Controller) { ModernCommands = true };
+        moves.CapturePrediction(0);
+        moves.CapturePrediction(1);
+        FVector previous = rig.Pawn.Location;
+        moves.BeginPredictionReplay();
+        try
+        {
+            moves.RestorePrediction(0, new FVector(0, 0, rig.Pawn.CollisionHeight + 1.5f), default,
+                EPhysics.PHYS_Walking, rig.Level.Info, 0);
+            moves.ReplayPrediction(1, Sim.DeltaTime, default, false);
+        }
+        finally { moves.EndPredictionReplay(previous); }
+        Assert.Equal(EPhysics.PHYS_Walking, rig.Pawn.Physics);
+        Assert.False(rig.Controller.StateNode is SPlayerController.s_PlayerJump,
+            $"Grounded owner remained in {rig.Controller.GetStateName()} with {rig.Pawn.PawnAnim[0].Sequence}");
+        Assert.False(rig.World.IsReplaying);
     }
 
     [Fact]

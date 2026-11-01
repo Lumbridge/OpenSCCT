@@ -260,14 +260,18 @@ public sealed partial class CollisionWorld
         for (int i = 0; i < list.Count; i++)
         {
             Actor a = list[i];
-            if (a.bDeleteMe || ReferenceEquals(a, q.Ignore) || IsSourceOrOwnerOf(a, q.Source) || !ActorPasses(a, ref q, out float r, out float h))
+            if (a.bDeleteMe || ReferenceEquals(a, q.Ignore))
             {
                 continue;
             }
 
+            GetCylinder(a, out float r, out float h, out bool collide, out bool blockActors, out bool blockPlayers);
             var half = new FVector(r + q.E.X, r + q.E.Y, h + q.E.Z);
             FVector c = a.Location;
-            if (!CollisionMath.BoxesTouch(c - half, c + half, smin, smax))
+            // Reject distant cylinders before their owner chain and detailed trace flags. Read the live shape
+            // here: a crouch, teleport, root-motion probe or rewind can change it between queries in one tick.
+            if (!CollisionMath.BoxesTouch(c - half, c + half, smin, smax) ||
+                IsSourceOrOwnerOf(a, q.Source) || !ActorPasses(a, ref q, collide, blockActors, blockPlayers))
             {
                 continue;
             }
@@ -283,10 +287,9 @@ public sealed partial class CollisionWorld
         }
     }
 
-    /// <summary>ShouldTrace and the extent rule for an actor cylinder; gives its radius and half height.</summary>
-    private bool ActorPasses(Actor a, ref Query q, out float r, out float h)
+    /// <summary>ShouldTrace and the extent rule for an actor cylinder whose current shape has been read.</summary>
+    private bool ActorPasses(Actor a, ref Query q, bool collide, bool blockActors, bool blockPlayers)
     {
-        GetCylinder(a, out r, out h, out bool collide, out bool blockActors, out bool blockPlayers);
         if (!collide)
         {
             return false;
@@ -359,18 +362,20 @@ public sealed partial class CollisionWorld
         for (int i = 0; i < list.Count; i++)
         {
             Actor a = list[i];
-            if (a.bDeleteMe || ReferenceEquals(a, q.Ignore) || IsSourceOrOwnerOf(a, q.Source) || !ActorPasses(a, ref q, out float r, out float h))
+            if (a.bDeleteMe || ReferenceEquals(a, q.Ignore))
             {
                 continue;
             }
 
             // UPrimitive::PointCheck: within the summed half heights and the summed radii.
+            GetCylinder(a, out float r, out float h, out bool collide, out bool blockActors, out bool blockPlayers);
             float dz = q.S.Z - a.Location.Z;
             float dx = q.S.X - a.Location.X;
             float dy = q.S.Y - a.Location.Y;
             float hs = q.E.Z + h;
             float rs = q.E.X + r;
-            if (SvmMath.Abs(dz) < hs && dx * dx + dy * dy < rs * rs)
+            if (SvmMath.Abs(dz) < hs && dx * dx + dy * dy < rs * rs &&
+                !IsSourceOrOwnerOf(a, q.Source) && ActorPasses(a, ref q, collide, blockActors, blockPlayers))
             {
                 FVector n = (q.S - a.Location).SafeNormal();
                 ConsiderOverlap(ref q, ActorKey(a), n, -1, -1, -1, a);

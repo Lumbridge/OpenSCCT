@@ -13,6 +13,7 @@ public partial class MenuFeedback : Node
     private ulong _lastFeedback;
     private ulong _lastPointerMotion;
     private ulong _lastNavigation;
+    private bool _watchingTree;
 
     public override void _Ready()
     {
@@ -26,6 +27,7 @@ public partial class MenuFeedback : Node
         _click = Player("Click", Tone(0.070, 640, 420), -18f);
         GetTree().NodeAdded += Attach;
         GetTree().NodeRemoved += Detach;
+        _watchingTree = true;
         Walk(GetTree().Root);
     }
 
@@ -41,8 +43,14 @@ public partial class MenuFeedback : Node
 
     public override void _ExitTree()
     {
-        GetTree().NodeAdded -= Attach;
-        GetTree().NodeRemoved -= Detach;
+        // Muted/headless captures return before connecting. Their teardown must not emit engine errors, which
+        // would invalidate the benchmark's strict error check even though rendering itself completed normally.
+        if (_watchingTree)
+        {
+            GetTree().NodeAdded -= Attach;
+            GetTree().NodeRemoved -= Detach;
+            _watchingTree = false;
+        }
         foreach (BaseButton button in new List<BaseButton>(_buttons.Keys))
             Detach(button);
     }

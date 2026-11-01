@@ -334,6 +334,19 @@ public partial class SWeaponDefense_Shotgun
         return (byte)(shells > Ammo ? Ammo : shells);
     }
 
+    protected override float AuthoritativeReloadSeconds()
+    {
+        int shells = ShellsToLoad();
+        if (shells is >= 1 and <= 5)
+        {
+            // The owner skips to frame 39 at the last required shell notify. Authority follows that same
+            // shortened clip, without replaying the owner's reload sound or third-person action.
+            float tail = (K.FirstReloStFd2S.Frames - 1 - EndOfReloadFrame) / K.FirstReloStFd2S.Fps;
+            return K.ShotgunShellNotifySeconds[shells - 1] + System.Math.Max(0, tail);
+        }
+        return base.AuthoritativeReloadSeconds();
+    }
+
     /// <summary>The third-person reload of n shells (SA_RELOAD_1 to 5, SA_RELOAD for 6), or none.</summary>
     private static int ReloadAction(byte Shells) => Shells switch
     {

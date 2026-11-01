@@ -301,6 +301,7 @@ public partial class OptionsMenu : Control
         Slider(g, "Up/down sensitivity multiplier", "controller.vertical_scale", 0.1f, 3f, 0.05f, p.VerticalScale, v => p.VerticalScale = v);
         Check(g, "Movement speed follows stick tilt", "controller.slow_walk", p.SlowWalk, v => p.SlowWalk = v);
         Slider(g, "Base controller turning speed", "controller.look_speed", 100f, 3000f, 10f, p.LookSpeed, v => p.LookSpeed = v, "0");
+        Slider(g, "Trigger press threshold", "controller.trigger_threshold", 0f, 0.99f, 0.01f, p.TriggerThreshold, v => p.TriggerThreshold = v);
         Check(g, "Vibration", "controller.rumble", p.Rumble, v => p.Rumble = v);
         Slider(g, "Vibration strength", "controller.rumble_strength", 0f, 100f, 1f, p.RumbleStrength * 100f, v => p.RumbleStrength = v / 100f, "0");
         g.AddChild(new Label { Text = "Test vibration", CustomMinimumSize = new Vector2(320f, 0f) });
@@ -319,7 +320,7 @@ public partial class OptionsMenu : Control
         // Keep device setup and vibration together; detailed stick behavior is a separate group.
         var tuning = Grid("ControllerTuning");
         Node[] cells = g.GetChildren().ToArray();
-        for (int row = 1; row <= 8; row++)
+        for (int row = 1; row <= 9; row++)
             for (int col = 0; col < 3; col++)
             {
                 Node child = cells[row * 3 + col];
@@ -337,22 +338,27 @@ public partial class OptionsMenu : Control
     }
 
     /// <summary>Pad control names as the options list them.</summary>
-    private static string PadControlLabel(string control) => control switch
+    private static string PadControlLabel(string control)
     {
-        "LB" => "Left bumper",
-        "RB" => "Right bumper",
-        "LT" => "Left trigger",
-        "RT" => "Right trigger",
-        "LS" => "Left stick click",
-        "RS" => "Right stick click",
-        "DpadUp" => "D-pad up",
-        "DpadDown" => "D-pad down",
-        "DpadLeft" => "D-pad left",
-        "DpadRight" => "D-pad right",
-        "Back" => "Back / View",
-        "Start" => "Start / Menu",
-        _ => control + " button",
-    };
+        if (control.Contains('+')) return string.Join(" + ", control.Split('+').Select(PadControlLabel));
+        if (control.EndsWith(":Hold", StringComparison.Ordinal)) return "Hold " + PadControlLabel(control[..^5]);
+        return control switch
+        {
+            "LB" => "Left bumper",
+            "RB" => "Right bumper",
+            "LT" => "Left trigger",
+            "RT" => "Right trigger",
+            "LS" => "Left stick click",
+            "RS" => "Right stick click",
+            "DpadUp" => "D-pad up",
+            "DpadDown" => "D-pad down",
+            "DpadLeft" => "D-pad left",
+            "DpadRight" => "D-pad right",
+            "Back" => "Back / View",
+            "Start" => "Start / Menu",
+            _ => control + " button",
+        };
+    }
 
     /// <summary>One row per pad control: what it does on the shown side (saved with Save, like the other settings).</summary>
     private void RebuildPadButtons(PlaySide padSide, GridContainer padGrid)
@@ -383,7 +389,7 @@ public partial class OptionsMenu : Control
 
             var option = new OptionButton
             {
-                Name = "Pad_" + control, ClipText = true, FitToLongestItem = false, CustomMinimumSize = new Vector2(320f, 0f), SizeFlagsHorizontal = SizeFlags.ExpandFill,
+                Name = Safe("Pad_" + control).Replace(':', '_').Replace('+', '_'), ClipText = true, FitToLongestItem = false, CustomMinimumSize = new Vector2(320f, 0f), SizeFlagsHorizontal = SizeFlags.ExpandFill,
             };
             for (int i = 0; i < items.Count; i++)
             {

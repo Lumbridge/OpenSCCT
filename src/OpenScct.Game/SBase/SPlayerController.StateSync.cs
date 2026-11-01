@@ -11,6 +11,19 @@ namespace OpenScct.Game.SBase;
 public partial class SPlayerController
 {
     private static readonly Name NAME_s_UseObject_StickyCam_SmoothToPosition = new("s_UseObject_StickyCam_SmoothToPosition");
+    private float _lastSentMirrorStateTime = -1f;
+
+    // Reliable state order must not use the input clock temporarily installed by command simulation. A late
+    // client's physics can otherwise emit a newer catch/landing state with an older timestamp than its setup.
+    // Strict increase also prevents a prediction frame captured earlier in this world tick restoring old state.
+    private float NextMirrorStateTime()
+    {
+        float now = XLevel.WorldTimeSeconds;
+        if (now - MirrorStateAcknowledgementTime > K.MirrorStateAckRefresh)
+            MirrorStateAcknowledgementTime = now;
+        _lastSentMirrorStateTime = System.MathF.Max(now, System.MathF.BitIncrement(_lastSentMirrorStateTime));
+        return _lastSentMirrorStateTime;
+    }
 
     /// <summary>A state version of the controller's GotoState (states that ignore it implement it empty).</summary>
     public interface IGotoState
@@ -98,15 +111,12 @@ public partial class SPlayerController
             return;
         }
 
-        if (Level.TimeSeconds - MirrorStateAcknowledgementTime > K.MirrorStateAckRefresh)
-        {
-            MirrorStateAcknowledgementTime = Level.TimeSeconds;
-        }
+        float stateTime = NextMirrorStateTime();
 
         GameFlowServices.Host(this).ClientCall(this, new GameCall("PCChangeClientState")
         {
             Float1 = MirrorStateAcknowledgementTime,
-            Float2 = Level.TimeSeconds,
+            Float2 = stateTime,
             Name1 = nomdustate,
             Name2 = nomduLabel,
             Bool = bDontSaveCurrentState,

@@ -254,6 +254,29 @@ public class ReplicationInfoAndNetModeTests
     }
 
     [Fact]
+    public void Mirrored_states_remain_ordered_when_physics_runs_on_an_older_input_clock()
+    {
+        GameWorld w = new GameWorld().Load(Story, MatchLifecycleTests.TwoSides);
+        SPlayerController remote = w.Join("?Name=R?Team=0");
+        w.Run(2f);
+        remote.eventMirrorState("s_Dead");
+        GameCall first = Assert.Single(w.Host.To(remote, "PCChangeClientState"));
+        using (w.Level.CommandTime(15, 0.25f, Sim.DeltaTime))
+        {
+            remote.eventMirrorState("s_WaitRespawn");
+            Assert.Equal(0.25f, w.Level.TimeSeconds); // ordering must not alter the simulation's input clock
+        }
+        GameCall next = w.Host.To(remote, "PCChangeClientState")[1];
+        Assert.True(next.Float2 > first.Float2, $"state order went backwards: {first.Float2} -> {next.Float2}");
+        Assert.Equal(first.Float1, next.Float1);
+        var client = new GameWorld(ENetMode.NM_Client);
+        var owner = client.Level.Spawn<SPlayerController>()!;
+        owner.PCChangeClientState(first.Float1, first.Float2, first.Name1);
+        owner.PCChangeClientState(next.Float1, next.Float2, next.Name1);
+        Assert.True(owner.IsInState("s_WaitRespawn"));
+    }
+
+    [Fact]
     public void ChangeState_asks_the_server_only_from_a_client()
     {
         var client = new GameWorld(ENetMode.NM_Client);

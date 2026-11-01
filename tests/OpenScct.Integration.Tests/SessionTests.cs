@@ -19,6 +19,41 @@ public sealed class SessionTests
         public long NowMicroseconds => _watch.ElapsedTicks * 1_000_000 / Stopwatch.Frequency;
     }
 
+    [Theory]
+    [InlineData("SvmMoveCommands", "move-commands-9")]
+    [InlineData("SvmMoveCommands", "move-commands-10")]
+    [InlineData("SvmMoveCommands", "move-commands-11")]
+    [InlineData("SvmMoveCommands", "move-commands-12")]
+    [InlineData("SvmMoveCommands", "move-commands-13")]
+    [InlineData("SvmCombatCall", "combat2")]
+    [InlineData("SvmCombatCall", "combat3-authoritative-ammo")]
+    [InlineData("SvmCombatCall", "combat4-shot-clock")]
+    public void PreviousNetworkContractIsRejectedBeforeJoining(string functionName, string previousSignature)
+    {
+        var clock = new VirtualClock();
+        var network = new SimLinkNetwork(clock, 5, SimLinkProfile.A);
+        using var serverTransport = network.Bind("server");
+        using var server = new ServerHost(serverTransport, new ServerSettings { Classes = NetClasses.Create(), Maps = WalkerRig.Maps });
+        var oldClasses = NetClasses.Create();
+        RepExtension extension = oldClasses.Find(typeof(OpenScct.Game.SBase.SPlayerController))!.Extension!;
+        int command = extension.Functions.FindIndex(f => f.Name == functionName);
+        Assert.True(command >= 0);
+        extension.Functions[command] = extension.Functions[command] with { Signature = previousSignature, AcceptReordered = false };
+        using var clientTransport = network.Bind("client");
+        using var client = new ClientSession(clientTransport, "server", 0, new ClientSettings { Classes = oldClasses, Maps = WalkerRig.Maps });
+        Assert.NotEqual(server.Driver.ProtocolHash, client.Driver.ProtocolHash);
+        for (int frame = 1; frame <= 300 && client.State == EClientState.Connecting; frame++)
+        {
+            clock.AdvanceTo(VirtualClock.TickToMicroseconds(frame, Sim.Hz));
+            server.Tick(clock.NowMicroseconds);
+            client.Tick(clock.NowMicroseconds);
+        }
+        Assert.Equal(EClientState.Rejected, client.State);
+        Assert.Equal(ControlMessage.VersionMismatchText, client.RejectReason);
+        Assert.Equal("OpenScct.Net", client.RejectFile);
+        Assert.Empty(server.Players);
+    }
+
     [Fact]
     public void ContentMismatchIsRejectedWithTheOriginalWording()
     {

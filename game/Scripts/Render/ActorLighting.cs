@@ -26,6 +26,11 @@ public sealed class ActorLighting
 
     private readonly List<LightEntry> _lights = [];
     private readonly List<(float Score, LightEntry Light)> _ranked = [];
+    private readonly Dictionary<string, List<int>> _byName = new(StringComparer.OrdinalIgnoreCase);
+    private readonly LightInfluenceIndex? _index;
+    private readonly List<int> _candidates = [];
+    private readonly List<int> _moved = [];
+    private readonly bool[] _hasMoved;
 
     public ActorLighting(LightingDoc lighting)
     {
@@ -38,6 +43,12 @@ public sealed class ActorLighting
             // flag were left out until AquaE's kiosk (SGamePlayObject2126, beside STriggerLight303) drew black.
             if (ActorLightRules.LightsActors(l.ApplyInGame, l.Dynamic, l.LightType, l.Effect))
             {
+                if (!_byName.TryGetValue(l.Name, out List<int>? sameName))
+                {
+                    sameName = [];
+                    _byName.Add(l.Name, sameName);
+                }
+                sameName.Add(_lights.Count);
                 _lights.Add(l);
                 if (!l.InitiallyOn)
                 {
@@ -45,12 +56,30 @@ public sealed class ActorLighting
                 }
             }
         }
+
+        _hasMoved = new bool[_lights.Count];
+        // Small maps are cheaper to scan. The BVH is immutable; any light that moves joins the always-checked
+        // list, while its old index entry is harmless (duplicates are removed before scoring).
+        if (_lights.Count >= 32)
+        {
+            var influences = new LightInfluence[_lights.Count];
+            for (int i = 0; i < _lights.Count; i++)
+            {
+                LightEntry light = _lights[i];
+                influences[i] = new LightInfluence(light.Location, WorldRadius(light),
+                    light.Effect == RenderK.LE_Sunlight || light.Brightness <= 0f || !float.IsFinite(light.Brightness));
+            }
+            _index = new LightInfluenceIndex(influences);
+        }
     }
 
     private readonly HashSet<string> _off = new(StringComparer.OrdinalIgnoreCase);
     private readonly List<LightEntry> _spawned = [];
 
     public int LightCount => _lights.Count;
+
+    /// <summary>Map lights considered by the last selection, before switches, zones and exact scoring.</summary>
+    public int LastMapCandidates { get; private set; }
 
     /// <summary>Lights spawned during play that light actors now (see <see cref="SetSpawned"/>).</summary>
     public int SpawnedCount => _spawned.Count;
@@ -92,11 +121,18 @@ public sealed class ActorLighting
     /// <summary>Moves a light (one riding a mover or a bone); takes effect at the next <see cref="Select"/>.</summary>
     public void SetPlace(string name, FVector location, FRotator rotation)
     {
-        for (int i = 0; i < _lights.Count; i++)
+        if (!_byName.TryGetValue(name, out List<int>? indices)) return;
+        foreach (int i in indices)
         {
-            if (string.Equals(_lights[i].Name, name, StringComparison.OrdinalIgnoreCase))
+            LightEntry light = _lights[i];
+            if (light.Location != location || light.Rotation != rotation)
             {
-                _lights[i] = _lights[i] with { Location = location, Rotation = rotation };
+                _lights[i] = light with { Location = location, Rotation = rotation };
+                if (!_hasMoved[i])
+                {
+                    _hasMoved[i] = true;
+                    _moved.Add(i);
+                }
             }
         }
     }
@@ -109,14 +145,29 @@ public sealed class ActorLighting
     public ActorLightSet Select(FVector center, float radius, Vector3 ambient, int zone = -1)
     {
         _ranked.Clear();
-        foreach (LightEntry l in _lights)
+        LastMapCandidates = 0;
+        if (_index is not null && _moved.Count < _lights.Count / 2)
         {
-            if (_off.Count > 0 && _off.Contains(l.Name))
+            _index.Query(center, radius, _candidates);
+            _candidates.AddRange(_moved);
+            // Preserve exactly the full scan's insertion order before the original List.Sort, including its
+            // existing tie behavior. No new tie breaker or approximate top-four selection is introduced.
+            _candidates.Sort();
+            int previous = -1;
+            foreach (int i in _candidates)
             {
-                continue;
+                if (i == previous) continue;
+                previous = i;
+                LastMapCandidates++;
+                LightEntry l = _lights[i];
+                if (_off.Count == 0 || !_off.Contains(l.Name)) Rank(l, center, radius, zone);
             }
-
-            Rank(l, center, radius, zone);
+        }
+        else
+        {
+            LastMapCandidates = _lights.Count;
+            foreach (LightEntry l in _lights)
+                if (_off.Count == 0 || !_off.Contains(l.Name)) Rank(l, center, radius, zone);
         }
 
         foreach (LightEntry l in _spawned)
@@ -124,7 +175,7 @@ public sealed class ActorLighting
             Rank(l, center, radius, zone);
         }
 
-        // Suns always first, then by score; ties keep the map order.
+        // Suns always first, then by score, retaining the original sort and input order for equal scores.
         _ranked.Sort((a, b) =>
         {
             bool sa = a.Light.Effect == RenderK.LE_Sunlight;

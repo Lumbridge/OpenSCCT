@@ -97,7 +97,8 @@ catalog/entry.json     { "code": "AquaE", "name": "Enhanced Aquarius", "images":
 catalog/images/*.png
 ```
 
-`MapCatalogData` reads these from every map folder and uses them for codes the shared catalog lacks.
+`MapCatalogData` reads these from every map folder to fill missing names and individual images. Existing shared
+image files take precedence; a missing image kind or a reference to a missing file falls back to the map's entry.
 
 ## Where packs install
 

@@ -81,7 +81,7 @@ public sealed class KeyBindingsModel
         var choices = new List<(string Action, string Label)>
         {
             ("", "(nothing)"),
-            (OpenScctGame.Options.PadSettings.MenuAction, "Menu"),
+            (ControlActions.PadPrefix + "menu", "Menu"),
         };
         // The sensitivity clutches are held by the controller itself (rl:input.clutch); the second is the merc's.
         choices.Add((OpenScctGame.Options.PadSettings.ClutchOneAction, "Hold to modify sensitivity"));
@@ -89,14 +89,24 @@ public sealed class KeyBindingsModel
         {
             choices.Add((OpenScctGame.Options.PadSettings.ClutchTwoAction, "Second held sensitivity modifier"));
         }
+        if (role == PlaySide.Spy || otherTeam)
+        {
+            choices.Add((OpenScctGame.Options.PadSettings.WallLaserAction, "Back to wall / weapon laser"));
+            choices.Add((OpenScctGame.Options.PadSettings.SpyFireAction, "Fire / tap to quick-use slot 1"));
+            choices.Add((OpenScctGame.Options.PadSettings.SpyGadgetAction, "Use gadget / tap slot 2 / hold cloak"));
+            choices.Add((OpenScctGame.Options.PadSettings.LongRollAction, "Long roll / camera back"));
+        }
+        if (role == PlaySide.Merc || otherTeam)
+            choices.Add((OpenScctGame.Options.PadSettings.MercGadgetAction, "Use gadget / scoped hold breath"));
+        choices.Add((OpenScctGame.Options.PadSettings.CrouchAction, "Crouch / leave camera"));
 
         var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
-            "", OpenScctGame.Options.PadSettings.MenuAction, OpenScctGame.Options.PadSettings.ClutchOneAction,
-            OpenScctGame.Options.PadSettings.ClutchTwoAction,
+            "", ControlActions.PadPrefix + "menu", OpenScctGame.Options.PadSettings.ClutchOneAction,
+            OpenScctGame.Options.PadSettings.ClutchTwoAction, OpenScctGame.Options.PadSettings.WallLaserAction,
         };
         foreach (ControlAction action in otherTeam ? ControlActions.All : ControlActions.ForRole(role == PlaySide.Merc, wheelMode))
-            if (ControlActions.Direct(action)) choices.Add((ControlActions.PadPrefix + action.Id, action.Label));
+            if (ControlActions.Direct(action) && seen.Add(ControlActions.PadPrefix + action.Id)) choices.Add((ControlActions.PadPrefix + action.Id, action.Label));
 
         // Keep legacy choices and their behavior. They activate a whole keyboard binding, not an independent action.
         foreach (KeyBindingRow row in otherTeam ? Rows().OrderBy(r => r.Key, StringComparer.OrdinalIgnoreCase) : Enumerable.Empty<KeyBindingRow>())

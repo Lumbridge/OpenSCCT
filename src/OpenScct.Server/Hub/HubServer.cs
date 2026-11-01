@@ -519,6 +519,7 @@ public sealed partial class HubServer : IDisposable
 
     private void FinishSpawn(HubPlayer player, PlayerController pc)
     {
+        if (player.Spawns == 0 && pc.PlayerReplicationInfo?.bWaitingPlayer != true) return;
         player.Releasing = null;
         (FVector Feet, FRotator View)? place = player.KeepPlace;
         player.KeepPlace = null;
@@ -648,10 +649,8 @@ public sealed partial class HubServer : IDisposable
         Log(player.Verified
             ? $"{slot.Name} is signed in (account {player.AccountId}{(player.IsAdmin ? ", master admin" : string.Empty)})"
             : $"{slot.Name} is a guest");
-        if (slot.Controller is { } pc && Game.Spawn(pc))
-        {
-            player.Spawns++;
-        }
+        // Watch gives this visitor a pawn after their own scene-ready acknowledgement. The hub keeps running
+        // for everyone already playing; joining clients must not simulate a pawn during their loading stall.
 
         if (_returning.Remove(slot.Connection, out string? padId) && Pads?.Find(padId) is { } pad)
         {
@@ -808,6 +807,12 @@ public sealed partial class HubServer : IDisposable
         {
             if (p.Slot.Controller is not { bDeleteMe: false } pc)
             {
+                continue;
+            }
+
+            if (p.Spawns == 0)
+            {
+                if (pc.PlayerReplicationInfo?.bWaitingPlayer == true) _spawn.Add(p);
                 continue;
             }
 

@@ -266,8 +266,10 @@ public partial class OptionsMenu
         var basic = Grid("PadAim");
         if (!merc) Slider(basic, "Free look sensitivity (weapon holstered)", prefix + ".free_look", 0.05f, 10f, SensStep, Look().FreeLook, v => Look().FreeLook = v, SensFormat, typed: true);
         Slider(basic, merc ? "Look sensitivity" : "Gun look sensitivity", prefix + ".look", 0.05f, 10f, SensStep, Look().Look, v => Look().Look = v, SensFormat, typed: true);
-        Choice(basic, "Stick response", prefix + ".look_response", GameSettings.Responses, Look().LookResponse, v => Look().LookResponse = v,
+        Choice(basic, merc ? "Stick response" : "Free look response", prefix + ".look_response", GameSettings.Responses, Look().LookResponse, v => Look().LookResponse = v,
             v => v.Replace("Curve", ""));
+        if (!merc) Choice(basic, "Gun look response", prefix + ".gun_look_response", GameSettings.Responses, Look().GunLookResponse,
+            v => Look().GunLookResponse = v, v => v.Replace("Curve", ""));
         content.AddChild(basic);
         content.AddChild(Help("Linear turns proportionally to stick input. Soft, Medium and Aggressive boost the outer 25% of each stick axis, reaching 2×, 2.5× and 3× at full input. These are controller response curves, not mouse acceleration."));
         var advanced = new VBoxContainer { Visible = false, SizeFlagsHorizontal = SizeFlags.ExpandFill };
@@ -279,6 +281,7 @@ public partial class OptionsMenu
         advanced.AddChild(details);
         advanced.AddChild(Help("Assign Hold to modify sensitivity to a controller button below. The multiplier scales stick input before the response curve, so its final effect depends on the curve. Both Mercenary modifiers multiply together. Vertical changes up/down speed; scope and camera values apply in their corresponding views."));
         AddAdvanced(content, advanced);
+        content.AddChild(Help("For combinations, hold the first control while pressing the second. Hold B uses its separate held assignment. Left stick click selects gadgets with the face buttons."));
         var buttons = Grid("PadButtons");
         RebuildPadButtons(side, buttons);
         _rolePadGrids[side] = buttons;
@@ -305,8 +308,9 @@ public partial class OptionsMenu
         bool merc = side == PlaySide.Merc;
         if (pad)
         {
-            if (merc) { _edit.MercPad = defaults.MercPad; _edit.Pad.MercButtons = defaults.Pad.MercButtons; _edit.Pad.MercMove8 = defaults.Pad.MercMove8; }
-            else { _edit.SpyPad = defaults.SpyPad; _edit.Pad.SpyButtons = defaults.Pad.SpyButtons; _edit.Pad.SpyMove8 = defaults.Pad.SpyMove8; _edit.Pad.RunThreshold = defaults.Pad.RunThreshold; }
+            _edit.Pad.ResetButtons(merc);
+            if (merc) { _edit.MercPad = defaults.MercPad; _edit.Pad.MercMove8 = defaults.Pad.MercMove8; }
+            else { _edit.SpyPad = defaults.SpyPad; _edit.Pad.SpyMove8 = defaults.Pad.SpyMove8; _edit.Pad.RunThreshold = defaults.Pad.RunThreshold; }
         }
         else if (merc) { _edit.MercKbm = defaults.MercKbm; _edit.MercFovCap = defaults.MercFovCap; _edit.FpsMerc = defaults.FpsMerc; }
         else { _edit.SpyKbm = defaults.SpyKbm; _edit.InvertXSpy = defaults.InvertXSpy; _edit.ShockerSnap = defaults.ShockerSnap; _edit.FpsSpy = defaults.FpsSpy; }

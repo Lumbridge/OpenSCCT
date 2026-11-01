@@ -46,17 +46,108 @@ public sealed class GameSettingsTests : IDisposable
         Assert.Equal(1f, s.SpyKbm.Look);
         Assert.Equal(1f, s.MercKbm.Look);
         Assert.Equal(2.45f, s.MercKbm.ScopeVertical);
-        Assert.True(s.Pad.Enabled);
+        Assert.False(s.Pad.Enabled);
         Assert.Equal(0.25f, s.Pad.DeadzoneLeft);
         Assert.Equal(0.15f, s.Pad.DeadzoneRight);
         Assert.Equal(0.75f, s.Pad.VerticalScale);
         Assert.Equal(0.95f, s.Pad.RunThreshold);
         Assert.Equal("CurveAggressive", s.SpyPad.LookResponse);
+        Assert.Equal("CurveSoft", s.SpyPad.GunLookResponse);
         Assert.Equal("CurveMedium", s.MercPad.LookResponse);
         Assert.Equal(0.5f, s.SoundVolume);
         Assert.Equal(1f, s.VoiceVolume);
         Assert.True(s.ShowScoreboard);
         Assert.False(s.ShowPing);
+    }
+
+    [Fact]
+    public void MissingFileGetsReloadedControllerLayoutAndIndependentSpyCurves()
+    {
+        GameSettings s = GameSettings.Load(Path.Combine(_dir, "first-run.json"));
+        Assert.False(s.Pad.Enabled);
+        Assert.Equal(1, s.Pad.LayoutVersionOf(false));
+        Assert.Equal(1, s.Pad.LayoutVersionOf(true));
+        Assert.Equal(7680f / 32767f, s.Pad.TriggerThreshold);
+        Assert.Equal("Action:use", s.Pad.SpyButtons["A"]);
+        Assert.Equal("Action:jump", s.Pad.SpyButtons["Y"]);
+        Assert.Equal("Action:vision2", s.Pad.MercButtons["DpadRight"]);
+        Assert.Equal("Action:slot4", s.Pad.MercButtons["LS+A"]);
+        Assert.Equal("Action:launch1", s.Pad.SpyButtons["LB+Y"]);
+        Assert.Equal("Action:rof", s.Pad.MercButtons["LB+DpadDown"]);
+        Assert.Equal("CurveSoft", s.Clone().SpyPad.GunLookResponse);
+    }
+
+    [Fact]
+    public void UnversionedPartialProfileKeepsOldDefaultsWithoutNewCombinations()
+    {
+        GameSettings s = GameSettings.FromJson("""
+            { "controller": { "spy_buttons": { "A": "Key:O", "RB": "" }, "merc_buttons": { "LB": "" } },
+              "controls_spy_pad": { "look_response": "CurveMedium" } }
+            """);
+        Assert.True(s.Pad.Enabled);
+        Assert.Equal(0, s.Pad.LayoutVersionOf(false));
+        Assert.Equal(0.5f, s.Pad.TriggerThreshold);
+        Assert.Equal("Key:O", s.Pad.SpyButtons["A"]);
+        Assert.Equal("", s.Pad.SpyButtons["RB"]);
+        Assert.Equal("SwitchHeadset", s.Pad.SpyButtons["Y"]);
+        Assert.Equal("", s.Pad.MercButtons["LB"]);
+        Assert.Equal("Jump", s.Pad.MercButtons["A"]);
+        Assert.Equal("CurveMedium", s.SpyPad.GunLookResponse);
+        Assert.DoesNotContain("LS+A", s.Pad.SpyButtons.Keys);
+        Assert.DoesNotContain("LB+Y", s.Pad.MercButtons.Keys);
+        GameSettings roundTrip = s.Clone();
+        Assert.Equal(s.Pad.SpyButtons, roundTrip.Pad.SpyButtons);
+        Assert.Equal(s.Pad.MercButtons, roundTrip.Pad.MercButtons);
+        Assert.Equal("CurveMedium", roundTrip.SpyPad.GunLookResponse);
+    }
+
+    [Fact]
+    public void ExistingProfileWithoutControllerGroupKeepsItsPriorControllerBehavior()
+    {
+        GameSettings s = GameSettings.FromJson("{}");
+        Assert.True(s.Pad.Enabled);
+        Assert.Equal(0, s.Pad.LayoutVersion);
+        Assert.Equal(0.5f, s.Pad.TriggerThreshold);
+        Assert.Equal("Jump", s.Pad.SpyButtons["A"]);
+        Assert.Equal("Action:swapweapon", s.Pad.MercButtons["LB"]);
+        Assert.Equal("CurveAggressive", s.SpyPad.GunLookResponse);
+        Assert.DoesNotContain("B:Hold", s.Pad.SpyButtons.Keys);
+    }
+
+    [Fact]
+    public void ResettingOneControllerRolePreservesTheOtherRoleAndSavedGlobalSettings()
+    {
+        GameSettings s = GameSettings.FromJson("""
+            { "controller": { "enabled": false, "trigger_threshold": 0.4,
+                "merc_buttons": { "A": "Action:reload", "RT": "", "LS+A": "" } } }
+            """);
+        s.Pad.ResetButtons(merc: false);
+        GameSettings back = s.Clone();
+        Assert.Equal(1, back.Pad.LayoutVersionOf(false));
+        Assert.Equal(0, back.Pad.LayoutVersionOf(true));
+        Assert.Equal("Action:use", back.Pad.SpyButtons["A"]);
+        Assert.Equal("Action:slot4", back.Pad.SpyButtons["LS+A"]);
+        Assert.Equal("Action:reload", back.Pad.MercButtons["A"]);
+        Assert.Equal("", back.Pad.MercButtons["RT"]);
+        Assert.Equal("", back.Pad.MercButtons["LS+A"]);
+        Assert.DoesNotContain("LB+Back", back.Pad.MercButtons.Keys);
+        Assert.False(back.Pad.Enabled);
+        Assert.Equal(0.4f, back.Pad.TriggerThreshold);
+    }
+
+    [Fact]
+    public void VersionedPartialLayoutFillsOnlyItsOwnDefaultsAndKeepsExplicitUnbinds()
+    {
+        GameSettings s = GameSettings.FromJson("""
+            { "controller": { "layout_version": 1, "spy_buttons": { "A": "", "LS+A": "" } } }
+            """);
+        Assert.False(s.Pad.Enabled);
+        Assert.Equal("", s.Pad.SpyButtons["A"]);
+        Assert.Equal("", s.Pad.SpyButtons["LS+A"]);
+        Assert.Equal("Action:jump", s.Pad.SpyButtons["Y"]);
+        Assert.Equal("Action:launch4", s.Pad.SpyButtons["LB+A"]);
+        Assert.Equal("CurveSoft", s.SpyPad.GunLookResponse);
+        Assert.Equal(7680f / 32767f, s.Pad.TriggerThreshold);
     }
 
     [Fact]

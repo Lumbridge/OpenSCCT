@@ -497,6 +497,14 @@ public sealed partial class SBasePawnMoves
         }
         finally { _pc.XLevel.World.IsReplaying = _wasReplaying; }
         if (pawn is null) return;
+        // A correction can land the collision body before our predicted falling physics reaches the floor.
+        // Restoring PHYS_Walking bypasses processLanded, while replay restores the old airborne controller.
+        // Complete that transition once at the resulting present state, outside replay, so the normal landing
+        // animation and reliable owner-to-server state change run (including when no pending input remains).
+        // No part of the current physics step has run here. Leave its full delta remaining: the landing
+        // callback splits movement at this boundary and must not charge another full step to the input tick.
+        if (!_wasReplaying && pawn.Physics == EPhysics.PHYS_Walking && _pc.StateNode is SPlayerController.s_PlayerJump)
+            _pc.eventMyNotifyLanded(pawn.Floor.Z > 0.7f ? pawn.Floor : new FVector(0, 0, 1), _pc.XLevel.DeltaTime, pawn.Base);
         // Replay preserves the live touch set. Reconcile it once at the resulting present position, so crossing
         // a trigger in historical inputs cannot duplicate an interaction or remove a current menu entry.
         if (!_wasReplaying) MovementNatives.Driver(pawn)?.EncroachTouches(pawn);

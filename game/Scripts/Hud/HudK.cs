@@ -268,19 +268,15 @@ public static class HudK
 
     public static readonly OpenScct.Core.Name NAME_s_Spectating_Visitor = new("s_Spectating_Visitor");
 
-    private static readonly OpenScct.Core.Name NAME_s_MultiSpectating = new("s_MultiSpectating");
-    private static readonly OpenScct.Core.Name NAME_BaseSpectating = new("BaseSpectating");
-    private static readonly OpenScct.Core.Name NAME_GameEnded = new("GameEnded");
-
     /// <summary>
-    /// PlayerController.IsSpectating as the page manager calls it: true in s_MultiSpectating and its children, in
-    /// BaseSpectating and its children, and in GameEnded.
+    /// PlayerController.IsSpectating as the page manager calls it. The killed/visitor states copy the spectator
+    /// implementation but do not have a metadata Super link; the controller query handles those states too.
     /// </summary>
     [Provenance(ProvenanceKind.Decoded, "IsSpectating overrides: s_MultiSpectating, BaseSpectating, GameEnded return true (uc-index sha a40381cc...)")]
     public static bool IsSpectating(SPlayerController pc)
     {
         ArgumentNullException.ThrowIfNull(pc);
-        return pc.IsInState(NAME_s_MultiSpectating) || pc.IsInState(NAME_BaseSpectating) || pc.IsInState(NAME_GameEnded);
+        return pc.IsSpectating();
     }
 
     /// <summary>Radar position of a world point relative to the player (forward is up, right is right).</summary>

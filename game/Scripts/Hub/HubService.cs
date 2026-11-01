@@ -315,7 +315,7 @@ public partial class HubService : Node
     /// Opens a hub on this PC (UDP <paramref name="port"/>, every interface, so LAN and direct-IP players can join) and
     /// joins it. False with <see cref="LastError"/> set when it could not (the port is in use, the hub map is missing).
     /// </summary>
-    public bool HostAndJoin(int port, string name, int team)
+    public bool HostAndJoin(int port, string name, int team, bool loopbackOnly = false)
     {
         Leave(showMenu: false);
         LastError = null;
@@ -324,7 +324,7 @@ public partial class HubService : Node
         {
             // Listed in the master's hub list unless the player turned that off (others then join by address).
             OnlineSettings s = OnlineSettings.Current;
-            MasterLinkSettings? master = s.HubListed && s.MasterUrl.Length > 0
+            MasterLinkSettings? master = !loopbackOnly && s.HubListed && s.MasterUrl.Length > 0
                 ? new MasterLinkSettings { Url = s.MasterUrl, InviteKey = s.InviteKey.Length > 0 ? s.InviteKey : null }
                 : null;
             // The host's own player has no ticket for his hub: his looks and rank go by his account, as a listen host's.
@@ -333,7 +333,7 @@ public partial class HubService : Node
                 ? OnlineService.HostAccountOf(account.AccountId, claimed, AccountService.Get(GetTree()).Account)
                 : null;
             Host = HubHost.Start(port, string.IsNullOrWhiteSpace(name) ? "OpenSCCT Hub" : name.Trim() + "'s hub",
-                new MapCatalog([.. Catalog.Maps.Roots]), Classes, master, hostAccount);
+                new MapCatalog([.. Catalog.Maps.Roots]), Classes, master, hostAccount, loopbackOnly);
         }
         catch (InvalidOperationException e)
         {
@@ -361,6 +361,7 @@ public partial class HubService : Node
             Maps = Catalog.Maps,
             Classes = Classes,
             InstallGameplayServices = false,
+            AutoReportReady = false,
             ReturnPad = returnPad,
             // The ticket is for the listed hub only (a hosted or typed-in hub gets none).
             Ticket = _masterId is not null ? _ticket : null,

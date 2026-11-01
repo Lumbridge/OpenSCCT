@@ -248,7 +248,7 @@ public sealed partial class EnglishTextTests
     /// <summary>The stock layouts of the reference install when present, and the layout the input falls back to.</summary>
     private static IEnumerable<(string Source, KeyLayout Layout)> Layouts()
     {
-        // The input layer's own source holds the reference install's path and the fallback layout.
+        // The input layer's own source holds the reference install's path.
         string source = File.ReadAllText(Path.Combine(RepoRoot(), "game", "Scripts", "Input", "InputBindings.cs"));
         string root = Environment.GetEnvironmentVariable("SVM_GAME") is { Length: > 0 } env
             ? env
@@ -264,9 +264,7 @@ public sealed partial class EnglishTextTests
             }
         }
 
-        Match fallback = Regex.Match(source, "FallbackLayout = \"\"\"(.*?)\"\"\"", RegexOptions.Singleline);
-        Assert.True(fallback.Success, "no FallbackLayout in InputBindings.cs");
-        yield return ("fallback", KeyLayout.Parse(fallback.Groups[1].Value));
+        yield return ("fallback", DefaultKeyLayout.Create());
     }
 
     private static BindingLabels.Lookup Gui()

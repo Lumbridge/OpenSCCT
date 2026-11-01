@@ -210,7 +210,7 @@ public sealed class ParticleSystemView
 
     private static void Clear(Layer layer)
     {
-        if (layer.Quads is not null)
+        if (layer.Quads is not null || layer.Lines is not null)
         {
             // The surface is kept for the next quads; hidden, it draws nothing.
             layer.Show(false);
@@ -228,7 +228,8 @@ public sealed class ParticleSystemView
 
     private static int DrawQuads(Layer layer, List<SpriteQuad> quads, ReadOnlySpan<Plane> frustum)
     {
-        if (quads.Count > 0 && !frustum.IsEmpty && !ViewFrustum.Intersects(QuadBuffer.Bounds(quads), frustum))
+        Aabb bounds = QuadBuffer.Bounds(quads);
+        if (quads.Count > 0 && !frustum.IsEmpty && !ViewFrustum.Intersects(bounds, frustum))
         {
             // Simulation keeps advancing; only building and uploading invisible geometry is skipped. Re-entering
             // the view draws the current particles at once, including beams spanning several rooms.
@@ -236,10 +237,10 @@ public sealed class ParticleSystemView
             return 0;
         }
 
-        return FillQuads(layer, quads);
+        return FillQuads(layer, quads, bounds);
     }
 
-    private static int FillQuads(Layer layer, List<SpriteQuad> quads)
+    private static int FillQuads(Layer layer, List<SpriteQuad> quads, Aabb bounds)
     {
         int n = quads.Count;
         if (n == 0)
@@ -248,20 +249,20 @@ public sealed class ParticleSystemView
             return 0;
         }
 
-        if (layer.Quads is { } buffer && buffer.Fill(quads))
+        if (layer.Quads is { } buffer && buffer.Fill(quads, bounds))
         {
             layer.Show(true);
             return n;
         }
 
-        return FillQuadsRebuild(layer, quads);
+        return FillQuadsRebuild(layer, quads, bounds);
     }
 
     /// <summary>
     /// Rebuilds the layer's surface from arrays: when the quads outgrow the surface, and as the fallback when the
     /// surface's layout is not the one <see cref="QuadBuffer"/> writes.
     /// </summary>
-    private static int FillQuadsRebuild(Layer layer, List<SpriteQuad> quads)
+    private static int FillQuadsRebuild(Layer layer, List<SpriteQuad> quads, Aabb bounds)
     {
         ArrayMesh mesh = layer.Mesh!;
         mesh.ClearSurfaces();
@@ -324,7 +325,7 @@ public sealed class ParticleSystemView
         mesh.AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, arrays, flags: Mesh.ArrayFormat.FlagUseDynamicUpdate);
         arrays.Dispose();
         layer.Quads = QuadBuffer.For(mesh, capacity, n);
-        layer.Quads?.SetBounds(quads);
+        if (layer.Quads is not null) mesh.CustomAabb = bounds;
         layer.Show(true);
         return n;
     }
@@ -332,13 +333,22 @@ public sealed class ParticleSystemView
     private static int FillLines(Layer layer, List<SparkSegment> segments)
     {
         ArrayMesh mesh = layer.Mesh!;
-        mesh.ClearSurfaces();
         int n = segments.Count;
         if (n == 0)
         {
+            Clear(layer);
             return 0;
         }
 
+        if (layer.Lines is { } buffer && buffer.Fill(segments))
+        {
+            layer.Show(true);
+            return n;
+        }
+
+        // Lines keep the exact primitive count. Padding with coincident endpoints can still rasterize a pixel
+        // (and write depth), so unlike the quad path the surface is rebuilt when the segment count changes.
+        mesh.ClearSurfaces();
         var v = new Vector3[n * 2];
         var uv = new Vector2[n * 2];
         var c = new Color[n * 2];
@@ -354,13 +364,17 @@ public sealed class ParticleSystemView
             c[(i * 2) + 1] = colour;
         }
 
-        var arrays = new Godot.Collections.Array();
+        using var arrays = new Godot.Collections.Array();
         arrays.Resize((int)Mesh.ArrayType.Max);
         arrays[(int)Mesh.ArrayType.Vertex] = v;
         arrays[(int)Mesh.ArrayType.TexUV] = uv;
         arrays[(int)Mesh.ArrayType.TexUV2] = uv;
         arrays[(int)Mesh.ArrayType.Color] = c;
-        mesh.AddSurfaceFromArrays(Mesh.PrimitiveType.Lines, arrays);
+        mesh.AddSurfaceFromArrays(Mesh.PrimitiveType.Lines, arrays, flags: Mesh.ArrayFormat.FlagUseDynamicUpdate);
+        layer.Lines = LineBuffer.For(mesh, n);
+        // A preceding retained surface may have supplied a custom box; the new surface owns its initial bounds.
+        mesh.CustomAabb = default;
+        layer.Show(true);
         return n;
     }
 
@@ -456,6 +470,9 @@ public sealed class ParticleSystemView
 
         /// <summary>The quad surface written in place each frame, once it is built (sprites and beams).</summary>
         public QuadBuffer? Quads { get; set; }
+
+        /// <summary>The exact-size spark line surface, retained while the segment count is unchanged.</summary>
+        public LineBuffer? Lines { get; set; }
 
         private bool _shown = true;
 

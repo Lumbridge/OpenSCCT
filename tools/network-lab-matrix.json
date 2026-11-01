@@ -1,0 +1,260 @@
+{
+  "cases": [
+    {
+      "name": "aquarius-neck-break",
+      "description": "Remote spy completes a neck break through bound input; merc dies once, detaches and respawns.",
+      "parameters": {
+        "Map": "AquaE",
+        "Scenario": "grab",
+        "GrabOutcome": "neck-break",
+        "Lives": 2,
+        "ReverseRoles": true,
+        "Observer": true,
+        "ObserverTeam": 1,
+        "Dedicated": true,
+        "NetworkProfile": "asymmetric",
+        "Seed": 911,
+        "HostFps": 30,
+        "GuestFps": 144
+      }
+    },
+    {
+      "name": "aquarius-seaside-ledge",
+      "description": "Remote spy jumps off the Seaside ledge and returns to walking on the lower courtyard.",
+      "parameters": {
+        "Map": "AquaE",
+        "Scenario": "ledge",
+        "ReverseRoles": true,
+        "Dedicated": true,
+        "NetworkProfile": "rough",
+        "Seed": 912,
+        "HostFps": 144,
+        "GuestFps": 30
+      }
+    },
+    {
+      "name": "hub-rejoin",
+      "description": "Hub visitor leaves and rejoins through an asymmetric impaired link with fresh possession.",
+      "parameters": {
+        "Hub": true,
+        "Scenario": "rejoin",
+        "NetworkProfile": "asymmetric",
+        "Seed": 913,
+        "HostFps": 30,
+        "GuestFps": 144
+      }
+    },
+    {
+      "name": "aquarius-automatic-fire",
+      "description": "Remote rifle burst against a crouched target and reload agree with authority on ammunition.",
+      "parameters": {
+        "Map": "AquaE",
+        "Scenario": "fire",
+        "FireSeconds": 0.4,
+        "TargetStance": "crouched",
+        "Dedicated": true,
+        "NetworkProfile": "rough",
+        "Seed": 914,
+        "HostFps": 144,
+        "GuestFps": 30
+      }
+    },
+    {
+      "name": "aquarius-grenade",
+      "description": "Remote frag grenade has one projectile lifetime per world, consumes one charge and cleans up.",
+      "parameters": {
+        "Map": "AquaE",
+        "Scenario": "gadget",
+        "Dedicated": true,
+        "NetworkProfile": "rough",
+        "Seed": 915,
+        "HostFps": 144,
+        "GuestFps": 30
+      }
+    },
+    {
+      "name": "aquarius-grenade-lost-opening",
+      "description": "Server-to-client blackout covers the grenade opening; recovery still shows one projectile and consumes one charge.",
+      "parameters": {
+        "Map": "AquaE",
+        "Scenario": "gadget",
+        "Dedicated": true,
+        "NetworkProfile": "rough",
+        "Seed": 915,
+        "HostFps": 144,
+        "GuestFps": 30,
+        "GadgetDownBlackoutMs": 1000
+      }
+    },
+    {
+      "name": "aquarius-grenade-expired-opening",
+      "description": "Blackout covers the entire grenade fuse; delayed opening and close cannot leave a ghost projectile.",
+      "parameters": {
+        "Map": "AquaE",
+        "Scenario": "gadget",
+        "Dedicated": true,
+        "NetworkProfile": "rough",
+        "Seed": 915,
+        "HostFps": 144,
+        "GuestFps": 30,
+        "GadgetDownBlackoutMs": 3500
+      }
+    },
+    {
+      "name": "aquarius-stale-combat",
+      "description": "An eleven-second old-life damage request cannot hurt the respawned spy; fresh damage still works.",
+      "parameters": {
+        "Map": "AquaE",
+        "Scenario": "stale-combat",
+        "Lives": 3,
+        "RespawnSeconds": 1,
+        "ReverseRoles": true,
+        "Dedicated": true,
+        "NetworkProfile": "lan",
+        "Seed": 916,
+        "HostFps": 144,
+        "GuestFps": 30
+      }
+    },
+    {
+      "name": "aquarius-strict-stance",
+      "description": "Strict rendered stance/floor acceptance; existing toe penetration is an unresolved failure, never an expected pass.",
+      "parameters": {
+        "Map": "AquaE",
+        "Scenario": "stance",
+        "ReverseRoles": true,
+        "NetworkProfile": "typical",
+        "Seed": 917,
+        "HostFps": 144,
+        "GuestFps": 30
+      }
+    },
+    {
+      "name": "aquarius-two-versus-two",
+      "description": "Four active players, two on each team, with a bandwidth-limited 15 FPS remote spy and periodic outages.",
+      "parameters": {
+        "Map": "AquaE",
+        "Scenario": "soak",
+        "SoakSeconds": 180,
+        "ReverseRoles": true,
+        "SecondObserver": true,
+        "ObserverTeam": 0,
+        "SecondObserverTeam": 1,
+        "NetworkProfile": "limited",
+        "Seed": 420,
+        "HostFps": 144,
+        "GuestFps": 15
+      }
+    },
+    {
+      "name": "steel-movement",
+      "description": "Steel Squat, remote spy at 30 FPS, three minutes of impaired movement and outages.",
+      "parameters": {
+        "Map": "SteeE",
+        "Scenario": "soak",
+        "SoakSeconds": 180,
+        "ReverseRoles": true,
+        "NetworkProfile": "rough",
+        "Seed": 901,
+        "HostFps": 144,
+        "GuestFps": 30
+      }
+    },
+    {
+      "name": "club-movement",
+      "description": "Club House, dedicated server, remote merc at 15 FPS, three minutes of bandwidth-limited movement.",
+      "parameters": {
+        "Map": "ClubE",
+        "Scenario": "soak",
+        "SoakSeconds": 180,
+        "Dedicated": true,
+        "NetworkProfile": "limited",
+        "Seed": 902,
+        "HostFps": 144,
+        "GuestFps": 15
+      }
+    },
+    {
+      "name": "steel-airborne-spy-death",
+      "description": "Steel Squat remote spy dies during a jump, completes its corpse animation and respawns with no living teammate.",
+      "parameters": {
+        "Map": "SteeE",
+        "Scenario": "death",
+        "Lives": 2,
+        "VictimRole": "guest",
+        "ReverseRoles": true,
+        "AirborneDeath": true,
+        "Observer": true,
+        "ObserverTeam": 1,
+        "NetworkProfile": "asymmetric",
+        "Seed": 903,
+        "HostFps": 30,
+        "GuestFps": 144
+      }
+    },
+    {
+      "name": "club-airborne-merc-death",
+      "description": "Club House remote merc dies during a jump on a dedicated server and respawns, with an independent spy observer.",
+      "parameters": {
+        "Map": "ClubE",
+        "Scenario": "death",
+        "Lives": 2,
+        "VictimRole": "guest",
+        "AirborneDeath": true,
+        "Observer": true,
+        "ObserverTeam": 0,
+        "Dedicated": true,
+        "NetworkProfile": "rough",
+        "Seed": 904,
+        "HostFps": 144,
+        "GuestFps": 30
+      }
+    },
+    {
+      "name": "aquarius-delayed-rematch",
+      "description": "Dedicated Aquarius gates a twenty-second scene load on both rounds and resets lives and possession.",
+      "parameters": {
+        "Map": "AquaE",
+        "Scenario": "roundtrip",
+        "Lives": 1,
+        "Dedicated": true,
+        "LoadDelayMs": 20000,
+        "NetworkProfile": "rough",
+        "Seed": 906,
+        "HostFps": 144,
+        "GuestFps": 30
+      }
+    },
+    {
+      "name": "aquarius-load-timeout",
+      "description": "A seventy-five-second loader is removed; the ready host proceeds and late readiness cannot restore a ghost player.",
+      "parameters": {
+        "Map": "AquaE",
+        "Scenario": "load-timeout",
+        "LoadDelayMs": 75000,
+        "NetworkProfile": "typical",
+        "Seed": 908,
+        "HostFps": 30,
+        "GuestFps": 144
+      }
+    },
+    {
+      "name": "aquarius-spy-spectator-disconnect",
+      "description": "Four clients: eliminated spy watches two, then one teammate; the final teammate disconnect produces defeat.",
+      "parameters": {
+        "Map": "AquaE",
+        "Scenario": "spectator",
+        "Lives": 1,
+        "VictimRole": "guest",
+        "ReverseRoles": true,
+        "SecondObserver": true,
+        "ObserverTeam": 0,
+        "SpectatorDisconnect": "last",
+        "NetworkProfile": "asymmetric",
+        "Seed": 907,
+        "HostFps": 30,
+        "GuestFps": 144
+      }
+    }
+  ]
+}

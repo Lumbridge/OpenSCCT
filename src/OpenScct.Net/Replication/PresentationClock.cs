@@ -7,6 +7,7 @@ namespace OpenScct.Net;
 public sealed class PresentationClock
 {
     private const int Window = 120;
+    private const long ResyncDistance = 8 * NetTimeline.Fraction;
     private readonly int[] _lateness = new int[Window];
     private long _lastServer = -1;
     private long _lastLocal;
@@ -58,8 +59,11 @@ public sealed class PresentationClock
         else if (localTick > _lastAdvance)
         {
             long step = (localTick - _lastAdvance) * NetTimeline.Fraction;
-            long correction = Math.Clamp(desired - (_time + step), -step / 8, step / 8);
-            _time += step + correction;
+            long error = desired - (_time + step);
+            // Scene loading can stop client ticks while the server keeps running. Slewing a seconds-long gap
+            // at 1/8 tick per tick would show stale poses and interaction targets for eight times that pause.
+            // Recover forward discontinuities immediately; ordinary jitter still slews and time never rewinds.
+            _time = error > ResyncDistance ? desired : _time + step + Math.Clamp(error, -step / 8, step / 8);
         }
 
         _lastAdvance = localTick;

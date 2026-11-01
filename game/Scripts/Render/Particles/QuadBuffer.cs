@@ -95,7 +95,7 @@ public sealed class QuadBuffer
     }
 
     /// <summary>Writes and uploads <paramref name="quads"/>; false when they do not fit (the caller rebuilds bigger).</summary>
-    public bool Fill(List<SpriteQuad> quads)
+    public bool Fill(List<SpriteQuad> quads, Aabb bounds)
     {
         ArgumentNullException.ThrowIfNull(quads);
         int n = quads.Count;
@@ -129,15 +129,8 @@ public sealed class QuadBuffer
         _drawn = n;
         RenderingServer.MeshSurfaceUpdateVertexRegion(_rid, 0, 0, _vertex);
         RenderingServer.MeshSurfaceUpdateAttributeRegion(_rid, 0, 0, _attribute);
-        SetBounds(quads);
+        if (n > 0) _mesh.CustomAabb = bounds;
         return true;
-    }
-
-    /// <summary>The mesh's culling box: the corners of <paramref name="quads"/> (the surface's own box is of its first fill).</summary>
-    public void SetBounds(List<SpriteQuad> quads)
-    {
-        ArgumentNullException.ThrowIfNull(quads);
-        if (quads.Count > 0) _mesh.CustomAabb = Bounds(quads);
     }
 
     /// <summary>Exact world bounds of the generated corners, before uploading a layer.</summary>

@@ -51,6 +51,14 @@ internal sealed class ColliderState
     public FVector Min;
     public FVector Max;
 
+    // Cheap transformed local box, independent of the lazily updated primitive/BVH transform. Live actor
+    // coordinates key this cache, not the tick: teleports, movement substeps and prediction rewind are visible.
+    public bool QueryBoundsValid;
+    public FVector QueryLocation;
+    public FRotator QueryRotation;
+    public FVector QueryMin;
+    public FVector QueryMax;
+
     // Owner flags when the level was bound: while the owner still has them, the collider's own flags apply.
     public bool BaseCollideActors;
     public bool BaseBlockActors;
@@ -479,6 +487,7 @@ public sealed partial class CollisionWorld : ICollisionWorld
     public ColliderInfo GetCollider(int index)
     {
         ColliderState c = _colliders[index];
+        SyncCollider(c);
         return new ColliderInfo(c.Index, c.Kind, c.Flags, c.ActorId, c.Actor, c.Enabled, c.IsDynamic, c.Location, c.Rotation, c.Min,
             c.Max);
     }
@@ -559,6 +568,36 @@ public sealed partial class CollisionWorld : ICollisionWorld
         }
 
         ApplyTransform(c, actor.Location, actor.Rotation);
+    }
+
+    /// <summary>
+    /// A moved mesh outside a query needs only its eight transformed local box corners, not a rewrite of every
+    /// triangle, hull plane and BVH node. Candidate order and the subsequent exact world-bounds test are unchanged.
+    /// </summary>
+    private bool SyncColliderForQuery(ColliderState c, FVector queryMin, FVector queryMax, FVector expansion = default)
+    {
+        if (!c.IsDynamic || c.Actor is not { } actor || c.Set is not { } set) return true;
+        FVector location = actor.Location;
+        FRotator rotation = actor.Rotation;
+        if (location == c.Location && rotation == c.Rotation) return true;
+
+        if (!c.QueryBoundsValid || location != c.QueryLocation || rotation != c.QueryRotation)
+        {
+            var xf = new ColliderTransform(location, rotation, c.Scale, c.PrePivot);
+            PrimitiveSetBuilder.HullBounds([], set.LocalMin, set.LocalMax, xf, out FVector min, out FVector max);
+            var pad = new FVector(NodePad, NodePad, NodePad);
+            c.QueryMin = min - pad;
+            c.QueryMax = max + pad;
+            c.QueryLocation = location;
+            c.QueryRotation = rotation;
+            c.QueryBoundsValid = float.IsFinite(min.X) && float.IsFinite(min.Y) && float.IsFinite(min.Z) &&
+                float.IsFinite(max.X) && float.IsFinite(max.Y) && float.IsFinite(max.Z);
+        }
+
+        // Nonfinite or incomplete content falls back to the existing transform and query path.
+        if (c.QueryBoundsValid && !CollisionMath.BoxesTouch(c.QueryMin - expansion, c.QueryMax + expansion, queryMin, queryMax)) return false;
+        ApplyTransform(c, location, rotation);
+        return true;
     }
 
     private static void ApplyTransform(ColliderState c, FVector location, FRotator rotation)

@@ -141,6 +141,33 @@ public sealed class GlbDocument : IDisposable
         return result;
     }
 
+    /// <summary>RGB/RGBA colour accessors converted to RGBA bytes, including float fixture meshes.</summary>
+    public byte[] ReadColours(int accessor)
+    {
+        Accessor a = _accessors[accessor];
+        if (a.Components is not (3 or 4)) throw new InvalidDataException("Colours must be RGB or RGBA.");
+        int size = a.ComponentType switch { 5121 => 1, 5123 => 2, 5126 => 4, _ => throw new InvalidDataException("Unsupported colour component type.") };
+        BufferView view = _views[a.View];
+        int stride = view.Stride > 0 ? view.Stride : a.Components * size;
+        var result = new byte[a.Count * 4];
+        for (int i = 0; i < a.Count; i++)
+        {
+            result[i * 4 + 3] = 255;
+            for (int c = 0; c < a.Components; c++)
+            {
+                int at = view.Offset + a.Offset + i * stride + c * size;
+                float value = a.ComponentType switch
+                {
+                    5121 => _bin[at] / 255f,
+                    5123 => BinaryPrimitives.ReadUInt16LittleEndian(_bin.AsSpan(at)) / 65535f,
+                    _ => BinaryPrimitives.ReadSingleLittleEndian(_bin.AsSpan(at)),
+                };
+                result[i * 4 + c] = (byte)Math.Clamp((int)MathF.Round(value * 255f), 0, 255);
+            }
+        }
+        return result;
+    }
+
     /// <summary>Indices of an accessor (UNSIGNED_BYTE, SHORT or INT scalars).</summary>
     public int[] ReadIndices(int accessor)
     {

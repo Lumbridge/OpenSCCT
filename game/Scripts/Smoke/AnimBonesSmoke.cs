@@ -77,6 +77,7 @@ public sealed class AnimBonesSmoke : SmokeTest
         int frames = 0;
         int matched = 0;
         float worst = 0f;
+        float originalFoot = float.MaxValue, renderedFoot = float.MaxValue;
         string worstAt = "";
         foreach (string line in File.ReadLines(capture))
         {
@@ -121,6 +122,8 @@ public sealed class AnimBonesSmoke : SmokeTest
             Transform3D[] global = GlobalPoses(skeleton);
             byte[] bones = Convert.FromHexString(bonesHex.GetString() ?? "");
             float frameWorst = 0f;
+            float anchorAboveBottom = s.GetProperty("pawn").GetProperty("CollisionHeight").GetSingle()
+                + tr.GetProperty("pawn").GetProperty("PrePivot")[2].GetSingle();
             for (int b = 0; b < boneOf.Length && (b * 48) + 12 <= bones.Length; b++)
             {
                 if (boneOf[b] < 0)
@@ -133,6 +136,12 @@ public sealed class AnimBonesSmoke : SmokeTest
                 // The converted skeleton's space: UE mesh X, Z, Y as Godot X, Y, Z.
                 var ours = new Vector3(g.X, g.Z, g.Y);
                 frameWorst = Math.Max(frameWorst, ours.DistanceTo(original));
+                string boneName = skeleton.GetBoneName(boneOf[b]);
+                if (boneName.Contains("Foot", StringComparison.OrdinalIgnoreCase) || boneName.Contains("Toe", StringComparison.OrdinalIgnoreCase))
+                {
+                    originalFoot = Math.Min(originalFoot, original.Z + anchorAboveBottom);
+                    renderedFoot = Math.Min(renderedFoot, ours.Z + anchorAboveBottom);
+                }
             }
 
             frames++;
@@ -149,7 +158,7 @@ public sealed class AnimBonesSmoke : SmokeTest
         }
 
         string detail = string.Create(CultureInfo.InvariantCulture,
-            $"{matched}/{frames} frames of the original's spy within {Tolerance} uu on all 43 bones; worst {worst:F1} uu at {worstAt}");
+            $"{matched}/{frames} frames of the original's spy within {Tolerance} uu on all 43 bones; worst {worst:F1} uu at {worstAt}; lowest foot relative to collision bottom: original {originalFoot:F2}, rendered {renderedFoot:F2} uu");
         GD.Print("SVM_BONES " + Path.GetFileName(capture) + " " + detail);
         return (frames > 0 && matched >= frames * MatchShare, frames > 0 ? detail : "the capture holds no frames with bones");
     }

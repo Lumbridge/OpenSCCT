@@ -17,6 +17,12 @@ namespace OpenScctGame.Hub;
 public sealed class HubHost : IDisposable
 {
     private readonly CancellationTokenSource _stop = new();
+    private readonly System.Collections.Concurrent.ConcurrentQueue<Action<HubServer>> _inspections = new();
+
+    /// <summary>Runs diagnostics or controlled test setup between ticks on the owning server thread.</summary>
+    public void Inspect(Action<HubServer> action) => _inspections.Enqueue(action);
+    /// <summary>Optional diagnostic observer, called on the server thread even while the host's renderer loads.</summary>
+    public event Action<HubServer>? Ticked;
     private readonly Thread _thread;
     private bool _disposed;
 
@@ -53,10 +59,10 @@ public sealed class HubHost : IDisposable
     /// the hosting game's own account (its player's unlocks and rank), or null.
     /// </summary>
     public static HubHost Start(int port, string name, MapCatalog maps, NetClassRegistry classes, OpenScct.Server.Online.MasterLinkSettings? master = null,
-        OpenScct.Server.Online.HostAccount? hostAccount = null)
+        OpenScct.Server.Online.HostAccount? hostAccount = null, bool loopbackOnly = false)
     {
         ArgumentNullException.ThrowIfNull(maps);
-        LiteNetLibTransport udp = LiteNetLibTransport.Listen(port, HubK.DefaultMaxPlayers + 8, loopbackOnly: false);
+        LiteNetLibTransport udp = LiteNetLibTransport.Listen(port, HubK.DefaultMaxPlayers + 8, loopbackOnly: loopbackOnly);
         try
         {
             string key = Convert.ToHexString(System.Security.Cryptography.RandomNumberGenerator.GetBytes(8)).ToLowerInvariant();
@@ -101,7 +107,11 @@ public sealed class HubHost : IDisposable
     {
         try
         {
-            Server.RunRealtime(new StopwatchClock(), _stop.Token);
+            Server.RunRealtime(new StopwatchClock(), _stop.Token, s =>
+            {
+                while (_inspections.TryDequeue(out var inspect)) inspect(s);
+                Ticked?.Invoke(s);
+            });
         }
         catch (Exception e) when (e is InvalidOperationException or ObjectDisposedException or ArgumentException or System.IO.IOException)
         {

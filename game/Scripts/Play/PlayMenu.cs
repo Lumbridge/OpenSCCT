@@ -62,6 +62,7 @@ public partial class PlayMenu : Node
 
     public override void _Ready()
     {
+        if (PlayInput is { } input) input.LocalCommand += OnLocalCommand;
         // Over the HUD and the status page, under the F12 options overlay.
         _layer = new CanvasLayer { Name = "InGameMenuLayer", Layer = HudLayer.DefaultLayer + 4 };
         Menu = new InGameMenu { Model = Model, Now = () => Now, GearSource = GearModel, StrategicMapSource = StrategicMapPage };
@@ -69,6 +70,18 @@ public partial class PlayMenu : Node
         Menu.GearApplied += ApplyGear;
         _layer.AddChild(Menu);
         AddChild(_layer);
+    }
+
+    public override void _ExitTree()
+    {
+        if (PlayInput is { } input) input.LocalCommand -= OnLocalCommand;
+    }
+
+    private void OnLocalCommand(string command)
+    {
+        if (command != InGameMenuK.ShowMenuCommand || IsOpen || PlayInput?.Enabled != true ||
+            Session is not { IsStopped: false } || (Hud?.Chat?.IsOpen ?? false) || (Hud?.Status?.IsOpen ?? false)) return;
+        if (Session.LocalController?.eventShowMenu() ?? true) Open();
     }
 
     public override void _Input(InputEvent @event)

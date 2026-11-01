@@ -139,11 +139,7 @@ public partial class SPlayerController
             return;
         }
 
-        float now = Level.TimeSeconds;
-        if (now - MirrorStateAcknowledgementTime > OpenScct.Game.GameFlow.K.MirrorStateAckRefresh)
-        {
-            MirrorStateAcknowledgementTime = now;
-        }
+        float now = NextMirrorStateTime();
 
         if (IsRemotePlayer)
         {

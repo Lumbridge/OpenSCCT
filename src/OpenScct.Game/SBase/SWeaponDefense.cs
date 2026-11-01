@@ -318,6 +318,7 @@ public partial class SWeaponDefense
                 Target = this,
                 Int1 = iBulletInARow,
                 Int2 = shot,
+                Float1 = XLevel.WorldTimeSeconds,
                 Bool1 = predicted,
             });
             return;

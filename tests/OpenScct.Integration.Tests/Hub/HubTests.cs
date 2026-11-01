@@ -91,6 +91,26 @@ public sealed class HubTests
     }
 
     [Fact]
+    public void JoiningPlayerWaitsForTheirSceneWithoutPausingExistingHubPlayers()
+    {
+        using var rig = new Rig(0);
+        using var ready = new HubClient(rig.Network.Bind("ready"), "server", rig.Now,
+            new HubClientSettings { Maps = WalkerRig.Maps, Classes = WalkerRig.Classes, PlayerName = "Ready" });
+        using var loading = new HubClient(rig.Network.Bind("loading"), "server", rig.Now,
+            new HubClientSettings { Maps = WalkerRig.Maps, Classes = WalkerRig.Classes, PlayerName = "Loading", AutoReportReady = false });
+        void Clients() { ready.Tick(rig.Now); loading.Tick(rig.Now); }
+        rig.Run(8, Clients);
+        Assert.True(rig.Server.Host.Game!.GameReplicationInfo!.bMatchHasBegun);
+        Assert.NotNull(ready.Session.LocalPlayer?.Pawn);
+        Assert.Null(loading.Session.LocalPlayer?.Pawn);
+        Assert.Null(rig.Server.Players.Single(p => p.Slot.Name == "Loading").Slot.Controller!.Pawn);
+        loading.Session.MarkReadyToPlay();
+        rig.Run(3, Clients);
+        Assert.NotNull(loading.Session.LocalPlayer?.Pawn);
+        Assert.NotNull(ready.Session.LocalPlayer?.Pawn);
+    }
+
+    [Fact]
     public void PlayersJoinOnTheirSideAndSpawnAtThePlaza()
     {
         using var rig = new Rig(4, soak: new HubSoakSettings { ChatPerMinute = 0f, SideChangesPerMinute = 0f });

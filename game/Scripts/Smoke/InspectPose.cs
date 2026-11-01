@@ -26,6 +26,8 @@ public sealed class InspectPose
     private float _startFrame0;
     private double _windowTime;
     private bool _windowOpen;
+    private float _windowBoneMotion;
+    private bool _windowChannelAdvanced;
 
     public InspectPose(SimPawnView view, string label)
     {
@@ -51,6 +53,18 @@ public sealed class InspectPose
     public float MinFoot { get; private set; } = float.NaN;
 
     public float MaxFoot { get; private set; } = float.NaN;
+    public object? MinimumFootPose { get; private set; }
+    public object? MaximumFootPose { get; private set; }
+    public int LandingTransitionSamples { get; private set; }
+    public float MaxLandingTransitionFoot { get; private set; } = float.NaN;
+    public object? MaximumLandingTransitionPose { get; private set; }
+    public int FootSamples { get; private set; }
+    public int MissingFloorSamples { get; private set; }
+    public int CylinderSupportSamples { get; private set; }
+    public int UnsupportedSamples { get; private set; }
+    public int NonWalkingSamples { get; private set; }
+    public int MissingFootSamples { get; private set; }
+    private double _unsupportedSeconds;
 
     /// <summary>One frame of checks; reports issues through <paramref name="inspector"/>.</summary>
     public void Frame(PlayInspector inspector, double dt, CollisionWorld? collision, InspectChecks checks)
@@ -97,8 +111,9 @@ public sealed class InspectPose
 
         if ((checks & InspectChecks.Feet) != 0 && collision is not null && lowestBone >= 0)
         {
-            Feet(inspector, pawn, collision, lowest, lowestBone >= 0 ? skeleton.GetBoneName(lowestBone) : "?");
+            Feet(inspector, pawn, collision, lowest, skeleton.GetBoneName(lowestBone), dt);
         }
+        else if ((checks & InspectChecks.Feet) != 0) MissingFootSamples++;
     }
 
     private void MissingClips(PlayInspector inspector, SBasePawn pawn, SkeletalModel model)
@@ -135,11 +150,19 @@ public sealed class InspectPose
             _startSeq0 = pawn.PawnAnim[0].Sequence;
             _startFrame0 = pawn.PawnAnim[0].Frame;
             _windowTime = 0.0;
+            _windowBoneMotion = 0f;
+            _windowChannelAdvanced = false;
             _windowOpen = true;
             return;
         }
 
         _windowTime += dt;
+        // A looping walk can return to exactly its first pose at the window boundary. Measure every
+        // drawn sample, not just the endpoints, or a complete gait cycle looks like frozen animation.
+        for (int b = 0; b < _now.Length; b++)
+            _windowBoneMotion = Math.Max(_windowBoneMotion, (_now[b] - _start[b]).Length());
+        PawnAnimChannel c0 = pawn.PawnAnim[0];
+        _windowChannelAdvanced |= c0.Sequence != _startSeq0 || c0.Frame != _startFrame0;
         if (_windowTime < PlayInspector.InspectWindowSeconds)
         {
             return;
@@ -149,11 +172,7 @@ public sealed class InspectPose
         FVector moved = pawn.Location - _startLocation;
         float horizontal = MathF.Sqrt((moved.X * moved.X) + (moved.Y * moved.Y));
         float speed = horizontal / (float)_windowTime;
-        float bones = 0f;
-        for (int b = 0; b < _now.Length; b++)
-        {
-            bones = Math.Max(bones, (_now[b] - _start[b]).Length());
-        }
+        float bones = _windowBoneMotion;
 
         MaxBoneMotion = Math.Max(MaxBoneMotion, bones);
         if (speed < PlayInspector.InspectMovingSpeed)
@@ -162,7 +181,6 @@ public sealed class InspectPose
         }
 
         MovingWindows++;
-        PawnAnimChannel c0 = pawn.PawnAnim[0];
         string stance = Stance(pawn);
         if (bones >= PlayInspector.InspectBoneMotion)
         {
@@ -181,7 +199,7 @@ public sealed class InspectPose
             inspector.Note(InspectChecks.Animation, "no channel 0 " + Label,
                 string.Create(CultureInfo.InvariantCulture, $"{Label} moves at {speed:F0} uu/s ({stance}) with nothing on channel 0"));
         }
-        else if (c0.Sequence == _startSeq0 && c0.Frame == _startFrame0 && c0.Frames > 1)
+        else if (!_windowChannelAdvanced && c0.Frames > 1)
         {
             inspector.Note(InspectChecks.Animation, "stuck channel 0 " + Label,
                 string.Create(CultureInfo.InvariantCulture,
@@ -189,10 +207,12 @@ public sealed class InspectPose
         }
     }
 
-    private void Feet(PlayInspector inspector, SBasePawn pawn, CollisionWorld collision, float lowest, string bone)
+    private void Feet(PlayInspector inspector, SBasePawn pawn, CollisionWorld collision, float lowest, string bone, double dt)
     {
         if (pawn.Physics != EPhysics.PHYS_Walking)
         {
+            NonWalkingSamples++;
+            _unsupportedSeconds = 0;
             return;
         }
 
@@ -200,6 +220,20 @@ public sealed class InspectPose
         FVector end = start - new FVector(0f, 0f, pawn.CollisionHeight + PlayInspector.InspectFloorSearch);
         if (!collision.LineCheck(out FCheckResult hit, pawn, end, start, default, PlayInspector.WorldTrace))
         {
+            // A cylinder can stand with its centre over an edge. Use the same short cylinder
+            // support sweep as movement before calling it unsupported; a centre ray alone misses it.
+            FVector extent = new(pawn.CollisionRadius, pawn.CollisionRadius, pawn.CollisionHeight);
+            if (collision.LineCheck(out FCheckResult support, pawn, start - new FVector(0, 0, 8f), start, extent, PlayInspector.WorldTrace)
+                && support.Normal.Z >= 0.7f)
+            {
+                CylinderSupportSamples++;
+                _unsupportedSeconds = 0;
+                return; // Support is proven, but there is no surface directly under the measured feet.
+            }
+            MissingFloorSamples++;
+            _unsupportedSeconds += dt;
+            if (_unsupportedSeconds > 0.25)
+                inspector.Note(InspectChecks.Feet, $"no support {Label}", $"Walking pawn {Label} has no floor below its collision shape.");
             return;
         }
 
@@ -208,11 +242,35 @@ public sealed class InspectPose
         // Only a floor the pawn stands on: its collision bottom is at the floor.
         if (Math.Abs(start.Z - pawn.CollisionHeight - floor) > PlayInspector.InspectFloorSearch * 0.5f)
         {
+            UnsupportedSamples++;
+            _unsupportedSeconds += dt;
+            if (_unsupportedSeconds > 0.25)
+                inspector.Note(InspectChecks.Feet, $"collision off floor {Label}",
+                    $"Walking pawn {Label} collision bottom differs from floor by {start.Z - pawn.CollisionHeight - floor:F1} uu.",
+                    Math.Abs(start.Z - pawn.CollisionHeight - floor));
             return;
         }
 
+        _unsupportedSeconds = 0;
         float offset = lowest - floor;
+        if (View.InterpolatingFromAirborne)
+        {
+            // Current physics has landed, but this draw still interpolates the previous airborne endpoint.
+            // Retain that evidence separately; it is not a grounded foot/floor sample.
+            LandingTransitionSamples++;
+            if (float.IsNaN(MaxLandingTransitionFoot) || offset > MaxLandingTransitionFoot)
+            {
+                MaxLandingTransitionFoot = offset;
+                MaximumLandingTransitionPose = FootPose(pawn, floor, offset, bone);
+            }
+            return;
+        }
+        FootSamples++;
         DumpBones(pawn, floor);
+        // Preserve the exact animation sample behind an extreme, rather than just a cumulative number.
+        // This runs only in the inspector and allocates only when a new extreme is observed.
+        if (float.IsNaN(MinFoot) || offset < MinFoot) MinimumFootPose = FootPose(pawn, floor, offset, bone);
+        if (float.IsNaN(MaxFoot) || offset > MaxFoot) MaximumFootPose = FootPose(pawn, floor, offset, bone);
         MinFoot = float.IsNaN(MinFoot) ? offset : Math.Min(MinFoot, offset);
         MaxFoot = float.IsNaN(MaxFoot) ? offset : Math.Max(MaxFoot, offset);
         string stance = Stance(pawn);
@@ -230,6 +288,22 @@ public sealed class InspectPose
                     $"{Label} ({stance}, channel 0 {Seq(pawn.PawnAnim[0].Sequence)}): the lowest drawn foot bone ({bone}) floats {offset:F1} uu over the floor (pawn at {pawn.Location.Z:F1}, collision height {pawn.CollisionHeight:F1}, floor {floor:F1})"),
                 offset);
         }
+    }
+
+    private object FootPose(SBasePawn pawn, float floor, float offset, string bone)
+    {
+        var channels = new object[PawnAnimation.ChannelCount];
+        for (int i = 0; i < channels.Length; i++)
+        {
+            PawnAnimChannel channel = pawn.PawnAnim[i];
+            channels[i] = new { sequence = channel.Sequence.ToString(), channel.Frame, channel.Rate,
+                alpha = channel.BlendAlpha, channel.TweenRate, channel.TweenWeight };
+        }
+        return new { tick = pawn.XLevel.TickCount, role = pawn.Role.ToString(),
+            position = new[] { pawn.Location.X, pawn.Location.Y, pawn.Location.Z },
+            pivot = new[] { pawn.PrePivot.X, pawn.PrePivot.Y, pawn.PrePivot.Z },
+            pawn.CollisionHeight, drawnOrigin = View.Model!.Skeleton.GlobalTransform.Origin.Y * 100f,
+            floor, offset, bone, pawn.bIsCrouched, View.InterpolatingFromAirborne, View.DrawAlpha, channels };
     }
 
     private bool[]? _feet;

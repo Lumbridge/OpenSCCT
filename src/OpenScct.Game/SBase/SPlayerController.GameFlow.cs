@@ -15,6 +15,10 @@ namespace OpenScct.Game.SBase;
 // remote player (IsRemotePlayer), the way UnrealScript replicated functions behave.
 public partial class SPlayerController
 {
+    /// <summary>The controller's spectator status, shared by HUD and other player presentation.</summary>
+    public bool IsSpectating() => StateNode is s_MultiSpectating ||
+        IsInState(new Name("BaseSpectating")) || IsInState(NAME_GameEnded);
+
     private static readonly Name NAME_s_Dead = new("s_Dead");
     private static readonly Name NAME_s_WaitRespawn = new("s_WaitRespawn");
     private static readonly Name NAME_s_MultiSpectating_WhenKilled = new("s_MultiSpectating_WhenKilled");
@@ -462,6 +466,7 @@ public partial class SPlayerController
     {
         if (Role != ENetRole.ROLE_Authority)
         {
+            GameHost.ServerCall(this, new GameCall("Server_FindNextFriend") { Bool = bCheckOnly });
             return;
         }
 
@@ -489,6 +494,7 @@ public partial class SPlayerController
         GotoState(NAME_s_Spectating_Visitor);
         if (Role != ENetRole.ROLE_Authority)
         {
+            GameHost.ServerCall(this, new GameCall("Server_FindNextVisitor") { Bool = bCheckOnly });
             return;
         }
 
@@ -502,7 +508,7 @@ public partial class SPlayerController
 
     /// <summary>The watched controller still has the watched pawn and is not itself dead and spectating.</summary>
     private bool SpectateTargetStillValid() =>
-        PC_spectated is SPlayerController watched && SpecTarget is not null && watched.SBPawn is not null &&
+        PC_spectated is SPlayerController { bDeleteMe: false } watched && SpecTarget is { bDeleteMe: false } && watched.SBPawn is { bDeleteMe: false } &&
         ReferenceEquals(watched.SBPawn, SpecTarget) && !watched.IsInState(NAME_s_MultiSpectating_WhenKilled);
 
     private void AttachToNextPlayer(bool sameSideOnly, bool muteForOthers)
@@ -539,7 +545,7 @@ public partial class SPlayerController
                 myPc = 0;
             }
 
-            if (myPc < found.Length && found[myPc] is SPlayerController candidate && candidate.SBPawn is not null &&
+            if (myPc < found.Length && found[myPc] is SPlayerController { bDeleteMe: false } candidate && candidate.SBPawn is { bDeleteMe: false } &&
                 (!sameSideOnly || candidate.SPawnType == SPawnType) && !ReferenceEquals(candidate, this))
             {
                 PC_spectated = candidate;

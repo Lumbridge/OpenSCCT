@@ -48,11 +48,15 @@ public sealed class OnlineUdpTests
     {
         ServerEntry? found = null;
         Task<ServerListResponse>? pending = null;
+        string lastListing = "No completed listing request.";
         bool ok = rig.RunUntil(() =>
         {
             if (pending is { IsCompleted: true } done)
             {
                 pending = null;
+                lastListing = done.IsCompletedSuccessfully
+                    ? string.Join("; ", done.Result.Servers.Select(e => $"{e.Id}: {e.Players} players, {e.Phase}"))
+                    : done.Exception?.GetBaseException().Message ?? "Listing request canceled.";
                 if (done.IsCompletedSuccessfully && done.Result.Servers.FirstOrDefault(ready) is { } entry)
                 {
                     found = entry;
@@ -63,7 +67,7 @@ public sealed class OnlineUdpTests
             pending ??= browser.ListAsync(protocol: rig.Server.Host.Driver.ProtocolHash, cancellationToken: TestContext.Current.CancellationToken);
             return false;
         }, 20);
-        Assert.True(ok, "The server never showed up on the master as expected: " + rig.Server.Status());
+        Assert.True(ok, "The server never showed up on the master as expected: " + rig.Server.Status() + "; last listing: " + lastListing);
         return found!;
     }
 

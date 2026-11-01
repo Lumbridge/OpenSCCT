@@ -136,6 +136,29 @@ public sealed class ModernSynchronizationTests
     }
 
     [Fact]
+    public void AdaptiveClockRecoversImmediatelyAfterClientStopsTickingDuringLoad()
+    {
+        var timeline = new NetTimeline();
+        var clock = new PresentationClock();
+        for (int tick = 0; tick < 120; tick++)
+        {
+            timeline.AddSample(tick + 300, tick);
+            timeline.Advance();
+            clock.Observe(tick + 300, tick);
+            clock.Advance(tick, timeline, 4);
+        }
+
+        long before = clock.TimeFixed;
+        // The host continues for ten seconds while the client's render scene blocks its main thread.
+        timeline.AddSample(1020, 120);
+        timeline.Advance();
+        clock.Observe(1020, 120);
+        long resumed = clock.Advance(120, timeline, 4);
+        Assert.True(resumed >= before);
+        Assert.Equal(timeline.RenderTimeFixed(120, clock.DelayTicks), resumed);
+    }
+
+    [Fact]
     public void AdaptiveClockNeverRewindsWhenDelayOrTimelineChanges()
     {
         var timeline = new NetTimeline();

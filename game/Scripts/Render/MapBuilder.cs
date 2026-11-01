@@ -667,7 +667,7 @@ public static class MapBuilder
                     Normals = attrs.TryGetProperty("NORMAL", out JsonElement nn) ? _glb.ReadFloats(nn.GetInt32()) : null,
                     Uvs = attrs.TryGetProperty("TEXCOORD_0", out JsonElement t0) ? _glb.ReadFloats(t0.GetInt32()) : null,
                     Uv2s = attrs.TryGetProperty("TEXCOORD_1", out JsonElement t1) ? _glb.ReadFloats(t1.GetInt32()) : null,
-                    Colours = attrs.TryGetProperty("COLOR_0", out JsonElement c0) ? _glb.ReadBytes(c0.GetInt32()) : null,
+                    Colours = attrs.TryGetProperty("COLOR_0", out JsonElement c0) ? _glb.ReadColours(c0.GetInt32()) : null,
                     Indices = indices,
                 });
             }

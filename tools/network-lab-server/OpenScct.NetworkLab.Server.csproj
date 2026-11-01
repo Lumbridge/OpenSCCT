@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../src/OpenScct.Server/OpenScct.Server.csproj" />
+    <Compile Include="../../game/Scripts/Smoke/NetworkLabState.cs" Link="NetworkLabState.cs" />
+    <Compile Include="../../src/OpenScct.Server.Cli/HostClock.cs" Link="HostClock.cs" />
+  </ItemGroup>
+</Project>

@@ -26,6 +26,7 @@ public sealed class Level
     private readonly List<Actor> _actors = new(1024);
     private readonly List<Actor> _pendingSpawns = new(64);
     private readonly Dictionary<Name, List<Actor>> _tagIndex = new();
+    private readonly Dictionary<Type, List<Actor>> _typeIndex = new();
     private readonly Dictionary<int, Actor> _byId = new(1024);
     private readonly List<List<Actor>> _scratchPool = new();
     private List<Actor> _deferred = new(64);
@@ -64,6 +65,9 @@ public sealed class Level
     private int _clockDepth;
     private long _worldTick;
     private float _worldSeconds, _worldDelta;
+
+    /// <summary>The host/world clock, independent of temporary movement-command or replay time scopes.</summary>
+    public float WorldTimeSeconds => _clockDepth == 0 ? TimeSeconds : _worldSeconds;
 
     /// <summary>
     /// Map events caused by a movement command run on the world's clock. Their timers and latent code are
@@ -156,18 +160,34 @@ public sealed class Level
 
     /// <summary>All live actors of type T in list order.</summary>
     public ActorIterator<T> AllActors<T>()
-        where T : Actor => new(_actors, Name.None, dynamicOnly: false);
+        where T : Actor => new(ActorsOfType<T>(), Name.None, dynamicOnly: false);
 
     /// <summary>All live actors of type T with the given tag, in list order.</summary>
     public ActorIterator<T> AllActors<T>(Name tag)
-        where T : Actor => tag.IsNone ? new(_actors, Name.None, false) : new(_tagIndex.GetValueOrDefault(tag), tag, false);
+        where T : Actor => tag.IsNone ? new(ActorsOfType<T>(), Name.None, false) : new(_tagIndex.GetValueOrDefault(tag), tag, false);
 
     /// <summary>Like AllActors but skips bStatic actors (UnrealScript DynamicActors).</summary>
     public ActorIterator<T> DynamicActors<T>()
-        where T : Actor => new(_actors, Name.None, dynamicOnly: true);
+        where T : Actor => new(ActorsOfType<T>(), Name.None, dynamicOnly: true);
 
     public ActorIterator<T> DynamicActors<T>(Name tag)
-        where T : Actor => tag.IsNone ? new(_actors, Name.None, true) : new(_tagIndex.GetValueOrDefault(tag), tag, true);
+        where T : Actor => tag.IsNone ? new(ActorsOfType<T>(), Name.None, true) : new(_tagIndex.GetValueOrDefault(tag), tag, true);
+
+    // Membership depends only on the managed class. Mutable flags (including bStatic and bDeleteMe) are still
+    // checked by the iterator, so a flag change during a tick takes effect at the same point as a full scan.
+    private List<Actor> ActorsOfType<T>() where T : Actor
+    {
+        if (typeof(T) == typeof(Actor)) return _actors;
+        if (_typeIndex.TryGetValue(typeof(T), out List<Actor>? list)) return list;
+        list = new List<Actor>();
+        foreach (Actor actor in _actors)
+        {
+            if (actor is T) list.Add(actor);
+        }
+
+        _typeIndex.Add(typeof(T), list);
+        return list;
+    }
 
     // ---- spawn and destroy ---------------------------------------------------------------------------------
 
@@ -463,6 +483,11 @@ public sealed class Level
         {
             list.Sort(static (x, y) => x.ListOrder.CompareTo(y.ListOrder));
         }
+
+        foreach (List<Actor> list in _typeIndex.Values)
+        {
+            list.Sort(static (x, y) => x.ListOrder.CompareTo(y.ListOrder));
+        }
     }
 
     // ---- events --------------------------------------------------------------------------------------------
@@ -653,6 +678,10 @@ public sealed class Level
         actor.InList = true;
         _actors.Add(actor);
         AddToTagIndex(actor, actor.Tag);
+        for (Type? type = actor.GetType(); type is not null && type != typeof(Actor); type = type.BaseType)
+        {
+            if (_typeIndex.TryGetValue(type, out List<Actor>? list)) list.Add(actor);
+        }
     }
 
     private void ApplyPending()
@@ -676,6 +705,10 @@ public sealed class Level
             }
 
             _actors.RemoveRange(write, _actors.Count - write);
+            foreach (List<Actor> list in _typeIndex.Values)
+            {
+                list.RemoveAll(static actor => actor.bDeleteMe);
+            }
             _destroyedInList = 0;
         }
 

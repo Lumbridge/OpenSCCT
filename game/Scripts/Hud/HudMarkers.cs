@@ -39,6 +39,30 @@ public sealed class HudMarkers
     private const float GpoEdge = 20f;
 
     private float _fade = FadeStill;
+    private readonly List<(float D, HudObjective O, Vector2 P)> _labelled = new();
+    private readonly Dictionary<(HudErRole Role, string Name), string> _paths = new();
+    private readonly Dictionary<(string Path, string Part), string> _parts = new();
+
+    private string PathOf(HudObjective objective)
+    {
+        var key = (objective.Role, objective.Name);
+        if (!_paths.TryGetValue(key, out string? path))
+        {
+            path = "ER/" + objective.Role + "/" + objective.Name;
+            _paths[key] = path;
+        }
+        return path;
+    }
+
+    private string Part(string path, string part)
+    {
+        if (!_parts.TryGetValue((path, part), out string? result))
+        {
+            result = path + part;
+            _parts[(path, part)] = result;
+        }
+        return result;
+    }
 
     /// <summary>
     /// The MN_boutons tile (top-left, 32 x 32; the 30 x 30 icon starts one texel in) of a marker's class, the
@@ -104,7 +128,8 @@ public sealed class HudMarkers
         float pageS = HudLayout.ErScale(screen.X, screen.Y, Widescreen, WidescreenHud, ErSmall);
         bool moving = s.PawnSpeed > 0f;
         DrawGpos(s, screen, pageS, moving);
-        var labelled = new List<(float D, HudObjective O, Vector2 P)>();
+        List<(float D, HudObjective O, Vector2 P)> labelled = _labelled;
+        labelled.Clear();
         foreach (HudObjective o in s.Objectives)
         {
             if (o.Taken || Projector(o.Location) is not { } p || p.X <= 0f || p.Y <= 0f || p.X >= screen.X || p.Y >= screen.Y)
@@ -123,7 +148,7 @@ public sealed class HudMarkers
             // Disk Hunt disks and free drop zones are drawn at full spread (ERDrawObjectives passes 1 there).
             bool full = o.Triggering || o.Role is HudErRole.HuntDisk or HudErRole.DropZone;
             float spread = full ? 1f : _fade;
-            string path = "ER/" + o.Role + "/" + o.Name;
+            string path = PathOf(o);
 
             // Icon
             if (spread > 0f)
@@ -131,7 +156,7 @@ public sealed class HudMarkers
                 Color c = o.Role == HudErRole.DropZone ? (o.Alert ? Hacked : GpoColour)
                     : o.Triggering ? Hacked : o.Locked ? Locked : Idle;
                 float hacking = o.Triggering && o.Role != HudErRole.DropZone ? HackAlpha : 1f;
-                Quad(path + "/icon", p, new Vector2(30f, 30f) * scale, new Rect2(tile + Vector2.One, 30f, 30f), c with { A = alpha * spread * hacking });
+                Quad(Part(path, "/icon"), p, new Vector2(30f, 30f) * scale, new Rect2(tile + Vector2.One, 30f, 30f), c with { A = alpha * spread * hacking });
             }
 
             // Brackets: full-spread markers (triggering) pulse between 20 and 13 units out, the others sit at
@@ -141,16 +166,16 @@ public sealed class HudMarkers
             if (o.Role == HudErRole.Objective)
             {
                 float j = 11f + 9f * spread;
-                Bracket(path + "/tr", p, new Vector2(j - 7f, -j), new Vector2(121f, 96f), scale, white);
-                Bracket(path + "/bl", p, new Vector2(-j, j - 7f), new Vector2(96f, 121f), scale, white);
+                Bracket(Part(path, "/tr"), p, new Vector2(j - 7f, -j), new Vector2(121f, 96f), scale, white);
+                Bracket(Part(path, "/bl"), p, new Vector2(-j, j - 7f), new Vector2(96f, 121f), scale, white);
             }
             else
             {
                 float k = spread >= 1f ? (s.TimeSeconds - MathF.Floor(s.TimeSeconds) <= 0.5f ? 20f : 13f) : 11f + 9f * spread;
-                Bracket(path + "/tl", p, new Vector2(-k, -k), new Vector2(96f, 96f), scale, white);
-                Bracket(path + "/tr", p, new Vector2(k - 7f, -k), new Vector2(121f, 96f), scale, white);
-                Bracket(path + "/bl", p, new Vector2(-k, k - 7f), new Vector2(96f, 121f), scale, white);
-                Bracket(path + "/br", p, new Vector2(k - 7f, k - 7f), new Vector2(121f, 121f), scale, white);
+                Bracket(Part(path, "/tl"), p, new Vector2(-k, -k), new Vector2(96f, 96f), scale, white);
+                Bracket(Part(path, "/tr"), p, new Vector2(k - 7f, -k), new Vector2(121f, 96f), scale, white);
+                Bracket(Part(path, "/bl"), p, new Vector2(-k, k - 7f), new Vector2(96f, 121f), scale, white);
+                Bracket(Part(path, "/br"), p, new Vector2(k - 7f, k - 7f), new Vector2(121f, 121f), scale, white);
             }
 
             // Height arrow
@@ -160,7 +185,7 @@ public sealed class HudMarkers
                 float lift = (9f * spread + 16f) * scale;
                 var centre = new Vector2(p.X, dz > 0f ? p.Y - lift : p.Y + lift);
                 var src = new Rect2(104f, 104f, 16f, 16f);
-                Quad(path + "/arrow", centre, new Vector2(16f, dz > 0f ? 16f : -16f) * scale, src, white);
+                Quad(Part(path, "/arrow"), centre, new Vector2(16f, dz > 0f ? 16f : -16f) * scale, src, white);
             }
 
             // Bomb spots never get a distance, percent or state label; disks get no state label (game 0x10af8c00).
@@ -172,7 +197,7 @@ public sealed class HudMarkers
             labelled.Add((d, o, p));
             if (o.Triggering && o.Kind != HudObjectiveKind.Disk && o.Role is HudErRole.Trigger or HudErRole.Objective)
             {
-                Label(path + "/state", s.HackingText, p + new Vector2(0f, 20f * pageS), pageS, alpha * _fade);
+                Label(Part(path, "/state"), s.HackingText, p + new Vector2(0f, 20f * pageS), pageS, alpha * _fade);
             }
         }
 
@@ -186,10 +211,10 @@ public sealed class HudMarkers
             string text = percent
                 ? string.Create(CultureInfo.InvariantCulture, $"{o.Percent}%")
                 : string.Create(CultureInfo.InvariantCulture, $"{(int)(MathF.Truncate(d) * s.DistanceScale)} {s.DistanceUnit}");
-            Label("ER/" + o.Role + "/" + o.Name + "/distance", text, p - new Vector2(0f, 40f * pageS), pageS, alpha);
+            Label(Part(PathOf(o), "/distance"), text, p - new Vector2(0f, 40f * pageS), pageS, alpha);
             if (!o.Triggering && o.Locked)
             {
-                Label("ER/" + o.Role + "/" + o.Name + "/state", s.SecuredText, p + new Vector2(0f, 20f * pageS), pageS, alpha);
+                Label(Part(PathOf(o), "/state"), s.SecuredText, p + new Vector2(0f, 20f * pageS), pageS, alpha);
             }
         }
     }
@@ -246,16 +271,14 @@ public sealed class HudMarkers
         Vector2 h = size / 2f;
         Vector2 tex = AtlasSize;
         float u0 = src.Position.X / tex.X, v0 = src.Position.Y / tex.Y, u1 = src.End.X / tex.X, v1 = src.End.Y / tex.Y;
-        DrawList.Items.Add(new MagmaDrawItem
-        {
-            Path = path,
-            Kind = MagmaWidgetKind.Image,
-            Package = Package,
-            Texture = Atlas,
-            Points = [centre + new Vector2(-h.X, -h.Y), centre + new Vector2(h.X, -h.Y), centre + new Vector2(h.X, h.Y), centre + new Vector2(-h.X, h.Y)],
-            Uvs = [new(u0, v0), new(u1, v0), new(u1, v1), new(u0, v1)],
-            Colors = [color, color, color, color],
-        });
+        MagmaDrawItem item = DrawList.Add(MagmaWidgetKind.Image);
+        item.Path = path;
+        item.Package = Package;
+        item.Texture = Atlas;
+        item.SetGeometry(
+            [centre + new Vector2(-h.X, -h.Y), centre + new Vector2(h.X, -h.Y), centre + new Vector2(h.X, h.Y), centre + new Vector2(-h.X, h.Y)],
+            [new(u0, v0), new(u1, v0), new(u1, v1), new(u0, v1)],
+            [color, color, color, color]);
     }
 
     private void Label(string path, string text, Vector2 centre, float pageS, float alpha) =>
@@ -269,18 +292,15 @@ public sealed class HudMarkers
         }
 
         float h = MathF.Round(LabelHeight * pageS);
-        DrawList.Items.Add(new MagmaDrawItem
-        {
-            Path = path,
-            Kind = MagmaWidgetKind.Text,
-            Text = text,
-            Font = HudAssets.DefaultFont,
-            Rect = new Rect2(centre.X - 200f * pageS, centre.Y - h / 2f, 400f * pageS, h),
-            HeightPx = h,
-            Align = MagmaAlign.Center,
-            Color = colour with { A = alpha },
-            TrackingPx = HudText.Tracking * h,
-        });
+        MagmaDrawItem item = DrawList.Add(MagmaWidgetKind.Text);
+        item.Path = path;
+        item.Text = text;
+        item.Font = HudAssets.DefaultFont;
+        item.Rect = new Rect2(centre.X - 200f * pageS, centre.Y - h / 2f, 400f * pageS, h);
+        item.HeightPx = h;
+        item.Align = MagmaAlign.Center;
+        item.Color = colour with { A = alpha };
+        item.TrackingPx = HudText.Tracking * h;
     }
 
     private static Color Rgb(int r, int g, int b) => new(r / 255f, g / 255f, b / 255f, 1f);

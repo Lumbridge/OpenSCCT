@@ -10,9 +10,9 @@ namespace OpenScct.Net;
 /// piggybacked acks, loss detection, round trip estimates, and the channels whose bunches the packets carry.
 /// <para>Rules:</para>
 /// <list type="bullet">
-/// <item>Packets are processed only when newer than every packet processed before; late and duplicated packets
-/// are dropped whole and never acked. So an ack bit means "processed", and a packet older than the newest ack
-/// with its bit clear is lost (NAK) at once.</item>
+/// <item>Only newer packets advance the snapshot timeline and receive packet acknowledgements. Reliable
+/// bunches and explicitly reorder-safe extensions from the preceding 32 packets may still fill sequence gaps;
+/// other stale unreliable data is discarded. Partial deliveries are not acked, preserving property resends.</item>
 /// <item>A packet with no ack after the ack timeout (at least 1 s, more on slow links) is also treated as lost.</item>
 /// <item>A lost packet makes its reliable bunches go out again in the next packet and tells each actor channel,
 /// which marks the unreliable properties it carried as dirty.</item>
@@ -237,6 +237,13 @@ public sealed partial class NetConnection : INetObjectMap
 
     public long LastReceiveTime { get; private set; }
 
+    /// <summary>
+    /// An absolute driver-clock deadline before which receive silence alone cannot close this connection.
+    /// The host sets it once for an accepted scene load and clears it when the player reports ready.
+    /// Zero keeps the normal idle timeout; this does not bypass protocol failures or explicit closes.
+    /// </summary>
+    public long ReceiveTimeoutNotBeforeMicros { get; set; }
+
     /// <summary>Simulation tick stamped on the newest packet received.</summary>
     public uint RemoteTick { get; private set; }
 
@@ -431,6 +438,14 @@ public sealed partial class NetConnection : INetObjectMap
             if (delta <= 0)
             {
                 Stats.InPacketsOld++;
+                // Jitter can put a unique reliable control behind a newer movement packet. Dropping it
+                // wholesale stalls every movement command fenced behind that control until retransmission.
+                // Channels already order/deduplicate reliable sequences. Do not ack this partial delivery:
+                // the sender must still resend the unreliable properties that we deliberately skip.
+                if (delta < 0 && delta >= -32)
+                {
+                    ReadPacketBunches(data, header.Tick, reordered: true);
+                }
                 return;
             }
 
@@ -468,16 +483,7 @@ public sealed partial class NetConnection : INetObjectMap
             ReceivedAcks(in header, now);
         }
 
-        _packetTick = header.Tick;
-        while (!_reader.AtEnd && State != EConnectionState.USOCK_Closed)
-        {
-            if (!ReadBunch(data))
-            {
-                Stats.InMalformed++;
-                Close("Malformed bunch");
-                return;
-            }
-        }
+        ReadPacketBunches(data, header.Tick, reordered: false);
 
         if (header.bFlushComplete && State != EConnectionState.USOCK_Closed)
         {
@@ -485,7 +491,22 @@ public sealed partial class NetConnection : INetObjectMap
         }
     }
 
-    private bool ReadBunch(byte[] data)
+    private void ReadPacketBunches(byte[] data, uint tick, bool reordered)
+    {
+        _packetTick = tick;
+        while (!_reader.AtEnd && State != EConnectionState.USOCK_Closed)
+        {
+            if (!ReadBunch(data, reordered))
+            {
+                Stats.InMalformed++;
+                Close("Malformed bunch");
+                return;
+            }
+        }
+
+    }
+
+    private bool ReadBunch(byte[] data, bool reordered)
     {
         FBitReader r = _reader;
         bool control = r.ReadBit();
@@ -504,8 +525,8 @@ public sealed partial class NetConnection : INetObjectMap
         int payloadStart = r.AbsolutePosition;
         r.Skip(payloadBits);
         Stats.InBunches++;
-
         Channel? channel = Channels[chIndex];
+        if (reordered && !reliable && (bOpen || bClose || channel is not ActorChannel)) return true;
         if (channel is null)
         {
             // Unreliable data for a channel that is not open is ignored, like UE2, except an unreliable opening (a
@@ -541,7 +562,10 @@ public sealed partial class NetConnection : INetObjectMap
         bunch.bClose = bClose;
         bunch.bReliable = reliable;
         bunch.Reader.SetData(data, payloadStart, payloadBits);
-        channel.ReceivedRawBunch(bunch);
+        if (reordered && !reliable)
+            ((ActorChannel)channel).ReceivedReorderedFunctions(bunch);
+        else
+            channel.ReceivedRawBunch(bunch);
         return true;
     }
 
@@ -929,7 +953,7 @@ public sealed partial class NetConnection : INetObjectMap
         }
 
         long timeout = State == EConnectionState.USOCK_Open ? _driver.ConnectionTimeoutMicros : _driver.InitialConnectTimeoutMicros;
-        if (now - LastReceiveTime > timeout)
+        if (now - LastReceiveTime > timeout && now >= ReceiveTimeoutNotBeforeMicros)
         {
             Close("Connection timed out");
             return;

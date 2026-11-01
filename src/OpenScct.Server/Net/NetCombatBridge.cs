@@ -22,7 +22,8 @@ namespace OpenScct.Server;
 /// connection's object map (a dynamic actor without an acknowledged channel arrives as None). A call to the server
 /// then carries the server time at which the client showed other players when it made the call
 /// (<see cref="ClientSession.ViewTimeFixed"/>, behind a presence bit): a server with lag compensation traces the call's
-/// shots at that time (<see cref="LagCompensation"/>).
+/// shots at that time (<see cref="LagCompensation"/>). It also carries the sending pawn's identity, captured when
+/// queued rather than when sent. Calls from a previous possession cannot affect a replacement pawn.
 /// </para>
 /// </summary>
 [Provenance(ProvenanceKind.Estimated, "One reliable net-layer function per call; the original sends each combat function on its own actor")]
@@ -53,7 +54,7 @@ public sealed class NetCombatBridge : ICombatNet
     public static RepExtension CreateExtension()
     {
         var extension = new RepExtension();
-        extension.Functions.Add(new RepExtensionFunction(FunctionName, Reliable: true, ClientToServer: true, Signature: "combat2",
+        extension.Functions.Add(new RepExtensionFunction(FunctionName, Reliable: true, ClientToServer: true, Signature: "combat5-pawn-lifetime",
             ReceiveFromClient));
         extension.Functions.Add(new RepExtensionFunction(FunctionName + "ToClient", Reliable: true, ClientToServer: false,
             Signature: "combat1", ReceiveFromServer));
@@ -85,7 +86,7 @@ public sealed class NetCombatBridge : ICombatNet
         {
             // The view time of the moment the call is made, kept while the call waits.
             long viewTime = _driver.World?.Level.GetService<ClientSession>()?.ViewTimeFixed ?? -1;
-            Send(Sender, connection, FunctionName, Call, viewTime);
+            Send(Sender, connection, FunctionName, Call, viewTime, Sender.Pawn);
         }
     }
 
@@ -98,23 +99,24 @@ public sealed class NetCombatBridge : ICombatNet
     private readonly List<Pending> _pending = new();
 
     private readonly record struct Pending(PlayerController Controller, NetConnection Connection, string Function, CombatCall Call,
-        long ViewTime, long QueuedAt);
+        long ViewTime, long QueuedAt, Pawn? SenderPawn);
 
     /// <summary>Calls waiting for an actor they name to be known on the other side.</summary>
     public int Waiting => _pending.Count;
 
-    private void Send(PlayerController pc, NetConnection connection, string function, in CombatCall call, long viewTime)
+    private void Send(PlayerController pc, NetConnection connection, string function, in CombatCall call, long viewTime,
+        Pawn? senderPawn = null)
     {
         // A call naming an actor the other side does not have yet (a pawn spawned this tick, whose channel opening is
         // not acknowledged) waits, in order, until it is: the original sends such a call on that actor's own channel,
         // which carries the actor first.
-        if (HasPendingFor(connection) || !Mapped(connection, call))
+        if (HasPendingFor(connection) || !Mapped(connection, call) || (function == FunctionName && !Mapped(connection, senderPawn)))
         {
-            _pending.Add(new Pending(pc, connection, function, call, viewTime, _driver.Time));
+            _pending.Add(new Pending(pc, connection, function, call, viewTime, _driver.Time, senderPawn));
             return;
         }
 
-        SendNow(pc, connection, function, call, viewTime);
+        SendNow(pc, connection, function, call, viewTime, senderPawn);
     }
 
     private readonly List<Inbound> _inbound = new();
@@ -157,6 +159,7 @@ public sealed class NetCombatBridge : ICombatNet
                 p.Call.Target is SBasePawn { Health: > 0, bDeleteMe: false } pawn &&
                 ReferenceEquals(p.Controller.Pawn, pawn);
             if (p.Connection.State == EConnectionState.USOCK_Closed || p.Controller.bDeleteMe ||
+                (p.Function == FunctionName && !ReferenceEquals(p.Controller.Pawn, p.SenderPawn)) ||
                 (!initialKit && now - p.QueuedAt > (long)(MaxWaitSeconds * 1_000_000f)))
             {
                 _pending.RemoveAt(i);
@@ -165,14 +168,15 @@ public sealed class NetCombatBridge : ICombatNet
                 continue;
             }
 
-            if (!Mapped(p.Connection, p.Call) || HasPendingBefore(p.Connection, i))
+            if (!Mapped(p.Connection, p.Call) || (p.Function == FunctionName && !Mapped(p.Connection, p.SenderPawn)) ||
+                HasPendingBefore(p.Connection, i))
             {
                 i++;
                 continue;
             }
 
             _pending.RemoveAt(i);
-            SendNow(p.Controller, p.Connection, p.Function, p.Call, p.ViewTime);
+            SendNow(p.Controller, p.Connection, p.Function, p.Call, p.ViewTime, p.SenderPawn);
         }
     }
 
@@ -210,7 +214,8 @@ public sealed class NetCombatBridge : ICombatNet
         return connection.FindActorChannel(actor) is { Closing: false } channel && (channel.OpenAcked || !_driver.IsServer);
     }
 
-    private void SendNow(PlayerController pc, NetConnection connection, string function, in CombatCall call, long viewTime)
+    private void SendNow(PlayerController pc, NetConnection connection, string function, in CombatCall call, long viewTime,
+        Pawn? senderPawn)
     {
         ActorChannel? channel = _driver.ChannelForCall(pc, connection);
         RepFunction? f = channel?.Layout?.FindFunction(function);
@@ -224,9 +229,12 @@ public sealed class NetCombatBridge : ICombatNet
         Trace?.Add("send " + call.Function + " target " + call.Target?.GetType().Name);
         FOutBunch bunch = channel.BeginFunction(f, reliable: true);
         Write(bunch.Writer, call, connection);
-        if (function == FunctionName && Flag(bunch.Writer, viewTime >= 0))
+        if (function == FunctionName)
         {
-            bunch.Writer.WriteUInt64((ulong)viewTime);
+            if (Flag(bunch.Writer, viewTime >= 0)) bunch.Writer.WriteUInt64((ulong)viewTime);
+            // Controller channels survive respawn. Bind even targetless self-damage, blast and grab calls to
+            // the pawn that made them; a delayed packet must never act on the controller's replacement pawn.
+            if (Flag(bunch.Writer, senderPawn is not null)) connection.WriteObject(bunch.Writer, senderPawn, out _);
         }
 
         channel.SendFunction(bunch);
@@ -237,8 +245,20 @@ public sealed class NetCombatBridge : ICombatNet
     {
         CombatCall call = Read(reader, connection);
         long viewTime = reader.ReadBit() ? (long)reader.ReadUInt64() : -1;
+        bool hadPawn = reader.ReadBit();
+        Pawn? senderPawn = hadPawn ? connection.ReadObject(reader) as Pawn : null;
         if (reader.IsError || actor is not SPlayerController { bDeleteMe: false } pc)
         {
+            return;
+        }
+
+        if ((hadPawn && senderPawn is null) || !ReferenceEquals(pc.Pawn, senderPawn))
+        {
+            if (pc.XLevel.GetService<NetCombatBridge>() is { } bridge)
+            {
+                bridge.Dropped++;
+                bridge.Trace?.Add("stale pawn " + call.Function);
+            }
             return;
         }
 
@@ -295,7 +315,8 @@ public sealed class NetCombatBridge : ICombatNet
     }
 
     private static bool Possessed(SPlayerController pc, in CombatCall call) =>
-        call.Target is not Pawn { Role: ENetRole.ROLE_AutonomousProxy } own || ReferenceEquals(pc.Pawn, own);
+        call.Target is not Pawn { Role: ENetRole.ROLE_AutonomousProxy } own ||
+        (ReferenceEquals(pc.Pawn, own) && ReferenceEquals(own.Controller, pc));
 
     // ---- wire form --------------------------------------------------------------------------------------------
 

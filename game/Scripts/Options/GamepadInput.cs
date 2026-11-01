@@ -11,13 +11,12 @@ namespace OpenScctGame.Options;
 
 /// <summary>
 /// Controller play (rl:input.pad): the controller in use (the last one that sent input, else the first connected)
-/// drives the local player through the side's key layout. The left stick (radial deadzone, optional eight-way snap) is
+/// drives the local player through independent actions (or a saved legacy key layout). The left stick (radial deadzone, optional eight-way snap) is
 /// the analog move (<see cref="LocalInput.PadForward"/>: full circle, a part push walks slower) and also holds the keys
 /// bound to BT_Up/Down/Left/Right past <see cref="MovePress"/>; the right stick adds look counts (deadzone, response curve, vertical
-/// scale, the side's pad look multiplier), and each button presses the key its action is bound to in the side's pad
-/// layout (<see cref="PadSettings.SpyButtons"/>, <see cref="PadSettings.MercButtons"/>, remapped on the options'
-/// Controller page). Presses go in as real key and mouse events, so everything that reads keys (the play menu, the
-/// HUD's commands, the hub's keys) answers the pad as it answers the keyboard. The spy toggles to running above the
+/// scale, the side's pad look multiplier). PadBindingState resolves the side's buttons, held actions and combinations
+/// (<see cref="PadSettings.SpyButtons"/>, <see cref="PadSettings.MercButtons"/>). Legacy assignments still send their
+/// keyboard/mouse events; new actions and local menu commands work without any keyboard binding. The spy runs above the
 /// walk threshold. Defaults are Reloaded's (deadzones 0.25 and 0.15, vertical 0.75, walk threshold 0.95).
 /// </summary>
 public partial class GamepadInput : Node
@@ -42,7 +41,7 @@ public partial class GamepadInput : Node
     };
 
     /// <summary>How far a trigger goes down before it counts as pressed.</summary>
-    public const float TriggerPress = 0.5f;
+    public const float TriggerPress = 7680f / 32767f;
 
     /// <summary>How far the left stick leans before a direction key goes down.</summary>
     public const float MovePress = 0.38f;
@@ -54,6 +53,12 @@ public partial class GamepadInput : Node
     private bool _wasMerc;
     private bool _wasFast;
     private bool _stickSet;
+    private readonly PadBindingState _buttonsState = new();
+    private readonly PadActionState _actionState = new();
+    private readonly HashSet<string> _clutchOne = new(StringComparer.Ordinal);
+    private readonly HashSet<string> _clutchTwo = new(StringComparer.Ordinal);
+    private GameSettings? _settingsFor;
+    private bool _wasFlying;
 
     private static ulong s_drivenFrame = ulong.MaxValue;
 
@@ -76,25 +81,36 @@ public partial class GamepadInput : Node
 
     public override void _Process(double delta)
     {
-        if (!Settings.Pad.Enabled || PlayInput is not { Enabled: true, Bindings: { } bindings } input || Typing())
+        int previousDevice = Device;
+        Device = PadMenus.CurrentDevice();
+        bool merc = Session?.LocalPawn is SPAWNDEFENSE || Session?.LocalPawn is null && PlayInput?.Bindings?.Side == PlaySide.Merc;
+        LookSettings swaps = Settings.LookOf(merc, pad: true);
+        var down = new HashSet<string>(StringComparer.Ordinal);
+        if (Device >= 0)
+            foreach (string control in PadSettings.PhysicalControls)
+                if (IsDown(Device, swaps.PhysicalControl(control), Settings.Pad.TriggerThreshold)) down.Add(control);
+
+        if (!Settings.Pad.Enabled || PlayInput is not { Enabled: true, Bindings: { } bindings } input || Typing() || !input.HasInputFocus)
         {
             ReleaseAll();
+            _buttonsState.Reset(down);
             return;
         }
 
-        Device = PadMenus.CurrentDevice();
         if (Device < 0)
         {
             ReleaseAll();
             return;
         }
 
-        bool merc = Session?.LocalPawn is SPAWNDEFENSE;
-        if (!ReferenceEquals(_keysFor, bindings) || merc != _wasMerc)
+        if (!ReferenceEquals(_keysFor, bindings) || merc != _wasMerc || !ReferenceEquals(_settingsFor, Settings) || previousDevice != Device)
         {
+            bool hadLayout = _keysFor is not null;
             ReleaseAll();
+            if (hadLayout) _buttonsState.Reset(down);
             _keyOf.Clear();
             _keysFor = bindings;
+            _settingsFor = Settings;
             _wasMerc = merc;
         }
 
@@ -113,14 +129,16 @@ public partial class GamepadInput : Node
             // The direction keys still go down past MovePress (the menus and every reader of the key bytes see them),
             // but the move itself is the analog stick: any direction, and a part push walks slower unless slow walk is
             // off, when only the direction counts.
-            Hold(input, "MoveUp", "BT_Up", move.Y < -MovePress);
-            Hold(input, "MoveDown", "BT_Down", move.Y > MovePress);
-            Hold(input, "MoveLeft", "BT_Left", move.X < -MovePress);
-            Hold(input, "MoveRight", "BT_Right", move.X > MovePress);
+            bool direct = pad.LayoutVersionOf(merc) > 0;
+            Hold(input, "MoveUp", direct ? "Action:forward" : "BT_Up", move.Y < -MovePress);
+            Hold(input, "MoveDown", direct ? "Action:back" : "BT_Down", move.Y > MovePress);
+            Hold(input, "MoveLeft", direct ? "Action:left" : "BT_Left", move.X < -MovePress);
+            Hold(input, "MoveRight", direct ? "Action:right" : "BT_Right", move.X > MovePress);
             Vector2 analog = pad.SlowWalk || move == Vector2.Zero ? move : move.Normalized();
             Session?.Input.SetPadStick(-analog.Y, analog.X);
             _stickSet = true;
-            RunThreshold(input, merc, move.Length(), pad.RunThreshold);
+            if (direct) input.SetPadWalk(!merc && pad.SlowWalk && move.Length() > 0f ? move.Length() < pad.RunThreshold : null);
+            else RunThreshold(input, merc, move.Length(), pad.RunThreshold);
         }
         else
         {
@@ -128,50 +146,73 @@ public partial class GamepadInput : Node
         }
 
         bool flying = FreeCamera();
-
-        // The clutches are held here, not sent as keys (rl:input.clutch).
-        bool clutchOne = false, clutchTwo = false;
-        if (pad.Binds)
+        if (flying != _wasFlying)
         {
-            // The side's controller group can swap the stick clicks with the bumpers (swap_ls_lb, swap_rs_rb).
-            LookSettings swaps = Settings.LookOf(merc, pad: true);
-            foreach ((string control, string action) in pad.ButtonsOf(merc))
-            {
-                string physical = swaps.PhysicalControl(control);
-                if (flying && IsFreeCamControl(physical))
-                {
-                    // The free camera has the triggers and the shoulder buttons (FreeCamera above).
-                    Hold(input, control, action, false);
-                }
-                else if (string.Equals(action, PadSettings.ClutchOneAction, StringComparison.OrdinalIgnoreCase))
-                {
-                    clutchOne |= IsDown(Device, physical);
-                }
-                else if (string.Equals(action, PadSettings.ClutchTwoAction, StringComparison.OrdinalIgnoreCase))
-                {
-                    clutchTwo |= IsDown(Device, physical);
-                }
-                else
-                {
-                    Hold(input, control, action, IsDown(Device, physical));
-                }
-            }
+            ReleaseButtons();
+            _buttonsState.Reset(down);
+            _wasFlying = flying;
         }
+        if (flying) down.RemoveWhere(c => IsFreeCamControl(swaps.PhysicalControl(c)));
+        if (pad.Binds) UpdateButtons(input, merc, down, delta);
+        else { ReleaseButtons(); _buttonsState.Reset(down); }
 
         if (pad.Aim && Session is { } session)
         {
             Vector2 look = Stick(JoyAxis.RightX, JoyAxis.RightY, pad.DeadzoneRight);
             LookSettings group = Settings.LookOf(merc, pad: true);
             float k = pad.LookSpeed * (float)delta * LegacyUnitsPerCount / MouseLook.UnitsPerCount;
-            float clutch = group.ClutchOf(clutchOne, clutchTwo);
+            float clutch = group.ClutchOf(_clutchOne.Count > 0, _clutchTwo.Count > 0);
             (float h, float v) = PadMultipliers(session);
-            session.Input.MouseX += Response(look.X * clutch, group.LookResponse) * k * h;
-            session.Input.MouseY -= Response(look.Y * clutch, group.LookResponse) * k * v * pad.VerticalScale;
+            string response = !merc && session.LocalPawn?.WeaponLoaded == 2 ? group.GunLookResponse : group.LookResponse;
+            session.Input.MouseX += Response(look.X * clutch, response) * k * h;
+            session.Input.MouseY -= Response(look.Y * clutch, response) * k * v * pad.VerticalScale;
             if (look != Vector2.Zero)
             {
                 Capture(input);
             }
         }
+    }
+
+    /// <summary>Logical buttons after stick/bumper swaps. Shared by polling and the controller smoke.</summary>
+    internal void UpdateButtons(PlayInput input, bool merc, IReadOnlySet<string> down, double delta)
+    {
+        SPlayerController? pc = Session?.LocalController ?? input.Controller?.Invoke();
+        SBasePawn? pawn = pc?.SBPawn;
+        bool slot2Cloak = false;
+        int slot = 0;
+        for (SGadget? gadget = pawn?.MyGadget; gadget is not null; gadget = gadget.MyGadget)
+        {
+            if (!OpenScct.Game.Equipment.PawnInventory.IsSelectable(gadget)) continue;
+            if (slot++ == 1) { slot2Cloak = gadget is SGadCloak; break; }
+        }
+        var context = new PadActionContext(InCamera: pc is not null && PlayerCommands.InCamera(pc), IsSpy: !merc,
+            WeaponDrawn: pawn?.WeaponLoaded == 2, CloakSelected: pawn?.SelectedGadget is SGadCloak,
+            CloakActive: pawn?.DesiredGlassEffect == 255, Scoped: pc?.bBinocularVision == true,
+            Slot2IsCloak: slot2Cloak,
+            CameraTransition: pc?.IsInState("s_UseObject_StickyCam_SmoothToPosition") == true);
+        foreach (PadBindingEvent ev in _actionState.Update(_buttonsState.Update(Settings.Pad.ButtonsOf(merc), down, delta), delta, context))
+        {
+            if (ev.Pressed && !input.Enabled) break; // A menu command can stop gameplay during this batch.
+            if (ev.Action is PadSettings.ClutchOneAction or PadSettings.ClutchTwoAction)
+            {
+                HashSet<string> held = ev.Action == PadSettings.ClutchOneAction ? _clutchOne : _clutchTwo;
+                if (ev.Pressed) held.Add(ev.Control); else held.Remove(ev.Control);
+                continue;
+            }
+            string action = ev.Action;
+            if (action == "Pad:walllaser")
+                action = (Session?.LocalPawn ?? input.Controller?.Invoke()?.SBPawn)?.WeaponLoaded == 2 ? "Action:weaponlaser" : "Action:wall";
+            Hold(input, ev.Control, action, ev.Pressed);
+        }
+    }
+
+    private void ReleaseButtons()
+    {
+        _buttonsState.ReleaseAll();
+        foreach (PadBindingEvent ev in _actionState.ReleaseAll())
+            if (PlayInput is { } input) Hold(input, ev.Control, ev.Action, false);
+        _clutchOne.Clear();
+        _clutchTwo.Clear();
     }
 
     /// <summary>
@@ -253,10 +294,10 @@ public partial class GamepadInput : Node
     }
 
     /// <summary>A pad control is down: a button, or a trigger past <see cref="TriggerPress"/>.</summary>
-    public static bool IsDown(int device, string control) => control switch
+    public static bool IsDown(int device, string control, float threshold = TriggerPress) => control switch
     {
-        "LT" => Godot.Input.GetJoyAxis(device, JoyAxis.TriggerLeft) > TriggerPress,
-        "RT" => Godot.Input.GetJoyAxis(device, JoyAxis.TriggerRight) > TriggerPress,
+        "LT" => Godot.Input.GetJoyAxis(device, JoyAxis.TriggerLeft) > threshold,
+        "RT" => Godot.Input.GetJoyAxis(device, JoyAxis.TriggerRight) > threshold,
         _ => Buttons.TryGetValue(control, out JoyButton b) && Godot.Input.IsJoyButtonPressed(device, b),
     };
 
@@ -356,6 +397,11 @@ public partial class GamepadInput : Node
     {
         if (down)
         {
+            if (action is "Action:menu" or "Action:session")
+            {
+                input.SendLocalCommand(action == "Action:menu" ? "ShowMenu" : "DisplaySessionStatus");
+                return;
+            }
             string? resolved = action.StartsWith(UI.ControlActions.PadPrefix, StringComparison.Ordinal)
                 ? UI.ControlActions.VirtualPrefix + control + ":" + action[UI.ControlActions.PadPrefix.Length..]
                 : KeyFor(input, action);
@@ -456,6 +502,7 @@ public partial class GamepadInput : Node
     /// <summary>Lets go of the analog stick this node set.</summary>
     private void ClearStick()
     {
+        PlayInput?.SetPadWalk(null);
         if (_stickSet)
         {
             _stickSet = false;
@@ -465,6 +512,7 @@ public partial class GamepadInput : Node
 
     private void ReleaseAll()
     {
+        ReleaseButtons();
         ClearStick();
         if (Session is { } session)
         {

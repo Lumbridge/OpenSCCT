@@ -24,57 +24,118 @@ public enum MagmaAnchor
 public sealed class MagmaDrawItem
 {
     /// <summary>Instance path and widget name, for example <c>Chrono/Chrono</c> or <c>Vie/jaugeinterne</c>.</summary>
-    public string Path { get; init; } = "";
+    public string Path { get; set; } = "";
 
-    public MagmaWidgetKind Kind { get; init; }
+    public MagmaWidgetKind Kind { get; set; }
 
-    public MagmaAnchor Anchor { get; init; }
+    public MagmaAnchor Anchor { get; set; }
 
     /// <summary>The widget's rect in page units after its area origins (before the anchor and the screen scale).</summary>
-    public Rect4 PageRect { get; init; }
+    public Rect4 PageRect { get; set; }
 
     // Images
-    public string Package { get; init; } = "";
+    public string Package { get; set; } = "";
 
-    public string Texture { get; init; } = "";
+    public string Texture { get; set; } = "";
 
-    public Vector2[] Points { get; init; } = [];
+    public Vector2[] Points { get; set; } = [];
 
     /// <summary>Texture coordinates normalised to the texture (0..1).</summary>
-    public Vector2[] Uvs { get; init; } = [];
+    public Vector2[] Uvs { get; set; } = [];
 
     /// <summary>Per-vertex modulate: for Normal and Burn the colour the texture is multiplied by; for Dodge the
     /// vertex colour vc that the dodge shader turns into S = saturate(2 tex vc).</summary>
-    public Color[] Colors { get; init; } = [];
+    public Color[] Colors { get; set; } = [];
 
-    public MagmaBlend Blend { get; init; }
+    public MagmaBlend Blend { get; set; }
 
     /// <summary>
     /// Sample the texture clamped to its edges instead of repeating it: set for images whose texture coordinates stay
     /// inside the texture (a nudge of a few hundredths aside), so the far edge does not wrap round to the near one.
     /// </summary>
-    public bool Clamp { get; init; }
+    public bool Clamp { get; set; }
 
     // Texts
-    public string Text { get; init; } = "";
+    public string Text { get; set; } = "";
 
-    public string Font { get; init; } = "";
+    public string Font { get; set; } = "";
 
-    public Rect2 Rect { get; init; }
+    public Rect2 Rect { get; set; }
 
-    public float HeightPx { get; init; }
+    public float HeightPx { get; set; }
 
-    public MagmaAlign Align { get; init; }
+    public MagmaAlign Align { get; set; }
 
-    public Color Color { get; init; }
+    public Color Color { get; set; }
 
-    public Color Shadow { get; init; }
+    public Color Shadow { get; set; }
 
-    public Vector2 ShadowOffsetPx { get; init; }
+    public Vector2 ShadowOffsetPx { get; set; }
 
-    public float XScale { get; init; } = 1f;
+    public float XScale { get; set; } = 1f;
 
-    public float TrackingPx { get; init; }
+    public float TrackingPx { get; set; }
+
+    /// <summary>Exact draw-command equality; never round moving/fading HUD values to suppress a redraw.</summary>
+    internal bool SameDraw(MagmaDrawItem other) => Kind == other.Kind &&
+        (Kind == MagmaWidgetKind.Text
+            ? Text == other.Text && Font == other.Font && Rect == other.Rect && HeightPx == other.HeightPx &&
+              Align == other.Align && Color == other.Color && Shadow == other.Shadow &&
+              ShadowOffsetPx == other.ShadowOffsetPx && XScale == other.XScale && TrackingPx == other.TrackingPx
+            : Package == other.Package && Texture == other.Texture && Blend == other.Blend && Clamp == other.Clamp &&
+              Points.AsSpan().SequenceEqual(other.Points) && Uvs.AsSpan().SequenceEqual(other.Uvs) &&
+              Colors.AsSpan().SequenceEqual(other.Colors));
+
+    /// <summary>A canvas owns its own snapshot: producers may reuse their item and arrays before deferred _Draw.</summary>
+    internal void CopyFrom(MagmaDrawItem source)
+    {
+        Path = source.Path;
+        Kind = source.Kind;
+        Anchor = source.Anchor;
+        PageRect = source.PageRect;
+        Package = source.Package;
+        Texture = source.Texture;
+        Blend = source.Blend;
+        Clamp = source.Clamp;
+        Text = source.Text;
+        Font = source.Font;
+        Rect = source.Rect;
+        HeightPx = source.HeightPx;
+        Align = source.Align;
+        Color = source.Color;
+        Shadow = source.Shadow;
+        ShadowOffsetPx = source.ShadowOffsetPx;
+        XScale = source.XScale;
+        TrackingPx = source.TrackingPx;
+        if (source.Kind == MagmaWidgetKind.Image) SetGeometry(source.Points, source.Uvs, source.Colors);
+    }
+
+    internal void SetGeometry(ReadOnlySpan<Vector2> points, ReadOnlySpan<Vector2> uvs, ReadOnlySpan<Color> colors)
+    {
+        if (Points.Length != points.Length) Points = new Vector2[points.Length];
+        if (Uvs.Length != uvs.Length) Uvs = new Vector2[uvs.Length];
+        if (Colors.Length != colors.Length) Colors = new Color[colors.Length];
+        points.CopyTo(Points);
+        uvs.CopyTo(Uvs);
+        colors.CopyTo(Colors);
+    }
+
+    internal void Reset(MagmaWidgetKind kind)
+    {
+        Path = Package = Texture = Text = Font = "";
+        Kind = kind;
+        Anchor = default;
+        PageRect = default;
+        Blend = default;
+        Clamp = false;
+        Rect = default;
+        HeightPx = TrackingPx = 0f;
+        Align = default;
+        Color = Shadow = default;
+        ShadowOffsetPx = default;
+        XScale = 1f;
+        // Geometry storage remains available for reuse. Text never reads these arrays.
+    }
 
     public override string ToString() => Kind == MagmaWidgetKind.Text ? $"{Path} '{Text}'" : $"{Path} {Texture}";
 }
@@ -82,9 +143,26 @@ public sealed class MagmaDrawItem
 /// <summary>What one page draw produced, in draw order.</summary>
 public sealed class MagmaDrawList
 {
+    private readonly List<MagmaDrawItem> _pool = new();
+    private int _used;
+
     public List<MagmaDrawItem> Items { get; } = new();
 
-    public void Clear() => Items.Clear();
+    public void Clear()
+    {
+        Items.Clear();
+        _used = 0;
+    }
+
+    /// <summary>Mutable until this list's next Clear. A consumer that retains commands must copy them.</summary>
+    public MagmaDrawItem Add(MagmaWidgetKind kind)
+    {
+        if (_used == _pool.Count) _pool.Add(new MagmaDrawItem());
+        MagmaDrawItem item = _pool[_used++];
+        item.Reset(kind);
+        Items.Add(item);
+        return item;
+    }
 
     /// <summary>The last item whose path is <paramref name="path"/> (ignoring case), or null.</summary>
     public MagmaDrawItem? Find(string path)
@@ -153,6 +231,11 @@ public sealed class MagmaRenderer
     private readonly Dictionary<MagmaNode, Dictionary<string, MagmaListRows>> _lists = new();
     private readonly Dictionary<(MagmaNode, string), List<MagmaNode>> _rowNodes = new();
     private readonly List<Vector2[]> _maskGroup = new();
+    private readonly List<Vector2[]> _maskPool = new();
+    private readonly Vector2[] _points = new Vector2[4];
+    private readonly Vector2[] _uvs = new Vector2[4];
+    private readonly Color[] _colors = new Color[4];
+    private readonly Dictionary<(MagmaNode Node, string Widget), string> _paths = new();
     private MagmaMask _mode;
     private bool _lastWasSet;
 
@@ -338,7 +421,11 @@ public sealed class MagmaRenderer
             r = r with { T = top };
         }
 
-        string path = node.Parent is null ? w.Name : node.Path + "/" + w.Name;
+        if (!_paths.TryGetValue((node, w.Name), out string? path))
+        {
+            path = node.Parent is null ? w.Name : node.Path + "/" + w.Name;
+            _paths[(node, w.Name)] = path;
+        }
         switch (w.Kind)
         {
             case MagmaWidgetKind.Text:
@@ -405,24 +492,21 @@ public sealed class MagmaRenderer
             }
         }
 
-        into.Items.Add(new MagmaDrawItem
-        {
-            Path = path,
-            Kind = MagmaWidgetKind.Text,
-            Anchor = anchor,
-            PageRect = r,
-            Text = text,
-            Font = w.Font,
-            Rect = new Rect2(Math.Min(p0.X, p1.X), Math.Min(p0.Y, p1.Y), Math.Abs(p1.X - p0.X), Math.Abs(p1.Y - p0.Y)),
-            HeightPx = height,
-            Align = align,
-            Color = Clamp01((o?.Color ?? k.TextColor) * k.State * tint),
-            Shadow = Clamp01(k.Shadow * k.State * tint),
-            // Magma's shadow offset counts y upwards: (1, -1) puts the shadow one unit right and one unit down.
-            ShadowOffsetPx = new Vector2(k.ShadowOffset.X, -k.ShadowOffset.Y) * S,
-            XScale = xs,
-            TrackingPx = k.Tracking * 0.001f * height * xs,
-        });
+        MagmaDrawItem item = into.Add(MagmaWidgetKind.Text);
+        item.Path = path;
+        item.Anchor = anchor;
+        item.PageRect = r;
+        item.Text = text;
+        item.Font = w.Font;
+        item.Rect = new Rect2(Math.Min(p0.X, p1.X), Math.Min(p0.Y, p1.Y), Math.Abs(p1.X - p0.X), Math.Abs(p1.Y - p0.Y));
+        item.HeightPx = height;
+        item.Align = align;
+        item.Color = Clamp01((o?.Color ?? k.TextColor) * k.State * tint);
+        item.Shadow = Clamp01(k.Shadow * k.State * tint);
+        // Magma's shadow offset counts y upwards: (1, -1) puts the shadow one unit right and one unit down.
+        item.ShadowOffsetPx = new Vector2(k.ShadowOffset.X, -k.ShadowOffset.Y) * S;
+        item.XScale = xs;
+        item.TrackingPx = k.Tracking * 0.001f * height * xs;
     }
 
     private void DrawList(MagmaNode node, MagmaWidget w, MagmaKey k, Vector2 at, Color tint, MagmaAnchor anchor,
@@ -489,10 +573,10 @@ public sealed class MagmaRenderer
         r = new Rect4(r.L, r.T, r.R + 1f, r.B + 1f);
         float rot = o?.Rotation ?? k.Rot;
         var c0 = new Vector2((r.L + r.R) * 0.5f, (r.T + r.B) * 0.5f);
-        Vector2[] corners = [new(r.L, r.T), new(r.R, r.T), new(r.R, r.B), new(r.L, r.B)];
+        ReadOnlySpan<Vector2> corners = [new(r.L, r.T), new(r.R, r.T), new(r.R, r.B), new(r.L, r.B)];
         float rad = Mathf.DegToRad(rot);
         float cs = MathF.Cos(rad), sn = MathF.Sin(rad);
-        var points = new Vector2[4];
+        Vector2[] points = _points;
         for (int c = 0; c < 4; c++)
         {
             Vector2 d = corners[c] - c0;
@@ -524,7 +608,10 @@ public sealed class MagmaRenderer
                     _maskGroup.Clear();
                 }
 
-                _maskGroup.Add(points);
+                if (_maskGroup.Count == _maskPool.Count) _maskPool.Add(new Vector2[4]);
+                Vector2[] mask = _maskPool[_maskGroup.Count];
+                points.CopyTo(mask, 0);
+                _maskGroup.Add(mask);
             }
 
             _lastWasSet = true;
@@ -543,8 +630,8 @@ public sealed class MagmaRenderer
         Vector2I size = TextureSize?.Invoke(package.Name, material.Texture) ??
             new Vector2I((int)Math.Max(1f, Math.Max(region.L, region.R)), (int)Math.Max(1f, Math.Max(region.T, region.B)));
         ReadOnlySpan<Vector2> st = [new(0f, 0f), new(1f, 0f), new(1f, 1f), new(0f, 1f)];
-        var uvs = new Vector2[4];
-        var colors = new Color[4];
+        Vector2[] uvs = _uvs;
+        Color[] colors = _colors;
         bool clamp = true;
         float scale = w.Blend switch
         {
@@ -589,21 +676,18 @@ public sealed class MagmaRenderer
     }
 
     private static void Add(MagmaDrawList into, string path, MagmaAnchor anchor, Rect4 pageRect, string package, string texture,
-        Vector2[] points, Vector2[] uvs, Color[] colors, MagmaBlend blend, bool clamp) =>
-        into.Items.Add(new MagmaDrawItem
-        {
-            Path = path,
-            Kind = MagmaWidgetKind.Image,
-            Anchor = anchor,
-            PageRect = pageRect,
-            Package = package,
-            Texture = texture,
-            Points = points,
-            Uvs = uvs,
-            Colors = colors,
-            Blend = blend,
-            Clamp = clamp,
-        });
+        Vector2[] points, Vector2[] uvs, Color[] colors, MagmaBlend blend, bool clamp)
+    {
+        MagmaDrawItem item = into.Add(MagmaWidgetKind.Image);
+        item.Path = path;
+        item.Anchor = anchor;
+        item.PageRect = pageRect;
+        item.Package = package;
+        item.Texture = texture;
+        item.SetGeometry(points, uvs, colors);
+        item.Blend = blend;
+        item.Clamp = clamp;
+    }
 
     private static Color Clamp01(Color c) =>
         new(Math.Clamp(c.R, 0f, 1f), Math.Clamp(c.G, 0f, 1f), Math.Clamp(c.B, 0f, 1f), Math.Clamp(c.A, 0f, 1f));

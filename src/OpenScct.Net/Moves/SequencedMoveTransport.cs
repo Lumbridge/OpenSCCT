@@ -20,6 +20,7 @@ public sealed class SequencedMoveTransport : IMoveTransport
     private readonly Command[] _ring = new Command[Capacity];
     private uint _epoch, _sent, _sealed, _acknowledged, _applied;
     private long _appliedInputTick;
+    private float _appliedInputDelta;
     private bool _hasEpoch, _resetRequested;
     private long _ackTick = -1;
     private float _appliedStamp;
@@ -72,6 +73,7 @@ public sealed class SequencedMoveTransport : IMoveTransport
     public uint CommandEpoch => _epoch;
     public uint NextSequence => _sent + 1;
     public uint LastApplied => _applied;
+    public string DescribeInputClock() => $"world {_driver.World?.TickCount}, pump {_lastPumpTick}, offset {_inputTickOffset}, appliedInput {_appliedInputTick}, nextInput {_ring[Slot(_applied + 1)].InputTick}, reliable {_ring[Slot(_applied + 1)].CompletedReliable}/{Channel?.Connection.InReliable[Channel.ChIndex]}";
     public string DescribePending() => $"applied {_applied}, received {_highestReceived}, next {_ring[Slot(_applied + 1)].Sequence}/reliable {_ring[Slot(_applied + 1)].RequiredReliable}, epoch {_epoch}, credit {_simulationCredit:F1}, sent {_sent}, ack {_acknowledged}, resend {_resendCursor}, oldest {_ring[Slot(_acknowledged + 1)].Sequence} kind {_ring[Slot(_acknowledged + 1)].Kind} dt {_ring[Slot(_acknowledged + 1)].Delta} msa {_ring[Slot(_acknowledged + 1)].Move.MSATime} vel {_ring[Slot(_acknowledged + 1)].Move.Vel}, resets {ResynchronizationRequests}, rejected {CommandsRejected}: {_lastRejected.Sequence}/{_lastRejected.Kind}/{_lastRejected.Delta}/{_lastRejected.Move.MSATime}/{_lastRejected.Move.Vel}, sentFirst {_lastSentFirst} at {_lastTransmitTick}, ignored {_ignoredBatches}/{_lastIgnoredEpoch}/{_lastIgnoredPawn} pawn {_pawnGuid} reads {_readErrors}";
     public long RecoveredCommands { get; private set; }
     public long DuplicateCommands { get; private set; }
@@ -84,7 +86,7 @@ public sealed class SequencedMoveTransport : IMoveTransport
     public static RepExtension CreateExtension()
     {
         var ext = new RepExtension();
-        ext.Functions.Add(new(Commands, false, true, "move-commands-9", ReceiveCommands));
+        ext.Functions.Add(new(Commands, false, true, "move-commands-13", ReceiveCommands) { AcceptReordered = true });
         ext.Functions.Add(new(Ack, false, false, "move-ack-5", ReceiveAck));
         ext.Functions.Add(new(Resync, true, true, "move-resync-1", ReceiveResync));
         ext.Functions.Add(new(Reset, true, false, "move-reset-1", ReceiveReset));
@@ -97,7 +99,7 @@ public sealed class SequencedMoveTransport : IMoveTransport
         _hasEpoch = true; _epoch = epoch; _sent = _sealed = _acknowledged = _applied = 0;
         _resetRequested = false; Array.Clear(_ring); HistoryResets++;
         _highestReceived = 0;
-        _appliedInputTick = 0;
+        _appliedInputTick = 0; _appliedInputDelta = 0f;
         _lastPumpTick = -1; _simulationCredit = 12f;
         _lastTransmitTick = -1; _lastAckSent = 0;
         _resendCursor = 1;
@@ -193,9 +195,11 @@ public sealed class SequencedMoveTransport : IMoveTransport
         if (_driver.IsServer || _sent <= _acknowledged || Channel is not { } channel || !channel.Connection.IsNetReady) return;
         Command latest = _ring[Slot(_sent)];
         long tick = _driver.World!.TickCount;
+        long normalAckTicks = Math.Max(12, (channel.Connection.Stats.RttMicros * Sim.Hz + 999_999) / 1_000_000 + InputBufferTicks + 3);
+        bool recovering = tick - _ring[Slot(_acknowledged + 1)].InputTick > normalAckTicks;
         bool active = latest.Kind == 3 || !_pawn.Velocity.IsZero() || !latest.Move.InAccel.IsZero() ||
             MovePacking.DiversJump((byte)latest.Move.iDiversInfos) || latest.Move.View != _lastTransmitView ||
-            latest.CompletedReliable != _lastTransmitReliable;
+            latest.CompletedReliable != _lastTransmitReliable || recovering;
         // Idle simulation still records every tick. Bundle three unchanged ticks instead of exchanging empty
         // 60 Hz packets, while movement, aim and action changes are sent immediately.
         if (!active && _lastTransmitTick >= 0 && tick - _lastTransmitTick < 3) return;
@@ -235,7 +239,13 @@ public sealed class SequencedMoveTransport : IMoveTransport
         }
         FOutBunch b = channel.BeginFunction(channel.Layout!.FindFunction(Commands)!, false);
         b.Writer.WriteIntPacked(_epoch); b.Writer.WriteIntPacked(_pawnGuid); b.Writer.WriteByte((byte)count);
-        for (int i = 0; i < count; i++) Write(b.Writer, _ring[Slot(selected[i])], channel.Connection);
+        Command previous = default;
+        for (int i = 0; i < count; i++)
+        {
+            Command command = _ring[Slot(selected[i])];
+            Write(b.Writer, command, previous, channel.Connection);
+            previous = command;
+        }
         if (channel.SendFunction(b) >= 0)
         {
             _lastTransmitTick = tick; _lastTransmitView = latest.Move.View; _lastTransmitReliable = latest.CompletedReliable;
@@ -270,9 +280,11 @@ public sealed class SequencedMoveTransport : IMoveTransport
         {
             transport._ignoredBatches++; transport._lastIgnoredEpoch = epoch; transport._lastIgnoredPawn = pawnGuid;
         }
+        Command previous = default;
         for (int i = 0; i < count; i++)
         {
-            Command command = Read(r, connection);
+            Command command = Read(r, previous, connection);
+            previous = command;
             if (r.IsError) { if (transport is not null) transport._readErrors++; continue; }
             if (!accept) continue;
             if (command.Sequence <= transport!._applied) { transport.DuplicateCommands++; continue; }
@@ -295,7 +307,11 @@ public sealed class SequencedMoveTransport : IMoveTransport
         SendPendingReset();
         if (!_hasEpoch || !HasCurrentPawn || Channel is not { } channel) return;
         long tick = _driver.World!.TickCount;
-        if (_lastPumpTick >= 0) _simulationCredit = Math.Min(30f, _simulationCredit + Math.Max(0, tick - _lastPumpTick));
+        // Retain enough elapsed simulation time to recover every input still in prediction history.
+        // A shorter credit cap permanently discards time during an outage: new input consumes all
+        // subsequently earned credit, so the old commands can never catch up. Work is still bounded
+        // to eight commands per pump, the anchored input clock, and one simulation step per input tick.
+        if (_lastPumpTick >= 0) _simulationCredit = Math.Min(HistoryTicks, _simulationCredit + Math.Max(0, tick - _lastPumpTick));
         _lastPumpTick = tick;
         SequencedMoveTransport transport = this;
         // Bound catch-up work after an outage. A later packet continues the contiguous run.
@@ -304,6 +320,9 @@ public sealed class SequencedMoveTransport : IMoveTransport
             ref Command next = ref transport!._ring[Slot(transport._applied + 1)];
             if (next.Sequence != transport._applied + 1) break;
             Command c = next;
+            float tickDelta = c.Delta + (_applied != 0 && c.InputTick == _appliedInputTick ? _appliedInputDelta : 0f);
+            if (tickDelta > Sim.DeltaTime + 0.00001f)
+            { channel.Connection.Close("Movement input exceeds one simulation step per tick"); break; }
             if (_applied != 0 && (c.InputTick < _appliedInputTick || c.InputTick - _appliedInputTick > HistoryTicks ||
                 Math.Abs((c.Move.TimeStamp - (double)_appliedStamp) - (c.InputTick - _appliedInputTick) * (double)Sim.DeltaTime) > 2 * Sim.DeltaTime + 0.005))
             { channel.Connection.Close("Invalid movement input timeline"); break; }
@@ -316,7 +335,11 @@ public sealed class SequencedMoveTransport : IMoveTransport
             // Commands older than this clock still catch up after an outage, retaining their individual steps.
             if (!_hasInputClock)
             {
-                _inputTickOffset = tick - c.InputTick + InputBufferTicks;
+                // A recovered batch can start with old input. Anchor its newest command to arrival time;
+                // anchoring the oldest makes the startup loss/delay a permanent input-lag penalty.
+                long newestInputTick = _ring[Slot(_highestReceived)].InputTick;
+                int jitterTicks = (int)Math.Clamp((channel.Connection.Stats.JitterMicros * Sim.Hz + 999_999) / 1_000_000, 0, 4);
+                _inputTickOffset = tick - Math.Max(c.InputTick, newestInputTick) + InputBufferTicks + jitterTicks;
                 _hasInputClock = true;
             }
             if (c.InputTick > tick - _inputTickOffset) break;
@@ -365,6 +388,7 @@ public sealed class SequencedMoveTransport : IMoveTransport
                 transport._applied = c.Sequence; transport._appliedStamp = c.Move.TimeStamp; transport._appliedInputTick = c.InputTick; next = default;
                 _reportedLocation = c.ReportedLocation; _reportedDivers = c.ReportedDivers;
                 _reportedBase = c.ReportedBase;
+                _appliedInputDelta = tickDelta;
                 _simulationCredit -= cost;
             }
             finally { commandPawn?.EndMoveCommand(); }
@@ -478,49 +502,93 @@ public sealed class SequencedMoveTransport : IMoveTransport
     private static int Slot(uint seq) => (int)(seq & (Capacity - 1));
     private static void Vec(FBitWriter w, FVector v) { w.WriteFloat(v.X); w.WriteFloat(v.Y); w.WriteFloat(v.Z); }
     private static FVector Vec(FBitReader r) => new(r.ReadFloat(), r.ReadFloat(), r.ReadFloat());
-    private static void Write(FBitWriter w, in Command c, NetConnection map)
+    // Repeated fields are relative only to the previous command in this same datagram. Every batch is
+    // independently decodable, including resends and reordered/lost packets. Keep timestamps and command
+    // identities explicit; this removes redundant payload without changing simulation or quantization.
+    private static void Write(FBitWriter w, in Command c, in Command previous, NetConnection map)
     {
         BigServerMoveData m = c.Move;
         w.WriteIntPacked(c.Sequence); w.WriteBits(c.Kind, 3);
-        w.WriteIntPacked(c.RequiredReliable); w.WriteIntPacked(c.CompletedReliable);
+        w.WriteBit(c.RequiredReliable != previous.RequiredReliable);
+        if (c.RequiredReliable != previous.RequiredReliable) w.WriteIntPacked(c.RequiredReliable);
+        w.WriteBit(c.CompletedReliable != c.RequiredReliable);
+        if (c.CompletedReliable != c.RequiredReliable) w.WriteIntPacked(c.CompletedReliable);
         w.WriteBit(c.Delta != Sim.DeltaTime); if (c.Delta != Sim.DeltaTime) w.WriteFloat(c.Delta);
         w.WriteFloat(m.TimeStamp);
         w.WriteIntPacked((uint)c.InputTick);
-        w.WritePackedVector(m.InAccel); w.WritePackedVector(m.ClientLoc);
-        uint yaw = (uint)m.View & 32767, pitch = (uint)m.View >> 15;
-        w.WriteBit(yaw != 0); if (yaw != 0) w.WriteBits(yaw, 15);
-        w.WriteBit(pitch != 0); if (pitch != 0) w.WriteBits(pitch, 15);
-        w.WriteByte((byte)m.iDiversInfos);
+        WriteDeltaVector(w, m.InAccel, previous.Move.InAccel);
+        WriteDeltaVector(w, m.ClientLoc, previous.Move.ClientLoc);
+        w.WriteBit(m.View != previous.Move.View);
+        if (m.View != previous.Move.View)
+        {
+            uint yaw = (uint)m.View & 32767, pitch = (uint)m.View >> 15;
+            w.WriteBit(yaw != 0); if (yaw != 0) w.WriteBits(yaw, 15);
+            w.WriteBit(pitch != 0); if (pitch != 0) w.WriteBits(pitch, 15);
+        }
+        w.WriteBit(m.iDiversInfos != previous.Move.iDiversInfos);
+        if (m.iDiversInfos != previous.Move.iDiversInfos) w.WriteByte((byte)m.iDiversInfos);
         if (c.Kind == 3)
         {
-            w.WriteFloat(m.MSATime); Vec(w, m.Vel); w.WriteInt32(m.Val0); w.WriteInt32(m.Val1);
-            w.WritePackedVector(m.ZipP1); w.WritePackedVector(m.DifZipP2); w.WritePackedVector(m.vect3); w.WritePackedVector(m.vectUnit);
+            WriteDeltaFloat(w, m.MSATime, previous.Move.MSATime);
+            WriteDeltaFloat(w, m.Vel.X, previous.Move.Vel.X);
+            WriteDeltaFloat(w, m.Vel.Y, previous.Move.Vel.Y);
+            WriteDeltaFloat(w, m.Vel.Z, previous.Move.Vel.Z);
+            w.WriteBit(m.Val0 != previous.Move.Val0); if (m.Val0 != previous.Move.Val0) w.WriteInt32(m.Val0);
+            w.WriteBit(m.Val1 != previous.Move.Val1); if (m.Val1 != previous.Move.Val1) w.WriteInt32(m.Val1);
+            WriteDeltaVector(w, m.ZipP1, previous.Move.ZipP1);
+            WriteDeltaVector(w, m.DifZipP2, previous.Move.DifZipP2);
+            WriteDeltaVector(w, m.vect3, previous.Move.vect3);
+            WriteDeltaVector(w, m.vectUnit, previous.Move.vectUnit);
         }
-        bool completed = c.ReportedLocation != m.ClientLoc ||
+        bool completed = !MoveBatchVector.Equal(c.ReportedLocation, m.ClientLoc) ||
             (c.ReportedDivers & 0xf3) != ((byte)m.iDiversInfos & 0xf3);
         w.WriteBit(completed);
-        if (completed) { w.WritePackedVector(c.ReportedLocation); w.WriteByte(c.ReportedDivers); }
-        map.WriteObject(w, c.ReportedBase, out _);
+        if (completed) { WriteDeltaVector(w, c.ReportedLocation, m.ClientLoc); w.WriteByte(c.ReportedDivers); }
+        w.WriteBit(!ReferenceEquals(c.ReportedBase, previous.ReportedBase));
+        if (!ReferenceEquals(c.ReportedBase, previous.ReportedBase)) map.WriteObject(w, c.ReportedBase, out _);
     }
-    private static Command Read(FBitReader r, NetConnection map)
+    private static void WriteDeltaVector(FBitWriter w, FVector value, FVector previous) => MoveBatchVector.Write(w, value, previous);
+    private static FVector ReadDeltaVector(FBitReader r, FVector previous) => MoveBatchVector.Read(r, previous);
+
+    private static void WriteDeltaFloat(FBitWriter w, float value, float previous)
+    {
+        w.WriteBit(value != previous);
+        if (value != previous) w.WriteFloat(value);
+    }
+    private static float ReadDeltaFloat(FBitReader r, float previous) => r.ReadBit() ? r.ReadFloat() : previous;
+
+    private static Command Read(FBitReader r, in Command previous, NetConnection map)
     {
         var c = new Command { Sequence = r.ReadIntPacked(), Kind = (byte)r.ReadBits(3) };
-        uint required = r.ReadIntPacked(), completed = r.ReadIntPacked();
+        uint required = r.ReadBit() ? r.ReadIntPacked() : previous.RequiredReliable;
+        uint completed = r.ReadBit() ? r.ReadIntPacked() : required;
         if (required > ushort.MaxValue || completed > ushort.MaxValue) { map.Close("Invalid movement control fence"); return c; }
         c.RequiredReliable = (ushort)required; c.CompletedReliable = (ushort)completed;
         c.Delta = r.ReadBit() ? r.ReadFloat() : Sim.DeltaTime;
         c.Move.TimeStamp = r.ReadFloat(); c.InputTick = r.ReadIntPacked();
-        c.Move.InAccel = r.ReadPackedVector(); c.Move.ClientLoc = r.ReadPackedVector();
-        uint yaw = r.ReadBit() ? (uint)r.ReadBits(15) : 0, pitch = r.ReadBit() ? (uint)r.ReadBits(15) : 0;
-        c.Move.View = (int)(yaw | (pitch << 15)); c.Move.iDiversInfos = r.ReadByte();
+        c.Move.InAccel = ReadDeltaVector(r, previous.Move.InAccel);
+        c.Move.ClientLoc = ReadDeltaVector(r, previous.Move.ClientLoc);
+        if (r.ReadBit())
+        {
+            uint yaw = r.ReadBit() ? (uint)r.ReadBits(15) : 0, pitch = r.ReadBit() ? (uint)r.ReadBits(15) : 0;
+            c.Move.View = (int)(yaw | (pitch << 15));
+        }
+        else c.Move.View = previous.Move.View;
+        c.Move.iDiversInfos = r.ReadBit() ? r.ReadByte() : previous.Move.iDiversInfos;
         if (c.Kind == 3)
         {
-            c.Move.MSATime = r.ReadFloat(); c.Move.Vel = Vec(r); c.Move.Val0 = r.ReadInt32(); c.Move.Val1 = r.ReadInt32();
-            c.Move.ZipP1 = r.ReadPackedVector(); c.Move.DifZipP2 = r.ReadPackedVector(); c.Move.vect3 = r.ReadPackedVector(); c.Move.vectUnit = r.ReadPackedVector();
+            c.Move.MSATime = ReadDeltaFloat(r, previous.Move.MSATime);
+            c.Move.Vel = new FVector(ReadDeltaFloat(r, previous.Move.Vel.X), ReadDeltaFloat(r, previous.Move.Vel.Y), ReadDeltaFloat(r, previous.Move.Vel.Z));
+            c.Move.Val0 = r.ReadBit() ? r.ReadInt32() : previous.Move.Val0;
+            c.Move.Val1 = r.ReadBit() ? r.ReadInt32() : previous.Move.Val1;
+            c.Move.ZipP1 = ReadDeltaVector(r, previous.Move.ZipP1);
+            c.Move.DifZipP2 = ReadDeltaVector(r, previous.Move.DifZipP2);
+            c.Move.vect3 = ReadDeltaVector(r, previous.Move.vect3);
+            c.Move.vectUnit = ReadDeltaVector(r, previous.Move.vectUnit);
         }
         c.ReportedLocation = c.Move.ClientLoc; c.ReportedDivers = (byte)c.Move.iDiversInfos;
-        if (r.ReadBit()) { c.ReportedLocation = r.ReadPackedVector(); c.ReportedDivers = r.ReadByte(); }
-        c.ReportedBase = map.ReadObject(r) as Actor;
+        if (r.ReadBit()) { c.ReportedLocation = ReadDeltaVector(r, c.Move.ClientLoc); c.ReportedDivers = r.ReadByte(); }
+        c.ReportedBase = r.ReadBit() ? map.ReadObject(r) as Actor : previous.ReportedBase;
         return c;
     }
 }

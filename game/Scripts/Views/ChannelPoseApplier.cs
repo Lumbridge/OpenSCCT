@@ -81,6 +81,9 @@ public sealed class ChannelPoseApplier
     private readonly string?[] _cacheSequence = new string?[64];
     private bool _hasFrom;
 
+    // The diagnostic compares the cached path with the original unconditional submissions on a second skeleton.
+    internal bool ReuseUnchangedPoses { get; set; } = true;
+
     public ChannelPoseApplier(Skeleton3D skeleton)
     {
         _skeleton = skeleton ?? throw new ArgumentNullException(nameof(skeleton));
@@ -296,6 +299,14 @@ public sealed class ChannelPoseApplier
 
         for (int b = 0; b < _count; b++)
         {
+            // This applier owns the skeleton pose. _from is the previous final pose, including aim/root/overlay
+            // adjustments; all sampling and tween bookkeeping still run at the rendered frame rate. Exact equality
+            // avoids suppressing even a tiny animated change. The first pose always initializes every bone.
+            if (ReuseUnchangedPoses && _hasFrom && _pos[b] == _fromPos[b] && _rot[b] == _fromRot[b] && _scale[b] == _fromScale[b])
+            {
+                continue;
+            }
+
             if (_scale[b].X > 0f && _scale[b].Y > 0f && _scale[b].Z > 0f)
             {
                 _skeleton.SetBonePose(b, new Transform3D(new Basis(_rot[b].Normalized()).ScaledLocal(_scale[b]), _pos[b]));

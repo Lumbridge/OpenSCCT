@@ -166,9 +166,10 @@ public static class PlayerCommands
     /// <summary>The commands <see cref="Execute"/> knows.</summary>
     public static readonly IReadOnlyList<string> Known =
     [
-        "Fire", "AltFire", "Jump", "GadgetQuickChoice", "SelectGadget", "SwitchHeadset", "SwitchBinocularVision",
+        "Fire", "AltFire", "Jump", "GadgetQuickChoice", "LaunchGadget", "LongRoll", "SelectGadget", "SwitchHeadset", "SwitchBinocularVision",
         "SetWalk", "SetScope", "Walk", "Run", "NextGadget", "PreviousGadget", "ChangeSpeed", "GadLaserSwitch", "GadTorcheSwitch", "SwitchLaser", "WheelUp", "WheelDown", "ZoomIn", "ZoomOut",
         "SwapWeapon", "SwitchROF", "PrevStickyCam", "PerformCoopMvt", "FreeCam", "HideHud",
+        "PadCloakQuick", "PadCameraGas", "PadCameraExit",
     ];
 
     /// <summary>
@@ -204,6 +205,23 @@ public static class PlayerCommands
                 return true;
             case "GADGETQUICKCHOICE":
                 pc.eventGadgetQuickChoice(command.Arg);
+                return true;
+            case "LAUNCHGADGET":
+                LaunchGadget(pc, command.Arg);
+                return true;
+            case "LONGROLL":
+                // Reloaded 0x100b9df0: pulse crouch for one tick before the held roll, to leave crouch.
+                // ApplyButtons clears this pulse next tick; bRoll is held independently by the action binding.
+                if (pc.bCrouchWithRoll && !InCamera(pc)) pc.bCrouch = 1;
+                return true;
+            case "PADCLOAKQUICK":
+                if (pc.SBPawn?.SelectedGadget is SGadCloak cloak) cloak.QuickUse();
+                return true;
+            case "PADCAMERAGAS":
+                if ((InCamera(pc) || pc.IsInState("s_UseObject_StickyCam_SmoothToPosition")) && pc.SBPawn?.UsedObject is SStickyCam cam) cam.SpawnGaz();
+                return true;
+            case "PADCAMERAEXIT":
+                if (InCamera(pc)) pc.eventAltFire(0f);
                 return true;
             case "SELECTGADGET":
                 pc.SelectGadget(command.Arg);
@@ -287,4 +305,21 @@ public static class PlayerCommands
                 return false;
         }
     }
+
+    /// <summary>Reloaded 0x100b0750: select and fire a slot with the Shocker drawn, including its sticky-cam path.</summary>
+    private static void LaunchGadget(SPlayerController pc, int slot)
+    {
+        if (slot is < 0 or > 3 || pc.SBPawn is not SPawnAttaque { WeaponLoaded: 2 } spy || InCamera(pc)) return;
+        pc.SelectGadget(slot);
+        if (spy.SelectedGadget is SGadStickyCam sticky)
+        {
+            if (sticky.Charge == 0)
+                pc.PlayOwnedSound(sticky.SND_EmptyCharge, ESoundSlot.SLOT_Misc, 1f, false, 1f, 1f, false);
+            else sticky.UseStickyCam(false);
+        }
+        else pc.eventAltFire(0f);
+    }
+
+    public static bool InCamera(SPlayerController pc) =>
+        pc.IsInState("s_UseObject_StickyCam") || pc.IsInState("s_UseObject_CamNetwork");
 }

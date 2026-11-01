@@ -86,6 +86,7 @@ public sealed class MasterLink : IDisposable
     private readonly MasterClient _client;
     private readonly LiteNetLibTransport _udp;
     private Task<HeartbeatResponse>? _pending;
+    private bool _heartbeatRequested;
     private long _nextHeartbeat;
     private long _nextRelayHello;
     private long _nextIntroduction;
@@ -329,6 +330,7 @@ public sealed class MasterLink : IDisposable
 
         if (_pending is null && nowMicros >= _nextHeartbeat)
         {
+            _heartbeatRequested = false;
             _nextHeartbeat = nowMicros + RetryMicros;
             _pending = _client.HeartbeatAsync(Request(info()));
         }
@@ -349,6 +351,7 @@ public sealed class MasterLink : IDisposable
     /// <summary>Asks for a heartbeat at the next tick (the player count or the phase changed).</summary>
     public void HeartbeatSoon()
     {
+        _heartbeatRequested = true;
         _nextHeartbeat = Math.Min(_nextHeartbeat, 0);
     }
 
@@ -451,7 +454,10 @@ public sealed class MasterLink : IDisposable
         }
 
         // While the master's probes still run, ask again soon so the host learns how players reach it.
-        _nextHeartbeat = now + (r.Reachability == Reachability.Unknown ? 5 : Math.Clamp(r.HeartbeatSeconds, 5, 300)) * 1_000_000L;
+        // Roster/phase changes while this HTTP request was in flight still need a fresh heartbeat.
+        // Consuming its response must not overwrite their immediate refresh with the periodic deadline.
+        _nextHeartbeat = _heartbeatRequested ? now :
+            now + (r.Reachability == Reachability.Unknown ? 5 : Math.Clamp(r.HeartbeatSeconds, 5, 300)) * 1_000_000L;
         if (Settings.NatPunch && r.Introducer is { } introducer && _introducer is null)
         {
             _introducer = TryResolve(introducer);

@@ -247,7 +247,7 @@ public sealed class ConnectionTests
         string longName = string.Concat(System.Linq.Enumerable.Repeat("Sam😀", 80));
         ControlMessage[] messages =
         [
-            ControlMessage.Hello(0x1122334455667788UL, 42UL, longName, 20000),
+            ControlMessage.Hello(0x1122334455667788UL, 42UL, longName, 20000, 0xDEADABCDEFUL),
             ControlMessage.Welcome(7, "TestBox", 123456u, 35, 0xABCDEF0123456789UL, "sim/gameplay.json=00ff"),
             ControlMessage.Reject(ControlMessage.VersionMismatchText, "TestBox"),
             ControlMessage.Join(),
@@ -264,6 +264,7 @@ public sealed class ConnectionTests
         ControlMessage hello = ControlMessage.Read(r);
         Assert.Equal(0x1122334455667788UL, hello.ProtocolHash);
         Assert.Equal(42UL, hello.ContentHash);
+        Assert.Equal(0xDEADABCDEFUL, hello.CharacterHash);
         Assert.Equal(20000, hello.NetSpeed);
         Assert.True(System.Text.Encoding.UTF8.GetByteCount(hello.Text!) <= ControlMessage.MaxLoginBytes);
         Assert.StartsWith(hello.Text!, longName, StringComparison.Ordinal);

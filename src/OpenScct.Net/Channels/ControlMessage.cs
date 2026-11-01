@@ -70,6 +70,9 @@ public readonly record struct ControlMessage
 
     public ulong ContentHash { get; init; }
 
+    /// <summary>Shared gameplay character clips and skeletal assets, checked separately from map content.</summary>
+    public ulong CharacterHash { get; init; }
+
     /// <summary>Player name (Hello), map (Welcome), reason (Reject) or the text (Text).</summary>
     public string? Text { get; init; }
 
@@ -98,8 +101,8 @@ public readonly record struct ControlMessage
     /// <summary>The sender's team, <see cref="ChatK.NoTeam"/> without one (Chat, server to client).</summary>
     public byte Team { get; init; }
 
-    public static ControlMessage Hello(ulong protocolHash, ulong contentHash, string playerName, int netSpeed) =>
-        new() { Type = EControlMessage.Hello, ProtocolHash = protocolHash, ContentHash = contentHash, Text = playerName, NetSpeed = netSpeed };
+    public static ControlMessage Hello(ulong protocolHash, ulong contentHash, string playerName, int netSpeed, ulong characterHash = 0) =>
+        new() { Type = EControlMessage.Hello, ProtocolHash = protocolHash, ContentHash = contentHash, Text = playerName, NetSpeed = netSpeed, CharacterHash = characterHash };
 
     /// <summary>
     /// The server accepts: the player's id, the map, the server tick and replication rate, and the map's content hash
@@ -150,6 +153,7 @@ public readonly record struct ControlMessage
                 w.WriteUInt64(ContentHash);
                 w.WriteString(Clip(Text, MaxLoginBytes), MaxLoginBytes);
                 w.WriteIntPacked((uint)NetSpeed);
+                w.WriteUInt64(CharacterHash);
                 break;
             case EControlMessage.Welcome:
                 w.WriteIntPacked((uint)PlayerId);
@@ -209,7 +213,9 @@ public readonly record struct ControlMessage
                 ulong content = r.ReadUInt64();
                 string name = r.ReadString(MaxLoginBytes);
                 int netSpeed = (int)r.ReadIntPacked();
-                return Hello(protocol, content, name, netSpeed);
+                // An old Hello can still be decoded to return the ordinary protocol-mismatch rejection.
+                ulong characters = r.AtEnd ? 0 : r.ReadUInt64();
+                return Hello(protocol, content, name, netSpeed, characters);
             }
 
             case EControlMessage.Welcome:

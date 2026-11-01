@@ -39,6 +39,8 @@ internal sealed class PrimitiveSet
     public LocalHull[]? LocalHulls;
     public HullPlane[]? LocalPlanes;
     public FVector[]? LocalCorners;
+    public FVector LocalMin;
+    public FVector LocalMax;
 
     public FVector Min;
     public FVector Max;
@@ -359,6 +361,24 @@ internal sealed class PrimitiveSetBuilder
 
             set.LocalPlanes = _localPlanes.ToArray();
             set.LocalCorners = _localCorners.ToArray();
+            bool hasLocalBounds = false;
+            foreach (LocalTri tri in set.LocalTris)
+            {
+                Grow(tri.V0, tri.V0, ref set.LocalMin, ref set.LocalMax, ref hasLocalBounds);
+                Grow(tri.V1, tri.V1, ref set.LocalMin, ref set.LocalMax, ref hasLocalBounds);
+                Grow(tri.V2, tri.V2, ref set.LocalMin, ref set.LocalMax, ref hasLocalBounds);
+            }
+
+            foreach (FVector corner in set.LocalCorners)
+            {
+                Grow(corner, corner, ref set.LocalMin, ref set.LocalMax, ref hasLocalBounds);
+            }
+
+            foreach (LocalHull hull in set.LocalHulls)
+            {
+                if (hull.CornerCount == 0)
+                    Grow(hull.Min, hull.Max, ref set.LocalMin, ref set.LocalMax, ref hasLocalBounds);
+            }
         }
 
         set.UpdateBounds();

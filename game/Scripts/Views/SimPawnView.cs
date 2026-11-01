@@ -36,6 +36,10 @@ public partial class SimPawnView : Node3D
     private GoggleGlowView? _goggleGlow;
     private FVector _prevLocation;
     private FVector _location;
+    private OpenScct.Core.Engine.EPhysics _previousPhysics, _physics;
+    /// <summary>The drawn body still includes the airborne endpoint of a landing interpolation.</summary>
+    public bool InterpolatingFromAirborne { get; private set; }
+    public float DrawAlpha { get; private set; }
     private uint _networkReset;
     private FVector _prevPrePivot;
     private FVector _prePivot;
@@ -204,6 +208,48 @@ public partial class SimPawnView : Node3D
     }
 
     private bool _shadowOnly;
+    private readonly HashSet<GeometryInstance3D> _shadowGeometry = new();
+    private SceneTree? _geometryTree;
+
+    public override void _EnterTree()
+    {
+        _geometryTree = GetTree();
+        _geometryTree.NodeAdded += TrackGeometry;
+        _geometryTree.NodeRemoved += UntrackGeometry;
+        TrackSubtree(this);
+    }
+
+    public override void _ExitTree()
+    {
+        if (_geometryTree is { } tree)
+        {
+            tree.NodeAdded -= TrackGeometry;
+            tree.NodeRemoved -= UntrackGeometry;
+        }
+
+        _geometryTree = null;
+        _shadowGeometry.Clear();
+    }
+
+    private void TrackSubtree(Node node)
+    {
+        TrackGeometry(node);
+        int count = node.GetChildCount();
+        for (int i = 0; i < count; i++) TrackSubtree(node.GetChild(i));
+    }
+
+    private void TrackGeometry(Node node)
+    {
+        if (node is GeometryInstance3D geometry && IsAncestorOf(node) && _shadowGeometry.Add(geometry) && _shadowOnly)
+        {
+            MoveLayer(geometry, RenderLayers.World, RenderLayers.ShadowOnly);
+        }
+    }
+
+    private void UntrackGeometry(Node node)
+    {
+        if (node is GeometryInstance3D geometry) _shadowGeometry.Remove(geometry);
+    }
 
     /// <summary>The pawn is seen from its own eyes: its meshes are on <see cref="RenderLayers.ShadowOnly"/>.</summary>
     public bool ShadowOnly => _shadowOnly;
@@ -211,29 +257,35 @@ public partial class SimPawnView : Node3D
     /// <summary>
     /// The pawn is seen from its own eyes: its meshes leave the world layer for <see cref="RenderLayers.ShadowOnly"/>,
     /// so the main view does not draw them but the flares' shadow cameras do (the merc's whole shadow, not the
-    /// first-person arms). Applied every frame while on, so attachments made later follow.
+    /// first-person arms). Newly added descendant geometry follows through the scene-tree notification.
     /// </summary>
     public void SetShadowOnly(bool on)
     {
-        if (on || _shadowOnly)
+        // Off-tree callers have no notifications, so discover changes on demand there.
+        if (_geometryTree is null)
         {
-            MoveLayer(this, on ? RenderLayers.World : RenderLayers.ShadowOnly, on ? RenderLayers.ShadowOnly : RenderLayers.World);
+            _shadowGeometry.Clear();
+            TrackSubtree(this);
+        }
+
+        if (on == _shadowOnly)
+        {
+            return;
         }
 
         _shadowOnly = on;
+        foreach (GeometryInstance3D geometry in _shadowGeometry)
+        {
+            MoveLayer(geometry, on ? RenderLayers.World : RenderLayers.ShadowOnly, on ? RenderLayers.ShadowOnly : RenderLayers.World);
+        }
     }
 
-    private static void MoveLayer(Node node, uint from, uint to)
+    private static void MoveLayer(GeometryInstance3D geometry, uint from, uint to)
     {
-        if (node is GeometryInstance3D g && (g.Layers & from) != 0)
+        uint layers = geometry.Layers;
+        if ((layers & from) != 0)
         {
-            g.Layers = (g.Layers & ~from) | to;
-        }
-
-        int count = node.GetChildCount();
-        for (int i = 0; i < count; i++)
-        {
-            MoveLayer(node.GetChild(i), from, to);
+            geometry.Layers = (layers & ~from) | to;
         }
     }
 
@@ -271,6 +323,8 @@ public partial class SimPawnView : Node3D
             _networkReset = pawn.NetworkResetId;
         }
         _prevLocation = _placed ? _location : shown;
+        _previousPhysics = _placed ? _physics : pawn.Physics;
+        _physics = pawn.Physics;
         _prevPrePivot = _placed ? _prePivot : pawn.PrePivot;
         _prevYaw = _placed ? _yaw : pawn.Rotation.Yaw;
         _location = shown;
@@ -297,6 +351,9 @@ public partial class SimPawnView : Node3D
 
         Visible = !pawn.bHidden && !pawn.bDeleteMe && (pawn.Role != OpenScct.Core.Engine.ENetRole.ROLE_SimulatedProxy || pawn.NetworkPoseReady);
         alpha = Math.Clamp(alpha, 0f, 1f);
+        DrawAlpha = alpha;
+        InterpolatingFromAirborne = _physics == OpenScct.Core.Engine.EPhysics.PHYS_Walking &&
+            _previousPhysics == OpenScct.Core.Engine.EPhysics.PHYS_Falling && alpha < 1f;
         FVector location = _prevLocation + (_location - _prevLocation) * alpha;
         // The mesh is drawn at Location + PrePivot. A crouch or stand-up moves the cylinder and changes PrePivot by the
         // same amount in one tick (the mesh stays put), so both are interpolated together.
