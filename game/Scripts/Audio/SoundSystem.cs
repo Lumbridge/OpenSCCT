@@ -21,6 +21,11 @@ public readonly record struct SoundStart(string Call, string Leaf, int ActorId, 
 /// </summary>
 public readonly record struct SoundCall(string Sound, int ActorId, bool Heard, bool Flat, SoundCallOutcome Outcome);
 
+/// <summary>A playing source after mixer update; captured on demand by the network/audio labs.</summary>
+public readonly record struct SoundVoice(string Call, string Leaf, int ActorId, bool Positional, bool Ambient,
+    bool AtListener, FVector Location, FVector Listener, float Distance, float Radius, float SourceVolume,
+    float AppliedGain, float Pitch, string Bone);
+
 public enum SoundCallOutcome : byte
 {
     Started,
@@ -74,10 +79,13 @@ public sealed partial class SoundSystem : Node3D, ISimEventSink
     private bool _lastListenerSet;
 
     /// <summary>
-    /// The actor the player views (0: none). UNIAudio plays this actor's sounds at the listener (PlaySound, game
-    /// 0x10b03fe1), so they are never occluded.
+    /// The actor the player views (0: none), used by ambient handling. Spectating an actor does not make its
+    /// one-shot sounds local; native PlaySound tests the pawn's controller, not the viewport's ViewTarget.
     /// </summary>
     public int ViewActorId { get; set; }
+
+    /// <summary>The pawn controlled by this machine; a spectated pawn is not locally controlled.</summary>
+    public int LocalPawnId { get; set; }
 
     /// <summary>The scope's or binoculars' audio zoom (SetAudioZoom: 0.33, 0.66 or 1; 0 is off).</summary>
     public float AudioZoom { get; private set; }
@@ -124,6 +132,19 @@ public sealed partial class SoundSystem : Node3D, ISimEventSink
 
             return n;
         }
+    }
+
+    public SoundVoice[] CaptureVoices()
+    {
+        var result = new List<SoundVoice>();
+        foreach (Voice v in _voices)
+        {
+            if (!v.Active) continue;
+            result.Add(new SoundVoice(v.CallPath, v.Leaf?.Path ?? "", v.ActorId, v.Positional, v.Ambient,
+                v.FollowListener, v.Location, ListenerLocation, FVector.Dist(v.Location, ListenerLocation),
+                v.Radius, v.Volume, v.AppliedGain, v.AppliedPitch, v.Bone.ToString()));
+        }
+        return result.ToArray();
     }
 
     /// <summary>The listener's zone (map id of its ZoneInfo), from the last update.</summary>
@@ -327,7 +348,7 @@ public sealed partial class SoundSystem : Node3D, ISimEventSink
         // Rule 17: a source started on a bone follows that bone of its actor's drawn mesh.
         if (LastStarted is { } started)
         {
-            started.Bone = bone;
+            started.Bone = started.FollowListener ? default : bone;
         }
 
         return true;
@@ -433,7 +454,13 @@ public sealed partial class SoundSystem : Node3D, ISimEventSink
         float source = SoundRules.SourceVolume(call.Volume * chain, leaf.Volume, music);
         float radius = SoundRules.Radius(leaf.Radius, call.Radius);
         int flags = leaf.Flags | (music ? AudioK.FlagMusic | AudioK.Flag2D : 0) | (call.loop ? AudioK.FlagLoop : 0);
-        float d2 = FVector.DistSquared(call.Location, ListenerLocation);
+        // Native PlaySound (retail 0x10b03fd5..0x10b04020) replaces a locally controlled pawn with the
+        // viewport controller, clears BoneIdx, and starts at the listener. Preserve the original actor for
+        // slot ownership/StopSound, but bind this voice to the listener for its entire lifetime. Resolve the
+        // surface switch above at the pawn first: the trailing camera may be over a different material.
+        bool atListener = !music && !call.ambient && call.ActorId != 0 && call.ActorId == LocalPawnId;
+        FVector location = atListener ? ListenerLocation : call.Location;
+        float d2 = FVector.DistSquared(location, ListenerLocation);
         float priority = SoundRules.Priority(d2, radius, source, flags);
         Voice? v = Allocate(call.Id, priority);
         if (v is null)
@@ -442,7 +469,8 @@ public sealed partial class SoundSystem : Node3D, ISimEventSink
             return false;
         }
 
-        v.Begin(call.Def.Path, call.ActorId, call.Id, follow, call.Location, priority);
+        v.Begin(call.Def.Path, call.ActorId, call.Id, follow, location, priority);
+        v.FollowListener = atListener;
         v.Music = music;
         v.Flat = call.flat;
         v.Ambient = call.ambient;
@@ -649,7 +677,11 @@ public sealed partial class SoundSystem : Node3D, ISimEventSink
 
     private void UpdateVoice(Voice v, float dt, string worldBus)
     {
-        if (v.Follow && World is not null)
+        if (v.FollowListener)
+        {
+            v.Location = ListenerLocation;
+        }
+        else if (v.Follow && World is not null)
         {
             if (!v.Bone.IsNone && World.TryGetBoneLocation(v.ActorId, v.Bone, out FVector onBone))
             {
@@ -710,7 +742,7 @@ public sealed partial class SoundSystem : Node3D, ISimEventSink
 
     /// <summary>
     /// Rule 17: the Doppler pitch factor of a 3D source, from its movement over this update and the listener's. The
-    /// listener's own sounds (the viewed actor's) get no source velocity.
+    /// listener-bound pawn sounds get no source velocity.
     /// </summary>
     private float Doppler(Voice v, float dt)
     {
@@ -722,7 +754,7 @@ public sealed partial class SoundSystem : Node3D, ISimEventSink
             return 1f;
         }
 
-        if (v.ActorId != 0 && v.ActorId == ViewActorId)
+        if (v.FollowListener || v.Ambient && v.ActorId != 0 && v.ActorId == ViewActorId)
         {
             velocity = default;
         }
@@ -738,7 +770,8 @@ public sealed partial class SoundSystem : Node3D, ISimEventSink
     private float OccludedMinDistance(Voice v)
     {
         float target = v.MinDistance;
-        if (World is not null && v.SoundOcclusion != AudioK.OcclusionNone && (v.ActorId == 0 || v.ActorId != ViewActorId) &&
+        if (World is not null && v.SoundOcclusion != AudioK.OcclusionNone && !v.FollowListener &&
+            !(v.Ambient && v.ActorId != 0 && v.ActorId == ViewActorId) &&
             World.OcclusionBetween(ListenerLocation, v.Location, out OcclusionHits hits) &&
             SoundRules.Occlusion(FVector.Dist(hits.NearListener, hits.NearSource), hits.TypeNearListener, hits.TypeNearSource,
                 hits.ZoneNearListener, hits.ZoneNearSource,
@@ -1059,6 +1092,9 @@ public sealed partial class SoundSystem : Node3D, ISimEventSink
         public int ActorId;
         public int Id;
         public bool Follow;
+        public bool FollowListener;
+        public float AppliedGain;
+        public float AppliedPitch;
 
         /// <summary>The bone of the actor's mesh the source follows (None: the actor's location).</summary>
         public Name Bone;
@@ -1105,6 +1141,7 @@ public sealed partial class SoundSystem : Node3D, ISimEventSink
             ActorId = actorId;
             Id = id;
             Follow = follow;
+            FollowListener = false;
             Bone = default;
             Location = location;
             HasLastLocation = false;
@@ -1138,6 +1175,8 @@ public sealed partial class SoundSystem : Node3D, ISimEventSink
 
         public void Apply(float gain, float pitch, string bus, Vector3 position)
         {
+            AppliedGain = gain;
+            AppliedPitch = pitch;
             float db = Mathf.LinearToDb(Math.Max(gain, AudioK.MinVolume));
             if (Positional)
             {

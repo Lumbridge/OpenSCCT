@@ -21,7 +21,14 @@ public sealed partial class SBasePawnMoves : IMovePawn, IMovePrediction, IMoveCo
 {
     public bool CommandDriven { get; set; }
     public bool ModernCommands { get; set; }
-    public bool CommandSimulationEnabled => P is { Health: > 0, m_AttackedBy: null } && !_pc.bGameEnded && _pc.StateNode is not SPlayerController.s_Inactive;
+    public bool CommandSimulationEnabled => P is { m_AttackedBy: null } pawn && !IsCorpse(_pc, pawn) &&
+        !_pc.bGameEnded && _pc.StateNode is not SPlayerController.s_Inactive;
+
+    // The reliable death state can arrive before the independently replicated Health property.
+    // PlayerFallingKO inherits the inert-fall implementation but remains a living, predicted pawn.
+    internal static bool IsCorpse(SPlayerController pc, SBasePawn pawn) => pawn.Health <= 0 ||
+        pc.StateNode is SPlayerController.s_Dead or SPlayerController.s_LandingInerte ||
+        (pc.StateNode is SPlayerController.PlayerFallingInerte and not SPlayerController.PlayerFallingKO);
     private float _commandTime;
     private long _commandTick;
     public void SetCommandTime(float stamp) { _commandTime = stamp; _commandTick = (long)Math.Round(stamp * Sim.Hz); }
@@ -132,7 +139,11 @@ public sealed partial class SBasePawnMoves : IMovePawn, IMovePrediction, IMoveCo
 
     public bool bTestBackFeetGrab => _pc.bTestBackFeetGrab;
 
-    public bool ActionsWaitForBigMove => P is { bActionsSendByServerMove: true, iNbAction: > 0 };
+    // A dead/results pawn can still author a root-motion death action. Modern commands no longer
+    // simulate that pawn, so leave its action for the reliable SendActions RPC instead of consuming
+    // it into a movement command that the authority will discard.
+    public bool ActionsWaitForBigMove => (!ModernCommands || CommandSimulationEnabled) &&
+        P is { bActionsSendByServerMove: true, iNbAction: > 0 };
 
     public int TakeActionsForBigMove(Span<int> actions)
     {
@@ -551,13 +562,14 @@ public sealed partial class NetMovementBridge : IMovementNet, IMoveEndpointSourc
     public MoveEndpoint? PeekEndpoint(Actor controller) =>
         _endpoints.TryGetValue(controller, out MoveEndpoint? endpoint) ? endpoint : null;
 
-    public bool DrivesPawn(SBasePawn pawn) => pawn.Role == ENetRole.ROLE_Authority && pawn.Health > 0 && pawn.m_AttackedBy is null &&
-        pawn.Controller is SPlayerController pc && !pc.bGameEnded && pc.StateNode is not SPlayerController.s_Inactive && PeekEndpoint(pc)?.Sequenced is not null;
+    public bool DrivesPawn(SBasePawn pawn) => pawn.Role == ENetRole.ROLE_Authority && pawn.m_AttackedBy is null &&
+        pawn.Controller is SPlayerController pc && !SBasePawnMoves.IsCorpse(pc, pawn) && !pc.bGameEnded &&
+        pc.StateNode is not SPlayerController.s_Inactive && PeekEndpoint(pc)?.Sequenced is not null;
 
     public void BeforeOwnerAnimation(SBasePawn pawn)
     {
         if (pawn.Controller is not SPlayerController { bWaitingForReinit: false } pc) return;
-        if (pawn.Health > 0) EndpointOf(pc)?.Client?.EnsurePredictionStep();
+        if (!SBasePawnMoves.IsCorpse(pc, pawn)) EndpointOf(pc)?.Client?.EnsurePredictionStep();
         else
         {
             // Autonomous pawns do not run Actor.NativeTick physics. Once input prediction stops at death,
@@ -613,7 +625,7 @@ public sealed partial class NetMovementBridge : IMovementNet, IMoveEndpointSourc
                     // AnimEnd can author another action after the controller's SendActions pass. Flush it in
                     // this command's completion fence so its state, collision and pose share the same boundary.
                     if (kv.Value.Sequenced is not null) pawn.SendActions();
-                    if (pawn.Health > 0) kv.Value.Client?.FinishPredictionTick();
+                    if (!SBasePawnMoves.IsCorpse(pc, pawn)) kv.Value.Client?.FinishPredictionTick();
                 }
             }
         }

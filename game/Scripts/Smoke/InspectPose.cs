@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using Godot;
 using OpenScct.Core;
@@ -292,6 +293,27 @@ public sealed class InspectPose
 
     private object FootPose(SBasePawn pawn, float floor, float offset, string bone)
     {
+        Skeleton3D skeleton = View.Model!.Skeleton;
+        Transform3D world = skeleton.GlobalTransform;
+        FVector drawnAnchor = UeSpace.ToUe(world.Origin);
+        FVector anchorDifference = drawnAnchor - (pawn.Location + pawn.PrePivot);
+        var feet = new List<object>();
+        for (int i = 0; i < skeleton.GetBoneCount(); i++)
+        {
+            if (!IsFootBone(skeleton, i)) continue;
+            FVector at = UeSpace.ToUe(world * skeleton.GetBoneGlobalPose(i).Origin);
+            feet.Add(new { bone = skeleton.GetBoneName(i).ToString(), position = new[] { at.X, at.Y, at.Z }, offset = at.Z - floor });
+        }
+        var drawnChannels = new List<object>();
+        ReadOnlySpan<ChannelPose> drawn = View.DrawnChannels;
+        for (int i = 0; i < drawn.Length; i++)
+        {
+            ChannelPose channel = drawn[i];
+            if (channel.Clip is null) continue;
+            drawnChannels.Add(new { index = i, sequence = channel.Sequence, channel.Frame, channel.ClipFrame,
+                channel.Alpha, channel.Frames, channel.Fps, channel.Loop, channel.Mirror,
+                startBone = skeleton.GetBoneName(channel.StartBone).ToString() });
+        }
         var channels = new object[PawnAnimation.ChannelCount];
         for (int i = 0; i < channels.Length; i++)
         {
@@ -302,8 +324,10 @@ public sealed class InspectPose
         return new { tick = pawn.XLevel.TickCount, role = pawn.Role.ToString(),
             position = new[] { pawn.Location.X, pawn.Location.Y, pawn.Location.Z },
             pivot = new[] { pawn.PrePivot.X, pawn.PrePivot.Y, pawn.PrePivot.Z },
-            pawn.CollisionHeight, drawnOrigin = View.Model!.Skeleton.GlobalTransform.Origin.Y * 100f,
-            floor, offset, bone, pawn.bIsCrouched, View.InterpolatingFromAirborne, View.DrawAlpha, channels };
+            pawn.CollisionHeight, drawnOrigin = drawnAnchor.Z,
+            drawnAnchor = new[] { drawnAnchor.X, drawnAnchor.Y, drawnAnchor.Z },
+            anchorDifference = new[] { anchorDifference.X, anchorDifference.Y, anchorDifference.Z },
+            floor, offset, bone, pawn.bIsCrouched, View.InterpolatingFromAirborne, View.DrawAlpha, channels, drawnChannels, feet };
     }
 
     private bool[]? _feet;

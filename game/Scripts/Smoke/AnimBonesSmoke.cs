@@ -41,6 +41,14 @@ public sealed class AnimBonesSmoke : SmokeTest
         string? glb = SkeletalModel.FindGlb("SPerso.ATT_01");
         string anim = Path.Combine(SkeletalModel.DefaultSharedRoot(), "chars", "SPerso", "PRO.anim.json");
         string[] captures = Directory.Exists(folder) ? Directory.GetFiles(folder, "spy-*.jsonl").Order(StringComparer.Ordinal).ToArray() : [];
+        string? selected = System.Environment.GetEnvironmentVariable("SVM_ANIM_BONES_CAPTURES");
+        if (!string.IsNullOrWhiteSpace(selected))
+        {
+            captures = selected.Split(Path.PathSeparator, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .Select(Path.GetFullPath).ToArray();
+            string[] missing = captures.Where(path => !File.Exists(path)).ToArray();
+            if (missing.Length > 0) return SmokeResult.Fail("Selected capture missing: " + string.Join(", ", missing));
+        }
         if (captures.Length == 0 || glb is null || !File.Exists(anim))
         {
             return SmokeResult.Pass($"skipped: no spy capture under {folder} or no converted SPerso");

@@ -174,6 +174,17 @@ public sealed class NetworkLabSmoke(bool host, bool observer = false, bool secon
                     particles = fx.ParticlesOf("SStickyCamEmitter"), peak = fx.PeakParticles.GetValueOrDefault("SStickyCamEmitter"),
                     started = fx.Started.GetValueOrDefault("SStickyCamEmitter"), missing = fx.Missing.ToArray(),
                 } : null,
+                audio = _root?.Audio?.Sound is { } audio ? new
+                {
+                    localPawn = audio.LocalPawnId, viewedActor = audio.ViewActorId,
+                    voices = audio.CaptureVoices().Select(v => new
+                    {
+                        v.Call, v.Leaf, v.ActorId, v.Positional, v.Ambient, v.AtListener,
+                        location = new[] { v.Location.X, v.Location.Y, v.Location.Z },
+                        listener = new[] { v.Listener.X, v.Listener.Y, v.Listener.Z },
+                        v.Distance, v.Radius, v.SourceVolume, v.AppliedGain, v.Pitch, v.Bone,
+                    }).ToArray(),
+                } : null,
                 inspectedPoses = _inspector?.PoseChecks.Select(p => new
                 {
                     p.Label, p.FootSamples, p.MissingFloorSamples, p.CylinderSupportSamples, p.UnsupportedSamples, p.NonWalkingSamples, p.MissingFootSamples,
@@ -340,6 +351,12 @@ public sealed class NetworkLabSmoke(bool host, bool observer = false, bool secon
                         string victimName = command.GetProperty("player").GetString()!;
                         int amount = command.GetProperty("amount").GetInt32();
                         bool requireAirborne = command.TryGetProperty("requireAirborne", out var airborne) && airborne.GetBoolean();
+                        SDamageType damageType = command.TryGetProperty("damageType", out var damageName)
+                            ? Enum.Parse<SDamageType>(damageName.GetString()!, ignoreCase: false) : SDamageType.SDTBase;
+                        float[]? hitOffset = command.TryGetProperty("hitOffset", out var hitValue)
+                            ? hitValue.EnumerateArray().Select(v => v.GetSingle()).ToArray() : null;
+                        if (hitOffset is not null && (hitOffset.Length != 3 || hitOffset.Any(v => !float.IsFinite(v))))
+                            throw new ArgumentException("Hit offset must contain three finite coordinates.");
                         if (amount is < 1 or > 1000) throw new ArgumentException("Damage must be 1 to 1000.");
                         online.Hosting!.Inspect(s =>
                         {
@@ -348,7 +365,9 @@ public sealed class NetworkLabSmoke(bool host, bool observer = false, bool secon
                                 var victim = s.Host.Players.Single(p => p.Name == victimName).Controller as SPlayerController;
                                 if (victim?.Pawn is not { } body) throw new InvalidOperationException("No possessed damage target.");
                                 if (requireAirborne && body.Physics != EPhysics.PHYS_Falling) throw new InvalidOperationException("Victim landed before airborne damage fixture.");
-                                victim.PawnTakeDamage(amount, null, body.Location, default, SDamageType.SDTBase);
+                                var impact = hitOffset is null ? body.Location
+                                    : body.Location + new FVector(hitOffset[0], hitOffset[1], hitOffset[2]);
+                                victim.PawnTakeDamage(amount, null, impact, default, damageType);
                                 Ack(id, null);
                             }
                             catch (Exception e) { Ack(id, e.Message); }
@@ -448,7 +467,7 @@ public sealed class NetworkLabSmoke(bool host, bool observer = false, bool secon
         _hub = config.RootElement.GetProperty("hub").GetBoolean();
         _dedicated = config.RootElement.TryGetProperty("dedicated", out var dedicated) && dedicated.GetBoolean();
         _loadDelay = config.RootElement.TryGetProperty("loadDelayMs", out var delay) ? Math.Clamp(delay.GetInt32(), 0, 75000) : 0;
-        _sampleIntervalMs = config.RootElement.TryGetProperty("sampleIntervalMs", out var interval) ? Math.Clamp(interval.GetInt32(), 100, 1000) : 100;
+        _sampleIntervalMs = config.RootElement.TryGetProperty("sampleIntervalMs", out var interval) ? Math.Clamp(interval.GetInt32(), 50, 1000) : 100;
         _players = config.RootElement.TryGetProperty("players", out var players) ? players.GetInt32() : 2;
         _hostTeam = config.RootElement.TryGetProperty("hostTeam", out var side) ? side.GetInt32() : 0;
         _observerTeam = config.RootElement.TryGetProperty("observerTeam", out var observerSide) ? observerSide.GetInt32() : 0;
@@ -506,13 +525,14 @@ public sealed class NetworkLabSmoke(bool host, bool observer = false, bool secon
             skeleton.GetBoneName(b).Contains("Foot", StringComparison.OrdinalIgnoreCase) ||
             skeleton.GetBoneName(b).Contains("Toe", StringComparison.OrdinalIgnoreCase)).Select(b =>
             {
-                Vector3 position = skeleton.GlobalTransform * skeleton.GetBoneGlobalPose(b).Origin * 100f;
-                return new { bone = skeleton.GetBoneName(b), position = new[] { position.X, -position.Z, position.Y } };
+                FVector position = UeSpace.ToUe(skeleton.GlobalTransform * skeleton.GetBoneGlobalPose(b).Origin);
+                return new { bone = skeleton.GetBoneName(b), position = new[] { position.X, position.Y, position.Z } };
             }).ToArray();
         File.AppendAllText(Path.Combine(_directory, _role + "-pose-evidence.jsonl"), JsonSerializer.Serialize(new
         {
             utc = DateTimeOffset.UtcNow, shot, minimum = worst.MinFoot, phase = inspector.Phase,
-            pawn = Pawn(pawn, _root?.Session?.Client.Connection), feet,
+            extreme = worst.MinimumFootPose,
+            current = new { pawn = Pawn(pawn, _root?.Session?.Client.Connection), feet },
         }, Json) + "\n");
     }
 

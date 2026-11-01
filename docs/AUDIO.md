@@ -321,3 +321,26 @@ Landings use one client request and the normal sound relay: the server's simulat
 player does not add another landing sound, and the legacy client landing callback is inert.
 Other players keep timestamped sound delivery. A one-shot that arrives after its presentation
 window is still discarded rather than played late.
+
+### Local movement sounds and output evidence
+
+Native `PlaySound` puts a locally controlled pawn's sounds at the viewport listener and clears
+their bone attachment. `SoundSystem` captures that ownership when a voice starts and follows the
+listener for the voice's lifetime. Surface selection still occurs at the pawn first. A remote
+pawn, including one being spectated, retains positional attenuation and occlusion. This matters
+for the spy's trailing camera: the leaf samples override the animation's radius (concrete run
+steps use 36 uu; RollGearShort uses 22 uu; RollGeneric2 uses 28 uu).
+
+The opt-in `audio-listener` smoke plays the converted RollGeneric2 sample through the real mixer
+with near/far listeners for both local and remote sources. It checks the source coordinates and
+gain, then captures the stereo PCM before the muted Master bus and compares amplitude ratios.
+`SVM_AUDIO_CAPTURE_DIR` selects the WAV/JSON evidence folder. Use a windowed, background smoke
+run; a silent/dummy mixer does not count as an output pass. Network lab status also includes
+`audio.voices` with source/leaf identity, source and listener positions, source volume, applied
+gain and the `AtListener` ownership decision.
+
+`tools/benchmark/capture_original_audio.py` reads native sources in an already-owned, muted
+sandbox session. It validates the retail voice table and requires movement sounds to be seen;
+it neither launches a process nor changes volume. Its observations establish native routing
+and sample identity, not original device-output loudness. Reverb calibration and a listening
+comparison of the two engines remain separate from this routing regression.

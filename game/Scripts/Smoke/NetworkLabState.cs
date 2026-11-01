@@ -69,7 +69,7 @@ public static class NetworkLabState
     public static object? Controller(SPlayerController? pc) => pc is null ? null : new
     {
         name = pc.PlayerReplicationInfo?.PlayerName, team = pc.PlayerReplicationInfo?.Team?.TeamIndex,
-        state = pc.GetStateName().ToString(), pawn = pc.Pawn?.ActorId,
+        state = pc.GetStateName().ToString(), pawn = pc.Pawn?.ActorId, fastSpeed = pc.bFastSpeed,
         health = (pc.Pawn as SBasePawn)?.Health, lives = pc.PlayerReplicationInfo?.NumLives,
         deaths = pc.PlayerReplicationInfo?.Deaths, kills = pc.PlayerReplicationInfo?.Kills,
         shots = pc.PlayerReplicationInfo?.Stats?.ShotsFired, hits = pc.PlayerReplicationInfo?.Stats?.ShotsHit,
@@ -114,7 +114,7 @@ public static class NetworkLabState
         grabAllowed = (p.Controller as SPlayerController)?.GameReplicationInfo?.bAvlb_SPY_Grab,
         stateTime = (p.Controller as SPlayerController)?.MirrorStateLastTime,
         stateAck = (p.Controller as SPlayerController)?.MirrorStateAcknowledgementTime,
-        crouched = p.bIsCrouched, height = p.CollisionHeight, radius = p.CollisionRadius, grabbable = p.bCanBeGrabbed,
+        crouched = p.bIsCrouched, rolling = p.bIsRolling, height = p.CollisionHeight, radius = p.CollisionRadius, grabbable = p.bCanBeGrabbed,
         health = p.Health, sleeping = p.bSleeping, lying = p.bLyingOnGround,
         weaponLoaded = p.WeaponLoaded, gasMask = p.bGasMask, maskDuration = GasMask(p)?.MaskDuration,
         eyeHeight = CombatServices.Ports(p).EyePosition(p).Z,

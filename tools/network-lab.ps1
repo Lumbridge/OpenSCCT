@@ -41,7 +41,7 @@ param(
     [string]$DedicatedExe,
     [ValidateSet('host','guest','observer','observer2')][string]$Role = 'host',
     [string]$CommandJson,
-    [ValidateSet('startup','load-timeout','jump','ledge','stall','grab','fire','gadget','sticky-gas','camera-network','outage','stance','soak','death','elimination','roundtrip','rejoin','spectator','stale-combat')][string]$Scenario = 'startup',
+    [ValidateSet('startup','load-timeout','jump','ledge','stall','grab','fire','gadget','sticky-gas','camera-network','audio','outage','stance','soak','death','elimination','roundtrip','rejoin','spectator','stale-combat')][string]$Scenario = 'startup',
     [ValidateRange(30,900)][int]$TimeoutSeconds = 180
 )
 $ErrorActionPreference = 'Stop'
@@ -288,7 +288,7 @@ if ($Action -in @('Start','Run')) {
             $joinPort = (Read-Json $proxyReady).port
         }
         $contentRoot = Join-Path $repo '.content'
-        Write-Json (Join-Path $RunDirectory 'config.json') @{map=$Map;contentRoot=$contentRoot; hub=[bool]$Hub; dedicated=[bool]$Dedicated;port=$port; joinPort=$joinPort; loadDelayMs=$LoadDelayMs;players=$roles.Count;hostTeam=$(if($ReverseRoles){1}else{0});observerTeam=$ObserverTeam;observer2Team=$(if($SecondObserverTeam -ge 0){$SecondObserverTeam}else{$ObserverTeam});lives=$Lives;respawnSeconds=$RespawnSeconds;sampleIntervalMs=$(if($Scenario -eq 'soak'){1000}else{100})}
+        Write-Json (Join-Path $RunDirectory 'config.json') @{map=$Map;contentRoot=$contentRoot; hub=[bool]$Hub; dedicated=[bool]$Dedicated;port=$port; joinPort=$joinPort; loadDelayMs=$LoadDelayMs;players=$roles.Count;hostTeam=$(if($ReverseRoles){1}else{0});observerTeam=$ObserverTeam;observer2Team=$(if($SecondObserverTeam -ge 0){$SecondObserverTeam}else{$ObserverTeam});lives=$Lives;respawnSeconds=$RespawnSeconds;sampleIntervalMs=$(if($Scenario -eq 'soak'){1000}elseif($Scenario -eq 'audio'){50}else{100})}
         if ($Dedicated) {
             if (!(Test-Path -LiteralPath $dedicatedExe)) { throw 'Build the dedicated lab server before using -SkipBuild.' }
             $serverArgs = @('"' + $RunDirectory + '"', "$processLifetime")
@@ -385,6 +385,93 @@ switch ($Action) {
                 return
             }
             $startup = Assert-Startup
+            if ($Scenario -eq 'audio') {
+                if ($Map -ne 'SteeE' -or $Hub -or $Dedicated) { throw 'Audio acceptance requires the SteeE clear lane in a regular listen session.' }
+                $spyRole = if ($ReverseRoles) { 'guest' } else { 'host' }
+                $watchRole = if ($ReverseRoles) { 'host' } else { 'guest' }
+                $spyName = if ($ReverseRoles) { 'LabGuest' } else { 'LabHost' }
+                $watchName = if ($ReverseRoles) { 'LabHost' } else { 'LabGuest' }
+                $spy = Own-Pawn (Read-Json (Join-Path $RunDirectory "$spyRole-status.json"))
+                $watch = Own-Pawn (Read-Json (Join-Path $RunDirectory "$watchRole-status.json"))
+                # The R4 original-game movement fixture has a clear +Y lane with BSP floor at -1143.5.
+                # Placement still checks the live collision shape and a supporting floor on this authority.
+                $floorZ = -1143.5
+                $lanePositions = @()
+                foreach ($along in @(0,64,128,192)) {
+                    foreach ($clearance in @(2,4,6)) { $lanePositions += ,@(-492,(-2032+$along),($floorZ+$spy.height+$clearance)) }
+                }
+                Invoke-Lab 'host' @{op='place';player=$spyName;positions=$lanePositions;yaw=16384;requireSupport=$true}
+                Invoke-Lab $spyRole @{op='input';steps=@(@{label='audio lane placement arrives';seconds=1})}
+                $laneStart = (Own-Pawn (Read-Json (Join-Path $RunDirectory "$spyRole-status.json"))).position
+                $watchPositions = @()
+                foreach ($side in @(-1,1)) {
+                    foreach ($distance in @(160,240,320)) {
+                        foreach ($along in @(100,300)) {
+                            $watchPositions += ,@(($laneStart[0]+$side*$distance),($laneStart[1]+$along),($floorZ+$watch.height+2))
+                        }
+                    }
+                }
+                Invoke-Lab 'host' @{op='place';player=$watchName;positions=$watchPositions;yaw=16384;requireSupport=$true}
+                Invoke-Lab $spyRole @{op='face';yaw=16384;pitch=0}
+                Invoke-Lab $spyRole @{op='input';steps=@(@{label='audio placement settles';seconds=1})}
+                $spy = Own-Pawn (Read-Json (Join-Path $RunDirectory "$spyRole-status.json"))
+                if ($spy.crouched) { Invoke-Lab $spyRole @{op='input';steps=@(@{label='stand in clear audio lane';seconds=1.5;tap=@('bCrouch')})} }
+                $standing = Read-Json (Join-Path $RunDirectory "$spyRole-status.json")
+                if ((Own-Pawn $standing).crouched -or (Own-Pawn $standing).physics -ne 'PHYS_Walking') { throw 'Audio spy never reached supported standing stance.' }
+                if ($standing.localController.fastSpeed) { Invoke-Lab $spyRole @{op='input';steps=@(@{label='slow walking mode';seconds=0.3;tap=@('Walk')})} }
+                $walkSince = [DateTimeOffset]::UtcNow
+                Invoke-Lab $spyRole @{op='input';steps=@(@{label='natural spy walking steps';seconds=1.5;hold=@('BT_Up')},@{label='walk stop';seconds=0.5})}
+                $walking = @(Trace-Since $spyRole $walkSince | Where-Object {
+                    $p = Own-Pawn $_
+                    $p -and !$p.crouched -and ($p.velocity[0]*$p.velocity[0]+$p.velocity[1]*$p.velocity[1]) -gt 100
+                })
+                if (!$walking.Count) { throw 'Audio walking phase never moved a standing spy.' }
+                $spy = Own-Pawn (Read-Json (Join-Path $RunDirectory "$spyRole-status.json"))
+                Invoke-Lab 'host' @{op='place';player=$spyName;position=@($laneStart[0],$laneStart[1],($floorZ+$spy.height+2));yaw=16384;requireSupport=$true}
+                Invoke-Lab $spyRole @{op='face';yaw=16384;pitch=0}
+                $speed = Read-Json (Join-Path $RunDirectory "$spyRole-status.json")
+                if (!$speed.localController.fastSpeed) { Invoke-Lab $spyRole @{op='input';steps=@(@{label='normal fast speed input';seconds=0.3;tap=@('Walk')})} }
+                if (!(Read-Json (Join-Path $RunDirectory "$spyRole-status.json")).localController.fastSpeed) { throw 'Audio run setup never enabled fast speed.' }
+                $since = [DateTimeOffset]::UtcNow
+                Invoke-Lab $spyRole @{op='input';steps=@(
+                    @{label='natural spy running steps';seconds=1;hold=@('BT_Up')},
+                    @{label='natural spy roll';seconds=0.1;hold=@('BT_Up');tap=@('bRoll')},
+                    @{label='roll continues';seconds=0.8;hold=@('BT_Up')},
+                    @{label='roll finishes';seconds=2.5})}
+                $ownerSamples = @(Trace-Since $spyRole $since)
+                $running = @($ownerSamples | Where-Object { $p = Own-Pawn $_; $p -and !$p.crouched -and ($p.velocity[0]*$p.velocity[0]+$p.velocity[1]*$p.velocity[1]) -gt 62500 })
+                $rolling = @($ownerSamples | Where-Object { $p = Own-Pawn $_; $p -and ($p.rolling -or $p.state -match 'Rolling') })
+                if (!$running.Count -or !$rolling.Count) { throw 'Audio movement input did not produce both a standing run and an observed roll.' }
+                $evidence = @()
+                foreach ($roleName in @($spyRole,$watchRole)) {
+                    $isOwner = $roleName -eq $spyRole
+                    $voices = @()
+                    foreach ($sample in @(Trace-Since $roleName $since)) {
+                        $source = @($sample.pawns | Where-Object name -eq $spyName) | Select-Object -First 1
+                        if (!$source -or !$sample.audio) { continue }
+                        foreach ($voice in @($sample.audio.voices)) {
+                            if ($voice.ActorId -ne $source.id -or $voice.Ambient -or $voice.Call -notmatch 'SW_FootRun|SW_Roll') { continue }
+                            $voices += [pscustomobject]@{utc=$sample.utc;kind=$(if($voice.Call -match 'SW_Roll'){'roll'}else{'step'});voice=$voice}
+                        }
+                    }
+                    $steps = @($voices | Where-Object kind -eq 'step')
+                    $rolls = @($voices | Where-Object kind -eq 'roll')
+                    if (!$steps.Count -or !$rolls.Count) { throw "$roleName did not observe both naturally generated spy step and roll voices." }
+                    foreach ($sample in $voices) {
+                        $voice = $sample.voice
+                        if ($isOwner) {
+                            if (!$voice.AtListener -or $voice.Distance -gt 0.01 -or [Math]::Abs($voice.AppliedGain-$voice.SourceVolume) -gt 0.00001) {
+                                throw "$roleName own spy sound was not at listener/full source gain: $($voice | ConvertTo-Json -Compress -Depth 4)"
+                            }
+                        } elseif ($voice.AtListener -or !$voice.Positional -or $voice.Distance -le 0.01 -or $voice.AppliedGain -gt $voice.SourceVolume+0.00001) {
+                            throw "$roleName remote spy sound lost its positional attenuation: $($voice | ConvertTo-Json -Compress -Depth 4)"
+                        }
+                    }
+                    if (!@($voices | Where-Object { $_.voice.AppliedGain -gt 0 }).Count) { throw "$roleName had no audible spy movement voice." }
+                    $evidence += @{role=$roleName;owner=$isOwner;stepSamples=$steps.Count;rollSamples=$rolls.Count;voices=$voices}
+                }
+                Write-Json (Join-Path $RunDirectory 'audio-result.json') @{spyRole=$spyRole;walkingSamples=$walking.Count;runningSamples=$running.Count;rollingSamples=$rolling.Count;views=$evidence;placementFixture=$true;soundsViaNormalInput=$true;sampleIntervalMs=50}
+            }
             if ($Scenario -eq 'camera-network') {
                 if ($Hub -or $Dedicated -or $ReverseRoles) { throw 'Camera network reproduction requires a spy listen host and merc client.' }
                 Invoke-Lab 'guest' @{op='input';steps=@(@{label='select camera network';seconds=1;tap=@('SelectGadget 2')})}
@@ -786,6 +873,31 @@ switch ($Action) {
                 $corpseServer = (Read-Json (Join-Path $RunDirectory 'server-status.json')).server
                 $corpseSource = @($corpseServer.pawns | Where-Object name -eq $victim.name)[0]
                 $corpseError = $null
+                if ($corpseServer.ended) {
+                    # Results automatically travel back after ten seconds. Inspect the completed
+                    # death before travel instead of waiting through the respawn-only timeline.
+                    $after = Read-Json (Join-Path $RunDirectory "$VictimRole-status.json")
+                    $authority = @($corpseServer.players | Where-Object name -eq $victim.name)[0].controller
+                    if ($victim.lives -ne 1 -or $authority.lives -ne 0 -or $after.localController.lives -ne 0) { throw 'Round-end death did not consume the final life exactly once.' }
+                    if ($authority.deaths -ne $victim.deaths+1 -or $after.localController.deaths -ne $authority.deaths) { throw 'Round-end death count differs between owner and authority.' }
+                    if ($corpseServer.winningTeam -eq $victim.team) { throw 'Eliminated team won the round.' }
+                    if (!$corpse -or !$corpseSource -or $corpse.health -gt 0 -or $corpseSource.health -gt 0) { throw 'Round-end corpse is missing or alive.' }
+                    $copies = @(@{role='authority';body=$corpseSource}, @{role=$VictimRole;body=$corpse})
+                    foreach ($roleName in $roles | Where-Object { $_ -ne $VictimRole }) {
+                        $copy = @((Read-Json (Join-Path $RunDirectory "$roleName-status.json")).pawns | Where-Object name -eq $victim.name)[0]
+                        $copies += @{role=$roleName;body=$copy}
+                    }
+                    foreach ($copy in $copies) {
+                        if (!$copy.body -or $copy.body.channels[0].sequence -notmatch '^(Xxxx|LandStXxBk2)') { throw "$($copy.role) never finished a death pose at round end." }
+                        if ($copy.body.channels[0].sequence -ne $corpseSource.channels[0].sequence) { throw "$($copy.role) and authority disagree on the final death clip." }
+                        if ($copy.body.physics -eq 'PHYS_Falling') { throw "$($copy.role) corpse is still falling at round end." }
+                    }
+                    if ($Windowed) { foreach ($roleName in $roles) { Invoke-Lab $roleName @{op='capture'} } }
+                    Write-Json (Join-Path $RunDirectory 'death-result.json') @{victim=$victim;after=$after.localController;authority=$authority;ended=$true;winningTeam=$corpseServer.winningTeam;damageFixture=$true;corpse=$corpse;corpseSource=$corpseSource;copies=$copies}
+                    $passed = $true
+                    Write-Output "PASS $Scenario : $RunDirectory"
+                    return
+                }
                 if (!$corpseServer.ended) {
                     if (!$corpse -or $corpse.health -gt 0 -or $corpseSource.health -gt 0) { throw 'Death fixture lost its corpse before pose comparison.' }
                     $corpseError = [Math]::Sqrt([Math]::Pow($corpse.position[0]-$corpseSource.position[0],2)+[Math]::Pow($corpse.position[1]-$corpseSource.position[1],2)+[Math]::Pow($corpse.position[2]-$corpseSource.position[2],2))

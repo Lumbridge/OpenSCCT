@@ -40,6 +40,8 @@ public partial class SimPawnView : Node3D
     /// <summary>The drawn body still includes the airborne endpoint of a landing interpolation.</summary>
     public bool InterpolatingFromAirborne { get; private set; }
     public float DrawAlpha { get; private set; }
+    /// <summary>The actual interpolated channels submitted for the last drawn pose, for pose diagnostics.</summary>
+    internal ReadOnlySpan<ChannelPose> DrawnChannels => _channels;
     private uint _networkReset;
     private FVector _prevPrePivot;
     private FVector _prePivot;

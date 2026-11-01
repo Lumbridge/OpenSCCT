@@ -153,6 +153,11 @@ stream that has the Sound's own name.
     `p = clamp(1 - d^2 / (100 R)^2, 0.01, 1)` from the listener (1 when R is 0).
 17. A 3D source follows its actor (or the bone it was started on) every update, unless flag 0x40 is set or the actor
     is gone; the listener's own sounds and sources moving faster than 300 uu/s get no Doppler velocity.
+    PlaySound first replaces a locally controlled pawn source with the viewport controller, clears its bone and
+    uses the listener position (retail 0x10b03fd5..0x10b04020; local-controller test 0x109afe10). It continues to
+    follow the controller/listener, so the third-person camera does not attenuate or pan the player's own steps
+    and rolls. Surface-switch selection occurs before this replacement at the pawn's original position.
+    A remote pawn merely being spectated does not satisfy the local-controller test.
 18. Occlusion, for actors whose SoundOcclusion is not OCCLUSION_None: a line check from the listener to the source
     and back gives the thickness of what is in between; the factor is `(2 - thickness / 700) x m`, m a per-material
     factor of the surface hit (indexed by the hit material's own OcclusionType, game 0x10b071eb: of the two

@@ -465,8 +465,12 @@ public sealed class SkeletalModel
 
     private static Template BuildTemplate(string glbPath)
     {
+        using GlbDocument glb = GlbDocument.Load(glbPath);
+        bool authored = AuthoredAnimationTracks.IsConverted(glb);
         var document = new GltfDocument();
-        var state = new GltfState();
+        // Converted clips already contain the original key times. The default 30 Hz bake misses
+        // their sharp changes (including 8 Hz death clips), shifting limbs between authored keys.
+        var state = new GltfState { CreateAnimations = !authored };
         Error error = document.AppendFromFile(glbPath, state);
         if (error != Error.Ok || document.GenerateScene(state) is not Node3D scene)
         {
@@ -474,7 +478,7 @@ public sealed class SkeletalModel
         }
 
         Skeleton3D skeleton = FindFirst<Skeleton3D>(scene) ?? throw new InvalidDataException($"{glbPath}: no skeleton");
-        var animations = new List<(string, Animation)>();
+        var animations = authored ? AuthoredAnimationTracks.Read(glb, skeleton) : new List<(string, Animation)>();
         if (FindFirst<AnimationPlayer>(scene) is { } player)
         {
             foreach (StringName animName in player.GetAnimationList())
@@ -490,11 +494,8 @@ public sealed class SkeletalModel
         FRotator rotOrigin = default;
         Vector3 meshScale = Vector3.One;
         Dictionary<string, MaterialEntry> materials;
-        using (GlbDocument glb = GlbDocument.Load(glbPath))
-        {
-            ReadExtras(glb.Root, ref rotOrigin, ref meshScale);
-            materials = ReadMaterials(glb.Root);
-        }
+        ReadExtras(glb.Root, ref rotOrigin, ref meshScale);
+        materials = ReadMaterials(glb.Root);
 
         var textures = new TextureCache(Path.GetDirectoryName(glbPath) ?? ".");
         // shared/chars/<Package>/<Mesh>.glb: the render pack (heat and EMF skins) is shared/render.

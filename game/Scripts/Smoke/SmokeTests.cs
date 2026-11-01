@@ -30,6 +30,8 @@ public static class SmokeTests
 
     public static SmokeTest? Create(string name) => name switch
     {
+        DeathBonesSmoke.TestName => new DeathBonesSmoke(),
+        AudioListenerSmoke.TestName => new AudioListenerSmoke(),
         PresentationPerformanceSmoke.TestName => new PresentationPerformanceSmoke(),
         HudPerformanceSmoke.TestName => new HudPerformanceSmoke(),
         HudGameplayParitySmoke.SpyName => new HudGameplayParitySmoke(),

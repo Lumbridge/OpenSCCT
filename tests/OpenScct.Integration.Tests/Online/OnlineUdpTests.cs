@@ -49,6 +49,7 @@ public sealed class OnlineUdpTests
         ServerEntry? found = null;
         Task<ServerListResponse>? pending = null;
         string lastListing = "No completed listing request.";
+        long nextListing = rig.Now;
         bool ok = rig.RunUntil(() =>
         {
             if (pending is { IsCompleted: true } done)
@@ -64,7 +65,13 @@ public sealed class OnlineUdpTests
                 }
             }
 
-            pending ??= browser.ListAsync(protocol: rig.Server.Host.Driver.ProtocolHash, cancellationToken: TestContext.Current.CancellationToken);
+            // Browsing and host heartbeats share the loopback address's production rate limit.
+            // Polling every simulation tick can exhaust it before the roster heartbeat arrives.
+            if (pending is null && rig.Now >= nextListing)
+            {
+                nextListing = rig.Now + 500_000;
+                pending = browser.ListAsync(protocol: rig.Server.Host.Driver.ProtocolHash, cancellationToken: TestContext.Current.CancellationToken);
+            }
             return false;
         }, 20);
         Assert.True(ok, "The server never showed up on the master as expected: " + rig.Server.Status() + "; last listing: " + lastListing);
