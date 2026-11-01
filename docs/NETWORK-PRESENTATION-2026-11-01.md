@@ -2,7 +2,8 @@
 
 Follow-up to [0.8.54](NETWORK-FOLLOWUP-2026-11-01.md), focused on the remaining movement audio,
 crouch placement, death/spectator presentation, ledge kills and countdown accuracy.
-Validation and release work are in progress.
+Released and deployed as [0.8.55](https://github.com/Lumbridge/OpenSCCT/releases/tag/v0.8.55)
+on 2026-11-01. The release source is `296933d06c4696344a02e6e50ce1917128f04546`.
 
 ## Fixed
 
@@ -340,6 +341,58 @@ round/respawn boundaries, spectator expiry and minute carry:
 `local/timer-audit/hud-boundaries-final.xml`. An earlier run stopped at its first old hack-countdown
 expectation, so that earlier run did not exercise the later boundary checks.
 
+## Final validation and deployment
+
+The final source passed the full local .NET suite: **3,100 passed, 141 skipped, zero failures**,
+3,241 total in 15m35s. This includes private converted-content coverage unavailable in public CI.
+The earlier pre-camera-guard suite also passed, with the same counts in 18m24s; that earlier run
+alone did not test the subsequently added stale camera-flag assertion.
+
+[CI run 41332641698](https://github.com/Lumbridge/OpenSCCT/actions/runs/41332641698) completed
+successfully for Windows, Linux and Godot on the exact release commit. Each .NET CI platform
+reported **2,718 passed, 523 skipped, zero failures**. Skips include four authored ledge cases and
+28 death-presentation cases requiring private content, which were exercised locally. Python checks
+reported 418 passed and 17 skipped. Godot completed all seven setup/runtime/expected-failure checks.
+[Linux export run 41332641688](https://github.com/Lumbridge/OpenSCCT/actions/runs/41332641688)
+also completed successfully, including native and Flatpak boot/TestBox checks.
+
+The clean Windows ExportRelease build has zero warnings/errors. Its exported boot and TestBox
+checks pass (four walkers, maximum position error 0.03 uu). Two further windowed, muted network
+checks ran the actual exported executable and pack, rather than the editor build:
+
+| Final exported test | Run | Result |
+| --- | --- | --- |
+| SteeE ledge kill, spy host, remote merc and observer, typical impairment, 144/30 FPS | `20261101-174239-4467d3fe` | All rendered phases, supported corpse within 1.405 uu, detached death camera, spectator then fresh respawn |
+| Polar Base door hack, spy on remote client, typical impairment | `20261101-174348-92d60a5c` | Normal Use; 5→4→3→2→1; completion removes timer; maximum displayed error one second |
+
+Both manifests record `exported=true`, `rendered=true`, clean source and full binary/content hashes.
+Screenshots were inspected and all owned game processes were stopped. Evidence is under
+`local/network-presentation-isolated/local/network-lab` in the primary checkout.
+
+The stable published tag resolves to the exact release source. Public downloads were independently
+retrieved and verified: **all 2,003 manifest payload files across 126 referenced blobs**, including
+reused payloads, passed compressed/decompressed digest and size checks. All 12 uploaded asset files,
+223 raw export files, the launcher, Flatpak and checksum file also matched. Both platform provenance
+records identify the clean release source. Flatpak SHA-256:
+`1df57076cee148e21d5daf6473e6a70e25370af821678030259c56dc03ad5162`.
+Launcher 0.8.25 and content packs are unchanged. The separate content audit checked all 333 archive
+sizes/digest metadata and public availability against the configured index; it did not redownload
+and rehash those original-content archive bodies.
+
+Deployment used `tools/deploy/Deploy-Vps.ps1 -SkipBuild` with freshly prepared, exact-commit
+self-contained binaries. All three services have backups and are active: `svm-master`, `svm-server`
+and `svm-hub`. At 17:57:39 UTC, the public status reports version/latest **0.8.55**, source `296933d`,
+build `20261101.1740`, and unchanged compatible minimum **0.8.53**. Both Lumbridge 2v2 and the EU Hub
+advertise 0.8.55. Their deployed networking assembly hashes match the prepared build, and all
+**132 Hub fixture files** match the checkout by path, size and SHA-256. Both services were empty
+before deployment.
+
+Final private evidence under `local/network-presentation-isolated/local`:
+`ledge-camera-final-full-suite.log`, `ledge-release-ci.log`, `ledge-export-smoke.xml`,
+`release-linux/296933d/ci-verification.json`, `ledge-public-release-verification/verification.json`,
+`timer-audit/content-availability/verification.json`, `ledge-vps-deploy.log` and
+`ledge-vps-verification.json`.
+
 ## Validation boundaries and remaining work
 
 - These are separate rendered processes on this PC. Physical laptop/PC Wi-Fi behavior is not certified.
@@ -348,5 +401,5 @@ expectation, so that earlier run did not exercise the later boundary checks.
   every spectator/attachment permutation are not yet exhaustively compared.
 - The broader four-player limited-network input queue result from the overnight report remains outside
   this focused presentation fix.
-- Concurrent AI/physics/traversal and deployment-directory work in the shared checkout is outside this
-  change. Release staging must include only the files and hunks owned by this presentation work.
+- Concurrent AI/physics/traversal, UI and deployment-directory work in the shared checkout is outside
+  this release. The release used an isolated checkout; integration preserved the other local work.
