@@ -147,7 +147,7 @@ public sealed class SoloHackTests
                 session.Step(clock.NowMicroseconds);
             }
             Assert.Null(session.ServerFailure);
-            Assert.NotEqual(PilotPhase.Failed, pilot.Phase);
+            Assert.True(pilot.Phase != PilotPhase.Failed, $"pilot failed: {pilot.Failure}");
             SPlayerController? pc = session.LocalController;
             string state = pc?.GetStateName().ToString() ?? "-";
             string server = session.ServerController?.GetStateName().ToString() ?? "-";

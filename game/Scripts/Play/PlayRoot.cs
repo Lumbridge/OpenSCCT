@@ -237,7 +237,9 @@ public partial class PlayRoot : Node3D
             clock = new StopwatchClock();
         }
 
-        Session = Config.CreateSession?.Invoke(clock) ?? new PlaySession(settings, clock);
+        var sessionLoad = Stopwatch.StartNew();
+        Session = Config.CreateSession?.Invoke(clock) ?? new PlaySession(settings, clock,
+            message => GD.Print($"SVM_PLAY load seconds={sessionLoad.Elapsed.TotalSeconds:F2} {message}"));
         CrashLog.Context = settings.Map + " " + settings.Mode;
         if (settings.Bots > 0)
         {

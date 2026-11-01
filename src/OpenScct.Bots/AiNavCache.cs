@@ -152,9 +152,10 @@ public sealed class AiNavCache
     /// Builds (or loads) both sides' graphs of <paramref name="mapName"/> now, from a scratch server load of the map, so
     /// a real-time host does not stall on its first tick (SteeE takes tens of seconds to build in a Debug build).
     /// </summary>
-    public void Prepare(MapCatalog maps, string mapName)
+    public void Prepare(MapCatalog maps, string mapName, Action<string>? progress = null)
     {
         ArgumentNullException.ThrowIfNull(maps);
+        progress?.Invoke($"nav prepare map={mapName}");
         var world = new World(0, ENetMode.NM_DedicatedServer);
         if (!maps.TryLoad(world, mapName, false, out MapInfo? map, out string? error) || map is null)
         {
@@ -162,8 +163,17 @@ public sealed class AiNavCache
         }
 
         byte mask = world.Level.Info.GEActivationMask;
-        Get(map, spy: true, mask);
-        Get(map, spy: false, mask);
+        foreach (bool spy in new[] { true, false })
+        {
+            string side = spy ? "spy" : "merc";
+            progress?.Invoke($"nav {side} start");
+            int built = Built;
+            NavGraph graph = Get(map, spy, mask);
+            progress?.Invoke(string.Create(CultureInfo.InvariantCulture,
+                $"nav {side} {(Built > built ? "built" : "cached")} nodes={graph.NodeCount} edges={graph.EdgeCount}"));
+        }
+
+        progress?.Invoke("nav ready");
     }
 
     /// <summary>The box the graph samples: the map's starts, objective actors and GE points, widened by <see cref="Margin"/>.</summary>

@@ -34,6 +34,7 @@ public partial class SimPawnView : Node3D
     private ChannelPoseApplier? _applier;
     private PawnAttachments? _attachments;
     private GoggleGlowView? _goggleGlow;
+    private MercShockImmunityView? _shockImmunity;
     private FVector _prevLocation;
     private FVector _location;
     private OpenScct.Core.Engine.EPhysics _previousPhysics, _physics;
@@ -80,6 +81,9 @@ public partial class SimPawnView : Node3D
     /// <summary>The pawn's goggle glow (spec/equipment/goggle-glow.md).</summary>
     public GoggleGlowView? GoggleGlow => _goggleGlow;
 
+    /// <summary>OpenSCCT's world-space shock-protection cue (merc bodies only).</summary>
+    public MercShockImmunityView? ShockImmunity => _shockImmunity;
+
     /// <summary>Loads the mesh for <paramref name="pawn"/>; false when the shared packs do not have it.</summary>
     public bool Bind(SBasePawn pawn, string? sharedRoot)
     {
@@ -99,6 +103,7 @@ public partial class SimPawnView : Node3D
         _applier = new ChannelPoseApplier(_model.Skeleton);
         _attachments = new PawnAttachments(this, root) { Map = Map };
         _goggleGlow = new GoggleGlowView(this, root, bone => (TryGetBone(bone, out Transform3D world), world));
+        if (pawn is SPAWNDEFENSE) _shockImmunity = new MercShockImmunityView(_model);
         Name = $"Pawn{pawn.ActorId}";
         return true;
     }
@@ -263,6 +268,7 @@ public partial class SimPawnView : Node3D
     /// </summary>
     public void SetShadowOnly(bool on)
     {
+        _shockImmunity?.SetFirstPerson(on);
         // Off-tree callers have no notifications, so discover changes on demand there.
         if (_geometryTree is null)
         {
@@ -372,6 +378,10 @@ public partial class SimPawnView : Node3D
         DrawCosmetics(pawn);
         DrawGlass(pawn);
         DrawVision(pawn);
+        int visionMode = Render.Materials.MaterialCompiler.Vision;
+        float cueOpacity = visionMode == RenderK.RendMapThermal ? pawn.HeatOpacity :
+            visionMode == RenderK.RendMapEmf ? pawn.EMFOpacity : 1f;
+        _shockImmunity?.Draw(OpenScct.Server.MercShockPresentation.Read(pawn, alpha), dt, Visible && _model.Root.Visible, cueOpacity);
         _relightClock -= dt;
         if (_relightClock <= 0f && Map is not null)
         {

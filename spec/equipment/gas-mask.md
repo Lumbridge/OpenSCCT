@@ -47,6 +47,13 @@ The merc's gas mask gives 30 s of air in total. While it is on, smoke clouds and
 ## States
 None.
 
+## OpenSCCT presentation addition
+The original actor lifecycle in rule 6 is retained, but the client renderer displays the mask only while its
+living wearer has `bGasMask` enabled and the head attachment has resolved. Carrying the gadget with the mask off
+does not display it. This makes the existing model communicate active gas protection to other players without
+changing mask gameplay or adding a replicated field. The owner's first-person view keeps the external mask on
+the body's shadow-only layer.
+
 ## Constants
 | Name | Value | Unit | Provenance | Source |
 |---|---|---|---|---|

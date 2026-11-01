@@ -171,13 +171,18 @@ and visual inspections. These are bounded heuristic beliefs; learned policies an
 - **Floors**: a pawn-width support probe traced down each column of a 32 uu grid, walkable at normal Z >= MINFLOORZ
   0.7. This finds the highest stair tread under the body; a separate centre probe rejects unsupported gaps. Body fit
   uses movement's collision shape, and queries use a pawn source so decorative meshes that do not block players
-  cannot cut off a route. Nodes are flagged standing when the standing body fits too.
+  cannot cut off a route. Nodes are flagged standing when the standing body fits too. After a surface, sampling
+  clears the same pawn-width footprint before descending again; this prevents overlapping ledge and stair probes
+  from producing repeated floors inside the same solid. Clearance steps cannot skip a usable crouch-height gap.
 - **Walk and crouch edges** to the eight neighbours a swept body reaches with at most MAXSTEPHEIGHT 34 up, standing when
   both ends and the sweep fit a standing pawn, crouched otherwise (vents and crawl spaces; a crouched merc is 136 tall
   and fits fewer of them). A small step can leave a gap of two or three sampled cells because the lower cylinder
   overlaps its riser. Short connections across those gaps require continuous walkable floor at half-cell intervals
   and a clear body sweep, including equal-height endpoints around thresholds; they never bridge unsupported holes.
-  Navigation cache version 9 rebuilds older graphs.
+  Narrow stairs may span several treads between grid columns; each half-cell transition must remain within
+  MAXSTEPHEIGHT, with support under the centre as well as the footprint. Immediate neighbours are connected first;
+  longer edges are omitted only when a standing walk chain through the exact intermediate columns already reaches
+  the target. Crouched chains still allow a faster standing shortcut. Navigation cache version 12 rebuilds older graphs.
 - **Drops**: one way, up to three cells out, cleared all the way down; spies to 700 uu (a few points of damage past
   Fell_MinHeightForDmg 600), mercs to 400 (their damage starts at 450); deeper than the damage height costs extra.
   The landing floor must go on for two cells past the landing node in the direction of the drop: a narrow shelf over
@@ -194,8 +199,10 @@ and visual inspections. These are bounded heuristic beliefs; learned policies an
   planned: they come from geometry, not GEs. Pipe-to-bar and bar-to-zip chains are not planned either.
 
 Graphs are cached per map (name, sim hash, activation mask) and profile: in memory for the process and on disk
-(`%LOCALAPPDATA%/SVM/ai-nav`, or `SVM_AI_NAV_CACHE`; empty disables it), never in the checkout. SteeE builds in a few
-seconds in a Debug build and loads from the cache in a moment. Node light levels (`ApplyLight`) let a route weigh the
+(`%LOCALAPPDATA%/SVM/ai-nav`, or `SVM_AI_NAV_CACHE`; empty disables it), never in the checkout. Cold builds take longer
+than loading cached graphs. Local play prints `SVM_PLAY load seconds=... nav` progress for each side, including whether
+the graph was built or cached and its node/edge counts, so startup work is visible before the match begins.
+Node light levels (`ApplyLight`) let a route weigh the
 dark: the stealth cost is `cost x (1 + 3 stealth x light)`, plus a danger cost near believed enemies.
 
 Doors are planned as open. `DoorAi` (from `AiBrain.MoveTo`) looks about 220 uu along the route for a closed mover. It

@@ -4,11 +4,14 @@ using System.Globalization;
 using Godot;
 using OpenScct.Core;
 using OpenScct.Core.Engine;
+using OpenScct.Game.Combat;
 using OpenScct.Game.Equipment;
 using OpenScct.Game.SBase;
 using OpenScct.Physics.Collision;
+using OpenScct.Server;
 using OpenScctGame.Play;
 using OpenScctGame.Play.Session;
+using OpenScctGame.Render.Characters;
 
 namespace OpenScctGame.Smoke;
 
@@ -17,13 +20,15 @@ namespace OpenScctGame.Smoke;
 /// Play Level rules, the listen server on its own thread, one merc bot at normal, wall clock, HUD). Every press is a
 /// Godot input event sent by <see cref="KeyPilot"/> for the key the spy layout binds (E fire mode, L laser, left mouse
 /// fire), read by PlayInput and sent over loopback. The only test hook is on the server's thread: it holds the merc
-/// bot in front of the spy until the first shock lands, and copies the bot's server state for the checks.
+/// bot in front of the spy until the first shock lands, holds its input during the later immunity observation,
+/// and copies the bot's server state for the checks.
 /// <para>
 /// Steps (spec/equipment/spy-shocker.md, spy-shocker-owner-notes.md, sticky-shock-effect.md): hold E 0.8 s (the draw
 /// starts after 0.5 s, no laser, nothing drawn), L (the laser on: beam and dot drawn), L (off), E (holster), tap E (the
 /// draw starts at the release, laser on and drawn), aim at the bot with the mouse, fire until the server shocks it
 /// (no health lost, the impact effect at the hit, the electric clip and the spark emitters on the client's bot), the
-/// bot stays frozen, the shock ends (sparks removed), then three shots at the floor each leave an impact effect.
+/// bot stays frozen, the shock ends (sparks removed), the amber immunity countdown persists until the authoritative
+/// timer expires and clears, then three shots at the floor each leave an impact effect.
 /// </para>
 /// With a window and SVM_PLAY_SHOTS naming a folder (under local/) the window is saved after each step and at the key
 /// moments inside steps.
@@ -80,6 +85,12 @@ public sealed class PlayShockerSmoke : SmokeTest
         _steps.Add(new StepDef("shock the bot (left mouse)", 25, s => s.ShootBot(), s => s.BotShocked()));
         _steps.Add(new StepDef("the shocked bot stays frozen", 6, s => s.AimAtBot(), s => s.BotFrozen()));
         _steps.Add(new StepDef("the shock ends", 12, _ => { }, s => s.ShockOver()));
+        _steps.Add(new StepDef("shock immunity counts down and expires", 20, s =>
+        {
+            s._server.Pinning = true;
+            s._server.HoldCombat = true;
+            s.AimAtBot();
+        }, s => s.ImmunityExpires()));
         _steps.Add(new StepDef("three shots at a wall: an impact each", 25, s => s.ShootWall(), s => s.WallImpacts()));
 
         // SVM_SHOCKER_SKIP: steps to leave out, by the start of their name (comma separated), to look at one area.
@@ -127,6 +138,7 @@ public sealed class PlayShockerSmoke : SmokeTest
                 return Finish(SmokeResult.Fail("no listen server in this process"));
             }
 
+            _server.Bots = session.Bots;
             host.BeforeWorldTick += _server.OnServerTick;
             _keys = KeyPilot.Attach(_root);
             _hooked = true;
@@ -501,11 +513,9 @@ public sealed class PlayShockerSmoke : SmokeTest
             return;
         }
 
-        // The counts are given for a 1280 pixel wide window; a headless window is tiny, so they are scaled up to what
-        // they are in a 1280 pixel window (as play-combat does).
-        float width = _root!.GetViewport().GetVisibleRect().Size.X;
-        float k = width > 1f && width < 640f ? KeyPilot.ReferenceWidth / width : 1f;
-        _keys!.Look(Math.Clamp(e.Yaw / KeyPilot.UnitsPerCount, -30f, 30f) * k, Math.Clamp(-e.Pitch / KeyPilot.UnitsPerCount, -20f, 20f) * k);
+        // MouseLook consumes raw counts at every resolution. Scaling by the tiny headless viewport would
+        // overshoot the target each tick and prevent this input-driven pilot from ever settling.
+        _keys!.Look(Math.Clamp(e.Yaw / KeyPilot.UnitsPerCount, -30f, 30f), Math.Clamp(-e.Pitch / KeyPilot.UnitsPerCount, -20f, 20f));
         Input.FlushBufferedEvents();
     }
 
@@ -542,6 +552,8 @@ public sealed class PlayShockerSmoke : SmokeTest
         public int MaxDrawnSparks;
         public int MaxSparkParticles;
         public int MaxSkinSurfaces;
+        public int MaxImmunityShells;
+        public bool SawTimedImmunity;
         public int Taps;
         public int? Yaw;
     }
@@ -578,6 +590,12 @@ public sealed class PlayShockerSmoke : SmokeTest
         // What the player sees: the class's own spark particles and the Stickess skin on the drawn bot.
         m.MaxSparkParticles = Math.Max(m.MaxSparkParticles, _root!.Fx?.Effects?.ParticlesOf(ClassShockEmitter.ToString()) ?? 0);
         m.MaxSkinSurfaces = Math.Max(m.MaxSkinSurfaces, _root.Pawns?.ViewOf(bot)?.StickySurfaces ?? 0);
+        if (_root.Pawns?.ViewOf(bot) is { ShockImmunity: { Shown: true } cue } view)
+        {
+            ShockImmunityView immunity = MercShockPresentation.Read(bot, view.DrawAlpha);
+            m.SawTimedImmunity |= immunity.Active && !immunity.StateProtected && immunity.RemainingSeconds > 0f;
+            m.MaxImmunityShells = Math.Max(m.MaxImmunityShells, VisibleShells(cue));
+        }
     }
 
     private void ShootBot()
@@ -652,6 +670,11 @@ public sealed class PlayShockerSmoke : SmokeTest
             wrong.Add("the shocked bot is drawn with its own skin (no Stickess shader)");
         }
 
+        if (!s.Immunity.TimerBlocked || s.Immunity.StateProtected || !m.SawTimedImmunity || m.MaxImmunityShells == 0)
+        {
+            wrong.Add($"accepted shock has no timed amber protection: server {s.Immunity}, client timer {m.SawTimedImmunity}, drawn shells {m.MaxImmunityShells}");
+        }
+
         // The laser keeps pointing where the spy looks (playtest: it turned back past the camera to the floor).
         if (Pistol?.LaserBeam is { } shotBeam && Session.View.Valid && (shotBeam.Rotation.Vector() | Session.View.Rotation.Vector()) < 0.5f)
         {
@@ -664,7 +687,7 @@ public sealed class PlayShockerSmoke : SmokeTest
         }
 
         return $"shocked after {m.Taps} presses: server pad frozen {s.BotPad}, electric {s.BotElectric}, weapon {s.BotWeaponState}, health 100, " +
-            $"impact effects {Marks - m.Marks0} (last at {_root!.Fx?.LastMarkAt}), sparks drawn {m.MaxDrawnSparks} ({m.MaxSparkParticles} particles), Stickess surfaces {m.MaxSkinSurfaces}, clips [{string.Join(",", m.BotClips)}]";
+            $"impact effects {Marks - m.Marks0} (last at {_root!.Fx?.LastMarkAt}), sparks drawn {m.MaxDrawnSparks} ({m.MaxSparkParticles} particles), Stickess surfaces {m.MaxSkinSurfaces}, amber shells {m.MaxImmunityShells}, clips [{string.Join(",", m.BotClips)}]";
     }
 
     private string? BotFrozen()
@@ -719,7 +742,93 @@ public sealed class PlayShockerSmoke : SmokeTest
             return Fail($"shock at {t0:F3} s: freeze ended {s.FreezeEndedAt:F3} (due past {freezeDue}), electric ended {s.ElectricEndedAt:F3} (due past {electricDue})");
         }
 
-        return $"shock at {t0:F3} s: freeze ended {s.FreezeEndedAt:F3} s, electric {s.ElectricEndedAt:F3} s (int(t + 3.5), int(t + 4.5)); sparks removed on the client";
+        if (_root!.Pawns?.ViewOf(bot) is not { ShockImmunity: { } cue } view)
+        {
+            return Fail("the merc has no drawn immunity cue after the electric effect ended");
+        }
+
+        ShockImmunityView immunity = MercShockPresentation.Read(bot, view.DrawAlpha);
+        if (!s.Immunity.TimerBlocked || s.Immunity.StateProtected || !immunity.Active || immunity.StateProtected ||
+            immunity.RemainingSeconds <= 0f || !cue.Shown || VisibleShells(cue) == 0)
+        {
+            return Fail($"amber immunity must outlast the electric effect: server {s.Immunity}, client {immunity}, shown {cue.Shown}");
+        }
+
+        return $"shock at {t0:F3} s: freeze ended {s.FreezeEndedAt:F3} s, electric {s.ElectricEndedAt:F3} s (int(t + 3.5), int(t + 4.5)); sparks removed, amber remains with {immunity.RemainingSeconds:F2} s left";
+    }
+
+    private static int VisibleShells(MercShockImmunityView cue)
+    {
+        int count = 0;
+        foreach (MeshInstance3D shell in cue.Shells)
+        {
+            if (shell.IsVisibleInTree()) count++;
+        }
+
+        return count;
+    }
+
+    private sealed class ImmunityMemo
+    {
+        public float TimeShock;
+        public float Remaining0;
+        public float Coverage0;
+        public bool CountdownSeen;
+        public bool CoverageDrainSeen;
+        public bool CountdownShot;
+        public long? ClearTick;
+    }
+
+    private string? ImmunityExpires()
+    {
+        if (Bot is not { } bot || _root!.Pawns?.ViewOf(bot) is not { ShockImmunity: { } cue } view)
+            return Fail("lost the merc or its amber cue while waiting for immunity expiry");
+
+        ServerSnap s = _server.Snapshot();
+        ShockImmunityView immunity = MercShockPresentation.Read(bot, view.DrawAlpha);
+        if (_memo is null)
+        {
+            if (!s.Immunity.TimerBlocked || !immunity.Active || immunity.StateProtected || !cue.Shown)
+                return Fail($"immunity countdown was not active at its first observation: server {s.Immunity}, client {immunity}");
+            _memo = new ImmunityMemo { TimeShock = s.TimeShock, Remaining0 = immunity.RemainingSeconds, Coverage0 = cue.Coverage };
+        }
+
+        var m = (ImmunityMemo)_memo;
+        if (s.TimeShock != m.TimeShock || s.Immunity.StateProtected || immunity.StateProtected)
+            return Fail($"immunity changed its source during the countdown: shock {m.TimeShock:F3} -> {s.TimeShock:F3}, server {s.Immunity}, client {immunity}");
+
+        m.CountdownSeen |= immunity.Active && m.Remaining0 - immunity.RemainingSeconds >= 1f;
+        m.CoverageDrainSeen |= cue.Shown && m.Coverage0 - cue.Coverage >= 0.05f;
+        if (!m.CountdownShot && cue.Shown && m.Remaining0 - immunity.RemainingSeconds >= 2f)
+        {
+            Shot("shock immunity countdown amber");
+            m.CountdownShot = true;
+        }
+        if (s.Immunity.TimerBlocked)
+        {
+            if (!immunity.Active || !cue.Shown || VisibleShells(cue) == 0)
+                return Fail($"amber cleared before authoritative immunity: server {s.Immunity}, client {immunity}, shown {cue.Shown}");
+            float expectedCoverage = Math.Clamp(immunity.Fraction, MercShockImmunityView.MinimumCoverage, 1f);
+            if (Math.Abs(cue.Coverage - expectedCoverage) > 0.02f)
+                return Fail($"amber coverage {cue.Coverage:F3} does not follow the received countdown fraction {immunity.Fraction:F3}");
+            return null;
+        }
+
+        // The source query, not an assumed duration or a sleep, decides expiry. Allow its final snapshot and draw
+        // to arrive, then require the cleared presentation to remain clear for several simulation ticks.
+        if (immunity.Active || cue.Shown || VisibleShells(cue) != 0)
+        {
+            m.ClearTick = null;
+            return s.Time - s.ImmunityEndedAt > 1f ? Fail($"amber did not clear after authoritative expiry at {s.ImmunityEndedAt:F3}: client {immunity}, shown {cue.Shown}") : null;
+        }
+
+        m.ClearTick ??= Session.TicksRun;
+        if (Session.TicksRun - m.ClearTick.Value < 6) return null;
+        if (!m.CountdownSeen || !m.CoverageDrainSeen || s.ImmunityEndedAt < 0f)
+            return Fail($"expiry did not exercise a visible countdown: seconds decreased {m.CountdownSeen}, body drained {m.CoverageDrainSeen}, source expiry {s.ImmunityEndedAt:F3}");
+
+        _server.HoldCombat = false;
+        return $"received countdown and body coverage drained from {m.Remaining0:F2} s / {m.Coverage0:P0}; authoritative expiry {s.ImmunityEndedAt:F3} s, status and amber shells cleared";
     }
 
     // ---- impacts ------------------------------------------------------------------------------------------------
@@ -844,7 +953,7 @@ public sealed class PlayShockerSmoke : SmokeTest
 
     private readonly record struct ServerSnap(bool Held, FVector Spot, int BotId, int BotHealth, bool BotShocked, int BotPad,
         bool BotElectric, string BotWeaponState, FVector BotLocation, float Time, float TimeShock, float FreezeEndedAt,
-        float ElectricEndedAt);
+        float ElectricEndedAt, ShockImmunityState Immunity, float ImmunityEndedAt);
 
     /// <summary>Runs on the listen server's thread before each world step; the main thread reads its snapshot.</summary>
     private sealed class ServerWatch
@@ -854,10 +963,13 @@ public sealed class PlayShockerSmoke : SmokeTest
         private FVector? _spot;
         private float _freezeEnded = -1f;
         private float _electricEnded = -1f;
+        private float _immunityEnded = -1f;
         private bool _wasFrozen;
         private bool _wasElectric;
 
         public volatile bool Pinning;
+        public volatile bool HoldCombat;
+        public OpenScct.Bots.ServerBots? Bots;
 
         public ServerSnap Snapshot()
         {
@@ -900,6 +1012,13 @@ public sealed class PlayShockerSmoke : SmokeTest
             }
 
             var pc = bot.Controller as SPlayerController;
+            if (pc is not null && Bots?.Of(pc) is { } brain)
+            {
+                // The added countdown observation outlasts the stun. Keep its target in view without allowing
+                // its AI to kill the observing spy; the actual pawn/weapon timers and damage rules keep ticking.
+                brain.Held = HoldCombat;
+                if (HoldCombat) OpenScct.Game.AI.AiInput.Idle.ApplyTo(pc);
+            }
             int pad = pc?.iDontUpdatePadInput ?? 0;
             if (_wasFrozen && pad == 0 && _freezeEnded < 0f)
             {
@@ -913,10 +1032,16 @@ public sealed class PlayShockerSmoke : SmokeTest
 
             _wasFrozen |= pad != 0;
             _wasElectric |= bot.bStickyShocking;
+            ShockImmunityState immunity = MercShockImmunity.Capture(bot);
+            if (_wasElectric && !immunity.Active && _immunityEnded < 0f)
+            {
+                _immunityEnded = level.TimeSeconds;
+            }
+
             ServerSnap snap = new(_spot is not null && Pinning, _spot ?? default, bot.ActorId, bot.Health,
                 pc is not null && pc.TimeShock > 0f && bot.bStickyShocking, pad, bot.bStickyShocking,
                 bot.MyWeapon?.GetStateName().ToString() ?? "-", bot.Location, level.TimeSeconds, pc?.TimeShock ?? 0f,
-                _freezeEnded, _electricEnded);
+                _freezeEnded, _electricEnded, immunity, _immunityEnded);
             lock (_gate)
             {
                 _snap = snap;

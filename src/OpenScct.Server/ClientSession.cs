@@ -326,6 +326,7 @@ public sealed class ClientSession : INetworkNotify, IDisposable
         }
 
         Combat?.Pump();
+        World.Level.GetService<MercShockStream>()?.AfterReceive();
         Driver.TickFlush(nowMicros);
         LocalTick++;
     }

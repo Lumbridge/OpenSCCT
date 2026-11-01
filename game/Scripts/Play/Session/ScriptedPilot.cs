@@ -20,10 +20,18 @@ public enum PilotPhase
     Failed,
 }
 
+/// <summary>What the pilot should do after reaching its spot and facing the target.</summary>
+public enum PilotArrival
+{
+    Interact,
+    FaceOnly,
+}
+
 /// <summary>
 /// A scripted local player for smoke runs: it presses the keys a player would (stand up, fast speed, forward, Use)
 /// while turning the view toward the next waypoint of a <see cref="RoutePlanner"/> route to a use spot, then faces
-/// the object and presses and releases Use. Turning writes the view rotation directly, as the scenario format's
+/// the object and, for an interaction target, presses and releases Use. Positioning targets finish after facing.
+/// Turning writes the view rotation directly, as the scenario format's
 /// view step does; everything else goes through the per-tick input. A test driver, not part of the game.
 /// </summary>
 public sealed class ScriptedPilot
@@ -34,6 +42,7 @@ public sealed class ScriptedPilot
     private const int MaxReplans = 6;
 
     private readonly Func<SPlayerController, (FVector Spot, FVector Face)?> _target;
+    private readonly PilotArrival _arrival;
     private List<FVector>? _route;
     private int _waypoint;
     private int _phaseTicks;
@@ -42,10 +51,12 @@ public sealed class ScriptedPilot
     private bool _wasAirborne;
     private int _replans;
 
-    /// <param name="target">The use spot and the point to face, found on the client's world when the pawn exists.</param>
-    public ScriptedPilot(Func<SPlayerController, (FVector Spot, FVector Face)?> target)
+    /// <param name="target">The destination and the point to face, found on the client's world when the pawn exists.</param>
+    /// <param name="arrival">Interaction targets require a usable prompt; FaceOnly stops without pressing Use.</param>
+    public ScriptedPilot(Func<SPlayerController, (FVector Spot, FVector Face)?> target, PilotArrival arrival = PilotArrival.Interact)
     {
         _target = target ?? throw new ArgumentNullException(nameof(target));
+        _arrival = arrival;
     }
 
     public PilotPhase Phase { get; private set; } = PilotPhase.WaitForPawn;
@@ -201,6 +212,12 @@ public sealed class ScriptedPilot
 
                 if (_phaseTicks > 30)
                 {
+                    if (_arrival == PilotArrival.FaceOnly)
+                    {
+                        Next(PilotPhase.Done);
+                        break;
+                    }
+
                     // The route stops within a tolerance, and smoke tests deliberately offset the use spot.
                     // Walk up to the actual interaction prompt before pressing Use, as a player would; otherwise
                     // an 18 uu arrival tolerance plus a 30 uu offset can stop just outside the usable radius.

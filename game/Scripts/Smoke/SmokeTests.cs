@@ -26,10 +26,12 @@ public static class SmokeTests
             RangeTraversalSmoke.TestName, RangeMotionSmoke.TestName, RangeBotsSmoke.TestName, RangeSimSmoke.TestName,
             PlayShockerSmoke.TestName, PlayMotionSmoke.TestName, PlayMercSmoke.TestName, PlaySidearmSmoke.TestName, SidearmMenuSmoke.TestName, SmoothSmoke.TestName,
             MapShotsSmoke.TestName, PlayReticleSmoke.TestName, AnimBonesSmoke.TestName, PlayHitchSmoke.TestName, PlayLasersSmoke.TestName,
-            FrameRateSmoke.TestName, GoggleGlowSmoke.TestName, LobbyLayoutSmoke.TestName, OptionsSmoke.TestName, FrontEndLayoutSmoke.TestName, MenuLayoutSmoke.TestName, MenuArtSmoke.TestName, PlayHurtSmoke.TestName, Hub.HubSmoke.TestName];
+            FrameRateSmoke.TestName, GoggleGlowSmoke.TestName, LobbyLayoutSmoke.TestName, OptionsSmoke.TestName, FrontEndLayoutSmoke.TestName, MenuLayoutSmoke.TestName, MenuArtSmoke.TestName, PlayHurtSmoke.TestName, Hub.HubSmoke.TestName, MercImmunityHudSmoke.TestName, MercStatusVisualSmoke.TestName];
 
     public static SmokeTest? Create(string name) => name switch
     {
+        MercImmunityHudSmoke.TestName => new MercImmunityHudSmoke(),
+        MercStatusVisualSmoke.TestName => new MercStatusVisualSmoke(),
         HudTimersNetworkSmoke.TestName => new HudTimersNetworkSmoke(),
         PlayDoorTimerSmoke.TestName => new PlayDoorTimerSmoke(),
         PlayDoorTimerSmoke.DelayedName => new PlayDoorTimerSmoke(delayed: true),

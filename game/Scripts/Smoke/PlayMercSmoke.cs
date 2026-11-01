@@ -256,7 +256,7 @@ public sealed class PlayMercSmoke : SmokeTest
             }
         }, s =>
         {
-            if (s.Remember is not float pressed || s.Rifle is not { } r || r.ClipAmmo != r.ClipMaxAmmo)
+            if (s.Remember is not float pressed || s.Rifle is not { } r || r.ClipAmmo != r.ClipMaxAmmo || !r.IsInState("s_Selected"))
             {
                 return null;
             }
@@ -406,10 +406,15 @@ public sealed class PlayMercSmoke : SmokeTest
                 return $"FAIL: the mask is {(view.Worn ? "worn" : "not worn")} on the HUD and used {used:F2} s of air in {s.ClientTime - t0:F2} s";
             }
 
-            return s.Detail($"worn, air {air0:F1} -> {mask.MaskDuration:F1} s, HUD gauge frame {view.GaugeFrame}");
+            if (s.MaskVisualFailure(worn: true) is { } visualFailure) return "FAIL: " + visualFailure;
+
+            return s.Detail($"worn, air {air0:F1} -> {mask.MaskDuration:F1} s, HUD gauge frame {view.GaugeFrame}, mask mesh follows head on first-person shadow layer");
         });
         leg.Add("take the gas mask off (right mouse)", 300, s => s.Tap("RightMouse", 5, 4), s =>
-            s.Pawn is { bGasMask: false } && !GadgetHudRules.GasMask(s.PC).Worn && s.Ticks > 20 ? s.Detail("off") : null);
+        {
+            if (s.Pawn is not { bGasMask: false } || GadgetHudRules.GasMask(s.PC).Worn || s.Ticks <= 20) return null;
+            return s.MaskVisualFailure(worn: false) is { } failure ? "FAIL: " + failure : s.Detail("off, attached mask mesh hidden");
+        });
 
         leg.Add("select the camera network (3)", 120, s => s.Tap("3", 0, 3), s =>
             s.Pawn?.SelectedGadget is SGadCamNetwork ? s.Detail("selected") : null);
@@ -674,7 +679,7 @@ public sealed class PlayMercSmoke : SmokeTest
 
         public MercLeg(SmokeContext context, PlayHostMode host, int bots, bool walkToWall)
         {
-            _pilot = walkToWall ? new ScriptedPilot(Wall) { UseHoldTicks = 1 } : null;
+            _pilot = walkToWall ? new ScriptedPilot(Wall, PilotArrival.FaceOnly) : null;
             var config = new PlayConfig
             {
                 Settings = new PlaySettings
@@ -1022,6 +1027,25 @@ public sealed class PlayMercSmoke : SmokeTest
 
         public OpenScctGame.Hud.HudLayer? Hud => _root.Hud;
 
+        public string? MaskVisualFailure(bool worn)
+        {
+            var masks = new List<SGasMask>();
+            foreach (SGasMask candidate in Session.Client.World.Level.AllActors<SGasMask>())
+                if (!candidate.bDeleteMe && ReferenceEquals(candidate.Instigator, Pawn)) masks.Add(candidate);
+            if (masks.Count != 1) return $"expected one replicated mask for the merc, found {masks.Count}";
+            SGasMask mask = masks[0];
+            if (_root.Fx?.Effects?.MeshOf(mask) is not { } mesh) return "replicated gas mask has no rendered mesh";
+            if (mesh.Visible != worn) return $"mask mesh visibility {mesh.Visible} disagrees with worn={worn}";
+            if (!worn) return null;
+            if (!ReferenceEquals(mask.Base, Pawn) || mask.AttachmentBone != K.GasMaskBone ||
+                _root.Pawns?.TryGetBone(Pawn, K.GasMaskBone, out Transform3D head) != true)
+                return "worn gas mask is not attached to the drawn head";
+            Vector3 expected = head.Origin + head.Basis.Orthonormalized() * UeSpace.ToGodot(mask.RelativeLocation);
+            if (mesh.GlobalPosition.DistanceTo(expected) > 0.005f) return "worn gas mask did not follow the drawn head position";
+            if (mesh.Layers != OpenScctGame.Render.RenderLayers.ShadowOnly) return "own gas mask leaked into the first-person camera";
+            return null;
+        }
+
         /// <summary>The material the drawn rifle's rate-of-fire screen (view model slot 3) shows.</summary>
         public string? RofScreen => _root.FirstPerson is { Model: { } m } fp
             ? fp.SlotSkin(3) ?? (m.Slots.Count > 3 ? m.Slots[3] : null)
@@ -1362,13 +1386,7 @@ public sealed class PlayMercSmoke : SmokeTest
 
         public void MouseMove(float dx, float dy)
         {
-            float width = _root.GetViewport().GetVisibleRect().Size.X;
-            if (width > 1f && width < 640f)
-            {
-                dx *= 1280f / width;
-                dy *= 1280f / width;
-            }
-
+            // ScreenRelative is raw mouse counts; MouseLook's turn per count is resolution-independent.
             var ev = new InputEventMouseMotion { Relative = new Vector2(dx, dy), ScreenRelative = new Vector2(dx, dy), Position = Center };
             Input.ParseInputEvent(ev);
             Input.FlushBufferedEvents();

@@ -105,8 +105,25 @@ The runtime lays each sub-emitter's stored values over its class defaults from `
   `RespawnOverride`, `SpawnBudget`, `Restart`, `OnSpawn`). Splashes start on the drawn body (the native's 11 bone
   segments, matched to the converted skeletons by bone name), drips at the head with the pawn's horizontal speed.
 - The merc's gas mask (`SGasMask`, DEF_Gasmask on 'B Head', spec/equipment/gas-mask.md rule 6) is drawn as the
-  backpack is, at the drawn head bone. Content converted before the fx step listed SGasMask gets the class from
+  backpack is, at the drawn head bone. OpenSCCT shows it only while the living wearer has `bGasMask` enabled;
+  unresolved wearers or head attachments stay hidden. The owner's mask follows the body's shadow-only layer.
+  Content converted before the fx step listed SGasMask gets the class from
   `FxLibrary`'s late classes and the mesh from meshes/SGameplayObjects.glb by the exporter's node naming.
+
+### Merc shock-immunity feedback (OpenSCCT addition)
+
+An amber body-edge overlay indicates immunity to the spy's shocker, independently of the blue active-stun skins
+and sparks. Its 1.5-second pulse drains from head to feet over the authoritative immunity window; half remaining
+lights the lower half of the posed body. Crouching and other poses change the height used for that coverage.
+Protection tied to a state without a fixed deadline holds the full effect until that state ends. A small final
+sliver remains until the server clears protection, including when the displayed countdown reaches zero.
+
+The overlay uses a separate merc-body material, preserving cosmetics and vision colours. It is depth tested,
+does not emit world light or draw into shadow passes, and is absent from first-person arms, dead pawns, social
+hubs and previews. The merc's HUD shows the same timed status (docs/HUD.md). Snapshot observers sample status
+with the displayed pawn history; owners and legacy observers receive atomic status updates. Server game-time
+anchors account for time dilation without sending a new reliable message for every countdown tick. The changed
+pawn presentation layouts require matching client and server builds; existing content packs remain sufficient.
 
 `CombatFxView` per shot: SMuzzleSticky for the Shocker; SMuzzleGenerique and sMuzzleCanon for the rifle, with the
 SDouilleEmitter casing (first person at the rifle's FX_DOUILLE bone); each impact mark draws its class's decal texture

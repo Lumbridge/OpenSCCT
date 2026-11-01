@@ -358,7 +358,7 @@ public sealed class GadgetsSmoke : SmokeTest
             _side = side;
             _standoff = standoff;
             Seen.Clear();
-            _pilot = new ScriptedPilot(Wall);
+            _pilot = new ScriptedPilot(Wall, PilotArrival.FaceOnly);
             var config = new PlayConfig
             {
                 Settings = new PlaySettings

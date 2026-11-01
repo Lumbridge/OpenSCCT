@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using OpenScct.Core;
+using OpenScct.Game.Combat;
 
 namespace OpenScctGame.Hud;
 
@@ -293,6 +294,9 @@ public sealed class HudSnapshot
 
     public bool Poisoned { get; set; }
 
+    /// <summary>The merc's server-derived protection against the spy's shocker, including its remaining window.</summary>
+    public ShockImmunityView ShockImmunity { get; set; }
+
     public FVector PawnLocation { get; set; }
 
     /// <summary>|Pawn.Velocity| in uu/s: the spy's objective markers fade while he moves.</summary>
@@ -476,6 +480,7 @@ public sealed class HudSnapshot
         HasPawn = false;
         Health = 0;
         Poisoned = false;
+        ShockImmunity = default;
         PawnLocation = default;
         PawnSpeed = 0f;
         HackingText = SecuredText = DistanceUnit = "";

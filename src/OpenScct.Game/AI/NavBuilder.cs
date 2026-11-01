@@ -139,11 +139,12 @@ public sealed class NavBuilder
                     }
 
                     float floorZ = hit.Location.Z - FloorProbe.Z;
-                    if (hit.Normal.Z >= _profile.MinFloorNormalZ)
+                    if (!hit.bStartPenetrating && hit.Normal.Z >= _profile.MinFloorNormalZ)
                     {
                         var floor = new FVector(c.X, c.Y, floorZ);
                         // Still require support under the centre: the wide probe must not bridge an open gap.
-                        if (FloorNear(floor, floorZ + 2f, floorZ - _profile.StepUp - 2f) is not null && Fits(floor, _profile.CrouchHeight))
+                        // A footprint can span two closely spaced stair treads, each within MAXSTEPHEIGHT.
+                        if (FloorNear(floor, floorZ + 2f, floorZ - 2f * _profile.StepUp - 2f) is not null && Fits(floor, _profile.CrouchHeight))
                         {
                             column ??= new List<int>(2);
                             column.Add(_nodes.Count);
@@ -151,11 +152,15 @@ public sealed class NavBuilder
                         }
                     }
 
-                    // Continue below this surface: step down out of the solid it belongs to.
+                    // Clear the same footprint used by the downward sweep. A centre-only point can already
+                    // be outside a stair/ledge while the wide probe still overlaps it; resweeping there
+                    // reports the same solid as another floor every few units and greatly inflates the graph.
                     z = floorZ - 2f;
-                    for (int dig = 0; dig < 64 && z > bottom && _world.PointCheck(out _, CollisionProbe, new FVector(c.X, c.Y, z), new FVector(1f, 1f, 1f), WorldFlags); dig++)
+                    for (int dig = 0; dig < 64 && z > bottom && _world.OverlapMoveShape(out _, CollisionProbe, new FVector(c.X, c.Y, z), supportProbe, WorldFlags); dig++)
                     {
-                        z -= 8f;
+                        // A usable lower floor needs a whole crouched body of clear space above it. Sampling
+                        // by half that height cannot skip such a gap and avoids hundreds of probes inside walls.
+                        z -= _profile.CrouchHeight;
                     }
                 }
 
@@ -178,16 +183,18 @@ public sealed class NavBuilder
     {
         float s = _profile.Spacing;
         Span<(int dx, int dy)> dirs = stackalloc (int, int)[] { (1, 0), (0, 1), (1, 1), (1, -1) };
-        for (int n = 0; n < _nodes.Count; n++)
+        // Build the immediate neighbours first. Longer connections are for missing stair/threshold nodes,
+        // not shortcuts that repeat the same rays along an already connected run of ordinary walk edges.
+        for (int k = 1; k <= 3; k++)
         {
-            FVector a = _nodes[n].Floor;
-            int ix = (int)MathF.Round((a.X - _min.X) / s);
-            int iy = (int)MathF.Round((a.Y - _min.Y) / s);
-            foreach ((int dx, int dy) in dirs)
+            for (int n = 0; n < _nodes.Count; n++)
             {
-                for (int sign = -1; sign <= 1; sign += 2)
+                FVector a = _nodes[n].Floor;
+                int ix = (int)MathF.Round((a.X - _min.X) / s);
+                int iy = (int)MathF.Round((a.Y - _min.Y) / s);
+                foreach ((int dx, int dy) in dirs)
                 {
-                    for (int k = 1; k <= 3; k++)
+                    for (int sign = -1; sign <= 1; sign += 2)
                     {
                         int cx = ix + sign * dx * k;
                         int cy = iy + sign * dy * k;
@@ -210,13 +217,22 @@ public sealed class NavBuilder
 
     private void TryPair(int n, int m, int k, bool diagonal)
     {
+        if (k > 1 && HasWalkChain(n, m, k))
+        {
+            return;
+        }
+
         FVector a = _nodes[n].Floor;
         FVector b = _nodes[m].Floor;
         float dz = b.Z - a.Z;
         float horizontal = k * _profile.Spacing * (diagonal ? 1.4142f : 1f);
-        if (MathF.Abs(dz) <= _profile.StepUp)
+        float rise = MathF.Abs(dz);
+        // Adjacent grid columns can span several narrow treads. Validate each half-cell's support instead
+        // of relying on overlapping copies of the same tread to supply intermediate graph nodes.
+        bool stairs = rise > _profile.StepUp && rise <= _profile.StepUp * k * 2f && ContinuousStep(a, b, k);
+        if (rise <= _profile.StepUp || stairs)
         {
-            if (m <= n || k > 1 && !ContinuousStep(a, b, k))
+            if (m <= n || !stairs && k > 1 && !ContinuousStep(a, b, k))
             {
                 return;
             }
@@ -280,6 +296,36 @@ public sealed class NavBuilder
         _edges[n].Add((m, NavEdgeKind.Drop, horizontal + -dz * 0.5f + _profile.Spacing + hurt, -1));
     }
 
+    private bool HasWalkChain(int from, int to, int cells)
+    {
+        FVector a = _nodes[from].Floor;
+        FVector b = _nodes[to].Floor;
+        float nextX = a.X + (b.X - a.X) / cells;
+        float nextY = a.Y + (b.Y - a.Y) / cells;
+        foreach (var edge in _edges[from])
+        {
+            // A crouched chain may be slower than a standing shortcut, so keep testing those candidates.
+            if (edge.Kind != NavEdgeKind.Walk)
+            {
+                continue;
+            }
+
+            if (cells == 1 && edge.To == to)
+            {
+                return true;
+            }
+
+            FVector next = _nodes[edge.To].Floor;
+            if (cells > 1 && MathF.Abs(next.X - nextX) < 0.01f && MathF.Abs(next.Y - nextY) < 0.01f &&
+                HasWalkChain(edge.To, to, cells - 1))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     private bool HasFloorAtLevel(FVector a, FVector b, int k)
     {
         for (int i = 1; i < k; i++)
@@ -315,7 +361,13 @@ public sealed class NavBuilder
         for (int i = 1; i <= samples; i++)
         {
             FVector point = a + (b - a) * (i / (float)samples);
-            if (FloorNear(point, last + _profile.StepUp + 2f, last - _profile.StepUp - 2f) is not { } height)
+            if (FloorNear(point, last + _profile.StepUp + 2f, last - _profile.StepUp - 2f,
+                    new FVector(_profile.Radius, _profile.Radius, FloorProbe.Z)) is not { } height)
+            {
+                return false;
+            }
+
+            if (FloorNear(point, height + 2f, height - 2f * _profile.StepUp - 2f) is null)
             {
                 return false;
             }
@@ -752,11 +804,11 @@ public sealed class NavBuilder
     private static int FaceYaw(FVector dir) => new FVector(dir.X, dir.Y, 0f).Rotation().Yaw & 0xFFFF;
 
     /// <summary>The floor height under <paramref name="p"/> between <paramref name="top"/> and <paramref name="bottom"/>, or null.</summary>
-    private float? FloorNear(FVector p, float top, float bottom)
+    private float? FloorNear(FVector p, float top, float bottom, FVector? extent = null)
     {
         var start = new FVector(p.X, p.Y, top);
         var end = new FVector(p.X, p.Y, bottom);
-        if (!_world.LineCheck(out FCheckResult hit, CollisionProbe, end, start, FloorProbe, WorldFlags) || hit.Normal.Z < _profile.MinFloorNormalZ)
+        if (!_world.LineCheck(out FCheckResult hit, CollisionProbe, end, start, extent ?? FloorProbe, WorldFlags) || hit.Normal.Z < _profile.MinFloorNormalZ)
         {
             return null;
         }

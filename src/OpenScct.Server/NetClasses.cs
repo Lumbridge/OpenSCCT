@@ -23,8 +23,12 @@ public static class NetClasses
         controller.Functions.AddRange(OpenScct.Net.Moves.SequencedMoveTransport.CreateExtension().Functions);
         controller.Functions.AddRange(PawnSoundReplication.CreateExtension().Functions);
         controller.Functions.AddRange(NetMovementBridge.OwnerActionsExtension().Functions);
+        controller.Functions.Add(MercShockStream.RequestExtension());
         registry.Extend<SPlayerController>(controller);
         registry.Extend<OpenScct.Core.Engine.PlayerController>(PawnSoundReplication.CreateExtension());
+        var shockRequests = new RepExtension();
+        shockRequests.Functions.Add(MercShockStream.RequestExtension());
+        registry.Extend<OpenScct.Core.Engine.PlayerController>(shockRequests);
         for (int i = 0; i < registry.Count; i++)
         {
             System.Type type = registry.Classes[i].Type;

@@ -53,7 +53,7 @@ public sealed class PlaySession : IDisposable
     /// <summary>An offline session (one with its own host, not a round on a remote server) runs on this machine.</summary>
     public static bool OfflineSessionRunning => System.Threading.Volatile.Read(ref s_offlineSessions) > 0;
 
-    public PlaySession(PlaySettings settings, IClock clock)
+    public PlaySession(PlaySettings settings, IClock clock, Action<string>? loadProgress = null)
     {
         Settings = settings ?? throw new ArgumentNullException(nameof(settings));
         Clock = clock ?? throw new ArgumentNullException(nameof(clock));
@@ -88,7 +88,7 @@ public sealed class PlaySession : IDisposable
         if (settings.Bots > 0)
         {
             nav = new AiNavCache();
-            nav.Prepare(Catalog, map.Id);
+            nav.Prepare(Catalog, map.Id, loadProgress);
         }
 
         _start = clock.NowMicroseconds;

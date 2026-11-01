@@ -96,10 +96,15 @@ if (-not $JUnitPath) { $JUnitPath = Join-Path $repoRoot 'local/test-results/godo
 if (-not (Test-Path -LiteralPath $solution)) { throw "No Godot solution at $solution." }
 New-Item -ItemType Directory -Force -Path $logDir | Out-Null
 
-# Smokes that need more time than -TimeoutSeconds whatever it is: map-shots plays every Story and Deathmatch map.
-$minimumTimeouts = @{ 'map-shots' = 1800.0; 'net-lobby' = 360.0; 'net-bots' = 360.0 }
+# Map tours and multi-client scenarios have their own budgets. Bot gameplay smokes also include a synchronous
+# cold navigation build (both teams on SteeE), so allow startup plus the unchanged per-step gameplay deadlines.
+# The cold build is reported by SVM_PLAY load; a warm cache does not consume this allowance.
+$minimumTimeouts = @{
+    'map-shots' = 1800.0; 'net-lobby' = 360.0; 'net-bots' = 360.0
+    'play-shocker' = 240.0; 'play-merc' = 240.0; 'play-combat' = 240.0
+}
 # Smokes that only run with a window (-All leaves them out of a headless run), and helpers another smoke starts.
-$windowOnly = @('golden', 'frame-rate')
+$windowOnly = @('golden', 'frame-rate', 'merc-status-visual')
 $helpers = @('net-lobby-guest', 'net-bots-guest')
 $esc = [char]27
 $results = New-Object System.Collections.Generic.List[object]

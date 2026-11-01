@@ -80,6 +80,9 @@ public partial class HudLayer : CanvasLayer
     public HudMarkers Markers { get; } = new();
     public HudTeammateNames TeammateNames { get; } = new();
 
+    /// <summary>The local merc's shock protection; shared by the ordinary, scope and camera-network HUDs.</summary>
+    public HudShockImmunity ShockImmunity { get; } = new();
+
     /// <summary>The merc's motion tracking brackets (HudMotionTracking.cs), drawn after the markers.</summary>
     public HudMotionTracking Motion { get; } = new();
 
@@ -421,6 +424,8 @@ public partial class HudLayer : CanvasLayer
         bool targetName = camNetwork || (mercPage && _mercAimRan && pc?.myHUD is SHud aimHud && aimHud.TargetNameInAimHelper());
         Motion.Update((mercPage || camNetwork) && disabledCamera is null ? pc : null, screen, Projector, Options.StretchHud, Assets, targetName);
         _canvasList.Clear();
+        ShockImmunity.Draw(screen, Snapshot, _white, Options.StretchHud,
+            suppressed: pc is { bGameEnded: true } || ReferenceEquals(page, Merc) && Merc!.ShuttingDown);
         TeammateNames.Draw(playerPage && Snapshot.Valid && !Snapshot.HideHud ? pc : null, Projector, screen);
         if (Snapshot.RespawnWeapon is { } weapon && !Snapshot.HideHud && Assets?.TextureSize(HudRespawnWeaponDrawer.Package, HudRespawnWeaponDrawer.Atlas) is { } atlas)
         {
@@ -481,6 +486,8 @@ public partial class HudLayer : CanvasLayer
         {
             // Hide only the camera feed; keep the original camera frame, controls and readouts above it.
             if (disabledFeed is not null) _items.Add(disabledFeed);
+            // Keep the immunity readout below the page's gas-mask, shock, foam and flash layers.
+            _items.AddRange(ShockImmunity.DrawList.Items);
             _items.AddRange(page.DrawList.Items);
             _items.AddRange(Interaction.DrawList.Items);
             _items.AddRange(Markers.DrawList.Items);

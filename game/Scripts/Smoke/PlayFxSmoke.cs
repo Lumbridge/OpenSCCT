@@ -272,7 +272,7 @@ public sealed class PlayFxSmoke : SmokeTest
         {
             _side = side;
             _standoff = standoff;
-            _pilot = new ScriptedPilot(Wall) { UseHoldTicks = 1 };
+            _pilot = new ScriptedPilot(Wall, PilotArrival.FaceOnly);
             PlayConfig launcher = PlayConfig.FromOptions(context.App.Options);
             PlayConfig config = launcher with
             {
@@ -714,13 +714,7 @@ public sealed class PlayFxSmoke : SmokeTest
 
         public void MouseMove(float dx, float dy)
         {
-            float width = _root.GetViewport().GetVisibleRect().Size.X;
-            if (width > 1f && width < 640f)
-            {
-                dx *= 1280f / width;
-                dy *= 1280f / width;
-            }
-
+            // MouseLook consumes raw counts, including with the headless display's tiny viewport.
             var ev = new InputEventMouseMotion { Relative = new Vector2(dx, dy), ScreenRelative = new Vector2(dx, dy), Position = Center };
             Input.ParseInputEvent(ev);
             Input.FlushBufferedEvents();

@@ -281,7 +281,11 @@ public sealed class PlayCombatSmoke : SmokeTest
                 s.Send("F", false);
             }
         }, s => s.Rifle is { } r && s.Remember is SRateOfFireMode before && r.ROFMode != before ? s.Detail($"{before} -> {r.ROFMode}") : null);
-        leg.Add("reload (R)", 300, s => s.Tap("R", 5, 3), s => s.Rifle is { } r && r.ClipAmmo == r.ClipMaxAmmo ? s.Detail($"clip {r.ClipAmmo}, ammo {r.Ammo}") : null);
+        // Replicated ammunition can arrive before the local reload animation finishes. Wait for the rifle to
+        // accept the next action as well, otherwise the one-shot scope tap is correctly ignored mid-reload.
+        leg.Add("reload (R)", 300, s => s.Tap("R", 5, 3), s =>
+            s.Rifle is { } r && r.ClipAmmo == r.ClipMaxAmmo && r.IsInState("s_Selected")
+                ? s.Detail($"clip {r.ClipAmmo}, ammo {r.Ammo}, rifle ready") : null);
         leg.Add("scope (B)", 240, s => s.Tap("B", 5, 3), s =>
             s.PC is { } pc && pc.GetStateName().ToString() == "s_Binoculars_Def" ? s.Detail($"scoped, FOV {pc.FovAngle:F0}") : null);
         leg.Add("scope zoom (Page Up)", 240, s => s.Tap("PageUp", 20, 3), s =>
@@ -708,7 +712,7 @@ public sealed class PlayCombatSmoke : SmokeTest
         {
             _side = side;
             _standoff = standoff;
-            _pilot = walkToWall ? new ScriptedPilot(Wall) { UseHoldTicks = 1 } : null;
+            _pilot = walkToWall ? new ScriptedPilot(Wall, PilotArrival.FaceOnly) : null;
             int bots = botCount ?? (int.TryParse(System.Environment.GetEnvironmentVariable("SVM_COMBAT_BOTS"), NumberStyles.Integer, CultureInfo.InvariantCulture, out int b) ? b : 3);
             var config = new PlayConfig
             {
@@ -1133,18 +1137,9 @@ public sealed class PlayCombatSmoke : SmokeTest
         /// <summary>Holds <paramref name="ik"/> from frame <paramref name="from"/> for <paramref name="frames"/> frames.</summary>
         public void Hold(string ik, int from, int frames) => Tap(ik, from, frames);
 
-        /// <summary>Mouse motion in pixels (right and down positive, as the screen).</summary>
+        /// <summary>Raw mouse counts (right and down positive), independent of viewport size.</summary>
         public void MouseMove(float dx, float dy)
         {
-            // The look scales the counts by the window size (MouseLook); a headless window is tiny, so the motion is
-            // scaled up to what it is in a 1280 pixel window.
-            float width = _root.GetViewport().GetVisibleRect().Size.X;
-            if (width > 1f && width < 640f)
-            {
-                dx *= 1280f / width;
-                dy *= 1280f / width;
-            }
-
             var ev = new InputEventMouseMotion { Relative = new Vector2(dx, dy), ScreenRelative = new Vector2(dx, dy), Position = Center };
             Input.ParseInputEvent(ev);
 

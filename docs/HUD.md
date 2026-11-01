@@ -154,6 +154,18 @@ typed name and the friend mark, SHud.DrawTargetName, spec/hud/merc-reticle.md ru
 respawn weapon, the console lines, the screen-effect washes and the knock-out text (`HudSfx`), overlays (the chat
 line), the frame rate readout. The SHud canvas doubles its colours (screen-effects.md rule 0, `HudK.CanvasColour`).
 
+**Merc shock immunity (OpenSCCT addition).** A compact amber crossed-lightning icon, `SHOCK IMMUNE` countdown
+and draining bar sit beside the health/status area. Seconds round upward to one decimal. The readout uses the
+same authoritative timed status as the draining body-edge effect (docs/EFFECTS.md), with current synchronized
+server time for the owner. It does not infer immunity from the local shock animation or restart its own timer.
+When an action or state blocks shocks without a fixed end time, the label reads `STATE PROTECTED` and the bar
+stays full. After that state ends, any remaining timed cooldown appears. An active `0.0s` readout remains until
+the server clears protection. Timer resets and extensions update immediately.
+
+This is a canvas element, so scope and camera-network pages retain it. It follows HUD hiding and screen-effect
+washes, and is absent for dead players, spectators, end-game screens and social hubs. No floating world label
+is added; other players read the remaining proportion from the merc's body effect.
+
 **Effects.** `HudEffects` turns the simulation's CombatFx notifications into what the SHud natives do on the hit
 player's machine: `ClientDamageHudEffect` (red wash for spies, perturbation for mercs, flash-bang after-image and
 white-out, extinguisher foam), `HudShutDown`, `SetBallisticValue`, the goggle messages. `HudEventTap` chains the

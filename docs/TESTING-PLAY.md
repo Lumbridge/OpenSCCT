@@ -188,6 +188,32 @@ public sealed class CrouchFeetSmoke : SmokeTest
 Wait for the pawn to be drawn in a walking state before the first key (see `PlayInspectSmoke`): the spy spawns
 crouched in `s_PlayerWalkingCr0H`, and keys pressed before the controller has its pawn are lost.
 
+## Wall setup and merc protection checks
+
+`ScriptedPilot` defaults to `PilotArrival.Interact`: it approaches until a usable interaction exists, then presses
+Use. The `gadgets`, `play-merc`, `play-combat` and `play-fx` wall fixtures explicitly use `PilotArrival.FaceOnly`.
+That mode stops at the planned position and faces the wall without searching for a prompt or pressing Use.
+The terminal, disk and crane fixtures retain the interaction behavior. `ScriptedPilotTests` covers both sides'
+positioning and the default refusal to interact without a prompt.
+
+The combat, effects, merc and shocker aiming helpers send raw mouse counts, matching `MouseLook` at every viewport
+size. They must not multiply those counts to compensate for the headless display's small viewport. A step following
+a reload must also wait for the rifle's ready state; a full replicated clip alone does not finish its local animation.
+
+`play-shocker` follows an accepted shock through the blue stun effects, the longer amber immunity countdown and the
+authoritative expiry. It checks the received timer, visible body shells and draining coverage, and requires both the
+stun effects and immunity cue to clear at their respective ends. `play-merc` checks the existing mask mesh while worn
+and after removal, including its resolved animated attachment and first-person hiding. The focused
+`merc-status-visual` and `merc-immunity-hud` smokes cover rendered body coverage, wall occlusion, vision modes and HUD
+layouts; `merc-status-visual` requires a real renderer.
+
+`godot-smoke.ps1` gives `play-shocker`, `play-merc` and `play-combat` a minimum total budget of 240 seconds because
+their first launch may build both teams' navigation graphs synchronously. Their individual gameplay-step deadlines
+are unchanged. `SVM_PLAY load` reports the map load, each navigation profile's build/cache result, and elapsed startup
+time. To verify a cold launch, set `SVM_AI_NAV_CACHE` to a new empty directory; run these smokes serially so separate
+processes do not duplicate the same cold build. Navigation format 12 invalidates graphs containing the older phantom
+floor layers and redundant long walk edges.
+
 ## The play-reticle smoke
 
 `--svm-smoke=play-reticle` (`game/Scripts/Smoke/PlayReticleSmoke.cs`): the merc's reticle against his shots and his

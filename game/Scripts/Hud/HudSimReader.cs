@@ -195,6 +195,7 @@ public sealed class HudSimReader : IHudSource
         s.HasPawn = true;
         s.Health = pawn.Health;
         s.Poisoned = pawn.bPoisonned;
+        s.ShockImmunity = OpenScct.Server.MercShockPresentation.Read(pawn);
         s.PawnLocation = pawn.Location;
         s.PawnSpeed = pawn.Velocity.Size();
         if (pawn is SPawnAttaque spy)

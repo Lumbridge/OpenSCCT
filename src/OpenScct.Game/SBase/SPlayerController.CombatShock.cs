@@ -86,7 +86,7 @@ public partial class SPlayerController
         }
 
         float now = Level.TimeSeconds;
-        bool accept = PillTag != K.TaserPill ? now - TimeShock > RealTimeInvulSticky : !pawn.bStickyShocking;
+        bool accept = PillTag != K.TaserPill ? !MercShockImmunity.TimerBlocks(this) : !pawn.bStickyShocking;
         bool instigatorThisTick = ShockInstigator is not null && ShockInstigatorTime == now &&
             ShockInstigator.Controller is SPlayerController;
         if (accept)

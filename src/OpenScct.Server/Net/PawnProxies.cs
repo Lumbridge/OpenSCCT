@@ -132,7 +132,11 @@ public sealed class PawnProxySender
             for (int p = 0; p < _pawns.Count; p++)
             {
                 SBasePawn pawn = _pawns[(p + (int)(_pass % _pawns.Count)) % _pawns.Count];
-                if (pawn.bDeleteMe || ReferenceEquals(pawn.Controller, pc))
+                if (pawn.bDeleteMe) continue;
+                bool owner = ReferenceEquals(pawn.Controller, pc);
+                if (owner || _driver.Settings.PawnProxies != PawnProxyMode.Snapshots)
+                    level.GetService<MercShockStream>()?.Send(pawn, viewer);
+                if (owner)
                 {
                     continue;
                 }
