@@ -85,6 +85,7 @@ The admin portal includes an operations dashboard, global lookup, filtered accou
 detail sections, individual/all-session revocation, explicit ban durations, and structured administrative audit
 details. Ban/block/rank/grant operations require a reason; invalid durations are errors, not permanent bans.
 Set rank has persistent **Prestige (0–10)** and **Rank (level 1–55)** labels, alongside the required reason.
+The **Back to public site** button in the admin header returns to the player hub from any administration page.
 Settings are validated and committed together. Public welcome and announcement text are distinct from the game's
 message of the day. Plain text is encoded before display.
 

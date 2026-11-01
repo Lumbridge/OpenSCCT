@@ -73,13 +73,14 @@ internal static class AdminHtml
                 .Append("<small>Administrator</small></span><form method=\"post\" action=\"/admin/logout\">").Append(Csrf(context))
                 .Append("<button class=\"link\">Sign out</button></form></div></aside>")
                 .Append("<div class=\"admin-workspace\"><header class=\"admin-topbar\"><span class=\"workspace-label\">OPERATIONS / ")
-                .Append(H(title)).Append("</span><form action=\"/admin/search\" method=\"get\" class=\"global-search\"><label class=\"sr-only\" for=\"global-query\">Search players, servers and matches</label>")
+                .Append(H(title)).Append("</span><a class=\"button compact public-site-link\" href=\"/\">Back to public site</a>")
+                .Append("<form action=\"/admin/search\" method=\"get\" class=\"global-search\"><label class=\"sr-only\" for=\"global-query\">Search players, servers and matches</label>")
                 .Append("<input id=\"global-query\" name=\"q\" type=\"search\" placeholder=\"Search players, servers, matches…\" maxlength=\"100\"><button>Search</button></form></header>");
         }
         else
         {
-            sb.Append("<div class=\"admin-signin\"><a class=\"admin-brand\" href=\"/\"><span class=\"brand-mark\" aria-hidden=\"true\">O</span><span class=\"brand-copy\">")
-                .Append(Web.WebHtml.Wordmark).Append("</span></a>");
+            sb.Append("<div class=\"admin-signin\"><header class=\"admin-signin-header\"><a class=\"admin-brand\" href=\"/\"><span class=\"brand-mark\" aria-hidden=\"true\">O</span><span class=\"brand-copy\">")
+                .Append(Web.WebHtml.Wordmark).Append("</span></a><a class=\"button compact public-site-link\" href=\"/\">Back to public site</a></header>");
         }
 
         sb.Append("<main id=\"main\"><div class=\"page-heading\"><div><p class=\"eyebrow\">ADMINISTRATION</p><h1>").Append(H(title)).Append("</h1></div>");
