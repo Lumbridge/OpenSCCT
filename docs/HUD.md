@@ -127,6 +127,12 @@ top-level area of a page starts hidden and stopped at frame 0; each driver shows
 | P_SpectatorMode | objectives, time, lives, watched player, respawn countdown, tip (spectator-page.md) |
 | P_BinocularsATT / DEF | zoom label and marker, scope ring animations, sights and axes at the aim point, breath gauge, range finder, key help, Hack prompt, reticle message (binoculars.md) |
 
+Countdown text uses `m:ss` with carried minutes. Alarm text reads the precise match clock used to start its
+countdown. Knockout text reads the local lying-state deadline that controls waking; both show `1` during their
+final positive fraction of a second and expire at zero. These timing corrections replace the original truncated
+display values, without shortening or extending the gameplay timers. The gas-mask and scoped-breath gauges still
+read their owner-side air/breath budgets; EMP, flash and grenade effects have no numeric time-left label.
+
 **When a page shows.** `SPlayerController.SpawnMagmaHud` opens the side's page once the player is ready
 (`PlayerAreReady`): the PRI has a team, or it only spectates (`HudLayer.MagmaHudOpen`); before that no page is drawn.
 

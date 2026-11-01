@@ -17,7 +17,7 @@ countdown boxes, gauges).
 | Field | Owner | Notes |
 |---|---|---|
 | AlarmsList | SHud | SAlarm entries (AddAlarm / RemoveAlarm natives) |
-| MessagePriority, Duration, StartTime | SAlarm | StartTime in whole seconds of GRI.ElapsedTime |
+| MessagePriority, Duration, StartTime | SAlarm | StartTime on GRI.PreciseElapsedTime(), set by RestartCountdown |
 | GameMode, TotalTeamLives[2], NumDisks, NumDisksToWin | GRI | counter variants |
 | bReadyForShortLadder, bReadyForHoistClimb, bLyingOnGround | SBasePawn | coop and Speak |
 | bCanTalkToGuy, bCanListenSpyBulletedGuy, fDistToTalkWhenOnGround | SPlayerController | Speak (300 uu by default) |
@@ -30,6 +30,9 @@ Alarm box (`ChronoAlarm` -> A_ChronoAlarme, both pages):
 1. Among the SHud.AlarmsList entries with `MessagePriority > 4`, take the largest
    `Duration + StartTime - GRI.ElapsedTime` (bAlarmOn is not tested). While that value is above 0 the box shows
    `"0:%02u"` of it, opening from frame 0 when it appears; otherwise it hides.
+   OpenSCCT timing correction: subtract `GRI.PreciseElapsedTime()` so the display uses the same clock as the
+   alarm's deadline, and round a positive remainder up to whole seconds. All countdown boxes carry minutes
+   (`90` seconds displays `1:30`); the original native rounding and format above remain the parity reference.
 1a. `SHud.EmptyAlarmsList` (entering s_Dead, and every HUD frame while the player spectates): stops the
    high-priority alarm sound, empties AlarmsList and MalfunctionGamePlayObjects, and in GM_Neutralization (3) for a
    merc view pawn also empties ActorToDraw. The mode test reads `Level.Game`, so on a client it is skipped.

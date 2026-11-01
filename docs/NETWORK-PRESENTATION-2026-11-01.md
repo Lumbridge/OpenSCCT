@@ -1,7 +1,8 @@
-# Network audio, crouch and death presentation — 2026-11-01
+# Network audio, crouch, death presentation and timers — 2026-11-01
 
 Follow-up to [0.8.54](NETWORK-FOLLOWUP-2026-11-01.md), focused on the remaining movement audio,
-crouch placement and death/spectator presentation. Validation and release work are in progress.
+crouch placement, death/spectator presentation and the subsequently reported countdown accuracy.
+Validation and release work are in progress.
 
 ## Fixed
 
@@ -156,6 +157,90 @@ The previously failing case passes in isolation (34.7 s). Production limits are 
 initial full-suite failure remains recorded rather than being called a clean pass.
 That initial shared-checkout suite completed in 18m47s: 3,129 passed, 140 skipped, one failed out
 of 3,270. It included concurrent work; the release is built and verified from a scoped clean checkout.
+
+The clean presentation commit `d01357a` subsequently passed the full local suite: **3,089 passed,
+141 skipped, zero failures**, 3,230 total in 16m48s. Its Windows, Linux and Godot CI jobs also passed
+([run 41325910091](https://github.com/Lumbridge/OpenSCCT/actions/runs/41325910091)); each .NET CI
+platform reported 2,711 passed and 519 skipped without private converted content. Linux packaging
+passed separately. These results predate the countdown follow-up below and do not certify its final
+release commit.
+
+## Countdown accuracy
+
+The visible round and spectator clocks now use `max(0, TimeLimit * 60 - ElapsedTime)`, the same
+replicated integer clock and deadline used by the authority's time-limit outcome. This deliberately
+removes the original page's extra one-second display subtraction: a round with one second remaining
+must not already show zero. An expired finite spectator clock shows `0:00`; `Inf.` means unlimited.
+
+Respawn and knockout labels use the ceiling of their own local deadline minus the matching local
+clock. Exact ten-second respawns no longer initially show eleven, and a final positive fraction
+still shows one. Alarm countdowns use the same precise match clock that established their deadline.
+Countdown formatting carries minutes (`90` seconds is `1:30`). Gameplay durations are unchanged.
+
+The connected HUD check uses a simulated 200 ms link with jitter and packet loss, ordinary lethal
+damage, spectator transition and actual respawn. It observes all 61 round values from `1:00` to
+`0:00`, checks 589 respawn samples within one displayed second of the authority deadline, and
+records the first actual authority timeout at elapsed **60**. Evidence:
+`local/timer-audit/hud-network-final.xml`. This is a connected two-world test, not a physical LAN run.
+
+The wider inventory also traced camera-disabled, Hub queue, lobby launch and video-settings revert
+countdowns. Those already use authority remaining durations or matching local deadlines with upward
+rounding; no new defect was established there. Gas-mask and scoped-breath gauges read their actual
+air/breath budgets. EMP, flash and grenade effects have no numeric remaining-time label.
+
+The client GRI never runs the authority's one-second timer. Its unreplicated fractional-clock anchor
+was left at spawn time, so combining it with replicated elapsed seconds counted client uptime twice.
+The receive path now rebases that anchor on a changed elapsed value or match start, including a
+zero-to-zero start. Unrelated property updates preserve its phase. Wire fields and gameplay timers
+are unchanged. Connected clock tests fail twice before this fix and pass twice afterward, covering
+35 seconds before joining, 45 seconds of connected sampling, jitter, unrelated same-second updates
+and reset. Evidence: `local/match-clock-before.log` and `local/match-clock-after.log`.
+
+Hack and objective countdowns now subtract that fractional match clock and round once. The delayed
+Polar Base baseline showed **6 seconds with 4.9 seconds actually left**, then 2 with only 0.65 left.
+Fresh, delayed-start (35.25 seconds) and interrupted/retried rendered solo checks now pass strict
+comparisons with the actual authored five-second door deadline. Each observes `5,4,3,2,1`, finishes
+at 5.067 seconds of sampled authority time, and removes the countdown on completion. The rendered
+screenshots visibly show `0:03` and `0:01`. Evidence: valid fresh/delayed entries in
+`local/door-timer-after/results.xml`, and `local/door-timer-retry-final/results.xml`. Earlier retry
+harness failures are retained: its control branch and sample-reset assertion were corrected; they
+were not production timer failures.
+
+The separate regular-session UDP test then reproduced the user's **exact constant-zero** symptom
+(`20261101-164315-64d96993`). Normal Use input entered the hacking state for 44 samples while the
+authority deadline became **-3.43** and the owner HUD stayed zero. Gameplay still completed the
+five-second hack. The deadline writer was subtracting the server's match-clock anchor from a
+temporarily installed client input timestamp during command simulation, rather than world time.
+Both precise-clock helpers and the GRI's anchor/reset/receive paths now use `WorldTimeSeconds`,
+which remains stable inside nested movement-command scopes. The same real UDP host-spy case
+passes after the fix (`20261101-164747-e26cdffc`), with positive countdown values and normal
+completion. The earlier inline solo passes alone would not have established that fix.
+
+The reversed-role rendered UDP case also passes (`20261101-164826-edda9531`, spy on the remote
+client). Both cases use normal Use input after a validated placement fixture, show `5,4,3,2,1`,
+complete the hack and remove its countdown. Under the typical impaired-network profile, displayed
+time stays within one second of the authority deadline. Both screens were captured and inspected.
+The final combined HUD and connected round/respawn checks pass after the world-clock correction:
+`local/timer-audit/command-clock-hud-final.xml`.
+
+Two focused command-clock regressions fail before the change (a valid precise time of 20.25 becomes
+-14.2496; an intended hack deadline of 25.25 becomes -8.2496). Afterward, 98 focused game checks
+pass, covering clock reset, the actual five-second switch lifecycle, terminal/objective interactions
+and alarms. Three connected clock/terminal cases also pass. Evidence:
+`local/command-clock-before.log`, `local/command-clock-after.log`, and
+`local/command-clock-connected-after.log`. The baseline lab runner initially called the negative
+deadline "not started"; its retained 44 active-hack samples demonstrate the defect. The runner now
+recognizes any nonzero deadline and explicitly rejects an already-expired deadline early in hacking.
+
+The follow-up call-path audit found that terminal hack start/stop already use world event time;
+KO deadlines are established on the owning client; death/respawn transitions bypass deferred
+movement commands; gas-mask air is a world-tick budget; and camera damage already protects its
+disable deadline. No additional gameplay-duration changes were justified in those paths.
+
+The final full HUD smoke passes every phase, including fractional alarm/knockout values, exact
+round/respawn boundaries, spectator expiry and minute carry:
+`local/timer-audit/hud-boundaries-final.xml`. An earlier run stopped at its first old hack-countdown
+expectation, so that earlier run did not exercise the later boundary checks.
 
 ## Validation boundaries and remaining work
 

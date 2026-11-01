@@ -30,6 +30,10 @@ public static class SmokeTests
 
     public static SmokeTest? Create(string name) => name switch
     {
+        HudTimersNetworkSmoke.TestName => new HudTimersNetworkSmoke(),
+        PlayDoorTimerSmoke.TestName => new PlayDoorTimerSmoke(),
+        PlayDoorTimerSmoke.DelayedName => new PlayDoorTimerSmoke(delayed: true),
+        PlayDoorTimerSmoke.RetryName => new PlayDoorTimerSmoke(delayed: true, retry: true),
         DeathBonesSmoke.TestName => new DeathBonesSmoke(),
         AudioListenerSmoke.TestName => new AudioListenerSmoke(),
         PresentationPerformanceSmoke.TestName => new PresentationPerformanceSmoke(),

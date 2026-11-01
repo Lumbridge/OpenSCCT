@@ -172,7 +172,8 @@ public static class ObjectiveNatives
             return 0f;
         }
 
-        return gri.ElapsedTime + (level.TimeSeconds - gri.SecondCount) / level.TimeDilation;
+        // Use the host clock even when an interaction begins inside a movement-command time scope.
+        return gri.ElapsedTime + (level.XLevel.WorldTimeSeconds - gri.SecondCount) / level.TimeDilation;
     }
 
     /// <summary>

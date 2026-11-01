@@ -54,6 +54,7 @@ public static class NetworkLabState
         tick = server.World.TickCount, phase, started = server.StartGate?.Started, pawns = Pawns(server.World),
         grenades = Grenades(server.World),
         gasClouds = GasClouds(server.World), stickyCameras = StickyCameras(server.World),
+        hackingPanels = HackingPanels(server.World),
         ended = server.Game?.bGameEnded, winningTeam = server.Game?.GameReplicationInfo?.WinningTeam,
         lag = server.World.Level.GetService<LagCompensation>() is { } lag ? new { lag.Enabled, lag.CeilingMs, lag.RewoundShots, lag.LastRewindMs } : null,
         disconnects = Disconnects.GetValue(server, ObserveDisconnects).ToArray(),
@@ -86,6 +87,18 @@ public static class NetworkLabState
             if (!p.bDeleteMe) pawns.Add(Pawn(p, connection));
         return pawns.ToArray();
     }
+
+    public static object[] HackingPanels(World world) => world.Level.Actors.OfType<SInterrupteur>()
+        .Where(panel => !panel.bDeleteMe && panel.iHackingTime > 0 && panel.TriggerInteraction is not null)
+        .Select(panel => new
+        {
+            id = panel.ActorId, eventName = panel.Event.ToString(), duration = panel.iHackingTime,
+            position = new[] { panel.Location.X, panel.Location.Y, panel.Location.Z },
+            useYaw = (panel.Rotation + new FRotator(0, panel.UseRelativeRotation.Yaw, 0)).Yaw,
+            deadline = panel.TriggerInteraction!.MinTriggerTime, usable = panel.TriggerInteraction.bUsable,
+            state = panel.TriggerInteraction.GetStateName().ToString(), time = panel.Level.TimeSeconds,
+            elapsed = panel.Level.GRI?.ElapsedTime, precise = panel.Level.GRI?.PreciseElapsedTime(),
+        }).Cast<object>().ToArray();
 
     public static object[] Grenades(World world, NetConnection? connection = null)
     {

@@ -35,6 +35,8 @@ public abstract class PlaySmoke : SmokeTest
     /// <summary>The game mode the run plays (the map settings key: Story, DiskHunt, Deathmatch).</summary>
     protected virtual string Mode => "Story";
 
+    protected virtual string Map => "SteeE";
+
     /// <summary>Server bots next to the player (0: none).</summary>
     protected virtual int Bots => 0;
 
@@ -66,7 +68,7 @@ public abstract class PlaySmoke : SmokeTest
             {
                 Settings = new PlaySettings
                 {
-                    Map = "SteeE",
+                    Map = Map,
                     Side = PlaySide.Spy,
                     Mode = Mode,
                     HostMode = PlayHostMode.Inline,
