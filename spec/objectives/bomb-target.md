@@ -162,6 +162,12 @@ Server-side logic. `bSkinState` and `bRemove` replicate (reliable, authority); `
 multicast; `ActivateBombTarget` is a reliable client-to-server function of the gadget and `ServerPlaceBomb` one of
 the controller. The skin swap (rule 14) runs on each machine from the replicated flag.
 
+The client port sends bomb `bHidden` and `AmbientSound` changes throughout the actor's lifetime, overriding
+the inherited initial-only Actor rules. Sound radius, volume, pitch and occlusion travel while the loop is set.
+This starts the repeating beep on planting, stops it on removal or detonation, hides alternate placement spots
+while armed, and hides every spot after the objective is taken. `bTriggering` also sends its cleared value when
+the spot becomes inactive. These updates apply to players already connected and to late joiners.
+
 ## Edge cases
 
 - Only one spot per objective can be armed; another spot's menu entry disappears (unusable and hidden) while one

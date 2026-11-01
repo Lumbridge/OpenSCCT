@@ -172,6 +172,13 @@ the script conditions below are the intended contract):
 - All writes happen on the server; clients only read, except the client-side `launchMatchNow` and GUI code
   that set local copies of bMatchLaunching flags (overwritten by the next replication).
 
+OpenSCCT client clock reconciliation: `SecondCount` is a local world-time anchor for the replicated integer
+`ElapsedTime`. An increasing elapsed sample preserves any fractional match time the client has already
+extrapolated, so a delayed or retransmitted sample cannot make a running bomb countdown increase. A backwards
+elapsed reset or a new `bMatchHasBegun` transition rebases the anchor, including a match starting at elapsed zero.
+Unrelated replication leaves the anchor unchanged. Objective deadlines and the HUD use this fractional match
+clock; positive time remaining is rounded up for display.
+
 ## Edge cases
 - The clock depends on the order of the GRI timer relative to the frame in which Reset ran: if the GRI
   timer counter advances in the same frame as Reset but TimeSeconds does not, the first tick may fail the

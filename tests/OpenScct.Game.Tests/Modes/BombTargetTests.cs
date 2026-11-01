@@ -1,6 +1,7 @@
 using OpenScct.Core;
 using OpenScct.Core.Engine;
 using OpenScct.Core.Uc;
+using ObjectiveNatives = OpenScct.Game.Objectives.ObjectiveNatives;
 using OpenScct.Game.Modes;
 using OpenScct.Game.SBase;
 using OpenScct.Game.Tests.Game;
@@ -154,6 +155,58 @@ public class BombTargetTests
         Assert.True(s.Mission.ObjectiveTaken);
         Assert.Equal(0, s.W.Gri.WinningTeam);
         Assert.Equal((byte)EEndReason.END_STORY, s.W.Gri.WinningReason);
+    }
+
+    [Fact]
+    public void A_fractional_plant_uses_the_world_clock_even_inside_old_input_commands()
+    {
+        Scene s = Story();
+        s.W.Run(0.25f);
+        float plantedAt = ObjectiveNatives.PreciseElapsedTime(s.W.Level.Info);
+        s.A.InteractionObj!.eventInitInteract(s.Spy, 0);
+        Assert.True(s.Spy.IsInState(s_PlaceBomb));
+        using (s.W.Level.CommandTime(60, 1f, Sim.DeltaTime))
+        using (s.W.Level.CommandTime(120, 2f, Sim.DeltaTime))
+        {
+            s.Spy.eventAnimEnd(0);
+            Assert.Equal(plantedAt, s.A.TriggerTime, 4);
+            Assert.Equal(plantedAt + 30f, s.Objective.MinTriggerTime, 4);
+        }
+
+        Assert.Equal(30f, s.A.TimerRate);
+        s.W.Run(29.9f);
+        Assert.False(s.Objective.ObjectiveTaken);
+        Assert.InRange(s.Objective.MinTriggerTime - s.W.Gri.PreciseElapsedTime(), 0.05f, 0.15f);
+        s.W.Run(0.2f);
+        Assert.True(s.Objective.ObjectiveTaken);
+        Assert.Equal(0f, s.Objective.MinTriggerTime);
+        Assert.Equal(0f, s.A.TimerRate);
+    }
+
+    [Fact]
+    public void Removing_then_replanting_starts_a_full_fuse_and_replaces_the_hud_deadline()
+    {
+        Scene s = Story();
+        Plant(s, s.A);
+        s.W.Run(12.25f);
+        s.A.InteractionObj!.eventInitInteract(s.Merc, 0);
+        Assert.Equal(0f, s.Objective.MinTriggerTime);
+        Assert.Equal(0f, s.A.GetTriggerTime());
+        Assert.Equal(0f, s.A.TimerRate);
+        s.W.Run(31f);
+        Assert.False(s.Objective.ObjectiveTaken);
+
+        s.B.CaptureTime = 5;
+        float replantedAt = s.W.Gri.PreciseElapsedTime();
+        Plant(s, s.B);
+        Assert.Equal(replantedAt + 5f, s.Objective.MinTriggerTime, 4);
+        Assert.Equal(0f, s.B.TimerCounter);
+        s.W.Run(4.9f);
+        Assert.False(s.Objective.ObjectiveTaken);
+        Assert.InRange(s.Objective.MinTriggerTime - s.W.Gri.PreciseElapsedTime(), 0.05f, 0.15f);
+        s.W.Run(0.2f);
+        Assert.True(s.Objective.ObjectiveTaken);
+        Assert.Equal(0f, s.Objective.MinTriggerTime);
     }
 
     [Fact]

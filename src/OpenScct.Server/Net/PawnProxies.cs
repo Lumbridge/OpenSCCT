@@ -484,6 +484,7 @@ public static class PawnProxyReceiver
         private EDrawType _drawType;
         private GameReplicationInfo? _clock;
         private int _elapsed;
+        private float _preciseElapsed;
         private bool _matchBegun;
 
         [UcNative("ASBasePawn::PreNetReceive", Editor = 0x111f8c60)]
@@ -492,6 +493,7 @@ public static class PawnProxyReceiver
         {
             _clock = actor as GameReplicationInfo;
             _elapsed = _clock?.ElapsedTime ?? 0;
+            _preciseElapsed = _clock?.PreciseElapsedTime() ?? 0f;
             _matchBegun = _clock?.bMatchHasBegun ?? false;
             _mover = actor as Mover;
             _simInterpolate = _mover?.SimInterpolate ?? default;
@@ -522,8 +524,11 @@ public static class PawnProxyReceiver
             {
                 // ElapsedTime is server match time; SecondCount is an unreplicated local anchor. The client
                 // never runs GRI.Timer, so retaining its spawn-time anchor counts its whole uptime twice.
-                // Rebase on a new sample or match start, not unrelated updates. A start can reset elapsed 0 to 0.
-                clock.SecondCount = clock.XLevel.WorldTimeSeconds;
+                // A delayed integer sample must not erase time already extrapolated since the last sample:
+                // that makes running countdowns increase. New matches and backwards resets start a new epoch.
+                bool reset = clock.ElapsedTime < _elapsed || (clock.bMatchHasBegun && !_matchBegun);
+                float fraction = reset ? 0f : Math.Max(0f, _preciseElapsed - clock.ElapsedTime);
+                clock.SecondCount = clock.XLevel.WorldTimeSeconds - fraction * clock.Level.TimeDilation;
             }
             _clock = null;
             PostMesh(actor);

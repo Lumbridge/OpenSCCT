@@ -249,6 +249,16 @@ public static class NativeRepLists
             ("DominationCaptureTime", Initial),
             ("DeltaCaptureTime", Auth + " && bActive"),
             ("SkinState", Auth));
+        // Bomb placement/removal changes these after the map's initial bunch. The inherited Actor rules
+        // only send them initially, leaving clients silent and showing spent/alternate placement ghosts.
+        Add("SBase.SBombTargetObjectiveTrigger", false,
+            ("bHidden", Auth),
+            ("bTriggering", Auth),
+            ("AmbientSound", Auth),
+            ("SoundOcclusion", Auth + " && AmbientSound != None"),
+            ("SoundRadius", Auth + " && AmbientSound != None"),
+            ("SoundVolume", Auth + " && AmbientSound != None"),
+            ("SoundPitch", Auth + " && AmbientSound != None"));
         Add("SBase.SFlag", false,
             ("Base", Auth),
             ("bHidden", Auth),

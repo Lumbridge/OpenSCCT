@@ -1,6 +1,8 @@
 using System;
+using System.Linq;
 using OpenScct.Core;
 using OpenScct.Core.Engine;
+using OpenScct.Game.SBase;
 using OpenScct.Net;
 using OpenScct.Server;
 using Xunit;
@@ -9,6 +11,82 @@ namespace OpenScct.Integration.Tests;
 
 public sealed class MatchClockNetTests
 {
+    [Theory]
+    [InlineData(NetProfile.Stock)]
+    [InlineData(NetProfile.Enhanced)]
+    public void Bomb_deadline_tracks_the_fuse_for_existing_and_late_clients(NetProfile profile)
+    {
+        Assert.SkipWhen(WalkerRig.Maps.FindFolder("CineS") is null, "CineS content is required.");
+        using WalkerRig rig = WalkerRig.Create(SimLinkProfile.Ping200, 1986, 1,
+            new ServerSettings { Map = "CineS", GameOptions = "?GameMode=5?TimeLimit=10", PlayersToStart = 4, Profile = profile },
+            new ClientSettings { Gameplay = true });
+        void Step(int count) { for (int n = 0; n < count; n++) rig.Step(); }
+        Step(35 * Sim.Hz + 15);
+
+        SObjective objective = rig.Server.Map.MapActors.OfType<SObjective>().First(o =>
+            o.Triggers.OfType<SBombTargetObjectiveTrigger>().Any());
+        SBombTargetObjectiveTrigger bomb = objective.Triggers.OfType<SBombTargetObjectiveTrigger>().First();
+        objective.ActivationTime = 0;
+        objective.RandomTriggers = 0;
+        bomb.CaptureTime = 30;
+        objective.Reset();
+        bomb.ControllerWhoTakesIt = rig.Server.Players[0].Controller;
+        bomb.eventTriggering(true);
+        float deadline = objective.MinTriggerTime;
+        Step(5 * Sim.Hz);
+        ClientSession late = rig.AddClient();
+        Step(5 * Sim.Hz);
+
+        int samples = 0;
+        foreach (ClientSession client in new[] { rig.Clients[0], late })
+        {
+            SBombTargetObjectiveTrigger copy = Assert.Single(client.ActorChannels.Select(c => c.Actor)
+                .OfType<SBombTargetObjectiveTrigger>(), b => !b.bDeleteMe && FVector.DistSquared(b.Location, bomb.Location) < 1f);
+            Assert.Equal(bomb.TriggerTime, copy.TriggerTime);
+            Assert.Equal(bomb.CaptureTime, copy.CaptureTime);
+            Assert.Equal(deadline, copy.GetTriggerTime());
+        }
+        int objectiveIndex = rig.Server.Driver.MapBinding.IndexOf(objective);
+        int[] previousSeconds = [int.MaxValue, int.MaxValue];
+        for (int n = 0; n < 15 * Sim.Hz; n++)
+        {
+            Step(1);
+            float fuseLeft = bomb.TimerRate - bomb.TimerCounter;
+            foreach (ClientSession client in new[] { rig.Clients[0], late })
+            {
+                var copy = Assert.IsType<SObjective>(client.Map!.MapActors[objectiveIndex]);
+                GameReplicationInfo clock = Assert.IsAssignableFrom<GameReplicationInfo>(client.LocalPlayer?.GameReplicationInfo);
+                Assert.Equal(deadline, copy.MinTriggerTime);
+                float displayedLeft = copy.MinTriggerTime - clock.PreciseElapsedTime();
+                Assert.InRange(displayedLeft - fuseLeft, -0.15f, 0.4f);
+                int clientIndex = ReferenceEquals(client, late) ? 1 : 0;
+                int shown = (int)MathF.Ceiling(displayedLeft);
+                Assert.True(shown <= previousSeconds[clientIndex], "A delayed clock packet must not increase a running bomb countdown.");
+                previousSeconds[clientIndex] = shown;
+                Assert.InRange(MathF.Ceiling(displayedLeft) - MathF.Ceiling(fuseLeft), -1f, 1f);
+                samples++;
+            }
+        }
+        Assert.Equal(1800, samples);
+
+        bomb.eventTriggering(false);
+        Step(Sim.Hz);
+        foreach (ClientSession client in new[] { rig.Clients[0], late })
+            Assert.Equal(0f, Assert.IsType<SObjective>(client.Map!.MapActors[objectiveIndex]).MinTriggerTime);
+
+        bomb.CaptureTime = 5;
+        bomb.eventTriggering(true);
+        Step(Sim.Hz);
+        Assert.InRange(objective.MinTriggerTime - rig.Server.World.Level.Info.GRI!.PreciseElapsedTime(), 3.95f, 4.05f);
+        foreach (ClientSession client in new[] { rig.Clients[0], late })
+            Assert.Equal(objective.MinTriggerTime, Assert.IsType<SObjective>(client.Map!.MapActors[objectiveIndex]).MinTriggerTime);
+        Step(5 * Sim.Hz);
+        Assert.False(bomb.bTriggering);
+        Assert.True(objective.ObjectiveTaken);
+        foreach (ClientSession client in new[] { rig.Clients[0], late })
+            Assert.Equal(0f, Assert.IsType<SObjective>(client.Map!.MapActors[objectiveIndex]).MinTriggerTime);
+    }
+
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
