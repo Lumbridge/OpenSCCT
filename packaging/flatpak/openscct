@@ -54,6 +54,9 @@ if ! has_readable_cert_dir "${SSL_CERT_DIR:-}"; then
     printf 'OpenSCCT TLS: using runtime CA directory %s\n' "$SSL_CERT_DIR" >&2
 fi
 # All writable state stays inside Flatpak's per-app XDG directories.
+# /var/tmp maps to this app's cache/tmp and is shared by its sandbox instances.
+# .NET named pipes use TMPDIR; private /tmp would hide a running game's Join channel.
+export TMPDIR=/var/tmp
 export DOTNET_EnableDiagnostics=0
 cd /app/openscct || exit 1
 exec ./OpenSCCT.x86_64 "$@"
