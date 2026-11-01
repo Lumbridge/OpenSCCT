@@ -1035,7 +1035,7 @@ public sealed partial class PhysicsDriver
                 t.Z = c.Z - sb.m_LedgeGrabArmsZone.Z;
                 break;
             case 1:
-                t = new FVector(loc.X, loc.Y, c.Z - K.Traversal.LedgeWaistDown);
+                t = WaistLedgeHoldTarget(p, new FVector(loc.X, loc.Y, c.Z - K.Traversal.LedgeWaistDown));
                 break;
             case 2:
                 t = new FVector(loc.X, loc.Y, c.Z - loc.Z < K.Traversal.LedgeBarrierDown ? loc.Z : c.Z - K.Traversal.LedgeBarrierDown);
@@ -1051,15 +1051,15 @@ public sealed partial class PhysicsDriver
         // 4. Hold.
         FVector d = n * ((t - loc) | n);
         d.Z = t.Z - loc.Z;
-        float step = K.Traversal.SnapSpeed * dt;
+        bool floorLimitedWaist = type == 1 && d.Z < 0f && t.Z > c.Z - K.Traversal.LedgeWaistDown;
+        float step = (floorLimitedWaist ? K.Traversal.LedgeWaistFloorSnapSpeed : K.Traversal.SnapSpeed) * dt;
         float dlen = d.Size();
         bool arrived = dlen <= step || dlen <= K.Traversal.SnapTolerance;
         FVector hold = arrived ? d : d.SafeNormal() * step;
 
         // TopSynchro comes before the hold move, when the hold arrives and the yaw from the last call already faces
-        // the wall; NoGE follows a blocked hold move, so both can be raised in one call (editor 0x11204870). A detect
-        // state that took TopSynchro has left for its climb by then, and the climb ignores the NoGE: a low ledge whose
-        // waist hold reaches into the floor still climbs.
+        // the wall; NoGE follows a blocked hold move, so both can be raised in one call (editor 0x11204870). Once a
+        // detect state accepts TopSynchro and enters its climb, that climb ignores the NoGE of the same call.
         if (arrived && SameYaw(p.Rotation.Yaw, face))
         {
             pc?.eventTopSynchro();
@@ -1188,6 +1188,21 @@ public sealed partial class PhysicsDriver
 
     private static bool ContainsHands(GERecord? ge, FVector c) => ge is { Kind: GEKind.LG } && InsideSegment(c, ge.P0, ge.P1);
 
+    // A low waist ledge can put the authored hold below the floor (MoonD GE531). Keep the pawn's cylinder
+    // above its supporting floor while the grab finishes; otherwise the downward snap aborts the climb
+    // before AnimEnd and turns a jump into a short hop. The entry test uses the same raised hold for clearance.
+    private FVector WaistLedgeHoldTarget(Pawn pawn, FVector target)
+    {
+        FVector loc = pawn.Location;
+        if (target.Z < loc.Z && TraceMoveIgnoringBases(pawn, loc, target - loc, false, false, null, out FCheckResult floor)
+            && floor.Normal.Z > K.Traversal.LedgeLandZ)
+        {
+            target.Z = floor.Location.Z + K.Traversal.SnapTolerance;
+        }
+
+        return target;
+    }
+
     private void LedgeCorners(Pawn p, ISBasePawnPhysics sb, ISPlayerControllerPhysics pc, FVector n, float e0, float e1)
     {
         p.Rotation.GetAxes(out FVector fwd, out FVector right, out _);
@@ -1211,6 +1226,14 @@ public sealed partial class PhysicsDriver
             FVector v = otherFar - shared;
             v.Z = 0f;
             v = v.SafeNormal();
+            // The native orders the far ends relative to the wall normal before testing the turn
+            // (game 0x10ac9040, called at 0x10aca38b). Keeping the current ledge first on both sides
+            // reverses inside/outside for left turns and selects the wrong clip and clearance test.
+            if ((u ^ n).Z > 0f)
+            {
+                (u, v) = (v, u);
+            }
+
             float cross = (u ^ v).Z;
             if (SvmMath.Abs(cross) < K.Traversal.LedgeCollinear)
             {

@@ -512,6 +512,10 @@ public static partial class K
         /// <summary>Ledge hang heights: WAIST, BARRIER (with its 10 band) and FEET.</summary>
         public const float LedgeWaistDown = 20f;
 
+        /// <summary>A floor-limited waist grab settles through its pose blend without the ordinary 500 uu/s downward snap.</summary>
+        [Provenance(ProvenanceKind.Estimated, "MoonD GE531 grab: settle the 11.3 uu floor adjustment within the 0.08 s rising pose blend instead of dropping 8.33 uu in its first 60 Hz tick")]
+        public const float LedgeWaistFloorSnapSpeed = 150f;
+
         public const float LedgeBarrierDown = 10f;
 
         public const float LedgeFeetUp = 50.5f;
@@ -706,11 +710,15 @@ public static partial class K
 
         public const float PipeTopLift = 2f;
 
+        public const float PipeTopApproachLift = 16f;
+
+        public const float PipeTopApproachShrink = 8f;
+
         public const float PipeTopNarrowBox = 26f;
 
-        public static readonly FVector PipeTopRight = new(96.3f, 38.67f, -181.7f);
+        public static readonly FVector PipeTopLeftProbe = new(96.3f, 38.67f, -181.7f);
 
-        public static readonly FVector PipeTopLeft = new(97.3f, -39.17f, -186.15f);
+        public static readonly FVector PipeTopRightProbe = new(97.3f, -39.17f, -186.15f);
 
         /// <summary>TestTopLedge: stand up / forward, crouch up / forward, vault rise / reach / drop / box Z.</summary>
         public const float TopStandUp = 210.8f;

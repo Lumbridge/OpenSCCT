@@ -154,6 +154,13 @@ typed name and the friend mark, SHud.DrawTargetName, spec/hud/merc-reticle.md ru
 respawn weapon, the console lines, the screen-effect washes and the knock-out text (`HudSfx`), overlays (the chat
 line), the frame rate readout. The SHud canvas doubles its colours (screen-effects.md rule 0, `HudK.CanvasColour`).
 
+The optional network readout (`show_net`) is a compact translucent panel below the FPS counter, with smaller text
+and separate link, traffic, buffer, synchronization, replay and reset rows. Packet loss (`show_net_loss`) and the
+host's client ping range add their own rows. Values update once a second; loss, underruns, gaps and resets highlight
+in amber when nonzero. The panel measures the HUD font and wraps within the screen width. Its layout and draw
+commands are reused between samples, and rebuilt for a resize or FPS visibility change. `network-overlay` checks
+normal and large-counter layouts from 320×240 through 3440×1440 and that unchanged frames allocate nothing.
+
 **Merc shock immunity (OpenSCCT addition).** A compact amber crossed-lightning icon, `SHOCK IMMUNE` countdown
 and draining bar sit beside the health/status area. Seconds round upward to one decimal. The readout uses the
 same authoritative timed status as the draining body-edge effect (docs/EFFECTS.md), with current synchronized
@@ -220,6 +227,7 @@ Commands (`UI/ConsoleCommands`, Godot-free; settings through `Options/SettingsCo
 | Command | What |
 |---|---|
 | `help` | the list |
+| `whereami`, `whereami copy` | reports the local player's map, exact pawn-centre coordinates in UE units, pawn and view rotations, view direction, movement state, physics and crouch state; `copy` also copies the report for a bug report |
 | `current` | every settings.json key and value |
 | `get <key>`, `set <key> <value>` | a settings.json key; a group member with a dot (`controls_spy_kbm.look`); switches take on/off; the settings' limits apply; saved and applied at once |
 | `<key> [value]` | a settings key alone shows it, with a value sets it (Reloaded's `fps_spy`, `fps_merc`, `ws_fov`, `widescreen`) |
@@ -232,6 +240,11 @@ Commands (`UI/ConsoleCommands`, Godot-free; settings through `Options/SettingsCo
 
 The server's system lines (answers to `cmd`, `!pings` and the others) are shown in it as they arrive. Not in smoke
 runs (it is added by `App` outside them).
+
+For a troublesome ledge or pipe, stand at the spot and face it, open the console, run `whereami copy`, then paste
+the report with the action that failed. It works in offline and online play without admin access. Coordinates
+preserve their full float precision; rotations are original UE units (65536 is one turn), with pitch/yaw/roll
+labelled separately for the pawn and the player's view. The clipboard changes only with the explicit `copy` form.
 
 ## Options and settings
 

@@ -38,7 +38,7 @@ feet while walking makes the spy hop by himself (AutoFeetLedge).
 | Field | Owner | Default | Notes |
 |---|---|---|---|
 | bWaistLedgeCanGoUnCrouch | SPlayerController | false | from the WaistLedge event: room to stand on top |
-| bCanStop | SPlayerController | false | s_WaistLedgeDetect: first of AnimEnd / TopSynchro seen |
+| bCanStop | SPlayerController | false | s_WaistLedgeDetect: grab animation completed (OpenSCCT correction to the original shared event latch) |
 | ZipP1, ZipP2, LastZipP | SBasePawn | - | the GE caught, and the last one left |
 | fTimeOfFeetLedge | SBasePawn | -10.0 | native bookkeeping for the feet ledge |
 | TypeLedge | SBasePawn | LEDGE_NORMAL | set by the detect actions: SA_WAISTLEDGE_DETECT 1 (WAIST), SA_BARRIER_JUMP_DETECT 2 (BARRIER), SA_FEETLEDGE_DETECT 3 (FEET); physLedge picks the snap target by it |
@@ -86,10 +86,13 @@ s_BarrierJumpDetect.TopSynchro (controlling side): SA_BARRIER_JUMP, s_BarrierJum
 
 s_FeetLedgeDetect.TopSynchro (controlling side): SA_FEETLEDGE, s_FeetLedge.
 
-s_WaistLedgeDetect: BeginState bCanStop = false; its CheckFeetZone is overridden to do nothing. AnimEnd channel 0
-and TopSynchro both run the same step on the controlling side: the first one only sets bCanStop; the second one
-decides: if `not bWaistLedgeCanGoUnCrouch` or the crouch latch is set, SA_WAISTLEDGE_CR and s_WaistLedge_Cr, else
-SA_WAISTLEDGE and s_WaistLedge. So the move waits for both the grab clip and the repositioning, in either order.
+s_WaistLedgeDetect: BeginState bCanStop = false; its CheckFeetZone is overridden to do nothing. The original script
+uses one shared latch for AnimEnd channel 0 and TopSynchro. OpenSCCT corrects this because a settled hold raises
+TopSynchro repeatedly: two position notifications must not end the unfinished grab blend. AnimEnd now only marks
+bCanStop; a subsequent live TopSynchro starts the climb when the base animation is no longer playing. Starting
+the action from physics also keeps its initial root-motion sample in phase with network replay. The choice is
+unchanged: if `not bWaistLedgeCanGoUnCrouch` or the crouch latch is set, SA_WAISTLEDGE_CR and s_WaistLedge_Cr,
+else SA_WAISTLEDGE and s_WaistLedge.
 
 ### Climb states
 
@@ -152,12 +155,19 @@ stateDiagram-v2
 - physLedge raises TopSynchro before the hold move and NoGE after it, so one call can raise both: a detect state
   that already had its clip end leaves for the climb on TopSynchro, and the climb state ignores the NoGE of the same
   call (physics-traversal.md physLedge rule 4).
-- A ledge less than about 107 uu above the floor (C.Z - 20 below the standing pawn's origin) caught as a waist ledge
-  right after a jump from the floor: the hold reaches into the floor, so NoGE comes on the hold's second call, before
-  the detect clip ends (tween 0.08 s), and the spy drops back (SA_LEDGEFALL, s_PlayerJump). Such ledges are only
-  climbed by the barrier vault, which is refused when its landing box (85.2 down from 23.5 over the top, 140 beyond,
-  20 aside) meets anything, such as seats behind a low wall (MoonD's monorail car: only about 90 uu either side of the
-  centre pillar vault).
+- OpenSCCT corrects the waist hold when its authored C.Z - 20 target lies below the supporting floor: the pawn's
+  downward cylinder sweep clamps the target above the first walkable floor, leaving wall and ceiling blockers
+  unchanged. Only this floor-limited downward settle uses 150 uu/s, completing the reported 11.3 uu adjustment
+  during the 0.08 s grab blend instead of dropping 8.33 uu in one 60 Hz step. The full pose blend completes before
+  the climb starts; this removes the interrupted-blend pose jump without changing the hold or landing target.
+  Standing and crouched entry-clearance heights include this floor adjustment, so a low ceiling can
+  still require a crouched climb or refuse entry. This fixes MoonD GE531 at (-4217.1587, -3249.0166, 889.005),
+  facing yaw -495: the 100 uu platform previously pulled the jump down into the floor and raised NoGE before the
+  grab completed. A tall wall 93 uu beyond the ledge blocks the 140 uu barrier vault, while the 56 uu waist climb
+  fits. The native target formula and event order were checked in game 0x10ac9400; the original game's behavior
+  at this location was not observed at runtime, so this is a demonstrated reconstruction correction, not a claim
+  that the original game has the same failure. Map-backed regressions cover stationary and forward jumps at
+  60/120 Hz, plus synthetic low ledges and blocked or crouch-only clearance.
 - A merc never vaults (CheckBarrier is only called from the spy's Mario walking states).
 
 ## Evidence

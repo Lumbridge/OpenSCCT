@@ -141,6 +141,92 @@ public sealed class CollisionCandidateTests(ITestOutputHelper output)
     }
 
     [Fact]
+    public void ActorOverlapDefersDistantRefitsButFollowsSameTickTeleportRollbackAndDisable()
+    {
+        var world = new World(17);
+        Actor mover = world.Level.SpawnActor(new CandidateActor(), V(10000f, 0f, 0f), default)!;
+        var builder = new CollisionDataBuilder();
+        int index = builder.AddBoxMeshCollider(ColliderKind.Mover, "mover", CollisionDataBuilder.WorldFlags,
+            [(V(-40f, -50f, -60f), V(40f, 50f, 60f))], mover.Location,
+            scale: V(-2f, 0.5f, 1.5f), prePivot: V(10f, 0f, 0f));
+        CollisionWorld collision = CollisionWorld.Build(builder.Build());
+        collision.BindLevel(world.Level, _ => mover);
+        FVector original = mover.Location;
+        FVector extent = V(250f, 250f, 250f);
+        mover.Location = V(20000f, 0f, 0f);
+        mover.Rotation = new FRotator(0, 8192, 0);
+        Assert.False(collision.OverlapsActorColliders(mover, default, extent));
+        Assert.Equal(original, collision.ColliderAt(index).Location);
+        Assert.Equal(default, collision.ColliderAt(index).Rotation);
+
+        // Encroachment temporarily tests a pose then restores it; no world tick separates these queries.
+        mover.Location = default;
+        Assert.True(collision.OverlapsActorColliders(mover, default, extent));
+        Assert.Equal(mover.Rotation, collision.ColliderAt(index).Rotation);
+        mover.Location = original;
+        mover.Rotation = default;
+        Assert.False(collision.OverlapsActorColliders(mover, default, extent));
+        Assert.Equal(default, collision.ColliderAt(index).Location);
+        Assert.True(collision.OverlapsActorColliders(mover, original, extent));
+        Assert.Equal(original, collision.ColliderAt(index).Location);
+        Assert.Equal(default, collision.ColliderAt(index).Rotation);
+
+        collision.SetColliderEnabled(index, false);
+        mover.Location = default;
+        Assert.False(collision.OverlapsActorColliders(mover, default, extent));
+        Assert.Equal(original, collision.ColliderAt(index).Location);
+        collision.SetColliderEnabled(index, true);
+        Assert.True(collision.OverlapsActorColliders(mover, default, extent));
+    }
+
+    [Fact]
+    public void ActorOverlapsMatchEagerRefitsForMovedScaledMeshesAndHulls()
+    {
+        var random = new Random(29117);
+        var world = new World(18);
+        var builder = new CollisionDataBuilder();
+        var owners = new Dictionary<string, Actor>();
+        var entries = new List<(Actor Actor, int Collider)>();
+        for (int i = 0; i < 12; i++)
+        {
+            string id = "mover" + i;
+            Actor actor = world.Level.SpawnActor(new CandidateActor(), V(10000f, 0f, 0f), default)!;
+            owners.Add(id, actor);
+            FVector half = V(30f + i, 45f + i, 70f + i);
+            FVector scale = V(i % 3 == 0 ? -1.7f : 0.8f, 1.4f, 0.6f);
+            int index = i % 2 == 0
+                ? builder.AddBoxHullCollider(ColliderKind.Mover, id, CollisionDataBuilder.WorldFlags, -half, half,
+                    actor.Location, writeCorners: i % 4 == 0, scale: scale)
+                : builder.AddBoxMeshCollider(ColliderKind.Mover, id, CollisionDataBuilder.WorldFlags, [(-half, half)],
+                    actor.Location, scale: scale, prePivot: V(30f, -15f, 10f));
+            entries.Add((actor, index));
+        }
+
+        CollisionWorld collision = CollisionWorld.Build(builder.Build());
+        collision.BindLevel(world.Level, id => owners.GetValueOrDefault(id));
+        int hits = 0, deferred = 0;
+        for (int pose = 0; pose < 40; pose++)
+        {
+            foreach ((Actor actor, int index) in entries)
+            {
+                actor.Location = RandomPoint(random, pose % 3 == 0 ? 150f : 2000f);
+                actor.Rotation = new FRotator(random.Next(65536), random.Next(65536), random.Next(65536));
+                FVector location = pose % 2 == 0 ? actor.Location : default;
+                FVector extent = pose % 4 == 0 ? V(120f, 120f, 120f) : V(35f, 35f, 87.5f);
+                bool actual = collision.OverlapsActorColliders(actor, location, extent);
+                if (actual) hits++;
+                if (collision.ColliderAt(index).Location != actor.Location) deferred++;
+                collision.SyncCollider(collision.ColliderAt(index));
+                Assert.Equal(collision.OverlapsActorColliders(actor, location, extent), actual);
+            }
+        }
+
+        Assert.True(hits > 100, $"Expected contact coverage, got {hits} hits.");
+        Assert.True(deferred > 100, $"Expected distant mover refits to be deferred, got {deferred}.");
+        output.WriteLine($"480 actor overlap queries match eager refits; {hits} contacts and {deferred} deferred far transforms.");
+    }
+
+    [Fact]
     public void CylinderFilteringUsesLiveShapeFlagsOwnersAndStableTieOrder()
     {
         var world = new World(4);

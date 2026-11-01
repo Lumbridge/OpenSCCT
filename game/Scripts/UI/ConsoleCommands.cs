@@ -25,6 +25,12 @@ public interface IConsoleHost
     /// <summary>A chat line to the server (the <c>!</c> commands).</summary>
     void Chat(string text);
 
+    /// <summary>The local player's current reproduction details, or null when there is no player in a map.</summary>
+    string? LocationReport { get; }
+
+    /// <summary>Copies text only when the player explicitly requests it.</summary>
+    void CopyText(string text);
+
     /// <summary>Closes the game.</summary>
     void Quit();
 }
@@ -40,7 +46,7 @@ public sealed class ConsoleCommands(IConsoleHost host)
 {
     public const string Help =
         "set <key> <value> | get <key> | current | <key> [value] | login <password> | cmd <server command> | " +
-        "resign | pings | practice [on|off] | heal | regen | tank | kill | rmap_next | rmap_prev | map <name> [mode] | say <text> | quit";
+        "resign | pings | practice [on|off] | heal | regen | tank | kill | rmap_next | rmap_prev | map <name> [mode] | say <text> | whereami [copy] | quit";
 
     private readonly IConsoleHost _host = host ?? throw new ArgumentNullException(nameof(host));
 
@@ -63,6 +69,30 @@ public sealed class ConsoleCommands(IConsoleHost host)
                 break;
             case "current":
                 output.AddRange(SettingsConsole.Current(_host.Settings));
+                break;
+            case "whereami":
+                if (arg.Length > 0 && !arg.Equals("copy", StringComparison.OrdinalIgnoreCase))
+                {
+                    output.Add("usage: whereami [copy]");
+                }
+                else if (_host.LocationReport is not { } report)
+                {
+                    output.Add("whereami: no local player in a map");
+                }
+                else
+                {
+                    output.AddRange(report.Split('\n'));
+                    if (arg.Length > 0)
+                    {
+                        _host.CopyText(report);
+                        output.Add("Location report copied to clipboard.");
+                    }
+                    else
+                    {
+                        output.Add("Use whereami copy to copy this report.");
+                    }
+                }
+
                 break;
             case "get":
                 output.Add(SettingsConsole.Get(_host.Settings, arg) is { } value ? arg + " = " + value : $"no setting '{arg}' (try: current)");

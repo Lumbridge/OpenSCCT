@@ -199,7 +199,9 @@ back. The result is "the move fits" for a test, else the new bIsZipSpeed. CanUnZ
    (0 with no input):
    - moving toward an end (Acceleration non-zero, E1 < 37 and E1 < E0) with two LGs found that share an end
      point (within 2): U and V the horizontal unit directions from the shared point to the far ends of the
-     current and the other ledge. Collinear (`|(U x V).Z| < 0.001`): merge, ZipP1 = the current far end and
+     current and the other ledge. Order the two directions relative to the wall normal: swap U/V when
+     `(U x n).Z > 0` (game helper 0x10ac9040). This makes the inside/outside test independent of the input side.
+     Collinear (`|(U x V).Z| < 0.001`): merge, ZipP1 = the current far end and
      ZipP2 = the other's far end. Perpendicular (`|U . V| < 0.1`): type = 0 or 1 (inside right / left) when
      `(U x V).Z < 0`, else 2 or 3 (outside), the bit from the input side. Outside corners need room: box
      (35, 35, H) 75 along the ledge (reversed for type 3), then 75 back along -n, both clear (0x2df). Then
@@ -208,6 +210,15 @@ back. The result is "the move fits" for a test, else the new bIsZipSpeed. CanUnZ
      pipe within 46 forward, 2 vertically and 16 sideways: m_geoNormal = normalize(pipe side - pipe bottom),
      ZipP = the pipe, Controller.TopPipe(0 for s >= 0, else 1) (ledge to pipe).
 9. Roll = 0; Velocity = (Location - start) / dt.
+
+OpenSCCT floor correction: a WAIST target below the pawn first sweeps its cylinder to that target. A hit with
+normal Z > 0.707 clamps target Z to the reachable hit location plus the 0.1 snap tolerance; other blockers retain
+the ordinary NoGE path. This floor-limited downward settle uses 150 uu/s through the grab blend; other holds keep
+the decoded 500 uu/s snap. This prevents a low ledge from pulling the standing cylinder into its supporting floor
+before the grab clip finishes (the reported MoonD GE531 short hop), and reduces its abrupt startup drop.
+Entry-clearance tests use the same raised
+hold. The native target and event ordering above are decoded; the original failure at that location has not been
+confirmed at runtime. See barrier-and-low-ledges.md for the repro and regression coverage.
 
 ## States
 
@@ -258,6 +269,10 @@ with a Controller.
 - Game: physOnPipe 0x10ad10c0, physOnPipeH 0x10acff50, physOnLadder 0x10ad2a40, physLinear 0x10acf860,
   physOnVerticalPlane 0x10acf3e0, physLedge 0x10ac9400, TestTopPipe 0x10ae2f70 (constant fingerprints,
   confirmed by the dispatch table).
+- Re-read with REA (Ghidra 12.1.4, 2026-11-01): physLedge calls 0x10ac9040 at 0x10aca38b to order the far
+  endpoints against the wall normal before its cross-product test at 0x10aca4c0. The previous rule omitted
+  this ordering, inverting inside/outside for left turns. Confirmed on the vanilla game SHA-256
+  `a98873aaec1de21fdcccc0afb9985e3ddcf38a9ddce1207214872d6428ec9950`.
 - Re-read with REA (Ghidra 12.1.4, 2026-10-26) from the game build's instructions: physOnPipe, physOnPipeH and
   physOnLadder in full; FindArmsGE 0x10ac90a0 (outputs best, second), the float to int helper 0x10b83aa0 (MSVC
   _ftol, truncates), FVector equality 0x1099dfd0, the event thunks TopLadder (name 0x20b6), NoGE (0x20b9) and

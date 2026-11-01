@@ -316,6 +316,7 @@ played on channel 0 at rate 1, no tween. Name indices resolved through the edito
 
 ## Open
 
-1. bGlobalPose and the exact mirror reflection (anim.md open question 1) are still estimated in the client.
+1. bGlobalPose remains estimated in the client. The mirror reflection is resolved in anim.md rule 3.3: mapped
+   mesh-space bones, excluded root, then parent-relative reconstruction before tweening and blending.
 2. The script event TurnHead (head look-at) is not ported; it only moves the head bone.
 3. The Vandamme weapon channel (A6 step 4.5) is decoded from one branch only; no golden covers it.

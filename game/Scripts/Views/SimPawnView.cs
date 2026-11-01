@@ -100,7 +100,7 @@ public partial class SimPawnView : Node3D
         _glb = glb;
         AddChild(_model.Root);
         _stickySkins = StickySkins.For(root);
-        _applier = new ChannelPoseApplier(_model.Skeleton);
+        _applier = new ChannelPoseApplier(_model.Skeleton, pawn.BoneMirrors, _model.PackageBones);
         _attachments = new PawnAttachments(this, root) { Map = Map };
         _goggleGlow = new GoggleGlowView(this, root, bone => (TryGetBone(bone, out Transform3D world), world));
         if (pawn is SPAWNDEFENSE) _shockImmunity = new MercShockImmunityView(_model);

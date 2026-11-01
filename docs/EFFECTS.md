@@ -129,6 +129,11 @@ pawn presentation layouts require matching client and server builds; existing co
 SDouilleEmitter casing (first person at the rifle's FX_DOUILLE bone); each impact mark draws its class's decal texture
 (`ImpactMaterial`) and starts its spark emitter (SSparkBeton, SMetalSpark, SSparkWood, SSparkWater, SSparkShocker...).
 
+Disabled Camnet cameras have a separate OpenSCCT status cue (`Fx/CamnetDisabledView`): a small amber X on the
+dark lens pulses twice, with short orange fault sparks and light gray smoke. It follows the replicated disabled
+countdown, turns off on recovery or deletion, and respects world depth. It adds no light to the camera or nearby
+wall. `CombatFxView` owns these cues; it no longer repeats the Shocker impact emitter for the disabled state.
+
 ## Checks
 
 - `tests/OpenScctGame.Logic.Tests/FxParticleTests.cs`: the decoded rules on synthetic emitters.
@@ -137,6 +142,8 @@ SDouilleEmitter casing (first person at the rifle's FX_DOUILLE bone); each impac
 - `--svm-smoke=play-fx` (`game/Scripts/Smoke/PlayFxSmoke.cs`): the effects from the real keys on SteeE, checking
   meshes in the camera's view and particle counts per class; with a window and `SVM_PLAY_SHOTS=<folder under local/>`
   it saves each step and timed moments of each effect.
+- `--svm-smoke=camnet-disabled`: disabled-state lifecycle, lens restoration and depth-tested status cue, with
+  an optional rendered comparison at `SVM_CAMNET_DISABLED_PREVIEW`.
 
 ## Flash-bang
 

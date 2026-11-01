@@ -58,7 +58,7 @@ public partial class CombatFxView : Node3D
     private readonly Dictionary<string, StandardMaterial3D?> _decals = new(StringComparer.Ordinal);
     private SWeaponDefense? _rifle;
     private int _clip;
-    private readonly Dictionary<SCamNetwork, float> _cameraSparks = new();
+    private readonly Dictionary<SCamNetwork, CamnetDisabledView> _disabledCameras = new();
     private readonly List<SCamNetwork> _recoveredCameras = new();
 
     public CombatFxView()
@@ -168,10 +168,12 @@ public partial class CombatFxView : Node3D
         _effects?.OnTick(level);
     }
 
-    private void TrackDisabledCameras(Level level)
+    internal int DisabledCameraCount => _disabledCameras.Count;
+
+    internal void TrackDisabledCameras(Level level)
     {
         _recoveredCameras.Clear();
-        foreach (SCamNetwork camera in _cameraSparks.Keys)
+        foreach (SCamNetwork camera in _disabledCameras.Keys)
         {
             if (camera.bDeleteMe || !camera.IsShotDisabled || !ReferenceEquals(camera.XLevel, level))
             {
@@ -179,32 +181,30 @@ public partial class CombatFxView : Node3D
             }
         }
 
-        foreach (SCamNetwork camera in _recoveredCameras) _cameraSparks.Remove(camera);
+        foreach (SCamNetwork camera in _recoveredCameras)
+        {
+            _disabledCameras[camera].Visible = false;
+            _disabledCameras[camera].QueueFree();
+            _disabledCameras.Remove(camera);
+        }
         foreach (SCamNetwork camera in level.AllActors<SCamNetwork>())
         {
-            if (!camera.IsShotDisabled || camera.bHidden || camera.bDeleteMe ||
-                (_cameraSparks.TryGetValue(camera, out float next) && level.TimeSeconds < next))
+            if (!camera.IsShotDisabled || camera.bHidden || camera.bDeleteMe || _disabledCameras.ContainsKey(camera))
             {
                 continue;
             }
 
-            _cameraSparks[camera] = level.TimeSeconds + 0.6f;
-            FVector at = camera.Location + camera.Rotation.Vector() * 8f;
-            AddCameraSmoke(at);
-            if (_effects?.Spawn("SBase.SSparkShocker", at, camera.Rotation) is not null)
-            {
-                Sparks++;
-            }
-            else
-            {
-                AddBurst(new Name("SSparkShocker"), at, camera.Rotation);
-            }
+            var cue = new CamnetDisabledView();
+            AddChild(cue);
+            cue.SetCamera(camera);
+            _disabledCameras.Add(camera, cue);
         }
     }
 
     /// <summary>Each frame: places the new flashes, fades the flashes and bursts, flies the tracers.</summary>
     public void Draw(float dt, FVector cameraLocation, FRotator cameraRotation, SPlayerController? viewer)
     {
+        foreach (CamnetDisabledView cue in _disabledCameras.Values) cue.Update(dt);
         foreach (PendingFlash p in _pending)
         {
             AddFlash(p, cameraLocation, cameraRotation, viewer);
@@ -624,43 +624,6 @@ public partial class CombatFxView : Node3D
     }
 
     // ---- materials -------------------------------------------------------------------------------------------
-
-    private void AddCameraSmoke(FVector location)
-    {
-        var smoke = new CpuParticles3D
-        {
-            Name = "DisabledCameraSmoke",
-            Amount = 5,
-            Lifetime = 1.4,
-            OneShot = true,
-            Explosiveness = 0.2f,
-            Direction = Vector3.Up,
-            Spread = 18f,
-            InitialVelocityMin = 0.12f,
-            InitialVelocityMax = 0.25f,
-            Gravity = new Vector3(0f, 0.06f, 0f),
-            ScaleAmountMin = 0.5f,
-            ScaleAmountMax = 1.2f,
-            ColorRamp = new Gradient
-            {
-                Offsets = [0f, 0.2f, 1f],
-                Colors = [new Color(0.3f, 0.3f, 0.32f, 0f), new Color(0.3f, 0.3f, 0.32f, 0.3f), new Color(0.4f, 0.4f, 0.42f, 0f)],
-            },
-            Mesh = new QuadMesh { Size = Vector2.One * UeSpace.LengthToGodot(18f) },
-            MaterialOverride = new StandardMaterial3D
-            {
-                ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded,
-                BillboardMode = BaseMaterial3D.BillboardModeEnum.Enabled,
-                Transparency = BaseMaterial3D.TransparencyEnum.Alpha,
-                VertexColorUseAsAlbedo = true,
-                AlbedoTexture = _flashTexture,
-            },
-            Emitting = true,
-        };
-        AddChild(smoke);
-        smoke.GlobalPosition = UeSpace.ToGodot(location);
-        _bursts.Add(new Burst(smoke, 3f));
-    }
 
     /// <summary>
     /// The decal of an impact class: its ImpactMaterial texture, alpha-blended (SBulletImpact: frame buffer alpha

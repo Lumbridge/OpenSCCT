@@ -223,7 +223,7 @@ public sealed class MoreRuleTests
     {
         // The current ledge along x ends at x 400; the other runs along y on the far side of the block's corner.
         GERecord current = GE(0, GEKind.LG, V(-400f, 0f, 224f), V(400f, 0f, 224f));
-        GERecord other = GE(1, GEKind.LG, V(400f, 0f, 224f), V(400f, -400f, 224f));
+        GERecord other = GE(1, GEKind.LG, V(400f, 0f, 224f), V(400f, 400f, 224f));
         foreach (bool blocked in new[] { false, true })
         {
             Scene s = Make(b =>

@@ -49,4 +49,40 @@ public sealed class PipeParityTests
         Assert.Equal(0, c.HandOverHands);
         Assert.Equal(0, c.TopPipes);
     }
+
+    [Theory]
+    [InlineData(-10f, false, -35f)]
+    [InlineData(0f, true, 35f)]
+    [InlineData(10f, true, 35f)]
+    public void TopEntryStartsBesideThePipeToCancelTheDescentClipsSidewaysMotion(float x, bool left, float spotX)
+    {
+        GERecord pipe = GE(0, GEKind.PIPE, V(0f, -10f, 0f), V(0f, -10f, 300f), V(0f, -20f, 0f));
+        var level = Floor();
+        level.AddBox(V(-500f, 0f, 0f), V(500f, 400f, 300f));
+        Scene s = Scene.Create(level.Build(), ges: [pipe]);
+        var c = new TestController();
+        TestSBasePawn p = s.SpawnSpy(V(x, 40f, WalkZ(300f)), EPhysics.PHYS_Walking, c, new FRotator(0, -16384, 0));
+        p.Acceleration = V(0f, -3000f, 0f);
+        s.Driver.CheckFeetZone(p);
+        Assert.Equal(1, c.TopPipes);
+        Assert.Equal(left, c.LastSide);
+        Near(V(spotX, 40f, p.Location.Z + 2f), p.vVandammePos);
+    }
+
+    [Fact]
+    public void TopEntryHorizontalProbeUsesTheControllersShortExtent()
+    {
+        GERecord pipe = GE(0, GEKind.PIPE, V(0f, -10f, 0f), V(0f, -10f, 300f), V(0f, -20f, 0f));
+        var level = Floor();
+        level.AddBox(V(-500f, 0f, 0f), V(500f, 400f, 300f));
+        // Beside the descent path: the native's 22 uu horizontal probe fits below it, while using
+        // the pawn's standing half-height incorrectly rejects the move. The final downward path is clear.
+        level.AddBox(V(50f, -90f, 440f), V(60f, -35f, 460f));
+        Scene s = Scene.Create(level.Build(), ges: [pipe]);
+        var c = new TestController();
+        TestSBasePawn p = s.SpawnSpy(V(10f, 40f, WalkZ(300f)), EPhysics.PHYS_Walking, c, new FRotator(0, -16384, 0));
+        p.Acceleration = V(0f, -3000f, 0f);
+        s.Driver.CheckFeetZone(p);
+        Assert.Equal(1, c.TopPipes);
+    }
 }

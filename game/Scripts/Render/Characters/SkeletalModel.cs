@@ -42,6 +42,9 @@ public sealed class SkeletalModel
 
     public Skeleton3D Skeleton { get; }
 
+    /// <summary>Original package bone order, retained through glTF import for pawn BoneMirrors indices.</summary>
+    public IReadOnlyList<string> PackageBones => _template?.PackageBones ?? Array.Empty<string>();
+
     /// <summary>Current bone pose before Skeleton3D's deferred per-frame update.</summary>
     public Transform3D CurrentBonePose(int bone)
     {
@@ -198,6 +201,7 @@ public sealed class SkeletalModel
     private sealed record Template(Node3D Scene, AnimSampler Sampler, FRotator RotOrigin, Vector3 MeshScale, bool Warm,
         string Folder, MaterialCompiler Compiler, Dictionary<string, MaterialEntry> Materials)
     {
+        public string[] PackageBones { get; init; } = [];
         /// <summary>Materials made for skins (UE2 Skins[]) over a slot, by the slot's own material and the skin.</summary>
         public Dictionary<(string Own, string Skin), Material?> Swaps { get; } = new();
         public AnimatedCullBounds? CullBounds { get; set; }
@@ -494,8 +498,17 @@ public sealed class SkeletalModel
         FRotator rotOrigin = default;
         Vector3 meshScale = Vector3.One;
         Dictionary<string, MaterialEntry> materials;
-        ReadExtras(glb.Root, ref rotOrigin, ref meshScale);
-        materials = ReadMaterials(glb.Root);
+        var packageBones = new List<string>();
+        {
+            ReadExtras(glb.Root, ref rotOrigin, ref meshScale);
+            materials = ReadMaterials(glb.Root);
+            if (glb.Root.TryGetProperty("skins", out JsonElement skins) && skins.GetArrayLength() > 0)
+            {
+                JsonElement nodes = glb.Root.GetProperty("nodes");
+                foreach (JsonElement joint in skins[0].GetProperty("joints").EnumerateArray())
+                    packageBones.Add(nodes[joint.GetInt32()].GetProperty("name").GetString() ?? "");
+            }
+        }
 
         var textures = new TextureCache(Path.GetDirectoryName(glbPath) ?? ".");
         // shared/chars/<Package>/<Mesh>.glb: the render pack (heat and EMF skins) is shared/render.
@@ -527,7 +540,7 @@ public sealed class SkeletalModel
 
         bool warm = string.Equals(Path.GetFileName(Path.GetDirectoryName(Path.GetFullPath(glbPath))), "SPerso", StringComparison.OrdinalIgnoreCase);
         return new Template(scene, new AnimSampler(skeleton, animations), rotOrigin, meshScale, warm,
-            Path.GetDirectoryName(Path.GetFullPath(glbPath)) ?? ".", compiler, materials);
+            Path.GetDirectoryName(Path.GetFullPath(glbPath)) ?? ".", compiler, materials) { PackageBones = packageBones.ToArray() };
     }
 
     /// <summary>UE2 placement: Location + PrePivot, the actor rotation, and DrawScale on the mesh.</summary>

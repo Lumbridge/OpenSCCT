@@ -375,7 +375,8 @@ public sealed partial class PhysicsDriver
             lz < hp.Z + waistHigh && localV.X > K.GE.MinForwardSpeed && wx * wx + wy * wy < K.GE.WaistDistSq && !pc.bTestBackFeetGrab)
         {
             var l = new FVector(loc.X, loc.Y, lz);
-            var standUp = new FVector(l.X, l.Y, hp.Z + K.GE.WaistUp);
+            float floorRaise = WaistLedgeHoldTarget(p, new FVector(loc.X, loc.Y, hp.Z)).Z - hp.Z;
+            var standUp = new FVector(l.X, l.Y, hp.Z + floorRaise + K.GE.WaistUp);
             if (Clear(p, l, standUp, box) && Clear(p, standUp, standUp - n * K.GE.WaistOver, box))
             {
                 pc.eventWaistLedge(true);
@@ -384,7 +385,7 @@ public sealed partial class PhysicsDriver
 
             var crouchBox = new FVector(box.X, box.Y, p.CrouchHeight);
             var crouchStart = new FVector(l.X, l.Y, l.Z - (h - p.CrouchHeight));
-            FVector crouchUp = crouchStart + new FVector(0f, 0f, K.GE.WaistUpCrouched);
+            FVector crouchUp = crouchStart + new FVector(0f, 0f, floorRaise + K.GE.WaistUpCrouched);
             if (Clear(p, crouchStart, crouchUp, crouchBox) && Clear(p, crouchUp, crouchUp - n * K.GE.WaistOverCrouched, crouchBox))
             {
                 pc.eventWaistLedge(false);
@@ -698,13 +699,15 @@ public sealed partial class PhysicsDriver
     /// <summary>The pipe feet test: at a pipe top, facing and pushing over it, with room down the pipe: TopPipe.</summary>
     [UcNative("ASPlayerController::CheckPipeFeet", Exe = 0x10aa8080, Editor = 0x111ec970)]
     [Provenance(ProvenanceKind.Decoded, "spec/native/physics-ge-queries.md rule 6 (CheckPipeFeet)")]
-    [Provenance(ProvenanceKind.Estimated, "Side choice and segment order read from a confused decompile (open question 2): right side first, forward then side then down")]
+    [Provenance(ProvenanceKind.Decoded, "game 0x10aa8080: raw controller stick limit; 0x10aa8264 chooses the side from (pawnXY - pipeXY) cross N, shifts the spot one radius sideways, then tests the raised approach before the descent")]
     private void CheckPipeFeet(Pawn p, ISBasePawnPhysics sb, ISPlayerControllerPhysics pc, GERecord ge, FVector z)
     {
         GEClosestPoint(ge, z, out FVector n);
         FVector fwd = p.Rotation.Vector();
         FVector acc = p.Acceleration;
-        if (acc.SizeSquared2D() >= K.GE.PipeTopStickSq || (n | fwd) <= K.GE.PipeTopFacing || (n | acc.SafeNormal()) <= K.GE.PipeTopFacing ||
+        bool fastInput = p.Controller is PlayerController player &&
+            player.aForward * player.aForward + player.aStrafe * player.aStrafe >= K.GE.PipeTopStickSq;
+        if (fastInput || (n | fwd) <= K.GE.PipeTopFacing || (n | acc.SafeNormal()) <= K.GE.PipeTopFacing ||
             ge.P0.Z >= z.Z || ge.P1.Z >= z.Z)
         {
             return;
@@ -714,22 +717,34 @@ public sealed partial class PhysicsDriver
         float back = p.CollisionRadius + K.GE.PipeTopGap;
         var spot = new FVector(top.X - back * n.X, top.Y - back * n.Y, p.Location.Z + K.GE.PipeTopLift);
         float h = p.CollisionHeight;
-        // The exit offsets (C_DOWNTOPPIPE) are in the frame of a pawn facing out over the edge, along N.
-        new FRotator(0, n.Rotation().Yaw, 0).GetAxes(out FVector x, out FVector y, out _);
-        for (int side = 0; side < 2; side++)
+        FVector towardPawn = new FVector(p.Location.X - top.X, p.Location.Y - top.Y, 0f).SafeNormal();
+        bool left = (towardPawn ^ n).Z <= 0f;
+        var right = new FVector(-n.Y, n.X, 0f);
+        spot += right * (left ? p.CollisionRadius : -p.CollisionRadius);
+
+        // Start beside the pipe so the descent clip's sideways travel ends on it, rather than snapping
+        // across one cylinder radius after the clip. The native checks the approach to this spot first.
+        var lift = new FVector(0f, 0f, K.GE.PipeTopApproachLift);
+        var approach = new FVector(p.Location.X, p.Location.Y, spot.Z) + lift;
+        var approachBox = new FVector(35f, 35f, h - K.GE.PipeTopApproachShrink);
+        if (!Clear(p, approach, spot + lift, approachBox))
         {
-            FVector offset = side == 0 ? K.GE.PipeTopRight : K.GE.PipeTopLeft;
-            FVector a = spot + x * offset.X;
-            FVector b = a + y * offset.Y;
-            FVector c = b + new FVector(0f, 0f, offset.Z);
-            if (Clear(p, spot, a, new FVector(K.GE.PipeTopNarrowBox, K.GE.PipeTopNarrowBox, h)) && Clear(p, a, b, new FVector(35f, 35f, h)) &&
-                Clear(p, b, c, K.LedgeClearanceExtent))
-            {
-                sb.m_geoNormal = n;
-                sb.vVandammePos = spot;
-                pc.eventTopPipe(side == 1);
-                return;
-            }
+            return;
+        }
+
+        FVector offset = left ? K.GE.PipeTopLeftProbe : K.GE.PipeTopRightProbe;
+        FVector a = spot + n * offset.X;
+        FVector b = a - right * offset.Y;
+        FVector c = b + new FVector(0f, 0f, offset.Z);
+        // 0x10aa83ee and 0x10aa84ad read ESI (the controller), not its pawn. These two horizontal
+        // probes use the controller's 22 uu half-height; the final downward probe uses standing height.
+        float probeHeight = p.Controller!.CollisionHeight;
+        if (Clear(p, spot, a, new FVector(K.GE.PipeTopNarrowBox, K.GE.PipeTopNarrowBox, probeHeight)) && Clear(p, a, b, new FVector(35f, 35f, probeHeight)) &&
+            Clear(p, b, c, K.LedgeClearanceExtent))
+        {
+            sb.m_geoNormal = n;
+            sb.vVandammePos = spot;
+            pc.eventTopPipe(left);
         }
     }
 

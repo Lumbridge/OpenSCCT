@@ -32,9 +32,11 @@ public partial class SPlayerController
             return;
         }
 
-        if (!bCanStop)
+        // AnimEnd marks the grab complete; only a live TopSynchro starts the climb. A settled hold
+        // reports that position signal every tick, so it cannot stand in for an unfinished grab.
+        // Starting here also keeps the root-motion action in the physics phase during prediction/replay.
+        if (!bCanStop || pawn.PawnAnim[0].bPlaying)
         {
-            bCanStop = true;
             return;
         }
 
@@ -236,18 +238,18 @@ public partial class SPlayerController
         [PortOf("uc:SBase.SPlayerController:s_WaistLedgeDetect.BeginState", Spec = "spec/movement/barrier-and-low-ledges.md#detect-states-repositioning")]
         public override void BeginState(Actor self) => ((SPlayerController)self).bCanStop = false;
 
-        /// <summary>The grab clip ended: the first of the two signals waits, the second decides.</summary>
+        /// <summary>The grab clip ended: remember completion until the hold reports its settled position.</summary>
         [Uc("SBase.SPlayerController.s_WaistLedgeDetect.AnimEnd", Sha1 = "3b8904aae8969f9f7b1c7702aa1f82096be42985")]
         [PortOf("uc:SBase.SPlayerController:s_WaistLedgeDetect.AnimEnd", Spec = "spec/movement/barrier-and-low-ledges.md#detect-states-repositioning")]
         public override void AnimEnd(Actor self, int Channel)
         {
-            if (Channel == 0)
+            if (Channel == 0 && ((SPlayerController)self).IAmOnClient())
             {
-                ((SPlayerController)self).WaistLedgeStep();
+                ((SPlayerController)self).bCanStop = true;
             }
         }
 
-        /// <summary>The snap is done: the first of the two signals waits, the second decides.</summary>
+        /// <summary>The snap is done: climb once the grab animation has also completed.</summary>
         [Uc("SBase.SPlayerController.s_WaistLedgeDetect.TopSynchro", Sha1 = "fcd5734d8841fc68fc373a0601404c7eb9bd763d")]
         [PortOf("uc:SBase.SPlayerController:s_WaistLedgeDetect.TopSynchro", Spec = "spec/movement/barrier-and-low-ledges.md#detect-states-repositioning")]
         public virtual void TopSynchro(SPlayerController self) => self.WaistLedgeStep();

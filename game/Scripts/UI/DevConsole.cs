@@ -4,6 +4,7 @@ using OpenScct.Server.Online;
 using OpenScctGame.Chat;
 using OpenScctGame.Online;
 using OpenScctGame.Options;
+using OpenScctGame.Play;
 
 namespace OpenScctGame.UI;
 
@@ -291,6 +292,13 @@ public partial class DevConsole : CanvasLayer, IConsoleHost
     void IConsoleHost.ServerLogin(string password) => _client?.Admin(password);
 
     void IConsoleHost.Chat(string text) => _client?.Chat(text);
+
+    string? IConsoleHost.LocationReport =>
+        GetTree().CurrentScene is PlayRoot { Session: { LocalController: { } controller, LocalPawn: { } pawn } session }
+            ? PlayerLocationReport.Format(session.Settings.Map, pawn, controller)
+            : null;
+
+    void IConsoleHost.CopyText(string text) => DisplayServer.ClipboardSet(text);
 
     void IConsoleHost.Quit() => GetTree().Quit();
 }

@@ -182,9 +182,11 @@ public sealed partial class CollisionWorld
             return false;
         }
 
-        if (c.IsDynamic)
+        // Rotating movers test every blocking cylinder for encroachment. Reject distant boxes using the
+        // conservative current-pose bounds before rebuilding the mover's triangles and BVH.
+        if (c.IsDynamic && !SyncColliderForQuery(c, location, location, extent))
         {
-            SyncCollider(c);
+            return false;
         }
 
         if (!CollisionMath.BoxesTouch(c.Min - extent, c.Max + extent, location, location))

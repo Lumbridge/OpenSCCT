@@ -76,6 +76,12 @@ public sealed class ChannelPoseApplier
     private readonly Vector3[] _fromPos;
     private readonly Quaternion[] _fromRot;
     private readonly Vector3[] _fromScale;
+    private readonly Vector3[] _samplePos;
+    private readonly Quaternion[] _sampleRot;
+    private readonly Vector3[] _sampleScale;
+    private readonly Transform3D[] _sampleGlobal;
+    private readonly Transform3D[] _mirrorGlobal;
+    private readonly byte[] _sampled;
     private readonly Dictionary<string, int> _bones = new(StringComparer.Ordinal);
     private readonly float[] _cacheFrame = new float[64];
     private readonly string?[] _cacheSequence = new string?[64];
@@ -84,7 +90,7 @@ public sealed class ChannelPoseApplier
     // The diagnostic compares the cached path with the original unconditional submissions on a second skeleton.
     internal bool ReuseUnchangedPoses { get; set; } = true;
 
-    public ChannelPoseApplier(Skeleton3D skeleton)
+    public ChannelPoseApplier(Skeleton3D skeleton, IReadOnlyList<int>? boneMirrors = null, IReadOnlyList<string>? packageBones = null)
     {
         _skeleton = skeleton ?? throw new ArgumentNullException(nameof(skeleton));
         _count = skeleton.GetBoneCount();
@@ -100,6 +106,12 @@ public sealed class ChannelPoseApplier
         _fromPos = new Vector3[_count];
         _fromRot = new Quaternion[_count];
         _fromScale = new Vector3[_count];
+        _samplePos = new Vector3[_count];
+        _sampleRot = new Quaternion[_count];
+        _sampleScale = new Vector3[_count];
+        _sampleGlobal = new Transform3D[_count];
+        _mirrorGlobal = new Transform3D[_count];
+        _sampled = new byte[_count];
         for (int b = 0; b < _count; b++)
         {
             _parent[b] = skeleton.GetBoneParent(b);
@@ -113,6 +125,18 @@ public sealed class ChannelPoseApplier
         for (int b = 0; b < _count; b++)
         {
             _mirror[b] = _bones.TryGetValue(MirrorName(skeleton.GetBoneName(b)), out int m) ? m : b;
+        }
+
+        if (boneMirrors is not null && packageBones is not null)
+        {
+            Array.Fill(_mirror, -1);
+            for (int b = 0; b < Math.Min(boneMirrors.Count, packageBones.Count); b++)
+            {
+                int source = boneMirrors[b];
+                if (source >= 0 && source < packageBones.Count && _bones.TryGetValue(packageBones[b], out int target) &&
+                    _bones.TryGetValue(packageBones[source], out int from))
+                    _mirror[target] = from;
+            }
         }
 
         // Parent-first order, so "included when the parent is" can be decided in one pass.
@@ -257,7 +281,7 @@ public sealed class ChannelPoseApplier
     /// actor's turn since the lock, taken back out), or without one its turn since that frame is taken out.
     /// </summary>
     [Provenance(ProvenanceKind.Decoded, "anim.md rule 3: channel order, alpha slerp and lerp, start bone subtree; ANSWERS-anim.md A4 tween from the last drawn pose, A5 sampled key")]
-    [Provenance(ProvenanceKind.Estimated, "Mirroring swaps the L and R bones and reflects their local transforms across the mesh's X plane (anim.md open question 1)")]
+    [Provenance(ProvenanceKind.Decoded, "game pose build 0x109ba4f0 mirrored pass: accumulate space bases, reflect via Pawn.BoneMirrors, convert back to parent-relative transforms; -1 leaves a bone unchanged")]
     public void Apply(ReadOnlySpan<ChannelPose> channels, RootLock rootLock = RootLock.None, float lockClipFrame = 0f,
         Vector3? rootOffset = null, Quaternion? rootTurn = null)
     {
@@ -368,6 +392,12 @@ public sealed class ChannelPoseApplier
 
     private void ApplyClip(ChannelPose ch, float alpha, float tween)
     {
+        if (ch.Mirror)
+        {
+            ApplyMirroredClip(ch, alpha, tween);
+            return;
+        }
+
         AnimClip clip = ch.Clip!;
         Animation animation = clip.Animation;
         float t = TimeOf(ch, ch.ClipFrame);
@@ -376,7 +406,7 @@ public sealed class ChannelPoseApplier
         float wrapAlpha = wrap ? Math.Clamp((t - length) * ch.Fps, 0f, 1f) : 0f;
         foreach ((int bone, int track, Animation.TrackType type) in clip.Tracks)
         {
-            int target = ch.Mirror ? _mirror[bone] : bone;
+            int target = bone;
             if (!_included[target])
             {
                 continue;
@@ -390,11 +420,6 @@ public sealed class ChannelPoseApplier
                     if (wrap)
                     {
                         p = p.Lerp(animation.PositionTrackInterpolate(track, 0.0), wrapAlpha);
-                    }
-
-                    if (ch.Mirror)
-                    {
-                        p = new Vector3(-p.X, p.Y, p.Z);
                     }
 
                     if (tween < 1f)
@@ -413,11 +438,6 @@ public sealed class ChannelPoseApplier
                     if (wrap)
                     {
                         q = q.Slerp(animation.RotationTrackInterpolate(track, 0.0).Normalized(), wrapAlpha).Normalized();
-                    }
-
-                    if (ch.Mirror)
-                    {
-                        q = new Quaternion(q.X, -q.Y, -q.Z, q.W);
                     }
 
                     if (tween < 1f)
@@ -443,6 +463,100 @@ public sealed class ChannelPoseApplier
 
                 default:
                     break;
+            }
+        }
+    }
+
+    /// <summary>
+    /// The original mirrors space bases, not each bone's local X axis. Limb lengths run along local X, so a local
+    /// reflection bends the arms back and also turns the excluded root. The native reflects mesh X and bone Z;
+    /// the converted skeleton maps UE bone Z to Godot Y. Rebuild local transforms before tweening and blending.
+    /// </summary>
+    private void ApplyMirroredClip(ChannelPose ch, float alpha, float tween)
+    {
+        Array.Copy(_restPos, _samplePos, _count);
+        Array.Copy(_restRot, _sampleRot, _count);
+        Array.Copy(_restScale, _sampleScale, _count);
+        Array.Clear(_sampled);
+        AnimClip clip = ch.Clip!;
+        Animation animation = clip.Animation;
+        float time = TimeOf(ch, ch.ClipFrame);
+        float length = clip.Length;
+        bool wrap = ch.Loop && time > length && length > 0f;
+        float wrapAlpha = wrap ? Math.Clamp((time - length) * ch.Fps, 0f, 1f) : 0f;
+        foreach ((int bone, int track, Animation.TrackType type) in clip.Tracks)
+        {
+            switch (type)
+            {
+                case Animation.TrackType.Position3D:
+                    Vector3 p = animation.PositionTrackInterpolate(track, wrap ? length : time);
+                    _samplePos[bone] = wrap ? p.Lerp(animation.PositionTrackInterpolate(track, 0.0), wrapAlpha) : p;
+                    _sampled[bone] |= 1;
+                    break;
+                case Animation.TrackType.Rotation3D:
+                    Quaternion q = animation.RotationTrackInterpolate(track, wrap ? length : time).Normalized();
+                    _sampleRot[bone] = wrap ? q.Slerp(animation.RotationTrackInterpolate(track, 0.0).Normalized(), wrapAlpha).Normalized() : q;
+                    _sampled[bone] |= 2;
+                    break;
+                case Animation.TrackType.Scale3D:
+                    Vector3 scale = animation.ScaleTrackInterpolate(track, wrap ? length : time);
+                    _sampleScale[bone] = wrap ? scale.Lerp(animation.ScaleTrackInterpolate(track, 0.0), wrapAlpha) : scale;
+                    _sampled[bone] |= 4;
+                    break;
+            }
+        }
+
+        foreach (int bone in _order)
+        {
+            Transform3D local = new(new Basis(_sampleRot[bone]).ScaledLocal(_sampleScale[bone]), _samplePos[bone]);
+            _sampleGlobal[bone] = _parent[bone] >= 0 ? _sampleGlobal[_parent[bone]] * local : local;
+        }
+
+        Basis meshReflection = Basis.FromScale(new Vector3(-1f, 1f, 1f));
+        Basis boneReflection = Basis.FromScale(new Vector3(1f, -1f, 1f));
+        for (int bone = 0; bone < _count; bone++)
+        {
+            int source = _mirror[bone];
+            Transform3D global = _sampleGlobal[source >= 0 ? source : bone];
+            _mirrorGlobal[bone] = source >= 0
+                ? new Transform3D(meshReflection * global.Basis * boneReflection, meshReflection * global.Origin)
+                : global;
+        }
+
+        foreach (int bone in _order)
+        {
+            if (!_included[bone]) continue;
+            int source = _mirror[bone];
+            byte sampled = _sampled[source >= 0 ? source : bone];
+            Vector3 p = _samplePos[bone], scale = _sampleScale[bone];
+            Quaternion q = _sampleRot[bone];
+            if (source >= 0)
+            {
+                // glTF drops constant tracks equal to rest. Their local transform can still change when a
+                // mirrored parent (or the excluded root) has a different frame, so rebuild both components.
+                sampled |= 3;
+                Transform3D local = _parent[bone] >= 0
+                    ? _mirrorGlobal[_parent[bone]].AffineInverse() * _mirrorGlobal[bone]
+                    : _mirrorGlobal[bone];
+                p = local.Origin;
+                q = local.Basis.Orthonormalized().GetRotationQuaternion().Normalized();
+                scale = local.Basis.Scale;
+            }
+
+            if ((sampled & 1) != 0)
+            {
+                if (tween < 1f) p = _fromPos[bone].Lerp(p, tween);
+                _pos[bone] = alpha >= 1f ? p : _pos[bone].Lerp(p, alpha);
+            }
+            if ((sampled & 2) != 0)
+            {
+                if (tween < 1f) q = _fromRot[bone].Normalized().Slerp(q, tween).Normalized();
+                _rot[bone] = alpha >= 1f ? q : _rot[bone].Normalized().Slerp(q, alpha).Normalized();
+            }
+            if ((sampled & 4) != 0)
+            {
+                if (tween < 1f) scale = _fromScale[bone].Lerp(scale, tween);
+                _scale[bone] = alpha >= 1f ? scale : _scale[bone].Lerp(scale, alpha);
             }
         }
     }

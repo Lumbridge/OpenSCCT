@@ -373,28 +373,32 @@ public sealed class TraversalTests
         Assert.InRange(rig.Pawn.Location.Y, 39f - 2f, 39f + 2f);
     }
 
-    [Fact]
-    public void ShimmyingRoundAnOutsideCornerHangsOnTheNextLedge()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void ShimmyingRoundAnOutsideCornerHangsOnTheNextLedge(bool left)
     {
-        // The block's front edge and its left side (x = -300) share the corner (-300, 100). The spy faces +Y, so his
-        // right is -X: shimmying right takes him round the corner onto the side, facing +X.
+        // The spy faces +Y: his right is the block's -X side, his left the +X side.
+        float cornerX = left ? 0f : -300f;
         CollisionDataBuilder b = Floor();
         b.AddBox(V(-300f, 100f, 0f), V(0f, 600f, 250f));
         TraversalDoc ges = Doc(
             Ge(0, GEKind.LG, V(-300f, 100f, 250f), V(0f, 100f, 250f)),
-            Ge(1, GEKind.LG, V(-300f, 100f, 250f), V(-300f, 600f, 250f)));
+            Ge(1, GEKind.LG, V(cornerX, 100f, 250f), V(cornerX, 600f, 250f)));
         PawnRig rig = TraversalRig(b, ges, V(-150f, 60f, 0f));
         Assert.True(StepUntil(rig, JumpPress, MovementStateNames.OnLedge, 120));
         rig.Hold(NoInput, 10);
         var seen = new List<Name>();
-        Assert.True(StepUntil(rig, new PlayerInputFrame { BT_Right = 1 }, MovementStateNames.s_ChangeLedgeWait, 400, seen), string.Join(", ", seen));
+        PlayerInputFrame strafe = left ? new PlayerInputFrame { BT_Left = 1 } : new PlayerInputFrame { BT_Right = 1 };
+        Assert.True(StepUntil(rig, strafe, MovementStateNames.s_ChangeLedgeWait, 400, seen), string.Join(", ", seen));
         Assert.True(StepUntil(rig, NoInput, MovementStateNames.OnLedge, 200, seen), string.Join(", ", seen));
-        Assert.Equal(V(-300f, 100f, 250f), rig.Pawn.ZipP1);
-        Assert.Equal(V(-300f, 600f, 250f), rig.Pawn.ZipP2);
-        Assert.Equal(0, rig.Pawn.Rotation.Yaw & 65535);
+        Assert.Equal(V(cornerX, 100f, 250f), rig.Pawn.ZipP1);
+        Assert.Equal(V(cornerX, 600f, 250f), rig.Pawn.ZipP2);
+        Assert.Equal(left ? 32768 : 0, rig.Pawn.Rotation.Yaw & 65535);
         rig.Hold(NoInput, 30);
         Assert.True(rig.Controller.IsInState(MovementStateNames.OnLedge));
-        Assert.InRange(rig.Pawn.Location.X, -339f - 2f, -339f + 2f);
+        float hangX = left ? 39f : -339f;
+        Assert.InRange(rig.Pawn.Location.X, hangX - 2f, hangX + 2f);
         Assert.InRange(rig.Pawn.Location.Z, 133f - 2f, 133f + 2f);
     }
 }

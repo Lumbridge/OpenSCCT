@@ -188,6 +188,7 @@ public partial class HudLayer : CanvasLayer
         _overrides.Insert(0, Binoculars);
         GadgetViews = OpenScctGame.Hud.Gadgets.GadgetHudViews.Attach(this);
         _white = WhiteRegion.Find(assets);
+        Net.Configure(assets);
         if (assets.TextureSize(HudMarkers.Package, HudMarkers.Atlas) is { } size)
         {
             Markers.AtlasSize = new Vector2(size.X, size.Y);

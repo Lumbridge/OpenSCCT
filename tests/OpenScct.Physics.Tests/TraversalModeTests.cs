@@ -420,7 +420,7 @@ public sealed class TraversalModeTests
     [Fact]
     public void AnInsideCornerRaisesChangeLedge()
     {
-        GERecord other = GE(1, GEKind.LG, V(400f, 0f, 224f), V(400f, 400f, 224f));
+        GERecord other = GE(1, GEKind.LG, V(400f, 0f, 224f), V(400f, -400f, 224f));
         (Scene s, TestSBasePawn p, TestController c) = OnLedge(0, other);
         p.Location = V(330f, -39f, 107f);
         for (int i = 0; i < 120 && c.ChangeLedges == 0; i++)

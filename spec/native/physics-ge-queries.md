@@ -99,6 +99,12 @@ Not walking: first WaistLedge, then Ledge.
 
 The ledge native does not compare against LastZipP; the script handlers do.
 
+OpenSCCT's low-ledge floor correction raises the WAIST hold when its downward cylinder sweep reaches a walkable
+floor before Hp.Z (physics-traversal.md). Both standing and crouched upward clearance destinations include that
+same height adjustment, because the root-motion climb starts at the raised hold. The facing, velocity, distance
+and detection windows above remain unchanged. This correction addresses the reproduced MoonD GE531 short hop;
+it is not attributed to the decoded native.
+
 ### 5. Other arm tests
 
 - CheckHOHArms: (C, Dir) = ClosestPoint(Z), Dir flipped to the pawn's forward; hang height Hz = C.Z -
@@ -138,9 +144,13 @@ PIPE: CheckPipeFeet.
   72 along N, then down 192; all clear: m_geoNormal = N, vVandammePos = P, TopLadder().
 - CheckPipeFeet (TopPipe, from the top): stick `aForward^2 + aStrafe^2 < 4000^2`, `N . Fwd > 0.7`,
   `N . SafeNormal(Acceleration) > 0.7`, the pipe entirely below the feet zone point. Spot P = top.XY - (R + 15) N
-  at Location.Z + 2. Clearance with boxes (26, 26, H) then (35, 35, H) then (35, 35, 87.5) along the down-the-pipe
-  offsets (96.3, 38.67, -181.7) or (97.3, -39.17, -186.15) by the side; all clear: m_geoNormal = N,
-  vVandammePos = P, TopPipe(side).
+  at Location.Z + 2. With Right = (-N.Y, N.X, 0), choose `side = ((Location.XY - top.XY) cross N).Z <= 0`;
+  add `R Right` to P for side true, subtract it otherwise. First trace from (Location.XY, P.Z + 16) to P + 16 Up
+  with box (35, 35, Pawn.CollisionHeight - 8). Then boxes (26, 26, Controller.CollisionHeight),
+  (35, 35, Controller.CollisionHeight), (35, 35, 87.5): move along N, then -Right,
+  then vertically by offsets (96.3, 38.67, -181.7) for side true or (97.3, -39.17, -186.15) otherwise.
+  All clear: m_geoNormal = N, vVandammePos = P, TopPipe(side). There is no retry on the opposite side.
+  The sideways start offset cancels the descent animation's lateral travel before the pipe hold takes over.
 
 ### 7. CheckBackFeetZone() -> bool
 
@@ -228,7 +238,7 @@ None.
 | zip grab | Vz in (-1270, 254), zone radius 60 | decoded |
 | fence top | box (35, 35, 20), 127.5, 75, 198.25 | decoded |
 | ladder top | 72 - zone.X, +16, boxes 71.5 and 87.5, 72, 192 | decoded |
-| pipe top | R + 15, +2, boxes 26 and 35, offsets (96.3, 38.67, -181.7) and (97.3, -39.17, -186.15) | decoded |
+| pipe top | R + 15 back, R aside, +2; approach +16 with H - 8; boxes 26 and 35, offsets (96.3, 38.67, -181.7) and (97.3, -39.17, -186.15) | decoded |
 | TestTopLedge | 210.8 / 57.8, 206.1 / 75.7, vault 117 + 45, 95, 78, box Z 44; barrier 37 / 210, 90..102, 20, 75, 173 | decoded |
 | bTestTopLadder | 192 / 73.9 spy, 196 / 68.8 merc, 79.5, -20, box Z 8 | decoded |
 | CheckFence | R + 20, R + 10, H - 15, normal tolerance 0.01 | decoded |
@@ -270,8 +280,10 @@ re-check is TestTopLedge in bServerTestRootMotion (physics-rootmotion-reposition
 
 1. How the partition tree is rebuilt in the game when GEs change (it matters only if a port rebuilds instead of
    reading the stored tree). The shipped tree reproduces the original candidate order.
-2. CheckPipeFeet's side choice and the first clearance segment were read from a partly confused decompile; verify
-   with a top-of-pipe exit trace on SteeE.
+2. Resolved 2026-11-01: CheckPipeFeet game instructions 0x10aa822f..0x10aa8303 choose the side and shift P by R;
+   0x10aa8318..0x10aa8397 test the raised approach. The vector cross helper 0x10940540 computes EDX cross ECX.
+   0x10aa83ee and 0x10aa84ad read the controller's collision half-height (22 by default) for the horizontal probes.
+   Polar Base GE19/20/110 regression traces cover the descent endpoint and the transition into the pipe hold.
 3. CheckBarrier's height reference (the barrier top against the pawn, with the PrePivot change) needs a disassembly
    pass like the one done for the ledge test.
 4. CheckWallJump's per-direction probe helper (editor 0x111e4ca0) and direction picker (0x111e4df0) are not decoded.
