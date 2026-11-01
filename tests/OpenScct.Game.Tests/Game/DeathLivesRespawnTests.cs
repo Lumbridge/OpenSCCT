@@ -222,6 +222,43 @@ public class DeathLivesRespawnTests
         Assert.InRange(spy.fRespawnDate, w.Level.TimeSeconds + 9.7f, w.Level.TimeSeconds + 10f); // the respawn due time
     }
 
+    [Theory]
+    [InlineData(0)]
+    [InlineData(1)]
+    public void Death_during_an_older_input_command_keeps_the_body_and_respawn_timeline(int victim)
+    {
+        (GameWorld w, SPlayerController[] players) = Match(Story + "?TimesRespawnsDEF=10", "?Name=S?Team=0", "?Name=M?Team=1");
+        w.Run(12f);
+        SPlayerController pc = players[victim];
+        using (w.Level.CommandTime(60, 1f, Sim.DeltaTime))
+        {
+            w.Game.Killed(players[1 - victim], pc, pc.Pawn, SDamageType.DamTypeGrabBreak);
+            pc.GotoState("s_Dead");
+        }
+
+        // A real remote ledge landing enters death inside its final command. Its timestamp can be
+        // seconds behind the authority after loading, but the body must still finish its death clip.
+        (float spectate, float respawn, List<(float T, bool Hidden)> samples) = Timeline(w, pc);
+        Assert.Contains(samples, sample => sample.T > 4.9f && !sample.Hidden);
+        Assert.All(samples.FindAll(sample => sample.T <= 5f), sample => Assert.False(sample.Hidden));
+        Assert.InRange(spectate, 7.5f, 7.8f);
+        Assert.InRange(respawn, spectate + 10f, spectate + 10.15f);
+    }
+
+    [Fact]
+    public void Killed_spectator_deadline_matches_its_timer_even_inside_an_older_input_command()
+    {
+        (GameWorld w, SPlayerController[] players) = Match(Story, "?Name=S?Team=0", "?Name=M?Team=1");
+        w.Run(12f);
+        SPlayerController pc = players[0];
+        float worldTime = w.Level.WorldTimeSeconds;
+        using (w.Level.CommandTime(60, 1f, Sim.DeltaTime))
+            pc.GotoState("s_MultiSpectating_WhenKilled");
+
+        Assert.Equal(10f, pc.TimerRate);
+        Assert.Equal(worldTime + 10f, pc.fRespawnDate);
+    }
+
     [Fact]
     public void A_strangled_body_blinks_after_1_s()
     {

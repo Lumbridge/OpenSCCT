@@ -52,3 +52,32 @@ performance, moving-camera behavior, combat, network load or performance on anot
 Direct exported-game controls are `SVM_BENCHMARK=<cameras.json>`, `SVM_BENCHMARK_OUT=<folder>`,
 `SVM_BENCHMARK_SECONDS`, `SVM_BENCHMARK_WARMUP`, `SVM_BENCHMARK_PROFILING=1`, and `SVM_BENCHMARK_GAMEPLAY=1`;
 pass `--svm-play=<map>` after `--`.
+
+## Original ledge-grab presentation
+
+`capture_original_ledge.py` records the normal SteeE GE59/54 Jump → OnLedge → Use → pull → fall → death
+sequence in the existing `SteeECombat` sandbox map. It places a standing spy below the ledge and spawns/places
+the combat rig's merc above it; it does not write health, force an animation or select a death state. The original
+runs hidden and muted at 60 FPS. The sandbox owns process cleanup, and the helper restores the saved editor/play
+configuration. `--sandbox` and `--re-tools` override the existing automation defaults when needed.
+
+```powershell
+python -I -B tools/benchmark/capture_original_ledge.py --repo . --out local/original-ledge-capture
+
+$env:SVM_DEATH_BONES_CAPTURES = (Resolve-Path local/original-ledge-capture/ledge-presentation.jsonl).Path
+tools/ci/godot-smoke.ps1 -Tests death-bones -ExpectedFailures @()
+Remove-Item Env:SVM_DEATH_BONES_CAPTURES
+```
+
+Choose a new output directory under the selected checkout's `local/`; the command refuses existing capture
+directories. The JSONL preserves both players' channels, positions, health, root locks and rendered bone arrays.
+The summary records input/state transition frames and screenshots. Jump must reach OnLedge within 180 sampled
+frames, and death must occur within the 720-frame recording bound; after death, 180 further samples record the
+settled pose. A failed fixture remains an incomplete capture with its error and cleanup report.
+
+The merc is an original combat-rig dummy without a viewport/PlayerTick. Its ledge landing/death callbacks still
+run normally. Bone samples are checked against the same simulation tick, not a strict post-Present boundary;
+the hanging spy's camera can obscure the corpse in screenshots. The opt-in Godot replay separately requires
+at least 120 alive `GrbdStLgRail` frames with translation lock and 120 dead `LandStXxFd2` frames without it,
+with at least 99% of each group matching all bones within 1.5 uu. This checks the actual pose builder; live
+network tests remain necessary to verify state delivery and the complete rendered transition.

@@ -21,7 +21,8 @@ public partial class SBasePawn
     [PortOf("eng:ASBasePawn::Tick", Spec = "spec/native/net-moves.md#rules")]
     protected override void CatchUpRemoteAutonomous(PlayerController pc)
     {
-        if (XLevel.GetService<OpenScct.Game.Animation.INetworkPawnCommands>()?.DrivesPawn(this) == true) return;
+        var commands = XLevel.GetService<OpenScct.Game.Animation.INetworkPawnCommands>();
+        if (commands?.DrivesPawn(this) == true) return;
         float now = XLevel.TimeSeconds;
         if (pc is SPlayerController { bGameEnded: true })
         {
@@ -29,6 +30,16 @@ public partial class SBasePawn
             // simulates zero-input movement, so finish braking/falling on the server world clock
             // instead of leaving a walking pawn's last velocity (and run blend) stuck indefinitely.
             Acceleration = default;
+            XLevel.PhysicsDriver?.performPhysics(this, XLevel.DeltaTime);
+            pc.ServerTimeStamp = now;
+            return;
+        }
+        if (Physics == EPhysics.PHYS_Repositionnal && commands?.RepositionsHeldPawnOnWorldClock(this) == true)
+        {
+            // Modern input stops simulating held targets. Their owner-authored SA_REPOS still has
+            // the original 180 uu/s and bServerControlsRepos=false, so advance that setup here too.
+            // The last move stamp belongs to the owner's input clock, which can start seconds later
+            // than this world. Its age is not elapsed physics time for the newly held pawn.
             XLevel.PhysicsDriver?.performPhysics(this, XLevel.DeltaTime);
             pc.ServerTimeStamp = now;
             return;

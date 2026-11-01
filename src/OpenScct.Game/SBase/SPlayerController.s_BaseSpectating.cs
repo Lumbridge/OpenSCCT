@@ -179,7 +179,7 @@ public partial class SPlayerController
             var pc = (SPlayerController)self;
             pc.fRespawnDate = pc.GameReplicationInfo?.TimesRespawn ?? 0;
             pc.SetTimer(SvmMath.Max(GameFlow.K.MinRespawnTimer, pc.fRespawnDate), false);
-            pc.fRespawnDate += pc.Level.TimeSeconds;
+            pc.fRespawnDate += pc.XLevel.WorldTimeSeconds;
             if (pc.Role == ENetRole.ROLE_Authority)
             {
                 foreach (SPlayerController other in pc.XLevel.AllActors<SPlayerController>())

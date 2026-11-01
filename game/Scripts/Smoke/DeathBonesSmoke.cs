@@ -38,8 +38,10 @@ public sealed class DeathBonesSmoke : SmokeTest
     private static (bool Ok, string Detail) Compare(string capture)
     {
         using JsonDocument header = JsonDocument.Parse(File.ReadLines(capture).First());
-        string side = header.RootElement.GetProperty("victim").GetString()!;
-        bool merc = header.RootElement.GetProperty("victimTeam").GetString() == "merc";
+        bool ledge = header.RootElement.TryGetProperty("format", out JsonElement format) &&
+            format.GetString() == "svm.original-ledge-pose/1";
+        string side = ledge ? "target" : header.RootElement.GetProperty("victim").GetString()!;
+        bool merc = ledge || header.RootElement.GetProperty("victimTeam").GetString() == "merc";
         string asset = merc ? "SPerso.DEF_01" : "SPerso.ATT_01";
         string? glb = SkeletalModel.FindGlb(asset);
         string anim = Path.Combine(SkeletalModel.DefaultSharedRoot(), "chars", "SPerso", merc ? "Def.anim.json" : "PRO.anim.json");
@@ -60,6 +62,7 @@ public sealed class DeathBonesSmoke : SmokeTest
             var channels = new ChannelPose[25];
             Vector3? lockedRoot = null;
             int compared = 0, matched = 0, lockedFrames = 0;
+            int pullFrames = 0, pullMatched = 0, landingFrames = 0, landingMatched = 0;
             float worst = 0f;
             string worstAt = "";
             var seen = new HashSet<string>();
@@ -88,8 +91,13 @@ public sealed class DeathBonesSmoke : SmokeTest
                 // capture rather than treating the absence of its rotation bases as a successful comparison.
                 if ((mode & 2) != 0) return (false, asset + ": captured yaw lock requires rotation-basis capture/replay");
                 applier.Apply(channels, (RootLock)mode, rootOffset: lockedRoot is { } start ? start - currentRoot : null);
-                if (body.GetProperty("hp").GetInt32() > 0 || channels[0].Frame < 0f ||
+                int health = body.GetProperty("hp").GetInt32();
+                bool pull = ledge && health > 0 && channels[0].Sequence == "GrbdStLgRail";
+                bool landing = ledge && health <= 0 && channels[0].Sequence == "LandStXxFd2";
+                if ((ledge ? !pull && !landing : health > 0) || channels[0].Frame < 0f ||
                     !sample.GetProperty("stable").GetBoolean() || !pose.GetProperty("poseReadSameTick").GetBoolean()) continue;
+                if (ledge && (pull ? mode != 1 : mode != 0))
+                    return (false, $"{asset}: original ledge {channels[0].Sequence} has unexpected root lock {mode}");
                 // A damage overlay can be caught between its tick and pose rebuild; the next frame of these
                 // captures has faded it out. Require the authored death itself, including its resting clip.
                 bool overlay = false;
@@ -109,10 +117,16 @@ public sealed class DeathBonesSmoke : SmokeTest
                 compared++;
                 if (mode != 0) lockedFrames++;
                 if (distance <= Tolerance) matched++;
+                if (pull) { pullFrames++; if (distance <= Tolerance) pullMatched++; }
+                if (landing) { landingFrames++; if (distance <= Tolerance) landingMatched++; }
                 seen.Add(channels[0].Sequence!);
                 if (distance > worst) { worst = distance; worstAt = $"frame {sample.GetProperty("frame").GetInt32()} {channels[0].Sequence}"; }
             }
-            string detail = $"{asset}: {matched}/{compared} death frames, all {boneOf.Length} bones <= {Tolerance} uu; {lockedFrames} root-locked; worst {worst:F3} uu at {worstAt}; {string.Join(',', seen)}";
+            string detail = $"{asset}: {matched}/{compared} {(ledge ? "ledge" : "death")} frames, all {boneOf.Length} bones <= {Tolerance} uu; {lockedFrames} root-locked; worst {worst:F3} uu at {worstAt}; {string.Join(',', seen)}";
+            if (ledge)
+                return (pullFrames >= 120 && landingFrames >= 120 && pullMatched >= pullFrames * 0.99f &&
+                    landingMatched >= landingFrames * 0.99f,
+                    detail + $"; alive paired pull {pullMatched}/{pullFrames}, dead landing {landingMatched}/{landingFrames}");
             return (compared >= 120 && lockedFrames >= 30 && matched >= compared * 0.99f, detail);
         }
         finally { model.Root.Free(); }

@@ -43,6 +43,11 @@ public sealed class NetworkLabSmoke(bool host, bool observer = false, bool secon
     private float _capturedFoot = -PlayInspector.InspectFeetBelow;
     private int _poseCaptures;
     private string? _pendingInput;
+    private double _captureUntil, _nextCapture, _captureInterval;
+    private string _capturePrefix = "";
+    private int _captureNumber;
+    private bool _recordAnimationPhases;
+    private readonly Dictionary<int, (string? Name, HashSet<string> Clips, HashSet<string> Drawn)> _observedClips = new();
     public override string Name => host ? HostName : secondObserver ? Observer2Name : observer ? ObserverName : GuestName;
     private static readonly JsonSerializerOptions Json = new() { PropertyNameCaseInsensitive = true };
 
@@ -109,6 +114,7 @@ public sealed class NetworkLabSmoke(bool host, bool observer = false, bool secon
         if (_root is not null && !ReferenceEquals(context.Tree.CurrentScene, _root))
         {
             _root = null; _pilot = null; _inspector = null;
+            _observedClips.Clear();
             if (_pendingInput is { } interrupted)
             {
                 Ack(interrupted, "Input timeline interrupted by scene travel.");
@@ -126,6 +132,11 @@ public sealed class NetworkLabSmoke(bool host, bool observer = false, bool secon
             }
         }
         _pilot?.Update();
+        if (context.ElapsedSeconds < _captureUntil && context.ElapsedSeconds >= _nextCapture)
+        {
+            _nextCapture = context.ElapsedSeconds + _captureInterval;
+            MenuPage.Shot(context.Tree.Root, _capturePrefix + "-" + (++_captureNumber).ToString("D3"));
+        }
         if (_inspector is { } inspector)
         {
             inspector.Phase = _pilot?.Step ?? "idle";
@@ -138,10 +149,30 @@ public sealed class NetworkLabSmoke(bool host, bool observer = false, bool secon
             _pendingInput = null;
         }
         while (_serverSamples.TryDequeue(out object? sample)) _server = sample;
+        ClientSession? session = _hub ? hub.Client?.Session : online.Client?.Session;
+        if (_recordAnimationPhases && session is not null)
+        {
+            // A brief falling clip can fit between status writes. Retain each actually presented
+            // channel-zero phase at the render tick, rather than infer it from adjacent samples.
+            foreach (SBasePawn pawn in session.World.Level.AllActors<SBasePawn>())
+            {
+                if (pawn.bDeleteMe) continue;
+                if (!_observedClips.TryGetValue(pawn.ActorId, out var seen))
+                    seen = (pawn.PlayerReplicationInfo?.PlayerName, new HashSet<string>(StringComparer.Ordinal), new HashSet<string>(StringComparer.Ordinal));
+                seen.Name = pawn.PlayerReplicationInfo?.PlayerName ?? seen.Name;
+                seen.Clips.Add(pawn.PawnAnim[0].Sequence.ToString());
+                _observedClips[pawn.ActorId] = seen;
+            }
+            if (_root?.Pawns is { } views)
+                foreach (var view in views.Views)
+                    if (view.Pawn is { } pawn && _observedClips.TryGetValue(pawn.ActorId, out var seen) &&
+                        view.DrawnChannels.Length > 0 && view.DrawnChannels[0].Clip is not null &&
+                        view.DrawnChannels[0].Sequence is { } sequence)
+                        seen.Drawn.Add(sequence);
+        }
         if (context.ElapsedSeconds >= _nextSample)
         {
             _nextSample = context.ElapsedSeconds + _sampleIntervalMs / 1000.0;
-            ClientSession? session = _hub ? hub.Client?.Session : online.Client?.Session;
             object data = new
             {
                 role = _role, utc = DateTimeOffset.UtcNow, elapsed = context.ElapsedSeconds,
@@ -164,10 +195,21 @@ public sealed class NetworkLabSmoke(bool host, bool observer = false, bool secon
                 memoryBytes = GC.GetTotalMemory(false), allocatedBytes = GC.GetTotalAllocatedBytes(false),
                 movement = Movement(session),
                 localController = Controller(session?.LocalPlayer as SPlayerController),
+                cameraPose = _root?.Camera is { } drawnCamera && _root.Session is { } playSession ? new
+                {
+                    position = new[] { drawnCamera.Current.Location.X, drawnCamera.Current.Location.Y, drawnCamera.Current.Location.Z },
+                    pitch = drawnCamera.Current.Rotation.Pitch, yaw = drawnCamera.Current.Rotation.Yaw, roll = drawnCamera.Current.Rotation.Roll,
+                    fov = drawnCamera.Current.Fov,
+                    pawnDistance = session?.LocalPlayer?.Pawn is { } cameraPawn ? (drawnCamera.Current.Location - cameraPawn.Location).Size() : (float?)null,
+                    simulatedPosition = new[] { playSession.View.Location.X, playSession.View.Location.Y, playSession.View.Location.Z },
+                    simulatedPitch = playSession.View.Rotation.Pitch, simulatedYaw = playSession.View.Rotation.Yaw,
+                } : null,
                 tick = session?.World.TickCount, renderTick = session?.RenderTimeFixed / 256.0,
                 snapshotTick = session?.PawnStates?.LatestSnapshotTick, poseGaps = session?.PawnStates?.MissingDescriptors,
                 stateGaps = session?.PawnStates?.StateGaps, underruns = session?.PawnStates?.Underflows,
                 pawns = session is null ? [] : Pawns(session.World, session.Connection), server = _server,
+                animationPhases = _observedClips.Select(p => new { id = p.Key, name = p.Value.Name,
+                    clips = p.Value.Clips.ToArray(), drawn = p.Value.Drawn.ToArray() }).ToArray(),
                 grenades = session is null ? [] : Grenades(session.World, session.Connection),
                 gasClouds = session is null ? [] : GasClouds(session.World),
                 stickyCameras = session is null ? [] : StickyCameras(session.World),
@@ -203,8 +245,10 @@ public sealed class NetworkLabSmoke(bool host, bool observer = false, bool secon
                 {
                     grabAllowed = pc.GameReplicationInfo?.bAvlb_SPY_Grab, use = pc.bUsing, oldUse = pc.oldbUsing,
                     jump = pc.bPressedJump, hooks = MovementService.HooksOf(pc).GetType().Name,
+                    ledgeGeometry = pc.IsInState("OnLedge") ? pc.bTestGrabLedgeGeo() : (bool?)null,
                     candidates = session.World.Level.Actors.OfType<SBasePawn>().Where(p => p is SPAWNDEFENSE).Select(p => new
-                    { name = p.PlayerReplicationInfo?.PlayerName, reachable = pc.CanGrabPawn(p), grabbable = p.bCanBeGrabbed }).ToArray(),
+                    { name = p.PlayerReplicationInfo?.PlayerName, reachable = pc.CanGrabPawn(p), grabbable = p.bCanBeGrabbed,
+                        ledgeReachable = pc.IsInState("OnLedge") ? SPlayerController.OnLedge.Instance.CanGrabPawn(pc, p) : (bool?)null }).ToArray(),
                 } : null,
                 cameraView = session?.LocalPlayer is SPlayerController { SBPawn.UsedObject: SCamNetwork viewed } cameraPc ? new
                 {
@@ -259,6 +303,19 @@ public sealed class NetworkLabSmoke(bool host, bool observer = false, bool secon
                     case "capture":
                         string? shot = MenuPage.Shot(context.Tree.Root, _role + "-" + id);
                         Ack(id, shot is null ? "Capture requires a rendered window and SVM_PLAY_SHOTS." : null);
+                        break;
+                    case "capture-sequence":
+                        double seconds = command.GetProperty("seconds").GetDouble();
+                        double interval = command.GetProperty("interval").GetDouble();
+                        if (!double.IsFinite(seconds) || seconds is <= 0 or > 10 || !double.IsFinite(interval) || interval is < 0.2 or > 2)
+                            throw new ArgumentException("Capture sequences require 0 to 10 seconds and intervals of 0.2 to 2 seconds.");
+                        if (DisplayServer.GetName() == "headless") throw new InvalidOperationException("Capture sequence requires a rendered window.");
+                        _capturePrefix = _role + "-sequence-" + id;
+                        _captureNumber = 0;
+                        _nextCapture = context.ElapsedSeconds;
+                        _captureInterval = interval;
+                        _captureUntil = context.ElapsedSeconds + seconds;
+                        Ack(id, null);
                         break;
                     case "place":
                         if (!host) throw new ArgumentException("Fixture placement belongs to the host.");
@@ -501,6 +558,7 @@ public sealed class NetworkLabSmoke(bool host, bool observer = false, bool secon
         _dedicated = config.RootElement.TryGetProperty("dedicated", out var dedicated) && dedicated.GetBoolean();
         _loadDelay = config.RootElement.TryGetProperty("loadDelayMs", out var delay) ? Math.Clamp(delay.GetInt32(), 0, 75000) : 0;
         _sampleIntervalMs = config.RootElement.TryGetProperty("sampleIntervalMs", out var interval) ? Math.Clamp(interval.GetInt32(), 50, 1000) : 100;
+        _recordAnimationPhases = config.RootElement.TryGetProperty("recordAnimationPhases", out var phases) && phases.GetBoolean();
         _players = config.RootElement.TryGetProperty("players", out var players) ? players.GetInt32() : 2;
         _hostTeam = config.RootElement.TryGetProperty("hostTeam", out var side) ? side.GetInt32() : 0;
         _observerTeam = config.RootElement.TryGetProperty("observerTeam", out var observerSide) ? observerSide.GetInt32() : 0;

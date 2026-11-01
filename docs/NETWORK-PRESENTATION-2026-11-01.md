@@ -1,7 +1,7 @@
-# Network audio, crouch, death presentation and timers — 2026-11-01
+# Network audio, crouch, death presentation, ledge kills and timers — 2026-11-01
 
 Follow-up to [0.8.54](NETWORK-FOLLOWUP-2026-11-01.md), focused on the remaining movement audio,
-crouch placement, death/spectator presentation and the subsequently reported countdown accuracy.
+crouch placement, death/spectator presentation, ledge kills and countdown accuracy.
 Validation and release work are in progress.
 
 ## Fixed
@@ -165,6 +165,100 @@ platform reported 2,711 passed and 519 skipped without private converted content
 passed separately. These results predate the countdown follow-up below and do not certify its final
 release commit.
 
+## Ledge grab: original sequence and rendered bone parity
+
+The earlier neck-grab correction did not establish ledge-kill correctness. The new real UDP test
+reproduced a separate failure: the merc owner's initial reposition completed, but the authority
+stayed behind and the pair timed out without a kill. Modern input deliberately stops driving a
+held pawn; world catch-up had also excluded the original owner-authored 180 uu/s reposition.
+That held-pawn setup now advances once per world frame. It preserves the original speed and
+`bServerControlsRepos=false` behavior, rather than substituting the local-player 220 uu/s action.
+
+A ten-second client/server clock offset exposed why this must use one world delta: subtracting
+the last input timestamp produced a 13.7-second physics step and a future root-motion timestamp.
+The regression rejects those jumps. Eight original-versus-networked pull trajectory checkpoints
+then differ by at most 1.822 uu, with no future root timestamp.
+
+The lethal landing also created reliable damage/death calls in the final movement command, then
+skipped that command's completion when the pawn became a corpse. The bridge now finishes the
+existing command without generating new corpse commands. Damage, life loss and kill credit reach
+authority exactly once. The subsequent corpse timer used the same older input clock and removed
+the body during its landing clip; its world-clock correction is detailed in the timer section below.
+
+The rendered merc death camera exposed one further transition bug. `BlastMove` can land and enter
+`s_Dead`, which releases the head camera, before the old fall handler resumes and re-enables its
+first-person-body flag. The original HUD clears that flag each frame. The fall handler now checks
+that it is still the active state before setting the flag. All four normal ledge regressions fail
+on the first dead tick before this guard; all 13 connected ledge, neck-grab/KO and delayed-health
+death cases pass afterward. Evidence: `local/ledge-camera-before.log` and `local/ledge-camera-after.log`
+in the validation checkout. The narrow guard leaves the fall camera active until landing.
+
+A fresh hidden, muted original `SteeECombat` capture reproduced the GE59/54 ledge kill using normal
+Jump and Use inputs after positioning the players. No health, animation or death-state assignment
+selected the result. The spy naturally reached GrabLedge and OnLedge, played `GrabLgBgRail`, then
+the paired `GrabLgEdRail` / `GrbdStLgRail` pull. The merc entered `FallStAlFr0`, landed with
+`LandStXxFd2`, and changed from 100 health to -100 in `s_Dead`.
+
+The original Begin-to-pull interval was 1.0163 seconds. Its pull occupied frames 153–354, followed
+by fall frames 355–357 and landing/death frames 358–538. The pull moved the merc gradually from
+(-2449.964, 1399.035, -719.095) to (-2516.239, 1203.585, -996.001); the largest sampled step was
+12.076 uu. The final corpse stayed at (-2516.241, 1198.856, -1038.995), with zero velocity, through
+the remaining 3.149 seconds captured. This supplies a transition trajectory, not only a final pose.
+
+The opt-in Godot comparison applies those recorded channels and root offsets through the actual
+`ChannelPoseApplier`. **377/377 frames matched all 42 merc bones within the unchanged 1.5 uu limit**;
+the largest difference was **0.240 uu**, at landing frame 366. Both independently required coverage
+groups passed: **196/196 alive `GrbdStLgRail` frames with translation lock**, and **181/181 dead
+`LandStXxFd2` frames without root lock**. Each group requires at least 120 frames and at least 99%
+within tolerance. Existing rifle-death acceptance is unchanged; the capture's health and header
+were not rewritten to satisfy the test.
+
+Six negative-phase pull tween frames were excluded by the existing replay rule. The short fall,
+spy preparation/pull and tween transitions are retained in the native trace but are not included
+in the 377-frame bone comparison. All 539 captured simulation samples were stable, and all merc
+bone reads remained within their sampled tick. They were not synchronized to a strict post-Present
+boundary. The original merc is the combat rig's dummy without a viewport/PlayerTick; its normal
+ledge callbacks nevertheless completed the observed death. The original screenshot shows the kill
+message, but the hanging spy obscures the corpse, so that image alone does not prove visual
+cleanliness. This replay checks actual Godot bone construction, not network delivery, first-person
+camera behavior, collision or every animation handoff; the live network matrix is separate.
+The final rendered real UDP runs pass on the camera-guard build, using three separate game
+processes and the typical impaired-network profile:
+
+| Setup | Run in `local/ledge-kill-validation/local/network-lab` | Result |
+| --- | --- | --- |
+| Spy host, remote merc, spare life | `20261101-173447-20e1fba9` | All peers draw reach/pull/fall/landing; supported corpse agreement within 1.405 uu; spectator then fresh respawn |
+| Spy client, merc host, final life | `20261101-173634-901de559` | All peers draw the full sequence; corpse agreement within 0.040 uu; exactly one life/kill/death; all clients end with the spy team winning |
+
+These checks retain actual per-render submitted channels, because the short fall can fit between
+ordinary 50 ms diagnostic samples. They require a complete landing clip before corpse removal and
+reject the stale owner first-person flag. The observer's courtyard corpse image visibly rests on
+the floor; the reverse owner screenshot shows the correct loss overlay. All owned processes were
+cleaned up. Earlier failed setup/result assertions are retained as harness failures: the reverse
+observer first needed normal standing input, and the immediate game outcome is `GameEnded`, not
+the later post-round lobby results payload.
+
+The owner camera is detached, in Walking following mode and approximately 219 uu from the corpse.
+Its dark foreground at this angle is the upper platform/awning, not a camera inside the corpse.
+A fresh native original merc rifle death at the same landing position and view reproduces that
+same large black obstruction. Its settled camera is (-2507.77954, 1364.25391, -895.37994), versus
+(-2507.7795, 1364.254, -894.42615) in the rewrite. X/Y match effectively exactly; the approximately
+0.954 uu height difference follows the original/rewrite floor-center difference. Both use detached
+Walking following view, solved distance approximately 187.85 uu. This static ordinary-death control
+checks camera geometry at the endpoint; it does not establish the original owner's full ledge
+transition. Evidence: `local/original-merc-static-camera-20261101` in the primary checkout. No
+arbitrary camera offset was added to hide original geometry occlusion.
+
+Private native evidence in the primary checkout:
+`local/original-ledge-20261101-validated/ledge-presentation.jsonl`, `ledge-summary.json`,
+`phase-evidence.json`, `trajectory-keyframes.json` and `frame-0480.png`. The enclosing `summary.json`
+records successful completion and cleanup with no owned processes remaining. The first attempt
+stopped before Jump because the harness expected a base walking state instead of the original's
+derived standing state; it is retained as an incomplete fixture, not a gameplay failure. Replay
+evidence in the validation checkout: `local/ledge-bones/verified.xml` and `local/ledge-bones/logs`.
+The reproducible command and its limits are documented in `tools/benchmark/README.md`; the helper
+is `tools/benchmark/capture_original_ledge.py --repo . --out local/<new-capture-directory>`.
+
 ## Countdown accuracy
 
 The visible round and spectator clocks now use `max(0, TimeLimit * 60 - ElapsedTime)`, the same
@@ -232,10 +326,14 @@ and alarms. Three connected clock/terminal cases also pass. Evidence:
 deadline "not started"; its retained 44 active-hack samples demonstrate the defect. The runner now
 recognizes any nonzero deadline and explicitly rejects an already-expired deadline early in hacking.
 
-The follow-up call-path audit found that terminal hack start/stop already use world event time;
-KO deadlines are established on the owning client; death/respawn transitions bypass deferred
-movement commands; gas-mask air is a world-tick budget; and camera damage already protects its
-disable deadline. No additional gameplay-duration changes were justified in those paths.
+The first follow-up audit covered terminal hack start/stop, owner-side KO deadlines, ordinary
+server-triggered deaths, gas-mask air and camera-disable deadlines. It missed lethal landing inside
+a deferred movement command. The later real ledge-kill test reproduced that path: the corpse's
+death/blink anchor was written on the older input clock, so the world timer removed the body before
+its landing animation finished. Death, spectator and respawn-display anchors now use world time
+consistently. The original five-second body duration, 2.5-second blink and configured respawn delay
+are preserved. Two role-specific regressions failed before this correction; 44 focused death and
+respawn checks pass afterward, including HUD reads inside an older command scope.
 
 The final full HUD smoke passes every phase, including fractional alarm/knockout values, exact
 round/respawn boundaries, spectator expiry and minute carry:

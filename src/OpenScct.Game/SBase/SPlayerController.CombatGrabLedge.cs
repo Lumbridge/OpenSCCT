@@ -640,7 +640,9 @@ public partial class SPlayerController
             }
 
             self.BlastMove(DeltaTime);
-            if (self.bBehindView)
+            // The move can land and enter s_Dead, which detaches the head camera. Do not restore
+            // the old fall's first-person view after that transition (the original HUD clears it each frame).
+            if (ReferenceEquals(self.StateNode, this) && self.bBehindView)
             {
                 self.bFirstPersonWithPawn = true;
             }

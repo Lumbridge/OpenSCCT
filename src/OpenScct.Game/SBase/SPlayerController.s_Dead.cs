@@ -67,7 +67,9 @@ public partial class SPlayerController
             pc.ReleaseChatPartners();
             pc.bCrouchWithRoll = false;
             pc.btoCought = false;
-            pc.fRespawnDate = pc.Level.TimeSeconds;
+            // A lethal landing can enter here while replaying an older remote input command.
+            // The death/blink timer runs on the world clock, so its anchor must use that clock too.
+            pc.fRespawnDate = pc.XLevel.WorldTimeSeconds;
             if (pc.PlayerReplicationInfo is { } pri)
             {
                 if (pc.bNewProfile)
@@ -145,7 +147,7 @@ public partial class SPlayerController
                 pc.GameHost.ServerCall(pc, new GameCall("AntiBugTellServerIAmDead"));
             }
 
-            float t = pc.Level.TimeSeconds - pc.fRespawnDate;
+            float t = pc.XLevel.WorldTimeSeconds - pc.fRespawnDate;
             if (!(t > pc.fTempsAvantClignote) && !pc.bInstantRespawn)
             {
                 return;

@@ -820,12 +820,24 @@ public sealed class HudSmoke(bool spectatorOnly = false) : SmokeTest
         pc.fRespawnDate = Now + 0.25f;
         HudSimReader.Read(pc, snapshot);
         Expect(snapshot.Spectator.RespawnIn == 1, "respawn final fraction remains visible");
+        using (pc.XLevel.CommandTime(1, Now - 10f, Sim.DeltaTime))
+        {
+            snapshot.Clear();
+            HudSimReader.Read(pc, snapshot);
+            Expect(snapshot.Spectator.RespawnIn == 1, "older input time cannot extend the final respawn fraction");
+        }
         snapshot.Clear();
         gri.TimeLimit = 0;
         pc.fRespawnDate = Now;
         HudSimReader.Read(pc, snapshot);
         Expect(snapshot.Spectator.RemainingTime == HudK.InfiniteShort, "unlimited spectator clock is infinite");
         Expect(snapshot.Spectator.RespawnIn == 0, "respawn countdown expires at the deadline");
+        using (pc.XLevel.CommandTime(1, Now - 10f, Sim.DeltaTime))
+        {
+            snapshot.Clear();
+            HudSimReader.Read(pc, snapshot);
+            Expect(snapshot.Spectator.RespawnIn == 0, "expired respawn remains zero inside an older input command");
+        }
         gri.TimeLimit = limit;
         gri.ElapsedTime = elapsed;
         pc.fRespawnDate = respawn;
