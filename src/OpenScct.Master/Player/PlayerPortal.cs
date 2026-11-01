@@ -98,7 +98,7 @@ internal sealed partial class PlayerPortal(MasterOptions options, AccountStore s
             Link("/", "Back to the player hub", "button secondary"), status: 404);
 
     private IResult SignIn(HttpContext c, string? problem = null, int status = 200) =>
-        Show(c, "Sign in", "account", "<section class=\"panel signed-out\"><img src=\"/web/assets/mark.svg\" alt=\"\" width=\"58\" height=\"58\">" +
+        Show(c, "Sign in", "account", $"<section class=\"panel signed-out\"><img src=\"{H(AssetUrl("/web/assets/mark.svg"))}\" alt=\"\" width=\"58\" height=\"58\">" +
             "<p class=\"eyebrow\">YOUR OPENSCCT ACCOUNT</p><h1>Sign in</h1><p class=\"lead\">View your stats and manage your account. " +
             "Use the same Discord account as in the game.</p>" + Link("/auth/player/login", "Continue with Discord →", "button wide") +
             "<small>We use your Discord ID to recognize your account. We never ask for your password, email, or friends list.</small></section>", problem, problem is not null, status);
@@ -132,7 +132,7 @@ internal sealed partial class PlayerPortal(MasterOptions options, AccountStore s
         c.Response.Cookies.Append(SessionCookie, token, Cookie(c, "/", SameSiteMode.Strict, TimeSpan.FromSeconds(AccountStore.PlayerWebMax)));
         // A same-site document hop is required for the Strict session cookie after Discord's redirect.
         return Results.Content("<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">" +
-            "<meta http-equiv=\"refresh\" content=\"0;url=/account\"><title>Signed in · OpenSCCT</title><link rel=\"stylesheet\" href=\"/web/assets/site.css\"></head>" +
+            $"<meta http-equiv=\"refresh\" content=\"0;url=/account\"><title>Signed in · OpenSCCT</title><link rel=\"stylesheet\" href=\"{H(AssetUrl("/web/assets/site.css"))}\"></head>" +
             "<body><main class=\"site-main\"><h1>Signed in.</h1><a class=\"button\" href=\"/account\">Continue to your account</a></main></body></html>", "text/html; charset=utf-8");
     }
 

@@ -152,7 +152,7 @@ internal sealed partial class AdminPortal
         Secure(context);
         return Results.Content(
             "<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta http-equiv=\"refresh\" content=\"0;url=/admin\">" +
-            "<title>Signed in</title><link rel=\"stylesheet\" href=\"/admin/assets/admin.css\"></head><body><main id=\"main\">" +
+            $"<title>Signed in</title><link rel=\"stylesheet\" href=\"{H(Web.WebHtml.AssetUrl("/web/assets/site.css"))}\"><link rel=\"stylesheet\" href=\"{H(Web.WebHtml.AssetUrl("/admin/assets/admin.css"))}\"></head><body class=\"admin\"><main id=\"main\">" +
             "<p><a href=\"/admin\">Continue to the admin portal</a></p></main></body></html>",
             "text/html; charset=utf-8", Encoding.UTF8);
     }

@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Reflection;
+using System.Security.Cryptography;
 using System.Text;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -16,6 +17,8 @@ internal static class WebHtml
 {
     public static string H(string? value) => WebUtility.HtmlEncode(value ?? string.Empty);
     public static string U(string value) => Uri.EscapeDataString(value);
+    /// <summary>Content-addressed URLs refresh cached resources even when a preview rebuild uses the same commit.</summary>
+    public static string AssetUrl(string path) => AssetVersions.TryGetValue(path, out string? version) ? path + "?v=" + version : path;
     public static string N(long value) => value.ToString("N0", CultureInfo.InvariantCulture);
     public static string Link(string url, string text, string? css = null) =>
         $"<a href=\"{H(url)}\"{(css is null ? "" : " class=\"" + H(css) + "\"")}>{H(text)}</a>";
@@ -39,11 +42,11 @@ internal static class WebHtml
         Secure(context);
         var html = new StringBuilder("<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">");
         html.Append("<meta name=\"color-scheme\" content=\"dark\"><title>").Append(H(title)).Append(" · OpenSCCT</title>")
-            .Append("<link rel=\"icon\" href=\"/web/assets/mark.svg\" type=\"image/svg+xml\"><link rel=\"stylesheet\" href=\"/web/assets/site.css\">")
-            .Append("<script src=\"/web/assets/site.js\" defer></script>");
+            .Append($"<link rel=\"icon\" href=\"{H(AssetUrl("/web/assets/mark.svg"))}\" type=\"image/svg+xml\"><link rel=\"stylesheet\" href=\"{H(AssetUrl("/web/assets/site.css"))}\">")
+            .Append($"<script src=\"{H(AssetUrl("/web/assets/site.js"))}\" defer></script>");
         if (active == "account") html.Append("<meta name=\"robots\" content=\"noindex, nofollow\">");
         html.Append("</head><body class=\"player-site\"><a class=\"skip-link\" href=\"#main\">Skip to content</a>")
-            .Append("<header class=\"site-header\"><div class=\"header-inner\"><a class=\"site-brand\" href=\"/\"><img src=\"/web/assets/mark.svg\" alt=\"\" width=\"36\" height=\"36\"><span>OpenSCCT<small>SPIES VS MERCENARIES</small></span></a>")
+            .Append($"<header class=\"site-header\"><div class=\"header-inner\"><a class=\"site-brand\" href=\"/\"><img src=\"{H(AssetUrl("/web/assets/mark.svg"))}\" alt=\"\" width=\"36\" height=\"36\"><span>OpenSCCT<small>SPIES VS MERCENARIES</small></span></a>")
             .Append("<button class=\"menu-toggle button secondary\" type=\"button\" aria-expanded=\"false\" aria-controls=\"primary-navigation\">Menu</button><nav id=\"primary-navigation\" class=\"primary-nav\" aria-label=\"Main navigation\">");
         foreach ((string url, string label, string key) in new[] { ("/", "Overview", "home"), ("/servers", "Servers", "servers"),
             ("/players", "Players", "players"), ("/leaderboards", "Leaderboards", "leaderboards"), ("/matches", "Matches", "matches") })
@@ -94,6 +97,22 @@ internal static class WebHtml
     public static string LiveStatus => "<div class=\"live-status\" role=\"status\"><span class=\"status-dot\"></span><span data-live-status>Live · updates every 30 seconds</span></div>";
 
     private static readonly Dictionary<string, (byte[] Bytes, string Type)> Assets = LoadAssets();
+    private static readonly Dictionary<string, string> AssetVersions = LoadAssetVersions();
+
+    private static Dictionary<string, string> LoadAssetVersions()
+    {
+        var versions = new Dictionary<string, string>(StringComparer.Ordinal);
+        Assembly assembly = typeof(WebHtml).Assembly;
+        foreach (string name in assembly.GetManifestResourceNames())
+        {
+            int separator = name.IndexOf('/');
+            if (separator < 0 || name[..separator] is not ("web" or "admin")) continue;
+            using Stream? stream = assembly.GetManifestResourceStream(name);
+            if (stream is null) continue;
+            versions["/" + name[..separator] + "/assets/" + name[(separator + 1)..]] = Convert.ToHexStringLower(SHA256.HashData(stream))[..16];
+        }
+        return versions;
+    }
     private static Dictionary<string, (byte[], string)> LoadAssets()
     {
         var assets = new Dictionary<string, (byte[], string)>(StringComparer.Ordinal);

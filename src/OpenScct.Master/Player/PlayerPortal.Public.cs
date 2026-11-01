@@ -40,7 +40,7 @@ internal sealed partial class PlayerPortal
             .Append(H(welcome)).Append("</p><div class=\"button-row\">").Append(Link("/download", "Get OpenSCCT ↗", "button"))
             .Append(Link("/servers", "Find a session →", "button secondary"))
             .Append("</div><p class=\"hero-note\">Free community project · Windows &amp; Linux · Optional Discord sign-in</p></div>")
-            .Append("<div class=\"hero-art\" aria-hidden=\"true\"><div class=\"radar\"><span class=\"radar-label top\">SIGNAL ACQUIRED</span><img class=\"radar-logo\" src=\"/web/assets/mark.svg\" alt=\"\">")
+            .Append($"<div class=\"hero-art\" aria-hidden=\"true\"><div class=\"radar\"><span class=\"radar-label top\">SIGNAL ACQUIRED</span><img class=\"radar-logo\" src=\"{H(AssetUrl("/web/assets/mark.svg"))}\" alt=\"\">")
             .Append("<i class=\"radar-point one\"></i><i class=\"radar-point two\"></i><i class=\"radar-point three\"></i><span class=\"radar-label bottom\">SPY / MERC</span></div><span class=\"art-caption\">OPENSCCT</span></div></section>")
             .Append("<div data-live=\"home-stats\"><div class=\"stats-grid\">")
             .Append(Stat("Players online", N(servers.Sum(s => s.Players)), "Across listed sessions"))

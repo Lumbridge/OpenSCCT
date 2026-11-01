@@ -54,8 +54,8 @@ internal static class AdminHtml
         sb.Append("<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\">")
             .Append("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">")
             .Append("<title>").Append(H(title)).Append(" - OpenSCCT administration</title>")
-            .Append("<link rel=\"stylesheet\" href=\"/web/assets/site.css\"><link rel=\"stylesheet\" href=\"/admin/assets/admin.css\">")
-            .Append("<script src=\"/admin/assets/admin.js\" defer></script>")
+            .Append($"<link rel=\"stylesheet\" href=\"{H(Web.WebHtml.AssetUrl("/web/assets/site.css"))}\"><link rel=\"stylesheet\" href=\"{H(Web.WebHtml.AssetUrl("/admin/assets/admin.css"))}\">")
+            .Append($"<script src=\"{H(Web.WebHtml.AssetUrl("/admin/assets/admin.js"))}\" defer></script>")
             .Append("</head><body class=\"admin\"").Append(refresh ? " data-refresh=\"10\"" : string.Empty).Append('>')
             .Append("<a class=\"skip-link\" href=\"#main\">Skip to content</a>");
         if (admin is not null)
