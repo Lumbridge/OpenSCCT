@@ -176,6 +176,9 @@ public static partial class MovementK
     [Provenance(ProvenanceKind.Decoded, "GetSpeedMode: merc, fast or no pawn")]
     public const float SpeedModeFull = 1f;
 
+    /// <summary>Merc walk-mode input: slightly slower than the previous half-speed setting.</summary>
+    public const float SpeedModeMercWalk = 0.45f;
+
     [Provenance(ProvenanceKind.Decoded, "GetSpeedMode: weapon movement, slow")]
     public const float SpeedModeWeaponSlow = 0.6f;
 

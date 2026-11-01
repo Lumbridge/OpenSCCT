@@ -27,14 +27,14 @@ public static class GodotKeys
         return key.ToUpperInvariant() switch
         {
             "GREYSLASH" => "Numpad /", "GREYSTAR" => "Numpad *", "GREYPLUS" => "Numpad +", "GREYMINUS" => "Numpad -",
-            "LEFTMOUSE" => "Left mouse button", "RIGHTMOUSE" => "Right mouse button", "MIDDLEMOUSE" => "Middle mouse button",
-            "MOUSEX1" => "Mouse button 4", "MOUSEX2" => "Mouse button 5", "MOUSEWHEELUP" => "Mouse wheel up", "MOUSEWHEELDOWN" => "Mouse wheel down",
-            "PAGEUP" => "Page Up", "PAGEDOWN" => "Page Down", "CAPSLOCK" => "Caps Lock", "NUMLOCK" => "Num Lock", "SCROLLLOCK" => "Scroll Lock",
-            "UP" => "Up arrow", "DOWN" => "Down arrow", "LEFT" => "Left arrow", "RIGHT" => "Right arrow",
-            "SPACE" => "Space", "CTRL" => "Ctrl", "TILDE" => "Backtick / tilde", "SINGLEQUOTE" => "Apostrophe (')",
-            "SEMICOLON" => "Semicolon (;)", "EQUALS" => "Equals (=)", "COMMA" => "Comma (,)", "MINUS" => "Minus (-)",
-            "PERIOD" => "Period (.)", "SLASH" => "Slash (/)", "BACKSLASH" => "Backslash (\\)",
-            "LEFTBRACKET" => "Left bracket ([)", "RIGHTBRACKET" => "Right bracket (])", _ => key,
+            "LEFTMOUSE" => "LMB", "RIGHTMOUSE" => "RMB", "MIDDLEMOUSE" => "MMB",
+            "MOUSEX1" => "MB4", "MOUSEX2" => "MB5", "MOUSEWHEELUP" => "WH UP", "MOUSEWHEELDOWN" => "WH DN",
+            "PAGEUP" => "PG UP", "PAGEDOWN" => "PG DN", "CAPSLOCK" => "CAPS", "NUMLOCK" => "NUM LK", "SCROLLLOCK" => "SCR LK",
+            "UP" => "↑", "DOWN" => "↓", "LEFT" => "←", "RIGHT" => "→",
+            "SPACE" => "Space", "CTRL" => "Ctrl", "TILDE" => "` / ~", "SINGLEQUOTE" => "'",
+            "SEMICOLON" => ";", "EQUALS" => "=", "COMMA" => ",", "MINUS" => "-",
+            "PERIOD" => ".", "SLASH" => "/", "BACKSLASH" => "\\",
+            "LEFTBRACKET" => "[", "RIGHTBRACKET" => "]", "INSERT" => "INS", "DELETE" => "DEL", "BACKSPACE" => "BKSP", _ => key,
         };
     }
 

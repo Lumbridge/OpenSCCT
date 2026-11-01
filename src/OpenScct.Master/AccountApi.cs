@@ -283,7 +283,13 @@ internal sealed partial class AccountApi
         {
             Id = account.Id, Name = account.Name, Admin = _options.IsAdmin(account.DiscordId),
             NameChangeAllowed = allowed is { } t ? DateTimeOffset.FromUnixTimeSeconds(t) : null,
-            Stats = _store.Stats(account.Id), Achievements = achievements, Unlocked = _store.Unlocked(account.Id),
+            Stats = progress.Stats, Achievements = achievements, Unlocked = _store.Unlocked(account.Id),
+            Career = new CareerStats
+            {
+                Feats = progress.Feats,
+                Maps = progress.MapWins.Keys.Select(k => k.Map).Distinct().OrderBy(m => m, StringComparer.Ordinal)
+                    .Select(m => new MapCareerStats { Map = m, SpyWins = progress.MapWin(m, 0), MercWins = progress.MapWin(m, 1) }).ToArray(),
+            },
             Progress = _store.ProgressInfo(account.Id),
             Rejoin = RejoinFor(account.Id),
         };

@@ -64,6 +64,7 @@ public partial class MainMenu : MenuPage
         online.AddChild(OpenScctGame.Hub.HubScreen.MenuButton(this));
         AccountButton = UiStyle.MenuButton("Account", () => FrontEnd.ShowAccount(GetTree()), "Account");
         online.AddChild(AccountButton);
+        online.AddChild(UiStyle.MenuButton("Stats", () => FrontEnd.ShowStats(GetTree()), "StatsPage"));
         online.AddChild(AchievementsScreen.MenuButton(this));
         online.AddChild(ArmouryScreen.MenuButton(this));
         online.AddChild(DemosScreen.MenuButton(this));

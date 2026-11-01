@@ -9,7 +9,7 @@ namespace OpenScctGame.Controls;
 /// Turns keyboard and mouse into the local player's per-tick input (<see cref="LocalInput"/>) through the side's
 /// <see cref="InputBindings"/>: a key's buttons are held while it is down (a press shorter than a tick still counts
 /// for one tick), its exec commands run once on the press, its axes feed while it is down, and the mouse counts of a
-/// tick are summed with no smoothing or clamp (Reloaded's modern mouse). The pointer is captured on the first click
+/// tick are summed with no smoothing or clamp (Reloaded's modern mouse). The pointer is captured when play starts
 /// and released with Escape; while it is free, no game input is read.
 /// </summary>
 public partial class PlayInput : Node
@@ -21,6 +21,25 @@ public partial class PlayInput : Node
     public Func<OpenScct.Game.SBase.SPlayerController?>? Controller { get; set; }
     private float _mouseX;
     private float _mouseY;
+    private bool _captureOnStart = true;
+    private bool _waitForJoinFrame = true;
+    private bool _requestJoinFocus = true;
+    private bool _recaptureOnFocus;
+    private bool _foregroundLost;
+    private bool _activationClickConsumed;
+    internal Func<bool>? ForegroundProbe { get; set; }
+    private bool HasPlayFocus => ForegroundProbe?.Invoke() ?? (Pointer.Detached || InputFocusTrace.IsForeground(GetWindow()));
+    private readonly bool _traceInput = System.Environment.GetEnvironmentVariable("SVM_INPUT_TRACE") == "1";
+    private ulong _traceAt;
+    private int _receivedKeys, _receivedMotion, _receivedButtons, _playedKeys, _playedMotion;
+
+    public override void _Input(InputEvent @event)
+    {
+        if (!_traceInput) return;
+        if (@event is InputEventKey) _receivedKeys++;
+        if (@event is InputEventMouseMotion) _receivedMotion++;
+        if (@event is InputEventMouseButton) _receivedButtons++;
+    }
 
     public PlayInput()
     {
@@ -35,7 +54,7 @@ public partial class PlayInput : Node
     /// <summary>When false (scripted runs), real input is ignored.</summary>
     public bool Enabled { get; set; } = true;
 
-    /// <summary>Capture the pointer on the first click (off for headless runs).</summary>
+    /// <summary>Capture the pointer for play and on a refocusing click (off for headless runs).</summary>
     public bool CapturePointer { get; set; } = true;
 
     /// <summary>
@@ -49,10 +68,98 @@ public partial class PlayInput : Node
 
     public bool IsCaptured => OpenScctGame.Controls.Pointer.Mode == global::Godot.Input.MouseModeEnum.Captured;
 
+    public override void _Process(double delta)
+    {
+        if (_traceInput && Time.GetTicksMsec() >= _traceAt)
+        {
+            _traceAt = Time.GetTicksMsec() + 1000;
+            var pc = Controller?.Invoke();
+            GD.Print($"SVM_INPUT enabled={Enabled} captured={IsCaptured} focus={GetWindow().HasFocus()} pendingCapture={_captureOnStart} gui={GetViewport().GuiGetFocusOwner()?.GetPath()} hover={GetViewport().GuiGetHoveredControl()?.GetPath()} received={_receivedKeys}/{_receivedMotion}/{_receivedButtons} played={_playedKeys}/{_playedMotion} state={pc?.GetStateName()} move={pc?.BT_Up} turn={pc?.aTurn} {InputFocusTrace.Native(GetWindow())}");
+            _receivedKeys = _receivedMotion = _receivedButtons = _playedKeys = _playedMotion = 0;
+        }
+        // HasFocus can remain true after a Windows foreground change. Capturing then routes
+        // buttons to this inactive window without delivering keyboard or raw mouse movement.
+        if (!HasPlayFocus)
+        {
+            if (!_foregroundLost) _activationClickConsumed = false;
+            _foregroundLost = true;
+            if (Enabled && CapturePointer && IsCaptured)
+            {
+                _recaptureOnFocus = true;
+                _captureOnStart = false;
+                Pointer.Release();
+                if (Target is { } target) ClearHeld(target);
+            }
+        }
+        else if (_foregroundLost)
+        {
+            _foregroundLost = false;
+            _eatClickUntilMsec = _activationClickConsumed ? 0 : Time.GetTicksMsec() + RefocusClickMsec;
+            if (_recaptureOnFocus)
+            {
+                _recaptureOnFocus = false;
+                QueueRefocusCapture();
+            }
+        }
+        if (!_captureOnStart) return;
+        if (!Enabled || !CapturePointer || (DisplayServer.GetName() == "headless" && !Pointer.Detached))
+        {
+            _captureOnStart = false;
+            return;
+        }
+        if (_waitForJoinFrame)
+        {
+            _waitForJoinFrame = false;
+            return;
+        }
+        // Request native keyboard focus once after the outgoing scene has left the tree. Capturing
+        // the mouse alone can leave Windows delivering clicks but not keyboard/relative motion.
+        if (_requestJoinFocus)
+        {
+            _requestJoinFocus = false;
+            if (!Pointer.Detached) GetWindow().GrabFocus();
+        }
+        if (!HasPlayFocus) return;
+        CaptureForPlay();
+    }
+
+    private void CaptureForPlay()
+    {
+        _captureOnStart = false;
+        _recaptureOnFocus = false;
+        GetViewport().GuiReleaseFocus();
+        // Reapply capture even if Godot still remembers Captured across a native focus change.
+        Pointer.Release();
+        Pointer.Capture();
+    }
+
+    private void QueueRefocusCapture()
+    {
+        // Let Windows finish activation and the activating click before changing native capture.
+        // Releasing/reacquiring capture inside that click can race its own native capture cleanup.
+        _requestJoinFocus = false;
+        _waitForJoinFrame = true;
+        _captureOnStart = true;
+    }
+
     public override void _UnhandledInput(InputEvent @event)
     {
         if (!Enabled || Bindings is null)
         {
+            return;
+        }
+
+        if (RequireCapture && !HasPlayFocus)
+        {
+            if (CapturePointer && @event is InputEventMouseButton { Pressed: true } activation)
+            {
+                _eatenButton = activation.ButtonIndex;
+                _activationClickConsumed = true;
+                _eatClickUntilMsec = 0;
+                if (!Pointer.Detached) GetWindow().GrabFocus();
+                QueueRefocusCapture();
+                GetViewport().SetInputAsHandled();
+            }
             return;
         }
 
@@ -70,15 +177,18 @@ public partial class PlayInput : Node
             {
                 _eatClickUntilMsec = 0;
                 _eatenButton = refocus.ButtonIndex;
+                _activationClickConsumed = true;
+                // Restore play after the native activation event has finished, but never execute this click.
+                if (CapturePointer && !IsCaptured) QueueRefocusCapture();
             }
 
             GetViewport().SetInputAsHandled();
             return;
         }
 
-        if (@event is InputEventMouseButton { Pressed: false } eatenRelease && eatenRelease.ButtonIndex == _eatenButton)
+        if (@event is InputEventMouseButton eatenRelease && eatenRelease.ButtonIndex == _eatenButton)
         {
-            _eatenButton = MouseButton.None;
+            if (!eatenRelease.Pressed) _eatenButton = MouseButton.None;
             GetViewport().SetInputAsHandled();
             return;
         }
@@ -87,7 +197,8 @@ public partial class PlayInput : Node
         {
             if (CapturePointer && @event is InputEventMouseButton { Pressed: true })
             {
-                OpenScctGame.Controls.Pointer.Mode = global::Godot.Input.MouseModeEnum.Captured;
+                _eatenButton = ((InputEventMouseButton)@event).ButtonIndex;
+                QueueRefocusCapture();
                 GetViewport().SetInputAsHandled();
             }
 
@@ -99,6 +210,8 @@ public partial class PlayInput : Node
 
     private void Read(InputEvent @event)
     {
+        if (_traceInput && @event is InputEventKey) _playedKeys++;
+        if (_traceInput && @event is InputEventMouseMotion) _playedMotion++;
         switch (@event)
         {
             case InputEventMouseMotion motion:
@@ -121,6 +234,8 @@ public partial class PlayInput : Node
     /// <summary>Frees the pointer and releases every held key.</summary>
     public void ReleasePointer()
     {
+        _captureOnStart = false;
+        _recaptureOnFocus = false;
         OpenScctGame.Controls.Pointer.Mode = global::Godot.Input.MouseModeEnum.Visible;
         if (Target is { } target)
         {
@@ -277,6 +392,8 @@ public partial class PlayInput : Node
         _down.Clear();
         _pending.Clear();
         _pressedSinceTick.Clear();
+        _mouseX = 0f;
+        _mouseY = 0f;
         input.Clear();
         input.Commands.Add(new InputCommand("SetWalk", 0));
         input.Commands.Add(new InputCommand("SetScope", 0));
@@ -313,11 +430,23 @@ public partial class PlayInput : Node
     {
         if (what == NotificationWMWindowFocusOut && Target is { } target)
         {
+            _activationClickConsumed = false;
+            _recaptureOnFocus |= Enabled && CapturePointer && IsCaptured;
+            _captureOnStart = false;
+            // The native window has lost capture. Keep Godot's requested mode in sync, otherwise
+            // clicking the inactive window can deliver buttons without restoring normal input.
+            if (_recaptureOnFocus) Pointer.Release();
+            _eatenButton = MouseButton.None;
             ClearHeld(target);
         }
         else if (what == NotificationWMWindowFocusIn)
         {
-            _eatClickUntilMsec = Time.GetTicksMsec() + RefocusClickMsec;
+            _eatClickUntilMsec = _activationClickConsumed ? 0 : Time.GetTicksMsec() + RefocusClickMsec;
+            if (_recaptureOnFocus)
+            {
+                _recaptureOnFocus = false;
+                QueueRefocusCapture();
+            }
         }
     }
 }

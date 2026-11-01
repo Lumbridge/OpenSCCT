@@ -14,6 +14,60 @@ namespace OpenScct.Game.Tests.Combat;
 /// </summary>
 public sealed class LaserOriginTests
 {
+    private sealed class ShotRecorder : IHitZones
+    {
+        public (FVector Start, FVector End) Ray;
+
+        public BoneTraceResult TraceBone(Actor shooter, FVector end, FVector start, bool realFire)
+        {
+            Ray = (start, end);
+            return new BoneTraceResult { Actor = shooter.XLevel.Info, HitLocation = end };
+        }
+    }
+
+    [Theory]
+    [InlineData(false, false)]
+    [InlineData(false, true)]
+    [InlineData(true, false)]
+    [InlineData(true, true)]
+    public void TogglingLaserDoesNotMoveTheBulletRay(bool spy, bool crouched)
+    {
+        var scene = new CombatScene();
+        var recorder = new ShotRecorder();
+        scene.Level.SetService<IHitZones>(recorder);
+        var (pc, pawn) = scene.Player(spy, new FVector(100f, 200f, 300f));
+        pawn.bIsCrouched = crouched;
+        pc.Rotation = pc.MyDesiredRotation = new FRotator(-2000, 9000, 0);
+        if (spy)
+        {
+            var pistol = scene.Give(new SStickyShocker(), pawn);
+            pistol.GiveTo(pawn);
+            var frame = CombatServices.Ports(pistol).BoneCoords(pistol, SWeaponDefense.FxBone);
+            pistol.bLaserOn = false;
+            pistol.TraceFireWithPos(frame.Origin, frame.XAxis.Rotation(), 0f, 0f, 0f);
+            var without = recorder.Ray;
+            Assert.NotEqual(default, without.Start);
+            pistol.bLaserOn = true;
+            frame = CombatServices.Ports(pistol).BoneCoords(pistol, SWeaponDefense.FxBone);
+            pistol.TraceFireWithPos(frame.Origin, frame.XAxis.Rotation(), 0f, 0f, 0f);
+            Assert.Equal(without, recorder.Ray);
+        }
+        else
+        {
+            var rifle = scene.Give(new SWeaponDefense(), pawn);
+            rifle.GiveTo(pawn);
+            rifle.AccurateRotation = pc.MyDesiredRotation;
+            var merc = (SPAWNDEFENSE)pawn;
+            merc.bLaserOn = false;
+            rifle.TraceFire(0f, 0f, 0f);
+            var without = recorder.Ray;
+            Assert.NotEqual(default, without.Start);
+            merc.bLaserOn = true;
+            rifle.TraceFire(0f, 0f, 0f);
+            Assert.Equal(without, recorder.Ray);
+        }
+    }
+
     [Fact]
     public void TheLaserLeavesTheHandThirtyForwardFourLeftEightUp()
     {

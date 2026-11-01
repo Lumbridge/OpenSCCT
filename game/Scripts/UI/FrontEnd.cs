@@ -62,6 +62,8 @@ public static class FrontEnd
     /// <summary>The Account page (sign in with Discord, the account's name, stats and achievements).</summary>
     public static AccountScreen ShowAccount(SceneTree tree) => Show(tree, new AccountScreen());
 
+    public static StatsScreen ShowStats(SceneTree tree) => Show(tree, new StatsScreen());
+
     /// <summary>Achievements (OpenSCCT's own): every achievement, what to do and what it unlocks.</summary>
     public static AchievementsScreen ShowAchievements(SceneTree tree) => Show(tree, new AchievementsScreen());
 

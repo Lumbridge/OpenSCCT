@@ -234,3 +234,7 @@ stateDiagram-v2
 - Exact `UpdateDesiredRotation` replication cadence while scoped (netcode spec).
 - Confirm that a remote client's scope stays open when shot on a dedicated server (trace: shoot a scoped remote merc
   with the rifle and watch his `bBinocularVision` and FOV).
+
+## OpenSCCT scoped reload movement
+
+Scoped reloads retain the scope's slow walking controls and jump restriction. Firing and zoom remain blocked until the reload completes.

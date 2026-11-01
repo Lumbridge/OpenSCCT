@@ -112,7 +112,7 @@ public sealed class MercHudPage : HudPage
             DrivePerturbation(s);
         }
 
-        DriveDroplets(s);
+        DriveDroplets(s, dt);
         DriveStickyShock(s);
         DrivePosture(s);
         DriveFlash(s);
@@ -247,7 +247,7 @@ public sealed class MercHudPage : HudPage
     }
 
     /// <summary>Droplets (rule 16): loop while wet; leaving the water plays the outro from frame 50, then hides.</summary>
-    private void DriveDroplets(HudSnapshot s)
+    private void DriveDroplets(HudSnapshot s, float dt)
     {
         MagmaNode? tampon = Area("gouttes");
         MagmaNode? a = tampon?.Find("Gouttes");
@@ -266,7 +266,9 @@ public sealed class MercHudPage : HudPage
         }
         else if (a.Playing && a.Frame < DropletOutro)
         {
-            if (a.Visible && a.Frame >= DropletOutroFrom)
+            // The frame-45 action jumps straight back to 0 inside Tick, before the next Drive can see it.
+            // Catch the crossing before advancing the clock so a dry pawn can reach the outro instead.
+            if (a.Visible && a.FrameF + dt * a.Area.FrameRate >= DropletOutroFrom)
             {
                 a.SetFrame(DropletOutro);
                 a.Playing = true;
@@ -408,21 +410,17 @@ public sealed class MercHudPage : HudPage
         };
         MagmaNode? area = inner?.FindArea(name);
         bool custom = Options.Crosshair.Custom;
-        if (area is { Visible: false } && !custom)
-        {
-            area.SetVisible(true);
-        }
-
         if (!reticule.Visible)
         {
             reticule.SetVisible(true);
-            // The weapon reticles the init hid stay hidden when the instance's children follow it.
-            foreach (MagmaNode r in inner?.Children ?? [])
-            {
-                r.SetVisible(ReferenceEquals(r, area) && !custom);
-            }
-
             DriveArrowsHidden(reticule);
+        }
+
+        // A swap can leave the parent visible throughout. Always clear the previous weapon's
+        // reticle, including when switching to a custom crosshair, after showing the parent.
+        foreach (MagmaNode r in inner?.Children ?? [])
+        {
+            r.SetVisible(ReferenceEquals(r, area) && !custom);
         }
 
         if (area is not null)
@@ -430,11 +428,6 @@ public sealed class MercHudPage : HudPage
             area.SetFrame(Math.Max(0, s.ReticleFrame));
             area.Playing = false;
             _spreadUnits = SpreadUnits(area);
-            // The custom crosshair replaces the weapon reticle's lines; the sound arrows around them stay.
-            if (custom && area.Visible)
-            {
-                area.SetVisible(false);
-            }
         }
 
         if (inner is not null)

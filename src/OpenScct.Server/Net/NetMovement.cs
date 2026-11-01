@@ -741,6 +741,7 @@ public sealed partial class NetMovementBridge : IMovementNet, IMoveEndpointSourc
     /// <summary>ServerPlayLandingSound is the pawn's function: it goes on the pawn's channel.</summary>
     public void ServerPlayLandingSound(SPlayerController PC)
     {
+        if (PC.XLevel.World.IsReplaying) return;
         if (PC.Pawn is { } pawn)
         {
             _driver.ProcessRemoteFunction(pawn, nameof(ServerPlayLandingSound), _args.Clear());

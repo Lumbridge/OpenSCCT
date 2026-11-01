@@ -28,17 +28,21 @@ public static partial class RenderK
 
     /// <summary>
     /// Night vision draws its scene with a light boost: the pre-render step sets the render interface's byte at +0xC to
-    /// 30 for RendMap 34 (int(SquintingFactor x 28) otherwise, 0 in play). For a lightmapped surface EnableLighting puts
+    /// 30 for RendMap 34 (int(SquintingFactor x 28) in normal vision). For a lightmapped surface EnableLighting puts
     /// the byte halved (15) into the texture factor and ADDs it to the lightmap stage, which the diffuse stage modulates
     /// 2x, so the light term grows by 2 x 15 / 255. Pawns and vertex-lit meshes take the same: with this value on every
     /// lit surface and no glow gate (the night pass reads the scene before the glow composite) the twelve SteeE night
     /// captures match at median SSIM 0.948 (4 x 4 blocks) and luma ratio 1.01, and the spy at the spawn reads 4 / 7 / 31
-    /// (10th, 50th, 90th percentile of green) as in the game; the actor path's own use of the byte is not decoded.
+    /// (10th, 50th, 90th percentile of green) as in the game; the actor path also adds the halved byte (SetAmbientLight game 0x10979380).
     /// </summary>
     [Provenance(ProvenanceKind.Decoded, "pre-render 0x10a0af70: RI+0xC = 0x1E for RendMap 34")]
     [Provenance(ProvenanceKind.Decoded, "editor RenderingModeNormal::EnableLighting 0x10f2a010, FD3DRenderInterface::SetSimpleMaterial 0x10f38d30: TFACTOR = byte >> 1, stage 0 ADD(lightmap, TFACTOR)")]
     [Provenance(ProvenanceKind.Measured, "SteeE night captures (tools/golden capture_game.py --rendmap 34): the same term on actors and vertex-lit meshes")]
     public const float NightSceneBoost = 2f * (30 >> 1) / 255f;
+
+    /// <summary>The merc's adaptation, quantized as the original render interface byte and halved D3D ambient.</summary>
+    [Provenance(ProvenanceKind.Decoded, "game 0x10a0af70: int(SquintingFactor * 28); SetAmbientLight 0x10979380: byte >> 1; Modulate2X")]
+    public static float SquintSceneBoost(float factor) => 2f * ((int)(Mathf.Clamp(factor, 0f, 0.4f) * 28f) >> 1) / 255f;
 
     // ---- thermal ---------------------------------------------------------------------------------------------
 
@@ -112,9 +116,10 @@ public static partial class RenderK
     [Provenance(ProvenanceKind.Decoded, "UGameEngine::Draw clear colour by RendMap, 0x109ec4c2..0x109ec530")]
     public static readonly Color EmfClear = new(1f, 0xDA / 255f, 0x85 / 255f);
 
-    /// <summary>The environment map lookup by camera-space reflection: uv = 0.25 R.xy + 0.5.</summary>
-    [Provenance(ProvenanceKind.Estimated, "bridge M_PP_EMF (camera-space reflection texgen; the texture matrix is not decoded)")]
-    public const float EmfReflectionScale = 0.25f;
+    /// <summary>The EMF environment's D3D texture matrix, applied to camera-space reflection.</summary>
+    [Provenance(ProvenanceKind.Decoded, "RenderingModeEMF init game 0x1097766d..0x109776e5; rows (.25,0,0,0),(.25,.5,0,0),(0,0,1,0),(.5,.5,0,1)")]
+    public static Vector2 EmfReflectionUv(Vector3 reflection) =>
+        new(0.25f * (reflection.X + reflection.Y) + 0.5f, 0.5f * reflection.Y + 0.5f);
 
     /// <summary>EMFOpacity below this draws translucent; 0 hides the actor.</summary>
     [Provenance(ProvenanceKind.Decoded, "bridge docs/VISION_MODES.md (EMFOpacity rules)")]

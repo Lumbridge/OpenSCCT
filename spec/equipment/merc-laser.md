@@ -127,7 +127,21 @@ stateDiagram-v2
 | Aimed rifle FX bone from the eye | 65.4 forward, 11.1 right, 13.0 down; X axis 95 units down, 190 left of the aim | uu, units | measured | rule 9a |
 | Message id on mark | SGameMessages 60, team 1 | | decoded | ThrowSpyBullet |
 
+## Beam animation
+
+The beam body's `SGameplayObjectsTex.LaserBeamShader` has Diffuse `pan_laserbeam`: a `TexPanner` with
+`PanRate = -0.05` and `PanDirection = (0,0,0)`. Its U offset is `frac(TimeSeconds * -0.05)` (one cycle per
+20 seconds). The second section's `lasebeam2fin` uses the stationary `Laserbeam2` texture. The client applies
+the body's pan at interpolated scene time to both its additive colour and thermal-mask passes.
+
+The local beam uses the weapon's current drawn `FX` pose, including movement and action channels. A fixed neutral
+idle pose calibrates the sight; jumps and reloads rotate it with the barrel rather than keeping its end at the
+screen centre. Both its calibration trace and muzzle use the same interpolated camera frame. Mixing the
+simulation eye/desired rotation with the drawn weapon caused sidearm laser jitter between ticks. This visual
+placement does not change the simulation's shot or spy-marking traces.
+
 ## Network
+
 - Owning client: key, `Use`, `EteintLaser`/`RallumeLaserEteint`, marking decision (`ThrowSpyBullet` is sent by the
   merc's client, so marking is client-decided).
 - Server: `TorcheON`, `TorcheOFF`, `ThrowSpyBullet` (reliable `Role < ROLE_Authority`), `HitBySpyBullet`, expiry.

@@ -24,12 +24,14 @@ public partial class AlternateModePanel : PanelContainer
     private readonly CheckBox[,] _gadgets = new CheckBox[2, AlternateRules.GadgetOptions];
     private readonly SpinBox[] _slots = new SpinBox[2];
     private AlternateRules _rules;
+    private readonly AlternateRules _original;
 
     /// <param name="rules">The values the page opens with.</param>
     /// <param name="editable">The host may change them (OK then gives them back through <paramref name="ok"/>).</param>
     public AlternateModePanel(AlternateRules rules, bool editable, Action<AlternateRules>? ok)
     {
         _rules = rules;
+        _original = rules;
         _editable = editable;
         _ok = ok;
         Name = "AlternateMode";
@@ -86,7 +88,7 @@ public partial class AlternateModePanel : PanelContainer
             buttons.AddChild(ok);
         }
 
-        Button close = UiStyle.MenuButton(_editable ? "Cancel" : "Close", QueueFree, "AlternateClose");
+        Button close = UiStyle.MenuButton(_editable ? "Cancel" : "Close", RequestClose, "AlternateClose");
         close.CustomMinimumSize = new Vector2(160f, 40f);
         buttons.AddChild(close);
         column.AddChild(buttons);
@@ -160,6 +162,24 @@ public partial class AlternateModePanel : PanelContainer
     {
         Name = name, Text = caption, Disabled = !_editable, FocusMode = _editable ? FocusModeEnum.All : FocusModeEnum.None,
     };
+
+    public override void _UnhandledKeyInput(InputEvent @event)
+    {
+        if (@event is not InputEventKey { Pressed: true, Echo: false, Keycode: Key.Escape }) return;
+        GetViewport().SetInputAsHandled();
+        RequestClose();
+    }
+
+    private void RequestClose()
+    {
+        if (_editable && _rules != _original)
+            ConfirmBox.Open(this, new ConfirmBox
+            {
+                Question = "Discard unapplied alternate rules?", YesCaption = "Discard",
+                NoCaption = "Keep editing", Yes = QueueFree,
+            });
+        else QueueFree();
+    }
 
     private void Change(AlternateRules next)
     {

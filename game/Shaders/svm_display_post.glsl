@@ -71,7 +71,11 @@ void main() {
 		}
 	}
 
-	if ((stage & 4) != 0 && p.gate.x > 0.5) {
+	if ((stage & 4) != 0 && mode == 38) {
+		// 0x109678b0: ZERO / INVSRCCOLOR turns the exterior EMF halo dark before inversion.
+		vec2 uv = (vec2(xy) + 0.5) / vec2(size);
+		c *= 1.0 - texture(glow_texture, uv).rgb;
+	} else if ((stage & 4) != 0 && p.gate.x > 0.5) {
 		// ps_1_1 0x10c4ea78: mad r0, gate, scene, glow, written to an 8-bit target.
 		c *= clamp(p.gate.y * (dot(c, p.gate_luma.rgb) - p.gate.z), 0.0, 1.0);
 		if (p.gate.w > 0.5) {

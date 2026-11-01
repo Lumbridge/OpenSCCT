@@ -81,10 +81,18 @@ public partial class BriefingPanel : PanelContainer
         _flip!.Text = Page == 0 ? "Next" : "Previous";
     }
 
+    public override void _UnhandledKeyInput(InputEvent @event)
+    {
+        if (@event is not InputEventKey { Pressed: true, Echo: false, Keycode: Key.Escape }) return;
+        GetViewport().SetInputAsHandled();
+        QueueFree();
+    }
+
     private TextureRect Picture() => new()
     {
         Name = "Picture", Texture = _picture, CustomMinimumSize = new Vector2(320f, 240f), ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
-        StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered, SizeFlagsVertical = SizeFlags.ShrinkBegin,
+        StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered, SizeFlagsVertical = SizeFlags.ExpandFill,
+        SizeFlagsHorizontal = SizeFlags.ExpandFill, SizeFlagsStretchRatio = 0.7f,
     };
 
     private static Label Words(string name, string text) => new()

@@ -45,7 +45,7 @@ from typing import IO, Callable, Iterable, Iterator, Sequence
 
 MAX_BYTES = 5 * 1024 * 1024
 MAX_ART_BYTES = 64 * 1024 * 1024
-ART_PREFIX = "content/assets/sidearms/"
+ART_PREFIX = ("content/assets/sidearms/", "content/assets/weapons/")
 ART_MANIFEST = "tools/ci/asset-provenance.json"
 HEAD_BYTES = 8192
 
@@ -461,6 +461,8 @@ def load_art_manifest(data: bytes) -> dict[str, dict]:
         assets = manifest["assets"]
         if manifest["credits"] != "content/assets/sidearms/CREDITS.txt" or not manifest["license"] or not isinstance(assets, dict):
             raise ValueError("missing credits, license or asset table")
+        if any(path.startswith("content/assets/weapons/") for path in assets) and "content/assets/weapons/CREDITS.txt" not in manifest.get("additional_credits", []):
+            raise ValueError("weapon assets require their own credits")
         for path, item in assets.items():
             if (not path.startswith(ART_PREFIX) or ".." in PurePosixPath(path).parts or
                     not re.fullmatch(r"[0-9a-f]{64}", item["sha256"]) or

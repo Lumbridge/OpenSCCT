@@ -104,6 +104,13 @@ def test_reference_install(tmp_path: Path):
     assert beton == "sfx.Impacts.decal_beton"
     assert (tmp_path / doc["textures"][beton]["png"]).is_file()
 
+    # The armed proximity mine alternates its red light and dark frame at the source's 2 FPS.
+    light = doc["textures"]["SGameplayObjectsTex.Object.proxy_mine_On"]["material"]
+    assert light["translucent"]
+    assert light["flipbook"]["frames"] == 2
+    assert light["flipbook"]["fps"] == 2.0
+    assert (tmp_path / light["flipbook"]["texture"]).is_file()
+
     # The Stickess skins of a shocked pawn: the body diffuse with the panned sticky glow over it.
     skins = doc["skins"]
     assert sorted(skins) == sorted(effects.STICKY_SKINS)

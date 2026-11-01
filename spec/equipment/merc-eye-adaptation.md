@@ -3,8 +3,7 @@
 Units:
 - nat:SBase.SPlayerController.NativeComputeSquinting
 
-This page records the merc's squint value (computed, but with no visible effect) and why the rewrite draws no
-merc eye adaptation.
+This page records the merc's squint value and its quantized contribution to scene lighting.
 
 ## Purpose
 Ryan asked for the merc's normal view (RendMap 5, no torch, no vision mode) to get brighter over time while he
@@ -29,9 +28,13 @@ original game. Neither shows such a rule.
      `0.15 + 0.25 (D - 1)` (at most 0.4).
    Its only reader is the scene pre-render (game 0x10a0af70): in `RendMap` 5, when `SquintingFactor` is not 0, the
    render interface's light byte (+0xC) becomes `int(SquintingFactor x 28)`. Night vision sets the same byte to 30
-   together with the interface's night flag (+4); RendMap 5 sets no flag, and the measurements below (a still merc
-   in the dark for 120 s, where the factor reaches 0.4) show no brightening, so the byte has no visible effect
-   there. The rewrite keeps the value in the simulation and draws nothing from it.
+   together with the interface's night flag (+4). `RenderingModeNormal::SetAmbientLight` (game 0x10979380)
+   adds the halved byte even without that flag; the diffuse Modulate2X stage restores twice that value.
+   The renderer therefore adds `2 * (int(SquintingFactor * 28) >> 1) / 255` in normal vision, reaching `10/255`.
+   The earlier whole-frame measurements below did not isolate this small actor-light contribution and are not
+   evidence that the byte has no effect. A 2026-10-31 AquaE weapon-draw probe observed zero actor ambient,
+   render-interface byte 11 and resulting D3D ambient `0xff050505` (local/viewmodel-light/runtime-evidence.json).
+
 
 ## Evidence
 - Script: no SBase, Engine or GUI class reads time standing still, writes a brightness, gamma, contrast or
@@ -57,6 +60,6 @@ original game. Neither shows such a rule.
   frames, but the ramp only follows the settings above.
 - Tools: local/merc-kit/eye_capture.py (sandbox capture), results in local/merc-kit/eye1 and local/merc-kit/eye.
 
-## Open questions
-- If Ryan remembers a specific map, mode or setting (for example a Reloaded option, a fullscreen run, or his own eyes
-  getting used to a dark screen), capture that case the same way before porting anything.
+## Validation limits
+The runtime probe establishes the actor ambient path. The older whole-frame measurements above do not establish
+pixel-identical adaptation across every surface/material path.

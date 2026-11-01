@@ -172,6 +172,8 @@ public sealed class HudSmoke : SmokeTest
         _scene = new Scene();
         _viewer = _scene.SpyPc;
         HudAssets assets = _layer.Assets!;
+        CheckReticleSwaps(assets);
+        CheckScopeLayout(assets);
         var reader = new HudSimReader(() => _viewer, (section, key, fallback) => assets.Localize("MagmaDynamic", section, key, fallback), _layer.Effects);
         _layer.Source = new Composite(reader, s => _extra?.Invoke(s));
         _layer.Controller = () => _viewer;
@@ -187,6 +189,38 @@ public sealed class HudSmoke : SmokeTest
         context.Tree.Root.AddChild(_chat);
         _layer.AddOverlay(_chat);
         return SmokeResult.Running;
+    }
+
+    private void CheckScopeLayout(HudAssets assets)
+    {
+        var options = new HudOptions { SliceExtras = false };
+        var page = new MercBinocularsPage(assets, options);
+        var snapshot = new HudSnapshot { Valid = true, Side = HudSide.Merc };
+        snapshot.Binoculars.Mode = HudBinocularMode.Merc;
+        snapshot.Binoculars.Fov = 30f;
+        page.Enter();
+        page.Update(snapshot, 0f);
+        foreach (Vector2 screen in new[] { new Vector2(640, 480), new Vector2(2560, 1440), new Vector2(3440, 1440) })
+        {
+            page.Draw(screen, snapshot);
+            float scale = screen.Y / 480f;
+            MagmaDrawItem? ring = page.DrawList.Find("frame/border");
+            Expect(ring is { Points.Length: 4 } &&
+                Math.Abs((ring.Points[1].X - ring.Points[0].X) - (ring.PageRect.R - ring.PageRect.L) * scale) < 0.01f,
+                $"scope ring keeps height-based width at {screen}");
+            Expect(page.DrawList.Find("ZoomDef/zoomValue") is { XScale: 1f }, $"scope text is unstretched at {screen}");
+            MagmaDrawItem? axis = page.DrawList.Find("ZoomDef/horizontalAxis");
+            Expect(axis is { Points.Length: 4 } && axis.Points[0].X <= 0 && axis.Points[1].X >= screen.X,
+                $"scope axis covers viewport at {screen}");
+            Vector2 target = screen * 0.5f + new Vector2(30f * scale, 12f * scale);
+            Vector2? aim = HudBinocularPages.AimPoint(default(FVector), _ => target, screen);
+            Expect(aim is { } p && p.DistanceTo(new Vector2(350, 252)) < 0.01f,
+                $"scope projection matches centred optics at {screen}");
+        }
+        options.StretchHud = true;
+        page.Draw(new Vector2(2560, 1440), snapshot);
+        Expect(page.DrawList.Find("ZoomDef/zoomValue") is { XScale: > 1f }, "legacy stretched scope remains available");
+        GD.Print("SVM_HUD scope layout checks completed");
     }
 
     private void Run(int frames)
@@ -398,6 +432,40 @@ public sealed class HudSmoke : SmokeTest
 
     // ---- merc page ------------------------------------------------------------------------------------------
 
+    private void CheckReticleSwaps(HudAssets assets)
+    {
+        var merc = new MercHudPage(assets);
+        var snap = new HudSnapshot { Valid = true, HasPawn = true, HasWeapon = true, ShowReticle = true };
+        merc.Update(snap, 0f);
+        // Weapon changes need not produce a hidden frame between the primary and sidearm.
+        foreach (HudWeaponKind kind in new[] { HudWeaponKind.Uzi, HudWeaponKind.Rifle, HudWeaponKind.Shotgun, HudWeaponKind.Rifle })
+        {
+            snap.WeaponKind = kind;
+            merc.Update(snap, 0f);
+            MagmaNode selected = merc.Area("Reticule/Reticule")!;
+            string expectedArea = kind switch
+            {
+                HudWeaponKind.Uzi => MercHudPage.UziReticleArea,
+                HudWeaponKind.Shotgun => MercHudPage.ShotgunReticleArea,
+                _ => MercHudPage.ReticleArea,
+            };
+            Expect(selected.Children.Count(c => c.Visible) == 1 && selected.FindArea(expectedArea) is { Visible: true },
+                $"only {kind} reticle visible after a weapon swap without a hidden frame");
+        }
+        merc.Options.Crosshair.Custom = true;
+        merc.Update(snap, 0f);
+        Expect(merc.Area("Reticule/Reticule")!.Children.All(c => !c.Visible), "custom crosshair hides all stock reticles after swapping");
+        merc.Options.Crosshair.Custom = false;
+        snap.WeaponKind = HudWeaponKind.Rifle;
+        merc.Update(snap, 0f);
+        Expect(merc.Area("Reticule/Reticule")!.Children.Count(c => c.Visible) == 1,
+            "stock reticle restored after disabling custom crosshair");
+        if (_failures.Count == 0)
+        {
+            GD.Print("SVM_HUD reticle swaps OK");
+        }
+    }
+
     private void CheckMerc()
     {
         HudLayer layer = _layer!;
@@ -573,6 +641,10 @@ public sealed class HudSmoke : SmokeTest
         s.MercPc.bBinocularVision = true;
         s.MercPc.GotoState(new Name("s_Binoculars_Def"));
         Expect(s.MercPc.IsInState(new Name("s_Binoculars_Def")), $"merc in s_Binoculars_Def ({s.MercPc.GetStateName()})");
+        // This fixture steps only the HUD. Complete the weapon raise explicitly;
+        // scope-lifecycle covers the real timed transition and weapon visibility.
+        s.Rifle.ViewAnim.Stop(SWeaponDefense.SNIPECHANNEL);
+        s.Rifle.eventAnimEnd(SWeaponDefense.SNIPECHANNEL);
         s.MercPc.fBinocularVisionFOV = 30f;
         s.MercPc.BinocularHoldBreathTime = 2.5f;
         s.MercPc.bHoldBreath = 0;

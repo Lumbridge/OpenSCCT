@@ -124,6 +124,7 @@ public abstract partial class Actor
         SDamageType DamageType, int PillTag = 0)
     {
         if (XLevel?.World.IsReplaying == true) return;
+        using var clock = WorldEventTime();
         if (StateNode is ITakeDamage s)
         {
             s.TakeDamage(this, Damage, EventInstigator, HitLocation, Momentum, DamageType, PillTag);

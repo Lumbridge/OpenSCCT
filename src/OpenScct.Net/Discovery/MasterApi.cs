@@ -500,6 +500,9 @@ public sealed record AccountInfo
 
     public AccountStats Stats { get; init; } = new();
 
+    /// <summary>Uncapped career counters; null when connected to a master predating detailed stats.</summary>
+    public CareerStats? Career { get; init; }
+
     public IReadOnlyList<AchievementInfo> Achievements { get; init; } = [];
 
     /// <summary>The cosmetics the earned achievements unlock (OpenScct.Net.Cosmetics.CosmeticCatalog ids).</summary>
@@ -578,6 +581,22 @@ public sealed record XpAward
 
     /// <summary>Titles unlocked by that round.</summary>
     public IReadOnlyList<string> NewTitles { get; init; } = [];
+}
+
+public sealed record CareerStats
+{
+    public IReadOnlyDictionary<string, int> Feats { get; init; } = new Dictionary<string, int>();
+
+    public IReadOnlyList<MapCareerStats> Maps { get; init; } = [];
+}
+
+public sealed record MapCareerStats
+{
+    public string Map { get; init; } = string.Empty;
+
+    public int SpyWins { get; init; }
+
+    public int MercWins { get; init; }
 }
 
 public sealed record AccountStats

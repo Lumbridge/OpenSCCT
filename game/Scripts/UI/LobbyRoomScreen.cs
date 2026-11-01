@@ -681,11 +681,12 @@ public partial class LobbyRoomScreen : MenuPage
         if (JoinMercButton is not null)
         {
             bool locked = local is null || (local.Ready && !control) || s.Launching;
-            SwitchTeamButton.Disabled = locked || local?.Side == HudSide.Spy || s.Setup.Mode == OpenScct.Core.EGameMode.GM_MercDeathMatch;
+            SwitchTeamButton.Disabled = locked || s.Setup.Mode == OpenScct.Core.EGameMode.GM_MercDeathMatch;
+            _joinSpiesButton!.Disabled = locked || local?.Side == HudSide.Spy || s.Setup.Mode == OpenScct.Core.EGameMode.GM_MercDeathMatch;
             JoinMercButton.Disabled = locked || local?.Side == HudSide.Merc;
             SpectateButton.Disabled = locked || local?.Side is null;
         }
-        if (_rulesButton is not null) _rulesButton.Text = control ? "Edit match settings" : "View rules";
+        if (_rulesButton is not null) _rulesButton.Text = "Session Options";
         if (_draftStatus is not null)
         {
             _draftStatus.Visible = control && Parameters!.Setup != s.Setup;

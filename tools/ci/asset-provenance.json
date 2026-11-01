@@ -1,5 +1,5 @@
 {
-  "license": "CC-BY-4.0 with original OpenSCCT additions",
+  "license": "CC-BY-4.0 models; CC0-1.0 and CC-BY-3.0 firing audio; original OpenSCCT additions",
   "credits": "content/assets/sidearms/CREDITS.txt",
   "assets": {
     "content/assets/sidearms/automatic-preview.png": {
@@ -31,12 +31,12 @@
       "sha256": "2aa74a9d17c1e9f60b0154720b181f9ae4e3adf5f2a8321d64ea8dc69bbe3770"
     },
     "content/assets/sidearms/export/magnum44.glb": {
-      "bytes": 1059652,
-      "sha256": "b7ea3347cdfd3bd7d8751c029ab5cc4d782747f7b2b366e1229418f8f3a62702"
+      "bytes": 1060556,
+      "sha256": "4d80a04e3935b52abcf6b64bf59305b60ab4f65c87579db16f23f79a121e5ba3"
     },
     "content/assets/sidearms/export/magnum44_loader.glb": {
-      "bytes": 321904,
-      "sha256": "f026d6e750bcdc7ad377c260c96f789be257668d8d15f5d461b2ea02314f9ba6"
+      "bytes": 136120,
+      "sha256": "b2ad5f6b630e2f2a25972b06baa32db1ac645312b4a1d9588107a2765fe41bc5"
     },
     "content/assets/sidearms/export/suppressed.glb": {
       "bytes": 1582724,
@@ -52,7 +52,7 @@
     },
     "content/assets/sidearms/export/textures/magnum44_icon.png": {
       "bytes": 32459,
-      "sha256": "162601c64f8beab718eb75bbcedaec32495cb4957d547f494bebe9208f7de30c"
+      "sha256": "541f7b8b6d2c08ad07e6a74f71132f900bcc5081f63dcd5db59f0b065ca3014e"
     },
     "content/assets/sidearms/export/textures/OpenScctSidearms_arms_arms_baseColor.png": {
       "bytes": 4194179,
@@ -172,11 +172,11 @@
     },
     "content/assets/sidearms/magnum44-preview.png": {
       "bytes": 389200,
-      "sha256": "2946c92c4c7f42547c790c274fafa35f380754c2154153c1a3cd17420fb025be"
+      "sha256": "e06f97c49352f26a2536aac88d06a9f7f67f39f7f168102e0462ea86dc062c95"
     },
     "content/assets/sidearms/magnum44.blend": {
-      "bytes": 12709758,
-      "sha256": "9bcb0a03bb0a52a8b33b6682fd32786acf900ab514e55c574ffaf06c997e5c09"
+      "bytes": 12698922,
+      "sha256": "499d57e08a41bd7542943a93ee329b005ed731f69a20e3bbb87263c3389d1310"
     },
     "content/assets/sidearms/sources/arms/scene.bin": {
       "bytes": 1716736,
@@ -337,6 +337,209 @@
     "content/assets/sidearms/suppressed.blend": {
       "bytes": 8718286,
       "sha256": "c1f9f846ffb430103a03fc4c53b5999f31014995f72704c09654c6828f5b0802"
+    },
+    "content/assets/sidearms/export/textures/OpenScctSidearms_unsuppressed_Material2_baseColor.png": {
+      "bytes": 400681,
+      "sha256": "eb7761b34c2909a68b7ce35657a5c86f3552ccaa7748d86a7ea5f36f9a25dc3d"
+    },
+    "content/assets/sidearms/export/textures/OpenScctSidearms_unsuppressed_Material2_metallicRoughness.png": {
+      "bytes": 1848851,
+      "sha256": "d66117513d4edba74dff09e0d3e752c558e8882a329769c9f0c11d01f4e4ad7c"
+    },
+    "content/assets/sidearms/export/textures/OpenScctSidearms_unsuppressed_Material2_normal.png": {
+      "bytes": 5391593,
+      "sha256": "4251c942c2d2ac10fe4b8cd76901d0b35334bb05c94d7f00b62ebd2a0d8b6ff6"
+    },
+    "content/assets/sidearms/export/textures/OpenScctSidearms_unsuppressed_Material2_specularf0.png": {
+      "bytes": 314485,
+      "sha256": "08d25fd37152642b874307e11d3ce602cf3559587e135f634816aaf12f0e1d11"
+    },
+    "content/assets/sidearms/export/textures/unsuppressed_icon.png": {
+      "bytes": 27580,
+      "sha256": "1907ce98007fa876fb576c1a8dcd07ed77b3e1937ed7c61f2f7df66aa6a4cbb4"
+    },
+    "content/assets/sidearms/export/unsuppressed.glb": {
+      "bytes": 981152,
+      "sha256": "74ee992d3b36d4e3a67dc6fbe580157b71d9ac4484a033a11a30846f731e7c44"
+    },
+    "content/assets/sidearms/unsuppressed-preview.png": {
+      "bytes": 365803,
+      "sha256": "ad49feba30560b5be109fe95a873b3bc48eafed0d58c983123e5aaa7e1dd7fe6"
+    },
+    "content/assets/sidearms/unsuppressed.blend": {
+      "bytes": 8663945,
+      "sha256": "20c732e244b3008adb58bc1866fa778c23ce8fc9cbaa33ae18be8d7c28bfaffb"
+    },
+    "content/assets/sidearms/export/audio/automatic_fire.wav": {
+      "bytes": 46942,
+      "sha256": "38a16fe3f6e091e4c0eaee9351487d8e98cb0cdd7bff91fc35a16cedb3423fc2"
+    },
+    "content/assets/sidearms/export/audio/desert_eagle_fire.wav": {
+      "bytes": 85988,
+      "sha256": "6250e6f1f1850c71f1f2f017174fc40ae2d73b07994e8c6513c0515ff07d6ca7"
+    },
+    "content/assets/sidearms/export/audio/magnum44_fire.wav": {
+      "bytes": 33560,
+      "sha256": "16d213af18ef71ac012945f24a39ad82283d00a71092912b1d5858112e1a1eac"
+    },
+    "content/assets/sidearms/export/audio/suppressed_fire.wav": {
+      "bytes": 57374,
+      "sha256": "6d2dc2b745d021f5f6a9196ec213f62300a7660b0836c5438268e3b0f0affb8f"
+    },
+    "content/assets/sidearms/export/audio/unsuppressed_fire.wav": {
+      "bytes": 30912,
+      "sha256": "8799a47445f607e383a1da252c17227862c9b7121568978bf9ad9332dcd9e807"
+    },
+    "content/assets/sidearms/sources/audio/automatic.mp3": {
+      "bytes": 20039,
+      "sha256": "5920a71459f48c99f3dcb72b4051208a51262b0cf0d223c14460957455cb77fa"
+    },
+    "content/assets/sidearms/sources/audio/desert_eagle.mp3": {
+      "bytes": 76464,
+      "sha256": "bc9833818b781b9ba32d5e1f38d6e44e6709c4f844b046106b1f3c00179f9860"
+    },
+    "content/assets/sidearms/sources/audio/magnum44.mp3": {
+      "bytes": 136200,
+      "sha256": "f8b38c32e90d7f775aff00343ce48ffc47f74546323ae61f03bd5182621e42ed"
+    },
+    "content/assets/sidearms/sources/audio/suppressed.mp3": {
+      "bytes": 65992,
+      "sha256": "2a58ba6bcfe2e5ddead0552bee0bd609bec457edfbdbdf247d6e2bf29575a2d2"
+    },
+    "content/assets/sidearms/sources/audio/unsuppressed.mp3": {
+      "bytes": 47232,
+      "sha256": "4f0e672dc6c53018830d9b738313b8f68d48c409a40d4c8ac0551c96c3775c73"
+    },
+    "content/assets/sidearms/export/audio/automatic_reload.wav": {
+      "bytes": 202904,
+      "sha256": "ff59fd92375fa080f3f68d52d0914c2989c75834b5914a2706988feed1f286fe"
+    },
+    "content/assets/sidearms/export/audio/desert_eagle_reload.wav": {
+      "bytes": 229364,
+      "sha256": "3f1c644860b31dd6d40df51c6d9ef07061b10bbef83cde99baac7dec46f4e03d"
+    },
+    "content/assets/sidearms/export/audio/magnum44_reload.wav": {
+      "bytes": 247004,
+      "sha256": "650f8305bf75f0e7aa6c88c65996e9e8602a45b9130cb8ecfbc1bd07a690ab9a"
+    },
+    "content/assets/sidearms/export/audio/suppressed_reload.wav": {
+      "bytes": 176444,
+      "sha256": "fc088708b201e3532f585dc68663cd14638cc89b062fa58bc01a1aeb4c90af80"
+    },
+    "content/assets/sidearms/export/audio/unsuppressed_reload.wav": {
+      "bytes": 176444,
+      "sha256": "fc088708b201e3532f585dc68663cd14638cc89b062fa58bc01a1aeb4c90af80"
+    },
+    "content/assets/sidearms/sources/audio/pistol_reload.mp3": {
+      "bytes": 27672,
+      "sha256": "7c5e455812f351df786891b6dca7fb304ef04b85c576630025f08399c24e080c"
+    },
+    "content/assets/sidearms/sources/audio/revolver_reload.mp3": {
+      "bytes": 590160,
+      "sha256": "4d50eb8be54b04b832596453291f1b14450c6cc5b185d68c8b1af1b0e81984c1"
+    },
+    "content/assets/sidearms/sources/audio/magnum44_field.wav": {
+      "bytes": 177188,
+      "sha256": "53bd87e23d0c183c827377154775c10ffccef9bd737ea5bd94f0ecd84153a50a"
+    },
+    "content/assets/weapons/export/automatic_fire.wav": {
+      "bytes": 26504,
+      "sha256": "40736a8563bfee021a80cfdfed2496d46ea0689bcb1f2b84c307d1600e688ea3"
+    },
+    "content/assets/weapons/export/automatic_reload.wav": {
+      "bytes": 202904,
+      "sha256": "1a7b5ff0dd4528dddd0610e0fe5d5c9c8e8ce70ec74b3614eec7a89a85b44a86"
+    },
+    "content/assets/weapons/export/desert_eagle_fire.wav": {
+      "bytes": 61784,
+      "sha256": "1bcc4053643c668d208f26292300f85ca5a644183b4180374aaa84e4720106c2"
+    },
+    "content/assets/weapons/export/desert_eagle_reload.wav": {
+      "bytes": 229364,
+      "sha256": "959c88a0a56db22ce51fda8f2238140fee1e761cecaa2960f7f697a174ea5425"
+    },
+    "content/assets/weapons/export/magnum44_fire.wav": {
+      "bytes": 57374,
+      "sha256": "505d1102c6991c14b595c728b127a83f34a33ccdefeffb0be08294f7b90d2a25"
+    },
+    "content/assets/weapons/export/magnum44_reload.wav": {
+      "bytes": 247004,
+      "sha256": "80f0b7890b4bd4958c11401ab31d82e70a6cf79bc3f19e5ca6bbc0234106a228"
+    },
+    "content/assets/weapons/export/rifle_fire.wav": {
+      "bytes": 57374,
+      "sha256": "f26163d8df44152293f19407bccf703d8ec06223ab5c92486401c3d4e4ee70d5"
+    },
+    "content/assets/weapons/export/rifle_reload.wav": {
+      "bytes": 176444,
+      "sha256": "0ac55eb092caead33e10f7c775573a6872fe0fa90004ad07be90a107ad1b1326"
+    },
+    "content/assets/weapons/export/shotgun_fire.wav": {
+      "bytes": 61784,
+      "sha256": "ea6ea57d112b844900c651db8491d43bfb9e8403d5aac3b24a6f5e110ec42bec"
+    },
+    "content/assets/weapons/export/shotgun_pump.wav": {
+      "bytes": 28268,
+      "sha256": "5e11ab1e089f43908a04f3dda7e407098425d6e67e68a4ce55056a3748bb340d"
+    },
+    "content/assets/weapons/export/shotgun_reload.wav": {
+      "bytes": 28268,
+      "sha256": "5b4d6a44fc5595660ed87009f6dc08eddb3eed6b3d69ef537c68e3d3425af401"
+    },
+    "content/assets/weapons/export/shotgun_shell.wav": {
+      "bytes": 21212,
+      "sha256": "e103f8bf4792db68dab8411e42c411ec992b450ec4ef0b181cbf0a4a1a19172f"
+    },
+    "content/assets/weapons/export/suppressed_fire.wav": {
+      "bytes": 33560,
+      "sha256": "42e83598f4f53df587bb571f412ab55c5deb1e25399cfcabb7449addd3add0bf"
+    },
+    "content/assets/weapons/export/suppressed_reload.wav": {
+      "bytes": 176444,
+      "sha256": "50aa31e237033c4271a2727246f08f8baad9de1e47468bbb7b62f09fb11a9fa7"
+    },
+    "content/assets/weapons/export/unsuppressed_fire.wav": {
+      "bytes": 37088,
+      "sha256": "dd9c5d552feb97ee7112af27d2c861331e0bbe388f9201d5ecb6fae5d5f87eec"
+    },
+    "content/assets/weapons/export/unsuppressed_reload.wav": {
+      "bytes": 176444,
+      "sha256": "50aa31e237033c4271a2727246f08f8baad9de1e47468bbb7b62f09fb11a9fa7"
+    },
+    "content/assets/weapons/export/uzi_fire.wav": {
+      "bytes": 26504,
+      "sha256": "9a909977c647c41196a64c17c02fe7cbe56bb29576093e85df86cb84a0f1fc1a"
+    },
+    "content/assets/weapons/export/uzi_reload.wav": {
+      "bytes": 176444,
+      "sha256": "50aa31e237033c4271a2727246f08f8baad9de1e47468bbb7b62f09fb11a9fa7"
+    },
+    "content/assets/weapons/sources/carbine.wav": {
+      "bytes": 1312536,
+      "sha256": "4a8594b3cf3f2bfe49497c4a9ae6301b5c7000f21c7cbcb6650df8f594fce713"
+    },
+    "content/assets/weapons/sources/pump.wav": {
+      "bytes": 83628,
+      "sha256": "33e007321ba83301c861aef573f2c40b70bc62f8f24c0164877e6dd123e24371"
+    },
+    "content/assets/weapons/sources/rifle.wav": {
+      "bytes": 2979538,
+      "sha256": "236b1fbc029dd44efe930c9a75d383a92b2ae72b69a78b44830e449e83da61a4"
+    },
+    "content/assets/weapons/sources/rifle_reload.wav": {
+      "bytes": 274476,
+      "sha256": "efb2d724d634eabe6ba8d3065686abca848bb7497d4d43a5e4aed5e5ea23016f"
+    },
+    "content/assets/weapons/sources/shell.mp3": {
+      "bytes": 51261,
+      "sha256": "47bae369718bfe74979dbc419ee11c561b53a66385c9b0281a0a3d588719ca1e"
+    },
+    "content/assets/weapons/sources/shotgun.wav": {
+      "bytes": 134104,
+      "sha256": "2e4b51fafbc93ea2b9aa0cf2428d6bad6cfa79817f2d0d7aa38c64dc97afa02f"
     }
-  }
+  },
+  "additional_credits": [
+    "content/assets/weapons/CREDITS.txt"
+  ]
 }

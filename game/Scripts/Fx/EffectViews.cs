@@ -720,10 +720,10 @@ public sealed partial class EffectViews : Node3D
 
     /// <summary>
     /// The actor's Skins over its mesh's surfaces as script sets them at run time (SMineProx swaps LightOn and LightOff
-    /// into Skins[1] as it arms, is chaffed and comes back): each slot whose skin is an additive material of the
+    /// into Skins[1] as it arms, is chaffed and comes back): each slot whose skin is an additive or translucent material of the
     /// effects' texture table draws that texture added, unlit; other slots keep the mesh's own material.
     /// </summary>
-    [Provenance(ProvenanceKind.Estimated, "Only additive skins are drawn (the only run-time skins of the effect meshes, SMineProx's proxy_mine_On and proxy_mine_Off_final, are additive Shaders); drawn as their diffuse texture")]
+    [Provenance(ProvenanceKind.Estimated, "Additive and translucent run-time skins are drawn unlit; drawn as their diffuse texture, including exported animation frames")]
     private void ApplySkins(Tracked t, Actor a, MeshInstance3D mesh)
     {
         int slots = Math.Min(a.Skins.Count, mesh.GetSurfaceOverrideMaterialCount());
@@ -735,32 +735,34 @@ public sealed partial class EffectViews : Node3D
         for (int i = 0; i < slots; i++)
         {
             string? path = a.Skins[i].IsNone ? null : a.Skins[i].Path;
+            Material? material = SkinMaterial(path, a.Level.TimeSeconds);
             if (string.Equals(path, t.Skins[i], StringComparison.OrdinalIgnoreCase))
             {
                 continue;
             }
 
             t.Skins[i] = path;
-            mesh.SetSurfaceOverrideMaterial(i, SkinMaterial(path));
+            mesh.SetSurfaceOverrideMaterial(i, material);
         }
     }
 
     private readonly Dictionary<string, Material?> _skinMaterials = new(StringComparer.OrdinalIgnoreCase);
 
-    private Material? SkinMaterial(string? path)
+    internal Material? SkinMaterial(string? path, float time)
     {
-        if (path is null || Library is not { Available: true } lib || !lib.TextureAdditive(path))
+        if (path is null || Library is not { Available: true } lib || (!lib.TextureAdditive(path) && !lib.TextureTranslucent(path)))
         {
             return null;
         }
 
         if (!_skinMaterials.TryGetValue(path, out Material? material))
         {
-            material = lib.Texture(lib.TexturePng(path)) is { } texture
+            material = lib.Texture(lib.AnimationForSkin(path)?.Texture ?? lib.TexturePng(path)) is { } texture
                 ? new StandardMaterial3D
                 {
                     ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded,
                     Transparency = BaseMaterial3D.TransparencyEnum.Alpha,
+                    // UE translucent glow uses screen blending; additive preserves its black-as-transparent background.
                     BlendMode = BaseMaterial3D.BlendModeEnum.Add,
                     AlbedoTexture = texture,
                     CullMode = BaseMaterial3D.CullModeEnum.Disabled,
@@ -769,6 +771,13 @@ public sealed partial class EffectViews : Node3D
             _skinMaterials[path] = material;
         }
 
+        if (material is StandardMaterial3D animated && lib.AnimationForSkin(path) is { } animation)
+        {
+            int frame = (int)(MathF.Max(time, 0f) * animation.Fps) % animation.Frames;
+            animated.Uv1Scale = new Vector3(1f / animation.Columns, 1f / animation.Rows, 1f);
+            animated.Uv1Offset = new Vector3((float)(frame % animation.Columns) / animation.Columns,
+                (float)(frame / animation.Columns) / animation.Rows, 0f);
+        }
         return material;
     }
 

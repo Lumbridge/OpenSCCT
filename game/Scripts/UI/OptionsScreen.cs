@@ -13,6 +13,13 @@ namespace OpenScctGame.UI;
 /// </summary>
 public partial class OptionsScreen : Control
 {
+    public override void _UnhandledKeyInput(InputEvent @event)
+    {
+        if (@event is not InputEventKey { Pressed: true, Echo: false, Keycode: Key.Escape }) return;
+        GetViewport().SetInputAsHandled();
+        FrontEnd.ShowMainMenu(GetTree());
+    }
+
     private readonly Dictionary<string, Button> _keyButtons = new(StringComparer.OrdinalIgnoreCase);
     private KeyBindingsModel? _model;
     private GridContainer? _keys;

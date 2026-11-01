@@ -76,7 +76,7 @@ public partial class HubLoadingScreen : CanvasLayer
             {
                 Name = "Heading", Text = "Entering " + title, HorizontalAlignment = HorizontalAlignment.Center, Modulate = UiStyle.MenuFocus,
             });
-            var picture = new MapThumb(new Vector2(360f, 360f)) { Name = "MapPicture", SizeFlagsHorizontal = SizeFlags.ShrinkCenter };
+            var picture = new MapThumb(new Vector2(360f, 360f), scaleWithViewport: true) { Name = "MapPicture", SizeFlagsHorizontal = SizeFlags.ShrinkCenter };
             picture.SetMap(MapImages.Loading(catalog, Cover.Map, Cover.Merc), title);
             Body.AddChild(picture);
             Body.AddChild(LoadingTip.Label(LoadingTip.Pick(Cover.Merc)));

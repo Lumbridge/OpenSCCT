@@ -156,6 +156,17 @@ public partial class SWeaponDefense_Shotgun
     {
     }
 
+    /// <summary>The centre pellet before spread; matches the shotgun's separate mover and eye rules.</summary>
+    public override (FVector Start, FVector End) AimRay(FRotator rotation)
+    {
+        if (Instigator is not { } shooter) return base.AimRay(rotation);
+        bool still = shooter.Base is Mover { Velocity: var velocity } && velocity.IsZero();
+        FVector eye = still
+            ? shooter.Location + new FVector(0f, 0f, shooter.bIsCrouched ? K.MoverAimCrouched : K.MoverAimStanding)
+            : shooter.Location + new FVector(0f, 0f, shooter.EyeHeight) + shooter.WalkBob;
+        return (still ? eye : GetFireStart(), eye + rotation.Vector() * ShootingRange);
+    }
+
     // ---- the native pellet trace ------------------------------------------------------------------------------
 
     /// <summary>

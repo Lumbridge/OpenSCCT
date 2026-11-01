@@ -131,7 +131,23 @@ public partial class HostScreen : MenuPage
         _status = new Label { Name = "Status", Modulate = UiStyle.MenuFocus, AutowrapMode = TextServer.AutowrapMode.WordSmart };
         Body.AddChild(_status);
 
-        PageButton("Back", () => FrontEnd.ShowMainMenu(GetTree()), "Back");
+        var originalSetup = Model.Setup;
+        var originalPassword = Model.Password;
+        (string, double, string, bool, bool, bool, bool) NetworkDraft() =>
+            (_name.Text, _port.Value, _master.Text, _listed.ButtonPressed, _upnp.ButtonPressed,
+                _requireAccounts.ButtonPressed, _record.ButtonPressed);
+        var originalNetwork = NetworkDraft();
+        void Back()
+        {
+            if (Model.Setup != originalSetup || Model.Password != originalPassword || NetworkDraft() != originalNetwork)
+                ConfirmBox.Open(this, new ConfirmBox
+                {
+                    Question = "Discard changes to the session setup?", YesCaption = "Discard", NoCaption = "Keep editing",
+                    Yes = () => FrontEnd.ShowMainMenu(GetTree()),
+                });
+            else FrontEnd.ShowMainMenu(GetTree());
+        }
+        PageButton("Back", Back, "Back");
         HostButton = PageButton("Create", Host, "Host");
         HostButton.GrabFocus();
     }

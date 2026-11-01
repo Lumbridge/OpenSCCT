@@ -737,11 +737,18 @@ public partial class OptionsMenu : Control
             return;
         }
 
-        if (Overlay && @event is InputEventKey { Pressed: true, Echo: false, Keycode: Key.Escape or Key.F12 })
+        if (Overlay && @event is InputEventKey { Pressed: true, Echo: false, Keycode: Key.F12 })
         {
             GetViewport().SetInputAsHandled();
             Back();
         }
+    }
+
+    public override void _UnhandledKeyInput(InputEvent @event)
+    {
+        if (@event is not InputEventKey { Pressed: true, Echo: false, Keycode: Key.Escape }) return;
+        GetViewport().SetInputAsHandled();
+        Back();
     }
 
     /// <summary>Moves the command of <paramref name="oldKey"/> to <paramref name="newKey"/> (staged until Apply).</summary>

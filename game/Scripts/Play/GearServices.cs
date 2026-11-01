@@ -37,6 +37,8 @@ public sealed class SettingsLoadoutSource : ILoadoutSource
     public ClassRef[] Gadgets(bool Spy) =>
         Array.ConvertAll(SettingsStore.Current.Loadout.GadgetsOf(Spy), p => p.Length == 0 ? default : new ClassRef(p));
 
+    public ClassRef Sidearm() => new(SettingsStore.Current.Loadout.MercSidearm);
+
     public ClassRef Weapon(bool Spy)
     {
         if (Spy)

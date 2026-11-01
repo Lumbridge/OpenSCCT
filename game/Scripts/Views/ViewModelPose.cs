@@ -33,6 +33,11 @@ public sealed class ViewModelPose
     private readonly float[] _prevRemaining = new float[ViewModelAnim.ChannelCount];
     private ViewModelAnim? _tickAnim;
     private int _samples;
+    private float _landingBlendLeft;
+    private const float LandingBlendSeconds = 0.1f;
+
+    private static bool IsLanding(Name sequence) =>
+        sequence == ViewModelClips.FirstLandStFd2 || sequence == ViewModelClips.FirstLandStHi2;
 
     /// <summary>After each client tick: the channels' sequences and time left, for the drawing between ticks.</summary>
     public void OnTick(ViewModelAnim? anim)
@@ -41,6 +46,8 @@ public sealed class ViewModelPose
         {
             _tickAnim = anim;
             _samples = 0;
+            _landingBlendLeft = 0f;
+            Array.Clear(_sequence);
         }
 
         if (anim is null)
@@ -81,7 +88,8 @@ public sealed class ViewModelPose
     /// The channels for this draw, from <paramref name="anim"/>, sampled from <paramref name="sampler"/>'s clips;
     /// <paramref name="tickAlpha"/> is how far the clock is into the next tick (1 draws the last tick's state).
     /// </summary>
-    public ReadOnlySpan<ChannelPose> Update(ViewModelAnim anim, AnimSampler sampler, float dt, float tickAlpha = 1f)
+    public ReadOnlySpan<ChannelPose> Update(ViewModelAnim anim, AnimSampler sampler, float dt, float tickAlpha = 1f,
+        bool exclusiveAction = false)
     {
         ArgumentNullException.ThrowIfNull(anim);
         ArgumentNullException.ThrowIfNull(sampler);
@@ -92,6 +100,13 @@ public sealed class ViewModelPose
             float remaining = anim.Remaining(c);
             if (sequence != _sequence[c] || remaining > _remaining[c] + 1e-4f)
             {
+                // Blend both the impact entry and the return to locomotion from the last
+                // rendered pose. Keep sampling the clip at simulation time during the blend.
+                if (c == 0 && !_sequence[c].IsNone && !exclusiveAction &&
+                    (IsLanding(sequence) || IsLanding(_sequence[c])))
+                    _landingBlendLeft = LandingBlendSeconds;
+                else if (c == 0)
+                    _landingBlendLeft = 0f;
                 // A new clip, or the same one-shot played again: its length at its play rate (what remains now when
                 // the clip's data is not known).
                 float full = ViewModelClips.DataOf(sequence).Seconds(anim.Rate(c));
@@ -135,7 +150,8 @@ public sealed class ViewModelPose
             {
                 Clip = clip,
                 Sequence = sequence.ToString(),
-                Frame = frame,
+                Frame = c == 0 && _landingBlendLeft > 0f
+                    ? -_landingBlendLeft / (LandingBlendSeconds * frames) : frame,
                 ClipFrame = clipFrame,
                 Frames = frames,
                 Fps = DefaultFps,
@@ -145,6 +161,17 @@ public sealed class ViewModelPose
             };
         }
 
+        _landingBlendLeft = MathF.Max(0f, _landingBlendLeft - MathF.Max(0f, dt));
+
+        if (exclusiveAction && _channels[4].Clip is not null)
+        {
+            // A sidearm reload owns both arms and the mechanisms. Keep the
+            // movement clocks advancing, but do not layer jump/landing poses
+            // or other overlays into the contact-driven reload.
+            for (int c = 0; c < _channels.Length; c++)
+                if (c != 4) _channels[c] = default;
+            _channels[4].Alpha = 1f;
+        }
         return _channels;
     }
 }

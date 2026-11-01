@@ -8,6 +8,7 @@
     without the Godot runtime. Only files that use no Godot type may be listed.
   -->
   <ItemGroup>
+    <Compile Include="..\..\game\Scripts\UI\StatsModel.cs" Link="Linked\StatsModel.cs" />
     <Compile Include="..\..\game\Scripts\UI\GearMenuModel.cs" Link="Linked\GearMenuModel.cs" />
     <Compile Include="..\..\game\Scripts\Options\GameSettings.cs" Link="Linked\GameSettings.cs" />
     <Compile Include="..\..\game\Scripts\Options\CrosshairSettings.cs" Link="Linked\CrosshairSettings.cs" />

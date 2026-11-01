@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using OpenScct.Core.Engine;
 using OpenScct.Core.Uc;
 using OpenScct.Game.Equipment;
@@ -52,9 +53,7 @@ public sealed class GearMenuModel
         ArgumentNullException.ThrowIfNull(saved);
         Spy = spy;
         Slots = Math.Clamp(slots, 0, LoadoutSettings.Slots);
-        var choices = new List<string>(options);
-        if (!spy) foreach (var pistol in Sidearms.All) choices.Add(pistol.CarryId);
-        _options = choices;
+        _options = options.ToArray();
         CurrentLevel = currentLevel;
         Unrestricted = unrestricted;
         _allowed = allowedMask;
@@ -62,6 +61,15 @@ public sealed class GearMenuModel
         Hub = hub;
         Gadgets = (string[])saved.GadgetsOf(spy).Clone();
         ChosenWeapon = spy ? "" : saved.MercWeapon;
+        ChosenSidearm = spy ? "" : saved.MercSidearm;
+        bool migrated = false;
+        for (int i = 0; !spy && i < Gadgets.Length; i++)
+        {
+            if (Sidearms.Find(Gadgets[i]) is not { } pistol) continue;
+            if (!migrated) ChosenSidearm = pistol.CarryId;
+            migrated = true;
+            Gadgets[i] = LoadoutSettings.DefaultMerc().FirstOrDefault(g => !Gadgets.Contains(g)) ?? "";
+        }
         Normalize();
     }
 
@@ -81,6 +89,14 @@ public sealed class GearMenuModel
     public IReadOnlyList<string> Weapons { get; }
 
     public string ChosenWeapon { get; private set; }
+    public bool SidearmsEnabled { get; init; } = true;
+    public string ChosenSidearm { get; private set; }
+    public IReadOnlyList<string> SidearmOptions => Spy || !SidearmsEnabled ? [] : Sidearms.All.OrderBy(p => p.Level).Select(p => p.CarryId).ToArray();
+
+    public void ChooseSidearm(string option)
+    {
+        if (!Spy && Sidearms.Find(option) is not null && IsAllowed(option)) ChosenSidearm = option;
+    }
 
     public string Rule => RuleText ?? (Hub ? HubRule : MatchRule);
 
@@ -120,6 +136,7 @@ public sealed class GearMenuModel
             pc.Level.NetMode == ENetMode.NM_Standalone || pc.PlayerReplicationInfo.SvmSidearmsUnrestricted ||
             OpenScct.Game.Modes.PracticeRules.IsOn(pc))
         {
+            SidearmsEnabled = hub || pc.GameReplicationInfo?.SidearmsEnabled == true,
             Portrait = team.MaterialOfMesh.Count > 0 ? team.MaterialOfMesh[0].Path ?? "" : "",
             RuleText = !hub && OpenScct.Game.Modes.PracticeRules.IsOn(pc) ? PracticeRule : null,
         };
@@ -163,6 +180,7 @@ public sealed class GearMenuModel
         {
             Portrait = info.MaterialOfMesh.Count > 0 ? info.MaterialOfMesh[0].Path ?? "" : "",
             RuleText = LobbyRule,
+            SidearmsEnabled = setup.Sidearms,
         };
     }
 
@@ -191,7 +209,7 @@ public sealed class GearMenuModel
     /// <summary>Whether the host allows the team option holding <paramref name="path"/>.</summary>
     public bool IsAllowed(string path)
     {
-        if (Sidearms.Find(path) is { } pistol) return !Spy && Sidearms.Available(pistol.Kind, CurrentLevel, Unrestricted);
+        if (Sidearms.Find(path) is { } pistol) return !Spy && SidearmsEnabled && Sidearms.Available(pistol.Kind, CurrentLevel, Unrestricted);
         int option = IndexOf(path);
         return option >= 0 && ((_allowed >> option) & 1) != 0;
     }
@@ -202,6 +220,7 @@ public sealed class GearMenuModel
     /// <summary>Whether a slot holds <paramref name="option"/> (the grid's "Equipped").</summary>
     public bool IsEquipped(string option)
     {
+        if (!Spy && Same(ChosenSidearm, option)) return true;
         for (int i = 0; i < Slots; i++)
         {
             if (option.Length > 0 && Same(Gadgets[i], option))
@@ -219,7 +238,7 @@ public sealed class GearMenuModel
     /// </summary>
     public void Choose(int slot, string option)
     {
-        if (slot < 0 || slot >= Slots || !IsAllowed(option))
+        if (slot < 0 || slot >= Slots || Sidearms.Find(option) is not null || !IsAllowed(option))
         {
             return;
         }
@@ -243,6 +262,7 @@ public sealed class GearMenuModel
         if (!Spy)
         {
             ChosenWeapon = Loadouts.MercWeapon.Path ?? "";
+            ChosenSidearm = LoadoutSettings.DefaultSidearm;
         }
 
         Normalize();
@@ -273,11 +293,15 @@ public sealed class GearMenuModel
     {
         ArgumentNullException.ThrowIfNull(target);
         string[] slots = target.GadgetsOf(Spy);
+        if (!Spy)
+            for (int i = Slots; i < slots.Length; i++)
+                if (Sidearms.Find(slots[i]) is not null) slots[i] = Gadgets[i];
         for (int i = 0; i < Slots && i < slots.Length; i++)
         {
             slots[i] = Gadgets[i];
         }
 
+        if (!Spy) target.MercSidearm = ChosenSidearm;
         if (!Spy && ChosenWeapon.Length > 0)
         {
             target.MercWeapon = ChosenWeapon;
@@ -291,12 +315,14 @@ public sealed class GearMenuModel
     /// </summary>
     private void Normalize()
     {
+        if (!Spy && SidearmsEnabled && (Sidearms.Find(ChosenSidearm) is null || !IsAllowed(ChosenSidearm)))
+            ChosenSidearm = LoadoutSettings.DefaultSidearm;
         for (int s = 0; s < Slots; s++)
         {
             string g = Gadgets[s];
             if (Sidearms.Find(g) is not null)
             {
-                if (Spy || Array.FindIndex(Gadgets, 0, s, x => Sidearms.Find(x) is not null) >= 0) Gadgets[s] = "";
+                if (!IsAllowed(g) || Array.FindIndex(Gadgets, 0, s, x => Sidearms.Find(x) is not null) >= 0) Gadgets[s] = "";
                 continue;
             }
             bool duplicate = false;

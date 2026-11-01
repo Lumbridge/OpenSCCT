@@ -46,6 +46,12 @@ public sealed class NetObjectiveBridge : IObjectiveNet
 
     public void AddObjetOnClient(SInteractionManager Manager, SInteractObject? Obj, int i)
     {
+        // A touched interaction can be outside the camera's relevance (or still
+        // awaiting its first channel). Open it before sending the menu reference;
+        // the replicated Interactions array retries the reference after its ACK.
+        if (Obj is not null && _driver.IsServer && _driver.OwningConnection(Manager) is { } owner)
+            _driver.ChannelForCall(Obj, owner);
+
         ENetCallResult result = _driver.ProcessRemoteFunction(Manager, nameof(SInteractionManager.AddObjetOnClient),
             _args.Clear().Object(0, Obj).Int(1, i));
         if (result == ENetCallResult.RunLocally)

@@ -60,6 +60,7 @@ class SkeletalMesh:
     rot_origin: Tuple[int, int, int]
     animation_ref: int = 0
     props: dict = field(default_factory=dict)
+    normals: Optional[np.ndarray] = None  # per wedge, from the cooked render LOD when requested
 
 
 def _encode_compact(n: int) -> bytes:
@@ -187,7 +188,7 @@ def _read_geometry(d: bytes, pts_off: int, pkg: Package, base: int, name: str, n
     return points, wedges, faces, fmat, infl
 
 
-def _read_lod_stream(d: bytes, p: int, name: str, nbones: int):
+def _read_lod_stream(d: bytes, p: int, name: str, nbones: int, *, include_normals: bool = False):
     """LOD model 0, for meshes whose base Wedges/Faces are empty (geometry only in the render LODs).
 
     Layout right after the skeleton tables (verified on MAL ventilateur_mesh and the sqt13 crane/wall):
@@ -252,6 +253,10 @@ def _read_lod_stream(d: bytes, p: int, name: str, nbones: int):
     if m != npoint or r.p + m * 16 > len(d):
         raise PackageError(f"{name}: {m} skin points for {npoint} skinned vertices")
     points = np.array([struct.unpack_from("<3f", d, r.p + k * 16) for k in range(m)], dtype=np.float32).reshape(-1, 3)
+    # UE2 FSkinPoint packs XYZ into unsigned 10-bit channels, with 511 representing zero.
+    packed = np.array([struct.unpack_from("<I", d, r.p + k * 16 + 12)[0] for k in range(m)], dtype=np.uint32)
+    point_normals = np.column_stack([(packed >> shift) & 1023 for shift in (0, 10, 20)]).astype(np.float32) / 511.0 - 1.0
+    normals = [point_normals[np.array(recs, dtype=np.float32).reshape(-1, 3)[:, 0].astype(np.int32)]]
     r.p += m * 16
     if r.i32() != len(recs):
         raise PackageError(f"{name}: NumDynWedges mismatch")
@@ -297,17 +302,19 @@ def _read_lod_stream(d: bytes, p: int, name: str, nbones: int):
             used, local = np.unique(tri, return_inverse=True)
             # Each section gets its own copy of its vertices: one bone per copy, no cross-section conflicts.
             points.append(verts[used, :3].copy())
+            normals.append(verts[used, 3:6].copy())
             wedges.append(np.column_stack([np.arange(base_p, base_p + len(used)), verts[used, 6], verts[used, 7]]).astype(np.float32))
             faces.append((local + base_w).reshape(-1, 3).astype(np.int32))
             fmats.append(np.full((count // 3,), mat, np.int32))
             infl.extend((1.0, base_p + k, bone) for k in range(len(used)))
             base_p += len(used)
             base_w += len(used)
-    return (np.concatenate(points), np.concatenate(wedges), np.concatenate(faces), np.concatenate(fmats),
-            np.array(infl, dtype=np.float32).reshape(-1, 3))
+    geometry = (np.concatenate(points), np.concatenate(wedges), np.concatenate(faces), np.concatenate(fmats),
+                np.array(infl, dtype=np.float32).reshape(-1, 3))
+    return (*geometry, np.concatenate(normals)) if include_normals else geometry
 
 
-def read_skeletal_mesh(pkg: Package, e: Export) -> SkeletalMesh:
+def read_skeletal_mesh(pkg: Package, e: Export, *, prefer_render_lod: bool = False) -> SkeletalMesh:
     d = pkg.data[e.offset:e.offset + e.size]
     r = Reader(d, 0, pkg, base=e.offset)
     skip_state_frame(r, e.flags)
@@ -339,11 +346,15 @@ def read_skeletal_mesh(pkg: Package, e: Export) -> SkeletalMesh:
             break
         except (PackageError, struct.error, ValueError) as ex:
             last_error = ex
-    if geometry is None:
-        # No base geometry: decode render LOD 0 (its skinning stream starts a few bytes after the skeleton).
+    normals = None
+    if geometry is None or prefer_render_lod:
+        # Decode render LOD 0; its skinning stream starts a few bytes after the skeleton.
         for p in range(skel_end, min(skel_end + 64, len(d))):
             try:
-                geometry = _read_lod_stream(d, p, e.name, len(bones))
+                *lod_geometry, normals = _read_lod_stream(d, p, e.name, len(bones), include_normals=True)
+                geometry = tuple(lod_geometry)
+                if not prefer_render_lod:
+                    normals = None
                 break
             except (PackageError, struct.error, ValueError, IndexError):
                 continue
@@ -354,5 +365,5 @@ def read_skeletal_mesh(pkg: Package, e: Export) -> SkeletalMesh:
     return SkeletalMesh(
         name=e.name, bones=bones, points=points, wedges=wedges, faces=faces, face_material=fmat,
         influences=infl, material_refs=textures, mesh_scale=tuple(mesh_scale), mesh_origin=tuple(mesh_origin),
-        rot_origin=tuple(rot_origin), animation_ref=animation_ref, props=props,
+        rot_origin=tuple(rot_origin), animation_ref=animation_ref, props=props, normals=normals,
     )

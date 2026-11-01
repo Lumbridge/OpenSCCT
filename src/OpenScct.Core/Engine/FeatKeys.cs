@@ -60,6 +60,7 @@ public static class FeatKeys
         GunKills("ar"), GunKills("smg"), GunKills("shotgun"),
         GunKills("suppressed"), GunKills("automatic"), GunKills("magnum44"), GunKills("desert_eagle"),
         GunHeadshots("suppressed"), GunHeadshots("automatic"), GunHeadshots("magnum44"), GunHeadshots("desert_eagle"),
+        GunKills("unsuppressed"), GunHeadshots("unsuppressed"),
         GunHeadshots("ar"), GunHeadshots("smg"), GunHeadshots("shotgun"),
     ];
 }

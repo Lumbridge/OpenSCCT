@@ -320,7 +320,7 @@ public sealed class InGameMenuSmoke : SmokeTest
                 }
 
                 ExpectText(root, "OPTIONS", true);
-                Expect(FindButton(root, "Save") is not null && FindButton(root, "Defaults") is not null, "the options screen's Save and Defaults are not shown");
+                Expect(FindButton(root, "Apply") is not null && FindButton(root, "Reset all") is not null, "the options screen's Apply and Reset all are not shown");
                 Expect(FindButton(root, "Quit Session") is null, "the menu's buttons stay shown under the options");
                 Shot(context, "options");
                 Tap("Escape");

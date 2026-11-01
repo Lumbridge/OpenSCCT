@@ -131,6 +131,7 @@ public partial class SBasePawn
     [PortOf("uc:SBase.SBasePawn:HitBySpyBullet", Spec = "spec/equipment/merc-laser.md#rules")]
     public void HitBySpyBullet(int Team)
     {
+        using var clock = WorldEventTime();
         bSpyBulletOn = true;
         fTimeSpy = Level.TimeSeconds;
         iTeamSpying = Team;

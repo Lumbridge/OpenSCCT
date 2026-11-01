@@ -180,6 +180,12 @@ class _Textures:
                     material["modulate"] = res.modulate
                 if res.uv_anim:
                     material["uvAnim"] = res.uv_anim
+                if res.flipbook:
+                    from scctpkg.export_gltf import _flipbook_png  # noqa: PLC0415
+
+                    flip = _flipbook_png(_safe(path.split('.', 1)[0] + '_' + e.name), res.flipbook, self.dir, {})
+                    if flip:
+                        material["flipbook"] = flip
                 entry = {"png": png, "width": int(tex.width), "height": int(tex.height), "hasAlpha": bool(tex.has_alpha),
                          "material": material}
         self.table[path] = entry

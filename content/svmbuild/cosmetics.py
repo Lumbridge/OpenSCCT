@@ -90,6 +90,11 @@ for _code, _palette in MAPS.items():
     PATTERNS["map_" + _code.lower()] = (_MAP_SHAPES.get(_code, "blotch"), _palette)
 
 _LADDER = ["woodland", "desert", "digital", "red_tiger", "blue_tiger"]
+# Existing account tint IDs remain unchanged; render their colour only on fitted
+# clothing panels, with the same protected gear as patterned suits.
+_TINT_RGB = [0x9AA0A8, 0xD8C49A, 0x8A9A5A, 0x50586E, 0xE8F0F8, 0xC85050, 0x5A6EA8, 0xB8784A, 0x787470]
+_TINTS = [f'tint_{rgb:06x}' for rgb in _TINT_RGB]
+PATTERNS.update({name: ('solid', [rgb]) for name, rgb in zip(_TINTS, _TINT_RGB)})
 _MAP_PATTERNS = ["map_" + c.lower() for c in MAPS]
 # The spy suits beyond the ladder: Galaxy and Inferno took over the Chaff and Breaker suits (too like Night Ops and
 # Smoke Screen); the chaff and breaker patterns stay in the catalog, chaff on the pistol. The merc's Digital and Frag
@@ -98,13 +103,13 @@ _SPY_SUITS = ["smoke", "turnabout", "minefield", "gadgeteer", "mastercraft", "fl
 _MERC_EXTRA = ["voltage", "minefield", "gadgeteer", "mastercraft"]
 # The merc's suits (his body item): also painted on his first-person sleeves, which wear the body's camo, not the gun's.
 _MERC_SUITS = ([c for c in _LADDER if c != "digital"] + ["laser_grid", "lockdown"] + _MERC_EXTRA + ["galaxy", "inferno"]
-               + _MAP_PATTERNS)
+               + _MAP_PATTERNS + _TINTS)
 
 # Which retail textures take which patterns: (chars package folder, texture file stem, patterns).
 TARGETS: list[tuple[str, str, list[str]]] = [
-    ("SPerso", "SPersoTextures_Shadw_agent", _LADDER + ["night_ops", "static"] + _SPY_SUITS + _MAP_PATTERNS
+    ("SPerso", "SPersoTextures_Shadw_agent", _LADDER + ["night_ops", "static"] + _SPY_SUITS + _MAP_PATTERNS + _TINTS
      + ["skeleton"]),
-    ("SPerso", "SPersoTextures_Shadw_agent_2", _LADDER + ["night_ops", "static"] + _SPY_SUITS + _MAP_PATTERNS
+    ("SPerso", "SPersoTextures_Shadw_agent_2", _LADDER + ["night_ops", "static"] + _SPY_SUITS + _MAP_PATTERNS + _TINTS
      + ["skeleton"]),
     ("SPerso", "SPersoTextures_DEF_01_A_Body", _MERC_SUITS + ["skeleton"]),
     ("SPerso", "SPersoTextures_DEF_01_A_Face", ["skeleton"]),  # the skull covers the merc's face too
@@ -1525,6 +1530,7 @@ def _shape_inferno(rng, h, w, colours, luma):
 
 
 _SHAPES = {
+    "solid": lambda rng, h, w, c, l: np.broadcast_to(_rgb(c[0]), (h, w, 3)).copy(),
     "blotch": _shape_blotch,
     "blotch-soft": lambda rng, h, w, c, l: _shape_blotch(rng, h, w, c, l, soft=True),
     "pixel": _shape_pixel,
@@ -1603,8 +1609,15 @@ def paint(retail: np.ndarray, pattern: str, seed: str = "", mesh=None) -> np.nda
     else:
         shading = np.clip(luma / max(float(luma.mean()), 1e-3), 0.35, 1.8)[..., None]
         camo = np.clip(colours * shading, 0.0, 1.0)
+    if mesh is not None:
+        from .fitted import coordinated_parts
+        camo = coordinated_parts(camo, retail, mesh, seed, pattern)
     strength = FINISH_STRENGTH if shape in _FINISHES else CAMO_STRENGTH
     out = rgb * (1 - strength) + camo * strength
+    if mesh is not None:
+        from .fitted import coverage
+        allowed = coverage(retail, mesh, seed, pattern)[..., None]
+        out = rgb + (out - rgb) * allowed
     result = retail.copy()
     result[..., :3] = np.clip(out * 255.0 + 0.5, 0, 255).astype(np.uint8)
     return result
@@ -1629,10 +1642,16 @@ def _paint_job(job: tuple) -> str:
         retail = retail.resize(size, Image.LANCZOS)
     mesh = None
     if mesh_path:
-        from .skeleton import Mesh  # noqa: PLC0415
-
-        mesh = Mesh(Path(mesh_path))
+        from .fitted import load_mesh
+        stat = Path(mesh_path).stat()
+        mesh = load_mesh(mesh_path, stem.startswith('OpenScctSidearms_'), stat.st_mtime_ns, stat.st_size)
+    elif stem != 'thumb':
+        raise ValueError(f'Cannot fit {pattern} to {stem} without its mesh')
     Image.fromarray(paint(np.asarray(retail, dtype=np.uint8), pattern, stem, mesh)).save(dst, compress_level=6)
+    from .fitted import coverage
+    mask = coverage(np.asarray(retail, dtype=np.uint8), mesh, stem, pattern, lighting=True)
+    Image.fromarray(np.clip(mask * 255 + .5, 0, 255).astype(np.uint8)).save(
+        str(Path(dst).with_suffix('.mask.png')), compress_level=6)
     return dst
 
 
@@ -1712,6 +1731,8 @@ def build_all(chars_dir: Path) -> dict:
                 if stem not in SKELETON_MESH or not mesh_path.is_file():
                     skipped.append(f"{package}/{stem} ({pattern})")
                     continue
+            if mesh_path is None:
+                raise ValueError(f'Cannot fit cosmetics: missing mesh for {package}/{stem}')
             jobs.append((str(src), str(tex_dir / f"cosmetic_{pattern}_{stem}.png"), pattern, stem,
                          output_size(package, pattern, w, h), str(mesh_path) if mesh_path else None))
     jobs.sort(key=lambda j: -j[4][0] * j[4][1])  # the big ones first, so the pool ends evenly

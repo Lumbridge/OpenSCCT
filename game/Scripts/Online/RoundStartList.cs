@@ -62,6 +62,7 @@ public partial class RoundStartList : CanvasLayer
         {
             Name = "Box", AnchorLeft = 0.2f, AnchorRight = 0.8f, AnchorTop = 0.2f, AnchorBottom = 0.2f, Theme = UiStyle.MenuTheme,
             MouseFilter = Control.MouseFilterEnum.Ignore,
+            Visible = false,
         };
         ((PanelContainer)_box).AddThemeStyleboxOverride("panel", UiStyle.MenuPanelBox());
         var column = new VBoxContainer { Name = "Column", MouseFilter = Control.MouseFilterEnum.Ignore };
@@ -76,19 +77,21 @@ public partial class RoundStartList : CanvasLayer
         {
             _roster[p.Id] = p.Name;
         }
+
+        // This layer can be drawn before its first process tick during the scene transition.
+        // Populate it now so that frame never contains an empty panel.
+        Refresh();
     }
 
-    public override void _Process(double delta)
+    public override void _Process(double delta) => Refresh();
+
+    private void Refresh()
     {
         GameReplicationInfo? gri = _client.Session?.LocalPlayer?.GameReplicationInfo;
         bool waiting = _client.State == OnlineClientState.Loading && !(gri?.bMatchHasBegun ?? false);
-        if (_box is not null)
-        {
-            _box.Visible = waiting;
-        }
-
         if (!waiting)
         {
+            if (_box is not null) _box.Visible = false;
             return;
         }
 
@@ -107,6 +110,7 @@ public partial class RoundStartList : CanvasLayer
         }
 
         Show(Lines(_client.Lobby.Players, gri?.PRIArray, _droppedNames));
+        if (_box is not null) _box.Visible = true;
     }
 
     /// <summary>

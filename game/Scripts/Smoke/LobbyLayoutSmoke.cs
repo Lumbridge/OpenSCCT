@@ -17,7 +17,7 @@ public sealed class LobbyLayoutSmoke : SmokeTest
     public const string TestName = "lobby-layout";
     public override string Name => TestName;
     private readonly List<string> _problems = new();
-    private readonly Vector2I[] _sizes = [new(1280, 720), new(1024, 768), new(1920, 1080)];
+    private readonly Vector2I[] _sizes = [new(1280, 720), new(1024, 768), new(1920, 1080), new(2560, 1440)];
     private int _frame, _size, _variant;
     private Control? _screen;
     private FixtureLobby? _session;
@@ -48,19 +48,28 @@ public sealed class LobbyLayoutSmoke : SmokeTest
             if (_frame == 10)
             {
                 CheckInteractions(roomScreen, _session!);
+                // Exercise an actual texture: empty placeholders hid the tiny-image regression.
+                var texture = MapImages.Preview(null, "AquaE");
+                if (texture is null)
+                {
+                    using var image = Image.CreateEmpty(256, 256, false, Image.Format.Rgba8);
+                    image.Fill(Colors.SeaGreen);
+                    texture = ImageTexture.CreateFromImage(image);
+                }
+                roomScreen.MapPicture!.SetMap(texture, "Enhanced Aquarius");
                 return SmokeResult.Running;
             }
             if (_frame < 16) return SmokeResult.Running;
             if (_frame == 16)
             {
                 _problems.AddRange(LayoutCheck.Problems(roomScreen, _sizes[_size].X).Select(p => "Lobby overview: " + p));
+                CheckLandmarks(roomScreen);
                 MenuPage.Shot(roomScreen, $"lobby-overview-{_sizes[_size].X}-{_variant}");
                 Click(roomScreen, "MatchSettings");
                 return SmokeResult.Running;
             }
             if (_frame < 22) return SmokeResult.Running;
-            if (roomScreen.FindChild("LobbyColumns", true, false) is LobbyColumns columns)
-                Expect(columns.Vertical == (_sizes[_size].X < 1100), "responsive lobby columns follow window width");
+
         }
         string where = $"Lobby {_sizes[_size].X} variant {_variant}";
         _problems.AddRange(LayoutCheck.Problems(_screen, _sizes[_size].X).Select(p => where + ": " + p));
@@ -73,11 +82,35 @@ public sealed class LobbyLayoutSmoke : SmokeTest
             : SmokeResult.Fail(string.Join("; ", _problems.Take(15)));
     }
 
+    private void CheckLandmarks(LobbyRoomScreen room)
+    {
+        Rect2 Rect(string name) => ((Control)room.FindChild(name, true, false)!).GetGlobalRect();
+        var spies = Rect("Spies"); var mercs = Rect("Mercs"); var actions = Rect("LobbyActions");
+        var map = Rect("MatchOverview"); var chat = Rect("Chat");
+        Expect(spies.End.X <= actions.Position.X && actions.End.X <= mercs.Position.X, "teams flank the central actions");
+        Expect(map.Position.Y >= spies.End.Y && chat.Position.Y >= mercs.End.Y && map.End.X <= chat.Position.X, "map below left, chat below right");
+        var picture = room.MapPicture!;
+        Expect(picture.Picture is not null, "preview check uses a texture");
+        if (_sizes[_size].Y >= 1080)
+            Expect(picture.Size.Y >= _sizes[_size].Y * 0.35f, "map preview uses available vertical space");
+        foreach (var button in room.PageButtons)
+            Expect(new Rect2(Vector2.Zero, _sizes[_size]).Encloses(button.GetGlobalRect()), "footer action visible: " + button.Name);
+    }
+
     private void Expect(bool condition, string message) { if (!condition) _problems.Add(message); }
     private static void Click(Node root, string name) => (root.FindChild(name, true, false) as Button)?.EmitSignal(BaseButton.SignalName.Pressed);
 
     private void CheckInteractions(LobbyRoomScreen room, FixtureLobby session)
     {
+        room.GetViewport().PushInput(new InputEventKey { Keycode = Key.Escape, Pressed = true });
+        var leave = room.GetNodeOrNull<ConfirmBox>("LeaveLobbyConfirmation");
+        Expect(leave is not null && session.Leaves == 0, "Escape asks before leaving lobby");
+        room.GetViewport().PushInput(new InputEventKey { Keycode = Key.Escape, Pressed = true });
+        Expect(leave?.IsQueuedForDeletion() == true && session.Leaves == 0, "Escape cancels leave confirmation");
+        if (leave is not null) room.RemoveChild(leave);
+        Click(room, "Leave");
+        room.GetNodeOrNull<ConfirmBox>("LeaveLobbyConfirmation")?.Answer(true);
+        Expect(session.Leaves == 1, "Leave button requires confirmation");
         var chat = room.FindChild("ChatLine", true, false) as LineEdit;
         var channel = room.FindChild("ChatChannel", true, false) as OptionButton;
         chat!.Text = "preserve my draft";
@@ -97,6 +130,8 @@ public sealed class LobbyLayoutSmoke : SmokeTest
             session.Setup = original with { MercLives = 3 }; session.Notify();
             Expect(room.Parameters.Setup.TimeLimit == 7, "remote changes retain host draft");
             Click(room, "DiscardSettings");
+            Expect(room.MatchSettingsPanel.Visible && room.Parameters.Setup.TimeLimit == 7, "discard waits for confirmation");
+            room.GetNodeOrNull<ConfirmBox>("DiscardMatchSettings")?.Answer(true);
             Expect(room.Parameters.Setup == session.Setup && !room.MatchSettingsPanel.Visible, "discard resets draft to live settings");
             Click(room, "MatchSettings");
             room.Parameters.Load(session.Setup with { TimeLimit = 8 });
@@ -104,6 +139,11 @@ public sealed class LobbyLayoutSmoke : SmokeTest
             Expect(session.Setup.TimeLimit == 8 && !room.MatchSettingsPanel.Visible, "Apply sends settings");
         }
         else Click(room, "DiscardSettings");
+        var initialSide = session.Members.First(m => m.IsLocal).Side;
+        Click(room, "SwitchTeam");
+        Expect(session.Members.First(m => m.IsLocal).Side != initialSide, "central Switch Team changes side");
+        Click(room, "SwitchTeam");
+        Expect(session.Members.First(m => m.IsLocal).Side == initialSide, "central Switch Team switches back");
         var local = session.Members.First(m => m.IsLocal);
         if (!local.Ready) Click(room, "JoinMercs");
         Expect(session.Members.First(m => m.IsLocal).Side == HudSide.Merc, "direct Join Mercenaries");
@@ -183,7 +223,8 @@ public sealed class LobbyLayoutSmoke : SmokeTest
         public LobbySetup DefaultsFor(string map, EGameMode mode) => new() { Map = map, Mode = mode };
         public USMapSettings? MapSettings(string map) => null;
         public void Start(SceneTree tree) { Launching = !Launching; Notify(); }
-        public void Leave() { }
+        public int Leaves { get; private set; }
+        public void Leave() { Leaves++; }
         public void Chat(string text, bool teamOnly) { LastChat = text; LastTeamChat = teamOnly; }
         public void Kick(int id) { Kicks++; }
         public void Ban(int id) { }

@@ -722,7 +722,7 @@ public partial class SPlayerController
 
     /// <summary>s_Binoculars_Def_Reloading: the reload inside the scope (rule 13).</summary>
     [Uc("SBase.SPlayerController.s_Binoculars_Def_Reloading")]
-    public class s_Binoculars_Def_Reloading : UcActorState, IPlayerTick, IFire, ISwitchROF, IZoom, IWheel, ICanIUseBinocular
+    public class s_Binoculars_Def_Reloading : UcActorState, IPlayerTick, IPlayerMove, IFire, ISwitchROF, IZoom, IWheel, ICanIUseBinocular
     {
         public static readonly s_Binoculars_Def_Reloading Instance = new(UcMeta.s_Binoculars_Def_Reloading, null);
 
@@ -765,6 +765,10 @@ public partial class SPlayerController
 
             pc.PlayerTick(DeltaTime);
         }
+
+        // Keep the scope's slow walking controls while the reload blocks firing and zoom.
+        public void PlayerMove(SPlayerController self, float DeltaTime) =>
+            s_Binoculars_Def.Instance.PlayerMove(self, DeltaTime);
 
         public void Fire(SPlayerController self, float F)
         {

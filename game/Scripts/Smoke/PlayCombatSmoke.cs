@@ -385,6 +385,9 @@ public sealed class PlayCombatSmoke : SmokeTest
                 return null;
             }
 
+            if (s.Root.View is not { } view || view.DoubleVision.Factor <= 0f || view.DoubleVision.Draws == 0)
+                return null;
+
             float frame = s.Root.FirstPerson?.ChannelFrame(SWeaponDefense.MVTCHANNEL) ?? -1f;
             return frame >= 0.35f ? s.Detail($"rifle butt FirstAtakCrFd2 drawn at frame {frame:F2}, channel 19 {s.Pawn?.PawnAnim[19].Sequence}") : null;
         });

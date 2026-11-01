@@ -3,13 +3,14 @@
 global uniform int svm_vision;
 uniform float heat = 1.0;
 uniform bool thermal_only = false;
-uniform sampler2D mask : hint_default_white, filter_linear_mipmap;
+uniform sampler2D mask : hint_default_white, filter_linear_mipmap, repeat_enable;
+uniform vec2 uv_offset = vec2(0.0);
 
 void fragment() {
 #ifdef SVM_FIRST_PERSON_MASK
 	ALPHA = 1.0;
 #endif
-	vec4 m = texture(mask, UV);
+	vec4 m = texture(mask, UV + uv_offset);
 	if (svm_vision == 36 && max(m.r, max(m.g, m.b)) * m.a > 0.3) {
 		float fade = 1.0 - clamp(-VERTEX.z * 100.0 / 5000.0, 0.0, 1.0);
 		ALBEDO = vec3(0.0, clamp(heat, 0.0, 1.0), fade);

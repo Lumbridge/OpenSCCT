@@ -177,6 +177,15 @@ public class PlayAudioSmoke : SmokeTest
                 Next(ticks);
                 break;
             case 6 when ticks - _phaseStart >= FireTicks:
+                if (Side == PlaySide.Merc)
+                {
+                    if (session.LocalPawn is not SBasePawn { MyWeapon: SWeaponDefense weapon } || !weapon.eventReload())
+                        return Finish(SmokeResult.Fail("the fired rifle could not reload"));
+                    Next(ticks);
+                    break;
+                }
+                return Finish(Evaluate(_root, session));
+            case 7 when ticks - _phaseStart >= 3 * Sim.Hz:
                 return Finish(Evaluate(_root, session));
         }
 
@@ -323,6 +332,10 @@ public class PlayAudioSmoke : SmokeTest
             // The merc runs (the spy's movement speed stays at a walk or a crouch in the port for now) and shoots.
             Need("own-footstep");
             Need("own-weapon");
+            int reloads = sound.Starts.Count(s => s.ActorId == local && s.Call == "Armes_impacts.Armes.RA_Reload_Def");
+            bool bodyReload = sound.Starts.Any(s => s.ActorId == local && s.Leaf == "Armes_impacts.Armes.Reload_Def_court");
+            if (reloads != 1 || bodyReload)
+                return SmokeResult.Fail($"reload overlap: full recordings={reloads}, body cue={bodyReload}");
         }
 
         // Each start of a loop after its first needs a stop the rules explain (its voice taken by another call, rule 15,

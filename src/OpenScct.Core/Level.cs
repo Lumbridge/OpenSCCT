@@ -61,6 +61,18 @@ public sealed class Level
 
     public ReplayClock CommandTime(long tick, float seconds, float delta) => new(this, tick, seconds, delta);
 
+    private int _clockDepth;
+    private long _worldTick;
+    private float _worldSeconds, _worldDelta;
+
+    /// <summary>
+    /// Map events caused by a movement command run on the world's clock. Their timers and latent code are
+    /// subsequently advanced by world ticks, so a client's older input timestamp cannot set their deadlines.
+    /// Nested command scopes retain the outermost world clock. Prediction replay keeps its replay clock.
+    /// </summary>
+    internal ReplayClock WorldEventTime() => _clockDepth == 0 || World.IsReplaying
+        ? default : new(this, _worldTick, _worldSeconds, _worldDelta);
+
     public readonly struct ReplayClock : IDisposable
     {
         private readonly Level _level;
@@ -69,12 +81,17 @@ public sealed class Level
         internal ReplayClock(Level level, long tick, float seconds, float delta)
         {
             _level = level; _tick = level.TickCount; _seconds = level.TimeSeconds; _delta = level.DeltaTime;
+            if (level._clockDepth++ == 0)
+            {
+                level._worldTick = _tick; level._worldSeconds = _seconds; level._worldDelta = _delta;
+            }
             level.TickCount = tick; level.TimeSeconds = level.Info.TimeSeconds = seconds; level.DeltaTime = delta;
         }
         public void Dispose()
         {
             if (_level is null) return;
             _level.TickCount = _tick; _level.TimeSeconds = _level.Info.TimeSeconds = _seconds; _level.DeltaTime = _delta;
+            _level._clockDepth--;
         }
     }
 
@@ -185,6 +202,8 @@ public sealed class Level
         where T : Actor
     {
         ArgumentNullException.ThrowIfNull(actor);
+        // New actors subsequently tick on world time, including their spawn timestamps and initial state waits.
+        using var clock = WorldEventTime();
         if (actor.XLevel is not null)
         {
             throw new InvalidOperationException($"{actor} has already been spawned.");

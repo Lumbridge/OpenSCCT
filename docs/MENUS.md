@@ -205,22 +205,25 @@ editable for the host (OK applies it), read only for everyone else.
 
 ## Lobby Room
 
-The lobby presents the live match overview, team cards, chat/activity and match tools. At window widths of 1100
-pixels or more it uses two columns; smaller windows stack the panels. The preparation footer and primary action
-stay outside the scrolling body. Offline lobbies reuse the overview, team cards, role and readiness presentation,
-without online chat, spectators or moderation.
+The lobby follows the original `GUI.Lobby_Create` spatial layout: Spies upper left, Mercenaries upper right,
+with Switch Team, Equipment, Session Options, Map / Mode and Briefing in that order between them. The map
+preview sits below left and chat below right. These landmarks stay in place at 1024, 1280 and 1920 pixels;
+tall rosters can scroll. The map preview and chat expand vertically into the available body space, so larger
+windows show a large map image instead of an 80-pixel strip. Leave, Options and Start/Ready span the bottom, with the preparation status above.
+Offline lobbies use the same team and map positions without online chat, spectators or moderation.
 
-- The overview shows the map preview/title, mode, objective summary and essential rules. Unlimited lives and
+- The overview shows the map preview/title, mode and essential rules, with the objective summary on the map tooltip. Unlimited lives and
   mode-specific disk/kill targets are named explicitly. Briefing contains the full map-specific instructions.
 - Team cards show occupants and open slots; rows keep speaking, name, local/host markers, readiness and ping.
   Spectators have a separate list. Join Spies, Join Mercenaries and Spectate honor existing team/ready/mode rules.
-- The preparation footer shows the local role and normalized equipment selection. Change equipment opens the
+- The preparation footer shows the local role and normalized equipment selection. The central Equipment button opens the
   existing gear picker with the live match's restrictions. It is disabled for spectators and during countdown.
 - Chat uses an All/Team selector and one Send button; Enter uses the selected channel. Pending text survives
   session updates. Team chat from spectators is refused without clearing the draft or sending it publicly.
 - The player actions button opens per-player voice volume (0–200%), mute and permitted host moderation.
   Kick, Ban and Voice Ban/Unban retain confirmation; losing host control dismisses pending moderation.
-- Edit match settings opens the host draft; View rules opens the same panel read-only for other players.
+- Session Options opens the host draft or the same panel read-only for other players. Map / Mode opens
+  the map picker over that draft for hosts, and the read-only settings for clients.
   Apply changes sends the draft to the server; Discard changes restores the current server settings. Escape
   confirms before discarding an edited draft. Map picking and Alternate rules update the draft rather than
   applying implicitly. Changes received while a host draft is edited are flagged for review.
@@ -230,10 +233,10 @@ without online chat, spectators or moderation.
   named unready players, map mismatches, download progress/failure and waiting-for-host messages are shown beside
   the action. Button availability uses existing session capabilities; the server checks launch requests again.
   No new requirement for players on both teams is introduced.
-- Briefing, Strategic map, Cosmetics and Options live together under Match tools. The briefing still uses the
+- Briefing stays in the central menu; Strategic map and Cosmetics sit beside the loadout summary. The briefing uses the
   map's converted side-specific mode/objective/legend text; spectators read the mercenary briefing.
 
-`--svm-smoke=lobby-layout` checks host/client/offline layouts at 1024×768, 1280×720 and 1920×1080, settings
+`--svm-smoke=lobby-layout` checks host/client/offline layouts at 1024×768, 1280×720, 1920×1080 and 2560×1440, settings
 Apply/Discard and remote changes, chat routing/draft preservation, voice volume, moderation confirmation, team
 selection, spectator restrictions, countdown captions and map-download status. `SVM_PLAY_SHOTS` saves rendered
 review images. The existing two-process net-lobby smoke uses the new player menu, settings panel and activity notices.

@@ -117,6 +117,10 @@ public partial class SPlayerController
             return;
         }
 
+        // Damage history and the victim's incapacitation/death effects belong to world time,
+        // even when a rolling or melee attacker invokes this from an older input command.
+        using var clock = WorldEventTime();
+
         // An OpenSCCT addition: a hub level takes no damage at all (spec/additions/hub.md).
         if (!Modes.PlayRules.Of(this).PawnsTakeDamage)
         {

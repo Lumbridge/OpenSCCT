@@ -1,0 +1,25 @@
+OpenSCCT weapon audio redesign
+=============================
+
+Gunshot Sounds: SKS, CZ and shotgun recordings by Vincent Sevedge / Tabasco.
+https://opengameart.org/content/gunshot-sounds
+The archive's license is CC-BY-3.0; attribution retained even though the page
+also lists CC0. https://creativecommons.org/licenses/by/3.0/
+Source archive: https://opengameart.org/sites/default/files/sounds.zip
+
+Gun reload sounds: rifle handling and shotgun pump by SpringySpringo.
+https://opengameart.org/content/gun-reload-sounds
+CC0-1.0: https://creativecommons.org/publicdomain/zero/1.0/
+
+Shotgun Reload Sound effects: shell handling by zer0sol.
+https://opengameart.org/content/shotgun-reload-sound-effects
+CC0-1.0: https://creativecommons.org/publicdomain/zero/1.0/
+
+Sidearm report and handling layers use the credited sources in
+content/assets/sidearms/CREDITS.txt, copied alongside this file on export.
+
+OpenSCCT edits: individual attacks isolated, mono 44.1 kHz PCM, DC/rumble
+removal, per-weapon tonal balance, short mechanical layers, linear gain and
+faded tails. Reload events assembled to match the authored contact timelines.
+These are game sound designs; source firearms are not exact model recordings
+for every displayed gun. No uncredited generated audio or paid assets used.

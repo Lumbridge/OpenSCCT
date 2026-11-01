@@ -88,4 +88,65 @@ public sealed class PawnSoundReplicationTests
         for (int i = 0; i < 120; i++) rig.Step();
         Assert.Equal(0, GC.GetAllocatedBytesForCurrentThread() - before);
     }
+    [Theory]
+    [InlineData("100")]
+    [InlineData("300")]
+    public void PredictedSoundsRelayOnlyToOtherPlayerWithoutDuplicates(string link)
+    {
+        using var rig = WalkerRig.Create(SimLinkProfile.Get(link), 194, 2,
+            new ServerSettings { SpawnWalkers = false }, new ClientSettings { Gameplay = true });
+        Level level = rig.Server.World.Level;
+        level.SetService(new MovementService());
+        NetHearSound.InstallServer(rig.Server.World, rig.Server.Driver);
+        var source = level.Spawn<SPawnAttaque>()!;
+        source.bAlwaysRelevant = true;
+        source.RemoteRole = ENetRole.ROLE_SimulatedProxy;
+        source.Physics = EPhysics.PHYS_None;
+        source.PawnAnim.Play(0, PawnActions.Clip(source, new Name("WaitStAlFd0")), 1f, 0f, loop: true);
+        bool owned = false;
+        rig.Server.PlayerJoined += slot =>
+        {
+            var pc = level.Spawn<PlayerController>()!;
+            pc.bIsPlayer = true;
+            pc.Player = new SimNetConnection();
+            pc.RemoteRole = ENetRole.ROLE_AutonomousProxy;
+            slot.Connection.Actor = pc;
+            if (!owned) { pc.Pawn = source; source.Controller = pc; owned = true; }
+        };
+        for (int i = 0; i < 300; i++) rig.Step();
+        var records = new[] { new Recorder(), new Recorder() };
+        for (int i = 0; i < 2; i++)
+        {
+            Recorder record = records[i];
+            rig.Clients[i].World.EventSink = record;
+            rig.Clients[i].BeforeWorldTick += client =>
+                record.OnSimEvents(client.World.TickCount + 1, client.World.Events.Late);
+        }
+        var sound = new AssetRef("Sound_Persos.FootSteps.SW_Landing");
+        bool fired = false;
+        rig.Server.BeforeWorldTick += _ =>
+        {
+            if (fired) return;
+            fired = true;
+            source.PlayOwnedSound(sound);
+        };
+        for (int i = 0; i < 150; i++) rig.Step();
+        int total = 0, silent = 0;
+        foreach (Recorder record in records)
+        {
+            int count = record.Heard.FindAll(e => e.What == new Name(sound.Path)).Count;
+            Assert.InRange(count, 0, 1);
+            total += count;
+            if (count == 0) silent++;
+        }
+        Assert.Equal(1, PawnSoundReplication.Of(rig.Server.Driver).Sent);
+        long obsolete = PawnSoundReplication.Of(rig.Clients[0].Driver).Obsolete +
+            PawnSoundReplication.Of(rig.Clients[1].Driver).Obsolete;
+        // Under loss/reordering a one-shot may arrive after its displayed action.
+        // It must be dropped then, not replayed late or echoed to its owner.
+        Assert.Equal(1L, total + obsolete);
+        if (link == "100") Assert.Equal(1, total);
+        Assert.True(silent >= 1);
+    }
+
 }

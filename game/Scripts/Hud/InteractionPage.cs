@@ -5,7 +5,7 @@ using OpenScctGame.Hud.Magma;
 namespace OpenScctGame.Hud;
 
 /// <summary>
-/// P_InterATT, the spy's interaction list drawn over the HUD page (Bridge spy page notes, section 6): created when
+/// P_InterATT, the interaction list shared by spy and merc HUD pages (Bridge spy page notes, section 6): created when
 /// two or more menu entries are usable, so its opening animation starts again each time; the rows are the usable
 /// entries' descriptions; while Use is held the selected row gets the arrow and the highlight.
 /// </summary>

@@ -316,7 +316,7 @@ public static class PawnInventory
         for (SGadget? gadget = Pawn.MyGadget; gadget is not null; gadget = gadget.MyGadget)
         {
             hasCarry |= gadget is SidearmCarry;
-            if (gadget is not SidearmCarry && !IsSelectable(gadget)) continue;
+            if (!IsSelectable(gadget)) continue;
             if (slotIndex++ == num) slotGadget = gadget;
         }
         if (hasCarry && (slotGadget is null || !IsSelectable(slotGadget))) return;

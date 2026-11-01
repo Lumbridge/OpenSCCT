@@ -1,0 +1,71 @@
+{
+  "rifle": {
+    "seconds": 2.0,
+    "events": [
+      0.28,
+      1.12,
+      1.32
+    ]
+  },
+  "uzi": {
+    "seconds": 2.0,
+    "events": [
+      0.28,
+      1.12,
+      1.32
+    ]
+  },
+  "suppressed": {
+    "seconds": 2.0,
+    "events": [
+      0.28,
+      1.12,
+      1.32
+    ]
+  },
+  "unsuppressed": {
+    "seconds": 2.0,
+    "events": [
+      0.28,
+      1.12,
+      1.32
+    ]
+  },
+  "automatic": {
+    "seconds": 2.3,
+    "events": [
+      0.322,
+      1.288,
+      1.518
+    ]
+  },
+  "magnum44": {
+    "seconds": 2.8,
+    "events": [
+      0.336,
+      0.784,
+      1.624,
+      2.296
+    ]
+  },
+  "desert_eagle": {
+    "seconds": 2.6,
+    "events": [
+      0.364,
+      1.456,
+      1.716
+    ]
+  },
+  "shotgun": {
+    "seconds": 3,
+    "events": [
+      0.7880001,
+      1.11,
+      1.4413334,
+      1.9193333,
+      2.2793334,
+      2.6
+    ],
+    "playback": "individual shell events; early exits stop future shell sounds"
+  }
+}

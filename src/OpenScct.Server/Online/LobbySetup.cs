@@ -144,6 +144,9 @@ public sealed record LobbySetup
     /// </summary>
     public bool Practice { get; init; }
 
+    /// <summary>Allow mercenary sidearms in this session. Opt-in, independent of alternate rules.</summary>
+    public bool Sidearms { get; init; }
+
     /// <summary>A mode by its menu name or number.</summary>
     public static bool TryParseMode(string? text, out EGameMode mode)
     {
@@ -233,7 +236,7 @@ public sealed record LobbySetup
     /// the number of players the server waits for.
     /// </summary>
     public string ToGameOptions(int players) =>
-        RoundMatchInfo().GetOptionsString() + "?NBPlayers=" + Math.Max(1, players).ToString(CultureInfo.InvariantCulture);
+        RoundMatchInfo().GetOptionsString() + "?SvmSidearms=" + (Sidearms ? "1" : "0") + "?NBPlayers=" + Math.Max(1, players).ToString(CultureInfo.InvariantCulture);
 
     /// <summary>The round's match settings: a practice round has no time limit, unlimited lives on both sides and the shortest respawn.</summary>
     private USMatchInfo RoundMatchInfo()
@@ -311,7 +314,7 @@ public sealed record LobbySetup
         ToMatchInfo().GetOptionsString() + string.Create(CultureInfo.InvariantCulture,
             $"?SvmDisks={Disks}?SvmDisksToWin={DisksToWin}?SvmDisksMax={DisksMax}?SvmVoice={VoiceMenuIndex(VoiceMode)}?SvmVoiceLobby={(VoiceInLobby ? 1 : 0)}?SvmRandomMap={(RandomMap ? 1 : 0)}") +
         string.Create(CultureInfo.InvariantCulture, $"?SvmBots={(int)Bots}?SvmBotsPerSide={BotsPerSide}?SvmBotSkill={(int)BotSkill}?SvmBal={(AutoBalance ? 1 : 0)}?SvmPr={(Practice ? 1 : 0)}") +
-        Alternate.ToOptions();
+        "?SvmSidearms=" + (Sidearms ? "1" : "0") + Alternate.ToOptions();
 
     /// <summary>Reads a setup from options (as <see cref="ToOptions"/> writes them); missing values keep <paramref name="fallback"/>'s.</summary>
     public static LobbySetup FromOptions(string options, LobbySetup? fallback = null)
@@ -347,6 +350,7 @@ public sealed record LobbySetup
             AutoBalance = UcOptions.GetIntOption(options, "SvmBal", f.AutoBalance ? 1 : 0) != 0,
             Alternate = AlternateRules.FromOptions(options, f.Alternate),
             Practice = UcOptions.GetIntOption(options, "SvmPr", f.Practice ? 1 : 0) != 0,
+            Sidearms = UcOptions.GetIntOption(options, "SvmSidearms", f.Sidearms ? 1 : 0) != 0,
         }.Clamped();
     }
 

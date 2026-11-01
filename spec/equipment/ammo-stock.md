@@ -84,3 +84,10 @@ None of its own; the weapon goes `s_Selected -> s_FullReloading -> s_Selected / 
 ## Open questions
 - How the interaction position (55, 0, 0) and `rRotationForInteraction` are used (walk-to spot or facing test); see
   the interaction spec. Scenario: use each SteeE crate from several sides and record the merc's position.
+
+## OpenSCCT resupply corrections
+
+- Using a crate during a normal reload upgrades it to a full reload, including the shotgun's shell animation.
+- Remote mercs receive authoritative primary ammunition even without a sidearm; resupply cancels any pending carried-primary reload timer.
+
+- A hosted session opens the touched interaction's actor channel for its owning player before sending its menu entry. This lets the replicated menu resolve the crate even when normal camera relevance has not sent it yet. Clubhouse coverage checks all three crates, opening the Use menu and refilling, on loopback and with latency.

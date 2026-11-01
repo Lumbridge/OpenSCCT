@@ -30,6 +30,24 @@ public sealed class WalkingTests
         Assert.Equal(fast, walk.Sample().Vel.Size2D(), 1);
     }
 
+    [Theory]
+    [InlineData(false, 1)]
+    [InlineData(false, -1)]
+    [InlineData(true, 1)]
+    [InlineData(true, -1)]
+    public void MercWalkingDiagonallyDoesNotExceedForwardSpeed(bool crouched, int side)
+    {
+        PawnRig forward = Rig(PawnTeam.Merc, crouched: crouched);
+        PawnRig diagonal = Rig(PawnTeam.Merc, crouched: crouched);
+        forward.SetFastSpeed(false);
+        diagonal.SetFastSpeed(false);
+        forward.Hold(Forward, 60);
+        diagonal.Hold(new PlayerInputFrame { BT_Up = 1, BT_Right = (byte)(side > 0 ? 1 : 0), BT_Left = (byte)(side < 0 ? 1 : 0) }, 60);
+        Assert.True(diagonal.Sample().Vel.Size2D() <= forward.Sample().Vel.Size2D() + 0.1f);
+        Assert.True(diagonal.Sample().Vel.Size2D() > 0);
+        Assert.Equal(0.45f, forward.Controller.GetSpeedMode());
+    }
+
     [Fact]
     public void SpySpawnsCrouchedUnarmedAndStandsWithTheRig()
     {

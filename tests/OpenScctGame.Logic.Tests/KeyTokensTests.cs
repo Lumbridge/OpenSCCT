@@ -57,4 +57,27 @@ public sealed class KeyTokensTests
         Assert.Null(KeyTokens.KeyBoundTo(KeyLayout.Parse(Layout), "AltFire"));
         Assert.Equal("RightMouse", KeyTokens.KeyBoundTo(KeyLayout.Parse(Layout), "altfire | gadgetquickchoice 1 | holdbreath"));
     }
+
+    [Fact]
+    public void Merc_tip_resolves_the_expanded_use_alias()
+    {
+        var layout = KeyLayout.Parse("""
+            [Engine.Input]
+            Aliases[12]=(Command="InvButton bUsing",Alias="Use")
+            IK_Shift=InvButton bUsing
+            """);
+
+        Assert.Equal("Press Shift again.", KeyTokens.Expand(@"Press \\USE again.",
+            binding => KeyTokens.KeyBoundTo(layout, binding)));
+        layout.Bind("Shift", "InvButton bUsing | HackComm");
+        Assert.Null(KeyTokens.KeyBoundTo(layout, "Use"));
+    }
+
+    [Fact]
+    public void Escaped_tip_tokens_consume_both_backslashes()
+    {
+        Assert.Equal("Press F2, then Shift.",
+            KeyTokens.Expand(@"Press \\VISION2, then \\USE.", binding => binding == "SwitchHeadset 2" ? "F2" : Name(binding)));
+        Assert.Equal(@"\\JUMP and \\NOTATOKEN", KeyTokens.Expand(@"\\JUMP and \\NOTATOKEN", Name));
+    }
 }

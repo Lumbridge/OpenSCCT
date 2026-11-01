@@ -96,6 +96,7 @@ public partial class SComputerObjectiveTrigger
     [PortOf("uc:SBase.SComputerObjectiveTrigger:Triggering", Spec = "spec/objectives/terminal-hack.md#rules")]
     protected internal override void Triggering(bool Status)
     {
+        using var clock = WorldEventTime();
         if (bTriggering && !Status)
         {
             int before = CaptureTime;

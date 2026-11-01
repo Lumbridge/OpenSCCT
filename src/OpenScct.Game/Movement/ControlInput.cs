@@ -44,6 +44,13 @@ public static class ControlInput
             // is the stick's own length.
             forward = Clamp1(pc.PadStickForward);
             strafe = Clamp1(pc.PadStickStrafe);
+            // Clamp merc stick magnitude before applying walk speed, so diagonals cannot exceed it.
+            float length = SvmMath.Sqrt(forward * forward + strafe * strafe);
+            if (pc.Pawn is SPAWNDEFENSE && length > 1f)
+            {
+                forward /= length;
+                strafe /= length;
+            }
             pc.aForward = forward * MovementK.StickFullScale * mode;
             pc.aStrafe = strafe * MovementK.StickFullScale * mode;
             norm = SvmMath.Sqrt((forward * forward) + (strafe * strafe)) * mode;
@@ -224,10 +231,10 @@ public static class ControlInput
     /// <summary>
     /// Reloaded's per-axis scale of a key diagonal: 1/sqrt(2) when a standing (not crouched) spy holds a forward or
     /// back key and a side key, else 1. The original applies it only when its pad code gave no analog scale this
-    /// frame; the rewrite's keys and pad both reach here as key bytes.
+    /// frame. Mercs also normalize diagonals so the walk-mode scale remains a speed limit.
     /// </summary>
     private static float DiagonalScale(SPlayerController pc, float forward, float strafe) =>
-        forward != 0f && strafe != 0f && pc.Pawn is SPawnAttaque { bIsCrouched: false } ? MovementK.DiagonalAxisScale : 1f;
+        forward != 0f && strafe != 0f && pc.Pawn is (SPAWNDEFENSE or SPawnAttaque { bIsCrouched: false }) ? MovementK.DiagonalAxisScale : 1f;
 
     private static float Axis(byte positive, byte negative) => (positive != 0 ? 1f : 0f) - (negative != 0 ? 1f : 0f);
 

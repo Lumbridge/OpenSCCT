@@ -1,7 +1,7 @@
 OpenSCCT sidearm assets
 =======================
 
-suppressed
+suppressed / unsuppressed
 Model Information:
 * title:	HP USP 45
 * source:	https://sketchfab.com/3d-models/hp-usp-45-e27cf9dcff6b411cb5e7fe0544e402e4
@@ -14,7 +14,7 @@ Model License:
 If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
 This work is based on "HP USP 45" (https://sketchfab.com/3d-models/hp-usp-45-e27cf9dcff6b411cb5e7fe0544e402e4) by Joche007 (https://sketchfab.com/fkboy123) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
 Changes by OpenSCCT: normalized scale and axes; animation rig adapted; textures resized; finishes generated.
-Original OpenSCCT suppressor added.
+Original OpenSCCT suppressor added to the suppressed variant; the unsuppressed variant retains the same base pistol without it.
 
 automatic
 Model Information:
@@ -72,3 +72,49 @@ Model License:
 If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
 This work is based on "animated pistol" (https://sketchfab.com/3d-models/animated-pistol-bd896167e7ca44f19597d3afe6a8d83f) by DJMaesen (https://sketchfab.com/bumstrum) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
 Changes by OpenSCCT: weapon replacement, camera framing, clip splitting and contextual animation retargeting.
+
+Sidearm firing and reload audio
+===============================
+Recordings downloaded from the public high-quality previews / downloads linked below.
+Changes by OpenSCCT: mono 44.1 kHz / 16-bit PCM; one shot isolated per report; linear gain; short faded tails. Reload handling transients cut and placed at authored animation cue times (export/audio/timing.json).
+No dynamics compressor or limiter. The Glock firing recording is unchanged.
+
+unsuppressed: Colt 1911 (.45 ACP reference)
+Author: areniporgen
+Source: https://freesound.org/people/areniporgen/sounds/740897/
+License: CC0-1.0 (https://creativecommons.org/publicdomain/zero/1.0/)
+
+automatic: Glock Shot Sound Effect (Glock18)
+Author: aleksnascimento
+Source: https://freesound.org/people/aleksnascimento/sounds/161195/
+License: CC-BY-3.0 (https://creativecommons.org/licenses/by/3.0/)
+
+desert_eagle: Desert Eagle .50
+Author: AugustSandberg
+Source: https://freesound.org/people/AugustSandberg/sounds/231243/
+License: CC0-1.0 (https://creativecommons.org/publicdomain/zero/1.0/)
+
+suppressed: silenced pistol shot (.45 reference)
+Author: Clutvh
+Source: https://freesound.org/people/Clutvh/sounds/627087/
+License: CC0-1.0 (https://creativecommons.org/publicdomain/zero/1.0/)
+
+magnum44: 44 Magnum.wav (field recording; IDontLikeFruit edit)
+Author: dcsimon; edit by IDontLikeFruit / LUDATOR Interactive
+Original: https://freesound.org/people/dcsimon/sounds/139979/
+Recording/download: https://idontlikefruit.com/audio/v1/shot-pome-53bd87e23d0c.wav
+Edit credits: https://idontlikefruit.com/audio/CREDITS.html
+License: CC-BY-3.0 (https://creativecommons.org/licenses/by/3.0/)
+OpenSCCT changes: first report isolated, downmixed/resampled to 44.1 kHz PCM, linear gain and a 5 ms tail fade.
+
+pistol_reload: PistolReloadSound.wav
+Author: MaximBomba
+Source: https://freesound.org/people/MaximBomba/sounds/432139/
+License: CC0-1.0 (https://creativecommons.org/publicdomain/zero/1.0/)
+
+revolver_reload: Revolver reloading_1
+Author: o_ciz
+Source: https://freesound.org/people/o_ciz/sounds/475421/
+License: CC0-1.0 (https://creativecommons.org/publicdomain/zero/1.0/)
+
+USP variants use .45 ACP reference recordings. The revolver uses a recorded revolver report; these are game sound profiles, not claims that every recording is the exact displayed model.

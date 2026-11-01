@@ -9,6 +9,7 @@ public partial class GameReplicationInfo : ReplicationInfo
     public string GameName = string.Empty;
     public string ServerName = string.Empty;
     public bool bTeamGame;
+    public bool SidearmsEnabled;
     public bool bMatchHasBegun;
     public int TimeLimit;
     public int RemainingTime;

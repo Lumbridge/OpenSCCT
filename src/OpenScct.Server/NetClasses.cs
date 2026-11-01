@@ -28,6 +28,12 @@ public static class NetClasses
         for (int i = 0; i < registry.Count; i++)
         {
             System.Type type = registry.Classes[i].Type;
+            if (typeof(OpenScct.Core.Engine.GameReplicationInfo).IsAssignableFrom(type))
+            {
+                var rules = new RepExtension();
+                rules.Properties.Add(new RepExtensionProperty("SidearmsEnabled", "SidearmsEnabled", RepLeafKind.Bool));
+                registry.Extend(type, rules);
+            }
             if (typeof(SBasePawn).IsAssignableFrom(type))
             {
                 RepExtension pawn = PawnStateReplication.CreateExtension();

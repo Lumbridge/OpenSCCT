@@ -150,8 +150,14 @@ public sealed class NetCombatBridge : ICombatNet
         for (int i = 0; i < _pending.Count;)
         {
             Pending p = _pending[i];
+            // Cold client map/model loading can take longer than the ordinary RPC timeout.
+            // The first kit must survive until this pawn's channel is acknowledged; stop
+            // retaining it as soon as the controller moves to a different pawn.
+            bool initialKit = p.Call.Function == new Name("UpdateInventory") &&
+                p.Call.Target is SBasePawn { Health: > 0, bDeleteMe: false } pawn &&
+                ReferenceEquals(p.Controller.Pawn, pawn);
             if (p.Connection.State == EConnectionState.USOCK_Closed || p.Controller.bDeleteMe ||
-                now - p.QueuedAt > (long)(MaxWaitSeconds * 1_000_000f))
+                (!initialKit && now - p.QueuedAt > (long)(MaxWaitSeconds * 1_000_000f)))
             {
                 _pending.RemoveAt(i);
                 Dropped++;

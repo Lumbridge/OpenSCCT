@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import json
 import struct
+from functools import lru_cache
 from pathlib import Path
 
 import numpy as np
@@ -127,7 +128,17 @@ class Mesh:
         return float(np.abs(band[:, 0]).max()) if len(band) else 0.15
 
 
+@lru_cache(maxsize=2)
+def _cached_bake(mesh, texture, h, w):
+    return _bake(mesh, texture, h, w)
+
+
 def bake(mesh: Mesh, texture: str, h: int, w: int, priority: np.ndarray | None = None) -> dict | None:
+    # Layouts are immutable inputs to every finish. Share the expensive rasterization.
+    return _cached_bake(mesh, texture, h, w) if priority is None else _bake(mesh, texture, h, w, priority)
+
+
+def _bake(mesh: Mesh, texture: str, h: int, w: int, priority: np.ndarray | None = None) -> dict | None:
     """Every texel of a texture traced back to the bind pose: position, normal, body part and the index of the
     texture's triangle (in mesh.tris[texture] order) covering it (h x w), with a mask of the texels a triangle covers
     (seams padded a few texels outward). UVs outside 0..1 wrap, as the textures repeat. Where triangles share texels,

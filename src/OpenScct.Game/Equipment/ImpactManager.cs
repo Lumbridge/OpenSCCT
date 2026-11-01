@@ -48,6 +48,11 @@ public sealed class ImpactMark
     /// <summary>The gameplay actor the decal was projected on (null for the level's geometry or none known).</summary>
     public Actor? Surface { get; internal set; }
 
+    /// <summary>The surface pose when hit, used to carry the decal with a moving actor.</summary>
+    public FVector SurfaceLocation { get; internal set; }
+
+    public FRotator SurfaceRotation { get; internal set; }
+
     /// <summary>True when the surface was already not drawn when the mark was added: the decal found nothing.</summary>
     public bool SurfaceGone { get; internal set; }
 
@@ -198,6 +203,8 @@ public sealed class ImpactTable
         Rot.GetAxes(out FVector X, out _, out _);
         m.DecalLocation = Loc + X * K.ImpactDecalOffset;
         m.Surface = Surface is LevelInfo ? null : Surface;
+        m.SurfaceLocation = m.Surface?.Location ?? default;
+        m.SurfaceRotation = m.Surface?.Rotation ?? default;
         m.SurfaceGone = m.Surface is not null && !ImpactMark.IsDrawn(m.Surface);
         Added++;
         return m;

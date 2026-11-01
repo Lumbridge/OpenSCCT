@@ -711,6 +711,7 @@ public sealed partial class OnlineServer
                 _ => null,
             },
             "botsperside" when isInt => s with { BotsPerSide = n },
+            "sidearms" when isBool => s with { Sidearms = on },
             "practice" when isBool => s with { Practice = on },
             "botskill" => Enum.TryParse(value, ignoreCase: true, out OpenScct.Game.AI.AiSkill skill) ? s with { BotSkill = skill } : null,
             "balance" or "autobalance" when isBool => s with { AutoBalance = on },

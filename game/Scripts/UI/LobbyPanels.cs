@@ -37,6 +37,7 @@ public static class LobbyPanels
         centre.RemoveChild(body); scroll.RemoveChild(centre); centre.QueueFree();
         body.CustomMinimumSize = Vector2.Zero;
         body.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+        body.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
         scroll.OffsetBottom = -172;
         scroll.AddChild(body);
     }

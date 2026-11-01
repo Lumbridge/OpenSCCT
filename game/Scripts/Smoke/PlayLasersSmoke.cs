@@ -377,9 +377,10 @@ public sealed class PlayLasersSmoke : SmokeTest
         st.WorstFit = MathF.Max(st.WorstFit, FVector.Dist(hand.Origin, OpenScct.Game.Combat.CombatNatives.SpyPistolCoords(pawn, PC!.Rotation).Origin));
         st.Sample ??= string.Create(CultureInfo.InvariantCulture,
             $"pawn {pawn.Location} crouched {pawn.bIsCrouched} view {PC!.Rotation} hand {hand.Origin} pistol fit {Fit(pawn)} beam {start} -> {lasers.BeamEnd} want {want} FX {muzzle}");
-        if (angle > 1f)
+        var expectedBeam = OpenScctGame.Fx.SpyLaserView.TraceReadyBeam(Pistol!, start);
+        if (FVector.Dist(lasers.BeamEnd, expectedBeam.Hit) > 1f)
         {
-            return Fail(string.Create(CultureInfo.InvariantCulture, $"the beam leaves the drawn pistol {angle:F1} deg off its hand's X axis: {st.Sample}"));
+            return Fail("the ready spy laser disagrees with the shocker ballistic target");
         }
 
         if (endGap > 1f)
@@ -475,7 +476,7 @@ public sealed class PlayLasersSmoke : SmokeTest
             return Fail("no first-person rifle with an FX bone");
         }
 
-        FVector muzzle = UeSpace.ToUe((model.Skeleton.GlobalTransform * model.Skeleton.GetBoneGlobalPose(fxIndex)).Origin);
+        FVector muzzle = UeSpace.ToUe((model.Skeleton.GlobalTransform * model.CurrentBonePose(fxIndex)).Origin);
         FVector dir = (lasers.LocalEnd - muzzle).SafeNormal();
         FVector want = muzzle - (dir * K.LaserFireStartPullBack);
         float off = FVector.Dist(lasers.LocalStart, want);

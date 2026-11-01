@@ -64,6 +64,7 @@ public partial class GearMenu : MenuPage
     private Button? _reset;
     private Button? _ok;
     private bool _grid;
+    private bool _sidearms;
     private int _slot;
     private Label? _name;
     private Label? _description;
@@ -164,9 +165,17 @@ public partial class GearMenu : MenuPage
 
     private void ShowGadgets(int slot)
     {
+        _sidearms = false;
         _grid = true;
         _slot = slot;
         TitleText = GearMenuModel.GadgetsTitle;
+        Rebuild();
+    }
+
+    private void ShowSidearms()
+    {
+        _grid = _sidearms = true;
+        TitleText = "Sidearm";
         Rebuild();
     }
 
@@ -214,6 +223,11 @@ public partial class GearMenu : MenuPage
 
     private void BuildEquipment(GearMenuModel m)
     {
+        if (!m.Spy)
+        {
+            BuildMercEquipment(m);
+            return;
+        }
         if (Texture(m.Portrait) is { } portrait)
         {
             foreach (float left in new[] { 0.05f, 0.57f })
@@ -305,15 +319,60 @@ public partial class GearMenu : MenuPage
         first?.CallDeferred(Control.MethodName.GrabFocus);
     }
 
+    private void BuildMercEquipment(GearMenuModel m)
+    {
+        Text("Primary Weapon", Page(.12f, .09f, .34f, .055f), 14f, HorizontalAlignment.Center, UiStyle.MenuText);
+        Text("Sidearm", Page(.54f, .09f, .34f, .055f), 14f, HorizontalAlignment.Center, UiStyle.MenuText);
+        GearTile primary = Tile(false, Page(.12f, .16f, .34f, .19f), WeaponAtlas(), Item(m.ChosenWeapon), 0, ProfileTile);
+        primary.Name = "Weapon";
+        primary.Disabled = m.Weapons.Count < 2;
+        primary.Pressed += () => { m.CycleWeapon(1); Rebuild(); _layer?.GetNodeOrNull<Control>("Weapon")?.CallDeferred(Control.MethodName.GrabFocus); };
+        primary.FocusEntered += () => ShowItem(m.ChosenWeapon, false);
+        primary.MouseEntered += () => ShowItem(m.ChosenWeapon, false);
+        Text(GearMenuModel.NameOf(m.ChosenWeapon), Page(.10f, .35f, .38f, .05f), 11f, HorizontalAlignment.Center, UiStyle.MenuFocus);
+        GearTile sidearm = Tile(false, Page(.54f, .16f, .34f, .19f), GadgetAtlas(), Item(m.ChosenSidearm), 0, ProfileTile);
+        sidearm.Name = "Sidearm";
+        sidearm.Disabled = !m.SidearmsEnabled;
+        sidearm.TooltipText = m.SidearmsEnabled ? "Sidearm" : "Sidearms are disabled for this session";
+        sidearm.Pressed += ShowSidearms;
+        sidearm.FocusEntered += () => ShowItem(m.ChosenSidearm, false);
+        sidearm.MouseEntered += () => ShowItem(m.ChosenSidearm, false);
+        Text(m.SidearmsEnabled ? GearMenuModel.NameOf(m.ChosenSidearm) : "Disabled for this session", Page(.52f, .35f, .38f, .05f), 11f, HorizontalAlignment.Center, UiStyle.MenuFocus);
+        Text("Gadgets", Page(.08f, .42f, .84f, .05f), 14f, HorizontalAlignment.Left, UiStyle.MenuText);
+        for (int i = 0; i < 4; i++)
+        {
+            int slot = i;
+            string path = m.Gadgets[i];
+            GearTile tile = Tile(false, Page(.08f + i * .22f, .49f, .18f, .16f), GadgetAtlas(), Item(path), 0, ProfileTile);
+            tile.Name = $"Slot{i + 1}";
+            tile.Disabled = i >= m.Slots;
+            tile.Pressed += () => ShowGadgets(slot);
+            tile.FocusEntered += () => ShowItem(path, false);
+            tile.MouseEntered += () => ShowItem(path, false);
+            Text(tile.Disabled ? "Unavailable" : GearMenuModel.NameOf(path), Page(.06f + i * .22f, .65f, .22f, .05f), 9f, HorizontalAlignment.Center,
+                tile.Disabled ? UiStyle.Dim : UiStyle.MenuText);
+        }
+        _name = Text("", Page(.08f, .73f, .84f, .05f), 13f, HorizontalAlignment.Left, UiStyle.MenuFocus);
+        _description = Text("", Page(.08f, .79f, .84f, .10f), 10f, HorizontalAlignment.Left, UiStyle.MenuText);
+        _description.AutowrapMode = TextServer.AutowrapMode.WordSmart;
+        _description.VerticalAlignment = VerticalAlignment.Top;
+        Label rule = Text(m.Rule, Page(.04f, .85f, .92f, .04f), 9f, HorizontalAlignment.Center, UiStyle.Dim);
+        rule.AutowrapMode = TextServer.AutowrapMode.WordSmart;
+        ShowItem(m.ChosenSidearm, false);
+        sidearm.CallDeferred(Control.MethodName.GrabFocus);
+    }
+
     // ---- Edit_Gadgets ------------------------------------------------------------------------------------------
 
     private void BuildGadgets(GearMenuModel m)
     {
         GearTile? first = null;
-        for (int i = 0; i < m.Options.Count; i++)
+        var options = _sidearms ? m.SidearmOptions : m.Options;
+        string selected = _sidearms ? m.ChosenSidearm : m.Gadgets[_slot];
+        for (int i = 0; i < options.Count; i++)
         {
-            string option = m.Options[i];
-            Vector2 at = m.Spy ? OptionAt[i] : new(0.12f + (i % 4) * 0.205f, 0.06f + (i / 4) * 0.18f);
+            string option = options[i];
+            Vector2 at = _sidearms ? new(0.07f + i * 0.18f, 0.25f) : OptionAt[i];
             GearTile tile = Tile(false, Page(at.X, at.Y, 0.14f, 0.14f), GadgetAtlas(), Item(option), 1f, GridTile);
             tile.Name = $"Option{i + 1}";
             tile.TooltipText = Sidearms.Find(option)?.Description ?? GearMenuModel.NameOf(option);
@@ -322,7 +381,8 @@ public partial class GearMenu : MenuPage
             tile.FocusMode = tile.Disabled ? FocusModeEnum.None : FocusModeEnum.All;
             tile.Pressed += () =>
             {
-                m.Choose(_slot, option);
+                if (_sidearms) m.ChooseSidearm(option);
+                else m.Choose(_slot, option);
                 ShowEquipment();
             };
             tile.FocusEntered += () => ShowItem(option, true);
@@ -336,7 +396,7 @@ public partial class GearMenu : MenuPage
                     HorizontalAlignment.Center, tile.Disabled ? UiStyle.Dim : UiStyle.MenuText);
             }
 
-            if (!tile.Disabled && (first is null || string.Equals(option, m.Gadgets[_slot], StringComparison.OrdinalIgnoreCase)))
+            if (!tile.Disabled && (first is null || string.Equals(option, selected, StringComparison.OrdinalIgnoreCase)))
             {
                 first = tile;
             }
@@ -348,7 +408,7 @@ public partial class GearMenu : MenuPage
         _description = Text("", Page(0.02f, 0.7f, 0.96f, 96f / PageHeight), 11f, HorizontalAlignment.Center, UiStyle.MenuText);
         _description.AutowrapMode = TextServer.AutowrapMode.WordSmart;
         _description.VerticalAlignment = VerticalAlignment.Top;
-        ShowItem(m.Gadgets[_slot], true);
+        ShowItem(selected, true);
         first?.CallDeferred(Control.MethodName.GrabFocus);
     }
 
@@ -361,12 +421,13 @@ public partial class GearMenu : MenuPage
         if (_name is not null)
         {
             _name.Text = item?.ItemLongName is { Length: > 0 } longName ? longName : GearMenuModel.NameOf(path);
+            if (item is SGadGasMask && _name.Text == "gas Mask") _name.Text = "Gas Mask";
         }
 
         if (_description is not null)
         {
             _description.Text = Sidearms.Find(path) is { } pistol
-                ? pistol.Description + (_model?.IsAllowed(path) == false ? " Locked: this slot will be empty until unlocked." : "")
+                ? pistol.Description + (_model?.IsAllowed(path) == false ? " Locked: reach the required level to equip." : "")
                 : item?.ItemDescription ?? "";
         }
 

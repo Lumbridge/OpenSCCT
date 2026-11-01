@@ -15,4 +15,7 @@ public interface ILoadoutSource
 
     /// <summary>The side's weapon.</summary>
     ClassRef Weapon(bool Spy);
+
+    /// <summary>The independent merc sidearm, or None.</summary>
+    ClassRef Sidearm() => default;
 }

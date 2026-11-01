@@ -84,6 +84,8 @@ public sealed class AudioLibrary
         lib.ReadShared(System.IO.Path.Combine(sharedDir, "audio.json"));
         string sidearms = System.IO.Path.Combine(sharedDir, "sidearms.json");
         if (File.Exists(sidearms)) lib.ReadShared(sidearms);
+        string weapons = System.IO.Path.Combine(sharedDir, "weapons.json");
+        if (File.Exists(weapons)) lib.ReadShared(weapons);
         if (mapDir is not null && System.IO.File.Exists(System.IO.Path.Combine(mapDir, "audio.json")))
         {
             lib.Map = MapAudioDoc.Load(System.IO.Path.Combine(mapDir, "audio.json"));
@@ -101,6 +103,22 @@ public sealed class AudioLibrary
     }
 
     public SoundDef? Find(string? path) => path is not null && _sounds.TryGetValue(path, out SoundDef? d) ? d : null;
+
+    /// <summary>Decode every possible leaf of a gun's random/switch/sequence sound before its first shot.</summary>
+    public void Preload(string path)
+    {
+        var visited = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        void Load(string name)
+        {
+            if (!visited.Add(name) || Find(name) is not { } def) return;
+            if (def.IsList)
+            {
+                foreach (var entry in def.Entries) if (entry.Sound is { } child) Load(child);
+            }
+            else Stream(def, def.Loop);
+        }
+        Load(path);
+    }
 
     /// <summary>The playable stream of a wave or streamed sound, looping or not; null when it has no file.</summary>
     public AudioStream? Stream(SoundDef def, bool loop)

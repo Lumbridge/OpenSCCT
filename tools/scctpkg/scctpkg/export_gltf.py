@@ -519,15 +519,11 @@ def _flipbook_png(key: str, flipbook: dict, tex_dir: Path, tex_uri: Dict[str, Op
 
 
 def _with_opacity(diffuse, opacity):
-    """Diffuse RGB with the Shader.Opacity texture as alpha (its alpha channel when it varies, else its luminance),
-    resampled to the diffuse size."""
+    """Diffuse RGB with Shader.Opacity alpha, including constant alpha (native SELECTARG1/TEXTURE)."""
     from PIL import Image
     base = diffuse.convert("RGBA")
     op = opacity.convert("RGBA").resize(base.size, Image.BILINEAR)
-    a = op.getchannel("A")
-    lo, hi = a.getextrema()
-    alpha = a if hi - lo > 8 else op.convert("L")
-    base.putalpha(alpha)
+    base.putalpha(op.getchannel("A"))
     return base
 
 
@@ -626,12 +622,6 @@ def _combine_flags(key: str, res: ResolvedMaterial, tex_dir: Optional[Path], tex
     return out
 
 
-def _opacity_uses_luminance(opacity) -> bool:
-    """_with_opacity's channel choice: the alpha channel when it varies, else the luminance."""
-    lo, hi = opacity.convert("RGBA").getchannel("A").getextrema()
-    return hi - lo <= 8
-
-
 def _layer_flags(key: str, res: ResolvedMaterial, tex_dir: Optional[Path], tex_uri) -> dict:
     """Material inputs the client evaluates on their own instead of a bake (docs/RENDERING.md#materials):
     "opacity" (+ "opacity_anim", "opacity_matrix", "opacity_lum") when the Opacity moves differently from the Diffuse;
@@ -648,7 +638,7 @@ def _layer_flags(key: str, res: ResolvedMaterial, tex_dir: Optional[Path], tex_u
         if uri:
             out.update({"opacity": uri, "opacity_anim": res.opacity_anim,
                         "opacity_matrix": list(res.opacity_matrix) if res.opacity_matrix else None,
-                        "opacity_lum": _opacity_uses_luminance(op.image)})
+                        "opacity_lum": False})
             layered = True
     if getattr(res, "spec_mask", None) is not None \
             and (res.spec_mask_anim, res.spec_mask_matrix) != (res.uv_anim, res.uv_matrix):

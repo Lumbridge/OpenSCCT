@@ -13,6 +13,9 @@ namespace OpenScctGame.Render.Post;
 [PortOf("eng:Render.Remanence", Spec = "spec/equipment/flash-bang.md#rules")]
 public partial class RemanenceEffect : CompositorEffect
 {
+    /// <summary>Use a fresh frame each draw for fading double vision instead of a frozen flash capture.</summary>
+    public bool DoubleVision { get; init; }
+
     public const string ShaderPath = "res://Shaders/svm_remanence.glsl";
 
     /// <summary>Factors at or under this draw nothing.</summary>
@@ -123,8 +126,8 @@ public partial class RemanenceEffect : CompositorEffect
             return;
         }
 
-        bool capture = _captureRequests != _capturesDone;
         float factor = _factor;
+        bool capture = DoubleVision ? factor > DrawThreshold : _captureRequests != _capturesDone;
         bool draw = factor > DrawThreshold && _capture.IsValid && _captureSize == size;
         if (!capture && !draw)
         {
@@ -162,7 +165,7 @@ public partial class RemanenceEffect : CompositorEffect
 
         if (factor > DrawThreshold && _capture.IsValid && _captureSize == size)
         {
-            Dispatch(color, 2f, factor, size);
+            Dispatch(color, DoubleVision ? 3f : 2f, factor, size);
             Draws++;
         }
 

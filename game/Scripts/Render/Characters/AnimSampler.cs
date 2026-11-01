@@ -117,6 +117,31 @@ public sealed class AnimSampler
         return true;
     }
 
+    /// <summary>Sample one bone in skeleton space without changing the displayed pose.</summary>
+    public Transform3D SampleBone(AnimClip clip, int bone, float frame)
+    {
+        Transform3D result = Transform3D.Identity;
+        double time = Math.Clamp(frame, 0f, 1f) * clip.Length;
+        for (int b = bone; b >= 0; b = Skeleton.GetBoneParent(b))
+        {
+            Transform3D rest = Skeleton.GetBoneRest(b);
+            Vector3 position = rest.Origin, scale = rest.Basis.Scale;
+            Quaternion rotation = rest.Basis.GetRotationQuaternion();
+            foreach (var (index, track, type) in clip.Tracks)
+            {
+                if (index != b) continue;
+                switch (type)
+                {
+                    case Animation.TrackType.Position3D: position = clip.Animation.PositionTrackInterpolate(track, time); break;
+                    case Animation.TrackType.Rotation3D: rotation = clip.Animation.RotationTrackInterpolate(track, time).Normalized(); break;
+                    case Animation.TrackType.Scale3D: scale = clip.Animation.ScaleTrackInterpolate(track, time); break;
+                }
+            }
+            result = new Transform3D(new Basis(rotation).ScaledLocal(scale), position) * result;
+        }
+        return result;
+    }
+
     public void Advance(double delta)
     {
         if (Current is not { } clip || clip.Length <= 0f)

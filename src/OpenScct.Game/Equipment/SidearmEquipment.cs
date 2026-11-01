@@ -10,10 +10,13 @@ namespace OpenScct.Game.Equipment;
 /// <summary>OpenSCCT equipment additions; carry IDs are deliberately outside the retail restriction mask.</summary>
 public static class SidearmEquipment
 {
+    public static bool Enabled(SBasePawn pawn) =>
+        (pawn.Controller as PlayerController)?.GameReplicationInfo?.SidearmsEnabled == true;
+
     public static bool Unrestricted(SBasePawn pawn) => pawn.Level.NetMode == ENetMode.NM_Standalone ||
         pawn.PlayerReplicationInfo?.SvmSidearmsUnrestricted == true || Modes.PracticeRules.IsOn(pawn);
 
-    public static bool Available(SBasePawn pawn, SidearmKind kind) => pawn is SPAWNDEFENSE &&
+    public static bool Available(SBasePawn pawn, SidearmKind kind) => pawn is SPAWNDEFENSE && Enabled(pawn) &&
         Sidearms.Available(kind, (pawn.PlayerReplicationInfo?.SvmRank ?? 0) & 255, Unrestricted(pawn));
 
     public static Actor? Spawn(Actor source, ClassRef cls, Actor? owner, FVector at, FRotator rotation)
@@ -101,13 +104,17 @@ public static class SidearmEquipment
         if (pawn.Role == ENetRole.ROLE_Authority) pawn.WeaponSwitching = pawn.Level.TimeSeconds < pawn.WeaponSwitchUntil;
         SWeapon? active = pawn.ActiveWeaponSlot == 0 ? pawn.PrimaryWeapon : pawn.SidearmWeapon;
         if (active is null) return;
+        // A replicated slot change reveals the newly selected gun once. Its own
+        // animation/state owns visibility afterwards (scope, ladder, holster).
+        if (!ReferenceEquals(pawn.MyWeapon, active) && active is SWeaponDefense selected)
+            selected.bDrawWeapon = true;
         pawn.MyWeapon = active;
-        if (weapon is SWeaponDefense gun) gun.bDrawWeapon = ReferenceEquals(active, weapon);
+        if (weapon is SWeaponDefense gun && !ReferenceEquals(active, weapon)) gun.bDrawWeapon = false;
         if (pawn is SPAWNDEFENSE merc && active is SWeaponDefense drawn) merc.WeaponDummy = drawn.Dummy;
     }
 }
 
-/// <summary>A non-activatable carry item. It spends a gadget slot, has no charges and cannot be shared.</summary>
+/// <summary>A non-activatable carry item in the dedicated sidearm slot; it has no charges and cannot be shared.</summary>
 public sealed class SidearmCarry : SGadget
 {
     public int Kind;

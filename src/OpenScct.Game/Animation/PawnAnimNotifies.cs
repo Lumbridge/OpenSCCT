@@ -75,6 +75,23 @@ public static class PawnAnimNotifies
         ArgumentNullException.ThrowIfNull(notify);
         switch (notify)
         {
+            case UAnimNotify_Sound sound when owner is SBasePawn pawn &&
+                pawn.PawnAnim[channel].Sequence.ToString().StartsWith("Relo", StringComparison.Ordinal) &&
+                sound.Sound.Path?.StartsWith("Armes_impacts.Armes.", StringComparison.Ordinal) == true:
+                // These body-animation handling cues accompany the third-person reload. The
+                // first-person owner already has the weapon's complete reload recording.
+                var pc = pawn.Level.GetLocalPlayerController();
+                if (pc is { bBehindView: false } && ReferenceEquals(pc.Pawn, pawn) &&
+                    ReferenceEquals(pc.ViewTarget ?? pc.Pawn, pawn)) break;
+                pawn.PlayOwnedSound(sound.Sound, ESoundSlot.SLOT_None, sound.Volume, false,
+                    sound.Radius, 1f, true, sound.BoneName);
+                break;
+            case UAnimNotify_Sound sound when owner is SBasePawn pawn:
+                // The autonomous owner runs its own notifies. Simulated proxies use the
+                // server sound stream, so only other listeners need the server's copy.
+                pawn.PlayOwnedSound(sound.Sound, ESoundSlot.SLOT_None, sound.Volume, false,
+                    sound.Radius, 1f, true, sound.BoneName);
+                break;
             case UAnimNotify_Script script:
                 RunScript(owner, script.NotifyName);
                 break;

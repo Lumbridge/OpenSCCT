@@ -11,7 +11,7 @@ public partial class LobbyRoomScreen
 {
     private PanelContainer? _settingsPanel;
     private Label? _overviewTitle, _overviewRules, _overviewObjective, _loadout, _draftStatus;
-    private Button? _rulesButton;
+    private Button? _rulesButton, _joinSpiesButton;
     private Label? _settingsDraftNote;
     private bool _draftConflict;
     private readonly Dictionary<Control, FocusModeEnum> _backgroundFocus = new();
@@ -28,37 +28,51 @@ public partial class LobbyRoomScreen
         var session = Session ?? throw new InvalidOperationException("A lobby session is required.");
         _mapCatalog = GetTree().Root.GetNodeOrNull<OpenScctGame.Online.OnlineService>(OpenScctGame.Online.OnlineService.NodeName)?.Catalog.Maps;
         BuildMapFetchBar();
-        var columns = new LobbyColumns { Name = "LobbyColumns" };
-        Body.AddChild(columns);
+        // GUI.Lobby_Create: teams flank the central actions; map below left, chat below right.
+        // Keep these landmarks in place at 1024px too instead of stacking the teams.
+        var teams = new HBoxContainer { Name = "LobbyTeams" };
+        teams.AddThemeConstantOverride("separation", 12);
+        Body.AddChild(teams);
+        var spies = new VBoxContainer { SizeFlagsHorizontal = SizeFlags.ExpandFill };
+        var actions = new VBoxContainer { Name = "LobbyActions", SizeFlagsHorizontal = SizeFlags.ExpandFill, SizeFlagsStretchRatio = 0.65f };
+        var mercs = new VBoxContainer { SizeFlagsHorizontal = SizeFlags.ExpandFill };
+        teams.AddChild(spies); teams.AddChild(actions); teams.AddChild(mercs);
+        _spies = LobbyPanels.Card(spies, "Spies", "Spies");
+        _spiesWaiting = LobbyPanels.Text("Open slots — join Spies"); _spies.AddChild(_spiesWaiting);
+        var sideActions = new HBoxContainer(); spies.AddChild(sideActions);
+        _joinSpiesButton = LobbyPanels.Button("Join Spies", () => session.SetSide(HudSide.Spy), "JoinSpies"); _joinSpiesButton.SizeFlagsHorizontal = SizeFlags.ExpandFill; sideActions.AddChild(_joinSpiesButton);
+        _mercs = LobbyPanels.Card(mercs, "Mercs", "Mercenaries");
+        _mercsWaiting = LobbyPanels.Text("Open slots — join Mercenaries"); _mercs.AddChild(_mercsWaiting);
+        JoinMercButton = LobbyPanels.Button("Join Mercenaries", () => session.SetSide(HudSide.Merc), "JoinMercs"); mercs.AddChild(JoinMercButton);
+        _spectators = LobbyPanels.Card(spies, "Spectators", "Spectators");
+
+        SwitchTeamButton = LobbyPanels.Button("Switch Team", SwitchTeam, "SwitchTeam"); actions.AddChild(SwitchTeamButton);
+        EquipmentButton = LobbyPanels.Button("Equipment", OpenEquipment, "Equipment"); actions.AddChild(EquipmentButton);
+        ArmouryButton = LobbyPanels.Button("Cosmetics", OpenArmoury, "Armoury"); actions.AddChild(ArmouryButton);
+        _rulesButton = LobbyPanels.Button("Session Options", OpenMatchSettings, "MatchSettings"); actions.AddChild(_rulesButton);
+        actions.AddChild(LobbyPanels.Button("Map / Mode", () => { OpenMatchSettings(); OpenMaps(); }, "MapMode"));
+        BriefingButton = LobbyPanels.Button("Briefing", OpenBriefing, "Briefing"); actions.AddChild(BriefingButton);
+        actions.AddChild(LobbyPanels.Button("Strategic map", OpenStrategicMap, "StrategicMap"));
+        SpectateButton = LobbyPanels.Button("Spectate", session.Spectate, "Spectate"); SpectateButton.SizeFlagsHorizontal = SizeFlags.ExpandFill; sideActions.AddChild(SpectateButton);
+
+        foreach (Control action in actions.GetChildren()) action.CustomMinimumSize = new Vector2(0, 32);
+        var lower = new HBoxContainer { Name = "LobbyDetails", SizeFlagsVertical = SizeFlags.ExpandFill };
+        lower.AddThemeConstantOverride("separation", 12);
+        Body.AddChild(lower);
         var left = new VBoxContainer { SizeFlagsHorizontal = SizeFlags.ExpandFill };
-        var right = new VBoxContainer { SizeFlagsHorizontal = SizeFlags.ExpandFill };
-        columns.AddChild(left); columns.AddChild(right);
-        var overview = LobbyPanels.Card(left, "MatchOverview", "Match overview");
-        ((Label)overview.GetChild(0)).Text = session.ServerName;
-        var pictureRow = new HBoxContainer(); overview.AddChild(pictureRow);
-        MapPicture = new MapThumb(new Vector2(100, 88)); pictureRow.AddChild(MapPicture);
-        var details = new VBoxContainer { SizeFlagsHorizontal = SizeFlags.ExpandFill }; pictureRow.AddChild(details);
-        _overviewTitle = LobbyPanels.Text(); details.AddChild(_overviewTitle);
-        _overviewRules = LobbyPanels.Text(); details.AddChild(_overviewRules);
-        _overviewObjective = LobbyPanels.Text(); overview.AddChild(_overviewObjective);
-        _rulesButton = LobbyPanels.Button("View rules", OpenMatchSettings, "MatchSettings"); overview.AddChild(_rulesButton);
+        var right = new VBoxContainer { SizeFlagsHorizontal = SizeFlags.ExpandFill, SizeFlagsStretchRatio = 1.8f };
+        lower.AddChild(left); lower.AddChild(right);
+        var overview = LobbyPanels.Card(left, "MatchOverview", session.ServerName);
+        ((Control)overview.GetParent()).SizeFlagsVertical = SizeFlags.ExpandFill;
+        _overviewTitle = LobbyPanels.Text(); overview.AddChild(_overviewTitle);
+        MapPicture = new MapThumb(new Vector2(100, 80)) { SizeFlagsVertical = SizeFlags.ExpandFill }; overview.AddChild(MapPicture);
+        _overviewRules = LobbyPanels.Text(); overview.AddChild(_overviewRules);
+        _overviewObjective = LobbyPanels.Text(); _overviewObjective.Visible = false; overview.AddChild(_overviewObjective);
         _draftStatus = LobbyPanels.Text(); _draftStatus.Visible = false; overview.AddChild(_draftStatus);
 
-        _spies = LobbyPanels.Card(left, "Spies", "Spies");
-        _spiesWaiting = LobbyPanels.Text("Open slots — join Spies"); _spies.AddChild(_spiesWaiting);
-        _mercs = LobbyPanels.Card(left, "Mercs", "Mercenaries");
-        _mercsWaiting = LobbyPanels.Text("Open slots — join Mercenaries"); _mercs.AddChild(_mercsWaiting);
-        _spectators = LobbyPanels.Card(left, "Spectators", "Spectators");
-        var sides = new HBoxContainer(); left.AddChild(sides);
-        SwitchTeamButton = LobbyPanels.Button("Join Spies", () => session.SetSide(HudSide.Spy), "JoinSpies");
-        JoinMercButton = LobbyPanels.Button("Join Mercenaries", () => session.SetSide(HudSide.Merc), "JoinMercs");
-        SpectateButton = LobbyPanels.Button("Spectate", session.Spectate, "Spectate");
-        sides.AddChild(SwitchTeamButton); sides.AddChild(JoinMercButton); sides.AddChild(SpectateButton);
-        left.MoveChild(sides, 1);
-        EquipmentButton = LobbyPanels.Button("Change equipment", OpenEquipment, "Equipment");
-
         var chat = LobbyPanels.Card(right, "Chat", "Chat & activity");
-        _messages = new RichTextLabel { Name = "Messages", CustomMinimumSize = new Vector2(0, 240), SizeFlagsVertical = SizeFlags.ExpandFill,
+        ((Control)chat.GetParent()).SizeFlagsVertical = SizeFlags.ExpandFill;
+        _messages = new RichTextLabel { Name = "Messages", CustomMinimumSize = new Vector2(0, 100), SizeFlagsVertical = SizeFlags.ExpandFill,
             SizeFlagsHorizontal = SizeFlags.ExpandFill, ScrollFollowing = true, BbcodeEnabled = true };
         chat.AddChild(_messages);
         var chatRow = new HBoxContainer(); chat.AddChild(chatRow);
@@ -71,12 +85,6 @@ public partial class LobbyRoomScreen
         _microphone = LobbyPanels.Text(); chat.AddChild(_microphone);
         TeamVoiceOnlyBox = new CheckBox { Name = "TeamVoiceOnly", Text = "Voice to team only" };
         TeamVoiceOnlyBox.Toggled += on => Session?.SetTeamVoiceOnly(on); chat.AddChild(TeamVoiceOnlyBox);
-        var tools = LobbyPanels.Card(right, "Tools", "Match tools");
-        BriefingButton = LobbyPanels.Button("Briefing", OpenBriefing, "Briefing"); tools.AddChild(BriefingButton);
-        tools.AddChild(LobbyPanels.Button("Strategic map", OpenStrategicMap, "StrategicMap"));
-        ArmouryButton = LobbyPanels.Button("Cosmetics", OpenArmoury, "Armoury"); tools.AddChild(ArmouryButton);
-        tools.AddChild(LobbyPanels.Button("Options", OpenOptions, "Options"));
-
         Parameters = new CreateSessionModel(session.Maps, session.MapSettings, session.Setup);
         _modelSetup = session.Setup;
         var rows = new List<SessionRow>(CreateSessionModel.Rows); rows.Remove(SessionRow.Password); rows.Remove(SessionRow.MaxPlayers);
@@ -89,13 +97,18 @@ public partial class LobbyRoomScreen
         _loadout.AutowrapMode = TextServer.AutowrapMode.Off;
         _loadout.ClipText = true;
         _loadout.TextOverrunBehavior = TextServer.OverrunBehavior.TrimEllipsis;
-        var preparationRow = new HBoxContainer();
-        preparation.AddChild(preparationRow);
-        preparationRow.AddChild(_loadout);
-        preparationRow.AddChild(EquipmentButton);
+        preparation.AddChild(_loadout);
         _status = LobbyPanels.Text(); _status.Name = "PreparationStatus"; _status.MaxLinesVisible = 2; _status.Modulate = UiStyle.MenuFocus; preparation.AddChild(_status);
-        LeaveButton = PageButton("Leave lobby", () => Session?.Leave(), "Leave");
+        LeaveButton = PageButton("Leave lobby", () => ConfirmLeave(() => Session?.Leave(),
+            Session is { CanControl: true } s && Parameters!.Setup != s.Setup), "Leave");
+        PageButton("Options", OpenOptions, "Options");
+
         MainButton = PageButton("Ready", PressMain, "Main");
+        foreach (Button button in PageButtons)
+        {
+            button.CustomMinimumSize = new Vector2(160, 44);
+            button.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+        }
         MainButton.AddThemeColorOverride("font_color", UiStyle.MenuFocus);
         ShowMapPicture();
     }
@@ -115,7 +128,7 @@ public partial class LobbyRoomScreen
         MapsButton = LobbyPanels.Button("Choose map", OpenMaps, "Maps"); buttons.AddChild(MapsButton);
         AlternateButton = LobbyPanels.Button("Alternate rules", OpenAlternate, "Alternate"); buttons.AddChild(AlternateButton);
         ApplyButton = LobbyPanels.Button("Apply changes", Apply, "Apply"); buttons.AddChild(ApplyButton);
-        buttons.AddChild(LobbyPanels.Button("Discard / close", DiscardSettings, "DiscardSettings"));
+        buttons.AddChild(LobbyPanels.Button("Discard / close", RequestCloseSettings, "DiscardSettings"));
         var dim = new ColorRect { Name = "SettingsDim", Color = new Color(0, 0, 0, 0.8f), Visible = false };
         dim.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
         AddChild(dim);
@@ -169,6 +182,7 @@ public partial class LobbyRoomScreen
         _overviewRules!.Text = LobbyPresentation.Rules(s.Setup);
         _overviewObjective!.Text = LobbyPresentation.Objective(s.Setup.Mode);
         ShowMapPicture();
+        MapPicture!.TooltipText = _overviewObjective.Text;
     }
 
     private void UpdateLoadout()
@@ -215,12 +229,34 @@ public partial class LobbyRoomScreen
 
     public override void _UnhandledKeyInput(InputEvent e)
     {
-        if (e is InputEventKey { Pressed: true, Echo: false, Keycode: Key.Escape } && _settingsPanel is { Visible: true })
+        if (e is InputEventKey { Pressed: true, Echo: false, Keycode: Key.Escape })
         {
-            if (Session is { CanControl: true } s && Parameters!.Setup != s.Setup)
-                ConfirmBox.Open(this, new ConfirmBox { Name = "DiscardMatchSettings", Question = "Discard unapplied match settings?", YesCaption = "Discard", NoCaption = "Keep editing", Yes = DiscardSettings });
-            else DiscardSettings();
-            GetViewport().SetInputAsHandled();
+            if (_confirm is { Visible: true })
+            {
+                ConfirmKick(false);
+                GetViewport().SetInputAsHandled();
+                return;
+            }
+            if (IsInstanceValid(_mapsPanel))
+            {
+                _mapsPanel.QueueFree();
+                GetViewport().SetInputAsHandled();
+                return;
+            }
+            if (_settingsPanel is { Visible: true })
+            {
+                GetViewport().SetInputAsHandled();
+                RequestCloseSettings();
+                return;
+            }
         }
+        base._UnhandledKeyInput(e);
+    }
+
+    private void RequestCloseSettings()
+    {
+        if (Session is { CanControl: true } s && Parameters!.Setup != s.Setup)
+            ConfirmBox.Open(this, new ConfirmBox { Name = "DiscardMatchSettings", Question = "Discard unapplied match settings?", YesCaption = "Discard", NoCaption = "Keep editing", Yes = DiscardSettings });
+        else DiscardSettings();
     }
 }

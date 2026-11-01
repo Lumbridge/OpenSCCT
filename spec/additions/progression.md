@@ -24,7 +24,8 @@ is a port: there is no `[PortOf]` and no provenance tag. The numbers are our own
    (200, 250, 300 ...), 82,350 XP for a whole prestige (`PlayerRank.CapXp`). XP is kept within a prestige and never
    above the cap; the lifetime total keeps counting.
 5. **Prestige.** At level 55 and below prestige 10 the player may prestige from the Account page
-   (`POST /api/v1/account/prestige`): prestige + 1, XP 0 (level 1). Achievements, cosmetics, stats and titles stay.
+   (`POST /api/v1/account/prestige`): prestige + 1, XP 0 (level 1). Level-based pistols and finishes relock until
+   their required levels are reached again. Achievements, mastery rewards, admin cosmetic grants, stats and titles stay.
    At prestige 10 level 55 the account has the master prestige emblem; there is no prestige 11.
 6. **Titles** (`TitleCatalog`, ids permanent, bits append only):
    - one per prestige 1 to 10 (Operative ... Legend), and Splinter Cell for the master prestige;

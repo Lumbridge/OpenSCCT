@@ -178,6 +178,16 @@ public static class ViewModelClips
             return K.FirstDrawStEd2;
         }
 
+        if (Sequence == FirstLandStFd2)
+        {
+            return K.FirstLandStFd2;
+        }
+
+        if (Sequence == FirstLandStHi2)
+        {
+            return K.FirstLandStHi2;
+        }
+
         if (Sequence == FirstGrbdStBg2)
         {
             return K.FirstGrbdStBg2;

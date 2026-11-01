@@ -23,6 +23,7 @@ public enum CosmeticSlot : byte
     Automatic = 7,
     Magnum44 = 8,
     DesertEagle = 9,
+    Unsuppressed = 10,
 }
 
 public enum CosmeticKind : byte
@@ -140,7 +141,7 @@ public static class CosmeticCatalog
     /// <summary>The slots a side's look uses.</summary>
     public static IReadOnlyList<CosmeticSlot> SlotsOf(CosmeticSide side) => side == CosmeticSide.Spy
         ? [CosmeticSlot.Body, CosmeticSlot.Light, CosmeticSlot.Pistol]
-        : [CosmeticSlot.Body, CosmeticSlot.Light, CosmeticSlot.GunAr, CosmeticSlot.GunSmg, CosmeticSlot.GunShotgun, CosmeticSlot.Suppressed, CosmeticSlot.Automatic, CosmeticSlot.Magnum44, CosmeticSlot.DesertEagle];
+        : [CosmeticSlot.Body, CosmeticSlot.Light, CosmeticSlot.GunAr, CosmeticSlot.GunSmg, CosmeticSlot.GunShotgun, CosmeticSlot.Unsuppressed, CosmeticSlot.Automatic, CosmeticSlot.Suppressed, CosmeticSlot.Magnum44, CosmeticSlot.DesertEagle];
 
     public static IEnumerable<CosmeticItem> For(CosmeticSide side, CosmeticSlot slot) => All.Where(i => i.Side == side && i.Slot == slot);
 
@@ -156,6 +157,7 @@ public static class CosmeticCatalog
         CosmeticSlot.Automatic => "Automatic pistol",
         CosmeticSlot.Magnum44 => ".44 Magnum",
         CosmeticSlot.DesertEagle => "Desert Eagle",
+        CosmeticSlot.Unsuppressed => "Unsuppressed pistol",
         _ => slot.ToString(),
     };
 

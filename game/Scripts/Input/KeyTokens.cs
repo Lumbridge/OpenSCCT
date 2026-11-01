@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using OpenScct.Core.Engine;
 using OpenScct.Provenance;
 
@@ -56,6 +57,7 @@ public static class KeyTokens
     /// <summary>
     /// The key (IK name without the prefix, as the layout spells it) whose whole binding is <paramref name="binding"/>:
     /// the native walks KEYNAME 0..254 and asks KEYBINDING of each named key (0x10a03060).
+    /// Also accepts the same whole binding after alias expansion, since saved layouts can store expanded commands.
     /// </summary>
     [Provenance(ProvenanceKind.Decoded, "key lookup 0x10a03060: KEYNAME %i for i < 255, KEYBINDING %s, _wcsicmp with the binding")]
     public static string? KeyBoundTo(KeyLayout? layout, string binding)
@@ -76,7 +78,8 @@ public static class KeyTokens
             string name = key.ToString();
             name = name.StartsWith("IK_", StringComparison.Ordinal) ? name[3..] : name;
             if (name.Length > 0 && layout.Bindings.TryGetValue(name, out string? bound) &&
-                string.Equals(bound, binding, StringComparison.OrdinalIgnoreCase))
+                (string.Equals(bound, binding, StringComparison.OrdinalIgnoreCase) ||
+                 layout.Expanded(bound).SequenceEqual(layout.Expanded(binding), StringComparer.OrdinalIgnoreCase)))
             {
                 return name;
             }
@@ -102,9 +105,16 @@ public static class KeyTokens
         int i = 0;
         while (i < text.Length)
         {
-            if (text[i] == '\\' && Match(text, i + 1) is { } t && keyName(t.Binding) is { } name)
+            int tokenAt = i;
+            while (tokenAt < text.Length && text[tokenAt] == '\\')
             {
-                text = string.Concat(text.AsSpan(0, i), name, text.AsSpan(i + 1 + t.Token.Length));
+                tokenAt++;
+            }
+
+            // Converted localized tips can retain doubled backslashes from the source string escaping.
+            if (tokenAt > i && Match(text, tokenAt) is { } t && keyName(t.Binding) is { } name)
+            {
+                text = string.Concat(text.AsSpan(0, i), name, text.AsSpan(tokenAt + t.Token.Length));
                 i += name.Length;
             }
 

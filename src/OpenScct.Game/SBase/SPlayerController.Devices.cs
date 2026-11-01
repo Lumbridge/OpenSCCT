@@ -49,11 +49,12 @@ public partial class SPlayerController
     {
         if (IsRemotePlayer)
         {
-            if (SBPawn is { SidearmWeapon: { } sidearm } carried)
+            if (SBPawn is SPAWNDEFENSE carried)
             {
-                sidearm.FullReload();
-                if (carried.PrimaryWeapon is SWeaponDefense primary)
+                carried.SidearmWeapon?.FullReload();
+                if ((carried.PrimaryWeapon ?? carried.MyWeapon) is SWeaponDefense primary)
                 {
+                    primary.CancelCarriedReload();
                     primary.Ammo = primary.MaxAmmo; primary.ClipAmmo = primary.ClipMaxAmmo; primary.PublishCarriedAmmo();
                 }
             }

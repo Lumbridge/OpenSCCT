@@ -845,18 +845,41 @@ _NOT_ON_GUNS = ("skeleton",)
 def handles(shape: str, texture: str) -> bool:
     """Whether this shape is drawn on the gun for this texture (else it is drawn across the texture): every shape on
     every gun texture with a mesh."""
-    return shape not in _NOT_ON_GUNS and texture in GUN_MESH
+    from .fitted import sidearm, ARMS
+    return shape not in _NOT_ON_GUNS and (texture in GUN_MESH or sidearm(texture) or texture == ARMS)
+
+
+@functools.lru_cache(maxsize=1)
+def _fitted_gun(mesh, texture, h, w, forward, up, sleeves):
+    return _Gun(mesh, texture, h, w, forward, up, sleeves)
 
 
 def draw(shape: str, colours: list[int], mesh: Mesh, texture: str, h: int, w: int, rng, pattern: str = "",
          luma: np.ndarray | None = None) -> np.ndarray:
     """The skin's colours (h x w x 3, 0..1) for a gun texture, drawn on the gun's mesh. luma (the retail brightness,
     h x w) is what the gold finishes follow."""
-    _, forward, up, sleeves = GUN_MESH[texture]
-    g = _Gun(mesh, texture, h, w, forward, up, sleeves)
+    from .fitted import ARMS, sidearm
+    _, forward, up, sleeves = GUN_MESH.get(texture, ('', _X, _Y, texture == ARMS))
+    g = _fitted_gun(mesh, texture, h, w, forward, up, sleeves)
     if shape in _DRAW:
-        return _DRAW[shape](g, colours, rng)
-    return _laid(g, colours, rng, luma, pattern=pattern or shape, shape=shape)
+        out = _DRAW[shape](g, colours, rng)
+    else:
+        out = _laid(g, colours, rng, luma, pattern=pattern or shape, shape=shape)
+    # Paint the casing, not the complete mechanism. Grip and moving-part regions
+    # are measured in model space, so their boundaries survive fragmented UVs.
+    if not sleeves:
+        graphite = np.array([.035, .042, .05], np.float32)
+        if sidearm(texture):
+            # Authored pistols share a mechanical origin at the top of the grip,
+            # forward +X/up +Y, in metres; dimensions differ per actual model.
+            grip = (g.y < -.025) & (g.x < g.x0 + g.length * .40)
+            mechanism = (g.role == SMALL) | grip
+        else:
+            mechanism = (g.role == SMALL) | (g.role == HANG)
+        out[mechanism & g.cover] = graphite
+        # Muzzle end and top sighting surfaces stay non-reflective for all finishes.
+        out[g.cover & g.end & (g.x > g.x1 - .015 * g.length)] = graphite
+    return out
 
 
 # ---------------------------------------------------------------------------------------------------------------------

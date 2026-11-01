@@ -100,7 +100,7 @@ public partial class SessionRowsView : VBoxContainer
                 SessionRow.Map or SessionRow.Mode => top,
                 SessionRow.Password or SessionRow.VoiceChat or SessionRow.MaxPlayers => session,
                 SessionRow.Revenge or SessionRow.RandomMap or SessionRow.VoiceInLobby or SessionRow.AutoBalance or SessionRow.Alternate or
-                    SessionRow.GamesInARow or SessionRow.Practice => left,
+                    SessionRow.GamesInARow or SessionRow.Sidearms or SessionRow.Practice => left,
                 SessionRow.TimeLimit or SessionRow.SpyLives or SessionRow.MercLives => mid,
                 _ => right,
             };

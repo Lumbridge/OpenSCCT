@@ -274,9 +274,22 @@ public sealed class PlayMercSmoke : SmokeTest
 
             return s.Detail($"clip full after {took:F2} s, clip {r.ClipAmmo} ammo {r.Ammo}, HUD {s.Hud?.Snapshot.ClipAmmo}/{s.Hud?.Snapshot.Ammo}");
         });
+        bool sawScopeRaise = false;
         leg.Add("scope (B)", 300, s => s.Tap("B", 5, 3), s =>
-            s.PC is { } pc && pc.GetStateName().ToString() == "s_Binoculars_Def" && s.Rifle is { ROFMode: SRateOfFireMode.ROF_Single }
-                ? s.Detail($"scoped, FOV {pc.FovAngle:F0}, single shot, rifle screen {s.RofScreen}") : null);
+        {
+            if (s.PC is not { } pc || pc.GetStateName().ToString() != "s_Binoculars_Def" ||
+                s.Rifle is not { ROFMode: SRateOfFireMode.ROF_Single } rifle)
+                return null;
+            if (rifle.bDrawWeapon)
+            {
+                sawScopeRaise |= s.FirstPersonShown;
+                return null;
+            }
+            if (s.FirstPersonShown) return null;
+            return sawScopeRaise
+                ? s.Detail($"scoped after visible raise, FOV {pc.FovAngle:F0}, single shot, rifle screen {s.RofScreen}")
+                : "FAIL: rifle disappeared before the scope raise finished";
+        });
         leg.Add("scope zoom in twice (Page Up)", 300, s =>
         {
             s.Tap("PageUp", 10, 3);
@@ -1013,6 +1026,8 @@ public sealed class PlayMercSmoke : SmokeTest
         public string? RofScreen => _root.FirstPerson is { Model: { } m } fp
             ? fp.SlotSkin(3) ?? (m.Slots.Count > 3 ? m.Slots[3] : null)
             : null;
+
+        public bool FirstPersonShown => _root.FirstPerson?.Shown == true;
 
         public bool Walking => PC?.GetStateName().ToString().StartsWith("s_PlayerWalking", StringComparison.Ordinal) == true;
 

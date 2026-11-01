@@ -16,7 +16,7 @@ namespace OpenScctGame.UI;
 /// </summary>
 public partial class MapPickerView : VBoxContainer
 {
-    public static readonly Vector2 ThumbSize = new(132f, 132f);
+    public static readonly Vector2 ThumbSize = new(192f, 192f);
 
     private readonly Dictionary<string, (Button Tile, MapCatalogEntry? Entry)> _tiles = new(StringComparer.OrdinalIgnoreCase);
     private readonly ButtonGroup _group = new();
@@ -38,6 +38,7 @@ public partial class MapPickerView : VBoxContainer
         ArgumentNullException.ThrowIfNull(maps);
         ArgumentNullException.ThrowIfNull(installed);
         Name = "MapPicker";
+        Grid = new MapBrowserGrid();
         BuildFilterBar(maps, playlist, playlistChosen);
         var scroll = new ScrollContainer
         {
@@ -45,9 +46,6 @@ public partial class MapPickerView : VBoxContainer
             SizeFlagsHorizontal = SizeFlags.ExpandFill,
         };
         AddChild(scroll);
-        Grid = new HFlowContainer { Name = "MapGrid", SizeFlagsHorizontal = SizeFlags.ExpandFill };
-        Grid.AddThemeConstantOverride("h_separation", 8);
-        Grid.AddThemeConstantOverride("v_separation", 8);
         scroll.AddChild(Grid);
 
         var have = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -84,7 +82,7 @@ public partial class MapPickerView : VBoxContainer
 
     public CreateSessionModel Model { get; }
 
-    public HFlowContainer Grid { get; }
+    public MapBrowserGrid Grid { get; }
 
     /// <summary>The host edits; others only see the list.</summary>
     public bool Editable { get; set; } = true;
@@ -176,6 +174,7 @@ public partial class MapPickerView : VBoxContainer
             Refresh();
         };
         bar.AddChild(SearchBox);
+        bar.AddChild(Grid.ViewToggle);
     }
 
     /// <summary>The playlist's name as the list shows it ("All" is every installed map).</summary>
@@ -210,23 +209,9 @@ public partial class MapPickerView : VBoxContainer
             return;
         }
 
-        var tile = new Button
-        {
-            Name = "Map_" + id, ToggleMode = true, ButtonGroup = _group, TooltipText = title + " (" + id + ")",
-            CustomMinimumSize = new Vector2(ThumbSize.X + 12f, ThumbSize.Y + 40f), FocusMode = FocusModeEnum.All, ThemeTypeVariation = UiStyle.TileVariation,
-        };
-        var column = new VBoxContainer { Name = "Column", MouseFilter = MouseFilterEnum.Ignore };
-        column.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect, LayoutPresetMode.Minsize, 6);
-        var thumb = new MapThumb(ThumbSize) { SizeFlagsHorizontal = SizeFlags.ShrinkCenter };
-        thumb.SetMap(MapImages.Preview(maps, id), title);
-        column.AddChild(thumb);
-        column.AddChild(new Label
-        {
-            Name = "Title", Text = title, HorizontalAlignment = HorizontalAlignment.Center, ClipText = true,
-            TextOverrunBehavior = TextServer.OverrunBehavior.TrimEllipsis, CustomMinimumSize = new Vector2(ThumbSize.X, 0f),
-            MouseFilter = MouseFilterEnum.Ignore, LabelSettings = new LabelSettings { FontSize = 12, FontColor = UiStyle.MenuText },
-        });
-        tile.AddChild(column);
+        var tile = Grid.AddMap(maps, id, title);
+        tile.ToggleMode = true;
+        tile.ButtonGroup = _group;
         tile.Pressed += () =>
         {
             if (Editable && !string.Equals(Model.Setup.Map, id, StringComparison.OrdinalIgnoreCase))
@@ -238,7 +223,6 @@ public partial class MapPickerView : VBoxContainer
                 Refresh();
             }
         };
-        Grid.AddChild(tile);
         _tiles[id] = (tile, entry);
     }
 

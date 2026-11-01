@@ -325,6 +325,7 @@ public partial class PlayRoot : Node3D
             AddChild(Pawns);
             FirstPerson = new FirstPersonView { Map = Map, SharedRoot = Map.SharedRoot };
             AddChild(FirstPerson);
+            FirstPerson.PreloadSidearms();
             Fx = new OpenScctGame.Fx.CombatFxView { Pawns = Pawns, FirstPerson = FirstPerson, SharedRoot = Map.SharedRoot };
             AddChild(Fx);
             FlashLight = new FlashLightView { Name = "FlashLight", Map = Map, Pawns = Pawns };
@@ -653,6 +654,7 @@ public partial class PlayRoot : Node3D
         }
 
         PrintBots(session);
+        Audio?._Process(delta);
 
         // The scripted pilot's route planning runs inside the ticks; it is a test driver, so it is counted apart.
         double simMs = _watch.Elapsed.TotalMilliseconds - _pilotMs;
@@ -686,6 +688,7 @@ public partial class PlayRoot : Node3D
             // 60 Hz ticks before, so they held still in most frames above 60 fps).
             Map?.SetTime(_time.At(alpha));
             int rendMap = pc is null || pc.RendMap == 0 ? RenderK.RendMapNormal : pc.RendMap;
+            View.SquintingFactor = pc?.SquintingFactor ?? 0f;
             if (rendMap != _lastRendMap)
             {
                 _lastRendMap = rendMap;
@@ -696,6 +699,8 @@ public partial class PlayRoot : Node3D
             View.MotionCleanRects = Hud is { } hud
                 ? OpenScctGame.Render.Post.DisplayPostSettings.Normalize(hud.Motion.CleanRects, hud.DrawnScreen)
                 : [];
+
+            View.DoubleVision.Factor = Hud?.Effects.Sfx.CrossEyedFactor ?? 0f;
 
             // The flash-bang after-image: a capture on each bCaptureRemanence, drawn by RemanenceBlendFactor.
             if (Hud is { } flashHud)
@@ -740,8 +745,8 @@ public partial class PlayRoot : Node3D
             Fx?.Draw(dt, location, rotation, pc);
             FlashLight?.Draw(session.Client.World.Level, session.LocalPawn, location);
             Map?.LightBeams?.UpdateSlots();   // after the spot lights took this frame's slots
-            MercLasers?.Draw(session.Client.World.Level, session.LocalPawn, (location, rotation));
-            SpyLasers?.Draw(session.Client.World.Level);
+            MercLasers?.Draw(session.Client.World.Level, session.LocalPawn, (location, rotation), _time.At(alpha));
+            SpyLasers?.Draw(session.Client.World.Level, _time.At(alpha));
             LaserTriggers?.Draw(session.Client.World.Level);
             ShockFx?.Draw(session.Client.World.Level, dt);
         }

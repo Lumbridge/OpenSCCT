@@ -140,6 +140,7 @@ public partial class CosmeticPreview : Control
     public static string AssetFor(CosmeticSide side, CosmeticSlot slot) => slot switch
     {
         CosmeticSlot.Suppressed => "OpenScctSidearms.suppressed",
+        CosmeticSlot.Unsuppressed => "OpenScctSidearms.unsuppressed",
         CosmeticSlot.Automatic => "OpenScctSidearms.automatic",
         CosmeticSlot.Magnum44 => "OpenScctSidearms.magnum44",
         CosmeticSlot.DesertEagle => "OpenScctSidearms.desert_eagle",

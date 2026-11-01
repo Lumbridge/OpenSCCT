@@ -540,7 +540,7 @@ public sealed class HudSimReader : IHudSource
     }
 
     /// <summary>
-    /// The spy's interaction list (Bridge spy page notes, section 6): usable entries of the menu in slot order, shown
+    /// The shared interaction list (Bridge spy page notes, section 6): usable entries of the menu in slot order, shown
     /// when at least two are usable, the pawn is awake and the controller can interact; the selection shows while Use
     /// is held.
     /// </summary>
@@ -565,7 +565,7 @@ public sealed class HudSimReader : IHudSource
         }
 
         s.InteractionFocus = pc.bUsing != 0;
-        s.ShowInteractions = s.Side == HudSide.Spy && s.Interactions.Count >= 2 && !pawn.bSleeping && HudK.CanInteract(pc);
+        s.ShowInteractions = s.Interactions.Count >= 2 && !pawn.bSleeping && HudK.CanInteract(pc);
     }
 
     /// <summary>Connected players: spies, then mercs, then spectators, up to four rows.</summary>
@@ -776,6 +776,10 @@ public sealed class HudSimReader : IHudSource
         }
         else if (s.Side == HudSide.Merc && pc.IsInState(NAME_s_Binoculars_Def))
         {
+            // Entering the controller state starts the raise; the scope page
+            // appears only when that animation hands over to the zoomed view.
+            if (pawn.MyWeapon is SWeaponDefense rifle &&
+                rifle.ViewAnim.IsAnimating(SWeaponDefense.SNIPECHANNEL)) return;
             b.Mode = HudBinocularMode.Merc;
         }
         else

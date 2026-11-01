@@ -272,8 +272,8 @@ public partial class ResultsScreen : Control
         foreach (var pistol in OpenScct.Core.Engine.Sidearms.All)
         {
             if (award.LevelBefore < pistol.Level && award.LevelAfter >= pistol.Level) notes.Add("Pistol unlocked: " + pistol.Name);
-            if (progress.Prestige == 0 && award.LevelBefore < pistol.Level + 5 && award.LevelAfter >= pistol.Level + 5) notes.Add(pistol.Name + ": Night Ops skin unlocked");
-            if (progress.Prestige == 0 && award.LevelBefore < pistol.Level + 10 && award.LevelAfter >= pistol.Level + 10) notes.Add(pistol.Name + ": Cryo skin unlocked");
+            if (award.LevelBefore < pistol.Level + 5 && award.LevelAfter >= pistol.Level + 5) notes.Add(pistol.Name + ": Night Ops skin unlocked");
+            if (award.LevelBefore < pistol.Level + 10 && award.LevelAfter >= pistol.Level + 10) notes.Add(pistol.Name + ": Cryo skin unlocked");
         }
         notes.AddRange(award.NewTitles.Select(id => TitleCatalog.Find(id) is { } t ? "Title unlocked: " + t.Text : null).OfType<string>());
         if (rank.CanPrestige)
@@ -401,11 +401,22 @@ public partial class ResultsScreen : Control
     {
         if (Online is not null)
         {
-            OpenScctGame.Online.OnlineService.Get(GetTree()).Leave();
+            ConfirmBox.Open(this, new ConfirmBox
+            {
+                Question = "Leave the session?", YesCaption = "Leave", NoCaption = "Stay",
+                Yes = () => OpenScctGame.Online.OnlineService.Get(GetTree()).Leave(),
+            });
             return;
         }
 
         FrontEnd.ShowMainMenu(GetTree());
+    }
+
+    public override void _UnhandledKeyInput(InputEvent @event)
+    {
+        if (@event is not InputEventKey { Pressed: true, Echo: false, Keycode: Key.Escape }) return;
+        GetViewport().SetInputAsHandled();
+        ToMainMenu();
     }
 
     private void Rematch()

@@ -42,6 +42,15 @@ public sealed class SkeletalModel
 
     public Skeleton3D Skeleton { get; }
 
+    /// <summary>Current bone pose before Skeleton3D's deferred per-frame update.</summary>
+    public Transform3D CurrentBonePose(int bone)
+    {
+        Transform3D pose = Skeleton.GetBonePose(bone);
+        for (int parent = Skeleton.GetBoneParent(bone); parent >= 0; parent = Skeleton.GetBoneParent(parent))
+            pose = Skeleton.GetBonePose(parent) * pose;
+        return pose;
+    }
+
     public AnimSampler Sampler { get; }
 
     public IReadOnlyList<MeshInstance3D> Meshes => _meshes;
@@ -211,6 +220,14 @@ public sealed class SkeletalModel
                 {
                     Name = skin,
                     Texture = uri,
+                    // The ROF screen changes its emissive image along with its diffuse image.
+                    SelfIllum = IsFireModeScreen(skin) ? uri : entry.SelfIllum,
+                    SelfIllumMask = IsFireModeScreen(skin) ? uri : entry.SelfIllumMask,
+                    SpecMask = entry.SpecMask,
+                    EnvColor = entry.EnvColor,
+                    EnvTexture = entry.EnvTexture,
+                    EnvWorld = entry.EnvWorld,
+                    Unlit = entry.Unlit,
                     NormalTexture = entry.NormalTexture,
                     Masked = entry.Masked,
                     Translucent = entry.Translucent,
@@ -244,13 +261,21 @@ public sealed class SkeletalModel
                     {
                         Name = e.Name + "+" + pattern, Source = e.Source, Texture = uri, NormalTexture = e.NormalTexture, Masked = e.Masked, Translucent = e.Translucent,
                         TwoSided = e.TwoSided, Unlit = e.Unlit, SelfIllum = e.SelfIllum, SelfIllumMask = e.SelfIllumMask, SpecMask = e.SpecMask,
-                        EnvColor = e.EnvColor, UvAnim = e.UvAnim, ListBlend = e.ListBlend,
+                        EnvColor = e.EnvColor, EnvTexture = e.EnvTexture, EnvWorld = e.EnvWorld,
+                        UvAnim = e.UvAnim, ListBlend = e.ListBlend,
                     }, LightSource.Actor);
                     if (made is ShaderMaterial shiny)
                     {
                         // Painted in screen colours: the world shader brings its texels into the retail range
                         // (svm_cosmetic_level) so pale camos light up without clipping to white.
                         shiny.SetShaderParameter(CamoParameter, true);
+                        string maskPath = Path.ChangeExtension(Path.Combine(Folder, uri), ".mask.png");
+                        if (File.Exists(maskPath))
+                        {
+                            using Image mask = Image.LoadFromFile(maskPath);
+                            mask.GenerateMipmaps();
+                            shiny.SetShaderParameter("svm_finish_mask", ImageTexture.CreateFromImage(mask));
+                        }
 
                         // The world shader's sheen (svm_sheen): on the golden and mastercraft camos a full gold mirror that stays bright
                         // in any light (a special finish), on the pyre camo glossy black lacquer with near-white
@@ -862,10 +887,20 @@ public sealed class SkeletalModel
             result[name] = new MaterialEntry
             {
                 Name = name,
+                Source = hasEx ? MaterialsDoc.Str(ex, "scct_vision_source") : null,
                 Texture = texture,
                 NormalTexture = normalTexture,
-                SelfIllum = hasEx ? MaterialsDoc.Str(ex, "scct_self_illum") : null,
+                // Older shared packs contain only the ROF screen's diffuse image. These three known display
+                // materials are self-illuminated even in a room with no actor lights (including the own slot).
+                SelfIllum = (hasEx ? MaterialsDoc.Str(ex, "scct_self_illum") : null)
+                    ?? (IsFireModeScreen(name) ? texture : null),
                 SelfIllumMask = hasEx ? MaterialsDoc.Str(ex, "scct_self_illum_mask") : null,
+                SpecMask = hasEx ? MaterialsDoc.Str(ex, "scct_spec_mask") : null,
+                EnvTexture = hasEx ? MaterialsDoc.Str(ex, "scct_env_texture") : null,
+                EnvColor = hasEx && ex.TryGetProperty("scct_env_color", out JsonElement env)
+                    && env.ValueKind == JsonValueKind.Array && env.GetArrayLength() >= 3
+                    ? new Vector3(env[0].GetSingle(), env[1].GetSingle(), env[2].GetSingle()) : null,
+                EnvWorld = hasEx && MaterialsDoc.Bool(ex, "scct_env_world"),
                 Masked = m.TryGetProperty("alphaMode", out JsonElement am) && am.GetString() == "MASK",
                 Translucent = m.TryGetProperty("alphaMode", out JsonElement ab) && ab.GetString() == "BLEND",
                 TwoSided = m.TryGetProperty("doubleSided", out JsonElement ds) && ds.GetBoolean(),
@@ -874,6 +909,9 @@ public sealed class SkeletalModel
 
         return result;
     }
+
+    private static bool IsFireModeScreen(string name) => name is
+        "SWeaponTex.SI_rof_single" or "SWeaponTex.SI_rof_burst" or "SWeaponTex.SI_rof_auto";
 
     private static T? FindFirst<T>(Node node)
         where T : Node

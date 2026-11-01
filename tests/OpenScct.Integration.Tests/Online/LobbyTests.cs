@@ -41,6 +41,27 @@ public sealed class LobbyTests
     private static bool TestBoxMissing => WalkerRig.Maps.FindFolder(MapCatalog.TestBox) is null;
 
     [Fact]
+    public void DefaultLaunchTravelsWithoutAFiveSecondCountdown()
+    {
+        Assert.SkipWhen(TestBoxMissing, "The TestBox fixture is not in this checkout.");
+        var settings = OnlineRig.Settings(MapCatalog.TestBox) with
+        {
+            Dedicated = false, HostKey = "k", AutoLaunch = false,
+            LaunchCountdownSeconds = new OnlineServerSettings().LaunchCountdownSeconds,
+        };
+        (OnlineRig rig, SimLinkNetwork network) = Create(settings, SimLinkProfile.A);
+        using (rig)
+        {
+            OnlineClient host = Join(rig, network, "Host", 1, s => s with { HostKey = "k" });
+            Assert.True(rig.RunUntil(() => host.State == OnlineClientState.Lobby &&
+                host.Lobby.Local is { Map: MapState.Ok }, 10), Describe(rig));
+            host.Launch();
+            Assert.True(rig.RunUntil(() => host.State == OnlineClientState.Travelling ||
+                host.CurrentMap == MapCatalog.TestBox, .5), Describe(rig));
+        }
+    }
+
+    [Fact]
     public void PlayersMeetInTheLobbyPickSidesAndLaunchARound()
     {
         Assert.SkipWhen(TestBoxMissing, "The TestBox fixture is not in this checkout.");

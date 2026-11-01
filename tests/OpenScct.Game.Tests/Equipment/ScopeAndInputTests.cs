@@ -66,7 +66,10 @@ public sealed class ScopeAndInputTests
 
         pc.eventFire(1f);
         Assert.Equal(25, rifle.ClipAmmo);
-        scene.Run(0.3f);
+        Assert.True(rifle.bDrawWeapon);
+        scene.Run(0.25f);
+        Assert.True(rifle.bDrawWeapon);
+        scene.Run(0.05f);
         Assert.False(rifle.bDrawWeapon);
         pc.eventFire(1f);
         Assert.Equal(24, rifle.ClipAmmo);
@@ -103,6 +106,29 @@ public sealed class ScopeAndInputTests
         Assert.Equal(SRateOfFireMode.ROF_Auto, rifle.ROFMode);
         Assert.Equal(new Name("s_Selected"), rifle.GetStateName());
         Assert.Equal(pc.DefaultFOV, pc.FovAngle);
+    }
+
+    [Fact]
+    public void ScopedReloadKeepsSlowMovementAndStillBlocksFire()
+    {
+        var (scene, pc, merc, rifle) = Merc();
+        pc.SwitchBinocularVision();
+        pc.aForward = 6000f;
+        pc.eventPlayerMove(Sim.DeltaTime);
+        float scopedInput = pc.aForward;
+        rifle.ClipAmmo = 0;
+        pc.eventFire(1f);
+        pc.aForward = 6000f;
+        pc.bPressedJump = true;
+        pc.eventPlayerMove(Sim.DeltaTime);
+        Assert.Equal(scopedInput, pc.aForward);
+        Assert.InRange(pc.aForward, 1f, 5999f);
+        Assert.False(pc.bPressedJump);
+        Assert.Equal(new Name("s_Binoculars_Def_Reloading"), pc.GetStateName());
+        pc.eventFire(1f);
+        Assert.Equal(0, rifle.ClipAmmo);
+        scene.Run(3f);
+        Assert.Equal(rifle.ClipMaxAmmo, rifle.ClipAmmo);
     }
 
     [Fact]

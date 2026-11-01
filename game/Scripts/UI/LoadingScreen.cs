@@ -43,7 +43,7 @@ public partial class LoadingScreen : MenuPage
         MapCatalog catalog = Maps ?? MapImages.Default;
         string title = MapTitles.Of(catalog, Map);
         Body.AddChild(new Label { Name = "Heading", Text = "Loading " + title, HorizontalAlignment = HorizontalAlignment.Center, Modulate = UiStyle.MenuFocus });
-        var picture = new MapThumb(new Vector2(360f, 360f)) { Name = "MapPicture", SizeFlagsHorizontal = SizeFlags.ShrinkCenter };
+        var picture = new MapThumb(new Vector2(360f, 360f), scaleWithViewport: true) { Name = "MapPicture", SizeFlagsHorizontal = SizeFlags.ShrinkCenter };
         picture.SetMap(MapImages.Loading(catalog, Map, Merc), title);
         Body.AddChild(picture);
         var modeRow = new HBoxContainer { Name = "ModeRow", Alignment = BoxContainer.AlignmentMode.Center };

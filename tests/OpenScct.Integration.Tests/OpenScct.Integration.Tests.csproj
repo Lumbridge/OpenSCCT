@@ -11,5 +11,6 @@
   <!-- The Godot-free play session (game/Scripts/Play/Session), for the tests that play as the local player does. -->
   <ItemGroup>
     <Compile Include="..\..\game\Scripts\Play\Session\*.cs" Link="Linked\PlaySession\%(Filename)%(Extension)" />
+    <Compile Include="..\..\game\Scripts\Play\PlayAudioRouter.cs" Link="Linked\PlayAudioRouter.cs" />
   </ItemGroup>
 </Project>

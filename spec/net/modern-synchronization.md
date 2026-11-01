@@ -27,6 +27,14 @@ OpenSCCT additions, estimated design. The decoded rules remain in move-protocol.
 5. Owner movement history holds 256 ticks, reserving four command slots per tick for physics splits. More splits
    or an unacknowledged input older than that window requests a clean reset. Commands include an explicit input
    tick; pre-controls, physics and post-controls share its clock. Commands and acknowledgements identify the same simulated input.
+   Device touch, bump, trigger and attachment callbacks caused by a command use the outermost authoritative world
+   clock, then restore the command clock. Device queues and latent deadlines are consumed by world ticks, not owner
+   input ticks. Otherwise a client that loads five seconds after the server schedules Aquarius's four-second door
+   release in the past: the release fires during opening and is ignored, leaving the door open. Pawn/controller
+   movement callbacks and prediction replay retain their input clock.
+   Actor spawn initialization, damage delivery, spy-mark timestamps, healing-station reuse and terminal hack
+   accounting also use world time. Their ages, expiry and elapsed progress are consumed by world ticks. Scope
+   these effects narrowly: interaction callbacks that also advance owner movement must retain the input clock.
    Anchor a lifetime's input ticks to the host clock with a two-tick playout cushion. Ordinary arrival jitter must
    not turn constant input into alternating zero/two-step authority poses. Outage catch-up remains bounded.
    Reconciliation restores authoritative movement and replays remaining inputs with presentation and network

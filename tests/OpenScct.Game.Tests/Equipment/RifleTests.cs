@@ -1,6 +1,7 @@
 using OpenScct.Core;
 using OpenScct.Core.Engine;
 using OpenScct.Game.SBase;
+using OpenScct.Game.Equipment;
 using OpenScct.Game.Tests.Combat;
 using Xunit;
 
@@ -23,6 +24,33 @@ public sealed class RifleTests
         merc.WeaponLoaded = 2;
         scene.Run(0.1f);
         return (scene, pc, rifle);
+    }
+
+    [Theory]
+    [InlineData(false, false)]
+    [InlineData(false, true)]
+    [InlineData(true, false)]
+    [InlineData(true, true)]
+    public void LandingDipSurvivesWeaponTicksAndRecoversOnlyAfterTheClip(bool high, bool moving)
+    {
+        (CombatScene scene, SPlayerController pc, SWeaponDefense rifle) = Merc();
+        pc.Pawn!.SetPhysics(EPhysics.PHYS_None);
+        pc.Pawn.Velocity = moving ? new FVector(100f, 0f, 0f) : FVector.Zero;
+        rifle.AnimateFall();
+        if (high) rifle.AnimateLandHigh(); else rifle.AnimateLand();
+        Name landing = high ? ViewModelClips.FirstLandStHi2 : ViewModelClips.FirstLandStFd2;
+        float seconds = high ? 20f / 15f : 10f / 15f;
+        Assert.Equal(seconds, rifle.ViewAnim.Remaining(SWeaponDefense.MVTCHANNEL), 5);
+
+        scene.Run(0.1f);
+        Assert.Equal(landing, rifle.ViewAnim.Sequence(SWeaponDefense.MVTCHANNEL));
+        Assert.True(rifle.ViewAnim.IsAnimating(SWeaponDefense.MVTCHANNEL));
+        Assert.InRange(rifle.ViewAnim.Remaining(SWeaponDefense.MVTCHANNEL), seconds - 0.12f, seconds - 0.08f);
+        scene.Run(seconds - 0.2f);
+        Assert.Equal(landing, rifle.ViewAnim.Sequence(SWeaponDefense.MVTCHANNEL));
+        scene.Run(0.2f);
+        Assert.Equal(moving ? ViewModelClips.FirstWalkStFd2 : ViewModelClips.FirstWaitStFd2,
+            rifle.ViewAnim.Sequence(SWeaponDefense.MVTCHANNEL));
     }
 
     [Fact]

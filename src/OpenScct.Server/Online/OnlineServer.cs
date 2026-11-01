@@ -83,7 +83,7 @@ public sealed record OnlineServerSettings
     public bool ReadyOnJoin { get; init; }
 
     /// <summary>Seconds between the launch and the travel (the lobby's countdown, launchMatchNow).</summary>
-    public float LaunchCountdownSeconds { get; init; } = 5f;
+    public float LaunchCountdownSeconds { get; init; } = 0f;
 
     /// <summary>Seconds the end screen shows before the results (the original opens its end menu 10 s after the winner).</summary>
     [Provenance(ProvenanceKind.Decoded, "spec/game/end-of-round.md: the end menu opens 10 s after the winner is known")]

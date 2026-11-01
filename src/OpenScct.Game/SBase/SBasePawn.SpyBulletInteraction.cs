@@ -21,6 +21,7 @@ public partial class SBasePawn
     [Provenance(ProvenanceKind.Decoded, "Game execDetectedByMarqueurSpy 0x10ae70c0; bits from local/reflect (bSpyBulletOn 0xaf4 bit 0, bForceSpied 0xaf0 bit 3, bCanListenSpyBulletedGuy 0xc38 bit 2)")]
     public void DetectedByMarqueurSpy(int Team, bool bActivate)
     {
+        using var clock = WorldEventTime();
         if (bActivate)
         {
             bSpyBulletOn = true;

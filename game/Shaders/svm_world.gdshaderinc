@@ -58,6 +58,8 @@ uniform float svm_sheen_mirror = 0.0;
 // OpenSCCT's own: set on cosmetic camo materials (SkeletalModel.Cosmetic); like a body tint (svm_tint) it puts each
 // texel through svm_cosmetic_level before the light.
 uniform bool svm_camo = false;
+// Fitted coverage also gates finish lighting: unpainted rubber/gear must not become gold mirrors.
+uniform sampler2D svm_finish_mask : hint_default_white, filter_linear_mipmap, repeat_enable;
 
 // The retail suits' mean texel luminance (SPersoTextures Shadw_agent 0.112, Shadw_agent_2 0.119, DEF_01_A_Body 0.143):
 // a body tint draws a texel of this brightness in the tint's own colour, brighter and darker texels in proportion, so a
@@ -132,7 +134,8 @@ uniform vec3 env_color = vec3(0.0);
 #ifdef ENV_TEX
 // The env map's own texture, looked up by the camera-space reflection: u, v = R.xy x env_uv_map.x + env_uv_map.y.
 // Map materials take the fixed-function stage (game 0x1096d6f0: D3DTSS_TCI_CAMERASPACEREFLECTIONVECTOR through the
-// TexEnvMap's identity matrix, wrapped): R.xy as it is. Skinned characters keep the EMF scene's 0.25 R.xy + 0.5.
+// TexEnvMap's identity matrix, wrapped): R.xy as it is, for world and skeletal materials alike.
+// EMF uses its own texture matrix in the vision branch below.
 uniform vec2 env_uv_map = vec2(1.0, 0.0);
 // 1: a world-space TexEnvMap (EnvMapType EM_WorldSpace, TexCoordSource TCS_WorldEnvMapCoords): the camera-space
 // reflection is turned to world space (game 0x1096d6f0 case 10: the view matrix, transposed, as the texture transform)
@@ -714,8 +717,9 @@ void fragment() {
 		t.rgb = mix(t.rgb, clamp(recolour, 0.0, 1.0), svm_tint.a);
 	}
 	// Camos and tints only: the polished camos (svm_sheen) keep their own finish.
+	float finish_coverage = svm_camo ? texture(svm_finish_mask, uv).r : 1.0;
 	if ((svm_camo || svm_tint.a > 0.0) && svm_sheen <= 0.0) {
-		t.rgb = svm_cosmetic_level(t.rgb);
+		t.rgb = mix(t.rgb, svm_cosmetic_level(t.rgb), finish_coverage);
 	}
 	if (svm_glow_hue.z > 0.0) {
 		t.rgb = clamp(svm_hue_turn(t.rgb, svm_glow_hue.x), 0.0, 1.0);
@@ -810,7 +814,10 @@ void fragment() {
 #else
 	vec3 env_added = env_color;
 #endif
-	c = min(c + env_added * texture(tex_spec_mask, smuv).a, vec3(1.0));
+	vec3 specular = env_added * texture(tex_spec_mask, smuv).a;
+#ifndef ENV_SEPARATE
+	c = min(c + specular, vec3(1.0));
+#endif
 #endif
 	if (svm_sheen > 0.0) {
 		// Polished metal or lacquer: mostly a fake studio reflection of the texture (dark floor, bright sky, a hot strip
@@ -837,7 +844,7 @@ void fragment() {
 		vec3 metal = mix(c, refl, mix(0.75, 0.95, svm_sheen_mirror) * svm_sheen);
 		// The moving glint belongs to the full mirror (gold camos) only; lacquer (pyre) stays still.
 		vec3 shine = svm_sheen_tint * (spec * 1.8 + spec2 * 0.5 + rim * 0.6 + glint * 0.5 * svm_sheen_mirror) * shade * svm_sheen;
-		c = min(metal + shine, vec3(1.0));
+		c = mix(c, min(metal + shine, vec3(1.0)), finish_coverage);
 	}
 	float a = t.a;
 #if defined(BLEND_MODULATE)
@@ -912,7 +919,10 @@ void fragment() {
 		}
 #endif
 		vec3 r = reflect(normalize(VERTEX), normalize(NORMAL));
-		vec3 env = texture(svm_emf_env, r.xy * 0.25 + 0.5).rgb;
+		// RenderingModeEMF's D3D texture matrix (0x1097766d..0x109776e5): its second row
+		// contributes to both U and V. The old uniform 0.25 scale sampled only the middle quarter.
+		vec2 emf_uv = vec2(0.25 * (r.x + r.y) + 0.5, 0.5 * r.y + 0.5);
+		vec3 env = texture(svm_emf_env, emf_uv).rgb;
 		c = env * (1.0 - clamp(v_vision.z, 0.0, 1.0));
 		if (emf_mode != 0) {
 			vec3 e = texture(tex_emf, uv).rgb;
@@ -920,6 +930,14 @@ void fragment() {
 		}
 #endif
 	}
+#ifdef ENV_SEPARATE
+	// Fold the original alpha-blended diffuse and additive Specular passes into one
+	// premultiplied draw. Glass opacity must not attenuate its reflection a second time.
+	c *= a;
+	if (svm_vision != 36 && svm_vision != 38) {
+		c += specular;
+	}
+#endif
 	ALBEDO = c;
 #if defined(SEE_THROUGH_CUT)
 	// A masked material's blended pass keeps the alpha cut of its solid pass.

@@ -152,7 +152,8 @@ public partial class SWeapon
     }
 
     /// <summary>
-    /// A sound the owner plays for everyone (reliable owner to server): the server plays it on the pawn.
+    /// A sound the owner plays immediately and relays reliably for other listeners.
+    /// Authority-originated calls still reach the owner, who has not predicted those calls.
     /// </summary>
     [Uc("SBase.SWeapon.ServerSound", Sha1 = "23aff4eecf0e2e62053f2e78cf6e28d2d332361e")]
     [PortOf("uc:SBase.SWeapon:ServerSound", Spec = "spec/equipment/merc-rifle.md#network")]
@@ -160,8 +161,10 @@ public partial class SWeapon
     {
         if (Role < ENetRole.ROLE_Authority && OwnerPC is { } pc)
         {
+            (Instigator ?? (Actor)this).PlayOwnedSound(MySound, Slot, null, false, Radius == 0 ? (float?)null : Radius);
             CombatServices.Net(this).ServerCall(pc, new CombatCall(CNAME_ServerSound)
             {
+                Bool1 = true, // Already played by the owner; relay only to other listeners.
                 Target = this,
                 Name1 = new Name(MySound.Path),
                 Int1 = (int)Slot,

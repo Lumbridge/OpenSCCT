@@ -386,7 +386,7 @@ public partial class ArmouryScreen : MenuPage
     };
     private static string LevelSkinRequirement(CosmeticItem? item)
     {
-        if (item is not null && (int)item.Slot >= 6 && (int)item.Slot <= 9)
+        if (item is not null && (int)item.Slot >= 6 && (int)item.Slot < 6 + OpenScct.Core.Engine.Sidearms.All.Count)
         {
             var pistol = OpenScct.Core.Engine.Sidearms.Get((OpenScct.Core.Engine.SidearmKind)((int)item.Slot - 6));
             if (item.Pattern is "night_ops" or "cryo") return "account level " + (pistol.Level + (item.Pattern == "night_ops" ? 5 : 10));

@@ -309,6 +309,10 @@ public partial class SWeaponDefense
                 PredictTraceFire(shot, InScope ? 0f : GetAccuracy());
             }
 
+            // The owner hears the shot with its predicted recoil and flash, including on the first rifle shot.
+            Instigator?.PlayOwnedSound(FireSingleShotSound, ESoundSlot.SLOT_None, null, false,
+                this is MercSidearm { Kind: 0 } ? K.ShotSoundRadius * 0.25f : K.ShotSoundRadius);
+
             CombatServices.Net(this).ServerCall(client, new CombatCall(CNAME_ServerFireWeapon)
             {
                 Target = this,
@@ -328,7 +332,8 @@ public partial class SWeaponDefense
 
         DispersionActuelle = InScope ? 0f : GetAccuracy();
         TraceFire(DispersionActuelle, 0f, 0f);
-        Instigator?.PlaySound(FireSingleShotSound, ESoundSlot.SLOT_None, null, false, (this is MercSidearm { Kind: 0 } ? K.ShotSoundRadius * 0.25f : K.ShotSoundRadius));
+        Instigator?.PlayOwnedSound(FireSingleShotSound, ESoundSlot.SLOT_None, null, false,
+            this is MercSidearm { Kind: 0 } ? K.ShotSoundRadius * 0.25f : K.ShotSoundRadius);
         if (Dummy is { } dummy)
         {
             dummy.AddMuzzleCount();
@@ -469,6 +474,17 @@ public partial class SWeaponDefense
         wStart = !TraceStartLocation.IsZero() ? TraceStartLocation : onMoverMoving ? startTrace : GetFireStart();
     }
 
+    /// <summary>The zero-spread ballistic ray, for sights. Does not advance random state or fire the weapon.</summary>
+    public virtual (FVector Start, FVector End) AimRay(FRotator rotation)
+    {
+        if (Instigator is not { } shooter) return (Location, Location + rotation.Vector() * K.TraceLength);
+        bool moving = shooter.Base is Mover { Velocity: var velocity } && !velocity.IsZero();
+        FVector eye = moving
+            ? shooter.Location + new FVector(0f, 0f, shooter.bIsCrouched ? K.MoverAimCrouched : K.MoverAimStanding)
+            : shooter.Location + CombatServices.Ports(this).EyePosition(shooter);
+        return (moving ? eye : GetFireStart(), eye + rotation.Vector() * K.TraceLength);
+    }
+
     /// <summary>Whether the owner predicts this gun's impacts (the shotgun draws its own pellet marks instead).</summary>
     protected virtual bool PredictsImpacts => true;
 
@@ -572,20 +588,11 @@ public partial class SWeaponDefense
     }
 
     /// <summary>
-    /// The ray start (rule 10.6): with the server-side laser on, the gun muzzle pulled back 50 uu; else the eye point.
+    /// Keep the ballistic origin at the eye with either laser state. Moving it to the muzzle only when the laser
+    /// is enabled introduces close-range parallax against the unchanged, distant aim endpoint.
     /// </summary>
-    [Uc("SBase.SWeaponDefense.GetFireStart", Sha1 = "dff3dd8d4f679b00dfb623bf138b177deb92c296")]
-    [PortOf("uc:SBase.SWeaponDefense:GetFireStart", Spec = "spec/equipment/merc-rifle.md#rules")]
-    public override FVector GetFireStart()
-    {
-        if (Instigator is SPAWNDEFENSE { bLaserOn: true })
-        {
-            FCoords fx = CombatServices.Ports(this).BoneCoords(this, FxBone);
-            return fx.Origin - fx.XAxis * K.LaserFireStartPullBack;
-        }
-
-        return base.GetFireStart();
-    }
+    [Provenance(ProvenanceKind.Estimated, "OpenSCCT aiming correction: toggling a visual laser must not shift bullet impacts")]
+    public override FVector GetFireStart() => base.GetFireStart();
 
     // ---- rate of fire ---------------------------------------------------------------------------------------
 
@@ -605,7 +612,11 @@ public partial class SWeaponDefense
             return;
         }
 
-        if (this is MercSidearm) return;
+        if (this is MercSidearm pistol)
+        {
+            pistol.SetSidearmFireMode(newROFMode);
+            return;
+        }
         ROFMode = newROFMode;
     }
 

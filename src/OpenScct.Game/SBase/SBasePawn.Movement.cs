@@ -528,42 +528,35 @@ public partial class SBasePawn
     private const float LandingSoundRadius = 300f;
 
     /// <summary>
-    /// Plays the landing sound here; the authority also tells the other players' machines, a client asks the
-    /// server to play it for everyone.
+    /// Plays at the local landing; the authoritative copy reaches only other listeners.
     /// </summary>
     [Uc("SBase.SBasePawn.PlayLandingSound", Sha1 = "4d7641f6f52177053ce16240de4a7ad406591540")]
     [PortOf("uc:SBase.SBasePawn:PlayLandingSound", Spec = "spec/movement/jump-fall-land.md#network")]
     public virtual void PlayLandingSound()
     {
-        PlaySound(LandingSound, ESoundSlot.SLOT_None, 1f, false, LandingSoundRadius);
-        if (Role == ENetRole.ROLE_Authority)
-        {
-            ClientPlayLandingSound();
-        }
-        else if (Controller is SPlayerController pc)
-        {
+        // The owner emits at its landing and asks the server to relay once. The
+        // authority's simulation of that remote pawn must not emit a second copy.
+        if (Role == ENetRole.ROLE_Authority && Controller is SPlayerController { IsRemotePlayer: true }) return;
+        PlayOwnedSound(LandingSound, ESoundSlot.SLOT_None, 1f, false, LandingSoundRadius);
+        if (Role < ENetRole.ROLE_Authority && Controller is SPlayerController pc)
             MovementNet.Of(this).ServerPlayLandingSound(pc);
-        }
     }
 
-    /// <summary>Server to every client: plays only where the pawn has no controller (the other players).</summary>
+    /// <summary>Legacy entry point; the generic sound relay now presents remote landings.</summary>
     [Uc("SBase.SBasePawn.ClientPlayLandingSound", Sha1 = "05119816cd8737b8101ef66b26371e1003d755f8")]
     [PortOf("uc:SBase.SBasePawn:ClientPlayLandingSound", Spec = "spec/movement/jump-fall-land.md#network")]
     public virtual void ClientPlayLandingSound()
     {
-        if (Level.NetMode == ENetMode.NM_Client && Controller is null)
-        {
-            PlaySound(LandingSound, ESoundSlot.SLOT_None, 1f, false, LandingSoundRadius);
-        }
+        // Compatibility entry point: NetHearSound already delivers the authoritative landing.
     }
 
-    /// <summary>Client to server: plays on the server and multicasts.</summary>
+    /// <summary>Client to server: relay the predicted landing only to other listeners.</summary>
     [Uc("SBase.SBasePawn.ServerPlayLandingSound", Sha1 = "2cee024ec67c557473c197c242c4462cc7282c9a")]
     [PortOf("uc:SBase.SBasePawn:ServerPlayLandingSound", Spec = "spec/movement/jump-fall-land.md#network")]
     public virtual void ServerPlayLandingSound()
     {
-        PlaySound(LandingSound, ESoundSlot.SLOT_None, 1f, false, LandingSoundRadius);
-        ClientPlayLandingSound();
+        // The generic sound relay handles remote listeners and excludes the predicting owner.
+        PlayOwnedSound(LandingSound, ESoundSlot.SLOT_None, 1f, false, LandingSoundRadius);
     }
 
     /// <summary>Empty: fall damage is the controller's rule (jump-fall-land.md).</summary>

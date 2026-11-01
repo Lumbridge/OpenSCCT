@@ -185,7 +185,25 @@ outdoor zones end at 8000).
 |---|---|
 | light | `LIGHT_LIGHTMAP` (BSP, UV2), `LIGHT_VERTEX` (baked colours), `LIGHT_ACTOR` (actor lighting), none (fullbright) |
 | blend | opaque; masked (alpha test 0.5); translucent (SRCALPHA, INVSRCALPHA); additive (ONE, ONE, also standing in for the screen blend ONE, INVSRCCOLOR); modulate (dest x src x 2); darken (dest x (1 - src)) |
-| extras | `SELF_ILLUM` (+ `_MASK`): lit diffuse lerped to SelfIllumination by the mask alpha; `ENV_COLOR`: the env map x SpecularityMask alpha, added, or the whole env map when the Shader has no SpecularityMask and its env map is a 2D texture (146 map materials, StroD's chrome vases `crypt_txt.sphear`, AquaE's kiosk screen; they used to drop it; without the mask and without the texture nothing is added: the gameplay pack's materials.json has neither the env texture nor the OB_Brighten blend of PolaE's first-aid cabinet glass `fist_aid_glass`, and its mean colour over the whole pane drew it opaque white, PolaE spy-180 0.975 against 0.989) (`ENV_TEX`: the env map's own 2D texture looked up by the camera-space reflection R, u, v = R.xy wrapped, the fixed-function stage of game 0x1096d6f0: TexCoordSource 11 sets D3DTSS_TCI_CAMERASPACEREFLECTIONVECTOR through the TexEnvMap's identity matrix; the old `0.25 R.xy + 0.5` of the EMF scene sampled every env map's bright centre on surfaces facing the camera, so VertE/X's door frames and BankP's signs drew white; skinned characters keep `0.25 R.xy + 0.5`, `env_uv_map`; a world-space TexEnvMap (TexCoordSource 10 TCS_WorldEnvMapCoords / EnvMapType EM_WorldSpace, `env_world` in materials.json, scctpkg patch 0008) turns R to world space first (0x1096d6f0 case 10: the view matrix as the texture transform) and takes its UE X and Y (ClubD/E/S/T's terrace glass `CLU_Glass_SH` over `CLU_envmap01`: the R.xy lookup read the map's black corner and the glass vanished, far-180 0.754 against 0.819 now); without it, cube maps, its mean colour); `UV_ANIM`: panner, friendly panner, oscillator (pan and stretch), constant rotator (maths under Layers); `OPACITY_LAYER`, `SPEC_LAYER`, `SI_LAYER`, `COMBINE`, `FLIPBOOK`: below |
+| extras | `SELF_ILLUM` (+ `_MASK`): lit diffuse lerped to SelfIllumination by the mask alpha; `ENV_COLOR`: the env map x SpecularityMask alpha, added, or the whole env map when the Shader has no SpecularityMask and its env map is a 2D texture (146 map materials, StroD's chrome vases `crypt_txt.sphear`, AquaE's kiosk screen; they used to drop it; without the mask and without the texture nothing is added: the gameplay pack's materials.json has neither the env texture nor the OB_Brighten blend of PolaE's first-aid cabinet glass `fist_aid_glass`, and its mean colour over the whole pane drew it opaque white, PolaE spy-180 0.975 against 0.989) (`ENV_TEX`: the env map's own 2D texture looked up by the camera-space reflection R, u, v = R.xy wrapped, the fixed-function stage of game 0x1096d6f0: TexCoordSource 11 sets D3DTSS_TCI_CAMERASPACEREFLECTIONVECTOR through the TexEnvMap's identity matrix; the old `0.25 R.xy + 0.5` of the EMF scene sampled every env map's bright centre on surfaces facing the camera, so VertE/X's door frames and BankP's signs drew white; skeletal meshes use the same normal-view lookup; the EMF scene uses its separate decoded reflection matrix; a world-space TexEnvMap (TexCoordSource 10 TCS_WorldEnvMapCoords / EnvMapType EM_WorldSpace, `env_world` in materials.json, scctpkg patch 0008) turns R to world space first (0x1096d6f0 case 10: the view matrix as the texture transform) and takes its UE X and Y (ClubD/E/S/T's terrace glass `CLU_Glass_SH` over `CLU_envmap01`: the R.xy lookup read the map's black corner and the glass vanished, far-180 0.754 against 0.819 now); without it, cube maps, its mean colour); `UV_ANIM`: panner, friendly panner, oscillator (pan and stretch), constant rotator (maths under Layers); `OPACITY_LAYER`, `SPEC_LAYER`, `SI_LAYER`, `COMBINE`, `FLIPBOOK`: below |
+
+Translucent shaders with a Specular layer retain the native separate additive pass: diffuse contributes
+`diffuse * opacity`, the destination contributes `destination * (1 - opacity)`, and Specular contributes
+`specular * specularityMaskAlpha` independently of opacity. `ENV_SEPARATE` folds these into one premultiplied
+alpha draw. Native `FD3DRenderInterface::SetShaderMaterial` (game `0x1096eac0`, editor `0x10f36a30`,
+`LAB_10f380e7`) selects ONE/ONE without a mask and SRCALPHA/ONE with one. Multiplying the reflection by diffuse
+opacity again attenuated AquaE's tank-glass reflection (`aqua_degradevitre02`).
+Shader.Opacity always samples the source alpha, including a constant alpha. The native bitmap stage
+(editor `0x10f37a14`, game SetShaderMaterial `0x1096eac0`) selects TEXTURE alpha directly; it does not substitute
+luminance. AquaE's `aqua_newglass_01` stores constant DXT5 alpha 144/255. The old converter replaced it with
+RGB luminance because its alpha did not vary, baking coverage 7..129 instead. The resulting glass lost its
+uniform green haze. Original runtime material-isolation captures measured effective coverage about 0.57,
+matching 144/255. Both baked opacity and separately animated opacity layers now retain alpha (vendor patch
+0015); map/character cache versions invalidate the old results. AquaD/E/T's affected glass textures were
+regenerated. `tests/content/test_shader_opacity.py` covers constant alpha, opaque RGB inputs and moving layers.
+
+Thermal and EMF retain their own alpha-weighted output. The `glass-blend` rendered smoke checks the two-pass
+equation at opacity 0, 0.25 and 1, and with a partial specularity mask, within three framebuffer byte steps.
 
 **Layers.** UE2 moves each input of a Shader or Combiner by its own modifier chain. The exporter writes an input
 apart when its modifiers differ from the Diffuse's, and the template evaluates it on its own, starting from the mesh's
@@ -260,6 +278,10 @@ settings' `filter_level` (rl:gfx.filtering: 0, 2, 4, 8 or 16, first run 4 as the
 - **Static meshes:** `display = min(1, tex x min(2, 2 x VC + glow + dynamic))`, VC the instance's baked colour and
   glow `min(1, 2 x AmbientGlow / 255)` (measured on BankD). The vertex colour stores half the term so it stays exact
   in 8 bits.
+- **Baked additive gameplay effects ignoring both Echelon light kinds:** preserve the saved colour intensity without
+  the extra ambient floor. Measured on AquaE's pump water Mover16072 (AmbientGlow 40): removing that floor restores
+  the ceiling visible through the volume. Applying this to matching effects is an inference; opaque movers retain
+  their ambient contribution. `pump-lighting` checks the built pump and opaque Mover362 against their source colours.
 - **UseVertexColor meshes:** the game modulates the actor's ambient by the mesh's own vertex colours, so the converter
   folds the glow into the baked colours (`export_gltf._fold_vertex_color_glow`: `+ min(127.5, glow) / 2 x mesh colour`,
   the mesh colours read as B, G, R, A) and writes no `ambientGlow`. Measured on Polar Base's mountains (AmbientGlow
@@ -453,10 +475,26 @@ light type scales each chosen light's colour (as for the world lights); ranking 
 adds its attenuated colour whatever the normal (its D3D ambient). LE_Cylinder and LE_NonIncidence stay plain points
 (not decoded). The set is chosen on the CPU and handed over as
 instance uniforms; the shader evaluates it per vertex. The spot shadow light and the night boost are added per pixel.
-The first-person arms and gun take the set at the eye (a 64 uu sphere) without the own-zone filter
-(`FirstPersonView.LightAtEye`, estimated): on AquaE, in front of the Tech Room door, the eye is in zone 9 and the gun's
-only light, own-zone Light15411, is 9 uu over the portal in zone 13. The filter drew the gun black there, while the
-original lights it.
+The first-person arms and gun currently select ordinary lights at the eye (a 64 uu sphere, no own-zone
+filter). This remains an approximation: the original gathers from the weapon's BSP leaves and actual bounds,
+then filters using the weapon's zone. There is no added viewmodel ambient floor. At the measured AquaE Blue Room
+pose (eye `7152, 1036, 272.50626`, yaw 16384, FOV 95), the original selects zero ordinary lights and has zero
+actor/zone ambient. Its rifle highlights come from the original material chain through the heat/EMF modifiers:
+`SFX_xbox.final_gundef` supplies `envmap_gundef` and `M160_specular_mask`. Skeletal export and loading must preserve
+those normal-view reflection inputs instead of reducing the material to its diffuse texture.
+First-person meshes also retain the cooked LOD's normals and vertex splits (scctpkg patch 0014), including
+the float normals of rigid weapon sections. Rebuilding normals from UV wedges flattened the rifle's sight
+knob and receiver highlights. The rifle, shotgun and Uzi conversion tests compare every triangle's position,
+UV and material against the base mesh and check that exported normals match the cooked data.
+
+The merc's simulation `SquintingFactor` also reaches the renderer: in normal vision the original sets a light
+byte to `int(factor * 28)`, halves it for D3D ambient, then modulates 2x. The resulting additive scene-light term
+is `2 * (int(factor * 28) >> 1) / 255`, at most `10/255`; movement, torch and scope affect the simulation value.
+This is separate from the material reflection. Runtime probes at the Blue Room pose observed byte 11 and
+D3D ambient `0xff050505` during the weapon draw (game `0x10a0af70`, `0x10979380`, `0x109bf45f`).
+The three `SWeaponTex.SI_rof_*` screens retain their self-illumination, including skin swaps and older packs that
+only exported their diffuse images. `viewmodel-light` renders the Blue Room regression and all three screens at
+zero light; its captures and original runtime evidence are in `local/viewmodel-light/`.
 
 The rules (light choice, ranking, falloff, colour, light types, the spot shadow frustum and colour cap) live
 Godot-free in `src/OpenScct.Game/Lighting/ActorLightRules.cs`; `ActorLighting`, `SpotShadowLight` and `WorldLights`
@@ -716,7 +754,7 @@ hot spots stopped at yellow, his head read cold, a wide halo ringed him). The co
 | 34 night | normal scene with a light boost: the pre-render step sets the render interface's byte +0xC to 30; EnableLighting puts it halved into the texture factor added to the lightmap stage, so the light term grows by `2 x 15 / 255`; actors and vertex-lit meshes take the same (measured); no glow gate | `saturate(4 n (L x (0.718, 1, 0.667) + glow))` (ps_1_1: `mad_x2` then `mul_x2` by the grain), L the display luminance (0.3, 0.59, 0.11); the glow term is not fed in yet |
 | 36 thermal | the Z pass: `(0, heat, 1 - viewZ / 5000)`; heat is HeatIntensity, or `4 lum(heat texture) x HeatIntensity` (HEATTEX_Cool), or `lum + HeatIntensity` (HEATTEX_Heat) with a heat modifier; translucent surfaces blend `(0, 0, fade)` by alpha x HeatOpacity; HeatOpacity 0 leaves the actor out; additive, modulating and darkening surfaces are left out; clear black | `2 x table(h.g, h.b) x n` (ps_1_1 0x34e11c, texreg2gb), table `Engine.heat_and_attenuation_2d` (u heat, v fade), bilinear, clamped |
 | 37 motion | normal scene | `lum = 2 s L(blur2 x n) + MTVOffset / 255`, `s = 1 + 3 MTVSlope / 255`; below 0.5765 a ramp from (0, 20, 40) to (180, 10, 10) by `1.7347 lum`, above it `(0.9, 0.05, 0.05) x (1 - lum)`; x sonar (constants 0x10963f9f..0x10964127, ps_1_1 0x34e278); blur2 is read while PlayerController.SoundWaveDistanceToCamera is 0 |
-| 38 EMF | `EMFInvDarkBlue(0.25 R.xy + 0.5) x (1 - EMF glow)` with R the camera-space reflection, x the EMF texture (inverted with bInvertEMFTexture); EMF glow is EMFIntensity while bEMFIsOn; EMFOpacity 0 hides the actor, below 0.99 draws a 4 x 4 screen door; additive surfaces left out; clear 0xffffda85 | `2 x (1 - h) x n x sonar` (ps_1_1 0x34efe0) |
+| 38 EMF | `EMFInvDarkBlue(0.25 (R.x + R.y) + 0.5, 0.5 R.y + 0.5) x (1 - EMF glow)` with R the camera-space reflection, x the EMF texture (inverted with bInvertEMFTexture); EMF glow is EMFIntensity while bEMFIsOn; EMFOpacity 0 hides the actor, below 0.99 draws a 4 x 4 screen door; additive surfaces left out; clear 0xffffda85 | `2 x (1 - h) x n x sonar` (ps_1_1 0x34efe0) |
 
 - Motion vision's clean view rectangles: each held lock box of the tracker (HudMotionTracking.CleanRects, the list
   ASMotionTrackingVision::Tick fills at 0x10ac0e30) is redrawn after the motion pass by ps_1_1 0x10c4e328 (loop at
@@ -735,6 +773,12 @@ hot spots stopped at yellow, his head read cold, a wide halo ringed him). The co
   while bEMFIsOn, EMFOpacity; replicated on every change) when they change, so a spy shows in EMF only while EMF
   visible; `PawnAttachments` does the same for the spy's pistol from its own actor (1 while the spy is EMF visible,
   0.3 screen door otherwise) and for the merc's rifle dummy (Actor defaults: drawn, no glow).
+- First-person models now apply the weapon's live vision values too. Converted skeletal materials retain their
+  original modifier in `scct_vision_source`: the rifle's diffuse alias `SWeaponTex.M160` otherwise loses
+  `SWeaponTex.Armes.heat_m160` and its EMF mask. Cosmetic materials preserve that source. The material's diffuse
+  alias still supplies stored mip counts, so adding the vision source does not soften its normal-view texture.
+- The EMF reflection matrix is decoded from game `0x1097766d..0x109776e5`, replacing the earlier uniform-scale
+  estimate. Its row-major rows are `(.25,0,0,0),(.25,.5,0,0),(0,0,1,0),(.5,.5,0,1)`.
 - Laser beams (`Lasers`: SLaserBeam's LasDetectBeam stretched from start to end; the tripwires' and the mines'
   SLaserBeam_MineLaser, length fTailleFaisceau) are vision-only nodes: drawn only in 36 and 38 (bHideInNormalVision),
   with their own material: the beam's HeatIntensity in thermal (tripwire 1, mine beam 0.4), full EMF glow in EMF.
@@ -756,10 +800,16 @@ hot spots stopped at yellow, his head read cold, a wide halo ringed him). The co
   pixel. Estimated: the original is known to draw an actor below opacity 1 translucent (bridge docs/VISION_MODES.md),
   the exact blend of a solid surface's heat is not decoded. Actors built outside the map (pawn weapons, gadgets)
   keep the EMF screen door; soft bodies draw solid.
+- EMF runs its own halo driver before the final two-level blur and inversion (`0x109678b0`). Pixel shader
+  `0x10c4f020` thresholds scene red <= 228/255 to white; four blur levels are summed with the normal glow weights
+  (0.4, 0.6, 0.7, 0.9). `0x109684f0` with its final flag set blends that sum with SRCALPHASAT/ZERO against the
+  original mask: `sum.rgb * min(sum.a, 1 - mask.a)`. This removes the interior, retaining the exterior halo.
+  ZERO/INVSRCCOLOR then multiplies the scene by `1 - halo`, making white outlines after the EMF inversion.
+  The shared glow targets are rebuilt each EMF frame, before the ordinary vision pyramid overwrites its levels.
+  A rendered AquaE kiosk regression checks the border against the interior and the EMF-to-normal transition.
 - Particles draw the translucent thermal rule for alpha styles and nothing in EMF.
 - Not yet: the night glow term and its pre-draws, the heat-source pass (HeatRadius actors; SteeE has none), the
-  EMF actor pass details (the original's electronics glow as outlines with halos; ours
-  fill), the remanence overlay (PlayerController.RemanenceBlendFactor).
+  the remanence overlay (PlayerController.RemanenceBlendFactor).
 
 ## Cloak
 
@@ -1008,7 +1058,7 @@ Vision modes, the same twelve views captured in each mode (SSIM on 4 x 4 block m
 | 34 night | 0.948 | 0.871 | 1.01 | every gate passes (before: 0.818, 0.692; the gate crushed the pawns black and the boost was a fitted 1.4 x 30 / 255); no glow term |
 | 36 thermal | 0.945 | 0.805 | 1.05 | the pawn reads hotter than the original (best fit at HeatIntensity 0.65 although it reads 1.0 live); crane 0.805 |
 | 37 motion | 0.985 | 0.946 | 0.99 | every gate passes |
-| 38 EMF | 0.873 | 0.810 | 0.98 | electronics glow as filled shapes, the original's as outlines with halos |
+| 38 EMF | 0.873 | 0.810 | 0.98 | historical baseline before the EMF halo fix; see vision modes |
 
 ## Smoke tests
 
@@ -1024,7 +1074,7 @@ Both need `.content/` (converted content and the render pack), so CI's default s
 
 ## Open issues
 
-- The crane prop's lighting (above). The pawn's heat in thermal. The EMF actor pass (outline glow). The night glow
+- The crane prop's lighting (above). The pawn's heat in thermal. The night glow
   term: the night pass runs the glow driver 0x10967740 in mode 1, whose bright pass (ps 0x10c4e830) writes the night
   tint (0.718, 1, 0.667) where `dot(scene, (0.2, 0.393, 0.0733)) > 0.5` (c5 = 0), blurs it through the four-level
   pyramid and composites it (ps 0x10c4ed00); the night pass blurs that once more (0x10967d70) and adds it as `glow`.

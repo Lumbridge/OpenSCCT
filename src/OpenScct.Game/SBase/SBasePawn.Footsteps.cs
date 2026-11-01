@@ -74,6 +74,8 @@ public partial class SBasePawn
             return;
         }
 
+        // The owning client runs these animation notifies itself. Do not echo a delayed
+        // server copy back to it; remote listeners still receive every step and gear cue.
         Name bone = bTrueIfLeftFoot ? LeftFootBone : RightFootBone;
         FVector horizontal = new(Velocity.X, Velocity.Y, 0f);
         int speed = (int)horizontal.Size();
@@ -88,7 +90,7 @@ public partial class SBasePawn
         {
             if (speed > RunningSpeed / 4f)
             {
-                PlaySound(FootCrouchSound, ESoundSlot.SLOT_Interact, FootStepsVolume * speed / (RunningSpeed / 2f), false,
+                PlayOwnedSound(FootCrouchSound, ESoundSlot.SLOT_Interact, FootStepsVolume * speed / (RunningSpeed / 2f), false,
                     stepRadius, null, true, bone);
             }
 
@@ -96,20 +98,20 @@ public partial class SBasePawn
         }
         else if (speed < FootWalkSpeedLimit)
         {
-            PlaySound(FootWalkSound, ESoundSlot.SLOT_Interact, FootStepsVolume * speed / RunningSpeed, false, stepRadius,
+            PlayOwnedSound(FootWalkSound, ESoundSlot.SLOT_Interact, FootStepsVolume * speed / RunningSpeed, false, stepRadius,
                 null, true, bone);
             iLastWalkTime = now;
         }
         else
         {
-            PlaySound(FootRunSound, ESoundSlot.SLOT_Interact, FootStepsVolume * speed / RunningSpeed, false, stepRadius,
+            PlayOwnedSound(FootRunSound, ESoundSlot.SLOT_Interact, FootStepsVolume * speed / RunningSpeed, false, stepRadius,
                 null, true, bone);
             bool spy = this is SPawnAttaque;
-            PlaySound(spy ? SpyGearRunSound : MercGearRunSound, ESoundSlot.SLOT_Misc, FootStepsVolume * 1f, false,
+            PlayOwnedSound(spy ? SpyGearRunSound : MercGearRunSound, ESoundSlot.SLOT_Misc, FootStepsVolume * 1f, false,
                 FootGearRadius, null, true, GearBone);
             if (iLastWalkTime + FootBreathDelay <= now)
             {
-                PlaySound(spy ? SpyBreathSound : MercBreathSound, ESoundSlot.SLOT_Misc, FootStepsVolume * 1f, false,
+                PlayOwnedSound(spy ? SpyBreathSound : MercBreathSound, ESoundSlot.SLOT_Misc, FootStepsVolume * 1f, false,
                     FootBreathRadius, null, true, HEADBONE);
             }
         }

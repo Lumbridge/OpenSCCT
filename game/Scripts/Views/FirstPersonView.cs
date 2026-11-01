@@ -28,6 +28,27 @@ public partial class FirstPersonView : Node3D
     private ChannelPoseApplier? _applier;
     private string? _asset;
     private float _relightClock;
+    private readonly Dictionary<string, (SkeletalModel Model, ChannelPoseApplier Applier, IReadOnlyList<MeshInstance3D> Arms)> _loaded = new(StringComparer.OrdinalIgnoreCase);
+    private int _lastShot;
+    private SWeaponDefense? _lastWeapon;
+    private float _revolverKick;
+    private readonly Dictionary<SkeletalModel, Transform3D> _sidearmSightOffsets = new();
+
+    /// <summary>Read and convert pistol scenes during map loading, before the player can switch weapons.</summary>
+    public void PreloadSidearms()
+    {
+        foreach (string primary in new[] { "SWeaponFirst.1DEF_01", "SWeaponFirst.1DEF_Uzi", "SWeaponFirst.1DEF_shotgun" })
+            Load(primary);
+        foreach (var pistol in Sidearms.All)
+        {
+            Load(pistol.Asset + "_first");
+            if (SkeletalModel.FindGlb(pistol.Asset, SharedRoot ?? Map?.SharedRoot) is { } third)
+                SkeletalModel.Load(third).Root.Free();
+        }
+        if (_model is not null) _model.Root.Visible = false;
+        _asset = null;
+        _model = null;
+    }
 
     public FirstPersonView()
     {
@@ -60,9 +81,9 @@ public partial class FirstPersonView : Node3D
         var weapon = (pc?.Pawn as SBasePawn)?.MyWeapon as SWeaponDefense;
         bool show = pc is { bBehindView: false } && weapon is { bDrawWeapon: true, bDeleteMe: false } && !weapon.Mesh.IsNone
             && ReferenceEquals(pc.ViewTarget ?? pc.Pawn, pc.Pawn);
-        if (show && !string.Equals(_asset, weapon!.Mesh.Path, StringComparison.OrdinalIgnoreCase))
+        if (show && (_model is null || !string.Equals(_asset, weapon!.Mesh.Path, StringComparison.OrdinalIgnoreCase)))
         {
-            Load(weapon.Mesh.Path!);
+            Load(weapon!.Mesh.Path!);
         }
 
         Shown = show && _model is not null;
@@ -73,9 +94,29 @@ public partial class FirstPersonView : Node3D
         }
 
         _model!.Place(cameraLocation, cameraRotation, default);
+        _model.SetVision(GameplayObjects.VisionOf(weapon!));
+        if (!ReferenceEquals(_lastWeapon, weapon))
+        {
+            _lastWeapon = weapon;
+            _lastShot = weapon!.ShotCounter;
+            _revolverKick = 0f;
+        }
+        if (weapon is MercSidearm { Kind: (int)SidearmKind.Magnum44 } && weapon.ShotCounter != _lastShot)
+            _revolverKick = 0.42f;
+        _lastShot = weapon!.ShotCounter;
         DrawCosmetic(pc!.Pawn);
         DrawSkins(weapon!);
-        Pose(weapon!.ViewAnim, dt, alpha);
+        Pose(weapon!.ViewAnim, dt, alpha, exclusiveAction: weapon is MercSidearm { ReloadUntil: > 0 });
+        if (weapon is MercSidearm && _sidearmSightOffsets.TryGetValue(_model, out Transform3D sightOffset))
+            _model.Root.Transform *= sightOffset;
+        if (_revolverKick > 0f)
+        {
+            // Actor-local +X is forward and +Z is screen-right (UE mapping),
+            // so pitch around +Z; rotating around +X only rolls the gun.
+            _model.Root.RotateObjectLocal(Vector3.Back, _revolverKick);
+            _model.Root.RotateObjectLocal(Vector3.Up, -_revolverKick * 0.45f);
+            _revolverKick *= MathF.Exp(-10f * dt);
+        }
         _relightClock -= dt;
         if (_relightClock <= 0f && Map is not null)
         {
@@ -84,14 +125,21 @@ public partial class FirstPersonView : Node3D
         }
     }
 
+    /// <summary>A fixed ten-metre sight zero, computed once in camera-local space.</summary>
+    internal static Transform3D SidearmSightOffset(Transform3D neutralBarrel)
+    {
+        Vector3 target = Vector3.Right * 10f;
+        Vector3 direction = (target - neutralBarrel.Origin).Normalized();
+        var rotation = new Basis(new Quaternion(neutralBarrel.Basis.X.Normalized(), direction));
+        return new Transform3D(rotation, neutralBarrel.Origin - rotation * neutralBarrel.Origin);
+    }
+
     /// <summary>
-    /// The view model's light set: the eye zone's ambient and the lights reaching a 64 uu sphere at the eye, with no
-    /// own-zone filter (zone -1). On AquaE, 5 m in front of the Tech Room door, the eye is in zone 9 and the only
-    /// light on the gun, Light15411 (bAffectOwnZoneOnly), sits 9 uu over the portal in zone 13: the own-zone filter
-    /// drew the gun black where the original lights it. The original's first-person weapon is not lit by the eye's
-    /// zone; which zone it takes is not decoded.
+    /// Ordinary lights near the eye. The 64 uu sphere and unknown zone remain approximations; the original
+    /// uses the weapon's bounds and BSP leaves. Reflections belong to the material and eye adaptation to the
+    /// scene renderer, so neither is replaced with a viewmodel ambient floor here.
     /// </summary>
-    [Provenance(ProvenanceKind.Estimated, "Original first-person gun lit by an own-zone light of the next zone (AquaE Tech Room door, Ryan's capture 2026-10-30); actor light gathering game 0x10a37610")]
+    [Provenance(ProvenanceKind.Estimated, "Eye-centred light selection; original FActorSceneNode::Render 0x10a172f0 uses weapon bounds/BSP leaves")]
     internal static ActorLightSet LightAtEye(RenderMap map, FVector eye) =>
         map.ActorLighting.Select(eye, 64f, map.AmbientAt(eye, 0), -1);
 
@@ -155,7 +203,13 @@ public partial class FirstPersonView : Node3D
     private void Load(string asset)
     {
         _asset = asset;
-        _model?.Root.QueueFree();
+        if (_model is not null) _model.Root.Visible = false;
+        if (_loaded.TryGetValue(asset, out var cached))
+        {
+            (_model, _applier, _arms) = cached;
+            _model.Root.Visible = true;
+            return;
+        }
         _model = null;
         _arms = [];
         _applier = null;
@@ -174,6 +228,13 @@ public partial class FirstPersonView : Node3D
         }
 
         AddChild(_model.Root);
+        if (asset.StartsWith("OpenScctSidearms.", StringComparison.OrdinalIgnoreCase) &&
+            _model.Skeleton.FindBone("FX") is var fx and >= 0 && _model.Sampler.Find("FirstWaitStFd2") is { } idle)
+        {
+            Transform3D neutral = _model.Root.GlobalTransform.AffineInverse() * _model.Skeleton.GlobalTransform *
+                _model.Sampler.SampleBone(idle, fx, .5f);
+            _sidearmSightOffsets[_model] = SidearmSightOffset(neutral);
+        }
         // Arms and gun float at the eye: the main view draws them, the shadow cameras do not (RenderLayers.FirstPerson).
         foreach (MeshInstance3D mesh in _model.Root.FindChildren("*", nameof(MeshInstance3D), true, false))
         {
@@ -181,7 +242,9 @@ public partial class FirstPersonView : Node3D
         }
 
         _applier = new ChannelPoseApplier(_model.Skeleton);
+        _loaded[asset] = (_model, _applier, _arms);
     }
 
-    private void Pose(ViewModelAnim anim, float dt, float alpha) => _applier!.Apply(_pose.Update(anim, _model!.Sampler, dt, alpha));
+    private void Pose(ViewModelAnim anim, float dt, float alpha, bool exclusiveAction) =>
+        _applier!.Apply(_pose.Update(anim, _model!.Sampler, dt, alpha, exclusiveAction));
 }

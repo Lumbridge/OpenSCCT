@@ -356,7 +356,7 @@ public partial class SWeaponDefense
 
         public bool Reload(SWeapon self) => false;
 
-        public bool FullReload(SWeapon self) => false;
+        public bool FullReload(SWeapon self) => self.FullReload();
     }
 
     /// <summary>s_FullReloading: the ammo crate's reload; at its end reserve and clip are full (rule 18).</summary>

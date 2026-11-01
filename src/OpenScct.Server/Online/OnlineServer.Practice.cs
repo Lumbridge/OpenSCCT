@@ -27,7 +27,7 @@ public sealed partial class OnlineServer
     private bool _practiceRound;
 
     /// <summary>A setup that starts from a map's or the rotation's values keeps the server's practice switch.</summary>
-    private LobbySetup KeepPractice(LobbySetup next) => next with { Practice = Setup.Practice };
+    private LobbySetup KeepPractice(LobbySetup next) => next with { Practice = Setup.Practice, Sidearms = Setup.Sidearms };
 
     /// <summary>A new round's map server: no switches carry over, and the practice rules go on its level.</summary>
     private void StartPracticeRound(ServerHost host)

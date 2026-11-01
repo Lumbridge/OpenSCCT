@@ -79,6 +79,21 @@ python -m svmbuild audio audio-map --maps all --jobs 6
 | Missing streams | 14 references in 8 maps (CineS, ClarD, MounS, OffsD, PyroD, VertE, VertU, VertX): the map uses a streamed sound of a package its bank does not hold; silent in the original as well (spec open question 5) |
 | Times | `audio` 1.5 s; `audio-map` 0.4 to 1.2 s a map, all 83 in 21 s with 6 jobs |
 
+Original rifle, Uzi and shotgun sound paths retain the extracted recordings and list definitions;
+`weapons.json` must not alias them to authored replacements. Primary reloads use the original animation
+tracks and `ReloadSound` cues. Authored sidearm assets remain separate.
+
+Footstep, running gear and breath notifies use owner-predicted playback: the local client plays them
+at its animation notify, and the server relays them only to other listeners. This avoids a second
+owner playback delayed by the remote-pawn presentation timeline beyond the router's duplicate window.
+
+Primary reload recordings start locally with the first-person animation. Their `ServerSound` relay marks
+that playback as predicted (`CombatCall.Bool1`), so remote listeners hear it without an owner echo.
+Weapon-handling sound notifies from the body's `Relo*` clips are third-person cues: they do not play
+over the local first-person recording. Their owner-aware relay preserves them for remote listeners.
+`play-audio-merc` now reloads after firing and checks for exactly one full recording and no delayed
+`Reload_Def_court` body cue on the owner.
+
 ## Client
 
 `SoundSystem` (a `Node3D`) is the client world's `ISimEventSink` and plays the events of each tick:
@@ -190,6 +205,13 @@ Sound's own gain (as the map music). It also plays the lobby's join sound (rl:qo
 Reloaded plays is not decoded; ours is `Interface.Menu.bip_message` at its own gain, flat on `SvmFlat`). Headless
 runs and `SVM_AUDIO_MUTE=1` play nothing.
 
+`MenuFeedback`, installed by `App`, adds quiet button hover/focus and click sounds across menu pages and in-game
+overlays. These are original, short synthesized tones with softened attacks and decays, so they need no converted
+content: hover is 38 ms at -23 dB, click is 70 ms at -18 dB. They use `SvmFlat`, respecting Master and Sound volume.
+Hover/focus shares a 65 ms cooldown; programmatic focus and stationary-pointer page changes are silent. Clicks
+interrupt hover but use a separate player from lobby notifications and music. Headless and `SVM_AUDIO_MUTE` runs
+remain silent.
+
 ### Smoke test
 
 `--svm-smoke=audio` loads SteeE's audio and simulation (a merc `PawnRig`), binds the sound system to the rig's
@@ -288,3 +310,14 @@ yaw instead of along the foot bone, and the texture's axes on the floor are esti
 - `SPlayerController.ClientNotifyNoise` (the spy's noise meter on footsteps) is not ported.
 - The default slot of the simulation's `PlaySound` is SLOT_None; the original's is SLOT_Misc (rule 1). It only
   changes which call replaces which when all 32 voices are busy.
+
+### Predicted action sounds
+
+Weapon handling through `ServerSound` (empty clicks, fire-mode changes, grenade handling and reloads)
+plays on the owner immediately and marks the reliable relay as already predicted. Authority-only
+calls retain normal playback for the owner. Shocker shots and pawn animation sound notifies likewise
+use owner-aware playback; replayed movement does not emit sound or resend landing requests.
+Landings use one client request and the normal sound relay: the server's simulation of a remote
+player does not add another landing sound, and the legacy client landing callback is inert.
+Other players keep timestamped sound delivery. A one-shot that arrives after its presentation
+window is still discarded rather than played late.

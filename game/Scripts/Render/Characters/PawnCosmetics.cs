@@ -23,9 +23,6 @@ public static class PawnCosmetics
     /// <summary>The retail merc torch and lamp orange's hue, degrees (RenderK.TorchHue 21 of 255).</summary>
     public const float MercRetailHue = 21f * 360f / 255f;
 
-    /// <summary>How strongly a tint recolours (the rest keeps the retail colours).</summary>
-    public const float TintStrength = 0.8f;
-
     /// <summary>
     /// The look drawn on the pawn (retail when there is none). The local player's own pawn wears the Armoury's choice
     /// while "hide mine" keeps it off the servers; other players' pawns are drawn retail while "hide others" is on.
@@ -66,6 +63,7 @@ public static class PawnCosmetics
         return SGameInfo.GunClassOf(carriedWeapon ?? sb.MyWeapon) switch
         {
             "suppressed" => look[CosmeticSlot.Suppressed],
+            "unsuppressed" => look[CosmeticSlot.Unsuppressed],
             "automatic" => look[CosmeticSlot.Automatic],
             "magnum44" => look[CosmeticSlot.Magnum44],
             "desert_eagle" => look[CosmeticSlot.DesertEagle],
@@ -114,8 +112,9 @@ public static class PawnCosmetics
             case CosmeticKind.Texture:
                 return (item.Pattern, Vector3.One, 0f);
             case CosmeticKind.Tint:
-                (float r, float g, float b) = item.Colour;
-                return (null, new Vector3(r, g, b), TintStrength);
+                // Same saved item/bit, now a fitted panel finish. A global tint
+                // also recoloured lenses, gloves and equipment on the body atlas.
+                return ("tint_" + item.Rgb.ToString("x6"), Vector3.One, 0f);
             default:
                 return (null, Vector3.One, 0f);
         }

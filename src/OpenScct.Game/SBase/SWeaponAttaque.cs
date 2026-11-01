@@ -141,6 +141,8 @@ public partial class SWeaponAttaque
                 PredictTraceFireWithPos(shot, Position, new FRotator(Pitch, Yaw, Roll), DispersionActuelle);
             }
 
+            Instigator?.PlayOwnedSound(FireSingleShotSound, ESoundSlot.SLOT_None, null, false, K.ShockerSoundRadius);
+
             CombatServices.Net(this).ServerCall(client, new CombatCall(CNAME_ServerFireWeaponWithLocation)
             {
                 Target = this,
@@ -160,7 +162,7 @@ public partial class SWeaponAttaque
         TraceFireWithPos(Position, new FRotator(Pitch, Yaw, Roll), DispersionActuelle, 0f, 0f);
         if (Instigator is { } pawn)
         {
-            pawn.PlaySound(FireSingleShotSound, ESoundSlot.SLOT_None, null, false, K.ShockerSoundRadius);
+            pawn.PlayOwnedSound(FireSingleShotSound, ESoundSlot.SLOT_None, null, false, K.ShockerSoundRadius);
             CombatFx.Notify(pawn, BoneLeftHand);
             pawn.MakeNoise(1f);
         }

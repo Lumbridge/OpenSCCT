@@ -504,7 +504,15 @@ public partial class DisplaySpaceEffect : CompositorEffect
             {
                 if (fog || gate)
                 {
-                    Main(values, StageFog | StageGlow, color, depth, size);
+                    Main(values, mode == RenderK.RendMapEmf ? StageFog : StageFog | StageGlow, color, depth, size);
+                }
+
+                if (mode == RenderK.RendMapEmf)
+                {
+                    // 0x109678b0: threshold the inverted scene, blur four levels, remove the
+                    // mask interior with SRCALPHASAT, then multiply the scene by 1 - halo.
+                    Glow(color, size, 228f / 255f, emf: true);
+                    Main(values, StageGlow, color, depth, size);
                 }
 
                 Blur(color, size, _levels[0], new Vector2(0f, 1f), fromFrame: true);
@@ -626,15 +634,15 @@ public partial class DisplaySpaceEffect : CompositorEffect
     private byte[]? _glowBytes;
 
     /// <summary>
-    /// The glow driver in mode 0 (0x10967740): the bright pass of the frame into the 512 x 512 target, four blur runs
+    /// The normal glow driver (0x10967740) and EMF halo driver (0x109678b0): the bright pass of the frame into the 512 x 512 target, four blur runs
     /// (each a vertical then a horizontal pass, as the vision pyramid) to 256, 128, 64 and 32 texels square, then the
     /// weighted sum of the four levels back into the bright target, which the main pass adds over the gated frame.
     /// </summary>
     [Provenance(ProvenanceKind.Decoded, "glow driver 0x10967740 mode 0: bright pass 0x10967200 (ps 0x10c4e898), 0x10967d70 x 4, composite 0x109684f0 (ps 0x10c4ed00)")]
     [Provenance(ProvenanceKind.Estimated, "the bright pass samples the frame bilinear; the original asks for texture filter 5 (gaussian cubic), which drivers do not offer")]
-    private void Glow(Rid color, Vector2I size, float cut)
+    private void Glow(Rid color, Vector2I size, float cut, bool emf = false)
     {
-        GlowPass(color, size, 0f, cut);
+        GlowPass(color, size, emf ? 2f : 0f, cut);
         Rid source = _bright;
         Vector2I sourceSize = _brightSize;
         // Levels 1 (256), 3 (128), 5 (64) and 7 (32) are the pyramid; 0, 2, 4 and 6 the vertical halves between them.
@@ -646,10 +654,10 @@ public partial class DisplaySpaceEffect : CompositorEffect
             sourceSize = _levelSizes[i + 1];
         }
 
-        GlowPass(color, size, 1f, cut);
+        GlowPass(color, size, emf ? 3f : 1f, cut);
     }
 
-    /// <summary>One pass of svm_glow.glsl into the bright target: mode 0 the bright pass, 1 the composite.</summary>
+    /// <summary>One pass into the bright target: normal bright/composite (0/1), EMF mask/halo (2/3).</summary>
     private void GlowPass(Rid color, Vector2I frameSize, float mode, float cut)
     {
         UniformSlots slots = _glowSlots ??= new UniformSlots(RenderingDevice.UniformType.SamplerWithTexture,

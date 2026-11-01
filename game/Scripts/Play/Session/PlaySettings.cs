@@ -57,6 +57,8 @@ public sealed record PlaySettings
 
     public PlayRules Rules { get; init; } = PlayRules.MapSettings;
 
+    public bool Sidearms { get; init; }
+
     public PlayHostMode HostMode { get; init; } = PlayHostMode.Thread;
 
     public string PlayerName { get; init; } = "Player";
@@ -122,12 +124,12 @@ public sealed record PlaySettings
         string mode = ((byte)GameMode).ToString(CultureInfo.InvariantCulture);
         if (Rules == PlayRules.PlayLevel)
         {
-            return $"?GameMode={mode}?Team={Team}?Editeur=true";
+            return $"?GameMode={mode}?Team={Team}?Editeur=true?SvmSidearms={(Sidearms ? 1 : 0)}";
         }
 
         // The untouched match creation page for the mode (spec/game/game-modes.md rules 1 to 5), launched from the
         // lobby (match-options.md rule 27).
-        return Setup(gameplay).GameOptions(1);
+        return Setup(gameplay).GameOptions(1) + "?SvmSidearms=" + (Sidearms ? "1" : "0");
     }
 
     /// <summary>

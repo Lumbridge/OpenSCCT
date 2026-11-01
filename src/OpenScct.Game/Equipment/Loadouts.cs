@@ -125,6 +125,9 @@ public static class Loadouts
             }
         }
 
+        // Request the sidearm before the primary completes the initial kit grant.
+        if (!spy && SidearmEquipment.Enabled(Pawn) && source is not null && !source.Sidearm().IsNone)
+            ServerSpawnInventory(Pawn, source.Sidearm());
         ServerSpawnWeapon(Pawn, weapon);
         PawnInventory.SelectGagdet(Pawn, 0);
         if (spy && IsBombMode(Mode))
@@ -273,7 +276,7 @@ public static class Loadouts
         Pawn.GearGrantUntil = Pawn.Level.TimeSeconds + GearK.GrantSeconds;
         Pawn.GearGrantGadgets = Team(Pawn) is null ? K.TeamOptions : PawnInventory.TeamSlots(Pawn);
         Pawn.GearGrantWeapon = true;
-        Pawn.GearGrantSidearm = Pawn is SPAWNDEFENSE;
+        Pawn.GearGrantSidearm = Pawn is SPAWNDEFENSE && SidearmEquipment.Enabled(Pawn);
         Pawn.GearGrantBomb = Pawn is SPawnAttaque && IsBombMode(Mode);
     }
 
@@ -283,9 +286,16 @@ public static class Loadouts
     /// </summary>
     private static bool TakeGrant(SBasePawn Pawn, ClassRef Class, bool Weapon)
     {
-        if (Class.IsNone || Pawn.Level.TimeSeconds > Pawn.GearGrantUntil)
+        if (Class.IsNone)
         {
             return false;
+        }
+        if (Pawn.Level.TimeSeconds > Pawn.GearGrantUntil)
+        {
+            // Cold render/content loading can outlive the initial owner-to-server kit exchange. An unarmed
+            // living pawn may finish that first grant; the one-weapon and gadget counts still apply.
+            if (!Pawn.GearGrantWeapon || Pawn.MyWeapon is not null || Pawn.Health <= 0) return false;
+            Pawn.GearGrantUntil = Pawn.Level.TimeSeconds + GearK.GrantSeconds;
         }
 
         STeamInfo? team = Team(Pawn);
@@ -304,10 +314,9 @@ public static class Loadouts
 
         if (Sidearms.Find(Class.Path) is { } sidearm)
         {
-            if (!Pawn.GearGrantSidearm || Pawn.GearGrantGadgets <= 0 || Pawn.SidearmWeapon is not null ||
+            if (!Pawn.GearGrantSidearm || Pawn.SidearmWeapon is not null ||
                 !SidearmEquipment.Available(Pawn, sidearm.Kind)) return false;
             Pawn.GearGrantSidearm = false;
-            Pawn.GearGrantGadgets--;
             return true;
         }
 

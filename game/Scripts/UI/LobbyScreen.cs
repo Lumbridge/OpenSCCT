@@ -32,27 +32,36 @@ public partial class LobbyScreen : MenuPage
     {
         BuildFrame("Lobby", 0);
         LobbyPanels.ExpandBody(Body);
-        var overview = LobbyPanels.Card(Body, "MatchOverview", "Match overview");
-        var pictureRow = new HBoxContainer(); overview.AddChild(pictureRow);
-        var picture = new MapThumb(new Vector2(140, 120));
-        picture.SetMap(MapImages.Preview(null, Session?.Map ?? ""), Session?.Map ?? "");
-        pictureRow.AddChild(picture);
-        _status = LobbyPanels.Text(); pictureRow.AddChild(_status);
-        var columns = new LobbyColumns { Name = "Teams" }; Body.AddChild(columns);
-        _spies = LobbyPanels.Card(columns, "Spies", "Spies");
-        _mercs = LobbyPanels.Card(columns, "Mercs", "Mercenaries");
-        var sides = new HBoxContainer(); Body.AddChild(sides);
+        var teams = new HBoxContainer { Name = "Teams" };
+        teams.AddThemeConstantOverride("separation", 12); Body.AddChild(teams);
+        _spies = LobbyPanels.Card(teams, "Spies", "Spies");
+        var actions = new VBoxContainer { Name = "LobbyActions", SizeFlagsHorizontal = SizeFlags.ExpandFill, SizeFlagsStretchRatio = 0.65f };
+        teams.AddChild(actions);
+        actions.AddChild(LobbyPanels.Button("Switch Team", () =>
+        {
+            var local = Session?.Players.FirstOrDefault(p => p.IsLocal);
+            Session?.SetSide(local?.Side == HudSide.Spy ? HudSide.Merc : HudSide.Spy);
+        }, "SwitchTeam"));
         SpyButton = LobbyPanels.Button("Join Spies", () => Session?.SetSide(HudSide.Spy), "JoinSpies");
         MercButton = LobbyPanels.Button("Join Mercenaries", () => Session?.SetSide(HudSide.Merc), "JoinMercs");
-        sides.AddChild(SpyButton); sides.AddChild(MercButton);
+        actions.AddChild(SpyButton); actions.AddChild(MercButton);
+        _mercs = LobbyPanels.Card(teams, "Mercs", "Mercenaries");
+        var lower = new HBoxContainer { SizeFlagsVertical = SizeFlags.ExpandFill }; Body.AddChild(lower);
+        var overview = LobbyPanels.Card(lower, "MatchOverview", "Match overview");
+        var picture = new MapThumb(new Vector2(140, 140)) { SizeFlagsVertical = SizeFlags.ExpandFill };
+        picture.SetMap(MapImages.Preview(null, Session?.Map ?? ""), Session?.Map ?? "");
+        overview.AddChild(picture);
+        _status = LobbyPanels.Text(); overview.AddChild(_status);
+        lower.AddChild(new Control { SizeFlagsHorizontal = SizeFlags.ExpandFill, SizeFlagsStretchRatio = 1.8f });
         var preparation = LobbyPanels.Preparation(this);
         var row = new HBoxContainer(); preparation.AddChild(row);
         _role = LobbyPanels.Text(); row.AddChild(_role);
         ReadyButton = new CheckButton { Name = "Ready", Text = "Ready" };
         ReadyButton.Toggled += on => Session?.SetReady(on); row.AddChild(ReadyButton);
         _preparation = LobbyPanels.Text(); _preparation.Modulate = UiStyle.MenuFocus; preparation.AddChild(_preparation);
-        BackButton = PageButton("Leave lobby", Back, "Back");
+        BackButton = PageButton("Leave lobby", () => ConfirmLeave(Back), "Back");
         StartButton = PageButton("Start match", () => Session?.Start(GetTree()), "Start");
+        foreach (Button button in PageButtons) button.SizeFlagsHorizontal = SizeFlags.ExpandFill;
         if (Session is not null) Session.Changed += Refresh;
         Refresh();
     }

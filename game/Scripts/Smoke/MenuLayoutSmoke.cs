@@ -23,6 +23,7 @@ public sealed class MenuLayoutSmoke : SmokeTest
     private int _stage;
     private int _tab;
     private int _frames;
+    private bool _savedMapList;
 
     public override string Name => TestName;
 
@@ -73,6 +74,8 @@ public sealed class MenuLayoutSmoke : SmokeTest
 
                 return SmokeResult.Running;
             case 2:
+                _savedMapList = SettingsStore.Current.MapListView;
+                SettingsStore.Current.MapListView = false;
                 FrontEnd.ShowHost(tree);
                 _stage = 3;
                 _frames = 0;
@@ -85,6 +88,44 @@ public sealed class MenuLayoutSmoke : SmokeTest
 
                 Check(tree.CurrentScene!, width, "Create Session");
                 MenuPage.Shot(tree.Root, "menu-layout-create-session");
+                if (tree.CurrentScene!.FindChild("MapPicker", true, false) is Control picker)
+                {
+                    for (Node? parent = picker.GetParent(); parent is not null; parent = parent.GetParent())
+                        if (parent is ScrollContainer scroll) scroll.EnsureControlVisible(picker);
+                }
+                _stage = 4;
+                _frames = 0;
+                return SmokeResult.Running;
+            case 4:
+                if (_frames < SettleFrames) return SmokeResult.Running;
+                if (tree.CurrentScene!.FindChild("MapGrid", true, false) is Control grid)
+                {
+                    foreach (Node child in grid.GetChildren())
+                    {
+                        if (child is not Button tile || !tile.Visible || tile.FindChild("Title", true, false) is not Label label) continue;
+                        if (string.IsNullOrWhiteSpace(label.Text) || label.Size.Y < 24f || !tile.GetGlobalRect().Encloses(label.GetGlobalRect()))
+                            _problems.Add("Map title missing or outside its card: " + tile.Name);
+                    }
+                }
+                MenuPage.Shot(tree.Root, "menu-layout-map-titles");
+                SettingsStore.Current.MapListView = true;
+                _stage = 5;
+                _frames = 0;
+                return SmokeResult.Running;
+            case 5:
+                if (_frames < SettleFrames) return SmokeResult.Running;
+                if (tree.CurrentScene!.FindChild("MapGrid", true, false) is MapBrowserGrid list)
+                {
+                    if (list.Columns != 1) _problems.Add("Map list has more than one column");
+                    foreach (Node child in list.GetChildren())
+                    {
+                        if (child is not Button tile || !tile.Visible) continue;
+                        if (string.IsNullOrWhiteSpace(tile.Text) || tile.Size.Y > 48 || tile.Size.X < list.Size.X - 20)
+                            _problems.Add("Map list row is not compact/full-width: " + tile.Name);
+                    }
+                }
+                MenuPage.Shot(tree.Root, "menu-layout-map-list");
+                SettingsStore.Current.MapListView = _savedMapList;
                 return _problems.Count == 0
                     ? SmokeResult.Pass("checked " + string.Join(", ", _seen))
                     : SmokeResult.Fail(string.Join("; ", _problems.Take(12)));

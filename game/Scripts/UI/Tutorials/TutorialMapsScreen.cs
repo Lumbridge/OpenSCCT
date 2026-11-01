@@ -37,19 +37,20 @@ public partial class TutorialMapsScreen : MenuPage
         TutorialProgress progress = TutorialProfile.Current;
         IReadOnlyList<string> maps = TutorialMaps.Of(Team);
         VBoxContainer column = Panel(Body, "Maps", null);
+        var grid = new MapBrowserGrid();
+        column.AddChild(grid.ViewToggle);
+        var scroll = new ScrollContainer { CustomMinimumSize = new Vector2(0, 360), HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled, SizeFlagsHorizontal = SizeFlags.ExpandFill };
+        column.AddChild(scroll);
+        scroll.AddChild(grid);
         Button? first = null;
         for (int i = 0; i < maps.Count; i++)
         {
             int row = Rows[Team][i];
             string map = maps[i];
             bool done = Team == 0 && i == TutorialMaps.ExamIndex ? progress.ExamDone : progress.GetMapTutorialDone(i, Team);
-            var line = new HBoxContainer { Name = "Row" + i };
-            line.AddChild(new CheckBox { Name = "Done", ButtonPressed = done, Disabled = true, FocusMode = FocusModeEnum.None, TooltipText = done ? "Done" : "Not done yet" });
-            Button b = UiStyle.MenuButton(TutorialText.Caption(Section, "TutoMap" + (row + 1) + ".Caption", RowFallback[row]),
-                () => TutorialPlay.PlayTutorial(GetTree(), map, Team), "Map_" + map);
-            b.Alignment = HorizontalAlignment.Left;
-            b.SizeFlagsHorizontal = SizeFlags.ExpandFill;
-            b.Text += "   (" + map + ")";
+            string title = TutorialText.Caption(Section, "TutoMap" + (row + 1) + ".Caption", RowFallback[row]);
+            Button b = grid.AddMap(MapImages.Default, map, title + (done ? "  (Done)" : "  (Not done yet)"));
+            b.Pressed += () => TutorialPlay.PlayTutorial(GetTree(), map, Team);
             if (!TutorialPlay.CanPlay(GetTree(), map))
             {
                 b.Disabled = true;
@@ -57,8 +58,6 @@ public partial class TutorialMapsScreen : MenuPage
             }
 
             first ??= b.Disabled ? null : b;
-            line.AddChild(b);
-            column.AddChild(line);
         }
 
         PageButton("Back", () => TutorialsScreen.Show(GetTree()), "Back");

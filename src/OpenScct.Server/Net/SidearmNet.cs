@@ -9,14 +9,16 @@ public static class SidearmNet
     public static void Register(NetClassRegistry registry)
     {
         var carry = new RepExtension();
-        carry.Properties.Add(new("SidearmKind", nameof(SidearmCarry.Kind), RepLeafKind.Int));
+        // Include the expanded catalogue in the protocol signature: older clients clamp the fifth kind to Desert Eagle.
+        carry.Properties.Add(new("SidearmKind5", nameof(SidearmCarry.Kind), RepLeafKind.Int));
         registry.Register<SidearmCarry>(carry);
         var pistol = new RepExtension();
-        pistol.Properties.Add(new("SidearmKind", nameof(MercSidearm.Kind), RepLeafKind.Int));
+        pistol.Properties.Add(new("SidearmKind5", nameof(MercSidearm.Kind), RepLeafKind.Int));
+        pistol.Properties.Add(new("SidearmFireMode", nameof(MercSidearm.SidearmFireMode), RepLeafKind.Enum));
 
         registry.Register<MercSidearm>(pistol);
         var dummy = new RepExtension();
-        dummy.Properties.Add(new("SidearmKind", nameof(MercSidearmDummy.Kind), RepLeafKind.Int));
+        dummy.Properties.Add(new("SidearmKind5", nameof(MercSidearmDummy.Kind), RepLeafKind.Int));
         registry.Register<MercSidearmDummy>(dummy);
         for (int i = 0; i < registry.Count; i++)
         {

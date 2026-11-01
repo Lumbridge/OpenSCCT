@@ -16,6 +16,7 @@ from mathutils import Matrix, Vector
 
 parser=argparse.ArgumentParser()
 parser.add_argument('--repo',required=True)
+parser.add_argument('--only',help='Author a single pistol variant.')
 args=parser.parse_args(sys.argv[sys.argv.index('--')+1:])
 root=Path(args.repo).resolve()/'content/assets/sidearms'
 out=root/'export';out.mkdir(exist_ok=True);(out/'textures').mkdir(exist_ok=True)
@@ -28,12 +29,16 @@ ADAPT={
     'automatic':(1,1,(.074,0,-.028)),
     'magnum44':(.001,-1,(.158,0,-.029)),
     'desert_eagle':(.01,1,(.128,0,-.214)),
+    'unsuppressed':(.01,1,(.088,0,-.029)),
 }
 
 
 def mechanism(kind,obj):
     name=obj.name.lower()
-    if kind=='magnum44':return 'pompe' if any(t in name for t in ['cylinder','extractor','carane','bullet']) else 'corps'
+    if kind=='magnum44':
+        if name.startswith('bullet_lp'):
+            return 'round'+str(int(name.split('.')[1].split('_')[0]) if '.' in name else 0)
+        return 'pompe' if any(t in name for t in ['cylinder','extractor','carane']) else 'corps'
     if kind=='desert_eagle':
         if any(t in name for t in ['magazine','baseinside']):return 'chargeur'
         if any(t in name for t in ['slide_low','safety_low','bolt','rearsight','slidepart','sideswitch']):return 'pompe'
@@ -75,12 +80,10 @@ def accessories(kind):
         return parts
     if kind=='magnum44':
         metal=solid_material('OpenScctSidearms.loader',(.08,.085,.09),.5,.32)
-        brass=solid_material('OpenScctSidearms.brass',(.48,.30,.075),.8,.25)
-        parts=[cylinder('Speedloader',(.058,0,.013),.023,.014,metal,'chargeur')]
-        for i in range(6):
-            angle=i*math.tau/6
-            parts.append(cylinder('Speedloader cartridge',(.082,math.sin(angle)*.014,.013+math.cos(angle)*.014),.0055,.038,brass,'chargeur',24))
-        return parts
+        # The six textured cartridges from the source gun move with this loader in the
+        # first-person assembly. Do not manufacture a second set of cylindrical placeholders.
+        return [cylinder('Speedloader plate',(.070,0,.0114934),.022,.012,metal,'chargeur'),
+                cylinder('Speedloader knob',(.057,0,.0114934),.011,.014,metal,'chargeur',32)]
     return []
 
 
@@ -88,7 +91,7 @@ def rig_mesh(obj,rig,bones):
     bpy.context.view_layer.update()
     obj.data.transform(obj.matrix_world)
     obj.parent=rig;obj.matrix_parent_inverse=Matrix.Identity(4);obj.matrix_basis=Matrix.Identity(4);obj.vertex_groups.clear()
-    groups={name:obj.vertex_groups.new(name=name) for name in ['corps','pompe','chargeur']}
+    groups={name:obj.vertex_groups.new(name=name) for name in dict.fromkeys(['corps','pompe','chargeur',*bones])}
     indices={name:[] for name in groups}
     for i,bone in enumerate(bones):indices[bone].append(i)
     for name,vertices in indices.items():
@@ -112,8 +115,10 @@ def export(path,parts,rig,kind):
 
 
 for kind,(scale,direction,offset) in ADAPT.items():
+    if args.only and kind!=args.only:continue
     bpy.ops.wm.read_factory_settings(use_empty=True);bpy.context.preferences.filepaths.save_version=0
-    bpy.ops.import_scene.gltf(filepath=str(root/'sources'/kind/'scene.gltf'))
+    source_kind='suppressed' if kind=='unsuppressed' else kind
+    bpy.ops.import_scene.gltf(filepath=str(root/'sources'/source_kind/'scene.gltf'))
     bpy.context.view_layer.update()
     graph=bpy.context.evaluated_depsgraph_get()
     parts=[]
@@ -145,8 +150,12 @@ for kind,(scale,direction,offset) in ADAPT.items():
     loader=accessories(kind);parts+=loader
     bpy.ops.object.armature_add();rig=bpy.context.object;rig.name='SidearmRig'
     bpy.ops.object.mode_set(mode='EDIT');bone=rig.data.edit_bones[0];bone.name='corps';bone.head=(0,0,0);bone.tail=(.1,0,0)
-    for name,point in [('pompe',(.1,0,.02)),('chargeur',(.018,0,-.054)),('FX',(.36 if kind=='suppressed' else .338 if kind=='magnum44' else .24 if kind=='desert_eagle' else .176,0,.023)),('FX_DOUILLE',(.08,-.02,.03))]:
+    for name,point in [('pompe',(.1,0,.02)),('chargeur',(.018,0,-.054)),('FX',(.36 if kind=='suppressed' else .203 if kind=='unsuppressed' else .338 if kind=='magnum44' else .24 if kind=='desert_eagle' else .176,0,.023)),('FX_DOUILLE',(.08,-.02,.03))]:
         child=rig.data.edit_bones.new(name);child.head=point;child.tail=Vector(point)+Vector((.02,0,0));child.parent=bone
+    if kind=='magnum44':
+        for i in range(6):
+            child=rig.data.edit_bones.new('round'+str(i));child.head=(.07822,0,.0114934)
+            child.tail=(.1191,0,.0114934);child.parent=rig.data.edit_bones['pompe']
     bpy.ops.object.mode_set(mode='OBJECT')
     for obj in parts:rig_mesh(obj,rig,obj.get('weights',[obj.get('mechanism','corps')]*len(obj.data.vertices)))
     for obj in loader:obj.hide_render=kind=='magnum44'
@@ -167,7 +176,9 @@ for kind,(scale,direction,offset) in ADAPT.items():
     temporary.replace(root/(kind+'.blend'))
     if kind=='magnum44':export(out/'magnum44_loader.glb',loader,rig,kind)
     export(out/(kind+'.glb'),[obj for obj in parts if kind!='magnum44' or obj not in loader],rig,kind)
-print('Adapted four credited CC-BY pistols:',out)
+print('Adapted credited CC-BY pistols:',out)
+
+if args.only:sys.exit(0)
 
 # Preserve the authored, fully finger-rigged arms and their animation source independently of the retail skeleton.
 arms_source=root/'sources'/'arms'

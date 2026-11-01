@@ -86,10 +86,13 @@ public sealed class OptionsSmoke : SmokeTest
             options.Editing.SoundVolume = 0.27f;
             Expect(writes == 0 && original == SettingsStore.Current.ToJson(), "edits do not write or apply");
             Expect(options.HasUnsavedChanges, "dirty after binding edit");
-            options.Back();
+            options.Overlay = false;
+            options.GetViewport().PushInput(new InputEventKey { Keycode = Key.Escape, Pressed = true });
+            options.Overlay = true;
             var confirm = options.GetNodeOrNull<ConfirmBox>("OptionsConfirmation");
-            Expect(confirm is not null, "Back confirms discard");
-            confirm?.Answer(false);
+            Expect(confirm is not null, "front-end Escape confirms discard");
+            options.GetViewport().PushInput(new InputEventKey { Keycode = Key.Escape, Pressed = true });
+            Expect(confirm?.IsQueuedForDeletion() == true, "Escape dismisses discard confirmation");
             Expect(draft.Dirty, "cancel discard retains draft");
             options.Editing.SplitKeyboard = false;
             options.LoadLayout(PlaySide.Merc);

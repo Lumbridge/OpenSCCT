@@ -35,6 +35,24 @@ void main() {
 		return;
 	}
 
+	if (u.p.x > 2.5) {
+		// Read a separate, fresh capture: neighbouring reads of the image being
+		// written would race between workgroups. Separation fades with dizziness.
+		float strength = clamp(u.p.y, 0.0, 1.0);
+		vec2 at = clamp(vec2(xy) + vec2(u.p.z * 0.015, u.p.w * 0.003) * strength,
+			vec2(0.0), u.p.zw - vec2(1.0));
+		ivec2 a = ivec2(floor(at));
+		ivec2 b = min(a + ivec2(1), ivec2(u.p.zw) - ivec2(1));
+		vec2 f = fract(at);
+		vec3 ghost = mix(mix(encode(imageLoad(capture_image, a).rgb),
+			encode(imageLoad(capture_image, ivec2(b.x, a.y)).rgb), f.x),
+			mix(encode(imageLoad(capture_image, ivec2(a.x, b.y)).rgb),
+			encode(imageLoad(capture_image, b).rgb), f.x), f.y);
+		vec3 shown = mix(encode(frame.rgb), ghost, 0.45 * strength);
+		imageStore(color_image, xy, vec4(decode(shown), frame.a));
+		return;
+	}
+
 	vec3 shown = mix(encode(frame.rgb), encode(imageLoad(capture_image, xy).rgb), clamp(u.p.y, 0.0, 1.0));
 	imageStore(color_image, xy, vec4(decode(shown), frame.a));
 }

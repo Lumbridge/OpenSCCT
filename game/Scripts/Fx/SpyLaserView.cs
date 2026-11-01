@@ -16,7 +16,7 @@ namespace OpenScctGame.Fx;
 /// (its SLaserProjector, on every machine) and the beam of the local spy's own pistol (its SLaserBeam). As the native
 /// places them on each machine from that machine's bones, both are drawn from the drawn hand of the pistol's pawn
 /// (30 X - 4 Y + 8 Z of B R Hand, a few uu behind the drawn pistol's FX bone) along the hand's X axis to the first
-/// hit; the simulation's own placement (the measured pistol frame) is used only when the pawn is not drawn. The dot is RET_Laser (SWeaponTex.Reticules, 32 x 32, additive) projected
+/// hit during draw/holster; the ready sight converges on the simulated shot target. The simulation's placement is used when the pawn is not drawn. The dot is RET_Laser (SWeaponTex.Reticules, 32 x 32, additive) projected
 /// along the line, 32 uu times its DrawScale wide, on whatever it hit; the beam is the SLaserBeam class mesh
 /// (SGameplayObjects.Objects.LaserBeam, 1 uu along X) at DrawScale3D (length + 1, 0.5, 0.5), in every vision mode.
 /// Drawn nodes join the groups <c>svm_spy_laser_beam</c> and <c>svm_spy_laser_dot</c> so checks can see them.
@@ -65,7 +65,7 @@ public sealed partial class SpyLaserView : Node3D
     /// <summary>The last dot drawn: where it sits (UE, just off the surface) and whose pistol it is.</summary>
     public FVector DotAt { get; private set; }
 
-    public void Draw(Level? level)
+    public void Draw(Level? level, float? drawnTime = null)
     {
         BeamsDrawn = 0;
         DotsDrawn = 0;
@@ -124,14 +124,15 @@ public sealed partial class SpyLaserView : Node3D
                 DotAt = UeSpace.ToUe(dot.GlobalPosition);
             }
         }
+
+        AnimateBeam(_beamLook, drawnTime ?? level.TimeSeconds);
     }
 
     /// <summary>
     /// The laser's line as this machine draws it (rule 14.4, run per machine from the drawn bones): from the drawn hand
     /// bone (B R Hand, B L Hand in the other hand) at 30 X - 4 Y + 8 Z of its frame (- 8 Z in the other hand), a few uu
-    /// behind the drawn pistol's FX bone, along the hand's X axis for ShootingRange, to the first hit bullets do not
-    /// pass. Without a drawn hand, the simulation's line (from the measured pistol frame the drawn hand follows within
-    /// a few uu in a still pose).
+    /// behind the drawn pistol's FX bone. While ready it converges on the zero-spread shot hit, including the
+    /// animated hand's offset; draw and holster use the hand's X axis. Without a drawn hand, use the simulation line.
     /// </summary>
     [Provenance(ProvenanceKind.Decoded, "laser placement helper (game 0x10ab7c80): start = hand bone origin + 30 X - 4 Y +/- 8 Z, a line of ShootingRange along X, the first hit not bBulletGoTru")]
     private (FVector Start, FVector Hit, FVector Dir) LineFromHand(SWeaponAttaque pistol)
@@ -142,7 +143,12 @@ public sealed partial class SpyLaserView : Node3D
             FCoords hand = PawnAttachments.ToCoords(world);
             FVector start = SWeaponAttaque.LaserStartOn(hand, otherHand);
             FVector dir = hand.XAxis.SafeNormal();
-            (FVector hit, _) = pistol.LaserHit(pawn, start, start + (dir * pistol.ShootingRange));
+            FVector end = start + dir * pistol.ShootingRange;
+            if (pawn.WeaponLoaded is 2 or 7)
+            {
+                return TraceReadyBeam(pistol, start);
+            }
+            (FVector hit, _) = pistol.LaserHit(pawn, start, end);
             return (start, hit, dir);
         }
 
@@ -160,6 +166,21 @@ public sealed partial class SpyLaserView : Node3D
         }
 
         return default;
+    }
+
+    /// <summary>The ready spy sight uses the same bone trace and pistol frame as a zero-spread shocker shot.</summary>
+    internal static (FVector Start, FVector Hit, FVector Dir) TraceReadyBeam(SWeaponAttaque pistol, FVector start)
+    {
+        var zones = OpenScct.Game.Combat.CombatServices.HitZones(pistol);
+        FCoords shot = OpenScct.Game.Combat.CombatServices.Ports(pistol).BoneCoords(pistol, SWeaponDefense.FxBone);
+        FVector shotStart = SWeaponAttaque.GetAxesAndLocation(shot.Origin, shot.XAxis.Rotation(),
+            out FVector shotDir, out _, out _);
+        FVector far = shotStart + shotDir * pistol.ShootingRange;
+        var target = zones.TraceBone(pistol, far, shotStart, false);
+        FVector at = target.bHit ? target.HitLocation : far;
+        var obstruction = zones.TraceBone(pistol, at, start, false);
+        FVector hit = obstruction.bHit ? obstruction.HitLocation : at;
+        return (start, hit, (hit - start).SafeNormal());
     }
 
     private static readonly Name BoneRightHand = new("B R Hand");
@@ -308,6 +329,21 @@ public sealed partial class SpyLaserView : Node3D
             AlbedoTexture = tex,
             NextPass = ThermalBeamPass(tex),
         };
+    }
+
+    /// <summary>The original pan_laserbeam moves the beam's diffuse along U; the muzzle fin is stationary.</summary>
+    [Provenance(ProvenanceKind.Decoded, "SGameplayObjectsTex.LaserBeamShader Diffuse=pan_laserbeam; TexPanner PanRate=-0.05, PanDirection=(0,0,0)")]
+    internal const float BeamPanRate = -0.05f;
+
+    internal static void AnimateBeam(StandardMaterial3D? material, float time)
+    {
+        if (material is null) return;
+        float phase = time * BeamPanRate;
+        var offset = new Vector2(phase - MathF.Floor(phase), 0f);
+        material.Uv1Offset = new Vector3(offset.X, offset.Y, 0f);
+        // The thermal pass must sample the same moving core as the additive colour pass.
+        if (material.NextPass is ShaderMaterial thermal)
+            thermal.SetShaderParameter("uv_offset", offset);
     }
 
     /// <summary>

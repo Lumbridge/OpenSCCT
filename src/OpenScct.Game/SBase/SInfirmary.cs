@@ -21,6 +21,7 @@ public partial class SInfirmary
     [PortOf("uc:SBase.SInfirmary:Use", Spec = "spec/devices/infirmary-ammo.md#rules")]
     public void Use(SPlayerController? Instigator)
     {
+        using var clock = WorldEventTime();
         if (Instigator?.SBPawn is not { } pawn || !(LastUseTime + ReUseTime < Level.TimeSeconds))
         {
             return;

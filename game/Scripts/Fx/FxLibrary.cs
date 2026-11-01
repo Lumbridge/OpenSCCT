@@ -56,6 +56,12 @@ public sealed class FxLibrary : IParticleAssets
     private readonly Dictionary<string, FxClass> _classes = new(StringComparer.OrdinalIgnoreCase);
     private readonly Dictionary<string, (string Glb, string Node)> _meshTable = new(StringComparer.OrdinalIgnoreCase);
     private readonly Dictionary<string, string> _textureTable = new(StringComparer.OrdinalIgnoreCase);
+    public sealed record SkinAnimation(string Texture, int Columns, int Rows, int Frames, float Fps);
+    private readonly Dictionary<string, SkinAnimation> _skinAnimations = new(StringComparer.OrdinalIgnoreCase);
+    public SkinAnimation? AnimationForSkin(string path) => _skinAnimations.GetValueOrDefault(path);
+
+    private readonly HashSet<string> _translucent = new(StringComparer.OrdinalIgnoreCase);
+    public bool TextureTranslucent(string path) => _translucent.Contains(path);
     private readonly HashSet<string> _additive = new(StringComparer.OrdinalIgnoreCase);
     private readonly Dictionary<string, Mesh?> _meshes = new(StringComparer.OrdinalIgnoreCase);
     private readonly Dictionary<string, MeshPackage?> _packages = new(StringComparer.OrdinalIgnoreCase);
@@ -280,6 +286,18 @@ public sealed class FxLibrary : IParticleAssets
                 if (t.Value.TryGetProperty("png", out JsonElement png) && png.GetString() is { } p)
                 {
                     _textureTable[t.Name] = p;
+                    if (t.Value.TryGetProperty("material", out JsonElement blendMaterial) &&
+                        blendMaterial.TryGetProperty("translucent", out JsonElement translucent) && translucent.ValueKind == JsonValueKind.True)
+                        _translucent.Add(t.Name);
+                    if (t.Value.TryGetProperty("material", out JsonElement animationMaterial) &&
+                        animationMaterial.TryGetProperty("flipbook", out JsonElement flip))
+                    {
+                        var animation = new SkinAnimation(flip.GetProperty("texture").GetString()!,
+                            flip.GetProperty("cols").GetInt32(), flip.GetProperty("rows").GetInt32(),
+                            flip.GetProperty("frames").GetInt32(), flip.GetProperty("fps").GetSingle());
+                        if (animation.Columns > 0 && animation.Rows > 0 && animation.Frames > 0 && animation.Fps > 0)
+                            _skinAnimations[t.Name] = animation;
+                    }
                     if (t.Value.TryGetProperty("material", out JsonElement mat) && mat.ValueKind == JsonValueKind.Object &&
                         mat.TryGetProperty("additive", out JsonElement add) && add.ValueKind == JsonValueKind.True)
                     {

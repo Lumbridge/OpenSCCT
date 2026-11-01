@@ -1060,7 +1060,13 @@ public static class MapBuilder
 
                     var surface = new SurfaceBuilder(false, light == LightSource.Vertex) { Echelon = light == LightSource.Vertex ? echelon : 0 };
                     byte[]? zones = light == LightSource.Vertex ? ZonesOf(prim, location) : null;
-                    if (light == LightSource.Vertex && glow > 0)
+                    // Measured on AquaE's pump volume: preserve its saved intensity
+                    // instead of adding an ambient floor. Restrict this inference to
+                    // baked additive effects opting out of both Echelon light kinds.
+                    // The high bits encode per-light ignore groups, not these flags.
+                    bool bakedEffect = light == LightSource.Vertex && (echelon & 3) == 3 &&
+                        _map.Materials.Find(prim.Material)?.Blend == MaterialBlend.Additive;
+                    if (light == LightSource.Vertex && glow > 0 && !bakedEffect)
                     {
                         AddGlowing(surface, Transform3D.Identity, prim, glow, zones);
                     }

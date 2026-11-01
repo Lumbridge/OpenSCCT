@@ -9,19 +9,20 @@ namespace OpenScct.Game.SBase;
 /// <summary>Merc pistols use the existing trace, prediction, hit zones and gadget presentation, with independent triggers.</summary>
 public sealed class MercSidearm : SWeaponDefense
 {
-    // The authored idle is a one-second clip; a four-second breathing cycle keeps it from bobbing rapidly at rest.
-    private const float IdleAnimationRate = 0.25f;
     public int Kind;
+    public SRateOfFireMode SidearmFireMode = SRateOfFireMode.ROF_Auto;
     public float ReloadUntil;
     public float NextShotAt;
     private int _configured = -1;
     private bool _triggerDown;
-    public SidearmDefinition Definition => Sidearms.Get((SidearmKind)Math.Clamp(Kind, 0, 3));
+    public SidearmDefinition Definition => Sidearms.Get((SidearmKind)Math.Clamp(Kind, 0, Sidearms.All.Count - 1));
+    private bool AutomaticFire => Definition.Automatic && SidearmFireMode == SRateOfFireMode.ROF_Auto;
     private static readonly StateTable States = new(SWeaponDefense.ClassStates, new Idle());
     public override StateTable GetStateTable() => States;
 
     public void Configure(bool fill = false)
     {
+        ROFMode = AutomaticFire ? SRateOfFireMode.ROF_Auto : SRateOfFireMode.ROF_Single;
         if (_configured == Kind && !fill) return;
         _configured = Kind;
         var d = Definition;
@@ -35,13 +36,13 @@ public sealed class MercSidearm : SWeaponDefense
         MaxAmmo = d.Magazine + d.Spare;
         if (fill) { ClipAmmo = ClipMaxAmmo; Ammo = MaxAmmo; }
         bCanSnipe = false;
-        ROFMode = d.Automatic ? SRateOfFireMode.ROF_Auto : SRateOfFireMode.ROF_Single;
         CMax = CoefCaC = 1f; CoefMed = 0.75f; CoefMin = 0.5f;
         DistCac = d.Automatic ? 500f : 1000f;
         DistLoin = d.Automatic ? 2000f : 3000f;
         DistMed = (DistCac + DistLoin) * 0.5f;
-        ValeurReculVer = d.Automatic ? 6f : Kind >= 2 ? 4f : 2f;
-        ValeurReculHor = d.Automatic ? 4.5f : Kind >= 2 ? 8f : 4f;
+        bool heavy = d.Kind is SidearmKind.Magnum44 or SidearmKind.DesertEagle;
+        ValeurReculVer = d.Kind == SidearmKind.Magnum44 ? 12f : d.Automatic ? 6f : heavy ? 4f : 2f;
+        ValeurReculHor = d.Automatic ? 4.5f : heavy ? 8f : 4f;
         MinDispersion = d.Automatic ? 0.1f : 0.15f;
         MaxDispersion = d.Automatic ? 0.35f : 0.7f;
         FireSingleShotSound = new("OpenScctSidearms." + d.Id + "_fire");
@@ -80,11 +81,33 @@ public sealed class MercSidearm : SWeaponDefense
         base.Destroyed();
     }
 
-    public void CancelReload() { ReloadUntil = 0; ViewAnim.Stop(ACTIONCHANNEL); }
-    public override void SwitchROF() { }
+    public void CancelReload()
+    {
+        if (ReloadUntil > 0)
+        {
+            Instigator?.StopSound(ReloadSound);
+            OwnerPC?.RallumeLaserEteint();
+        }
+        ReloadUntil = 0; ViewAnim.Stop(ACTIONCHANNEL);
+    }
+    public override void SwitchROF()
+    {
+        var mode = AutomaticFire ? SRateOfFireMode.ROF_Single : SRateOfFireMode.ROF_Auto;
+        if (!SetSidearmFireMode(mode)) return;
+        ServerSound(SwitchROFSound);
+        ServerSetROF(mode);
+    }
+
+    public bool SetSidearmFireMode(SRateOfFireMode mode)
+    {
+        if (!Definition.Automatic || mode is not (SRateOfFireMode.ROF_Single or SRateOfFireMode.ROF_Auto) ||
+            !SidearmEquipment.Ready(this) || ReloadUntil > 0) return false;
+        SidearmFireMode = ROFMode = mode;
+        return true;
+    }
     public override void Fire(float value)
     {
-        if (_triggerDown && !Definition.Automatic) return;
+        if (_triggerDown && !AutomaticFire) return;
         _triggerDown = true;
         Shoot();
     }
@@ -105,10 +128,14 @@ public sealed class MercSidearm : SWeaponDefense
         if (ReloadUntil > 0 || ClipAmmo >= ClipMaxAmmo || Ammo <= ClipAmmo || !SidearmEquipment.Ready(this) || OwnerPC?.IsHudPerturbed == true)
             return false;
         ReloadUntil = Level.TimeSeconds + Definition.ReloadSeconds;
+        OwnerPC?.EteintLaser();
         ViewAnim.SetAlpha(ACTIONCHANNEL, 1f);
         var clip = ViewModelClips.DataOf(AFirstReloSt);
         ViewAnim.Play(ACTIONCHANNEL, AFirstReloSt, clip, clip.Seconds(1f) / Definition.ReloadSeconds);
-        if (Role < ENetRole.ROLE_Authority || OwnerPC?.IsRemotePlayer != true) ServerSound(ReloadSound);
+        // Start the owner's sound on the same tick as the reload clip. The server's
+        // accepted reload relays it to other players, without a separate sound RPC
+        // that can arrive independently of the reload or survive its cancellation.
+        Instigator?.PlayOwnedSound(ReloadSound);
         if (Role < ENetRole.ROLE_Authority && OwnerPC is { } pc)
             CombatServices.Net(this).ServerCall(pc, new CombatCall(new Name("ReloadSidearm")) { Target = this });
         return true;
@@ -126,8 +153,6 @@ public sealed class MercSidearm : SWeaponDefense
             ViewAnim.Sequence(MVTCHANNEL) == ViewModelClips.FirstWalkStFd2)
         {
             AnimateWaiting();
-            if (ViewAnim.Sequence(MVTCHANNEL) == ViewModelClips.FirstWaitStFd2)
-                ViewAnim.Loop(MVTCHANNEL, ViewModelClips.FirstWaitStFd2, IdleAnimationRate);
         }
         if (!ViewAnim.IsAnimating(ACTIONCHANNEL)) ViewAnim.SetAlpha(ACTIONCHANNEL, 0);
         SidearmEquipment.Tick(this);
@@ -140,7 +165,7 @@ public sealed class MercSidearm : SWeaponDefense
         }
         if (!ReferenceEquals((Instigator as SBasePawn)?.MyWeapon, this)) return;
         if (OwnerPC is { IsRemotePlayer: true } && Role == ENetRole.ROLE_Authority) return;
-        if (Definition.Automatic && FireHeld) Shoot();
+        if (AutomaticFire && FireHeld) Shoot();
     }
 
     private sealed class Idle : ActorState, IFire, IReload, ISwitchROF
@@ -149,7 +174,7 @@ public sealed class MercSidearm : SWeaponDefense
         public override void Tick(Actor self, float delta) => ((MercSidearm)self).Step(delta);
         public void Fire(SWeapon self, float value) => ((MercSidearm)self).Fire(value);
         public bool Reload(SWeapon self) => ((MercSidearm)self).Reload();
-        public void SwitchROF(SWeaponDefense self) { }
+        public void SwitchROF(SWeaponDefense self) => self.SwitchROF();
     }
 }
 
@@ -158,7 +183,7 @@ public sealed class MercSidearmDummy : SWeaponDefenseDummy
     public int Kind;
     protected override void Tick(float delta)
     {
-        Mesh = new(Sidearms.Get((SidearmKind)Math.Clamp(Kind, 0, 3)).Asset);
+        Mesh = new(Sidearms.Get((SidearmKind)Math.Clamp(Kind, 0, Sidearms.All.Count - 1)).Asset);
         bHidden = Instigator is SPAWNDEFENSE pawn && !ReferenceEquals(pawn.WeaponDummy, this);
         base.Tick(delta);
     }

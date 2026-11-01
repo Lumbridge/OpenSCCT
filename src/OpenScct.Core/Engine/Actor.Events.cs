@@ -139,11 +139,32 @@ public abstract partial class Actor
 
     public void eventTimer() => _state.Timer(this);
 
-    public void eventTouch(Actor Other) => _state.Touch(this, Other);
+    // Pawn/controller traversal remains on input time. Devices touched or triggered by that movement
+    // schedule work on world time (for example Aquarius's four-second door-release relay).
+    private OpenScct.Core.Level.ReplayClock DeviceEventTime() =>
+        this is Pawn or Controller ? default : WorldEventTime();
 
-    public void eventUnTouch(Actor Other) => _state.UnTouch(this, Other);
+    /// <summary>Run a world-owned effect without inheriting an enclosing movement command's older clock.</summary>
+    protected OpenScct.Core.Level.ReplayClock WorldEventTime() =>
+        XLevel is null ? default : XLevel.WorldEventTime();
 
-    public void eventBump(Actor Other) => _state.Bump(this, Other);
+    public void eventTouch(Actor Other)
+    {
+        using var clock = DeviceEventTime();
+        _state.Touch(this, Other);
+    }
+
+    public void eventUnTouch(Actor Other)
+    {
+        using var clock = DeviceEventTime();
+        _state.UnTouch(this, Other);
+    }
+
+    public void eventBump(Actor Other)
+    {
+        using var clock = DeviceEventTime();
+        _state.Bump(this, Other);
+    }
 
     public void eventHitWall(FVector HitNormal, Actor? Wall) => _state.HitWall(this, HitNormal, Wall);
 
@@ -151,17 +172,33 @@ public abstract partial class Actor
 
     public void eventFalling() => _state.Falling(this);
 
-    public void eventTrigger(Actor? Other, Pawn? EventInstigator) => _state.Trigger(this, Other, EventInstigator);
+    public void eventTrigger(Actor? Other, Pawn? EventInstigator)
+    {
+        using var clock = DeviceEventTime();
+        _state.Trigger(this, Other, EventInstigator);
+    }
 
-    public void eventUnTrigger(Actor? Other, Pawn? EventInstigator) => _state.UnTrigger(this, Other, EventInstigator);
+    public void eventUnTrigger(Actor? Other, Pawn? EventInstigator)
+    {
+        using var clock = DeviceEventTime();
+        _state.UnTrigger(this, Other, EventInstigator);
+    }
 
     public void eventDestroyed() => _state.Destroyed(this);
 
     public void eventBaseChange() => _state.BaseChange(this);
 
-    public void eventAttach(Actor Other) => _state.Attach(this, Other);
+    public void eventAttach(Actor Other)
+    {
+        using var clock = DeviceEventTime();
+        _state.Attach(this, Other);
+    }
 
-    public void eventDetach(Actor Other) => _state.Detach(this, Other);
+    public void eventDetach(Actor Other)
+    {
+        using var clock = DeviceEventTime();
+        _state.Detach(this, Other);
+    }
 
     public void eventGainedChild(Actor Other) => _state.GainedChild(this, Other);
 

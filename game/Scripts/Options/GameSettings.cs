@@ -28,6 +28,11 @@ public sealed class LoadoutSettings
     [JsonPropertyName("merc_weapon")]
     public string MercWeapon { get; set; } = Loadouts.MercWeapon.Path ?? "";
 
+    [JsonPropertyName("merc_sidearm")]
+    public string MercSidearm { get; set; } = DefaultSidearm;
+
+    public static string DefaultSidearm => OpenScct.Core.Engine.Sidearms.Get(OpenScct.Core.Engine.SidearmKind.Unsuppressed).CarryId;
+
     public static string[] DefaultSpy() => Array.ConvertAll(Loadouts.SpyFixedGadgets, c => c.Path ?? "");
 
     public static string[] DefaultMerc() => Array.ConvertAll(Loadouts.MercFixedGadgets, c => c.Path ?? "");
@@ -40,6 +45,17 @@ public sealed class LoadoutSettings
         SpyGadgets = Fit(SpyGadgets, DefaultSpy());
         MercGadgets = Fit(MercGadgets, DefaultMerc());
         MercWeapon ??= "";
+        MercSidearm ??= DefaultSidearm;
+        bool migrated = false;
+        for (int i = 0; i < MercGadgets.Length; i++)
+        {
+            if (OpenScct.Core.Engine.Sidearms.Find(MercGadgets[i]) is not { } pistol) continue;
+            if (!migrated) MercSidearm = pistol.CarryId;
+            migrated = true;
+            MercGadgets[i] = "";
+            foreach (string replacement in DefaultMerc())
+                if (Array.IndexOf(MercGadgets, replacement) < 0) { MercGadgets[i] = replacement; break; }
+        }
     }
 
     private static string[] Fit(string[]? slots, string[] defaults)
@@ -727,8 +743,12 @@ public sealed class GameSettings
     /// name of the map catalog (Standard, Extended, Classic, 3v3, Merc Deathmatch) or "All" (every installed map).
     /// </summary>
     [JsonPropertyName("active_map_playlist")]
-    [Provenance(ProvenanceKind.Decoded, "spec/reloaded/FEATURES.md rl:qol.lobbymaps active_map_playlist first-run Standard")]
-    public string ActiveMapPlaylist { get; set; } = "Standard";
+    // Default to all installed maps; retain the player's saved playlist choice.
+    public string ActiveMapPlaylist { get; set; } = "All";
+
+    /// <summary>Use compact rows instead of pictures in all map browsers.</summary>
+    [JsonPropertyName("map_list_view")]
+    public bool MapListView { get; set; }
 
     // ---- Discord -------------------------------------------------------------------------------------------
 

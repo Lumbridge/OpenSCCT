@@ -45,7 +45,8 @@ public partial class FaithfulView : Node3D
         };
         Effect = new DisplaySpaceEffect();
         Remanence = new RemanenceEffect();
-        Camera.Compositor = new Compositor { CompositorEffects = new Godot.Collections.Array<CompositorEffect> { Effect, Remanence } };
+        DoubleVision = new RemanenceEffect { DoubleVision = true };
+        Camera.Compositor = new Compositor { CompositorEffects = new Godot.Collections.Array<CompositorEffect> { Effect, DoubleVision, Remanence } };
         AddChild(Camera);
     }
 
@@ -56,12 +57,27 @@ public partial class FaithfulView : Node3D
     /// <summary>The flash-bang after-image over the shown frame (spec/equipment/flash-bang.md rule 5).</summary>
     public RemanenceEffect Remanence { get; }
 
+    public RemanenceEffect DoubleVision { get; }
+
     public RenderMap? Map { get; private set; }
 
     /// <summary>The sky zone's SubViewport, when the map has a sky zone.</summary>
     public SubViewport? SkyViewport => _skyViewport;
 
     private int _rendMap = RenderK.RendMapNormal;
+    private float _squintingFactor;
+
+    /// <summary>The simulation's merc eye adaptation; changes scene lighting without changing vision mode.</summary>
+    public float SquintingFactor
+    {
+        get => _squintingFactor;
+        set
+        {
+            if (_squintingFactor == value) return;
+            _squintingFactor = value;
+            Materials.MaterialCompiler.SetVision(_rendMap, value);
+        }
+    }
     private CanvasLayer? _overlayLayer;
     private TextureRect? _overlayRect;
     private bool _binocularsOn;
@@ -311,9 +327,11 @@ public partial class FaithfulView : Node3D
 
             Effect.Release();
             Remanence.Release();
+            DoubleVision.Release();
             _skyEffect?.Release();
             Effect.Dispose();
             Remanence.Dispose();
+            DoubleVision.Dispose();
             _skyEffect?.Dispose();
         }
 
@@ -592,7 +610,7 @@ public partial class FaithfulView : Node3D
     /// </summary>
     private void ApplyVision()
     {
-        Materials.MaterialCompiler.SetVision(_rendMap);
+        Materials.MaterialCompiler.SetVision(_rendMap, _squintingFactor);
         // Sets both cameras' clear again below (the sky camera may be new).
         _clear = new Color(-1f, -1f, -1f);
         bool sceneVision = IsSceneVision(_rendMap);

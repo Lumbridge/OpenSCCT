@@ -1,0 +1,71 @@
+{
+  "unsuppressed": {
+    "title": "Colt 1911 (.45 ACP reference)",
+    "author": "areniporgen",
+    "license": "CC0-1.0",
+    "source": "https://freesound.org/people/areniporgen/sounds/740897/",
+    "download": "https://cdn.freesound.org/previews/740/740897_15072041-hq.mp3",
+    "file": "unsuppressed.mp3",
+    "max_seconds": 0.35,
+    "peak": 0.8
+  },
+  "automatic": {
+    "title": "Glock Shot Sound Effect (Glock18)",
+    "author": "aleksnascimento",
+    "license": "CC-BY-3.0",
+    "source": "https://freesound.org/people/aleksnascimento/sounds/161195/",
+    "download": "https://cdn.freesound.org/previews/161/161195_2738953-hq.mp3",
+    "file": "automatic.mp3"
+  },
+  "desert_eagle": {
+    "title": "Desert Eagle .50",
+    "author": "AugustSandberg",
+    "license": "CC0-1.0",
+    "source": "https://freesound.org/people/AugustSandberg/sounds/231243/",
+    "download": "https://cdn.freesound.org/previews/231/231243_1934171-hq.mp3",
+    "file": "desert_eagle.mp3",
+    "max_seconds": 1.0,
+    "peak": 0.8
+  },
+  "suppressed": {
+    "title": "silenced pistol shot (.45 reference)",
+    "author": "Clutvh",
+    "license": "CC0-1.0",
+    "source": "https://freesound.org/people/Clutvh/sounds/627087/",
+    "download": "https://cdn.freesound.org/previews/627/627087_11511262-hq.mp3",
+    "file": "suppressed.mp3",
+    "max_seconds": 0.65,
+    "peak": 0.6
+  },
+  "magnum44": {
+    "title": "44 Magnum.wav (field recording; IDontLikeFruit edit)",
+    "author": "dcsimon; edit by IDontLikeFruit / LUDATOR Interactive",
+    "license": "CC-BY-3.0",
+    "source": "https://freesound.org/people/dcsimon/sounds/139979/",
+    "download": "https://idontlikefruit.com/audio/v1/shot-pome-53bd87e23d0c.wav",
+    "credits": "https://idontlikefruit.com/audio/CREDITS.html",
+    "file": "magnum44_field.wav",
+    "max_seconds": 0.38,
+    "peak": 0.92
+  },
+  "pistol_reload": {
+    "title": "PistolReloadSound.wav",
+    "author": "MaximBomba",
+    "license": "CC0-1.0",
+    "source": "https://freesound.org/people/MaximBomba/sounds/432139/",
+    "download": "https://cdn.freesound.org/previews/432/432139_7549712-hq.mp3",
+    "file": "pistol_reload.mp3",
+    "max_seconds": 1.97,
+    "peak": 0.8
+  },
+  "revolver_reload": {
+    "title": "Revolver reloading_1",
+    "author": "o_ciz",
+    "license": "CC0-1.0",
+    "source": "https://freesound.org/people/o_ciz/sounds/475421/",
+    "download": "https://cdn.freesound.org/previews/475/475421_7009965-hq.mp3",
+    "file": "revolver_reload.mp3",
+    "max_seconds": 25.01,
+    "peak": 0.8
+  }
+}

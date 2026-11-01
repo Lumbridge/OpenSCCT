@@ -48,6 +48,8 @@ public partial class SGameInfo
     /// <summary>The level's hooks into other areas.</summary>
     protected IGameFlowPorts Ports => GameFlowServices.Ports(this);
 
+    private bool _sidearmsEnabled;
+
     // ---- setup ---------------------------------------------------------------------------------------------
 
     /// <summary>
@@ -58,6 +60,7 @@ public partial class SGameInfo
     [PortOf("uc:SBase.SGameInfo:InitGame", Spec = "spec/game/match-options.md#rules")]
     public override void InitGame(string Options, ref string Error)
     {
+        _sidearmsEnabled = GetIntOption(Options, "SvmSidearms", 0) != 0;
         MaxPlayers = SvmMath.Clamp(GetIntOption(Options, "MaxPlayers", MaxPlayers), 0, K.MaxPlayersCap);
         GameDifficulty = SvmMath.Max(0f, GetIntOption(Options, "Difficulty", (int)GameDifficulty));
         string inOpt = ParseOption(Options, "GameSpeed");
@@ -154,6 +157,7 @@ public partial class SGameInfo
             return;
         }
 
+        gri.SidearmsEnabled = _sidearmsEnabled;
         USMatchInfo? m = MatchInfo;
         gri.GamesInARow = m?.GamesInARow ?? 0;
         gri.ServerName = m?.LevelName ?? string.Empty;

@@ -15,8 +15,8 @@ namespace OpenScctGame.Logic.Tests;
 /// <summary>
 /// What reaches the play scene's sound system in an offline match (SteeE, Play Level, three bots, the listen server
 /// and the player over loopback): the player's own steps from the client's simulation, the server's sounds
-/// (the bots' steps, the player's own steps once more) as ClientHearSound, the spawn sound as ClientPlaySound, and
-/// the server's copy of the player's own steps dropped by the router. Needs the converted SteeE (local only).
+/// (the bots' steps) as ClientHearSound, the spawn sound as ClientPlaySound, and
+/// no delayed server echo of the player's predicted footsteps. Needs the converted SteeE (local only).
 /// </summary>
 public sealed class AudioSessionTests
 {
@@ -62,6 +62,10 @@ public sealed class AudioSessionTests
 
         using (session)
         {
+            var received = new Recorder();
+            session.Client.World.EventSink = received;
+            session.Client.BeforeWorldTick += client =>
+                received.OnSimEvents(client.World.TickCount + 1, client.World.Events.Late);
             var sound = new Recorder();
             PlayAudioRouter router = PlayAudioRouter.Install(session.Client, sound);
             long spawnedAt = -1;
@@ -95,7 +99,8 @@ public sealed class AudioSessionTests
             Assert.True(ownSteps > 0, "no own footsteps: " + report);
             Assert.True(heardOthers > 0, "no sound of the bots reached the client: " + report);
             Assert.True(spawn, "the spawn sound (ClientPlaySound) did not play: " + report);
-            Assert.True(router.Duplicates > 0, "the server's copies of the player's own steps were not dropped: " + report);
+            Assert.DoesNotContain(received.Events, e => e.Heard && e.ActorId == local &&
+                e.What.ToString().Contains(".FootSteps.", StringComparison.Ordinal));
         }
     }
 }

@@ -49,6 +49,28 @@ public partial class MenuPage : Control
     /// <summary>The page buttons in bar order (B, X, Y, A).</summary>
     public IReadOnlyList<Button> PageButtons => _pageButtons;
 
+    /// <summary>Escape follows the page's explicit back action, after popups and overlays have handled it.</summary>
+    public override void _UnhandledKeyInput(InputEvent @event)
+    {
+        if (!IsVisibleInTree() || IsQueuedForDeletion() ||
+            @event is not InputEventKey { Pressed: true, Echo: false, Keycode: Key.Escape }) return;
+        foreach (Button button in _pageButtons)
+        {
+            if (button.Name.ToString() is not ("Back" or "Cancel" or "Leave" or "Quit") ||
+                !button.IsVisibleInTree() || button.Disabled) continue;
+            GetViewport().SetInputAsHandled();
+            button.EmitSignal(BaseButton.SignalName.Pressed);
+            return;
+        }
+    }
+
+    protected void ConfirmLeave(Action leave, bool unsaved = false) => ConfirmBox.Open(this, new ConfirmBox
+    {
+        Name = "LeaveLobbyConfirmation",
+        Question = unsaved ? "Leave the lobby and discard unapplied match settings?" : "Leave the lobby?",
+        YesCaption = "Leave lobby", NoCaption = "Stay", Yes = leave,
+    });
+
     /// <summary>Every menu page frees the mouse pointer, however it was reached (a round's end, a disconnect, the In-Game Menu).</summary>
     public override void _EnterTree()
     {

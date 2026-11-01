@@ -105,7 +105,11 @@ public partial class SPlayerController
                 PawnVision.UnSetEMFToServer(pawn);
                 break;
             case "ServerSound" when target is SWeapon weapon:
-                weapon.ServerSound(new AssetRef(c.Name1.ToString()), (ESoundSlot)c.Int1, c.Int2);
+                if (c.Bool1)
+                    (weapon.Instigator ?? (Actor)weapon).PlayOwnedSound(new AssetRef(c.Name1.ToString()),
+                        (ESoundSlot)c.Int1, null, false, c.Int2 == 0 ? (float?)null : c.Int2);
+                else
+                    weapon.ServerSound(new AssetRef(c.Name1.ToString()), (ESoundSlot)c.Int1, c.Int2);
                 break;
             case "SelectCarriedWeapon" when ReferenceEquals(target, Pawn):
                 ReceiveWeaponSelection(c.Int1, c.Int2);

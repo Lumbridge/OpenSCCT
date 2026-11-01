@@ -63,9 +63,13 @@ public partial class MapThumb : PanelContainer
 {
     private readonly TextureRect _picture;
     private readonly Label _placeholder;
+    private readonly Vector2 _baseSize;
+    private readonly bool _scaleWithViewport;
 
-    public MapThumb(Vector2 size)
+    public MapThumb(Vector2 size, bool scaleWithViewport = false)
     {
+        _baseSize = size;
+        _scaleWithViewport = scaleWithViewport;
         Name = "MapThumb";
         CustomMinimumSize = size;
         MouseFilter = MouseFilterEnum.Ignore;
@@ -83,6 +87,25 @@ public partial class MapThumb : PanelContainer
         };
         AddChild(_picture);
         AddChild(_placeholder);
+    }
+
+    public override void _Ready()
+    {
+        if (!_scaleWithViewport) return;
+        GetViewport().SizeChanged += ResizePreview;
+        ResizePreview();
+    }
+
+    public override void _ExitTree()
+    {
+        if (_scaleWithViewport) GetViewport().SizeChanged -= ResizePreview;
+    }
+
+    private void ResizePreview()
+    {
+        Vector2 viewport = GetViewportRect().Size;
+        float scale = Mathf.Clamp(Mathf.Min(viewport.X / 1280f, viewport.Y / 720f), 1f, 2f);
+        CustomMinimumSize = _baseSize * scale;
     }
 
     /// <summary>The picture shown, or null for the placeholder.</summary>

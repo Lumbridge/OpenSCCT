@@ -71,10 +71,18 @@ public sealed partial class PlayAudio : Node
 
         var audio = new PlayAudio { _session = session, _view = view };
         audio.Library = AudioLibrary.Load(shared, session.MapFolder);
+        audio.Library.Preload("Armes_impacts.Armes.RA_GunDef_1shot");
+        foreach (var pistol in Sidearms.All)
+            foreach (string action in new[] { "fire", "reload" })
+                if (audio.Library.Find("OpenScctSidearms." + pistol.Id + "_" + action) is { } sound)
+                    audio.Library.Stream(sound, false);
         audio.Sound = new SoundSystem { Name = "SoundSystem" };
         audio.AddChild(audio.Sound);
         parent.AddChild(audio);
         audio.Sound.Bind(audio.Library, null, seed: (int)(session.Settings.MatchSeed & 0x7fffffff));
+        // PlayRoot drains audio before rendering, so cold models/effects cannot hold shot starts behind their work.
+        audio.SetProcess(false);
+        audio.Sound.SetProcess(false);
 
         // The router becomes the world's sink now, before the HUD wraps whatever sink is there; it also takes the
         // sounds of the calls received before a step (ClientHearSound, ClientPlaySound) and of the input commands.
@@ -142,6 +150,8 @@ public sealed partial class PlayAudio : Node
             sound.SetAudioZoom(pc.AudioZoomFactor, pc.FovAngle);
             sound.ViewActorId = (pc.ViewTarget ?? pc.Pawn)?.ActorId ?? 0;
         }
+
+        sound.Update(delta);
 
         if (_quiet)
         {

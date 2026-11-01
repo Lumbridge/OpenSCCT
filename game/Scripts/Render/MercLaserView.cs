@@ -19,8 +19,8 @@ namespace OpenScctGame.Render;
 /// laser that is on while its merc has the rifle drawn (or looks through a network camera), drawn in every vision
 /// mode (the class does not hide in normal vision). The beam is the SLaserBeam class mesh
 /// (SGameplayObjects.Objects.LaserBeam, 1 uu along X) stretched from its start to the end (DrawScale3D.X = length + 1).
-/// The local merc's beam runs from his first-person rifle's FX bone to the point the simulation's placement found
-/// (SGadTorcheLaser.HitLocation), hidden where his first-person arms and rifle are drawn (the original's weapon
+/// The local merc's beam runs from his first-person rifle's FX bone and follows the animated barrel, including idle
+/// breathing, hidden where his first-person arms and rifle are drawn (the original's weapon
 /// overlay); he sees no corona of his own (decoded: bCorona cleared on the owner's machine).
 /// Other mercs' beams follow NativeReplaceLaserDistant from the FX bone of the rifle drawn in their hands, with the SCoronaLight glint (sfx.Flare.ATT_flare, at least
 /// 15 pixels) at the beam's start.
@@ -36,6 +36,7 @@ public sealed partial class MercLaserView : Node3D
 
     private readonly Dictionary<SGadTorcheLaser, (MeshInstance3D Beam, MeshInstance3D Dot)> _beams = new();
     private readonly List<SGadTorcheLaser> _gone = new();
+    private readonly Dictionary<OpenScctGame.Render.Characters.SkeletalModel, Transform3D> _sightReferences = new();
     private Mesh? _mesh;
     private bool _meshTried;
     private StandardMaterial3D? _dotMaterial;
@@ -76,7 +77,7 @@ public sealed partial class MercLaserView : Node3D
     public bool PackMesh { get; private set; }
 
     /// <param name="view">The camera as drawn this frame (location and rotation, UE), or null.</param>
-    public void Draw(Level? level, SBasePawn? local, (FVector Location, FRotator Rotation)? view = null)
+    public void Draw(Level? level, SBasePawn? local, (FVector Location, FRotator Rotation)? view = null, float? drawnTime = null)
     {
         BeamsDrawn = 0;
         LocalVisible = false;
@@ -154,17 +155,15 @@ public sealed partial class MercLaserView : Node3D
                 LocalFrames++;
             }
         }
+
+        OpenScctGame.Fx.SpyLaserView.AnimateBeam(_beamLook, drawnTime ?? level.TimeSeconds);
     }
 
     /// <summary>
-    /// The local merc's beam: from the drawn weapon's FX bone (pulled back 50 uu for the rifle) to the point under the centre of the
-    /// view drawn this frame (the original's starts 15.4 forward, 12.0 right and 12.7 under his eye, merc-laser.md rule
-    /// 9a; the first-person rifle's FX bone puts it within 1 uu of that). The simulation's end point (HitLocation) is
-    /// placed once a tick from the last tick's view, while the rifle is drawn with the camera's look-ahead, so between
-    /// ticks the beam swung off the muzzle when turning; the original places it from each frame's view, and its beam
-    /// stays on the screen centre (as the spy pistol's laser does, MeshAimIK.DrawnFullPair).
+    /// Calibrate the sight against the neutral pose; follow the drawn barrel through idle, reload, recoil and transitions.
+    /// Camera-network lasers retain their simulation placement because no held weapon supplies their frame.
     /// </summary>
-    [Provenance(ProvenanceKind.Estimated, "The drawn end follows the frame's view centre (the original's per-frame placement); the simulation's HitLocation still drives the mark")]
+    [Provenance(ProvenanceKind.Estimated, "OpenSCCT weapon-mounted laser: animated FX frame relative to a calibrated neutral idle pose")]
     private (FVector Start, FVector End, FVector Corona) LocalBeam(SGadTorcheLaser laser, SBasePawn pawn, (FVector Location, FRotator Rotation)? view)
     {
         FVector end = laser.HitLocation;
@@ -173,46 +172,60 @@ public sealed partial class MercLaserView : Node3D
         if (!(pawn.bUsingCamNetwork && pawn.UsedObject is SCamNetwork) && FirstPerson is { Shown: true, Model: { } model } &&
             model.Skeleton.FindBone(BoneFx.ToString()) is var fx and >= 0)
         {
-            FVector muzzle = UeSpace.ToUe((model.Skeleton.GlobalTransform * model.Skeleton.GetBoneGlobalPose(fx)).Origin);
-            // The rifle's weapon overlay hides its pulled-back segment. The authored pistols need the beam to
-            // begin at their barrel; pulling it back 50 uu exposes it behind and beside the shorter weapon.
-            float pullBack = pawn.MyWeapon is MercSidearm ? 0f : K.LaserFireStartPullBack;
-            if (view is { } v)
+            Transform3D barrel = model.Skeleton.GlobalTransform * model.CurrentBonePose(fx);
+            if (pawn.MyWeapon is SWeaponDefense weapon)
             {
-                end = CentreEnd(laser, pawn, muzzle, v.Location, v.Rotation.Vector(), pullBack);
+                Transform3D? reference = null;
+                // Keep the sight mounted to the animated gun even during idle breathing. Calibrate against a
+                // fixed pose because the rigs use different FX axes; aiming from each animated muzzle directly
+                // at the crosshair instead makes the beam swivel relative to the barrel.
+                if (model.Sampler.Find("FirstWaitStFd2") is { } idle)
+                {
+                    if (!_sightReferences.TryGetValue(model, out Transform3D zero))
+                    {
+                        zero = model.Sampler.SampleBone(idle, fx, .5f);
+                        _sightReferences.Add(model, zero);
+                    }
+                    reference = model.Skeleton.GlobalTransform * zero;
+                }
+                FRotator aim = pawn.Controller is SPlayerController pc ? pc.MyDesiredRotation : weapon.AccurateRotation;
+                (start, end) = TraceMountedBeam(weapon, barrel, reference, aim, view);
             }
-
-            FVector dir = end - muzzle;
-            float size = dir.Size();
-            start = size > 0f ? muzzle - (dir * (pullBack / size)) : muzzle;
-            _localFromFx = size > pullBack;
+            _localFromFx = true;
         }
 
         return (start, end, start);
     }
 
-    /// <summary>
-    /// The end of the local beam for the drawn view: the first hit on the line from the camera along its centre (the
-    /// simulation's trace, bullets' pass-through rules, the merc himself ignored), then the line from the muzzle
-    /// (with the weapon's pullback) to that point, so a wall right in front of the barrel still stops the beam.
-    /// </summary>
-    private static FVector CentreEnd(SGadTorcheLaser laser, SBasePawn pawn, FVector muzzle, FVector eye, FVector viewDir, float pullBack)
+    /// <summary>Zero the neutral sight at the bullet hit, then apply the animated barrel's rotation on every frame.</summary>
+    internal static (FVector Start, FVector End) TraceMountedBeam(SWeaponDefense weapon, Transform3D barrel,
+        Transform3D? reference, FRotator aim, (FVector Location, FRotator Rotation)? view = null)
     {
-        IHitZones zones = CombatServices.HitZones(laser);
-        Actor shooter = pawn.MyWeapon ?? (Actor)pawn;
-        FVector far = eye + (viewDir * K.TraceLength);
-        BoneTraceResult centre = zones.TraceBone(shooter, far, eye, false);
-        FVector aim = centre.bHit ? centre.HitLocation : far;
-        FVector d = aim - muzzle;
-        float size = d.Size();
-        if (size <= pullBack)
+        IHitZones zones = CombatServices.HitZones(weapon);
+        // Local rendering uses the same interpolated camera frame as the weapon. Mixing a drawn muzzle with
+        // the simulation tick's eye/desired aim made sidearm beams judder during movement and pending mouse turns.
+        var ray = view is { } drawn
+            ? (Start: drawn.Location, End: drawn.Location + drawn.Rotation.Vector() * K.TraceLength)
+            : weapon.AimRay(aim);
+        BoneTraceResult target = zones.TraceBone(weapon, ray.End, ray.Start, false);
+        FVector at = target.bHit ? target.HitLocation : ray.End;
+        FVector muzzle = UeSpace.ToUe(barrel.Origin);
+        FVector direction = (at - muzzle).SafeNormal();
+        float sightDistance = FVector.Dist(at, muzzle);
+        if (reference is { } zero)
         {
-            return aim;
+            FVector zeroOffset = at - UeSpace.ToUe(zero.Origin);
+            // Trace to the weapon's full range along the animated direction, even if the camera ray hit nearby.
+            sightDistance = FVector.Dist(ray.End, UeSpace.ToUe(zero.Origin));
+            Vector3 zeroDirection = UeSpace.DirectionToGodot(zeroOffset.SafeNormal());
+            Basis rotation = barrel.Basis.Orthonormalized() * zero.Basis.Orthonormalized().Inverse();
+            direction = UeSpace.DirectionToUe(rotation * zeroDirection).SafeNormal();
         }
-
-        FVector from = muzzle - (d * (pullBack / size));
-        BoneTraceResult hit = zones.TraceBone(shooter, aim, from, false);
-        return hit.bHit ? hit.HitLocation : aim;
+        float pullBack = weapon is MercSidearm ? 0f : K.LaserFireStartPullBack;
+        FVector start = muzzle - direction * pullBack;
+        FVector far = reference is null ? at : muzzle + direction * sightDistance;
+        BoneTraceResult hit = zones.TraceBone(weapon, far, start, false);
+        return (start, hit.bHit ? hit.HitLocation : far);
     }
 
     /// <summary>

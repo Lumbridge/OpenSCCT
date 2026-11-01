@@ -21,6 +21,30 @@ public partial class CombatFxView
     private Shader? _tintedProjectionShader;
     private AbandonedProjectors? _projectionList;
     private int _lastProjection;
+    private readonly Dictionary<MeshInstance3D, (Actor Surface, Transform3D Local)> _decalAttachments = new();
+
+    private void AttachDecal(MeshInstance3D node, Actor? surface, FVector location, FRotator rotation)
+    {
+        _decalAttachments.Remove(node);
+        if (surface is null or LevelInfo)
+        {
+            return;
+        }
+
+        var pose = new Transform3D(UeSpace.RotationToGodot(rotation), UeSpace.ToGodot(location));
+        _decalAttachments[node] = (surface, pose.AffineInverse() * node.GlobalTransform);
+        UpdateDecalAttachment(node);
+    }
+
+    private void UpdateDecalAttachment(MeshInstance3D node)
+    {
+        if (_decalAttachments.TryGetValue(node, out var attachment))
+        {
+            Actor surface = attachment.Surface;
+            node.GlobalTransform = new Transform3D(UeSpace.RotationToGodot(surface.Rotation), UeSpace.ToGodot(surface.Location)) * attachment.Local;
+            node.Visible = ImpactMark.IsDrawn(surface);
+        }
+    }
 
     /// <summary>Abandoned projections drawn so far.</summary>
     public int Projections { get; private set; }
@@ -39,7 +63,12 @@ public partial class CombatFxView
             if (!IsLive(level, serial, now))
             {
                 node.QueueFree();
+                _decalAttachments.Remove(node);
                 _projectionsGone.Add(serial);
+            }
+            else
+            {
+                UpdateDecalAttachment(node);
             }
         }
 
@@ -59,6 +88,7 @@ public partial class CombatFxView
             foreach (MeshInstance3D old in _projections.Values)
             {
                 old.QueueFree();
+                _decalAttachments.Remove(old);
             }
 
             _projections.Clear();
@@ -114,13 +144,19 @@ public partial class CombatFxView
             return null;
         }
 
+        // The shotgun's scripted scale grows with range. Our flat quad approximation cannot clip the
+        // projection like the original projector, so cap each mark at its class-default scale instead
+        // of stretching eight overlapping textures across the wall. Keep the range-dependent spread.
+        float drawScale = p.Class == new Name("SShotGunProjector") || p.Class == new Name("SBase.SShotGunProjector")
+            ? Math.Clamp(p.DrawScale, 0f, 0.3f)
+            : p.DrawScale;
         // A projector of FOV near 0 is orthographic: its frustum is the texture's size times DrawScale.
         var node = new MeshInstance3D
         {
             Name = p.Class.ToString(),
             Mesh = new QuadMesh
             {
-                Size = new Vector2(UeSpace.LengthToGodot(texture.GetWidth() * p.DrawScale), UeSpace.LengthToGodot(texture.GetHeight() * p.DrawScale)),
+                Size = new Vector2(UeSpace.LengthToGodot(texture.GetWidth() * drawScale), UeSpace.LengthToGodot(texture.GetHeight() * drawScale)),
             },
             CastShadow = GeometryInstance3D.ShadowCastingSetting.Off,
         };
@@ -137,6 +173,7 @@ public partial class CombatFxView
 
         AddChild(node);
         node.GlobalTransform = new Transform3D(ProjectionBasis(hit.Normal, y, z), UeSpace.ToGodot(hit.Location + (hit.Normal * 0.4f)));
+        AttachDecal(node, hit.Actor, hit.Actor?.Location ?? default, hit.Actor?.Rotation ?? default);
         return node;
     }
 

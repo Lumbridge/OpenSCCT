@@ -8,15 +8,16 @@ namespace OpenScct.Net.Tests;
 public sealed class SidearmCosmeticsTests
 {
     [Fact]
-    public void FourPistolFinishesRoundTripWithoutOverwritingExistingSlots()
+    public void FivePistolFinishesRoundTripWithoutOverwritingExistingSlots()
     {
-        var ids = new[] { "merc.ar.golden", "merc.suppressed.cryo", "merc.automatic.woodland", "merc.magnum44.golden", "merc.desert_eagle.blue_tiger" };
+        var ids = new[] { "merc.ar.golden", "merc.suppressed.cryo", "merc.automatic.woodland", "merc.magnum44.golden", "merc.desert_eagle.blue_tiger", "merc.unsuppressed.cryo" };
         var look = CosmeticLook.FromIds(CosmeticSide.Merc, ids);
         Assert.NotEqual(0, look.Extra);
         Assert.Equal(look, CosmeticLook.ParseHex(look.ToHex()));
         Assert.Equal(look, look.Validate(CosmeticSide.Merc, CosmeticUnlocks.Of(ids)));
         Assert.Equal("merc.ar.golden", look[CosmeticSlot.GunAr]!.Id);
         Assert.Equal("merc.magnum44.golden", look[CosmeticSlot.Magnum44]!.Id);
+        Assert.Equal("merc.unsuppressed.cryo", look[CosmeticSlot.Unsuppressed]!.Id);
         var old = new CosmeticLook(0x010203040506);
         Assert.Equal(old, CosmeticLook.ParseHex(old.ToHex()));
         Assert.Equal(0, CosmeticLook.ParseHex(old.ToHex()).Extra);
@@ -36,6 +37,10 @@ public sealed class SidearmCosmeticsTests
     }
 
     [Theory]
+    [InlineData(SidearmKind.Unsuppressed, 1, true)]
+    [InlineData(SidearmKind.Suppressed, 1, false)]
+    [InlineData(SidearmKind.Suppressed, 24, false)]
+    [InlineData(SidearmKind.Suppressed, 25, true)]
     [InlineData(SidearmKind.Automatic, 14, false)]
     [InlineData(SidearmKind.Automatic, 15, true)]
     [InlineData(SidearmKind.Magnum44, 29, false)]

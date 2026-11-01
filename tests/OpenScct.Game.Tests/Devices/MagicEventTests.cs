@@ -9,6 +9,32 @@ namespace OpenScct.Game.Tests.Devices;
 /// <summary>spec/devices/magic-event.md: SMagicEvent groups, delays, types, sequences and repeats.</summary>
 public sealed class MagicEventTests
 {
+    [Fact]
+    public void DoorReleaseUsesWorldTimeWhenTriggeredByAnOlderMovementCommand()
+    {
+        (DeviceScene s, SMagicEvent relay, _, Sender sender) = Magic(Group(0, false,
+            Entry("door", 0f), Entry("door", 4f, EEventType.EVT_Untrigger)));
+        var door = s.Spawn(new Mover
+        {
+            bNoDelete = false, InitialState = "TriggerControl", MoveTime = 3f, Tag = "door",
+        });
+        door.KeyPos[1] = V.At(0, 0, 264);
+        s.StepSeconds(10f);
+        float now = s.Time;
+        using (s.Level.CommandTime(s.Level.TickCount - 300, now - 5f, Tick))
+        using (s.Level.CommandTime(s.Level.TickCount, s.Time, Tick))
+        {
+            relay.eventTrigger(sender, null);
+            V.Near(now + 4f, Assert.Single(relay.EventQueue).Time, Tick);
+            V.Near(now - 5f, s.Time, Tick);
+        }
+        s.StepSeconds(3.5f);
+        Assert.Equal(1, door.KeyNum);
+        s.StepSeconds(4f);
+        Assert.Equal(0, door.KeyNum);
+        Assert.False(door.bInterpolating);
+    }
+
     private const float Tick = 1f / 60f;
 
     private static FSuperEvent Entry(string name, float delay, EEventType type = EEventType.EVT_Trigger,

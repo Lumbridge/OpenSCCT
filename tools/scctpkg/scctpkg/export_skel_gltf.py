@@ -250,12 +250,15 @@ def export_skeletal(pkg: Package, mesh: SkeletalMesh, pset: PackageSet, out_dir:
     # static mesh normals are opposite to (p1 - p0) x (p2 - p0) on every face (SGameplayObjects checked), so that cross
     # product pointed inward and the UE2 pawn lighting lit the side facing away from each light (OrphD: spy lit from
     # the front where the game lights its back).
-    normals = np.zeros((nw, 3), np.float32)
     tri = mesh.faces
-    p0, p1, p2 = pos[tri[:, 0]], pos[tri[:, 1]], pos[tri[:, 2]]
-    fn = np.cross(p2 - p0, p1 - p0)
-    for k in range(3):
-        np.add.at(normals, tri[:, k], fn)
+    if mesh.normals is not None:
+        normals = mesh.normals.copy()
+    else:
+        normals = np.zeros((nw, 3), np.float32)
+        p0, p1, p2 = pos[tri[:, 0]], pos[tri[:, 1]], pos[tri[:, 2]]
+        fn = np.cross(p2 - p0, p1 - p0)
+        for k in range(3):
+            np.add.at(normals, tri[:, k], fn)
     lens = np.linalg.norm(normals, axis=1, keepdims=True)
     lens[lens == 0] = 1
     normals /= lens

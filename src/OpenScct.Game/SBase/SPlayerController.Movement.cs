@@ -555,8 +555,8 @@ public partial class SPlayerController
             return MovementK.SpeedModeFull;
         }
 
-        // Mercenary walking is an intentional addition: half-speed input while standing or crouched.
-        if (SBPawn is SPAWNDEFENSE) return 0.5f;
+        // Mercenary walking is an intentional addition: reduced input while standing or crouched.
+        if (SBPawn is SPAWNDEFENSE) return MovementK.SpeedModeMercWalk;
         return IsInState(MovementStateNames.s_PlayerWalkingWeapon) ? MovementK.SpeedModeWeaponSlow : MovementK.SpeedModeSlow;
     }
 

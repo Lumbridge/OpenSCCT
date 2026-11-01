@@ -370,7 +370,7 @@ public partial class HudLayer : CanvasLayer
         Vector2 screen = ScreenSize ?? GetViewport()?.GetVisibleRect().Size ?? new Vector2(MagmaRenderer.PageWidth, MagmaRenderer.PageHeight);
         DrawnScreen = screen;
         if (Snapshot.Binoculars.Mode == HudBinocularMode.Merc &&
-            HudBinocularPages.AimPoint(DrawnAimLocation?.Invoke() ?? Snapshot.Binoculars.AimLocation, Projector, screen) is { } spot)
+            HudBinocularPages.AimPoint(DrawnAimLocation?.Invoke() ?? Snapshot.Binoculars.AimLocation, Projector, screen, Options.StretchHud) is { } spot)
         {
             Snapshot.SpotReticule = spot;
         }

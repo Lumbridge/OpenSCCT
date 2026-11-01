@@ -61,14 +61,17 @@ public sealed class HudBinocularPages : IHudPageOverride
     /// </summary>
     [Uc("SBase.SHud.s_H_Binoculars_Def.PostRender", Sha1 = "d36ad5cbc38bdc5bc05f36519bc719ef99ed0bb7")]
     [PortOf("uc:SBase.SHud:s_H_Binoculars_Def.PostRender", Spec = "spec/hud/binoculars.md#rules")]
-    public static Vector2? AimPoint(FVector? aim, Func<FVector, Vector2?>? projector, Vector2 screen)
+    public static Vector2? AimPoint(FVector? aim, Func<FVector, Vector2?>? projector, Vector2 screen, bool stretch = false)
     {
         if (aim is not { } a || projector?.Invoke(a) is not { } p || screen.X <= 0f || screen.Y <= 0f)
         {
             return null;
         }
 
-        float x = p.X * MagmaRenderer.PageWidth / screen.X, y = p.Y * MagmaRenderer.PageHeight / screen.Y;
+        float scale = screen.Y / MagmaRenderer.PageHeight;
+        float x = stretch ? p.X * MagmaRenderer.PageWidth / screen.X
+            : MagmaRenderer.PageWidth * 0.5f + (p.X - screen.X * 0.5f) / scale;
+        float y = p.Y / scale;
         return new Vector2(
             Math.Clamp(x, MagmaRenderer.PageWidth * 0.25f, MagmaRenderer.PageWidth * 0.75f),
             Math.Clamp(y, MagmaRenderer.PageHeight * 0.2f, MagmaRenderer.PageHeight * 0.8f));
@@ -137,7 +140,7 @@ public abstract class BinocularsPage : HudPage
         _shownAreas = shownAreas;
         _hiddenWidgets = hiddenWidgets;
 
-        // The game stretches both binocular pages over the whole screen, texts included (settled on a live capture).
+        // The spy binocular artwork fills the screen. The merc scope overrides this for circular widescreen optics.
         Renderer.StretchAll = true;
     }
 
@@ -381,6 +384,9 @@ public sealed class MercBinocularsPage : BinocularsPage
         : base(assets, PageName, options, "ZoomDef", ["frame", "ZoomDef", "Reload", "Speak"],
             ["IconZoomUp", "IconZoomDown", "textZoomDef1", "textZoomDef2", "textZoomDef3", "PCtextZoomDef4", "PCtextZoomDef4Binding"])
     {
+        // Keep the centred 4:3 optics and text at height-based scale. The renderer extends border quads
+        // (the tint and axes) to the viewport edges; the explicit legacy StretchHud option still applies.
+        Renderer.StretchAll = false;
     }
 
     public override HudSide Side => HudSide.Merc;

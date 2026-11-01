@@ -125,12 +125,13 @@ public sealed class MaterialCompiler
     /// The vision mode every Faithful material draws (PlayerController.RendMap). Process wide, like the global
     /// parameter it sets: thermal and EMF change what the scene writes, the other modes draw the normal scene.
     /// </summary>
-    public static void SetVision(int rendMap)
+    public static void SetVision(int rendMap, float squintingFactor = 0f)
     {
         Vision = rendMap;
         EnsureGlobals();
         RenderingServer.GlobalShaderParameterSet(VisionParameter, rendMap);
-        float boost = rendMap == RenderK.RendMapNight ? RenderK.NightSceneBoost * NightAmbientScale : 0f;
+        float boost = rendMap == RenderK.RendMapNight ? RenderK.NightSceneBoost * NightAmbientScale
+            : rendMap == RenderK.RendMapNormal ? RenderK.SquintSceneBoost(squintingFactor) : 0f;
         RenderingServer.GlobalShaderParameterSet(VisionAmbientParameter, boost);
     }
 
@@ -315,6 +316,9 @@ public sealed class MaterialCompiler
         AddIf(extras, selfIllumMask, "SELF_ILLUM_MASK");
         AddIf(extras, selfIllumLayer, "SI_LAYER");
         AddIf(extras, env, "ENV_COLOR");
+        // Native SetShaderMaterial draws translucent Specular in a separate ONE/ONE pass
+        // (SRCALPHA/ONE with SpecularityMask), independent of the diffuse opacity.
+        AddIf(extras, env && blend == MaterialBlend.Translucent && !seeThroughPass, "ENV_SEPARATE");
         AddIf(extras, env && entry.EnvTexture is not null, "ENV_TEX");
         AddIf(extras, env && entry.SpecMaskLayer is not null, "SPEC_LAYER");
         AddIf(extras, uvAnim, "UV_ANIM");
@@ -368,11 +372,8 @@ public sealed class MaterialCompiler
                     material.SetShaderParameter("env_world", 1);
                 }
 
-                // Map and gameplay meshes use R.xy (the fixed-function stage); skinned characters keep 0.25 R.xy + 0.5.
-                if (VisionLookup == VisionLookup.SkinBase)
-                {
-                    material.SetShaderParameter("env_uv_map", new Vector2(0.25f, 0.5f));
-                }
+                // Normal-view TexEnvMap uses R.xy for skeletal meshes too (game 0x1096d6f0, source 11).
+                // The EMF scene uses its own texture matrix (RenderK.EmfReflectionUv).
             }
 
             if (entry.SpecMaskLayer is { } sm)
@@ -388,7 +389,8 @@ public sealed class MaterialCompiler
         ApplyVision(material, VisionLookup switch
         {
             // A cosmetic camo is named "<skin>+<pattern>": it keeps the heat and EMF textures of the skin it repaints.
-            VisionLookup.SkinBase => Pack?.VisionOfSkin(entry.Name is { } skin && skin.IndexOf('+') is var plus and > 0 ? skin[..plus] : entry.Name),
+            VisionLookup.SkinBase => Pack?.VisionOfModifierName(entry.Source)
+                ?? Pack?.VisionOfSkin(entry.Name is { } skin && skin.IndexOf('+') is var plus and > 0 ? skin[..plus] : entry.Name),
             VisionLookup.ModifierName => Pack?.VisionOfModifierName(entry.Name),
             _ => Pack?.VisionOf(entry.Source),
         });
@@ -423,7 +425,8 @@ public sealed class MaterialCompiler
             return true;
         }
 
-        string? texture = _doc.TextureOf(entry.Source, input) ?? (entry.Source is null ? entry.Name : null);
+        string? texture = _doc.TextureOf(entry.Source, input)
+            ?? (entry.Source is null || VisionLookup == VisionLookup.SkinBase ? entry.Name : null);
         return Pack.MipLevels(texture) is not int levels || levels > 1;
     }
 
@@ -567,7 +570,7 @@ public sealed class MaterialCompiler
         switch (blend)
         {
             case MaterialBlend.Translucent:
-                modes.Add("blend_mix");
+                modes.Add(extras.Contains("ENV_SEPARATE") ? "blend_premul_alpha" : "blend_mix");
                 modes.Add("depth_draw_opaque");
                 break;
             case MaterialBlend.Additive:

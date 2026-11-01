@@ -230,6 +230,53 @@ def animation_document(db, pkg, export, notes) -> dict:
             "sequences": seqs}
 
 
+def export_material_layers(pkg, pset, mesh, gltf: dict, tex_dir: Path) -> None:
+    """Keep the resolved normal-vision shader layers behind skeletal heat/EMF wrappers.
+
+    The skeletal exporter retains a diffuse texture's name for runtime skin matching, but that name is not the
+    material definition: heat_m160 -> M160_EMF -> SFX_xbox.final_gundef carries the rifle's env map and mask.
+    Resolving the original mesh references preserves those inputs without changing the skin/slot names.
+    """
+    from scctpkg.export_gltf import _texture_png  # noqa: PLC0415
+    from scctpkg.export_skel_gltf import SKIN_MAP, _normal_vision_texture  # noqa: PLC0415
+    from scctpkg.materials import MaterialResolver  # noqa: PLC0415
+
+    # Pawn skins have explicit normal-vision overrides and their own LAYER_MAP, rather than the mesh defaults.
+    if mesh.name in SKIN_MAP:
+        return
+    resolver = MaterialResolver(pset)
+    textures: dict = {}
+    by_name = {m.get("name"): m for m in gltf.get("materials", [])}
+    for ref in mesh.material_refs:
+        if not ref:
+            continue
+        res = resolver.resolve(pkg, ref)
+        normal_texture, normal_key = _normal_vision_texture(pset, resolver, res.key or "")
+        key = normal_key if normal_texture is not None else res.key
+        mat = by_name.get(key)
+        if mat is None:
+            continue
+        extras = mat.setdefault("extras", {})
+        # The diffuse alias is kept for cosmetics, but vision lookup needs the original modifier chain.
+        extras["scct_vision_source"] = pset.object_path(pkg, ref)
+        for label, key, texture in (
+            ("self_illum", res.self_illum_key, res.self_illum),
+            ("self_illum_mask", res.self_illum_mask_key, res.self_illum_mask),
+            ("spec_mask", res.spec_mask_key, res.spec_mask),
+            ("env_texture", res.env_key, res.env_texture),
+        ):
+            if texture is not None and texture.image is not None:
+                tex_dir.mkdir(parents=True, exist_ok=True)
+                uri = _texture_png(key, texture, tex_dir, textures)
+                if uri:
+                    extras["scct_" + label] = uri
+        if res.env_color is not None:
+            extras["scct_env_color"] = [float(c) for c in res.env_color]
+            extras["scct_env_world"] = bool(res.env_world)
+        if not extras:
+            mat.pop("extras", None)
+
+
 def export_set(game: Path, package: str, meshes, out_dir: Path, db, notes, work: Path) -> dict:
     import_formats()
     from scctpkg.package import Package  # noqa: PLC0415
@@ -256,12 +303,13 @@ def export_package(pkg, pset, meshes, dest: Path, db, notes, work: Path, package
     anims_used = set()
     for e in wanted:
         try:
-            mesh = read_skeletal_mesh(pkg, e)
+            mesh = read_skeletal_mesh(pkg, e, prefer_render_lod=package == "SWeaponFirst")
             wdir = work / package
             if wdir.exists():
                 shutil.rmtree(wdir)
             gpath = export_skeletal(pkg, mesh, pset, wdir, wdir / "textures")
             gltf = json.loads(gpath.read_text(encoding="utf-8"))
+            export_material_layers(pkg, pset, mesh, gltf, wdir / "textures")
             binary = gpath.with_suffix(".bin").read_bytes()
             gltf["asset"]["generator"] = "svmbuild (scctpkg export_skel_gltf)"
             anim_name = None

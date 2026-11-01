@@ -38,7 +38,7 @@ public partial class ConnectingScreen : MenuPage
         BuildFrame("Loading...", 760f);
         _heading = new Label { Name = "Heading", HorizontalAlignment = HorizontalAlignment.Center, Modulate = UiStyle.MenuFocus };
         Body.AddChild(_heading);
-        _mapPicture = new MapThumb(new Vector2(360f, 360f)) { Name = "MapPicture", SizeFlagsHorizontal = SizeFlags.ShrinkCenter, Visible = false };
+        _mapPicture = new MapThumb(new Vector2(360f, 360f), scaleWithViewport: true) { Name = "MapPicture", SizeFlagsHorizontal = SizeFlags.ShrinkCenter, Visible = false };
         Body.AddChild(_mapPicture);
         var modeRow = new HBoxContainer { Name = "ModeRow", Alignment = BoxContainer.AlignmentMode.Center };
         _modeImage = new TextureRect

@@ -9,7 +9,7 @@ using OpenScctGame.Render;
 
 namespace OpenScctGame.Smoke;
 
-/// <summary>The twelve-choice picker and all four independent Armoury sections with the actual content.</summary>
+/// <summary>The thirteen-choice picker and all five independent Armoury sections with the actual content.</summary>
 public sealed class SidearmMenuSmoke : SmokeTest
 {
     public const string TestName = "sidearm-menus";
@@ -33,13 +33,18 @@ public sealed class SidearmMenuSmoke : SmokeTest
                 _phase++;
                 break;
             case 1:
-                ((BaseButton)_page!.FindChild("Slot1", true, false)).EmitSignal(BaseButton.SignalName.Pressed);
+                MenuPage.Shot(_page!, "merc-equipment-sidearm");
+                ((BaseButton)_page!.FindChild("Sidearm", true, false)).EmitSignal(BaseButton.SignalName.Pressed);
                 _phase++;
                 break;
             case 2:
-                for (int i = 1; i <= 12; i++)
-                    if (_page!.FindChild("Option" + i, true, false) is null)
+                for (int i = 1; i <= 5; i++)
+                {
+                    if (_page!.FindChild("Option" + i, true, false) is not GearTile tile)
                         return SmokeResult.Fail("picker option " + i + " is missing");
+                    if (!tile.HasIcon || tile.Atlas is null || tile.Region.Size.X <= 0 || tile.Region.Size.Y <= 0)
+                        return SmokeResult.Fail("pistol picker option " + i + " is missing its picture");
+                }
                 MenuPage.Shot(_page!, "sidearm-picker-locked");
                 _page!.QueueFree();
                 _page = new ArmouryScreen();
@@ -69,10 +74,10 @@ public sealed class SidearmMenuSmoke : SmokeTest
                     if (child is Camera3D camera && (camera.CullMask & RenderLayers.ShadowPass) != 0)
                         return SmokeResult.Fail("Armoury preview uses the depth-only camera marker");
                 MenuPage.Shot(_page!, "armoury-" + (CosmeticSlot)(6 + _pistol));
-                if (++_pistol == 4)
+                if (++_pistol == OpenScct.Core.Engine.Sidearms.All.Count)
                 {
                     _page!.QueueFree();
-                    return SmokeResult.Pass("Twelve gadget choices and four Armoury sections, each with nine finishes.");
+                    return SmokeResult.Pass("Dedicated sidearm picker and five Armoury sections, each with nine finishes.");
                 }
                 _phase=4;
                 break;

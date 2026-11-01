@@ -67,16 +67,16 @@ public partial class VisitMapScreen : MenuPage
             SizeFlagsHorizontal = SizeFlags.ExpandFill,
         };
         mapColumn.AddChild(scroll);
-        var grid = new HFlowContainer { Name = "MapGrid", SizeFlagsHorizontal = SizeFlags.ExpandFill };
-        grid.AddThemeConstantOverride("h_separation", 8);
-        grid.AddThemeConstantOverride("v_separation", 8);
+        var grid = new MapBrowserGrid();
+        mapColumn.AddChild(grid.ViewToggle);
+        mapColumn.MoveChild(grid.ViewToggle, 1);
         scroll.AddChild(grid);
 
         MapCatalog maps = MapImages.Default;
         List<MapCatalogEntry> visitable = Visitable(maps);
         foreach (MapCatalogEntry entry in visitable)
         {
-            grid.AddChild(Tile(maps, entry.Id));
+            Tile(grid, maps, entry.Id);
         }
 
         if (visitable.Count == 0)
@@ -129,27 +129,12 @@ public partial class VisitMapScreen : MenuPage
         return list;
     }
 
-    private Button Tile(MapCatalog maps, string id)
+    private Button Tile(MapBrowserGrid grid, MapCatalog maps, string id)
     {
         string title = MapTitles.Of(maps, id);
-        var tile = new Button
-        {
-            Name = "Map_" + id, ToggleMode = true, ButtonGroup = _group, TooltipText = title + " (" + id + ")",
-            CustomMinimumSize = new Vector2(MapPickerView.ThumbSize.X + 12f, MapPickerView.ThumbSize.Y + 40f),
-            FocusMode = FocusModeEnum.All, ThemeTypeVariation = UiStyle.TileVariation,
-        };
-        var column = new VBoxContainer { Name = "Column", MouseFilter = MouseFilterEnum.Ignore };
-        column.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect, LayoutPresetMode.Minsize, 6);
-        var thumb = new MapThumb(MapPickerView.ThumbSize) { SizeFlagsHorizontal = SizeFlags.ShrinkCenter };
-        thumb.SetMap(MapImages.Preview(maps, id), title);
-        column.AddChild(thumb);
-        column.AddChild(new Label
-        {
-            Name = "Title", Text = title, HorizontalAlignment = HorizontalAlignment.Center, ClipText = true,
-            TextOverrunBehavior = TextServer.OverrunBehavior.TrimEllipsis, CustomMinimumSize = new Vector2(MapPickerView.ThumbSize.X, 0f),
-            MouseFilter = MouseFilterEnum.Ignore, LabelSettings = new LabelSettings { FontSize = 12, FontColor = UiStyle.MenuText },
-        });
-        tile.AddChild(column);
+        var tile = grid.AddMap(maps, id, title);
+        tile.ToggleMode = true;
+        tile.ButtonGroup = _group;
         tile.Pressed += () => Select(id);
         tile.SetMeta("map", id);
         return tile;

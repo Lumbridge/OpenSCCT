@@ -64,6 +64,7 @@ public partial class AccountScreen : MenuPage
         _status = new Label { Name = "Status", Modulate = UiStyle.MenuFocus, AutowrapMode = TextServer.AutowrapMode.WordSmart };
         Body.AddChild(_status);
         PageButton("Back", () => FrontEnd.ShowMainMenu(GetTree()), "Back").GrabFocus();
+        PageButton("Stats", () => FrontEnd.ShowStats(GetTree()), "StatsPage");
 
         AccountSettings account = AccountSettings.Current;
         if (!AccountService.HasMaster)
@@ -488,7 +489,7 @@ public partial class AccountScreen : MenuPage
         if (rank.CanPrestige)
         {
             rankPanel.AddChild(Text(_prestigeArmed
-                ? $"Prestige {rank.Prestige + 1} puts you back to level 1 with a new emblem and title. Your achievements, cosmetics and stats stay. Press again to confirm."
+                ? $"Prestige {rank.Prestige + 1} puts you back to level 1 with a new emblem and title. Level-based pistols and finishes relock. Your achievements, mastery rewards, titles and stats stay. Press again to confirm."
                 : $"You can prestige: go back to level 1 for the prestige {rank.Prestige + 1} emblem and a new title."));
             Button prestigeButton = UiStyle.MenuButton(_prestigeArmed ? "Confirm prestige" : $"Enter prestige {rank.Prestige + 1}", Prestige, "Prestige");
             prestigeButton.Disabled = _prestige is not null;
