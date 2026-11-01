@@ -29,6 +29,12 @@ public partial class MenuPage : Control
     private string _titleText = string.Empty;
     private float _titleTime;
     private HBoxContainer? _bar;
+    private Control? _responsiveCanvas;
+
+    /// <summary>Optional page-local logical canvas. Scaling it never changes gameplay or other pages.</summary>
+    protected Control PageCanvas => _responsiveCanvas ?? this;
+
+    protected Vector2 LayoutSize => PageCanvas.Size;
 
     /// <summary>The page's content, between the title and the page buttons.</summary>
     protected VBoxContainer Body { get; private set; } = null!;
@@ -39,7 +45,7 @@ public partial class MenuPage : Control
     protected float PreferredBodyWidth { get; set; }
 
     /// <summary>Width available to the page, reserving room for a vertical scrollbar.</summary>
-    protected float AvailableBodyWidth => Math.Max(1f, Size.X - 66f);
+    protected float AvailableBodyWidth => Math.Max(1f, LayoutSize.X - 66f);
 
     /// <summary>The page title (typed out when the page opens).</summary>
     public string TitleText
@@ -87,12 +93,18 @@ public partial class MenuPage : Control
     }
 
     /// <summary>Builds the frame: background, title, corner brackets, body and the button bar. Call first in _Ready.</summary>
-    protected void BuildFrame(string title, float bodyWidth = 1100f)
+    protected void BuildFrame(string title, float bodyWidth = 1100f, bool responsive = false)
     {
         PreferredBodyWidth = bodyWidth;
         Theme = UiStyle.MenuTheme;
         SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
-        AddChild(UiStyle.MenuBackdrop());
+        if (responsive)
+        {
+            _responsiveCanvas = new Control { Name = "ResponsiveCanvas" };
+            AddChild(_responsiveCanvas);
+            FitResponsiveCanvas();
+        }
+        PageCanvas.AddChild(UiStyle.MenuBackdrop());
         _titleText = title;
         _title = new Label
         {
@@ -115,7 +127,7 @@ public partial class MenuPage : Control
             AddRule("ButtonRule", top: false);
         }
 
-        AddChild(_title);
+        PageCanvas.AddChild(_title);
         foreach ((string name, Vector2 anchor, bool flipH, bool flipV) in new[]
                  {
                      ("CornerTL", new Vector2(0f, 0f), true, false), ("CornerTR", new Vector2(1f, 0f), false, false),
@@ -124,7 +136,7 @@ public partial class MenuPage : Control
         {
             if (!UiStyle.IsOriginal)
             {
-                AddChild(new UiCorner(flipH, flipV)
+                PageCanvas.AddChild(new UiCorner(flipH, flipV)
                 {
                     Name = name, AnchorLeft = anchor.X, AnchorRight = anchor.X, AnchorTop = anchor.Y, AnchorBottom = anchor.Y,
                     OffsetLeft = anchor.X > 0 ? -76f : 14f, OffsetRight = anchor.X > 0 ? -14f : 76f,
@@ -140,7 +152,7 @@ public partial class MenuPage : Control
                     OffsetLeft = anchor.X > 0 ? -42f : 10f, OffsetRight = anchor.X > 0 ? -10f : 42f,
                     OffsetTop = anchor.Y > 0 ? -40f : 8f, OffsetBottom = anchor.Y > 0 ? -8f : 40f,
                 };
-                AddChild(c);
+                PageCanvas.AddChild(c);
             }
         }
 
@@ -149,7 +161,8 @@ public partial class MenuPage : Control
             Name = "BodyScroll", AnchorRight = 1f, AnchorBottom = 1f, OffsetTop = 78f, OffsetBottom = -78f, OffsetLeft = 24f, OffsetRight = -24f,
             HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled,
         };
-        AddChild(scroll);
+        PageCanvas.AddChild(scroll);
+        if (responsive) scroll.FollowFocus = true;
         _centre = new CenterContainer { Name = "Centre", SizeFlagsHorizontal = SizeFlags.ExpandFill };
         scroll.AddChild(_centre);
         Body = new VBoxContainer { Name = "Body", CustomMinimumSize = new Vector2(bodyWidth, 0f) };
@@ -162,7 +175,7 @@ public partial class MenuPage : Control
             Alignment = BoxContainer.AlignmentMode.Center,
         };
         _bar.AddThemeConstantOverride("separation", 24);
-        AddChild(_bar);
+        PageCanvas.AddChild(_bar);
         Resized += FitPageWidth;
         scroll.Resized += FitPageWidth;
         FitPageWidth();
@@ -170,6 +183,7 @@ public partial class MenuPage : Control
 
     private void FitPageWidth()
     {
+        FitResponsiveCanvas();
         // Expanded lobby bodies manage their own width directly in BodyScroll.
         if (_centre is not null && IsInstanceValid(_centre) && Body.GetParent() == _centre)
         {
@@ -178,13 +192,23 @@ public partial class MenuPage : Control
         }
         if (_bar is not null)
         {
-            float width = Math.Min(1100f, Math.Max(1f, Size.X - 48f));
+            float width = Math.Min(1100f, Math.Max(1f, LayoutSize.X - 48f));
             _bar.AnchorLeft = _bar.AnchorRight = 0.5f;
             _bar.OffsetLeft = -width / 2f;
             _bar.OffsetRight = width / 2f;
-            int separation = Size.X < 1000 ? 12 : 24;
+            int separation = LayoutSize.X < 1000 ? 12 : 24;
             if (_bar.GetThemeConstant("separation") != separation) _bar.AddThemeConstantOverride("separation", separation);
         }
+    }
+
+    private void FitResponsiveCanvas()
+    {
+        if (_responsiveCanvas is null) return;
+        // Design units scale together on large/high-DPI windows. Small windows reflow instead of shrinking text.
+        float scale = Math.Max(1f, Math.Min(Size.X / 1280f, Size.Y / 720f));
+        Vector2 logical = Size / scale;
+        if (_responsiveCanvas.Scale.X != scale) _responsiveCanvas.Scale = new Vector2(scale, scale);
+        if (_responsiveCanvas.Size != logical) _responsiveCanvas.Size = logical;
     }
 
     /// <summary>
@@ -226,7 +250,7 @@ public partial class MenuPage : Control
         rule.AnchorTop = rule.AnchorBottom = top ? 0f : 1f;
         rule.OffsetTop = top ? 66f : -76f;
         rule.OffsetBottom = rule.OffsetTop + 8f;
-        AddChild(rule);
+        PageCanvas.AddChild(rule);
     }
 
     /// <summary>Adds a page button to the bottom bar (call in B, X, Y, A order, as GUIPage lays them out).</summary>

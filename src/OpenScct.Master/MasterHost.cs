@@ -39,10 +39,11 @@ public sealed class MasterHost : IAsyncDisposable
     private readonly Admin.AdminPortal? _portal;
     private readonly Player.PlayerPortal? _players;
     private readonly DemoStorage? _demos;
+    private readonly Web.ReleaseChangelog _releases;
     private bool _disposed;
 
     private MasterHost(WebApplication app, MasterOptions options, ServerRegistry registry, Introducer? introducer, Relay? relay, Prober? prober,
-        AccountStore? store, TicketSigner? signer, TimeProvider time)
+        AccountStore? store, TicketSigner? signer, TimeProvider time, Web.ReleaseChangelog releases)
     {
         _app = app;
         Options = options;
@@ -52,13 +53,14 @@ public sealed class MasterHost : IAsyncDisposable
         _prober = prober;
         _store = store;
         _signer = signer;
+        _releases = releases;
         _demos = store is not null && options.DemosEnabled ? new DemoStorage(options.Demos, time) : null;
         _accounts = store is not null && signer is not null ? new AccountApi(options, store, signer, registry, ClientIp, time, _demos) : null;
         if (_accounts is not null && store is not null)
         {
             _portal = new Admin.AdminPortal(options, store, registry, ClientIp, () => (RelayForwarded, Introductions), _demos);
             _accounts.AdminCallback = _portal.CallbackAsync;
-            _players = new Player.PlayerPortal(options, store, registry, ClientIp);
+            _players = new Player.PlayerPortal(options, store, registry, ClientIp, releases);
             _accounts.PlayerCallback = _players.CallbackAsync;
         }
         _limiter = new RateLimiter(options.RequestsPerMinute);
@@ -95,8 +97,16 @@ public sealed class MasterHost : IAsyncDisposable
     /// Builds and starts a master with <paramref name="options"/>. With Discord set up it opens the account database
     /// and the ticket key (<see cref="MasterOptions.Database"/>, <see cref="MasterOptions.TicketKeyFile"/>).
     /// </summary>
-    public static async Task<MasterHost> StartAsync(MasterOptions options, string[]? args = null, CancellationToken cancellationToken = default,
-        TimeProvider? time = null)
+    public static Task<MasterHost> StartAsync(MasterOptions options, string[]? args = null, CancellationToken cancellationToken = default,
+        TimeProvider? time = null) => StartCoreAsync(options, args, cancellationToken, time, null);
+
+    /// <summary>Starts with a supplied release source so integration tests never need the public GitHub feed.</summary>
+    internal static Task<MasterHost> StartAsync(MasterOptions options, Web.ReleaseChangelog releases,
+        CancellationToken cancellationToken = default, TimeProvider? time = null) =>
+        StartCoreAsync(options, null, cancellationToken, time, releases);
+
+    private static async Task<MasterHost> StartCoreAsync(MasterOptions options, string[]? args, CancellationToken cancellationToken,
+        TimeProvider? time, Web.ReleaseChangelog? releases)
     {
         ArgumentNullException.ThrowIfNull(options);
         options.Validate();
@@ -138,7 +148,8 @@ public sealed class MasterHost : IAsyncDisposable
         Introducer? introducer = options.Introducer ? new Introducer(registry, logs.CreateLogger<Introducer>()) : null;
         Relay? relay = options.Relay ? new Relay(registry, logs.CreateLogger<Relay>()) : null;
         Prober? prober = options.Probe ? new Prober(registry, logs.CreateLogger<Prober>()) : null;
-        var master = new MasterHost(app, options, registry, introducer, relay, prober, store, signer, time);
+        var master = new MasterHost(app, options, registry, introducer, relay, prober, store, signer, time,
+            releases ?? new Web.ReleaseChangelog(time: time));
         try
         {
             introducer?.Start(options.UdpBind, options.IntroducerPort);
@@ -238,10 +249,12 @@ public sealed class MasterHost : IAsyncDisposable
         {
             MasterVersion = MasterBuildInfo.Version, MasterBuild = MasterBuildInfo.BuildNumber,
             MasterCommit = MasterBuildInfo.Commit.Length > 0 ? MasterBuildInfo.Commit : null,
-            Motd = Options.Motd, LatestVersion = Options.LatestVersion, MinVersion = Options.MinVersion,
+            Motd = Options.Motd, Announcement = Announcement(), LatestVersion = Options.LatestVersion, MinVersion = Options.MinVersion,
             Servers = Registry.ServerCount, RelaySessions = Registry.RelaySessionCount, InviteOnly = Options.InviteKeys.Count > 0,
             TicketKey = _accounts?.TicketKey, Accounts = _accounts is not null,
         }, MasterApi.Json));
+        _app.MapGet(MasterApi.ChangelogPath, (Func<HttpContext, Task<IResult>>)(async context =>
+            Results.Json(await _releases.GetAsync(context.RequestAborted).ConfigureAwait(false), MasterApi.Json)));
         if (_accounts is not null)
         {
             _accounts.Map(_app);
@@ -253,6 +266,12 @@ public sealed class MasterHost : IAsyncDisposable
             AccountApi.MapDisabled(_app);
             _app.MapGet("/admin", () => Results.Content("The admin portal needs Discord sign-in set up on this master.", "text/plain"));
         }
+    }
+
+    private string? Announcement()
+    {
+        string? text = _store?.Settings().GetValueOrDefault("site.announcement");
+        return string.IsNullOrWhiteSpace(text) ? null : text;
     }
 
     private static Task Fail(HttpContext context, int status, string message)

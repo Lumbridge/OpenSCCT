@@ -250,6 +250,10 @@ public sealed class MasterClient : IDisposable
     public Task<MasterStatus> StatusAsync(CancellationToken cancellationToken = default) =>
         SendAsync<MasterStatus>(HttpMethod.Get, MasterApi.StatusPath, null, cancellationToken);
 
+    /// <summary>Recent stable release notes; does not require a signed-in account.</summary>
+    public Task<ChangelogResponse> ChangelogAsync(CancellationToken cancellationToken = default) =>
+        SendAsync<ChangelogResponse>(HttpMethod.Get, MasterApi.ChangelogPath, null, cancellationToken);
+
     private HttpRequestMessage Request(HttpMethod method, string path, object? body)
     {
         var message = new HttpRequestMessage(method, path.TrimStart('/'));

@@ -7,6 +7,8 @@ namespace OpenScctGame.UI;
 /// <summary>The corner label: the game's build, and the master's line kept current while the page is shown.</summary>
 public partial class BuildCornerLabel : Label
 {
+    /// <summary>Keep a single build line below the footer controls on dashboard pages.</summary>
+    public bool ForceCompact { get; init; }
     private string _master = string.Empty;
     private bool? _compact;
 
@@ -17,7 +19,7 @@ public partial class BuildCornerLabel : Label
     private void UpdateLabel()
     {
         string master = MasterVersionCheck.Line();
-        bool compact = GetViewportRect().Size.X < 1200f;
+        bool compact = ForceCompact || (GetParent() is Control parent ? parent.Size.X : GetViewportRect().Size.X) < 1200f;
         if (!string.Equals(master, _master, System.StringComparison.Ordinal) || _compact != compact)
         {
             _master = master;

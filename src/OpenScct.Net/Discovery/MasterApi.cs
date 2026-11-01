@@ -39,6 +39,9 @@ public static class MasterApi
 
     public const string StatusPath = "/api/v1/status";
 
+    /// <summary>Recent stable releases, shared with the public player site's changelog.</summary>
+    public const string ChangelogPath = "/api/v1/changelog";
+
     public static string ServerPath(string serverId) => ListPath + "/" + Uri.EscapeDataString(serverId);
 
     public static string JoinPath(string serverId) => ServerPath(serverId) + "/join";
@@ -402,6 +405,28 @@ public sealed record JoinResponse
     public string? TicketProblem { get; init; }
 }
 
+/// <summary>One published stable release. Notes contain the release's Markdown source.</summary>
+public sealed record ChangelogEntry
+{
+    public string Tag { get; init; } = string.Empty;
+
+    public string Name { get; init; } = string.Empty;
+
+    public DateTimeOffset Published { get; init; }
+
+    public string Notes { get; init; } = string.Empty;
+
+    public string Url { get; init; } = string.Empty;
+}
+
+/// <summary>Newest releases first. On an upstream failure, entries retain the last successful result.</summary>
+public sealed record ChangelogResponse
+{
+    public IReadOnlyList<ChangelogEntry> Entries { get; init; } = [];
+
+    public bool Unavailable { get; init; }
+}
+
 /// <summary>The master's status page (also a health check).</summary>
 public sealed record MasterStatus
 {
@@ -421,6 +446,9 @@ public sealed record MasterStatus
     public string? MasterCommit { get; init; }
 
     public string? Motd { get; init; }
+
+    /// <summary>The public player site's editorial announcement, or null when no notice is published.</summary>
+    public string? Announcement { get; init; }
 
     public string? LatestVersion { get; init; }
 

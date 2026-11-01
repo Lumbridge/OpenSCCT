@@ -23,18 +23,33 @@ public partial class AccountService : Node
     private const ulong PushDelayMs = 3000;
 
     private Task<AccountInfo>? _refresh;
+    private Task<AccountInfo>? _accountRefresh;
+    private ulong _nextAccountRefresh;
     private Task<ProfileData?>? _pull;
     private Task<ProfileData>? _push;
     private ulong _pushAt;
     private bool _pushAgain;
     private bool _applying;
-    private (string Master, string Token, long Account) _syncIdentity;
+    private (string Master, string Invite, string Token, long Account) _syncIdentity;
 
-    private static (string Master, string Token, long Account) SyncIdentity =>
-        (OnlineSettings.Current.MasterUrl.TrimEnd('/'), AccountSettings.Current.Token, AccountSettings.Current.AccountId);
+    private static (string Master, string Invite, string Token, long Account) SyncIdentity =>
+        (OnlineSettings.Current.MasterUrl.TrimEnd('/'), OnlineSettings.Current.InviteKey,
+            AccountSettings.Current.Token, AccountSettings.Current.AccountId);
 
     /// <summary>The account as the master last described it (null until a refresh or sign-in this run).</summary>
     public AccountInfo? Account { get; private set; }
+
+    /// <summary>A last account refresh failed; cached progress may still be shown.</summary>
+    public bool RefreshFailed { get; private set; }
+
+    /// <summary>Refresh progress without pulling profile settings; deduplicated and limited to once a minute.</summary>
+    public void RefreshAccount()
+    {
+        if (!CanSync || _refresh is not null || _accountRefresh is not null || _syncIdentity != SyncIdentity ||
+            Time.GetTicksMsec() < _nextAccountRefresh) return;
+        _nextAccountRefresh = Time.GetTicksMsec() + 60_000;
+        _accountRefresh = Call(c => c.AccountAsync());
+    }
 
     /// <summary>Raised when the sign-in or the account changes (the main menu's line, the Account page).</summary>
     public event Action? Changed;
@@ -152,6 +167,9 @@ public partial class AccountService : Node
         s.Save();
         // A pending response for a previous sign-in cannot overwrite this account's settings.
         _refresh = null;
+        _accountRefresh = null;
+        _nextAccountRefresh = Time.GetTicksMsec() + 60_000;
+        RefreshFailed = false;
         _pull = null;
         _push = null;
         _pushAt = 0;
@@ -173,6 +191,10 @@ public partial class AccountService : Node
         s.Save();
         _syncIdentity = SyncIdentity;
         Account = account;
+        // A newer account supplied by results/sign-in pages supersedes an older dashboard request.
+        _accountRefresh = null;
+        _nextAccountRefresh = Time.GetTicksMsec() + 60_000;
+        RefreshFailed = false;
         ConfigureAppearance(account);
         Changed?.Invoke();
     }
@@ -183,6 +205,9 @@ public partial class AccountService : Node
         AccountSettings.Current.SignOutLocally();
         Account = null;
         _refresh = null;
+        _accountRefresh = null;
+        _nextAccountRefresh = 0;
+        RefreshFailed = false;
         _pull = null;
         _push = null;
         _pushAt = 0;
@@ -199,6 +224,9 @@ public partial class AccountService : Node
             // baselines before processing results or sending anything against the newly selected master.
             _syncIdentity = SyncIdentity;
             _refresh = null;
+            _accountRefresh = null;
+            _nextAccountRefresh = 0;
+            RefreshFailed = false;
             _pull = null;
             _push = null;
             _pushAt = 0;
@@ -229,7 +257,23 @@ public partial class AccountService : Node
             }
             else
             {
+                RefreshFailed = true;
+                _nextAccountRefresh = Time.GetTicksMsec() + 60_000;
+                Changed?.Invoke();
                 GD.Print("SVM_ACCOUNT refresh failed: " + ErrorOf(refresh));
+            }
+        }
+
+        if (_accountRefresh is { IsCompleted: true } accountRefresh)
+        {
+            _accountRefresh = null;
+            if (accountRefresh.IsCompletedSuccessfully) Update(accountRefresh.Result);
+            else if (IsSignedOutError(accountRefresh)) SignOutLocally();
+            else
+            {
+                _ = accountRefresh.Exception;
+                RefreshFailed = true;
+                Changed?.Invoke();
             }
         }
 

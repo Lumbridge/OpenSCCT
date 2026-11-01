@@ -11,7 +11,9 @@ is in `docs/ONLINE.md`, voice in `docs/VOICE.md`, and the way to test it with tw
 | `game/Scripts/UI/MenuPage.cs` | the PC page look: background, typed title, corner brackets, framed panels, page buttons, `Shot` |
 | `game/Scripts/UI/UiStyle.cs` | the look switch (`Look`), `MenuTheme` (the PC button and list boxes, the style colours), `MenuBackdrop`, `MenuTexture` |
 | `game/Scripts/UI/UiArt.cs`, `UiBox.cs`, `UiCorner.cs`, `UiRule.cs`, `UiWordmark.cs` | the modern look: our own art, drawn at the window's size |
-| `game/Scripts/UI/MainMenu.cs` | Create a Session (also how to play offline), Find a Session (joining by IP is on that page), Account, Achievements, Armoury, Tutorials, Options, Quit |
+| `game/Scripts/UI/MainMenu.cs` | Responsive dashboard: Play, profile/progress, community activity, changelog, announcements and direct links to the existing pages |
+| `game/Scripts/UI/DashboardColumns.cs`, `DashboardDetailsScreen.cs`, `MenuDashboardModel.cs` | Content-sized column reflow, in-game release/announcement details and Godot-free presentation rules |
+| `game/Scripts/Online/MenuDashboardService.cs` | Cached dashboard feeds; requests run only while dashboard/detail pages are open |
 | `game/Scripts/UI/Tutorials/` | Tutorials (`TutorialsScreen`), the tutorial maps (`TutorialMapsScreen`), Tips (`TipsScreen`), Gadget Details (`GadgetDetailsScreen`), View HUD and the keyboard pictures (`HudLegendScreen`), Visit a Map (`VisitMapScreen`) |
 | `game/Scripts/Tutorials/` | the tutorial progress file (`TutorialProfile`, `user://tutorials.json`), the pages' words (`TutorialText`), offline play of a tutorial or a visit and the round's end (`TutorialPlay`, `TutorialRoundWatch`) |
 | `game/Scripts/UI/RankIcons.cs` | Rank pictures drawn from SVG (level insignia, prestige and master emblems) and `RankBadge` (emblem, level, title), used by the menus, lobby, results, F8 and hub tags |
@@ -66,8 +68,8 @@ The look is picked by `--svm-ui-look=original|modern`, then `SVM_UI_LOOK`, then 
 `user://ui.cfg`; the default is modern. `UiStyle` holds the switch (`UiStyle.Look`) and the shared colours
 (`MenuText`, `MenuFocus`, `MenuTitle`), which follow the look. In the modern look `MenuTexture` returns our own
 drawing for the textures pages show as icons (the Lobby Room's speaking icon) and nothing for the rest. The `menu-art` smoke is a preview, not a check: with a window
-(`--svm-background`) and `SVM_PLAY_SHOTS` it saves the main menu at 720p, 1080p and 1440p, Create Session, Join with IP
-and every options tab.
+(`--svm-background`) and `SVM_PLAY_SHOTS` it saves offline and populated main menus from 800×600 through ultrawide
+and 4K, Create Session, Join with IP and every options tab.
 
 ```
 set SVM_AUDIO_MUTE=1 & set SVM_PLAY_SHOTS=C:\...\local\menu-art
@@ -95,6 +97,13 @@ Quit Game; Escape cancels.
 
 ## Screen sizes and resizing
 
+The main dashboard and its information pages use an opt-in, page-local logical canvas. Its scale is the larger of
+1 and `min(window width / 1280, window height / 720)`: text, controls and spacing grow together on larger displays,
+while small windows retain readable text and scroll. Other menus and gameplay keep their existing rendering scale.
+Dashboard columns share spare width and reflow from three columns to Play above two columns, then a single
+Play-first stack, according to their actual combined minimum widths. These are content constraints in logical
+units, not physical-screen breakpoints. The footer and build line remain outside the scrolling content.
+
 Menu pages fit their content width to the viewport, with centered reading widths and footer actions on wide screens.
 Narrow windows stack session rule groups, lobby columns, cosmetic lists/details and tutorial panels; long pages
 scroll vertically. Options keeps Apply/Back and the binding explanation visible while the settings and bindings
@@ -108,6 +117,29 @@ resize existing controls back down after 4K. They check control bounds, text, fo
 windowed runs save images with `SVM_PLAY_SHOTS`. These checks cover the standard fixture states, rather than every
 possible signed-in account, server listing or cosmetic unlock state. Demos is not opened by the layout smoke because
 opening it prunes the player's old demo cache.
+
+The dashboard cases include signed-out/unavailable states and isolated fixtures with long names, release notes,
+announcements, cached activity and cosmetic progress. `menu-escape` opens the changelog with viewport input and
+checks Back/Escape restores its main-menu focus. The dashboard does not send public/account requests in smoke runs.
+
+## Dashboard information
+
+What's new previews three release highlights and opens the latest five stable releases in the game. The newest
+entry starts expanded; older entries can be opened individually. External links explicitly say they open a browser.
+Detail pages support mouse-wheel scrolling, Page Up/Down, Home/End and the controller's right stick, so long text
+can be read without moving focus to a button below it.
+Release notes are plain text, never executable HTML or BBCode. Announcements use the existing admin website's
+announcement field; an empty message hides the card, and long notices open in a scrolling detail page.
+
+Community activity counts players and sessions in the master's public game and hub lists, refreshed every 30 seconds.
+These are heartbeat snapshots, not the total number of signed-in users. Status/announcements and signed-in account
+progress refresh at most once a minute; release notes use the shared master's ten-minute cache. Polling starts only
+while the dashboard or a detail page is open. Failed refreshes retain received information with a stale label;
+missing endpoints on older masters leave the rest of the menu usable. Changing the master discards old responses.
+
+The progress card shows level/XP and the closest reported cumulative achievement that unlocks a cosmetic the player
+does not own. It uses completion fraction and stable catalogue order for ties; unreported progress is not invented.
+The next-unlock action opens that achievement. Guests can still use the play routes and browse achievements.
 
 ```powershell
 tools/ci/godot-smoke.ps1 -Tests menu-layout,options,lobby-layout,front-end-layout -ExpectedFailures @()

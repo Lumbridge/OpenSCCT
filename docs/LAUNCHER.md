@@ -224,6 +224,14 @@ says so instead of updating; it never asks for elevation.
 
 ## Play
 
+PLAY stays available for an installed, playable version even when a newer release is known. The separate
+**Update** button in step 2 installs that release. Every press of PLAY checks GitHub for releases again, even
+when startup checks are disabled, with a five-second timeout. If a new release is found online, the player can
+choose **Update now**, **Play current version**, or **Cancel**. Deferring applies to that launch; later launches
+check again. Offline, timed out, or rate limited checks allow the installed version to start without an update
+prompt. This check does not download launcher updates or refresh content packs. Website Join uses the same
+check before starting a game (and still requires a version that supports website joins).
+
 Play starts `versions\<current>\OpenSCCT.exe` from its own folder. A plain start opens the main menu, so no
 arguments are needed. When the original game path is set it is passed as `-- --svm-game-root=<path>` and as
 `SVM_GAME_ROOT` (key layouts), and the launcher's `content\` folder is passed as `--svm-content=<folder>` (see Game content).
@@ -250,7 +258,8 @@ packs.
 map, about 1.9 GB. Later downloads fetch only newer copies of the shared packs and of maps already installed, so a
 map the player removed stays removed. Other maps come from the Maps window, or in game when a lobby or the hub picks
 them. The launcher fetches the index on each update check. When a newer pack is published, step 3 asks for a
-download before PLAY. PLAY needs the three shared packs. The game is then started without `--svm-content` and
+download through **Update game files**, while PLAY can keep using the installed files. PLAY needs the three
+shared packs. The game is then started without `--svm-content` and
 `--svm-game-root`, and finds the packs itself (`ContentPaths.Shared`). Downloaded files are in English, and the
 Language setting applies only to content built from an install. The stock key layouts come from the core pack's
 `ui/keys/` (the ui step copies `System\Default_kbd_0.ini` and `_1.ini` there). A pack published before the ui step

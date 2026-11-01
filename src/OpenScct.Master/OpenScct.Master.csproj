@@ -7,7 +7,7 @@
       The master's own version (MasterBuildInfo, the status answer's masterVersion, shown in the game under its own
       version). Bump it when the master changes; it is apart from the game's VersionPrefix and a release's -p:Version.
     -->
-    <MasterVersion>1.1.3</MasterVersion>
+    <MasterVersion>1.1.4</MasterVersion>
   </PropertyGroup>
   <ItemGroup>
     <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">

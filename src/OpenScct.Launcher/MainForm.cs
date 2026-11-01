@@ -48,7 +48,6 @@ internal sealed partial class MainForm : Form
         ChooseGame,
         Check,
         Install,
-        Update,
         Prepare,
         Play,
         Cancel,
@@ -84,6 +83,7 @@ internal sealed partial class MainForm : Form
     /// <summary>The Steam copy's Versus folder, looked for once when the window opens; null when there is none.</summary>
     private string? _steamGame;
     private readonly Button _rebuild = Theme.Button("Rebuild");
+    private readonly Button _updateGame = Theme.Button("Update");
     private readonly StepCard _gameStep;
     private readonly StepCard _installStep;
     private readonly StepCard _filesStep;
@@ -124,7 +124,7 @@ internal sealed partial class MainForm : Form
         _launcherVersion = SemVersion.TryParse(info, out SemVersion? v) ? v : null;
 
         _gameStep = new StepCard(1, "Choose where the game files come from", _changeGame, _useSteam, _useDownloads);
-        _installStep = new StepCard(2, "Download OpenSCCT");
+        _installStep = new StepCard(2, "Download OpenSCCT", _updateGame);
         _filesStep = new StepCard(3, "Prepare the game files", _rebuild);
 
         BuildUi();
@@ -252,7 +252,8 @@ internal sealed partial class MainForm : Form
         _changeGame.Click += (_, _) => ChooseGameFolder();
         _useSteam.Click += (_, _) => UseSteamCopy();
         _useDownloads.Click += (_, _) => UseDownloadedFiles();
-        _rebuild.Click += async (_, _) => await RunAsync(BuildContentAsync);
+        _rebuild.Click += async (_, _) => await RunAsync(GameFound ? BuildContentAsync : DownloadContentAsync);
+        _updateGame.Click += async (_, _) => await RunAsync(UpdateGameAsync);
         _whatsNew.Click += (_, _) => ShowWhatsNew();
         _check.Click += async (_, _) => await RunAsync(CheckAsync);
         _rollback.Click += (_, _) => Rollback();
@@ -346,12 +347,14 @@ internal sealed partial class MainForm : Form
         _useDownloads.Enabled = !busy;
         _rollback.Enabled = _store.Previous() is not null && !busy;
         _check.Enabled = !busy;
+        _updateGame.Enabled = !busy;
         _settingsButton.Enabled = !busy;
         _mapsButton.Enabled = !busy;
         _launcherButton.Enabled = !busy;
         if (_swap is { HasStaged: true })
         {
             _launcherInfo.Text = "A new version of this launcher is ready.";
+            _launcherButton.Text = "Restart to finish";
             _launcherButton.Visible = true;
             _launcherBanner.Visible = true;
         }
@@ -387,18 +390,23 @@ internal sealed partial class MainForm : Form
     {
         SemVersion? pending = _store.Pending();
         VersionedRelease? latest = _lastCheck?.Latest;
-        bool update = _lastCheck is { GameUpdateAvailable: true };
+        bool update = latest is not null && current is not null && latest.Version > current
+            && _lastCheck is { GameUpdateAvailable: true };
+        _updateGame.Visible = update && pending is null;
         if (pending is not null)
         {
             _installStep.Set(StepState.Done, $"Version {pending} is ready and starts the next time you play.");
         }
         else if (current is not null && update && latest is not null)
         {
-            _installStep.Set(StepState.Todo, $"Version {current} is installed. Version {latest.Version} is available.");
+            _installStep.Set(StepState.Choice, $"Version {current} is installed. Version {latest.Version} is available. Update now or press PLAY to keep using {current}.");
         }
         else if (current is not null)
         {
-            _installStep.Set(StepState.Done, $"Version {current} is installed and up to date.");
+            bool checkedOnline = _lastCheck is { Feed.Source: ReleaseFeedSource.Network or ReleaseFeedSource.NotModified };
+            _installStep.Set(StepState.Done, checkedOnline
+                ? $"Version {current} is installed and up to date."
+                : $"Version {current} is installed. PLAY checks for updates when online.");
         }
         else if (_lastCheck is null)
         {
@@ -491,7 +499,9 @@ internal sealed partial class MainForm : Form
     /// <summary>Step 3 without an install: the game files come from OpenSCCT-Content.</summary>
     private void RefreshPackFilesStep(SemVersion? current)
     {
-        _rebuild.Visible = false;
+        _rebuild.Visible = current is not null && PackedContent.Installed(_packs) && !PacksCurrent() && !_downloadingContent;
+        _rebuild.Enabled = _work is null;
+        _rebuild.Text = "Update game files";
         if (_downloadingContent)
         {
             _filesStep.Set(StepState.Todo, "Downloading the maps, characters and sounds...");
@@ -509,7 +519,7 @@ internal sealed partial class MainForm : Form
         }
         else if (!PacksCurrent())
         {
-            _filesStep.Set(StepState.Todo, "Newer game files are available. Download them to play with everyone else.");
+            _filesStep.Set(StepState.Choice, "Newer game files are available. Update game files now or press PLAY to use your installed files.");
         }
         else
         {
@@ -525,10 +535,10 @@ internal sealed partial class MainForm : Form
             || (PackedContent.SharedToFetch(index, _packs).Count == 0 && PackedContent.MapsToFetch(index, _packs, firstDownload: false).Count == 0));
 
     /// <summary>The game files are ready for the current version: built from the install, else downloaded.</summary>
-    private bool FilesReady(SemVersion? current) => GameFound ? ContentIsCurrent(current) : DownloadedFilesPlayable(current);
+    private bool FilesReady(SemVersion? current) => GameFound ? ContentIsCurrent(current) : current is not null && PacksCurrent();
 
-    /// <summary>The downloaded game files (OpenSCCT-Content) are installed and current: PLAY works with them.</summary>
-    private bool DownloadedFilesPlayable(SemVersion? current) => current is not null && PacksCurrent();
+    /// <summary>Installed downloaded files remain playable when newer packs are offered.</summary>
+    private bool DownloadedFilesPlayable(SemVersion? current) => current is not null && PackedContent.Installed(_packs);
 
     /// <summary>Game files made from an install for the current version are there (maybe from another folder).</summary>
     private bool BuiltFilesPlayable(SemVersion? current) =>
@@ -543,13 +553,11 @@ internal sealed partial class MainForm : Form
                 ? _lastCheck is { Latest: not null, GameUpdateAvailable: true }
                     ? (NextAction.Install, "Install", true)
                     : (NextAction.Check, _lastCheck is null ? "Check for updates" : "Check again", true)
-                : _lastCheck is { GameUpdateAvailable: true }
-                    ? (NextAction.Update, "Update", true)
-                    : !FilesReady(current) && !DownloadedFilesPlayable(current) && !(GameFound && BuiltFilesPlayable(current))
-                        ? GameFound
-                            ? (NextAction.Prepare, "Prepare game files", ContentBuildPlan.Python(_layout.VersionDir(current.ToString())) is not null)
-                            : (NextAction.Prepare, "Download game files", true)
-                        : (NextAction.Play, "PLAY", true);
+                : !FilesReady(current) && !DownloadedFilesPlayable(current) && !(GameFound && BuiltFilesPlayable(current))
+                    ? GameFound
+                        ? (NextAction.Prepare, "Prepare game files", ContentBuildPlan.Python(_layout.VersionDir(current.ToString())) is not null)
+                        : (NextAction.Prepare, "Download game files", true)
+                    : (NextAction.Play, "PLAY", true);
         if (!busy && _pendingWebJoin is not null && current is not null)
         {
             if (current < WebJoinRequest.MinimumGameVersion && next == NextAction.Play)
@@ -576,7 +584,6 @@ internal sealed partial class MainForm : Form
                 await RunAsync(CheckAsync);
                 break;
             case NextAction.Install:
-            case NextAction.Update:
                 await RunAsync(UpdateGameAsync);
                 break;
             case NextAction.Prepare:
@@ -584,7 +591,7 @@ internal sealed partial class MainForm : Form
                 break;
             case NextAction.Play:
                 if (_pendingWebJoin is not null) await TryWebJoinAsync();
-                else Play();
+                else await RunAsync(cancel => PlayWithUpdateCheckAsync(cancel));
                 break;
         }
     }
@@ -896,17 +903,8 @@ internal sealed partial class MainForm : Form
         }
     }
 
-    private async Task CheckAsync(CancellationToken cancel)
+    private void ShowReleaseCheck(UpdateCheck check)
     {
-        if (!GameFound)
-        {
-            await RefreshPackIndexAsync(cancel);
-        }
-
-        SetStatus("Looking for updates...", Theme.Muted);
-        using var timeout = CancellationTokenSource.CreateLinkedTokenSource(cancel);
-        timeout.CancelAfter(TimeSpan.FromSeconds(30));
-        UpdateCheck check = await _service.CheckAsync(_settings.IncludePrereleases, _launcherVersion, timeout.Token);
         _lastCheck = check;
 
         if (check.Latest is { } latest)
@@ -924,6 +922,31 @@ internal sealed partial class MainForm : Form
                 : "No release was found.";
         }
 
+        if (check.LauncherUpdateAvailable && check.LatestLauncher is { } launcher && _swap is not { HasStaged: true })
+        {
+            bool writable = _swap?.CanWriteFolder() == true;
+            _launcherInfo.Text = writable
+                ? $"Launcher {launcher} is available. You can update it when you are ready."
+                : $"Launcher {launcher} is available. Download it from the OpenSCCT releases page (this folder is read only).";
+            _launcherButton.Text = "Update launcher";
+            _launcherButton.Visible = writable;
+            _launcherBanner.Visible = true;
+        }
+    }
+
+    private async Task CheckAsync(CancellationToken cancel)
+    {
+        if (!GameFound)
+        {
+            await RefreshPackIndexAsync(cancel);
+        }
+
+        SetStatus("Looking for updates...", Theme.Muted);
+        using var timeout = CancellationTokenSource.CreateLinkedTokenSource(cancel);
+        timeout.CancelAfter(TimeSpan.FromSeconds(30));
+        UpdateCheck check = await _service.CheckAsync(_settings.IncludePrereleases, _launcherVersion, timeout.Token);
+        ShowReleaseCheck(check);
+
         // The launcher fetches its own update at once (verified, staged as .new); the swap waits for "Restart to
         // finish" so a running download or build is never cut off. A newer launcher can read newer release formats.
         if (check.LauncherUpdateAvailable && _swap is { HasStaged: false } swap && swap.CanWriteFolder())
@@ -938,14 +961,6 @@ internal sealed partial class MainForm : Form
             }
 
             return;
-        }
-
-        // Only when it cannot stage the update itself (read-only folder). One already staged keeps its restart button.
-        if (check.LauncherUpdateAvailable && check.LatestLauncher is { } l && _swap is not { HasStaged: true })
-        {
-            _launcherInfo.Text = $"Launcher {l} is available. Download it from the OpenSCCT releases page (this folder is read only).";
-            _launcherButton.Visible = false;
-            _launcherBanner.Visible = true;
         }
 
         if (check.Feed.Problem is { } problem)
@@ -1012,6 +1027,7 @@ internal sealed partial class MainForm : Form
         SetStatus($"Downloading launcher {launcher}...", Theme.Muted);
         await _service.StageLauncherAsync(latest, _swap, ProgressReporter(), cancel);
         _launcherInfo.Text = $"Launcher {launcher} is ready. Restart the launcher to use it.";
+        _launcherButton.Text = "Restart to finish";
         _launcherButton.Visible = true;
         _launcherBanner.Visible = true;
         SetStatus(string.Empty, Theme.Muted);
@@ -1037,6 +1053,52 @@ internal sealed partial class MainForm : Form
         {
             SetStatus("Could not replace the launcher: " + ex.Message, Theme.Error);
         }
+    }
+
+    /// <summary>Returns whether an update completed, so a waiting website Join can resume afterwards.</summary>
+    private async Task<bool> PlayWithUpdateCheckAsync(CancellationToken cancel, string? joinServerId = null)
+    {
+        bool updated = false;
+        bool play = await PlayUpdateFlow.RunAsync(async checkCancel =>
+        {
+            SetStatus("Checking for updates before starting...", Theme.Muted);
+            UpdateCheck check = await _service.CheckAsync(_settings.IncludePrereleases, _launcherVersion, checkCancel);
+            ShowReleaseCheck(check);
+            return check;
+        }, check =>
+        {
+            if (IsDisposed || (joinServerId is not null && _pendingWebJoin != joinServerId)) return PlayUpdateChoice.Cancel;
+            return ChoosePlayUpdate(check);
+        }, async updateCancel =>
+        {
+            await UpdateGameAsync(updateCancel);
+            updated = true;
+        }, cancel);
+
+        if (!play || IsDisposed || (joinServerId is not null && _pendingWebJoin != joinServerId)) return updated;
+        if (Play(joinServerId) && joinServerId is not null && _pendingWebJoin == joinServerId) _pendingWebJoin = null;
+        return updated;
+    }
+
+    private PlayUpdateChoice ChoosePlayUpdate(UpdateCheck check)
+    {
+        var update = new TaskDialogButton("Update now");
+        var play = new TaskDialogButton("Play current version");
+        var page = new TaskDialogPage
+        {
+            Caption = "OpenSCCT update available",
+            Heading = $"OpenSCCT {check.Latest!.Version} is available",
+            Text = $"You have version {check.Installed}. Update now, or keep playing your installed version and update later.",
+            Icon = TaskDialogIcon.Information,
+            AllowCancel = true,
+            DefaultButton = play,
+            Buttons = { update, play, TaskDialogButton.Cancel },
+        };
+        TaskDialogButton choice = TaskDialog.ShowDialog(this, page);
+        if (choice == update) return PlayUpdateChoice.Update;
+        if (choice == play) return PlayUpdateChoice.PlayCurrent;
+        SetStatus("Launch cancelled. You can update or play later.", Theme.Muted);
+        return PlayUpdateChoice.Cancel;
     }
 
     private bool Play(string? joinServerId = null)

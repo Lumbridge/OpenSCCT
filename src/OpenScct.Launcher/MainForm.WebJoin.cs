@@ -34,6 +34,7 @@ internal sealed partial class MainForm
     {
         if (_handlingWebJoin || !_webJoinReady || _work is not null || _pendingWebJoin is not { } serverId || IsDisposed) return;
         _handlingWebJoin = true;
+        bool updated = false;
         try
         {
             if (await WebJoinPipe.SendAsync(WebJoinPipe.GameName, serverId))
@@ -67,7 +68,7 @@ internal sealed partial class MainForm
                 return;
             }
             if (_pendingWebJoin != serverId) return;
-            if (Play(serverId)) _pendingWebJoin = null;
+            await RunAsync(async cancel => updated = await PlayWithUpdateCheckAsync(cancel, serverId));
         }
         finally
         {
@@ -75,7 +76,7 @@ internal sealed partial class MainForm
             if (!IsDisposed)
             {
                 RefreshLocal();
-                if (_pendingWebJoin is not null && _pendingWebJoin != serverId) _ = TryWebJoinAsync();
+                if (_pendingWebJoin is not null && (_pendingWebJoin != serverId || updated)) _ = TryWebJoinAsync();
             }
         }
     }

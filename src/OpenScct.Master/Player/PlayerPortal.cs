@@ -12,7 +12,8 @@ using static OpenScct.Master.Web.WebHtml;
 namespace OpenScct.Master.Player;
 
 /// <summary>The public player site and its independent, account-scoped browser session.</summary>
-internal sealed partial class PlayerPortal(MasterOptions options, AccountStore store, ServerRegistry registry, Func<HttpContext, IPAddress> clientIp)
+internal sealed partial class PlayerPortal(MasterOptions options, AccountStore store, ServerRegistry registry, Func<HttpContext, IPAddress> clientIp,
+    ReleaseChangelog releases)
 {
     private const string SessionCookie = "svm_player";
     private const string StateCookie = "svm_player_state";
@@ -21,6 +22,7 @@ internal sealed partial class PlayerPortal(MasterOptions options, AccountStore s
     private readonly AccountStore _store = store;
     private readonly ServerRegistry _registry = registry;
     private readonly Func<HttpContext, IPAddress> _clientIp = clientIp;
+    private readonly ReleaseChangelog _releases = releases;
     private sealed record Viewer(AccountRow Account, PlayerWebSessionRow Session);
 
     public void Map(WebApplication app)

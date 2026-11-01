@@ -441,9 +441,9 @@ internal sealed partial class AdminPortal
             Button("Save", "do", "save") + " " + Button("Use the config file's values", "do", "reset"), cls: "stack");
         string site = Form(c, "/admin/settings",
             "<label>Welcome text<textarea name=\"site.welcome\" maxlength=\"300\">" + H(stored.GetValueOrDefault("site.welcome", "Welcome to OpenSCCT. Find your next match.")) + "</textarea></label>" +
-            "<label>Public announcement<textarea name=\"site.announcement\" maxlength=\"1000\">" + H(stored.GetValueOrDefault("site.announcement", string.Empty)) + "</textarea></label>" +
-            "<small>Plain text only. Leave the announcement empty to remove it.</small><details open><summary>Preview</summary><div id=\"site-preview\" class=\"site-preview\"></div></details>" +
-            Button("Publish website text", "do", "site"), "Publish this text to the public player hub?", "stack");
+            "<label>Public announcement (website and main menu)<textarea name=\"site.announcement\" maxlength=\"1000\">" + H(stored.GetValueOrDefault("site.announcement", string.Empty)) + "</textarea></label>" +
+            "<small>Plain text only. Leave the announcement empty to remove it from the website and game menu.</small><details open><summary>Preview</summary><div id=\"site-preview\" class=\"site-preview\"></div></details>" +
+            Button("Publish public text", "do", "site"), "Publish this text to the player hub and its announcement to the game menu?", "stack");
         string announce = Form(c, "/admin/settings",
             Input("text", "Message for every player on the master's own servers", maxLength: 150, required: true) + Button("Announce", "do", "announce"),
             "Send this message to every trusted server?", "bar");

@@ -19,6 +19,8 @@ namespace OpenScctGame.UI;
 /// </summary>
 public partial class AchievementsScreen : MenuPage
 {
+    /// <summary>An achievement opened from the main menu's next-unlock card.</summary>
+    public string? InitialAchievement { get; init; }
     private const float BodyWidth = 1180f;
     private const float ListWidth = 712f;
     private const float DetailWidth = 448f;
@@ -53,6 +55,7 @@ public partial class AchievementsScreen : MenuPage
     public override void _Ready()
     {
         Name = "Achievements";
+        _selected = InitialAchievement;
         BuildFrame("Achievements", BodyWidth);
         _service = AccountService.Get(GetTree());
 

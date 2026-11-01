@@ -11,11 +11,11 @@
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
     <RepoRoot>$(MSBuildThisFileDirectory)</RepoRoot>
     <!-- The OpenSCCT version (OpenScct.Net BuildInfo: the menus, the server browser and the master; the build number is in Directory.Build.targets); releases pass -p:Version. -->
-    <VersionPrefix>0.8.60</VersionPrefix>
+    <VersionPrefix>0.8.61</VersionPrefix>
     <!-- The launcher's own version (src/OpenScct.Launcher), apart from the game's: bump it only when the launcher changes.
          Players' launchers update themselves only to a newer launcher; a game release carries the same launcher again
          (tools/release/New-Release.ps1 reuses the published exe and refuses changed launcher code under an old version). -->
-    <LauncherVersion>0.8.26</LauncherVersion>
+    <LauncherVersion>0.8.27</LauncherVersion>
   </PropertyGroup>
 </Project>
 

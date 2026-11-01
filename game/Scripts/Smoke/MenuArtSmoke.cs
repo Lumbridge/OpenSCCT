@@ -1,14 +1,16 @@
 using System;
 using System.Collections.Generic;
 using Godot;
+using OpenScctGame.Online;
 using OpenScctGame.Options;
 using OpenScctGame.UI;
 
 namespace OpenScctGame.Smoke;
 
 /// <summary>
-/// <c>--svm-smoke=menu-art</c>: a preview of the menus' look, not a check. Opens the main menu (at 1280 x 720,
-/// 1920 x 1080 and 2560 x 1440, the first button focused), Create Session, Join with IP and every options tab, and saves
+/// <c>--svm-smoke=menu-art</c>: a preview of the menus' look, not a check. Opens the main menu from 800 x 600
+/// through ultrawide and 4K, both offline and with isolated preview data, then changelog/announcement details,
+/// Create Session, Join with IP and every options tab, and saves
 /// each with <c>SVM_PLAY_SHOTS</c> (windowed runs only; start them with --svm-background so the window stays off-screen).
 /// <c>--svm-ui-look=original</c> previews the original look instead.
 /// </summary>
@@ -21,7 +23,11 @@ public sealed class MenuArtSmoke : SmokeTest
     /// <summary>Milliseconds a menu page needs to type out its title (ten letters a second), at any frame rate.</summary>
     private const ulong TitleMs = 2600;
 
-    private static readonly Vector2I[] Sizes = { new(1280, 720), new(1920, 1080), new(2560, 1440) };
+    private static readonly Vector2I[] Sizes =
+    [
+        new(800, 600), new(1024, 768), new(1280, 720), new(1920, 1080),
+        new(2560, 1440), new(3440, 1440), new(3840, 2160),
+    ];
 
     private readonly List<string> _saved = new();
     private int _stage;
@@ -44,18 +50,21 @@ public sealed class MenuArtSmoke : SmokeTest
 
         bool typed = Time.GetTicksMsec() - _pageStart >= TitleMs;
         string look = UiStyle.Look.ToString().ToLowerInvariant();
-        if (_stage < Sizes.Length)
+        int mainStages = Sizes.Length * 2;
+        if (_stage < mainStages)
         {
+            int size = _stage % Sizes.Length;
+            bool populated = _stage >= Sizes.Length;
             if (_frames == 1)
             {
-                Resize(tree, Sizes[_stage]);
-                MainMenu menu = FrontEnd.ShowMainMenu(tree);
-                Callable.From(() => menu.HostButton?.GrabFocus()).CallDeferred();
+                Resize(tree, Sizes[size]);
+                MenuDashboardService.Get(tree).SetPreview(populated ? MenuLayoutSmoke.PreviewSnapshot() : null);
+                FrontEnd.ShowMainMenu(tree);
             }
 
             if (typed)
             {
-                Save(tree, $"menu-art-{look}-main-{Sizes[_stage].Y}p");
+                Save(tree, $"menu-art-{look}-main-{(populated ? "populated" : "offline")}-{Sizes[size].X}x{Sizes[size].Y}");
                 _stage++;
                 _frames = 0;
             }
@@ -63,12 +72,33 @@ public sealed class MenuArtSmoke : SmokeTest
             return SmokeResult.Running;
         }
 
-        switch (_stage - Sizes.Length)
+        switch (_stage - mainStages)
         {
             case 0:
                 if (_frames == 1)
                 {
-                    Resize(tree, Sizes[1]);
+                    Resize(tree, new Vector2I(1920, 1080));
+                    DashboardDetailsScreen.ShowChangelog(tree);
+                }
+                if (typed)
+                {
+                    Save(tree, $"menu-art-{look}-changelog");
+                    Next();
+                }
+                return SmokeResult.Running;
+            case 1:
+                if (_frames == 1) DashboardDetailsScreen.ShowAnnouncement(tree);
+                if (typed)
+                {
+                    Save(tree, $"menu-art-{look}-announcement");
+                    Next();
+                }
+                return SmokeResult.Running;
+            case 2:
+                if (_frames == 1)
+                {
+                    MenuDashboardService.Get(tree).SetPreview(null);
+                    Resize(tree, new Vector2I(1920, 1080));
                     FrontEnd.ShowHost(tree);
                 }
 
@@ -79,7 +109,7 @@ public sealed class MenuArtSmoke : SmokeTest
                 }
 
                 return SmokeResult.Running;
-            case 1:
+            case 3:
                 if (_frames == 1)
                 {
                     FrontEnd.ShowJoinWithIp(tree);
@@ -92,7 +122,7 @@ public sealed class MenuArtSmoke : SmokeTest
                 }
 
                 return SmokeResult.Running;
-            case 2:
+            case 4:
                 if (_frames == 1)
                 {
                     _options = (OptionsMenu)FrontEnd.ShowOptions(tree);

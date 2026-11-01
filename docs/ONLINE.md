@@ -279,7 +279,8 @@ HTTP API (`MasterApi`, JSON camelCase, enums as text). With invite keys set, eve
 | `GET /api/v1/servers/{id}` | one server, listed or not (join by server id) |
 | `POST /api/v1/servers/{id}/join` | how to reach it: public address, own addresses (same network only), a punch token, a relay token |
 | `DELETE /api/v1/servers/{id}?hostToken=` | unlist now (listings lapse 90 s after the last heartbeat) |
-| `GET /api/v1/status` | versions, notices, counts (health check) |
+| `GET /api/v1/status` | versions, notices, counts (health check); optional `announcement` contains the admin's public website/game-menu announcement |
+| `GET /api/v1/changelog` | cached stable release notes: `entries` (`tag`, `name`, `published`, `notes`, `url`) and `unavailable`; shares the website's release cache, requires no account token, follows normal invite-key rules |
 
 - **The master's own version.** The master is versioned apart from the game: `MasterVersion` in
   `src/OpenScct.Master/OpenScct.Master.csproj` (bump it when the master changes; a release's `-p:Version` does not

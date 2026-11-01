@@ -1,177 +1,297 @@
 using System;
+using System.Globalization;
+using System.Linq;
 using Godot;
+using OpenScct.Net.Cosmetics;
+using OpenScct.Net.Discovery;
 using OpenScctGame.Online;
 
 namespace OpenScctGame.UI;
 
-/// <summary>
-/// The main menu in the original's multiplayer menu (Menu_Multi, "Enhanced Versus") and LAN Session page (LAN_Menu):
-/// Create a Session (host; also how to play offline), Find a Session (the server browser: LAN, saved addresses and the
-/// master's list, and an address box for joining by IP), Options, Quit (docs/MENUS.md).
-/// </summary>
+/// <summary>A responsive briefing dashboard with direct play routes and live, optional information.</summary>
 public partial class MainMenu : MenuPage
 {
-    private Label? _status;
-    private Label? _account;
+    private Label? _status, _account, _xpText, _unlockText, _releaseTitle, _releaseNotes, _releaseState;
+    private Label? _gameActivity, _hubActivity, _announcement, _announcementState;
     private RankBadge? _rank;
-    private AccountService? _accounts;
+    private UiProgress? _xp, _unlockProgress;
+    private Button? _unlockButton;
+    private Control? _announcementFrame;
+    private MenuDashboardService? _data;
+    private IDisposable? _watch;
+    private MenuUnlock? _unlock;
     private RejoinService? _rejoin;
     private VBoxContainer? _rejoinPanel;
     private Label? _rejoinText;
 
-    /// <summary>Create a Session.</summary>
+    /// <summary>Restore information-card focus after returning from its details.</summary>
+    public string? InitialFocus { get; init; }
     public Button? HostButton { get; private set; }
-
-    /// <summary>Find a Session (the server browser).</summary>
     public Button? FindButton { get; private set; }
-
-    /// <summary>The Account page.</summary>
     public Button? AccountButton { get; private set; }
-
     public Button? OptionsButton { get; private set; }
-
     public Button? QuitButton { get; private set; }
-
-    /// <summary>Rejoin, on the panel shown while a round the player dropped out of is still being played.</summary>
     public Button? RejoinButton { get; private set; }
+    public Button? WhatsNewButton { get; private set; }
 
     public override void _Ready()
     {
-        // The original's title here is "Enhanced Versus"; ours is a Splinter Cell fact, a new one each time.
-        BuildFrame(SplashTrivia.Pick(), 520f);
+        BuildFrame(SplashTrivia.Pick(), 1440f, responsive: true);
         UseSplashTitle();
-        CentreBodyVertically();
-        Body.AddChild(UiStyle.Wordmark());
-
-        // A round the player dropped out of (a crash, a lost connection, a quit) that is still being played.
-        _rejoinPanel = Panel(Body, "RejoinPanel", "Match in progress");
-        _rejoinText = new Label
+        Body.AddThemeConstantOverride("separation", 12);
+        Control wordmark = UiStyle.Wordmark();
+        if (wordmark is UiWordmark mark) mark.MarkSize = 40f;
+        wordmark.SizeFlagsHorizontal = SizeFlags.ShrinkBegin;
+        Body.AddChild(wordmark);
+        VBoxContainer profile = Column("ProfileColumn", 260f);
+        VBoxContainer play = Column("PlayColumn", 320f);
+        VBoxContainer news = Column("NewsColumn", 288f);
+        var columns = new DashboardColumns
         {
-            Name = "RejoinText", HorizontalAlignment = HorizontalAlignment.Center, Modulate = UiStyle.MenuFocus,
-            AutowrapMode = TextServer.AutowrapMode.WordSmart,
+            Name = "Dashboard", Profile = profile, Play = play, News = news,
+            SizeFlagsHorizontal = SizeFlags.ExpandFill,
         };
-        _rejoinPanel.AddChild(_rejoinText);
-        RejoinButton = UiStyle.MenuButton("Rejoin", () => _rejoin?.Rejoin(), "Rejoin");
-        _rejoinPanel.AddChild(RejoinButton);
-        _rejoinPanel.AddChild(UiStyle.MenuButton("Not now", () => _rejoin?.Decline(), "RejoinDecline"));
-
-        // LAN_Menu: "Create a Session", "Find a Session" (joining by IP is on the Find a Session page).
-        VBoxContainer online = Panel(Body, "Online", null);
-        HostButton = UiStyle.MenuButton("Create a Session", () => FrontEnd.ShowHost(GetTree()), "Host");
-        FindButton = UiStyle.MenuButton("Find a Session", () => FrontEnd.ShowServerBrowser(GetTree()), "FindGame");
-        online.AddChild(HostButton);
-        online.AddChild(FindButton);
-        online.AddChild(OpenScctGame.Hub.HubScreen.MenuButton(this));
-        AccountButton = UiStyle.MenuButton("Account", () => FrontEnd.ShowAccount(GetTree()), "Account");
-        online.AddChild(AccountButton);
-        online.AddChild(UiStyle.MenuButton("Stats", () => FrontEnd.ShowStats(GetTree()), "StatsPage"));
-        online.AddChild(AchievementsScreen.MenuButton(this));
-        online.AddChild(ArmouryScreen.MenuButton(this));
-        online.AddChild(DemosScreen.MenuButton(this));
-        _account = new Label { Name = "AccountLine", Modulate = UiStyle.MenuFocus, HorizontalAlignment = HorizontalAlignment.Center };
-        online.AddChild(_account);
-        _rank = new RankBadge(28) { Name = "AccountRank", SizeFlagsHorizontal = SizeFlags.ShrinkCenter, Visible = false };
-        online.AddChild(_rank);
-        _accounts = AccountService.Get(GetTree());
-        _accounts.Changed += ShowAccount;
-        ShowAccount();
-
-        Body.AddChild(TutorialsScreen.MenuButton(this));
-        Body.AddChild(ContentScreen.MenuButton(this));
-        OptionsButton = UiStyle.MenuButton("Options", () => FrontEnd.ShowOptions(GetTree()), "Options");
-        Body.AddChild(OptionsButton);
-        _status = new Label
-        {
-            Name = "Status", HorizontalAlignment = HorizontalAlignment.Center, Modulate = UiStyle.MenuFocus, AutowrapMode = TextServer.AutowrapMode.WordSmart,
-        };
-        Body.AddChild(_status);
-
+        // Play-first tree order gives keyboard navigation the same priority as a narrow layout.
+        columns.AddChild(play);
+        columns.AddChild(profile);
+        columns.AddChild(news);
+        Body.AddChild(columns);
+        BuildPlay(play);
+        BuildProfile(profile);
+        BuildNews(news);
+        _status = TextLine(Body, "Status", string.Empty);
+        _status.Visible = false;
+        OptionsButton = PageButton("Options", () => FrontEnd.ShowOptions(GetTree()), "Options");
         QuitButton = PageButton("Quit", AskQuit, "Quit");
-        if (OnlineService.Get(GetTree()).LastError is { } error)
+        PageCanvas.AddChild(new BuildCornerLabel
         {
-            ShowStatus(error);
-        }
-
-        AddChild(BuildLabel.Corner());
-        HostButton.GrabFocus();
+            Name = "BuildInfo", ForceCompact = true, Modulate = UiStyle.Dim,
+            HorizontalAlignment = HorizontalAlignment.Right, MouseFilter = MouseFilterEnum.Ignore,
+        });
+        _data = MenuDashboardService.Get(GetTree());
+        _data.Changed += ShowInformation;
+        _watch = _data.Watch();
+        ShowInformation();
+        if (OnlineService.Get(GetTree()).LastError is { } error) ShowStatus(error);
         _rejoin = RejoinService.Get(GetTree());
         _rejoin.Changed += ShowRejoin;
         ShowRejoin();
         _rejoin.Check();
+        if (_rejoin.Offer is null)
+        {
+            Button? restore = InitialFocus is { } focus ? FindChild(focus, true, false) as Button : null;
+            (restore is { Disabled: false } && restore.IsVisibleInTree() ? restore : FindButton)?.GrabFocus();
+        }
+        else RejoinButton?.GrabFocus();
+    }
+
+    private void BuildPlay(VBoxContainer parent)
+    {
+        _rejoinPanel = Card(parent, "RejoinPanel", "Match in progress");
+        _rejoinText = TextLine(_rejoinPanel, "RejoinText", string.Empty);
+        RejoinButton = AddButton(_rejoinPanel, "Rejoin", () => _rejoin?.Rejoin(), "Rejoin");
+        AddButton(_rejoinPanel, "Not now", () => _rejoin?.Decline(), "RejoinDecline");
+        var play = Card(parent, "Online", "Play");
+        FindButton = AddButton(play, "Find a Session", () => FrontEnd.ShowServerBrowser(GetTree()), "FindGame");
+        FindButton.CustomMinimumSize = new Vector2(0f, 64f);
+        FindButton.AddThemeFontSizeOverride("font_size", 24);
+        FindButton.Modulate = UiStyle.MenuFocus;
+        HostButton = AddButton(play, "Create a Session", () => FrontEnd.ShowHost(GetTree()), "Host");
+        AddButton(play, OpenScctGame.Hub.HubScreen.MenuButton(this));
+        var activity = Card(parent, "CommunityActivity", "Community activity");
+        _gameActivity = TextLine(activity, "GameActivity", "Checking game sessions…");
+        _hubActivity = TextLine(activity, "HubActivity", "Checking hubs…");
+        TextLine(activity, "ActivityScope", "Players in publicly listed sessions", dim: true, small: true);
+        var links = new HBoxContainer { Name = "ActivityLinks" };
+        links.AddThemeConstantOverride("separation", 8);
+        activity.AddChild(links);
+        AddButton(links, "Browse games", () => FrontEnd.ShowServerBrowser(GetTree()), "BrowseGames");
+        AddButton(links, "Visit hubs", () => OpenScctGame.Hub.HubScreen.Show(GetTree()), "VisitHubs");
+        var explore = Card(parent, "Explore", "Explore");
+        var row = new HFlowContainer { Name = "ExploreLinks" };
+        row.AddThemeConstantOverride("h_separation", 8);
+        row.AddThemeConstantOverride("v_separation", 8);
+        explore.AddChild(row);
+        AddButton(row, TutorialsScreen.MenuButton(this));
+        AddButton(row, DemosScreen.MenuButton(this));
+        AddButton(row, ContentScreen.MenuButton(this));
+    }
+
+    private void BuildProfile(VBoxContainer parent)
+    {
+        var profile = Card(parent, "YourProgress", "Your progress");
+        _account = TextLine(profile, "AccountLine", "Not signed in");
+        _account.AddThemeFontSizeOverride("font_size", 22);
+        _account.MaxLinesVisible = 2;
+        _account.TextOverrunBehavior = TextServer.OverrunBehavior.TrimEllipsis;
+        _rank = new RankBadge(38, 22) { Name = "AccountRank", Visible = false };
+        profile.AddChild(_rank);
+        _xp = new UiProgress { Name = "LevelProgress", Fill = UiStyle.MenuFocus, Visible = false };
+        profile.AddChild(_xp);
+        _xpText = TextLine(profile, "XpText", "Sign in to track your rank and unlocks.", dim: true, small: true);
+        _unlockText = TextLine(profile, "NextUnlockText", string.Empty);
+        _unlockProgress = new UiProgress { Name = "UnlockProgress", Fill = UiStyle.MenuFocus, Visible = false };
+        profile.AddChild(_unlockProgress);
+        _unlockButton = AddButton(profile, "Browse achievements", () => FrontEnd.Show(GetTree(),
+            new AchievementsScreen { InitialAchievement = _unlock?.AchievementId }), "NextUnlock");
+        AccountButton = AddButton(profile, "Account", () => FrontEnd.ShowAccount(GetTree()), "Account");
+        var links = Card(parent, "PlayerLinks", "Your collection");
+        AddButton(links, "Stats", () => FrontEnd.ShowStats(GetTree()), "StatsPage");
+        AddButton(links, AchievementsScreen.MenuButton(this));
+        AddButton(links, ArmouryScreen.MenuButton(this));
+    }
+
+    private void BuildNews(VBoxContainer parent)
+    {
+        var news = Card(parent, "WhatsNewPanel", "What’s new");
+        _releaseTitle = TextLine(news, "LatestRelease", "Latest update");
+        _releaseTitle.AddThemeFontSizeOverride("font_size", 22);
+        _releaseNotes = TextLine(news, "ReleasePreview", "Checking release notes…");
+        _releaseNotes.MaxLinesVisible = 6;
+        _releaseNotes.TextOverrunBehavior = TextServer.OverrunBehavior.TrimEllipsis;
+        _releaseState = TextLine(news, "ReleaseState", string.Empty, dim: true, small: true);
+        WhatsNewButton = AddButton(news, "Read recent changes", () => DashboardDetailsScreen.ShowChangelog(GetTree()), "WhatsNew");
+        var preview = (Control)news.GetParent();
+        preview.MouseDefaultCursorShape = CursorShape.PointingHand;
+        preview.GuiInput += input =>
+        {
+            if (input is not InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.Left }) return;
+            GetViewport().SetInputAsHandled();
+            DashboardDetailsScreen.ShowChangelog(GetTree());
+        };
+        var notice = Card(parent, "AnnouncementPanel", "Announcement");
+        _announcementFrame = (Control)notice.GetParent();
+        _announcement = TextLine(notice, "AnnouncementPreview", string.Empty);
+        _announcement.MaxLinesVisible = 3;
+        _announcement.TextOverrunBehavior = TextServer.OverrunBehavior.TrimEllipsis;
+        _announcementState = TextLine(notice, "AnnouncementState", string.Empty, dim: true, small: true);
+        AddButton(notice, "Read announcement", () => DashboardDetailsScreen.ShowAnnouncement(GetTree()), "ReadAnnouncement");
+        _announcementFrame.Visible = false;
+    }
+
+    private void ShowInformation()
+    {
+        if (_data is null) return;
+        bool signedIn = _data.SignedIn;
+        AccountInfo? account = signedIn ? _data.Account : null;
+        _account!.Text = signedIn ? account?.Name is { Length: > 0 } name ? name : "Signed in" : "Welcome, agent";
+        AccountButton!.Text = signedIn ? "Manage account" : "Sign in / Account";
+        PlayerRank rank = RankBadge.OfAccount(account);
+        _rank!.Show(rank, withTitle: true);
+        _xp!.Visible = !rank.IsNone;
+        _xp.Value = rank.Fraction;
+        _xpText!.Text = !signedIn ? "Sign in to track your rank and unlocks." : rank.IsNone ? "Progress is currently unavailable."
+            : rank.Level >= ProgressionK.MaxLevel ? "Maximum level reached for this prestige"
+            : string.Create(CultureInfo.InvariantCulture, $"{rank.XpIntoLevel:N0} / {rank.XpForNext:N0} XP to level {rank.Level + 1}");
+        if (signedIn && account is not null && _data.AccountStale) _xpText.Text += " · Last received";
+        _unlock = MenuDashboardModel.NextUnlock(account);
+        _unlockText!.Visible = _unlock is not null;
+        _unlockProgress!.Visible = _unlock is not null;
+        if (_unlock is { } unlock)
+        {
+            _unlockText.Text = $"Next unlock · {unlock.RewardName}\n{unlock.Title} · {unlock.Current:N0} / {unlock.Target:N0}";
+            _unlockProgress.Value = unlock.Fraction;
+        }
+        _unlockButton!.Text = _unlock is null ? "Browse achievements" : "View next unlock";
+        _gameActivity!.Text = Activity(_data.Games, ServerKind.Game, "game session", "game sessions");
+        _hubActivity!.Text = Activity(_data.Hubs, ServerKind.Hub, "hub", "hubs");
+        ChangelogEntry? latest = _data.Changelog.Value?.Entries.FirstOrDefault();
+        bool unavailable = _data.Changelog.Unavailable || _data.Changelog.Value?.Unavailable == true;
+        _releaseTitle!.Text = latest is null ? "Latest update" : latest.Tag;
+        _releaseNotes!.Text = latest is not null ? MenuDashboardModel.Preview(latest.Notes)
+            : _data.Changelog.Loading ? "Checking release notes…" : unavailable ? "Release notes are currently unavailable." : "No published updates yet.";
+        if (latest is not null && string.IsNullOrWhiteSpace(_releaseNotes.Text)) _releaseNotes.Text = "No release notes were provided for this version.";
+        _releaseState!.Text = latest is not null ? latest.Published.ToString("d MMM yyyy", CultureInfo.InvariantCulture) +
+            (unavailable ? " · Last received" : string.Empty) : "Read the latest features, improvements and fixes.";
+        _announcement!.Text = _data.Announcement;
+        _announcementState!.Text = _data.Status.Stale ? "Last received · Service unavailable" : string.Empty;
+        _announcementState.Visible = _data.Status.Stale;
+        bool hasAnnouncement = !string.IsNullOrWhiteSpace(_data.Announcement);
+        if (!hasAnnouncement && GetViewport().GuiGetFocusOwner() is { } owner && _announcementFrame!.IsAncestorOf(owner)) FindButton?.GrabFocus();
+        _announcementFrame!.Visible = hasAnnouncement;
+    }
+
+    private static string Activity(MenuDashboardFeed<ServerListResponse> feed, ServerKind kind, string singular, string plural)
+    {
+        if (feed.Value is not { } list) return feed.Loading ? $"Checking {plural}…" : $"{char.ToUpperInvariant(plural[0])}{plural[1..]} unavailable";
+        MenuActivity activity = MenuDashboardModel.Activity(list, kind);
+        return $"{activity.Players:N0} players · {activity.Sessions:N0} {(activity.Sessions == 1 ? singular : plural)}" + (feed.Stale ? " · Last received" : string.Empty);
+    }
+
+    private static VBoxContainer Column(string name, float minimum) => new()
+    {
+        Name = name, CustomMinimumSize = new Vector2(minimum, 0f), SizeFlagsHorizontal = SizeFlags.ExpandFill,
+    };
+
+    private static VBoxContainer Card(Container parent, string name, string title)
+    {
+        var column = Panel(parent, name, title);
+        column.AddThemeConstantOverride("separation", 6);
+        parent.AddThemeConstantOverride("separation", 12);
+        return column;
+    }
+
+    private static Label TextLine(Container parent, string name, string text, bool dim = false, bool small = false)
+    {
+        var label = new Label
+        {
+            Name = name, Text = text, AutowrapMode = TextServer.AutowrapMode.WordSmart,
+            SizeFlagsHorizontal = SizeFlags.ExpandFill, Modulate = dim ? UiStyle.Dim : UiStyle.Text,
+            MouseFilter = MouseFilterEnum.Ignore,
+        };
+        if (small) label.AddThemeFontSizeOverride("font_size", 14);
+        parent.AddChild(label);
+        return label;
+    }
+
+    private static Button AddButton(Container parent, string text, Action action, string name) => AddButton(parent, UiStyle.MenuButton(text, action, name));
+
+    private static Button AddButton(Container parent, Button button)
+    {
+        button.CustomMinimumSize = new Vector2(0f, 38f);
+        button.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+        parent.AddChild(button);
+        return button;
     }
 
     public override void _ExitTree()
     {
-        if (_accounts is not null)
-        {
-            _accounts.Changed -= ShowAccount;
-        }
-
-        if (_rejoin is not null)
-        {
-            _rejoin.Changed -= ShowRejoin;
-        }
+        if (_data is not null) _data.Changed -= ShowInformation;
+        _watch?.Dispose();
+        if (_rejoin is not null) _rejoin.Changed -= ShowRejoin;
     }
 
-    /// <summary>
-    /// GUI.ConfirmQuitPage: "Are you sure you want to quit?" with Cancel and Quit Game (the page's own captions from
-    /// GUI.int). Quit Game ends the program; Cancel closes the box.
-    /// </summary>
     [OpenScct.Provenance.PortOf("uc:GUI.ConfirmQuitPage:YesButtonClick", Spec = "spec/game/lobby-and-match-creation.md#front-end-pages")]
     [OpenScct.Provenance.PortOf("uc:GUI.ConfirmQuitPage:NoButtonClick", Spec = "spec/game/lobby-and-match-creation.md#front-end-pages")]
     private void AskQuit()
     {
         const string section = "ConfirmQuitPage";
-        ConfirmBox.Open(this, new ConfirmBox
+        ConfirmBox.Open(PageCanvas, new ConfirmBox
         {
             Name = "ConfirmQuit",
             Question = OpenScctGame.Tutorials.TutorialText.Lines(
                 OpenScctGame.Tutorials.TutorialText.Caption(section, "LabelCaption", "Are you sure|you want to quit?")),
             NoCaption = OpenScctGame.Tutorials.TutorialText.Caption(section, "sBT_Cancel", "Cancel"),
             YesCaption = OpenScctGame.Tutorials.TutorialText.Caption(section, "sBT_Yes", "Quit Game").Trim(),
-            Yes = () => GetTree().Quit(),
+            Yes = () => GetTree().Quit(), No = () => QuitButton?.GrabFocus(),
         });
     }
 
-    /// <summary>The Match in progress panel: shown with the round's server and map while the rejoin is offered.</summary>
     private void ShowRejoin()
     {
-        if (_rejoinPanel?.GetParent() is not Control frame || _rejoinText is null)
-        {
-            return;
-        }
-
+        if (_rejoinPanel?.GetParent() is not Control frame || _rejoinText is null) return;
         RejoinChoice? offer = _rejoin?.Offer;
+        if (offer is null && GetViewport().GuiGetFocusOwner() is { } owner && frame.IsAncestorOf(owner)) FindButton?.GrabFocus();
         frame.Visible = offer is not null;
-        if (offer is null)
-        {
-            return;
-        }
-
+        if (offer is null) return;
         string map = offer.Map.Length > 0 ? " on " + offer.Map : string.Empty;
-        _rejoinText.Text = $"You left a round on {offer.ServerName}{map} that is still being played. Rejoin to play on with your side.";
-        RejoinButton?.GrabFocus();
+        _rejoinText.Text = $"Your round on {offer.ServerName}{map} is still in progress.";
     }
 
-    /// <summary>The Online panel's line: who is signed in.</summary>
-    private void ShowAccount()
-    {
-        if (_account is null)
-        {
-            return;
-        }
-
-        AccountSettings a = AccountSettings.Current;
-        _account.Text = !a.SignedIn ? "Not signed in" : a.Name.Length > 0 ? "Signed in as " + a.Name : "Signed in (no name yet)";
-        _rank?.Show(a.SignedIn ? RankBadge.OfAccount(_accounts?.Account) : OpenScct.Net.Cosmetics.PlayerRank.None, withTitle: true);
-    }
-
-    /// <summary>A line under the buttons (why the last online visit ended, a bad address).</summary>
     public void ShowStatus(string text)
     {
-        if (_status is not null)
-        {
-            _status.Text = text;
-        }
+        if (_status is null) return;
+        _status.Text = text;
+        _status.Visible = !string.IsNullOrWhiteSpace(text);
     }
 }

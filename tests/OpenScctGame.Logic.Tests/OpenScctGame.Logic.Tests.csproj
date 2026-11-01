@@ -11,6 +11,7 @@
     <Compile Include="..\..\game\Scripts\Play\PlayFrameStats.cs" Link="Linked\PlayFrameStats.cs" />
     <Compile Include="..\..\game\Scripts\Render\Gltf\GlbDocument.cs" Link="Linked\GlbDocument.cs" />
     <Compile Include="..\..\game\Scripts\UI\StatsModel.cs" Link="Linked\StatsModel.cs" />
+    <Compile Include="..\..\game\Scripts\UI\MenuDashboardModel.cs" Link="Linked\MenuDashboardModel.cs" />
     <Compile Include="..\..\game\Scripts\UI\ConsoleCommands.cs" Link="Linked\ConsoleCommands.cs" />
     <Compile Include="..\..\game\Scripts\UI\PlayerLocationReport.cs" Link="Linked\PlayerLocationReport.cs" />
     <Compile Include="..\..\game\Scripts\Options\SettingsConsole.cs" Link="Linked\SettingsConsole.cs" />
