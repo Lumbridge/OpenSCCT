@@ -55,8 +55,8 @@ internal sealed partial class AdminPortal
             ("Players online", N(inGames + inHubs), $"{inGames} in games, {inHubs} in hubs"),
             ("Servers", N(servers.Count(s => s.Kind == ServerKind.Game)),
                 $"{servers.Count(s => s.Kind == ServerKind.Hub)} hub(s), {servers.Count(s => !s.Listed)} unlisted"),
-            ("Accounts", N(accounts), $"{newToday} new today"),
-            ("Rounds today", N(_store.CountMatches(now - 86400)), null),
+            ("Accounts", N(accounts), $"{newToday} new in 24 hours"),
+            ("Rounds in 24 hours", N(_store.CountMatches(now - 86400)), null),
             ("Relay", N(_registry.RelaySessionCount) + " sessions", $"{N(relayed)} packets relayed"),
             ("Introductions", N(introductions), "NAT punches since start"))).Append("</div>");
         body.Append(Section("Needs attention", OperationsIssues(servers)));
