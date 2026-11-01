@@ -404,6 +404,38 @@ public sealed class PlayCraneSmoke : PlaySmoke
             return SmokeResult.Fail($"the collapsing wall is not shown playing (view {wallView?.Sequence ?? "none"} starts={wallView?.Starts} visible={wallView?.Visible})");
         }
 
+        if (devices.Attached.RenderOnlyBoneLights != 5 || root.Map is not { } map)
+        {
+            return SmokeResult.Fail("the five crane warning-light attachments did not bind");
+        }
+
+        string[] flares = ["Light386", "Light397", "Light400", "Light403", "Light372"];
+        for (int i = 0; i < flares.Length; i++)
+        {
+            int bone = craneView.Model.Skeleton.FindBone("Dummy0" + (i + 1));
+            if (bone < 0 || !map.TryGetLightPlace(flares[i], out FVector actual, out _))
+            {
+                return SmokeResult.Fail(flares[i] + " never followed its crane bone");
+            }
+
+            var transform = craneView.Model.Skeleton.GlobalTransform * craneView.Model.Skeleton.GetBoneGlobalPose(bone);
+            if (FVector.Dist(actual, UeSpace.ToUe(transform.Origin)) > .1f)
+            {
+                return SmokeResult.Fail(flares[i] + " detached from the animated crane boom");
+            }
+
+            if (map.LightSprites is not { } sprites || !sprites.Nodes.TryGetValue(flares[i], out MeshInstance3D? sprite) ||
+                !sprite.Visible || sprite.Mesh is not QuadMesh ||
+                sprite.MaterialOverride is not ShaderMaterial { Shader: { } shader } material ||
+                !shader.Code.Contains("#define BILLBOARD", StringComparison.Ordinal) ||
+                !shader.Code.Contains("#define BLEND_ADDITIVE", StringComparison.Ordinal) ||
+                material.GetShaderParameter("tex_diffuse").AsGodotObject() is not Texture2D ||
+                sprite.GlobalPosition.DistanceTo(transform.Origin) > .001f)
+            {
+                return SmokeResult.Fail(flares[i] + " did not draw its additive flare sprite on the crane boom");
+            }
+        }
+
         string missing = devices.MissingMeshes.Count > 0 ? " missingMeshes=" + string.Join(",", devices.MissingMeshes) : "";
         return SmokeResult.Pass(string.Create(CultureInfo.InvariantCulture,
             $"blast01 fired: wall {WallAfter} on server and client, wall node shows it (drawn={wallNode.Entry.Node.Visible}), crane view {craneView.Sequence} frame={craneView.Frame:F2}, wall view {wallView.Sequence} frame={wallView.Frame:F2}; {serverState} at tick {root.Stats.Ticks}{missing}"));

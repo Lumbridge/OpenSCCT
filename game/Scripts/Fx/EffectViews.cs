@@ -166,6 +166,11 @@ public sealed partial class EffectViews : Node3D
     public void OnTick(Level level)
     {
         ArgumentNullException.ThrowIfNull(level);
+        if (OpenScct.Game.Equipment.GadgetWorld.Collision(level.Info) is { } collision)
+        {
+            Map?.Emitters?.SetCollisionWorld(collision);
+        }
+
         if (Library is not { Available: true } lib)
         {
             return;

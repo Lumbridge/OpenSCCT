@@ -72,28 +72,46 @@ public partial class SDamageVolume
     }
 
     /// <summary>
-    /// The native damage tick: while active, once Period has passed since the last application, every touching
-    /// actor of DamagedClass takes HitPoints of DamageType with no instigator (the damage code looks the volume up
-    /// for credit).
+    /// The authority's native damage tick: each period, touching pawns take damage through their controller,
+    /// which owns player health, state reactions and kill credit. Other matching actors use TakeDamage.
     /// </summary>
     [UcNative("ASDamageVolume::Tick")]
-    [PortOf("def:SBase.SDamageVolume", Spec = "spec/devices/damage-volume.md#rules")]
-    [Provenance(ProvenanceKind.Estimated, "Period test and every-toucher rule are damage-volume.md open question 1")]
+    [PortOf("eng:ASDamageVolume::Tick", Spec = "spec/native/natives2-damage.md#6-sdamagevolume-tick-native-replaces-the-actor-tick")]
+    [Provenance(ProvenanceKind.Decoded, "natives2-damage.md rule 6: authority, strict period, sensitivity and controller damage; no parent tick")]
+    [Provenance(ProvenanceKind.Estimated, "Uses the deterministic world clock in place of the original appSeconds clock")]
     protected override void NativeTick(float DeltaSeconds)
     {
-        base.NativeTick(DeltaSeconds);
-        if (bDeleteMe || !bActive || Touching.Count == 0 || Level.TimeSeconds - LastDamageTime < Period)
+        float now = XLevel.WorldTimeSeconds;
+        if (bDeleteMe || Role != ENetRole.ROLE_Authority || !bActive || now - LastDamageTime <= Period)
         {
             return;
         }
 
-        LastDamageTime = Level.TimeSeconds;
+        if (LastDamageTime != 0f)
+        {
+            LastTouched = null;
+        }
+
+        LastDamageTime = now;
         Actor[] touching = Touching.ToArray();
         foreach (Actor victim in touching)
         {
-            if (!victim.bDeleteMe && ClassIsChildOf(victim.GetUcClass(), DamagedClass))
+            if (victim.bDeleteMe || (!DamagedClass.IsNone && !ClassIsChildOf(victim.GetUcClass(), DamagedClass)))
             {
-                victim.eventTakeDamage(HitPoints, null, victim.Location, FVector.Zero, DamageType);
+                continue;
+            }
+
+            FVector momentum = victim.Location - Location;
+            if (victim is Pawn pawn)
+            {
+                if (pawn.Controller is SPlayerController controller && controller.bIsDamageVolumeSensitive())
+                {
+                    controller.PawnTakeDamage(HitPoints, null, victim.Location, momentum, DamageType);
+                }
+            }
+            else
+            {
+                victim.eventTakeDamage(HitPoints, null, victim.Location, momentum, DamageType);
             }
         }
     }

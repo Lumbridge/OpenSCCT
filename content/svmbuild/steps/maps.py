@@ -28,7 +28,7 @@ def _own_code() -> list[Path]:
 
 class MapsStep(Step):
     name = "maps"
-    version = 6  # Shader.Opacity uses authored alpha even when constant.
+    version = 7  # Visible light sprites export their textures and resolved material/size metadata.
     deps = ("classes",)
     # The map folder holds audio/, which a rebuild or restore of this step removes: audio-map puts it back.
     followers = ("audio-map",)

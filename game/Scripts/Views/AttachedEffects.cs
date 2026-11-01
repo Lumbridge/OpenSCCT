@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text.Json;
 using Godot;
 using OpenScct.Content;
 using OpenScct.Content.Loading;
@@ -16,8 +17,8 @@ namespace OpenScctGame.Views;
 /// rider of a mover (AttachTag: ShadD's spotlight movers spot1 and spot2, ShadP's DynamicSpotlights) and an actor hung
 /// on an SAnimatedMesh bone (ActorsToAttach: the Club fans' emitters, the Miss and Stat beacons). Emitters move their
 /// particle systems (<see cref="Render.Particles.Emitters.SetPlace"/>); lights move their world term, actor lighting
-/// and corona (<see cref="RenderMap.MoveLight"/>). The render-only map lights (not in the simulation, such as PanaD's
-/// elevator lights) are Engine.Light: bStatic and not bMovable, baked into the lightmaps, so they stay put.
+/// and corona (<see cref="RenderMap.MoveLight"/>). Render-only lights explicitly named in ActorsToAttach also follow
+/// their bones, including SteeE's crane flares; ordinary baked lights remain at their authored positions.
 /// Reads the simulation and never writes it.
 /// </summary>
 [PortOf("eng:Render.AttachedEffects", Spec = "spec/devices/animated-mesh.md#rules")]
@@ -28,6 +29,7 @@ public sealed class AttachedEffects
     private readonly RenderMap _map;
     private readonly IReadOnlyList<AnimatedMeshView> _animated;
     private readonly List<Follower> _followers = [];
+    private readonly List<BoneLight> _boneLights = [];
     private float _relightClock;
     private bool _lightsMoved;
 
@@ -60,17 +62,51 @@ public sealed class AttachedEffects
                 _followers.Add(new Follower(record.Id, actor, emitter));
             }
         }
+
+        // The converter keeps plain Light actors in the render pack, so their map references are $asset paths
+        // and intentionally cannot bind to simulation actors. AttachToBone accepts these static lights too.
+        foreach (AnimatedMeshView view in animated)
+        {
+            if (view.Actor is not SAnimatedMesh || map.Actors.Find(view.Id) is not { } placed ||
+                !placed.TryGet("ActorsToAttach", out JsonElement attachments) ||
+                attachments.ValueKind != JsonValueKind.Array)
+            {
+                continue;
+            }
+
+            foreach (JsonElement attachment in attachments.EnumerateArray())
+            {
+                if (!attachment.TryGetProperty("ActorName", out var target) ||
+                    target.ValueKind != JsonValueKind.Object ||
+                    !target.TryGetProperty("$asset", out var asset) || asset.GetString() is not { } path ||
+                    !attachment.TryGetProperty("BoneName", out var boneValue) || boneValue.GetString() is not { } bone ||
+                    !path.StartsWith(loaded.Gameplay.Map + ".", StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                string id = path[(loaded.Gameplay.Map.Length + 1)..];
+                int index = view.Model.Skeleton.FindBone(bone);
+                if (index >= 0 && lights.Contains(id))
+                {
+                    _boneLights.Add(new BoneLight(id, view, index));
+                }
+            }
+        }
     }
 
     /// <summary>Emitters and lights bound to their simulated actors.</summary>
-    public int Bound => _followers.Count;
+    public int Bound => _followers.Count + _boneLights.Count;
+
+    /// <summary>Authored bone attachments whose lights exist only in the render pack.</summary>
+    public int RenderOnlyBoneLights => _boneLights.Count;
 
     /// <summary>Of those, the ones attached to a mover or a bone now.</summary>
     public int Attached
     {
         get
         {
-            int n = 0;
+            int n = _boneLights.Count;
             foreach (Follower f in _followers)
             {
                 n += f.Riding ? 1 : 0;
@@ -115,6 +151,21 @@ public sealed class AttachedEffects
                 _map.MoveLight(f.Id, location, rotation);
                 _lightsMoved = true;
             }
+        }
+
+        foreach (BoneLight light in _boneLights)
+        {
+            if (!light.View.Visible || light.View.Actor.bDeleteMe) continue;
+            Transform3D bone = light.View.Model.Skeleton.GlobalTransform *
+                light.View.Model.Skeleton.GetBoneGlobalPose(light.Bone);
+            FVector location = UeSpace.ToUe(bone.Origin);
+            FRotator rotation = RotationOf(bone.Basis.Orthonormalized());
+            if (light.Shown && location == light.Location && rotation == light.Rotation) continue;
+            light.Shown = true;
+            light.Location = location;
+            light.Rotation = rotation;
+            _map.MoveLight(light.Id, location, rotation);
+            _lightsMoved = true;
         }
 
         // The actor-lit meshes take the moved lights at the rate moved devices are relit.
@@ -178,6 +229,17 @@ public sealed class AttachedEffects
     /// <summary>The UE rotator of a Godot rotation basis (columns: UE X, Z and Y).</summary>
     internal static FRotator RotationOf(Basis basis) => PoseCameraBones.OrthoRotation(
         UeSpace.DirectionToUe(basis.Column0), UeSpace.DirectionToUe(basis.Column2), UeSpace.DirectionToUe(basis.Column1));
+
+    [Provenance(ProvenanceKind.Decoded, "game AttachToBone 0x10991840 writes AttachmentBone and calls SetBase 0x109913a0; neither rejects bStatic/non-movable actors (spec/devices/animated-mesh.md)")]
+    private sealed class BoneLight(string id, AnimatedMeshView view, int bone)
+    {
+        public string Id { get; } = id;
+        public AnimatedMeshView View { get; } = view;
+        public int Bone { get; } = bone;
+        public bool Shown { get; set; }
+        public FVector Location { get; set; }
+        public FRotator Rotation { get; set; }
+    }
 
     private sealed class Follower(string id, Actor actor, bool emitter)
     {

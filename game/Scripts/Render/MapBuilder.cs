@@ -237,6 +237,9 @@ public sealed class RenderMap
     /// <summary>The light beams of the map's lights (render/lightbeams.json), or null for content without them.</summary>
     public OpenScctGame.Render.LightBeams.MapLightBeams? LightBeams { get; internal set; }
 
+    /// <summary>Visible sprite actors of plain map lights, including sky sprites and attached warning lamps.</summary>
+    public MapLightSprites? LightSprites { get; internal set; }
+
     /// <summary>The map's particle emitters, or null when the build left them out.</summary>
     public Particles.Emitters? Emitters { get; internal set; }
 
@@ -272,6 +275,7 @@ public sealed class RenderMap
         _lightPlaces[name] = (location, rotation);
         WorldLights.SetPlace(name, location, rotation);
         ActorLighting.SetPlace(name, location, rotation);
+        LightSprites?.SetPlace(name, location);
     }
 
     /// <summary>Where the light <paramref name="name"/> was last moved to; false while it has not moved.</summary>
@@ -465,6 +469,8 @@ public static class MapBuilder
         }
 
         map.LightBeams = OpenScctGame.Render.LightBeams.MapLightBeams.Build(map, root);
+        map.LightSprites = new MapLightSprites(map);
+        foreach (string missing in map.LightSprites.Missing) map.Warnings.Add("light sprite texture missing: " + missing);
         if (pack is null)
         {
             map.Warnings.Add("no render pack (.content/shared/render): vision textures and gameplay object meshes are missing");

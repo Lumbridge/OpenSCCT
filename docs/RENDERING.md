@@ -844,6 +844,8 @@ viewport's camera, spark lines, beam strips, `svm_particle.gdshaderinc`). The ru
 `spec/native/emitters.md`; the gameplay effects and their converted assets: `docs/EFFECTS.md`. `Trigger(tag)` is
 Emitter.Trigger; `RenderMap.SetTime` steps every system at 60 Hz up to the scene time (going back restarts them).
 SteeE: 57 sprite emitters (flames, flares and smoke always on; explosions, sparks and debris wait for their events).
+Authored particle collision uses the live client's collision world, so can fragments and other colliding particles
+bounce against the current floors and props. Render-only previews use the map's initial collision geometry.
 The view rejects sprite layers against conservative live-particle bounds before building their quads, and checks
 exact generated bounds before uploading sprite/beam layers. Simulation continues off screen; a returning layer
 uploads the current particles immediately. Colour-only effects stay out of custom shadow-depth cameras.

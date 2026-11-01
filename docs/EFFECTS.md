@@ -137,6 +137,12 @@ wall. `CombatFxView` owns these cues; it no longer repeats the Shocker impact em
 ## Checks
 
 - `tests/OpenScctGame.Logic.Tests/FxParticleTests.cs`: the decoded rules on synthetic emitters.
+- `--svm-smoke=destructible-fx`: SteeE gas-cylinder and can blast motion, animated texture frames, the can's debris
+  mesh, Molotov floor collision, delayed fire and burn expiry. `SVM_DESTRUCTIBLE_FX_PREVIEW=<folder>` also saves six
+  offscreen views when run with a renderer.
+- `tests/OpenScct.Integration.Tests/DestructibleEffectNetworkTests.cs`: actual SteeE gas, can and bottle destruction
+  reaches three clients once and in order through packet loss, duplication and reordering. Map-emitter triggers use
+  the reliable device-event channel, matching `Engine.Emitter.ReplicateTrigger` in the original.
 - `tests/content/test_fx.py`: the step's helpers, and on the reference install the classes, sub-emitters, meshes,
   decals and the Stickess skins it must find.
 - `--svm-smoke=play-fx` (`game/Scripts/Smoke/PlayFxSmoke.cs`): the effects from the real keys on SteeE, checking

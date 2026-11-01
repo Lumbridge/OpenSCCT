@@ -16,6 +16,9 @@ public sealed class GameplayDoc
 {
     public const string RelativePath = "sim/gameplay.json";
 
+    private const string LegacyMercDeathmatchKey = "7";
+    private const string MercDeathmatchKey = "MercDeathmatch";
+
     /// <summary>Properties that name an event (the Tag of the receivers) under the 1.0 rules: only <c>Event</c>.</summary>
     public static readonly IReadOnlyList<string> EventProperties = ["Event"];
 
@@ -70,6 +73,11 @@ public sealed class GameplayDoc
             _modeLookup.TryAdd(mapSettings[i].Key, i);
         }
 
+        if (_modeLookup.TryGetValue(LegacyMercDeathmatchKey, out int legacyMercDeathmatch))
+        {
+            _modeLookup.TryAdd(MercDeathmatchKey, legacyMercDeathmatch);
+        }
+
         var assets = new List<string>();
         var seenAssets = new HashSet<string>(AsciiCaseComparer.Instance);
         foreach (ActorRecord a in all)
@@ -100,7 +108,7 @@ public sealed class GameplayDoc
     /// <summary>GE ID bits live when the round starts (<c>LevelInfo.GEActivationMask</c>).</summary>
     public byte GEActivationMask { get; }
 
-    /// <summary>Per game mode settings (<c>Story</c>, <c>DiskHunt</c>...), in document order.</summary>
+    /// <summary>Per game mode settings (<c>Story</c>, <c>DiskHunt</c>...), preserving stored keys and document order.</summary>
     public IReadOnlyList<KeyValuePair<string, PropBag>> MapSettings { get; }
 
     /// <summary>The stored tag index in document order. Keys use the spelling of the first carrier.</summary>
@@ -129,7 +137,7 @@ public sealed class GameplayDoc
     public IReadOnlyList<ActorRecord> ActorsWithTag(string tag) =>
         _tagLookup.TryGetValue(tag, out int i) ? _tagActors[i] : Array.Empty<ActorRecord>();
 
-    /// <summary>Settings of one game mode (ignoring ASCII case), or null.</summary>
+    /// <summary>Settings of one game mode (ignoring ASCII case), including the legacy numeric MercDeathmatch alias, or null.</summary>
     public PropBag? GetModeSettings(string mode) => _modeLookup.TryGetValue(mode, out int i) ? MapSettings[i].Value : null;
 
     // ---- load ----------------------------------------------------------------------------------------------
@@ -177,12 +185,17 @@ public sealed class GameplayDoc
         foreach (KeyValuePair<string, SvJsonNode> mode in j.ObjectMember(root, "mapSettings", ""))
         {
             string at = $"/mapSettings/{mode.Key}";
-            if (mode.Key.Length == 0 || !char.IsAsciiLetter(mode.Key[0]) || !PropJson.IsIdentifier(mode.Key))
+            PropBag props = PropJson.BagFromJson(j, j.Object(mode.Value, at), at, index);
+            // Legacy PrisD packs store "7" instead of MercDeathmatch. Keep the key for
+            // canonical round trips, sim hashes and the matching ui/mapinfo.json text; only the lookup aliases it.
+            bool legacyMercDeathmatch = mode.Key == LegacyMercDeathmatchKey &&
+                props.TryGetValue("GameModeId", out PropValue id) && id.TryGetInt(out int gameMode) && gameMode == 7;
+            if (!legacyMercDeathmatch && (mode.Key.Length == 0 || !char.IsAsciiLetter(mode.Key[0]) || !PropJson.IsIdentifier(mode.Key)))
             {
                 throw j.Error(at, "is not a game mode name");
             }
 
-            mapSettings.Add(new KeyValuePair<string, PropBag>(mode.Key, PropJson.BagFromJson(j, j.Object(mode.Value, at), at, index)));
+            mapSettings.Add(new KeyValuePair<string, PropBag>(mode.Key, props));
         }
 
         var tagIndex = new List<TagEntry>();

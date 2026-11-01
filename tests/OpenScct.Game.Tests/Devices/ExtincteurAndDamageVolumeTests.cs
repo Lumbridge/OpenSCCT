@@ -2,6 +2,7 @@ using OpenScct.Core;
 using OpenScct.Core.Engine;
 using OpenScct.Core.Uc;
 using OpenScct.Game.SBase;
+using OpenScct.Game.Tests.Combat;
 using Xunit;
 
 namespace OpenScct.Game.Tests.Devices;
@@ -78,16 +79,18 @@ public sealed class ExtincteurAndDamageVolumeTests
         Assert.Equal(SDamageType.SDTBase_NoAnim, v.DamageType);
         s.StepSeconds(2f);
         TestSpy spy = s.Player<TestSpy>(default);
+        TestController controller = (TestController)spy.Controller!;
         Sender crate = s.Spawn(new Sender());
         v.BeginTouch(spy);
         v.BeginTouch(crate);
         s.Step();
-        Assert.Equal([(10, (Pawn?)null, SDamageType.SDTBase_NoAnim)], spy.Damage);
+        Assert.Equal([(10, (Pawn?)null, SDamageType.SDTBase_NoAnim)], controller.PawnDamage);
+        Assert.Empty(spy.Damage);
         s.StepSeconds(2.05f);
-        Assert.Equal(3, spy.Damage.Count);
+        Assert.Equal(3, controller.PawnDamage.Count);
         v.EndTouch(spy);
         s.StepSeconds(2f);
-        Assert.Equal(3, spy.Damage.Count);
+        Assert.Equal(3, controller.PawnDamage.Count);
     }
 
     [Fact]
@@ -100,23 +103,24 @@ public sealed class ExtincteurAndDamageVolumeTests
         });
         TestMerc shooter = s.Player<TestMerc>(default);
         TestSpy victim = s.Player<TestSpy>(default);
+        TestController controller = (TestController)victim.Controller!;
         Sender bottle = s.Spawn(new Sender());
         bottle.Instigator = shooter;
         v.BeginTouch(victim);
         s.StepSeconds(2f);
-        Assert.Empty(victim.Damage);
+        Assert.Empty(controller.PawnDamage);
 
         // The bottle's instigator stands in when the event carries none.
         s.Level.TriggerEvent("moloaie", bottle, null);
         Assert.True(v.bActive);
         Assert.Same(shooter.Controller, v.TriggerController);
         s.StepSeconds(1.5f);
-        Assert.Equal(2, victim.Damage.Count);
+        Assert.Equal(2, controller.PawnDamage.Count);
         s.Level.TriggerEvent("moloaie", bottle, null);
         Assert.False(v.bActive);
         Assert.Null(v.TriggerController);
         s.StepSeconds(2f);
-        Assert.Equal(2, victim.Damage.Count);
+        Assert.Equal(2, controller.PawnDamage.Count);
     }
 
     [Fact]
@@ -152,13 +156,100 @@ public sealed class ExtincteurAndDamageVolumeTests
         s.StepSeconds(3f);
         v.BeginTouch(a);
         s.Step();
-        Assert.Single(a.Damage);
+        Assert.Single(((TestController)a.Controller!).PawnDamage);
         s.StepSeconds(0.5f);
         v.BeginTouch(b);
         Assert.Same(b, v.LastTouched);
         Assert.Equal(0f, v.LastDamageTime);
         s.Step();
-        Assert.Equal(2, a.Damage.Count);
-        Assert.Single(b.Damage);
+        Assert.Equal(2, ((TestController)a.Controller!).PawnDamage.Count);
+        Assert.Single(((TestController)b.Controller!).PawnDamage);
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void FireDamagesARealPlayerEverySecondAndStopsWhenUntriggered(bool spy)
+    {
+        var s = new CombatScene();
+        (_, SBasePawn victim) = s.Player(spy, V.At(0f, 0f, 100f));
+        s.Run(2f);
+        SDamageVolume fire = s.Level.SpawnActor(new SDamageVolume { HitPoints = 30, bNoDelete = false }, victim.Location, default)!;
+        fire.BeginTouch(victim);
+        fire.eventTrigger(null, null);
+        int health = victim.Health;
+        s.World.Step();
+        Assert.Equal(health - 30, victim.Health);
+        s.Run(0.5f);
+        Assert.Equal(health - 30, victim.Health);
+        s.Run(0.55f);
+        Assert.Equal(health - 60, victim.Health);
+        fire.eventUnTrigger(null, null);
+        s.Run(1.1f);
+        Assert.Equal(health - 60, victim.Health);
+    }
+
+    [Theory]
+    [InlineData("s_GrabbedFromLedge_Begin")]
+    [InlineData("s_FallAfterGrabbedFromLedge")]
+    [InlineData("s_Dead")]
+    [InlineData("GameEnded")]
+    public void VolumeIgnoresProtectedControllerStates(string state)
+    {
+        (DeviceScene s, SDamageVolume v) = Volume(v => v.bActive = true);
+        TestMerc victim = s.Player<TestMerc>(default);
+        var controller = (TestController)victim.Controller!;
+        controller.GotoState(state);
+        Assert.True(controller.IsInState(state));
+        Assert.False(controller.bIsDamageVolumeSensitive());
+        v.BeginTouch(victim);
+        s.StepSeconds(1.1f);
+        Assert.Empty(controller.PawnDamage);
+    }
+
+    [Fact]
+    public void VolumeOnAClientNeverAppliesDamage()
+    {
+        (DeviceScene s, SDamageVolume v) = Volume(v => v.bActive = true);
+        TestSpy victim = s.Player<TestSpy>(default);
+        v.Role = ENetRole.ROLE_SimulatedProxy;
+        v.BeginTouch(victim);
+        s.StepSeconds(2f);
+        Assert.Empty(((TestController)victim.Controller!).PawnDamage);
+        Assert.Empty(victim.Damage);
+    }
+
+    [Fact]
+    public void MercOnlyVolumesKeepTheirAuthoredClassRestriction()
+    {
+        (DeviceScene s, SDamageVolume v) = Volume(v =>
+        {
+            v.bActive = true;
+            v.DamagedClass = new ClassRef("SBase.SPAWNDEFENSE");
+        });
+        TestSpy spy = s.Player<TestSpy>(default);
+        TestMerc merc = s.Player<TestMerc>(default);
+        v.BeginTouch(spy);
+        v.BeginTouch(merc);
+        s.StepSeconds(1.1f);
+        Assert.Empty(((TestController)spy.Controller!).PawnDamage);
+        Assert.Single(((TestController)merc.Controller!).PawnDamage);
+    }
+
+    [Fact]
+    public void ExtinguisherVolumesStillDamageTheirNonPawnTargets()
+    {
+        DeviceScene s = DeviceScene.Create();
+        var v = s.Add(new SDamageVolume
+        {
+            bActive = true,
+            DamagedClass = new ClassRef("SBase.SExtincteur"),
+        });
+        SExtincteur extinguisher = s.Add(new SExtincteur());
+        s.Begin();
+        v.BeginTouch(extinguisher);
+        s.StepSeconds(1.1f);
+        Assert.True(extinguisher.IsInState("s_Used"));
+        Assert.IsType<SExtincteurEmitter>(extinguisher.Emitter);
     }
 }

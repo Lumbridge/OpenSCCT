@@ -4,6 +4,7 @@ using System.IO;
 using System.Text.Json;
 using Godot;
 using OpenScct.Core;
+using OpenScct.Physics.Collision;
 using OpenScct.Provenance;
 using OpenScctGame.Render.Data;
 
@@ -26,6 +27,7 @@ public sealed class Emitters : IParticleAssets
     private readonly RenderMap _map;
     private float _time;
     private readonly Plane[] _frustum = new Plane[6];
+    private ICollisionWorld? _collision;
 
     /// <summary>Shorter rests wait for the next frame (float noise of the scene time).</summary>
     private const float MinStep = 1e-5f;
@@ -89,6 +91,8 @@ public sealed class Emitters : IParticleAssets
             _byId.TryAdd(e.Id, entry);
             Light(entry);
         }
+
+        SetCollisionWorld(map.Zones);
     }
 
     public Node3D Root { get; }
@@ -123,6 +127,43 @@ public sealed class Emitters : IParticleAssets
 
     /// <summary>True when the map has a drawn Emitter actor of this id.</summary>
     public bool Has(string id) => _byId.ContainsKey(id);
+
+    /// <summary>
+    /// Uses the live client collision for authored particle bounces, including moving and destroyed props. Before
+    /// a play world is attached, previews use the map's collision at its initial transforms.
+    /// </summary>
+    public void SetCollisionWorld(ICollisionWorld? world)
+    {
+        if (ReferenceEquals(world, _collision))
+        {
+            return;
+        }
+
+        _collision = world;
+        ParticleTrace? trace = world is null ? null : Trace;
+        foreach (Entry e in _entries)
+        {
+            e.Sim.Trace = trace;
+        }
+    }
+
+    private bool Trace(FVector start, FVector end, out FVector hit, out FVector normal)
+    {
+        if (_collision is { } world &&
+            world.LineCheck(out FCheckResult result, null, end, start, FVector.Zero, (ETraceFlags)ParticleK.TraceFlags) && result.bHit)
+        {
+            hit = result.Location;
+            normal = result.Normal;
+            return true;
+        }
+
+        hit = default;
+        normal = default;
+        return false;
+    }
+
+    /// <summary>The particle state of one map emitter, for render diagnostics.</summary>
+    internal ParticleSystemSim? SimulationOf(string id) => _byId.TryGetValue(id, out Entry? e) ? e.Sim : null;
 
     /// <summary>
     /// Moves the Emitter actor <paramref name="id"/> (ignoring case) to where its simulated actor is now: riding a

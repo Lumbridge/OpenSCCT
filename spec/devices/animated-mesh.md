@@ -158,8 +158,8 @@ flare sprites (`sfx.Flare.def_flare`, DrawScale 2): aircraft warning lamps on th
   would replay the whole sequence and fire `tueletube` and `blast01` again; during the sequence it would only set
   `bShouldContinue`, which has no effect on a single one-shot sequence.
 - `s_Wait.Trigger` keeps the old `Instigator` when the new trigger has none.
-- The attached flare actors are `bStatic` and not `bMovable` by Light class default. If the engine refuses to attach
-  a static actor, the flares stay where they were placed (on the boom's starting line at Z 1933).
+- The attached flare actors are `bStatic` and not `bMovable` by Light class default, but the native attachment
+  path accepts them. Their render-only references must still follow the crane's bones.
 - `AnimEnd` arrives once per end on the authority; on clients `AnimEnd` would also be called by the engine, but the
   state functions are not simulated and are absorbed.
 
@@ -178,8 +178,7 @@ flare sprites (`sfx.Flare.def_flare`, DrawScale 2): aircraft warning lamps on th
 
 ## Open questions
 
-1. Does `AttachToBone` accept a `bStatic`, non-movable Light? Scenario: watch the five flares at the end of the crane
-   sequence; if they moved with the boom, attachments ignore `bStatic`.
+1. Resolved by native inspection below: static, non-movable Light actors are accepted by `AttachToBone`.
 2. Does a dedicated server update skeletal animation for this actor (needed for notifies and `AnimEnd`)? Scenario:
    run the crane chain on a dedicated server and check the duct falls and the wall swaps.
 3. `PHYS_RootMotion` on an actor whose root bone track is a single key: confirm it does not move the actor.
@@ -187,6 +186,39 @@ flare sprites (`sfx.Flare.def_flare`, DrawScale 2): aircraft warning lamps on th
    root motion, versus the plan's 11.28 s).
 
 ### Resolved
+
+1. Static light attachment (2026-11-01): the game thunk at `0x10a27330` calls `0x10991840`, which validates the
+   skeletal mesh, bone index and live attachment object, writes `AttachmentBone` at offset `0x2b8`, and calls
+   the attachment's `SetBase` virtual slot `0xbc`. The base implementation at `0x109913a0` prevents base cycles
+   but does not reject a static or non-movable actor. Thus the five crane flare references cannot be dropped
+   merely because the converter stores plain lights only in the render pack. `AttachedEffects` resolves those
+   authored map asset references directly against render lights and samples the corresponding bone each frame.
+   `MapLightSprites` draws the visible `DT_Sprite` lights using the exported texture and material blend; the
+   crane's `LT_None` lamps remain additive sprites rather than illuminating lights or coronas. The same path
+   restores 586 visible Light sprites across 14 maps, including sky-zone lamps and moons. `play-crane`
+   verifies the five sprite nodes and positions through the authored switch/notify/wall chain;
+   `map-light-sprites` verifies representative additive, translucent and masked sprites, and compares
+   rendered pixels with those nodes shown and hidden when run with a graphics device.
+   Static evidence: original game SHA-256 `a98873aaec1de21fdcccc0afb9985e3ddcf38a9ddce1207214872d6428ec9950`;
+   REA observations `ev_122c6005ca1c5c01a6a11930458a70aa1d5e54501a12ae8baf791eb35807d16a`
+   (attachment body), `ev_75a56f97d3ed0edb081e4a242d90bc55bd431613d6c8fad0ca55bec0deb54269`
+   (instructions), and `ev_3c2a8304a0ad879ebf424d1b03754e5ced85e4b9b645c9c7a8e180b8d2e90ea0`
+   (SetBase bytes, corroborating the existing decoded listing). Local evidence bundle:
+   `local/map-parity-attach-to-bone-evidence.json`. This establishes the native acceptance path, not a captured
+   original-game rendering comparison.
+
+2. Visible Light sprite geometry and lighting (2026-11-01): `FDynamicActor::Render` at `0x10a14fe0` dispatches
+   `DT_Sprite` with a texture to `0x10a142d0`. That routine forms the quad from the two view axes, DrawScale and
+   DrawScale3D X/Y, with half the texture's size on each axis. It supplies constant neutral vertex colour
+   (RGB 0.5, alpha 1), enables static vertex colouring and performs no per-actor light selection or `bUnlit`
+   test. Applying mesh lighting instead made the four GAR_Moon sprites black in their zero-ambient sky zones;
+   the port's sprite materials therefore use the fullbright path. Texture alpha/masking and Actor.Style still
+   select the blend. All 586 current sprites use square textures and default ScaleGlow. REA observations
+   `ev_ee022816af8bc35bc805df04f397d017d8b6cf4c9cbce49d6cf69ce018feb76d` (pseudocode) and
+   `ev_f390165a530eec41433dbb3c9881187da241aa47b4b55e00d3d448d402e3baf5` (instructions), from the same
+   binary SHA-256 above, are retained in `local/map-parity-light-sprite-evidence.json`. The graphical smoke
+   confirms rendered pixels for SteeE's additive flare, ClarD's translucent sky lights and StatE's masked moon;
+   an original-game frame comparison remains unverified.
 
 4. (rule) The end rule for a non-looping clip. Resolved: the clip ends at AnimLast = 1 - 1/N, after (N - 1) /
    (N x normalised rate) seconds, AnimEnd in that tick and one tick later in root motion. Rule 9. Evidence: anim.md

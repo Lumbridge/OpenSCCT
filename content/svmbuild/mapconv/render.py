@@ -77,6 +77,25 @@ def _json_bytes(doc: Any) -> bytes:
     return canonical.dump_file(_clean(doc), ascii_keys=False)
 
 
+def _sprite_blend(material, style: int) -> str:
+    """Actor.Style overrides a sprite's material; STY_Normal keeps the resolved Texture/FinalBlend blend."""
+    override = {0: "invisible", 2: "masked", 3: "additive", 4: "modulate", 5: "translucent",
+                6: "additive", 7: "darken", 9: "translucent"}
+    if style in override:
+        return override[style]
+    if material.invisible:
+        return "invisible"
+    if material.additive:
+        return "additive"
+    if material.darken or material.modulate == "darken":
+        return "darken"
+    if material.modulate:
+        return "modulate"
+    if material.translucent:
+        return "translucent"
+    return "masked" if material.masked else "opaque"
+
+
 class RenderBuilder:
     def __init__(self, src: MapSource, work: Path, gameplay_ids: set):
         self.src = src
@@ -405,7 +424,8 @@ class RenderBuilder:
     def _typed(self, info: ActorInfo) -> dict:
         return bag_to_json(info.props, self.src.resolve, self.src.notes, info.name)
 
-    def build_lighting(self, scene: dict, zone_index: Dict[str, int], lightmaps: List[str]) -> dict:
+    def build_lighting(self, scene: dict, zone_index: Dict[str, int], lightmaps: List[str],
+                       sprites: Optional[Dict[str, dict]] = None) -> dict:
         by_name = {a.name: a for a in self.src.actors}
         lights, zones = [], []
         for a in scene["actors"]:
@@ -415,6 +435,8 @@ class RenderBuilder:
                 entry["gameplay"] = a["name"] in self.gameplay_ids
                 if info is not None:
                     entry["props"] = self._typed(info)
+                if sprites and a["name"] in sprites:
+                    entry["sprite"] = sprites[a["name"]]
                 lights.append(entry)
             elif a["kind"] == "zone":
                 entry = dict(a)
@@ -425,6 +447,62 @@ class RenderBuilder:
         self.stats["lights"] = len(lights)
         return {"lights": lights, "zones": zones, "sky": scene.get("sky"), "look": scene.get("look"),
                 "lightmaps": lightmaps}
+
+    def build_light_sprites(self, tex_dir: Path) -> Dict[str, dict]:
+        """Visible DT_Sprite lights have their own world sprite, distinct from bCorona. Export its resolved
+        material texture even when no mesh/emitter uses it (ClarD street lights and map sky moons)."""
+        from scctpkg import export_gltf  # noqa: PLC0415
+        from scctpkg.materials import MaterialResolver  # noqa: PLC0415
+
+        resolver = MaterialResolver(self.src.pset)
+        tex_uri: Dict[str, Optional[str]] = {}
+        sprites = {}
+        for info in self.src.actors:
+            if info.category not in ("render", "gameplay") or not self.src.db.is_a(info.cls, "Engine.Light") or \
+                    self.src.flag(info, "bHidden") or self.src.flag(info, "bCorona") or self.src.value(info, "DrawType", 1) != 1:
+                continue
+            ref = self.src.value(info, "Texture")
+            if not isinstance(ref, Ref) or ref.ref == 0 or not ref.path or ref.is_class:
+                continue
+            pkg, export = self.src.ref_export(ref)
+            if pkg is None or export is None:
+                self.src.notes.add("light-sprite-texture", f"{info.name}: {ref.path}")
+                continue
+            res = resolver.resolve(pkg, export.index + 1)
+            if res.texture is None or res.texture.image is None:
+                self.src.notes.add("light-sprite-texture", f"{info.name}: {ref.path}")
+                continue
+            uri = export_gltf._ensure_texture(res, tex_dir, tex_uri)
+            if uri is None:
+                self.src.notes.add("light-sprite-texture", f"{info.name}: {ref.path}")
+                continue
+            texture = res.texture
+            style = int(self.src.value(info, "Style", 1))
+            entry = {"source": ref.path, "texture_uri": uri,
+                     "width": int(texture.props.get("USize") or texture.width),
+                     "height": int(texture.props.get("VSize") or texture.height),
+                     "blend": _sprite_blend(res, style), "style": style,
+                     "two_sided": bool(res.two_sided), "unlit": bool(res.unlit),
+                     "draw_scale": float(self.src.value(info, "DrawScale", 1.0)),
+                     "draw_scale3d": _ue_vector(self.src.value(info, "DrawScale3D", {"X": 1, "Y": 1, "Z": 1}))}
+            if export.class_name == "FinalBlend":
+                material = resolver._props(pkg, export)
+                entry.update({"framebuffer_blending": int(material.get("FrameBufferBlending", 0)),
+                              "alpha_test": bool(material.get("AlphaTest", False)),
+                              "alpha_ref": int(material.get("AlphaRef", 0)),
+                              "z_write": bool(material.get("ZWrite", True)),
+                              "z_test": bool(material.get("ZTest", True))})
+            if res.uv_anim:
+                entry["uv_anim"] = res.uv_anim
+            if res.uv_matrix:
+                entry["uv_matrix"] = list(res.uv_matrix)
+            if res.flipbook:
+                flipbook = export_gltf._flipbook_png(res.key, res.flipbook, tex_dir, tex_uri)
+                if flipbook:
+                    entry["flipbook"] = flipbook
+            sprites[info.name] = entry
+        self.stats["lightSprites"] = len(sprites)
+        return sprites
 
     def _sub_json(self, r: Ref, cls: Optional[str], decoded: dict, textures: set) -> dict:
         props = bag_to_json(decoded, default_resolver, self.src.notes, r.path)
@@ -585,6 +663,7 @@ class RenderBuilder:
         gltf, binary, scene = self.export()
         tex_dir = self.work / self.src.name / "textures"
         projectors = self.build_projectors(scene, tex_dir)   # writes its PNGs before the textures are collected
+        light_sprites = self.build_light_sprites(tex_dir)
         self.write_spawn_particle_textures(tex_dir)
         textures = {}
         renamed: Dict[str, str] = {}
@@ -604,7 +683,8 @@ class RenderBuilder:
         files.update(textures)
         lightmaps = sorted(k for k in textures if "_lightmap" in k)
         files["materials.json"] = _json_bytes(self.build_materials(gltf, scene, rename))
-        files["lighting.json"] = _json_bytes(self.build_lighting(scene, zone_index, lightmaps))
+        files["lighting.json"] = _json_bytes(self.build_lighting(scene, zone_index, lightmaps,
+                                                                _replace_strings(light_sprites, renamed)))
         files["fx.json"] = _json_bytes(self.build_fx(scene, set(textures)))
         files["projectors.json"] = _json_bytes(_replace_strings(projectors, renamed))
         files["lightbeams.json"] = _json_bytes(self.build_light_beams(scene))

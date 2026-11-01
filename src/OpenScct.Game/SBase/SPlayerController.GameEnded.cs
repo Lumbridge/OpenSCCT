@@ -12,8 +12,8 @@ public partial class SPlayerController
 {
     /// <remarks>
     /// The state ignores GotoState, MirrorState and ChangeState, so once entered the controller stays here until the
-    /// map changes. Not ported here: the ignored sight and hearing functions, bIsDamageVolumeSensitive (no damage
-    /// volume hook yet) and the tutorial branch of the end menu (profile functions). Damage is ignored by the combat
+    /// map changes. Not ported here: the ignored sight and hearing functions and the tutorial branch of the end
+    /// menu (profile functions). Damage is ignored by the combat
     /// dispatch.
     /// </remarks>
     [Uc("SBase.SPlayerController.GameEnded")]

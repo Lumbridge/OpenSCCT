@@ -7,7 +7,7 @@ namespace OpenScctGame.Smoke;
 public static class SmokeTests
 {
     public static IReadOnlyList<string> Names { get; } =
-        [SpyPerspectiveSmoke.TestName, MineLightSmoke.TestName, CamnetDisabledSmoke.TestName, AmmoMenuHudSmoke.TestName, LandingBlendSmoke.TestName, GlassBlendSmoke.TestName, ScopeLifecycleSmoke.TestName, SidearmReloadPoseSmoke.TestName, MenuEscapeSmoke.TestName, FittedSkinsSmoke.TestName, ViewmodelLightSmoke.TestName, StatsSmoke.TestName, StartupWeaponsSmoke.TestName, LaserAlignmentSmoke.TestName, BootSmoke.TestName, TestBoxSmoke.TestName, SelfTestFailSmoke.TestName, SteeERenderSmoke.TestName, GoldenSmoke.TestName,
+        [MapLightSpritesSmoke.TestName, DestructibleFxSmoke.TestName, SpyPerspectiveSmoke.TestName, MineLightSmoke.TestName, CamnetDisabledSmoke.TestName, AmmoMenuHudSmoke.TestName, LandingBlendSmoke.TestName, GlassBlendSmoke.TestName, ScopeLifecycleSmoke.TestName, SidearmReloadPoseSmoke.TestName, MenuEscapeSmoke.TestName, FittedSkinsSmoke.TestName, ViewmodelLightSmoke.TestName, StatsSmoke.TestName, StartupWeaponsSmoke.TestName, LaserAlignmentSmoke.TestName, BootSmoke.TestName, TestBoxSmoke.TestName, SelfTestFailSmoke.TestName, SteeERenderSmoke.TestName, GoldenSmoke.TestName,
             JoinFocusSmoke.TestName, ControllerDefaultsSmoke.TestName, Hud.HudSmoke.TestName, RainHudSmoke.TestName, AudioSmoke.TestName, PlaySpySmoke.TestName, PlayCraneSmoke.TestName,
             PlayDiskHuntSmoke.TestName, PlayDeathmatchSmoke.TestName, Voice.VoiceSmoke.TestName,
             Online.OnlineSmoke.TestName, Online.NetLobbySmoke.TestName, Online.NetLobbySmoke.GuestTestName, Online.NetBotsSmoke.TestName, Online.NetBotsSmoke.GuestTestName, GadgetsSmoke.TestName, PlayBotsSmoke.TestName, UI.InGameMenuSmoke.TestName,
@@ -30,6 +30,8 @@ public static class SmokeTests
 
     public static SmokeTest? Create(string name) => name switch
     {
+        MapLightSpritesSmoke.TestName => new MapLightSpritesSmoke(),
+        DestructibleFxSmoke.TestName => new DestructibleFxSmoke(),
         SpyPerspectiveSmoke.TestName => new SpyPerspectiveSmoke(),
         MercImmunityHudSmoke.TestName => new MercImmunityHudSmoke(),
         MercStatusVisualSmoke.TestName => new MercStatusVisualSmoke(),

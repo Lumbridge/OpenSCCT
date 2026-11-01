@@ -560,6 +560,12 @@ vec3 svm_zone_amb(float zone) {
 #endif
 
 void vertex() {
+#ifdef BILLBOARD
+	// DT_Sprite actors face the camera drawing them (main or sky), while retaining world-space lighting/vision.
+	mat3 view_to_local = inverse(mat3(MODEL_MATRIX)) * mat3(INV_VIEW_MATRIX);
+	VERTEX = view_to_local * VERTEX;
+	NORMAL = view_to_local * NORMAL;
+#endif
 	v_vision = CUSTOM0.w > 1.5 ? vec4(CUSTOM0.xyz, CUSTOM0.w - 2.0) : svm_vision_actor;
 #if defined(LIGHT_LIGHTMAP) || defined(LIGHT_VERTEX) || defined(LIGHT_ACTOR)
 	v_wpos = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;

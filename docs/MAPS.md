@@ -5,6 +5,9 @@ with bots by the map sweep, and drawn once with a window from a spawn. This page
 core (the same cause on every map, fixed or listed for the owner of that area) and which are map-specific (left for
 the per-map work).
 
+The [2026-11-01 map parity sweep](MAP-PARITY-2026-11-01.md) checks source actor retention, event indexes,
+interactables, elevator routes and destructible effects across the installed content, with explicit coverage limits.
+
 ## The map catalog (API for the menus)
 
 `OpenScct.Server.MapCatalog` (src/OpenScct.Server/Maps) is what the host screen, the lobby and the launchers ask

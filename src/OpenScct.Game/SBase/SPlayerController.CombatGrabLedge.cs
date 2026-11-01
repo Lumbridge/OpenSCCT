@@ -386,7 +386,6 @@ public partial class SPlayerController
     /// repositioning ends; a bump on the way, 1.5 s still repositioning, the spy gone or 3 s without the pull abort.
     /// No firing or gadgets meanwhile.
     /// </summary>
-    /// <remarks>Not ported: bIsDamageVolumeSensitive (false here), damage volumes have no port.</remarks>
     [Uc("SBase.SPlayerController.s_GrabbedFromLedge_Begin")]
     public class s_GrabbedFromLedge_Begin : s_GrabFromLedgeBase, IPlayerTick, IPlayerMove, ITopSynchro, INotifyBump, IGrabAborted,
         IFire, IAltFire, IGadgetQuickChoice, IGadLaserSwitch, IGadTorcheSwitch, ISwitchBinocularVision, ISwitchHeadset, ISwitchROF
@@ -609,7 +608,7 @@ public partial class SPlayerController
     /// </summary>
     /// <remarks>
     /// The original extends s_BlastFallAfterObstacle (its damage handler is the Blast one by name) but lists its own
-    /// ignores without StickyBlast, so a sticky-skinned head still blasts. Not ported: bIsDamageVolumeSensitive.
+    /// ignores without StickyBlast, so a sticky-skinned head still blasts.
     /// </remarks>
     [Uc("SBase.SPlayerController.s_FallAfterGrabbedFromLedge")]
     public class s_FallAfterGrabbedFromLedge : UcActorState, IPlayerMove, IMyNotifyLanded, INotifyBump, IFire, IAltFire,

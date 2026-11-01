@@ -13,7 +13,7 @@ namespace OpenScct.Server;
 /// The device ports run those calls where the server runs them and raise presentation events (<see cref="SimEvent"/>:
 /// music, sounds, emitters, notifies), so this relay sends the server's presentation events of devices whose client
 /// copies run no script (map actors that are dumb proxies on clients, server-only actors, music triggers) to every
-/// client, which adds them to its own world's events. Music goes reliably, the rest unreliably.
+/// client, which adds them to its own world's events. Music and emitter triggers go reliably, the rest unreliably.
 /// <para>
 /// Wire form (hand-written LevelInfo functions <see cref="FunctionName"/> and <see cref="ReliableFunctionName"/>):
 /// kind byte, name text, source actor, location (exact floats), rotation (ints), slot, then volume, radius and
@@ -137,7 +137,10 @@ public sealed class NetDeviceEvents
                 continue;
             }
 
-            bool reliable = e.Kind is SimEventKind.PlayMusic or SimEventKind.StopMusic;
+            // Engine.Emitter declares ReplicateTrigger reliable. These events toggle sub-emitters, so a lost
+            // or reordered burst can hide a destruction effect or leave a looping hazard in the wrong state.
+            bool reliable = e.Kind is SimEventKind.PlayMusic or SimEventKind.StopMusic ||
+                (source is Emitter && e.Kind == SimEventKind.Notify && e.What == Emitter.NAME_ReplicateTrigger);
             foreach (NetConnection connection in _driver.ClientConnections)
             {
                 if (connection.State != EConnectionState.USOCK_Open || !connection.bJoined ||

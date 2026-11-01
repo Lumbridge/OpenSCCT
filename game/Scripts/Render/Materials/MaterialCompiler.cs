@@ -264,10 +264,10 @@ public sealed class MaterialCompiler
     public const string SeeThroughParameter = "vision_see_through";
 
     /// <summary>A material built from loose flags, for meshes outside the map (characters, animated props).</summary>
-    public Material Build(MaterialEntry entry, LightSource light)
+    public Material Build(MaterialEntry entry, LightSource light, bool billboard = false)
     {
         ArgumentNullException.ThrowIfNull(entry);
-        return Compose(entry, light);
+        return Compose(entry, light, billboard: billboard);
     }
 
     private Material? Build(string name, LightSource light)
@@ -282,7 +282,7 @@ public sealed class MaterialCompiler
         return Compose(entry, light);
     }
 
-    private ShaderMaterial Compose(MaterialEntry entry, LightSource light, bool seeThroughPass = false)
+    private ShaderMaterial Compose(MaterialEntry entry, LightSource light, bool seeThroughPass = false, bool billboard = false)
     {
         // Unlit materials draw fullbright; self-illumination keeps the lit diffuse under its mask (UE2 lerp).
         if (entry.Unlit && entry.SelfIllum is null)
@@ -311,6 +311,7 @@ public sealed class MaterialCompiler
         CombineEntry? combine = entry.Combine;
         FlipbookEntry? flipbook = combine is null ? entry.Flipbook : null;
         var extras = new List<string>();
+        AddIf(extras, billboard, "BILLBOARD");
         AddIf(extras, combine is not null && entry.LightBeforeCombine && light != LightSource.None, "COMBINE_LIGHT_FIRST");
         AddIf(extras, selfIllum, "SELF_ILLUM");
         AddIf(extras, selfIllumMask, "SELF_ILLUM_MASK");

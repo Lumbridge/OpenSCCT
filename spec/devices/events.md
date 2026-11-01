@@ -116,7 +116,8 @@ depends on them. They are not yet confirmed in this binary (see Open questions).
   `bNetworkTrigger` (set on 1,304 of the map emitters) the emitter's `PreBeginPlay` makes it an always-relevant
   simulated proxy so the call reaches clients; without it only the server's own screen shows the burst. The rewrite
   keeps map emitters unreplicated: the authority raises a `ReplicateTrigger` notify of the emitter, the device-event
-  relay sends it to every client, and each machine's view fires the drawn particle system of that map id. A client
+  relay sends it reliably to every client, matching the original's reliable function declaration, and each machine's
+  view fires the drawn particle system of that map id. Reliability also preserves the order of sub-emitter toggles. A client
   copy (Role below AutonomousProxy) absorbs a direct Trigger (rule 7). Event-triggered emitters are the largest
   receiver set after movers and props: 1,511 event edges on 44 maps (debris on prop damage stages, SMagicEvent
   sequences, presence triggers, switches).
