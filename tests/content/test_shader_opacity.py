@@ -1,6 +1,27 @@
 """Shader opacity uses alpha even when constant; RGB must never become the coverage mask."""
+import builtins
+import io
+from pathlib import Path
+
+import pytest
 from PIL import Image
 from svmbuild.sources.env import import_formats
+
+
+@pytest.fixture(autouse=True)
+def synthetic_actor_defaults(monkeypatch):
+    # export_gltf imports level metadata even for pure image operations. These tests
+    # never extract actors, so no original-game class defaults are needed on CI.
+    original_open = builtins.open
+
+    def open_for_image_helpers(file, *args, **kwargs):
+        if isinstance(file, (str, Path)):
+            path = Path(file)
+            if path.name == "class_defaults.json" and path.parent.name == "scctpkg" and not path.exists():
+                return io.StringIO("{}")
+        return original_open(file, *args, **kwargs)
+
+    monkeypatch.setattr(builtins, "open", open_for_image_helpers)
 
 
 def test_constant_shader_opacity_is_not_replaced_with_luminance():
