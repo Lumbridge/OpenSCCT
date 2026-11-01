@@ -213,7 +213,7 @@ public sealed partial class CollisionWorld
     /// height e.Z against static meshes) overlaps something at <paramref name="p"/>. PointCheck answers differently for
     /// rotated meshes (it tests the box's bounds in the mesh's frame); this is the check of where movement can end.
     /// </summary>
-    internal bool OverlapMoveShape(out FCheckResult hit, Actor? source, FVector p, FVector e, ETraceFlags flags) =>
+    public bool OverlapMoveShape(out FCheckResult hit, Actor? source, FVector p, FVector e, ETraceFlags flags) =>
         Overlap(out hit, source, null, -1, p, e, flags, bruteForce: false, moveShape: true);
 
     /// <summary>An overlap test of a box (or point) against everything the flags select.</summary>

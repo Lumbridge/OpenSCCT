@@ -98,7 +98,7 @@ public sealed record NavProfile
 public sealed class NavGraph
 {
     /// <summary>Format of <see cref="Write"/>; a cache with another version is rebuilt.</summary>
-    public const int FormatVersion = 7;
+    public const int FormatVersion = 9;
 
     private readonly NavNode[] _nodes;
     private readonly int[] _edgeStart;
@@ -317,10 +317,11 @@ public sealed class NavGraph
     /// traversal) times <c>1 + stealth x light</c> of the node it reaches (when the graph has light), plus
     /// <paramref name="penalty"/>(node) when given. Links in <paramref name="badLinks"/> and edges (by index) in
     /// <paramref name="badEdges"/> are not taken. Fills <paramref name="path"/> with the steps (start excluded); false
-    /// when unreachable.
+    /// when unreachable. With <paramref name="allowPartial"/>, return a route toward an unreachable goal as far
+    /// as the connected graph permits. The caller must check the endpoint before treating it as arrival.
     /// </summary>
     public bool FindPath(int from, int to, List<NavStep> path, float stealth = 0f, Func<int, float>? penalty = null,
-        IReadOnlySet<int>? badLinks = null, float maxCost = float.MaxValue, IReadOnlySet<int>? badEdges = null)
+        IReadOnlySet<int>? badLinks = null, float maxCost = float.MaxValue, IReadOnlySet<int>? badEdges = null, bool allowPartial = false)
     {
         ArgumentNullException.ThrowIfNull(path);
         path.Clear();
@@ -350,6 +351,7 @@ public sealed class NavGraph
         stamp[from] = search;
         _open.Enqueue(from, Heuristic(from, to));
         bool found = from == to;
+        int closest = from;
         while (!found && _open.TryDequeue(out int n, out float priority))
         {
             if (n == to)
@@ -361,6 +363,11 @@ public sealed class NavGraph
             if (priority - Heuristic(n, to) > g[n] + 0.01f)
             {
                 continue;
+            }
+
+            if (allowPartial && Heuristic(n, to) < Heuristic(closest, to))
+            {
+                closest = n;
             }
 
             for (int e = _edgeStart[n]; e < _edgeStart[n + 1]; e++)
@@ -402,7 +409,11 @@ public sealed class NavGraph
 
         if (!found)
         {
-            return false;
+            if (!allowPartial || closest == from)
+            {
+                return false;
+            }
+            to = closest;
         }
 
         for (int n = to; n != from; n = came[n])

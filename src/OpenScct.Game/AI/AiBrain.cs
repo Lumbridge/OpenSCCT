@@ -58,6 +58,17 @@ public abstract class AiBrain
     /// <summary>One tick: decide when due, then act on the goal.</summary>
     public void Think(float now, ref AiPlan plan)
     {
+        // Finish a traversal before a tactical decision can clear its path halfway up a spawn fence.
+        if (Follower.ActiveLink >= 0 || NavFollower.OnFence(Pawn))
+        {
+            NavCommand command = Follower.Steer(Pawn, now, Pc.Rotation.Yaw & 0xFFFF, sneak: false);
+            plan.Keys = command.Keys;
+            plan.Yaw = command.Yaw;
+            plan.Tolerance = command.Tolerance;
+            plan.Crouched = command.Crouched ?? plan.Crouched;
+            return;
+        }
+
         if (now >= _nextDecision)
         {
             _nextDecision = now + Difficulty.DecisionPeriod;

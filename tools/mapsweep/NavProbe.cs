@@ -42,6 +42,34 @@ internal static class NavProbe
         int start = g.NearestNode(p, height, 400f);
         Console.WriteLine(string.Create(CultureInfo.InvariantCulture, $"{map} {(merc ? "merc" : "spy")} graph {g.NodeCount} nodes, node at {MapSweeper.Fmt(p)}: {start}"));
         float[] costs = start >= 0 ? g.CostsFrom(start) : [];
+        int reached = 0;
+        FVector reachMin = p, reachMax = p;
+        for (int n = 0; n < costs.Length; n++)
+        {
+            if (costs[n] >= float.MaxValue)
+            {
+                continue;
+            }
+            reached++;
+            FVector f = g.Node(n).Floor;
+            reachMin = new FVector(MathF.Min(reachMin.X, f.X), MathF.Min(reachMin.Y, f.Y), MathF.Min(reachMin.Z, f.Z));
+            reachMax = new FVector(MathF.Max(reachMax.X, f.X), MathF.Max(reachMax.Y, f.Y), MathF.Max(reachMax.Z, f.Z));
+        }
+        Console.WriteLine($"reachable {reached} bounds {MapSweeper.Fmt(reachMin)} - {MapSweeper.Fmt(reachMax)}");
+        foreach (var terminal in world.Level.AllActors<OpenScct.Game.SBase.SComputerObjectiveTrigger>())
+        {
+            Pawn pawn = merc ? new OpenScct.Game.SBase.SPAWNDEFENSE() : new OpenScct.Game.SBase.SPawnAttaque();
+            terminal.GetUseSpot(pawn, out FVector spot, out _);
+            int target = g.NearestNode(new FVector(spot.X, spot.Y, terminal.Location.Z));
+            if (target >= 0)
+            {
+                FVector floor = g.Node(target).Floor;
+                var candidates = new List<int>();
+                g.NodesNear(floor, 300f, candidates);
+                int reachablePosts = candidates.FindAll(n => costs.Length > n && costs[n] < float.MaxValue && g.Node(n).Standing).Count;
+                Console.WriteLine($"terminal {terminal.TriggerName} at {MapSweeper.Fmt(terminal.Location)} use floor {MapSweeper.Fmt(floor)} reachable {costs.Length > target && costs[target] < float.MaxValue} nearby reachable standing nodes {reachablePosts}");
+            }
+        }
         float spacing = g.Profile.Spacing;
         var sb = new StringBuilder();
         var near = new List<int>();

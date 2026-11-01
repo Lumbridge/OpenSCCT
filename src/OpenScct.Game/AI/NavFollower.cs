@@ -49,6 +49,7 @@ public sealed class NavFollower
     private int _next;
     private FVector _goal;
     private bool _hasGoal;
+    private bool _partial;
     private float _stealth;
     private Func<int, float>? _penalty;
     private float _progressAt = -1f;
@@ -107,6 +108,10 @@ public sealed class NavFollower
     /// <summary>The traversal link running, or -1.</summary>
     public int ActiveLink => _phase != TPhase.None && _next < _path.Count ? _path[_next].Link : -1;
 
+    /// <summary>The pawn is grabbing, climbing, or crossing a fence, including its root-motion transition.</summary>
+    public static bool OnFence(Pawn pawn) => pawn.Physics == EPhysics.PHYS_OnVerticalPlane ||
+        InState(pawn, "GrabFence") || InState(pawn, "OnTopFence") || InState(pawn, "BackFromTopFence");
+
     /// <summary>The kind of the step being walked.</summary>
     public NavEdgeKind? CurrentKind => _next < _path.Count ? _path[_next].Kind : null;
 
@@ -142,10 +147,10 @@ public sealed class NavFollower
         _replans = 0;
         Arrived = false;
         Failed = false;
-        if (pawn.Physics == EPhysics.PHYS_OnLadder)
+        if (pawn.Physics == EPhysics.PHYS_OnLadder || OnFence(pawn))
         {
-            // A pawn can grab a ladder automatically from a plain walk edge, or lose its path during a goal change.
-            // It has no floor node halfway down: finish the climb before asking A* for a new floor route.
+            // A pawn can grab a ladder/fence automatically, or lose its path during a goal change.
+            // It has no floor node partway up: finish the climb before asking A* for a new floor route.
             _path.Clear();
             _next = 0;
             _phase = TPhase.None;
@@ -171,6 +176,7 @@ public sealed class NavFollower
         _next = 0;
         _phase = TPhase.None;
         _progressAt = -1f;
+        _partial = false;
         NavGraph g = Graph;
         int from = g.NearestNode(pawn.Location, pawn.CollisionHeight);
         int to = g.NearestNode(_goal + new FVector(0f, 0f, 1f));
@@ -181,13 +187,14 @@ public sealed class NavFollower
             penalty = n => (_avoid.Contains(n) ? 5000f : 0f) + (inner?.Invoke(n) ?? 0f);
         }
 
-        if (!g.FindPath(from, to, _path, _stealth, penalty, _world.BadLinks(_spy), float.MaxValue, _world.BadEdges(_spy)))
+        if (!g.FindPath(from, to, _path, _stealth, penalty, _world.BadLinks(_spy), float.MaxValue, _world.BadEdges(_spy), allowPartial: true))
         {
             Failed = true;
             return false;
         }
 
         Plans++;
+        _partial = _path.Count > 0 && _path[^1].Node != to;
 
         // Walk to the start node first when the pawn, off it, cannot go straight to the first waypoint.
         FVector feet = Feet(pawn);
@@ -196,7 +203,10 @@ public sealed class NavFollower
             _path.Insert(0, new NavStep(from, g.Node(from).Standing ? NavEdgeKind.Walk : NavEdgeKind.Crouch, -1, g.Node(from).Floor));
         }
 
-        _path.Add(new NavStep(to, _path.Count > 0 ? _path[^1].Kind : NavEdgeKind.Walk, -1, _goal));
+        if (!_partial)
+        {
+            _path.Add(new NavStep(to, _path.Count > 0 ? _path[^1].Kind : NavEdgeKind.Walk, -1, _goal));
+        }
         return true;
     }
 
@@ -205,6 +215,21 @@ public sealed class NavFollower
     {
         ArgumentNullException.ThrowIfNull(pawn);
         var cmd = new NavCommand { Tolerance = 9000 };
+        if (_phase == TPhase.None && OnFence(pawn))
+        {
+            // A goal change or an automatic grab can leave no path while the pawn is above every floor node.
+            // Climb toward the goal; after crossing, the pawn faces back toward the fence, so descend instead.
+            FVector forward = pawn.Rotation.Vector();
+            FVector toward = _goal - pawn.Location;
+            bool across = toward.X * forward.X + toward.Y * forward.Y < 0f;
+            cmd.Keys.BT_Up = (byte)(across ? 0 : 1);
+            cmd.Keys.BT_Down = (byte)(across ? 1 : 0);
+            cmd.Keys.FastSpeed = true;
+            cmd.Crouched = false;
+            cmd.Busy = true;
+            cmd.Tolerance = 65536;
+            return cmd;
+        }
         if (!_hasGoal || Failed)
         {
             return cmd;
@@ -212,6 +237,13 @@ public sealed class NavFollower
 
         FVector at = pawn.Location;
         FVector feet = Feet(pawn);
+        // A partial route gets the bot out of spawn toward its objective, but never steers blindly across the
+        // missing connection. At its endpoint report failure so the brain can choose another objective/route.
+        if (_partial && _path.Count > 0 && Horizontal(_path[^1].Point - at) < 20f && MathF.Abs(_path[^1].Point.Z - feet.Z) < 80f)
+        {
+            Failed = true;
+            return cmd;
+        }
         if (_phase == TPhase.None && pawn.Physics == EPhysics.PHYS_OnLadder)
         {
             cmd.Crouched = null;
@@ -1163,7 +1195,7 @@ public sealed class NavFollower
         var body = new FVector(p.Radius, p.Radius, h - p.StepUp * 0.25f);
         var from = new FVector(fromFloor.X, fromFloor.Y, MathF.Max(fromFloor.Z, toFloor.Z) + lift);
         var to = new FVector(toFloor.X, toFloor.Y, from.Z);
-        if (_world.Collision.LineCheck(out _, null, to, from, body, WorldFlags))
+        if (_world.Collision.LineCheck(out _, NavBuilder.CollisionProbe, to, from, body, WorldFlags))
         {
             return false;
         }
@@ -1176,7 +1208,7 @@ public sealed class NavFollower
             FVector q = from + d * (k / (float)steps);
             var top = new FVector(q.X, q.Y, fromFloor.Z + 8f);
             var bottom = new FVector(q.X, q.Y, fromFloor.Z - p.StepUp - 8f);
-            if (!_world.Collision.LineCheck(out _, null, bottom, top, default, WorldFlags))
+            if (!_world.Collision.LineCheck(out _, NavBuilder.CollisionProbe, bottom, top, default, WorldFlags))
             {
                 return false;
             }

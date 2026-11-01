@@ -176,6 +176,7 @@ public sealed class MercAi : AiBrain
         _burstStart = -1f;
         _fragPhase = 0;
         _post = null;
+        _postUntil = 0f;
         _downed = null;
         _investigating = null;
         Search.Reset();
@@ -350,6 +351,7 @@ public sealed class MercAi : AiBrain
         {
             World.Teams[1].Release(Bot);
             _post = null;
+            _postUntil = 0f;
         }
 
         if (from == GInvestigate)
@@ -1034,7 +1036,7 @@ public sealed class MercAi : AiBrain
 
     private void Guard(float now, ref AiPlan plan)
     {
-        if (_post is null || World.IsTaken(_post) || now > _postUntil)
+        if ((_post is null && now >= _postUntil) || (_post is not null && (World.IsTaken(_post) || now > _postUntil)))
         {
             PickPost(now);
         }
@@ -1063,10 +1065,14 @@ public sealed class MercAi : AiBrain
         World.Teams[1].Release(Bot);
         _post = null;
         SComputerObjectiveTrigger? best = null;
+        FVector bestPost = default;
         float bestScore = float.MaxValue;
+        NavGraph graph = Follower.Graph;
+        int from = graph.NearestNode(Pawn.Location, Pawn.CollisionHeight);
+        float[] costs = graph.CostsFrom(from, badLinks: World.BadLinks(false), badEdges: World.BadEdges(false));
         foreach (SComputerObjectiveTrigger t in World.Terminals)
         {
-            if (World.IsTaken(t))
+            if (World.IsTaken(t) || !UseSpot(t, out FVector spot, out _) || !GuardPost(spot, costs, out FVector post))
             {
                 continue;
             }
@@ -1081,28 +1087,44 @@ public sealed class MercAi : AiBrain
             {
                 bestScore = score;
                 best = t;
+                bestPost = post;
             }
         }
 
-        if (best is null || !UseSpot(best, out FVector spot, out _))
+        if (best is null)
         {
+            Follower.Clear();
             _postUntil = now + 5f;
             return;
         }
 
-        // A post beside the use spot (150 to 300 uu out), not on it.
-        FVector post = spot;
+        _post = best;
+        _postFloor = bestPost;
+        _postUntil = now + 12f + Bot.Random.FRand() * 18f;
+        _guardTorch = Bot.Random.FRand() < Difficulty.GadgetUse;
+        _guardMotion = !_guardTorch && Bot.Random.FRand() < Difficulty.GadgetUse;
+        World.Teams[1].Claim(best, Bot);
+    }
+
+    private bool GuardPost(FVector spot, float[] costs, out FVector post)
+    {
+        // A terminal's nearest node can be on a desk. Guard it from a reachable floor nearby instead of
+        // repeatedly walking to the frontier of an unreachable furniture island (Warehouse's Meeting Room).
+        post = default;
         float postScore = float.MaxValue;
+        var eyeLift = new FVector(0f, 0f, Follower.Graph.Profile.StandingHeight + AiK.EyeHeightStanding);
         foreach (int n in NodesAround(spot, 300f))
         {
             FVector f = Follower.Graph.Node(n).Floor;
             float d = NavFollower.Horizontal(f - spot);
-            if (d < 150f || MathF.Abs(f.Z - spot.Z) > 40f || !Follower.Graph.Node(n).Standing)
+            if (!float.IsFinite(costs[n]) || !Follower.Graph.Node(n).Standing ||
+                !World.LineOpen(f + eyeLift, spot + eyeLift))
             {
                 continue;
             }
 
-            float s = MathF.Abs(d - 220f) + Bot.Random.FRand() * 60f;
+            // Prefer 150 to 300 uu beside the use spot, with a closer reachable post only in cramped rooms.
+            float s = MathF.Abs(d - 220f) + (d < 150f ? 300f : 0f) + Bot.Random.FRand() * 60f;
             if (s < postScore)
             {
                 postScore = s;
@@ -1110,12 +1132,7 @@ public sealed class MercAi : AiBrain
             }
         }
 
-        _post = best;
-        _postFloor = post;
-        _postUntil = now + 12f + Bot.Random.FRand() * 18f;
-        _guardTorch = Bot.Random.FRand() < Difficulty.GadgetUse;
-        _guardMotion = !_guardTorch && Bot.Random.FRand() < Difficulty.GadgetUse;
-        World.Teams[1].Claim(best, Bot);
+        return postScore < float.MaxValue;
     }
 
     /// <summary>Looks round a point of interest: a new direction every 1.5 to 3 s, biased toward <paramref name="focus"/>.</summary>

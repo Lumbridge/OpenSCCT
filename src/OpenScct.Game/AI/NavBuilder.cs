@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using OpenScct.Content;
 using OpenScct.Core;
+using OpenScct.Core.Engine;
 using OpenScct.Physics.Collision;
 
 namespace OpenScct.Game.AI;
@@ -10,7 +11,7 @@ namespace OpenScct.Game.AI;
 /// Builds a <see cref="NavGraph"/> from a map's collision and GEs, with nothing stored about the map beyond the cache
 /// the caller keeps:
 /// <list type="bullet">
-/// <item>floors: a small box traced down each column of a grid (as the walking pawn's floor checks do), walkable when
+/// <item>floors: a pawn-width support probe traced down each column of a grid, walkable when
 /// the normal's Z is at least MINFLOORZ, a node where the crouched body fits (flagged standing when the standing
 /// one fits too);</item>
 /// <item>walk and crouch edges to the neighbouring nodes a swept body reaches with at most a step (MAXSTEPHEIGHT) up,
@@ -29,6 +30,14 @@ public sealed class NavBuilder
     // What a walking pawn collides with, without other pawns and movers (doors open as they are reached).
     private const ETraceFlags WorldFlags = ETraceFlags.TRACE_Blocking | ETraceFlags.TRACE_Level | ETraceFlags.TRACE_LevelGeometry |
         ETraceFlags.TRACE_Volumes | ETraceFlags.TRACE_Others;
+
+    // A source-less query includes decorative meshes that explicitly do not block players.
+    private sealed class NavigationPawn : Pawn;
+
+    internal static readonly Pawn CollisionProbe = new NavigationPawn
+    {
+        bIsAPawn = true, bCollideWorld = true, bCollideActors = true, bBlockActors = true, bBlockPlayers = true,
+    };
 
     private static readonly FVector FloorProbe = new(4f, 4f, 2f);
 
@@ -104,10 +113,13 @@ public sealed class NavBuilder
 
     private float Lift(float h) => h + _profile.StepUp * 0.25f + 2f;
 
-    private bool Fits(FVector floor, float h) => !_world.PointCheck(out _, null, floor + new FVector(0f, 0f, Lift(h)), Body(h), WorldFlags);
+    private bool Fits(FVector floor, float h) => !_world.OverlapMoveShape(out _, CollisionProbe, floor + new FVector(0f, 0f, Lift(h)), Body(h), WorldFlags);
 
     private void SampleFloors()
     {
+        // On stairs the body rests on the highest tread under its footprint, not the tread under its centre.
+        // Sampling only the centre makes the next tread appear to penetrate the body and deletes the stair nodes.
+        var supportProbe = new FVector(_profile.Radius, _profile.Radius, FloorProbe.Z);
         float bottom = _min.Z;
         float top = _max.Z;
         for (int ix = 0; ix < _nx; ix++)
@@ -121,7 +133,7 @@ public sealed class NavBuilder
                 {
                     var start = new FVector(c.X, c.Y, z);
                     var end = new FVector(c.X, c.Y, bottom);
-                    if (!_world.LineCheck(out FCheckResult hit, null, end, start, FloorProbe, WorldFlags))
+                    if (!_world.LineCheck(out FCheckResult hit, CollisionProbe, end, start, supportProbe, WorldFlags))
                     {
                         break;
                     }
@@ -130,7 +142,8 @@ public sealed class NavBuilder
                     if (hit.Normal.Z >= _profile.MinFloorNormalZ)
                     {
                         var floor = new FVector(c.X, c.Y, floorZ);
-                        if (Fits(floor, _profile.CrouchHeight))
+                        // Still require support under the centre: the wide probe must not bridge an open gap.
+                        if (FloorNear(floor, floorZ + 2f, floorZ - _profile.StepUp - 2f) is not null && Fits(floor, _profile.CrouchHeight))
                         {
                             column ??= new List<int>(2);
                             column.Add(_nodes.Count);
@@ -140,7 +153,7 @@ public sealed class NavBuilder
 
                     // Continue below this surface: step down out of the solid it belongs to.
                     z = floorZ - 2f;
-                    for (int dig = 0; dig < 64 && z > bottom && _world.PointCheck(out _, null, new FVector(c.X, c.Y, z), new FVector(1f, 1f, 1f), WorldFlags); dig++)
+                    for (int dig = 0; dig < 64 && z > bottom && _world.PointCheck(out _, CollisionProbe, new FVector(c.X, c.Y, z), new FVector(1f, 1f, 1f), WorldFlags); dig++)
                     {
                         z -= 8f;
                     }
@@ -203,7 +216,7 @@ public sealed class NavBuilder
         float horizontal = k * _profile.Spacing * (diagonal ? 1.4142f : 1f);
         if (MathF.Abs(dz) <= _profile.StepUp)
         {
-            if (m <= n || k > 1 && (MathF.Abs(dz) < 1f || !ContinuousStep(a, b, k)))
+            if (m <= n || k > 1 && !ContinuousStep(a, b, k))
             {
                 return;
             }
@@ -234,8 +247,8 @@ public sealed class NavBuilder
 
         float h = _profile.CrouchHeight;
         var over = new FVector(b.X, b.Y, a.Z + Lift(h));
-        if (_world.LineCheck(out _, null, over, a + new FVector(0f, 0f, Lift(h)), Body(h), WorldFlags) ||
-            _world.LineCheck(out _, null, b + new FVector(0f, 0f, Lift(h)), over, Body(h), WorldFlags))
+        if (_world.LineCheck(out _, CollisionProbe, over, a + new FVector(0f, 0f, Lift(h)), Body(h), WorldFlags) ||
+            _world.LineCheck(out _, CollisionProbe, b + new FVector(0f, 0f, Lift(h)), over, Body(h), WorldFlags))
         {
             return;
         }
@@ -274,7 +287,7 @@ public sealed class NavBuilder
             FVector p = a + (b - a) * (i / (float)k);
             var top = new FVector(p.X, p.Y, a.Z + 8f);
             var bottom = new FVector(p.X, p.Y, a.Z - _profile.StepUp - 8f);
-            if (_world.LineCheck(out _, null, bottom, top, default, WorldFlags))
+            if (_world.LineCheck(out _, CollisionProbe, bottom, top, default, WorldFlags))
             {
                 return true;
             }
@@ -287,12 +300,13 @@ public sealed class NavBuilder
     {
         var from = new FVector(a.X, a.Y, z + Lift(h));
         var to = new FVector(b.X, b.Y, z + Lift(h));
-        return !_world.LineCheck(out _, null, to, from, Body(h), WorldFlags);
+        return !_world.LineCheck(out _, CollisionProbe, to, from, Body(h), WorldFlags);
     }
 
     /// <summary>
     /// A short step can leave a hole in sampled nodes: the lower cylinder overlaps the riser, even though a walking
-    /// pawn steps across it. Bridge only continuous support within MAXSTEPHEIGHT, with the usual body sweep.
+    /// pawn steps across it. Door thresholds can leave the same gap with equal-height endpoints. Bridge only
+    /// continuous support within MAXSTEPHEIGHT, with the usual body sweep.
     /// </summary>
     private bool ContinuousStep(FVector a, FVector b, int cells)
     {
@@ -417,7 +431,7 @@ public sealed class NavBuilder
 
             // There must be a wall under the lip to jump at.
             var standAt = new FVector(approach.X, approach.Y, bz + Lift(_profile.StandingHeight));
-            if (!_world.LineCheck(out _, null, standAt + inward * 60f, standAt, Body(_profile.StandingHeight), WorldFlags))
+            if (!_world.LineCheck(out _, CollisionProbe, standAt + inward * 60f, standAt, Body(_profile.StandingHeight), WorldFlags))
             {
                 continue;
             }
@@ -643,7 +657,7 @@ public sealed class NavBuilder
 
                 // The fence: a standing body walking at it from the near side is stopped.
                 var body = new FVector(near.X, near.Y, nz + Lift(_profile.StandingHeight));
-                if (!_world.LineCheck(out _, null, body - s * (reach + 20f), body, Body(_profile.StandingHeight), WorldFlags))
+                if (!_world.LineCheck(out _, CollisionProbe, body - s * (reach + 20f), body, Body(_profile.StandingHeight), WorldFlags))
                 {
                     continue;
                 }
@@ -742,7 +756,7 @@ public sealed class NavBuilder
     {
         var start = new FVector(p.X, p.Y, top);
         var end = new FVector(p.X, p.Y, bottom);
-        if (!_world.LineCheck(out FCheckResult hit, null, end, start, FloorProbe, WorldFlags) || hit.Normal.Z < _profile.MinFloorNormalZ)
+        if (!_world.LineCheck(out FCheckResult hit, CollisionProbe, end, start, FloorProbe, WorldFlags) || hit.Normal.Z < _profile.MinFloorNormalZ)
         {
             return null;
         }

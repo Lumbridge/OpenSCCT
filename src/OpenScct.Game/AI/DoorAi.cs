@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using OpenScct.Core;
 using OpenScct.Core.Engine;
+using OpenScct.Core.Uc;
 using OpenScct.Game.Objectives;
 using OpenScct.Game.SBase;
 using OpenScct.Physics.Collision;
@@ -50,6 +51,7 @@ public sealed class DoorAi
     private readonly Dictionary<Mover, float> _givenUp = new(ReferenceEqualityComparer.Instance);
     private readonly List<SInterrupteur> _switches = new();
     private readonly List<Trigger> _triggers = new();
+    private readonly List<SPresenceTrigger> _presenceTriggers = new();
     private bool _gathered;
     private Phase _phase;
     private float _phaseAt;
@@ -152,7 +154,7 @@ public sealed class DoorAi
             return false;
         }
 
-        if (OpensByWalking(door))
+        if (OpensByWalking(door, pawn))
         {
             return false;
         }
@@ -224,7 +226,7 @@ public sealed class DoorAi
     /// A mover that opens when a pawn walks into it or stands on it (its state), or that a touch trigger of the level
     /// fires (Event = its Tag): the walk opens it.
     /// </summary>
-    private bool OpensByWalking(Mover door)
+    private bool OpensByWalking(Mover door, SBasePawn pawn)
     {
         string state = door.GetStateName().ToString();
         if (state is "BumpOpenTimed" or "StandOpenTimed" or "BumpButton")
@@ -236,6 +238,44 @@ public sealed class DoorAi
         foreach (Trigger t in _triggers)
         {
             if (!t.bDeleteMe && door.Tag != Name.None && t.Event == door.Tag)
+            {
+                return true;
+            }
+        }
+
+        // SCCT's merc-only spawn sensors inherit Actor, not Engine.Trigger. They must be recognised before
+        // the door's edges are marked blocked, while the pawn is still outside the sensor's touch volume.
+        foreach (SPresenceTrigger t in _presenceTriggers)
+        {
+            if (t.bDeleteMe || !t.bCollideActors || door.Tag == Name.None || t.Event != door.Tag)
+            {
+                continue;
+            }
+
+            if (MatchesClass(pawn, t.DetectedClass))
+            {
+                if (!t.bUntrigger)
+                {
+                    return true;
+                }
+            }
+            else if (t.bDetectGrab && pawn is SPawnAttaque spy &&
+                     spy.Controller?.GetStateName() == new Name("s_GrabbingPlayer") &&
+                     MatchesClass(spy.m_AttackTarget, t.DetectedClass))
+            {
+                // Match SPresenceTrigger.Touch: a grabbed permitted pawn triggers even an untrigger sensor.
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static bool MatchesClass(Actor? actor, ClassRef detected)
+    {
+        for (UcClassInfo? type = actor?.GetUcClass(); type is not null; type = type.Super)
+        {
+            if (string.Equals(type.Path, detected.Path, StringComparison.OrdinalIgnoreCase))
             {
                 return true;
             }
@@ -260,6 +300,11 @@ public sealed class DoorAi
         foreach (Trigger t in _bot.World.Level.AllActors<Trigger>())
         {
             _triggers.Add(t);
+        }
+
+        foreach (SPresenceTrigger t in _bot.World.Level.AllActors<SPresenceTrigger>())
+        {
+            _presenceTriggers.Add(t);
         }
     }
 

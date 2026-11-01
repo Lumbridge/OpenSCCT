@@ -168,13 +168,16 @@ and visual inspections. These are bounded heuristic beliefs; learned policies an
 
 `NavBuilder.Build(collision, min, max, profile, GEs, activationMask)`:
 
-- **Floors**: a 4 x 4 x 2 box traced down each column of a 32 uu grid (as the walking floor checks), walkable at
-  normal Z >= MINFLOORZ 0.7; a node where the crouched body fits, flagged standing when the standing body fits too.
+- **Floors**: a pawn-width support probe traced down each column of a 32 uu grid, walkable at normal Z >= MINFLOORZ
+  0.7. This finds the highest stair tread under the body; a separate centre probe rejects unsupported gaps. Body fit
+  uses movement's collision shape, and queries use a pawn source so decorative meshes that do not block players
+  cannot cut off a route. Nodes are flagged standing when the standing body fits too.
 - **Walk and crouch edges** to the eight neighbours a swept body reaches with at most MAXSTEPHEIGHT 34 up, standing when
   both ends and the sweep fit a standing pawn, crouched otherwise (vents and crawl spaces; a crouched merc is 136 tall
   and fits fewer of them). A small step can leave a gap of two or three sampled cells because the lower cylinder
   overlaps its riser. Short connections across those gaps require continuous walkable floor at half-cell intervals
-  and a clear body sweep; they never bridge unsupported holes. Navigation cache version 7 rebuilds older graphs.
+  and a clear body sweep, including equal-height endpoints around thresholds; they never bridge unsupported holes.
+  Navigation cache version 9 rebuilds older graphs.
 - **Drops**: one way, up to three cells out, cleared all the way down; spies to 700 uu (a few points of damage past
   Fell_MinHeightForDmg 600), mercs to 400 (their damage starts at 450); deeper than the damage height costs extra.
   The landing floor must go on for two cells past the landing node in the direction of the drop: a narrow shelf over
@@ -196,7 +199,9 @@ seconds in a Debug build and loads from the cache in a moment. Node light levels
 dark: the stealth cost is `cost x (1 + 3 stealth x light)`, plus a danger cost near believed enemies.
 
 Doors are planned as open. `DoorAi` (from `AiBrain.MoveTo`) looks about 220 uu along the route for a closed mover. It
-waits for one that is opening and leaves bump-opened or trigger-opened doors to the walk. A door opened by a switch the
+waits for one that is opening and leaves bump-opened or trigger-opened doors to the walk. This includes
+`SPresenceTrigger` sensors, such as Warehouse's merc spawn exits, when the sensor accepts the bot's pawn class.
+A door opened by a switch the
 bot's side can use, on its side of the door (a hack panel such as Cinema's), it opens as a player would: walk to the
 use spot, hold Use until the menu opens, select the switch with S, let go, and keep off the keys through the hack. A
 door nobody on the side can open, or one whose hack failed twice, is shut. A walker that sticks twice within 128 uu and
@@ -205,6 +210,12 @@ are left out of the side's plans for 60 s, so later plans, even for a new goal, 
 
 An automatic ladder grab or a route change halfway along a ladder is recovered before replanning: climb toward the
 goal's height, then plan again from a floor. A missing floor node in midair must not strand the controller on a rung.
+Fence grabs and top crossings are likewise recovered before floor planning. The brain finishes an active traversal
+before choosing a new tactical goal, so a decision cannot discard the climb halfway up a spawn fence.
+
+When a complete route is unavailable, the follower can advance to the closest reachable point in the graph. It
+reports failure there, rather than arrival or steering across the missing connection, so the brain can choose
+another route or objective instead of remaining motionless at spawn.
 
 `NavFollower` plays a path with keys: it faces the next waypoint and holds forward, passes waypoints early when the
 next is in a clear straight line, crouches for crawl edges, stands and walks (not runs) off ledges for drops and lets
@@ -248,7 +259,7 @@ Spies switch night vision on in the dark and off in the light, and thermal near 
 | Respond | a terminal is being hacked (the nearest merc goes, with teamwork) | run to a spot 200 to 600 uu from the use spot that sees it, watching the spot |
 | Frag | a spy lost behind cover 400 to 1600 uu away in the last 4 s | select the frag, aim a full-strength throw on a low arc, tap the throw key |
 | Investigate | a visible shape, noise, callout, lost spy, or hurt by something unseen | inspect visible shapes without attacking; search reachable locations around lost contacts, retaining checked places and dividing areas with teammates |
-| Guard | otherwise | a post beside an untaken terminal no teammate holds, look round, change post every 12 to 30 s |
+| Guard | otherwise | a reachable standing post beside an untaken terminal no teammate holds, look round, change post every 12 to 30 s |
 
 Mercs light the torch in the dark (on below light 0.15, off above 0.35) while responding, investigating or engaging
 (and while guarding, by gadget use) and use motion tracking while investigating a noise in the dark (something moved

@@ -50,6 +50,117 @@ public sealed class NavGraphTests
     [Theory]
     [InlineData(PawnTeam.Spy)]
     [InlineData(PawnTeam.Merc)]
+    public void RotatedMeshPassageUsesMovementClearance(PawnTeam team)
+    {
+        CollisionDataBuilder level = Floor();
+        level.AddBoxMeshCollider(ColliderKind.MeshPoly, null, CollisionDataBuilder.WorldFlags,
+            [(V(-200f, -500f, 0f), V(-45f, 500f, 300f)),
+             (V(45f, -500f, 0f), V(200f, 500f, 300f))], rotation: new FRotator(0, 8192, 0));
+        ICollisionWorld collision = CollisionWorld.Build(level.Build());
+        var body = V(35f, 35f, 87.5f);
+        var center = V(0f, 0f, 90f);
+        const ETraceFlags flags = ETraceFlags.TRACE_Blocking | ETraceFlags.TRACE_Level | ETraceFlags.TRACE_LevelGeometry;
+        Assert.True(collision.PointCheck(out _, null, center, body, flags));
+        Assert.False(collision.OverlapMoveShape(out _, null, center, body, flags));
+        NavGraph graph = NavBuilder.Build(collision, V(-320f, -320f, -100f), V(320f, 320f, 400f),
+            team == PawnTeam.Spy ? NavProfile.Spy : NavProfile.Merc);
+        int node = graph.NearestNode(center, 90f);
+        Assert.True(node >= 0);
+        Assert.InRange(NavFollower.Horizontal(graph.Node(node).Floor), 0f, 1f);
+        Assert.True(graph.Node(node).Standing);
+        var path = new List<NavStep>();
+        Assert.True(graph.FindPath(graph.NearestNode(V(128f, -128f, 1f)), graph.NearestNode(V(-128f, 128f, 1f)), path));
+    }
+
+    [Theory]
+    [InlineData(PawnTeam.Spy)]
+    [InlineData(PawnTeam.Merc)]
+    public void TheFollowerWalksDownCloselySpacedSpawnStairs(PawnTeam team)
+    {
+        CollisionDataBuilder level = Floor();
+        level.AddBox(V(-200f, -300f, 0f), V(200f, 0f, 240f));
+        for (int step = 0; step < 10; step++)
+        {
+            level.AddBox(V(-200f, step * 24f, 0f), V(200f, (step + 1) * 24f, 240f - step * 24f));
+        }
+        PawnRig rig = Rig(level, null, V(0f, -160f, 240f), team);
+        AiWorld world = World(rig, V(-128f, -256f, -100f), V(128f, 512f, 500f));
+        var follower = new NavFollower(world, team == PawnTeam.Spy);
+        var route = new List<NavStep>();
+        Assert.True(follower.Graph.FindPath(follower.Graph.NearestNode(rig.Pawn.Location, rig.Pawn.CollisionHeight),
+            follower.Graph.NearestNode(V(0f, 400f, 1f)), route));
+        var trace = new List<string>();
+        Assert.True(Follow(rig, follower, V(0f, 400f, 0f), 12f, trace), string.Join("\n", trace));
+    }
+
+    [Theory]
+    [InlineData(PawnTeam.Spy)]
+    [InlineData(PawnTeam.Merc)]
+    public void UnreachableObjectiveAdvancesToReachableFrontierWithoutCrossingTheWall(PawnTeam team)
+    {
+        CollisionDataBuilder level = Floor();
+        level.AddBox(V(-400f, -16f, 0f), V(400f, 16f, 300f));
+        PawnRig rig = Rig(level, null, V(0f, -256f, 0f), team);
+        AiWorld world = World(rig, V(-256f, -320f, -100f), V(256f, 320f, 400f));
+        var follower = new NavFollower(world, team == PawnTeam.Spy);
+        NavGraph graph = follower.Graph;
+        int start = graph.NearestNode(rig.Pawn.Location, rig.Pawn.CollisionHeight);
+        int end = graph.NearestNode(V(0f, 256f, 1f));
+        var path = new List<NavStep>();
+        Assert.False(graph.FindPath(start, end, path));
+        Assert.True(graph.FindPath(start, end, path, allowPartial: true));
+        Assert.NotEmpty(path);
+        Assert.NotEqual(end, path[^1].Node);
+        Assert.False(Follow(rig, follower, V(0f, 256f, 0f), 8f));
+        Assert.True(follower.Failed);
+        Assert.False(follower.Arrived);
+        Assert.InRange(rig.Pawn.Location.Y, -100f, -50f);
+    }
+
+    [Theory]
+    [InlineData(PawnTeam.Spy)]
+    [InlineData(PawnTeam.Merc)]
+    public void SpawnExitIgnoresMeshesThatDoNotBlockPlayers(PawnTeam team)
+    {
+        CollisionDataBuilder level = Floor();
+        level.AddBoxMeshCollider(ColliderKind.MeshPoly, null,
+            CollisionDataBuilder.WorldFlags & ~ColliderFlags.BlockPlayers,
+            [(V(-400f, -16f, 0f), V(400f, 16f, 300f))]);
+        PawnRig rig = Rig(level, null, V(0f, -160f, 0f), team);
+        AiWorld world = World(rig, V(-256f, -256f, -100f), V(256f, 256f, 400f));
+        var follower = new NavFollower(world, team == PawnTeam.Spy);
+        Assert.True(Follow(rig, follower, V(0f, 160f, 0f), 8f));
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void FenceCrossingRecoversWhenItsRouteIsLost(bool farSide)
+    {
+        CollisionDataBuilder level = Floor();
+        ushort material = level.AddMaterial(0, CollisionMaterialFlags.Climbable);
+        level.AddBox(V(-500f, 100f, 0f), V(500f, 102f, 400f), material);
+        TraversalDoc ges = Doc(Ge(0, GEKind.FENCE, V(-500f, 100f, 400f), V(500f, 100f, 400f)));
+        PawnRig rig = Rig(level, ges, V(0f, -100f, 0f));
+        for (int tick = 0; tick < 600; tick++)
+        {
+            rig.Step(new PlayerInputFrame { BT_Up = 1, FastSpeed = true });
+            if (rig.Pawn.Physics == EPhysics.PHYS_OnVerticalPlane && rig.Pawn.Location.Z > 250f &&
+                (rig.Pawn.Location.Y > 102f) == farSide) break;
+        }
+        Assert.Equal(EPhysics.PHYS_OnVerticalPlane, rig.Pawn.Physics);
+        Assert.Equal(farSide, rig.Pawn.Location.Y > 102f);
+        AiWorld world = World(rig, V(-600f, -300f, -100f), V(600f, 500f, 600f), ges);
+        var follower = new NavFollower(world, spy: true);
+        var trace = new List<string>();
+        Assert.True(Follow(rig, follower, V(0f, 350f, 0f), 15f, trace), string.Join("\n", trace));
+        Assert.True(rig.Pawn.Location.Y > 300f);
+        Assert.Equal(EPhysics.PHYS_Walking, rig.Pawn.Physics);
+    }
+
+    [Theory]
+    [InlineData(PawnTeam.Spy)]
+    [InlineData(PawnTeam.Merc)]
     public void TheFollowerCrossesASmallStepWhoseRiserSeparatesSampledNodes(PawnTeam team)
     {
         CollisionDataBuilder level = Floor();

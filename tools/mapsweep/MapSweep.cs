@@ -922,7 +922,9 @@ public sealed class MapSweeper
             AiController? bot = track.Bot;
             string phys = string.Join(" ", track.Physics.Select(k => k.Key.Replace("PHYS_", string.Empty, StringComparison.Ordinal) + "=" + k.Value.ToString(CultureInfo.InvariantCulture)));
             report.Pawns.Add(new SweepPawnReport(track.Name, track.Team, track.Travelled, track.Farthest, pri?.Deaths ?? 0, pri?.Kills ?? 0,
-                bot?.Brain?.Follower.LinksDone ?? 0, bot?.Brain?.Follower.LinksFailed ?? 0, phys, bot is null ? "local player" : bot.Status));
+                bot?.Brain?.Follower.LinksDone ?? 0, bot?.Brain?.Follower.LinksFailed ?? 0, phys,
+                (bot is null ? "local player" : bot.Status) + (track.Pawn is { } pawn ? " at " + Fmt(pawn.Location) : string.Empty) +
+                (bot?.Brain is { } brain ? " goal " + Fmt(brain.Follower.Goal) + " failed " + brain.Follower.Failed : string.Empty)));
         }
 
         // Bots that never got far from where they were first seen: they could not plan or follow a route.

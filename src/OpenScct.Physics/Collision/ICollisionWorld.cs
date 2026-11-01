@@ -27,6 +27,10 @@ public interface ICollisionWorld
     /// <summary>True when a box of <paramref name="Extent"/> at <paramref name="Location"/> overlaps something.</summary>
     bool PointCheck(out FCheckResult Hit, Actor? SourceActor, FVector Location, FVector Extent, ETraceFlags TraceFlags);
 
+    /// <summary>Overlap using the body shape used by movement sweeps, including cylinders against static meshes.</summary>
+    bool OverlapMoveShape(out FCheckResult hit, Actor? source, FVector location, FVector extent, ETraceFlags flags) =>
+        PointCheck(out hit, source, location, extent, flags);
+
     /// <summary>True when a zero-extent line from <paramref name="Start"/> to <paramref name="End"/> hits no world geometry (UnrealScript FastTrace).</summary>
     bool FastTrace(FVector End, FVector Start);
 
