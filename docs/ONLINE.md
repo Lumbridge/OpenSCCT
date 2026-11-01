@@ -318,7 +318,8 @@ Everyone else still plays offline, on LAN and on open servers; on a server linke
 a guest can never pass for a claimed name. Servers with no master (LAN, offline, direct only) keep plain names.
 
 **Pieces.** The master keeps accounts in SQLite (`accounts.db` next to its config: accounts, sign-in sessions, name
-history, bans, stats, achievements, synced settings, an audit log). It signs join tickets with an ECDsa P-256 key
+history, bans, stats, achievements, synced settings, an audit log). Schema 7 also keeps player website sessions,
+profile visibility, separately versioned appearance and administrative command history. It signs join tickets with an ECDsa P-256 key
 (`ticket-key.pem`, made on first start) and publishes the public key in its status and heartbeat answers.
 
 **Signing in** (`AccountScreen`, main menu → Account):
@@ -442,11 +443,13 @@ emblem at prestige 10 level 55, and titles (per prestige, level milestones, some
 (display mode, monitor, resolution, resolution scale, vsync, frame caps, microphone), plus the player's keybind
 files `svm_keys_spy.ini` and `svm_keys_merc.ini`. The game uploads it a few seconds after a save. On sign-in and at
 start-up it takes the master's copy when that is newer, or when this PC has not synced with the account before.
-The newer copy wins.
+The newer copy wins for this general settings record. On masters supporting appearance sync, updated clients
+send spy/merc cosmetics and the selected title separately, with a revision check; a newer controls upload cannot
+replace a website appearance edit. See [Player hub](#player-hub) below and [the player guide](PLAYER-HUB.md).
 
 **Bans.** Global bans (account, Discord id, address or range, with an end and a reason) are kept by the master and
 apply to tickets, sign-ins and, through `KickAccounts` in the heartbeat answer, to players already on listed
-servers. Only the master's operator sets them, from a shell on the master's machine:
+servers. The master's administrators set them through `/admin/bans` or from a shell on the master's machine:
 ```
 svm-master admin ban <name|discord id|ip|cidr> [--days N] [--reason text] --config svm-master.json
 svm-master admin unban <name|discord id|ip|cidr|ban id> --config svm-master.json
@@ -466,6 +469,53 @@ guest by it, and a session token that comes back on another map with another key
 can make a new key, as he can reset his install id, so a key ban stops the same install and nobody can play under
 someone else's key. Not done: the master does not see keys (its bans stay by account, Discord id and address).
 
+## Player hub
+
+`https://<master>/` is the public player website, served by the master alongside the game API and admin portal.
+See [Player hub](PLAYER-HUB.md) for player instructions, appearance synchronization, deployment and the manual
+acceptance checklist. The pages use the same accounts, stats and match records as the game.
+
+| Route | Purpose |
+|---|---|
+| `/`, `/download` | Welcome, public announcement, launcher download and installation instructions. |
+| `/servers` | Listed games and hubs; filter by name/map, mode, region and free space. Live data refreshes without replacing forms. |
+| `/players`, `/players/{id}` | Name search, progression, career stats, achievements, unlocks and personal round history. |
+| `/leaderboards` | Lifetime XP, wins or kills; private, hidden, unnamed and actively banned accounts are excluded. |
+| `/matches`, `/matches/{id}` | Recorded rounds and team scoreboards, with counted and uncounted rounds distinguished. |
+| `/account` | The signed-in player's name, progression and prestige action. |
+| `/account/appearance` | Unlocked spy/merc cosmetics and title, saved with an expected revision. |
+| `/account/privacy`, `/account/security` | Website visibility and individual/all game or player-website session revocation. |
+
+**Browser sign-in.** `/auth/player/login` starts Discord sign-in with `state = player.<nonce>` and a ten-minute
+`svm_player_state` cookie. The shared `/auth/discord/callback` checks the cookie, consumes the stored state once,
+then issues a separate `svm_player` cookie: HttpOnly, Secure on HTTPS, SameSite=Strict, path `/`. Only the token's
+hash is stored. The session expires after 12 hours unused or seven days total. Every account-changing form checks
+the session and its CSRF token. A player cookie never authorizes an admin page or a game API request.
+
+**Privacy.** Existing and new named accounts start public. An owner's private setting or an admin moderation
+hide removes the public profile, personal history, search and leaderboard entries. Public match rows, including
+old rounds, and live player lists redact that identity when rendered. The owner retains `/account` access, and
+admins retain their moderation records. Public pages do not expose Discord IDs, previous names, IP addresses,
+credentials, synced controls or audit records. Website privacy does not change in-game names or existing demos;
+this website does not add public replay downloads.
+
+**Appearance API.** `GET /api/v1/account/appearance` returns `AccountAppearance` (`revision`, `spy`, `merc`,
+`title`). `PUT` accepts `AppearanceUpdateRequest` (`expectedRevision`, `spy`, `merc`, `title`) and returns
+`AppearanceUpdateResult` with the current appearance and any error. A stale revision returns HTTP 409 without
+overwriting it. Items, sides, slots and title ownership are validated using the game's catalogues and current
+unlocks. Both endpoints require the existing game invite key and account bearer token; website forms use their
+own cookie/CSRF checks and call the same account logic.
+
+The master seeds appearance from existing synced settings. Once managed independently, legacy whole-profile
+uploads cannot overwrite it; older clients still receive their existing settings format. Updated clients use
+the separate API in menus/lobbies every 30 seconds and before joining, deferring remote changes in active rounds.
+They offer reload/reapply for conflicting saves and fall back to ordinary profile sync against older masters.
+
+**Hosting and access.** Opening the website does not remove the game's invite-key requirement. Browser pages
+and refreshes use an independent rate limit, and browser assets contain no invite key. Shared assets are embedded
+under `/web/assets`; no separate frontend build service is required. Discord must be configured to enable the
+account-backed player hub. The master still supplies a download/sign-in-unavailable page when accounts are off.
+
 ## Admin portal
 
 `https://<master>/admin` (`src/OpenScct.Master/Admin/`): web pages for the master's admins, the Discord ids in its
@@ -480,42 +530,66 @@ config's `Admins` list. It is on when Discord sign-in is set up.
   hash is kept, in `admin_sessions`. It ends after 12 hours unused or 7 days at most, and every request checks
   `Admins` again.
 - Every form carries the session's CSRF token.
-- Pages send their own content policy (scripts and styles only from `/admin/assets`), no framing and no caching, and
-  go through the master's rate limit.
-- Every change is audited with its admin (`audit.actor` is `admin:<name>`; the command line writes `cli`).
+- Pages send a same-origin content policy, no framing and no caching. Shared design assets come from
+  `/web/assets`, with admin-specific assets under `/admin/assets`; browser requests use their own rate limit.
+- Every change is audited with its admin (`audit.actor` is `admin:<name>`; the command line writes `cli`). New
+  admin operations also record a target, reason and before/after details for investigation.
+- Desktop pages use a sidebar; narrow layouts use a compact menu. Data panels refresh without replacing edited
+  forms, focused controls or filter selections. Server player controls verify the selected session is still current.
 
 **Pages.**
 
 | Page | What it does |
 |---|---|
-| Dashboard | Players online (games, hubs), servers, accounts, rounds today, relay and introducer counts, the 24-hour players chart, latest rounds and audit lines. It refreshes itself. |
-| Servers | Every registered server, unlisted ones too. A server's page lists its players (team, ping, account) and, for trusted servers, runs commands: say, kick or ban a player, change map or mode, start, next map, restart round, back to lobby, set an option, or any console line. It can also block the server's address. |
-| Players | Search by name, Discord id or account id; online, banned and admin marks. |
-| Player | Stats, achievements, cosmetics, bans, rounds, game sign-ins and old names. Actions: rename, release the name, ban or unban, kick from the server they are on, sign out everywhere, unlock or take back cosmetics. |
-| Bans | Bans in force (and ended ones). Ban a name, `#account`, Discord id, address or CIDR range; end a ban. |
-| Matches | Every round a trusted server reported, counted or not, with each player's line and feats. |
-| History | Players, servers and relay sessions over a day, a week or a month; peak players per day. |
-| Settings | Message of the day, latest and minimum version (stored in the database, they override the config at once); an announcement to every trusted server; blocked servers; the admin list. |
-| Audit | The audit log with a filter. |
+| Dashboard | Live counts, 24-hour activity, latest rounds/audit events and issues requiring attention: stale heartbeats, version mismatches or pending commands. |
+| Search | Search player names, Discord/account IDs, live servers, maps and recorded match IDs in one place. |
+| Servers | All registered servers, including unlisted ones; filters by name/map, game/hub and trust. Detail pages show live rosters, stable player controls, communication, game-only round controls and the advanced console. |
+| Players | Search and sort accounts; filter online, banned, private/hidden or admin accounts. |
+| Player | Overview, progression, rounds, moderation, individual/all game and player-website sessions, old names and targeted audit history. Name, rank and grant controls retain existing permissions. An admin can hide a profile without changing its owner's privacy choice. |
+| Bans | Active and ended bans. Preview the resolved name/account, Discord identity or IP/CIDR target; choose a positive temporary duration or explicitly permanent. Invalid durations fail. |
+| Matches | Filter reported rounds by map/server/ID and counted status; open team scoreboards, feats and available admin demo downloads. |
+| Commands | Persistent, paginated command history filtered by server and state, with the operator and returned output. |
+| History | Players, servers and relay sessions over a day, week or month; daily player peaks. |
+| Settings | Atomically validated MOTD/latest/minimum version; public welcome/announcement text with preview; in-game announcements; server blocks and the configured admin list. |
+| Audit | Filter text, operator, action, target and dates; expand before/after details for new operations. |
+
+Ban, block, rank and cosmetic-grant forms require a reason. Server kicks accept a reason. Destructive actions
+show a confirmation with the target and submitted values. Global ban entry first previews its resolved target.
+Public website text is plain text, escaped on display, and separate from the game's message of the day.
 
 **Commands to servers.**
-- The master keeps a queue per trusted server and sends it with the next heartbeat answer (`HeartbeatResponse.Commands`).
-- While commands wait, or while an admin has the server's page open, the answer asks for heartbeats every 5 s.
-- The server runs each line through its console handler (`OnlineServer.Execute`), except closing the server. It
-  sends the output back with its next heartbeat (`HeartbeatRequest.CommandResults`), and the server page shows it.
-- Servers that are not trusted get no commands and ignore any.
+
+- The master journals a command as `queued`, then sends it to the trusted server in the next heartbeat answer
+  (`HeartbeatResponse.Commands`) only after recording `dispatched`. The per-server queue is capped at 32.
+- While commands are sent, or while an admin watches a server, the answer asks for heartbeats every 5 seconds.
+- The server runs each line through its console handler (`OnlineServer.Execute` or the hub equivalent), except
+  closing the server, then returns output in `HeartbeatRequest.CommandResults`.
+- A result is accepted only from its trusted target server while that command is `dispatched`. The journal then
+  records `response-received`. Output is displayed as returned, without treating it as proof of success.
+- A command expires after five minutes awaiting dispatch or response. A missing response means execution is
+  unknown. A master restart marks outstanding commands `interrupted`; it never replays them automatically.
+- Untrusted servers receive no commands. Expired or interrupted commands cannot be dispatched later.
 
 **What servers send.** Heartbeats also carry `PlayerDetails` (session id, name, team, ping, account, bot, admin, host)
 and `RoundSecondsLeft`. Results also carry each row's `Name` and the round's `DurationSeconds`. Older servers send
 none of these and still work.
 
-**Data (schema v4).**
+**Data (schema v4, extended in v7).**
+
 - `admin_sessions`;
 - `matches` and `match_rows`, every reported round;
 - `metrics`, one sample a minute, kept 90 days;
 - `settings`;
 - `blocked_servers`, refused at heartbeat;
-- `audit.actor`.
+- `audit.actor`;
+- v7 `player_visibility`, `player_web_sessions`, `player_oauth_states` and `player_game_session_ids`;
+- v7 `account_appearance`;
+- v7 `admin_commands` and `audit_metadata`.
+
+The schema-7 migration is transactional. Deploy the master before the compatible client. Back up the master
+program, database, config and signing key together. An older master cannot open schema 7: rollback restores the
+matching old program/database pair after stopping the service and removing the new SQLite WAL/SHM sidecars.
+See [deployment and rollback](PLAYER-HUB.md#deploying-and-rolling-back).
 
 ## Demos
 

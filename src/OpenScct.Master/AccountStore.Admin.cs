@@ -193,10 +193,11 @@ internal sealed partial class AccountStore
     /// Accounts matching <paramref name="text"/> (part of the name, a Discord id or an account id; empty: all),
     /// newest-seen first or newest first, one page; and how many match in all.
     /// </summary>
-    public (List<AccountListRow> Rows, int Total) SearchAccounts(string? text, bool byCreated, int page, int pageSize)
+    public (List<AccountListRow> Rows, int Total) SearchAccounts(string? text, bool byCreated, int page, int pageSize,
+        string status = "", IReadOnlyCollection<long>? onlineIds = null, IReadOnlyCollection<string>? admins = null)
     {
         string where = "1 = 1";
-        var args = new List<(string, object?)>();
+        var args = new List<(string, object?)> { ("$now", Now) };
         if (!string.IsNullOrWhiteSpace(text))
         {
             string t = text.Trim();
@@ -205,10 +206,21 @@ internal sealed partial class AccountStore
             args.Add(("$exact", t));
         }
 
+        where += status switch
+        {
+            "banned" => " AND EXISTS (SELECT 1 FROM bans b WHERE (b.account_id = a.id OR b.discord_id = a.discord_id) AND (b.until IS NULL OR b.until > $now))",
+            "private" => " AND EXISTS (SELECT 1 FROM player_visibility v WHERE v.account_id = a.id AND (v.public = 0 OR v.hidden = 1))",
+            "online" => " AND a.id IN (SELECT CAST(value AS INTEGER) FROM json_each($online))",
+            "admin" => " AND a.discord_id IN (SELECT value FROM json_each($admins))",
+            _ => string.Empty,
+        };
+        if (status == "online") args.Add(("$online", JsonSerializer.Serialize(onlineIds ?? [])));
+        if (status == "admin") args.Add(("$admins", JsonSerializer.Serialize(admins ?? [])));
+
         lock (_gate)
         {
             int total = Convert.ToInt32(Scalar($"SELECT COUNT(*) FROM accounts a WHERE {where};", [.. args]), CultureInfo.InvariantCulture);
-            var pageArgs = new List<(string, object?)>(args) { ("$n", pageSize), ("$o", Math.Max(0, page) * pageSize), ("$now", Now) };
+            var pageArgs = new List<(string, object?)>(args) { ("$n", pageSize), ("$o", Math.Max(0, page) * pageSize) };
             List<AccountListRow> rows = Query(
                 "SELECT a.id, a.discord_id, a.name, a.created, a.last_seen, a.name_changed, COALESCE(s.matches, 0), COALESCE(s.kills, 0), " +
                 "EXISTS (SELECT 1 FROM bans b WHERE (b.account_id = a.id OR b.discord_id = a.discord_id) AND (b.until IS NULL OR b.until > $now)) " +
@@ -251,14 +263,14 @@ internal sealed partial class AccountStore
     }
 
     /// <summary>Bans in force (or with <paramref name="includeEnded"/> every ban), newest first, one page.</summary>
-    public List<BanRow> AllBans(bool includeEnded, int page, int pageSize)
+    public List<BanRow> AllBans(bool includeEnded, int page, int pageSize, bool lookAhead = false)
     {
         lock (_gate)
         {
             return Query(
                 $"SELECT {BanColumns} FROM bans {(includeEnded ? string.Empty : "WHERE until IS NULL OR until > $now ")}" +
                 "ORDER BY id DESC LIMIT $n OFFSET $o;",
-                ReadBan, ("$now", Now), ("$n", pageSize), ("$o", Math.Max(0, page) * pageSize));
+                ReadBan, ("$now", Now), ("$n", pageSize + (lookAhead ? 1 : 0)), ("$o", Math.Max(0, page) * pageSize));
         }
     }
 
@@ -310,13 +322,13 @@ internal sealed partial class AccountStore
     }
 
     /// <summary>Stored rounds, newest first (optionally only those an account played in).</summary>
-    public List<MatchRow> Matches(int page, int pageSize, long? accountId = null)
+    public List<MatchRow> Matches(int page, int pageSize, long? accountId = null, bool lookAhead = false)
     {
         lock (_gate)
         {
             string where = accountId is null ? string.Empty : "WHERE id IN (SELECT match_id FROM match_rows WHERE account_id = $a) ";
             return Query($"SELECT {MatchColumns} FROM matches {where}ORDER BY id DESC LIMIT $n OFFSET $o;", ReadMatch,
-                ("$a", accountId), ("$n", pageSize), ("$o", Math.Max(0, page) * pageSize));
+                ("$a", accountId), ("$n", pageSize + (lookAhead ? 1 : 0)), ("$o", Math.Max(0, page) * pageSize));
         }
     }
 
@@ -445,13 +457,13 @@ internal sealed partial class AccountStore
     // ---- Audit for the portal ----------------------------------------------------------------------------------
 
     /// <summary>Audit rows newest first, optionally only one action or actor (part of it), one page.</summary>
-    public List<AuditRow> AuditPage(string? filter, int page, int pageSize)
+    public List<AuditRow> AuditPage(string? filter, int page, int pageSize, bool lookAhead = false)
     {
         lock (_gate)
         {
             string where = string.IsNullOrWhiteSpace(filter) ? string.Empty : "WHERE action LIKE $f OR actor LIKE $f OR detail LIKE $f ";
             return Query($"SELECT id, time, action, detail, COALESCE(actor, '') FROM audit {where}ORDER BY id DESC LIMIT $n OFFSET $o;",
-                ReadAudit, ("$f", "%" + filter?.Trim() + "%"), ("$n", pageSize), ("$o", Math.Max(0, page) * pageSize));
+                ReadAudit, ("$f", "%" + filter?.Trim() + "%"), ("$n", pageSize + (lookAhead ? 1 : 0)), ("$o", Math.Max(0, page) * pageSize));
         }
     }
 }

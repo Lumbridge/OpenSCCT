@@ -50,7 +50,7 @@ internal enum NameClaim
 /// </summary>
 internal sealed partial class AccountStore : IDisposable
 {
-    public const int SchemaVersion = 6;
+    public const int SchemaVersion = 7;
 
     /// <summary>Seconds between renames.</summary>
     public const long RenameCooldown = 30 * 86400;
@@ -131,7 +131,7 @@ internal sealed partial class AccountStore : IDisposable
 
         // Version 2: feat totals and base-map wins for the achievements. Version 3: cosmetics an admin unlocked.
         // Version 4: the admin portal (MigrateVersion4). Version 5: levels and prestige (MigrateVersion5).
-        // Version 6: round demos (MigrateVersion6).
+        // Version 6: round demos. Version 7: the player hub, revisioned appearance and admin operations.
         InTransaction(() =>
         {
             Exec("""
@@ -155,6 +155,9 @@ internal sealed partial class AccountStore : IDisposable
             MigrateVersion4();
             MigrateVersion5();
             MigrateVersion6();
+            MigratePlayerPortal();
+            MigrateAppearance();
+            MigrateAdminFeatures();
             Exec("DELETE FROM schema_version; INSERT INTO schema_version (version) VALUES ($v);", ("$v", SchemaVersion));
             return 0;
         });
@@ -768,7 +771,7 @@ internal sealed partial class AccountStore : IDisposable
     {
         lock (_gate)
         {
-            return ProfileLocked(accountId);
+            return ProfileLocked(accountId) is { } profile ? WithAppearanceLocked(accountId, profile) : null;
         }
     }
 
@@ -786,13 +789,14 @@ internal sealed partial class AccountStore : IDisposable
             ProfileData? stored = ProfileLocked(accountId);
             if (stored is not null && stored.Updated.ToUnixTimeMilliseconds() >= updated)
             {
-                return stored;
+                return WithAppearanceLocked(accountId, stored);
             }
 
             Exec("INSERT INTO profiles (account_id, data, updated_ms) VALUES ($a, $d, $u) " +
                 "ON CONFLICT (account_id) DO UPDATE SET data = excluded.data, updated_ms = excluded.updated_ms;",
                 ("$a", accountId), ("$d", profile.Data), ("$u", updated));
-            return new ProfileData { Data = profile.Data, Updated = DateTimeOffset.FromUnixTimeMilliseconds(updated) };
+            AcceptLegacyAppearanceLocked(accountId, profile.Data);
+            return WithAppearanceLocked(accountId, new ProfileData { Data = profile.Data, Updated = DateTimeOffset.FromUnixTimeMilliseconds(updated) });
         }
     }
 

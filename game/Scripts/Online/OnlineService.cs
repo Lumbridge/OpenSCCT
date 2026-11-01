@@ -124,6 +124,12 @@ public partial class OnlineService : Node
     public void Join(JoinTarget target, string? password = null, string? ticket = null, string? masterId = null)
     {
         ArgumentNullException.ThrowIfNull(target);
+        AccountService.Get(GetTree()).PrepareAppearance(() => JoinPrepared(target, password, ticket, masterId));
+    }
+
+    private void JoinPrepared(JoinTarget target, string? password, string? ticket, string? masterId)
+    {
+        ArgumentNullException.ThrowIfNull(target);
         EndVisit();
         LastError = null;
         _notes.Clear();
@@ -142,6 +148,13 @@ public partial class OnlineService : Node
     /// the hub again).
     /// </summary>
     public void JoinFromHub(JoinTarget target, string password, int team, Action<string?> back, string? ticket = null)
+    {
+        ArgumentNullException.ThrowIfNull(target);
+        ArgumentNullException.ThrowIfNull(back);
+        AccountService.Get(GetTree()).PrepareAppearance(() => JoinFromHubPrepared(target, password, team, back, ticket));
+    }
+
+    private void JoinFromHubPrepared(JoinTarget target, string password, int team, Action<string?> back, string? ticket)
     {
         ArgumentNullException.ThrowIfNull(target);
         ArgumentNullException.ThrowIfNull(back);

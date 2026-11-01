@@ -19,7 +19,7 @@ internal static class AdminHtml
     private static readonly (string Path, string Label)[] s_nav =
     [
         ("/admin", "Dashboard"), ("/admin/servers", "Servers"), ("/admin/players", "Players"), ("/admin/bans", "Bans"),
-        ("/admin/matches", "Matches"), ("/admin/history", "History"), ("/admin/settings", "Settings"), ("/admin/audit", "Audit"),
+        ("/admin/matches", "Matches"), ("/admin/commands", "Commands"), ("/admin/history", "History"), ("/admin/settings", "Settings"), ("/admin/audit", "Audit"),
     ];
 
     /// <summary>HTML-encodes text (null as empty).</summary>
@@ -53,30 +53,46 @@ internal static class AdminHtml
         var sb = new StringBuilder();
         sb.Append("<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\">")
             .Append("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">")
-            .Append("<title>").Append(H(title)).Append(" - OpenSCCT admin</title>")
-            .Append("<link rel=\"stylesheet\" href=\"/admin/assets/admin.css\"><script src=\"/admin/assets/admin.js\" defer></script>")
-            .Append("</head><body").Append(refresh ? " data-refresh=\"10\"" : string.Empty).Append('>');
+            .Append("<title>").Append(H(title)).Append(" - OpenSCCT administration</title>")
+            .Append("<link rel=\"stylesheet\" href=\"/web/assets/site.css\"><link rel=\"stylesheet\" href=\"/admin/assets/admin.css\">")
+            .Append("<script src=\"/admin/assets/admin.js\" defer></script>")
+            .Append("</head><body class=\"admin\"").Append(refresh ? " data-refresh=\"10\"" : string.Empty).Append('>')
+            .Append("<a class=\"skip-link\" href=\"#main\">Skip to content</a>");
         if (admin is not null)
         {
-            sb.Append("<header><a class=\"brand\" href=\"/admin\">OpenSCCT <span>admin</span></a><nav>");
+            sb.Append("<aside class=\"admin-sidebar\"><a class=\"admin-brand\" href=\"/admin\"><span class=\"brand-mark\">O</span><span>OpenSCCT<small>CONTROL ROOM</small></span></a>")
+                .Append("<details class=\"admin-navigation\" open><summary>Administration menu</summary><nav aria-label=\"Administration\">");
             foreach ((string path, string label) in s_nav)
             {
-                sb.Append("<a href=\"").Append(path).Append('"').Append(path == active ? " class=\"on\"" : string.Empty).Append('>')
-                    .Append(label).Append("</a>");
+                sb.Append("<a href=\"").Append(path).Append('"').Append(path == active ? " class=\"on\" aria-current=\"page\"" : string.Empty).Append('>')
+                    .Append("<span class=\"nav-mark\" aria-hidden=\"true\"></span>").Append(label).Append("</a>");
             }
 
-            sb.Append("</nav><div class=\"who\">").Append(H(admin))
-                .Append(" <form method=\"post\" action=\"/admin/logout\" class=\"inline\">").Append(Csrf(context))
-                .Append("<button class=\"link\">Sign out</button></form></div></header>");
+            sb.Append("</nav></details><div class=\"sidebar-bottom\"><a href=\"/\">↗ Player hub</a><span class=\"admin-identity\">").Append(H(admin))
+                .Append("<small>Administrator</small></span><form method=\"post\" action=\"/admin/logout\">").Append(Csrf(context))
+                .Append("<button class=\"link\">Sign out</button></form></div></aside>")
+                .Append("<div class=\"admin-workspace\"><header class=\"admin-topbar\"><span class=\"workspace-label\">OPERATIONS / ")
+                .Append(H(title)).Append("</span><form action=\"/admin/search\" method=\"get\" class=\"global-search\"><label class=\"sr-only\" for=\"global-query\">Search players, servers and matches</label>")
+                .Append("<input id=\"global-query\" name=\"q\" type=\"search\" placeholder=\"Search players, servers, matches…\" maxlength=\"100\"><button>Search</button></form></header>");
+        }
+        else
+        {
+            sb.Append("<div class=\"admin-signin\"><a class=\"admin-brand\" href=\"/\"><span class=\"brand-mark\">O</span>OpenSCCT</a>");
         }
 
-        sb.Append("<main id=\"main\"><h1>").Append(H(title)).Append("</h1>");
+        sb.Append("<main id=\"main\"><div class=\"page-heading\"><div><p class=\"eyebrow\">ADMINISTRATION</p><h1>").Append(H(title)).Append("</h1></div>");
+        if (refresh)
+        {
+            sb.Append("<div class=\"live-status\" role=\"status\"><span class=\"status-dot\"></span><span id=\"refresh-status\">Live · updating every 10s</span><button type=\"button\" id=\"refresh-now\" class=\"link\">Refresh</button></div>");
+        }
+
+        sb.Append("</div>");
         if (!string.IsNullOrEmpty(notice))
         {
-            sb.Append("<p class=\"notice").Append(noticeBad ? " bad" : string.Empty).Append("\">").Append(H(notice)).Append("</p>");
+            sb.Append("<p role=\"status\" class=\"notice").Append(noticeBad ? " bad" : string.Empty).Append("\">").Append(H(notice)).Append("</p>");
         }
 
-        sb.Append(body).Append("</main></body></html>");
+        sb.Append(body).Append("<footer class=\"admin-footer\">OpenSCCT operations <span>Changes are recorded in the audit log.</span></footer></main></div></body></html>");
         return Results.Content(sb.ToString(), "text/html; charset=utf-8", Encoding.UTF8, status);
     }
 
@@ -106,10 +122,10 @@ internal static class AdminHtml
 
     public static string Input(string name, string placeholder = "", string value = "", string type = "text", bool required = false,
         int maxLength = 200) =>
-        $"<input type=\"{type}\" name=\"{H(name)}\" placeholder=\"{H(placeholder)}\" value=\"{H(value)}\" maxlength=\"{maxLength}\"{(required ? " required" : string.Empty)}>";
+        $"<input type=\"{type}\" name=\"{H(name)}\" aria-label=\"{H(placeholder.Length > 0 ? placeholder : name)}\" placeholder=\"{H(placeholder)}\" value=\"{H(value)}\" maxlength=\"{maxLength}\"{(type == "number" ? " step=\"any\"" : string.Empty)}{(required ? " required" : string.Empty)}>";
 
     public static string Select(string name, IEnumerable<(string Value, string Label)> options, string? selected = null) =>
-        $"<select name=\"{H(name)}\">" + string.Concat(options.Select(o =>
+        $"<select name=\"{H(name)}\" aria-label=\"{H(name)}\">" + string.Concat(options.Select(o =>
             $"<option value=\"{H(o.Value)}\"{(o.Value == selected ? " selected" : string.Empty)}>{H(o.Label)}</option>")) + "</select>";
 
     /// <summary>A table: header cells (plain text) and rows of already-built cell HTML.</summary>
@@ -118,7 +134,7 @@ internal static class AdminHtml
         var sb = new StringBuilder("<div class=\"table\"><table><thead><tr>");
         foreach (string h in headers)
         {
-            sb.Append("<th>").Append(H(h)).Append("</th>");
+            sb.Append("<th scope=\"col\">").Append(H(h)).Append("</th>");
         }
 
         sb.Append("</tr></thead><tbody>");
@@ -149,11 +165,12 @@ internal static class AdminHtml
 
     /// <summary>A row of figure tiles (label, value, optional note).</summary>
     public static string Tiles(params (string Label, string Value, string? Note)[] tiles) =>
-        "<div class=\"tiles\">" + string.Concat(tiles.Select(t =>
+        "<div class=\"tiles\" data-refresh-region=\"metrics\">" + string.Concat(tiles.Select(t =>
             $"<div class=\"tile\"><div class=\"label\">{H(t.Label)}</div><div class=\"value\">{H(t.Value)}</div>" +
             (t.Note is null ? string.Empty : $"<div class=\"note\">{H(t.Note)}</div>") + "</div>")) + "</div>";
 
-    public static string Section(string title, string inner) => $"<section><h2>{H(title)}</h2>{inner}</section>";
+    public static string Section(string title, string inner) =>
+        $"<section class=\"panel-section\" id=\"{U(title.ToLowerInvariant().Replace(' ', '-'))}\" data-refresh-region=\"{H(title)}\"><div class=\"section-heading\"><h2>{H(title)}</h2></div>{inner}</section>";
 
     /// <summary>Previous / next page links for a list.</summary>
     public static string Pager(string basePath, int page, bool more)

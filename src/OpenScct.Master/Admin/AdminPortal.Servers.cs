@@ -90,10 +90,19 @@ internal sealed partial class AdminPortal
 
     private IResult Servers(HttpContext c, AdminSessionRow admin)
     {
-        List<ServerView> servers = Snapshot();
-        return Page(c, "Servers", "/admin/servers", admin.Name,
-            $"<p class=\"muted\">{servers.Count} registered. Only trusted servers (with a server key in the master's config) take commands.</p>" +
-            ServerTable(servers), refresh: true);
+        string query = Query(c, "q");
+        string kind = Query(c, "kind");
+        string trust = Query(c, "trust");
+        List<ServerView> servers = Snapshot().Where(s =>
+            (query.Length == 0 || s.Name.Contains(query, StringComparison.OrdinalIgnoreCase) || s.Map.Contains(query, StringComparison.OrdinalIgnoreCase)) &&
+            (kind.Length == 0 || (kind == "hub") == (s.Kind == ServerKind.Hub)) &&
+            (trust.Length == 0 || (trust == "trusted") == s.Trusted)).ToList();
+        string form = "<form method=\"get\" action=\"/admin/servers\" class=\"bar\">" + Input("q", "Server or map", query) +
+            Select("kind", [("", "Games and hubs"), ("game", "Games"), ("hub", "Hubs")], kind) +
+            Select("trust", [("", "All trust levels"), ("trusted", "Trusted"), ("community", "Community")], trust) + Button("Filter") + "</form>";
+        return Page(c, "Servers", "/admin/servers", admin.Name, form +
+            Section("Live servers", $"<p class=\"muted\">{servers.Count} matching servers. Only trusted servers accept administrative commands.</p>" +
+            ServerTable(servers)), refresh: true);
     }
 
     private IResult Server(HttpContext c, AdminSessionRow admin, string id, string? notice, bool bad)
@@ -127,37 +136,43 @@ internal sealed partial class AdminPortal
                 (p.Admin ? " " + Badge("admin") : string.Empty),
             H(p.Team switch { 0 => "Spy", 1 => "Merc", 255 => "Spectator", _ => "-" }), H(p.Id >= 0 ? $"{p.PingMs} ms" : "-"),
             p.AccountId is { } a ? Link($"/admin/players/{a}", names[a]) : H(p.Bot ? "-" : "guest"),
-            s.Trusted && p.Id >= 0 && !p.Bot
-                ? Form(c, self, $"<input type=\"hidden\" name=\"player\" value=\"{p.Id}\">" + Button("Kick", "do", "kick"),
-                    $"Kick {p.Name}?", "inline") +
-                  Form(c, self, $"<input type=\"hidden\" name=\"player\" value=\"{p.Id}\">" + Input("minutes", "Minutes", type: "number") +
-                    Button("Ban here", "do", "ban", "danger"), $"Ban {p.Name} from this server?", "inline")
-                : string.Empty,
+            s.Trusted && p.Id >= 0 && !p.Bot ? Link(self + "?player=" + p.Id.ToString(CultureInfo.InvariantCulture) + "#player-actions", "Manage") : string.Empty,
         }), "Nobody is on this server.")));
+
+        if (s.Trusted && int.TryParse(Query(c, "player"), NumberStyles.None, CultureInfo.InvariantCulture, out int selected) &&
+            s.Players.FirstOrDefault(p => p.Id == selected && !p.Bot) is { } target)
+        {
+            string identity = $"<input type=\"hidden\" name=\"player\" value=\"{target.Id}\"><input type=\"hidden\" name=\"expectedName\" value=\"{H(target.Name)}\">";
+            body.Append(Section("Player actions", $"<div data-selected-player=\"{target.Id}\" data-selected-name=\"{H(target.Name)}\"><p>Target: <strong>" + H(target.Name) +
+                "</strong> · session #" + target.Id + "</p><p class=\"selected-player-status muted\" role=\"status\">Player is connected.</p><div class=\"actions\">" +
+                Form(c, self, identity + "<h3>Kick player</h3>" + Input("reason", "Kick reason") + Button("Kick", "do", "kick", "danger"), "Kick " + target.Name + " from this server?") +
+                Form(c, self, identity + "<h3>Server ban</h3>" + BanDurationFields("minutes", "60") + Input("reason", "Ban reason", required: true) + Button("Ban here", "do", "ban", "danger"),
+                    "Ban " + target.Name + " from this server?") + "</div></div>"));
+        }
 
         if (s.Trusted)
         {
-            body.Append(Section("Control", "<div class=\"actions\">" +
-                Form(c, self, Input("text", "Message to everyone", maxLength: 150, required: true) + Button("Say", "do", "say")) +
-                Form(c, self, Input("map", "Map code (e.g. SteeE)", maxLength: 16, required: true) +
-                    Select("mode", [("", "Its default mode"), ("story", "Story"), ("diskhunt", "Disk Hunt"), ("deathmatch", "Deathmatch"),
-                        ("mercdeathmatch", "Merc Deathmatch"), ("extraction", "Extraction"), ("sabotage", "Sabotage"),
-                        ("neutralization", "Neutralization")]) + Button("Change map", "do", "map"), "Change the map?") +
-                Form(c, self, Button("Start round", "do", "launch") + Button("Next map", "do", "next") + Button("Restart round", "do", "restart") +
-                    Button("Back to lobby", "do", "lobby"), "Do this on the server now?") +
-                Form(c, self, Select("option", [("time", "Time limit (min)"), ("spylives", "Spy lives"), ("merclives", "Merc lives"),
+            body.Append(Section("Communication", Form(c, self, Input("text", "Message to everyone", maxLength: 150, required: true) + Button("Send message", "do", "say"), cls: "bar")));
+            if (s.Kind == ServerKind.Game)
+            {
+                body.Append(Section("Round controls", "<div class=\"actions\">" +
+                    Form(c, self, "<h3>Map and mode</h3>" + Input("map", "Map code (e.g. SteeE)", maxLength: 16, required: true) +
+                        Select("mode", [("", "Its default mode"), ("story", "Story"), ("diskhunt", "Disk Hunt"), ("deathmatch", "Deathmatch"),
+                            ("mercdeathmatch", "Merc Deathmatch"), ("extraction", "Extraction"), ("sabotage", "Sabotage"), ("neutralization", "Neutralization")]) +
+                        Button("Change map", "do", "map"), "Change this server's map and mode?") +
+                    Form(c, self, "<h3>Round actions</h3>" + Button("Start round", "do", "launch") + Button("Next map", "do", "next") +
+                        Button("Restart round", "do", "restart", "danger") + Button("Back to lobby", "do", "lobby"), "Run this round command on the server now?") +
+                    Form(c, self, "<h3>Game rules</h3>" + Select("option", [("time", "Time limit (min)"), ("spylives", "Spy lives"), ("merclives", "Merc lives"),
                         ("respawn", "Respawn (s)"), ("score", "Score / kill limit"), ("games", "Games in a row"), ("maxplayers", "Max players"),
                         ("bots", "Bots (off, side, fill)"), ("botsperside", "Bots per side"), ("botskill", "Bot skill")]) +
-                    Input("value", "Value", maxLength: 16, required: true) + Button("Set", "do", "set")) +
-                Form(c, self, Input("line", "Console command (as the server's console takes it)", maxLength: 200, required: true) +
-                    Button("Run", "do", "console"), "Run this console command on the server?") +
-                "</div>" +
-                (s.Pending > 0 ? $"<p class=\"muted\">{s.Pending} command(s) waiting for the server's next heartbeat (a few seconds).</p>" : string.Empty)));
-            body.Append(Section("Command results", Table(["When", "Command", "Output"], s.Log.AsEnumerable().Reverse().Take(20).Select(l => new[]
-            {
-                H(Duration(_registryNow() - l.At) + " ago"), "<code>" + H(l.Command.Line) + "</code>", "<pre>" + H(l.Output) + "</pre>",
-            }), "No commands yet.")));
+                        Input("value", "Value", maxLength: 16, required: true) + Button("Set rule", "do", "set")) + "</div>"));
+            }
+            body.Append(Section("Advanced console", "<details><summary>Run a console command</summary><p class=\"muted\">Commands use the selected server's console syntax.</p>" +
+                Form(c, self, Input("line", "Console command", maxLength: 200, required: true) + Button("Run", "do", "console"),
+                    "Run this command on " + s.Name + "?", "bar") + "</details>"));
+            body.Append(Section("Command history", CommandTable(_store.AdminCommands(id))));
         }
+
         else
         {
             body.Append("<p class=\"muted\">This server is not trusted, so it takes no commands. Kicks still reach it through bans " +
@@ -166,29 +181,38 @@ internal sealed partial class AdminPortal
 
         body.Append(Section("Block", Form(c, "/admin/servers/blocks",
             $"<input type=\"hidden\" name=\"kind\" value=\"ip\"><input type=\"hidden\" name=\"value\" value=\"{H(s.Ip)}\">" +
-            Input("reason", "Reason") + Button($"Block {s.Ip}", "do", "block", "danger"),
+            Input("reason", "Reason", required: true) + Button($"Block {s.Ip}", "do", "block", "danger"),
             "Refuse every heartbeat from this address? Its servers leave the list.", "bar")));
         return Page(c, s.Name, "/admin/servers", admin.Name, body.ToString(), notice, bad, refresh: true);
     }
 
-    private double _registryNow()
-    {
-        lock (_registry.Gate)
-        {
-            return _registry.Now;
-        }
-    }
-
     private IResult ServerAction(HttpContext c, AdminSessionRow admin, string id, IFormCollection form)
     {
+        string action = Field(form, "do");
         string player = Field(form, "player", 8);
         bool playerOk = int.TryParse(player, NumberStyles.None, CultureInfo.InvariantCulture, out int playerId);
-        int.TryParse(Field(form, "minutes", 8), NumberStyles.None, CultureInfo.InvariantCulture, out int minutes);
-        string? line = Field(form, "do") switch
+        string reason = Field(form, "reason");
+        ServerView? current = Snapshot().FirstOrDefault(s => s.Id == id);
+        if (current is null || !current.Trusted) return Server(c, admin, id, "The server is gone or is not trusted.", true);
+        if (action is "kick" or "ban" && (!playerOk || !current.Players.Any(p => p.Id == playerId && !p.Bot && p.Name == Field(form, "expectedName", 64))))
+        {
+            return Server(c, admin, id, "That player session has changed. Select the player again.", true);
+        }
+        double? minutes = null;
+        if (action == "ban" && (!TryBanDuration(form, "minutes", out minutes, out string durationError) || reason.Length == 0))
+        {
+            return Server(c, admin, id, reason.Length == 0 ? "Enter a reason for the ban." : durationError, true);
+        }
+        if (current.Kind == ServerKind.Hub && action is "map" or "launch" or "next" or "lobby" or "restart" or "set")
+        {
+            return Server(c, admin, id, "Round controls apply to game servers, not hubs.", true);
+        }
+
+        string? line = action switch
         {
             "say" when Field(form, "text", 150).Length > 0 => "say " + Field(form, "text", 150),
-            "kick" when playerOk => $"kick {playerId} Kicked by an admin",
-            "ban" when playerOk => $"ban {playerId} {(minutes > 0 ? minutes.ToString(CultureInfo.InvariantCulture) + " " : string.Empty)}Banned by an admin",
+            "kick" when playerOk => $"kick {playerId} {(reason.Length > 0 ? reason : "Kicked by an admin")}",
+            "ban" when playerOk => $"ban {playerId} {(minutes is { } duration ? duration.ToString(CultureInfo.InvariantCulture) + " " : "Permanent: ")}{reason}",
             "map" when IsWord(Field(form, "map", 16)) => ("map " + Field(form, "map", 16) + " " + Field(form, "mode", 20)).Trim(),
             "launch" => "launch",
             "next" => "next",
@@ -206,10 +230,10 @@ internal sealed partial class AdminPortal
         bool queued = Queue(id, line);
         if (queued)
         {
-            _store.Audit("server.command", $"{id}: {line}");
+            _store.AuditChange("server.command", "server:" + id, reason, null, new { Command = line, State = "queued" });
         }
 
-        return Server(c, admin, id, queued ? $"Sent: {line}. The server runs it within a few seconds." : "The server is gone or not trusted.", !queued);
+        return Server(c, admin, id, queued ? $"Queued: {line}. Watch Command history for dispatch and the server response." : "The server is gone, not trusted, or its command queue is full.", !queued);
     }
 
     private static bool IsWord(string text) =>
@@ -220,7 +244,11 @@ internal sealed partial class AdminPortal
         string action = Field(form, "do");
         if (action == "unblock" && long.TryParse(Field(form, "id"), NumberStyles.None, CultureInfo.InvariantCulture, out long blockId))
         {
+            BlockRow? before = _store.Blocks().FirstOrDefault(b => b.Id == blockId);
             _store.RemoveBlock(blockId);
+            _store.AuditChange("server.unblock", "block:" + blockId, string.Empty, before, null);
+            _blocksRead = double.NegativeInfinity;
+            RefreshBlocks(_registry.Now);
             return Settings(c, admin, "Block removed.", false);
         }
 
@@ -235,7 +263,13 @@ internal sealed partial class AdminPortal
             return Settings(c, admin, $"'{value}' is not an address.", true);
         }
 
-        _store.AddBlock(kind, value, Field(form, "reason"));
+        string reason = Field(form, "reason");
+        if (reason.Length == 0) return Settings(c, admin, "Enter a reason for blocking this server.", true);
+        if (kind == "ip" && value.Contains('/', StringComparison.Ordinal)) return Settings(c, admin, "Server blocks use one address; use account bans for a CIDR range.", true);
+        _store.AddBlock(kind, value, reason);
+        _store.AuditChange("server.block", "server:" + value, reason, null, new { Kind = kind, Value = value });
+        _blocksRead = double.NegativeInfinity;
+        RefreshBlocks(_registry.Now);
         lock (_registry.Gate)
         {
             foreach (ServerRecord r in _registry.Snapshot())
@@ -257,12 +291,12 @@ internal sealed partial class AdminPortal
     {
         lock (_registry.Gate)
         {
-            if (_registry.Find(serverId) is not { Trusted: true } record)
+            if (_registry.Find(serverId) is not { Trusted: true } record || record.PendingCommands.Count >= 32)
             {
                 return false;
             }
 
-            var command = new MasterCommand { Id = _nextCommandId++, Line = line };
+            var command = new MasterCommand { Id = _store.AddAdminCommand(serverId, record.Last.Name, line), Line = line };
             record.PendingCommands.Add(command);
             _queuedAt[command.Id] = _registry.Now;
             return true;
@@ -315,10 +349,18 @@ internal sealed partial class AdminPortal
     public (IReadOnlyList<MasterCommand> Commands, int? HeartbeatSeconds) OnHeartbeat(ServerRecord record, HeartbeatRequest request)
     {
         double now = _registry.Now;
+        if (!record.Trusted)
+        {
+            record.PendingCommands.Clear();
+            return ([], null);
+        }
         foreach (MasterCommandResult result in request.CommandResults.Take(20))
         {
             string output = result.Output.Length > 2000 ? result.Output[..2000] : result.Output;
-            record.CommandLog.Add((new MasterCommand { Id = result.Id, Line = SentLine(record, result.Id) }, output, now));
+            if (_store.CompleteAdminCommand(record.Id, result.Id, output))
+            {
+                record.CommandLog.Add((new MasterCommand { Id = result.Id, Line = SentLine(record, result.Id) }, output, now));
+            }
         }
 
         if (record.CommandLog.Count > 50)
@@ -326,18 +368,17 @@ internal sealed partial class AdminPortal
             record.CommandLog.RemoveRange(0, record.CommandLog.Count - 50);
         }
 
-        if (!record.Trusted)
-        {
-            record.PendingCommands.Clear();
-            return ([], null);
-        }
 
         record.PendingCommands.RemoveAll(cmd => !_queuedAt.TryGetValue(cmd.Id, out double at) || now - at > CommandLifetime);
-        List<MasterCommand> commands = [.. record.PendingCommands];
-        foreach (MasterCommand cmd in commands)
+        var commands = new List<MasterCommand>();
+        foreach (MasterCommand cmd in record.PendingCommands)
         {
-            _sent[cmd.Id] = cmd.Line;
             _queuedAt.Remove(cmd.Id);
+            if (_store.DispatchAdminCommand(record.Id, cmd.Id))
+            {
+                commands.Add(cmd);
+                _sent[cmd.Id] = cmd.Line;
+            }
         }
 
         record.PendingCommands.Clear();
@@ -386,11 +427,24 @@ internal sealed partial class AdminPortal
     }
 
     private double _lastSample = double.NegativeInfinity;
+    private double _lastCommandSweep = double.NegativeInfinity;
 
     /// <summary>Keeps one players/servers sample a minute for the history (called from the master's sweep).</summary>
     public void Sample(double now)
     {
         RefreshBlocks(now);
+        if (now - _lastCommandSweep >= 5)
+        {
+            _lastCommandSweep = now;
+            _store.ExpireAdminCommands();
+            lock (_registry.Gate)
+            {
+                foreach (long expired in _queuedAt.Where(p => now - p.Value > CommandLifetime).Select(p => p.Key).ToList())
+                {
+                    _queuedAt.Remove(expired);
+                }
+            }
+        }
         if (now - _lastSample < 60)
         {
             return;

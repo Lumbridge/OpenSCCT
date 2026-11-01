@@ -92,7 +92,7 @@ stamp=$(date +%Y%m%d-%H%M%S)
 backup=/opt/svm/backups/$unit-$stamp.tgz
 mapsbackup=/opt/svm/backups/$unit-$stamp-maps.tgz
 sudo mkdir -p /opt/svm/backups
-sudo systemctl stop "$unit"
+sudo systemctl stop "$unit" || { echo "Could not stop $unit; deployment cancelled"; exit 1; }
 sudo tar -czf "$backup" -C "$dir" --exclude=./maps --exclude=./chars --exclude=./shared --exclude=./backups . || { sudo systemctl start "$unit"; echo "backup failed"; exit 1; }
 if [ "$maps" != "-" ]; then
   (cd "$dir" && sudo tar -czf "$mapsbackup" --ignore-failed-read $hubmaps) || { sudo systemctl start "$unit"; echo "maps backup failed"; exit 1; }
@@ -127,13 +127,29 @@ if [ $ok = 1 ]; then
 fi
 echo "$unit did not come back up; restoring $backup"
 sudo journalctl -u "$unit" -n 30 --no-pager
-sudo systemctl stop "$unit"
-sudo tar -xzf "$backup" -C "$dir"
-if [ "$maps" != "-" ]; then
-  (cd "$dir" && sudo rm -rf $hubmaps) && sudo tar -xzf "$mapsbackup" -C "$dir"
+sudo systemctl stop "$unit" || { echo "Could not stop $unit; rollback cancelled"; exit 1; }
+# Restore a matched database/binary pair. A newer SQLite WAL must never be replayed into the old database.
+# Only remove sidecars for databases present in this service's stopped-state backup.
+if [ "$program" = "svm-master" ]; then
+  sudo python3 - "$dir" "$backup" <<'PY' || { echo "Database journal cleanup failed; service remains stopped"; exit 1; }
+import pathlib, sys, tarfile
+root = pathlib.Path(sys.argv[1]).resolve()
+with tarfile.open(sys.argv[2], 'r:gz') as archive:
+    databases = [m.name for m in archive.getmembers() if m.isfile() and m.name.endswith(('.db', '.sqlite', '.sqlite3'))]
+for name in databases:
+    database = (root / name).resolve()
+    if not database.is_relative_to(root):
+        raise SystemExit('Backup database path escapes the service directory')
+    for suffix in ('-wal', '-shm'):
+        pathlib.Path(str(database) + suffix).unlink(missing_ok=True)
+PY
 fi
-sudo chown -R svm:svm "$dir"
-sudo systemctl start "$unit"
+sudo tar -xzf "$backup" -C "$dir" || { echo "Backup restore failed; service remains stopped"; exit 1; }
+if [ "$maps" != "-" ]; then
+  (cd "$dir" && sudo rm -rf $hubmaps) && sudo tar -xzf "$mapsbackup" -C "$dir" || { echo "Map restore failed; service remains stopped"; exit 1; }
+fi
+sudo chown -R svm:svm "$dir" || { echo "Ownership restore failed; service remains stopped"; exit 1; }
+sudo systemctl start "$unit" || { echo "Restored service failed to start"; exit 1; }
 exit 1
 
 '@ -replace "`r`n", "`n"

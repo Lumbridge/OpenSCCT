@@ -51,14 +51,15 @@ internal sealed partial class AdminPortal
         (int accounts, int newToday) = _store.CountAccounts(now - 86400);
         (long relayed, long introductions) = _udpStats();
         var body = new StringBuilder();
-        body.Append(Tiles(
+        body.Append("<div class=\"dashboard-metrics\">").Append(Tiles(
             ("Players online", N(inGames + inHubs), $"{inGames} in games, {inHubs} in hubs"),
             ("Servers", N(servers.Count(s => s.Kind == ServerKind.Game)),
                 $"{servers.Count(s => s.Kind == ServerKind.Hub)} hub(s), {servers.Count(s => !s.Listed)} unlisted"),
             ("Accounts", N(accounts), $"{newToday} new today"),
             ("Rounds today", N(_store.CountMatches(now - 86400)), null),
             ("Relay", N(_registry.RelaySessionCount) + " sessions", $"{N(relayed)} packets relayed"),
-            ("Introductions", N(introductions), "NAT punches since start")));
+            ("Introductions", N(introductions), "NAT punches since start"))).Append("</div>");
+        body.Append(Section("Needs attention", OperationsIssues(servers)));
         List<MetricRow> day = _store.Metrics(now - 86400, 600);
         body.Append(Section("Players online, last 24 hours", Chart(
             [("Players", day.Select(m => (m.Time, m.Players)).ToList()), ("Servers", day.Select(m => (m.Time, m.Servers)).ToList())],
@@ -73,15 +74,17 @@ internal sealed partial class AdminPortal
 
     private IResult Players(HttpContext c, AdminSessionRow admin)
     {
-        string q = c.Request.Query["q"].ToString();
+        string q = Query(c, "q");
         bool byCreated = c.Request.Query["sort"] == "created";
         int page = PageOf(c);
-        (List<AccountListRow> rows, int total) = _store.SearchAccounts(q, byCreated, page, PageSize);
+        string status = Query(c, "status");
         HashSet<long> online = OnlineAccounts();
+        (List<AccountListRow> rows, int total) = _store.SearchAccounts(q, byCreated, page, PageSize, status, online, _options.Admins);
         Dictionary<long, PlayerRank> ranks = _store.Ranks(rows.Select(r => r.Account.Id));
         long now = _store.Now;
         string search = "<form method=\"get\" action=\"/admin/players\" class=\"bar\">" + Input("q", "Name, Discord id or account id", q) +
             Select("sort", [("seen", "Last seen"), ("created", "Newest accounts")], byCreated ? "created" : "seen") +
+            Select("status", [("", "All players"), ("online", "Online now"), ("banned", "Banned"), ("private", "Private / hidden"), ("admin", "Admins")], status) +
             Button("Search") + "</form>";
         string table = Table(["Account", "Name", "Rank", "Discord", "Last seen", "Created", "Matches", "Kills", ""],
             rows.Select(r => new[]
@@ -91,7 +94,7 @@ internal sealed partial class AdminPortal
                 (online.Contains(r.Account.Id) ? Badge("online", "ok") : string.Empty) + (r.Banned ? Badge("banned", "bad") : string.Empty) +
                     (_options.IsAdmin(r.Account.DiscordId) ? Badge("admin") : string.Empty),
             }));
-        string basePath = "/admin/players?q=" + U(q) + "&sort=" + (byCreated ? "created" : "seen");
+        string basePath = "/admin/players?q=" + U(q) + "&sort=" + (byCreated ? "created" : "seen") + "&status=" + U(status);
         return Page(c, "Players", "/admin/players", admin.Name,
             search + $"<p class=\"muted\">{N(total)} account(s).</p>" + table + Pager(basePath, page, (page + 1) * PageSize < total));
     }
@@ -127,19 +130,29 @@ internal sealed partial class AdminPortal
         }
 
         string self = $"/admin/players/{id}";
-        body.Append(Section("Actions", "<div class=\"actions\">" +
-            Form(c, self, Input("name", "New name", account.Name ?? string.Empty, maxLength: 16) + Button("Rename", "do", "rename")) +
-            Form(c, self, Button("Release name", "do", "release"), "Take this account's name away? It picks a new one at its next sign-in.") +
-            Form(c, self, Input("days", "Days (empty: permanent)", type: "number") + Input("reason", "Reason") + Button("Ban", "do", "ban", "danger"),
-                "Ban this account (and its Discord id)?") +
-            Form(c, self, Button("Unban", "do", "unban")) +
-            Form(c, self, Button("Kick from server", "do", "kick"), "Kick this player from the server they are on?") +
-            Form(c, self, Button("Sign out everywhere", "do", "signout"), "End every game sign-in of this account?") +
-            Form(c, self, Select("what", CosmeticChoices()) + Button("Unlock", "do", "unlock") + Button("Take back", "do", "lock")) +
-            Form(c, self, Input("prestige", "Prestige (0-10)", progress.Prestige.ToString(CultureInfo.InvariantCulture), type: "number") +
-                Input("level", "Level (1-55)", progress.Rank.Level.ToString(CultureInfo.InvariantCulture), type: "number") +
-                Button("Set rank", "do", "rank"), "Set this account's prestige and level?") +
+        ProfileVisibilityRow visibility = _store.ProfileVisibility(id);
+        body.Append("<nav class=\"tabs\" aria-label=\"Player sections\">")
+            .Append(Link("#moderation", "Moderation")).Append(Link("#progression", "Progression"))
+            .Append(Link("#recent-rounds", "Matches")).Append(Link("#sessions", "Sessions"))
+            .Append(Link("#audit-history", "Audit")).Append("</nav>");
+        body.Append(Section("Moderation", "<p class=\"muted\">Target: <strong>" + H(account.Name ?? "Unnamed account") + "</strong> · account #" + N(id) +
+            " · " + (visibility.Hidden ? "profile hidden by moderation" : visibility.Public ? "public profile" : "private profile") + "</p><div class=\"actions\">" +
+            Form(c, self, "<h3>Player name</h3>" + Input("name", "New name", account.Name ?? string.Empty, maxLength: 16) + Button("Rename", "do", "rename")) +
+            Form(c, self, "<h3>Release player name</h3>" + Button("Release name", "do", "release", "danger"), "Release the name of " + (account.Name ?? "this account") + "? They will choose a name on their next sign-in.") +
+            Form(c, self, "<h3>Ban account</h3>" + BanDurationFields() + Input("reason", "Reason", required: true) + Button("Ban account", "do", "ban", "danger"),
+                "Ban " + (account.Name ?? "account #" + id) + " and its Discord identity?") +
+            Form(c, self, "<h3>End account bans</h3>" + Button("Unban", "do", "unban"), "End the active account bans?") +
+            Form(c, self, "<h3>Remove from live servers</h3>" + Input("reason", "Kick reason") + Button("Kick player", "do", "kick"), "Kick " + (account.Name ?? "this player") + " from the trusted servers they are on?") +
+            Form(c, self, "<h3>Public profile moderation</h3>" + Input("reason", "Moderation reason", required: true) +
+                Button(visibility.Hidden ? "Restore visibility" : "Hide public profile", "do", visibility.Hidden ? "show-profile" : "hide-profile", "danger"),
+                visibility.Hidden ? "Restore this profile's own privacy choice?" : "Hide this player from the public website, including scoreboards and leaderboards?") +
             "</div>"));
+        body.Append(Section("Progression", "<div class=\"actions\">" +
+            Form(c, self, "<h3>Cosmetic grants</h3>" + Select("what", CosmeticChoices()) + Input("reason", "Reason", required: true) +
+                Button("Unlock", "do", "unlock") + Button("Take back", "do", "lock", "danger"), "Change this player's cosmetic grants?") +
+            Form(c, self, "<h3>Set rank</h3>" + Input("prestige", "Prestige (0-10)", progress.Prestige.ToString(CultureInfo.InvariantCulture), type: "number") +
+                Input("level", "Level (1-55)", progress.Rank.Level.ToString(CultureInfo.InvariantCulture), type: "number") +
+                Input("reason", "Reason", required: true) + Button("Set rank", "do", "rank"), "Set this account's prestige and level?") + "</div>"));
 
         body.Append(Section("Bans", Table(["#", "Reason", "Until", "Added"], _store.BansOf(account).Select(b => new[]
         {
@@ -153,10 +166,10 @@ internal sealed partial class AdminPortal
             H(a.Earned is { } e ? e.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture) : $"{a.Current} / {a.Target}"),
             H(CosmeticCatalog.DescribeAll(a.Rewards)),
         }))));
-        body.Append(Section("Game sign-ins", Table(["Signed in", "Last used"], _store.Sessions(id).Select(s => new[]
-        {
-            H(Time(s.Created)), H(Ago(s.LastUsed, now)),
-        }), "Not signed in anywhere.")));
+        body.Append(Section("Sessions", PlayerSessions(c, id) + Form(c, self, Button("Sign out everywhere", "do", "signout", "danger"),
+            "End every game and player website session for this account?", "bar")));
+        body.Append(Section("Audit history", DetailedAuditTable(_store.DetailedAudit(string.Empty, string.Empty, string.Empty, "account:" + id,
+            null, null, 0, 20)) + Link("/admin/audit?target=" + U("account:" + id), "View full audit history")));
         body.Append(Section("Old names", Table(["Name", "Until", "Held until"], _store.NameHistory(id).Select(h => new[]
         {
             H(h.Name), H(Time(h.Changed)), H(Time(h.Until)),
@@ -175,27 +188,48 @@ internal sealed partial class AdminPortal
             return Player(c, admin, id, null, false);
         }
 
-        AdminResult result = Field(form, "do") switch
+        string action = Field(form, "do");
+        string reason = Field(form, "reason");
+        if (action is "ban" or "unlock" or "lock" or "rank" or "hide-profile" or "show-profile" && reason.Length == 0)
         {
-            "rename" => _actions.Rename(account, Field(form, "name", 32)),
-            "release" => _actions.ReleaseName(account),
-            "ban" => _actions.Ban("#" + id.ToString(CultureInfo.InvariantCulture), Days(Field(form, "days")), Field(form, "reason")),
-            "unban" => _actions.Unban(account.DiscordId),
-            "kick" => KickAccount(id, "Kicked by an admin."),
-            "signout" => AdminResult.Done($"Ended {_store.RevokeSessions(id)} game sign-in(s)."),
-            "unlock" => _actions.Grant(account, [Field(form, "what")], unlock: true),
-            "lock" => _actions.Grant(account, [Field(form, "what")], unlock: false),
-            "rank" => _actions.SetRank(account, Field(form, "prestige"), Field(form, "level")),
-            _ => AdminResult.Refused("Unknown action."),
-        };
+            return Player(c, admin, id, "Enter a reason for this change.", true);
+        }
+
+        object before = PlayerAuditSnapshot(account);
+        AdminResult result;
+        if (action is "hide-profile" or "show-profile")
+        {
+            _store.SetProfileHidden(id, action == "hide-profile", reason);
+            result = AdminResult.Done(action == "hide-profile" ? "The public profile is hidden." : "The player's privacy choice applies again.");
+        }
+        else
+        {
+            result = action switch
+            {
+                "rename" => _actions.Rename(account, Field(form, "name", 32)),
+                "release" => _actions.ReleaseName(account),
+                "ban" => BanFromForm("#" + id.ToString(CultureInfo.InvariantCulture), form),
+                "unban" => _actions.Unban(account.DiscordId),
+                "kick" => KickAccount(id, reason.Length > 0 ? reason : "Kicked by an admin."),
+                "signout" => AdminResult.Done($"Ended {_store.RevokePlayerSessions(id)} game and player website session(s)."),
+                "revoke" => _store.RevokePlayerSession(id, Field(form, "kind"), Field(form, "session"))
+                    ? AdminResult.Done("Session revoked.") : AdminResult.Missing("That session has already ended."),
+                "unlock" => _actions.Grant(account, [Field(form, "what")], unlock: true),
+                "lock" => _actions.Grant(account, [Field(form, "what")], unlock: false),
+                "rank" => _actions.SetRank(account, Field(form, "prestige"), Field(form, "level")),
+                _ => AdminResult.Refused("Unknown action."),
+            };
+        }
+
+        if (result.Ok)
+        {
+            _store.AuditChange("player." + action, "account:" + id, reason, before, PlayerAuditSnapshot(account));
+        }
         return Player(c, admin, id, result.Message, !result.Ok);
     }
 
     private static string RankText(PlayerRank rank) =>
         rank.IsNone ? "-" : rank.IsMaster ? $"Master, level {rank.Level}" : rank.Prestige > 0 ? $"P{rank.Prestige}, level {rank.Level}" : $"Level {rank.Level}";
-
-    private static double? Days(string text) =>
-        double.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out double d) && d > 0 ? d : null;
 
     private AccountInfo AccountInfo(AccountRow account)
     {
@@ -220,15 +254,15 @@ internal sealed partial class AdminPortal
 
     // ---- Bans --------------------------------------------------------------------------------------------------
 
-    private IResult Bans(HttpContext c, AdminSessionRow admin, string? notice, bool bad)
+    private IResult Bans(HttpContext c, AdminSessionRow admin, string? notice, bool bad, string? preview = null)
     {
         bool all = c.Request.Query["all"] == "1";
         int page = PageOf(c);
-        List<BanRow> bans = _store.AllBans(all, page, PageSize + 1);
+        List<BanRow> bans = _store.AllBans(all, page, PageSize, lookAhead: true);
         long now = _store.Now;
         string add = Form(c, "/admin/bans",
-            Input("target", "Name, #account, Discord id, IP or CIDR", required: true) + Input("days", "Days (empty: permanent)", type: "number") +
-            Input("reason", "Reason") + Button("Ban", "do", "ban", "danger"), "Add this ban?", "bar");
+            Input("target", "Name, #account, Discord id, IP or CIDR", required: true) + BanDurationFields() +
+            Input("reason", "Reason", required: true) + Button("Preview ban", "do", "preview"), cls: "bar");
         string filter = all ? Link("/admin/bans", "Only bans in force") : Link("/admin/bans?all=1", "Show ended bans too");
         string table = Table(["#", "On", "Reason", "Until", "Added", ""], bans.Take(PageSize).Select(b => new[]
         {
@@ -238,16 +272,44 @@ internal sealed partial class AdminPortal
             b.Until is { } end && end <= now ? string.Empty
                 : Form(c, "/admin/bans", $"<input type=\"hidden\" name=\"target\" value=\"#{b.Id}\">" + Button("End", "do", "unban"), "End this ban?", "inline"),
         }), "No bans.");
-        return Page(c, "Bans", "/admin/bans", admin.Name, add + $"<p>{filter}</p>" + table +
+        return Page(c, "Bans", "/admin/bans", admin.Name, (preview ?? string.Empty) + Section("New ban", add) + $"<p>{filter}</p>" + table +
             Pager(all ? "/admin/bans?all=1" : "/admin/bans", page, bans.Count > PageSize), notice, bad);
     }
 
     private IResult BanAction(HttpContext c, AdminSessionRow admin, IFormCollection form)
     {
         string target = Field(form, "target", 64);
-        AdminResult result = Field(form, "do") == "unban"
-            ? _actions.Unban(target)
-            : target.Length == 0 ? AdminResult.Refused("Say who to ban.") : _actions.Ban(target, Days(Field(form, "days")), Field(form, "reason"));
+        string action = Field(form, "do");
+        if (action == "preview")
+        {
+            if (!TryBanDuration(form, "days", out double? days, out string error))
+            {
+                return Bans(c, admin, error, true);
+            }
+            string reason = Field(form, "reason");
+            if (reason.Length == 0) return Bans(c, admin, "Enter a reason for the ban.", true);
+            AccountRow? account = _actions.FindAccount(target);
+            string? ip = AccountStore.NormalizeIp(target);
+            if (account is null && ip is null && !MasterOptions.IsSnowflake(target)) return Bans(c, admin, "No matching account or valid address.", true);
+            string canonical = account is not null ? "#" + account.Id : ip ?? target;
+            string description = account is not null ? $"Account #{account.Id}: {account.Name ?? "unnamed"} (Discord {account.DiscordId})" : ip is not null ? "Address / range: " + ip : "Discord identity: " + target;
+            string hidden = string.Concat(new[] { ("target", canonical), ("duration", days is null ? "permanent" : "temporary"),
+                ("days", days?.ToString(CultureInfo.InvariantCulture) ?? ""), ("reason", reason) }.Select(f => $"<input type=\"hidden\" name=\"{H(f.Item1)}\" value=\"{H(f.Item2)}\">"));
+            string preview = Section("Review ban", "<p><strong>" + H(description) + "</strong></p><p>" + H(days is null ? "Permanent ban" : $"Temporary: {days} days") +
+                "</p><p>Reason: " + H(reason) + "</p>" + Form(c, "/admin/bans", hidden + Button("Confirm ban", "do", "ban", "danger"), "Apply this ban to the reviewed target?"));
+            return Bans(c, admin, null, false, preview);
+        }
+
+        List<BanRow> before = BanAuditSnapshot(target, action == "unban");
+        AdminResult result = action == "unban" ? _actions.Unban(target) : action == "ban" ? BanFromForm(target, form) : AdminResult.Refused("Unknown action.");
+        if (result.Ok)
+        {
+            AccountRow? account = action == "unban"
+                ? before.FirstOrDefault()?.AccountId is { } accountId ? _store.FindById(accountId) : null
+                : _actions.FindAccount(target);
+            _store.AuditChange("moderation." + action, account is not null ? "account:" + account.Id : "ban:" + target,
+                Field(form, "reason"), before, BanAuditSnapshot(target, action == "unban"));
+        }
         return Bans(c, admin, result.Message, !result.Ok);
     }
 
@@ -264,10 +326,14 @@ internal sealed partial class AdminPortal
     private IResult Matches(HttpContext c, AdminSessionRow admin)
     {
         int page = PageOf(c);
-        List<MatchRow> rows = _store.Matches(page, PageSize + 1);
+        string query = Query(c, "q");
+        string counted = Query(c, "counted") is "yes" or "no" ? Query(c, "counted") : string.Empty;
+        List<MatchRow> rows = _store.SearchAdminMatches(query, counted, page, PageSize, lookAhead: true);
+        string filter = "<form method=\"get\" action=\"/admin/matches\" class=\"bar\">" + Input("q", "Map, server or match id", query) +
+            Select("counted", [("", "All rounds"), ("yes", "Counted"), ("no", "Not counted")], counted) + Button("Filter") + "</form>";
         return Page(c, "Matches", "/admin/matches", admin.Name,
-            "<p class=\"muted\">Every round a trusted server reported. Counted rounds (a winner and a signed-in player on each side) " +
-            "add to stats and achievements.</p>" + MatchTable(rows.Take(PageSize)) + Pager("/admin/matches", page, rows.Count > PageSize));
+            "<p class=\"muted\">Counted rounds contribute to player stats and achievements. All reported rounds remain available for investigation.</p>" + filter +
+            MatchTable(rows.Take(PageSize)) + Pager("/admin/matches?q=" + U(query) + "&counted=" + U(counted), page, rows.Count > PageSize));
     }
 
     private IResult Match(HttpContext c, AdminSessionRow admin, long id)
@@ -370,6 +436,11 @@ internal sealed partial class AdminPortal
             Row("latestVersion", "Latest version", _options.LatestVersion ?? string.Empty, "Hosts older than this are told to update.") +
             Row("minVersion", "Minimum version", _options.MinVersion ?? string.Empty, "Hosts older than this are refused.") +
             Button("Save", "do", "save") + " " + Button("Use the config file's values", "do", "reset"), cls: "stack");
+        string site = Form(c, "/admin/settings",
+            "<label>Welcome text<textarea name=\"site.welcome\" maxlength=\"300\">" + H(stored.GetValueOrDefault("site.welcome", "Welcome to OpenSCCT. Find your next match.")) + "</textarea></label>" +
+            "<label>Public announcement<textarea name=\"site.announcement\" maxlength=\"1000\">" + H(stored.GetValueOrDefault("site.announcement", string.Empty)) + "</textarea></label>" +
+            "<small>Plain text only. Leave the announcement empty to remove it.</small><details open><summary>Preview</summary><div id=\"site-preview\" class=\"site-preview\"></div></details>" +
+            Button("Publish website text", "do", "site"), "Publish this text to the public player hub?", "stack");
         string announce = Form(c, "/admin/settings",
             Input("text", "Message for every player on the master's own servers", maxLength: 150, required: true) + Button("Announce", "do", "announce"),
             "Send this message to every trusted server?", "bar");
@@ -383,10 +454,10 @@ internal sealed partial class AdminPortal
             Form(c, "/admin/servers/blocks", $"<input type=\"hidden\" name=\"id\" value=\"{b.Id}\">" + Button("Remove", "do", "unblock"), cls: "inline"),
         }), "No servers blocked.");
         return Page(c, "Settings", "/admin/settings", admin.Name,
-            Section("Master", form) + Section("Announcement", announce) +
+            Section("Master", form) + Section("Public website", site) + Section("In-game announcement", announce) +
             Section("Blocked servers", blocks + Form(c, "/admin/servers/blocks",
                 Select("kind", [("ip", "Address"), ("id", "Server id")]) + Input("value", "Address or server id", required: true) +
-                Input("reason", "Reason") + Button("Block", "do", "block", "danger"), "Refuse this server's heartbeats?", "bar")) +
+                Input("reason", "Reason", required: true) + Button("Block", "do", "block", "danger"), "Refuse this server's heartbeats?", "bar")) +
             Section("Admins (from the config file's Admins list)", admins), notice, bad);
     }
 
@@ -395,32 +466,43 @@ internal sealed partial class AdminPortal
         switch (Field(form, "do"))
         {
             case "save":
+                var values = new Dictionary<string, string?>();
                 foreach (string key in new[] { "motd", "latestVersion", "minVersion" })
                 {
                     string value = Field(form, key, 300);
-                    if (key != "motd" && value.Length > 0 && !System.Text.RegularExpressions.Regex.IsMatch(value, @"^\d+(\.\d+){0,3}$"))
+                    if (key != "motd" && value.Length > 0 && !ValidVersion(value))
                     {
-                        return Settings(c, admin, $"'{value}' is not a version (like 0.6.3).", true);
+                        return Settings(c, admin, $"'{value}' is not a version (like 0.8.52). Nothing was saved.", true);
                     }
-
-                    _store.SetSetting(key, value);
+                    values[key] = value;
                 }
-
-                MasterSettings.Apply(_store, _options);
-                return Settings(c, admin, "Saved.", false);
-            case "reset":
-                foreach (string key in new[] { "motd", "latestVersion", "minVersion" })
+                if (!string.IsNullOrEmpty(values["latestVersion"]) && !string.IsNullOrEmpty(values["minVersion"]) &&
+                    BuildInfo.CompareVersions(values["minVersion"], values["latestVersion"]) > 0)
                 {
-                    _store.SetSetting(key, null);
+                    return Settings(c, admin, "The minimum version cannot be newer than the latest version. Nothing was saved.", true);
                 }
-
+                _store.SetSettingsAtomic(values);
                 MasterSettings.Apply(_store, _options);
-                return Settings(c, admin, "The config file's values apply again (after a restart, if they were changed here before).", false);
+                return Settings(c, admin, "Settings saved.", false);
+            case "reset":
+                _store.SetSettingsAtomic(new Dictionary<string, string?> { ["motd"] = null, ["latestVersion"] = null, ["minVersion"] = null });
+                MasterSettings.Apply(_store, _options);
+                return Settings(c, admin, "The startup config values apply again.", false);
+            case "site":
+                // Text areas retain newlines; rendering always HTML-encodes these values.
+                string welcome = form["site.welcome"].ToString().Trim();
+                string announcement = form["site.announcement"].ToString().Trim();
+                if (welcome.Length > 300 || announcement.Length > 1000)
+                {
+                    return Settings(c, admin, "Welcome text is limited to 300 characters; announcements to 1,000. Nothing was saved.", true);
+                }
+                _store.SetSettingsAtomic(new Dictionary<string, string?> { ["site.welcome"] = welcome, ["site.announcement"] = announcement });
+                return Settings(c, admin, "The public website text is published.", false);
             case "announce":
                 string text = Field(form, "text", 150);
                 int sent = text.Length == 0 ? 0 : QueueForAll("say " + text);
-                _store.Audit("announce", $"{sent} server(s): {text}");
-                return Settings(c, admin, $"Sent to {sent} trusted server(s).", sent == 0);
+                _store.AuditChange("announce", "servers:trusted", string.Empty, null, new { Servers = sent, Text = text });
+                return Settings(c, admin, $"Queued for {sent} trusted server(s). Track responses in Command history.", sent == 0);
             default:
                 return Settings(c, admin, "Unknown action.", true);
         }
@@ -435,11 +517,20 @@ internal sealed partial class AdminPortal
 
     private IResult Audit(HttpContext c, AdminSessionRow admin)
     {
-        string q = c.Request.Query["q"].ToString();
+        string q = Query(c, "q");
+        string actor = Query(c, "actor");
+        string action = Query(c, "action");
+        string target = Query(c, "target");
+        string from = Query(c, "from");
+        string until = Query(c, "until");
         int page = PageOf(c);
-        List<AuditRow> rows = _store.AuditPage(q, page, PageSize + 1);
-        string search = "<form method=\"get\" action=\"/admin/audit\" class=\"bar\">" + Input("q", "Filter: action, who or text", q) + Button("Filter") + "</form>";
-        return Page(c, "Audit log", "/admin/audit", admin.Name, search + AuditTable(rows.Take(PageSize)) +
-            Pager("/admin/audit?q=" + U(q), page, rows.Count > PageSize));
+        List<AuditDetailRow> rows = _store.DetailedAudit(q, actor, action, target, ParseDate(from), ParseDate(until, end: true), page, PageSize, lookAhead: true);
+        string search = "<form method=\"get\" action=\"/admin/audit\" class=\"bar\">" +
+            Input("q", "Search detail", q) + Input("actor", "Operator", actor) + Input("action", "Action", action) +
+            Input("target", "Target (account:123)", target) + "<label>From " + Input("from", "From date", from, "date") + "</label>" +
+            "<label>Through " + Input("until", "Through date", until, "date") + "</label>" + Button("Filter") + "</form>";
+        string path = "/admin/audit?q=" + U(q) + "&actor=" + U(actor) + "&action=" + U(action) + "&target=" + U(target) + "&from=" + U(from) + "&until=" + U(until);
+        return Page(c, "Audit log", "/admin/audit", admin.Name, search + DetailedAuditTable(rows.Take(PageSize)) +
+            Pager(path, page, rows.Count > PageSize));
     }
 }

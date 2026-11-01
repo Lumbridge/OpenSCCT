@@ -45,6 +45,9 @@ internal sealed partial class AccountApi
     /// <summary>The admin portal's sign-in, for Discord answers whose state starts with "admin." (one callback URL for both).</summary>
     public Func<HttpContext, Task<IResult>>? AdminCallback { get; set; }
 
+    /// <summary>The player website's Discord sign-in, separated from game links and admin sessions.</summary>
+    public Func<HttpContext, Task<IResult>>? PlayerCallback { get; set; }
+
     public string TicketKey => _signer.PublicKey;
 
     public void Map(WebApplication app)
@@ -54,12 +57,22 @@ internal sealed partial class AccountApi
         app.MapGet(MasterApi.LinkPagePrefix + "{code}", (HttpContext context, string code) => LinkPage(context, code));
         app.MapGet(MasterApi.DiscordCallbackPath, (Delegate)((HttpContext context) => CallbackAsync(context)));
         app.MapGet(MasterApi.AccountPath, (HttpContext context) => WithAccount(context, a => Results.Json(Info(a), MasterApi.Json)));
-        app.MapPost(MasterApi.AccountNamePath, (HttpContext context, NameRequest request) => WithAccount(context, a => ClaimName(a, request)));
+        app.MapPost(MasterApi.AccountNamePath, (HttpContext context, NameRequest request) => WithAccountMutation(context, a => ClaimName(a, request)));
         app.MapPost(MasterApi.SignOutPath, SignOut);
-        app.MapPost(MasterApi.PrestigePath, (HttpContext context) => WithAccount(context, Prestige));
+        app.MapPost(MasterApi.PrestigePath, (HttpContext context) => WithAccountMutation(context, Prestige));
         app.MapGet(MasterApi.ProfilePath, (HttpContext context) => WithAccount(context, a =>
             _store.Profile(a.Id) is { } p ? Results.Json(p, MasterApi.Json) : Results.NoContent()));
         app.MapPut(MasterApi.ProfilePath, (HttpContext context, ProfileData profile) => WithAccount(context, a => PutProfile(a, profile)));
+        app.MapGet(MasterApi.AppearancePath, (HttpContext context) =>
+        {
+            NoStore(context);
+            return WithAccount(context, a => Results.Json(_store.Appearance(a.Id), MasterApi.Json));
+        });
+        app.MapPut(MasterApi.AppearancePath, (HttpContext context, AppearanceUpdateRequest request) =>
+        {
+            NoStore(context);
+            return WithAccountMutation(context, a => PutAppearance(a, request));
+        });
         app.MapPost(MasterApi.ResultsPath, (HttpContext context, ResultsReport report) => PostResults(context, report));
         MapDemos(app);
     }
@@ -80,6 +93,8 @@ internal sealed partial class AccountApi
         app.MapPost(MasterApi.PrestigePath, Off);
         app.MapGet(MasterApi.ProfilePath, Off);
         app.MapPut(MasterApi.ProfilePath, Off);
+        app.MapGet(MasterApi.AppearancePath, Off);
+        app.MapPut(MasterApi.AppearancePath, Off);
         app.MapPost(MasterApi.ResultsPath, () => Error(StatusCodes.Status503ServiceUnavailable, "This master keeps no accounts or results."));
         MapDemosDisabled(app);
     }
@@ -177,6 +192,11 @@ internal sealed partial class AccountApi
             return await admin(context).ConfigureAwait(false);
         }
 
+        if (state.StartsWith("player.", StringComparison.Ordinal) && PlayerCallback is { } player)
+        {
+            return await player(context).ConfigureAwait(false);
+        }
+
         string code = context.Request.Query["code"].ToString();
         string error = context.Request.Query["error"].ToString();
         if (Links.Find(state) is not { } link || link.Status == LinkStatus.Expired)
@@ -248,6 +268,11 @@ internal sealed partial class AccountApi
     private IResult WithAccount(HttpContext context, Func<AccountRow, IResult> body) =>
         Authenticate(context) is { } account ? body(account) : Error(StatusCodes.Status401Unauthorized, SignInAgain);
 
+    private IResult WithAccountMutation(HttpContext context, Func<AccountRow, IResult> body) =>
+        WithAccount(context, account => _store.ActiveBan(account.Id, account.DiscordId, _clientIp(context)) is not null
+            ? Error(StatusCodes.Status403Forbidden, "Account changes are unavailable while this account or address is banned.")
+            : body(account));
+
     private IResult SignOut(HttpContext context)
     {
         if (BearerToken(context) is not { Length: > 0 } token || !_store.DeleteSession(token))
@@ -281,7 +306,7 @@ internal sealed partial class AccountApi
             : null;
         return new AccountInfo
         {
-            Id = account.Id, Name = account.Name, Admin = _options.IsAdmin(account.DiscordId),
+            Id = account.Id, Name = account.Name, Admin = _options.IsAdmin(account.DiscordId), AppearanceSync = true,
             NameChangeAllowed = allowed is { } t ? DateTimeOffset.FromUnixTimeSeconds(t) : null,
             Stats = progress.Stats, Achievements = achievements, Unlocked = _store.Unlocked(account.Id),
             Career = new CareerStats
@@ -361,6 +386,13 @@ internal sealed partial class AccountApi
         }
 
         return Results.Json(_store.PutProfile(account.Id, profile), MasterApi.Json);
+    }
+
+    private IResult PutAppearance(AccountRow account, AppearanceUpdateRequest request)
+    {
+        using IDisposable actor = AccountStore.ActingAs("player:" + account.Id.ToString(CultureInfo.InvariantCulture));
+        AppearanceUpdateResult result = _store.UpdateAppearance(account.Id, request);
+        return Results.Json(result, MasterApi.Json, statusCode: result.Success ? 200 : result.Conflict ? 409 : 400);
     }
 
     // ---- Tickets, kicks, results -----------------------------------------------------------------------------

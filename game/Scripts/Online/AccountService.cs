@@ -28,6 +28,10 @@ public partial class AccountService : Node
     private ulong _pushAt;
     private bool _pushAgain;
     private bool _applying;
+    private (string Master, string Token, long Account) _syncIdentity;
+
+    private static (string Master, string Token, long Account) SyncIdentity =>
+        (OnlineSettings.Current.MasterUrl.TrimEnd('/'), AccountSettings.Current.Token, AccountSettings.Current.AccountId);
 
     /// <summary>The account as the master last described it (null until a refresh or sign-in this run).</summary>
     public AccountInfo? Account { get; private set; }
@@ -118,11 +122,15 @@ public partial class AccountService : Node
 
     public override void _Ready()
     {
+        _syncIdentity = SyncIdentity;
+        _observedAppearance = LocalAppearance();
         SettingsStore.Saved += OnSettingsSaved;
         InputBindings.UserFileSaved += OnLocalChange;
         AccountSettings account = AccountSettings.Current;
         if (account.SignedIn && HasMaster)
         {
+            // Load an unsent revision baseline before network requests, including when starting offline.
+            ConfigureAppearance(new AccountInfo { Id = account.AccountId, AppearanceSync = true });
             _refresh = Call(c => c.AccountAsync());
         }
     }
@@ -142,7 +150,16 @@ public partial class AccountService : Node
         s.Token = token;
         s.Remember(account);
         s.Save();
+        // A pending response for a previous sign-in cannot overwrite this account's settings.
+        _refresh = null;
+        _pull = null;
+        _push = null;
+        _pushAt = 0;
+        _pushAgain = false;
+        ResetAppearance();
+        _syncIdentity = SyncIdentity;
         Account = account;
+        ConfigureAppearance(account);
         Changed?.Invoke();
         Pull();
     }
@@ -154,7 +171,9 @@ public partial class AccountService : Node
         AccountSettings s = AccountSettings.Current;
         s.Remember(account);
         s.Save();
+        _syncIdentity = SyncIdentity;
         Account = account;
+        ConfigureAppearance(account);
         Changed?.Invoke();
     }
 
@@ -163,15 +182,38 @@ public partial class AccountService : Node
     {
         AccountSettings.Current.SignOutLocally();
         Account = null;
+        _refresh = null;
         _pull = null;
         _push = null;
         _pushAt = 0;
         _pushAgain = false;
+        ResetAppearance();
         Changed?.Invoke();
     }
 
     public override void _Process(double delta)
     {
+        if (_syncIdentity != SyncIdentity)
+        {
+            // Master settings can change while requests are in flight. Drop their responses and revision
+            // baselines before processing results or sending anything against the newly selected master.
+            _syncIdentity = SyncIdentity;
+            _refresh = null;
+            _pull = null;
+            _push = null;
+            _pushAt = 0;
+            _pushAgain = false;
+            Account = null;
+            ResetAppearance();
+            if (CanSync)
+            {
+                ConfigureAppearance(new AccountInfo { Id = AccountSettings.Current.AccountId, AppearanceSync = true });
+                _refresh = Call(c => c.AccountAsync());
+            }
+
+            Changed?.Invoke();
+        }
+
         if (_refresh is { IsCompleted: true } refresh)
         {
             _refresh = null;
@@ -235,11 +277,17 @@ public partial class AccountService : Node
             _pushAgain = false;
             Push();
         }
+
+        ProcessAppearance();
     }
 
     private static bool CanSync => !AccountSettings.Isolated && AccountSettings.Current.SignedIn && HasMaster;
 
-    private void OnSettingsSaved(GameSettings settings) => OnLocalChange();
+    private void OnSettingsSaved(GameSettings settings)
+    {
+        ObserveAppearanceChange();
+        OnLocalChange();
+    }
 
     /// <summary>The settings or a key layout changed on this PC: note when, and send them a little later.</summary>
     private void OnLocalChange()
@@ -301,7 +349,7 @@ public partial class AccountService : Node
             return;
         }
 
-        string data = ProfileSync.Build();
+        string data = ProfileSync.Build(_appearanceSupported == true);
         if (System.Text.Encoding.UTF8.GetByteCount(data) > MasterApi.MaxProfileBytes)
         {
             GD.PushWarning("Profile sync: the settings are larger than the master keeps; not sent.");
@@ -336,7 +384,7 @@ public partial class AccountService : Node
         bool applied;
         try
         {
-            applied = ProfileSync.Apply(remote.Data);
+            applied = ProfileSync.Apply(remote.Data, _appearanceSupported == true);
         }
         finally
         {

@@ -29,7 +29,6 @@ internal sealed partial class AdminPortal
     private readonly Func<HttpContext, IPAddress> _clientIp;
     private readonly Func<(long RelayForwarded, long Introductions)> _udpStats;
     private readonly DemoStorage? _demos;
-    private long _nextCommandId = 1;
 
     public AdminPortal(MasterOptions options, AccountStore store, ServerRegistry registry, Func<HttpContext, IPAddress> clientIp,
         Func<(long RelayForwarded, long Introductions)> udpStats, DemoStorage? demos = null)
@@ -41,6 +40,7 @@ internal sealed partial class AdminPortal
         _actions = new AdminActions(store);
         _clientIp = clientIp;
         _udpStats = udpStats;
+        _store.InterruptAdminCommands();
     }
 
     private bool SecureCookies => _options.PublicBaseUrl.StartsWith("https:", StringComparison.OrdinalIgnoreCase);
@@ -52,6 +52,8 @@ internal sealed partial class AdminPortal
         Route(app, "POST", "/admin/logout", c => Post(c, (_, _) => Task.FromResult(Logout(c))));
 
         Route(app, "GET", "/admin", c => Get(c, Dashboard));
+        Route(app, "GET", "/admin/search", c => Get(c, Search));
+        Route(app, "GET", "/admin/commands", c => Get(c, Commands));
         Route(app, "GET", "/admin/servers", c => Get(c, Servers));
         Route(app, "GET", "/admin/servers/{id}", c => Get(c, (cx, a) => Server(cx, a, Arg(c, "id"), null, false)));
         Route(app, "POST", "/admin/servers/blocks", c => Post(c, (a, f) => Task.FromResult(BlockAction(c, a, f))));

@@ -7,7 +7,7 @@
       The master's own version (MasterBuildInfo, the status answer's masterVersion, shown in the game under its own
       version). Bump it when the master changes; it is apart from the game's VersionPrefix and a release's -p:Version.
     -->
-    <MasterVersion>1.0.0</MasterVersion>
+    <MasterVersion>1.1.0</MasterVersion>
   </PropertyGroup>
   <ItemGroup>
     <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
@@ -26,5 +26,6 @@
   <ItemGroup>
     <None Update="svm-master.example.json" CopyToOutputDirectory="PreserveNewest" />
     <EmbeddedResource Include="Admin/assets/*" LogicalName="admin/%(Filename)%(Extension)" />
+    <EmbeddedResource Include="Web/assets/*" LogicalName="web/%(Filename)%(Extension)" />
   </ItemGroup>
 </Project>

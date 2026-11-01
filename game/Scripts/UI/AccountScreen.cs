@@ -58,11 +58,13 @@ public partial class AccountScreen : MenuPage
         Name = "Account";
         BuildFrame("Account", 760f);
         _service = AccountService.Get(GetTree());
+        _service.Changed += OnAccountUpdated;
         _content = new VBoxContainer { Name = "Content" };
         _content.AddThemeConstantOverride("separation", 8);
         Body.AddChild(_content);
         _status = new Label { Name = "Status", Modulate = UiStyle.MenuFocus, AutowrapMode = TextServer.AutowrapMode.WordSmart };
         Body.AddChild(_status);
+        Body.AddChild(new AppearanceSyncPanel());
         PageButton("Back", () => FrontEnd.ShowMainMenu(GetTree()), "Back").GrabFocus();
         PageButton("Stats", () => FrontEnd.ShowStats(GetTree()), "StatsPage");
 
@@ -196,6 +198,16 @@ public partial class AccountScreen : MenuPage
             ShowView(View.SignedOut);
             ShowStatus("Signed out.");
         }
+    }
+
+    public override void _ExitTree()
+    {
+        if (_service is not null) _service.Changed -= OnAccountUpdated;
+    }
+
+    private void OnAccountUpdated()
+    {
+        if (_view == View.SignedIn && !_changingName && _service?.Account is not null) ShowView(View.SignedIn);
     }
 
     private void SignedOutByMaster()
