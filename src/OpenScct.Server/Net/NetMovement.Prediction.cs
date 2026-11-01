@@ -39,6 +39,7 @@ public sealed partial class SBasePawnMoves
         public readonly NetworkAnimChannel[] Channels = new NetworkAnimChannel[PawnAnimation.ChannelCount];
         public readonly PredictionCollisionFrame Collision = new();
         private long _collisionTick = long.MinValue;
+        private FRotator _movementRotation;
         private FVector _pawn_ZipP1;
         private FVector _pawn_ZipP2;
         private FVector _pawn_NewZipP1;
@@ -136,6 +137,7 @@ public sealed partial class SBasePawnMoves
             if (!pawn.XLevel.World.IsReplaying && _collisionTick != Tick)
             {
                 Collision.Capture(pawn);
+                _movementRotation = pawn.Rotation;
                 _collisionTick = Tick;
             }
             ControllerState = pc.StateFrame; PawnState = pawn.StateFrame; Root = pawn.NetworkRootMotion.Capture();
@@ -349,7 +351,7 @@ public sealed partial class SBasePawnMoves
             // Root-driven turns remain driven by their restored lock and clip, rather than applied twice.
             if (Physics is EPhysics.PHYS_Walking or EPhysics.PHYS_Falling)
             {
-                pawn.Rotation = _pawn_Rotation;
+                pawn.Rotation = _movementRotation;
                 pawn.GroundSpeed = _pawn_GroundSpeed;
             }
         }
@@ -419,6 +421,7 @@ public sealed partial class SBasePawnMoves
         if (P is not { } pawn || _prediction is null) return;
         PredictionFrame frame = _prediction[slot];
         StageCollision(pawn, frame);
+        StageCompletedBase(pawn, frame);
         frame.Controls(_pc); frame.Context(pawn);
         _replayExpectedPhysics = frame.Physics;
         _replayReference = frame.Position; _replayAction = frame.Action;
@@ -449,6 +452,7 @@ public sealed partial class SBasePawnMoves
             // A state entry already ran its action and physics in this recorded tick. Restore that completed
             // transition once; advancing its root again here would skip the first frame of a climb or mount.
             FVector prior = pawn.Location;
+            StageCompletedBase(pawn, frame);
             frame.Context(pawn);
             MovePawn(frame.Position - _replayReference);
             pawn.Velocity = frame.Velocity;
@@ -457,18 +461,35 @@ public sealed partial class SBasePawnMoves
             _replayBase = frame.Base; _replayBasePosition = frame.BasePosition; _replayBaseRotation = frame.BaseRotation;
             return;
         }
-        // DeviceNatives moves a mover's riders outside their MoveAutonomous step. Reproduce that displacement
-        // between input ticks, including rotation about the mover, without advancing the mover or its other riders.
+        // Replay the carry in the same order as the recorded controller tick. A mover can tick before or
+        // after its rider's controller; the collision frame is the pose seen by movement, while BasePosition
+        // is the completed pose saved after all actors tick. Using that completed pose before movement can
+        // make the floor probe pull a lifted rider back down to the earlier collision surface.
         if (_replayBase is { bIsAMover: true, bDeleteMe: false } movingBase &&
-            ReferenceEquals(movingBase, frame.Base) && ReferenceEquals(movingBase, pawn.Base))
-            CarryReplayPawn(pawn, movingBase, frame.BasePosition, frame.BaseRotation);
-        _replayBase = frame.Base; _replayBasePosition = frame.BasePosition; _replayBaseRotation = frame.BaseRotation;
+            ReferenceEquals(movingBase, pawn.Base))
+            CarryReplayPawn(pawn, movingBase, movingBase.Location, movingBase.Rotation);
         _replayExpectedPhysics = frame.Physics;
         _replayReference = frame.Position; _replayAction = frame.Action;
         frame.MovementOrientation(pawn);
         MoveAutonomous(deltaTime, acceleration, jump);
         pawn.AdvancePredictionAnimation(deltaTime);
         pawn.UpdateMovementAnimation(deltaTime);
+        if (frame.Base is { bIsAMover: true, bDeleteMe: false } completedBase && ReferenceEquals(pawn.Base, completedBase))
+        {
+            _replayBasePosition = completedBase.Location; _replayBaseRotation = completedBase.Rotation;
+            StageCompletedBase(pawn, frame);
+            CarryReplayPawn(pawn, completedBase, frame.BasePosition, frame.BaseRotation);
+        }
+        _replayBase = frame.Base; _replayBasePosition = frame.BasePosition; _replayBaseRotation = frame.BaseRotation;
+    }
+
+    private static void StageCompletedBase(SBasePawn pawn, PredictionFrame frame)
+    {
+        if (frame.Base is not { bIsAMover: true, bDeleteMe: false } basis) return;
+        // Stage only the collision pose. Moving the actual actor would also carry other riders and fire
+        // gameplay callbacks. Recapturing this prediction must retain its completed base pose as well.
+        basis.Location = frame.BasePosition; basis.Rotation = frame.BaseRotation;
+        MovementNatives.Driver(pawn)?.Collision.NotifyCollisionChanged();
     }
 
     private void CarryReplayPawn(SBasePawn pawn, Actor basis, FVector position, FRotator rotation)

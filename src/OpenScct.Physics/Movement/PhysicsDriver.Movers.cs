@@ -62,7 +62,7 @@ public sealed partial class PhysicsDriver
     /// <summary>
     /// MoveActor for an actor that collides by mesh or brush colliders (a static-mesh mover). With bCollideActors
     /// (not a test, not bNoFail) the new pose is checked for encroachment first; an encroached pose is refused and
-    /// nothing moves. Otherwise the actor takes the pose and its non-pawn attached actors move along.
+    /// nothing moves. Otherwise the actor takes the pose and its attachments and based pawn riders move along.
     /// </summary>
     [UcNative("ULevel::MoveActor", Exe = 0x10a1b780, Editor = 0x110bc870)]
     [PortOf("eng:ULevel::MoveActor", Spec = "spec/native/collision-movement.md#moveactoractor-delta-newrotation-hit-btest-bignorepawns-bignorebases-bnofail---bool")]
@@ -214,7 +214,9 @@ public sealed partial class PhysicsDriver
         for (int i = 0; i < cylinders.Count; i++)
         {
             Actor other = cylinders[i];
-            if (ReferenceEquals(other, actor) || other.bDeleteMe)
+            // A mover carries its riders after accepting the pose. Shoving or crushing them here would apply
+            // the platform's motion twice (and can refuse rotation when a rider overlaps its rail or floor).
+            if (ReferenceEquals(other, actor) || other.bDeleteMe || (actor.bIsAMover && IsBasedOn(other, actor)))
             {
                 continue;
             }

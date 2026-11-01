@@ -71,7 +71,8 @@ public sealed partial class PhysicsDriver
     /// ULevel::MoveActor. A zero move only turns the actor; an actor that collides with nothing just moves. Otherwise
     /// the cylinder box sweeps to the first blocking hit that is not a base relation and the move is cut there (unless
     /// <paramref name="bNoFail"/>); encroachers (actors with mesh or brush colliders) are checked for encroachment at
-    /// the new pose instead and refuse the move when encroached. Attached actors that are not pawns move along.
+    /// the new pose instead and refuse the move when encroached. Attached actors move along, including based pawns
+    /// when the moving actor is a mover.
     /// Unless <paramref name="bTest"/> the blocking hit is bumped (the other actor first) and touches are updated.
     /// Returns Hit.Time &gt; 0 (true for a partial move), false for a refused encroacher move.
     /// </summary>
@@ -193,7 +194,7 @@ public sealed partial class PhysicsDriver
 
     private static bool IsBaseRelation(Actor actor, Actor other) => ReferenceEquals(actor.Base, other) || ReferenceEquals(other.Base, actor);
 
-    /// <summary>Moves the non-pawn actors attached to <paramref name="actor"/> along (based pawns keep their own physics).</summary>
+    /// <summary>Moves attachments and a mover's based pawns along; pawns based on other actors keep their own physics.</summary>
     private void MoveAttached(Actor actor, FVector oldLocation, FRotator oldRotation, bool bTest)
     {
         if (actor.Attached.Count == 0 || bTest)
@@ -207,7 +208,7 @@ public sealed partial class PhysicsDriver
             for (int i = 0; i < actor.Attached.Count; i++)
             {
                 Actor a = actor.Attached[i];
-                if (!a.bDeleteMe && !a.bIsAPawn && a.AttachmentBone.IsNone && ReferenceEquals(a.Base, actor))
+                if (!a.bDeleteMe && (!a.bIsAPawn || actor.bIsAMover) && a.AttachmentBone.IsNone && ReferenceEquals(a.Base, actor))
                 {
                     riders.Add(a);
                 }

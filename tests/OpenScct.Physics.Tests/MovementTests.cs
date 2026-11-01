@@ -613,7 +613,7 @@ public sealed class MovementTests
     }
 
     [Fact]
-    public void ALiftShovesItsRiderUpAndLeavesItToItsOwnPhysicsAcross()
+    public void ALiftCarriesItsRiderUpAndAcross()
     {
         Scene s = MoverScene(V(0f, 0f, 100f), V(-150f, -150f, -20f), V(150f, 150f, 0f), out TestMover lift);
         TestPawn p = StandingPawn(s, V(0f, 0f, StandZ(100f)));
@@ -629,12 +629,59 @@ public sealed class MovementTests
         Assert.Same(lift, p.Base);
         Assert.Empty(lift.Encroached);
 
-        // Based pawns are not carried sideways: the lift slides out from under the pawn.
         lift.KeyPos[2] = V(400f, 0f, 200f);
         lift.InterpolateTo(2, 1f);
         s.Step(70);
         Assert.Equal(400f, lift.Location.X, 3);
-        Assert.Equal(0f, p.Location.X, 1);
+        Assert.Equal(400f, p.Location.X, 1);
+        Assert.Same(lift, p.Base);
+        Assert.Empty(lift.Encroached);
+    }
+
+    [Fact]
+    public void AContinuouslyRotatingMoverCarriesItsRiderOnceAcrossYawWrap()
+    {
+        Scene s = MoverScene(V(0f, 0f, 100f), V(-200f, -200f, -20f), V(200f, 200f, 0f), out TestMover carousel);
+        TestPawn p = StandingPawn(s, V(100f, 0f, StandZ(100f)));
+        Assert.Same(carousel, p.Base);
+        FVector start = p.Location - carousel.Location;
+        carousel.Physics = EPhysics.PHYS_Rotating;
+        carousel.bFixedRotationDir = true;
+        carousel.Rotation = new FRotator(0, 65500, 0);
+        carousel.RotationRate = new FRotator(0, 15360, 0);
+        int startYaw = p.Rotation.Yaw;
+
+        // Exercise Actor.NativeTick -> physicsRotation -> MoveActor, as the MoonD carousel does.
+        s.Step(65);
+
+        int deltaYaw = 65 * 256;
+        FCoords turn = FCoords.FromRotator(new FRotator(0, deltaYaw, 0));
+        FVector expected = carousel.Location + turn.XAxis * start.X + turn.YAxis * start.Y + turn.ZAxis * start.Z;
+        Near(expected, p.Location, 0.05f);
+        Assert.Equal((startYaw + deltaYaw) & 0xffff, p.Rotation.Yaw & 0xffff);
+        Assert.Equal((65500 + deltaYaw) & 0xffff, carousel.Rotation.Yaw);
+        Assert.Same(carousel, p.Base);
+        Assert.Empty(carousel.Encroached);
+        Assert.Equal(0, p.Encroached);
+        Assert.Equal(EPhysics.PHYS_Walking, p.Physics);
+    }
+
+    [Fact]
+    public void AMoverCarriesARiderOverlappingItsNewPoseWithoutShovingOrCrushingIt()
+    {
+        Scene s = MoverScene(V(0f, 0f, 100f), V(-150f, -150f, -20f), V(150f, 150f, 0f), out TestMover lift);
+        TestPawn p = StandingPawn(s, V(100f, 0f, StandZ(100f)));
+        lift.MoverEncroachType = EMoverEncroachType.ME_CrushWhenEncroach;
+        FVector before = p.Location;
+
+        // A tall step overlaps the rider's previous position; accepted movement must carry it once.
+        Assert.True(s.Driver.MoveActor(lift, V(40f, 0f, 60f), lift.Rotation, out _));
+
+        Near(before + V(40f, 0f, 60f), p.Location);
+        Assert.Same(lift, p.Base);
+        Assert.Empty(lift.Encroached);
+        Assert.Empty(lift.Crushed);
+        Assert.Equal(0, p.Encroached);
     }
 
     [Fact]
