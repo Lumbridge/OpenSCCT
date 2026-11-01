@@ -21,6 +21,10 @@ public sealed class OwnerLandingAndResultsTests
     [Fact]
     public void HeadJumpKnockoutLowersTheRifleAndRestoresAnOrdinaryJumpAfterWaking()
     {
+        string? folder = MapCatalog.CreateDefault().FindFolder(MapCatalog.TestBox);
+        Assert.SkipWhen(folder is null, "TestBox content is required.");
+        Assert.SkipWhen(PlayMapLoader.FindCharsDir(folder!) is null,
+            "The converted character clips are not in .content/shared/chars.");
         using var rig = new SessionRig(PlaySide.Merc);
         var pc = rig.Session.LocalController!;
         var source = rig.Session.ServerController!;
