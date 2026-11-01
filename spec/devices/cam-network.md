@@ -83,6 +83,12 @@ ring, the limits and the shared-use rules.
    same camera (first found); if none, reset the camera's FOV to the merc's default, switch its vision to -1 (off)
    and clear `aUsedByPawn`.
 
+OpenSCCT transport: equipment calls share the movement command's ordered control fence, so the entry request cannot
+overtake its preceding wait-state request. Relevancy uses the authoritative viewed camera and its view position,
+including after a ring switch. Camera angles use the reliable equipment channel, coalesced to the newest value at
+at most 20 Hz after movement traffic; unchanged angles are not resent. Pending angles are discarded on camera
+switch, exit or possession change. This avoids an idle camera stream consuming the movement send budget.
+
 ### Turning and limits
 
 6. `SOrientableObject.PostNetBeginPlay` (simulated): the limit centres take the placed rotation:
@@ -102,6 +108,9 @@ ring, the limits and the shared-use rules.
 9. Consequence of rule 8 (quirk to reproduce or decide on): whenever the view sits exactly at a limit centre, the
    clamp returns 0, so pitch or yaw snaps to 0 (level, or world yaw 0) on that frame and stays there while within
    limits. A camera entered with no mouse input snaps at once.
+   **OpenSCCT correction (1 November 2026):** equality now returns the wrapped centre instead of zero. Ryan's
+   network playtest exposed the unwanted right turn on entry; an unchanged input must preserve the mounted
+   camera direction. Clamping away from the centre retains the decoded bounds and wrap behaviour.
 10. `SOrientableObject.Tick` / `SCamNetwork.Tick` (simulated, every machine): for viewers that are not the local
     controlling user, adopt `iReplicatedPitch`/`iReplicatedYaw` (a jump over 50 units in total plays the rotation
     sound); manage the zoom and rotation ambient sounds (stop 0.2 s after the last change); set the actor rotation

@@ -51,7 +51,7 @@ opens a menu to pick the type or remove the oldest mine. A merc can pick a mine 
 | fMaxOppositeWallDistance[0..2] | 0, 2005, 2005 | uu; the laser and poison mines need a wall in front |
 | NbIT | 5 | menu items: 3 types, "Delete oldest", "Exit" |
 | MineName / SpawnText | "Proxy Mine", "Laser Mine", "Poison Mine", "Delete oldest", "Exit" / "... Mine Activated" | localized |
-| TextCanSpawnMine / TextTooManyMineInMap | "Cant spawn mine here" / "Device limit reached" | |
+| TextCanSpawnMine / TextTooManyMineInMap | "Can't place mine here" / "Mine limit reached" | shipped English localization; unlocalized package defaults are "Cant spawn mine here" / "Device limit reached" |
 | iCurrentMineType, CanUse[5], HitLocation, HitNormal, HitActor | | the placement found by UseMine |
 | SMines.TempsActivation | 5 s (SMineProx 0) | arming delay |
 | SMines.MyDamageRange / MyDamageType | 500 uu / SDamage_Explosion | |

@@ -339,10 +339,13 @@ public sealed class NetDriver : IDisposable
     public NetDriverStats Stats { get; } = new();
 
     /// <summary>
-    /// The camera of a connection's pass (PlayerCalcView). By default the connection's actor location, which the
-    /// move protocol keeps at the client's camera (UpdatePositionForServer).
+    /// The camera of a connection's pass (PlayerCalcView). Defaults to the connection actor's location; game hosts
+    /// resolve it from authoritative pawn, camera and spectator state when rendering happens only on the client.
     /// </summary>
     public Func<NetConnection, FVector>? ViewPoint { get; set; }
+
+    /// <summary>The current viewing actor, when gameplay uses an object or spectator target outside ViewTarget.</summary>
+    public Func<NetConnection, Actor?>? ViewActor { get; set; }
 
     /// <summary>The server's adaptive send rate shared by every client connection, bytes per second.</summary>
     public int NetSpeed { get; private set; }
@@ -1151,7 +1154,7 @@ public sealed class NetDriver : IDisposable
     private NetViewer ViewerOf(NetConnection connection)
     {
         Actor real = connection.Actor!;
-        Actor viewer = real is PlayerController pc ? pc.ViewTarget ?? pc.Pawn ?? real : real;
+        Actor viewer = ViewActor?.Invoke(connection) ?? (real is PlayerController pc ? pc.ViewTarget ?? pc.Pawn ?? real : real);
         FVector source = ViewPoint?.Invoke(connection) ?? real.Location;
         return new NetViewer(real, viewer, source);
     }

@@ -54,6 +54,22 @@ FBitWriter / FBitReader, NetWire, ITransport (Loopback, SimLink, LiteNetLib, Com
 Everything in `OpenScct.Net` and `OpenScct.Server` is simulation code: deterministic, no system clock, no
 `System.Random`; the driver's random stream (relevancy jitter) comes from the world's seed.
 
+The server supplies the current authoritative viewing actor and position for relevance checks. Ordinary
+players use their pawn; camera/mirador users use the active object and its view offset; spectators use
+their watched target. The server controller's own location is not a reliable view origin because the
+render-only camera solver updates it only on the client. Using that stale location can hide nearby
+short-lived effects and prevent newly selected map cameras from receiving an actor channel.
+
+Owner equipment/combat calls share the reliable input fence with ordinary controller state/action calls.
+Decoded combat payloads wait until preceding state changes execute, with their original pawn lifetime
+and view timestamp retained and checked again on dispatch. This prevents camera/gadget use from
+overtaking entry into the state that permits it, without accepting actions from a prior possession.
+
+Camera orientation reports are coalesced to the newest angle, at most 20 times per second, after movement
+has used the connection's send budget. Unchanged angles do not produce a reliable stream. Pending reports
+retain their camera and pawn identities and are discarded when that camera or possession is no longer
+active. This keeps sustained camera use from starving movement commands behind reliable control fences.
+
 ## Replication model
 
 ### Layouts from the generated data

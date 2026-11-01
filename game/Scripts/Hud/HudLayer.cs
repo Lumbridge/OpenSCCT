@@ -448,20 +448,21 @@ public partial class HudLayer : CanvasLayer
             EndGame = null;
         }
 
+        MagmaDrawItem? disabledFeed = null;
         _overlayList.Clear();
         if (_white is { } overlayWhite)
         {
             if (Snapshot.Valid && disabledCamera is not null)
             {
                 Color black = Colors.Black;
-                _overlayList.Items.Add(new MagmaDrawItem
+                disabledFeed = new MagmaDrawItem
                 {
                     Path = "CamNetwork/Disabled", Kind = MagmaWidgetKind.Image,
                     Package = overlayWhite.Package, Texture = overlayWhite.Texture,
                     Points = [Vector2.Zero, new Vector2(screen.X, 0), screen, new Vector2(0, screen.Y)],
                     Uvs = [overlayWhite.Uv, overlayWhite.Uv, overlayWhite.Uv, overlayWhite.Uv],
                     Colors = [black, black, black, black],
-                });
+                };
                 float height = 24f * screen.Y / MagmaRenderer.PageHeight;
                 string message = string.Create(System.Globalization.CultureInfo.InvariantCulture,
                     $"CAMERA DISABLED - RECONNECTING IN {disabledCamera.DisabledSeconds}s");
@@ -478,6 +479,8 @@ public partial class HudLayer : CanvasLayer
         _items.Clear();
         if (Snapshot.Valid)
         {
+            // Hide only the camera feed; keep the original camera frame, controls and readouts above it.
+            if (disabledFeed is not null) _items.Add(disabledFeed);
             _items.AddRange(page.DrawList.Items);
             _items.AddRange(Interaction.DrawList.Items);
             _items.AddRange(Markers.DrawList.Items);

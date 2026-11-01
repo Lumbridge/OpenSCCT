@@ -61,7 +61,7 @@ public partial class SGadMultiMinesLauncher
 
     /// <summary>
     /// Alt-fire (rule 1): when walking, find a wall (UseMine); a stickable wall starts the placement clip, anything else
-    /// shows "can't spawn mine here".
+    /// shows "Can't place mine here".
     /// </summary>
     [Uc("SBase.SGadMultiMinesLauncher.Use", Sha1 = "38bfe6e74380983abe567e896dad03d8d49e297f")]
     [PortOf("uc:SBase.SGadMultiMinesLauncher:Use", Spec = "spec/equipment/mine-launcher.md#placing")]
@@ -91,7 +91,15 @@ public partial class SGadMultiMinesLauncher
         }
         else
         {
-            GadgetHud.AddMessageToAuxiliaryStack(pc, TextCanSpawnMine, K.MineMessageTime);
+            // Older content packs retain the package's untranslated developer wording. Use the shipped
+            // English localization for that exact legacy value; leave other translations and tracker text alone.
+            string placementText = TextCanSpawnMine;
+            if (string.Equals(placementText, "Cant spawn mine here", System.StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(placementText, "Can't spawn mine here", System.StringComparison.OrdinalIgnoreCase))
+            {
+                placementText = "Can't place mine here";
+            }
+            GadgetHud.AddMessageToAuxiliaryStack(pc, placementText, K.MineMessageTime);
             PlaySound(MenuValide, ESoundSlot.SLOT_Misc, 1f, false, K.EmptyChargeRadius);
         }
 

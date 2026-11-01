@@ -23,6 +23,16 @@ public partial class SBasePawn
     {
         if (XLevel.GetService<OpenScct.Game.Animation.INetworkPawnCommands>()?.DrivesPawn(this) == true) return;
         float now = XLevel.TimeSeconds;
+        if (pc is SPlayerController { bGameEnded: true })
+        {
+            // Sequenced input stops at the result boundary. The original GameEnded state still
+            // simulates zero-input movement, so finish braking/falling on the server world clock
+            // instead of leaving a walking pawn's last velocity (and run blend) stuck indefinitely.
+            Acceleration = default;
+            XLevel.PhysicsDriver?.performPhysics(this, XLevel.DeltaTime);
+            pc.ServerTimeStamp = now;
+            return;
+        }
         float elapsed = now - pc.ServerTimeStamp;
         if (Physics is EPhysics.PHYS_RootMotion or EPhysics.PHYS_FollowParent ||
             (Physics == EPhysics.PHYS_Repositionnal && bServerControlsRepos))

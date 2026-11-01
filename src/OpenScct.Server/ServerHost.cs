@@ -175,7 +175,12 @@ public sealed class ServerHost : INetworkNotify, IDisposable
         MapCatalog maps = Settings.Maps ?? MapCatalog.CreateDefault();
         _characterContentHash = Settings.GameOptions is null ? 0 : maps.CharacterContentHash;
         Driver = new NetDriver(transport, Settings.Classes ?? NetClasses.Create(), this, isServer: true,
-            NetProfiles.Apply(Settings.Net, Settings.Profile, NetRate)) { World = World };
+            NetProfiles.Apply(Settings.Net, Settings.Profile, NetRate))
+        {
+            World = World,
+            ViewPoint = NetViewPoint.ForConnection,
+            ViewActor = NetViewPoint.ActorForConnection,
+        };
         World.Level.SetService<IObjectiveNet>(new NetObjectiveBridge(Driver));
         World.Level.SetService<IGameHost>(new NetGameHost(Driver));
         World.Level.SetService<OpenScct.Game.Devices.IDeviceNet>(new NetDeviceBridge(Driver));

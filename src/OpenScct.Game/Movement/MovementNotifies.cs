@@ -26,6 +26,8 @@ public static class MovementNotifies
     private static readonly Name AnimNotifyThrow = new("AnimNotifyThrow");
     private static readonly Name NotifyUndrawWeapon = new("NotifyUndrawWeapon");
     private static readonly Name NotifyDrawWeapon = new("NotifyDrawWeapon");
+    private static readonly Name NotifyUnDrawWeaponGrab = new("NotifyUnDrawWeapon_GRAB");
+    private static readonly Name NotifyDrawWeaponGrab = new("NotifyDrawWeapon_GRAB");
     private static readonly Name RMColOn = new("RMColOn");
     private static readonly Name AnimNotifyNoise = new("AnimNotifyNoise");
     private static readonly Name AnimNotifyPickup = new("AnimNotifyPickup");
@@ -47,9 +49,22 @@ public static class MovementNotifies
         handlers.Register(NotifyTakeArmControlForBTWFireLeft, a => (a as SBasePawn)?.NotifyTakeArmControlForBTWFireLeft());
         handlers.Register(NotifyTakeArmControlForBTWFireRight, a => (a as SBasePawn)?.NotifyTakeArmControlForBTWFireRight());
 
-        // Only the back-to-wall draw clips: the other clips with these notifies load the weapon at their action.
-        handlers.Register(NotifyDrawUndrawWeapon, a => (a as SBasePawn)?.BtwDrawNotify(bChangeHand: false));
+        // Merc death, wake and traversal clips lower/raise the rifle at their authored notify frame.
+        // Spy traversal actions already own their quick draw; only their BTW clips use this handler.
+        handlers.Register(NotifyDrawUndrawWeapon, a =>
+        {
+            if (a is SPAWNDEFENSE merc) Equipment.PawnWeapons.MercNotifyDrawUndrawWeapon(merc);
+            else (a as SBasePawn)?.BtwDrawNotify(bChangeHand: false);
+        });
         handlers.Register(NotifyChangeHandWeapon, a => (a as SBasePawn)?.BtwDrawNotify(bChangeHand: true));
+        handlers.Register(NotifyUnDrawWeaponGrab, a =>
+        {
+            if (a is SPAWNDEFENSE merc) Equipment.PawnWeapons.NotifyUnDrawWeapon_GRAB(merc);
+        });
+        handlers.Register(NotifyDrawWeaponGrab, a =>
+        {
+            if (a is SPAWNDEFENSE merc) Equipment.PawnWeapons.NotifyDrawWeapon_GRAB(merc);
+        });
         handlers.Register(AnimNotifyThrow, a => (a as SBasePawn)?.AnimNotifyThrow());
 
         handlers.Register(RMColOn, a => (a as SBasePawn)?.RMColOn());

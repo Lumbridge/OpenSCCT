@@ -68,7 +68,8 @@ public sealed class CamNetworkTests
     [InlineData(1000, 50000, -13000, 13000, 53536)]
     [InlineData(5000, 1000, -3000, 3000, 2000)]
     [InlineData(65000, 1000, -8000, 8000, 1000)]
-    [InlineData(1000, 1000, -8000, 8000, 0)]
+    [InlineData(1000, 1000, -8000, 8000, 1000)]
+    [InlineData(-7828, -7828, -8000, 8000, -7828)]
     public void ClampRotationKeepsAnAngleWithinItsLimitsTheShortWayRound(int centre, int target, int min, int max, int expected)
     {
         Assert.Equal(expected & 65535, SPlayerController.ClampRotation(centre, target, min, max));

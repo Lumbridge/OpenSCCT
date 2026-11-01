@@ -41,7 +41,7 @@ param(
     [string]$DedicatedExe,
     [ValidateSet('host','guest','observer','observer2')][string]$Role = 'host',
     [string]$CommandJson,
-    [ValidateSet('startup','load-timeout','jump','ledge','stall','grab','fire','gadget','outage','stance','soak','death','elimination','roundtrip','rejoin','spectator','stale-combat')][string]$Scenario = 'startup',
+    [ValidateSet('startup','load-timeout','jump','ledge','stall','grab','fire','gadget','sticky-gas','camera-network','outage','stance','soak','death','elimination','roundtrip','rejoin','spectator','stale-combat')][string]$Scenario = 'startup',
     [ValidateRange(30,900)][int]$TimeoutSeconds = 180
 )
 $ErrorActionPreference = 'Stop'
@@ -385,6 +385,85 @@ switch ($Action) {
                 return
             }
             $startup = Assert-Startup
+            if ($Scenario -eq 'camera-network') {
+                if ($Hub -or $Dedicated -or $ReverseRoles) { throw 'Camera network reproduction requires a spy listen host and merc client.' }
+                Invoke-Lab 'guest' @{op='input';steps=@(@{label='select camera network';seconds=1;tap=@('SelectGadget 2')})}
+                $selected = Own-Pawn (Read-Json (Join-Path $RunDirectory 'guest-status.json'))
+                if ($selected.gadget.type -ne 'SGadCamNetwork') { throw 'Camera network is not in the expected merc loadout slot.' }
+                Invoke-Lab 'guest' @{op='input';steps=@(@{label='single camera activation';seconds=0.2;tap=@('bAltFire')},@{label='camera entry settles';seconds=2})}
+                $entry = (Read-Json (Join-Path $RunDirectory 'guest-status.json')).cameraView
+                if (!$entry -or $entry.state -ne 's_UseObject_CamNetwork' -or $entry.controller -ne 'LabGuest') { throw 'Merc failed to enter and control a camera on the first right click.' }
+                $since = [DateTimeOffset]::UtcNow
+                Invoke-Lab 'guest' @{op='input';steps=@(@{label='camera without look input';seconds=8})}
+                $samples = @(Trace-Since 'guest' $since)
+                if ($samples.Count -lt 10) { throw 'Insufficient camera stability evidence.' }
+                foreach ($sample in $samples) {
+                    $view = $sample.cameraView
+                    if (!$view -or $view.state -ne 's_UseObject_CamNetwork' -or $view.id -ne $entry.id -or $view.yaw -ne $entry.yaw -or $view.pitch -ne $entry.pitch) {
+                        throw 'Camera exited, switched, or rotated without input.'
+                    }
+                }
+                if ($Windowed) { Invoke-Lab 'guest' @{op='capture'} }
+                # The original camera input keeps a 150-axis dead zone; this mouse speed exceeds it.
+                Invoke-Lab 'guest' @{op='input';steps=@(@{label='turn camera right';seconds=4;lookX=1000},@{label='turn camera left';seconds=2;lookX=-1000},@{label='stop camera turn';seconds=2})}
+                $turned = (Read-Json (Join-Path $RunDirectory 'guest-status.json')).cameraView
+                if (!$turned -or $turned.id -ne $entry.id -or $turned.controller -ne 'LabGuest' -or $turned.yaw -eq $entry.yaw) {
+                    throw 'Continuous camera rotation stopped responding or lost its network session.'
+                }
+                Invoke-Lab 'guest' @{op='input';steps=@(@{label='next network camera';seconds=0.2;tap=@('Use')},@{label='switched camera settles';seconds=2})}
+                $switched = (Read-Json (Join-Path $RunDirectory 'guest-status.json')).cameraView
+                if (!$switched -or $switched.id -eq $entry.id -or $switched.controller -ne 'LabGuest') { throw 'Switching cameras lost control or failed to change camera.' }
+                Invoke-Lab 'host' @{op='disable-camera';player='LabGuest'}
+                Invoke-Lab 'guest' @{op='input';steps=@(@{label='disabled camera';seconds=2})}
+                $disabled = (Read-Json (Join-Path $RunDirectory 'guest-status.json')).cameraView
+                if (!$disabled -or $disabled.disabledSeconds -le 0 -or $disabled.state -ne 's_UseObject_CamNetwork') { throw 'Disabled camera did not retain the viewer.' }
+                if ($Windowed) {
+                    $paths = @($disabled.hudPaths)
+                    $black = [Array]::IndexOf($paths, 'CamNetwork/Disabled')
+                    $countdown = [Array]::IndexOf($paths, 'CamNetwork/Countdown')
+                    if ($black -ne 0 -or $countdown -le 2 -or !@($paths | Where-Object { $_ -match 'CamNetWork.*Frame|textCamNetwork' }).Count) {
+                        throw 'Disabled camera does not retain its frame above the black feed.'
+                    }
+                    Invoke-Lab 'guest' @{op='capture'}
+                }
+                Invoke-Lab 'guest' @{op='input';steps=@(@{label='exit camera';seconds=0.2;tap=@('bAltFire')},@{label='return to merc';seconds=2})}
+                $exited = Read-Json (Join-Path $RunDirectory 'guest-status.json')
+                if ($exited.cameraView -or $exited.localController.state -match 'CamNetwork') { throw 'Merc could not exit the camera on one right click.' }
+                Write-Json (Join-Path $RunDirectory 'camera-network-result.json') @{entry=$entry;stableSamples=$samples.Count;turned=$turned;switched=$switched;disabled=$disabled;exitState=$exited.localController.state;disableViaDamageFixture=$true;controlViaNormalInput=$true}
+            }
+            if ($Scenario -eq 'sticky-gas') {
+                if ($Hub -or $Dedicated -or $ReverseRoles) { throw 'Sticky gas reproduction requires a spy listen host and merc client.' }
+                Invoke-Lab 'host' @{op='input';steps=@(@{label='stand before camera';seconds=0.2;tap=@('Jump')},@{label='settle';seconds=4})}
+                $merc = Own-Pawn (Read-Json (Join-Path $RunDirectory 'guest-status.json'))
+                $angle = $merc.yaw * (2 * [Math]::PI / 65536)
+                $cameraPosition = @(($merc.position[0] + 450 * [Math]::Cos($angle)), ($merc.position[1] + 450 * [Math]::Sin($angle)), ($merc.position[2] + 40))
+                Invoke-Lab 'host' @{op='sticky-camera';position=$cameraPosition;yaw=($merc.yaw+32768)}
+                Invoke-Lab 'host' @{op='input';steps=@(@{label='camera view settles';seconds=4})}
+                $hostState = Read-Json (Join-Path $RunDirectory 'host-status.json')
+                if ($hostState.localController.state -notmatch 'StickyCam') { throw 'Host did not enter sticky camera view.' }
+                $before = @($hostState.stickyCameras | Where-Object owner -eq 'LabHost')[0]
+                $lookYaw = [int]([Math]::Atan2($before.position[1]-$merc.position[1],$before.position[0]-$merc.position[0]) * 65536 / (2*[Math]::PI))
+                Invoke-Lab 'guest' @{op='face';yaw=$lookYaw}
+                $since = [DateTimeOffset]::UtcNow
+                Invoke-Lab 'host' @{op='input';steps=@(@{label='release camera gas';seconds=0.2;tap=@('Use')},@{label='observe gas';seconds=0.8})}
+                if ($Windowed) { foreach ($roleName in @('host','guest')) { Invoke-Lab $roleName @{op='capture'} } }
+                Invoke-Lab 'guest' @{op='input';steps=@(@{label='observe remaining cloud';seconds=6})}
+                $evidence = @{}
+                foreach ($roleName in @('host','guest')) {
+                    $samples = @(Trace-Since $roleName $since)
+                    $clouds = @($samples | ForEach-Object { $_.gasClouds })
+                    $ids = @($clouds | ForEach-Object { $_.id } | Sort-Object -Unique)
+                    $peak = ($samples | ForEach-Object { $_.gasFx.particles } | Measure-Object -Maximum).Maximum
+                    $evidence[$roleName] = @{clouds=$ids;peakParticles=$peak;samples=$clouds.Count}
+                    if ($clouds.Count -lt 2 -or $ids.Count -ne 1) { throw "$roleName did not receive exactly one sticky gas cloud." }
+                    if ($Windowed -and $peak -lt 5) { throw "$roleName received the gas actor but did not draw its particles: $peak." }
+                    if (@((Read-Json (Join-Path $RunDirectory "$roleName-status.json")).gasClouds).Count) { throw "$roleName retained expired gas." }
+                }
+                $authority = (Read-Json (Join-Path $RunDirectory 'server-status.json')).server
+                $cam = @($authority.stickyCameras | Where-Object owner -eq 'LabHost')[0]
+                if ($cam.doses -ne $before.doses-1) { throw 'Camera gas did not consume exactly one authoritative dose.' }
+                Write-Json (Join-Path $RunDirectory 'sticky-gas-result.json') @{before=$before;after=$cam;views=$evidence;cameraPlacementFixture=$true;releaseViaNormalInput=$true}
+            }
             if ($Scenario -eq 'gadget') {
                 if ($Hub -or $ReverseRoles) { throw 'The grenade fixture currently needs a regular-session remote merc.' }
                 Invoke-Lab 'guest' @{op='input';steps=@(@{label='settle before grenade';seconds=10})}
@@ -924,6 +1003,21 @@ switch ($Action) {
                     Invoke-Lab $mercRole @{op='capture'}
                     throw 'Merc recovered in gameplay but the rendered sleeping overlay is still active.'
                 }
+                if ($merc.weaponLoaded -ne 2 -or !$merc.weapon.drawn -or $merc.gasMask) {
+                    throw "Merc woke with broken equipment: loaded=$($merc.weaponLoaded), drawn=$($merc.weapon.drawn), mask=$($merc.gasMask), maskAir=$($merc.maskDuration)."
+                }
+                if ($Windowed) { Invoke-Lab $mercRole @{op='capture'} }
+                $ammoBefore = $merc.weapon.ammo
+                Invoke-Lab $mercRole @{op='input';steps=@(@{label='fire after waking';seconds=0.2;hold=@('bFire')},@{label='settle after shot';seconds=1})}
+                $armed = Own-Pawn (Read-Json (Join-Path $RunDirectory "$mercRole-status.json"))
+                if ($armed.weapon.ammo -ge $ammoBefore) { throw 'Merc could not fire after waking.' }
+                if (!$armed.gadget -or $armed.gadget.type -notlike '*Gren*') { throw 'KO grenade recovery requires the normal merc grenade selection.' }
+                $chargeBefore = $armed.gadget.charge
+                Invoke-Lab $mercRole @{op='input';steps=@(@{label='charge grenade after waking';seconds=0.4;hold=@('bAltFire')},@{label='release grenade after waking';seconds=5})}
+                $armed = Own-Pawn (Read-Json (Join-Path $RunDirectory "$mercRole-status.json"))
+                $sourceMerc = (Read-Json (Join-Path $RunDirectory 'server-status.json')).server.pawns | Where-Object name -eq $mercName
+                if ($armed.gadget.charge -ne $chargeBefore-1 -or $sourceMerc.gadget.charge -ne $armed.gadget.charge) { throw 'Merc could not throw exactly one grenade after waking.' }
+                if ($armed.weaponLoaded -ne 2 -or !$armed.weapon.drawn -or $armed.gasMask) { throw 'Merc equipment did not remain usable after recovery inputs.' }
                 } else {
                     if ($GrabOutcome -eq 'neck-break') {
                         Invoke-Lab $spyRole @{op='input';steps=@(@{label='neck break';seconds=0.2;tap=@('Use')},@{label='lethal release';seconds=2.5})}

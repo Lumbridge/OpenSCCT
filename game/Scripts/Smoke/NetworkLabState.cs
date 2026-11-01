@@ -53,6 +53,7 @@ public static class NetworkLabState
     {
         tick = server.World.TickCount, phase, started = server.StartGate?.Started, pawns = Pawns(server.World),
         grenades = Grenades(server.World),
+        gasClouds = GasClouds(server.World), stickyCameras = StickyCameras(server.World),
         ended = server.Game?.bGameEnded, winningTeam = server.Game?.GameReplicationInfo?.WinningTeam,
         lag = server.World.Level.GetService<LagCompensation>() is { } lag ? new { lag.Enabled, lag.CeilingMs, lag.RewoundShots, lag.LastRewindMs } : null,
         disconnects = Disconnects.GetValue(server, ObserveDisconnects).ToArray(),
@@ -115,6 +116,7 @@ public static class NetworkLabState
         stateAck = (p.Controller as SPlayerController)?.MirrorStateAcknowledgementTime,
         crouched = p.bIsCrouched, height = p.CollisionHeight, radius = p.CollisionRadius, grabbable = p.bCanBeGrabbed,
         health = p.Health, sleeping = p.bSleeping, lying = p.bLyingOnGround,
+        weaponLoaded = p.WeaponLoaded, gasMask = p.bGasMask, maskDuration = GasMask(p)?.MaskDuration,
         eyeHeight = CombatServices.Ports(p).EyePosition(p).Z,
         gadget = p.SelectedGadget is { } gadget ? new { type = gadget.GetType().Name, charge = gadget.Charge } : null,
         weapon = p.MyWeapon is { } weapon ? new
@@ -122,6 +124,7 @@ public static class NetworkLabState
             type = weapon.GetType().Name, state = weapon.GetStateName().ToString(), ammo = weapon.Ammo,
             shot = weapon.ShotCounter, clip = (weapon as SWeaponDefense)?.ClipAmmo,
             clipMax = (weapon as SWeaponDefense)?.ClipMaxAmmo, mode = (weapon as SWeaponDefense)?.ROFMode.ToString(),
+            drawn = (weapon as SWeaponDefense)?.bDrawWeapon,
         } : null,
         pivot = new[] { p.PrePivot.X, p.PrePivot.Y, p.PrePivot.Z }, zone = p.ZoneConfig,
         wakeTime = p.iLastWakeTime, time = p.Level.TimeSeconds, poseReady = p.NetworkPoseReady,
@@ -133,4 +136,32 @@ public static class NetworkLabState
             alpha = p.PawnAnim[i].BlendAlpha, bone = p.PawnAnim[i].StartBone.ToString(), rate = p.PawnAnim[i].Rate,
         }).ToArray(),
     };
+
+    private static SGadGasMask? GasMask(SBasePawn p)
+    {
+        int guard = 0;
+        for (SGadget? gadget = p.MyGadget; gadget is not null && guard++ < 64; gadget = gadget.MyGadget)
+            if (gadget is SGadGasMask mask) return mask;
+        return null;
+    }
+
+    public static object[] GasClouds(World world)
+    {
+        var clouds = new List<object>();
+        foreach (SStickyCamEmitter gas in world.Level.AllActors<SStickyCamEmitter>())
+            if (!gas.bDeleteMe) clouds.Add(new { id = gas.ActorId, position = new[] { gas.Location.X, gas.Location.Y, gas.Location.Z },
+                yaw = gas.Rotation.Yaw, pitch = gas.Rotation.Pitch, hidden = gas.bHidden, gas.LifeSpan });
+        return clouds.ToArray();
+    }
+
+    public static object[] StickyCameras(World world)
+    {
+        var cameras = new List<object>();
+        foreach (SStickyCam cam in world.Level.AllActors<SStickyCam>())
+            if (!cam.bDeleteMe && cam is not SCamNetwork) cameras.Add(new { id = cam.ActorId,
+                owner = (cam.Owner as SBasePawn)?.PlayerReplicationInfo?.PlayerName,
+                position = new[] { cam.Location.X, cam.Location.Y, cam.Location.Z }, yaw = cam.Rotation.Yaw,
+                pitch = cam.Rotation.Pitch, doses = cam.Smoke_NbDoses });
+        return cameras.ToArray();
+    }
 }

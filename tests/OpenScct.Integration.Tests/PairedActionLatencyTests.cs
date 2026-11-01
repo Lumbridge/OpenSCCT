@@ -365,6 +365,12 @@ public sealed class PairedActionLatencyTests
         string recovery = $"recovery owner {mercOwner.GetStateName()} {localMerc.PawnAnim[0].Sequence}/{localMerc.PawnAnim[0].Frame}, authority {mercAuthority.GetStateName()} {sourceMerc.PawnAnim[0].Sequence}/{sourceMerc.PawnAnim[0].Frame}, grabbed {sourceMerc.m_AttackedBy}, spy {spyOwner.GetStateName()}/{spyAuthority.GetStateName()}";
         Assert.False(sourceMerc.bSleeping, recovery);
         Assert.False(sourceMerc.bLyingOnGround, recovery);
+        Assert.Equal(2, localMerc.WeaponLoaded);
+        Assert.Equal(2, sourceMerc.WeaponLoaded);
+        Assert.False(localMerc.bGasMask);
+        Assert.False(sourceMerc.bGasMask);
+        Assert.True(Assert.IsAssignableFrom<SWeaponDefense>(localMerc.MyWeapon).bDrawWeapon);
+        Assert.True(mercOwner.CheckIfCanFire());
         Assert.True((sourceMerc.Location - localMerc.Location).Size() <= 2,
             $"merc {mercOwner.GetStateName()}/{mercAuthority.GetStateName()} {localMerc.Location}/{sourceMerc.Location}");
         Assert.True((sourceSpy.Location - localSpy.Location).Size() <= 2);

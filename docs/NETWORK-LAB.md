@@ -22,6 +22,12 @@ pwsh tools/network-lab.ps1 -Action Run -Map AquaE -Scenario ledge -ReverseRoles 
 # Independent observer checks a grab, knockout and wake-up.
 pwsh tools/network-lab.ps1 -Action Run -Dedicated -Map AquaE -Scenario grab -Observer -Windowed -NetworkProfile asymmetric
 
+# Spy-camera gas received and rendered by both players, with expiry and dose accounting.
+pwsh tools/network-lab.ps1 -Action Run -Map AquaE -Scenario sticky-gas -Windowed -NetworkProfile typical -HostFps 144 -GuestFps 30
+
+# Merc camera entry, idle/turning stability, switching, disabled overlay and exit.
+pwsh tools/network-lab.ps1 -Action Run -Map AquaE -Scenario camera-network -Windowed -NetworkProfile lan
+
 # Lethal Use release or the original hold timeout, followed by spectator delay and respawn.
 pwsh tools/network-lab.ps1 -Action Run -Dedicated -Map AquaE -Scenario grab -GrabOutcome neck-break -Lives 2 -Observer -Windowed -NetworkProfile asymmetric
 pwsh tools/network-lab.ps1 -Action Run -Map AquaE -Scenario grab -GrabOutcome timeout -Lives 2 -Observer -Windowed -NetworkProfile rough
@@ -68,6 +74,11 @@ accounting and respawn or elimination. Its `damage` command is an explicit fixtu
 handler; it does not prove a weapon can hit that target. Grab input goes through the normal Use/fire bindings.
 The lethal grab variants require at least two lives, verify one death/life and one credited kill, detached
 corpse position, a spectator interval and a new playable pawn. The default grab outcome remains knockout.
+The knockout outcome additionally requires the merc's mask to remain off and their weapon to be loaded
+and drawn after waking, then checks normal firing and grenade use. The `sticky-gas` scenario uses an
+explicit collision-checked camera placement fixture and normal release input; it checks replicated gas
+actors and rendered particle counts. The `camera-network` scenario uses a disable-camera fixture for
+its final overlay capture. These two scenarios currently require the default spy host / merc client setup.
 The `fire` scenario taps the normal auto-mode trigger once, or holds it for `-FireSeconds` (up to two).
 Single fire mode is reserved for the original scope behavior. Target placement/aim are explicit fixtures;
 firing and reloading use bound inputs. This proves those actions for the recorded pose/profile, not the

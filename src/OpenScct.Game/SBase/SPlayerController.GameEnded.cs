@@ -47,6 +47,10 @@ public partial class SPlayerController
             }
 
             pc.bGameEnded = true;
+            // The result state sends zero acceleration on the owning machine. Modern network
+            // movement stops accepting commands at this boundary, so the server copy must also
+            // release the last held input here. Keep velocity/physics for normal braking or falling.
+            if (pc.Pawn is { } pawn) pawn.Acceleration = FVector.Zero;
             pc.btoCought = false;
             pc.ReadyToPlayAgain(false);
             pc.FlashColor = pc.FlashColor with { A = 0 };

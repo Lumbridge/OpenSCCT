@@ -167,6 +167,13 @@ public sealed class NetworkLabSmoke(bool host, bool observer = false, bool secon
                 stateGaps = session?.PawnStates?.StateGaps, underruns = session?.PawnStates?.Underflows,
                 pawns = session is null ? [] : Pawns(session.World, session.Connection), server = _server,
                 grenades = session is null ? [] : Grenades(session.World, session.Connection),
+                gasClouds = session is null ? [] : GasClouds(session.World),
+                stickyCameras = session is null ? [] : StickyCameras(session.World),
+                gasFx = _root?.Fx?.Effects is { } fx ? new
+                {
+                    particles = fx.ParticlesOf("SStickyCamEmitter"), peak = fx.PeakParticles.GetValueOrDefault("SStickyCamEmitter"),
+                    started = fx.Started.GetValueOrDefault("SStickyCamEmitter"), missing = fx.Missing.ToArray(),
+                } : null,
                 inspectedPoses = _inspector?.PoseChecks.Select(p => new
                 {
                     p.Label, p.FootSamples, p.MissingFloorSamples, p.CylinderSupportSamples, p.UnsupportedSamples, p.NonWalkingSamples, p.MissingFootSamples,
@@ -184,6 +191,14 @@ public sealed class NetworkLabSmoke(bool host, bool observer = false, bool secon
                     jump = pc.bPressedJump, hooks = MovementService.HooksOf(pc).GetType().Name,
                     candidates = session.World.Level.Actors.OfType<SBasePawn>().Where(p => p is SPAWNDEFENSE).Select(p => new
                     { name = p.PlayerReplicationInfo?.PlayerName, reachable = pc.CanGrabPawn(p), grabbable = p.bCanBeGrabbed }).ToArray(),
+                } : null,
+                cameraView = session?.LocalPlayer is SPlayerController { SBPawn.UsedObject: SCamNetwork viewed } cameraPc ? new
+                {
+                    id = viewed.ActorId, name = viewed.CamName, yaw = viewed.iYaw, pitch = viewed.iPitch,
+                    centreYaw = viewed.YawConstraint.X, centrePitch = viewed.PitchConstraint.X,
+                    disabledSeconds = viewed.DisabledSeconds, controller = viewed.aUsedByPawn?.PlayerReplicationInfo?.PlayerName,
+                    state = cameraPc.GetStateName().ToString(),
+                    hudPaths = _root?.Hud?.Items.Select(item => item.Path).ToArray(),
                 } : null,
             };
             Atomic(Path.Combine(_directory, _role + "-status.json"), data);
@@ -275,6 +290,42 @@ public sealed class NetworkLabSmoke(bool host, bool observer = false, bool secon
                         if (_hub) hub.Host!.Inspect(s => Place(s.Host));
                         else online.Hosting!.Inspect(s => Place(s.Host));
                         break;
+                    case "sticky-camera":
+                        if (!host || _hub || _dedicated) throw new ArgumentException("Sticky-camera fixture requires a regular listen host.");
+                        var cameraPosition = JsonSerializer.Deserialize<float[]>(command.GetProperty("position").GetRawText())!;
+                        if (cameraPosition.Length != 3 || cameraPosition.Any(v => !float.IsFinite(v))) throw new ArgumentException("Expected three finite camera coordinates.");
+                        int cameraYaw = command.GetProperty("yaw").GetInt32();
+                        online.Hosting!.Inspect(s =>
+                        {
+                            try
+                            {
+                                var pc = s.Host.Players.Single(p => p.Name == "LabHost").Controller as SPlayerController
+                                    ?? throw new InvalidOperationException("No spy host controller.");
+                                var pawn = pc.Pawn as SBasePawn ?? throw new InvalidOperationException("No spy host pawn.");
+                                var merc = s.Host.Players.Single(p => p.Name == "LabGuest").Controller?.Pawn
+                                    ?? throw new InvalidOperationException("No merc observer pawn.");
+                                FVector view = merc.Location + new FVector(0, 0, 40);
+                                FVector at = new(cameraPosition[0], cameraPosition[1], cameraPosition[2]);
+                                bool clear = false;
+                                for (int attempt = 0; attempt < 8; attempt++)
+                                {
+                                    if (attempt > 0) at = view + new FRotator(0, cameraYaw + 32768 + attempt * 8192, 0).Vector() * 450;
+                                    if (s.Host.Map.Physics?.Collision is { } collision &&
+                                        !collision.LineCheck(out _, merc, at, view, new FVector(8, 8, 8), PlayInspector.WorldTrace))
+                                    {
+                                        clear = true;
+                                        break;
+                                    }
+                                }
+                                if (!clear) throw new InvalidOperationException("No clear 450-unit camera view around the merc.");
+                                var cam = s.Host.World.Level.SpawnActor(new SStickyCam(), at,
+                                    (view - at).Rotation(), pawn, pawn) ?? throw new InvalidOperationException("Camera fixture failed to spawn.");
+                                cam.Smoke_NbDoses = 1;
+                                Ack(id, null);
+                            }
+                            catch (Exception e) { Ack(id, e.Message); }
+                        });
+                        break;
                     case "self-damage":
                         // Controlled owner-to-server RPC fixture, used to retain an old request across respawn.
                         if (_hub || _root?.Session?.LocalController is not { Pawn: SBasePawn } self)
@@ -317,6 +368,22 @@ public sealed class NetworkLabSmoke(bool host, bool observer = false, bool secon
                         _capturedFoot = -PlayInspector.InspectFeetBelow;
                         _poseCaptures = 0;
                         Ack(id, null);
+                        break;
+                    case "disable-camera":
+                        if (!host || _hub || _dedicated) throw new ArgumentException("Camera fixture requires a regular listen host.");
+                        string cameraViewer = command.GetProperty("player").GetString()!;
+                        online.Hosting!.Inspect(s =>
+                        {
+                            try
+                            {
+                                var pc = s.Host.Players.Single(p => p.Name == cameraViewer).Controller as SPlayerController;
+                                if (pc?.SBPawn?.UsedObject is not SCamNetwork camera) throw new InvalidOperationException("Player is not viewing a network camera.");
+                                var spy = s.Host.Players.Select(p => p.Controller?.Pawn).OfType<SBasePawn>().First(p => p.SPawnType == PawnType.SPAWNOFFENSE);
+                                camera.eventTakeDamage(0, spy, camera.Location, default, SDamageType.SDTStickyShocker);
+                                Ack(id, null);
+                            }
+                            catch (Exception e) { Ack(id, e.Message); }
+                        });
                         break;
                     case "ready-next-round":
                         if (_hub || online.Client is not { State: OnlineClientState.Results } resultsClient)

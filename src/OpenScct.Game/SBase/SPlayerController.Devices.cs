@@ -105,8 +105,7 @@ public partial class SPlayerController
     private static readonly Name CNAME_ReloadAmmoStock = new("ReloadAmmoStock");
 
     /// <summary>
-    /// Clamps a camera angle to within [Min, Max] of its limit centre, the short way round. Equal angles fall
-    /// through every branch and give 0, as in the original (the view snaps to 0 at a limit centre).
+    /// Clamps a camera angle to within [Min, Max] of its limit centre, the short way round.
     /// </summary>
     [Uc("SBase.SPlayerController.ClampRotation", Sha1 = "f4194c0aba37c26c4d52df3eb7ffdad820112ffa")]
     [PortOf("uc:SBase.SPlayerController:ClampRotation", Spec = "spec/devices/cam-network.md#turning-and-limits")]
@@ -128,7 +127,9 @@ public partial class SPlayerController
                 : (Value - System.Math.Abs(SvmMath.Clamp(Value - Target, 0, -Min))) & 65535;
         }
 
-        return 0;
+        // The decoded script falls through to zero here. Keep an unchanged centre stable instead: entering a
+        // placed camera with no mouse input must not turn it toward world yaw zero.
+        return Value;
     }
 
     /// <summary>

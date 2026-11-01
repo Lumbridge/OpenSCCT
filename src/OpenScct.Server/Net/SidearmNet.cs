@@ -1,3 +1,4 @@
+using OpenScct.Core.Uc;
 using OpenScct.Game.Equipment;
 using OpenScct.Game.SBase;
 using OpenScct.Net;
@@ -6,6 +7,10 @@ namespace OpenScct.Server;
 
 public static class SidearmNet
 {
+    private static readonly RepCondition PrimaryWeaponVisible = RepCondition.Bind(
+        RepExpr.Or(RepExpr.Net(RepNetVar.bNetOwner), RepExpr.Ne(RepExpr.Prop(nameof(SBasePawn.SidearmWeapon)), RepExpr.Null)),
+        SBasePawn.UcMeta.Class, new PropertyReaders());
+
     public static void Register(NetClassRegistry registry)
     {
         var carry = new RepExtension();
@@ -36,7 +41,10 @@ public static class SidearmNet
     public static RepExtension PawnExtension()
     {
         var ext = new RepExtension();
-        ext.Properties.Add(new("PrimaryWeapon", nameof(SBasePawn.PrimaryWeapon), RepLeafKind.Object));
+        // A single rifle's first-person actor is only relevant to its owner; observers use WeaponDummy.
+        // Granting a sidearm makes both carried weapons follow the pawn, so observers can then resolve them.
+        // Sending the hidden rifle to other clients otherwise retries an unmappable reference every tick.
+        ext.Properties.Add(new("PrimaryWeapon", nameof(SBasePawn.PrimaryWeapon), RepLeafKind.Object, PrimaryWeaponVisible));
         ext.Properties.Add(new("SidearmWeapon", nameof(SBasePawn.SidearmWeapon), RepLeafKind.Object));
         ext.Properties.Add(new("ActiveWeaponSlot", nameof(SBasePawn.ActiveWeaponSlot), RepLeafKind.Int));
         ext.Properties.Add(new("WeaponSwitching", nameof(SBasePawn.WeaponSwitching), RepLeafKind.Bool));

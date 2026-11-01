@@ -30,7 +30,7 @@ public sealed partial class NetMovementBridge
     {
         if (actor is not SPlayerController { Pawn: SBasePawn { Health: > 0 }, bWaitingForReinit: false } pc || pc.StateNode is SPlayerController.s_Inactive || f.Name is not
             ("PCChangeServerState" or "ReplicateActionToServer" or "ReplicateActionToServerWithVelocity" or
-             "ServerGetZipP" or "ServerGetNewZipP" or "ServerGetZipPAndNormal" or "ServerSetWallJumpDir" or "ServerSetInfoForVandamme") ||
+             "ServerGetZipP" or "ServerGetNewZipP" or "ServerGetZipPAndNormal" or "ServerSetWallJumpDir" or "ServerSetInfoForVandamme" or NetCombatBridge.FunctionName) ||
             EndpointOf(pc)?.Sequenced is null) return false;
         if (!_controls.TryGetValue(pc, out ControlQueue? queue)) _controls.Add(pc, queue = new ControlQueue());
         if (queue.Count == queue.Calls.Length)
@@ -52,8 +52,10 @@ public sealed partial class NetMovementBridge
             ControlCall call = queue.Calls[queue.Start];
             if (NetConnection.ReliableSeqDiff(call.Sequence, throughSequence) > 0) break;
             queue.Start = (queue.Start + 1) & 255; queue.Count--;
-            call.Handler(pc, call.Function, call.Args, call.Connection);
-            call.Args.Clear();
+            NetFunctionHandler handler = call.Handler;
+            call.Handler = null!;
+            try { handler(pc, call.Function, call.Args, call.Connection); }
+            finally { call.Args.Clear(); }
         }
     }
 
@@ -63,6 +65,7 @@ public sealed partial class NetMovementBridge
         while (queue.Count > 0)
         {
             queue.Calls[queue.Start].Args.Clear();
+            queue.Calls[queue.Start].Handler = null!;
             queue.Start = (queue.Start + 1) & 255; queue.Count--;
         }
     }

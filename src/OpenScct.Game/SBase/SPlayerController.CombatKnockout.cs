@@ -446,7 +446,8 @@ public partial class SPlayerController
             pc.CombatPorts.ChangeEnumAction(pawn, SBasePawn.SA_REMOVE_COLLISION, true);
             pc.fLyingOnGroundTime = pc.Level.TimeSeconds;
             pc.SetTimer(pc.fLyingOnGroundDuration, false);
-            if (pawn.SPawnType == PawnType.SPAWNDEFENSE && Equipment.PawnInventory.FindGadgetType(pawn, CombatGasMaskClass) is SGadget mask)
+            if (pawn.SPawnType == PawnType.SPAWNDEFENSE && pawn.bGasMask &&
+                Equipment.PawnInventory.FindGadgetType(pawn, CombatGasMaskClass) is SGadget mask)
             {
                 mask.Use(1f);
             }

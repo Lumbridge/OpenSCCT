@@ -17,9 +17,11 @@ public sealed class CombatLifetimeNetworkTests
     }
 
     [Theory]
-    [InlineData(0)]
-    [InlineData(2)]
-    public void DamageSentByThePreviousPawnCannotKillItsReplacement(int victimIndex)
+    [InlineData(0, false)]
+    [InlineData(2, false)]
+    [InlineData(0, true)]
+    [InlineData(2, true)]
+    public void DamageSentByThePreviousPawnCannotKillItsReplacement(int victimIndex, bool deferAfterReceive)
     {
         var clock = new VirtualClock();
         var network = new SimLinkNetwork(clock, 717, SimLinkProfile.A);
@@ -48,9 +50,28 @@ public sealed class CombatLifetimeNetworkTests
         serverBridge.Trace = [];
         // The connection survives while this directed link holds a reliable self-damage call across a real death
         // and respawn. Every retransmission has the same delay, so it cannot shortcut the intended ordering.
-        network.SetLinkProfile(bot.Name, "server", new SimLinkProfile("held-owner", 0, 0, 0) { OneWayLatencyMs = 11000 });
+        System.Action? heldCall = null;
+        var previous = match.Server.Driver.DeferReceivedFunction;
+        if (deferAfterReceive)
+        {
+            match.Server.Driver.DeferReceivedFunction = (actor, function, args, connection, handler) =>
+            {
+                if (ReferenceEquals(actor, source) && function.Name == NetCombatBridge.FunctionName && heldCall is null)
+                {
+                    heldCall = () => handler(actor, function, new NetCallArgs(), connection);
+                    return true;
+                }
+                return previous?.Invoke(actor, function, args, connection, handler) == true;
+            };
+        }
+        else network.SetLinkProfile(bot.Name, "server", new SimLinkProfile("held-owner", 0, 0, 0) { OneWayLatencyMs = 11000 });
         bot.Session.World.Level.GetService<NetCombatBridge>()!.ServerCall(owner,
             new CombatCall(new Name("PawnTakeDamage")) { Int1 = 1000, DamageType = SDamageType.Suicided });
+        if (deferAfterReceive)
+        {
+            Tick(30);
+            Assert.NotNull(heldCall);
+        }
         source.PawnTakeDamage(1000, null, body.Location, default, SDamageType.SDTBase);
         Assert.True(body.Health <= 0);
         Tick(600);
@@ -58,6 +79,11 @@ public sealed class CombatLifetimeNetworkTests
         Assert.NotSame(body, replacement);
         Assert.True(replacement.Health > 0);
         Assert.Equal(deaths + 1, source.PlayerReplicationInfo.Deaths);
+        if (deferAfterReceive)
+        {
+            match.Server.Driver.DeferReceivedFunction = previous;
+            heldCall!();
+        }
         Tick(180);
         Assert.Equal(EClientState.Joined, bot.Session.State);
         Assert.Equal(deaths + 1, source.PlayerReplicationInfo.Deaths);

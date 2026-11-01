@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using OpenScct.Core;
 using OpenScct.Core.Engine;
+using OpenScct.Game.Camera;
 using OpenScct.Game.Combat;
 using OpenScct.Game.SBase;
 using OpenScct.Net;
@@ -33,6 +34,11 @@ public sealed class NetCombatBridge : ICombatNet
     public const string FunctionName = "SvmCombatCall";
 
     private readonly NetDriver _driver;
+    private readonly NetCallArgs _deferredArgs = new();
+    private static readonly Name OrientableRotation = new("ServerUpdateOrientableRotation");
+    private static readonly Name UseCamNetwork = new("UseCamNetwork");
+    private Pending? _orientation, _lastOrientation;
+    private long _lastOrientationSent = long.MinValue / 2;
 
     public NetCombatBridge(NetDriver driver)
     {
@@ -86,6 +92,15 @@ public sealed class NetCombatBridge : ICombatNet
         {
             // The view time of the moment the call is made, kept while the call waits.
             long viewTime = _driver.World?.Level.GetService<ClientSession>()?.ViewTimeFixed ?? -1;
+            if (Call.Function == OrientableRotation)
+            {
+                // The original angle report is unreliable. Our shared reliable equipment channel must not
+                // accumulate an idle 60 Hz stream ahead of movement, or the command fences stop progressing.
+                // Retain the newest pose and send it after movement, within the budget, at at most 20 Hz.
+                _orientation = new Pending(Sender, connection, FunctionName, Call, viewTime, _driver.Time, Sender.Pawn);
+                return;
+            }
+            if (Call.Function == UseCamNetwork) _orientation = _lastOrientation = null;
             Send(Sender, connection, FunctionName, Call, viewTime, Sender.Pawn);
         }
     }
@@ -178,6 +193,35 @@ public sealed class NetCombatBridge : ICombatNet
             _pending.RemoveAt(i);
             SendNow(p.Controller, p.Connection, p.Function, p.Call, p.ViewTime, p.SenderPawn);
         }
+        PumpOrientation();
+    }
+
+    private void PumpOrientation()
+    {
+        if (_orientation is not { } p) return;
+        if (p.Connection.State == EConnectionState.USOCK_Closed || p.Controller is not SPlayerController pc ||
+            pc.bDeleteMe || p.SenderPawn is not { bDeleteMe: false, Health: > 0 } ||
+            !ReferenceEquals(pc.Pawn, p.SenderPawn) || p.Call.Actor1 is not { bDeleteMe: false } camera ||
+            !ReferenceEquals(pc.SBPawn?.UsedObject, camera) || PlayerCalcView.SourceOf(pc) is not
+                (PlayerCalcView.EViewSource.StickyCam or PlayerCalcView.EViewSource.StickyCamSmoothToPosition or PlayerCalcView.EViewSource.Mirador))
+        {
+            _orientation = _lastOrientation = null;
+            return;
+        }
+        if (_lastOrientation is { } last && ReferenceEquals(last.Controller, pc) &&
+            ReferenceEquals(last.SenderPawn, p.SenderPawn) && ReferenceEquals(last.Call.Actor1, camera) &&
+            last.Call.Int1 == p.Call.Int1 && last.Call.Int2 == p.Call.Int2)
+        {
+            _orientation = null;
+            return;
+        }
+        if (_driver.Time - _lastOrientationSent < 50_000 || !p.Connection.IsNetReady || HasPendingFor(p.Connection) ||
+            !Mapped(p.Connection, p.Call) || !Mapped(p.Connection, p.SenderPawn)) return;
+
+        SendNow(pc, p.Connection, p.Function, p.Call, p.ViewTime, p.SenderPawn);
+        _lastOrientation = p;
+        _lastOrientationSent = _driver.Time;
+        _orientation = null;
     }
 
     private bool HasPendingFor(NetConnection connection) => HasPendingBefore(connection, _pending.Count);
@@ -251,16 +295,44 @@ public sealed class NetCombatBridge : ICombatNet
         {
             return;
         }
+        long pawnId = senderPawn?.ActorId ?? 0;
+        if (!CurrentPossession(pc, call, hadPawn, senderPawn, pawnId)) return;
 
-        if ((hadPawn && senderPawn is null) || !ReferenceEquals(pc.Pawn, senderPawn))
+        // Native state/action RPCs wait for their input command's reliable fence. Equipment calls share that
+        // controller channel, so executing them during packet decode can overtake the state immediately before
+        // them (CamNet's wait state, for example). Keep the decoded call and its original possession until that
+        // same fence; the bit reader is borrowed and cannot outlive this receive callback.
+        if (pc.XLevel.GetService<NetCombatBridge>() is { } ordered &&
+            ordered._driver.Classes.Find(pc.GetType())?.Layout.FindFunction(FunctionName) is { } function)
+        {
+            NetFunctionHandler deliver = (self, _, _, _) =>
+                ReceiveOwnerCall((SPlayerController)self, call, viewTime, hadPawn, senderPawn, pawnId);
+            if (ordered._driver.DeferReceivedFunction?.Invoke(pc, function, ordered._deferredArgs.Clear(), connection, deliver) == true)
+                return;
+        }
+
+        ReceiveOwnerCall(pc, call, viewTime, hadPawn, senderPawn, pawnId);
+    }
+
+    private static bool CurrentPossession(SPlayerController pc, CombatCall call, bool hadPawn, Pawn? senderPawn, long pawnId)
+    {
+        if (pc.bDeleteMe) return false;
+
+        if ((hadPawn && (senderPawn is null || senderPawn.bDeleteMe || senderPawn.ActorId != pawnId)) || !ReferenceEquals(pc.Pawn, senderPawn))
         {
             if (pc.XLevel.GetService<NetCombatBridge>() is { } bridge)
             {
                 bridge.Dropped++;
                 bridge.Trace?.Add("stale pawn " + call.Function);
             }
-            return;
+            return false;
         }
+        return true;
+    }
+
+    private static void ReceiveOwnerCall(SPlayerController pc, CombatCall call, long viewTime, bool hadPawn, Pawn? senderPawn, long pawnId)
+    {
+        if (!CurrentPossession(pc, call, hadPawn, senderPawn, pawnId)) return;
 
         // The call's traces see the other players where this client saw them (when the server compensates lag).
         LagCompensation? lag = pc.XLevel.GetService<LagCompensation>();
