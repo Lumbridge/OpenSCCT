@@ -13,7 +13,7 @@ namespace OpenScct.Master.Player;
 
 internal sealed partial class PlayerPortal
 {
-    private sealed record PublicServer(string Name, string Map, int Mode, string Region, int Players, int Maximum,
+    private sealed record PublicServer(string Id, string Name, string Map, int Mode, string Region, int Players, int Maximum,
         bool Password, bool Accounts, bool Trusted, ServerKind Kind, SessionPhase Phase);
 
     private List<PublicServer> LiveServers()
@@ -23,7 +23,7 @@ internal sealed partial class PlayerPortal
             return _registry.Snapshot().Where(r => r.Last.Listed).Select(r =>
             {
                 HeartbeatRequest h = r.Last;
-                return new PublicServer(h.Name, h.Map, h.Mode, h.Region, h.Players, h.MaxPlayers, h.Password, h.RequireAccounts, r.Trusted, h.Kind, h.Phase);
+                return new PublicServer(r.Id, h.Name, h.Map, h.Mode, h.Region, h.Players, h.MaxPlayers, h.Password, h.RequireAccounts, r.Trusted, h.Kind, h.Phase);
             }).OrderByDescending(r => r.Trusted).ThenByDescending(r => r.Players).ThenBy(r => r.Name, StringComparer.OrdinalIgnoreCase).ToList();
         }
     }
@@ -41,7 +41,7 @@ internal sealed partial class PlayerPortal
             .Append(Link("/servers", "Find a session →", "button secondary"))
             .Append("</div><p class=\"hero-note\">Free community project · Windows &amp; Linux · Optional Discord sign-in</p></div>")
             .Append($"<div class=\"hero-art\" aria-hidden=\"true\"><div class=\"radar\"><span class=\"radar-label top\">SIGNAL ACQUIRED</span><img class=\"radar-logo\" src=\"{H(AssetUrl("/web/assets/mark.svg"))}\" alt=\"\">")
-            .Append("<i class=\"radar-point one\"></i><i class=\"radar-point two\"></i><i class=\"radar-point three\"></i><span class=\"radar-label bottom\">SPY / MERC</span></div><span class=\"art-caption\">OPENSCCT</span></div></section>")
+            .Append("<i class=\"radar-point one\"></i><i class=\"radar-point two\"></i><i class=\"radar-point three\"></i><span class=\"radar-label bottom\">SPY / MERC</span></div><span class=\"art-caption\">").Append(Wordmark).Append("</span></div></section>")
             .Append("<div data-live=\"home-stats\"><div class=\"stats-grid\">")
             .Append(Stat("Players online", N(servers.Sum(s => s.Players)), "Across listed sessions"))
             .Append(Stat("Live sessions", N(servers.Count), "Games and community hubs"))
@@ -94,20 +94,35 @@ internal sealed partial class PlayerPortal
             FilterSelect("mode", "Mode", new[] { ("", "All modes") }.Concat(all.Where(s => s.Kind != ServerKind.Hub).Select(s => s.Mode).Distinct().Order().Select(m => (m.ToString(CultureInfo.InvariantCulture), ModeName(m)))), mode) +
             FilterSelect("region", "Region", new[] { ("", "All regions") }.Concat(all.Select(s => s.Region).Where(r => r.Length > 0).Distinct().Order().Select(r => (r, r))), region) +
             FilterSelect("space", "Availability", [("", "Any"), ("1", "Has space")], space ? "1" : "") + "<button class=\"button\">Filter</button>" + Link("/servers", "Reset", "text-link") + "</form>";
-        return Show(c, "Live sessions", "servers", PageHeader("SERVERS", "Live sessions", "Open Find a Session in the game and look for the server name below.", LiveStatus) +
-            filters + "<div data-live=\"servers\">" + ServerTable(rows) + "</div><p class=\"inline-notice\">Only listed sessions appear here. Player counts update as servers report in.</p>");
+        return Show(c, "Live sessions", "servers", PageHeader("SERVERS", "Live sessions", "Choose Join to open OpenSCCT and connect with your game account.", LiveStatus) +
+            filters + "<aside id=\"join-status\" class=\"notice\" role=\"status\" hidden><strong>Opening OpenSCCT…</strong> " +
+            "Allow your browser to open the launcher. If nothing opens, " + Link("/download", "install or update the launcher") +
+            ", run it once, then try Join again. Sign in inside the game if prompted.</aside>" +
+            "<div data-live=\"servers\">" + ServerTable(rows, join: true) + "</div><p class=\"inline-notice\">Only listed sessions appear here. Player counts update as servers report in.</p>" +
+            Section("Joining from your browser", "<div class=\"panel\"><p>On Windows, install or update the launcher and open it once to enable Join links. " +
+                "The launcher opens your installed game; if it is already running, the request goes to that window. On Linux and Steam Deck, install the latest Flatpak to enable Join links. Sign in with Discord inside OpenSCCT to join.</p>" +
+                "<p>If you are already playing, the request waits until you return to the main menu. Passwords are entered in the game.</p>" +
+                "<p class=\"account-side-note\">Requires OpenSCCT 0.8.58 and launcher 0.8.26 or later. You can always join manually through Find a Session in the game.</p>" +
+                Link("/download", "Get the latest launcher →", "text-link") + "</div>"));
     }
 
     private static string FilterSelect(string name, string label, IEnumerable<(string Value, string Label)> values, string selected) =>
         $"<label>{H(label)}<select name=\"{H(name)}\">" + string.Concat(values.Select(v => $"<option value=\"{H(v.Value)}\"{(v.Value == selected ? " selected" : "")}>{H(v.Label)}</option>")) + "</select></label>";
 
-    private static string ServerTable(IEnumerable<PublicServer> source) => Table(["Session", "Map / mode", "Players", "Status", "Access"], source.Select(s => new[]
+    private static string ServerTable(IEnumerable<PublicServer> source, bool join = false) => Table(
+        join ? ["Session", "Map / mode", "Players", "Status", "Access", "Join"] : ["Session", "Map / mode", "Players", "Status", "Access"], source.Select(s =>
     {
+        var cells = new List<string>
+        {
         H(s.Name) + "<span class=\"table-sub\">" + H(s.Kind == ServerKind.Hub ? "Community hub" : s.Trusted ? "Trusted game server" : "Community game server") + (s.Region.Length > 0 ? " · " + H(s.Region) : "") + "</span>",
         H(MapName(s.Map)) + "<span class=\"table-sub\">" + H(s.Kind == ServerKind.Hub ? "Social hub" : ModeName(s.Mode)) + "</span>",
         $"<span class=\"numeric\">{s.Players} <span class=\"muted\">/ {s.Maximum}</span></span>",
         Badge(s.Phase switch { SessionPhase.Match => "In round", SessionPhase.Loading => "Loading", SessionPhase.Results => "Results", _ => "Lobby" }, s.Phase == SessionPhase.Match ? "ok" : ""),
         (s.Password ? Badge("Password", "warn") + " " : "") + (s.Accounts ? Badge("Account needed") : Badge("Guests welcome")),
+        };
+        if (join) cells.Add(s.Maximum > 0 && s.Players >= s.Maximum ? Badge("Full") :
+            "<a class=\"button secondary compact\" data-server-join href=\"openscct://join/" + U(s.Id) + "\" aria-label=\"" + H("Join " + s.Name + " in OpenSCCT") + "\">Join ↗</a>");
+        return cells.ToArray();
     }), "No sessions match right now. Try clearing the filters or check back in a moment.");
 
     private IResult Players(HttpContext c)

@@ -63,6 +63,7 @@ public partial class HubService : Node
     private readonly Queue<JoinAttempt> _attempts = new();
     private string? _masterId;
     private string? _masterName;
+    private bool _requireAccount;
     private string? _matchHost;
     private string? _returnPad;
     private MasterClient? _master;
@@ -190,18 +191,25 @@ public partial class HubService : Node
     /// tries its own network address (same router), its public address and the master's relay in turn, as the game
     /// browser does (a NAT punch is left out: the relay covers those hosts).
     /// </summary>
-    public void JoinListed(string serverId, string displayName, string name, int team)
+    public void JoinListed(string serverId, string displayName, string name, int team, bool requireAccount = false)
     {
         ArgumentException.ThrowIfNullOrEmpty(serverId);
-        AccountService.Get(GetTree()).PrepareAppearance(() => JoinListedPrepared(serverId, displayName, name, team));
+        AccountService.Get(GetTree()).PrepareAppearance(() => JoinListedPrepared(serverId, displayName, name, team, requireAccount));
     }
 
-    private void JoinListedPrepared(string serverId, string displayName, string name, int team)
+    private void JoinListedPrepared(string serverId, string displayName, string name, int team, bool requireAccount)
     {
         ArgumentException.ThrowIfNullOrEmpty(serverId);
         Leave(showMenu: false);
         LastError = null;
         ForgetListed();
+        _requireAccount = requireAccount;
+        if (requireAccount)
+        {
+            // A previous hub visit may have cached a client for another master. Website joins cannot reuse it.
+            _master?.Dispose();
+            _master = null;
+        }
         _masterId = serverId;
         _masterName = displayName;
         _name = name;
@@ -242,6 +250,12 @@ public partial class HubService : Node
 
     private void AskMaster(string? returnPad)
     {
+        if (_requireAccount && (!WebsiteJoinService.UsesOfficialMaster || !AccountSettings.Current.SignedIn))
+        {
+            LastError = "Website joins need the official master and a game sign-in. Open Account, then try Join on the website again.";
+            Leave();
+            return;
+        }
         if (Master() is not { } master || _masterId is null)
         {
             LastError ??= "Hub: no master server is set (Online settings).";
@@ -268,6 +282,12 @@ public partial class HubService : Node
 
         JoinResponse join = answer.Result;
         _ticket = join.Ticket is { Length: > 0 } ticket ? ticket : null;
+        if (_requireAccount && _ticket is null)
+        {
+            LastError = "Hub: " + (join.TicketProblem ?? "Sign in from Account, then try Join on the website again.");
+            Leave();
+            return;
+        }
         if (_ticket is null && join.TicketProblem is { Length: > 0 } problem && AccountSettings.Current.SignedIn)
         {
             GD.Print("SVM_HUB no ticket: " + problem);
@@ -317,6 +337,7 @@ public partial class HubService : Node
     {
         _masterId = null;
         _masterName = null;
+        _requireAccount = false;
         _matchHost = null;
         _returnPad = null;
         _ticket = null;

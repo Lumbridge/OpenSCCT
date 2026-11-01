@@ -2,13 +2,20 @@
 
 The master hosts the public OpenSCCT website at `/` and the separate administration portal at `/admin`.
 Both ship with `svm-master`; no JavaScript build service, separate web host, or browser-held game invite key is needed.
+The public and admin pages share the launcher's dark green palette and off-white **Open** / bright green **SCCT** wordmark.
 
 ## For players
 
 - **Download:** install the launcher from the linked public release, let it install the game and required game files,
-  then use Find a Session in the game. The website does not launch a game through an unregistered URL scheme.
+  then use Join on the website's Servers page or Find a Session in the game.
 - **Servers:** browse listed games and hubs, their maps, modes, regions, activity and available spaces. Unlisted
   servers and private connection/administrative details are not published by the website.
+  **Join** opens the installed app through `openscct://join/<server-id>`. On Windows, run launcher 0.8.26 or later
+  once to register this link handler; game 0.8.58 or later receives the request. Browser approval may be required.
+  On Linux and Steam Deck, the 0.8.58+ Flatpak registers the same handler through its desktop entry.
+  The link contains only the public server ID. The game uses its own saved sign-in and asks for a server password
+  when needed. Browser sign-in alone does not sign in the game. An active game is not interrupted; the request
+  waits for the main menu. If no app opens, the page links to installation/update instructions.
 - **Players:** find a named player, see their rank, lifetime stats, achievements, unlocks and recorded rounds.
 - **Leaderboards:** compare lifetime XP, wins or kills. Private, unnamed and actively banned accounts are excluded.
   These are lifetime totals from counted rounds, not seasonal rankings or an estimate of missing historical data.
@@ -77,6 +84,7 @@ selections that are no longer unlocked, such as level rewards lost through prest
 The admin portal includes an operations dashboard, global lookup, filtered account/server/match views, player
 detail sections, individual/all-session revocation, explicit ban durations, and structured administrative audit
 details. Ban/block/rank/grant operations require a reason; invalid durations are errors, not permanent bans.
+Set rank has persistent **Prestige (0–10)** and **Rank (level 1–55)** labels, alongside the required reason.
 Settings are validated and committed together. Public welcome and announcement text are distinct from the game's
 message of the day. Plain text is encoded before display.
 

@@ -60,7 +60,8 @@ internal static class AdminHtml
             .Append("<a class=\"skip-link\" href=\"#main\">Skip to content</a>");
         if (admin is not null)
         {
-            sb.Append("<aside class=\"admin-sidebar\"><a class=\"admin-brand\" href=\"/admin\"><span class=\"brand-mark\">O</span><span>OpenSCCT<small>CONTROL ROOM</small></span></a>")
+            sb.Append("<aside class=\"admin-sidebar\"><a class=\"admin-brand\" href=\"/admin\"><span class=\"brand-mark\" aria-hidden=\"true\">O</span><span class=\"brand-copy\">")
+                .Append(Web.WebHtml.Wordmark).Append("<small>CONTROL ROOM</small></span></a>")
                 .Append("<details class=\"admin-navigation\" open><summary>Administration menu</summary><nav aria-label=\"Administration\">");
             foreach ((string path, string label) in s_nav)
             {
@@ -77,7 +78,8 @@ internal static class AdminHtml
         }
         else
         {
-            sb.Append("<div class=\"admin-signin\"><a class=\"admin-brand\" href=\"/\"><span class=\"brand-mark\">O</span>OpenSCCT</a>");
+            sb.Append("<div class=\"admin-signin\"><a class=\"admin-brand\" href=\"/\"><span class=\"brand-mark\" aria-hidden=\"true\">O</span><span class=\"brand-copy\">")
+                .Append(Web.WebHtml.Wordmark).Append("</span></a>");
         }
 
         sb.Append("<main id=\"main\"><div class=\"page-heading\"><div><p class=\"eyebrow\">ADMINISTRATION</p><h1>").Append(H(title)).Append("</h1></div>");

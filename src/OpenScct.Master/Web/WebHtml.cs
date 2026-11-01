@@ -15,6 +15,8 @@ namespace OpenScct.Master.Web;
 /// <summary>Shared presentation primitives and static resources. This class performs no authorization.</summary>
 internal static class WebHtml
 {
+    public const string Wordmark = "<span class=\"wordmark\"><span class=\"wordmark-open\">Open</span><span class=\"wordmark-scct\">SCCT</span></span>";
+
     public static string H(string? value) => WebUtility.HtmlEncode(value ?? string.Empty);
     public static string U(string value) => Uri.EscapeDataString(value);
     /// <summary>Content-addressed URLs refresh cached resources even when a preview rebuild uses the same commit.</summary>
@@ -46,7 +48,7 @@ internal static class WebHtml
             .Append($"<script src=\"{H(AssetUrl("/web/assets/site.js"))}\" defer></script>");
         if (active == "account") html.Append("<meta name=\"robots\" content=\"noindex, nofollow\">");
         html.Append("</head><body class=\"player-site\"><a class=\"skip-link\" href=\"#main\">Skip to content</a>")
-            .Append($"<header class=\"site-header\"><div class=\"header-inner\"><a class=\"site-brand\" href=\"/\"><img src=\"{H(AssetUrl("/web/assets/mark.svg"))}\" alt=\"\" width=\"36\" height=\"36\"><span>OpenSCCT<small>SPIES VS MERCENARIES</small></span></a>")
+            .Append($"<header class=\"site-header\"><div class=\"header-inner\"><a class=\"site-brand\" href=\"/\"><img src=\"{H(AssetUrl("/web/assets/mark.svg"))}\" alt=\"\" width=\"36\" height=\"36\"><span class=\"brand-copy\">{Wordmark}<small>SPIES VS MERCENARIES</small></span></a>")
             .Append("<button class=\"menu-toggle button secondary\" type=\"button\" aria-expanded=\"false\" aria-controls=\"primary-navigation\">Menu</button><nav id=\"primary-navigation\" class=\"primary-nav\" aria-label=\"Main navigation\">");
         foreach ((string url, string label, string key) in new[] { ("/", "Overview", "home"), ("/servers", "Servers", "servers"),
             ("/players", "Players", "players"), ("/leaderboards", "Leaderboards", "leaderboards"), ("/matches", "Matches", "matches"),
@@ -60,7 +62,7 @@ internal static class WebHtml
                 .Append("<button class=\"button secondary compact\" type=\"submit\" aria-label=\"Sign out of this browser\">Sign out</button></form>");
         html.Append("</div></div></header><main id=\"main\" class=\"site-main\">");
         if (!string.IsNullOrEmpty(notice)) html.Append("<div role=\"status\" class=\"notice ").Append(bad ? "bad" : "ok").Append("\">").Append(H(notice)).Append("</div>");
-        html.Append(body).Append("</main><footer class=\"site-footer\"><div><span class=\"footer-brand\">OpenSCCT</span><p>Spies vs. Mercenaries on modern PCs.</p></div>")
+        html.Append(body).Append("</main><footer class=\"site-footer\"><div><span class=\"footer-brand\">").Append(Wordmark).Append("</span><p>Spies vs. Mercenaries on modern PCs.</p></div>")
             .Append("<nav aria-label=\"Footer\"><a href=\"/download\">Getting started</a><a href=\"/changelog\">Changelog</a><a href=\"https://github.com/Lumbridge/OpenSCCT\">Project</a>")
             .Append("<a href=\"https://github.com/Lumbridge/OpenSCCT/blob/main/docs/legal/PRIVACY.md\">Privacy</a><a href=\"https://github.com/Lumbridge/OpenSCCT/blob/main/docs/legal/TERMS.md\">Terms</a></nav>")
             .Append("<small>Community project. Not affiliated with Ubisoft.</small></footer></body></html>");

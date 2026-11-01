@@ -19,6 +19,9 @@ namespace OpenScctGame.UI;
 /// </summary>
 public partial class AccountScreen : MenuPage
 {
+    /// <summary>Optional context for an account sign-in requested from elsewhere in the game.</summary>
+    public string? Notice { get; init; }
+
     private const ulong PollIntervalMs = 2000;
 
     private enum View
@@ -57,6 +60,8 @@ public partial class AccountScreen : MenuPage
     {
         Name = "Account";
         BuildFrame("Account", 760f);
+        if (!string.IsNullOrWhiteSpace(Notice))
+            Body.AddChild(new Label { Text = Notice, Modulate = UiStyle.MenuFocus, AutowrapMode = TextServer.AutowrapMode.WordSmart });
         _service = AccountService.Get(GetTree());
         _service.Changed += OnAccountUpdated;
         _content = new VBoxContainer { Name = "Content" };

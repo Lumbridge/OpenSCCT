@@ -13,6 +13,12 @@
     var confirmation = form.getAttribute && form.getAttribute("data-confirm");
     if (confirmation && !window.confirm(confirmation)) event.preventDefault();
   });
+  document.addEventListener("click", function (event) {
+    var link = event.target.closest && event.target.closest("a[data-server-join]");
+    if (!link) return;
+    var status = document.getElementById("join-status");
+    if (status) status.hidden = false;
+  });
   var regions = document.querySelectorAll("[data-live]");
   if (!regions.length) return;
   var refreshing = false;

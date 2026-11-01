@@ -2,7 +2,8 @@
 Type=Application
 Name=OpenSCCT
 Comment=Spies versus mercenaries
-Exec=openscct
+Exec=openscct %u
+MimeType=x-scheme-handler/openscct;
 Icon=io.github.Lumbridge.OpenSCCT
 Terminal=false
 Categories=Game;ActionGame;

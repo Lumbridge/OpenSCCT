@@ -150,9 +150,12 @@ internal sealed partial class AdminPortal
         body.Append(Section("Progression", "<div class=\"actions\">" +
             Form(c, self, "<h3>Cosmetic grants</h3>" + Select("what", CosmeticChoices()) + Input("reason", "Reason", required: true) +
                 Button("Unlock", "do", "unlock") + Button("Take back", "do", "lock", "danger"), "Change this player's cosmetic grants?") +
-            Form(c, self, "<h3>Set rank</h3>" + Input("prestige", "Prestige (0-10)", progress.Prestige.ToString(CultureInfo.InvariantCulture), type: "number") +
-                Input("level", "Level (1-55)", progress.Rank.Level.ToString(CultureInfo.InvariantCulture), type: "number") +
-                Input("reason", "Reason", required: true) + Button("Set rank", "do", "rank"), "Set this account's prestige and level?") + "</div>"));
+            Form(c, self, "<h3>Set rank</h3><label class=\"field\"><span>Prestige (0–10)</span>" +
+                Input("prestige", "Prestige (0–10)", progress.Prestige.ToString(CultureInfo.InvariantCulture), type: "number") + "</label>" +
+                "<label class=\"field\"><span>Rank (level 1–55)</span>" +
+                Input("level", "Rank (level 1–55)", progress.Rank.Level.ToString(CultureInfo.InvariantCulture), type: "number") + "</label>" +
+                "<label class=\"field\"><span>Reason</span>" + Input("reason", "Reason", required: true) + "</label>" +
+                Button("Set rank", "do", "rank"), "Set this account's prestige and level?") + "</div>"));
 
         body.Append(Section("Bans", Table(["#", "Reason", "Until", "Added"], _store.BansOf(account).Select(b => new[]
         {

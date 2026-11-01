@@ -53,6 +53,28 @@ tag (launchers up to 0.8.6 compared the tag, so every game release updated them)
 
 ## Build and publish
 
+### Website Join links
+
+Launcher 0.8.26 registers `openscct://join/<server-id>` for the current Windows user when it starts. The handler
+uses the launcher's current executable path, including after a self-update. Run the launcher once after updating
+or moving it. No administrator rights are needed.
+
+Join links accept only one bounded server ID, with no tokens, passwords, master URL or arbitrary game arguments.
+They open game 0.8.58 or later with `--svm-join-server=<server-id>`, using the normal installed content paths.
+An already-running launcher or game receives the request through a same-user named pipe. Installation, content
+preparation or an update can finish before the pending request continues. An older running game must be closed
+and updated first. A pending join is carried through launcher self-update.
+
+The game resolves the ID against the official master, validates its saved account session and uses the ordinary
+server/hub join flow. Signed-out players see Account first. A request during play waits until the main menu;
+it does not disconnect a match. A different configured master is not silently replaced or given another site's
+credentials. Browser sign-in and game sign-in remain separate.
+
+The 0.8.58+ Flatpak registers the same scheme in its desktop entry. Its wrapper validates the URI and passes the
+same startup argument to the game; a running game receives the request through its same-user pipe.
+
+### Build commands
+
 ```
 dotnet build OpenSCCT.slnx                                         builds the launcher with everything else
 dotnet test --project tests/OpenScct.Launcher.Tests                the launcher tests

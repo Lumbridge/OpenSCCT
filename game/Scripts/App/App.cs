@@ -48,7 +48,9 @@ public partial class App : Node
         OpenScctGame.Online.MapDownloads.Configure(Options);
         foreach (string arg in Options.Unknown)
         {
-            if (arg != BackgroundWindow.Flag && !OpenScctGame.Controls.InputMirror.IsFlag(arg))
+            if (arg != BackgroundWindow.Flag && !OpenScctGame.Controls.InputMirror.IsFlag(arg) &&
+                !(arg.StartsWith(Online.WebsiteJoinService.ArgumentPrefix, System.StringComparison.Ordinal) &&
+                    Online.WebsiteJoinService.IsServerId(arg[Online.WebsiteJoinService.ArgumentPrefix.Length..])))
             {
                 GD.PushWarning($"Unknown argument '{arg}'.");
             }
@@ -115,6 +117,9 @@ public partial class App : Node
             {
                 AddChild(new OpenScctGame.Discord.DiscordPresence { Name = OpenScctGame.Discord.DiscordPresence.NodeName });
             }
+            if (!Diagnostics.FpsBenchmark.Wanted && DisplayServer.GetName() != "headless" &&
+                !BackgroundWindow.Wanted(false, OS.GetCmdlineUserArgs()) && OpenScctGame.Controls.InputMirror.Wanted(OS.GetCmdlineUserArgs()) is null)
+                AddChild(new Online.WebsiteJoinService { Name = "WebsiteJoinService" });
         }
     }
 }

@@ -28,7 +28,7 @@ namespace OpenScct.Launcher.App;
 /// download OpenSCCT, prepare the game files (converted from their copy, or downloaded from OpenSCCT-Content when they
 /// have none). One big button always does the next thing and becomes PLAY when everything is ready. Less common actions (what's new, check again, roll back, settings) are in the row below it.
 /// </summary>
-internal sealed class MainForm : Form
+internal sealed partial class MainForm : Form
 {
     private static readonly HttpClient Http = new(new SocketsHttpHandler
     {
@@ -105,8 +105,10 @@ internal sealed class MainForm : Form
     private readonly Button _launcherButton = Theme.Button("Restart to finish");
     private readonly System.Windows.Forms.Timer _pendingTimer = new() { Interval = 3000 };
 
-    public MainForm()
+    public MainForm(string? joinServerId = null, string? protocolProblem = null)
     {
+        _pendingWebJoin = joinServerId;
+        _protocolProblem = protocolProblem;
         _store = new VersionStore(_layout);
         _maps = new MapLibrary(_layout.Maps);
         _packs = new ContentStore(_layout.Packs, Http);
@@ -300,6 +302,9 @@ internal sealed class MainForm : Form
         {
             _notesText = "Update checks on start are off. Use Check for updates.";
         }
+        _webJoinReady = true;
+        if (_pendingWebJoin is not null) await TryWebJoinAsync();
+        else if (_protocolProblem is not null) SetStatus(_protocolProblem, Theme.Warning);
     }
 
     /// <summary>
@@ -545,6 +550,12 @@ internal sealed class MainForm : Form
                             ? (NextAction.Prepare, "Prepare game files", ContentBuildPlan.Python(_layout.VersionDir(current.ToString())) is not null)
                             : (NextAction.Prepare, "Download game files", true)
                         : (NextAction.Play, "PLAY", true);
+        if (!busy && _pendingWebJoin is not null && current is not null)
+        {
+            if (current < WebJoinRequest.MinimumGameVersion && next == NextAction.Play)
+                (next, text, enabled) = (NextAction.Check, "Check for updates", true);
+            else if (next == NextAction.Play) text = "JOIN SESSION";
+        }
         _next = next;
         _check.Visible = next != NextAction.Check;
         _main.Text = text;
@@ -572,7 +583,8 @@ internal sealed class MainForm : Form
                 await RunAsync(GameFound ? BuildContentAsync : DownloadContentAsync);
                 break;
             case NextAction.Play:
-                Play();
+                if (_pendingWebJoin is not null) await TryWebJoinAsync();
+                else Play();
                 break;
         }
     }
@@ -1015,7 +1027,10 @@ internal sealed class MainForm : Form
         try
         {
             string started = _swap.Swap();
-            Process.Start(new ProcessStartInfo(started, Program.AfterUpdateArg) { UseShellExecute = false });
+            var start = new ProcessStartInfo(started) { UseShellExecute = false };
+            start.ArgumentList.Add(Program.AfterUpdateArg);
+            if (_pendingWebJoin is not null) start.ArgumentList.Add(WebJoinRequest.UriPrefix + _pendingWebJoin);
+            Process.Start(start);
             Close();
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or Win32Exception)
@@ -1024,12 +1039,12 @@ internal sealed class MainForm : Form
         }
     }
 
-    private void Play()
+    private bool Play(string? joinServerId = null)
     {
         SemVersion? current = _store.Current();
         if (current is null)
         {
-            return;
+            return false;
         }
 
         // Content built from an install wins; without it the downloaded packs are enough (the game finds them itself).
@@ -1039,20 +1054,23 @@ internal sealed class MainForm : Form
         if (!built && !packs)
         {
             SetStatus("Get the game files first (step 3).", Theme.Warning);
-            return;
+            return false;
         }
 
         string exe = _store.ExePath(current);
         try
         {
             using Process? process = Process.Start(GameStart.Create(exe, built && GameFound ? _settings.OriginalGamePath : null,
-                built ? _layout.Content : null, mapsRoot: _layout.Maps));
-            SetStatus($"Started OpenSCCT {current}.", Theme.Accent);
+                built ? _layout.Content : null, extraUserArgs: joinServerId is null ? null : [WebJoinRequest.GameArgumentPrefix + joinServerId], mapsRoot: _layout.Maps));
+            if (process is null) throw new IOException("The game process did not start.");
+            SetStatus(joinServerId is null ? $"Started OpenSCCT {current}." : "Started OpenSCCT with your Join request. Continue in the game.", Theme.Accent);
             WindowState = FormWindowState.Minimized;
+            return true;
         }
         catch (Exception ex) when (ex is Win32Exception or IOException)
         {
             SetStatus("Could not start the game: " + ex.Message, Theme.Error);
+            return false;
         }
     }
 
@@ -1235,10 +1253,12 @@ internal sealed class MainForm : Form
         }
 
         _work = new CancellationTokenSource();
+        bool completed = false;
         RefreshLocal();
         try
         {
             await work(_work.Token);
+            completed = true;
         }
         catch (OperationCanceledException)
         {
@@ -1263,6 +1283,7 @@ internal sealed class MainForm : Form
                 RefreshLocal();
             }
         }
+        if (completed && !IsDisposed && _webJoinReady && _pendingWebJoin is not null) await TryWebJoinAsync();
     }
 
     private void SetStatus(string text, Color color, string? path = null)

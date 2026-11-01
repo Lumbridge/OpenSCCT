@@ -106,6 +106,9 @@ public partial class ServerBrowserScreen : MenuPage
     /// <summary>The password to join the server of <see cref="DiscordJoinId"/> with (a rejoin keeps the one it had), or null.</summary>
     public string? JoinIdPassword { get; init; }
 
+    /// <summary>Website joins require this game's account and must never fall back to a guest connection.</summary>
+    public bool RequireSignedInJoin { get; init; }
+
     public Tree? Table { get; private set; }
 
     public Button? JoinButton { get; private set; }
@@ -244,8 +247,13 @@ public partial class ServerBrowserScreen : MenuPage
 
         _joinPassword = null;
         bool signedIn = AccountSettings.Current.SignedIn && _master.SessionToken is not null;
+        if (RequireSignedInJoin && (!WebsiteJoinService.UsesOfficialMaster || !signedIn))
+        {
+            ShowStatus("Website joins need the official master and a game sign-in. Open Account, then try Join on the website again.");
+            return;
+        }
         ShowStatus($"Asking the master how to reach {name}...");
-        _join = new PendingJoin(_master.JoinAsync(serverId), serverId, name, false, null, signedIn);
+        _join = new PendingJoin(_master.JoinAsync(serverId), serverId, name, RequireSignedInJoin, null, signedIn);
     }
 
     public override void _ExitTree()

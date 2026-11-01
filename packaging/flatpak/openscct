@@ -1,4 +1,38 @@
 #!/bin/sh
+# Desktop Join links carry only a public server id. Never interpret URI text as shell or Godot options.
+valid_join_id() (
+    LC_ALL=C
+    export LC_ALL
+    case "$1" in
+        ''|*[!A-Za-z0-9_-]*) return 1 ;;
+    esac
+    [ "${#1}" -le 128 ]
+)
+for argument in "$@"; do
+    case "$argument" in
+        [Oo][Pp][Ee][Nn][Ss][Cc][Cc][Tt]:*)
+            if [ "$#" -ne 1 ]; then
+                printf '%s\n' 'OpenSCCT: open a Join link without additional arguments.' >&2
+                exit 64
+            fi
+            case "$argument" in
+                openscct://join/*)
+                    join_id=${argument#openscct://join/}
+                    if valid_join_id "$join_id"; then
+                        set -- -- "--svm-join-server=$join_id"
+                    else
+                        printf '%s\n' 'OpenSCCT: invalid server id in Join link.' >&2
+                        exit 64
+                    fi
+                    ;;
+                *)
+                    printf '%s\n' 'OpenSCCT: unsupported Join link.' >&2
+                    exit 64
+                    ;;
+            esac
+            ;;
+    esac
+done
 # Host profiles (notably Guix/Nix) can export trust paths that don't exist in the sandbox.
 # Preserve readable custom trust settings; otherwise use the runtime's CA store.
 if [ -z "${SSL_CERT_FILE:-}" ] || [ ! -r "$SSL_CERT_FILE" ]; then
