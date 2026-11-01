@@ -71,7 +71,13 @@ public static class SidearmEquipment
             old.BulletsToFire = 0;
             old.GotoState(new Name("s_IdleInHolster"));
             old.bDrawWeapon = false;
-            for (int c = 0; c < ViewModelAnim.ChannelCount; c++) old.ViewAnim.Stop(c);
+            for (int c = 0; c < ViewModelAnim.ChannelCount; c++)
+            {
+                old.ViewAnim.Stop(c);
+                // Stop retains the last pose. Cancel its overlay too, since a
+                // stopped pain/scope clip will never receive AnimEnd to clear it.
+                if (c != SWeaponDefense.MVTCHANNEL) old.ViewAnim.SetAlpha(c, 0f);
+            }
         }
         pawn.ActiveWeaponSlot = slot;
         pawn.MyWeapon = weapon;

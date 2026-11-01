@@ -80,6 +80,18 @@ public partial class SWeaponDefense
         AnimEnd(Channel);
     }
 
+    /// <summary>Release the reload/throw presentation on both completion and interruption.</summary>
+    private void LeaveReload()
+    {
+        ViewAnim.SetAlpha(ACTIONCHANNEL, 0f);
+        ViewAnim.Stop(ACTIONCHANNEL);
+        if (OwnerPC is { } pc)
+        {
+            pc.RallumeLaserEteint();
+            pc.bNoReticule = false;
+        }
+    }
+
     /// <summary>s_Selected (auto): the idle weapon with the auto-reload and the holster checks.</summary>
     [Uc("SBase.SWeaponDefense.s_Selected")]
     public class s_Selected : UcActorState, IFire, ISwitchROF
@@ -335,16 +347,7 @@ public partial class SWeaponDefense
 
         [Uc("SBase.SWeaponDefense.s_Reloading.EndState", Sha1 = "ab15a16d2adf4a3812e3f88447f2ba2d0c019fca")]
         [PortOf("uc:SBase.SWeaponDefense:s_Reloading.EndState", Spec = "spec/equipment/merc-rifle.md#rules")]
-        public override void EndState(Actor self)
-        {
-            var w = (SWeaponDefense)self;
-            w.ViewAnim.SetAlpha(ACTIONCHANNEL, 0f);
-            if (w.OwnerPC is { } pc)
-            {
-                pc.RallumeLaserEteint();
-                pc.bNoReticule = false;
-            }
-        }
+        public override void EndState(Actor self) => ((SWeaponDefense)self).LeaveReload();
 
         public void Fire(SWeapon self, float Value)
         {
@@ -374,6 +377,10 @@ public partial class SWeaponDefense
         [PortOf("uc:SBase.SWeaponDefense:s_FullReloading.BeginState", Spec = "spec/equipment/merc-rifle.md#rules")]
         [PortOf("uc:SBase.SWeaponDefense:s_FullReloading.BeginState", Spec = "spec/equipment/ammo-stock.md#rules")]
         public override void BeginState(Actor self) => ((SWeaponDefense)self).ReloadBegin(K.FullReloadMessageTime);
+
+        // Full reloads start the same overlay, reticle and laser suppression as
+        // ordinary reloads, including when a holster or another action interrupts.
+        public override void EndState(Actor self) => ((SWeaponDefense)self).LeaveReload();
 
         [Uc("SBase.SWeaponDefense.s_FullReloading.AnimEnd", Sha1 = "3ca8d59006b2d6c29cdfe8b8d3069e124713abf6")]
         [PortOf("uc:SBase.SWeaponDefense:s_FullReloading.AnimEnd", Spec = "spec/equipment/merc-rifle.md#rules")]
@@ -584,7 +591,17 @@ public partial class SWeaponDefense
         [PortOf("uc:SBase.SWeaponDefense:s_Dmg_Electric.EndState", Spec = "spec/equipment/merc-rifle.md#rules")]
         public override void EndState(Actor self)
         {
-            if (((SWeaponDefense)self).OwnerPC is { } pc)
+            var w = (SWeaponDefense)self;
+            // Charge recovery, holstering and other state changes can bypass
+            // s_Dmg_Electric_End. The electric loop belongs to this state and
+            // must not remain layered over the next weapon action.
+            if (w.ViewAnim.Sequence(PAINCHANNEL) == ViewModelClips.FirstElecStFd2)
+            {
+                w.ViewAnim.SetAlpha(PAINCHANNEL, 0f);
+                w.ViewAnim.Stop(PAINCHANNEL);
+            }
+
+            if (w.OwnerPC is { } pc)
             {
                 if (!pc.bLaserEtaitAllume)
                 {

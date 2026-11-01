@@ -858,7 +858,7 @@ public partial class SWeaponDefense
 
     /// <summary>
     /// The global AnimEnd (rule 24): after the jump clip the fall loop when falling, else the idle; after a landing
-    /// or draw clip the idle; the pain channel blends out unless the electric clip plays; the snipe channel stops.
+    /// or draw clip the idle; finished revive and pain overlays clear (except the electric loop); the snipe channel stops.
     /// </summary>
     [Uc("SBase.SWeaponDefense.AnimEnd", Sha1 = "91be1971a52e80107f61513ecc6a02edddd60e8b")]
     [PortOf("uc:SBase.SWeaponDefense:AnimEnd", Spec = "spec/equipment/merc-rifle.md#rules")]
@@ -874,6 +874,16 @@ public partial class SWeaponDefense
                 else
                 {
                     AnimateWaiting();
+                }
+
+                break;
+            case ACTIONCHANNEL:
+                // Reviving uses an overlay without a dedicated weapon state to
+                // clear it. Do not hide a successor clip started by a state callback.
+                if (!ViewAnim.IsAnimating(ACTIONCHANNEL) &&
+                    ViewAnim.Sequence(ACTIONCHANNEL) == ViewModelClips.FirstReanStFd2)
+                {
+                    ViewAnim.SetAlpha(ACTIONCHANNEL, 0f);
                 }
 
                 break;

@@ -51,7 +51,7 @@ public partial class SPlayerController
             // movement stops accepting commands at this boundary, so the server copy must also
             // release the last held input here. Keep velocity/physics for normal braking or falling.
             if (pc.Pawn is { } pawn) pawn.Acceleration = FVector.Zero;
-            pc.btoCought = false;
+            pc.EndCoughNow();
             pc.ReadyToPlayAgain(false);
             pc.FlashColor = pc.FlashColor with { A = 0 };
             pc.fGrabDate = pc.Level.TimeSeconds;
@@ -75,7 +75,7 @@ public partial class SPlayerController
             var pc = (SPlayerController)self;
             pc.bLineEffect = false;
             pc.bGameEnded = false;
-            pc.btoCought = false;
+            pc.EndCoughNow();
         }
 
         /// <summary>

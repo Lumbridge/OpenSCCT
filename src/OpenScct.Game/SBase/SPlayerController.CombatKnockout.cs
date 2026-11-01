@@ -561,7 +561,7 @@ public partial class SPlayerController
             }
 
             pc.RallumeLaserEteint();
-            pc.btoCought = false;
+            pc.EndCoughNow();
             float now = pc.Level.TimeSeconds;
             pc.TimeShock = now;
             pc.fLastTimeWakeUp = now;

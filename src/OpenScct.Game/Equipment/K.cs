@@ -141,6 +141,9 @@ public static partial class K
     [Provenance(ProvenanceKind.Decoded, "SWeaponFirst.ukx FirstElecStFd2 6 frames at 15 fps")]
     public static readonly ClipData FirstElecStFd2 = new(6, 15f);
 
+    [Provenance(ProvenanceKind.Decoded, "SWeaponFirst.ukx Default.FirstReanStFd2 16 frames at 15 fps")]
+    public static readonly ClipData FirstReanStFd2 = new(16, 15f);
+
     [Provenance(ProvenanceKind.Decoded, "SWeaponFirst.ukx FirstSnipStBg2 7 frames at 15 fps")]
     public static readonly ClipData FirstSnipStBg2 = new(7, 15f);
 

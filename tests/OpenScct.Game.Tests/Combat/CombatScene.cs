@@ -18,6 +18,8 @@ internal sealed class CombatScene
     {
         World = new World(seed, mode);
         Level = World.Level;
+        // Each parallel scene needs its own mutable hit-zone scratch buffer.
+        Level.SetService<IHitZones>(new TraceHitZones(EstimatedPillPose.Instance));
     }
 
     public World World { get; }

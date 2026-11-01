@@ -367,6 +367,18 @@ public partial class SPlayerController
         EndRifleElectric(pawn);
     }
 
+    /// <summary>Ends the cough and its body overlay, including when a state interrupts its timer.</summary>
+    private void EndCoughNow()
+    {
+        bool coughing = btoCought;
+        btoCought = false;
+        bInSmoke = false;
+        if (SBPawn is { } pawn && (coughing || pawn.PawnAnim[SBasePawn.COUGHTCHANNEL].BlendAlpha > 0f))
+        {
+            CombatPorts.ChangeEnumAction(pawn, SBasePawn.SA_COUGHT_STOP, false);
+        }
+    }
+
     /// <summary>The merc cough and smoke knock-out (smoke spec rule 6).</summary>
     private void CoughTick()
     {
@@ -384,9 +396,8 @@ public partial class SPlayerController
 
         if (bInSmoke && now > fSmoke_FallDate && pawn.Physics != EPhysics.PHYS_RootMotion)
         {
-            btoCought = false;
             CountGasKO();
-            CombatPorts.ChangeEnumAction(pawn, SBasePawn.SA_COUGHT_STOP, false);
+            EndCoughNow();
             if (pawn.Base is null)
             {
                 eventChangeState(CNAME_s_FallDropAttacked);
@@ -398,8 +409,7 @@ public partial class SPlayerController
         }
         else if (now > fSmoke_EndOfCoughDate)
         {
-            btoCought = false;
-            CombatPorts.ChangeEnumAction(pawn, SBasePawn.SA_COUGHT_STOP, false);
+            EndCoughNow();
         }
         else if (now > fSmoke_NextMovementCoughDate)
         {

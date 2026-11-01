@@ -198,6 +198,11 @@ public static class ViewModelClips
             return K.FirstElecStFd2;
         }
 
+        if (Sequence == FirstReanStFd2)
+        {
+            return K.FirstReanStFd2;
+        }
+
         if (Sequence == FirstSnipStBg2)
         {
             return K.FirstSnipStBg2;

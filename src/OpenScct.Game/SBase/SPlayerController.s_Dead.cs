@@ -66,7 +66,7 @@ public partial class SPlayerController
 
             pc.ReleaseChatPartners();
             pc.bCrouchWithRoll = false;
-            pc.btoCought = false;
+            pc.EndCoughNow();
             // A lethal landing can enter here while replaying an older remote input command.
             // The death/blink timer runs on the world clock, so its anchor must use that clock too.
             pc.fRespawnDate = pc.XLevel.WorldTimeSeconds;
@@ -126,7 +126,7 @@ public partial class SPlayerController
                 pc.Ports.EndDeath(pc);
             }
 
-            pc.btoCought = false;
+            pc.EndCoughNow();
             pc.bFireMode = 0;
             pc.fTempsAvantClignote = DefaultTempsAvantClignote;
             pc.bInstantRespawn = false;
