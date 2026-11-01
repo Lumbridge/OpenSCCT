@@ -53,7 +53,7 @@ public partial class OptionsMenu
         _sharingLabels[side] = sharing;
         header.AddChild(sharing);
         header.AddChild(UiStyle.MenuButton("Reset " + role, () => Confirm("Reset " + role,
-            "Reset this role's bindings, mouse, controller and crosshair settings? Shared keyboard changes affect both roles.",
+            "Reset this role's bindings, mouse, controller, camera, HUD and crosshair settings? Shared keyboard changes affect both roles.",
             () => ResetRole(side), "Reset role"), "Reset" + role));
         page.AddChild(header);
         var hud = Grid("RoleHud");
@@ -250,6 +250,9 @@ public partial class OptionsMenu
         {
             Check(basic, "Invert horizontal free look", "invert_x_spy", _edit.InvertXSpy, v => _edit.InvertXSpy = v);
             Check(basic, "Shocker lock-on snap when drawing", "shocker_snap", _edit.ShockerSnap, v => _edit.ShockerSnap = v);
+            Check(basic, "Free camera while rolling", "spy_roll_free_look", _edit.SpyRollFreeLook,
+                v => _edit.SpyRollFreeLook = v);
+            _controls["spy_roll_free_look"].TooltipText = "Look around with the mouse or controller while rolling. The roll continues in its starting direction.";
         }
         var details = Grid("MouseDetails");
         LookRows(details, merc ? "controls_merc_kbm" : "controls_spy_kbm", () => _edit.LookOf(merc, false), merc);
@@ -333,7 +336,7 @@ public partial class OptionsMenu
             else { _edit.SpyPad = defaults.SpyPad; _edit.Pad.SpyMove8 = defaults.Pad.SpyMove8; _edit.Pad.RunThreshold = defaults.Pad.RunThreshold; }
         }
         else if (merc) { _edit.MercKbm = defaults.MercKbm; _edit.MercFovCap = defaults.MercFovCap; _edit.FpsMerc = defaults.FpsMerc; }
-        else { _edit.SpyKbm = defaults.SpyKbm; _edit.InvertXSpy = defaults.InvertXSpy; _edit.ShockerSnap = defaults.ShockerSnap; _edit.FpsSpy = defaults.FpsSpy; }
+        else { _edit.SpyKbm = defaults.SpyKbm; _edit.InvertXSpy = defaults.InvertXSpy; _edit.ShockerSnap = defaults.ShockerSnap; _edit.SpyRollFreeLook = defaults.SpyRollFreeLook; _edit.FpsSpy = defaults.FpsSpy; }
         if (rebuild) RebuildPages();
     }
 

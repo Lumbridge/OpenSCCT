@@ -11,6 +11,11 @@ namespace OpenScct.Game.SBase;
 // spec/movement/roll.md.
 public partial class SPlayerController
 {
+    private FVector _rollAcceleration;
+
+    /// <summary>Local camera preference: look around during a spy roll without steering its movement.</summary>
+    public bool SpyRollFreeLook { get; set; }
+
     /// <remarks>Not ported here: CanBeBlasted and ExplosionHit while rolling (combat spec).</remarks>
     [Uc("SBase.SPlayerController.s_PlayerRolling")]
     public class s_PlayerRolling : s_PlayerWalkingMario, IMyFalling, IMyNotifyLanded, IDropAttack
@@ -27,14 +32,16 @@ public partial class SPlayerController
         public override void BeginState(Actor self)
         {
             var pc = (SPlayerController)self;
+            MovementMath.FlatAxes(pc.Rotation, out FVector forward, out FVector right);
+            pc._rollAcceleration = forward.SafeNormal() * MovementMath.Int(pc.aForwardRoulade)
+                + right.SafeNormal() * MovementMath.Int(pc.aStrafeRoulade);
             pc.bRemindDrawWeapon = false;
             pc.MovementCamera(ECamMode.ECM_WalkingCr);
         }
 
         /// <summary>
-        /// A broken roll falls; fire mode asks to draw at the end; the roll vector (controller axes) drives the Mario
-        /// turn and the speed, with no dead zone. There is no UpdateRotation here: the controller yaw stays where the
-        /// roll began, so neither the mouse nor the keys turn the roll.
+        /// A broken roll falls; fire mode asks to draw at the end; the roll vector captured at its start drives the
+        /// Mario turn and speed, with no dead zone. The optional camera turn leaves that world-space vector fixed.
         /// </summary>
         [Uc("SBase.SPlayerController.s_PlayerRolling.PlayerMove", Sha1 = "eb8b7cf5ad50558c02eddc7d37b2307dad9372fe")]
         [PortOf("uc:SBase.SPlayerController:s_PlayerRolling.PlayerMove", Spec = "spec/movement/roll.md#rolling-s_playerrolling-also-the-parent-of-s_playerrollingup")]
@@ -57,7 +64,13 @@ public partial class SPlayerController
                 MovementService.HooksOf(self).SwitchLaser(self, true);
             }
 
-            FVector newAccel = self.UpdatePawnRotationMario(DeltaTime, MovementMath.Int(self.aForwardRoulade), MovementMath.Int(self.aStrafeRoulade));
+            if (self.SpyRollFreeLook)
+            {
+                self.eventUpdateRotation(DeltaTime, 1f);
+            }
+
+            FVector newAccel = self.UpdatePawnRotationMario(DeltaTime, MovementMath.Int(self.aForwardRoulade),
+                MovementMath.Int(self.aStrafeRoulade), self._rollAcceleration);
             pawn.GroundSpeed = GroundSpeedFor(pawn, newAccel);
             self.SendMove(DeltaTime, newAccel);
         }

@@ -116,9 +116,12 @@ public static class PlayerCalcView
     /// </summary>
     [UcNative("ASPlayerController::NativePlayerCalcView", Editor = 0x111f3e50)]
     [PortOf("eng:ASPlayerController::NativePlayerCalcView", Spec = "spec/native/camera.md#1-calc-view-dispatch")]
-        public static void NativePlayerCalcView(SPlayerController PC, bool bUpdate, out Actor? ViewActor, out FVector CameraLocation,
+    public static void NativePlayerCalcView(SPlayerController PC, bool bUpdate, out Actor? ViewActor, out FVector CameraLocation,
         out FRotator CameraRotation)
     {
+        // Any view that bypasses the follow solver leaves its world-space anchor stale. Only updating views
+        // invalidate it; read-only queries must not interrupt ordinary following-camera smoothing.
+        if (bUpdate) PC.m_camera?.BeginViewUpdate();
         // The cinematic free camera (Reloaded ToggleFreeCamera): the view is the camera's own spot while it flies.
         if (PC.FreeCameraFlying != 0)
         {
@@ -127,6 +130,7 @@ public static class PlayerCalcView
             CameraRotation = PC.FreeCamRotation;
             PC.vCamLocation = CameraLocation;
             PC.rCamRotation = CameraRotation;
+            if (bUpdate) PC.m_camera?.EndViewUpdate();
             return;
         }
 
@@ -158,6 +162,7 @@ public static class PlayerCalcView
         PC.rCamRotation = CameraRotation;
         if (bUpdate)
         {
+            PC.m_camera?.EndViewUpdate();
             // Rule 1.3: the spy pistols' lasers follow the view (spec/equipment/spy-shocker.md).
             SBase.SWeaponAttaque.ViewUpdate(PC, CameraLocation);
         }
@@ -238,6 +243,7 @@ public static class PlayerCalcView
             return;
         }
 
+        if (bUpdate) camera.KeepFollowingPosition(); // Pausing freezes the active follow view's smoothing.
         CameraLocation = PC.Location;
         CameraRotation = PC.Rotation;
     }

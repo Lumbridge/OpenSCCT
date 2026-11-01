@@ -483,6 +483,10 @@ public sealed class GameSettings
     [Provenance(ProvenanceKind.Decoded, "SPlayerProfile InvertX (no default: false); SetPadInvertX sets bInvertHorizontalAxisCamSpy")]
     public bool InvertXSpy { get; set; }
 
+    /// <summary>Allows the spy's camera to pivot during a roll while the roll keeps its starting direction.</summary>
+    [JsonPropertyName("spy_roll_free_look")]
+    public bool SpyRollFreeLook { get; set; }
+
     /// <summary>
     /// Drawing the Shocker turns the spy toward the nearest merc in front of him (the stock lock-on snap); Enhanced lets
     /// it be turned off (enh:rules.shocker_snap).

@@ -111,7 +111,7 @@ public sealed class LookAhead
         bool cam = pc is not null && !OwnView(pc, view) && CamView(pc, view);
         bool lagging = cam && view.Rotation != pc!.Rotation;
         _follow = pc is not null && FollowView(pc, view);
-        if (pc is null || !(cam || _follow || OwnView(pc, view)))
+        if (pc is null || RollLocksView(pc) || !(cam || _follow || OwnView(pc, view)))
         {
             Active = false;
             _tickTurn = default;
@@ -153,7 +153,7 @@ public sealed class LookAhead
     public FRotator Offset(SPlayerController? pc, MouseLook mouse, float pendingX, float pendingY, float alpha)
     {
         ArgumentNullException.ThrowIfNull(mouse);
-        if (!Active || pc is null)
+        if (!Active || pc is null || RollLocksView(pc))
         {
             Pending = default;
             return default;
@@ -176,7 +176,13 @@ public sealed class LookAhead
     /// rule 3.11), so turning the rotation ahead moves it round the target (<c>PlayCamera.Apply</c>). 0 otherwise.
     /// </summary>
     public float OrbitDistance(SPlayerController? pc) =>
-        Active && _follow && pc is { SpyFirstPersonActive: false, m_camera: { } cam } ? cam.m_prevDistance : 0f;
+        Active && _follow && pc is { SpyFirstPersonActive: false, m_camera: { } cam } && !RollLocksView(pc)
+            ? cam.m_prevDistance : 0f;
+
+    // A tick without mouse input cannot disprove the previous look prediction. Check the roll lock explicitly
+    // so entering a roll or disabling free look cannot leave a pending render-only turn that snaps back next tick.
+    private static bool RollLocksView(SPlayerController pc) =>
+        pc.StateNode is SPlayerController.s_PlayerRolling && !pc.SpyRollFreeLook;
 
     /// <summary>
     /// The camera is the following view of the pawn's behind view (SPlayerCam s_Following: the controller placed

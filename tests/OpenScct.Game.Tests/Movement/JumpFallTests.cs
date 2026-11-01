@@ -267,8 +267,8 @@ public sealed class JumpFallTests
     [Fact]
     public void RollDirectionIsLockedAgainstMouseAndKeys()
     {
-        // s_PlayerRolling.PlayerMove never calls UpdateRotation: the controller yaw stays where the roll began, so
-        // neither the mouse nor a new key turns the roll (roll.md rolling rule 2).
+        // By default the controller yaw stays where the roll began, so neither the mouse nor a new key turns
+        // the roll (roll.md rolling rule 2).
         PawnRig rig = Rig(PawnTeam.Spy);
         rig.Hold(Forward, 40);
         rig.Step(new PlayerInputFrame { BT_Up = 1, bRoll = 1 });
@@ -286,6 +286,61 @@ public sealed class JumpFallTests
         Assert.Equal(yaw0, rig.Controller.Rotation.Yaw);
         Assert.True(rig.Pawn.Location.Y - y0 > 300f);
         Assert.InRange(rig.Pawn.Location.X - x0, -5f, 5f);
+    }
+
+    [Theory]
+    [InlineData(false, false)]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    [InlineData(true, true)]
+    public void FreeRollCameraKeepsTheSameMovementAndExit(bool crouched, bool diagonal)
+    {
+        PawnRig locked = Rig(PawnTeam.Spy, crouched: crouched, yaw: 7000);
+        PawnRig free = Rig(PawnTeam.Spy, crouched: crouched, yaw: 7000);
+        free.Controller.SpyRollFreeLook = true;
+        var move = new PlayerInputFrame { BT_Up = 1, BT_Right = diagonal ? (byte)1 : (byte)0 };
+        locked.Hold(move, 40);
+        free.Hold(move, 40);
+        locked.Step(move with { bRoll = 1 });
+        free.Step(move with { bRoll = 1 });
+        Assert.IsAssignableFrom<SPlayerController.s_PlayerRolling>(free.Controller.StateNode);
+        FRotator initialView = free.Controller.Rotation;
+        int frames = 0;
+        while (free.Controller.StateNode is SPlayerController.s_PlayerRolling && frames++ < 200)
+        {
+            locked.Step(move);
+            free.Step(new PlayerInputFrame { BT_Down = 1, BT_Left = 1, MouseX = 3000f, MouseY = 1000f });
+            Assert.Equal(locked.Controller.GetStateName(), free.Controller.GetStateName());
+            Assert.Equal(locked.Pawn.Location, free.Pawn.Location);
+            Assert.Equal(locked.Pawn.Velocity, free.Pawn.Velocity);
+            Assert.Equal(locked.Pawn.Rotation, free.Pawn.Rotation);
+        }
+
+        Assert.InRange(frames, 10, 120);
+        Assert.NotEqual(initialView.Yaw, free.Controller.Rotation.Yaw);
+        Assert.NotEqual(initialView.Pitch, free.Controller.Rotation.Pitch);
+        Assert.Equal(initialView, locked.Controller.Rotation);
+        Assert.False(free.Pawn.bIsRolling);
+    }
+
+    [Fact]
+    public void ChangingRollCameraOptionMidRollKeepsItsStartingDirection()
+    {
+        PawnRig rig = Rig(PawnTeam.Spy);
+        rig.Hold(Forward, 40);
+        rig.Step(Forward with { bRoll = 1 });
+        int initialYaw = rig.Controller.Rotation.Yaw;
+        float startX = rig.Pawn.Location.X;
+        rig.Controller.SpyRollFreeLook = true;
+        rig.Hold(new PlayerInputFrame { MouseX = 3000f }, 5);
+        Assert.NotEqual(initialYaw, rig.Controller.Rotation.Yaw);
+
+        rig.Controller.SpyRollFreeLook = false;
+        FRotator stoppedView = rig.Controller.Rotation;
+        rig.Hold(new PlayerInputFrame { BT_Right = 1, MouseX = 3000f }, 5);
+        Assert.IsAssignableFrom<SPlayerController.s_PlayerRolling>(rig.Controller.StateNode);
+        Assert.Equal(stoppedView, rig.Controller.Rotation);
+        Assert.InRange(rig.Pawn.Location.X - startX, -5f, 5f);
     }
 
     [Fact]

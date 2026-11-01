@@ -41,6 +41,49 @@ public sealed class SpyPerspectiveTests
     }
 
     [Fact]
+    public void ReturningAfterTwoMinutesInFirstPersonReanchorsTheSmoothedFollowingCamera()
+    {
+        PawnRig rig = Rig(PawnTeam.Spy, Floor(100000f), options: new PawnRigOptions
+        {
+            Hooks = new CameraMovementHooks(),
+        });
+        SPlayerController pc = rig.Controller;
+        SPlayerCam camera = PlayerCamera.Of(pc)!;
+        pc.bBehindView = true;
+        pc.ViewTarget = rig.Pawn;
+        PlayerCalcView.FrameView(pc, out _, out _, out _);
+        FVector initialPawn = rig.Pawn.Location;
+        pc.SetSpyFirstPerson(true);
+        // Pipe traversal can leave this slow smoothing active while the eye view bypasses the follow solver.
+        camera.ActivateSmooth(MovementK.HohSmooth);
+        for (int frame = 0; frame < 120 * Sim.Hz; frame++)
+        {
+            rig.Step(frame < 90 * Sim.Hz ? Forward : default);
+            PlayerCalcView.FrameView(pc, out _, out _, out _);
+        }
+
+        Assert.True(pc.SpyFirstPersonActive);
+        Assert.True(FVector.Dist(initialPawn, rig.Pawn.Location) > 10000f);
+        pc.SetSpyFirstPerson(false);
+        PlayerCalcView.FrameView(pc, out _, out FVector returned, out _);
+        Assert.InRange(FVector.Dist(returned, rig.Pawn.Location), 100f, 400f);
+
+        FVector beforeMove = rig.Pawn.Location;
+        FVector following = returned;
+        for (int frame = 0; frame < Sim.Hz; frame++)
+        {
+            rig.Step(Forward);
+            PlayerCalcView.FrameView(pc, out _, out following, out _);
+        }
+
+        FVector pawnMove = rig.Pawn.Location - beforeMove;
+        FVector cameraMove = following - returned;
+        Assert.True(pawnMove.Size() > 100f);
+        Assert.InRange((cameraMove - pawnMove).Size(), 0f, 60f);
+        Assert.InRange(FVector.Dist(following, rig.Pawn.Location), 100f, 400f);
+    }
+
+    [Fact]
     public void CrouchedEyeAndStaleInterpolatedStandingEyeStayBelowVentRoof()
     {
         PawnRig rig = Rig(PawnTeam.Spy, crouched: true);

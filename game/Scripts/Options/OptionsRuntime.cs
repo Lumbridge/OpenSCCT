@@ -144,6 +144,7 @@ public partial class OptionsRuntime : Node
         if (Session is { } session)
         {
             session.Mouse = SettingsApplier.MouseLookOf(s, session.Mouse);
+            session.SpyRollFreeLook = s.SpyRollFreeLook;
         }
 
         if (Hud is not null)

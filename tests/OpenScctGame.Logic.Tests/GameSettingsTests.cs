@@ -33,6 +33,21 @@ public sealed class GameSettingsTests : IDisposable
     }
 
     [Fact]
+    public void RollFreeLookIsOffForNewAndExistingProfilesAndPersistsWhenEnabled()
+    {
+        Assert.False(new GameSettings().SpyRollFreeLook);
+        Assert.False(GameSettings.FromJson("{}").SpyRollFreeLook);
+        GameSettings enabled = GameSettings.FromJson("{\"spy_roll_free_look\":true}").Clone();
+        Assert.True(enabled.SpyRollFreeLook);
+        string path = Path.Combine(_dir, "settings.json");
+        enabled.Save(path);
+        Assert.True(GameSettings.Load(path).SpyRollFreeLook);
+        enabled.SpyRollFreeLook = false;
+        enabled.Save(path);
+        Assert.False(GameSettings.Load(path).SpyRollFreeLook);
+    }
+
+    [Fact]
     public void DefaultsAreReloadedsFirstRunValues()
     {
         var s = new GameSettings();

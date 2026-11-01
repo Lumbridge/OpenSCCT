@@ -24,7 +24,9 @@ public partial class SPlayerCam
 
     // Solver memory that the original keeps outside the script fields.
     private FVector _prevPawnLocation;
+    private SBasePawn? _previousFollowPawn;
     private bool _hasPrevPawn;
+    private bool _followingViewUsed;
     private SPlayerCam? _classDefaults;
 
     /// <summary>Reloaded's fly-in slow start: Level.TimeSeconds at the last fly-in call (global 0x1036ab8c).</summary>
@@ -349,6 +351,20 @@ public partial class SPlayerCam
 
     // ---- the views --------------------------------------------------------------------------------------------
 
+    /// <summary>Reanchor the next following solve after a view that does not track the pawn's movement.</summary>
+    internal void InvalidateFollowingPosition() => _hasPrevPawn = false;
+
+    /// <summary>Track whether this updating calc-view uses the following camera.</summary>
+    internal void BeginViewUpdate() => _followingViewUsed = false;
+
+    /// <summary>A paused following view keeps its smoothing anchor until the simulation resumes.</summary>
+    internal void KeepFollowingPosition() => _followingViewUsed = true;
+
+    internal void EndViewUpdate()
+    {
+        if (!_followingViewUsed) InvalidateFollowingPosition();
+    }
+
     /// <summary>The behind view of the current state, or false when the state has none (only s_Following solves).</summary>
     public bool BehindView(SPlayerController PC, SBasePawn Pawn, float DeltaTime, out FVector CameraLocation, out FRotator CameraRotation)
     {
@@ -377,6 +393,9 @@ public partial class SPlayerCam
     public void SolveFollowing(SPlayerController PC, SBasePawn Pawn, float DeltaTime, out FVector CameraLocation, out FRotator CameraRotation)
     {
         m_EPC ??= PC;
+        // FollowingRotation can already have changed m_sam before this solve. Keep the identity belonging to
+        // the cached position separately, so a respawn or spectator target change cannot reuse its old anchor.
+        if (!ReferenceEquals(_previousFollowPawn, Pawn)) InvalidateFollowingPosition();
         m_sam = Pawn;
         m_volSize = EVolumeSize.EVS_Normal;
         float dt = DeltaTime;
@@ -561,7 +580,9 @@ public partial class SPlayerCam
         // 14. Keep the distance, move the controller to the camera, effects on the view.
         m_prevDistance = distance;
         _prevPawnLocation = Pawn.Location;
+        _previousFollowPawn = Pawn;
         _hasPrevPawn = true;
+        _followingViewUsed = true;
         PC.Location = camera;
         CameraLocation = camera;
         CameraRotation = UpdateView(PC.Rotation);
