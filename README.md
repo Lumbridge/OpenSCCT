@@ -6,6 +6,11 @@ It plays like the original, runs on modern Windows, and updates itself.
 You do not need your own copy of Splinter Cell: Chaos Theory: the launcher downloads the game files it needs. If you
 have the game, you can point the launcher at it to convert the maps, characters and sounds from your copy instead.
 
+## Linux and Steam Deck (experimental)
+
+A native Linux export and Flatpak are available; see [Linux instructions](docs/LINUX.md) for building,
+installation and first-run content downloads. Steam Deck hardware validation is pending.
+
 ## Get playing
 
 1. **Download the launcher**: `OpenSCCT.Launcher.exe` from the

@@ -42,6 +42,8 @@ public static class SmokeTests
         ViewmodelLightSmoke.TestName => new ViewmodelLightSmoke(),
         JoinFocusSmoke.TestName => new JoinFocusSmoke(),
         LaserAlignmentSmoke.TestName => new LaserAlignmentSmoke(),
+        // Opt-in network test: excludes ~490 MiB of downloads from the ordinary smoke suite.
+        LinuxSetupSmoke.TestName => new LinuxSetupSmoke(),
         BootSmoke.TestName => new BootSmoke(),
         SidearmMenuSmoke.TestName => new SidearmMenuSmoke(),
         LobbyLayoutSmoke.TestName => new LobbyLayoutSmoke(),

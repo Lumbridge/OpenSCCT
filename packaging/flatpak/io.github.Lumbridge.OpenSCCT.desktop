@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=OpenSCCT
+Comment=Spies versus mercenaries
+Exec=openscct
+Icon=io.github.Lumbridge.OpenSCCT
+Terminal=false
+Categories=Game;ActionGame;
+Keywords=Splinter Cell;Chaos Theory;Versus;
+StartupNotify=true
+StartupWMClass=OpenSCCT

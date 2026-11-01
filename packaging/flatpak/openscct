@@ -1,0 +1,25 @@
+#!/bin/sh
+# Host profiles (notably Guix/Nix) can export trust paths that don't exist in the sandbox.
+# Preserve readable custom trust settings; otherwise use the runtime's CA store.
+if [ -z "${SSL_CERT_FILE:-}" ] || [ ! -r "$SSL_CERT_FILE" ]; then
+    export SSL_CERT_FILE=/etc/ssl/cert.pem
+    printf 'OpenSCCT TLS: using runtime CA bundle %s\n' "$SSL_CERT_FILE" >&2
+fi
+has_readable_cert_dir() (
+    IFS=:
+    set -f
+    for cert_dir in $1; do
+        if [ -d "$cert_dir" ] && [ -r "$cert_dir" ]; then
+            return 0
+        fi
+    done
+    return 1
+)
+if ! has_readable_cert_dir "${SSL_CERT_DIR:-}"; then
+    export SSL_CERT_DIR=/etc/ssl/certs
+    printf 'OpenSCCT TLS: using runtime CA directory %s\n' "$SSL_CERT_DIR" >&2
+fi
+# All writable state stays inside Flatpak's per-app XDG directories.
+export DOTNET_EnableDiagnostics=0
+cd /app/openscct || exit 1
+exec ./OpenSCCT.x86_64 "$@"
