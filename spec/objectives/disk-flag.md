@@ -120,6 +120,16 @@ Merc radar (rl:fix.disk_radar):
     (`ReceivedVelocity`) on any other machine. A spy marked by the spy bullet shows whatever his speed (the radar
     rules, not this spec).
 
+    This is a speed test, not a stance test: ordinary unarmed running (423.5 uu/s) and fast crouching (221.4)
+    reveal the carrier; idle, slow crouching (88.6), slow standing (169.4), and armed forward movement (150.2)
+    remain below the Reloaded threshold (see `movement/walking.md`, resulting steady speeds). The carrier uses
+    the original enemy icon and its height variants: lower below -88 uu relative to the merc, higher above
+    +308 uu, otherwise the plain icon (Bridge `docs/overlays/radar.md` sections 2 and 3.1–3.3).
+
+    OpenSCCT's snapshot receiver must update `ReceivedVelocity` from each accepted newest server snapshot,
+    just as the legacy proxy receiver does. The delayed/interpolated presentation velocity is not the radar
+    source. Standalone and other authority worlds use `Velocity`, since they do not receive proxy snapshots.
+
 ### Throwing a hand item
 
 Rules T1 to T6 (SPlayerController ThrowObject and the s_Throw* states, SBasePawn.AnimNotifyThrow; decompiled
@@ -202,14 +212,31 @@ stateDiagram-v2
 The drop zone's `Cover` is transient. Its lid is a separately replicated `SBasicGamePlayObject`; the renderer binds
 it by mesh and placement when `Owner` is absent (Actor's owner replication is restricted to `bNetOwner`). The lid
 node must then follow that actor's replicated rotation rather than remain at the map's closed pose.
-The server-driven lid enables both `bReplicateMovement` and `bUpdateSimulatedPosition`: without the latter, the
-simulated-proxy rotation gate sends only the initial pose, leaving a lid that arrived open stuck open after delivery.
+The server-driven lid enables both `bReplicateMovement` and `bUpdateSimulatedPosition`, and clears
+`bSkipActorPropertyReplication`, as the original `PostBeginPlay` does. `SBasicGamePlayObject` defaults to skipping
+actor properties after spawn; leaving that enabled suppresses both the updated target and actual rotation, so a
+lid that arrived open stays open after delivery. Without `bUpdateSimulatedPosition`, the simulated-proxy rotation
+gate also sends only the initial pose.
 
 - Server: every rule above except the input-machine parts of `s_FlagAndDropZone_GoTo` and `s_Pickup` (repositioning, `SetHandItemFromInteraction` call, animation actions). `Touch` pickups and returns, timers, throws and deliveries are server-only.
 - `SetHandItemFromInteraction`, `DiscardPickup`, `DiscardFlag`, `SGamePlayObject.Throw` are reliable client-to-server functions; only `SetHandItemFromInteraction` is called by a client in this flow.
 - `SetFlagCarrier(bool)` is a reliable simulated multicast (flag 0x01000000) that sets `FlagTaken` on every machine.
 - Replicated: `FlagCarrier`, `DropZone` (`bNetInitial` only), `bResetZeroValues` (reliable), `SBasePawn.CarriedFlag` and `HandItem` (reliable, `Role == ROLE_Authority`), `SPickupInteraction.bCanPickup`, `SFlagDropZoneInteraction.MyOwner`; the zone interaction's `bUsable` (SInteractObject field). The disk moves by normal movement replication while free and by attachment replication (`Base`, `AttachmentBone`, `RelativeLocation`, `RelativeRotation`) while carried. The flag has a native `IsNetRelevantFor` (decoded, game 0x10ae9a00, editor 0x111CF570): a hidden flag is not relevant; a flag carried by a pawn is relevant exactly when its carrier is (slice pawns are `bAlwaysRelevant`); otherwise it is always relevant. So in the slice every client has the disk except while it is hidden (a message naming a hidden disk then names a None object and loses "Secret Files"). The disk's native list sends `Base`, `bHidden` and `bTriggering` plus the objective trigger list (editor 0x111ce9c0); the drop zone's sends only `bTriggering` (editor 0x111cf480).
 - On a client the drop zone interaction's non-simulated `PostNetBeginPlay` is absorbed, so the client cylinder stays at the generic size; only the server's cylinder matters for the server-side menu list.
+
+## Rendering
+
+`DeviceViews` draws the disk from the carrier's current animated bone pose, composed with the replicated
+`RelativeLocation` and `RelativeRotation`. It follows `B L Hand` during pickup/delivery and `B L Thigh` while carried
+(rule 14), rather than the actor's stale world location: the simulation does not pose a skeleton. The mesh waits
+for the carrier's view and bone to exist, follows the carrier into the shadow-only layer in first person, and
+returns to its original layers when detached. Actor lighting samples the drawn position; an authored light
+attached to the disk follows the same bone through `AttachedEffects`.
+
+The original `HardDisk_T` materials provide the visible illumination: `FX_harddisk_orange_heat` has an orange
+self-illumination texture/mask and a two-frame animation at 2 fps, while `gpo_harddisk_heat` also has a
+self-illumination texture/mask. The gameplay render pack and material compiler retain these channels. This glow
+does not require overriding a map's disk `LightBrightness` (SteeE sets it to zero).
 
 ## Edge cases
 

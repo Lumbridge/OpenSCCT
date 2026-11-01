@@ -683,7 +683,7 @@ public partial class PlayRoot : Node3D
 
         Pawns?.Draw(alpha, dt, firstPerson, aimer, drawnView);
         session.Client.ReportRenderedFrame(alpha);
-        Devices?.Draw(alpha, dt);
+        Devices?.Draw(alpha, dt, Pawns);
         Map?.SoftBodies?.Update(dt, session.Client.World.Level, Audio?.Sound, session.LocalPawn);
         if (Camera is not null)
         {

@@ -470,13 +470,13 @@ public sealed class HudSimReader : IHudSource
     }
 
     /// <summary>
-    /// The disk carrier's speed the merc radar tests (Reloaded): the pawn's Velocity on a listen host, the last
-    /// replicated velocity (ReceivedVelocity) elsewhere, not the smoothed movement a client gives the proxy.
+    /// The disk carrier's speed the merc radar tests (Reloaded): the last replicated velocity on a client,
+    /// not its smoothed proxy movement. Authority worlds, including standalone play, use the pawn's Velocity.
     /// </summary>
     [PortOf("rl:fix.disk_radar", Spec = "spec/objectives/disk-flag.md#rules")]
     [Provenance(ProvenanceKind.Decoded, "Reloaded.Core 0x1001ad60 at game 0x10b27bcf: NetMode 2 reads Velocity (+0x8c), else ReceivedVelocity (+0x5d4)")]
     private static float CarrierRadarSpeed(SPlayerController pc, SBasePawn q) =>
-        (pc.Level.NetMode == ENetMode.NM_ListenServer ? q.Velocity : q.ReceivedVelocity).Size();
+        (pc.Level.NetMode == ENetMode.NM_Client ? q.ReceivedVelocity : q.Velocity).Size();
 
     /// <summary>
     /// Radar blips (Bridge radar notes 3.2 and 3.3): other pawns of the player's side are teammates; enemies show when

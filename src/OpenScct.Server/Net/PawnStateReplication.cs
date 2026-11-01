@@ -614,6 +614,9 @@ public sealed class PawnStateReplication : INetworkPawnPose, IPawnAnimationTrans
         ReadFrame(r, frame, connection, pawn, t, tick);
         if (r.IsError) return;
         frame.Tick = tick; frame.Epoch = epoch;
+        // Gameplay readers such as the disk-carrier radar use the last server velocity, not the delayed
+        // presentation velocity. Keep this contract shared with the legacy proxy sample receiver.
+        pawn.ReceivedVelocity = frame.Motion.Velocity;
         t.ShockLocalReset = pawn.NetworkResetId;
         if (frame.StateSequence > t.StateSequence) stream.StateGaps++;
         for (int i = 0; i < frame.Pose.Length; i++)

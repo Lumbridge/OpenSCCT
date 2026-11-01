@@ -126,11 +126,11 @@ public sealed class AttachedEffects
     }
 
     /// <summary>Places every attached emitter and light for a frame <paramref name="alpha"/> of the way between the last two ticks.</summary>
-    internal void Draw(float alpha, float dt)
+    internal void Draw(float alpha, float dt, PawnViews? pawns = null)
     {
         foreach (Follower f in _followers)
         {
-            if (!f.Riding || !Place(f, alpha, out FVector location, out FRotator rotation))
+            if (!f.Riding || !Place(f, alpha, pawns, out FVector location, out FRotator rotation))
             {
                 continue;
             }
@@ -182,9 +182,20 @@ public sealed class AttachedEffects
     }
 
     /// <summary>Where an attached actor is drawn: on its bone, hard-attached to its base, or at its own interpolated place.</summary>
-    private bool Place(Follower f, float alpha, out FVector location, out FRotator rotation)
+    private bool Place(Follower f, float alpha, PawnViews? pawns, out FVector location, out FRotator rotation)
     {
         Actor a = f.Actor;
+        if (!a.AttachmentBone.IsNone && a.Base is SBasePawn pawn)
+        {
+            location = default;
+            rotation = default;
+            if (pawns is null || !pawns.TryGetBone(pawn, a.AttachmentBone, out Transform3D bone)) return false;
+            Basis boneBasis = bone.Basis.Orthonormalized();
+            location = UeSpace.ToUe(bone.Origin + boneBasis * UeSpace.ToGodot(a.RelativeLocation));
+            rotation = RotationOf(boneBasis * UeSpace.RotationToGodot(a.RelativeRotation));
+            return true;
+        }
+
         if (!a.AttachmentBone.IsNone && a.Base is SAnimatedMesh mesh)
         {
             return BonePlace(a, mesh, out location, out rotation) || f.Lerp(alpha, out location, out rotation);

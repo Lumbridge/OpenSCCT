@@ -42,11 +42,15 @@ public partial class SFlagDropZone
             Cover.SetStaticMesh(LidMesh);
             Cover.SetDrawType(EDrawType.DT_StaticMesh);
             Cover.bHidden = false;
+            Cover.RemoteRole = ENetRole.ROLE_SimulatedProxy;
+            Cover.HeatIntensity = HeatIntensity;
             Cover.SetCollision(true, true, true);
             Cover.SetPhysics(EPhysics.PHYS_Rotating);
             Cover.bMovable = true;
             Cover.bReplicateMovement = true;
-            // Simulated proxies otherwise receive Rotation only in the initial bunch, so an open lid never closes.
+            // SBasicGamePlayObject skips actor properties by default. The original clears that flag so both
+            // DesiredRotation and the turning lid's Rotation keep reaching clients after the spawn bunch.
+            Cover.bSkipActorPropertyReplication = false;
             Cover.bUpdateSimulatedPosition = true;
             Cover.bRotateToDesired = true;
             Cover.DesiredRotation = Rotation;

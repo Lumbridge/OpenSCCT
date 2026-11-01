@@ -266,7 +266,7 @@ public sealed class DeviceViews
     private readonly record struct LightSwitch(string Id, STriggerLight Light, bool? Shown = null);
 
     /// <summary>Places, shows and swaps for a frame <paramref name="alpha"/> of the way from the previous tick to the last.</summary>
-    public void Draw(float alpha, float dt)
+    public void Draw(float alpha, float dt, PawnViews? pawns = null)
     {
         _relightClock -= dt;
         bool relight = _relightClock <= 0f;
@@ -286,10 +286,10 @@ public sealed class DeviceViews
             }
 
             m.DrawSkin(_map.Pack, _skinClock);
-            m.Draw(alpha);
+            m.Draw(alpha, pawns);
             if (relight && m.Moved && m.Entry.Light == LightSource.Actor && m.Entry.Node.Visible)
             {
-                ActorLighting.Apply(m.Entry.Node, _map.LightActor(m.Actor.Location, m.Entry.Radius, m.Entry.AmbientGlow));
+                ActorLighting.Apply(m.Entry.Node, _map.LightActor(UeSpace.ToUe(m.Entry.Node.GlobalPosition), m.Entry.Radius, m.Entry.AmbientGlow));
             }
         }
 
@@ -299,7 +299,7 @@ public sealed class DeviceViews
         }
 
         // After the props' poses: what hangs on their bones follows this frame's pose.
-        Attached.Draw(alpha, dt);
+        Attached.Draw(alpha, dt, pawns);
         Mounts.Draw();
     }
 
@@ -330,6 +330,7 @@ public sealed class MeshFollower
     private readonly FRotator _rotation0;
     private readonly bool _hidden0;
     private readonly bool _visible0;
+    private readonly uint _layers0;
     private FVector _prevLocation;
     private FVector _location;
     private FRotator _prevRotation;
@@ -358,6 +359,7 @@ public sealed class MeshFollower
         _placed0Inverse = UeSpace.TransformToGodot(built, builtRotation).AffineInverse();
         _hidden0 = mapHidden;
         _visible0 = entry.Node.Visible;
+        _layers0 = entry.Node.Layers;
         _prevLocation = _location = actor.Location;
         _prevRotation = _rotation = actor.Rotation;
         Asset = actor.StaticMesh.Path;
@@ -528,7 +530,8 @@ public sealed class MeshFollower
     private int[] _skinSections = [];
 
     [Provenance(ProvenanceKind.Estimated, "Movers drawn between the last two ticks (linear location, shortest-way rotation)")]
-    internal void Draw(float alpha)
+    [Provenance(ProvenanceKind.Decoded, "SPlayerController.s_Pickup.EndState: SFlag attaches to B L Thigh with RelativeLocation (10,0,-10), RelativeRotation (0,0,32768); spec/objectives/disk-flag.md rule 14")]
+    internal void Draw(float alpha, PawnViews? pawns = null)
     {
         MeshInstance3D node = Entry.Node;
         if (!GodotObject.IsInstanceValid(node))
@@ -541,6 +544,12 @@ public sealed class MeshFollower
         // A stage that removes the mesh (a broken window pane, spec/devices/vitre.md rule 2) hides the node.
         bool meshGone = Asset is not null && Actor.StaticMesh.IsNone && Actor.DrawType == EDrawType.DT_StaticMesh;
         bool shown = visible && !_meshMissing && !meshGone && !Actor.bDeleteMe && Actor.DrawType != EDrawType.DT_None;
+        bool attached = !Actor.AttachmentBone.IsNone && Actor.Base is SBasePawn;
+        Transform3D bone = default;
+        SimPawnView? carrier = attached ? pawns?.ViewOf((SBasePawn)Actor.Base!) : null;
+        bool boneDrawn = carrier is { Visible: true } && carrier.TryGetBone(Actor.AttachmentBone, out bone);
+        // An attached prop must never flash at its stale world location while the carrier's view loads.
+        shown &= !attached || boneDrawn;
         if (shown != _drawnVisible)
         {
             _drawnVisible = shown;
@@ -553,6 +562,22 @@ public sealed class MeshFollower
         {
             _vision = vision;
             node.SetInstanceShaderParameter(GameplayObjects.VisionActorParameter, vision);
+        }
+
+        node.Layers = attached && carrier is { ShadowOnly: true }
+            ? (_layers0 & ~RenderLayers.World) | RenderLayers.ShadowOnly
+            : _layers0;
+        if (attached && boneDrawn && shown)
+        {
+            // The simulation has no posed skeleton. Use this frame's drawn bone with the original relative
+            // attachment transform (the Story disk moves from B L Hand to B L Thigh after its pickup clip).
+            Basis boneBasis = bone.Basis.Orthonormalized();
+            FVector scale = Actor.DrawScale3D * Actor.DrawScale;
+            Basis basis = boneBasis * UeSpace.RotationToGodot(Actor.RelativeRotation) * Basis.FromScale(UeSpace.DirectionToGodot(scale));
+            Vector3 origin = bone.Origin + boneBasis * UeSpace.ToGodot(Actor.RelativeLocation) - basis * UeSpace.ToGodot(Actor.PrePivot);
+            node.GlobalTransform = new Transform3D(basis, origin);
+            Moved = true;
+            return;
         }
 
         if (!Moved || !shown)
