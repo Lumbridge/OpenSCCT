@@ -7,7 +7,7 @@ using OpenScctGame.Views;
 
 namespace OpenScctGame.Smoke;
 
-/// <summary>Mirrored traversal poses retain the root and reflect the body's mesh-space bones.</summary>
+/// <summary>Mirrored traversal poses retain the root, reflect the body, and keep the rendered head attached.</summary>
 public sealed class TraversalMirrorSmoke : SmokeTest
 {
     public const string TestName = "traversal-mirror";
@@ -36,14 +36,14 @@ public sealed class TraversalMirrorSmoke : SmokeTest
         {
             var a = new ChannelPoseApplier(source.Skeleton);
             var b = new ChannelPoseApplier(mirrored.Skeleton, new SPawnAttaque_1Mesh().BoneMirrors, mirrored.PackageBones);
-            int checks = 0;
+            int checks = 0, headChecks = 0;
             foreach ((string name, int frames, float fps) in new[]
             {
                 ("LedgStAlTiL", 16, 15f), ("LedgStAlToL", 26, 15f), ("PipVStAlNtL", 15, 15f),
             })
             {
                 AnimClip clip = source.Sampler.Find(name) ?? throw new InvalidOperationException("Missing " + name);
-                foreach (float progress in new[] { 0f, 0.2f, 0.5f, 0.9f })
+                foreach (float progress in new[] { 0f, 0.2f, 0.5f, 0.9f, (frames - 1f) / frames })
                 {
                     ChannelPose pose = new() { Clip = clip, Sequence = name, Frame = progress, ClipFrame = progress,
                         Frames = frames, Fps = fps, Alpha = 1 };
@@ -66,10 +66,42 @@ public sealed class TraversalMirrorSmoke : SmokeTest
                         RequireNear(new Vector3(-from.Basis.Z.X, from.Basis.Z.Y, from.Basis.Z.Z), to.Basis.Z, name + " " + target + " Z axis");
                         checks++;
                     }
+                    RequireHeadAttached(source, name + " left " + progress);
+                    RequireHeadAttached(mirrored, name + " right " + progress);
+                    headChecks += 2;
+                }
+
+                // The right corner tweens from an unmirrored hang into a mirrored clip and back again.
+                // Check both directions through each tween, as a bad helper rotation can move the visible head
+                // far from B Head even while the animated B Head bone itself passes every reflection check.
+                AnimClip hold = source.Sampler.Find("LedgStAlNt0") ?? throw new InvalidOperationException("Missing ledge hold");
+                foreach (bool mirror in new[] { false, true })
+                {
+                    ChannelPose idle = new() { Clip = hold, Sequence = "LedgStAlNt0", Frame = 0f, ClipFrame = 0f,
+                        Frames = 15, Fps = 15f, Alpha = 1f, Loop = true };
+                    b.Apply([idle]);
+                    ChannelPose corner = new() { Clip = clip, Sequence = name, Frames = frames, Fps = fps,
+                        Alpha = 1f, Mirror = mirror };
+                    foreach (float fraction in new[] { 1f, 0.75f, 0.5f, 0.25f, 0f })
+                    {
+                        corner.Frame = -fraction / frames;
+                        b.Apply([corner]);
+                        RequireHeadAttached(mirrored, name + " enter " + mirror + " " + fraction);
+                        headChecks++;
+                    }
+                    corner.Frame = corner.ClipFrame = 0.5f;
+                    b.Apply([corner]);
+                    foreach (float fraction in new[] { 1f, 0.75f, 0.5f, 0.25f, 0f })
+                    {
+                        idle.Frame = -fraction / idle.Frames;
+                        b.Apply([idle]);
+                        RequireHeadAttached(mirrored, name + " exit " + mirror + " " + fraction);
+                        headChecks++;
+                    }
                 }
             }
 
-            _result = $"{checks} corner/pipe bone transforms; unmirrored root; inside/outside corner phases";
+            _result = $"{checks} corner/pipe bone transforms; {headChecks} head attachment poses/tweens; unmirrored root";
             if (System.Environment.GetEnvironmentVariable("SVM_TRAVERSAL_MIRROR_PREVIEW") is { Length: > 0 } preview)
             {
                 MakePreview(context, path, preview);
@@ -85,7 +117,19 @@ public sealed class TraversalMirrorSmoke : SmokeTest
     {
         _previewPath = Path.GetFullPath(output);
         Directory.CreateDirectory(Path.GetDirectoryName(_previewPath)!);
-        _preview = new SubViewport { Size = new Vector2I(1600, 620), OwnWorld3D = true, RenderTargetUpdateMode = SubViewport.UpdateMode.Always };
+        // Every traversal clip the game mirrors, paired with its original pose. Keep this visual check broader
+        // than the corner regression: static head, helmet, laser and holster helpers use different bind frames.
+        var clips = new[]
+        {
+            (false, "LedgStAlTiL", 16, 15f),
+            (false, "LedgStAlToL", 26, 15f), (false, "PipVStAlNtL", 15, 15f),
+            (false, "PipVStAlTrRL", 19, 15f), (false, "PipVStAlTrLL", 19, 15f), (false, "PipVStLgEuR", 21, 15f),
+            (false, "PipVStLgBuR", 21, 15f), (false, "LaddStAlNtL", 9, 8f), (false, "LaddStAlTuR", 9, 8f),
+            (false, "WljpStAlUwL", 13, 30f), (false, "WljpStAlUmL", 10, 30f), (true, "LaddStAlNtL", 8, 8f),
+            (true, "LaddStAlTuR", 9, 8f),
+        };
+        int rows = (clips.Length + 2) / 3;
+        _preview = new SubViewport { Size = new Vector2I(1600, rows * 520), OwnWorld3D = true, RenderTargetUpdateMode = SubViewport.UpdateMode.Always };
         context.Tree.Root.AddChild(_preview);
         var world = new Node3D();
         _preview.AddChild(world);
@@ -96,26 +140,27 @@ public sealed class TraversalMirrorSmoke : SmokeTest
         };
         world.AddChild(new WorldEnvironment { Environment = environment });
         world.AddChild(new DirectionalLight3D { RotationDegrees = new Vector3(-35f, -30f, 0f), LightEnergy = 1.2f });
-        var camera = new Camera3D { Projection = Camera3D.ProjectionType.Orthogonal, Size = 4.8f, Position = new Vector3(0f, 0.2f, 10f), Current = true };
+        var camera = new Camera3D { Projection = Camera3D.ProjectionType.Orthogonal, Size = rows * 4f, Position = new Vector3(0f, 0.2f, 10f), Current = true };
         world.AddChild(camera);
         camera.LookAt(new Vector3(0f, 0.2f, 0f));
-        var mirrors = new SPawnAttaque_1Mesh().BoneMirrors;
         int index = 0;
-        foreach ((string clipName, int frames, string label) in new[] { ("LedgStAlTiL", 16, "INSIDE"), ("LedgStAlToL", 26, "OUTSIDE"), ("PipVStAlNtL", 15, "PIPE HOLD") })
+        foreach ((bool merc, string clipName, int frames, float fps) in clips)
         {
+            string path = merc ? SkeletalModel.FindGlb("SPerso.DEF_01") ?? throw new InvalidOperationException("Missing merc model") : modelPath;
+            SBasePawn pawn = merc ? new SPAWNDEFENSE() : new SPawnAttaque_1Mesh();
             foreach (bool mirror in new[] { false, true })
             {
-                SkeletalModel model = SkeletalModel.Load(modelPath);
+                SkeletalModel model = SkeletalModel.Load(path);
                 world.AddChild(model.Root);
                 model.Pivot.Transform = Transform3D.Identity;
-                model.Root.Position = new Vector3(-5f + index * 2f, 0f, 0f);
+                model.Root.Position = new Vector3(-5f + (index % 6) * 2f, (rows - 1) * 2f - (index / 6) * 4f, 0f);
                 var material = new StandardMaterial3D { AlbedoColor = new Color(0.48f, 0.6f, 0.7f), Roughness = 0.85f };
                 foreach (MeshInstance3D mesh in model.Meshes) mesh.MaterialOverride = material;
-                var applier = new ChannelPoseApplier(model.Skeleton, mirrors, model.PackageBones);
+                var applier = new ChannelPoseApplier(model.Skeleton, pawn.BoneMirrors, model.PackageBones);
                 applier.Apply([new ChannelPose { Clip = model.Sampler.Find(clipName), Sequence = clipName, Frame = 0.5f,
-                    ClipFrame = 0.5f, Frames = frames, Fps = 15f, Alpha = 1f, Mirror = mirror }]);
-                world.AddChild(new Label3D { Text = label + (mirror ? " / MIRRORED" : " / ORIGINAL CLIP"), FontSize = 28,
-                    PixelSize = 0.004f, Position = new Vector3(model.Root.Position.X, 1.6f, 0f) });
+                    ClipFrame = 0.5f, Frames = frames, Fps = fps, Alpha = 1f, Mirror = mirror }], RootLock.Translation);
+                world.AddChild(new Label3D { Text = (merc ? "MERC " : "SPY ") + clipName + (mirror ? "\nMIRRORED" : "\nORIGINAL"), FontSize = 25,
+                    PixelSize = 0.004f, Position = model.Root.Position + new Vector3(0f, 1.6f, 0f) });
                 index++;
             }
         }
@@ -125,5 +170,20 @@ public sealed class TraversalMirrorSmoke : SmokeTest
     {
         if (expected.DistanceTo(actual) > 0.0001f)
             throw new InvalidOperationException($"{label}: expected {expected}, got {actual}");
+    }
+
+    private static void RequireHeadAttached(SkeletalModel model, string label)
+    {
+        int head = model.Skeleton.FindBone("B Head"), attachment = model.Skeleton.FindBone("ATT_02_HEAD");
+        if (head < 0 || attachment < 0 || model.Skeleton.GetBoneParent(attachment) != head)
+            throw new InvalidOperationException("Missing spy head attachment hierarchy");
+        // ATT_02_HEAD carries the visible head mesh and has no authored animation tracks. Its fixed offset
+        // must follow B Head; unlike the body bones, the mesh attachment uses a different local axis frame.
+        Transform3D expected = model.CurrentBonePose(head) * model.Skeleton.GetBoneRest(attachment);
+        Transform3D actual = model.CurrentBonePose(attachment);
+        RequireNear(expected.Origin, actual.Origin, label + " head attachment position");
+        RequireNear(expected.Basis.X, actual.Basis.X, label + " head attachment X axis");
+        RequireNear(expected.Basis.Y, actual.Basis.Y, label + " head attachment Y axis");
+        RequireNear(expected.Basis.Z, actual.Basis.Z, label + " head attachment Z axis");
     }
 }

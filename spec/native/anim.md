@@ -154,7 +154,10 @@ For each channel in index order, with the frame time dt:
    tweening and blending. The global position reflects mesh X; the global orientation is reflected on mesh X and
    bone-local Z (converted Godot Y). Reflecting every bone's local X instead turns the root and folds limbs whose
    lengths run along that axis. The converted glTF can omit constant rest tracks: those bones still need their
-   mirrored local position and rotation reconstructed from the space bases.
+   mirrored local position and rotation reconstructed from the space bases. In the converted renderer, self-mapped
+   bones without any tracks in the clip instead keep their local attachment transform under the mirrored parent.
+   The spy's unanimated `ATT_02_HEAD` has a different bind orientation from the body bones; applying the body's
+   fixed reflection to it displaces the skinned head below the neck in right-hand corner animations.
 4. When the mesh instance has a root lock (rule 5), the root bone's translation in the rendered pose is reduced by
    the root's motion since the lock, so the motion the actor carries is not drawn twice: drawn root = root bone(t) +
    R(lock) - R(t), with R the root sample the root update uses (the clip's root track when it has one, else the
@@ -322,8 +325,9 @@ Physics enters or leaves RootMotion (rule 5.7).
 1. The exact bone math of bGlobalPose remains open.
 2. Resolved: +0x48 of the sequence record is the root track key count (rule 5.4).
 3. Resolved: the mirrored pose build's global-space pass in game 0x109ba4f0 (Pawn.BoneMirrors at pawn +0x448),
-   rule 3.3. `traversal-mirror` checks the converted inside/outside ledge corner and pipe hold clips at four phases
-   each: mirrored body space bases and unchanged excluded root. Live original/rendered comparison remains separate.
+   rule 3.3. `traversal-mirror` checks the converted inside/outside ledge corner and pipe hold clips at five phases
+   each: mirrored body space bases, unchanged excluded root, and the visible head's attachment to its parent through
+   poses and transitions. Live original/rendered comparison remains separate.
 4. Port gap: the converted root yaw of each clip is relative to its first key, so OpenSCCT starts a clip that
    follows another one while locked from that clip's own first key (no turn at the change), where the original
    turns by the new clip's first root yaw minus the old clip's last (rule 5.1). The shipped wall-jump pairs

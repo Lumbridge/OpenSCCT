@@ -514,13 +514,22 @@ public sealed class ChannelPoseApplier
 
         Basis meshReflection = Basis.FromScale(new Vector3(-1f, 1f, 1f));
         Basis boneReflection = Basis.FromScale(new Vector3(1f, -1f, 1f));
-        for (int bone = 0; bone < _count; bone++)
+        foreach (int bone in _order)
         {
             int source = _mirror[bone];
-            Transform3D global = _sampleGlobal[source >= 0 ? source : bone];
-            _mirrorGlobal[bone] = source >= 0
-                ? new Transform3D(meshReflection * global.Basis * boneReflection, meshReflection * global.Origin)
-                : global;
+            if (source < 0 || (source == bone && _sampled[bone] == 0))
+            {
+                // Unanimated, self-mapped attachments keep their own local frame under the mirrored parent.
+                // ATT_02_HEAD carries the spy's head mesh with different bind axes from B Head; applying the
+                // body's fixed reflection to that helper turns the skinned head down below the neck.
+                Transform3D local = new(new Basis(_sampleRot[bone]).ScaledLocal(_sampleScale[bone]), _samplePos[bone]);
+                _mirrorGlobal[bone] = _parent[bone] >= 0 ? _mirrorGlobal[_parent[bone]] * local : local;
+            }
+            else
+            {
+                Transform3D global = _sampleGlobal[source];
+                _mirrorGlobal[bone] = new Transform3D(meshReflection * global.Basis * boneReflection, meshReflection * global.Origin);
+            }
         }
 
         foreach (int bone in _order)
@@ -530,7 +539,7 @@ public sealed class ChannelPoseApplier
             byte sampled = _sampled[source >= 0 ? source : bone];
             Vector3 p = _samplePos[bone], scale = _sampleScale[bone];
             Quaternion q = _sampleRot[bone];
-            if (source >= 0)
+            if (source >= 0 && (source != bone || sampled != 0))
             {
                 // glTF drops constant tracks equal to rest. Their local transform can still change when a
                 // mirrored parent (or the excluded root) has a different frame, so rebuild both components.

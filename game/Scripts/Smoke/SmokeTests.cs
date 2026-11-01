@@ -25,7 +25,7 @@ public static class SmokeTests
             PlayExitSmoke.TestName, AspectSmoke.TestName, PlayTeamSmoke.TestName,
             RangeTraversalSmoke.TestName, RangeMotionSmoke.TestName, RangeBotsSmoke.TestName, RangeSimSmoke.TestName,
             PlayShockerSmoke.TestName, PlayMotionSmoke.TestName, PlayMercSmoke.TestName, PlaySidearmSmoke.TestName, SidearmMenuSmoke.TestName, SmoothSmoke.TestName,
-            MapShotsSmoke.TestName, PlayReticleSmoke.TestName, AnimBonesSmoke.TestName, TraversalMirrorSmoke.TestName, NetworkOverlaySmoke.TestName, PlayHitchSmoke.TestName, PlayLasersSmoke.TestName,
+            MapShotsSmoke.TestName, PlayReticleSmoke.TestName, AnimBonesSmoke.TestName, TraversalMirrorSmoke.TestName, MantleHeadSmoke.TestName, CharacterAnimationAuditSmoke.TestName, NetworkOverlaySmoke.TestName, PlayHitchSmoke.TestName, PlayLasersSmoke.TestName,
             FrameRateSmoke.TestName, GoggleGlowSmoke.TestName, LobbyLayoutSmoke.TestName, OptionsSmoke.TestName, FrontEndLayoutSmoke.TestName, MenuLayoutSmoke.TestName, MenuArtSmoke.TestName, PlayHurtSmoke.TestName, Hub.HubSmoke.TestName, MercImmunityHudSmoke.TestName, MercStatusVisualSmoke.TestName];
 
     public static SmokeTest? Create(string name) => name switch
@@ -37,6 +37,8 @@ public static class SmokeTests
         MercImmunityHudSmoke.TestName => new MercImmunityHudSmoke(),
         MercStatusVisualSmoke.TestName => new MercStatusVisualSmoke(),
         TraversalMirrorSmoke.TestName => new TraversalMirrorSmoke(),
+        MantleHeadSmoke.TestName => new MantleHeadSmoke(),
+        CharacterAnimationAuditSmoke.TestName => new CharacterAnimationAuditSmoke(),
         NetworkOverlaySmoke.TestName => new NetworkOverlaySmoke(),
         HudTimersNetworkSmoke.TestName => new HudTimersNetworkSmoke(),
         PlayDoorTimerSmoke.TestName => new PlayDoorTimerSmoke(),

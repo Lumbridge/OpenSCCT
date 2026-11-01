@@ -133,9 +133,26 @@ cycle). `ChannelPoseApplier.Apply` builds the pose in the original order (anim.m
 weight 1, every other channel with a clip and an alpha over the bones from its start bone down, rotation slerp and
 translation lerp by the alpha. A channel tweening in blends from the last drawn pose by the tween step (A4: 0 on the
 first draw of a tween, then 1 - frame / last frame). Backward clips sample from the end (A5). Mirrored channels swap
-the L and R bones (estimated reflection). In root motion the root's translation stays where the move started and,
+bones through the pawn's mirror table and reflect their mesh-space transforms. Self-mapped bones without animation
+tracks keep their local attachment transform: the spy's `ATT_02_HEAD` follows `B Head`, keeping the visible head on
+the neck during right-hand ledge corners, mirrored pipe poses, and the running wall mantle (`WljpStAlUwL` /
+`WljpStAlUmL`). The mantle chooses mirroring by the leading foot and switches clips without a tween, so a bad
+attachment frame snaps the head away until the next unmirrored climb. `traversal-mirror` checks the corner/pipe
+poses; `mantle-head` checks both leading-foot variants and the transitions into the ledge climb.
+In root motion the root's translation stays where the move started and,
 with lock bit 2, its turn since then is taken out (the actor's yaw carries it). `SimPawnView.TryGetBone` and
 `PawnViews.TryGetBone` give a bone's drawn world transform; `PoseCameraBones` answers `ICameraBones` from them.
+
+`character-animation-audit` samples every converted spy and merc clip, the traversal clips played mirrored, and
+layered climbing/overlay transitions. It checks finite bone transforms, unit scale, static attachment frames and
+unexpected large local offsets. The same attachment fix keeps the merc's `Laser` bone (used by the remote torch)
+aligned on ladders. `traversal-mirror` can render all 13 mirrored traversal clips with
+`SVM_TRAVERSAL_MIRROR_PREVIEW=<output.png>`.
+
+The unused spy sequences `GrabLgBgRailW` and `GrabLgEdRailW` have large bone-offset outliers in the converted
+source data, including head offsets around two metres. Gameplay selects the ordinary names without `W`.
+The audit reports these two explicitly; they need source-format verification before repair and are not aliases
+for the gameplay clips. Automated pose checks and isolated renders do not establish live multiplayer correctness.
 
 The merc's head camera (the script's `m_camera.AttachCamToBone(true, 'B Head', offset)`) puts the first-person view
 on that bone: on a ladder (`MercLadderCamera`), in the berserk spin, and in the combat states that raise
