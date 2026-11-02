@@ -12,9 +12,9 @@ namespace OpenScctGame.UI;
 public partial class MainMenu : MenuPage
 {
     private Label? _status, _account, _xpText, _unlockText, _releaseTitle, _releaseNotes, _releaseState;
-    private Label? _gameActivity, _hubActivity, _announcement, _announcementState;
+    private Label? _playersOnline, _announcement, _announcementState;
     private RankBadge? _rank;
-    private UiProgress? _xp, _unlockProgress;
+    private UiProgress? _xp;
     private Button? _unlockButton;
     private Control? _announcementFrame;
     private MenuDashboardService? _data;
@@ -23,6 +23,8 @@ public partial class MainMenu : MenuPage
     private RejoinService? _rejoin;
     private VBoxContainer? _rejoinPanel;
     private Label? _rejoinText;
+    private Label? _recentResults;
+    private Control? _wordmark;
 
     /// <summary>Restore information-card focus after returning from its details.</summary>
     public string? InitialFocus { get; init; }
@@ -34,15 +36,21 @@ public partial class MainMenu : MenuPage
     public Button? RejoinButton { get; private set; }
     public Button? WhatsNewButton { get; private set; }
 
+    protected override bool CenterBodyVertically => true;
+
+    protected override Vector2 ResponsiveReference => new(1600f, 900f);
+
     public override void _Ready()
     {
-        BuildFrame(SplashTrivia.Pick(), 1160f, responsive: true);
+        BuildFrame(SplashTrivia.Pick(), 1000f, responsive: true);
         UseSplashTitle();
-        Body.AddThemeConstantOverride("separation", 12);
+        Body.AddThemeConstantOverride("separation", 8);
         Control wordmark = UiStyle.Wordmark();
-        if (wordmark is UiWordmark mark) mark.MarkSize = 40f;
+        if (wordmark is UiWordmark mark) mark.MarkSize = 96f;
         wordmark.SizeFlagsHorizontal = SizeFlags.ShrinkCenter;
-        Body.AddChild(wordmark);
+        _wordmark = wordmark;
+        wordmark.Name = "MainWordmark";
+        PageCanvas.AddChild(wordmark);
         VBoxContainer profile = Column("ProfileColumn", 220f);
         VBoxContainer play = Column("PlayColumn", 400f);
         VBoxContainer news = Column("NewsColumn", 220f);
@@ -66,8 +74,9 @@ public partial class MainMenu : MenuPage
         PageCanvas.AddChild(new BuildCornerLabel
         {
             Name = "BuildInfo", ForceCompact = true, Modulate = UiStyle.Dim,
-            HorizontalAlignment = HorizontalAlignment.Right, MouseFilter = MouseFilterEnum.Ignore,
+            HorizontalAlignment = HorizontalAlignment.Center, MouseFilter = MouseFilterEnum.Ignore,
         });
+        ClientPresenceService.Get(GetTree());
         _data = MenuDashboardService.Get(GetTree());
         _data.Changed += ShowInformation;
         _watch = _data.Watch();
@@ -85,6 +94,24 @@ public partial class MainMenu : MenuPage
         else RejoinButton?.GrabFocus();
     }
 
+    public override void _Process(double delta)
+    {
+        base._Process(delta);
+        if (_wordmark is null || PageCanvas.GetNodeOrNull<Control>("Title") is not { } trivia ||
+            PageCanvas.GetNodeOrNull<ScrollContainer>("BodyScroll") is not { } scroll) return;
+        Vector2 size = _wordmark.GetCombinedMinimumSize();
+        _wordmark.Size = size;
+        float triviaBottom = trivia.GetRect().End.Y;
+        // Reserve logo space when the dashboard must scroll; larger windows keep the cluster centred.
+        float naturalTop = 78f + Math.Max(0f, (LayoutSize.Y - 156f - Body.GetCombinedMinimumSize().Y) * 0.5f);
+        float requiredTop = triviaBottom + size.Y + 16f;
+        scroll.OffsetTop = naturalTop < requiredTop ? requiredTop : 78f;
+        float clusterTop = (PageCanvas.GetGlobalTransform().AffineInverse() * Body.GlobalPosition).Y;
+        clusterTop = Math.Max(clusterTop, scroll.Position.Y);
+        _wordmark.Position = new Vector2((LayoutSize.X - size.X) * 0.5f,
+            Math.Max(triviaBottom + 8f, (triviaBottom + clusterTop - size.Y) * 0.5f));
+    }
+
     private void BuildPlay(VBoxContainer parent)
     {
         _rejoinPanel = Card(parent, "RejoinPanel", "Match in progress");
@@ -98,6 +125,8 @@ public partial class MainMenu : MenuPage
         HostButton = AddButton(play, "Create a Session", () => FrontEnd.ShowHost(GetTree()), "Host");
         HostButton.CustomMinimumSize = new Vector2(0f, 44f);
         AddButton(play, OpenScctGame.Hub.HubScreen.MenuButton(this)).CustomMinimumSize = new Vector2(0f, 44f);
+        _playersOnline = TextLine(play, "PlayersOnline", "Players Online: —", dim: true, small: true);
+        _playersOnline.HorizontalAlignment = HorizontalAlignment.Center;
         var collection = Card(parent, "PlayerLinks", "Your collection");
         AccountButton = AddButton(collection, "Account", () => FrontEnd.ShowAccount(GetTree()), "Account");
         var collectionLinks = LinkRow(collection, "CollectionLinks");
@@ -118,22 +147,19 @@ public partial class MainMenu : MenuPage
         _account.AddThemeFontSizeOverride("font_size", 18);
         _account.MaxLinesVisible = 2;
         _account.TextOverrunBehavior = TextServer.OverrunBehavior.TrimEllipsis;
-        _rank = new RankBadge(30, 16) { Name = "AccountRank", Visible = false };
+        _rank = new RankBadge(24, 14) { Name = "AccountRank", Visible = false };
         profile.AddChild(_rank);
         _xp = new UiProgress { Name = "LevelProgress", Fill = UiStyle.MenuFocus, Visible = false };
         profile.AddChild(_xp);
         _xpText = TextLine(profile, "XpText", "Sign in to track your rank and unlocks.", dim: true, small: true);
+        _recentResults = TextLine(profile, "RecentResults", "Recent: —", small: true);
+        _recentResults.TooltipText = "Latest recorded rounds, newest first. W: win · L: loss · D: draw/no winner";
+        AddCompactButton(profile, "Match history", () => FrontEnd.Show(GetTree(), new MatchHistoryScreen()), "MatchHistory");
         _unlockText = TextLine(profile, "NextUnlockText", string.Empty, small: true);
-        _unlockText.MaxLinesVisible = 3;
+        _unlockText.MaxLinesVisible = 2;
         _unlockText.TextOverrunBehavior = TextServer.OverrunBehavior.TrimEllipsis;
-        _unlockProgress = new UiProgress { Name = "UnlockProgress", Fill = UiStyle.MenuFocus, Visible = false };
-        profile.AddChild(_unlockProgress);
         _unlockButton = AddCompactButton(profile, "View next unlock", () => FrontEnd.Show(GetTree(),
             new AchievementsScreen { InitialAchievement = _unlock?.AchievementId }), "NextUnlock");
-        var activity = Card(parent, "CommunityActivity", "Community activity", compact: true);
-        _gameActivity = TextLine(activity, "GameActivity", "Checking game sessions…", small: true);
-        _hubActivity = TextLine(activity, "HubActivity", "Checking hubs…", small: true);
-        TextLine(activity, "ActivityScope", "Players in publicly listed sessions", dim: true, small: true);
     }
 
     private void BuildNews(VBoxContainer parent)
@@ -163,6 +189,7 @@ public partial class MainMenu : MenuPage
         _announcementState = TextLine(notice, "AnnouncementState", string.Empty, dim: true, small: true);
         AddCompactButton(notice, "Read announcement", () => DashboardDetailsScreen.ShowAnnouncement(GetTree()), "ReadAnnouncement");
         _announcementFrame.Visible = false;
+        parent.MoveChild(_announcementFrame, 0);
     }
 
     private void ShowInformation()
@@ -180,17 +207,18 @@ public partial class MainMenu : MenuPage
             : rank.Level >= ProgressionK.MaxLevel ? "Maximum level reached for this prestige"
             : string.Create(CultureInfo.InvariantCulture, $"{rank.XpIntoLevel:N0} / {rank.XpForNext:N0} XP to level {rank.Level + 1}");
         if (signedIn && account is not null && _data.AccountStale) _xpText.Text += " · Last received";
+        _recentResults!.Visible = account?.RecentResults is not null;
+        _recentResults.Text = account?.RecentResults is { Count: > 0 } results
+            ? "Recent: " + string.Join("-", results.Take(9)) : "Recent: —";
         _unlock = MenuDashboardModel.NextUnlock(account);
         _unlockText!.Visible = _unlock is not null;
-        _unlockProgress!.Visible = _unlock is not null;
         if (_unlock is { } unlock)
         {
-            _unlockText.Text = $"Next unlock · {unlock.RewardName}\n{unlock.Title} · {unlock.Current:N0} / {unlock.Target:N0}";
-            _unlockProgress.Value = unlock.Fraction;
+            _unlockText.Text = $"Next unlock · {unlock.RewardName} · {unlock.Current:N0} / {unlock.Target:N0}";
         }
         _unlockButton!.Visible = _unlock is not null;
-        _gameActivity!.Text = Activity(_data.Games, ServerKind.Game, "game session", "game sessions");
-        _hubActivity!.Text = Activity(_data.Hubs, ServerKind.Hub, "hub", "hubs");
+        _playersOnline!.Text = _data.Status is { Unavailable: false, Stale: false, Value.PlayersOnline: { } count }
+            ? $"Players Online: {count:N0}" : "Players Online: —";
         ChangelogEntry? latest = _data.Changelog.Value?.Entries.FirstOrDefault();
         bool unavailable = _data.Changelog.Unavailable || _data.Changelog.Value?.Unavailable == true;
         _releaseTitle!.Text = latest is null ? "Latest update" : latest.Tag;
@@ -207,13 +235,6 @@ public partial class MainMenu : MenuPage
         _announcementFrame!.Visible = hasAnnouncement;
     }
 
-    private static string Activity(MenuDashboardFeed<ServerListResponse> feed, ServerKind kind, string singular, string plural)
-    {
-        if (feed.Value is not { } list) return feed.Loading ? $"Checking {plural}…" : $"{char.ToUpperInvariant(plural[0])}{plural[1..]} unavailable";
-        MenuActivity activity = MenuDashboardModel.Activity(list, kind);
-        return $"{activity.Players:N0} players · {activity.Sessions:N0} {(activity.Sessions == 1 ? singular : plural)}" + (feed.Stale ? " · Last received" : string.Empty);
-    }
-
     private static VBoxContainer Column(string name, float minimum) => new()
     {
         Name = name, CustomMinimumSize = new Vector2(minimum, 0f), SizeFlagsHorizontal = SizeFlags.ExpandFill,
@@ -222,8 +243,13 @@ public partial class MainMenu : MenuPage
     private static VBoxContainer Card(Container parent, string name, string title, bool compact = false)
     {
         var column = Panel(parent, name, title);
-        column.AddThemeConstantOverride("separation", compact ? 4 : 6);
-        parent.AddThemeConstantOverride("separation", compact ? 10 : 12);
+        column.AddThemeConstantOverride("separation", compact ? 3 : 4);
+        parent.AddThemeConstantOverride("separation", compact ? 6 : 8);
+        var frame = (PanelContainer)column.GetParent();
+        var style = (StyleBox)frame.GetThemeStylebox("panel").Duplicate();
+        style.ContentMarginLeft = style.ContentMarginRight = 10f;
+        style.ContentMarginTop = style.ContentMarginBottom = 8f;
+        frame.AddThemeStyleboxOverride("panel", style);
         return column;
     }
 

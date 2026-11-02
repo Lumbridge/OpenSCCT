@@ -33,7 +33,7 @@ public partial class ContentScreen : MenuPage
     private readonly List<RowView> _views = [];
 
     public static Button MenuButton(Node from) =>
-        UiStyle.MenuButton("Content", () => FrontEnd.ShowContent(from.GetTree()), "Content");
+        UiStyle.MenuButton("Maps & Content", () => FrontEnd.ShowContent(from.GetTree()), "Content");
 
     /// <summary>One row's live parts: what it was built with, and the bits a running download updates.</summary>
     private sealed record RowView(string Key, bool Shared, string? BuiltWith, Label Status, UiProgress Bar, BoxContainer Row);

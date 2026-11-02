@@ -30,6 +30,7 @@ public enum ServerKind
 /// <summary>Paths, header and JSON settings of the master's HTTP API (src/OpenScct.Master).</summary>
 public static class MasterApi
 {
+    public const string PresencePath = "/api/presence";
     /// <summary>Header carrying the invite key of a private master.</summary>
     public const string KeyHeader = "X-Svm-Key";
 
@@ -48,6 +49,8 @@ public static class MasterApi
 
     /// <summary>Header carrying a trusted server's key (heartbeats and round results).</summary>
     public const string ServerKeyHeader = "X-Svm-Server-Key";
+
+    public const string MatchHistoryPath = "/api/v1/account/matches";
 
     public const string AccountPath = "/api/v1/account";
 
@@ -427,9 +430,17 @@ public sealed record ChangelogResponse
     public bool Unavailable { get; init; }
 }
 
+/// <summary>An ephemeral interactive-client lease; account identity comes from authentication.</summary>
+public sealed record PresenceRequest(Guid SessionId);
+
+public sealed record PresenceResponse(bool Accepted);
+
 /// <summary>The master's status page (also a health check).</summary>
 public sealed record MasterStatus
 {
+    /// <summary>Active client presence, or null when this master does not support presence.</summary>
+    public int? PlayersOnline { get; init; }
+
     /// <summary>The game version the master was built with (OpenScct.Net, <see cref="BuildInfo.Version"/>).</summary>
     public string Version { get; init; } = BuildInfo.Version;
 
@@ -530,6 +541,9 @@ public sealed record AccountInfo
 
     /// <summary>When the name may next be changed (null: now).</summary>
     public DateTimeOffset? NameChangeAllowed { get; init; }
+
+    /// <summary>Last nine counted rounds, newest first: W, L or D. Null on older masters.</summary>
+    public IReadOnlyList<string>? RecentResults { get; init; }
 
     public AccountStats Stats { get; init; } = new();
 
@@ -690,6 +704,9 @@ public sealed record ProfileData
 /// <summary>A finished round on a trusted server, for stats and achievements.</summary>
 public sealed record ResultsReport
 {
+    public IReadOnlyList<MatchTimelineEvent>? Events { get; init; }
+    public bool TimelineTruncated { get; init; }
+
     public string ServerId { get; init; } = string.Empty;
 
     public string Map { get; init; } = string.Empty;

@@ -44,7 +44,9 @@ public partial class StatsScreen : MenuPage
         _rows = Panel(Body, "StatsPanel", null);
         PageButton("Back", () => FrontEnd.ShowMainMenu(GetTree()), "Back").GrabFocus();
         PageButton("Account", () => FrontEnd.ShowAccount(GetTree()), "Account");
+        PageButton("Match history", () => FrontEnd.Show(GetTree(), new MatchHistoryScreen()), "MatchHistory");
         _refreshButton = PageButton("Refresh", Refresh, "Refresh");
+        foreach (Button button in PageButtons) button.CustomMinimumSize = new Vector2(144f, 44f);
         _service.Changed += Rebuild;
         GetViewport().SizeChanged += FitWidth;
         FitWidth();

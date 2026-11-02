@@ -12,7 +12,7 @@ namespace OpenScctGame.Online;
 public partial class MenuDashboardService : Node
 {
     private const string NodeName = "MenuDashboardService";
-    private readonly MenuDashboardRequest<MasterStatus> _status = new(60_000);
+    private readonly MenuDashboardRequest<MasterStatus> _status = new(30_000);
     private readonly MenuDashboardRequest<ServerListResponse> _games = new(30_000);
     private readonly MenuDashboardRequest<ServerListResponse> _hubs = new(30_000);
     private readonly MenuDashboardRequest<ChangelogResponse> _changelog = new(600_000);

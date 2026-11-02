@@ -41,6 +41,8 @@ public partial class MenuPage : Control
 
     private CenterContainer? _centre;
 
+    protected virtual bool CenterBodyVertically => false;
+
     /// <summary>Desired reading width; the page clamps it to the available window width.</summary>
     protected float PreferredBodyWidth { get; set; }
 
@@ -168,7 +170,11 @@ public partial class MenuPage : Control
         };
         PageCanvas.AddChild(scroll);
         if (responsive) scroll.FollowFocus = true;
-        _centre = new CenterContainer { Name = "Centre", SizeFlagsHorizontal = SizeFlags.ExpandFill };
+        _centre = new CenterContainer
+        {
+            Name = "Centre", SizeFlagsHorizontal = SizeFlags.ExpandFill,
+            SizeFlagsVertical = CenterBodyVertically ? SizeFlags.ExpandFill : SizeFlags.Fill,
+        };
         scroll.AddChild(_centre);
         Body = new VBoxContainer { Name = "Body", CustomMinimumSize = new Vector2(bodyWidth, 0f) };
         Body.AddThemeConstantOverride("separation", 8);
@@ -206,11 +212,13 @@ public partial class MenuPage : Control
         }
     }
 
+    protected virtual Vector2 ResponsiveReference => new(1280f, 720f);
+
     private void FitResponsiveCanvas()
     {
         if (_responsiveCanvas is null) return;
         // Design units scale together on large/high-DPI windows. Small windows reflow instead of shrinking text.
-        float scale = Math.Max(1f, Math.Min(Size.X / 1280f, Size.Y / 720f));
+        float scale = Math.Max(1f, Math.Min(Size.X / ResponsiveReference.X, Size.Y / ResponsiveReference.Y));
         Vector2 logical = Size / scale;
         if (_responsiveCanvas.Scale.X != scale)
         {

@@ -40,6 +40,7 @@ public sealed class MenuLayoutSmoke : SmokeTest
     private int _frames;
     private int _size;
     private bool _savedMapList;
+    private ulong? _presenceInstance;
 
     public override string Name => TestName;
 
@@ -158,6 +159,12 @@ public sealed class MenuLayoutSmoke : SmokeTest
                 if (_frames < SettleFrames * 3) return SmokeResult.Running;
                 if (tree.CurrentScene is not MainMenu main)
                     return SmokeResult.Fail("the main menu is not the current scene");
+                var presence = tree.Root.GetNode<ClientPresenceService>(nameof(ClientPresenceService));
+                if (_presenceInstance is { } previous && previous != presence.GetInstanceId())
+                    _problems.Add("Presence service was replaced across scene changes");
+                _presenceInstance = presence.GetInstanceId();
+                if (presence.ProcessMode != Node.ProcessModeEnum.Always)
+                    _problems.Add("Presence stops processing when the scene tree is paused");
                 Check(main, width, "Main menu");
                 foreach (string name in Destinations)
                 {
@@ -180,6 +187,8 @@ public sealed class MenuLayoutSmoke : SmokeTest
                 if (tree.CurrentScene is not MainMenu { WhatsNewButton: { Disabled: false } whatsNew } populated)
                     return SmokeResult.Fail("populated main menu has no What's new button");
                 Check(populated, width, "Main menu populated");
+                if (populated.FindChild("PlayersOnline", true, false) is not Label { Text: "Players Online: 17" })
+                    _problems.Add("Menu did not display total client presence");
                 CheckDashboardNavigation(populated, _sizes[_size]);
                 if (tree.Root.GuiGetFocusOwner() != populated.HostButton)
                     _problems.Add("Dashboard data refresh stole keyboard focus");
@@ -250,6 +259,30 @@ public sealed class MenuLayoutSmoke : SmokeTest
                 Check(tree.CurrentScene, width, "Announcement");
                 MenuPage.Shot(tree.Root, $"menu-layout-{_sizes[_size].X}x{_sizes[_size].Y}-announcement");
                 MenuDashboardService.Get(tree).SetPreview(null);
+                FrontEnd.Show(tree, new MatchHistoryScreen { Preview = new MatchHistoryPage([], false) });
+                _stage = 12;
+                _frames = 0;
+                return SmokeResult.Running;
+            case 12:
+                if (_frames < SettleFrames * 3) return SmokeResult.Running;
+                Check(tree.CurrentScene!, width, "Empty match history");
+                MenuPage.Shot(tree.Root, $"menu-layout-{_sizes[_size].X}x{_sizes[_size].Y}-history-empty");
+                FrontEnd.Show(tree, new MatchHistoryScreen { Preview = new MatchHistoryPage([HistoryPreview().Match], false) });
+                _stage = 13;
+                _frames = 0;
+                return SmokeResult.Running;
+            case 13:
+                if (_frames < SettleFrames * 3) return SmokeResult.Running;
+                Check(tree.CurrentScene!, width, "Match history list");
+                MenuPage.Shot(tree.Root, $"menu-layout-{_sizes[_size].X}x{_sizes[_size].Y}-history-list");
+                FrontEnd.Show(tree, new MatchHistoryScreen { Preview = HistoryPreview() });
+                _stage = 14;
+                _frames = 0;
+                return SmokeResult.Running;
+            case 14:
+                if (_frames < SettleFrames * 3) return SmokeResult.Running;
+                Check(tree.CurrentScene!, width, "Match timeline");
+                MenuPage.Shot(tree.Root, $"menu-layout-{_sizes[_size].X}x{_sizes[_size].Y}-history-timeline");
                 _options = (OptionsMenu)FrontEnd.ShowOptions(tree);
                 _stage = 1;
                 _frames = 0;
@@ -259,11 +292,20 @@ public sealed class MenuLayoutSmoke : SmokeTest
         }
     }
 
+    private static MatchHistoryDetails HistoryPreview() => new(
+        new MatchHistoryEntry { Id = 1, Ended = DateTimeOffset.UtcNow, Map = "Warehouse", Server = "Official server",
+            Mode = 5, Winner = 0, DurationSeconds = 212, ObjectivesTaken = 2, ObjectivesNeeded = 2, Counted = true },
+        [new ResultsReportRow { Name = "Agent", Team = 0, Score = 5, Kills = 2, Deaths = 1 },
+         new ResultsReportRow { Name = "Guard", Team = 1, Score = 2, Kills = 1, Deaths = 2 }],
+        [new(0, "start", "Round started"), new(40, "death", "Agent → Guard"),
+         new(110, "objective", "Objective completed: Main terminal"), new(212, "end", "Round ended: Spies win")], false);
+
     /// <summary>Deterministic display data; the preview service accepts it only in isolated smoke runs.</summary>
     internal static MenuDashboardSnapshot PreviewSnapshot() => new()
     {
         Status = new(new MasterStatus
         {
+            PlayersOnline = 17,
             Announcement = "Community night: meet in the hub before joining a match. " +
                 "Players of every experience level are welcome, and the tutorial pages explain the spy and mercenary controls. " +
                 "This deliberately long announcement also checks that the complete notice remains readable in a small window.",
@@ -297,6 +339,7 @@ public sealed class MenuLayoutSmoke : SmokeTest
         {
             Id = 1,
             Name = "Long Display Name For Layout",
+            RecentResults = ["W", "L", "W", "L", "L", "L", "W", "W", "W"],
             Progress = new ProgressInfo { Level = 12, BestLevel = 12, Xp = PlayerRank.XpToReach(12) + 375 },
             Stats = new AccountStats { Matches = 23, SpyWins = 10, MercWins = 8, Kills = 42 },
             Achievements =
@@ -327,6 +370,26 @@ public sealed class MenuLayoutSmoke : SmokeTest
         {
             _problems.Add("Main menu has no scrollable body");
             return;
+        }
+        if (menu.FindChild("BuildInfo", true, false) is Label build)
+        {
+            if (build.HorizontalAlignment != HorizontalAlignment.Center)
+                _problems.Add("Build information is not centred");
+            if (menu.QuitButton is { } quit && build.GetGlobalRect().Position.Y < quit.GetGlobalRect().End.Y)
+                _problems.Add("Build information overlaps footer controls");
+        }
+        if (menu.FindChild("Dashboard", true, false) is DashboardColumns dashboard &&
+            dashboard.Profile.Position.Y < dashboard.Play.GetRect().End.Y &&
+            dashboard.Profile.Position.X < dashboard.Play.Position.X)
+        {
+            if (Math.Abs(dashboard.Profile.GetRect().End.Y - dashboard.News.GetRect().End.Y) > 1f)
+                _problems.Add("Dashboard side columns are not bottom aligned");
+        }
+        if (menu.FindChild("Body", true, false) is Control body && body.Size.Y < scroll.Size.Y)
+        {
+            // Container placement rounds to logical pixels before display scaling.
+            if (Math.Abs(body.GetGlobalRect().GetCenter().Y - scroll.GetGlobalRect().GetCenter().Y) > 1.1f * body.GetGlobalTransform().Y.Length())
+                _problems.Add($"{viewport} cluster centre {body.GetGlobalRect().GetCenter().Y} vs scroll {scroll.GetGlobalRect().GetCenter().Y}, offset {scroll.ScrollVertical}");
         }
         Rect2 visible = scroll.GetGlobalRect().Grow(1f);
         foreach (string name in Destinations.Where(name => name is not ("Options" or "Quit")))

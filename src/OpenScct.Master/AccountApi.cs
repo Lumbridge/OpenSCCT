@@ -74,6 +74,10 @@ internal sealed partial class AccountApi
             return WithAccountMutation(context, a => PutAppearance(a, request));
         });
         app.MapPost(MasterApi.ResultsPath, (HttpContext context, ResultsReport report) => PostResults(context, report));
+        app.MapGet(MasterApi.MatchHistoryPath, (HttpContext context, int? page) => WithAccount(context,
+            a => Results.Json(_store.History(a.Id, page ?? 0), MasterApi.Json)));
+        app.MapGet(MasterApi.MatchHistoryPath + "/{id:long}", (HttpContext context, long id) => WithAccount(context,
+            a => _store.HistoryDetails(a.Id, id) is { } details ? Results.Json(details, MasterApi.Json) : Error(404, "Match not found.")));
         MapDemos(app);
     }
 
@@ -96,6 +100,8 @@ internal sealed partial class AccountApi
         app.MapGet(MasterApi.AppearancePath, Off);
         app.MapPut(MasterApi.AppearancePath, Off);
         app.MapPost(MasterApi.ResultsPath, () => Error(StatusCodes.Status503ServiceUnavailable, "This master keeps no accounts or results."));
+        app.MapGet(MasterApi.MatchHistoryPath, Off);
+        app.MapGet(MasterApi.MatchHistoryPath + "/{id:long}", (long id) => Off());
         MapDemosDisabled(app);
     }
 
@@ -308,6 +314,7 @@ internal sealed partial class AccountApi
         {
             Id = account.Id, Name = account.Name, Admin = _options.IsAdmin(account.DiscordId), AppearanceSync = true,
             NameChangeAllowed = allowed is { } t ? DateTimeOffset.FromUnixTimeSeconds(t) : null,
+            RecentResults = _store.RecentResults(account.Id),
             Stats = progress.Stats, Achievements = achievements, Unlocked = _store.Unlocked(account.Id),
             Career = new CareerStats
             {
@@ -459,6 +466,10 @@ internal sealed partial class AccountApi
             return Error(StatusCodes.Status400BadRequest, "The report is too large.");
         }
 
+        if (report.Events is { } events && (events.Count > 1024 || events.Any(e => e is null || e.Seconds < 0 ||
+            e.Seconds > Math.Clamp(report.DurationSeconds, 0, 86400) || e.Kind is null || e.Kind.Length > 32 ||
+            e.Text is null || e.Text.Length > 256) || !events.Select(e => e.Seconds).SequenceEqual(events.Select(e => e.Seconds).Order())))
+            return Error(400, "Invalid match timeline.");
         bool counted = Countable(report);
         if (counted)
         {

@@ -1031,3 +1031,21 @@ dotnet run --project src/OpenScct.Server.Cli -- --online --master http://127.0.0
   playlist choice (`active_map_playlist_mdm`) is one choice here.
 - Bots: the dedicated server's config file has no bot fields yet (the console's `set bots` works); its rotation
   entries could carry them.
+
+
+### In-game match history and retention
+
+The main menu's progress card and Player stats screen open the signed-in player's match history.
+The account API pages through 20 rounds at a time and restricts match details to participants.
+Details include the server, map, mode, result, duration, objectives, scoreboard and an event timeline.
+Updated trusted servers record round starts, deaths (including the killer and damage type), objective completions,
+dog tags and round ends. Timelines are limited to 1,024 events with an explicit truncation notice.
+Older reports keep their scoreboards and show that a timeline is unavailable. The compact recent-results line
+shows the latest nine counted rounds, newest first. History has an empty state before any matches are recorded.
+
+`Master.MatchHistoryDays` defaults to 90 (allowed: 1–365), also configurable as
+`SVM_Master__MatchHistoryDays`. Once per minute the master removes up to 1,000 expired rounds and their
+scoreboards, timelines and demo metadata in a transaction. Lifetime stats, progression and achievements remain.
+Demo objects retain their existing bucket lifecycle policy. SQLite reuses freed database pages.
+Database schema 8 adds the timeline table and preserves existing rounds during upgrade.
+Deploy the updated master and trusted game servers to enable new timelines; older clients remain compatible.

@@ -89,6 +89,8 @@ internal sealed partial class AccountStore
                 duration_s INTEGER NOT NULL,
                 counted INTEGER NOT NULL);
             CREATE INDEX IF NOT EXISTS matches_time ON matches(time);
+            CREATE TABLE IF NOT EXISTS match_timelines (
+                match_id INTEGER PRIMARY KEY REFERENCES matches(id), events TEXT NOT NULL, truncated INTEGER NOT NULL);
             CREATE TABLE IF NOT EXISTS match_rows (
                 match_id INTEGER NOT NULL REFERENCES matches(id),
                 account_id INTEGER,
@@ -306,6 +308,9 @@ internal sealed partial class AccountStore
                     ("$w", report.WinningTeam), ("$r", report.WinningReason), ("$ot", report.ObjectivesTaken),
                     ("$on", report.ObjectivesNeeded), ("$d", Math.Clamp(report.DurationSeconds, 0, 86400)), ("$c", counted ? 1 : 0));
                 long id = Convert.ToInt64(Scalar("SELECT last_insert_rowid();"), CultureInfo.InvariantCulture);
+                if (report.Events is not null)
+                    Exec("INSERT INTO match_timelines (match_id, events, truncated) VALUES ($id, $events, $truncated);",
+                        ("$id", id), ("$events", JsonSerializer.Serialize(report.Events, MasterApi.Json)), ("$truncated", report.TimelineTruncated ? 1 : 0));
                 foreach (ResultsReportRow row in report.Rows)
                 {
                     string name = row.Name ?? string.Empty;
@@ -329,6 +334,17 @@ internal sealed partial class AccountStore
             string where = accountId is null ? string.Empty : "WHERE id IN (SELECT match_id FROM match_rows WHERE account_id = $a) ";
             return Query($"SELECT {MatchColumns} FROM matches {where}ORDER BY id DESC LIMIT $n OFFSET $o;", ReadMatch,
                 ("$a", accountId), ("$n", pageSize + (lookAhead ? 1 : 0)), ("$o", Math.Max(0, page) * pageSize));
+        }
+    }
+
+    public List<string> RecentResults(long accountId)
+    {
+        lock (_gate)
+        {
+            return Query("SELECT CASE WHEN m.winner NOT IN (0, 1) THEN 'D' WHEN m.winner = r.team THEN 'W' ELSE 'L' END " +
+                "FROM matches m JOIN match_rows r ON r.match_id = m.id " +
+                "WHERE r.account_id = $a AND r.bot = 0 AND r.team IN (0, 1) AND m.counted = 1 ORDER BY m.id DESC LIMIT 9;",
+                r => r.GetString(0), ("$a", accountId));
         }
     }
 

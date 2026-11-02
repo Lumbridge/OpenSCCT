@@ -682,6 +682,7 @@ public sealed partial class OnlineServer : IDisposable
             StartPracticeRound(host);
         }
 
+        host.World.Level.SetService<IMatchHistorySink>(new HistorySink(this));
         HostStarted?.Invoke(host);
         return host;
     }
@@ -898,6 +899,10 @@ public sealed partial class OnlineServer : IDisposable
         {
             _matchStart = _now;
             _matchStartUtc = Settings.WallClock.GetUtcNow();
+            _history.Clear();
+            _historyActive = true;
+            _historyTruncated = false;
+            RecordHistory("start", "Round started");
             _roundMatchId = null;
         }
         _endedAt = -1;
@@ -1068,6 +1073,8 @@ public sealed partial class OnlineServer : IDisposable
         if (_endedAt < 0)
         {
             _endedAt = _now;
+            RecordHistory("end", $"Round ended: {(Host.Game.GameReplicationInfo.WinningTeam == 0 ? "Spies win" : Host.Game.GameReplicationInfo.WinningTeam == 1 ? "Mercenaries win" : "No winner")}");
+            _historyActive = false;
             Log($"round ended: winner {Host.Game.GameReplicationInfo.WinningTeam}, reason {Host.Game.GameReplicationInfo.WinningReason}");
         }
 
@@ -1080,6 +1087,8 @@ public sealed partial class OnlineServer : IDisposable
     private void EnterResults()
     {
         MatchResults results = BuildResults();
+        RecordHistory("end", "Round ended: " + MatchResults.ReasonText(results.WinningReason));
+        _historyActive = false;
         LastResults = results;
         SetPhase(SessionPhase.Results);
         if (results.GamesLeft == 0)
@@ -1169,9 +1178,10 @@ public sealed partial class OnlineServer : IDisposable
 
         _roundMatchId = link.ReportResults(new ResultsReport
         {
+            Events = _history.ToArray(), TimelineTruncated = _historyTruncated,
             ServerId = serverId, Map = results.Map, Mode = (int)Setup.Mode, WinningTeam = results.WinningTeam,
             WinningReason = results.WinningReason, ObjectivesTaken = results.ObjectivesTaken, ObjectivesNeeded = results.ObjectivesNeeded,
-            DurationSeconds = _matchStart > 0 ? (int)Math.Max(0, (_now - _matchStart) / Second) : 0, Rows = rows,
+            DurationSeconds = (int)Math.Clamp((_now - _matchStart) / Second, 0, 86400), Rows = rows,
         });
     }
 

@@ -50,7 +50,7 @@ internal enum NameClaim
 /// </summary>
 internal sealed partial class AccountStore : IDisposable
 {
-    public const int SchemaVersion = 7;
+    public const int SchemaVersion = 8;
 
     /// <summary>Seconds between renames.</summary>
     public const long RenameCooldown = 30 * 86400;
@@ -132,6 +132,7 @@ internal sealed partial class AccountStore : IDisposable
         // Version 2: feat totals and base-map wins for the achievements. Version 3: cosmetics an admin unlocked.
         // Version 4: the admin portal (MigrateVersion4). Version 5: levels and prestige (MigrateVersion5).
         // Version 6: round demos. Version 7: the player hub, revisioned appearance and admin operations.
+        // Version 8: bounded match timelines.
         InTransaction(() =>
         {
             Exec("""

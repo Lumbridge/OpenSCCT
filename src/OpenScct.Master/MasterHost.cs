@@ -40,11 +40,14 @@ public sealed class MasterHost : IAsyncDisposable
     private readonly Player.PlayerPortal? _players;
     private readonly DemoStorage? _demos;
     private readonly Web.ReleaseChangelog _releases;
+    private readonly PresenceRegistry _presence;
+    private double _nextHistorySweep;
     private bool _disposed;
 
     private MasterHost(WebApplication app, MasterOptions options, ServerRegistry registry, Introducer? introducer, Relay? relay, Prober? prober,
         AccountStore? store, TicketSigner? signer, TimeProvider time, Web.ReleaseChangelog releases)
     {
+        _presence = new PresenceRegistry(time);
         _app = app;
         Options = options;
         Registry = registry;
@@ -187,6 +190,12 @@ public sealed class MasterHost : IAsyncDisposable
         _webLimiter.Sweep();
         _accounts?.Links.Sweep();
         _portal?.Sample(Registry.Now);
+        if (_store is not null && Registry.Now >= _nextHistorySweep)
+        {
+            _nextHistorySweep = Registry.Now + 60;
+            try { _store.PruneMatchHistory(Options.MatchHistoryDays); }
+            catch (Exception error) { _app.Logger.LogError(error, "Match history cleanup failed; retrying next minute"); }
+        }
     }
 
     // ---- HTTP API ----------------------------------------------------------------------------------------------
@@ -245,8 +254,25 @@ public sealed class MasterHost : IAsyncDisposable
             RelayFrames.TryParseToken(hostToken, out ulong token) && Registry.Remove(id, token)
                 ? Results.Ok()
                 : Error(StatusCodes.Status404NotFound, "Unknown server id or wrong host token."));
+        _app.MapPost(MasterApi.PresencePath, (HttpContext context, PresenceRequest request) =>
+        {
+            if (request.SessionId == Guid.Empty) return Error(400, "A session identifier is required.");
+            string auth = context.Request.Headers.Authorization.ToString();
+            long? account = null;
+            if (auth.Length > 0)
+            {
+                if (!auth.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase) ||
+                    _store?.Authenticate(auth[7..].Trim()) is not { } row)
+                    return Error(401, "Sign in again.");
+                account = row.Id;
+            }
+            return _presence.Touch(request.SessionId, account)
+                ? Results.Json(new PresenceResponse(true), MasterApi.Json)
+                : Error(503, "Presence capacity reached.");
+        });
         _app.MapGet(MasterApi.StatusPath, () => Results.Json(new MasterStatus
         {
+            PlayersOnline = _presence.Count,
             MasterVersion = MasterBuildInfo.Version, MasterBuild = MasterBuildInfo.BuildNumber,
             MasterCommit = MasterBuildInfo.Commit.Length > 0 ? MasterBuildInfo.Commit : null,
             Motd = Options.Motd, Announcement = Announcement(), LatestVersion = Options.LatestVersion, MinVersion = Options.MinVersion,

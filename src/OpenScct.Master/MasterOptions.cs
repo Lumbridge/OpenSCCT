@@ -14,6 +14,9 @@ namespace OpenScct.Master;
 /// </summary>
 public sealed class MasterOptions
 {
+    /// <summary>Retention of detailed rounds and timelines, 1 to 365 days. Career totals are retained.</summary>
+    public int MatchHistoryDays { get; set; } = 90;
+
     /// <summary>Where the HTTP API listens. On a VPS keep it on loopback behind a TLS proxy (docs/ONLINE.md).</summary>
     public string HttpUrl { get; set; } = "http://127.0.0.1:" + BuildInfo.DefaultMasterHttpPort;
 
@@ -167,6 +170,7 @@ public sealed class MasterOptions
 
     public void Validate()
     {
+        if (MatchHistoryDays is < 1 or > 365) throw new InvalidOperationException("MatchHistoryDays must be 1 to 365.");
         if (HeartbeatSeconds < 5 || ExpirySeconds <= HeartbeatSeconds)
         {
             throw new InvalidOperationException("HeartbeatSeconds must be at least 5 and below ExpirySeconds.");

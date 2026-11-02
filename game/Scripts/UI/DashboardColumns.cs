@@ -6,8 +6,8 @@ namespace OpenScctGame.UI;
 /// <summary>A centered main menu between compact side panels, then a Play-first stack on smaller windows.</summary>
 public partial class DashboardColumns : Container
 {
-    private const float Gap = 18f;
-    private const float MainWidth = 600f;
+    private const float Gap = 14f;
+    private const float MainWidth = 480f;
     public Control Profile { get; init; } = null!;
     public Control Play { get; init; } = null!;
     public Control News { get; init; } = null!;
@@ -44,9 +44,9 @@ public partial class DashboardColumns : Container
             float side = Math.Max(p.X, n.X);
             float middle = Math.Min(Math.Max(MainWidth, c.X), Size.X - side * 2 - Gap * 2);
             float start = (Size.X - middle - side * 2 - Gap * 2) * 0.5f;
-            FitChildInRect(Profile, new Rect2(start, 0f, side, p.Y));
+            FitChildInRect(Profile, new Rect2(start, Math.Max(0f, Size.Y - p.Y), side, p.Y));
             FitChildInRect(Play, new Rect2(start + side + Gap, 0f, middle, c.Y));
-            FitChildInRect(News, new Rect2(start + side + middle + Gap * 2, 0f, side, n.Y));
+            FitChildInRect(News, new Rect2(start + side + middle + Gap * 2, Math.Max(0f, Size.Y - n.Y), side, n.Y));
         }
         else
         {

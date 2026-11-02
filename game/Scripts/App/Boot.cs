@@ -21,6 +21,8 @@ public partial class Boot : Node
 
         App app = App.From(this);
         OfflinePlayEntry.Register();
+        if (!app.IsSmokeRun && DisplayServer.GetName() != "headless")
+            Callable.From(() => Online.ClientPresenceService.Get(GetTree())).CallDeferred();
         if (!app.IsSmokeRun && app.Options.DemoFile is { } demo)
         {
             Callable.From(() => OpenScctGame.Play.Demo.DemoLibrary.Watch(GetTree(), demo)).CallDeferred();

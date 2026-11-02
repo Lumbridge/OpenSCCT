@@ -86,6 +86,8 @@ public partial class SGameInfo
                 }
             }
 
+            XLevel?.GetService<OpenScct.Game.GameFlow.IMatchHistorySink>()?.Record("death",
+                $"{Killer?.PlayerReplicationInfo?.PlayerName ?? "Environment"} → {victim?.PlayerName ?? "Player"} ({DamageType})");
             BroadcastDeathMessage(Killer, Killed, DamageType);
             if ((victim?.NumLives ?? 0) < 1)
             {
@@ -282,6 +284,8 @@ public partial class SGameInfo
     [PortOf("uc:SBase.SGameInfo:NotifyObjectiveTaken", Spec = "spec/game/end-of-round.md#rules")]
     public void NotifyObjectiveTaken(SObjective? Obj)
     {
+        XLevel?.GetService<OpenScct.Game.GameFlow.IMatchHistorySink>()?.Record("objective",
+            $"Objective completed: {Obj?.ObjectiveName ?? "Objective"}");
         var jingle = new AssetRef(K.ObjectiveTakenJingle);
         BroadcastMusic(jingle, EMusicTransition.MTRAN_None, 0);
         BroadcastMusic(jingle, EMusicTransition.MTRAN_None, 1);
@@ -297,6 +301,7 @@ public partial class SGameInfo
     [PortOf("uc:SBase.SGameInfo:NotifyDogTag", Spec = "spec/game/end-of-round.md#rules")]
     public void NotifyDogTag()
     {
+        XLevel?.GetService<OpenScct.Game.GameFlow.IMatchHistorySink>()?.Record("objective", "Dog tag collected");
         if (GameReplicationInfo is not null)
         {
             GameReplicationInfo.NumDogTagsTaken++;

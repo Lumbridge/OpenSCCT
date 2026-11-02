@@ -247,6 +247,15 @@ public sealed class MasterClient : IDisposable
         await EnsureOk(response, cancellationToken).ConfigureAwait(false);
     }
 
+    public Task<PresenceResponse> PresenceAsync(Guid sessionId, CancellationToken cancellationToken = default) =>
+        SendAsync<PresenceResponse>(HttpMethod.Post, MasterApi.PresencePath, new PresenceRequest(sessionId), cancellationToken);
+
+    public Task<MatchHistoryPage> MatchHistoryAsync(int page = 0, CancellationToken cancellationToken = default) =>
+        SendAsync<MatchHistoryPage>(HttpMethod.Get, MasterApi.MatchHistoryPath + "?page=" + Math.Max(0, page), null, cancellationToken);
+
+    public Task<MatchHistoryDetails> MatchDetailsAsync(long id, CancellationToken cancellationToken = default) =>
+        SendAsync<MatchHistoryDetails>(HttpMethod.Get, MasterApi.MatchHistoryPath + "/" + id, null, cancellationToken);
+
     public Task<MasterStatus> StatusAsync(CancellationToken cancellationToken = default) =>
         SendAsync<MasterStatus>(HttpMethod.Get, MasterApi.StatusPath, null, cancellationToken);
 
