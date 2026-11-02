@@ -100,7 +100,12 @@ public partial class MenuPage : Control
         SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
         if (responsive)
         {
-            _responsiveCanvas = new Control { Name = "ResponsiveCanvas" };
+            _responsiveCanvas = new Control
+            {
+                Name = "ResponsiveCanvas",
+                // Rasterize fonts and SVG icons at the displayed scale instead of enlarging their 720p caches.
+                OversamplingWithScale = OversamplingWithScaleEnum.Enabled,
+            };
             AddChild(_responsiveCanvas);
             FitResponsiveCanvas();
         }
@@ -207,7 +212,13 @@ public partial class MenuPage : Control
         // Design units scale together on large/high-DPI windows. Small windows reflow instead of shrinking text.
         float scale = Math.Max(1f, Math.Min(Size.X / 1280f, Size.Y / 720f));
         Vector2 logical = Size / scale;
-        if (_responsiveCanvas.Scale.X != scale) _responsiveCanvas.Scale = new Vector2(scale, scale);
+        if (_responsiveCanvas.Scale.X != scale)
+        {
+            _responsiveCanvas.Scale = new Vector2(scale, scale);
+            // Refresh after the transform changes so descendants do not keep sampling at the previous scale.
+            _responsiveCanvas.OversamplingWithScale = OversamplingWithScaleEnum.Disabled;
+            _responsiveCanvas.OversamplingWithScale = OversamplingWithScaleEnum.Enabled;
+        }
         if (_responsiveCanvas.Size != logical) _responsiveCanvas.Size = logical;
     }
 

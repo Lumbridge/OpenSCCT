@@ -210,6 +210,14 @@ public sealed partial class RankBadge : HBoxContainer
             StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered, SizeFlagsVertical = SizeFlags.ShrinkCenter,
             MouseFilter = MouseFilterEnum.Ignore,
         };
+        _icon.VisibilityChanged += () =>
+        {
+            if (!_icon.IsVisibleInTree()) return;
+            // Godot skips hidden items when updating sampling for a parent's scale. Refresh the inherited
+            // sampling when account data reveals this badge, so its SVG is drawn at the current pixel size.
+            _icon.OversamplingWithScale = OversamplingWithScaleEnum.Disabled;
+            _icon.OversamplingWithScale = OversamplingWithScaleEnum.ParentNode;
+        };
         AddChild(_icon);
         var text = new VBoxContainer { SizeFlagsVertical = SizeFlags.ShrinkCenter, MouseFilter = MouseFilterEnum.Ignore };
         text.AddThemeConstantOverride("separation", 0);

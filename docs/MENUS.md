@@ -100,6 +100,9 @@ Quit Game; Escape cancels.
 The main dashboard and its information pages use an opt-in, page-local logical canvas. Its scale is the larger of
 1 and `min(window width / 1280, window height / 720)`: text, controls and spacing grow together on larger displays,
 while small windows retain readable text and scroll. Other menus and gameplay keep their existing rendering scale.
+The canvas enables scale-based oversampling so dynamic fonts and SVG icons rasterize at their displayed size,
+including after a live resize, instead of enlarging cached glyphs and icons from the base layout.
+Rank icons refresh inherited sampling when revealed, since account data can arrive after the canvas was scaled.
 Dashboard columns share spare width and reflow from three columns to Play above two columns, then a single
 Play-first stack, according to their actual combined minimum widths. These are content constraints in logical
 units, not physical-screen breakpoints. The footer and build line remain outside the scrolling content.
