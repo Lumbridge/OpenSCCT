@@ -346,7 +346,7 @@ public partial class SimPawnView : Node3D
         {
             _prev[c] = _placed ? _cur[c] : default;
             PawnAnimChannel ch = anim[c];
-            _cur[c] = new TickChannel(ch.Sequence, ch.Frame, ch.ClipFrame, ch.BlendAlpha);
+            _cur[c] = new TickChannel(ch.Sequence, ch.Frame, ch.ClipFrame, ch.BlendAlpha, ch.StartBone);
         }
 
         _placed = true;
@@ -513,7 +513,9 @@ public partial class SimPawnView : Node3D
 
             // The walk/strafe blender and upper-body channels change their weights each tick too. Sampling only
             // their newest weights made the pose step at simulation cadence even while its clip phase was smooth.
-            float weight = c == 0 ? 1f : _cur[c].Sequence == ch.Sequence && _prev[c].Sequence == ch.Sequence
+            bool sameSequence = _cur[c].Sequence == ch.Sequence && _prev[c].Sequence == ch.Sequence;
+            bool compatibleMask = _cur[c].StartBone == _prev[c].StartBone || _cur[c].Alpha == 0f || _prev[c].Alpha == 0f;
+            float weight = c == 0 ? 1f : sameSequence && compatibleMask
                 ? _prev[c].Alpha + (_cur[c].Alpha - _prev[c].Alpha) * alpha : ch.BlendAlpha;
             if (!(weight > 0f))
             {
@@ -521,7 +523,11 @@ public partial class SimPawnView : Node3D
             }
 
             (float frame, float clipFrame) = Interpolated(c, ch, alpha);
-            int start = BoneIndex(ch.StartBone);
+            // Ending an overlay clears its bone mask with its weight. While the outgoing weight still
+            // contributes between ticks, keep its mask too: a draw/holster clip's root and legs must
+            // never replace the grounded pose during the last rendered frames of an upper-body draw.
+            Name startBone = sameSequence && _cur[c].Alpha == 0f ? _prev[c].StartBone : ch.StartBone;
+            int start = BoneIndex(startBone);
             _channels[c] = new ChannelPose
             {
                 Clip = clip,
@@ -681,5 +687,5 @@ public partial class SimPawnView : Node3D
         return f - MathF.Floor(f);
     }
 
-    private readonly record struct TickChannel(Name Sequence, float Frame, float ClipFrame, float Alpha);
+    private readonly record struct TickChannel(Name Sequence, float Frame, float ClipFrame, float Alpha, Name StartBone);
 }

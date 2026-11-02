@@ -36,16 +36,16 @@ public partial class MainMenu : MenuPage
 
     public override void _Ready()
     {
-        BuildFrame(SplashTrivia.Pick(), 1440f, responsive: true);
+        BuildFrame(SplashTrivia.Pick(), 1160f, responsive: true);
         UseSplashTitle();
         Body.AddThemeConstantOverride("separation", 12);
         Control wordmark = UiStyle.Wordmark();
         if (wordmark is UiWordmark mark) mark.MarkSize = 40f;
-        wordmark.SizeFlagsHorizontal = SizeFlags.ShrinkBegin;
+        wordmark.SizeFlagsHorizontal = SizeFlags.ShrinkCenter;
         Body.AddChild(wordmark);
-        VBoxContainer profile = Column("ProfileColumn", 260f);
-        VBoxContainer play = Column("PlayColumn", 320f);
-        VBoxContainer news = Column("NewsColumn", 288f);
+        VBoxContainer profile = Column("ProfileColumn", 220f);
+        VBoxContainer play = Column("PlayColumn", 400f);
+        VBoxContainer news = Column("NewsColumn", 220f);
         var columns = new DashboardColumns
         {
             Name = "Dashboard", Profile = profile, Play = play, News = news,
@@ -97,21 +97,16 @@ public partial class MainMenu : MenuPage
         FindButton.AddThemeFontSizeOverride("font_size", 24);
         FindButton.Modulate = UiStyle.MenuFocus;
         HostButton = AddButton(play, "Create a Session", () => FrontEnd.ShowHost(GetTree()), "Host");
-        AddButton(play, OpenScctGame.Hub.HubScreen.MenuButton(this));
-        var activity = Card(parent, "CommunityActivity", "Community activity");
-        _gameActivity = TextLine(activity, "GameActivity", "Checking game sessions…");
-        _hubActivity = TextLine(activity, "HubActivity", "Checking hubs…");
-        TextLine(activity, "ActivityScope", "Players in publicly listed sessions", dim: true, small: true);
-        var links = new HBoxContainer { Name = "ActivityLinks" };
-        links.AddThemeConstantOverride("separation", 8);
-        activity.AddChild(links);
-        AddButton(links, "Browse games", () => FrontEnd.ShowServerBrowser(GetTree()), "BrowseGames");
-        AddButton(links, "Visit hubs", () => OpenScctGame.Hub.HubScreen.Show(GetTree()), "VisitHubs");
+        HostButton.CustomMinimumSize = new Vector2(0f, 44f);
+        AddButton(play, OpenScctGame.Hub.HubScreen.MenuButton(this)).CustomMinimumSize = new Vector2(0f, 44f);
+        var collection = Card(parent, "PlayerLinks", "Your collection");
+        AccountButton = AddButton(collection, "Account", () => FrontEnd.ShowAccount(GetTree()), "Account");
+        var collectionLinks = LinkRow(collection, "CollectionLinks");
+        AddButton(collectionLinks, "Stats", () => FrontEnd.ShowStats(GetTree()), "StatsPage");
+        AddButton(collectionLinks, AchievementsScreen.MenuButton(this));
+        AddButton(collectionLinks, ArmouryScreen.MenuButton(this));
         var explore = Card(parent, "Explore", "Explore");
-        var row = new HFlowContainer { Name = "ExploreLinks" };
-        row.AddThemeConstantOverride("h_separation", 8);
-        row.AddThemeConstantOverride("v_separation", 8);
-        explore.AddChild(row);
+        var row = LinkRow(explore, "ExploreLinks");
         AddButton(row, TutorialsScreen.MenuButton(this));
         AddButton(row, DemosScreen.MenuButton(this));
         AddButton(row, ContentScreen.MenuButton(this));
@@ -119,38 +114,40 @@ public partial class MainMenu : MenuPage
 
     private void BuildProfile(VBoxContainer parent)
     {
-        var profile = Card(parent, "YourProgress", "Your progress");
+        var profile = Card(parent, "YourProgress", "Your progress", compact: true);
         _account = TextLine(profile, "AccountLine", "Not signed in");
-        _account.AddThemeFontSizeOverride("font_size", 22);
+        _account.AddThemeFontSizeOverride("font_size", 18);
         _account.MaxLinesVisible = 2;
         _account.TextOverrunBehavior = TextServer.OverrunBehavior.TrimEllipsis;
-        _rank = new RankBadge(38, 22) { Name = "AccountRank", Visible = false };
+        _rank = new RankBadge(30, 16) { Name = "AccountRank", Visible = false };
         profile.AddChild(_rank);
         _xp = new UiProgress { Name = "LevelProgress", Fill = UiStyle.MenuFocus, Visible = false };
         profile.AddChild(_xp);
         _xpText = TextLine(profile, "XpText", "Sign in to track your rank and unlocks.", dim: true, small: true);
-        _unlockText = TextLine(profile, "NextUnlockText", string.Empty);
+        _unlockText = TextLine(profile, "NextUnlockText", string.Empty, small: true);
+        _unlockText.MaxLinesVisible = 3;
+        _unlockText.TextOverrunBehavior = TextServer.OverrunBehavior.TrimEllipsis;
         _unlockProgress = new UiProgress { Name = "UnlockProgress", Fill = UiStyle.MenuFocus, Visible = false };
         profile.AddChild(_unlockProgress);
-        _unlockButton = AddButton(profile, "Browse achievements", () => FrontEnd.Show(GetTree(),
+        _unlockButton = AddCompactButton(profile, "View next unlock", () => FrontEnd.Show(GetTree(),
             new AchievementsScreen { InitialAchievement = _unlock?.AchievementId }), "NextUnlock");
-        AccountButton = AddButton(profile, "Account", () => FrontEnd.ShowAccount(GetTree()), "Account");
-        var links = Card(parent, "PlayerLinks", "Your collection");
-        AddButton(links, "Stats", () => FrontEnd.ShowStats(GetTree()), "StatsPage");
-        AddButton(links, AchievementsScreen.MenuButton(this));
-        AddButton(links, ArmouryScreen.MenuButton(this));
+        var activity = Card(parent, "CommunityActivity", "Community activity", compact: true);
+        _gameActivity = TextLine(activity, "GameActivity", "Checking game sessions…", small: true);
+        _hubActivity = TextLine(activity, "HubActivity", "Checking hubs…", small: true);
+        TextLine(activity, "ActivityScope", "Players in publicly listed sessions", dim: true, small: true);
     }
 
     private void BuildNews(VBoxContainer parent)
     {
-        var news = Card(parent, "WhatsNewPanel", "What’s new");
+        var news = Card(parent, "WhatsNewPanel", "What’s new", compact: true);
         _releaseTitle = TextLine(news, "LatestRelease", "Latest update");
-        _releaseTitle.AddThemeFontSizeOverride("font_size", 22);
+        _releaseTitle.AddThemeFontSizeOverride("font_size", 18);
         _releaseNotes = TextLine(news, "ReleasePreview", "Checking release notes…");
-        _releaseNotes.MaxLinesVisible = 6;
+        _releaseNotes.AddThemeFontSizeOverride("font_size", 16);
+        _releaseNotes.MaxLinesVisible = 4;
         _releaseNotes.TextOverrunBehavior = TextServer.OverrunBehavior.TrimEllipsis;
         _releaseState = TextLine(news, "ReleaseState", string.Empty, dim: true, small: true);
-        WhatsNewButton = AddButton(news, "Read recent changes", () => DashboardDetailsScreen.ShowChangelog(GetTree()), "WhatsNew");
+        WhatsNewButton = AddCompactButton(news, "Read recent changes", () => DashboardDetailsScreen.ShowChangelog(GetTree()), "WhatsNew");
         var preview = (Control)news.GetParent();
         preview.MouseDefaultCursorShape = CursorShape.PointingHand;
         preview.GuiInput += input =>
@@ -159,13 +156,13 @@ public partial class MainMenu : MenuPage
             GetViewport().SetInputAsHandled();
             DashboardDetailsScreen.ShowChangelog(GetTree());
         };
-        var notice = Card(parent, "AnnouncementPanel", "Announcement");
+        var notice = Card(parent, "AnnouncementPanel", "Announcement", compact: true);
         _announcementFrame = (Control)notice.GetParent();
-        _announcement = TextLine(notice, "AnnouncementPreview", string.Empty);
-        _announcement.MaxLinesVisible = 3;
+        _announcement = TextLine(notice, "AnnouncementPreview", string.Empty, small: true);
+        _announcement.MaxLinesVisible = 2;
         _announcement.TextOverrunBehavior = TextServer.OverrunBehavior.TrimEllipsis;
         _announcementState = TextLine(notice, "AnnouncementState", string.Empty, dim: true, small: true);
-        AddButton(notice, "Read announcement", () => DashboardDetailsScreen.ShowAnnouncement(GetTree()), "ReadAnnouncement");
+        AddCompactButton(notice, "Read announcement", () => DashboardDetailsScreen.ShowAnnouncement(GetTree()), "ReadAnnouncement");
         _announcementFrame.Visible = false;
     }
 
@@ -192,7 +189,7 @@ public partial class MainMenu : MenuPage
             _unlockText.Text = $"Next unlock · {unlock.RewardName}\n{unlock.Title} · {unlock.Current:N0} / {unlock.Target:N0}";
             _unlockProgress.Value = unlock.Fraction;
         }
-        _unlockButton!.Text = _unlock is null ? "Browse achievements" : "View next unlock";
+        _unlockButton!.Visible = _unlock is not null;
         _gameActivity!.Text = Activity(_data.Games, ServerKind.Game, "game session", "game sessions");
         _hubActivity!.Text = Activity(_data.Hubs, ServerKind.Hub, "hub", "hubs");
         ChangelogEntry? latest = _data.Changelog.Value?.Entries.FirstOrDefault();
@@ -223,12 +220,21 @@ public partial class MainMenu : MenuPage
         Name = name, CustomMinimumSize = new Vector2(minimum, 0f), SizeFlagsHorizontal = SizeFlags.ExpandFill,
     };
 
-    private static VBoxContainer Card(Container parent, string name, string title)
+    private static VBoxContainer Card(Container parent, string name, string title, bool compact = false)
     {
         var column = Panel(parent, name, title);
-        column.AddThemeConstantOverride("separation", 6);
-        parent.AddThemeConstantOverride("separation", 12);
+        column.AddThemeConstantOverride("separation", compact ? 4 : 6);
+        parent.AddThemeConstantOverride("separation", compact ? 10 : 12);
         return column;
+    }
+
+    private static HFlowContainer LinkRow(Container parent, string name)
+    {
+        var row = new HFlowContainer { Name = name };
+        row.AddThemeConstantOverride("h_separation", 8);
+        row.AddThemeConstantOverride("v_separation", 8);
+        parent.AddChild(row);
+        return row;
     }
 
     private static Label TextLine(Container parent, string name, string text, bool dim = false, bool small = false)
@@ -245,6 +251,14 @@ public partial class MainMenu : MenuPage
     }
 
     private static Button AddButton(Container parent, string text, Action action, string name) => AddButton(parent, UiStyle.MenuButton(text, action, name));
+
+    private static Button AddCompactButton(Container parent, string text, Action action, string name)
+    {
+        Button button = AddButton(parent, text, action, name);
+        button.CustomMinimumSize = new Vector2(0f, 32f);
+        button.AddThemeFontSizeOverride("font_size", 14);
+        return button;
+    }
 
     private static Button AddButton(Container parent, Button button)
     {

@@ -55,9 +55,10 @@ public enum RootLock
 /// Builds a skeleton pose from the UE2 animation channels (anim.md rule 3, ANSWERS-anim.md A4 and A5): channel 0 at
 /// weight 1, then every other channel with a clip and an alpha above 0 over the bones from its start bone down, in
 /// channel order, each bone's sampled rotation slerped and translation lerped over the pose so far by the channel's
-/// alpha. A channel tweening in blends from the last drawn pose by the tween step (1 - frame / last frame, so the
-/// tween is linear in the frame). A mirrored channel swaps left and right bones; a locked root moves the root bone
-/// against the root motion the actor carries since the move started. The only writer of a pawn skeleton's pose.
+/// alpha. A channel tweening in blends from the last blended animation pose, before procedural corrections, by the
+/// tween step (1 - frame / last frame, so the tween is linear in the frame). A mirrored channel swaps left and
+/// right bones; a locked root moves the root bone against the root motion the actor carries since the move
+/// started. The only writer of a pawn skeleton's pose.
 /// </summary>
 public sealed class ChannelPoseApplier
 {
@@ -76,6 +77,9 @@ public sealed class ChannelPoseApplier
     private readonly Vector3[] _fromPos;
     private readonly Quaternion[] _fromRot;
     private readonly Vector3[] _fromScale;
+    private readonly Vector3[] _lastPos;
+    private readonly Quaternion[] _lastRot;
+    private readonly Vector3[] _lastScale;
     private readonly Vector3[] _samplePos;
     private readonly Quaternion[] _sampleRot;
     private readonly Vector3[] _sampleScale;
@@ -106,6 +110,9 @@ public sealed class ChannelPoseApplier
         _fromPos = new Vector3[_count];
         _fromRot = new Quaternion[_count];
         _fromScale = new Vector3[_count];
+        _lastPos = new Vector3[_count];
+        _lastRot = new Quaternion[_count];
+        _lastScale = new Vector3[_count];
         _samplePos = new Vector3[_count];
         _sampleRot = new Quaternion[_count];
         _sampleScale = new Vector3[_count];
@@ -307,6 +314,13 @@ public sealed class ChannelPoseApplier
             ApplyClip(ch, alpha, step);
         }
 
+        // Tweens start from the blended animation pose, before the per-frame corrections below. Caching
+        // the aimed pose would apply the same aim again on each tween frame, folding an armed spy over
+        // during crouch/stand transitions. Root locks and extra posing must likewise be applied only once.
+        Array.Copy(_pos, _fromPos, _count);
+        Array.Copy(_rot, _fromRot, _count);
+        Array.Copy(_scale, _fromScale, _count);
+
         if (rootLock != RootLock.None && RootBone >= 0 && channels.Length > 0 && channels[0].Clip is { } clip0)
         {
             LockRoot(channels[0], clip0, rootLock, lockClipFrame, rootOffset, rootTurn);
@@ -323,10 +337,10 @@ public sealed class ChannelPoseApplier
 
         for (int b = 0; b < _count; b++)
         {
-            // This applier owns the skeleton pose. _from is the previous final pose, including aim/root/overlay
-            // adjustments; all sampling and tween bookkeeping still run at the rendered frame rate. Exact equality
+            // Keep the final submitted pose separately from the unadjusted tween pose. All sampling and
+            // tween bookkeeping still run at the rendered frame rate. Exact equality
             // avoids suppressing even a tiny animated change. The first pose always initializes every bone.
-            if (ReuseUnchangedPoses && _hasFrom && _pos[b] == _fromPos[b] && _rot[b] == _fromRot[b] && _scale[b] == _fromScale[b])
+            if (ReuseUnchangedPoses && _hasFrom && _pos[b] == _lastPos[b] && _rot[b] == _lastRot[b] && _scale[b] == _lastScale[b])
             {
                 continue;
             }
@@ -343,16 +357,16 @@ public sealed class ChannelPoseApplier
             }
         }
 
-        Array.Copy(_pos, _fromPos, _count);
-        Array.Copy(_rot, _fromRot, _count);
-        Array.Copy(_scale, _fromScale, _count);
+        Array.Copy(_pos, _lastPos, _count);
+        Array.Copy(_rot, _lastRot, _count);
+        Array.Copy(_scale, _lastScale, _count);
         _hasFrom = true;
     }
 
     /// <summary>
     /// The tween step of a channel this draw (A4): 1 when not tweening; when the frame is below 0, 1 - frame / the
-    /// frame of the last draw (0 when a new tween starts, from -1/N after it), so each draw moves the pose by the
-    /// frame's share of the rest.
+    /// frame of the last draw (0 when a new tween starts, from -1/N after it), so each draw moves the blended
+    /// animation pose by the frame's share of the rest, before aim and other procedural corrections.
     /// </summary>
     private float TweenStep(int c, ChannelPose ch)
     {

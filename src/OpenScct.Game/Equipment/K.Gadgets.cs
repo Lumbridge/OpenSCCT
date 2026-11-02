@@ -23,6 +23,9 @@ public static partial class K
     [Provenance(ProvenanceKind.Decoded, "UseStickyCam: the side probe axis is the cam rotation with yaw + 16384")]
     public const int StickySideYaw = 16384;
 
+    [Provenance(ProvenanceKind.Decoded, "UseStickyCam 0x10aa27af..0x10aa2814: final rotation is (hit normal - FX direction * 1e-6); float at 0x10c10bf0")]
+    public const float StickyFacingBias = 0.000001f;
+
     [Provenance(ProvenanceKind.Decoded, "SGadStickyCam const PredictionTimeout 0.8")]
     public const float StickyPredictionTimeout = 0.8f;
 

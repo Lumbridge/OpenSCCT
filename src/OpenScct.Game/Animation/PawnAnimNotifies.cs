@@ -63,6 +63,7 @@ public static class PawnAnimNotifies
 {
     private static readonly Name PlayFootStepLeft = new("PlayFootStepLeft");
     private static readonly Name PlayFootStepRight = new("PlayFootStepRight");
+    private static readonly Name Spine1 = new("B Spine1");
 
     /// <summary>Fires one notify of <paramref name="owner"/>'s channel <paramref name="channel"/>.</summary>
     [UcNative("UAnimNotify::Notify")]
@@ -75,6 +76,12 @@ public static class PawnAnimNotifies
         ArgumentNullException.ThrowIfNull(notify);
         switch (notify)
         {
+            case UAnimNotify_Sound sound when owner is SPawnAttaque spy &&
+                channel == SBasePawn.DRAWCHANNEL && spy.PawnAnim[channel].StartBone == Spine1 &&
+                sound.Sound.Path?.StartsWith("Sound_Persos.FootSteps.", StringComparison.Ordinal) == true:
+                // DrawStSpBg2 includes footsteps from its authored full-body motion. Walking draws it only
+                // above the spine; the leg channels already supply footsteps when the pawn actually moves.
+                break;
             case UAnimNotify_Sound sound when owner is SBasePawn pawn &&
                 pawn.PawnAnim[channel].Sequence.ToString().StartsWith("Relo", StringComparison.Ordinal) &&
                 sound.Sound.Path?.StartsWith("Armes_impacts.Armes.", StringComparison.Ordinal) == true:

@@ -120,7 +120,10 @@ public partial class SGadStickyCam
         p = Probe(pawn, p, up, d);
         if (!bTest)
         {
-            SpawnCam(StickyCamClass, pawn, p, r, iNbSmokeChargeForCurrentSticky, hit.Actor);
+            // The original biases only the final facing, after the corner probes. A vertical normal has no yaw;
+            // the tiny reverse-shot component keeps floor/ceiling cams facing the shooter instead of world east.
+            FRotator facing = (n - d * K.StickyFacingBias).Rotation();
+            SpawnCam(StickyCamClass, pawn, p, facing, iNbSmokeChargeForCurrentSticky, hit.Actor);
         }
 
         return true;

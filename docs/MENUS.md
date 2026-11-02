@@ -103,9 +103,11 @@ while small windows retain readable text and scroll. Other menus and gameplay ke
 The canvas enables scale-based oversampling so dynamic fonts and SVG icons rasterize at their displayed size,
 including after a live resize, instead of enlarging cached glyphs and icons from the base layout.
 Rank icons refresh inherited sampling when revealed, since account data can arrive after the canvas was scaled.
-Dashboard columns share spare width and reflow from three columns to Play above two columns, then a single
-Play-first stack, according to their actual combined minimum widths. These are content constraints in logical
-units, not physical-screen breakpoints. The footer and build line remain outside the scrolling content.
+The dashboard keeps Play, account/collection links and Explore in a centered main column, up to 600 logical units
+wide. Profile/community and news/announcements use equal compact side columns, normally 220 units each, so extra
+screen width does not enlarge the information panels. At smaller widths, the main actions sit above the two side
+columns, then above a single stack, according to their actual combined minimum widths. These are content constraints
+in logical units, not physical-screen breakpoints. The footer and build line remain outside the scrolling content.
 
 Menu pages fit their content width to the viewport, with centered reading widths and footer actions on wide screens.
 Narrow windows stack session rule groups, lobby columns, cosmetic lists/details and tutorial panels; long pages

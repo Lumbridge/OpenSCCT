@@ -3,10 +3,11 @@ using Godot;
 
 namespace OpenScctGame.UI;
 
-/// <summary>Three fluid columns, then Play above two columns, then a single Play-first stack.</summary>
+/// <summary>A centered main menu between compact side panels, then a Play-first stack on smaller windows.</summary>
 public partial class DashboardColumns : Container
 {
     private const float Gap = 18f;
+    private const float MainWidth = 600f;
     public Control Profile { get; init; } = null!;
     public Control Play { get; init; } = null!;
     public Control News { get; init; } = null!;
@@ -16,7 +17,8 @@ public partial class DashboardColumns : Container
         float profile = Profile.GetCombinedMinimumSize().X;
         float play = Play.GetCombinedMinimumSize().X;
         float news = News.GetCombinedMinimumSize().X;
-        return width >= profile + play + news + Gap * 2 ? 3 : width >= profile + news + Gap ? 2 : 1;
+        float sides = Math.Max(profile, news) * 2;
+        return width >= sides + play + Gap * 2 ? 3 : width >= sides + Gap ? 2 : 1;
     }
 
     public override Vector2 _GetMinimumSize()
@@ -39,25 +41,30 @@ public partial class DashboardColumns : Container
         int columns = Columns(Size.X);
         if (columns == 3)
         {
-            float extra = Math.Max(0f, Size.X - p.X - c.X - n.X - Gap * 2);
-            float left = p.X + extra * 0.25f, middle = c.X + extra * 0.45f;
-            FitChildInRect(Profile, new Rect2(0f, 0f, left, p.Y));
-            FitChildInRect(Play, new Rect2(left + Gap, 0f, middle, c.Y));
-            FitChildInRect(News, new Rect2(left + middle + Gap * 2, 0f, Size.X - left - middle - Gap * 2, n.Y));
+            float side = Math.Max(p.X, n.X);
+            float middle = Math.Min(Math.Max(MainWidth, c.X), Size.X - side * 2 - Gap * 2);
+            float start = (Size.X - middle - side * 2 - Gap * 2) * 0.5f;
+            FitChildInRect(Profile, new Rect2(start, 0f, side, p.Y));
+            FitChildInRect(Play, new Rect2(start + side + Gap, 0f, middle, c.Y));
+            FitChildInRect(News, new Rect2(start + side + middle + Gap * 2, 0f, side, n.Y));
         }
         else
         {
-            FitChildInRect(Play, new Rect2(0f, 0f, Size.X, c.Y));
+            float middle = Math.Min(Math.Max(MainWidth, c.X), Size.X);
+            FitChildInRect(Play, new Rect2((Size.X - middle) * 0.5f, 0f, middle, c.Y));
             if (columns == 2)
             {
-                float left = p.X + Math.Max(0f, Size.X - p.X - n.X - Gap) * 0.5f;
-                FitChildInRect(Profile, new Rect2(0f, c.Y + Gap, left, p.Y));
-                FitChildInRect(News, new Rect2(left + Gap, c.Y + Gap, Size.X - left - Gap, n.Y));
+                float side = Math.Max(p.X, n.X);
+                float start = (Size.X - side * 2 - Gap) * 0.5f;
+                FitChildInRect(Profile, new Rect2(start, c.Y + Gap, side, p.Y));
+                FitChildInRect(News, new Rect2(start + side + Gap, c.Y + Gap, side, n.Y));
             }
             else
             {
-                FitChildInRect(Profile, new Rect2(0f, c.Y + Gap, Size.X, p.Y));
-                FitChildInRect(News, new Rect2(0f, c.Y + p.Y + Gap * 2, Size.X, n.Y));
+                float side = Math.Min(Math.Max(p.X, n.X), Size.X);
+                float start = (Size.X - side) * 0.5f;
+                FitChildInRect(Profile, new Rect2(start, c.Y + Gap, side, p.Y));
+                FitChildInRect(News, new Rect2(start, c.Y + p.Y + Gap * 2, side, n.Y));
             }
         }
         UpdateMinimumSize();

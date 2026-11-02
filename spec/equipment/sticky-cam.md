@@ -73,11 +73,13 @@ per pack; a cam that is destroyed or picked up comes back as a charge.
       must be world geometry, not a BlockingVolume, on a surface whose material does not have `bNoStickyCam`.
       Anything else fails (a laser projector is passed through, but the trace keeps one result, so it fails too).
    6. success: unless testing, `LastUsed = now`. N is the hit normal turned to face back along -D. The cam point
-      P = hit location - 2.5 D, its rotation R = N's rotation. Four 5.5 uu probes push P out of nearby corners:
+      P = hit location - 2.5 D, the probe rotation R = N's rotation. Four 5.5 uu probes push P out of nearby corners:
       along the side axis (R with yaw + 16384) both ways, then along world Z down and up; each probe that hits sets
       P = that hit + 5 n, with n its normal turned to face back along -D.
-   7. unless testing, the event `SpawnCam(StickyCamClass, owner, P, R, iNbSmokeChargeForCurrentSticky, hit actor)`;
-      return true.
+   7. unless testing, the final facing is the rotation of `N - 0.000001 D`, then the event
+      `SpawnCam(StickyCamClass, owner, P, facing, iNbSmokeChargeForCurrentSticky, hit actor)`; return true.
+      The tiny reverse-shot bias gives vertical floor/ceiling normals a yaw back toward the shooter while keeping
+      the view aligned with the surface normal. The corner probes still use the unmodified normal's rotation.
 3. **CanUse** (native 0x10aa2870): true when the owner pawn's `UsedObject` is None. Nothing in script calls it.
 4. **SpawnCam** (simulated): the rotation is cut to its high byte (`& 0xFF00` per axis) and the location rounded
    with `NetRoundVectorAxis` (round half up: `int(v + 0.5)`, minus 1 when that is above `v + 0.5`), so a cam made on
@@ -282,6 +284,11 @@ stateDiagram-v2
   ASStickyCamEmitter::Tick 0x10aa31c0, gas point 0x10aa3130, scan 0x10aa31f0. Global vectors 0x10ccacbc (0, 0, 1)
   and 0x10ccacc0 (zero), identified from FindBestAxisVectors 0x10950110.
 - local/reflect/game.json: Material.bNoStickyCam at 0x38; event names SpawnCam, AcceptStickableGPO, GoInSmoke.
+
+- Final-facing correction (2026-11-02): original game `UseStickyCam` 0x10aa27af..0x10aa2814 subtracts the FX
+  direction times float 0x10c10bf0 (`1e-6`, bytes `bd 37 86 35`) from the already corrected hit normal before
+  `FVector::Rotation`. Checked the disassembly against the SHA-256-locked game binary. The earlier rule omitted
+  this second rotation calculation and incorrectly reused the corner probes' rotation.
 
 - Stick surface data (2026-10-26): the native reads `Material + 0x38` of the hit (`bNoStickyCam`, an int, no
   fallback or wrapped material followed). The converter writes the `noStickyCam` collision material flag from the
