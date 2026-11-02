@@ -748,6 +748,7 @@ public partial class LobbyRoomScreen : MenuPage
             string player = p.Name;
             volume = new HSlider
             {
+                Scrollable = false,
                 Name = "Volume", MinValue = 0, MaxValue = 200, Step = 5, Value = s.VoiceVolume(player) * 100f,
                 CustomMinimumSize = new Vector2(90f, 20f), TooltipText = "This player's voice volume",
             };

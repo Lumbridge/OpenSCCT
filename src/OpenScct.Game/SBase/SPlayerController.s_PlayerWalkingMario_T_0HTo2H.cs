@@ -29,12 +29,6 @@ public partial class SPlayerController
         [Provenance(ProvenanceKind.Decoded, "walking.md s_PlayerWalkingMario_T_0HTo2H.PlayerMove: pawn turn 65000 x dt")]
         private const float DrawTurnRate = 65000f;
 
-        [Provenance(ProvenanceKind.Decoded, "s_PlayerWalkingMario_T_0HTo2H.PlayerMove: with a snap target the pawn yaw turns at 100000 x dt")]
-        private const float SnapPawnTurnRate = 100000f;
-
-        [Provenance(ProvenanceKind.Decoded, "s_PlayerWalkingMario_T_0HTo2H.PlayerMove: with a snap target the view yaw and pitch turn at 25000 x dt")]
-        private const float SnapViewTurnRate = 25000f;
-
         protected s_PlayerWalkingMario_T_0HTo2H(UcStateInfo info, ActorState? super)
             : base(info, super)
         {
@@ -47,16 +41,8 @@ public partial class SPlayerController
             var pc = (SPlayerController)self;
             pc.bTransitionFinished = false;
 
-            // The Shocker snap (spy-shocker.md rule 3) runs on the spy's own machine; Enhanced lets the player turn it
-            // off (enh:rules.shocker_snap, option shocker_snap). A server copy of a remote spy takes the aim from his moves.
-            if (!pc.IsRemotePlayer && (pc.LocalProfileOptions()?.ShockerSnap ?? true))
-            {
-                pc.FindAttClosestTarget();
-            }
-            else
-            {
-                pc.bAttTargetEnemy = false;
-            }
+            // Drawing preserves the player's aim; never acquire a snap target.
+            pc.bAttTargetEnemy = false;
 
             pc.bRollAction = false;
         }
@@ -94,13 +80,6 @@ public partial class SPlayerController
                 pawn.GroundSpeed = 0f;
             }
 
-            if (self.bAttTargetEnemy)
-            {
-                SnapToTarget(self, pawn, DeltaTime);
-                self.SendMove(DeltaTime, newAccel);
-                return;
-            }
-
             int diff = (self.Rotation - pawn.Rotation).Normalize().Yaw;
             if ((diff < 0 ? -diff : diff) > FacingTolerance)
             {
@@ -124,48 +103,6 @@ public partial class SPlayerController
             }
 
             self.SendMove(DeltaTime, newAccel);
-        }
-
-        /// <summary>
-        /// The Shocker snap: while the draw plays the pawn turns its yaw toward the found target and the view turns
-        /// toward it in yaw and pitch; when the draw ends both take the target rotation (the pawn without pitch) and
-        /// the spy is armed.
-        /// </summary>
-        [PortOf("uc:SBase.SPlayerController:s_PlayerWalkingMario_T_0HTo2H.PlayerMove", Spec = "spec/equipment/spy-shocker.md#rules")]
-        private static void SnapToTarget(SPlayerController self, SBasePawn pawn, float DeltaTime)
-        {
-            FRotator target = self.AttBestTargetRotation;
-            if (!self.bTransitionFinished)
-            {
-                FRotator r = pawn.Rotation;
-                float pawnStep = SnapPawnTurnRate * DeltaTime;
-                r.Yaw += MovementMath.Int(SvmMath.Clamp((target - pawn.Rotation).Normalize().Yaw, -pawnStep, pawnStep));
-                pawn.Rotation = r;
-
-                FRotator d = (target - self.Rotation).Normalize();
-                float viewStep = SnapViewTurnRate * DeltaTime;
-                d.Yaw = MovementMath.Int(SvmMath.Clamp(d.Yaw, -viewStep, viewStep));
-                d.Pitch = MovementMath.Int(SvmMath.Clamp(d.Pitch, -viewStep, viewStep));
-                d.Roll = 0;
-                self.Rotation = d + self.Rotation;
-                return;
-            }
-
-            FRotator flat = target;
-            flat.Pitch = 0;
-            pawn.Rotation = flat;
-            self.Rotation = target;
-            self.bAttTargetEnemy = false;
-            if (pawn.bIsCrouched)
-            {
-                pawn.ChangeEnumAction(SBasePawn.SA_WALK_CR_2H);
-                self.eventChangeState(MovementStateNames.s_PlayerWalkingCr2H);
-            }
-            else
-            {
-                pawn.ChangeEnumAction(SBasePawn.SA_WALK_ST_2H);
-                self.eventChangeState(MovementStateNames.s_PlayerWalkingSt2H);
-            }
         }
 
         /// <summary>The draw clip ended (draw channel): the transition can finish (a low ceiling asks to holster again).</summary>

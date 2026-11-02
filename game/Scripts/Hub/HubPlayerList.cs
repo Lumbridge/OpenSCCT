@@ -156,6 +156,7 @@ public partial class HubPlayerList : Control
             {
                 var volume = new HSlider
                 {
+                Scrollable = false,
                     MinValue = 0, MaxValue = 200, Step = 5, Value = voice.VolumeOf(player) * 100f,
                     CustomMinimumSize = new Vector2(90f, 20f), TooltipText = "This player's voice volume",
                 };

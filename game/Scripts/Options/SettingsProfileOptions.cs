@@ -15,7 +15,6 @@ public sealed class SettingsProfileOptions : IProfileOptions
 
     public bool DisplayHelpInGame => Tutorials.TutorialProfile.DisplayHelpInGame;
 
-    public bool ShockerSnap => SettingsStore.Current.ShockerSnap;
 
     public bool OfflineSession => Play.Session.PlaySession.OfflineSessionRunning;
 }

@@ -638,6 +638,7 @@ public partial class OptionsMenu : Control
     {
         var slider = new HSlider
         {
+                Scrollable = false,
             Name = Safe(key), MinValue = min, MaxValue = max, Step = step, Value = value,
             CustomMinimumSize = new Vector2(320f, 24f), SizeFlagsHorizontal = SizeFlags.ExpandFill,
         };

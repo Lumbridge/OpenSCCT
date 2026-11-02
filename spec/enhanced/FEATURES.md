@@ -144,8 +144,7 @@ Reloaded v4.0d binary and are marked "v4.0".
   Reloaded settings).
 - **Evidence:** ENH36, ENHP.
 - **Priority:** P1.
-- **Rewrite:** a client option (the snap runs on the spy's own machine), `shocker_snap` in the settings file and
-  "Shocker lock-on snap when drawing (spy)" on the Mouse page, on by default (docs/HUD.md).
+- **Rewrite:** draw snap and its settings toggle removed by design; drawing preserves the player's aim.
 - **Open:** no matching key in Ryan's v4.0d config; where v4.0 stores it (profile or removed) is not known.
 
 ### enh:rules.smg - Submachine gun history

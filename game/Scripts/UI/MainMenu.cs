@@ -93,8 +93,7 @@ public partial class MainMenu : MenuPage
         AddButton(_rejoinPanel, "Not now", () => _rejoin?.Decline(), "RejoinDecline");
         var play = Card(parent, "Online", "Play");
         FindButton = AddButton(play, "Find a Session", () => FrontEnd.ShowServerBrowser(GetTree()), "FindGame");
-        FindButton.CustomMinimumSize = new Vector2(0f, 64f);
-        FindButton.AddThemeFontSizeOverride("font_size", 24);
+        FindButton.CustomMinimumSize = new Vector2(0f, 44f);
         FindButton.Modulate = UiStyle.MenuFocus;
         HostButton = AddButton(play, "Create a Session", () => FrontEnd.ShowHost(GetTree()), "Host");
         HostButton.CustomMinimumSize = new Vector2(0f, 44f);

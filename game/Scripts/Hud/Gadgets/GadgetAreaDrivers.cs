@@ -289,6 +289,10 @@ public sealed class HeartSensorDriver : IHudAreaDriver
         StyleWave(idle);
         StyleWave(hit);
 
+        // A_Heart1 contains an unpositioned spot at (0, 0). Detected enemies are
+        // already placed by HudRadar; this embedded marker must not draw as well.
+        hit.Widget("spot").Hidden = true;
+
         // The radar hides both cones every frame before this driver runs; showing without a restart keeps the
         // clocks, and which one was up last frame is remembered here.
         switch (_cone)

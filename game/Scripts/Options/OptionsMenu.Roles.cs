@@ -254,7 +254,6 @@ public partial class OptionsMenu
         if (!merc)
         {
             Check(basic, "Invert horizontal free look", "invert_x_spy", _edit.InvertXSpy, v => _edit.InvertXSpy = v);
-            Check(basic, "Shocker lock-on snap when drawing", "shocker_snap", _edit.ShockerSnap, v => _edit.ShockerSnap = v);
             Check(basic, "Free camera while rolling", "spy_roll_free_look", _edit.SpyRollFreeLook,
                 v => _edit.SpyRollFreeLook = v);
             _controls["spy_roll_free_look"].TooltipText = "Look around with the mouse or controller while rolling. The roll continues in its starting direction.";
@@ -341,7 +340,7 @@ public partial class OptionsMenu
             else { _edit.SpyPad = defaults.SpyPad; _edit.Pad.SpyMove8 = defaults.Pad.SpyMove8; _edit.Pad.RunThreshold = defaults.Pad.RunThreshold; }
         }
         else if (merc) { _edit.MercKbm = defaults.MercKbm; _edit.MercFovCap = defaults.MercFovCap; _edit.FpsMerc = defaults.FpsMerc; }
-        else { _edit.SpyKbm = defaults.SpyKbm; _edit.InvertXSpy = defaults.InvertXSpy; _edit.ShockerSnap = defaults.ShockerSnap; _edit.SpyRollFreeLook = defaults.SpyRollFreeLook; _edit.FpsSpy = defaults.FpsSpy; }
+        else { _edit.SpyKbm = defaults.SpyKbm; _edit.InvertXSpy = defaults.InvertXSpy; _edit.SpyRollFreeLook = defaults.SpyRollFreeLook; _edit.FpsSpy = defaults.FpsSpy; }
         if (rebuild) RebuildPages();
     }
 

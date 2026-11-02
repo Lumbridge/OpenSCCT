@@ -44,7 +44,7 @@ public static class ControlActions
         A("launch2", "Gadgets", "Launch gadget slot 2", "Select and fire gadget slot 2 with the weapon drawn.", "LaunchGadget 1", "LaunchGadget 1") with { Merc = false },
         A("launch3", "Gadgets", "Launch gadget slot 3", "Select and fire gadget slot 3 with the weapon drawn.", "LaunchGadget 2", "LaunchGadget 2") with { Merc = false },
         A("launch4", "Gadgets", "Launch gadget slot 4", "Select and fire gadget slot 4 with the weapon drawn.", "LaunchGadget 3", "LaunchGadget 3") with { Merc = false },
-        A("longroll", "Movement", "Long roll", "Stand from crouch when needed and roll.", "LongRoll | Button bRoll", "LongRoll") with { Merc = false },
+        A("longroll", "Movement", "Long roll", "Stand from crouch when needed and roll.", "LongRoll | Button bRoll", "LongRoll") with { Merc = false, Available = false },
         A("cloakquick", "Gadgets", "Toggle selected cloak", "Use the selected cloak.", "PadCloakQuick", "PadCloakQuick") with { Merc = false, Available = false },
         A("cameragas", "Gadgets", "Release sticky camera gas", "Release gas from the camera being used.", "PadCameraGas", "PadCameraGas") with { Merc = false, Available = false },
         A("cameraexit", "Gadgets", "Leave camera", "Leave the current sticky camera or camera network view.", "PadCameraExit", "PadCameraExit") with { Available = false },

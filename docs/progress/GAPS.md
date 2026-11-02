@@ -74,7 +74,7 @@ Who-hears-whom matches the original (rules in `VoiceRouting.cs`). Gaps:
 | Per-view sensitivity multipliers stored but unused; clutch | done (scope now 0.75 sideways by Reloaded default; `vertical` meaning estimated) |
 | Sniper kick tied to mouse sensitivity (Reloaded fix) | done |
 | Invert X, feet/meters, Objective Sounds, wheel mode (profile options; profile is null) | done (wheel defaults to Gadget, as before) |
-| classic_crosshair, hack_alpha, Shocker snap option, location name on the HUD | hack_alpha, location, the Shocker snap (its draw-state turn ported, option `shocker_snap`, on) and classic_crosshair (Reloaded's fixed reticle spots decoded) done |
+| classic_crosshair, hack_alpha, Shocker snap option, location name on the HUD | hack_alpha, location, the Shocker draw snap (removed by design) and classic_crosshair (Reloaded's fixed reticle spots decoded) done |
 | Anisotropic level, shadow quality, low-latency mode, window position | done (low latency: Ultra = On, Godot's floor) |
 | Crash log, process priority/affinity | done (priority/affinity on the client and `svm-server`; Godot-callback exceptions not caught) |
 | Microphone noise suppression, automatic gain, echo cancellation (rl:voice.noise, gain, echo) | done (our own managed DSP, docs/VOICE.md "Microphone clean-up"; not tuned against Reloaded's speexdsp) |

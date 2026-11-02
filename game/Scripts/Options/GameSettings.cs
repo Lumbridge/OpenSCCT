@@ -487,13 +487,6 @@ public sealed class GameSettings
     [JsonPropertyName("spy_roll_free_look")]
     public bool SpyRollFreeLook { get; set; }
 
-    /// <summary>
-    /// Drawing the Shocker turns the spy toward the nearest merc in front of him (the stock lock-on snap); Enhanced lets
-    /// it be turned off (enh:rules.shocker_snap).
-    /// </summary>
-    [JsonPropertyName("shocker_snap")]
-    public bool ShockerSnap { get; set; } = true;
-
     /// <summary>The mouse wheel: "Gadget" (profile SelectedMouse 0, changes gadgets) or "Speed" (1, walk and run).</summary>
     [JsonPropertyName("mouse_wheel")]
     [Provenance(ProvenanceKind.Estimated, "OpenSCCT choice: Gadget, as the rewrite has always played; DefaultProfile.ini has SelectedMouse=1 (Speed)")]
