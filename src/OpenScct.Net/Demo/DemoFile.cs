@@ -444,6 +444,27 @@ public sealed class DemoRecording
 
     public DemoIndex Index { get; }
 
+    /// <summary>
+    /// The first playable round, excluding the loading period recorded before players spawn. Playback must still
+    /// consume the earlier packets to reconstruct the world. Recordings started mid-round have no start marker.
+    /// </summary>
+    public uint PlaybackFirstTick
+    {
+        get
+        {
+            uint? first = null;
+            foreach (DemoMarker marker in Index.Markers)
+            {
+                if (marker.Kind == DemoMarkerKind.RoundStart && marker.Tick >= Index.FirstTick && marker.Tick <= Index.LastTick)
+                {
+                    first = first is { } tick ? Math.Min(tick, marker.Tick) : marker.Tick;
+                }
+            }
+
+            return first ?? Index.FirstTick;
+        }
+    }
+
     public int PacketCount => _frames.Count;
 
     public uint TickOf(int packet) => _frames[packet].Tick;

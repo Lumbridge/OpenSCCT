@@ -83,6 +83,22 @@ public static class PlayerCalcView
         out FRotator CameraRotation) =>
         NativePlayerCalcView(PC, true, out ViewActor, out CameraLocation, out CameraRotation);
 
+    /// <summary>
+    /// The climbing input's screen projection solves the local view before PlayerMove. During sticky fly-in this
+    /// advances the camera once more, even with no input or frozen controls; prediction replays must not advance it.
+    /// </summary>
+    [Provenance(ProvenanceKind.Decoded, "NativeComputeControlVariables 0x10aaf400: with Pawn and SBPawn, a non-merc outside physics 1/2/8/9 calls projection helper 0x10aafab0; its PlayerCalcView returns at 0x10aafb21, before the scene and shadow solves")]
+    internal static void UpdateStickyCamForInputProjection(SPlayerController PC)
+    {
+        if (PC.Pawn is null || PC.SBPawn is null || PC.Player is not UViewport || PC.Level.NetMode == ENetMode.NM_DedicatedServer ||
+            PC.XLevel.World.IsReplaying || SourceOf(PC) != EViewSource.StickyCamSmoothToPosition)
+        {
+            return;
+        }
+
+        NativeGlobalPlayerCalcView(PC, out _, out _, out _);
+    }
+
     /// <summary>The view source the controller's state picks (rule 1.2).</summary>
     [PortOf("eng:ASPlayerController::NativePlayerCalcView", Spec = "spec/native/camera.md#1-calc-view-dispatch")]
     public static EViewSource SourceOf(SPlayerController PC)
@@ -371,8 +387,8 @@ public static class PlayerCalcView
     /// <summary>
     /// Reloaded's fly-in slow start (camera.md rule 4.4), the scale of this call's step: a new fly-in (Level.TimeSeconds
     /// went back, or moved more than 4 x m_dT since the last fly-in call) sets a timer to 100; while it is above 0 each
-    /// call drains it by 0.34 x the frame time in milliseconds and the step is x 0.66. The fly-in view is solved twice a
-    /// frame, so the slow part lasts about 0.15 s.
+    /// call drains it by 0.34 x the frame time in milliseconds and the step is x 0.66. Shadow eligibility and traversal
+    /// input determine the call count; with two calls per frame, the slow part lasts about 0.15 s.
     /// </summary>
     [Provenance(ProvenanceKind.Decoded, "Reloaded 0x1001a880 (timer set), 0x1001a950 / 0x1001a8f0 (drain and x0.66 on the capped step); the frame time global 0x1036e2bc is read here as Level.m_dT x 1000")]
     private static float SmoothStickySlowStart(SPlayerController PC, SPlayerCam camera)

@@ -37,6 +37,17 @@ public partial class SPlayerController
             var pc = (SPlayerController)self;
             IGameFlowPorts ports = pc.Ports;
             ports.BeginDeath(pc);
+            if (pc.SBPawn is { } corpse)
+            {
+                // Dead input no longer updates locomotion. Walking death clips must not keep the
+                // last run command, while falling and animation root motion retain their movement.
+                corpse.Acceleration = FVector.Zero;
+                if (corpse.Physics == EPhysics.PHYS_Walking)
+                {
+                    corpse.Velocity = FVector.Zero;
+                }
+            }
+
             if (pc.GameReplicationInfo is { GameMode: EGameMode.GM_DiskHunt })
             {
                 pc.DropDisks();

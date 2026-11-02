@@ -27,7 +27,12 @@ hub keeps the match server alive for progressing downloads during this bounded g
 
 ## Training data companions
 
-New recordings also produce an optional `<demo-basename>.training.jsonl.gz` companion for analysis and training.
+Training data saving is disabled by default. Set `SVM_ENABLE_TRAINING_DATA=1` before launching the game or server
+to opt in to `<demo-basename>.training.jsonl.gz` companions for analysis and training. Online capture requires the
+flag on the server; downloading a companion also requires it on the receiving client. Without the flag, demos
+continue recording and downloading normally, with no training capture, companion file or companion transfer.
+The implementation remains available for future use; existing companion files are retained.
+
 The replay remains an ordinary `.scctdemo`; the companion is structured telemetry, not an alternate replay format.
 Its writer is best effort: a disk, serialization or size failure abandons the companion without stopping gameplay
 or the replay. Only a finished gzip stream with a completion record is published, using a temporary file and an
@@ -129,6 +134,8 @@ The index is written when the recording finishes. A file without it (the server 
 - **How it plays:**
   - `DemoPlaybackTransport` (`src/OpenScct.Net/Demo/DemoPlaybackTransport.cs`) hands a `ClientSession` the recorded
     packets up to the tick the playback has reached, and drops whatever the client sends.
+    Discarded client replies are acknowledged locally and receive silence cannot time out this local connection.
+    Reliable spectator requests therefore cannot fill a resend buffer and disconnect a long replay.
   - `DemoPlayer` (`game/Scripts/Play/Demo/DemoPlayer.cs`) runs that client through the remote `PlaySession` in the
     normal play scene.
   - `DemoClock` handles pause and speed (0.25× to 4×).
@@ -136,12 +143,16 @@ The index is written when the recording finishes. A file without it (the server 
   - Forward: the client is fast-forwarded, at about 30 ms of ticks per frame, behind "Seeking...".
   - Back: playback starts again from the beginning and fast-forwards (`DemoPlayer.Restart`). A delta stream has no
     other place to start from.
+  - The visible timeline begins at the first recorded round-start marker, skipping the empty loading period.
+    Earlier packets are still replayed to rebuild the world. Opening or rewinding a paused demo also consumes its
+    initial packets, so the first playable frame has its recorded players.
 - **Checks before playing:** the demo must have the same replication protocol and the same map content hash as the
   installed game. Failures return to the demo library with the reason, preserving the current library view when
   playback has not started.
 - **Ways in:**
   - The main menu's **Demos** page opens **On this computer**, with a separate **Recent online** collection.
-    Cards show map, mode, length, date, server, players and storage status. Search finds maps, players, servers and
+    Cards show the catalog's map name and picture thumbnail, mode, length, date, server, players and storage status.
+    Unlisted maps keep their recorded map code and a named picture placeholder. Search finds map names/codes, players, servers and
     local filenames; mode/storage filters and newest/oldest sorting narrow the collection. The layout uses one
     column on smaller screens and two on wide screens, with scaled text at high resolutions.
     - **Recent online:** the master's paginated list, for signed-in players. Filters apply to the displayed page.
@@ -149,16 +160,21 @@ The index is written when the recording finishes. A file without it (the server 
       permanent copy without launching playback. A progress bar shows download/verification status; leaving the
       library cancels unfinished transfers and cleans up temporary files.
     - **On this computer:** `user://demos` (saved) and `user://demos/cache` (downloads, deleted after 7 days), with
-      Watch and Keep for downloads. Saved copies take precedence over duplicate cached copies.
+      Watch and Keep for downloads. Saved copies take precedence over duplicate cached copies. **Delete** opens a
+      confirmation naming the map, date and file; Cancel or Escape keeps it. Confirming permanently removes that
+      local recording and any training companion, then removes its card. Online recordings are unaffected.
     - Incompatible protocols disable Watch with an explanation. Sign-in, loading, unavailable-server, empty,
       filtered-empty and file errors have their own guidance and relevant actions.
   - `--svm-demo=path` opens a file at start.
 
-The playback dock includes Play/Pause (Replay at the end), restart, five-second skips, speed, player and camera
+The compact playback dock includes Play/Pause (Replay at the end), restart, five-second skips, speed, player and camera
 selectors, controls help and Back to demos. The timeline previews timestamps and named events; dragging commits
 one seek on release. The dock stays visible while paused, seeking, hovered, dragging or using a selector/help.
-After four idle seconds during playback it hides, and mouse or keyboard activity reveals it again. Explicit Hide
-stays hidden until H restores it. Playback exits back to the demo library.
+After four idle seconds during playback it hides, and mouse or keyboard activity reveals it again. A small
+**Show controls · H** button remains available whenever the dock is hidden. Explicit Hide stays hidden until that
+button or H restores it. Camera hints and the full shortcut list expand under **Controls**.
+Escape (after closing help) and Back to demos ask for confirmation before leaving. The prompt pauses playback;
+Keep watching or Escape cancels it and restores the previous pause state.
 
 ### Keys
 
@@ -176,7 +192,7 @@ stays hidden until H restores it. Playback exits back to the demo library.
 | W A S D, Q / E, Shift | fly the free camera, down / up, faster |
 | H | hide / show the controls |
 | ? | show / hide shortcut help |
-| Escape | close help first, otherwise return to Demos |
+| Escape | close help first, otherwise confirm returning to Demos; cancel an open confirmation |
 
 ## Storage online
 
@@ -188,9 +204,10 @@ master's database row expires (schema v6). The S3 links, endpoints, bucket setup
 
 ## Limits (first version)
 
-- **First person shows only the view.** You see through the player's eyes with their aim, and their body is hidden.
-  Their first-person weapon, HUD and vision mode are not drawn, because demos do not carry other players' owner-only
-  data.
+- **First-person presentation uses spectator data.** You see through the player's eyes with their aim, and their
+  body is hidden. Merc weapons are drawn using the recorded weapon attachment and observed firing/reload actions,
+  including existing recordings. Exact owner-only weapon animation timing, HUD data and vision effects are not
+  available in the replay stream.
 - **Seeking back costs a restart.** It reloads the map and replays from the start, so it takes longer the later the
   target is in the match.
 - **No camera collision.** The third-person and free cameras can pass through walls.

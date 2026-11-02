@@ -21,7 +21,7 @@ public sealed class DemoUiSmoke : SmokeTest
     public override string Name => TestName;
 
     private const int LibraryCases = 10;
-    private const int PlaybackCases = 6;
+    private const int PlaybackCases = 9;
     private const int SettleFrames = 12;
     private static readonly Vector2I[] Sizes =
     [
@@ -211,21 +211,30 @@ public sealed class DemoUiSmoke : SmokeTest
                 Resize(context, Sizes[0]);
                 return SmokeResult.Running;
             }
+            Press(_hud!, "LeaveDemo");
+            Find<ConfirmBox>(_hud!, "LeaveDemoConfirmation").Answer(true);
+            Expect(context.Tree.CurrentScene is DemosScreen, "confirming exit should return to the demo library");
             return Finish(_problems.Count == 0
-                ? SmokeResult.Pass("50 library and 32 playback states from 800x600 to 4K and back; search, mode/storage filters, compatibility, empty states, pause/speed/camera, marker seeking, help and hide controls")
+                ? SmokeResult.Pass("50 library and 47 playback states from 800x600 to 4K and back; filters, pause/speed/camera, marker seeking, compact controls, mouse/keyboard restore and exit confirmation")
                 : SmokeResult.Fail(string.Join("; ", _problems.Take(18))));
         }
         int state = _step % PlaybackCases;
         string name = $"demo-playback-{Sizes[_step / PlaybackCases].X}x{Sizes[_step / PlaybackCases].Y}-{state}";
         CheckLayout(_hud!, context, name);
-        string expected = state switch { 0 => "PLAYING", 3 => "SEEKING", 5 => "FINISHED", _ => "PAUSED" };
+        string expected = state switch { 0 or 5 or 7 => "PLAYING", 3 => "SEEKING", 8 => "FINISHED", _ => "PAUSED" };
         Expect(Find<Label>(_hud!, "PlaybackState").Text == expected, name + ": playback state should be " + expected);
-        string action = state == 5 ? "Replay" : state == 0 ? "Pause" : "Play";
+        string action = state == 8 ? "Replay" : state is 0 or 5 or 7 ? "Pause" : "Play";
         Expect(Find<Button>(_hud!, "PlayPause").Text == action, name + ": incorrect play/pause action");
         Expect(Find<PanelContainer>(_hud!, "PlaybackBar").Visible == (state != 4), name + ": explicit hide state was lost");
+        Expect(Find<Button>(_hud!, "ShowControls").Visible == (state == 4), name + ": hidden controls need a visible restore button");
         Expect(Find<Label>(_hud!, "PlaybackHelp").Visible == (state == 2), name + ": controls help visibility is incorrect");
         Expect(Find<OptionButton>(_hud!, "WatchPlayer").Disabled, name + ": an empty live roster should not offer player selection");
-        if (state == 1) _closedBarHeight = Find<PanelContainer>(_hud!, "PlaybackBar").Size.Y;
+        if (state == 1)
+        {
+            _closedBarHeight = Find<PanelContainer>(_hud!, "PlaybackBar").Size.Y;
+            Expect(_closedBarHeight <= 190f, name + ": collapsed controls should stay compact");
+            Expect(Find<PanelContainer>(_hud!, "PlaybackBar").Size.X <= 881f, name + ": playback dock is too wide");
+        }
         if (state == 2)
         {
             Expect(_player!.Mode == DemoCameraMode.Free, name + ": camera selector did not change perspective");
@@ -240,7 +249,11 @@ public sealed class DemoUiSmoke : SmokeTest
             Expect(Find<PanelContainer>(_hud!, "PlaybackBar").Size.Y <= _closedBarHeight + 1f,
                 name + ": closing controls help must shrink the playback dock");
         }
-        if (state == 5)
+        if (state == 6)
+            Expect(Find<ConfirmBox>(_hud!, "LeaveDemoConfirmation").Visible, name + ": Escape must ask before exiting");
+        if (state == 7)
+            Expect(_hud!.FindChild("LeaveDemoConfirmation", true, false) is null, name + ": Escape should cancel the exit confirmation");
+        if (state == 8)
             Expect(Find<Label>(_hud!, "PlaybackTime").Text == "2:00 / 2:00", name + ": finished time is incorrect");
         MenuPage.Shot(_hud!, name);
         if (++_step < Sizes.Length * PlaybackCases)
@@ -274,6 +287,8 @@ public sealed class DemoUiSmoke : SmokeTest
         {
             _player?.Dispose();
             _player = Playback.Open(_demoPath);
+            // This layout-only fixture has no client session; consume its empty initial frame explicitly.
+            _player.BeforeTick();
             var stage = new Control { Name = "DemoPreview" };
             stage.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
             var background = new ColorRect { Color = new Color(0.035f, 0.055f, 0.045f), MouseFilter = Control.MouseFilterEnum.Ignore };
@@ -313,9 +328,34 @@ public sealed class DemoUiSmoke : SmokeTest
             _player!.SeekTarget = 0;
             Press(_hud!, "HideControls");
         }
+        else if (state == 5)
+        {
+            Press(_hud!, "ShowControls");
+            Expect(Find<PanelContainer>(_hud!, "PlaybackBar").Visible, "Show controls should reopen the hidden panel with the mouse");
+            KeyPress(Key.H);
+            Expect(Find<Button>(_hud!, "ShowControls").Visible, "H should hide the panel and leave a restore action");
+            KeyPress(Key.H);
+            _player!.Clock.Paused = false;
+        }
+        else if (state == 6)
+        {
+            Node scene = context.Tree.CurrentScene;
+            KeyPress(Key.Escape);
+            Expect(context.Tree.CurrentScene == scene && _player!.Clock.Paused, "Escape should pause and ask without leaving the demo");
+            DemoCameraMode camera = _player!.Mode;
+            KeyPress(Key.C);
+            KeyPress(Key.Space);
+            Expect(_player.Mode == camera && _player.Clock.Paused, "confirmation must block playback and camera shortcuts");
+        }
+        else if (state == 7)
+        {
+            Find<ConfirmBox>(_hud!, "LeaveDemoConfirmation")._Input(new InputEventKey { Keycode = Key.Escape, Pressed = true });
+            Expect(!_player!.Clock.Paused, "canceling exit should restore the previous playback state");
+            KeyPress(Key.Escape);
+            Expect(!_player.Clock.Paused, "a second Escape in the cancellation frame must not pause playback without a dialog");
+        }
         else
         {
-            KeyPress(Key.H);
             while (_player!.CurrentTick < _player.LastTick) _player.BeforeTick();
         }
     }

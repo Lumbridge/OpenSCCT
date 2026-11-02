@@ -444,7 +444,6 @@ public partial class PlayRoot : Node3D
 
     private void BeforeTick(PlaySession session, long tick)
     {
-        Config.Demo?.BeforeTick();
         if (Config.Pilot is { } pilot)
         {
             long start = Stopwatch.GetTimestamp();
@@ -466,7 +465,10 @@ public partial class PlayRoot : Node3D
         Stats.Ticks++;
         _time.OnTick(session.Client.World.Level.Info.TimeSeconds);
         _look.AfterTick(session.LocalController, session.View);
-        FirstPerson?.OnTick(session.LocalController);
+        if (session.FirstPersonOverride is { } fpOverride)
+            FirstPerson?.OnObservedTick(fpOverride());
+        else
+            FirstPerson?.OnTick(session.LocalController);
         _aim.OnTick(session.LocalController);
         if (Devices is null && Map is not null && session.Client.Map?.Loaded is { } loaded)
         {
@@ -691,7 +693,13 @@ public partial class PlayRoot : Node3D
         if (Camera is not null)
         {
             (FVector location, FRotator rotation, float _) = Camera.Current;
-            FirstPerson?.Draw(pc, location, rotation, dt, alpha);
+            if (session.FirstPersonOverride is not null)
+            {
+                float weaponDt = Config.Demo is { } demo ? demo.Clock.Paused ? 0f : dt * (float)demo.Clock.Speed : dt;
+                FirstPerson?.DrawObserved(firstPerson, location, rotation, weaponDt, alpha);
+            }
+            else
+                FirstPerson?.Draw(pc, location, rotation, dt, alpha);
             Fx?.Draw(dt, location, rotation, pc);
             FlashLight?.Draw(session.Client.World.Level, session.LocalPawn, location);
             Map?.LightBeams?.UpdateSlots();   // after the spot lights took this frame's slots

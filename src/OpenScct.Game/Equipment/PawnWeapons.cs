@@ -174,24 +174,28 @@ public static class PawnWeapons
         }
     }
 
-    /// <summary>The spy's quick draw or holster (traversal): 0 to 1 with the idle clip, 1, 2 or 7 to 0 with the laser off.</summary>
+    /// <summary>The spy's quick draw or holster: update the pistol and, in a split jump, the brace's armed or bare-hand aim clips.</summary>
     [Uc("SBase.SPawnAttaque.NotifyDrawUndrawWeapon", Sha1 = "fcd12440aaa6f1549cb4aedfb621c8fda328e690")]
     [PortOf("uc:SBase.SPawnAttaque:NotifyDrawUndrawWeapon", Spec = "spec/equipment/spy-shocker.md#rules")]
     public static void SpyNotifyDrawUndrawWeapon(SPawnAttaque Spy)
     {
-        if (Spy.MyWeapon is not SWeaponAttaque pistol)
+        if (Spy.MyWeapon is SWeaponAttaque pistol)
         {
-            return;
+            if (Spy.WeaponLoaded == 0)
+            {
+                pistol.AnimateQuickDrawWeapon();
+            }
+            else if (Spy.WeaponLoaded is 1 or 2 or 7)
+            {
+                pistol.ServerSwitchLaser(false);
+                pistol.AnimateQuickUnDrawWeapon();
+            }
         }
 
-        if (Spy.WeaponLoaded == 0)
+        // This is part of SPawnAttaque.NotifyDrawUndrawWeapon, not a separate notify in SpltStSpBg1.
+        if (Spy.Physics == EPhysics.PHYS_Vandamme)
         {
-            pistol.AnimateQuickDrawWeapon();
-        }
-        else if (Spy.WeaponLoaded is 1 or 2 or 7)
-        {
-            pistol.ServerSwitchLaser(false);
-            pistol.AnimateQuickUnDrawWeapon();
+            Spy.ChangeAnimsForDrawUndrawSplitJump();
         }
     }
 

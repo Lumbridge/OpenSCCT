@@ -53,6 +53,7 @@
     <!-- The drawn view between ticks: the camera blend and the mouse look-ahead, the view model's one-shot clock. -->
     <Compile Include="..\..\game\Scripts\Cameras\ViewBlend.cs" Link="Linked\ViewBlend.cs" />
     <Compile Include="..\..\game\Scripts\Views\OneShotClock.cs" Link="Linked\OneShotClock.cs" />
+    <Compile Include="..\..\game\Scripts\Views\ObservedWeaponViewModel.cs" Link="Linked\ObservedWeaponViewModel.cs" />
     <Compile Include="..\..\game\Scripts\Views\MeshSwap.cs" Link="Linked\MeshSwap.cs" />
     <!-- Frame pacing: the level time drawn between ticks and the frame-rate smoke's motion measures. -->
     <Compile Include="..\..\game\Scripts\Play\DrawnTime.cs" Link="Linked\DrawnTime.cs" />

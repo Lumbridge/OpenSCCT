@@ -64,7 +64,7 @@ public sealed partial class OnlineClient
             {
                 case "democap":
                     _demoCapability = SessionProtocol.Int(fields, 0) == 1;
-                    _trainingCapability = _demoCapability && SessionProtocol.Int(fields, 1) >= 2;
+                    _trainingCapability = Settings.EnableTrainingData && _demoCapability && SessionProtocol.Int(fields, 1) >= 2;
                     _demoStatus = null;
                     if (_demoCapability) SendLine(SessionProtocol.Line("demorecord", _recordDemos, _trainingCapability ? 2 : 1));
                     Changed?.Invoke();

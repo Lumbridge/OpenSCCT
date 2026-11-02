@@ -33,6 +33,7 @@ public partial class FirstPersonView : Node3D
     private SWeaponDefense? _lastWeapon;
     private float _revolverKick;
     private readonly Dictionary<SkeletalModel, Transform3D> _sidearmSightOffsets = new();
+    private readonly ObservedWeaponViewModel _observed = new();
 
     /// <summary>Read and convert pistol scenes during map loading, before the player can switch weapons.</summary>
     public void PreloadSidearms()
@@ -71,6 +72,16 @@ public partial class FirstPersonView : Node3D
     /// <summary>After each client tick: samples the view model channels of <paramref name="pc"/>'s weapon.</summary>
     public void OnTick(PlayerController? pc) => _pose.OnTick(((pc?.Pawn as SBasePawn)?.MyWeapon as SWeaponDefense)?.ViewAnim);
 
+    /// <summary>Samples an observed merc using the attachment and actions present in spectator recordings.</summary>
+    public void OnObservedTick(SBasePawn? pawn) => _pose.OnTick(_observed.Update(pawn, Sim.DeltaTime)?.ViewAnim);
+
+    public void DrawObserved(SBasePawn? pawn, FVector cameraLocation, FRotator cameraRotation, float dt, float alpha = 1f)
+    {
+        SWeaponDefense? weapon = _observed.Update(pawn, 0f);
+        if (!ReferenceEquals(_lastWeapon, weapon)) _pose.OnTick(weapon?.ViewAnim);
+        DrawWeapon(weapon, pawn, weapon is not null, cameraLocation, cameraRotation, dt, alpha, _observed.ShotCount);
+    }
+
     /// <summary>
     /// Draws the view model of <paramref name="pc"/>'s weapon at the camera, or hides it; <paramref name="alpha"/> is how
     /// far the clock is into the next tick.
@@ -81,6 +92,12 @@ public partial class FirstPersonView : Node3D
         var weapon = (pc?.Pawn as SBasePawn)?.MyWeapon as SWeaponDefense;
         bool show = pc is { bBehindView: false } && weapon is { bDrawWeapon: true, bDeleteMe: false } && !weapon.Mesh.IsNone
             && ReferenceEquals(pc.ViewTarget ?? pc.Pawn, pc.Pawn);
+        DrawWeapon(weapon, pc?.Pawn, show, cameraLocation, cameraRotation, dt, alpha, weapon?.ShotCounter ?? 0);
+    }
+
+    private void DrawWeapon(SWeaponDefense? weapon, Pawn? pawn, bool show, FVector cameraLocation,
+        FRotator cameraRotation, float dt, float alpha, int shotCount)
+    {
         if (show && (_model is null || !string.Equals(_asset, weapon!.Mesh.Path, StringComparison.OrdinalIgnoreCase)))
         {
             Load(weapon!.Mesh.Path!);
@@ -98,13 +115,13 @@ public partial class FirstPersonView : Node3D
         if (!ReferenceEquals(_lastWeapon, weapon))
         {
             _lastWeapon = weapon;
-            _lastShot = weapon!.ShotCounter;
+            _lastShot = shotCount;
             _revolverKick = 0f;
         }
-        if (weapon is MercSidearm { Kind: (int)SidearmKind.Magnum44 } && weapon.ShotCounter != _lastShot)
+        if (weapon is MercSidearm { Kind: (int)SidearmKind.Magnum44 } && shotCount != _lastShot)
             _revolverKick = 0.42f;
-        _lastShot = weapon!.ShotCounter;
-        DrawCosmetic(pc!.Pawn);
+        _lastShot = shotCount;
+        DrawCosmetic(pawn, weapon);
         DrawSkins(weapon!);
         Pose(weapon!.ViewAnim, dt, alpha, exclusiveAction: weapon is MercSidearm { ReloadUntil: > 0 });
         if (weapon is MercSidearm && _sidearmSightOffsets.TryGetValue(_model, out Transform3D sightOffset))
@@ -169,9 +186,9 @@ public partial class FirstPersonView : Node3D
     /// OpenSCCT's own: the player's gun camo or tint on the gun, under the weapon's Skins (the rate-of-fire screen
     /// stays), and the body's on the arms, so the sleeves match the merc's suit.
     /// </summary>
-    private void DrawCosmetic(Pawn? pawn)
+    private void DrawCosmetic(Pawn? pawn, SWeaponDefense? weapon)
     {
-        CosmeticItem? gun = pawn is null ? null : PawnCosmetics.GunItem(pawn);
+        CosmeticItem? gun = pawn is null ? null : PawnCosmetics.GunItem(pawn, weapon);
         CosmeticItem? body = pawn is null ? null : PawnCosmetics.LookOf(pawn)[CosmeticSlot.Body];
         if (ReferenceEquals(_cosmeticModel, _model) && ReferenceEquals(_gunCosmetic, gun) && ReferenceEquals(_bodyCosmetic, body))
         {

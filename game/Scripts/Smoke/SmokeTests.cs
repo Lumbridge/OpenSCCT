@@ -8,7 +8,7 @@ public static class SmokeTests
 {
     public static IReadOnlyList<string> Names { get; } =
         [VisitMapSmoke.TestName, MapLightSpritesSmoke.TestName, DestructibleFxSmoke.TestName, SpyPerspectiveSmoke.TestName, MineLightSmoke.TestName, CamnetDisabledSmoke.TestName, AmmoMenuHudSmoke.TestName, LandingBlendSmoke.TestName, GlassBlendSmoke.TestName, ScopeLifecycleSmoke.TestName, SidearmReloadPoseSmoke.TestName, MenuEscapeSmoke.TestName, FittedSkinsSmoke.TestName, ViewmodelLightSmoke.TestName, StatsSmoke.TestName, StartupWeaponsSmoke.TestName, LaserAlignmentSmoke.TestName, BootSmoke.TestName, TestBoxSmoke.TestName, SelfTestFailSmoke.TestName, SteeERenderSmoke.TestName, GoldenSmoke.TestName,
-            LaserDotSmoke.TestName, DemoUiSmoke.TestName,
+            LaserDotSmoke.TestName, DemoUiSmoke.TestName, DemoLibraryCardsSmoke.TestName, DemoWeaponSmoke.TestName, LocalExplosiveHudSmoke.TestName,
             ModernChatSmoke.TestName, MenuPilotPopupSmoke.TestName, JoinFocusSmoke.TestName, ControllerDefaultsSmoke.TestName, Hud.HudSmoke.TestName, HudActivityFeedSmoke.TestName, RainHudSmoke.TestName, AudioSmoke.TestName, PlaySpySmoke.TestName, PlayCraneSmoke.TestName,
             PlayDiskHuntSmoke.TestName, PlayDeathmatchSmoke.TestName, Voice.VoiceSmoke.TestName, VoiceLifecycleSmoke.TestName,
             Online.OnlineSmoke.TestName, Online.NetLobbySmoke.TestName, Online.NetLobbySmoke.GuestTestName, Online.NetBotsSmoke.TestName, Online.NetBotsSmoke.GuestTestName, GadgetsSmoke.TestName, PlayBotsSmoke.TestName, UI.InGameMenuSmoke.TestName,
@@ -33,6 +33,8 @@ public static class SmokeTests
     {
         LaserDotSmoke.TestName => new LaserDotSmoke(),
         DemoUiSmoke.TestName => new DemoUiSmoke(),
+        DemoLibraryCardsSmoke.TestName => new DemoLibraryCardsSmoke(),
+        DemoWeaponSmoke.TestName => new DemoWeaponSmoke(),
         RollCollisionSmoke.TestName => new RollCollisionSmoke(),
         VisitMapSmoke.TestName => new VisitMapSmoke(),
         ModernChatSmoke.TestName => new ModernChatSmoke(),
@@ -57,6 +59,7 @@ public static class SmokeTests
         PresentationPerformanceSmoke.TestName => new PresentationPerformanceSmoke(),
         HudPerformanceSmoke.TestName => new HudPerformanceSmoke(),
         HudActivityFeedSmoke.TestName => new HudActivityFeedSmoke(),
+        LocalExplosiveHudSmoke.TestName => new LocalExplosiveHudSmoke(),
         HudGameplayParitySmoke.SpyName => new HudGameplayParitySmoke(),
         HudGameplayParitySmoke.MercName => new HudGameplayParitySmoke(true),
         HudOutputReplaySmoke.TestName => new HudOutputReplaySmoke(),

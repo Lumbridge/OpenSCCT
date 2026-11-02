@@ -78,6 +78,7 @@ public sealed class DemoPlayer : IDisposable
     private readonly DemoPlaybackTransport _transport;
     private readonly List<SBasePawn> _targets = new();
     private long _played;
+    private uint _seekTarget;
     private bool _disposed;
     private int _targetPlayerId = -1;
     private FVector _freeLocation;
@@ -108,20 +109,27 @@ public sealed class DemoPlayer : IDisposable
     /// <summary>The user's camera turn (free camera, and the orbit round the watched player).</summary>
     public FRotator Look { get; set; } = new(-2000, 0, 0);
 
-    /// <summary>The server tick the playback has reached.</summary>
-    public uint CurrentTick => Recording.Index.FirstTick + (uint)Math.Min(_played, uint.MaxValue);
+    /// <summary>The server tick shown on the timeline (the loading prefix stays at the round's start).</summary>
+    public uint CurrentTick => Math.Max(FirstTick, PacketTick);
 
-    public uint FirstTick => Recording.Index.FirstTick;
+    private uint PacketTick => (uint)Math.Min(Recording.Index.FirstTick + Math.Max(0, _played - 1), uint.MaxValue);
+
+    public uint FirstTick => Recording.PlaybackFirstTick;
 
     public uint LastTick => Recording.Index.LastTick;
 
     /// <summary>A tick to fast-forward to (a seek in progress), or 0.</summary>
-    public uint SeekTarget { get; set; }
+    public uint SeekTarget
+    {
+        get => _seekTarget;
+        set => _seekTarget = value == 0 ? 0 : Math.Clamp(value, FirstTick, LastTick);
+    }
 
-    public bool IsSeeking => SeekTarget > CurrentTick;
+    // Even a paused restart at the first tick needs its initial packets, including the recorded loading prefix.
+    public bool IsSeeking => (_played == 0 && Session is not null) || PacketTick < Math.Max(FirstTick, SeekTarget);
 
     /// <summary>True once the last packet was played.</summary>
-    public bool AtEnd => _transport.AtEnd && CurrentTick >= LastTick;
+    public bool AtEnd => _played > 0 && _transport.AtEnd && PacketTick >= LastTick;
 
     /// <summary>The player being watched (first or third person), or null.</summary>
     public SBasePawn? Target { get; private set; }
@@ -202,7 +210,7 @@ public sealed class DemoPlayer : IDisposable
             Demo = this,
             CreateSession = _ =>
             {
-                Session = new PlaySession(settings, Clock, client, catalog.Maps, folder, loader)
+                Session = new PlaySession(settings, Clock, client, catalog.Maps, folder, loader, _ => BeforeTick())
                 {
                     ViewOverride = ViewFor,
                     FirstPersonOverride = () => Mode == DemoCameraMode.FirstPerson ? Target : null,
@@ -226,7 +234,7 @@ public sealed class DemoPlayer : IDisposable
     /// <summary>Before a client tick: the packets of the next server tick may arrive.</summary>
     public void BeforeTick()
     {
-        _transport.ReleaseUpTo(FirstTick + (uint)_played);
+        _transport.ReleaseUpTo((uint)Math.Min(Recording.Index.FirstTick + _played, uint.MaxValue));
         _played++;
     }
 
@@ -290,16 +298,17 @@ public sealed class DemoPlayer : IDisposable
         }
 
         int run = 0;
-        while (run < maxTicks && CurrentTick < SeekTarget && !AtEnd)
+        while (run < maxTicks && IsSeeking && !AtEnd)
         {
             Clock.Advance(TickMicros);
             session.Step(Clock.NowMicroseconds);
             run++;
         }
 
-        if (CurrentTick >= SeekTarget || AtEnd)
+        if (!IsSeeking || AtEnd)
         {
             SeekTarget = 0;
+            session.SetViewNow(ViewFor(session.View));
         }
 
         return IsSeeking;

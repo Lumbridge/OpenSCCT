@@ -64,5 +64,7 @@ public sealed class DemoPlaybackTransport : ITransport
     /// <summary>The recorded packets carry the recorder connection's salt; the playing client takes it.</summary>
     public bool AdoptsRemoteSalt => true;
 
+    public bool IsPlayback => true;
+
     public void Dispose() => _disposed = true;
 }

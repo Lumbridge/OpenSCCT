@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Godot;
 using OpenScct.Net.Discovery;
+using OpenScct.Server;
 using OpenScctGame.Online;
 using OpenScctGame.Play.Demo;
 using LocalDemo = OpenScctGame.Play.Demo.DemoEntry;
@@ -38,6 +39,7 @@ public partial class DemosScreen : MenuPage
     private bool _recentSelected;
     private bool? _compact;
     private ulong _protocol;
+    private MapCatalog _maps = null!;
 
     private bool Previewing => AccountSettings.Isolated && (PreviewLocal is not null || PreviewRecent is not null);
     protected override Vector2 ResponsiveReference => new(1600f, 900f);
@@ -50,6 +52,7 @@ public partial class DemosScreen : MenuPage
         Name = "Demos";
         BuildFrame("Demos", 1180f, responsive: true);
         _protocol = OpenScct.Server.NetClasses.Create().ComputeProtocolHash();
+        _maps = new MapCatalog([.. App.From(this).Options.MapRoots, .. MapImages.Default.Roots]);
         Body.AddThemeConstantOverride("separation", 12);
         var introduction = Card(Body, "DemoLibraryHeader");
         var heading = new HBoxContainer();
@@ -251,7 +254,7 @@ public partial class DemosScreen : MenuPage
     private void RenderLocal()
     {
         var entries = _local.Where(item => (_storage.Selected != 1 || !item.Cached) && (_storage.Selected != 2 || item.Cached) &&
-            Matches(LocalMode(item.Entry), item.Entry.Header.Map, item.Entry.Header.ServerName, item.Entry.FileName,
+            Matches(LocalMode(item.Entry), item.Entry.Header.Map, MapTitle(item.Entry.Header.Map), item.Entry.Header.ServerName, item.Entry.FileName,
                 string.Join(" ", item.Entry.Index.Players.Select(p => p.Name))));
         entries = _order.Selected == 1 ? entries.OrderBy(e => e.Entry.Header.StartUnixMs) : entries.OrderByDescending(e => e.Entry.Header.StartUnixMs);
         int count = 0;
@@ -280,7 +283,7 @@ public partial class DemosScreen : MenuPage
         }
         if (_listing is not null) { Empty("Loading recent rounds…", "Retrieving the demo list from the master server."); return; }
         if (_listingError is { } error) { Empty("Could not load recent rounds", error, "Retry", () => LoadRecent(_online?.Page ?? 0)); return; }
-        IEnumerable<OnlineDemo> entries = (_online?.Demos ?? []).Where(e => Matches(ModeName(e.Mode), e.Map, e.ServerName,
+        IEnumerable<OnlineDemo> entries = (_online?.Demos ?? []).Where(e => Matches(ModeName(e.Mode), e.Map, MapTitle(e.Map), e.ServerName,
             string.Join(" ", e.Players.Select(p => p.Name))));
         entries = _order.Selected == 1 ? entries.OrderBy(e => e.Time) : entries.OrderByDescending(e => e.Time);
         int count = 0;
@@ -308,11 +311,12 @@ public partial class DemosScreen : MenuPage
         Text(card, "FileName", entry.FileName, 13, dim: true);
         if (!playable) Text(card, "Compatibility", "Requires the recording's game protocol · recorded on " + entry.Header.GameVersion, 14).Modulate = new Color(1f, 0.76f, 0.5f);
         var actions = Actions(card);
-        card.MoveChild(actions, 3);
+        card.MoveChild(actions, 1);
         var watch = ActionButton(actions, "Watch", () => DemoLibrary.Watch(GetTree(), entry.Path), "Watch");
         watch.Disabled = !playable;
         watch.TooltipText = playable ? "Open playback" : "This recording uses a different network protocol from the installed game.";
         if (cached) ActionButton(actions, "Keep", () => Keep(entry), "Keep").TooltipText = "Move this download into your permanent saved demos.";
+        ActionButton(actions, "Delete", () => ConfirmDelete(entry), "Delete").TooltipText = "Delete this local recording after confirmation.";
     }
 
     private void RecentCard(OnlineDemo demo)
@@ -324,7 +328,7 @@ public partial class DemosScreen : MenuPage
             demo.ServerName, demo.Players.Select(p => p.Name), demo.Size, expiry);
         if (!playable) Text(card, "Compatibility", "Requires the recording's game protocol · recorded on " + demo.GameVersion, 14).Modulate = new Color(1f, 0.76f, 0.5f);
         var actions = Actions(card);
-        card.MoveChild(actions, 3);
+        card.MoveChild(actions, 1);
         var watch = ActionButton(actions, "Watch", () => StartDownload(demo, keep: false), "Watch");
         watch.SetMeta("compatible", playable);
         watch.TooltipText = playable ? "Download and open playback" : "This recording uses a different network protocol from the installed game.";
@@ -339,10 +343,20 @@ public partial class DemosScreen : MenuPage
         string server, IEnumerable<string> players, long bytes, string storage)
     {
         var card = Card(_cards, name);
-        Text(card, "Storage", storage, 13).Modulate = UiStyle.MenuFocus;
-        Text(card, "Title", string.IsNullOrWhiteSpace(map) ? "Unknown map" : map, 22);
+        string title = MapTitle(map);
+        var summary = new HBoxContainer { Name = "Summary" };
+        summary.AddThemeConstantOverride("separation", 12);
+        card.AddChild(summary);
+        var picture = new MapThumb(new Vector2(160, 100)) { SizeFlagsVertical = SizeFlags.ShrinkBegin };
+        picture.SetMap(MapImages.Preview(_maps, map), title);
+        summary.AddChild(picture);
+        var heading = new VBoxContainer { Name = "Heading", SizeFlagsHorizontal = SizeFlags.ExpandFill };
+        heading.AddThemeConstantOverride("separation", 6);
+        summary.AddChild(heading);
+        Text(heading, "Storage", storage, 13).Modulate = UiStyle.MenuFocus;
+        Text(heading, "Title", title, 22);
         string when = recorded.ToLocalTime().ToString("dd MMM yyyy · HH:mm", CultureInfo.InvariantCulture);
-        Text(card, "Metadata", $"{mode} · {Duration(duration)} · {when}", 14, dim: true);
+        Text(heading, "Metadata", $"{mode} · {Duration(duration)} · {when}", 14, dim: true);
         string[] names = players.ToArray();
         Text(card, "Server", string.IsNullOrWhiteSpace(server) ? "Local recording" : server, 15);
         Text(card, "Players", names.Length == 0 ? "No player names recorded" : $"{names.Length} players · {string.Join(", ", names)}", 14, dim: true);
@@ -352,8 +366,39 @@ public partial class DemosScreen : MenuPage
 
     private void Keep(LocalDemo entry)
     {
-        try { DemoLibrary.Keep(entry.Path); ShowStatus("Saved " + entry.Header.Map + " to your library."); ReadLocal(); Render(); }
+        try { DemoLibrary.Keep(entry.Path); ShowStatus("Saved " + MapTitle(entry.Header.Map) + " to your library."); ReadLocal(); Render(); }
         catch (Exception e) when (e is IOException or UnauthorizedAccessException) { ShowError("Could not keep the demo: " + e.Message); }
+    }
+
+    private string MapTitle(string map) => string.IsNullOrWhiteSpace(map) ? "Unknown map" : MapTitles.Of(_maps, map);
+
+    private void ConfirmDelete(LocalDemo entry)
+    {
+        Control? previousFocus = GetViewport().GuiGetFocusOwner();
+        string when = entry.Recorded.ToLocalTime().ToString("dd MMM yyyy · HH:mm", CultureInfo.InvariantCulture);
+        ConfirmBox.Open(this, new ConfirmBox
+        {
+            Name = "DeleteDemoConfirmation", YesCaption = "Delete", NoCaption = "Cancel",
+            Question = $"Delete this demo?\n\n{MapTitle(entry.Header.Map)} · {when}\n{entry.FileName}\n\nThis permanently removes the recording from this computer.",
+            Yes = () => Delete(entry),
+            No = () => { if (GodotObject.IsInstanceValid(previousFocus)) previousFocus!.GrabFocus(); },
+        });
+    }
+
+    private void Delete(LocalDemo entry)
+    {
+        try
+        {
+            DemoLibrary.Delete(entry.Path);
+            _local.RemoveAll(item => string.Equals(item.Entry.Path, entry.Path, StringComparison.OrdinalIgnoreCase));
+            Render();
+            _localTab.GrabFocus();
+            ShowStatus("Deleted " + MapTitle(entry.Header.Map) + " from this computer.");
+        }
+        catch (Exception e) when (e is IOException or UnauthorizedAccessException)
+        {
+            ShowError("Could not delete the demo: " + e.Message);
+        }
     }
 
     private void OpenFolder()

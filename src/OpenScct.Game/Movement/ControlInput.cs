@@ -161,6 +161,7 @@ public static class ControlInput
         }
         else
         {
+            Camera.PlayerCalcView.UpdateStickyCamForInputProjection(pc);
             // A spy climbing (ladder, pipe, zip line...): the stick (aStrafe, -aForward, 0.01) normalised, against the
             // screen direction of the climb, so the speed mode does not matter.
             float up = ClimbStickUp(pc.aStrafe, pc.aForward);

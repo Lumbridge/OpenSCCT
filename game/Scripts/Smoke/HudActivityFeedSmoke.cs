@@ -127,6 +127,7 @@ public sealed class HudActivityFeedSmoke : SmokeTest
         }
 
         CheckMovedDiagnostics(assets, entries);
+        CheckTelemetryGraphs(assets, entries);
 
         var animation = new HudActivityFeedDrawer();
         animation.Configure(assets);
@@ -175,6 +176,50 @@ public sealed class HudActivityFeedSmoke : SmokeTest
         Require(below.VisibleCount == 5 && below.Bounds.Position.Y > obstacle.Rect.End.Y && !below.Bounds.Intersects(obstacle.Rect),
             "Activity did not use available space below a moved telemetry panel");
         CheckBounds(below, reference);
+    }
+
+    private static void CheckTelemetryGraphs(HudAssets assets, HudActivityEntry[] entries)
+    {
+        foreach (Vector2I resolution in Sizes)
+        foreach (string mode in new[] { "Always", "Issues" })
+        foreach (float scale in resolution.X >= 1280 ? new[] { 100f, 200f } : new[] { 100f })
+        foreach (Vector2 position in new[] { new Vector2(100f, 0f), new Vector2(70f, 0f), new Vector2(100f, 50f), new Vector2(100f, 100f) })
+        {
+            Vector2 screen = resolution;
+            HudPage page = Page(assets, "spy", screen);
+            (HudFps fps, HudNet net) = Diagnostics(assets, screen);
+            // The reported layout: an FPS history and all three network graphs, with compact network text.
+            fps.Settings.Graph = net.Settings.Graph = "Line";
+            fps.Settings.DisplayMode = net.Settings.DisplayMode = mode;
+            fps.Settings.Scale = net.Settings.Scale = scale;
+            fps.Settings.PositionX = net.Settings.PositionX = position.X;
+            fps.Settings.PositionY = net.Settings.PositionY = position.Y;
+            fps.Settings.Opacity = net.Settings.Opacity = 50f;
+            fps.Settings.ShowFrameTime = fps.Settings.ShowPercentiles = false;
+            fps.Settings.ShowAverage = true;
+            net.Settings.Detailed = net.Settings.ShowTraffic = net.ShowLoss = false;
+            fps.Settings.FrameTimeThresholdMs = net.Settings.PingThresholdMs = 1f;
+            fps.Add(1f / 60f);
+            fps.Draw(screen, true);
+            net.FpsBounds = fps.Bounds;
+            net.Draw(screen, 1f, true, true);
+            Require(fps.DrawList.Items.Count > 0 && net.DrawList.Items.Count > 0, "Graph telemetry was not visible.");
+            var feed = new HudActivityFeedDrawer();
+            feed.Configure(assets);
+            feed.Draw(screen, entries, 11f, page, fps.DrawList.Items, net.DrawList.Items);
+            string layout = resolution + " " + mode + " scale=" + scale + " position=" + position;
+            Require(feed.VisibleCount > 0 && feed.DrawList.Any("Activity/5/"), "Telemetry graphs hid the latest kill: " + layout);
+            CheckBounds(feed, screen);
+            CheckText(feed);
+            foreach (MagmaDrawItem item in fps.DrawList.Items.Concat(net.DrawList.Items))
+                Require(!feed.Bounds.Intersects(HudActivityFeedDrawer.ItemBounds(item)), "Kill feed overlaps telemetry graph: " + layout);
+            foreach (MagmaDrawItem item in page.DrawList.Items)
+            {
+                string prefix = item.Path.Split('/')[0];
+                if (!HudActivityFeedDrawer.IsLocalPrompt(item.Path) && prefix is not ("Radar" or "Objectif" or "Chrono" or "ChronoHack" or "ChronoAlarm" or "ChronoObjectif" or "ChronoObjectif2")) continue;
+                Require(!feed.Bounds.Intersects(HudActivityFeedDrawer.ItemBounds(item)), "Graph-shifted feed overlaps " + item.Path + ": " + layout);
+            }
+        }
     }
 
     private static void CheckBounds(HudActivityFeedDrawer feed, Vector2 screen)

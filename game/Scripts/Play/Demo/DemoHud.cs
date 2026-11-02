@@ -28,6 +28,8 @@ public partial class DemoHud : CanvasLayer
     private Label? _help;
     private Button? _play;
     private Button? _helpButton;
+    private Button? _showControls;
+    private ConfirmBox? _leaveConfirmation;
     private OptionButton? _speed;
     private OptionButton? _players;
     private OptionButton? _camera;
@@ -62,14 +64,14 @@ public partial class DemoHud : CanvasLayer
         var panel = new StyleBoxFlat
         {
             BgColor = new Color(0.025f, 0.045f, 0.035f, 0.96f), BorderColor = UiStyle.MenuFocus with { A = 0.35f },
-            ContentMarginLeft = 16f, ContentMarginRight = 16f, ContentMarginTop = 12f, ContentMarginBottom = 12f,
+            ContentMarginLeft = 12f, ContentMarginRight = 12f, ContentMarginTop = 8f, ContentMarginBottom = 8f,
         };
         panel.SetBorderWidthAll(1);
         panel.SetCornerRadiusAll(6);
         _bar.AddThemeStyleboxOverride("panel", panel);
         _root.AddChild(_bar);
         var column = new VBoxContainer { Name = "PlaybackContent" };
-        column.AddThemeConstantOverride("separation", 7);
+        column.AddThemeConstantOverride("separation", 4);
         _bar.AddChild(column);
 
         var titleRow = new HBoxContainer { Name = "PlaybackHeading" };
@@ -87,13 +89,15 @@ public partial class DemoHud : CanvasLayer
         titleRow.AddChild(title);
         _state = Text("PlaybackState", "PLAYING", 13);
         _state.Modulate = UiStyle.MenuFocus;
-        titleRow.AddChild(_state);
-        _watching = Text("Watching", string.Empty, 15);
+        _watching = Text("Watching", string.Empty, 13);
+        _watching.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+        _watching.HorizontalAlignment = HorizontalAlignment.Right;
         _watching.ClipText = true;
         _watching.TextOverrunBehavior = TextServer.OverrunBehavior.TrimEllipsis;
-        column.AddChild(_watching);
+        titleRow.AddChild(_watching);
+        titleRow.AddChild(_state);
 
-        _seekBar = new DemoSeekBar(_player) { Name = "Timeline", CustomMinimumSize = new Vector2(0f, 30f) };
+        _seekBar = new DemoSeekBar(_player) { Name = "Timeline", CustomMinimumSize = new Vector2(0f, 24f) };
         _seekBar.Seek += Seek;
         _seekBar.PreviewChanged += text => { if (_preview is not null) _preview.Text = text; };
         column.AddChild(_seekBar);
@@ -113,24 +117,24 @@ public partial class DemoHud : CanvasLayer
         var transport = Flow(column, "TransportControls");
         AddButton(transport, "Restart", "Restart", Restart, "Restart from the beginning (Home)");
         AddButton(transport, "BackFive", "−5 s", () => Skip(-5), "Back 5 seconds (Left); Shift + Left: 30 seconds");
-        _play = AddButton(transport, "PlayPause", "Pause", TogglePause, "Play or pause (Space)", 86f);
+        _play = AddButton(transport, "PlayPause", "Pause", TogglePause, "Play or pause (Space)", 68f);
         AddButton(transport, "ForwardFive", "+5 s", () => Skip(5), "Forward 5 seconds (Right); Shift + Right: 30 seconds");
-        _speed = Choice("PlaybackSpeed", 102f, "Playback speed (Up / Down)");
+        _speed = Choice("PlaybackSpeed", 78f, "Playback speed (Up / Down)");
         foreach (double speed in Speeds) _speed.AddItem(string.Create(CultureInfo.InvariantCulture, $"{speed:0.##}×"));
         _speed.ItemSelected += index => _player.Clock.Speed = Speeds[(int)index];
         transport.AddChild(_speed);
         _helpButton = AddButton(transport, "ControlsHelp", "Controls", ToggleHelp, "Show camera and playback shortcuts (?)");
         _helpButton.ToggleMode = true;
-        AddButton(transport, "HideControls", "Hide", () => _hidden = true, "Hide all demo controls; press H to restore");
-        AddButton(transport, "LeaveDemo", "Back to demos", Leave, "Return to your demo library (Escape)");
+        AddButton(transport, "HideControls", "Hide", () => SetControlsHidden(true), "Hide the panel; use Show controls or H to restore");
+        AddButton(transport, "LeaveDemo", "Back to demos", ConfirmLeave, "Return to your demo library (Escape)");
 
         var view = Flow(column, "ViewControls");
         _previousPlayer = AddButton(view, "PreviousPlayer", "‹", () => _player.CycleTarget(-1), "Previous player ([ or mouse wheel)", 36f);
-        _players = Choice("WatchPlayer", 224f, "Choose a player to watch (1–9, [ / ] or mouse wheel)");
+        _players = Choice("WatchPlayer", 204f, "Choose a player to watch (1–9, [ / ] or mouse wheel)");
         _players.ItemSelected += index => { if (_players is { } picker) WatchPlayerId(picker.GetItemId((int)index)); };
         view.AddChild(_players);
         _nextPlayer = AddButton(view, "NextPlayer", "›", () => _player.CycleTarget(1), "Next player (] or mouse wheel)", 36f);
-        _camera = Choice("CameraMode", 176f, "Camera perspective (C)");
+        _camera = Choice("CameraMode", 148f, "Camera perspective (C)");
         _camera.AddItem("First person");
         _camera.AddItem("Third person");
         _camera.AddItem("Free camera");
@@ -149,16 +153,25 @@ public partial class DemoHud : CanvasLayer
         _hint = Text("CameraHint", string.Empty, 13);
         _hint.Modulate = UiStyle.Dim;
         _hint.AutowrapMode = TextServer.AutowrapMode.WordSmart;
+        _hint.Visible = false;
         column.AddChild(_hint);
         _help = Text("PlaybackHelp",
             "Space  Play / pause     ← / →  Seek 5 s (Shift: 30 s)     ↑ / ↓  Speed     Home  Restart\n" +
             "C  Camera     [ / ] or wheel  Change player     1–9  Select player     H  Hide / show controls\n" +
             "Hold right mouse to look around. Free camera: WASD move, Q / E down / up, Shift move faster.\n" +
             "Click or drag to seek; event markers include a 3 s lead-in. Backward seeks reload from the start.\n" +
-            "First person shows the player's view without their weapon, HUD or vision effects.     Esc  Back to demos", 13);
+            "Esc  Close help / confirm returning to demos", 13);
         _help.AutowrapMode = TextServer.AutowrapMode.WordSmart;
         _help.Visible = false;
         column.AddChild(_help);
+
+        _showControls = AddButton(_root, "ShowControls", "Show controls · H", () => SetControlsHidden(false), "Show the demo playback panel (H)");
+        _showControls.AnchorLeft = _showControls.AnchorRight = 1f;
+        _showControls.AnchorTop = _showControls.AnchorBottom = 1f;
+        _showControls.OffsetLeft = -168f;
+        _showControls.OffsetRight = -16f;
+        _showControls.OffsetTop = -44f;
+        _showControls.OffsetBottom = -16f;
 
         _seeking = Text("SeekingStatus", "Seeking…", 22);
         _seeking.HorizontalAlignment = HorizontalAlignment.Center;
@@ -195,9 +208,9 @@ public partial class DemoHud : CanvasLayer
         var button = new Button
         {
             Name = name, Text = text, TooltipText = tooltip, FocusMode = Control.FocusModeEnum.None,
-            CustomMinimumSize = new Vector2(width, 34f),
+            CustomMinimumSize = new Vector2(width, 28f),
         };
-        button.AddThemeFontSizeOverride("font_size", 14);
+        button.AddThemeFontSizeOverride("font_size", 13);
         button.Pressed += action;
         parent.AddChild(button);
         return button;
@@ -207,10 +220,10 @@ public partial class DemoHud : CanvasLayer
     {
         var choice = new OptionButton
         {
-            Name = name, CustomMinimumSize = new Vector2(width, 34f), FitToLongestItem = false,
+            Name = name, CustomMinimumSize = new Vector2(width, 28f), FitToLongestItem = false,
             ClipText = true, TooltipText = tooltip, FocusMode = Control.FocusModeEnum.None,
         };
-        choice.AddThemeFontSizeOverride("font_size", 14);
+        choice.AddThemeFontSizeOverride("font_size", 13);
         return choice;
     }
 
@@ -218,7 +231,7 @@ public partial class DemoHud : CanvasLayer
     {
         if (_root is null || _bar is null) return;
         Vector2 viewport = GetViewport().GetVisibleRect().Size;
-        float scale = Math.Max(1f, Math.Min(viewport.X / 1280f, viewport.Y / 720f));
+        float scale = Math.Max(1f, Math.Min(viewport.X / 1600f, viewport.Y / 900f));
         if (_root.Scale.X != scale)
         {
             _root.Scale = new Vector2(scale, scale);
@@ -226,18 +239,22 @@ public partial class DemoHud : CanvasLayer
             _root.OversamplingWithScale = Control.OversamplingWithScaleEnum.Enabled;
         }
         _root.Size = viewport / scale;
-        float width = Math.Min(1200f, _root.Size.X - 32f);
+        float width = Math.Min(880f, _root.Size.X - 32f);
         _bar.OffsetLeft = -width / 2f;
         _bar.OffsetRight = width / 2f;
     }
 
     private bool PopupOpen => _players?.GetPopup().Visible == true || _speed?.GetPopup().Visible == true || _camera?.GetPopup().Visible == true;
 
-    private bool OverControls => _bar is { Visible: true } && _bar.GetGlobalRect().HasPoint(_bar.GetGlobalMousePosition());
+    private bool OverControls => (_bar is { Visible: true } && _bar.GetGlobalRect().HasPoint(_bar.GetGlobalMousePosition())) ||
+        (_showControls is { Visible: true } && _showControls.GetGlobalRect().HasPoint(_showControls.GetGlobalMousePosition()));
+
+    private bool ConfirmingLeave => _leaveConfirmation is not null && GodotObject.IsInstanceValid(_leaveConfirmation) && !_leaveConfirmation.IsQueuedForDeletion();
 
     public override void _Input(InputEvent @event)
     {
         _idle = 0;
+        if (ConfirmingLeave) return;
         if (PopupOpen) return;
         switch (@event)
         {
@@ -292,11 +309,11 @@ public partial class DemoHud : CanvasLayer
             case Key.C: _player.CycleMode(); return true;
             case Key.Bracketleft: _player.CycleTarget(-1); return true;
             case Key.Bracketright: _player.CycleTarget(1); return true;
-            case Key.H: _hidden = !_hidden; return true;
+            case Key.H: SetControlsHidden(!_hidden); return true;
             case Key.Slash when key.ShiftPressed: ToggleHelp(); return true;
             case Key.Escape:
                 if (_help is { Visible: true }) ToggleHelp();
-                else Leave();
+                else ConfirmLeave();
                 return true;
             case >= Key.Key1 and <= Key.Key9:
                 _player.WatchIndex((int)(code - Key.Key1));
@@ -310,12 +327,12 @@ public partial class DemoHud : CanvasLayer
     public override void _Process(double delta)
     {
         _idle += delta;
-        if (_player.IsSeeking)
+        if (_player.IsSeeking && !ConfirmingLeave)
         {
             long start = Stopwatch.GetTimestamp();
             while (_player.FastForward(30) && Stopwatch.GetElapsedTime(start).TotalMilliseconds < SeekBudgetMs) { }
         }
-        if (_player.Mode == DemoCameraMode.Free && !PopupOpen && GetWindow().HasFocus())
+        if (_player.Mode == DemoCameraMode.Free && !PopupOpen && !ConfirmingLeave && GetWindow().HasFocus())
             _player.Fly(Axis(Key.W, Key.S), Axis(Key.D, Key.A), Axis(Key.E, Key.Q), Input.IsPhysicalKeyPressed(Key.Shift), (float)delta);
         if (_player.Clock.Paused && _player.Session is { } session) session.SetViewNow(_player.ViewFor(session.View));
         UpdateTexts();
@@ -328,6 +345,7 @@ public partial class DemoHud : CanvasLayer
     {
         bool show = !_hidden && (_idle < HideAfterSeconds || _player.Clock.Paused || _player.IsSeeking || OverControls || PopupOpen || _help is { Visible: true } || _seekBar is { Dragging: true });
         if (_bar is not null) _bar.Visible = show;
+        if (_showControls is not null) _showControls.Visible = !show;
         int rate = Math.Max(1, _player.Header.TickRate);
         uint elapsed = Math.Clamp(_player.CurrentTick, _player.FirstTick, _player.LastTick) - _player.FirstTick;
         if (_time is not null) _time.Text = Clock(elapsed, rate) + " / " + Clock(_player.LastTick - _player.FirstTick, rate);
@@ -396,8 +414,16 @@ public partial class DemoHud : CanvasLayer
     {
         if (_help is null) return;
         _help.Visible = !_help.Visible;
+        if (_hint is not null) _hint.Visible = _help.Visible;
         _helpButton?.SetPressedNoSignal(_help.Visible);
         _hidden = false;
+    }
+
+    private void SetControlsHidden(bool hidden)
+    {
+        _hidden = hidden;
+        _idle = 0;
+        UpdateTexts();
     }
 
     private void SelectCamera(DemoCameraMode mode)
@@ -439,6 +465,22 @@ public partial class DemoHud : CanvasLayer
         tick = Math.Clamp(tick, _player.FirstTick, _player.LastTick);
         if (tick >= _player.CurrentTick) _player.SeekTarget = tick;
         else DemoLibrary.Enter(GetTree(), _player.Restart(tick));
+    }
+
+    private void ConfirmLeave()
+    {
+        // An answered dialog remains a child until the frame ends; do not pause again before it is removed.
+        if (_root is null || _root.GetNodeOrNull("LeaveDemoConfirmation") is not null) return;
+        bool wasPaused = _player.Clock.Paused;
+        _player.Clock.Paused = true;
+        _looking = false;
+        OpenScctGame.Controls.Pointer.Mode = Input.MouseModeEnum.Visible;
+        _leaveConfirmation = ConfirmBox.Open(_root, new ConfirmBox
+        {
+            Name = "LeaveDemoConfirmation", Question = "Stop watching this demo and return to your demos?",
+            YesCaption = "Back to demos", NoCaption = "Keep watching", Yes = Leave,
+            No = () => { _player.Clock.Paused = wasPaused; _idle = 0; },
+        });
     }
 
     private void Leave()

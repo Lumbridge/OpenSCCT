@@ -107,9 +107,10 @@ shake, tilt and hit roll fields.
    (EnhancedRealityLevel != 0) and HudDef (== 1), which only SHud's own PostRender calls. In the HUD's states
    (s_Hud_UseObject_StickyCam, s_Hud_UseObject_CamNetwork, the binocular states) PostRender calls super.PostRender,
    which is Engine.HUD's (debug and messages), so this third call is absent. With the own-spy shadow update
-   active, two solves remain: the sticky fly-in was measured at a steady 4000 uu/s, 2 x 2000 x m_dT. Without
+   active, two render solves remain: the walking sticky fly-in was measured at a steady 4000 uu/s, 2 x 2000 x m_dT. Without
    that shadow update, the controlled 2026-11-02 capture measured one solve and 2000 uu/s. The rewrite's sticky
-   fly-in now follows this shadow eligibility. Other view states retain their existing three/two-solve behavior.
+   fly-in now follows this shadow eligibility. Traversal input adds a separate solve before rendering (rule 4.6).
+   Other view states retain their existing three/two-solve behavior in the rewrite.
 
 ### 2. Default view (editor 0x111e3830, game 0x10ab00e0)
 
@@ -244,7 +245,7 @@ to the camera spot). P = m_camParam[m_camMode]; dt = Level.m_dT; "approach x tow
    set excludes LE_ESpotShadow. SpyShadowLighting gathers current client light state, filters special/own-zone
    lights and shadow-caster collision, and warms the cache each tick before FrameView. The projector's tick uses
    the previous render's darkness, so the bridge returns the previous byte's eligibility before updating it.
-   A fly-in without that shadow calls the solver once; with it, twice. Removing the whole call also gives the
+   Render calls for a fly-in without that shadow run the solver once; with it, twice. Removing the whole call gives the
    correct slow-start timer drain and arrival behavior. Ambient, emissive suit lights and AI luminance are not inputs.
 
    The bridge resets on possession, network reset and teleport. It uses the last drawn mesh bounds/bone-zero pose
@@ -257,6 +258,58 @@ to the camera spot). P = m_camParam[m_camMode]; dt = Level.m_dT; "approach x tow
    and dim, occluded, non-shadow-casting or cloaked rates of 1320/2000 uu/s. The same 6000-uu transition completed
    in 92 versus 184 ticks at 60 Hz. Visibility loss/recovery exercised the cached fade. Both solutions build;
    no test suite or rendered smoke was run for this implementation.
+
+6. Pipe and split-jump timing (investigated 2026-11-02): the armed pipe states and VandammeWeapon use the same
+   UseStickyCam and smooth-view state as walking. Native smooth view at 0x10ab01e0 has no physics, stance or IK
+   speed branch. Nonwalking entry selects SA_NO_IK, which disables arm IK without changing the fly-in step.
+   The preceding HOHFP/HOHFPHanged/SplitJumpFP camera modes can change the starting point and therefore the
+   flight distance; elapsed flight time alone does not establish a different movement rate.
+
+   NativeComputeControlVariables (0x10aaf400) does have a camera side effect. With SBPawn and Pawn present,
+   it skips the screen-space input projection for physics 8/9 (fence/ledge), Walking/Falling and a merc controller.
+   Every other spy physics mode calls helper 0x10aafab0, which invokes PlayerCalcView with bUpdate=true
+   (return address 0x10aafb21) before constructing its scene projection. This runs with zero movement input and
+   with iDontUpdatePadInput set. Thus split jumps and horizontal pipes add one full fly-in step per input tick,
+   independent of the scene and shadow calls. The original input direction projection remains approximate in
+   the rewrite, but its camera side effect is restored specifically during sticky-camera flight on the local
+   viewport, outside prediction replay. It runs during ControlInput before PlayerMove and FrameView, so the
+   slow-start timer and arrival transition advance at the original point rather than multiplying final speed.
+
+   | Spy pose | Shadow update | Solves per tick | Startup speed | Steady speed |
+   |---|---|---:|---:|---:|
+   | Walking | inactive | 1 | 1320 uu/s | 2000 uu/s |
+   | Walking | active | 2 | 2640 uu/s | 4000 uu/s |
+   | Split jump / pipe | inactive | 2 | 2640 uu/s | 4000 uu/s |
+   | Split jump / pipe | active | 3 | 3960 uu/s | 6000 uu/s |
+
+   Successful original capture at the reported SteeE split (2026-11-02): X/Y=(-551.84827,1857.0889), pawn yaw
+   32767 and view (686,42438,0); normal split entry settled within 2.3 uu of requested Z=-767.6587. The clean
+   60-Hz capture recorded 25 smooth solves over nine frames (eight frames of three calls, then arrival), at
+   3960/6000 uu/s with shadow darkness 75. A fresh split-first run confirmed callers 0x10aafb21, 0x109ebbb9
+   and 0x109e3f35 once each per frame. Nearby standing used only the latter two. Both had the same sticky HUD,
+   and no light or material values were forced. Captures used the Enhanced PB3 / Reloaded reference, not retail.
+
+   A scratch diagnostic using the real ControlInput and FrameView paths confirmed all four rates above for
+   Walking, Vandamme and OnPipeH, including identical final camera position and arrival state. Frozen or zero
+   input retains the traversal solve; replay, nonlocal and dedicated-server execution does not advance the view.
+   Both solutions build with no warnings or errors. Evidence is retained under local/cam-posture-investigation,
+   local/spy-cam-posture-runtime/SteeE-exact and local/cam-posture-probe/results.json; no test suite or smoke ran.
+
+   A separate render-dependent condition remains outside the rewrite's lighting eligibility model. The own-spy
+   ShadowProjector follows skeletal bone zero and projects opposite its lighting-derived LightDirection with
+   MaxTraceDistance=300 (SetupOldSchoolShadow initializes the direction upward before lighting updates it). Native
+   AProjector::CalcMatrix (0x109c6a20) constructs a finite volume; actor receiver collection at 0x10a37610 tests
+   bounds against its six planes. Only drawn receivers request the assigned projector material (0x10a4cea0),
+   which can reach ShadowBitmapMaterial::Get and its extra camera solve. Receiver visibility and distance/FOV
+   culling happen before drawing. Consequently positive ShadowDarkness alone does not establish a second solve.
+   This is not a hardcoded hanging multiplier or a universal 300-uu floor-distance cutoff: receiver bounds,
+   the projector footprint and whether the receiver is drawn all matter. CullDistance=600 is applied inside
+   ShadowBitmapMaterial::Get after its camera call, so that distance alone is not an early suppression rule.
+
+   Pipe eligibility follows the decoded input predicate; a successful original pipe flight was not measured
+   in this pass. The initial pipe fixture reached the armed state but was blocked before native UseStickyCam.
+   CheckIfCanFire traces backward from the muzzle by 40 uu when walking and by 0.9 times the muzzle-to-pawn
+   distance otherwise. That failed attempt provides no pipe camera-speed evidence.
 
 ### 5. First-person view (editor 0x111f5230, game 0x10a98390)
 

@@ -56,10 +56,17 @@ public sealed class HudActivityFeedDrawer
         if (width < 96f) return;
         float left = right - width;
         float safeBottom = screen.Y * .45f;
-        Vector2 available = AvailableBand(activePage, fpsItems, netItems, left, right, margin, safeBottom,
-            gap, rowHeight, Math.Min(HudActivityFeed.Capacity, entries.Count));
+        int desiredRows = Math.Min(HudActivityFeed.Capacity, entries.Count);
+        Rect2 fpsBounds = TelemetryBounds(fpsItems), netBounds = TelemetryBounds(netItems);
+        Vector2 available = AvailableBand(activePage, fpsBounds, netBounds, left, right, margin, safeBottom,
+            gap, rowHeight, desiredRows);
+        int room = Rows(available);
+        float preferredRight = right;
+        // Tall graphs can fill the entire usual lane. Keep notifications above the crosshair by trying
+        // space beside those panels before dropping rows; equal-capacity choices retain the usual lane.
+        TryBeside(fpsBounds);
+        TryBeside(netBounds);
         float top = available.X, bottom = available.Y;
-        int room = Math.Max(0, (int)MathF.Floor((bottom - top + gap) / (rowHeight + gap)));
         AvailableBounds = new Rect2(left, top, width, Math.Max(0f, bottom - top));
         int count = Math.Min(HudActivityFeed.Capacity, Math.Min(entries.Count, room));
         for (int i = 0; i < entries.Count && VisibleCount < count; i++)
@@ -77,6 +84,26 @@ public sealed class HudActivityFeedDrawer
             VisibleCount++;
         }
         if (VisibleCount > 0) Bounds = new Rect2(left, top, width, VisibleCount * (rowHeight + gap) - gap);
+
+        int Rows(Vector2 band) => Math.Min(desiredRows,
+            Math.Max(0, (int)MathF.Floor((band.Y - band.X + gap) / (rowHeight + gap))));
+
+        void TryBeside(Rect2 panel)
+        {
+            if (room >= desiredRows || panel.Size.X <= 0f || panel.Size.Y <= 0f ||
+                panel.Position.Y >= safeBottom || panel.End.Y <= margin) return;
+            float candidateRight = Math.Min(preferredRight, panel.Position.X - gap * 2f);
+            float candidateLeft = candidateRight - width;
+            if (candidateLeft < margin || candidateRight >= preferredRight) return;
+            Vector2 band = AvailableBand(activePage, fpsBounds, netBounds, candidateLeft, candidateRight,
+                margin, safeBottom, gap, rowHeight, desiredRows);
+            int rows = Rows(band);
+            if (rows <= room) return;
+            left = candidateLeft;
+            right = candidateRight;
+            available = band;
+            room = rows;
+        }
     }
 
     private float RightEdge(Vector2 screen, HudPage? page, float margin, float scale)
@@ -104,20 +131,21 @@ public sealed class HudActivityFeedDrawer
         return Math.Max(margin, x - Math.Max(6f, 8f * scale));
     }
 
-    private Vector2 AvailableBand(HudPage? page, IReadOnlyList<MagmaDrawItem>? fpsItems, IReadOnlyList<MagmaDrawItem>? netItems,
+    private Vector2 AvailableBand(HudPage? page, Rect2 fpsBounds, Rect2 netBounds,
         float left, float right, float top, float bottom, float gap, float rowHeight, int desiredRows)
     {
         _blockedBands.Clear();
-        AddTelemetryBand(fpsItems, left, right, top, bottom, gap * 2f);
-        AddTelemetryBand(netItems, left, right, top, bottom, gap * 2f);
+        AddBlockedBand(fpsBounds, left, right, top, bottom, gap * 2f);
+        AddBlockedBand(netBounds, left, right, top, bottom, gap * 2f);
         if (page is not null)
         {
             foreach (MagmaDrawItem item in page.DrawList.Items)
-                if (IsLocalPrompt(item.Path)) AddBlockedBand(ItemBounds(item), left, right, top, bottom, gap);
+                if (IsLocalPrompt(item.Path) || IsReservedArea(item.Path))
+                    AddBlockedBand(ItemBounds(item), left, right, top, bottom, gap);
         }
         _blockedBands.Sort(static (a, b) => a.X.CompareTo(b.X));
 
-        // Stay in the same safe lane. Prefer the upper free interval when both fit the same number of rows,
+        // Within this candidate lane, prefer the upper free interval when both fit the same number of rows,
         // but use space below an obstruction when that preserves more activity. Bottom telemetry cannot
         // push the feed offscreen, and centre telemetry cannot conceal otherwise usable space above it.
         Vector2 best = new(top, top);
@@ -140,9 +168,9 @@ public sealed class HudActivityFeedDrawer
         }
     }
 
-    private void AddTelemetryBand(IReadOnlyList<MagmaDrawItem>? items, float left, float right, float top, float bottom, float gap)
+    private static Rect2 TelemetryBounds(IReadOnlyList<MagmaDrawItem>? items)
     {
-        if (items is null) return;
+        if (items is null) return default;
         Rect2 union = default;
         bool any = false;
         // A graph can contain hundreds of segments. Reserve its element once rather than sorting every segment.
@@ -153,7 +181,14 @@ public sealed class HudActivityFeedDrawer
             union = any ? union.Merge(bounds) : bounds;
             any = true;
         }
-        if (any) AddBlockedBand(union, left, right, top, bottom, gap);
+        return union;
+    }
+
+    private static bool IsReservedArea(string path)
+    {
+        foreach (string name in ReservedAreas)
+            if (path.Length > name.Length && path[name.Length] == '/' && path.StartsWith(name, StringComparison.Ordinal)) return true;
+        return false;
     }
 
     private void AddBlockedBand(Rect2 bounds, float left, float right, float top, float bottom, float gap)

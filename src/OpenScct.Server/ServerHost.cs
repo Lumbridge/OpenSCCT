@@ -33,6 +33,9 @@ public sealed record ServerSettings
 
     public ulong MatchSeed { get; init; } = 1;
 
+    /// <summary>Opt-in training companions for recordings; off unless SVM_ENABLE_TRAINING_DATA=1.</summary>
+    public bool EnableTrainingData { get; init; } = TrainingDataFeature.EnabledByEnvironment;
+
     public ENetMode NetMode { get; init; } = ENetMode.NM_DedicatedServer;
 
     /// <summary>

@@ -89,7 +89,11 @@ PlayerTick) unless iDontUpdatePadInput is set.
    viewport centre): the normalised dot product above 0.45 sets 16, below -0.45 sets 32. The stick vector is
    `(aStrafe, -aForward, 0.01)` and is normalised, so the speed mode does not change the bits (a slow spy's key, 2400,
    climbs). The projection details are not fully decoded (open question 2); the port takes the screen's up as the
-   climb direction.
+   climb direction. The projection has a separate camera side effect: the native calls helper 0x10aafab0,
+   which updates PlayerCalcView (return site 0x10aafb21) even with no movement input or input frozen. This adds
+   one sticky-camera fly-in step for split jumps, pipes and the other qualifying spy physics modes. The rewrite
+   restores that call during local sticky flight, excluding prediction replay and dedicated servers; see
+   camera.md rule 4.6 for the predicate and measured rates.
 3. Then, for every mode but ledge and fence, the world move M = X' aForward + Y' aStrafe with X' and Y' the
    controller's (camera) yaw axes flattened and normalised; with F the pawn's facing and F x Up its left axis:
    M . (F x Up) > 2100 sets 1, < -2100 sets 2; M . F_xy / |F_xy| above 4500 (3000 with last frame's bit 4) sets 4,

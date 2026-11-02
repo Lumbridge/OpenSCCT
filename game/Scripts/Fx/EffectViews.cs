@@ -493,6 +493,15 @@ public sealed partial class EffectViews : Node3D
                     mesh.Visible &= onBone && a.AttachmentBone == OpenScct.Game.Equipment.K.GasMaskBone &&
                         a.Instigator is SBasePawn { bGasMask: true, Health: > 0, bDeleteMe: false } wearer &&
                         ReferenceEquals(a.Base, wearer);
+                    if (mesh.Visible && Map is { } maskMap)
+                    {
+                        // Sample at the worn mask, not its spawn location. A modest ambient lift keeps the
+                        // respirator readable against the black balaclava while retaining directional lighting.
+                        Aabb maskBounds = mesh.Transform * mesh.Mesh.GetAabb();
+                        ActorLighting.Apply(mesh, maskMap.LightActor(UeSpace.ToUe(maskBounds.GetCenter()),
+                            MathF.Max(8f, maskBounds.Size.Length() * UeSpace.UnitsPerMetre * 0.5f),
+                            Math.Max(a.AmbientGlow, (byte)64)));
+                    }
                 }
                 // On the pawn seen from its own eyes it follows the body to the shadow-only layer: out of the main view,
                 // still in the flares' shadows (SimPawnView.SetShadowOnly).

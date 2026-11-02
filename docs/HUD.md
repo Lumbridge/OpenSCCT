@@ -167,8 +167,9 @@ available screen travel), scale (50–200%) and opacity (0–100%) affect the en
 background and graph. Panels fit within the viewport even after resizing. At their default upper-right positions,
 network information stacks below the FPS panel's actual visible bounds. These preferences are stored in
 `fps_telemetry` and `network_telemetry`; existing `show_fps`/`show_net` preferences retain their enabled state.
-The activity feed uses free space above or below moved panels within its usual lane, so placing telemetry near
-the bottom does not hide otherwise unobstructed activity.
+The activity feed uses free space above or below moved panels within its usual lane. If tall FPS/network graphs
+leave too little room there, it uses space to their left, staying above the crosshair and clear of gameplay notices.
+Placing telemetry near the bottom does not hide otherwise unobstructed activity.
 
 FPS options include frame time in milliseconds, 1% low/high FPS, average FPS and peak frame time. The statistics
 retain the previous five-second / 2,048-frame window. An optional line or bar graph shows 2–30 seconds of frame
@@ -511,7 +512,8 @@ CI's default set stays `boot` and `testbox`. With a renderer, `--svm-hud-capture
 `tests/OpenScct.Net.Tests/ChatMessageTests.cs`, `tests/OpenScct.Integration.Tests/ChatRelayTests.cs`.
 
 `--svm-smoke=hud-activity-feed` checks all seven HUD pages at 640x480, 1280x720, 1920x1080 and 3440x1440,
-including measured long-name truncation, diagnostics, stretched HUD, timing and visibility. With a renderer it
+including measured long-name truncation, enlarged/moved telemetry graphs in Always and Issues modes, stretched
+HUD, timing and visibility. With a renderer it
 saves native-font pixel captures under `SVM_PLAY_SHOTS` (default `local/test-results/hud-activity-feed`).
 `HudActivityFeedTests`, `CombatActivityTests` and `CombatActivityNetworkTests` cover typed routing, producer
 attribution, bounded lifecycle and gas notification delivery across latency.

@@ -1,7 +1,12 @@
 # Demo training data, version 1
 
-Recording a demo also attempts to save `<basename>.training.jsonl.gz`. The companion is a stable export of
-structured simulation data; reading it does not require decoding network packets or loading the original game
+Training data saving is disabled by default. Set `SVM_ENABLE_TRAINING_DATA=1` before starting the game/server to
+enable capture; online downloads also require that flag on the client. The equivalent programmatic setting is
+`EnableTrainingData` on `ServerSettings`, `OnlineServerSettings` and `OnlineClientSettings`. Ordinary demo
+recording does not depend on this flag, and existing training companions are kept.
+
+When enabled, recording a demo also attempts to save `<basename>.training.jsonl.gz`. The companion is a stable
+export of structured simulation data; reading it does not require decoding network packets or loading the original game
 build. Keep the replay and matching map/build for visual investigation. Older replays cannot retroactively supply
 inputs or private player state that were never recorded.
 

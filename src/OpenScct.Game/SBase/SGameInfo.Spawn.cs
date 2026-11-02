@@ -396,16 +396,17 @@ public partial class SGameInfo
         return GetClassIndex().FindNearest(actor.GetType()) is { } info ? new ClassRef(info.Path) : expected;
     }
 
-    /// <summary>ClientSetRotation, a server-to-owner call: runs here for a local player, goes to the host otherwise.</summary>
+    /// <summary>Apply the spawn view and upright pawn rotation before sending the same setup to the owner.</summary>
     private void SendClientSetRotation(Controller c, FRotator rotation)
     {
+        // The original Engine.Controller.ClientSetRotation keeps pitch on the view, but clears the pawn's
+        // pitch and roll. Apply that setup before our initial actor/movement snapshots as well: a remote
+        // owner's Pawn reference can arrive after the RPC. Otherwise a tilted PlayerStart (AquaE: -696)
+        // survives on the pawn and makes its rising jump fail CheckLedgeGrabFeet's local-forward-speed gate.
+        c.ClientSetRotation(rotation);
         if (c is PlayerController { IsRemotePlayer: true } remote)
         {
             Host.ClientCall(remote, new GameCall("ClientSetRotation") { Rotation = rotation });
-        }
-        else
-        {
-            c.ClientSetRotation(rotation);
         }
     }
 }

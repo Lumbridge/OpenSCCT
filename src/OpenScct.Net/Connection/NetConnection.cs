@@ -901,9 +901,10 @@ public sealed partial class NetConnection : INetObjectMap
         Stats.OutPackets++;
         Stats.OutBytes += bytes;
         _periodOutPackets++;
-        if (_recorder is not null)
+        if (_recorder is not null || _driver.Transport.IsPlayback)
         {
-            // A demo file loses nothing: the packet is acked as soon as it is written.
+            // Recording writes and playback's discarded client replies have no remote peer to acknowledge them.
+            // Complete them locally, including reliable spectator RPCs, instead of filling their resend buffers.
             ushort seq = _oldestInFlight;
             _oldestInFlight++;
             _inFlight--;
@@ -942,7 +943,7 @@ public sealed partial class NetConnection : INetObjectMap
         }
 
         _lastTickTime = now;
-        if (_recorder is not null)
+        if (_recorder is not null || _driver.Transport.IsPlayback)
         {
             LastReceiveTime = now;
         }

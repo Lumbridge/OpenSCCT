@@ -60,27 +60,35 @@ public sealed class RecordingLaunchTests
             Assert.DoesNotContain(recording.Index.Players, player => player.Name == "Demo");
             Assert.Contains(recording.Index.Markers, marker => marker.Kind == DemoMarkerKind.RoundStart);
 
-            using var playback = new DemoPlaybackTransport(recording);
-            using var replay = new ClientSession(playback, "demo", 0, new ClientSettings
+            // A backward seek reconstructs a fresh client from the prefix, even though its visible timeline starts
+            // at the round marker. Both the initial watch and the rewind must already have players at that point.
+            for (int visit = 0; visit < 2; visit++)
             {
-                PlayerName = "Demo", Gameplay = true, Maps = WalkerRig.Maps, Classes = WalkerRig.Classes,
-            });
-            bool sawSpectator = false;
-            int maxPlayingPawns = 0;
-            for (uint tick = recording.Index.FirstTick; tick <= recording.Index.LastTick; tick++)
-            {
-                playback.ReleaseUpTo(tick);
-                replay.Tick(VirtualClock.TickToMicroseconds(tick - recording.Index.FirstTick + 1, recording.Header.TickRate));
-                sawSpectator |= replay.LocalPlayer?.PlayerReplicationInfo?.bOnlySpectator == true;
-                int playingPawns = 0;
-                foreach (var pawn in replay.World.Level.DynamicActors<SBasePawn>())
-                    if (!pawn.bDeleteMe && pawn.PlayerReplicationInfo is { bOnlySpectator: false }) playingPawns++;
-                maxPlayingPawns = Math.Max(maxPlayingPawns, playingPawns);
-            }
+                using var playback = new DemoPlaybackTransport(recording);
+                using var replay = new ClientSession(playback, "demo", 0, new ClientSettings
+                {
+                    PlayerName = "Demo", Gameplay = true, Maps = WalkerRig.Maps, Classes = WalkerRig.Classes,
+                });
+                bool sawSpectator = false;
+                int maxPlayingPawns = 0;
+                for (uint tick = recording.Index.FirstTick; tick <= recording.Index.LastTick; tick++)
+                {
+                    playback.ReleaseUpTo(tick);
+                    replay.Tick(VirtualClock.TickToMicroseconds(tick - recording.Index.FirstTick + 1, recording.Header.TickRate));
+                    sawSpectator |= replay.LocalPlayer?.PlayerReplicationInfo?.bOnlySpectator == true;
+                    int playingPawns = 0;
+                    foreach (var pawn in replay.World.Level.DynamicActors<SBasePawn>())
+                        if (!pawn.bDeleteMe && pawn.PlayerReplicationInfo is { bOnlySpectator: false }) playingPawns++;
+                    maxPlayingPawns = Math.Max(maxPlayingPawns, playingPawns);
+                    if (tick == recording.PlaybackFirstTick) Assert.Equal(4, playingPawns);
+                }
 
-            Assert.True(playback.AtEnd);
-            Assert.True(sawSpectator);
-            Assert.Equal(4, maxPlayingPawns);
+                Assert.True(playback.AtEnd);
+                Assert.True(sawSpectator);
+                Assert.Equal(4, maxPlayingPawns);
+                Assert.Equal(0, replay.Connection!.Stats.OutReliableResends);
+                Assert.Equal(0, replay.Connection.Stats.OutPacketsLost);
+            }
         }
         finally { Directory.Delete(folder, recursive: true); }
     }

@@ -39,6 +39,8 @@ public sealed record ClientSessionRequest(ITransport Transport, string Address, 
 public sealed record OnlineClientSettings
 {
     public bool RecordDemos { get; init; }
+    /// <summary>Opt-in download of training companions; off unless SVM_ENABLE_TRAINING_DATA=1.</summary>
+    public bool EnableTrainingData { get; init; } = TrainingDataFeature.EnabledByEnvironment;
     public string? DemoFolder { get; init; }
     public string PlayerName { get; init; } = "Player";
 

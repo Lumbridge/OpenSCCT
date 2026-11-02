@@ -22,6 +22,7 @@ public sealed partial class DemoRecorder : ITrainingInputSink, ITrainingEventSin
 
     internal void StartTraining()
     {
+        if (!_host.Settings.EnableTrainingData) return;
         try
         {
             _training = new TrainingDataWriter(Writer.Path, Writer.Header);

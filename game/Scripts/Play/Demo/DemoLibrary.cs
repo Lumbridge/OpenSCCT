@@ -71,6 +71,13 @@ public static class DemoLibrary
         return target;
     }
 
+    /// <summary>Deletes one local recording and its optional training companion after the library confirms it.</summary>
+    public static void Delete(string path)
+    {
+        File.Delete(TrainingDataFile.PathForDemo(path));
+        File.Delete(path);
+    }
+
     /// <summary>Deletes cached downloads older than <paramref name="keep"/>.</summary>
     public static void PruneCache(TimeSpan keep)
     {
@@ -86,8 +93,7 @@ public static class DemoLibrary
             {
                 if (File.GetLastWriteTimeUtc(file) < cutoff)
                 {
-                    File.Delete(TrainingDataFile.PathForDemo(file));
-                    File.Delete(file);
+                    Delete(file);
                 }
             }
             catch (Exception e) when (e is IOException or UnauthorizedAccessException)

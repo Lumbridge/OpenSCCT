@@ -167,6 +167,9 @@ public sealed record OnlineServerSettings
     /// </summary>
     public string? DemoFolder { get; init; }
 
+    /// <summary>Opt-in training capture and delivery; off unless SVM_ENABLE_TRAINING_DATA=1.</summary>
+    public bool EnableTrainingData { get; init; } = TrainingDataFeature.EnabledByEnvironment;
+
     /// <summary>Writes a JSON line for every finished round (rl:qol.matchlog); null (the default) logs nothing.</summary>
     public MatchLog? MatchLog { get; init; }
 }
@@ -622,6 +625,7 @@ public sealed partial class OnlineServer : IDisposable
             NetRate = Settings.NetRate,
             Profile = Settings.Profile,
             MatchSeed = Settings.MatchSeed + (ulong)RoundsStarted,
+            EnableTrainingData = Settings.EnableTrainingData,
             NetMode = Settings.Dedicated ? ENetMode.NM_DedicatedServer : ENetMode.NM_ListenServer,
             Maps = Maps,
             Classes = _classes,

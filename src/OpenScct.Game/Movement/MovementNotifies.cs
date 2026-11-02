@@ -50,10 +50,13 @@ public static class MovementNotifies
         handlers.Register(NotifyTakeArmControlForBTWFireRight, a => (a as SBasePawn)?.NotifyTakeArmControlForBTWFireRight());
 
         // Merc death, wake and traversal clips lower/raise the rifle at their authored notify frame.
-        // Spy traversal actions already own their quick draw; only their BTW clips use this handler.
+        // Split jumps draw at the authored frame and switch the brace's aim clips with the pistol.
+        // Other spy traversal actions own their quick draw; their existing BTW handler is clip-filtered.
         handlers.Register(NotifyDrawUndrawWeapon, a =>
         {
             if (a is SPAWNDEFENSE merc) Equipment.PawnWeapons.MercNotifyDrawUndrawWeapon(merc);
+            else if (a is SPawnAttaque { Physics: EPhysics.PHYS_Vandamme } spy)
+                Equipment.PawnWeapons.SpyNotifyDrawUndrawWeapon(spy);
             else (a as SBasePawn)?.BtwDrawNotify(bChangeHand: false);
         });
         handlers.Register(NotifyChangeHandWeapon, a => (a as SBasePawn)?.BtwDrawNotify(bChangeHand: true));

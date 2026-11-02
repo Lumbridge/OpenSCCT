@@ -67,6 +67,11 @@ side, and the short explosion immunity after spawning.
    `ClientSetRotation`; any other team gets `ClientSetRotation(Pawn.Rotation)`. SPlayerController's
    `ClientSetRotation` runs the Engine one (controller rotation, pawn yaw) and then sets `MyDesiredRotation` and
    `LocalMyDesiredRotation` to the new controller rotation, so the aim does not swing back to the old one.
+   The Engine function explicitly clears the pawn's pitch and roll while keeping the full view rotation.
+   OpenSCCT applies this setup on the authority before sending it to a remote owner, so the initial pawn and
+   movement snapshots already carry the upright rotation even when the owner's pawn reference arrives after
+   the RPC. AquaE's tilted `STriggerPlayerStart2210` otherwise leaves pitch -696 on the spy: upward jump velocity
+   then projects backward in the original feet-ledge speed test and prevents the `LedgStAlFtL/R` step-up.
 8. `AddDefaultInventory(Pawn)`: `SBasePawn.UpdateInventory(GameMode)` then `AddDefaultGadgets(GameMode)`
    (inventory spec).
 9. `TriggerEvent(StartSpot.Event, StartSpot, Pawn)` (nothing when Event is None).

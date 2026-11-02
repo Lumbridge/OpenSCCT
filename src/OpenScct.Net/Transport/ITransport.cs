@@ -48,6 +48,12 @@ public interface ITransport : IDisposable
     /// </summary>
     bool AdoptsRemoteSalt => false;
 
+    /// <summary>
+    /// True for a local recording with no live remote peer: outgoing packets are consumed locally and acknowledged
+    /// immediately, and receive silence must not time out the recorded connection.
+    /// </summary>
+    bool IsPlayback => false;
+
     /// <summary>The remote address of an endpoint as text for logs, bans and the admin status ("ip:port"), or null.</summary>
     string? RemoteAddress(EndpointId endpoint) => null;
 }

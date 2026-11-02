@@ -49,7 +49,7 @@ public sealed partial class OnlineServer
     private void SendDemoWelcome(SessionPlayer player)
     {
         // Keep the v1 field for older clients; v2 clients explicitly opt into the companion file.
-        Send(player, SessionProtocol.Line("democap", 1, 2));
+        Send(player, SessionProtocol.Line("democap", 1, Settings.EnableTrainingData ? 2 : 1));
         if (_demoSends.Remove(player.Id, out var transfer)) transfer.Dispose();
     }
 
@@ -63,7 +63,7 @@ public sealed partial class OnlineServer
             if (enabled)
             {
                 _demoSubscribers.Add(player.Id);
-                if (SessionProtocol.Int(fields, 1) >= 2) _trainingDemoSubscribers.Add(player.Id);
+                if (Settings.EnableTrainingData && SessionProtocol.Int(fields, 1) >= 2) _trainingDemoSubscribers.Add(player.Id);
                 else _trainingDemoSubscribers.Remove(player.Id);
                 // An existing full recording can be shared even when the player opted in during a round.
                 if (Host.Recorder is { IsFinished: false }) _roundDemoRecipients.Add(player.Id);
@@ -161,6 +161,7 @@ public sealed partial class OnlineServer
 
     private PersonalDemoFile? DescribeTrainingFile(string demoPath)
     {
+        if (!Settings.EnableTrainingData) return null;
         try
         {
             string path = TrainingDataFile.PathForDemo(demoPath);
