@@ -23,7 +23,10 @@ internal sealed partial class PlayerPortal
         else if (feed.Entries.Count == 0)
             body.Append(Empty("No releases yet", "Published OpenSCCT updates will appear here."));
 
-        body.Append("<div class=\"release-list\">");
+        body.Append("<div class=\"changelog-layout\"><aside class=\"changelog-search panel\" aria-label=\"Search changelog\" hidden>" +
+            "<label for=\"changelog-query\">Search changelog</label><input id=\"changelog-query\" type=\"search\" maxlength=\"120\" placeholder=\"Feature, fix, or version…\" aria-describedby=\"changelog-search-help\" aria-controls=\"changelog-results\">" +
+            "<p id=\"changelog-search-help\" class=\"muted\">Search loaded releases, even with a typo. Select a result to jump to it.</p>" +
+            "<p id=\"changelog-search-status\" role=\"status\"></p><ol id=\"changelog-results\"></ol></aside><div class=\"release-list\">");
         for (int i = 0; i < feed.Entries.Count; i++)
         {
             ChangelogEntry release = feed.Entries[i];
@@ -40,7 +43,7 @@ internal sealed partial class PlayerPortal
             if (i > 0) body.Append("</details>");
             body.Append("</article>");
         }
-        body.Append("</div><div class=\"section button-row\">").Append(Link(ReleaseChangelog.ReleasesUrl, "Browse all releases on GitHub ↗", "button secondary")).Append("</div>");
+        body.Append("</div></div><div class=\"section button-row\">").Append(Link(ReleaseChangelog.ReleasesUrl, "Browse all releases on GitHub ↗", "button secondary")).Append("</div>");
         return Show(c, "Changelog", "changelog", body.ToString());
     }
 }
