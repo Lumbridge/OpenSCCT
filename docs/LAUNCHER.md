@@ -224,8 +224,9 @@ says so instead of updating; it never asks for elevation.
 
 ## Play
 
-PLAY stays available for an installed, playable version even when a newer release is known. The separate
-**Update** button in step 2 installs that release. Every press of PLAY checks GitHub for releases again, even
+When a newer release is known, **Update** is the large primary button. A smaller **Play current version** button
+beside it lets players defer the update when their installed version is playable. When no update is available,
+**PLAY** is the primary button. Both play buttons check GitHub for releases again, even
 when startup checks are disabled, with a five-second timeout. If a new release is found online, the player can
 choose **Update now**, **Play current version**, or **Cancel**. Deferring applies to that launch; later launches
 check again. Offline, timed out, or rate limited checks allow the installed version to start without an update

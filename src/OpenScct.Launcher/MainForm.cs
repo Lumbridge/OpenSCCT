@@ -48,6 +48,7 @@ internal sealed partial class MainForm : Form
         ChooseGame,
         Check,
         Install,
+        Update,
         Prepare,
         Play,
         Cancel,
@@ -83,13 +84,13 @@ internal sealed partial class MainForm : Form
     /// <summary>The Steam copy's Versus folder, looked for once when the window opens; null when there is none.</summary>
     private string? _steamGame;
     private readonly Button _rebuild = Theme.Button("Rebuild");
-    private readonly Button _updateGame = Theme.Button("Update");
     private readonly StepCard _gameStep;
     private readonly StepCard _installStep;
     private readonly StepCard _filesStep;
     private readonly GreenProgressBar _progress = new();
     private readonly Label _progressText = Theme.Label(string.Empty, Theme.Small, Theme.Muted);
     private readonly Button _main = Theme.Button("PLAY", primary: true);
+    private readonly Button _playCurrent = Theme.Button("Play current version");
     private readonly LinkLabel _status = new()
     {
         AutoSize = true, Font = Theme.Body, ForeColor = Theme.Muted, BackColor = Color.Transparent,
@@ -124,7 +125,7 @@ internal sealed partial class MainForm : Form
         _launcherVersion = SemVersion.TryParse(info, out SemVersion? v) ? v : null;
 
         _gameStep = new StepCard(1, "Choose where the game files come from", _changeGame, _useSteam, _useDownloads);
-        _installStep = new StepCard(2, "Download OpenSCCT", _updateGame);
+        _installStep = new StepCard(2, "Download OpenSCCT");
         _filesStep = new StepCard(3, "Prepare the game files", _rebuild);
 
         BuildUi();
@@ -182,14 +183,17 @@ internal sealed partial class MainForm : Form
         _progress.Margin = new Padding(0, 14, 0, 2);
         Theme.Wrapping(_progressText);
 
-        // The big button on the right, the status line next to it.
+        // The big button on the right, with a smaller option to defer an update and play.
         _main.Anchor = AnchorStyles.Right | AnchorStyles.Top;
+        _playCurrent.Anchor = AnchorStyles.Right;
+        _playCurrent.Margin = new Padding(0, 0, 12, 0);
+        _playCurrent.Visible = false;
         Theme.Wrapping(_status);
         _status.Margin = new Padding(0, 8, 16, 0);
         _status.LinkClicked += (_, e) => ShowInExplorer(e.Link?.LinkData as string);
-        TableLayoutPanel actions = Theme.Grid(Theme.Fill, Theme.Auto);
+        TableLayoutPanel actions = Theme.Grid(Theme.Fill, Theme.Auto, Theme.Auto);
         actions.Margin = new Padding(0, 14, 0, 0);
-        Theme.AddRow(actions, _status, _main);
+        Theme.AddRow(actions, _status, _playCurrent, _main);
 
         // The less common actions, small, along the bottom edge.
         Label version = Theme.Label("Launcher " + (_launcherVersion?.ToString() ?? "dev"), Theme.Small, Theme.Muted);
@@ -249,11 +253,11 @@ internal sealed partial class MainForm : Form
         tips.SetToolTip(_mapsButton, "Download new maps made by the community.");
 
         _main.Click += async (_, _) => await DoNextAsync();
+        _playCurrent.Click += async (_, _) => await PlayOrJoinAsync();
         _changeGame.Click += (_, _) => ChooseGameFolder();
         _useSteam.Click += (_, _) => UseSteamCopy();
         _useDownloads.Click += (_, _) => UseDownloadedFiles();
         _rebuild.Click += async (_, _) => await RunAsync(GameFound ? BuildContentAsync : DownloadContentAsync);
-        _updateGame.Click += async (_, _) => await RunAsync(UpdateGameAsync);
         _whatsNew.Click += (_, _) => ShowWhatsNew();
         _check.Click += async (_, _) => await RunAsync(CheckAsync);
         _rollback.Click += (_, _) => Rollback();
@@ -347,7 +351,6 @@ internal sealed partial class MainForm : Form
         _useDownloads.Enabled = !busy;
         _rollback.Enabled = _store.Previous() is not null && !busy;
         _check.Enabled = !busy;
-        _updateGame.Enabled = !busy;
         _settingsButton.Enabled = !busy;
         _mapsButton.Enabled = !busy;
         _launcherButton.Enabled = !busy;
@@ -392,14 +395,13 @@ internal sealed partial class MainForm : Form
         VersionedRelease? latest = _lastCheck?.Latest;
         bool update = latest is not null && current is not null && latest.Version > current
             && _lastCheck is { GameUpdateAvailable: true };
-        _updateGame.Visible = update && pending is null;
         if (pending is not null)
         {
             _installStep.Set(StepState.Done, $"Version {pending} is ready and starts the next time you play.");
         }
         else if (current is not null && update && latest is not null)
         {
-            _installStep.Set(StepState.Choice, $"Version {current} is installed. Version {latest.Version} is available. Update now or press PLAY to keep using {current}.");
+            _installStep.Set(StepState.Choice, $"Version {current} is installed. Version {latest.Version} is available. Press Update, or choose Play current version to update later.");
         }
         else if (current is not null)
         {
@@ -547,17 +549,23 @@ internal sealed partial class MainForm : Form
     /// <summary>The big button: the next thing to do, or PLAY.</summary>
     private void RefreshMainButton(SemVersion? current, bool busy)
     {
+        bool update = current is not null && _store.Pending() is null
+            && _lastCheck is { GameUpdateAvailable: true, Latest: { } latest } && latest.Version > current;
+        bool playable = current is not null
+            && (FilesReady(current) || DownloadedFilesPlayable(current) || (GameFound && BuiltFilesPlayable(current)));
         (NextAction next, string text, bool enabled) = busy
             ? (NextAction.Cancel, _buildingContent || _downloadingContent ? "Stop" : "Cancel", true)
             : current is null
                 ? _lastCheck is { Latest: not null, GameUpdateAvailable: true }
                     ? (NextAction.Install, "Install", true)
                     : (NextAction.Check, _lastCheck is null ? "Check for updates" : "Check again", true)
-                : !FilesReady(current) && !DownloadedFilesPlayable(current) && !(GameFound && BuiltFilesPlayable(current))
-                    ? GameFound
-                        ? (NextAction.Prepare, "Prepare game files", ContentBuildPlan.Python(_layout.VersionDir(current.ToString())) is not null)
-                        : (NextAction.Prepare, "Download game files", true)
-                    : (NextAction.Play, "PLAY", true);
+                : update
+                    ? (NextAction.Update, "Update", true)
+                    : !playable
+                        ? GameFound
+                            ? (NextAction.Prepare, "Prepare game files", ContentBuildPlan.Python(_layout.VersionDir(current.ToString())) is not null)
+                            : (NextAction.Prepare, "Download game files", true)
+                        : (NextAction.Play, "PLAY", true);
         if (!busy && _pendingWebJoin is not null && current is not null)
         {
             if (current < WebJoinRequest.MinimumGameVersion && next == NextAction.Play)
@@ -565,6 +573,10 @@ internal sealed partial class MainForm : Form
             else if (next == NextAction.Play) text = "JOIN SESSION";
         }
         _next = next;
+        _playCurrent.Visible = update && playable
+            && (_pendingWebJoin is null || current! >= WebJoinRequest.MinimumGameVersion);
+        _playCurrent.Enabled = !busy;
+        _playCurrent.Text = _pendingWebJoin is null ? "Play current version" : "Join with current version";
         _check.Visible = next != NextAction.Check;
         _main.Text = text;
         _main.Enabled = enabled;
@@ -584,16 +596,22 @@ internal sealed partial class MainForm : Form
                 await RunAsync(CheckAsync);
                 break;
             case NextAction.Install:
+            case NextAction.Update:
                 await RunAsync(UpdateGameAsync);
                 break;
             case NextAction.Prepare:
                 await RunAsync(GameFound ? BuildContentAsync : DownloadContentAsync);
                 break;
             case NextAction.Play:
-                if (_pendingWebJoin is not null) await TryWebJoinAsync();
-                else await RunAsync(cancel => PlayWithUpdateCheckAsync(cancel));
+                await PlayOrJoinAsync();
                 break;
         }
+    }
+
+    private async Task PlayOrJoinAsync()
+    {
+        if (_pendingWebJoin is not null) await TryWebJoinAsync();
+        else await RunAsync(cancel => PlayWithUpdateCheckAsync(cancel));
     }
 
     private void ChooseGameFolder()
@@ -1091,7 +1109,7 @@ internal sealed partial class MainForm : Form
             Text = $"You have version {check.Installed}. Update now, or keep playing your installed version and update later.",
             Icon = TaskDialogIcon.Information,
             AllowCancel = true,
-            DefaultButton = play,
+            DefaultButton = update,
             Buttons = { update, play, TaskDialogButton.Cancel },
         };
         TaskDialogButton choice = TaskDialog.ShowDialog(this, page);
