@@ -156,6 +156,12 @@ synthetic test tone pass untouched. Per talker: `VoiceChat.SetMuted` (one way, a
 `game/project.godot` enables `audio/driver/enable_input`; Godot opens the microphone only when the capture player
 starts. Persisting the settings belongs to the options screen.
 
+The hub and online lobby's per-player volume sliders save each change locally to `user://voice-volumes.json`.
+These volumes are shared across hub visits, lobbies and matches and restored after restarting the game. They use
+case-insensitive player names because the client rosters do not expose a stable account ID; a renamed player starts
+at the default 100%. Volumes range from 0 to 200%. They are separate from the general options so applying or resetting
+those options cannot discard them. Smoke runs keep their own unsaved volumes.
+
 ## Microphone clean-up
 
 `OpenScct.Net.Voice.Dsp.VoiceDsp` runs on each 20 ms microphone frame after the resampler (48 kHz) and before the

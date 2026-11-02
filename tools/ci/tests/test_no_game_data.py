@@ -263,6 +263,22 @@ def test_art_manifest_normalizes_path_case(tmp_path: Path) -> None:
     assert ngd.scan(ngd.iter_tree_entries(tmp_path), ngd.load_art_manifest(json.dumps(manifest).encode()))[1] == []
 
 
+def test_cosmetic_art_requires_credits_and_exact_source_hash(tmp_path: Path) -> None:
+    path = 'content/assets/cosmetics/textures/woodland.png'
+    data = b'\x89PNG\r\n\x1a\n' + b'original artwork' * 10
+    manifest = {'license': 'Original generated OpenSCCT artwork',
+                'credits': 'content/assets/sidearms/CREDITS.txt',
+                'assets': {path: {'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest()}}}
+    with pytest.raises(ngd.GuardError, match='cosmetic assets require their own credits'):
+        ngd.load_art_manifest(json.dumps(manifest).encode())
+    manifest['additional_credits'] = ['content/assets/cosmetics/CREDITS.txt']
+    approval = ngd.load_art_manifest(json.dumps(manifest).encode())
+    write(tmp_path, path, data)
+    assert ngd.scan(ngd.iter_tree_entries(tmp_path), approval)[1] == []
+    write(tmp_path, path, data[:-1] + b'x')
+    assert [finding.rule for finding in ngd.scan(ngd.iter_tree_entries(tmp_path), approval)[1]] == ['media']
+
+
 def test_large_file_still_gets_magic_check(tmp_path: Path) -> None:
     data = bytes((0xC1, 0x83, 0x2A, 0x9E)) + b"\0" * (6 * MB)
     assert rules_for(tmp_path, "data/huge.bin", data) == ["size", "ue-package"]

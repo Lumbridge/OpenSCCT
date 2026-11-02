@@ -1,0 +1,6 @@
+Use case: stylized-concept
+Asset type: original premium game cosmetic albedo texture for the Minefield unlockable.
+Primary request: Tactical olive camouflage with scattered abstract circular tripwire rings and interrupted thin yellow connecting traces integrated into broad irregular dark olive camo islands. Rings differ in scale and appear partially occluded, restrained yellow warning slashes, lots of quiet green surface. Clean functional military-inspired design, no literal mines, maps, writing, hazard symbols or schematic labels.
+Color palette: #1A2214 #3E4A2A #E8C018.
+Composition: One square 1024x1024 or higher, perfectly flat orthographic production material texture filling every edge. Seamlessly repeating at opposite edges. Uniform neutral albedo illumination. Rich professionally art-directed shapes and controlled fine detail, immediately readable when wrapped onto tactical clothing and weapon surfaces.
+Constraints: Create the artwork entirely from scratch. ONE texture, no contact sheet, no borders or margins, no text or lettering, no logos or watermark, no weapon, garment, real object, folds, seams, spotlight, vignette, cast shadow, 3D rendering, perspective or mockup.

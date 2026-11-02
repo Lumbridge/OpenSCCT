@@ -1,0 +1,6 @@
+Use case: stylized-concept
+Asset type: production game cosmetic surface albedo texture, fitted to character suits and/or weapons.
+Primary request: Recreate Red Tiger from scratch.
+New premium red tiger-stripe camouflage inspired by user's red reference: vivid crimson #c01818 broad torn organic streaks over deep charcoal #16191c with restrained dark blood red #7c2226 internal islands. Slashing elongated irregular tiger bands flow almost horizontally with slight diagonal drift, uneven jagged natural silhouettes, abundant charcoal gaps, no smooth sine waves. Bold large and medium streaks plus sparse smaller torn fragments; very crisp print.
+Composition: one single square 1024x1024 or higher flat material swatch, seamlessly wrapping across all four edges, edge-to-edge pattern, perfectly orthographic. Uniform neutral albedo with no baked illumination. Premium crisp game artwork, readable design at gameplay distance, fine detail subordinate to large forms.
+Constraints: single texture only, no borders, collage, inset, label, text, logo, weapon, clothing object, stitching seam, fold, cast shadow, spotlight, vignette, perspective or 3D mockup.

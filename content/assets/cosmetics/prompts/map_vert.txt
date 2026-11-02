@@ -1,0 +1,6 @@
+Use case: stylized-concept
+Asset type: production game cosmetic surface albedo texture, fitted to character suits and/or weapons.
+Primary request: Recreate Vertigo Plaza map mastery camouflage from scratch.
+Premium urban nightlife camouflage, wide angular diagonal splinter shards crossed by smaller offset trapezoid islands; strong movement without an obvious repeat grid. Very deep indigo #0e0e1a, dusky violet #3a2e6e, restrained amber #e89a3a accents occupying about15percent. Large crisp shapes dominate, plenty of very dark space, no buildings/signs/glowing lights.
+Composition: one single square 1024x1024 or higher flat material swatch, seamlessly wrapping across all four edges, edge-to-edge pattern, perfectly orthographic. Uniform neutral albedo with no baked illumination. Premium crisp game artwork, readable design at gameplay distance, fine detail subordinate to large forms.
+Constraints: single texture only, no borders, collage, inset, label, text, logo, weapon, clothing object, stitching seam, fold, cast shadow, spotlight, vignette, perspective or 3D mockup.

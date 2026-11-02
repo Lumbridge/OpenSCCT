@@ -114,6 +114,13 @@ public sealed class HubSmoke : SmokeTest
                     return SmokeResult.Running;
                 }
 
+                var composer = (context.Tree.CurrentScene as PlayRoot)?.Menu?.Hud?.Chat;
+                if (composer is null || composer.ReceiveMatchMessages || !composer.AllowNearby ||
+                    composer.Transcript.Entries.Count(c => c.Text == "hello from the guest") != 1)
+                {
+                    return Fail("hub chat must display the guest relay exactly once through its Nearby-capable composer");
+                }
+
                 client.NameTags(client.LocalPlayer!.Pawn!.Location, _tags);
                 if (!_tags.Exists(t => t.Name == "Guest" && t.Team == 1))
                 {

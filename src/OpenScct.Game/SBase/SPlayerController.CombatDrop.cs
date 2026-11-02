@@ -73,7 +73,10 @@ public partial class SPlayerController
 
         DropDamage(PawnToAttack, me);
         (Level.Game as SGameInfo)?.AddPoint(0, this, K.AP_D_KnockOut);
-        DropMessage(PawnToAttack);
+        if (PawnToAttack.Health > 0)
+        {
+            DropMessage(PawnToAttack);
+        }
     }
 
     /// <summary>

@@ -1,0 +1,6 @@
+Use case: stylized-concept
+Asset type: production game cosmetic surface albedo texture, fitted to character suits and/or weapons.
+Primary request: Recreate Digital from scratch.
+Premium urban digital camouflage inspired by user's grey digital example: interlocking irregular clusters of strictly rectilinear square pixels at a consistent fine pixel size, clusters at several scales, convincing broken military digital pattern rather than random pixel static. Neutral graphite #2e3640, gunmetal #56687a, steel #8a9aae and cool pale grey #b4c2d0. Strong readable large clusters with small pixels dispersed around edges, carefully balanced density.
+Composition: one single square 1024x1024 or higher flat material swatch, seamlessly wrapping across all four edges, edge-to-edge pattern, perfectly orthographic. Uniform neutral albedo with no baked illumination. Premium crisp game artwork, readable design at gameplay distance, fine detail subordinate to large forms.
+Constraints: single texture only, no borders, collage, inset, label, text, logo, weapon, clothing object, stitching seam, fold, cast shadow, spotlight, vignette, perspective or 3D mockup.

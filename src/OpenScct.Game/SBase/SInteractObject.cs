@@ -183,7 +183,9 @@ public partial class SInteractObject
             return false;
         }
 
-        if (Level.TimeSeconds - iLastUsedTime < iReusableTime)
+        // Last use replicates in the server's clock, which can be ahead of a joining client's.
+        // Entries without a cooldown (including laptops) must not wait for that clock to catch up.
+        if (iReusableTime > 0 && Level.TimeSeconds - iLastUsedTime < iReusableTime)
         {
             return false;
         }

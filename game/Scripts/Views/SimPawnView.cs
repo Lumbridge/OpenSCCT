@@ -48,6 +48,7 @@ public partial class SimPawnView : Node3D
     private FVector _prePivot;
     private int _prevYaw;
     private int _yaw;
+    private Vector2 _prevAim, _aim;
     private bool _placed;
     private float _relightClock;
     private StickySkins? _stickySkins;
@@ -338,12 +339,14 @@ public partial class SimPawnView : Node3D
         _location = shown;
         _prePivot = pawn.PrePivot;
         _yaw = pawn.Rotation.Yaw;
+        _prevAim = _placed ? _aim : new Vector2(pawn.PawnAnim.Aim.FullYaw, pawn.PawnAnim.Aim.FullPitch);
+        _aim = new Vector2(pawn.PawnAnim.Aim.FullYaw, pawn.PawnAnim.Aim.FullPitch);
         PawnAnimation anim = pawn.PawnAnim;
         for (int c = 0; c < PawnAnimation.ChannelCount; c++)
         {
             _prev[c] = _placed ? _cur[c] : default;
             PawnAnimChannel ch = anim[c];
-            _cur[c] = new TickChannel(ch.Sequence, ch.Frame, ch.ClipFrame);
+            _cur[c] = new TickChannel(ch.Sequence, ch.Frame, ch.ClipFrame, ch.BlendAlpha);
         }
 
         _placed = true;
@@ -369,7 +372,7 @@ public partial class SimPawnView : Node3D
         int yaw = _prevYaw + (int)(FRotator.NormalizeAxis(_yaw - _prevYaw) * alpha);
         _model.Place(location, new FRotator(0, yaw, 0), prePivot);
         _drawYaw = yaw;
-        SetAim(pawn, yaw);
+        SetAim(pawn, yaw, alpha);
         SetDirections(pawn);
         Pose(pawn, alpha);
         _attachments?.Draw(pawn, dt);
@@ -414,7 +417,7 @@ public partial class SimPawnView : Node3D
             return false;
         }
 
-        world = _model.Skeleton.GlobalTransform * _model.Skeleton.GetBoneGlobalPose(index);
+        world = _model.Skeleton.GlobalTransform * _model.CurrentBonePose(index);
         return true;
     }
 
@@ -423,7 +426,7 @@ public partial class SimPawnView : Node3D
     /// pitch about the horizontal axis across the pawn's facing (Z x facing), then by the yaw about the vertical
     /// (0x11102160: two axis-angle coords applied to the bone's transposed space base).
     /// </summary>
-    private void SetAim(SBasePawn pawn, int yaw)
+    private void SetAim(SBasePawn pawn, int yaw, float alpha)
     {
         if (_applier is null || _model is null)
         {
@@ -431,9 +434,10 @@ public partial class SimPawnView : Node3D
         }
 
         MeshAimIK aim = pawn.PawnAnim.Aim;
+        Vector2 drawnAim = _prevAim.Lerp(_aim, alpha);
         (float fullYaw, float fullPitch) = DrawnView is { } view
             ? aim.DrawnFullPair(view.Vector(), new FRotator(pawn.Rotation.Pitch, yaw, pawn.Rotation.Roll).Vector())
-            : (aim.FullYaw, aim.FullPitch);
+            : (drawnAim.X, drawnAim.Y);
         if (fullYaw == 0f && fullPitch == 0f)
         {
             _applier.AimBone = -1;
@@ -507,7 +511,10 @@ public partial class SimPawnView : Node3D
                 continue;
             }
 
-            float weight = c == 0 ? 1f : ch.BlendAlpha;
+            // The walk/strafe blender and upper-body channels change their weights each tick too. Sampling only
+            // their newest weights made the pose step at simulation cadence even while its clip phase was smooth.
+            float weight = c == 0 ? 1f : _cur[c].Sequence == ch.Sequence && _prev[c].Sequence == ch.Sequence
+                ? _prev[c].Alpha + (_cur[c].Alpha - _prev[c].Alpha) * alpha : ch.BlendAlpha;
             if (!(weight > 0f))
             {
                 continue;
@@ -674,5 +681,5 @@ public partial class SimPawnView : Node3D
         return f - MathF.Floor(f);
     }
 
-    private readonly record struct TickChannel(Name Sequence, float Frame, float ClipFrame);
+    private readonly record struct TickChannel(Name Sequence, float Frame, float ClipFrame, float Alpha);
 }

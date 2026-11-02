@@ -14,8 +14,38 @@ Units:
 ## Purpose
 
 How a player writes a chat line, who receives it, and how it shows on the receiving HUD. The rewrite keeps the
-original's rules and look; the line travels as one control channel message instead of the controller's
-replicated `Say` / `TeamMessage` calls (see Network).
+original's server delivery rules and uses the modern client presentation below. A line travels as one control
+channel message instead of the controller's replicated `Say` / `TeamMessage` calls (see Network).
+
+## Modern client presentation
+
+Matches and the hub share `ChatPanel`, a native Godot control, and the bounded `ChatTranscript` model. `ChatInput`
+coordinates the editor and gameplay input. The original client typing and drawing rules recorded below are
+historical evidence; the following intentional OpenSCCT additions supersede them in live play.
+
+- The lower-left tactical panel uses the modern text fonts, translucent backing, team-coloured sender names and
+  explicit All, Team, Nearby or System labels. Text is rendered literally, including names or messages containing markup.
+- Closed chat shows at most six wrapped lines. Messages remain fully visible for eight seconds, fade over one
+  second, then disappear along with empty backing. The latest 64 messages remain available in arrival order in
+  scrollable history, independently of pawn/controller replacement. History belongs to the connection/visit and
+  is not saved to disk.
+- Opening chat expands the panel upward. Incoming messages do not pull a scrolled-up reader to the bottom;
+  a New messages action returns to the latest. Selecting a channel affects sending, not the unified history.
+- The configured Talk and TeamTalk keys (F5/F6 by default) open All and Team chat. An unassigned Enter also opens
+  All chat. While the editor is open, Tab cycles available send channels and preserves the draft, Enter sends and
+  closes, and Escape discards and closes. Matches have All/Team; the hub also has Nearby.
+- The native editor supports caret movement, selection and copy/paste, with 100 characters of message body;
+  display labels are not part of that limit. This replaces prefix-inclusive typing and Left-as-Backspace.
+- Opening chat clears held gameplay controls, disables gameplay keyboard/mouse/controller input and releases
+  the pointer. Closing restores the preceding input/capture state, subject to other active menus. HUD visibility
+  is respected; demos cannot send chat.
+- Match adapters retain complete `ChatLine` sender/channel metadata; ordinary HUD console messages appear as
+  System entries. Objective and kill notifications keep their existing HUD routes. The hub adapter consumes
+  `HubClient.ChatAdded` and preserves nearby `/l`, emotes, chat muting and overhead bubbles. There is one composer
+  and one receive route per scene, and messages are displayed from the server relay rather than optimistic echoes.
+
+Server scopes, wire messages, recipient restrictions, rate limits and sanitization are unchanged. Focused checks:
+`ChatTranscriptTests`, the `modern-chat` Godot smoke, and existing chat protocol/relay tests.
 
 ## Data
 
@@ -94,7 +124,8 @@ Showing (client):
   `ClientMessage` reliable server-to-client functions (spec/net/rep-controller.md).
 - Rewrite: `EControlMessage.Chat` on the control channel (reliable, in order): client to server carries the scope
   and the text; server to client the scope, the sender's player id, name and team, and the text. The server applies
-  rules 4 to 7 (`OpenScct.Server.ChatRelay`) and the client rules 8 to 11 (`OpenScctGame.Hud.HudConsole`). This also works
+  rules 4 to 7 (`OpenScct.Server.ChatRelay`). The modern client displays these through `ChatInput`/`ChatPanel`;
+  `HudConsole` retains rules 8 to 11 for legacy callers. This also works
   before a controller exists (lobby). A reliable send can only be more dependable than the original's unreliable
   `Say`.
 

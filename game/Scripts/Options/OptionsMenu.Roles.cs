@@ -47,14 +47,20 @@ public partial class OptionsMenu
         var header = new HBoxContainer();
         var sharing = new Label
         {
-            Text = role + " configuration", SizeFlagsHorizontal = SizeFlags.ExpandFill,
+            SizeFlagsHorizontal = SizeFlags.ExpandFill,
             AutowrapMode = TextServer.AutowrapMode.WordSmart, MouseFilter = MouseFilterEnum.Pass,
         };
         _sharingLabels[side] = sharing;
         header.AddChild(sharing);
-        header.AddChild(UiStyle.MenuButton("Reset " + role, () => Confirm("Reset " + role,
-            "Reset this role's bindings, mouse, controller, camera, HUD and crosshair settings? Shared keyboard changes affect both roles.",
-            () => ResetRole(side), "Reset role"), "Reset" + role));
+        string resetTitle = "Reset " + role + " to defaults";
+        string resetScope = role + " bindings, mouse and controller settings, camera options, frame-rate limit and teammate-name display" +
+            (merc ? ", plus crosshair settings" : "");
+        const string resetNote = "If keyboard bindings are shared, both roles are affected. Changes take effect when you Apply or Save & Close.";
+        var reset = UiStyle.MenuButton(resetTitle, () => Confirm(resetTitle,
+            "Restore default " + resetScope + "?\n" + resetNote,
+            () => ResetRole(side), "Reset to defaults"), "Reset" + role);
+        reset.TooltipText = "Restore default " + resetScope + ".\n" + resetNote;
+        header.AddChild(reset);
         page.AddChild(header);
         var hud = Grid("RoleHud");
         Check(hud, "Show teammate names through walls", merc ? "teammate_names_merc" : "teammate_names_spy",
@@ -65,7 +71,7 @@ public partial class OptionsMenu
         sections.AddChild(RoleBindingsPage(side));
         sections.AddChild(RoleMousePage(side));
         sections.AddChild(RolePadPage(side));
-        sections.AddChild(merc ? CrosshairPage() : Page("Crosshair", Help("The Spy uses the original contextual reticle. Custom crosshair controls apply to the Mercenary.")));
+        if (merc) sections.AddChild(CrosshairPage());
         page.AddChild(sections);
         return page;
     }
@@ -126,9 +132,8 @@ public partial class OptionsMenu
         var model = ModelOf(side);
         ActionBindingDraft draft = model.Draft!;
         var actions = ControlActions.ForRole(side == PlaySide.Merc, _edit.MouseWheel).ToArray();
-        _sharingLabels[side].Text = (side == PlaySide.Merc ? "Mercenary" : "Spy") + " configuration\n" +
-            (_edit.SplitKeyboard ? "Separate bindings" : "Shared bindings (Spy layout)");
-        _sharingLabels[side].TooltipText = _edit.SplitKeyboard ? "Separate role bindings" : "Shared bindings: edits here affect both roles (Spy layout).";
+        _sharingLabels[side].Text = _edit.SplitKeyboard ? "" : "Shared bindings (Spy layout)";
+        _sharingLabels[side].TooltipText = _edit.SplitKeyboard ? "" : "Shared bindings: edits here affect both roles (Spy layout).";
         string category = "";
         int inCategory = 0;
         foreach (ControlAction action in actions)

@@ -1,0 +1,6 @@
+Use case: stylized-concept
+Asset type: original premium game cosmetic albedo texture for the Galaxy unlockable.
+Primary request: Luxurious deep-space nebula surface print: flowing interlaced cobalt-blue, violet and magenta nebula filaments over deep near-black navy, subtle cyan cloud edges, sparse tiny sharp white stars. Rich graceful marbled movement across entire square, broad dark negative spaces, no central vortex or galaxy disk, no planets or horizon. Painterly astrophotography-inspired albedo print with wonderful fine wisps and controlled luminous pigment.
+Color palette: #020206 #061436 #10328C #5A24B0 #D040A8 #8AE0FF #F4F6FF.
+Composition: One square 1024x1024 or higher, perfectly flat orthographic production material texture filling every edge. Seamlessly repeating at opposite edges. Uniform neutral albedo illumination. Rich professionally art-directed shapes and controlled fine detail, immediately readable when wrapped onto tactical clothing and weapon surfaces.
+Constraints: Create the artwork entirely from scratch. ONE texture, no contact sheet, no borders or margins, no text or lettering, no logos or watermark, no weapon, garment, real object, folds, seams, spotlight, vignette, cast shadow, 3D rendering, perspective or mockup.

@@ -1,0 +1,6 @@
+Use case: stylized-concept
+Asset type: production game cosmetic surface albedo texture, fitted to character suits and/or weapons.
+Primary request: Recreate Stronghold map mastery camouflage from scratch.
+Rugged tactical earth camouflage, dense interlocking angular-organic rock-shaped islands, eroded uneven corners and smaller satellite shards; a disciplined compact pattern with large, medium, small shape hierarchy. Near black olive #1a1810, dark field khaki #4e4630, dry muted tan #9a8e6a. Flat ink coloration and very fine dry grain, no literal rocks or landscape.
+Composition: one single square 1024x1024 or higher flat material swatch, seamlessly wrapping across all four edges, edge-to-edge pattern, perfectly orthographic. Uniform neutral albedo with no baked illumination. Premium crisp game artwork, readable design at gameplay distance, fine detail subordinate to large forms.
+Constraints: single texture only, no borders, collage, inset, label, text, logo, weapon, clothing object, stitching seam, fold, cast shadow, spotlight, vignette, perspective or 3D mockup.

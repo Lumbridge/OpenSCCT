@@ -297,6 +297,7 @@ public partial class SPlayerController
             var pc = (SPlayerController)self;
             float now = pc.Level.TimeSeconds;
             pc.bIsCharging = true;
+            if (!pc.XLevel.World.IsReplaying) pc._receivedOwnerChargeHit = false;
             pc.fGrabDate = now;
             pc.fRespawnDate = now + pc.FRand() * K.ChargePulseRandom + K.ChargePulseBase;
             pc.bNoReticule = true;

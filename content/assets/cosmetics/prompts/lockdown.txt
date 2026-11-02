@@ -1,0 +1,6 @@
+Use case: stylized-concept
+Asset type: original premium game cosmetic albedo texture for the Lockdown unlockable.
+Primary request: Industrial hazard livery in saturated mustard yellow and deep black: bold diagonal caution bands intermittently interrupted by sharp black angular blocks and narrow parallel secondary stripes. Deliberate contemporary graphic composition, subtly distressed paint edges with sparse tiny abrasions, mostly clean strong solid color. No writing, hazard symbols, labels, screws or 3D panels.
+Color palette: #101010 #E8C018.
+Composition: One square 1024x1024 or higher, perfectly flat orthographic production material texture filling every edge. Seamlessly repeating at opposite edges. Uniform neutral albedo illumination. Rich professionally art-directed shapes and controlled fine detail, immediately readable when wrapped onto tactical clothing and weapon surfaces.
+Constraints: Create the artwork entirely from scratch. ONE texture, no contact sheet, no borders or margins, no text or lettering, no logos or watermark, no weapon, garment, real object, folds, seams, spotlight, vignette, cast shadow, 3D rendering, perspective or mockup.

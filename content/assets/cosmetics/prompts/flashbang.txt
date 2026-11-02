@@ -1,0 +1,6 @@
+Use case: stylized-concept
+Asset type: original premium game cosmetic albedo texture for the Flashbang unlockable.
+Primary request: Stark flashburst camouflage: varied sharp fragmented white and pale icy-blue radial streak clusters spread across graphite-black. Broken starburst-like angular brush shards and restrained long horizontal afterimage slashes create controlled energy. Multiple small/medium bursts with broad quiet dark regions, no single focal explosion, crisp graphic enamel finish, no bloom or photographic light.
+Color palette: #0C0E12 #3A4250 #BFD8FF #FFFFFF.
+Composition: One square 1024x1024 or higher, perfectly flat orthographic production material texture filling every edge. Seamlessly repeating at opposite edges. Uniform neutral albedo illumination. Rich professionally art-directed shapes and controlled fine detail, immediately readable when wrapped onto tactical clothing and weapon surfaces.
+Constraints: Create the artwork entirely from scratch. ONE texture, no contact sheet, no borders or margins, no text or lettering, no logos or watermark, no weapon, garment, real object, folds, seams, spotlight, vignette, cast shadow, 3D rendering, perspective or mockup.

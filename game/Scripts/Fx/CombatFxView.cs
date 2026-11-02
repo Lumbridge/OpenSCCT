@@ -48,6 +48,7 @@ public partial class CombatFxView : Node3D
     private readonly List<SFireTrace> _gone = new();
     private readonly List<(MeshInstance3D Node, int Serial)> _marks = new();
     private readonly List<PendingFlash> _pending = new();
+    private Level? _tracerLevel;
     private Texture2D? _flashTexture;
     private StandardMaterial3D? _bulletMark;
     private StandardMaterial3D? _shockMark;
@@ -66,7 +67,7 @@ public partial class CombatFxView : Node3D
         Name = "CombatFx";
     }
 
-    /// <summary>The pawn views, for the hand bones the flashes start from.</summary>
+    /// <summary>The pawn views, for the displayed weapons' muzzle sockets.</summary>
     public PawnViews? Pawns { get; set; }
 
     /// <summary>The first-person rifle, for its muzzle bone.</summary>
@@ -129,7 +130,7 @@ public partial class CombatFxView : Node3D
     /// <summary>Where the last mark was drawn (UE space), for checks.</summary>
     public FVector LastMarkAt { get; private set; }
 
-    /// <summary>After a client tick: takes the tick's view events and the new tracers and marks.</summary>
+    /// <summary>After a client tick: takes its view events and marks, and schedules tracer discovery after posing.</summary>
     public void OnTick(PlaySession session)
     {
         ArgumentNullException.ThrowIfNull(session);
@@ -161,7 +162,7 @@ public partial class CombatFxView : Node3D
             _clip = rifle.ClipAmmo;
         }
 
-        TrackTracers(level);
+        _tracerLevel = level;
         TrackMarks(level);
         TrackProjections(level);
         TrackDisabledCameras(level);
@@ -211,6 +212,13 @@ public partial class CombatFxView : Node3D
         }
 
         _pending.Clear();
+        // The weapon attachments have now been posed for this frame. Resolve tracer origins here too, so they
+        // leave the visible muzzle instead of the simulation's approximate bone position from an earlier tick.
+        if (_tracerLevel is { } level)
+        {
+            _tracerLevel = null;
+            TrackTracers(level, viewer);
+        }
         for (int i = _flashes.Count - 1; i >= 0; i--)
         {
             Flash f = _flashes[i];
@@ -264,29 +272,41 @@ public partial class CombatFxView : Node3D
 
     // ---- muzzle flashes ------------------------------------------------------------------------------------
 
+    private bool TryDrawnMuzzle(SBasePawn pawn, SPlayerController? viewer, out Transform3D muzzle)
+    {
+        muzzle = default;
+        // A scoped owner sees the tracer from the scoped eye position chosen by SFireTrace.
+        if (ReferenceEquals(viewer?.Pawn, pawn) && viewer is { bBinocularVision: true }) return false;
+        if (ReferenceEquals(viewer?.Pawn, pawn) && FirstPerson is { Shown: true, Model: { } first } &&
+            first.Skeleton.FindBone(BoneFx.ToString()) is var fx and >= 0)
+        {
+            muzzle = first.Skeleton.GlobalTransform * first.CurrentBonePose(fx);
+            return true;
+        }
+        if (Pawns?.ViewOf(pawn)?.Attachments is { } attachments && attachments.TryGetWeaponBone(BoneFx, out muzzle))
+            return true;
+        return false;
+    }
+
     [Provenance(ProvenanceKind.Decoded, "SMuzzleFlash Lifetime 0.1; SMuzzleGenerique / sMuzzleCanon LightHue 40, LightSaturation 190; SMuzzleSticky LightHue 148, LightSaturation 127, LightBrightness 255")]
-    [Provenance(ProvenanceKind.Estimated, "The flash place: the right hand bone 24 uu along the aim, or the first-person rifle's FX bone (the meshes' FX bones are not drawn)")]
+    [Provenance(ProvenanceKind.Estimated, "Drawn weapon FX bone; the right hand plus 24 uu is only a missing-content fallback")]
     private void AddFlash(PendingFlash p, FVector cameraLocation, FRotator cameraRotation, SPlayerController? viewer)
     {
         bool sticky = p.Kind == CombatFx.MuzzleSticky;
+        if (p.Kind == SpawnSFX && viewer is { bBinocularVision: true }) return;
+        bool firstPerson = p.Kind == SpawnSFX && FirstPerson is { Shown: true };
         Vector3 at;
         Vector3 forward;
-        if (p.Kind == SpawnSFX)
+        if (firstPerson)
         {
             // The local merc's first-person rifle.
-            if (viewer is { bBinocularVision: true })
-            {
-                // The scope hides the rifle; its muzzle flash must not cover the sight either.
-                return;
-            }
-
             cameraRotation.GetAxes(out FVector x, out FVector y, out FVector z);
             FVector muzzle = cameraLocation + (x * 60f) + (y * 9f) - (z * 9f);
             at = UeSpace.ToGodot(muzzle);
             forward = UeSpace.DirectionToGodot(x);
             if (FirstPerson is { Shown: true, Model: { } model } && model.Skeleton.FindBone(BoneFx.ToString()) is var fx and >= 0)
             {
-                at = (model.Skeleton.GlobalTransform * model.Skeleton.GetBoneGlobalPose(fx)).Origin;
+                at = (model.Skeleton.GlobalTransform * model.CurrentBonePose(fx)).Origin;
             }
         }
         else
@@ -297,7 +317,8 @@ public partial class CombatFxView : Node3D
                 return;
             }
 
-            FRotator aim = pawn.Controller is SPlayerController pc ? pc.MyDesiredRotation : pawn.Rotation;
+            FRotator aim = pawn.Controller is SPlayerController pc ? pc.MyDesiredRotation :
+                pawn is SPAWNDEFENSE remote ? new FRotator((short)(remote.iDesiredYawPitch >> 16), (short)remote.iDesiredYawPitch, 0) : pawn.Rotation;
             if (pawn.Controller is SPlayerController { } own && ReferenceEquals(own, viewer))
             {
                 aim = own.Rotation;
@@ -305,7 +326,8 @@ public partial class CombatFxView : Node3D
 
             aim.GetAxes(out FVector x, out _, out _);
             forward = UeSpace.DirectionToGodot(x);
-            at = Pawns is not null && Pawns.TryGetBone(pawn as SBasePawn, BoneRightHand, out Transform3D hand)
+            at = pawn is SBasePawn sb && TryDrawnMuzzle(sb, viewer, out Transform3D muzzle) ? muzzle.Origin :
+                Pawns is not null && Pawns.TryGetBone(pawn as SBasePawn, BoneRightHand, out Transform3D hand)
                 ? hand.Origin + (forward * UeSpace.LengthToGodot(24f))
                 : UeSpace.ToGodot(pawn.Location + new FVector(0f, 0f, pawn.EyeHeight * 0.6f) + (x * 40f));
         }
@@ -314,7 +336,7 @@ public partial class CombatFxView : Node3D
         var node = new Node3D { Name = "MuzzleFlash" };
         AddChild(node);
         node.GlobalPosition = at;
-        bool meshes = AddMuzzleMeshes(node, p.Kind, p.Source, at, forward);
+        bool meshes = AddMuzzleMeshes(node, p.Kind, p.Source, at, forward, firstPerson);
         var light = new OmniLight3D
         {
             LightColor = colour,
@@ -333,7 +355,7 @@ public partial class CombatFxView : Node3D
         node.AddChild(quad);
         _flashes.Add(new Flash(node, light, quad, light.LightEnergy, 0.1f)
         {
-            FirstPerson = p.Kind == SpawnSFX,
+            FirstPerson = firstPerson,
             WorldLights = MuzzleLights(p.Kind, UeSpace.ToUe(at)),
         });
         MuzzleFlashes++;
@@ -349,8 +371,8 @@ public partial class CombatFxView : Node3D
     /// SDouilleEmitter casing. True when a mesh was drawn.
     /// </summary>
     [Provenance(ProvenanceKind.Decoded, "SMuzzleFlash / SMuzzleSticky.PostBeginPlay, SWeaponDefense.SpawnSFX, SWeaponDefenseDummy.ClientFireMuzzle")]
-    [Provenance(ProvenanceKind.Estimated, "The third-person gun's FX and FX_DOUILLE bones are not drawn: the flash sits at the hand's estimate and the casing starts there")]
-    private bool AddMuzzleMeshes(Node3D node, Name kind, Actor? source, Vector3 at, Vector3 forward)
+    [Provenance(ProvenanceKind.Estimated, "Without a casing socket, the casing starts at the drawn muzzle")]
+    private bool AddMuzzleMeshes(Node3D node, Name kind, Actor? source, Vector3 at, Vector3 forward, bool firstPerson)
     {
         if (_library is not { Available: true } lib)
         {
@@ -358,7 +380,6 @@ public partial class CombatFxView : Node3D
         }
 
         bool sticky = kind == CombatFx.MuzzleSticky;
-        bool firstPerson = kind == SpawnSFX;
         FVector origin = UeSpace.ToUe(at);
         FRotator aim = UeSpace.DirectionToUe(forward).Rotation();
         var rng = new FxRandom(((uint)MuzzleFlashes * 2654435761u) + 7u);
@@ -408,7 +429,7 @@ public partial class CombatFxView : Node3D
         FVector casing = origin;
         if (firstPerson && FirstPerson?.Model is { } model && model.Skeleton.FindBone("FX_DOUILLE") is var bone and >= 0)
         {
-            Transform3D t = model.Skeleton.GlobalTransform * model.Skeleton.GetBoneGlobalPose(bone);
+            Transform3D t = model.Skeleton.GlobalTransform * model.CurrentBonePose(bone);
             casing = UeSpace.ToUe(t.Origin);
         }
 
@@ -463,7 +484,7 @@ public partial class CombatFxView : Node3D
 
     [Provenance(ProvenanceKind.Decoded, "SFireTrace FTSpeed 7000, LifeSpan 2, DrawScale3D (10, 3, 3), unlit")]
     [Provenance(ProvenanceKind.Estimated, "The streak's size: the balle_TR mesh is not converted; 120 x 1.5 uu stands in")]
-    private void TrackTracers(Level level)
+    private void TrackTracers(Level level, SPlayerController? viewer)
     {
         _gone.Clear();
         foreach (SFireTrace t in _tracers.Keys)
@@ -488,6 +509,8 @@ public partial class CombatFxView : Node3D
             }
 
             FVector start = t.Location;
+            if (t.Instigator is SBasePawn shooter && TryDrawnMuzzle(shooter, viewer, out Transform3D muzzle))
+                start = UeSpace.ToUe(muzzle.Origin);
             FVector to = t.ImpactLoc - start;
             float length = to.Size();
             if (length < 1f)

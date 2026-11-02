@@ -1,36 +1,17 @@
-"""Every gun and suit skin drawn on the mesh itself, not across its texture.
+"""Fit authored cosmetic artwork to gun and suit meshes in physical coordinates.
 
-A gun or body texture is a UV atlas of many small islands (a side of the receiver here, the top of the barrel there),
-so a pattern drawn across the texture lands on each piece as a random slice of it, at that island's own size and
-turned its own way. Instead, as for the skeleton camo, each texel is traced back to the point of the mesh it covers
-(skeleton.bake), and the skin is drawn there in metres.
+Texture atlases have fragmented, rotated and mirrored islands. Each texel is
+traced to the model surface, then samples the original RGB source art at a common
+physical scale. Barrels and sleeves wrap cylindrically; body panels blend planar
+projections at corners, respecting the character atlas's mirrored islands.
 
-Guns. Each gun has its frame (forward to the muzzle, up and side, per mesh: GUN_MESH) and its pieces: the mesh's
-separate shells (welded by position), each sorted by its shape into the body (receiver, stock, grip), barrels (long,
-thin and along the gun: barrels, handguards, scope tubes), hanging pieces (magazines, separate grips) and small parts
-(sights, levers, bolts). Each texel's face (side, top or end, from its normal) picks the plane a flat motif is drawn in.
+Receiver, barrel, magazine, grip and small-part classifications retain coordinated
+trim and protect sighting surfaces. Headwear, gloves and boots receive their own
+local artwork placement in fitted.py. The skeleton's anatomical front/back artwork
+uses dedicated body-part sampling in cosmetic_art.py.
 
-- Kaido (racing livery), Cryo (sci-fi panels) and Pyre (hot-rod flames) are designed piece by piece: the body takes
-  the main design in the gun's frame, barrels take rings along their own axis, hanging pieces their own design along
-  their length and small parts an accent.
-- Every other skin is its flat pattern (cosmetics' shapes, drawn once as a wrapping tile) laid over the whole gun at
-  one real size (TILE_M), so it runs on from piece to piece and every gun shows it at the same scale: the sides see it
-  from the side, the top from above, barrels have it wrapped round them. The blotch camos are computed in 3D instead
-  (solid noise the surface cuts through: no seams at all). Then trim: a dark muzzle with an accent ring on each barrel,
-  a dark foot plate on magazines and grips, dark small parts.
-
-The merc's sleeves (his first-person arms wear his body's camo, not the gun's) are painted as a suit: the pattern
-wrapped round each arm with dark cuffs. The Kaido, Cryo and Pyre sleeve designs (racing suits, flames climbing from the
-cuffs) are kept for when a suit takes those patterns.
-
-Suits (draw_suit). The body's bind pose takes the same tiles, seen from the front, the sides and above, blended by
-which way each texel faces; the blotch camos are again solid 3D noise, and tiger stripes are turned to wrap round the
-torso and legs. Galaxy (a Doppler nebula with stars) and Inferno (flames rising from the boots and the hands) are solid
-3D designs of their own; Galaxy is drawn on the guns too, its nebula packed tighter (GALAXY_GUN_SWIRL). The body's atlas shares islands between left and right and front and back, so the body is
-folded to one quarter (|x|, |z|) before anything is drawn on it.
-
-Shapes are measured against the gun's size (its length and height), so every gun gets the same design at its own
-scale. Edges are anti-aliased over about one texel, from how far the surface moves per texel.
+Legacy procedural drawing helpers remain for reference, but no production finish
+uses their old shape-specific bypasses.
 """
 
 from __future__ import annotations
@@ -532,22 +513,10 @@ TILE_PX = 1024
 _TILE_SCALE = {"pixel": 1.3, "blotch": 1.5, "blotch-soft": 1.5, "scanlines": 1.6, "stripe": 1.2}
 
 
-@functools.lru_cache(maxsize=4)
 def _tile(pattern: str, shape: str, colours: tuple) -> np.ndarray:
-    """The pattern drawn flat (TILE_PX square, wrapping), weathering included: one per pattern, shared by every gun
-    texture so a magazine on its own texture carries on the gun's pattern."""
-    from . import cosmetics  # noqa: PLC0415
-
-    n = TILE_PX
-    flat = np.full((n, n), 0.5, np.float32)
-    if shape in ("gold", "mastercraft"):
-        weight = cosmetics.MASTERCRAFT_WEIGHT if shape == "mastercraft" else 1.0
-        groove, raised = cosmetics._engraving(cosmetics._rng(pattern, "gun"), n, n, shape == "mastercraft", weight)
-        return np.stack([groove, raised, np.zeros_like(groove)], -1).astype(np.float32)
-    rgb = np.array(cosmetics._SHAPES[shape](cosmetics._rng(pattern, "gun"), n, n, list(colours), flat), np.float32)
-    if shape in cosmetics._WEATHERED:
-        cosmetics._fine_detail(cosmetics._rng(pattern, "gun:detail"), rgb)
-    return rgb
+    """The original RGB artwork shared by all materials using this finish."""
+    from .cosmetic_art import load
+    return load(pattern)
 
 
 def _sample(img: np.ndarray, u, v) -> np.ndarray:
@@ -790,25 +759,15 @@ def _laid(g: _Gun, colours, rng, luma=None, *, pattern: str, shape: str) -> np.n
 
     tile_m = TILE_M * _TILE_SCALE.get(shape, 1.0)
     u, v = _place(g, tile_m)
-    img = None if shape in _SOLID or shape == "galaxy" else _tile(pattern, shape, tuple(colours))
+    img = _tile(pattern, shape, tuple(colours))
     pal = [_rgb(c) for c in colours]
     gilded = shape in ("gold", "mastercraft")
+    out = _sample(img, u, v)
     if gilded:
-        gr = _sample(img, u, v)
-        lum = luma if luma is not None else np.full(g.cover.shape, 0.5, np.float32)
-        depth = cosmetics.MASTERCRAFT_DEPTH if shape == "mastercraft" else 1.0
-        out = cosmetics._gold_ramp(lum, colours, gr[..., 0], gr[..., 1], depth)
-        plain = cosmetics._gold_ramp(lum, colours)
+        plain = out
         metal = pal[0] * 0.75
         accent = pal[-1]
     else:
-        if shape in _SOLID:
-            P = np.stack([g.x, g.y, g.z], -1)
-            out = _solid_blotch(pattern, colours, P, g.cover, tile_m, shape == "blotch-soft")
-        elif shape == "galaxy":
-            out = solid_galaxy(pattern, colours, np.stack([g.x, g.y, g.z], -1), g.cover, GALAXY_GUN_SWIRL)
-        else:
-            out = _sample(img, u, v)
         darkest = min(pal, key=_tone)
         metal = (0.55 * darkest + 0.45 * np.full(3, 0.07, np.float32)).astype(np.float32)
         # The accent: the most colourful of the lighter colours.
@@ -861,10 +820,7 @@ def draw(shape: str, colours: list[int], mesh: Mesh, texture: str, h: int, w: in
     from .fitted import ARMS, sidearm
     _, forward, up, sleeves = GUN_MESH.get(texture, ('', _X, _Y, texture == ARMS))
     g = _fitted_gun(mesh, texture, h, w, forward, up, sleeves)
-    if shape in _DRAW:
-        out = _DRAW[shape](g, colours, rng)
-    else:
-        out = _laid(g, colours, rng, luma, pattern=pattern or shape, shape=shape)
+    out = _laid(g, colours, rng, luma, pattern=pattern or shape, shape=shape)
     # Paint the casing, not the complete mechanism. Grip and moving-part regions
     # are measured in model space, so their boundaries survive fragmented UVs.
     if not sleeves:
@@ -907,17 +863,6 @@ def draw_suit(pattern: str, shape: str, colours: list[int], mesh: Mesh, texture:
     N = layout["N"]
     x, y, z = P[..., 0], P[..., 1], P[..., 2]
     tile_m = TILE_M * _SUIT_SCALE.get(shape, _TILE_SCALE.get(shape, 1.0))
-    if shape in _SOLID:
-        return _solid_blotch(pattern, colours, P, layout["cover"], tile_m, shape == "blotch-soft")
-    if shape == "galaxy":
-        return solid_galaxy(pattern, colours, P, layout["cover"])
-    if shape == "inferno":
-        # From the boots up the legs and body; from the hands along the arms (out sideways in the bind pose).
-        arm = np.isin(layout["group"], (ARM_L, ARM_R, HAND_L, HAND_R))
-        bottom, span = float(mesh.pos[:, 1].min()), float(np.abs(mesh.pos[:, 0]).max())
-        dist = np.where(arm, span - np.abs(x), y - bottom)
-        reach = np.where(arm, 0.55, 1.5)
-        return solid_inferno(pattern, colours, P, layout["cover"], dist, reach, ~arm)
     img = _tile(pattern, shape, tuple(colours))
     top = float(mesh.pos[:, 1].max())
     down = (top - y) / tile_m
@@ -935,8 +880,4 @@ def draw_suit(pattern: str, shape: str, colours: list[int], mesh: Mesh, texture:
     wts = np.abs(N[..., [2, 0, 1]]) ** 8
     wts = wts / np.maximum(wts.sum(-1, keepdims=True), 1e-6)
     out = sum(v * wts[..., k:k + 1] for k, v in enumerate(views))
-    if shape in ("gold", "mastercraft"):
-        lum = luma if luma is not None else np.full((h, w), 0.5, np.float32)
-        depth = cosmetics.MASTERCRAFT_DEPTH if shape == "mastercraft" else 1.0
-        return cosmetics._gold_ramp(lum, colours, out[..., 0], out[..., 1], depth)
     return out

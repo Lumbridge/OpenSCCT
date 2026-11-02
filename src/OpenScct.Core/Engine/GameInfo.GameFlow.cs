@@ -289,12 +289,10 @@ public partial class GameInfo
     [PortOf("uc:Engine.GameInfo:Logout", Spec = "spec/game/login-and-teams.md#rules")]
     public virtual void Logout(Controller Exiting)
     {
-        bool bMessage = true;
         if (Exiting is PlayerController pc)
         {
             if (pc.PlayerReplicationInfo is { bOnlySpectator: true })
             {
-                bMessage = false;
                 NumSpectators--;
             }
             else
@@ -308,11 +306,16 @@ public partial class GameInfo
             }
         }
 
-        if (bMessage && (Level.NetMode == ENetMode.NM_DedicatedServer || Level.NetMode == ENetMode.NM_ListenServer))
+        if (ShouldAnnounceLogout(Exiting))
         {
             BroadcastLocalizedMessage(GameMessageClass, 4, Exiting.PlayerReplicationInfo);
         }
     }
+
+    /// <summary>Lets game rules select the departure audience without sending a second logout announcement.</summary>
+    protected virtual bool ShouldAnnounceLogout(Controller exiting) =>
+        !(exiting.PlayerReplicationInfo?.bOnlySpectator ?? false) &&
+        Level.NetMode is ENetMode.NM_DedicatedServer or ENetMode.NM_ListenServer;
 
     // ---- match start ---------------------------------------------------------------------------------------
 

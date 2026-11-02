@@ -12,6 +12,8 @@ public sealed partial class SBasePawnMoves
 {
     private PredictionFrame[]? _prediction;
     private bool _wasReplaying;
+    private bool _replayPreserveHomingTarget;
+    private SBasePawn? _replayHomingTarget;
     private EPhysics _replayExpectedPhysics;
     private FVector _replayReference;
     private int _replayAction;
@@ -379,8 +381,18 @@ public sealed partial class SBasePawnMoves
 
     public void BeginPredictionReplay()
     {
+        // Falling lock-on is selected by the server and replicated separately from movement corrections.
+        // Rewinding a saved move must not erase a newly received target (or resurrect one the server cleared).
+        _replayPreserveHomingTarget = P is { Physics: EPhysics.PHYS_Falling };
+        _replayHomingTarget = _replayPreserveHomingTarget ? P!.m_AttackTarget : null;
         _wasReplaying = _pc.XLevel.World.IsReplaying;
         _pc.XLevel.World.IsReplaying = true;
+    }
+
+    private void RestoreAuthoritativeHomingTarget(SBasePawn pawn)
+    {
+        if (_replayPreserveHomingTarget && pawn.Physics == EPhysics.PHYS_Falling)
+            pawn.m_AttackTarget = _replayHomingTarget is { bDeleteMe: false } ? _replayHomingTarget : null;
     }
 
     public bool PredictionHistoryComplete(int slot) => _prediction is not null && _prediction[slot].Collision.Complete;
@@ -438,6 +450,7 @@ public sealed partial class SBasePawnMoves
         pawn.ZoneConfig = pawn.ZoneConfigForClient = zone;
         pawn.Velocity = velocity;
         pawn.vLocationBeforeRM += location - frame.Position;
+        RestoreAuthoritativeHomingTarget(pawn);
     }
 
     public void ReplayPrediction(int slot, float deltaTime, FVector acceleration, bool jump)
@@ -454,6 +467,7 @@ public sealed partial class SBasePawnMoves
             FVector prior = pawn.Location;
             StageCompletedBase(pawn, frame);
             frame.Context(pawn);
+            RestoreAuthoritativeHomingTarget(pawn);
             MovePawn(frame.Position - _replayReference);
             pawn.Velocity = frame.Velocity;
             pawn.vLocationBeforeRM += prior - _replayReference;

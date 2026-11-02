@@ -1,0 +1,6 @@
+Use case: stylized-concept
+Asset type: original premium game cosmetic albedo texture for the Voltage unlockable.
+Primary request: High-voltage graphic finish: jagged branching lightning veins in warm electric yellow and pale cream cut across deep charcoal-black, with occasional broad olive-yellow fracture shards. A few dominant bolts and many smaller offshoots, dramatic but balanced, sharp painted edges and subtle thin secondary electrical traces. No actual bloom, light source, central emblem or background scene.
+Color palette: #0A0A10 #2A2A10 #F0D820 #FFF8C0.
+Composition: One square 1024x1024 or higher, perfectly flat orthographic production material texture filling every edge. Seamlessly repeating at opposite edges. Uniform neutral albedo illumination. Rich professionally art-directed shapes and controlled fine detail, immediately readable when wrapped onto tactical clothing and weapon surfaces.
+Constraints: Create the artwork entirely from scratch. ONE texture, no contact sheet, no borders or margins, no text or lettering, no logos or watermark, no weapon, garment, real object, folds, seams, spotlight, vignette, cast shadow, 3D rendering, perspective or mockup.

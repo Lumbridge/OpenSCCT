@@ -573,7 +573,7 @@ public partial class SPlayerController
                 break;
             case GrabReleaseMethode_.KO:
                 (Level.Game as GameInfo)?.BroadcastLocalizedMessage(GREF_SGameMessages, K.MsgFallenUnconscious,
-                    mercPc?.PlayerReplicationInfo, PlayerReplicationInfo);
+                    PlayerReplicationInfo, mercPc?.PlayerReplicationInfo);
                 if (mercAlive)
                 {
                     mercPc?.eventMirrorState(GNAME_s_GrabbedByPlayer_Released_KO);

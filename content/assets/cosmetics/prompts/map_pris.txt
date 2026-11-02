@@ -1,0 +1,7 @@
+Use case: stylized-concept
+Asset type: original game cosmetic albedo texture, Prison map reward, map_pris.
+Primary request: recreate from scratch a premium flat camouflage pattern suitable for tactical suits and armour. urban concrete camouflage in charcoal, dirty grey-brown and dusty limestone, chunky fractured islands with chipped edges and fine aggregate.
+Color palette: strictly based on #202020, #585048, #B0A890. Rich controlled pigments with subtle tonal material variation.
+Composition: one full-bleed square texture 1024x1024 or larger; flat front-on orthographic pattern only, approximately 8-12 major pattern islands across each dimension with secondary shapes. Seamlessly tileable across all opposite edges.
+Style: polished clean high-end game texture, crisp deliberate irregular silhouettes like beautifully authored camouflage. Only very subtle fine textile/pigment grain; avoid blurry procedural noise.
+Constraints: opaque flat albedo, even colour and detail to every edge; no actual objects, scenery, garment, equipment, UV atlas, folds, lighting, shadows, highlights, vignette, border, labels, lettering, logo or watermark. No depth or perspective.

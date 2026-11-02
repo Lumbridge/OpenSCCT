@@ -1,0 +1,6 @@
+Use case: stylized-concept
+Asset type: original premium game cosmetic albedo texture for the Frag unlockable.
+Primary request: Explosive shrapnel camouflage: directional jagged angular charcoal and dark umber shards scattered densely enough to form broken bands, with sharply cut burnt-orange fragments and sparse fine copper slivers. Bold layered shard silhouettes at several scales on near-black ground, coherent diagonal kinetic movement and clean matte paint finish. No literal weapons or explosions.
+Color palette: #0E0C0A #3A2A1E #D86A1E.
+Composition: One square 1024x1024 or higher, perfectly flat orthographic production material texture filling every edge. Seamlessly repeating at opposite edges. Uniform neutral albedo illumination. Rich professionally art-directed shapes and controlled fine detail, immediately readable when wrapped onto tactical clothing and weapon surfaces.
+Constraints: Create the artwork entirely from scratch. ONE texture, no contact sheet, no borders or margins, no text or lettering, no logos or watermark, no weapon, garment, real object, folds, seams, spotlight, vignette, cast shadow, 3D rendering, perspective or mockup.

@@ -113,7 +113,8 @@ def secondary_parts(mesh, layout):
 def coordinated_parts(colours, retail, mesh, stem, pattern, *, return_regions=False):
     """Fit the actual motif independently to headwear, footwear, gloves and hardware.
 
-    Each region gets its own local frame/scale, preserving the base material detail.
+    Each region gets a local frame at the main finish's physical tile scale,
+    preserving base material detail without shrinking a full image onto a glove.
     This is neither a solid-colour substitute nor a pattern drawn across a UV atlas.
     """
     from . import cosmetics, gunskin
@@ -153,33 +154,20 @@ def coordinated_parts(colours, retail, mesh, stem, pattern, *, return_regions=Fa
     touched=np.zeros((h,w),bool)
     lum=retail[...,:3].astype(np.float32) @ np.array([.3,.59,.11],np.float32)/255
     for region,stripe,group in regions:
-        points=p[region];lo=points.min(0);span=np.maximum(np.ptp(points,axis=0),1e-5)
-        q=(points-lo)/span
+        points=p[region];lo=points.min(0)
+        scale=gunskin._SUIT_SCALE.get(shape,gunskin._TILE_SCALE.get(shape,1.0)) if suit else gunskin._TILE_SCALE.get(shape,1.0)
+        q=(points-lo)/(gunskin.TILE_M*scale)
         normal=layout['N'][region]
-        local=q[None,...]*.6
-        inside=np.ones(local.shape[:2],bool)
-        if shape=='galaxy':
-            motif=gunskin.solid_galaxy(pattern,palette,local,inside)[0]
-        elif shape=='inferno':
-            distance=q[:,1]
-            if group==skeleton.HAND_L:distance=q[:,0]
-            if group==skeleton.HAND_R:distance=1-q[:,0]
-            motif=gunskin.solid_inferno(pattern,palette,local,inside,distance[None,:]*.6,.6,
-                                      np.full(inside.shape,group not in (skeleton.HAND_L,skeleton.HAND_R)))[0]
-        else:
-            tile=gunskin._tile(pattern,shape,tuple(palette))
-            # The sides, front/back and top each sample a local surface plane.
-            # Blend at corners, rather than stretching a face's drawing round it.
-            u,v=q[:,0],1-q[:,1]
-            if group in (skeleton.HAND_L,skeleton.HAND_R):u,v=q[:,2],q[:,0]
-            views=(gunskin._sample(tile,u,v),gunskin._sample(tile,q[:,2],1-q[:,1]),
-                   gunskin._sample(tile,q[:,0],q[:,2]))
-            weights=abs(normal[:,[2,0,1]])**8
-            weights/=np.maximum(weights.sum(1,keepdims=True),1e-6)
-            motif=sum(view*weights[:,k:k+1] for k,view in enumerate(views))
-            if shape in cosmetics._GILDED:
-                motif=cosmetics._gold_ramp(lum[region],palette,motif[:,0],motif[:,1],
-                    cosmetics.MASTERCRAFT_DEPTH if shape=='mastercraft' else 1)
+        tile=gunskin._tile(pattern,shape,tuple(palette))
+        # All finishes use the authored RGB artwork, including nebulae, flames
+        # and gold. Gold is no longer a pair of procedural engraving channels.
+        u,v=q[:,0],1-q[:,1]
+        if group in (skeleton.HAND_L,skeleton.HAND_R):u,v=q[:,2],q[:,0]
+        views=(gunskin._sample(tile,u,v),gunskin._sample(tile,q[:,2],1-q[:,1]),
+               gunskin._sample(tile,q[:,0],q[:,2]))
+        weights=abs(normal[:,[2,0,1]])**8
+        weights/=np.maximum(weights.sum(1,keepdims=True),1e-6)
+        motif=sum(view*weights[:,k:k+1] for k,view in enumerate(views))
         # Rubber/fabric keeps its own moulded/weave detail even when the main
         # finish is gold or lacquer (which intentionally uses different shading).
         detail=np.clip(.55+.45*(lum[region]+.015)/(float(lum[region].mean())+.015),.4,1.5)

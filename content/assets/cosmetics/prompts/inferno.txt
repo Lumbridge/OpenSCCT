@@ -1,0 +1,6 @@
+Use case: stylized-concept
+Asset type: original premium game cosmetic albedo texture for the Inferno unlockable.
+Primary request: Organic inferno surface print: many richly detailed licking flame tongues rise upward and twist through charcoal-black gaps, deep crimson roots layered with vermilion and orange and restrained gold hot cores. Sophisticated natural flame-like marbling with varied scale and fluid motion, edge-to-edge repeating fire camouflage, deliberately distinct from geometric hot-rod flame outlines. Flat printed albedo art, no smoke or scene, no directional lighting or bloom.
+Color palette: #0A0A0C #6A0C02 #C82408 #F07010 #FFC038 #FFF4B8.
+Composition: One square 1024x1024 or higher, perfectly flat orthographic production material texture filling every edge. Seamlessly repeating at opposite edges. Uniform neutral albedo illumination. Rich professionally art-directed shapes and controlled fine detail, immediately readable when wrapped onto tactical clothing and weapon surfaces.
+Constraints: Create the artwork entirely from scratch. ONE texture, no contact sheet, no borders or margins, no text or lettering, no logos or watermark, no weapon, garment, real object, folds, seams, spotlight, vignette, cast shadow, 3D rendering, perspective or mockup.

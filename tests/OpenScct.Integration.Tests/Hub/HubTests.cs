@@ -1,16 +1,19 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using OpenScct.Bots;
 using OpenScct.Core;
 using OpenScct.Core.Engine;
 using OpenScct.Game.SBase;
 using OpenScct.Net;
+using OpenScct.Net.Discovery;
 using OpenScct.Net.Voice;
 using OpenScct.Net.Voice.Proximity;
 using OpenScct.Server;
 using OpenScct.Server.Hub;
+using OpenScct.Server.Online;
 using Xunit;
 
 namespace OpenScct.Integration.Tests.Hub;
@@ -260,6 +263,59 @@ public sealed class HubTests
         }
 
         return n == 0 ? 0 : Math.Sqrt(sum / n);
+    }
+
+    [Fact]
+    public void HubVoiceRestoresOnlineVolumeAndSharesLaterChanges()
+    {
+        string path = Path.Combine(Path.GetTempPath(), "OpenScct-HubVoice-" + Guid.NewGuid().ToString("N") + ".json");
+        try
+        {
+            using var rig = new Rig(0);
+            var target = JoinTarget.Custom("Volume preferences", () => rig.Network.Bind("online"), "unconnected");
+            using var onlineClient = new OnlineClient(target, new OnlineClientSettings
+            {
+                Maps = WalkerRig.Maps, Classes = WalkerRig.Classes, PlayerName = "Listener",
+            }, rig.Now);
+            var original = new VoiceVolumes();
+            using (var previous = new OnlineVoice(onlineClient, new VoiceClient(new VoiceSettings(), rig.Clock), original))
+            {
+                previous.SetVolume("Talker", 0.4f);
+                original.Save(path);
+            }
+
+            VoiceVolumes loaded = VoiceVolumes.Load(path);
+            using var onlineVoice = new OnlineVoice(onlineClient, new VoiceClient(new VoiceSettings(), rig.Clock), loaded);
+            using var listener = new HubClient(rig.Network.Bind("listener"), "server", rig.Now,
+                new HubClientSettings { Maps = WalkerRig.Maps, Classes = WalkerRig.Classes, PlayerName = "Listener" });
+            using var talker = new HubClient(rig.Network.Bind("talker"), "server", rig.Now,
+                new HubClientSettings { Maps = WalkerRig.Maps, Classes = WalkerRig.Classes, PlayerName = "TALKER" });
+            using var hubVoice = new HubVoice(listener, new VoiceClient(new VoiceSettings(), rig.Clock), volumes: loaded);
+            void Step()
+            {
+                listener.Tick(rig.Now);
+                talker.Tick(rig.Now);
+                hubVoice.Update(null, 1f / Sim.Hz);
+            }
+
+            rig.Run(6f, Step);
+            Assert.True(hubVoice.IsConnected);
+            ushort talkerId = hubVoice.TalkerOf("TALKER") ?? 0;
+            Assert.NotEqual((ushort)0, talkerId);
+            Assert.Equal(0.4f, hubVoice.VolumeOf("TALKER"));
+            Assert.Equal(0.4f, hubVoice.Voice.FindTalker(talkerId)!.Volume);
+
+            hubVoice.SetVolume("TALKER", 0.75f);
+            Assert.Equal(0.75f, onlineVoice.VolumeOf("Talker"));
+            onlineVoice.SetVolume("talker", 0.25f);
+            rig.Run(0.1f, Step);
+            Assert.Equal(0.25f, hubVoice.Voice.FindTalker(talkerId)!.Volume);
+        }
+        finally
+        {
+            File.Delete(path);
+            File.Delete(path + ".tmp");
+        }
     }
 
     [Fact]

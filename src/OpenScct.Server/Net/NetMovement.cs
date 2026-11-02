@@ -572,7 +572,18 @@ public sealed partial class NetMovementBridge : IMovementNet, IMoveEndpointSourc
     public void BeforeOwnerAnimation(SBasePawn pawn)
     {
         if (pawn.Controller is not SPlayerController { bWaitingForReinit: false } pc) return;
-        if (!SBasePawnMoves.IsCorpse(pc, pawn)) EndpointOf(pc)?.Client?.EnsurePredictionStep();
+        if (!SBasePawnMoves.IsCorpse(pc, pawn))
+        {
+            // Knocked-out players author no movement from InactiveMove, and autonomous pawns do not
+            // run Actor.NativeTick physics. Consume the fall/get-up clip's root motion on the local
+            // world clock while commands are disabled, just as the authority does for this state.
+            if (pc.StateNode is SPlayerController.s_Inactive)
+            {
+                pawn.Acceleration = default;
+                pawn.XLevel.PhysicsDriver?.performPhysics(pawn, Sim.DeltaTime);
+            }
+            EndpointOf(pc)?.Client?.EnsurePredictionStep();
+        }
         else
         {
             // Autonomous pawns do not run Actor.NativeTick physics. Once input prediction stops at death,
@@ -745,9 +756,17 @@ public sealed partial class NetMovementBridge : IMovementNet, IMoveEndpointSourc
         else Array.Copy(Actions, _actions, Math.Min(Actions.Length, 6));
         MovePacking.CompressActions(_actions, Count, out int val0, out int val1);
         _args.Clear().Float(0, PC.Level.TimeSeconds).Float(1, PC.MirrorStateAcknowledgementTime).Int(2, val0).Int(3, val1);
+        // A charge/spin victim is simulated on the world clock, so its knockback action travels here
+        // instead of inside a big move. That action reads SpecialYaw on the authority: carry the
+        // owner's chosen facing with it rather than leaving the server's previous yaw in place.
+        bool knockback = _actions.AsSpan(0, Math.Min(Count, _actions.Length)).Contains(SBasePawn.SA_CHARGE_ATTACKED_GOBACK);
+        bWithVelocity |= knockback;
         if (bWithVelocity)
         {
-            _args.Vector(4, MovementNet.Scaled(PC.Pawn?.Velocity ?? default, MoveK.VelocityWireScale));
+            FVector value = PC.Pawn is SBasePawn { Physics: EPhysics.PHYS_RootMotion } root
+                ? new FVector(knockback ? root.SpecialYaw : root.Rotation.Yaw, 0f, 0f)
+                : PC.Pawn?.Velocity ?? default;
+            _args.Vector(4, MovementNet.Scaled(value, MoveK.VelocityWireScale));
             Send(PC, "ReplicateActionToServerWithVelocity");
         }
         else

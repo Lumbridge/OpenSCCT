@@ -1,0 +1,17 @@
+OpenSCCT cosmetic source artwork
+================================
+
+Created from scratch for OpenSCCT on 2026-11-02 using OpenAI's built-in imagegen
+tool in Codex. Art direction: the user's supplied camouflage references and the
+existing OpenSCCT cosmetic identities. The references guided style; no reference
+pixels or retail game textures were used as edit targets or copied into this pack.
+
+Every PNG in textures/ is an unmodified generated output. The exact generation
+prompt is stored under prompts/ with the same basename. The skeleton uses separate
+front and rear illustrations, with anatomical placement in skeleton-layout.json.
+Source hashes, dimensions and prompt hashes are recorded in manifest.json.
+The repository art allowlist records exact byte lengths and SHA-256 hashes in
+tools/ci/asset-provenance.json.
+
+Retail-derived fitted atlases are built locally from the player's own game files.
+Those generated atlases are not part of this source art pack.

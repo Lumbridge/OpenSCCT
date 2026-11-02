@@ -1,0 +1,7 @@
+Use case: stylized-concept
+Asset type: original game cosmetic albedo texture, Skyscraper map reward, map_skys.
+Primary request: recreate from scratch a premium flat camouflage pattern suitable for tactical suits and armour. midnight-blue architectural camouflage, staggered angular vertical and diagonal shards, broad dark fields with slate-indigo islands and restrained pale periwinkle fragments.
+Color palette: strictly based on #10141E, #2E3E6E, #A8B8E8. Rich controlled pigments with subtle tonal material variation.
+Composition: one full-bleed square texture 1024x1024 or larger; flat front-on orthographic pattern only, approximately 8-12 major pattern islands across each dimension with secondary shapes. Seamlessly tileable across all opposite edges.
+Style: polished clean high-end game texture, crisp deliberate irregular silhouettes like beautifully authored camouflage. Only very subtle fine textile/pigment grain; avoid blurry procedural noise.
+Constraints: opaque flat albedo, even colour and detail to every edge; no actual objects, scenery, garment, equipment, UV atlas, folds, lighting, shadows, highlights, vignette, border, labels, lettering, logo or watermark. No depth or perspective.

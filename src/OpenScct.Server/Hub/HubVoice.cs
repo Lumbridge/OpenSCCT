@@ -21,7 +21,7 @@ namespace OpenScct.Server.Hub;
 public sealed class HubVoice : IDisposable
 {
     private readonly HubClient _client;
-    private readonly Dictionary<string, float> _volumes = new(StringComparer.OrdinalIgnoreCase);
+    private readonly VoiceVolumes _volumes;
     private readonly HashSet<string> _muted = new(StringComparer.OrdinalIgnoreCase);
     private readonly Dictionary<ushort, string> _names = new();
     private readonly HubVoicePositions _positions;
@@ -30,10 +30,11 @@ public sealed class HubVoice : IDisposable
     private MapInfo? _lineOfSightMap;
     private bool _connected;
 
-    public HubVoice(HubClient client, VoiceClient voice, ProximityVoiceSettings? settings = null)
+    public HubVoice(HubClient client, VoiceClient voice, ProximityVoiceSettings? settings = null, VoiceVolumes? volumes = null)
     {
         _client = client ?? throw new ArgumentNullException(nameof(client));
         Voice = voice ?? throw new ArgumentNullException(nameof(voice));
+        _volumes = volumes ?? new VoiceVolumes();
         _positions = new HubVoicePositions(client.Session.World);
         Playback = new ProximityPlayback(settings);
         _blocked = Blocked;
@@ -87,16 +88,16 @@ public sealed class HubVoice : IDisposable
     }
 
     /// <summary>This player's volume for <paramref name="playerName"/>, 0 to 2 (1 unless set).</summary>
-    public float VolumeOf(string playerName) => _volumes.TryGetValue(playerName ?? string.Empty, out float v) ? v : 1f;
+    public float VolumeOf(string playerName) => _volumes.VolumeOf(playerName);
 
-    /// <summary>Sets this player's volume for <paramref name="playerName"/>'s voice, 0 to 2 (kept for the visit).</summary>
+    /// <summary>Sets this player's volume for <paramref name="playerName"/>'s voice, 0 to 2, in the shared preferences.</summary>
     public void SetVolume(string playerName, float volume)
     {
         ArgumentNullException.ThrowIfNull(playerName);
-        _volumes[playerName] = Math.Clamp(volume, 0f, 2f);
+        _volumes.SetVolume(playerName, volume);
         if (TalkerOf(playerName) is { } talker)
         {
-            Voice.SetVolume(talker, _volumes[playerName]);
+            Voice.SetVolume(talker, VolumeOf(playerName));
         }
     }
 

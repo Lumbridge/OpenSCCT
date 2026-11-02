@@ -396,6 +396,7 @@ public partial class SPlayerController
 
         if (bInSmoke && now > fSmoke_FallDate && pawn.Physics != EPhysics.PHYS_RootMotion)
         {
+            GasSleepNotice? sleep = TakeGasSleepNotice();
             CountGasKO();
             EndCoughNow();
             if (pawn.Base is null)
@@ -406,6 +407,8 @@ public partial class SPlayerController
             {
                 eventChangeState(CNAME_s_FallDown, CNAME_DIE_InPlace);
             }
+
+            PublishGasSleepNotice(sleep);
         }
         else if (now > fSmoke_EndOfCoughDate)
         {

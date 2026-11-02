@@ -109,8 +109,25 @@ public sealed class HudPerformanceSmoke : SmokeTest
             canvas.Submit(list.Items);
             Require(canvas.RedrawCount == redraws, "unchanged replacement assets queued another redraw");
 
+            text.NativeFont = OpenScctGame.UI.UiArt.BodyFont;
+            Require(text.NativeFont is not null, "bundled Inter font unavailable");
+            text.Text = "Modern HUD";
+            text.XScale = 1f;
+            text.TrackingPx = 0f;
+            canvas.Submit(list.Items);
+            redraws = canvas.RedrawCount;
+            canvas.Submit(list.Items);
+            Require(canvas.RedrawCount == redraws, "unchanged native text redrew");
+            Require(batch.SetItems(list.Items, 0, 1) && ReferenceEquals(batch.Items[0].NativeFont, text.NativeFont),
+                "native font was omitted from the retained command snapshot");
+            text.NativeFont = OpenScctGame.UI.UiArt.TitleFont;
+            Require(batch.SetItems(list.Items, 0, 1), "native font replacement was not detected");
+            canvas.Submit(list.Items);
+            Require(canvas.RedrawCount == redraws + 1, "native font replacement did not redraw");
+
             list.Clear();
             MagmaDrawItem dodge = Image(list);
+            Require(dodge.NativeFont is null, "pooled draw item retained a native font");
             dodge.Blend = MagmaBlend.Dodge;
             var viewport = new Rect2(0f, 0f, 1280f, 720f);
             Require(MagmaCanvas.TryCopyRect(list.Items, 0, 1, viewport, out Rect2 rect), "small dodge run used a full copy");
@@ -269,6 +286,12 @@ public sealed class HudCopyPixelsSmoke : SmokeTest
         _viewport.AddChild(_canvas);
         _items.Clear();
         Add(new Vector2(40f, 50f), new Vector2(190f, 180f), new Color(.15f, .23f, .34f, .65f), MagmaBlend.Normal, true);
+        MagmaDrawItem nativeText = HudText.Item("copy-native-text", "Modern HUD: sleep / knockout",
+            new Rect2(new Vector2(48f, 65f) * scale, new Vector2(220f, 16f) * scale), 12f * scale, MagmaAlign.Left, Colors.White);
+        nativeText.NativeFont = OpenScctGame.UI.UiArt.BodyFont;
+        if (nativeText.NativeFont is null) throw new InvalidOperationException("bundled Inter font unavailable");
+        nativeText.TrackingPx = 0f;
+        _items.Add(nativeText);
         Add(new Vector2(70.25f, 80.75f), new Vector2(190.5f, 170.25f), new Color(.4f, .15f, .3f, 1f), MagmaBlend.Dodge, true);
         Add(new Vector2(120f, 130f), new Vector2(140f, 100f), new Color(.13f, .2f, .31f, .4f), MagmaBlend.Normal, true);
         Add(new Vector2(-12.5f, 190.25f), new Vector2(190.5f, 150.25f), new Color(.15f, .4f, .21f, 1f), MagmaBlend.Dodge2X, false);

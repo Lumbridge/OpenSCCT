@@ -202,12 +202,13 @@ public static class HudMessages
 
     /// <summary><c>ReceiveLocalizedMessage</c> for any message class: <c>LocalMessage.ClientReceive</c> then SHud.</summary>
     public static void ReceiveLocalizedMessage(PlayerController receiver, string messageClass, int Switch,
-        PlayerReplicationInfo? pri1, PlayerReplicationInfo? pri2, UObject? obj)
+        PlayerReplicationInfo? pri1, PlayerReplicationInfo? pri2, UObject? obj, HudActivityFeed? feed = null)
     {
         ArgumentNullException.ThrowIfNull(receiver);
         if (receiver.myHUD is SHud hud)
         {
-            LocalizedMessage(hud, messageClass, Switch, pri1, pri2, obj, null);
+            feed?.Bind(receiver, receiver.Level.TimeSeconds);
+            LocalizedMessage(hud, messageClass, Switch, pri1, pri2, obj, null, feed);
         }
     }
 
@@ -223,13 +224,22 @@ public static class HudMessages
     [Uc("SBase.SHud.LocalizedMessage", Sha1 = "acc2703bfe2d91a6e10e8a790442a541d33896ec")]
     [PortOf("uc:SBase.SHud:LocalizedMessage", Spec = "spec/hud/messages.md#rules")]
     public static void LocalizedMessage(SHud hud, string messageClass, int Switch, PlayerReplicationInfo? pri1,
-        PlayerReplicationInfo? pri2, UObject? obj, string? criticalString)
+        PlayerReplicationInfo? pri2, UObject? obj, string? criticalString, HudActivityFeed? feed = null)
     {
         ArgumentNullException.ThrowIfNull(hud);
         string text = string.IsNullOrEmpty(criticalString) ? TextOf(messageClass, Switch, pri1, pri2, obj) : criticalString;
 
         // The message's jingles and sounds (spec/native/audio.md rule 31).
         hud.LocalizedMessageSounds(messageClass, Switch, pri1, pri2, obj);
+        if (feed is not null && HudActivityClassifier.TryCreate(messageClass, Switch, pri1, pri2, obj,
+            hud.PlayerOwner?.PlayerReplicationInfo ?? hud.P?.Controller?.PlayerReplicationInfo,
+            hud.Level.TimeSeconds, text, out HudActivityEntry activity))
+        {
+            if (IsClass(messageClass, GameMessagesClass) && Switch == 2) feed.Clear();
+            feed.Add(activity);
+            // Live alarm stacks/countdowns remain authoritative; their transient feed row is supplementary.
+            if (activity.Kind != HudActivityKind.Alarm) return;
+        }
         if (IsClass(messageClass, GameMessagesClass))
         {
             if (Array.IndexOf(GameQueueSwitches, Switch) >= 0)

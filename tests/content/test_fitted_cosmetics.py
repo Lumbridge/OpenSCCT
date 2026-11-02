@@ -107,9 +107,13 @@ def test_boot_shaft_is_included_even_when_weighted_to_calf():
     np.testing.assert_array_equal(secondary_parts(mesh,layout)[skeleton.FOOT_L],[[True,True,False]])
 
 
-def test_secondary_rebake_matches_full_bake(tmp_path):
+def test_secondary_rebake_matches_full_bake(tmp_path, monkeypatch):
     from svmbuild.fitted import refinish_parts
     from svmbuild.sidearms import SOURCE
+    from svmbuild import cosmetic_art
+    y,x=np.mgrid[:64,:64].astype(np.float32)/63
+    art=np.stack([.2+.7*x,.15+.6*y,.08+.1*x],-1)
+    monkeypatch.setattr(cosmetic_art,'load',lambda pattern:art)
     stem='OpenScctSidearms_magnum44_Taurus_baseColor'
     job=(str(SOURCE/'textures'/(stem+'.png')),str(tmp_path/'gold.png'),'golden',stem,(64,64),str(SOURCE/'magnum44.glb'))
     cosmetics._paint_job(job)
@@ -122,8 +126,10 @@ def test_secondary_rebake_matches_full_bake(tmp_path):
 def test_head_boots_and_gloves_receive_a_motif_not_a_solid_colour(monkeypatch,pattern):
     from types import SimpleNamespace
     from svmbuild.fitted import coordinated_parts
+    from svmbuild import cosmetic_art
     size=48
     y,x=np.mgrid[:size,:size].astype(np.float32)/(size-1)
+    monkeypatch.setattr(cosmetic_art,'load',lambda pattern:np.stack([x,y,1-x],-1))
     points=np.stack([x,y,np.zeros_like(x)],-1)
     group=np.where(y>.66,skeleton.HEAD,np.where(y<.33,skeleton.FOOT_L,skeleton.HAND_L))
     normal=np.zeros_like(points);normal[...,2]=1

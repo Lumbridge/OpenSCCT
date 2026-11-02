@@ -1,0 +1,6 @@
+Use case: stylized-concept
+Asset type: production game cosmetic surface albedo texture, fitted to character suits and/or weapons.
+Primary request: Recreate Zioplex map mastery camouflage from scratch.
+Distinctive futuristic organic camouflage in near-black plum #140e1e, rich dark purple #46226a and vivid turquoise #3ae8d8. Broad flowing irregular hooked islands and smaller torn fragments, sharp clean edges, dark purple dominates with turquoise about20percent, no neon outlines or glowing effect. Bold polished premium graphic camouflage; no circuitry, logos or literal objects.
+Composition: one single square 1024x1024 or higher flat material swatch, seamlessly wrapping across all four edges, edge-to-edge pattern, perfectly orthographic. Uniform neutral albedo with no baked illumination. Premium crisp game artwork, readable design at gameplay distance, fine detail subordinate to large forms.
+Constraints: single texture only, no borders, collage, inset, label, text, logo, weapon, clothing object, stitching seam, fold, cast shadow, spotlight, vignette, perspective or 3D mockup.

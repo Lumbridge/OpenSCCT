@@ -70,6 +70,11 @@ public partial class SStickyCamEmitter
 
             if (IsGassed(p))
             {
+                if (Role == ENetRole.ROLE_Authority && p.Controller is SPlayerController exposed)
+                {
+                    exposed.ObserveGasActivity(this, TimeBaseToCought, TimeBaseToFaint, stickyCamera: true);
+                }
+
                 (p.Controller as SPlayerController)?.eventGoInSmoke(TimeBaseToCought, TimeBaseToFaint, TimeBaseToJamming, ForceBaseToJamming);
                 continue;
             }
@@ -83,6 +88,11 @@ public partial class SStickyCamEmitter
             if (!(FVector.DistSquared(p.Location, RefLocation) < K.StickyGasRadiusSquared) || !GadgetWorld.Sees(this, Location, p))
             {
                 continue;
+            }
+
+            if (Role == ENetRole.ROLE_Authority)
+            {
+                pc.ObserveGasActivity(this, TimeBaseToCought, TimeBaseToFaint, stickyCamera: true);
             }
 
             pc.eventGoInSmoke(TimeBaseToCought, TimeBaseToFaint, TimeBaseToJamming, ForceBaseToJamming);

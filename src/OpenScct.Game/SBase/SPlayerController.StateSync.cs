@@ -73,6 +73,7 @@ public partial class SPlayerController
         EGotoState result = base.GotoState(NewState, Label);
         if (result == EGotoState.GOTOSTATE_Success)
         {
+            ResetGasActivityAfterStateChange(NewState);
             ReloadedStateEntered(NewState);
         }
 
@@ -183,8 +184,8 @@ public partial class SPlayerController
     }
 
     /// <summary>
-    /// Client to server: follow the client only when its acknowledgement time matches within 0.01 s. Not ported
-    /// here: the gas knock-out credit of the knock-down states (combat spec).
+    /// Client to server: follow the client only when its acknowledgement time matches within 0.01 s. A gas
+    /// fall is announced only after independently observed exposure and a successful state change.
     /// </summary>
     [Uc("SBase.SPlayerController.PCChangeServerState", Sha1 = "cc31e893422013af3f50a4f84f08b33c96e05059")]
     [PortOf("uc:SBase.SPlayerController:PCChangeServerState", Spec = "spec/game/netmode-branches.md#rules")]
@@ -192,7 +193,12 @@ public partial class SPlayerController
     {
         if (SvmMath.Abs(CodeTime - MirrorStateAcknowledgementTime) < K.ServerStateTolerance)
         {
-            GotoState(nomdustate, nomduLabel, bDontSaveCurrentState);
+            GasSleepNotice? sleep = IsGasFallTransition(nomdustate, nomduLabel) ? TakeGasSleepNotice() : null;
+            if (GotoState(nomdustate, nomduLabel, bDontSaveCurrentState) == EGotoState.GOTOSTATE_Success && sleep is not null)
+            {
+                CountGasKO();
+                PublishGasSleepNotice(sleep);
+            }
         }
     }
 }

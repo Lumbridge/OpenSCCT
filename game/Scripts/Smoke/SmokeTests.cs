@@ -8,7 +8,7 @@ public static class SmokeTests
 {
     public static IReadOnlyList<string> Names { get; } =
         [MapLightSpritesSmoke.TestName, DestructibleFxSmoke.TestName, SpyPerspectiveSmoke.TestName, MineLightSmoke.TestName, CamnetDisabledSmoke.TestName, AmmoMenuHudSmoke.TestName, LandingBlendSmoke.TestName, GlassBlendSmoke.TestName, ScopeLifecycleSmoke.TestName, SidearmReloadPoseSmoke.TestName, MenuEscapeSmoke.TestName, FittedSkinsSmoke.TestName, ViewmodelLightSmoke.TestName, StatsSmoke.TestName, StartupWeaponsSmoke.TestName, LaserAlignmentSmoke.TestName, BootSmoke.TestName, TestBoxSmoke.TestName, SelfTestFailSmoke.TestName, SteeERenderSmoke.TestName, GoldenSmoke.TestName,
-            JoinFocusSmoke.TestName, ControllerDefaultsSmoke.TestName, Hud.HudSmoke.TestName, RainHudSmoke.TestName, AudioSmoke.TestName, PlaySpySmoke.TestName, PlayCraneSmoke.TestName,
+            ModernChatSmoke.TestName, JoinFocusSmoke.TestName, ControllerDefaultsSmoke.TestName, Hud.HudSmoke.TestName, HudActivityFeedSmoke.TestName, RainHudSmoke.TestName, AudioSmoke.TestName, PlaySpySmoke.TestName, PlayCraneSmoke.TestName,
             PlayDiskHuntSmoke.TestName, PlayDeathmatchSmoke.TestName, Voice.VoiceSmoke.TestName,
             Online.OnlineSmoke.TestName, Online.NetLobbySmoke.TestName, Online.NetLobbySmoke.GuestTestName, Online.NetBotsSmoke.TestName, Online.NetBotsSmoke.GuestTestName, GadgetsSmoke.TestName, PlayBotsSmoke.TestName, UI.InGameMenuSmoke.TestName,
             PlayCombatSmoke.TestName, PlayAudioSmoke.TestName, PlayAudioMercSmoke.TestName, PlayAudioKrauSmoke.TestName,
@@ -30,6 +30,7 @@ public static class SmokeTests
 
     public static SmokeTest? Create(string name) => name switch
     {
+        ModernChatSmoke.TestName => new ModernChatSmoke(),
         BombPresentationSmoke.TestName => new BombPresentationSmoke(),
         MapLightSpritesSmoke.TestName => new MapLightSpritesSmoke(),
         DestructibleFxSmoke.TestName => new DestructibleFxSmoke(),
@@ -48,6 +49,7 @@ public static class SmokeTests
         AudioListenerSmoke.TestName => new AudioListenerSmoke(),
         PresentationPerformanceSmoke.TestName => new PresentationPerformanceSmoke(),
         HudPerformanceSmoke.TestName => new HudPerformanceSmoke(),
+        HudActivityFeedSmoke.TestName => new HudActivityFeedSmoke(),
         HudGameplayParitySmoke.SpyName => new HudGameplayParitySmoke(),
         HudGameplayParitySmoke.MercName => new HudGameplayParitySmoke(true),
         HudOutputReplaySmoke.TestName => new HudOutputReplaySmoke(),

@@ -5,6 +5,7 @@ using System.Linq;
 using Godot;
 using OpenScct.Core;
 using OpenScct.Core.Engine;
+using OpenScct.Core.Uc;
 using OpenScct.Game.Objectives;
 using OpenScct.Game.SBase;
 using OpenScctGame.Chat;
@@ -180,9 +181,18 @@ public sealed class HudSmoke(bool spectatorOnly = false) : SmokeTest
 
         _scene = new Scene();
         _viewer = _scene.SpyPc;
+        // Arrives before the first HUD frame, as it can when joining an online match.
+        _layer.Receiver.Handle(_viewer, new GameCall("ReceiveLocalizedMessage")
+        {
+            Class = new ClassRef(HudMessages.DeathMessageClass),
+            Int = 0,
+            Pri1 = _scene.MercPc.PlayerReplicationInfo,
+            Pri2 = _scene.MatePawn.PlayerReplicationInfo,
+        });
         HudAssets assets = _layer.Assets!;
         CheckReticleSwaps(assets);
         CheckScopeLayout(assets);
+        CheckActivityLifecycle();
         var reader = new HudSimReader(() => _viewer, (section, key, fallback) => assets.Localize("MagmaDynamic", section, key, fallback), _layer.Effects);
         _layer.Source = new Composite(reader, s => _extra?.Invoke(s));
         _layer.Controller = () => _viewer;
@@ -198,6 +208,54 @@ public sealed class HudSmoke(bool spectatorOnly = false) : SmokeTest
         context.Tree.Root.AddChild(_chat);
         _layer.AddOverlay(_chat);
         return SmokeResult.Running;
+    }
+
+    private void CheckActivityLifecycle()
+    {
+        var scene = new Scene();
+        HudLayer? layer = HudLayer.Create(out string? error);
+        if (layer is null) { _failures.Add(error ?? "activity HUD unavailable"); return; }
+        try
+        {
+            SPlayerController? owner = scene.SpyPc;
+            layer.Controller = () => owner;
+            layer.Source = new HudSimReader(() => owner);
+            layer.ScreenSize = Screen;
+            using var clock = scene.World.Level.CommandTime(1200, 20f, Dt);
+            var call = new GameCall("ReceiveLocalizedMessage")
+            {
+                Class = new ClassRef(HudMessages.DeathMessageClass), Int = 23,
+                Pri1 = scene.MercPc.PlayerReplicationInfo, Pri2 = scene.SpyPc.PlayerReplicationInfo,
+            };
+            layer.Receiver.Handle(scene.SpyPc, call);
+            layer.Step(Dt);
+            Expect(layer.Activity.Entries.Count == 1, "activity before first Step survives initialization");
+            scene.SpyHud.bHideHUD = true;
+            layer.Step(Dt);
+            Expect(layer.Activity.Entries.Count == 1 && layer.ActivityDrawer.VisibleCount == 0,
+                "hidden HUD suppresses drawing without discarding activity");
+            scene.SpyHud.bHideHUD = false;
+            scene.SpyPc.ViewTarget = scene.MatePawn;
+            scene.SpyPc.Pawn = null;
+            layer.Step(Dt);
+            Expect(layer.Activity.Entries.Count == 1, "pawn and spectator-target changes preserve activity");
+            scene.SpyPc.Pawn = scene.SpyPawn;
+            layer.Visible = false;
+            using (scene.World.Level.CommandTime(1620, 27f, Dt))
+            {
+                layer.Step(Dt);
+                Expect(layer.Activity.Entries.Count == 0, "hidden CanvasLayer still expires old activity");
+            }
+            layer.Visible = true;
+            layer.Receiver.Handle(scene.SpyPc, call);
+            owner = null;
+            layer.Step(Dt);
+            Expect(layer.Activity.Entries.Count == 0, "disconnect clears activity");
+        }
+        finally
+        {
+            layer.Free();
+        }
     }
 
     private void CheckScopeLayout(HudAssets assets)
@@ -267,9 +325,11 @@ public sealed class HudSmoke(bool spectatorOnly = false) : SmokeTest
         ExpectContains(list, "SystemMessage/messageSystem", "Laboratory : Neutralization in progress");
         Expect(list.TextOf("SystemMessage/messageSystem")?.StartsWith('\n') == true, "stack text starts with the driver's line break");
         ExpectContains(list, "GameMessage/messageGame", s.Objective.Description);
-        // The kill feed: the death message waits behind the mission text in the game queue (priority order).
-        Expect(s.SpyHud.GameMessageQueue.Count == 2 && s.SpyHud.GameMessageQueue[1].Message == "Shadownet killed Ghost",
-            $"kill line queued ({string.Join(" | ", s.SpyHud.GameMessageQueue.Select(m => m.Message))})");
+        // Combat activity is immediate and independent of the mission queue.
+        Expect(s.SpyHud.GameMessageQueue.Count == 1 && layer.Activity.Entries.Count == 1 &&
+            layer.Activity.Entries[0].Actor?.Name == "Shadownet" && layer.Activity.Entries[0].Victim?.Name == "Ghost",
+            "kill arrives immediately in the activity feed without joining the mission queue");
+        Expect(layer.ActivityDrawer.VisibleCount == 1, "early kill is visible on the first player HUD");
         // Gauges: fill top = min(133, 137 - value x 1.33) under the area origin (y 230).
         ExpectTop(list, "Vie/jaugeinterne", 230f + 137f - 0.60f * 133f);
         ExpectTop(list, "Energie/jaugeinterne", 230f + 137f - 0.50f * 133f);
@@ -299,6 +359,9 @@ public sealed class HudSmoke(bool spectatorOnly = false) : SmokeTest
                Math.Abs(wash.Colors[0].R - HudSfx.Red.R) < 0.01f && Math.Abs(wash.Colors[0].A - 120f / 255f) < 0.01f,
             $"red damage wash ({layer.SfxDrawList.Items.Count} sfx items)");
         Expect(layer.Items.Any(i => i.Path == "Fps"), "frame-rate readout drawn");
+        int lastActivity = layer.Items.ToList().FindLastIndex(i => layer.ActivityDrawer.DrawList.Items.Contains(i));
+        int firstWash = layer.Items.ToList().FindIndex(i => i.Path.StartsWith("Sfx/", StringComparison.Ordinal));
+        Expect(lastActivity >= 0 && firstWash > lastActivity, "screen washes cover the activity feed");
         CheckAssets(layer);
         _notes.Add(string.Create(CultureInfo.InvariantCulture, $"spy={list.Items.Count}"));
     }
@@ -413,7 +476,8 @@ public sealed class HudSmoke(bool spectatorOnly = false) : SmokeTest
         chat.Type('o');
         chat.Type('`');
         Run(1);
-        ExpectItemText(layer.Items, "Chat/line", "> TeamSay go_");
+        Expect(chat.Panel.Expanded && chat.Panel.Draft == "go`" && chat.Panel.Channel == ChatChannel.Team,
+            "native team chat editor keeps printable punctuation and the selected channel");
         chat.Backspace();
         chat.Backspace();
         chat.Backspace();
@@ -422,12 +486,13 @@ public sealed class HudSmoke(bool spectatorOnly = false) : SmokeTest
         chat.Submit();
         Expect(!chat.IsOpen && chat.Sent.Count == 1 && chat.Sent[0] == (OpenScct.Net.EChatScope.TeamSay, "ok"), $"chat line sent ({chat.Sent.Count})");
         Run(1);
-        Expect(!layer.Items.Any(i => i.Path.StartsWith("Chat/", StringComparison.Ordinal)), "chat line closed");
+        Expect(!chat.Panel.Expanded, "native chat editor closed");
 
-        // The queue's head has shown its 5 s: the kill line comes next.
+        // Expiring a mission notice cannot reveal a second copy of the combat event.
         s.SpyHud.GameMessageEndTime = Now - 1f;
         Run(2);
-        ExpectText(layer.Spy!.DrawList, "GameMessage/messageGame", "Shadownet killed Ghost");
+        Expect(!layer.Spy!.DrawList.Any("GameMessage/messageGame") && layer.Activity.Entries.Count == 1,
+            "combat event stays independent of the mission queue");
 
         // F9: Enhanced Reality off, then on again.
         HudCommands.SwitchEnhancedReality(s.SpyPc, layer.Options);
@@ -523,6 +588,12 @@ public sealed class HudSmoke(bool spectatorOnly = false) : SmokeTest
         HudLayer layer = _layer!;
         Scene s = _scene!;
         MercHudPage merc = layer.Merc!;
+        Expect(layer.Activity.Entries.Count == 0, "switching controller clears the previous player's activity");
+        layer.Receiver.Handle(s.MercPc, new GameCall("ReceiveLocalizedMessage")
+        {
+            Class = new ClassRef(HudMessages.GameMessagesClass), Int = 62,
+            Pri1 = s.SpyPc.PlayerReplicationInfo, Pri2 = s.MercPc.PlayerReplicationInfo,
+        });
 
         s.MercPawn.bStickyShocking = true;
         s.MercPawn.bStickyShockedInTheHead = true;
@@ -541,6 +612,9 @@ public sealed class HudSmoke(bool spectatorOnly = false) : SmokeTest
         layer.Effects.ClientDamageHudEffect(s.MercPc, (int)SDamageType.SDTFlash, Now);
         Run(2);
         Expect(merc.DrawList.Any("Flash/Flash/"), "flash-bang white-out drawn");
+        int lastActivity = layer.Items.ToList().FindLastIndex(i => layer.ActivityDrawer.DrawList.Items.Contains(i));
+        int firstFlash = layer.Items.ToList().FindIndex(i => i.Path.StartsWith("Flash/", StringComparison.Ordinal));
+        Expect(lastActivity >= 0 && firstFlash > lastActivity, "merc white-out covers the activity feed");
         s.MercPc.RendMap = 37;
 
         layer.Effects.SetHudProjection(1, 5, 10, Now);
@@ -1156,7 +1230,6 @@ public sealed class HudSmoke(bool spectatorOnly = false) : SmokeTest
             SpyHud.MalfunctionGamePlayObjects.Add(new FVector(600f, 120f, 40f));
             HudMessages.LocalizedMessage(SpyHud, K.MsgNeutralizationInProgress, HudMessages.GetString(K.MsgNeutralizationInProgress, Terminal));
             HudMessages.LocalizedMessage(SpyHud, K.MsgMissionSpy, HudMessages.GetString(K.MsgMissionSpy, Objective));
-            HudMessages.ReceiveLocalizedMessage(SpyPc, HudMessages.DeathMessageClass, 0, MercPc.PlayerReplicationInfo, mate.PlayerReplicationInfo, null);
 
             MercPawn.Health = 100;
             Rifle = Give(level, new SWeaponDefense(), MercPawn);

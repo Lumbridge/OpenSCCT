@@ -200,6 +200,31 @@ public partial class SPlayerController
 
     // ---- charge ----------------------------------------------------------------------------------------------
 
+    private bool _receivedOwnerChargeHit;
+
+    /// <summary>Accepts one owner-reported charge contact without granting access to another player's actors.</summary>
+    private void ReceiveOwnerChargeHit(in CombatCall call)
+    {
+        if (_receivedOwnerChargeHit || !IsInState(WNAME_s_PlayerCharging) ||
+            SBPawn is not SPAWNDEFENSE { Health: > 0, bDeleteMe: false } attacker ||
+            !ReferenceEquals(call.Actor1, attacker) || call.Target is not SBasePawn { Health: > 0, bDeleteMe: false } victim ||
+            !ReferenceEquals(victim.XLevel, XLevel) || victim.Controller is not SPlayerController ||
+            call.DamageType != SDamageType.SDamage_Charged || call.Int1 != (int)iChargeDamage ||
+            call.Int2 != 0 || call.Int3 != K.MeleeRefillable || GameReplicationInfo is { bAvlb_MERC_Charge: false } ||
+            !(FVector.Dist(victim.Location, attacker.Location) < K.ElbowServerReach))
+        {
+            return;
+        }
+
+        ICollisionWorld? world = TraceHitZones.CollisionOf(this);
+        if (world is not null && !world.FastTrace(victim.Location, attacker.Location)) return;
+
+        _receivedOwnerChargeHit = true;
+        // Resolve damage and momentum from the server's pawns, through the ordinary immunity/team/damage rules.
+        DamagePawn_C2S(victim, (int)iChargeDamage, attacker, victim.Location, victim.Location - attacker.Location,
+            SDamageType.SDamage_Charged, 0, K.MeleeRefillable);
+    }
+
     /// <summary>
     /// The charge target (rule 15): the current target is kept; else the nearest visible living pawn of the other
     /// side within 1500 uu and the 0.8 cone of the aim.

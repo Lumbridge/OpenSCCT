@@ -21,13 +21,70 @@ from PIL import Image, ImageDraw
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / 'content'))
-from svmbuild import cosmetics, gunskin, skeleton
+from svmbuild import cosmetic_art, cosmetics, gunskin, skeleton
 from svmbuild.fitted import SurfaceMesh, ARMS
 from svmbuild.sidearms import IDS, FINISHES, SOURCE
 
 
 def digest(path):
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+
+def source_hashes(jobs):
+    paths = {Path(p) for job in jobs for p in (job[0], job[5])}
+    paths.update(cosmetic_art.source_files())
+    paths.update(Path(module.__file__) for module in (cosmetic_art, cosmetics, gunskin, skeleton))
+    from svmbuild import fitted
+    paths.add(Path(fitted.__file__))
+    return {str(path): digest(path) for path in sorted(paths)}
+
+
+def job_signature(job, sources):
+    """Bind one bake to the precise code, source artwork, mesh and output size."""
+    from svmbuild import fitted
+    code=[sources[str(Path(module.__file__))] for module in (cosmetic_art,cosmetics,fitted,gunskin,skeleton)]
+    artwork=[cosmetic_art.SOURCE/'textures'/(job[2]+'.png')]
+    if job[2]=='skeleton':
+        artwork += [cosmetic_art.SOURCE/'textures/skeleton_back.png',cosmetic_art.SOURCE/'skeleton-layout.json']
+    data=[code,[sources[str(path)] for path in artwork],sources[str(Path(job[0]))],sources[str(Path(job[5]))],job[4]]
+    return hashlib.sha256(json.dumps(data).encode()).hexdigest()
+
+
+def load_records(stage):
+    path=stage/'build-records.json'
+    if not path.exists():return {}
+    document=json.loads(path.read_text())
+    if document.get('format')!='svm.cosmetic-bake/1':raise ValueError('Unknown cosmetic build-record format')
+    return document['jobs']
+
+
+def save_records(stage, records):
+    temporary=stage/'build-records.writing'
+    temporary.write_text(json.dumps({'format':'svm.cosmetic-bake/1','jobs':records},indent=2))
+    temporary.replace(stage/'build-records.json')
+
+
+def record_bake(stage, job, signature, records):
+    """Called immediately after a successful bake, before later review can reuse it."""
+    output=Path(job[1]);mask=output.with_suffix('.mask.png')
+    if not output.resolve().is_relative_to(stage.resolve()):raise ValueError(f'Output escapes stage: {output}')
+    records[str(output.relative_to(stage))]={
+        'input_sha256':signature,
+        'outputs':{str(path.relative_to(stage)):digest(path) for path in (output,mask)}}
+
+
+def validate_records(stage, jobs, records, sources):
+    """A render cannot bless stale inputs or modified output pixels as a new bake."""
+    for job in jobs:
+        output=Path(job[1]);key=str(output.relative_to(stage))
+        record=records.get(key)
+        if not record:raise ValueError(f'Missing bake record; rebuild {key}')
+        if record['input_sha256']!=job_signature(job,sources):
+            raise ValueError(f'Inputs changed since bake; rebuild {key}')
+        for path in (output,output.with_suffix('.mask.png')):
+            relative=str(path.relative_to(stage))
+            if not path.is_file() or record['outputs'].get(relative)!=digest(path):
+                raise ValueError(f'Output changed since bake; rebuild {relative}')
 
 
 def mask_group(group):
@@ -58,6 +115,7 @@ def apply_reviewed(stage, chars):
     if audit['manifest_sha256'] != digest(stage/'manifest.json') or audit['failures']:
         raise ValueError('The staged outputs need a passing coverage audit')
     if manifest['cap'] != 0:raise ValueError('Preview-resolution textures cannot be installed')
+    validate_records(stage,manifest['jobs'],load_records(stage),source_hashes(manifest['jobs']))
     for source,sha in manifest['sources'].items():
         if digest(source)!=sha:raise ValueError(f'Source changed since preview: {source}')
     for model in manifest['models'].values():
@@ -287,9 +345,15 @@ def main():
         audit_coverage(stage)
         return
     models,jobs=inventory(ROOT/'.content/shared/chars',stage,args.cap)
-    source_hashes={p:digest(p) for j in jobs for p in (j[0],j[5])}
+    initial_sources=source_hashes(jobs)
+    records=load_records(stage)
+    signatures={job[1]:job_signature(job,initial_sources) for job in jobs}
+    if args.render_only or args.masks_only or args.refinish_parts:
+        validate_records(stage,jobs,records,initial_sources)
     if args.masks_only:
         write_masks(jobs,args.workers)
+        for job in jobs:record_bake(stage,job,signatures[job[1]],records)
+        save_records(stage,records)
     elif not args.render_only:
         selected=[j for j in jobs if j[2].startswith(args.pattern_prefix)
                   and (not args.package or Path(j[1]).parent.parent.name == args.package)]
@@ -297,13 +361,22 @@ def main():
         with ProcessPoolExecutor(max_workers=args.workers) as pool:
             from svmbuild.fitted import refinish_parts
             bake=refinish_parts if args.refinish_parts else cosmetics._paint_job
-            futures=[pool.submit(bake,j) for j in selected]
+            futures={pool.submit(bake,j):j for j in selected}
             for i,f in enumerate(as_completed(futures),1):
                 f.result()
+                job=futures[f]
+                record_bake(stage,job,signatures[job[1]],records)
+                save_records(stage,records)
                 if i%10==0:print(f'{i}/{len(selected)} textures',flush=True)
+    validate_records(stage,jobs,records,initial_sources)
+    thumbs = stage / 'thumbs'
+    thumbs.mkdir(exist_ok=True)
+    for pattern in cosmetics.PATTERNS:
+        cosmetics._thumb_job((pattern, str(thumbs / f'cosmetic_{pattern}.png'), None))
     render(models,stage)
-    sources={p:digest(p) for j in jobs for p in (j[0],j[5])}
-    if sources!=source_hashes:raise ValueError('Source assets changed during preview; rebuild before installation')
+    sources=source_hashes(jobs)
+    if sources!=initial_sources:raise ValueError('Source assets changed during preview; rebuild before installation')
+    validate_records(stage,jobs,records,sources)
     outputs={}
     for j in jobs:
         for path in (Path(j[1]),Path(j[1]).with_suffix('.mask.png')):
@@ -311,6 +384,8 @@ def main():
             with Image.open(path) as image:
                 if image.size != tuple(j[4]):raise ValueError(f'Wrong output size: {path}')
             outputs[str(path.relative_to(stage))]=digest(path)
+    for path in sorted(thumbs.glob('cosmetic_*.png')):
+        outputs[str(path.relative_to(stage))] = digest(path)
     (stage/'manifest.json').write_text(json.dumps(dict(models=models,jobs=jobs,sources=sources,outputs=outputs,cap=args.cap),indent=2))
     audit_coverage(stage)
 

@@ -1,0 +1,6 @@
+Use case: stylized-concept
+Asset type: production game cosmetic surface albedo texture, fitted to character suits and/or weapons.
+Primary request: Recreate Woodland from scratch.
+A sophisticated classic woodland camouflage with broad interlocking organic amoeba islands, irregular lobed edges, smaller broken satellite islands and an excellent balanced negative space rhythm. Rich forest green #3e5a2a, moss #5a7a3a, earthy brown #6e5a36, deep chocolate #2a2416; bold clean shapes inspired by the user's autumn camo reference, but this is green forest woodland. Distinct large and medium shapes, no veins, leaves or illustrative foliage.
+Composition: one single square 1024x1024 or higher flat material swatch, seamlessly wrapping across all four edges, edge-to-edge pattern, perfectly orthographic. Uniform neutral albedo with no baked illumination. Premium crisp game artwork, readable design at gameplay distance, fine detail subordinate to large forms.
+Constraints: single texture only, no borders, collage, inset, label, text, logo, weapon, clothing object, stitching seam, fold, cast shadow, spotlight, vignette, perspective or 3D mockup.

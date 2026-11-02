@@ -11,7 +11,7 @@ front end (main menu, options, lobby, results) is our own Godot UI in the HUD's 
 | `content/svmbuild/uiconv/`, `content/svmbuild/steps/ui.py` | the `ui` step: Magma packages, atlases, fonts and strings to `.content/shared/ui/` |
 | `game/Scripts/Hud/Magma/` | the page player: package model, instances and clocks, keyframes, renderer, Godot canvas, bitmap fonts |
 | `game/Scripts/Hud/` | the HUD: snapshot and sim reader, page drivers, effects, messages, console, radar, markers, binoculars, status page, `HudLayer`, `PlayHud`, the `hud` smoke test (`Hud/Gadgets/` belongs to the gadget overlays) |
-| `game/Scripts/Chat/` | the chat line (`ChatInput`) |
+| `game/Scripts/Chat/` | shared native chat panel, editor and retained transcript |
 | `game/Scripts/Options/` | the settings file, the options screen, applying settings, the controller |
 | `src/OpenScct.Net/Channels/ChatLine.cs`, `ControlMessage.cs` | the chat message on the control channel |
 | `src/OpenScct.Server/ChatRelay.cs` | the server's chat rules |
@@ -178,15 +178,25 @@ player's machine: `ClientDamageHudEffect` (red wash for spies, perturbation for 
 white-out, extinguisher foam), `HudShutDown`, `SetBallisticValue`, the goggle messages. `HudEventTap` chains the
 world's event sink so nothing else changes.
 
-**Messages and kill feed.** `HudMessages` is the receiving side of `ReceiveLocalizedMessage` for SGameMessages,
-SDeathMessage and the engine's GameMessage: `GetString` builds the text, `LocalizedMessage` routes each switch to the
-game queue (ascending priority, the script's insertion quirk kept) or a stack. Deaths are the kill feed: priority 2
-for a teammate, 1 otherwise, five seconds each at the head of the queue. On a client `HudReceiver` takes the server's
-`ReceiveLocalizedMessage`, `TeamMessage` and `ClientMessage` calls (a fallback of the net function handlers).
+**Activity feed and contextual messages.** `HudReceiver` routes localized match events into the `HudLayer`'s
+activity feed: kills, sleeps, knockouts, objective milestones, joins/leaves, match notices and received alarms.
+Five newest events appear immediately, newest first, for six seconds each; entrance takes 150 ms and the final
+400 ms fades out. Overflow removes the oldest row without a backlog. Captured player names and team colours,
+action labels and known causes replace rank-prefixed sentences. Dark translucent rows use bundled Inter and sit
+in the upper-right region, to the left of the page's radar/objective column and clear of performance readouts.
+Narrow layouts show fewer rows without shrinking text. Flash and sleep effects draw above the feed.
 
-**Console and chat.** `HudConsole` is `HUD.Message` / `AddTextMessage` / `DisplayMessages`: four lines of
-"Name: text", each living max(0.09 s a character, 5 s), at 0.15 of the width, ending one line above 0.61 of the
-height (chat.md).
+`HudMessages` preserves message sounds and the server's original recipient scope. Combat and activity events
+bypass the legacy queue; mission guidance, interaction prompts, live alarm panels and warnings keep their
+existing areas. Alarm refreshes coalesce by source while a row is visible without extending its lifetime.
+Chat uses the separate `ChatTranscript`/`ChatPanel`. Feed entries survive pawn respawn and spectator target changes, but clear on
+session/controller replacement, match restart or backwards time, and expire while the HUD is hidden.
+Smoke and sticky-camera sleeps use additive `SGameMessages` switches 62/63 with attacker/victim PRIs and are
+published once by the authority for a valid gas-exposure episode; the RPC format is unchanged.
+
+**Console and chat.** Live matches and the hub use the shared native `ChatPanel`, with structured sender/channel
+information and 64-message `ChatTranscript` history. The original `HudConsole` drawing remains a fallback for
+legacy callers; ordinary system messages join the modern transcript without replacing objective or kill notifications.
 
 **Scoreboard and status.** The connected players list toggles with F10 (`ShowConnectedPlayers`) and starts as the
 settings keep it (Reloaded's `show_scoreboard`). F8 (`DisplaySessionStatus`) opens `GameStatusPage`, the mission
@@ -206,12 +216,23 @@ quitting. Smoke test: `play-menu` (real key and mouse events through the play sc
 
 ## Text chat
 
-The Talk key (F5) opens the chat line with `Say `, TeamTalk (F6) with `TeamSay `; printable keys type (100
-characters with the prefix), Backspace deletes, Escape drops, Enter sends. The player's keys stop while it is open.
+The shared modern tactical chat sits on the lower left above match instruments. Closed, it displays up to six
+wrapped lines, with eight seconds of visibility followed by a one-second fade. Opening it reveals the latest 64
+messages; incoming messages preserve a scrolled-up reader's position and expose a New messages action. History
+survives respawns but is not persisted across connections.
+
+Talk (F5 by default) opens All chat, TeamTalk (F6) opens Team chat, and an unassigned Enter also opens All chat.
+Tab cycles the send channel while preserving the draft; Enter sends and closes, Escape discards and closes.
+Matches offer All/Team and the hub also offers Nearby. The native editor supports normal selection, caret
+movement and copy/paste, with a 100-character message-body limit. Opening it releases the pointer and clears and
+blocks gameplay input; closing restores the prior input/capture state without overriding another menu.
+
 The client sends `ControlMessage.Chat(scope, text)` on the control channel; the server's `ChatRelay` applies the
 original's rules (spectators may not chat unless dead and the voice mode allows it, a shared budget of 260
 characters a second, team lines to the sender's team) and sends each recipient a chat message with the sender's id,
-name and team; the client hands it to `HudConsole` ("Ghost: on my way"). Spec: `spec/hud/chat.md`.
+name and team. The display preserves that metadata for channel labels and team-coloured names and renders user
+text literally. The hub retains `/l`, emotes, chat muting and overhead bubbles. No optimistic local echoes are
+added. Spec: `spec/hud/chat.md`; UI smoke: `modern-chat` (captures via `SVM_PLAY_SHOTS`).
 
 ## Developer console
 
@@ -264,8 +285,8 @@ applies them at start and on save.
 | console | `override_console_key` (true: the key left of 1; false: the apostrophe key) |
 
 `OptionsMenu` is the screen from the main menu or the in-game F12 overlay. Spy and Mercenary each contain
-Bindings, Mouse & Aim, Controller and Crosshair sections; General Controls holds shared input/device settings,
-followed by Display, Audio, Voice and HUD (docs/MENUS.md). Settings and bindings are staged until Apply or
+Bindings, Mouse & Aim and Controller sections; Mercenary also has Crosshair. The top-level Controller tab holds
+shared controller settings. Display, Audio, Voice and HUD follow (docs/MENUS.md). Settings and bindings are staged until Apply or
 Save & Close; Back confirms discarding edits. `OptionsRuntime` applies role sensitivity, HUD switches, frame caps,
 FOV and controller settings. `GamepadInput` retains keyboard-linked assignments and supports independent action
 bindings, alongside radial dead zones, response curves and the spy's run threshold.
@@ -433,8 +454,8 @@ checks what reaches the widgets, phase by phase:
 
 | Phase | Checks |
 |---|---|
-| spy | timer, objectives, countdowns, alarm box 0:25, gauges, gadget, messages, kill queue, coop icon, pings, GPO marker, the red terminal marker, console line "Ghost: on my way", the red damage wash, frame rate readout; at 1920 x 1080, 2560 x 1080, 1024 x 768 and 1280 x 720 every text's drawn glyphs end inside the screen, and the timer is centred under the objective counter (before the AUTOSIZED fix: 1251 against 1195, now 1201) |
-| spy extras | interaction list, chat line "> TeamSay go_" and its send, kill feed head swap, Enhanced Reality toggle |
+| spy | timer, objectives, countdowns, alarm box 0:25, gauges, gadget, messages, immediate activity feed and lifecycle, coop icon, pings, GPO marker, the red terminal marker, console line "Ghost: on my way", the red damage wash above activity, frame rate readout; at 1920 x 1080, 2560 x 1080, 1024 x 768 and 1280 x 720 every text's drawn glyphs end inside the screen, and the timer is centred under the objective counter (before the AUTOSIZED fix: 1251 against 1195, now 1201) |
+| spy extras | interaction list, native Team chat editor and its send, activity stays independent of the mission queue, Enhanced Reality toggle |
 | merc | rifle reticle, the left sound arrow from a real noise (none from a weapon dummy), alert box, posture icon, reticle message "Reloading", ammo, radar alarm, the stretched page with widescreen off |
 | merc effects | sticky shock, droplets, flash white-out, foam, perturbation, shutdown and reboot |
 | binoculars | spy: page swap, "x2"/"x6" and the marker's x, key help "Mouse Wheel Up / Mouse Wheel Down" and "B", hidden console texts, Hack prompt, lock panel on the drop zone with its hint, terminal icon, edge arrow; merc: page swap, zoom-out then zoom-in ring keys, breath gauge frame, red then orange sights, sights centred while holding breath, range text, reticle message |
@@ -446,6 +467,12 @@ CI's default set stays `boot` and `testbox`. With a renderer, `--svm-hud-capture
 (keep them under `local/`). Unit tests: `tests/OpenScctGame.Logic.Tests` (settings file, message routing, field of view),
 `tests/OpenScct.Game.Tests/Hud/SoundArrowTests.cs`,
 `tests/OpenScct.Net.Tests/ChatMessageTests.cs`, `tests/OpenScct.Integration.Tests/ChatRelayTests.cs`.
+
+`--svm-smoke=hud-activity-feed` checks all seven HUD pages at 640x480, 1280x720, 1920x1080 and 3440x1440,
+including measured long-name truncation, diagnostics, stretched HUD, timing and visibility. With a renderer it
+saves native-font pixel captures under `SVM_PLAY_SHOTS` (default `local/test-results/hud-activity-feed`).
+`HudActivityFeedTests`, `CombatActivityTests` and `CombatActivityNetworkTests` cover typed routing, producer
+attribution, bounded lifecycle and gas notification delivery across latency.
 
 ## Cinematic camera (Free Camera, Hide HUD)
 

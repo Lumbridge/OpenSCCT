@@ -293,6 +293,9 @@ A 256-tick history reserves up to four movement splits per tick (1,024 command s
 latent state and timer cursors, paired/interaction references, traversal fields and root/channel
 state. Reconciliation restores the acknowledged state and replays newer inputs before the world tick, including
 while menus are open. Newer authoritative action state supersedes corrections from earlier state history.
+Falling corrections also preserve the latest server-selected drop-attack target, including an explicit clear,
+instead of restoring the older target from saved input history. This keeps the owner's homing active after
+the separately replicated lock-on arrives.
 Replay suppresses network calls, damage, animation notifies and simulation presentation events. Historical touch
 callbacks are suppressed; the live contact set is reconciled once at the resulting present position.
 Recorded collision inputs stage other pawn cylinders and moving-base poses during replay, restore live actors

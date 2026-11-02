@@ -1,0 +1,7 @@
+Use case: stylized-concept
+Asset type: original game cosmetic albedo texture, Cinema map reward, map_cine.
+Primary request: recreate from scratch a premium flat camouflage pattern suitable for tactical suits and armour. sweeping torn burgundy camouflage ribbons and black cherry shadows with sparse muted champagne-gold streaks, suggestive of velvet folds but completely flat printed pattern.
+Color palette: strictly based on #2A0F14, #7A1E28, #C89A5A. Rich controlled pigments with subtle tonal material variation.
+Composition: one full-bleed square texture 1024x1024 or larger; flat front-on orthographic pattern only, approximately 8-12 major pattern islands across each dimension with secondary shapes. Seamlessly tileable across all opposite edges.
+Style: polished clean high-end game texture, crisp deliberate irregular silhouettes like beautifully authored camouflage. Only very subtle fine textile/pigment grain; avoid blurry procedural noise.
+Constraints: opaque flat albedo, even colour and detail to every edge; no actual objects, scenery, garment, equipment, UV atlas, folds, lighting, shadows, highlights, vignette, border, labels, lettering, logo or watermark. No depth or perspective.

@@ -214,7 +214,7 @@ public partial class SGameInfo
                     }
 
                     pri.bWelcomed = true;
-                    if (pri.bOnlySpectator && !(pri.bIAmServer && gri.ServerOnly))
+                    if (!(pri.bIAmServer && gri.ServerOnly))
                     {
                         BroadcastLocalizedMessage(GameMessageClass, K.MessageEnteredGame, pri);
                     }

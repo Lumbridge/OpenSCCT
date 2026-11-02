@@ -1,0 +1,6 @@
+Use case: stylized-concept
+Asset type: original premium game cosmetic albedo texture for the Turnabout unlockable.
+Primary request: Bold counter-turn camouflage: interlocking angular orange hook shapes, opposing broken chevrons and recurving geometric strokes that alternate direction across a dark umber-black ground. Burnt sienna secondary shapes add depth; asymmetrical zig-zag flow, crisp shapes with subtly worn painted edges, no literal arrows or signs. Premium distinctive graphic enamel motif.
+Color palette: #1A0E08 #6A2A0E #F07818.
+Composition: One square 1024x1024 or higher, perfectly flat orthographic production material texture filling every edge. Seamlessly repeating at opposite edges. Uniform neutral albedo illumination. Rich professionally art-directed shapes and controlled fine detail, immediately readable when wrapped onto tactical clothing and weapon surfaces.
+Constraints: Create the artwork entirely from scratch. ONE texture, no contact sheet, no borders or margins, no text or lettering, no logos or watermark, no weapon, garment, real object, folds, seams, spotlight, vignette, cast shadow, 3D rendering, perspective or mockup.

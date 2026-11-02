@@ -1,0 +1,6 @@
+Use case: stylized-concept
+Asset type: production game cosmetic surface albedo texture, fitted to character suits and/or weapons.
+Primary request: Recreate Desert from scratch.
+A premium arid desert camouflage, large flowing rounded erosion-shaped patches broken by smaller clustered flecks. Sand #d2b88a, warm khaki #a8875a, desert earth #6e5236, subtle warm ivory. Bold contrasting clean-edged irregular organic shapes with flat ink color, spacious rhythmic arrangement and restrained dusty micrograin; no dunes or landscape.
+Composition: one single square 1024x1024 or higher flat material swatch, seamlessly wrapping across all four edges, edge-to-edge pattern, perfectly orthographic. Uniform neutral albedo with no baked illumination. Premium crisp game artwork, readable design at gameplay distance, fine detail subordinate to large forms.
+Constraints: single texture only, no borders, collage, inset, label, text, logo, weapon, clothing object, stitching seam, fold, cast shadow, spotlight, vignette, perspective or 3D mockup.

@@ -1,0 +1,6 @@
+Use case: stylized-concept
+Asset type: production game cosmetic surface albedo texture, fitted to character suits and/or weapons.
+Primary request: Recreate Urban grey from scratch.
+Refined solid urban-grey performance textile, tightly woven tactical twill with very subtle ripstop reinforcement and understated micrograin. Predominant cool urban grey #9aa0a8; tiny monochromatic thread variation only. Uniform colour identity, no camouflage, stripes, patches, panels, seams or stains.
+Composition: one single square 1024x1024 or higher flat material swatch, seamlessly wrapping across all four edges, edge-to-edge pattern, perfectly orthographic. Uniform neutral albedo with no baked illumination. Premium crisp game artwork, readable design at gameplay distance, fine detail subordinate to large forms.
+Constraints: single texture only, no borders, collage, inset, label, text, logo, weapon, clothing object, stitching seam, fold, cast shadow, spotlight, vignette, perspective or 3D mockup.

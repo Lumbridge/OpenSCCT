@@ -1,0 +1,7 @@
+Use case: stylized-concept
+Asset type: original game cosmetic albedo texture, Pyrocryptic map reward, map_pyro.
+Primary request: recreate from scratch a premium flat camouflage pattern suitable for tactical suits and armour. charred volcanic camouflage with sinuous rusty-red forms and restrained amber-orange molten-looking islands separated by broad dark brown areas, flat pigment not glowing.
+Color palette: strictly based on #200A06, #8A2A0E, #F0A030. Rich controlled pigments with subtle tonal material variation.
+Composition: one full-bleed square texture 1024x1024 or larger; flat front-on orthographic pattern only, approximately 8-12 major pattern islands across each dimension with secondary shapes. Seamlessly tileable across all opposite edges.
+Style: polished clean high-end game texture, crisp deliberate irregular silhouettes like beautifully authored camouflage. Only very subtle fine textile/pigment grain; avoid blurry procedural noise.
+Constraints: opaque flat albedo, even colour and detail to every edge; no actual objects, scenery, garment, equipment, UV atlas, folds, lighting, shadows, highlights, vignette, border, labels, lettering, logo or watermark. No depth or perspective.

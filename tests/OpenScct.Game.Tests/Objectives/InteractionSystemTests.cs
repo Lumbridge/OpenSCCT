@@ -323,6 +323,18 @@ public sealed class InteractionSystemTests
     }
 
     [Fact]
+    public void CanUse_without_a_reuse_delay_ignores_a_server_timestamp_ahead_of_the_client()
+    {
+        (ObjWorld w, SBasicGamePlayObject owner) = WithOwner();
+        var entry = SpawnEntry<STriggerInteraction>(w, owner);
+        TestPC pc = w.AddPlayer(spy: true, default);
+        entry.iReusableTime = 0;
+        entry.iLastUsedTime = 120;
+
+        Assert.True(entry.CanUse(pc));
+    }
+
+    [Fact]
     public void CanUse_waits_for_the_reuse_delay_from_the_last_use()
     {
         (ObjWorld w, SBasicGamePlayObject owner) = WithOwner();

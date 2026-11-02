@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Godot;
 using OpenScct.Core;
 using OpenScct.Server.Hub;
+using OpenScctGame.Chat;
 using OpenScctGame.Hud;
 using OpenScctGame.Play;
 
@@ -9,8 +10,8 @@ namespace OpenScctGame.Hub;
 
 /// <summary>
 /// The hub's own HUD over the play scene (an OpenSCCT addition): every other player's name over his head, coloured by
-/// side (<see cref="HubClient.CollectNameTags"/>), the chat box (the last lines, Enter to type, Enter to send, Escape
-/// to cancel; Tab while typing switches to the side's chat), the voice overlay (who is heard, the muted microphone),
+/// side (<see cref="HubClient.CollectNameTags"/>), the shared chat panel (Enter to type/send, Escape to cancel;
+/// Tab switches between everyone, the player's side and nearby players), the voice overlay (who is heard, the muted microphone),
 /// the match pad panel (top centre, while the player stands on a pad: "Queued on Pad 2 as a merc: 3/4, waiting for 1
 /// merc", in the pad's state colour, or the hub service's note about the last match), and the hub keys: J play spy,
 /// K play merc, N back to the plaza, Enter or F5 chat, F6 chat to your side. The activities' part (HubHud.Activities.cs) adds the course
@@ -19,7 +20,6 @@ namespace OpenScctGame.Hub;
 /// </summary>
 public partial class HubHud : CanvasLayer
 {
-    private const int ChatLines = 8;
     private const int MaxTags = 64;
 
     private readonly List<HubNameTag> _tags = new();
@@ -29,19 +29,17 @@ public partial class HubHud : CanvasLayer
     private const float TagIconSize = 20f;
     private readonly List<string> _voiceLines = new();
     private Label? _voice;
-    private Label? _chat;
     private Label? _help;
     private Label? _queue;
-    private LineEdit? _entry;
-    private bool _teamOnly;
-    private bool _local;
+    private readonly ChatTranscript _transcript = new();
+    private ChatInput? _composer;
+    private HubClient? _chatClient;
     private HubPlayerList? _playerList;
     private OpenScctGame.UI.ArmouryScreen? _armoury;
     private HubLaptopPanel? _laptop;
 
     /// <summary>A chat line shows over its speaker's head this long (seconds).</summary>
     private const double BubbleSeconds = 6.0;
-    private int _chatCount = -1;
 
     public HubClient? Client { get; set; }
 
@@ -50,7 +48,7 @@ public partial class HubHud : CanvasLayer
     public HubService? Service { get; set; }
 
     /// <summary>True while the player types a chat line (the game's input is off meanwhile).</summary>
-    public bool Typing => _entry is { Visible: true };
+    public bool Typing => _composer is { } composer && GodotObject.IsInstanceValid(composer) && composer.IsOpen;
 
     /// <summary>Name tags drawn last frame (tests and smokes).</summary>
     public int TagsShown { get; private set; }
@@ -88,17 +86,18 @@ public partial class HubHud : CanvasLayer
         _voice = new Label { Name = "Voice", HorizontalAlignment = HorizontalAlignment.Right };
         _voice.AddThemeColorOverride("font_shadow_color", new Color(0f, 0f, 0f, 0.9f));
         AddChild(_voice);
-        // Grows upwards: the box keeps its bottom above the chat line however many lines wrap.
-        _chat = new Label
+        _chatClient = Client;
+        if (_chatClient is not null)
         {
-            Name = "Chat", AutowrapMode = TextServer.AutowrapMode.WordSmart, VerticalAlignment = VerticalAlignment.Bottom,
-            GrowVertical = Control.GrowDirection.Begin, MouseFilter = Control.MouseFilterEnum.Ignore,
-        };
-        _chat.AddThemeColorOverride("font_shadow_color", new Color(0f, 0f, 0f, 0.9f));
-        AddChild(_chat);
-        _entry = new LineEdit { Name = "ChatEntry", Visible = false, MaxLength = OpenScct.Net.ChatK.MaxChars, PlaceholderText = "Say" };
-        _entry.TextSubmitted += Send;
-        AddChild(_entry);
+            foreach (HubChatEntry entry in _chatClient.Chat)
+            {
+                AddChat(entry);
+            }
+
+            _chatClient.ChatAdded += AddChat;
+        }
+
+        AttachChat();
         for (int i = 0; i < MaxTags; i++)
         {
             var label = new Label { Visible = false, HorizontalAlignment = HorizontalAlignment.Center };
@@ -128,6 +127,12 @@ public partial class HubHud : CanvasLayer
 
     public override void _ExitTree()
     {
+        if (_chatClient is not null)
+        {
+            _chatClient.ChatAdded -= AddChat;
+            _chatClient = null;
+        }
+
         if (_laptopClient is not null)
         {
             _laptopClient.LaptopOpened -= OpenLaptop;
@@ -158,13 +163,7 @@ public partial class HubHud : CanvasLayer
             }
         }
 
-        if (_chat is not null && _entry is not null)
-        {
-            _chat.Position = new Vector2(16f, size.Y - 260f);
-            _chat.Size = new Vector2(size.X * 0.45f, 200f);
-            _entry.Position = new Vector2(16f, size.Y - 52f);
-            _entry.Size = new Vector2(size.X * 0.45f, 32f);
-        }
+        AttachChat();
 
         if (Round?.Hud?.Source is HudSimReader reader)
         {
@@ -176,7 +175,6 @@ public partial class HubHud : CanvasLayer
             return;
         }
 
-        RefreshChat(client);
         DrawQueue(client, size);
         DrawTags(client);
         DrawVoice(size);
@@ -230,28 +228,33 @@ public partial class HubHud : CanvasLayer
         _queue.Position = new Vector2(size.X * 0.1f, Mathf.Max(84f, below));
     }
 
-    private void RefreshChat(HubClient client)
+    /// <summary>Use the play scene's composer so the hub has one input owner and one chat display.</summary>
+    private void AttachChat()
     {
-        if (_chat is null || client.Chat.Count == _chatCount && _chatCount < HubClient.MaxChat)
+        if (_composer is not null || Round?.Menu?.Hud?.Chat is not { } composer)
         {
             return;
         }
 
-        _chatCount = client.Chat.Count;
-        var sb = new System.Text.StringBuilder();
-        IReadOnlyList<HubChatEntry> lines = client.Chat;
-        for (int i = System.Math.Max(0, lines.Count - ChatLines); i < lines.Count; i++)
-        {
-            HubChatEntry e = lines[i];
-            if (sb.Length > 0)
-            {
-                sb.Append('\n');
-            }
+        _composer = composer;
+        composer.ReceiveMatchMessages = false;
+        composer.Transcript = _transcript;
+        composer.Clock = () => Time.GetTicksMsec() / 1000d;
+        composer.AllowNearby = true;
+        composer.HubLayout = true;
+        composer.SendMessage = Send;
+        System.Func<bool>? canOpen = composer.CanOpen;
+        composer.CanOpen = () => _playerList is null && _armoury is null && _laptop is null && !_emoteOpen &&
+            (canOpen?.Invoke() ?? true);
+        System.Func<bool>? visible = composer.VisibilityAllowed;
+        composer.VisibilityAllowed = () => _playerList is null && _armoury is null && _laptop is null &&
+            (visible?.Invoke() ?? true);
+    }
 
-            sb.Append(e.IsSystem ? "* " + e.Text : (e.TeamOnly ? "(team) " : e.Local ? "(near) " : string.Empty) + e.Name + ": " + e.Text);
-        }
-
-        _chat.Text = sb.ToString();
+    private void AddChat(HubChatEntry entry)
+    {
+        ChatChannel channel = entry.IsSystem ? ChatChannel.System : entry.TeamOnly ? ChatChannel.Team : entry.Local ? ChatChannel.Nearby : ChatChannel.All;
+        _transcript.Add(channel, entry.Text, entry.Name, entry.PlayerId, entry.Team, Time.GetTicksMsec() / 1000d);
     }
 
     private void DrawTags(HubClient client)
@@ -354,40 +357,11 @@ public partial class HubHud : CanvasLayer
 
         if (Typing)
         {
-            if (key.Keycode == Key.Escape)
-            {
-                CloseEntry();
-                GetViewport().SetInputAsHandled();
-            }
-            else if (key.Keycode == Key.Tab)
-            {
-                // Everyone, then your side, then the players near you.
-                (_teamOnly, _local) = (_teamOnly, _local) switch
-                {
-                    (false, false) => (true, false),
-                    (true, _) => (false, true),
-                    _ => (false, false),
-                };
-                _entry!.PlaceholderText = Placeholder();
-                GetViewport().SetInputAsHandled();
-            }
-
             return;
         }
 
         switch (key.Keycode)
         {
-            case Key.Enter or Key.KpEnter:
-                OpenEntry();
-                break;
-            // Hub keys sit on keys the original's default layouts leave free; F5 and F6 open the chat line like
-            // the original's Talk and TeamTalk.
-            case Key.F5:
-                OpenEntry();
-                break;
-            case Key.F6:
-                OpenEntry(teamOnly: true);
-                break;
             case Key.J:
                 client.RequestSide(0);
                 break;
@@ -521,44 +495,7 @@ public partial class HubHud : CanvasLayer
         }
     }
 
-    private void OpenEntry(bool teamOnly = false)
-    {
-        if (_entry is null)
-        {
-            return;
-        }
-
-        _teamOnly = teamOnly;
-        _local = false;
-        _entry.PlaceholderText = Placeholder();
-        _entry.Text = string.Empty;
-        _entry.Visible = true;
-        _entry.GrabFocus();
-        if (Round?.Controls is { } input)
-        {
-            input.Enabled = false;
-        }
-    }
-
-    private void CloseEntry()
-    {
-        if (_entry is null)
-        {
-            return;
-        }
-
-        _entry.Visible = false;
-        _entry.ReleaseFocus();
-        if (Round?.Controls is { } input)
-        {
-            input.Enabled = true;
-        }
-    }
-
-    private string Placeholder() =>
-        _teamOnly ? "Say to your side (Tab: near you)" : _local ? "Say to the players near you (Tab: everyone)" : "Say (Tab: your side)";
-
-    private void Send(string text)
+    private void Send(ChatChannel channel, string text)
     {
         string line = text.Trim();
         if (line.Length > 1 && line[0] == '/' && HubEmotes.IsEmote(line[1..].ToLowerInvariant()))
@@ -570,15 +507,13 @@ public partial class HubHud : CanvasLayer
         {
             Client?.SayLocal(line[3..]);
         }
-        else if (line.Length > 0 && _local)
+        else if (line.Length > 0 && channel == ChatChannel.Nearby)
         {
             Client?.SayLocal(line);
         }
         else if (line.Length > 0)
         {
-            Client?.Say(line, _teamOnly);
+            Client?.Say(line, channel == ChatChannel.Team);
         }
-
-        CloseEntry();
     }
 }

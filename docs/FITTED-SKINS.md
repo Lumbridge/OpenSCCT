@@ -4,6 +4,23 @@ Cosmetic names, account IDs, unlock bits and palettes are unchanged. The content
 builder fits their paint to geometry and preserves functional materials. The nine
 solid suit colours now use `tint_<RGB>` textures instead of a whole-material tint.
 
+All 68 source finishes are original imagegen PNGs under
+`content/assets/cosmetics/textures`, including the nine coloured fabric finishes
+and legacy pattern IDs. `cosmetic_art.py` reads their RGB artwork directly; no
+procedural substitute is used when a source is absent. Missing artwork fails
+preparation before cosmetic outputs are written. Every source image and the
+skeleton's anatomical region metadata participate in the chars cache key and
+ship in the content-tools package. The original generation prompts are retained
+beside the textures. Light unlocks still select hues rather than textures.
+
+The skeleton uses frontal and posterior T-pose illustrations. Their skull, torso,
+arms, hands, legs and feet are sampled separately onto matching mesh groups using
+`skeleton-layout.json`; it never tiles the whole skeleton over the garment.
+Surface normals select front or back; arm bones follow shoulder/elbow/wrist joints
+without stretching to the width of padded sleeves. The source PNGs are unchanged.
+Gold artwork is RGB paint like other finishes; its
+reflective response remains the runtime material's masked gold sheen.
+
 `content/svmbuild/fitted.py` reads every primitive of authored sidearms, including
 independent vertex buffers and scene transforms. Retail meshes retain their existing
 bind-pose reader. The baker needs the actual model; missing geometry is an error,
@@ -12,7 +29,8 @@ not permission to draw a pattern across the UV atlas.
 Weapon finishes use receiver, barrel, magazine and small-part classification. Retail
 lower-frame profiles identify grips welded into the receiver; authored pistols use
 their common mechanical coordinate frame. Head coverings, gloves, boots, grip frames
-and small parts get the actual skin motif in their own local frames and scales,
+and small parts get the actual skin motif in their own local frames at the same
+physical texture scale as the main panels,
 including nebulae, flames and camouflage—not solid-colour substitutes. Original
 weave, grip and moulded detail is retained. Boots include the shafts weighted to calf bones.
 Displays, exposed skin and equipment markings retain their original material.
@@ -38,6 +56,12 @@ pages and a hash manifest. `--cap 512` is available for faster drafts; drafts ca
 be installed. A coverage audit checks every model/finish against the original,
 including the spy's head and full boots and weapon grip/small-part regions.
 Run only one writer against a staging directory at a time.
+The manifest binds the original art, fitting code, models and source textures to
+the reviewed outputs. Menu thumbnails are staged and installed with the finishes.
+Every bake also records its input signature and colour/mask output hashes in
+`build-records.json`. Render-only and installation validate these records; rendering
+again cannot certify stale outputs after a source change. A partial bake only
+finalizes when all unselected outputs still have valid records.
 `--refinish-parts` updates these secondary regions of an existing full bake; its
 output is tested against a complete bake. It does not change the main motif.
 

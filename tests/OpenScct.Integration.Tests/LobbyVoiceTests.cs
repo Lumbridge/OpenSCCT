@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using OpenScct.Core;
 using OpenScct.Core.Engine;
@@ -69,13 +70,13 @@ public sealed class LobbyVoiceTests
 
         public List<Player> Players { get; } = new();
 
-        public Player Join(string name, int team, string? hostKey = null)
+        public Player Join(string name, int team, string? hostKey = null, VoiceVolumes? volumes = null)
         {
             int n = 0;
             OnlineClientSettings s = OnlineRig.ClientSettings(name, team) with { HostKey = hostKey };
             var target = JoinTarget.Custom("Voice server", () => Network.Bind(name + "-" + (n++).ToString(CultureInfo.InvariantCulture)), "server");
             OnlineClient client = Online.Add(new OnlineClient(target, s, Online.Now));
-            var player = new Player { Client = client, Voice = new OnlineVoice(client, new VoiceClient(new VoiceSettings(), Clock)) };
+            var player = new Player { Client = client, Voice = new OnlineVoice(client, new VoiceClient(new VoiceSettings(), Clock), volumes) };
             Players.Add(player);
             return player;
         }
@@ -256,6 +257,42 @@ public sealed class LobbyVoiceTests
         mate.Client.SetTeam(1);
         Assert.True(rig.RunUntil(() => mate.HeardFrom("Enemy") > 50 * VoiceK.FrameSamples, 10), rig.Describe());
         Assert.Equal(0, host.HeardFrom("Enemy"));
+    }
+
+    [Fact]
+    public void ANewVisitRestoresSavedPlayerVolumeToPlayback()
+    {
+        Assert.SkipWhen(TestBoxMissing, "The TestBox fixture is not in this checkout.");
+        string path = Path.Combine(Path.GetTempPath(), "OpenScct-LobbyVoice-" + Guid.NewGuid().ToString("N") + ".json");
+        try
+        {
+            var volumes = new VoiceVolumes();
+            using (var firstVisit = new Rig(ListenSettings()))
+            {
+                Player host = firstVisit.Join("Host", 0, "host-key", volumes);
+                host.Voice.SetVolume("Guest", 0.4f);
+                volumes.Save(path);
+            }
+
+            using var nextVisit = new Rig(ListenSettings());
+            Player listener = nextVisit.Join("Host", 0, "host-key", VoiceVolumes.Load(path));
+            Player guest = nextVisit.Join("GUEST", 1);
+            Assert.True(nextVisit.RunUntil(() => listener.Client.State == OnlineClientState.Lobby &&
+                guest.Client.State == OnlineClientState.Lobby && listener.Voice.TalkerOf("GUEST") is not null, 15), nextVisit.Describe());
+            Assert.Equal(0.4f, listener.Voice.VolumeOf("GUEST"));
+            ushort talker = listener.Voice.TalkerOf("GUEST")!.Value;
+            Assert.Equal(0.4f, listener.Voice.Voice.FindTalker(talker)!.Volume);
+
+            guest.Talking = true;
+            Assert.True(nextVisit.RunUntil(() => listener.HeardFrom("GUEST") > 100 * VoiceK.FrameSamples, 10), nextVisit.Describe());
+            List<float> heard = listener.Heard["GUEST"];
+            Assert.InRange(Rms(heard, heard.Count / 4), 0.06, 0.11);
+        }
+        finally
+        {
+            File.Delete(path);
+            File.Delete(path + ".tmp");
+        }
     }
 
     [Fact]

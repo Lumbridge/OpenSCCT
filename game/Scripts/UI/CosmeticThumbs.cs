@@ -27,7 +27,7 @@ public static class CosmeticThumbs
         Image? image = null;
         switch (item.Kind)
         {
-            case CosmeticKind.Texture when ThumbFile(item) is { } path && File.Exists(path):
+            case CosmeticKind.Texture or CosmeticKind.Tint when ThumbFile(item) is { } path && File.Exists(path):
                 image = Image.LoadFromFile(path);
                 image?.Resize(size, size, Image.Interpolation.Lanczos);
                 break;
@@ -57,9 +57,13 @@ public static class CosmeticThumbs
     }
 
     /// <summary>The content builder's flat picture of the item's pattern (chars/thumbs/cosmetic_&lt;pattern&gt;.png).</summary>
-    private static string? ThumbFile(CosmeticItem item) => item.Pattern.Length == 0
+    private static string? ThumbFile(CosmeticItem item) => Pattern(item).Length == 0
         ? null
-        : Path.Combine(SkeletalModel.DefaultSharedRoot(), "chars", "thumbs", "cosmetic_" + item.Pattern + ".png");
+        : Path.Combine(SkeletalModel.DefaultSharedRoot(), "chars", "thumbs", "cosmetic_" + Pattern(item) + ".png");
+
+    private static string Pattern(CosmeticItem item) => item.Kind == CosmeticKind.Tint
+        ? "tint_" + item.Rgb.ToString("x6")
+        : item.Pattern;
 
     /// <summary>The built camo texture that shows the item best (the content builder's file for the slot's main texture).</summary>
     private static string? CamoTexture(CosmeticItem item)

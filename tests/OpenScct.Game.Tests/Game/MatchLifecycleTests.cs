@@ -283,6 +283,11 @@ public class MatchLifecycleTests
         Assert.True(late.PlayerReplicationInfo!.bOnlySpectator);
         w.Run(1.1f);
         Assert.Contains(w.Host.Messages(1), m => ReferenceEquals(m.Call.Pri1, late.PlayerReplicationInfo));
+        Assert.Equal(3, w.Host.Messages(1).FindAll(m => ReferenceEquals(m.Call.Pri1, p.PlayerReplicationInfo)).Count);
+        Assert.Equal(3, w.Host.Messages(1).FindAll(m => ReferenceEquals(m.Call.Pri1, late.PlayerReplicationInfo)).Count);
+        w.Host.Calls.Clear();
+        w.Run(1.1f);
+        Assert.Empty(w.Host.Messages(1));
     }
 
     [Fact]

@@ -5,6 +5,7 @@ using OpenScct.Game.SBase;
 using OpenScct.Net;
 using OpenScct.Provenance;
 using OpenScct.Server;
+using OpenScctGame.Chat;
 
 namespace OpenScctGame.Hud;
 
@@ -19,6 +20,8 @@ public sealed class HudReceiver
 {
     private readonly HudLayer _hud;
     private ClientSession? _client;
+    private NetFunctionHandler? _previousFallback;
+    private NetFunctionHandler? _fallback;
 
     public HudReceiver(HudLayer hud)
     {
@@ -27,6 +30,9 @@ public sealed class HudReceiver
 
     /// <summary>Messages handed to the HUD so far (tests).</summary>
     public int Received { get; private set; }
+
+    /// <summary>The native transcript, when the play scene has attached its chat composer.</summary>
+    public ChatInput? ModernChat { get; set; }
 
     /// <summary>Starts receiving for <paramref name="client"/>'s local controller.</summary>
     public void Connect(ClientSession client)
@@ -37,18 +43,36 @@ public sealed class HudReceiver
             return;
         }
 
+        Disconnect();
         _client = client;
         NetFunctionHandler? previous = client.Driver.Functions.Fallback;
-        client.Driver.Functions.Fallback = (self, function, args, from) =>
+        _previousFallback = previous;
+        _fallback = (self, function, args, from) =>
         {
-            if (!client.Driver.IsServer && self is PlayerController pc && Handle(pc, NetGameHost.ToGameCall(function, args)))
+            if (ReferenceEquals(_client, client) && !client.Driver.IsServer && self is PlayerController pc && Handle(pc, NetGameHost.ToGameCall(function, args)))
             {
                 return;
             }
 
             previous?.Invoke(self, function, args, from);
         };
+        client.Driver.Functions.Fallback = _fallback;
         client.ChatReceived += OnChat;
+    }
+
+    /// <summary>A round leaving the tree must stop receiving from a session which can outlive its HUD.</summary>
+    public void Disconnect()
+    {
+        _hud.Activity.Reset();
+        if (_client is { } client)
+        {
+            client.ChatReceived -= OnChat;
+            if (ReferenceEquals(client.Driver.Functions.Fallback, _fallback))
+                client.Driver.Functions.Fallback = _previousFallback;
+        }
+        _client = null;
+        _fallback = null;
+        _previousFallback = null;
     }
 
     /// <summary>A call for <paramref name="pc"/> as the received function's <see cref="GameCall"/>; false when it is not a HUD call.</summary>
@@ -59,8 +83,9 @@ public sealed class HudReceiver
         {
             case "ReceiveLocalizedMessage":
                 Received++;
+                _hud.Activity.Bind(pc, pc.Level.TimeSeconds);
                 HudMessages.ReceiveLocalizedMessage(pc, call.Class.Path ?? HudMessages.GameMessagesClass, call.Int, call.Pri1, call.Pri2,
-                    call.Object ?? call.Actor);
+                    call.Object ?? call.Actor, _hud.Activity);
                 return true;
             case "TeamMessage":
                 Received++;
@@ -92,13 +117,27 @@ public sealed class HudReceiver
     public void TeamMessage(PlayerController pc, PlayerReplicationInfo? pri, string text, string type)
     {
         ArgumentNullException.ThrowIfNull(pc);
-        _hud.Console.Message(pri?.PlayerName, text, type, pc.Level.TimeSeconds);
+        if (ModernChat is { } chat)
+        {
+            bool playerMessage = type is "Say" or "TeamSay";
+            if (playerMessage && !chat.ReceiveMatchMessages) return;
+            chat.Transcript.Add(type == "TeamSay" ? ChatChannel.Team : type == "Say" ? ChatChannel.All : ChatChannel.System,
+                text, playerMessage ? pri?.PlayerName ?? "" : "", pri?.PlayerID ?? 0, pri?.Team?.TeamIndex ?? ChatK.NoTeam, chat.Clock());
+        }
+        else _hud.Console.Message(pri?.PlayerName, text, type, pc.Level.TimeSeconds);
     }
 
     /// <summary>A relayed chat line: the TeamMessage of the original, with the sender's name.</summary>
     private void OnChat(ChatLine line)
     {
         Received++;
+        if (ModernChat is { } chat)
+        {
+            if (chat.ReceiveMatchMessages)
+                chat.Transcript.Add(line.Scope == EChatScope.TeamSay ? ChatChannel.Team : ChatChannel.All,
+                    line.Text, line.SenderName, line.SenderId, line.SenderTeam, chat.Clock());
+            return;
+        }
         float now = (_client?.World.Level.Info.LocalPlayerController as SPlayerController)?.Level.TimeSeconds ?? _client?.World.TimeSeconds ?? 0f;
         _hud.Console.Message(line.SenderName, line.Text, line.Scope == EChatScope.TeamSay ? "TeamSay" : "Say", now);
     }

@@ -1,0 +1,6 @@
+Use case: stylized-concept
+Asset type: original premium game cosmetic albedo texture for the Kaido unlockable.
+Primary request: Sophisticated original motorsport racing livery as a repeating surface print: broad vermilion and deep midnight-blue diagonal racing bands, offset ivory pinstripes, a few fine warm-yellow keylines and restrained tiny checker accents. Dynamic disciplined asymmetrical rhythm, sharp corners and perfect crisp paint edges, balanced open dark areas. High-end retro racing suit/weapon finish without numbers or sponsors.
+Color palette: #E0301E #1A2238 #F4F2EE #F2C21A #0C0C0E.
+Composition: One square 1024x1024 or higher, perfectly flat orthographic production material texture filling every edge. Seamlessly repeating at opposite edges. Uniform neutral albedo illumination. Rich professionally art-directed shapes and controlled fine detail, immediately readable when wrapped onto tactical clothing and weapon surfaces.
+Constraints: Create the artwork entirely from scratch. ONE texture, no contact sheet, no borders or margins, no text or lettering, no logos or watermark, no weapon, garment, real object, folds, seams, spotlight, vignette, cast shadow, 3D rendering, perspective or mockup.

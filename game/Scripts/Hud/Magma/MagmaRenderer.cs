@@ -60,6 +60,9 @@ public sealed class MagmaDrawItem
 
     public string Font { get; set; } = "";
 
+    /// <summary>An optional native font for modern, single-line HUD text; null keeps the Magma bitmap font.</summary>
+    public Godot.Font? NativeFont { get; set; }
+
     public Rect2 Rect { get; set; }
 
     public float HeightPx { get; set; }
@@ -79,7 +82,7 @@ public sealed class MagmaDrawItem
     /// <summary>Exact draw-command equality; never round moving/fading HUD values to suppress a redraw.</summary>
     internal bool SameDraw(MagmaDrawItem other) => Kind == other.Kind &&
         (Kind == MagmaWidgetKind.Text
-            ? Text == other.Text && Font == other.Font && Rect == other.Rect && HeightPx == other.HeightPx &&
+            ? Text == other.Text && Font == other.Font && ReferenceEquals(NativeFont, other.NativeFont) && Rect == other.Rect && HeightPx == other.HeightPx &&
               Align == other.Align && Color == other.Color && Shadow == other.Shadow &&
               ShadowOffsetPx == other.ShadowOffsetPx && XScale == other.XScale && TrackingPx == other.TrackingPx
             : Package == other.Package && Texture == other.Texture && Blend == other.Blend && Clamp == other.Clamp &&
@@ -99,6 +102,7 @@ public sealed class MagmaDrawItem
         Clamp = source.Clamp;
         Text = source.Text;
         Font = source.Font;
+        NativeFont = source.NativeFont;
         Rect = source.Rect;
         HeightPx = source.HeightPx;
         Align = source.Align;
@@ -123,6 +127,7 @@ public sealed class MagmaDrawItem
     internal void Reset(MagmaWidgetKind kind)
     {
         Path = Package = Texture = Text = Font = "";
+        NativeFont = null;
         Kind = kind;
         Anchor = default;
         PageRect = default;

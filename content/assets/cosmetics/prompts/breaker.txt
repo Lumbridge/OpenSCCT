@@ -1,0 +1,6 @@
+Use case: stylized-concept
+Asset type: original premium game cosmetic albedo texture for the Breaker unlockable.
+Primary request: Architectural fractured-stone camouflage: an organic irregular network of broad charcoal fissures separating medium graphite and warm pale-grey angular mineral fragments. Variation in shard scale, sparse fine branching cracks and subtle mineral grain; crisp flat graphic fracture shapes rather than a 3D rocky surface. Restrained monochrome tactical finish with bold distance readability.
+Color palette: #2A2A2A #6E6E6A #A8A8A0.
+Composition: One square 1024x1024 or higher, perfectly flat orthographic production material texture filling every edge. Seamlessly repeating at opposite edges. Uniform neutral albedo illumination. Rich professionally art-directed shapes and controlled fine detail, immediately readable when wrapped onto tactical clothing and weapon surfaces.
+Constraints: Create the artwork entirely from scratch. ONE texture, no contact sheet, no borders or margins, no text or lettering, no logos or watermark, no weapon, garment, real object, folds, seams, spotlight, vignette, cast shadow, 3D rendering, perspective or mockup.

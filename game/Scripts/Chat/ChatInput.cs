@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 using Godot;
 using OpenScct.Net;
-using OpenScct.Provenance;
 using OpenScctGame.Controls;
 using OpenScctGame.Hud;
 using OpenScctGame.Hud.Magma;
@@ -12,242 +12,220 @@ namespace OpenScctGame.Chat;
 /// <summary>Where typed chat lines go (the client session in play, a list in tests).</summary>
 public interface IChatLink
 {
-    /// <summary>Sends what the player typed; the server relays it to its recipients.</summary>
     void Send(EChatScope scope, string text);
 }
 
-/// <summary>The chat link of a client session (<see cref="OpenScct.Server.ClientSession.SendChat"/>).</summary>
 public sealed class SessionChatLink(OpenScct.Server.ClientSession client) : IChatLink
 {
     public void Send(EChatScope scope, string text) => client.SendChat(scope, text);
 }
 
-/// <summary>
-/// The chat line (spec/hud/chat.md rules 1 to 3): the Talk key (F5) opens it with <c>Say </c>, TeamTalk (F6) with
-/// <c>TeamSay </c>; printable keys type while the line is shorter than 100 characters, Backspace deletes back to the
-/// prefix, Escape drops the line and Enter sends it. While it is open no key reaches the player. It is drawn across
-/// the bottom of the screen in the HUD font.
-/// </summary>
-public partial class ChatInput : Node, IHudOverlay
+/// <summary>The shared chat composer's input and gameplay-focus boundary for matches and the hub.</summary>
+public partial class ChatInput : CanvasLayer, IHudOverlay
 {
     public const string SayPrefix = "Say ";
     public const string TeamSayPrefix = "TeamSay ";
 
-    [Provenance(ProvenanceKind.Decoded, "Engine.Console s_ChatTyping.PostRender: text (255, 255, 255, 128)")]
-    public static readonly Color TextColour = HudK.CanvasColour(255, 255, 255, 128);
-
-    [Provenance(ProvenanceKind.Decoded, "Engine.Console s_ChatTyping.PostRender: borders (69, 85, 69, 255)")]
-    public static readonly Color EdgeColour = HudK.CanvasColour(69, 85, 69);
-
-    /// <summary>The dark band behind the line (Engine.ConsoleBK; its colour is not decoded).</summary>
-    [Provenance(ProvenanceKind.Estimated, "Engine.ConsoleBK drawn at (255, 255, 255, 128) in style 5; the texture's colour is not decoded")]
-    public static readonly Color BandColour = new(0f, 0f, 0f, 0.5f);
-
-    private string _typed = "";
-    private EChatScope _scope;
+    private bool _ready;
+    private bool _inputWasEnabled;
+    private Input.MouseModeEnum _pointerWas;
 
     public ChatInput()
     {
         Name = "ChatInput";
+        Layer = HudLayer.DefaultLayer + 1;
     }
 
-    /// <summary>Where the lines go.</summary>
+    public ChatPanel Panel { get; } = new();
+    public ChatTranscript Transcript { get => Panel.Transcript; set => Panel.Transcript = value; }
+    public Func<double> Clock { get => Panel.Clock; set => Panel.Clock = value; }
+    public bool AllowNearby { get => Panel.AllowNearby; set => Panel.AllowNearby = value; }
+    public bool HubLayout { get => Panel.HubLayout; set => Panel.HubLayout = value; }
     public IChatLink? Link { get; set; }
-
-    /// <summary>The play input's key layout (which keys are Talk and TeamTalk) and its held keys.</summary>
     public PlayInput? PlayInput { get; set; }
 
-    /// <summary>The line is open.</summary>
+    /// <summary>A hub can send through its existing channel router instead of the match link.</summary>
+    public Action<ChatChannel, string>? SendMessage { get; set; }
+    public Func<bool>? CanOpen { get; set; }
+    public Func<bool>? VisibilityAllowed { get; set; }
+
+    /// <summary>The hub supplies its own chat stream; do not also display the match relay's copy.</summary>
+    public bool ReceiveMatchMessages { get; set; } = true;
     public bool IsOpen { get; private set; }
-
-    /// <summary>The chat line that is open now, if any (the developer console does not open over it).</summary>
     public static ChatInput? Typing { get; private set; }
-
-    /// <summary>What the console line holds now, prefix included (<c>Say hello</c>).</summary>
-    public string Typed => _typed;
-
-    public EChatScope Scope => _scope;
-
-    /// <summary>Lines sent so far (tests).</summary>
+    public EChatScope Scope => Panel.Channel == ChatChannel.Team ? EChatScope.TeamSay : EChatScope.Say;
+    public string Typed => IsOpen ? (Scope == EChatScope.TeamSay ? TeamSayPrefix : SayPrefix) + Panel.Draft : "";
     public List<(EChatScope Scope, string Text)> Sent { get; } = new();
 
-    /// <summary>Opens the line (the Talk and TeamTalk execs). Nothing happens while it is already open.</summary>
-    [OpenScct.Provenance.Uc("SBase.SPlayerController.Talk", Sha1 = "7d0da07a32dbe6e748a319537552fba21165f6c1")]
-    [OpenScct.Provenance.Uc("SBase.SPlayerController.TeamTalk", Sha1 = "19793d8992e86ded76cb4055d19c35d0831f339f")]
-    [OpenScct.Provenance.PortOf("uc:SBase.SPlayerController:Talk", Spec = "spec/hud/chat.md#rules")]
-    [OpenScct.Provenance.PortOf("uc:SBase.SPlayerController:TeamTalk", Spec = "spec/hud/chat.md#rules")]
-    public void Open(EChatScope scope)
+    public override void _Ready()
     {
-        if (IsOpen)
-        {
-            return;
-        }
+        Panel.Name = "ChatPanel";
+        Panel.Submitted += OnSubmitted;
+        AddChild(Panel);
+        _ready = true;
+        Panel.SetExpanded(IsOpen);
+    }
+
+    public void Open(EChatScope scope) => Open(scope == EChatScope.TeamSay ? ChatChannel.Team : ChatChannel.All);
+
+    public void Open(ChatChannel channel)
+    {
+        if (IsOpen || CanOpen?.Invoke() == false || VisibilityAllowed?.Invoke() == false ||
+            Typing is not null || PlayInput is { Enabled: false }) return;
 
         IsOpen = true;
         Typing = this;
-        _scope = scope;
-        _typed = scope == EChatScope.TeamSay ? TeamSayPrefix : SayPrefix;
-        if (PlayInput is { Target: { } target } input)
+        Panel.Channel = channel == ChatChannel.Nearby && !AllowNearby ? ChatChannel.All : channel;
+        Panel.Draft = "";
+        _pointerWas = Pointer.Mode;
+        if (PlayInput is { } input)
         {
-            input.ClearHeld(target);
+            _inputWasEnabled = input.Enabled;
+            if (input.Target is { } target) input.ClearHeld(target);
+            input.Enabled = false;
+            input.ReleasePointer();
         }
+        else Pointer.Release();
+        if (_ready) Panel.SetExpanded(true);
     }
 
-    /// <summary>Closes the line without sending.</summary>
-    public void Close()
+    public void Close() => Close(restorePointer: true);
+
+    private void Close(bool restorePointer)
     {
+        if (!IsOpen) return;
         IsOpen = false;
-        _typed = "";
-        if (Typing == this)
+        if (Typing == this) Typing = null;
+        Panel.Draft = "";
+        if (_ready) Panel.SetExpanded(false);
+        if (PlayInput is { } input)
         {
-            Typing = null;
+            if (input.Target is { } target) input.ClearHeld(target);
+            // A transiently hidden HUD still returns gameplay input; another open overlay owns it instead.
+            bool restore = restorePointer && CanOpen?.Invoke() != false;
+            if (restore) input.Enabled = _inputWasEnabled;
+            if (restore && input.Enabled && input.HasInputFocus && VisibilityAllowed?.Invoke() != false &&
+                (Pointer.Detached || DisplayServer.GetName() != "headless"))
+                Pointer.Mode = _pointerWas;
         }
+        else if (restorePointer && (Pointer.Detached || DisplayServer.GetName() != "headless")) Pointer.Mode = _pointerWas;
     }
 
     public override void _ExitTree()
     {
-        if (Typing == this)
-        {
-            Typing = null;
-        }
+        Close(restorePointer: false);
+        if (Typing == this) Typing = null;
+        Panel.Submitted -= OnSubmitted;
     }
 
-    private int PrefixLength => _scope == EChatScope.TeamSay ? TeamSayPrefix.Length : SayPrefix.Length;
+    public override void _Process(double delta)
+    {
+        bool visible = VisibilityAllowed?.Invoke() != false;
+        Visible = visible;
+        if (IsOpen && (!visible || CanOpen?.Invoke() == false)) Close(restorePointer: true);
+    }
 
-    /// <summary>A typed character (KeyType): printable, not ~ or `, while the line is shorter than 100.</summary>
+    /// <summary>Convenience for scripted checks; normal editing belongs to the native LineEdit.</summary>
     public void Type(char c)
     {
-        if (!IsOpen || c < 32 || c == '~' || c == '`' || char.IsControl(c))
-        {
-            return;
-        }
-
-        if (_typed.Length < ChatK.MaxChars)
-        {
-            _typed += c;
-        }
+        if (!IsOpen || char.IsControl(c) || Panel.Draft.Length >= ChatK.MaxChars) return;
+        Panel.Draft += c;
+        if (_ready) Panel.Entry.CaretColumn = Panel.Draft.Length;
     }
 
-    /// <summary>Backspace: deletes the last character, never the prefix.</summary>
     public void Backspace()
     {
-        if (IsOpen && _typed.Length > PrefixLength)
-        {
-            _typed = _typed[..^1];
-        }
+        if (!IsOpen || Panel.Draft.Length == 0) return;
+        Panel.Draft = Panel.Draft[..^1];
+        if (_ready) Panel.Entry.CaretColumn = Panel.Draft.Length;
     }
 
-    /// <summary>Enter: sends the line when something follows the prefix, then closes.</summary>
-    public void Submit()
-    {
-        if (!IsOpen)
-        {
-            return;
-        }
+    public void Submit() => OnSubmitted(Panel.Draft);
 
-        string text = _typed.Length > PrefixLength ? _typed[PrefixLength..] : "";
-        EChatScope scope = _scope;
+    private void OnSubmitted(string draft)
+    {
+        if (!IsOpen) return;
+        ChatChannel channel = Panel.Channel;
+        EChatScope scope = Scope;
+        string text = Clean(draft);
         Close();
-        if (text.Trim().Length > 0)
+        if (text.Length == 0) return;
+        Sent.Add((scope, text));
+        if (Sent.Count > 64) Sent.RemoveAt(0);
+        if (SendMessage is { } send) send(channel, text);
+        else Link?.Send(scope, text);
+    }
+
+    private static string Clean(string text)
+    {
+        var result = new StringBuilder(Math.Min(text.Length, ChatK.MaxChars));
+        foreach (char c in text)
         {
-            Sent.Add((scope, text));
-            Link?.Send(scope, text);
+            if (result.Length >= ChatK.MaxChars) break;
+            if (!char.IsControl(c)) result.Append(c);
         }
+        return result.ToString().Trim();
     }
 
     public override void _Input(InputEvent @event)
     {
-        if (@event is not InputEventKey key)
-        {
-            return;
-        }
-
         if (!IsOpen)
         {
-            if (key.Pressed && !key.Echo && PlayInput is { Enabled: true } && GodotKeys.ToIk(@event) is { } ik && CommandOf(ik) is { } scope)
-            {
-                Open(scope);
-                GetViewport().SetInputAsHandled();
-            }
-
+            if (@event is not (InputEventKey { Pressed: true, Echo: false } or InputEventMouseButton { Pressed: true }) ||
+                PlayInput is not { Enabled: true } input || !input.HasInputFocus ||
+                GetViewport().GuiGetFocusOwner() is LineEdit or TextEdit) return;
+            string? ik = GodotKeys.ToIk(@event);
+            EChatScope? scope = ik is null ? null : CommandOf(ik);
+            bool enter = @event is InputEventKey enterKey && Code(enterKey) is Key.Enter or Key.KpEnter &&
+                !enterKey.AltPressed && !enterKey.CtrlPressed && !enterKey.MetaPressed &&
+                ik is not null && (input.Bindings?.Actions(ik).Count ?? 0) == 0;
+            if (scope is null && !enter) return;
+            Open(scope ?? EChatScope.Say);
+            if (IsOpen) GetViewport().SetInputAsHandled();
             return;
         }
 
-        GetViewport().SetInputAsHandled();
-        if (!key.Pressed)
+        if (@event is not InputEventKey { Pressed: true } key) return;
+        Key code = Code(key);
+        if (code == Key.Escape)
         {
-            return;
+            Close();
+            GetViewport().SetInputAsHandled();
         }
-
-        switch (key.Keycode)
+        else if (code == Key.Tab)
         {
-            case Key.Escape:
-                Close();
-                return;
-            case Key.Enter:
-            case Key.KpEnter:
-                Submit();
-                return;
-            case Key.Backspace:
-            case Key.Left:
-                Backspace();
-                return;
+            if (!key.Echo) Panel.CycleChannel();
+            Panel.Entry.GrabFocus();
+            GetViewport().SetInputAsHandled();
         }
-
-        if (key.Unicode != 0)
+        else if (code >= Key.F1 && code <= Key.F35)
         {
-            Type((char)key.Unicode);
+            if (!key.Echo && GodotKeys.ToIk(key) is { } ik && CommandOf(ik) is { } scope)
+                Panel.Channel = scope == EChatScope.TeamSay ? ChatChannel.Team : ChatChannel.All;
+            // Function keys must not open options or other gameplay overlays behind the focused editor.
+            GetViewport().SetInputAsHandled();
         }
     }
 
-    /// <summary>The chat scope a key opens (its layout binds Talk or TeamTalk), or null.</summary>
+    private static Key Code(InputEventKey key) => key.Keycode == Key.None ? key.PhysicalKeycode : key.Keycode;
+
+    public override void _UnhandledInput(InputEvent @event)
+    {
+        if (IsOpen) GetViewport().SetInputAsHandled();
+    }
+
     private EChatScope? CommandOf(string ik)
     {
-        if (PlayInput?.Bindings is not { } bindings)
+        if (PlayInput?.Bindings is not { } bindings) return null;
+        foreach (KeyAction action in bindings.Actions(ik))
         {
-            return null;
+            if (action.Kind != KeyActionKind.Command) continue;
+            if (string.Equals(action.Name, "Talk", StringComparison.OrdinalIgnoreCase)) return EChatScope.Say;
+            if (string.Equals(action.Name, "TeamTalk", StringComparison.OrdinalIgnoreCase)) return EChatScope.TeamSay;
         }
-
-        foreach (KeyAction a in bindings.Actions(ik))
-        {
-            if (a.Kind != KeyActionKind.Command)
-            {
-                continue;
-            }
-
-            if (string.Equals(a.Name, "Talk", StringComparison.OrdinalIgnoreCase))
-            {
-                return EChatScope.Say;
-            }
-
-            if (string.Equals(a.Name, "TeamTalk", StringComparison.OrdinalIgnoreCase))
-            {
-                return EChatScope.TeamSay;
-            }
-        }
-
         return null;
     }
 
-    /// <summary>
-    /// The open line as the console draws it: a band of the line's height plus 6 pixels at <c>ClipY - 22 - YL</c>,
-    /// 2-pixel edges at <c>ClipY - 24 - YL</c> and <c>ClipY - 18</c>, and <c>"> " + TypedStr + "_"</c> at
-    /// <c>ClipY - 19 - YL</c> from the left edge.
-    /// </summary>
-    public void Draw(MagmaDrawList into, Vector2 screen, WhiteRegion white)
-    {
-        ArgumentNullException.ThrowIfNull(into);
-        if (!IsOpen)
-        {
-            return;
-        }
-
-        float s = screen.Y / MagmaRenderer.PageHeight;
-        float yl = Mathf.Round(HudConsole.TextHeight * s);
-        into.Items.Add(white.Quad("Chat/band", new Vector2(0f, screen.Y - 22f - yl), new Vector2(screen.X, yl + 6f), BandColour));
-        into.Items.Add(white.Quad("Chat/top", new Vector2(0f, screen.Y - 24f - yl), new Vector2(screen.X, 2f), EdgeColour));
-        into.Items.Add(white.Quad("Chat/bottom", new Vector2(0f, screen.Y - 18f), new Vector2(screen.X, 2f), EdgeColour));
-        into.Items.Add(HudText.Item("Chat/line", "> " + _typed + "_", new Rect2(4f, screen.Y - 19f - yl, screen.X - 8f, yl), yl,
-            MagmaAlign.Left, TextColour, new Color(0f, 0f, 0f, 0f)));
-    }
+    /// <summary>Compatibility with HUD overlay callers; ChatPanel now draws the native controls.</summary>
+    public void Draw(MagmaDrawList into, Vector2 screen, WhiteRegion white) { }
 }

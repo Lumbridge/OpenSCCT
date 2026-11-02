@@ -299,6 +299,11 @@ public static class K
     [Provenance(ProvenanceKind.Decoded, "SGameMessages switch 20: has fallen unconscious")]
     public const int MsgFallenUnconscious = 20;
 
+    /// <summary>OpenSCCT activity messages: PRI1 is the gasser, PRI2 the sleeping player.</summary>
+    public const int MsgSmokeSleep = 62;
+
+    public const int MsgStickyCameraSleep = 63;
+
     [Provenance(ProvenanceKind.Decoded, "SGameMessages switch 57: You win counter grab match")]
     public const int MsgWinCounterGrab = 57;
 

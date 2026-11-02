@@ -345,7 +345,7 @@ public class LoginAndTeamsTests
     // ---- Logout (rules 42 to 46) ------------------------------------------------------------------------------
 
     [Fact]
-    public void A_playing_leaver_is_announced_twice_and_still_counted_by_its_team()
+    public void A_playing_leaver_is_announced_once_and_still_counted_by_its_team()
     {
         GameWorld w = Map();
         SPlayerController a = w.Join("?Name=A?Team=0");
@@ -353,7 +353,7 @@ public class LoginAndTeamsTests
         w.Game.Logout(b);
         Assert.True(b.PlayerReplicationInfo!.bQuittedMatch);
         Assert.Equal(1, w.Game.NumPlayers);
-        Assert.Equal(2 * 2, w.Host.Messages(4).Count); // two broadcasts, each to the two players
+        Assert.Equal(2, w.Host.Messages(4).Count); // one broadcast, to both players
         Assert.Equal(1, w.Mercs.Size);
         Assert.Contains(w.Ports.Voice, v => ReferenceEquals(v.Listener, a) && ReferenceEquals(v.Speaker, b) && v.Mute);
     }
@@ -380,6 +380,6 @@ public class LoginAndTeamsTests
         w.Host.URLMap = "Lobby";
         SPlayerController a = w.Join("?Name=A?Team=0");
         w.Game.Logout(a);
-        Assert.Single(w.Host.Messages(4));
+        Assert.Empty(w.Host.Messages(4));
     }
 }

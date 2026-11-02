@@ -1,0 +1,6 @@
+Use case: stylized-concept
+Asset type: production game cosmetic surface albedo texture, fitted to character suits and/or weapons.
+Primary request: Recreate Warehouse map mastery camouflage from scratch.
+Premium worn industrial organic camouflage with broad squared-off rounded islands and smaller irregular chipped shapes, subtly like worn stencilled paint but no literal stencils or text. Warm charcoal #1e1a14, utilitarian taupe #5a4e3a, dusty khaki #a8987a. Three clearly separated colours, excellent rhythm and contrast, clean edges with fine micro wear.
+Composition: one single square 1024x1024 or higher flat material swatch, seamlessly wrapping across all four edges, edge-to-edge pattern, perfectly orthographic. Uniform neutral albedo with no baked illumination. Premium crisp game artwork, readable design at gameplay distance, fine detail subordinate to large forms.
+Constraints: single texture only, no borders, collage, inset, label, text, logo, weapon, clothing object, stitching seam, fold, cast shadow, spotlight, vignette, perspective or 3D mockup.

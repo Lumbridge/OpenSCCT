@@ -92,6 +92,11 @@ public partial class HudLayer : CanvasLayer
     /// <summary>The console lines (chat and TeamMessage texts).</summary>
     public HudConsole Console { get; } = new();
 
+    /// <summary>Recent match activity, shared by every player and spectator HUD page.</summary>
+    public HudActivityFeed Activity { get; } = new();
+
+    public HudActivityFeedDrawer ActivityDrawer { get; } = new();
+
     /// <summary>The server calls and chat lines for the HUD (<see cref="Connect"/>).</summary>
     public HudReceiver Receiver { get; }
 
@@ -189,6 +194,7 @@ public partial class HudLayer : CanvasLayer
         GadgetViews = OpenScctGame.Hud.Gadgets.GadgetHudViews.Attach(this);
         _white = WhiteRegion.Find(assets);
         Net.Configure(assets);
+        ActivityDrawer.Configure(assets);
         if (assets.TextureSize(HudMarkers.Package, HudMarkers.Atlas) is { } size)
         {
             Markers.AtlasSize = new Vector2(size.X, size.Y);
@@ -287,6 +293,8 @@ public partial class HudLayer : CanvasLayer
 
     public override void _Process(double delta) => Step((float)delta);
 
+    public override void _ExitTree() => Receiver.Disconnect();
+
     /// <summary>
     /// SHud.PostRender's spectator branch: while the player spectates a pawn (and the machine is not a dedicated
     /// server) the alarm list, its sound and the gameplay object markers are emptied every frame.
@@ -309,6 +317,12 @@ public partial class HudLayer : CanvasLayer
         }
 
         SPlayerController? pc = _controller?.Invoke() is { bDeleteMe: false } c ? c : null;
+        // ReceiveLocalizedMessage may arrive before the first frame discovers its controller. Bind at
+        // ingestion too, and do not treat that initial missing controller as a session departure.
+        if (pc is not null || _lastController is not null)
+        {
+            Activity.Bind(pc, pc?.Level.TimeSeconds ?? 0f);
+        }
         if (!ReferenceEquals(pc, _lastController))
         {
             _lastController = pc;
@@ -482,6 +496,14 @@ public partial class HudLayer : CanvasLayer
             }
         }
 
+        // Build the performance readouts first so the activity lane can reserve their actual bounds.
+        Fps.Add(dt);
+        Fps.Draw(screen, ShowFps);
+        Net.Draw(screen, dt, ShowNet, ShowFps);
+        ActivityDrawer.Draw(screen, Activity.Entries, Snapshot.TimeSeconds,
+            page, Fps.DrawList.Items, Net.DrawList.Items,
+            Snapshot.Valid && !Snapshot.HideHud);
+
         _items.Clear();
         if (Snapshot.Valid)
         {
@@ -489,13 +511,24 @@ public partial class HudLayer : CanvasLayer
             if (disabledFeed is not null) _items.Add(disabledFeed);
             // Keep the immunity readout below the page's gas-mask, shock, foam and flash layers.
             _items.AddRange(ShockImmunity.DrawList.Items);
-            _items.AddRange(page.DrawList.Items);
+            bool activityDrawn = false;
+            foreach (MagmaDrawItem item in page.DrawList.Items)
+            {
+                // The merc's white-out is part of the Magma page, not the later canvas washes.
+                if (!activityDrawn && item.Path.StartsWith("Flash/", StringComparison.Ordinal))
+                {
+                    _items.AddRange(ActivityDrawer.DrawList.Items);
+                    activityDrawn = true;
+                }
+                _items.Add(item);
+            }
             _items.AddRange(Interaction.DrawList.Items);
             _items.AddRange(Markers.DrawList.Items);
             _items.AddRange(TeammateNames.DrawList.Items);
             _items.AddRange(Motion.DrawList.Items);
             _items.AddRange(_canvasList.Items);
             _items.AddRange(Console.DrawList.Items);
+            if (!activityDrawn) _items.AddRange(ActivityDrawer.DrawList.Items);
             _items.AddRange(_sfxList.Items);
         }
 
@@ -505,10 +538,7 @@ public partial class HudLayer : CanvasLayer
         }
 
         _items.AddRange(_overlayList.Items);
-        Fps.Add(dt);
-        Fps.Draw(screen, ShowFps);
         _items.AddRange(Fps.DrawList.Items);
-        Net.Draw(screen, dt, ShowNet, ShowFps);
         _items.AddRange(Net.DrawList.Items);
         Location.Draw(screen, Snapshot.Valid && !Snapshot.HideHud && pc is not null ? HudLocation.NameAt(pc.ViewTarget as OpenScct.Core.Engine.Pawn ?? pc.Pawn) : "",
             ShowLocation, page);

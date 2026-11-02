@@ -1,0 +1,6 @@
+Use case: stylized-concept
+Asset type: original premium game cosmetic albedo texture for the Shockwave unlockable.
+Primary request: Electric-blue shockwave arcs sweep and branch across midnight navy: broad broken rings and asymmetric sinuous wavefronts outlined with fine icy cyan highlights, sparse small sparks between them. Crisp energetic graphic enamel motif with clean silhouettes and generous dark areas, luminous color without actual bloom or photographic lighting. No single central explosion.
+Color palette: #08101E #2A8AFF #C8F0FF.
+Composition: One square 1024x1024 or higher, perfectly flat orthographic production material texture filling every edge. Seamlessly repeating at opposite edges. Uniform neutral albedo illumination. Rich professionally art-directed shapes and controlled fine detail, immediately readable when wrapped onto tactical clothing and weapon surfaces.
+Constraints: Create the artwork entirely from scratch. ONE texture, no contact sheet, no borders or margins, no text or lettering, no logos or watermark, no weapon, garment, real object, folds, seams, spotlight, vignette, cast shadow, 3D rendering, perspective or mockup.

@@ -365,6 +365,30 @@ public sealed class TerminalHackTests
         Assert.True(s.Entry.bUsable);
     }
 
+    [Fact]
+    public void A_cancelled_hack_can_resume_immediately_with_kept_progress()
+    {
+        Setup s = Make();
+        TestPC spy = s.Spy();
+        ObjWorld.UseEntry(spy, s.Entry);
+        spy.GotoState(K.s_Computer_Use);
+        s.W.Run(3.5f);
+
+        spy.GotoState(K.s_Computer_FastLeave);
+        spy.GotoState(K.s_PlayerWalkingSt0H);
+
+        Assert.Equal(7, s.Terminal.CaptureTime);
+        Assert.True(s.Entry.CanUse(spy));
+        Assert.Equal(SComputerObjectiveTrigger.SKIN_Triggering, s.Terminal.SkinState);
+        Assert.Equal(EMenuRelease.InteractionInitSent, ObjWorld.UseEntry(spy, s.Entry));
+        spy.GotoState(K.s_Computer_Use);
+
+        Assert.Same(spy, s.Terminal.ControllerWhoTakesIt);
+        Assert.True(s.Terminal.bTriggering);
+        Assert.Equal(7f, spy.TimerRate);
+        Assert.False(s.Entry.CanUse(spy));
+    }
+
     [Theory]
     [InlineData(1000f, 1000f, 0, false)]
     [InlineData(1000.5f, 0f, 0, true)]

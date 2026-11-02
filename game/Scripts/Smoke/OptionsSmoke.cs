@@ -68,7 +68,7 @@ public sealed class OptionsSmoke : SmokeTest
         {
             if (!_advanced && _section is 1 or 2) { _advanced = true; return SmokeResult.Running; }
             _advanced = false;
-            if (++_section < 4) return SmokeResult.Running;
+            if (++_section < _options.Tabs!.GetCurrentTabControl().GetNode<TabContainer>("Sections").GetTabCount()) return SmokeResult.Running;
             _section = 0;
         }
         if (++_tab < _options.Tabs!.GetTabCount()) return SmokeResult.Running;

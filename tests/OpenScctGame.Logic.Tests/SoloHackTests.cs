@@ -4,6 +4,7 @@ using System.Globalization;
 using System.IO;
 using OpenScct.Core;
 using OpenScct.Core.Engine;
+using OpenScct.Game.AI;
 using OpenScct.Game.Objectives;
 using OpenScct.Game.SBase;
 using OpenScct.Net;
@@ -15,7 +16,8 @@ namespace OpenScctGame.Logic.Tests;
 /// <summary>
 /// Offline play from the main menu (the listen server and the local client of <see cref="PlaySession"/>, SteeE Story
 /// with the map's rules): the spy walks to a terminal, presses Use, hacks it to the end and walks away
-/// (spec/objectives/terminal-hack.md rules 9 to 27), with and without server bots. Skipped without the converted SteeE.
+/// (spec/objectives/terminal-hack.md rules 9 to 27), with and without idle server bots. Combat is covered by the AI
+/// match tests; here neither enemy fire nor a teammate's hack may decide the result. Skipped without converted SteeE.
 /// </summary>
 public sealed class SoloHackTests
 {
@@ -104,6 +106,35 @@ public sealed class SoloHackTests
         PlaySession? started = Start(clock, bots, thread);
         Assert.SkipWhen(started is null, "SteeE has not been converted into .content/svmap.");
         using PlaySession session = started!;
+        SComputerObjectiveTrigger? serverTerminal = null;
+        int localHackPercent = -1;
+        session.Host.BeforeWorldTick += host =>
+        {
+            // Keep the extra players and their replication, but isolate the local player's interaction from
+            // autonomous combat/objective choices. This callback also runs on the host thread in Thread mode.
+            foreach (AiController bot in session.Bots?.Bots ?? [])
+            {
+                bot.Held = true;
+            }
+
+            if (serverTerminal is null)
+            {
+                foreach (SComputerObjectiveTrigger candidate in host.World.Level.AllActors<SComputerObjectiveTrigger>())
+                {
+                    if (candidate.TriggerName.StartsWith(terminal, StringComparison.OrdinalIgnoreCase))
+                    {
+                        serverTerminal = candidate;
+                        break;
+                    }
+                }
+            }
+
+            if (serverTerminal is { bTriggering: true, ControllerWhoTakesIt: not null } &&
+                ReferenceEquals(serverTerminal.ControllerWhoTakesIt, session.ServerController))
+            {
+                localHackPercent = Math.Max(localHackPercent, serverTerminal.GetHackPercent());
+            }
+        };
         var pilot = new ScriptedPilot(pc => UseSpot(pc, terminal, dx, dy)) { UseHoldTicks = useHold };
         bool walkAway = false;
         session.BeforeClientTick = (s, _) =>
@@ -118,8 +149,8 @@ public sealed class SoloHackTests
             pilot.Tick(s);
             if (pilot.Phase != before && pilot.Phase is PilotPhase.Face or PilotPhase.PressUse or PilotPhase.ReleaseUse or PilotPhase.Done)
             {
-                _output.WriteLine($"pilot {pilot.Phase}: client {s.LocalController?.Pawn?.Location} server {s.ServerController?.Pawn?.Location} " +
-                    $"usable {s.LocalController?.IManager?.HasUsableInteractions()}/{s.ServerController?.IManager?.HasUsableInteractions()} view {s.LocalController?.Rotation}");
+                _output.WriteLine($"pilot {pilot.Phase}: client {s.LocalController?.Pawn?.Location} " +
+                    $"usable {s.LocalController?.IManager?.HasUsableInteractions()} view {s.LocalController?.Rotation}");
             }
         };
 
@@ -130,6 +161,7 @@ public sealed class SoloHackTests
         long takenAt = -1;
         FVector walkFrom = default;
         bool walked = false;
+        bool usedByLocalPlayer = false;
         for (int i = 0; i < 200 * Sim.Hz && !walked; i++)
         {
             clock.Advance(1_000_000 / Sim.Hz);
@@ -147,10 +179,12 @@ public sealed class SoloHackTests
                 session.Step(clock.NowMicroseconds);
             }
             Assert.Null(session.ServerFailure);
-            Assert.True(pilot.Phase != PilotPhase.Failed, $"pilot failed: {pilot.Failure}");
+            Assert.True(pilot.Phase != PilotPhase.Failed,
+                $"pilot failed at tick {i}: {pilot.Failure}; client {session.LocalController?.GetStateName()}; " + string.Join(" | ", seen));
             SPlayerController? pc = session.LocalController;
             string state = pc?.GetStateName().ToString() ?? "-";
-            string server = session.ServerController?.GetStateName().ToString() ?? "-";
+            string server = thread ? "<threaded>" : session.ServerController?.GetStateName().ToString() ?? "-";
+            usedByLocalPlayer |= pc?.IsInState("s_Computer_Use") == true;
             string now = state + "/" + server;
             if (now != last)
             {
@@ -181,6 +215,15 @@ public sealed class SoloHackTests
             }
         }
 
+        // Join the host before reading its captured progress or bot roster in the threaded case.
+        session.Stop();
+        Assert.Equal(bots, session.Bots?.Bots.Count ?? 0);
+        foreach (AiController bot in session.Bots?.Bots ?? [])
+        {
+            Assert.True(bot.Held);
+            Assert.NotNull(bot.Controller.Pawn);
+        }
+
         foreach (string line in seen)
         {
             _output.WriteLine(line);
@@ -188,6 +231,8 @@ public sealed class SoloHackTests
 
         _output.WriteLine($"pilot {pilot.Phase} taken {taken} at {takenAt} max percent {maxPercent} walked {walked}");
         Assert.True(taken, "the terminal was not hacked: " + string.Join(" | ", seen));
+        Assert.True(usedByLocalPlayer, "the local spy never entered the hacking state");
+        Assert.True(localHackPercent >= 90, $"the local spy's authoritative hack percent only reached {localHackPercent}");
         Assert.True(maxPercent >= 90, $"the hack percent only reached {maxPercent}");
         Assert.True(walkAway, "the spy never walked again after the hack: " + string.Join(" | ", seen));
         Assert.True(walked, "the spy did not walk away from the terminal: " + string.Join(" | ", seen));

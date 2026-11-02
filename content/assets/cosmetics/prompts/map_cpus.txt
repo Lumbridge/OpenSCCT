@@ -1,0 +1,7 @@
+Use case: stylized-concept
+Asset type: original game cosmetic albedo texture, Cpusa map reward, map_cpus.
+Primary request: recreate from scratch a premium flat camouflage pattern suitable for tactical suits and armour. restrained olive-grey industrial woodland camouflage, dense fragmented rounded lobes, broken sage islands with soot-black negative spaces.
+Color palette: strictly based on #1A1E1A, #4E5A4A, #A8B49A. Rich controlled pigments with subtle tonal material variation.
+Composition: one full-bleed square texture 1024x1024 or larger; flat front-on orthographic pattern only, approximately 8-12 major pattern islands across each dimension with secondary shapes. Seamlessly tileable across all opposite edges.
+Style: polished clean high-end game texture, crisp deliberate irregular silhouettes like beautifully authored camouflage. Only very subtle fine textile/pigment grain; avoid blurry procedural noise.
+Constraints: opaque flat albedo, even colour and detail to every edge; no actual objects, scenery, garment, equipment, UV atlas, folds, lighting, shadows, highlights, vignette, border, labels, lettering, logo or watermark. No depth or perspective.

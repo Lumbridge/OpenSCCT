@@ -1,29 +1,14 @@
-"""OpenSCCT's own cosmetic camos (not retail): each pattern is painted over the player's own retail character and gun
-textures, keeping their shading, as shared/chars/<Package>/textures/cosmetic_<pattern>_<texture>.png. The game's
-SkeletalModel.SetCosmetic draws them (src/OpenScct.Net/Cosmetics/CosmeticCatalog.cs lists the items).
+"""Build fitted unlockable finishes from original imagegen source artwork.
 
-Sizes: a camo is written at four times its retail texture's size (bodies 2048 px, the second spy suit texture 1024,
-guns and the pistol 1024, the smaller gun parts in step but never under 64 px); the map camos on bodies stop at 1024 to
-save disk. The retail texture is enlarged first (Lanczos, alpha too) and the pattern painted at full size. The game
-takes any size, as UVs are normalised.
+The source PNGs live under content/assets/cosmetics; cosmetic_art loads them
+without procedural fallbacks. This module retains catalog palettes and historical
+shape helpers, but production paint and thumbnails only consume authored artwork.
+Each source is fitted in model space through gunskin/fitted, then combined with
+the user's retail shading and original alpha. Outputs are cosmetic_<pattern>_<stem>.png
+and matching lighting masks beside the original character/weapon textures.
 
-Every shape is measured in texture units (the long side is 1), never in pixels, and its noise is seeded per pattern and
-texture, so a camo is the same design at any size, only crisper. Hard edges are anti-aliased over about one pixel.
-Small motifs (cogs, bolts, rivets, chevrons, circuit traces, lightning, shards, ...) are scattered and stamped one by
-one into their own small tile, wrapping across the texture edges: the textures are UV atlases of many small islands,
-so motifs stay small (a few percent of the texture) rather than one big drawing.
-
-On the guns and suits the patterns are not drawn across the texture, where each atlas island would take a slice of
-pattern at its own size and turned its own way: they are drawn on the mesh instead (svmbuild/gunskin.py), as the
-skeleton is drawn on the body. Kaido's livery, Cryo's panels and Pyre's flames are designed piece by piece on each gun;
-every other pattern is drawn flat as one tile and laid over the gun or suit at one real size, with trim on the gun's
-parts. The shapes below are those flat tiles (and the menu swatches).
-
-Each pattern also gets a flat 256 px swatch, shared/chars/thumbs/cosmetic_<pattern>.png, for the menus (a painted
-atlas reads as noise when shown flat).
-
-The pattern table below must match CosmeticCatalog.Patterns and CosmeticCatalog.Maps (ids and colours); the shapes are
-drawn here procedurally with fixed seeds, so every install builds the same camos.
+Bodies normally bake at 2048, map suits at 1024, guns at 1024. Menu thumbnails are
+256 square. Existing account pattern IDs and unlock semantics remain unchanged.
 """
 
 from __future__ import annotations
@@ -1560,36 +1545,29 @@ _SHAPES = {
 
 
 def pattern_image(pattern: str, h: int, w: int, luma: np.ndarray, seed: str = "", mesh=None) -> np.ndarray:
-    """The pattern's colours (h x w x 3, 0..1) for a texture of that size; seed (the texture's name) picks the layout.
-    The gold finishes follow the retail brightness. The skeleton needs the body's mesh (skeleton.Mesh): it is drawn
-    where the bones lie on the texture seed, or flat from the front for the swatch (seed "thumb"). Given the gun's or
-    the body's mesh, every other pattern is drawn on the gun or the suit (gunskin.py); without it, or for the swatch,
-    across the texture."""
+    """Original authored artwork fitted in model space, or its flat menu swatch."""
+    from . import cosmetic_art
     shape, colours = PATTERNS[pattern]
+    # Validate even anatomy artwork here; a missing shipped source is never an
+    # invitation to resurrect a procedural finish with the same account ID.
+    cosmetic_art.load(pattern)
+    if seed == "thumb":
+        return cosmetic_art.swatch(pattern, h, w)
     if shape == "skeleton":
-        from . import skeleton  # noqa: PLC0415
-
         if mesh is None:
             raise ValueError("the skeleton camo needs the body's mesh")
-        layout = None if seed == "thumb" else skeleton.bake(mesh, seed, h, w)
-        if layout is None and seed != "thumb":
-            raise ValueError(f"{seed} is not a texture of the skeleton's mesh")
-        return np.clip(skeleton.draw(layout, colours, h, w, mesh), 0.0, 1.0).astype(np.float32)
-    if mesh is not None and seed != "thumb":
+        return cosmetic_art.skeleton_image(mesh, seed, h, w)
+    if mesh is not None:
         from . import gunskin  # noqa: PLC0415
 
         if gunskin.handles(shape, seed):
             rgb = gunskin.draw(shape, colours, mesh, seed, h, w, _rng(pattern, seed), pattern, luma)
             return np.clip(rgb, 0.0, 1.0).astype(np.float32)
-        if seed in SKELETON_MESH and shape in _SHAPES:
+        if seed in SKELETON_MESH:
             rgb = gunskin.draw_suit(pattern, shape, colours, mesh, seed, h, w, luma)
             return np.clip(rgb, 0.0, 1.0).astype(np.float32)
-    if shape not in _SHAPES:
-        raise ValueError(f"unknown camo shape {shape}")
-    rgb = np.array(_SHAPES[shape](_rng(pattern, seed), h, w, colours, luma), dtype=np.float32)
-    if shape in _WEATHERED:
-        _fine_detail(_rng(pattern, seed + ":detail"), rgb)
-    return np.clip(rgb, 0.0, 1.0)
+        raise ValueError(f'No fitted cosmetic projection for {seed}')
+    return cosmetic_art.swatch(pattern, h, w)
 
 
 def paint(retail: np.ndarray, pattern: str, seed: str = "", mesh=None) -> np.ndarray:
@@ -1600,9 +1578,7 @@ def paint(retail: np.ndarray, pattern: str, seed: str = "", mesh=None) -> np.nda
     h, w = luma.shape
     colours = pattern_image(pattern, h, w, luma, seed, mesh)
     shape = PATTERNS[pattern][0]
-    if shape in _GILDED:
-        camo = colours
-    elif shape in _LACQUERED:
+    if shape in _GILDED + _LACQUERED:
         # A light touch of the retail shading, so edges and details still read through the lacquer.
         shading = np.clip(0.5 + 0.5 * luma / max(float(luma.mean()), 1e-3), 0.8, 1.15)[..., None]
         camo = np.clip(colours * shading, 0.0, 1.0)
@@ -1708,6 +1684,9 @@ def build_all(chars_dir: Path) -> dict:
     from PIL import Image  # noqa: PLC0415
 
     from . import gunskin  # noqa: PLC0415
+    from .cosmetic_art import source_files
+
+    source_files()  # Fail before writing outputs if the art pack is incomplete.
 
     jobs, skipped = [], []
     for package, stem, patterns in TARGETS:

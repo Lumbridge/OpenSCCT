@@ -50,27 +50,30 @@ public partial class SSmokeEmitter
     protected override void NativeTick(float DeltaSeconds)
     {
         base.NativeTick(DeltaSeconds);
-        if (Level.NetMode == ENetMode.NM_DedicatedServer)
-        {
-            return;
-        }
-
         foreach (SPlayerController pc in XLevel.AllActors<SPlayerController>())
         {
-            if (pc.IsRemotePlayer || pc.Pawn is not { } pawn)
-            {
-                continue;
-            }
-
-            // The gas mask keeps the smoke out (gas-mask.md rule 7).
-            if (pawn is SBasePawn { bGasMask: true })
+            if (pc.Pawn is not { } pawn)
             {
                 continue;
             }
 
             if (FVector.Dist(pawn.Location, Location) <= RadiusEffect + pawn.CollisionRadius)
             {
-                DetectedSPlayerController(pc);
+                if (Role == ENetRole.ROLE_Authority)
+                {
+                    pc.ObserveGasActivity(this, TimeBaseToCought, TimeBaseToFaint, stickyCamera: false);
+                }
+
+                // Observation also invalidates a pending episode while the mask protects the victim.
+                if (pawn is SBasePawn { bGasMask: true })
+                {
+                    continue;
+                }
+
+                if (!pc.IsRemotePlayer && Level.NetMode != ENetMode.NM_DedicatedServer)
+                {
+                    DetectedSPlayerController(pc);
+                }
             }
         }
     }

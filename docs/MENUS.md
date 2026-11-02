@@ -336,11 +336,12 @@ cancellation (experimental) sit under Microphone Volume (docs/VOICE.md "Micropho
 
 ## Role configuration and shared controls
 
-Options has **Spy**, **Mercenary**, **General Controls**, Display, Audio, Voice and HUD tabs. Each role contains
-Bindings, Mouse & Aim, Controller and Crosshair sections. The spy retains its original contextual reticle;
-the existing custom mercenary crosshair editor and preview live under Mercenary. Role frame caps and the mercenary
-FOV cap are under Mouse & Aim. Shared device settings and vertical mouse inversion live in
-General Controls. Detailed scope, camera and held-sensitivity modifiers are under Advanced settings.
+Options has **Spy**, **Mercenary**, **Controller**, Display, Audio, Voice and HUD tabs. Each role contains
+Bindings, Mouse & Aim and Controller sections. Mercenary also contains the custom Crosshair editor and preview;
+the spy retains its original contextual reticle. Role frame caps, the mercenary FOV cap and shared vertical mouse
+inversion are under Mouse & Aim. The top-level Controller tab holds shared controller setup, stick behavior and
+vibration settings; role-specific sensitivity and button bindings live in each role's Controller section.
+Detailed scope, camera and held-sensitivity modifiers are under Advanced settings.
 
 Bindings are action-based and grouped by movement, combat, gadgets, vision, communication and interface. They show
 unbound actions as well as existing keys. Focusing or hovering an action shows its verified description and the

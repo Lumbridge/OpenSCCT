@@ -54,6 +54,9 @@ public partial class SPlayerController
         Actor? target = c.Target;
         if (target is not null && !OwnsActor(target))
         {
+            // DamagePawn_C2S runs on this controller; Target is the victim argument, not the RPC receiver.
+            // The charge is reported by its owner, unlike the server's berserk contact damage.
+            if (c.Function == CNAME_DamagePawn_C2S) ReceiveOwnerChargeHit(c);
             return;
         }
 

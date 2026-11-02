@@ -1,0 +1,6 @@
+Use case: stylized-concept
+Asset type: original premium game cosmetic albedo texture for the Mastercraft unlockable.
+Primary request: Exquisite master-engraver trophy finish: dense but elegant interwoven acanthus scrollwork and flowing ornamental arabesque engraving, warm burnished gold ground, rich antique-gold recessed lines and pale champagne fine highlights. Ornament varies between medium flowing leaf scrolls and delicate tiny etched flourishes; all-over seamless luxury engraving, restrained tactile detail, highly polished design. No central crest, text, medallions or logos.
+Color palette: #2A1E0A #9A7020 #E6B840 #FFF2B0.
+Composition: One square 1024x1024 or higher, perfectly flat orthographic production material texture filling every edge. Seamlessly repeating at opposite edges. Uniform neutral albedo illumination. Rich professionally art-directed shapes and controlled fine detail, immediately readable when wrapped onto tactical clothing and weapon surfaces.
+Constraints: Create the artwork entirely from scratch. ONE texture, no contact sheet, no borders or margins, no text or lettering, no logos or watermark, no weapon, garment, real object, folds, seams, spotlight, vignette, cast shadow, 3D rendering, perspective or mockup.

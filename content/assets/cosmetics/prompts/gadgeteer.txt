@@ -1,0 +1,6 @@
+Use case: stylized-concept
+Asset type: original premium game cosmetic albedo texture for the Gadgeteer unlockable.
+Primary request: Intricately crafted mechanical camouflage: interlocking small and medium gear-tooth rings, partial cogs, precision concentric arcs and delicate linkage marks over matte dark graphite. Muted steel-grey components and restrained warm brass highlights, beautifully legible linework with enough dark negative space. Flat inlaid technical engraving, not a rendered pile of gears, no perspective, labels or screws.
+Color palette: #1A1C20 #4A5058 #8A929C #C8A050.
+Composition: One square 1024x1024 or higher, perfectly flat orthographic production material texture filling every edge. Seamlessly repeating at opposite edges. Uniform neutral albedo illumination. Rich professionally art-directed shapes and controlled fine detail, immediately readable when wrapped onto tactical clothing and weapon surfaces.
+Constraints: Create the artwork entirely from scratch. ONE texture, no contact sheet, no borders or margins, no text or lettering, no logos or watermark, no weapon, garment, real object, folds, seams, spotlight, vignette, cast shadow, 3D rendering, perspective or mockup.

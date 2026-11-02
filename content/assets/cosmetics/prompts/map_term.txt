@@ -1,0 +1,6 @@
+Use case: stylized-concept
+Asset type: production game cosmetic surface albedo texture, fitted to character suits and/or weapons.
+Primary request: Recreate Terminus map mastery camouflage from scratch.
+Elegant cold infrastructure camouflage, broad irregular layered horizontal organic bands cut by short angular interruptions, with smaller hooked islands drifting between. Deep blue charcoal #101a1e, dark petrol #2e4e56, muted seafoam steel #8ab8b8. Bold smooth-but-irregular silhouettes and a readable three-tone hierarchy. Fine subtle material grain, no literal architecture or circuitry.
+Composition: one single square 1024x1024 or higher flat material swatch, seamlessly wrapping across all four edges, edge-to-edge pattern, perfectly orthographic. Uniform neutral albedo with no baked illumination. Premium crisp game artwork, readable design at gameplay distance, fine detail subordinate to large forms.
+Constraints: single texture only, no borders, collage, inset, label, text, logo, weapon, clothing object, stitching seam, fold, cast shadow, spotlight, vignette, perspective or 3D mockup.

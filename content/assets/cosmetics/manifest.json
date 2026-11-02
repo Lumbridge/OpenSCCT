@@ -1,0 +1,636 @@
+{
+  "version": 1,
+  "generated_on": "2026-11-02",
+  "generator": "OpenAI built-in imagegen (Codex)",
+  "mode": "generate from scratch; one call per image; original output bytes",
+  "active_texture_designs": 67,
+  "builder_patterns": 68,
+  "textured_catalog_items": 217,
+  "auxiliary_sources": [
+    "skeleton_back"
+  ],
+  "credits": "CREDITS.txt",
+  "assets": {
+    "blue_tiger": {
+      "file": "textures/blue_tiger.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 1566965,
+      "sha256": "d3d18a7b51f24fe463e84252fb62e329fac00982ba17d4177fb803cc429df40e",
+      "prompt": "prompts/blue_tiger.txt",
+      "prompt_sha256": "569a8b43a6fed80d0cc0241d0e35761163968266b1489257109cf9a2fa5620f7"
+    },
+    "breaker": {
+      "file": "textures/breaker.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 3159048,
+      "sha256": "d90857404cca8d96bed3a61889e4c17fbc4dd8163da6fb2a98d96e8d9b7ca65c",
+      "prompt": "prompts/breaker.txt",
+      "prompt_sha256": "7c32c9c6fb8bf430b78fb1f5067dc5ca8ce8dcfdcfb05482150932b896806272"
+    },
+    "chaff": {
+      "file": "textures/chaff.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 2362350,
+      "sha256": "ba6b5d67046a9fa6ec4f3927433c11c2fc541265de8c07b1e48c824186668f78",
+      "prompt": "prompts/chaff.txt",
+      "prompt_sha256": "5398638c9041b26cb8efb2ed9ecb82f549b6b07f91d9870f8e4c9043c079ea87"
+    },
+    "cryo": {
+      "file": "textures/cryo.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 3012136,
+      "sha256": "d1fe8d532bad8e80e0e4de78a987d776fc218cad099edf276ed34cec815bd1b8",
+      "prompt": "prompts/cryo.txt",
+      "prompt_sha256": "97c4bbe58373c366a8524846db7484d071efaade7de26190a286191c3bbed6dc"
+    },
+    "desert": {
+      "file": "textures/desert.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 1830992,
+      "sha256": "8ac6051e51546b2e8a4348a6197729fdc3934ccb975852fd6ed3df624593e789",
+      "prompt": "prompts/desert.txt",
+      "prompt_sha256": "d89b6223778e17e72d3407c4572235cc6a749d9765bd76256c0ee9b833503886"
+    },
+    "digital": {
+      "file": "textures/digital.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 1414321,
+      "sha256": "07a5998e5ad5f441c3885c675dbe474b7b4ad115ac09a8083980c0989f2bf612",
+      "prompt": "prompts/digital.txt",
+      "prompt_sha256": "1f3907a4930bf7186b32fc128f3dffda71bf670d2e36ac403ec7629533092631"
+    },
+    "flashbang": {
+      "file": "textures/flashbang.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 2270986,
+      "sha256": "7d8d08df6bfb48e287db0d3f51e757c580840da04855455a82c55cadf33da566",
+      "prompt": "prompts/flashbang.txt",
+      "prompt_sha256": "d52875d253b510c3e269364f4c0010a73369c8249cfd7a31482332638ce27606"
+    },
+    "frag": {
+      "file": "textures/frag.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 2339200,
+      "sha256": "3a2ca5fadc9c55fd2b77c102768199df87fe37366c8311af79a2c612b97f02d8",
+      "prompt": "prompts/frag.txt",
+      "prompt_sha256": "7b06db0250e79a9d267a1dbf810852be55301c8015da353238dca772d28c6579"
+    },
+    "gadgeteer": {
+      "file": "textures/gadgeteer.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 3450131,
+      "sha256": "304f32a42a5cd728ce7e4610f08378aa161ccf193160ff272e3d20bdb40f84bd",
+      "prompt": "prompts/gadgeteer.txt",
+      "prompt_sha256": "a4a9885a5443d3aed882bbf5385413aba0d7580729a9690c847e841a52d33c34"
+    },
+    "galaxy": {
+      "file": "textures/galaxy.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 3096813,
+      "sha256": "20af9d41c9dbdd6c574c1d1d53329e77f861932be100476bd54d33422f3d6313",
+      "prompt": "prompts/galaxy.txt",
+      "prompt_sha256": "60020715e8bf05dd64dea5168f0a09b65f700dbd22580561627b7aaed5b4d560"
+    },
+    "golden": {
+      "file": "textures/golden.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 3110401,
+      "sha256": "4b77c8fd86f298a6732d805d0f74b7f0576bb2c6458a46e2cdcf567c356ffcc1",
+      "prompt": "prompts/golden.txt",
+      "prompt_sha256": "fe0da4faf1c74d3dbbd2f21e7fa9391b706d07afb29e29dac764de16ae4714f0"
+    },
+    "inferno": {
+      "file": "textures/inferno.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 2562175,
+      "sha256": "ba9d88b500c820080b3b7b987e7e65d0f873ad50c52e049391385eaf6585c674",
+      "prompt": "prompts/inferno.txt",
+      "prompt_sha256": "0b352fb20fdde26135c65171e042ae3e94c0c6f7b16a1d1d6ee04a97ef05df3c"
+    },
+    "kaido": {
+      "file": "textures/kaido.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 1809532,
+      "sha256": "b73df4025d3dc5211c2262098db2a8c52239b4e7456b5841c197de998e4296df",
+      "prompt": "prompts/kaido.txt",
+      "prompt_sha256": "2c0a735abeb0e721416a8988c7b4b271eb63e906e391a6544994fd636f74df4e"
+    },
+    "laser_grid": {
+      "file": "textures/laser_grid.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 1405020,
+      "sha256": "bee0a221957c031275607400c7bf2b313b2bb76dac123f64dfa6cfbef33b832b",
+      "prompt": "prompts/laser_grid.txt",
+      "prompt_sha256": "58c00fa8dbcb141fcbdf5f0cc4233f794b5d0971df1cb7ec45c72436c7ff6625"
+    },
+    "lockdown": {
+      "file": "textures/lockdown.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 2145169,
+      "sha256": "8c3cefc737527272111a284b2bbd88af175e9cfda30150fff6b1a2819337f66d",
+      "prompt": "prompts/lockdown.txt",
+      "prompt_sha256": "b896b2b0f80ceeb04e5be4e61e09ebd9b39db4ad428a02bad0af4dfc2d695901"
+    },
+    "map_aqua": {
+      "file": "textures/map_aqua.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 2004987,
+      "sha256": "724ba73ea4a499ba910c1910a8e06d2ea2bb38e68fcf26bbfa7b8421dbbd80cf",
+      "prompt": "prompts/map_aqua.txt",
+      "prompt_sha256": "e93317bf1d899f94414a1051774776c7ed852d35e2d28da1cba7558696130df5"
+    },
+    "map_bank": {
+      "file": "textures/map_bank.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 2841388,
+      "sha256": "a5fdd668560ab2ceb3e721cbb250a157b2ba7bac0d9aff9932fd4bbafa908cb0",
+      "prompt": "prompts/map_bank.txt",
+      "prompt_sha256": "dba6b36252bc7e174418f1e5defbe6573ddf9cd97b2090469567d27d2a49bac4"
+    },
+    "map_cine": {
+      "file": "textures/map_cine.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 2298372,
+      "sha256": "6d5ecd41393f8976d5d2ac8166a285d3a7448f3aef45d03c1d170c381bf9d705",
+      "prompt": "prompts/map_cine.txt",
+      "prompt_sha256": "6697c9a5ad998ad59e23859e6ac5999b2b76ba2cf1009d1df009efa9718b3114"
+    },
+    "map_clar": {
+      "file": "textures/map_clar.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 1628412,
+      "sha256": "f70d13b00e7f26d9d60f889e8b34aea9910e6249aef0ae7099388ddba754a72d",
+      "prompt": "prompts/map_clar.txt",
+      "prompt_sha256": "baf6212039130dab8b23a42acb226841cebf8e7ecf2a2692eae636b9fc44f951"
+    },
+    "map_club": {
+      "file": "textures/map_club.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 1558259,
+      "sha256": "110e28397a75da42c56a325f57e49a268b67db2a68df25ad6a8f57c07539a5f8",
+      "prompt": "prompts/map_club.txt",
+      "prompt_sha256": "9f4bc88f58865d5279ed396ef47672dd2ec16c609885b08f7a46cc332bfbbd68"
+    },
+    "map_cpus": {
+      "file": "textures/map_cpus.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 2366586,
+      "sha256": "4de92b7788e89de772410af01329d00aaab2d97ea84a02cb23727113280708ed",
+      "prompt": "prompts/map_cpus.txt",
+      "prompt_sha256": "1a8351cf7af6268ad3e2b1dbc421871634f2e9b981ed59b49bd1149144d07206"
+    },
+    "map_deft": {
+      "file": "textures/map_deft.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 2021495,
+      "sha256": "befac724433ff16f34ce2cbfa5f87e76bf6ac0ba02c428d199ea41f900ff16cd",
+      "prompt": "prompts/map_deft.txt",
+      "prompt_sha256": "434cd9b66b6f449a7771220adf4eb482c764529072988361e9a9c2e4c06093b8"
+    },
+    "map_fact": {
+      "file": "textures/map_fact.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 2117285,
+      "sha256": "c59919c74849f9a8e24cecf5600e17f17ab4822657a61cbe96f2460c62260021",
+      "prompt": "prompts/map_fact.txt",
+      "prompt_sha256": "685903bb8df29c7c29432732fe170e1029e8cb892a0304e615067aa7e7755125"
+    },
+    "map_ghos": {
+      "file": "textures/map_ghos.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 2490614,
+      "sha256": "ab5b67259703aa2354c92651a1c24610af716c64281d186f8c9924f1b2936f6f",
+      "prompt": "prompts/map_ghos.txt",
+      "prompt_sha256": "c0bc6375239100b926b64bce607a2ce86520029f0daf227ebed19f81a5af5616"
+    },
+    "map_krau": {
+      "file": "textures/map_krau.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 1827548,
+      "sha256": "b0e587427087ecbd4d90f26542e33bb1427aa45ca36385e78d455835532fb18f",
+      "prompt": "prompts/map_krau.txt",
+      "prompt_sha256": "a78f8575a810c273544fa5b6e18753ac47fa35355e8f679930be94e8b1334e29"
+    },
+    "map_miss": {
+      "file": "textures/map_miss.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 1543036,
+      "sha256": "14dbef7de1cb59a0e2d3cb46f7b3eeeee95f5461f2ca9d7c268f49bf0f15b1cd",
+      "prompt": "prompts/map_miss.txt",
+      "prompt_sha256": "38719a6887e128cdd16ff6c7551005a2174fed1b8478412ba4cd7897754d8e99"
+    },
+    "map_moun": {
+      "file": "textures/map_moun.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 2654688,
+      "sha256": "f313211882f2e941ac2f2a006d3d9efa557abddecc4aa896dec3056b13437d3d",
+      "prompt": "prompts/map_moun.txt",
+      "prompt_sha256": "61f1f78a96f14a5b799a5af4b4aeb7e9120a96f86a3c1c22ee0fe834ad760664"
+    },
+    "map_muse": {
+      "file": "textures/map_muse.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 2092361,
+      "sha256": "774f7974da797c24e8662c5dc7d7f12f1fe23930c67f1edb6522580d3356303f",
+      "prompt": "prompts/map_muse.txt",
+      "prompt_sha256": "a3e27bd48ec4a02bb512472f43d014e942992dea184acf9c19a1c1c3d1015a9f"
+    },
+    "map_offs": {
+      "file": "textures/map_offs.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 2594369,
+      "sha256": "c3f40a39e6787ad6070729fc9d327275a94b0985a5569cd157bf6d46c4321f6a",
+      "prompt": "prompts/map_offs.txt",
+      "prompt_sha256": "d65c09af490cb6fbb594295990c9a4d2f94fa9364f8776588938152d498cdf86"
+    },
+    "map_orph": {
+      "file": "textures/map_orph.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 2332122,
+      "sha256": "78fd759c1a3230a1905990841983e8fed8014145f07c742b59fdeed14f71eb90",
+      "prompt": "prompts/map_orph.txt",
+      "prompt_sha256": "177cf25e8ed1e084dfd10913dc8693ca40b400de6e1e31511ef62bcdbc07d5fa"
+    },
+    "map_pana": {
+      "file": "textures/map_pana.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 2022087,
+      "sha256": "918ffdb325102a61c7ece361372bd626e4fe5e9478849d3f02bc41965c7afc54",
+      "prompt": "prompts/map_pana.txt",
+      "prompt_sha256": "b32c5b971190f01d313844f47909d646852f03ccb6928e16632cea138b9cc255"
+    },
+    "map_pola": {
+      "file": "textures/map_pola.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 2092786,
+      "sha256": "bc8bc14f77d9e889936739da3c9d3b6281c65e9f752bc8047e9c982941593643",
+      "prompt": "prompts/map_pola.txt",
+      "prompt_sha256": "ce7242d4473d44c0d978f3ba132b7ffbda4bca69b61dcea3e922c64fd25de582"
+    },
+    "map_pris": {
+      "file": "textures/map_pris.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 2486928,
+      "sha256": "6aeaed4458a82230a1eb9fd8046c463fc54bc28a9057b8d4a0d18fba74943bc7",
+      "prompt": "prompts/map_pris.txt",
+      "prompt_sha256": "59d306b9a83d2e50cf20d98bc50ca9086fac846d1f985e5d5d3472061509665f"
+    },
+    "map_pyro": {
+      "file": "textures/map_pyro.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 1968917,
+      "sha256": "21a3e6fec08e0eecd8347146bc30995359de623e1c134296f32427d86aa673ba",
+      "prompt": "prompts/map_pyro.txt",
+      "prompt_sha256": "e2ceee4cefbc9dfaa7580f8302eb0bf1171addbcdb7bc1ecaecebdc12e60b3aa"
+    },
+    "map_rive": {
+      "file": "textures/map_rive.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 1592176,
+      "sha256": "c5b8a153276f3b8f0aee0bb8f02f2606536c5d7be683134854ec669a7f46a58a",
+      "prompt": "prompts/map_rive.txt",
+      "prompt_sha256": "41d6fefb42433999198fd69351932a948df475c684fde594755e23cbb97dbf51"
+    },
+    "map_sanc": {
+      "file": "textures/map_sanc.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 2283290,
+      "sha256": "02f398c8d161e19e5813b6443dec27113d5599b9303ee393bbd87b4a3f384771",
+      "prompt": "prompts/map_sanc.txt",
+      "prompt_sha256": "5df041bc793b259cc2b92144d2f2e31902a0527278b9b495e330a0bd05acf7fc"
+    },
+    "map_sche": {
+      "file": "textures/map_sche.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 1924262,
+      "sha256": "79d17ca8481fc68dda73a7c84138d21e13028ac9a9cb243e28bd5068cb2fad1b",
+      "prompt": "prompts/map_sche.txt",
+      "prompt_sha256": "d7e66ce14e1cd1f27d821772e20f6e6774ca36e2bcd1aeff2d040977858f94ab"
+    },
+    "map_shad": {
+      "file": "textures/map_shad.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 2462724,
+      "sha256": "60fe3e3a8195ae95e22f28ebf001a92523662eeb2116cc8ffad42f32dec8b606",
+      "prompt": "prompts/map_shad.txt",
+      "prompt_sha256": "fad7491ff143d2a53b3a300b7b5e6af6648d3891510912eb62eb196f9be5607e"
+    },
+    "map_skys": {
+      "file": "textures/map_skys.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 1922617,
+      "sha256": "a375f538d1320950ebfbc0d1d6b8edb9594d2b7c5a0c401c2c5e075fa966e1f7",
+      "prompt": "prompts/map_skys.txt",
+      "prompt_sha256": "606519cb43f9cc402da0d1eb93b8115c0d8e516f60785158730e7e62cb05a218"
+    },
+    "map_slau": {
+      "file": "textures/map_slau.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 2685781,
+      "sha256": "e12d29ff59bb4fa12ad00bac3efc7267ad0faf99daedc3fd9eb25c788c71356b",
+      "prompt": "prompts/map_slau.txt",
+      "prompt_sha256": "41164de1132e492aa6c15d077daae66da78109e6ce08980969ce80bda51adc9d"
+    },
+    "map_stat": {
+      "file": "textures/map_stat.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 1523024,
+      "sha256": "71770c0ce5dcc3c6c3e99773f1c523045b0f1822f1a9574c750ec212dd1e5c0a",
+      "prompt": "prompts/map_stat.txt",
+      "prompt_sha256": "c8f68e84ae0f25e2175c622351ad00d1e28d5c443a28b73c7f8313a91afec20d"
+    },
+    "map_stee": {
+      "file": "textures/map_stee.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 1689325,
+      "sha256": "fc05a17582240315b909358e7653c9918d8953295c4828e5ce71586786e74f70",
+      "prompt": "prompts/map_stee.txt",
+      "prompt_sha256": "8718e384de39512ef6b9f5d0f1c63de6818ab9bb4a26dff8ebd368def632ab95"
+    },
+    "map_stro": {
+      "file": "textures/map_stro.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 2479359,
+      "sha256": "cec05d7957eb6f963e9bd54049751f8c53885315ad379fbf071402d7d72ce0bc",
+      "prompt": "prompts/map_stro.txt",
+      "prompt_sha256": "872e65dc9f2955520f9d5c4c5981f26f756d3d78f219ba45be2b8983a791195d"
+    },
+    "map_term": {
+      "file": "textures/map_term.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 2417456,
+      "sha256": "c203021a19dac755240dd0a2ae349c48ba828ccf66a11c3242d4eadddf64739b",
+      "prompt": "prompts/map_term.txt",
+      "prompt_sha256": "4ef01dd0b379c4b8d45f0a52a327565f2ea5df2d7fcd9ead5f52d61407c4f2c3"
+    },
+    "map_vert": {
+      "file": "textures/map_vert.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 1609921,
+      "sha256": "103a8f15e9fef0a5218694c51ec55cf6d02c39be7ad367abc3fc7205edcaeb2b",
+      "prompt": "prompts/map_vert.txt",
+      "prompt_sha256": "f396d3eb450f25336cd3214b398ba0719cf02840e9e11c9e9eefcb7fe284a687"
+    },
+    "map_ware": {
+      "file": "textures/map_ware.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 2031693,
+      "sha256": "970837f47b18bfbcfb080abbe30b6060e49e127a320703b84eb36ea4c662260d",
+      "prompt": "prompts/map_ware.txt",
+      "prompt_sha256": "c7e2222d5b51c6771b3bbf5df20a24716f84ed430b338340bb85c88508e71aa7"
+    },
+    "map_ziop": {
+      "file": "textures/map_ziop.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 1620197,
+      "sha256": "18f77e82c9510455c0f1946cee3a132c362124e6051b7333ba4801d9ffffb789",
+      "prompt": "prompts/map_ziop.txt",
+      "prompt_sha256": "bd30f7ab40c4928ab19be4243af2810b902f0d86f81498d7541ed2ae553b4bec"
+    },
+    "mastercraft": {
+      "file": "textures/mastercraft.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 4567345,
+      "sha256": "279d161edd86870175f32c2195373316ec2455afc293288984d6f0af78d4e9d6",
+      "prompt": "prompts/mastercraft.txt",
+      "prompt_sha256": "a79d865812c8046e067e14405f7c8dcd12ccbe91fd51bfd158e2f03eca9eb762"
+    },
+    "minefield": {
+      "file": "textures/minefield.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 2154104,
+      "sha256": "b68f7dd10553d4087cdb37c06c62680601c9d5963ce92c98c0187324fedda577",
+      "prompt": "prompts/minefield.txt",
+      "prompt_sha256": "b0f6faa337b56e572c6a2c9362ed1d81be3758e09c1167ad197d02ca25ae47a3"
+    },
+    "night_ops": {
+      "file": "textures/night_ops.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 3014429,
+      "sha256": "d3a9a154e93fe1e21f57fd9eb5f274b533d5da8f6aafe45b88539f5f2bb25d02",
+      "prompt": "prompts/night_ops.txt",
+      "prompt_sha256": "cfb64e010881a46a7f2011dabcd365ef7d607ace97706bdba0dda31ecb7c32a4"
+    },
+    "pyre": {
+      "file": "textures/pyre.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 1738050,
+      "sha256": "f853b60c9e22f0ee6bc0d1b2524b903536166cd201d6e6793f646a3187d53e23",
+      "prompt": "prompts/pyre.txt",
+      "prompt_sha256": "fdfbd3be6547370efa2414c55e2d8f162e70794763f61df11951a328176133a7"
+    },
+    "red_tiger": {
+      "file": "textures/red_tiger.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 1569446,
+      "sha256": "5f3ca07d3defc4eb0bd8e939cae026f50304a821bd380de903f254381129a041",
+      "prompt": "prompts/red_tiger.txt",
+      "prompt_sha256": "94a0d463afb0a5ff15d510ae58b634d281c9a0bbc70c0d1076ba6c34033e87e6"
+    },
+    "shockwave": {
+      "file": "textures/shockwave.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 2600777,
+      "sha256": "93d48b0588ecbc425debbbbad930eed0dacbbfd6d0473093086de4c18a41b14c",
+      "prompt": "prompts/shockwave.txt",
+      "prompt_sha256": "9d05bcaecab08e994065b4a26d0b671f74c7fc3caef3bfa17692e86db42b67f8"
+    },
+    "skeleton": {
+      "file": "textures/skeleton.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 1454557,
+      "sha256": "bb0db4032158f2d636576a8a3b462a1ba3330cfebef53db40e7ba450bee5fa42",
+      "prompt": "prompts/skeleton.txt",
+      "prompt_sha256": "4c0eae7a2d882fce987612aca8efc3b042ed334f59b888bd80c246c866fe036a"
+    },
+    "skeleton_back": {
+      "file": "textures/skeleton_back.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 1417713,
+      "sha256": "76e4bed8283e78b3c93ffa648768c15675d8a74922bc1548748ca0bc73afbbc4",
+      "prompt": "prompts/skeleton_back.txt",
+      "prompt_sha256": "59df02e55c0270ba83f8b7b82bba1cc3d279f049ec21ba8c7980c1186fd348ce"
+    },
+    "smoke": {
+      "file": "textures/smoke.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 1802133,
+      "sha256": "5761ceb04f698a73af55c219f08c55845774c9af9271ed15d798a99066209fae",
+      "prompt": "prompts/smoke.txt",
+      "prompt_sha256": "1847a04a40ecbc2601a377d38212b68a8ac536c74dc52a49f999292e1a85ce50"
+    },
+    "static": {
+      "file": "textures/static.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 2136548,
+      "sha256": "60e6b8b05a1c0598706f8824c0335199cdc59c9dde20dbc609bd89137cb7db7b",
+      "prompt": "prompts/static.txt",
+      "prompt_sha256": "bf98b267405e626760928fe40396a1f28448f88137057bc4cc9eb427856687ab"
+    },
+    "tint_50586e": {
+      "file": "textures/tint_50586e.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 3713968,
+      "sha256": "207c5f02bef97ad64dc4e367b8a9b4b90c09a089f5f203d847f4b2db36a91951",
+      "prompt": "prompts/tint_50586e.txt",
+      "prompt_sha256": "a9d5d08a6534fa59d1975fce3a4078841ebff42b6bd690186b8e6464564f9760"
+    },
+    "tint_5a6ea8": {
+      "file": "textures/tint_5a6ea8.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 3559901,
+      "sha256": "14dc80c4a57ed1dbca8fa0f421ac39abd3c419c8977ff51596c4a2aed73b9a58",
+      "prompt": "prompts/tint_5a6ea8.txt",
+      "prompt_sha256": "4198c5fcc745ad04568a3f829845152bf8566ebe1a79143a9b119261408cc23a"
+    },
+    "tint_787470": {
+      "file": "textures/tint_787470.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 3816504,
+      "sha256": "61f6623e7a6261def408c92924ef0dccaa770206f68b7699158b519318c789e0",
+      "prompt": "prompts/tint_787470.txt",
+      "prompt_sha256": "1bba34c4e76c3d67189f2847cc162cb9324615756bb1fa37854acde00d42697f"
+    },
+    "tint_8a9a5a": {
+      "file": "textures/tint_8a9a5a.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 4043506,
+      "sha256": "0cd06829e66c95c762bc2a4240c992d2a5a8f5af2395df9d91ca266c72440def",
+      "prompt": "prompts/tint_8a9a5a.txt",
+      "prompt_sha256": "193123f4c8f8d99ccd7c29e64fee1ad53e50fdfe1bf99da92fe95963dd8a4192"
+    },
+    "tint_9aa0a8": {
+      "file": "textures/tint_9aa0a8.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 3931616,
+      "sha256": "f92f00d4baba9a97729f0f2ae189d86fe0de09df6e0a34845584984a9089a6e5",
+      "prompt": "prompts/tint_9aa0a8.txt",
+      "prompt_sha256": "7611494136cb1efb6159e8f1fdbcf2fc9408230fb0bab7ba0e5d3ef95b973036"
+    },
+    "tint_b8784a": {
+      "file": "textures/tint_b8784a.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 3395291,
+      "sha256": "6c34675fc538aee677fe85a5325f51683c69a30b363090701e9be3a66d108ed3",
+      "prompt": "prompts/tint_b8784a.txt",
+      "prompt_sha256": "85f8ed1e9016a3c3c212fbe091813c5b28af3984d1c5b371e9f1ae40a6c4a5e6"
+    },
+    "tint_c85050": {
+      "file": "textures/tint_c85050.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 4004944,
+      "sha256": "731bdb275be32771897a35c4e06a9be450fb114876ed836ce4e20f2f37c7ec6f",
+      "prompt": "prompts/tint_c85050.txt",
+      "prompt_sha256": "2807e05168808049541add5e0579c07b782bd1383a0b925673b21ff61bf9e78e"
+    },
+    "tint_d8c49a": {
+      "file": "textures/tint_d8c49a.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 3686210,
+      "sha256": "1d6535a0e0522b86a674f748e8c7359a614371064e255d54ad62747999f96adb",
+      "prompt": "prompts/tint_d8c49a.txt",
+      "prompt_sha256": "3f3bfacab614b4cd3aaf35b8c5d69333c75f4048b74b43baae90ee20a5fb550f"
+    },
+    "tint_e8f0f8": {
+      "file": "textures/tint_e8f0f8.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 3162620,
+      "sha256": "b55df473ab51328f0c3c81bbdbea45096d87294b4ff663a049ed6d464497a27c",
+      "prompt": "prompts/tint_e8f0f8.txt",
+      "prompt_sha256": "33d8037d31c36c1a7f3255ffd6e24c8932dba362943d1ae54aeadaca1bea7b68"
+    },
+    "turnabout": {
+      "file": "textures/turnabout.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 2268486,
+      "sha256": "5bc9913726ec2ed411d9031e8d21c53bee228be13f522f81df40b20a81cfc3f4",
+      "prompt": "prompts/turnabout.txt",
+      "prompt_sha256": "ff71de8da017c93af92f419b960635f3890d2e375d19454aa6b37218fafd0186"
+    },
+    "voltage": {
+      "file": "textures/voltage.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 2996733,
+      "sha256": "0122b1a73674527fe1ab05e5d77479b01f2932ff167a589c4db457c25d12649c",
+      "prompt": "prompts/voltage.txt",
+      "prompt_sha256": "6818c68df7badb35988e9909ac524aa97d63f834bd3fc3e27053c55e3e78d570"
+    },
+    "woodland": {
+      "file": "textures/woodland.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 1421158,
+      "sha256": "cb148891a9cdbda0c06bda5a7aa29d0fa46a2213b09a6093773686d657076b42",
+      "prompt": "prompts/woodland.txt",
+      "prompt_sha256": "66d4640a76dedf87aa3ac099a9aebd5f5da121708bf735d3f2bef367452614e7"
+    }
+  }
+}

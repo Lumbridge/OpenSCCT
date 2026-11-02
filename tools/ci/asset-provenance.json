@@ -537,9 +537,286 @@
     "content/assets/weapons/sources/shotgun.wav": {
       "bytes": 134104,
       "sha256": "2e4b51fafbc93ea2b9aa0cf2428d6bad6cfa79817f2d0d7aa38c64dc97afa02f"
+    },
+    "content/assets/cosmetics/textures/blue_tiger.png": {
+      "bytes": 1566965,
+      "sha256": "d3d18a7b51f24fe463e84252fb62e329fac00982ba17d4177fb803cc429df40e"
+    },
+    "content/assets/cosmetics/textures/breaker.png": {
+      "bytes": 3159048,
+      "sha256": "d90857404cca8d96bed3a61889e4c17fbc4dd8163da6fb2a98d96e8d9b7ca65c"
+    },
+    "content/assets/cosmetics/textures/chaff.png": {
+      "bytes": 2362350,
+      "sha256": "ba6b5d67046a9fa6ec4f3927433c11c2fc541265de8c07b1e48c824186668f78"
+    },
+    "content/assets/cosmetics/textures/cryo.png": {
+      "bytes": 3012136,
+      "sha256": "d1fe8d532bad8e80e0e4de78a987d776fc218cad099edf276ed34cec815bd1b8"
+    },
+    "content/assets/cosmetics/textures/desert.png": {
+      "bytes": 1830992,
+      "sha256": "8ac6051e51546b2e8a4348a6197729fdc3934ccb975852fd6ed3df624593e789"
+    },
+    "content/assets/cosmetics/textures/digital.png": {
+      "bytes": 1414321,
+      "sha256": "07a5998e5ad5f441c3885c675dbe474b7b4ad115ac09a8083980c0989f2bf612"
+    },
+    "content/assets/cosmetics/textures/flashbang.png": {
+      "bytes": 2270986,
+      "sha256": "7d8d08df6bfb48e287db0d3f51e757c580840da04855455a82c55cadf33da566"
+    },
+    "content/assets/cosmetics/textures/frag.png": {
+      "bytes": 2339200,
+      "sha256": "3a2ca5fadc9c55fd2b77c102768199df87fe37366c8311af79a2c612b97f02d8"
+    },
+    "content/assets/cosmetics/textures/gadgeteer.png": {
+      "bytes": 3450131,
+      "sha256": "304f32a42a5cd728ce7e4610f08378aa161ccf193160ff272e3d20bdb40f84bd"
+    },
+    "content/assets/cosmetics/textures/galaxy.png": {
+      "bytes": 3096813,
+      "sha256": "20af9d41c9dbdd6c574c1d1d53329e77f861932be100476bd54d33422f3d6313"
+    },
+    "content/assets/cosmetics/textures/golden.png": {
+      "bytes": 3110401,
+      "sha256": "4b77c8fd86f298a6732d805d0f74b7f0576bb2c6458a46e2cdcf567c356ffcc1"
+    },
+    "content/assets/cosmetics/textures/inferno.png": {
+      "bytes": 2562175,
+      "sha256": "ba9d88b500c820080b3b7b987e7e65d0f873ad50c52e049391385eaf6585c674"
+    },
+    "content/assets/cosmetics/textures/kaido.png": {
+      "bytes": 1809532,
+      "sha256": "b73df4025d3dc5211c2262098db2a8c52239b4e7456b5841c197de998e4296df"
+    },
+    "content/assets/cosmetics/textures/laser_grid.png": {
+      "bytes": 1405020,
+      "sha256": "bee0a221957c031275607400c7bf2b313b2bb76dac123f64dfa6cfbef33b832b"
+    },
+    "content/assets/cosmetics/textures/lockdown.png": {
+      "bytes": 2145169,
+      "sha256": "8c3cefc737527272111a284b2bbd88af175e9cfda30150fff6b1a2819337f66d"
+    },
+    "content/assets/cosmetics/textures/map_aqua.png": {
+      "bytes": 2004987,
+      "sha256": "724ba73ea4a499ba910c1910a8e06d2ea2bb38e68fcf26bbfa7b8421dbbd80cf"
+    },
+    "content/assets/cosmetics/textures/map_bank.png": {
+      "bytes": 2841388,
+      "sha256": "a5fdd668560ab2ceb3e721cbb250a157b2ba7bac0d9aff9932fd4bbafa908cb0"
+    },
+    "content/assets/cosmetics/textures/map_cine.png": {
+      "bytes": 2298372,
+      "sha256": "6d5ecd41393f8976d5d2ac8166a285d3a7448f3aef45d03c1d170c381bf9d705"
+    },
+    "content/assets/cosmetics/textures/map_clar.png": {
+      "bytes": 1628412,
+      "sha256": "f70d13b00e7f26d9d60f889e8b34aea9910e6249aef0ae7099388ddba754a72d"
+    },
+    "content/assets/cosmetics/textures/map_club.png": {
+      "bytes": 1558259,
+      "sha256": "110e28397a75da42c56a325f57e49a268b67db2a68df25ad6a8f57c07539a5f8"
+    },
+    "content/assets/cosmetics/textures/map_cpus.png": {
+      "bytes": 2366586,
+      "sha256": "4de92b7788e89de772410af01329d00aaab2d97ea84a02cb23727113280708ed"
+    },
+    "content/assets/cosmetics/textures/map_deft.png": {
+      "bytes": 2021495,
+      "sha256": "befac724433ff16f34ce2cbfa5f87e76bf6ac0ba02c428d199ea41f900ff16cd"
+    },
+    "content/assets/cosmetics/textures/map_fact.png": {
+      "bytes": 2117285,
+      "sha256": "c59919c74849f9a8e24cecf5600e17f17ab4822657a61cbe96f2460c62260021"
+    },
+    "content/assets/cosmetics/textures/map_ghos.png": {
+      "bytes": 2490614,
+      "sha256": "ab5b67259703aa2354c92651a1c24610af716c64281d186f8c9924f1b2936f6f"
+    },
+    "content/assets/cosmetics/textures/map_krau.png": {
+      "bytes": 1827548,
+      "sha256": "b0e587427087ecbd4d90f26542e33bb1427aa45ca36385e78d455835532fb18f"
+    },
+    "content/assets/cosmetics/textures/map_miss.png": {
+      "bytes": 1543036,
+      "sha256": "14dbef7de1cb59a0e2d3cb46f7b3eeeee95f5461f2ca9d7c268f49bf0f15b1cd"
+    },
+    "content/assets/cosmetics/textures/map_moun.png": {
+      "bytes": 2654688,
+      "sha256": "f313211882f2e941ac2f2a006d3d9efa557abddecc4aa896dec3056b13437d3d"
+    },
+    "content/assets/cosmetics/textures/map_muse.png": {
+      "bytes": 2092361,
+      "sha256": "774f7974da797c24e8662c5dc7d7f12f1fe23930c67f1edb6522580d3356303f"
+    },
+    "content/assets/cosmetics/textures/map_offs.png": {
+      "bytes": 2594369,
+      "sha256": "c3f40a39e6787ad6070729fc9d327275a94b0985a5569cd157bf6d46c4321f6a"
+    },
+    "content/assets/cosmetics/textures/map_orph.png": {
+      "bytes": 2332122,
+      "sha256": "78fd759c1a3230a1905990841983e8fed8014145f07c742b59fdeed14f71eb90"
+    },
+    "content/assets/cosmetics/textures/map_pana.png": {
+      "bytes": 2022087,
+      "sha256": "918ffdb325102a61c7ece361372bd626e4fe5e9478849d3f02bc41965c7afc54"
+    },
+    "content/assets/cosmetics/textures/map_pola.png": {
+      "bytes": 2092786,
+      "sha256": "bc8bc14f77d9e889936739da3c9d3b6281c65e9f752bc8047e9c982941593643"
+    },
+    "content/assets/cosmetics/textures/map_pris.png": {
+      "bytes": 2486928,
+      "sha256": "6aeaed4458a82230a1eb9fd8046c463fc54bc28a9057b8d4a0d18fba74943bc7"
+    },
+    "content/assets/cosmetics/textures/map_pyro.png": {
+      "bytes": 1968917,
+      "sha256": "21a3e6fec08e0eecd8347146bc30995359de623e1c134296f32427d86aa673ba"
+    },
+    "content/assets/cosmetics/textures/map_rive.png": {
+      "bytes": 1592176,
+      "sha256": "c5b8a153276f3b8f0aee0bb8f02f2606536c5d7be683134854ec669a7f46a58a"
+    },
+    "content/assets/cosmetics/textures/map_sanc.png": {
+      "bytes": 2283290,
+      "sha256": "02f398c8d161e19e5813b6443dec27113d5599b9303ee393bbd87b4a3f384771"
+    },
+    "content/assets/cosmetics/textures/map_sche.png": {
+      "bytes": 1924262,
+      "sha256": "79d17ca8481fc68dda73a7c84138d21e13028ac9a9cb243e28bd5068cb2fad1b"
+    },
+    "content/assets/cosmetics/textures/map_shad.png": {
+      "bytes": 2462724,
+      "sha256": "60fe3e3a8195ae95e22f28ebf001a92523662eeb2116cc8ffad42f32dec8b606"
+    },
+    "content/assets/cosmetics/textures/map_skys.png": {
+      "bytes": 1922617,
+      "sha256": "a375f538d1320950ebfbc0d1d6b8edb9594d2b7c5a0c401c2c5e075fa966e1f7"
+    },
+    "content/assets/cosmetics/textures/map_slau.png": {
+      "bytes": 2685781,
+      "sha256": "e12d29ff59bb4fa12ad00bac3efc7267ad0faf99daedc3fd9eb25c788c71356b"
+    },
+    "content/assets/cosmetics/textures/map_stat.png": {
+      "bytes": 1523024,
+      "sha256": "71770c0ce5dcc3c6c3e99773f1c523045b0f1822f1a9574c750ec212dd1e5c0a"
+    },
+    "content/assets/cosmetics/textures/map_stee.png": {
+      "bytes": 1689325,
+      "sha256": "fc05a17582240315b909358e7653c9918d8953295c4828e5ce71586786e74f70"
+    },
+    "content/assets/cosmetics/textures/map_stro.png": {
+      "bytes": 2479359,
+      "sha256": "cec05d7957eb6f963e9bd54049751f8c53885315ad379fbf071402d7d72ce0bc"
+    },
+    "content/assets/cosmetics/textures/map_term.png": {
+      "bytes": 2417456,
+      "sha256": "c203021a19dac755240dd0a2ae349c48ba828ccf66a11c3242d4eadddf64739b"
+    },
+    "content/assets/cosmetics/textures/map_vert.png": {
+      "bytes": 1609921,
+      "sha256": "103a8f15e9fef0a5218694c51ec55cf6d02c39be7ad367abc3fc7205edcaeb2b"
+    },
+    "content/assets/cosmetics/textures/map_ware.png": {
+      "bytes": 2031693,
+      "sha256": "970837f47b18bfbcfb080abbe30b6060e49e127a320703b84eb36ea4c662260d"
+    },
+    "content/assets/cosmetics/textures/map_ziop.png": {
+      "bytes": 1620197,
+      "sha256": "18f77e82c9510455c0f1946cee3a132c362124e6051b7333ba4801d9ffffb789"
+    },
+    "content/assets/cosmetics/textures/mastercraft.png": {
+      "bytes": 4567345,
+      "sha256": "279d161edd86870175f32c2195373316ec2455afc293288984d6f0af78d4e9d6"
+    },
+    "content/assets/cosmetics/textures/minefield.png": {
+      "bytes": 2154104,
+      "sha256": "b68f7dd10553d4087cdb37c06c62680601c9d5963ce92c98c0187324fedda577"
+    },
+    "content/assets/cosmetics/textures/night_ops.png": {
+      "bytes": 3014429,
+      "sha256": "d3a9a154e93fe1e21f57fd9eb5f274b533d5da8f6aafe45b88539f5f2bb25d02"
+    },
+    "content/assets/cosmetics/textures/pyre.png": {
+      "bytes": 1738050,
+      "sha256": "f853b60c9e22f0ee6bc0d1b2524b903536166cd201d6e6793f646a3187d53e23"
+    },
+    "content/assets/cosmetics/textures/red_tiger.png": {
+      "bytes": 1569446,
+      "sha256": "5f3ca07d3defc4eb0bd8e939cae026f50304a821bd380de903f254381129a041"
+    },
+    "content/assets/cosmetics/textures/shockwave.png": {
+      "bytes": 2600777,
+      "sha256": "93d48b0588ecbc425debbbbad930eed0dacbbfd6d0473093086de4c18a41b14c"
+    },
+    "content/assets/cosmetics/textures/skeleton.png": {
+      "bytes": 1454557,
+      "sha256": "bb0db4032158f2d636576a8a3b462a1ba3330cfebef53db40e7ba450bee5fa42"
+    },
+    "content/assets/cosmetics/textures/skeleton_back.png": {
+      "bytes": 1417713,
+      "sha256": "76e4bed8283e78b3c93ffa648768c15675d8a74922bc1548748ca0bc73afbbc4"
+    },
+    "content/assets/cosmetics/textures/smoke.png": {
+      "bytes": 1802133,
+      "sha256": "5761ceb04f698a73af55c219f08c55845774c9af9271ed15d798a99066209fae"
+    },
+    "content/assets/cosmetics/textures/static.png": {
+      "bytes": 2136548,
+      "sha256": "60e6b8b05a1c0598706f8824c0335199cdc59c9dde20dbc609bd89137cb7db7b"
+    },
+    "content/assets/cosmetics/textures/tint_50586e.png": {
+      "bytes": 3713968,
+      "sha256": "207c5f02bef97ad64dc4e367b8a9b4b90c09a089f5f203d847f4b2db36a91951"
+    },
+    "content/assets/cosmetics/textures/tint_5a6ea8.png": {
+      "bytes": 3559901,
+      "sha256": "14dc80c4a57ed1dbca8fa0f421ac39abd3c419c8977ff51596c4a2aed73b9a58"
+    },
+    "content/assets/cosmetics/textures/tint_787470.png": {
+      "bytes": 3816504,
+      "sha256": "61f6623e7a6261def408c92924ef0dccaa770206f68b7699158b519318c789e0"
+    },
+    "content/assets/cosmetics/textures/tint_8a9a5a.png": {
+      "bytes": 4043506,
+      "sha256": "0cd06829e66c95c762bc2a4240c992d2a5a8f5af2395df9d91ca266c72440def"
+    },
+    "content/assets/cosmetics/textures/tint_9aa0a8.png": {
+      "bytes": 3931616,
+      "sha256": "f92f00d4baba9a97729f0f2ae189d86fe0de09df6e0a34845584984a9089a6e5"
+    },
+    "content/assets/cosmetics/textures/tint_b8784a.png": {
+      "bytes": 3395291,
+      "sha256": "6c34675fc538aee677fe85a5325f51683c69a30b363090701e9be3a66d108ed3"
+    },
+    "content/assets/cosmetics/textures/tint_c85050.png": {
+      "bytes": 4004944,
+      "sha256": "731bdb275be32771897a35c4e06a9be450fb114876ed836ce4e20f2f37c7ec6f"
+    },
+    "content/assets/cosmetics/textures/tint_d8c49a.png": {
+      "bytes": 3686210,
+      "sha256": "1d6535a0e0522b86a674f748e8c7359a614371064e255d54ad62747999f96adb"
+    },
+    "content/assets/cosmetics/textures/tint_e8f0f8.png": {
+      "bytes": 3162620,
+      "sha256": "b55df473ab51328f0c3c81bbdbea45096d87294b4ff663a049ed6d464497a27c"
+    },
+    "content/assets/cosmetics/textures/turnabout.png": {
+      "bytes": 2268486,
+      "sha256": "5bc9913726ec2ed411d9031e8d21c53bee228be13f522f81df40b20a81cfc3f4"
+    },
+    "content/assets/cosmetics/textures/voltage.png": {
+      "bytes": 2996733,
+      "sha256": "0122b1a73674527fe1ab05e5d77479b01f2932ff167a589c4db457c25d12649c"
+    },
+    "content/assets/cosmetics/textures/woodland.png": {
+      "bytes": 1421158,
+      "sha256": "cb148891a9cdbda0c06bda5a7aa29d0fa46a2213b09a6093773686d657076b42"
     }
   },
   "additional_credits": [
-    "content/assets/weapons/CREDITS.txt"
+    "content/assets/weapons/CREDITS.txt",
+    "content/assets/cosmetics/CREDITS.txt"
   ]
 }

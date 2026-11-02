@@ -1,0 +1,6 @@
+Use case: stylized-concept
+Asset type: original premium game cosmetic albedo texture for the Night Ops unlockable.
+Primary request: Sophisticated stealth camouflage with broad nested organic irregular woodland-like islands in near-black, dark charcoal and slightly lighter graphite. Distinct but low-contrast layered forms, torn soft natural contours, carefully balanced large/medium/small shapes. Extremely subtle fine ballistic textile grain, matte finish, elegant black-on-black depth without becoming a uniform noisy black field.
+Color palette: #0C0C0E #1C1C20 #2C2C30.
+Composition: One square 1024x1024 or higher, perfectly flat orthographic production material texture filling every edge. Seamlessly repeating at opposite edges. Uniform neutral albedo illumination. Rich professionally art-directed shapes and controlled fine detail, immediately readable when wrapped onto tactical clothing and weapon surfaces.
+Constraints: Create the artwork entirely from scratch. ONE texture, no contact sheet, no borders or margins, no text or lettering, no logos or watermark, no weapon, garment, real object, folds, seams, spotlight, vignette, cast shadow, 3D rendering, perspective or mockup.

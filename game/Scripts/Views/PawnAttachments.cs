@@ -91,7 +91,7 @@ public sealed class PawnAttachments
             return false;
         }
 
-        world = model.Skeleton.GlobalTransform * model.Skeleton.GetBoneGlobalPose(index);
+        world = model.Skeleton.GlobalTransform * model.CurrentBonePose(index);
         return true;
     }
 

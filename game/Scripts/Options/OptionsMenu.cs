@@ -363,7 +363,7 @@ public partial class OptionsMenu : Control
         g.AddChild(new Control());
 
         var content = new VBoxContainer { Name = "ControllerContent", SizeFlagsHorizontal = SizeFlags.ExpandFill };
-        content.AddChild(new Label { Text = "Controller", Modulate = UiStyle.MenuFocus });
+        content.AddChild(Help("These controller settings apply to both roles. For role-specific sensitivity and button bindings, open Controller under Spy or Mercenary."));
         // Keep device setup and vibration together; detailed stick behavior is a separate group.
         var tuning = Grid("ControllerTuning");
         Node[] cells = g.GetChildren().ToArray();
@@ -379,9 +379,9 @@ public partial class OptionsMenu : Control
         advanced.AddChild(new Label { Text = "Stick behavior", Modulate = UiStyle.MenuFocus });
         advanced.AddChild(Help("Deadzones ignore small stick movements near the center; increase them if the view or character drifts. Movement speed follows stick tilt lets a partial push move more slowly."));
         advanced.AddChild(tuning);
-        advanced.AddChild(Help("Base turning speed affects both roles and combines with each role's sensitivity. The up/down multiplier changes vertical turning relative to horizontal. Spy and Mercenary tabs contain response curves, role sensitivity and button assignments."));
+        advanced.AddChild(Help("Base turning speed affects both roles and combines with each role's sensitivity. The up/down multiplier changes vertical turning relative to horizontal."));
         AddAdvanced(content, advanced);
-        return Page("General Controls", content);
+        return Page("Controller", content);
     }
 
     /// <summary>Pad control names as the options list them.</summary>

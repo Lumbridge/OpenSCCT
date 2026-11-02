@@ -8,6 +8,7 @@
     without the Godot runtime. Only files that use no Godot type may be listed.
   -->
   <ItemGroup>
+    <Compile Include="..\..\game\Scripts\Chat\ChatTranscript.cs" Link="Linked\ChatTranscript.cs" />
     <Compile Include="..\..\game\Scripts\Play\PlayFrameStats.cs" Link="Linked\PlayFrameStats.cs" />
     <Compile Include="..\..\game\Scripts\Render\Gltf\GlbDocument.cs" Link="Linked\GlbDocument.cs" />
     <Compile Include="..\..\game\Scripts\UI\StatsModel.cs" Link="Linked\StatsModel.cs" />
@@ -27,6 +28,8 @@
     <!-- The motion tracker's 640 x 480 frame on the screen. -->
     <Compile Include="..\..\game\Scripts\Hud\HudMotionFrame.cs" Link="Linked\HudMotionFrame.cs" />
     <Compile Include="..\..\game\Scripts\Hud\HudMessages.cs" Link="Linked\HudMessages.cs" />
+    <Compile Include="..\..\game\Scripts\Hud\HudActivityFeed.cs" Link="Linked\HudActivityFeed.cs" />
+    <Compile Include="..\..\game\Scripts\Hud\HudActivityClassifier.cs" Link="Linked\HudActivityClassifier.cs" />
     <!-- The key token pass of drawn texts. -->
     <Compile Include="..\..\game\Scripts\Input\KeyTokens.cs" Link="Linked\KeyTokens.cs" />
     <!-- The English names of the key bindings and the Magma text table, with the layout parser they read. -->

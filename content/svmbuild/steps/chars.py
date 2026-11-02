@@ -17,7 +17,7 @@ from ..sources import env
 
 class CharsStep(Step):
     name = "chars"
-    version = 15  # Cooked first-person normals and authored Shader.Opacity alpha.
+    version = 16  # Original authored cosmetic artwork replaces procedural finishes.
     deps = ()
     per_map = False
     background = True   # no other step reads shared/chars; runs beside the maps
@@ -26,7 +26,7 @@ class CharsStep(Step):
     code_files = ("content/svmbuild/charconv.py", "content/svmbuild/sources/animations.py",
                   "content/svmbuild/sources/classdb.py", "content/svmbuild/sources/typedprops.py",
                   "content/svmbuild/writers/glb.py", "content/svmbuild/canonical.py", "content/svmbuild/cosmetics.py",
-                  "content/svmbuild/skeleton.py", "content/svmbuild/gunskin.py", "content/svmbuild/fitted.py", "content/svmbuild/sidearms.py", "content/svmbuild/sidearm_models.py", "content/svmbuild/pistol_arms.py",
+                  "content/svmbuild/skeleton.py", "content/svmbuild/gunskin.py", "content/svmbuild/fitted.py", "content/svmbuild/cosmetic_art.py", "content/svmbuild/sidearms.py", "content/svmbuild/sidearm_models.py", "content/svmbuild/pistol_arms.py",
                   "content/svmbuild/authored_characters.py", "content/svmbuild/reload_motion.py",
                   "content/svmbuild/reload_choreography.py")
 
@@ -58,6 +58,9 @@ class CharsStep(Step):
                 out[ctx.game_path(tex)] = ctx.hasher.sha256(tex)
         from ..sidearms import source_files, SOURCE
         for f in source_files(): out["sidearms/" + f.relative_to(SOURCE).as_posix()] = ctx.hasher.sha256(f)
+        from .. import cosmetic_art
+        for f in cosmetic_art.source_files():
+            out['cosmetics/' + f.relative_to(cosmetic_art.SOURCE).as_posix()] = ctx.hasher.sha256(f)
         from .. import authored_characters
         for f in authored_characters.source_files():
             out['authored-characters/' + f.relative_to(authored_characters.SOURCE).as_posix()] = ctx.hasher.sha256(f)

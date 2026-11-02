@@ -13,7 +13,8 @@ namespace OpenScctGame.Hud.Magma;
 /// <item>Dodge, 2X, 4X: <c>dst x (1 + S)</c>, S = saturate(2 tex vc), widget alpha ignored, read from a copy of the
 /// screen taken just before the run (a BackBufferCopy).</item>
 /// </list>
-/// Texts are the Magma bitmap fonts: top-aligned in their rect, the pen line one text height below its top.
+/// Text uses Magma bitmap fonts by default (top-aligned, the pen line one height below its top). A draw item can
+/// opt into a native font for a measured, single-line modern HUD label while retaining the same effect ordering.
 /// </summary>
 public partial class MagmaCanvas : Node2D
 {
@@ -215,6 +216,25 @@ public partial class MagmaCanvas : Node2D
 
     private void DrawText(CanvasItem target, MagmaDrawItem item)
     {
+        if (item.NativeFont is { } native)
+        {
+            // Native runs are measured and truncated by their owner. Keeping them in the same command stream
+            // lets flash, sleep and other screen effects cover modern HUD text exactly like bitmap text.
+            int size = Math.Max(1, Mathf.RoundToInt(item.HeightPx));
+            float width = native.GetStringSize(item.Text, HorizontalAlignment.Left, -1f, size).X;
+            float x = item.Align switch
+            {
+                MagmaAlign.Center => item.Rect.Position.X + (item.Rect.Size.X - width) * .5f,
+                MagmaAlign.Right => item.Rect.End.X - width,
+                _ => item.Rect.Position.X,
+            };
+            Vector2 baseline = new(x, item.Rect.Position.Y + native.GetAscent(size));
+            if (item.Shadow.A > 0f)
+                target.DrawString(native, baseline + item.ShadowOffsetPx, item.Text, HorizontalAlignment.Left, -1f, size, item.Shadow);
+            target.DrawString(native, baseline, item.Text, HorizontalAlignment.Left, -1f, size, item.Color);
+            return;
+        }
+
         MagmaFont? font = Assets?.Font(item.Font);
         if (font is null)
         {

@@ -1,0 +1,6 @@
+Use case: stylized-concept
+Asset type: original premium game cosmetic albedo texture for the Cryo unlockable.
+Primary request: Premium arctic sci-fi ceramic livery: broken angular off-white and ice-grey geometric planes separated by fine charcoal channels, occasional narrow ice-blue inlays, precise restrained cobalt accents, a few subtle frost-crystal etchings. Planes are two-dimensional painted shapes, no raised panels or 3D perspective. Strong white versus black contrast with carefully controlled blue, readable at distance.
+Color palette: #F0F2F4 #0E1014 #1E86D8 #8EDCFF.
+Composition: One square 1024x1024 or higher, perfectly flat orthographic production material texture filling every edge. Seamlessly repeating at opposite edges. Uniform neutral albedo illumination. Rich professionally art-directed shapes and controlled fine detail, immediately readable when wrapped onto tactical clothing and weapon surfaces.
+Constraints: Create the artwork entirely from scratch. ONE texture, no contact sheet, no borders or margins, no text or lettering, no logos or watermark, no weapon, garment, real object, folds, seams, spotlight, vignette, cast shadow, 3D rendering, perspective or mockup.

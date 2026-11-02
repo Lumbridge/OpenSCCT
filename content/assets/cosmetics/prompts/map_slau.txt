@@ -1,0 +1,6 @@
+Use case: stylized-concept
+Asset type: production game cosmetic surface albedo texture, fitted to character suits and/or weapons.
+Primary request: Recreate Slaughterhouse map mastery camouflage from scratch.
+A sinister but abstract industrial splatter camouflage: irregular broad ragged pools and sprayed satellite droplets in deep burgundy #5a0c10 and dark crimson #9a161c on charcoal #161414 and weathered warm black #2e2a2a. Flat printed organic shapes, bold restrained graphic pattern, no gore or objects, very subtle worn finish. Rough irregular boundaries with plenty of dark negative space.
+Composition: one single square 1024x1024 or higher flat material swatch, seamlessly wrapping across all four edges, edge-to-edge pattern, perfectly orthographic. Uniform neutral albedo with no baked illumination. Premium crisp game artwork, readable design at gameplay distance, fine detail subordinate to large forms.
+Constraints: single texture only, no borders, collage, inset, label, text, logo, weapon, clothing object, stitching seam, fold, cast shadow, spotlight, vignette, perspective or 3D mockup.

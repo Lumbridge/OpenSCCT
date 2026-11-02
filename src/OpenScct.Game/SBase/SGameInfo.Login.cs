@@ -473,14 +473,15 @@ public partial class SGameInfo
             {
                 sEndGame();
             }
-            else
-            {
-                BroadcastLocalizedMessage(GameMessageClass, K.MessageLeftGame, Exiting.PlayerReplicationInfo);
-            }
         }
 
         base.Logout(Exiting);
     }
+
+    protected override bool ShouldAnnounceLogout(Controller exiting) =>
+        !UcStrings.EqualsIgnoreCase(Host.GetURLMap(), "Lobby") &&
+        Level.NetMode is ENetMode.NM_DedicatedServer or ENetMode.NM_ListenServer &&
+        !(exiting.PlayerReplicationInfo is { bIAmServer: true } && GameReplicationInfo is { ServerOnly: true });
 
     /// <summary>Lobby helper: every player except this machine's own reports ready (or not).</summary>
     [Uc("SBase.SGameInfo.AllPlayerReadyToPlayToServer", Sha1 = "460acb2489c423713ca66465eef2924100e4aba7")]

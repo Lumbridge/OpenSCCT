@@ -111,7 +111,7 @@ public partial class OnlineVoiceChat : Node
         Detach();
         _client = client;
         var voice = new VoiceClient(_settings, clock) { UseVoiceThread = true };
-        Voice = new OnlineVoice(client, voice);
+        Voice = new OnlineVoice(client, voice, PlayerVoiceVolumeStore.Current);
         if (Audio is not null)
         {
             Audio.Client = voice;

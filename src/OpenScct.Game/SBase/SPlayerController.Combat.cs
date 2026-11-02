@@ -1675,8 +1675,8 @@ public partial class SPlayerController
 
         if (Level.Game is SGameInfo game)
         {
-            game.BroadcastLocalizedMessage(new ClassRef("SBase.SGameMessages"), K.MsgStrikeKnockDown, PlayerReplicationInfo,
-                attackerPc?.PlayerReplicationInfo);
+            game.BroadcastLocalizedMessage(new ClassRef("SBase.SGameMessages"), K.MsgStrikeKnockDown,
+                attackerPc?.PlayerReplicationInfo, PlayerReplicationInfo);
         }
 
         FVector away = attacker is not null ? victim.Location - attacker.Location : FVector.Zero;
