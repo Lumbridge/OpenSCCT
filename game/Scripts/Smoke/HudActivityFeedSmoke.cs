@@ -90,8 +90,8 @@ public sealed class HudActivityFeedSmoke : SmokeTest
             CheckBounds(feed, screen);
             CheckText(feed);
             Require(feed.DrawList.TextOf("Activity/5/Actor")?.EndsWith("...", StringComparison.Ordinal) == true, "long name was not truncated");
-            Require(feed.DrawList.TextOf("Activity/5/Action") == "KILL", "kill action missing");
-            Require(feed.DrawList.TextOf("Activity/5/Cause") == "HEADSHOT", "cause missing");
+            Require(feed.DrawList.TextOf("Activity/5/Action") == "KILL", "kill action missing: " + name + " " + resolution + "; text=" + feed.DrawList.TextOf("Activity/5/Action"));
+            Require(feed.DrawList.TextOf("Activity/5/Cause") == "HEADSHOT", "cause missing: " + name + " " + resolution + "; text=" + feed.DrawList.TextOf("Activity/5/Cause"));
             Require(feed.DrawList.Any("Activity/4/Icon/") && feed.DrawList.Any("Activity/3/Icon/"), "sleep/KO icons missing");
             Require(feed.DrawList.Any("Activity/5/Local"), "local participation accent missing");
             Require(feed.DrawList.Items.Any(i => i.Kind == MagmaWidgetKind.Text && i.NativeFont is not null), "native font missing");
@@ -272,7 +272,7 @@ public sealed class HudActivityFeedSmoke : SmokeTest
             new(5, HudActivityKind.Kill, spy, merc, HudActivityCause.Headshot, "KILL", "", 10f, true),
             new(4, HudActivityKind.Sleep, spy, merc, HudActivityCause.StickyCamera, "SLEEP", "", 10f, false),
             new(3, HudActivityKind.Knockout, merc, spy, HudActivityCause.Elbow, "KO", "", 10f, false),
-            new(2, HudActivityKind.Objective, null, null, HudActivityCause.None, "OBJECTIVE", longNames ? new string('W', 150) : "Laboratory data secured", 10f, false),
+            new(2, HudActivityKind.LastLife, spy, null, HudActivityCause.None, "LAST LIFE", spy.Name + " used their last life", 10f, false),
             new(1, HudActivityKind.Join, spy, null, HudActivityCause.None, "JOINED", "Ghost joined the match", 10f, false),
         ];
     }

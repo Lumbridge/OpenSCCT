@@ -179,16 +179,17 @@ white-out, extinguisher foam), `HudShutDown`, `SetBallisticValue`, the goggle me
 world's event sink so nothing else changes.
 
 **Activity feed and contextual messages.** `HudReceiver` routes localized match events into the `HudLayer`'s
-activity feed: kills, sleeps, knockouts, objective milestones, joins/leaves, match notices and received alarms.
+activity feed: kills, deaths, suicides, resignations, sleeps, knockouts, joins/leaves, match notices and last-life notices.
 Five newest events appear immediately, newest first, for six seconds each; entrance takes 150 ms and the final
 400 ms fades out. Overflow removes the oldest row without a backlog. Captured player names and team colours,
 action labels and known causes replace rank-prefixed sentences. Dark translucent rows use bundled Inter and sit
 in the upper-right region, to the left of the page's radar/objective column and clear of performance readouts.
+Feed dimensions use 85% of the base HUD scale, with minimum text sizes of 11 px for names and 10 px for labels.
 Narrow layouts show fewer rows without shrinking text. Flash and sleep effects draw above the feed.
 
 `HudMessages` preserves message sounds and the server's original recipient scope. Combat and activity events
-bypass the legacy queue; mission guidance, interaction prompts, live alarm panels and warnings keep their
-existing areas. Alarm refreshes coalesce by source while a row is visible without extending its lifetime.
+bypass the legacy queue; objective/data/access/bomb notices, mission guidance, interaction prompts, alarms and
+warnings stay in their contextual HUD areas and do not enter the activity feed.
 Chat uses the separate `ChatTranscript`/`ChatPanel`. Feed entries survive pawn respawn and spectator target changes, but clear on
 session/controller replacement, match restart or backwards time, and expire while the HUD is hidden.
 Smoke and sticky-camera sleeps use additive `SGameMessages` switches 62/63 with attacker/victim PRIs and are

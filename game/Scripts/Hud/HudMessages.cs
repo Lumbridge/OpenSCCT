@@ -237,8 +237,7 @@ public static class HudMessages
         {
             if (IsClass(messageClass, GameMessagesClass) && Switch == 2) feed.Clear();
             feed.Add(activity);
-            // Live alarm stacks/countdowns remain authoritative; their transient feed row is supplementary.
-            if (activity.Kind != HudActivityKind.Alarm) return;
+            return;
         }
         if (IsClass(messageClass, GameMessagesClass))
         {

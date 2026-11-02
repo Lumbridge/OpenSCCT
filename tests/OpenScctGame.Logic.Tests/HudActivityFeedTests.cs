@@ -90,9 +90,6 @@ public sealed class HudActivityFeedTests
     [Fact]
     public void ActivityClassificationDoesNotRequireExtractedGameText()
     {
-        var trigger = new SObjectiveTrigger { TriggerName = "Server room", Objective = new SObjective { ObjectiveName = "Terminal" } };
-        Assert.Equal("Server room: Data captured", Classify(HudMessages.GameMessagesClass, 22, source: trigger).Text);
-        Assert.Equal("Terminal: Objective neutralized", Classify(HudMessages.GameMessagesClass, 37, source: trigger).Text);
         Assert.Equal("Victory", Classify(HudMessages.GameMessagesClass, 4).Text);
         Assert.Equal("Ghost joined the match", Classify(HudMessages.EngineGameMessageClass, 1, Player("Ghost", 2, 1)).Text);
         Assert.Equal("Ghost left the match", Classify(HudMessages.EngineGameMessageClass, 4, Player("Ghost", 2, 1)).Text);
@@ -116,25 +113,36 @@ public sealed class HudActivityFeedTests
     public void GuidanceAndUrgentLocalPromptsRetainTheirExistingRouting(int message) =>
         Assert.False(HudActivityClassifier.TryCreate(HudMessages.GameMessagesClass, message, null, null, null, null, 1f, "", out _));
 
-    [Fact]
-    public void AlarmRefreshIsSourceSpecificAndDoesNotExtendExpiry()
+    [Theory]
+    [InlineData(1)]
+    [InlineData(24)]
+    [InlineData(40)]
+    [InlineData(10)]
+    [InlineData(11)]
+    [InlineData(12)]
+    [InlineData(22)]
+    [InlineData(23)]
+    [InlineData(25)]
+    [InlineData(26)]
+    [InlineData(27)]
+    [InlineData(28)]
+    [InlineData(29)]
+    [InlineData(36)]
+    [InlineData(37)]
+    public void AlarmAndObjectiveNoticesRetainTheirContextualHudRouting(int message)
     {
+        var world = new World(1, ENetMode.NM_Standalone);
+        SHud hud = world.Level.SpawnActor(new SHud(), default, default)!;
         var feed = new HudActivityFeed();
-        var first = new SAlarm { AlarmDescription = "Laboratory" };
-        var second = new SAlarm { AlarmDescription = "Laboratory" };
-        feed.Add(Classify(HudMessages.GameMessagesClass, 1, source: first, now: 1f));
-        first.bAlarmOn = false;
-        feed.Add(Classify(HudMessages.GameMessagesClass, 40, source: first, now: 4f));
-        Assert.Single(feed.Entries);
-        Assert.Equal(1f, feed.Entries[0].ReceivedAt);
-        Assert.Equal("Alarm notice: Laboratory", feed.Entries[0].Text);
-        feed.Add(Classify(HudMessages.GameMessagesClass, 1, source: second, now: 5f));
-        Assert.Equal(2, feed.Entries.Count);
-        feed.Tick(7f);
-        Assert.Single(feed.Entries);
-        Assert.Equal(5f, feed.Entries[0].ReceivedAt);
-        feed.Add(Classify(HudMessages.GameMessagesClass, 1, source: first, now: 7f));
-        Assert.Equal(2, feed.Entries.Count);
+        UObject source = message is 1 or 24 or 40
+            ? new SAlarm { AlarmDescription = "Laboratory", bAlarmOn = true, Duration = 10 }
+            : new SObjectiveTrigger { TriggerName = "Server room", Objective = new SObjective { ObjectiveName = "Terminal" } };
+
+        HudMessages.LocalizedMessage(hud, HudMessages.GameMessagesClass, message, null, null, source, "Contextual notice", feed);
+
+        Assert.Empty(feed.Entries);
+        Assert.Empty(hud.GameMessageQueue);
+        Assert.Contains(hud.MessageStack, m => m.Message == "Contextual notice");
     }
 
     [Fact]
@@ -186,7 +194,7 @@ public sealed class HudActivityFeedTests
         Assert.Equal("Return to extraction", Assert.Single(hud.GameMessageQueue).Message);
         var alarm = new SAlarm { AlarmDescription = "Warehouse", bAlarmOn = true, Duration = 10, MessagePriority = 2 };
         HudMessages.LocalizedMessage(hud, HudMessages.GameMessagesClass, 1, null, null, alarm, "Warehouse intruder", feed);
-        Assert.Equal(2, feed.Entries.Count);
+        Assert.Single(feed.Entries);
         Assert.Contains(hud.MessageStack, m => m.Message == "Warehouse intruder");
         HudMessages.ReceiveLocalizedMessage(pc, HudMessages.GameMessagesClass, 2, null, null, null, feed);
         Assert.Equal("Match restarted", Assert.Single(feed.Entries).Text);

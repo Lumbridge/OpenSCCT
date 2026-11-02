@@ -6,7 +6,7 @@ namespace OpenScctGame.Hud;
 
 public enum HudActivityKind
 {
-    Kill, Death, Suicide, Resign, Sleep, Knockout, Objective, Join, Leave, Match, Alarm, LastLife,
+    Kill, Death, Suicide, Resign, Sleep, Knockout, Join, Leave, Match, LastLife,
 }
 
 public enum HudActivityCause
@@ -30,9 +30,6 @@ public sealed record HudActivityEntry(
     float ReceivedAt,
     bool InvolvesLocalPlayer)
 {
-    // An opaque identity only: the drawer never reads mutable alarm properties from it.
-    internal object? AlarmSource { get; init; }
-
     public bool IsCombat => Kind is HudActivityKind.Kill or HudActivityKind.Death or HudActivityKind.Suicide or
         HudActivityKind.Resign or HudActivityKind.Sleep or HudActivityKind.Knockout;
 }
@@ -83,13 +80,6 @@ public sealed class HudActivityFeed
         ArgumentNullException.ThrowIfNull(entry);
         if (!float.IsFinite(entry.ReceivedAt)) return;
         Tick(entry.ReceivedAt);
-        if (entry.Kind == HudActivityKind.Alarm && entry.AlarmSource is { } source &&
-            _entries.Exists(e => e.Kind == HudActivityKind.Alarm && ReferenceEquals(e.AlarmSource, source)))
-        {
-            // A retrigger neither adds another row nor pins the current notice indefinitely.
-            return;
-        }
-
         _entries.Insert(0, entry with { Id = ++_nextId });
         if (_entries.Count > Capacity) _entries.RemoveAt(Capacity);
     }

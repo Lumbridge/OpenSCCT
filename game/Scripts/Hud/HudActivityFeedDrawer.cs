@@ -44,13 +44,14 @@ public sealed class HudActivityFeedDrawer
         if (!shown || _white is null || entries.Count == 0 || screen.X <= 0f || screen.Y <= 0f) return;
 
         float scale = screen.Y / HudLayout.PageHeight;
-        float gap = Math.Max(3f, MathF.Round(3f * scale));
+        float feedScale = scale * .85f;
+        float gap = Math.Max(3f, MathF.Round(3f * feedScale));
         float margin = Math.Max(6f, MathF.Round(12f * scale));
-        float h = Math.Clamp(MathF.Round(9f * scale), 11f, 26f);
+        float h = Math.Clamp(MathF.Round(9f * feedScale), 11f, 26f);
         float small = Math.Max(10f, MathF.Round(h * .78f));
-        float rowHeight = Math.Max(24f * scale, h + small + 6f);
+        float rowHeight = Math.Max(24f * feedScale, h + small + 6f);
         float right = RightEdge(screen, activePage, margin, scale);
-        float width = Math.Min(280f * scale, right - margin);
+        float width = Math.Min(280f * feedScale, right - margin);
         if (width < 96f) return;
         float left = right - width;
         float top = margin;
@@ -86,9 +87,9 @@ public sealed class HudActivityFeedDrawer
             float enter = Math.Clamp(age / HudActivityFeed.EnterTime, 0f, 1f);
             float fade = Math.Clamp((HudActivityFeed.Lifetime - age) / HudActivityFeed.FadeTime, 0f, 1f);
             float alpha = enter * fade;
-            float slide = (1f - enter) * (1f - enter) * 8f * scale;
+            float slide = (1f - enter) * (1f - enter) * 8f * feedScale;
             var rect = new Rect2(left + slide, top + VisibleCount * (rowHeight + gap), width - slide, rowHeight);
-            Row(entry, rect, h, small, scale, alpha);
+            Row(entry, rect, h, small, feedScale, alpha);
             VisibleCount++;
         }
         if (VisibleCount > 0) Bounds = new Rect2(left, top, width, VisibleCount * (rowHeight + gap) - gap);
@@ -190,8 +191,10 @@ public sealed class HudActivityFeedDrawer
         }
 
         string cause = CauseLabel(entry.Cause);
-        float actionWidth = Measure(entry.Label, small);
-        float centreWidth = Math.Max(actionWidth + icon + pad, cause.Length == 0 ? 0f : Measure(cause, small) + icon + pad);
+        // Reserve a pixel so fractional scaling cannot round a measured label's space down and truncate it.
+        float actionWidth = Measure(entry.Label, small) + 1f;
+        float causeTextWidth = Measure(cause, small) + 1f;
+        float centreWidth = Math.Max(actionWidth + icon + pad, cause.Length == 0 ? 0f : causeTextWidth + icon + pad);
         centreWidth = Math.Min(centreWidth, rect.Size.X * .46f);
         float nameWidth = Math.Max(0f, (rect.Size.X - pad * 4f - centreWidth) * .5f);
         float middleLeft = rect.Position.X + pad * 2f + nameWidth;
@@ -213,7 +216,7 @@ public sealed class HudActivityFeedDrawer
         if (cause.Length > 0)
         {
             float causeY = rect.End.Y - small - 4f * scale;
-            float causeWidth = Math.Min(centreWidth, Measure(cause, small) + icon + pad * .5f);
+            float causeWidth = Math.Min(centreWidth, causeTextWidth + icon + pad * .5f);
             float causeX = middleLeft + (centreWidth - causeWidth) * .5f;
             CauseIcon(path + "CauseIcon/", entry.Cause, new Vector2(causeX + icon * .5f, causeY + small * .55f), icon * .8f, Tint(Dim, alpha));
             Text(path + "Cause", cause, new Rect2(causeX + icon + pad * .5f, causeY,
@@ -227,8 +230,7 @@ public sealed class HudActivityFeedDrawer
         HudActivityKind.Kill or HudActivityKind.Death or HudActivityKind.Suicide => new Color(1f, .47f, .43f),
         HudActivityKind.Sleep => new Color(.55f, .77f, 1f),
         HudActivityKind.Knockout => new Color(1f, .76f, .38f),
-        HudActivityKind.Objective => new Color(.53f, .91f, .71f),
-        HudActivityKind.Alarm or HudActivityKind.LastLife => new Color(1f, .76f, .38f),
+        HudActivityKind.LastLife => new Color(1f, .76f, .38f),
         _ => new Color(.69f, .79f, .86f),
     };
 
@@ -318,9 +320,6 @@ public sealed class HudActivityFeedDrawer
             case HudActivityKind.Knockout:
                 Shape(path + "Impact", at, size, colour, [new(0f, -.48f), new(.12f, -.16f), new(.42f, -.24f), new(.24f, .04f), new(.42f, .27f), new(.10f, .24f), new(0f, .48f), new(-.13f, .18f), new(-.43f, .25f), new(-.25f, -.03f), new(-.42f, -.30f), new(-.12f, -.20f)], true);
                 break;
-            case HudActivityKind.Objective:
-                Shape(path + "Objective", at, size, colour, [new(-.30f, .1f), new(-.08f, .34f), new(.36f, -.30f)]);
-                break;
             case HudActivityKind.Join:
             case HudActivityKind.Leave:
             case HudActivityKind.Resign:
@@ -328,7 +327,6 @@ public sealed class HudActivityFeedDrawer
                 Shape(path + "Arrow", at, size, colour, [new(-.35f * direction, 0), new(.35f * direction, 0), new(.10f * direction, -.25f)]);
                 Shape(path + "ArrowTip", at, size, colour, [new(.35f * direction, 0), new(.10f * direction, .25f)]);
                 break;
-            case HudActivityKind.Alarm:
             case HudActivityKind.LastLife:
                 Shape(path + "Warning", at, size, colour, [new(0, -.45f), new(.43f, .36f), new(-.43f, .36f)], true);
                 Stroke(path + "Mark", at + new Vector2(0f, -.15f) * size, at + new Vector2(0f, .1f) * size, Math.Max(1f, size * .12f), colour);

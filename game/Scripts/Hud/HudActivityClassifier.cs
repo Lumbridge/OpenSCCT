@@ -65,14 +65,6 @@ public static class HudActivityClassifier
             return true;
         }
 
-        if (message is 1 or 24 or 40)
-        {
-            string place = source is SAlarm alarm ? Clean(alarm.AlarmDescription) : "";
-            entry = new(0, HudActivityKind.Alarm, null, null, HudActivityCause.None, "ALARM",
-                place.Length > 0 ? "Alarm notice: " + place : "Alarm notice", now, false) { AlarmSource = source };
-            return true;
-        }
-
         if (message is 2 or 4 or 5 or 7)
         {
             string notice = message switch
@@ -96,24 +88,7 @@ public static class HudActivityClassifier
             return true;
         }
 
-        string? action = message switch
-        {
-            10 => "Data taken", 11 => "Data dropped", 12 => "Data secured", 22 => "Data captured",
-            23 => "Objective interrupted", 25 => "Unlocking access", 26 => "Access unlocked",
-            27 => "Bomb under attack", 28 => "Bomb secured", 29 => "Bomb neutralized",
-            36 => "Neutralization in progress", 37 => "Objective neutralized", _ => null,
-        };
-        if (action is null) return false;
-        string objective = source switch
-        {
-            SObjectiveTrigger trigger => Clean(message is 27 or 28 or 29 or 37
-                ? trigger.Objective?.ObjectiveName : trigger.TriggerName),
-            SObjective obj => Clean(obj.ObjectiveName),
-            _ => "",
-        };
-        entry = new(0, HudActivityKind.Objective, a, v, HudActivityCause.None, "OBJECTIVE",
-            objective.Length > 0 ? objective + ": " + action : action, now, local);
-        return true;
+        return false;
     }
 
     private static HudActivityParticipant? Capture(PlayerReplicationInfo? pri) => pri is null ? null :
