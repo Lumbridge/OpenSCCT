@@ -390,6 +390,7 @@ public partial class SPlayerCam
     [Provenance(ProvenanceKind.Decoded, "game 0x10a94e00: modes 4, 5, 28 use |Vz| + 190 while the pawn moves vertically; the close-up lift is dropped (and its memory cleared) when not close, and the raw lift is kept; the ideal distance grows by min(pawn move along the view, interSpeed dt); the collision speed is collCBInterSpeed only for a hit actor with bBlockCamera and neither bBlockActors nor bBlockPlayers; the collision sweep starts below the close-up lift; m_absoluteMinDist holds with or without useColl; the clearance sweeps use the collision flags")]
     [Provenance(ProvenanceKind.Decoded, "game 0x10a94e00 (REA): the collision sweep's end is lowered by the close-up lift as well as its start (0x10a9594d); with a fixed target a Time 0 hit is ignored (0x10a959ee); the mode 33 head room probe uses the collision flags and box (0x10a9606e); the corrected pitch is ftol(pitch + speed x dt)")]
     [Provenance(ProvenanceKind.Estimated, "The pawn's previous position (SBasePawn.m_prevPos, +0x4d4) is the pawn's location at the camera's last solve")]
+    [Provenance(ProvenanceKind.Estimated, "Follow and target-height steps include at least the pawn displacement since the previous solve: traversal snaps, root motion and mover carry need not appear in the gameplay velocity")]
     public void SolveFollowing(SPlayerController PC, SBasePawn Pawn, float DeltaTime, out FVector CameraLocation, out FRotator CameraRotation)
     {
         m_EPC ??= PC;
@@ -405,6 +406,11 @@ public partial class SPlayerCam
             : new FVector(CameraK.SmallBox, CameraK.SmallBox, CameraK.SmallBox);
         int pitch = FRotator.NormalizeAxis(PC.Rotation.Pitch);
         FVector forward = PC.Rotation.Vector();
+        // Traversal end snaps, root motion after a FarMoveActor and mover carry can move the pawn without
+        // updating its gameplay velocity. The original follow rate includes the pawn's speed; account for
+        // the displacement we actually saw too, so slow traversal easing cannot leave the orbit behind.
+        // _prevPawnLocation is updated after each solve: repeated views in one frame consume this only once.
+        FVector pawnDisplacement = _hasPrevPawn ? Pawn.Location - _prevPawnLocation : default;
 
         // 2. Start point, smoothing and fixed target.
         FVector start = Pawn.Location;
@@ -428,7 +434,7 @@ public partial class SPlayerCam
         }
         else if (m_SmoothDisplacement && m_Smoothvalue > 0f)
         {
-            float step = (Pawn.Velocity.Size() + m_Smoothvalue) * dt;
+            float step = SvmMath.Max(Pawn.Velocity.Size() * dt, pawnDisplacement.Size()) + m_Smoothvalue * dt;
             if ((start - m_prevStartPos).Size() <= step)
             {
                 if (!m_SmoothIsAlwaysActive)
@@ -485,14 +491,15 @@ public partial class SPlayerCam
         float vz = Pawn.Velocity.Z + (Pawn.Base is Mover mover ? mover.Velocity.Z : 0f);
         float vzAbs = SvmMath.Abs(vz);
         bool boost = (m_camMode is ECamMode.ECM_SecondPerson or ECamMode.ECM_SecondPersonCr or ECamMode.ECM_SplitJumpFP) && vzAbs > 0f;
-        float zSpeed = vzAbs + (boost ? CameraK.VerticalBoostSpeed : p.targetZSpeed);
-        m_prevTargetZ = CameraMath.Approach(m_prevTargetZ, target.Z, zSpeed * dt);
+        float zStep = SvmMath.Max(vzAbs * dt, SvmMath.Abs(pawnDisplacement.Z)) +
+            (boost ? CameraK.VerticalBoostSpeed : p.targetZSpeed) * dt;
+        m_prevTargetZ = CameraMath.Approach(m_prevTargetZ, target.Z, zStep);
         m_prevTargetZ = SvmMath.Clamp(m_prevTargetZ, target.Z - m_targetZMaxDist, target.Z + m_targetZMaxDist);
         target.Z = m_prevTargetZ;
 
         // 8. Ideal distance.
         float dist0 = p.Distance[0];
-        float pawnMove = _hasPrevPawn ? (Pawn.Location - _prevPawnLocation) | forward : 0f;
+        float pawnMove = pawnDisplacement | forward;
         float idealGap = dist0 - m_prevIdealDistance;
         if (SvmMath.Abs(idealGap) > p.interSpeed * dt)
         {

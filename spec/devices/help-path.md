@@ -31,6 +31,13 @@ DrawScale3D (7), StaticMeshInstance (14 on PolaT). Defaults: hidden, no collisio
    mesh shows once the actor is unhidden. ShowHelpPath (the original's toggle while playing) is not ported: the help
    is chosen before the map loads.
 
+## Rewrite regression coverage
+
+Unlit help meshes retain their self-illumination texture, mask and UV animation layers. The direction dots and
+information symbols live in those layers; exporting only their diffuse texture leaves a dark panel. Existing
+packs recover omitted layers from the matching base material with the same source path. `visit-map` exercises an
+actual AquaE visit, checks marker materials and information text, and captures a marker and the HUD when rendered.
+
 ## Evidence
 
 - `local/re-out/uc/SBase/SHelpPath.uc`, `SPlayerController.uc` (ShowHelpPath), `SPlayerProfile.uc`.

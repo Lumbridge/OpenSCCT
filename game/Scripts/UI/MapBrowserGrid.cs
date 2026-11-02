@@ -10,12 +10,14 @@ namespace OpenScctGame.UI;
 public partial class MapBrowserGrid : GridContainer
 {
     private readonly List<(Button Button, VBoxContainer Content, MapThumb Picture, Label Title)> _cards = new();
+    private readonly bool _compact;
     private float _width = -1;
     private bool? _list;
     public OptionButton ViewToggle { get; } = new() { Name = "MapView", TooltipText = "Map display", CustomMinimumSize = new Vector2(130, 0) };
 
-    public MapBrowserGrid()
+    public MapBrowserGrid(bool compact = false)
     {
+        _compact = compact;
         Name = "MapGrid";
         SizeFlagsHorizontal = SizeFlags.ExpandFill;
         AddThemeConstantOverride("h_separation", 8);
@@ -41,6 +43,13 @@ public partial class MapBrowserGrid : GridContainer
         var content = new VBoxContainer { Name = "Column", MouseFilter = MouseFilterEnum.Ignore };
         var picture = new MapThumb(new Vector2(160, 160)) { SizeFlagsHorizontal = SizeFlags.ExpandFill };
         picture.SetMap(MapImages.Preview(maps, id), title);
+        if (_compact)
+        {
+            // Host setup gives the map browser half the page: landscape previews leave room for more choices.
+            TextureRect image = picture.GetNode<TextureRect>("Picture");
+            image.StretchMode = TextureRect.StretchModeEnum.KeepAspectCovered;
+            image.ClipContents = true;
+        }
         var label = new Label
         {
             Name = "Title", Text = title, HorizontalAlignment = HorizontalAlignment.Center,
@@ -74,11 +83,12 @@ public partial class MapBrowserGrid : GridContainer
         float cardWidth = MathF.Floor((width - (Columns - 1) * 8) / Columns);
         foreach (var card in _cards)
         {
-            card.Button.CustomMinimumSize = new Vector2(list ? 172 : cardWidth, list ? 40 : cardWidth + 48);
+            float pictureHeight = _compact ? MathF.Floor((cardWidth - 12) * 9 / 16) : cardWidth - 12;
+            card.Button.CustomMinimumSize = new Vector2(list ? 172 : cardWidth, list ? 40 : pictureHeight + 60);
             card.Content.Visible = !list;
             card.Button.Text = list ? card.Title.Text : string.Empty;
             card.Button.Alignment = HorizontalAlignment.Left;
-            card.Picture.CustomMinimumSize = new Vector2(0, cardWidth - 12);
+            card.Picture.CustomMinimumSize = new Vector2(0, pictureHeight);
         }
     }
 }

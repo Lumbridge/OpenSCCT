@@ -161,6 +161,35 @@ in amber when nonzero. The panel measures the HUD font and wraps within the scre
 commands are reused between samples, and rebuilt for a resize or FPS visibility change. `network-overlay` checks
 normal and large-counter layouts from 320×240 through 3440×1440 and that unchanged frames allocate nothing.
 
+**Performance telemetry controls.** Options → HUD has independent **FPS & frame timing** and **Network information**
+sections. Each display offers Never, Always, or Only during issues; horizontal/vertical position (0–100% of the
+available screen travel), scale (50–200%) and opacity (0–100%) affect the entire element, including its text, shadow,
+background and graph. Panels fit within the viewport even after resizing. At their default upper-right positions,
+network information stacks below the FPS panel's actual visible bounds. These preferences are stored in
+`fps_telemetry` and `network_telemetry`; existing `show_fps`/`show_net` preferences retain their enabled state.
+The activity feed uses free space above or below moved panels within its usual lane, so placing telemetry near
+the bottom does not hide otherwise unobstructed activity.
+
+FPS options include frame time in milliseconds, 1% low/high FPS, average FPS and peak frame time. The statistics
+retain the previous five-second / 2,048-frame window. An optional line or bar graph shows 2–30 seconds of frame
+times, retaining bucket peaks so a brief hitch is visible. Its labelled vertical scale expands to include spikes;
+an amber line marks the configured frame-time warning. Text and graphs refresh at most four times per second.
+Frame time measures the interval between rendered frames, including any frame cap, rather than GPU execution time.
+
+Network options include compact or detailed rows, traffic rates, packet-loss percentages, and separate ping,
+jitter and loss graphs (line or bars, 2–30 seconds). Loss graphs show the worse direction's measured one-second
+percentage; graph labels identify units and scale. Network history is sampled at 10 Hz while text rates update
+once per second. Histories clear on disconnect or counter reset. Issue detection does not depend on which metrics
+or graphs are enabled: it covers high ping/jitter, interval packet loss, stale snapshots, buffer underruns,
+prediction resets and state gaps. Listen hosts also detect a client's high ping. Warning thresholds are adjustable
+(defaults: 33.3 ms frame time, 150 ms ping, 30 ms jitter and 2% loss). Both displays keep an issue visible for a
+configurable 0–10 seconds after recovery (three seconds by default), with sampling continuing while hidden.
+
+The `telemetry` smoke checks graph geometry and viewport bounds from 320×240 to 4K, all positions and scale
+extremes, opacity, metric toggles, issue visibility/hold/recovery and reconnect behavior. `options` exercises the
+actual selectors and sliders through draft, Apply and Defaults. Settings tests cover older profiles, independent
+round trips/deep clones, invalid values and missing groups.
+
 **Merc shock immunity (OpenSCCT addition).** A compact amber crossed-lightning icon, `SHOCK IMMUNE` countdown
 and draining bar sit beside the health/status area. Seconds round upward to one decimal. The readout uses the
 same authoritative timed status as the draining body-edge effect (docs/EFFECTS.md), with current synchronized
@@ -292,7 +321,7 @@ applies them at start and on save.
 | player | `player_name`, `invert_y`, `invert_x_spy` (profile InvertX), `mouse_wheel` (Gadget, Speed: profile SelectedMouse 0 and 1), `clutch_one_key`, `clutch_two_key`, `use_split_spy_merc_keyboard` (on: separate layouts) |
 | look per team | `controls_spy_kbm`, `controls_merc_kbm` (`look`, `free_look`, `scope`, `scope_vertical`, `vertical`, `cam`, `look_response`, `clutch_one`, `clutch_one_enabled`, `clutch_two`, `clutch_two_enabled`), and the same for `controls_spy_pad`, `controls_merc_pad` |
 | controller | `controller`: `enabled`, `deadzone_left` 0.25, `deadzone_right` 0.15, `vertical_scale` 0.75, `run_threshold` 0.95, `slow_walk` (on), `prompted`, `rumble` (off), `rumble_strength` 1.0, 8-way move per side, `look_speed`, the pad layouts (`Clutch1`, `Clutch2` hold the clutches) |
-| display | `display_mode` (Windowed, Fullscreen, BorderlessFullscreen), `display_monitor`, `resolution`, `window_position` (Default, Centered, Stretched), `vsync`, `widescreen`, `widescreen_hud`, `ws_er_small`, `ws_fov` (95..112, default 112), `fps_spy`, `fps_merc` (Monitor by default, Unlimited or 30 to 240: docs/RENDERING.md, frame pacing), `resolution_scale`, `filter_level`, `msaa`, `msaa_samples`, `smaa`, `shadow_quality`, `shadow_edge_smoothing`, `post_quality` (0 Normal: no glow, 1 High), `low_latency_mode`, `throttle_stop` (docs/RENDERING.md) |
+| display | `display_mode` (Windowed, Fullscreen, BorderlessFullscreen), `display_monitor`, `resolution`, `window_position` (Default, Centered, Stretched), `vsync`, `widescreen`, `widescreen_hud`, `ws_er_small`, `ws_fov` (95..112, default 112), `fps_spy`, `fps_merc` (Match refresh rate by default, Unlimited or 30 to 240: docs/RENDERING.md, frame pacing), `resolution_scale`, `filter_level`, `msaa`, `msaa_samples`, `smaa`, `shadow_quality`, `shadow_edge_smoothing`, `post_quality` (0 Normal: no glow, 1 High), `low_latency_mode`, `throttle_stop` (docs/RENDERING.md) |
 | audio | `master_volume`, `sound_volume`, `music_volume`, `objective_sounds` (profile bObjectiveSounds), `voice_output_volume` (Godot buses Master, SvmWorld and the effect buses, SvmMusic, SvmVoice) |
 | HUD | `show_scoreboard`, `show_ping`, `scoreboard_split_team_size` (1..4, 3), `show_fps`, `show_net`, `show_net_loss` (off), `show_location`, `hack_alpha` (0..255, 178), `hud_feet` (profile bInFeet), `fire_prediction` (on; docs/NETCODE.md "Lag compensation and fire prediction") |
 | console | `override_console_key` (true: the key left of 1; false: the apostrophe key) |

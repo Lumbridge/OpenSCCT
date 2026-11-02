@@ -4,6 +4,7 @@ using System.Linq;
 using Godot;
 using OpenScct.Net.Cosmetics;
 using OpenScct.Net.Discovery;
+using OpenScct.Server.Online;
 using OpenScctGame.Online;
 using OpenScctGame.Options;
 using OpenScctGame.UI;
@@ -41,6 +42,10 @@ public sealed class MenuLayoutSmoke : SmokeTest
     private int _size;
     private bool _savedMapList;
     private ulong? _presenceInstance;
+    private int _hostTab;
+    private int _mapPlaylist;
+    private LobbySetup? _beforeMapSearch;
+    private string? _testedMap;
 
     public override string Name => TestName;
 
@@ -144,6 +149,90 @@ public sealed class MenuLayoutSmoke : SmokeTest
                 }
                 Check(tree.CurrentScene!, width, "Create Session list");
                 MenuPage.Shot(tree.Root, $"menu-layout-{_sizes[_size].X}x{_sizes[_size].Y}-map-list");
+                SettingsStore.Current.MapListView = false;
+                _hostTab = 0;
+                _stage = 15;
+                _frames = 0;
+                return SmokeResult.Running;
+            case 15:
+                if (tree.CurrentScene is not HostScreen { SettingsTabs: { } hostTabs } host)
+                    return SmokeResult.Fail("Create Session has no settings tabs");
+                if (_frames == 1)
+                {
+                    hostTabs.CurrentTab = _hostTab;
+                    if (hostTabs.GetCurrentTabControl() is ScrollContainer tabScroll) tabScroll.ScrollVertical = 0;
+                    if (host.FindChild("BodyScroll", true, false) is ScrollContainer bodyScroll)
+                        bodyScroll.ScrollVertical += Mathf.RoundToInt((hostTabs.GetGlobalRect().Position.Y - bodyScroll.GetGlobalRect().Position.Y) /
+                            bodyScroll.GetGlobalTransform().Y.Length());
+                }
+                if (_frames < SettleFrames * 3) return SmokeResult.Running;
+                Check(host, width, "Create Session " + hostTabs.GetTabTitle(_hostTab));
+                Rect2 viewport = new(Vector2.Zero, _sizes[_size]);
+                foreach (Button button in host.PageButtons)
+                    if (!button.IsVisibleInTree() || !viewport.Encloses(button.GetGlobalRect()))
+                        _problems.Add("Create Session footer is not always visible: " + button.Name);
+                string firstField = _hostTab switch { 0 => "ServerName", 1 => "SpyLivesValue", _ => "PasswordEdit" };
+                if (host.FindChild(firstField, true, false) is not Control field || !field.IsVisibleInTree() ||
+                    !viewport.Encloses(field.GetGlobalRect()))
+                    _problems.Add("Create Session settings cannot be reached: " + firstField);
+                MenuPage.Shot(tree.Root, $"menu-layout-{_sizes[_size].X}x{_sizes[_size].Y}-host-{hostTabs.GetTabTitle(_hostTab)}");
+                _frames = 0;
+                if (++_hostTab < hostTabs.GetTabCount()) return SmokeResult.Running;
+                hostTabs.CurrentTab = 0;
+                _stage = 16;
+                return SmokeResult.Running;
+            case 16:
+                var searchHost = (HostScreen)tree.CurrentScene!;
+                if (_frames == 1)
+                {
+                    _beforeMapSearch = searchHost.Model!.Setup;
+                    _mapPlaylist = searchHost.Picker!.PlaylistBox?.Selected ?? -1;
+                    LineEdit search = searchHost.Picker.SearchBox!;
+                    EnsureVisible(search);
+                    search.Text = "__no_such_map_for_layout_check__";
+                    search.EmitSignal(LineEdit.SignalName.TextChanged, search.Text);
+                }
+                if (_frames < SettleFrames * 3) return SmokeResult.Running;
+                if (searchHost.Picker!.Grid.GetChildren().OfType<Button>().Any(tile => tile.Visible) ||
+                    searchHost.Picker.FindChild("MapEmpty", true, false) is not Label { Visible: true })
+                    _problems.Add("Map search has no truthful empty state");
+                if (searchHost.Model!.Setup.Map != _beforeMapSearch!.Map)
+                    _problems.Add("Filtering maps changed the selected map");
+                Check(searchHost, width, "Create Session empty map search");
+                MenuPage.Shot(tree.Root, $"menu-layout-{_sizes[_size].X}x{_sizes[_size].Y}-map-search-empty");
+                if (searchHost.Picker.FindChild("ResetMapFilters", true, false) is Button reset)
+                    reset.EmitSignal(BaseButton.SignalName.Pressed);
+                else _problems.Add("Map filters cannot be reset");
+                _stage = 17;
+                _frames = 0;
+                return SmokeResult.Running;
+            case 17:
+                if (_frames < SettleFrames * 3) return SmokeResult.Running;
+                var resetHost = (HostScreen)tree.CurrentScene!;
+                if (resetHost.Picker!.SearchBox!.Text.Length != 0 ||
+                    resetHost.Picker.FindChild("MapEmpty", true, false) is not Label { Visible: false })
+                    _problems.Add("Reset filters did not restore the map list");
+                if (resetHost.Model!.Setup.Map != _beforeMapSearch!.Map)
+                    _problems.Add("Resetting filters changed the selected map");
+                Button? otherMap = resetHost.Picker.Grid.GetChildren().OfType<Button>()
+                    .FirstOrDefault(tile => tile.Visible && tile.Name != "Map_" + _beforeMapSearch.Map);
+                _testedMap = otherMap?.Name.ToString()[4..];
+                otherMap?.EmitSignal(BaseButton.SignalName.Pressed);
+                _stage = 18;
+                _frames = 0;
+                return SmokeResult.Running;
+            case 18:
+                if (_frames < SettleFrames * 3) return SmokeResult.Running;
+                var selectedHost = (HostScreen)tree.CurrentScene!;
+                if (_testedMap is not null && (selectedHost.Model!.Setup.Map != _testedMap ||
+                    selectedHost.Picker!.Tile(_testedMap) is not { ButtonPressed: true }))
+                    _problems.Add("Clicking a map did not update the session and selection together");
+                selectedHost.Model!.Load(_beforeMapSearch!);
+                if (selectedHost.Picker!.PlaylistBox is { } playlist && _mapPlaylist >= 0)
+                {
+                    playlist.Select(_mapPlaylist);
+                    playlist.EmitSignal(OptionButton.SignalName.ItemSelected, _mapPlaylist);
+                }
                 SettingsStore.Current.MapListView = _savedMapList;
                 if (++_size < _sizes.Length)
                 {
@@ -290,6 +379,12 @@ public sealed class MenuLayoutSmoke : SmokeTest
             default:
                 return SmokeResult.Running;
         }
+    }
+
+    private static void EnsureVisible(Control control)
+    {
+        for (Node? parent = control.GetParent(); parent is not null; parent = parent.GetParent())
+            if (parent is ScrollContainer scroll) scroll.EnsureControlVisible(control);
     }
 
     private static MatchHistoryDetails HistoryPreview() => new(

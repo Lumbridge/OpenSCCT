@@ -193,6 +193,7 @@ public partial class HudLayer : CanvasLayer
         _overrides.Insert(0, Binoculars);
         GadgetViews = OpenScctGame.Hud.Gadgets.GadgetHudViews.Attach(this);
         _white = WhiteRegion.Find(assets);
+        Fps.Configure(assets);
         Net.Configure(assets);
         ActivityDrawer.Configure(assets);
         if (assets.TextureSize(HudMarkers.Package, HudMarkers.Atlas) is { } size)
@@ -254,13 +255,13 @@ public partial class HudLayer : CanvasLayer
         return hud.bShowConnectedPlayers;
     }
 
-    /// <summary>Reloaded's frame-rate readout in the top right corner.</summary>
+    /// <summary>Enables the player's configured FPS and frame-time readout.</summary>
     public bool ShowFps { get; set; }
 
     /// <summary>The frame-rate readout.</summary>
     public HudFps Fps { get; } = new();
 
-    /// <summary>Reloaded's network readout under the frame-rate readout (rl:net.stats).</summary>
+    /// <summary>Enables the player's configured network readout (rl:net.stats).</summary>
     public bool ShowNet { get; set; }
 
     /// <summary>The network readout; its <see cref="HudNet.Source"/> is set by the play scene.</summary>
@@ -499,7 +500,8 @@ public partial class HudLayer : CanvasLayer
         // Build the performance readouts first so the activity lane can reserve their actual bounds.
         Fps.Add(dt);
         Fps.Draw(screen, ShowFps);
-        Net.Draw(screen, dt, ShowNet, ShowFps);
+        Net.FpsBounds = Fps.Bounds;
+        Net.Draw(screen, dt, ShowNet, Fps.DrawList.Items.Count > 0);
         ActivityDrawer.Draw(screen, Activity.Entries, Snapshot.TimeSeconds,
             page, Fps.DrawList.Items, Net.DrawList.Items,
             Snapshot.Valid && !Snapshot.HideHud);

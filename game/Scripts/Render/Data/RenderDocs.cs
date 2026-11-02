@@ -353,6 +353,16 @@ public sealed class MaterialsDoc
                 JsonElement f = m.Value.TryGetProperty("flags", out JsonElement flags) ? flags : default;
                 bool has = f.ValueKind == JsonValueKind.Object;
                 string? source = m.Value.TryGetProperty("source", out JsonElement s) ? s.GetString() : null;
+                // Older exporters omitted the emissive layers on bUnlit mesh variants. Recover them from
+                // the same source material; keep every other flag on the variant unchanged.
+                JsonElement illumination = f;
+                if (has && Str(f, "self_illum") is null && m.Name.EndsWith("__unlit", StringComparison.Ordinal) &&
+                    source is not null && materials.TryGetProperty(m.Name[..^7], out JsonElement original) &&
+                    Str(original, "source") == source && original.TryGetProperty("flags", out JsonElement originalFlags) &&
+                    originalFlags.ValueKind == JsonValueKind.Object)
+                {
+                    illumination = originalFlags;
+                }
                 bool opaqueCombiner = doc.IsBareCombiner(source);
                 doc._byName[m.Name] = new MaterialEntry
                 {
@@ -363,8 +373,8 @@ public sealed class MaterialsDoc
                     Translucent = has && Bool(f, "translucent") && !opaqueCombiner,
                     TwoSided = has && Bool(f, "two_sided"),
                     Unlit = has && Bool(f, "unlit"),
-                    SelfIllum = has ? Str(f, "self_illum") : null,
-                    SelfIllumMask = has ? Str(f, "self_illum_mask") : null,
+                    SelfIllum = has ? Str(illumination, "self_illum") : null,
+                    SelfIllumMask = has ? Str(illumination, "self_illum_mask") : null,
                     SpecMask = has ? Str(f, "spec_mask") : null,
                     EnvColor = has && f.TryGetProperty("env_color", out JsonElement env) && env.ValueKind == JsonValueKind.Array
                         ? new Vector3(env[0].GetSingle(), env[1].GetSingle(), env[2].GetSingle())
@@ -376,8 +386,8 @@ public sealed class MaterialsDoc
                     SpecMaskLayer = has && (f.TryGetProperty("spec_mask_anim", out _) || f.TryGetProperty("spec_mask_matrix", out _))
                         ? LayerOf(f, "spec_mask", Str(f, "spec_mask"))
                         : null,
-                    SelfIllumLayer = has ? ChainLayerOf(f, "self_illum_layer", Str(f, "self_illum")) : null,
-                    SelfIllumMaskLayer = has ? ChainLayerOf(f, "self_illum_mask_layer", Str(f, "self_illum_mask")) : null,
+                    SelfIllumLayer = has ? ChainLayerOf(illumination, "self_illum_layer", Str(illumination, "self_illum")) : null,
+                    SelfIllumMaskLayer = has ? ChainLayerOf(illumination, "self_illum_mask_layer", Str(illumination, "self_illum_mask")) : null,
                     EnvTexture = has ? Str(f, "env_texture") : null,
                     EnvWorld = has && Bool(f, "env_world"),
                     Combine = has && f.TryGetProperty("combine", out JsonElement comb) ? CombineEntry.From(comb) : null,

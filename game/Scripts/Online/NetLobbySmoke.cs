@@ -110,30 +110,32 @@ public sealed class NetLobbySmoke : SmokeTest
         });
         yield return new("create session page", 30, _ => s.Tree.CurrentScene is HostScreen { Model: not null });
 
-        // The Create Session rows, with the arrows and boxes as a player sets them.
+        // The Create Session controls, reached through the same tabs and inputs as a player.
         yield return new("voice chat Open", 20, _ =>
         {
             var page = (HostScreen)s.Tree.CurrentScene!;
             return page.Model!.Setup.VoiceMode == EVoiceChatMode.VCM_Open ||
-                (s.Pilot.Click(page.Rows!.Find("VoiceChatNext"), "Voice Chat next") && false);
+                s.Pilot.Choose(page.Rows!.Find("VoiceChatChoice") as OptionButton, LobbySetup.VoiceMenuIndex(EVoiceChatMode.VCM_Open), "Voice Chat");
         });
         yield return new("map", 30, _ =>
         {
             var page = (HostScreen)s.Tree.CurrentScene!;
             return string.Equals(page.Model!.Setup.Map, NetLobbyScript.MapName(), StringComparison.OrdinalIgnoreCase) ||
-                (s.Pilot.Click(page.Rows!.Find("MapNext"), "Map next") && false);
+                (s.Pilot.Click(page.Picker!.Tile(NetLobbyScript.MapName()), "Map") && false);
         });
         yield return new("game length 1 min", 20, _ =>
         {
             var page = (HostScreen)s.Tree.CurrentScene!;
             return page.Model!.Setup.TimeLimit == 1 ||
-                (s.Pilot.Click(page.Rows!.Find(page.Model.Setup.TimeLimit > 1 ? "TimeLimitPrev" : "TimeLimitNext"), "Game Length") && false);
+                s.Pilot.TypeNumber(page.Rows!.Find("TimeLimitValue") as SpinBox, 1, "Game Length");
         });
+        yield return new("rules tab", 10, _ => s.Pilot.SelectTab(((HostScreen)s.Tree.CurrentScene!).SettingsTabs, 1));
         yield return new("revenge", 10, _ =>
         {
             var page = (HostScreen)s.Tree.CurrentScene!;
             return page.Model!.Setup.Revenge || (s.Pilot.Click(page.Rows!.Find("RevengeCheck"), "Revenge") && false);
         });
+        yield return new("hosting tab", 10, _ => s.Pilot.SelectTab(((HostScreen)s.Tree.CurrentScene!).SettingsTabs, 2));
         yield return new("password", 10, _ =>
         {
             var page = (HostScreen)s.Tree.CurrentScene!;
@@ -145,6 +147,7 @@ public sealed class NetLobbySmoke : SmokeTest
             CheckBox? upnp = s.Pilot.Find<CheckBox>("Upnp");
             return upnp is { ButtonPressed: false } || (s.Pilot.Click(upnp, "UPnP") && false);
         });
+        yield return new("game tab", 10, _ => s.Pilot.SelectTab(((HostScreen)s.Tree.CurrentScene!).SettingsTabs, 0));
         yield return new("server name", 10, _ => s.Typed("ServerName", ServerName));
         yield return new("create", 10, _ =>
         {

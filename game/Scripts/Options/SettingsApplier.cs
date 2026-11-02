@@ -153,16 +153,21 @@ public static class SettingsApplier
             return false;
         }
 
-        double hz = DisplayServer.ScreenGetRefreshRate(screen);
-        if (!(hz >= 1.0))
-        {
-            hz = DisplayFrameCap.FallbackHz;
-        }
+        double hz = RefreshRateForScreen(screen);
 
         bool changed = screen != MonitorScreen || Math.Abs(hz - MonitorHz) > 0.01;
         MonitorScreen = screen;
         MonitorHz = hz;
         return changed;
+    }
+
+    /// <summary>Reads one specific screen without changing the live window's pacing state (also used by options previews).</summary>
+    public static double RefreshRateForScreen(int screen)
+    {
+        if (DisplayServer.GetName() == "headless" || screen < 0 || screen >= DisplayServer.GetScreenCount())
+            return DisplayFrameCap.FallbackHz;
+        double hz = DisplayServer.ScreenGetRefreshRate(screen);
+        return double.IsFinite(hz) && hz >= 1.0 ? hz : DisplayFrameCap.FallbackHz;
     }
 
     /// <summary>Vertical sync and the frame cap (nothing headless); the options screen's save and the frame-rate smoke use it.</summary>
@@ -207,6 +212,12 @@ public static class SettingsApplier
         }
 
         DisplayServer.WindowSetMode(mode);
+        // Leaving fullscreen can restore a window rectangle on the previous screen. Reapply the destination
+        // after the mode change, including Desktop resolution where PlaceWindow does not reposition anything.
+        if (DisplayServer.WindowGetCurrentScreen() != screen)
+        {
+            DisplayServer.WindowSetCurrentScreen(screen);
+        }
         if (mode == DisplayServer.WindowMode.Windowed)
         {
             PlaceWindow(s, screen);

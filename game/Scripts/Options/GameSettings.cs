@@ -767,9 +767,15 @@ public sealed class GameSettings
     [JsonPropertyName("show_fps")]
     public bool ShowFps { get; set; }
 
+    [JsonPropertyName("fps_telemetry")]
+    public FpsTelemetrySettings FpsTelemetry { get; set; } = new();
+
     /// <summary>Network readout under the frame-rate readout: ping, jitter, loss, bandwidth, corrections (rl:net.stats).</summary>
     [JsonPropertyName("show_net")]
     public bool ShowNet { get; set; }
+
+    [JsonPropertyName("network_telemetry")]
+    public NetworkTelemetrySettings NetworkTelemetry { get; set; } = new();
 
     /// <summary>Packet loss received and sent in the network readout (Reloaded's show_net_loss, added after v4.0b).</summary>
     [JsonPropertyName("show_net_loss")]
@@ -786,6 +792,9 @@ public sealed class GameSettings
 
     [JsonPropertyName("teammate_names_merc")]
     public bool TeammateNamesMerc { get; set; }
+
+    [JsonPropertyName("teammate_names_opacity")]
+    public int TeammateNamesOpacity { get; set; } = 50;
 
     /// <summary>Enhanced Reality icon opacity while its objective is being hacked, 0 to 255 (shown as a percentage).</summary>
     [JsonPropertyName("hack_alpha")]
@@ -885,6 +894,10 @@ public sealed class GameSettings
         CosmeticsMerc ??= [];
         Crosshair ??= new CrosshairSettings();
         Crosshair.Clamp();
+        FpsTelemetry ??= new FpsTelemetrySettings();
+        FpsTelemetry.Clamp();
+        NetworkTelemetry ??= new NetworkTelemetrySettings();
+        NetworkTelemetry.Clamp();
         Loadout.Clamp();
         // Legacy mouse responses are fixed gain, not curves. Bake the gain into sensitivity once.
         float gain = SpyKbm.LookResponse switch
@@ -919,6 +932,7 @@ public sealed class GameSettings
         ScoreboardSplitTeamSize = Math.Clamp(ScoreboardSplitTeamSize, 1, 4);
         MsaaSamples = MsaaSamples <= 2 ? 2 : MsaaSamples <= 4 ? 4 : 8;
         HackAlpha = Math.Clamp(HackAlpha, 0, 255);
+        TeammateNamesOpacity = Math.Clamp(TeammateNamesOpacity, 10, 100);
         if (Array.IndexOf(DisplayModes, DisplayMode) < 0)
         {
             DisplayMode = DisplayModes[0];

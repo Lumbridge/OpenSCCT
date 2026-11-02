@@ -91,6 +91,77 @@ public sealed class OptionsSmoke : SmokeTest
             Expect(!options.HasUnsavedChanges, "fresh editor is clean");
             Expect(options.Tabs!.GetTabTitle(0) == "Spy" && options.Tabs.GetTabTitle(1) == "Mercenary", "role tabs");
             Expect(!options.Controls.ContainsKey("controls_spy_kbm.look_response"), "mouse response selector removed");
+            void PickFps(string key, int fps)
+            {
+                var picker = (OptionButton)options.Controls[key];
+                int index = Enumerable.Range(0, picker.ItemCount).Single(i => DisplayFrameCap.Parse(picker.GetItemText(i)) == fps);
+                picker.Select(index);
+                picker.EmitSignal(OptionButton.SignalName.ItemSelected, (long)index);
+            }
+            string ShownFps(string key) => ((OptionButton)options.Controls[key]).Text;
+            void PickTelemetry(string key, int index)
+            {
+                var picker = (OptionButton)options.Controls[key];
+                picker.Select(index);
+                picker.EmitSignal(OptionButton.SignalName.ItemSelected, (long)index);
+            }
+            void SlideTelemetry(string key, float value)
+            {
+                var slider = (HSlider)options.Controls[key];
+                slider.SetValueNoSignal(value);
+                slider.EmitSignal(Godot.Range.SignalName.ValueChanged, (double)value);
+            }
+            PickTelemetry("show_fps", 1);
+            Expect(options.Editing.ShowFps && options.Editing.FpsTelemetry.DisplayMode == "Always", "FPS Always selector enables the readout");
+            PickTelemetry("show_fps", 0);
+            Expect(!options.Editing.ShowFps, "FPS Never selector disables the readout");
+            PickTelemetry("show_fps", 2);
+            PickTelemetry("show_net", 2);
+            Expect(options.Editing.ShowNet && options.Editing.NetworkTelemetry.DisplayMode == "Issues", "network Issues selector enables conditional display");
+            PickTelemetry("show_net", 0);
+            Expect(!options.Editing.ShowNet, "network Never selector disables the readout");
+            PickTelemetry("show_net", 1);
+            PickTelemetry("fps_telemetry.graph", 2);
+            PickTelemetry("network_telemetry.graph", 1);
+            SlideTelemetry("fps_telemetry.position_x", 23f);
+            SlideTelemetry("fps_telemetry.position_y", 74f);
+            SlideTelemetry("fps_telemetry.scale", 135f);
+            SlideTelemetry("fps_telemetry.opacity", 42f);
+            SlideTelemetry("fps_telemetry.graph_seconds", 12f);
+            SlideTelemetry("fps_telemetry.issue_hold_seconds", 4.5f);
+            SlideTelemetry("fps_telemetry.frame_time_threshold_ms", 25f);
+            SlideTelemetry("network_telemetry.position_x", 81f);
+            SlideTelemetry("network_telemetry.position_y", 19f);
+            SlideTelemetry("network_telemetry.scale", 85f);
+            SlideTelemetry("network_telemetry.opacity", 68f);
+            SlideTelemetry("network_telemetry.graph_seconds", 17f);
+            SlideTelemetry("network_telemetry.issue_hold_seconds", 1.5f);
+            SlideTelemetry("network_telemetry.ping_threshold_ms", 95f);
+            SlideTelemetry("network_telemetry.jitter_threshold_ms", 18f);
+            SlideTelemetry("network_telemetry.loss_threshold_percent", 0.5f);
+            void ExpectEditedTelemetry(GameSettings settings, string when)
+            {
+                FpsTelemetrySettings fps = settings.FpsTelemetry;
+                NetworkTelemetrySettings net = settings.NetworkTelemetry;
+                Expect(settings.ShowFps && fps.DisplayMode == "Issues" && settings.ShowNet && net.DisplayMode == "Always", when + " retains independent telemetry display modes");
+                Expect(fps.PositionX == 23f && fps.PositionY == 74f && fps.Scale == 135f && fps.Opacity == 42f &&
+                    net.PositionX == 81f && net.PositionY == 19f && net.Scale == 85f && net.Opacity == 68f, when + " retains independent telemetry appearance");
+                Expect(fps.Graph == "Bars" && fps.GraphSeconds == 12f && fps.IssueHoldSeconds == 4.5f && fps.FrameTimeThresholdMs == 25f &&
+                    net.Graph == "Line" && net.GraphSeconds == 17f && net.IssueHoldSeconds == 1.5f && net.PingThresholdMs == 95f &&
+                    net.JitterThresholdMs == 18f && net.LossThresholdPercent == 0.5f, when + " retains telemetry graphs and issue thresholds");
+            }
+            ExpectEditedTelemetry(options.Editing, "control signals");
+            Expect(original == SettingsStore.Current.ToJson(), "telemetry control signals modify only the draft");
+            PickFps("max_fps", 144);
+            Expect(options.Editing.FpsSpy == 144 && options.Editing.FpsMerc == 144 &&
+                ShownFps("fps_spy") == "144" && ShownFps("fps_merc") == "144", "shared FPS updates both role drafts and selectors");
+            PickFps("fps_spy", 60);
+            Expect(options.Editing.FpsMerc == 144 && ShownFps("max_fps") == "Per-role limits", "role FPS edit retains the other limit");
+            PickFps("max_fps", DisplayFrameCap.Unlimited);
+            Expect(options.Editing.FpsSpy == 0 && options.Editing.FpsMerc == 0, "Unlimited works after mixed role limits");
+            PickFps("max_fps", DisplayFrameCap.Monitor);
+            Expect(options.Editing.FpsSpy == DisplayFrameCap.Monitor && options.Editing.FpsMerc == DisplayFrameCap.Monitor, "Monitor works after rebuilding choices");
+            PickFps("max_fps", 120);
             options.LoadLayout(PlaySide.Spy);
             var draft = options.Keys!.Draft!;
             string baseline = draft.Layout.ToIni();
@@ -118,10 +189,31 @@ public sealed class OptionsSmoke : SmokeTest
             Expect(!options.HasUnsavedChanges && writes > 0, "Apply accepts draft without closing");
             Expect(InputMap.ActionGetEvents(OpenScctGame.Voice.VoiceInput.PushToTalk).OfType<InputEventKey>().Any(k => k.PhysicalKeycode == Key.J), "Apply updates voice shortcut InputMap");
             Expect(Math.Abs(SettingsStore.Current.SoundVolume - 0.27f) < 0.001f, "Apply publishes settings");
+            GameSettings savedFps = GameSettings.FromJson(SettingsStore.Current.ToJson());
+            Expect(savedFps.FpsSpy == 120 && savedFps.FpsMerc == 120 && ShownFps("max_fps") == "120", "shared FPS survives save and menu rebuild");
+            ExpectEditedTelemetry(savedFps, "Apply serialization");
+            ExpectEditedTelemetry(options.Editing, "Apply draft rebuild");
+            Expect(((OptionButton)options.Controls["show_fps"]).Selected == 2 && ((OptionButton)options.Controls["show_net"]).Selected == 1 &&
+                ((HSlider)options.Controls["fps_telemetry.opacity"]).Value == 42d && ((HSlider)options.Controls["network_telemetry.scale"]).Value == 85d,
+                "Apply rebuild restores telemetry selectors and sliders");
             options.LoadLayout(PlaySide.Spy);
             Expect(options.Keys!.Draft!.Keys(breath).Contains("X"), "Apply retains draft binding");
             options.Defaults();
             Expect(options.HasUnsavedChanges, "reset stages changes");
+            Expect(ShownFps("max_fps") == DisplayFrameCap.Label(new GameSettings().FpsSpy, SettingsApplier.MonitorHz), "reset restores shared FPS selector");
+            Expect(!options.Editing.ShowFps && !options.Editing.ShowNet && options.Editing.FpsTelemetry.DisplayMode == "Always" &&
+                options.Editing.NetworkTelemetry.DisplayMode == "Always", "reset disables both telemetry readouts and restores default display modes");
+            foreach (string key in new[] { "fps_telemetry", "network_telemetry" })
+            {
+                Expect(((OptionButton)options.Controls[key + ".graph"]).Selected == 0 &&
+                    ((HSlider)options.Controls[key + ".position_x"]).Value == 100d && ((HSlider)options.Controls[key + ".position_y"]).Value == 0d &&
+                    ((HSlider)options.Controls[key + ".scale"]).Value == 100d && ((HSlider)options.Controls[key + ".opacity"]).Value == 100d &&
+                    ((HSlider)options.Controls[key + ".graph_seconds"]).Value == 5d && ((HSlider)options.Controls[key + ".issue_hold_seconds"]).Value == 3d,
+                    "reset restores " + key + " graph and appearance controls");
+            }
+            Expect(((OptionButton)options.Controls["show_fps"]).Selected == 0 && ((OptionButton)options.Controls["show_net"]).Selected == 0,
+                "reset restores both telemetry visibility selectors");
+            ExpectEditedTelemetry(SettingsStore.Current, "unapplied reset");
             Expect(Math.Abs(SettingsStore.Current.SoundVolume - 0.27f) < 0.001f, "reset does not apply");
             options.Editing.SpyKbm.Look = 2f;
             options.Editing.MercKbm.Look = 3f;

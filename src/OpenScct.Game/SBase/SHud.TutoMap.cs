@@ -18,14 +18,17 @@ public partial class SHud
     public const float TutoMapBeepRadius = 500f;
 
     /// <summary>
-    /// Standalone only: a changed hint is stored (an empty one clears it), with a beep when it is not empty and the
+    /// Offline only: a changed hint is stored (an empty one clears it), with a beep when it is not empty and the
     /// last change was more than 0.1 s ago.
     /// </summary>
     [Uc("SBase.SHud.AddTutoMapMessage", Sha1 = "93e084d07df52fff9f44081c57e4969dc47cbf79")]
     [PortOf("uc:SBase.SHud:AddTutoMapMessage", Spec = "spec/hud/counters-and-prompts.md#rules")]
     public void AddTutoMapMessage(string Message1)
     {
-        if (Message1 == sTutoMap || PlayerOwner?.Level.NetMode != ENetMode.NM_Standalone)
+        // Offline play uses a local network client. Match SZoneTips' eligibility check all the way to the HUD.
+        bool offline = PlayerOwner?.Level.NetMode == ENetMode.NM_Standalone ||
+            PlayerOwner is SPlayerController pc && pc.LocalProfileOptions() is { OfflineSession: true };
+        if (Message1 == sTutoMap || !offline)
         {
             return;
         }

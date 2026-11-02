@@ -10,7 +10,7 @@ namespace OpenScctGame.Chat;
 /// <summary>The shared match/hub chat surface. Transport, shortcuts and gameplay focus belong to ChatInput.</summary>
 public partial class ChatPanel : Control
 {
-    public const int PassiveLines = 6;
+    public const int PassiveLines = 4;
     private ChatTranscript _transcript = new();
     private readonly PanelContainer _expandedPanel = new() { Name = "Conversation", Visible = false };
     private readonly Panel _passivePanel = new() { Name = "Recent", ClipContents = true, MouseFilter = MouseFilterEnum.Ignore };
@@ -380,7 +380,7 @@ public partial class ChatPanel : Control
     private void ApplyRowFont(RichTextLabel row)
     {
         if (UiArt.BodyFont is { } font) row.AddThemeFontOverride("normal_font", font);
-        row.AddThemeFontSizeOverride("normal_font_size", Mathf.RoundToInt(16f * _scale));
+        row.AddThemeFontSizeOverride("normal_font_size", Mathf.RoundToInt(14f * _scale));
         row.AddThemeConstantOverride("line_separation", Mathf.RoundToInt(2f * _scale));
     }
 
@@ -392,16 +392,16 @@ public partial class ChatPanel : Control
         _wasHubLayout = HubLayout;
         _wasSide = Side;
         _scale = Math.Clamp(_viewport.Y / 720f, 0.75f, 3f);
-        _width = Math.Min(440f * _scale, _viewport.X * 0.46f);
+        _width = Math.Min(350f * _scale, _viewport.X * 0.38f);
         float left = 16f * _scale;
         float bottom = Bottom();
-        float height = Math.Min(310f * _scale, bottom - 16f * _scale);
+        float height = Math.Min(235f * _scale, bottom - 16f * _scale);
         _expandedPanel.Position = new Vector2(left, bottom - height);
         _expandedPanel.Size = new Vector2(_width, height);
         _passivePanel.Position = new Vector2(left, bottom);
         _passivePanel.Size = new Vector2(_width, 0f);
         foreach (Control control in new Control[] { Entry, _channelButton, NewMessagesButton })
-            control.AddThemeFontSizeOverride("font_size", Mathf.RoundToInt(16f * _scale));
+            control.AddThemeFontSizeOverride("font_size", Mathf.RoundToInt(14f * _scale));
         foreach (Label caption in new[] { _hint, _count, _title })
         {
             if (UiArt.CaptionFont is { } font) caption.AddThemeFontOverride("font", font);
@@ -426,10 +426,10 @@ public partial class ChatPanel : Control
         foreach ((_, RichTextLabel row) in _history)
         {
             row.Size = new Vector2(_historyWidth, 1f);
-            float height = Math.Max(20f * _scale, row.GetContentHeight());
+            float height = Math.Max(18f * _scale, row.GetContentHeight());
             row.Position = new Vector2(0f, y);
             row.Size = new Vector2(_historyWidth, height);
-            y += height + 5f * _scale;
+            y += height + 3f * _scale;
         }
         _rows.CustomMinimumSize = new Vector2(0f, y);
         _rows.Size = new Vector2(_historyWidth, y);
@@ -440,7 +440,7 @@ public partial class ChatPanel : Control
         double now = Clock();
         int linesLeft = PassiveLines;
         float height = 0f, opacity = 0f;
-        // The clip rectangle trims only the oldest partial row, keeping precisely six wrapped lines.
+        // The clip rectangle trims only the oldest partial row, keeping at most PassiveLines wrapped lines.
         for (int i = _recent.Count - 1; i >= 0; i--)
         {
             (ChatEntry entry, RichTextLabel row) = _recent[i];
@@ -454,7 +454,7 @@ public partial class ChatPanel : Control
                 int count = Math.Max(1, row.GetLineCount());
                 float[] offsets = new float[count];
                 for (int line = 0; line < count; line++) offsets[line] = row.GetLineOffset(line);
-                metrics = (Math.Max(20f * _scale, row.GetContentHeight()), offsets);
+                metrics = (Math.Max(18f * _scale, row.GetContentHeight()), offsets);
                 _recentMetrics.Add(entry.Id, metrics);
                 row.Size = new Vector2(_width - 20f * _scale, metrics.Height);
             }

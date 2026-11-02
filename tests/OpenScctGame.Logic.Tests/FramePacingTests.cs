@@ -81,7 +81,7 @@ public sealed class FramePacingTests
     public void TheOptionsListNamesMonitorUnlimitedAndTheRates()
     {
         string[] list = DisplayFrameCap.Choices(DisplayFrameCap.Monitor, 143.98);
-        Assert.Equal("Monitor (144 Hz)", list[0]);
+        Assert.Equal("Match refresh rate (144 Hz)", list[0]);
         Assert.Equal("Unlimited", list[1]);
         Assert.Contains("60", list);
         Assert.Contains("144", list);
@@ -97,6 +97,7 @@ public sealed class FramePacingTests
         }
 
         Assert.Equal(DisplayFrameCap.Unlimited, DisplayFrameCap.Parse("Off"));
+        Assert.Equal(DisplayFrameCap.Monitor, DisplayFrameCap.Parse("Monitor (144 Hz)"));
         Assert.Null(DisplayFrameCap.Parse("fast"));
     }
 

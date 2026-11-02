@@ -101,7 +101,7 @@ public sealed class ModernChatSmoke : SmokeTest
                     _wait = 3;
                     return SmokeResult.Running;
                 case 9:
-                    Expect(_chat!.Panel.PassiveLineCount is > 0 and <= 6, "passive display is bounded to six wrapped lines");
+                    Expect(_chat!.Panel.PassiveLineCount is > 0 and <= ChatPanel.PassiveLines, "passive display is bounded to the compact wrapped-line limit");
                     _now += 9;
                     _wait = 3;
                     return SmokeResult.Running;
@@ -257,7 +257,7 @@ public sealed class ModernChatSmoke : SmokeTest
         ChatPanel panel = _chat!.Panel;
         if (!panel.Expanded)
         {
-            Expect(panel.PassiveLineCount is > 0 and <= 6, $"{variant} {size}: passive wrapped line bound");
+            Expect(panel.PassiveLineCount is > 0 and <= ChatPanel.PassiveLines, $"{variant} {size}: passive wrapped line bound");
             Expect(viewportRect.Encloses(panel.GetNode<Control>("Recent").GetGlobalRect()), $"{variant} {size}: passive bounds");
             Capture($"modern-chat-{variant}-{size.X}x{size.Y}-recent");
             _chat.Open(EChatScope.TeamSay);

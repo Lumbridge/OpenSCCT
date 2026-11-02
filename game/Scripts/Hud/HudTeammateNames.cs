@@ -11,6 +11,7 @@ public sealed class HudTeammateNames
 {
     public bool ShowSpy { get; set; }
     public bool ShowMerc { get; set; }
+    public float Opacity { get; set; } = 0.5f;
     public MagmaDrawList DrawList { get; } = new();
 
     public void Draw(SPlayerController? pc, Func<FVector, Vector2?>? project, Vector2 screen)
@@ -19,7 +20,7 @@ public sealed class HudTeammateNames
         if (pc?.Pawn is not SBasePawn { Health: > 0, bDeleteMe: false } own ||
             pc.bGameEnded || HudK.IsSpectating(pc) || project is null) return;
         bool merc = own.SPawnType == OpenScct.Core.Engine.PawnType.SPAWNDEFENSE;
-        if (!(merc ? ShowMerc : ShowSpy)) return;
+        if (!(merc ? ShowMerc : ShowSpy) || Opacity <= 0f) return;
         int index = 0;
         foreach (SBasePawn pawn in pc.XLevel.AllActors<SBasePawn>())
         {
@@ -33,7 +34,7 @@ public sealed class HudTeammateNames
             float fade = Math.Clamp((distance - 3f) / 57f, 0f, 1f);
             fade = fade * fade * (3f - 2f * fade);
             float height = (9f - 4f * fade) * screen.Y / MagmaRenderer.PageHeight;
-            var colour = new Color(0.78f, 0.96f, 0.75f, 0.85f - 0.70f * fade);
+            var colour = new Color(0.78f, 0.96f, 0.75f, (0.85f - 0.70f * fade) * Math.Clamp(Opacity, 0f, 1f));
             DrawList.Items.Add(HudText.Item("TeammateNames/" + index++, pri.PlayerName,
                 new Rect2(point.X - screen.X / 2f, point.Y - height, screen.X, height), height, MagmaAlign.Center, colour));
         }

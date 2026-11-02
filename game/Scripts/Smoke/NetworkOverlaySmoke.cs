@@ -119,9 +119,12 @@ public sealed class NetworkOverlaySmoke : SmokeTest
         var canvas = new MagmaCanvas { Assets = assets };
         _preview.AddChild(canvas);
         var fps = new HudFps();
+        fps.Configure(assets);
         fps.Add(1f / 210f);
         fps.Draw(size, true);
         HudNet net = Readout(assets, size, false);
+        net.FpsBounds = fps.Bounds;
+        net.Draw(size, 0f, true, true);
         canvas.Submit(fps.DrawList.Items.Concat(net.DrawList.Items).ToArray());
     }
 }

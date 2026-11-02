@@ -265,10 +265,7 @@ public partial class OptionsMenu
         foreach (Node child in details.GetChildren().Take(basicCells).ToArray()) { details.RemoveChild(child); basic.AddChild(child); }
         content.AddChild(basic);
         var view = Grid("RoleView");
-        double hz = SettingsApplier.MonitorHz;
-        int fps = merc ? _edit.FpsMerc : _edit.FpsSpy;
-        Choice(view, "Maximum frame rate for this role", merc ? "fps_merc" : "fps_spy", DisplayFrameCap.Choices(fps, hz), DisplayFrameCap.Label(fps, hz),
-            v => { if (merc) _edit.FpsMerc = DisplayFrameCap.Parse(v) ?? _edit.FpsMerc; else _edit.FpsSpy = DisplayFrameCap.Parse(v) ?? _edit.FpsSpy; });
+        FrameRateChoice(view, "Maximum frame rate for this role", merc ? "fps_merc" : "fps_spy");
         if (merc) Slider(view, "Field of view cap", "ws_fov", GameSettings.MinMercFov, GameSettings.MaxMercFov, 1, _edit.MercFovCap, v => _edit.MercFovCap = v, "0");
         content.AddChild(view);
         var advanced = new VBoxContainer { Visible = false, SizeFlagsHorizontal = SizeFlags.ExpandFill };

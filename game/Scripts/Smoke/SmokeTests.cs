@@ -7,7 +7,7 @@ namespace OpenScctGame.Smoke;
 public static class SmokeTests
 {
     public static IReadOnlyList<string> Names { get; } =
-        [MapLightSpritesSmoke.TestName, DestructibleFxSmoke.TestName, SpyPerspectiveSmoke.TestName, MineLightSmoke.TestName, CamnetDisabledSmoke.TestName, AmmoMenuHudSmoke.TestName, LandingBlendSmoke.TestName, GlassBlendSmoke.TestName, ScopeLifecycleSmoke.TestName, SidearmReloadPoseSmoke.TestName, MenuEscapeSmoke.TestName, FittedSkinsSmoke.TestName, ViewmodelLightSmoke.TestName, StatsSmoke.TestName, StartupWeaponsSmoke.TestName, LaserAlignmentSmoke.TestName, BootSmoke.TestName, TestBoxSmoke.TestName, SelfTestFailSmoke.TestName, SteeERenderSmoke.TestName, GoldenSmoke.TestName,
+        [VisitMapSmoke.TestName, MapLightSpritesSmoke.TestName, DestructibleFxSmoke.TestName, SpyPerspectiveSmoke.TestName, MineLightSmoke.TestName, CamnetDisabledSmoke.TestName, AmmoMenuHudSmoke.TestName, LandingBlendSmoke.TestName, GlassBlendSmoke.TestName, ScopeLifecycleSmoke.TestName, SidearmReloadPoseSmoke.TestName, MenuEscapeSmoke.TestName, FittedSkinsSmoke.TestName, ViewmodelLightSmoke.TestName, StatsSmoke.TestName, StartupWeaponsSmoke.TestName, LaserAlignmentSmoke.TestName, BootSmoke.TestName, TestBoxSmoke.TestName, SelfTestFailSmoke.TestName, SteeERenderSmoke.TestName, GoldenSmoke.TestName,
             ModernChatSmoke.TestName, MenuPilotPopupSmoke.TestName, JoinFocusSmoke.TestName, ControllerDefaultsSmoke.TestName, Hud.HudSmoke.TestName, HudActivityFeedSmoke.TestName, RainHudSmoke.TestName, AudioSmoke.TestName, PlaySpySmoke.TestName, PlayCraneSmoke.TestName,
             PlayDiskHuntSmoke.TestName, PlayDeathmatchSmoke.TestName, Voice.VoiceSmoke.TestName, VoiceLifecycleSmoke.TestName,
             Online.OnlineSmoke.TestName, Online.NetLobbySmoke.TestName, Online.NetLobbySmoke.GuestTestName, Online.NetBotsSmoke.TestName, Online.NetBotsSmoke.GuestTestName, GadgetsSmoke.TestName, PlayBotsSmoke.TestName, UI.InGameMenuSmoke.TestName,
@@ -25,11 +25,12 @@ public static class SmokeTests
             PlayExitSmoke.TestName, AspectSmoke.TestName, PlayTeamSmoke.TestName,
             RangeTraversalSmoke.TestName, RangeMotionSmoke.TestName, RangeBotsSmoke.TestName, RangeSimSmoke.TestName,
             PlayShockerSmoke.TestName, PlayMotionSmoke.TestName, PlayMercSmoke.TestName, PlaySidearmSmoke.TestName, SidearmMenuSmoke.TestName, SmoothSmoke.TestName,
-            MapShotsSmoke.TestName, PlayReticleSmoke.TestName, AnimBonesSmoke.TestName, TraversalMirrorSmoke.TestName, MantleHeadSmoke.TestName, CharacterAnimationAuditSmoke.TestName, NetworkOverlaySmoke.TestName, PlayHitchSmoke.TestName, PlayLasersSmoke.TestName,
+            MapShotsSmoke.TestName, PlayReticleSmoke.TestName, AnimBonesSmoke.TestName, TraversalMirrorSmoke.TestName, MantleHeadSmoke.TestName, CharacterAnimationAuditSmoke.TestName, NetworkOverlaySmoke.TestName, TelemetrySmoke.TestName, PlayHitchSmoke.TestName, PlayLasersSmoke.TestName,
             FrameRateSmoke.TestName, GoggleGlowSmoke.TestName, LobbyLayoutSmoke.TestName, OptionsSmoke.TestName, FrontEndLayoutSmoke.TestName, MenuLayoutSmoke.TestName, MenuArtSmoke.TestName, PlayHurtSmoke.TestName, Hub.HubSmoke.TestName, MercImmunityHudSmoke.TestName, MercStatusVisualSmoke.TestName];
 
     public static SmokeTest? Create(string name) => name switch
     {
+        VisitMapSmoke.TestName => new VisitMapSmoke(),
         ModernChatSmoke.TestName => new ModernChatSmoke(),
         MenuPilotPopupSmoke.TestName => new MenuPilotPopupSmoke(),
         BombPresentationSmoke.TestName => new BombPresentationSmoke(),
@@ -42,6 +43,7 @@ public static class SmokeTests
         MantleHeadSmoke.TestName => new MantleHeadSmoke(),
         CharacterAnimationAuditSmoke.TestName => new CharacterAnimationAuditSmoke(),
         NetworkOverlaySmoke.TestName => new NetworkOverlaySmoke(),
+        TelemetrySmoke.TestName => new TelemetrySmoke(),
         HudTimersNetworkSmoke.TestName => new HudTimersNetworkSmoke(),
         PlayDoorTimerSmoke.TestName => new PlayDoorTimerSmoke(),
         PlayDoorTimerSmoke.DelayedName => new PlayDoorTimerSmoke(delayed: true),

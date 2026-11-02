@@ -12,9 +12,8 @@ namespace OpenScctGame.UI;
 
 /// <summary>
 /// Create Session (Enhanced 4.0's Create_Match LAN page, spec/game/lobby-and-match-creation.md; docs/MENUS.md): the
-/// map and mode, the session rows (Password, Voice Chat with its hint, Max Players) and the rule boxes (Revenge,
-/// Random Map, Voice in Lobby, Games in a Row, Game Length, both sides' lives or the kill limit, Respawn Length, the
-/// disks), a list of the mode's maps with their pictures to click (ours, <see cref="MapPickerView"/>), plus what hosting from the game needs that the original took from Ubi.com (server name, UDP port, the
+/// map browser beside tabbed game, rules and hosting settings. The model retains the original's session rules,
+/// with direct choices and editable numbers. Hosting adds what the original took from Ubi.com (server name, UDP port, the
 /// master to list on, listing and UPnP: rl:net.listing, rl:net.upnp). Create starts the listen server and opens the
 /// Lobby Room. The values are kept for next time, as the original keeps them in the profile.
 /// </summary>
@@ -29,7 +28,16 @@ public partial class HostScreen : MenuPage
     private Label? _requireNote;
     private LineEdit? _master;
     private Label? _status;
-    private GridContainer? _networkGrid;
+    private BoxContainer? _columns;
+    private Control? _mapPanel;
+    private Label? _selectedMap;
+    private Label? _voiceHint;
+    private Label? _listingHint;
+    private ScrollContainer? _bodyScroll;
+
+    protected override Vector2 ResponsiveReference => new(1600f, 900f);
+
+    public TabContainer? SettingsTabs { get; private set; }
 
     /// <summary>The page's rules (tests and the menu pilot read and drive it).</summary>
     public CreateSessionModel? Model { get; private set; }
@@ -49,16 +57,19 @@ public partial class HostScreen : MenuPage
     {
         if (Model is not null)
         {
-            Model.Changed -= ShowAlternateButton;
+            Model.Changed -= RefreshSummary;
         }
     }
 
-    private void ShowAlternateButton()
+    private void RefreshSummary()
     {
         if (AlternateButton is not null && Model is not null)
         {
             AlternateButton.Disabled = !Model.Setup.Alternate.On;
         }
+        if (Model is null) return;
+        if (_selectedMap is not null) _selectedMap.Text = Model.Text(SessionRow.Map);
+        if (_voiceHint is not null) _voiceHint.Text = Model.VoiceHint;
     }
 
     private void OpenAlternate()
@@ -72,7 +83,8 @@ public partial class HostScreen : MenuPage
     public override void _Ready()
     {
         Name = "Host";
-        BuildFrame("Create Session", 1060f);
+        BuildFrame("Create Session", 1500f, responsive: true);
+        _bodyScroll = PageCanvas.GetNode<ScrollContainer>("BodyScroll");
         OnlineSettings s = OnlineSettings.Current;
         OnlineService service = OnlineService.Get(GetTree());
         MapCatalog maps = service.Catalog.Maps;
@@ -85,53 +97,90 @@ public partial class HostScreen : MenuPage
         LobbySetup start = StartSetup(s, maps, list);
         Model = new CreateSessionModel(list, maps.GetMapSettings, start);
         Model.SetPassword(s.HostPassword);
-        Rows = new SessionRowsView(Model, CreateSessionModel.Rows, showPassword: true);
-        if (Rows.Find("PasswordEdit") is LineEdit password)
-        {
-            password.Text = Model.Password;
-        }
-
+        Rows = new SessionRowsView(Model, CreateSessionModel.Rows, showPassword: true, form: true);
         Body.AddChild(Rows);
+        _columns = new BoxContainer { Name = "HostColumns" };
+        _columns.AddThemeConstantOverride("separation", 20);
+        Body.AddChild(_columns);
 
-        // Create_Match's "Alternate Mode" button: the ability and gadget switches, once Alternate is checked.
-        AlternateButton = UiStyle.MenuButton("Alternate Mode", OpenAlternate, "AlternateMode");
-        AlternateButton.CustomMinimumSize = new Vector2(220f, 36f);
-        AlternateButton.SizeFlagsHorizontal = SizeFlags.ShrinkBegin;
-        Body.AddChild(AlternateButton);
-        Model.Changed += ShowAlternateButton;
-        ShowAlternateButton();
-
-        // Every hostable map of the mode as a picture to click (the Choose Map arrows still step through them).
-        VBoxContainer mapList = Panel(Body, "Maps", "Maps");
-        Picker = new MapPickerView(Model, maps, list, playlist: SettingsStore.Current.ActiveMapPlaylist, playlistChosen: RememberPlaylist);
+        VBoxContainer mapList = Panel(_columns, "Maps", "Selected map");
+        _mapPanel = (Control)mapList.GetParent();
+        _mapPanel.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+        _mapPanel.SizeFlagsStretchRatio = 1.35f;
+        mapList.AddThemeConstantOverride("separation", 10);
+        _selectedMap = new Label
+        {
+            Name = "SelectedMap", AutowrapMode = TextServer.AutowrapMode.WordSmart,
+            Modulate = UiStyle.MenuFocus,
+        };
+        _selectedMap.AddThemeFontSizeOverride("font_size", 22);
+        mapList.AddChild(_selectedMap);
+        mapList.AddChild(Note("Select a map below. Its game mode supplies the starting rules."));
+        Picker = new MapPickerView(Model, maps, list, height: 220f, playlist: SettingsStore.Current.ActiveMapPlaylist,
+            playlistChosen: RememberPlaylist, compact: true) { SizeFlagsVertical = SizeFlags.ExpandFill };
         mapList.AddChild(Picker);
-        VBoxContainer net = Panel(Body, "Network", "Hosting");
-        var grid = new GridContainer { Name = "NetGrid", Columns = 4 };
-        _networkGrid = grid;
-        grid.AddThemeConstantOverride("h_separation", 12);
-        net.AddChild(grid);
-        _name = Field(grid, "Server Name", new LineEdit
+
+        SettingsTabs = new TabContainer { Name = "SettingsTabs", SizeFlagsHorizontal = SizeFlags.ExpandFill };
+        _columns.AddChild(SettingsTabs);
+        VBoxContainer game = SettingsTab("Game");
+        _name = Field(game, "Session name", new LineEdit
         {
             Name = "ServerName", MaxLength = 32,
             Text = s.HostName.Length > 0 ? s.HostName : SettingsStore.Current.PlayerName + "'s game",
         });
-        _port = Field(grid, "UDP port", new SpinBox { Name = "Port", MinValue = 1024, MaxValue = 65535, Value = s.HostPort, Rounded = true });
-        _master = Field(grid, "Master server", new LineEdit { Name = "Master", Text = s.MasterUrl, PlaceholderText = "none: LAN and direct address only" });
-        _listed = Field(grid, "List on the master", new CheckBox { Name = "Listed", ButtonPressed = s.HostListed });
-        _upnp = Field(grid, "Map the port (UPnP)", new CheckBox { Name = "Upnp", ButtonPressed = s.HostUpnp });
-        _requireAccounts = Field(grid, "Signed-in players only", new CheckBox { Name = "RequireAccounts", ButtonPressed = s.HostRequireAccounts });
-        _record = Field(grid, "Record demos", new CheckBox { Name = "RecordDemos", ButtonPressed = s.HostRecordDemos });
+        Rows.MoveRowsTo(game, SessionRow.Mode, SessionRow.MaxPlayers, SessionRow.TimeLimit, SessionRow.VoiceChat);
+        _voiceHint = Note("");
+        _voiceHint.Name = "VoiceHint";
+        game.AddChild(_voiceHint);
+        Heading(game, "Bots");
+        Rows.MoveRowsTo(game, SessionRow.Bots, SessionRow.BotsPerSide, SessionRow.BotSkill);
+
+        VBoxContainer rules = SettingsTab("Rules");
+        Heading(rules, "Round & objectives");
+        Rows.MoveRowsTo(rules, SessionRow.SpyLives, SessionRow.MercLives, SessionRow.Respawn,
+            SessionRow.ActiveDisks, SessionRow.DisksToTake);
+        rules.AddChild(Note("Set lives to 0 for unlimited respawns."));
+        Heading(rules, "Teams & rotation");
+        Rows.MoveRowsTo(rules, SessionRow.Revenge, SessionRow.GamesInARow, SessionRow.RandomMap, SessionRow.AutoBalance,
+            SessionRow.VoiceInLobby);
+        Heading(rules, "Extra rules");
+        Rows.MoveRowsTo(rules, SessionRow.Practice, SessionRow.Sidearms, SessionRow.Alternate);
+        AlternateButton = UiStyle.MenuButton("Configure alternate rules", OpenAlternate, "AlternateMode");
+        AlternateButton.CustomMinimumSize = new Vector2(0, 36);
+        rules.AddChild(AlternateButton);
+
+        VBoxContainer net = SettingsTab("Hosting");
+        Heading(net, "Access & discovery");
+        _listed = Toggle(net, "Show in the server browser", "Listed", s.HostListed);
+        _listingHint = Note("");
+        net.AddChild(_listingHint);
+        Rows.MoveRowsTo(net, SessionRow.Password);
+        net.AddChild(Note("Leave the password empty to let anyone join."));
+        _requireAccounts = Toggle(net, "Signed-in players only", "RequireAccounts", s.HostRequireAccounts);
         _requireNote = new Label { Name = "RequireAccountsNote", Modulate = UiStyle.MenuFocus, AutowrapMode = TextServer.AutowrapMode.WordSmart };
         net.AddChild(_requireNote);
-        _master.TextChanged += _ => ShowRequireAccounts();
+        _record = Toggle(net, "Record match demos", "RecordDemos", s.HostRecordDemos);
+        Heading(net, "Connection");
+        _upnp = Toggle(net, "Open router port automatically (UPnP)", "Upnp", s.HostUpnp);
+        _port = Field(net, "UDP port", new SpinBox { Name = "Port", MinValue = 1024, MaxValue = 65535, Value = s.HostPort, Rounded = true });
+        _master = Field(net, "Master server", new LineEdit { Name = "Master", Text = s.MasterUrl, PlaceholderText = "Leave empty for LAN / direct connections" });
+        net.AddChild(Note("Public sessions can use the master server's relay when a direct connection is unavailable."));
+        _master.TextChanged += _ => { ShowRequireAccounts(); ShowListingHint(); };
+        _listed.Toggled += _ => ShowListingHint();
         ShowRequireAccounts();
-        net.AddChild(new Label
+        ShowListingHint();
+        Rows.Hide(); // The map is selected through the browser; every other row now lives in a settings tab.
+        Model.Changed += RefreshSummary;
+        RefreshSummary();
+
+        _status = new Label
         {
-            Text = "Behind carrier-grade NAT no port can be opened: list the game on a master and players join through its relay.",
-            Modulate = UiStyle.MenuFocus, AutowrapMode = TextServer.AutowrapMode.WordSmart,
-        });
-        _status = new Label { Name = "Status", Modulate = UiStyle.MenuFocus, AutowrapMode = TextServer.AutowrapMode.WordSmart };
-        Body.AddChild(_status);
+            Name = "Status", Visible = false, Modulate = UiStyle.MenuFocus,
+            AutowrapMode = TextServer.AutowrapMode.WordSmart,
+            AnchorLeft = 0.1f, AnchorRight = 0.9f, AnchorTop = 1, AnchorBottom = 1,
+            OffsetTop = -112, OffsetBottom = -80, HorizontalAlignment = HorizontalAlignment.Center,
+        };
+        PageCanvas.AddChild(_status);
 
         var originalSetup = Model.Setup;
         var originalPassword = Model.Password;
@@ -150,8 +199,54 @@ public partial class HostScreen : MenuPage
             else FrontEnd.ShowMainMenu(GetTree());
         }
         PageButton("Back", Back, "Back");
-        HostButton = PageButton("Create", Host, "Host");
+        HostButton = PageButton("Create session", Host, "Host");
         HostButton.GrabFocus();
+        FitHostLayout();
+    }
+
+    private VBoxContainer SettingsTab(string title)
+    {
+        var scroll = new ScrollContainer
+        {
+            Name = title, HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled, FollowFocus = true,
+        };
+        SettingsTabs!.AddChild(scroll);
+        var margin = new MarginContainer { SizeFlagsHorizontal = SizeFlags.ExpandFill };
+        foreach (string side in new[] { "left", "right", "top", "bottom" }) margin.AddThemeConstantOverride("margin_" + side, 14);
+        scroll.AddChild(margin);
+        var content = new VBoxContainer { Name = title + "Fields", SizeFlagsHorizontal = SizeFlags.ExpandFill };
+        content.AddThemeConstantOverride("separation", 10);
+        margin.AddChild(content);
+        return content;
+    }
+
+    private static Label Note(string text)
+    {
+        var note = new Label { Text = text, Modulate = UiStyle.Dim, AutowrapMode = TextServer.AutowrapMode.WordSmart };
+        note.AddThemeFontSizeOverride("font_size", 14);
+        return note;
+    }
+
+    private static void Heading(Container parent, string text)
+    {
+        var heading = new Label { Text = text, Modulate = UiStyle.MenuFocus, CustomMinimumSize = new Vector2(0, 30) };
+        heading.AddThemeFontSizeOverride("font_size", 16);
+        parent.AddChild(heading);
+    }
+
+    private static CheckBox Toggle(Container parent, string text, string name, bool value)
+    {
+        var toggle = new CheckBox { Name = name, Text = text, ButtonPressed = value, CustomMinimumSize = new Vector2(0, 36) };
+        parent.AddChild(toggle);
+        return toggle;
+    }
+
+    private void ShowListingHint()
+    {
+        if (_listingHint is null) return;
+        _listingHint.Text = _listed!.ButtonPressed && _master!.Text.Trim().Length > 0
+            ? "Players can find this session in the server browser."
+            : "Players can join through LAN or a direct address.";
     }
 
     /// <summary>Keeps the map list's playlist for the next time (settings key <c>active_map_playlist</c>).</summary>
@@ -198,16 +293,32 @@ public partial class HostScreen : MenuPage
     public override void _Process(double delta)
     {
         base._Process(delta);
-        if (_networkGrid is not null) _networkGrid.Columns = AvailableBodyWidth < 1000f ? 2 : 4;
+        FitHostLayout();
     }
 
-    private static T Field<T>(GridContainer grid, string label, T control)
+    private void FitHostLayout()
+    {
+        if (_columns is null || _mapPanel is null || SettingsTabs is null) return;
+        bool stacked = AvailableBodyWidth < 1100;
+        _columns.Vertical = stacked;
+        float statusHeight = _status?.Visible == true ? Math.Max(40, _status.GetCombinedMinimumSize().Y + 8) : 0;
+        if (_bodyScroll is not null) _bodyScroll.OffsetBottom = -78 - statusHeight;
+        if (_status is not null) _status.OffsetTop = -80 - statusHeight;
+        float height = Math.Max(440, LayoutSize.Y - 168 - statusHeight);
+        _mapPanel.CustomMinimumSize = new Vector2(0, stacked ? 480 : height);
+        SettingsTabs.CustomMinimumSize = new Vector2(stacked ? 0 : 430, stacked ? 540 : height);
+    }
+
+    private static T Field<T>(Container parent, string label, T control)
         where T : Control
     {
-        grid.AddChild(new Label { Text = label });
+        var field = new VBoxContainer();
+        field.AddThemeConstantOverride("separation", 6);
+        parent.AddChild(field);
+        field.AddChild(new Label { Text = label });
         control.SizeFlagsHorizontal = SizeFlags.ExpandFill;
-        control.CustomMinimumSize = new Vector2(control is CheckBox ? 0f : 220f, 0f);
-        grid.AddChild(control);
+        control.CustomMinimumSize = new Vector2(0, 38);
+        field.AddChild(control);
         return control;
     }
 
@@ -248,6 +359,7 @@ public partial class HostScreen : MenuPage
             if (!service.Host(request) && _status is not null)
             {
                 _status.Text = service.LastError ?? "Could not host.";
+                _status.Show();
             }
         });
     }

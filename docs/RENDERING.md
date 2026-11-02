@@ -656,26 +656,30 @@ because timestamp queries/readbacks can affect throughput. Raw captures stay in 
 
 The frame rate is the player's (Options, Display; `settings.json`). Reloaded caps each side: `fps_spy` in game as a
 spy, `fps_merc` otherwise (merc, menus, lobby), 30 to 240 (spec/native/reloaded-features-from-code.md rule 15). Two
-values are additions Ryan asked for (2026-10-25): **Monitor** (-1, the default), the refresh rate of the screen the
+values are additions Ryan asked for (2026-10-25): **Match refresh rate** (-1, the default; previously "Monitor"), the refresh rate of the screen the
 window is on, and **Unlimited** (0). Reloaded's first run has 120; a version 1 settings file with 120 and 120 (the old
 defaults, never chosen) follows the monitor now. Vertical sync (`vsync`) is off by default as the original's render
 device (`Default.ini` `[D3DDrv.D3DRenderDevice] UseVSync=False`), whose frames Reloaded's own limiter paces.
 
 | Setting | `Engine.max_fps` | Vertical sync |
 |---|---|---|
-| Monitor, vsync off | the screen's rate, rounded (59.94 Hz gives 60) | off |
+| Match refresh rate, vsync off | the screen's rate, rounded (59.94 Hz gives 60) | off |
 | a rate, vsync off | that rate | off |
 | Unlimited, vsync off | 0 | off |
-| vsync on, cap at or above the screen's rate (or Monitor, Unlimited) | 0: the swap paces the frames (a sleep limiter at the swap's own rate misses a refresh now and then) | on |
+| vsync on, cap at or above the screen's rate (or Match refresh rate, Unlimited) | 0: the swap paces the frames (a sleep limiter at the swap's own rate misses a refresh now and then) | on |
 | vsync on, cap under the screen's rate | the cap | on |
 
 `Options/DisplayFrameCap.cs` holds the rules (Godot-free), `SettingsApplier.ApplyPacing` puts vsync and the cap into
 effect (the options screen's Save, and at start whether or not a file exists), the play scene's `OptionsRuntime`
 chooses the side's cap every frame, and `DisplayFramePacer` (under the root window) follows the window: every frame it
 checks the window's screen, every second it reads that screen's refresh rate again, and on a change it applies the cap
-again (`SVM_DISPLAY screen N at R Hz`). Godot's own limiter holds a cap to a frame time standard
+again (`SVM_DISPLAY screen N at R Hz`). Options previews an unapplied monitor selection's own refresh rate and
+refreshes the displayed rate once per second when the window moves or the display mode changes. Applying display
+settings reasserts the selected screen after changing window mode: leaving fullscreen can otherwise restore an old
+window rectangle on a different monitor, even when the resolution is Desktop.
+Godot's own limiter holds a cap to a frame time standard
 deviation of 0.01 to 0.07 ms (measured below), so Reloaded's limiter (absolute deadlines, then sleep and spin: rules
-16 and 17) is not ported. The frame-rate readout's 1 % lows are not done yet.
+16 and 17) is not ported. The FPS readout includes 1% lows and highs from its recent frame history.
 
 **Input latency** (rl:gfx.pacing, `low_latency_mode` Off, On, Ultra; Off by default). The swap chain and the frame
 queue are read only at start, so Save writes `user://render_override.cfg`, which project.godot names as its
@@ -697,7 +701,7 @@ native crashes keep Godot's handler.
 
 `--svm-smoke=frame-rate` (`Smoke/FrameRateSmoke.cs`) checks it through the player's path: the spy plays SteeE as the
 launchers run it, and for each case of `SVM_FRAMERATE_CASES` (default `monitor,60,144,165,240,unlimited,monitor-vsync,
-monitor-move`) the settings are saved and applied as the options screen does, KeyPilot walks the spy and then turns
+monitor-move,monitor-mode-change`) the settings are saved and applied as the options screen does, KeyPilot walks the spy and then turns
 the mouse steadily, and every frame the drawn camera, the spy's drawn pawn, the map's scene time, its emitters' time
 and the HUD's effect time are read after every view has drawn (`FrameStartProbe` notes when each frame began). It
 fails when a cap is not met (unless the machine draws fewer frames uncapped, or vsync runs faster than the screen),

@@ -31,7 +31,6 @@ That's it. The launcher checks for updates each time it starts, downloads only w
 - **Using your own copy**: click **Choose folder...** in step 1 and pick the folder you installed it in (its `System`
   folder works too). Making the game files from it is optional: PLAY keeps working with the files you already have.
 - **A map or menu looks wrong after an update**: click **Rebuild** in step 3.
-- **The new version misbehaves**: **Roll back** returns to the previous one.
 - **Text language**: Settings has a Language list (English, French, German, Spanish, Italian, if your copy has it).
 
 Everything the launcher writes is in `%LOCALAPPDATA%\OpenSCCT`. Deleting that folder resets it.

@@ -110,8 +110,9 @@ time the player launches a map.
 
 1. Rule 3's byte test (`>= 14`) suggests the merc flags are bits 1 to 3; natives 1825 / 1826 are not decoded, so
    the bit layout of the saved byte is not known. The rewrite's own file does not need it.
-2. Zone hints (`SZoneTips`) show only in standalone play; the rewrite's offline play is a listen server, so the
-   tutorial maps' hints do not show yet (spec/devices/zone-tips.md rule 5).
+Zone hints (`SZoneTips`) and the HUD message handler accept the rewrite's offline local player as well as
+standalone play. Online sessions and remote controllers remain excluded. Regression coverage exercises zone entry
+and exit through the HUD for tutorial hints and Visit a Map's help-only hints.
 
 ## Evidence
 

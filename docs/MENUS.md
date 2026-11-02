@@ -20,9 +20,9 @@ is in `docs/ONLINE.md`, voice in `docs/VOICE.md`, and the way to test it with tw
 | `game/Scripts/UI/AccountScreen.cs` | Account: sign in with Discord (code, browser, wait), pick or change the name, the rank (emblem, level, XP bar, Prestige, prestige emblems, title picker; spec/additions/progression.md), stats, an achievements summary with links to Achievements and the Armoury, sign out (docs/ONLINE.md "Accounts") |
 | `game/Scripts/UI/AchievementsScreen.cs` | Achievements (OpenSCCT's own): every achievement by group (filter buttons), what to do, what it unlocks, progress or earned date; the list is the shared catalogue, so it is complete even with an older master |
 | `game/Scripts/UI/ArmouryScreen.cs` | Armoury (OpenSCCT's own): the spy's and merc's cosmetics per slot; locked items name the achievement that unlocks them (docs/ONLINE.md "Cosmetics") |
-| `game/Scripts/UI/HostScreen.cs` | Create Session: the page's rows plus hosting (server name, UDP port, master, listing, UPnP) |
+| `game/Scripts/UI/HostScreen.cs` | Create Session: wide map browser beside Game, Rules and Hosting tabs, with a persistent Create button |
 | `game/Scripts/UI/CreateSessionModel.cs` | the Create Session rules without Godot (rows, captions, ranges, mode rules, password) |
-| `game/Scripts/UI/SessionRowsView.cs` | the rows drawn with the original's arrows and boxes; also the lobby's Session Parameters |
+| `game/Scripts/UI/SessionRowsView.cs` | host dropdowns, editable numbers and labelled checks; the lobby's Session Parameters retain their arrows and boxes |
 | `game/Scripts/UI/LobbyRoomScreen.cs` | the online Lobby Room |
 | `game/Scripts/UI/StrategicMapScreen.cs`, `StrategicMapModel.cs` | the Strategic map page (in a match and from the Lobby Room) and its rules without Godot |
 | `game/Scripts/UI/LobbyRoomModel.cs` | the Lobby Room rules without Godot (page button, blinking changes, chat spam delay) |
@@ -172,6 +172,13 @@ Lobby Room ── Start match (server validates readiness) ──> Loading ─�
 
 ## Create Session
 
+The page uses most of the window: a large map browser on the left and **Game**, **Rules**, and **Hosting** tabs on
+the right. Game holds the session name, mode, player limit, duration, voice and bots. Rules groups objectives,
+team/rotation options and extra rules; Hosting holds access, password, discovery and connection settings. Dropdowns
+select modes directly, numeric fields accept typing, and checkboxes include their own labels. Each settings tab
+scrolls independently. Below 1100 logical pixels of available width the map browser and settings stack; Back and
+Create session stay in the fixed footer. A page-local 1600×900 canvas scales the controls together at high resolutions.
+
 Rows, captions and ranges are the page's (spec rules 1 to 9):
 
 | Row | Range | Notes |
@@ -185,7 +192,7 @@ Rows, captions and ranges are the page's (spec rules 1 to 9):
 | Random Map | | after the series, the next map is drawn at random (never the same one twice in a row) |
 | Voice in Lobby | on | players talk in the lobby |
 | Auto balance | off | Game_Settings' row (hidden and always on in the original): a joiner asking for the bigger side goes to the smaller one, and nobody may switch to a side that would then be two people ahead |
-| Alternate | off | Alternate Mode; the "Alternate Mode" button under the rows opens its page (below) |
+| Alternate | off | Alternate Mode; "Configure alternate rules" in Rules opens its page (below) |
 | Games in a Row | 1 to 10 | |
 | Game Length (min) | 0 to 20, 0 is "Inf." | |
 | Spy Lives ("Kills to Win" in Merc Deathmatch) | 0 to 10 ("Inf."), kills 1 to 100 | |
@@ -194,11 +201,13 @@ Rows, captions and ranges are the page's (spec rules 1 to 9):
 | Active Disks, Disks to Take | 1 to the map's most | Disk Hunt only; Disks to Take never above Active Disks |
 | Practice | off | Reloaded's practice server: unlimited lives, 1 s respawn, `!heal` `!regen` `!tank` `!kill` `!ammo`, no stats (docs/ONLINE.md, "Practice servers") |
 
-Under the rows, the Maps list (ours, `UI/MapPickerView.cs`): a picture per map of the selected mode, a click picks it.
+The Maps list (ours, `UI/MapPickerView.cs`) shows a landscape picture per map of the selected mode; a click picks it.
+The selected map's full name stays above the browser. Search and playlist filters show a result count and an empty
+state with Reset filters when nothing matches; filtering does not change the selected map. List view remains available.
 Above the pictures, Reloaded's playlist choice (rl:qol.lobbymaps): Standard, Extended, Classic, 3v3, Merc Deathmatch
 (each with its description as the tooltip, and the maps it names that are not installed) or All installed maps, and a
-search box (the map's name, its name without the variant word, or its code). The Choose Map arrows then step through
-the playlist. The choice is kept in the settings (`active_map_playlist`, Standard on a first run); without the
+search box (the map's name, its name without the variant word, or its code). The choice is kept in the settings
+(`active_map_playlist`, Standard on a first run); without the
 catalog data every map shows under All.
 
 Added for hosting from the game (the original took them from Ubi.com or the LAN service): server name, UDP port
@@ -237,8 +246,12 @@ Texts come from the converted GUI.int and pictures from `Tutorials_PC` (the ui c
 `python -m svmbuild ui`, see content/README.md). Without them the pages open with their titles and
 empty texts. Differences from the original: the TutoOrExam page (the online button's exam gate) is not shown; the
 keyboard pictures, which no PC menu opened, are reachable from View HUD; leaving a tutorial through the In-Game Menu
-returns to the main menu; the tutorial maps' zone hints do not show yet (they are standalone only, and offline play is a
-listen server).
+returns to the main menu. Tutorial and Visit a Map zone hints are enabled for the offline local player through both
+the map trigger and HUD handler, despite offline play using a local client/server session.
+The information panel holds its open frame while a hint is active and hides queued game messages underneath it.
+Unlit direction and information meshes retain their emissive symbols; existing packs recover these layers from
+their base materials without reconversion. The `visit-map` smoke checks the real visit launch, marker materials,
+authored node text, and both teams' hint panels remaining visible, updating and clearing.
 
 ## Alternate Mode
 
@@ -384,6 +397,12 @@ Options pages scroll vertically and wrap setting labels. Long controller choices
 Display mode list reads "Borderless fullscreen" for Reloaded's `BorderlessFullscreen` value. `--svm-smoke=options`
 checks draft/apply/discard, shared and separate layouts, independent controller dispatch, and every role subsection
 (including Advanced) at 1024x768, 1280x720 and 1920x1080. `SVM_PLAY_SHOTS` saves rendered review images.
+
+The HUD tab's **FPS & frame timing** and **Network information** sections each offer Never, Always, or Only during
+issues, followed by independent position, scale and opacity controls. Metric toggles, line/bar graph settings,
+history duration and warning thresholds follow. Position uses percentages of available screen travel, with
+0 at the left/top and 100 at the right/bottom. The usual Apply/Discard/Defaults behavior includes these settings;
+details of the measurements and issue detection are in [HUD.md](HUD.md).
 
 ## Walk, gadgets and scope input
 

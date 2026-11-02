@@ -159,10 +159,13 @@ public partial class OptionsRuntime : Node
             Hud.Markers.ErSmall = s.WideErSmall;
             Hud.ShowFps = s.ShowFps;
             Hud.ShowNet = s.ShowNet;
+            Hud.Fps.Settings = s.FpsTelemetry.Clone();
+            Hud.Net.Settings = s.NetworkTelemetry.Clone();
             Hud.Net.ShowLoss = s.ShowNetLoss;
             Hud.ShowLocation = s.ShowLocation;
             Hud.TeammateNames.ShowSpy = s.TeammateNamesSpy;
             Hud.TeammateNames.ShowMerc = s.TeammateNamesMerc;
+            Hud.TeammateNames.Opacity = s.TeammateNamesOpacity / 100f;
             Hud.DistanceInFeet = s.HudFeet;
             Hud.Markers.HackAlpha = s.HackAlpha / 255f;
         }

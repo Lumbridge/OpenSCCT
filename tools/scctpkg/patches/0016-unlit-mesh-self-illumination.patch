@@ -1,0 +1,14 @@
+diff --git a/export_gltf.py b/export_gltf.py
+index 0c37c0e..75871e8 100644
+--- a/export_gltf.py
++++ b/export_gltf.py
+@@ -763,7 +763,8 @@ def _static_mesh_prims(sm: StaticMesh, owner: Package, resolver: MaterialResolve
+                                                    "translucent": bool(res.translucent) if res else False})["unlit"] = True
+         else:
+             mat = writer.material(key, res, uri)
+-            _self_illum_flags(writer, key, res, tex_dir, tex_uri)
++        # bUnlit changes lighting, not the Shader's self-illumination layers (map directions use these).
++        _self_illum_flags(writer, key, res, tex_dir, tex_uri)
+         prims.append((sm.positions, sm.normals, _uv_transform(uv, res), idx.astype(np.uint32), mat))
+     return prims
+ 

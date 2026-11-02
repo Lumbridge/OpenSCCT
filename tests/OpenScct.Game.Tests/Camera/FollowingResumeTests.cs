@@ -20,7 +20,8 @@ public sealed class FollowingResumeTests
         SPlayerCam camera = PlayerCamera.Of(pc)!;
         PlayerCalcView.FrameView(pc, out _, out _, out _);
         camera.ActivateSmooth(MovementK.HohSmooth, SmoothIsAlwaysActive: true);
-        rig.Pawn.Location += V(1000, 0, 0);
+        // Seed an in-progress ease without moving the pawn: actual movement must carry the follow anchor.
+        camera.m_prevStartPos -= V(1000, 0, 0);
         PlayerCalcView.FrameView(pc, out _, out _, out _);
         FVector before = camera.m_prevStartPos;
 

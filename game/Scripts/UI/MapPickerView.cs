@@ -25,30 +25,55 @@ public partial class MapPickerView : VBoxContainer
     private MapPlaylist? _playlist;
     private string _search = string.Empty;
     private string? _shownMap;
+    private readonly bool _compact;
+    private readonly ScrollContainer _scroll;
+    private Label? _filterStatus;
+    private Label? _empty;
+    private Button? _resetFilters;
+    private Button? _revealTile;
+    private Rect2 _revealRect;
+    private Vector2 _revealGridSize;
+    private Vector2 _revealScrollSize;
+    private int _revealStableFrames;
 
     /// <param name="installed">The maps the model steps through (id and title).</param>
     /// <param name="playlist">The playlist shown first (a catalog playlist name; an unknown one shows every map).</param>
     /// <param name="playlistChosen">Told the name when the player picks another playlist (to remember it).</param>
     /// <param name="downloadable">Maps the player does not have that can still be picked (the hub laptop's maps of
     /// OpenSCCT-Content), shown after the installed ones under the title given.</param>
+    /// <param name="compact">Two filter rows and landscape cards for Create Session's narrower map column.</param>
     public MapPickerView(CreateSessionModel model, MapCatalog maps, IReadOnlyList<(string Id, string Title)> installed, float height = 330f,
-        string? playlist = null, Action<string>? playlistChosen = null, IReadOnlyList<(string Id, string Title)>? downloadable = null)
+        string? playlist = null, Action<string>? playlistChosen = null, IReadOnlyList<(string Id, string Title)>? downloadable = null,
+        bool compact = false)
     {
         Model = model ?? throw new ArgumentNullException(nameof(model));
         ArgumentNullException.ThrowIfNull(maps);
         ArgumentNullException.ThrowIfNull(installed);
         Name = "MapPicker";
-        Grid = new MapBrowserGrid();
+        _compact = compact;
+        AddThemeConstantOverride("separation", compact ? 8 : 4);
+        Grid = new MapBrowserGrid(compact);
         BuildFilterBar(maps, playlist, playlistChosen);
-        var scroll = new ScrollContainer
+        _scroll = new ScrollContainer
         {
             // Do not propagate the grid's previous column widths as a minimum when the window shrinks.
             Name = "MapScroll", CustomMinimumSize = new Vector2(0f, height), HorizontalScrollMode = ScrollContainer.ScrollMode.ShowNever,
             SizeFlagsHorizontal = SizeFlags.ExpandFill,
             SizeFlagsVertical = SizeFlags.ExpandFill,
         };
-        AddChild(scroll);
-        scroll.AddChild(Grid);
+        AddChild(_scroll);
+        _scroll.AddChild(Grid);
+        if (compact)
+        {
+            _empty = new Label
+            {
+                Name = "MapEmpty", Text = "No maps match these filters.\nTry another name, map code or playlist.",
+                CustomMinimumSize = new Vector2(0, height), HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center, AutowrapMode = TextServer.AutowrapMode.WordSmart,
+                SizeFlagsVertical = SizeFlags.ExpandFill, Modulate = UiStyle.Dim, Visible = false,
+            };
+            AddChild(_empty);
+        }
 
         var have = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         foreach ((string id, _) in installed)
@@ -124,11 +149,17 @@ public partial class MapPickerView : VBoxContainer
     private void BuildFilterBar(MapCatalog maps, string? playlist, Action<string>? chosen)
     {
         var bar = new HBoxContainer { Name = "MapFilter" };
-        bar.AddThemeConstantOverride("separation", 12);
-        AddChild(bar);
+        bar.AddThemeConstantOverride("separation", _compact ? 8 : 12);
+        if (!_compact) AddChild(bar);
         _playlists.AddRange(maps.GetPlaylists());
-        bar.AddChild(new Label { Text = "Playlist", VerticalAlignment = VerticalAlignment.Center, Modulate = UiStyle.MenuFocus });
-        var box = new OptionButton { Name = "Playlist", CustomMinimumSize = new Vector2(240f, 0f), FocusMode = FocusModeEnum.All };
+        if (!_compact)
+            bar.AddChild(new Label { Text = "Playlist", VerticalAlignment = VerticalAlignment.Center, Modulate = UiStyle.MenuFocus });
+        var box = new OptionButton
+        {
+            Name = "Playlist", CustomMinimumSize = new Vector2(_compact ? 0f : 240f, _compact ? 36f : 0f),
+            SizeFlagsHorizontal = _compact ? SizeFlags.ExpandFill : SizeFlags.Fill,
+            FocusMode = FocusModeEnum.All, TooltipText = "Filter maps by playlist",
+        };
         int selected = -1;
         for (int i = 0; i < _playlists.Count; i++)
         {
@@ -167,16 +198,56 @@ public partial class MapPickerView : VBoxContainer
 
         SearchBox = new LineEdit
         {
-            Name = "MapSearch", PlaceholderText = "Search maps", ClearButtonEnabled = true, SizeFlagsHorizontal = SizeFlags.ExpandFill,
-            MaxLength = 40,
+            Name = "MapSearch", PlaceholderText = _compact ? "Search by map name or code..." : "Search maps",
+            ClearButtonEnabled = true, SizeFlagsHorizontal = SizeFlags.ExpandFill,
+            CustomMinimumSize = new Vector2(0, _compact ? 38 : 0), MaxLength = 40,
+            TooltipText = "Search installed maps by name or map code",
         };
         SearchBox.TextChanged += text =>
         {
             _search = text.Trim();
             Refresh();
         };
-        bar.AddChild(SearchBox);
+        if (_compact)
+        {
+            AddChild(SearchBox);
+            AddChild(bar);
+        }
+        else bar.AddChild(SearchBox);
         bar.AddChild(Grid.ViewToggle);
+        if (_compact)
+        {
+            var status = new HBoxContainer { Name = "MapFilterStatus" };
+            AddChild(status);
+            _filterStatus = new Label
+            {
+                Name = "MapCount", SizeFlagsHorizontal = SizeFlags.ExpandFill,
+                VerticalAlignment = VerticalAlignment.Center, Modulate = UiStyle.Dim,
+            };
+            _filterStatus.AddThemeFontSizeOverride("font_size", 13);
+            status.AddChild(_filterStatus);
+            _resetFilters = new Button
+            {
+                Name = "ResetMapFilters", Text = "Reset filters", Flat = true,
+                TooltipText = "Clear the search and show all installed maps",
+            };
+            _resetFilters.AddThemeFontSizeOverride("font_size", 13);
+            _resetFilters.Pressed += () =>
+            {
+                SearchBox.Text = string.Empty;
+                _search = string.Empty;
+                int all = _playlists.FindIndex(p => p.Name == MapCatalog.AllMapsPlaylist);
+                if (all >= 0)
+                {
+                    box.Select(all);
+                    SetPlaylist(_playlists[all]);
+                    chosen?.Invoke(_playlists[all].Name);
+                }
+                _shownMap = null;
+                Refresh();
+            };
+            status.AddChild(_resetFilters);
+        }
     }
 
     /// <summary>The playlist's name as the list shows it ("All" is every installed map).</summary>
@@ -233,24 +304,68 @@ public partial class MapPickerView : VBoxContainer
     {
         EGameMode mode = Model.Setup.Mode;
         string map = Model.Setup.Map;
+        bool selectedWasVisible = _tiles.TryGetValue(map, out var previous) && previous.Tile.Visible;
+        int visible = 0;
         foreach ((string id, (Button tile, MapCatalogEntry? entry)) in _tiles)
         {
             bool on = string.Equals(id, map, StringComparison.OrdinalIgnoreCase);
-            tile.Visible = on || (entry?.Mode(mode) is not { Playable: false } && InFilter(id) && MatchesSearch(id, entry, tile));
+            tile.Visible = (!_compact && on) || (entry?.Mode(mode) is not { Playable: false } && InFilter(id) && MatchesSearch(id, entry, tile));
             tile.SetPressedNoSignal(on);
+            if (tile.Visible) visible++;
         }
 
-        if (!string.Equals(_shownMap, map, StringComparison.OrdinalIgnoreCase) && _tiles.TryGetValue(map, out var selected))
+        if (_filterStatus is not null)
+        {
+            _filterStatus.Text = visible == 1 ? "1 map available" : $"{visible} maps available";
+            _resetFilters!.Visible = _search.Length > 0 || _playlist is not null;
+            _empty!.Visible = visible == 0;
+            _scroll.Visible = visible > 0;
+        }
+
+        if ((!string.Equals(_shownMap, map, StringComparison.OrdinalIgnoreCase) || (_compact && !selectedWasVisible)) &&
+            _tiles.TryGetValue(map, out var selected))
         {
             _shownMap = map;
             Button tile = selected.Tile;
+            if (_compact)
+            {
+                // A single deferred call runs before the responsive grid has found its final columns and card sizes.
+                // Reveal once its geometry settles, then leave the user's scrolling alone until selection changes.
+                _revealTile = tile;
+                _revealStableFrames = 0;
+                return;
+            }
             Callable.From(() =>
             {
-                if (IsInstanceValid(tile) && tile.IsInsideTree() && Grid.GetParent() is ScrollContainer scroll)
+                if (IsInstanceValid(tile) && tile.IsInsideTree() && tile.Visible && Grid.GetParent() is ScrollContainer scroll)
                 {
                     scroll.EnsureControlVisible(tile);
                 }
             }).CallDeferred();
         }
+    }
+
+    public override void _Process(double delta)
+    {
+        if (_revealTile is not { } tile) return;
+        if (!IsInstanceValid(tile) || !tile.Visible)
+        {
+            _revealTile = null;
+            return;
+        }
+        if (!tile.IsVisibleInTree()) return;
+
+        Rect2 rect = tile.GetRect();
+        if (rect != _revealRect || Grid.Size != _revealGridSize || _scroll.Size != _revealScrollSize)
+        {
+            _revealRect = rect;
+            _revealGridSize = Grid.Size;
+            _revealScrollSize = _scroll.Size;
+            _revealStableFrames = 0;
+            return;
+        }
+        if (++_revealStableFrames < 3) return;
+        _scroll.EnsureControlVisible(tile);
+        _revealTile = null;
     }
 }

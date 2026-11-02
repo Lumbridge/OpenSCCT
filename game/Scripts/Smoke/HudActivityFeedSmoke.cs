@@ -126,6 +126,8 @@ public sealed class HudActivityFeedSmoke : SmokeTest
             Require(feed.DrawList.Items.Count == 0, "expired entries were drawn");
         }
 
+        CheckMovedDiagnostics(assets, entries);
+
         var animation = new HudActivityFeedDrawer();
         animation.Configure(assets);
         Vector2 reference = new(1280, 720);
@@ -136,6 +138,43 @@ public sealed class HudActivityFeedSmoke : SmokeTest
         animation.Draw(reference, entries, 15.8f, null);
         Require(animation.DrawList.Items.Where(i => i.Kind == MagmaWidgetKind.Text).All(i => Math.Abs(i.Color.A - .5f) < .002f), "fade midpoint incorrect");
         GD.Print("SVM_ACTIVITY_DIAGNOSTIC_ROWS " + string.Join("; ", diagnosticCounts));
+    }
+
+    private static void CheckMovedDiagnostics(HudAssets assets, HudActivityEntry[] entries)
+    {
+        foreach (Vector2I resolution in Sizes)
+        {
+            Vector2 screen = resolution;
+            var feed = new HudActivityFeedDrawer();
+            feed.Configure(assets);
+            feed.Draw(screen, entries, 11f, null);
+            int unobstructedRows = feed.VisibleCount;
+            (HudFps fps, HudNet net) = Diagnostics(assets, screen);
+            foreach (float positionY in new[] { 100f, 50f })
+            {
+                fps.Settings.PositionY = net.Settings.PositionY = positionY;
+                fps.Draw(screen, true);
+                net.FpsBounds = fps.Bounds;
+                net.Draw(screen, 0f, true, true);
+                feed.Draw(screen, entries, 11f, null, fps.DrawList.Items, net.DrawList.Items);
+                Require(feed.VisibleCount >= 1, "Moved telemetry hid activity despite space above: " + resolution + " y=" + positionY);
+                if (positionY == 100f)
+                    Require(feed.VisibleCount == unobstructedRows, "Bottom telemetry reduced activity rows: " + resolution);
+                CheckBounds(feed, screen);
+                foreach (MagmaDrawItem item in net.DrawList.Items.Concat(fps.DrawList.Items))
+                    Require(!feed.Bounds.Intersects(HudActivityFeedDrawer.ItemBounds(item)), "Activity overlaps moved telemetry: " + resolution);
+            }
+        }
+
+        // A panel inside the lane leaves too little space above it, but enough below for all five rows.
+        Vector2 reference = new(1280, 720);
+        var below = new HudActivityFeedDrawer();
+        below.Configure(assets);
+        MagmaDrawItem obstacle = HudText.Item("Fps", "Performance", new Rect2(950f, 40f, 320f, 30f), 12f, MagmaAlign.Left, Colors.White);
+        below.Draw(reference, entries, 11f, null, [obstacle]);
+        Require(below.VisibleCount == 5 && below.Bounds.Position.Y > obstacle.Rect.End.Y && !below.Bounds.Intersects(obstacle.Rect),
+            "Activity did not use available space below a moved telemetry panel");
+        CheckBounds(below, reference);
     }
 
     private static void CheckBounds(HudActivityFeedDrawer feed, Vector2 screen)
@@ -200,12 +239,14 @@ public sealed class HudActivityFeedSmoke : SmokeTest
     private static (HudFps Fps, HudNet Net) Diagnostics(HudAssets assets, Vector2 screen)
     {
         var fps = new HudFps();
+        fps.Configure(assets);
         fps.Add(1f / 60f);
         fps.Draw(screen, true);
         long packets = 10;
         var net = new HudNet { ShowLoss = true, Source = () => new NetReadout(true, 42000, 5000, packets * 1024, packets * 512,
             packets, 0, packets, 0, 0, 60, BufferMs: 55, SnapshotAgeMs: 25) };
         net.Configure(assets);
+        net.FpsBounds = fps.Bounds;
         net.Draw(screen, 1f, true, true);
         packets = 80;
         net.Draw(screen, 1f, true, true);

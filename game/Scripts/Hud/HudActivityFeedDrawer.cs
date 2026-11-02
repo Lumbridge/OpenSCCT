@@ -15,6 +15,7 @@ public sealed class HudActivityFeedDrawer
     private static readonly Color Dim = new(.65f, .72f, .78f, 1f);
     private static readonly string[] ReservedAreas = ["Radar", "Objectif", "Chrono", "ChronoHack", "ChronoAlarm", "ChronoObjectif", "ChronoObjectif2"];
     private readonly Dictionary<HudPage, float> _reservedRight = new();
+    private readonly List<Vector2> _blockedBands = new(16);
     private WhiteRegion? _white;
     private Font? _font;
     private MagmaFont? _bitmap;
@@ -54,28 +55,10 @@ public sealed class HudActivityFeedDrawer
         float width = Math.Min(280f * feedScale, right - margin);
         if (width < 96f) return;
         float left = right - width;
-        float top = margin;
-        top = Below(fpsItems, left, right, top, gap * 2f);
-        top = Below(netItems, left, right, top, gap * 2f);
         float safeBottom = screen.Y * .45f;
-        float bottom = safeBottom;
-        AvoidLocalPrompts(activePage, left, right, gap, ref top, ref bottom);
-        if (bottom - top < rowHeight && activePage is not null)
-        {
-            // At 4:3 with diagnostics, an alert can split the remaining strip in two. Try the space just below it
-            // before giving up; do not move the feed across the aiming area or cover the warning.
-            float nextTop = top;
-            foreach (MagmaDrawItem item in activePage.DrawList.Items)
-            {
-                if (!IsLocalPrompt(item.Path)) continue;
-                Rect2 prompt = ItemBounds(item);
-                if (prompt.Position.X < right && prompt.End.X > left && prompt.End.Y > top && prompt.Position.Y < safeBottom)
-                    nextTop = Math.Max(nextTop, prompt.End.Y + gap);
-            }
-            top = nextTop;
-            bottom = safeBottom;
-            AvoidLocalPrompts(activePage, left, right, gap, ref top, ref bottom);
-        }
+        Vector2 available = AvailableBand(activePage, fpsItems, netItems, left, right, margin, safeBottom,
+            gap, rowHeight, Math.Min(HudActivityFeed.Capacity, entries.Count));
+        float top = available.X, bottom = available.Y;
         int room = Math.Max(0, (int)MathF.Floor((bottom - top + gap) / (rowHeight + gap)));
         AvailableBounds = new Rect2(left, top, width, Math.Max(0f, bottom - top));
         int count = Math.Min(HudActivityFeed.Capacity, Math.Min(entries.Count, room));
@@ -121,37 +104,63 @@ public sealed class HudActivityFeedDrawer
         return Math.Max(margin, x - Math.Max(6f, 8f * scale));
     }
 
-    private static float Below(IReadOnlyList<MagmaDrawItem>? items, float left, float right, float top, float gap)
+    private Vector2 AvailableBand(HudPage? page, IReadOnlyList<MagmaDrawItem>? fpsItems, IReadOnlyList<MagmaDrawItem>? netItems,
+        float left, float right, float top, float bottom, float gap, float rowHeight, int desiredRows)
     {
-        if (items is null) return top;
+        _blockedBands.Clear();
+        AddTelemetryBand(fpsItems, left, right, top, bottom, gap * 2f);
+        AddTelemetryBand(netItems, left, right, top, bottom, gap * 2f);
+        if (page is not null)
+        {
+            foreach (MagmaDrawItem item in page.DrawList.Items)
+                if (IsLocalPrompt(item.Path)) AddBlockedBand(ItemBounds(item), left, right, top, bottom, gap);
+        }
+        _blockedBands.Sort(static (a, b) => a.X.CompareTo(b.X));
+
+        // Stay in the same safe lane. Prefer the upper free interval when both fit the same number of rows,
+        // but use space below an obstruction when that preserves more activity. Bottom telemetry cannot
+        // push the feed offscreen, and centre telemetry cannot conceal otherwise usable space above it.
+        Vector2 best = new(top, top);
+        int bestRows = 0;
+        float cursor = top;
+        foreach (Vector2 blocked in _blockedBands)
+        {
+            Consider(cursor, blocked.X);
+            cursor = Math.Max(cursor, blocked.Y);
+        }
+        Consider(cursor, bottom);
+        return best;
+
+        void Consider(float begin, float end)
+        {
+            int rows = Math.Min(desiredRows, Math.Max(0, (int)MathF.Floor((end - begin + gap) / (rowHeight + gap))));
+            if (rows <= bestRows) return;
+            bestRows = rows;
+            best = new Vector2(begin, end);
+        }
+    }
+
+    private void AddTelemetryBand(IReadOnlyList<MagmaDrawItem>? items, float left, float right, float top, float bottom, float gap)
+    {
+        if (items is null) return;
+        Rect2 union = default;
+        bool any = false;
+        // A graph can contain hundreds of segments. Reserve its element once rather than sorting every segment.
         foreach (MagmaDrawItem item in items)
         {
             Rect2 bounds = ItemBounds(item);
-            if (bounds.Size.X > 0f && bounds.Position.X < right && bounds.End.X > left)
-                top = Math.Max(top, bounds.End.Y + gap);
+            if (bounds.Size.X <= 0f || bounds.Size.Y <= 0f) continue;
+            union = any ? union.Merge(bounds) : bounds;
+            any = true;
         }
-        return top;
+        if (any) AddBlockedBand(union, left, right, top, bottom, gap);
     }
 
-    private static void AvoidLocalPrompts(HudPage? page, float left, float right, float gap, ref float top, ref float bottom)
+    private void AddBlockedBand(Rect2 bounds, float left, float right, float top, float bottom, float gap)
     {
-        if (page is null) return;
-        // These remain immediate local warnings. They can occupy the central lane when network diagnostics
-        // push activity down, especially the merc ALERT banner, so activity yields the space to them.
-        foreach (MagmaDrawItem item in page.DrawList.Items)
-        {
-            if (!IsLocalPrompt(item.Path)) continue;
-            Rect2 bounds = ItemBounds(item);
-            if (bounds.Size.X <= 0f || bounds.Position.X >= right || bounds.End.X <= left || bounds.End.Y <= top) continue;
-            if (bounds.Position.Y <= top) top = bounds.End.Y + gap;
-        }
-        foreach (MagmaDrawItem item in page.DrawList.Items)
-        {
-            if (!IsLocalPrompt(item.Path)) continue;
-            Rect2 bounds = ItemBounds(item);
-            if (bounds.Size.X > 0f && bounds.Position.X < right && bounds.End.X > left && bounds.End.Y > top)
-                bottom = Math.Min(bottom, bounds.Position.Y - gap);
-        }
+        if (bounds.Size.X <= 0f || bounds.Size.Y <= 0f || bounds.Position.X >= right || bounds.End.X <= left) return;
+        float begin = Math.Max(top, bounds.Position.Y - gap), end = Math.Min(bottom, bounds.End.Y + gap);
+        if (end > begin) _blockedBands.Add(new Vector2(begin, end));
     }
 
     internal static bool IsLocalPrompt(string path) => path.StartsWith("AlertMessage/", StringComparison.Ordinal) ||

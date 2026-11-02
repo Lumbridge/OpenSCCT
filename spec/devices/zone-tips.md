@@ -78,6 +78,9 @@ the sixth mission objective, you must demolish the doors. Hack into the crane to
 
 None. Standalone only (`ROLE_None`, static).
 
+The rewrite also permits the offline session's local player in its client/server transport. Both `SZoneTips` and
+`SHud.AddTutoMapMessage` check that player's `IProfileOptions.OfflineSession`; online and remote players are excluded.
+
 ## Edge cases
 
 - Two players offline is impossible, so `TargetController` holding one controller is enough.

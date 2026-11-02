@@ -107,6 +107,43 @@ public sealed class MenuPilot
         return ClickAt(control.GetGlobalTransformWithCanvas() * (control.Size * 0.5f), what, control.GetViewport());
     }
 
+    /// <summary>Selects a tab by clicking its tab bar; true once the requested page is visible.</summary>
+    public bool SelectTab(TabContainer? tabs, int index)
+    {
+        if (tabs is null || !tabs.IsVisibleInTree() || index < 0 || index >= tabs.GetTabCount()) return false;
+        if (tabs.CurrentTab == index) return true;
+        TabBar bar = tabs.GetTabBar();
+        if (!ScrollIntoView(bar)) return false;
+        ClickAt(bar.GetGlobalTransformWithCanvas() * bar.GetTabRect(index).GetCenter(), tabs.GetTabTitle(index) + " tab", bar.GetViewport());
+        return false;
+    }
+
+    /// <summary>Opens a dropdown, moves through its options with arrow keys and confirms with Enter.</summary>
+    public bool Choose(OptionButton? choice, int index, string what)
+    {
+        if (choice is null || !choice.IsVisibleInTree() || index < 0 || index >= choice.ItemCount) return false;
+        PopupMenu popup = choice.GetPopup();
+        if (!popup.Visible)
+        {
+            if (choice.Selected == index) return true;
+            Click(choice, what);
+            return false;
+        }
+        int focused = popup.GetFocusedItem();
+        _log.Add($"choose {what}: popup row {focused}, selected {choice.Selected}, target {index}");
+        Key(focused == index ? Godot.Key.Enter : focused < index ? Godot.Key.Down : Godot.Key.Up);
+        return false;
+    }
+
+    /// <summary>Types a number and confirms it through the spin box's editor.</summary>
+    public bool TypeNumber(SpinBox? number, int value, string what)
+    {
+        if (number is null || !number.IsVisibleInTree()) return false;
+        if (Math.Abs(number.Value - value) < 0.001) return true;
+        if (Type(number.GetLineEdit(), value.ToString(CultureInfo.InvariantCulture), what)) Key(Godot.Key.Enter);
+        return false;
+    }
+
     /// <summary>
     /// Scrolls the page so <paramref name="control"/> shows, as a player scrolls to it; false when it had to scroll
     /// (click on a later frame, once the page moved).

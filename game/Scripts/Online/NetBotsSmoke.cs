@@ -146,19 +146,22 @@ public sealed class NetBotsSmoke : SmokeTest
         });
         yield return new("create session page", 30, _ => s.Tree.CurrentScene is HostScreen { Model: not null });
         yield return new("map", 30, _ => string.Equals(Page().Model!.Setup.Map, NetLobbyScript.MapName(), StringComparison.OrdinalIgnoreCase) ||
-            (s.Pilot.Click(Page().Rows!.Find("MapNext"), "Map next") && false));
+            (s.Pilot.Click(Page().Picker!.Tile(NetLobbyScript.MapName()), "Map") && false));
         yield return new("max players 4", 20, _ => Page().Model!.Setup.MaxPlayers == 4 ||
-            (s.Pilot.Click(Page().Rows!.Find(Page().Model!.Setup.MaxPlayers > 4 ? "MaxPlayersPrev" : "MaxPlayersNext"), "Max Players") && false));
+            s.Pilot.TypeNumber(Page().Rows!.Find("MaxPlayersValue") as SpinBox, 4, "Max Players"));
         yield return new("game length 1 min", 20, _ => Page().Model!.Setup.TimeLimit == 1 ||
-            (s.Pilot.Click(Page().Rows!.Find(Page().Model!.Setup.TimeLimit > 1 ? "TimeLimitPrev" : "TimeLimitNext"), "Game Length") && false));
+            s.Pilot.TypeNumber(Page().Rows!.Find("TimeLimitValue") as SpinBox, 1, "Game Length"));
+        yield return new("rules tab", 10, _ => s.Pilot.SelectTab(Page().SettingsTabs, 1));
         yield return new("no revenge", 10, _ => !Page().Model!.Setup.Revenge || (s.Pilot.Click(Page().Rows!.Find("RevengeCheck"), "Revenge") && false));
+        yield return new("game tab", 10, _ => s.Pilot.SelectTab(Page().SettingsTabs, 0));
         yield return new("bots fill slots", 20, _ => Page().Model!.Setup.Bots == BotFill.Fill ||
-            (s.Pilot.Click(Page().Rows!.Find("BotsNext"), "Bots next") && false));
+            s.Pilot.Choose(Page().Rows!.Find("BotsChoice") as OptionButton, (int)BotFill.Fill, "Bots"));
         yield return new("bot skill easy", 20, _ => Page().Model!.Setup.BotSkill == OpenScct.Game.AI.AiSkill.Easy ||
-            (s.Pilot.Click(Page().Rows!.Find("BotSkillPrev"), "Bot Skill previous") && false));
+            s.Pilot.Choose(Page().Rows!.Find("BotSkillChoice") as OptionButton, (int)OpenScct.Game.AI.AiSkill.Easy, "Bot Skill"));
         yield return new("bot rows read", 10, _ =>
-            s.Expect(s.ValueText("BotsValue") == "Fill Slots" && s.ValueText("BotSkillValue") == "Easy",
-                $"the rows read '{s.ValueText("BotsValue")}' and '{s.ValueText("BotSkillValue")}'"));
+            s.Expect(Page().Rows!.Find("BotsChoice") is OptionButton { Text: "Fill Slots" } &&
+                Page().Rows!.Find("BotSkillChoice") is OptionButton { Text: "Easy" }, "the bot dropdowns read Fill Slots and Easy"));
+        yield return new("hosting tab", 10, _ => s.Pilot.SelectTab(Page().SettingsTabs, 2));
         yield return new("no password", 10, _ => Page().Model!.Password.Length == 0 ||
             (s.Pilot.Type(Page().Rows!.Find("PasswordEdit") as LineEdit, string.Empty, "Password") && false));
         yield return new("upnp off", 10, _ =>
@@ -166,6 +169,7 @@ public sealed class NetBotsSmoke : SmokeTest
             CheckBox? upnp = s.Pilot.Find<CheckBox>("Upnp");
             return upnp is { ButtonPressed: false } || (s.Pilot.Click(upnp, "UPnP") && false);
         });
+        yield return new("game tab again", 10, _ => s.Pilot.SelectTab(Page().SettingsTabs, 0));
         yield return new("server name", 10, _ => s.Typed("ServerName", ServerName));
         yield return new("create", 10, _ =>
         {

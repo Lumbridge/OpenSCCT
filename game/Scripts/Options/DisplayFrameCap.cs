@@ -29,7 +29,7 @@ public static class DisplayFrameCap
 
     public const int Max = 240;
 
-    public const string MonitorLabel = "Monitor";
+    public const string MonitorLabel = "Match refresh rate";
 
     public const string UnlimitedLabel = "Unlimited";
 
@@ -92,7 +92,7 @@ public static class DisplayFrameCap
         }
 
         string t = text.Trim();
-        if (t.StartsWith(MonitorLabel, StringComparison.OrdinalIgnoreCase))
+        if (t.StartsWith(MonitorLabel, StringComparison.OrdinalIgnoreCase) || t.StartsWith("Monitor", StringComparison.OrdinalIgnoreCase))
         {
             return Monitor;
         }

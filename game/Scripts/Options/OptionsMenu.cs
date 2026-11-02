@@ -27,6 +27,9 @@ public partial class OptionsMenu : Control
     private VBoxContainer? _column;
     private readonly List<GridContainer> _settingsGrids = new();
     private Vector2 _layoutSize = new(-1, -1);
+    private double _frameRateLabelHz = double.NaN;
+    private double _frameRateLabelAge;
+    private bool _previewSelectedMonitor;
 
     public OptionsMenu()
     {
@@ -74,6 +77,12 @@ public partial class OptionsMenu : Control
         UpdateLayout();
         UpdateVoicePage();
         TickKeep();
+        if ((_frameRateLabelAge += delta) >= 1.0)
+        {
+            _frameRateLabelAge = 0;
+            double hz = FrameRatePreviewHz();
+            if (Math.Abs(hz - _frameRateLabelHz) > 0.01) RefreshFrameRateChoices(hz);
+        }
         if (_note is not null) _note.Visible = !string.IsNullOrWhiteSpace(_note.Text);
         if (_dirtyLabel is not null) _dirtyLabel.Text = HasUnsavedChanges ? "Unsaved changes" : "All changes applied";
     }
@@ -468,10 +477,17 @@ public partial class OptionsMenu : Control
         }
 
         Choice(g, "Monitor", "display_monitor", monitors, Math.Clamp(_edit.Monitor, 1, screens).ToString(CultureInfo.InvariantCulture),
-            v => _edit.Monitor = int.Parse(v, CultureInfo.InvariantCulture));
+            v =>
+            {
+                _edit.Monitor = int.Parse(v, CultureInfo.InvariantCulture);
+                _previewSelectedMonitor = true;
+                RefreshFrameRateChoices();
+            });
         Choice(g, "Window size", "resolution", Resolutions(), _edit.Resolution.Length == 0 ? DesktopLabel : _edit.Resolution,
             v => _edit.Resolution = v == DesktopLabel ? "" : v);
         Check(g, "Vertical sync", "vsync", _edit.VSync, v => _edit.VSync = v);
+        FrameRateChoice(g, "Max FPS", "max_fps");
+        _controls["max_fps"].TooltipText = "Sets the limit for both roles. Match refresh rate follows your display's current refresh rate; Unlimited removes the cap. Vertical sync can still limit FPS. Separate role limits can be set under Mouse & Aim.";
         Section(g, "Widescreen layout", "Widen the view and adjust how the HUD fits a widescreen display.");
         Check(g, "Wider field of view on widescreen", "widescreen", _edit.Widescreen, v => _edit.Widescreen = v);
         Check(g, "Fit HUD to widescreen", "widescreen_hud", _edit.WidescreenHud, v => _edit.WidescreenHud = v);
@@ -506,6 +522,61 @@ public partial class OptionsMenu : Control
     }
 
     private const string DesktopLabel = "Desktop";
+
+    private void FrameRateChoice(GridContainer grid, string label, string key)
+    {
+        var option = new OptionButton
+        {
+            Name = Safe(key), ClipText = true, FitToLongestItem = false,
+            CustomMinimumSize = new Vector2(320f, 0f), SizeFlagsHorizontal = SizeFlags.ExpandFill,
+        };
+        option.ItemSelected += index =>
+        {
+            if (DisplayFrameCap.Parse(option.GetItemText((int)index)) is not { } fps) return;
+            if (key != "fps_merc") _edit.FpsSpy = fps;
+            if (key != "fps_spy") _edit.FpsMerc = fps;
+            RefreshFrameRateChoices();
+        };
+        grid.AddChild(new Label { Text = label, AutowrapMode = TextServer.AutowrapMode.WordSmart, CustomMinimumSize = new Vector2(300f, 0f) });
+        grid.AddChild(option);
+        grid.AddChild(new Control());
+        _controls[key] = option;
+        RefreshFrameRateChoices();
+    }
+
+    private double FrameRatePreviewHz()
+    {
+        // Preview an unapplied monitor selection; otherwise follow the actual window, including manual moves.
+        int screen = _previewSelectedMonitor || _edit.Monitor != SettingsStore.Current.Monitor
+            ? Math.Clamp(_edit.Monitor - 1, 0, Math.Max(0, DisplayServer.GetScreenCount() - 1))
+            : DisplayServer.WindowGetCurrentScreen();
+        return SettingsApplier.RefreshRateForScreen(screen);
+    }
+
+    private void RefreshFrameRateChoices(double? previewHz = null)
+    {
+        double hz = previewHz ?? FrameRatePreviewHz();
+        _frameRateLabelHz = hz;
+        foreach (string key in new[] { "max_fps", "fps_spy", "fps_merc" })
+        {
+            if (!_controls.TryGetValue(key, out Control? control) || control is not OptionButton option) continue;
+            int fps = key == "fps_merc" ? _edit.FpsMerc : _edit.FpsSpy;
+            bool mixed = key == "max_fps" && _edit.FpsSpy != _edit.FpsMerc;
+            option.Clear();
+            if (mixed)
+            {
+                option.AddItem("Per-role limits");
+                option.SetItemDisabled(0, true);
+            }
+            foreach (string item in DisplayFrameCap.Choices(fps, hz))
+            {
+                option.AddItem(item);
+                option.SetItemTooltip(option.ItemCount - 1, item);
+                if (!mixed && DisplayFrameCap.Parse(item) == fps) option.Select(option.ItemCount - 1);
+            }
+            if (mixed) option.Select(0);
+        }
+    }
 
     private static string[] Resolutions()
     {
@@ -542,15 +613,13 @@ public partial class OptionsMenu : Control
         Check(g, "Show latency in player list", "show_ping", _edit.ShowPing, v => _edit.ShowPing = v);
         Choice(g, "Split player list when team size reaches", "scoreboard_split_team_size", ["1", "2", "3", "4"],
             _edit.ScoreboardSplitTeamSize.ToString(CultureInfo.InvariantCulture), v => _edit.ScoreboardSplitTeamSize = int.Parse(v, CultureInfo.InvariantCulture));
-        Section(g, "Performance & network information", "Show diagnostic information while playing.");
-        Check(g, "Show frames per second (FPS)", "show_fps", _edit.ShowFps, v => _edit.ShowFps = v);
-        Check(g, "Network readout (ping, corrections; a host sees its players' best and worst ping)", "show_net", _edit.ShowNet,
-            v => _edit.ShowNet = v);
-        Check(g, "Packet loss in the network readout", "show_net_loss", _edit.ShowNetLoss, v => _edit.ShowNetLoss = v);
+        TelemetryControls(g);
         Section(g, "Online feedback", "");
         Check(g, "Fire prediction (your bullet impacts show at once online)", "fire_prediction", _edit.FirePrediction,
             v => _edit.FirePrediction = v);
         Section(g, "Gameplay display", "");
+        Slider(g, "Team nametag opacity (%)", "teammate_names_opacity", 10f, 100f, 1f, _edit.TeammateNamesOpacity,
+            v => _edit.TeammateNamesOpacity = (int)MathF.Round(v), "0");
         Check(g, "Show current location", "show_location", _edit.ShowLocation, v => _edit.ShowLocation = v);
         Check(g, "Use feet for distances", "hud_feet", _edit.HudFeet, v => _edit.HudFeet = v);
         Check(g, "Classic crosshair position (merc, slightly off-centre)", "classic_crosshair", _edit.ClassicCrosshair,
@@ -841,6 +910,7 @@ public partial class OptionsMenu : Control
         }
         foreach (KeyBindingsModel model in ModelsToCommit()) model.Draft?.Accept();
         SettingsApplier.ApplyDisplay(_edit, GetViewport());
+        _previewSelectedMonitor = false;
         SettingsApplier.ApplyAudio(_edit);
         _edit = SettingsStore.Current.Clone();
         _baseline = _edit.ToJson();

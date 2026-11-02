@@ -20,23 +20,28 @@ public partial class SessionRowsView : VBoxContainer
     private readonly Dictionary<SessionRow, Label> _values = new();
     private readonly Dictionary<SessionRow, Label> _captions = new();
     private readonly Dictionary<SessionRow, CheckBox> _checks = new();
+    private readonly Dictionary<SessionRow, SpinBox> _numbers = new();
+    private readonly Dictionary<SessionRow, OptionButton> _choices = new();
     private readonly List<BaseButton> _arrows = new();
     private Label? _hint;
     private LineEdit? _password;
     private bool _editable = true;
     private BoxContainer? _columns;
+    private bool _refreshing;
 
     /// <param name="compact">The lobby's layout (<see cref="BuildCompact"/>) instead of the page's three rule boxes.</param>
-    public SessionRowsView(CreateSessionModel model, IReadOnlyCollection<SessionRow> rows, bool showPassword, bool compact = false)
+    public SessionRowsView(CreateSessionModel model, IReadOnlyCollection<SessionRow> rows, bool showPassword, bool compact = false, bool form = false)
     {
         Model = model ?? throw new ArgumentNullException(nameof(model));
         Name = "SessionRows";
         _compact = compact;
+        _form = form;
         Build(rows, showPassword);
         model.Changed += Refresh;
     }
 
     private readonly bool _compact;
+    private readonly bool _form;
 
     public CreateSessionModel Model { get; }
 
@@ -60,6 +65,9 @@ public partial class SessionRowsView : VBoxContainer
                 c.Disabled = !value;
             }
 
+            foreach (SpinBox number in _numbers.Values) number.Editable = value;
+            foreach (OptionButton choice in _choices.Values) choice.Disabled = !value;
+
             if (_password is not null)
             {
                 _password.Editable = value;
@@ -72,6 +80,14 @@ public partial class SessionRowsView : VBoxContainer
     private void Build(IReadOnlyCollection<SessionRow> rows, bool showPassword)
     {
         AddThemeConstantOverride("separation", 4);
+        if (_form)
+        {
+            AddThemeConstantOverride("separation", 8);
+            foreach (SessionRow row in rows)
+                if (row != SessionRow.Password || showPassword) AddChild(MakeFormRow(row));
+            Refresh();
+            return;
+        }
         if (_compact)
         {
             BuildCompact(rows);
@@ -197,6 +213,135 @@ public partial class SessionRowsView : VBoxContainer
         return column;
     }
 
+    /// <summary>Place form controls in the host page's sections while retaining their shared model binding.</summary>
+    public void MoveRowsTo(Container parent, params SessionRow[] rows)
+    {
+        ArgumentNullException.ThrowIfNull(parent);
+        foreach (SessionRow row in rows)
+        {
+            if (!_rows.TryGetValue(row, out Control? line)) continue;
+            line.GetParent()?.RemoveChild(line);
+            parent.AddChild(line);
+        }
+    }
+
+    private Control MakeFormRow(SessionRow row)
+    {
+        var line = new HBoxContainer { Name = "Row_" + row, CustomMinimumSize = new Vector2(0, 36) };
+        line.AddThemeConstantOverride("separation", 12);
+        var caption = new Label
+        {
+            Name = row + "Caption", Text = Model.Caption(row),
+            AutowrapMode = TextServer.AutowrapMode.WordSmart,
+            SizeFlagsHorizontal = SizeFlags.ExpandFill,
+            TooltipText = Description(row), MouseFilter = MouseFilterEnum.Pass,
+        };
+        line.AddChild(caption);
+        _captions[row] = caption;
+        _rows[row] = line;
+        if (CreateSessionModel.IsCheck(row))
+        {
+            caption.Hide();
+            var check = new CheckBox
+            {
+                Name = row + "Check", Text = Model.Caption(row), TooltipText = Description(row),
+                CustomMinimumSize = new Vector2(0, 36), SizeFlagsHorizontal = SizeFlags.ExpandFill,
+            };
+            check.Toggled += on => { if (_editable && !_refreshing) Model.SetChecked(row, on); };
+            _checks[row] = check;
+            line.AddChild(check);
+        }
+        else if (row == SessionRow.Password)
+        {
+            _password = new LineEdit
+            {
+                Name = "PasswordEdit", Secret = true, MaxLength = LobbySetup.MaxPasswordLength,
+                PlaceholderText = "Optional", Text = Model.Password,
+                CustomMinimumSize = new Vector2(220, 36),
+                TooltipText = "Leave empty to allow players to join without a password.",
+            };
+            _password.TextChanged += text =>
+            {
+                string clean = CreateSessionModel.FilterPassword(text);
+                if (clean != text)
+                {
+                    int caret = _password.CaretColumn;
+                    _password.Text = clean;
+                    _password.CaretColumn = Math.Min(caret, clean.Length);
+                }
+                if (_editable && !_refreshing) Model.SetPassword(clean);
+            };
+            line.AddChild(_password);
+        }
+        else if (row is SessionRow.Mode or SessionRow.VoiceChat or SessionRow.Bots or SessionRow.BotSkill)
+        {
+            var choice = new OptionButton
+            {
+                Name = row + "Choice", CustomMinimumSize = new Vector2(220, 36),
+                FitToLongestItem = false, TextOverrunBehavior = TextServer.OverrunBehavior.TrimEllipsis,
+            };
+            choice.ItemSelected += index =>
+            {
+                if (!_editable || _refreshing) return;
+                if (row == SessionRow.Mode) Model.SelectMode(Model.Modes[(int)index]);
+                else Model.Step(row, (int)index - Model.Number(row));
+            };
+            _choices[row] = choice;
+            line.AddChild(choice);
+        }
+        else if (row == SessionRow.Map)
+        {
+            var value = new Label
+            {
+                Name = "MapValue", SizeFlagsHorizontal = SizeFlags.ExpandFill,
+                AutowrapMode = TextServer.AutowrapMode.WordSmart,
+            };
+            _values[row] = value;
+            line.AddChild(value);
+        }
+        else
+        {
+            var number = new SpinBox
+            {
+                Name = row + "Value", CustomMinimumSize = new Vector2(220, 36),
+                Rounded = true, Step = 1, UpdateOnTextChanged = false,
+            };
+            number.ValueChanged += value => { if (_editable && !_refreshing) Model.SetNumber(row, (int)value); };
+            _numbers[row] = number;
+            line.AddChild(number);
+        }
+        return line;
+    }
+
+    private void RefreshChoice(SessionRow row, OptionButton choice)
+    {
+        var labels = new List<string>();
+        int selected = Model.Number(row);
+        switch (row)
+        {
+            case SessionRow.Mode:
+                selected = 0;
+                foreach (var mode in Model.Modes)
+                {
+                    if (mode == Model.Setup.Mode) selected = labels.Count;
+                    labels.Add(CreateSessionModel.ModeName(mode));
+                }
+                break;
+            case SessionRow.VoiceChat: labels.AddRange(LobbySetup.VoiceModeNames); break;
+            case SessionRow.Bots: labels.AddRange(OnlineBotRoster.FillNames); break;
+            case SessionRow.BotSkill: labels.AddRange(OnlineBotRoster.SkillNames); break;
+        }
+        bool changed = choice.ItemCount != labels.Count;
+        for (int i = 0; !changed && i < labels.Count; i++) changed = choice.GetItemText(i) != labels[i];
+        if (changed)
+        {
+            choice.Clear();
+            foreach (string label in labels) choice.AddItem(label);
+        }
+        choice.Select(selected);
+        choice.TooltipText = row == SessionRow.VoiceChat ? Model.VoiceHint : Model.Text(row);
+    }
+
     private Control MakeRow(SessionRow row)
     {
         var line = new HBoxContainer { Name = "Row_" + row, CustomMinimumSize = new Vector2(0, _compact ? 38 : 0) };
@@ -306,6 +451,7 @@ public partial class SessionRowsView : VBoxContainer
     /// <summary>Redraws the values, captions and which rows show.</summary>
     public void Refresh()
     {
+        _refreshing = true;
         foreach ((SessionRow row, Control line) in _rows)
         {
             line.Visible = Model.Visible(row);
@@ -319,16 +465,28 @@ public partial class SessionRowsView : VBoxContainer
             {
                 check.SetPressedNoSignal(Model.Checked(row));
             }
+
+            if (_numbers.TryGetValue(row, out SpinBox? number))
+            {
+                (int min, int max) = Model.Range(row);
+                number.MinValue = min;
+                number.MaxValue = max;
+                number.SetValueNoSignal(Model.Number(row));
+                number.TooltipText = min == 0 && row is SessionRow.TimeLimit or SessionRow.SpyLives or SessionRow.MercLives
+                    ? "0 = unlimited. Type a value or use the arrows." : "Type a value or use the arrows.";
+            }
+            if (_choices.TryGetValue(row, out OptionButton? choice)) RefreshChoice(row, choice);
         }
 
         if (_hint is not null)
         {
             _hint.Text = Model.VoiceHint;
         }
-        else if (_compact && _captions.TryGetValue(SessionRow.VoiceChat, out Label? voice))
+        else if ((_compact || _form) && _captions.TryGetValue(SessionRow.VoiceChat, out Label? voice))
         {
             voice.TooltipText = Model.Caption(SessionRow.VoiceChat) + ": " + Model.VoiceHint;
         }
+        _refreshing = false;
     }
 
     public override void _Process(double delta)
@@ -356,7 +514,16 @@ public partial class SessionRowsView : VBoxContainer
     }
 
     /// <summary>The control of a row's arrow or check (tests and the menu pilot).</summary>
-    public Control? Find(string name) => FindChild(name, recursive: true, owned: false) as Control;
+    public Control? Find(string name)
+    {
+        if (FindChild(name, recursive: true, owned: false) is Control child) return child;
+        foreach (Control row in _rows.Values)
+        {
+            if (row.Name == name) return row;
+            if (row.FindChild(name, recursive: true, owned: false) is Control relocated) return relocated;
+        }
+        return null;
+    }
 
     private static string Description(SessionRow row) => row switch
     {

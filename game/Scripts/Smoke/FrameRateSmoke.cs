@@ -16,7 +16,7 @@ namespace OpenScctGame.Smoke;
 /// <summary>
 /// <c>--svm-smoke=frame-rate</c>: the player's frame rate settings and what they see at each (docs/RENDERING.md, frame
 /// pacing). The spy plays SteeE as the launchers run it (wall clock, listen server on its own thread, HUD). For each
-/// case of SVM_FRAMERATE_CASES (default <c>monitor,60,144,165,240,unlimited,monitor-vsync</c>; a number is a cap,
+/// case of SVM_FRAMERATE_CASES (default <c>monitor,60,144,165,240,unlimited,monitor-vsync,monitor-move,monitor-mode-change</c>; a number is a cap,
 /// <c>-vsync</c> turns vertical sync on) the settings are saved and applied as the options screen does
 /// (<see cref="SettingsStore.Save"/>, <see cref="SettingsApplier.ApplyPacing"/>, the play scene's
 /// <see cref="OptionsRuntime"/> choosing the side's cap every frame), <see cref="KeyPilot"/> walks the spy forward
@@ -68,6 +68,7 @@ public sealed class FrameRateSmoke : SmokeTest
     private readonly List<string> _notes = new();
     private readonly List<string> _failures = new();
     private readonly List<string> _lines = new();
+    private readonly HashSet<string> _skipped = new(StringComparer.Ordinal);
     private PlayRoot? _root;
     private KeyPilot? _keys;
     private FrameRateRecorder? _recorder;
@@ -87,38 +88,45 @@ public sealed class FrameRateSmoke : SmokeTest
     private bool _saved;
     private DisplayServer.VSyncMode _savedVsync;
     private int _savedMaxFps;
+    private GameSettings? _savedSettings;
+    private bool _savedLastMerc;
+    private DisplayServer.WindowMode _savedWindowMode;
+    private Vector2I _savedWindowPosition;
+    private Vector2I _savedWindowSize;
+    private int _savedScreen;
+    private int _requestedScreen = -1;
 
     public FrameRateSmoke()
     {
         string? text = System.Environment.GetEnvironmentVariable("SVM_FRAMERATE_CASES");
         string[] names = string.IsNullOrWhiteSpace(text)
-            ? ["monitor", "60", "144", "165", "240", "unlimited", "monitor-vsync", "monitor-move"]
+            ? ["monitor", "60", "144", "165", "240", "unlimited", "monitor-vsync", "monitor-move", "monitor-mode-change"]
             : text.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
         foreach (string name in names)
         {
             bool vsync = name.EndsWith("-vsync", StringComparison.OrdinalIgnoreCase);
             bool move = name.EndsWith("-move", StringComparison.OrdinalIgnoreCase);
-            string cap = vsync ? name[..^6] : move ? name[..^5] : name;
+            bool modeChange = name.EndsWith("-mode-change", StringComparison.OrdinalIgnoreCase);
+            string cap = vsync ? name[..^6] : move ? name[..^5] : modeChange ? name[..^12] : name;
             int value = cap.ToLowerInvariant() switch
             {
                 "monitor" => DisplayFrameCap.Monitor,
                 "unlimited" or "0" => DisplayFrameCap.Unlimited,
                 _ => DisplayFrameCap.Clamp(int.Parse(cap, CultureInfo.InvariantCulture)),
             };
-            _cases.Add(new Case(name, value, vsync, move));
+            _cases.Add(new Case(name, value, vsync, move, modeChange));
         }
     }
 
     public override string Name => TestName;
 
-    /// <summary>A case: the cap and vertical sync, and whether the window moves to the next screen first (the cap follows it).</summary>
-    private sealed record Case(string Label, int Cap, bool VSync, bool Move = false);
+    /// <summary>A cap, with an optional direct screen move or fullscreen-to-windowed change selecting another screen.</summary>
+    private sealed record Case(string Label, int Cap, bool VSync, bool Move = false, bool ModeChange = false);
 
     /// <summary>What a case asked for once its settings took: the screen's rate, the frame rate and max_fps.</summary>
     private readonly record struct Asked(double Hz, int Fps, int MaxFps);
 
     private readonly Dictionary<string, Asked> _asked = new();
-    private int _homeScreen = -1;
 
     private enum Phase
     {
@@ -135,7 +143,9 @@ public sealed class FrameRateSmoke : SmokeTest
         ArgumentNullException.ThrowIfNull(context);
         if (_teardown >= 0)
         {
-            return ++_teardown < TeardownFrames ? SmokeResult.Running : _final;
+            if (++_teardown < TeardownFrames) return SmokeResult.Running;
+            RestoreDisplay();
+            return _final;
         }
 
         if (_root is null)
@@ -172,6 +182,12 @@ public sealed class FrameRateSmoke : SmokeTest
             _root.AddChild(_recorder);
             _savedVsync = DisplayServer.WindowGetVsyncMode();
             _savedMaxFps = Engine.MaxFps;
+            _savedSettings = SettingsStore.Current.Clone();
+            _savedLastMerc = SettingsApplier.LastMerc;
+            _savedWindowMode = DisplayServer.WindowGetMode();
+            _savedWindowPosition = DisplayServer.WindowGetPosition();
+            _savedWindowSize = DisplayServer.WindowGetSize();
+            _savedScreen = DisplayServer.WindowGetCurrentScreen();
             _saved = true;
 
             // The play scene's settings runtime chooses the side's cap every frame as in a player's game (smoke runs
@@ -214,6 +230,11 @@ public sealed class FrameRateSmoke : SmokeTest
                 if (_stepFrames == 0)
                 {
                     Apply(c);
+                    if (_skipped.Contains(c.Label))
+                    {
+                        NextCase(context);
+                        break;
+                    }
                 }
 
                 if (t >= SettleSeconds)
@@ -277,14 +298,7 @@ public sealed class FrameRateSmoke : SmokeTest
                     // drops the ticks it fell behind by).
                     _recorder!.Recording = false;
                     Shot($"{c.Label}-turn");
-                    if (_case + 1 >= _cases.Count)
-                    {
-                        Enter(_case, Phase.Options, context);
-                        _recorder.Recording = false;
-                        break;
-                    }
-
-                    Enter(_case + 1, Phase.Settle, context);
+                    NextCase(context);
                 }
                 else
                 {
@@ -337,44 +351,95 @@ public sealed class FrameRateSmoke : SmokeTest
         _recorder.Recording = true;
     }
 
+    private void NextCase(SmokeContext context)
+    {
+        if (_case + 1 < _cases.Count) Enter(_case + 1, Phase.Settle, context);
+        else
+        {
+            Enter(_case, Phase.Options, context);
+            _recorder!.Recording = false;
+        }
+    }
+
     /// <summary>The case's settings, saved and applied as the options screen's Save does.</summary>
     private void Apply(Case c)
     {
+        _requestedScreen = -1;
+        if ((c.Move || c.ModeChange) && DisplayServer.GetScreenCount() < 2)
+        {
+            _skipped.Add(c.Label);
+            _notes.Add($"{c.Label}: SKIP — requires two monitors; multi-monitor placement and refresh tracking were not tested");
+            return;
+        }
+
         GameSettings s = SettingsStore.Current.Clone();
         s.FpsSpy = c.Cap;
         s.FpsMerc = c.Cap;
         s.VSync = c.VSync;
+        if (c.ModeChange)
+        {
+            int source = DisplayServer.WindowGetCurrentScreen();
+            _requestedScreen = (source + 1) % DisplayServer.GetScreenCount();
+            // Establish a saved windowed rectangle on the source screen. Windows restores this rectangle when
+            // fullscreen ends, so moving screens only before WindowSetMode would return to the source screen.
+            PlaceTestWindow(source);
+            DisplayServer.WindowSetMode(DisplayServer.WindowMode.Fullscreen);
+            if (DisplayServer.WindowGetCurrentScreen() != source || DisplayServer.WindowGetMode() != DisplayServer.WindowMode.Fullscreen)
+                _failures.Add($"{c.Label}: could not establish fullscreen on source screen {source + 1}");
+
+            s.Monitor = _requestedScreen + 1;
+            s.DisplayMode = "Windowed";
+            s.Resolution = ""; // Desktop: no explicit size/recentering may hide an incorrect screen restoration.
+            s.WindowPosition = "Default";
+            SettingsStore.Save(s);
+            SettingsApplier.ApplyDisplay(s);
+            _notes.Add($"{c.Label}: ApplyDisplay from fullscreen screen {source + 1} to windowed screen {_requestedScreen + 1}, Desktop size");
+            return;
+        }
+
+        // The direct move must still be detected by the pacer, without applying display settings again.
+        if (c.Move)
+        {
+            int source = DisplayServer.WindowGetCurrentScreen();
+            _requestedScreen = (source + 1) % DisplayServer.GetScreenCount();
+            PlaceTestWindow(source);
+        }
+
         SettingsStore.Save(s);
         SettingsApplier.ApplyPacing(s);
+        if (c.Move) DisplayServer.WindowSetCurrentScreen(_requestedScreen);
+    }
 
-        // The window goes to the next screen; the pacer finds it there and applies that screen's rate.
-        if (c.Move && _homeScreen < 0)
-        {
-            int count = DisplayServer.GetScreenCount();
-            if (count < 2)
-            {
-                _notes.Add($"{c.Label}: one screen only, the window stays");
-                return;
-            }
-
-            _homeScreen = DisplayServer.WindowGetCurrentScreen();
-            DisplayServer.WindowSetCurrentScreen((_homeScreen + 1) % count);
-        }
+    private static void PlaceTestWindow(int screen)
+    {
+        // BackgroundWindow starts off-screen; moving that rectangle by a screen's offset may leave it nearest
+        // the same screen. A small visible rectangle makes the move deterministic without changing NoFocus.
+        DisplayServer.WindowSetMode(DisplayServer.WindowMode.Windowed);
+        DisplayServer.WindowSetCurrentScreen(screen);
+        Rect2I usable = DisplayServer.ScreenGetUsableRect(screen);
+        var size = new Vector2I(Math.Min(800, usable.Size.X), Math.Min(600, usable.Size.Y));
+        DisplayServer.WindowSetSize(size);
+        DisplayServer.WindowSetPosition(usable.Position + (usable.Size - size) / 2);
     }
 
     private void CheckApplied(Case c)
     {
         int screen = DisplayServer.WindowGetCurrentScreen();
-        double hz = DisplayServer.ScreenGetRefreshRate(screen);
+        double hz = DisplayServer.ScreenGetRefreshRate(_requestedScreen >= 0 ? _requestedScreen : screen);
+        if (!double.IsFinite(hz) || hz < 1.0) hz = DisplayFrameCap.FallbackHz;
         int want = DisplayFrameCap.EngineMaxFps(c.Cap, hz, c.VSync);
         _asked[c.Label] = new Asked(hz, DisplayFrameCap.ExpectedFps(c.Cap, hz, c.VSync), want);
-        if (c.Move)
+        if (c.Move || c.ModeChange)
         {
             _notes.Add(string.Create(CultureInfo.InvariantCulture,
                 $"{c.Label}: window on screen {screen + 1} ({hz:F2} Hz), the pacer read screen {SettingsApplier.MonitorScreen + 1} at {SettingsApplier.MonitorHz:F2} Hz"));
-            if (SettingsApplier.MonitorScreen != screen)
+            if (screen != _requestedScreen)
+                _failures.Add($"{c.Label}: window is on screen {screen + 1}, requested {_requestedScreen + 1}");
+            if (c.ModeChange && DisplayServer.WindowGetMode() != DisplayServer.WindowMode.Windowed)
+                _failures.Add($"{c.Label}: window did not leave fullscreen");
+            if (SettingsApplier.MonitorScreen != _requestedScreen || Math.Abs(SettingsApplier.MonitorHz - hz) > 0.01)
             {
-                _failures.Add($"{c.Label}: the frame cap did not follow the window to screen {screen + 1}");
+                _failures.Add($"{c.Label}: the frame cap did not follow requested screen {_requestedScreen + 1} at {hz:F2} Hz");
             }
         }
 
@@ -404,12 +469,12 @@ public sealed class FrameRateSmoke : SmokeTest
             }
         }
 
-        foreach (string key in new[] { "fps_spy", "fps_merc" })
+        foreach (string key in new[] { "max_fps", "fps_spy", "fps_merc" })
         {
             string shown = menu.Controls.TryGetValue(key, out Control? control) && control is OptionButton option && option.Selected >= 0
                 ? option.GetItemText(option.Selected)
                 : "";
-            string want = DisplayFrameCap.Label(SettingsStore.Current.FpsFor(key == "fps_merc"), SettingsApplier.MonitorHz);
+            string want = DisplayFrameCap.Label(SettingsStore.Current.FpsFor(key != "fps_spy"), SettingsApplier.MonitorHz);
             _notes.Add($"options: {key} shows '{shown}'");
             if (shown != want)
             {
@@ -421,6 +486,45 @@ public sealed class FrameRateSmoke : SmokeTest
         {
             _failures.Add("options: no vertical sync row");
         }
+
+        if (DisplayServer.GetScreenCount() < 2)
+        {
+            _notes.Add("options monitor preview: SKIP — requires two monitors");
+            return;
+        }
+        if (!menu.Controls.TryGetValue("display_monitor", out Control? monitorControl) || monitorControl is not OptionButton monitor)
+        {
+            _failures.Add("options: no monitor selector");
+            return;
+        }
+
+        string saved = SettingsStore.Current.ToJson();
+        int originalIndex = monitor.Selected;
+        int originalScreen = DisplayServer.WindowGetCurrentScreen();
+        int originalCap = Engine.MaxFps;
+        int previewScreen = (originalIndex + 1) % monitor.ItemCount;
+        monitor.Select(previewScreen);
+        monitor.EmitSignal(OptionButton.SignalName.ItemSelected, previewScreen);
+        double previewHz = DisplayServer.ScreenGetRefreshRate(previewScreen);
+        string previewLabel = DisplayFrameCap.Label(DisplayFrameCap.Monitor, previewHz);
+        foreach (string key in new[] { "max_fps", "fps_spy", "fps_merc" })
+        {
+            if (!menu.Controls.TryGetValue(key, out Control? control) || control is not OptionButton option ||
+                !Enumerable.Range(0, option.ItemCount).Any(i => option.GetItemText(i) == previewLabel))
+                _failures.Add($"options: {key} did not preview '{previewLabel}' for staged screen {previewScreen + 1}");
+        }
+        if (saved != SettingsStore.Current.ToJson() || DisplayServer.WindowGetCurrentScreen() != originalScreen || Engine.MaxFps != originalCap)
+            _failures.Add("options: staging a monitor preview changed saved settings or live display pacing");
+        monitor.Select(originalIndex);
+        monitor.EmitSignal(OptionButton.SignalName.ItemSelected, originalIndex);
+        string restoredLabel = DisplayFrameCap.Label(DisplayFrameCap.Monitor, DisplayServer.ScreenGetRefreshRate(originalIndex));
+        foreach (string key in new[] { "max_fps", "fps_spy", "fps_merc" })
+        {
+            var option = (OptionButton)menu.Controls[key];
+            if (!Enumerable.Range(0, option.ItemCount).Any(i => option.GetItemText(i) == restoredLabel))
+                _failures.Add($"options: explicitly restoring saved monitor {originalIndex + 1} did not preview '{restoredLabel}'");
+        }
+        _notes.Add($"options: staged screen {previewScreen + 1} preview '{previewLabel}', then restored selection without Apply");
     }
 
     private static T? Find<T>(Node node)
@@ -450,22 +554,29 @@ public sealed class FrameRateSmoke : SmokeTest
         }
 
         _keys?.ReleaseAll();
-        if (_homeScreen >= 0)
-        {
-            DisplayServer.WindowSetCurrentScreen(_homeScreen);
-            _homeScreen = -1;
-        }
-
-        if (_saved)
-        {
-            DisplayServer.WindowSetVsyncMode(_savedVsync);
-            Engine.MaxFps = _savedMaxFps;
-        }
-
         _final = result;
         _teardown = 0;
         _root?.QueueFree();
         return SmokeResult.Running;
+    }
+
+    private void RestoreDisplay()
+    {
+        if (!_saved) return;
+        _saved = false;
+        // Restore after OptionsRuntime exits: its exit handler reapplies the last test cap. Settings are isolated
+        // during smokes; Reset restores the in-memory profile without writing any player files.
+        SettingsStore.Reset(_savedSettings);
+        DisplayServer.WindowSetMode(DisplayServer.WindowMode.Windowed);
+        DisplayServer.WindowSetCurrentScreen(_savedScreen);
+        DisplayServer.WindowSetSize(_savedWindowSize);
+        DisplayServer.WindowSetPosition(_savedWindowPosition);
+        DisplayServer.WindowSetMode(_savedWindowMode);
+        if (DisplayServer.WindowGetCurrentScreen() != _savedScreen) DisplayServer.WindowSetCurrentScreen(_savedScreen);
+        SettingsApplier.RefreshMonitor(force: true);
+        SettingsApplier.ApplyFrameCap(_savedSettings!, _savedLastMerc);
+        DisplayServer.WindowSetVsyncMode(_savedVsync);
+        Engine.MaxFps = _savedMaxFps;
     }
 
     private void Shot(string step)
@@ -496,6 +607,11 @@ public sealed class FrameRateSmoke : SmokeTest
             .DefaultIfEmpty(0).Max();
         foreach (Case c in _cases)
         {
+            if (_skipped.Contains(c.Label))
+            {
+                _lines.Add($"[{c.Label}] SKIP: requires two monitors");
+                continue;
+            }
             RateFrame[] walk = Middle(frames.Where(f => f.Case == c.Label && f.Step == "walk").ToArray());
             RateFrame[] turn = Middle(frames.Where(f => f.Case == c.Label && f.Step == "turn").ToArray());
             // The walk and the turn together, without a gap (the times move through both).

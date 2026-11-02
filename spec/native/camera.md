@@ -140,6 +140,11 @@ to the camera spot). P = m_camParam[m_camMode]; dt = Level.m_dT; "approach x tow
    |pawn Velocity| + m_Smoothvalue; unless m_SmoothIsAlwaysActive, smoothing switches off once the remaining gap is
    within one step. With the fixed target bit of m_rotatedSam, S approaches m_fixedTargetPos at m_fixedTargetSpeed
    instead. m_prevStartPos = S.
+   Rewrite adaptation: the pawn-speed part of the step is at least the pawn's actual displacement since the
+   previous solve. Traversal endpoint snaps, root motion with `bJustTeleported`, and mover carry can leave
+   gameplay Velocity zero or stale; using it alone lets the slow 5/20 uu/s traversal ease strand the orbit
+   behind the spy. The displacement is consumed once across the frame's repeated solves. Fixed targets and
+   the mode's smoothing value retain their existing behavior.
 3. Offset: offset[0] rotated by the pawn's pitch and yaw; m_prevOffset approaches it at offsetSpeed.
 4. Twig (useTwig): (-p / 16384 x twigX, 0, p / 16384 x twigZ) rotated by the controller's yaw.
 5. Close-up (m_closeupDist > 0): m_minCleanDist = m_absoluteMinDist + m_closeupDist; when useCylColl and the last
@@ -151,6 +156,8 @@ to the camera spot). P = m_camParam[m_camMode]; dt = Level.m_dT; "approach x tow
    so the sweep runs with 0xde: other pawns do not stop the target.
 7. Target Z: m_prevTargetZ approaches T.z at |pawn Velocity.Z (+ a mover base's Velocity.Z)| + targetZSpeed (modes 4,
    5 and 28 use + 190 while the pawn moves vertically), and is kept within m_targetZMaxDist of T.z.
+   The rewrite likewise floors the vertical movement part of this step at the actual pawn Z displacement
+   since the previous solve, so a climb with stale Velocity cannot leave its view target below the spy.
 8. Ideal distance: when Distance[0] is within interSpeed dt of m_prevIdealDistance it is taken as is. Otherwise a
    shrinking ideal moves by interSpeed dt, and a growing one by the pawn's movement along the controller's forward
    axis since SBasePawn.m_prevPos (at least 0, at most interSpeed dt): the camera only backs out as the pawn walks

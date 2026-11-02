@@ -469,6 +469,10 @@ public abstract class HudPage
         {
             Message("GameMessage", "messageGame", s.GameMessages.Count > 0 ? s.GameMessages[0] : "");
         }
+        else
+        {
+            Hide(Area("GameMessage"));
+        }
     }
 
     private void Message(string area, string widget, string text)
@@ -489,14 +493,22 @@ public abstract class HudPage
         Show(node);
     }
 
-    /// <summary>TutoMessage: the tutorial text while it is longer than four characters, restarted on show.</summary>
+    /// <summary>TutoMessage: keep the authored text panel open for as long as a zone hint is active.</summary>
     protected void DriveTutorial(HudSnapshot s)
     {
         MagmaNode? tuto = Area("TutoMessage");
         SetShown(tuto, s.Tutorial.Length > 0);
         if (s.Tutorial.Length > 0)
         {
-            SetText(tuto?.Find("Tuto"), "messageTuto", s.Tutorial);
+            MagmaNode? panel = tuto?.Find("Tuto");
+            SetText(panel, "messageTuto", s.Tutorial);
+            // The exported panel's mask collapses to zero height at frame 8. Zone hints have no timeout:
+            // the zone owns their lifetime, so hold the fully open frame instead of playing the close animation.
+            if (panel is not null)
+            {
+                panel.SetFrame(1);
+                panel.Playing = false;
+            }
         }
     }
 

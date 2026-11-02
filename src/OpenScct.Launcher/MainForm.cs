@@ -26,7 +26,7 @@ namespace OpenScct.Launcher.App;
 /// <summary>
 /// The launcher window, laid out as the three steps a player goes through: find Splinter Cell Chaos Theory (optional),
 /// download OpenSCCT, prepare the game files (converted from their copy, or downloaded from OpenSCCT-Content when they
-/// have none). One big button always does the next thing and becomes PLAY when everything is ready. Less common actions (what's new, check again, roll back, settings) are in the row below it.
+/// have none). One big button always does the next thing and becomes PLAY when everything is ready. Less common actions (what's new, check again, website, settings) are in the row below it.
 /// </summary>
 internal sealed partial class MainForm : Form
 {
@@ -98,7 +98,7 @@ internal sealed partial class MainForm : Form
     };
     private readonly Button _whatsNew = Theme.Button("What's new");
     private readonly Button _check = Theme.Button("Check for updates");
-    private readonly Button _rollback = Theme.Button("Roll back");
+    private readonly Button _website = Theme.Button("Website");
     private readonly Button _mapsButton = Theme.Button("Maps");
     private readonly Button _settingsButton = Theme.Button("Settings");
     private readonly TableLayoutPanel _launcherBanner = Theme.Grid(Theme.Fill, Theme.Auto);
@@ -202,7 +202,7 @@ internal sealed partial class MainForm : Form
         TableLayoutPanel more = Theme.Grid(Theme.Fill, Theme.Auto);
         more.Dock = DockStyle.Bottom;
         more.Padding = new Padding(0, 12, 0, 0);
-        Theme.AddRow(more, Theme.Flow(false, _whatsNew, _check, _rollback, _mapsButton, _settingsButton), version);
+        Theme.AddRow(more, Theme.Flow(false, _whatsNew, _check, _website, _mapsButton, _settingsButton), version);
 
         var root = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, BackColor = Color.Transparent };
         root.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100f));
@@ -249,7 +249,7 @@ internal sealed partial class MainForm : Form
         tips.SetToolTip(_useSteam, "Make the game files from your Steam copy of Splinter Cell Chaos Theory.");
         tips.SetToolTip(_useDownloads,"Stop using your copy of the game: the game files are downloaded instead (you do not need your own copy).");
         tips.SetToolTip(_rebuild, "Prepare the game files again from your copy, for example if a map looks wrong.");
-        tips.SetToolTip(_rollback, "Go back to the version you had before the last update.");
+        tips.SetToolTip(_website, "Visit the OpenSCCT website in your browser.");
         tips.SetToolTip(_mapsButton, "Download new maps made by the community.");
 
         _main.Click += async (_, _) => await DoNextAsync();
@@ -258,9 +258,9 @@ internal sealed partial class MainForm : Form
         _useSteam.Click += (_, _) => UseSteamCopy();
         _useDownloads.Click += (_, _) => UseDownloadedFiles();
         _rebuild.Click += async (_, _) => await RunAsync(GameFound ? BuildContentAsync : DownloadContentAsync);
-        _whatsNew.Click += (_, _) => ShowWhatsNew();
+        _whatsNew.Click += async (_, _) => await OpenChangelogAsync();
         _check.Click += async (_, _) => await RunAsync(CheckAsync);
-        _rollback.Click += (_, _) => Rollback();
+        _website.Click += (_, _) => OpenLink("https://master.lumbridge.co.uk/");
         _settingsButton.Click += (_, _) => OpenSettings();
         _mapsButton.Click += (_, _) => OpenMaps();
         _launcherButton.Click += async (_, _) => await RunAsync(UpdateLauncherAsync);
@@ -349,7 +349,6 @@ internal sealed partial class MainForm : Form
         _changeGame.Enabled = !busy;
         _useSteam.Enabled = !busy;
         _useDownloads.Enabled = !busy;
-        _rollback.Enabled = _store.Previous() is not null && !busy;
         _check.Enabled = !busy;
         _settingsButton.Enabled = !busy;
         _mapsButton.Enabled = !busy;
@@ -679,6 +678,34 @@ internal sealed partial class MainForm : Form
         RefreshLocal();
     }
 
+    private async Task OpenChangelogAsync()
+    {
+        const string url = "https://master.lumbridge.co.uk/changelog";
+        _whatsNew.Enabled = false;
+        try
+        {
+            // Opening the browser alone cannot detect an offline connection.
+            using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(3));
+            using HttpResponseMessage response = await Http.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, timeout.Token);
+            if (IsDisposed || Disposing) return;
+            if (response.IsSuccessStatusCode)
+            {
+                using Process? browser = Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
+                return;
+            }
+        }
+        catch (Exception ex) when (ex is HttpRequestException or OperationCanceledException or Win32Exception or InvalidOperationException)
+        {
+            // Keep release notes available offline or if the browser cannot open.
+        }
+        finally
+        {
+            if (!IsDisposed && !Disposing) _whatsNew.Enabled = true;
+        }
+
+        if (!IsDisposed && !Disposing) ShowWhatsNew();
+    }
+
     private void ShowWhatsNew()
     {
         using var dialog = new Form
@@ -722,7 +749,7 @@ internal sealed partial class MainForm : Form
 
     private static int Rgb(Color c) => (c.R << 16) | (c.G << 8) | c.B;
 
-    /// <summary>Opens a link of the release notes in the browser (http and https only).</summary>
+    /// <summary>Opens a website or release notes link in the browser (http and https only).</summary>
     private void OpenLink(string? url)
     {
         if (!Uri.TryCreate(url, UriKind.Absolute, out Uri? uri) || (uri.Scheme != Uri.UriSchemeHttps && uri.Scheme != Uri.UriSchemeHttp))
@@ -1152,31 +1179,6 @@ internal sealed partial class MainForm : Form
             SetStatus("Could not start the game: " + ex.Message, Theme.Error);
             return false;
         }
-    }
-
-    private void Rollback()
-    {
-        SemVersion? previous = _store.Previous();
-        if (previous is null)
-        {
-            return;
-        }
-
-        if (MessageBox.Show(this, $"Go back to OpenSCCT {previous}?", "Roll back", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
-        {
-            return;
-        }
-
-        try
-        {
-            SetStatus(_service.Rollback() ? $"Back on version {previous}." : "There is no earlier version to go back to.", Theme.Accent);
-        }
-        catch (InvalidOperationException ex)
-        {
-            SetStatus(ex.Message, Theme.Warning);
-        }
-
-        RefreshLocal();
     }
 
     private void OpenSettings()
