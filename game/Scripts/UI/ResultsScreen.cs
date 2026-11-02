@@ -27,6 +27,10 @@ public partial class ResultsScreen : Control
     private MagmaCanvas? _canvas;
     private VBoxContainer? _column;
     private float _bannerTime;
+    private Control? _demoPanel;
+    private Label? _demoStatus;
+    private Label? _demoHint;
+    private Button? _demoFolder;
 
     public MatchResult? Result { get; set; }
 
@@ -141,6 +145,18 @@ public partial class ResultsScreen : Control
             Waiting = new Label { Name = "Waiting", HorizontalAlignment = HorizontalAlignment.Center, Modulate = UiStyle.Dim,
                 AutowrapMode = TextServer.AutowrapMode.WordSmart };
             column.AddChild(Waiting);
+            VBoxContainer demo = LobbyPanels.Card(column, "MatchDemo", "Match demo");
+            _demoPanel = (Control)demo.GetParent();
+            _demoStatus = LobbyPanels.Text();
+            _demoStatus.Name = "DemoStatus";
+            demo.AddChild(_demoStatus);
+            _demoHint = LobbyPanels.Text("Stay connected until saving finishes. You can watch this match later from Demos.");
+            _demoHint.Name = "DemoHint";
+            _demoHint.Modulate = UiStyle.Dim;
+            _demoHint.AddThemeFontSizeOverride("font_size", 14);
+            demo.AddChild(_demoHint);
+            _demoFolder = LobbyPanels.Button("Open demos folder", () => OS.ShellOpen(Play.Demo.DemoLibrary.SavedFolder), "DemoFolder");
+            demo.AddChild(_demoFolder);
             LobbyButton = UiStyle.MenuButton("Back to lobby", online.BackToLobby, "BackToLobby");
             LobbyButton.Visible = online.Lobby.CanControl;
             column.AddChild(LobbyButton);
@@ -414,6 +430,10 @@ public partial class ResultsScreen : Control
         }
 
         Waiting.Text = waiting.Count == 0 ? "Everyone is ready." : "Waiting for " + string.Join(", ", waiting) + ".";
+        if (_demoPanel is not null) _demoPanel.Visible = online.RecordDemos || online.PendingDemoSave;
+        if (_demoStatus is not null) _demoStatus.Text = online.DemoRecordingStatus;
+        if (_demoHint is not null) _demoHint.Visible = online.PendingDemoSave;
+        if (_demoFolder is not null) _demoFolder.Visible = !online.PendingDemoSave && online.LastDemoPath is not null;
         if (RematchButton is not null && online.Lobby.Local is { Ready: true })
         {
             RematchButton.Disabled = true;
@@ -426,7 +446,9 @@ public partial class ResultsScreen : Control
         {
             ConfirmBox.Open(this, new ConfirmBox
             {
-                Question = "Leave the session?", YesCaption = "Leave", NoCaption = "Stay",
+                Question = Online.PendingDemoSave
+                    ? "Your match demo is still being saved. Leaving now cancels the download. Leave the session?"
+                    : "Leave the session?", YesCaption = "Leave", NoCaption = "Stay",
                 Yes = () => OpenScctGame.Online.OnlineService.Get(GetTree()).Leave(),
             });
             return;

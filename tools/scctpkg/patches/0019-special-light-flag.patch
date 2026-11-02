@@ -1,0 +1,12 @@
+diff --git a/level.py b/level.py
+--- a/level.py
++++ b/level.py
+@@ -519,6 +519,8 @@ def extract_level(pkg: Package, pset: PackageSet) -> List[ActorRecord]:
+                 "dynamic": bool(props.get("bDynamicLight", trig)),
+                 # Engine.Light is static; Actor and STriggerLight are not. svmbuild resolves subclass defaults.
+                 "static": bool(props.get("bStatic", cls == "Light")),
++                # The actor and light must agree on bSpecialLit to enter the native lighting cache.
++                "special_lit": bool(props.get("bSpecialLit", False)),
+                 # The native pawn shadow uses only lights with bActorShadows (Actor default true).
+                 # Keep authored false values; the shadow's render capture also advances PlayerCalcView.
+                 "actor_shadows": bool(props.get("bActorShadows", True)),

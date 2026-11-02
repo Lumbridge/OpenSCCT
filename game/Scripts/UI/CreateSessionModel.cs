@@ -45,6 +45,8 @@ public enum SessionRow
     /// <summary>Practice server (Reloaded, rl:net.practice): unlimited lives, quick respawns, practice commands, no stats.</summary>
     Practice,
     Sidearms,
+    SpyBots,
+    MercBots,
 }
 
 /// <summary>
@@ -137,7 +139,7 @@ public sealed class CreateSessionModel
         SessionRow.Mode => "Game Mode",
         SessionRow.Password => "Password",
         SessionRow.VoiceChat => "Voice Chat",
-        SessionRow.MaxPlayers => "Max Players",
+        SessionRow.MaxPlayers => "Player slots",
         SessionRow.Revenge => "Revenge",
         SessionRow.RandomMap => "Random Map",
         SessionRow.VoiceInLobby => "Voice in Lobby",
@@ -151,7 +153,9 @@ public sealed class CreateSessionModel
         SessionRow.ActiveDisks => "Active Disks",
         SessionRow.DisksToTake => "Disks to Take",
         SessionRow.Bots => "Bots",
-        SessionRow.BotsPerSide => "Bots per Side",
+        SessionRow.BotsPerSide => Setup.Mode == EGameMode.GM_MercDeathMatch ? "Bot pairs" : "Bots per Side",
+        SessionRow.SpyBots => "Spy bots",
+        SessionRow.MercBots => "Mercenary bots",
         SessionRow.BotSkill => "Bot Skill",
         SessionRow.Practice => "Practice",
         SessionRow.Sidearms => "Sidearms",
@@ -165,6 +169,8 @@ public sealed class CreateSessionModel
         SessionRow.GamesInARow => !Setup.Revenge,
         SessionRow.BotsPerSide => Setup.Bots == BotFill.PerSide,
         SessionRow.BotSkill => Setup.Bots != BotFill.Off,
+        SessionRow.SpyBots => Setup.Bots == BotFill.Custom && Setup.Mode != EGameMode.GM_MercDeathMatch,
+        SessionRow.MercBots => Setup.Bots == BotFill.Custom,
         _ => true,
     };
 
@@ -185,6 +191,7 @@ public sealed class CreateSessionModel
         SessionRow.ActiveDisks => (1, Math.Max(1, Setup.DisksMax)),
         SessionRow.DisksToTake => (1, Math.Max(1, Setup.Disks)),
         SessionRow.BotsPerSide => (1, OnlineBotRoster.MaxPerSide),
+        SessionRow.SpyBots or SessionRow.MercBots => (0, OnlineBotRoster.MaxCustomPerTeam),
         _ => (0, 0),
     };
 
@@ -201,6 +208,8 @@ public sealed class CreateSessionModel
         SessionRow.DisksToTake => Setup.DisksToWin,
         SessionRow.VoiceChat => LobbySetup.VoiceMenuIndex(Setup.VoiceMode),
         SessionRow.BotsPerSide => Setup.BotsPerSide,
+        SessionRow.SpyBots => Setup.SpyBots,
+        SessionRow.MercBots => Setup.MercBots,
         SessionRow.Bots => (int)Setup.Bots,
         SessionRow.BotSkill => (int)Setup.BotSkill,
         _ => 0,
@@ -261,6 +270,16 @@ public sealed class CreateSessionModel
 
     /// <summary>The hint under Voice Chat (GUI.int [Create_Match] VoiceChatModeHints).</summary>
     public string VoiceHint => LobbySetup.VoiceModeHints[LobbySetup.VoiceMenuIndex(Setup.VoiceMode)];
+
+    public string BotHint => Setup.Bots switch
+    {
+        BotFill.Custom when Setup.Mode == EGameMode.GM_MercDeathMatch => "Set the exact number of mercenary bots. Bots share player slots and make room for people joining.",
+        BotFill.Custom => "Set the exact bots on each team; 0 leaves that team to human players. Bots share player slots and make room for people joining.",
+        BotFill.Fill => "Bots fill empty player slots and make room for people joining. Change Player slots to set the match size.",
+        BotFill.PerSide when Setup.Mode == EGameMode.GM_MercDeathMatch => "Each pair adds two mercenary bots, while space allows. Choose Custom teams to set an exact number.",
+        BotFill.PerSide => "Add the same number of bots to each team, while space allows. Choose Custom teams for different counts on each team.",
+        _ => "Human players only. Choose Custom teams to set exact bot counts, or Fill Slots to fill the match automatically.",
+    };
 
     /// <summary>
     /// Steps a row by <paramref name="delta"/> (the arrows): the next map or mode (each reloads the rules from the map,
@@ -360,6 +379,12 @@ public sealed class CreateSessionModel
             case SessionRow.BotsPerSide:
                 s = s with { BotsPerSide = v };
                 break;
+            case SessionRow.SpyBots:
+                s = s with { SpyBots = v };
+                break;
+            case SessionRow.MercBots:
+                s = s with { MercBots = v };
+                break;
             default:
                 return;
         }
@@ -448,7 +473,7 @@ public sealed class CreateSessionModel
         {
             VoiceMode = Setup.VoiceMode, VoiceInLobby = Setup.VoiceInLobby, RandomMap = Setup.RandomMap, Revenge = Setup.Revenge,
             AutoBalance = Setup.AutoBalance, Alternate = Setup.Alternate, Practice = Setup.Practice, Sidearms = Setup.Sidearms,
-            Bots = Setup.Bots, BotsPerSide = Setup.BotsPerSide, BotSkill = Setup.BotSkill,
+            Bots = Setup.Bots, BotsPerSide = Setup.BotsPerSide, SpyBots = Setup.SpyBots, MercBots = Setup.MercBots, BotSkill = Setup.BotSkill,
             GamesInARow = Setup.Revenge ? LobbySetup.RevengeGames : Setup.GamesInARow, MaxPlayers = Setup.MaxPlayers,
         });
     }

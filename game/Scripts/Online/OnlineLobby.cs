@@ -38,6 +38,10 @@ public sealed class OnlineLobby : IOnlineLobbySession
 
     public bool IsHost => State.IsHost;
 
+    public bool RecordDemos => _service.RecordDemos;
+    public string DemoRecordingStatus => _service.DemoRecordingStatus;
+    public void SetRecordDemos(bool enabled) => _service.SetRecordDemos(enabled);
+
     public bool CanControl => State.CanControl;
 
     public bool CanModerate => State.Local?.CanModerate ?? false;

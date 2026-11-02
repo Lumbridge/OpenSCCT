@@ -237,13 +237,8 @@ public static class TraversalActions
 
                 break;
             case SBasePawn.SA_ZIPFALL:
-                if (pawn.bIsZipSpeed)
-                {
-                    MovementNatives.Driver(pawn)?.UnZipSpeed(pawn, bTest: false);
-                }
-
                 pawn.bIsRolling = false;
-                PawnActions.Falling(pawn);
+                PawnActions.FallReset(pawn);
                 PawnActions.Loop(pawn, 0, pawn.WeaponLoaded == 0 ? pawn.AFall : pawn.AFall2H, PawnActions.FallTween);
                 break;
             case SBasePawn.SA_ZIP_WALL:

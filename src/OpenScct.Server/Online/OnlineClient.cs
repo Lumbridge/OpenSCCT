@@ -38,6 +38,8 @@ public sealed record ClientSessionRequest(ITransport Transport, string Address, 
 /// <summary>Settings of a client's online visit.</summary>
 public sealed record OnlineClientSettings
 {
+    public bool RecordDemos { get; init; }
+    public string? DemoFolder { get; init; }
     public string PlayerName { get; init; } = "Player";
 
     /// <summary>The install's id (bans and returning players); empty sends none.</summary>
@@ -119,7 +121,7 @@ public sealed record OnlineClientSettings
 /// into lines a player can read (<see cref="Error"/>). Godot-free: the game's front end, the bots and the tests drive
 /// it the same way. Call <see cref="Tick"/> at 60 Hz from one thread.
 /// </summary>
-public sealed class OnlineClient : IDisposable
+public sealed partial class OnlineClient : IDisposable
 {
     private const long Second = 1_000_000;
 
@@ -150,6 +152,7 @@ public sealed class OnlineClient : IDisposable
     {
         _target = target ?? throw new ArgumentNullException(nameof(target));
         Settings = settings ?? throw new ArgumentNullException(nameof(settings));
+        _recordDemos = settings.RecordDemos;
         Maps = settings.Maps ?? MapCatalog.CreateDefault();
         Classes = settings.Classes ?? NetClasses.Create();
         _token = token != 0 ? token : NewToken();
@@ -302,6 +305,7 @@ public sealed class OnlineClient : IDisposable
             return;
         }
 
+        DiscardDemoDownload();
         EndSession();
         State = OnlineClientState.Left;
         CloseTransport();
@@ -719,6 +723,7 @@ public sealed class OnlineClient : IDisposable
 
     private void OnLine(string line)
     {
+        if (HandleDemoLine(line)) return;
         if (!SessionProtocol.TryParse(line, out string command, out List<string> f, FieldCount(line)))
         {
             return;
@@ -738,6 +743,7 @@ public sealed class OnlineClient : IDisposable
                 Lobby.Dedicated = SessionProtocol.Int(f, 2) != 0;
                 Lobby.MaxPlayers = SessionProtocol.Int(f, 3);
                 Lobby.ServerName = SessionProtocol.Text(f, 4);
+                _demoCapability = false;
                 if (State is OnlineClientState.Connecting or OnlineClientState.Travelling)
                 {
                     CurrentMap = Session?.MapName ?? CurrentMap;
@@ -754,6 +760,7 @@ public sealed class OnlineClient : IDisposable
                 MasterApi.TryParseHex(SessionProtocol.Text(f, 0), out ulong content);
                 Lobby.SetupContentHash = content;
                 Lobby.Setup = LobbySetup.FromOptions(SessionProtocol.Text(f, 1), Lobby.Setup);
+                Lobby.MaxPlayers = Lobby.Setup.MaxPlayers;
                 Lobby.SetupSource = null;
                 ApplyPractice();
                 CheckMap();
@@ -879,6 +886,7 @@ public sealed class OnlineClient : IDisposable
     {
         Error = error;
         _connectLog.Add(error);
+        DiscardDemoDownload();
         EndSession();
         CloseTransport();
         State = OnlineClientState.Failed;
@@ -893,6 +901,7 @@ public sealed class OnlineClient : IDisposable
         }
 
         _disposed = true;
+        DiscardDemoDownload();
         EndSession();
         CloseTransport();
     }

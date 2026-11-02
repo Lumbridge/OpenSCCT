@@ -524,6 +524,15 @@ public sealed record LightEntry(
 
     /// <summary>The Echelon frustum of an LE_ESpotShadow light (zero for other lights).</summary>
     public EchelonSpot? Echelon { get; init; }
+
+    /// <summary>Actor.bActorShadows: whether this light contributes to a pawn's projected shadow darkness.</summary>
+    public bool ActorShadows { get; init; } = true;
+
+    /// <summary>Actor.bStatic: static lights use an occlusion trace in the pawn shadow's visibility cache.</summary>
+    public bool Static { get; init; }
+
+    /// <summary>Actor.bSpecialLit: the light only reaches actors with the matching special-lighting flag.</summary>
+    public bool SpecialLit { get; init; }
 }
 
 /// <summary>
@@ -615,10 +624,13 @@ public sealed class LightingDoc
 
         using JsonDocument json = JsonDocument.Parse(File.ReadAllBytes(path));
         JsonElement root = json.RootElement;
+        Dictionary<string, LightFlags> lightDefaults = LightClassDefaults(path);
         if (root.TryGetProperty("lights", out JsonElement lights))
         {
             foreach (JsonElement l in lights.EnumerateArray())
             {
+                string cls = MaterialsDoc.Str(l, "class") ?? "";
+                LightFlags defaults = lightDefaults.GetValueOrDefault(cls, new LightFlags(IsLightClass(cls), true, false));
                 if (l.TryGetProperty("corona", out JsonElement c) && c.ValueKind == JsonValueKind.Object)
                 {
                     JsonElement col = c.GetProperty("color");
@@ -664,6 +676,9 @@ public sealed class LightingDoc
                     MaterialsDoc.Bool(l, "own_zone_only"))
                 {
                     Echelon = EchelonOf(l),
+                    ActorShadows = LightFlagOf(l, "actor_shadows", "bActorShadows", defaults.ActorShadows),
+                    Static = LightFlagOf(l, "static", "bStatic", defaults.Static),
+                    SpecialLit = LightFlagOf(l, "special_lit", "bSpecialLit", defaults.SpecialLit),
                 });
             }
         }
@@ -721,6 +736,71 @@ public sealed class LightingDoc
         }
 
         return doc;
+    }
+
+    private static bool LightFlagOf(JsonElement light, string field, string property, bool fallback)
+    {
+        if (light.TryGetProperty(field, out JsonElement value) &&
+            (value.ValueKind is JsonValueKind.True or JsonValueKind.False))
+        {
+            return value.GetBoolean();
+        }
+
+        // Older packs retain authored values in their typed property bags, over the class defaults.
+        if (light.TryGetProperty("props", out JsonElement props) && props.ValueKind == JsonValueKind.Object &&
+            props.TryGetProperty(property, out value) && (value.ValueKind is JsonValueKind.True or JsonValueKind.False))
+        {
+            return value.GetBoolean();
+        }
+
+        return fallback;
+    }
+
+    private static bool IsLightClass(string cls) =>
+        string.Equals(cls, "Light", StringComparison.OrdinalIgnoreCase) ||
+        string.Equals(cls, "Engine.Light", StringComparison.OrdinalIgnoreCase);
+
+    private readonly record struct LightFlags(bool Static, bool ActorShadows, bool SpecialLit);
+
+    private static Dictionary<string, LightFlags> LightClassDefaults(string lightingPath)
+    {
+        var result = new Dictionary<string, LightFlags>(StringComparer.OrdinalIgnoreCase);
+        string classesPath = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(lightingPath) ?? ".", "..", "sim", "classes.json"));
+        if (!File.Exists(classesPath)) return result;
+        using JsonDocument json = JsonDocument.Parse(File.ReadAllBytes(classesPath));
+        if (!json.RootElement.TryGetProperty("classes", out JsonElement classes) || classes.ValueKind != JsonValueKind.Object)
+            return result;
+
+        LightFlags Resolve(string cls, int depth = 0)
+        {
+            if (result.TryGetValue(cls, out LightFlags found)) return found;
+            // Older packs omit render-only Light defaults. Light is static, Actor is not; both cast actor shadows.
+            var value = new LightFlags(IsLightClass(cls), true, false);
+            if (depth < 32 && classes.TryGetProperty(cls, out JsonElement entry))
+            {
+                string? parent = MaterialsDoc.Str(entry, "super");
+                if (parent is not null)
+                {
+                    LightFlags inherited = Resolve(parent, depth + 1);
+                    value = new LightFlags(value.Static || inherited.Static, inherited.ActorShadows, inherited.SpecialLit);
+                }
+
+                if (entry.TryGetProperty("defaults", out JsonElement props) && props.ValueKind == JsonValueKind.Object)
+                {
+                    bool Flag(string name, bool fallback) => props.TryGetProperty(name, out JsonElement stored) &&
+                        (stored.ValueKind is JsonValueKind.True or JsonValueKind.False) ? stored.GetBoolean() : fallback;
+                    value = new LightFlags(Flag("bStatic", value.Static), Flag("bActorShadows", value.ActorShadows),
+                        Flag("bSpecialLit", value.SpecialLit));
+                }
+            }
+
+            result[cls] = value;
+            result.TryAdd(cls[(cls.LastIndexOf('.') + 1)..], value);
+            return value;
+        }
+
+        foreach (JsonProperty entry in classes.EnumerateObject()) Resolve(entry.Name);
+        return result;
     }
 
     /// <summary>

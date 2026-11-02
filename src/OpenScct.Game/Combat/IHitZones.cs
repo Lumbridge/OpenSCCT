@@ -70,8 +70,8 @@ public readonly record struct PillShape(int Pill, FVector A, FVector B, float Ra
 
 /// <summary>
 /// The world-space collision pills of a pawn for its current pose (the skeletal mesh's collision points moved by the
-/// animation). The simulation has no skinned poses, so <see cref="EstimatedPillPose"/> places them on a reference
-/// stance; a pose from the animation system replaces it through <c>Level.SetService&lt;IPillPose&gt;(...)</c>.
+/// animation). <see cref="EstimatedPillPose"/> supplies reference stances without character content; installed
+/// animation content replaces it through <c>Level.SetService&lt;IPillPose&gt;(...)</c>.
 /// </summary>
 public interface IPillPose
 {

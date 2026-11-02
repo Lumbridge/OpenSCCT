@@ -85,6 +85,7 @@ public static class PawnActions
                 AnimateWalking(pawn, pawn.AWaitSt2);
                 break;
             case SBasePawn.SA_RUN_ST_2H:
+                AnimateWalking(pawn, pawn.AWaitSt2);
                 pawn.fBlendCoeffWalkAnim = MovementK.MercRunBlendCoeff;
                 break;
             case SBasePawn.SA_WALK_CR_0H:
@@ -96,9 +97,16 @@ public static class PawnActions
                 AnimateWalking(pawn, pawn.AWaitCr2);
                 break;
             case SBasePawn.SA_WALK_ST_LAND_OH:
-            case SBasePawn.SA_WALK_ST_0H_AFTERFL:
-            case SBasePawn.SA_WALK_ST_2H_AFTERFL:
                 Walking(pawn);
+                break;
+            case SBasePawn.SA_WALK_ST_0H_AFTERFL:
+                // The feet-hop clip has a displaced root. Replace it when releasing root motion,
+                // otherwise walking physics leaves the body frozen at the clip's final offset.
+                AnimateWalking(pawn, pawn.AWaitSt0);
+                pawn.Velocity = pawn.Rotation.Vector() * pawn.RunningSpeed;
+                break;
+            case SBasePawn.SA_WALK_ST_2H_AFTERFL:
+                AnimateWalking(pawn, pawn.AWaitSt2);
                 break;
 
             // ---- stance transitions (one-shots on the base channel, no tween: cases 81 to 84) ----
@@ -150,14 +158,16 @@ public static class PawnActions
                 Animation.ActionAnimation.PlayJumpStart(pawn, action);
                 break;
             case SBasePawn.SA_FALL_ST_0H:
-            case SBasePawn.SA_LONG_FALL_ST_0H:
             case SBasePawn.SA_LEDGEFALL:
+                FallReset(pawn);
+                Loop(pawn, 0, pawn.WeaponLoaded == 0 ? pawn.AFall : pawn.AFall2H, FallTween);
+                break;
             case SBasePawn.SA_FALL_DEAD:
                 Falling(pawn);
                 Loop(pawn, 0, pawn.AFall, FallTween);
                 break;
             case SBasePawn.SA_FALL_ST_2H:
-                Falling(pawn);
+                FallReset(pawn);
                 Loop(pawn, 0, pawn.AFall2H, FallTween);
                 break;
             case SBasePawn.SA_LAND_ST_0H_LOW:
@@ -287,6 +297,27 @@ public static class PawnActions
 
     /// <summary>Puts the pawn in PHYS_Falling through the engine's setPhysics (the apex starts here).</summary>
     public static void Falling(SBasePawn pawn) => SetPhysics(pawn, EPhysics.PHYS_Falling);
+
+    /// <summary>Leaves the traversal pose and any interrupted weapon transition before an ordinary fall.</summary>
+    [Provenance(ProvenanceKind.Decoded, "execute-action.md cases 103 to 105, 119, 125, 134: fall reset, normal aim and traversal flags")]
+    internal static void FallReset(SBasePawn pawn, bool resetAim = true)
+    {
+        // Long fall (104) preserves these two fields; ordinary traversal drops reset them.
+        if (resetAim)
+        {
+            pawn.bBeginSpecial12Anim = false;
+            pawn.IK_Type = IK_Type_.IKT_WEAPONLOADED;
+        }
+
+        pawn.PipHFire = PipHFire_.NOPipH;
+        pawn.bWeaponTransit = false;
+        if (pawn.bIsZipSpeed)
+        {
+            MovementNatives.Driver(pawn)?.UnZipSpeed(pawn, bTest: false);
+        }
+
+        Falling(pawn);
+    }
 
     /// <summary>The engine's setPhysics, or the field when the level has no driver.</summary>
     public static void SetPhysics(SBasePawn pawn, EPhysics mode) => MovementNatives.SetPhysics(pawn, mode);

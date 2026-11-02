@@ -13,6 +13,8 @@ public partial class LobbyRoomScreen
     private Label? _overviewTitle, _overviewRules, _overviewObjective, _loadout, _draftStatus;
     private Button? _rulesButton, _joinSpiesButton;
     private Label? _settingsDraftNote;
+    private CheckBox? _recordDemos;
+    private Label? _recordingNote;
     private bool _draftConflict;
     private readonly Dictionary<Control, FocusModeEnum> _backgroundFocus = new();
     private OptionButton? _chatChannel;
@@ -50,7 +52,7 @@ public partial class LobbyRoomScreen
         EquipmentButton = LobbyPanels.Button("Equipment", OpenEquipment, "Equipment"); actions.AddChild(EquipmentButton);
         ArmouryButton = LobbyPanels.Button("Cosmetics", OpenArmoury, "Armoury"); actions.AddChild(ArmouryButton);
         _rulesButton = LobbyPanels.Button("Session Options", OpenMatchSettings, "MatchSettings"); actions.AddChild(_rulesButton);
-        actions.AddChild(LobbyPanels.Button("Map / Mode", () => { OpenMatchSettings(); OpenMaps(); }, "MapMode"));
+        actions.AddChild(LobbyPanels.Button("Map / Mode", () => { OpenMatchSettings(); FocusSettingsMap(); }, "MapMode"));
         BriefingButton = LobbyPanels.Button("Briefing", OpenBriefing, "Briefing"); actions.AddChild(BriefingButton);
         actions.AddChild(LobbyPanels.Button("Strategic map", OpenStrategicMap, "StrategicMap"));
         SpectateButton = LobbyPanels.Button("Spectate", session.Spectate, "Spectate"); SpectateButton.SizeFlagsHorizontal = SizeFlags.ExpandFill; sideActions.AddChild(SpectateButton);
@@ -85,12 +87,23 @@ public partial class LobbyRoomScreen
         _microphone = LobbyPanels.Text(); chat.AddChild(_microphone);
         TeamVoiceOnlyBox = new CheckBox { Name = "TeamVoiceOnly", Text = "Voice to team only" };
         TeamVoiceOnlyBox.Toggled += on => Session?.SetTeamVoiceOnly(on); chat.AddChild(TeamVoiceOnlyBox);
+        var recording = LobbyPanels.Card(right, "PersonalRecording", "Match demos");
+        _recordDemos = new CheckBox { Name = "PersonalRecordDemos", Text = "Record my matches", CustomMinimumSize = new Vector2(0, 36),
+            TooltipText = "Save full match replays to Demos on this computer. This is your personal choice, regardless of who hosts." };
+        _recordDemos.Toggled += on => { Session?.SetRecordDemos(on); RefreshRecordingControls(); };
+        recording.AddChild(_recordDemos);
+        _recordingNote = LobbyPanels.Text();
+        _recordingNote.Name = "RecordingStatus";
+        _recordingNote.AddThemeFontSizeOverride("font_size", 14);
+        _recordingNote.Modulate = UiStyle.Dim;
+        recording.AddChild(_recordingNote);
         Parameters = new CreateSessionModel(session.Maps, session.MapSettings, session.Setup);
         _modelSetup = session.Setup;
-        var rows = new List<SessionRow>(CreateSessionModel.Rows); rows.Remove(SessionRow.Password); rows.Remove(SessionRow.MaxPlayers);
-        ParameterRows = new SessionRowsView(Parameters, rows, showPassword: false, compact: true) { SizeFlagsHorizontal = SizeFlags.ExpandFill };
+        var rows = new List<SessionRow>(CreateSessionModel.Rows); rows.Remove(SessionRow.Password);
+        ParameterRows = new SessionRowsView(Parameters, rows, showPassword: false, form: true) { SizeFlagsHorizontal = SizeFlags.ExpandFill };
         if (_mapCatalog is not null) Parameters.MapFilter = MapPickerView.FilterFor(_mapCatalog, SettingsStore.Current.ActiveMapPlaylist);
         Parameters.Changed += ShowMapPicture; Parameters.Changed += ShowAlternateButton; Parameters.Changed += UpdateSettingsDraft;
+        ParameterRows.PendingEditsChanged += UpdateSettingsDraft;
         BuildSettingsPanel();
         var preparation = LobbyPanels.Preparation(this);
         _loadout = LobbyPanels.Text(); _loadout.Name = "LoadoutSummary";
@@ -125,13 +138,12 @@ public partial class LobbyRoomScreen
         title.AddThemeFontSizeOverride("font_size", 26); body.AddChild(title);
         _settingsDraftNote = LobbyPanels.Text("Choose the map and rules, then apply your changes.");
         body.AddChild(_settingsDraftNote);
-        var scroll = new ScrollContainer { Name = "SettingsScroll", FollowFocus = true, HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled,
+        _settingsScroll = new ScrollContainer { Name = "SettingsScroll", FollowFocus = true, HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled,
             SizeFlagsVertical = SizeFlags.ExpandFill };
-        body.AddChild(scroll); scroll.AddChild(ParameterRows!);
+        body.AddChild(_settingsScroll);
+        BuildSettingsContent();
         var buttons = new HFlowContainer { Name = "SettingsButtons", Alignment = FlowContainer.AlignmentMode.End };
         buttons.AddThemeConstantOverride("h_separation", 10); buttons.AddThemeConstantOverride("v_separation", 8); body.AddChild(buttons);
-        MapsButton = LobbyPanels.Button("Choose map", OpenMaps, "Maps"); buttons.AddChild(MapsButton);
-        AlternateButton = LobbyPanels.Button("Alternate rules", OpenAlternate, "Alternate"); buttons.AddChild(AlternateButton);
         buttons.AddChild(LobbyPanels.Button("Discard / close", RequestCloseSettings, "DiscardSettings"));
         ApplyButton = LobbyPanels.Button("Apply changes", Apply, "Apply"); buttons.AddChild(ApplyButton);
         ApplyButton.AddThemeColorOverride("font_color", UiStyle.MenuFocus);
@@ -150,8 +162,11 @@ public partial class LobbyRoomScreen
                 _rulesButton?.CallDeferred(Control.MethodName.GrabFocus);
             }
         };
-        AddChild(_settingsPanel);
-        LobbyPanels.FitDialog(_settingsPanel, Size, new Vector2(1180, 700));
+        _settingsCanvas = new Control { Name = "SettingsCanvas", MouseFilter = MouseFilterEnum.Ignore,
+            OversamplingWithScale = OversamplingWithScaleEnum.Enabled };
+        AddChild(_settingsCanvas);
+        _settingsCanvas.AddChild(_settingsPanel);
+        FitSettingsPanel();
     }
 
     private void OpenMatchSettings()
@@ -165,19 +180,21 @@ public partial class LobbyRoomScreen
                     control.FocusMode = FocusModeEnum.None;
                 }
         GetNode<Control>("SettingsDim").MoveToFront();
-        _settingsPanel.MoveToFront();
+        _settingsCanvas!.MoveToFront();
         _settingsPanel.Visible = true;
-        LobbyPanels.FitDialog(_settingsPanel, Size, new Vector2(1180, 700));
+        FitSettingsPanel();
         UpdateSettingsDraft();
         ApplyButton!.Visible = Session.CanControl;
-        if (Session.CanControl) ParameterRows!.Find("MapPrev")?.GrabFocus();
+        SettingsTabs!.CurrentTab = 0;
+        if (Session.CanControl) ParameterRows!.Find("ModeChoice")?.GrabFocus();
         else _settingsPanel.FindChild("DiscardSettings", true, false)?.Call("grab_focus");
     }
 
     private void UpdateSettingsDraft()
     {
         if (Session is not { } session || Parameters is null) return;
-        bool dirty = session.CanControl && Parameters.Setup != session.Setup;
+        RefreshSettingsSummary();
+        bool dirty = session.CanControl && (Parameters.Setup != session.Setup || ParameterRows!.HasPendingEdits);
         if (_draftStatus is not null)
         {
             _draftStatus.Visible = dirty;
@@ -230,9 +247,8 @@ public partial class LobbyRoomScreen
         foreach (var entry in new[] { (_spies!, HudSide.Spy, "Spies"), (_mercs!, HudSide.Merc, "Mercenaries") })
         {
             int count = s.Members.Count(p => p.Side == entry.Item2);
-            int capacity = s.Setup.Mode == OpenScct.Core.EGameMode.GM_MercDeathMatch ? s.Setup.MaxPlayers : Math.Max(1, s.Setup.MaxPlayers / 2);
             bool unavailable = entry.Item2 == HudSide.Spy && s.Setup.Mode == OpenScct.Core.EGameMode.GM_MercDeathMatch;
-            ((Label)entry.Item1.GetChild(0)).Text = entry.Item3 + " · " + count + " / " + capacity + " players";
+            ((Label)entry.Item1.GetChild(0)).Text = entry.Item3 + " · " + count + (count == 1 ? " player" : " players");
             var slots = entry.Item2 == HudSide.Spy ? _spiesWaiting! : _mercsWaiting!;
             slots.Visible = !unavailable && count == 0;
             slots.Text = "Open slots — join this team";
@@ -262,12 +278,6 @@ public partial class LobbyRoomScreen
                 GetViewport().SetInputAsHandled();
                 return;
             }
-            if (IsInstanceValid(_mapsPanel))
-            {
-                _mapsPanel.QueueFree();
-                GetViewport().SetInputAsHandled();
-                return;
-            }
             if (_settingsPanel is { Visible: true })
             {
                 GetViewport().SetInputAsHandled();
@@ -280,7 +290,7 @@ public partial class LobbyRoomScreen
 
     private void RequestCloseSettings()
     {
-        if (Session is { CanControl: true } s && Parameters!.Setup != s.Setup)
+        if (Session is { CanControl: true } s && (Parameters!.Setup != s.Setup || ParameterRows!.HasPendingEdits))
             ConfirmBox.Open(this, new ConfirmBox { Name = "DiscardMatchSettings", Question = "Discard unapplied match settings?", YesCaption = "Discard", NoCaption = "Keep editing", Yes = DiscardSettings });
         else DiscardSettings();
     }

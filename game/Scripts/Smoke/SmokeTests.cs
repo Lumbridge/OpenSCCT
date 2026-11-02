@@ -8,6 +8,7 @@ public static class SmokeTests
 {
     public static IReadOnlyList<string> Names { get; } =
         [VisitMapSmoke.TestName, MapLightSpritesSmoke.TestName, DestructibleFxSmoke.TestName, SpyPerspectiveSmoke.TestName, MineLightSmoke.TestName, CamnetDisabledSmoke.TestName, AmmoMenuHudSmoke.TestName, LandingBlendSmoke.TestName, GlassBlendSmoke.TestName, ScopeLifecycleSmoke.TestName, SidearmReloadPoseSmoke.TestName, MenuEscapeSmoke.TestName, FittedSkinsSmoke.TestName, ViewmodelLightSmoke.TestName, StatsSmoke.TestName, StartupWeaponsSmoke.TestName, LaserAlignmentSmoke.TestName, BootSmoke.TestName, TestBoxSmoke.TestName, SelfTestFailSmoke.TestName, SteeERenderSmoke.TestName, GoldenSmoke.TestName,
+            LaserDotSmoke.TestName, DemoUiSmoke.TestName,
             ModernChatSmoke.TestName, MenuPilotPopupSmoke.TestName, JoinFocusSmoke.TestName, ControllerDefaultsSmoke.TestName, Hud.HudSmoke.TestName, HudActivityFeedSmoke.TestName, RainHudSmoke.TestName, AudioSmoke.TestName, PlaySpySmoke.TestName, PlayCraneSmoke.TestName,
             PlayDiskHuntSmoke.TestName, PlayDeathmatchSmoke.TestName, Voice.VoiceSmoke.TestName, VoiceLifecycleSmoke.TestName,
             Online.OnlineSmoke.TestName, Online.NetLobbySmoke.TestName, Online.NetLobbySmoke.GuestTestName, Online.NetBotsSmoke.TestName, Online.NetBotsSmoke.GuestTestName, GadgetsSmoke.TestName, PlayBotsSmoke.TestName, UI.InGameMenuSmoke.TestName,
@@ -26,10 +27,13 @@ public static class SmokeTests
             RangeTraversalSmoke.TestName, RangeMotionSmoke.TestName, RangeBotsSmoke.TestName, RangeSimSmoke.TestName,
             PlayShockerSmoke.TestName, PlayMotionSmoke.TestName, PlayMercSmoke.TestName, PlaySidearmSmoke.TestName, SidearmMenuSmoke.TestName, SmoothSmoke.TestName,
             MapShotsSmoke.TestName, PlayReticleSmoke.TestName, AnimBonesSmoke.TestName, TraversalMirrorSmoke.TestName, MantleHeadSmoke.TestName, CharacterAnimationAuditSmoke.TestName, NetworkOverlaySmoke.TestName, TelemetrySmoke.TestName, PlayHitchSmoke.TestName, PlayLasersSmoke.TestName,
-            FrameRateSmoke.TestName, GoggleGlowSmoke.TestName, LobbyLayoutSmoke.TestName, OptionsSmoke.TestName, FrontEndLayoutSmoke.TestName, MenuLayoutSmoke.TestName, MenuArtSmoke.TestName, PlayHurtSmoke.TestName, Hub.HubSmoke.TestName, MercImmunityHudSmoke.TestName, MercStatusVisualSmoke.TestName];
+            FrameRateSmoke.TestName, GoggleGlowSmoke.TestName, LobbyLayoutSmoke.TestName, OptionsSmoke.TestName, FrontEndLayoutSmoke.TestName, MenuLayoutSmoke.TestName, MenuArtSmoke.TestName, PlayHurtSmoke.TestName, Hub.HubSmoke.TestName, MercImmunityHudSmoke.TestName, MercStatusVisualSmoke.TestName, SpyBackLightSmoke.TestName];
 
     public static SmokeTest? Create(string name) => name switch
     {
+        LaserDotSmoke.TestName => new LaserDotSmoke(),
+        DemoUiSmoke.TestName => new DemoUiSmoke(),
+        RollCollisionSmoke.TestName => new RollCollisionSmoke(),
         VisitMapSmoke.TestName => new VisitMapSmoke(),
         ModernChatSmoke.TestName => new ModernChatSmoke(),
         MenuPilotPopupSmoke.TestName => new MenuPilotPopupSmoke(),
@@ -74,6 +78,7 @@ public static class SmokeTests
         MenuEscapeSmoke.TestName => new MenuEscapeSmoke(),
         FittedSkinsSmoke.TestName => new FittedSkinsSmoke(),
         ViewmodelLightSmoke.TestName => new ViewmodelLightSmoke(),
+        SpyBackLightSmoke.TestName => new SpyBackLightSmoke(),
         JoinFocusSmoke.TestName => new JoinFocusSmoke(),
         ControllerDefaultsSmoke.TestName => new ControllerDefaultsSmoke(),
         LaserAlignmentSmoke.TestName => new LaserAlignmentSmoke(),

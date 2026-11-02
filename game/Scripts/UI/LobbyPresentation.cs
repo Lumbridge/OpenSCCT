@@ -38,6 +38,33 @@ public static class LobbyPresentation
             (setup.Practice ? " · Practice enabled" : "");
     }
 
+    /// <summary>Preview the same human-priority roster that the server will use when this draft is applied.</summary>
+    public static string PlayerSlots(LobbySetup setup, int humanSpies, int humanMercs)
+    {
+        humanSpies = Math.Max(0, humanSpies);
+        humanMercs = Math.Max(0, humanMercs);
+        int humans = humanSpies + humanMercs;
+        bool mercsOnly = setup.Mode == EGameMode.GM_MercDeathMatch;
+        if (mercsOnly) { humanMercs = humans; humanSpies = 0; }
+        int slots = Math.Max(setup.MaxPlayers, humans);
+        var bots = OnlineBotRoster.Wanted(setup, humanSpies, humanMercs, slots);
+        int botCount = bots.Spies + bots.Mercs;
+        static string Count(int count, string one, string many) => count + " " + (count == 1 ? one : many);
+        string summary = Count(humans, "human", "humans") + " + " + Count(botCount, "bot", "bots") +
+            " · " + Math.Max(0, slots - humans - botCount) + " open / " + slots + " slots\n";
+        if (!mercsOnly) summary += "Spies: " + humanSpies + " human + " + bots.Spies + " bots · ";
+        summary += "Mercenaries: " + humanMercs + " human + " + bots.Mercs + " bots";
+        if (slots > setup.MaxPlayers) summary += "\nConnected players need at least " + slots + " slots.";
+        int requested = setup.Bots switch
+        {
+            BotFill.Custom => (mercsOnly ? 0 : setup.SpyBots) + setup.MercBots,
+            BotFill.PerSide => 2 * setup.BotsPerSide,
+            _ => botCount,
+        };
+        if (requested > botCount) summary += "\nOnly " + botCount + " of " + requested + " requested bots fit. Increase player slots to add the rest.";
+        return summary;
+    }
+
     public static string Objective(EGameMode mode) => mode switch
     {
         EGameMode.GM_MercDeathMatch or EGameMode.GM_DeathMatch => "Eliminate the opposing team.",

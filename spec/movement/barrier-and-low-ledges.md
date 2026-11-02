@@ -179,6 +179,22 @@ stateDiagram-v2
   waist ledge events come from CheckFeetZone 0x10aa7a80 / CheckArmsZone 0x10aa54d0 (editor CheckLedgeGrabFeet
   0x111ed2f0); repositioning ASBasePawn::physRepositionning 0x111fc7a0, EndPhysRepositionning 0x111fcbc0.
 - Root motion: Bridge docs/handoff/traversal_2026-09-28.md (JumpStAlBr0).
+- Completion audit (2026-11-02): the extracted `SPlayerController.uc` `s_FeetLedge` selects action 201
+  unarmed and 202 armed. Original native cases 171, 172 and 202 are retained under
+  `local/re-out/c/actions/cases/editor/`. Case 202 calls `AnimateWalking(86)` after clearing draw/roll
+  overlays; switching physics alone leaves the completed mantle pose displaced after root unlock.
+  Case 171 uses the same root offsets for both teams: left 112.4 forward / 39 up, right 95.4 forward /
+  39 up. Its 17-unit subtraction uses the forward vector, not the lateral vector (the vector helper's
+  first argument is the output). The merc uses the `SPerso.Def` versions of `LedgStAlFtL/R` (9 frames
+  at 15 fps), while the spy uses `SPerso.PRO` (7 frames at 15 fps). Case 172 clears the roll overlay
+  when feet-ledge detection begins. The merc's `AnimateWalking(86)` preserves `RunAnim`, restores its
+  armed left/forward/right walk set and uses walk/run blend limits of 1000/2000.
+- Regression coverage: `AquaLedgeHopTests`, `MercMantleParityTests` and `MercMantleTests` use converted
+  character animations and the AquaE balcony or synthetic low ledges. They check acquisition, completed
+  armed/unarmed standing poses, root unlock, stopped/resumed movement, falling after the mantle, blocked
+  clearance and lost ledges. Merc action 202 is also tested directly on authority and simulated proxies
+  so the controller's armed walking entry cannot conceal a missing action-level reset. This is comparison
+  with extracted original code/content plus reconstruction tests, not a new original-game runtime capture.
 
 ## Open questions
 

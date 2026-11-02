@@ -379,7 +379,7 @@ public sealed partial class OnlineServer : IDisposable
         _random = settings.MatchSeed * 0x9E3779B97F4A7C15UL + 1;
         _lagCompensation = settings.LagCompensation;
         _lagCompensationCeilingMs = settings.LagCompensationCeilingMs;
-        Setup = settings.Setup.Clamped() with { MaxPlayers = Math.Max(settings.Setup.MaxPlayers, settings.MaxPlayers) };
+        Setup = (settings.Setup with { MaxPlayers = settings.MaxPlayers }).Clamped();
         if (Maps.FindMap(Setup.Map) is null)
         {
             throw new InvalidOperationException($"Unknown map '{Setup.Map}'.");
@@ -528,6 +528,7 @@ public sealed partial class OnlineServer : IDisposable
 
             TickKicks();
             TickPings();
+            TickPersonalDemos();
         }
 
         _lan?.Poll(nowMicros);
@@ -617,7 +618,7 @@ public sealed partial class OnlineServer : IDisposable
         var settings = new ServerSettings
         {
             Map = map,
-            MaxPlayers = Settings.MaxPlayers + Settings.MaxSpectators,
+            MaxPlayers = Setup.MaxPlayers + Settings.MaxSpectators,
             NetRate = Settings.NetRate,
             Profile = Settings.Profile,
             MatchSeed = Settings.MatchSeed + (ulong)RoundsStarted,
@@ -690,14 +691,14 @@ public sealed partial class OnlineServer : IDisposable
     /// <summary>Starts the round's demo when the session records them; a failure only costs the demo.</summary>
     private void StartDemo(ServerHost host, string map, string gameOptions)
     {
-        if (Settings.DemoFolder is not { Length: > 0 } folder)
+        if (PersonalRecordingFolder() is not { Length: > 0 } folder)
         {
             return;
         }
 
         DateTimeOffset start = Settings.WallClock.GetUtcNow();
         string path = System.IO.Path.Combine(folder,
-            start.ToString("yyyyMMdd-HHmmss", CultureInfo.InvariantCulture) + "-" + map + DemoFile.Extension);
+            start.ToString("yyyyMMdd-HHmmss", CultureInfo.InvariantCulture) + "-" + map + "-" + Guid.NewGuid().ToString("N")[..8] + DemoFile.Extension);
         DemoWriter? writer = null;
         try
         {
@@ -714,11 +715,13 @@ public sealed partial class OnlineServer : IDisposable
                 NetRate = host.NetRate,
             });
             host.StartRecording(writer, _now);
+            PersonalRecordingStarted(path);
             Log($"recording demo {path}");
         }
         catch (Exception e) when (e is System.IO.IOException or UnauthorizedAccessException or InvalidOperationException)
         {
             writer?.Dispose();
+            PersonalRecordingFailed();
             Log($"demo not recorded: {e.Message}");
         }
     }
@@ -735,13 +738,14 @@ public sealed partial class OnlineServer : IDisposable
         {
             recorder.Finish();
             recorder.Writer.Dispose();
+            if (recorder.TrainingError is { } trainingError) Log($"training data not saved: {trainingError}");
             DemoIndex index = recorder.Writer.Index;
             long bytes = new System.IO.FileInfo(recorder.Writer.Path).Length;
             double seconds = Math.Max(1.0, index.DurationTicks / (double)Sim.Hz);
             Log($"demo {recorder.Writer.Path}: {bytes / 1024} KB, {seconds:0} s ({bytes / 1024.0 / seconds:0.0} KB/s, {index.RawBytes / 1024.0 / seconds:0.0} KB/s raw)");
 
             // A finished round's demo goes to the master's bucket (trusted servers with uploads on).
-            if (results is not null && SubmitDemo(recorder.Writer.Path, new DemoMeta
+            if (results is not null && Settings.DemoFolder is { Length: > 0 } && SubmitDemo(recorder.Writer.Path, new DemoMeta
                 {
                     DurationSeconds = (int)seconds,
                     GameVersion = recorder.Writer.Header.GameVersion,
@@ -753,9 +757,11 @@ public sealed partial class OnlineServer : IDisposable
             }
 
             DemoRecorded?.Invoke(recorder.Writer.Path, results);
+            QueuePersonalDemo(recorder.Writer.Path);
         }
-        catch (System.IO.IOException e)
+        catch (Exception e) when (e is System.IO.IOException or UnauthorizedAccessException)
         {
+            PersonalRecordingFailed();
             Log($"demo not saved: {e.Message}");
         }
     }
@@ -1541,7 +1547,7 @@ public sealed partial class OnlineServer : IDisposable
                 UcStrings.EqualsIgnoreCase(UcOptions.ParseOption(options, "SpectatorOnly"), "true");
             bool spectator = wantsSpectator || (Phase != SessionPhase.Lobby && dropped is null);
             // Bots never take a person's place: they make room (UpdateBots) when he joins.
-            if (!spectator && CountHumans(spectators: false) >= Settings.MaxPlayers)
+            if (!spectator && CountHumans(spectators: false) >= Setup.MaxPlayers)
             {
                 spectator = true;
             }
@@ -1832,7 +1838,7 @@ public sealed partial class OnlineServer : IDisposable
             }
         }
 
-        (int wantSpies, int wantMercs) = Settings.Bots is null ? (0, 0) : OnlineBotRoster.Wanted(Setup, spies, mercs, Settings.MaxPlayers);
+        (int wantSpies, int wantMercs) = Settings.Bots is null ? (0, 0) : OnlineBotRoster.Wanted(Setup, spies, mercs, Setup.MaxPlayers);
         bool changed = SyncBots(0, wantSpies);
         changed |= SyncBots(1, wantMercs);
         if (changed)
@@ -1946,6 +1952,8 @@ public sealed partial class OnlineServer : IDisposable
             return;
         }
 
+        ForgetDemoPlayer(p.Id);
+
         if (p.Endpoint.IsValid)
         {
             _transport.DisconnectNow(p.Endpoint);
@@ -1991,7 +1999,7 @@ public sealed partial class OnlineServer : IDisposable
         return new ServerInfo
         {
             Name = Settings.Name, Map = Setup.Map, Mode = (byte)Setup.Mode, Phase = Phase, Players = players,
-            MaxPlayers = Settings.MaxPlayers, GamePort = GamePort, ProtocolHash = Host.Driver.ProtocolHash,
+            MaxPlayers = Setup.MaxPlayers, GamePort = GamePort, ProtocolHash = Host.Driver.ProtocolHash,
             ContentHash = Maps.FindMap(Setup.Map)?.ContentHash ?? 0, HasPassword = Settings.Password is { Length: > 0 },
             Dedicated = Settings.Dedicated, SecondsLeft = left, PlayerList = list,
             MasterId = Master?.ServerId ?? string.Empty, RequireAccounts = RequireAccounts, Practice = Setup.Practice,
@@ -2083,6 +2091,7 @@ public sealed partial class OnlineServer : IDisposable
         _bots?.Dispose();
         _bots = null;
         FinishDemo(Host, null);
+        DisposePersonalDemos();
         Host.Dispose();
         _transport.Dispose();
     }

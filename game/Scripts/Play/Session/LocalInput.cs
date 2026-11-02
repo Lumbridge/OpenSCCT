@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using OpenScct.Core.Engine;
 using OpenScct.Game.SBase;
+using OpenScct.Game.Training;
 
 namespace OpenScctGame.Play.Session;
 
@@ -154,6 +155,12 @@ public sealed class LocalInput
         pc.bPadStickMove = PadStick;
         pc.PadStickForward = PadForward;
         pc.PadStickStrafe = PadStrafe;
+        if (pc.Role == ENetRole.ROLE_Authority && !pc.XLevel.World.IsReplaying &&
+            pc.XLevel.GetService<ITrainingInputSink>() is { } sink)
+            sink.RecordInput(pc, TrainingInputCapture.Buttons(pc, TrainingInputSource.Local) with
+            {
+                MouseDeltaX = MouseX, MouseDeltaY = MouseY, UpAxis = Up,
+            });
     }
 }
 
@@ -185,6 +192,22 @@ public static class PlayerCommands
             && !(name == "SETSPYFIRSTPERSON" && command.Arg == 0))
         {
             return true;
+        }
+
+        if (pc.Role == ENetRole.ROLE_Authority && !pc.XLevel.World.IsReplaying &&
+            pc.XLevel.GetService<ITrainingInputSink>() is { } sink)
+        {
+            foreach (string known in Known)
+            {
+                if (!string.Equals(known, name, StringComparison.OrdinalIgnoreCase)) continue;
+                sink.RecordAction(pc, new TrainingAction
+                {
+                    Source = TrainingInputSource.Local, Kind = TrainingActionKind.Exec,
+                    ServerTick = pc.XLevel.TickCount + (pc.XLevel.IsTicking ? 0 : 1),
+                    Command = known, Argument = command.Arg,
+                });
+                break;
+            }
         }
 
         switch (name)

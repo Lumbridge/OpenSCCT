@@ -86,19 +86,26 @@ The runtime lays each sub-emitter's stored values over its class defaults from `
   crossed quads mapped to the LaserBeamShader's bright core) and a quad across the start (lasebeam2fin, a soft red
   glow). One material over both drew the body's streak on the start quad, a short dashed red line across the merc's
   muzzle. The local merc's start quad is hidden: the original's weapon overlay covers the start of his beam.
+- The spy's laser dot projects RET_Laser onto the visible surfaces within its 20 uu volume, centred on the
+  drawn beam's hit (`SpyLaserView`, `svm_projector.gdshaderinc`). It follows angled walls and shallow surface
+  details instead of intersecting them as the old beam-facing quad did. The shader keeps the additive texture,
+  range-dependent width and all vision modes; foreground surfaces outside the volume occlude it. Like the map
+  projectors, it uses the opaque depth buffer, so transparent surfaces without depth are not receivers.
 - The pawn skins effects put on: `SBasePawn.BeginStickySkin` draws the Stickess shaders over the shocked pawn's body
   (`StickySkins`, from `effects.json` "skins": the body Diffuse with SPersoTextures.sfx_perso.pan_sticky, a TexPanner of
   shadwagent_sticky_1 at 0.5 a second along V, as self-illumination and its mask; the template's `si_pan`).
 - The wet skins of a pawn in the rain (`SBasePawn.BeginWetSkin`, spec/equipment/rain.md): `WetSkins` puts the
   SpecialVisionTextureModifiers' heat and EMF textures (shared/render vision.json: HEAT_SN02_SI_wet where the local
-  player is a spy, HEAT_sn02_wet elsewhere, heat_sn02_2_wet_head, DEF01_heat_bodu_sv) over the body while bWet. In
-  normal vision they draw their base LitSpecularMaterials (wet_lit_ATT_SI, wet_lit_ATT, wet_lit_ATT_2, lit_def_fx):
-  the surface's own diffuse (camo included) plus the wet env map (SPersoTextures.wet_envmap by the camera-space
-  reflection, as the map Shaders' env maps) added through the SpecularityMask's alpha, and the glow of the _SI and
-  merc variants. The chars step exports their textures with the mesh (glb extras `svmap.wetSkins`); meshes built
-  before it keep the surface's own look in normal vision. In thermal the spy's head changes (wet heat HEATTEX_Heat
-  instead of HEATTEX_Cool). The cooling itself
-  is the pawn's replicated HeatIntensity (down to 0.5 in rain), which every view draws.
+  player is a spy, HEAT_sn02_wet elsewhere, heat_sn02_2_wet_head, DEF01_heat_bodu_sv) over the body while bWet in
+  vision modes. `SimPawnView` keeps the own skin and cosmetics in normal vision. The wet materials carry the
+  surface's diffuse plus the wet env map (SPersoTextures.wet_envmap by the camera-space reflection) added through
+  the SpecularityMask's alpha. The chars step exports these textures with the mesh (glb extras `svmap.wetSkins`);
+  older meshes keep their own material inputs with the wet vision modifiers. A wet material without its own
+  self-illumination inherits the dry skin's glow and mask: in particular, wet_lit_ATT must not switch off the spy's
+  back lamp when viewed by a merc. The lamp retains constant self-illumination; map lights and flashlights do not
+  control its brightness or switch the suit back to a dry material. In thermal the spy's head changes (wet heat
+  HEATTEX_Heat instead of HEATTEX_Cool). The cooling itself is the pawn's replicated HeatIntensity (down to 0.5 in
+  rain), which every view draws.
 - The rain splashes (`SFlicFlocEmitter`, one per pawn on its 'B Head', spec/equipment/rain.md rules 4 and 5): the
   simulation's emitter keeps what its script sets (rates, respawn, the particle budget, restarts, the puff trigger)
   and `EffectViews.FlicFloc.cs` applies it to the drawn copy each frame (`ParticleEmitterSim.RateOverride`,

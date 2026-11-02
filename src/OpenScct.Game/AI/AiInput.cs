@@ -1,6 +1,7 @@
 using OpenScct.Core;
 using OpenScct.Core.Engine;
 using OpenScct.Game.SBase;
+using OpenScct.Game.Training;
 
 namespace OpenScct.Game.AI;
 
@@ -123,12 +124,24 @@ public struct AiInput
             pc.LocalMyDesiredRotation = aim;
         }
 
+        if (pc.Role == ENetRole.ROLE_Authority && !pc.XLevel.World.IsReplaying &&
+            pc.XLevel.GetService<ITrainingInputSink>() is { } sink)
+            sink.RecordInput(pc, TrainingInputCapture.Buttons(pc, TrainingInputSource.Bot));
+
         Run(pc, Command1, Arg1);
         Run(pc, Command2, Arg2);
     }
 
     private static void Run(SPlayerController pc, AiCommand command, int arg)
     {
+        if (command != AiCommand.None && pc.Role == ENetRole.ROLE_Authority && !pc.XLevel.World.IsReplaying &&
+            pc.XLevel.GetService<ITrainingInputSink>() is { } sink)
+            sink.RecordAction(pc, new TrainingAction
+            {
+                Source = TrainingInputSource.Bot, Kind = TrainingActionKind.Exec,
+                ServerTick = pc.XLevel.TickCount + (pc.XLevel.IsTicking ? 0 : 1),
+                Command = command.ToString(), Argument = arg,
+            });
         switch (command)
         {
             case AiCommand.Fire:

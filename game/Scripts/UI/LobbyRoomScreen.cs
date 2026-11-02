@@ -119,9 +119,6 @@ public partial class LobbyRoomScreen : MenuPage
 
     public Button? ApplyButton { get; private set; }
 
-    /// <summary>"Maps": the host's map list with playlists and search.</summary>
-    public Button? MapsButton { get; private set; }
-
     public CheckBox? TeamVoiceOnlyBox { get; private set; }
 
     /// <summary>"Alternate": the Alternate Mode page, shown while the setup (or the host's edit) has it on.</summary>
@@ -190,52 +187,9 @@ public partial class LobbyRoomScreen : MenuPage
     {
         if (AlternateButton is not null && Session is { } s && Parameters is not null)
         {
-            AlternateButton.Visible = s.CanControl ? Parameters.Setup.Alternate.On : s.Setup.Alternate.On;
+            AlternateButton.Visible = s.CanControl || s.Setup.Alternate.On;
+            AlternateButton.Disabled = !Parameters.Setup.Alternate.On;
         }
-    }
-
-    private PanelContainer? _mapsPanel;
-
-    /// <summary>
-    /// The host's map list (rl:qol.lobbymaps): the same pictures, playlist choice and search as Create Session, over the
-    /// page; a pick goes into Session Parameters, and Apply (or OK here) sends it.
-    /// </summary>
-    private void OpenMaps()
-    {
-        if (Session is not { CanControl: true } s || Parameters is null || _mapCatalog is null || IsInstanceValid(_mapsPanel))
-        {
-            return;
-        }
-
-        var panel = new PanelContainer
-        {
-            Name = "MapsPanel", AnchorRight = 1f, AnchorBottom = 1f,
-            OffsetLeft = 16f, OffsetTop = 16f, OffsetRight = -16f, OffsetBottom = -16f,
-        };
-        panel.AddThemeStyleboxOverride("panel", UiStyle.MenuPanelBox());
-        var column = new VBoxContainer { Name = "Column" };
-        column.AddThemeConstantOverride("separation", 8);
-        panel.AddChild(column);
-        column.AddChild(new Label { Name = "Title", Text = "Choose Map", HorizontalAlignment = HorizontalAlignment.Center, Modulate = UiStyle.MenuTitle });
-        // The modal supplies the height; a fixed scroll minimum would push its footer off short screens.
-        var picker = new MapPickerView(Parameters, _mapCatalog, s.Maps, 0f, SettingsStore.Current.ActiveMapPlaylist, HostScreen.RememberPlaylist)
-        {
-            SizeFlagsVertical = SizeFlags.ExpandFill,
-        };
-        column.AddChild(picker);
-        var buttons = new HBoxContainer { Name = "Buttons", Alignment = BoxContainer.AlignmentMode.End };
-        buttons.AddThemeConstantOverride("separation", 12);
-        column.AddChild(buttons);
-        Button ok = UiStyle.MenuButton("OK", () =>
-        {
-            panel.QueueFree();
-        }, "MapsOk");
-        Button close = UiStyle.MenuButton("Close", panel.QueueFree, "MapsClose");
-        ok.CustomMinimumSize = close.CustomMinimumSize = new Vector2(160f, 36f);
-        buttons.AddChild(close);
-        buttons.AddChild(ok);
-        _mapsPanel = panel;
-        AddChild(panel);
     }
 
     private void OpenAlternate()
@@ -277,6 +231,7 @@ public partial class LobbyRoomScreen : MenuPage
             Parameters.Changed -= ShowAlternateButton;
             Parameters.Changed -= UpdateSettingsDraft;
         }
+        if (ParameterRows is not null) ParameterRows.PendingEditsChanged -= UpdateSettingsDraft;
     }
 
     private void ShowMapPicture()
@@ -407,7 +362,12 @@ public partial class LobbyRoomScreen : MenuPage
     {
         if (Session is { CanControl: true } s && Parameters is not null)
         {
-            s.ApplySetup(Parameters.Setup with { MaxPlayers = s.Setup.MaxPlayers });
+            ParameterRows!.CommitEdits();
+            int humans = s.Members.Count(player => !player.IsBot && player.Side is not null);
+            var setup = Parameters.Setup with { MaxPlayers = Math.Max(Parameters.Setup.MaxPlayers, humans) };
+            // Mirror the server's no-eviction clamp so the accepted capacity does not look like an uncommitted draft.
+            if (setup != Parameters.Setup) Parameters.Load(setup);
+            s.ApplySetup(setup);
             if (_settingsPanel is not null) _settingsPanel.Visible = false;
         }
     }
@@ -654,13 +614,10 @@ public partial class LobbyRoomScreen : MenuPage
         }
 
         ParameterRows!.Editable = control;
+        // Losing control must show live settings even when the server's setup has not changed.
+        if (!control && Parameters!.Setup != s.Setup) Parameters.Load(s.Setup);
         ApplyButton!.Visible = control;
-        MapsButton!.Visible = control && _mapCatalog is not null;
         if (!control && _confirm is { Visible: true }) ConfirmKick(false);
-        if (!control && IsInstanceValid(_mapsPanel))
-        {
-            _mapsPanel!.QueueFree();
-        }
 
         ShowAlternateButton();
         if (!control && IsInstanceValid(_alternate))
@@ -742,15 +699,17 @@ public partial class LobbyRoomScreen : MenuPage
         {
             // Reloaded's "scroll to adjust" and "click to mute", as a slider and a box per player.
             string player = p.Name;
-            volume = new HSlider
+            volume = new NotchedSlider
             {
                 Scrollable = false,
+                Notches = [0, 25, 50, 75, 100, 150, 200],
                 Name = "Volume", MinValue = 0, MaxValue = 200, Step = 5, Value = s.VoiceVolume(player) * 100f,
                 CustomMinimumSize = new Vector2(90f, 20f), TooltipText = "This player's voice volume",
             };
             volumeText = new Label { Name = "VolumeText", CustomMinimumSize = new Vector2(48f, 0f) };
             void Apply(double v)
             {
+                v = ((NotchedSlider)volume).Resolve(v);
                 s.SetVoiceVolume(player, (float)v / 100f);
                 volumeText.Text = string.Create(CultureInfo.InvariantCulture, $"{v:0}%");
             }
@@ -758,7 +717,7 @@ public partial class LobbyRoomScreen : MenuPage
             // A click on the track moves the grabber without value_changed (Godot's Slider blocks it on press): take the
             // value when the press ends too.
             volume.ValueChanged += Apply;
-            volume.DragEnded += _ => Apply(volume.Value);
+            volume.DragEnded += _ => Apply(((NotchedSlider)volume).Resolve(volume.Value, released: true));
             volumeText.Text = string.Create(CultureInfo.InvariantCulture, $"{volume.Value:0}%");
             mute = new CheckBox { Name = "Mute", Text = "Mute", ButtonPressed = s.VoiceMuted(player) };
             mute.Toggled += on => s.SetVoiceMuted(player, on);
@@ -805,7 +764,8 @@ public partial class LobbyRoomScreen : MenuPage
     public override void _Process(double delta)
     {
         base._Process(delta);
-        if (_settingsPanel is { Visible: true }) LobbyPanels.FitDialog(_settingsPanel, Size, new Vector2(1180, 700));
+        if (_settingsPanel is { Visible: true }) FitSettingsPanel();
+        RefreshRecordingControls();
         if (Session is not { } s || _status is null)
         {
             return;

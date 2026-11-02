@@ -4,12 +4,17 @@
 //   PROJ_ALPHA     PB_AlphaBlend: SRCALPHA, INVSRCALPHA
 //   PROJ_ADD       PB_Add: ONE, ONE
 //   PROJ_MODULATE  PB_None and PB_Modulate: DESTCOLOR, SRCCOLOR (frame x texture x 2)
-// Values are display values, like the frame. Thermal and EMF draw no projections.
+//   PROJ_LASER     spy laser dot: texture and alpha as its former additive material, in every vision mode
+// Map projectors use display values, like the frame. Thermal and EMF draw no map projections.
 
 global uniform float svm_time;
 global uniform int svm_vision;
 
+#ifdef PROJ_LASER
+uniform sampler2D proj_tex : source_color, filter_linear_mipmap, repeat_disable, hint_default_black;
+#else
 uniform sampler2D proj_tex : filter_linear_mipmap, repeat_enable, hint_default_black;
+#endif
 uniform sampler2D depth_tex : hint_depth_texture, filter_nearest;
 // Projector frame in Godot space: origin (w = MaxTraceDistance, m), axes X (forward), Y (texture u), Z (texture v).
 uniform vec4 proj_origin = vec4(0.0);
@@ -46,9 +51,14 @@ void fragment() {
 		n = -n;
 	}
 	// Only the faces turned away from the camera draw, so each pixel of the box is drawn once, inside or outside it.
-	if (dot(v_outward, VERTEX) < 0.0 || svm_vision == 36 || svm_vision == 38) {
+	if (dot(v_outward, VERTEX) < 0.0) {
 		discard;
 	}
+#ifndef PROJ_LASER
+	if (svm_vision == 36 || svm_vision == 38) {
+		discard;
+	}
+#endif
 	vec3 d = world - proj_origin.xyz;
 	float dx = dot(d, proj_x);
 	if (dx < 0.0 || dx > proj_origin.w) {
@@ -81,7 +91,10 @@ void fragment() {
 		uv = (cell + clamp(fract(uv), 0.001, 0.999)) / proj_flip.xy;
 	}
 	vec4 c = texture(proj_tex, uv);
-#if defined(PROJ_MODULATE)
+#if defined(PROJ_LASER)
+	ALBEDO = c.rgb;
+	ALPHA = c.a;
+#elif defined(PROJ_MODULATE)
 	ALBEDO = c.rgb * 2.0;
 	ALPHA = 1.0;
 #elif defined(PROJ_ADD)

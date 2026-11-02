@@ -11,7 +11,7 @@ namespace OpenScct.Server;
 /// follow anyone. Started by <see cref="ServerHost.StartRecording"/>; it notes the players and puts deaths and
 /// round changes on the seek bar as markers.
 /// </summary>
-public sealed class DemoRecorder
+public sealed partial class DemoRecorder
 {
     private readonly ServerHost _host;
     private readonly Dictionary<int, int> _deaths = new();
@@ -38,7 +38,11 @@ public sealed class DemoRecorder
     public bool IsFinished => Writer.IsFinished;
 
     /// <summary>Adds a marker now (an online session's round end, for example).</summary>
-    public void Mark(DemoMarkerKind kind, string text) => Writer.Mark(kind, text, (uint)_host.World.TickCount);
+    public void Mark(DemoMarkerKind kind, string text)
+    {
+        Writer.Mark(kind, text, (uint)_host.World.TickCount);
+        WriteTrainingMarker(kind, text);
+    }
 
     /// <summary>Every 30 ticks: the players and their deaths (kill markers), and the match start.</summary>
     internal void Scan()
@@ -54,7 +58,7 @@ public sealed class DemoRecorder
         if (gri is not null && gri.bMatchHasBegun != _matchBegun)
         {
             _matchBegun = gri.bMatchHasBegun;
-            Writer.Mark(_matchBegun ? DemoMarkerKind.RoundStart : DemoMarkerKind.RoundEnd, _matchBegun ? "Round start" : "Round end", tick);
+            Mark(_matchBegun ? DemoMarkerKind.RoundStart : DemoMarkerKind.RoundEnd, _matchBegun ? "Round start" : "Round end");
         }
 
         foreach (PlayerReplicationInfo pri in _host.World.Level.DynamicActors<PlayerReplicationInfo>())
@@ -87,12 +91,21 @@ public sealed class DemoRecorder
 
         _scanCountdown = 0;
         Scan();
-        Writer.Mark(DemoMarkerKind.MatchEnd, "End", (uint)_host.World.TickCount);
+        Mark(DemoMarkerKind.MatchEnd, "End");
         if (Connection.State != EConnectionState.USOCK_Closed)
         {
             Connection.Close("Demo finished");
         }
 
-        Writer.Finish();
+        try
+        {
+            Writer.Finish();
+            FinishTraining();
+        }
+        catch
+        {
+            AbortTraining("The accompanying demo could not be completed.");
+            throw;
+        }
     }
 }

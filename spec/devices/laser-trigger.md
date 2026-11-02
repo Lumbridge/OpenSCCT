@@ -130,10 +130,17 @@ SGPOControl relay; `bTriggerOnceOnly` (125) has no reader in script or in the tr
 relevancy `src/OpenScct.Net/Replication/NetRelevancy.cs` (LaserTriggerRelevant). Map actors load as the generated
 class with these partials (the SBase package is registered for maps), so no registry entry is needed.
 
+The `IPillPose` installed by `GameplayServices` and `PlayMapLoader` now uses `RollPillPose` for spy rolls. It samples
+the installed character clips and their entrance blend on the simulation clock, then transforms the decoded
+collision-bone offsets into world space. This replaces the fixed tucked roll approximation when the character
+content is available on clients and dedicated servers. The native speed/angle shortcut and timer rules above are
+unchanged. `tests/OpenScct.Integration.Tests/RollLaserTests.cs` exercises contact and clearance through roll phases,
+including the original speed boundaries, using synthetic character data.
+
 ## Open questions
 
-- The pill check uses the shared IPillPose; the simulation has no skeleton, so EstimatedPillPose's roll stance (a
-  tucked ball topping out about 55 uu above the floor) stands in for the roll animation's real pose.
+- The pill check retains EstimatedPillPose for other actions, missing roll content/bones, and unsupported
+  history-dependent tween or mirrored-overlay poses. A live original-game laser playthrough remains unverified.
 - GetRainVolume (native 1789) is not ported; no converted map places an ERainVolume, so the beam is never halved.
 - Emitter.Kill: the sparks actor goes at once in the simulation; the drawn particles stop spawning and die out.
 - The TexScaler U scale is kept (`LaserScalerUScale`) but the views do not apply it; the normal-vision look reuses the

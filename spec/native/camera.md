@@ -96,19 +96,20 @@ shake, tilt and hit roll fields.
 3. The result is also stored in vCamLocation and rCamRotation. With bUpdate, once per Level.TimeSeconds, every live
    SBasePawn whose native weapon slot holds an SWeaponAttaque gets a view-dependent weapon update (editor
    0x111d8f90; not decoded here).
-4. Calls per frame (measured 2026-10-29, Frida on the running game, Play Level SteeE as the spy): the engine runs
-   NativePlayerCalcView (game 0x10aafe70) with bUpdate three times per rendered frame, from 0x109ebbb9 (the scene
-   draw 0x109ebb20), 0x109e3f35 and 0x10af8e07; the following solver (game 0x10a94e00) runs on each, so it ran 3600
-   times in 1200 frames. Each solve steps by the frame's full Level.m_dT, so every ease of rule 3 (offset, target
-   height, ideal and final distance) and of the other view sources moves three steps per frame: the rates of the
-   mode table are a third of what the player sees. The rewrite solves the view three times per tick
-   (PlayerCalcView.FrameView).
+4. Calls per frame are render-dependent. The 2026-10-29 Frida capture (Play Level SteeE as the spy) observed
+   NativePlayerCalcView (game 0x10aafe70) with bUpdate three times per rendered frame, from 0x109ebbb9 (scene
+   draw 0x109ebb20), 0x109e3f35 and 0x10af8e07; the following solver (game 0x10a94e00) ran on each, 3600 times
+   in 1200 frames. Each solve steps by the frame's full Level.m_dT. These measured call counts are not universal.
+   The second call is inside UShadowBitmapMaterial::Get (game 0x109e3dc0, editor 0x110f7410): it runs only when
+   a valid, non-blob shadow material is dirty and has a ShadowActor. The 2026-11-02 runtime capture identified
+   that actor as the own spy. Suppressing that material's dynamic update removes this camera solve (rule 4.5).
    The third call (0x10af8e07) is in the Enhanced Reality markers (ERDrawObjectives 0x10af8c00), drawn from HudAtt
    (EnhancedRealityLevel != 0) and HudDef (== 1), which only SHud's own PostRender calls. In the HUD's states
    (s_Hud_UseObject_StickyCam, s_Hud_UseObject_CamNetwork, the binocular states) PostRender calls super.PostRender,
-   which is Engine.HUD's (debug and messages), so only two solves run: measured on the sticky cam fly-in
-   (2026-10-29, memory sampling at ~240 fps) as a steady 4000 uu/s, 2 x 2000 x m_dT. The rewrite solves twice while
-   the HUD is in a state.
+   which is Engine.HUD's (debug and messages), so this third call is absent. With the own-spy shadow update
+   active, two solves remain: the sticky fly-in was measured at a steady 4000 uu/s, 2 x 2000 x m_dT. Without
+   that shadow update, the controlled 2026-11-02 capture measured one solve and 2000 uu/s. The rewrite's sticky
+   fly-in now follows this shadow eligibility. Other view states retain their existing three/two-solve behavior.
 
 ### 2. Default view (editor 0x111e3830, game 0x10ab00e0)
 
@@ -199,16 +200,63 @@ to the camera spot). P = m_camParam[m_camMode]; dt = Level.m_dT; "approach x tow
    target is 30 uu along the controller's forward axis from the object; the camera moves from m_PrevPosition toward
    it at 2000 uu/s and, within 80 uu of the object, the controller changes state: `ChangeState('s_UseObject_StickyCam',
    None, true)` (the hardcoded name 0x192 of the name table); without a used object, the default view. The step is
-   `2000 x Level.m_dT` (LevelInfo +0x54c), capped at the distance left; no light or visibility input.
+   `2000 x Level.m_dT` (LevelInfo +0x54c), capped at the distance left. This per-call formula has no direct light
+   input; lighting can change how many times it runs (rules 1.4 and 4.5).
    Reloaded (start-up patch, Reloaded 0x1001c350, jumps written at game 0x10ab035f and 0x10ab03d4; ported as
    PlayerCalcView.SmoothStickySlowStart, the frame milliseconds read as m_dT x 1000):
    at 0x10ab035f (Reloaded 0x1001a8d0/0x1001a880) it reads the LevelInfo (global 0x1036abb0) TimeSeconds (+0x3b0);
    when it went backward, or moved more than 4 x m_dT since the last fly-in frame (so on every new fly-in), a timer
    is set to 100. At 0x10ab03d4 (Reloaded 0x1001a950/0x1001a8f0), while the timer is above 0: timer -= frame
    milliseconds x 0.34 (floored at 0), and the step (already capped at the distance left) is x 0.66. Both run per
-   call, and during the fly-in the view is solved twice a frame (rule 1.4, the HUD is in s_Hud_UseObject_StickyCam),
-   so the fly-in moves at 2640 uu/s (66%) for about 70 calls, then at 4000 uu/s. Measured on the original
-   (2026-10-29, ~240 fps): 2640 uu/s for 0.145 s, then a steady 4000 uu/s.
+   call. With two solves per frame, the fly-in moves at 2640 uu/s (66%), then at 4000 uu/s. Measured on the
+   Enhanced reference (2026-10-29, ~240 fps): about 70 slow-start calls / 0.145 s, then 4000 uu/s. With one solve
+   per frame, both the startup rate and steady rate halve, and the timer drains half as fast in real time.
+5. Lighting-dependent sticky-camera timing (investigated 2026-11-02): the gadget raycasts and creates the mounted
+   camera immediately; the visible flight is this view transition, not a moving projectile. Native lighting
+   code at game 0x10a363d0 updates Pawn.Shadow.ShadowTexture.ShadowDarkness (store 0x10a36ddf), despite the script
+   initializing it to zero. For positive inputs, the byte is
+   `truncate(min(255, Level.ShadowDarknessScale * sum(weight * weight) / sum(weight)))`, or zero without
+   contributing weight. Eligible lights have bActorShadows and cached visibility; weight includes LightBrightness
+   and the visibility fade, plus `1 - distance / radius` for non-sunlight. Values below one become zero.
+   Nonzero pawn GlassEffect (cloak amount/fade, not wetness) also forces zero. ShadowProjector.UpdateShadow
+   attaches and marks its texture dirty only with nonzero ShadowDarkness, a visible actor and an active projector.
+   UShadowBitmapMaterial::Get then performs the extra camera solve. Thus lighting affects flight indirectly
+   through shadow rendering; it is not a continuous brightness-to-speed multiplier.
+
+   Controlled runtime comparison, same spy position and target at approximately 60 fps:
+
+   | Original reference condition | Fly-in solves/frame | Startup speed | Steady speed |
+   |---|---:|---:|---:|
+   | Own-spy dynamic shadow active | 2 | 2640 uu/s | 4000 uu/s |
+   | Same material forced to blob-shadow fallback | 1 | 1320 uu/s | 2000 uu/s |
+   | Dynamic shadow restored | 2 | 2640 uu/s | 4000 uu/s |
+
+   Frida recorded 55 movement solves over 55 frames with the fallback, versus 55 over 28 frames with the dynamic
+   shadow (the last frame completes after its first solve). Toggling the map's 20 STriggerLight LightType values
+   changed visible scene illumination but left own-spy ShadowDarkness at 21-22 and retained the faster rate.
+   This is not a completed natural bright/dark reproduction: the world-render caller at 0x10a37610 can skip the
+   native shadow update when no light candidates remain, retaining an earlier darkness value. A separate probe
+   varying actual LightBrightness was prepared but could not launch alongside an externally running game.
+
+   Rewrite implementation (2026-11-02): ActorShadowLighting keeps the native twelve-light cache (up to 256
+   candidates before ranking), its integer ranking/spot cone, 0.35-second visibility checks and asymmetric fades,
+   bStatic tracing, bDynamicLight fade bypass, bActorShadows and the quantized darkness formula. The normal light
+   set excludes LE_ESpotShadow. SpyShadowLighting gathers current client light state, filters special/own-zone
+   lights and shadow-caster collision, and warms the cache each tick before FrameView. The projector's tick uses
+   the previous render's darkness, so the bridge returns the previous byte's eligibility before updating it.
+   A fly-in without that shadow calls the solver once; with it, twice. Removing the whole call also gives the
+   correct slow-start timer drain and arrival behavior. Ambient, emissive suit lights and AI luminance are not inputs.
+
+   The bridge resets on possession, network reset and teleport. It uses the last drawn mesh bounds/bone-zero pose
+   translated to the current tick, with the pawn cylinder and native +5 root fallback before a pose is available.
+   Render-only attached lights use their latest drawn placement. This models lighting eligibility, not the
+   original renderer's outer projector/frustum requests; those remaining render-dependent cases require playtest.
+   Renderless tools without a shadow provider retain the established two-solve default.
+
+   A local diagnostic using the actual cache and FrameView measured lit startup/steady rates of 2640/4000 uu/s
+   and dim, occluded, non-shadow-casting or cloaked rates of 1320/2000 uu/s. The same 6000-uu transition completed
+   in 92 versus 184 ticks at 60 Hz. Visibility loss/recovery exercised the cached fade. Both solutions build;
+   no test suite or rendered smoke was run for this implementation.
 
 ### 5. First-person view (editor 0x111f5230, game 0x10a98390)
 
@@ -323,6 +371,13 @@ remote player is its pawn's rotation, net-moves.md).
   0x10ab06f0, StickyCamSmoothToPosition 0x10ab01e0, FollowingRotation 0x10a964f0, ResettingRotation 0x10a96750,
   SetMode 0x10a967c0, InitCameraSettings 0x10a96920 (per mode 0x10a96960), MoveTowardScalar 0x109532c0.
 - Bridge: out/_spyview/camparams.txt (the 35 resolved modes).
+- 2026-11-02 reference: Enhanced SCCT Versus 4.0 Public Beta 3, game SHA-256
+  `a98873aaec1de21fdcccc0afb9985e3ddcf38a9ddce1207214872d6428ec9950`, Reloaded.Core SHA-256
+  `6b9d4444e7e05f7c04767509599df97c0f0fd9fc61686821cc8333066995dc46`. Startup rates include Reloaded's patch;
+  this was not a separate untouched-retail runtime test. Local-only measurements:
+  `local/spy-cam-light-runtime-hooked/summary.json`, `blob-control.json`,
+  `local/cam-light-investigation/frida-observations-final.json`, `local/cam-light-probe/results.json` (before fix),
+  and `local/cam-shadow-probe/results.json` (implemented cache and camera timing).
 
 ## Open questions
 

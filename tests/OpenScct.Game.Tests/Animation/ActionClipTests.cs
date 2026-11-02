@@ -33,6 +33,57 @@ public sealed class ActionClipTests
         }
     }
 
+    [Theory]
+    [InlineData(false, false)]
+    [InlineData(false, true)]
+    [InlineData(true, false)]
+    [InlineData(true, true)]
+    public void FeetLedgeCompletionRestoresTheStandingPoseAndMovement(bool armed, bool leftFoot)
+    {
+        PawnRig rig = Rig(PawnTeam.Spy);
+        SBasePawn pawn = rig.Pawn;
+        PawnAnimation anim = pawn.PawnAnim;
+        pawn.WeaponLoaded = armed ? (byte)2 : (byte)0;
+        pawn.bIsLeftPart = leftFoot;
+        ActionAnimation.WalkSet(pawn, SBasePawn.SA_WALK_CR_0H);
+        pawn.ExecuteAction(SBasePawn.SA_FEETLEDGE);
+        rig.Controller.GotoState(MovementStateNames.s_FeetLedge);
+        pawn.NetworkRootMotion.LockRootMotion(pawn.iLockRootMotionType);
+        pawn.OldPhysics = EPhysics.PHYS_RootMotion;
+        FVector incomingVelocity = new(14f, 28f, 0f);
+        pawn.Velocity = incomingVelocity;
+
+        // A completed mantle must replace its displaced base pose even if movement stops immediately.
+        // Draw and roll overlays also have to release their contribution to the restored standing pose.
+        PawnActions.Once(pawn, SBasePawn.DRAWCHANNEL, pawn.ADrawStand2H, 0f);
+        anim.SetBlendParams(SBasePawn.DRAWCHANNEL, 1f, bone: Spine1);
+        anim.SetBlendParams(SBasePawn.DBLJUMPCHANNEL, 1f);
+        for (int tick = 0; tick < 120 && rig.Controller.IsInState(MovementStateNames.s_FeetLedge); tick++)
+        {
+            pawn.AdvancePredictionAnimation(Dt);
+        }
+
+        Assert.Equal(armed ? MovementStateNames.s_PlayerWalkingSt2H : MovementStateNames.s_PlayerWalkingSt0H,
+            rig.Controller.GetStateName());
+        Assert.Equal(EPhysics.PHYS_Walking, pawn.Physics);
+        Assert.Equal(0, pawn.NetworkRootMotion.RootLockType);
+        Assert.Equal(armed ? pawn.AWaitSt2 : pawn.AWaitSt0, anim[0].Sequence);
+        Assert.True(anim[0].bLoop);
+        Assert.True(anim[0].bPlaying);
+        Assert.Equal(armed ? pawn.AWalkStFd2 : pawn.AWalkStFd0, pawn.ForwardAnim);
+        Assert.Equal(armed ? pawn.ARunStFd2 : pawn.ARunStFd0, pawn.RunAnim);
+        Assert.Equal(0f, anim[SBasePawn.DRAWCHANNEL].BlendAlpha);
+        Assert.Equal(0f, anim[SBasePawn.DRAWCHANNEL].Rate);
+        Assert.Equal(0f, anim[SBasePawn.DBLJUMPCHANNEL].BlendAlpha);
+        Assert.Equal(armed ? incomingVelocity : pawn.Rotation.Vector() * pawn.RunningSpeed, pawn.Velocity);
+        if (!armed)
+        {
+            Assert.Equal(pawn.RunAnim, anim[4].Sequence);
+            Assert.Equal(1f, anim[4].BlendAlpha);
+            Assert.Equal(pawn.ForwardAnim, anim[5].Sequence);
+        }
+    }
+
     [Fact]
     public void TheMercsFireOverlayIsDrawnFromSpine1AndBlendsOutAtItsEnd()
     {

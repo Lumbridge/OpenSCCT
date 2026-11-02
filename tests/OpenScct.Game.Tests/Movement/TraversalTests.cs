@@ -26,6 +26,13 @@ public sealed class TraversalTests
 
     private static TraversalDoc Doc(params GERecord[] ges) => new("1.0", "test", ges);
 
+    private static void AssertLoopingPose(PawnRig rig, Name clip)
+    {
+        Assert.Equal(clip, rig.Pawn.PawnAnim[0].Sequence);
+        Assert.True(rig.Pawn.PawnAnim[0].bLoop);
+        Assert.Equal(0, rig.Pawn.NetworkRootMotion.RootLockType);
+    }
+
     private static PawnRig TraversalRig(CollisionDataBuilder level, TraversalDoc ges, FVector at, int yaw = 16384, bool crouched = false)
     {
         PawnRig rig = PawnRig.Create(PawnTeam.Spy, level.Build(), ges);
@@ -116,6 +123,7 @@ public sealed class TraversalTests
         Assert.InRange(rig.Pawn.Location.Z, 250f + 87.5f - 1f, 250f + 87.5f + 4f);
         Assert.True(rig.Pawn.Location.Y > 100f, $"y {rig.Pawn.Location.Y}");
         Assert.Equal(EPhysics.PHYS_Walking, rig.Pawn.Physics);
+        AssertLoopingPose(rig, rig.Pawn.AWaitSt0);
     }
 
     [Fact]
@@ -149,6 +157,7 @@ public sealed class TraversalTests
         Assert.Contains(MovementStateNames.TopLedgeCrouch, seen);
         Assert.True(rig.Pawn.bIsCrouched);
         Assert.True(rig.Pawn.Location.Y > 100f);
+        AssertLoopingPose(rig, rig.Pawn.AWaitCr0);
     }
 
     // ---- vertical pipe ----------------------------------------------------------------------------------------
@@ -192,6 +201,11 @@ public sealed class TraversalTests
         Assert.Contains(MovementStateNames.s_TopPipe, seen);
         Assert.InRange(rig.Pawn.Location.Z, 600f + 87.5f - 1f, 600f + 87.5f + 4f);
         Assert.True(rig.Pawn.Location.Y > 230f);
+        rig.Hold(NoInput, 30);
+        AssertLoopingPose(rig, rig.Pawn.AWaitSt0);
+        float stoppedY = rig.Pawn.Location.Y;
+        rig.Hold(Forward, 20);
+        Assert.True(rig.Pawn.Location.Y > stoppedY + 20f);
     }
 
     [Fact]
@@ -252,6 +266,7 @@ public sealed class TraversalTests
         Assert.True(StepUntil(rig, default, MovementStateNames.s_ZipLine, 120, seen), string.Join(", ", seen));
         Assert.Contains(MovementStateNames.s_ZipLineTrToNormal, seen);
         Assert.False(rig.Pawn.bIsZipSpeed);
+        AssertLoopingPose(rig, new Name("ZippStAlDn0"));
     }
 
     [Fact]
@@ -276,6 +291,8 @@ public sealed class TraversalTests
         Assert.True(StepUntil(rig, default, MovementStateNames.s_PlayerJump, 600, seen), string.Join(", ", seen));
         Assert.Contains(MovementStateNames.s_ZipWall, seen);
         Assert.InRange(rig.Pawn.Location.Y, 2400f, 2600f);
+        Assert.Equal(EPhysics.PHYS_Falling, rig.Pawn.Physics);
+        AssertLoopingPose(rig, rig.Pawn.AFall);
     }
 
     // ---- back to wall -----------------------------------------------------------------------------------------
@@ -400,5 +417,6 @@ public sealed class TraversalTests
         float hangX = left ? 39f : -339f;
         Assert.InRange(rig.Pawn.Location.X, hangX - 2f, hangX + 2f);
         Assert.InRange(rig.Pawn.Location.Z, 133f - 2f, 133f + 2f);
+        AssertLoopingPose(rig, new Name("LedgStAlNt0"));
     }
 }

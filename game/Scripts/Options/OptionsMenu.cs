@@ -525,14 +525,12 @@ public partial class OptionsMenu : Control
 
     private void FrameRateChoice(GridContainer grid, string label, string key)
     {
-        var option = new OptionButton
+        var option = new FrameRateSlider
         {
-            Name = Safe(key), ClipText = true, FitToLongestItem = false,
-            CustomMinimumSize = new Vector2(320f, 0f), SizeFlagsHorizontal = SizeFlags.ExpandFill,
+            Name = Safe(key), SizeFlagsHorizontal = SizeFlags.ExpandFill,
         };
-        option.ItemSelected += index =>
+        option.Changed += fps =>
         {
-            if (DisplayFrameCap.Parse(option.GetItemText((int)index)) is not { } fps) return;
             if (key != "fps_merc") _edit.FpsSpy = fps;
             if (key != "fps_spy") _edit.FpsMerc = fps;
             RefreshFrameRateChoices();
@@ -559,22 +557,10 @@ public partial class OptionsMenu : Control
         _frameRateLabelHz = hz;
         foreach (string key in new[] { "max_fps", "fps_spy", "fps_merc" })
         {
-            if (!_controls.TryGetValue(key, out Control? control) || control is not OptionButton option) continue;
+            if (!_controls.TryGetValue(key, out Control? control) || control is not FrameRateSlider option) continue;
             int fps = key == "fps_merc" ? _edit.FpsMerc : _edit.FpsSpy;
             bool mixed = key == "max_fps" && _edit.FpsSpy != _edit.FpsMerc;
-            option.Clear();
-            if (mixed)
-            {
-                option.AddItem("Per-role limits");
-                option.SetItemDisabled(0, true);
-            }
-            foreach (string item in DisplayFrameCap.Choices(fps, hz))
-            {
-                option.AddItem(item);
-                option.SetItemTooltip(option.ItemCount - 1, item);
-                if (!mixed && DisplayFrameCap.Parse(item) == fps) option.Select(option.ItemCount - 1);
-            }
-            if (mixed) option.Select(0);
+            option.Refresh(fps, hz, mixed);
         }
     }
 
@@ -705,9 +691,10 @@ public partial class OptionsMenu : Control
     private void Slider(GridContainer grid, string label, string key, float min, float max, float step, float value, Action<float> changed,
         string format = "0.00", bool typed = false)
     {
-        var slider = new HSlider
+        var slider = new NotchedSlider
         {
                 Scrollable = false,
+            Notches = NotchedSlider.ForSetting(key, min, max),
             Name = Safe(key), MinValue = min, MaxValue = max, Step = step, Value = value,
             CustomMinimumSize = new Vector2(320f, 24f), SizeFlagsHorizontal = SizeFlags.ExpandFill,
         };
@@ -725,10 +712,16 @@ public partial class OptionsMenu : Control
             // The two stay in step without echoing: SetValueNoSignal does not raise value_changed.
             slider.ValueChanged += v =>
             {
+                v = slider.Resolve(v);
                 box.SetValueNoSignal(v);
                 changed((float)v);
             };
-            slider.DragEnded += _ => changed((float)slider.Value);
+            slider.DragEnded += _ =>
+            {
+                double v = slider.Resolve(slider.Value, released: true);
+                box.SetValueNoSignal(v);
+                changed((float)v);
+            };
             box.ValueChanged += v =>
             {
                 slider.SetValueNoSignal(v);
@@ -741,13 +734,14 @@ public partial class OptionsMenu : Control
         var shown = new Label { Text = value.ToString(format, CultureInfo.InvariantCulture), CustomMinimumSize = new Vector2(70f, 0f) };
         void Apply(double v)
         {
+            v = slider.Resolve(v);
             shown.Text = ((float)v).ToString(format, CultureInfo.InvariantCulture);
             changed((float)v);
         }
 
         // A click on the track moves the grabber without value_changed (Godot's Slider blocks it on press).
         slider.ValueChanged += Apply;
-        slider.DragEnded += _ => Apply(slider.Value);
+        slider.DragEnded += _ => Apply(slider.Resolve(slider.Value, released: true));
         grid.AddChild(shown);
     }
 

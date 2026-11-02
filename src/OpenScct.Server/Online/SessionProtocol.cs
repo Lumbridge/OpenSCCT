@@ -66,10 +66,15 @@ public enum SessionPlayerFlags
 ///   row &lt;id&gt; &lt;team&gt; &lt;score&gt; &lt;kills&gt; &lt;deaths&gt; &lt;lives&gt; &lt;name&gt;
 ///   results &lt;winner&gt; &lt;reason&gt; &lt;taken&gt; &lt;needed&gt; &lt;gamesLeft&gt; &lt;map&gt;   (after its rows)
 ///   kicked &lt;reason&gt;
+///   democap 1                                  personal recording extension (older servers omit it)
+///   demostatus &lt;next|recording|off|failed|too-large&gt;
+///   demooffer &lt;id&gt; &lt;bytes&gt; &lt;sha256&gt;
+///   demodata &lt;id&gt; &lt;offset&gt; &lt;base64&gt;     at most 300 decoded bytes
 /// client -> server
 ///   team &lt;0|1|255&gt;    ready &lt;0|1&gt;    setup &lt;options&gt;    launch    lobby    teamvoice &lt;0|1&gt;
 ///   mapcheck &lt;map&gt; &lt;mapState&gt;    kick &lt;id&gt;    ban &lt;id&gt;    voiceban &lt;id&gt; &lt;0|1&gt;    admin &lt;password&gt;
 ///   cmd &lt;console command&gt;
+///   demorecord &lt;0|1&gt;    demoack &lt;id&gt; &lt;nextOffset|-1&gt;
 /// </code>
 /// </summary>
 public static class SessionProtocol

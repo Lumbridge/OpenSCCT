@@ -89,16 +89,16 @@ public sealed class OptionsSmoke : SmokeTest
         try
         {
             Expect(!options.HasUnsavedChanges, "fresh editor is clean");
+            var volume = (NotchedSlider)options.Controls["master_volume"];
+            double originalVolume = volume.Value;
+            Expect(volume.Resolve(24, released: true) == 25, "pointer release snaps near a quarter volume");
+            Expect(volume.Resolve(22, released: true) == 22, "pointer remains precise outside a notch");
+            Expect(volume.Resolve(24) == 24, "non-pointer changes bypass notches");
+            volume.SetValueNoSignal(originalVolume);
             Expect(options.Tabs!.GetTabTitle(0) == "Spy" && options.Tabs.GetTabTitle(1) == "Mercenary", "role tabs");
             Expect(!options.Controls.ContainsKey("controls_spy_kbm.look_response"), "mouse response selector removed");
-            void PickFps(string key, int fps)
-            {
-                var picker = (OptionButton)options.Controls[key];
-                int index = Enumerable.Range(0, picker.ItemCount).Single(i => DisplayFrameCap.Parse(picker.GetItemText(i)) == fps);
-                picker.Select(index);
-                picker.EmitSignal(OptionButton.SignalName.ItemSelected, (long)index);
-            }
-            string ShownFps(string key) => ((OptionButton)options.Controls[key]).Text;
+            void PickFps(string key, int fps) => ((FrameRateSlider)options.Controls[key]).Select(fps);
+            string ShownFps(string key) => ((FrameRateSlider)options.Controls[key]).Text;
             void PickTelemetry(string key, int index)
             {
                 var picker = (OptionButton)options.Controls[key];
@@ -152,6 +152,8 @@ public sealed class OptionsSmoke : SmokeTest
             }
             ExpectEditedTelemetry(options.Editing, "control signals");
             Expect(original == SettingsStore.Current.ToJson(), "telemetry control signals modify only the draft");
+            PickFps("max_fps", 137);
+            Expect(options.Editing.FpsSpy == 137 && options.Editing.FpsMerc == 137, "custom FPS retains single-frame precision");
             PickFps("max_fps", 144);
             Expect(options.Editing.FpsSpy == 144 && options.Editing.FpsMerc == 144 &&
                 ShownFps("fps_spy") == "144" && ShownFps("fps_merc") == "144", "shared FPS updates both role drafts and selectors");

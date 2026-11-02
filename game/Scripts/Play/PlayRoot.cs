@@ -121,6 +121,7 @@ public partial class PlayRoot : Node3D
     private readonly HudBinocularAim _aim = new();
     private readonly DrawnTime _time = new();
     private float _alpha = 1f;
+    private SpyShadowLighting? _spyShadowLighting;
 
     public PlayConfig Config { get; private set; } = new();
 
@@ -251,6 +252,8 @@ public partial class PlayRoot : Node3D
         if (Config.Render)
         {
             Map = MapBuilder.Build(Session.MapFolder);
+            _spyShadowLighting = new SpyShadowLighting(Map, Session.Client, () => Pawns);
+            Session.StickyCamShadowUpdate = _spyShadowLighting.Update;
             AddChild(Map.Root);
             View = new FaithfulView();
             AddChild(View);
@@ -729,6 +732,7 @@ public partial class PlayRoot : Node3D
         CrashLog.Context = "";
         Session?.Dispose();
         Session = null;
+        _spyShadowLighting = null;
         Config.Demo?.Dispose();
         Devices = null;
         Pawns = null;

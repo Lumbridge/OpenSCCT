@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using Godot;
 using OpenScct.Server.Online;
 
@@ -45,6 +46,29 @@ public partial class SessionRowsView : VBoxContainer
 
     public CreateSessionModel Model { get; }
 
+    /// <summary>Unsubmitted number text is still an edit, even before the field loses focus.</summary>
+    public bool HasPendingEdits
+    {
+        get
+        {
+            if (!_editable) return false;
+            foreach (SpinBox number in _numbers.Values)
+                if (number.GetLineEdit().HasFocus() && number.GetLineEdit().Text.Trim() != number.Value.ToString(CultureInfo.InvariantCulture))
+                    return true;
+            return false;
+        }
+    }
+
+    public event Action? PendingEditsChanged;
+
+    /// <summary>Commit typed values before an action reads the model.</summary>
+    public void CommitEdits()
+    {
+        if (!_editable) return;
+        // A clicked action may already own focus while the editor's focus-loss commit is still queued.
+        foreach (SpinBox number in _numbers.Values) number.Apply();
+    }
+
     /// <summary>Blinking of values the host changed (clients), or null.</summary>
     public LobbyRoomModel? Blink { get; set; }
 
@@ -54,6 +78,7 @@ public partial class SessionRowsView : VBoxContainer
         get => _editable;
         set
         {
+            bool changed = _editable != value;
             _editable = value;
             foreach (BaseButton b in _arrows)
             {
@@ -72,6 +97,7 @@ public partial class SessionRowsView : VBoxContainer
             {
                 _password.Editable = value;
             }
+            if (changed && !value) Refresh();
         }
     }
 
@@ -162,7 +188,7 @@ public partial class SessionRowsView : VBoxContainer
                 SessionRow.TimeLimit or SessionRow.Respawn or SessionRow.SpyLives or SessionRow.MercLives or SessionRow.GamesInARow or
                     SessionRow.ActiveDisks or SessionRow.DisksToTake => match,
                 SessionRow.VoiceChat or SessionRow.VoiceInLobby or SessionRow.Bots or SessionRow.BotsPerSide or SessionRow.BotSkill or
-                    SessionRow.AutoBalance => players,
+                    SessionRow.SpyBots or SessionRow.MercBots or SessionRow.AutoBalance => players,
                 _ => rules,
             };
             parent.AddChild(MakeRow(row));
@@ -171,7 +197,7 @@ public partial class SessionRowsView : VBoxContainer
         // Within a column: lengths before lives, voice before bots.
         Order(match, SessionRow.TimeLimit, SessionRow.Respawn, SessionRow.SpyLives, SessionRow.MercLives, SessionRow.GamesInARow,
             SessionRow.ActiveDisks, SessionRow.DisksToTake);
-        Order(players, SessionRow.VoiceChat, SessionRow.VoiceInLobby, SessionRow.Bots, SessionRow.BotsPerSide, SessionRow.BotSkill,
+        Order(players, SessionRow.VoiceChat, SessionRow.VoiceInLobby, SessionRow.Bots, SessionRow.BotsPerSide, SessionRow.SpyBots, SessionRow.MercBots, SessionRow.BotSkill,
             SessionRow.AutoBalance);
     }
 
@@ -307,6 +333,7 @@ public partial class SessionRowsView : VBoxContainer
                 Rounded = true, Step = 1, UpdateOnTextChanged = false,
             };
             number.ValueChanged += value => { if (_editable && !_refreshing) Model.SetNumber(row, (int)value); };
+            number.GetLineEdit().TextChanged += _ => { if (_editable && !_refreshing) PendingEditsChanged?.Invoke(); };
             _numbers[row] = number;
             line.AddChild(number);
         }
@@ -472,6 +499,8 @@ public partial class SessionRowsView : VBoxContainer
                 number.MinValue = min;
                 number.MaxValue = max;
                 number.SetValueNoSignal(Model.Number(row));
+                // Also reset unsubmitted text when loading the same numeric value (discard or loss of control).
+                number.GetLineEdit().Text = Model.Number(row).ToString(CultureInfo.InvariantCulture);
                 number.TooltipText = min == 0 && row is SessionRow.TimeLimit or SessionRow.SpyLives or SessionRow.MercLives
                     ? "0 = unlimited. Type a value or use the arrows." : "Type a value or use the arrows.";
             }
@@ -534,6 +563,8 @@ public partial class SessionRowsView : VBoxContainer
         SessionRow.Alternate => "Customize the abilities and gadgets allowed for each team using Alternate rules.",
         SessionRow.Practice => "Unlimited lives, quick respawns and practice commands. Match stats are not recorded.",
         SessionRow.Sidearms => "Allow mercenaries to carry a sidearm.",
+        SessionRow.MaxPlayers => "Total places for human players and bots. Spectators do not use these places.",
+        SessionRow.SpyBots or SessionRow.MercBots => "Requested bots on this team. Use 0 for no bots. Human players take priority when slots are full.",
         _ => string.Empty,
     };
 }

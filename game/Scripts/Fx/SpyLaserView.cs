@@ -62,7 +62,7 @@ public sealed partial class SpyLaserView : Node3D
 
     public FVector BeamEnd { get; private set; }
 
-    /// <summary>The last dot drawn: where it sits (UE, just off the surface) and whose pistol it is.</summary>
+    /// <summary>The last dot's projection centre (UE, at the drawn beam's hit).</summary>
     public FVector DotAt { get; private set; }
 
     public void Draw(Level? level, float? drawnTime = null)
@@ -119,7 +119,7 @@ public sealed partial class SpyLaserView : Node3D
 
             if (pistol.LaserProjector is { bDeleteMe: false } p)
             {
-                PlaceDot(dot, hit, dir, p.DrawScale);
+                PlaceDot(dot, hit, dir, p.DrawScale, p.MaxTraceDistance, p.bProjectOnBackfaces);
                 DotsDrawn++;
                 DotAt = UeSpace.ToUe(dot.GlobalPosition);
             }
@@ -196,23 +196,52 @@ public sealed partial class SpyLaserView : Node3D
     private static readonly Name BoneLeftHand = new("B L Hand");
 
     /// <summary>
-    /// The dot: RET_Laser added on the surface the line hit, facing back along the line, 32 uu times the projector's
-    /// DrawScale wide (the projector sits MaxTraceDistance / 2 before the hit, projecting along the line).
+    /// Project RET_Laser onto visible surfaces inside the original's short volume around the hit. A flat quad
+    /// perpendicular to the beam intersects an oblique wall, clipping half the dot even with a small surface gap.
     /// </summary>
-    [Provenance(ProvenanceKind.Estimated, "A quad at the hit facing back along the line stands in for the projected texture (the same on a surface square to the line)")]
-    private static void PlaceDot(MeshInstance3D dot, FVector hit, FVector dir, float drawScale)
+    [Provenance(ProvenanceKind.Estimated, "SLaserProjector's near-orthographic texture projected onto the visible depth within MaxTraceDistance, centred on the drawn beam hit")]
+    internal static void PlaceDot(MeshInstance3D dot, FVector hit, FVector dir, float drawScale,
+        float maxTraceDistance, bool projectOnBackfaces = true)
     {
-        FVector at = hit - (dir * DotSurfaceGap);
-        float width = UeSpace.LengthToGodot(DotTexels * drawScale);
+        float width = UeSpace.LengthToGodot(MathF.Max(DotTexels * drawScale, 0.001f));
+        float depth = UeSpace.LengthToGodot(MathF.Max(maxTraceDistance, 0.001f));
         Vector3 along = UeSpace.DirectionToGodot(dir).Normalized();
+        if (along.IsZeroApprox()) along = Vector3.Forward;
         Vector3 side = MathF.Abs(along.Y) > 0.99f ? Vector3.Right : along.Cross(Vector3.Up).Normalized();
         Vector3 up = side.Cross(along).Normalized();
-        // A quad faces its local +Z: +Z points back along the line, toward the shooter.
-        dot.GlobalTransform = new Transform3D(new Basis(side * width, up * width, -along), UeSpace.ToGodot(at));
+        Vector3 centre = UeSpace.ToGodot(hit);
+        dot.GlobalTransform = new Transform3D(new Basis(side * width, up * width, -along * depth), centre);
+        var material = (ShaderMaterial)dot.MaterialOverride;
+        Vector3 origin = centre - along * (depth * 0.5f);
+        material.SetShaderParameter("proj_origin", new Vector4(origin.X, origin.Y, origin.Z, depth));
+        material.SetShaderParameter("proj_x", along);
+        material.SetShaderParameter("proj_y", side);
+        material.SetShaderParameter("proj_z", -up);
+        material.SetShaderParameter("proj_shape", new Vector4(width * 0.5f, width * 0.5f, 0f, projectOnBackfaces ? 1f : 0f));
     }
 
-    /// <summary>How far in front of the surface the dot is drawn, so the wall does not hide it.</summary>
-    private const float DotSurfaceGap = 0.5f;
+    private static readonly Shader DotShader = new()
+    {
+        Code = "shader_type spatial;\n"
+            + "render_mode unshaded, fog_disabled, blend_add, cull_disabled, depth_test_disabled, depth_draw_never;\n"
+            + "#define PROJ_LASER\n#include \"res://Shaders/svm_projector.gdshaderinc\"\n",
+        ResourceName = "spy laser projector",
+    };
+
+    internal static MeshInstance3D CreateDot(Texture2D texture)
+    {
+        Render.Materials.MaterialCompiler.EnsureGlobals();
+        var material = new ShaderMaterial { Shader = DotShader };
+        material.SetShaderParameter("proj_tex", texture);
+        return new MeshInstance3D
+        {
+            Name = "SpyLaserDot",
+            Mesh = new BoxMesh { Size = Vector3.One },
+            CastShadow = GeometryInstance3D.ShadowCastingSetting.Off,
+            MaterialOverride = material,
+            Visible = false,
+        };
+    }
 
     private (MeshInstance3D Beam, MeshInstance3D Dot) NodesFor(SWeaponAttaque pistol)
     {
@@ -251,21 +280,7 @@ public sealed partial class SpyLaserView : Node3D
             };
         }
 
-        var dot = new MeshInstance3D
-        {
-            Name = "SpyLaserDot",
-            Mesh = new QuadMesh { Size = Vector2.One },
-            CastShadow = GeometryInstance3D.ShadowCastingSetting.Off,
-            MaterialOverride = new StandardMaterial3D
-            {
-                ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded,
-                BlendMode = BaseMaterial3D.BlendModeEnum.Add,
-                Transparency = BaseMaterial3D.TransparencyEnum.Alpha,
-                AlbedoTexture = DotTextureOrStandIn(),
-                CullMode = BaseMaterial3D.CullModeEnum.Disabled,
-            },
-            Visible = false,
-        };
+        MeshInstance3D dot = CreateDot(DotTextureOrStandIn());
         AddChild(beam);
         AddChild(dot);
         beam.AddToGroup(GroupBeam);

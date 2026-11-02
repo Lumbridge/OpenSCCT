@@ -154,6 +154,10 @@ public sealed class NavGraph
 
     public NavProfile Profile { get; }
 
+    /// <summary>An empty graph for read-only perception contexts that do not navigate or build map navigation.</summary>
+    public static NavGraph Empty(NavProfile profile) => new(profile ?? throw new ArgumentNullException(nameof(profile)),
+        default, [], [0], [], [], [], [], []);
+
     /// <summary>The grid origin (the sampled box's minimum corner).</summary>
     public FVector Origin { get; }
 

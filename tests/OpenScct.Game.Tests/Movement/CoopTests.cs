@@ -270,6 +270,10 @@ public sealed class CoopTests
         var helperSeen = new List<Name>();
         Assert.True(StepUntilState(rig, helper.Controller, MovementStateNames.s_PlayerWalkingSt0H, 300, helperSeen), Seen(helperSeen));
         StepBoth(rig, 30);
+        Assert.Equal(helper.Pawn.AWaitSt0, helper.Pawn.PawnAnim[0].Sequence);
+        Assert.True(helper.Pawn.PawnAnim[0].bLoop);
+        Assert.True(helper.Pawn.PawnAnim[0].bPlaying);
+        Assert.Equal(0, helper.Pawn.NetworkRootMotion.RootLockType);
 
         // The hanging spy offers a hoist (T).
         Assert.True(StepUntil(rig, CoopKey, MovementStateNames.s_Hoist_P_Waiting, 30, seen), Seen(seen));
@@ -288,6 +292,17 @@ public sealed class CoopTests
         // On the top: his feet on the ledge's height, past the edge; the hanging spy back on the plain hang.
         Assert.InRange(helper.Pawn.Location.Z - helper.Pawn.CollisionHeight, ledgeZ - 3f, ledgeZ + 3f);
         Assert.True(rig.Controller.IsInState(MovementStateNames.OnLedge), rig.Controller.GetStateName().ToString());
+        Assert.Equal(helper.Pawn.AWaitCr0, helper.Pawn.PawnAnim[0].Sequence);
+        Assert.True(helper.Pawn.PawnAnim[0].bLoop);
+        Assert.True(helper.Pawn.PawnAnim[0].bPlaying);
+        Assert.Equal(0, helper.Pawn.NetworkRootMotion.RootLockType);
+        Assert.Equal(0, rig.Pawn.NetworkRootMotion.RootLockType);
+        // The original helper intentionally holds the pull clip's final pose (coop.md rule 20),
+        // but regains ledge movement after the climber is safe.
+        FVector held = rig.Pawn.Location;
+        StepBoth(rig, 30, new PlayerInputFrame { BT_Right = 1 });
+        Assert.True((rig.Pawn.Location - held).Size2D() > 10f, $"Hoist helper did not regain ledge movement at {held}");
+        Assert.True(rig.Controller.IsInState(MovementStateNames.OnLedge));
     }
 
     [Fact]

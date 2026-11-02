@@ -8,7 +8,7 @@ using Xunit;
 
 namespace OpenScctGame.Logic.Tests;
 
-/// <summary>The Create Session page's bot rows (ours, not the original's): Bots, Bots per Side and Bot Skill.</summary>
+/// <summary>The shared session form's bot modes, exact team counts and player capacity.</summary>
 public sealed class MenuCreateSessionBotsTests
 {
     private static CreateSessionModel Page()
@@ -60,7 +60,63 @@ public sealed class MenuCreateSessionBotsTests
         page.Step(SessionRow.BotSkill, -1);
         Assert.Equal(AiSkill.Expert, page.Setup.BotSkill);
         page.Step(SessionRow.Bots, 1);
+        Assert.Equal((BotFill.Custom, "Custom teams"), (page.Setup.Bots, page.Text(SessionRow.Bots)));
+        Assert.False(page.Visible(SessionRow.BotsPerSide));
+        Assert.True(page.Visible(SessionRow.SpyBots));
+        Assert.True(page.Visible(SessionRow.MercBots));
+        page.Step(SessionRow.Bots, 1);
         Assert.Equal(BotFill.Off, page.Setup.Bots);
+        Assert.False(page.Visible(SessionRow.SpyBots));
+        Assert.False(page.Visible(SessionRow.MercBots));
+    }
+
+    [Fact]
+    public void ExactTeamCountsAllowZeroAndRetainRequestedBotsWhenSlotsShrink()
+    {
+        var page = Page();
+        page.Step(SessionRow.Bots, 3);
+        Assert.Equal((0, OnlineBotRoster.MaxCustomPerTeam), page.Range(SessionRow.SpyBots));
+        Assert.Equal((0, OnlineBotRoster.MaxCustomPerTeam), page.Range(SessionRow.MercBots));
+        page.SetNumber(SessionRow.SpyBots, -1);
+        page.SetNumber(SessionRow.MercBots, 3);
+        page.SetNumber(SessionRow.MaxPlayers, 2);
+        Assert.Equal((0, 3, 2), (page.Setup.SpyBots, page.Setup.MercBots, page.Setup.MaxPlayers));
+        Assert.Equal("0", page.Text(SessionRow.SpyBots));
+        Assert.Equal("3", page.Text(SessionRow.MercBots));
+        Assert.Equal((0, 1), OnlineBotRoster.Wanted(page.Setup, 1, 0, page.Setup.MaxPlayers));
+
+        page.SetNumber(SessionRow.MaxPlayers, 4);
+        Assert.Equal((0, 3), OnlineBotRoster.Wanted(page.Setup, 1, 0, page.Setup.MaxPlayers));
+        page.SetNumber(SessionRow.MercBots, 100);
+        Assert.Equal(OnlineBotRoster.MaxCustomPerTeam, page.Setup.MercBots);
+        Assert.Equal((0, OnlineBotRoster.MaxCustomPerTeam), page.Range(SessionRow.MercBots));
+    }
+
+    [Fact]
+    public void CustomCountsSurviveMapAndModeChangesButSpiesAreHiddenInMercDeathmatch()
+    {
+        var page = Page();
+        page.Step(SessionRow.Bots, 3);
+        page.SetNumber(SessionRow.SpyBots, 2);
+        page.SetNumber(SessionRow.MercBots, 5);
+        page.SetNumber(SessionRow.MaxPlayers, 8);
+        page.SelectMap("Other");
+        Assert.Equal((BotFill.Custom, 2, 5, 8), (page.Setup.Bots, page.Setup.SpyBots, page.Setup.MercBots, page.Setup.MaxPlayers));
+
+        page.SelectMode(EGameMode.GM_MercDeathMatch);
+        Assert.False(page.Visible(SessionRow.SpyBots));
+        Assert.True(page.Visible(SessionRow.MercBots));
+        Assert.Equal((2, 5), (page.Setup.SpyBots, page.Setup.MercBots));
+        Assert.Equal((0, 5), OnlineBotRoster.Wanted(page.Setup, 0, 1, page.Setup.MaxPlayers));
+        page.SelectMode(EGameMode.GM_Multi);
+        Assert.True(page.Visible(SessionRow.SpyBots));
+        Assert.Equal((2, 5), (page.Setup.SpyBots, page.Setup.MercBots));
+
+        LobbySetup before = page.Setup;
+        page.SetNumber(SessionRow.SpyBots, 0);
+        page.SetNumber(SessionRow.MercBots, 3);
+        Assert.Contains(SessionRow.SpyBots, LobbyRoomModel.Differences(before, page.Setup));
+        Assert.Contains(SessionRow.MercBots, LobbyRoomModel.Differences(before, page.Setup));
     }
 
     [Fact]

@@ -402,7 +402,7 @@ public static class MovesetActions
                     pawn.Velocity = pawn.vSpeedAfterRM;
                 }
 
-                FallReset(pawn);
+                PawnActions.FallReset(pawn, resetAim: false);
                 Once(pawn, 0, pawn.WeaponLoaded == 0 ? pawn.AFall : pawn.AFall2H, LongFallTween, loop: true);
                 return true;
             case SBasePawn.SA_DBL_JUMP_R:
@@ -448,9 +448,7 @@ public static class MovesetActions
                 Once(pawn, SBasePawn.DRAWCHANNEL, "SpltStSpBg1", 0f, backward: true);
                 return true;
             case SBasePawn.SA_VANDAMMEFALL:
-                pawn.bBeginSpecial12Anim = false;
-                pawn.IK_Type = IK_Type_.IKT_WEAPONLOADED;
-                FallReset(pawn);
+                PawnActions.FallReset(pawn);
                 Once(pawn, 0, pawn.WeaponLoaded == 0 ? pawn.AFall : pawn.AFall2H, PawnActions.FallTween, loop: true);
                 return true;
 
@@ -497,6 +495,8 @@ public static class MovesetActions
                 Once(pawn, 0, pawn.bIsLeftPart ? "LedgStAlFtL" : "LedgStAlFtR", T01);
                 return true;
             case SBasePawn.SA_FEETLEDGE_DETECT:
+                // Native case 172 clears the roll overlay before starting feet-ledge alignment.
+                pawn.PawnAnim.SetBlendParams(SBasePawn.DBLJUMPCHANNEL, 0f);
                 QuickGadgetCancel(pawn);
                 pawn.TypeLedge = LedgeType.LEDGE_FEET;
                 Phys(pawn, EPhysics.PHYS_Ledge);
@@ -733,23 +733,6 @@ public static class MovesetActions
         pawn.ForwardAnim = new Name(forward);
         pawn.LeftAnim = new Name(left);
         pawn.RightAnim = new Name(right);
-    }
-
-    /// <summary>
-    /// The "fall reset" of the fall actions (103 to 106): no pipe fire pose, no weapon transit, out of the zip speed
-    /// pose, PHYS_Falling.
-    /// </summary>
-    [Provenance(ProvenanceKind.Decoded, "execute-action.md cases 103 to 106: fall reset")]
-    private static void FallReset(SBasePawn pawn)
-    {
-        pawn.PipHFire = PipHFire_.NOPipH;
-        pawn.bWeaponTransit = false;
-        if (pawn.bIsZipSpeed)
-        {
-            MovementNatives.Driver(pawn)?.UnZipSpeed(pawn, bTest: false);
-        }
-
-        PawnActions.Falling(pawn);
     }
 
     /// <summary>

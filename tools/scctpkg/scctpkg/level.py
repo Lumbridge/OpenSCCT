@@ -517,6 +517,13 @@ def extract_level(pkg: Package, pset: PackageSet) -> List[ActorRecord]:
                 "apply_static": bool(props.get("bApplyToStaticLighting", True)),
                 "apply_ingame": bool(props.get("bApplyToInGameLighting", False)),
                 "dynamic": bool(props.get("bDynamicLight", trig)),
+                # Engine.Light is static; Actor and STriggerLight are not. svmbuild resolves subclass defaults.
+                "static": bool(props.get("bStatic", cls == "Light")),
+                # The actor and light must agree on bSpecialLit to enter the native lighting cache.
+                "special_lit": bool(props.get("bSpecialLit", False)),
+                # The native pawn shadow uses only lights with bActorShadows (Actor default true).
+                # Keep authored false values; the shadow's render capture also advances PlayerCalcView.
+                "actor_shadows": bool(props.get("bActorShadows", True)),
                 # bAffectOwnZoneOnly: the light reaches only actors in its own zone (MissE's outdoor Br 255 radius 180
                 # fill lights stop at the building: the bench spy is a silhouette in the game, lit grey without this).
                 "own_zone_only": bool(props.get("bAffectOwnZoneOnly", False)),

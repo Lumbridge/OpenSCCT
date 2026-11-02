@@ -6,6 +6,7 @@ using OpenScct.Content.Loading;
 using OpenScct.Core;
 using OpenScct.Core.Engine;
 using OpenScct.Game.Camera;
+using OpenScct.Game.Combat;
 using OpenScct.Game.Devices;
 using OpenScct.Game.Equipment;
 using OpenScct.Game.GameFlow;
@@ -30,6 +31,7 @@ public sealed class PlayMapLoader
     private readonly SvMap _map;
     private readonly string _gameOptions;
     private readonly IPawnAnimationSource _pawnAnimations;
+    private readonly IPillPose _pillPose;
     private readonly ContentMeshAnimations _meshAnimations;
     private readonly USPersistentData? _hostSettings;
 
@@ -43,6 +45,7 @@ public sealed class PlayMapLoader
             ? PawnAnimationSource.FromContent(charsDir)
             : PawnAnimationSource.Default;
         _meshAnimations = new ContentMeshAnimations(map.Gameplay);
+        _pillPose = RollPillPose.FromContent(charsDir);
     }
 
     public SvMap Map => _map;
@@ -120,6 +123,7 @@ public sealed class PlayMapLoader
     private void InstallBeforeLoad(Level level)
     {
         level.SetService<IMeshAnimations>(_meshAnimations);
+        level.SetService<IPillPose>(_pillPose);
         if (_hostSettings is not null)
         {
             level.SetService(_hostSettings);

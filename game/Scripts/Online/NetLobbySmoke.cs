@@ -32,7 +32,7 @@ namespace OpenScctGame.Online;
 /// again; waits for player 2's process to pass; leaves.</para>
 /// <para>Player 2: Find a Session; finds the host on the LAN search, picks it, types the password, joins; checks the
 /// Session Parameters the host set; toggles Restrict Mic to Team; talks; chats; is ready; is un-readied by the host's
-/// change, sees Respawn Length blink and gets ready again; in the first game walks with the movement key as a
+/// change, sees the settings change in the activity history and gets ready again; in the first game walks with the movement key as a
 /// mercenary; plays the second as a spy (revenge swaps the sides); Next, Next; back in the lobby he leaves, joins again
 /// with Join with IP (address, port, password) and leaves.</para>
 /// <para>Ports 28988 (game) and 28989 (LAN) unless <c>SVM_HOST_PORT</c> and <c>SVM_LAN_PORT</c> say otherwise, so the
@@ -235,12 +235,23 @@ public sealed class NetLobbySmoke : SmokeTest
         yield return new("say hello", 10, _ => s.Typed("ChatLine", "hello from player 1"));
         yield return new("send", 10, _ => s.Pilot.Click(s.Pilot.Find<Button>("SendChat"), "Send"));
         yield return new("player 2 ready", 90, _ => Guest() is { Ready: true });
+        yield return new("open match settings", 10, _ =>
+        {
+            return Room()!.MatchSettingsPanel is { Visible: true } ||
+                (s.Pilot.Click(s.Pilot.Find<Button>("MatchSettings"), "Edit match settings") && false);
+        });
+        yield return new("match rules tab", 10, _ => s.Pilot.SelectTab(Room()!.SettingsTabs, 1));
+        int? respawnTarget = null;
         yield return new("change respawn", 10, _ =>
         {
-            if (Room()!.MatchSettingsPanel is { Visible: false })
-                return s.Pilot.Click(s.Pilot.Find<Button>("MatchSettings"), "Edit match settings") && false;
+            var room = Room()!;
+            var parameters = room.Parameters!;
+            (int min, int max) = parameters.Range(SessionRow.Respawn);
+            respawnTarget ??= parameters.Setup.RespawnSeconds >= max ? min : parameters.Setup.RespawnSeconds + 1;
             s.Shot("lobby-guest-ready");
-            return s.Pilot.Click(Room()!.ParameterRows!.Find("RespawnNext"), "Respawn Length next");
+            return s.Pilot.TypeNumber(room.ParameterRows!.Find("RespawnValue") as SpinBox, respawnTarget.Value, "Respawn Length") &&
+                s.Expect(parameters.Setup.RespawnSeconds == respawnTarget.Value && room.Session!.Setup.RespawnSeconds != respawnTarget.Value,
+                    "typed Respawn Length updates the draft before Apply");
         });
         yield return new("apply", 10, _ => s.Pilot.Click(Room()!.ApplyButton, "Apply"));
         yield return new("the change un-readies player 2", 20, _ => Guest() is { Ready: false });
@@ -424,20 +435,32 @@ public sealed class NetLobbyGuestSmoke : SmokeTest
         yield return new("password", 10, _ => s.Typed("Password", NetLobbySmoke.Password));
         yield return new("join", 10, _ => s.Pilot.Click(((ServerBrowserScreen)s.Tree.CurrentScene!).JoinButton, "Join"));
         yield return new("lobby room as player 2", 60, _ => Room() is { Session: { IsHost: false } } && Me() is not null);
+        yield return new("view match settings", 10, _ => Room()!.MatchSettingsPanel is { Visible: true } ||
+            (s.Pilot.Click(s.Pilot.Find<Button>("MatchSettings"), "View match settings") && false));
+        yield return new("match game tab", 10, _ => s.Pilot.SelectTab(Room()!.SettingsTabs, 0));
         yield return new("the host's session parameters", 20, _ =>
         {
-            LobbySetup setup = Room()!.Parameters!.Setup;
-            string timeLimit = s.ValueText("TimeLimitValue"), revengeValue = s.ValueText("RevengeValue");
-            // The lobby keeps its compact parameter rows in a closed settings panel; Pilot.Find selects visible controls only.
-            CheckBox? revengeCheck = Room()!.ParameterRows?.FindChild("RevengeCheck", recursive: true, owned: false) as CheckBox;
-            s.Shot("lobby", once: true);
+            var room = Room()!;
+            LobbySetup setup = room.Parameters!.Setup;
+            var timeLimit = room.ParameterRows!.Find("TimeLimitValue") as SpinBox;
+            var voice = room.ParameterRows.Find("VoiceChatChoice") as OptionButton;
+            s.Shot("lobby-settings-game", once: true);
             return s.Expect(setup.TimeLimit == 1 && setup.Revenge && setup.GamesInARow == 2 && setup.VoiceMode == EVoiceChatMode.VCM_Open,
                     "Session Parameters show 1 min, Revenge, 2 games, voice Open: " + setup.Describe()) &&
-                s.Expect(s.Text("Row_VoiceChat").Contains("Open", StringComparison.Ordinal) || s.ValueText("VoiceChatValue") == "Open", "the Voice Chat row reads Open") &&
-                s.Expect(timeLimit == "1" && (revengeValue == "Yes" || revengeCheck is { ButtonPressed: true }),
-                    $"the rows show 1 minute and enabled Revenge: TimeLimitValue='{timeLimit}', RevengeValue='{revengeValue}', " +
-                    $"checkbox found={revengeCheck is not null}, pressed={revengeCheck?.ButtonPressed}, visible={revengeCheck?.IsVisibleInTree()}");
+                s.Expect(voice is { Disabled: true } && voice.IsVisibleInTree() && voice.Text == "Open", "the read-only Voice Chat dropdown reads Open") &&
+                s.Expect(timeLimit is { Editable: false, Value: 1 } && timeLimit.IsVisibleInTree(), "the read-only Game Length field shows 1 minute") &&
+                s.Expect(room.ApplyButton is { Visible: false }, "clients cannot apply match settings");
         });
+        yield return new("match rules tab", 10, _ => s.Pilot.SelectTab(Room()!.SettingsTabs, 1));
+        yield return new("the host's revenge rule", 10, _ =>
+        {
+            var revenge = Room()!.ParameterRows!.Find("RevengeCheck") as CheckBox;
+            if (revenge is null || !s.Pilot.ScrollIntoView(revenge)) return false;
+            s.Shot("lobby-settings-rules", once: true);
+            return s.Expect(revenge is { ButtonPressed: true, Disabled: true } && revenge.IsVisibleInTree(),
+                "the Rules tab shows enabled Revenge read-only");
+        });
+        yield return new("close match settings", 10, _ => s.Pilot.Click(s.Pilot.Find<Button>("DiscardSettings"), "Close match settings"));
         yield return new("talk", 10, _ =>
         {
             // The synthetic microphone: a 440 Hz tone through the capture bus (or straight to the client headless).

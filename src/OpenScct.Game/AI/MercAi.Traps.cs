@@ -3,6 +3,7 @@ using OpenScct.Core;
 using OpenScct.Core.Engine;
 using OpenScct.Game.Equipment;
 using OpenScct.Game.SBase;
+using OpenScct.Physics.Collision;
 
 namespace OpenScct.Game.AI;
 
@@ -12,6 +13,7 @@ public sealed partial class MercAi
     private float _trapUntil;
     private bool _trapApproach;
     private FVector _trapWall;
+    private FVector _trapFloor;
     private SGadMultiMinesLauncher? _trapLauncher;
     private int _trapSlot;
     private bool _preferTracker;
@@ -36,6 +38,7 @@ public sealed partial class MercAi
             if (!nearObjective || !ChooseTrap()) return false;
             FVector eye = TrapEye;
             float best = float.MaxValue;
+            var approachRoute = new NavFollower(World, spy: false);
             for (int i = 0; i < 16; i++)
             {
                 FVector direction = new FRotator(0, i * 4096, 0).Vector();
@@ -43,20 +46,38 @@ public sealed partial class MercAi
                     SGadMultiMinesLauncher.WallTraceFlags) || MathF.Abs(hit.Normal.Z) > .2f || hit.Actor is Mover) continue;
                 float distance = (hit.Location - eye).Size();
                 if (distance < 25f || distance >= best || OccupiedWall(hit.Location)) continue;
-                // Straight, body-sized corridor to the placement: never steer through a corner or desk.
-                FVector approach = hit.Location + hit.Normal * 44f;
-                FVector body = new(approach.X, approach.Y, Pawn.Location.Z);
-                if (World.Collision.LineCheck(out _, Pawn, body, Pawn.Location,
-                    new FVector(Pawn.CollisionRadius, Pawn.CollisionRadius, Pawn.CollisionHeight - 2f),
-                    SGadMultiMinesLauncher.WallTraceFlags)) continue;
-                best = distance;
+                // Tables and pillars can obstruct a straight walk while leaving an ordinary route around them.
+                // Plan to supported floor at the wall instead of rejecting every non-straight approach.
+                if (!TrapApproach(hit.Location, hit.Normal, approachRoute, out FVector floor)) continue;
+                float routeLength = approachRoute.Remaining(Pawn.Location);
+                if (routeLength >= best) continue;
+                best = routeLength;
                 _trapWall = hit.Location;
+                _trapFloor = floor;
             }
             if (best == float.MaxValue) return false;
             _trapApproach = true;
-            _trapUntil = now + 6f;
+            _trapUntil = now + MathF.Max(6f, best / 150f + 4f);
             Follower.Clear();
         }
+        if ((_trapWall - TrapEye).Size() > 50f)
+        {
+            if (!MoveTo(_trapFloor, now, ref plan, sneak: false))
+            {
+                _trapApproach = false;
+                return false;
+            }
+
+            if (Doors.Busy)
+            {
+                _trapUntil = now + 6f;
+                return true;
+            }
+
+            // The navigation arrival radius is wider than the remaining few steps to the mine's 55 uu reach.
+            if (!Follower.Arrived) return true;
+        }
+
         FRotator aim = (_trapWall - TrapEye).Rotation();
         plan.Yaw = aim.Yaw;
         plan.Pitch = aim.Pitch;
@@ -89,6 +110,32 @@ public sealed partial class MercAi
     }
 
     private FVector TrapEye => Pawn.Location + Pawn.WalkBob + new FVector(0, 0, Pawn.EyeHeight);
+
+    private bool TrapApproach(FVector wall, FVector normal, NavFollower route, out FVector floor)
+    {
+        floor = default;
+        FVector approach = wall + normal * 44f;
+        FVector top = approach + new FVector(0f, 0f, 40f);
+        FVector bottom = approach - new FVector(0f, 0f, 240f);
+        if (!World.Collision.LineCheck(out FCheckResult ground, Pawn, bottom, top, new FVector(4f, 4f, 2f),
+            SGadMultiMinesLauncher.WallTraceFlags) || ground.bStartPenetrating || ground.Normal.Z < .7f)
+            return false;
+
+        floor = ground.Location - new FVector(0f, 0f, 2f);
+        if (!route.SetGoal(Pawn, floor) || route.Path.Count == 0 || (route.Path[^1].Point - floor).SizeSquared() > 4f)
+            return false;
+
+        FVector from = Pawn.Location;
+        foreach (NavStep step in route.Path)
+        {
+            FVector to = step.Point + new FVector(0f, 0f, Pawn.CollisionHeight);
+            // The static graph assumes doors are open. Do not choose a placement beyond a closed door.
+            if (World.Collision.LineCheck(out _, Pawn, to, from, default, ETraceFlags.TRACE_Movers)) return false;
+            from = to;
+        }
+
+        return true;
+    }
 
     private bool ChooseTrap()
     {

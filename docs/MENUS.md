@@ -18,12 +18,14 @@ is in `docs/ONLINE.md`, voice in `docs/VOICE.md`, and the way to test it with tw
 | `game/Scripts/Tutorials/` | the tutorial progress file (`TutorialProfile`, `user://tutorials.json`), the pages' words (`TutorialText`), offline play of a tutorial or a visit and the round's end (`TutorialPlay`, `TutorialRoundWatch`) |
 | `game/Scripts/UI/RankIcons.cs` | Rank pictures drawn from SVG (level insignia, prestige and master emblems) and `RankBadge` (emblem, level, title), used by the menus, lobby, results, F8 and hub tags |
 | `game/Scripts/UI/AccountScreen.cs` | Account: sign in with Discord (code, browser, wait), pick or change the name, the rank (emblem, level, XP bar, Prestige, prestige emblems, title picker; spec/additions/progression.md), stats, an achievements summary with links to Achievements and the Armoury, sign out (docs/ONLINE.md "Accounts") |
+| `game/Scripts/UI/StatsScreen.cs`, `MatchHistoryScreen.cs`, `CareerPanels.cs`, `CareerScroll.cs` | Career summary and category cards, recorded matches, scoreboard and timeline; compact dashboard styling and keyboard/controller scrolling |
 | `game/Scripts/UI/AchievementsScreen.cs` | Achievements (OpenSCCT's own): every achievement by group (filter buttons), what to do, what it unlocks, progress or earned date; the list is the shared catalogue, so it is complete even with an older master |
 | `game/Scripts/UI/ArmouryScreen.cs` | Armoury (OpenSCCT's own): the spy's and merc's cosmetics per slot; locked items name the achievement that unlocks them (docs/ONLINE.md "Cosmetics") |
 | `game/Scripts/UI/HostScreen.cs` | Create Session: wide map browser beside Game, Rules and Hosting tabs, with a persistent Create button |
 | `game/Scripts/UI/CreateSessionModel.cs` | the Create Session rules without Godot (rows, captions, ranges, mode rules, password) |
-| `game/Scripts/UI/SessionRowsView.cs` | host dropdowns, editable numbers and labelled checks; the lobby's Session Parameters retain their arrows and boxes |
+| `game/Scripts/UI/SessionRowsView.cs` | shared dropdowns, editable numbers and labelled checks for Create Session and lobby match settings |
 | `game/Scripts/UI/LobbyRoomScreen.cs` | the online Lobby Room |
+| `game/Scripts/UI/LobbyRoomScreen.Settings.cs` | responsive match settings with the map browser and Game / Rules tabs |
 | `game/Scripts/UI/StrategicMapScreen.cs`, `StrategicMapModel.cs` | the Strategic map page (in a match and from the Lobby Room) and its rules without Godot |
 | `game/Scripts/UI/LobbyRoomModel.cs` | the Lobby Room rules without Godot (page button, blinking changes, chat spam delay) |
 | `game/Scripts/UI/JoinWithIpScreen.cs`, `ServerBrowserScreen.cs`, `ConnectingScreen.cs`, `ResultsScreen.cs` | Join with IP, Sessions, the loading page, the end menu |
@@ -120,8 +122,10 @@ The `menu-layout`, `options`, `lobby-layout` and `front-end-layout` smokes cover
 1280×800, 1920×1080, 2560×1440, 3440×1440, 3840×1080 and 3840×2160. The options, lobby and front-end checks also
 resize existing controls back down after 4K. They check control bounds, text, footer visibility and map scrolling;
 windowed runs save images with `SVM_PLAY_SHOTS`. These checks cover the standard fixture states, rather than every
-possible signed-in account, server listing or cosmetic unlock state. Demos is not opened by the layout smoke because
-opening it prunes the player's old demo cache.
+possible signed-in account, server listing or cosmetic unlock state. The separate `demo-ui` smoke uses isolated
+recording metadata and a temporary demo to check the library and playback controls at 800×600, 1280×720,
+1920×1080 and 3840×2160, then shrinks back to 800×600. It covers filters, compatibility, empty/error states,
+playback actions, timeline seeking and control visibility without touching the player's demo cache or account.
 
 The dashboard cases include signed-out/unavailable states and isolated fixtures with long names, release notes,
 announcements, cached activity and cosmetic progress. `menu-escape` opens the changelog with viewport input and
@@ -150,6 +154,20 @@ The next-unlock action opens that achievement. Guests can still use the play rou
 tools/ci/godot-smoke.ps1 -Tests menu-layout,options,lobby-layout,front-end-layout -ExpectedFailures @()
 ```
 
+## Player stats and match history
+
+Career stats and recorded matches use the compact dashboard cards and a 1600×900 responsive reference. The
+career header shows the player and rank, followed by rounds, wins, win rate and K/D. Seven category buttons open
+grouped counters, with separate cards for weapons and maps. Cards reflow into fewer columns on small windows;
+the footer stays visible. Counters still come from `StatsModel`, including uncapped totals and unavailable `—`
+values on older masters or when a ratio has no denominator.
+
+Match history presents map, outcome, date, duration and server in readable cards. Match details group the round
+summary, aligned scoreboard and event timeline. Both pages support the mouse wheel, Page Up/Down, Home/End and
+the controller's right stick. The `stats` smoke exercises 50 career layouts and 24 history layouts from 800×600
+through 4K, including empty/legacy data and timeline pagination, using isolated fixtures. Windowed runs save
+screenshots for visual review.
+
 ## Menu music and sounds
 
 The menus play the original's menu-level music (`game/Scripts/Audio/FrontEndAudio.cs`, docs/AUDIO.md "Front end"):
@@ -173,7 +191,7 @@ Lobby Room ── Start match (server validates readiness) ──> Loading ─�
 ## Create Session
 
 The page uses most of the window: a large map browser on the left and **Game**, **Rules**, and **Hosting** tabs on
-the right. Game holds the session name, mode, player limit, duration, voice and bots. Rules groups objectives,
+the right. Game holds the session name, mode, player limit, duration, voice, bots and personal recording. Rules groups objectives,
 team/rotation options and extra rules; Hosting holds access, password, discovery and connection settings. Dropdowns
 select modes directly, numeric fields accept typing, and checkboxes include their own labels. Each settings tab
 scrolls independently. Below 1100 logical pixels of available width the map browser and settings stack; Back and
@@ -187,7 +205,9 @@ Rows, captions and ranges are the page's (spec rules 1 to 9):
 | Game Mode | the map's modes, then Merc Deathmatch | changing it reloads the rules |
 | Password | 16 of `a-z A-Z 0-9 . _ -` | |
 | Voice Chat | Modern, Classic, Team, Open | the hint under it: "Team always - hackable coms", "Living team - hackable coms", "Team always - no com hacking", "Everyone hears everyone" |
-| Max Players | 2 to 8 (4) | |
+| Player slots | 2 to 8 (4) | total human players and bots; spectators have their own places |
+| Bots | Off, Per Side, Fill Slots, Custom teams | Custom teams offers separate exact bot counts; humans take priority when slots fill |
+| Spy bots / Mercenary bots | 0 to 8 | Custom teams only; 0 means no bots on that team; Spy bots is hidden in Merc Deathmatch |
 | Revenge | | two games, sides swapped for the second; hides Games in a Row |
 | Random Map | | after the series, the next map is drawn at random (never the same one twice in a row) |
 | Voice in Lobby | on | players talk in the lobby |
@@ -269,8 +289,9 @@ spies the lethal drop, takes the mercs' EMF and motion tracking vision, laser an
 side (flash bang, flare launcher), as Create_Match's Apply does. The values travel in the setup line (`SvmAlt`), go
 into the host's settings object (`AlternateRules.ApplyTo`) and from there into each round's replicated game info and
 team infos, which gate the abilities (goggle modes, grab, elbows, lethal drop, torch, laser, berserk, charge) and the
-gear menu's choices and slots. In the lobby, the "Alternate" button (shown while Alternate is on) opens the page:
-editable for the host (OK applies it), read only for everyone else.
+gear menu's choices and slots. In the lobby's Rules tab, "Configure alternate rules" opens the page while Alternate
+is on: editable for the host (Save rules updates the match settings draft), read only for everyone else. The host
+then uses Apply changes in match settings to send the draft to the server.
 
 ## Lobby Room
 
@@ -291,11 +312,23 @@ Offline lobbies use the same team and map positions without online chat, spectat
   session updates. Team chat from spectators is refused without clearing the draft or sending it publicly.
 - The player actions button opens per-player voice volume (0–200%), mute and permitted host moderation.
   Kick, Ban and Voice Ban/Unban retain confirmation; losing host control dismisses pending moderation.
-- Session Options opens the host draft or the same panel read-only for other players. Map / Mode opens
-  the map picker over that draft for hosts, and the read-only settings for clients.
+- Session Options opens a wide match settings panel with the same map browser and form controls as Create Session.
+  The selected map, searchable landscape cards, playlist filters and list view sit beside **Game** and **Rules** tabs.
+  Game contains mode, duration, voice, player slots, bots and personal recording; Rules groups lives and objectives, teams and rotation, and extra rules.
+  Dropdowns select values directly and numeric fields accept typing. Each settings tab scrolls independently;
+  below 1000 logical pixels of available width the map browser and tabs stack in the scrolling body. A 1600×900
+  canvas scales the panel at high resolutions, and Apply changes and Close/Discard changes remain in its fixed footer.
+  Map / Mode opens these settings and focuses the embedded map search for hosts. Other players can inspect the
+  host's settings read-only. Player slots controls the combined capacity for humans and bots. Custom teams sets
+  Spy and Mercenary bot counts independently, including zero. The roster preview shows the resulting human/bot
+  split and open places, and explains when requested bots cannot fit. Reducing slots makes bots leave first and
+  never removes connected humans; requested bot counts are retained when capacity grows again.
   Apply changes sends the draft to the server; Discard changes restores the current server settings. Escape
   confirms before discarding an edited draft. Map picking and Alternate rules update the draft rather than
   applying implicitly. Changes received while a host draft is edited are flagged for review.
+- Record my matches is a personal switch in the lobby and the Game tab, available to hosts and guests alike.
+  It is saved immediately, independently of Apply/Discard, and chooses whether upcoming rounds are saved under
+  Demos on this computer. The lobby reports recording/download status; see `docs/DEMOS.md` for delivery and playback.
 - The live overview never previews unapplied settings. Applied changes appear as readable activity notices
   instead of blinking values. Server changes still control readiness invalidation and launch behavior.
 - Start match / Cancel countdown is the host's primary action; clients use Ready / Not ready. Countdown,
@@ -305,10 +338,12 @@ Offline lobbies use the same team and map positions without online chat, spectat
 - Briefing stays in the central menu; Strategic map and Cosmetics sit beside the loadout summary. The briefing uses the
   map's converted side-specific mode/objective/legend text; spectators read the mercenary briefing.
 
-`--svm-smoke=lobby-layout` checks host/client/offline layouts at 1024×768, 1280×720, 1920×1080 and 2560×1440, settings
-Apply/Discard and remote changes, chat routing/draft preservation, voice volume, moderation confirmation, team
-selection, spectator restrictions, countdown captions and map-download status. `SVM_PLAY_SHOTS` saves rendered
-review images. The existing two-process net-lobby smoke uses the new player menu, settings panel and activity notices.
+`--svm-smoke=lobby-layout` checks host/client/offline layouts at nine sizes from 800×600 through ultrawide and 4K,
+including a live resize from 4K to 800×600. It covers settings tabs and map browsing, Apply/Discard and remote changes,
+chat routing/draft preservation, voice volume, moderation confirmation, team selection, spectator restrictions,
+countdown captions and map-download status. `SVM_PLAY_SHOTS` saves rendered review images. The two-process
+net-lobby smoke visits the Game and Rules tabs, types a respawn value before applying it, checks client read-only
+controls, and uses the player menu and activity notices.
 
 Per-player volume and mute (rl:voice.mix) are Reloaded's: its overlay sets a player's volume with the scroll wheel and
 mutes with a click. The rewrite puts the same control in each lobby player menu and shows Reloaded's overlay in the round

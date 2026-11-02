@@ -435,6 +435,10 @@ class RenderBuilder:
                 entry["gameplay"] = a["name"] in self.gameplay_ids
                 if info is not None:
                     entry["props"] = self._typed(info)
+                    # Resolve subclass defaults as well as authored overrides for the pawn shadow calculation.
+                    entry["actor_shadows"] = bool(self.src.value(info, "bActorShadows", True))
+                    entry["static"] = bool(self.src.value(info, "bStatic", False))
+                    entry["special_lit"] = bool(self.src.value(info, "bSpecialLit", False))
                 if sprites and a["name"] in sprites:
                     entry["sprite"] = sprites[a["name"]]
                 lights.append(entry)

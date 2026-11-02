@@ -133,6 +133,12 @@ public sealed record LobbySetup
     /// <summary>Bots on each side with <see cref="BotFill.PerSide"/> (1 to <see cref="OnlineBotRoster.MaxPerSide"/>).</summary>
     public int BotsPerSide { get; init; } = 1;
 
+    /// <summary>Requested spy bots in Custom mode; people and the total player limit take priority.</summary>
+    public int SpyBots { get; init; }
+
+    /// <summary>Requested mercenary bots in Custom mode; people and the total player limit take priority.</summary>
+    public int MercBots { get; init; }
+
     /// <summary>How well the bots play (docs/AI.md, "Difficulty").</summary>
     public OpenScct.Game.AI.AiSkill BotSkill { get; init; } = OpenScct.Game.AI.AiSkill.Normal;
 
@@ -207,8 +213,10 @@ public sealed record LobbySetup
             GamesInARow = Revenge ? RevengeGames : Math.Clamp(GamesInARow, 1, MaxGamesInARow),
             MaxPlayers = Math.Clamp(MaxPlayers, 1, GameK.MaxPlayersCap),
             VoiceMode = VoiceModeOf(VoiceMenuIndex(VoiceMode)),
-            Bots = Bots is BotFill.PerSide or BotFill.Fill ? Bots : BotFill.Off,
+            Bots = Bots is BotFill.PerSide or BotFill.Fill or BotFill.Custom ? Bots : BotFill.Off,
             BotsPerSide = Math.Clamp(BotsPerSide, 1, OnlineBotRoster.MaxPerSide),
+            SpyBots = Math.Clamp(SpyBots, 0, OnlineBotRoster.MaxCustomPerTeam),
+            MercBots = Math.Clamp(MercBots, 0, OnlineBotRoster.MaxCustomPerTeam),
             BotSkill = (OpenScct.Game.AI.AiSkill)Math.Clamp((int)BotSkill, 0, (int)OpenScct.Game.AI.AiSkill.Expert),
             Alternate = Alternate.Clamped(),
         };
@@ -314,6 +322,7 @@ public sealed record LobbySetup
         ToMatchInfo().GetOptionsString() + string.Create(CultureInfo.InvariantCulture,
             $"?SvmDisks={Disks}?SvmDisksToWin={DisksToWin}?SvmDisksMax={DisksMax}?SvmVoice={VoiceMenuIndex(VoiceMode)}?SvmVoiceLobby={(VoiceInLobby ? 1 : 0)}?SvmRandomMap={(RandomMap ? 1 : 0)}") +
         string.Create(CultureInfo.InvariantCulture, $"?SvmBots={(int)Bots}?SvmBotsPerSide={BotsPerSide}?SvmBotSkill={(int)BotSkill}?SvmBal={(AutoBalance ? 1 : 0)}?SvmPr={(Practice ? 1 : 0)}") +
+        string.Create(CultureInfo.InvariantCulture, $"?SvmSpyBots={SpyBots}?SvmMercBots={MercBots}") +
         "?SvmSidearms=" + (Sidearms ? "1" : "0") + Alternate.ToOptions();
 
     /// <summary>Reads a setup from options (as <see cref="ToOptions"/> writes them); missing values keep <paramref name="fallback"/>'s.</summary>
@@ -346,6 +355,8 @@ public sealed record LobbySetup
             RandomMap = UcOptions.GetIntOption(options, "SvmRandomMap", f.RandomMap ? 1 : 0) != 0,
             Bots = (BotFill)Math.Clamp(UcOptions.GetIntOption(options, "SvmBots", (int)f.Bots), 0, 255),
             BotsPerSide = UcOptions.GetIntOption(options, "SvmBotsPerSide", f.BotsPerSide),
+            SpyBots = UcOptions.GetIntOption(options, "SvmSpyBots", f.SpyBots),
+            MercBots = UcOptions.GetIntOption(options, "SvmMercBots", f.MercBots),
             BotSkill = (OpenScct.Game.AI.AiSkill)Math.Clamp(UcOptions.GetIntOption(options, "SvmBotSkill", (int)f.BotSkill), 0, 255),
             AutoBalance = UcOptions.GetIntOption(options, "SvmBal", f.AutoBalance ? 1 : 0) != 0,
             Alternate = AlternateRules.FromOptions(options, f.Alternate),
@@ -371,6 +382,8 @@ public sealed record LobbySetup
         {
             BotFill.PerSide => string.Create(CultureInfo.InvariantCulture, $", {BotsPerSide} {BotSkill} bots per side"),
             BotFill.Fill => string.Create(CultureInfo.InvariantCulture, $", {BotSkill} bots fill the places"),
+            BotFill.Custom => string.Create(CultureInfo.InvariantCulture,
+                $", {BotSkill} bots: {(Mode == EGameMode.GM_MercDeathMatch ? 0 : SpyBots)} spy / {MercBots} merc requested"),
             _ => string.Empty,
         };
         if (Practice)

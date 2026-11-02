@@ -23,6 +23,7 @@ internal static class DemoFolders
             {
                 if (File.GetLastWriteTimeUtc(file) < cutoff)
                 {
+                    File.Delete(TrainingDataFile.PathForDemo(file));
                     File.Delete(file);
                     removed++;
                 }

@@ -12,13 +12,13 @@ namespace OpenScct.Game.AI;
 /// <summary>
 /// Closed doors on a walker's route. The graphs take doors as open, so a route can run into a closed mover. Looking a
 /// little way along the route, a door that is opening is waited for; a door a switch of the walker's side opens (an
-/// <see cref="SInterrupteur"/> whose Event is the door's Tag, on the walker's side of it, such as the hack panels by
+/// <see cref="SInterrupteur"/> whose Event reaches the door directly or through a relay, on the walker's side, such as the hack panels by
 /// Cinema's glass doors) is opened as a player would: walk to the switch, hold Use until the menu opens, move the
 /// selection to the switch with S, let go, and stay off the keys while the hack runs. A door that bumping opens is
 /// left to the walk. A door nobody here can open (or a switch that did not open it) is shut for the side's plans for a
 /// while and the route goes round (a pipe, another door).
 /// </summary>
-public sealed class DoorAi
+public sealed partial class DoorAi
 {
     private const ETraceFlags MoverFlags = ETraceFlags.TRACE_Movers;
 
@@ -52,6 +52,8 @@ public sealed class DoorAi
     private readonly List<SInterrupteur> _switches = new();
     private readonly List<Trigger> _triggers = new();
     private readonly List<SPresenceTrigger> _presenceTriggers = new();
+    private readonly List<SMagicEvent> _relays = new();
+    private readonly List<int> _switchNodes = new();
     private bool _gathered;
     private Phase _phase;
     private float _phaseAt;
@@ -62,6 +64,8 @@ public sealed class DoorAi
     private FVector _hitAt;
     private FVector _hitNormal;
     private FVector _spot;
+    private FVector _crossFrom;
+    private FVector _crossTo;
     private int _tries;
     private bool _downHeld;
 
@@ -131,7 +135,7 @@ public sealed class DoorAi
     private bool Look(SBasePawn pawn, float now)
     {
         if (pawn.Physics != EPhysics.PHYS_Walking || !_route.HasGoal || _route.Failed || _route.ActiveLink >= 0 ||
-            !DoorAhead(pawn, out Mover? door, out FCheckResult hit))
+            !DoorAhead(pawn, out Mover? door, out FCheckResult hit) || door is null)
         {
             return false;
         }
@@ -142,7 +146,7 @@ public sealed class DoorAi
         _hitNormal = n.Size() > 0.3f ? n.SafeNormal() : (pawn.Location - hit.Location).SafeNormal();
         _hitNormal.Z = 0f;
         _tries = 0;
-        if (door!.bOpening)
+        if (PendingOpening(door))
         {
             Enter(Phase.Wait, now);
             return true;
@@ -189,6 +193,8 @@ public sealed class DoorAi
             if (_bot.World.Collision.LineCheck(out hit, pawn, to, from, default, MoverFlags) && MoverOf(hit) is { } m)
             {
                 door = m;
+                _crossFrom = from;
+                _crossTo = to;
                 return true;
             }
 
@@ -306,6 +312,11 @@ public sealed class DoorAi
         {
             _presenceTriggers.Add(t);
         }
+
+        foreach (SMagicEvent relay in _bot.World.Level.AllActors<SMagicEvent>())
+        {
+            _relays.Add(relay);
+        }
     }
 
     /// <summary>
@@ -326,8 +337,8 @@ public sealed class DoorAi
         float best = SwitchReach;
         foreach (SInterrupteur s in _switches)
         {
-            if (s.bDeleteMe || s.Event != door.Tag || s.TriggerInteraction is not { bUsable: true, bInUse: false } entry ||
-                !ObjectiveNatives.UsableByAllows(entry.UsableBy, type))
+            if (s.bDeleteMe || s.TriggerInteraction is not { bUsable: true, bInUse: false } entry ||
+                !ObjectiveNatives.UsableByAllows(entry.UsableBy, type) || !SwitchReachesDoor(s, door))
             {
                 continue;
             }
@@ -347,7 +358,8 @@ public sealed class DoorAi
             }
 
             FVector floor = new(spot.X, spot.Y, g.Node(node).Floor.Z);
-            if (!_walk.SetGoal(pawn, floor))
+            if (!(_walk.SetGoal(pawn, floor) && SwitchRouteClear(pawn, floor)) &&
+                !FindButtonApproach(pawn, s, floor, out floor))
             {
                 continue;
             }
@@ -359,6 +371,79 @@ public sealed class DoorAi
 
         // The last plan may be to another switch: plan to the one chosen.
         return _switch is not null && _walk.SetGoal(pawn, _spot);
+    }
+
+    /// <summary>
+    /// A plain button can be pressed anywhere in its interaction cylinder. Some authored use spots (Aquarius's
+    /// interior buttons beside the door frame) are too close to a wall for a merc's body. Use a reachable nearby
+    /// floor sample instead; hacks/hold switches still need their exact repositioning spot.
+    /// </summary>
+    private bool FindButtonApproach(SBasePawn pawn, SInterrupteur button, FVector authored, out FVector floor)
+    {
+        floor = default;
+        if (button.TriggerInteraction is not { bHackable: false, bMaintain: false } entry)
+        {
+            return false;
+        }
+
+        NavGraph graph = _walk.Graph;
+        float reach = entry.CollisionRadius + pawn.CollisionRadius - 4f;
+        graph.NodesNear(new FVector(entry.Location.X, entry.Location.Y, authored.Z), reach, _switchNodes);
+        float best = float.MaxValue;
+        foreach (int node in _switchNodes)
+        {
+            FVector candidate = graph.Node(node).Floor;
+            FVector side = candidate - _hitAt;
+            FVector toPawn = candidate - entry.Location;
+            toPawn.Z = 0f;
+            float score = (candidate - authored).SizeSquared();
+            if (!graph.Node(node).Standing || score >= best || toPawn.SizeSquared() >= reach * reach ||
+                side.X * _hitNormal.X + side.Y * _hitNormal.Y <= 0f ||
+                entry.bInteractInFront && (entry.Rotation.Vector() | toPawn) <= 0f)
+            {
+                continue;
+            }
+
+            FVector center = candidate + new FVector(0f, 0f, pawn.CollisionHeight);
+            const ETraceFlags flags = ETraceFlags.TRACE_World;
+            if (MathF.Abs(center.Z - entry.Location.Z) >= pawn.CollisionHeight + entry.CollisionHeight ||
+                _bot.World.Collision.LineCheck(out _, button, entry.Location, center, default, flags) ||
+                !_walk.SetGoal(pawn, candidate) || !SwitchRouteClear(pawn, candidate))
+            {
+                continue;
+            }
+
+            best = score;
+            floor = candidate;
+        }
+
+        return best < float.MaxValue;
+    }
+
+    private bool SwitchRouteClear(SBasePawn pawn, FVector floor)
+    {
+        IReadOnlyList<NavStep> path = _walk.Path;
+        if (path.Count == 0 || (path[^1].Point - floor).SizeSquared() > 4f)
+        {
+            return false;
+        }
+
+        FVector from = pawn.Location;
+        foreach (NavStep step in path)
+        {
+            FVector to = step.Point + new FVector(0f, 0f, pawn.CollisionHeight);
+            if (_bot.World.Collision.LineCheck(out FCheckResult hit, pawn, to, from, default, MoverFlags) &&
+                MoverOf(hit) is { } mover && !OpensByWalking(mover, pawn))
+            {
+                // Navigation assumes doors are open. An approach that leaves the sealed room to reach its
+                // own escape button is not usable, even if the button itself lies on our side of the door.
+                return false;
+            }
+
+            from = to;
+        }
+
+        return true;
     }
 
     // ---- acting --------------------------------------------------------------------------------------------------
@@ -373,11 +458,23 @@ public sealed class DoorAi
             return false;
         }
 
-        // Someone opened it (a mate's hack, a timer): go on.
-        if (_phase is Phase.Walk or Phase.Face && (door.bOpening || door.KeyNum != 0))
+        // Key numbers describe animation, not passability: Aquarius lowers its waterproof doors at key 1.
+        // Keep checking the original crossing even after walking sideways to a button.
+        if (!BlocksCrossing(pawn) && !HackStates(pc) && !pc.IsInState(NAME_s_MenuInteraction))
         {
+            if (_switch is not null)
+            {
+                Opened++;
+            }
+
             Done(pawn, now);
             return false;
+        }
+
+        // A teammate may already have pressed a delayed button. Do not queue another toggle behind theirs.
+        if (_phase is Phase.Walk or Phase.Face && PendingOpening(door))
+        {
+            Enter(Phase.Wait, now);
         }
 
         float t = now - _phaseAt;
@@ -387,8 +484,15 @@ public sealed class DoorAi
                 // Opening: stand until it is out of the way.
                 plan.Keys = default;
                 plan.Crouched = null;
-                if (t > 0.3f && (!DoorAhead(pawn, out Mover? still, out _) || !ReferenceEquals(still, door) || t > 4f))
+                if (PendingDoorEvent(door))
                 {
+                    // Start the motion timeout after the delayed event fires, however long its delay is.
+                    _phaseAt = now;
+                }
+                else if (t > 0.3f && (!(door.bInterpolating || door.bDelaying) ||
+                    t > MathF.Max(4f, door.MoveTime + MathF.Max(door.DelayTime, door.DelayTimeLastKey) + 1f)))
+                {
+                    // Finished or stalled against an encroaching pawn: let the route move/recover and inspect again.
                     Done(pawn, now);
                     return false;
                 }
@@ -422,6 +526,14 @@ public sealed class DoorAi
                 plan.Keys = default;
                 plan.Crouched = null;
                 FaceSwitch(pawn, s, ref plan);
+                if (s.TriggerInteraction is { bUsable: true } cooling &&
+                    cooling.iReusableTime > 0 && now - cooling.iLastUsedTime < cooling.iReusableTime)
+                {
+                    // A reuse lock hides the menu entry; walking into the wall or spending retries cannot help.
+                    _phaseAt = now;
+                    return true;
+                }
+
                 bool listed = Entry(pc, s) is not null;
                 if (!listed && t > 0.8f)
                 {
@@ -521,18 +633,6 @@ public sealed class DoorAi
                 plan.Keys = default;
                 plan.Yaw = null;
                 plan.Crouched = null;
-                if (door.bOpening || door.KeyNum != 0)
-                {
-                    if (!HackStates(pc))
-                    {
-                        Opened++;
-                        Done(pawn, now);
-                        return false;
-                    }
-
-                    return true;
-                }
-
                 if (HackStates(pc) || pc.IsInState(NAME_s_MenuInteraction))
                 {
                     if (t > 15f)
@@ -541,6 +641,12 @@ public sealed class DoorAi
                         return false;
                     }
 
+                    return true;
+                }
+
+                if (PendingOpening(door))
+                {
+                    Enter(Phase.Wait, now);
                     return true;
                 }
 

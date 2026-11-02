@@ -494,7 +494,7 @@ public sealed class ClientSession : INetworkNotify, IDisposable
         {
             if (Settings.InstallGameplayServices)
             {
-                GameplayServices.Install(World.Level, map.Physics, maps.PawnAnimations);
+                GameplayServices.Install(World.Level, map.Physics, maps.PawnAnimations, maps.PillPose);
             }
 
             DeviceEvents = NetDeviceEvents.InstallClient(World.Level, Driver);

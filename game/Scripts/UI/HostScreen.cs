@@ -32,6 +32,7 @@ public partial class HostScreen : MenuPage
     private Control? _mapPanel;
     private Label? _selectedMap;
     private Label? _voiceHint;
+    private Label? _botHint;
     private Label? _listingHint;
     private ScrollContainer? _bodyScroll;
 
@@ -70,6 +71,7 @@ public partial class HostScreen : MenuPage
         if (Model is null) return;
         if (_selectedMap is not null) _selectedMap.Text = Model.Text(SessionRow.Map);
         if (_voiceHint is not null) _voiceHint.Text = Model.VoiceHint;
+        if (_botHint is not null) _botHint.Text = Model.BotHint;
     }
 
     private void OpenAlternate()
@@ -128,12 +130,19 @@ public partial class HostScreen : MenuPage
             Name = "ServerName", MaxLength = 32,
             Text = s.HostName.Length > 0 ? s.HostName : SettingsStore.Current.PlayerName + "'s game",
         });
-        Rows.MoveRowsTo(game, SessionRow.Mode, SessionRow.MaxPlayers, SessionRow.TimeLimit, SessionRow.VoiceChat);
+        Rows.MoveRowsTo(game, SessionRow.Mode, SessionRow.TimeLimit, SessionRow.VoiceChat);
         _voiceHint = Note("");
         _voiceHint.Name = "VoiceHint";
         game.AddChild(_voiceHint);
-        Heading(game, "Bots");
-        Rows.MoveRowsTo(game, SessionRow.Bots, SessionRow.BotsPerSide, SessionRow.BotSkill);
+        Heading(game, "Players & bots");
+        Rows.MoveRowsTo(game, SessionRow.MaxPlayers, SessionRow.Bots, SessionRow.BotsPerSide,
+            SessionRow.SpyBots, SessionRow.MercBots, SessionRow.BotSkill);
+        _botHint = Note("");
+        _botHint.Name = "BotHint";
+        game.AddChild(_botHint);
+        Heading(game, "Your recording");
+        _record = Toggle(game, "Record my matches", "RecordDemos", s.RecordDemos);
+        game.AddChild(Note("Save full match replays to Demos on this computer. You can change this in the lobby; each player chooses for themselves."));
 
         VBoxContainer rules = SettingsTab("Rules");
         Heading(rules, "Round & objectives");
@@ -159,7 +168,6 @@ public partial class HostScreen : MenuPage
         _requireAccounts = Toggle(net, "Signed-in players only", "RequireAccounts", s.HostRequireAccounts);
         _requireNote = new Label { Name = "RequireAccountsNote", Modulate = UiStyle.MenuFocus, AutowrapMode = TextServer.AutowrapMode.WordSmart };
         net.AddChild(_requireNote);
-        _record = Toggle(net, "Record match demos", "RecordDemos", s.HostRecordDemos);
         Heading(net, "Connection");
         _upnp = Toggle(net, "Open router port automatically (UPnP)", "Upnp", s.HostUpnp);
         _port = Field(net, "UDP port", new SpinBox { Name = "Port", MinValue = 1024, MaxValue = 65535, Value = s.HostPort, Rounded = true });
@@ -334,7 +342,7 @@ public partial class HostScreen : MenuPage
         s.HostListed = _listed!.ButtonPressed;
         s.HostUpnp = _upnp!.ButtonPressed;
         s.HostRequireAccounts = _requireAccounts!.ButtonPressed;
-        s.HostRecordDemos = _record!.ButtonPressed;
+        s.RecordDemos = _record!.ButtonPressed;
         s.HostSetup = setup.ToOptions();
         s.Save();
 
@@ -352,7 +360,6 @@ public partial class HostScreen : MenuPage
             InviteKey = s.InviteKey.Length > 0 ? s.InviteKey : null,
             LanPort = s.LanPort,
             RequireAccounts = s.HostRequireAccounts && s.MasterUrl.Length > 0,
-            DemoFolder = s.HostRecordDemos ? OpenScctGame.Play.Demo.DemoLibrary.SavedFolder : null,
         };
         AccountService.Get(GetTree()).PrepareAppearance(() =>
         {

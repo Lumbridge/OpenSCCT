@@ -210,8 +210,14 @@ waits for one that is opening and leaves bump-opened or trigger-opened doors to 
 `SPresenceTrigger` sensors, such as Warehouse's merc spawn exits, when the sensor accepts the bot's pawn class.
 A door opened by a switch the
 bot's side can use, on its side of the door (a hack panel such as Cinema's), it opens as a player would: walk to the
-use spot, hold Use until the menu opens, select the switch with S, let go, and keep off the keys through the hack. A
-door nobody on the side can open, or one whose hack failed twice, is shut. A walker that sticks twice within 128 uu and
+use spot, hold Use until the menu opens, select the switch with S, let go, and keep off the keys through the hack.
+Switch lookup follows active `SMagicEvent` relay groups as well as direct events. Accepted delayed events (including
+a teammate's press) are waited for without another press; actual switch reuse locks are also waited out. Aquarius's
+interior waterproof-door button queues a single toggle after 10 seconds, rather than requiring repeated clicks.
+Both spies and mercs use it. Plain buttons with an obstructed authored use spot can be approached from a reachable
+point inside their interaction volume, without routing through a closed door to get there.
+Clearance is checked across the original blocked passage: Aquarius's lowered key 1 blocks it, and raised key 0 opens it.
+A door nobody on the side can open, or one whose hack failed twice, is shut. A walker that sticks twice within 128 uu and
 20 s does the same: the walk edges across a line in front of it (160 uu each way along a door's face, 64 otherwise)
 are left out of the side's plans for 60 s, so later plans, even for a new goal, go another way.
 
@@ -274,17 +280,19 @@ at the actual interaction point, and off-grid route endpoints require a clear fi
 | Finish | a spy it saw go down (lying, in sight or seen lying in the last 3 s) | run to him, face him, press Use when the game's finishing search would take him (FindPawnToReanimateOrTerminate: 250 uu, in front, feet within 10 uu, clear box to the spot 110 uu behind him), then Use again in the hold to kill at once; shoot him low (0.6 of his height under his centre) until then |
 | Engage | a confirmed spy in sight | after the reaction time aim at the chest (leading by the lead factor) with an error that shrinks from the first-shot to the settled spread while tracking; fire short bursts, not through a teammate; side-step at range (hard and expert); reload on an empty clip |
 | Respond | a terminal is being hacked (the nearest merc goes, with teamwork) | run to a spot 200 to 600 uu from the use spot that sees it, watching the spot |
-| Frag | a spy lost behind cover 400 to 1600 uu away in the last 4 s | select the frag, aim a full-strength throw on a low arc, tap the throw key |
+| Frag | a recent visual or teammate report 600 to 1600 uu away, including a slowly moving visible spy | check the lob path and nearby teammates, select the frag, aim at the ground near the known position, then tap the throw key when the rifle and aim are ready |
 | Investigate | a visible shape, noise, callout, lost spy, or hurt by something unseen | inspect visible shapes without attacking; search reachable locations around lost contacts, retaining checked places and dividing areas with teammates |
 | Guard | otherwise | a reachable standing post beside an untaken terminal no teammate holds, look round, change post every 12 to 30 s |
 
 Mercs light the torch in the dark (on below light 0.15, off above 0.35) while responding, investigating or engaging
 (and while guarding, by gadget use) and use motion tracking while investigating a noise in the dark (something moved
-there) or on some dark posts; a terminal alert gets the torch, since a hacker stands still. A frag goes only at a
-spy that was seen (by the merc or a teammate's callout) and lost, not at a noise.
+there) or on some dark posts; a terminal alert gets the torch, since a hacker stands still. Grenade opportunities
+use a recent visual position or teammate callout, with a ten-second cooldown between accepted throws. The bot
+waits for the selected gadget and rifle to be ready, and counts a throw only when a charge is consumed.
 
 While guarding near objectives, mercs inspect nearby clear walls and place carried mines or spy trackers through
-the normal gadget and animation path. Placement respects charges, ownership limits and spacing, and combat or
+the normal gadget and animation path. They can follow a complete floor route around tables or pillars to reach a
+wall, while rejecting placements that require crossing a closed door. Placement respects charges, ownership limits and spacing, and combat or
 bomb response interrupts the approach. Waking or being revived restores the merc's armed state as well as its rifle.
 
 Merc bots spawn with frags, mines, intel traps and a gas mask, subject to host equipment restrictions. Wall approaches

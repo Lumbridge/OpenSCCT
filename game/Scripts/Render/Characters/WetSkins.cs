@@ -99,8 +99,10 @@ public sealed class WetSkins
                 {
                     Name = name,
                     Texture = e.Texture,
-                    SelfIllum = w.SelfIllum,
-                    SelfIllumMask = w.SelfIllumMask,
+                    // The merc-view wet body has no glow layer in the source material. Keep the
+                    // dry suit's lamp (and its mask) instead of switching it off when the skin changes.
+                    SelfIllum = w.SelfIllum ?? e.SelfIllum,
+                    SelfIllumMask = w.SelfIllum is null ? e.SelfIllumMask : w.SelfIllumMask,
                     SpecMask = w.SpecMask,
                     EnvTexture = w.Env,
                     EnvColor = w.EnvColor,

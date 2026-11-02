@@ -55,6 +55,9 @@ public sealed record OnlineLobbyPlayer(int Id, string Name, HudSide? Side, bool 
 /// </summary>
 public interface IOnlineLobbySession : ILobbySession
 {
+    bool RecordDemos => false;
+    string DemoRecordingStatus => string.Empty;
+    void SetRecordDemos(bool enabled) { }
     bool SidearmsUnrestricted => false;
     string ServerName { get; }
 

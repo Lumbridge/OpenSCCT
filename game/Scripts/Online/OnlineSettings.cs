@@ -88,8 +88,10 @@ public sealed class OnlineSettings
     /// <summary>Only signed-in players (with the master's ticket) may join the hosted game.</summary>
     public bool HostRequireAccounts { get; set; }
 
-    /// <summary>Record each round of the hosted game as a demo in the player's demos folder (docs/DEMOS.md).</summary>
-    public bool HostRecordDemos { get; set; }
+    /// <summary>Save this player's matches as full demos, whoever hosts (docs/DEMOS.md).</summary>
+    public bool RecordDemos { get; set; }
+    /// <summary>Compatibility alias for older hosting preferences.</summary>
+    public bool HostRecordDemos { get => RecordDemos; set => RecordDemos = value; }
 
     /// <summary>This install's id, made once.</summary>
     public string InstallId { get; set; } = string.Empty;
@@ -150,6 +152,7 @@ public sealed class OnlineSettings
             s.HostPassword = file.GetValue("host", "password", s.HostPassword).AsString();
             s.HostRequireAccounts = file.GetValue("host", "require_accounts", s.HostRequireAccounts).AsBool();
             s.HostRecordDemos = file.GetValue("host", "record_demos", s.HostRecordDemos).AsBool();
+            s.RecordDemos = file.GetValue("demos", "record_matches", s.RecordDemos).AsBool();
             s.InstallId = file.GetValue("player", "install_id", s.InstallId).AsString();
             if (OpenScct.Server.Online.PlayerKey.FromPrivate(file.GetValue("player", "key", string.Empty).AsString()) is { } key)
             {
@@ -199,6 +202,7 @@ public sealed class OnlineSettings
         file.SetValue("host", "password", HostPassword);
         file.SetValue("host", "require_accounts", HostRequireAccounts);
         file.SetValue("host", "record_demos", HostRecordDemos);
+        file.SetValue("demos", "record_matches", RecordDemos);
         file.SetValue("player", "install_id", InstallId);
         file.SetValue("player", "key", Key.PrivateKey);
         return file.Save(path);

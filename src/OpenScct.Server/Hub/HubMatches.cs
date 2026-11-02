@@ -322,7 +322,9 @@ public sealed class HubMatchLauncher : IHubMatchLauncher
             }
 
             bool everyoneGone = _anyoneCame && humans == 0;
-            if ((_ended >= 0 && (everyoneGone || now - _ended > (long)(_launcher.CloseAfterEndSeconds * 1_000_000))) ||
+            bool savingDemos = s.HasProgressingPersonalDemos &&
+                now - _ended < (OnlineClient.HubDemoWaitSeconds + 30L) * 1_000_000;
+            if ((_ended >= 0 && !savingDemos && (everyoneGone || now - _ended > (long)(_launcher.CloseAfterEndSeconds * 1_000_000))) ||
                 (everyoneGone && s.RoundsStarted == 0 && s.Phase == SessionPhase.Lobby))
             {
                 _status = (int)(s.RoundsStarted > 0 ? HubMatchStatus.Ended : HubMatchStatus.Failed);

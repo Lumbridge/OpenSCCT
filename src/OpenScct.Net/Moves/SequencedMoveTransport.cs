@@ -73,6 +73,9 @@ public sealed class SequencedMoveTransport : IMoveTransport
     public uint CommandEpoch => _epoch;
     public uint NextSequence => _sent + 1;
     public uint LastApplied => _applied;
+    /// <summary>The admitted command currently executing, including its original client clock. Never a received duplicate.</summary>
+    public readonly record struct AppliedCommandContext(uint Epoch, uint Sequence, long InputTick, float TimeSeconds, byte Flags);
+    public AppliedCommandContext? ApplyingCommand { get; private set; }
     public string DescribeInputClock() => $"world {_driver.World?.TickCount}, pump {_lastPumpTick}, offset {_inputTickOffset}, appliedInput {_appliedInputTick}, nextInput {_ring[Slot(_applied + 1)].InputTick}, reliable {_ring[Slot(_applied + 1)].CompletedReliable}/{Channel?.Connection.InReliable[Channel.ChIndex]}";
     public string DescribePending() => $"applied {_applied}, received {_highestReceived}, next {_ring[Slot(_applied + 1)].Sequence}/reliable {_ring[Slot(_applied + 1)].RequiredReliable}, epoch {_epoch}, credit {_simulationCredit:F1}, sent {_sent}, ack {_acknowledged}, resend {_resendCursor}, oldest {_ring[Slot(_acknowledged + 1)].Sequence} kind {_ring[Slot(_acknowledged + 1)].Kind} dt {_ring[Slot(_acknowledged + 1)].Delta} msa {_ring[Slot(_acknowledged + 1)].Move.MSATime} vel {_ring[Slot(_acknowledged + 1)].Move.Vel}, resets {ResynchronizationRequests}, rejected {CommandsRejected}: {_lastRejected.Sequence}/{_lastRejected.Kind}/{_lastRejected.Delta}/{_lastRejected.Move.MSATime}/{_lastRejected.Move.Vel}, sentFirst {_lastSentFirst} at {_lastTransmitTick}, ignored {_ignoredBatches}/{_lastIgnoredEpoch}/{_lastIgnoredPawn} pawn {_pawnGuid} reads {_readErrors}";
     public long RecoveredCommands { get; private set; }
@@ -347,6 +350,7 @@ public sealed class SequencedMoveTransport : IMoveTransport
             commandPawn?.BeginMoveCommand();
             try
             {
+                ApplyingCommand = new AppliedCommandContext(epoch, c.Sequence, c.InputTick, c.Move.TimeStamp, (byte)c.Move.iDiversInfos);
                 // Traversal state entries and their latent deadlines belong to the same input clock as physics.
                 // Applying their pre/post controls on receive time makes those deadlines depend on RTT and bursts.
                 using var commandClock = _driver.World!.Level.CommandTime(c.InputTick, c.Move.TimeStamp, Sim.DeltaTime);
@@ -391,7 +395,7 @@ public sealed class SequencedMoveTransport : IMoveTransport
                 _appliedInputDelta = tickDelta;
                 _simulationCredit -= cost;
             }
-            finally { commandPawn?.EndMoveCommand(); }
+            finally { ApplyingCommand = null; commandPawn?.EndMoveCommand(); }
         }
     }
 

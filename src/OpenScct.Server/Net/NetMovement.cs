@@ -178,7 +178,7 @@ public sealed partial class SBasePawnMoves : IMovePawn, IMovePrediction, IMoveCo
 
         Span<int> actions = stackalloc int[6];
         int count = MovePacking.UnCompressActions(val0, val1, actions);
-        OpenScct.Game.Animation.ProxyAnimation.ExecuteReceivedActionsForServer(p, actions, count);
+        OpenScct.Game.Animation.ProxyAnimation.ExecuteReceivedActionsForServer(p, actions, count, TrainingNetInput.Actions(p));
     }
 
     public int iYawPitchFromView
@@ -231,6 +231,7 @@ public sealed partial class SBasePawnMoves : IMovePawn, IMovePrediction, IMoveCo
             return;
         }
 
+        TrainingNetInput.Movement(_pc, deltaTime, acceleration, jump);
         using var clock = CommandDriven ? p.XLevel.CommandTime(_commandTick, _commandTime, deltaTime) : default;
         // Traversal RPCs were received on the host clock. Their next-physics guard must not hold older queued
         // input ticks until that wall-clock receive time; each sequenced command is already executed once.
@@ -685,6 +686,8 @@ public sealed partial class NetMovementBridge : IMovementNet, IMoveEndpointSourc
     {
         if (_driver.IsServer || PC.Role != ENetRole.ROLE_AutonomousProxy || EndpointOf(PC)?.Client is not { } client)
         {
+            if (_driver.IsServer && PC.Player is UViewport)
+                TrainingNetInput.Movement(PC, DeltaTime, NewAccel, PC.bPressedJump, TrainingNetInput.LocalSource(PC));
             PC.eventMyProcessMove(DeltaTime, NewAccel);
             return;
         }

@@ -141,7 +141,7 @@ public static class MovementServerFunctions
         // accompanying yaw afterwards turns the server's victim along a different path until wake-up.
         if (velocity is { } value && actions[..count].Contains(SBasePawn.SA_CHARGE_ATTACKED_GOBACK))
             pawn.SpecialYaw = SvmMath.Trunc(value.X / MoveK.VelocityWireScale);
-        OpenScct.Game.Animation.ProxyAnimation.ExecuteReceivedActionsForServer(pawn, actions, count);
+        OpenScct.Game.Animation.ProxyAnimation.ExecuteReceivedActionsForServer(pawn, actions, count, TrainingNetInput.Actions(pawn));
     }
 
     private static void ApplyVelocity(SBasePawn pawn, FVector vel)

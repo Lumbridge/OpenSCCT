@@ -18,6 +18,9 @@ public enum BotFill : byte
 
     /// <summary>Bots take the empty places: each side is filled to half the session's players.</summary>
     Fill = 2,
+
+    /// <summary>Separate requested bot counts for spies and mercenaries, within the remaining player slots.</summary>
+    Custom = 3,
 }
 
 /// <summary>
@@ -46,6 +49,9 @@ public static class OnlineBotRoster
     /// <summary>Most bots on one side the page offers.</summary>
     public const int MaxPerSide = 4;
 
+    /// <summary>Custom teams may use all eight player slots on one side.</summary>
+    public const int MaxCustomPerTeam = LobbySetup.MaxMaxPlayers;
+
     /// <summary>
     /// Bots wanted on the spies (index 0) and the mercenaries (index 1) for <paramref name="setup"/> with
     /// <paramref name="spies"/> and <paramref name="mercs"/> human players, in a session of <paramref name="maxPlayers"/>
@@ -61,6 +67,10 @@ public static class OnlineBotRoster
         int wantMercs;
         switch (setup.Bots)
         {
+            case BotFill.Custom:
+                wantSpies = mercsOnly ? 0 : Math.Clamp(setup.SpyBots, 0, MaxCustomPerTeam);
+                wantMercs = Math.Clamp(setup.MercBots, 0, MaxCustomPerTeam);
+                break;
             case BotFill.PerSide:
                 wantSpies = mercsOnly ? 0 : setup.BotsPerSide;
                 wantMercs = mercsOnly ? 2 * setup.BotsPerSide : setup.BotsPerSide;
@@ -108,7 +118,7 @@ public static class OnlineBotRoster
     public static string FillName(BotFill fill) => FillNames[(int)fill];
 
     /// <summary>The "Bots" row's choices in page order.</summary>
-    public static IReadOnlyList<string> FillNames { get; } = ["Off", "Per Side", "Fill Slots"];
+    public static IReadOnlyList<string> FillNames { get; } = ["Off", "Per Side", "Fill Slots", "Custom teams"];
 
     /// <summary>The "Bot Skill" row's choices in page order (AiSkill).</summary>
     public static IReadOnlyList<string> SkillNames { get; } = ["Easy", "Normal", "Hard", "Expert"];

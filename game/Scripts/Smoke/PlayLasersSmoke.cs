@@ -359,7 +359,7 @@ public sealed class PlayLasersSmoke : SmokeTest
         FVector dir = (lasers.BeamEnd - start).SafeNormal();
         float angle = Mathf.RadToDeg(MathF.Acos(Math.Clamp(dir | hand.XAxis.SafeNormal(), -1f, 1f)));
         // The dot sits 10 uu before the hit, on the simulation's line; the beam runs to the hit.
-        // The drawn dot sits on the drawn beam's end (0.5 uu off the surface).
+        // The drawn dot's projection volume is centred on the drawn beam's end.
         float endGap = FVector.Dist(lasers.BeamEnd, lasers.DotAt);
         Stats st = _stats;
         if (st.Frames > 0)

@@ -43,7 +43,8 @@ public sealed partial class OnlineServer
     /// <summary>Everything a player needs on joining a map: who it is, the server, the setup, the players, the phase.</summary>
     private void SendWelcome(SessionPlayer p)
     {
-        Send(p, SessionProtocol.Line("hello", SessionProtocol.Version, p.Id, Settings.Dedicated, Settings.MaxPlayers, Settings.Name));
+        Send(p, SessionProtocol.Line("hello", SessionProtocol.Version, p.Id, Settings.Dedicated, Setup.MaxPlayers, Settings.Name));
+        SendDemoWelcome(p);
         Send(p, SessionProtocol.Line("sidearms", Settings.Master is null ? 1 : 0));
         SendSetup(p);
         foreach (SessionPlayer other in _players)
@@ -139,6 +140,8 @@ public sealed partial class OnlineServer
         {
             return;
         }
+
+        if (HandleDemoRequest(p, line)) return;
 
         switch (command)
         {
@@ -283,7 +286,7 @@ public sealed partial class OnlineServer
             return;
         }
 
-        if (p.IsSpectator && team != SessionProtocol.SpectatorTeam && CountHumans(spectators: false) >= Settings.MaxPlayers)
+        if (p.IsSpectator && team != SessionProtocol.SpectatorTeam && CountHumans(spectators: false) >= Setup.MaxPlayers)
         {
             SendMessage(p, "The sides are full.");
             return;
@@ -311,7 +314,8 @@ public sealed partial class OnlineServer
 
     private void ChangeSetup(SessionPlayer by, string options)
     {
-        LobbySetup next = LobbySetup.FromOptions(options, Setup) with { MaxPlayers = Setup.MaxPlayers };
+        LobbySetup next = LobbySetup.FromOptions(options, Setup);
+        next = next with { MaxPlayers = Math.Clamp(next.MaxPlayers, LobbySetup.MinMaxPlayers, LobbySetup.MaxMaxPlayers) };
         if (Maps.FindMap(next.Map) is not { } entry)
         {
             SendMessage(by, $"Unknown map '{next.Map}'.");
@@ -331,6 +335,8 @@ public sealed partial class OnlineServer
     private void ApplySetup(LobbySetup next, bool announce)
     {
         LobbySetup clamped = next.Clamped();
+        // Reducing capacity removes excess bots, never a connected player. Spectators have their own limit.
+        clamped = clamped with { MaxPlayers = Math.Max(clamped.MaxPlayers, CountHumans(spectators: false)) };
         bool practiceChanged = clamped.Practice != Setup.Practice;
         bool mapChanged = !string.Equals(clamped.Map, Setup.Map, StringComparison.OrdinalIgnoreCase) || clamped.Mode != Setup.Mode;
         bool changed = clamped != Setup;
@@ -710,9 +716,12 @@ public sealed partial class OnlineServer
                 "off" or "0" => s with { Bots = BotFill.Off },
                 "side" or "perside" or "1" => s with { Bots = BotFill.PerSide },
                 "fill" or "2" => s with { Bots = BotFill.Fill },
+                "custom" or "3" => s with { Bots = BotFill.Custom },
                 _ => null,
             },
             "botsperside" when isInt => s with { BotsPerSide = n },
+            "spybots" when isInt => s with { SpyBots = n },
+            "mercbots" when isInt => s with { MercBots = n },
             "sidearms" when isBool => s with { Sidearms = on },
             "practice" when isBool => s with { Practice = on },
             "botskill" => Enum.TryParse(value, ignoreCase: true, out OpenScct.Game.AI.AiSkill skill) ? s with { BotSkill = skill } : null,
@@ -796,7 +805,7 @@ public sealed partial class OnlineServer
     {
         var sb = new StringBuilder();
         sb.Append(CultureInfo.InvariantCulture, $"{Settings.Name}: {SessionProtocol.PhaseName(Phase)}, {Setup.Describe()}, ");
-        sb.Append(CultureInfo.InvariantCulture, $"{CountPlayers(false)}/{Settings.MaxPlayers} players, {CountPlayers(true)} spectators");
+        sb.Append(CultureInfo.InvariantCulture, $"{CountPlayers(false)}/{Setup.MaxPlayers} players, {CountPlayers(true)} spectators");
         if (GamePort > 0)
         {
             sb.Append(CultureInfo.InvariantCulture, $", UDP {GamePort}");

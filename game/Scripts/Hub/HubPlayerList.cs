@@ -154,15 +154,17 @@ public partial class HubPlayerList : Control
             string player = p.Name;
             if (Voice is { } voice)
             {
-                var volume = new HSlider
+                var volume = new NotchedSlider
                 {
-                Scrollable = false,
+                    Scrollable = false,
+                    Notches = [0, 25, 50, 75, 100, 150, 200],
                     MinValue = 0, MaxValue = 200, Step = 5, Value = voice.VolumeOf(player) * 100f,
                     CustomMinimumSize = new Vector2(90f, 20f), TooltipText = "This player's voice volume",
                 };
                 var volumeText = new Label { CustomMinimumSize = new Vector2(44f, 0f) };
                 void Apply(double v)
                 {
+                    v = volume.Resolve(v);
                     voice.SetVolume(player, (float)v / 100f);
                     volumeText.Text = string.Create(CultureInfo.InvariantCulture, $"{v:0}%");
                 }
@@ -170,7 +172,7 @@ public partial class HubPlayerList : Control
                 // A click on the track moves the grabber without value_changed (Godot's Slider blocks it on press):
                 // the value is taken when the press ends too (as the lobby's rows do).
                 volume.ValueChanged += Apply;
-                volume.DragEnded += _ => Apply(volume.Value);
+                volume.DragEnded += _ => Apply(volume.Resolve(volume.Value, released: true));
                 volumeText.Text = string.Create(CultureInfo.InvariantCulture, $"{volume.Value:0}%");
                 var mute = new CheckBox { Text = "Mute voice", ButtonPressed = voice.IsMuted(player) };
                 mute.Toggled += on => voice.SetMuted(player, on);

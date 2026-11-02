@@ -100,6 +100,9 @@ public sealed partial class MercAi : AiBrain
     private int _fragPhase;
     private float _fragPhaseAt;
     private FVector _fragTarget;
+    private FRotator _fragAim;
+    private SGadFragGrenade? _fragLauncher;
+    private int _fragCharge;
     private float _torchAt = -100f;
     private float _visionAt = -100f;
     private SComputerObjectiveTrigger? _alert;
@@ -252,21 +255,19 @@ public sealed partial class MercAi : AiBrain
             _investigating = lost;
             options[n++] = new AiOption(GInvestigate, (lost.Visible ? 0.95f : 0.55f) + 0.6f * lost.Confidence +
                 (now - Bot.HurtAt < 3f ? 0.5f : 0f));
-            float d = (lost.Position - Pawn.Location).Size();
-            if (lost.Source is AiContactSource.Seen or AiContactSource.Told && now - lost.Time < 4f && lost.Confidence > 0.45f &&
-                d is > 400f and < 1600f && now - _fragAt > 10f &&
-                !World.LineOpen(AiSight.Eye(Pawn), lost.Position) && GadgetSlot<SGadFragGrenade>(out SGadFragGrenade? frag) >= 0 &&
-                frag is { Charge: > 0 } && Bot.Random.FRand() < Difficulty.GadgetUse)
-            {
-                options[n++] = new AiOption(GFrag, 0.9f + 0.3f * Difficulty.GadgetUse);
-                _fragTarget = lost.Position;
-            }
-
             if (Goal != GInvestigate || NavFollower.Horizontal(_investigate - lost.Position) > 200f)
             {
                 _investigate = lost.Position;
                 _investigateArrived = -1f;
             }
+        }
+
+        if (GrenadeOpportunity(_target ?? lost, now, out FVector grenadeTarget) && Bot.Random.FRand() < Difficulty.GadgetUse)
+        {
+            // An accepted tactical throw must beat routine investigation (including its keep-goal bonus).
+            // Visible, stationary targets at range are also opportunities; rifle fire is not the only combat option.
+            options[n++] = new AiOption(GFrag, _target is not null ? 2.35f : 1.45f);
+            _fragTarget = grenadeTarget;
         }
 
         return Pick(options[..n]);
@@ -435,7 +436,7 @@ public sealed partial class MercAi : AiBrain
                 break;
         }
 
-        if (Goal is not (GEngage or GFinish) && now - _feltAt < MercAiK.FeltLookSeconds)
+        if (!Doors.Busy && Goal is not (GEngage or GFinish) && now - _feltAt < MercAiK.FeltLookSeconds)
         {
             // Something stopped the walk: stand and look at it (down at the feet for a crouched spy).
             plan.Keys.BT_Up = 0;
@@ -470,6 +471,7 @@ public sealed partial class MercAi : AiBrain
 
         FVector watch = spot + new FVector(0f, 0f, 40f);
         MoveTo(_respondSpot, now, ref plan, sneak: false);
+        if (Doors.Busy) return;
         if (World.LineOpen(AiSight.Eye(Pawn), watch))
         {
             LookAt(watch, ref plan);
@@ -708,6 +710,8 @@ public sealed partial class MercAi : AiBrain
                 plan.Tolerance = 3000;
                 plan.Keys.BT_Up = World.LineOpen(Pawn.Location, at) ? (byte)1 : (byte)0;
             }
+
+            if (Doors.Busy) return;
         }
 
         // Keep the camera on the fallen body while approaching it, including when the last sight was a moment ago.
@@ -1018,6 +1022,9 @@ public sealed partial class MercAi : AiBrain
                     return;
                 }
 
+                // Door handling owns the view as well as Use; watching the search spot prevents facing its button.
+                if (Doors.Busy) return;
+
                 if (Follower.Arrived || (Feet - searchFloor).Size() < 80f)
                 {
                     _investigateArrived = now;
@@ -1048,6 +1055,7 @@ public sealed partial class MercAi : AiBrain
         if (_investigateArrived < 0f)
         {
             MoveTo(floor, now, ref plan, sneak: false);
+            if (Doors.Busy) return;
             if (Follower.Arrived || Follower.Failed || (Feet - floor).Size() < 80f)
             {
                 _investigateArrived = now;
@@ -1196,43 +1204,52 @@ public sealed partial class MercAi : AiBrain
 
     private void Frag(float now, ref AiPlan plan)
     {
-        FVector eye = AiSight.Eye(Pawn);
-        FVector to = _fragTarget - eye;
-        float flat = NavFollower.Horizontal(to);
+        FRotator aim = _fragAim;
+        if (_fragPhase < 2)
+        {
+            if (!GrenadeAim(_fragTarget, out aim) || !GrenadeBlastClear(_fragTarget))
+            {
+                _fragPhase = 4;
+                _fragAt = now - 8f;
+                return;
+            }
 
-        // A full-strength throw (a tap of the throw key: 1800 uu/s) on a low arc; the pitch from the range.
-        // A frag's velocity takes half of the 1500 gravity in flight (AActor::physFalling, grenade-throw.md rule 4a).
-        const float speed = 1800f;
-        const float gravity = 750f;
-        float s = SvmMath.Clamp(gravity * flat / (speed * speed), 0f, 1f);
-        float pitchRad = 0.5f * SvmMath.Asin(s) + SvmMath.Atan2(to.Z, SvmMath.Max(1f, flat)) * 0.5f;
-        plan.Yaw = NavFollower.YawTo(eye, _fragTarget);
-        plan.Pitch = (int)(pitchRad * (32768f / MathF.PI));
+            _fragAim = aim;
+        }
+
+        // Once AltFire is accepted, release and observe the actual use even if a teammate or door moves.
+        // Retargeting/aborting now cannot recall the grenade and must not bypass its count or cooldown.
+        plan.Yaw = aim.Yaw;
+        plan.Pitch = aim.Pitch;
         plan.Tolerance = 65536;
         switch (_fragPhase)
         {
             case 0:
-                int slot = GadgetSlot<SGadFragGrenade>(out _);
+                int slot = GadgetSlot<SGadFragGrenade>(out _fragLauncher);
                 if (slot < 0)
                 {
                     return;
                 }
 
-                if (Pawn.SelectedGadget is not SGadFragGrenade)
+                if (!ReferenceEquals(Pawn.SelectedGadget, _fragLauncher))
                 {
                     plan.Keys.Press(AiCommand.SelectGadget, slot);
                 }
 
+                _fragCharge = _fragLauncher!.Charge;
                 _fragPhase = 1;
                 _fragPhaseAt = now;
                 return;
             case 1:
-                if (now - _fragPhaseAt < 0.3f || AimErrorTo(_fragTarget) > 25f)
+                if (!ReferenceEquals(Pawn.SelectedGadget, _fragLauncher) || !GrenadeWeaponReady() ||
+                    now - _fragPhaseAt < 0.3f || NavFollower.YawError(Pc.Rotation.Yaw & 0xffff, aim.Yaw & 0xffff) > 1000 ||
+                    NavFollower.YawError(Pc.Rotation.Pitch & 0xffff, aim.Pitch & 0xffff) > 1000 ||
+                    NavFollower.Horizontal(Pawn.Velocity) > 5f)
                 {
                     if (now - _fragPhaseAt > 2f)
                     {
                         _fragPhase = 4;
-                        _fragAt = now;
+                        _fragAt = now - 8f;
                     }
 
                     return;
@@ -1251,15 +1268,22 @@ public sealed partial class MercAi : AiBrain
                     return;
                 }
 
-                FragsThrown++;
-                _fragAt = now;
                 _fragPhase = 3;
                 _fragPhaseAt = now;
                 return;
             default:
+                if (_fragPhase == 3 && _fragLauncher is { } thrown && thrown.Charge < _fragCharge)
+                {
+                    FragsThrown++;
+                    _fragAt = now;
+                    _fragPhase = 4;
+                    return;
+                }
+
                 if (_fragPhase == 3 && now - _fragPhaseAt > 1.8f)
                 {
                     _fragPhase = 4;
+                    _fragAt = now - 8f;
                 }
 
                 return;

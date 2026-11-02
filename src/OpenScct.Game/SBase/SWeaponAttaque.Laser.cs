@@ -50,6 +50,9 @@ public partial class SWeaponAttaque
     private const float MuzzleStickyGzitVolume = 1.5f;
     private const float MuzzleStickyGzitRadius = 150f;
 
+    [Provenance(ProvenanceKind.Decoded, "execTickSWeaponAttaque (game 0x10ab7870): local dot creation calls the sound event with SndLaserOn, SLOT_None and radius 10")]
+    private const int LaserActivationSoundRadius = 10;
+
     /// <summary>TickSWeaponAttaque (native 1287): the hand bone for the stance, the laser actors, the muzzle mesh.</summary>
     [Uc("SBase.SWeaponAttaque.TickSWeaponAttaque", Sha1 = "e8898aae6b9d7ffd92474a9ab1ed7ce1563ee8b3")]
     [UcNative("ASWeaponAttaque::execTickSWeaponAttaque")]
@@ -73,8 +76,19 @@ public partial class SWeaponAttaque
         }
         else if (Level.NetMode != ENetMode.NM_DedicatedServer)
         {
-            LaserProjector ??= XLevel.SpawnActor(new SLaserProjector(), Location, Rotation, this, Instigator);
-            if (LaserBeam is null && Level.GetLocalPlayerController() is { } local && ReferenceEquals(local.Pawn, Instigator))
+            bool localOwner = Level.GetLocalPlayerController() is { } local && ReferenceEquals(local.Pawn, Instigator);
+            if (LaserProjector is null)
+            {
+                LaserProjector = XLevel.SpawnActor(new SLaserProjector(), Location, Rotation, this, Instigator);
+                // The native plays the activation cue once, when the owner's laser dot appears. ServerSound
+                // plays it locally and relays it to other listeners without an echo on the owning client.
+                if (localOwner)
+                {
+                    ServerSound(SndLaserOn, ESoundSlot.SLOT_None, LaserActivationSoundRadius);
+                }
+            }
+
+            if (LaserBeam is null && localOwner)
             {
                 LaserBeam = XLevel.SpawnActor(new SLaserBeam(), Location, Rotation, this, Instigator);
             }

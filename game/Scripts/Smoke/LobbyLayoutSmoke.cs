@@ -34,6 +34,9 @@ public sealed class LobbyLayoutSmoke : SmokeTest
     private bool _liveResize;
     private Button? _lastMapTile;
     private Texture2D? _previewTexture;
+    private LobbySetup? _beforeMapSearch;
+    private MenuPilot? _pilot;
+    private int _numberStage;
 
     private Vector2I ViewportSize => _liveResize ? new Vector2I(800, 600) : _sizes[_size];
     private string Resolution => $"{ViewportSize.X}x{ViewportSize.Y}" + (_liveResize ? "-resized" : "");
@@ -42,10 +45,11 @@ public sealed class LobbyLayoutSmoke : SmokeTest
     {
         if (_maps is null)
         {
+            _pilot = new MenuPilot(context.Tree);
             _savedMapList = SettingsStore.Current.MapListView;
             _savedPlaylist = SettingsStore.Current.ActiveMapPlaylist;
             SettingsStore.Current.ActiveMapPlaylist = MapCatalog.AllMapsPlaylist;
-            // Create the same catalog service the live lobby uses, so its actual map chooser opens.
+            // Create the same catalog service the live lobby uses for its embedded map browser.
             MapCatalog catalog = OnlineService.Get(context.Tree).Catalog.Maps;
             _maps = catalog.GetHostMaps().Select(map => (map.Id, MapTitles.Of(catalog, map.Id))).ToArray();
             if (_maps.Count == 0)
@@ -55,6 +59,9 @@ public sealed class LobbyLayoutSmoke : SmokeTest
         {
             Resize(context.Tree, _sizes[_size]);
             _session = new FixtureLobby { CanControl = _variant != 1, Maps = _maps };
+            if (_maps.Any(map => string.Equals(map.Id, "AquaE", StringComparison.OrdinalIgnoreCase)))
+                _session.Setup = _session.Setup with { Map = "AquaE" };
+            SettingsStore.Current.MapListView = false;
             if (_variant == 2)
             {
                 var offline = new LobbyScreen { Session = _session }; _screen = offline;
@@ -68,7 +75,9 @@ public sealed class LobbyLayoutSmoke : SmokeTest
             context.Tree.CurrentScene = _screen;
             if (_screen is MenuPage page) page._Process(1.0);
             _frame = 0;
+            _numberStage = 0;
         }
+        _pilot!.Update();
         if (++_frame < 10) return SmokeResult.Running;
         if (_screen is LobbyRoomScreen roomScreen)
         {
@@ -90,6 +99,8 @@ public sealed class LobbyLayoutSmoke : SmokeTest
             if (_frame < 16) return SmokeResult.Running;
             if (_frame == 16)
             {
+                // Deferred focus changes from the interaction fixture may have refreshed its absent TestBox art.
+                roomScreen.MapPicture!.SetMap(_previewTexture, "Enhanced Aquarius");
                 CheckLayout(roomScreen, "Lobby overview");
                 CheckLandmarks(roomScreen);
                 MenuPage.Shot(roomScreen, $"lobby-overview-{Resolution}-{_variant}");
@@ -99,14 +110,66 @@ public sealed class LobbyLayoutSmoke : SmokeTest
             if (_frame < 22) return SmokeResult.Running;
             if (_frame == 22)
             {
-                CheckLayout(roomScreen, "Lobby settings");
+                if (_session!.CanControl && _numberStage < 4)
+                {
+                    // Exercise the first edit from a clean draft through actual mouse/key input. In particular,
+                    // Apply must work on the first click while a numeric editor still owns keyboard focus.
+                    _frame = 21;
+                    if (_pilot.Busy) return SmokeResult.Running;
+                    var duration = (SpinBox)roomScreen.ParameterRows!.Find("TimeLimitValue")!;
+                    if (_numberStage == 0)
+                    {
+                        Expect(roomScreen.Parameters!.Setup == _session.Setup, "real numeric input starts from a clean draft");
+                        // SpinBox enters text editing on a deferred callback, which resets its text. Let that
+                        // native transition settle before typing, as a person does after clicking the field.
+                        if (_pilot.Click(duration.GetLineEdit(), "focus match duration")) _numberStage = 1;
+                    }
+                    else if (_numberStage == 1)
+                    {
+                        if (_pilot.Type(duration.GetLineEdit(), "9", "match duration")) _numberStage = 2;
+                    }
+                    else if (_numberStage == 2)
+                    {
+                        Expect(_session.Setup.TimeLimit == 8, "typing leaves the live match unchanged");
+                        if (_pilot.Click(roomScreen.ApplyButton, "Apply typed match duration")) _numberStage = 3;
+                    }
+                    else
+                    {
+                        Expect(_session.Setup.TimeLimit == 9 && !roomScreen.MatchSettingsPanel!.Visible,
+                            "first Apply click commits a typed number from a clean draft");
+                        Click(roomScreen, "MatchSettings");
+                        _numberStage = 4;
+                        _frame = 16;
+                    }
+                    return SmokeResult.Running;
+                }
+                CheckLayout(roomScreen, "Lobby Game settings");
                 CheckSettings(roomScreen);
-                MenuPage.Shot(roomScreen, $"lobby-settings-{Resolution}-{_variant}");
-                Click(roomScreen, "Alternate");
+                CheckFormPermissions(roomScreen);
+                MenuPage.Shot(roomScreen, $"lobby-settings-game-{Resolution}-{_variant}");
+                ShowSettingsTab(roomScreen, 1);
                 return SmokeResult.Running;
             }
             if (_frame < 28) return SmokeResult.Running;
             if (_frame == 28)
+            {
+                CheckLayout(roomScreen, "Lobby Rules settings");
+                CheckSettings(roomScreen);
+                Expect(IsReachable(roomScreen.ParameterRows!.Find("SpyLivesValue")!), "first Rules field is reachable");
+                MenuPage.Shot(roomScreen, $"lobby-settings-rules-{Resolution}-{_variant}");
+                EnsureVisible(roomScreen.AlternateButton!);
+                return SmokeResult.Running;
+            }
+            if (_frame < 34) return SmokeResult.Running;
+            if (_frame == 34)
+            {
+                Expect(IsReachable(roomScreen.AlternateButton!), "last Rules action is reachable by scrolling");
+                roomScreen.AlternateButton!.GrabFocus();
+                Click(roomScreen, "Alternate");
+                return SmokeResult.Running;
+            }
+            if (_frame < 40) return SmokeResult.Running;
+            if (_frame == 40)
             {
                 CheckAlternate(roomScreen);
                 Expect(roomScreen.ApplyButton!.FocusMode == Control.FocusModeEnum.None, "alternate dialog removes keyboard focus from underlying settings");
@@ -120,8 +183,8 @@ public sealed class LobbyLayoutSmoke : SmokeTest
                 }
                 return SmokeResult.Running;
             }
-            if (_frame < 34) return SmokeResult.Running;
-            if (_frame == 34)
+            if (_frame < 46) return SmokeResult.Running;
+            if (_frame == 46)
             {
                 var alternate = (AlternateModePanel)roomScreen.FindChild("AlternateMode", true, false)!;
                 var scroll = (ScrollContainer)alternate.FindChild("Scroll", true, false)!;
@@ -134,71 +197,133 @@ public sealed class LobbyLayoutSmoke : SmokeTest
                     Expect(roomScreen.Parameters!.Setup.Alternate == rules && _session.Setup == live, "Save rules updates the draft without applying it to the match");
                 return SmokeResult.Running;
             }
-            if (_frame < 40) return SmokeResult.Running;
-            if (_frame == 40)
+            if (_frame < 52) return SmokeResult.Running;
+            if (_frame == 52)
             {
-                Control? expectedFocus = _session!.CanControl ? roomScreen.ParameterRows!.Find("MapPrev")
-                    : roomScreen.MatchSettingsPanel!.FindChild("DiscardSettings", true, false) as Control;
-                Expect(roomScreen.GetViewport().GuiGetFocusOwner() == expectedFocus, "closing alternate restores keyboard focus to match settings");
+                Expect(roomScreen.GetViewport().GuiGetFocusOwner() == roomScreen.AlternateButton, "closing alternate restores keyboard focus to its settings action");
                 Expect(roomScreen.MainButton!.FocusMode == Control.FocusModeEnum.None, "closing alternate keeps the lobby behind settings unfocusable");
+                ShowSettingsTab(roomScreen, 0);
                 if (_session!.CanControl)
                 {
                     SettingsStore.Current.MapListView = false;
-                    Click(roomScreen, "Maps");
-                    return SmokeResult.Running;
+                    RevealMaps(roomScreen);
                 }
+                return SmokeResult.Running;
             }
             if (_session!.CanControl)
             {
-                if (_frame < 46) return SmokeResult.Running;
-                if (_frame == 46)
+                if (_frame < 58) return SmokeResult.Running;
+                if (_frame == 58)
                 {
-                    if (_liveResize)
-                    {
-                        CheckAlternate(roomScreen);
-                        Click(roomScreen, "AlternateClose");
-                    }
                     CheckMapChooser(roomScreen, list: false);
                     ScrollToLastMap(roomScreen);
                     return SmokeResult.Running;
                 }
-                if (_frame < 52) return SmokeResult.Running;
-                if (_frame == 52)
+                if (_frame < 64)
+                {
+                    if (_frame == 61 && _lastMapTile is not null) EnsureVisible(_lastMapTile);
+                    return SmokeResult.Running;
+                }
+                if (_frame == 64)
                 {
                     CheckLastMapVisible(roomScreen);
                     SettingsStore.Current.MapListView = true;
                     return SmokeResult.Running;
                 }
-                if (_frame < 58) return SmokeResult.Running;
-                if (_frame == 58)
+                if (_frame < 70) return SmokeResult.Running;
+                if (_frame == 70)
                 {
                     CheckMapChooser(roomScreen, list: true);
                     ScrollToLastMap(roomScreen);
                     return SmokeResult.Running;
                 }
-                if (_frame < 64) return SmokeResult.Running;
-                CheckLastMapVisible(roomScreen);
-                if (_size == _sizes.Length - 1 && !_liveResize)
+                if (_frame < 76)
                 {
-                    // Shrink the existing controls after 4K, without rebuilding the modal or its grid.
-                    Click(roomScreen, "Alternate");
-                    _liveResize = true;
-                    Resize(context.Tree, ViewportSize);
-                    SettingsStore.Current.MapListView = false;
-                    _frame = 40;
+                    if (_frame == 73 && _lastMapTile is not null) EnsureVisible(_lastMapTile);
                     return SmokeResult.Running;
                 }
-                if (_liveResize)
+                if (_frame == 76)
                 {
-                    CheckSettings(roomScreen);
-                    ((Control)roomScreen.FindChild("MapsPanel", true, false)!).Visible = false;
-                    roomScreen.MatchSettingsPanel!.Visible = false;
-                    // Editing alternate rules refreshes the fixture's absent TestBox thumbnail.
-                    roomScreen.MapPicture!.SetMap(_previewTexture, "Enhanced Aquarius");
-                    CheckLayout(roomScreen, "Lobby after live resize");
-                    CheckLandmarks(roomScreen);
+                    CheckLastMapVisible(roomScreen);
+                    _beforeMapSearch = roomScreen.Parameters!.Setup;
+                    var search = roomScreen.SettingsPicker!.SearchBox!;
+                    EnsureVisible(search);
+                    search.Text = "__no_lobby_map_matches__";
+                    search.EmitSignal(LineEdit.SignalName.TextChanged, search.Text);
+                    return SmokeResult.Running;
                 }
-                Click(roomScreen, "MapsClose");
+                if (_frame < 82) return SmokeResult.Running;
+                if (_frame == 82)
+                {
+                    var picker = roomScreen.SettingsPicker!;
+                    Expect(!picker.Grid.GetChildren().OfType<Button>().Any(tile => tile.Visible) &&
+                        picker.FindChild("MapEmpty", true, false) is Label { Visible: true }, "map search has an honest empty state");
+                    Expect(roomScreen.Parameters!.Setup == _beforeMapSearch, "map filters do not change the settings draft");
+                    CheckLayout(roomScreen.MatchSettingsPanel!, "Lobby empty map search");
+                    CheckSettings(roomScreen);
+                    MenuPage.Shot(roomScreen, $"lobby-map-empty-{Resolution}");
+                    Click(picker, "ResetMapFilters");
+                    return SmokeResult.Running;
+                }
+                if (_frame < 88) return SmokeResult.Running;
+                if (_frame == 88)
+                {
+                    var picker = roomScreen.SettingsPicker!;
+                    var tile = picker.Grid.GetChildren().OfType<Button>().FirstOrDefault(button => button.Visible && !button.ButtonPressed);
+                    Expect(tile is not null, "reset filters restores selectable maps");
+                    if (tile is not null)
+                    {
+                        var live = _session.Setup;
+                        tile.EmitSignal(BaseButton.SignalName.Pressed);
+                        Expect(roomScreen.Parameters!.Setup.Map == tile.Name.ToString()[4..] && _session.Setup == live,
+                            "embedded map selection changes the draft without applying");
+                        roomScreen.Parameters.Load(live);
+                    }
+                    return SmokeResult.Running;
+                }
+            }
+            if (_frame < 94) return SmokeResult.Running;
+            if (_frame == 94)
+            {
+                ShowSettingsTab(roomScreen, 0);
+                return SmokeResult.Running;
+            }
+            if (_frame < 100) return SmokeResult.Running;
+            if (_frame == 100)
+            {
+                EnsureVisible(roomScreen.ParameterRows!.Find("MercBotsValue")!);
+                return SmokeResult.Running;
+            }
+            if (_frame < 106) return SmokeResult.Running;
+            if (_frame == 106)
+            {
+                Expect(IsReachable(roomScreen.ParameterRows!.Find("MercBotsValue")!), "exact bot count is reachable in the Game tab");
+                if (roomScreen.FindChild("SettingsRecordDemos", true, false) is Control recording) EnsureVisible(recording);
+                return SmokeResult.Running;
+            }
+            if (_frame < 112) return SmokeResult.Running;
+            if (roomScreen.FindChild("SettingsRecordDemos", true, false) is CheckBox recordDemos)
+                Expect(IsReachable(recordDemos) && !recordDemos.Disabled, "personal recording is reachable for hosts and clients");
+            else Expect(false, "settings contain a personal recording control");
+            CheckLayout(roomScreen, "Lobby player and recording settings");
+            CheckSettings(roomScreen);
+            MenuPage.Shot(roomScreen, $"lobby-settings-recording-{Resolution}-{_variant}");
+            if (_size == _sizes.Length - 1 && !_liveResize)
+            {
+                // Shrink the same modal, tabs and map grid instead of rebuilding them at the new resolution.
+                _liveResize = true;
+                Resize(context.Tree, ViewportSize);
+                SettingsStore.Current.MapListView = false;
+                ShowSettingsTab(roomScreen, 0);
+                _frame = 16;
+                return SmokeResult.Running;
+            }
+            roomScreen.MatchSettingsPanel!.Visible = false;
+            if (_liveResize)
+            {
+                roomScreen.MapPicture!.SetMap(_previewTexture, "Enhanced Aquarius");
+                CheckLayout(roomScreen, "Lobby after live resize");
+                CheckLandmarks(roomScreen);
             }
         }
         else
@@ -215,7 +340,7 @@ public sealed class LobbyLayoutSmoke : SmokeTest
         if (++_size < _sizes.Length) return SmokeResult.Running;
         SettingsStore.Current.MapListView = _savedMapList;
         SettingsStore.Current.ActiveMapPlaylist = _savedPlaylist!;
-        return _problems.Count == 0 ? SmokeResult.Pass("host/client/offline, settings and alternate rules, map pictures/list scrolling, 9 resolutions from 800x600 to 3840x2160 and live resize from 4K to 800x600")
+        return _problems.Count == 0 ? SmokeResult.Pass("host/client/offline, Game and Rules tabs, exact bot counts and player slots, personal recording, editable numbers and draft/apply/discard, alternate rules, embedded map pictures/list/search, 9 resolutions from 800x600 to 3840x2160 and live resize from 4K to 800x600")
             : SmokeResult.Fail(string.Join("; ", _problems.Take(15)));
     }
 
@@ -229,8 +354,9 @@ public sealed class LobbyLayoutSmoke : SmokeTest
 
     private void ScrollToLastMap(LobbyRoomScreen room)
     {
-        if (room.FindChild("MapPicker", true, false) is not MapPickerView picker || picker.Grid.GetParent() is not ScrollContainer scroll) return;
+        if (room.SettingsPicker is not { } picker || picker.Grid.GetParent() is not ScrollContainer scroll) return;
         _lastMapTile = picker.Grid.GetChildren().OfType<Button>().LastOrDefault(tile => tile.IsVisibleInTree());
+        // Settle the inner scroll before revealing its tile in the outer settings scroll.
         if (_lastMapTile is not null) scroll.EnsureControlVisible(_lastMapTile);
     }
 
@@ -242,6 +368,7 @@ public sealed class LobbyLayoutSmoke : SmokeTest
             return;
         }
         Expect(scroll.GetGlobalRect().Grow(1f).Encloses(_lastMapTile.GetGlobalRect()), "last map is fully visible after scrolling");
+        Expect(IsReachable(_lastMapTile), "last map is reachable through both nested scroll areas");
         if (((Control)_lastMapTile.GetParent()).Size.Y > scroll.Size.Y)
             Expect(scroll.ScrollVertical > 0, "long map browser scrolls down to its last map");
     }
@@ -250,10 +377,70 @@ public sealed class LobbyLayoutSmoke : SmokeTest
     {
         Control panel = room.MatchSettingsPanel!;
         Expect(ViewportRect.Encloses(panel.GetGlobalRect()), "settings panel stays inside viewport");
-        Expect(panel.Size.X <= 1180 && panel.Size.Y <= 700, "settings keep a readable maximum size");
+        Expect(panel.Size.X <= 1500.01f && panel.Size.Y <= 820.01f, "settings keep a readable logical maximum size");
+        Expect(room.SettingsTabs?.GetTabCount() == 2 && room.SettingsTabs.GetTabTitle(0) == "Game" &&
+            room.SettingsTabs.GetTabTitle(1) == "Rules", "settings separate game and rules");
+        if (panel.FindChild("SettingsColumns", true, false) is BoxContainer columns &&
+            panel.FindChild("MapSelection", true, false) is Control maps && room.SettingsTabs is { } tabs)
+        {
+            Rect2 mapRect = maps.GetGlobalRect(), tabRect = tabs.GetGlobalRect();
+            Expect(columns.Vertical ? mapRect.End.Y <= tabRect.Position.Y + 1 : mapRect.End.X <= tabRect.Position.X + 1,
+                "map browser and settings reflow without overlapping");
+        }
         foreach (Button button in panel.FindChildren("*", nameof(Button), true, false).OfType<Button>())
             if (button.IsVisibleInTree() && button.GetParent().Name == "SettingsButtons")
-                Expect(panel.GetGlobalRect().Encloses(button.GetGlobalRect()), "settings action visible: " + button.Name);
+                Expect(panel.GetGlobalRect().Encloses(button.GetGlobalRect()) && ViewportRect.Encloses(button.GetGlobalRect()),
+                    "settings action stays visible: " + button.Name);
+    }
+
+    private void CheckFormPermissions(LobbyRoomScreen room)
+    {
+        bool editable = _session!.CanControl;
+        foreach (string name in new[] { "ModeChoice", "VoiceChatChoice", "BotsChoice", "BotSkillChoice" })
+            Expect(room.ParameterRows!.Find(name) is OptionButton choice && choice.Disabled != editable, "dropdown permissions: " + name);
+        foreach (string name in new[] { "TimeLimitValue", "MaxPlayersValue", "SpyBotsValue", "MercBotsValue", "SpyLivesValue", "MercLivesValue", "RespawnValue" })
+            Expect(room.ParameterRows!.Find(name) is SpinBox number && number.Editable == editable, "number permissions: " + name);
+        Expect(room.ParameterRows!.Find("RevengeCheck") is CheckBox revenge && revenge.Disabled != editable, "rule permissions");
+        Expect(room.ApplyButton!.Visible == editable, "only hosts can apply settings");
+        Expect((room.SettingsPicker?.IsVisibleInTree() ?? false) == editable, "clients see the selected map without a mutable map browser");
+        Expect(room.ParameterRows.Find("SpyBotsValue")!.IsVisibleInTree() && room.ParameterRows.Find("MercBotsValue")!.IsVisibleInTree(),
+            "custom team counts are visible in the Game tab");
+        Expect(room.FindChild("SettingsRecordDemos", true, false) is CheckBox { Disabled: false },
+            "personal recording remains editable independently of match permissions");
+    }
+
+    private static void ShowSettingsTab(LobbyRoomScreen room, int tab)
+    {
+        room.SettingsTabs!.CurrentTab = tab;
+        if (room.SettingsTabs.GetCurrentTabControl() is ScrollContainer scroll) scroll.ScrollVertical = 0;
+        if (room.FindChild("SettingsScroll", true, false) is ScrollContainer bodyScroll)
+            bodyScroll.ScrollVertical += Mathf.RoundToInt((room.SettingsTabs.GetGlobalRect().Position.Y - bodyScroll.GetGlobalRect().Position.Y) /
+                bodyScroll.GetGlobalTransform().Y.Length());
+    }
+
+    private static void RevealMaps(LobbyRoomScreen room)
+    {
+        if (room.FindChild("SettingsScroll", true, false) is ScrollContainer scroll) scroll.ScrollVertical = 0;
+    }
+
+    private static void EnsureVisible(Control control)
+    {
+        for (Node? parent = control.GetParent(); parent is not null; parent = parent.GetParent())
+            if (parent is ScrollContainer scroll) scroll.EnsureControlVisible(control);
+    }
+
+    private bool IsReachable(Control control)
+    {
+        Rect2 rect = control.GetGlobalRect();
+        if (!control.IsVisibleInTree() || !ViewportRect.Grow(1).Encloses(rect)) return false;
+        for (Node? parent = control.GetParent(); parent is not null; parent = parent.GetParent())
+            if (parent is ScrollContainer scroll)
+            {
+                // Godot stores scroll offsets as integer logical pixels, including on a scaled menu canvas.
+                float rounding = 2f * Math.Max(1f, scroll.GetGlobalTransform().Y.Length());
+                if (!scroll.GetGlobalRect().Grow(rounding).Encloses(rect)) return false;
+            }
+        return true;
     }
 
     private void CheckAlternate(LobbyRoomScreen room)
@@ -274,26 +461,19 @@ public sealed class LobbyLayoutSmoke : SmokeTest
 
     private void CheckMapChooser(LobbyRoomScreen room, bool list)
     {
-        if (room.FindChild("MapsPanel", true, false) is not Control panel ||
-            panel.FindChild("MapPicker", true, false) is not MapPickerView picker ||
+        if (room.MatchSettingsPanel is not Control panel || room.SettingsPicker is not { } picker ||
             picker.FindChild("MapScroll", true, false) is not ScrollContainer scroll)
         {
-            Expect(false, "map chooser opens");
+            Expect(false, "map browser is embedded in match settings");
             return;
         }
         CheckLayout(panel, list ? "Map list" : "Map pictures");
-        Expect(ViewportRect.Encloses(panel.GetGlobalRect()), "map chooser stays inside viewport");
         Expect(Math.Abs(scroll.GetGlobalRect().End.Y - picker.GetGlobalRect().End.Y) <= 1f,
             "map scroll uses all available picker height");
-        Expect(scroll.Size.Y >= panel.Size.Y - 180f, "map scroll occupies the modal body");
+        Expect(scroll.Size.Y >= 150, "map browser has a usable scrolling area");
         Expect(picker.Grid.GetChildCount() > 0, "map chooser contains maps");
         Expect(picker.Grid.Columns == 1 || !list, "map list uses one column");
-        foreach (string name in new[] { "MapsClose", "MapsOk" })
-        {
-            var button = (Control)panel.FindChild(name, true, false)!;
-            Expect(panel.GetGlobalRect().Encloses(button.GetGlobalRect()) && button.GetGlobalRect().Position.Y >= scroll.GetGlobalRect().End.Y,
-                "map chooser footer stays visible below scroll: " + name);
-        }
+        CheckSettings(room);
         MenuPage.Shot(room, $"lobby-map-{(list ? "list" : "pictures")}-{Resolution}");
     }
 
@@ -332,7 +512,9 @@ public sealed class LobbyLayoutSmoke : SmokeTest
         Expect(leave?.IsQueuedForDeletion() == true && session.Leaves == 0, "Escape cancels leave confirmation");
         if (leave is not null) room.RemoveChild(leave);
         Click(room, "Leave");
-        room.GetNodeOrNull<ConfirmBox>("LeaveLobbyConfirmation")?.Answer(true);
+        var confirmedLeave = room.GetNodeOrNull<ConfirmBox>("LeaveLobbyConfirmation");
+        confirmedLeave?.Answer(true);
+        if (confirmedLeave is not null) room.RemoveChild(confirmedLeave);
         Expect(session.Leaves == 1, "Leave button requires confirmation");
         var chat = room.FindChild("ChatLine", true, false) as LineEdit;
         var channel = room.FindChild("ChatChannel", true, false) as OptionButton;
@@ -342,26 +524,71 @@ public sealed class LobbyLayoutSmoke : SmokeTest
         channel!.Selected = 1;
         chat.EmitSignal(LineEdit.SignalName.TextSubmitted, chat.Text);
         Expect(session.LastTeamChat && session.LastChat == "preserve my draft", "Enter sends to selected Team channel");
+        CheckPersonalRecording(room, session);
         Click(room, "MatchSettings");
         Expect(room.MatchSettingsPanel!.Visible && room.ParameterRows!.Editable == session.CanControl, "settings permissions");
+        CheckBotControls(room, session);
+        var duration = (SpinBox)room.ParameterRows!.Find("TimeLimitValue")!;
         if (session.CanControl)
         {
             var original = session.Setup;
-            room.Parameters!.Load(original with { TimeLimit = 7 });
+            duration.GetLineEdit().Text = "7";
+            duration.Apply();
+            Expect(room.Parameters!.Setup.TimeLimit == 7, "typing a number edits the settings draft");
             session.Notify();
             Expect(session.Setup == original && room.Parameters.Setup.TimeLimit == 7, "host settings draft survives refresh without applying");
-            session.Setup = original with { MercLives = 3 }; session.Notify();
+            session.Setup = original with { MercLives = 4 }; session.Notify();
             Expect(room.Parameters.Setup.TimeLimit == 7, "remote changes retain host draft");
             Click(room, "DiscardSettings");
             Expect(room.MatchSettingsPanel.Visible && room.Parameters.Setup.TimeLimit == 7, "discard waits for confirmation");
-            room.GetNodeOrNull<ConfirmBox>("DiscardMatchSettings")?.Answer(true);
+            var discard = room.GetNodeOrNull<ConfirmBox>("DiscardMatchSettings");
+            discard?.Answer(true);
+            if (discard is not null) room.RemoveChild(discard);
             Expect(room.Parameters.Setup == session.Setup && !room.MatchSettingsPanel.Visible, "discard resets draft to live settings");
             Click(room, "MatchSettings");
-            room.Parameters.Load(session.Setup with { TimeLimit = 8 });
+            duration.GetLineEdit().GrabFocus();
+            duration.GetLineEdit().Text = "8";
             Click(room, "Apply");
-            Expect(session.Setup.TimeLimit == 8 && !room.MatchSettingsPanel.Visible, "Apply sends settings");
+            Expect(session.Setup.TimeLimit == 8 && !room.MatchSettingsPanel.Visible, "Apply commits the focused numeric editor");
+
+            Click(room, "MatchSettings");
+            duration.GetLineEdit().GrabFocus();
+            duration.GetLineEdit().Text = "11";
+            Expect(room.ParameterRows.HasPendingEdits && room.Parameters.Setup == session.Setup, "unsubmitted text is a pending edit on a clean draft");
+            room._UnhandledKeyInput(new InputEventKey { Keycode = Key.Escape, Pressed = true });
+            var pendingDiscard = room.GetNodeOrNull<ConfirmBox>("DiscardMatchSettings");
+            Expect(pendingDiscard is not null && room.MatchSettingsPanel.Visible && session.Setup.TimeLimit == 8,
+                "Escape asks before discarding a pending numeric edit");
+            pendingDiscard?.Answer(true);
+            if (pendingDiscard is not null) room.RemoveChild(pendingDiscard);
+            Expect(!room.MatchSettingsPanel.Visible && room.Parameters.Setup == session.Setup, "pending discard restores the live match settings");
+
+            Click(room, "MatchSettings");
+            duration.Value = 7;
+            session.CanControl = false;
+            session.Notify();
+            Expect(!duration.Editable && room.Parameters.Setup == session.Setup && duration.Value == 8 && !room.ApplyButton!.Visible,
+                "losing control replaces an unapplied draft with read-only live settings");
+            session.CanControl = true;
+            session.Notify();
+            duration.GetLineEdit().GrabFocus();
+            duration.GetLineEdit().Text = "11";
+            session.CanControl = false;
+            session.Notify();
+            Expect(!duration.Editable && duration.GetLineEdit().Text == "8" && room.Parameters.Setup == session.Setup,
+                "losing control clears pending numeric text even when the model is still clean");
+            session.CanControl = true;
+            session.Notify();
+            Click(room, "DiscardSettings");
         }
-        else Click(room, "DiscardSettings");
+        else
+        {
+            Expect(!duration.Editable, "client numeric field is read only");
+            session.Setup = session.Setup with { TimeLimit = 12 };
+            session.Notify();
+            Expect(duration.Value == 12 && room.Parameters!.Setup == session.Setup, "client form follows live server settings");
+            Click(room, "DiscardSettings");
+        }
         var initialSide = session.Members.First(m => m.IsLocal).Side;
         Click(room, "SwitchTeam");
         Expect(session.Members.First(m => m.IsLocal).Side != initialSide, "central Switch Team changes side");
@@ -401,6 +628,77 @@ public sealed class LobbyLayoutSmoke : SmokeTest
         else Expect(admin?.Visible == false, "moderation hidden from clients");
     }
 
+    private void CheckPersonalRecording(LobbyRoomScreen room, FixtureLobby session)
+    {
+        if (room.FindChild("PersonalRecordDemos", true, false) is not CheckBox lobbyRecording ||
+            room.FindChild("SettingsRecordDemos", true, false) is not CheckBox settingsRecording)
+        {
+            Expect(false, "lobby and settings both expose personal recording");
+            return;
+        }
+        var original = session.Setup;
+        Expect(!lobbyRecording.Disabled && !settingsRecording.Disabled, "every player can change their recording preference");
+        lobbyRecording.ButtonPressed = true;
+        Expect(session.RecordDemos && settingsRecording.ButtonPressed && session.Setup == original,
+            "lobby recording preference updates independently of the host's match settings");
+        Click(room, "MatchSettings");
+        settingsRecording.ButtonPressed = false;
+        Expect(!session.RecordDemos && !lobbyRecording.ButtonPressed && session.Setup == original && room.ApplyButton!.Visible == session.CanControl,
+            "settings recording preference mirrors to the lobby without applying a match draft");
+        Expect(room.Parameters!.Setup == session.Setup && room.ApplyButton!.Disabled,
+            "personal recording does not dirty shared match settings");
+        Click(room, "DiscardSettings");
+    }
+
+    private void CheckBotControls(LobbyRoomScreen room, FixtureLobby session)
+    {
+        var slots = room.ParameterRows!.Find("MaxPlayersValue") as SpinBox;
+        var spies = room.ParameterRows.Find("SpyBotsValue") as SpinBox;
+        var mercs = room.ParameterRows.Find("MercBotsValue") as SpinBox;
+        var mode = room.ParameterRows.Find("BotsChoice") as OptionButton;
+        if (slots is null || spies is null || mercs is null || mode is null)
+        {
+            Expect(false, "player capacity and exact team bot controls exist");
+            return;
+        }
+        Expect(spies.MinValue == 0 && spies.MaxValue == 8 && mercs.MinValue == 0 && mercs.MaxValue == 8,
+            "exact counts allow zero through eight requested bots per team");
+        if (!session.CanControl)
+        {
+            Expect(!slots.Editable && !spies.Editable && !mercs.Editable && mode.Disabled,
+                "clients inspect bot counts and player capacity read-only");
+            return;
+        }
+        var original = session.Setup;
+        mode.EmitSignal(OptionButton.SignalName.ItemSelected, (long)BotFill.Off);
+        Expect(!spies.IsVisibleInTree() && !mercs.IsVisibleInTree(), "exact team fields hide when bots are off");
+        mode.EmitSignal(OptionButton.SignalName.ItemSelected, (long)BotFill.Custom);
+        Expect(spies.IsVisibleInTree() && mercs.IsVisibleInTree(), "Custom teams exposes both exact bot counts");
+        slots.Value = 4;
+        spies.Value = 0;
+        mercs.Value = 3;
+        Expect(room.Parameters!.Setup is { MaxPlayers: 4, Bots: BotFill.Custom, SpyBots: 0, MercBots: 3 } && session.Setup == original,
+            "slot and exact bot changes stay in the draft");
+        Expect(room.FindChild("RosterPreview", true, false) is Label roster && roster.Text.Contains("Only 2 of 3 requested bots fit", StringComparison.Ordinal),
+            "roster preview warns when human players limit requested bots");
+        Click(room, "Apply");
+        Expect(session.Setup is { MaxPlayers: 4, Bots: BotFill.Custom, SpyBots: 0, MercBots: 3 } && !room.MatchSettingsPanel!.Visible,
+            "Apply sends player slots and asymmetric bot requests");
+        Click(room, "MatchSettings");
+        slots.Value = 6;
+        spies.Value = 2;
+        Click(room, "DiscardSettings");
+        var discard = room.GetNodeOrNull<ConfirmBox>("DiscardMatchSettings");
+        Expect(discard is not null && session.Setup.MaxPlayers == 4 && session.Setup.SpyBots == 0,
+            "discarding bot changes waits for confirmation without changing the live roster");
+        discard?.Answer(true);
+        if (discard is not null) room.RemoveChild(discard);
+        Expect(room.Parameters!.Setup == session.Setup && !room.MatchSettingsPanel!.Visible, "discard restores the applied bot counts and capacity");
+        session.Setup = original;
+        session.Notify();
+        Click(room, "MatchSettings");
+    }
+
     private static void Resize(SceneTree tree, Vector2I size)
     {
         if (DisplayServer.GetName() != "headless") { DisplayServer.WindowSetMode(DisplayServer.WindowMode.Windowed); DisplayServer.WindowSetSize(size); }
@@ -412,6 +710,7 @@ public sealed class LobbyLayoutSmoke : SmokeTest
         public bool CanControl { get; set; } = true;
         public bool IsHost => CanControl;
         public LobbySetup Setup { get; set; } = new() { Map = "TestBox", TimeLimit = 10, SpyLives = 3, MercLives = 3,
+            Bots = BotFill.Custom, SpyBots = 1, MercBots = 0,
             Alternate = AlternateRules.Default with { On = true } };
         public string Map => Setup.Map;
         public string Status => "Offline practice";
@@ -420,6 +719,8 @@ public sealed class LobbyLayoutSmoke : SmokeTest
         public bool Launching { get; set; }
         public float Countdown { get; set; }
         public bool TeamVoiceOnly { get; private set; }
+        public bool RecordDemos { get; private set; }
+        public string DemoRecordingStatus => RecordDemos ? "Your matches will be saved to Demos." : "Recording is off.";
         public string MicrophoneLine => "Microphone ready";
         public LobbyMapFetch? Fetch { get; set; }
         public LobbyMapFetch? MapFetch => Fetch;
@@ -455,6 +756,7 @@ public sealed class LobbyLayoutSmoke : SmokeTest
         public void SetVoiceBanned(int id, bool banned) { }
         public void SendLook() { }
         public void SetTeamVoiceOnly(bool only) { TeamVoiceOnly = only; Notify(); }
+        public void SetRecordDemos(bool record) { RecordDemos = record; Notify(); }
         public float VoiceVolume(string name) => _volume;
         public void SetVoiceVolume(string name, float volume) { _volume = volume; }
         public bool VoiceMuted(string name) => false;

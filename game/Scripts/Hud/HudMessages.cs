@@ -88,7 +88,8 @@ public static class HudMessages
             20 => Join(name2, Texts.GrabbedAssom),
             21 => Texts.GPOChaffed,
             K.MsgDataCaptured => Join(trigger, Texts.FlagCaptured),
-            K.MsgInterrupted => Texts.ObjectiveInterrupted,
+            // Terminal hacking shares a legacy entry whose content says "Decontamination".
+            K.MsgInterrupted => "Hacking interrupted",
             24 => obj is SAlarm alarm ? alarm.AlarmDescriptionSpy : Texts.AlarmActive,
             25 => Texts.UnlockingAccess,
             26 => Texts.AccessUnlocked,

@@ -9,7 +9,8 @@ namespace OpenScct.Game.Camera;
 /// Where the view comes from each frame (spec/native/camera.md rules 1, 2, 4 and 5): the controller's calc view
 /// picks a view source by state, the camera solves the following camera or the first-person view, and the result
 /// lands in vCamLocation and rCamRotation. Run it on the machine that draws, after the tick, through
-/// <see cref="FrameView"/> (the original solves it three times a frame, twice while the HUD is in a state).
+/// <see cref="FrameView"/>. The original's shadow render can add another solve; sticky fly-in timing follows that
+/// shadow's lighting-dependent eligibility.
 /// </summary>
 public static class PlayerCalcView
 {
@@ -53,10 +54,12 @@ public static class PlayerCalcView
     /// <summary>
     /// The view of one drawn frame as the original's engine makes it: <see cref="ViewSolvesPerFrame"/> calc views with
     /// bUpdate in a row (<see cref="HudStateViewSolvesPerFrame"/> while the HUD is in a state); the last one is the view
-    /// drawn. The spy lasers' view update still runs once per tick (its own Level.TimeSeconds guard).
+    /// drawn. Sticky fly-in omits the shadow solve when the client's native shadow-light cache says its projector
+    /// is inactive. The spy lasers' view update still runs once per tick (its own Level.TimeSeconds guard).
     /// </summary>
     [PortOf("eng:ASPlayerController::NativePlayerCalcView", Spec = "spec/native/camera.md#1-calc-view-dispatch")]
-    public static void FrameView(SPlayerController PC, out Actor? ViewActor, out FVector CameraLocation, out FRotator CameraRotation)
+    public static void FrameView(SPlayerController PC, out Actor? ViewActor, out FVector CameraLocation, out FRotator CameraRotation,
+        bool stickyCamShadowUpdate = true)
     {
         ViewActor = null;
         CameraLocation = default;
@@ -64,6 +67,9 @@ public static class PlayerCalcView
         int solves = PC.myHUD is SHud { StateNode: var hudState } && !ReferenceEquals(hudState, ActorState.None)
             ? HudStateViewSolvesPerFrame
             : ViewSolvesPerFrame;
+        // Each original call advances by the full m_dT, including Reloaded's slow-start timer. Remove the call
+        // itself, rather than scaling the final displacement, so the timer and arrival transition match too.
+        if (SourceOf(PC) == EViewSource.StickyCamSmoothToPosition && !stickyCamShadowUpdate) solves--;
         for (int i = 0; i < solves; i++)
         {
             NativeGlobalPlayerCalcView(PC, out ViewActor, out CameraLocation, out CameraRotation);

@@ -183,7 +183,7 @@ public static class ProxyAnimation
     [UcNative("ASBasePawn::execNativeExecuteReceivedActionForServer", Exe = 0x10ae4030, Editor = 0x1121dba0)]
     [PortOf("nat:SBase.SBasePawn.NativeExecuteReceivedActionForServer", Spec = "spec/net/move-protocol.md#rules")]
     [Provenance(ProvenanceKind.Decoded, "editor 0x1121db40: ExecuteAction and AllActions[i] per action, sAction = the last, iNbActionForDistantClient = iNbAction = count")]
-    public static void ExecuteReceivedActionsForServer(SBasePawn pawn, ReadOnlySpan<int> actions, int count)
+    public static void ExecuteReceivedActionsForServer(SBasePawn pawn, ReadOnlySpan<int> actions, int count, Action<int>? beforeAction = null)
     {
         ArgumentNullException.ThrowIfNull(pawn);
         int n = Math.Clamp(count, 0, Math.Min(actions.Length, pawn.AllActions.Length));
@@ -199,6 +199,7 @@ public static class ProxyAnimation
         {
             for (int i = 0; i < n && !pawn.bDeleteMe; i++)
             {
+                beforeAction?.Invoke(actions[i]);
                 pawn.ExecuteAction(actions[i]);
                 pawn.AllActions[i] = actions[i];
             }

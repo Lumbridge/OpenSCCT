@@ -148,6 +148,10 @@ holstering, 7 other hand. Controller fields: `bFireMode` (InvButton alias FireMo
     2. `bLaserOn` false: the projector and the beam are destroyed. True, and not a dedicated server: an
        `SLaserProjector` (the dot) is spawned for every spy pistol; an `SLaserBeam` only when
        `Level.LocalPlayerController.Pawn == Instigator` (a spy sees only his own beam; everyone sees every dot).
+       When the local owner's dot is first created, `EventServerSound` (game helper `0x10ab8390`) plays `SndLaserOn`
+       with `SLOT_None` and radius **10**, relaying it to other listeners. It fires once per activation, including
+       a laser-on draw and switching the laser on with the pistol already drawn; steady-on ticks and switching
+       it off do not play the cue.
     3. `MyMuzzleCount < MuzzleCount`: one more per tick, and an `SMuzzleSticky` is spawned at the `FX` bone when the
        pistol's rotation has no zero component.
     4. Placement, once per `Level.TimeSeconds` from the local player's `NativePlayerCalcView` with bUpdate, for every

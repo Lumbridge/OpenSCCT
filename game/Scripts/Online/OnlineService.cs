@@ -45,6 +45,7 @@ public partial class OnlineService : Node
     private ClientSession? _noticeSession;
     private Action<string?>? _hubReturn;
     private bool _hubPlayed;
+    private long _hubDemoWaitStarted = -1;
 
     /// <summary>The visit's server on the master and its password, remembered with a round (RejoinService).</summary>
     private string? _visitMasterId;
@@ -78,6 +79,18 @@ public partial class OnlineService : Node
     public ulong ProtocolHash => Classes.ComputeProtocolHash();
 
     public IClock Clock => _clock;
+
+    public bool RecordDemos => OnlineSettings.Current.RecordDemos;
+    public string DemoRecordingStatus => Client?.DemoRecordingStatus ??
+        (RecordDemos ? "Your upcoming matches will be saved to Demos on this computer." : "Match recording is off for you.");
+
+    public void SetRecordDemos(bool enabled)
+    {
+        OnlineSettings.Current.RecordDemos = enabled;
+        OnlineSettings.Current.Save();
+        Client?.SetRecordDemos(enabled);
+        Changed?.Invoke();
+    }
 
     /// <summary>The service of <paramref name="tree"/>, made on first use.</summary>
     public static OnlineService Get(SceneTree tree)
@@ -120,6 +133,8 @@ public partial class OnlineService : Node
         InstallGameplayServices = false,
         AutoReportReady = false,
         FirePrediction = SettingsStore.Current.FirePrediction,
+        RecordDemos = OnlineSettings.Current.RecordDemos,
+        DemoFolder = OpenScctGame.Play.Demo.DemoLibrary.SavedFolder,
     };
 
     /// <summary>
@@ -169,6 +184,7 @@ public partial class OnlineService : Node
         _notes.Clear();
         _hubReturn = back;
         _hubPlayed = false;
+        _hubDemoWaitStarted = -1;
         // Team 255 watches as a spectator; the ticket (a match on the hub's master) brings the account's name.
         int preferred = team == SessionProtocol.SpectatorTeam ? team : team == 1 ? 1 : 0;
         StartVisit(new OnlineClient(target, ClientSettings(password, ticket: ticket) with { PreferredTeam = preferred }, _clock.NowMicroseconds));
@@ -194,7 +210,16 @@ public partial class OnlineService : Node
                 return false;
             case OnlineClientState.Results:
             case OnlineClientState.Lobby when _hubPlayed:
-                ReturnToHub("The match is over. Back at the pads.");
+                if (client.PendingDemoSave)
+                {
+                    if (_hubDemoWaitStarted < 0) _hubDemoWaitStarted = _clock.NowMicroseconds;
+                    if (_clock.NowMicroseconds - _hubDemoWaitStarted < OnlineClient.HubDemoWaitSeconds * 1_000_000L) return false;
+                    ReturnToHub(client.PendingTrainingSave
+                        ? "Replay saved. Its training data download did not finish within five minutes; returning to the pads without the incomplete training file."
+                        : "The demo download did not finish within five minutes. Back at the pads; the incomplete demo was not saved.");
+                    return true;
+                }
+                ReturnToHub("The match is over. Back at the pads." + (client.RecordDemos ? " " + client.DemoRecordingStatus : ""));
                 return true;
             case OnlineClientState.Failed:
                 ReturnToHub(_hubPlayed
@@ -395,17 +420,14 @@ public partial class OnlineService : Node
     private void ShowState(OnlineClient client)
     {
         OnlineClientState state = client.State;
+        // Recheck after download progress even while the results/lobby screen's state stays the same.
+        if (_hubReturn is not null && HubMatchState(client, state)) return;
         if (state == _shownState)
         {
             return;
         }
 
         _shownState = state;
-        if (_hubReturn is not null && HubMatchState(client, state))
-        {
-            return;
-        }
-
         SceneTree tree = GetTree();
         if (Hosting is null && _hubReturn is null)
         {

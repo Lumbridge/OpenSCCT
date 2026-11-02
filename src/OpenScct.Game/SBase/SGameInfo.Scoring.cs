@@ -88,6 +88,8 @@ public partial class SGameInfo
 
             XLevel?.GetService<OpenScct.Game.GameFlow.IMatchHistorySink>()?.Record("death",
                 $"{Killer?.PlayerReplicationInfo?.PlayerName ?? "Environment"} → {victim?.PlayerName ?? "Player"} ({DamageType})");
+            XLevel?.GetService<OpenScct.Game.Training.ITrainingEventSink>()?.RecordEvent("death",
+                Killer, Killed, detail: DamageType.ToString());
             BroadcastDeathMessage(Killer, Killed, DamageType);
             if ((victim?.NumLives ?? 0) < 1)
             {
@@ -286,6 +288,8 @@ public partial class SGameInfo
     {
         XLevel?.GetService<OpenScct.Game.GameFlow.IMatchHistorySink>()?.Record("objective",
             $"Objective completed: {Obj?.ObjectiveName ?? "Objective"}");
+        XLevel?.GetService<OpenScct.Game.Training.ITrainingEventSink>()?.RecordEvent("objective-completed",
+            detail: Obj?.ObjectiveName, objectId: Obj?.ActorId);
         var jingle = new AssetRef(K.ObjectiveTakenJingle);
         BroadcastMusic(jingle, EMusicTransition.MTRAN_None, 0);
         BroadcastMusic(jingle, EMusicTransition.MTRAN_None, 1);
@@ -302,6 +306,7 @@ public partial class SGameInfo
     public void NotifyDogTag()
     {
         XLevel?.GetService<OpenScct.Game.GameFlow.IMatchHistorySink>()?.Record("objective", "Dog tag collected");
+        XLevel?.GetService<OpenScct.Game.Training.ITrainingEventSink>()?.RecordEvent("dog-tag-collected");
         if (GameReplicationInfo is not null)
         {
             GameReplicationInfo.NumDogTagsTaken++;

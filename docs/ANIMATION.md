@@ -17,6 +17,7 @@ original names.
 | Aim | `src/OpenScct.Game/Animation/MeshAimIK.cs`, `game/Scripts/Views/AimPose.cs` | the upper body turned toward the aim (AimAt) |
 | Arm aim | `src/OpenScct.Game/Animation/ArmAim.cs`, `MeshBoneDirections.cs` | an upper arm turned toward the view (TurnHead's arm cases) |
 | Pose | `game/Scripts/Views/ChannelPoseApplier.cs`, `SimPawnView.cs` | the client's pose from the channels |
+| Roll collision | `src/OpenScct.Server/Maps/RollPoseContent.cs`, `RollPillPose.cs` | the installed roll clips and collision-bone offsets sampled on clients and dedicated servers |
 | View models | `game/Scripts/Views/ViewModelPose.cs`, `FirstPersonView.cs`, `PawnAttachments.cs` | first-person arms, third-person weapons |
 | Difftest | `tests/OpenScct.DiffTest/Anim` | the channels against the real game, frame by frame |
 
@@ -63,6 +64,21 @@ walk channels, the feet-ledge reset, falling (the roll fades past frame 0.65), s
 moving (the walk set on 4 to 8, copies on 9 to 13, the slow walk, the run fraction, channel 5's rate, every walk
 channel at channel 5's frame). Last it sets OldRotYaw (the post-tick does) and runs the tween cache for a drawn
 pawn. The first call fills channels 2 to 13 with AWaitSt0 loops.
+
+## Roll collision
+
+`RollPillPose` supplies `IPillPose` from the installed `SPerso/ATT_01.glb` for the four spy roll clips. It uses the
+simulation's clip clock, including the initial 0.1-second blend from locomotion, and transforms the decoded collision
+points through the same bone hierarchy, mesh orientation, pawn yaw and `PrePivot` as the rendered body. Both
+`GameplayServices` and `PlayMapLoader` install it, so the authoritative tripwire check has the pose even without
+Godot. The original laser crossing-speed rule remains unchanged; rolling does not grant laser immunity.
+
+Non-roll actions, absent clips or collision bones, and unsupported history-dependent tweens or mirrored overlays
+retain `EstimatedPillPose`. `RollLaserTests` covers beam contact through roll phases, original speed boundaries,
+placement, fallback and server/client installation with synthetic content. The `roll-collision` Godot smoke compares
+sampled collision points with the rendered skeleton across all four clips, startup blends and several yaws; a local
+converted-content run checked 660 points with maximum error below 0.0001 uu. This checks alignment with the rewrite's
+rendered animation, not a live original-game laser playthrough.
 
 ## Actions
 

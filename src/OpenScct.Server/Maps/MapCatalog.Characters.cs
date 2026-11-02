@@ -3,6 +3,7 @@ using System.IO;
 using System.Security.Cryptography;
 using OpenScct.Content;
 using OpenScct.Content.Json;
+using OpenScct.Game.Combat;
 
 namespace OpenScct.Server;
 
@@ -10,6 +11,16 @@ public sealed partial class MapCatalog
 {
     public const string CharacterContentFile = "shared/chars";
     private ulong? _characterContentHash;
+    private IPillPose? _pillPose;
+
+    /// <summary>The same content-backed roll collision geometry on clients and dedicated servers.</summary>
+    public IPillPose PillPose
+    {
+        get
+        {
+            lock (_gate) return _pillPose ??= RollPillPose.FromContent(FindCharacterContent());
+        }
+    }
 
     /// <summary>
     /// Shared character clip timing/root tracks and skeletal mesh/bone data, independent of the chosen map.

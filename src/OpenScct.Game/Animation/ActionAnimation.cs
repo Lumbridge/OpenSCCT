@@ -136,7 +136,7 @@ public static class ActionAnimation
             case SBasePawn.SA_WALK_ST_0H:
             case SBasePawn.SA_WALK_ST_2H:
             case SBasePawn.SA_RUN_ST_2H:
-                DrawAndRollOff(a);
+                DrawAndRollOff(pawn);
                 if (action is SBasePawn.SA_WALK_ST_0H or SBasePawn.SA_WALK_ST_2H or SBasePawn.SA_RUN_ST_2H)
                 {
                     // The stand walk tail (spec/native/execute-action.md): IK_Type = 0.
@@ -150,6 +150,16 @@ public static class ActionAnimation
                     SetAnimSetAfterRolling(pawn);
                 }
 
+                break;
+            // Feet-hop exits (201, 202) restore the walk set; the unarmed exit runs on immediately.
+            case SBasePawn.SA_WALK_ST_0H_AFTERFL:
+                DrawAndRollOff(pawn);
+                WalkSet(pawn, SBasePawn.SA_WALK_ST_0H);
+                SetAnimSetAfterRolling(pawn);
+                break;
+            case SBasePawn.SA_WALK_ST_2H_AFTERFL:
+                DrawAndRollOff(pawn);
+                WalkSet(pawn, SBasePawn.SA_WALK_ST_2H);
                 break;
             case SBasePawn.SA_WALK_CR_0Hto2H:
             case SBasePawn.SA_WALK_CR_2Hto0H:
@@ -611,8 +621,11 @@ public static class ActionAnimation
     }
 
     /// <summary>The walk tails' overlay reset: the draw channel off and frozen, the roll channel off.</summary>
-    private static void DrawAndRollOff(PawnAnimation a)
+    private static void DrawAndRollOff(SBasePawn pawn)
     {
+        // The stopped draw channel will not raise AnimEnd to release its transition flag.
+        pawn.bWeaponTransit = false;
+        PawnAnimation a = pawn.PawnAnim;
         a.SetBlendParams(SBasePawn.DRAWCHANNEL, 0f);
         a.SetChannelRateScale(SBasePawn.DRAWCHANNEL, 0f);
         a.SetBlendParams(SBasePawn.DBLJUMPCHANNEL, 0f);

@@ -63,6 +63,8 @@ public static class DemoLibrary
         string target = System.IO.Path.Combine(SavedFolder, System.IO.Path.GetFileName(cachedPath));
         if (!string.Equals(System.IO.Path.GetFullPath(cachedPath), System.IO.Path.GetFullPath(target), StringComparison.OrdinalIgnoreCase))
         {
+            string training = TrainingDataFile.PathForDemo(cachedPath);
+            if (File.Exists(training)) File.Move(training, TrainingDataFile.PathForDemo(target), overwrite: true);
             File.Move(cachedPath, target, overwrite: true);
         }
 
@@ -84,6 +86,7 @@ public static class DemoLibrary
             {
                 if (File.GetLastWriteTimeUtc(file) < cutoff)
                 {
+                    File.Delete(TrainingDataFile.PathForDemo(file));
                     File.Delete(file);
                 }
             }
@@ -96,7 +99,7 @@ public static class DemoLibrary
 
     /// <summary>
     /// Opens <paramref name="path"/> and enters its playback. On a failure (a damaged file, another game version, a
-    /// map not installed) it goes to the main menu with the reason and returns false.
+    /// map not installed) it returns to the demo library with the reason and returns false.
     /// </summary>
     public static bool Watch(SceneTree tree, string path)
     {
@@ -138,7 +141,8 @@ public static class DemoLibrary
     private static void Fail(SceneTree tree, string message)
     {
         GD.PushWarning("SVM_DEMO " + message);
-        UI.MainMenu menu = UI.FrontEnd.ShowMainMenu(tree);
-        menu.ShowStatus(message);
+        UI.DemosScreen library = tree.CurrentScene is UI.DemosScreen current && !current.IsQueuedForDeletion()
+            ? current : UI.FrontEnd.ShowDemos(tree);
+        library.ShowError(message);
     }
 }

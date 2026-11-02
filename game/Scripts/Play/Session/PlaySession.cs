@@ -289,6 +289,12 @@ public sealed class PlaySession : IDisposable
     /// <summary>Called on the client's thread after each client tick and its calc view (views take their tick state here).</summary>
     public Action<PlaySession, long>? AfterClientTick { get; set; }
 
+    /// <summary>
+    /// Updates the local spy's logical shadow after simulation and before calc view. Called every tick so the
+    /// original light visibility cache is warm when a sticky-camera transition starts; true adds its shadow view solve.
+    /// </summary>
+    public Func<SPlayerController, bool>? StickyCamShadowUpdate { get; set; }
+
     /// <summary>How far the clock is into the next tick after <see cref="Update"/> (0 to 1), for the render interpolation.</summary>
     public float Alpha => (float)_alpha;
 
@@ -466,7 +472,8 @@ public sealed class PlaySession : IDisposable
         _previousView = _view;
         if (LocalController is { } viewer)
         {
-            PlayerCalcView.FrameView(viewer, out _, out FVector location, out FRotator rotation);
+            bool stickyCamShadow = StickyCamShadowUpdate?.Invoke(viewer) ?? true;
+            PlayerCalcView.FrameView(viewer, out _, out FVector location, out FRotator rotation, stickyCamShadow);
             if (viewer.Pawn is SBasePawn { NetworkCorrectionSeconds: > 0f } corrected &&
                 PlayerCalcView.SourceOf(viewer) is PlayerCalcView.EViewSource.Default)
             {
@@ -600,6 +607,7 @@ public sealed class PlaySession : IDisposable
         }
 
         _disposed = true;
+        StickyCamShadowUpdate = null;
         Client.BeforeWorldTick -= ApplyClientInput;
         Stop();
         if (_remote)

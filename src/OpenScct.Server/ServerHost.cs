@@ -222,7 +222,7 @@ public sealed class ServerHost : INetworkNotify, IDisposable
         LagCompensation.Enabled = Settings.LagCompensation;
         if (Game is not null)
         {
-            GameplayServices.Install(World.Level, Map.Physics, maps.PawnAnimations);
+            GameplayServices.Install(World.Level, Map.Physics, maps.PawnAnimations, maps.PillPose);
             Combat = NetCombatBridge.Install(World.Level, Driver);
             DeviceEvents = NetDeviceEvents.InstallServer(World.Level, Driver);
             HearSound = NetHearSound.InstallServer(World, Driver);
@@ -348,6 +348,7 @@ public sealed class ServerHost : INetworkNotify, IDisposable
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
         PawnStates.BeginServerTick();
+        Recorder?.CaptureTraining();
         Driver.TickDispatch(nowMicros);
         Driver.PrepareSendFrame(nowMicros);
         Movement.BeforeServerTick();
@@ -482,7 +483,9 @@ public sealed class ServerHost : INetworkNotify, IDisposable
         // A recorder never takes a spectator place from a player.
         game.MaxSpectators++;
         string error = string.Empty;
-        PlayerController? pc = game.Login(string.Empty, NativeUrl.Rebuild("?Name=Demo?SpectatorOnly=true"), ref error);
+        // SGameInfo uses SpectatorOnly for admission, but Team=255 selects its spectator login path.
+        // Without that team the recorder becomes a playing spy and can occupy the last human slot.
+        PlayerController? pc = game.Login(string.Empty, NativeUrl.Rebuild("?Name=Demo?SpectatorOnly=true?Team=255"), ref error);
         if (pc is null)
         {
             game.MaxSpectators--;
@@ -499,7 +502,10 @@ public sealed class ServerHost : INetworkNotify, IDisposable
         connection.Actor = pc;
         connection.bJoined = true;
         game.PostLogin(pc);
+        // The hidden recorder has no client loading page to report readiness to the match start gate.
+        if (pc.PlayerReplicationInfo is { } pri) pri.bWaitingPlayer = true;
         Driver.ResetConnectionPing(connection);
+        recorder.StartTraining();
         return recorder;
     }
 

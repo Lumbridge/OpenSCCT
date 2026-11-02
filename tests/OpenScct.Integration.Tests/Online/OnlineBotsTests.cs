@@ -25,6 +25,72 @@ public sealed class OnlineBotsTests
     private static bool TestBoxMissing => WalkerRig.Maps.FindFolder(MapCatalog.TestBox) is null;
 
     [Fact]
+    public void CustomTeamsKeepTheirRequestedCountsAndMakeRoomForHumans()
+    {
+        var custom = new LobbySetup { MaxPlayers = 4, Bots = BotFill.Custom, SpyBots = 0, MercBots = 3 };
+        Assert.Equal((0, 3), OnlineBotRoster.Wanted(custom, 1, 0, 4));
+        Assert.Equal((0, 2), OnlineBotRoster.Wanted(custom, 1, 1, 4));
+        Assert.Equal((0, 0), OnlineBotRoster.Wanted(custom, 3, 1, 4));
+        Assert.Equal((3, 0), OnlineBotRoster.Wanted(custom with { SpyBots = 3, MercBots = 0 }, 0, 1, 4));
+        Assert.Equal((7, 0), OnlineBotRoster.Wanted(custom with { SpyBots = 8, MercBots = 0 }, 0, 1, 8));
+        Assert.Equal((1, 1), OnlineBotRoster.Wanted(custom with { SpyBots = 8, MercBots = 8 }, 1, 1, 4));
+        Assert.Equal((0, 3), OnlineBotRoster.Wanted(custom with { Mode = EGameMode.GM_MercDeathMatch, SpyBots = 4 }, 0, 1, 8));
+        Assert.Equal((0, 7), OnlineBotRoster.Wanted(custom with { Mode = EGameMode.GM_MercDeathMatch, MercBots = 8 }, 0, 1, 8));
+    }
+
+    [Fact]
+    public void CustomCountsRoundTripWithoutChangingExistingBotModes()
+    {
+        var custom = new LobbySetup { Bots = BotFill.Custom, SpyBots = 0, MercBots = 7, MaxPlayers = 8, BotSkill = AiSkill.Hard };
+        Assert.Equal(3, (int)BotFill.Custom);
+        Assert.Equal(custom, LobbySetup.FromOptions(custom.ToOptions()));
+        Assert.Equal((0, 8), (new LobbySetup { SpyBots = -4, MercBots = 99 }.Clamped() is var limits ? (limits.SpyBots, limits.MercBots) : default));
+        Assert.Equal((0, 7), (LobbySetup.FromOptions("?TimeLimit=9", custom) is var partial ? (partial.SpyBots, partial.MercBots) : default));
+        foreach (BotFill mode in new[] { BotFill.Off, BotFill.PerSide, BotFill.Fill })
+        {
+            var legacy = LobbySetup.FromOptions($"?SvmBots={(int)mode}?SvmBotsPerSide=2");
+            Assert.Equal(mode, legacy.Bots);
+            Assert.Equal((0, 0), (legacy.SpyBots, legacy.MercBots));
+        }
+    }
+
+    [Fact]
+    public void CustomBotsFollowLiveLobbyCapacityAndKeepHumansWhenItShrinks()
+    {
+        var settings = OnlineRig.Settings(MapCatalog.TestBox) with
+        {
+            Dedicated = false, HostKey = "k", MaxPlayers = 4,
+            Bots = (_, _, _) => throw new InvalidOperationException("This test stays in the lobby."),
+        };
+        settings = settings with { Setup = settings.Setup with { Bots = BotFill.Custom, SpyBots = 0, MercBots = 3 } };
+        var clock = new VirtualClock();
+        var network = new SimLinkNetwork(clock, 5, SimLinkProfile.A);
+        using var rig = new OnlineRig(new OnlineServer(network.Bind("server"), settings, clock.NowMicroseconds), clock);
+        OnlineClient Join(string name, int team, string? key = null) => rig.Add(new OnlineClient(
+            JoinTarget.Custom("Bots server", () => network.Bind(name), "server"),
+            OnlineRig.ClientSettings(name, team) with { HostKey = key }, rig.Now));
+        OnlineClient host = Join("Host", 0, "k");
+        Assert.True(rig.RunUntil(() => host.State == OnlineClientState.Lobby && host.Lobby.Players.Count == 4, 10));
+        Assert.Equal(3, host.Lobby.Players.Count(p => p.IsBot && p.Team == 1));
+        Assert.DoesNotContain(host.Lobby.Players, p => p.IsBot && p.Team == 0);
+
+        OnlineClient guest = Join("Guest", 1);
+        Assert.True(rig.RunUntil(() => guest.State == OnlineClientState.Lobby && host.Lobby.HumanCount == 2 &&
+            host.Lobby.Players.Count(p => p.IsBot) == 2, 10));
+        host.SetSetup(host.Lobby.Setup with { MaxPlayers = 6 });
+        Assert.True(rig.RunUntil(() => guest.Lobby.MaxPlayers == 6 && host.Lobby.Players.Count(p => p.IsBot) == 3, 10));
+        Assert.Equal(6, rig.Server.Info().MaxPlayers);
+
+        host.SetSetup(host.Lobby.Setup with { MaxPlayers = 2 });
+        Assert.True(rig.RunUntil(() => guest.Lobby.MaxPlayers == 2 && host.Lobby.Players.Count == 2, 10));
+        Assert.All(host.Lobby.Players, p => Assert.False(p.IsBot));
+        Assert.Equal(3, rig.Server.Setup.MercBots); // Requested count survives a temporary lack of slots.
+        Assert.Equal(OnlineClientState.Lobby, guest.State);
+        host.SetSetup(host.Lobby.Setup with { MaxPlayers = 5 });
+        Assert.True(rig.RunUntil(() => host.Lobby.Players.Count == 5 && host.Lobby.Players.Count(p => p.IsBot) == 3, 10));
+    }
+
+    [Fact]
     public void TheRosterFillsEmptyPlacesAndNeverTakesAPersonsPlace()
     {
         var fill = new LobbySetup { Bots = BotFill.Fill };

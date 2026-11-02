@@ -295,6 +295,7 @@ public sealed class HubPads
         {
             BotFill.Fill => pad.Default.Bots == BotFill.Fill && pad.Default.MinPlayers > 0 ? pad.Default.MinPlayers : 1,
             BotFill.PerSide => Math.Max(1, slots - 2 * s.BotsPerSide),
+            BotFill.Custom => Math.Max(1, slots - (mercsOnly ? 0 : s.SpyBots) - s.MercBots),
             _ => 0,
         };
         var config = pad.Default with
@@ -933,7 +934,12 @@ public sealed class HubPads
 
         if (s.Bots != BotFill.Off)
         {
-            parts.Add(s.Bots == BotFill.Fill ? "bots fill" : string.Create(CultureInfo.InvariantCulture, $"{s.BotsPerSide} bot(s) a side"));
+            parts.Add(s.Bots switch
+            {
+                BotFill.Fill => "bots fill",
+                BotFill.Custom => string.Create(CultureInfo.InvariantCulture, $"{(s.Mode == EGameMode.GM_MercDeathMatch ? 0 : s.SpyBots)} spy / {s.MercBots} merc bots"),
+                _ => string.Create(CultureInfo.InvariantCulture, $"{s.BotsPerSide} bot(s) a side"),
+            });
         }
 
         if (s.Alternate.On)

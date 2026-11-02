@@ -287,6 +287,8 @@ public partial class SPlayerController
 
         CountPoisonDrain();
         victim.Health -= actualDamage;
+        XLevel?.GetService<OpenScct.Game.Training.ITrainingEventSink>()?.RecordEvent("damage",
+            killer, this, actualDamage, DamageType.ToString());
         if (DamageType == SDamageType.SDamage_Poison && bCountForStats)
         {
             PoisonInstigator = killer;
