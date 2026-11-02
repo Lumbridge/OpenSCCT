@@ -166,7 +166,77 @@ public sealed class LaserAlignmentSmoke : SmokeTest
             if (error > .1f) return SmokeResult.Fail($"shocker aim mismatch {error:F3} uu");
             cases++;
         }
+        if (CheckSpyDrawnFrame(context, spy, spyPc, shocker, wall) is { } spyFrameFailure)
+            return SmokeResult.Fail(spyFrameFailure);
         return SmokeResult.Pass($"{weapons.Count + 1} guns, {cases} shot comparisons, {reloadFrames} reload frames; worst aim error {worst:F4} uu");
+    }
+
+    private static string? CheckSpyDrawnFrame(SmokeContext context, SPawnAttaque spy, SPlayerController pc,
+        SWeaponAttaque shocker, Wall wall)
+    {
+        var pawns = new PawnViews();
+        var lasers = new SpyLaserView { Pawns = pawns };
+        context.Tree.Root.AddChild(pawns);
+        context.Tree.Root.AddChild(lasers);
+        shocker.LaserBeam = spy.XLevel.SpawnActor(new SLaserBeam(), spy.Location, default, shocker, spy);
+        shocker.LaserProjector = spy.XLevel.SpawnActor(new SLaserProjector(), spy.Location, default, shocker, spy);
+        try
+        {
+            spy.WeaponLoaded = 2;
+            spy.bIsCrouched = false;
+            pc.Rotation = default;
+            pawns.OnTick(spy.XLevel);
+            spy.Location += new FVector(12, 6, 3);
+            pawns.OnTick(spy.XLevel);
+            if (pawns.ViewOf(spy) is not { } view) return "missing spy model for laser frame check";
+            wall.Normal = new FVector(1, 0, 0);
+            wall.Distance = spy.Location.X + 1500f;
+            FVector? previous = null;
+            int checks = 0;
+            foreach (float alpha in new[] { 0f, .25f, .75f, 1f })
+            foreach (int yaw in new[] { -6000, -3000, 0, 3000, 6000 })
+            {
+                var aim = new FRotator(1500, yaw, 0);
+                pawns.Draw(alpha, 0f, null, spy, aim);
+                lasers.Draw(spy.XLevel);
+                FCoords shot = CombatNatives.SpyPistolCoords(spy, aim);
+                shot.Origin += view.DrawnLocation - spy.Location;
+                FVector shotStart = SWeaponAttaque.GetAxesAndLocation(shot.Origin, shot.XAxis.Rotation(),
+                    out FVector direction, out _, out _);
+                var expected = wall.TraceBone(shocker, shotStart + direction * shocker.ShootingRange, shotStart, false);
+                if (FVector.Dist(lasers.BeamEnd, expected.HitLocation) > .1f)
+                    return "spy laser lagged behind the rendered aim or interpolated body";
+                if (FVector.Dist(lasers.DotAt, lasers.BeamEnd) > .51f)
+                    return "spy dot detached from the current beam endpoint";
+                if (previous is { } last && FVector.Dist(last, lasers.BeamEnd) < 1f)
+                    return "spy laser did not move between simulation ticks";
+                previous = lasers.BeamEnd;
+                FVector start = lasers.BeamStart, end = lasers.BeamEnd;
+                FVector savedLocation = spy.Location;
+                FRotator savedAim = pc.Rotation;
+                spy.Location += new FVector(45, -30, 15);
+                pc.Rotation = new FRotator(-4000, 20000, 0);
+                lasers.Draw(spy.XLevel);
+                spy.Location = savedLocation;
+                pc.Rotation = savedAim;
+                if (FVector.Dist(start, lasers.BeamStart) > .01f || FVector.Dist(end, lasers.BeamEnd) > .01f)
+                    return "spy laser mixed stale simulation placement with the rendered frame";
+                if (lasers.BeamsDrawn != 1 || lasers.DotsDrawn != 1 || lasers.GetChildCount() != 2)
+                    return "spy aim sweep left extra laser meshes behind";
+                checks++;
+            }
+            GD.Print($"SVM_LASER spy: {checks} between-tick aim/body frames; one dot at the current endpoint");
+            return null;
+        }
+        finally
+        {
+            pawns.Free();
+            lasers.Free();
+            shocker.LaserBeam?.Destroy();
+            shocker.LaserBeam = null;
+            shocker.LaserProjector?.Destroy();
+            shocker.LaserProjector = null;
+        }
     }
 
     private static string? CheckBeamAnimation()

@@ -377,7 +377,14 @@ public sealed class PlayLasersSmoke : SmokeTest
         st.WorstFit = MathF.Max(st.WorstFit, FVector.Dist(hand.Origin, OpenScct.Game.Combat.CombatNatives.SpyPistolCoords(pawn, PC!.Rotation).Origin));
         st.Sample ??= string.Create(CultureInfo.InvariantCulture,
             $"pawn {pawn.Location} crouched {pawn.bIsCrouched} view {PC!.Rotation} hand {hand.Origin} pistol fit {Fit(pawn)} beam {start} -> {lasers.BeamEnd} want {want} FX {muzzle}");
-        var expectedBeam = OpenScctGame.Fx.SpyLaserView.TraceReadyBeam(Pistol!, start);
+        FCoords? drawnShot = null;
+        if (_root.Pawns.ViewOf(pawn) is { DrawnView: { } aim } drawn)
+        {
+            FCoords shot = OpenScct.Game.Combat.CombatNatives.SpyPistolCoords(pawn, aim);
+            shot.Origin += drawn.DrawnLocation - pawn.Location;
+            drawnShot = shot;
+        }
+        var expectedBeam = OpenScctGame.Fx.SpyLaserView.TraceReadyBeam(Pistol!, start, drawnShot);
         if (FVector.Dist(lasers.BeamEnd, expectedBeam.Hit) > 1f)
         {
             return Fail("the ready spy laser disagrees with the shocker ballistic target");

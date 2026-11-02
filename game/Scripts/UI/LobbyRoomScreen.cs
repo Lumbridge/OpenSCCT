@@ -275,6 +275,7 @@ public partial class LobbyRoomScreen : MenuPage
         {
             Parameters.Changed -= ShowMapPicture;
             Parameters.Changed -= ShowAlternateButton;
+            Parameters.Changed -= UpdateSettingsDraft;
         }
     }
 
@@ -686,12 +687,7 @@ public partial class LobbyRoomScreen : MenuPage
             SpectateButton.Disabled = locked || local?.Side is null;
         }
         if (_rulesButton is not null) _rulesButton.Text = "Session Options";
-        if (_draftStatus is not null)
-        {
-            _draftStatus.Visible = control && Parameters!.Setup != s.Setup;
-            _draftStatus.Text = _draftConflict ? "The match changed while you were editing. Review your draft before applying." : "Unapplied changes — open match settings to review.";
-            if (_settingsDraftNote is not null) _settingsDraftNote.Text = _draftStatus.Visible ? _draftStatus.Text : "The overview shows the live match. Apply changes sends your draft to the server.";
-        }
+        UpdateSettingsDraft();
 
         if (_messages is not null && (s.Messages.Count != _shownMessages || _activity.Count != _shownActivity))
         {
@@ -809,6 +805,7 @@ public partial class LobbyRoomScreen : MenuPage
     public override void _Process(double delta)
     {
         base._Process(delta);
+        if (_settingsPanel is { Visible: true }) LobbyPanels.FitDialog(_settingsPanel, Size, new Vector2(1180, 700));
         if (Session is not { } s || _status is null)
         {
             return;

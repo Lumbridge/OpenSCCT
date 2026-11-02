@@ -90,6 +90,9 @@ public sealed class ChannelPoseApplier
     private readonly float[] _cacheFrame = new float[64];
     private readonly string?[] _cacheSequence = new string?[64];
     private bool _hasFrom;
+    private bool _hadRootLock;
+    private Vector3 _lockedRootPosition;
+    private Quaternion _lockedRootRotation;
 
     // The diagnostic compares the cached path with the original unconditional submissions on a second skeleton.
     internal bool ReuseUnchangedPoses { get; set; } = true;
@@ -292,6 +295,15 @@ public sealed class ChannelPoseApplier
     public void Apply(ReadOnlySpan<ChannelPose> channels, RootLock rootLock = RootLock.None, float lockClipFrame = 0f,
         Vector3? rootOffset = null, Quaternion? rootTurn = null)
     {
+        bool hasRootLock = rootLock != RootLock.None && RootBone >= 0 && channels.Length > 0 && channels[0].Clip is not null;
+        if (_hadRootLock && !hasRootLock && RootBone >= 0)
+        {
+            // Physics already carried the root displacement of the outgoing climb. Once it unlocks,
+            // a waist-grab/fall tween must inherit the visible root, not the raw clip's displaced root.
+            // Only transfer it at the handoff: caching the lock on every frame would apply it twice.
+            _fromPos[RootBone] = _lockedRootPosition;
+            _fromRot[RootBone] = _lockedRootRotation;
+        }
         Array.Copy(_restPos, _pos, _count);
         Array.Copy(_restRot, _rot, _count);
         Array.Copy(_restScale, _scale, _count);
@@ -321,10 +333,13 @@ public sealed class ChannelPoseApplier
         Array.Copy(_rot, _fromRot, _count);
         Array.Copy(_scale, _fromScale, _count);
 
-        if (rootLock != RootLock.None && RootBone >= 0 && channels.Length > 0 && channels[0].Clip is { } clip0)
+        if (hasRootLock)
         {
-            LockRoot(channels[0], clip0, rootLock, lockClipFrame, rootOffset, rootTurn);
+            LockRoot(channels[0], channels[0].Clip!, rootLock, lockClipFrame, rootOffset, rootTurn);
+            _lockedRootPosition = _pos[RootBone];
+            _lockedRootRotation = _rot[RootBone];
         }
+        _hadRootLock = hasRootLock;
 
         TurnAimBone();
         TurnDirectedBones();

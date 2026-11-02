@@ -41,6 +41,8 @@ public partial class SimPawnView : Node3D
     /// <summary>The drawn body still includes the airborne endpoint of a landing interpolation.</summary>
     public bool InterpolatingFromAirborne { get; private set; }
     public float DrawAlpha { get; private set; }
+    /// <summary>The body origin used by the current rendered pose, including network correction and interpolation.</summary>
+    public FVector DrawnLocation { get; private set; }
     /// <summary>The actual interpolated channels submitted for the last drawn pose, for pose diagnostics.</summary>
     internal ReadOnlySpan<ChannelPose> DrawnChannels => _channels;
     private uint _networkReset;
@@ -366,6 +368,7 @@ public partial class SimPawnView : Node3D
         InterpolatingFromAirborne = _physics == OpenScct.Core.Engine.EPhysics.PHYS_Walking &&
             _previousPhysics == OpenScct.Core.Engine.EPhysics.PHYS_Falling && alpha < 1f;
         FVector location = _prevLocation + (_location - _prevLocation) * alpha;
+        DrawnLocation = location;
         // The mesh is drawn at Location + PrePivot. A crouch or stand-up moves the cylinder and changes PrePivot by the
         // same amount in one tick (the mesh stays put), so both are interpolated together.
         FVector prePivot = _prevPrePivot + (_prePivot - _prevPrePivot) * alpha;

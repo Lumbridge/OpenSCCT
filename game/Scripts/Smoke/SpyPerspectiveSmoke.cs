@@ -20,7 +20,7 @@ public sealed class SpyPerspectiveSmoke : SmokeTest
     private string? _oldBehavior;
     private int _phase;
     private long _at;
-    private int _firstFrames, _thirdFrames, _crouchedFrames, _standingFrames;
+    private int _firstFrames, _thirdFrames, _crouchedFrames, _standingFrames, _armedFrames;
     private bool _placed;
     private bool _standQueued;
     private SmokeResult _result;
@@ -59,7 +59,7 @@ public sealed class SpyPerspectiveSmoke : SmokeTest
         long elapsed = session.TicksRun - _at;
         if (elapsed > 240) return Finish(SmokeResult.Fail($"phase {_phase} timed out in {pc.GetStateName()}"));
 
-        bool expectedFirst = _phase is 1 or 2 or 4 or 6 or 7;
+        bool expectedFirst = _phase is 1 or 2 or 4 or 6 or 7 or 11;
         if (_phase > 0 && elapsed > 6)
         {
             if (pc.SpyFirstPersonActive != expectedFirst || body.ShadowOnly != expectedFirst)
@@ -70,8 +70,11 @@ public sealed class SpyPerspectiveSmoke : SmokeTest
                 _firstFrames++;
                 if (pawn.bIsCrouched) _crouchedFrames++;
                 else _standingFrames++;
+                if (pawn.WeaponLoaded == 2) _armedFrames++;
                 FVector eye = camera.Current.Location;
                 FVector relative = eye - pawn.Location;
+                if (relative.Z < 15f)
+                    return Finish(SmokeResult.Fail($"phase {_phase}: eye dropped below the stance's head ({relative}; eye height {pawn.EyeHeight}; base eye height {pawn.BaseEyeHeight})"));
                 // This also detects a stale third-person look-ahead orbit on the first-person view.
                 if (relative.X * relative.X + relative.Y * relative.Y > pawn.CollisionRadius * pawn.CollisionRadius ||
                     Math.Abs(relative.Z) > pawn.CollisionHeight)
@@ -147,8 +150,25 @@ public sealed class SpyPerspectiveSmoke : SmokeTest
                 Next(session);
                 break;
             case 8 when elapsed >= 20:
-                return Finish(_standingFrames > 10 && _thirdFrames > 10 && _crouchedFrames > 10
-                    ? SmokeResult.Pass($"toggle retains first person on release; hold returns on release/focus loss; {_firstFrames} safe rendered first-person frames ({_standingFrames} standing, {_crouchedFrames} crouched) beside a wall; own body restored across {_thirdFrames} third-person frames")
+                input.Key(ControlActions.VirtualPrefix + "Y:ready", true);
+                Next(session);
+                break;
+            case 9 when elapsed >= 6:
+                input.Key(ControlActions.VirtualPrefix + "Y:ready", false);
+                Next(session);
+                break;
+            case 10 when elapsed >= 60:
+                if (pawn.WeaponLoaded != 2) return Finish(SmokeResult.Fail("the spy did not draw the weapon before changing perspective"));
+                input.Key(PerspectiveKey, true);
+                Next(session);
+                break;
+            case 11 when elapsed >= 30:
+                input.Key(PerspectiveKey, false);
+                Next(session);
+                break;
+            case 12 when elapsed >= 20:
+                return Finish(_standingFrames > 10 && _thirdFrames > 10 && _crouchedFrames > 10 && _armedFrames > 10
+                    ? SmokeResult.Pass($"toggle retains first person on release; hold returns on release/focus loss; {_firstFrames} safe rendered first-person frames ({_standingFrames} standing, {_crouchedFrames} crouched, {_armedFrames} with the weapon drawn) beside a wall; own body restored across {_thirdFrames} third-person frames")
                     : SmokeResult.Fail("not enough rendered perspective samples"));
         }
         return SmokeResult.Running;

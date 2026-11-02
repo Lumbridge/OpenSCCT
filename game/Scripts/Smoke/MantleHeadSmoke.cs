@@ -59,6 +59,7 @@ public sealed class MantleHeadSmoke : SmokeTest
                     checks += Sample(model, applier, "WaitStAlFd0", 8, 8f, drawFps, RootLock.None);
                     checks += Sample(model, applier, name, 7, 15f, drawFps, RootLock.Translation | RootLock.Yaw, tween: 0.1f);
                 }
+                checks += CheckRootUnlock(model, mirrors, drawFps);
             }
 
             _result = $"{checks} head attachment poses; both leading feet; wall/waist/feet mantles at 30/60/144 fps";
@@ -71,6 +72,36 @@ public sealed class MantleHeadSmoke : SmokeTest
         }
         catch (Exception error) { return SmokeResult.Fail(error.ToString()); }
         finally { model.Root.Free(); }
+    }
+
+    private static int CheckRootUnlock(SkeletalModel model, System.Collections.Generic.IReadOnlyList<int> mirrors, int drawFps)
+    {
+        int checks = 0;
+        foreach (bool mirror in new[] { false, true })
+        {
+            var applier = new ChannelPoseApplier(model.Skeleton, mirrors, model.PackageBones);
+            // The wall climb's root has risen inside the source clip, but physics already carried that rise.
+            // The next waist-grab tween must start from the locked pose, without adding that rise a second time.
+            ChannelPose climb = new() { Clip = model.Sampler.Find("WljpStAlUwL"), Sequence = "WljpStAlUwL",
+                Frame = 0.5f, ClipFrame = 0.5f, Frames = 13, Fps = 30f, Alpha = 1f, Mirror = mirror };
+            applier.Apply([climb], RootLock.Translation);
+            Vector3 before = model.CurrentBonePose(applier.FindBone("B Head")).Origin;
+            ChannelPose grab = new() { Clip = model.Sampler.Find("LedgStAlBQ0"), Sequence = "LedgStAlBQ0",
+                Frame = -0.5f, Frames = 2, Fps = 15f, Alpha = 1f };
+            applier.Apply([grab]);
+            RequireNear(before, model.CurrentBonePose(applier.FindBone("B Head")).Origin,
+                $"wall climb root unlock mirror={mirror} fps={drawFps}");
+            RequireHeadAttached(model, "wall climb root unlock");
+            checks++;
+            for (int i = 1; i <= (int)MathF.Ceiling(0.08f * drawFps); i++)
+            {
+                grab.Frame = -Math.Max(0f, 1f - i / (0.08f * drawFps)) / grab.Frames;
+                applier.Apply([grab]);
+                RequireHeadAttached(model, "wall climb root unlock tween");
+                checks++;
+            }
+        }
+        return checks;
     }
 
     private static int Sample(SkeletalModel model, ChannelPoseApplier applier, string name, int frames, float fps,

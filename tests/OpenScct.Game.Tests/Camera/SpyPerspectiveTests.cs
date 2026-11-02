@@ -90,13 +90,42 @@ public sealed class SpyPerspectiveTests
         var spy = (SPawnAttaque)rig.Pawn;
         spy.EyeHeight = 1000f; // The old standing eye may survive until its ordinary height smoothing catches up.
         FVector eye = SpyPerspectiveCamera.EyeLocation(spy);
-        Assert.Equal(spy.Location.Z + spy.CollisionHeight - SpyPerspectiveCamera.DefaultClearance, eye.Z);
+        Assert.Equal(spy.Location.Z + System.MathF.Min(spy.BaseEyeHeight,
+            spy.CollisionHeight - SpyPerspectiveCamera.DefaultClearance), eye.Z);
         Assert.True(SpyPerspectiveCamera.TryConstrain(spy, spy.Location + V(1000, 1000, 1000), out FVector safe));
         FVector offset = safe - spy.Location;
         Assert.True(offset.Z + SpyPerspectiveCamera.DefaultClearance <= spy.CollisionHeight);
         float cornerX = System.MathF.Abs(offset.X) + SpyPerspectiveCamera.DefaultClearance;
         float cornerY = System.MathF.Abs(offset.Y) + SpyPerspectiveCamera.DefaultClearance;
         Assert.True(cornerX * cornerX + cornerY * cornerY <= spy.CollisionRadius * spy.CollisionRadius + 0.01f);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void ArmedEyeViewDoesNotInheritThePreviousHeightAfterAClimb(bool crouched)
+    {
+        PawnRig rig = Rig(PawnTeam.Spy, crouched: crouched);
+        var spy = (SPawnAttaque)rig.Pawn;
+        SPlayerController pc = rig.Controller;
+        spy.WeaponLoaded = 2;
+        pc.GotoState(crouched ? MovementStateNames.s_PlayerWalkingCr2H : MovementStateNames.s_PlayerWalkingSt2H);
+        // The original UpdateEyeHeight deliberately preserves the previous world height after a
+        // vertical move. Its lower clamp is below the body's centre, unsuitable as a new eye-view anchor.
+        spy.OldZ = spy.Location.Z - 200f;
+        spy.UpdateEyeHeight(Sim.DeltaTime);
+        Assert.True(spy.EyeHeight < 0f);
+        float originalEyeHeight = spy.EyeHeight;
+        pc.bBehindView = true;
+        pc.ViewTarget = spy;
+        pc.SetSpyFirstPerson(true);
+
+        PlayerCalcView.FrameView(pc, out _, out FVector eye, out _);
+        Assert.True(pc.SpyFirstPersonActive);
+        Assert.Equal(spy.Location.Z + System.MathF.Min(spy.BaseEyeHeight,
+            spy.CollisionHeight - SpyPerspectiveCamera.DefaultClearance), eye.Z);
+        Assert.True(eye.Z > spy.Location.Z);
+        Assert.Equal(originalEyeHeight, spy.EyeHeight); // Local perspective must not change combat's eye offset.
     }
 
     [Theory]

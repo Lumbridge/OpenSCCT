@@ -22,7 +22,11 @@ public static class SpyPerspectiveCamera
     public static FVector EyeLocation(SPawnAttaque pawn, float clearance = DefaultClearance)
     {
         float height = MathF.Max(0f, pawn.CollisionHeight - clearance);
-        return pawn.Location + new FVector(0f, 0f, Math.Clamp(pawn.EyeHeight, -height, height));
+        // EyeHeight belongs to the original camera's vertical smoothing. After a climb or position
+        // correction it may preserve the old world height below the body's centre. Entering the
+        // optional eye view must start at the current stance's eyes, not inherit that stale offset.
+        // Rendering already interpolates successive eye samples; collision constrains the final view.
+        return pawn.Location + new FVector(0f, 0f, Math.Clamp(pawn.BaseEyeHeight, 0f, height));
     }
 
     /// <summary>

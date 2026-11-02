@@ -1003,6 +1003,9 @@ public sealed partial class PhysicsDriver
         l.Z = 0f;
         if (l.IsZero())
         {
+            // No usable ledge remains. Detect states wait for TopSynchro and cannot recover from
+            // an empty segment on their own; use the same release path as an obstructed hold.
+            pc?.eventNoGE();
             return;
         }
 

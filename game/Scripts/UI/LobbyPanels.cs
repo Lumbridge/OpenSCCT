@@ -30,6 +30,19 @@ public static class LobbyPanels
         return button;
     }
 
+    /// <summary>Keep a dialog centered at a readable size, including after a live window resize.</summary>
+    public static void FitDialog(Control panel, Vector2 available, Vector2 preferred)
+    {
+        Vector2 size = new(Math.Min(preferred.X, Math.Max(1f, available.X - 32f)),
+            Math.Min(preferred.Y, Math.Max(1f, available.Y - 32f)));
+        if (panel.Size.IsEqualApprox(size) && panel.Position.IsEqualApprox((available - size) / 2f) &&
+            panel.AnchorLeft == 0 && panel.AnchorRight == 0 && panel.AnchorTop == 0 && panel.AnchorBottom == 0) return;
+        // Set both anchors and offsets: changing the center anchors alone retains stale negative offsets.
+        panel.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.TopLeft);
+        panel.Size = size;
+        panel.Position = (available - panel.Size) / 2f;
+    }
+
     public static void ExpandBody(VBoxContainer body)
     {
         Node centre = body.GetParent();

@@ -312,6 +312,8 @@ public sealed partial class MercLaserView : Node3D
         {
             ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded,
             AlbedoColor = new Color(1f, 0.15f, 0.1f, 1f),
+            AlbedoTexture = Map?.Textures.Get("sfx.Flare.ATT_flare") ?? CoronaFallback(),
+            Transparency = BaseMaterial3D.TransparencyEnum.Alpha,
             BlendMode = BaseMaterial3D.BlendModeEnum.Add,
             BillboardMode = BaseMaterial3D.BillboardModeEnum.Enabled,
             NoDepthTest = false,
@@ -330,6 +332,21 @@ public sealed partial class MercLaserView : Node3D
         _beams[laser] = (beam, dot);
         return (beam, dot);
     }
+
+    // A corona must fade to black/transparent at its edges; an untextured additive quad is a red square.
+    private static Texture2D CoronaFallback() => new GradientTexture2D
+    {
+        Width = 64,
+        Height = 64,
+        Fill = GradientTexture2D.FillEnum.Radial,
+        FillFrom = new Vector2(0.5f, 0.5f),
+        FillTo = new Vector2(0.5f, 0f),
+        Gradient = new Gradient
+        {
+            Offsets = new[] { 0f, 0.3f, 1f },
+            Colors = new[] { Colors.White, new Color(0.5f, 0.5f, 0.5f, 0.5f), new Color(0f, 0f, 0f, 0f) },
+        },
+    };
 
     /// <summary>
     /// The beam is hidden where the local merc's first-person arms and rifle are drawn (they mark the stencil,

@@ -58,6 +58,45 @@ public sealed class ShockerDrawTests
 
     private static int First(List<Frame> t, System.Func<Frame, bool> p) => t.FindIndex(x => p(x));
 
+    [Theory]
+    [InlineData(false, 1)]
+    [InlineData(false, -1)]
+    [InlineData(true, 1)]
+    [InlineData(true, -1)]
+    public void CompletedDrawEntersGunViewWhileThePlayerKeepsTurning(bool crouched, int direction)
+    {
+        PawnRig rig = Rig(PawnTeam.Spy, crouched: crouched, options: new PawnRigOptions
+        {
+            Hooks = new OpenScct.Game.Camera.CameraMovementHooks(),
+        });
+        OpenScct.Game.Equipment.CombatEquipment.Install(rig.Level);
+        SStickyShocker gun = rig.Level.SpawnActor(new SStickyShocker(), rig.Pawn.Location, rig.Pawn.Rotation)!;
+        gun.Instigator = rig.Pawn;
+        gun.SetOwner(rig.Pawn);
+        gun.GiveTo(rig.Pawn);
+        int transition = -1;
+        int armed = -1;
+        for (int frame = 0; frame < 90; frame++)
+        {
+            // Keep the view just ahead of the body's limited draw turn every tick, including across yaw wrap.
+            FRotator view = new(0, rig.Pawn.Rotation.Yaw + direction * 12000, 0);
+            rig.Step(new PlayerInputFrame { bFireMode = (byte)(frame < 6 ? 1 : 0), View = view });
+            if (rig.Controller.StateNode is SPlayerController.s_PlayerWalkingMario_T_0HTo2H && transition < 0)
+                transition = frame;
+            if (rig.Controller.StateNode is SPlayerController.s_PlayerWalkingSt2H or SPlayerController.s_PlayerWalkingCr2H)
+            {
+                armed = frame;
+                Assert.Equal(0, FRotator.NormalizeAxis(rig.Controller.Rotation.Yaw - rig.Pawn.Rotation.Yaw));
+                break;
+            }
+        }
+
+        Assert.True(transition >= 0, "The fire-mode tap must start the draw.");
+        Assert.InRange(armed - transition, 16, 20);
+        Assert.Equal(crouched ? ECamMode.ECM_SecondPersonCr : ECamMode.ECM_SecondPerson,
+            OpenScct.Game.Camera.PlayerCamera.Of(rig.Controller)!.m_camMode);
+    }
+
     [Fact]
     public void ATapStartsTheDrawAtTheReleaseAndTheLaserComesOnWithTheArmedWalk()
     {

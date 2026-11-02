@@ -92,7 +92,9 @@ public sealed partial class SBasePawnMoves : IMovePawn, IMovePrediction, IMoveCo
     {
         if (P is { } p)
         {
-            p.Physics = physics;
+            // Rejected big moves restore their preceding mode through this adapter. Leaving root
+            // motion must release its lock, or the next climb reuses the rejected move's world anchor.
+            MovementNatives.SetPhysics(p, physics);
         }
     }
 

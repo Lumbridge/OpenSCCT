@@ -124,17 +124,15 @@ public partial class SessionRowsView : VBoxContainer
     /// </summary>
     private void BuildCompact(IReadOnlyCollection<SessionRow> rows)
     {
-        var top = new VBoxContainer { Name = "MapMode" };
-        top.AddThemeConstantOverride("separation", 2);
-        AddChild(top);
-        AddChild(new Control { Name = "Gap", CustomMinimumSize = new Vector2(0f, 6f) });
+        AddThemeConstantOverride("separation", 14);
+        VBoxContainer top = LobbyPanels.Card(this, "MapMode", "Map & game mode");
         var columns = new BoxContainer { Name = "Columns" };
         _columns = columns;
-        columns.AddThemeConstantOverride("separation", 32);
+        columns.AddThemeConstantOverride("separation", 14);
         AddChild(columns);
-        VBoxContainer match = CompactColumn(columns, "Match");
-        VBoxContainer players = CompactColumn(columns, "Players");
-        VBoxContainer rules = CompactColumn(columns, "Rules");
+        VBoxContainer match = LobbyPanels.Card(columns, "Match", "Round & objectives");
+        VBoxContainer players = LobbyPanels.Card(columns, "Players", "Players & voice");
+        VBoxContainer rules = LobbyPanels.Card(columns, "Rules", "Extra rules");
         foreach (SessionRow row in CreateSessionModel.Rows)
         {
             if (!Contains(rows, row) || row is SessionRow.Password or SessionRow.MaxPlayers)
@@ -161,17 +159,9 @@ public partial class SessionRowsView : VBoxContainer
             SessionRow.AutoBalance);
     }
 
-    private static VBoxContainer CompactColumn(BoxContainer parent, string name)
-    {
-        var column = new VBoxContainer { Name = name, SizeFlagsHorizontal = SizeFlags.ExpandFill };
-        column.AddThemeConstantOverride("separation", 2);
-        parent.AddChild(column);
-        return column;
-    }
-
     private void Order(VBoxContainer column, params SessionRow[] order)
     {
-        int at = 0;
+        int at = 1; // Keep the section heading above its rows.
         foreach (SessionRow row in order)
         {
             if (_rows.TryGetValue(row, out Control? line) && line.GetParent() == column)
@@ -182,7 +172,7 @@ public partial class SessionRowsView : VBoxContainer
     }
 
     /// <summary>The fixed width of a compact row's value cell (arrows and value, or the check box).</summary>
-    private const float CompactCell = 124f;
+    private const float CompactCell = 144f;
 
     private static bool Contains(IReadOnlyCollection<SessionRow> rows, SessionRow row)
     {
@@ -209,20 +199,22 @@ public partial class SessionRowsView : VBoxContainer
 
     private Control MakeRow(SessionRow row)
     {
-        var line = new HBoxContainer { Name = "Row_" + row };
+        var line = new HBoxContainer { Name = "Row_" + row, CustomMinimumSize = new Vector2(0, _compact ? 38 : 0) };
+        if (_compact) line.AddThemeConstantOverride("separation", 12);
         bool wide = row is SessionRow.Map or SessionRow.Mode;
         var caption = new Label
         {
             Name = row + "Caption", Text = Model.Caption(row), TooltipText = Model.Caption(row), MouseFilter = MouseFilterEnum.Pass,
             SizeFlagsHorizontal = _compact && wide ? SizeFlags.ShrinkBegin : SizeFlags.ExpandFill,
             CustomMinimumSize = new Vector2(_compact ? (wide ? 140f : 0f) : 150f, 0f),
+            AutowrapMode = _compact ? TextServer.AutowrapMode.WordSmart : TextServer.AutowrapMode.Off,
         };
         line.AddChild(caption);
         _captions[row] = caption;
 
         // Compact rows put their control in a cell of one width, so values line up down a column.
         Container cell = line;
-        if (_compact && !wide)
+        if (_compact && !wide && !CreateSessionModel.IsCheck(row))
         {
             var box = new HBoxContainer
             {
@@ -234,7 +226,10 @@ public partial class SessionRowsView : VBoxContainer
 
         if (CreateSessionModel.IsCheck(row))
         {
-            var check = new CheckBox { Name = row + "Check" };
+            var check = new CheckBox { Name = row + "Check", Text = _compact ? Model.Caption(row) : "",
+                SizeFlagsHorizontal = SizeFlags.ExpandFill, CustomMinimumSize = new Vector2(0, _compact ? 38 : 0),
+                TooltipText = Description(row) };
+            if (_compact) caption.Visible = false;
             check.Toggled += on =>
             {
                 if (_editable)
@@ -295,7 +290,8 @@ public partial class SessionRowsView : VBoxContainer
 
     private Button Arrow(SessionRow row, string which, string glyph, int delta)
     {
-        var b = new Button { Name = row + which, Text = glyph, CustomMinimumSize = new Vector2(_compact ? 26f : 40f, 28f), FocusMode = FocusModeEnum.All };
+        var b = new Button { Name = row + which, Text = glyph, CustomMinimumSize = new Vector2(_compact ? 32f : 40f, _compact ? 38f : 28f), FocusMode = FocusModeEnum.All,
+            TooltipText = (delta < 0 ? "Previous / decrease " : "Next / increase ") + Model.Caption(row) };
         b.Pressed += () =>
         {
             if (_editable)
@@ -340,7 +336,8 @@ public partial class SessionRowsView : VBoxContainer
         if (_columns is not null)
         {
             // Use the viewport, not our minimum-inflated width, so a row can recover after shrinking.
-            _columns.Vertical = GetViewportRect().Size.X < 1200f;
+            float width = GetParent() is ScrollContainer scroll ? scroll.Size.X : GetViewportRect().Size.X;
+            _columns.Vertical = width < (_compact ? 1080f : 1200f);
         }
         if (Blink is null)
         {
@@ -360,4 +357,16 @@ public partial class SessionRowsView : VBoxContainer
 
     /// <summary>The control of a row's arrow or check (tests and the menu pilot).</summary>
     public Control? Find(string name) => FindChild(name, recursive: true, owned: false) as Control;
+
+    private static string Description(SessionRow row) => row switch
+    {
+        SessionRow.Revenge => "Play a return match with the teams swapped.",
+        SessionRow.RandomMap => "Choose the next map at random.",
+        SessionRow.VoiceInLobby => "Allow players to use voice chat before the match.",
+        SessionRow.AutoBalance => "Keep the teams balanced when players join.",
+        SessionRow.Alternate => "Customize the abilities and gadgets allowed for each team using Alternate rules.",
+        SessionRow.Practice => "Unlimited lives, quick respawns and practice commands. Match stats are not recorded.",
+        SessionRow.Sidearms => "Allow mercenaries to carry a sidearm.",
+        _ => string.Empty,
+    };
 }

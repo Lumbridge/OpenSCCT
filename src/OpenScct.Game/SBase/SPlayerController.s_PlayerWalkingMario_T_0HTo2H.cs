@@ -49,7 +49,7 @@ public partial class SPlayerController
 
         /// <summary>
         /// The stick moves the pawn in view axes (no Mario turn, no standing boost), the pawn turns to the view, and
-        /// once facing it with the draw finished the spy is armed.
+        /// once the draw finishes the spy is armed. Continued mouse movement cannot postpone the completed draw.
         /// </summary>
         [Uc("SBase.SPlayerController.s_PlayerWalkingMario_T_0HTo2H.PlayerMove", Sha1 = "4e4d28dd5b543e1edd22b9f07d94664039b0e14a")]
         [PortOf("uc:SBase.SPlayerController:s_PlayerWalkingMario_T_0HTo2H.PlayerMove", Spec = "spec/movement/walking.md#transition-and-resting-states")]
@@ -81,15 +81,14 @@ public partial class SPlayerController
             }
 
             int diff = (self.Rotation - pawn.Rotation).Normalize().Yaw;
-            if ((diff < 0 ? -diff : diff) > FacingTolerance)
+            if (self.bTransitionFinished)
             {
+                // The view can turn faster than DrawTurnRate. Waiting for its moving yaw target after
+                // AnimEnd left the completed draw stuck until the player stopped looking around.
+                // Armed walking follows this same yaw directly, so finish that handoff here too.
                 FRotator r = pawn.Rotation;
-                r.Yaw = ClampRotation(r.Yaw, self.Rotation.Yaw, -MovementMath.Int(DrawTurnRate * DeltaTime),
-                    MovementMath.Int(DrawTurnRate * DeltaTime));
+                r.Yaw = self.Rotation.Yaw;
                 pawn.Rotation = r;
-            }
-            else if (self.bTransitionFinished)
-            {
                 if (pawn.bIsCrouched)
                 {
                     pawn.ChangeEnumAction(SBasePawn.SA_WALK_CR_2H);
@@ -100,6 +99,13 @@ public partial class SPlayerController
                     pawn.ChangeEnumAction(SBasePawn.SA_WALK_ST_2H);
                     self.eventChangeState(MovementStateNames.s_PlayerWalkingSt2H);
                 }
+            }
+            else if ((diff < 0 ? -diff : diff) > FacingTolerance)
+            {
+                FRotator r = pawn.Rotation;
+                r.Yaw = ClampRotation(r.Yaw, self.Rotation.Yaw, -MovementMath.Int(DrawTurnRate * DeltaTime),
+                    MovementMath.Int(DrawTurnRate * DeltaTime));
+                pawn.Rotation = r;
             }
 
             self.SendMove(DeltaTime, newAccel);

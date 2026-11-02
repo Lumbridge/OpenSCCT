@@ -16,7 +16,7 @@ namespace OpenScctGame.Fx;
 /// (its SLaserProjector, on every machine) and the beam of the local spy's own pistol (its SLaserBeam). As the native
 /// places them on each machine from that machine's bones, both are drawn from the drawn hand of the pistol's pawn
 /// (30 X - 4 Y + 8 Z of B R Hand, a few uu behind the drawn pistol's FX bone) along the hand's X axis to the first
-/// hit during draw/holster; the ready sight converges on the simulated shot target. The simulation's placement is used when the pawn is not drawn. The dot is RET_Laser (SWeaponTex.Reticules, 32 x 32, additive) projected
+/// hit during draw/holster; the ready sight converges on the shot target at the rendered aim. The simulation's placement is used when the pawn is not drawn. The dot is RET_Laser (SWeaponTex.Reticules, 32 x 32, additive) projected
 /// along the line, 32 uu times its DrawScale wide, on whatever it hit; the beam is the SLaserBeam class mesh
 /// (SGameplayObjects.Objects.LaserBeam, 1 uu along X) at DrawScale3D (length + 1, 0.5, 0.5), in every vision mode.
 /// Drawn nodes join the groups <c>svm_spy_laser_beam</c> and <c>svm_spy_laser_dot</c> so checks can see them.
@@ -146,7 +146,16 @@ public sealed partial class SpyLaserView : Node3D
             FVector end = start + dir * pistol.ShootingRange;
             if (pawn.WeaponLoaded is 2 or 7)
             {
-                return TraceReadyBeam(pistol, start);
+                FCoords? shot = null;
+                if (Pawns.ViewOf(pawn) is { DrawnView: { } aim } view)
+                {
+                    // The camera and hand already include pending mouse movement and body interpolation.
+                    // A target from the last simulation tick trails behind them during a fast aim sweep.
+                    FCoords drawn = OpenScct.Game.Combat.CombatNatives.SpyPistolCoords(pawn, aim);
+                    drawn.Origin += view.DrawnLocation - pawn.Location;
+                    shot = drawn;
+                }
+                return TraceReadyBeam(pistol, start, shot);
             }
             (FVector hit, _) = pistol.LaserHit(pawn, start, end);
             return (start, hit, dir);
@@ -168,11 +177,11 @@ public sealed partial class SpyLaserView : Node3D
         return default;
     }
 
-    /// <summary>The ready spy sight uses the same bone trace and pistol frame as a zero-spread shocker shot.</summary>
-    internal static (FVector Start, FVector Hit, FVector Dir) TraceReadyBeam(SWeaponAttaque pistol, FVector start)
+    /// <summary>The ready sight uses the zero-spread shot trace, with the rendered pistol frame for local aim.</summary>
+    internal static (FVector Start, FVector Hit, FVector Dir) TraceReadyBeam(SWeaponAttaque pistol, FVector start, FCoords? drawnShot = null)
     {
         var zones = OpenScct.Game.Combat.CombatServices.HitZones(pistol);
-        FCoords shot = OpenScct.Game.Combat.CombatServices.Ports(pistol).BoneCoords(pistol, SWeaponDefense.FxBone);
+        FCoords shot = drawnShot ?? OpenScct.Game.Combat.CombatServices.Ports(pistol).BoneCoords(pistol, SWeaponDefense.FxBone);
         FVector shotStart = SWeaponAttaque.GetAxesAndLocation(shot.Origin, shot.XAxis.Rotation(),
             out FVector shotDir, out _, out _);
         FVector far = shotStart + shotDir * pistol.ShootingRange;

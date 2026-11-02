@@ -12,6 +12,10 @@ namespace OpenScct.Game.SBase;
 /// </summary>
 public partial class SGadHeartBeatSensor
 {
+    /// <summary>The sensor only runs while selected with the gun drawn and out of transition.</summary>
+    public bool IsScanning => OwnerPawn is { bWeaponTransit: false, WeaponLoaded: 1 or 2 or 7 } owner &&
+        ReferenceEquals(owner.SelectedGadget, this);
+
     /// <summary>No hint on selection.</summary>
     [Uc("SBase.SGadHeartBeatSensor.Load", Sha1 = "23aff4eecf0e2e62053f2e78cf6e28d2d332361e")]
     [PortOf("uc:SBase.SGadHeartBeatSensor:Load", Spec = "spec/equipment/heartbeat-sensor.md#rules")]
@@ -34,7 +38,7 @@ public partial class SGadHeartBeatSensor
     [Provenance(ProvenanceKind.Decoded, "heartbeat-sensor.md rule 2: squared distance under fDetectionDistance^2, cosine above fDemiAngle, no team or sight test")]
     public bool CheckForPawn()
     {
-        if (OwnerPawn is not { } owner || !ReferenceEquals(owner.SelectedGadget, this) || owner.WeaponLoaded == 0)
+        if (!IsScanning || OwnerPawn is not { } owner)
         {
             return false;
         }

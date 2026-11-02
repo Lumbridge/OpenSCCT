@@ -16,7 +16,7 @@ namespace OpenScctGame.UI;
 /// and OK hands the values back; for everyone else it is read only. "Number of gadgets" is 0 to 4, and no more than
 /// the gadgets left allowed when four or fewer are.
 /// </summary>
-public partial class AlternateModePanel : PanelContainer
+public partial class AlternateModePanel : Control
 {
     private readonly bool _editable;
     private readonly Action<AlternateRules>? _ok;
@@ -25,6 +25,10 @@ public partial class AlternateModePanel : PanelContainer
     private readonly SpinBox[] _slots = new SpinBox[2];
     private AlternateRules _rules;
     private readonly AlternateRules _original;
+    private PanelContainer? _panel;
+    private BoxContainer? _sides;
+    private readonly Dictionary<Control, FocusModeEnum> _backgroundFocus = new();
+    private Control? _previousFocus;
 
     /// <param name="rules">The values the page opens with.</param>
     /// <param name="editable">The host may change them (OK then gives them back through <paramref name="ok"/>).</param>
@@ -42,34 +46,39 @@ public partial class AlternateModePanel : PanelContainer
 
     public override void _Ready()
     {
-        SetAnchorsPreset(LayoutPreset.Center);
-        AnchorLeft = 0.18f;
-        AnchorRight = 0.82f;
-        AnchorTop = 0.12f;
-        AnchorBottom = 0.88f;
-        AddThemeStyleboxOverride("panel", UiStyle.MenuPanelBox());
-        var column = new VBoxContainer { Name = "Column" };
-        column.AddThemeConstantOverride("separation", 8);
-        AddChild(column);
-        column.AddChild(new Label
-        {
-            Name = "Title", Text = "Alternate Mode", HorizontalAlignment = HorizontalAlignment.Center, Modulate = UiStyle.MenuTitle,
-        });
-        if (!_editable)
-        {
-            column.AddChild(new Label
+        SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
+        Theme = UiStyle.MenuTheme;
+        _previousFocus = GetViewport().GuiGetFocusOwner();
+        foreach (Node node in GetParent().FindChildren("*", nameof(Control), true, false))
+            if (node is Control control && control != this && !IsAncestorOf(control) && control.FocusMode != FocusModeEnum.None)
             {
-                Name = "ReadOnly", Text = "Set by the host", HorizontalAlignment = HorizontalAlignment.Center, Modulate = UiStyle.MenuFocus,
-            });
-        }
+                _backgroundFocus[control] = control.FocusMode;
+                control.FocusMode = FocusModeEnum.None;
+            }
+        var dim = new ColorRect { Name = "Dim", Color = new Color(0, 0, 0, 0.8f), MouseFilter = MouseFilterEnum.Stop };
+        dim.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect); AddChild(dim);
+        _panel = new PanelContainer { Name = "AlternatePanel", MouseFilter = MouseFilterEnum.Stop };
+        _panel.AddThemeStyleboxOverride("panel", UiStyle.MenuPanelBox());
+        AddChild(_panel);
+        var margin = new MarginContainer();
+        foreach (string edge in new[] { "left", "right", "top", "bottom" }) margin.AddThemeConstantOverride("margin_" + edge, 12);
+        _panel.AddChild(margin);
+        var column = new VBoxContainer { Name = "Column" };
+        column.AddThemeConstantOverride("separation", 14);
+        margin.AddChild(column);
+        var title = new Label { Name = "Title", Text = "Alternate rules", Modulate = UiStyle.MenuFocus };
+        title.AddThemeFontSizeOverride("font_size", 26); column.AddChild(title);
+        column.AddChild(LobbyPanels.Text(_editable ? "Choose which abilities and gadgets each team can use. Save rules when you are done."
+            : "The host chooses which abilities and gadgets each team can use."));
 
         var scroll = new ScrollContainer
         {
-            Name = "Scroll", SizeFlagsVertical = SizeFlags.ExpandFill, HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled,
+            Name = "Scroll", FollowFocus = true, SizeFlagsVertical = SizeFlags.ExpandFill, HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled,
         };
         column.AddChild(scroll);
-        var sides = new HBoxContainer { Name = "Sides", SizeFlagsHorizontal = SizeFlags.ExpandFill };
-        sides.AddThemeConstantOverride("separation", 24);
+        var sides = new BoxContainer { Name = "Sides", SizeFlagsHorizontal = SizeFlags.ExpandFill };
+        _sides = sides;
+        sides.AddThemeConstantOverride("separation", 14);
         scroll.AddChild(sides);
         BuildSide(sides, 0, "Spies", AlternateRules.SpyAbilityRows, new STeamAttaquant().ClassInventory);
         BuildSide(sides, 1, "Mercenaries", AlternateRules.MercAbilityRows, new STeamDefenseur().ClassInventory);
@@ -79,20 +88,38 @@ public partial class AlternateModePanel : PanelContainer
         _abilities[AlternateAbility.CinematicCamera] = cinematic;
         column.AddChild(cinematic);
 
-        var buttons = new HBoxContainer { Name = "Buttons", Alignment = BoxContainer.AlignmentMode.Center };
+        var buttons = new HBoxContainer { Name = "Buttons", Alignment = BoxContainer.AlignmentMode.End };
         buttons.AddThemeConstantOverride("separation", 16);
+        Button close = UiStyle.MenuButton(_editable ? "Cancel" : "Close", RequestClose, "AlternateClose");
+        close.CustomMinimumSize = new Vector2(140f, 42f);
+        buttons.AddChild(close);
         if (_editable)
         {
-            Button ok = UiStyle.MenuButton("OK", Accept, "AlternateOk");
-            ok.CustomMinimumSize = new Vector2(160f, 40f);
+            Button ok = UiStyle.MenuButton("Save rules", Accept, "AlternateOk");
+            ok.CustomMinimumSize = new Vector2(160f, 42f);
+            ok.AddThemeColorOverride("font_color", UiStyle.MenuFocus);
             buttons.AddChild(ok);
         }
-
-        Button close = UiStyle.MenuButton(_editable ? "Cancel" : "Close", RequestClose, "AlternateClose");
-        close.CustomMinimumSize = new Vector2(160f, 40f);
-        buttons.AddChild(close);
         column.AddChild(buttons);
         ShowRules(_rules);
+        FitPanel();
+        close.GrabFocus();
+    }
+
+    public override void _Process(double delta) => FitPanel();
+
+    private void FitPanel()
+    {
+        if (_panel is null) return;
+        LobbyPanels.FitDialog(_panel, Size, new Vector2(1000, 780));
+        if (_sides is not null) _sides.Vertical = _panel.Size.X < 680;
+    }
+
+    public override void _ExitTree()
+    {
+        foreach (var entry in _backgroundFocus)
+            if (IsInstanceValid(entry.Key)) entry.Key.FocusMode = entry.Value;
+        if (IsInstanceValid(_previousFocus) && _previousFocus!.IsVisibleInTree()) _previousFocus.GrabFocus();
     }
 
     /// <summary>Shows other values (a client's page follows the host's setup).</summary>
@@ -120,12 +147,11 @@ public partial class AlternateModePanel : PanelContainer
         }
     }
 
-    private void BuildSide(HBoxContainer parent, int team, string title, IReadOnlyList<(AlternateAbility Ability, string Caption)> abilities,
+    private void BuildSide(BoxContainer parent, int team, string title, IReadOnlyList<(AlternateAbility Ability, string Caption)> abilities,
         List<ClassRef> gadgets)
     {
-        var side = new VBoxContainer { Name = title, SizeFlagsHorizontal = SizeFlags.ExpandFill };
-        parent.AddChild(side);
-        side.AddChild(new Label { Text = title, Modulate = UiStyle.MenuFocus });
+        var side = LobbyPanels.Card(parent, title, title);
+        side.AddChild(new Label { Text = "Abilities", Modulate = UiStyle.MenuFocus });
         foreach ((AlternateAbility ability, string caption) in abilities)
         {
             CheckBox box = Check(caption, ability.ToString());
@@ -161,6 +187,7 @@ public partial class AlternateModePanel : PanelContainer
     private CheckBox Check(string caption, string name) => new()
     {
         Name = name, Text = caption, Disabled = !_editable, FocusMode = _editable ? FocusModeEnum.All : FocusModeEnum.None,
+        CustomMinimumSize = new Vector2(0, 32),
     };
 
     public override void _UnhandledKeyInput(InputEvent @event)

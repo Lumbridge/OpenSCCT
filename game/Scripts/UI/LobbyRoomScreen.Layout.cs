@@ -90,7 +90,7 @@ public partial class LobbyRoomScreen
         var rows = new List<SessionRow>(CreateSessionModel.Rows); rows.Remove(SessionRow.Password); rows.Remove(SessionRow.MaxPlayers);
         ParameterRows = new SessionRowsView(Parameters, rows, showPassword: false, compact: true) { SizeFlagsHorizontal = SizeFlags.ExpandFill };
         if (_mapCatalog is not null) Parameters.MapFilter = MapPickerView.FilterFor(_mapCatalog, SettingsStore.Current.ActiveMapPlaylist);
-        Parameters.Changed += ShowMapPicture; Parameters.Changed += ShowAlternateButton;
+        Parameters.Changed += ShowMapPicture; Parameters.Changed += ShowAlternateButton; Parameters.Changed += UpdateSettingsDraft;
         BuildSettingsPanel();
         var preparation = LobbyPanels.Preparation(this);
         _loadout = LobbyPanels.Text(); _loadout.Name = "LoadoutSummary";
@@ -115,20 +115,27 @@ public partial class LobbyRoomScreen
 
     private void BuildSettingsPanel()
     {
-        _settingsPanel = new PanelContainer { Name = "MatchSettingsPanel", Visible = false, AnchorLeft = 0.05f, AnchorRight = 0.95f,
-            AnchorTop = 0.12f, AnchorBottom = 0.88f, MouseFilter = MouseFilterEnum.Stop };
+        _settingsPanel = new PanelContainer { Name = "MatchSettingsPanel", Visible = false, MouseFilter = MouseFilterEnum.Stop };
         _settingsPanel.AddThemeStyleboxOverride("panel", UiStyle.MenuPanelBox());
-        var body = new VBoxContainer(); _settingsPanel.AddChild(body);
-        body.AddChild(new Label { Text = "Match settings", Modulate = UiStyle.MenuFocus });
-        _settingsDraftNote = LobbyPanels.Text("The overview shows the live match. Host edits here take effect only after Apply changes.");
+        var margin = new MarginContainer();
+        foreach (string edge in new[] { "left", "right", "top", "bottom" }) margin.AddThemeConstantOverride("margin_" + edge, 12);
+        _settingsPanel.AddChild(margin);
+        var body = new VBoxContainer(); body.AddThemeConstantOverride("separation", 14); margin.AddChild(body);
+        var title = new Label { Text = "Match settings", Modulate = UiStyle.MenuFocus };
+        title.AddThemeFontSizeOverride("font_size", 26); body.AddChild(title);
+        _settingsDraftNote = LobbyPanels.Text("Choose the map and rules, then apply your changes.");
         body.AddChild(_settingsDraftNote);
-        var scroll = new ScrollContainer { HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled, SizeFlagsVertical = SizeFlags.ExpandFill };
+        var scroll = new ScrollContainer { Name = "SettingsScroll", FollowFocus = true, HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled,
+            SizeFlagsVertical = SizeFlags.ExpandFill };
         body.AddChild(scroll); scroll.AddChild(ParameterRows!);
-        var buttons = new HFlowContainer { Name = "SettingsButtons" }; body.AddChild(buttons);
+        var buttons = new HFlowContainer { Name = "SettingsButtons", Alignment = FlowContainer.AlignmentMode.End };
+        buttons.AddThemeConstantOverride("h_separation", 10); buttons.AddThemeConstantOverride("v_separation", 8); body.AddChild(buttons);
         MapsButton = LobbyPanels.Button("Choose map", OpenMaps, "Maps"); buttons.AddChild(MapsButton);
         AlternateButton = LobbyPanels.Button("Alternate rules", OpenAlternate, "Alternate"); buttons.AddChild(AlternateButton);
-        ApplyButton = LobbyPanels.Button("Apply changes", Apply, "Apply"); buttons.AddChild(ApplyButton);
         buttons.AddChild(LobbyPanels.Button("Discard / close", RequestCloseSettings, "DiscardSettings"));
+        ApplyButton = LobbyPanels.Button("Apply changes", Apply, "Apply"); buttons.AddChild(ApplyButton);
+        ApplyButton.AddThemeColorOverride("font_color", UiStyle.MenuFocus);
+        foreach (Control button in buttons.GetChildren()) button.CustomMinimumSize = new Vector2(0, 42);
         var dim = new ColorRect { Name = "SettingsDim", Color = new Color(0, 0, 0, 0.8f), Visible = false };
         dim.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
         AddChild(dim);
@@ -144,6 +151,7 @@ public partial class LobbyRoomScreen
             }
         };
         AddChild(_settingsPanel);
+        LobbyPanels.FitDialog(_settingsPanel, Size, new Vector2(1180, 700));
     }
 
     private void OpenMatchSettings()
@@ -159,11 +167,28 @@ public partial class LobbyRoomScreen
         GetNode<Control>("SettingsDim").MoveToFront();
         _settingsPanel.MoveToFront();
         _settingsPanel.Visible = true;
-        var close = _settingsPanel.FindChild("DiscardSettings", true, false) as Button;
-        if (close is not null) close.Text = Session.CanControl ? "Discard changes" : "Close";
+        LobbyPanels.FitDialog(_settingsPanel, Size, new Vector2(1180, 700));
+        UpdateSettingsDraft();
         ApplyButton!.Visible = Session.CanControl;
-        if (Session.CanControl) ApplyButton.GrabFocus();
+        if (Session.CanControl) ParameterRows!.Find("MapPrev")?.GrabFocus();
         else _settingsPanel.FindChild("DiscardSettings", true, false)?.Call("grab_focus");
+    }
+
+    private void UpdateSettingsDraft()
+    {
+        if (Session is not { } session || Parameters is null) return;
+        bool dirty = session.CanControl && Parameters.Setup != session.Setup;
+        if (_draftStatus is not null)
+        {
+            _draftStatus.Visible = dirty;
+            _draftStatus.Text = _draftConflict ? "The match changed while you were editing. Review your changes before applying."
+                : "Unapplied changes — open match settings to review.";
+        }
+        if (_settingsDraftNote is not null) _settingsDraftNote.Text = !session.CanControl ? "These are the host's current match settings."
+            : dirty ? _draftConflict ? _draftStatus!.Text : "You have unapplied changes. Apply to update the match for everyone."
+            : "Choose the map and rules, then apply your changes.";
+        if (ApplyButton is not null) ApplyButton.Disabled = !dirty;
+        if (_settingsPanel?.FindChild("DiscardSettings", true, false) is Button close) close.Text = dirty ? "Discard changes" : "Close";
     }
 
     private void DiscardSettings()

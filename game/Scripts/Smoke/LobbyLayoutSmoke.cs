@@ -33,6 +33,7 @@ public sealed class LobbyLayoutSmoke : SmokeTest
     private string? _savedPlaylist;
     private bool _liveResize;
     private Button? _lastMapTile;
+    private Texture2D? _previewTexture;
 
     private Vector2I ViewportSize => _liveResize ? new Vector2I(800, 600) : _sizes[_size];
     private string Resolution => $"{ViewportSize.X}x{ViewportSize.Y}" + (_liveResize ? "-resized" : "");
@@ -83,6 +84,7 @@ public sealed class LobbyLayoutSmoke : SmokeTest
                     texture = ImageTexture.CreateFromImage(image);
                 }
                 roomScreen.MapPicture!.SetMap(texture, "Enhanced Aquarius");
+                _previewTexture = texture;
                 return SmokeResult.Running;
             }
             if (_frame < 16) return SmokeResult.Running;
@@ -100,6 +102,45 @@ public sealed class LobbyLayoutSmoke : SmokeTest
                 CheckLayout(roomScreen, "Lobby settings");
                 CheckSettings(roomScreen);
                 MenuPage.Shot(roomScreen, $"lobby-settings-{Resolution}-{_variant}");
+                Click(roomScreen, "Alternate");
+                return SmokeResult.Running;
+            }
+            if (_frame < 28) return SmokeResult.Running;
+            if (_frame == 28)
+            {
+                CheckAlternate(roomScreen);
+                Expect(roomScreen.ApplyButton!.FocusMode == Control.FocusModeEnum.None, "alternate dialog removes keyboard focus from underlying settings");
+                var alternate = (AlternateModePanel)roomScreen.FindChild("AlternateMode", true, false)!;
+                ((ScrollContainer)alternate.FindChild("Scroll", true, false)!).EnsureControlVisible((Control)alternate.FindChild("MercSlots", true, false)!);
+                if (_session!.CanControl)
+                {
+                    var ability = (CheckBox)alternate.FindChild("SpyGrab", true, false)!;
+                    ability.ButtonPressed = !ability.ButtonPressed;
+                    Expect(alternate.Rules != roomScreen.Parameters!.Setup.Alternate, "alternate changes wait for Save rules");
+                }
+                return SmokeResult.Running;
+            }
+            if (_frame < 34) return SmokeResult.Running;
+            if (_frame == 34)
+            {
+                var alternate = (AlternateModePanel)roomScreen.FindChild("AlternateMode", true, false)!;
+                var scroll = (ScrollContainer)alternate.FindChild("Scroll", true, false)!;
+                Expect(scroll.GetGlobalRect().Grow(1).Encloses(((Control)alternate.FindChild("MercSlots", true, false)!).GetGlobalRect()),
+                    "last alternate rule is reachable by scrolling");
+                var live = _session!.Setup;
+                var rules = alternate.Rules;
+                Click(alternate, _session.CanControl ? "AlternateOk" : "AlternateClose");
+                if (_session.CanControl)
+                    Expect(roomScreen.Parameters!.Setup.Alternate == rules && _session.Setup == live, "Save rules updates the draft without applying it to the match");
+                return SmokeResult.Running;
+            }
+            if (_frame < 40) return SmokeResult.Running;
+            if (_frame == 40)
+            {
+                Control? expectedFocus = _session!.CanControl ? roomScreen.ParameterRows!.Find("MapPrev")
+                    : roomScreen.MatchSettingsPanel!.FindChild("DiscardSettings", true, false) as Control;
+                Expect(roomScreen.GetViewport().GuiGetFocusOwner() == expectedFocus, "closing alternate restores keyboard focus to match settings");
+                Expect(roomScreen.MainButton!.FocusMode == Control.FocusModeEnum.None, "closing alternate keeps the lobby behind settings unfocusable");
                 if (_session!.CanControl)
                 {
                     SettingsStore.Current.MapListView = false;
@@ -109,36 +150,42 @@ public sealed class LobbyLayoutSmoke : SmokeTest
             }
             if (_session!.CanControl)
             {
-                if (_frame < 28) return SmokeResult.Running;
-                if (_frame == 28)
+                if (_frame < 46) return SmokeResult.Running;
+                if (_frame == 46)
                 {
+                    if (_liveResize)
+                    {
+                        CheckAlternate(roomScreen);
+                        Click(roomScreen, "AlternateClose");
+                    }
                     CheckMapChooser(roomScreen, list: false);
                     ScrollToLastMap(roomScreen);
                     return SmokeResult.Running;
                 }
-                if (_frame < 34) return SmokeResult.Running;
-                if (_frame == 34)
+                if (_frame < 52) return SmokeResult.Running;
+                if (_frame == 52)
                 {
                     CheckLastMapVisible(roomScreen);
                     SettingsStore.Current.MapListView = true;
                     return SmokeResult.Running;
                 }
-                if (_frame < 40) return SmokeResult.Running;
-                if (_frame == 40)
+                if (_frame < 58) return SmokeResult.Running;
+                if (_frame == 58)
                 {
                     CheckMapChooser(roomScreen, list: true);
                     ScrollToLastMap(roomScreen);
                     return SmokeResult.Running;
                 }
-                if (_frame < 46) return SmokeResult.Running;
+                if (_frame < 64) return SmokeResult.Running;
                 CheckLastMapVisible(roomScreen);
                 if (_size == _sizes.Length - 1 && !_liveResize)
                 {
                     // Shrink the existing controls after 4K, without rebuilding the modal or its grid.
+                    Click(roomScreen, "Alternate");
                     _liveResize = true;
                     Resize(context.Tree, ViewportSize);
                     SettingsStore.Current.MapListView = false;
-                    _frame = 22;
+                    _frame = 40;
                     return SmokeResult.Running;
                 }
                 if (_liveResize)
@@ -146,6 +193,8 @@ public sealed class LobbyLayoutSmoke : SmokeTest
                     CheckSettings(roomScreen);
                     ((Control)roomScreen.FindChild("MapsPanel", true, false)!).Visible = false;
                     roomScreen.MatchSettingsPanel!.Visible = false;
+                    // Editing alternate rules refreshes the fixture's absent TestBox thumbnail.
+                    roomScreen.MapPicture!.SetMap(_previewTexture, "Enhanced Aquarius");
                     CheckLayout(roomScreen, "Lobby after live resize");
                     CheckLandmarks(roomScreen);
                 }
@@ -166,7 +215,7 @@ public sealed class LobbyLayoutSmoke : SmokeTest
         if (++_size < _sizes.Length) return SmokeResult.Running;
         SettingsStore.Current.MapListView = _savedMapList;
         SettingsStore.Current.ActiveMapPlaylist = _savedPlaylist!;
-        return _problems.Count == 0 ? SmokeResult.Pass("host/client/offline, settings, map pictures/list scrolling, 9 resolutions from 800x600 to 3840x2160 and live resize from 4K to 800x600")
+        return _problems.Count == 0 ? SmokeResult.Pass("host/client/offline, settings and alternate rules, map pictures/list scrolling, 9 resolutions from 800x600 to 3840x2160 and live resize from 4K to 800x600")
             : SmokeResult.Fail(string.Join("; ", _problems.Take(15)));
     }
 
@@ -201,9 +250,26 @@ public sealed class LobbyLayoutSmoke : SmokeTest
     {
         Control panel = room.MatchSettingsPanel!;
         Expect(ViewportRect.Encloses(panel.GetGlobalRect()), "settings panel stays inside viewport");
+        Expect(panel.Size.X <= 1180 && panel.Size.Y <= 700, "settings keep a readable maximum size");
         foreach (Button button in panel.FindChildren("*", nameof(Button), true, false).OfType<Button>())
             if (button.IsVisibleInTree() && button.GetParent().Name == "SettingsButtons")
                 Expect(panel.GetGlobalRect().Encloses(button.GetGlobalRect()), "settings action visible: " + button.Name);
+    }
+
+    private void CheckAlternate(LobbyRoomScreen room)
+    {
+        if (room.FindChild("AlternateMode", true, false) is not AlternateModePanel alternate ||
+            alternate.FindChild("AlternatePanel", true, false) is not Control panel)
+        {
+            Expect(false, "alternate rules opens from match settings");
+            return;
+        }
+        CheckLayout(alternate, "Alternate rules");
+        Expect(ViewportRect.Encloses(panel.GetGlobalRect()), "alternate panel stays inside viewport");
+        foreach (string name in _session!.CanControl ? new[] { "AlternateClose", "AlternateOk" } : new[] { "AlternateClose" })
+            Expect(panel.GetGlobalRect().Encloses(((Control)alternate.FindChild(name, true, false)!).GetGlobalRect()), "alternate footer is visible: " + name);
+        Expect(((CheckBox)alternate.FindChild("SpyGrab", true, false)!).Disabled != _session.CanControl, "alternate permissions follow host");
+        MenuPage.Shot(room, $"lobby-alternate-{Resolution}-{_variant}");
     }
 
     private void CheckMapChooser(LobbyRoomScreen room, bool list)
@@ -345,7 +411,8 @@ public sealed class LobbyLayoutSmoke : SmokeTest
     {
         public bool CanControl { get; set; } = true;
         public bool IsHost => CanControl;
-        public LobbySetup Setup { get; set; } = new() { Map = "TestBox", TimeLimit = 10, SpyLives = 3, MercLives = 3 };
+        public LobbySetup Setup { get; set; } = new() { Map = "TestBox", TimeLimit = 10, SpyLives = 3, MercLives = 3,
+            Alternate = AlternateRules.Default with { On = true } };
         public string Map => Setup.Map;
         public string Status => "Offline practice";
         public string ServerName => "Lobby layout test";
