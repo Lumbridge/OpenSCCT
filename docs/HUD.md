@@ -161,7 +161,7 @@ in amber when nonzero. The panel measures the HUD font and wraps within the scre
 commands are reused between samples, and rebuilt for a resize or FPS visibility change. `network-overlay` checks
 normal and large-counter layouts from 320×240 through 3440×1440 and that unchanged frames allocate nothing.
 
-**Shock immunity (OpenSCCT addition, both roles).** A compact amber crossed-lightning icon, `SHOCK IMMUNE` countdown
+**Merc shock immunity (OpenSCCT addition).** A compact amber crossed-lightning icon, `SHOCK IMMUNE` countdown
 and draining bar sit beside the health/status area. Seconds round upward to one decimal. The readout uses the
 same authoritative timed status as the draining body-edge effect (docs/EFFECTS.md), with current synchronized
 server time for the owner. It does not infer immunity from the local shock animation or restart its own timer.
@@ -171,8 +171,8 @@ the server clears protection. Timer resets and extensions update immediately.
 
 This is a canvas element, so scope and camera-network pages retain it. It follows HUD hiding and screen-effect
 washes, and is absent for dead players, spectators, end-game screens and social hubs. No floating world label
-is added; other players read the remaining proportion from the player's body effect. Spy cloak fades that effect
-in normal vision, and fully cloaked spies remain hidden in motion vision. Headshot shutdown hides the merc's own
+is added; other players read the remaining proportion from the merc's body effect. Spies have no immunity
+countdown or body effect; their combat immunity still applies. Headshot shutdown hides the merc's own
 readout while the authoritative immunity countdown continues. Original headshots add HUD disruption, not extra
 movement-freeze time: dry merc head/body hits both freeze for 3.5 seconds, remain electric for 4.5 seconds, and
 protect from another shock for 12.5 seconds; dry spies freeze for 3 seconds and are protected for 11 seconds.

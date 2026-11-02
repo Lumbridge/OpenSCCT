@@ -34,7 +34,9 @@ public sealed class ShockerHeadshotTests
         Assert.Equal(1, victimPc.iDontUpdatePadInput);
         Assert.Equal(3, victimPc.iTimeToStopStickyShock);
         Assert.Equal(3, victimPc.iTimeElecStickyShock);
-        Assert.Equal(11f, MercShockImmunity.Capture(victim).At(scene.Time).RemainingSeconds);
+        Assert.Equal(11f, victimPc.RealTimeInvulSticky);
+        Assert.True(MercShockImmunity.TimerBlocks(victimPc));
+        Assert.False(MercShockImmunity.Capture(victim).Active);
         Assert.DoesNotContain(scene.World.Events.Current.ToArray(), e => e.What == CombatFx.HudShutDown);
     }
 

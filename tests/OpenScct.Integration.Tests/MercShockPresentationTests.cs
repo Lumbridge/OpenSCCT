@@ -155,6 +155,14 @@ public sealed class MercShockPresentationTests
         if (mode != PawnProxyMode.DeadReckoning) Assert.True(beforeTransition > 0);
         var own = MercShockPresentation.Read(owner);
         var remote = MercShockPresentation.Read(observer);
+        if (spy)
+        {
+            Assert.True(MercShockImmunity.TimerBlocks(authority));
+            Assert.False(own.Active);
+            Assert.False(remote.Active);
+            Assert.Equal(messagesBefore, rig.Server.PawnStates.ShockStatusRecordsSent);
+            return;
+        }
         Assert.True(own.Active); Assert.True(remote.Active);
         Assert.InRange(own.RemainingSeconds, 11.4f, 12.1f);
         Assert.InRange(own.Fraction, 0.9f, 0.98f);

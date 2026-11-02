@@ -26,7 +26,7 @@ public sealed class HudShockImmunity
         Progress = 0f;
         Bounds = default;
         ShockImmunityView immunity = snapshot.ShockImmunity;
-        if (region is not { } white || suppressed || !snapshot.Valid || snapshot.HideHud ||
+        if (region is not { } white || suppressed || !snapshot.Valid || snapshot.HideHud || snapshot.Side != HudSide.Merc ||
             snapshot.Spectator.Active || snapshot.Spectator.GameEnded ||
             !snapshot.HasPawn || snapshot.Health <= 0 || !immunity.Active || screen.X <= 0f || screen.Y <= 0f)
         {
@@ -36,10 +36,8 @@ public sealed class HudShockImmunity
         float sy = HudLayout.PageScale(screen.Y);
         // Match MagmaRenderer's left anchor. Any ultrawide picture stretch happens after HUD composition.
         float sx = stretch ? screen.X / HudLayout.PageWidth : sy;
-        // Spy alarms stack below the radar through page y=305; keep this below that stack.
-        float offsetY = snapshot.Side == HudSide.Spy ? 100f * sy : 0f;
         Vector2 Point(float x, float y) => new(x * sx, y * sy);
-        Vector2 At(float x, float y) => Point(x, y) + new Vector2(0f, offsetY);
+        Vector2 At(float x, float y) => Point(x, y);
         Bounds = new Rect2(At(PageBounds.Position.X, PageBounds.Position.Y), Point(PageBounds.Size.X, PageBounds.Size.Y));
         Progress = immunity.StateProtected ? 1f : Math.Clamp(immunity.Fraction, 0f, 1f);
         // A server-held final frame remains visibly immune at 0.0s; the presentation flag decides when it clears.

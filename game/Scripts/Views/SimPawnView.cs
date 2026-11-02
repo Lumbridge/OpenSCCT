@@ -384,8 +384,6 @@ public partial class SimPawnView : Node3D
         int visionMode = Render.Materials.MaterialCompiler.Vision;
         float cueOpacity = visionMode == RenderK.RendMapThermal ? pawn.HeatOpacity :
             visionMode == RenderK.RendMapEmf ? pawn.EMFOpacity : 1f;
-        if (pawn is SPawnAttaque && visionMode == RenderK.RendMapNormal)
-            cueOpacity *= 1f - pawn.GlassEffect / 255f;
         _shockImmunity?.Draw(OpenScct.Server.MercShockPresentation.Read(pawn, alpha), dt, Visible && _model.Root.Visible, cueOpacity);
         _relightClock -= dt;
         if (_relightClock <= 0f && Map is not null)
