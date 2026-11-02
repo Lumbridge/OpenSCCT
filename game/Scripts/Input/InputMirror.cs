@@ -6,6 +6,7 @@ using System.Net.Sockets;
 using System.Threading;
 using Godot;
 using OpenScct.Core;
+using OpenScct.Game.Movement;
 using OpenScct.Game.SBase;
 using OpenScct.Server;
 using OpenScctGame.Play;
@@ -166,20 +167,21 @@ public sealed partial class InputMirror : Node
     private PlayInput? _playInput;
 
     private sealed record ResetSpot(FVector Location, FRotator Rotation);
+    private sealed record ResetResult(PlaySession Session, ResetSpot? Spot, string Message);
 
-    /// <summary>The reset asked for, until the client's pawn has been placed.</summary>
+    /// <summary>The reset asked for, until the local session is ready to queue its placement.</summary>
     private ResetSpot? _reset;
 
     /// <summary>The reset the listen server applies on its next tick (written here, taken on the server thread).</summary>
     private ResetSpot? _serverReset;
 
     private ServerHost? _hookedHost;
-    private int _clientPlacedFrames;
+    private PlaySession? _hookedSession;
+    private readonly ConcurrentQueue<ResetResult> _resetResults = new();
 
     /// <summary>
-    /// A reset (packet 5): the listen server's player pawn is moved on the server's thread before its next tick, then
-    /// the client's copy is put at the same place for a few frames (the client's own moves carry its place to the
-    /// server, as the smokes' teleports do).
+    /// Resolve the reset on the listen server's thread, then use its accepted location on the client. A new
+    /// movement lifetime clears old commands and prediction while keeping the player's current stance.
     /// </summary>
     private void ApplyReset()
     {
@@ -191,31 +193,45 @@ public sealed partial class InputMirror : Node
                 old.BeforeWorldTick -= OnServerTick;
             }
 
-            host.BeforeWorldTick += OnServerTick;
+            _hookedSession = session;
             _hookedHost = host;
+            host.BeforeWorldTick += OnServerTick;
         }
 
-        if (_reset is not { } spot || session?.LocalPawn is not { } pawn || session.LocalController is not { } pc)
+        while (_resetResults.TryDequeue(out ResetResult? result))
+        {
+            if (session is null || !ReferenceEquals(result.Session, session)) continue;
+            if (result.Spot is { } accepted && session.LocalPawn is { } placed && session.LocalController is { } controller)
+            {
+                if (!placed.SetLocation(accepted.Location))
+                {
+                    GD.Print($"Input mirror: server reset applied, but client placement at {accepted.Location} was blocked.");
+                    continue;
+                }
+                placed.SetBase(null);
+                placed.Velocity = placed.Acceleration = default;
+                placed.NetworkCorrectionOffset = default;
+                placed.NetworkCorrectionSeconds = 0f;
+                placed.ResetNetworkHistory();
+                Face(placed, controller, accepted);
+                session.Client.World.Level.GetService<NetMovementBridge>()?.EndpointOf(controller)?.Client?.ResetPredictionHistory();
+            }
+            GD.Print(result.Message);
+        }
+
+        if (_reset is not { } spot || session?.LocalPawn is null || session.LocalController is null)
         {
             return;
         }
 
-        if (_clientPlacedFrames == 0)
+        _reset = null;
+        session.Input.Clear();
+        if (session.IsRemote)
         {
-            Interlocked.Exchange(ref _serverReset, spot);
+            GD.Print("Input mirror: reset refused; this match has no local server.");
+            return;
         }
-
-        pawn.SetLocation(spot.Location);
-        pawn.Velocity = default;
-        pawn.Rotation = new FRotator(0, spot.Rotation.Yaw, 0);
-        pc.Rotation = spot.Rotation;
-        pc.MyDesiredRotation = spot.Rotation;
-        pc.LocalMyDesiredRotation = spot.Rotation;
-        if (++_clientPlacedFrames >= 3)
-        {
-            _reset = null;
-            _clientPlacedFrames = 0;
-        }
+        Interlocked.Exchange(ref _serverReset, spot);
     }
 
     private void OnServerTick(ServerHost host)
@@ -225,20 +241,40 @@ public sealed partial class InputMirror : Node
             return;
         }
 
-        foreach (SBasePawn pawn in host.World.Level.AllActors<SBasePawn>())
+        if (_hookedSession is not { } session || session.ServerController is not { Pawn: SBasePawn pawn } pc || pawn.bDeleteMe)
         {
-            if (pawn.bDeleteMe || pawn.Controller is not SPlayerController pc)
-            {
-                continue;
-            }
-
-            pawn.SetLocation(spot.Location);
-            pawn.Velocity = default;
-            pawn.Rotation = new FRotator(0, spot.Rotation.Yaw, 0);
-            pc.Rotation = spot.Rotation;
-            pc.MyDesiredRotation = spot.Rotation;
-            pc.LocalMyDesiredRotation = spot.Rotation;
+            // A startup reset can arrive before possession. Keep it, without replacing a newer request.
+            Interlocked.CompareExchange(ref _serverReset, spot, null);
+            return;
         }
+
+        FVector location = spot.Location;
+        // The original can report its spawn before standing up (TestRange: Z52 versus standing Z89).
+        // SetLocation rejects that floor overlap; use the existing small placement search and check the result.
+        if ((MovementNatives.Driver(pawn) is { } driver && !driver.FindSpot(pawn, ref location)) || !pawn.SetLocation(location))
+        {
+            _resetResults.Enqueue(new ResetResult(session, null, $"Input mirror: reset failed; no clear space near {spot.Location}."));
+            return;
+        }
+
+        var accepted = spot with { Location = location };
+        pawn.SetBase(null);
+        pawn.Velocity = pawn.Acceleration = default;
+        Face(pawn, pc, accepted);
+        pawn.ResetNetworkHistory();
+        host.Movement.EndpointOf(pc)?.Sequenced?.ResetLifetime();
+        _resetResults.Enqueue(new ResetResult(session, accepted,
+            $"Input mirror: reset applied at {location} (requested {spot.Location})."));
+    }
+
+    private static void Face(SBasePawn pawn, SPlayerController pc, ResetSpot spot)
+    {
+        pawn.Rotation = new FRotator(0, spot.Rotation.Yaw, 0);
+        pc.SetViewRotation(spot.Rotation);
+        pc.MyDesiredRotation = spot.Rotation;
+        pc.LocalMyDesiredRotation = spot.Rotation;
+        pc.Location = pawn.Location;
+        pc.fZMaxFalling = pawn.Location.Z;
     }
 
     private static PlayRoot? FindPlayRoot(Node node)
