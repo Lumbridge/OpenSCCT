@@ -8,8 +8,8 @@ public static class SmokeTests
 {
     public static IReadOnlyList<string> Names { get; } =
         [MapLightSpritesSmoke.TestName, DestructibleFxSmoke.TestName, SpyPerspectiveSmoke.TestName, MineLightSmoke.TestName, CamnetDisabledSmoke.TestName, AmmoMenuHudSmoke.TestName, LandingBlendSmoke.TestName, GlassBlendSmoke.TestName, ScopeLifecycleSmoke.TestName, SidearmReloadPoseSmoke.TestName, MenuEscapeSmoke.TestName, FittedSkinsSmoke.TestName, ViewmodelLightSmoke.TestName, StatsSmoke.TestName, StartupWeaponsSmoke.TestName, LaserAlignmentSmoke.TestName, BootSmoke.TestName, TestBoxSmoke.TestName, SelfTestFailSmoke.TestName, SteeERenderSmoke.TestName, GoldenSmoke.TestName,
-            ModernChatSmoke.TestName, JoinFocusSmoke.TestName, ControllerDefaultsSmoke.TestName, Hud.HudSmoke.TestName, HudActivityFeedSmoke.TestName, RainHudSmoke.TestName, AudioSmoke.TestName, PlaySpySmoke.TestName, PlayCraneSmoke.TestName,
-            PlayDiskHuntSmoke.TestName, PlayDeathmatchSmoke.TestName, Voice.VoiceSmoke.TestName,
+            ModernChatSmoke.TestName, MenuPilotPopupSmoke.TestName, JoinFocusSmoke.TestName, ControllerDefaultsSmoke.TestName, Hud.HudSmoke.TestName, HudActivityFeedSmoke.TestName, RainHudSmoke.TestName, AudioSmoke.TestName, PlaySpySmoke.TestName, PlayCraneSmoke.TestName,
+            PlayDiskHuntSmoke.TestName, PlayDeathmatchSmoke.TestName, Voice.VoiceSmoke.TestName, VoiceLifecycleSmoke.TestName,
             Online.OnlineSmoke.TestName, Online.NetLobbySmoke.TestName, Online.NetLobbySmoke.GuestTestName, Online.NetBotsSmoke.TestName, Online.NetBotsSmoke.GuestTestName, GadgetsSmoke.TestName, PlayBotsSmoke.TestName, UI.InGameMenuSmoke.TestName,
             PlayCombatSmoke.TestName, PlayAudioSmoke.TestName, PlayAudioMercSmoke.TestName, PlayAudioKrauSmoke.TestName,
             PlayAnimSmoke.TestName, PlayInspectSmoke.TestName, PlayVisionSmoke.TestName,
@@ -31,6 +31,7 @@ public static class SmokeTests
     public static SmokeTest? Create(string name) => name switch
     {
         ModernChatSmoke.TestName => new ModernChatSmoke(),
+        MenuPilotPopupSmoke.TestName => new MenuPilotPopupSmoke(),
         BombPresentationSmoke.TestName => new BombPresentationSmoke(),
         MapLightSpritesSmoke.TestName => new MapLightSpritesSmoke(),
         DestructibleFxSmoke.TestName => new DestructibleFxSmoke(),
@@ -97,6 +98,7 @@ public static class SmokeTests
         PlayDiskHuntSmoke.TestName => new PlayDiskHuntSmoke(),
         PlayDeathmatchSmoke.TestName => new PlayDeathmatchSmoke(),
         Voice.VoiceSmoke.TestName => new Voice.VoiceSmoke(),
+        VoiceLifecycleSmoke.TestName => new VoiceLifecycleSmoke(),
         Online.OnlineSmoke.TestName => new Online.OnlineSmoke(),
         Online.NetLobbySmoke.TestName => new Online.NetLobbySmoke(),
         Online.NetLobbySmoke.GuestTestName => new Online.NetLobbyGuestSmoke(),

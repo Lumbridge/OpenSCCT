@@ -279,6 +279,68 @@ public sealed class LobbyTests
     }
 
     [Fact]
+    public void AdminAnnouncementsAndPrivateRepliesReachPlayersDuringTheMatchOnce()
+    {
+        Assert.SkipWhen(TestBoxMissing, "The TestBox fixture is not in this checkout.");
+        (OnlineRig rig, SimLinkNetwork network) = Create(OnlineRig.Settings(MapCatalog.TestBox) with { AdminPassword = "root" }, SimLinkProfile.B);
+        using (rig)
+        {
+            OnlineClient admin = Join(rig, network, "Admin", 0);
+            OnlineClient guest = Join(rig, network, "Guest", 1);
+            Assert.True(rig.RunUntil(() => admin.State == OnlineClientState.Lobby && guest.State == OnlineClientState.Lobby &&
+                admin.Lobby.Players.Count == 2 && admin.Lobby.Players.All(p => p.Map == MapState.Ok), 15), Describe(rig));
+            admin.SetReady(true);
+            guest.SetReady(true);
+            Assert.True(rig.RunUntil(() => admin.State == OnlineClientState.Match && guest.State == OnlineClientState.Match, 30), Describe(rig));
+
+            var adminChat = new List<ChatLine>();
+            var guestChat = new List<ChatLine>();
+            var adminNotices = new List<string>();
+            var guestNotices = new List<string>();
+            admin.Session!.ChatReceived += adminChat.Add;
+            guest.Session!.ChatReceived += guestChat.Add;
+            admin.Session.SessionLineReceived += line => CollectNotice(line, adminNotices);
+            guest.Session.SessionLineReceived += line => CollectNotice(line, guestNotices);
+
+            string announcement = new('A', 150);
+            const string notice = "Server maintenance starts after this match.";
+            rig.Server.Execute("say " + announcement);
+            rig.Server.Announce(notice);
+            admin.Admin("root");
+            Assert.True(rig.RunUntil(() => adminChat.Any(c => c.Text == announcement) && guestChat.Any(c => c.Text == announcement) &&
+                adminNotices.Contains(notice) && guestNotices.Contains(notice) &&
+                adminNotices.Contains("You are an admin of this server."), 10), Describe(rig));
+            admin.Command("status");
+            Assert.True(rig.RunUntil(() => adminNotices.Any(n => n.StartsWith("Test server: match", StringComparison.Ordinal)), 10), Describe(rig));
+            rig.RunUntil(() => false, 1);
+
+            foreach (List<ChatLine> chat in new[] { adminChat, guestChat })
+            {
+                ChatLine line = Assert.Single(chat, c => c.Text == announcement);
+                Assert.Equal(0, line.SenderId);
+                Assert.Equal("Server", line.SenderName);
+                Assert.Equal(ChatK.NoTeam, line.SenderTeam);
+            }
+            foreach (List<string> messages in new[] { adminNotices, guestNotices })
+            {
+                Assert.Single(messages, m => m == notice);
+                Assert.DoesNotContain(messages, m => m.Contains(announcement, StringComparison.Ordinal));
+            }
+            foreach (OnlineClient client in new[] { admin, guest })
+                Assert.Single(client.Lobby.Messages, m => m.Text.Contains(announcement, StringComparison.Ordinal));
+            Assert.Single(adminNotices, m => m == "You are an admin of this server.");
+            Assert.DoesNotContain("You are an admin of this server.", guestNotices);
+            Assert.DoesNotContain(guestNotices, m => m.StartsWith("Test server: match", StringComparison.Ordinal));
+        }
+    }
+
+    private static void CollectNotice(string line, List<string> into)
+    {
+        if (SessionProtocol.TryParse(line, out string command, out List<string> fields, fieldCount: 1) && command == "msg")
+            into.Add(SessionProtocol.Text(fields, 0));
+    }
+
+    [Fact]
     public void ConsoleCommandsChangeTheSetupAndReportTheSession()
     {
         (OnlineRig rig, SimLinkNetwork network) = Create(OnlineRig.Settings(MapCatalog.TestBox), SimLinkProfile.A);

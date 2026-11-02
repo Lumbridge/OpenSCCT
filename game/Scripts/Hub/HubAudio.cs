@@ -35,8 +35,8 @@ public partial class HubAudio : Node
         Name = "HubAudio";
         _musicPlayer = MakePlayer("Music", AudioServer.GetBusIndex(ReverbBuses.MusicBus) >= 0 ? ReverbBuses.MusicBus : "Master");
         _chimePlayer = MakePlayer("Chimes", AudioServer.GetBusIndex(ReverbBuses.FlatBus) >= 0 ? ReverbBuses.FlatBus : "Master");
-        _music = _musicPlayer.GetStreamPlayback() as AudioStreamGeneratorPlayback;
-        _chime = _chimePlayer.GetStreamPlayback() as AudioStreamGeneratorPlayback;
+        _music = GeneratorPlayback.Get(_musicPlayer);
+        _chime = GeneratorPlayback.Get(_chimePlayer);
     }
 
     private AudioStreamPlayer MakePlayer(string name, string bus)

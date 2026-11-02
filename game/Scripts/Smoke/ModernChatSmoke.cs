@@ -27,6 +27,8 @@ public sealed class ModernChatSmoke : SmokeTest
     private HudLayer? _hud;
     private int _phase, _wait, _case = -1, _captures, _scrollBefore;
     private double _now = 100;
+    private const string AdminText = "[b]Admin notice[/b]: Maintenance begins in five minutes. Finish the current round, then reconnect when this notice clears. Thank you for playing on this server.";
+    private long _adminEntryId;
     private bool _savedDetached;
 
     public override SmokeResult Step(SmokeContext context)
@@ -107,6 +109,22 @@ public sealed class ModernChatSmoke : SmokeTest
                     Expect(_chat!.Panel.PassiveLineCount == 0, "expired passive messages disappear");
                     Expect(!_chat.Panel.GetNode<Control>("Recent").Visible, "empty passive backing disappears");
                     Expect(_chat.Transcript.Entries.Count == 64, "fading keeps full history");
+                    ChatNotifications.ReceiveChat(_chat.Transcript, new ChatLine(EChatScope.Say, 0, "Server", ChatK.NoTeam, AdminText[..100]), _now);
+                    _adminEntryId = _chat.Transcript.Entries[^1].Id;
+                    _chat.Open(EChatScope.Say);
+                    _wait = 4;
+                    return SmokeResult.Running;
+                case 11:
+                    ChatNotifications.ReceiveNotice(_chat!.Transcript, "Server: " + AdminText, _now + .1);
+                    _wait = 4;
+                    return SmokeResult.Running;
+                case 12:
+                    Expect(_chat!.Transcript.Entries.Count == 64 && _chat.Transcript.Entries[^1].Id == _adminEntryId,
+                        "legacy admin echo is upgraded in place without adding a duplicate");
+                    Expect(_chat.Transcript.Entries[^1].Channel == ChatChannel.System && _chat.Transcript.Entries[^1].Text == AdminText,
+                        "full admin announcement survives the player message limit");
+                    Expect(Descendants(_chat.Panel.HistoryScroll).OfType<RichTextLabel>().Count(row => row.GetParsedText().Contains(AdminText, StringComparison.Ordinal)) == 1,
+                        "native history refreshes the upgraded admin text once and keeps markup literal");
                     BeginVisualCase(0);
                     return SmokeResult.Running;
             }

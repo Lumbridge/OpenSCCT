@@ -9,6 +9,7 @@ using OpenScct.Core.Engine;
 using OpenScct.Game.SBase;
 using OpenScct.Server;
 using OpenScct.Server.Online;
+using OpenScctGame.Chat;
 using OpenScctGame.Hud;
 using OpenScctGame.Options;
 using OpenScctGame.Play;
@@ -229,12 +230,12 @@ public sealed class NetLobbySmoke : SmokeTest
             return s.Expect(ratio is > 0.3 and < 0.5, $"volume ratio {ratio:0.00} (expected about 0.4)");
         });
         yield return new("say hello", 10, _ => s.Typed("ChatLine", "hello from player 1"));
-        yield return new("send", 10, _ => s.Pilot.Click(s.Pilot.FindButton("SendChat"), "Say"));
+        yield return new("send", 10, _ => s.Pilot.Click(s.Pilot.Find<Button>("SendChat"), "Send"));
         yield return new("player 2 ready", 90, _ => Guest() is { Ready: true });
         yield return new("change respawn", 10, _ =>
         {
             if (Room()!.MatchSettingsPanel is { Visible: false })
-                return s.Pilot.Click(s.Pilot.FindButton("MatchSettings"), "Edit match settings") && false;
+                return s.Pilot.Click(s.Pilot.Find<Button>("MatchSettings"), "Edit match settings") && false;
             s.Shot("lobby-guest-ready");
             return s.Pilot.Click(Room()!.ParameterRows!.Find("RespawnNext"), "Respawn Length next");
         });
@@ -275,6 +276,7 @@ public sealed class NetLobbySmoke : SmokeTest
             return s.Expect(code == 0, $"player 2's process ended with exit code {code}");
         });
         yield return new("leave", 10, _ => s.Pilot.Click(Room()?.LeaveButton, "Leave"));
+        yield return new("confirm leave", 10, _ => s.Pilot.Click(Room()?.GetNodeOrNull<ConfirmBox>("LeaveLobbyConfirmation")?.YesButton, "Leave lobby"));
         yield return new("main menu", 30, _ => s.Tree.CurrentScene is MainMenu && OnlineService.Get(s.Tree).Hosting is null);
     }
 
@@ -296,6 +298,17 @@ public sealed class NetLobbySmoke : SmokeTest
             s.Shot($"game{game}");
             return s.Expect(team == (game == 1 ? 0 : 1), $"player 1 on team {team} in game {game} (revenge swaps the sides)");
         });
+        yield return new($"game {game} send admin notices", 10, _ =>
+        {
+            OnlineService service = OnlineService.Get(script().Tree);
+            if (service.Hosting is not { } host || service.Client is not { } client) return false;
+            host.Command("say " + AnnouncementFor(game));
+            host.Inspect(server => server.Announce(NoticeFor(game)));
+            // Through the real client protocol: this reply belongs only to the host who asked for it.
+            client.Command("status");
+            return true;
+        });
+        yield return new($"game {game} admin notices in shared chat", 20, _ => VerifyNotifications(script(), game, host: true));
         yield return new($"game {game} voice at 40%", 40, _ =>
         {
             NetLobbyScript s = script();
@@ -327,6 +340,35 @@ public sealed class NetLobbySmoke : SmokeTest
             var results = (ResultsScreen)s.Tree.CurrentScene!;
             return results.RematchButton!.Text == "Next" && s.Pilot.Click(results.RematchButton, "Next");
         });
+    }
+
+    internal static string AnnouncementFor(int game)
+    {
+        string prefix = $"Admin notice for game {game}: ";
+        return prefix + new string('a', 150 - prefix.Length);
+    }
+
+    private static string NoticeFor(int game) => $"Server notice for game {game}: the shared chat is connected.";
+
+    internal static bool VerifyNotifications(NetLobbyScript script, int game, bool host)
+    {
+        if (script.Tree.CurrentScene is not PlayRoot { Menu.Hud.Chat: { } chat }) return false;
+        IReadOnlyList<ChatEntry> messages = chat.Transcript.Entries;
+        string announcement = AnnouncementFor(game), notice = NoticeFor(game);
+        string statusPrefix = ServerName + ": match";
+        if (!messages.Any(m => m.Text == announcement) || !messages.Any(m => m.Text == notice) ||
+            host && !messages.Any(m => m.Text.StartsWith(statusPrefix, StringComparison.Ordinal)) || script.StepSeconds < 1.0) return false;
+
+        return script.Expect(messages.Count(m => m.Text == announcement) == 1 &&
+                messages.Single(m => m.Text == announcement).Channel == ChatChannel.System,
+                $"game {game}: the complete 150-character admin announcement appears once as System") &&
+            script.Expect(messages.Count(m => m.Text == notice) == 1 && messages.Single(m => m.Text == notice).Channel == ChatChannel.System,
+                $"game {game}: the session notification appears once as System") &&
+            script.Expect(messages.Count(m => m.Text.StartsWith(statusPrefix, StringComparison.Ordinal)) == (host ? 1 : 0) &&
+                messages.Where(m => m.Text.StartsWith(statusPrefix, StringComparison.Ordinal)).All(m => m.Channel == ChatChannel.System),
+                $"game {game}: the private admin status reply reaches only the requesting host") &&
+            script.Expect(game == 1 || messages.All(m => m.Text != AnnouncementFor(1) && m.Text != NoticeFor(1)),
+                "the new round does not replay the previous round's admin notifications");
     }
 }
 
@@ -382,11 +424,16 @@ public sealed class NetLobbyGuestSmoke : SmokeTest
         yield return new("the host's session parameters", 20, _ =>
         {
             LobbySetup setup = Room()!.Parameters!.Setup;
+            string timeLimit = s.ValueText("TimeLimitValue"), revengeValue = s.ValueText("RevengeValue");
+            // The lobby keeps its compact parameter rows in a closed settings panel; Pilot.Find selects visible controls only.
+            CheckBox? revengeCheck = Room()!.ParameterRows?.FindChild("RevengeCheck", recursive: true, owned: false) as CheckBox;
             s.Shot("lobby", once: true);
             return s.Expect(setup.TimeLimit == 1 && setup.Revenge && setup.GamesInARow == 2 && setup.VoiceMode == EVoiceChatMode.VCM_Open,
                     "Session Parameters show 1 min, Revenge, 2 games, voice Open: " + setup.Describe()) &&
                 s.Expect(s.Text("Row_VoiceChat").Contains("Open", StringComparison.Ordinal) || s.ValueText("VoiceChatValue") == "Open", "the Voice Chat row reads Open") &&
-                s.Expect(s.ValueText("TimeLimitValue") == "1" && s.ValueText("RevengeValue") == "Yes", "the rows read 1 and Yes");
+                s.Expect(timeLimit == "1" && (revengeValue == "Yes" || revengeCheck is { ButtonPressed: true }),
+                    $"the rows show 1 minute and enabled Revenge: TimeLimitValue='{timeLimit}', RevengeValue='{revengeValue}', " +
+                    $"checkbox found={revengeCheck is not null}, pressed={revengeCheck?.ButtonPressed}, visible={revengeCheck?.IsVisibleInTree()}");
         });
         yield return new("talk", 10, _ =>
         {
@@ -411,7 +458,7 @@ public sealed class NetLobbyGuestSmoke : SmokeTest
         yield return new("unrestrict", 10, _ => s.Pilot.Click(Room()!.TeamVoiceOnlyBox, "Restrict Mic to Team"));
         yield return new("unrestricted", 20, _ => Me() is { TeamVoiceOnly: false });
         yield return new("chat", 10, _ => s.Typed("ChatLine", "hello from player 2"));
-        yield return new("say", 10, _ => s.Pilot.Click(s.Pilot.FindButton("SendChat"), "Say"));
+        yield return new("say", 10, _ => s.Pilot.Click(s.Pilot.Find<Button>("SendChat"), "Send"));
         yield return new("my line in the chat box", 20, _ => s.Text("Messages").Contains("Guest: hello from player 2", StringComparison.Ordinal));
         yield return new("the host's hello", 120, _ => s.Text("Messages").Contains("Host: hello from player 1", StringComparison.Ordinal));
         yield return new("ready", 10, _ => Room()!.MainButton?.Text == "Ready" && s.Pilot.Click(Room()!.MainButton, "Ready"));
@@ -475,6 +522,8 @@ public sealed class NetLobbyGuestSmoke : SmokeTest
                 });
             }
 
+            yield return new($"game {game} public admin notices in shared chat", 20,
+                _ => NetLobbySmoke.VerifyNotifications(s, game, host: false));
             // Player 2 is a merc in game 1 and a spy in game 2; the mercs win on time.
             yield return NetLobbyScript.EndBanner(() => s, game, game == 1);
             yield return new($"game {game} results", 150, _ => s.Tree.CurrentScene is ResultsScreen { BannerShowing: false, RematchButton.Visible: true } r &&
@@ -493,6 +542,7 @@ public sealed class NetLobbyGuestSmoke : SmokeTest
             s.Shot("lobby-after-revenge");
             return s.Pilot.Click(Room()!.LeaveButton, "Leave");
         });
+        yield return new("confirm leave", 10, _ => s.Pilot.Click(Room()?.GetNodeOrNull<ConfirmBox>("LeaveLobbyConfirmation")?.YesButton, "Leave lobby"));
         yield return new("main menu", 30, _ => s.Tree.CurrentScene is MainMenu && FrontEnd.ShowJoinWithIp(s.Tree) is not null);
         yield return new("join with ip page", 10, _ => s.Tree.CurrentScene is JoinWithIpScreen);
         yield return new("server address", 10, _ => s.Typed("Address", address.Split(':')[0]));
@@ -505,6 +555,7 @@ public sealed class NetLobbyGuestSmoke : SmokeTest
         });
         yield return new("lobby again", 60, _ => Room() is { Session: { IsHost: false } } && Me() is not null);
         yield return new("leave again", 10, _ => s.Pilot.Click(Room()!.LeaveButton, "Leave"));
+        yield return new("confirm leave again", 10, _ => s.Pilot.Click(Room()?.GetNodeOrNull<ConfirmBox>("LeaveLobbyConfirmation")?.YesButton, "Leave lobby"));
         yield return new("main menu again", 30, _ => s.Tree.CurrentScene is MainMenu);
     }
 }

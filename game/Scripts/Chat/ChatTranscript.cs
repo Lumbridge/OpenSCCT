@@ -36,4 +36,11 @@ public sealed class ChatTranscript
         _entries.Add(new ChatEntry(++_nextId, channel, text, senderName, senderId, senderTeam, now));
         Changed?.Invoke();
     }
+
+    internal void ReplaceLast(ChatEntry entry)
+    {
+        if (_entries.Count == 0 || _entries[^1].Id != entry.Id) throw new InvalidOperationException("Only the latest received entry can be updated.");
+        _entries[^1] = entry;
+        Changed?.Invoke();
+    }
 }

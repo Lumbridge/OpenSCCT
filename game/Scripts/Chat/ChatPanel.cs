@@ -281,7 +281,11 @@ public partial class ChatPanel : Control
         long last = _history.Count > 0 ? _history[^1].Entry.Id : 0;
         foreach (ChatEntry entry in Transcript.Entries)
         {
-            if (entry.Id <= last) continue;
+            if (entry.Id <= last)
+            {
+                RefreshEntry(_history, entry);
+                continue;
+            }
             RichTextLabel row = CreateRow(entry, selectable: true);
             _rows.AddChild(row);
             _history.Add((entry, row));
@@ -300,7 +304,11 @@ public partial class ChatPanel : Control
         for (int i = Math.Max(0, Transcript.Entries.Count - PassiveLines); i < Transcript.Entries.Count; i++)
         {
             ChatEntry entry = Transcript.Entries[i];
-            if (entry.Id <= lastRecent) continue;
+            if (entry.Id <= lastRecent)
+            {
+                if (RefreshEntry(_recent, entry)) _recentMetrics.Remove(entry.Id);
+                continue;
+            }
             RichTextLabel row = CreateRow(entry, selectable: false);
             _passivePanel.AddChild(row);
             _recent.Add((entry, row));
@@ -319,6 +327,16 @@ public partial class ChatPanel : Control
         _recentMetrics.Clear();
     }
 
+    private static bool RefreshEntry(List<(ChatEntry Entry, RichTextLabel Label)> rows, ChatEntry entry)
+    {
+        int index = rows.FindIndex(row => row.Entry.Id == entry.Id);
+        if (index < 0 || ReferenceEquals(rows[index].Entry, entry)) return false;
+        RichTextLabel label = rows[index].Label;
+        WriteRow(label, entry);
+        rows[index] = (entry, label);
+        return true;
+    }
+
     private RichTextLabel CreateRow(ChatEntry entry, bool selectable)
     {
         var row = new RichTextLabel
@@ -330,6 +348,13 @@ public partial class ChatPanel : Control
         row.AddThemeStyleboxOverride("normal", new StyleBoxEmpty());
         row.AddThemeStyleboxOverride("focus", new StyleBoxEmpty());
         ApplyRowFont(row);
+        WriteRow(row, entry);
+        return row;
+    }
+
+    private static void WriteRow(RichTextLabel row, ChatEntry entry)
+    {
+        row.Clear();
         row.PushColor(ChannelColour(entry.Channel));
         row.AddText("[" + entry.Channel.ToString().ToUpperInvariant() + "] ");
         row.Pop();
@@ -342,7 +367,6 @@ public partial class ChatPanel : Control
         row.PushColor(entry.Channel == ChatChannel.System ? UiArt.TextDim : UiArt.Text);
         row.AddText(entry.Text);
         row.Pop();
-        return row;
     }
 
     private static Color ChannelColour(ChatChannel channel) => channel switch

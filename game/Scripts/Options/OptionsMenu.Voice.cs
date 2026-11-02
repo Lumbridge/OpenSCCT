@@ -4,6 +4,7 @@ using System.Globalization;
 using Godot;
 using OpenScct.Net;
 using OpenScct.Net.Voice;
+using OpenScctGame.Audio;
 using OpenScctGame.Match;
 using OpenScctGame.Online;
 using OpenScctGame.UI;
@@ -282,7 +283,7 @@ public partial class OptionsMenu
                 _player = new AudioStreamPlayer { Name = "MicTestPlayback", Stream = generator, Bus = VoiceAudio.VoiceBus };
                 page.AddChild(_player);
                 _player.Play();
-                _playback = (AudioStreamGeneratorPlayback)_player.GetStreamPlayback();
+                _playback = GeneratorPlayback.Get(_player);
                 page._micTestState!.Text = "Playing it back";
             }
 

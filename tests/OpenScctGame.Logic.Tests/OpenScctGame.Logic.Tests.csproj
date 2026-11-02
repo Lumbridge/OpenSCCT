@@ -9,6 +9,7 @@
   -->
   <ItemGroup>
     <Compile Include="..\..\game\Scripts\Chat\ChatTranscript.cs" Link="Linked\ChatTranscript.cs" />
+    <Compile Include="..\..\game\Scripts\Chat\ChatNotifications.cs" Link="Linked\ChatNotifications.cs" />
     <Compile Include="..\..\game\Scripts\Play\PlayFrameStats.cs" Link="Linked\PlayFrameStats.cs" />
     <Compile Include="..\..\game\Scripts\Render\Gltf\GlbDocument.cs" Link="Linked\GlbDocument.cs" />
     <Compile Include="..\..\game\Scripts\UI\StatsModel.cs" Link="Linked\StatsModel.cs" />

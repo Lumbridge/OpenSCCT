@@ -8,8 +8,9 @@ namespace OpenScctGame.UI;
 /// <summary>
 /// Drives the front end as a player does, for the menu smokes (docs/TESTING-PLAY.md, docs/MENUS.md): mouse clicks on
 /// buttons, check boxes, slider positions and list rows, and typing into edit boxes, all as Godot input events through
-/// <see cref="Input.ParseInputEvent"/> (the same path as a real mouse and keyboard: viewport, GUI input, the controls'
-/// own signals). One action at a time: after each the pilot waits <see cref="SettleFrames"/> frames so the GUI sees
+/// <see cref="Input.ParseInputEvent"/> for the main window or <see cref="Viewport.PushInput"/> for a popup's own
+/// viewport (GUI input and the controls' own signals). One action at a time: after each the pilot waits
+/// <see cref="SettleFrames"/> frames so the GUI sees
 /// the events and the page reacts before the next check. Without a window the root viewport is 64 x 64; the pilot gives
 /// it the project's 1280 x 720 so controls lie where clicks land, as <c>InGameMenuSmoke</c> does.
 /// </summary>
@@ -103,7 +104,7 @@ public sealed class MenuPilot
             return false;
         }
 
-        return ClickAt(control.GetGlobalRect().GetCenter(), what);
+        return ClickAt(control.GetGlobalTransformWithCanvas() * (control.Size * 0.5f), what, control.GetViewport());
     }
 
     /// <summary>
@@ -115,6 +116,9 @@ public sealed class MenuPilot
         ArgumentNullException.ThrowIfNull(control);
         for (Node? n = control.GetParent(); n is not null; n = n.GetParent())
         {
+            // PopupPanel is a Window/Viewport: its controls use a separate coordinate space and
+            // cannot be clipped or scrolled by the player row which owns the popup in the node tree.
+            if (n is Viewport) break;
             if (n is ScrollContainer scroll)
             {
                 Rect2 view = scroll.GetGlobalRect();
@@ -164,8 +168,8 @@ public sealed class MenuPilot
             return false;
         }
 
-        Rect2 r = slider.GetGlobalRect();
-        return ClickAt(new Vector2(r.Position.X + (float)(r.Size.X * Math.Clamp(fraction, 0, 1)), r.GetCenter().Y), what);
+        Vector2 point = new((float)(slider.Size.X * Math.Clamp(fraction, 0, 1)), slider.Size.Y * 0.5f);
+        return ClickAt(slider.GetGlobalTransformWithCanvas() * point, what, slider.GetViewport());
     }
 
     /// <summary>Clicks a row of a tree (the server browser's list).</summary>
@@ -175,9 +179,9 @@ public sealed class MenuPilot
         ArgumentNullException.ThrowIfNull(item);
         tree.ScrollToItem(item);
         Rect2 area = tree.GetItemAreaRect(item);
-        Vector2 at = tree.GetGlobalRect().Position + area.Position + new Vector2(Math.Min(area.Size.X * 0.5f, 120f), area.Size.Y * 0.5f) -
+        Vector2 at = area.Position + new Vector2(Math.Min(area.Size.X * 0.5f, 120f), area.Size.Y * 0.5f) -
             new Vector2(0f, tree.GetScroll().Y);
-        return ClickAt(at, what);
+        return ClickAt(tree.GetGlobalTransformWithCanvas() * at, what, tree.GetViewport());
     }
 
     /// <summary>Clicks an edit box, selects what it holds and types <paramref name="text"/> as key presses.</summary>
@@ -194,14 +198,15 @@ public sealed class MenuPilot
             return false;
         }
 
-        ClickAt(edit.GetGlobalRect().GetCenter(), what);
-        Key(Godot.Key.A, ctrl: true);
-        Key(Godot.Key.Backspace);
+        Viewport viewport = edit.GetViewport();
+        if (!ClickAt(edit.GetGlobalTransformWithCanvas() * (edit.Size * 0.5f), what, viewport)) return false;
+        Key(Godot.Key.A, ctrl: true, viewport: viewport);
+        Key(Godot.Key.Backspace, viewport: viewport);
         foreach (char c in text)
         {
             var down = new InputEventKey { Pressed = true, Unicode = c, Keycode = KeyFor(c), PhysicalKeycode = KeyFor(c) };
-            Input.ParseInputEvent(down);
-            Input.ParseInputEvent(new InputEventKey { Pressed = false, Unicode = c, Keycode = KeyFor(c), PhysicalKeycode = KeyFor(c) });
+            SendInput(viewport, down);
+            SendInput(viewport, new InputEventKey { Pressed = false, Unicode = c, Keycode = KeyFor(c), PhysicalKeycode = KeyFor(c) });
         }
 
         _log.Add(string.Create(CultureInfo.InvariantCulture, $"type '{text}' into {what}"));
@@ -210,19 +215,19 @@ public sealed class MenuPilot
     }
 
     /// <summary>Presses and releases a key (Enter to submit, Escape...).</summary>
-    public void Key(Key key, bool ctrl = false)
+    public void Key(Key key, bool ctrl = false, Viewport? viewport = null)
     {
-        Input.ParseInputEvent(new InputEventKey { Pressed = true, Keycode = key, PhysicalKeycode = key, CtrlPressed = ctrl });
-        Input.ParseInputEvent(new InputEventKey { Pressed = false, Keycode = key, PhysicalKeycode = key, CtrlPressed = ctrl });
+        SendInput(viewport ?? _tree.Root, new InputEventKey { Pressed = true, Keycode = key, PhysicalKeycode = key, CtrlPressed = ctrl });
+        SendInput(viewport ?? _tree.Root, new InputEventKey { Pressed = false, Keycode = key, PhysicalKeycode = key, CtrlPressed = ctrl });
         _wait = SettleFrames;
     }
 
     /// <summary>Clicks that would have landed outside the window (a page laid out wider or taller than it).</summary>
     public int OffScreen { get; private set; }
 
-    private bool ClickAt(Vector2 at, string what)
+    private bool ClickAt(Vector2 at, string what, Viewport viewport)
     {
-        if (!_tree.Root.GetVisibleRect().HasPoint(at))
+        if (!viewport.GetVisibleRect().HasPoint(at))
         {
             OffScreen++;
             _log.Add(string.Create(CultureInfo.InvariantCulture, $"{what} is off the window at ({at.X:0},{at.Y:0}): a player cannot click it"));
@@ -230,13 +235,20 @@ public sealed class MenuPilot
             return false;
         }
 
-        Input.ParseInputEvent(new InputEventMouseMotion { Position = at, GlobalPosition = at });
-        Input.ParseInputEvent(new InputEventMouseButton { ButtonIndex = MouseButton.Left, Pressed = true, Position = at, GlobalPosition = at });
-        Input.ParseInputEvent(new InputEventMouseButton { ButtonIndex = MouseButton.Left, Pressed = false, Position = at, GlobalPosition = at });
+        if (viewport != _tree.Root) viewport.NotifyMouseEntered();
+        SendInput(viewport, new InputEventMouseMotion { Position = at, GlobalPosition = at });
+        SendInput(viewport, new InputEventMouseButton { ButtonIndex = MouseButton.Left, Pressed = true, Position = at, GlobalPosition = at });
+        SendInput(viewport, new InputEventMouseButton { ButtonIndex = MouseButton.Left, Pressed = false, Position = at, GlobalPosition = at });
         Clicks++;
         _log.Add(string.Create(CultureInfo.InvariantCulture, $"click {what} at ({at.X:0},{at.Y:0})"));
         _wait = SettleFrames;
         return true;
+    }
+
+    private void SendInput(Viewport viewport, InputEvent input)
+    {
+        if (viewport == _tree.Root) Input.ParseInputEvent(input);
+        else viewport.PushInput(input, inLocalCoords: true);
     }
 
     private static Key KeyFor(char c) => c switch

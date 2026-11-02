@@ -149,7 +149,7 @@ public sealed class VoiceSmoke : SmokeTest
         _tonePlayer = new AudioStreamPlayer { Name = "VoiceSmokeTone", Stream = generator, Bus = VoiceAudio.CaptureBus };
         root.AddChild(_tonePlayer);
         _tonePlayer.Play();
-        _tone = (AudioStreamGeneratorPlayback)_tonePlayer.GetStreamPlayback();
+        _tone = OpenScctGame.Audio.GeneratorPlayback.Get(_tonePlayer);
         _notes.Add($"mix rate {AudioServer.GetMixRate():0} Hz, output '{AudioServer.OutputDevice}'");
     }
 

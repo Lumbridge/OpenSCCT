@@ -242,6 +242,10 @@ bandwidth away from replication); the cap and the rate limit bound it instead.
   1's chat captures and sends it, the relay routes it to player 2 (same team) and not to player 3, and player 2 must
   hear 440 Hz; the speaking indicator must go on and off with push to talk and the uplink stay within budget. When the
   audio driver does not mix (headless), the tone is fed to the client directly and the detail says so.
+- `pwsh tools/ci/godot-smoke.ps1 -Tests voice-lifecycle`: repeated online, hub and direct voice attach/detach,
+  same-client assignment, session replacement and native generator retirement. The process also exits with active
+  playback to exercise tree teardown. `net-lobby` checks two complete multiplayer rounds, per-player volume,
+  leave/rejoin and successful host/guest process exits; run without an attached debugger for shutdown validation.
 
 ## In the online session
 
@@ -249,6 +253,13 @@ Voice is wired into every online visit (docs/ONLINE.md "Voice", docs/MENUS.md): 
 included; `OnlineVoice` and the game's `OnlineVoiceChat` on each player (microphone, keys, the options' Voice page
 settings saved in `user://settings.json`, per-player volume and mute from the lobby, Reloaded's overlay in a round).
 Talker ids on the wire are PlayerReplicationInfo ids plus one (`VoiceK.TalkerOf`), session player ids in the lobby.
+
+Leaving or replacing a visit stops and releases its talker outputs. Generator playback holds a native reference to
+its generator through `Audio.GeneratorPlayback`, including hub audio and microphone tests. Godot 4.7.2 stops audio
+asynchronously with a final fade; its generator playback stores a raw generator pointer. Keeping the generator
+owned by playback prevents the mixer from reading freed memory during that fade or application shutdown, even
+after the player and managed wrappers are disposed. The reference is released with native playback, without a
+fixed delay or a permanent cache.
 
 ## Not done yet
 

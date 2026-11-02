@@ -132,11 +132,11 @@ public partial class OptionsMenu : Control
         _tabs = new TabContainer { Name = "Tabs", SizeFlagsVertical = SizeFlags.ExpandFill };
         _tabs.AddChild(RolePage(PlaySide.Spy));
         _tabs.AddChild(RolePage(PlaySide.Merc));
-        _tabs.AddChild(PadPage());
         _tabs.AddChild(DisplayPage());
         _tabs.AddChild(AudioPage());
         _tabs.AddChild(VoicePage());
         _tabs.AddChild(HudPage());
+        _tabs.AddChild(PadPage());
 
         column.AddChild(_tabs);
 
@@ -381,7 +381,7 @@ public partial class OptionsMenu : Control
         advanced.AddChild(tuning);
         advanced.AddChild(Help("Base turning speed affects both roles and combines with each role's sensitivity. The up/down multiplier changes vertical turning relative to horizontal."));
         AddAdvanced(content, advanced);
-        return Page("Controller", content);
+        return Page("Controller (Shared)", content);
     }
 
     /// <summary>Pad control names as the options list them.</summary>

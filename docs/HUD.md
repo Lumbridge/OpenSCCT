@@ -234,6 +234,12 @@ name and team. The display preserves that metadata for channel labels and team-c
 text literally. The hub retains `/l`, emotes, chat muting and overhead bubbles. No optimistic local echoes are
 added. Spec: `spec/hud/chat.md`; UI smoke: `modern-chat` (captures via `SVM_PLAY_SHOTS`).
 
+Admin announcements, moderation notices and command replies also appear as System entries. `OnlineService`
+forwards the session's separate system-message stream and buffers notices received while the match loads;
+ordinary player messages retain their existing receive path. Server announcements preserve the admin portal's
+150-character text, and legacy servers' duplicate announcement copies are combined into one complete row.
+Targeted replies remain private. Hub admin notices continue through `HubClient.ChatAdded`.
+
 ## Developer console
 
 `UI/DevConsole` (rl:qol.console, rl:input.console) opens and closes on the key left of 1 (backtick or tilde, by
@@ -285,8 +291,8 @@ applies them at start and on save.
 | console | `override_console_key` (true: the key left of 1; false: the apostrophe key) |
 
 `OptionsMenu` is the screen from the main menu or the in-game F12 overlay. Spy and Mercenary each contain
-Bindings, Mouse & Aim and Controller sections; Mercenary also has Crosshair. The top-level Controller tab holds
-shared controller settings. Display, Audio, Voice and HUD follow (docs/MENUS.md). Settings and bindings are staged until Apply or
+Bindings, Mouse & Aim and Controller sections; Mercenary also has Crosshair. Display, Audio, Voice and HUD follow,
+then Controller (Shared) holds shared controller settings in the far-right tab (docs/MENUS.md). Settings and bindings are staged until Apply or
 Save & Close; Back confirms discarding edits. `OptionsRuntime` applies role sensitivity, HUD switches, frame caps,
 FOV and controller settings. `GamepadInput` retains keyboard-linked assignments and supports independent action
 bindings, alongside radial dead zones, response curves and the spy's run threshold.

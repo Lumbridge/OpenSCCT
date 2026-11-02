@@ -245,7 +245,7 @@ public partial class OnlineVoiceChat : Node
             _tonePlayer = new AudioStreamPlayer { Name = "SyntheticMicrophone", Stream = generator, Bus = VoiceAudio.CaptureBus };
             AddChild(_tonePlayer);
             _tonePlayer.Play();
-            _tone = (AudioStreamGeneratorPlayback)_tonePlayer.GetStreamPlayback();
+            _tone = OpenScctGame.Audio.GeneratorPlayback.Get(_tonePlayer);
             _toneStart = Time.GetTicksMsec() / 1000.0;
         }
 

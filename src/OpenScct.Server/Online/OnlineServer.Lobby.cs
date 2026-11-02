@@ -465,7 +465,8 @@ public sealed partial class OnlineServer
     /// <summary>Sends a line from the server to every player's chat (and the lobby box).</summary>
     public void Say(string text)
     {
-        var line = new ChatLine(EChatScope.Say, 0, "Server", ChatK.NoTeam, ChatRelay.Clean(text));
+        // Server announcements may exceed the player's 100-character composer limit (the admin portal allows 150).
+        var line = new ChatLine(EChatScope.Say, 0, "Server", ChatK.NoTeam, SessionProtocol.Clean(text).Trim());
         foreach (PlayerSlot slot in Host.Players)
         {
             slot.Connection.ControlChannel?.Send(ControlMessage.Chat(line));
@@ -647,7 +648,6 @@ public sealed partial class OnlineServer
                 break;
             case "say" when arg.Length > 0:
                 Say(arg + (rest.Length > 0 ? " " + rest : string.Empty));
-                Announce("Server: " + arg + (rest.Length > 0 ? " " + rest : string.Empty));
                 break;
             case "close" or "quit" or "exit":
                 Close();

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Godot;
 using OpenScct.Net.Voice;
+using OpenScctGame.Audio;
 
 namespace OpenScctGame.Voice;
 
@@ -50,11 +51,21 @@ public partial class VoiceAudio : Node
     private readonly Vector2[] _push = new Vector2[VoiceK.FrameSamples];
     private float[] _mix = new float[VoiceK.FrameSamples * OutputQueueFrames];
     private AudioEffectCapture? _capture;
+    private VoiceClient? _client;
     private bool _usingMicrophone;
     private double _clockFrames;
 
-    /// <summary>The client whose microphone and talkers this node serves.</summary>
-    public VoiceClient? Client { get; set; }
+    /// <summary>The client whose microphone and talkers this node serves. Changing visits releases the old playback.</summary>
+    public VoiceClient? Client
+    {
+        get => _client;
+        set
+        {
+            if (ReferenceEquals(_client, value)) return;
+            ClearPlayback();
+            _client = value;
+        }
+    }
 
     public VoicePlaybackPacing Pacing { get; set; } = VoicePlaybackPacing.Output;
 
@@ -189,17 +200,28 @@ public partial class VoiceAudio : Node
 
     public override void _ExitTree()
     {
+        _client = null;
+        ClearPlayback();
+        StopMicrophone();
+    }
+
+    private void ClearPlayback()
+    {
         foreach (TalkerOutput output in _players.Values)
         {
             output.Player.Stop();
+            output.Player.Stream = null;
 
-            // Release the playback wrapper now, on the main thread: left to the garbage collector it is released on
-            // the finalizer thread, after the engine may have shut down.
+            // GeneratorPlayback keeps the native generator alive until the mixer's final playback reference ends.
+            // We can release our wrappers now, even during tree shutdown. The capture effect remains on its shared bus.
             output.Playback.Dispose();
+            output.Generator.Dispose();
+            output.Player.QueueFree();
         }
 
         _players.Clear();
-        StopMicrophone();
+        _clockFrames = 0;
+        Array.Clear(_mix);
     }
 
     private void PumpCapture(VoiceClient client)
@@ -389,16 +411,18 @@ public partial class VoiceAudio : Node
         };
         AddChild(player);
         player.Play();
-        var playback = (AudioStreamGeneratorPlayback)player.GetStreamPlayback();
-        var output = new TalkerOutput(player, playback, playback.GetFramesAvailable());
+        AudioStreamGeneratorPlayback playback = GeneratorPlayback.Get(player);
+        var output = new TalkerOutput(player, generator, playback, playback.GetFramesAvailable());
         _players[talker] = output;
         return output;
     }
 
     /// <summary>One talker's generator and how many frames it held free when empty.</summary>
-    private sealed class TalkerOutput(AudioStreamPlayer player, AudioStreamGeneratorPlayback playback, int capacity)
+    private sealed class TalkerOutput(AudioStreamPlayer player, AudioStreamGenerator generator, AudioStreamGeneratorPlayback playback, int capacity)
     {
         public AudioStreamPlayer Player { get; } = player;
+
+        public AudioStreamGenerator Generator { get; } = generator;
 
         public AudioStreamGeneratorPlayback Playback { get; } = playback;
 

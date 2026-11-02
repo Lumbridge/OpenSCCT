@@ -134,8 +134,7 @@ public sealed class HudReceiver
         if (ModernChat is { } chat)
         {
             if (chat.ReceiveMatchMessages)
-                chat.Transcript.Add(line.Scope == EChatScope.TeamSay ? ChatChannel.Team : ChatChannel.All,
-                    line.Text, line.SenderName, line.SenderId, line.SenderTeam, chat.Clock());
+                ChatNotifications.ReceiveChat(chat.Transcript, line, chat.Clock());
             return;
         }
         float now = (_client?.World.Level.Info.LocalPlayerController as SPlayerController)?.Level.TimeSeconds ?? _client?.World.TimeSeconds ?? 0f;

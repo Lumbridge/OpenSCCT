@@ -6,6 +6,7 @@ using OpenScct.Net;
 using OpenScct.Net.Cosmetics;
 using OpenScct.Server;
 using OpenScct.Server.Online;
+using OpenScctGame.Chat;
 using OpenScctGame.Hud;
 using OpenScctGame.Match;
 using OpenScctGame.Options;
@@ -40,6 +41,8 @@ public partial class OnlineService : Node
     private ClientSession? _roundRefused;
     private ClientSession? _loadingSession;
     private int _loadingFrames;
+    private readonly Queue<(ChatLine? Chat, string Text)> _pendingRoundNotices = new();
+    private ClientSession? _noticeSession;
     private Action<string?>? _hubReturn;
     private bool _hubPlayed;
 
@@ -255,6 +258,9 @@ public partial class OnlineService : Node
         _shownState = (OnlineClientState)(-1);
         client.Changed += OnChanged;
         client.SessionEnding += OnSessionEnding;
+        client.SessionStarted += OnSessionStarted;
+        client.MessageReceived += OnMessageReceived;
+        if (client.Session is { } session) OnSessionStarted(session);
         FrontEnd.ShowConnecting(GetTree(), this);
     }
 
@@ -278,6 +284,9 @@ public partial class OnlineService : Node
         {
             client.Changed -= OnChanged;
             client.SessionEnding -= OnSessionEnding;
+            client.SessionStarted -= OnSessionStarted;
+            client.MessageReceived -= OnMessageReceived;
+            if (client.Session is { } session) session.ChatReceived -= OnServerChat;
             StopRound();
             VoiceChat?.Detach();
             client.Leave();
@@ -334,10 +343,53 @@ public partial class OnlineService : Node
             {
                 EnterRound(client, session);
             }
+            FlushRoundNotices();
         }
     }
 
     private void OnChanged() => Changed?.Invoke();
+
+    private void OnMessageReceived(SessionMessage message)
+    {
+        // Player ChatLines already go through HudReceiver. Only the separate session notice route belongs here.
+        if (!message.IsSystem || Client is not { State: OnlineClientState.Loading or OnlineClientState.Match, Session: { } session }) return;
+        QueueRoundNotice(session, null, message.Text);
+        FlushRoundNotices();
+    }
+
+    private void OnSessionStarted(ClientSession session) => session.ChatReceived += OnServerChat;
+
+    private void OnServerChat(ChatLine line)
+    {
+        if (line.SenderId != 0 || line.SenderTeam != ChatK.NoTeam ||
+            Client is not { State: OnlineClientState.Loading or OnlineClientState.Match, Session: { } session }) return;
+        // A ready round already receives this through HudReceiver; buffer only announcements during loading.
+        if (_round is { IsLoaded: true, Session: { IsStopped: false } play, Menu.Hud.Chat: not null } &&
+            ReferenceEquals(play.Client, session)) return;
+        QueueRoundNotice(session, line, "");
+    }
+
+    private void QueueRoundNotice(ClientSession session, ChatLine? chat, string text)
+    {
+        if (!ReferenceEquals(_noticeSession, session))
+        {
+            _pendingRoundNotices.Clear();
+            _noticeSession = session;
+        }
+        if (_pendingRoundNotices.Count == ChatTranscript.Capacity) _pendingRoundNotices.Dequeue();
+        _pendingRoundNotices.Enqueue((chat, text));
+    }
+
+    private void FlushRoundNotices()
+    {
+        if (_round is not { IsLoaded: true, Session: { IsStopped: false } session, Menu.Hud.Chat: { } chat } ||
+            !ReferenceEquals(session.Client, _noticeSession)) return;
+        while (_pendingRoundNotices.TryDequeue(out var notice))
+        {
+            if (notice.Chat is { } line) ChatNotifications.ReceiveChat(chat.Transcript, line, chat.Clock());
+            else ChatNotifications.ReceiveNotice(chat.Transcript, notice.Text, chat.Clock());
+        }
+    }
 
     /// <summary>Moves to the screen of the visit's state, once per change.</summary>
     private void ShowState(OnlineClient client)
@@ -440,6 +492,7 @@ public partial class OnlineService : Node
         };
         client.SessionTickedElsewhere = true;
         _round = PlayRoot.Enter(GetTree(), config);
+        FlushRoundNotices();
 
         // Loading_Menu's list: who is ready, still loading or not in yet, until the round starts.
         _round.AddChild(new RoundStartList(client));
@@ -450,10 +503,16 @@ public partial class OnlineService : Node
     }
 
     /// <summary>The visit is about to close a session: a play scene on it stops first.</summary>
-    private void OnSessionEnding(ClientSession session) => StopRound();
+    private void OnSessionEnding(ClientSession session)
+    {
+        session.ChatReceived -= OnServerChat;
+        StopRound();
+    }
 
     private void StopRound()
     {
+        _pendingRoundNotices.Clear();
+        _noticeSession = null;
         _loadingSession = null;
         _loadingFrames = 0;
         if (_round is { } round)

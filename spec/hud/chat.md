@@ -44,8 +44,15 @@ historical evidence; the following intentional OpenSCCT additions supersede them
   `HubClient.ChatAdded` and preserves nearby `/l`, emotes, chat muting and overhead bubbles. There is one composer
   and one receive route per scene, and messages are displayed from the server relay rather than optimistic echoes.
 
-Server scopes, wire messages, recipient restrictions, rate limits and sanitization are unchanged. Focused checks:
-`ChatTranscriptTests`, the `modern-chat` Godot smoke, and existing chat protocol/relay tests.
+- Admin/server announcements and session `msg` notices join the same System history. Notices arriving during
+  match loading are buffered until its composer exists. Private command replies retain their server-selected
+  recipients. Authoritative server chat uses sender ID 0 with no team; player names do not confer that status.
+- Admin `say` uses one server ChatLine and permits the portal's 150-character announcements. Older servers also
+  send an immediate `Server: ...` system copy; the client replaces that authoritative echo in place with the
+  complete notice. Independent repeated announcements remain separate entries.
+
+Player-chat scopes, wire messages, recipient restrictions, rate limits and sanitization are unchanged. Focused checks:
+`ChatTranscriptTests`, `ChatNotificationsTests`, the `modern-chat` and hub Godot smokes, and chat protocol/relay tests.
 
 ## Data
 

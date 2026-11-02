@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading;
 using Godot;
@@ -10,6 +11,7 @@ using OpenScct.Net;
 using OpenScct.Net.Voice;
 using OpenScct.Server;
 using OpenScct.Server.Hub;
+using OpenScctGame.Chat;
 using OpenScctGame.Match;
 using OpenScctGame.Play;
 using OpenScctGame.Smoke;
@@ -33,6 +35,7 @@ public sealed class HubSmoke : SmokeTest
     private readonly StopwatchClock _clock = new();
     private readonly CancellationTokenSource _stop = new();
     private readonly List<HubNameTag> _tags = new();
+    private readonly ConcurrentQueue<string> _adminCommands = new();
     private Thread? _serverThread;
     private HubServer? _server;
     private HubClient? _guest;
@@ -105,6 +108,7 @@ public sealed class HubSmoke : SmokeTest
 
                 _notes += $" pawn={pawn.GetType().Name} side={(pawn.SPawnType == PawnType.SPAWNOFFENSE ? "spy" : "merc")}";
                 _guest.Say("hello from the guest");
+                _adminCommands.Enqueue("say Admin hub notice");
                 _guestTalking = true;
                 return Next();
             case 4:
@@ -119,6 +123,13 @@ public sealed class HubSmoke : SmokeTest
                     composer.Transcript.Entries.Count(c => c.Text == "hello from the guest") != 1)
                 {
                     return Fail("hub chat must display the guest relay exactly once through its Nearby-capable composer");
+                }
+
+                if (!client.Chat.Any(c => c.Text == "[admin] Admin hub notice")) return SmokeResult.Running;
+                if (composer.Transcript.Entries.Count(c => c.Text == "[admin] Admin hub notice") != 1 ||
+                    composer.Transcript.Entries.Single(c => c.Text == "[admin] Admin hub notice").Channel != ChatChannel.System)
+                {
+                    return Fail("admin hub notice must appear exactly once as a System chat entry");
                 }
 
                 client.NameTags(client.LocalPlayer!.Pawn!.Location, _tags);
@@ -215,7 +226,10 @@ public sealed class HubSmoke : SmokeTest
         {
             try
             {
-                _server.RunRealtime(new StopwatchClock(), _stop.Token);
+                _server.RunRealtime(new StopwatchClock(), _stop.Token, server =>
+                {
+                    while (_adminCommands.TryDequeue(out string? command)) server.Execute(command);
+                });
             }
             catch (Exception e)
             {

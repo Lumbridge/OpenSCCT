@@ -336,10 +336,10 @@ cancellation (experimental) sit under Microphone Volume (docs/VOICE.md "Micropho
 
 ## Role configuration and shared controls
 
-Options has **Spy**, **Mercenary**, **Controller**, Display, Audio, Voice and HUD tabs. Each role contains
+Options has **Spy**, **Mercenary**, Display, Audio, Voice, HUD and **Controller (Shared)** tabs. Each role contains
 Bindings, Mouse & Aim and Controller sections. Mercenary also contains the custom Crosshair editor and preview;
 the spy retains its original contextual reticle. Role frame caps, the mercenary FOV cap and shared vertical mouse
-inversion are under Mouse & Aim. The top-level Controller tab holds shared controller setup, stick behavior and
+inversion are under Mouse & Aim. The Controller (Shared) tab holds shared controller setup, stick behavior and
 vibration settings; role-specific sensitivity and button bindings live in each role's Controller section.
 Detailed scope, camera and held-sensitivity modifiers are under Advanced settings.
 
@@ -431,7 +431,11 @@ original Video_Settings' own:
   session (SimLink).
 - `net-lobby` smoke: two game processes over UDP on localhost, driven only through the menus and keys
   (`game/Scripts/Online/NetLobbySmoke.cs`; steps in its summary). With a window and `SVM_PLAY_SHOTS`, each player saves
-  its window at every step.
+  its window at every step. Checks the player-menu voice slider against received audio volume, and verifies public
+  admin announcements and private command replies in the shared match transcript across both revenge rounds.
+- `menu-pilot-popup` smoke: mouse events operate root, scrolled and popup sliders. Popup clicks stay within their
+  own viewport without scrolling the owning player row; checks 40% volume and drag release. Runs embedded popups
+  headlessly and also native popups with `-Windowed` when the display server supports them.
 
 ```
 pwsh tools/ci/godot-smoke.ps1 -Tests net-lobby -TimeoutSeconds 900

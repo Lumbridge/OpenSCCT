@@ -37,8 +37,7 @@ public static class PlayHud
             void Received(ChatLine line)
             {
                 if (chat.ReceiveMatchMessages)
-                    chat.Transcript.Add(line.Scope == EChatScope.TeamSay ? ChatChannel.Team : ChatChannel.All,
-                        line.Text, line.SenderName, line.SenderId, line.SenderTeam, chat.Clock());
+                    ChatNotifications.ReceiveChat(chat.Transcript, line, chat.Clock());
             }
             session.Client.ChatReceived += Received;
             chat.TreeExiting += () => session.Client.ChatReceived -= Received;
