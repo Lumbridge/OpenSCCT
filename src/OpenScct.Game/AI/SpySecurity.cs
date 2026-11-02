@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using OpenScct.Core;
 using OpenScct.Core.Engine;
+using OpenScct.Game.Combat;
 using OpenScct.Game.SBase;
 
 namespace OpenScct.Game.AI;
@@ -17,9 +18,12 @@ public sealed class SpySecurity
     private SBasicGamePlayObject? _engaging;
     private float _engageAt;
     private readonly Dictionary<SBasicGamePlayObject, float> _avoidUntil = new();
+    public bool Engaging => _engaging is not null;
+    public bool Handling { get; private set; }
 
     public void Observe(AiController bot, float now)
     {
+        Handling = false;
         if (!ReferenceEquals(_pawn, bot.Pawn))
         {
             _known.Clear();
@@ -98,9 +102,11 @@ public sealed class SpySecurity
             pawn.Physics != EPhysics.PHYS_Walking || pawn.HandItem is not null) return false;
         int yaw = plan.MoveYaw ?? plan.Yaw ?? bot.Controller.Rotation.Yaw;
         FVector direction = new FRotator(0, yaw, 0).Vector();
-        SBasicGamePlayObject? threat = null;
+        // Keep the target while turning/drawing; the new heading need not still cross its coverage.
+        SBasicGamePlayObject? threat = _engaging is { } current && Active(current) ? current : null;
         foreach (SBasicGamePlayObject device in _known)
         {
+            if (threat is not null) break;
             if (_avoidUntil.TryGetValue(device, out float until) && now < until) continue;
             for (int step = 0; step <= (plan.Keys.Moving ? 6 : 0); step++)
             {
@@ -123,15 +129,28 @@ public sealed class SpySecurity
             _engageAt = now;
         }
         // Stop before entering coverage; draw, aim and fire through the same state/input gates as a human.
+        Handling = true;
         plan.Keys = default;
         plan.MoveYaw = null;
         plan.Crouched = null;
         FVector aimPoint = threat.Location;
-        FRotator aim = (aimPoint - AiSight.Eye(pawn)).Rotation();
+        FVector origin = pawn.MyWeapon?.GetFireStart() ?? AiSight.Eye(pawn);
+        FRotator shotRotation = bot.Controller.Rotation;
+        if (pawn.MyWeapon is SWeaponAttaque pistol)
+        {
+            FCoords muzzle = CombatServices.Ports(pistol).BoneCoords(pistol, SWeaponDefense.FxBone);
+            shotRotation = muzzle.XAxis.Rotation();
+            origin = SWeaponAttaque.GetAxesAndLocation(muzzle.Origin, shotRotation, out _, out _, out _);
+        }
+        FRotator ray = (aimPoint - origin).Rotation();
+        // The pistol's pitch only follows part of the view pitch. Correct the actual ray error,
+        // rather than assuming the model's muzzle points exactly along the controller's view.
+        FRotator aim = new(bot.Controller.Rotation.Pitch + FRotator.NormalizeAxis(ray.Pitch - shotRotation.Pitch),
+            bot.Controller.Rotation.Yaw + FRotator.NormalizeAxis(ray.Yaw - shotRotation.Yaw), 0);
         plan.Yaw = aim.Yaw;
         plan.Pitch = aim.Pitch;
         SPlayerController pc = bot.Controller;
-        if (!bot.World.LineOpen(AiSight.Eye(pawn), aimPoint) || now - _engageAt > 6f)
+        if (!bot.World.LineOpen(origin, aimPoint) || now - _engageAt > 6f)
         {
             // No usable shot, or repeated misses: exclude this coverage briefly and let navigation
             // find another route/objective. Never hold the spy facing an unreachable emitter forever.
@@ -145,9 +164,11 @@ public sealed class SpySecurity
             _drawAt = now;
             plan.Keys.bFireMode = 1;
         }
-        if (pawn.WeaponLoaded == 2 && !pawn.bWeaponTransit && pawn.EnergyLevel >= SpyAiK.ShotEnergy &&
-            now - _shotAt > 1f && NavFollower.YawError(pc.Rotation.Yaw, aim.Yaw) < 300 &&
-            Math.Abs(FRotator.NormalizeAxis(pc.Rotation.Pitch - aim.Pitch)) < 300)
+        string state = pc.GetStateName().ToString();
+        if (pawn.WeaponLoaded == 2 && !pawn.bWeaponTransit && !state.Contains("0HTo2H", StringComparison.Ordinal) &&
+            !state.Contains("2HTo0H", StringComparison.Ordinal) && pawn.EnergyLevel >= SpyAiK.ShotEnergy &&
+            now - _shotAt > 1f && NavFollower.YawError(pc.Rotation.Yaw, aim.Yaw) < 40 &&
+            Math.Abs(FRotator.NormalizeAxis(pc.Rotation.Pitch - aim.Pitch)) < 40)
         {
             _shotAt = now;
             plan.Keys.bFire = 1;

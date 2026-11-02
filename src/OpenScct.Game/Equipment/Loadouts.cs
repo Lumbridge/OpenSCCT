@@ -36,6 +36,13 @@ public static class Loadouts
         new("SBase.SGadFragGrenade"), new("SBase.SGadMultiMinesLauncher"), new("SBase.SGadCamNetwork"), new("SBase.SGadGasMask"),
     ];
 
+    // Bots defend with mines and intel traps; the fourth slot keeps their gas protection.
+    private static readonly ClassRef[] MercBotGadgets =
+    [
+        new("SBase.SGadFragGrenade"), new("SBase.SGadMultiMinesLauncher"),
+        new("SBase.SGadMultiPresDetectorLauncher"), new("SBase.SGadGasMask"),
+    ];
+
     [Provenance(ProvenanceKind.Decoded, "loadouts.md: ATTWeapClass SStickyShocker")]
     public static readonly ClassRef SpyWeapon = new("SBase.SStickyShocker");
 
@@ -65,14 +72,21 @@ public static class Loadouts
         }
 
         bool spy = Pawn is SPawnAttaque;
-        USPlayerProfile? profile = Pawn.XLevel?.GetService<IDeviceHooks>()?.GetPlayerProfile();
+        bool bot = Pawn.Controller is PlayerController { Player: OpenScct.Game.AI.AiViewport };
+        USPlayerProfile? profile = bot ? null : Pawn.XLevel?.GetService<IDeviceHooks>()?.GetPlayerProfile();
         bool tutorial = (Pawn.Controller as PlayerController)?.GameReplicationInfo is { bTutorMode: true };
         ILoadoutSource? source = profile is null && !tutorial && IsLocalOwner(Pawn) ? Pawn.XLevel?.GetService<ILoadoutSource>() : null;
         if (profile is null && source is null)
         {
-            foreach (ClassRef g in spy ? SpyFixedGadgets : MercFixedGadgets)
+            ClassRef[] fixedEquipment = spy ? SpyFixedGadgets : bot ? MercBotGadgets : MercFixedGadgets;
+            if (bot && Team(Pawn) is { } botTeam)
             {
-                ServerSpawnInventory(Pawn, g);
+                fixedEquipment = (ClassRef[])fixedEquipment.Clone();
+                ApplyRestrictions(fixedEquipment, botTeam);
+            }
+            foreach (ClassRef g in fixedEquipment)
+            {
+                if (!g.IsNone) ServerSpawnInventory(Pawn, g);
             }
 
             ServerSpawnWeapon(Pawn, spy ? SpyWeapon : MercWeapon);

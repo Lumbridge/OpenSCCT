@@ -204,7 +204,10 @@ public sealed partial class MercAi : AiBrain
         AiContact? lost = null;
         foreach (AiContact c in Bot.Memory.Contacts)
         {
-            if (c.Visible && c.Confirmed && (c.Position - Pawn.Location).Size() < AiK.MercEngageRange)
+            bool smoke = World.SmokeBetween(AiSight.Eye(Pawn), c.Position);
+            if (((c.Visible && c.Confirmed && !smoke) ||
+                MercSmokeTactics.LastSeenShot(World, AiSight.Eye(Pawn), c, now, out _, Difficulty.GadgetUse >= .5f ? 7f : 2.5f)) &&
+                (c.Position - Pawn.Location).Size() < AiK.MercEngageRange)
             {
                 if (_target is null || (c.Position - Pawn.Location).SizeSquared() < (_target.Position - Pawn.Location).SizeSquared())
                 {
@@ -503,7 +506,23 @@ public sealed partial class MercAi : AiBrain
     private void Engage(float now, ref AiPlan plan)
     {
         AiContact? c = _target;
-        if (c is null || !c.Visible || c.BodyVisible && c.Pose is { Alive: false })
+        if (c is null) return;
+        if (World.SmokeBetween(AiSight.Eye(Pawn), c.Position))
+        {
+            if (MercSmokeTactics.LastSeenShot(World, AiSight.Eye(Pawn), c, now, out FVector remembered))
+            {
+                float blindSpread = Spread(now, 3f);
+                Aim(remembered, ref plan);
+                Shoot(now, remembered, blindSpread, ref plan);
+            }
+            else if (Difficulty.GadgetUse >= .5f && MercSmokeTactics.LastSeenShot(World, AiSight.Eye(Pawn), c, now, out remembered, 7f))
+            {
+                // Give the laser time to tag someone still at the remembered spot; no unseen movement is followed.
+                LookAt(remembered, ref plan);
+            }
+            return;
+        }
+        if (!c.Visible || c.BodyVisible && c.Pose is { Alive: false })
         {
             return;
         }
@@ -575,11 +594,12 @@ public sealed partial class MercAi : AiBrain
     }
 
     /// <summary>The aim error: a fresh draw every 0.25 s, from the first-shot spread to the settled one while tracking.</summary>
-    private float Spread(float now)
+    private float Spread(float now, float multiplier = 1f)
     {
         float tracked = _trackSince < 0f ? 0f : now - _trackSince;
         float spread = SvmMath.Lerp(Difficulty.AimErrorDegrees, Difficulty.AimSettledDegrees,
             SvmMath.Clamp(tracked / SvmMath.Max(0.05f, Difficulty.AimSettleSeconds), 0f, 1f));
+        if (multiplier > 1f) spread = MathF.Max(8f, spread * multiplier);
         if (now - _errorAt > 0.25f)
         {
             _errorAt = now;
@@ -1253,6 +1273,20 @@ public sealed partial class MercAi : AiBrain
         {
             return;
         }
+
+        bool smokeShot = _target is { } target &&
+            MercSmokeTactics.LastSeenShot(World, AiSight.Eye(Pawn), target, now, out _, 7f);
+        if (Pawn is SPAWNDEFENSE { TorcheLaser: { } laser } && now - _torchAt > .5f)
+        {
+            bool wantLaser = smokeShot && Difficulty.GadgetUse >= .5f;
+            if (wantLaser != laser.bInUse)
+            {
+                plan.Keys.Press(AiCommand.GadLaserSwitch);
+                _torchAt = now;
+                return;
+            }
+        }
+        if (smokeShot || _trapApproach) return;
 
         bool searching = Goal is GInvestigate or GRespond or GFinish;
         int mode = AiSight.RendMapOf(Pc);

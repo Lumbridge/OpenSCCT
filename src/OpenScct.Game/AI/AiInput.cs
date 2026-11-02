@@ -22,6 +22,7 @@ public enum AiCommand : byte
     SwitchHeadset,
 
     GadTorcheSwitch,
+    GadLaserSwitch,
 
     /// <summary>The co-op key (exec PerformCoopMvt, T): offer or take a boost or a hoist.</summary>
     PerformCoopMvt,
@@ -150,6 +151,9 @@ public struct AiInput
                 break;
             case AiCommand.GadTorcheSwitch:
                 pc.eventGadTorcheSwitch();
+                break;
+            case AiCommand.GadLaserSwitch:
+                pc.eventGadLaserSwitch();
                 break;
             case AiCommand.PerformCoopMvt:
                 pc.eventPerformCoopMvt();

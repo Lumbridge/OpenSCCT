@@ -14,11 +14,13 @@ public sealed class MercTrapTests
     [InlineData(true, 0f)]
     [InlineData(false, -200f)]
     [InlineData(true, -200f)]
-    public void GuardUsesCarriedTrapAtAWallBesideAnObjective(bool tracker, float startX)
+    [InlineData(true, -200f, false)]
+    [InlineData(false, -200f, false)]
+    public void GuardUsesCarriedTrapAtAWallBesideAnObjective(bool tracker, float startX, bool oppositeWall = true)
     {
         var geometry = Floor();
         geometry.AddBox(V(45, -1000, 0), V(85, 1000, 300));
-        geometry.AddBox(V(-500, -1000, 0), V(-460, 1000, 300));
+        if (oppositeWall) geometry.AddBox(V(-500, -1000, 0), V(-460, 1000, 300));
         var rig = Rig(geometry, null, V(startX, 0, 0), PawnTeam.Merc, yaw: 0);
         OpenScct.Game.Equipment.PawnGadgets.RegisterNotifies(rig.Level);
         var world = World(rig, V(-400, -640, -100), V(0, 640, 400));
@@ -28,10 +30,12 @@ public sealed class MercTrapTests
         rig.Level.SpawnActor(launcher, rig.Pawn.Location, default);
         launcher.GiveTo(rig.Pawn);
         launcher.Charge = 3;
-        rig.Pawn.SelectedGadget = launcher;
+        // Start with another selected gadget, as in the real loadout.
+        var frag = rig.Level.SpawnActor(new SGadFragGrenade(), rig.Pawn.Location, default)!;
+        frag.GiveTo(rig.Pawn);
+        rig.Pawn.SelectedGadget = frag;
         var bot = new AiController(world, rig.Controller, AiDifficulty.For(AiSkill.Normal), 0);
         bot.Tick();
-        if (startX == 0f) Assert.Equal(new Name("s_PutMineOnWall_Grab"), rig.Controller.GetStateName());
         Assert.Equal(3, launcher.Charge); // Starting the clip must not bypass the placement notify.
         for (int i = 0; i < 4 * Sim.Hz; i++)
         {

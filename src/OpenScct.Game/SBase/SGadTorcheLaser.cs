@@ -119,7 +119,8 @@ public partial class SGadTorcheLaser
     [PortOf("uc:SBase.SGadTorcheLaser:Tick", Spec = "spec/equipment/merc-laser.md#rules")]
     protected override void Tick(float DeltaTime)
     {
-        if (Level.NetMode == ENetMode.NM_DedicatedServer)
+        // A server bot owns its input locally and must run the same beam dwell/mark logic as a human client.
+        if (Level.NetMode == ENetMode.NM_DedicatedServer && OwnerPawn?.Controller is not PlayerController { Player: OpenScct.Game.AI.AiViewport })
         {
             return;
         }

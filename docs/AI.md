@@ -260,7 +260,9 @@ terminal, and to go faster with no merc about, only along a straight open stretc
 Spies switch night vision on in the dark and off in the light, and thermal near smoke.
 
 Spies remember visible laser emitters and security cameras, penalize routes through their active coverage, and
-use the normal shocker draw/aim/fire sequence to disable security blocking their route. Alarm-locked terminals
+use the normal shocker draw/aim/fire sequence to disable security blocking their route. They retain the selected
+security target while turning and drawing, correct their aim against the pistol's actual muzzle ray, and keep
+gadget/evasion inputs from interrupting the shot. Alarm-locked terminals
 are excluded. Objective selection includes reachable disk pickups and bomb sites with a carried bomb gadget;
 the normal interaction menu performs pickup/planting. Failed or stalled objectives receive a temporary cooldown
 so another terminal, disk, or bomb site can be attempted. Terminal approach heights come from a support trace
@@ -284,6 +286,21 @@ spy that was seen (by the merc or a teammate's callout) and lost, not at a noise
 While guarding near objectives, mercs inspect nearby clear walls and place carried mines or spy trackers through
 the normal gadget and animation path. Placement respects charges, ownership limits and spacing, and combat or
 bomb response interrupts the approach. Waking or being revived restores the merc's armed state as well as its rifle.
+
+Merc bots spawn with frags, mines, intel traps and a gas mask, subject to host equipment restrictions. Wall approaches
+leave clearance above the floor; placements use the real eye height. Where a tracker beam has no opposite wall,
+the bot selects the launcher's available presence detector instead.
+
+Smoke blocks direct sight. Mercs may fire for up to 2.5 seconds at a recently confirmed visual snapshot inside a
+new smoke cloud, with at least eight degrees of aim error and no tracking of unseen movement. Motion contacts do
+not grant precise fire through smoke. Normal/hard/expert gadget settings also enable the laser at that remembered
+spot, holding it for a total window of seven seconds to allow the normal marking dwell; easy does not. Server bots
+run the laser's normal beam tracing and mark timer on dedicated servers too.
+
+Mercs equip their carried mask after noticing nearby smoke, visible spy cameras/gas, or an audible nearby spy
+camera. Reaction takes 1.5 times the difficulty's reaction time (easy 1.35 s, normal 0.675 s, hard 0.42 s,
+expert 0.27 s). They retain the mask while the hazard remains and remove it after two safe seconds to conserve
+its normal air supply. Silent unseen cameras and friendly network cameras do not trigger this response.
 
 At close quarters an engaging merc presses the Use key as a player does (spec/combat/melee-elbow-charge-berserk.md
 rule 1), only when the controller's rules would take it: with a spy 140 to 550 uu ahead, lined up within 12 degrees,

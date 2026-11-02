@@ -20,7 +20,7 @@ public sealed partial class MercAi
     // selected gadget and animation-driven placement as a human. Combat always interrupts.
     private bool DefendWithTrap(float now, ref AiPlan plan)
     {
-        if (Pawn.bSleeping || Pawn.bLyingOnGround || Pawn.bStickyShocking ||
+        if (Pawn.bSleeping || Pawn.bLyingOnGround || Pawn.bStickyShocking || Pawn.bGasMask ||
             Pawn.Physics != EPhysics.PHYS_Walking ||
             !Pc.GetStateName().ToString().StartsWith("s_PlayerWalking", StringComparison.Ordinal)) return false;
         if (_trapApproach && (now > _trapUntil || _trapLauncher is null || _trapLauncher.bDeleteMe || _trapLauncher.Charge <= 0))
@@ -32,9 +32,9 @@ public sealed partial class MercAi
             bool nearObjective = false;
             foreach (SObjectiveTrigger terminal in World.Level.AllActors<SObjectiveTrigger>())
                 if (Defensible(terminal) && (terminal.Location - Pawn.Location).SizeSquared() < 700f * 700f &&
-                    World.LineOpen(AiSight.Eye(Pawn), terminal.Location)) { nearObjective = true; break; }
+                    GuardSpot(terminal, out FVector spot) && World.LineOpen(AiSight.Eye(Pawn), spot + new FVector(0, 0, 40))) { nearObjective = true; break; }
             if (!nearObjective || !ChooseTrap()) return false;
-            FVector eye = AiSight.Eye(Pawn);
+            FVector eye = TrapEye;
             float best = float.MaxValue;
             for (int i = 0; i < 16; i++)
             {
@@ -47,7 +47,7 @@ public sealed partial class MercAi
                 FVector approach = hit.Location + hit.Normal * 44f;
                 FVector body = new(approach.X, approach.Y, Pawn.Location.Z);
                 if (World.Collision.LineCheck(out _, Pawn, body, Pawn.Location,
-                    new FVector(Pawn.CollisionRadius, Pawn.CollisionRadius, Pawn.CollisionHeight),
+                    new FVector(Pawn.CollisionRadius, Pawn.CollisionRadius, Pawn.CollisionHeight - 2f),
                     SGadMultiMinesLauncher.WallTraceFlags)) continue;
                 best = distance;
                 _trapWall = hit.Location;
@@ -57,10 +57,12 @@ public sealed partial class MercAi
             _trapUntil = now + 6f;
             Follower.Clear();
         }
-        LookAt(_trapWall, ref plan);
+        FRotator aim = (_trapWall - TrapEye).Rotation();
+        plan.Yaw = aim.Yaw;
+        plan.Pitch = aim.Pitch;
         plan.Tolerance = 1000;
         plan.Crouched = false;
-        if ((_trapWall - AiSight.Eye(Pawn)).Size() > 50f)
+        if ((_trapWall - TrapEye).Size() > 50f)
         {
             plan.Keys.BT_Up = 1;
             return true;
@@ -72,6 +74,10 @@ public sealed partial class MercAi
             return true;
         }
         _trapLauncher!.UseMine();
+        // A tracker beam needs an opposite wall; the presence detector does not.
+        if (_trapLauncher.CanUse[_trapLauncher.iCurrentMineType] == 0)
+            for (int i = 0; i < _trapLauncher.NbIT - 2; i++)
+                if (_trapLauncher.CanUse[i] != 0) { _trapLauncher.iCurrentMineType = i; break; }
         if (_trapLauncher.HitActor is not null && _trapLauncher.CanUse[_trapLauncher.iCurrentMineType] != 0)
         {
             plan.Keys.Press(AiCommand.AltFire);
@@ -81,6 +87,8 @@ public sealed partial class MercAi
         _trapApproach = false;
         return true;
     }
+
+    private FVector TrapEye => Pawn.Location + Pawn.WalkBob + new FVector(0, 0, Pawn.EyeHeight);
 
     private bool ChooseTrap()
     {

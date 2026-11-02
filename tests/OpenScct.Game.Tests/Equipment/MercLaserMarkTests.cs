@@ -15,10 +15,11 @@ namespace OpenScct.Game.Tests.Equipment;
 /// </summary>
 public sealed class MercLaserMarkTests
 {
-    private static (CombatScene Scene, SPlayerController PC, SBasePawn Merc, SBasePawn Spy, SGadTorcheLaser Laser) Setup()
+    private static (CombatScene Scene, SPlayerController PC, SBasePawn Merc, SBasePawn Spy, SGadTorcheLaser Laser) Setup(bool dedicatedBot = false)
     {
-        var scene = new CombatScene(ENetMode.NM_ListenServer);
+        var scene = new CombatScene(dedicatedBot ? ENetMode.NM_DedicatedServer : ENetMode.NM_ListenServer);
         (SPlayerController pc, SBasePawn merc) = scene.Player(false, new FVector(0f, 0f, 100f));
+        if (dedicatedBot) pc.Player = new OpenScct.Game.AI.AiViewport();
         SWeaponDefense rifle = scene.Give(new SWeaponDefense(), merc);
         rifle.GiveTo(merc);
         merc.WeaponLoaded = 2;
@@ -27,6 +28,18 @@ public sealed class MercLaserMarkTests
         scene.Run(2.5f);
         var laser = GadgetKit.Gadget(scene, merc, new SGadTorcheLaser(), Select: false);
         return (scene, pc, merc, spy, laser);
+    }
+
+    [Fact]
+    public void DedicatedBotLaserMarksThroughSmokeWithNormalDwellTime()
+    {
+        var (scene, _, _, spy, laser) = Setup(dedicatedBot: true);
+        scene.Level.SpawnActor(new SSmokeEmitter(), spy.Location, default);
+        laser.bInUse = true;
+        scene.Run(2.5f);
+        Assert.False(spy.bSpyBulletOn);
+        scene.Run(2f);
+        Assert.True(spy.bSpyBulletOn);
     }
 
     [Fact]

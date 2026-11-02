@@ -111,6 +111,7 @@ public sealed class AiController
 
     /// <summary>A merc bot's motion tracking: what its goggle tracker shows (AiPerception.cs).</summary>
     public AiMotionSense Motion { get; } = new();
+    public MercGasProtection GasProtection { get; } = new();
 
     private bool _teamHeld;
 
@@ -187,12 +188,13 @@ public sealed class AiController
             Brain!.Think(now, ref plan);
         }
 
-        if (pawn is SPawnAttaque)
+        if (pawn is SPawnAttaque && Brain is not SpyAi { Security.Handling: true })
         {
             Gadgets.Apply(ref plan, now);
             Evasion.Apply(ref plan, now);
         }
 
+        if (pawn is SPAWNDEFENSE) GasProtection.Apply(this, now, ref plan);
         AiInput input = Turn(plan, dt);
         Stance(pawn, ref input, plan.Crouched, now);
         Apply(input);

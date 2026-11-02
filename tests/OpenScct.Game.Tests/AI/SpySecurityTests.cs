@@ -9,6 +9,51 @@ namespace OpenScct.Game.Tests.AI;
 
 public sealed class SpySecurityTests
 {
+    [Theory]
+    [InlineData(false, 40f)]
+    [InlineData(false, 160f)]
+    [InlineData(true, 220f)]
+    public void SpyActuallyDisablesSecurityWithItsShocker(bool camera, float height)
+    {
+        var rig = Rig(Floor(), null, V(0, -160, 0));
+        var world = World(rig, V(-320, -320, -100), V(320, 320, 400));
+        var pistol = rig.Level.SpawnActor(new SStickyShocker(), rig.Pawn.Location, default)!;
+        pistol.Instigator = rig.Pawn;
+        pistol.SetOwner(rig.Pawn);
+        pistol.GiveTo(rig.Pawn);
+        var bot = new AiController(world, rig.Controller, AiDifficulty.For(AiSkill.Normal) with { GadgetUse = 0 }, 0);
+        bot.Tick();
+        SBasicGamePlayObject device;
+        if (camera)
+        {
+            var cam = rig.Level.SpawnActor(new SCamera { bStatic = false, bNoDelete = false, bAutoWallSupport = false }, V(0, 80, height), new FRotator(-4000, -16384, 0))!;
+            cam.GotoState(new Name("s_Patrol"));
+            cam.VisibilityConeAngle = 90;
+            cam.VisibilityMaxDistance = 800;
+            device = cam;
+        }
+        else
+        {
+            var laser = rig.Level.SpawnActor(new SLaserTrigger { bStatic = false, bNoDelete = false, SpawnPerCent = 100 }, V(-100, 0, height), default)!;
+            laser.GotoState(new Name("s_Active"));
+            laser.LaserEndLocation = V(200, 0, height);
+            device = laser;
+        }
+        var security = new SpySecurity();
+        for (int i = 0; i < 6 * Sim.Hz && SpySecurity.Active(device); i++)
+        {
+            security.Observe(bot, world.Now);
+            // After acquisition the route is allowed to change; aiming must remain latched.
+            var plan = new AiPlan { Yaw = security.Engaging ? 32768 : 16384, Keys = new AiInput { BT_Up = 1 } };
+            security.Steer(bot, world.Now, ref plan);
+            if (plan.Yaw is { } yaw) plan.Keys.View = plan.Keys.Aim = new FRotator(plan.Pitch ?? 0, yaw, 0);
+            plan.Keys.ApplyTo(rig.Controller);
+            rig.World.Step();
+        }
+        Assert.False(SpySecurity.Active(device), $"device {device.GetStateName()} pawn {rig.Controller.GetStateName()} weapon {rig.Pawn.WeaponLoaded} shots {pistol.MuzzleCount} energy {((SPawnAttaque)rig.Pawn).EnergyLevel} aim {rig.Controller.Rotation}");
+        Assert.True(pistol.MuzzleCount > 0);
+    }
+
     [Fact]
     public void BeamCoverageIncludesBodyButNotSafeSpaceAboveItAndStopsWhenDisabled()
     {

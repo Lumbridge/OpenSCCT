@@ -121,7 +121,9 @@ public static class AiSight
 
         // Test the actual body samples against both the view and collision. A visible head/shoulder or prone torso
         // still counts when the collision centre is off screen. Prone samples follow the body along the floor.
-        bool smokeBlocks = mode is AiVisionMode.Normal or AiVisionMode.Night or AiVisionMode.Motion;
+        // Only the spy's thermal view supplies a body through smoke. Merc EMF and tracker
+        // modes must not refresh a hidden body's pose; tracker brackets are handled separately.
+        bool smokeBlocks = mode != AiVisionMode.Thermal;
         int open = 0;
         bool prone = target is SBasePawn { bLyingOnGround: true };
         FVector along = new FRotator(0, target.Rotation.Yaw, 0).Vector();
