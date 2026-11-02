@@ -28,12 +28,12 @@ public sealed class HudTeammateNames
                 string.IsNullOrWhiteSpace(pri.PlayerName)) continue;
             FVector head = pawn.Location + new FVector(0, 0, pawn.CollisionHeight + 18f);
             if (project(head) is not { } point || point.X < 0 || point.X > screen.X || point.Y < 0 || point.Y > screen.Y) continue;
-            // Full size nearby; smoothly shrink and dim toward 100 metres, retaining a readable distant label.
+            // Keep these secondary to the crosshair and objective markers, even at close range.
             float distance = (pawn.Location - own.Location).Size() * HudK.DefaultDistanceScale;
-            float fade = Math.Clamp((distance - 5f) / 95f, 0f, 1f);
+            float fade = Math.Clamp((distance - 3f) / 57f, 0f, 1f);
             fade = fade * fade * (3f - 2f * fade);
-            float height = (18f - 8f * fade) * screen.Y / MagmaRenderer.PageHeight;
-            var colour = new Color(0.78f, 0.96f, 0.75f, 1f - 0.75f * fade);
+            float height = (9f - 4f * fade) * screen.Y / MagmaRenderer.PageHeight;
+            var colour = new Color(0.78f, 0.96f, 0.75f, 0.85f - 0.70f * fade);
             DrawList.Items.Add(HudText.Item("TeammateNames/" + index++, pri.PlayerName,
                 new Rect2(point.X - screen.X / 2f, point.Y - height, screen.X, height), height, MagmaAlign.Center, colour));
         }

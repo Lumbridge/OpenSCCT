@@ -29,7 +29,7 @@ public static class MercShockImmunity
     public static bool TimerBlocks(SPlayerController controller) =>
         !(controller.Level.TimeSeconds - controller.TimeShock > controller.RealTimeInvulSticky);
 
-    public static bool VisiblePawn(SBasePawn pawn) => pawn.SPawnType == PawnType.SPAWNDEFENSE &&
+    public static bool VisiblePawn(SBasePawn pawn) => pawn.SPawnType is PawnType.SPAWNDEFENSE or PawnType.SPAWNOFFENSE &&
         pawn.Health > 0 && !pawn.bDeleteMe && !pawn.bHidden && PlayRules.Of(pawn).PawnsTakeDamage;
 
     public static ShockImmunityState Capture(SBasePawn pawn)

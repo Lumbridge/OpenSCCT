@@ -9,15 +9,17 @@ namespace OpenScct.Game.Tests.Combat;
 public sealed class MercShockImmunityTests
 {
     [Theory]
-    [InlineData(false, 12.5f)]
-    [InlineData(true, 13.55f)]
-    public void TimerMatchesAcceptedShockAndOutlastsTheElectricEffect(bool wet, float duration)
+    [InlineData(false, 1, 12.5f)]
+    [InlineData(false, 2, 12.5f)]
+    [InlineData(true, 1, 13.55f)]
+    [InlineData(true, 2, 13.55f)]
+    public void TimerMatchesAcceptedShockAndOutlastsTheElectricEffect(bool wet, int pill, float duration)
     {
         var scene = new CombatScene();
         var (pc, pawn) = scene.Player(false, default);
         pc.TimeShock = -100f;
         pawn.bWet = wet;
-        pc.Checkshock(2);
+        pc.Checkshock(pill);
         ShockImmunityState status = MercShockImmunity.Capture(pawn);
         Assert.True(status.TimerBlocked);
         Assert.Equal(duration, status.Duration, 3);
@@ -29,13 +31,13 @@ public sealed class MercShockImmunityTests
             Assert.True(MercShockImmunity.TimerBlocks(pc));
             Assert.Equal(0f, MercShockImmunity.Capture(pawn).At(duration).RemainingSeconds);
             float before = pc.TimeShock;
-            pc.Checkshock(2);
+            pc.Checkshock(pill);
             Assert.Equal(before, pc.TimeShock);
         }
         using (scene.Level.CommandTime(1001, duration + 0.01f, Sim.DeltaTime))
         {
             Assert.False(MercShockImmunity.Capture(pawn).Active);
-            pc.Checkshock(2);
+            pc.Checkshock(pill);
             Assert.Equal(scene.Time, pc.TimeShock);
             Assert.True(MercShockImmunity.Capture(pawn).Active);
         }

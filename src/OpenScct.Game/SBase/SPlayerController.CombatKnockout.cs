@@ -570,6 +570,9 @@ public partial class SPlayerController
                 CombatFx.Notify(pc, CombatFx.OverlayFade, 1f, 1f, 0f);
                 if (pawn.MyWeapon is SWeaponDefense rifle)
                 {
+                    // A headless bot can miss the wake clip's draw notify. Restore the
+                    // gameplay hand state as well as the view model before selecting it.
+                    pawn.WeaponLoaded = 2;
                     rifle.GotoState(CNAME_s_Selected);
                     rifle.AnimateWaiting();
                     rifle.bDrawWeapon = true;

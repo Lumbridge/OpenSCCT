@@ -9,6 +9,26 @@ namespace OpenScct.Game.Tests.Equipment;
 public sealed class MercKnockoutEquipmentTests
 {
     [Theory]
+    [InlineData("s_StandUp")]
+    [InlineData("s_Reanimating")]
+    public void WakingRestoresTheRifleEvenWithoutTheBodyDrawNotify(string wakeState)
+    {
+        var scene = GadgetKit.Scene();
+        var (pc, pawn) = GadgetKit.Local(scene, false, new FVector(0, 0, 100));
+        var rifle = scene.Give(new SWeaponDefense(), pawn);
+        rifle.GiveTo(pawn);
+        pc.SPawnType = pawn.SPawnType;
+        pc.GotoState(new Name(wakeState));
+        pawn.WeaponLoaded = 0;
+        rifle.bDrawWeapon = false;
+        pc.GotoWaitingState();
+        scene.Run(2);
+        Assert.Equal(2, pawn.WeaponLoaded);
+        Assert.True(rifle.bDrawWeapon);
+        Assert.False(rifle.IsInState(new Name("s_IdleInHolster")));
+    }
+
+    [Theory]
     [InlineData(false)]
     [InlineData(true)]
     public void FallingUnconsciousOnlyRemovesAnAlreadyWornGasMask(bool initiallyWorn)

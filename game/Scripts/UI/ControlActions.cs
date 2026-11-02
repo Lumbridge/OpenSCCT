@@ -79,6 +79,7 @@ public static class ControlActions
         A("map", "Interface", "Show strategic map", "Open the strategic map.", "DisplayStrategicMap", "DisplayStrategicMap"),
         A("session", "Interface", "Show session status", "Show session status.", "DisplaySessionStatus", "DisplaySessionStatus"),
         A("players", "Interface", "Show connected players", "Show the player list.", "ShowConnectedPlayers", "ShowConnectedPlayers"),
+        A("teammatenames", "Interface", "Toggle teammate names", "Toggle teammate names through walls for your current role during play.", "ToggleTeammateNames", "ToggleTeammateNames"),
         A("gear", "Interface", "Change gear", "Open the gear picker where gear changes are allowed.", "ChangeGear", "ChangeGear"),
         A("hidehud", "Interface", "Toggle HUD visibility", "Toggle HUD visibility when cinematic controls are allowed by the host.", "HideHud", "HideHud"),
         A("freecam", "Interface", "Toggle cinematic free camera", "Toggle cinematic free camera when allowed by the host.", "FreeCam", "FreeCam"),

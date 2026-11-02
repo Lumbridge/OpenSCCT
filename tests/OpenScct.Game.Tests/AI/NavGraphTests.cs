@@ -28,6 +28,34 @@ public sealed class NavGraphTests
     private static NavGraph Build(CollisionDataBuilder level, NavProfile profile, TraversalDoc? ges, FVector min, FVector max) =>
         NavBuilder.Build(CollisionWorld.Build(level.Build()), min, max, profile, ges?.Ges);
 
+    [Fact]
+    public void InteractionPointInsideWallIsRejectedInsteadOfAppendingAnImpossibleFinalWalk()
+    {
+        CollisionDataBuilder level = Floor();
+        level.AddBox(V(-300f, -16f, 0f), V(300f, 16f, 300f));
+        PawnRig rig = Rig(level, null, V(0f, -160f, 0f));
+        AiWorld world = World(rig, V(-400f, -300f, -100f), V(400f, 300f, 400f));
+        var follower = new NavFollower(world, spy: true);
+        Assert.False(follower.SetGoal(rig.Pawn, V(0f, 0f, 0f)));
+        Assert.True(follower.Failed);
+        Assert.False(follower.Arrived);
+    }
+
+    [Fact]
+    public void SpyWalksThroughRaisedContainerEntrance()
+    {
+        CollisionDataBuilder level = Floor();
+        level.AddBox(V(-130f, 0f, 0f), V(130f, 500f, 24f));
+        level.AddBox(V(-150f, 0f, 0f), V(-130f, 500f, 250f));
+        level.AddBox(V(130f, 0f, 0f), V(150f, 500f, 250f));
+        level.AddBox(V(-150f, 500f, 0f), V(150f, 520f, 250f));
+        PawnRig rig = Rig(level, null, V(0f, -180f, 0f));
+        AiWorld world = World(rig, V(-320f, -320f, -100f), V(320f, 600f, 400f));
+        var trace = new List<string>();
+        Assert.True(Follow(rig, new NavFollower(world, spy: true), V(0f, 400f, 24f), 12f, trace), string.Join("\n", trace));
+        Assert.InRange(NavFollower.Feet(rig.Pawn).Z, 23f, 28f);
+    }
+
     /// <summary>A floor, a block 250 high (y 100 to 600) with an LG on its front lip, as in the traversal tests.</summary>
     private static (CollisionDataBuilder Level, TraversalDoc Ges) LedgeLevel()
     {

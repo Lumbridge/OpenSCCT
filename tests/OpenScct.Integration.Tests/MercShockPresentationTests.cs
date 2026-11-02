@@ -86,10 +86,13 @@ public sealed class MercShockPresentationTests
     }
 
     [Theory]
-    [InlineData(PawnProxyMode.Snapshots)]
-    [InlineData(PawnProxyMode.DeadReckoning)]
-    [InlineData(PawnProxyMode.Interpolate)]
-    public void OwnerAndObserverReceiveTimedStatusWithIndependentClocksAndResetRecovery(PawnProxyMode mode)
+    [InlineData(PawnProxyMode.Snapshots, false)]
+    [InlineData(PawnProxyMode.DeadReckoning, false)]
+    [InlineData(PawnProxyMode.Interpolate, false)]
+    [InlineData(PawnProxyMode.Snapshots, true)]
+    [InlineData(PawnProxyMode.DeadReckoning, true)]
+    [InlineData(PawnProxyMode.Interpolate, true)]
+    public void OwnerAndObserverReceiveTimedStatusWithIndependentClocksAndResetRecovery(PawnProxyMode mode, bool spy)
     {
         using var rig = WalkerRig.Create(SimLinkProfile.Ping200, 971, 2,
             new ServerSettings { SpawnWalkers = false, Net = new NetDriverSettings { PawnProxies = mode } },
@@ -108,7 +111,7 @@ public sealed class MercShockPresentationTests
             slot.Connection.Actor = controller;
             if (joined++ != 0) return;
             authority = controller;
-            pawn = level.Spawn<SPawnDefense_1Mesh>()!;
+            pawn = spy ? level.Spawn<SPawnAttaque_1Mesh>()! : level.Spawn<SPawnDefense_1Mesh>()!;
             pawn.bAlwaysRelevant = true;
             controller.Possess(pawn);
             controller.TimeShock = -100f;
@@ -203,7 +206,7 @@ public sealed class MercShockPresentationTests
         Assert.False(MercShockPresentation.Read(owner).Active); // a previous authoritative lifetime is also rejected
         SBasePawn oldOwner = owner;
         pawn.Destroy();
-        pawn = level.Spawn<SPawnDefense_1Mesh>()!;
+        pawn = spy ? level.Spawn<SPawnAttaque_1Mesh>()! : level.Spawn<SPawnDefense_1Mesh>()!;
         pawn.bAlwaysRelevant = true; authority.Possess(pawn); authority.TimeShock = -100f;
         Step(60);
         owner = Assert.IsAssignableFrom<SBasePawn>(rig.Clients[0].Driver.FindActorByNetGuid((uint)pawn.ActorId));

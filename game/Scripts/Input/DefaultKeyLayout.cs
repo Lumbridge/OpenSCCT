@@ -25,6 +25,7 @@ public static class DefaultKeyLayout
         {
             AddIfFree(layout, GearKey, "ChangeGear");
             AddIfFree(layout, "G", "SwapWeapon");
+            AddIfFree(layout, "N", "ToggleTeammateNames");
             foreach ((string key, string command) in new[] { ("CapsLock", "PushToTalk"), ("Y", "TeamPushToTalk"), ("F8", "ToggleVoiceMute") })
             {
                 if (HasAction(layout, command)) continue;

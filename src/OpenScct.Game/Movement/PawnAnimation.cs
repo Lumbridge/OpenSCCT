@@ -422,6 +422,20 @@ public sealed class PawnAnimationSource : IPawnAnimationSource
             merc.TryAdd(kv.Key, kv.Value);
         }
 
+        // SPerso.Def mine clips: retain the gameplay interaction notify even on
+        // dedicated hosts without converted animation content.
+        foreach (string stance in new[] { "St", "Cr" })
+        {
+            Name grab = new("Mine" + stance + "AlBg0");
+            Name place = new("Mine" + stance + "AlEd0");
+            merc[grab] = new PawnClip(grab, 7, 15f);
+            merc[place] = new PawnClip(place, 15, 15f)
+            {
+                Notifies = [new PawnClipNotify(stance == "St" ? .47333333f : .45333335f,
+                    new UAnimNotify_Script { NotifyName = new Name("AnimNotify_Interact") })],
+            };
+        }
+
         return new PawnAnimationSource(spy, merc);
     }
 

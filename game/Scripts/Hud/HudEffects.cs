@@ -217,6 +217,7 @@ public sealed class HudEffects
         _shutDownEndsAt = -1f;
         if (pc.SPawnType == PawnType.SPAWNDEFENSE && pc.myHUD is SHud hud)
         {
+            hud.bShutDown = false;
             HudMessages.AddHudNumberMessageToStack(hud, 8, 3, 0);
         }
     }

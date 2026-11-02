@@ -259,8 +259,16 @@ terminal, and to go faster with no merc about, only along a straight open stretc
 
 Spies switch night vision on in the dark and off in the light, and thermal near smoke.
 
+Spies remember visible laser emitters and security cameras, penalize routes through their active coverage, and
+use the normal shocker draw/aim/fire sequence to disable security blocking their route. Alarm-locked terminals
+are excluded. Objective selection includes reachable disk pickups and bomb sites with a carried bomb gadget;
+the normal interaction menu performs pickup/planting. Failed or stalled objectives receive a temporary cooldown
+so another terminal, disk, or bomb site can be attempted. Terminal approach heights come from a support trace
+at the actual interaction point, and off-grid route endpoints require a clear final walking segment.
+
 | Merc goal | When | What |
 |---|---|---|
+| Defuse | an active planted bomb, unless a confirmed spy is within immediate melee range | stop pursuing distant spies, approach the bomb and select its normal removal interaction |
 | Finish | a spy it saw go down (lying, in sight or seen lying in the last 3 s) | run to him, face him, press Use when the game's finishing search would take him (FindPawnToReanimateOrTerminate: 250 uu, in front, feet within 10 uu, clear box to the spot 110 uu behind him), then Use again in the hold to kill at once; shoot him low (0.6 of his height under his centre) until then |
 | Engage | a confirmed spy in sight | after the reaction time aim at the chest (leading by the lead factor) with an error that shrinks from the first-shot to the settled spread while tracking; fire short bursts, not through a teammate; side-step at range (hard and expert); reload on an empty clip |
 | Respond | a terminal is being hacked (the nearest merc goes, with teamwork) | run to a spot 200 to 600 uu from the use spot that sees it, watching the spot |
@@ -272,6 +280,10 @@ Mercs light the torch in the dark (on below light 0.15, off above 0.35) while re
 (and while guarding, by gadget use) and use motion tracking while investigating a noise in the dark (something moved
 there) or on some dark posts; a terminal alert gets the torch, since a hacker stands still. A frag goes only at a
 spy that was seen (by the merc or a teammate's callout) and lost, not at a noise.
+
+While guarding near objectives, mercs inspect nearby clear walls and place carried mines or spy trackers through
+the normal gadget and animation path. Placement respects charges, ownership limits and spacing, and combat or
+bomb response interrupts the approach. Waking or being revived restores the merc's armed state as well as its rifle.
 
 At close quarters an engaging merc presses the Use key as a player does (spec/combat/melee-elbow-charge-berserk.md
 rule 1), only when the controller's rules would take it: with a spy 140 to 550 uu ahead, lined up within 12 degrees,

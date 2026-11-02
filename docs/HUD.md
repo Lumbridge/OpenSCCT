@@ -161,7 +161,7 @@ in amber when nonzero. The panel measures the HUD font and wraps within the scre
 commands are reused between samples, and rebuilt for a resize or FPS visibility change. `network-overlay` checks
 normal and large-counter layouts from 320×240 through 3440×1440 and that unchanged frames allocate nothing.
 
-**Merc shock immunity (OpenSCCT addition).** A compact amber crossed-lightning icon, `SHOCK IMMUNE` countdown
+**Shock immunity (OpenSCCT addition, both roles).** A compact amber crossed-lightning icon, `SHOCK IMMUNE` countdown
 and draining bar sit beside the health/status area. Seconds round upward to one decimal. The readout uses the
 same authoritative timed status as the draining body-edge effect (docs/EFFECTS.md), with current synchronized
 server time for the owner. It does not infer immunity from the local shock animation or restart its own timer.
@@ -171,7 +171,11 @@ the server clears protection. Timer resets and extensions update immediately.
 
 This is a canvas element, so scope and camera-network pages retain it. It follows HUD hiding and screen-effect
 washes, and is absent for dead players, spectators, end-game screens and social hubs. No floating world label
-is added; other players read the remaining proportion from the merc's body effect.
+is added; other players read the remaining proportion from the player's body effect. Spy cloak fades that effect
+in normal vision, and fully cloaked spies remain hidden in motion vision. Headshot shutdown hides the merc's own
+readout while the authoritative immunity countdown continues. Original headshots add HUD disruption, not extra
+movement-freeze time: dry merc head/body hits both freeze for 3.5 seconds, remain electric for 4.5 seconds, and
+protect from another shock for 12.5 seconds; dry spies freeze for 3 seconds and are protected for 11 seconds.
 
 **Effects.** `HudEffects` turns the simulation's CombatFx notifications into what the SHud natives do on the hit
 player's machine: `ClientDamageHudEffect` (red wash for spies, perturbation for mercs, flash-bang after-image and
@@ -184,7 +188,9 @@ Five newest events appear immediately, newest first, for six seconds each; entra
 400 ms fades out. Overflow removes the oldest row without a backlog. Captured player names and team colours,
 action labels and known causes replace rank-prefixed sentences. Dark translucent rows use bundled Inter and sit
 in the upper-right region, to the left of the page's radar/objective column and clear of performance readouts.
-Feed dimensions use 85% of the base HUD scale, with minimum text sizes of 11 px for names and 10 px for labels.
+Feed dimensions use 65% of the base HUD scale, with minimum text sizes of 11 px for names and 10 px for labels.
+Each row fits its measured text up to the available width and shares a right edge; player names receive space
+in proportion to their measured widths rather than two equal empty columns.
 Narrow layouts show fewer rows without shrinking text. Flash and sleep effects draw above the feed.
 
 `HudMessages` preserves message sounds and the server's original recipient scope. Combat and activity events
@@ -547,5 +553,7 @@ Each role's settings page has **Show teammate names through walls**, saved indep
 `teammate_names_spy` and `teammate_names_merc` (both default off). Living teammates' replicated player names
 draw above their collision bounds as HUD text without a depth test. Labels exclude the local player, enemies,
 dead pawns and spectators, and hide outside the view or when the player HUD is hidden. They smoothly shrink
-from 18 to 10 HUD pixels and fade from full to 25% opacity between 5 and 100 metres, retaining that minimum
-beyond 100 metres. Role reset restores the toggle to off; Apply uses the new setting immediately.
+from 9 to 5 HUD pixels and fade from 85% to 15% opacity between 3 and 60 metres, retaining that minimum
+beyond 60 metres. **Toggle teammate names** in Interface controls changes the current role's visibility during
+play. New/legacy layouts receive N when free; complete saved layouts retain their bindings and can assign the
+action manually. Role reset restores the setting to off; Apply uses the new setting immediately.

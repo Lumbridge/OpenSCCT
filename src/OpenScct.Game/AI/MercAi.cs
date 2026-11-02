@@ -68,7 +68,7 @@ public static class MercAiK
 /// <item><b>Guard</b>: a post beside an untaken terminal no teammate holds; look round there, change post now and then.</item>
 /// </list>
 /// </summary>
-public sealed class MercAi : AiBrain
+public sealed partial class MercAi : AiBrain
 {
     public const int GGuard = 0;
     public const int GEngage = 1;
@@ -76,6 +76,7 @@ public sealed class MercAi : AiBrain
     public const int GInvestigate = 3;
     public const int GFrag = 4;
     public const int GFinish = 5;
+    public const int GDefuse = 6;
 
     private AiContact? _target;
     private float _trackSince = -1f;
@@ -86,7 +87,7 @@ public sealed class MercAi : AiBrain
     private float _pauseUntil;
     private float _strafeAt;
     private bool _strafeLeft;
-    private SComputerObjectiveTrigger? _post;
+    private SObjectiveTrigger? _post;
     private FVector _postFloor;
     private float _postUntil;
     private float _lookAt;
@@ -166,6 +167,7 @@ public sealed class MercAi : AiBrain
         GInvestigate => "investigate",
         GFrag => "frag",
         GFinish => "finish",
+        GDefuse => "defuse",
         _ => "guard",
     };
 
@@ -180,12 +182,15 @@ public sealed class MercAi : AiBrain
         _downed = null;
         _investigating = null;
         Search.Reset();
+        _trapApproach = false;
     }
 
     // ---- choice ----------------------------------------------------------------------------------------------
 
     protected override int Choose(float now)
     {
+        _bomb = ArmedBomb();
+        if (_bomb is not null && !ImmediateBombThreat()) return GDefuse;
         if (Goal == GFrag && _fragPhase is > 0 and < 4 && now - _fragPhaseAt < 2.5f)
         {
             return GFrag;
@@ -398,11 +403,17 @@ public sealed class MercAi : AiBrain
             return;
         }
 
+        if (stateName.StartsWith("s_PutMineOnWall", StringComparison.Ordinal)) return;
+        if (Goal != GGuard) _trapApproach = false;
+
         Feel(now);
         switch (Goal)
         {
             case GEngage:
                 Engage(now, ref plan);
+                break;
+            case GDefuse:
+                Defuse(now, ref plan);
                 break;
             case GRespond:
                 Respond(now, ref plan);
@@ -1036,7 +1047,8 @@ public sealed class MercAi : AiBrain
 
     private void Guard(float now, ref AiPlan plan)
     {
-        if ((_post is null && now >= _postUntil) || (_post is not null && (World.IsTaken(_post) || now > _postUntil)))
+        if (DefendWithTrap(now, ref plan)) return;
+        if ((_post is null && now >= _postUntil) || (_post is not null && (!Defensible(_post) || now > _postUntil)))
         {
             PickPost(now);
         }
@@ -1064,15 +1076,15 @@ public sealed class MercAi : AiBrain
     {
         World.Teams[1].Release(Bot);
         _post = null;
-        SComputerObjectiveTrigger? best = null;
+        SObjectiveTrigger? best = null;
         FVector bestPost = default;
         float bestScore = float.MaxValue;
         NavGraph graph = Follower.Graph;
         int from = graph.NearestNode(Pawn.Location, Pawn.CollisionHeight);
         float[] costs = graph.CostsFrom(from, badLinks: World.BadLinks(false), badEdges: World.BadEdges(false));
-        foreach (SComputerObjectiveTrigger t in World.Terminals)
+        foreach (SObjectiveTrigger t in World.Level.AllActors<SObjectiveTrigger>())
         {
-            if (World.IsTaken(t) || !UseSpot(t, out FVector spot, out _) || !GuardPost(spot, costs, out FVector post))
+            if (!Defensible(t) || !GuardSpot(t, out FVector spot) || !GuardPost(spot, costs, out FVector post))
             {
                 continue;
             }
@@ -1104,6 +1116,17 @@ public sealed class MercAi : AiBrain
         _guardTorch = Bot.Random.FRand() < Difficulty.GadgetUse;
         _guardMotion = !_guardTorch && Bot.Random.FRand() < Difficulty.GadgetUse;
         World.Teams[1].Claim(best, Bot);
+    }
+
+    private bool GuardSpot(SObjectiveTrigger objective, out FVector spot)
+    {
+        if (objective is SComputerObjectiveTrigger terminal) return UseSpot(terminal, out spot, out _);
+        FVector location = objective is SDisk disk && disk.PickupInteraction is { } pickup ? pickup.Location :
+            objective.InteractionObj?.Location ?? objective.Location;
+        int node = Follower.Graph.NearestNode(location, 0f, 150f);
+        if (node < 0) { spot = default; return false; }
+        spot = new FVector(location.X, location.Y, Follower.Graph.Node(node).Floor.Z);
+        return true;
     }
 
     private bool GuardPost(FVector spot, float[] costs, out FVector post)

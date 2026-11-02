@@ -28,7 +28,7 @@ namespace OpenScct.Game.AI;
 /// stretch with no merc about. A drawn shocker is holstered whenever no shock is under way.
 /// Night vision goes on in the dark and off in the light, thermal when smoke is near.
 /// </summary>
-public sealed class SpyAi : AiBrain
+public sealed partial class SpyAi : AiBrain
 {
     public const int GIdle = 0;
     public const int GHack = 1;
@@ -37,6 +37,7 @@ public sealed class SpyAi : AiBrain
     public const int GShock = 4;
     public const int GGrab = 5;
     public const int GDrop = 6;
+    public const int GObjective = 7;
 
     private static readonly Name NAME_s_MenuInteraction = new("s_MenuInteraction");
     private static readonly Name NAME_s_PlayerWalkingMario_T_0HTo2H = new("s_PlayerWalkingMario_T_0HTo2H");
@@ -135,11 +136,15 @@ public sealed class SpyAi : AiBrain
     private float _lastFailAt = -10f;
     private FVector _wander;
     private float _wanderAt = -100f;
+    private float _progressAt;
+    private FVector _progressPosition;
 
     public SpyAi(AiController bot)
         : base(bot)
     {
     }
+
+    public SpySecurity Security { get; } = new();
 
     protected override bool Spy => true;
 
@@ -158,7 +163,7 @@ public sealed class SpyAi : AiBrain
     public SComputerObjectiveTrigger? Target => _target;
 
     /// <summary>At the terminal: settling, asking or hacking (no gadget then).</summary>
-    public bool AtTerminal => Goal == GHack && _hack != HackPhase.Walk;
+    public bool AtTerminal => Goal == GHack && _hack != HackPhase.Walk || Goal == GObjective && (_objectiveUseAt >= 0f || InOtherObjectiveState());
 
     /// <summary>In a melee move (a grab or a drop under way): no gadget then.</summary>
     public bool InMelee => (Goal == GGrab && _grabTarget is not null) || (Goal == GDrop && _dropTarget is not null) || InGrabStates();
@@ -184,7 +189,7 @@ public sealed class SpyAi : AiBrain
     public int Rolls { get; private set; }
 
     public override string Status => string.Create(System.Globalization.CultureInfo.InvariantCulture,
-        $"spy {GoalName(Goal)} {_hack} target {_target?.TriggerName ?? "-"} path {Follower.NextIndex}/{Follower.Path.Count} links {Follower.LinksDone}/{Follower.LinksFailed} hacked {Hacked} shock {ShockHits}/{ShocksFired} grab {NeckBreaks}/{Grabs}/{GrabPresses} drop {DropAttacks}/{DropTries} rolls {Rolls}");
+        $"spy {GoalName(Goal)} {_hack} target {_target?.TriggerName ?? _otherObjective?.TriggerName ?? "-"} path {Follower.NextIndex}/{Follower.Path.Count} links {Follower.LinksDone}/{Follower.LinksFailed} hacked {Hacked} shock {ShockHits}/{ShocksFired} grab {NeckBreaks}/{Grabs}/{GrabPresses} drop {DropAttacks}/{DropTries} rolls {Rolls}");
 
     public static string GoalName(int goal) => goal switch
     {
@@ -194,6 +199,7 @@ public sealed class SpyAi : AiBrain
         GShock => "shock",
         GGrab => "grab",
         GDrop => "drop",
+        GObjective => "objective",
         _ => "idle",
     };
 
@@ -207,6 +213,8 @@ public sealed class SpyAi : AiBrain
         _grabTarget = null;
         _dropTarget = null;
         _rollTicks = 0;
+        _otherObjective = null;
+        _objectiveUseAt = -1f;
     }
 
     // ---- choice ----------------------------------------------------------------------------------------------
@@ -215,6 +223,7 @@ public sealed class SpyAi : AiBrain
     {
         // A hack under way is finished unless the spy is being shot.
         bool hurt = now - Bot.HurtAt < 1.5f;
+        if (Goal == GObjective && InOtherObjectiveState()) return GObjective;
         if (Goal == GHack && _hack == HackPhase.Hacking && !hurt)
         {
             return GHack;
@@ -245,7 +254,7 @@ public sealed class SpyAi : AiBrain
         _threat = threat;
         _exposure = exposure;
         float myLight = World.LightOn(Pawn, threat is null ? AiSight.Eye(Pawn) + Pawn.Rotation.Vector() * 300f : AiSight.Eye(threat));
-        Span<AiOption> options = stackalloc AiOption[8];
+        Span<AiOption> options = stackalloc AiOption[9];
         int n = 0;
         options[n++] = new AiOption(GIdle, 0.05f);
         if (NextTerminal(now) is not null)
@@ -253,6 +262,9 @@ public sealed class SpyAi : AiBrain
             // Right after a shock the guard is stunned: the moment to hack.
             options[n++] = new AiOption(GHack, 0.6f + (now - _shockedAt < SpyAiK.StunHackWindow ? 0.6f : 0f));
         }
+
+        if (FindOtherObjective(now) is not null)
+            options[n++] = new AiOption(GObjective, NextTerminal(now) is null ? .8f : .65f);
 
         if (exposure > 0.25f || hurt)
         {
@@ -631,6 +643,13 @@ public sealed class SpyAi : AiBrain
             _hack = HackPhase.Walk;
         }
 
+        if (from == GObjective) _objectiveUseAt = -1f;
+        if (to == GObjective)
+        {
+            _objectiveProgress = Pawn.Location;
+            _objectiveProgressAt = now;
+        }
+
         // A drawn gun left by a shock is holstered by Act's holster check.
         if (from == GShock && _shockPhase != ShockPhase.None)
         {
@@ -666,6 +685,7 @@ public sealed class SpyAi : AiBrain
 
     protected override void Act(float now, ref AiPlan plan)
     {
+        Security.Observe(Bot, now);
         Vision(now, ref plan);
         if (LetGoOntoMerc(now, ref plan))
         {
@@ -674,6 +694,9 @@ public sealed class SpyAi : AiBrain
 
         switch (Goal)
         {
+            case GObjective:
+                OtherObjective(now, ref plan);
+                break;
             case GHack:
                 Hack(now, ref plan);
                 break;
@@ -696,6 +719,9 @@ public sealed class SpyAi : AiBrain
                 Wander(now, ref plan);
                 break;
         }
+
+        if (!InMelee && !AtTerminal && Goal != GShock && Bot.Gadgets.Active == SpyGadgetAct.None &&
+            Security.Steer(Bot, now, ref plan)) return;
 
         Roll(now, ref plan);
         Holster(now, ref plan);
@@ -799,22 +825,28 @@ public sealed class SpyAi : AiBrain
 
     private SComputerObjectiveTrigger? NextTerminal(float now)
     {
-        if (_target is { } current && !World.IsTaken(current) && !_givenUp.ContainsKey(current))
+        if (World.Terminals.Count == 0) return null;
+        if (_target is { bActive: true } current && !World.IsTaken(current) && !current.bLocked && !_givenUp.ContainsKey(current))
         {
             return current;
         }
 
         SComputerObjectiveTrigger? best = null;
         float bestScore = float.MaxValue;
+        int start = Follower.Graph.NearestNode(Pawn.Location, Pawn.CollisionHeight);
+        float[] reachable = Follower.Graph.CostsFrom(start, badLinks: World.BadLinks(true), badEdges: World.BadEdges(true));
         foreach (SComputerObjectiveTrigger t in World.Terminals)
         {
-            if (World.IsTaken(t) || t.bTriggering && !ReferenceEquals(t, _target) || (_givenUp.TryGetValue(t, out float at) && now - at < 25f))
+            if (!t.bActive || World.IsTaken(t) || t.bLocked || t.bTriggering && !ReferenceEquals(t, _target) || (_givenUp.TryGetValue(t, out float at) && now - at < 25f))
             {
                 continue;
             }
 
-            // Straight-line distance plus the known danger round it; teammates' claims push it back.
-            float score = (t.Location - Pawn.Location).Size();
+            if (!UseSpot(t, out FVector useFloor, out _)) continue;
+            int node = Follower.Graph.NearestNode(useFloor);
+            if (node < 0 || !float.IsFinite(reachable[node])) continue;
+            // Prefer reachable routes, including ladders, over a short straight line through a wall.
+            float score = reachable[node];
             foreach (AiContact c in Bot.Memory.Contacts)
             {
                 if (c.Confidence > 0.2f)
@@ -859,6 +891,9 @@ public sealed class SpyAi : AiBrain
                 {
                     _target = t;
                     _asks = 0;
+                    _failures = 0;
+                    _progressAt = now;
+                    _progressPosition = Pawn.Location;
                     Follower.Clear();
                     World.Teams[0].Claim(t, Bot);
                 }
@@ -890,7 +925,17 @@ public sealed class SpyAi : AiBrain
                     return;
                 }
 
-                _failures = 0;
+                if ((Pawn.Location - _progressPosition).SizeSquared() > 120f * 120f)
+                {
+                    _progressPosition = Pawn.Location;
+                    _progressAt = now;
+                    _failures = 0;
+                }
+                else if (now - _progressAt > 12f && Follower.ActiveLink < 0)
+                {
+                    GiveUp(now);
+                    return;
+                }
 
                 if (Follower.Arrived)
                 {

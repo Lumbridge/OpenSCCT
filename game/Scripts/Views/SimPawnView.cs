@@ -104,7 +104,7 @@ public partial class SimPawnView : Node3D
         _applier = new ChannelPoseApplier(_model.Skeleton, pawn.BoneMirrors, _model.PackageBones);
         _attachments = new PawnAttachments(this, root) { Map = Map };
         _goggleGlow = new GoggleGlowView(this, root, bone => (TryGetBone(bone, out Transform3D world), world));
-        if (pawn is SPAWNDEFENSE) _shockImmunity = new MercShockImmunityView(_model);
+        _shockImmunity = new MercShockImmunityView(_model);
         Name = $"Pawn{pawn.ActorId}";
         return true;
     }
@@ -384,6 +384,8 @@ public partial class SimPawnView : Node3D
         int visionMode = Render.Materials.MaterialCompiler.Vision;
         float cueOpacity = visionMode == RenderK.RendMapThermal ? pawn.HeatOpacity :
             visionMode == RenderK.RendMapEmf ? pawn.EMFOpacity : 1f;
+        if (pawn is SPawnAttaque && visionMode == RenderK.RendMapNormal)
+            cueOpacity *= 1f - pawn.GlassEffect / 255f;
         _shockImmunity?.Draw(OpenScct.Server.MercShockPresentation.Read(pawn, alpha), dt, Visible && _model.Root.Visible, cueOpacity);
         _relightClock -= dt;
         if (_relightClock <= 0f && Map is not null)

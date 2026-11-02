@@ -682,20 +682,21 @@ public partial class SPlayerController
 
     /// <summary>
     /// The merc head-shot HUD shutdown (sticky-shock-effect.md rule 3.11, spec/hud/screen-effects.md rule 12); spies
-    /// are not affected. The HUD keeps the times and plays Snd_HudShutdown; bShutDown, the "System malfunction"
+    /// are not affected. The HUD keeps the times and shutdown flag and plays Snd_HudShutdown; the "System malfunction"
     /// message and the "Rebooting" one 12 s later are the client HUD's (HudEffects, MercHudPage).
     /// </summary>
     [Uc("SBase.SHud.HudShutDown", Sha1 = "9b48ba9d88d58ed12b14cd49ffe9199eea2082e3")]
     [PortOf("uc:SBase.SHud:HudShutDown", Spec = "spec/hud/screen-effects.md#rules")]
     public void HudShutDown(float CloseTime, float Length)
     {
-        if (SPawnType != PawnType.SPAWNDEFENSE)
+        if (SBPawn?.SPawnType != PawnType.SPAWNDEFENSE)
         {
             return;
         }
 
         if (myHUD is SHud hud)
         {
+            hud.bShutDown = true;
             hud.HudShutDownLength = Length;
             hud.TimeToBeginShutDown = Level.TimeSeconds;
             hud.TimeToCloseShut = CloseTime;

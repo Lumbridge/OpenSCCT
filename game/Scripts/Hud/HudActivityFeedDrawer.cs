@@ -44,7 +44,7 @@ public sealed class HudActivityFeedDrawer
         if (!shown || _white is null || entries.Count == 0 || screen.X <= 0f || screen.Y <= 0f) return;
 
         float scale = screen.Y / HudLayout.PageHeight;
-        float feedScale = scale * .85f;
+        float feedScale = scale * .65f;
         float gap = Math.Max(3f, MathF.Round(3f * feedScale));
         float margin = Math.Max(6f, MathF.Round(12f * scale));
         float h = Math.Clamp(MathF.Round(9f * feedScale), 11f, 26f);
@@ -88,7 +88,8 @@ public sealed class HudActivityFeedDrawer
             float fade = Math.Clamp((HudActivityFeed.Lifetime - age) / HudActivityFeed.FadeTime, 0f, 1f);
             float alpha = enter * fade;
             float slide = (1f - enter) * (1f - enter) * 8f * feedScale;
-            var rect = new Rect2(left + slide, top + VisibleCount * (rowHeight + gap), width - slide, rowHeight);
+            float fittedWidth = Math.Min(width, ContentWidth(entry, h, small, feedScale));
+            var rect = new Rect2(right - fittedWidth + slide, top + VisibleCount * (rowHeight + gap), fittedWidth - slide, rowHeight);
             Row(entry, rect, h, small, feedScale, alpha);
             VisibleCount++;
         }
@@ -166,6 +167,16 @@ public sealed class HudActivityFeedDrawer
         return new Rect2(min, max - min);
     }
 
+    private float ContentWidth(HudActivityEntry entry, float h, float small, float scale)
+    {
+        float pad = Math.Max(6f, 7f * scale), icon = Math.Max(12f, 11f * scale);
+        if (!entry.IsCombat)
+            return Math.Max(Measure(entry.Label, small), Measure(entry.Text, h)) + pad * 3f + icon + 2f;
+        float centre = Math.Max(Measure(entry.Label, small), Measure(CauseLabel(entry.Cause), small)) + icon + pad + 1f;
+        return Measure(entry.Actor?.Name ?? (entry.Victim is null ? "Unknown" : ""), h) +
+            Measure(entry.Victim?.Name ?? "Unknown", h) + centre + pad * 4f + 2f;
+    }
+
     private void Row(HudActivityEntry entry, Rect2 rect, float h, float small, float scale, float alpha)
     {
         string path = "Activity/" + entry.Id.ToString(CultureInfo.InvariantCulture) + "/";
@@ -196,16 +207,20 @@ public sealed class HudActivityFeedDrawer
         float causeTextWidth = Measure(cause, small) + 1f;
         float centreWidth = Math.Max(actionWidth + icon + pad, cause.Length == 0 ? 0f : causeTextWidth + icon + pad);
         centreWidth = Math.Min(centreWidth, rect.Size.X * .46f);
-        float nameWidth = Math.Max(0f, (rect.Size.X - pad * 4f - centreWidth) * .5f);
-        float middleLeft = rect.Position.X + pad * 2f + nameWidth;
+        float namesWidth = Math.Max(0f, rect.Size.X - pad * 4f - centreWidth);
+        float actorWanted = Measure(entry.Actor?.Name ?? (entry.Victim is null ? "Unknown" : ""), h) + 1f;
+        float victimWanted = Measure(entry.Victim?.Name ?? "Unknown", h) + 1f;
+        float actorWidth = namesWidth * actorWanted / Math.Max(1f, actorWanted + victimWanted);
+        float victimWidth = namesWidth - actorWidth;
+        float middleLeft = rect.Position.X + pad * 2f + actorWidth;
         float actorX = rect.Position.X + pad;
         float victimX = middleLeft + centreWidth + pad;
         float nameY = rect.GetCenter().Y - h * .55f;
         HudActivityParticipant? actor = entry.Actor;
         HudActivityParticipant? victim = entry.Victim;
-        Text(path + "Actor", actor?.Name ?? (victim is null ? "Unknown" : ""), new Rect2(actorX, nameY, nameWidth, h), h,
+        Text(path + "Actor", actor?.Name ?? (victim is null ? "Unknown" : ""), new Rect2(actorX, nameY, actorWidth, h), h,
             Tint(TeamColour(actor?.Team), alpha), MagmaAlign.Right);
-        Text(path + "Victim", victim?.Name ?? "Unknown", new Rect2(victimX, nameY, nameWidth, h), h,
+        Text(path + "Victim", victim?.Name ?? "Unknown", new Rect2(victimX, nameY, victimWidth, h), h,
             Tint(TeamColour(victim?.Team), alpha));
         float actionY = cause.Length > 0 ? rect.Position.Y + 3f * scale : rect.GetCenter().Y - small * .55f;
         float groupWidth = Math.Min(centreWidth, actionWidth + icon + pad * .5f);

@@ -14,8 +14,8 @@ public partial class SPlayerController
     private SGadBomb? FindBombGadget() =>
         SBPawn is { } pawn ? PawnInventory.FindGadgetType(pawn, GadBombClass) as SGadBomb : null;
 
-    /// <summary>True on the machine that runs this player's input and draws its view (the spy's own machine).</summary>
-    private bool IsLocalInputMachine() => IAmOnClient() && ReferenceEquals(Level.GetLocalPlayerController(), this);
+    /// <summary>True on the input-owning machine, including a server bot with no local rendered view.</summary>
+    private bool IsLocalInputMachine() => IAmOnClient() && (Player is OpenScct.Game.AI.AiViewport || ReferenceEquals(Level.GetLocalPlayerController(), this));
 
     /// <summary>The plant animation (rule 5); its end uses the modem on the spy's machine.</summary>
     [Uc("SBase.SPlayerController.s_PlaceBomb")]

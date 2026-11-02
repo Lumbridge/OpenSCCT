@@ -4,6 +4,7 @@ using OpenScct.Core;
 using OpenScct.Core.Engine;
 using OpenScct.Game.Equipment;
 using OpenScct.Game.SBase;
+using OpenScct.Physics.Collision;
 
 namespace OpenScct.Game.AI;
 
@@ -144,6 +145,12 @@ public abstract class AiBrain
                 return false;
             }
 
+            if (this is SpyAi spy)
+            {
+                Func<int, float>? other = penalty;
+                penalty = n => (other?.Invoke(n) ?? 0f) + spy.Security.Penalty(Bot, Follower.Graph.Node(n).Floor);
+            }
+
             if (!Follower.SetGoal(Pawn, floor, stealth, penalty))
             {
                 _failedAt = now;
@@ -201,14 +208,20 @@ public abstract class AiBrain
     {
         terminal.GetUseSpot(Pawn, out FVector spot, out FVector facing);
         yaw = facing.Rotation().Yaw & 0xFFFF;
-        int node = Follower.Graph.NearestNode(new FVector(spot.X, spot.Y, terminal.Location.Z), 0f);
-        if (node < 0)
+        // A nearby graph sample may lie on the terminal or container roof. Probe the actual
+        // interaction point so the final walk targets its supporting floor, not that surface.
+        FVector top = new(spot.X, spot.Y, terminal.Location.Z + Follower.Graph.Profile.StepUp + 2f);
+        FVector bottom = new(spot.X, spot.Y, terminal.Location.Z - 200f);
+        const ETraceFlags flags = ETraceFlags.TRACE_Blocking | ETraceFlags.TRACE_Level | ETraceFlags.TRACE_LevelGeometry |
+            ETraceFlags.TRACE_Volumes | ETraceFlags.TRACE_Others;
+        if (!World.Collision.LineCheck(out FCheckResult hit, NavBuilder.CollisionProbe, bottom, top, new FVector(4f, 4f, 2f), flags) ||
+            hit.bStartPenetrating || hit.Normal.Z < Follower.Graph.Profile.MinFloorNormalZ)
         {
             floor = default;
             return false;
         }
 
-        floor = new FVector(spot.X, spot.Y, Follower.Graph.Node(node).Floor.Z);
+        floor = new FVector(spot.X, spot.Y, hit.Location.Z - 2f);
         return true;
     }
 

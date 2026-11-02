@@ -92,6 +92,15 @@ public partial class HudCommands : Node
     {
         switch (command.ToUpperInvariant())
         {
+            case "TOGGLETEAMMATENAMES":
+                if (Hud?.Controller?.Invoke()?.Pawn is SBasePawn own)
+                {
+                    if (own.SPawnType == PawnType.SPAWNDEFENSE)
+                        Hud.TeammateNames.ShowMerc = !Hud.TeammateNames.ShowMerc;
+                    else
+                        Hud.TeammateNames.ShowSpy = !Hud.TeammateNames.ShowSpy;
+                }
+                return true;
             case "SHOWCONNECTEDPLAYERS":
                 Hud?.ShowConnectedPlayers();
                 return true;

@@ -219,7 +219,7 @@ public partial class SPlayerController
         public override void BeginState(Actor self)
         {
             var pc = (SPlayerController)self;
-            if (pc.IAmOnClient() && ReferenceEquals(pc.Level.GetLocalPlayerController(), pc))
+            if (pc.IsLocalInputMachine())
             {
                 pc.SetHandItemFromInteraction(pc.IManager?.GetCurrentInteraction());
             }

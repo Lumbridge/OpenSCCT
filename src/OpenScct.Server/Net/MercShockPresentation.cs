@@ -103,7 +103,7 @@ internal sealed class MercShockStream
         _clockTick = level.TickCount; _clockSeconds = level.TimeSeconds;
         foreach (SBasePawn pawn in level.DynamicActors<SBasePawn>())
         {
-            if (pawn.bDeleteMe || pawn.SPawnType != PawnType.SPAWNDEFENSE) continue;
+            if (pawn.bDeleteMe) continue;
             var sample = new MercShockSample(MercShockImmunity.Capture(pawn), _clockTick, _clockSeconds, _clockStep);
             if (!_sources.TryGetValue(pawn, out Source? source)) _sources.Add(pawn, source = new());
             if (source.Revision == 0 || source.Epoch != pawn.NetworkResetId || !sample.SameStatus(source.Sample)) source.Revision++;

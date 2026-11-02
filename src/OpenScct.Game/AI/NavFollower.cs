@@ -45,6 +45,7 @@ public sealed class NavFollower
     private readonly AiWorld _world;
     private readonly bool _spy;
     private readonly List<NavStep> _path = new();
+    private readonly List<int> _goalNodes = new();
     private readonly HashSet<int> _avoid = new();
     private int _next;
     private FVector _goal;
@@ -179,7 +180,12 @@ public sealed class NavFollower
         _partial = false;
         NavGraph g = Graph;
         int from = g.NearestNode(pawn.Location, pawn.CollisionHeight);
-        int to = g.NearestNode(_goal + new FVector(0f, 0f, 1f));
+        int to = GoalNode();
+        if (to < 0)
+        {
+            Failed = true;
+            return false;
+        }
         Func<int, float>? penalty = _penalty;
         if (_avoid.Count > 0)
         {
@@ -205,9 +211,29 @@ public sealed class NavFollower
 
         if (!_partial)
         {
-            _path.Add(new NavStep(to, _path.Count > 0 ? _path[^1].Kind : NavEdgeKind.Walk, -1, _goal));
+            NavEdgeKind finalKind = Clear(g.Node(to).Floor, _goal, crouched: false) ? NavEdgeKind.Walk : NavEdgeKind.Crouch;
+            _path.Add(new NavStep(to, finalKind, -1, _goal));
         }
         return true;
+    }
+
+    // An off-grid interaction point must connect to its final waypoint without crossing a wall.
+    // The closest sampled point can be outside a container, behind its terminal, or on another floor.
+    private int GoalNode()
+    {
+        NavGraph graph = Graph;
+        graph.NodesNear(_goal, graph.Profile.Spacing * 5f, _goalNodes);
+        int best = -1;
+        float bestDistance = float.MaxValue;
+        foreach (int node in _goalNodes)
+        {
+            FVector floor = graph.Node(node).Floor;
+            float distance = (floor - _goal).SizeSquared();
+            if (distance >= bestDistance || !Clear(floor, _goal, crouched: true)) continue;
+            best = node;
+            bestDistance = distance;
+        }
+        return best;
     }
 
     /// <summary>The keys for this tick. <paramref name="viewYaw"/> is the controller's yaw now.</summary>
@@ -1185,7 +1211,7 @@ public sealed class NavFollower
     public bool Clear(FVector fromFloor, FVector toFloor, bool crouched)
     {
         NavProfile p = Graph.Profile;
-        if (MathF.Abs(toFloor.Z - fromFloor.Z) > p.StepUp * 0.5f)
+        if (MathF.Abs(toFloor.Z - fromFloor.Z) > p.StepUp)
         {
             return false;
         }
@@ -1206,8 +1232,8 @@ public sealed class NavFollower
         for (int k = 1; k < steps; k++)
         {
             FVector q = from + d * (k / (float)steps);
-            var top = new FVector(q.X, q.Y, fromFloor.Z + 8f);
-            var bottom = new FVector(q.X, q.Y, fromFloor.Z - p.StepUp - 8f);
+            var top = new FVector(q.X, q.Y, MathF.Max(fromFloor.Z, toFloor.Z) + 8f);
+            var bottom = new FVector(q.X, q.Y, MathF.Min(fromFloor.Z, toFloor.Z) - p.StepUp - 8f);
             if (!_world.Collision.LineCheck(out _, NavBuilder.CollisionProbe, bottom, top, default, WorldFlags))
             {
                 return false;

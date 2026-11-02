@@ -67,6 +67,18 @@ public class BombTargetTests
     }
 
     [Fact]
+    public void ServerBotPlantsWithoutBeingTheLevelsLocalPlayer()
+    {
+        Scene s = Story();
+        s.Spy.Player = new OpenScct.Game.AI.AiViewport();
+        s.W.Level.Info.LocalPlayerController = s.Merc;
+        int charge = s.Modem.Charge;
+        Plant(s, s.A);
+        Assert.True(s.A.bTriggering);
+        Assert.Equal(charge - 1, s.Modem.Charge);
+    }
+
+    [Fact]
     public void A_mission_reset_shows_the_spots_unarmed_and_usable_by_spies()
     {
         Scene s = Story();
