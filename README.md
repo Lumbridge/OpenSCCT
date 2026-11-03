@@ -1,6 +1,6 @@
 <img align="right" src="game/branding/icon.svg" width="88" alt="OpenSCCT logo">
 
-# OpenSCCT
+# OpenSCCT<br clear="right">
 
 **Spies vs. mercs, rebuilt for modern PCs.** OpenSCCT is a community rewrite of
 Splinter Cell: Chaos Theory Versus in Godot 4 and C#.
