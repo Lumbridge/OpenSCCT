@@ -134,7 +134,7 @@ internal sealed partial class MainForm : Form
         Icon = Theme.LoadIcon(32);
         AutoScaleMode = AutoScaleMode.Dpi;
         AutoScaleDimensions = new SizeF(96f, 96f);
-        ClientSize = new Size(720, 480);
+        ClientSize = new Size(720, 600);
         MinimumSize = new Size(600, 420);
         FormBorderStyle = FormBorderStyle.Sizable;
         StartPosition = FormStartPosition.CenterScreen;
@@ -321,6 +321,15 @@ internal sealed partial class MainForm : Form
                 : _lastCheck is null ? "Check for updates to load release notes."
                 : release is null ? "No release information available." : "No release notes available.";
         }
+    }
+
+    protected override void OnLoad(EventArgs e)
+    {
+        base.OnLoad(e);
+        // Keep the taller default on-screen when Windows scales it for a smaller working area.
+        Rectangle work = Screen.FromControl(this).WorkingArea;
+        MinimumSize = new Size(Math.Min(MinimumSize.Width, work.Width), Math.Min(MinimumSize.Height, work.Height));
+        Size = new Size(Math.Min(Width, work.Width), Math.Min(Height, work.Height));
     }
 
     protected override async void OnShown(EventArgs e)
