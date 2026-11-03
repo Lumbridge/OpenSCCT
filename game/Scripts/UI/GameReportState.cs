@@ -14,14 +14,12 @@ internal readonly record struct GameReportState(bool Replay = false, bool Online
     public static string? Side(int? team, bool spectator) => spectator ? "Spectator"
         : team switch { 0 => "Spy", 1 => "Mercenary", _ => null };
 
-    /// <summary>Map launch arguments may be local paths. Reports show only the map's file stem.</summary>
+    /// <summary>Map launch arguments may be local paths. Reports show only the final name, including dots in custom IDs.</summary>
     public static string? MapId(string? map)
     {
         if (string.IsNullOrWhiteSpace(map)) return null;
         string name = map.Trim().Replace('\\', '/');
         name = name[(name.LastIndexOf('/') + 1)..];
-        int extension = name.LastIndexOf('.');
-        if (extension > 0) name = name[..extension];
         return name.Length == 0 || name is "." or ".." ? null : name;
     }
 }

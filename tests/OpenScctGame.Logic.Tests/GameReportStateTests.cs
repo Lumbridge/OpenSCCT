@@ -31,9 +31,12 @@ public sealed class GameReportStateTests
 
     [Theory]
     [InlineData("TestBox", "TestBox")]
-    [InlineData("C:\\Users\\PrivateName\\Converted\\Maps\\AquaE.json", "AquaE")]
-    [InlineData("/home/private-name/maps/TestBox.tscn", "TestBox")]
-    [InlineData("res://maps/AquaE.json", "AquaE")]
+    [InlineData("C:\\Users\\PrivateName\\Converted\\Maps\\AquaE.json", "AquaE.json")]
+    [InlineData("/home/private-name/maps/TestBox.tscn", "TestBox.tscn")]
+    [InlineData("res://maps/AquaE.json", "AquaE.json")]
+    [InlineData("Clocktower.v2", "Clocktower.v2")]
+    [InlineData("/home/private-name/maps/Clocktower.v2", "Clocktower.v2")]
+    [InlineData("Custom & 雨 #1.v2", "Custom & 雨 #1.v2")]
     [InlineData("", null)]
     [InlineData(null, null)]
     public void ReportsNeverIncludeLocalMapDirectories(string? input, string? expected) =>
