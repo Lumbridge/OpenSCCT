@@ -131,6 +131,52 @@ public sealed class ActionBindingDraftTests
         Assert.DoesNotContain(ControlActions.ForRole(true), a => a.Id == "roll");
     }
 
+    [Theory]
+    [InlineData(false, "F", "Switch fire mode")]
+    [InlineData(true, "Z", "Back to wall")]
+    [InlineData(true, "V", "Previous sticky camera")]
+    [InlineData(false, "F3", "Controls reference (unavailable)")]
+    [InlineData(true, "F4", "HUD help (unavailable)")]
+    [InlineData(false, "F11", "Quit shortcut (unavailable)")]
+    [InlineData(false, "F1", "Night vision")]
+    [InlineData(true, "F1", "Motion tracking vision")]
+    [InlineData(false, "B", "Binoculars")]
+    [InlineData(true, "B", "Sniper scope")]
+    public void BindingDescriptionIncludesHiddenActionsAndUsesCurrentRoleNames(bool merc, string key, string expected)
+    {
+        var draft = new ActionBindingDraft(DefaultKeyLayout.Create());
+        Assert.Equal(expected, draft.Describe(key, merc));
+        Assert.False(draft.Dirty);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void CombinedBindingDescriptionKeepsBothRolesAndCustomCommandsWithoutRepeatingActions(bool merc)
+    {
+        var draft = new ActionBindingDraft(KeyLayout.Parse(Ini));
+        Assert.Equal("Use selected gadget / alternate action / Quick-use gadget slot 2 / Hold breath / CustomThing mode=keep",
+            draft.Describe("RightMouse", merc));
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void EveryStoredDefaultBindingHasADescription(bool merc)
+    {
+        var draft = new ActionBindingDraft(DefaultKeyLayout.Create());
+        foreach (string key in draft.Layout.Bindings.Keys)
+            Assert.False(string.IsNullOrWhiteSpace(draft.Describe(key, merc)), key + " has no binding description");
+        Assert.Empty(draft.Describe("UnboundKey", merc));
+    }
+
+    [Fact]
+    public void BindingDescriptionFallsBackToSavedCommandForAnEmptyAlias()
+    {
+        var draft = new ActionBindingDraft(KeyLayout.Parse("[Engine.Input]\nAliases[0]=(Command=\"\",Alias=\"EmptyAlias\")\nIK_X=EmptyAlias"));
+        Assert.Equal("EmptyAlias", draft.Describe("X", false));
+    }
+
     [Fact]
     public void IndependentPadActionDoesNotRunOtherKeyboardActionsOrRequireAKey()
     {
