@@ -118,6 +118,13 @@ public static class PlayerNames
         return Convert.ToHexString(hash, 0, 2).ToLowerInvariant();
     }
 
+    /// <summary>A guest host's server title, keeping its tag within discovery's 64 UTF-8 bytes.</summary>
+    public static string GuestServerName(string name, string installId)
+    {
+        string suffix = " #" + GuestTag(installId);
+        return ControlMessage.Clip(name, 64 - suffix.Length).TrimEnd() + suffix;
+    }
+
     /// <summary>A guest's shown name: its own name (cleaned, cut to 15) then <c>#tag</c>.</summary>
     public static string GuestName(string? name, string? installId)
     {

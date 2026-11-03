@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
@@ -26,6 +28,18 @@ public sealed class OnlineUdpTests
     private static readonly NavCache Nav = new();
 
     private static bool TestBoxMissing => WalkerRig.Maps.FindFolder(MapCatalog.TestBox) is null;
+
+    private sealed class AccountFiles : IDisposable
+    {
+        public string Database { get; } = Path.Combine(Path.GetTempPath(), "openscct-host-listing-" + Guid.NewGuid().ToString("N") + ".db");
+        public string TicketKey => Path.ChangeExtension(Database, ".pem");
+
+        public void Dispose()
+        {
+            foreach (string path in new[] { Database, Database + "-wal", Database + "-shm", TicketKey })
+                File.Delete(path);
+        }
+    }
 
     /// <summary>A dedicated server on a loopback UDP socket, listed on <paramref name="master"/>.</summary>
     private static (OnlineServer Server, LiteNetLibTransport Udp) Dedicated(MasterHost master, MasterLinkSettings? link = null,
@@ -84,6 +98,77 @@ public sealed class OnlineUdpTests
         Task<JoinResponse> join = browser.JoinAsync(entry.Id, cancellationToken: TestContext.Current.CancellationToken);
         Assert.True(rig.RunUntil(() => join.IsCompleted, 10));
         return rig.Add(new OnlineClient(JoinTarget.FromJoin(join.Result, path), settings, rig.Now));
+    }
+
+    [Theory]
+    [InlineData(false, false)]
+    [InlineData(false, true)]
+    [InlineData(true, false)]
+    public async Task GuestListenHostsAdvertiseTheirTagBeforeJoiningAndKeepItInBothServerLists(bool dedicated, bool signedIn)
+    {
+        CancellationToken ct = TestContext.Current.CancellationToken;
+        Assert.SkipWhen(TestBoxMissing, "The TestBox fixture is not in this checkout.");
+        const string title = "Custom community session";
+        const string installId = "guest-listen-host-install";
+        const string hostKey = "listen-host-key";
+        const string claimedName = "ClaimedHost";
+        string tag = "#" + PlayerNames.GuestTag(installId);
+        string expectedTitle = !dedicated && !signedIn ? title + " " + tag : title;
+        using var files = new AccountFiles();
+        MasterOptions options = MasterTests.LocalOptions(Key);
+        options.Probe = false;
+        options.Database = files.Database;
+        options.TicketKeyFile = files.TicketKey;
+        options.Discord.ClientId = "fixture-client";
+        options.Discord.ClientSecret = "fixture-secret";
+        await using MasterHost master = await MasterHost.StartAsync(options, cancellationToken: ct);
+        using var browser = new MasterClient(master.HttpAddress, Key);
+        using var website = new HttpClient { BaseAddress = new Uri(master.HttpAddress) };
+        var clock = new WallClock();
+        (OnlineServer server, _) = Dedicated(master, edit: settings => settings with
+        {
+            Name = title, Dedicated = dedicated, HostKey = hostKey, HostInstallId = installId,
+            HostAccount = signedIn ? new HostAccount(42, claimedName) : null,
+        }, clock: clock);
+        using var rig = new OnlineRig(server, clock);
+
+        ServerInfo Query(ServerEntry entry)
+        {
+            using var query = new ServerQuery(clock, loopbackOnly: true);
+            query.QueryServer(new IPEndPoint(IPAddress.Loopback, entry.Port), entry.Id);
+            Assert.True(rig.RunUntil(() =>
+            {
+                query.Poll();
+                return query.Results.Count > 0;
+            }, 5));
+            return Assert.Single(query.Results).Info;
+        }
+
+        // The first heartbeat is visible before the host's local player connects.
+        ServerEntry entry = WaitListed(rig, browser, _ => true);
+        Assert.Equal(expectedTitle, entry.Name);
+        Assert.Empty(entry.PlayerNames);
+        ServerInfo beforeJoin = Query(entry);
+        Assert.Equal(expectedTitle, beforeJoin.Name);
+        Assert.Empty(beforeJoin.PlayerList);
+        string html = await website.GetStringAsync("/servers", ct);
+        Assert.Contains("<td>" + WebUtility.HtmlEncode(expectedTitle) + "<span class=\"table-sub\">", html, StringComparison.Ordinal);
+
+        OnlineClient host = JoinListed(rig, browser, entry, OnlineRig.ClientSettings("LocalHost", 0) with
+        {
+            HostKey = hostKey, InstallId = installId,
+        });
+        Assert.True(rig.RunUntil(() => host.State == OnlineClientState.Lobby, 20), host.Error);
+        string expectedPlayer = signedIn ? claimedName : "LocalHost" + tag;
+        Assert.Equal(expectedPlayer, Assert.Single(server.Players).Name);
+        entry = WaitListed(rig, browser, e => e.PlayerNames.Count == 1);
+        Assert.Equal(expectedTitle, entry.Name);
+        Assert.Equal(expectedPlayer, Assert.Single(entry.PlayerNames));
+        ServerInfo afterJoin = Query(entry);
+        Assert.Equal(expectedTitle, afterJoin.Name);
+        Assert.Equal(expectedPlayer, Assert.Single(afterJoin.PlayerList).Name);
+        html = await website.GetStringAsync("/servers", ct);
+        Assert.Contains("<td>" + WebUtility.HtmlEncode(expectedTitle) + "<span class=\"table-sub\">", html, StringComparison.Ordinal);
     }
 
     [Fact]

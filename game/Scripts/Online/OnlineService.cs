@@ -241,6 +241,7 @@ public partial class OnlineService : Node
         EndVisit();
         LastError = null;
         _notes.Clear();
+        request = request with { HostInstallId = OnlineSettings.Current.InstallId };
         AccountSettings account = AccountSettings.Current;
         if (request.HostAccount is null && account.AccountName is { } claimed && account.AccountId > 0)
         {
