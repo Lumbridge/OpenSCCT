@@ -176,7 +176,7 @@ jobs:
           python -c "import json,sys; a=json.load(open(sys.argv[1])); b=json.load(open(sys.argv[2])); sys.exit(0 if a == b else 'fixtures/testrange/stations.json is not what tools/testmap makes')" fixtures/testrange/stations.json "$env:RUNNER_TEMP/stations.json"
 
       - name: Godot headless smokes
-        run: ./tools/ci/godot-smoke.ps1 -Tests boot,testbox,range-sim -ExpectedFailures selftest-fail -TimeoutSeconds 180
+        run: ./tools/ci/godot-smoke.ps1 -Tests boot,testbox,range-sim,help-feedback -ExpectedFailures selftest-fail -TimeoutSeconds 180
 
       - uses: actions/upload-artifact@v7
         if: always()

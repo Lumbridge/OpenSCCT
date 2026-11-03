@@ -1,5 +1,6 @@
 using System;
 using Godot;
+using OpenScct.Project;
 using OpenScctGame.Hud;
 using OpenScctGame.Options;
 
@@ -30,6 +31,10 @@ public partial class InGameMenu : Control
     private Vector2 _shownSize;
     private object? _shownEntries;
     private OptionsMenu? _options;
+    private HelpFeedbackScreen? _help;
+    internal ProjectLinkActions? HelpActions { get; set; }
+    internal ReportContext? HelpContext { get; init; }
+    public Button? HelpButton { get; private set; }
 
     public InGameMenu()
     {
@@ -88,7 +93,7 @@ public partial class InGameMenu : Control
     {
         foreach (Node child in GetChildren())
         {
-            if (ReferenceEquals(child, _options))
+            if (ReferenceEquals(child, _options) || ReferenceEquals(child, _help))
             {
                 continue;
             }
@@ -102,6 +107,13 @@ public partial class InGameMenu : Control
             RemoveChild(_options);
             _options.QueueFree();
             _options = null;
+        }
+
+        if (page != InGameMenuPage.Help && _help is not null)
+        {
+            RemoveChild(_help);
+            _help.QueueFree();
+            _help = null;
         }
 
         switch (page)
@@ -136,6 +148,14 @@ public partial class InGameMenu : Control
                 _options = new OptionsMenu { Overlay = true };
                 _options.Closed += OnOptionsClosed;
                 AddChild(_options);
+                break;
+            case InGameMenuPage.Help when _help is null:
+                _help = HelpFeedbackScreen.Open(this, context: HelpContext, actions: HelpActions, closed: () =>
+                {
+                    Model.HelpClosed();
+                    Sync();
+                    if (HelpButton is not null) FocusSoon(HelpButton);
+                });
                 break;
         }
     }
@@ -189,6 +209,12 @@ public partial class InGameMenu : Control
         }
 
         // The keyboard can move between the buttons as the original's pad and arrow keys do.
+        HelpButton = UiStyle.MenuButton("Help & contribute", () => Click(InGameMenuButton.Help), "HelpFeedbackButton");
+        HelpButton.CustomMinimumSize = new Vector2(0f, 32f);
+        HelpButton.AddThemeFontSizeOverride("font_size", 20);
+        HelpButton.Position = new Vector2((size.X - width) * 0.5f, Math.Min(top + stack + PanelPadding + 6f, size.Y - 40f));
+        HelpButton.Size = new Vector2(width, 32f);
+        AddChild(HelpButton);
         if (first is not null) FocusSoon(first);
     }
 

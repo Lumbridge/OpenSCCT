@@ -122,6 +122,9 @@ public partial class LobbyRoomScreen
         LeaveButton = PageButton("Leave lobby", () => ConfirmLeave(() => Session?.Leave(),
             Session is { CanControl: true } s && Parameters!.Setup != s.Setup), "Leave");
         PageButton("Options", OpenOptions, "Options");
+        HelpButton = PageButton("Help & contribute", () => HelpFeedbackScreen.Open(this, HelpButton,
+            GameReportContext.Capture(GetTree(), Session), HelpActions), "HelpFeedbackButton");
+        HelpButton.AddThemeFontSizeOverride("font_size", 20);
 
         MainButton = PageButton("Ready", PressMain, "Main");
         foreach (Button button in PageButtons)

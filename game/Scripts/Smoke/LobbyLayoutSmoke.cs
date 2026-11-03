@@ -738,7 +738,7 @@ public sealed class LobbyLayoutSmoke : SmokeTest
         tree.Root.Size = size;
     }
 
-    private sealed class FixtureLobby : IOnlineLobbySession
+    internal sealed class FixtureLobby : IOnlineLobbySession
     {
         public bool CanControl { get; set; } = true;
         public bool IsHost => CanControl;
@@ -769,6 +769,11 @@ public sealed class LobbyLayoutSmoke : SmokeTest
             new(4, "Spectator", null, false, false, false, 65, ""),
         };
         public IReadOnlyList<OnlineLobbyPlayer> Members => _members;
+        internal void AddRemotePlayer()
+        {
+            _members.Add(new(9, "New remote player", HudSide.Merc, false, false, false, 42, ""));
+            Notify();
+        }
         public void FillCapacityRoster()
         {
             Setup = Setup with { MaxPlayers = 24, Bots = BotFill.Off };

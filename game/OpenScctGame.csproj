@@ -22,6 +22,7 @@
   </ItemDefinitionGroup>
 
   <ItemGroup>
+    <Compile Include="..\shared\ProjectLinks.cs" Link="Shared\ProjectLinks.cs" />
     <ProjectReference Include="..\src\OpenScct.Core\OpenScct.Core.csproj" />
     <ProjectReference Include="..\src\OpenScct.Content\OpenScct.Content.csproj" />
     <ProjectReference Include="..\src\OpenScct.Net\OpenScct.Net.csproj" />

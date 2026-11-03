@@ -2,6 +2,7 @@ using System;
 using System.Globalization;
 using System.Linq;
 using Godot;
+using OpenScct.Project;
 using OpenScct.Net.Cosmetics;
 using OpenScct.Net.Discovery;
 using OpenScctGame.Online;
@@ -33,6 +34,8 @@ public partial class MainMenu : MenuPage
     public Button? FindButton { get; private set; }
     public Button? AccountButton { get; private set; }
     public Button? OptionsButton { get; private set; }
+    public Button? HelpButton { get; private set; }
+    internal ProjectLinkActions? HelpActions { get; init; }
     public Button? QuitButton { get; private set; }
     public Button? RejoinButton { get; private set; }
     public Button? WhatsNewButton { get; private set; }
@@ -71,6 +74,7 @@ public partial class MainMenu : MenuPage
         _status = TextLine(Body, "Status", string.Empty);
         _status.Visible = false;
         OptionsButton = PageButton("Options", () => FrontEnd.ShowOptions(GetTree()), "Options");
+        HelpButton = PageButton("Help & contribute", () => HelpFeedbackScreen.Open(this, HelpButton, actions: HelpActions), "HelpFeedbackButton");
         QuitButton = PageButton("Quit", AskQuit, "Quit");
         PageCanvas.AddChild(new BuildCornerLabel
         {

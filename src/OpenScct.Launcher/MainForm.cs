@@ -20,6 +20,7 @@ using OpenScct.Maps;
 using OpenScct.Launcher.Settings;
 using OpenScct.Launcher.Update;
 using OpenScct.Launcher.Versioning;
+using OpenScct.Project;
 
 namespace OpenScct.Launcher.App;
 
@@ -75,7 +76,6 @@ internal sealed partial class MainForm : Form
     private Control? _root;
     private bool _fitPending;
     private bool _fitting;
-    private Control? _more;
 
     private readonly Button _changeGame = Theme.Button("Change...");
     private readonly Button _useSteam = Theme.Button("Use Steam copy");
@@ -99,6 +99,7 @@ internal sealed partial class MainForm : Form
     private readonly Button _whatsNew = Theme.Button("What's new");
     private readonly Button _check = Theme.Button("Check for updates");
     private readonly Button _website = Theme.Button("Website");
+    private readonly Button _help = Theme.Button("&Help");
     private readonly Button _mapsButton = Theme.Button("Maps");
     private readonly Button _settingsButton = Theme.Button("Settings");
     private readonly TableLayoutPanel _launcherBanner = Theme.Grid(Theme.Fill, Theme.Auto);
@@ -202,7 +203,10 @@ internal sealed partial class MainForm : Form
         TableLayoutPanel more = Theme.Grid(Theme.Fill, Theme.Auto);
         more.Dock = DockStyle.Bottom;
         more.Padding = new Padding(0, 12, 0, 0);
-        Theme.AddRow(more, Theme.Flow(false, _whatsNew, _check, _website, _mapsButton, _settingsButton), version);
+        FlowLayoutPanel links = Theme.Flow(false, _whatsNew, _check, _website, _mapsButton, _settingsButton, _help);
+        links.WrapContents = true;
+        links.Dock = DockStyle.Fill;
+        Theme.AddRow(more, links, version);
 
         var root = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, BackColor = Color.Transparent };
         root.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100f));
@@ -216,7 +220,6 @@ internal sealed partial class MainForm : Form
         Controls.Add(root);
         Controls.Add(more);
         _root = root;
-        _more = more;
 
         // Contents grow after the first fit (the launcher banner, an update line, a long status): grow the window
         // again once that layout has settled, so the big button is never cut off.
@@ -250,6 +253,7 @@ internal sealed partial class MainForm : Form
         tips.SetToolTip(_useDownloads,"Stop using your copy of the game: the game files are downloaded instead (you do not need your own copy).");
         tips.SetToolTip(_rebuild, "Prepare the game files again from your copy, for example if a map looks wrong.");
         tips.SetToolTip(_website, "Visit the OpenSCCT website in your browser.");
+        tips.SetToolTip(_help, "Get help, report a problem or contribute to OpenSCCT.");
         tips.SetToolTip(_mapsButton, "Download new maps made by the community.");
 
         _main.Click += async (_, _) => await DoNextAsync();
@@ -261,6 +265,7 @@ internal sealed partial class MainForm : Form
         _whatsNew.Click += async (_, _) => await OpenChangelogAsync();
         _check.Click += async (_, _) => await RunAsync(CheckAsync);
         _website.Click += (_, _) => OpenLink("https://master.lumbridge.co.uk/");
+        _help.Click += (_, _) => OpenHelp();
         _settingsButton.Click += (_, _) => OpenSettings();
         _mapsButton.Click += (_, _) => OpenMaps();
         _launcherButton.Click += async (_, _) => await RunAsync(UpdateLauncherAsync);
@@ -270,21 +275,7 @@ internal sealed partial class MainForm : Form
     {
         base.OnLoad(e);
 
-        // The bottom row of buttons does not wrap: widen the window to it (at this display scaling), and never let
-        // it be dragged narrower.
-        if (_more is not null)
-        {
-            int need = _more.GetPreferredSize(Size.Empty).Width + Padding.Horizontal;
-            Rectangle work = Screen.FromControl(this).WorkingArea;
-            int width = Math.Min(Math.Max(ClientSize.Width, need), work.Width - (Width - ClientSize.Width));
-            if (width != ClientSize.Width)
-            {
-                ClientSize = new Size(width, ClientSize.Height);
-            }
-
-            MinimumSize = new Size(Math.Max(MinimumSize.Width, SizeFromClientSize(new Size(width, 0)).Width), MinimumSize.Height);
-        }
-
+        // Footer actions wrap at the available width, including on small high-DPI displays.
         if (_root is not null)
         {
             Theme.FitToContent(this, _root);
@@ -748,6 +739,34 @@ internal sealed partial class MainForm : Form
     }
 
     private static int Rgb(Color c) => (c.R << 16) | (c.G << 8) | c.B;
+
+    private void OpenHelp()
+    {
+        string? installedVersion = null;
+        try
+        {
+            installedVersion = _store.Current()?.ToString();
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            // Help remains available when the installation cannot be read.
+        }
+
+        Assembly assembly = Assembly.GetExecutingAssembly();
+        var context = new ReportContext
+        {
+            Source = ReportSource.Launcher,
+            Version = _launcherVersion?.ToString(),
+            LauncherVersion = _launcherVersion?.ToString(),
+            InstalledGameVersion = installedVersion ?? "not installed",
+            Build = assembly.GetCustomAttributes<AssemblyMetadataAttribute>()
+                .FirstOrDefault(a => a.Key == "BuildNumber")?.Value,
+            Commit = _launcherVersion?.Build,
+            Platform = System.Runtime.InteropServices.RuntimeInformation.OSDescription,
+        };
+        using var dialog = new HelpForm(context);
+        dialog.ShowDialog(this);
+    }
 
     /// <summary>Opens a website or release notes link in the browser (http and https only).</summary>
     private void OpenLink(string? url)

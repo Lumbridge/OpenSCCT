@@ -13,6 +13,7 @@ For joining and hosting, start with [Online play](ONLINE.md); for microphone set
 | Review progress | [Player stats and match history](#player-stats-and-match-history) |
 | Change bindings | [Role configuration and shared controls](#role-configuration-and-shared-controls) |
 | Change video settings | [Display page](#display-page-the-originals-video-options) |
+| Report a problem or contribute | [Help & contribute](#help--contribute) |
 | Develop or test menu behavior | [Screen sizes](#screen-sizes-and-resizing), [Tests](#tests) |
 
 Menu behavior follows the [lobby and match creation specification](../spec/game/lobby-and-match-creation.md).
@@ -144,6 +145,22 @@ The next-unlock action opens that achievement. Guests can still use the play rou
 ```powershell
 tools/ci/godot-smoke.ps1 -Tests menu-layout,options,lobby-layout,front-end-layout -ExpectedFailures @()
 ```
+
+## Help & contribute
+
+Open **Help & contribute** from the main menu, Escape menu, online lobby or hub browser. It opens over
+the current screen and returns to the same screen when closed. A match keeps running while help is open;
+lobby readiness, chat and settings stay in place. Escape or the controller's Back button closes help and
+restores focus to the control that opened it.
+
+**Report a bug** and **Suggest a feature** open the matching GitHub form. Review the version, platform and
+available match details shown in help, then describe the problem on GitHub. **Copy details** lets you copy
+that summary yourself. Automatic details exclude account information, server addresses, paths and logs.
+GitHub sign-in is required to submit. If a browser cannot open, the link stays selectable and can be copied.
+
+The contribution section links to the guides and pull requests. Code contributions need a branch or fork.
+Help is available without the master service. The `help-feedback` smoke covers navigation, controller focus,
+copy/browser failures and layouts at 800×600, 1280×720 and 3840×2160 using fake external actions.
 
 ## Player stats and match history
 
