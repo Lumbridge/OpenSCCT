@@ -104,6 +104,9 @@ public sealed record PlaySettings
     /// </summary>
     public bool OfflineRules { get; init; }
 
+    /// <summary>Visit a Map: unlimited ammunition, gadget charges and gas mask air, with instant gear changes.</summary>
+    public bool UnlimitedGear { get; init; }
+
     /// <summary>Records the match as a demo into this folder (docs/DEMOS.md), or null for none.</summary>
     public string? DemoFolder { get; init; }
 

@@ -34,13 +34,16 @@ public sealed class PlayMapLoader
     private readonly IPillPose _pillPose;
     private readonly ContentMeshAnimations _meshAnimations;
     private readonly USPersistentData? _hostSettings;
+    private readonly bool _unlimitedGear;
 
     /// <param name="hostSettings">The host's settings object the rules read (SPersistentData), or null for an empty one.</param>
-    public PlayMapLoader(SvMap map, string gameOptions, string? charsDir, USPersistentData? hostSettings = null)
+    public PlayMapLoader(SvMap map, string gameOptions, string? charsDir, USPersistentData? hostSettings = null,
+        bool unlimitedGear = false)
     {
         _map = map ?? throw new ArgumentNullException(nameof(map));
         _gameOptions = gameOptions ?? throw new ArgumentNullException(nameof(gameOptions));
         _hostSettings = hostSettings;
+        _unlimitedGear = unlimitedGear;
         _pawnAnimations = charsDir is not null && Directory.Exists(charsDir)
             ? PawnAnimationSource.FromContent(charsDir)
             : PawnAnimationSource.Default;
@@ -124,6 +127,11 @@ public sealed class PlayMapLoader
     {
         level.SetService<IMeshAnimations>(_meshAnimations);
         level.SetService<IPillPose>(_pillPose);
+        if (_unlimitedGear)
+        {
+            // Install on both machines before actors begin play, including respawns and replacement gear.
+            level.SetService(new OpenScct.Game.Modes.PracticeRules { On = true });
+        }
         if (_hostSettings is not null)
         {
             level.SetService(_hostSettings);

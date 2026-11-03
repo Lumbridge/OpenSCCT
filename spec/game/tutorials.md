@@ -100,6 +100,8 @@ time the player launches a map.
   4. The quit page of rule 3 is the Tutorials page; leaving through the In-Game Menu returns to the main menu.
 - The in-game help is a profile option of the level (`IProfileOptions.DisplayHelpInGame`), set by a Visit a Map
   launch and cleared when the visit's play scene closes or the Tutorials page opens.
+- Visit a Map also enables the practice equipment rules on both the client and listen server: unlimited ammo,
+  gadget charges and gas mask air, with instant gear changes. Named tutorial maps keep their existing rules.
 - TutoOrExam is not shown (the rewrite does not gate online play on the exam); the exam is the spy page's fifth row.
 - Lobby Launch and Ready proceed immediately without the first-time map prompt from rule 13. Existing played-map
   history is retained in the profile for compatibility.
