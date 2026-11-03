@@ -10,8 +10,9 @@
 
     It builds the launcher of LauncherVersion in Directory.Build.props (or reuses the kept copy, LauncherBuild.ps1),
     then:
-        1. uploads OpenSCCT.Launcher-<launcher version>-win-x64.exe.sha256 to the game files release (first, so a
-           launcher that sees the new label always finds its checksum),
+        1. uploads OpenSCCT.Launcher-<launcher version>-win-x64.exe.sha256 to both the game files release and the
+           version release (first, so a launcher that sees the new label always finds its checksum, including when
+           the game files release is no longer in the release list),
         2. replaces OpenSCCT.Launcher.exe on the version release, labelled with the new launcher version,
         3. adds a "Launcher <version>" section to the release notes.
 
@@ -73,6 +74,8 @@ $sum = Join-Path $outDir "$($launcher.VersionedName).sha256"
 Write-Host "Launcher $released -> $($launcher.Version) on $Tag (from $($commit.Substring(0, 7)))."
 & gh release upload $StoreTag $sum --repo $Repo --clobber
 if ($LASTEXITCODE -ne 0) { throw "Uploading the checksum to $StoreTag failed." }
+& gh release upload $Tag $sum --repo $Repo --clobber
+if ($LASTEXITCODE -ne 0) { throw "Uploading the checksum to $Tag failed (the launcher has not been replaced)." }
 & gh release upload $Tag "$asset#$label$($launcher.Version)" --repo $Repo --clobber
 if ($LASTEXITCODE -ne 0) { throw "Replacing the launcher on $Tag failed." }
 
