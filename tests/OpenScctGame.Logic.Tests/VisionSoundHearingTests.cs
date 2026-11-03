@@ -107,11 +107,17 @@ public sealed class VisionSoundHearingTests
             PlayAudioRouter.Install(session.Client, sound);
             int switches = 0;
             bool playerSeen = false;
+            NetConnection? serverConnection = null;
             for (int i = 0; i < 20 * Sim.Hz; i++)
             {
                 clock.Advance(1_000_000 / Sim.Hz);
                 session.Step(clock.NowMicroseconds);
+                serverConnection ??= session.Host.Players.FirstOrDefault()?.Connection;
                 playerSeen |= session.LocalPawn is not null;
+                // This checks hearing while bots switch goggles, not their combat decisions. Hold them once
+                // their pawns exist so attacks, deaths and respawns cannot disturb the stationary listener.
+                foreach (AiController bot in session.Bots?.Bots ?? [])
+                    if (bot.Pawn is not null) bot.Held = true;
                 if (session.LocalPawn is not null && i % Sim.Hz == 0)
                 {
                     switches += session.ServerSnapshot(h =>
@@ -121,8 +127,8 @@ public sealed class VisionSoundHearingTests
                         {
                             if (b.Pawn is SPAWNDEFENSE && b.Controller.Goggle is not null)
                             {
-                                // Place the bot by the player so its calls are in reach of him.
-                                b.Controller.SetLocation(session.LocalPawn.Location);
+                                // Move the actual sound-emitting pawn into earshot, leaving room between bodies.
+                                b.Pawn.SetLocation(session.LocalPawn.Location + new FVector(200f + 100f * b.Index, 0f, 0f));
                                 b.Controller.eventSwitchHeadset(3);
                                 n++;
                             }
@@ -134,7 +140,8 @@ public sealed class VisionSoundHearingTests
             }
 
             Assert.True(playerSeen, "the player never got a pawn");
-            Assert.NotEqual(OpenScct.Server.EClientState.Disconnected, session.Client.State);
+            Assert.True(session.Client.State != OpenScct.Server.EClientState.Disconnected,
+                $"client disconnected: {session.Client.Connection?.CloseReason}; server: {serverConnection?.CloseReason}");
             Assert.True(switches > 0, "no merc bot switched its vision mode");
             List<SimEvent> heard = sound.Events.Where(e => VisionSounds.Contains(e.What.ToString())).ToList();
             Assert.True(heard.Count == 0, "vision sounds reached the spy: " + string.Join(", ", heard.Select(e => e.What + " on " + e.ActorId)));

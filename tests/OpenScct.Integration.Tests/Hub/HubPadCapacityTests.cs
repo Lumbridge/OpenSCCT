@@ -1,8 +1,10 @@
 using System;
+using System.IO;
 using System.Linq;
 using OpenScct.Core;
 using OpenScct.Game.SBase;
 using OpenScct.Net;
+using OpenScct.Server;
 using OpenScct.Server.Hub;
 using OpenScct.Server.Online;
 using Xunit;
@@ -12,6 +14,11 @@ namespace OpenScct.Integration.Tests.Hub;
 [Collection(BotMatchCollection.Name)]
 public sealed class HubPadCapacityTests
 {
+    // Exercise the same Hub and TestBox fixtures in CI and on machines with converted game content installed.
+    private static readonly MapCatalog Maps = new(Path.Combine(
+        MapCatalog.FindRepoRoot(AppContext.BaseDirectory) ?? throw new InvalidOperationException("Repository fixtures are required."),
+        "fixtures"));
+
     [Theory]
     [InlineData(EGameMode.GM_Multi, 12, 12, 24)]
     [InlineData(EGameMode.GM_Multi, 20, 12, 24)]
@@ -21,10 +28,10 @@ public sealed class HubPadCapacityTests
     {
         var config = HubConfig.Default with
         {
-            Pads = [new HubPadConfig { Id = "Pad1", Map = "SteeE", Mode = mode, TeamSize = requested }],
+            Pads = [new HubPadConfig { Id = "Pad1", Map = MapCatalog.TestBox, Mode = mode, TeamSize = requested }],
         };
 
-        HubPadConfig pad = Assert.Single(config.Checked(WalkerRig.Maps).Pads);
+        HubPadConfig pad = Assert.Single(config.Checked(Maps).Pads);
         Assert.True(pad.Playable);
         Assert.Equal(mode, pad.Mode);
         Assert.Equal(teamSize, pad.TeamSize);
@@ -41,13 +48,16 @@ public sealed class HubPadCapacityTests
         var network = new LoopbackNetwork();
         using var server = new HubServer(network.Bind("server"), new HubSettings
         {
-            Maps = WalkerRig.Maps,
+            Maps = Maps,
             Classes = WalkerRig.Classes,
-            Config = HubConfig.Default,
+            Config = HubConfig.Default with
+            {
+                Pads = [new HubPadConfig { Id = "Pad1", Map = MapCatalog.TestBox }],
+            },
             MatchLauncher = new UnusedLauncher(),
         });
         using var client = new HubClient(network.Bind("client"), "server", clock.NowMicroseconds,
-            new HubClientSettings { Maps = WalkerRig.Maps, Classes = WalkerRig.Classes, PlayerName = "Host" });
+            new HubClientSettings { Maps = Maps, Classes = WalkerRig.Classes, PlayerName = "Host" });
         long frame = 0;
         void Step()
         {
@@ -63,7 +73,7 @@ public sealed class HubPadCapacityTests
         HubPad pad = Assert.IsType<HubPad>(pads.Find("Pad1"));
         pawn.Location = pad.Area.Laptop + new FVector(0, -100, 86);
 
-        var setup = LobbySetup.ForMap("SteeE", mode, WalkerRig.Maps.GetMapSettings("SteeE"), 24);
+        var setup = LobbySetup.ForMap(MapCatalog.TestBox, mode, Maps.GetMapSettings(MapCatalog.TestBox), 24);
         Assert.Null(pads.ApplySetup(player, "Pad1", setup));
         Assert.Equal((spySlots, mercSlots, 24), (pad.Config.SpySlots, pad.Config.MercSlots, pad.Config.Slots));
         Assert.Equal(24, pads.SetupOf(pad).MaxPlayers);
