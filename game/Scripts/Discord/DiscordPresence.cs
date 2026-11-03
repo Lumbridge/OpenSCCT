@@ -74,7 +74,10 @@ public partial class DiscordPresence : Node
     private void Start()
     {
         // Events wait for Invoke in _Process, so they run on Godot's main thread.
-        var client = new DiscordRpcClient(ApplicationId, -1, null, false) { SkipIdenticalPresence = true };
+        var client = new DiscordRpcClient(ApplicationId, -1, null, false, new DiscordInvitePipe())
+        {
+            SkipIdenticalPresence = true,
+        };
         client.OnReady += (_, e) =>
         {
             if (!_readyLogged)
