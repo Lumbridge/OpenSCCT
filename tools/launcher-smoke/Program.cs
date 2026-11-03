@@ -65,10 +65,11 @@ internal static class Program
                     string label = $"{scenario.Name}-{(minimum ? "minimum" : "default")}-{scale * 100:0}";
                     using var fixture = new Fixture(scenario);
                     using Form form = Create(fixture, scenario);
+                    Size previewSize = minimum ? new Size(600, 420) : form.ClientSize;
                     if (scale != 1f) ScaleForPreview(form, fixture, scale);
                     // Client size is logical at 96 DPI. MinimumSize includes the native window frame.
                     form.MinimumSize = Size.Empty;
-                    form.ClientSize = new Size((int)((minimum ? 600 : 720) * scale), (int)((minimum ? 420 : 480) * scale));
+                    form.ClientSize = new Size((int)(previewSize.Width * scale), (int)(previewSize.Height * scale));
                     Inspect(() => Capture(form, fixture, scenario, output, label));
                 }
             }
