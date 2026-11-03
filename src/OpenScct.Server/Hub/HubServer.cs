@@ -349,6 +349,7 @@ public sealed partial class HubServer : IDisposable
             if (Settings.Master is { Url.Length: > 0 } master)
             {
                 Master = new MasterLink(master with { Kind = ServerKind.Hub, RequireAccounts = Settings.RequireAccounts }, _udp);
+                Master.Diagnostic += LogLine;
                 Master.Notice += LogLine;
                 Master.AccountIds = SignedInAccounts;
                 Master.PlayerDetails = PlayerDetailsForMaster;

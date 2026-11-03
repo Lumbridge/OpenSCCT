@@ -25,7 +25,7 @@ public sealed class UpnpPorts
     /// <summary>The router's public address once the mapping worked, else null.</summary>
     public string? ExternalAddress { get; private set; }
 
-    /// <summary>Maps <paramref name="port"/>; the task's result is the line for the lobby.</summary>
+    /// <summary>Maps <paramref name="port"/>; the task's result is a diagnostic for the host log.</summary>
     public Task<string> MapAsync(int port) => Task.Run(() => Map(port));
 
     private string Map(int port)

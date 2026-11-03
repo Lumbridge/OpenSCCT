@@ -73,8 +73,8 @@ public sealed record DemoMeta
 /// A host's registration with the master (docs/ONLINE.md, "Master"): the heartbeat with the server's info every
 /// 30 s, the NAT punch registration with the introducer every 10 s and the relay hello every 5 s, all from the game
 /// socket, so the introducer and the relay see the mapping players will use. HTTP calls run as tasks; their results
-/// are taken on the host's thread in <see cref="Tick"/>. Notices for the host (listed, reachability, errors, update
-/// notices) come out of <see cref="Notice"/>.
+/// are taken on the host's thread in <see cref="Tick"/>. Routine hosting details come out of <see cref="Diagnostic"/>
+/// for the log; warnings and update notices come out of <see cref="Notice"/> for players as well.
 /// </summary>
 [PortOf("rl:net.master", Spec = "spec/native/reloaded-features-from-code.md#2-master-server")]
 public sealed class MasterLink : IDisposable
@@ -159,7 +159,10 @@ public sealed class MasterLink : IDisposable
         HeartbeatSoon();
     }
 
-    /// <summary>Lines for the host's lobby and log.</summary>
+    /// <summary>Routine hosting details for the log, without interrupting players' chat.</summary>
+    public event Action<string>? Diagnostic;
+
+    /// <summary>Warnings and update notices for players and the log.</summary>
     public event Action<string>? Notice;
 
     /// <summary>Accounts the master banned that are on the server: raised on the host's thread, in <see cref="Tick"/>.</summary>
@@ -426,9 +429,14 @@ public sealed class MasterLink : IDisposable
             Trusted = r.Trusted;
             if (_client.ServerKey is not null)
             {
-                Notice?.Invoke(Trusted
-                    ? "The master server trusts this server: its admins are admins here and rounds count for stats."
-                    : "The master server does not know this server's key: no master admins, rounds do not count.");
+                if (Trusted)
+                {
+                    Diagnostic?.Invoke("The master server trusts this server: its admins are admins here and rounds count for stats.");
+                }
+                else
+                {
+                    Notice?.Invoke("The master server does not know this server's key: no master admins, rounds do not count.");
+                }
             }
         }
 
@@ -480,7 +488,7 @@ public sealed class MasterLink : IDisposable
 
         if (first)
         {
-            Notice?.Invoke(Settings.Listed
+            Diagnostic?.Invoke(Settings.Listed
                 ? $"Listed on the master server as {r.ServerId} ({r.PublicAddress})."
                 : $"Registered with the master server as {r.ServerId}, not listed: players join with the server id.");
             if (r.Message is { Length: > 0 } message)
@@ -502,7 +510,7 @@ public sealed class MasterLink : IDisposable
             };
             if (text is not null)
             {
-                Notice?.Invoke(text);
+                Diagnostic?.Invoke(text);
             }
         }
     }

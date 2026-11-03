@@ -94,8 +94,8 @@ that names the ports to forward, a manual server list, and accurate pings. Not t
     as "UPNP_AddPortMapping <port>: <code> (<text>)" and shown in the lobby chat; failures name the ports to
     forward by hand.
 
-Rewrite needs: the same on the client process only (FEATURES `rl:net.upnp`), with a 24 h lease and the
-lobby message.
+Rewrite needs: the same mapping on the client process only (FEATURES `rl:net.upnp`), with a 24 h lease.
+The rewrite keeps the result in the host log to avoid routine hosting diagnostics in player chat.
 
 ### 4. Frame limiter and pacing
 

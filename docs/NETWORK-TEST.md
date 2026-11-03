@@ -35,7 +35,7 @@ On the same LAN, the guest can use **Find a Session** or **Join with IP** and th
 LAN address (`ipconfig` shows its IPv4 address).
 
 For a direct internet connection, forward UDP 28888 to the host PC. **Map the port
-(UPnP)** can do this on supported routers; check its result in the lobby. The guest
+(UPnP)** can do this on supported routers; check its result in the host log. The guest
 joins the host's public address. For server discovery, NAT traversal or relay setup,
 see [online play](ONLINE.md).
 

@@ -68,7 +68,7 @@ public sealed class ListenHost : IDisposable
     public void Inspect(Action<OnlineServer> action) => _inspections.Enqueue(action);
     /// <summary>Optional diagnostic observer, called on the server thread even while the host's renderer loads.</summary>
     public event Action<OnlineServer>? Ticked;
-    private readonly ConcurrentQueue<string> _notes = new();
+    private readonly ConcurrentQueue<string> _diagnostics = new();
     private readonly CancellationTokenSource _stop = new();
     private readonly Thread _thread;
     private readonly UpnpPorts _upnp = new();
@@ -155,7 +155,7 @@ public sealed class ListenHost : IDisposable
             if (request.Upnp && !request.LoopbackOnly)
             {
                 host._upnp.MapAsync(udp.LocalPort).ContinueWith(
-                    t => host._notes.Enqueue(t.IsCompletedSuccessfully ? t.Result : "UPnP: the port mapping failed."),
+                    t => host._diagnostics.Enqueue(t.IsCompletedSuccessfully ? t.Result : "UPnP: the port mapping failed."),
                     System.Threading.Tasks.TaskScheduler.Default);
             }
 
@@ -175,8 +175,9 @@ public sealed class ListenHost : IDisposable
     /// <summary>Runs an admin command on the host thread (kick, map, say...); the answer goes to the log.</summary>
     public void Command(string line) => _commands.Enqueue(line);
 
-    /// <summary>A line for the host's lobby that does not come from the session (the UPnP result).</summary>
-    public bool TryTakeNote([System.Diagnostics.CodeAnalysis.NotNullWhen(true)] out string? note) => _notes.TryDequeue(out note);
+    /// <summary>A hosting diagnostic to write to the log on the main thread (the UPnP result).</summary>
+    public bool TryTakeDiagnostic([System.Diagnostics.CodeAnalysis.NotNullWhen(true)] out string? diagnostic) =>
+        _diagnostics.TryDequeue(out diagnostic);
 
     private void Run()
     {

@@ -31,7 +31,6 @@ public partial class OnlineService : Node
     private const int MaxCatchUpTicks = 5;
 
     private readonly StopwatchClock _clock = new();
-    private readonly List<string> _notes = new();
     private PlayCatalog? _catalog;
     private NetClassRegistry? _classes;
     private long _start;
@@ -60,13 +59,10 @@ public partial class OnlineService : Node
     /// <summary>The last visit's error, for the main menu.</summary>
     public string? LastError { get; private set; }
 
-    /// <summary>Lines for the lobby that come from this machine (UPnP, hosting errors).</summary>
-    public IReadOnlyList<string> Notes => _notes;
-
     /// <summary>The visit's voice chat (lobby and rounds), made on first use.</summary>
     public OnlineVoiceChat? VoiceChat { get; private set; }
 
-    /// <summary>Raised when the visit or the notes change (the lobby screen redraws).</summary>
+    /// <summary>Raised when the visit changes (the lobby screen redraws).</summary>
     public event Action? Changed;
 
     /// <summary>The maps the client plays (every installed map with its play loader).</summary>
@@ -153,7 +149,6 @@ public partial class OnlineService : Node
         ArgumentNullException.ThrowIfNull(target);
         EndVisit();
         LastError = null;
-        _notes.Clear();
         _visitMasterId = masterId ?? target.MasterId;
         _visitPassword = password;
         StartVisit(new OnlineClient(target, ClientSettings(password, ticket: ticket), _clock.NowMicroseconds));
@@ -181,7 +176,6 @@ public partial class OnlineService : Node
         ArgumentNullException.ThrowIfNull(back);
         EndVisit();
         LastError = null;
-        _notes.Clear();
         _hubReturn = back;
         _hubPlayed = false;
         _hubDemoWaitStarted = -1;
@@ -240,7 +234,6 @@ public partial class OnlineService : Node
         ArgumentNullException.ThrowIfNull(request);
         EndVisit();
         LastError = null;
-        _notes.Clear();
         AccountSettings account = AccountSettings.Current;
         if (request.HostAccount is null && account.AccountName is { } claimed && account.AccountId > 0)
         {
@@ -260,7 +253,7 @@ public partial class OnlineService : Node
             return false;
         }
 
-        _notes.Add($"Hosting {request.Name} on UDP port {Hosting.Port}.");
+        GD.Print($"SVM_HOST Hosting {request.Name} on UDP port {Hosting.Port}.");
         StartVisit(new OnlineClient(Hosting.LocalTarget, ClientSettings(request.Password, Hosting.HostKey), _clock.NowMicroseconds));
         return true;
     }
@@ -330,10 +323,9 @@ public partial class OnlineService : Node
     {
         if (Hosting is { } host)
         {
-            while (host.TryTakeNote(out string? note))
+            while (host.TryTakeDiagnostic(out string? diagnostic))
             {
-                _notes.Add(note);
-                Changed?.Invoke();
+                GD.Print("SVM_HOST " + diagnostic);
             }
 
             if (host.Failure is { } failure && Client is not null)

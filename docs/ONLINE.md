@@ -851,8 +851,10 @@ Main menu, Create a Session (docs/MENUS.md): the match (map, mode, rules, passwo
 revenge, random map, voice in lobby) and the hosting: name, port, the master to list on, listing on or off, UPnP,
 recording demos (each round into the player's demos folder, docs/DEMOS.md). The game
 runs the same `OnlineServer` on its own thread (`ListenHost`), the host's own player over loopback and everyone
-else over UDP. UPnP (Godot's `Upnp`, rl:net.upnp) maps the game port for 24 h and the lobby says whether it worked,
-naming the port to forward by hand when not. With a master set, the host also registers for punches and the relay,
+else over UDP. UPnP (Godot's `Upnp`, rl:net.upnp) maps the game port for 24 h and the host log says whether it worked,
+naming the port to forward by hand when not. Routine registration, trust confirmation and reachability checks also
+stay in the host/server log; player chat keeps gameplay notices, admin announcements, warnings and update notices.
+With a master set, the host also registers for punches and the relay,
 so clients can try those paths when a direct connection fails. Carrier-grade NAT can prevent port
 forwarding; a host reported as **relay only** carries remote players through the relay.
 

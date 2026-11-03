@@ -100,11 +100,6 @@ public sealed class OnlineLobby : IOnlineLobbySession
         get
         {
             var list = new List<LobbyMessage>();
-            foreach (string note in _service.Notes)
-            {
-                list.Add(new LobbyMessage(note, null, null, false));
-            }
-
             foreach (SessionMessage m in State.Messages)
             {
                 HudSide? side = m.Team switch

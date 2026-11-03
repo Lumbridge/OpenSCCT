@@ -414,6 +414,7 @@ public sealed partial class OnlineServer : IDisposable
         if (settings.Master is { Url.Length: > 0 } master && udp is not null)
         {
             Master = new MasterLink(master with { RequireAccounts = settings.RequireAccounts }, udp);
+            Master.Diagnostic += Log;
             Master.Notice += Announce;
             Master.AccountIds = SignedInAccounts;
             Master.KickAccounts += OnMasterKicks;
