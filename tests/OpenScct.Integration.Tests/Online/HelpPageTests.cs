@@ -2,6 +2,8 @@ using System;
 using System.IO;
 using System.Net;
 using System.Net.Http;
+using System.Runtime.CompilerServices;
+using System.Security.Cryptography;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -70,12 +72,13 @@ public sealed class HelpPageTests
             Assert.Contains("/blob/main/docs/DEVELOPMENT.md", html, StringComparison.Ordinal);
             Assert.Contains("/compare", html, StringComparison.Ordinal);
 
-            foreach (string route in new[] { "/", "/download", "/changelog" })
+            foreach (string route in new[] { "/", "/download", "/changelog", "/improvements" })
             {
                 string page = await http.GetStringAsync(route, ct);
                 Assert.Contains("href=\"/help\"", page, StringComparison.Ordinal);
                 Assert.Contains("Help &amp; contribute", page, StringComparison.Ordinal);
             }
+            await CheckShowcaseImages(http, ct);
             var futurePage = Assert.IsType<ContentHttpResult>(WebHtml.Page(new DefaultHttpContext(), "Features", "improvements", "<h1>Features</h1>"));
             Assert.Contains("Help improve OpenSCCT", futurePage.ResponseContent!, StringComparison.Ordinal);
             var signedInPage = Assert.IsType<ContentHttpResult>(WebHtml.Page(new DefaultHttpContext(), "Help & contribute", "help",
@@ -88,6 +91,24 @@ public sealed class HelpPageTests
         finally
         {
             Directory.Delete(directory, recursive: true);
+        }
+    }
+
+    private static async Task CheckShowcaseImages(HttpClient http, CancellationToken ct, [CallerFilePath] string sourceFile = "")
+    {
+        string images = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(sourceFile)!, "../../../docs/images/website"));
+        string page = await http.GetStringAsync("/improvements", ct);
+        foreach (string name in new[] { "armoury", "hub", "play", "player", "replays", "setup", "sidearm" })
+        {
+            string file = "showcase-" + name + ".png";
+            byte[] source = await File.ReadAllBytesAsync(Path.Combine(images, file), ct);
+            string hash = Convert.ToHexStringLower(SHA256.HashData(source));
+            string url = "/web/assets/" + file + "?v=" + hash[..16];
+            Assert.Contains(url, page, StringComparison.Ordinal);
+            using HttpResponseMessage response = await http.GetAsync(url, ct);
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            Assert.Equal("image/png", response.Content.Headers.ContentType?.MediaType);
+            Assert.Equal(hash, Convert.ToHexStringLower(SHA256.HashData(await response.Content.ReadAsByteArrayAsync(ct))));
         }
     }
 

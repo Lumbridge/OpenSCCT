@@ -30,5 +30,7 @@
     <None Update="svm-master.example.json" CopyToOutputDirectory="PreserveNewest" />
     <EmbeddedResource Include="Admin/assets/*" LogicalName="admin/%(Filename)%(Extension)" />
     <EmbeddedResource Include="Web/assets/*" LogicalName="web/%(Filename)%(Extension)" />
+    <!-- Screenshots stay in the approved documentation media folder; public asset names remain unchanged. -->
+    <EmbeddedResource Include="../../docs/images/website/showcase-*" LogicalName="web/%(Filename)%(Extension)" />
   </ItemGroup>
 </Project>

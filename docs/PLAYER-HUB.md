@@ -139,10 +139,11 @@ Feature descriptions live in `src/OpenScct.Master/Web/GameAdditions.cs`; the pag
 Describe what players can do in plain language, including conditions such as host settings or experimental support.
 Keep the focus on OpenSCCT without competitor comparisons or completion percentages.
 
-Screenshots live in `Web/assets/showcase-*.png`. `showcase-sources.txt` records their local source paths,
+Screenshots live in `docs/images/website/showcase-*.png`. The `showcase-sources.txt` file beside them records their local source paths,
 dimensions, hashes and capture details. Use actual gameplay and normal menu screens, with default weapon skins.
 Do not use test fixtures, fabricated statistics or debug overlays. Keep captions accurate; never retouch the
 screenshots to invent game state or remove unwanted elements after capture.
+The master embeds these files under the existing `/web/assets/showcase-*` URLs.
 The page does not run tests or read repository files on a request; its content and assets ship with the master.
 
 ## Deploying and rolling back
