@@ -223,38 +223,34 @@ public sealed class ControllerActionTests
     }
 
     [Fact]
-    public void SelectedCloakQuickUseActivatesTheRealCloak()
+    public void DedicatedCloakCommandWorksWithNoGadgets()
     {
         var rig = new Rig(weaponLoaded: 0);
         var spy = (SPawnAttaque)rig.Pawn;
         spy.EnergyLevel = spy.EnergyLevelMax;
-        SGadCloak cloak = rig.Give(new SGadCloak { LastUsed = -10f });
-        spy.SelectedGadget = cloak;
-        Assert.True(cloak.CanTurnOn());
+        spy.SelectedGadget = null;
 
         Assert.True(PlayerCommands.Execute(rig.Pc, new InputCommand("PadCloakQuick")));
 
         Assert.Equal(255, spy.DesiredGlassEffect);
-        Assert.Same(cloak, spy.SelectedGadget);
+        Assert.Null(spy.SelectedGadget);
         Assert.Equal(0, rig.Pc.AltFireCalls);
         Assert.Equal(0, rig.Pc.bAltFire);
     }
 
     [Fact]
-    public void CloakShortcutDoesNotSelectAnUnselectedCloakOrQuickUseAnotherGadget()
+    public void CloakShortcutDoesNotChangeSelectionOrQuickUseAnotherGadget()
     {
         var rig = new Rig(weaponLoaded: 0);
         var spy = (SPawnAttaque)rig.Pawn;
         spy.EnergyLevel = spy.EnergyLevelMax;
-        SGadCloak cloak = rig.Give(new SGadCloak { LastUsed = -10f });
         QuickUseProbe selected = rig.Give(new QuickUseProbe { bActivatable = true });
         spy.SelectedGadget = selected;
-        Assert.True(cloak.CanTurnOn());
 
         Assert.True(PlayerCommands.Execute(rig.Pc, new InputCommand("PadCloakQuick")));
 
         Assert.Same(selected, spy.SelectedGadget);
-        Assert.Equal(0, spy.DesiredGlassEffect);
+        Assert.Equal(255, spy.DesiredGlassEffect);
         Assert.Equal(0, selected.QuickUseCalls);
         Assert.Equal(0, rig.Pc.AltFireCalls);
     }

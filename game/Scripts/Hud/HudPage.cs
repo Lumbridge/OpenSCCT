@@ -14,6 +14,8 @@ public sealed class HudOptions
     /// original shows the fire mode on the rifle's sight screen and the vision mode only as the picture itself, so
     /// these lines are a slice addition until the first-person weapon draws its sight skins.
     /// </summary>
+    public OpenScctGame.Options.HudEditorSettings Layout { get; set; } = new();
+
     public bool SliceExtras { get; set; } = true;
 
     /// <summary>
@@ -178,6 +180,7 @@ public abstract class HudPage
         {
             DrawBoard(s);
         }
+        HudEditorTransform.Apply(DrawList.Items, Options.Layout.For(Side == HudSide.Merc), screen);
     }
 
     protected abstract void Drive(HudSnapshot s, float dt);

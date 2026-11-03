@@ -15,6 +15,25 @@ public class ScoringAndTravelTests
     private static (GameWorld W, SPlayerController[] P) Match(params string[] joins) =>
         DeathLivesRespawnTests.Match(Story, joins);
 
+    [Theory]
+    [InlineData(false, true, 1)]
+    [InlineData(true, true, 1)]
+    [InlineData(false, false, 0)]
+    public void ShootingAMercMineCreditsTheSpyOnlyWhenTheBlastKills(bool laser, bool lethal, int expected)
+    {
+        (GameWorld w, SPlayerController[] p) = Match("?Name=S?Team=0", "?Name=M?Team=1");
+        Pawn spy = p[0].Pawn!;
+        Pawn merc = p[1].Pawn!;
+        spy.SetLocation(new FVector(2000, 0, 100));
+        merc.SetLocation(new FVector(50, 0, 100));
+        merc.Health = lethal ? 1 : 10000;
+        SMines mine = w.Level.SpawnActor<SMines>(laser ? new SMineLaser() : new SMineProx(),
+            new FVector(0, 0, 100), default, merc, merc)!;
+        mine.eventTakeDamage(1, spy, mine.Location, default, SDamageType.SDTBase);
+        Assert.Equal(lethal, merc.Health <= 0);
+        Assert.Equal(expected, p[0].PlayerReplicationInfo!.Stats!.Feats.GetValueOrDefault(FeatKeys.SpyMineKills));
+    }
+
     // ---- the scoring table and AddPoint (rules 1 to 3) ---------------------------------------------------------
 
     [Fact]

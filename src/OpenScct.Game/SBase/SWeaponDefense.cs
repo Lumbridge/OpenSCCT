@@ -367,6 +367,14 @@ public partial class SWeaponDefense
             return;
         }
 
+        CombatDeathCause activityCause = this switch
+        {
+            MercSidearm { Kind: (int)SidearmKind.Magnum44 } => CombatDeathCause.Revolver,
+            MercSidearm => CombatDeathCause.Pistol,
+            SWeaponDefense_Uzi => CombatDeathCause.Smg,
+            _ => InScope ? CombatDeathCause.Sniper : CombatDeathCause.Rifle,
+        };
+        using var activity = CombatDeathContext.Push(new(activityCause));
         ShotRay(shooter, Accuracy, ActiveShotId, TraceStartLocation, out FVector startTrace, out FVector endTrace, out FVector wStart);
         BoneTraceResult hit = CombatServices.HitZones(this).TraceBone(this, endTrace, wStart, true);
         int roll = SvmMath.Trunc(FRand() * K.RandomRoll);

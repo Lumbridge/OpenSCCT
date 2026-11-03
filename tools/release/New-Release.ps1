@@ -137,6 +137,13 @@ Get-ChildItem -LiteralPath $BuildDir -Recurse -File | ForEach-Object {
     Copy-Item -LiteralPath $_.FullName -Destination $dest
 }
 
+# Attribution for the bundled event-feed SVG artwork.
+$gameIconsLicense = Join-Path $repoRoot 'packaging\licenses\GameIcons-LICENSE.txt'
+if (-not (Test-Path -LiteralPath $gameIconsLicense)) { throw 'packaging\licenses\GameIcons-LICENSE.txt is missing.' }
+$licensesDir = Join-Path $staging 'licenses'
+New-Item -ItemType Directory -Force $licensesDir | Out-Null
+Copy-Item -LiteralPath $gameIconsLicense -Destination (Join-Path $licensesDir 'GameIcons-LICENSE.txt') -Force
+
 # The maps the game ships itself (ours, generated; no game data): the hub with its pad config and the test maps.
 # The game finds them in maps\ next to the exe (OpenScct.Server.ContentPaths).
 foreach ($map in @('hub', 'hubmap', 'testbox')) {

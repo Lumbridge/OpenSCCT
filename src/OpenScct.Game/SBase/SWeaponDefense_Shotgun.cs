@@ -185,6 +185,7 @@ public partial class SWeaponDefense_Shotgun
             return;
         }
 
+        using var activity = CombatDeathContext.Push(new(CombatDeathCause.Shotgun));
         AccurateRotation.GetAxes(out FVector fwd, out FVector right, out FVector up);
         bool onStillMover = shooter.Base is Mover { Velocity: var mv } && mv.IsZero();
         FVector aim = onStillMover

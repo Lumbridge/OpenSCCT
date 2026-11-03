@@ -34,4 +34,8 @@
     <!-- Discord Rich Presence over the local Discord app's pipe (docs/DISCORD.md). -->
     <PackageReference Include="DiscordRichPresence" />
   </ItemGroup>
+  <ItemGroup>
+    <!-- Embed licensed vector icons so desktop/export builds do not depend on editor import caches. -->
+    <EmbeddedResource Include="branding/icons/event-feed/*.svg" LogicalName="EventFeed/%(Filename)%(Extension)" />
+  </ItemGroup>
 </Project>

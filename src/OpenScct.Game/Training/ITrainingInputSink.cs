@@ -16,6 +16,7 @@ public enum TrainingButtons : uint
     Crouch = 1 << 8, Roll = 1 << 9, Use = 1 << 10, FireMode = 1 << 11,
     BackToWall = 1 << 12, Reload = 1 << 13, RateOfFire = 1 << 14, HoldBreath = 1 << 15,
     SpecialsChat = 1 << 16, ZoomIn = 1 << 17, ZoomOut = 1 << 18, FastSpeed = 1 << 19,
+    Cloak = 1 << 20,
 }
 
 /// <summary>
@@ -115,6 +116,7 @@ public static class TrainingInputCapture
         if (pc.bReload != 0) result |= TrainingButtons.Reload;
         if (pc.bROF != 0) result |= TrainingButtons.RateOfFire;
         if (pc.bHoldBreath != 0) result |= TrainingButtons.HoldBreath;
+        if (pc.bCloak != 0) result |= TrainingButtons.Cloak;
         if (pc.bSpecialsChat != 0) result |= TrainingButtons.SpecialsChat;
         if (pc.bZoomIn != 0) result |= TrainingButtons.ZoomIn;
         if (pc.bZoomOut != 0) result |= TrainingButtons.ZoomOut;

@@ -1,5 +1,6 @@
 using OpenScct.Core;
 using OpenScct.Core.Engine;
+using OpenScct.Game.Combat;
 using OpenScct.Provenance;
 using K = OpenScct.Game.Combat.K;
 
@@ -10,6 +11,7 @@ namespace OpenScct.Game.SBase;
 // spec/native/natives2-damage.md rule 8.
 public partial class SBasePawn
 {
+    internal CombatDeathSource PoisonActivitySource { get; set; }
     /// <summary>
     /// SBasePawn.Tick: NativeTick first, then the server's spy mark expiry (SBasePawn.SpyBulletExpiry.cs).
     /// </summary>
@@ -52,6 +54,8 @@ public partial class SBasePawn
                     bPoisonned = false;
                     Health = 1;
                     Pawn? by = PoisonnedBy ?? Instigator;
+                    using var activity = CombatDeathContext.Push(PoisonActivitySource.Cause != CombatDeathCause.None
+                        ? PoisonActivitySource : new(CombatDeathCause.Poison));
                     Controller?.PawnTakeDamage(K.PoisonKillDamage, by, Location, new FVector(0f, 0f, -1f), SDamageType.SDTBase,
                         K.PoisonKillPill, 0);
                 }

@@ -3,6 +3,7 @@ using OpenScct.Core.Engine;
 using OpenScct.Core.Uc;
 using OpenScct.Game.Devices;
 using OpenScct.Game.Equipment;
+using OpenScct.Game.Combat;
 using OpenScct.Physics.Collision;
 using OpenScct.Provenance;
 
@@ -273,10 +274,15 @@ public partial class SGamePlayObject
             game.GPODamageInstigator = EventInstigator;
         }
 
-        eventProcessDamage(Damage);
-        if (game is not null)
+        using var activity = CombatDeathContext.Push(CombatDeathContext.Triggered(CombatDeathContext.PropCause(this),
+            EventInstigator ?? previous, DamageType));
+        try
         {
-            game.GPODamageInstigator = previous;
+            eventProcessDamage(Damage);
+        }
+        finally
+        {
+            if (game is not null) game.GPODamageInstigator = previous;
         }
     }
 

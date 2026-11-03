@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using OpenScct.Core;
 using OpenScct.Core.Engine;
 using OpenScct.Game.Equipment;
@@ -12,6 +13,7 @@ public sealed partial class MercAi
     private float _trapNext;
     private float _trapUntil;
     private bool _trapApproach;
+    private bool _trapCrouched;
     private FVector _trapWall;
     private FVector _trapFloor;
     private SGadMultiMinesLauncher? _trapLauncher;
@@ -31,36 +33,46 @@ public sealed partial class MercAi
         {
             if (now < _trapNext || Difficulty.GadgetUse <= 0f) return false;
             _trapNext = now + 8f;
-            bool nearObjective = false;
-            foreach (SObjectiveTrigger terminal in World.Level.AllActors<SObjectiveTrigger>())
-                if (Defensible(terminal) && (terminal.Location - Pawn.Location).SizeSquared() < 700f * 700f &&
-                    GuardSpot(terminal, out FVector spot) && World.LineOpen(AiSight.Eye(Pawn), spot + new FVector(0, 0, 40))) { nearObjective = true; break; }
-            if (!nearObjective || !ChooseTrap()) return false;
-            FVector eye = TrapEye;
+            if (!ChooseTrap()) return false;
             float best = float.MaxValue;
+            float bestRouteLength = 0f;
+            int preferredHeight = Bot.Random.Rand(4);
             var approachRoute = new NavFollower(World, spy: false);
+            foreach (FVector site in TrapSites())
+            for (int height = 0; height < 4; height++)
             for (int i = 0; i < 16; i++)
             {
+                bool crouched = height < 2;
+                float eyeHeight = crouched ? Pawn.CrouchHeight + ((SPAWNDEFENSE)Pawn).BaseCrouchEyeHeight :
+                    Follower.Graph.Profile.StandingHeight + Pawn.DefaultObject.BaseEyeHeight;
+                float offset = height switch { 0 => -24f, 1 => 0f, 2 => -20f, _ => 12f };
+                FVector eye = site + new FVector(0, 0, eyeHeight + offset);
                 FVector direction = new FRotator(0, i * 4096, 0).Vector();
                 if (!World.Collision.LineCheck(out var hit, Pawn, eye + direction * 400f, eye, default,
-                    SGadMultiMinesLauncher.WallTraceFlags) || MathF.Abs(hit.Normal.Z) > .2f || hit.Actor is Mover) continue;
+                    SGadMultiMinesLauncher.WallTraceFlags) || hit.bStartPenetrating || MathF.Abs(hit.Normal.Z) > .2f || hit.Actor is Mover) continue;
                 float distance = (hit.Location - eye).Size();
-                if (distance < 25f || distance >= best || OccupiedWall(hit.Location)) continue;
+                if (distance < 80f || OccupiedWall(hit.Location)) continue;
                 // Tables and pillars can obstruct a straight walk while leaving an ordinary route around them.
                 // Plan to supported floor at the wall instead of rejecting every non-straight approach.
                 if (!TrapApproach(hit.Location, hit.Normal, approachRoute, out FVector floor)) continue;
+                // Slopes and raised platforms can change the available height at the actual placement floor.
+                FVector reach = hit.Location - (floor + new FVector(0, 0, eyeHeight));
+                if (reach.Size() > 52f || reach.SafeNormal().Z > Equipment.K.MineMaxViewUp) continue;
                 float routeLength = approachRoute.Remaining(Pawn.Location);
-                if (routeLength >= best) continue;
-                best = routeLength;
+                float score = routeLength + distance * .5f + (height == preferredHeight ? 0f : 250f);
+                if (score >= best) continue;
+                best = score;
+                bestRouteLength = routeLength;
                 _trapWall = hit.Location;
                 _trapFloor = floor;
+                _trapCrouched = crouched;
             }
             if (best == float.MaxValue) return false;
             _trapApproach = true;
-            _trapUntil = now + MathF.Max(6f, best / 150f + 4f);
+            _trapUntil = now + MathF.Max(8f, bestRouteLength / 150f + 6f);
             Follower.Clear();
         }
-        if ((_trapWall - TrapEye).Size() > 50f)
+        if (NavFollower.Horizontal(Feet - _trapFloor) > 8f)
         {
             if (!MoveTo(_trapFloor, now, ref plan, sneak: false))
             {
@@ -76,19 +88,22 @@ public sealed partial class MercAi
 
             // The navigation arrival radius is wider than the remaining few steps to the mine's 55 uu reach.
             if (!Follower.Arrived) return true;
+            plan.MoveYaw = (_trapFloor - Feet).Rotation().Yaw;
+            plan.Keys.BT_Up = 1;
+            return true;
         }
 
         FRotator aim = (_trapWall - TrapEye).Rotation();
         plan.Yaw = aim.Yaw;
         plan.Pitch = aim.Pitch;
         plan.Tolerance = 1000;
-        plan.Crouched = false;
-        if ((_trapWall - TrapEye).Size() > 50f)
-        {
-            plan.Keys.BT_Up = 1;
-            return true;
-        }
-        if (NavFollower.YawError(Pc.Rotation.Yaw & 0xffff, plan.Yaw ?? 0) > 500) return true;
+        plan.Crouched = _trapCrouched;
+        // Crouching changes the eye over several frames. Settle before checking reach or firing,
+        // and wait for pitch as well as yaw so a low target is not placed at the old eye level.
+        if (Pawn.bIsCrouched != _trapCrouched || MathF.Abs(Pawn.EyeHeight - Pawn.BaseEyeHeight) > 2f ||
+            (_trapWall - TrapEye).Size() > 54f || (_trapWall - TrapEye).SafeNormal().Z > Equipment.K.MineMaxViewUp ||
+            NavFollower.YawError(Pc.Rotation.Yaw & 0xffff, aim.Yaw) > 200 ||
+            NavFollower.YawError(Pc.Rotation.Pitch & 0xffff, aim.Pitch) > 200) return true;
         if (!ReferenceEquals(Pawn.SelectedGadget, _trapLauncher))
         {
             plan.Keys.Press(AiCommand.SelectGadget, _trapSlot);
@@ -99,7 +114,8 @@ public sealed partial class MercAi
         if (_trapLauncher.CanUse[_trapLauncher.iCurrentMineType] == 0)
             for (int i = 0; i < _trapLauncher.NbIT - 2; i++)
                 if (_trapLauncher.CanUse[i] != 0) { _trapLauncher.iCurrentMineType = i; break; }
-        if (_trapLauncher.HitActor is not null && _trapLauncher.CanUse[_trapLauncher.iCurrentMineType] != 0)
+        if (_trapLauncher.HitActor is not null && (_trapLauncher.HitLocation - _trapWall).SizeSquared() < 8f * 8f &&
+            _trapLauncher.CanUse[_trapLauncher.iCurrentMineType] != 0)
         {
             plan.Keys.Press(AiCommand.AltFire);
             _preferTracker = !_preferTracker;
@@ -111,10 +127,26 @@ public sealed partial class MercAi
 
     private FVector TrapEye => Pawn.Location + Pawn.WalkBob + new FVector(0, 0, Pawn.EyeHeight);
 
+    private IEnumerable<FVector> TrapSites()
+    {
+        foreach (SObjectiveTrigger objective in World.Level.AllActors<SObjectiveTrigger>())
+            if (Defensible(objective) && (objective.Location - Pawn.Location).SizeSquared() < 700f * 700f &&
+                GuardSpot(objective, out FVector spot)) yield return spot;
+
+        foreach (SInfirmary station in World.Level.AllActors<SInfirmary>())
+        {
+            if (station.bDeleteMe || station.bHidden || (station.Location - Pawn.Location).SizeSquared() >= 700f * 700f) continue;
+            FVector location = station.InteractionObj?.Location ?? station.Location;
+            int node = Follower.Graph.NearestNode(location, 0f, 200f);
+            if (node >= 0) yield return Follower.Graph.Node(node).Floor;
+        }
+    }
+
     private bool TrapApproach(FVector wall, FVector normal, NavFollower route, out FVector floor)
     {
         floor = default;
-        FVector approach = wall + normal * 44f;
+        // Leave room inside the 55 uu reach for a pitched view and the final walking tolerance.
+        FVector approach = wall + normal * 40f;
         FVector top = approach + new FVector(0f, 0f, 40f);
         FVector bottom = approach - new FVector(0f, 0f, 240f);
         if (!World.Collision.LineCheck(out FCheckResult ground, Pawn, bottom, top, new FVector(4f, 4f, 2f),
@@ -170,6 +202,8 @@ public sealed partial class MercAi
             if (!mine.bDeleteMe && (mine.Location - wall).SizeSquared() < 300f * 300f) return true;
         foreach (SObjectiveTrigger terminal in World.Level.AllActors<SObjectiveTrigger>())
             if ((terminal.Location - wall).SizeSquared() < 80f * 80f) return true;
+        foreach (SInfirmary station in World.Level.AllActors<SInfirmary>())
+            if ((station.Location - wall).SizeSquared() < 80f * 80f) return true;
         return false;
     }
 }

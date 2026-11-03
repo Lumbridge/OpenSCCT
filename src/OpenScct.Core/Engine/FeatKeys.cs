@@ -1,3 +1,5 @@
+using System.Linq;
+
 namespace OpenScct.Core.Engine;
 
 /// <summary>
@@ -53,6 +55,7 @@ public static class FeatKeys
     /// <summary>Every key a server may send; the master ignores others.</summary>
     public static readonly string[] All =
     [
+        .. CareerStatCounters.All.Select(c => c.Key),
         SpyGrabKills, SpyNeckBreaks, SpyChokes, SpyDropKills, SpyStickyKos, SpyObjectives,
         SpySmokeKos, SpyStickyCamUses, SpyShockerHeadshots, SpyLedgeGrabs, SpyChaffJams, SpyMineKills, SpyBulletHits, SpyFlashes,
         MercSniperKills, MercHeadshots, MercTerminateKills, MercGrenadeKills, MercMineKills, MercHipfireKills, MercMarks,

@@ -145,6 +145,7 @@ public partial class OptionsRuntime : Node
         {
             session.Mouse = SettingsApplier.MouseLookOf(s, session.Mouse);
             session.SpyRollFreeLook = s.SpyRollFreeLook;
+            session.SpyCloakHold = s.SpyKbm.CloakBehavior == "Hold";
         }
 
         if (Hud is not null)
@@ -152,6 +153,7 @@ public partial class OptionsRuntime : Node
             Hud.Options.ShowPing = s.ShowPing;
             Hud.Options.ClassicCrosshair = s.ClassicCrosshair;
             Hud.Options.Crosshair = s.Crosshair.Clone();
+            Hud.Options.Layout = s.HudLayout.Clone();
             Hud.Options.ScoreboardSplit = s.ScoreboardSplitTeamSize;
             Hud.Options.StretchHud = !s.WidescreenHud;
             Hud.Markers.Widescreen = s.Widescreen;

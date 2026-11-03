@@ -30,6 +30,7 @@ public sealed class MercStatusVisualSmoke : SmokeTest
     private EffectViews _effects = null!;
     private SBasePawn _pawn = null!;
     private SGasMask _mask = null!;
+    private SBackPack _backpack = null!;
     private MeshInstance3D _wall = null!;
     private int _stage, _frames;
     private string _folder = "";
@@ -39,7 +40,7 @@ public sealed class MercStatusVisualSmoke : SmokeTest
     private int _teardown;
     private readonly string[] _names = ["stand-off", "stand-full", "stand-half", "stand-quarter", "stand-final-sliver",
         "crouch-off", "crouch-full", "crouch-half", "walk-half", "thermal-half", "emf-half", "mask-off", "mask-on",
-        "first-person", "dead", "wall-off", "wall-full"];
+        "first-person", "dead", "wall-off", "wall-full", "backpack-rear", "backpack-quarter", "backpack-crouch"];
 
     public override SmokeResult Step(SmokeContext context)
     {
@@ -57,6 +58,8 @@ public sealed class MercStatusVisualSmoke : SmokeTest
         _effects.Draw(0f, default, default, MaterialCompiler.Vision);
         if (_effects.MeshOf(_mask) is { } maskMesh)
             ActorLighting.Apply(maskMesh, new ActorLightSet { Ambient = new Vector3(0.5f, 0.5f, 0.5f) });
+        if (_effects.MeshOf(_backpack) is { } bagMesh)
+            ActorLighting.Apply(bagMesh, new ActorLightSet { Ambient = new Vector3(0.5f, 0.5f, 0.5f) });
         if (_frames < 14) return SmokeResult.Running;
         Image image = _viewport!.GetTexture().GetImage();
         image.SavePng(Path.Combine(_folder, _names[_stage] + ".png"));
@@ -103,6 +106,11 @@ public sealed class MercStatusVisualSmoke : SmokeTest
         _camera.Position = target + new Vector3(3f, 0, 3f);
         _camera.LookAt(target);
         _mask = world.Level.SpawnActor(new SGasMask(), default, default, _pawn, _pawn)!;
+        var backpackGadget = world.Level.SpawnActor(new SGadBackPack(), default, default, _pawn, _pawn)!;
+        backpackGadget.GiveTo(_pawn);
+        _backpack = backpackGadget.DummyBackPack!;
+        _backpack.bHidden = true;
+        _pawn.SelectedGadget = null;
         ObjectiveNatives.AttachToBone(_pawn, _mask, new Name("B Head"));
         _effects = new EffectViews { Library = FxLibrary.Load(SkeletalModel.DefaultSharedRoot()), Pawns = pawns };
         _viewport.AddChild(_effects);
@@ -120,12 +128,19 @@ public sealed class MercStatusVisualSmoke : SmokeTest
         _pawn.Health = _stage == 14 ? 0 : 100;
         _pawn.bGasMask = _stage is 12 or 13 or 14;
         _view.SetShadowOnly(_stage == 13);
-        _wall.Visible = _stage >= 15;
-        string clip = _stage is >= 5 and <= 7 ? "WalkCrSpFd2" : _stage == 8 ? "WalkStSpFd2" : "WaitStSpFd2";
+        _wall.Visible = _stage is 15 or 16;
+        _backpack.bHidden = _stage < 17;
+        if (_stage >= 17)
+        {
+            Vector3 target = new(0, (_cue.FeetY + _cue.HeadY) * 0.5f, 0);
+            _camera.Position = target + (_stage == 17 ? new Vector3(0, 0, -3f) : new Vector3(-3f, 0, -3f));
+            _camera.LookAt(target);
+        }
+        string clip = _stage is >= 5 and <= 7 or 19 ? "WalkCrSpFd2" : _stage == 8 ? "WalkStSpFd2" : "WaitStSpFd2";
         if (!_model.Sampler.Play(clip, frame: 0.3f)) throw new InvalidOperationException("Missing fixture clip " + clip);
         _model.Pose();
         float fraction = _stage switch { 2 or 7 or 8 or 9 or 10 => 0.5f, 3 => 0.25f, 4 => 0f, _ => 1f };
-        bool active = _stage is not (0 or 5 or 11 or 12 or 14 or 15);
+        bool active = _stage < 17 && _stage is not (0 or 5 or 11 or 12 or 14 or 15);
         _cue.Draw(new ShockImmunityView(active, _stage == 6, fraction * 3f, fraction), 0f, true);
         _effects.Draw(0f, default, default, MaterialCompiler.Vision);
     }
@@ -162,6 +177,8 @@ public sealed class MercStatusVisualSmoke : SmokeTest
         if (_stage == 14 && _effects.MeshOf(_mask)?.Visible != false) return "dead wearer's mask remained visible";
         if (_stage == 15) _occluded = image;
         if (_stage == 16 && Changed(image, _occluded!) > 2) return "cue showed through opaque wall";
+        if (_stage >= 17 && (_effects.MeshOf(_backpack) is not { Visible: true } || _pawn.SelectedGadget is not null))
+            return "carried backpack was not visible with no gadget selected";
         return null;
     }
 

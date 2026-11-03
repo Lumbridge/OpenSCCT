@@ -19,6 +19,7 @@
     <Compile Include="..\..\game\Scripts\Options\SettingsConsole.cs" Link="Linked\SettingsConsole.cs" />
     <Compile Include="..\..\game\Scripts\UI\LinuxSetupContent.cs" Link="Linked\LinuxSetupContent.cs" />
     <Compile Include="..\..\game\Scripts\UI\GearMenuModel.cs" Link="Linked\GearMenuModel.cs" />
+    <Compile Include="..\..\game\Scripts\Options\HudEditorSettings.cs" Link="Linked\HudEditorSettings.cs" />
     <Compile Include="..\..\game\Scripts\Options\GameSettings.cs" Link="Linked\GameSettings.cs" />
     <Compile Include="..\..\game\Scripts\Options\CrosshairSettings.cs" Link="Linked\CrosshairSettings.cs" />
     <Compile Include="..\..\game\Scripts\Options\TelemetrySettings.cs" Link="Linked\TelemetrySettings.cs" />
@@ -31,6 +32,7 @@
     <Compile Include="..\..\game\Scripts\Hud\HudMotionFrame.cs" Link="Linked\HudMotionFrame.cs" />
     <Compile Include="..\..\game\Scripts\Hud\HudMessages.cs" Link="Linked\HudMessages.cs" />
     <Compile Include="..\..\game\Scripts\Hud\HudActivityFeed.cs" Link="Linked\HudActivityFeed.cs" />
+    <Compile Include="..\..\game\Scripts\Hud\HudActivityPresentation.cs" Link="Linked\HudActivityPresentation.cs" />
     <Compile Include="..\..\game\Scripts\Hud\HudActivityClassifier.cs" Link="Linked\HudActivityClassifier.cs" />
     <!-- The key token pass of drawn texts. -->
     <Compile Include="..\..\game\Scripts\Input\KeyTokens.cs" Link="Linked\KeyTokens.cs" />
@@ -52,6 +54,7 @@
     <Compile Include="..\..\game\Scripts\Play\Session\*.cs" Link="Linked\Session\%(Filename)%(Extension)" />
     <!-- The drawn view between ticks: the camera blend and the mouse look-ahead, the view model's one-shot clock. -->
     <Compile Include="..\..\game\Scripts\Cameras\ViewBlend.cs" Link="Linked\ViewBlend.cs" />
+    <Compile Include="..\..\game\Scripts\Play\Demo\DemoChaseCamera.cs" Link="Linked\DemoChaseCamera.cs" />
     <Compile Include="..\..\game\Scripts\Views\OneShotClock.cs" Link="Linked\OneShotClock.cs" />
     <Compile Include="..\..\game\Scripts\Views\ObservedWeaponViewModel.cs" Link="Linked\ObservedWeaponViewModel.cs" />
     <Compile Include="..\..\game\Scripts\Views\MeshSwap.cs" Link="Linked\MeshSwap.cs" />

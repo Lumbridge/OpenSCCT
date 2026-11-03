@@ -25,6 +25,7 @@ public sealed class LocalInput
     [
         "BT_Up", "BT_Down", "BT_Left", "BT_Right", "BT_PrevItem", "BT_NextItem", "bFire", "bAltFire", "bCrouch", "bRoll",
         "bUsing", "bFireMode", "bUseBackToWall", "bReload", "bROF", "bHoldBreath", "bSpecialsChat", "bZoomIn", "bZoomOut",
+        "bCloak",
     ];
 
     private readonly byte[] _buttons = new byte[ButtonNames.Count];
@@ -152,6 +153,7 @@ public sealed class LocalInput
         pc.bSpecialsChat = _buttons[16];
         pc.bZoomIn = _buttons[17];
         pc.bZoomOut = _buttons[18];
+        pc.bCloak = _buttons[19];
         pc.bPadStickMove = PadStick;
         pc.PadStickForward = PadForward;
         pc.PadStickStrafe = PadStrafe;
@@ -176,7 +178,7 @@ public static class PlayerCommands
         "Fire", "AltFire", "Jump", "GadgetQuickChoice", "LaunchGadget", "LongRoll", "SelectGadget", "SwitchHeadset", "SwitchBinocularVision",
         "SetWalk", "SetScope", "SwitchSpyPerspective", "SetSpyFirstPerson", "Walk", "Run", "NextGadget", "PreviousGadget", "ChangeSpeed", "GadLaserSwitch", "GadTorcheSwitch", "SwitchLaser", "WheelUp", "WheelDown", "ZoomIn", "ZoomOut",
         "SwapWeapon", "SwitchROF", "PrevStickyCam", "PerformCoopMvt", "FreeCam", "HideHud",
-        "PadCloakQuick", "PadCameraGas", "PadCameraExit",
+        "PadCloakQuick", "ToggleCloak", "PadCameraGas", "PadCameraExit",
     ];
 
     /// <summary>
@@ -245,7 +247,8 @@ public static class PlayerCommands
                 if (pc.bCrouchWithRoll && !InCamera(pc)) pc.bCrouch = 1;
                 return true;
             case "PADCLOAKQUICK":
-                if (pc.SBPawn?.SelectedGadget is SGadCloak cloak) cloak.QuickUse();
+            case "TOGGLECLOAK":
+                if (pc.SBPawn is SPawnAttaque spy) OpenScct.Game.Equipment.SpyCloak.Toggle(spy);
                 return true;
             case "PADCAMERAGAS":
                 if ((InCamera(pc) || pc.IsInState("s_UseObject_StickyCam_SmoothToPosition")) && pc.SBPawn?.UsedObject is SStickyCam cam) cam.SpawnGaz();

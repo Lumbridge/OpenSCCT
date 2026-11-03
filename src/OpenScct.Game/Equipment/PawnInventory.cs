@@ -47,14 +47,14 @@ public static class PawnInventory
     }
 
     /// <summary>The selectable test: activatable, not a pad-up gadget, not a bomb (inventory rule 3).</summary>
-    public static bool IsSelectable(SGadget g) => g.bActivatable && !g.IsAPadUpGadget && !IsA(g, GadBombClass);
+    public static bool IsSelectable(SGadget g) => g is not SGadCloak && g.bActivatable && !g.IsAPadUpGadget && !IsA(g, GadBombClass);
 
     /// <summary>Appends a gadget to the pawn's list (refusing None and duplicates), owned by the pawn.</summary>
     [Uc("SBase.SBasePawn.AddGadget", Sha1 = "fe705c3f543561b459b1593f0b59d20dc9219da0")]
     [PortOf("uc:SBase.SBasePawn:AddGadget", Spec = "spec/equipment/inventory-selection.md#rules")]
     public static void AddGadget(SBasePawn Pawn, SGadget? NewGadget)
     {
-        if (NewGadget is null)
+        if (NewGadget is null or SGadCloak)
         {
             return;
         }

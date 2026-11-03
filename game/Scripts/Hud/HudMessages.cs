@@ -144,6 +144,7 @@ public static class HudMessages
     [PortOf("uc:SBase.SDeathMessage:GetString", Spec = "spec/hud/messages.md#rules")]
     public static string DeathString(int Switch, PlayerReplicationInfo? killer, PlayerReplicationInfo? victim)
     {
+        Switch = OpenScct.Game.Combat.CombatActivityDeath.LegacySwitch(Switch);
         string victimName = victim is not null ? Ranked(victim) : DeathTexts.SomeoneString;
         string killerName = killer is not null ? Ranked(killer) : DeathTexts.SomeoneString;
         List<string> words = DeathTexts.DeathString;

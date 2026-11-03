@@ -221,16 +221,21 @@ internal sealed partial class PlayerPortal
         return body.ToString();
     }
 
+    private static string RoleWinRate(RoleRoundStats? rounds) => rounds is null ? "—" : Ratio(rounds.Wins, rounds.Matches, true);
+
     private static string CareerDetails(AccountProgress progress, ProgressInfo level)
     {
         var groups = new StringBuilder("<div class=\"grid-two\"><div class=\"panel\"><h3>Round performance</h3><div class=\"metric-list\">");
         foreach ((string label, string value) in new[] { ("Spy wins", N(progress.Stats.SpyWins)), ("Mercenary wins", N(progress.Stats.MercWins)),
+            ("Spy win rate (since tracking began)", RoleWinRate(progress.Stats.SpyRounds)),
+            ("Mercenary win rate (since tracking began)", RoleWinRate(progress.Stats.MercRounds)),
             ("Losses", N(progress.Stats.Losses)), ("Kills per round", Ratio(progress.Stats.Kills, progress.Stats.Matches)),
             ("Best level reached", N(level.BestLevel)), ("Current prestige", N(level.Prestige)) }) groups.Append(Metric(label, value));
         groups.Append("</div></div><div class=\"panel\"><h3>Detailed stats</h3><div class=\"metric-list\">");
         int displayed = 0;
-        foreach ((string key, string label) in CareerCounters)
+        foreach ((string key, string label) in CareerCounters.Concat(CareerStatCounters.All.Select(c => (c.Key, c.Category + " · " + c.Label))))
             if (progress.Feats.TryGetValue(key, out int value)) { groups.Append(Metric(label, N(value))); displayed++; }
+        groups.Append(Metric("Accuracy", Ratio(progress.Feat(CareerStatCounters.ShotsHit), progress.Feat(CareerStatCounters.ShotsFired), true)));
         if (displayed == 0) groups.Append("<p class=\"muted\">Detailed stats appear as you play counted rounds.</p>");
         groups.Append("</div></div></div>");
         var weapons = new[] { (Id: "ar", Name: "Assault rifle"), (Id: "smg", Name: "SMG"), (Id: "shotgun", Name: "Shotgun") }
@@ -250,7 +255,7 @@ internal sealed partial class PlayerPortal
         (FeatKeys.SpyGrabKills, "Spy · Grab kills"), (FeatKeys.SpyNeckBreaks, "Spy · Neck breaks"), (FeatKeys.SpyChokes, "Spy · Chokes"),
         (FeatKeys.SpyDropKills, "Spy · Drop kills"), (FeatKeys.SpyObjectives, "Spy · Objectives completed"), (FeatKeys.SpyShockerHeadshots, "Spy · Shocker headshots"),
         (FeatKeys.SpyLedgeGrabs, "Spy · Ledge grabs"), (FeatKeys.MercSniperKills, "Merc · Scoped kills"), (FeatKeys.MercHeadshots, "Merc · Headshot kills"),
-        (FeatKeys.MercTerminateKills, "Merc · Termination kills"), (FeatKeys.MercHipfireKills, "Merc · Hip-fire kills"), (FeatKeys.MercChargeHits, "Merc · Charge hits"),
+        (FeatKeys.MercTerminateKills, "Merc · Choke kills"), (FeatKeys.MercHipfireKills, "Merc · Hip-fire kills"), (FeatKeys.MercChargeHits, "Merc · Charge hits"),
         (FeatKeys.MercBerserkHits, "Merc · Berserk hits"), (FeatKeys.SpyStickyKos, "Sticky camera knockouts"), (FeatKeys.SpySmokeKos, "Smoke knockouts"),
         (FeatKeys.SpyStickyCamUses, "Sticky camera uses"), (FeatKeys.SpyChaffJams, "Mercenaries jammed by chaff"), (FeatKeys.SpyMineKills, "Spy mine kills"),
         (FeatKeys.SpyBulletHits, "Tracking bullet hits"), (FeatKeys.SpyFlashes, "Mercenaries flashed"), (FeatKeys.MercGrenadeKills, "Grenade kills"),

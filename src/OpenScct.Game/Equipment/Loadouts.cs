@@ -160,7 +160,9 @@ public static class Loadouts
         Pawn.PlayerReplicationInfo?.Team as STeamInfo ?? Pawn.Controller?.PlayerReplicationInfo?.Team as STeamInfo;
 
     /// <summary>A team option allowed by the host (a set bit of bDisallowedInv allows it, despite the name).</summary>
-    public static bool IsAllowed(STeamInfo Team, int Option) => ((Team.bDisallowedInv >> Option) & 1) != 0;
+    public static bool IsAllowed(STeamInfo Team, int Option) =>
+        Option >= 0 && Option < Team.ClassInventory.Count && !SpyCloak.IsLegacyGadget(Team.ClassInventory[Option].Path) &&
+        ((Team.bDisallowedInv >> Option) & 1) != 0;
 
     /// <summary>
     /// The restriction replacement (rule 2.3): a slot holding a disallowed option takes the first allowed option not
@@ -300,7 +302,7 @@ public static class Loadouts
     /// </summary>
     private static bool TakeGrant(SBasePawn Pawn, ClassRef Class, bool Weapon)
     {
-        if (Class.IsNone)
+        if (Class.IsNone || SpyCloak.IsLegacyGadget(Class.Path))
         {
             return false;
         }

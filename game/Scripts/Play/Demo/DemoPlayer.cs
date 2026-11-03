@@ -77,6 +77,8 @@ public sealed class DemoPlayer : IDisposable
 
     private readonly DemoPlaybackTransport _transport;
     private readonly List<SBasePawn> _targets = new();
+    private readonly DemoChaseCamera _chase = new();
+    private DemoCameraMode _mode = DemoCameraMode.ThirdPerson;
     private long _played;
     private uint _seekTarget;
     private bool _disposed;
@@ -104,9 +106,26 @@ public sealed class DemoPlayer : IDisposable
 
     public PlaySession? Session { get; private set; }
 
-    public DemoCameraMode Mode { get; set; } = DemoCameraMode.ThirdPerson;
+    public DemoCameraMode Mode
+    {
+        get => _mode;
+        set
+        {
+            if (_mode == value) return;
+            if (_mode == DemoCameraMode.ThirdPerson && value == DemoCameraMode.Free && Target is { bDeleteMe: false } pawn)
+            {
+                // Start free flight at the current chase view, including any held or returning orbit.
+                ViewSample chase = _chase.ViewFor(pawn, 0, 85f, ChaseDistance);
+                _freeLocation = chase.Location;
+                Look = chase.Rotation;
+                _freePlaced = true;
+            }
+            _mode = value;
+            _chase.Reset();
+        }
+    }
 
-    /// <summary>The user's camera turn (free camera, and the orbit round the watched player).</summary>
+    /// <summary>The user's free-camera direction; third person follows the recorded view with a temporary orbit.</summary>
     public FRotator Look { get; set; } = new(-2000, 0, 0);
 
     /// <summary>The server tick shown on the timeline (the loading prefix stays at the round's start).</summary>
@@ -251,6 +270,7 @@ public sealed class DemoPlayer : IDisposable
         }
 
         _targets.Sort(static (a, b) => a.PlayerReplicationInfo!.PlayerID.CompareTo(b.PlayerReplicationInfo!.PlayerID));
+        SBasePawn? previousTarget = Target;
         Target = null;
         foreach (SBasePawn pawn in _targets)
         {
@@ -265,6 +285,14 @@ public sealed class DemoPlayer : IDisposable
         {
             Target = _targets[0];
             _targetPlayerId = Target.PlayerReplicationInfo!.PlayerID;
+        }
+
+        if (!ReferenceEquals(previousTarget, Target))
+        {
+            // A newly watched player or respawn starts behind them, even if the last target was being orbited.
+            bool orbiting = _chase.Orbiting;
+            _chase.Reset();
+            _chase.Orbiting = orbiting;
         }
 
         if (AtEnd)
@@ -340,6 +368,7 @@ public sealed class DemoPlayer : IDisposable
 
     private void Watch(SBasePawn pawn)
     {
+        if (!ReferenceEquals(Target, pawn)) _chase.Reset();
         Target = pawn;
         _targetPlayerId = pawn.PlayerReplicationInfo?.PlayerID ?? -1;
         if (Mode == DemoCameraMode.Free)
@@ -351,13 +380,6 @@ public sealed class DemoPlayer : IDisposable
     /// <summary>First person, third person, free camera, round again.</summary>
     public void CycleMode()
     {
-        if (Mode == DemoCameraMode.ThirdPerson && Target is { } pawn)
-        {
-            // The free camera starts where the chase camera was.
-            _freeLocation = Eye(pawn) - Look.Vector() * ChaseDistance;
-            _freePlaced = true;
-        }
-
         Mode = Mode switch
         {
             DemoCameraMode.FirstPerson => DemoCameraMode.ThirdPerson,
@@ -366,9 +388,21 @@ public sealed class DemoPlayer : IDisposable
         };
     }
 
-    /// <summary>Turns the user's camera by mouse counts (free camera and the chase orbit).</summary>
+    /// <summary>Holds the third-person orbit while right mouse is down; releasing starts a smooth return.</summary>
+    public void SetLooking(bool looking) => _chase.Orbiting = looking && Mode == DemoCameraMode.ThirdPerson;
+
+    /// <summary>Updates the chase return in real time, including while playback is paused.</summary>
+    public void AdvanceCamera(float seconds) => _chase.Advance(seconds);
+
+    /// <summary>Turns the free camera or temporarily orbits relative to the watched player's recorded view.</summary>
     public void Turn(float dx, float dy)
     {
+        if (Mode == DemoCameraMode.ThirdPerson)
+        {
+            if (Target is { bDeleteMe: false } pawn) _chase.Turn(pawn, dx, dy);
+            return;
+        }
+        if (Mode != DemoCameraMode.Free) return;
         FRotator look = Look;
         look.Yaw += (int)(dx * 20f);
         look.Pitch = Math.Clamp(look.Pitch - (int)(dy * 20f), -16000, 16000);
@@ -401,7 +435,7 @@ public sealed class DemoPlayer : IDisposable
             case DemoCameraMode.FirstPerson when pawn is not null:
                 return new ViewSample(tick, Eye(pawn), AimOf(pawn), fov, true);
             case DemoCameraMode.ThirdPerson when pawn is not null:
-                return new ViewSample(tick, Eye(pawn) - Look.Vector() * ChaseDistance, Look, fov, true);
+                return _chase.ViewFor(pawn, tick, fov, ChaseDistance);
             default:
                 if (!_freePlaced)
                 {

@@ -50,7 +50,7 @@ internal enum NameClaim
 /// </summary>
 internal sealed partial class AccountStore : IDisposable
 {
-    public const int SchemaVersion = 8;
+    public const int SchemaVersion = 9;
 
     /// <summary>Seconds between renames.</summary>
     public const long RenameCooldown = 30 * 86400;
@@ -132,7 +132,7 @@ internal sealed partial class AccountStore : IDisposable
         // Version 2: feat totals and base-map wins for the achievements. Version 3: cosmetics an admin unlocked.
         // Version 4: the admin portal (MigrateVersion4). Version 5: levels and prestige (MigrateVersion5).
         // Version 6: round demos. Version 7: the player hub, revisioned appearance and admin operations.
-        // Version 8: bounded match timelines.
+        // Version 8: bounded match timelines. Version 9: role-specific round totals.
         InTransaction(() =>
         {
             Exec("""
@@ -152,6 +152,14 @@ internal sealed partial class AccountStore : IDisposable
                     item TEXT NOT NULL,
                     granted INTEGER NOT NULL,
                     PRIMARY KEY (account_id, item));
+                """);
+            Exec("""
+                CREATE TABLE IF NOT EXISTS role_round_stats (
+                    account_id INTEGER NOT NULL REFERENCES accounts(id),
+                    team INTEGER NOT NULL,
+                    matches INTEGER NOT NULL DEFAULT 0,
+                    wins INTEGER NOT NULL DEFAULT 0,
+                    PRIMARY KEY (account_id, team));
                 """);
             MigrateVersion4();
             MigrateVersion5();
@@ -582,13 +590,22 @@ internal sealed partial class AccountStore : IDisposable
         }
     }
 
-    private AccountStats StatsLocked(long accountId) =>
-        One("SELECT matches, spy_wins, merc_wins, losses, kills, deaths FROM stats WHERE account_id = $a;",
+    private RoleRoundStats RoleRoundsLocked(long accountId, int team) =>
+        One("SELECT matches, wins FROM role_round_stats WHERE account_id = $a AND team = $t;",
+            r => new RoleRoundStats { Matches = r.GetInt32(0), Wins = r.GetInt32(1) },
+            ("$a", accountId), ("$t", team)) ?? new RoleRoundStats();
+
+    private AccountStats StatsLocked(long accountId)
+    {
+        RoleRoundStats spy = RoleRoundsLocked(accountId, 0);
+        RoleRoundStats merc = RoleRoundsLocked(accountId, 1);
+        return One("SELECT matches, spy_wins, merc_wins, losses, kills, deaths FROM stats WHERE account_id = $a;",
             r => new AccountStats
             {
                 Matches = r.GetInt32(0), SpyWins = r.GetInt32(1), MercWins = r.GetInt32(2), Losses = r.GetInt32(3), Kills = r.GetInt32(4),
-                Deaths = r.GetInt32(5),
-            }, ("$a", accountId)) ?? new AccountStats();
+                Deaths = r.GetInt32(5), SpyRounds = spy, MercRounds = merc,
+            }, ("$a", accountId)) ?? new AccountStats { SpyRounds = spy, MercRounds = merc };
+    }
 
     /// <summary>The achievements the account has, by id, with when (Unix seconds).</summary>
     public Dictionary<string, long> Earned(long accountId)
@@ -719,6 +736,13 @@ internal sealed partial class AccountStore : IDisposable
                     }
 
                     bool won = row.Team == report.WinningTeam;
+                    if (row.Team is 0 or 1)
+                    {
+                        Exec("INSERT INTO role_round_stats (account_id, team, matches, wins) VALUES ($a, $t, 1, $w) " +
+                            "ON CONFLICT(account_id, team) DO UPDATE SET matches = matches + 1, wins = wins + $w;",
+                            ("$a", id), ("$t", row.Team), ("$w", won ? 1 : 0));
+                    }
+
                     Exec("INSERT OR IGNORE INTO stats (account_id) VALUES ($a);", ("$a", id));
                     Exec("UPDATE stats SET matches = matches + 1, spy_wins = spy_wins + $sw, merc_wins = merc_wins + $mw, " +
                         "losses = losses + $l, kills = kills + $k, deaths = deaths + $d WHERE account_id = $a;",
@@ -730,7 +754,7 @@ internal sealed partial class AccountStore : IDisposable
                         {
                             Exec("INSERT INTO feat_totals (account_id, feat, total) VALUES ($a, $f, $v) " +
                                 "ON CONFLICT(account_id, feat) DO UPDATE SET total = total + $v;",
-                                ("$a", id), ("$f", feat), ("$v", Math.Min(value, MaxFeatPerRound)));
+                                ("$a", id), ("$f", feat), ("$v", Math.Min(value, CareerStatCounters.RoundLimit(feat, MaxFeatPerRound))));
                         }
                     }
 

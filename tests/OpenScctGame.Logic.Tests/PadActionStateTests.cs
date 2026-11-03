@@ -30,51 +30,22 @@ public sealed class PadActionStateTests
     }
 
     [Fact]
-    public void CloakHoldFiresOnceAndReleaseDoesNotToggleAgain()
+    public void DedicatedCloakPressAndReleaseAreImmediateAndIndependentOfGadgets()
     {
         var state = new PadActionState();
-        state.Update([E("LT", "Pad:spygadget", true)], 0, new(CloakSelected: true));
-        Assert.Empty(state.Update([], 0.19, new(CloakSelected: true)));
-        Assert.Equal([E("LT:hold", "Action:cloakquick", true), E("LT:hold", "Action:cloakquick", false)],
-            state.Update([], 0.02, new(CloakSelected: true)));
-        Assert.Empty(state.Update([], 0.3, new(CloakSelected: true, CloakActive: true)));
-        Assert.Equal([E("LT", "Action:altfire", false)], state.Update([E("LT", "Pad:spygadget", false)], 0, new(CloakSelected: true, CloakActive: true)));
+        Assert.Equal([E("LB+RB", "Action:cloak", true)],
+            state.Update([E("LB+RB", "Action:cloak", true)], 0, new()));
+        Assert.Empty(state.Update([], 0.3, new()));
+        Assert.Equal([E("LB+RB", "Action:cloak", false)],
+            state.Update([E("LB+RB", "Action:cloak", false)], 0, new()));
     }
 
     [Fact]
-    public void ReleaseCrossingHoldThresholdInvokesOnlyTheHoldCallback()
+    public void CloakAbortReleasesHeldInput()
     {
         var state = new PadActionState();
-        state.Update([E("LT", "Pad:spygadget", true)], 0, new(CloakSelected: true));
-        Assert.Equal(["Action:cloakquick", "Action:cloakquick", "Action:altfire"],
-            state.Update([E("LT", "Pad:spygadget", false)], 0.2, new(CloakSelected: true, CloakActive: true)).Select(e => e.Action));
-    }
-
-    [Fact]
-    public void ActiveSelectedCloakTapTurnsOffWithoutSelectingSecondSlot()
-    {
-        var state = new PadActionState();
-        state.Update([E("LT", "Pad:spygadget", true)], 0, new());
-        Assert.Equal(["Action:altfire", "Action:cloakquick", "Action:cloakquick"],
-            state.Update([E("LT", "Pad:spygadget", false)], 0.1, new(CloakSelected: true, CloakActive: true)).Select(e => e.Action));
-    }
-
-    [Fact]
-    public void SecondSlotCloakSelectsThenUsesBeforeQuickChoice()
-    {
-        var state = new PadActionState();
-        state.Update([E("LT", "Pad:spygadget", true)], 0, new());
-        Assert.Equal(["Action:slot2", "Action:cloakquick", "Action:quick2"],
-            state.Update([E("LT", "Pad:spygadget", false)], 0.1, new(Slot2IsCloak: true)).Where(e => e.Pressed).Select(e => e.Action));
-    }
-
-    [Fact]
-    public void CloakSelectedElsewhereSelectsSecondSlotBeforeQuickChoice()
-    {
-        var state = new PadActionState();
-        state.Update([E("LT", "Pad:spygadget", true)], 0, new());
-        Assert.Equal(["Action:slot2", "Action:quick2"],
-            state.Update([E("LT", "Pad:spygadget", false)], 0.1, new(CloakSelected: true)).Where(e => e.Pressed).Select(e => e.Action));
+        state.Update([E("LB+RB", "Action:cloak", true)], 0, new());
+        Assert.Equal([E("LB+RB", "Action:cloak", false)], state.ReleaseAll());
     }
 
     [Fact]

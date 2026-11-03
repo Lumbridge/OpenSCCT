@@ -32,6 +32,7 @@ public sealed class ControllerDefaultsSmoke : SmokeTest
                     CheckButtons(rig);
                     CheckCombinations(rig);
                     CheckInterfaceAndRelease(rig);
+                    if (!merc) CheckCloak(rig);
                     CheckWalk(rig);
                 }
             return SmokeResult.Pass("spy/merc defaults with stock and empty keyboards: actions, modifier chords, hold/release, vision, interface isolation, disconnect and analog walk");
@@ -243,6 +244,35 @@ public sealed class ControllerDefaultsSmoke : SmokeTest
         r.Tick("RT");
         r.Command("Fire");
         r.Release();
+    }
+
+    private static void CheckCloak(Rig r)
+    {
+        r.Controller.SBPawn!.SelectedGadget = null;
+        r.Tick("LB", "RB");
+        r.Button("bCloak");
+        r.Require(r.Local.Get("bRoll") == 0, "cloak chord also rolled");
+        r.NoCommand("PerformCoopMvt");
+        r.Require(r.Local.Get("bAltFire") == 0, "cloak trigger also used another gadget");
+        r.NoCommand("AltFire");
+        r.NoCommand("PadCloakQuick");
+        r.TickFor(0.3, "LB", "RB");
+        r.Button("bCloak");
+        r.NoCommand("PadCloakQuick");
+        r.Controller.SBPawn.SelectedGadget = new SGadSmokeGrenade();
+        r.Release();
+        r.Require(r.Local.Get("bCloak") == 0, "cloak chord remained held after selection changed");
+        r.NoCommand("GadgetQuickChoice");
+        if (r.Input.Bindings!.Actions(DefaultKeyLayout.CloakKey).Any(a => a.Name == "bCloak"))
+        {
+            r.Input.Key(DefaultKeyLayout.CloakKey, true);
+            r.Tick();
+            r.Button("bCloak");
+            r.Require(r.Local.Get("bAltFire") == 0 && r.Local.Get("bHoldBreath") == 0, "keyboard cloak reused gadget/breath input");
+            r.Input.Key(DefaultKeyLayout.CloakKey, false);
+            r.Release();
+            r.Require(r.Local.Get("bCloak") == 0, "keyboard cloak remained held");
+        }
     }
 
     private static void CheckWalk(Rig r)

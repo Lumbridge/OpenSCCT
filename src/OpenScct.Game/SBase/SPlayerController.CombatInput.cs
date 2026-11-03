@@ -37,6 +37,13 @@ public partial class SPlayerController
     private const string Sha1WeaponSwitchLaser = "c7a4b9666591efeb2990524b26078f1157137c90";
 
     private bool _cloakButtonDown;
+    private SPawnAttaque? _heldCloakPawn;
+
+    /// <summary>Dedicated cloak input; mercenary breath and gadget use do not activate it.</summary>
+    public byte bCloak;
+
+    /// <summary>Local input preference: activate on press and deactivate on release.</summary>
+    public bool SpyCloakHold { get; set; }
 
     public interface IFire
     {
@@ -883,6 +890,8 @@ public partial class SPlayerController
         bIsInInventoryMode = false;
         if (SBPawn is not { } pawn)
         {
+            _heldCloakPawn = null;
+            _cloakButtonDown = false;
             return;
         }
 
@@ -892,7 +901,12 @@ public partial class SPlayerController
         if (pawn is SPawnAttaque spy)
         {
             SpyEnergy.ComputeEnergyLevel(spy, DeltaTime);
-            CloakButton(spy, now);
+            CloakButton(spy);
+        }
+        else
+        {
+            _heldCloakPawn = null;
+            _cloakButtonDown = false;
         }
 
         GadgetPlayerTick(DeltaTime);
@@ -963,47 +977,26 @@ public partial class SPlayerController
     }
 
     /// <summary>
-    /// Spy-energy rule 6: with the cloak selected the hold-breath button toggles it: a long press at 0.2 s when it
-    /// can turn on, a release after 0.2 s, or a short tap that turns it off (else the quick gadget of slot 1).
+    /// Cloak input acts on the press edge without a tap/hold timer. A hold owns its release even if the selected
+    /// gadget changes. Explicit off requests also work before an online activation has replicated back.
     /// </summary>
-    private void CloakButton(SPawnAttaque spy, float now)
+    private void CloakButton(SPawnAttaque spy)
     {
-        bool down = bHoldBreath != 0;
-        if (spy.SelectedGadget is not SGadCloak cloak)
+        bool down = bCloak != 0;
+        if (_heldCloakPawn is { } held && (!down || !SpyCloakHold || !ReferenceEquals(held, spy)))
         {
-            _cloakButtonDown = down;
-            return;
+            if (ReferenceEquals(held, spy)) SpyCloak.SetActive(spy, false);
+            _heldCloakPawn = null;
         }
 
         if (down && !_cloakButtonDown)
         {
-            fLastPressedUseButton = now;
-        }
-        else if (down && fLastPressedUseButton > 0f && now - fLastPressedUseButton > K.CloakButtonHold && cloak.CanTurnOn())
-        {
-            fLastPressedUseButton = 0f;
-            cloak.QuickUse();
-        }
-        else if (!down && _cloakButtonDown && fLastPressedUseButton > 0f)
-        {
-            float held = now - fLastPressedUseButton;
-            fLastPressedUseButton = 0f;
-            if (held > K.CloakButtonHold || cloak.CanTurnOff())
+            if (SpyCloakHold)
             {
-                cloak.QuickUse();
+                _heldCloakPawn = spy;
+                SpyCloak.SetActive(spy, true);
             }
-            else
-            {
-                PawnInventory.SelectGagdet(spy, 1);
-                if (spy.SelectedGadget is SGadCloak again)
-                {
-                    again.QuickUse();
-                }
-                else
-                {
-                    eventGadgetQuickChoice(1);
-                }
-            }
+            else SpyCloak.Toggle(spy);
         }
 
         _cloakButtonDown = down;

@@ -24,7 +24,7 @@ public partial class AccountScreen : MenuPage
 
     private const ulong PollIntervalMs = 2000;
 
-    private enum View
+    internal enum View
     {
         NoMaster,
         SignedOut,
@@ -32,6 +32,14 @@ public partial class AccountScreen : MenuPage
         PickName,
         SignedIn,
     }
+
+    // Isolated visual fixtures use the same builders without starting sign-in or changing saved settings.
+    internal sealed record PreviewState(View View, AccountInfo? Account = null, LinkStartResponse? Link = null,
+        bool ChangingName = false, bool PrestigeArmed = false, string? Status = null);
+
+    internal PreviewState? Preview { get; init; }
+
+    protected override Vector2 ResponsiveReference => new(1600f, 900f);
 
     private AccountService? _service;
     private VBoxContainer? _content;
@@ -49,6 +57,8 @@ public partial class AccountScreen : MenuPage
     private Task? _signOut;
     private Task<AccountInfo>? _prestige;
     private LineEdit? _nameEdit;
+    private Label? _titleSummary;
+    private bool _showLockedTitles;
 
     /// <summary>The Prestige button was pressed once: the next press confirms.</summary>
     private bool _prestigeArmed;
@@ -59,19 +69,33 @@ public partial class AccountScreen : MenuPage
     public override void _Ready()
     {
         Name = "Account";
-        BuildFrame("Account", 760f);
+        BuildFrame("Account", 1180f, responsive: true);
+        PageCanvas.GetNode<ScrollContainer>("BodyScroll").AddChild(new CareerScroll());
         if (!string.IsNullOrWhiteSpace(Notice))
-            Body.AddChild(new Label { Text = Notice, Modulate = UiStyle.MenuFocus, AutowrapMode = TextServer.AutowrapMode.WordSmart });
-        _service = AccountService.Get(GetTree());
-        _service.Changed += OnAccountUpdated;
+            CareerPanels.Text(Body, "Notice", Notice, size: 14).Modulate = UiStyle.MenuFocus;
+        _status = CareerPanels.Text(Body, "Status", string.Empty, size: 14);
+        _status.Modulate = UiStyle.MenuFocus;
+        _status.Visible = false;
         _content = new VBoxContainer { Name = "Content" };
-        _content.AddThemeConstantOverride("separation", 8);
+        _content.AddThemeConstantOverride("separation", 10);
         Body.AddChild(_content);
-        _status = new Label { Name = "Status", Modulate = UiStyle.MenuFocus, AutowrapMode = TextServer.AutowrapMode.WordSmart };
-        Body.AddChild(_status);
-        Body.AddChild(new AppearanceSyncPanel());
         PageButton("Back", () => FrontEnd.ShowMainMenu(GetTree()), "Back").GrabFocus();
         PageButton("Stats", () => FrontEnd.ShowStats(GetTree()), "StatsPage");
+        foreach (Button button in PageButtons) button.CustomMinimumSize = new Vector2(144f, 44f);
+
+        if (Preview is { } preview)
+        {
+            _link = preview.Link;
+            _changingName = preview.ChangingName;
+            _prestigeArmed = preview.PrestigeArmed;
+            ShowView(preview.View);
+            if (preview.Status is { } status) ShowStatus(status);
+            return;
+        }
+
+        _service = AccountService.Get(GetTree());
+        _service.Changed += OnAccountUpdated;
+        Body.AddChild(new AppearanceSyncPanel());
 
         AccountSettings account = AccountSettings.Current;
         if (!AccountService.HasMaster)
@@ -92,6 +116,7 @@ public partial class AccountScreen : MenuPage
     public override void _Process(double delta)
     {
         base._Process(delta);
+        if (Preview is not null) return;
         if (_start is { IsCompleted: true } start)
         {
             _start = null;
@@ -226,7 +251,7 @@ public partial class AccountScreen : MenuPage
 
     private void SignIn()
     {
-        if (_start is not null)
+        if (Preview is not null || _start is not null)
         {
             return;
         }
@@ -241,6 +266,7 @@ public partial class AccountScreen : MenuPage
         _expires = link.ExpiresSeconds > 0 ? Time.GetTicksMsec() + (ulong)link.ExpiresSeconds * 1000UL : 0;
         _nextPoll = Time.GetTicksMsec() + PollIntervalMs;
         ShowView(View.Waiting);
+        ShowStatus(string.Empty);
         if (link.Url.Length > 0 && OS.ShellOpen(link.Url) != Error.Ok)
         {
             ShowStatus("The browser did not open: open the address above yourself.");
@@ -293,6 +319,7 @@ public partial class AccountScreen : MenuPage
 
     private void Claim()
     {
+        if (Preview is not null) return;
         string name = _nameEdit?.Text.Trim() ?? string.Empty;
         if (PlayerNames.ClaimProblem(name) is { } problem)
         {
@@ -309,7 +336,7 @@ public partial class AccountScreen : MenuPage
 
     private void SignOut()
     {
-        if (_signOut is not null)
+        if (Preview is not null || _signOut is not null)
         {
             return;
         }
@@ -326,17 +353,27 @@ public partial class AccountScreen : MenuPage
 
     private void ShowView(View view)
     {
+        bool sameView = _view == view;
         _view = view;
         if (_content is null)
         {
             return;
         }
 
-        foreach (Node child in _content.GetChildren())
+        Control? focus = GetViewport().GuiGetFocusOwner();
+        bool restoreFocus = focus is not null && _content.IsAncestorOf(focus);
+        string? returnAction = focus?.Name.ToString() switch
         {
-            _content.RemoveChild(child);
-            child.QueueFree();
-        }
+            "CancelPrestige" => "Prestige",
+            "CancelName" => "ChangeName",
+            _ => null,
+        };
+        NodePath? focusPath = restoreFocus && sameView ? _content.GetPathTo(focus!) : null;
+        CareerPanels.Clear(_content);
+        _nameEdit = null;
+        _titleSummary = null;
+        PreferredBodyWidth = view == View.SignedIn ? 1180f : 760f;
+        if (!sameView) PageCanvas.GetNode<ScrollContainer>("BodyScroll").ScrollVertical = 0;
 
         switch (view)
         {
@@ -356,47 +393,64 @@ public partial class AccountScreen : MenuPage
                 BuildSignedIn();
                 break;
         }
+
+        if (restoreFocus)
+        {
+            Control? next = focusPath is not null ? _content.GetNodeOrNull<Control>(focusPath) : null;
+            if (next is Button { Disabled: true } || next is { } hidden && !hidden.IsVisibleInTree()) next = null;
+            if (next is null && returnAction is not null) next = _content.FindChild(returnAction, true, false) as Control;
+            if (next is Button { Disabled: true }) next = null;
+            next ??= (Control?)_nameEdit ?? _content.FindChildren("*", nameof(Button), true, false).OfType<Button>()
+                .FirstOrDefault(button => button.Name != "SignOut" && !button.Disabled && button.IsVisibleInTree());
+            next ??= PageButtons[0];
+            next?.GrabFocus();
+        }
     }
 
     private void BuildNoMaster()
     {
-        VBoxContainer panel = Panel(_content!, "NoMaster", "Account");
-        panel.AddChild(Text("Accounts live on the master server. Set a master server first (Find a Session)."));
+        VBoxContainer panel = CareerPanels.Card(_content!, "NoMaster", "Play your way");
+        CareerPanels.Text(panel, "Heading", "Connect your account", size: 26);
+        CareerPanels.Text(panel, "Help", "Choose a master server in Find a Session to sign in and track your progression.");
+        CareerPanels.Text(panel, "OfflineHelp", "Offline and LAN play remain available without an account.", dim: true, size: 14);
+        Actions(panel, "MasterActions").AddChild(ActionButton("Find a Session", () => FrontEnd.Show(GetTree(), new ServerBrowserScreen()), "FindSession"));
     }
 
     private void BuildSignedOut()
     {
-        VBoxContainer panel = Panel(_content!, "SignedOut", "Not signed in");
-        panel.AddChild(Text(
-            "Sign in with Discord to claim your name, earn achievements and stats, join servers for signed-in players, " +
-            "and take your settings and keys to other PCs. You can still play everywhere else without signing in."));
-        panel.AddChild(UiStyle.MenuButton("Sign in with Discord", SignIn, "SignIn"));
+        VBoxContainer panel = CareerPanels.Card(_content!, "SignedOut", "Your OpenSCCT account");
+        CareerPanels.Text(panel, "Heading", "Make your progress count", size: 26);
+        CareerPanels.Text(panel, "Help", "Sign in with Discord to claim your player name and keep your career with you.");
+        var benefits = CareerPanels.Grid(panel, "AccountBenefits", 210f, 3);
+        Benefit(benefits, "Identity", "Your identity", "Reserve your name and join servers that require an account.");
+        Benefit(benefits, "Progress", "Your progression", "Track stats, earn achievements and unlock cosmetics.");
+        Benefit(benefits, "Settings", "Your settings", "Take your controls and preferences to another PC.");
+        Actions(panel, "SignInActions").AddChild(ActionButton("Sign in with Discord", SignIn, "SignIn"));
+        CareerPanels.Text(panel, "GuestHelp", "You can still play on servers that allow guests, offline and on LAN without signing in.", dim: true, size: 14);
     }
 
     private void BuildWaiting()
     {
-        VBoxContainer panel = Panel(_content!, "Waiting", "Signing in");
-        var code = new Label
-        {
-            Name = "Code", Text = "Your code: " + (_link?.Code ?? string.Empty), HorizontalAlignment = HorizontalAlignment.Center,
-            Modulate = UiStyle.MenuTitle,
-        };
-        code.AddThemeFontSizeOverride("font_size", 36);
-        panel.AddChild(code);
-        panel.AddChild(Text("Your browser opens the sign-in page. Check it shows the same code, then sign in with Discord."));
-        panel.AddChild(Text("If the browser did not open, go to:"));
+        VBoxContainer panel = CareerPanels.Card(_content!, "Waiting", "Discord sign-in");
+        CareerPanels.Text(panel, "Heading", "Finish signing in with your browser", size: 24);
+        CareerPanels.Text(panel, "Help", "Check the browser shows this code, then sign in with Discord. This page will update automatically.");
+        Label code = CareerPanels.Text(panel, "Code", _link?.Code ?? string.Empty, size: 36);
+        code.HorizontalAlignment = HorizontalAlignment.Center;
+        code.Modulate = UiStyle.MenuFocus;
+        CareerPanels.Text(panel, "UrlHelp", "If the browser did not open, copy this address:", dim: true, size: 14);
         panel.AddChild(new LineEdit { Name = "Url", Text = _link?.Url ?? string.Empty, Editable = false, SizeFlagsHorizontal = SizeFlags.ExpandFill });
-        panel.AddChild(Text("Waiting for Discord..."));
-        panel.AddChild(UiStyle.MenuButton("Cancel", CancelSignIn, "CancelSignIn"));
+        CareerPanels.Text(panel, "WaitingStatus", "Waiting for Discord…", dim: true, size: 14);
+        Actions(panel, "WaitingActions").AddChild(ActionButton("Cancel sign-in", CancelSignIn, "CancelSignIn"));
     }
 
     private void BuildPickName()
     {
-        VBoxContainer panel = Panel(_content!, "PickName", _changingName ? "Change name" : "Pick your name");
-        panel.AddChild(Text(
+        VBoxContainer panel = CareerPanels.Card(_content!, "PickName", _changingName ? "Your identity" : "One last step");
+        CareerPanels.Text(panel, "Heading", _changingName ? "Change your player name" : "Choose your player name", size: 26);
+        CareerPanels.Text(panel, "NameHelp",
             $"The name other players see. {PlayerNames.MinClaimLength} to {PlayerNames.MaxClaimLength} letters, digits, _ - and .; " +
-            "nobody else can use it while it is yours."));
-        string start = AccountSettings.Current.Name;
+            "nobody else can use it while it is yours.");
+        string start = Preview is { } preview ? preview.Account?.Name ?? string.Empty : AccountSettings.Current.Name;
         if (start.Length == 0 && PlayerNames.ClaimProblem(SettingsStore.Current.PlayerName) is null)
         {
             start = SettingsStore.Current.PlayerName;
@@ -408,11 +462,11 @@ public partial class AccountScreen : MenuPage
         };
         _nameEdit.TextSubmitted += _ => Claim();
         panel.AddChild(_nameEdit);
-        var buttons = new HBoxContainer { Name = "NameButtons" };
-        buttons.AddChild(UiStyle.MenuButton("Claim", Claim, "Claim"));
+        var buttons = Actions(panel, "NameButtons");
+        buttons.AddChild(ActionButton(_changingName ? "Save name" : "Claim name", Claim, "Claim"));
         if (_changingName)
         {
-            buttons.AddChild(UiStyle.MenuButton("Cancel", () =>
+            buttons.AddChild(ActionButton("Cancel", () =>
             {
                 _changingName = false;
                 ShowView(View.SignedIn);
@@ -420,119 +474,130 @@ public partial class AccountScreen : MenuPage
         }
         else
         {
-            buttons.AddChild(UiStyle.MenuButton("Sign out", SignOut, "SignOut"));
+            buttons.AddChild(ActionButton("Sign out", SignOut, "SignOut"));
         }
 
-        panel.AddChild(buttons);
         _nameEdit.GrabFocus();
     }
 
     private void BuildSignedIn()
     {
         AccountSettings s = AccountSettings.Current;
-        AccountInfo? info = _service?.Account;
-        VBoxContainer panel = Panel(_content!, "SignedIn", "Signed in");
-        var name = new Label
-        {
-            Name = "AccountName", Text = s.Name + (s.Admin ? " (admin)" : string.Empty), Modulate = UiStyle.MenuTitle,
-        };
-        name.AddThemeFontSizeOverride("font_size", 28);
-        panel.AddChild(name);
+        AccountInfo? info = Preview is { } preview ? preview.Account : _service?.Account;
+        string playerName = Preview is not null ? info?.Name ?? "Your account" : s.Name;
+        bool admin = Preview is not null ? info?.Admin == true : s.Admin;
+        VBoxContainer panel = CareerPanels.Card(_content!, "SignedIn", admin ? "Signed in · Administrator" : "Signed in");
+        CareerPanels.Text(panel, "AccountName", playerName, size: 28).Modulate = UiStyle.MenuTitle;
+        CareerPanels.Text(panel, "SettingsHelp", "Settings and controls follow your account. Display and microphone settings stay on this PC.", dim: true, size: 14);
 
-        var buttons = new HBoxContainer { Name = "AccountButtons" };
-        Button change = UiStyle.MenuButton("Change name", () =>
+        var buttons = Actions(panel, "AccountButtons");
+        Button change = ActionButton("Change name", () =>
         {
             _changingName = true;
             ShowView(View.PickName);
         }, "ChangeName");
         buttons.AddChild(change);
-        buttons.AddChild(UiStyle.MenuButton("Sign out", SignOut, "SignOut"));
-        panel.AddChild(buttons);
+        buttons.AddChild(ActionButton("Sign out", SignOut, "SignOut"));
         if (info?.NameChangeAllowed is { } allowed && allowed > DateTimeOffset.UtcNow)
         {
             change.Disabled = true;
-            panel.AddChild(Text("You can change it again on " + allowed.ToLocalTime().ToString("d MMMM yyyy", CultureInfo.InvariantCulture) + "."));
+            CareerPanels.Text(panel, "NameCooldown", "You can change your name again on " + allowed.ToLocalTime().ToString("d MMMM yyyy", CultureInfo.InvariantCulture) + ".", dim: true, size: 14);
         }
 
-        panel.AddChild(Text("Your settings and key layouts follow this account to other PCs (display and microphone stay on each PC)."));
-
-        BuildRank(info);
-
-        VBoxContainer stats = Panel(_content!, "Stats", "Stats");
+        var overview = CareerPanels.Grid(_content!, "AccountOverview", 470f);
+        BuildRank(overview, info);
+        VBoxContainer stats = CareerPanels.Card(overview, "Stats", "Career snapshot");
         if (info is null)
         {
-            stats.AddChild(Text("Asking the master server..."));
+            CareerPanels.Text(stats, "LoadingStats", "Asking the master server…", dim: true);
         }
         else
         {
             AccountStats st = info.Stats;
-            stats.AddChild(Text(string.Create(CultureInfo.InvariantCulture,
-                $"Matches {st.Matches}    Spy wins {st.SpyWins}    Merc wins {st.MercWins}    Losses {st.Losses}")));
-            stats.AddChild(Text(string.Create(CultureInfo.InvariantCulture, $"Kills {st.Kills}    Deaths {st.Deaths}")));
+            CareerPanels.StatRow(stats, "Matches played", StatsModel.Number(st.Matches));
+            CareerPanels.StatRow(stats, "Spy wins", StatsModel.Number(st.SpyWins));
+            CareerPanels.StatRow(stats, "Mercenary wins", StatsModel.Number(st.MercWins));
+            CareerPanels.StatRow(stats, "Losses", StatsModel.Number(st.Losses));
+            CareerPanels.StatRow(stats, "Kills", StatsModel.Number(st.Kills));
+            CareerPanels.StatRow(stats, "Deaths", StatsModel.Number(st.Deaths));
+            CareerPanels.Text(stats, "CountingHelp", st.Matches == 0 ? "Your career starts with your first counted official round." : "Totals from counted official rounds.", dim: true, size: 14);
         }
+        var careerActions = Actions(stats, "CareerActions");
+        careerActions.AddChild(ActionButton("Full stats", () => FrontEnd.ShowStats(GetTree()), "FullStats"));
+        careerActions.AddChild(ActionButton("Match history", () => FrontEnd.Show(GetTree(), new MatchHistoryScreen()), "MatchHistory"));
+
+        if (info?.Progress is { } progress) BuildTitles(progress);
     }
 
     // ---- rank ----------------------------------------------------------------------------------------------
 
-    private void BuildRank(AccountInfo? info)
+    private void BuildRank(Container parent, AccountInfo? info)
     {
-        VBoxContainer rankPanel = Panel(_content!, "Rank", "Rank");
+        VBoxContainer rankPanel = CareerPanels.Card(parent, "Rank", "Rank & progression");
         if (info is null)
         {
-            rankPanel.AddChild(Text("Asking the master server..."));
+            CareerPanels.Text(rankPanel, "LoadingRank", "Asking the master server…", dim: true);
             return;
         }
 
         if (info.Progress is not { } progress)
         {
-            rankPanel.AddChild(Text("This master server has no levels yet."));
+            CareerPanels.Text(rankPanel, "LegacyRank", "This master server has no levels yet.", dim: true);
             return;
         }
 
         PlayerRank rank = RankBadge.OfAccount(info);
-        rankPanel.AddChild(new RankBadge(72, 26) { Name = "Badge" }.Show(rank, withTitle: true));
+        rankPanel.AddChild(new RankBadge(48, 24) { Name = "Badge" }.Show(rank));
 
         var bar = new UiProgress { Name = "XpBar", Value = rank.Fraction, Fill = RankIcons.ColourOf(rank), CustomMinimumSize = new Vector2(0f, 8f) };
         rankPanel.AddChild(bar);
-        rankPanel.AddChild(Text(rank.AtCap
-            ? string.Create(CultureInfo.InvariantCulture, $"Level {ProgressionK.MaxLevel}: the top of this prestige.    {progress.TotalXp:N0} XP in all")
+        CareerPanels.Text(rankPanel, "NextLevel", rank.AtCap
+            ? $"Level {ProgressionK.MaxLevel} · Maximum level"
             : string.Create(CultureInfo.InvariantCulture,
-                $"{rank.XpIntoLevel:N0} / {rank.XpForNext:N0} XP to level {rank.Level + 1}    {progress.TotalXp:N0} XP in all")));
-        rankPanel.AddChild(Text(string.Create(CultureInfo.InvariantCulture,
-            $"XP comes from counted rounds on official servers: {ProgressionK.ScoreXp} per point of score, {ProgressionK.FinishXp} for completing a game, " +
-            $"{ProgressionK.WinXp} for a win, {ProgressionK.ObjectiveXp} per objective taken, and {ProgressionK.AchievementXp} to " +
-            $"{ProgressionK.MetaAchievementXp} for each achievement.")));
+                $"{rank.XpIntoLevel:N0} / {rank.XpForNext:N0} XP to level {rank.Level + 1}"), size: 16);
+        CareerPanels.Text(rankPanel, "TotalXp", string.Create(CultureInfo.InvariantCulture, $"{progress.TotalXp:N0} lifetime XP"), dim: true, size: 14);
+        Label xpHelp = CareerPanels.Text(rankPanel, "XpHelp", "Earn XP through score, wins, objectives and achievements on official servers.", dim: true, size: 14);
+        xpHelp.MouseFilter = MouseFilterEnum.Stop;
+        xpHelp.TooltipText = string.Create(CultureInfo.InvariantCulture,
+            $"{ProgressionK.ScoreXp} XP per score point · {ProgressionK.FinishXp} for finishing · {ProgressionK.WinXp} for winning · " +
+            $"{ProgressionK.ObjectiveXp} per objective · {ProgressionK.AchievementXp}–{ProgressionK.MetaAchievementXp} per achievement");
 
         if (rank.CanPrestige)
         {
-            rankPanel.AddChild(Text(_prestigeArmed
+            CareerPanels.Text(rankPanel, "PrestigeHelp", _prestigeArmed
                 ? $"Prestige {rank.Prestige + 1} puts you back to level 1 with a new emblem and title. Level-based pistols and finishes relock. Your achievements, mastery rewards, titles and stats stay. Press again to confirm."
-                : $"You can prestige: go back to level 1 for the prestige {rank.Prestige + 1} emblem and a new title."));
-            Button prestigeButton = UiStyle.MenuButton(_prestigeArmed ? "Confirm prestige" : $"Enter prestige {rank.Prestige + 1}", Prestige, "Prestige");
+                : $"Return to level 1 for the prestige {rank.Prestige + 1} emblem and a new title.", size: 14);
+            Button prestigeButton = ActionButton(_prestigeArmed ? "Confirm prestige" : $"Enter prestige {rank.Prestige + 1}", Prestige, "Prestige");
             prestigeButton.Disabled = _prestige is not null;
-            rankPanel.AddChild(prestigeButton);
+            var actions = Actions(rankPanel, "PrestigeActions");
+            actions.AddChild(prestigeButton);
+            if (_prestigeArmed) actions.AddChild(ActionButton("Cancel", () =>
+            {
+                _prestigeArmed = false;
+                ShowView(View.SignedIn);
+            }, "CancelPrestige"));
         }
         else if (rank.IsMaster)
         {
-            rankPanel.AddChild(Text("Master prestige: there is no higher rank."));
+            CareerPanels.Text(rankPanel, "MasterRank", "Master prestige · The highest rank.", dim: true, size: 14);
         }
 
-        BuildEmblems(rank);
-        BuildTitles(progress);
+        BuildEmblems(rankPanel, rank);
     }
 
-    private void BuildEmblems(PlayerRank rank)
+    private static void BuildEmblems(Container panel, PlayerRank rank)
     {
-        VBoxContainer panel = Panel(_content!, "Emblems", "Prestige emblems");
+        CareerPanels.Text(panel, "EmblemsCaption", "PRESTIGE EMBLEMS", dim: true, size: 12);
         var row = new HFlowContainer { Name = "EmblemRow" };
-        row.AddThemeConstantOverride("h_separation", 10);
+        row.AddThemeConstantOverride("h_separation", 6);
+        row.AddThemeConstantOverride("v_separation", 6);
         for (int p = 1; p <= ProgressionK.MaxPrestige + 1; p++)
         {
             bool master = p > ProgressionK.MaxPrestige;
             bool reached = master ? rank.IsMaster : rank.Prestige >= p;
             var icon = new TextureRect
             {
-                Texture = master ? RankIcons.Master(48) : RankIcons.Prestige(p, 48), CustomMinimumSize = new Vector2(48f, 48f),
+                Texture = master ? RankIcons.Master(32) : RankIcons.Prestige(p, 32), CustomMinimumSize = new Vector2(32f, 32f),
                 ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize, StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered,
                 Modulate = reached ? Colors.White : new Color(1f, 1f, 1f, 0.22f), MouseFilter = MouseFilterEnum.Stop,
                 TooltipText = Progression.PrestigeNames[p] + (reached ? string.Empty : master
@@ -547,27 +612,47 @@ public partial class AccountScreen : MenuPage
 
     private void BuildTitles(ProgressInfo progress)
     {
-        VBoxContainer panel = Panel(_content!, "Titles", "Title");
+        VBoxContainer panel = CareerPanels.Card(_content!, "Titles", "Player title");
         string? chosen = SettingsStore.Current.Title;
         if (chosen is not null && !progress.Titles.Contains(chosen))
         {
             chosen = null;
         }
 
-        panel.AddChild(Text($"The title shown under your name in lobbies and the hub. {progress.Titles.Count} of {TitleCatalog.All.Count} unlocked."));
+        _titleSummary = CareerPanels.Text(panel, "TitleSummary", TitleCatalog.Find(chosen)?.Text ?? "No title equipped", size: 20);
+        CareerPanels.Text(panel, "TitlesHelp", $"Shown under your name in lobbies and the hub. {progress.Titles.Count} of {TitleCatalog.All.Count} unlocked.", dim: true, size: 14);
         var flow = new HFlowContainer { Name = "TitleList" };
         flow.AddThemeConstantOverride("h_separation", 6);
         flow.AddThemeConstantOverride("v_separation", 6);
         var group = new ButtonGroup();
         flow.AddChild(TitleButton("None", null, chosen is null, true, "No title", group));
+        var locked = new HFlowContainer { Name = "LockedTitles", Visible = _showLockedTitles };
+        locked.AddThemeConstantOverride("h_separation", 6);
+        locked.AddThemeConstantOverride("v_separation", 6);
         foreach (TitleItem t in TitleCatalog.All)
         {
             bool have = progress.Titles.Contains(t.Id);
-            flow.AddChild(TitleButton(t.Text, t.Id, chosen == t.Id, have, have ? t.HowToUnlock.Replace("Reach", "Reached", StringComparison.Ordinal)
+            (have ? flow : locked).AddChild(TitleButton(t.Text, t.Id, chosen == t.Id, have, have ? t.HowToUnlock.Replace("Reach", "Reached", StringComparison.Ordinal)
                 .Replace("Earn the", "Earned the", StringComparison.Ordinal) : "Locked. " + t.HowToUnlock, group));
         }
 
         panel.AddChild(flow);
+        var actions = Actions(panel, "CollectionActions");
+        if (locked.GetChildCount() > 0)
+        {
+            var browse = ActionButton($"Locked titles ({locked.GetChildCount()})", () => { }, "BrowseTitles");
+            browse.ToggleMode = true;
+            browse.SetPressedNoSignal(_showLockedTitles);
+            browse.Toggled += shown =>
+            {
+                _showLockedTitles = shown;
+                locked.Visible = shown;
+            };
+            actions.AddChild(browse);
+        }
+        actions.AddChild(ActionButton("Achievements", () => FrontEnd.Show(GetTree(), new AchievementsScreen()), "AchievementsPage"));
+        actions.AddChild(ActionButton("Armoury", () => FrontEnd.Show(GetTree(), new ArmouryScreen()), "ArmouryPage"));
+        panel.AddChild(locked);
     }
 
     private Button TitleButton(string text, string? id, bool on, bool unlocked, string tooltip, ButtonGroup group)
@@ -575,13 +660,18 @@ public partial class AccountScreen : MenuPage
         var button = new Button
         {
             Text = unlocked ? text : text + " (locked)", ToggleMode = true, ButtonPressed = on, ButtonGroup = group, Disabled = !unlocked,
-            TooltipText = tooltip, Name = "Title_" + (id ?? "none"),
+            TooltipText = tooltip, Name = "Title_" + (id ?? "none"), CustomMinimumSize = new Vector2(0f, 32f),
         };
+        button.AddThemeFontSizeOverride("font_size", 14);
         button.Pressed += () =>
         {
-            GameSettings settings = SettingsStore.Current;
-            settings.Title = id;
-            SettingsStore.Save(settings);
+            if (Preview is null)
+            {
+                GameSettings settings = SettingsStore.Current;
+                settings.Title = id;
+                SettingsStore.Save(settings);
+            }
+            if (_titleSummary is not null) _titleSummary.Text = id is null ? "No title equipped" : text;
             ShowStatus(id is null ? "No title shown." : $"Title set: {text}. Players see it from your next join.");
         };
         return button;
@@ -601,20 +691,42 @@ public partial class AccountScreen : MenuPage
             return;
         }
 
+        if (Preview is not null) return;
         _prestige = AccountService.Call(c => c.PrestigeAsync());
         ShowStatus("Asking the master server...");
     }
 
-    private static Label Text(string text) => new()
+    private static HFlowContainer Actions(Container parent, string name)
     {
-        Text = text, AutowrapMode = TextServer.AutowrapMode.WordSmart,
-    };
+        var actions = new HFlowContainer { Name = name };
+        actions.AddThemeConstantOverride("h_separation", 8);
+        actions.AddThemeConstantOverride("v_separation", 8);
+        parent.AddChild(actions);
+        return actions;
+    }
+
+    private static Button ActionButton(string caption, Action pressed, string name)
+    {
+        Button button = UiStyle.MenuButton(caption, pressed, name);
+        button.CustomMinimumSize = new Vector2(0f, 36f);
+        button.AddThemeFontSizeOverride("font_size", 14);
+        return button;
+    }
+
+    private static void Benefit(Container parent, string name, string caption, string text)
+    {
+        var column = new VBoxContainer { Name = name, SizeFlagsHorizontal = SizeFlags.ExpandFill };
+        parent.AddChild(column);
+        CareerPanels.Text(column, "Heading", caption, size: 16).Modulate = UiStyle.MenuFocus;
+        CareerPanels.Text(column, "Description", text, dim: true, size: 14);
+    }
 
     private void ShowStatus(string text)
     {
         if (_status is not null)
         {
             _status.Text = text;
+            _status.Visible = !string.IsNullOrWhiteSpace(text);
         }
     }
 }

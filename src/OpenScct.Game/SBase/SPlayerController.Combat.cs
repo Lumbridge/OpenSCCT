@@ -211,13 +211,33 @@ public partial class SPlayerController
         }
 
         var game = Level.Game as SGameInfo;
+        CombatDeathSource incomingActivity = DamageType == SDamageType.DamTypeGrabBreak &&
+            IsInState("s_FallAfterGrabbedFromLedge") ? new(CombatDeathCause.LedgePull) : CombatDeathContext.Current;
+        if (incomingActivity.Cause == CombatDeathCause.None && DamageType == SDamageType.SDTStickyShocker)
+        {
+            if (PillTag == K.TaserPill)
+                incomingActivity = new(CombatDeathCause.Taser);
+            // This is the charge collision's existing RPC signature, not an ordinary zero-damage shocker shot.
+            // Decode it on the authority: an owner-local scope would be lost across DamagePawn_C2S.
+            else if (victim.SPawnType == PawnType.SPAWNDEFENSE && PillTag == 0 && Damage > 0 &&
+                Damage == (int)iChargeDamage && PercentDamageRefillable == K.MeleeRefillable)
+                incomingActivity = new(CombatDeathCause.ShockCollision);
+        }
+        using var activityScope = CombatDeathContext.Push(incomingActivity);
+        CombatDeathSource activitySource = CombatDeathContext.Current;
+        bool delayedSource = activitySource.Cause is CombatDeathCause.PoisonMine or CombatDeathCause.Poison or
+            CombatDeathCause.MolotovFire or CombatDeathCause.Fire or CombatDeathCause.Hazard;
+        PlayerReplicationInfo? recordedPri = activitySource.Instigator ?? activitySource.Detonator;
+        Controller? recordedInstigator = delayedSource && recordedPri is { bDeleteMe: false, Owner: Controller { bDeleteMe: false } owner }
+            ? owner : null;
+        if (delayedSource && recordedPri is not null) instigatedBy = recordedInstigator?.Pawn;
         SDamageVolume? volume = null;
-        if (instigatedBy is null && game?.GPODamageInstigator is { } gpoInstigator)
+        if (instigatedBy is null && !(delayedSource && recordedPri is not null) && game?.GPODamageInstigator is { } gpoInstigator)
         {
             instigatedBy = gpoInstigator;
         }
 
-        if (instigatedBy is null && game is not null)
+        if (instigatedBy is null && game is not null && !(delayedSource && recordedPri is not null))
         {
             volume = game.FindDamageVolume(Pawn, DamageType);
             if (volume is not null)
@@ -226,7 +246,7 @@ public partial class SPlayerController
             }
         }
 
-        Controller? killer = instigatedBy is not null ? instigatedBy.Controller : volume?.TriggerController;
+        Controller? killer = recordedInstigator ?? (instigatedBy is not null ? instigatedBy.Controller : volume?.TriggerController);
         if (DamageType == SDamageType.SDTStickyShocker)
         {
             ShockInstigator = instigatedBy;
@@ -256,6 +276,9 @@ public partial class SPlayerController
 
         FVector notNormalizedMomentum = Momentum;
         int actualDamage = ResolveDamage(victim, Damage, instigatedBy, HitLocation, DamageType, ref PillTag);
+        if (DamageType == SDamageType.SDamage_Poison && victim.bPoisonned)
+            victim.PoisonActivitySource = (CombatDeathContext.Current.Cause != CombatDeathCause.None
+                ? CombatDeathContext.Current : new(CombatDeathCause.Poison)) with { Instigator = killer?.PlayerReplicationInfo };
         if (DamageType == SDamageType.SDamage_Explosion)
         {
             actualDamage = K.ExplosionDamage;

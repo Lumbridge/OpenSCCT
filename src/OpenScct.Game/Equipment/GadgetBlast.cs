@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using OpenScct.Core;
 using OpenScct.Core.Engine;
 using OpenScct.Game.SBase;
+using OpenScct.Game.Combat;
 using OpenScct.Physics.Collision;
 using OpenScct.Provenance;
 
@@ -60,6 +61,9 @@ public static class GadgetBlast
     [Provenance(ProvenanceKind.Decoded, "natives2-damage.md rules 4 and 5: reach, sight lines, falloff, damage types, spy hold, shake")]
     public static void Run(in Blast b)
     {
+        CombatDeathSource activity = b.Source is SMines mine ? mine.ActivityDeathSource :
+            b.Source is SProjFrag ? new(CombatDeathCause.FragGrenade) : default;
+        using var activityScope = CombatDeathContext.Push(activity);
         bool? outer = CurrentIsMine;
         Pawn? outerDetonator = CurrentDetonator;
         CurrentIsMine = b.bMine;

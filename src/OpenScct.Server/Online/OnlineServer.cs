@@ -1364,6 +1364,9 @@ public sealed partial class OnlineServer : IDisposable
                 feats[key] = value;
             }
 
+            foreach (var counter in CareerStatCounters.All)
+                feats[counter.Key] = counter.Read(s);
+
             feats[FeatKeys.SpyStickyKos] = s.Spy_StickyCamKOs;
             feats[FeatKeys.MercChargeHits] = s.Merc_ChargeHits;
             feats[FeatKeys.SpySmokeKos] = s.Spy_SmokeKOs;

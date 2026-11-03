@@ -178,17 +178,8 @@ public partial class GamepadInput : Node
     {
         SPlayerController? pc = Session?.LocalController ?? input.Controller?.Invoke();
         SBasePawn? pawn = pc?.SBPawn;
-        bool slot2Cloak = false;
-        int slot = 0;
-        for (SGadget? gadget = pawn?.MyGadget; gadget is not null; gadget = gadget.MyGadget)
-        {
-            if (!OpenScct.Game.Equipment.PawnInventory.IsSelectable(gadget)) continue;
-            if (slot++ == 1) { slot2Cloak = gadget is SGadCloak; break; }
-        }
         var context = new PadActionContext(InCamera: pc is not null && PlayerCommands.InCamera(pc), IsSpy: !merc,
-            WeaponDrawn: pawn?.WeaponLoaded == 2, CloakSelected: pawn?.SelectedGadget is SGadCloak,
-            CloakActive: pawn?.DesiredGlassEffect == 255, Scoped: pc?.bBinocularVision == true,
-            Slot2IsCloak: slot2Cloak,
+            WeaponDrawn: pawn?.WeaponLoaded == 2, Scoped: pc?.bBinocularVision == true,
             CameraTransition: pc?.IsInState("s_UseObject_StickyCam_SmoothToPosition") == true);
         foreach (PadBindingEvent ev in _actionState.Update(_buttonsState.Update(Settings.Pad.ButtonsOf(merc), down, delta), delta, context))
         {

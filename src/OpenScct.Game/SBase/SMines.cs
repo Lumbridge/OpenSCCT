@@ -3,6 +3,7 @@ using OpenScct.Core.Engine;
 using OpenScct.Core.Uc;
 using OpenScct.Game.Devices;
 using OpenScct.Game.Equipment;
+using OpenScct.Game.Combat;
 using OpenScct.Provenance;
 using K = OpenScct.Game.Equipment.K;
 
@@ -147,9 +148,17 @@ public partial class SMines
     /// <summary>The spy whose hit (or whose earlier mine's blast) set this mine off; OpenSCCT's own, for achievements.</summary>
     protected Pawn? DetonatedBy { get; private set; }
 
+    private CombatDeathSource _activityDeathSource;
+    internal CombatDeathSource ActivityDeathSource => _activityDeathSource.Cause != CombatDeathCause.None
+        ? _activityDeathSource : new(CombatDeathContext.MineCause(this));
+
     /// <summary>Notes who set the mine off: a spy's hit, else the spy behind the blast now hitting it.</summary>
-    protected void NoteDetonator(Pawn? EventInstigator) =>
+    protected void NoteDetonator(Pawn? EventInstigator, SDamageType damageType)
+    {
         DetonatedBy ??= EventInstigator is SPawnAttaque ? EventInstigator : GadgetBlast.CurrentDetonator;
+        if (_activityDeathSource.Cause == CombatDeathCause.None)
+            _activityDeathSource = CombatDeathContext.Triggered(CombatDeathContext.MineCause(this), EventInstigator, damageType);
+    }
 
     /// <summary>A moving mover under the mine (MoverWhereIAm).</summary>
     protected bool MoverUnderMineMoves => MoverWhereIAm is { } mover && !mover.Velocity.IsZero();

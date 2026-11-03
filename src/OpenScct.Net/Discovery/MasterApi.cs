@@ -646,8 +646,19 @@ public sealed record MapCareerStats
     public int MercWins { get; init; }
 }
 
+/// <summary>Role results counted since role-specific tracking began.</summary>
+public sealed record RoleRoundStats
+{
+    public int Matches { get; init; }
+    public int Wins { get; init; }
+}
+
 public sealed record AccountStats
 {
+    public RoleRoundStats? SpyRounds { get; init; }
+
+    public RoleRoundStats? MercRounds { get; init; }
+
     public int Matches { get; init; }
 
     public int SpyWins { get; init; }

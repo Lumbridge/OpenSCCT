@@ -1011,7 +1011,7 @@ public sealed class HudSmoke(bool spectatorOnly = false) : SmokeTest
             return;
         }
 
-        Expect(options.Tabs?.GetTabCount() == 7, $"option pages {options.Tabs?.GetTabCount()}");
+        Expect(options.Tabs?.GetTabCount() == 8, $"option pages {options.Tabs?.GetTabCount()}");
         Expect(options.KeyButtons.Count > 0, "key bindings listed");
         foreach (string key in new[] { "invert_y.Spy", "invert_y.Merc", "controls_spy_kbm.free_look", "controls_merc_kbm.look", "controller.enabled",
                      "controller.deadzone_left", "display_mode", "resolution", "vsync", "widescreen", "ws_fov", "fps_spy", "fps_merc", "master_volume",

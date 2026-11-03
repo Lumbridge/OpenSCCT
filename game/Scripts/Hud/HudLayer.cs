@@ -506,6 +506,9 @@ public partial class HudLayer : CanvasLayer
             page, Fps.DrawList.Items, Net.DrawList.Items,
             Snapshot.Valid && !Snapshot.HideHud);
 
+        var editorLayout = Options.Layout.For(Snapshot.Side == HudSide.Merc);
+        HudEditorTransform.Apply(Console.DrawList.Items, editorLayout, screen);
+        HudEditorTransform.Apply(ActivityDrawer.DrawList.Items, editorLayout, screen);
         _items.Clear();
         if (Snapshot.Valid)
         {

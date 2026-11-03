@@ -156,6 +156,14 @@ tools/ci/godot-smoke.ps1 -Tests menu-layout,options,lobby-layout,front-end-layou
 
 ## Player stats and match history
 
+Account uses the same compact cards and 1600×900 responsive reference as the career pages. The profile header
+keeps account actions together; rank, XP and prestige emblems sit beside the career snapshot on wide windows and
+stack below 950 logical units of content width. The title picker shows unlocked titles first, with an expandable
+locked-title list. Sign-in, browser-code and name forms retain a narrower reading width. Actions wrap, the footer
+stays visible, and the page supports keyboard/controller scrolling. Appearance-conflict actions also wrap.
+The `front-end-layout` smoke includes isolated account fixtures for sign-in, name changes, loading/legacy data,
+new players, prestige confirmation and master rank; use `SVM_FRONT_END_LAYOUT_PAGES=account*` for a focused run.
+
 Career stats and recorded matches use the compact dashboard cards and a 1600×900 responsive reference. The
 career header shows the player and rank, followed by rounds, wins, win rate and K/D. Seven category buttons open
 grouped counters, with separate cards for weapons and maps. Cards reflow into fewer columns on small windows;
@@ -397,8 +405,9 @@ Bindings are action-based and grouped by movement, combat, gadgets, vision, comm
 unbound actions as well as existing keys. Focusing or hovering an action shows its verified description and the
 other actions on that key. The internal `FireMode` is the spy's ready/holster input (tap draws with laser, hold
 past 0.5 seconds draws without it); mercenary **Switch fire mode** uses `bROF`, switching burst/full auto.
-`bHoldBreath` steadies the merc scope but also operates the spy's selected cloak, so the spy shows a separate
-role-specific description. Roll is spy-only. Gadget quick-use, alternate action and cloak/breath can be rebound
+`bHoldBreath` steadies the merc scope. Spies have a separate `bCloak` binding (K / controller LB + RB by default)
+for their built-in cloak, with immediate Hold or Toggle activation. Cloak consumes no gadget slot and is absent
+from loadout and gadget-restriction pickers. Roll is spy-only. Gadget quick-use, alternate action and cloak/breath can be rebound
 independently without deleting the other commands from their original combined key.
 
 The options are organized for this game rather than matching the original menu. Inactive original shortcuts

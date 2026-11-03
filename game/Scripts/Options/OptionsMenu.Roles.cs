@@ -80,7 +80,7 @@ public partial class OptionsMenu
     {
         var page = new VBoxContainer { Name = "Bindings", SizeFlagsHorizontal = SizeFlags.ExpandFill };
         var content = new VBoxContainer { Name = "BindingList", SizeFlagsHorizontal = SizeFlags.ExpandFill };
-        var reset = new Button { Text = "Reset bindings", CustomMinimumSize = new Vector2(170, 32) };
+        var reset = new Button { Text = "Reset bindings", CustomMinimumSize = new Vector2(130, 32) };
         reset.Pressed += () => Confirm("Reset bindings", "Reset this role's keyboard bindings? Shared layouts affect both roles.",
             () => { ResetBindings(side); RebuildKeys(); }, "Reset bindings");
         bool merc = side == PlaySide.Merc;
@@ -88,7 +88,7 @@ public partial class OptionsMenu
         void BehaviorChoice(string label, string key, string value, Action<string> change)
         {
             behavior.AddChild(new Label { Text = label });
-            var choice = new OptionButton { Selected = -1, CustomMinimumSize = new Vector2(120, 32),
+            var choice = new OptionButton { Selected = -1, CustomMinimumSize = new Vector2(80, 32),
                 TooltipText = "Hold: active while pressed. Toggle: press again to stop. Wheel bindings always toggle. Applies to keyboard, mouse and controller." };
             choice.AddItem("Hold"); choice.AddItem("Toggle");
             choice.Selected = value == "Hold" ? 0 : 1;
@@ -102,6 +102,8 @@ public partial class OptionsMenu
             v => _edit.MercKbm.ScopeBehavior = v);
         else BehaviorChoice("Perspective:", "perspective_behavior", _edit.SpyKbm.PerspectiveBehavior,
             v => _edit.SpyKbm.PerspectiveBehavior = v);
+        if (!merc) BehaviorChoice("Cloak:", "cloak_behavior", _edit.SpyKbm.CloakBehavior,
+            v => _edit.SpyKbm.CloakBehavior = v);
         behavior.AddChild(new Control { SizeFlagsHorizontal = SizeFlags.ExpandFill });
         behavior.AddChild(reset);
         content.AddChild(behavior);

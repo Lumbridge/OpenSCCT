@@ -6,6 +6,7 @@ using System.Linq;
 using Godot;
 using OpenScct.Core.Engine;
 using OpenScct.Game.Equipment;
+using OpenScct.Game.Combat;
 using OpenScct.Game.SBase;
 using OpenScctGame.Hud;
 using OpenScctGame.Hud.Gadgets;
@@ -20,10 +21,14 @@ public sealed class HudActivityFeedSmoke : SmokeTest
     public override string Name => TestName;
     private static readonly Vector2I[] Sizes = [new(640, 480), new(1280, 720), new(1920, 1080), new(3440, 1440)];
     private static readonly string[] Pages = ["spy", "merc", "spectator", "spy-scope", "merc-scope", "sticky-camera", "camera-network"];
-    private static int CaptureCount => Sizes.Length * Pages.Length + Sizes.Length;
+    private static int StandardCaptureCount => Sizes.Length * Pages.Length + Sizes.Length;
+    private static int PreviewCaptureCount => StandardCaptureCount + Sizes.Length;
+    private static readonly string[] Galleries = ["mines-and-grenades", "environment-and-fire", "melee-and-movement", "weapons-and-headshots", "clarified-causes"];
+    private static int CaptureCount => PreviewCaptureCount + Galleries.Length;
     private HudAssets? _assets;
     private SubViewport? _viewport;
     private Rect2 _textProbe;
+    private Rect2 _feedProbe;
     private int _case;
     private int _settle;
     private bool _checked;
@@ -59,10 +64,15 @@ public sealed class HudActivityFeedSmoke : SmokeTest
             }
             Require(lit > 5, "native Inter text did not render in " + CaseName(_case));
             Require(image.SavePng(Path.Combine(_capture!, CaseName(_case) + ".png")) == Error.Ok, "could not save activity feed capture");
+            if (CaseName(_case) is "spy-1920x1080" or "kill-types-1920x1080")
+            {
+                using Image detail = image.GetRegion(new Rect2I((Vector2I)_feedProbe.Position.Floor(), (Vector2I)_feedProbe.Size.Ceil()));
+                Require(detail.SavePng(Path.Combine(_capture!, _case >= StandardCaptureCount ? "kill-types-detail.png" : "event-feed-detail.png")) == Error.Ok, "could not save feed detail");
+            }
             _viewport.Free();
             _viewport = null;
             if (++_case < CaptureCount) return SmokeResult.Running;
-            return SmokeResult.Pass("32 real-renderer HUD captures with visible Inter text, including diagnostics/long names/bright scenery; layout, animation and visibility checks passed");
+            return SmokeResult.Pass($"{CaptureCount} real-renderer HUD captures with visible Inter text, detailed kills/triggers and galleries; layout, animation and visibility checks passed");
         }
         catch (Exception error)
         {
@@ -74,6 +84,7 @@ public sealed class HudActivityFeedSmoke : SmokeTest
 
     private static void CheckLayouts(HudAssets assets)
     {
+        CheckIconResources();
         HudActivityEntry[] entries = Entries(longNames: true);
         var diagnosticCounts = new List<string>();
         foreach (Vector2I resolution in Sizes)
@@ -90,9 +101,14 @@ public sealed class HudActivityFeedSmoke : SmokeTest
             CheckBounds(feed, screen);
             CheckText(feed);
             Require(feed.DrawList.TextOf("Activity/5/Actor")?.EndsWith("...", StringComparison.Ordinal) == true, "long name was not truncated");
-            Require(feed.DrawList.TextOf("Activity/5/Action") == "KILL", "kill action missing: " + name + " " + resolution + "; text=" + feed.DrawList.TextOf("Activity/5/Action"));
-            Require(feed.DrawList.TextOf("Activity/5/Cause") == "HEADSHOT", "cause missing: " + name + " " + resolution + "; text=" + feed.DrawList.TextOf("Activity/5/Cause"));
+            Require(feed.DrawList.TextOf("Activity/5/Action") == "Eliminated", "kill action missing: " + name + " " + resolution + "; text=" + feed.DrawList.TextOf("Activity/5/Action"));
+            Require(feed.DrawList.TextOf("Activity/5/Cause") == "Headshot", "cause missing: " + name + " " + resolution + "; text=" + feed.DrawList.TextOf("Activity/5/Cause"));
             Require(feed.DrawList.Any("Activity/4/Icon/") && feed.DrawList.Any("Activity/3/Icon/"), "sleep/KO icons missing");
+            foreach (MagmaDrawItem icon in feed.DrawList.Items.Where(i => i.Path.Contains("/Icon/", StringComparison.Ordinal)))
+            {
+                Require(icon.NativeTexture is not null, "native icon texture missing: " + icon.Path);
+                Require(HudActivityFeedDrawer.ItemBounds(icon).Size.X >= 24f, "icon shrank below its readable minimum: " + icon.Path);
+            }
             Require(feed.DrawList.Any("Activity/5/Local"), "local participation accent missing");
             Require(feed.DrawList.Items.Any(i => i.Kind == MagmaWidgetKind.Text && i.NativeFont is not null), "native font missing");
             foreach (MagmaDrawItem item in page.DrawList.Items)
@@ -128,6 +144,8 @@ public sealed class HudActivityFeedSmoke : SmokeTest
 
         CheckMovedDiagnostics(assets, entries);
         CheckTelemetryGraphs(assets, entries);
+        CheckSingleParticipantAndNotices(assets);
+        CheckDetailedCauses(assets);
 
         var animation = new HudActivityFeedDrawer();
         animation.Configure(assets);
@@ -139,6 +157,103 @@ public sealed class HudActivityFeedSmoke : SmokeTest
         animation.Draw(reference, entries, 15.8f, null);
         Require(animation.DrawList.Items.Where(i => i.Kind == MagmaWidgetKind.Text).All(i => Math.Abs(i.Color.A - .5f) < .002f), "fade midpoint incorrect");
         GD.Print("SVM_ACTIVITY_DIAGNOSTIC_ROWS " + string.Join("; ", diagnosticCounts));
+    }
+
+    private static void CheckIconResources()
+    {
+        var participant = new HudActivityParticipant(1, "Ghost", 0);
+        foreach (HudActivityKind kind in Enum.GetValues<HudActivityKind>())
+        foreach (HudActivityCause cause in Enum.GetValues<HudActivityCause>())
+        foreach (CombatDeathTrigger trigger in Enum.GetValues<CombatDeathTrigger>())
+        foreach (bool headshot in new[] { false, true })
+        {
+            var entry = new HudActivityEntry(1, kind, participant, null, cause, "", "", 0f, false, trigger, Headshot: headshot);
+            Texture2D? texture = HudActivityIcons.For(entry);
+            Require(texture is not null && texture.GetWidth() == 256 && texture.GetHeight() == 256,
+                "embedded SVG icon did not load: " + kind + "/" + cause);
+            Require(ReferenceEquals(texture, HudActivityIcons.For(entry)), "icon was not cached: " + kind + "/" + cause);
+        }
+        var distinct = Enum.GetValues<HudActivityCause>().Where(c => c is not (HudActivityCause.None or HudActivityCause.Other))
+            .Select(c => HudActivityIcons.NameFor(new(1, HudActivityKind.Kill, participant, null, c, "", "", 0f, false))).ToArray();
+        Require(distinct.Distinct().Count() == distinct.Length, "two different kill causes share an icon");
+    }
+
+    private static void CheckDetailedCauses(HudAssets assets)
+    {
+        var actor = new HudActivityParticipant(1, "Sentinel", 1);
+        var victim = new HudActivityParticipant(2, "Echo", 0);
+        var trigger = new HudActivityParticipant(3, "Raven", 0);
+        var feed = new HudActivityFeedDrawer();
+        feed.Configure(assets);
+        foreach (Vector2I size in Sizes)
+        {
+            foreach (HudActivityCause cause in Enum.GetValues<HudActivityCause>().Where(c => c is not (HudActivityCause.None or HudActivityCause.Other)))
+            foreach (HudActivityKind kind in new[] { HudActivityKind.Kill, HudActivityKind.Suicide })
+            {
+                var entry = new HudActivityEntry(1, kind, kind == HudActivityKind.Kill ? actor : null, victim, cause, "", "", 10f, true,
+                    CombatDeathTrigger.Shot, trigger);
+                feed.Draw(size, [entry], 11f, null);
+                CheckBounds(feed, size);
+                CheckText(feed);
+                if (HudActivityPresentation.UsesVictimFirstMessage(entry))
+                {
+                    Require(feed.DrawList.TextOf("Activity/1/Action") == "died", "contact death must explicitly identify who died");
+                    Require(!feed.DrawList.Any("Activity/1/Direction"), "contact death kept the ambiguous killer arrow");
+                    Require(feed.DrawList.TextOf("Activity/1/Cause") == HudActivityPresentation.ContactLead(entry) &&
+                        feed.DrawList.TextOf("Activity/1/Actor") == HudActivityPresentation.ContactTarget(entry), "contact cause or target was truncated: " + size);
+                }
+                else
+                    Require(feed.DrawList.TextOf("Activity/1/Cause") == HudActivityPresentation.Cause(entry), "kill cause was truncated: " + kind + "/" + cause + " " + size + ": " + feed.DrawList.TextOf("Activity/1/Cause"));
+                Require(feed.DrawList.TextOf("Activity/1/Trigger") == HudActivityPresentation.TriggerDetail(entry), "trigger detail was lost: " + cause + " " + size);
+            }
+            feed.Draw(size, DetailedEntries(), 11f, null);
+            CheckBounds(feed, size);
+            CheckText(feed);
+            Require(feed.VisibleCount >= 4, "detailed kills wasted available space: " + size);
+            var panels = feed.DrawList.Items.Where(i => i.Path.EndsWith("/Panel", StringComparison.Ordinal)).Select(HudActivityFeedDrawer.ItemBounds).ToArray();
+            for (int i = 1; i < panels.Length; i++)
+                Require(!panels[i - 1].Intersects(panels[i]), "variable-height kill rows overlap");
+            foreach (HudActivityCause cause in new[] { HudActivityCause.ShockCollision, HudActivityCause.StickyBlast })
+            {
+                var longName = new HudActivityParticipant(1, "A_very_long_player_name_with_Unicode_e\u0301_猫_and_more_characters", 0);
+                var entry = new HudActivityEntry(1, HudActivityKind.Kill, longName, longName with { PlayerId = 2 }, cause, "", "", 10f, false);
+                feed.Draw(size, [entry], 11f, null);
+                CheckBounds(feed, size); CheckText(feed);
+                Require(feed.DrawList.TextOf("Activity/1/Action") == "died", "long names hid the contact death verb");
+                Require(feed.DrawList.Any("Activity/1/Victim") && feed.DrawList.Any("Activity/1/Actor"), "long names hid contact participants");
+            }
+        }
+    }
+
+    private static void CheckSingleParticipantAndNotices(HudAssets assets)
+    {
+        var player = new HudActivityParticipant(1, "Ghost", 0);
+        HudActivityEntry[] entries =
+        [
+            new(1, HudActivityKind.Death, null, player, HudActivityCause.Fall, "", "", 10f, false),
+            new(2, HudActivityKind.Suicide, player, player, HudActivityCause.Explosion, "", "", 10f, false),
+            new(3, HudActivityKind.Resign, player, null, HudActivityCause.None, "", "", 10f, false),
+            new(4, HudActivityKind.Match, null, null, HudActivityCause.None, "", "Round starts soon", 10f, false),
+            new(5, HudActivityKind.Leave, player, null, HudActivityCause.None, "", "", 10f, false),
+        ];
+        var feed = new HudActivityFeedDrawer();
+        feed.Configure(assets);
+        feed.Draw(new Vector2(1280, 720), entries, 11f, null);
+        CheckText(feed);
+        Require(feed.VisibleCount == 5, "single participant and notice rows missing");
+        foreach (int id in new[] { 1, 2, 3 })
+        {
+            Require(feed.DrawList.TextOf($"Activity/{id}/Victim") == "Ghost", "single participant missing");
+            Require(!feed.DrawList.Any($"Activity/{id}/Actor") && !feed.DrawList.Any($"Activity/{id}/Direction"),
+                "single participant row reserved an attacker or arrow");
+        }
+        Require(feed.DrawList.TextOf("Activity/1/Action") == "Died", "death outcome missing");
+        Require(feed.DrawList.TextOf("Activity/2/Action") == "Self-eliminated", "suicide outcome missing");
+        Require(feed.DrawList.TextOf("Activity/3/Action") == "Resigned", "resignation outcome missing");
+        Require(feed.DrawList.TextOf("Activity/4/Label") == "Match update" && feed.DrawList.TextOf("Activity/4/Notice") == "Round starts soon",
+            "match notice lost its message");
+        Require(feed.DrawList.TextOf("Activity/5/Label") == "Ghost" && feed.DrawList.TextOf("Activity/5/Notice") == "Left the match",
+            "notice relied on an empty legacy label");
     }
 
     private static void CheckMovedDiagnostics(HudAssets assets, HudActivityEntry[] entries)
@@ -247,12 +362,16 @@ public sealed class HudActivityFeedSmoke : SmokeTest
 
     private void CreateCapture(SmokeContext context)
     {
+        if (_case >= PreviewCaptureCount) { CreateGallery(context, _case - PreviewCaptureCount); return; }
         (Vector2I size, string name, bool diagnostics) = Case(_case);
         HudPage page = Page(_assets!, name, size);
         var feed = new HudActivityFeedDrawer();
         feed.Configure(_assets!);
         (HudFps fps, HudNet net) = Diagnostics(_assets!, size);
-        feed.Draw(size, Entries(longNames: diagnostics), 11f, page, diagnostics ? fps.DrawList.Items : null, diagnostics ? net.DrawList.Items : null);
+        bool detailed = _case >= StandardCaptureCount;
+        feed.Draw(size, detailed ? DetailedEntries() : Entries(longNames: diagnostics), 11f, detailed ? null : page,
+            diagnostics ? fps.DrawList.Items : null, diagnostics ? net.DrawList.Items : null);
+        _feedProbe = feed.Bounds;
         _textProbe = feed.DrawList.Find("Activity/5/Actor")?.Rect ?? throw new InvalidOperationException("actor text missing");
         _viewport = new SubViewport { Size = size, Disable3D = true, RenderTargetUpdateMode = SubViewport.UpdateMode.Always };
         context.Tree.Root.AddChild(_viewport);
@@ -264,7 +383,7 @@ public sealed class HudActivityFeedSmoke : SmokeTest
                 Color = bright ? new Color(.64f + i * .002f, .71f + i * .003f, .74f + i * .003f) : new Color(.06f + i * .002f, .08f + i * .003f, .09f + i * .003f) });
         var canvas = new MagmaCanvas { Assets = _assets };
         _viewport.AddChild(canvas);
-        var items = new List<MagmaDrawItem>(page.DrawList.Items);
+        var items = detailed ? new List<MagmaDrawItem>() : new List<MagmaDrawItem>(page.DrawList.Items);
         items.AddRange(feed.DrawList.Items);
         if (diagnostics) { items.AddRange(fps.DrawList.Items); items.AddRange(net.DrawList.Items); }
         canvas.Submit(items);
@@ -273,13 +392,135 @@ public sealed class HudActivityFeedSmoke : SmokeTest
 
     private static string CaseName(int index)
     {
+        if (index >= PreviewCaptureCount) return "gallery-" + Galleries[index - PreviewCaptureCount];
         (Vector2I size, string name, bool diagnostics) = Case(index);
+        if (index >= StandardCaptureCount) return $"kill-types-{size.X}x{size.Y}";
         return string.Create(CultureInfo.InvariantCulture, $"{name}-{size.X}x{size.Y}{(diagnostics ? "-diagnostics-long-names" : "")}");
     }
 
-    private static (Vector2I Size, string Page, bool Diagnostics) Case(int index) => index < Sizes.Length * Pages.Length
+    private static (Vector2I Size, string Page, bool Diagnostics) Case(int index) => index >= StandardCaptureCount
+        ? (Sizes[index - StandardCaptureCount], "spy", false)
+        : index < Sizes.Length * Pages.Length
         ? (Sizes[index / Pages.Length], Pages[index % Pages.Length], false)
         : (Sizes[index - Sizes.Length * Pages.Length], index - Sizes.Length * Pages.Length == 2 ? "spy" : "merc", true);
+
+    private static HudActivityEntry[] DetailedEntries()
+    {
+        var merc = new HudActivityParticipant(1, "Sentinel", 1);
+        var spy = new HudActivityParticipant(2, "Echo", 0);
+        var trigger = new HudActivityParticipant(3, "Raven", 0);
+        return
+        [
+            new(5, HudActivityKind.Kill, merc, spy, HudActivityCause.LaserMine, "", "", 10f, false, CombatDeathTrigger.Shot, trigger),
+            new(4, HudActivityKind.Kill, merc, spy, HudActivityCause.ProximityMine, "", "", 10f, false),
+            new(3, HudActivityKind.Kill, merc, spy, HudActivityCause.PoisonMine, "", "", 10f, false),
+            new(2, HudActivityKind.Kill, merc, spy, HudActivityCause.FragGrenade, "", "", 10f, false),
+            new(1, HudActivityKind.Kill, trigger, merc, HudActivityCause.MolotovFire, "", "", 10f, true, CombatDeathTrigger.Shot, trigger),
+        ];
+    }
+
+    private void CreateGallery(SmokeContext context, int group)
+    {
+        if (group == 4) { CreateClarifiedCausePreview(context); return; }
+        var size = new Vector2I(920, 420);
+        _viewport = new SubViewport { Size = size, Disable3D = true, RenderTargetUpdateMode = SubViewport.UpdateMode.Always };
+        context.Tree.Root.AddChild(_viewport);
+        _viewport.AddChild(new ColorRect { Size = size, Color = new Color(.045f, .065f, .075f) });
+        string[][] titles =
+        [
+            ["Mines and grenades", "Shot and chain detonations"],
+            ["Fire and environmental damage", "Destructible props"],
+            ["Melee", "Grabs and movement"],
+            ["Primary weapons", "Sniper and sidearms"],
+        ];
+        for (int column = 0; column < 2; column++)
+        {
+            var title = new Label { Text = titles[group][column], Position = new Vector2(12 + 460 * column, 10) };
+            title.AddThemeFontOverride("font", OpenScctGame.UI.UiArt.BodyFont);
+            title.AddThemeFontSizeOverride("font_size", 18);
+            _viewport.AddChild(title);
+            var feed = new HudActivityFeedDrawer(); feed.Configure(_assets!);
+            feed.Draw(new Vector2(1920, 1080), GalleryEntries(group, column), 11f, null);
+            Require(feed.VisibleCount == 5, "gallery should display all five examples");
+            Vector2 offset = new Vector2(12 + 460 * column, 44) - feed.Bounds.Position;
+            var canvas = new MagmaCanvas { Assets = _assets, Position = offset };
+            _viewport.AddChild(canvas);
+            canvas.Submit(feed.DrawList.Items);
+            if (column == 0)
+            {
+                Rect2 first = feed.DrawList.Items.First(i => i.Kind == MagmaWidgetKind.Text).Rect;
+                _textProbe = new Rect2(first.Position + offset, first.Size);
+            }
+        }
+        _settle = 3;
+    }
+
+    private static HudActivityEntry[] GalleryEntries(int group, int column)
+    {
+        HudActivityCause[][] sets =
+        [
+            [HudActivityCause.ProximityMine, HudActivityCause.LaserMine, HudActivityCause.PoisonMine, HudActivityCause.FragGrenade, HudActivityCause.Smoke],
+            [HudActivityCause.ProximityMine, HudActivityCause.LaserMine, HudActivityCause.LaserMine, HudActivityCause.BarrelExplosion, HudActivityCause.MolotovExplosion],
+            [HudActivityCause.MolotovFire, HudActivityCause.Fire, HudActivityCause.Crush, HudActivityCause.Hazard, HudActivityCause.Poison],
+            [HudActivityCause.BarrelExplosion, HudActivityCause.GasExplosion, HudActivityCause.ExplosiveExtinguisher, HudActivityCause.SodaExplosion, HudActivityCause.ExplosiveProp],
+            [HudActivityCause.Charge, HudActivityCause.Elbow, HudActivityCause.DropAttack, HudActivityCause.NeckBreak, HudActivityCause.ShockCollision],
+            [HudActivityCause.Choke, HudActivityCause.LedgePull, HudActivityCause.Grab, HudActivityCause.Fall, HudActivityCause.StickyCamera],
+            [HudActivityCause.Rifle, HudActivityCause.Rifle, HudActivityCause.Shotgun, HudActivityCause.Shotgun, HudActivityCause.Smg],
+            [HudActivityCause.Sniper, HudActivityCause.Sniper, HudActivityCause.Pistol, HudActivityCause.Pistol, HudActivityCause.Revolver],
+        ];
+        var merc = new HudActivityParticipant(1, "Sentinel", 1);
+        var spy = new HudActivityParticipant(2, "Echo", 0);
+        var raven = new HudActivityParticipant(3, "Raven", 0);
+        var entries = new HudActivityEntry[5];
+        for (int i = 0; i < 5; i++)
+        {
+            HudActivityCause cause = sets[group * 2 + column][i];
+            bool environmental = group == 1 || group == 0 && column == 1 && i >= 3;
+            bool spyAttack = environmental || cause is HudActivityCause.DropAttack or HudActivityCause.NeckBreak or HudActivityCause.Choke or
+                HudActivityCause.LedgePull or HudActivityCause.Grab or HudActivityCause.ShockCollision or HudActivityCause.Smoke or HudActivityCause.StickyCamera;
+            bool anonymous = cause is HudActivityCause.Fire or HudActivityCause.Hazard or HudActivityCause.Fall or HudActivityCause.Crush or HudActivityCause.Poison;
+            CombatDeathTrigger trigger = group == 0 && column == 1 || group == 1 && (column == 1 || i == 0)
+                ? group == 0 && i == 2 ? CombatDeathTrigger.ChainReaction : CombatDeathTrigger.Shot : CombatDeathTrigger.None;
+            HudActivityKind kind = anonymous ? HudActivityKind.Death : cause == HudActivityCause.Grab ? HudActivityKind.Knockout :
+                cause is HudActivityCause.StickyCamera or HudActivityCause.Smoke ? HudActivityKind.Sleep : HudActivityKind.Kill;
+            entries[i] = new(5 - i, kind, anonymous ? null : spyAttack ? raven : merc, spyAttack ? merc : spy,
+                cause, "", "", 10f, false, trigger, trigger != CombatDeathTrigger.None ? raven : null,
+                Headshot: group == 3 && (i is 1 or 3 || column == 1 && i == 4));
+        }
+        return entries;
+    }
+
+    private void CreateClarifiedCausePreview(SmokeContext context)
+    {
+        var merc = new HudActivityParticipant(1, "Sentinel", 1);
+        var spy = new HudActivityParticipant(2, "Raven", 0);
+        var echo = new HudActivityParticipant(3, "Echo", 0);
+        HudActivityEntry[] entries =
+        [
+            new(4, HudActivityKind.Kill, merc, echo, HudActivityCause.Taser, "", "", 10f, false),
+            new(3, HudActivityKind.Kill, spy, merc, HudActivityCause.ShockCollision, "", "", 10f, false),
+            new(2, HudActivityKind.Kill, merc, spy, HudActivityCause.StickyBlast, "", "", 10f, false),
+            new(1, HudActivityKind.Kill, spy, merc, HudActivityCause.ExplosiveExtinguisher, "", "", 10f, false,
+                CombatDeathTrigger.Shot, spy),
+        ];
+        var feed = new HudActivityFeedDrawer(); feed.Configure(_assets!);
+        feed.Draw(new Vector2(1920, 1080), entries, 11f, null);
+        Require(feed.VisibleCount == entries.Length, "clarified cause examples missing");
+        var size = new Vector2I(464, 300);
+        _viewport = new SubViewport { Size = size, Disable3D = true, RenderTargetUpdateMode = SubViewport.UpdateMode.Always };
+        context.Tree.Root.AddChild(_viewport);
+        _viewport.AddChild(new ColorRect { Size = size, Color = new Color(.045f, .065f, .075f) });
+        var title = new Label { Text = "Clarified event labels", Position = new Vector2(12, 10) };
+        title.AddThemeFontOverride("font", OpenScctGame.UI.UiArt.BodyFont);
+        title.AddThemeFontSizeOverride("font_size", 18);
+        _viewport.AddChild(title);
+        Vector2 offset = new Vector2(12, 44) - feed.Bounds.Position;
+        var canvas = new MagmaCanvas { Assets = _assets, Position = offset };
+        _viewport.AddChild(canvas); canvas.Submit(feed.DrawList.Items);
+        Rect2 first = feed.DrawList.Items.First(i => i.Kind == MagmaWidgetKind.Text).Rect;
+        _textProbe = new Rect2(first.Position + offset, first.Size);
+        _settle = 3;
+    }
 
     private static (HudFps Fps, HudNet Net) Diagnostics(HudAssets assets, Vector2 screen)
     {

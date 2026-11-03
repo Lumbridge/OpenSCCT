@@ -49,7 +49,7 @@ public partial class SGadget
     protected override void PostNetBeginPlay()
     {
         base.PostNetBeginPlay();
-        if (OwnerPawn is { SelectedGadget: null } pawn && bActivatable && !IsAPadUpGadget)
+        if (this is not SGadCloak && OwnerPawn is { SelectedGadget: null } pawn && bActivatable && !IsAPadUpGadget)
         {
             pawn.SelectedGadget = this;
         }

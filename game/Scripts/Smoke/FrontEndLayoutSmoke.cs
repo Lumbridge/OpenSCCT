@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
+using OpenScct.Net.Cosmetics;
+using OpenScct.Net.Discovery;
 using OpenScctGame.Hud;
 using OpenScctGame.Options;
 using OpenScctGame.UI;
@@ -27,6 +29,20 @@ public sealed class FrontEndLayoutSmoke : SmokeTest
         ("sessions", () => new ServerBrowserScreen(), false),
         ("join-ip", () => new JoinWithIpScreen(), false),
         ("account", () => new AccountScreen(), false),
+        ("account-no-master", () => AccountPreview("no-master"), false),
+        ("account-signed-out", () => AccountPreview("signed-out"), false),
+        ("account-waiting", () => AccountPreview("waiting"), false),
+        ("account-pick-name", () => AccountPreview("pick-name"), false),
+        ("account-change-name", () => AccountPreview("change-name"), false),
+        ("account-signed-in", () => AccountPreview("signed-in"), false),
+        ("account-locked-titles", () => AccountPreview("new"), false),
+        ("account-actions", () => AccountPreview("actions"), false),
+        ("account-loading", () => AccountPreview("loading"), false),
+        ("account-legacy", () => AccountPreview("legacy"), false),
+        ("account-prestige", () => AccountPreview("prestige"), false),
+        ("account-prestige-confirm", () => AccountPreview("prestige-confirm"), false),
+        ("account-master", () => AccountPreview("master"), false),
+        ("account-new", () => AccountPreview("new"), false),
         ("stats", () => new StatsScreen(), false),
         ("content", () => new ContentScreen(), false),
         ("armoury", () => new ArmouryScreen(), false),
@@ -53,6 +69,8 @@ public sealed class FrontEndLayoutSmoke : SmokeTest
     private readonly List<string> _problems = new();
     private Control? _screen;
     private int _page, _size, _frames;
+    private int _accountAction;
+    private string? _savedTitle;
     private bool _savedList;
 
     public override SmokeResult Step(SmokeContext context)
@@ -63,6 +81,9 @@ public sealed class FrontEndLayoutSmoke : SmokeTest
             SettingsStore.Current.MapListView = Pages[_page].List;
             Resize(context.Tree, Sizes[_size]);
             _screen = FrontEnd.Show(context.Tree, Pages[_page].Create());
+            if (Pages[_page].Name == "account-locked-titles" && _screen.FindChild("BrowseTitles", true, false) is Button browse)
+                browse.ButtonPressed = true;
+            if (Pages[_page].Name == "account-actions") _savedTitle = SettingsStore.Current.Title;
             if (Pages[_page].Name == "confirmation")
                 ConfirmBox.Open(_screen, new ConfirmBox
                 {
@@ -94,11 +115,23 @@ public sealed class FrontEndLayoutSmoke : SmokeTest
                     _problems.Add(where + ": achievement title missing or outside its card: " + tile.Name);
             }
         }
+        if (Pages[_page].Name == "account-actions" && _screen is AccountScreen actionScreen)
+        {
+            MenuPage.Shot(_screen, $"front-end-account-actions-{size.X}x{size.Y}-{_accountAction}");
+            if (!CheckAccountActions(actionScreen, where))
+            {
+                _frames = 0;
+                return SmokeResult.Running;
+            }
+        }
+        else if (_screen is AccountScreen { Preview: { } preview } account)
+            CheckAccountPreview(account, preview, where);
         MenuPage.Shot(_screen, $"front-end-{Pages[_page].Name}-{size.X}x{size.Y}");
 
         if (++_size < Sizes.Length)
         {
             Resize(context.Tree, Sizes[_size]);
+            _accountAction = 0;
             _frames = 0;
             return SmokeResult.Running;
         }
@@ -136,6 +169,155 @@ public sealed class FrontEndLayoutSmoke : SmokeTest
         },
     };
 
+    // Fixture data is passed to the page directly; it never signs in, polls or changes saved account settings.
+    private static AccountScreen AccountPreview(string state)
+    {
+        var progress = new ProgressInfo
+        {
+            Level = 42, BestLevel = 55, Prestige = 3,
+            Xp = PlayerRank.XpToReach(42) + 375, TotalXp = 123456789,
+            Titles = TitleCatalog.All.Where(title => title.Source != TitleSource.Prestige || title.Value <= 3)
+                .Select(title => title.Id).ToArray(),
+        };
+        var account = new AccountInfo
+        {
+            Id = 1, Name = "WideNameWWWWWWWW", Admin = true,
+            NameChangeAllowed = DateTimeOffset.UtcNow.AddDays(30),
+            Stats = new AccountStats
+            {
+                Matches = 123456, SpyWins = 45678, MercWins = 34567, Losses = 43211,
+                Kills = 123456789, Deaths = 98765432,
+            },
+            Progress = progress,
+        };
+        AccountScreen.PreviewState preview = state switch
+        {
+            "no-master" => new(AccountScreen.View.NoMaster),
+            "signed-out" => new(AccountScreen.View.SignedOut,
+                Status: "The master server could not be reached. Check your connection and try signing in again."),
+            "waiting" => new(AccountScreen.View.Waiting, Link: new LinkStartResponse
+            {
+                Code = "K7PX-29QD", Url = "https://accounts.example.invalid/sign-in/confirm?code=K7PX-29QD&source=OpenSCCT",
+                ExpiresSeconds = 600,
+            }),
+            "pick-name" => new(AccountScreen.View.PickName, account with { Name = null, Admin = false }),
+            "change-name" => new(AccountScreen.View.PickName, account with { NameChangeAllowed = null }, ChangingName: true),
+            "loading" => new(AccountScreen.View.SignedIn),
+            "legacy" => new(AccountScreen.View.SignedIn, account with { Progress = null, NameChangeAllowed = null }),
+            "prestige" or "prestige-confirm" or "actions" => new(AccountScreen.View.SignedIn, account with
+            {
+                NameChangeAllowed = state == "actions" ? null : account.NameChangeAllowed,
+                Progress = progress with { Level = ProgressionK.MaxLevel, Xp = PlayerRank.XpToReach(ProgressionK.MaxLevel) },
+            }, PrestigeArmed: state == "prestige-confirm"),
+            "master" => new(AccountScreen.View.SignedIn, account with
+            {
+                Progress = progress with
+                {
+                    Level = ProgressionK.MaxLevel, Prestige = ProgressionK.MaxPrestige,
+                    Xp = PlayerRank.XpToReach(ProgressionK.MaxLevel), Titles = TitleCatalog.All.Select(title => title.Id).ToArray(),
+                },
+            }),
+            "new" => new(AccountScreen.View.SignedIn, new AccountInfo
+            {
+                Id = 2, Name = "New_player", Progress = new ProgressInfo(),
+            }),
+            _ => new(AccountScreen.View.SignedIn, account),
+        };
+        return new AccountScreen { Preview = preview };
+    }
+
+    private void CheckAccountPreview(AccountScreen screen, AccountScreen.PreviewState preview, string where)
+    {
+        string[] labels = screen.FindChildren("*", nameof(Label), true, false).OfType<Label>()
+            .Where(label => label.IsVisibleInTree()).Select(label => label.Text).ToArray();
+        if (preview.View == AccountScreen.View.SignedIn && preview.Account?.Name is { } name &&
+            !labels.Any(text => text.Contains(name, StringComparison.Ordinal)))
+            _problems.Add(where + ": signed-in view lost the player name");
+        if (preview.View == AccountScreen.View.Waiting && preview.Link is { } link &&
+            (!labels.Any(text => text.Contains(link.Code, StringComparison.Ordinal)) ||
+             !screen.FindChildren("*", nameof(LineEdit), true, false).OfType<LineEdit>().Any(field => field.Text == link.Url)))
+            _problems.Add(where + ": waiting view lost its sign-in code or fallback URL");
+        if (preview.View == AccountScreen.View.PickName &&
+            !screen.FindChildren("*", nameof(LineEdit), true, false).OfType<LineEdit>().Any(field => field.Editable))
+            _problems.Add(where + ": name picker has no editable field");
+        if (preview.Status is { Length: > 0 } status && !labels.Contains(status))
+            _problems.Add(where + ": account status was lost");
+        if (Pages[_page].Name == "account-locked-titles")
+        {
+            var locked = screen.FindChild("LockedTitles", true, false) as Container;
+            if (locked is null || !locked.IsVisibleInTree() || locked.GetChildCount() != TitleCatalog.All.Count ||
+                locked.GetChildren().OfType<Button>().Any(button => !button.Disabled))
+                _problems.Add(where + ": locked-title disclosure lost locked titles or allowed equipping them");
+        }
+    }
+
+    private bool CheckAccountActions(AccountScreen screen, string where)
+    {
+        void Require(bool condition, string message)
+        {
+            if (!condition) _problems.Add(where + $" action {_accountAction}: " + message);
+        }
+        Button? Button(string name) => screen.FindChild(name, true, false) as Button;
+        void Press(string name)
+        {
+            Button? button = Button(name);
+            Require(button is { Disabled: false }, "missing enabled action " + name);
+            if (button is not { Disabled: false }) return;
+            button.GrabFocus();
+            if (button.ToggleMode) button.ButtonPressed = true;
+            button.EmitSignal(BaseButton.SignalName.Pressed);
+        }
+        void FocusIs(string name) => Require(screen.GetViewport().GuiGetFocusOwner()?.Name.ToString() == name,
+            "focus should remain on " + name);
+
+        switch (_accountAction++)
+        {
+            case 0:
+                Press("Prestige");
+                break;
+            case 1:
+                Require(Button("Prestige")?.Text == "Confirm prestige" && Button("CancelPrestige") is not null,
+                    "prestige did not show explicit confirmation and cancel");
+                FocusIs("Prestige");
+                Press("CancelPrestige");
+                break;
+            case 2:
+                Require(Button("Prestige")?.Text.StartsWith("Enter prestige", StringComparison.Ordinal) == true && Button("CancelPrestige") is null,
+                    "cancel did not disarm prestige");
+                FocusIs("Prestige");
+                Press("BrowseTitles");
+                break;
+            case 3:
+                Require(screen.FindChild("LockedTitles", true, false) is Control { Visible: true }, "locked titles did not expand");
+                if (Button("BrowseTitles") is { } browse) browse.ButtonPressed = false;
+                break;
+            case 4:
+                Require(screen.FindChild("LockedTitles", true, false) is Control { Visible: false }, "locked titles did not collapse");
+                FocusIs("BrowseTitles");
+                Press("Title_level_10");
+                break;
+            case 5:
+                Require(screen.FindChild("TitleSummary", true, false) is Label { Text: "Recruit" } && Button("Title_level_10") is { ButtonPressed: true },
+                    "equipping a title did not update its summary and selection");
+                Require(SettingsStore.Current.Title == _savedTitle, "preview title changed saved settings");
+                Press("ChangeName");
+                break;
+            case 6:
+                Require(screen.FindChild("Name", true, false) is LineEdit { Editable: true } field && field.Text == screen.Preview?.Account?.Name,
+                    "change-name action did not retain the current name");
+                FocusIs("Name");
+                Press("CancelName");
+                break;
+            default:
+                Require(screen.FindChild("AccountName", true, false) is Label player && player.Text == screen.Preview?.Account?.Name,
+                    "cancelling the name change lost the signed-in view");
+                FocusIs("ChangeName");
+                Require(SettingsStore.Current.Title == _savedTitle, "preview interactions changed saved settings");
+                return true;
+        }
+        return false;
+    }
+
     // A focused repeat or screenshot capture still uses the same resize assertions as the full suite.
     private static (string Name, Func<Control> Create, bool List)[] SelectPages(
         (string Name, Func<Control> Create, bool List)[] pages)
@@ -144,7 +326,8 @@ public sealed class FrontEndLayoutSmoke : SmokeTest
         if (string.IsNullOrWhiteSpace(selection)) return pages;
         var names = selection.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
-        var selected = pages.Where(page => names.Contains(page.Name)).ToArray();
+        var selected = pages.Where(page => names.Contains(page.Name) || names.Any(name =>
+            name.EndsWith('*') && page.Name.StartsWith(name[..^1], StringComparison.OrdinalIgnoreCase))).ToArray();
         return selected.Length > 0 ? selected : throw new InvalidOperationException("No matching front-end layout pages: " + selection);
     }
 }

@@ -1,0 +1,138 @@
+Game-icons.net event feed icons
+
+Icons made by Lorc, Delapouite, Sbed, Skoll, John Colburn and Guard13007.
+https://game-icons.net/
+Licensed under Creative Commons Attribution 3.0 Unported (CC BY 3.0).
+License deed: https://creativecommons.org/licenses/by/3.0/
+Legal code: https://creativecommons.org/licenses/by/3.0/legalcode
+
+Source repository: https://github.com/game-icons/icons
+Pinned revision: 82d948812bfe3f269ef8f731dcdb07b08160edc4
+Modifications: removed black full-canvas backgrounds. Shot-triggered device variants combine scaled device and Silver bullet silhouettes; firearm headshot variants add the Headshot silhouette. Choke rotates/scales the Grab silhouette and adds original inward compression arrow markers. Zzz retains the original Night sleep Z glyphs, removes its crescent and background, and uniformly enlarges the glyphs. Electrified contact removes the Lightning mask background. Taser combines scaled Pistol gun and Electric silhouettes; electrical charge collision combines scaled Push and Lightning trio silhouettes. Runtime tinting changes displayed colour. See the source manifest for exact hashes and transforms.
+
+Individual works and sources:
+electrified-contact.svg - Lorc - https://game-icons.net/1x1/lorc/lightning-mask.html
+taser.svg - John Colburn, Sbed - https://game-icons.net/1x1/john-colburn/pistol-gun.html + https://game-icons.net/1x1/sbed/electric.html
+shock-collision.svg - Delapouite, Lorc - https://game-icons.net/1x1/delapouite/push.html + https://game-icons.net/1x1/lorc/lightning-trio.html
+death.svg - Sbed - https://game-icons.net/1x1/sbed/death-skull.html
+sleep.svg - Lorc - https://game-icons.net/1x1/lorc/sleepy.html
+zzz.svg - Delapouite - https://game-icons.net/1x1/delapouite/night-sleep.html
+knockout.svg - Delapouite - https://game-icons.net/1x1/delapouite/knocked-out-stars.html
+join.svg - Delapouite - https://game-icons.net/1x1/delapouite/entry-door.html
+leave.svg - Delapouite - https://game-icons.net/1x1/delapouite/exit-door.html
+match.svg - Delapouite - https://game-icons.net/1x1/delapouite/checkered-flag.html
+last-life.svg - Lorc - https://game-icons.net/1x1/lorc/half-heart.html
+firearm.svg - Lorc - https://game-icons.net/1x1/lorc/bullets.html
+headshot.svg - Skoll - https://game-icons.net/1x1/skoll/headshot.html
+explosion.svg - Lorc - https://game-icons.net/1x1/lorc/bright-explosion.html
+charge.svg - Delapouite - https://game-icons.net/1x1/delapouite/push.html
+fall.svg - Sbed - https://game-icons.net/1x1/sbed/falling.html
+melee.svg - Skoll - https://game-icons.net/1x1/skoll/fist.html
+grab.svg - Lorc - https://game-icons.net/1x1/lorc/grab.html
+neck-break.svg - Lorc - https://game-icons.net/1x1/lorc/broken-bone.html
+crush.svg - Sbed - https://game-icons.net/1x1/sbed/crush.html
+poison.svg - Lorc - https://game-icons.net/1x1/lorc/poison-bottle.html
+shock.svg - Lorc - https://game-icons.net/1x1/lorc/lightning-trio.html
+smoke.svg - Lorc - https://game-icons.net/1x1/lorc/poison-gas.html
+camera.svg - Delapouite - https://game-icons.net/1x1/delapouite/cctv-camera.html
+proximity-mine.svg - Lorc - https://game-icons.net/1x1/lorc/land-mine.html
+laser-mine.svg - Lorc - https://game-icons.net/1x1/lorc/tripwire.html
+poison-mine.svg - Lorc - https://game-icons.net/1x1/lorc/biohazard.html
+grenade.svg - Lorc - https://game-icons.net/1x1/lorc/grenade.html
+barrel.svg - Skoll - https://game-icons.net/1x1/skoll/oil-drum.html
+molotov.svg - Lorc - https://game-icons.net/1x1/lorc/molotov.html
+fire.svg - Sbed - https://game-icons.net/1x1/sbed/fire.html
+drop-attack.svg - Lorc - https://game-icons.net/1x1/lorc/boot-stomp.html
+choke.svg - Lorc - https://game-icons.net/1x1/lorc/grab.html
+sticky-blast.svg - Lorc - https://game-icons.net/1x1/lorc/sparky-bomb.html
+sniper.svg - Skoll - https://game-icons.net/1x1/skoll/winchester-rifle.html
+shot-proximity-mine.svg - Lorc, Delapouite - https://game-icons.net/1x1/lorc/land-mine.html
+  Additional source: Delapouite - https://game-icons.net/1x1/delapouite/silver-bullet.html
+shot-laser-mine.svg - Lorc, Delapouite - https://game-icons.net/1x1/lorc/tripwire.html
+  Additional source: Delapouite - https://game-icons.net/1x1/delapouite/silver-bullet.html
+shot-poison-mine.svg - Lorc, Delapouite - https://game-icons.net/1x1/lorc/biohazard.html
+  Additional source: Delapouite - https://game-icons.net/1x1/delapouite/silver-bullet.html
+shot-barrel.svg - Skoll, Delapouite - https://game-icons.net/1x1/skoll/oil-drum.html
+  Additional source: Delapouite - https://game-icons.net/1x1/delapouite/silver-bullet.html
+shot-molotov.svg - Lorc, Delapouite - https://game-icons.net/1x1/lorc/molotov.html
+  Additional source: Delapouite - https://game-icons.net/1x1/delapouite/silver-bullet.html
+rifle.svg - Skoll - https://game-icons.net/1x1/skoll/famas.html
+shotgun.svg - Delapouite - https://game-icons.net/1x1/delapouite/sawed-off-shotgun.html
+smg.svg - Skoll - https://game-icons.net/1x1/skoll/mp5.html
+ledge-pull.svg - Delapouite - https://game-icons.net/1x1/delapouite/pull.html
+pistol.svg - John Colburn - https://game-icons.net/1x1/john-colburn/pistol-gun.html
+revolver.svg - Skoll - https://game-icons.net/1x1/skoll/revolver.html
+gas-explosion.svg - Lorc - https://game-icons.net/1x1/lorc/cannister.html
+extinguisher.svg - Delapouite - https://game-icons.net/1x1/delapouite/fire-extinguisher.html
+soda.svg - Guard13007 - https://game-icons.net/1x1/guard13007/soda-can.html
+hazard.svg - Lorc - https://game-icons.net/1x1/lorc/hazard-sign.html
+shot-gas-explosion.svg - Lorc, Delapouite - https://game-icons.net/1x1/lorc/cannister.html
+  Additional source: Delapouite - https://game-icons.net/1x1/delapouite/silver-bullet.html
+shot-extinguisher.svg - Delapouite - https://game-icons.net/1x1/delapouite/fire-extinguisher.html
+  Additional source: Delapouite - https://game-icons.net/1x1/delapouite/silver-bullet.html
+shot-soda.svg - Guard13007, Delapouite - https://game-icons.net/1x1/guard13007/soda-can.html
+  Additional source: Delapouite - https://game-icons.net/1x1/delapouite/silver-bullet.html
+rifle-headshot.svg - Skoll - https://game-icons.net/1x1/skoll/famas.html
+  Additional source: Skoll - https://game-icons.net/1x1/skoll/headshot.html
+shotgun-headshot.svg - Delapouite, Skoll - https://game-icons.net/1x1/delapouite/sawed-off-shotgun.html
+  Additional source: Skoll - https://game-icons.net/1x1/skoll/headshot.html
+smg-headshot.svg - Skoll - https://game-icons.net/1x1/skoll/mp5.html
+  Additional source: Skoll - https://game-icons.net/1x1/skoll/headshot.html
+sniper-headshot.svg - Skoll - https://game-icons.net/1x1/skoll/winchester-rifle.html
+  Additional source: Skoll - https://game-icons.net/1x1/skoll/headshot.html
+pistol-headshot.svg - John Colburn, Skoll - https://game-icons.net/1x1/john-colburn/pistol-gun.html
+  Additional source: Skoll - https://game-icons.net/1x1/skoll/headshot.html
+revolver-headshot.svg - Skoll - https://game-icons.net/1x1/skoll/revolver.html
+  Additional source: Skoll - https://game-icons.net/1x1/skoll/headshot.html
+molotov-fire.svg - Lorc - https://game-icons.net/1x1/lorc/fire-bottle.html
+explosive-prop.svg - Lorc - https://game-icons.net/1x1/lorc/explosive-materials.html
+shot-explosive-prop.svg - Lorc, Delapouite - https://game-icons.net/1x1/lorc/explosive-materials.html
+  Additional source: Delapouite - https://game-icons.net/1x1/delapouite/silver-bullet.html
+
+Upstream license notice follows:
+
+Icons provided under the Creative Commons 3.0 BY or CC0 if mentioned below.
+
+Each sub-folders in this archive correspond to a different contributor :
+
+- Lorc, http://lorcblog.blogspot.com
+- Delapouite, http://delapouite.com
+- John Colburn, http://ninmunanmu.com
+- Felbrigg, http://blackdogofdoom.blogspot.co.uk
+- John Redman, http://www.uniquedicetowers.com
+- Carl Olsen, https://twitter.com/unstoppableCarl
+- Sbed, http://opengameart.org/content/95-game-icons
+- PriorBlue
+- Willdabeast, http://wjbstories.blogspot.com
+- Viscious Speed, http://viscious-speed.deviantart.com - CC0
+- Lord Berandas, http://berandas.deviantart.com
+- Irongamer, http://ecesisllc.wix.com/home
+- HeavenlyDog, http://www.gnomosygoblins.blogspot.com
+- Lucas
+- Faithtoken, http://fungustoken.deviantart.com
+- Skoll
+- Andy Meneely, http://www.se.rit.edu/~andy/
+- Cathelineau
+- Kier Heyl
+- Aussiesim
+- Sparker, http://citizenparker.com
+- Zeromancer - CC0
+- Rihlsul
+- Quoting
+- Guard13007, https://guard13007.com
+- DarkZaitzev, http://darkzaitzev.deviantart.com
+- SpencerDub
+- GeneralAce135
+- Zajkonur
+- Catsu
+- Starseeker
+- Pepijn Poolman
+- Pierre Leducq
+- Caro Asercion
+- SeregaCthtuf
+
+Please, include a mention "Icons made by {author}" in your derivative work.
+
+If you use them in one of your project, don't hesitate to drop a message to delapouite@gmail.com or ping @GameIcons on twitter.
+
+More info and icons available at https://game-icons.net

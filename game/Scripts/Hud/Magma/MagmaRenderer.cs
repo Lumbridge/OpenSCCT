@@ -38,6 +38,9 @@ public sealed class MagmaDrawItem
 
     public string Texture { get; set; } = "";
 
+    /// <summary>An optional directly supplied texture (for bundled SVG icons); null uses the Magma atlas.</summary>
+    public Texture2D? NativeTexture { get; set; }
+
     public Vector2[] Points { get; set; } = [];
 
     /// <summary>Texture coordinates normalised to the texture (0..1).</summary>
@@ -85,7 +88,7 @@ public sealed class MagmaDrawItem
             ? Text == other.Text && Font == other.Font && ReferenceEquals(NativeFont, other.NativeFont) && Rect == other.Rect && HeightPx == other.HeightPx &&
               Align == other.Align && Color == other.Color && Shadow == other.Shadow &&
               ShadowOffsetPx == other.ShadowOffsetPx && XScale == other.XScale && TrackingPx == other.TrackingPx
-            : Package == other.Package && Texture == other.Texture && Blend == other.Blend && Clamp == other.Clamp &&
+            : Package == other.Package && Texture == other.Texture && ReferenceEquals(NativeTexture, other.NativeTexture) && Blend == other.Blend && Clamp == other.Clamp &&
               Points.AsSpan().SequenceEqual(other.Points) && Uvs.AsSpan().SequenceEqual(other.Uvs) &&
               Colors.AsSpan().SequenceEqual(other.Colors));
 
@@ -98,6 +101,7 @@ public sealed class MagmaDrawItem
         PageRect = source.PageRect;
         Package = source.Package;
         Texture = source.Texture;
+        NativeTexture = source.NativeTexture;
         Blend = source.Blend;
         Clamp = source.Clamp;
         Text = source.Text;
@@ -128,6 +132,7 @@ public sealed class MagmaDrawItem
     {
         Path = Package = Texture = Text = Font = "";
         NativeFont = null;
+        NativeTexture = null;
         Kind = kind;
         Anchor = default;
         PageRect = default;

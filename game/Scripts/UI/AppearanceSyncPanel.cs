@@ -8,16 +8,24 @@ public partial class AppearanceSyncPanel : VBoxContainer
 {
     private AccountService? _service;
     private Label? _status;
-    private HBoxContainer? _choices;
+    private HFlowContainer? _choices;
 
     public override void _Ready()
     {
         _service = AccountService.Get(GetTree());
         _status = new Label { AutowrapMode = TextServer.AutowrapMode.WordSmart, Modulate = UiStyle.Dim };
         AddChild(_status);
-        _choices = new HBoxContainer();
+        _choices = new HFlowContainer();
+        _choices.AddThemeConstantOverride("h_separation", 8);
+        _choices.AddThemeConstantOverride("v_separation", 8);
         _choices.AddChild(UiStyle.MenuButton("Reload account appearance", _service.ReloadAppearance, "ReloadAppearance"));
         _choices.AddChild(UiStyle.MenuButton("Reapply my choices", _service.ReapplyAppearance, "ReapplyAppearance"));
+        foreach (Node child in _choices.GetChildren())
+        {
+            if (child is not Button button) continue;
+            button.CustomMinimumSize = new Vector2(0f, 36f);
+            button.AddThemeFontSizeOverride("font_size", 14);
+        }
         AddChild(_choices);
         _service.AppearanceChanged += Refresh;
         Refresh();

@@ -4,6 +4,7 @@ using Godot;
 using OpenScct.Net;
 using OpenScctGame.Hud;
 using OpenScctGame.UI;
+using OpenScctGame.Options;
 
 namespace OpenScctGame.Chat;
 
@@ -31,6 +32,13 @@ public partial class ChatPanel : Control
     private int _layoutFrames;
     private long _anchorId;
     private float _anchorOffset;
+    private Rect2 _expandedBase, _passiveBase;
+    // Preview supplies its own screen and draft; gameplay reads the current saved role layout.
+    public Vector2? PreviewScreen { get; set; }
+    public Func<HudElementSettings?>? LayoutOverride { get; set; }
+    public Rect2 PassiveBaseBounds => _passiveBase;
+    private Vector2 LayoutScreen => PreviewScreen ?? GetViewportRect().Size;
+
 
     public ChatPanel()
     {
@@ -198,7 +206,7 @@ public partial class ChatPanel : Control
 
     public override void _Process(double delta)
     {
-        if (_viewport != GetViewportRect().Size || _wasHubLayout != HubLayout || _wasSide != Side) ResizeSurface();
+        if (_viewport != LayoutScreen || _wasHubLayout != HubLayout || _wasSide != Side) ResizeSurface();
         if (Expanded)
         {
             if (_layoutFrames > 0)
@@ -214,6 +222,27 @@ public partial class ChatPanel : Control
             }
         }
         if (!Expanded) LayoutRecent();
+        ApplyHudLayout();
+    }
+
+    internal void ApplyHudLayout()
+    {
+        var e = LayoutOverride is { } get ? get() : SettingsStore.Current.HudLayout.For(Side == HudSide.Merc).GetValueOrDefault("Chat");
+        e ??= new HudElementSettings();
+        Place(_expandedPanel, _expandedBase);
+        Place(_passivePanel, _passiveBase);
+        // A deliberately opened composer remains usable even when passive chat is hidden.
+        Visible = Expanded || e.Visible;
+        Modulate = Colors.White with { A = Expanded ? 1f : e.Opacity };
+        void Place(Control control, Rect2 bounds)
+        {
+            float scale = e.Scale;
+            if (bounds.Size.X > 0 && bounds.Size.Y > 0)
+                scale = Math.Min(scale, Math.Min(_viewport.X / bounds.Size.X, _viewport.Y / bounds.Size.Y));
+            var fitted = new HudElementSettings { X = e.X, Y = e.Y, Scale = scale };
+            control.Scale = Vector2.One * scale;
+            control.Position = HudEditorTransform.Transform(bounds, fitted, _viewport).Position;
+        }
     }
 
     private bool AtLatest()
@@ -388,7 +417,7 @@ public partial class ChatPanel : Control
     {
         if (!_ready) return;
         RememberScroll();
-        _viewport = GetViewportRect().Size;
+        _viewport = LayoutScreen;
         _wasHubLayout = HubLayout;
         _wasSide = Side;
         _scale = Math.Clamp(_viewport.Y / 720f, 0.75f, 3f);
@@ -398,6 +427,7 @@ public partial class ChatPanel : Control
         float height = Math.Min(235f * _scale, bottom - 16f * _scale);
         _expandedPanel.Position = new Vector2(left, bottom - height);
         _expandedPanel.Size = new Vector2(_width, height);
+        _expandedBase = new Rect2(_expandedPanel.Position, _expandedPanel.Size);
         _passivePanel.Position = new Vector2(left, bottom);
         _passivePanel.Size = new Vector2(_width, 0f);
         foreach (Control control in new Control[] { Entry, _channelButton, NewMessagesButton })
@@ -474,6 +504,7 @@ public partial class ChatPanel : Control
         float bottom = Bottom();
         _passivePanel.Position = new Vector2(16f * _scale, bottom - height);
         _passivePanel.Size = new Vector2(_width, height);
+        _passiveBase = new Rect2(_passivePanel.Position, _passivePanel.Size);
         _passivePanel.Visible = !Expanded && PassiveLineCount > 0;
         // Fade the backing as the last message expires, without multiplying each message's alpha.
         if (_passivePanel.GetThemeStylebox("panel") is StyleBoxFlat style)

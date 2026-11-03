@@ -1,6 +1,7 @@
 using OpenScct.Core;
 using OpenScct.Core.Engine;
 using OpenScct.Game.Devices;
+using OpenScct.Game.Combat;
 using OpenScct.Provenance;
 
 namespace OpenScct.Game.SBase;
@@ -11,6 +12,8 @@ namespace OpenScct.Game.SBase;
 /// </summary>
 public partial class SMagicEvent
 {
+    // Each queue slot retains its own source; concurrent activations must not overwrite one another.
+    private readonly System.Collections.Generic.List<CombatDeathSource> _activityQueue = new();
     /// <summary>Resets the sequence steps, disables empty groups and starts the 0.05 s queue update.</summary>
     [Uc("SBase.SMagicEvent.BeginPlay", Sha1 = "7f134de81f17ae8334eeb3d8628bd7f0bfc98bec")]
     [PortOf("uc:SBase.SMagicEvent:BeginPlay", Spec = "spec/devices/magic-event.md#rules")]
@@ -52,6 +55,7 @@ public partial class SMagicEvent
         if (ReferenceEquals(Other, StopActor))
         {
             EventQueue.Clear();
+            _activityQueue.Clear();
             return;
         }
 
@@ -135,6 +139,7 @@ public partial class SMagicEvent
             EventInstigator = instigator,
             Time = Level.TimeSeconds + entry.Delay,
         });
+        _activityQueue.Insert(0, CombatDeathContext.Current);
     }
 
     /// <summary>Fires an entry by its type; the alternating types flip on the entry they are fired from.</summary>
@@ -189,13 +194,16 @@ public partial class SMagicEvent
         }
 
         var ready = new FWaitingEvent[due];
+        var readySources = new CombatDeathSource[due];
         int n = 0;
         for (int q = 0; q < EventQueue.Count;)
         {
             if (EventQueue[q].Time <= now)
             {
-                ready[n++] = EventQueue[q];
+                ready[n] = EventQueue[q];
+                readySources[n++] = q < _activityQueue.Count ? _activityQueue[q] : default;
                 EventQueue.RemoveAt(q);
+                if (q < _activityQueue.Count) _activityQueue.RemoveAt(q);
             }
             else
             {
@@ -205,6 +213,7 @@ public partial class SMagicEvent
 
         for (int r = 0; r < ready.Length; r++)
         {
+            using var activity = CombatDeathContext.Push(readySources[r]);
             FSuperEvent entry = ready[r].Event;
             Dispatch(ref entry, ready[r].Other, ready[r].EventInstigator);
         }

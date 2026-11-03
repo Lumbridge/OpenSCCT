@@ -129,11 +129,11 @@ public partial class DemoHud : CanvasLayer
         AddButton(transport, "LeaveDemo", "Back to demos", ConfirmLeave, "Return to your demo library (Escape)");
 
         var view = Flow(column, "ViewControls");
-        _previousPlayer = AddButton(view, "PreviousPlayer", "‹", () => _player.CycleTarget(-1), "Previous player ([ or mouse wheel)", 36f);
+        _previousPlayer = AddButton(view, "PreviousPlayer", "‹", () => CyclePlayer(-1), "Previous player ([ or mouse wheel)", 36f);
         _players = Choice("WatchPlayer", 204f, "Choose a player to watch (1–9, [ / ] or mouse wheel)");
         _players.ItemSelected += index => { if (_players is { } picker) WatchPlayerId(picker.GetItemId((int)index)); };
         view.AddChild(_players);
-        _nextPlayer = AddButton(view, "NextPlayer", "›", () => _player.CycleTarget(1), "Next player (] or mouse wheel)", 36f);
+        _nextPlayer = AddButton(view, "NextPlayer", "›", () => CyclePlayer(1), "Next player (] or mouse wheel)", 36f);
         _camera = Choice("CameraMode", 148f, "Camera perspective (C)");
         _camera.AddItem("First person");
         _camera.AddItem("Third person");
@@ -158,7 +158,8 @@ public partial class DemoHud : CanvasLayer
         _help = Text("PlaybackHelp",
             "Space  Play / pause     ← / →  Seek 5 s (Shift: 30 s)     ↑ / ↓  Speed     Home  Restart\n" +
             "C  Camera     [ / ] or wheel  Change player     1–9  Select player     H  Hide / show controls\n" +
-            "Hold right mouse to look around. Free camera: WASD move, Q / E down / up, Shift move faster.\n" +
+            "Third person follows the player. Hold right mouse to orbit; release to return behind them.\n" +
+            "Free camera: hold right mouse to look, WASD move, Q / E down / up, Shift move faster.\n" +
             "Click or drag to seek; event markers include a 3 s lead-in. Backward seeks reload from the start.\n" +
             "Esc  Close help / confirm returning to demos", 13);
         _help.AutowrapMode = TextServer.AutowrapMode.WordSmart;
@@ -254,21 +255,28 @@ public partial class DemoHud : CanvasLayer
     public override void _Input(InputEvent @event)
     {
         _idle = 0;
+        // Always release capture, even when a popup or confirmation opened during the drag.
+        if (@event is InputEventMouseButton { ButtonIndex: MouseButton.Right, Pressed: false } && _looking)
+        {
+            SetLooking(false);
+            Handled();
+            return;
+        }
         if (ConfirmingLeave) return;
         if (PopupOpen) return;
         switch (@event)
         {
-            case InputEventMouseButton { ButtonIndex: MouseButton.Right } right when _looking || !OverControls:
-                _looking = right.Pressed;
-                OpenScctGame.Controls.Pointer.Mode = _looking ? Input.MouseModeEnum.Captured : Input.MouseModeEnum.Visible;
+            case InputEventMouseButton { ButtonIndex: MouseButton.Right, Pressed: true }
+                when _player.Mode != DemoCameraMode.FirstPerson && !OverControls:
+                SetLooking(true);
                 Handled();
                 return;
             case InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.WheelUp } when !OverControls:
-                _player.CycleTarget(-1);
+                CyclePlayer(-1);
                 Handled();
                 return;
             case InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.WheelDown } when !OverControls:
-                _player.CycleTarget(1);
+                CyclePlayer(1);
                 Handled();
                 return;
             case InputEventMouseMotion motion when _looking:
@@ -284,14 +292,26 @@ public partial class DemoHud : CanvasLayer
     public override void _Notification(int what)
     {
         if (what != NotificationWMWindowFocusOut || !_looking) return;
-        _looking = false;
-        OpenScctGame.Controls.Pointer.Mode = Input.MouseModeEnum.Visible;
+        SetLooking(false);
     }
 
     public override void _ExitTree()
     {
         GetViewport().SizeChanged -= FitCanvas;
-        if (_looking) OpenScctGame.Controls.Pointer.Mode = Input.MouseModeEnum.Visible;
+        if (_looking) SetLooking(false);
+    }
+
+    private void SetLooking(bool looking)
+    {
+        _looking = looking;
+        _player.SetLooking(looking);
+        OpenScctGame.Controls.Pointer.Mode = looking ? Input.MouseModeEnum.Captured : Input.MouseModeEnum.Visible;
+    }
+
+    private void CyclePlayer(int step)
+    {
+        SetLooking(false);
+        _player.CycleTarget(step);
     }
 
     private bool OnKey(InputEventKey key)
@@ -306,9 +326,9 @@ public partial class DemoHud : CanvasLayer
             case Key.Right: Skip(key.ShiftPressed ? 30 : 5); return true;
             case Key.Home: Restart(); return true;
             case Key.End: Seek(_player.LastTick); return true;
-            case Key.C: _player.CycleMode(); return true;
-            case Key.Bracketleft: _player.CycleTarget(-1); return true;
-            case Key.Bracketright: _player.CycleTarget(1); return true;
+            case Key.C: SetLooking(false); _player.CycleMode(); return true;
+            case Key.Bracketleft: CyclePlayer(-1); return true;
+            case Key.Bracketright: CyclePlayer(1); return true;
             case Key.H: SetControlsHidden(!_hidden); return true;
             case Key.Slash when key.ShiftPressed: ToggleHelp(); return true;
             case Key.Escape:
@@ -316,6 +336,7 @@ public partial class DemoHud : CanvasLayer
                 else ConfirmLeave();
                 return true;
             case >= Key.Key1 and <= Key.Key9:
+                SetLooking(false);
                 _player.WatchIndex((int)(code - Key.Key1));
                 return true;
             default: return false;
@@ -327,6 +348,8 @@ public partial class DemoHud : CanvasLayer
     public override void _Process(double delta)
     {
         _idle += delta;
+        if (_looking && (PopupOpen || ConfirmingLeave || !GetWindow().HasFocus() || _player.Mode == DemoCameraMode.FirstPerson))
+            SetLooking(false);
         if (_player.IsSeeking && !ConfirmingLeave)
         {
             long start = Stopwatch.GetTimestamp();
@@ -334,6 +357,7 @@ public partial class DemoHud : CanvasLayer
         }
         if (_player.Mode == DemoCameraMode.Free && !PopupOpen && !ConfirmingLeave && GetWindow().HasFocus())
             _player.Fly(Axis(Key.W, Key.S), Axis(Key.D, Key.A), Axis(Key.E, Key.Q), Input.IsPhysicalKeyPressed(Key.Shift), (float)delta);
+        _player.AdvanceCamera((float)delta);
         if (_player.Clock.Paused && _player.Session is { } session) session.SetViewNow(_player.ViewFor(session.View));
         UpdateTexts();
     }
@@ -367,7 +391,7 @@ public partial class DemoHud : CanvasLayer
         if (_hint is not null) _hint.Text = _player.Mode switch
         {
             DemoCameraMode.Free => "Hold right mouse to look · WASD fly · Q / E down / up · Shift faster",
-            DemoCameraMode.ThirdPerson => "Hold right mouse to orbit · C change camera · [ / ] change player · H hide controls",
+            DemoCameraMode.ThirdPerson => "Hold right mouse to orbit · Release to follow behind · C change camera · [ / ] change player",
             _ => "Following the player's view · C change camera · [ / ] change player · H hide controls",
         };
         UpdatePlayers();
@@ -428,12 +452,14 @@ public partial class DemoHud : CanvasLayer
 
     private void SelectCamera(DemoCameraMode mode)
     {
+        SetLooking(false);
         // Cycling preserves the free camera's initial position behind the watched player.
         while (_player.Mode != mode) _player.CycleMode();
     }
 
     private void WatchPlayerId(int id)
     {
+        SetLooking(false);
         // A pawn may die or join while the popup is open; keep the selected identity instead of its old row index.
         for (int i = 0; i < _player.Targets.Count; i++)
             if (_player.Targets[i].PlayerReplicationInfo?.PlayerID == id) { _player.WatchIndex(i); break; }
@@ -473,8 +499,7 @@ public partial class DemoHud : CanvasLayer
         if (_root is null || _root.GetNodeOrNull("LeaveDemoConfirmation") is not null) return;
         bool wasPaused = _player.Clock.Paused;
         _player.Clock.Paused = true;
-        _looking = false;
-        OpenScctGame.Controls.Pointer.Mode = Input.MouseModeEnum.Visible;
+        SetLooking(false);
         _leaveConfirmation = ConfirmBox.Open(_root, new ConfirmBox
         {
             Name = "LeaveDemoConfirmation", Question = "Stop watching this demo and return to your demos?",

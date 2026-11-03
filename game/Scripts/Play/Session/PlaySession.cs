@@ -280,6 +280,9 @@ public sealed class PlaySession : IDisposable
     /// <summary>Allow camera look during a spy roll while keeping the roll's starting direction.</summary>
     public bool SpyRollFreeLook { get; set; }
 
+    /// <summary>Release the spy's built-in cloak when its input is released.</summary>
+    public bool SpyCloakHold { get; set; }
+
     /// <summary>The viewport size the input mapping scales the mouse by.</summary>
     public (int Width, int Height) ViewportSize { get; set; } = (1280, 720);
 
@@ -436,6 +439,7 @@ public sealed class PlaySession : IDisposable
         if (LocalController is { } pc)
         {
             pc.SpyRollFreeLook = SpyRollFreeLook;
+            pc.SpyCloakHold = SpyCloakHold;
             Input.ApplyButtons(pc);
             Mouse.Apply(pc, Input.MouseX, Input.MouseY);
             pc.aUp = Input.Up;

@@ -290,8 +290,11 @@ there) or on some dark posts; a terminal alert gets the torch, since a hacker st
 use a recent visual position or teammate callout, with a ten-second cooldown between accepted throws. The bot
 waits for the selected gadget and rifle to be ready, and counts a throw only when a charge is consumed.
 
-While guarding near objectives, mercs inspect nearby clear walls and place carried mines or spy trackers through
-the normal gadget and animation path. They can follow a complete floor route around tables or pillars to reach a
+While guarding, mercs inspect clear walls around nearby active objectives and heal stations, scoring both route
+length and proximity to the key location. They vary between low crouched, crouched eye-level, lower standing and
+slightly raised placements, with a randomly preferred height and reachable alternatives. They crouch and wait for
+their eye height and aim to settle before placing carried mines or spy trackers through the normal gadget and
+animation path. They can follow a complete floor route around tables or pillars to reach a
 wall, while rejecting placements that require crossing a closed door. Placement respects charges, ownership limits and spacing, and combat or
 bomb response interrupts the approach. Waking or being revived restores the merc's armed state as well as its rifle.
 

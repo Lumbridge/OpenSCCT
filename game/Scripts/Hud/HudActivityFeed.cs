@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using OpenScct.Core.Engine;
+using OpenScct.Game.Combat;
 
 namespace OpenScctGame.Hud;
 
@@ -13,6 +14,11 @@ public enum HudActivityCause
 {
     None, Firearm, Headshot, Explosion, Charge, DropAttack, Elbow, Grab, NeckBreak, Choke,
     Fall, Crush, Poison, StickyShock, StickyBlast, Smoke, StickyCamera, Other,
+    ProximityMine, LaserMine, PoisonMine, FragGrenade, BarrelExplosion, ExplosiveProp,
+    MolotovExplosion, MolotovFire, Fire, Hazard, LedgePull,
+    Rifle, Shotgun, Smg, Sniper, Pistol, Revolver,
+    GasExplosion, ExplosiveExtinguisher, SodaExplosion,
+    Taser, ShockCollision,
 }
 
 /// <summary>Receipt-time identity: rows remain readable after a player leaves, changes team or renames.</summary>
@@ -28,7 +34,10 @@ public sealed record HudActivityEntry(
     string Label,
     string Text,
     float ReceivedAt,
-    bool InvolvesLocalPlayer)
+    bool InvolvesLocalPlayer,
+    CombatDeathTrigger Trigger = CombatDeathTrigger.None,
+    HudActivityParticipant? TriggeredBy = null,
+    bool Headshot = false)
 {
     public bool IsCombat => Kind is HudActivityKind.Kill or HudActivityKind.Death or HudActivityKind.Suicide or
         HudActivityKind.Resign or HudActivityKind.Sleep or HudActivityKind.Knockout;

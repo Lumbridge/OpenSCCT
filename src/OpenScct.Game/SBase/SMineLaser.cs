@@ -64,7 +64,7 @@ public partial class SMineLaser
     protected override void TakeDamage(int Damage, Pawn? EventInstigator, FVector HitLocation, FVector Momentum,
         SDamageType DamageType, int PillTag = 0)
     {
-        NoteDetonator(EventInstigator);
+        NoteDetonator(EventInstigator, DamageType);
         Explosion();
     }
 

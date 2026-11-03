@@ -175,9 +175,10 @@ public sealed class LocalExplosiveHudSmoke : SmokeTest
         Require(_victim is { Health: <= 0 }, CaseName + " did not kill the victim.");
         HudActivityEntry death = _hud!.Activity.Entries.Single(e => e.Kind == HudActivityKind.Kill);
         Require(death.InvolvesLocalPlayer && death.Actor?.Name == "MercBot1", "Wrong death participants.");
+        Require(death.Cause == (_case == 0 ? HudActivityCause.ProximityMine : HudActivityCause.FragGrenade), "Distinct explosive source was lost.");
         MagmaDrawItem text = _hud.Items.FirstOrDefault(i => i.Path == $"Activity/{death.Id}/Cause")
             ?? throw new InvalidOperationException("No explosion cause text in HUD composite.");
-        Require(text.Text == "EXPLOSION", "Wrong cause text: " + text.Text);
+        Require(text.Text == (_case == 0 ? "Proximity mine" : "Frag grenade"), "Wrong cause text: " + text.Text);
         Require(_hud.Fps.DrawList.Items.Count > 0 && _hud.Net.DrawList.Items.Count > 0, "FPS and network readouts must be visible.");
         if (DisplayServer.GetName() == "headless") return;
         using Image image = _viewport!.GetTexture().GetImage();

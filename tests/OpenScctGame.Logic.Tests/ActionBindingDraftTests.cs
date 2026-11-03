@@ -126,7 +126,8 @@ public sealed class ActionBindingDraftTests
     {
         foreach (bool merc in new[] { false, true })
             Assert.DoesNotContain(ControlActions.ForRole(merc), a => a.Id is "controls" or "hudhelp" or "quit");
-        Assert.Contains(ControlActions.ForRole(false), a => a.Id == "breath" && a.Label.Contains("Cloak"));
+        Assert.Contains(ControlActions.ForRole(false), a => a.Id == "cloak" && a.Label.Contains("Cloak"));
+        Assert.DoesNotContain(ControlActions.ForRole(false), a => a.Id == "breath");
         Assert.DoesNotContain(ControlActions.ForRole(true), a => a.Id == "roll");
     }
 

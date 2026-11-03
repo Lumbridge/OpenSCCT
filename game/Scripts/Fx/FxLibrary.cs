@@ -101,6 +101,8 @@ public sealed class FxLibrary : IParticleAssets
     private static readonly (string Class, string Kind, string Mesh)[] s_lateClasses =
     [
         ("SBase.SGasMask", "gadget", "SGameplayObjects.GasMask.DEF_Gasmask"),
+        ("SBase.SBackPack", "gadget", "SGameplayObjects.BackPacks.DEF_Backpack"),
+        ("SBase.SBackPack_Att", "gadget", "SGameplayObjects.BackPacks.ATT_Backpack"),
     ];
 
     private void AddLateClasses()

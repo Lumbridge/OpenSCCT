@@ -31,7 +31,9 @@ public partial class GadgetDetailsScreen : MenuPage
     public int Gadget { get; init; } = -1;
 
     public static GadgetDetailsScreen Show(SceneTree tree, int team, int gadget = -1) =>
-        FrontEnd.Show(tree, new GadgetDetailsScreen { Team = team, Gadget = gadget });
+        FrontEnd.Show(tree, new GadgetDetailsScreen { Team = team, Gadget = IsCloak(team, gadget) ? -1 : gadget });
+
+    private static bool IsCloak(int team, int gadget) => team == 0 && gadget == OpenScct.Game.Equipment.SpyCloak.LegacyGadgetOption;
 
     /// <summary>The list of a side (TitleGadgetSpy / TitleGadgetMerc).</summary>
     public static IReadOnlyList<string> Titles(int team) => TutorialText.Array(ListSection, team == 0 ? "TitleGadgetSpy" : "TitleGadgetMerc");
@@ -61,9 +63,15 @@ public partial class GadgetDetailsScreen : MenuPage
     {
         VBoxContainer column = Panel(Body, "List", null, 520f);
         column.SizeFlagsHorizontal = SizeFlags.ShrinkCenter;
+        if (Team == 0) column.AddChild(new Label
+        {
+            Text = "Cloak is built into every spy's suit and uses no gadget slot.\nBind Cloak and choose Hold or Toggle in Options → Spy → Bindings.",
+            AutowrapMode = TextServer.AutowrapMode.WordSmart,
+        });
         Button? first = null;
         for (int i = 0; i < titles.Count; i++)
         {
+            if (IsCloak(Team, i)) continue;
             int gadget = i;
             Button b = UiStyle.MenuButton(titles[i], () => Show(GetTree(), Team, gadget), "Gadget" + i);
             if (Icon(Team, i) is { } icon)
@@ -113,7 +121,9 @@ public partial class GadgetDetailsScreen : MenuPage
         });
 
         PageButton("Back", () => Show(GetTree(), Team), "Back");
-        Button next = PageButton(TutorialText.Caption(GadgetSection, "ButtonA", "Next"), () => Show(GetTree(), Team, count == 0 || Gadget + 1 >= count ? 0 : Gadget + 1), "Next");
+        int nextGadget = Gadget + 1;
+        if (IsCloak(Team, nextGadget)) nextGadget++;
+        Button next = PageButton(TutorialText.Caption(GadgetSection, "ButtonA", "Next"), () => Show(GetTree(), Team, nextGadget >= count ? 0 : nextGadget), "Next");
         next.GrabFocus();
     }
 

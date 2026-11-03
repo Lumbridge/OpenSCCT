@@ -40,11 +40,23 @@ public sealed class HudPerformanceSmoke : SmokeTest
             Require(batch.SetItems(list.Items, 0, 1), "vertex colour change was missed");
             first.Uvs[0] = new Vector2(.25f, .5f);
             Require(batch.SetItems(list.Items, 0, 1), "texture coordinate change was missed");
+            using var iconImage = Godot.Image.CreateEmpty(1, 1, false, Godot.Image.Format.Rgba8);
+            iconImage.Fill(Colors.White);
+            using var nativeA = ImageTexture.CreateFromImage(iconImage);
+            using var nativeB = ImageTexture.CreateFromImage(iconImage);
+            first.NativeTexture = nativeA;
+            Require(batch.SetItems(list.Items, 0, 1) && ReferenceEquals(batch.Items[0].NativeTexture, nativeA),
+                "native texture was omitted from the retained command snapshot");
+            Require(!batch.SetItems(list.Items, 0, 1), "unchanged native texture redrew");
+            first.NativeTexture = nativeB;
+            Require(batch.SetItems(list.Items, 0, 1) && ReferenceEquals(batch.Items[0].NativeTexture, nativeB),
+                "native texture replacement was not detected");
             first.Clamp = !first.Clamp;
             Require(batch.SetItems(list.Items, 0, 1), "texture addressing change was missed");
 
             list.Clear();
             MagmaDrawItem reused = Image(list);
+            Require(reused.NativeTexture is null, "pooled draw item retained a native texture");
             Require(ReferenceEquals(first, reused) && ReferenceEquals(points, reused.Points), "quad storage was not retained");
             for (int i = 0; i < 64; i++) { list.Clear(); Image(list); }
             long allocated = GC.GetAllocatedBytesForCurrentThread();

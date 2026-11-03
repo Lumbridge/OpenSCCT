@@ -1,6 +1,7 @@
 using OpenScct.Core;
 using OpenScct.Core.Engine;
 using OpenScct.Game.Equipment;
+using OpenScct.Game.Combat;
 using OpenScct.Provenance;
 using K = OpenScct.Game.Equipment.K;
 
@@ -68,6 +69,7 @@ public partial class SMinePoison
         }
 
         Pawn? by = PcOwner?.Pawn;
+        using var activity = CombatDeathContext.Push(ActivityDeathSource);
         (Spy.Controller as SPlayerController)?.PawnTakeDamage(0, by, Hit, (Hit - Location) * K.PoisonMomentumScale, MyDamageType, 0, 0);
         Spy.PoisonnedBy = by as SBasePawn;
         XLevel.SpawnActor(new SPoisonEmitter(), Location, Rotation, null, Instigator);

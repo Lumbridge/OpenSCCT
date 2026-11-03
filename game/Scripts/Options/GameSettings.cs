@@ -43,6 +43,14 @@ public sealed class LoadoutSettings
     internal void Clamp()
     {
         SpyGadgets = Fit(SpyGadgets, DefaultSpy());
+        for (int i = 0; i < SpyGadgets.Length; i++)
+        {
+            if (!SpyCloak.IsLegacyGadget(SpyGadgets[i])) continue;
+            SpyGadgets[i] = "";
+            foreach (string replacement in DefaultSpy())
+                if (!Array.Exists(SpyGadgets, g => string.Equals(g, replacement, StringComparison.OrdinalIgnoreCase)))
+                { SpyGadgets[i] = replacement; break; }
+        }
         MercGadgets = Fit(MercGadgets, DefaultMerc());
         MercWeapon ??= "";
         MercSidearm ??= DefaultSidearm;
@@ -87,6 +95,10 @@ public sealed class LookSettings
     /// <summary>Spy first-person perspective; the keyboard group's choice also applies to controller bindings.</summary>
     [JsonPropertyName("perspective_behavior")]
     public string PerspectiveBehavior { get; set; } = "Toggle";
+
+    /// <summary>Spy cloak behavior, shared by keyboard, mouse and controller.</summary>
+    [JsonPropertyName("cloak_behavior")]
+    public string CloakBehavior { get; set; } = "Toggle";
 
     /// <summary>Spy: free look with the gun holstered (merc: unused).</summary>
     [JsonPropertyName("free_look")]
@@ -162,6 +174,7 @@ public sealed class LookSettings
         WalkBehavior = WalkBehavior == "Hold" ? "Hold" : "Toggle";
         ScopeBehavior = ScopeBehavior == "Hold" ? "Hold" : "Toggle";
         PerspectiveBehavior = PerspectiveBehavior == "Hold" ? "Hold" : "Toggle";
+        CloakBehavior = CloakBehavior == "Hold" ? "Hold" : "Toggle";
         ClutchOne = Range(ClutchOne, 0f, 10f);
         ClutchTwo = Range(ClutchTwo, 0f, 10f);
         FreeLook = Range(FreeLook, 0.05f, freeLookMax);
@@ -211,7 +224,7 @@ public sealed class PadSettings
     public static readonly string[] Controls =
     [
         .. PhysicalControls, "B:Hold", "LS+Y", "LS+X", "LS+B", "LS+A",
-        "LB+Y", "LB+X", "LB+B", "LB+A", "LB+DpadDown", "LB+Back",
+        "LB+Y", "LB+X", "LB+B", "LB+A", "LB+DpadDown", "LB+Back", "LB+RB",
     ];
 
     /// <summary>The menu command (<c>ShowMenu</c>; Escape when the layout binds no key to it).</summary>
@@ -263,6 +276,7 @@ public sealed class PadSettings
         ["LB+A"] = merc ? "" : "Action:launch4",
         ["LB+DpadDown"] = merc ? "Action:rof" : "Action:scope",
         ["LB+Back"] = "Action:session",
+        ["LB+RB"] = merc ? "" : "Action:cloak",
     };
 
     /// <summary>The previous defaults, used only when loading an existing unversioned profile.</summary>
@@ -383,6 +397,7 @@ public sealed class PadSettings
     private Dictionary<string, string> CleanButtons(Dictionary<string, string>? saved, bool merc)
     {
         Dictionary<string, string> clean = LayoutVersionOf(merc) == 0 ? LegacyButtons(merc) : DefaultButtons(merc);
+        if (!merc) clean["LB+RB"] = "Action:cloak";
         if (saved is null)
         {
             return clean;
@@ -745,6 +760,9 @@ public sealed class GameSettings
     [JsonPropertyName("voice_input_device")]
     public string VoiceInputDevice { get; set; } = "";
 
+    [JsonPropertyName("hud_layout")]
+    public HudEditorSettings HudLayout { get; set; } = new();
+
     // ---- HUD -----------------------------------------------------------------------------------------------
 
     /// <summary>The connected players list (F10) is on by default and remembered.</summary>
@@ -894,6 +912,8 @@ public sealed class GameSettings
         CosmeticsMerc ??= [];
         Crosshair ??= new CrosshairSettings();
         Crosshair.Clamp();
+        HudLayout ??= new();
+        HudLayout.Clamp();
         FpsTelemetry ??= new FpsTelemetrySettings();
         FpsTelemetry.Clamp();
         NetworkTelemetry ??= new NetworkTelemetrySettings();

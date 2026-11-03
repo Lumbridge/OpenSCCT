@@ -1,5 +1,6 @@
 using OpenScct.Core;
 using OpenScct.Core.Engine;
+using OpenScct.Game.Combat;
 using OpenScct.Provenance;
 
 namespace OpenScct.Game.SBase;
@@ -16,6 +17,7 @@ public partial class SBasePawn
     [PortOf("uc:SBase.SBasePawn:CrushedBy", Spec = "spec/devices/mover.md#encroachment")]
     public override void CrushedBy(Pawn? EventInstigator)
     {
+        using var activity = CombatDeathContext.Push(new(CombatDeathCause.Crush));
         var up = new FVector(0f, 0f, 1f);
         if (m_AttackTarget is { } grabbed && ReferenceEquals(grabbed.m_AttackedBy, this))
         {
@@ -41,9 +43,12 @@ public partial class SBasePawn
     /// </summary>
     [Uc("SBase.SBasePawn.KilledBy", Sha1 = "4d214f5ae7d03cdd5d2b53195c93e6e7f2e1e82b")]
     [PortOf("uc:SBase.SBasePawn:KilledBy", Spec = "spec/combat/environmental-damage.md#movers-and-lifts")]
-    public override void KilledBy(Pawn? EventInstigator) =>
+    public override void KilledBy(Pawn? EventInstigator)
+    {
+        using var activity = CombatDeathContext.Push(new(CombatDeathCause.Hazard));
         (Controller as SPlayerController)?.PawnTakeDamage(Health + DeviceCrushExtra, EventInstigator, FVector.Zero, new FVector(0f, 0f, 1f),
             SDamageType.SDTBase);
+    }
 
     /// <summary>Crush damage is the crushed pawn's Health plus this much.</summary>
     [Provenance(ProvenanceKind.Decoded, "SBase.SBasePawn.CrushedBy damage Health + 100")]

@@ -204,7 +204,7 @@ public partial class MagmaCanvas : Node2D
                 continue;
             }
 
-            Texture2D? texture = Assets?.Texture(item.Package, item.Texture);
+            Texture2D? texture = item.NativeTexture ?? Assets?.Texture(item.Package, item.Texture);
             if (texture is null || item.Points.Length < 3)
             {
                 continue;

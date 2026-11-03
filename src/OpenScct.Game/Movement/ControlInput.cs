@@ -109,6 +109,7 @@ public static class ControlInput
         pc.fNormePadCamSmoothee = 0f;
         pc.bPressedJump = false;
         pc.bHoldBreath = 0;
+        pc.bCloak = 0;
         pc.bFireMode = 0;
         pc.bUsing = 0;
         pc.bUseGadget = 0;

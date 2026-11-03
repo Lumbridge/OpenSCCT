@@ -331,7 +331,12 @@ public sealed class NetGameHost : IGameHost
                     }
                     else
                     {
-                        v.O = objects++ == 0 ? (object?)call.Actor ?? call.Object : call.Object;
+                        // BroadcastLocalized retains its sender in Actor, but the RPC's OptionalObject is
+                        // the explicit message payload (alarm/objective/kill-trigger identity).
+                        if (function.Name == "ReceiveLocalizedMessage")
+                            v.O = call.Object ?? call.Actor;
+                        else
+                            v.O = objects++ == 0 ? (object?)call.Actor ?? call.Object : call.Object;
                     }
 
                     break;

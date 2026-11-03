@@ -1,6 +1,7 @@
 using OpenScct.Core;
 using OpenScct.Core.Engine;
 using OpenScct.Core.Uc;
+using OpenScct.Game.Combat;
 using OpenScct.Provenance;
 using K = OpenScct.Game.GameFlow.K;
 
@@ -192,7 +193,17 @@ public partial class SGameInfo
             msgSwitch = K.DeathMessageResigned;
         }
 
-        BroadcastLocalized(this, DeathMessageClass, msgSwitch, Killer?.PlayerReplicationInfo, Other?.PlayerReplicationInfo);
+        CombatDeathSource activity = CombatDeathContext.Current;
+        if (msgSwitch == K.DeathMessageResigned) activity = default;
+        if (msgSwitch != K.DeathMessageResigned && activity.Cause is CombatDeathCause.Rifle or CombatDeathCause.Shotgun or
+            CombatDeathCause.Smg or CombatDeathCause.Sniper or CombatDeathCause.Pistol or CombatDeathCause.Revolver &&
+            Other is SPlayerController { LastDamages: var hits } && hits[0].PillTag == K.HeadPill)
+            msgSwitch = K.DeathMessageHeadshot;
+        // Resignation is an explicit action, never a leftover delayed-damage detail.
+        if (msgSwitch != K.DeathMessageResigned)
+            msgSwitch = CombatActivityDeath.Encode(msgSwitch, activity.Cause, activity.Trigger);
+        BroadcastLocalized(this, DeathMessageClass, msgSwitch, Killer?.PlayerReplicationInfo, Other?.PlayerReplicationInfo,
+            activity.Trigger != CombatDeathTrigger.None && activity.Detonator is { bDeleteMe: false } ? activity.Detonator : null);
     }
 
     /// <summary>

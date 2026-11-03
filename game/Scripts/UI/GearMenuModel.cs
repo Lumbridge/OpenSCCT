@@ -98,7 +98,7 @@ public sealed class GearMenuModel
         if (!Spy && Sidearms.Find(option) is not null && IsAllowed(option)) ChosenSidearm = option;
     }
 
-    public string Rule => RuleText ?? (Hub ? HubRule : MatchRule);
+    public string Rule => (Spy ? "Cloak is standard spy equipment and uses no gadget slot. " : "") + (RuleText ?? (Hub ? HubRule : MatchRule));
 
     /// <summary>The line about when new gear goes on, when it is neither the match's nor the hub's (the lobby's).</summary>
     public string? RuleText { get; init; }
@@ -209,13 +209,14 @@ public sealed class GearMenuModel
     /// <summary>Whether the host allows the team option holding <paramref name="path"/>.</summary>
     public bool IsAllowed(string path)
     {
+        if (SpyCloak.IsLegacyGadget(path)) return false;
         if (Sidearms.Find(path) is { } pistol) return !Spy && SidearmsEnabled && Sidearms.Available(pistol.Kind, CurrentLevel, Unrestricted);
         int option = IndexOf(path);
         return option >= 0 && ((_allowed >> option) & 1) != 0;
     }
 
     /// <summary>The team's options in order (the gadget grid's eight buttons).</summary>
-    public IReadOnlyList<string> Options => _options;
+    public IReadOnlyList<string> Options => _options.Where(path => !SpyCloak.IsLegacyGadget(path)).ToArray();
 
     /// <summary>Whether a slot holds <paramref name="option"/> (the grid's "Equipped").</summary>
     public bool IsEquipped(string option)

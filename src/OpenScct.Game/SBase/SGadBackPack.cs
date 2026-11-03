@@ -238,9 +238,30 @@ public partial class SGadBackPack
     protected override void PostBeginPlay()
     {
         base.PostBeginPlay();
+        EnsureBackPack();
+    }
+
+    // Inventory can be spawned before it is assigned to a pawn. Carrying the gadget, rather than selecting it,
+    // owns the visible backpack for its entire lifetime.
+    public override void GiveTo(Pawn other)
+    {
+        base.GiveTo(other);
+        EnsureBackPack();
+    }
+
+    private void EnsureBackPack()
+    {
         SetBase(Owner);
         if (Role != ENetRole.ROLE_Authority || Owner is not SBasePawn owner)
         {
+            return;
+        }
+
+        if (DummyBackPack is { bDeleteMe: false } existing)
+        {
+            existing.Instigator = owner;
+            existing.SetOwner(owner);
+            ObjectiveNatives.AttachToBone(owner, existing, K.BackPackBone);
             return;
         }
 

@@ -176,6 +176,11 @@ button or H restores it. Camera hints and the full shortcut list expand under **
 Escape (after closing help) and Back to demos ask for confirmation before leaving. The prompt pauses playback;
 Keep watching or Escape cancels it and restores the previous pause state.
 
+Third person follows the watched player's recorded view direction. Hold right mouse to pan around them;
+release it to smoothly return behind them over about half a second. The return uses real time, so it works
+while paused and at any playback speed. Switching players or returning to third person starts behind the
+selected player. Switching to free camera keeps the current third-person position and direction.
+
 ### Keys
 
 | Key | Does |
@@ -188,7 +193,7 @@ Keep watching or Escape cancels it and restores the previous pause state.
 | C | first person, then third person, then free camera |
 | [ ] or mouse wheel | previous / next player |
 | 1 to 9 | watch that player |
-| Right mouse (hold) | look round (third person orbit, free camera) |
+| Right mouse (hold) | orbit in third person (release to return behind); look round in free camera |
 | W A S D, Q / E, Shift | fly the free camera, down / up, faster |
 | H | hide / show the controls |
 | ? | show / hide shortcut help |

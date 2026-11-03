@@ -331,6 +331,12 @@ public partial class PlayInput : Node
             {
                 bool merc = Bindings.Side == PlaySide.Merc;
                 var behavior = Options.SettingsStore.Current.LookOf(merc, false);
+                if (!merc && a.Kind == KeyActionKind.Button && a.Name.Equals("bCloak", StringComparison.OrdinalIgnoreCase) &&
+                    ik.StartsWith("MouseWheel", StringComparison.OrdinalIgnoreCase))
+                {
+                    if (pressed) input.Commands.Add(new InputCommand("ToggleCloak"));
+                    continue;
+                }
                 if (a.Kind == KeyActionKind.Command && a.Name.Equals("SwitchSpyPerspective", StringComparison.OrdinalIgnoreCase))
                 {
                     if (!merc)

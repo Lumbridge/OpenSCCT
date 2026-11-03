@@ -145,6 +145,7 @@ public partial class OptionsMenu : Control
         _tabs.AddChild(AudioPage());
         _tabs.AddChild(VoicePage());
         _tabs.AddChild(HudPage());
+        _tabs.AddChild(Page("HUD editor", new HudEditorPanel(() => _edit)));
         _tabs.AddChild(PadPage());
 
         column.AddChild(_tabs);

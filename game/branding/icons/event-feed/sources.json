@@ -1,0 +1,822 @@
+{
+  "repository": "https://github.com/game-icons/icons",
+  "commit": "82d948812bfe3f269ef8f731dcdb07b08160edc4",
+  "license": "CC BY 3.0",
+  "license_url": "https://creativecommons.org/licenses/by/3.0/",
+  "icons": [
+    {
+      "file": "death.svg",
+      "author": "Sbed",
+      "source_path": "sbed/death-skull.svg",
+      "page": "https://game-icons.net/1x1/sbed/death-skull.html",
+      "raw_source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/sbed/death-skull.svg",
+      "original_sha256": "2078718a7b6b77b69a94d1d2528b1a728a27acad30581b8c9249d67c7387f211",
+      "vendored_sha256": "ea9f528c6f45db9414b1279617dbece31ab1f36d6f7843b9d8ee3166dc8b2655",
+      "modification": "Removed black full-canvas background; white icon paths unchanged."
+    },
+    {
+      "file": "sleep.svg",
+      "author": "Lorc",
+      "source_path": "lorc/sleepy.svg",
+      "page": "https://game-icons.net/1x1/lorc/sleepy.html",
+      "raw_source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/lorc/sleepy.svg",
+      "original_sha256": "a092a53f8a3845c1f70336dc3081ac65e96e3c127fb4332107352c9fbe5d4f84",
+      "vendored_sha256": "344dad4fd97febca73493052ad6f92fe9154fab64b97ae9f18d0898836b19462",
+      "modification": "Removed black full-canvas background; white icon paths unchanged."
+    },
+    {
+      "file": "knockout.svg",
+      "author": "Delapouite",
+      "source_path": "delapouite/knocked-out-stars.svg",
+      "page": "https://game-icons.net/1x1/delapouite/knocked-out-stars.html",
+      "raw_source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/knocked-out-stars.svg",
+      "original_sha256": "bcc55f190eeec6d888065f449a961214a04ad6edb582e49aabe4b2b7deddf55f",
+      "vendored_sha256": "918ab5cd628ec278b094a9554d39065c674919790d700df535ece4ea7a114dab",
+      "modification": "Removed black full-canvas background; white icon paths unchanged."
+    },
+    {
+      "file": "join.svg",
+      "author": "Delapouite",
+      "source_path": "delapouite/entry-door.svg",
+      "page": "https://game-icons.net/1x1/delapouite/entry-door.html",
+      "raw_source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/entry-door.svg",
+      "original_sha256": "76ec0afea07be14c28b550fa7d38181ffac3856c52f8103b3e0ae1f89f3e2900",
+      "vendored_sha256": "bf879f904b66057ecb91e679f6ac7a87fc0c693709b094b4dad47be60000a2c8",
+      "modification": "Removed black full-canvas background; white icon paths unchanged."
+    },
+    {
+      "file": "leave.svg",
+      "author": "Delapouite",
+      "source_path": "delapouite/exit-door.svg",
+      "page": "https://game-icons.net/1x1/delapouite/exit-door.html",
+      "raw_source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/exit-door.svg",
+      "original_sha256": "e5ef03c2f7fa3ed0a6aca4d9a89b6adcf28b35714757e7e16f1aacede50f89c6",
+      "vendored_sha256": "9517dabcffd272548571dd405d97619a14f475af8be1a0c1b04f6f17bc9063b5",
+      "modification": "Removed black full-canvas background; white icon paths unchanged."
+    },
+    {
+      "file": "match.svg",
+      "author": "Delapouite",
+      "source_path": "delapouite/checkered-flag.svg",
+      "page": "https://game-icons.net/1x1/delapouite/checkered-flag.html",
+      "raw_source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/checkered-flag.svg",
+      "original_sha256": "c31798c31f89ed83404f1c6c9044b67a3ecd2573c457016ef0f2ff35bb3cc106",
+      "vendored_sha256": "8fb6a7eec5db94d1bba3f6b6e2756e4d5c86c24eff5f208cea46f0914846b492",
+      "modification": "Removed black full-canvas background; white icon paths unchanged."
+    },
+    {
+      "file": "last-life.svg",
+      "author": "Lorc",
+      "source_path": "lorc/half-heart.svg",
+      "page": "https://game-icons.net/1x1/lorc/half-heart.html",
+      "raw_source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/lorc/half-heart.svg",
+      "original_sha256": "2cf3096304c447d3e348e5dd504e722e53f18f86a3fdb20933f4aa4b672e7e84",
+      "vendored_sha256": "945953589c6073830e6267c830bd6360fe93210d4923b483f6ff16578aa0f3d0",
+      "modification": "Removed black full-canvas background; white icon paths unchanged."
+    },
+    {
+      "file": "firearm.svg",
+      "author": "Lorc",
+      "source_path": "lorc/bullets.svg",
+      "page": "https://game-icons.net/1x1/lorc/bullets.html",
+      "raw_source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/lorc/bullets.svg",
+      "original_sha256": "6a04e6c144736fc3231a91abc60e5003b05beb0d59bd9e3f5b30cdd9e8893a30",
+      "vendored_sha256": "001e1c3302214d4d966318cc4206916bdf39e63b393784510f41560523ce3775",
+      "modification": "Removed black full-canvas background; white icon paths unchanged."
+    },
+    {
+      "file": "headshot.svg",
+      "author": "Skoll",
+      "source_path": "skoll/headshot.svg",
+      "page": "https://game-icons.net/1x1/skoll/headshot.html",
+      "raw_source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/skoll/headshot.svg",
+      "original_sha256": "7aec26193d917d98402622edbc630e4dee0543e4d83332f9b324ec11bc18a744",
+      "vendored_sha256": "be849bd9693e66e2c42cc2b53f5113618a5b371b31c68304ba4c991909d55863",
+      "modification": "Removed black full-canvas background; white icon paths unchanged."
+    },
+    {
+      "file": "explosion.svg",
+      "author": "Lorc",
+      "source_path": "lorc/bright-explosion.svg",
+      "page": "https://game-icons.net/1x1/lorc/bright-explosion.html",
+      "raw_source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/lorc/bright-explosion.svg",
+      "original_sha256": "ef78c6a638ac08de07c2b8ab1036a9cea799aade9e5f33875bfe18e67fb03f7d",
+      "vendored_sha256": "cbdc216bbc7af791b71459aa965d52ab4637f7d243cbe8600ac1595613a248d9",
+      "modification": "Removed black full-canvas background; white icon paths unchanged."
+    },
+    {
+      "file": "charge.svg",
+      "author": "Delapouite",
+      "source_path": "delapouite/push.svg",
+      "page": "https://game-icons.net/1x1/delapouite/push.html",
+      "raw_source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/push.svg",
+      "original_sha256": "d1720876d7f154f34d9f8d1015f57ae66d40067350207c206038b7f5b5b9c50d",
+      "vendored_sha256": "ffeaa89d23a445af6c7b09a242095930f458a7f16e8b64bf3b483f1fabdfb690",
+      "modification": "Removed black full-canvas background; white icon paths unchanged."
+    },
+    {
+      "file": "fall.svg",
+      "author": "Sbed",
+      "source_path": "sbed/falling.svg",
+      "page": "https://game-icons.net/1x1/sbed/falling.html",
+      "raw_source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/sbed/falling.svg",
+      "original_sha256": "769b3fde1fde55ee5ccbafcef8c97b7b687973e205a70d59adbc559f64d49454",
+      "vendored_sha256": "00766a4f94cc55ce355528632a069ab9dfa6bce87cafe4be69edc996c6b677a7",
+      "modification": "Removed black full-canvas background; white icon paths unchanged."
+    },
+    {
+      "file": "melee.svg",
+      "author": "Skoll",
+      "source_path": "skoll/fist.svg",
+      "page": "https://game-icons.net/1x1/skoll/fist.html",
+      "raw_source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/skoll/fist.svg",
+      "original_sha256": "1fceac13328dd9638eea1c7ec231e88dbd3fae298419815ce4bc9d26eaebfc96",
+      "vendored_sha256": "ac6f637ebd2a79d9f3b068a82da1acbfa3e4f75f45723177e00ef85d19bdb626",
+      "modification": "Removed black full-canvas background; white icon paths unchanged."
+    },
+    {
+      "file": "grab.svg",
+      "author": "Lorc",
+      "source_path": "lorc/grab.svg",
+      "page": "https://game-icons.net/1x1/lorc/grab.html",
+      "raw_source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/lorc/grab.svg",
+      "original_sha256": "21942a81e6b2d7ab7089cb869766b4ba76f324c5332fae3431ea23f72305ffd9",
+      "vendored_sha256": "3db59b950bcc7391787606a095c52f9a67551d9405e522b03817efa933f78e40",
+      "modification": "Removed black full-canvas background; white icon paths unchanged."
+    },
+    {
+      "file": "neck-break.svg",
+      "author": "Lorc",
+      "source_path": "lorc/broken-bone.svg",
+      "page": "https://game-icons.net/1x1/lorc/broken-bone.html",
+      "raw_source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/lorc/broken-bone.svg",
+      "original_sha256": "2f368e8a9ae51f836bd284217364f3d10117b4346a065d0cb46261d79ff01709",
+      "vendored_sha256": "6d8e7bb19d547c782951f1ff51285415414cdf2c30180edf0a9a31d97c003532",
+      "modification": "Removed black full-canvas background; white icon paths unchanged."
+    },
+    {
+      "file": "crush.svg",
+      "author": "Sbed",
+      "source_path": "sbed/crush.svg",
+      "page": "https://game-icons.net/1x1/sbed/crush.html",
+      "raw_source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/sbed/crush.svg",
+      "original_sha256": "95fdf21a6510b65a5c1805fadd4657cf171b97abe5ff2833ee9ea8476448cae6",
+      "vendored_sha256": "14e310018e243862af70f4685566bbea5ec0f11fdc9aae0aa9eb8af02a481ca5",
+      "modification": "Removed black full-canvas background; white icon paths unchanged."
+    },
+    {
+      "file": "poison.svg",
+      "author": "Lorc",
+      "source_path": "lorc/poison-bottle.svg",
+      "page": "https://game-icons.net/1x1/lorc/poison-bottle.html",
+      "raw_source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/lorc/poison-bottle.svg",
+      "original_sha256": "6b0e457a30238bc99a7567ac9ace76bf77386c1b92f985cbe1338d119e754492",
+      "vendored_sha256": "b95cc0bf2c0efa0d7bce8f37c65615991a2aeab88d4303df219fb39058ec3636",
+      "modification": "Removed black full-canvas background; white icon paths unchanged."
+    },
+    {
+      "file": "shock.svg",
+      "author": "Lorc",
+      "source_path": "lorc/lightning-trio.svg",
+      "page": "https://game-icons.net/1x1/lorc/lightning-trio.html",
+      "raw_source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/lorc/lightning-trio.svg",
+      "original_sha256": "12aa88b830c13d88a0d14ffaaa1083a05901ea32a0b58c8d9cdfb10f84d1ce05",
+      "vendored_sha256": "e46458058bb8efd348cf66ebf18d00e47fae958d94a8ded2f3f46b93701a53dc",
+      "modification": "Removed black full-canvas background; white icon paths unchanged."
+    },
+    {
+      "file": "smoke.svg",
+      "author": "Lorc",
+      "source_path": "lorc/poison-gas.svg",
+      "page": "https://game-icons.net/1x1/lorc/poison-gas.html",
+      "raw_source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/lorc/poison-gas.svg",
+      "original_sha256": "3e332f0f71126da79c60525b56e761aaed41e8a113c53e3bd713e4c41f91d58d",
+      "vendored_sha256": "ef66d0af8bcc0bb15d7075e9cdcd22ad09be0cb726771d70a796c68afa72290c",
+      "modification": "Removed black full-canvas background; white icon paths unchanged."
+    },
+    {
+      "file": "camera.svg",
+      "author": "Delapouite",
+      "source_path": "delapouite/cctv-camera.svg",
+      "page": "https://game-icons.net/1x1/delapouite/cctv-camera.html",
+      "raw_source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/cctv-camera.svg",
+      "original_sha256": "c75b6be9012a78d140d20c004d8fbd48b25612471ef66654943c4ca165ac5306",
+      "vendored_sha256": "7ca84c48e59f1eb33fa2f779a742ea5ec5d71b7f32513ecb3c1abec81e231ae4",
+      "modification": "Removed black full-canvas background; white icon paths unchanged."
+    },
+    {
+      "file": "proximity-mine.svg",
+      "author": "Lorc",
+      "source_path": "lorc/land-mine.svg",
+      "page": "https://game-icons.net/1x1/lorc/land-mine.html",
+      "raw_source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/lorc/land-mine.svg",
+      "original_sha256": "f23079b1319de4b571fc34d8e75a1faf7fb4a5a1e6f206478fd2a9d709d1df98",
+      "vendored_sha256": "1bfc1423965dac78a7c6388ab587f189c06776885b6e9258d1949bdb83f2a1d4",
+      "modification": "Removed black full-canvas background; icon paths unchanged.",
+      "title": "Land mine"
+    },
+    {
+      "file": "laser-mine.svg",
+      "author": "Lorc",
+      "source_path": "lorc/tripwire.svg",
+      "page": "https://game-icons.net/1x1/lorc/tripwire.html",
+      "raw_source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/lorc/tripwire.svg",
+      "original_sha256": "47956e2cef10121e85f44918532521515caf8784df3f2014897bdf1f449337c2",
+      "vendored_sha256": "c3aa37170de3b46356328bf0b36012c00b17f2c079a7e9859115292e84206e73",
+      "modification": "Removed black full-canvas background; icon paths unchanged.",
+      "title": "Tripwire"
+    },
+    {
+      "file": "poison-mine.svg",
+      "author": "Lorc",
+      "source_path": "lorc/biohazard.svg",
+      "page": "https://game-icons.net/1x1/lorc/biohazard.html",
+      "raw_source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/lorc/biohazard.svg",
+      "original_sha256": "3381f9cbbd289cf759ac92e227417901d15b6f99f18ed3d8f7df74b10a43cb94",
+      "vendored_sha256": "9424910f840f87b6d68ec005b9e3b95c62e8a3be22f5a8a5cfce1ec2eac8b26c",
+      "modification": "Removed black full-canvas background; icon paths unchanged.",
+      "title": "Biohazard"
+    },
+    {
+      "file": "grenade.svg",
+      "author": "Lorc",
+      "source_path": "lorc/grenade.svg",
+      "page": "https://game-icons.net/1x1/lorc/grenade.html",
+      "raw_source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/lorc/grenade.svg",
+      "original_sha256": "3cc29f62931a57ab796c240f08dc02b80af31f66ba4121a98cb212d3cd5302a5",
+      "vendored_sha256": "8bd7a6bb2719fe6ee71a7a60dc974fb2e93275f32a9fe75b584cff901319d9eb",
+      "modification": "Removed black full-canvas background; icon paths unchanged.",
+      "title": "Grenade"
+    },
+    {
+      "file": "barrel.svg",
+      "author": "Skoll",
+      "source_path": "skoll/oil-drum.svg",
+      "page": "https://game-icons.net/1x1/skoll/oil-drum.html",
+      "raw_source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/skoll/oil-drum.svg",
+      "original_sha256": "a02156f97af9cb703f381543dbaa5bd91247bca6723ac791004578afb05100d6",
+      "vendored_sha256": "8e138f68041722988b46888b0505a85ea3c670cd746d0e911c30539cd6c67b5f",
+      "modification": "Removed black full-canvas background; icon paths unchanged.",
+      "title": "Oil drum"
+    },
+    {
+      "file": "molotov.svg",
+      "author": "Lorc",
+      "source_path": "lorc/molotov.svg",
+      "page": "https://game-icons.net/1x1/lorc/molotov.html",
+      "raw_source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/lorc/molotov.svg",
+      "original_sha256": "3cf35f668410aace1e9cd53a53d446249d05f587567da3382facd26db4b9fdcd",
+      "vendored_sha256": "cf1a387293b966a80dfe06627e31eca0f348faec36de24fbf39eba5eb5432c3e",
+      "modification": "Removed black full-canvas background; icon paths unchanged.",
+      "title": "Molotov"
+    },
+    {
+      "file": "fire.svg",
+      "author": "Sbed",
+      "source_path": "sbed/fire.svg",
+      "page": "https://game-icons.net/1x1/sbed/fire.html",
+      "raw_source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/sbed/fire.svg",
+      "original_sha256": "1d8234aeb6443d278931f6ca79ed534ebe9c9d7236e8ccb284e6bb20d2b8fcf1",
+      "vendored_sha256": "0db72eb5c57bbf09df6a592e8d94c08952db2179cdd88bd32c7ac46cbb4c4b5a",
+      "modification": "Removed black full-canvas background; icon paths unchanged.",
+      "title": "Fire"
+    },
+    {
+      "file": "drop-attack.svg",
+      "author": "Lorc",
+      "source_path": "lorc/boot-stomp.svg",
+      "page": "https://game-icons.net/1x1/lorc/boot-stomp.html",
+      "raw_source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/lorc/boot-stomp.svg",
+      "original_sha256": "06718185518d7656a63e7a223035b305ee1d75bc2c5273c4e602423c81340df0",
+      "vendored_sha256": "4441f19f9ebe4144f56fa6a204bee2fd4fc7ddd344477a48958a22e4b72027ee",
+      "modification": "Removed black full-canvas background; icon paths unchanged.",
+      "title": "Boot stomp"
+    },
+    {
+      "file": "choke.svg",
+      "author": "Lorc",
+      "source_path": "lorc/grab.svg",
+      "page": "https://game-icons.net/1x1/lorc/grab.html",
+      "raw_source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/lorc/grab.svg",
+      "original_sha256": "21942a81e6b2d7ab7089cb869766b4ba76f324c5332fae3431ea23f72305ffd9",
+      "vendored_sha256": "9e6924a44f4d83cbcbd5b2af13480f300bf587a1d4fadd948fab3113504bd3a8",
+      "modification": "Removed background; rotated and scaled the grip to an upright throat hold; added original inward compression arrow markers.",
+      "title": "Grab with constriction indicator"
+    },
+    {
+      "file": "sticky-blast.svg",
+      "author": "Lorc",
+      "source_path": "lorc/sparky-bomb.svg",
+      "page": "https://game-icons.net/1x1/lorc/sparky-bomb.html",
+      "raw_source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/lorc/sparky-bomb.svg",
+      "original_sha256": "08a10861bf3f34b0ccc632d4d5e4532ac858b69612adb46afc5be2ec69641741",
+      "vendored_sha256": "86e9a26214b35542dde64d756ec9c6ecb07a7b18c3c90f3ce8120b2cea6f8715",
+      "modification": "Removed black full-canvas background; icon paths unchanged.",
+      "title": "Sparky bomb"
+    },
+    {
+      "file": "sniper.svg",
+      "author": "Skoll",
+      "source_path": "skoll/winchester-rifle.svg",
+      "page": "https://game-icons.net/1x1/skoll/winchester-rifle.html",
+      "raw_source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/skoll/winchester-rifle.svg",
+      "original_sha256": "571b5e27a432a6fb9e9eaa9ce89be2268eea1ed4383a5a011150c150e530c41c",
+      "vendored_sha256": "0c41252d552ba286accf43c9b4543141ed4daae8eb6bcfa0e95f1d3eeae0d104",
+      "modification": "Removed black full-canvas background; icon paths unchanged.",
+      "title": "Winchester rifle"
+    },
+    {
+      "file": "shot-proximity-mine.svg",
+      "author": "Lorc, Delapouite",
+      "source_path": "lorc/land-mine.svg",
+      "page": "https://game-icons.net/1x1/lorc/land-mine.html",
+      "raw_source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/lorc/land-mine.svg",
+      "original_sha256": "f23079b1319de4b571fc34d8e75a1faf7fb4a5a1e6f206478fd2a9d709d1df98",
+      "vendored_sha256": "666fe8c48850089c6c49d1f2e2b62046b8b0a120812007d4465693aed50a1162",
+      "modification": "Transparent device silhouette scaled to 74% at (130,130); transparent Silver bullet silhouette scaled to 47% at (0,0). Original shape paths unchanged.",
+      "title": "Land mine with shot indicator",
+      "additional_sources": [
+        {
+          "author": "Delapouite",
+          "source_path": "delapouite/silver-bullet.svg",
+          "page": "https://game-icons.net/1x1/delapouite/silver-bullet.html",
+          "raw_source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/silver-bullet.svg",
+          "original_sha256": "67e2c198ee1636d26b5149cedbb649823ed8cdd382837f58f4468b19cfceb1f4"
+        }
+      ]
+    },
+    {
+      "file": "shot-laser-mine.svg",
+      "author": "Lorc, Delapouite",
+      "source_path": "lorc/tripwire.svg",
+      "page": "https://game-icons.net/1x1/lorc/tripwire.html",
+      "raw_source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/lorc/tripwire.svg",
+      "original_sha256": "47956e2cef10121e85f44918532521515caf8784df3f2014897bdf1f449337c2",
+      "vendored_sha256": "9ae079710e15d49c4a9fab5d482547a52114f966a5534ee1bb7595123c5274f3",
+      "modification": "Transparent device silhouette scaled to 74% at (130,130); transparent Silver bullet silhouette scaled to 47% at (0,0). Original shape paths unchanged.",
+      "title": "Tripwire with shot indicator",
+      "additional_sources": [
+        {
+          "author": "Delapouite",
+          "source_path": "delapouite/silver-bullet.svg",
+          "page": "https://game-icons.net/1x1/delapouite/silver-bullet.html",
+          "raw_source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/silver-bullet.svg",
+          "original_sha256": "67e2c198ee1636d26b5149cedbb649823ed8cdd382837f58f4468b19cfceb1f4"
+        }
+      ]
+    },
+    {
+      "file": "shot-poison-mine.svg",
+      "author": "Lorc, Delapouite",
+      "source_path": "lorc/biohazard.svg",
+      "page": "https://game-icons.net/1x1/lorc/biohazard.html",
+      "raw_source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/lorc/biohazard.svg",
+      "original_sha256": "3381f9cbbd289cf759ac92e227417901d15b6f99f18ed3d8f7df74b10a43cb94",
+      "vendored_sha256": "3475e51c17d315cb0919336f43714ab11cf5951bf2d16449064b86d63986665d",
+      "modification": "Transparent device silhouette scaled to 74% at (130,130); transparent Silver bullet silhouette scaled to 47% at (0,0). Original shape paths unchanged.",
+      "title": "Biohazard with shot indicator",
+      "additional_sources": [
+        {
+          "author": "Delapouite",
+          "source_path": "delapouite/silver-bullet.svg",
+          "page": "https://game-icons.net/1x1/delapouite/silver-bullet.html",
+          "raw_source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/silver-bullet.svg",
+          "original_sha256": "67e2c198ee1636d26b5149cedbb649823ed8cdd382837f58f4468b19cfceb1f4"
+        }
+      ]
+    },
+    {
+      "file": "shot-barrel.svg",
+      "author": "Skoll, Delapouite",
+      "source_path": "skoll/oil-drum.svg",
+      "page": "https://game-icons.net/1x1/skoll/oil-drum.html",
+      "raw_source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/skoll/oil-drum.svg",
+      "original_sha256": "a02156f97af9cb703f381543dbaa5bd91247bca6723ac791004578afb05100d6",
+      "vendored_sha256": "443dcb62965cea2572be24265978a3b2c837365884d5630be9ed7209b142db72",
+      "modification": "Transparent device silhouette scaled to 74% at (130,130); transparent Silver bullet silhouette scaled to 47% at (0,0). Original shape paths unchanged.",
+      "title": "Oil drum with shot indicator",
+      "additional_sources": [
+        {
+          "author": "Delapouite",
+          "source_path": "delapouite/silver-bullet.svg",
+          "page": "https://game-icons.net/1x1/delapouite/silver-bullet.html",
+          "raw_source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/silver-bullet.svg",
+          "original_sha256": "67e2c198ee1636d26b5149cedbb649823ed8cdd382837f58f4468b19cfceb1f4"
+        }
+      ]
+    },
+    {
+      "file": "shot-molotov.svg",
+      "author": "Lorc, Delapouite",
+      "source_path": "lorc/molotov.svg",
+      "page": "https://game-icons.net/1x1/lorc/molotov.html",
+      "raw_source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/lorc/molotov.svg",
+      "original_sha256": "3cf35f668410aace1e9cd53a53d446249d05f587567da3382facd26db4b9fdcd",
+      "vendored_sha256": "07800aebac6fef9ac7b60af2c36ac03305860a49103f8ed7305c06fa31b9b7a7",
+      "modification": "Transparent device silhouette scaled to 74% at (130,130); transparent Silver bullet silhouette scaled to 47% at (0,0). Original shape paths unchanged.",
+      "title": "Molotov with shot indicator",
+      "additional_sources": [
+        {
+          "author": "Delapouite",
+          "source_path": "delapouite/silver-bullet.svg",
+          "page": "https://game-icons.net/1x1/delapouite/silver-bullet.html",
+          "raw_source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/silver-bullet.svg",
+          "original_sha256": "67e2c198ee1636d26b5149cedbb649823ed8cdd382837f58f4468b19cfceb1f4"
+        }
+      ]
+    },
+    {
+      "file": "rifle.svg",
+      "author": "Skoll",
+      "source_path": "skoll/famas.svg",
+      "page": "https://game-icons.net/1x1/skoll/famas.html",
+      "raw_source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/skoll/famas.svg",
+      "original_sha256": "5db3c2acb2c3e81eb1798d68832de3355034003a376218ccdd7287b7bc99b085",
+      "vendored_sha256": "fc0eaeff06ff3cf25b8ecdd5c56d03c7c0fd0433291e6019c305647f8fc60890",
+      "modification": "Removed black full-canvas background; icon paths unchanged.",
+      "title": "FAMAS"
+    },
+    {
+      "file": "shotgun.svg",
+      "author": "Delapouite",
+      "source_path": "delapouite/sawed-off-shotgun.svg",
+      "page": "https://game-icons.net/1x1/delapouite/sawed-off-shotgun.html",
+      "raw_source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/sawed-off-shotgun.svg",
+      "original_sha256": "9ba4e14f676183fca5e8fffe8d321de7ca1754bd149970a2f5cc8dcf73ada9ab",
+      "vendored_sha256": "28d171deb8b0e152238f87f705c1c9b03b9b05dcc72de311e781263b478ced04",
+      "modification": "Removed black full-canvas background; icon paths unchanged.",
+      "title": "Sawed-off shotgun"
+    },
+    {
+      "file": "smg.svg",
+      "author": "Skoll",
+      "source_path": "skoll/mp5.svg",
+      "page": "https://game-icons.net/1x1/skoll/mp5.html",
+      "raw_source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/skoll/mp5.svg",
+      "original_sha256": "0ec213acde2d92a0e9aa82ba2a778a3ae37852fc22dfa8e7e4a506c026410201",
+      "vendored_sha256": "95498db82f72d203f66fe33c20bc8aa1c2bc16d3f7ca3db52203106f32b4ef1f",
+      "modification": "Removed black full-canvas background; icon paths unchanged.",
+      "title": "MP5"
+    },
+    {
+      "file": "ledge-pull.svg",
+      "author": "Delapouite",
+      "source_path": "delapouite/pull.svg",
+      "page": "https://game-icons.net/1x1/delapouite/pull.html",
+      "raw_source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/pull.svg",
+      "original_sha256": "7c8bac9c5a92e71e32741ece759ec63e57e619b93028fdfb323d04324603ea37",
+      "vendored_sha256": "483d29e9781964f61cc643f1d044ccad26c0de5d275910aee4c520679ad53cce",
+      "modification": "Removed black full-canvas background; icon paths unchanged.",
+      "title": "Pull"
+    },
+    {
+      "file": "pistol.svg",
+      "author": "John Colburn",
+      "source_path": "john-colburn/pistol-gun.svg",
+      "page": "https://game-icons.net/1x1/john-colburn/pistol-gun.html",
+      "raw_source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/john-colburn/pistol-gun.svg",
+      "original_sha256": "3012209c59b49332105f19ae01b4ee763359b32fd2a2b90b49c6e2982e8bf0d8",
+      "vendored_sha256": "a46ecae22fcb7a79b3efa40f2b6f4e09c9c6c88f11850ed37ee3b72031e104ee",
+      "modification": "Removed black full-canvas background; icon paths unchanged.",
+      "title": "Pistol gun"
+    },
+    {
+      "file": "revolver.svg",
+      "author": "Skoll",
+      "source_path": "skoll/revolver.svg",
+      "page": "https://game-icons.net/1x1/skoll/revolver.html",
+      "raw_source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/skoll/revolver.svg",
+      "original_sha256": "c89eed0baa8334d120b2a735c86e61da8a3755bbadb5746c85bda64a254a1a2b",
+      "vendored_sha256": "f6fd07c0800468fabc13c28ac7ef9e785d51881ee9c42c76544de83b77df81fe",
+      "modification": "Removed black full-canvas background; icon paths unchanged.",
+      "title": "Revolver"
+    },
+    {
+      "file": "gas-explosion.svg",
+      "author": "Lorc",
+      "source_path": "lorc/cannister.svg",
+      "page": "https://game-icons.net/1x1/lorc/cannister.html",
+      "raw_source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/lorc/cannister.svg",
+      "original_sha256": "fd2821f9aaea724d6395b717758af392939ed31c47d2b878f915f1e5c2392a14",
+      "vendored_sha256": "1986c4bdfb21e88c9ec36fc6ec9d5b044e5ccad781e8aee17932c1e1913c96c0",
+      "modification": "Removed black full-canvas background; icon paths unchanged.",
+      "title": "Cannister"
+    },
+    {
+      "file": "extinguisher.svg",
+      "author": "Delapouite",
+      "source_path": "delapouite/fire-extinguisher.svg",
+      "page": "https://game-icons.net/1x1/delapouite/fire-extinguisher.html",
+      "raw_source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/fire-extinguisher.svg",
+      "original_sha256": "be93b65b2db7f96188a9aa7aa7cf6a7179df6bd473a8644ec6119428f4bc0027",
+      "vendored_sha256": "22b58ff89ce56d9b3d401039e7fce7a6e63480d58fca33b9cd7ddff7bcf70d08",
+      "modification": "Removed black full-canvas background; icon paths unchanged.",
+      "title": "Fire extinguisher"
+    },
+    {
+      "file": "soda.svg",
+      "author": "Guard13007",
+      "source_path": "guard13007/soda-can.svg",
+      "page": "https://game-icons.net/1x1/guard13007/soda-can.html",
+      "raw_source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/guard13007/soda-can.svg",
+      "original_sha256": "bdc79eedd9db623c58f7a42cd34f321cf8e33bd37e1b3d90e5497a4ad659cad2",
+      "vendored_sha256": "d425c625cc421f458bf2253ae5df1fd401f8ae8695ec23240d2b27f2ff880f2c",
+      "modification": "Removed black full-canvas background; icon paths unchanged.",
+      "title": "Soda can"
+    },
+    {
+      "file": "hazard.svg",
+      "author": "Lorc",
+      "source_path": "lorc/hazard-sign.svg",
+      "page": "https://game-icons.net/1x1/lorc/hazard-sign.html",
+      "raw_source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/lorc/hazard-sign.svg",
+      "original_sha256": "859c60f9ecc0d99ed5c11213e4dfaae51870e7b9614beb6a8957d6b3d47f3acb",
+      "vendored_sha256": "710168c5b2527bd1d504cee1d0acb5404e098d88c8f75602a6fa80c3e8f3216e",
+      "modification": "Removed black full-canvas background; icon paths unchanged.",
+      "title": "Hazard sign"
+    },
+    {
+      "file": "shot-gas-explosion.svg",
+      "author": "Lorc, Delapouite",
+      "source_path": "lorc/cannister.svg",
+      "page": "https://game-icons.net/1x1/lorc/cannister.html",
+      "raw_source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/lorc/cannister.svg",
+      "original_sha256": "fd2821f9aaea724d6395b717758af392939ed31c47d2b878f915f1e5c2392a14",
+      "vendored_sha256": "719e15bc10a0710d276c52aeaf45b6e38b67c0051a8c05a1a9c5139586a8132e",
+      "modification": "Transparent device silhouette scaled to 74% at (130,130); transparent Silver bullet silhouette scaled to 47% at (0,0). Original shape paths unchanged.",
+      "title": "Cannister with shot indicator",
+      "additional_sources": [
+        {
+          "author": "Delapouite",
+          "source_path": "delapouite/silver-bullet.svg",
+          "page": "https://game-icons.net/1x1/delapouite/silver-bullet.html",
+          "raw_source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/silver-bullet.svg",
+          "original_sha256": "67e2c198ee1636d26b5149cedbb649823ed8cdd382837f58f4468b19cfceb1f4"
+        }
+      ]
+    },
+    {
+      "file": "shot-extinguisher.svg",
+      "author": "Delapouite",
+      "source_path": "delapouite/fire-extinguisher.svg",
+      "page": "https://game-icons.net/1x1/delapouite/fire-extinguisher.html",
+      "raw_source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/fire-extinguisher.svg",
+      "original_sha256": "be93b65b2db7f96188a9aa7aa7cf6a7179df6bd473a8644ec6119428f4bc0027",
+      "vendored_sha256": "05aaddd2ebfcd71ac3934ab947535cf35d7c56decab6db190a4fe785b0ce6610",
+      "modification": "Transparent device silhouette scaled to 74% at (130,130); transparent Silver bullet silhouette scaled to 47% at (0,0). Original shape paths unchanged.",
+      "title": "Fire extinguisher with shot indicator",
+      "additional_sources": [
+        {
+          "author": "Delapouite",
+          "source_path": "delapouite/silver-bullet.svg",
+          "page": "https://game-icons.net/1x1/delapouite/silver-bullet.html",
+          "raw_source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/silver-bullet.svg",
+          "original_sha256": "67e2c198ee1636d26b5149cedbb649823ed8cdd382837f58f4468b19cfceb1f4"
+        }
+      ]
+    },
+    {
+      "file": "shot-soda.svg",
+      "author": "Guard13007, Delapouite",
+      "source_path": "guard13007/soda-can.svg",
+      "page": "https://game-icons.net/1x1/guard13007/soda-can.html",
+      "raw_source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/guard13007/soda-can.svg",
+      "original_sha256": "bdc79eedd9db623c58f7a42cd34f321cf8e33bd37e1b3d90e5497a4ad659cad2",
+      "vendored_sha256": "e918f04ac00af6d84c754e84fccc2a21aa35686ea15454545dca85db828c1626",
+      "modification": "Transparent device silhouette scaled to 74% at (130,130); transparent Silver bullet silhouette scaled to 47% at (0,0). Original shape paths unchanged.",
+      "title": "Soda can with shot indicator",
+      "additional_sources": [
+        {
+          "author": "Delapouite",
+          "source_path": "delapouite/silver-bullet.svg",
+          "page": "https://game-icons.net/1x1/delapouite/silver-bullet.html",
+          "raw_source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/silver-bullet.svg",
+          "original_sha256": "67e2c198ee1636d26b5149cedbb649823ed8cdd382837f58f4468b19cfceb1f4"
+        }
+      ]
+    },
+    {
+      "file": "rifle-headshot.svg",
+      "author": "Skoll",
+      "source_path": "skoll/famas.svg",
+      "page": "https://game-icons.net/1x1/skoll/famas.html",
+      "raw_source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/skoll/famas.svg",
+      "original_sha256": "5db3c2acb2c3e81eb1798d68832de3355034003a376218ccdd7287b7bc99b085",
+      "vendored_sha256": "c936d393c7a87fa955871e20865214fc81299d28e99b37678c698ac13e5812bc",
+      "modification": "Transparent firearm silhouette scaled to 76% at (122,122); transparent Headshot silhouette scaled to 47% at (0,0). Original shape paths unchanged.",
+      "title": "FAMAS with headshot indicator",
+      "additional_sources": [
+        {
+          "author": "Skoll",
+          "source_path": "skoll/headshot.svg",
+          "page": "https://game-icons.net/1x1/skoll/headshot.html",
+          "raw_source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/skoll/headshot.svg",
+          "original_sha256": "7aec26193d917d98402622edbc630e4dee0543e4d83332f9b324ec11bc18a744"
+        }
+      ]
+    },
+    {
+      "file": "shotgun-headshot.svg",
+      "author": "Delapouite, Skoll",
+      "source_path": "delapouite/sawed-off-shotgun.svg",
+      "page": "https://game-icons.net/1x1/delapouite/sawed-off-shotgun.html",
+      "raw_source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/sawed-off-shotgun.svg",
+      "original_sha256": "9ba4e14f676183fca5e8fffe8d321de7ca1754bd149970a2f5cc8dcf73ada9ab",
+      "vendored_sha256": "4cb3a6c1ea5cfd8f1e048adce1df6aa325bf1fcf8ab6cb4fba0169d0af5d005c",
+      "modification": "Transparent firearm silhouette scaled to 76% at (122,122); transparent Headshot silhouette scaled to 47% at (0,0). Original shape paths unchanged.",
+      "title": "Sawed-off shotgun with headshot indicator",
+      "additional_sources": [
+        {
+          "author": "Skoll",
+          "source_path": "skoll/headshot.svg",
+          "page": "https://game-icons.net/1x1/skoll/headshot.html",
+          "raw_source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/skoll/headshot.svg",
+          "original_sha256": "7aec26193d917d98402622edbc630e4dee0543e4d83332f9b324ec11bc18a744"
+        }
+      ]
+    },
+    {
+      "file": "smg-headshot.svg",
+      "author": "Skoll",
+      "source_path": "skoll/mp5.svg",
+      "page": "https://game-icons.net/1x1/skoll/mp5.html",
+      "raw_source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/skoll/mp5.svg",
+      "original_sha256": "0ec213acde2d92a0e9aa82ba2a778a3ae37852fc22dfa8e7e4a506c026410201",
+      "vendored_sha256": "b97f8aee1226965f8aadf0cfd8d49883eb38b38262a887d50cee26dfdf3a009a",
+      "modification": "Transparent firearm silhouette scaled to 76% at (122,122); transparent Headshot silhouette scaled to 47% at (0,0). Original shape paths unchanged.",
+      "title": "MP5 with headshot indicator",
+      "additional_sources": [
+        {
+          "author": "Skoll",
+          "source_path": "skoll/headshot.svg",
+          "page": "https://game-icons.net/1x1/skoll/headshot.html",
+          "raw_source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/skoll/headshot.svg",
+          "original_sha256": "7aec26193d917d98402622edbc630e4dee0543e4d83332f9b324ec11bc18a744"
+        }
+      ]
+    },
+    {
+      "file": "sniper-headshot.svg",
+      "author": "Skoll",
+      "source_path": "skoll/winchester-rifle.svg",
+      "page": "https://game-icons.net/1x1/skoll/winchester-rifle.html",
+      "raw_source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/skoll/winchester-rifle.svg",
+      "original_sha256": "571b5e27a432a6fb9e9eaa9ce89be2268eea1ed4383a5a011150c150e530c41c",
+      "vendored_sha256": "b18e823bfc4d7caba1e8c8af3c91ffcb70b5f48051a59a0c1d89dd511b1b2dd5",
+      "modification": "Transparent firearm silhouette scaled to 76% at (122,122); transparent Headshot silhouette scaled to 47% at (0,0). Original shape paths unchanged.",
+      "title": "Winchester rifle with headshot indicator",
+      "additional_sources": [
+        {
+          "author": "Skoll",
+          "source_path": "skoll/headshot.svg",
+          "page": "https://game-icons.net/1x1/skoll/headshot.html",
+          "raw_source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/skoll/headshot.svg",
+          "original_sha256": "7aec26193d917d98402622edbc630e4dee0543e4d83332f9b324ec11bc18a744"
+        }
+      ]
+    },
+    {
+      "file": "pistol-headshot.svg",
+      "author": "John Colburn, Skoll",
+      "source_path": "john-colburn/pistol-gun.svg",
+      "page": "https://game-icons.net/1x1/john-colburn/pistol-gun.html",
+      "raw_source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/john-colburn/pistol-gun.svg",
+      "original_sha256": "3012209c59b49332105f19ae01b4ee763359b32fd2a2b90b49c6e2982e8bf0d8",
+      "vendored_sha256": "1b5beddf68840afdba9682d2ef27abfd5640fe278531d7e0cba992f90d10fdb2",
+      "modification": "Transparent firearm silhouette scaled to 76% at (122,122); transparent Headshot silhouette scaled to 47% at (0,0). Original shape paths unchanged.",
+      "title": "Pistol gun with headshot indicator",
+      "additional_sources": [
+        {
+          "author": "Skoll",
+          "source_path": "skoll/headshot.svg",
+          "page": "https://game-icons.net/1x1/skoll/headshot.html",
+          "raw_source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/skoll/headshot.svg",
+          "original_sha256": "7aec26193d917d98402622edbc630e4dee0543e4d83332f9b324ec11bc18a744"
+        }
+      ]
+    },
+    {
+      "file": "revolver-headshot.svg",
+      "author": "Skoll",
+      "source_path": "skoll/revolver.svg",
+      "page": "https://game-icons.net/1x1/skoll/revolver.html",
+      "raw_source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/skoll/revolver.svg",
+      "original_sha256": "c89eed0baa8334d120b2a735c86e61da8a3755bbadb5746c85bda64a254a1a2b",
+      "vendored_sha256": "214f8d711d41bf158cc68d34f976fc3e10213d9c023a6024509d41e01e8cc143",
+      "modification": "Transparent firearm silhouette scaled to 76% at (122,122); transparent Headshot silhouette scaled to 47% at (0,0). Original shape paths unchanged.",
+      "title": "Revolver with headshot indicator",
+      "additional_sources": [
+        {
+          "author": "Skoll",
+          "source_path": "skoll/headshot.svg",
+          "page": "https://game-icons.net/1x1/skoll/headshot.html",
+          "raw_source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/skoll/headshot.svg",
+          "original_sha256": "7aec26193d917d98402622edbc630e4dee0543e4d83332f9b324ec11bc18a744"
+        }
+      ]
+    },
+    {
+      "file": "molotov-fire.svg",
+      "author": "Lorc",
+      "source_path": "lorc/fire-bottle.svg",
+      "page": "https://game-icons.net/1x1/lorc/fire-bottle.html",
+      "raw_source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/lorc/fire-bottle.svg",
+      "original_sha256": "e426f8f20093dbe770f1e05a39ff9b9eddba198fb714f53e68f887ee3f932095",
+      "vendored_sha256": "03b131ead01658f5e1cc9d75b4248b0b9d6cb0040f5a9592c76b18c087fdff0b",
+      "modification": "Removed black full-canvas background; icon paths unchanged.",
+      "title": "Fire bottle"
+    },
+    {
+      "file": "explosive-prop.svg",
+      "author": "Lorc",
+      "source_path": "lorc/explosive-materials.svg",
+      "page": "https://game-icons.net/1x1/lorc/explosive-materials.html",
+      "raw_source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/lorc/explosive-materials.svg",
+      "original_sha256": "311ee28fcc4c73bc16341b2a579ee907528606f79da097a8fefcb71b6b26f087",
+      "vendored_sha256": "5429df52cb02d6fd88da31c8a0de5ed4c058196ec449a271f95afb2110c8da7a",
+      "modification": "Removed black full-canvas background; icon paths unchanged.",
+      "title": "Explosive materials"
+    },
+    {
+      "file": "shot-explosive-prop.svg",
+      "author": "Lorc, Delapouite",
+      "source_path": "lorc/explosive-materials.svg",
+      "page": "https://game-icons.net/1x1/lorc/explosive-materials.html",
+      "raw_source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/lorc/explosive-materials.svg",
+      "original_sha256": "311ee28fcc4c73bc16341b2a579ee907528606f79da097a8fefcb71b6b26f087",
+      "vendored_sha256": "cfed60c7fac7c174c685d7d4ba6f769dfbeef9ddebe28661ec4417c17185b541",
+      "modification": "Transparent device silhouette scaled to 74% at (130,130); transparent Silver bullet silhouette scaled to 47% at (0,0). Original shape paths unchanged.",
+      "title": "Explosive materials with shot indicator",
+      "additional_sources": [
+        {
+          "author": "Delapouite",
+          "source_path": "delapouite/silver-bullet.svg",
+          "page": "https://game-icons.net/1x1/delapouite/silver-bullet.html",
+          "raw_source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/silver-bullet.svg",
+          "original_sha256": "67e2c198ee1636d26b5149cedbb649823ed8cdd382837f58f4468b19cfceb1f4"
+        }
+      ]
+    },
+    {
+      "file": "zzz.svg",
+      "author": "Delapouite",
+      "source_path": "delapouite/night-sleep.svg",
+      "page": "https://game-icons.net/1x1/delapouite/night-sleep.html",
+      "raw_source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/night-sleep.svg",
+      "original_sha256": "0d240b0dac4d2af2b4d7e8aa7e4f0ea82fc039c8c8e6584ed503dfca922b8644",
+      "vendored_sha256": "419fc3a1563e588825d9c3c7b434609700adc5db685da57e77b80baf346153dd",
+      "modification": "Removed black background and crescent; retained the three original Z glyph subpaths, converted their relative starts to absolute coordinates, and uniformly scaled by 1.5 into the 512px viewBox."
+    },
+    {
+      "source_path": "lorc/lightning-mask.svg",
+      "page": "https://game-icons.net/1x1/lorc/lightning-mask.html",
+      "raw_source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/lorc/lightning-mask.svg",
+      "original_sha256": "c693865852f87643163a34eab7afdd1bd9423d9109a39bb5c0a1a9ff397a4d50",
+      "file": "electrified-contact.svg",
+      "author": "Lorc",
+      "title": "Lightning mask",
+      "vendored_sha256": "53335393a165a5089549158d8cd6a2446fe570fda8bd0c672e72ac1ac73eb07e",
+      "modification": "Removed black full-canvas background; original white paths unchanged."
+    },
+    {
+      "source_path": "john-colburn/pistol-gun.svg",
+      "page": "https://game-icons.net/1x1/john-colburn/pistol-gun.html",
+      "raw_source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/john-colburn/pistol-gun.svg",
+      "original_sha256": "3012209c59b49332105f19ae01b4ee763359b32fd2a2b90b49c6e2982e8bf0d8",
+      "file": "taser.svg",
+      "author": "John Colburn, Sbed",
+      "title": "Pistol with electrical bolt",
+      "vendored_sha256": "22918ecb7c6e5f8d5a126679dc5bfa5b14917d3d58e8c4a25904a2d140487886",
+      "modification": "Transparent Pistol gun silhouette scaled to 75% at (0,130); Electric silhouette scaled to 45% at (270,0). Original shape paths unchanged.",
+      "additional_sources": [
+        {
+          "author": "Sbed",
+          "source_path": "sbed/electric.svg",
+          "page": "https://game-icons.net/1x1/sbed/electric.html",
+          "raw_source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/sbed/electric.svg",
+          "original_sha256": "efd52f63d2df742e35c1db0fd335c78712d2a8cc793a5b0fde9bb01336744e19"
+        }
+      ]
+    },
+    {
+      "source_path": "delapouite/push.svg",
+      "page": "https://game-icons.net/1x1/delapouite/push.html",
+      "raw_source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/push.svg",
+      "original_sha256": "d1720876d7f154f34d9f8d1015f57ae66d40067350207c206038b7f5b5b9c50d",
+      "file": "shock-collision.svg",
+      "author": "Delapouite, Lorc",
+      "title": "Push with electrical contact indicator",
+      "vendored_sha256": "3b7185cf1fbf11fc315d56d96d8885cff6803d6153e2940fc6073763b0866e6e",
+      "modification": "Transparent Push silhouette scaled to 76% at (0,120); Lightning trio silhouette scaled to 45% at (270,0). Original shape paths unchanged.",
+      "additional_sources": [
+        {
+          "author": "Lorc",
+          "source_path": "lorc/lightning-trio.svg",
+          "page": "https://game-icons.net/1x1/lorc/lightning-trio.html",
+          "raw_source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/lorc/lightning-trio.svg",
+          "original_sha256": "12aa88b830c13d88a0d14ffaaa1083a05901ea32a0b58c8d9cdfb10f84d1ce05"
+        }
+      ]
+    }
+  ]
+}

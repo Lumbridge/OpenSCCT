@@ -3,6 +3,7 @@ using System.Globalization;
 using OpenScct.Core;
 using OpenScct.Core.Engine;
 using OpenScct.Game.SBase;
+using OpenScct.Game.Combat;
 using CombatK = OpenScct.Game.Combat.K;
 
 namespace OpenScctGame.Hud;
@@ -22,9 +23,15 @@ public static class HudActivityClassifier
         if (IsClass(messageClass, HudMessages.DeathMessageClass))
         {
             HudActivityCause cause = DeathCause(message);
+            CombatDeathTrigger trigger = CombatActivityDeath.Trigger(message);
+            PlayerReplicationInfo? triggerPlayer = trigger != CombatDeathTrigger.None ? source as PlayerReplicationInfo : null;
+            HudActivityParticipant? triggeredBy = Capture(triggerPlayer);
+            local |= IsLocal(triggerPlayer, localPlayer);
+            message = CombatActivityDeath.LegacySwitch(message);
             bool self = actor is not null && victim is not null && ReferenceEquals(actor, victim);
+            bool triggeredByAnother = self && triggerPlayer is not null && !ReferenceEquals(triggerPlayer, victim);
             bool environment = message is (int)SDamageType.SFell or (int)SDamageType.Crushed;
-            HudActivityKind kind = message == 24 ? HudActivityKind.Resign : environment && (self || actor is null)
+            HudActivityKind kind = message == 24 ? HudActivityKind.Resign : triggeredByAnother || environment && (self || actor is null)
                 ? HudActivityKind.Death : self || message == (int)SDamageType.Suicided
                 ? HudActivityKind.Suicide : actor is null ? HudActivityKind.Death : HudActivityKind.Kill;
             // Resign, suicide and an unknown killer are one-participant outcomes, never invented killers.
@@ -35,7 +42,7 @@ public static class HudActivityClassifier
                 HudActivityKind.Suicide => "SUICIDE",
                 HudActivityKind.Death => "DIED",
                 _ => "KILL",
-            }, "", now, local);
+            }, "", now, local, trigger, triggeredBy, message == 23);
             return true;
         }
 
@@ -103,7 +110,36 @@ public static class HudActivityClassifier
     private static bool IsClass(string path, string expected) => string.Equals(path, expected, StringComparison.OrdinalIgnoreCase) ||
         path.EndsWith(expected[expected.IndexOf('.', StringComparison.Ordinal)..], StringComparison.OrdinalIgnoreCase);
 
-    private static HudActivityCause DeathCause(int message) => message switch
+    private static HudActivityCause DeathCause(int message) => CombatActivityDeath.Cause(message) switch
+    {
+        CombatDeathCause.ProximityMine => HudActivityCause.ProximityMine,
+        CombatDeathCause.LaserMine => HudActivityCause.LaserMine,
+        CombatDeathCause.PoisonMine => HudActivityCause.PoisonMine,
+        CombatDeathCause.FragGrenade => HudActivityCause.FragGrenade,
+        CombatDeathCause.BarrelExplosion => HudActivityCause.BarrelExplosion,
+        CombatDeathCause.ExplosiveProp => HudActivityCause.ExplosiveProp,
+        CombatDeathCause.MolotovExplosion => HudActivityCause.MolotovExplosion,
+        CombatDeathCause.MolotovFire => HudActivityCause.MolotovFire,
+        CombatDeathCause.Fire => HudActivityCause.Fire,
+        CombatDeathCause.Hazard => HudActivityCause.Hazard,
+        CombatDeathCause.LedgePull => HudActivityCause.LedgePull,
+        CombatDeathCause.Rifle => HudActivityCause.Rifle,
+        CombatDeathCause.Shotgun => HudActivityCause.Shotgun,
+        CombatDeathCause.Smg => HudActivityCause.Smg,
+        CombatDeathCause.Sniper => HudActivityCause.Sniper,
+        CombatDeathCause.Pistol => HudActivityCause.Pistol,
+        CombatDeathCause.Revolver => HudActivityCause.Revolver,
+        CombatDeathCause.Poison => HudActivityCause.Poison,
+        CombatDeathCause.GasExplosion => HudActivityCause.GasExplosion,
+        CombatDeathCause.ExplosiveExtinguisher => HudActivityCause.ExplosiveExtinguisher,
+        CombatDeathCause.SodaExplosion => HudActivityCause.SodaExplosion,
+        CombatDeathCause.Crush => HudActivityCause.Crush,
+        CombatDeathCause.Taser => HudActivityCause.Taser,
+        CombatDeathCause.ShockCollision => HudActivityCause.ShockCollision,
+        _ => LegacyDeathCause(CombatActivityDeath.LegacySwitch(message)),
+    };
+
+    private static HudActivityCause LegacyDeathCause(int message) => message switch
     {
         (int)SDamageType.SDamage_Charged => HudActivityCause.Charge,
         (int)SDamageType.SDamage_DropAttacked => HudActivityCause.DropAttack,

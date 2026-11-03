@@ -1,7 +1,9 @@
+using System;
 using System.Linq;
 using OpenScct.Core;
 using OpenScct.Core.Engine;
 using OpenScct.Game.SBase;
+using OpenScct.Game.Combat;
 using OpenScctGame.Hud;
 using Xunit;
 
@@ -50,6 +52,74 @@ public sealed class HudActivityFeedTests
         Assert.True(entry.InvolvesLocalPlayer);
         Assert.Equal(HudActivityCause.Headshot, entry.Cause);
         Assert.Equal("KILL", entry.Label);
+    }
+
+    [Fact]
+    public void DetailedDeathCausesSurviveClassificationWithoutChangingKillCredit()
+    {
+        var owner = Player("Mine owner", 1, 1);
+        var victim = Player("Victim", 2, 0);
+        foreach (CombatDeathCause cause in Enum.GetValues<CombatDeathCause>().Where(c => c != CombatDeathCause.None))
+        {
+            int encoded = CombatActivityDeath.Encode((int)SDamageType.SDamage_Explosion, cause);
+            HudActivityEntry entry = Classify(HudMessages.DeathMessageClass, encoded, owner, victim);
+            Assert.Equal(Enum.Parse<HudActivityCause>(cause.ToString()), entry.Cause);
+            Assert.Equal(HudActivityKind.Kill, entry.Kind);
+            Assert.Equal(owner.PlayerID, entry.Actor!.PlayerId);
+            Assert.Equal(victim.PlayerID, entry.Victim!.PlayerId);
+            Assert.Equal(HudMessages.DeathString((int)SDamageType.SDamage_Explosion, owner, victim),
+                HudMessages.DeathString(encoded, owner, victim));
+        }
+    }
+
+    [Theory]
+    [InlineData(CombatDeathTrigger.Shot)]
+    [InlineData(CombatDeathTrigger.ChainReaction)]
+    public void ShotAndChainedMinesSnapshotTheTriggeringPlayerSeparately(CombatDeathTrigger trigger)
+    {
+        var owner = Player("Merc", 1, 1);
+        var victim = Player("Victim", 2, 0);
+        var spy = Player("Raven", 3, 0);
+        int encoded = CombatActivityDeath.Encode((int)SDamageType.SDamage_Explosion, CombatDeathCause.LaserMine, trigger);
+        HudActivityEntry entry = Classify(HudMessages.DeathMessageClass, encoded, owner, victim, spy, spy);
+        spy.PlayerName = "Renamed";
+        Assert.Equal("Merc", entry.Actor!.Name);
+        Assert.Equal("Raven", entry.TriggeredBy!.Name);
+        Assert.Equal(trigger, entry.Trigger);
+        Assert.True(entry.InvolvesLocalPlayer);
+        Assert.Equal("Laser mine", HudActivityPresentation.Cause(entry));
+        Assert.Contains("Raven", HudActivityPresentation.TriggerDetail(entry));
+    }
+
+    [Fact]
+    public void DetailedHeadshotKeepsBothWeaponAndHeadshotWhileSelfDeathsStaySingleParticipant()
+    {
+        var merc = Player("Merc", 1, 1);
+        var spy = Player("Spy", 2, 0);
+        var shot = Classify(HudMessages.DeathMessageClass, CombatActivityDeath.Encode(23, CombatDeathCause.Rifle), merc, spy);
+        Assert.Equal(HudActivityCause.Rifle, shot.Cause);
+        Assert.True(shot.Headshot);
+        Assert.Equal("Rifle headshot", HudActivityPresentation.Cause(shot));
+        var self = Classify(HudMessages.DeathMessageClass,
+            CombatActivityDeath.Encode((int)SDamageType.SDamage_Explosion, CombatDeathCause.FragGrenade), merc, merc);
+        Assert.Equal(HudActivityKind.Suicide, self.Kind);
+        Assert.Null(self.Actor);
+        Assert.Equal(HudActivityCause.FragGrenade, self.Cause);
+    }
+
+    [Fact]
+    public void AnotherPlayerShootingYourMineIsNotPresentedAsSelfInflicted()
+    {
+        var owner = Player("Merc", 1, 1);
+        var spy = Player("Raven", 2, 0);
+        int encoded = CombatActivityDeath.Encode((int)SDamageType.SDamage_Explosion, CombatDeathCause.ProximityMine, CombatDeathTrigger.Shot);
+        var entry = Classify(HudMessages.DeathMessageClass, encoded, owner, owner, spy);
+        Assert.Equal(HudActivityKind.Death, entry.Kind);
+        Assert.Null(entry.Actor);
+        Assert.Equal("Shot by Raven", HudActivityPresentation.TriggerDetail(entry));
+        var resigned = Classify(HudMessages.DeathMessageClass, 24, owner, owner, spy);
+        Assert.Equal(HudActivityKind.Resign, resigned.Kind);
+        Assert.Null(resigned.TriggeredBy);
     }
 
     [Theory]

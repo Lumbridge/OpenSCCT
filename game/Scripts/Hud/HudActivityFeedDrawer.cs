@@ -16,6 +16,9 @@ public sealed class HudActivityFeedDrawer
     private static readonly string[] ReservedAreas = ["Radar", "Objectif", "Chrono", "ChronoHack", "ChronoAlarm", "ChronoObjectif", "ChronoObjectif2"];
     private readonly Dictionary<HudPage, float> _reservedRight = new();
     private readonly List<Vector2> _blockedBands = new(16);
+    private readonly List<HudActivityEntry> _activeEntries = new(HudActivityFeed.Capacity);
+    private readonly float[] _rowHeights = new float[HudActivityFeed.Capacity];
+    private readonly bool[] _wrapCauses = new bool[HudActivityFeed.Capacity];
     private WhiteRegion? _white;
     private Font? _font;
     private MagmaFont? _bitmap;
@@ -48,18 +51,36 @@ public sealed class HudActivityFeedDrawer
         float feedScale = scale * .65f;
         float gap = Math.Max(3f, MathF.Round(3f * feedScale));
         float margin = Math.Max(6f, MathF.Round(12f * scale));
-        float h = Math.Clamp(MathF.Round(9f * feedScale), 11f, 26f);
+        float h = Math.Clamp(MathF.Round(10f * feedScale), 12f, 26f);
         float small = Math.Max(10f, MathF.Round(h * .78f));
-        float rowHeight = Math.Max(24f * feedScale, h + small + 6f);
+        float rowHeight = Math.Max(36f, Math.Max(36f * feedScale, h + small + 12f * feedScale));
         float right = RightEdge(screen, activePage, margin, scale);
-        float width = Math.Min(280f * feedScale, right - margin);
+        float width = Math.Min(300f * feedScale, right - margin);
         if (width < 96f) return;
+        float textWidth = width - Math.Max(24f, 22f * feedScale) - 3f * Math.Max(6f, 6f * feedScale);
+        _activeEntries.Clear();
+        foreach (HudActivityEntry entry in entries)
+        {
+            if (now - entry.ReceivedAt >= HudActivityFeed.Lifetime) continue;
+            bool wrap = HudActivityPresentation.UsesVictimFirstMessage(entry)
+                ? Measure(HudActivityPresentation.ContactLead(entry), small) + Measure(" ", small) +
+                  Measure(HudActivityPresentation.ContactTarget(entry), small) + 2f > textWidth
+                : entry.IsCombat && HudActivityPresentation.Cause(entry).Length > 0 &&
+                  Measure(HudActivityPresentation.Action(entry.Kind), small) + Measure(" · ", small) +
+                  Measure(HudActivityPresentation.Cause(entry), small) + 4f > textWidth;
+            _wrapCauses[_activeEntries.Count] = wrap;
+            int extraLines = (wrap ? 1 : 0) + (HudActivityPresentation.HasTriggerDetail(entry) ? 1 : 0);
+            _rowHeights[_activeEntries.Count] = rowHeight + extraLines * (small + 3f * feedScale);
+            _activeEntries.Add(entry);
+            if (_activeEntries.Count == HudActivityFeed.Capacity) break;
+        }
+        if (_activeEntries.Count == 0) return;
         float left = right - width;
         float safeBottom = screen.Y * .45f;
-        int desiredRows = Math.Min(HudActivityFeed.Capacity, entries.Count);
+        int desiredRows = _activeEntries.Count;
         Rect2 fpsBounds = TelemetryBounds(fpsItems), netBounds = TelemetryBounds(netItems);
         Vector2 available = AvailableBand(activePage, fpsBounds, netBounds, left, right, margin, safeBottom,
-            gap, rowHeight, desiredRows);
+            gap, desiredRows);
         int room = Rows(available);
         float preferredRight = right;
         // Tall graphs can fill the entire usual lane. Keep notifications above the crosshair by trying
@@ -68,25 +89,25 @@ public sealed class HudActivityFeedDrawer
         TryBeside(netBounds);
         float top = available.X, bottom = available.Y;
         AvailableBounds = new Rect2(left, top, width, Math.Max(0f, bottom - top));
-        int count = Math.Min(HudActivityFeed.Capacity, Math.Min(entries.Count, room));
-        for (int i = 0; i < entries.Count && VisibleCount < count; i++)
+        int count = Math.Min(desiredRows, room);
+        float cursor = top;
+        for (int i = 0; i < count; i++)
         {
-            HudActivityEntry entry = entries[i];
+            HudActivityEntry entry = _activeEntries[i];
             float age = Math.Max(0f, now - entry.ReceivedAt);
-            if (age >= HudActivityFeed.Lifetime) continue;
             float enter = Math.Clamp(age / HudActivityFeed.EnterTime, 0f, 1f);
             float fade = Math.Clamp((HudActivityFeed.Lifetime - age) / HudActivityFeed.FadeTime, 0f, 1f);
             float alpha = enter * fade;
             float slide = (1f - enter) * (1f - enter) * 8f * feedScale;
-            float fittedWidth = Math.Min(width, ContentWidth(entry, h, small, feedScale));
-            var rect = new Rect2(right - fittedWidth + slide, top + VisibleCount * (rowHeight + gap), fittedWidth - slide, rowHeight);
-            Row(entry, rect, h, small, feedScale, alpha);
+            float fittedWidth = width;
+            var rect = new Rect2(right - fittedWidth + slide, cursor, fittedWidth - slide, _rowHeights[i]);
+            Row(entry, rect, h, small, feedScale, alpha, _wrapCauses[i]);
+            cursor += _rowHeights[i] + gap;
             VisibleCount++;
         }
-        if (VisibleCount > 0) Bounds = new Rect2(left, top, width, VisibleCount * (rowHeight + gap) - gap);
+        if (VisibleCount > 0) Bounds = new Rect2(left, top, width, cursor - top - gap);
 
-        int Rows(Vector2 band) => Math.Min(desiredRows,
-            Math.Max(0, (int)MathF.Floor((band.Y - band.X + gap) / (rowHeight + gap))));
+        int Rows(Vector2 band) => RowsThatFit(band.Y - band.X, gap, desiredRows);
 
         void TryBeside(Rect2 panel)
         {
@@ -96,7 +117,7 @@ public sealed class HudActivityFeedDrawer
             float candidateLeft = candidateRight - width;
             if (candidateLeft < margin || candidateRight >= preferredRight) return;
             Vector2 band = AvailableBand(activePage, fpsBounds, netBounds, candidateLeft, candidateRight,
-                margin, safeBottom, gap, rowHeight, desiredRows);
+                margin, safeBottom, gap, desiredRows);
             int rows = Rows(band);
             if (rows <= room) return;
             left = candidateLeft;
@@ -131,8 +152,19 @@ public sealed class HudActivityFeedDrawer
         return Math.Max(margin, x - Math.Max(6f, 8f * scale));
     }
 
+    private int RowsThatFit(float availableHeight, float gap, int desiredRows)
+    {
+        float used = 0f;
+        for (int i = 0; i < desiredRows; i++)
+        {
+            used += _rowHeights[i] + (i > 0 ? gap : 0f);
+            if (used > availableHeight + .01f) return i;
+        }
+        return desiredRows;
+    }
+
     private Vector2 AvailableBand(HudPage? page, Rect2 fpsBounds, Rect2 netBounds,
-        float left, float right, float top, float bottom, float gap, float rowHeight, int desiredRows)
+        float left, float right, float top, float bottom, float gap, int desiredRows)
     {
         _blockedBands.Clear();
         AddBlockedBand(fpsBounds, left, right, top, bottom, gap * 2f);
@@ -161,7 +193,7 @@ public sealed class HudActivityFeedDrawer
 
         void Consider(float begin, float end)
         {
-            int rows = Math.Min(desiredRows, Math.Max(0, (int)MathF.Floor((end - begin + gap) / (rowHeight + gap))));
+            int rows = RowsThatFit(end - begin, gap, desiredRows);
             if (rows <= bestRows) return;
             bestRows = rows;
             best = new Vector2(begin, end);
@@ -211,76 +243,101 @@ public sealed class HudActivityFeedDrawer
         return new Rect2(min, max - min);
     }
 
-    private float ContentWidth(HudActivityEntry entry, float h, float small, float scale)
-    {
-        float pad = Math.Max(6f, 7f * scale), icon = Math.Max(12f, 11f * scale);
-        if (!entry.IsCombat)
-            return Math.Max(Measure(entry.Label, small), Measure(entry.Text, h)) + pad * 3f + icon + 2f;
-        float centre = Math.Max(Measure(entry.Label, small), Measure(CauseLabel(entry.Cause), small)) + icon + pad + 1f;
-        return Measure(entry.Actor?.Name ?? (entry.Victim is null ? "Unknown" : ""), h) +
-            Measure(entry.Victim?.Name ?? "Unknown", h) + centre + pad * 4f + 2f;
-    }
-
-    private void Row(HudActivityEntry entry, Rect2 rect, float h, float small, float scale, float alpha)
+    private void Row(HudActivityEntry entry, Rect2 rect, float h, float small, float scale, float alpha, bool wrapCause)
     {
         string path = "Activity/" + entry.Id.ToString(CultureInfo.InvariantCulture) + "/";
         Color tone = Tone(entry.Kind);
         Quad(path + "Panel", rect, Tint(Back, alpha));
         Quad(path + "Accent", new Rect2(rect.Position, new Vector2(Math.Max(2f, 1.5f * scale), rect.Size.Y)), Tint(tone, alpha));
         if (entry.InvolvesLocalPlayer)
+            Quad(path + "Local", new Rect2(rect.Position + new Vector2(2f, 0), rect.Size - new Vector2(2f, 0)), Tint(new Color(tone.R, tone.G, tone.B, .10f), alpha));
+
+        float pad = Math.Max(6f, 6f * scale);
+        float icon = Math.Min(rect.Size.Y - 2 * pad, Math.Max(24f, 22f * scale));
+        Icon(path + "Icon/" + HudActivityIcons.NameFor(entry), entry,
+            new Rect2(rect.Position.X + pad, rect.GetCenter().Y - icon * .5f, icon, icon), Tint(tone, alpha));
+        float x = rect.Position.X + icon + pad * 2f;
+        float available = Math.Max(0f, rect.End.X - pad - x);
+        bool hasTrigger = HudActivityPresentation.HasTriggerDetail(entry);
+        int extraLines = (hasTrigger ? 1 : 0) + (wrapCause ? 1 : 0);
+        float top = rect.Position.Y + (rect.Size.Y - h - small - 3f * scale - extraLines * (small + 3f * scale)) * .5f;
+        float subtitleY = top + h + 3f * scale;
+        if (!entry.IsCombat)
         {
-            Quad(path + "Local", new Rect2(rect.Position + new Vector2(2f, 0f), rect.Size - new Vector2(2f, 0f)),
-                Tint(new Color(tone.R, tone.G, tone.B, .10f), alpha));
-        }
-        float pad = Math.Max(6f, 7f * scale), icon = Math.Max(12f, 11f * scale);
-        bool combat = entry.Kind is HudActivityKind.Kill or HudActivityKind.Death or HudActivityKind.Suicide or HudActivityKind.Resign
-            or HudActivityKind.Sleep or HudActivityKind.Knockout;
-        if (!combat)
-        {
-            OutcomeIcon(path + "Icon/", entry.Kind, new Vector2(rect.Position.X + pad + icon * .5f, rect.GetCenter().Y), icon, Tint(tone, alpha));
-            float x = rect.Position.X + pad * 2f + icon;
-            float available = rect.End.X - pad - x;
-            Text(path + "Label", entry.Label, new Rect2(x, rect.Position.Y + 3f * scale, available, small), small, Tint(tone, alpha));
-            Text(path + "Notice", entry.Text, new Rect2(x, rect.End.Y - h - 4f * scale, available, h), h, Tint(TextColour, alpha));
+            Text(path + "Label", HudActivityPresentation.NoticeTitle(entry), new Rect2(x, top, available, h), h,
+                Tint(entry.Actor is null ? TextColour : TeamColour(entry.Actor.Team), alpha));
+            Text(path + "Notice", HudActivityPresentation.NoticeDetail(entry), new Rect2(x, subtitleY, available, small), small, Tint(Dim, alpha));
             return;
         }
 
-        string cause = CauseLabel(entry.Cause);
-        // Reserve a pixel so fractional scaling cannot round a measured label's space down and truncate it.
-        float actionWidth = Measure(entry.Label, small) + 1f;
-        float causeTextWidth = Measure(cause, small) + 1f;
-        float centreWidth = Math.Max(actionWidth + icon + pad, cause.Length == 0 ? 0f : causeTextWidth + icon + pad);
-        centreWidth = Math.Min(centreWidth, rect.Size.X * .46f);
-        float namesWidth = Math.Max(0f, rect.Size.X - pad * 4f - centreWidth);
-        float actorWanted = Measure(entry.Actor?.Name ?? (entry.Victim is null ? "Unknown" : ""), h) + 1f;
-        float victimWanted = Measure(entry.Victim?.Name ?? "Unknown", h) + 1f;
-        float actorWidth = namesWidth * actorWanted / Math.Max(1f, actorWanted + victimWanted);
-        float victimWidth = namesWidth - actorWidth;
-        float middleLeft = rect.Position.X + pad * 2f + actorWidth;
-        float actorX = rect.Position.X + pad;
-        float victimX = middleLeft + centreWidth + pad;
-        float nameY = rect.GetCenter().Y - h * .55f;
-        HudActivityParticipant? actor = entry.Actor;
-        HudActivityParticipant? victim = entry.Victim;
-        Text(path + "Actor", actor?.Name ?? (victim is null ? "Unknown" : ""), new Rect2(actorX, nameY, actorWidth, h), h,
-            Tint(TeamColour(actor?.Team), alpha), MagmaAlign.Right);
-        Text(path + "Victim", victim?.Name ?? "Unknown", new Rect2(victimX, nameY, victimWidth, h), h,
-            Tint(TeamColour(victim?.Team), alpha));
-        float actionY = cause.Length > 0 ? rect.Position.Y + 3f * scale : rect.GetCenter().Y - small * .55f;
-        float groupWidth = Math.Min(centreWidth, actionWidth + icon + pad * .5f);
-        float groupX = middleLeft + (centreWidth - groupWidth) * .5f;
-        OutcomeIcon(path + "Icon/", entry.Kind, new Vector2(groupX + icon * .5f, actionY + small * .55f), icon, Tint(tone, alpha));
-        Text(path + "Action", entry.Label, new Rect2(groupX + icon + pad * .5f, actionY, Math.Max(0f, groupWidth - icon - pad * .5f), small), small,
-            Tint(tone, alpha));
-        if (cause.Length > 0)
+        if (HudActivityPresentation.UsesVictimFirstMessage(entry))
         {
-            float causeY = rect.End.Y - small - 4f * scale;
-            float causeWidth = Math.Min(centreWidth, causeTextWidth + icon + pad * .5f);
-            float causeX = middleLeft + (centreWidth - causeWidth) * .5f;
-            CauseIcon(path + "CauseIcon/", entry.Cause, new Vector2(causeX + icon * .5f, causeY + small * .55f), icon * .8f, Tint(Dim, alpha));
-            Text(path + "Cause", cause, new Rect2(causeX + icon + pad * .5f, causeY,
-                Math.Max(0f, causeWidth - icon - pad * .5f), small), small, Tint(Dim, alpha));
+            // These deaths describe the victim's contact with another player, so name the dead player first.
+            // Reserve the verb even when a long player name needs an ellipsis.
+            float diedWidth = Measure("died", h) + 1f;
+            float space = Measure(" ", h) + 1f;
+            string victim = HudActivityPresentation.ParticipantName(entry.Victim);
+            float victimWidth = Math.Min(Measure(victim, h) + 1f, Math.Max(0f, available - diedWidth - space));
+            Text(path + "Victim", victim, new Rect2(x, top, victimWidth, h), h, Tint(TeamColour(entry.Victim?.Team), alpha));
+            Text(path + "Action", "died", new Rect2(x + victimWidth + space, top, diedWidth, h), h, Tint(tone, alpha));
+            string lead = HudActivityPresentation.ContactLead(entry), target = HudActivityPresentation.ContactTarget(entry);
+            float leadWidth = Math.Min(available, Measure(lead, small) + 1f);
+            float targetGap = Measure(" ", small) + 1f;
+            Text(path + "Cause", lead, new Rect2(x, subtitleY, leadWidth, small), small, Tint(Dim, alpha));
+            Text(path + "Actor", target,
+                wrapCause ? new Rect2(x, subtitleY + small + 3f * scale, available, small) :
+                    new Rect2(x + leadWidth + targetGap, subtitleY, Math.Max(0f, available - leadWidth - targetGap), small),
+                small, Tint(entry.Actor is null ? Dim : TeamColour(entry.Actor.Team), alpha));
+            if (hasTrigger)
+                Text(path + "Trigger", HudActivityPresentation.TriggerDetail(entry),
+                    new Rect2(x, subtitleY + (wrapCause ? 2 : 1) * (small + 3f * scale), available, small), small, Tint(Dim, alpha));
+            return;
         }
+
+        bool pair = entry.Actor is not null && entry.Victim is not null && entry.Actor.PlayerId != entry.Victim.PlayerId;
+        if (pair)
+        {
+            string actor = HudActivityPresentation.ParticipantName(entry.Actor);
+            string victim = HudActivityPresentation.ParticipantName(entry.Victim);
+            float arrowWidth = Measure("→", h) + pad * 2;
+            float namesWidth = Math.Max(0, available - arrowWidth);
+            float actorWanted = Measure(actor, h) + 1, victimWanted = Measure(victim, h) + 1;
+            // Guarantee both participants a useful share when one name is much longer.
+            float actorWidth = actorWanted + victimWanted <= namesWidth ? actorWanted :
+                Math.Clamp(namesWidth * actorWanted / Math.Max(1, actorWanted + victimWanted), namesWidth * .3f, namesWidth * .7f);
+            Text(path + "Actor", actor, new Rect2(x, top, actorWidth, h), h, Tint(TeamColour(entry.Actor!.Team), alpha));
+            Text(path + "Direction", "→", new Rect2(x + actorWidth, top, arrowWidth, h), h, Tint(Dim, alpha), MagmaAlign.Center);
+            Text(path + "Victim", victim, new Rect2(x + actorWidth + arrowWidth, top, namesWidth - actorWidth, h), h, Tint(TeamColour(entry.Victim!.Team), alpha));
+        }
+        else
+        {
+            var participant = entry.Victim ?? entry.Actor;
+            Text(path + "Victim", HudActivityPresentation.ParticipantName(participant), new Rect2(x, top, available, h), h,
+                Tint(TeamColour(participant?.Team), alpha));
+        }
+        string action = HudActivityPresentation.Action(entry.Kind), cause = HudActivityPresentation.Cause(entry);
+        float actionWidth = Math.Min(available, Measure(action, small) + 1);
+        Text(path + "Action", action, new Rect2(x, subtitleY, actionWidth, small), small, Tint(tone, alpha));
+        if (wrapCause)
+            Text(path + "Cause", cause, new Rect2(x, subtitleY + small + 3f * scale, available, small), small, Tint(Dim, alpha));
+        else if (cause.Length > 0)
+        {
+            float dotWidth = Measure(" · ", small) + 2;
+            Text(path + "Separator", " · ", new Rect2(x + actionWidth, subtitleY, Math.Min(dotWidth, Math.Max(0, available - actionWidth)), small), small, Tint(Dim, alpha));
+            Text(path + "Cause", cause, new Rect2(x + actionWidth + dotWidth, subtitleY, Math.Max(0, available - actionWidth - dotWidth), small), small, Tint(Dim, alpha));
+        }
+        if (hasTrigger)
+            Text(path + "Trigger", HudActivityPresentation.TriggerDetail(entry),
+                new Rect2(x, subtitleY + (wrapCause ? 2 : 1) * (small + 3f * scale), available, small), small, Tint(Dim, alpha));
+    }
+
+    private void Icon(string path, HudActivityEntry entry, Rect2 rect, Color colour)
+    {
+        if (HudActivityIcons.For(entry) is not { } texture) return;
+        MagmaDrawItem item = DrawList.Add(MagmaWidgetKind.Image);
+        item.Path = path; item.NativeTexture = texture; item.Clamp = true;
+        item.SetGeometry([rect.Position, new Vector2(rect.End.X, rect.Position.Y), rect.End, new Vector2(rect.Position.X, rect.End.Y)],
+            [Vector2.Zero, Vector2.Right, Vector2.One, Vector2.Down], [colour, colour, colour, colour]);
     }
 
     private static Color TeamColour(int? team) => team switch { 0 => HudK.SpyColour, 1 => HudK.MercColour, _ => TextColour };
@@ -342,112 +399,4 @@ public sealed class HudActivityFeedDrawer
             [white.Uv, white.Uv, white.Uv, white.Uv], [colour, colour, colour, colour]);
     }
 
-    private void Stroke(string path, Vector2 from, Vector2 to, float thickness, Color colour)
-    {
-        if (_white is not { } white) return;
-        Vector2 d = (to - from).Normalized();
-        Vector2 side = new Vector2(-d.Y, d.X) * thickness * .5f;
-        MagmaDrawItem item = DrawList.Add(MagmaWidgetKind.Image);
-        item.Path = path; item.Package = white.Package; item.Texture = white.Texture;
-        item.SetGeometry([from + side, to + side, to - side, from - side],
-            [white.Uv, white.Uv, white.Uv, white.Uv], [colour, colour, colour, colour]);
-    }
-
-    private void Shape(string path, Vector2 centre, float size, Color colour, ReadOnlySpan<Vector2> points, bool closed = false)
-    {
-        for (int i = 1; i < points.Length; i++)
-            Stroke(path + i.ToString(CultureInfo.InvariantCulture), centre + points[i - 1] * size, centre + points[i] * size,
-                Math.Max(1f, size * .10f), colour);
-        if (closed && points.Length > 2)
-            Stroke(path + "Close", centre + points[^1] * size, centre + points[0] * size, Math.Max(1f, size * .10f), colour);
-    }
-
-    private void OutcomeIcon(string path, HudActivityKind kind, Vector2 at, float size, Color colour)
-    {
-        switch (kind)
-        {
-            case HudActivityKind.Kill:
-            case HudActivityKind.Death:
-            case HudActivityKind.Suicide:
-                Shape(path + "Skull", at, size, colour, [new(-.30f, -.38f), new(.30f, -.38f), new(.40f, -.10f), new(.24f, .18f), new(.24f, .4f), new(-.24f, .4f), new(-.24f, .18f), new(-.40f, -.10f)], true);
-                Stroke(path + "EyeL", at + new Vector2(-.22f, -.04f) * size, at + new Vector2(-.08f, -.04f) * size, Math.Max(1f, size * .12f), colour);
-                Stroke(path + "EyeR", at + new Vector2(.08f, -.04f) * size, at + new Vector2(.22f, -.04f) * size, Math.Max(1f, size * .12f), colour);
-                break;
-            case HudActivityKind.Sleep:
-                Shape(path + "Sleep", at, size, colour, [new(-.30f, -.28f), new(.28f, -.28f), new(-.30f, .30f), new(.28f, .30f)]);
-                break;
-            case HudActivityKind.Knockout:
-                Shape(path + "Impact", at, size, colour, [new(0f, -.48f), new(.12f, -.16f), new(.42f, -.24f), new(.24f, .04f), new(.42f, .27f), new(.10f, .24f), new(0f, .48f), new(-.13f, .18f), new(-.43f, .25f), new(-.25f, -.03f), new(-.42f, -.30f), new(-.12f, -.20f)], true);
-                break;
-            case HudActivityKind.Join:
-            case HudActivityKind.Leave:
-            case HudActivityKind.Resign:
-                float direction = kind == HudActivityKind.Join ? 1f : -1f;
-                Shape(path + "Arrow", at, size, colour, [new(-.35f * direction, 0), new(.35f * direction, 0), new(.10f * direction, -.25f)]);
-                Shape(path + "ArrowTip", at, size, colour, [new(.35f * direction, 0), new(.10f * direction, .25f)]);
-                break;
-            case HudActivityKind.LastLife:
-                Shape(path + "Warning", at, size, colour, [new(0, -.45f), new(.43f, .36f), new(-.43f, .36f)], true);
-                Stroke(path + "Mark", at + new Vector2(0f, -.15f) * size, at + new Vector2(0f, .1f) * size, Math.Max(1f, size * .12f), colour);
-                break;
-            default:
-                Shape(path + "Info", at, size, colour, [new(0, -.40f), new(.40f, 0), new(0, .40f), new(-.40f, 0)], true);
-                break;
-        }
-    }
-
-    private void CauseIcon(string path, HudActivityCause cause, Vector2 at, float size, Color colour)
-    {
-        switch (cause)
-        {
-            case HudActivityCause.Firearm:
-            case HudActivityCause.Headshot:
-                Shape(path + "Aim", at, size, colour, [new(-.35f, -.35f), new(.35f, -.35f), new(.35f, .35f), new(-.35f, .35f)], true);
-                Stroke(path + "AimH", at - Vector2.Right * size * .5f, at + Vector2.Right * size * .5f, Math.Max(1f, size * .09f), colour);
-                Stroke(path + "AimV", at - Vector2.Down * size * .5f, at + Vector2.Down * size * .5f, Math.Max(1f, size * .09f), colour);
-                break;
-            case HudActivityCause.Explosion:
-            case HudActivityCause.StickyBlast:
-                OutcomeIcon(path, HudActivityKind.Knockout, at, size, colour);
-                break;
-            case HudActivityCause.Smoke:
-            case HudActivityCause.Poison:
-            case HudActivityCause.StickyCamera:
-                Shape(path + "Cloud", at, size, colour, [new(-.45f, .30f), new(-.45f, -.03f), new(-.26f, -.12f), new(-.20f, -.38f), new(.08f, -.38f), new(.25f, -.12f), new(.44f, -.08f), new(.44f, .30f)], true);
-                break;
-            case HudActivityCause.StickyShock:
-                Shape(path + "Bolt", at, size, colour, [new(.14f, -.48f), new(-.28f, .04f), new(.13f, .04f), new(-.12f, .48f)]);
-                break;
-            case HudActivityCause.DropAttack:
-            case HudActivityCause.Fall:
-                Shape(path + "Down", at, size, colour, [new(0, -.42f), new(0, .34f), new(-.25f, .08f)]);
-                Shape(path + "Tip", at, size, colour, [new(0, .34f), new(.25f, .08f)]);
-                break;
-            default:
-                Shape(path + "Contact", at, size, colour, [new(-.35f, -.22f), new(-.08f, -.40f), new(.35f, -.03f), new(.12f, .30f), new(-.35f, .30f)], true);
-                break;
-        }
-    }
-
-    private static string CauseLabel(HudActivityCause cause) => cause switch
-    {
-        HudActivityCause.None => "",
-        HudActivityCause.Firearm => "FIREARM",
-        HudActivityCause.Headshot => "HEADSHOT",
-        HudActivityCause.Explosion => "EXPLOSION",
-        HudActivityCause.Charge => "CHARGE",
-        HudActivityCause.DropAttack => "DROP ATTACK",
-        HudActivityCause.Elbow => "ELBOW",
-        HudActivityCause.Grab => "GRAB",
-        HudActivityCause.NeckBreak => "NECK BREAK",
-        HudActivityCause.Choke => "CHOKE",
-        HudActivityCause.Fall => "FALL",
-        HudActivityCause.Crush => "CRUSH",
-        HudActivityCause.Poison => "POISON",
-        HudActivityCause.StickyShock => "STICKY SHOCK",
-        HudActivityCause.StickyBlast => "STICKY BLAST",
-        HudActivityCause.Smoke => "SMOKE",
-        HudActivityCause.StickyCamera => "CAMERA GAS",
-        _ => "OTHER",
-    };
 }

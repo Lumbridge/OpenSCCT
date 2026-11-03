@@ -216,12 +216,44 @@ world's event sink so nothing else changes.
 activity feed: kills, deaths, suicides, resignations, sleeps, knockouts, joins/leaves, match notices and last-life notices.
 Five newest events appear immediately, newest first, for six seconds each; entrance takes 150 ms and the final
 400 ms fades out. Overflow removes the oldest row without a backlog. Captured player names and team colours,
-action labels and known causes replace rank-prefixed sentences. Dark translucent rows use bundled Inter and sit
+action labels and known causes replace rank-prefixed sentences. Dark translucent cards use bundled Inter and sit
 in the upper-right region, to the left of the page's radar/objective column and clear of performance readouts.
-Feed dimensions use 65% of the base HUD scale, with minimum text sizes of 11 px for names and 10 px for labels.
-Each row fits its measured text up to the available width and shares a right edge; player names receive space
-in proportion to their measured widths rather than two equal empty columns.
+Combat cards show team-coloured `attacker → victim` names above an explicit outcome and method, such as
+`Eliminated · Headshot` or `Put to sleep · Camera gas`. Single-player deaths use the whole name line;
+join/leave/last-life notices place the player name above the event, without repeating the name in the detail.
+Feed dimensions use 65% of the base HUD scale, with minimum text sizes of 12 px for names and 10 px for labels.
+Each card shares the same width; names receive space in proportion to their measured widths, with bounded
+shares and grapheme-safe ellipses for long names. A larger icon sits beside both lines (at least 24 px).
+Detailed SVG silhouettes from Game-icons.net replace the hand-drawn symbols. They are embedded in the
+game assembly and decoded once into shared textures, independent of editor import caches. The CC BY 3.0 author
+credits, upstream URLs and modification records are in `game/branding/icons/event-feed/README.md` and
+`packaging/licenses/GameIcons-LICENSE.txt`; releases include the latter under `licenses/`.
 Narrow layouts show fewer rows without shrinking text. Flash and sleep effects draw above the feed.
+
+Detailed kill causes are captured on the authority at the damage source. Proximity, laser and poison mines,
+frag grenades, barrels, Molotov blasts and delayed fire, gas cylinders, explosive extinguishers, soda cans,
+weapons, melee moves and mover crushes keep distinct text and icons. Unknown damaging props use `Prop damage`;
+unnamed hazards retain the known legacy cause where possible rather than guessing a weapon or fire source.
+Weapon headshots retain their headshot marker. Drop attacks, charge, elbow strikes, grabs, chokes, neck breaks
+and ledge pulls each have a separate icon. A shot-triggered device uses a bullet-badged version of its icon.
+The internal sticky-shocker damage bucket distinguishes lethal `Taser` hits from electrical charge collisions;
+ordinary spy shocker shots still do zero pawn damage and do not create kill events. The legacy sticky-blast
+reaction uses electrical rather than bomb imagery. Both contact deaths name the victim first: `Sentinel died` /
+`Charged into electrified Raven`, or `Raven died` / `Contact with electrified Sentinel`. The other player's name
+wraps on narrow screens, and `died` stays visible even when a long victim name is shortened. Special exploding
+extinguisher-shaped map props use `Explosive canister`; normal spraying extinguishers remain nonlethal.
+
+Mine ownership and the triggering player are separate: the first line retains the credited killer and victim,
+and an additional line says `Shot by Raven`, `Chain reaction · Raven` or `Ignited by Raven`. Names are captured
+when received; missing trigger identities leave the method visible without inventing a player. Rows grow only
+when an extra attribution line or wrapped cause is needed, and the safe-area layout counts their actual heights.
+Delayed poison stores its source on the affected pawn; queued map relays retain a source per activation and pass
+it into damage volumes, so a later explosion cannot change the cause of an earlier Molotov fire.
+
+`CombatActivityDeath` encodes this presentation metadata in the existing death-message integer while retaining
+the legacy damage switch. The optional object carries a stable player replication identity, not the destroyed
+explosive. Damage amounts, kill ownership and death sounds keep their existing rules. The network bridge gives
+an explicit localized-message payload precedence over its sender; alarm/objective payloads use the same path.
 
 `HudMessages` preserves message sounds and the server's original recipient scope. Combat and activity events
 bypass the legacy queue; objective/data/access/bomb notices, mission guidance, interaction prompts, alarms and
@@ -356,7 +388,12 @@ bindings does not change controller behavior. Existing unversioned settings reta
 | Hold B (200 ms) | Long roll | Unassigned |
 
 Combinations consume their standalone actions; releasing a modifier cannot trigger the face button still held.
-Spy LT also toggles the selected cloak on a 200 ms hold, or turns an active cloak off on a short tap. In camera
+Every spy has cloak as a built-in ability, independent of gadget selection and using no gadget slot. Its dedicated
+binding defaults to **K** on keyboard and **LB + RB** on controller; gadget triggers no longer operate cloak.
+Saved cloak loadout slots migrate to an unused standard gadget. **Spy → Bindings →
+Cloak** offers Toggle (default; press again to deactivate) or Hold (release to deactivate), shared by all devices.
+Wheel bindings always toggle. Cloak has no input hold threshold or toggle/refire delay;
+energy, rain, speed and weapon/state restrictions still apply, as does its visual fade. In camera
 views, RT releases sticky-camera gas and B leaves the view. Long roll pulses crouch when needed to stand first.
 Triggers press above 7680/32767 (about 23.4%). Spy free look uses Aggressive and gun look uses Soft response.
 These are the defaults with analog slow walk enabled and stick/bumper swaps disabled. The built-in keyboard
@@ -588,3 +625,31 @@ from 9 to 5 HUD pixels and fade from 85% to 15% opacity between 3 and 60 metres,
 beyond 60 metres. **Toggle teammate names** in Interface controls changes the current role's visibility during
 play. New/legacy layouts receive N when free; complete saved layouts retain their bindings and can assign the
 action manually. Role reset restores the setting to off; Apply uses the new setting immediately.
+
+### HUD editor
+
+Options > HUD editor edits independent Spy and Merc layouts in the options draft.
+Drag a group, select it from the list, or use the X/Y offset fields. Arrow keys nudge
+by 0.1% of the screen; Shift+arrow nudges by 1%. Grid snapping rounds drag endpoints
+to 1%. Each group has size (25–300%), opacity (10–100%) and visibility controls.
+The preview uses converted HUD artwork and sample gameplay at 4:3, 16:9 or 21:9.
+Hidden groups retain selectable outlines. Edited groups are kept within the screen
+where their size permits. Stock layouts preserve their original positioning.
+
+Compact/large presets change group sizes. Undo/redo, reset element, reset role,
+and copy role to other are local to the draft. Copy/Paste layout shares both roles
+as JSON. Apply or Save & Close persists `hud_layout` in the existing settings file;
+Back follows the existing discard flow. Old settings retain the stock HUD.
+
+Editable groups include health, energy, radar, match and objective timers, gadget,
+ammo, interaction/co-op prompts, movement/posture, throw charge, page messages,
+scoreboard (both team panels), chat and the event feed.
+Crosshair and telemetry retain their dedicated editors. World-space markers,
+damage washes and gameplay vision effects are outside this editor.
+Passive chat follows the role layout in matches and the hub; deliberately opening
+the composer still shows it even if passive chat is hidden. The native composer
+uses the edited position and size, fitted to the available screen.
+The preview expands into available space; on narrow screens Layout tools collapses
+the presets/history/sharing controls. Open it when needed. Preview animation is
+frozen so the radar and selection outlines remain steady while editing.
+The preview is sample gameplay rather than the current match.

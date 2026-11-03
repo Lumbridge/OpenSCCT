@@ -41,6 +41,13 @@ public sealed class OptionsSmoke : SmokeTest
         if (++_frames == 1)
         {
             _options.Tabs!.CurrentTab = _tab;
+            if (_tab == 6)
+            {
+                var role = _options.FindChild("HudEditorRole", true, false) as OptionButton;
+                var aspect = _options.FindChild("HudEditorAspect", true, false) as OptionButton;
+                role?.Select(_section / 3); role?.EmitSignal(OptionButton.SignalName.ItemSelected, _section / 3);
+                aspect?.Select(_section % 3); aspect?.EmitSignal(OptionButton.SignalName.ItemSelected, _section % 3);
+            }
             if (_options.Tabs.GetCurrentTabControl().GetNodeOrNull<TabContainer>("Sections") is { } sections)
             {
                 sections.CurrentTab = _section;
@@ -71,6 +78,7 @@ public sealed class OptionsSmoke : SmokeTest
             if (++_section < _options.Tabs!.GetCurrentTabControl().GetNode<TabContainer>("Sections").GetTabCount()) return SmokeResult.Running;
             _section = 0;
         }
+        if (_tab == 6) { if (++_section < 6) return SmokeResult.Running; _section = 0; }
         if (++_tab < _options.Tabs!.GetTabCount()) return SmokeResult.Running;
         _tab = 0;
         if (++_size < _sizes.Length) { Resize(tree, _sizes[_size]); return SmokeResult.Running; }
@@ -89,6 +97,7 @@ public sealed class OptionsSmoke : SmokeTest
         try
         {
             Expect(!options.HasUnsavedChanges, "fresh editor is clean");
+            CheckHudEditor(options);
             var volume = (NotchedSlider)options.Controls["master_volume"];
             double originalVolume = volume.Value;
             Expect(volume.Resolve(24, released: true) == 25, "pointer release snaps near a quarter volume");
@@ -305,6 +314,92 @@ public sealed class OptionsSmoke : SmokeTest
             SettingsStore.Reset(GameSettings.FromJson(original));
         }
         finally { InputBindings.UserFileSaved -= Wrote; }
+    }
+
+    private void CheckHudEditor(OptionsMenu options)
+    {
+        var items = new List<OpenScctGame.Hud.Magma.MagmaDrawItem>
+        {
+            new() { Path = "Vie/label", Kind = OpenScctGame.Hud.Magma.MagmaWidgetKind.Text,
+                Rect = new Rect2(10, 20, 30, 40), HeightPx = 12, Color = Colors.White },
+            new() { Path = "Flash/fullscreen", Kind = OpenScctGame.Hud.Magma.MagmaWidgetKind.Text,
+                Rect = new Rect2(0, 0, 100, 100), HeightPx = 12 }
+        };
+        var layout = new HudEditorSettings();
+        var health = layout.Element(false, "Vie"); health.X = .1f; health.Y = .2f; health.Scale = 2; health.Opacity = .5f;
+        OpenScctGame.Hud.HudEditorTransform.Apply(items, layout.Spy, new Vector2(1000, 500));
+        Expect(items[0].Rect == new Rect2(110, 120, 60, 80) && items[0].HeightPx == 24 && items[0].Color.A == .5f, "HUD edit transforms text position, dimensions and opacity");
+        Expect(items[1].Rect == new Rect2(0, 0, 100, 100), "HUD editor preserves gameplay screen effects");
+        health.Visible = false;
+        OpenScctGame.Hud.HudEditorTransform.Apply(items, layout.Spy, new Vector2(1000, 500));
+        Expect(items.Count == 1 && items[0].Path == "Flash/fullscreen", "HUD visibility removes only its selected group");
+        var assets = OpenScctGame.Hud.HudAssets.TryLoad(null, out _);
+        if (assets is null) { Expect(false, "HUD editor preview assets available"); return; }
+        var page = new OpenScctGame.Hud.SpyHudPage(assets);
+        var sample = new OpenScctGame.Hud.HudSnapshot { Valid = true, HasPawn = true, Health = 100 };
+        page.Update(sample, .1f); page.Draw(new Vector2(1280, 720), sample);
+        Expect(page.DrawList.Any("Vie/"), "stock health is drawn");
+        page.Options.Layout.Element(false, "Vie").Visible = false;
+        page.Draw(new Vector2(1280, 720), sample);
+        Expect(!page.DrawList.Any("Vie/"), "actual HUD page applies layout visibility");
+        page.Options.Layout.Spy.Clear(); page.Draw(new Vector2(1280, 720), sample);
+        Expect(page.DrawList.Any("Vie/"), "reset restores actual HUD without changing game visibility");
+        foreach (bool merc in new[] { false, true })
+        {
+            OpenScctGame.Hud.HudPage rolePage = merc ? new OpenScctGame.Hud.MercHudPage(assets) : new OpenScctGame.Hud.SpyHudPage(assets);
+            sample.Side = merc ? OpenScctGame.Hud.HudSide.Merc : OpenScctGame.Hud.HudSide.Spy;
+            sample.ShowPlayers = true;
+            sample.Players.Clear(); sample.Score.Clear();
+            for (int n = 0; n < 6; n++) sample.Players.Add(new("Player " + n, n % 2, false, n, 3, 10));
+            for (int n = 0; n < 6; n++) sample.Score.Add(new("Player " + n, n % 2, false, n, n, 0, 3, 10, n == 0));
+            sample.Blips.Clear(); sample.Blips.Add(new(OpenScctGame.Hud.HudBlipKind.Teammate, new OpenScct.Core.FVector(100, 100, 0)));
+            sample.Ballistic = .6f;
+            sample.Tutorial = "Tutorial sample";
+            sample.GameMessages.Clear(); sample.GameMessages.Add("Match in progress"); sample.GameMessages.Add("Queued message");
+            Rect2? radar = null;
+            for (int frame = 0; frame < 120; frame++)
+            {
+                HudEditorPreview.PreparePage(rolePage, sample);
+                rolePage.Draw(new Vector2(1280, 720), sample);
+                var bounds = OpenScctGame.Hud.HudEditorTransform.Bounds(rolePage.DrawList.Items);
+                Expect(bounds.TryGetValue("Radar", out var current), "preview radar exists");
+                if (radar is { } prior) Expect(current.IsEqualApprox(prior), "preview radar stays fixed across redraws");
+                radar = current;
+                var charge = rolePage.Area(merc ? "Ballistic/Ballistic" : "Ballistic");
+                Expect(charge?.Frame == 6, "preview preserves the driven charge frame for both roles");
+                Expect(rolePage.DrawList.TextOf("GameMessage/messageGame") == "Match in progress", "preview shows sample game message alongside tutorial, not placeholder or queue");
+                Expect(rolePage.Area("TutoMessage/Tuto")?.Frame == 1, "preview preserves held-open tutorial frame");
+            }
+            foreach (float value in new[] { .2f, .8f })
+            {
+                sample.Ballistic = value;
+                HudEditorPreview.PreparePage(rolePage, sample);
+                Expect(rolePage.Area(merc ? "Ballistic/Ballistic" : "Ballistic")?.Frame == (int)(10 * value), "preview charge follows sample rather than fixed display frame");
+            }
+            Expect(rolePage.DrawList.Items.Any(i => i.Path.StartsWith("Extras/Split")), "sample exercises split scoreboard");
+            rolePage.Options.Layout.Element(merc, "Scoreboard").Visible = false;
+            rolePage.Draw(new Vector2(1280, 720), sample);
+            Expect(!rolePage.DrawList.Items.Any(i => OpenScctGame.Hud.HudEditorTransform.Group(i) == "Scoreboard"), "scoreboard hides both teams, backgrounds and ping columns");
+        }
+        var chatSetting = new HudElementSettings { X = .2f, Y = -.1f, Scale = 1.4f, Opacity = .5f };
+        var chat = new OpenScctGame.Chat.ChatPanel { PreviewScreen = new Vector2(1280, 720), Clock = () => 1, LayoutOverride = () => chatSetting };
+        chat.Transcript.Add(OpenScctGame.Chat.ChatChannel.All, "Sample chat", "Player", 1, 0, 0);
+        options.AddChild(chat);
+        chat._Process(0);
+        var recent = chat.GetNode<Control>("Recent");
+        var expected = OpenScctGame.Hud.HudEditorTransform.Transform(chat.PassiveBaseBounds, chatSetting, new Vector2(1280, 720));
+        Expect(recent.Position.IsEqualApprox(expected.Position) && recent.Scale.IsEqualApprox(Vector2.One * 1.4f) && chat.Modulate.A == .5f, "native chat follows HUD position, scale and opacity");
+        chatSetting.Visible = false; chat._Process(0); Expect(!chat.Visible, "passive chat can be hidden");
+        chat.Expanded = true; chat._Process(0); Expect(chat.Visible, "explicitly opened composer remains usable");
+        options.RemoveChild(chat); chat.QueueFree();
+        var feed = new OpenScctGame.Hud.HudActivityFeedDrawer(); feed.Configure(assets);
+        var events = new[] { new OpenScctGame.Hud.HudActivityEntry(1, OpenScctGame.Hud.HudActivityKind.Join, null, null, OpenScctGame.Hud.HudActivityCause.None, "JOIN", "Player joined", 0, false) };
+        feed.Draw(new Vector2(1280, 720), events, 1, null);
+        Expect(feed.DrawList.Items.Count > 0, "event feed sample renders");
+        layout.Element(false, "Activity").Visible = false;
+        OpenScctGame.Hud.HudEditorTransform.Apply(feed.DrawList.Items, layout.Spy, new Vector2(1280, 720));
+        Expect(feed.DrawList.Items.Count == 0, "event feed visibility covers all row graphics");
+
     }
 
     private static void Resize(SceneTree tree, Vector2I size)

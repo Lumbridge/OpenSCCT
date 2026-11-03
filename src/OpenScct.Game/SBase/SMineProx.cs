@@ -53,7 +53,7 @@ public partial class SMineProx
     {
         if (!Exploded)
         {
-            NoteDetonator(EventInstigator);
+            NoteDetonator(EventInstigator, DamageType);
             Explosion();
         }
     }

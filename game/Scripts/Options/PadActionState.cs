@@ -8,15 +8,12 @@ public readonly record struct PadActionContext(
     bool InCamera = false,
     bool IsSpy = true,
     bool WeaponDrawn = false,
-    bool CloakSelected = false,
-    bool CloakActive = false,
     bool Scoped = false,
-    bool Slot2IsCloak = false,
     bool CameraTransition = false);
 
 /// <summary>
 /// Expands contextual pad bindings into independent actions. Trigger presses act immediately; their short
-/// releases and 200 ms hold callbacks are separate. ReleaseAll aborts without synthesizing a tap.
+/// releases can quick-use gadgets. Cloak is a separate direct action. ReleaseAll aborts without synthesizing a tap.
 /// Call Update every frame, including frames without button edges. Returned lists are reused on the next call.
 /// </summary>
 public sealed class PadActionState
@@ -25,7 +22,6 @@ public sealed class PadActionState
     {
         public readonly string Action = action;
         public double Seconds;
-        public bool HeldCallback;
     }
 
     private readonly Dictionary<string, Press> _presses = new(StringComparer.Ordinal);
@@ -41,14 +37,7 @@ public sealed class PadActionState
         _events.Clear();
         double elapsed = double.IsFinite(delta) && delta > 0 ? delta : 0;
         _clock += elapsed;
-        foreach ((string control, Press press) in _presses)
-        {
-            press.Seconds += elapsed;
-            if (press.HeldCallback || press.Seconds < PadBindingState.HoldSeconds) continue;
-            press.HeldCallback = true;
-            if (press.Action == "Pad:spygadget" && context.CloakSelected)
-                Pulse(control + ":hold", "Action:cloakquick");
-        }
+        foreach (Press press in _presses.Values) press.Seconds += elapsed;
 
         foreach (PadBindingEvent ev in events)
         {
@@ -115,14 +104,7 @@ public sealed class PadActionState
 
     private void SpyGadgetTap(string control, PadActionContext context)
     {
-        if (context.CloakSelected && context.CloakActive)
-        {
-            Pulse(control + ":tap", "Action:cloakquick");
-            return;
-        }
         if (context.WeaponDrawn || _clock - _cameraGadgetAt <= PadBindingState.HoldSeconds) return;
-        if (context.Slot2IsCloak || context.CloakSelected) Pulse(control + ":select", "Action:slot2");
-        if (context.Slot2IsCloak) Pulse(control + ":cloak", "Action:cloakquick");
         Pulse(control + ":tap", "Action:quick2");
     }
 

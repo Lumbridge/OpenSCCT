@@ -140,7 +140,7 @@ public partial class AlternateModePanel : Control
 
             if (_slots[team] is { } spin)
             {
-                int allowed = BitOperations.PopCount(team == 0 ? rules.SpyGadgets : rules.MercGadgets);
+                int allowed = team == 0 ? rules.AvailableSpyGadgets : BitOperations.PopCount(rules.MercGadgets);
                 spin.MaxValue = Math.Min(AlternateRules.MaxGadgetCount, allowed);
                 spin.SetValueNoSignal(team == 0 ? rules.SpyGadgetCount : rules.MercGadgetCount);
             }
@@ -163,6 +163,7 @@ public partial class AlternateModePanel : Control
         side.AddChild(new Label { Text = "Gadgets", Modulate = UiStyle.MenuFocus });
         for (int g = 0; g < AlternateRules.GadgetOptions; g++)
         {
+            if (g < gadgets.Count && OpenScct.Game.Equipment.SpyCloak.IsLegacyGadget(gadgets[g].Path)) continue;
             int option = g;
             string name = g < gadgets.Count ? GearMenuModel.NameOf(gadgets[g].Path ?? string.Empty) : "Gadget " + (g + 1);
             CheckBox box = Check(name, (team == 0 ? "SpyGadget" : "MercGadget") + (g + 1));

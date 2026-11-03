@@ -9,6 +9,8 @@ public static class DefaultKeyLayout
     public const string GearKey = "I";
     public const string SpyPerspectiveKey = "X";
     public const string PerspectiveBindingMarker = "; OpenSCCT spy perspective binding v1";
+    public const string CloakKey = "K";
+    public const string CloakBindingMarker = "; OpenSCCT innate cloak binding v1";
 
     /// <summary>Both original Default_kbd_0/1.ini layouts resolve to these same bindings.</summary>
     public static KeyLayout Create() => KeyLayout.Parse(StockLayout);
@@ -38,6 +40,8 @@ public static class DefaultKeyLayout
         // new snapshots carry the marker even when the player deliberately leaves it unbound.
         if (saved?.Contains(PerspectiveBindingMarker, StringComparison.Ordinal) != true)
             AddIfFree(layout, SpyPerspectiveKey, "SwitchSpyPerspective");
+        if (saved?.Contains(CloakBindingMarker, StringComparison.Ordinal) != true)
+            AddIfFree(layout, CloakKey, "Button bCloak");
         layout.UpgradeWheelBindings(wheelMode);
         return layout;
     }
@@ -47,7 +51,8 @@ public static class DefaultKeyLayout
 
     private static void AddIfFree(KeyLayout layout, string key, string command)
     {
-        if (!layout.Bindings.ContainsKey(key) && !HasAction(layout, command)) layout.Bind(key, command);
+        string action = command.StartsWith("Button ", StringComparison.Ordinal) ? command[7..] : command;
+        if (!layout.Bindings.ContainsKey(key) && !HasAction(layout, action)) layout.Bind(key, command);
     }
 
     // Expanded commands keep the fallback independent of the original INI's alias names.

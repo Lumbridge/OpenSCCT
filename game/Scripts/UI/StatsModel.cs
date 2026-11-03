@@ -17,6 +17,7 @@ public static class StatsModel
 
     public static readonly (string Category, string Key, string Label)[] Counters =
     [
+        .. CareerStatCounters.All.Select(c => (c.Category, c.Key, c.Label)),
         ("Spy", FeatKeys.SpyGrabKills, "Grab kills"),
         ("Spy", FeatKeys.SpyNeckBreaks, "Neck breaks"),
         ("Spy", FeatKeys.SpyChokes, "Chokes"),
@@ -24,9 +25,10 @@ public static class StatsModel
         ("Spy", FeatKeys.SpyObjectives, "Objectives completed"),
         ("Spy", FeatKeys.SpyShockerHeadshots, "Shocker headshots"),
         ("Spy", FeatKeys.SpyLedgeGrabs, "Ledge grabs"),
+        ("Spy", FeatKeys.SpyMineKills, "Mercenaries killed with their mines"),
         ("Mercenary", FeatKeys.MercSniperKills, "Scoped kills"),
         ("Mercenary", FeatKeys.MercHeadshots, "Headshot kills"),
-        ("Mercenary", FeatKeys.MercTerminateKills, "Termination kills"),
+        ("Mercenary", FeatKeys.MercTerminateKills, "Choke kills"),
         ("Mercenary", FeatKeys.MercHipfireKills, "Hip-fire kills"),
         ("Mercenary", FeatKeys.MercChargeHits, "Charge hits"),
         ("Mercenary", FeatKeys.MercBerserkHits, "Berserk hits"),
@@ -65,10 +67,17 @@ public static class StatsModel
         rows.Add(new("Overview", "Deaths per round", Ratio(s.Deaths, s.Matches)));
         Add("Spy", "Rounds won as spy", s.SpyWins);
         Add("Mercenary", "Rounds won as mercenary", s.MercWins);
+        foreach (var (category, rounds) in new[] { ("Spy", s.SpyRounds), ("Mercenary", s.MercRounds) })
+        {
+            rows.Add(new(category, "Rounds played (since tracking began)", rounds is null ? "—" : Number(rounds.Matches)));
+            rows.Add(new(category, "Win rate (since tracking began)", rounds is null ? "—" : Ratio(rounds.Wins, rounds.Matches, true)));
+        }
         string Feat(string key) => account.Career is { } career
             ? Number(career.Feats.TryGetValue(key, out int value) ? value : 0) : "—";
         foreach (var counter in Counters)
             rows.Add(new(counter.Category, counter.Label, Feat(counter.Key)));
+        long Total(string key) => account.Career?.Feats.GetValueOrDefault(key) ?? 0;
+        rows.Add(new("Weapons", "Accuracy", account.Career is null ? "—" : Ratio(Total(CareerStatCounters.ShotsHit), Total(CareerStatCounters.ShotsFired), true)));
         var guns = new[] { (Id: "ar", Name: "Assault rifle"), (Id: "smg", Name: "SMG"), (Id: "shotgun", Name: "Shotgun") }
             .Concat(Sidearms.All.Select(g => (g.Id, g.Name)));
         foreach (var gun in guns)

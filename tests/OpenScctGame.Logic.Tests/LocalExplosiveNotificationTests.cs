@@ -90,12 +90,12 @@ public sealed class LocalExplosiveNotificationTests
         Assert.Same(owner, session.LocalController);
         Assert.True(body.Health <= 0, "The timed explosion did not kill the local player's pawn.");
         GameCall death = Assert.Single(messages, c => c.Class.Path == HudMessages.DeathMessageClass);
-        Assert.Equal((int)SDamageType.SDamage_Explosion, death.Int);
+        Assert.Equal((int)SDamageType.SDamage_Explosion, OpenScct.Game.Combat.CombatActivityDeath.LegacySwitch(death.Int));
         Assert.Equal(killer.PlayerReplicationInfo.PlayerName, death.Pri1?.PlayerName);
         Assert.Same(owner.PlayerReplicationInfo, death.Pri2);
         HudActivityEntry entry = Assert.Single(feed.Entries, e => e.IsCombat);
         Assert.Equal(HudActivityKind.Kill, entry.Kind);
-        Assert.Equal(HudActivityCause.Explosion, entry.Cause);
+        Assert.Equal(mine ? HudActivityCause.ProximityMine : HudActivityCause.FragGrenade, entry.Cause);
         Assert.True(entry.InvolvesLocalPlayer);
         Assert.Equal(killer.PlayerReplicationInfo.PlayerName, entry.Actor?.Name);
         Assert.Equal(owner.PlayerReplicationInfo!.PlayerName, entry.Victim?.Name);

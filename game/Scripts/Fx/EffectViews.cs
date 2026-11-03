@@ -503,6 +503,19 @@ public sealed partial class EffectViews : Node3D
                             Math.Max(a.AmbientGlow, (byte)64)));
                     }
                 }
+                if (a is SBackPack)
+                {
+                    // Carried equipment remains visible with any gadget selected. Wait for the replicated wearer
+                    // and spine attachment instead of briefly drawing a detached backpack at the spawn position.
+                    mesh.Visible &= onBone && a.AttachmentBone == OpenScct.Game.Equipment.K.BackPackBone &&
+                        a.Instigator is SBasePawn { bDeleteMe: false } carrier && ReferenceEquals(a.Base, carrier);
+                    if (mesh.Visible && Map is { } backpackMap)
+                    {
+                        Aabb bounds = mesh.Transform * mesh.Mesh.GetAabb();
+                        ActorLighting.Apply(mesh, backpackMap.LightActor(UeSpace.ToUe(bounds.GetCenter()),
+                            MathF.Max(8f, bounds.Size.Length() * UeSpace.UnitsPerMetre * 0.5f), a.AmbientGlow));
+                    }
+                }
                 // On the pawn seen from its own eyes it follows the body to the shadow-only layer: out of the main view,
                 // still in the flares' shadows (SimPawnView.SetShadowOnly).
                 mesh.Layers = onBone && pawnShadowOnly ? RenderLayers.ShadowOnly : RenderLayers.World;

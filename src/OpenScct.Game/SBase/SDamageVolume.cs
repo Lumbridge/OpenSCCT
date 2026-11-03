@@ -1,5 +1,6 @@
 using OpenScct.Core;
 using OpenScct.Core.Engine;
+using OpenScct.Game.Combat;
 using OpenScct.Provenance;
 
 namespace OpenScct.Game.SBase;
@@ -10,6 +11,7 @@ namespace OpenScct.Game.SBase;
 /// </summary>
 public partial class SDamageVolume
 {
+    private CombatDeathSource _activitySource;
     /// <summary>A new toucher restarts the damage period, so it is hurt at once.</summary>
     [Uc("SBase.SDamageVolume.Touch", Sha1 = "6eb8ed3eadb86b3c62727b81d0eedcbfe5359443")]
     [PortOf("uc:SBase.SDamageVolume:Touch", Spec = "spec/devices/damage-volume.md#rules")]
@@ -44,15 +46,25 @@ public partial class SDamageVolume
         if (!bActive)
         {
             TriggerController = null;
+            _activitySource = default;
             return;
         }
 
-        if (EventInstigator is null && Other is not null)
+        CombatDeathSource source = CombatDeathContext.Current;
+        PlayerReplicationInfo? sourceInstigator = source.Instigator ?? source.Detonator;
+        if (sourceInstigator is not null)
+        {
+            // The queued source survives its prop and the shooter's old pawn. Never substitute a later trigger.
+            TriggerController = sourceInstigator is { bDeleteMe: false, Owner: Controller { bDeleteMe: false } owner }
+                ? owner : null;
+            EventInstigator = TriggerController?.Pawn;
+        }
+        else if (EventInstigator is null && Other is not null)
         {
             EventInstigator = Other.Instigator;
         }
 
-        if (EventInstigator is null && Level.Game is SGameInfo game)
+        if (sourceInstigator is null && EventInstigator is null && Level.Game is SGameInfo game)
         {
             EventInstigator = game.GPODamageInstigator;
         }
@@ -61,6 +73,12 @@ public partial class SDamageVolume
         {
             TriggerController = EventInstigator.Controller;
         }
+        _activitySource = source with
+        {
+            Cause = CombatDeathContext.VolumeCause(this, source),
+            Detonator = source.Detonator ?? EventInstigator?.PlayerReplicationInfo,
+            Instigator = sourceInstigator ?? EventInstigator?.PlayerReplicationInfo,
+        };
     }
 
     [Uc("SBase.SDamageVolume.UnTrigger", Sha1 = "250b9eb630e2cdf297d0e563cf0ffd4b4b1f6054")]
@@ -69,6 +87,7 @@ public partial class SDamageVolume
     {
         bActive = false;
         TriggerController = null;
+        _activitySource = default;
     }
 
     /// <summary>
@@ -93,6 +112,8 @@ public partial class SDamageVolume
         }
 
         LastDamageTime = now;
+        using var activity = CombatDeathContext.Push(_activitySource.Cause != CombatDeathCause.None
+            ? _activitySource : new(CombatDeathContext.VolumeCause(this, default)));
         Actor[] touching = Touching.ToArray();
         foreach (Actor victim in touching)
         {
@@ -106,7 +127,7 @@ public partial class SDamageVolume
             {
                 if (pawn.Controller is SPlayerController controller && controller.bIsDamageVolumeSensitive())
                 {
-                    controller.PawnTakeDamage(HitPoints, null, victim.Location, momentum, DamageType);
+                    controller.PawnTakeDamage(HitPoints, TriggerController?.Pawn, victim.Location, momentum, DamageType);
                 }
             }
             else

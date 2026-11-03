@@ -97,7 +97,12 @@ public readonly record struct AlternateRules(bool On, AlternateAbility Abilities
     public AlternateRules With(AlternateAbility ability, bool on) => this with { Abilities = on ? Abilities | ability : Abilities & ~ability };
 
     /// <summary>Whether a side's gadget option is allowed (SPersistentData.GetGadgetRestriction).</summary>
-    public bool GadgetAllowed(int team, int option) => (((team == 0 ? SpyGadgets : MercGadgets) >> option) & 1) != 0;
+    public bool GadgetAllowed(int team, int option) =>
+        !(team == 0 && option == OpenScct.Game.Equipment.SpyCloak.LegacyGadgetOption) &&
+        (((team == 0 ? SpyGadgets : MercGadgets) >> option) & 1) != 0;
+
+    [System.Text.Json.Serialization.JsonIgnore]
+    public int AvailableSpyGadgets => BitOperations.PopCount((uint)(SpyGadgets & ~(1 << OpenScct.Game.Equipment.SpyCloak.LegacyGadgetOption)));
 
     /// <summary>A side's gadget option allowed or not (SetGadgetRestriction sets the page's checked boxes).</summary>
     public AlternateRules WithGadget(int team, int option, bool allowed)
@@ -115,7 +120,7 @@ public readonly record struct AlternateRules(bool On, AlternateAbility Abilities
     public AlternateRules Clamped() => this with
     {
         Abilities = Abilities & AllAbilities,
-        SpyGadgetCount = (byte)Math.Clamp((int)SpyGadgetCount, 0, Math.Min(MaxGadgetCount, BitOperations.PopCount(SpyGadgets))),
+        SpyGadgetCount = (byte)Math.Clamp((int)SpyGadgetCount, 0, Math.Min(MaxGadgetCount, AvailableSpyGadgets)),
         MercGadgetCount = (byte)Math.Clamp((int)MercGadgetCount, 0, Math.Min(MaxGadgetCount, BitOperations.PopCount(MercGadgets))),
     };
 
@@ -258,7 +263,7 @@ public readonly record struct AlternateRules(bool On, AlternateAbility Abilities
         }
 
         string gadgets = string.Create(CultureInfo.InvariantCulture,
-            $"spy gadgets {BitOperations.PopCount(SpyGadgets)}/8 ({SpyGadgetCount} slots), merc gadgets {BitOperations.PopCount(MercGadgets)}/8 ({MercGadgetCount} slots)");
+            $"spy gadgets {AvailableSpyGadgets}/7 ({SpyGadgetCount} slots), merc gadgets {BitOperations.PopCount(MercGadgets)}/8 ({MercGadgetCount} slots)");
         return ", alternate (" + (off.Count > 0 ? string.Join(", ", off) + ", " : string.Empty) + gadgets + ")";
     }
 }

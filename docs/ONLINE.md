@@ -384,7 +384,16 @@ The master's database (schema v2) keeps per-account feat totals (`feat_totals`) 
 alongside the stats. A v1 database is upgraded in place.
 
 **Feats.** Trusted servers count each round's feats per player and send them in the results row (`Feats`, names in
-`OpenScct.Core.Engine.FeatKeys`). The master adds at most 200 per feat per round and ignores names it does not know.
+`OpenScct.Core.Engine.FeatKeys`). The master adds at most 200 per achievement feat per round and ignores names it does not know.
+Additional `career.*` counters are exported from the round's `USPlayerStats` using `CareerStatCounters`:
+shots fired/hit, damage dealt/taken, environmental/team kills and suicides, melee/drop attacks dealt/received,
+grabs, alarms, capture time, medkits, death causes, knockouts received, trackers/trap targets, secured bombs,
+returned disks, gas-mask time and backpacks given/taken. These accumulate in `feat_totals` and appear in the
+relevant Stats tabs and player portal. Accuracy is total hits / total shots, not an average of round percentages.
+Durations are whole seconds (gas-mask time is truncated once per round). Per-round limits are 1,000,000 shots,
+10,000,000 damage, 86,400 seconds, and 10,000 for the other new counters; existing achievement limits remain 200.
+New counters start accumulating when both the trusted game server and master are updated; historical rounds
+without these counters cannot be backfilled. Existing totals are preserved.
 - **Kills** are sorted in `SGameInfo.Killed` (`SGameInfo.Feats.cs`) by:
   - damage type: grab break or choke, drop attack, scope;
   - the running blast (`GadgetBlast.CurrentIsMine`: grenade or mine);
