@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using Godot;
 using OpenScctGame.Hud.Magma;
+using OpenScctGame.Options;
 using OpenScctGame.UI;
 
 namespace OpenScctGame.Hud;
@@ -39,7 +40,8 @@ public sealed class HudActivityFeedDrawer
 
     /// <summary>Entries arrive newest first. Hiding the view never changes or extends their lifetime.</summary>
     public void Draw(Vector2 screen, IReadOnlyList<HudActivityEntry> entries, float now, HudPage? activePage,
-        IReadOnlyList<MagmaDrawItem>? fpsItems = null, IReadOnlyList<MagmaDrawItem>? netItems = null, bool shown = true)
+        IReadOnlyList<MagmaDrawItem>? fpsItems = null, IReadOnlyList<MagmaDrawItem>? netItems = null, bool shown = true,
+        HudElementSettings? layout = null, bool editorPreview = false, HudPage? layoutPage = null)
     {
         DrawList.Clear();
         Bounds = default;
@@ -54,8 +56,11 @@ public sealed class HudActivityFeedDrawer
         float h = Math.Clamp(MathF.Round(10f * feedScale), 12f, 26f);
         float small = Math.Max(10f, MathF.Round(h * .78f));
         float rowHeight = Math.Max(36f, Math.Max(36f * feedScale, h + small + 12f * feedScale));
-        float right = RightEdge(screen, activePage, margin, scale);
+        bool positioned = editorPreview || layout is not null;
+        float layoutScale = layout?.Scale ?? 1f;
+        float right = RightEdge(screen, positioned ? layoutPage ?? activePage : activePage, margin, scale, positioned);
         float width = Math.Min(300f * feedScale, right - margin);
+        if (positioned) width = Math.Min(width, screen.X / layoutScale);
         if (width < 96f) return;
         float textWidth = width - Math.Max(24f, 22f * feedScale) - 3f * Math.Max(6f, 6f * feedScale);
         _activeEntries.Clear();
@@ -79,14 +84,29 @@ public sealed class HudActivityFeedDrawer
         float safeBottom = screen.Y * .45f;
         int desiredRows = _activeEntries.Count;
         Rect2 fpsBounds = TelemetryBounds(fpsItems), netBounds = TelemetryBounds(netItems);
-        Vector2 available = AvailableBand(activePage, fpsBounds, netBounds, left, right, margin, safeBottom,
+        Vector2 sourceOrigin = new(left, margin);
+        Vector2 targetOrigin = sourceOrigin;
+        Vector2 available;
+        if (positioned)
+        {
+            // A player-authored feed grows down from one stable point. Prompts, diagnostics, scope pages
+            // and the number/height of incoming events must never move that point after editing.
+            float maximumRowHeight = rowHeight + 2f * (small + 3f * feedScale);
+            targetOrigin = (sourceOrigin + new Vector2(layout?.X ?? 0f, layout?.Y ?? 0f) * screen)
+                .Clamp(Vector2.Zero, (screen - new Vector2(width, maximumRowHeight) * layoutScale).Max(Vector2.Zero));
+            available = new Vector2(margin, margin + (screen.Y - targetOrigin.Y) / layoutScale);
+        }
+        else available = AvailableBand(activePage, fpsBounds, netBounds, left, right, margin, safeBottom,
             gap, desiredRows);
         int room = Rows(available);
         float preferredRight = right;
         // Tall graphs can fill the entire usual lane. Keep notifications above the crosshair by trying
         // space beside those panels before dropping rows; equal-capacity choices retain the usual lane.
-        TryBeside(fpsBounds);
-        TryBeside(netBounds);
+        if (!positioned)
+        {
+            TryBeside(fpsBounds);
+            TryBeside(netBounds);
+        }
         float top = available.X, bottom = available.Y;
         AvailableBounds = new Rect2(left, top, width, Math.Max(0f, bottom - top));
         int count = Math.Min(desiredRows, room);
@@ -106,6 +126,13 @@ public sealed class HudActivityFeedDrawer
             VisibleCount++;
         }
         if (VisibleCount > 0) Bounds = new Rect2(left, top, width, cursor - top - gap);
+        if (positioned)
+        {
+            HudEditorTransform.Apply(DrawList.Items, "Activity", layout ?? new HudElementSettings(), sourceOrigin, targetOrigin);
+            Bounds = new Rect2(targetOrigin, Bounds.Size * layoutScale);
+            AvailableBounds = new Rect2(targetOrigin, AvailableBounds.Size * layoutScale);
+        }
+        if (layout is { Visible: false }) VisibleCount = 0;
 
         int Rows(Vector2 band) => RowsThatFit(band.Y - band.X, gap, desiredRows);
 
@@ -127,10 +154,10 @@ public sealed class HudActivityFeedDrawer
         }
     }
 
-    private float RightEdge(Vector2 screen, HudPage? page, float margin, float scale)
+    private float RightEdge(Vector2 screen, HudPage? page, float margin, float scale, bool stable = false)
     {
         if (page is null) return screen.X - margin;
-        if (!_reservedRight.TryGetValue(page, out float pageLeft))
+        if (stable || !_reservedRight.TryGetValue(page, out float pageLeft))
         {
             pageLeft = HudLayout.PageWidth;
             foreach (string name in ReservedAreas)
@@ -138,13 +165,13 @@ public sealed class HudActivityFeedDrawer
                 if (page.Area(name) is not { } area) continue;
                 MagmaWidget widget = page.Root.Area.Widgets[area.WidgetIndex];
                 if (widget.Keys.Count == 0) continue;
-                Vector2 at = area.PositionOverride ?? widget.Keys[0].Pos;
+                Vector2 at = stable ? widget.Keys[0].Pos : area.PositionOverride ?? widget.Keys[0].Pos;
                 if (at.X < HudLayout.PageWidth * .5f) continue;
                 // Reserve hidden countdowns too: the feed must not jump sideways when one appears.
-                float childLeft = area.ChildBounds() is { } bounds ? Math.Min(0f, bounds.L) : 0f;
+                float childLeft = !stable && area.ChildBounds() is { } bounds ? Math.Min(0f, bounds.L) : 0f;
                 pageLeft = Math.Min(pageLeft, at.X + childLeft);
             }
-            _reservedRight[page] = pageLeft;
+            if (!stable) _reservedRight[page] = pageLeft;
         }
         if (pageLeft >= HudLayout.PageWidth) return screen.X - margin;
         float x = page.Renderer.StretchAll ? pageLeft * screen.X / HudLayout.PageWidth

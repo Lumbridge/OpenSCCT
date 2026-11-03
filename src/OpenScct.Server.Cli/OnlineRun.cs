@@ -42,7 +42,8 @@ internal static class OnlineRun
         LiteNetLibTransport udp;
         try
         {
-            udp = LiteNetLibTransport.Listen(config.Port, config.MaxPlayers + config.MaxSpectators + 4, config.LoopbackOnly);
+            // Lobby settings can grow after startup; keep the socket ready for the full supported capacity.
+            udp = LiteNetLibTransport.Listen(config.Port, Math.Max(config.MaxPlayers, LobbySetup.MaxMaxPlayers) + config.MaxSpectators + 4, config.LoopbackOnly);
         }
         catch (InvalidOperationException e)
         {

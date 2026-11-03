@@ -415,6 +415,7 @@ public sealed class MagmaRenderer
         MagmaDrawList into)
     {
         MagmaOverride? o = node.FindOverride(w.Name);
+        anchor = o?.Anchor ?? anchor;
         Rect4 r = k.Rect;
         if (o?.Pos is { } pos)
         {

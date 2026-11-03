@@ -8,7 +8,7 @@ public partial class OptionsMenu
     private void TelemetryControls(GridContainer grid)
     {
         FpsTelemetrySettings fps = _edit.FpsTelemetry;
-        Section(grid, "FPS & frame timing", "Frame time is the time between rendered frames. Lower is better; a spike can reveal a stutter.");
+        Section(grid, "FPS & frame timing", "Frame time is the time between rendered frames. Lower is better; a spike can reveal a stutter. Move this readout in the HUD editor.");
         TelemetryDisplay(grid, "FPS display", "show_fps", fps, _edit.ShowFps, value => _edit.ShowFps = value);
         TelemetryAppearance(grid, "fps_telemetry", fps);
         Check(grid, "Frame time (ms)", "fps_telemetry.show_frame_time", fps.ShowFrameTime, value => fps.ShowFrameTime = value);
@@ -22,7 +22,7 @@ public partial class OptionsMenu
         TelemetryIssueHold(grid, "fps_telemetry", fps);
 
         NetworkTelemetrySettings net = _edit.NetworkTelemetry;
-        Section(grid, "Network information", "Issues include high ping, jitter, packet loss and interrupted updates. A host also sees its players' ping range.");
+        Section(grid, "Network information", "Issues include high ping, jitter, packet loss and interrupted updates. A host also sees its players' ping range. Move this readout in the HUD editor.");
         TelemetryDisplay(grid, "Network display", "show_net", net, _edit.ShowNet, value => _edit.ShowNet = value);
         TelemetryAppearance(grid, "network_telemetry", net);
         Check(grid, "Detailed network information", "network_telemetry.detailed", net.Detailed, value => net.Detailed = value);
@@ -61,10 +61,6 @@ public partial class OptionsMenu
 
     private void TelemetryAppearance(GridContainer grid, string key, TelemetrySettings settings)
     {
-        Slider(grid, "Horizontal position (0 = left, 100 = right)", key + ".position_x", 0f, 100f, 1f,
-            settings.PositionX, value => settings.PositionX = value, "0", typed: true);
-        Slider(grid, "Vertical position (0 = top, 100 = bottom)", key + ".position_y", 0f, 100f, 1f,
-            settings.PositionY, value => settings.PositionY = value, "0", typed: true);
         Slider(grid, "Scale (%)", key + ".scale", 50f, 200f, 1f,
             settings.Scale, value => settings.Scale = value, "0", typed: true);
         Slider(grid, "Opacity (%)", key + ".opacity", 0f, 100f, 1f,

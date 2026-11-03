@@ -32,7 +32,5 @@ public static class SpyCloak
 
         byte target = active ? K.FullGlass : (byte)0;
         PawnVision.SetDesiredGlassValue(spy, target);
-        // A second press must reverse a request even before its server reply arrives.
-        if (spy.Role < ENetRole.ROLE_Authority) spy.DesiredGlassEffect = target;
     }
 }

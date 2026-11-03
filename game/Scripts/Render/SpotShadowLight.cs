@@ -51,6 +51,23 @@ public sealed record SpotShadowShape(float Range, float SpotWidth, float SpotHei
         float p = Math.Clamp(NearPlaneRatio, 0f, 1f);
         return p >= RenderK.SpotParallelRatio ? null : p * Range / (1f - p);
     }
+
+    /// <summary>Conservative bounds of the complete lit volume, used before allocating an atlas slot.</summary>
+    public Aabb InfluenceBounds(FVector location, FRotator rotation)
+    {
+        rotation.GetAxes(out FVector forward, out FVector right, out FVector up);
+        var bounds = new Aabb(UeSpace.ToGodot(location), Vector3.Zero);
+        float nearRatio = ApexDistance() is null ? 1f : Math.Clamp(NearPlaneRatio, 0f, 1f);
+        for (int end = 0; end < 2; end++)
+        {
+            FVector center = location + forward * (end * Range);
+            float scale = end == 0 ? nearRatio : 1f;
+            for (int x = -1; x <= 1; x += 2)
+                for (int y = -1; y <= 1; y += 2)
+                    bounds = bounds.Expand(UeSpace.ToGodot(center + right * (x * SpotWidth * scale) + up * (y * SpotHeight * scale)));
+        }
+        return bounds;
+    }
 }
 
 /// <summary>
@@ -154,7 +171,7 @@ public sealed partial class SpotShadowLight : IDisposable
     private readonly Camera3D? _staticCamera;
     private readonly ShadowDepthCapture? _staticCapture;
     private bool _staticDirty = true;
-    private (bool Live, FVector Location, FRotator Rotation, float Scale, int Zone, float Soft)? _lastPush;
+    private (bool Live, FVector Location, FRotator Rotation, float Scale, float Visibility, int Zone, float Soft)? _lastPush;
 
     /// <param name="parent">Node the light's shadow viewport goes under.</param>
     /// <param name="pack">The render pack (attenuation ramps; the cookie when <paramref name="cookie"/> is null).</param>
@@ -268,6 +285,9 @@ public sealed partial class SpotShadowLight : IDisposable
     /// <summary>The light type's brightness factor this frame (FDynamicLight::Update); applied at the next <see cref="Push"/>.</summary>
     public float Scale { get; set; } = 1f;
 
+    /// <summary>Map-budget transition gain, shared by surface lighting and the light beam.</summary>
+    public float VisibilityGain { get; set; } = 1f;
+
     /// <summary>False when every slot was taken: the light draws nothing.</summary>
     public bool HasSlot => _slot >= 0;
 
@@ -287,6 +307,9 @@ public sealed partial class SpotShadowLight : IDisposable
 
         return -1;
     }
+
+    public static float VisibilityOf(int slot) => slot >= 0 && slot < s_slots.Length
+        ? s_slots[slot]?.VisibilityGain ?? 0f : 0f;
 
     /// <summary>LightType != LT_None: the shadow pass runs and the template adds the light.</summary>
     public bool On
@@ -334,18 +357,7 @@ public sealed partial class SpotShadowLight : IDisposable
             }
             // Bounds of the complete lit frustum, including the volume used by light beams. A shadow map outside
             // the viewing frustum cannot affect that view; keep its atlas tile and refresh it when visible again.
-            rotation.GetAxes(out FVector forward, out FVector right, out FVector up);
-            Vector3 first = UeSpace.ToGodot(location);
-            _influenceBounds = new Aabb(first, Vector3.Zero);
-            float nearRatio = _parallel ? 1f : Math.Clamp(Shape.NearPlaneRatio, 0f, 1f);
-            for (int end = 0; end < 2; end++)
-            {
-                FVector center = location + forward * (end * Shape.Range);
-                float scale = end == 0 ? nearRatio : 1f;
-                for (int x = -1; x <= 1; x += 2)
-                    for (int y = -1; y <= 1; y += 2)
-                        _influenceBounds = _influenceBounds.Expand(UeSpace.ToGodot(center + right * (x * Shape.SpotWidth * scale) + up * (y * Shape.SpotHeight * scale)));
-            }
+            _influenceBounds = Shape.InfluenceBounds(location, rotation);
         }
 
         if (_staticViewport is not null && _staticDirty) UpdateShadowViewport();
@@ -356,18 +368,7 @@ public sealed partial class SpotShadowLight : IDisposable
     /// <summary>Conservative culling of the shadow pass, keeping the light and its atlas slot intact.</summary>
     public void CullShadow(ReadOnlySpan<Plane> frustum)
     {
-        bool visible = true;
-        Vector3 center = _influenceBounds.GetCenter();
-        Vector3 half = _influenceBounds.Size * 0.5f;
-        foreach (Plane plane in frustum)
-        {
-            Vector3 n = plane.Normal.Abs();
-            if (plane.DistanceTo(center) > n.Dot(half))
-            {
-                visible = false;
-                break;
-            }
-        }
+        bool visible = ViewFrustum.Intersects(_influenceBounds, frustum);
 
         if (_cameraVisible != visible)
         {
@@ -397,7 +398,7 @@ public sealed partial class SpotShadowLight : IDisposable
         }
 
         bool live = _on && !_disposed && _camera.IsInsideTree() && _capture.Ready;
-        var state = (live, Placement.Location, Placement.Rotation, Scale, Zone, SoftRadius);
+        var state = (live, Placement.Location, Placement.Rotation, Scale, VisibilityGain, Zone, SoftRadius);
         if (_lastPush == state)
         {
             return;
@@ -419,7 +420,7 @@ public sealed partial class SpotShadowLight : IDisposable
         SetRow(_slot, 2, new Vector4(b.Row2.X, b.Row2.Y, b.Row2.Z, view.Origin.Z));
         float range = UeSpace.LengthToGodot(Shape.Range);
         SetRow(_slot, 3, new Vector4(Shape.Dynamic ? 2f : 1f, range, Shape.NormalInfluence, Shape.Attenuation));
-        Vector3 c = _colour * Scale;
+        Vector3 c = _colour * (Scale * VisibilityGain);
         SetRow(_slot, 4, new Vector4(c.X, c.Y, c.Z, UeSpace.LengthToGodot(_apex)));
         float aspect = _size.X / (float)_size.Y;
         Vector4 frustum;

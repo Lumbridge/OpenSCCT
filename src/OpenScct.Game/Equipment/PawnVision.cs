@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using OpenScct.Core;
 using OpenScct.Core.Engine;
 using OpenScct.Core.Uc;
@@ -220,7 +222,7 @@ public static class PawnVision
 
     /// <summary>
     /// TestAndSetEMFVisible (rule 12, on the controlling machine): a spy shows in EMF vision while any of weapon
-    /// drawn, a vision mode on, binoculars, a spy mark, a cloak target, phospho; mercs always.
+    /// drawn, a vision mode on, binoculars, a spy mark, an active or fading cloak, phospho; mercs always.
     /// </summary>
     [Uc("SBase.SBasePawn.TestAndSetEMFVisible", Sha1 = "26573b4e27f62d552000faefafc18c1cc4b10fc8")]
     [PortOf("uc:SBase.SBasePawn:TestAndSetEMFVisible", Spec = "spec/equipment/vision-goggles.md#rules")]
@@ -229,12 +231,13 @@ public static class PawnVision
         bool visible = Pawn.SPawnType == PawnType.SPAWNDEFENSE || IsSpyEmfVisible(Pawn);
         if (visible)
         {
-            Pawn.MyWeapon?.SetEMFWeapon();
+            // Keep the owning client's presentation in sync with the condition it sends to the server.
+            SetEMF(Pawn);
             SetEMFToServer(Pawn);
         }
         else
         {
-            Pawn.MyWeapon?.UnSetEMFWeapon();
+            UnSetEMF(Pawn);
             UnSetEMFToServer(Pawn);
         }
     }
@@ -246,8 +249,10 @@ public static class PawnVision
         bool vision = Pawn.GoggleBeam is { } beam
             ? beam.CurrentMode != K.BeamModeNone && beam.CurrentMode != K.BeamModeNormal
             : ((Pawn.Controller as SPlayerController)?.Goggle?.CurrentMode ?? SGoggle.REN_DynLight) != SGoggle.REN_DynLight;
+        bool fading = Pawn.SlopeGlassEffect < 0f &&
+            Pawn.Level.TimeSeconds - Pawn.PerturbationStartTime < Pawn.PerturbationDuration;
         return Pawn.WeaponLoaded != 0 || vision || Pawn.bBinocularsOn || Pawn.bSpyBulletOn ||
-            Pawn.DesiredGlassEffect != 0 || IsPhosphoSkinned(Pawn);
+            Pawn.DesiredGlassEffect != 0 || Pawn.GlassEffect != 0 || fading || IsPhosphoSkinned(Pawn);
     }
 
     /// <summary>The phospho skin is on: PhosphoSkinTime (its end time) is set and not reached.</summary>
@@ -351,27 +356,53 @@ public static class PawnVision
     private static readonly Name CNAME_SetDesiredGlassValueOnClients = new("SetDesiredGlassValueOnClients");
     private static readonly Name CNAME_SetPerturbationGlass = new("SetPerturbationGlass");
     private static readonly Name CNAME_SetPerturbationGlassOnClients = new("SetPerturbationGlassOnClients");
+    private sealed class GlassPrediction
+    {
+        public int NextRequestId = 1;
+        public readonly Dictionary<int, (byte Target, float Duration)> Pending = new();
+    }
+
+    private static readonly ConditionalWeakTable<SBasePawn, GlassPrediction> PredictedGlassTargets = new();
 
     /// <summary>
     /// SetDesiredGlassValue (spy-energy.md rule 7): a new cloak target (the same target does nothing), reached
     /// linearly over Duration (0: PerturbationDefaultValue) from the current amount, with a perturbation of the same
-    /// length, then the broadcast to every client. A client-to-server function (rep-pawn.md block 7): called on the
-    /// spy's own client it is sent to the server and does not run there.
+    /// length, then the broadcast to every client. The owning client predicts its visual transition while the
+    /// client-to-server request (rep-pawn.md block 7) is in flight; the server still broadcasts the accepted target.
     /// </summary>
     [Uc("SBase.SBasePawn.SetDesiredGlassValue", Sha1 = "26c096360b43a5ce60f9c760e77dc684c3b52b44")]
     [PortOf("uc:SBase.SBasePawn:SetDesiredGlassValue", Spec = "spec/equipment/spy-energy.md#rules")]
     [PortOf("rep:SBase.SBasePawn.SetDesiredGlassValue", Spec = "spec/net/rep-pawn.md#rules")]
     [Provenance(ProvenanceKind.Decoded, "SBasePawn.uc SetDesiredGlassValue: early return on the same target, slope (Desired - Glass) / Duration, B = Glass - now * slope, SetPerturbationGlass(Duration), then SetDesiredGlassValueOnClients")]
-    public static void SetDesiredGlassValue(SBasePawn Pawn, byte DesiredValue, float Duration = 0f)
+    public static void SetDesiredGlassValue(SBasePawn Pawn, byte DesiredValue, float Duration = 0f, int RequestId = 0)
     {
-        if (GadgetNet.ToServer(Pawn, Pawn.Controller as PlayerController,
-            new CombatCall(CNAME_SetDesiredGlassValue) { Target = Pawn, Int1 = DesiredValue, Float1 = Duration }))
+        if (DesiredValue == Pawn.DesiredGlassEffect)
         {
+            // A server-forced change may already have reached this target. Still acknowledge the owner's
+            // prediction, without restarting the transition for every other observer.
+            if (RequestId != 0 && Pawn.Role >= ENetRole.ROLE_Authority)
+            {
+                GadgetNet.ToOwner(Pawn.Controller as PlayerController,
+                    new CombatCall(CNAME_SetDesiredGlassValueOnClients)
+                    { Target = Pawn, Int1 = DesiredValue, Int2 = RequestId, Float1 = Duration, Bool1 = true });
+            }
             return;
         }
 
-        if (DesiredValue == Pawn.DesiredGlassEffect)
+        if (Pawn.Role < ENetRole.ROLE_Authority && Pawn.Controller is PlayerController)
         {
+            GlassPrediction prediction = PredictedGlassTargets.GetOrCreateValue(Pawn);
+            RequestId = prediction.NextRequestId++;
+            if (prediction.NextRequestId <= 0) prediction.NextRequestId = 1;
+            prediction.Pending.Add(RequestId, (DesiredValue, Duration == 0f ? Pawn.PerturbationDefaultValue : Duration));
+        }
+        if (GadgetNet.ToServer(Pawn, Pawn.Controller as PlayerController,
+            new CombatCall(CNAME_SetDesiredGlassValue) { Target = Pawn, Int1 = DesiredValue, Int2 = RequestId, Float1 = Duration }))
+        {
+            // Begin the visual transition on the input frame rather than waiting for a server round-trip.
+            // The request ID identifies both echoed effects, so damage flicker remains independent.
+            BeginGlassTransition(Pawn, DesiredValue, Duration);
+            ClientPerturbationGlass(Pawn, Duration);
             return;
         }
 
@@ -381,8 +412,8 @@ public static class PawnVision
         }
 
         SetGlassRamp(Pawn, DesiredValue, Duration);
-        SetPerturbationGlass(Pawn, Duration);
-        SetDesiredGlassValueOnClients(Pawn, DesiredValue, Duration);
+        SetPerturbationGlass(Pawn, Duration, RequestId: RequestId);
+        SetDesiredGlassValueOnClients(Pawn, DesiredValue, Duration, RequestId);
     }
 
     /// <summary>
@@ -391,12 +422,12 @@ public static class PawnVision
     /// </summary>
     [PortOf("rep:SBase.SBasePawn.SetDesiredGlassValueOnClients", Spec = "spec/net/rep-pawn.md#rules")]
     [Provenance(ProvenanceKind.Estimated, "A dedicated server also takes the ramp (without the sound): the original skips the call there, so after a damage decloak (StandardReactionsToDamage) the server's target stays 255 and its same-target test refuses the next cloak")]
-    public static void SetDesiredGlassValueOnClients(SBasePawn Pawn, byte DesiredValue, float Duration = 0f)
+    public static void SetDesiredGlassValueOnClients(SBasePawn Pawn, byte DesiredValue, float Duration = 0f, int RequestId = 0)
     {
         if (GadgetNet.ToAllClients(Pawn,
-            new CombatCall(CNAME_SetDesiredGlassValueOnClients) { Target = Pawn, Int1 = DesiredValue, Float1 = Duration }))
+            new CombatCall(CNAME_SetDesiredGlassValueOnClients) { Target = Pawn, Int1 = DesiredValue, Int2 = RequestId, Float1 = Duration }))
         {
-            ClientDesiredGlassValue(Pawn, DesiredValue, Duration);
+            ClientDesiredGlassValue(Pawn, DesiredValue, Duration, RequestId);
         }
         else if (Pawn.Level.NetMode == ENetMode.NM_DedicatedServer)
         {
@@ -410,7 +441,33 @@ public static class PawnVision
     /// </summary>
     [Uc("SBase.SBasePawn.SetDesiredGlassValueOnClients", Sha1 = "6f9caefca439d887dad4c850d3551d934ec649ba")]
     [PortOf("uc:SBase.SBasePawn:SetDesiredGlassValueOnClients", Spec = "spec/equipment/spy-energy.md#rules")]
-    public static void ClientDesiredGlassValue(SBasePawn Pawn, byte DesiredValue, float Duration = 0f)
+    public static void ClientDesiredGlassValue(SBasePawn Pawn, byte DesiredValue, float Duration = 0f, int RequestId = 0,
+        bool AcknowledgementOnly = false)
+    {
+        if (AcknowledgementOnly)
+        {
+            // The server was already at this target. A forced transition may have superseded the prediction
+            // while its request was in flight, so even an unknown acknowledgement must not replay that request.
+            if (PredictedGlassTargets.TryGetValue(Pawn, out GlassPrediction? acknowledged))
+                acknowledged.Pending.Remove(RequestId);
+            return;
+        }
+        if (PredictedGlassTargets.TryGetValue(Pawn, out GlassPrediction? prediction))
+        {
+            if (RequestId != 0 && prediction.Pending.Remove(RequestId, out var expected) &&
+                expected.Target == DesiredValue &&
+                expected.Duration == (Duration == 0f ? Pawn.PerturbationDefaultValue : Duration))
+            {
+                return;
+            }
+            // A server-forced state supersedes the outstanding local transitions.
+            prediction.Pending.Clear();
+        }
+
+        BeginGlassTransition(Pawn, DesiredValue, Duration);
+    }
+
+    private static void BeginGlassTransition(SBasePawn Pawn, byte DesiredValue, float Duration)
     {
         if (Duration == 0f)
         {
@@ -425,6 +482,19 @@ public static class PawnVision
         }
     }
 
+    /// <summary>Silently restores the cloak when an observer first receives this pawn's channel.</summary>
+    public static void ClientInitialGlass(SBasePawn Pawn, byte Amount, byte Target, float FadeRemaining,
+        float FlickerRemaining, float FlickerFrequency)
+    {
+        // The owner already predicts its own transitions; the initial observer state must not replace them.
+        if (Pawn.Role == ENetRole.ROLE_AutonomousProxy) return;
+        Pawn.GlassEffect = Amount;
+        SetGlassRamp(Pawn, Target, FadeRemaining);
+        Pawn.PerturbationStartTime = Pawn.Level.TimeSeconds;
+        Pawn.PerturbationDuration = System.MathF.Max(0f, FlickerRemaining);
+        Pawn.PerturbationValue = FlickerFrequency;
+    }
+
     /// <summary>
     /// SetPerturbationGlass: unless the ramp base is 0, a flicker window of Duration (0: PerturbationDefaultValue)
     /// at frequency Value (0: 12.8) from now, then the broadcast (the same window and the perturbation sound on every
@@ -433,29 +503,29 @@ public static class PawnVision
     [Uc("SBase.SBasePawn.SetPerturbationGlass", Sha1 = "abd42c0b6ab3aabdb61ad2024b4f2871f2e429fc")]
     [PortOf("uc:SBase.SBasePawn:SetPerturbationGlass", Spec = "spec/equipment/spy-energy.md#rules")]
     [PortOf("rep:SBase.SBasePawn.SetPerturbationGlass", Spec = "spec/net/rep-pawn.md#rules")]
-    public static void SetPerturbationGlass(SBasePawn Pawn, float Duration = 0f, float Value = 0f)
+    public static void SetPerturbationGlass(SBasePawn Pawn, float Duration = 0f, float Value = 0f, int RequestId = 0)
     {
         if (GadgetNet.ToServer(Pawn, Pawn.Controller as PlayerController,
-            new CombatCall(CNAME_SetPerturbationGlass) { Target = Pawn, Float1 = Duration, Vector1 = new FVector(Value, 0f, 0f) }))
+            new CombatCall(CNAME_SetPerturbationGlass) { Target = Pawn, Int2 = RequestId, Float1 = Duration, Vector1 = new FVector(Value, 0f, 0f) }))
         {
             return;
         }
 
         if (SetPerturbationWindow(Pawn, Duration, Value))
         {
-            SetPerturbationGlassOnClients(Pawn, Duration);
+            SetPerturbationGlassOnClients(Pawn, Duration, RequestId: RequestId);
         }
     }
 
     /// <summary>SetPerturbationGlassOnClients, broadcast like <see cref="SetDesiredGlassValueOnClients"/>.</summary>
     [PortOf("rep:SBase.SBasePawn.SetPerturbationGlassOnClients", Spec = "spec/net/rep-pawn.md#rules")]
     [Provenance(ProvenanceKind.Estimated, "A dedicated server also takes the flicker window (without the sound), as SetDesiredGlassValueOnClients")]
-    public static void SetPerturbationGlassOnClients(SBasePawn Pawn, float Duration = 0f, float Value = 0f)
+    public static void SetPerturbationGlassOnClients(SBasePawn Pawn, float Duration = 0f, float Value = 0f, int RequestId = 0)
     {
         if (GadgetNet.ToAllClients(Pawn,
-            new CombatCall(CNAME_SetPerturbationGlassOnClients) { Target = Pawn, Float1 = Duration, Vector1 = new FVector(Value, 0f, 0f) }))
+            new CombatCall(CNAME_SetPerturbationGlassOnClients) { Target = Pawn, Int2 = RequestId, Float1 = Duration, Vector1 = new FVector(Value, 0f, 0f) }))
         {
-            ClientPerturbationGlass(Pawn, Duration, Value);
+            ClientPerturbationGlass(Pawn, Duration, Value, RequestId);
         }
         else if (Pawn.Level.NetMode == ENetMode.NM_DedicatedServer)
         {
@@ -466,8 +536,11 @@ public static class PawnVision
     /// <summary>The body of SetPerturbationGlassOnClients where it runs: the flicker window, with the perturbation sound.</summary>
     [Uc("SBase.SBasePawn.SetPerturbationGlassOnClients", Sha1 = "358379cbcee7a574fbdc532ca8fb7e17ec1bacd6")]
     [PortOf("uc:SBase.SBasePawn:SetPerturbationGlassOnClients", Spec = "spec/equipment/spy-energy.md#rules")]
-    public static void ClientPerturbationGlass(SBasePawn Pawn, float Duration = 0f, float Value = 0f)
+    public static void ClientPerturbationGlass(SBasePawn Pawn, float Duration = 0f, float Value = 0f, int RequestId = 0)
     {
+        if (RequestId != 0 && PredictedGlassTargets.TryGetValue(Pawn, out GlassPrediction? prediction) &&
+            prediction.Pending.ContainsKey(RequestId)) return;
+
         if (SetPerturbationWindow(Pawn, Duration, Value))
         {
             Pawn.PlaySound(SndCapeDamage, ESoundSlot.SLOT_None, 1f, false, K.CloakSoundRadius);
@@ -519,7 +592,9 @@ public static class PawnVision
     public static void TickGlass(SBasePawn Pawn)
     {
         float now = Pawn.Level.TimeSeconds;
-        if (Pawn.Controller is SPlayerController pc && pc.IAmOnClient() && Pawn.DesiredGlassEffect != 0 &&
+        bool controlsCloak = Pawn.Role >= ENetRole.ROLE_AutonomousProxy &&
+            Pawn.Controller is SPlayerController pc && pc.IAmOnClient();
+        if (controlsCloak && Pawn.DesiredGlassEffect != 0 &&
             (Pawn.CurrentRainVolume is not null ||
              (Pawn.Velocity.Size() > K.CloakMaxSpeed && Pawn.Physics != EPhysics.PHYS_RootMotion) ||
              Pawn.bStickyShocking))
@@ -558,6 +633,15 @@ public static class PawnVision
 
             byte jittered = (byte)(int)v;
             Pawn.GlassEffect = jittered == target ? K.GlassJitterTargetStandIn : jittered;
+        }
+
+        // Releasing cloak keeps the spy detectable until the fade and its flicker finish. The owner then sends
+        // the usual EMF change for the server to replicate; other EMF sources must remain visible.
+        if (Pawn.bEMFIsOn && Pawn.DesiredGlassEffect == 0 && Pawn.GlassEffect == 0 &&
+            now - Pawn.PerturbationStartTime >= Pawn.PerturbationDuration &&
+            controlsCloak && !IsSpyEmfVisible(Pawn))
+        {
+            TestAndSetEMFVisible(Pawn);
         }
     }
 }

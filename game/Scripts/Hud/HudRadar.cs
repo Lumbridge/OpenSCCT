@@ -32,6 +32,41 @@ public sealed class HudRadar
 
     public int Alarms { get; private set; }
 
+    /// <summary>The radar's unrotated frame, shared by editor selection and gameplay layout transforms.</summary>
+    public static Rect2? LayoutBounds(HudPage page, Vector2 screen)
+    {
+        if (page.Area("Radar") is not { } radar || radar.Find("fond") is not { } background)
+            return null;
+        var radarKeys = page.Root.Area.Widgets[radar.WidgetIndex].Keys;
+        var backgroundKeys = radar.Area.Widgets[background.WidgetIndex].Keys;
+        if (radarKeys.Count == 0 || backgroundKeys.Count == 0) return null;
+        Vector2 origin = (radar.PositionOverride ?? radarKeys[0].Pos)
+            + (background.PositionOverride ?? backgroundKeys[0].Pos);
+        Rect2? bounds = null;
+        // The rotating ring's polygon changes its axis-aligned bounds throughout its animation. Using that
+        // changing box as a scale pivot or screen clamp makes the whole radar drift. The first-key art frame
+        // is fixed; blips, pulse rings and perturbation effects can animate around it without moving the HUD.
+        foreach (MagmaWidget widget in background.Area.Widgets)
+        {
+            if (widget.Hidden || widget.Kind != MagmaWidgetKind.Image || widget.Mask == MagmaMask.Set || widget.Keys.Count == 0)
+                continue;
+            Rect4 rect = widget.Keys[0].Rect;
+            var at = new Vector2(Math.Min(rect.L, rect.R), Math.Min(rect.T, rect.B)) + origin;
+            var size = new Vector2(Math.Abs(rect.R - rect.L) + 1f, Math.Abs(rect.B - rect.T) + 1f);
+            var image = new Rect2(at, size);
+            bounds = bounds is { } prior ? prior.Merge(image) : image;
+        }
+        if (bounds is not { } frame) return null;
+        float scale = screen.Y / MagmaRenderer.PageHeight;
+        bool stretch = page.Renderer.StretchAll || page.Options.StretchHud;
+        float x = stretch ? frame.Position.X * screen.X / MagmaRenderer.PageWidth
+            : frame.End.X <= MagmaRenderer.PageWidth / 2f ? frame.Position.X * scale
+            : frame.Position.X >= MagmaRenderer.PageWidth / 2f ? screen.X - (MagmaRenderer.PageWidth - frame.Position.X) * scale
+            : screen.X * .5f + (frame.Position.X - MagmaRenderer.PageWidth / 2f) * scale;
+        return new Rect2(new Vector2(x, frame.Position.Y * scale),
+            new Vector2(frame.Size.X * (stretch ? screen.X / MagmaRenderer.PageWidth : scale), frame.Size.Y * scale));
+    }
+
     public void Update(HudSnapshot s)
     {
         ArgumentNullException.ThrowIfNull(s);

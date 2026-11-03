@@ -229,8 +229,9 @@ is unlocked and in place (PHYS 6).
 - A climb step started with Up or Down continues (iOldMove) until bCanStop is set (by a hold action) or the
   vertical velocity is exactly 0, so tapping Up always climbs to the next rest position (open question 1).
 - Switching pipes and the side moves are only possible at rest (SBPawn.bCanStop).
-- s_OnPipe.BeginState sets bBlockControlForJump; see the wall-jump spec for why this may remove air control from
-  every later jump.
+- s_OnPipe.BeginState sets bBlockControlForJump, preventing steering during the immediate drop from the pipe.
+  AnimateWalking clears the flag when walking resumes, so subsequent ordinary jumps regain air control
+  ([execute-action.md helper 5.1](../native/execute-action.md#5-helper-natives-called-by-the-cases)).
 - A pipe whose wall continues above it (a roof beside it, not ahead) leaves the spy stuck at the top: neither
   TopPipe nor TopPipeCrouch fires (measured).
 - The PIPE top must be flush with the floor it leads to (3 below = the spy never leaves the pipe), measured.

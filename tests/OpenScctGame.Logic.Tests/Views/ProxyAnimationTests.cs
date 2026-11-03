@@ -42,6 +42,7 @@ public sealed class ProxyAnimationTests
         public float LastWalkFrame = float.NaN;
         public float LastBaseFrame = float.NaN;
         public readonly HashSet<string> Clips = new(StringComparer.OrdinalIgnoreCase);
+        public readonly HashSet<int> WalkChannels = new();
         public string LastBad = string.Empty;
     }
 
@@ -107,7 +108,7 @@ public sealed class ProxyAnimationTests
         foreach ((SBasePawn p, ProxyTrack track) in tracks)
         {
             log.AppendLine(string.Create(CultureInfo.InvariantCulture,
-                $"{p.GetType().Name}#{p.ActorId}: samples={track.Samples} moving={track.MovingSamples} walkChannel={track.MovingWithWalkChannel} walkFrameChanges={track.WalkFrameChanges} baseFrameChanges={track.BaseFrameChanges} crouched={track.CrouchedSamples} crouchedRight={track.CrouchedRight} clips={string.Join(",", track.Clips)} {track.LastBad}"));
+                $"{p.GetType().Name}#{p.ActorId}: samples={track.Samples} moving={track.MovingSamples} walkChannel={track.MovingWithWalkChannel} walkFrameChanges={track.WalkFrameChanges} baseFrameChanges={track.BaseFrameChanges} crouched={track.CrouchedSamples} crouchedRight={track.CrouchedRight} channels={string.Join(",", track.WalkChannels)} clips={string.Join(",", track.Clips)} {track.LastBad}"));
         }
 
         log.AppendLine(string.Create(CultureInfo.InvariantCulture, $"local crouched={localCrouchedSamples} right={localCrouchedRight}"));
@@ -169,21 +170,32 @@ public sealed class ProxyAnimationTests
 
         track.MovingSamples++;
 
-        // Moving on the ground the blender drives the run (4) and forward (5) channels of the walk set.
-        int walk = a[4].BlendAlpha >= a[5].BlendAlpha ? 4 : 5;
-        Name expected = walk == 4 ? p.RunAnim : p.ForwardAnim;
+        // The walk set also uses backward (6) and strafe (7/8) channels. A merc backing away from its
+        // target correctly fades run/forward to zero; requiring those two would mistake it for a frozen pose.
+        int walk = 4;
+        for (int channel = 5; channel <= 8; channel++)
+            if (a[channel].BlendAlpha > a[walk].BlendAlpha) walk = channel;
+        Name expected = walk switch
+        {
+            4 => p.RunAnim,
+            5 or 6 => p.ForwardAnim,
+            7 => p.SPawnType == PawnType.SPAWNOFFENSE ? p.RightAnim : p.LeftAnim,
+            _ => p.RightAnim,
+        };
         bool stanceSet = p.bIsCrouched == IsCrouchClip(p.ForwardAnim);
         if (a[walk].BlendAlpha > 0.3f && a[walk].Sequence == expected && !expected.IsNone && stanceSet)
         {
             track.MovingWithWalkChannel++;
             track.Clips.Add(expected.ToString());
+            track.WalkChannels.Add(walk);
         }
         else
         {
             track.LastBad = string.Create(CultureInfo.InvariantCulture,
-                $"moving c4={a[4].Sequence}@{a[4].BlendAlpha:F2} c5={a[5].Sequence}@{a[5].BlendAlpha:F2} fwd={p.ForwardAnim} run={p.RunAnim} crouched={p.bIsCrouched}");
+                $"moving c{walk}={a[walk].Sequence}@{a[walk].BlendAlpha:F2} expected={expected} fwd={p.ForwardAnim} run={p.RunAnim} crouched={p.bIsCrouched}");
         }
 
+        // Channel 5 remains the phase clock: the blender advances it and aligns channels 4 and 6..8 to it.
         float frame = a[5].Frame;
         if (!float.IsNaN(track.LastWalkFrame) && MathF.Abs(frame - track.LastWalkFrame) > 0.01f)
         {

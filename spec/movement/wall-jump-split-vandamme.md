@@ -243,8 +243,9 @@ by script.
 
 ## Edge cases
 
-- bBlockControlForJump is set by s_WallJumpSalto.AnimEnd (and by one pipe state) and no script code ever clears
-  it. Unless a native clears it, every later jump of that controller has no air control. See open questions.
+- bBlockControlForJump is set by s_WallJumpSalto.AnimEnd (and by s_OnPipe.BeginState), so the immediate fall
+  cannot be steered. The native AnimateWalking clears it when walking resumes; later ordinary jumps regain
+  air control ([execute-action.md helper 5.1](../native/execute-action.md#5-helper-natives-called-by-the-cases)).
 - In the prepare states the abort-on-timeout test runs after the success test, so on the frame where both hold
   the spy is sent to s_PlayerWalkingSt0H after s_FirstWallJump was entered (two state changes in one frame, the
   later one wins).
@@ -266,12 +267,13 @@ by script.
 
 ## Open questions
 
-4. Whether any native clears bBlockControlForJump. Trace: one wall jump, then a normal running jump with the stick
-   released at take-off; compare the air path with a fresh spawn.
 5. Root-motion Location schedule for each wall-jump clip (needed for collision during the move).
 
 ### Resolved
 
+4. The bBlockControlForJump reset is native: ASBasePawn::AnimateWalking (editor 0x111fd360) clears the
+   controller flag. The wall-jump/pipe fall remains locked until a walking action runs; the lock must not persist
+   into subsequent ordinary jumps. Evidence: [execute-action.md helper 5.1](../native/execute-action.md#5-helper-natives-called-by-the-cases).
 2. CheckGEForWallJump: GE kinds, distance, returned Z. Resolved: walls are traces; only LG GEs above the far point
    (box (60, 60, 300), near-perpendicular, more than 87.5 up); GEZPosition is that ledge Z or 200 above the probe
    point. Rule in "Wall jump: trigger". Evidence: physics-ge-queries.md 12; game 0x10aa6250 (ANSWERS-physics 23).

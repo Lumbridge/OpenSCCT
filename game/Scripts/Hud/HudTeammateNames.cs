@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using Godot;
 using OpenScct.Core;
 using OpenScct.Game.SBase;
@@ -11,6 +12,7 @@ public sealed class HudTeammateNames
 {
     public bool ShowSpy { get; set; }
     public bool ShowMerc { get; set; }
+    public bool ShowHealth { get; set; }
     public float Opacity { get; set; } = 0.5f;
     public MagmaDrawList DrawList { get; } = new();
 
@@ -19,6 +21,8 @@ public sealed class HudTeammateNames
         DrawList.Clear();
         if (pc?.Pawn is not SBasePawn { Health: > 0, bDeleteMe: false } own ||
             pc.bGameEnded || HudK.IsSpectating(pc) || project is null) return;
+        // Merc Deathmatch uses the same pawn type for every opponent; it has no friendly labels.
+        if (pc.IsMercDeathMatch) return;
         bool merc = own.SPawnType == OpenScct.Core.Engine.PawnType.SPAWNDEFENSE;
         if (!(merc ? ShowMerc : ShowSpy) || Opacity <= 0f) return;
         int index = 0;
@@ -35,7 +39,9 @@ public sealed class HudTeammateNames
             fade = fade * fade * (3f - 2f * fade);
             float height = (9f - 4f * fade) * screen.Y / MagmaRenderer.PageHeight;
             var colour = new Color(0.78f, 0.96f, 0.75f, (0.85f - 0.70f * fade) * Math.Clamp(Opacity, 0f, 1f));
-            DrawList.Items.Add(HudText.Item("TeammateNames/" + index++, pri.PlayerName,
+            // Health already replicates from the authority with the pawn; do not infer a maximum or percentage.
+            string text = ShowHealth ? string.Create(CultureInfo.InvariantCulture, $"{pri.PlayerName} ({pawn.Health} HP)") : pri.PlayerName;
+            DrawList.Items.Add(HudText.Item("TeammateNames/" + index++, text,
                 new Rect2(point.X - screen.X / 2f, point.Y - height, screen.X, height), height, MagmaAlign.Center, colour));
         }
     }

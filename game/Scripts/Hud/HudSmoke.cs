@@ -82,6 +82,7 @@ public sealed class HudSmoke(bool spectatorOnly = false) : SmokeTest
                 Run(29);
                 CheckSpy();
                 CheckTextInsideScreens();
+                CheckLargeRosters();
                 return Running();
             case 2:
                 Capture(context, "spy");
@@ -300,6 +301,81 @@ public sealed class HudSmoke(bool spectatorOnly = false) : SmokeTest
 
     private float Now => _scene!.World.Level.TimeSeconds;
 
+    private void CheckLargeRosters()
+    {
+        HudLayer layer = _layer!;
+        Scene scene = _scene!;
+        GameReplicationInfo gri = scene.SpyPc.GameReplicationInfo!;
+        PlayerReplicationInfo[] original = gri.PRIArray.OfType<PlayerReplicationInfo>().ToArray();
+        TeamInfo?[] teams = original.Select(p => p.Team).ToArray();
+        EGameMode mode = gri.GameMode;
+        SPlayerController? viewer = _viewer;
+        Vector2? screen = layer.ScreenSize;
+        try
+        {
+            for (int team = 0; team < 2; team++)
+                for (int i = original.Count(p => p.Team?.TeamIndex == team); i < 12; i++)
+                    gri.PRIArray.Add(new PlayerReplicationInfo
+                    {
+                        PlayerName = (team == 0 ? "Spy " : "Merc ") + (i + 1),
+                        Team = gri.Teams[team], NumLives = 3, Ping = 20,
+                    });
+            _viewer = scene.SpyPc;
+            foreach (Vector2 size in new[] { new Vector2(640, 480), Screen })
+            {
+                layer.ScreenSize = size;
+                Run(2);
+                Expect(layer.Snapshot.Players.Count == 24 && layer.Snapshot.Score.Count == 24,
+                    "HUD reads all 24 players in a 12v12 match");
+                MagmaDrawList list = layer.Spy!.DrawList;
+                ExpectText(list, "PCConnectedPlayers/PCTextPlayer12", "Spy 12");
+                ExpectText(list, "Extras/SplitPCTextPlayer12", "Merc 12");
+                CheckBoardBounds(list, size);
+            }
+
+            foreach (PlayerReplicationInfo? pri in gri.PRIArray)
+                if (pri is not null) pri.Team = gri.Teams[1];
+            gri.GameMode = EGameMode.GM_MercDeathMatch;
+            layer.ScreenSize = new Vector2(640, 480);
+            Run(2);
+            ExpectText(layer.Spy!.DrawList, "PCConnectedPlayers/PCTextPlayer24", "Merc 12");
+            CheckBoardBounds(layer.Spy.DrawList, new Vector2(640, 480));
+
+            var data = new StrategicMapData([new StrategicMapFloor(0, "", null)],
+                new StrategicMapCamera(new(0, 0, 100), new(0, 0, -1), new(1, 0, 0), new(0, 1, 0), 90), "");
+            var map = new StrategicMapModel(data);
+            StrategicMapPosition[] mates = Enumerable.Range(1, 11)
+                .Select(i => new StrategicMapPosition(new StrategicMapPoint(i, 0, 0), 0)).ToArray();
+            map.Open(new StrategicMapPosition(default, 0), mates);
+            Expect(map.Mates.Count(m => m is not null) == 11 && map.Mates[10] is not null,
+                "strategic map displays all eleven teammates in a 12-player team");
+            map.Tick(new StrategicMapPosition(default, 0), mates.Take(1));
+            Expect(map.Mates.Count(m => m is not null) == 1, "strategic map clears departed teammates from expanded slots");
+            _notes.Add("24-player HUD and 12-player strategic map checked.");
+        }
+        finally
+        {
+            gri.PRIArray.Clear();
+            for (int i = 0; i < original.Length; i++)
+            {
+                original[i].Team = teams[i];
+                gri.PRIArray.Add(original[i]);
+            }
+            gri.GameMode = mode;
+            _viewer = viewer;
+            layer.ScreenSize = screen;
+            Run(2);
+        }
+    }
+
+    private void CheckBoardBounds(MagmaDrawList list, Vector2 screen)
+    {
+        foreach (MagmaDrawItem item in list.Items.Where(i => i.Path.StartsWith("Extras/BoardBack", StringComparison.Ordinal)))
+            Expect(item.Rect.Position.X >= -1 && item.Rect.Position.Y >= -1 &&
+                item.Rect.End.X <= screen.X + 1 && item.Rect.End.Y <= screen.Y + 1,
+                $"expanded scoreboard stays inside {screen}: {item.Rect}");
+    }
+
     // ---- spy page -------------------------------------------------------------------------------------------
 
     private void CheckSpy()
@@ -363,7 +439,78 @@ public sealed class HudSmoke(bool spectatorOnly = false) : SmokeTest
         int firstWash = layer.Items.ToList().FindIndex(i => i.Path.StartsWith("Sfx/", StringComparison.Ordinal));
         Expect(lastActivity >= 0 && firstWash > lastActivity, "screen washes cover the activity feed");
         CheckAssets(layer);
+        CheckTeammateNames();
         _notes.Add(string.Create(CultureInfo.InvariantCulture, $"spy={list.Items.Count}"));
+    }
+
+    private void CheckTeammateNames()
+    {
+        Scene scene = _scene!;
+        SBasePawn mate = (SBasePawn)scene.MatePawn;
+        int health = mate.Health;
+        PawnType side = mate.SPawnType;
+        bool spectator = mate.PlayerReplicationInfo!.bOnlySpectator;
+        GameReplicationInfo gri = scene.MercPc.GameReplicationInfo!;
+        EGameMode mode = gri.GameMode;
+        var names = new HudTeammateNames { ShowSpy = true, ShowHealth = true, Opacity = 0.5f };
+        void Draw(SPlayerController pc) => names.Draw(pc, _ => Screen / 2f, Screen);
+        try
+        {
+            mate.Health = 63;
+            Draw(scene.SpyPc);
+            Expect(names.DrawList.Items.Count == 1 && names.DrawList.TextOf("TeammateNames/0") == "Ghost (63 HP)",
+                "HP appears beside the friendly name without exposing own or enemy health");
+            Color colour = names.DrawList.Items[0].Color;
+            mate.Health = 27;
+            Draw(scene.SpyPc);
+            Expect(names.DrawList.TextOf("TeammateNames/0") == "Ghost (27 HP)", "teammate HP follows current pawn health");
+            names.ShowHealth = false;
+            Draw(scene.SpyPc);
+            Expect(names.DrawList.TextOf("TeammateNames/0") == "Ghost" && names.DrawList.Items[0].Color == colour,
+                "disabling HP restores the plain name and keeps the same opacity and distance fade");
+            names.ShowHealth = true;
+            names.ShowSpy = false;
+            Draw(scene.SpyPc);
+            Expect(names.DrawList.Items.Count == 0, "HP does not enable disabled role nametags");
+            names.ShowSpy = true;
+            mate.Health = 0;
+            Draw(scene.SpyPc);
+            Expect(names.DrawList.Items.Count == 0, "dead teammates have no name or HP label");
+            mate.Health = 125;
+            mate.PlayerReplicationInfo.bOnlySpectator = true;
+            Draw(scene.SpyPc);
+            Expect(names.DrawList.Items.Count == 0, "spectators have no name or HP label");
+            mate.PlayerReplicationInfo.bOnlySpectator = false;
+            mate.SPawnType = scene.MercPawn.SPawnType;
+            Draw(scene.MercPc);
+            Expect(names.DrawList.Items.Count == 0, "mercenary names retain their independent visibility option");
+            names.ShowMerc = true;
+            Draw(scene.MercPc);
+            Expect(names.DrawList.Items.Count == 1 && names.DrawList.TextOf("TeammateNames/0") == "Ghost (125 HP)",
+                "mercenary HP uses the actual value without assuming a 100 HP maximum");
+            gri.GameMode = EGameMode.GM_MercDeathMatch;
+            Expect(scene.MercPc.IsMercDeathMatch, "replicated Merc Deathmatch mode reaches the nametag viewer");
+            Draw(scene.MercPc);
+            Expect(names.DrawList.Items.Count == 0, "Merc Deathmatch opponents have no teammate name or HP labels");
+            names.ShowHealth = false;
+            Draw(scene.MercPc);
+            Expect(names.DrawList.Items.Count == 0, "Merc Deathmatch opponents also have no plain teammate labels");
+            gri.GameMode = mode;
+            names.ShowHealth = true;
+            Draw(scene.MercPc);
+            Expect(names.DrawList.TextOf("TeammateNames/0") == "Ghost (125 HP)",
+                "returning to a team mode restores friendly names and HP");
+            names.Opacity = 0;
+            Draw(scene.MercPc);
+            Expect(names.DrawList.Items.Count == 0, "zero opacity hides the entire teammate name and HP label");
+        }
+        finally
+        {
+            mate.Health = health;
+            mate.SPawnType = side;
+            mate.PlayerReplicationInfo.bOnlySpectator = spectator;
+            gri.GameMode = mode;
+        }
     }
 
     /// <summary>
@@ -951,7 +1098,7 @@ public sealed class HudSmoke(bool spectatorOnly = false) : SmokeTest
 
         foreach (MagmaDrawItem item in layer.Items)
         {
-            if (item.Kind == MagmaWidgetKind.Image && !layer.Assets!.HasTexture(item.Package, item.Texture))
+            if (item.Kind == MagmaWidgetKind.Image && item.NativeTexture is null && !layer.Assets!.HasTexture(item.Package, item.Texture))
             {
                 _failures.Add($"{item.Path}: texture {item.Package}/{item.Texture} missing");
                 return;

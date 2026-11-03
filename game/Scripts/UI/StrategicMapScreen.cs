@@ -13,7 +13,7 @@ public readonly record struct StrategicMapLive(StrategicMapPosition? You, IReadO
 
 /// <summary>
 /// The Strategic map page (<c>GUI.StrategicMap</c>, spec/hud/strategic-map.md; docs/MENUS.md): the shown floor's
-/// picture with the "you are here" marker and up to two team mates blinking every half second, Up and Down for maps
+/// picture with the "you are here" marker and team mates blinking every half second, Up and Down for maps
 /// with more than one floor, the map's legend beside it, and Back. In a match the In-Game Menu (or the
 /// DisplayStrategicMap key) opens it with <see cref="Live"/> set; the Lobby Room opens it without, as a plain map
 /// overview. A map with no floors, or whose pictures are not converted yet, shows the page with "No map picture".

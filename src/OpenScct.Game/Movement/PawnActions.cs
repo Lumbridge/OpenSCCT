@@ -254,17 +254,24 @@ public static class PawnActions
     }
 
     /// <summary>
-    /// The modelled part of ASBasePawn::AnimateWalking: PHYS_Walking, LastZipP far away, BlendChangeTime, OldBTW
-    /// cleared and the resting loop <paramref name="wait"/> on the base channel with the tween T: 0.25, 0 when the
+    /// The modelled part of ASBasePawn::AnimateWalking: PHYS_Walking, restored air control, LastZipP far away,
+    /// BlendChangeTime, OldBTW cleared and the resting loop <paramref name="wait"/> on the base channel with the tween T: 0.25, 0 when the
     /// pawn ended its last tick in root motion or falling (OldPhysics), 0.1 while channel 0 plays a forward jump,
     /// 0.3 when it was leaning on a wall (OldBTW). The walk blender sets are not modelled.
     /// </summary>
     [UcNative("ASBasePawn::AnimateWalking", Editor = 0x111fd360)]
     [PortOf("nat:SBase.SBasePawn.ExecuteAction", Spec = "spec/native/execute-action.md#5-helper-natives-called-by-the-cases")]
     [Provenance(ProvenanceKind.Decoded, "AnimateWalking 0x111fd360: T 0.25, 0 for OldPhysics 5 or 2, 0.1 with IsJumpingForward 0x111f9350, 0.3 with OldBTW")]
+    [Provenance(ProvenanceKind.Decoded, "execute-action.md helper 5.1: AnimateWalking clears the controller's bBlockControlForJump")]
     public static void AnimateWalking(SBasePawn pawn, Name wait)
     {
         Walking(pawn);
+        if (pawn.Controller is SPlayerController pc)
+        {
+            // Pipe and wall-flip exits lock steering only until ordinary walking resumes.
+            pc.bBlockControlForJump = false;
+        }
+
         pawn.LastZipP = MovementK.FarZipPoint;
         float tween = StandTween;
         if (pawn.OldPhysics is EPhysics.PHYS_RootMotion or EPhysics.PHYS_Falling)

@@ -260,7 +260,8 @@ public sealed class ControllerActionTests
     [InlineData(true)]
     public void LongRollPulsesCrouchOnlyWhenLatchedAndTheNextTickClearsThePulse(bool latched)
     {
-        var pc = new SPlayerController { bCrouchWithRoll = latched };
+        var world = new World(1, ENetMode.NM_Standalone);
+        var pc = world.Level.SpawnActor(new SPlayerController { bCrouchWithRoll = latched }, default, default)!;
         var input = new LocalInput();
         input.Set("bRoll", true);
         input.ApplyButtons(pc);

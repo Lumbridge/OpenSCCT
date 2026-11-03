@@ -8,6 +8,37 @@ namespace OpenScctGame.Hud;
 /// <summary>Shared placement, opacity and graph geometry for the independent telemetry overlays.</summary>
 public static class HudTelemetryVisual
 {
+    /// <summary>A value snapshot, so mutating the editor's shared settings invalidates retained commands.</summary>
+    public readonly record struct EditorKey(bool Present, float X, float Y, float Scale, float Opacity, bool Visible, bool Preview)
+    {
+        public static EditorKey Of(HudElementSettings? layout, bool preview) => layout is null
+            ? new(false, 0f, 0f, 1f, 1f, true, preview)
+            : new(true, layout.X, layout.Y, layout.Scale, layout.Opacity, layout.Visible, preview);
+    }
+
+    /// <summary>Reserves the normal two-row FPS panel, independently of current samples, graphs or visibility.</summary>
+    public static float NetworkEditorTop(Vector2 screen)
+    {
+        float h = Mathf.Clamp(Mathf.Round(HudK.FpsTextHeight * screen.Y / MagmaRenderer.PageHeight), 11f, 28f);
+        return 12f + 2f * Mathf.Round(h * 0.4f) + 2f * (h + Mathf.Round(h * 0.2f));
+    }
+
+    /// <summary>Builds final commands from fresh local geometry, applying legacy appearance and editor changes once.</summary>
+    public static Rect2 PlaceEdited(MagmaDrawList list, Vector2 screen, Rect2 source, Rect2 native,
+        float legacyOpacity, HudElementSettings? layout, Vector2? referenceSize = null)
+    {
+        Rect2 target = layout is null ? native : HudEditorTransform.Transform(native, layout, screen);
+        if (layout?.Visible == false) list.Clear();
+        else
+        {
+            // A reserved footprint anchors dynamic readouts without stretching their current rows to fill it.
+            Vector2 reference = referenceSize ?? source.Size;
+            Vector2 scale = target.Size / reference.Max(new Vector2(0.001f, 0.001f));
+            Transform(list, source, new Rect2(target.Position, source.Size * scale), legacyOpacity * (layout?.Opacity ?? 1f));
+        }
+        return target;
+    }
+
     /// <summary>Positions are percentages of the available travel, keeping every size on screen.</summary>
     public static Rect2 Place(Vector2 screen, Vector2 baseSize, TelemetrySettings settings, float defaultTop = 8f)
     {

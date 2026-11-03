@@ -4,6 +4,7 @@ using System.Linq;
 using Godot;
 using OpenScctGame.Hud;
 using OpenScctGame.Hud.Magma;
+using OpenScctGame.Options;
 
 namespace OpenScctGame.Smoke;
 
@@ -36,6 +37,8 @@ public sealed class TelemetrySmoke : SmokeTest
                     Layout(assets, screen, style);
             Visibility(assets);
             CheckFrameMetrics(assets);
+            EditorLayout(assets);
+            EditorNetworkAnchor(assets);
             if (System.Environment.GetEnvironmentVariable("SVM_TELEMETRY_PREVIEW") is { Length: > 0 } output)
             {
                 Preview(context, assets, output);
@@ -130,6 +133,104 @@ public sealed class TelemetrySmoke : SmokeTest
             net.FpsBounds = fps.Bounds;
             net.Draw(screen, 0f, true, true);
             Require(Math.Abs(net.Bounds.Position.Y - 8f) < 0.1f, "Moved FPS still reserves space at the upper right");
+        }
+    }
+
+    private static void EditorLayout(HudAssets assets)
+    {
+        foreach (Vector2 screen in new[] { new Vector2(800, 600), new Vector2(1280, 720), new Vector2(3440, 1440) })
+        {
+            HudFps fps = Fps(assets);
+            HudNet net = Network(assets, screen);
+            var layout = new HudElementSettings { X = -0.25f, Y = 0.18f, Scale = 0.8f, Opacity = 0.5f };
+            fps.Settings.Opacity = net.Settings.Opacity = 50f;
+            fps.Draw(screen, true, layout);
+            net.Draw(screen, 0f, true, true, layout);
+            Rect2 fpsBounds = fps.Bounds, netBounds = net.Bounds;
+            Rect2 fpsText = fps.DrawList.Find("Fps")!.Rect, netText = net.DrawList.Find("Net/Header")!.Rect;
+            Require(Math.Abs(fps.DrawList.Find("Fps")!.Color.A - 0.25f) < 0.001f &&
+                Math.Abs(net.DrawList.Find("Net/Header")!.Color.A - 0.25f) < 0.001f,
+                "Editor and legacy telemetry opacity must combine exactly once");
+            for (int frame = 0; frame < 30; frame++)
+            {
+                fps.Draw(screen, true, layout);
+                net.FpsBounds = frame % 2 == 0 ? new Rect2(screen.X - 400f, 8f, 392f, 300f) : default(Rect2);
+                net.Draw(screen, 0f, true, frame % 2 == 0, layout);
+            }
+            Require(fps.Bounds == fpsBounds && net.Bounds == netBounds && fps.DrawList.Find("Fps")!.Rect == fpsText &&
+                net.DrawList.Find("Net/Header")!.Rect == netText && Math.Abs(net.DrawList.Find("Net/Header")!.Color.A - 0.25f) < 0.001f,
+                "Retained telemetry moved, rescaled or faded again; edited network must ignore FPS visibility and size");
+            fps.Add(0.25f);
+            fps.Add(0.0001f);
+            fps.Draw(screen, true, layout);
+            Require(fps.Bounds.Position == fpsBounds.Position && fps.Bounds.Size.X == fpsBounds.Size.X,
+                "Changing FPS digit counts moved its edited anchor");
+            layout.X -= 0.05f;
+            fps.Draw(screen, true, layout);
+            net.Draw(screen, 0f, true, true, layout);
+            Require(Math.Abs(fps.Bounds.Position.X - fpsBounds.Position.X + screen.X * 0.05f) < 0.1f &&
+                Math.Abs(net.Bounds.Position.X - netBounds.Position.X + screen.X * 0.05f) < 0.1f,
+                "Mutating shared editor settings did not invalidate telemetry caches");
+            fpsBounds = fps.Bounds;
+            netBounds = net.Bounds;
+            Rect2 netEditorBounds = net.EditorBounds;
+            fps.Settings.DisplayMode = net.Settings.DisplayMode = "Issues";
+            fps.Draw(screen, false, layout, editorPreview: true);
+            net.Draw(screen, 0f, false, false, layout, editorPreview: true);
+            Require(fps.Bounds == fpsBounds && net.Bounds == netBounds && fps.DrawList.Items.Count > 0 && net.DrawList.Items.Count > 0,
+                "Editor preview must share live coordinates and show globally disabled or conditional telemetry");
+            layout.Visible = false;
+            fps.Draw(screen, false, layout, editorPreview: true);
+            net.Draw(screen, 0f, false, false, layout, editorPreview: true);
+            Require(fps.DrawList.Items.Count == 0 && net.DrawList.Items.Count == 0 && fps.Bounds == default && net.Bounds == default &&
+                fps.EditorBounds == fpsBounds && net.EditorBounds == netEditorBounds && fps.EditorBaseBounds.Size.X > 0f && net.EditorBaseBounds.Size.X > 0f,
+                "Hidden telemetry must retain selectable editor bounds without draw commands");
+            layout.Visible = true;
+            fps.Draw(screen, false, layout);
+            net.Draw(screen, 0f, false, false, layout);
+            Require(fps.DrawList.Items.Count == 0 && net.DrawList.Items.Count == 0,
+                "Editor visibility must not override global telemetry display options in gameplay");
+        }
+    }
+
+    private static void EditorNetworkAnchor(HudAssets assets)
+    {
+        foreach (Vector2 screen in new[] { new Vector2(800, 600), new Vector2(1280, 720), new Vector2(3440, 1440) })
+        foreach (float positionY in new[] { 50f, 100f })
+        {
+            NetReadout sample = Healthy;
+            var net = new HudNet { Source = () => sample, ShowLoss = true };
+            net.Configure(assets);
+            net.Settings.PositionX = 60f;
+            net.Settings.PositionY = positionY;
+            net.Settings.IssueHoldSeconds = 0f;
+            var layout = new HudElementSettings { X = -0.1f, Y = 0.15f, Scale = 0.9f };
+            net.Draw(screen, 0f, true, false, layout);
+            net.Draw(screen, 1f, true, false, layout);
+            Rect2 reference = net.EditorBounds, baseline = net.EditorBaseBounds;
+            Rect2 header = net.DrawList.Find("Net/Header")!.Rect;
+            float normalHeight = net.Bounds.Size.Y;
+            sample = sample with
+            {
+                IsHost = true, Clients = 123, BestClientPingMs = 47, WorstClientPingMs = 999,
+                RttMicros = 999000, JitterMicros = 100000, SnapshotAgeMs = 500,
+                BufferUnderflows = 12, PredictionResets = 14, StateGaps = 10, AnimationGaps = 15,
+                InBytes = sample.InBytes + 99999999, OutBytes = sample.OutBytes + 9999999,
+                InPackets = sample.InPackets + 1000, OutPackets = sample.OutPackets + 1000, InPacketsLost = 100,
+            };
+            net.Draw(screen, 1f, true, true, layout);
+            Require(net.Bounds.Size.Y > normalHeight && net.Text.Contains("ISSUE", StringComparison.Ordinal) && net.HostText.Length > 0,
+                "Network anchor regression did not exercise changing issue, host and wrapped rows");
+            Require(net.EditorBounds == reference && net.EditorBaseBounds == baseline && net.Bounds.Position == reference.Position &&
+                net.DrawList.Find("Net/Header")!.Rect == header,
+                "Edited network moved when runtime rows grew at a legacy middle/bottom position");
+            net.Draw(screen, 0f, false, false, layout, editorPreview: true);
+            Require(net.EditorBounds == reference && net.DrawList.Find("Net/Header")!.Rect == header,
+                "Network preview and gameplay reference footprints diverge");
+            sample = sample with { IsHost = false, Clients = 0, RttMicros = 47000, JitterMicros = 3000, SnapshotAgeMs = 40 };
+            net.Draw(screen, 1f, true, false, layout);
+            Require(!net.HasIssue && net.EditorBounds == reference && net.DrawList.Find("Net/Header")!.Rect == header,
+                "Network moved when temporary rows disappeared");
         }
     }
 

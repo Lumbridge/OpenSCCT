@@ -10,6 +10,7 @@ public static class HudEditorTransform
     public static string Group(MagmaDrawItem item)
     {
         string path = item.Path;
+        if (path is "Vie/poison/effet01" or "Vie/poison/effet02_dodge") return "PoisonOverlay";
         if (path.StartsWith("PCConnectedPlayers/", System.StringComparison.Ordinal) ||
             path.StartsWith("Extras/Board", System.StringComparison.Ordinal) ||
             path.StartsWith("Extras/Split", System.StringComparison.Ordinal) ||
@@ -47,10 +48,14 @@ public static class HudEditorTransform
         return new Rect2(position, size);
     }
 
-    public static void Apply(List<MagmaDrawItem> items, Dictionary<string, HudElementSettings> layout, Vector2 screen)
+    public static void Apply(List<MagmaDrawItem> items, Dictionary<string, HudElementSettings> layout, Vector2 screen,
+        IReadOnlyDictionary<string, Rect2>? layoutBounds = null)
     {
         if (layout.Count == 0) return;
         var bounds = Bounds(items);
+        // Animated geometry must not redefine an element's scale pivot or edge clamp every frame.
+        if (layoutBounds is not null)
+            foreach (var entry in layoutBounds) bounds[entry.Key] = entry.Value;
         for (int i = items.Count - 1; i >= 0; i--)
         {
             var item = items[i]; string id = Group(item);
@@ -68,6 +73,28 @@ public static class HudEditorTransform
                 var color = item.Colors[c];
                 item.Colors[c] = item.Blend == MagmaBlend.Normal || item.Blend == MagmaBlend.Burn2X || item.Blend == MagmaBlend.Burn4X
                     ? Fade(color, e.Opacity) : new Color(color.R * e.Opacity, color.G * e.Opacity, color.B * e.Opacity, color.A);
+            }
+        }
+    }
+    /// <summary>Applies an element around a stable authored origin, without content-dependent clamping.</summary>
+    public static void Apply(List<MagmaDrawItem> items, string element, HudElementSettings settings,
+        Vector2 sourceOrigin, Vector2 targetOrigin)
+    {
+        for (int i = items.Count - 1; i >= 0; i--)
+        {
+            var item = items[i];
+            if (Group(item) != element) continue;
+            if (!settings.Visible) { items.RemoveAt(i); continue; }
+            Vector2 Move(Vector2 p) => targetOrigin + (p - sourceOrigin) * settings.Scale;
+            item.Rect = new Rect2(Move(item.Rect.Position), item.Rect.Size * settings.Scale);
+            item.HeightPx *= settings.Scale; item.TrackingPx *= settings.Scale; item.ShadowOffsetPx *= settings.Scale;
+            item.Color = Fade(item.Color, settings.Opacity); item.Shadow = Fade(item.Shadow, settings.Opacity);
+            for (int p = 0; p < item.Points.Length; p++) item.Points[p] = Move(item.Points[p]);
+            for (int c = 0; c < item.Colors.Length; c++)
+            {
+                var color = item.Colors[c];
+                item.Colors[c] = item.Blend == MagmaBlend.Normal || item.Blend == MagmaBlend.Burn2X || item.Blend == MagmaBlend.Burn4X
+                    ? Fade(color, settings.Opacity) : new Color(color.R * settings.Opacity, color.G * settings.Opacity, color.B * settings.Opacity, color.A);
             }
         }
     }

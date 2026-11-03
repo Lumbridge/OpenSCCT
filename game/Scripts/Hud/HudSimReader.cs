@@ -17,8 +17,8 @@ namespace OpenScctGame.Hud;
 /// </summary>
 public sealed class HudSimReader : IHudSource
 {
-    /// <summary>Rows of the connected players list.</summary>
-    public const int MaxConnectedPlayers = 4;
+    /// <summary>Playing rows supported by the connected players list, including a full 12v12 lobby.</summary>
+    public const int MaxConnectedPlayers = OpenScct.Server.Online.LobbySetup.MaxMaxPlayers;
 
     private static readonly Name NAME_s_Hack_Use = new("s_Hack_Use");
     private static readonly Name NAME_s_Computer_Use = new("s_Computer_Use");
@@ -569,7 +569,7 @@ public sealed class HudSimReader : IHudSource
         s.ShowInteractions = s.Interactions.Count >= 2 && !pawn.bSleeping && HudK.CanInteract(pc);
     }
 
-    /// <summary>Connected players: spies, then mercs, then spectators, up to four rows.</summary>
+    /// <summary>Connected players: spies, then mercs, then spectators, up to the lobby's playing capacity.</summary>
     private static void ReadPlayers(GameReplicationInfo gri, HudSnapshot s)
     {
         for (int pass = 0; pass < 3 && s.Players.Count < MaxConnectedPlayers; pass++)

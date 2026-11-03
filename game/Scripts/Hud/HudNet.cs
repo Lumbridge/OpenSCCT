@@ -59,6 +59,8 @@ public sealed class HudNet
     private Vector2 _drawnScreen;
     private float _drawnTop;
     private RenderOptions _drawnOptions;
+    private HudTelemetryVisual.EditorKey _drawnEditor;
+    private bool _hasLayout;
     private NetReadout _sampleFrom, _sampleTo;
     private float _sampleSeconds;
     private float _lossIn, _lossOut;
@@ -83,6 +85,8 @@ public sealed class HudNet
 
     /// <summary>The visible panel's actual screen bounds, empty when hidden.</summary>
     public Rect2 Bounds { get; private set; }
+    public Rect2 EditorBaseBounds { get; private set; }
+    public Rect2 EditorBounds { get; private set; }
 
     /// <summary>Allows the default upper-right layout to stack below the actual FPS panel, including its graph.</summary>
     public Rect2? FpsBounds { get; set; }
@@ -109,7 +113,7 @@ public sealed class HudNet
         _layoutDirty = true;
     }
 
-    public void Draw(Vector2 screen, float dt, bool shown, bool belowFps)
+    public void Draw(Vector2 screen, float dt, bool shown, bool belowFps, HudElementSettings? layout = null, bool editorPreview = false)
     {
         if (Source?.Invoke() is not { } now)
         {
@@ -127,6 +131,7 @@ public sealed class HudNet
 
         dt = float.IsFinite(dt) ? Math.Max(0f, dt) : 0f;
         RenderOptions options = Options();
+        var editor = HudTelemetryVisual.EditorKey.Of(layout, editorPreview);
         bool optionsChanged = options != _drawnOptions;
         if (optionsChanged) _layoutDirty = true;
         bool refreshRows = optionsChanged && _sampleSeconds > 0f;
@@ -156,7 +161,7 @@ public sealed class HudNet
         refreshRows |= activeIssues != _activeIssues || shownIssues != _shownIssues;
         _activeIssues = activeIssues;
         _shownIssues = shownIssues;
-        if (refreshRows) RefreshRows(now);
+        if (refreshRows || (editorPreview && (_rows.Count == 0 || optionsChanged))) RefreshRows(now);
         _historyElapsed += dt;
         if (_historyCount == 0 || _historyElapsed >= 0.1f)
         {
@@ -166,24 +171,30 @@ public sealed class HudNet
                 _layoutDirty = true;
         }
 
-        if (!shown || Settings.Opacity <= 0f || _text.Length == 0 ||
-            (Settings.DisplayMode == "Issues" && !HasIssue && _issueRemaining <= 0f))
+        if (!editorPreview && (!shown || Settings.Opacity <= 0f || _text.Length == 0 ||
+            (Settings.DisplayMode == "Issues" && !HasIssue && _issueRemaining <= 0f)))
         {
             DrawList.Clear();
-            Bounds = default;
+            Bounds = EditorBaseBounds = EditorBounds = default;
+            _hasLayout = false;
             _drawnOptions = options;
             return;
         }
 
         // Metrics change once a second. Keep the measured/wrapped rows and draw commands between samples;
         // the render loop only rebuilds them after data, viewport, font or FPS placement changes.
-        float defaultTop = DefaultTop(screen, belowFps);
-        if (!_layoutDirty && _drawnScreen == screen && _drawnTop == defaultTop && DrawList.Items.Count > 0)
+        // Once authored, this element is independent of another panel's visibility, graph or current height.
+        float defaultTop = layout is not null || editorPreview
+            ? HudTelemetryVisual.NetworkEditorTop(screen)
+            : DefaultTop(screen, belowFps);
+        if (!_layoutDirty && _drawnScreen == screen && _drawnTop == defaultTop && _drawnEditor == editor && _hasLayout)
             return;
         DrawList.Clear();
         _drawnScreen = screen;
         _drawnTop = defaultTop;
         _drawnOptions = options;
+        _drawnEditor = editor;
+        _hasLayout = true;
         _layoutDirty = false;
 
         float h = Mathf.Clamp(Mathf.Round(8f * screen.Y / MagmaRenderer.PageHeight), 11f, 22f);
@@ -247,8 +258,16 @@ public sealed class HudNet
                 DrawGraph(graphWhite, "Loss", "LOSS % (worst direction)", 2, Math.Max(5f, Settings.LossThresholdPercent),
                     new Color(1f, 0.45f, 0.4f), ref lineY);
         }
-        Bounds = HudTelemetryVisual.Place(screen, new Vector2(width, height), Settings, defaultTop);
-        HudTelemetryVisual.Transform(DrawList, new Rect2(0f, 0f, width, height), Bounds, Settings.Opacity);
+        // Both percentage placement and editor edge clamping use an authored footprint. Changing issue/host rows
+        // or wrapping numeric values therefore cannot move the top-left origin, even at middle/bottom positions.
+        float referenceHeight = layout is not null || editorPreview
+            ? padding * 2f + headerHeight + padding + ReferenceLines(valuesWidth, h) * pitch + graphs * (graphHeight + pitch + padding)
+            : height;
+        Vector2 referenceSize = new(width, referenceHeight);
+        EditorBaseBounds = HudTelemetryVisual.Place(screen, referenceSize, Settings, defaultTop);
+        EditorBounds = HudTelemetryVisual.PlaceEdited(DrawList, screen, new Rect2(0f, 0f, width, height),
+            EditorBaseBounds, Settings.Opacity, layout, referenceSize);
+        Bounds = layout?.Visible == false ? default : new Rect2(EditorBounds.Position, new Vector2(width, height) * EditorBounds.Size / referenceSize);
 
         void DrawGraph(WhiteRegion white, string name, string title, int metric, float minimumMax, Color color, ref float top)
         {
@@ -281,6 +300,27 @@ public sealed class HudNet
         return belowFps ? 12f + Mathf.Round(HudK.FpsTextHeight * screen.Y / MagmaRenderer.PageHeight) : 8f;
     }
 
+    private int ReferenceLines(float width, float height)
+    {
+        // Geometry templates only: reserve expected wide values and all optional runtime rows, never sample data.
+        int lines = Count("ping 999 ms  jitter 999 ms  999 Hz") +
+            Count("recent: high ping  high jitter  packet loss  stale snapshots  buffer underrun  prediction reset  state gap") +
+            Count("999 clients  best 999 ms  worst 999 ms");
+        if (Settings.ShowTraffic) lines += Count("down 9999.9 KB/s  up 9999.9 KB/s");
+        if (ShowLoss) lines += Count("in 100.0%  out 100.0%");
+        if (Settings.Detailed)
+            lines += Count("999 ms  age 999 ms  underruns 9999") + Count("corr 9999.9/s  adjust 9999.9 uu") +
+                Count("9999 moves  anim gaps 9999  state gaps 9999") + Count("pose 9999  owner 9999");
+        return lines;
+
+        int Count(string value)
+        {
+            int count = 0;
+            foreach (string _ in Wrap(value, width, height)) count++;
+            return count;
+        }
+    }
+
     private RenderOptions Options() => new(Settings.DisplayMode, Settings.PositionX, Settings.PositionY, Settings.Scale,
         Settings.Opacity, Settings.Graph, Settings.GraphSeconds, Settings.IssueHoldSeconds, Settings.Detailed,
         Settings.ShowTraffic, ShowLoss, Settings.ShowPingGraph, Settings.ShowJitterGraph, Settings.ShowLossGraph,
@@ -289,7 +329,8 @@ public sealed class HudNet
     private void Reset()
     {
         DrawList.Clear();
-        Bounds = default;
+        Bounds = EditorBaseBounds = EditorBounds = default;
+        _hasLayout = false;
         _hasFrom = false;
         _elapsed = _sampleSeconds = _issueRemaining = _historyElapsed = _lossIn = _lossOut = 0f;
         _clock = 0;

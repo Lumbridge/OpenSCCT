@@ -15,6 +15,9 @@ public sealed class HudEditorSettingsTests
     [InlineData("Scoreboard")]
     [InlineData("Chat")]
     [InlineData("Activity")]
+    [InlineData("Location")]
+    [InlineData("Fps")]
+    [InlineData("Network")]
     public void AddedGroupsPersistIndependently(string id)
     {
         var s = new GameSettings(); s.HudLayout.Element(false, id).Scale = 1.5f;

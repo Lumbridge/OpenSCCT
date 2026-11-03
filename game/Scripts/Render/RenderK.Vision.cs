@@ -242,7 +242,7 @@ public static partial class RenderK
     [Provenance(ProvenanceKind.Estimated, "a frame budget: one shadow pass per slot per frame")]
     public const int SpotShadowSlots = 8;
 
-    /// <summary>Slots map LE_ESpotShadow lights may take (the nearest to the camera); the rest stay for torches and searchlights.</summary>
+    /// <summary>Slots map LE_ESpotShadow lights may take (visible volumes first); the rest stay for torches and searchlights.</summary>
     [Provenance(ProvenanceKind.Estimated, "a frame budget")]
     public const int SpotShadowMapLights = 6;
 

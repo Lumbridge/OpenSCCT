@@ -27,7 +27,7 @@ public partial class HudEditorPanel : VBoxContainer
     public HudEditorPanel(Func<GameSettings> settings) { _settings = settings; Name = "HudEditorContent"; SizeFlagsHorizontal = SizeFlags.ExpandFill; SizeFlagsVertical = SizeFlags.ExpandFill; }
     public override void _Ready()
     {
-        AddChild(new Label { Text = "Drag to move • Arrow keys to nudge • Apply to save", AutowrapMode = TextServer.AutowrapMode.WordSmart });
+        AddChild(new Label { Text = "Drag to move â€¢ Arrow keys to nudge â€¢ Apply to save", AutowrapMode = TextServer.AutowrapMode.WordSmart });
         var toolbar = new HFlowContainer(); AddChild(toolbar);
         var role = new OptionButton { Name = "HudEditorRole" }; role.AddItem("Spy"); role.AddItem("Mercenary"); toolbar.AddChild(role);
         role.ItemSelected += i => { _merc = i == 1; _preview.SetRole(_merc); Refresh(); };
@@ -60,18 +60,19 @@ public partial class HudEditorPanel : VBoxContainer
         _opacity = Field(fields, "Opacity %", 10, 100, 1, v => Element().Opacity = (float)v / 100);
         _visible = new CheckBox { Text = "Visible" }; fields.AddChild(_visible);
         _visible.Toggled += v => { if (!_refreshing) Change(() => Element().Visible = v); };
-        _preview = new HudEditorPreview(() => Layout, () => _selected) { CustomMinimumSize = new Vector2(280, 260), SizeFlagsVertical = SizeFlags.ExpandFill, SizeFlagsHorizontal = SizeFlags.ExpandFill, ClipContents = true };
+        _preview = new HudEditorPreview(_settings, () => _selected) { CustomMinimumSize = new Vector2(280, 260), SizeFlagsVertical = SizeFlags.ExpandFill, SizeFlagsHorizontal = SizeFlags.ExpandFill, ClipContents = true };
         _preview.Selected += id => { _selected = id; Refresh(); };
         _preview.DragStarted += Remember;
         _preview.Moved += delta => { var e = Element(); e.X += delta.X; e.Y += delta.Y; e.Clamp(); Refresh(); };
         _preview.DragEnded += () => { if (_snap) { var e = Element(); e.X = MathF.Round(e.X * 100) / 100; e.Y = MathF.Round(e.Y * 100) / 100; } Refresh(); };
         AddChild(_preview);
-        _note = new Label { Text = "Preview uses sample gameplay. Hidden elements keep selectable outlines. Crosshair and telemetry have their own options.", AutowrapMode = TextServer.AutowrapMode.WordSmart }; AddChild(_note);
+        _note = new Label { Text = "Preview uses sample gameplay. Hidden elements keep selectable outlines. Enable FPS, network and zone names in HUD; position them here.", AutowrapMode = TextServer.AutowrapMode.WordSmart }; AddChild(_note);
         Refresh();
     }
     public override void _Process(double delta)
     {
-        bool compact = Size.X < 900;
+        // A wide but short window still needs room for the entire preview above the footer.
+        bool compact = Size.X < 900 || GetViewportRect().Size.Y < 900;
         if (_compact == compact) return;
         _compact = compact;
         _showTools.ButtonPressed = !compact;
@@ -102,12 +103,16 @@ public partial class HudEditorPanel : VBoxContainer
 
 public partial class HudEditorPreview : Control
 {
+    private readonly Func<GameSettings> _settings;
     private readonly Func<HudEditorSettings> _layout;
     private readonly Func<string> _selected;
     private HudAssets? _assets;
     private HudPage? _page;
     private MagmaCanvas? _canvas;
     private readonly HudActivityFeedDrawer _feed = new();
+    private readonly HudFps _fps = new();
+    private readonly HudNet _net = new();
+    private readonly HudLocation _location = new();
     private ChatPanel? _chat;
     private static readonly HudActivityEntry[] SampleEvents =
     [
@@ -115,18 +120,30 @@ public partial class HudEditorPreview : Control
         new(2, HudActivityKind.Join, new(3, "Echo", 0), null, HudActivityCause.None, "JOIN", "Echo joined the match", 0, false),
     ];
     private readonly Dictionary<string, Rect2> _bounds = new();
+    internal IReadOnlyDictionary<string, Rect2> ElementBounds => _bounds;
     private bool _merc, _dragging;
     private Vector2 _screen, _displaySize;
     private string? _error;
     public event Action<string>? Selected;
     public event Action? DragStarted, DragEnded;
     public event Action<Vector2>? Moved;
-    public HudEditorPreview(Func<HudEditorSettings> layout, Func<string> selected) { _layout = layout; _selected = selected; MouseFilter = MouseFilterEnum.Stop; FocusMode = FocusModeEnum.All; }
+    public HudEditorPreview(Func<GameSettings> settings, Func<string> selected) { _settings = settings; _layout = () => settings().HudLayout; _selected = selected; MouseFilter = MouseFilterEnum.Stop; FocusMode = FocusModeEnum.All; }
     public override void _Ready()
     {
         _assets = HudAssets.TryLoad(null, out _error);
         _canvas = new MagmaCanvas { Assets = _assets }; AddChild(_canvas);
-        if (_assets is not null) _feed.Configure(_assets);
+        if (_assets is not null)
+        {
+            _feed.Configure(_assets); _fps.Configure(_assets); _net.Configure(_assets);
+            for (int i = 0; i < 120; i++) _fps.Add(1f / 144f);
+            NetReadout sample = new(true, 47000, 3000, 10000, 5000, 60, 0, 60, 0, 0, 60,
+                BufferMs: 67, SnapshotAgeMs: 40);
+            _net.Source = () => sample;
+            var screen = new Vector2(1280, 720);
+            _net.Draw(screen, 0f, true, true, editorPreview: true);
+            sample = sample with { InBytes = 25000, OutBytes = 11000, InPackets = 120, OutPackets = 120 };
+            _net.Draw(screen, 1f, true, true, editorPreview: true);
+        }
         _chat = new ChatPanel { Clock = () => 1, LayoutOverride = () => _layout().For(_merc).GetValueOrDefault("Chat") };
         _chat.Transcript.Add(ChatChannel.All, "Ready when you are", "Raven", 1, 0, 0);
         _chat.Transcript.Add(ChatChannel.Team, "I'll cover the terminal", "Echo", 3, 0, 0);
@@ -175,12 +192,24 @@ public partial class HudEditorPreview : Control
         sample.Players.Add(new HudPlayerRow("Raven", 0, false, 2, 3, 12));
         sample.Players.Add(new HudPlayerRow("Echo", 0, false, 1, 2, 18));
         sample.Players.Add(new HudPlayerRow("Sentinel", 1, false, 1, 3, 10));
+        _page.Options.StretchHud = !_settings().WidescreenHud;
         PreparePage(_page, sample);
         if (_canvas is not null) { _canvas.Position = offset; _canvas.Scale = Vector2.One * fit; }
         _page.Draw(_screen, sample);
-        _feed.Draw(_screen, SampleEvents, 1, _page);
-        _page.DrawList.Items.AddRange(_feed.DrawList.Items);
-        var raw = HudEditorTransform.Bounds(_page.DrawList.Items);
+        _location.Draw(_screen, "Warehouse", true, _page);
+        _page.DrawList.Items.AddRange(_location.DrawList.Items);
+        var layout = _layout().For(_merc);
+        _fps.Settings = _settings().FpsTelemetry;
+        _net.Settings = _settings().NetworkTelemetry;
+        _net.ShowLoss = _settings().ShowNetLoss;
+        _fps.Draw(_screen, true, layout.GetValueOrDefault("Fps"), editorPreview: true);
+        _net.FpsBounds = _fps.Bounds;
+        _net.Draw(_screen, 0f, true, true, layout.GetValueOrDefault("Network"), editorPreview: true);
+        _feed.Draw(_screen, SampleEvents, 1, _page, layout: layout.GetValueOrDefault("Activity"), editorPreview: true);
+        var raw = _page.LayoutBounds(_screen);
+        raw["Activity"] = _feed.Bounds;
+        raw["Fps"] = _fps.EditorBounds;
+        raw["Network"] = _net.EditorBounds;
         if (_chat is not null)
         {
             _chat.PreviewScreen = _screen;
@@ -194,13 +223,16 @@ public partial class HudEditorPreview : Control
         foreach (var entry in raw)
         {
             var e = _layout().For(_merc).GetValueOrDefault(entry.Key) ?? new HudElementSettings();
-            var rect = HudEditorTransform.Transform(entry.Value, e, _screen);
+            var rect = entry.Key is "Activity" or "Fps" or "Network" ? entry.Value : HudEditorTransform.Transform(entry.Value, e, _screen);
             rect = new Rect2(rect.Position * fit + offset, rect.Size * fit);
             _bounds[entry.Key] = rect;
             DrawRect(rect, entry.Key == _selected() ? Colors.Cyan : new Color(1, 1, 1, .25f), false, 1);
             if (entry.Key == _selected()) DrawString(ThemeDB.FallbackFont, new Vector2(Math.Clamp(rect.Position.X, 0, Math.Max(0, Size.X - 160)), Math.Clamp(rect.Position.Y - 4, 16, Size.Y - 4)), HudEditorSettings.Elements[entry.Key], fontSize: 14);
         }
-        HudEditorTransform.Apply(_page.DrawList.Items, _layout().For(_merc), _screen);
+        HudEditorTransform.Apply(_page.DrawList.Items, layout, _screen, raw);
+        _page.DrawList.Items.AddRange(_feed.DrawList.Items);
+        _page.DrawList.Items.AddRange(_fps.DrawList.Items);
+        _page.DrawList.Items.AddRange(_net.DrawList.Items);
         _canvas?.Submit(_page.DrawList.Items);
     }
     internal static void PreparePage(HudPage page, HudSnapshot sample)

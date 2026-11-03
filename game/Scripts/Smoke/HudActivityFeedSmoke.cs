@@ -11,6 +11,7 @@ using OpenScct.Game.SBase;
 using OpenScctGame.Hud;
 using OpenScctGame.Hud.Gadgets;
 using OpenScctGame.Hud.Magma;
+using OpenScctGame.Options;
 
 namespace OpenScctGame.Smoke;
 
@@ -144,6 +145,7 @@ public sealed class HudActivityFeedSmoke : SmokeTest
 
         CheckMovedDiagnostics(assets, entries);
         CheckTelemetryGraphs(assets, entries);
+        CheckEditedPlacement(assets);
         CheckSingleParticipantAndNotices(assets);
         CheckDetailedCauses(assets);
 
@@ -333,6 +335,58 @@ public sealed class HudActivityFeedSmoke : SmokeTest
                 string prefix = item.Path.Split('/')[0];
                 if (!HudActivityFeedDrawer.IsLocalPrompt(item.Path) && prefix is not ("Radar" or "Objectif" or "Chrono" or "ChronoHack" or "ChronoAlarm" or "ChronoObjectif" or "ChronoObjectif2")) continue;
                 Require(!feed.Bounds.Intersects(HudActivityFeedDrawer.ItemBounds(item)), "Graph-shifted feed overlaps " + item.Path + ": " + layout);
+            }
+        }
+    }
+
+    private static void CheckEditedPlacement(HudAssets assets)
+    {
+        foreach (Vector2I resolution in Sizes)
+        foreach (string role in new[] { "spy", "merc" })
+        {
+            Vector2 screen = resolution;
+            HudPage page = Page(assets, role, screen);
+            HudPage scope = Page(assets, role + "-scope", screen);
+            HudActivityEntry[] shortEntries = Entries(false), detailedEntries = DetailedEntries();
+            var preview = new HudActivityFeedDrawer(); preview.Configure(assets);
+            var live = new HudActivityFeedDrawer(); live.Configure(assets);
+            // Cover the entire display: user positioning takes precedence over automatic avoidance.
+            MagmaDrawItem obstruction = HudText.Item("Fps", "Diagnostics", new Rect2(Vector2.Zero, screen), 12f, MagmaAlign.Left, Colors.White);
+            foreach (float scale in new[] { .5f, 1f, 1.5f, 3f })
+            foreach (float y in new[] { -.1f, .12f, .9f })
+            {
+                var layout = new HudElementSettings { X = -.2f, Y = y, Scale = scale, Opacity = .7f };
+                preview.Draw(screen, shortEntries[..2], 11f, page, layout: layout, editorPreview: true);
+                Vector2 anchor = preview.Bounds.Position;
+                foreach (HudActivityEntry[] entries in new[] { shortEntries[..1], shortEntries, detailedEntries })
+                foreach (HudPage activePage in new[] { page, scope })
+                {
+                    live.Draw(screen, entries, 11f, activePage, [obstruction], [obstruction], layout: layout, layoutPage: page);
+                    Require(live.VisibleCount > 0, "edited feed lost its newest event: " + resolution + " " + role + " " + scale);
+                    Require(live.Bounds.Position.IsEqualApprox(anchor), "edited feed moved away from editor anchor after content/telemetry/page changed");
+                    Require(live.Bounds.Position.X >= -.01f && live.Bounds.Position.Y >= -.01f &&
+                        live.Bounds.End.X <= screen.X + .01f && live.Bounds.End.Y <= screen.Y + .01f, "edited feed escaped the display");
+                    foreach (MagmaDrawItem item in live.DrawList.Items)
+                        Require(live.Bounds.Grow(scale + 1f).Encloses(HudActivityFeedDrawer.ItemBounds(item)), "edited feed item escaped its selection outline");
+                }
+                live.Draw(screen, shortEntries, 10.075f, scope, layout: layout, layoutPage: page);
+                Require(live.Bounds.Position.IsEqualApprox(anchor), "event entrance animation moved the edited feed origin");
+                Require(layout.X == -.2f && layout.Y == y && layout.Scale == scale, "drawing rewrote saved relative offsets");
+                layout.Visible = false;
+                preview.Draw(screen, shortEntries, 11f, page, layout: layout, editorPreview: true);
+                Require(preview.DrawList.Items.Count == 0 && preview.Bounds.Position.IsEqualApprox(anchor) && preview.Bounds.HasArea(),
+                    "hidden edited feed lost its selectable outline");
+            }
+            // A saved layout is an explicit placement, even when grid snapping returns its offsets to zero.
+            // Opacity/visibility-only edits must also match the editor's stable sample origin.
+            (HudFps fps, HudNet net) = Diagnostics(assets, screen);
+            foreach (float opacity in new[] { 1f, .5f })
+            {
+                var layout = new HudElementSettings { Opacity = opacity };
+                preview.Draw(screen, shortEntries, 11f, page, layout: layout, editorPreview: true);
+                live.Draw(screen, shortEntries, 11f, scope, fps.DrawList.Items, net.DrawList.Items, layout: layout, layoutPage: page);
+                Require(live.Bounds.IsEqualApprox(preview.Bounds) && live.VisibleCount == preview.VisibleCount,
+                    "zero-offset saved layout did not match the editor's pinned event feed");
             }
         }
     }

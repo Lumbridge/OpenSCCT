@@ -811,6 +811,10 @@ public sealed class GameSettings
     [JsonPropertyName("teammate_names_merc")]
     public bool TeammateNamesMerc { get; set; }
 
+    /// <summary>Append current replicated HP to enabled friendly nametags, for either role.</summary>
+    [JsonPropertyName("teammate_health")]
+    public bool TeammateHealth { get; set; }
+
     [JsonPropertyName("teammate_names_opacity")]
     public int TeammateNamesOpacity { get; set; } = 50;
 

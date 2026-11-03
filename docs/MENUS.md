@@ -213,9 +213,9 @@ Rows, captions and ranges are the page's (spec rules 1 to 9):
 | Game Mode | the map's modes, then Merc Deathmatch | changing it reloads the rules |
 | Password | 16 of `a-z A-Z 0-9 . _ -` | |
 | Voice Chat | Modern, Classic, Team, Open | the hint under it: "Team always - hackable coms", "Living team - hackable coms", "Team always - no com hacking", "Everyone hears everyone" |
-| Player slots | 2 to 8 (4) | total human players and bots; spectators have their own places |
+| Player slots | 2 to 24 (24) | total human players and bots, supporting 12v12; spectators have their own places |
 | Bots | Off, Per Side, Fill Slots, Custom teams | Custom teams offers separate exact bot counts; humans take priority when slots fill |
-| Spy bots / Mercenary bots | 0 to 8 | Custom teams only; 0 means no bots on that team; Spy bots is hidden in Merc Deathmatch |
+| Spy bots / Mercenary bots | 0 to 24 | Custom teams only; total player slots still apply; 0 means no bots on that team; Spy bots is hidden in Merc Deathmatch |
 | Revenge | | two games, sides swapped for the second; hides Games in a Row |
 | Random Map | | after the series, the next map is drawn at random (never the same one twice in a row) |
 | Voice in Lobby | on | players talk in the lobby |
@@ -304,7 +304,7 @@ then uses Apply changes in match settings to send the draft to the server.
 ## Lobby Room
 
 The lobby follows the original `GUI.Lobby_Create` spatial layout: Spies upper left, Mercenaries upper right,
-with Switch Team, Equipment, Session Options, Map / Mode and Briefing in that order between them. The map
+with Switch Team, Equipment, Cosmetics, Session Options, Briefing and Strategic map in that order between them. The map
 preview sits below left and chat below right. These landmarks stay in place at 1024, 1280 and 1920 pixels;
 tall rosters can scroll. The map preview and chat expand vertically into the available body space, so larger
 windows show a large map image instead of an 80-pixel strip. Leave, Options and Start/Ready span the bottom, with the preparation status above.
@@ -326,7 +326,7 @@ Offline lobbies use the same team and map positions without online chat, spectat
   Dropdowns select values directly and numeric fields accept typing. Each settings tab scrolls independently;
   below 1000 logical pixels of available width the map browser and tabs stack in the scrolling body. A 1600×900
   canvas scales the panel at high resolutions, and Apply changes and Close/Discard changes remain in its fixed footer.
-  Map / Mode opens these settings and focuses the embedded map search for hosts. Other players can inspect the
+  Clicking the lobby map image opens these settings and focuses the embedded map search for hosts. Other players can inspect the
   host's settings read-only. Player slots controls the combined capacity for humans and bots. Custom teams sets
   Spy and Mercenary bot counts independently, including zero. The roster preview shows the resulting human/bot
   split and open places, and explains when requested bots cannot fit. Reducing slots makes bots leave first and
@@ -364,7 +364,7 @@ The original's `StrategicMap` page (spec/hud/strategic-map.md): the shown floor'
 map with more than one floor), and Back. In a match it opens from the In-Game Menu's Strategic Map button (Back,
 Escape or the right mouse button return to the menu) and from F7, `DisplayStrategicMap` (Escape, the right mouse
 button or F7 again close it); it opens on the player's own floor, and every half second the "you are here" marker
-(turned to where he faces) and up to two team mates blink and move. The positions of the mates come from the
+(turned to where he faces) and all team mates within the 24-player lobby limit blink and move. The positions of the mates come from the
 server: the page asks for them (`UpdateMinimapParams`) and reads the replicated PRI fields. The Lobby Room's Strategic
 Map button (an OpenSCCT addition) shows the selected map's pictures and legend without markers.
 

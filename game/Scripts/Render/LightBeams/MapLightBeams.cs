@@ -106,12 +106,13 @@ public sealed class MapLightBeams
     /// map cut the beam); a beam whose light holds no slot is not drawn. Call after the spot lights are placed
     /// (MapSpotLights.Update).
     /// </summary>
-    [Provenance(ProvenanceKind.Estimated, "a light without a shadow map this frame draws no beam (the game gives every drawn Echelon light one; our slots go to the nearest)")]
+    [Provenance(ProvenanceKind.Estimated, "a light without a shadow map draws no beam; beam brightness follows the map slot's visibility transition")]
     public void UpdateSlots()
     {
         foreach (Beam b in _beams)
         {
-            b.SetSlot(b.Spot ? SpotShadowLight.SlotOf(b.Entry.Name) : -1);
+            int slot = b.Spot ? SpotShadowLight.SlotOf(b.Entry.Name) : -1;
+            b.SetSlot(slot, b.Spot ? SpotShadowLight.VisibilityOf(slot) : 1f);
         }
     }
 
@@ -152,13 +153,19 @@ public sealed class MapLightBeams
         private (bool, FVector, FRotator, float, float, float, float, float, int, float)? _last;
         private bool _on;
         private int _slot = -2;
+        private float _visibility = -1f;
 
         /// <summary>The light is an LE_ESpotShadow light: its shadow map cuts the beam.</summary>
         public bool Spot { get; init; }
 
         /// <summary>Uses the light's spot shadow slot (-1: none) and shows the beam when it is on and, for a spot light, has one.</summary>
-        public void SetSlot(int slot)
+        public void SetSlot(int slot, float visibility)
         {
+            if (_visibility != visibility)
+            {
+                _visibility = visibility;
+                ((ShaderMaterial)node.MaterialOverride).SetShaderParameter("beam_visibility", visibility);
+            }
             if (slot == _slot)
             {
                 return;

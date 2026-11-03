@@ -13,6 +13,59 @@ namespace OpenScct.Game.Tests.Camera;
 
 public sealed class TraversalFollowingTests
 {
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void RollingOnLevelGroundEasesStanceHeightWithoutAVerticalCameraBump(bool crouched)
+    {
+        PawnRig rig = Rig(PawnTeam.Spy, crouched: crouched,
+            options: new PawnRigOptions { Hooks = new CameraMovementHooks() });
+        SPlayerController pc = rig.Controller;
+        pc.bBehindView = true;
+        pc.ViewTarget = rig.Pawn;
+        FVector previous = default;
+        for (int i = 0; i < 40; i++)
+        {
+            rig.Step(Forward);
+            PlayerCalcView.FrameView(pc, out _, out previous, out _);
+        }
+
+        bool rolled = false;
+        float maxStep = CamParamTable.Get(ECamMode.ECM_Walking).targetZSpeed * Sim.DeltaTime * PlayerCalcView.ViewSolvesPerFrame;
+        for (int i = 0; i < 150; i++)
+        {
+            rig.Step(Forward with { bRoll = i == 0 ? (byte)1 : (byte)0 });
+            rolled |= rig.Pawn.bIsRolling;
+            PlayerCalcView.FrameView(pc, out _, out FVector view, out _);
+            Assert.InRange(System.MathF.Abs(view.Z - previous.Z), 0f, maxStep + 0.01f);
+            previous = view;
+        }
+
+        Assert.True(rolled);
+        Assert.False(rig.Pawn.bIsRolling);
+        Assert.Equal(crouched, rig.Pawn.bIsCrouched);
+    }
+
+    [Fact]
+    public void StandingUpDuringVerticalTravelStillTracksTheTravel()
+    {
+        PawnRig rig = Rig(PawnTeam.Spy, crouched: true,
+            options: new PawnRigOptions { Hooks = new CameraMovementHooks() });
+        SPlayerController pc = rig.Controller;
+        pc.bBehindView = true;
+        pc.ViewTarget = rig.Pawn;
+        FVector before = default;
+        for (int i = 0; i < 40; i++) PlayerCalcView.FrameView(pc, out _, out before, out _);
+
+        Assert.True(rig.Pawn.UnCrouch(false));
+        // A traversal snap or mover carry need not contribute to the gameplay velocity.
+        rig.Pawn.Location += V(0, 0, 100);
+        rig.Pawn.Velocity = default;
+        PlayerCalcView.FrameView(pc, out _, out FVector after, out _);
+
+        Assert.InRange(after.Z - before.Z, 100f, 115.01f);
+    }
+
     [Fact]
     public void TurningDuringTraversalWithUnderReportedVelocityDoesNotAccumulateFollowLag()
     {

@@ -26,6 +26,8 @@ uniform vec4 beam_shape = vec4(1.0, 1.0, 1.0, 0.1);
 uniform vec4 beam_boost = vec4(0.0, 0.0, 0.0, 1.0);
 // The light's spot shadow slot, or -1: no cut (a light without a shadow map).
 uniform int beam_slot = -1;
+// The same budget transition as the projected light patch, independent of the beam's authored brightness.
+uniform float beam_visibility = 1.0;
 
 varying float v_along;
 varying vec3 v_world;
@@ -82,6 +84,6 @@ void fragment() {
 		discard;
 	}
 	vec3 lit = beam_slot >= 0 ? beam_lit(beam_slot, v_world) : vec3(1.0);
-	ALBEDO = max(beam_boost.rgb, vec3(0.0)) * clamp(1.0 - v_along, 0.0, 1.0) * lit;
+	ALBEDO = max(beam_boost.rgb, vec3(0.0)) * clamp(1.0 - v_along, 0.0, 1.0) * lit * beam_visibility;
 	ALPHA = 1.0;
 }

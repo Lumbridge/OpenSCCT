@@ -41,6 +41,9 @@ public partial class SBasePawn
         if (Role == ENetRole.ROLE_SimulatedProxy &&
             XLevel.GetService<OpenScct.Game.Animation.INetworkPawnPose>()?.Tick(this, DeltaSeconds) == true)
         {
+            // Network poses replace the script tick, but cloak interpolation is local presentation and must
+            // still advance on every observing client.
+            if (this is SPawnAttaque) OpenScct.Game.Equipment.PawnVision.TickGlass(this);
             OldPhysics = Physics;
             return;
         }

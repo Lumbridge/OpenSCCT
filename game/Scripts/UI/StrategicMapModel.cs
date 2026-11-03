@@ -199,7 +199,7 @@ public sealed class StrategicMapData
 
 /// <summary>
 /// The page's state (<c>GUI.StrategicMap</c>, spec/hud/strategic-map.md): the shown floor, Up and Down, the blink of the
-/// markers every half second, the "you are here" marker and up to two team-mate markers.
+/// markers every half second, the "you are here" marker and the team-mate markers.
 /// </summary>
 public sealed class StrategicMapModel
 {
@@ -207,8 +207,8 @@ public sealed class StrategicMapModel
     [Provenance(ProvenanceKind.Decoded, "GUI.StrategicMap.InitComponent: SetTimer(0.5, true)")]
     public const double TimerSeconds = 0.5;
 
-    /// <summary>GUI.StrategicMap.UpdateTeamMatesPositions: at most two team mates are placed.</summary>
-    public const int MaxTeamMates = 2;
+    /// <summary>Room for every other player in a lobby, including uneven teams.</summary>
+    public const int MaxTeamMates = OpenScct.Server.Online.LobbySetup.MaxMaxPlayers - 1;
 
     private readonly StrategicMapMarker?[] _mates = new StrategicMapMarker?[MaxTeamMates];
 
@@ -228,7 +228,7 @@ public sealed class StrategicMapModel
     /// <summary>The local player's marker, or null when he is not on the shown floor, not on the picture or has no position.</summary>
     public StrategicMapMarker? You { get; private set; }
 
-    /// <summary>The team-mate markers (two slots; a slot is null when that mate is not shown).</summary>
+    /// <summary>The team-mate markers (a slot is null when that mate is not shown).</summary>
     public IReadOnlyList<StrategicMapMarker?> Mates => _mates;
 
     /// <summary>The Up and Down buttons show only for a map with more than one floor.</summary>
@@ -300,8 +300,8 @@ public sealed class StrategicMapModel
     }
 
     /// <summary>
-    /// <c>UpdateTeamMatesPositions</c> and <c>UpdateTeamMate</c> (native 1868): the first two mates take the two slots
-    /// in order; a slot shows when its mate is on the shown floor and inside the picture.
+    /// <c>UpdateTeamMatesPositions</c> and <c>UpdateTeamMate</c> (native 1868), expanded to the lobby capacity:
+    /// mates take slots in order; a slot shows when its mate is on the shown floor and inside the picture.
     /// </summary>
     [Uc("GUI.StrategicMap.UpdateTeamMatesPositions", Sha1 = "c2cf14733fd6a8a587ec9c253405708938bf5a49")]
     [PortOf("uc:GUI.StrategicMap:UpdateTeamMatesPositions", Spec = "spec/hud/strategic-map.md#rules")]

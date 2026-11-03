@@ -199,6 +199,7 @@ public sealed class TraversalTests
         var seen = new List<Name>();
         Assert.True(StepUntil(rig, Forward, MovementStateNames.s_PlayerWalkingSt0H, 600, seen), string.Join(", ", seen));
         Assert.Contains(MovementStateNames.s_TopPipe, seen);
+        Assert.False(rig.Controller.bBlockControlForJump);
         Assert.InRange(rig.Pawn.Location.Z, 600f + 87.5f - 1f, 600f + 87.5f + 4f);
         Assert.True(rig.Pawn.Location.Y > 230f);
         rig.Hold(NoInput, 30);
@@ -219,6 +220,16 @@ public sealed class TraversalTests
             string.Join(", ", seen));
         Assert.Contains(MovementStateNames.s_PlayerJump, seen);
         Assert.InRange(rig.Pawn.Location.Z, 87f, 92f);
+        Assert.False(rig.Controller.bBlockControlForJump);
+
+        // Move clear of the pipe, then correct a new jump after take-off.
+        var away = new PlayerInputFrame { BT_Down = 1 };
+        rig.Hold(away, 20);
+        rig.WaitStill(120);
+        rig.Step(JumpPress);
+        rig.Hold(away, 6);
+        Assert.Equal(EPhysics.PHYS_Falling, rig.Pawn.Physics);
+        Assert.True(rig.Pawn.Velocity.Y < -10f, "The next jump must accept backward air steering after a pipe drop.");
     }
 
     // ---- zip line ---------------------------------------------------------------------------------------------

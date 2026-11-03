@@ -50,7 +50,8 @@ public sealed class HudEditorSettings
     public static readonly Dictionary<string, string> Elements = new()
     {
         ["Scoreboard"] = "Scoreboard", ["Chat"] = "Chat", ["Activity"] = "Event feed",
-        ["Vie"] = "Health", ["Energie"] = "Energy", ["Radar"] = "Radar",
+        ["Vie"] = "Health", ["Energie"] = "Energy", ["Radar"] = "Radar", ["Location"] = "Zone name",
+        ["Fps"] = "FPS", ["Network"] = "Network",
         ["Chrono"] = "Match timer", ["Objectif"] = "Objective counter", ["Gadget"] = "Gadget",
         ["Ammo"] = "Ammunition", ["ChronoHack"] = "Hacking countdown", ["ChronoObjectif"] = "Objective countdown",
         ["ChronoAlarm"] = "Alarm", ["AlertMessage"] = "Alert message", ["SystemMessage"] = "System messages",

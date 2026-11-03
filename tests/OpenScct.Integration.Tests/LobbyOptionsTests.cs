@@ -136,7 +136,7 @@ public sealed class LobbyOptionsTests
         Assert.Equal(["Modern", "Classic", "Team", "Open"], LobbySetup.VoiceModeNames);
         Assert.Equal("Living team - hackable coms", LobbySetup.VoiceModeHints[1]);
         Assert.Equal(EVoiceChatMode.VCM_Open, LobbySetup.VoiceModeOf(3));
-        Assert.Equal((2, 8, 4, 16), (LobbySetup.MinMaxPlayers, LobbySetup.MaxMaxPlayers, LobbySetup.DefaultMaxPlayers, LobbySetup.MaxPasswordLength));
+        Assert.Equal((2, 24, 24, 16), (LobbySetup.MinMaxPlayers, LobbySetup.MaxMaxPlayers, LobbySetup.DefaultMaxPlayers, LobbySetup.MaxPasswordLength));
 
         // The page writes the voice values where the game reads them.
         var gri = new GameReplicationInfo();

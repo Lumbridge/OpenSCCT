@@ -7,6 +7,7 @@ IDs of each file are in that file's `Units:` header.
 | File | Covers |
 |---|---|
 | [screen-effects.md](screen-effects.md) | The canvas colour doubling; SHud screen effects (AddVisualSfx, ProcessSFX); damage feedback; the merc page's perturbation, shutdown, sticky shock, flash, foam and droplets |
+| [poison.md](poison.md) | Poison gauge animation, textured screen overlay, activation frame and cure |
 | [messages.md](messages.md) | Localized messages (SGameMessages, SDeathMessage, GameMessage), the four message areas, the game queue and the kill feed |
 | [chat.md](chat.md) | Text chat: the typing line, the server's broadcast rules and the console lines |
 | [merc-reticle.md](merc-reticle.md) | The merc's aim point (SpotReticule) and reticle by weapon, the sound arrows, the reticle message, the posture icon and the alert box |

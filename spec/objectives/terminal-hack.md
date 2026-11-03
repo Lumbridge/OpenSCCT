@@ -218,6 +218,16 @@ stateDiagram-v2
 - `s_RestoreAfterAlarm` is tested but does not exist in this build.
 - Only `SPawnAttaque` pawns can start the hack (rule 8), whatever `UsableBy` says.
 
+## OpenSCCT alignment recovery
+
+The port initializes the use spot before starting repositioning, so a physics tick cannot reuse a previous
+traversal destination. The approach has a four-second timeout (an OpenSCCT safeguard, not a decoded original
+rule): the maximum 364 uu approach normally takes about two seconds at 180 uu/s. A stalled or interrupted
+approach returns control without snapping to the destination. Missing-target and collision cancellation also
+clear that destination; successful arrival cancels the approach timer before the enter animation and hack timer.
+`TerminalAlignmentTests` covers normal standing/crouched use, blocked and stalled movement, interrupted physics,
+target removal, and a physics tick before the next input tick.
+
 ## Evidence
 
 - Decompiled: `local/re-out/uc/SBase/SComputerObjectiveTrigger.uc`, `SComputerInteraction.uc`, `SPlayerController.uc` lines 6671 to 6677 (UseComputer) and 23708 to 24109 (computer states), 1088 to 1220 (MirrorState, ChangeState, PCChangeServerState), 7284 (GotoWaitingState), 7422 (IAmOnClient).

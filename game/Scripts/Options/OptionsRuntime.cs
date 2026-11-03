@@ -167,6 +167,7 @@ public partial class OptionsRuntime : Node
             Hud.ShowLocation = s.ShowLocation;
             Hud.TeammateNames.ShowSpy = s.TeammateNamesSpy;
             Hud.TeammateNames.ShowMerc = s.TeammateNamesMerc;
+            Hud.TeammateNames.ShowHealth = s.TeammateHealth;
             Hud.TeammateNames.Opacity = s.TeammateNamesOpacity / 100f;
             Hud.DistanceInFeet = s.HudFeet;
             Hud.Markers.HackAlpha = s.HackAlpha / 255f;

@@ -52,10 +52,10 @@ public static class GadgetNetReceive
                 PawnGadgets.SetGasMaskUseOnServer(pawn, c.Bool1);
                 return true;
             case "SetDesiredGlassValue" when target is SBasePawn pawn:
-                PawnVision.SetDesiredGlassValue(pawn, (byte)c.Int1, c.Float1);
+                PawnVision.SetDesiredGlassValue(pawn, (byte)c.Int1, c.Float1, c.Int2);
                 return true;
             case "SetPerturbationGlass" when target is SBasePawn pawn:
-                PawnVision.SetPerturbationGlass(pawn, c.Float1, c.Vector1.X);
+                PawnVision.SetPerturbationGlass(pawn, c.Float1, c.Vector1.X, c.Int2);
                 return true;
             case "SetAmbientSoundOnServer" when target is SGadGasMask mask && c.Actor1 is SBasePawn wearer:
                 mask.SetAmbientSoundOnServer(wearer, (byte)c.Int1);
@@ -130,10 +130,13 @@ public static class GadgetNetReceive
                 PawnGadgets.CamNetworkSwitchVisionModeOnAllClients(pawn, c.Actor1 as SCamNetwork, c.Int1);
                 return true;
             case "SetDesiredGlassValueOnClients" when target is SBasePawn pawn:
-                PawnVision.ClientDesiredGlassValue(pawn, (byte)c.Int1, c.Float1);
+                PawnVision.ClientDesiredGlassValue(pawn, (byte)c.Int1, c.Float1, c.Int2, c.Bool1);
+                return true;
+            case "InitialCloakState" when target is SBasePawn pawn:
+                PawnVision.ClientInitialGlass(pawn, (byte)c.Int1, (byte)c.Int2, c.Float1, c.Vector1.X, c.Vector1.Y);
                 return true;
             case "SetPerturbationGlassOnClients" when target is SBasePawn pawn:
-                PawnVision.ClientPerturbationGlass(pawn, c.Float1, c.Vector1.X);
+                PawnVision.ClientPerturbationGlass(pawn, c.Float1, c.Vector1.X, c.Int2);
                 return true;
             case "UpdateRemoveMineUsabilityOnClient" when target is SGadMultiMinesLauncher launcher:
                 launcher.UpdateRemoveMineUsabilityOnClient(c.Bool1);

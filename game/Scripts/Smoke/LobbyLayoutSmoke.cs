@@ -59,6 +59,7 @@ public sealed class LobbyLayoutSmoke : SmokeTest
         {
             Resize(context.Tree, _sizes[_size]);
             _session = new FixtureLobby { CanControl = _variant != 1, Maps = _maps };
+            if (_variant == 3) _session.FillCapacityRoster();
             if (_maps.Any(map => string.Equals(map.Id, "AquaE", StringComparison.OrdinalIgnoreCase)))
                 _session.Setup = _session.Setup with { Map = "AquaE" };
             SettingsStore.Current.MapListView = false;
@@ -79,7 +80,38 @@ public sealed class LobbyLayoutSmoke : SmokeTest
         }
         _pilot!.Update();
         if (++_frame < 10) return SmokeResult.Running;
-        if (_screen is LobbyRoomScreen roomScreen)
+        if (_screen is LobbyRoomScreen fullRoom && _variant == 3)
+        {
+            if (_frame == 10)
+            {
+                CheckLayout(fullRoom, "Full 12v12 lobby");
+                Expect(_session!.Members.Count == 26, "24 players and two spectators are listed");
+                foreach (int id in Enumerable.Range(1, 26))
+                    Expect(fullRoom.FindChild("Player" + id, true, false) is Control, "full roster contains player " + id);
+                EnsureVisible((Control)fullRoom.FindChild("Player12", true, false)!);
+                return SmokeResult.Running;
+            }
+            if (_frame < 16) return SmokeResult.Running;
+            if (_frame == 16)
+            {
+                Expect(IsReachable((Control)fullRoom.FindChild("Player12", true, false)!), "twelfth spy can be reached by scrolling");
+                EnsureVisible((Control)fullRoom.FindChild("Player24", true, false)!);
+                return SmokeResult.Running;
+            }
+            if (_frame < 22) return SmokeResult.Running;
+            if (_frame == 22)
+            {
+                Expect(IsReachable((Control)fullRoom.FindChild("Player24", true, false)!), "twelfth mercenary can be reached by scrolling");
+                EnsureVisible((Control)fullRoom.FindChild("Player26", true, false)!);
+                return SmokeResult.Running;
+            }
+            if (_frame < 28) return SmokeResult.Running;
+            Expect(IsReachable((Control)fullRoom.FindChild("Player26", true, false)!), "spectators remain reachable with 24 players");
+            foreach (Button button in fullRoom.PageButtons)
+                Expect(ViewportRect.Encloses(button.GetGlobalRect()), "full lobby footer action visible: " + button.Name);
+            MenuPage.Shot(fullRoom, $"lobby-12v12-{Resolution}");
+        }
+        else if (_screen is LobbyRoomScreen roomScreen)
         {
             if (_frame == 10)
             {
@@ -335,12 +367,12 @@ public sealed class LobbyLayoutSmoke : SmokeTest
         }
         _screen.QueueFree(); _screen = null;
         _liveResize = false;
-        if (++_variant < 3) return SmokeResult.Running;
+        if (++_variant < 4) return SmokeResult.Running;
         _variant = 0;
         if (++_size < _sizes.Length) return SmokeResult.Running;
         SettingsStore.Current.MapListView = _savedMapList;
         SettingsStore.Current.ActiveMapPlaylist = _savedPlaylist!;
-        return _problems.Count == 0 ? SmokeResult.Pass("host/client/offline, Game and Rules tabs, exact bot counts and player slots, personal recording, editable numbers and draft/apply/discard, alternate rules, embedded map pictures/list/search, 9 resolutions from 800x600 to 3840x2160 and live resize from 4K to 800x600")
+        return _problems.Count == 0 ? SmokeResult.Pass("host/client/offline and full 12v12 rosters with spectators, Game and Rules tabs, exact bot counts and player slots, personal recording, editable numbers and draft/apply/discard, alternate rules, embedded map pictures/list/search, 9 resolutions from 800x600 to 3840x2160 and live resize from 4K to 800x600")
             : SmokeResult.Fail(string.Join("; ", _problems.Take(15)));
     }
 
@@ -661,8 +693,9 @@ public sealed class LobbyLayoutSmoke : SmokeTest
             Expect(false, "player capacity and exact team bot controls exist");
             return;
         }
-        Expect(spies.MinValue == 0 && spies.MaxValue == 8 && mercs.MinValue == 0 && mercs.MaxValue == 8,
-            "exact counts allow zero through eight requested bots per team");
+        Expect(slots.MinValue == 2 && slots.MaxValue == 24, "player slots support 12v12");
+        Expect(spies.MinValue == 0 && spies.MaxValue == 24 && mercs.MinValue == 0 && mercs.MaxValue == 24,
+            "exact counts allow zero through 24 requested bots per team within the total slot limit");
         if (!session.CanControl)
         {
             Expect(!slots.Editable && !spies.Editable && !mercs.Editable && mode.Disabled,
@@ -736,6 +769,14 @@ public sealed class LobbyLayoutSmoke : SmokeTest
             new(4, "Spectator", null, false, false, false, 65, ""),
         };
         public IReadOnlyList<OnlineLobbyPlayer> Members => _members;
+        public void FillCapacityRoster()
+        {
+            Setup = Setup with { MaxPlayers = 24, Bots = BotFill.Off };
+            _members.Clear();
+            for (int id = 1; id <= 26; id++)
+                _members.Add(new(id, "Player " + id, id <= 12 ? HudSide.Spy : id <= 24 ? HudSide.Merc : null,
+                    true, id == 1, id == 1, 42, ""));
+        }
         public IReadOnlyList<LobbyPlayer> Players => _members.Where(p => p.Side is not null).Select(p => new LobbyPlayer(p.Name, p.Side!.Value, p.Ready, p.IsLocal, p.IsBot)).ToArray();
         public IReadOnlyList<LobbyMessage> Messages => Array.Empty<LobbyMessage>();
         public IReadOnlyList<(string Id, string Title)> Maps { get; init; } = new[] { ("TestBox", "Test Box") };

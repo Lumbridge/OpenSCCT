@@ -11,7 +11,7 @@ public partial class LobbyRoomScreen
 {
     private PanelContainer? _settingsPanel;
     private Label? _overviewTitle, _overviewRules, _overviewObjective, _loadout, _draftStatus;
-    private Button? _rulesButton, _joinSpiesButton;
+    private Button? _rulesButton, _joinSpiesButton, _mapButton;
     private Label? _settingsDraftNote;
     private CheckBox? _recordDemos;
     private Label? _recordingNote;
@@ -52,7 +52,6 @@ public partial class LobbyRoomScreen
         EquipmentButton = LobbyPanels.Button("Equipment", OpenEquipment, "Equipment"); actions.AddChild(EquipmentButton);
         ArmouryButton = LobbyPanels.Button("Cosmetics", OpenArmoury, "Armoury"); actions.AddChild(ArmouryButton);
         _rulesButton = LobbyPanels.Button("Session Options", OpenMatchSettings, "MatchSettings"); actions.AddChild(_rulesButton);
-        actions.AddChild(LobbyPanels.Button("Map / Mode", () => { OpenMatchSettings(); FocusSettingsMap(); }, "MapMode"));
         BriefingButton = LobbyPanels.Button("Briefing", OpenBriefing, "Briefing"); actions.AddChild(BriefingButton);
         actions.AddChild(LobbyPanels.Button("Strategic map", OpenStrategicMap, "StrategicMap"));
         SpectateButton = LobbyPanels.Button("Spectate", session.Spectate, "Spectate"); SpectateButton.SizeFlagsHorizontal = SizeFlags.ExpandFill; sideActions.AddChild(SpectateButton);
@@ -67,7 +66,15 @@ public partial class LobbyRoomScreen
         var overview = LobbyPanels.Card(left, "MatchOverview", session.ServerName);
         ((Control)overview.GetParent()).SizeFlagsVertical = SizeFlags.ExpandFill;
         _overviewTitle = LobbyPanels.Text(); overview.AddChild(_overviewTitle);
-        MapPicture = new MapThumb(new Vector2(100, 80)) { SizeFlagsVertical = SizeFlags.ExpandFill }; overview.AddChild(MapPicture);
+        _mapButton = LobbyPanels.Button("", () => { OpenMatchSettings(); FocusSettingsMap(); }, "SelectMap");
+        _mapButton.CustomMinimumSize = new Vector2(100, 80);
+        _mapButton.SizeFlagsVertical = SizeFlags.ExpandFill;
+        _mapButton.ThemeTypeVariation = UiStyle.TileVariation;
+        _mapButton.MouseDefaultCursorShape = CursorShape.PointingHand;
+        overview.AddChild(_mapButton);
+        MapPicture = new MapThumb(Vector2.Zero);
+        _mapButton.AddChild(MapPicture);
+        MapPicture.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect, LayoutPresetMode.Minsize, 6);
         _overviewRules = LobbyPanels.Text(); overview.AddChild(_overviewRules);
         _overviewObjective = LobbyPanels.Text(); _overviewObjective.Visible = false; overview.AddChild(_overviewObjective);
         _draftStatus = LobbyPanels.Text(); _draftStatus.Visible = false; overview.AddChild(_draftStatus);
@@ -225,6 +232,7 @@ public partial class LobbyRoomScreen
         _overviewObjective!.Text = LobbyPresentation.Objective(s.Setup.Mode);
         ShowMapPicture();
         MapPicture!.TooltipText = _overviewObjective.Text;
+        _mapButton!.TooltipText = (s.CanControl ? "Select a map" : "View map settings") + "\n" + _overviewObjective.Text;
     }
 
     private void UpdateLoadout()

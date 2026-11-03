@@ -49,6 +49,17 @@ public sealed class LobbyPresentationTests
     }
 
     [Fact]
+    public void FullTwelvePerTeamRosterUsesAllTwentyFourSlots()
+    {
+        var setup = new LobbySetup { MaxPlayers = 24, Bots = BotFill.Fill };
+        string preview = LobbyPresentation.PlayerSlots(setup, 12, 12);
+        Assert.Contains("24 humans + 0 bots", preview);
+        Assert.Contains("0 open / 24 slots", preview);
+        Assert.Contains("Spies: 12 human + 0 bots", preview);
+        Assert.Contains("Mercenaries: 12 human + 0 bots", preview);
+    }
+
+    [Fact]
     public void CustomRosterPreviewDistinguishesHumanBotAndOpenSlots()
     {
         var setup = new LobbySetup { MaxPlayers = 5, Bots = BotFill.Custom, SpyBots = 0, MercBots = 3 };

@@ -563,7 +563,7 @@ public partial class SessionRowsView : VBoxContainer
         SessionRow.Alternate => "Customize the abilities and gadgets allowed for each team using Alternate rules.",
         SessionRow.Practice => "Unlimited lives, quick respawns and practice commands. Match stats are not recorded.",
         SessionRow.Sidearms => "Allow mercenaries to carry a sidearm.",
-        SessionRow.MaxPlayers => "Total places for human players and bots. Spectators do not use these places.",
+        SessionRow.MaxPlayers => "Up to 24 places for human players and bots (12v12). Spectators do not use these places.",
         SessionRow.SpyBots or SessionRow.MercBots => "Requested bots on this team. Use 0 for no bots. Human players take priority when slots are full.",
         _ => string.Empty,
     };

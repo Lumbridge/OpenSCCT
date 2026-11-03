@@ -12,8 +12,8 @@ namespace OpenScctGame.Render;
 /// drawn as spot shadow lights. The original keeps them out of the baked light and projects them at run time (the
 /// lightmap under FactD's window patches is uniform while the game draws the patch with its bar shadows; bridge
 /// docs/handoff/fix_plan.md I8), so every one that is on is drawn, whatever its bApplyToStaticLighting. The template
-/// has <see cref="RenderK.SpotShadowSlots"/> slots, so the <see cref="RenderK.SpotShadowMapLights"/> nearest the
-/// camera take them. Each follows its switch (STriggerLight) and light type.
+/// has <see cref="RenderK.SpotShadowSlots"/> slots. Visible light volumes have priority, with stable selection and
+/// fading when the map budget is exceeded. Each follows its switch (STriggerLight) and light type.
 /// </summary>
 [PortOf("eng:Render.SpotShadow", Spec = "docs/RENDERING.md#spot-shadow-lights")]
 public sealed class MapSpotLights : IDisposable
@@ -21,10 +21,11 @@ public sealed class MapSpotLights : IDisposable
     private readonly RenderMap _map;
     private readonly Node _parent;
     private readonly List<LightEntry> _lights = [];
-    private readonly Dictionary<LightEntry, SpotShadowLight> _drawn = new(ReferenceEqualityComparer.Instance);
-    private readonly List<(float Distance, LightEntry Light)> _ranked = [];
-    private readonly HashSet<LightEntry> _keep = new(ReferenceEqualityComparer.Instance);
-    private readonly List<LightEntry> _drop = [];
+    private readonly List<Aabb> _bounds = [];
+    private readonly Dictionary<int, SpotShadowLight> _drawn = [];
+    private readonly List<MapSpotLightCandidate> _candidates = [];
+    private readonly MapSpotLightBudget _budget = new(RenderK.SpotShadowMapLights);
+    private readonly List<int> _drop = [];
     private readonly Plane[] _frustum = new Plane[6];
 
     public MapSpotLights(RenderMap map, Node parent)
@@ -38,6 +39,7 @@ public sealed class MapSpotLights : IDisposable
             if (l.Echelon is not null && l.Brightness > 0f)
             {
                 _lights.Add(l);
+                _bounds.Add(SpotShadowShape.Of(l, l.Echelon).InfluenceBounds(l.Location, l.Rotation));
             }
         }
     }
@@ -49,50 +51,43 @@ public sealed class MapSpotLights : IDisposable
     public int DrawnCount => _drawn.Count;
 
     /// <summary>Picks the lights to draw for a camera at <paramref name="camera"/> (uu) and places them for this frame.</summary>
-    [Provenance(ProvenanceKind.Estimated, "nearest-first choice of the lights that get a slot; the original's limit is not decoded")]
+    [Provenance(ProvenanceKind.Estimated, "visible-first shadow budget with hysteresis and fading; the original's limit is not decoded")]
     public void Update(FVector camera)
     {
-        _ranked.Clear();
-        foreach (LightEntry l in _lights)
-        {
-            if (_map.IsLightOn(l.Name, l.InitiallyOn && l.LightType != 0))
-            {
-                _ranked.Add((Distance(l, camera), l));
-            }
-        }
-
-        _ranked.Sort((a, b) => a.Distance.CompareTo(b.Distance));
-        _keep.Clear();
-        for (int i = 0; i < _ranked.Count && i < RenderK.SpotShadowMapLights; i++)
-        {
-            _keep.Add(_ranked[i].Light);
-        }
-
-        _drop.Clear();
-        foreach (LightEntry l in _drawn.Keys)
-        {
-            if (!_keep.Contains(l))
-            {
-                _drop.Add(l);
-            }
-        }
-
-        foreach (LightEntry l in _drop)
-        {
-            _drawn[l].Dispose();
-            _drawn.Remove(l);
-        }
-
-        if (_keep.Count == 0)
-        {
-            return;
-        }
-
         Camera3D? cameraNode = _parent.GetViewport().GetCamera3D();
         if (cameraNode is not null) ViewFrustum.Read(cameraNode, _frustum);
-        foreach (LightEntry l in _keep)
+        _candidates.Clear();
+        for (int i = 0; i < _lights.Count; i++)
         {
-            if (!_drawn.TryGetValue(l, out SpotShadowLight? light))
+            LightEntry l = _lights[i];
+            if (_map.IsLightOn(l.Name, l.InitiallyOn && l.LightType != 0))
+            {
+                bool visible = cameraNode is null || ViewFrustum.Intersects(_bounds[i], _frustum);
+                _candidates.Add(new MapSpotLightCandidate(i, Distance(l, camera), visible));
+            }
+        }
+
+        _budget.Update(_candidates, (float)_parent.GetProcessDeltaTime());
+
+        _drop.Clear();
+        foreach (int index in _drawn.Keys)
+        {
+            if (!_budget.Active.ContainsKey(index))
+            {
+                _drop.Add(index);
+            }
+        }
+
+        foreach (int index in _drop)
+        {
+            _drawn[index].Dispose();
+            _drawn.Remove(index);
+        }
+
+        foreach ((int index, float visibility) in _budget.Active)
+        {
+            LightEntry l = _lights[index];
+            if (!_drawn.TryGetValue(index, out SpotShadowLight? light))
             {
                 EchelonSpot e = l.Echelon!;
                 Texture2D? cookie = e.Texture is null ? null : _map.Textures.Get(e.Texture, mipmaps: false);
@@ -101,10 +96,11 @@ public sealed class MapSpotLights : IDisposable
                     Zone = l.OwnZoneOnly ? l.ZoneIndex : -1,
                     LightName = l.Name,
                 };
-                _drawn[l] = light;
+                _drawn[index] = light;
             }
 
             light.Scale = WorldLights.Modulation(l, _map.Time);
+            light.VisibilityGain = visibility;
             light.Place(l.Location, l.Rotation);
             if (cameraNode is not null)
             {

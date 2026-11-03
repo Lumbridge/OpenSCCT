@@ -28,7 +28,7 @@ public sealed record OnlineServerSettings
     public bool Dedicated { get; init; } = true;
 
     /// <summary>Players on the two sides together.</summary>
-    public int MaxPlayers { get; init; } = 8;
+    public int MaxPlayers { get; init; } = LobbySetup.DefaultMaxPlayers;
 
     /// <summary>Spectators on top of the players (late joiners watch until the next round).</summary>
     public int MaxSpectators { get; init; } = 2;
@@ -667,6 +667,9 @@ public sealed partial class OnlineServer : IDisposable
         host.ChatFilter = OnChatCommand;
         if (host.Game is { } game)
         {
+            // The session admits its listen host even when spectator places are full (for example on a rejoin).
+            // Reserve that place in the game too; FilterLogin remains authoritative for ordinary spectators.
+            game.MaxSpectators = Settings.MaxSpectators + (!Settings.Dedicated && Settings.HostKey is { Length: > 0 } ? 1 : 0);
             // The host settings the rules read (Disk Hunt's disk counts), as the match creation page stores them.
             Setup.ApplyTo(game.PersistentData);
             game.PersistentData.LevelName = map;
@@ -1772,6 +1775,7 @@ public sealed partial class OnlineServer : IDisposable
 
     /// <summary>The login options of a player for the current map's game rules (its side, and the series count for the revenge swap).</summary>
     private string MatchLoginOptions(SessionPlayer p) => (Settings.Master is null ? "?SvmSidearmsAll=1" : "?SvmSidearmsAll=0") + "?Team=" + p.Team.ToString(CultureInfo.InvariantCulture) + SeriesOptions(Host.Game) +
+        (p.IsSpectator ? "?SpectatorOnly=true" : string.Empty) +
         (p.Team switch { 0 => p.SpyLook, 1 => p.MercLook, _ => CosmeticLook.Default } is var look && !look.IsDefault ? "?SvmLook=" + look.ToHex() : string.Empty) +
         (p.Rank != 0 ? "?SvmRank=" + p.Rank.ToString(CultureInfo.InvariantCulture) : string.Empty) +
         (p.Rejoin is not null ? "?SvmRejoin=1" : string.Empty);

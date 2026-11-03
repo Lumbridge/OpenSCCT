@@ -30,6 +30,10 @@ public partial class SPlayerController
     {
         public static readonly s_Computer_GoTo Instance = new(UcMeta.s_Computer_GoTo, null);
 
+        // The farthest use spot is 364 uu away at 180 uu/s. Allow turning and network correction,
+        // but never wait indefinitely for TopSynchro if positioning is blocked or interrupted.
+        private const float AlignmentTimeout = 4f;
+
         protected s_Computer_GoTo(UcStateInfo info, ActorState? super)
             : base(info, super)
         {
@@ -46,8 +50,21 @@ public partial class SPlayerController
             }
 
             pc.HolsterForUse();
+            if (!TerminalHackRules.GoToPlayerTick(pc, out FVector facing))
+            {
+                AbortWalk(pc);
+                return;
+            }
+
+            // Physics can tick before the next PlayerTick. Replace the last traversal's target first.
+            pc.SBPawn?.SetInfoForVandamme(facing);
             pc.SBPawn?.ChangeEnumAction(SBasePawn.SA_REPOS);
+            pc.SetTimer(AlignmentTimeout, false);
         }
+
+        public override void EndState(Actor self) => self.SetTimer(0f, false);
+
+        public override void Timer(Actor self) => AbortWalk((SPlayerController)self);
 
         /// <summary>Aims the repositioning at the first terminal within 300 uu, or gives up; then the normal tick.</summary>
         [Uc("SBase.SPlayerController.s_Computer_GoTo.PlayerTick", Sha1 = "7045751d7f3aa5b5a901a125fd4fcc12847eddfd")]
@@ -57,8 +74,7 @@ public partial class SPlayerController
             var pc = (SPlayerController)self;
             if (!TerminalHackRules.GoToPlayerTick(pc, out FVector facing))
             {
-                pc.SBPawn?.ChangeEnumAction(SBasePawn.SA_WALK_ST_0H);
-                pc.eventChangeState(K.s_PlayerWalkingSt0H);
+                AbortWalk(pc);
                 return;
             }
 
@@ -98,11 +114,29 @@ public partial class SPlayerController
 
         private static void AbortWalk(SPlayerController pc, Actor? other)
         {
-            if (pc.IAmOnClient() && TerminalHackRules.GoToAbortsOn(other))
+            if (TerminalHackRules.GoToAbortsOn(other))
             {
-                pc.SBPawn?.ChangeEnumAction(SBasePawn.SA_EXIT_REPOS);
-                pc.GotoWaitingState();
+                AbortWalk(pc);
             }
+        }
+
+        private static void AbortWalk(SPlayerController pc)
+        {
+            if (!pc.IAmOnClient() || pc.SBPawn is not { } pawn)
+            {
+                return;
+            }
+
+            // Leaving repositioning normally snaps the authority to its destination. Cancellation must
+            // stop here, including when a correction already restored walking physics on the owner.
+            if (pawn.Physics == EPhysics.PHYS_Repositionnal)
+            {
+                pawn.ChangeEnumAction(SBasePawn.SA_EXIT_REPOS);
+            }
+
+            pawn.vVandammePos = pawn.Location;
+            pawn.SetInfoForVandamme(pawn.Rotation.Vector());
+            pc.GotoWaitingState();
         }
     }
 

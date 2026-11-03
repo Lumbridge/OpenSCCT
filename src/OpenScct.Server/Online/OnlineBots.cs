@@ -47,9 +47,9 @@ public delegate IOnlineBotRunner OnlineBotFactory(ServerHost host, MapCatalog ma
 public static class OnlineBotRoster
 {
     /// <summary>Most bots on one side the page offers.</summary>
-    public const int MaxPerSide = 4;
+    public const int MaxPerSide = LobbySetup.MaxMaxPlayers / 2;
 
-    /// <summary>Custom teams may use all eight player slots on one side.</summary>
+    /// <summary>Custom teams may use all player slots on one side.</summary>
     public const int MaxCustomPerTeam = LobbySetup.MaxMaxPlayers;
 
     /// <summary>

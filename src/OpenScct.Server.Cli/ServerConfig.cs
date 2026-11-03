@@ -197,7 +197,7 @@ internal sealed record ServerConfig
     /// <summary>Bind to 127.0.0.1 and ::1 only (testing on one machine).</summary>
     public bool LoopbackOnly { get; init; }
 
-    public int MaxPlayers { get; init; } = 8;
+    public int MaxPlayers { get; init; } = LobbySetup.DefaultMaxPlayers;
 
     public int MaxSpectators { get; init; } = 2;
 

@@ -93,7 +93,7 @@ public sealed class KeyBindingsModel
         {
             choices.Add((OpenScctGame.Options.PadSettings.WallLaserAction, "Back to wall / weapon laser"));
             choices.Add((OpenScctGame.Options.PadSettings.SpyFireAction, "Fire / tap to quick-use slot 1"));
-            choices.Add((OpenScctGame.Options.PadSettings.SpyGadgetAction, "Use gadget / tap slot 2 / hold cloak"));
+            choices.Add((OpenScctGame.Options.PadSettings.SpyGadgetAction, "Use gadget / tap slot 2"));
             choices.Add((OpenScctGame.Options.PadSettings.LongRollAction, "Long roll / camera back"));
         }
         if (role == PlaySide.Merc || otherTeam)

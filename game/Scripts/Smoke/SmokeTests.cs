@@ -8,7 +8,7 @@ public static class SmokeTests
 {
     public static IReadOnlyList<string> Names { get; } =
         [VisitMapSmoke.TestName, MapLightSpritesSmoke.TestName, DestructibleFxSmoke.TestName, SpyPerspectiveSmoke.TestName, MineLightSmoke.TestName, CamnetDisabledSmoke.TestName, AmmoMenuHudSmoke.TestName, LandingBlendSmoke.TestName, GlassBlendSmoke.TestName, ScopeLifecycleSmoke.TestName, SidearmReloadPoseSmoke.TestName, MenuEscapeSmoke.TestName, FittedSkinsSmoke.TestName, ViewmodelLightSmoke.TestName, StatsSmoke.TestName, StartupWeaponsSmoke.TestName, LaserAlignmentSmoke.TestName, BootSmoke.TestName, TestBoxSmoke.TestName, SelfTestFailSmoke.TestName, SteeERenderSmoke.TestName, GoldenSmoke.TestName,
-            LaserDotSmoke.TestName, DemoUiSmoke.TestName, DemoLibraryCardsSmoke.TestName, DemoWeaponSmoke.TestName, LocalExplosiveHudSmoke.TestName,
+            PoisonHudSmoke.TestName, CloakRenderSmoke.TestName, LaserDotSmoke.TestName, DemoUiSmoke.TestName, DemoLibraryCardsSmoke.TestName, DemoWeaponSmoke.TestName, LocalExplosiveHudSmoke.TestName,
             ModernChatSmoke.TestName, MenuPilotPopupSmoke.TestName, JoinFocusSmoke.TestName, ControllerDefaultsSmoke.TestName, Hud.HudSmoke.TestName, HudActivityFeedSmoke.TestName, RainHudSmoke.TestName, AudioSmoke.TestName, PlaySpySmoke.TestName, PlayCraneSmoke.TestName,
             PlayDiskHuntSmoke.TestName, PlayDeathmatchSmoke.TestName, Voice.VoiceSmoke.TestName, VoiceLifecycleSmoke.TestName,
             Online.OnlineSmoke.TestName, Online.NetLobbySmoke.TestName, Online.NetLobbySmoke.GuestTestName, Online.NetBotsSmoke.TestName, Online.NetBotsSmoke.GuestTestName, GadgetsSmoke.TestName, PlayBotsSmoke.TestName, UI.InGameMenuSmoke.TestName,
@@ -41,6 +41,7 @@ public static class SmokeTests
         MenuPilotPopupSmoke.TestName => new MenuPilotPopupSmoke(),
         BombPresentationSmoke.TestName => new BombPresentationSmoke(),
         MapLightSpritesSmoke.TestName => new MapLightSpritesSmoke(),
+        MapSpotLightBudgetSmoke.TestName => new MapSpotLightBudgetSmoke(),
         DestructibleFxSmoke.TestName => new DestructibleFxSmoke(),
         SpyPerspectiveSmoke.TestName => new SpyPerspectiveSmoke(),
         MercImmunityHudSmoke.TestName => new MercImmunityHudSmoke(),
@@ -75,6 +76,7 @@ public static class SmokeTests
         AmmoMenuHudSmoke.TestName => new AmmoMenuHudSmoke(),
         LandingBlendSmoke.TestName => new LandingBlendSmoke(),
         GlassBlendSmoke.TestName => new GlassBlendSmoke(),
+        CloakRenderSmoke.TestName => new CloakRenderSmoke(),
         PumpLightingSmoke.TestName => new PumpLightingSmoke(),
         ScopeLifecycleSmoke.TestName => new ScopeLifecycleSmoke(),
         SidearmReloadPoseSmoke.TestName => new SidearmReloadPoseSmoke(),
@@ -103,6 +105,7 @@ public static class SmokeTests
         AudioSmoke.TestName => new AudioSmoke(),
         Hud.HudSmoke.TestName => new Hud.HudSmoke(),
         RainHudSmoke.TestName => new RainHudSmoke(),
+        PoisonHudSmoke.TestName => new PoisonHudSmoke(),
         PlaySpySmoke.TestName => new PlaySpySmoke(),
         PlayCraneSmoke.TestName => new PlayCraneSmoke(),
         PlayDiskHuntSmoke.TestName => new PlayDiskHuntSmoke(),

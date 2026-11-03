@@ -605,6 +605,8 @@ public partial class OptionsMenu : Control
         Check(g, "Fire prediction (your bullet impacts show at once online)", "fire_prediction", _edit.FirePrediction,
             v => _edit.FirePrediction = v);
         Section(g, "Gameplay display", "");
+        Check(g, "Show HP beside teammate names", "teammate_health", _edit.TeammateHealth, v => _edit.TeammateHealth = v);
+        _controls["teammate_health"].TooltipText = "Adds current HP to teammate names. Enable teammate names in the Spy or Mercenary tab.";
         Slider(g, "Team nametag opacity (%)", "teammate_names_opacity", 10f, 100f, 1f, _edit.TeammateNamesOpacity,
             v => _edit.TeammateNamesOpacity = (int)MathF.Round(v), "0");
         Check(g, "Show current location", "show_location", _edit.ShowLocation, v => _edit.ShowLocation = v);

@@ -47,7 +47,7 @@ public sealed class MenuCreateSessionBotsTests
         Assert.Equal((BotFill.PerSide, "Per Side"), (page.Setup.Bots, page.Text(SessionRow.Bots)));
         Assert.True(page.Visible(SessionRow.BotsPerSide));
         page.Step(SessionRow.BotsPerSide, 1);
-        page.SetNumber(SessionRow.BotsPerSide, 9);
+        page.SetNumber(SessionRow.BotsPerSide, OnlineBotRoster.MaxPerSide + 1);
         Assert.Equal(OnlineBotRoster.MaxPerSide, page.Setup.BotsPerSide);
 
         page.Step(SessionRow.Bots, 1);

@@ -180,7 +180,18 @@ public abstract class HudPage
         {
             DrawBoard(s);
         }
-        HudEditorTransform.Apply(DrawList.Items, Options.Layout.For(Side == HudSide.Merc), screen);
+        var layout = Options.Layout.For(Side == HudSide.Merc);
+        if (layout.Count > 0)
+            HudEditorTransform.Apply(DrawList.Items, layout, screen, LayoutBounds(screen));
+    }
+
+    /// <summary>Editable bounds of the current draw list, with stable anchors for animated HUD elements.</summary>
+    public Dictionary<string, Rect2> LayoutBounds(Vector2 screen)
+    {
+        var bounds = HudEditorTransform.Bounds(DrawList.Items);
+        if (bounds.ContainsKey("Radar") && HudRadar.LayoutBounds(this, screen) is { } radar)
+            bounds["Radar"] = radar;
+        return bounds;
     }
 
     protected abstract void Drive(HudSnapshot s, float dt);
@@ -272,6 +283,8 @@ public abstract class HudPage
     protected void DriveHealth(HudSnapshot s, float dt)
     {
         MagmaNode? vie = Area("Vie");
+        MagmaNode? poison = vie?.Find("poison");
+        bool poisonWasVisible = vie is { Visible: true } && poison is { Visible: true };
         SetShown(vie, s.HasPawn && !s.LifeOff, restart: false);
         if (vie is null || !s.HasPawn)
         {
@@ -283,7 +296,24 @@ public abstract class HudPage
         // truncation of (1 - curve), which is 0 on every frame: fill and triangles show the current health at once.
         _shownHealth = Math.Max(0, s.Health);
         DriveGauge(vie, _shownHealth);
-        SetShown(vie.Find("poison"), s.Poisoned);
+        if (poison is not null)
+        {
+            // These authored screen layers live inside the gauge, but must not move its anchor or follow
+            // health-widget layout edits. Keep their original texture, tint, blend and animated geometry.
+            poison.Widget("effet01").Anchor = MagmaAnchor.Stretch;
+            poison.Widget("effet02_dodge").Anchor = MagmaAnchor.Stretch;
+            if (s.Poisoned && (!poisonWasVisible || !poison.Playing || poison.Frame == 0))
+            {
+                poison.SetVisible(true);
+                // Native gauge 0x10b30090 seeks one frame: frame 0 has a Stop action; frames 1..10 loop.
+                poison.SetFrame(1);
+                poison.Playing = true;
+            }
+            else if (!s.Poisoned)
+            {
+                Hide(poison);
+            }
+        }
     }
 
     /// <summary>The health the gauge shows now (the real value, clamped at 0).</summary>
@@ -553,7 +583,7 @@ public abstract class HudPage
         }
     }
 
-    /// <summary>Connected players (Bridge spy page notes 8): up to four rows of name, objectives or kills and lives.</summary>
+    /// <summary>Drive the four original Magma rows; DrawBoard renders the complete expanded player list.</summary>
     protected void DrivePlayers(HudSnapshot s)
     {
         MagmaNode? list = Area("PCConnectedPlayers");
@@ -565,7 +595,7 @@ public abstract class HudPage
 
         string infinite = Assets.Localize("MagmaDynamic", "Magma", "Inifite_Short", "Inf.");
         List<HudPlayerRow> rows = ListRows(s);
-        for (int i = 0; i < HudSimReader.MaxConnectedPlayers; i++)
+        for (int i = 0; i < 4; i++)
         {
             string n = (i + 1).ToString(CultureInfo.InvariantCulture);
             HudPlayerRow? row = i < rows.Count ? rows[i] : null;
@@ -587,7 +617,7 @@ public abstract class HudPage
     }
 
     /// <summary>
-    /// The rows of the connected players list: the list as read (spies, mercs, spectators, four rows), or, once the
+    /// The rows of the connected players list: the list as read (spies, mercs, spectators), or, once the
     /// bigger team has <see cref="HudOptions.ScoreboardSplit"/> players and both teams have someone, the spies only:
     /// the mercs then get their own panel beside it (<see cref="DrawBoard"/>). That is Reloaded's split
     /// (rl:qol.scoreboard, scoreboard_split_team_size).
@@ -628,7 +658,7 @@ public abstract class HudPage
         return spies > 0 && mercs > 0 && Math.Max(spies, mercs) >= Options.ScoreboardSplit;
     }
 
-    /// <summary>A team's players as list rows (at most four, the list's rows).</summary>
+    /// <summary>A team's players as list rows, including the complete roster in a 12v12 lobby.</summary>
     private static List<HudPlayerRow> TeamRows(HudSnapshot s, int team)
     {
         var rows = new List<HudPlayerRow>();

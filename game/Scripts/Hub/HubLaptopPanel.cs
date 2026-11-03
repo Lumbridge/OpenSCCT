@@ -381,11 +381,11 @@ public partial class HubLaptopPanel : Control
 
         LobbySetup s = m.Setup;
         bool mercsOnly = s.Mode == EGameMode.GM_MercDeathMatch;
-        int side = Math.Clamp((s.MaxPlayers + 1) / 2, 1, 4);
+        int side = Math.Clamp((s.MaxPlayers + 1) / 2, 1, LobbySetup.MaxMaxPlayers / 2);
         string format = mercsOnly ? $"{s.MaxPlayers} players, all against all" : $"{side}v{side}";
         string title = _maps is null ? s.Map : MapTitles.Of(_maps, s.Map);
         _format.Text = $"This pad will play {title}{CreateSessionModel.ModeName(s.Mode)} {format}. " +
-            "Max Players sets the places: half each side (8 is 4v4), everyone in Merc Deathmatch. Applying un-readies the pad's queue.";
+            "Max Players sets the places: half each side (24 is 12v12), everyone in Merc Deathmatch. Applying un-readies the pad's queue.";
         if (_alternate is not null)
         {
             _alternate.Visible = s.Alternate.On;

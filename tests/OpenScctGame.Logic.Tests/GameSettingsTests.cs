@@ -33,6 +33,23 @@ public sealed class GameSettingsTests : IDisposable
     }
 
     [Fact]
+    public void TeammateHealthIsOptInAndPersistsWithoutEnablingNames()
+    {
+        Assert.False(new GameSettings().TeammateHealth);
+        Assert.False(GameSettings.FromJson("{\"teammate_names_spy\":true}").TeammateHealth);
+        GameSettings settings = GameSettings.FromJson("{\"teammate_health\":true}").Clone();
+        Assert.True(settings.TeammateHealth);
+        Assert.False(settings.TeammateNamesSpy);
+        Assert.False(settings.TeammateNamesMerc);
+        string path = Path.Combine(_dir, "settings.json");
+        settings.Save(path);
+        Assert.True(GameSettings.Load(path).TeammateHealth);
+        settings.TeammateHealth = false;
+        settings.Save(path);
+        Assert.False(GameSettings.Load(path).TeammateHealth);
+    }
+
+    [Fact]
     public void RollFreeLookIsOffForNewAndExistingProfilesAndPersistsWhenEnabled()
     {
         Assert.False(new GameSettings().SpyRollFreeLook);

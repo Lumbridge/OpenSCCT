@@ -41,6 +41,13 @@ uniform bool vision_see_through = false;
 instance uniform vec4 svm_tint = vec4(1.0, 1.0, 1.0, 0.0);
 instance uniform vec4 svm_glow_hue = vec4(0.0);
 
+#ifdef SVM_CLOAK
+// One draw per surface: mixing here prevents an opaque body pass from covering another part's glass overlay.
+uniform float svm_glass = 0.0;
+uniform sampler2D svm_behind : hint_screen_texture, filter_linear, repeat_disable;
+varying float v_cloak_shift;
+#endif
+
 // Turns a colour's hue around the grey axis; the sum of the channels (its brightness) stays the same.
 vec3 svm_hue_turn(vec3 c, float angle) {
 	const vec3 k = vec3(0.57735);
@@ -560,6 +567,9 @@ vec3 svm_zone_amb(float zone) {
 #endif
 
 void vertex() {
+#ifdef SVM_CLOAK
+	v_cloak_shift = 10.0 * max(0.0, 1.0 - length(NODE_POSITION_VIEW) * 100.0 / 1500.0);
+#endif
 #ifdef BILLBOARD
 	// DT_Sprite actors face the camera drawing them (main or sky), while retaining world-space lighting/vision.
 	mat3 view_to_local = inverse(mat3(MODEL_MATRIX)) * mat3(INV_VIEW_MATRIX);
@@ -635,7 +645,7 @@ vec2 svm_uv(vec2 uv) {
 	return uv;
 }
 
-#if !defined(BLEND_MASKED) && !defined(BLEND_TRANSLUCENT) && !defined(BLEND_ADDITIVE) && !defined(BLEND_MODULATE) && !defined(BLEND_DARKEN) && !defined(VISION_SEE_THROUGH)
+#if !defined(SVM_CLOAK) && !defined(BLEND_MASKED) && !defined(BLEND_TRANSLUCENT) && !defined(BLEND_ADDITIVE) && !defined(BLEND_MODULATE) && !defined(BLEND_DARKEN) && !defined(VISION_SEE_THROUGH)
 #define SVM_DEPTH_SOLID
 #endif
 
@@ -659,7 +669,7 @@ void fragment() {
 	if ((CAMERA_VISIBLE_LAYERS & SVM_SHADOW_PASS) != 0u) {
 		ALBEDO = vec3(0.0);
 	} else {
-#elif defined(BLEND_TRANSLUCENT) || defined(BLEND_ADDITIVE) || defined(BLEND_MODULATE) || defined(BLEND_DARKEN) || defined(VISION_SEE_THROUGH)
+#elif defined(SVM_CLOAK) || defined(BLEND_TRANSLUCENT) || defined(BLEND_ADDITIVE) || defined(BLEND_MODULATE) || defined(BLEND_DARKEN) || defined(VISION_SEE_THROUGH)
 	if ((CAMERA_VISIBLE_LAYERS & SVM_SHADOW_PASS) != 0u) {
 		discard;
 	}
@@ -944,6 +954,17 @@ void fragment() {
 		c += specular;
 	}
 #endif
+#ifdef SVM_CLOAK
+#ifdef BLEND_MASKED
+	if (a < 0.5) { discard; }
+#endif
+	vec2 cloak_normal = normalize(NORMAL).xy;
+	vec2 cloak_uv = SCREEN_UV + vec2(-v_cloak_shift * cloak_normal.x / 640.0, v_cloak_shift * cloak_normal.y / 480.0);
+	vec3 behind = texture(svm_behind, clamp(cloak_uv, vec2(0.0), vec2(1.0))).rgb;
+	ALBEDO = mix(c, behind, clamp(svm_glass, 0.0, 1.0));
+	// The mix already contains the scene. Write nearest depth and replace the pixel once, even across surfaces.
+	ALPHA = 1.0;
+#else
 	ALBEDO = c;
 #if defined(SEE_THROUGH_CUT)
 	// A masked material's blended pass keeps the alpha cut of its solid pass.
@@ -960,6 +981,7 @@ void fragment() {
 	// MSAA on (rl:gfx.aa): alpha to coverage over a band about a texel wide around the cut, as Godot's own materials.
 	ALPHA_ANTIALIASING_EDGE = 0.3;
 	ALPHA_TEXTURE_COORDINATE = uv * vec2(textureSize(tex_diffuse, 0));
+#endif
 #endif
 #endif
 #ifdef SVM_DEPTH_SOLID

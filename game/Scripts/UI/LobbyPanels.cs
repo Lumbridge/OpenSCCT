@@ -52,6 +52,7 @@ public static class LobbyPanels
         body.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
         body.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
         scroll.OffsetBottom = -172;
+        scroll.FollowFocus = true;
         scroll.AddChild(body);
     }
 

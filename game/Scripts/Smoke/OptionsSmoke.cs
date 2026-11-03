@@ -59,6 +59,19 @@ public sealed class OptionsSmoke : SmokeTest
         string where = $"{_sizes[_size].X}x{_sizes[_size].Y} options {_tab}/{_section} advanced={_advanced}";
         var problems = LayoutCheck.Problems(_options, _sizes[_size].X);
         problems.AddRange(LayoutCheck.BoundsProblems(_options, _sizes[_size]));
+        if (_tab == 6 && _options.FindChildren("*", nameof(HudEditorPreview), true, false).OfType<HudEditorPreview>().FirstOrDefault() is { } preview)
+        {
+            for (Node? parent = preview.GetParent(); parent is not null; parent = parent.GetParent())
+                if (parent is ScrollContainer scroll && !scroll.GetGlobalRect().Grow(2f).Encloses(preview.GetGlobalRect()))
+                    problems.Add("HUD editor preview is cropped by its scroll area");
+            foreach (string id in new[] { "Radar", "Location", "Activity", "Fps", "Network" })
+            {
+                if (!preview.ElementBounds.TryGetValue(id, out Rect2 bounds) || bounds.Size.X <= 0f || bounds.Size.Y <= 0f)
+                    problems.Add("HUD editor has no selectable " + id + " preview");
+                else if (!new Rect2(Vector2.Zero, preview.Size).Grow(1f).Encloses(bounds))
+                    problems.Add("HUD editor " + id + " outline leaves the preview");
+            }
+        }
         foreach (Node node in _options.FindChildren("ActionList", nameof(ScrollContainer), true, false))
         {
             if (node is not ScrollContainer list || !list.IsVisibleInTree()) continue;
@@ -132,15 +145,18 @@ public sealed class OptionsSmoke : SmokeTest
             PickTelemetry("show_net", 1);
             PickTelemetry("fps_telemetry.graph", 2);
             PickTelemetry("network_telemetry.graph", 1);
-            SlideTelemetry("fps_telemetry.position_x", 23f);
-            SlideTelemetry("fps_telemetry.position_y", 74f);
+            foreach (string key in new[] { "fps_telemetry", "network_telemetry" })
+                Expect(!options.Controls.ContainsKey(key + ".position_x") && !options.Controls.ContainsKey(key + ".position_y"),
+                    "telemetry position controls live only in HUD editor");
+            var fpsPlacement = options.Editing.HudLayout.Element(false, "Fps");
+            fpsPlacement.X = -.23f; fpsPlacement.Y = .24f;
+            var netPlacement = options.Editing.HudLayout.Element(false, "Network");
+            netPlacement.X = -.19f; netPlacement.Y = .39f;
             SlideTelemetry("fps_telemetry.scale", 135f);
             SlideTelemetry("fps_telemetry.opacity", 42f);
             SlideTelemetry("fps_telemetry.graph_seconds", 12f);
             SlideTelemetry("fps_telemetry.issue_hold_seconds", 4.5f);
             SlideTelemetry("fps_telemetry.frame_time_threshold_ms", 25f);
-            SlideTelemetry("network_telemetry.position_x", 81f);
-            SlideTelemetry("network_telemetry.position_y", 19f);
             SlideTelemetry("network_telemetry.scale", 85f);
             SlideTelemetry("network_telemetry.opacity", 68f);
             SlideTelemetry("network_telemetry.graph_seconds", 17f);
@@ -153,8 +169,11 @@ public sealed class OptionsSmoke : SmokeTest
                 FpsTelemetrySettings fps = settings.FpsTelemetry;
                 NetworkTelemetrySettings net = settings.NetworkTelemetry;
                 Expect(settings.ShowFps && fps.DisplayMode == "Issues" && settings.ShowNet && net.DisplayMode == "Always", when + " retains independent telemetry display modes");
-                Expect(fps.PositionX == 23f && fps.PositionY == 74f && fps.Scale == 135f && fps.Opacity == 42f &&
-                    net.PositionX == 81f && net.PositionY == 19f && net.Scale == 85f && net.Opacity == 68f, when + " retains independent telemetry appearance");
+                Expect(settings.HudLayout.Spy["Fps"].X == -.23f && settings.HudLayout.Spy["Fps"].Y == .24f &&
+                    settings.HudLayout.Spy["Network"].X == -.19f && settings.HudLayout.Spy["Network"].Y == .39f,
+                    when + " retains independent telemetry positions in the HUD editor");
+                Expect(fps.Scale == 135f && fps.Opacity == 42f && net.Scale == 85f && net.Opacity == 68f,
+                    when + " retains independent telemetry appearance");
                 Expect(fps.Graph == "Bars" && fps.GraphSeconds == 12f && fps.IssueHoldSeconds == 4.5f && fps.FrameTimeThresholdMs == 25f &&
                     net.Graph == "Line" && net.GraphSeconds == 17f && net.IssueHoldSeconds == 1.5f && net.PingThresholdMs == 95f &&
                     net.JitterThresholdMs == 18f && net.LossThresholdPercent == 0.5f, when + " retains telemetry graphs and issue thresholds");
@@ -217,7 +236,6 @@ public sealed class OptionsSmoke : SmokeTest
             foreach (string key in new[] { "fps_telemetry", "network_telemetry" })
             {
                 Expect(((OptionButton)options.Controls[key + ".graph"]).Selected == 0 &&
-                    ((HSlider)options.Controls[key + ".position_x"]).Value == 100d && ((HSlider)options.Controls[key + ".position_y"]).Value == 0d &&
                     ((HSlider)options.Controls[key + ".scale"]).Value == 100d && ((HSlider)options.Controls[key + ".opacity"]).Value == 100d &&
                     ((HSlider)options.Controls[key + ".graph_seconds"]).Value == 5d && ((HSlider)options.Controls[key + ".issue_hold_seconds"]).Value == 3d,
                     "reset restores " + key + " graph and appearance controls");
@@ -335,6 +353,7 @@ public sealed class OptionsSmoke : SmokeTest
         Expect(items.Count == 1 && items[0].Path == "Flash/fullscreen", "HUD visibility removes only its selected group");
         var assets = OpenScctGame.Hud.HudAssets.TryLoad(null, out _);
         if (assets is null) { Expect(false, "HUD editor preview assets available"); return; }
+        CheckRadarAndLocationLayout(assets);
         var page = new OpenScctGame.Hud.SpyHudPage(assets);
         var sample = new OpenScctGame.Hud.HudSnapshot { Valid = true, HasPawn = true, Health = 100 };
         page.Update(sample, .1f); page.Draw(new Vector2(1280, 720), sample);
@@ -400,6 +419,77 @@ public sealed class OptionsSmoke : SmokeTest
         OpenScctGame.Hud.HudEditorTransform.Apply(feed.DrawList.Items, layout.Spy, new Vector2(1280, 720));
         Expect(feed.DrawList.Items.Count == 0, "event feed visibility covers all row graphics");
 
+    }
+
+    private void CheckRadarAndLocationLayout(OpenScctGame.Hud.HudAssets assets)
+    {
+        foreach (bool merc in new[] { false, true })
+        foreach (Vector2 screen in new[] { new Vector2(800, 600), new Vector2(1280, 720), new Vector2(3440, 1440) })
+        {
+            OpenScctGame.Hud.HudPage stock = merc ? new OpenScctGame.Hud.MercHudPage(assets) : new OpenScctGame.Hud.SpyHudPage(assets);
+            OpenScctGame.Hud.HudPage edited = merc ? new OpenScctGame.Hud.MercHudPage(assets) : new OpenScctGame.Hud.SpyHudPage(assets);
+            var sample = new OpenScctGame.Hud.HudSnapshot
+            {
+                Valid = true, HasPawn = true, Health = 100,
+                Side = merc ? OpenScctGame.Hud.HudSide.Merc : OpenScctGame.Hud.HudSide.Spy,
+            };
+            sample.Blips.Add(new(OpenScctGame.Hud.HudBlipKind.Teammate, new OpenScct.Core.FVector(100, 100, 0)));
+            var setting = edited.Options.Layout.Element(merc, "Radar");
+            // Exercise scaling in the interior and translation clamped at the screen edge. Both previously
+            // drifted as the rotating radar ring changed the group's axis-aligned bounds.
+            foreach (bool edge in new[] { false, true })
+            {
+                setting.Scale = edge ? 1f : 1.6f;
+                setting.X = edge ? -.9f : merc ? -.2f : .2f;
+                setting.Y = edge ? -.9f : .2f;
+                Vector2? firstCentre = null, firstRingPoint = null;
+                bool ringAnimated = false;
+                for (int frame = 0; frame < 120; frame++)
+                {
+                    sample.Yaw = frame * 317;
+                    stock.Update(sample, .05f); edited.Update(sample, .05f);
+                    stock.Draw(screen, sample); edited.Draw(screen, sample);
+                    var original = stock.DrawList.Find("Radar/fond/Element2");
+                    var moved = edited.DrawList.Find("Radar/fond/Element2");
+                    var ring = edited.DrawList.Find("Radar/fond/Element3");
+                    Expect(original is not null && moved is not null && ring is not null, "live radar frame and animation render for both roles");
+                    if (original is null || moved is null || ring is null) break;
+                    Rect2 basis = stock.LayoutBounds(screen)["Radar"];
+                    Rect2 placed = OpenScctGame.Hud.HudEditorTransform.Transform(basis, setting, screen);
+                    Vector2 expected = placed.Position + (Centre(original) - basis.Position) * setting.Scale;
+                    Vector2 actual = Centre(moved);
+                    Expect(actual.DistanceTo(expected) < .01f, "live radar uses the same fixed layout frame as the editor at every size");
+                    if (firstCentre is { } prior) Expect(actual.DistanceTo(prior) < .01f, "moved radar stays still while its ring, yaw and blips animate");
+                    else firstCentre = actual;
+                    if (firstRingPoint is { } point) ringAnimated |= ring.Points[0].DistanceTo(point) > 1f;
+                    else firstRingPoint = ring.Points[0];
+                }
+                Expect(ringAnimated, "HUD placement preserves the live radar ring animation");
+            }
+
+            var location = new OpenScctGame.Hud.HudLocation();
+            location.Draw(screen, "Warehouse", true, stock);
+            var label = location.DrawList.Find("Location");
+            Expect(label is not null && label.Rect.Size.X < screen.X / 2f, "zone name has selectable text bounds rather than a screen-wide box");
+            if (label is not null)
+            {
+                Rect2 before = label.Rect;
+                var layout = new HudEditorSettings();
+                var zone = layout.Element(merc, "Location");
+                zone.X = merc ? -.15f : .15f; zone.Y = .15f;
+                OpenScctGame.Hud.HudEditorTransform.Apply(location.DrawList.Items, layout.For(merc), screen);
+                Expect(label.Rect.Position.DistanceTo(before.Position + new Vector2(zone.X, zone.Y) * screen) < .01f,
+                    "zone name can move horizontally and vertically independently of the radar");
+                Expect(layout.Clone().For(merc).ContainsKey("Location"), "zone name placement survives layout persistence");
+            }
+        }
+
+        static Vector2 Centre(OpenScctGame.Hud.Magma.MagmaDrawItem item)
+        {
+            Vector2 sum = Vector2.Zero;
+            foreach (Vector2 point in item.Points) sum += point;
+            return sum / item.Points.Length;
+        }
     }
 
     private static void Resize(SceneTree tree, Vector2I size)

@@ -193,7 +193,7 @@ public sealed record HubConfig
         var pads = new List<HubPadConfig>();
         foreach (HubPadConfig pad in Pads)
         {
-            HubPadConfig p = pad with { TeamSize = Math.Clamp(pad.TeamSize, 1, pad.Mode == EGameMode.GM_MercDeathMatch ? 8 : 4) };
+            HubPadConfig p = pad with { TeamSize = ClampTeamSize(pad.TeamSize, pad.Mode) };
             if (Area(p.Id) is null)
             {
                 log?.Invoke($"{p.Id}: the hub map has no pad of that name; skipped");
@@ -215,11 +215,14 @@ public sealed record HubConfig
                 mode = entry.DefaultMode;
             }
 
-            pads.Add(p with { Mode = mode, Title = entry.Name, Map = entry.Id, Setup = p.Setup is { } setup ? setup with { Map = entry.Id, Mode = mode } : null });
+            pads.Add(p with { Mode = mode, TeamSize = ClampTeamSize(p.TeamSize, mode), Title = entry.Name, Map = entry.Id, Setup = p.Setup is { } setup ? setup with { Map = entry.Id, Mode = mode } : null });
         }
 
         return this with { Pads = pads };
     }
+
+    private static int ClampTeamSize(int players, EGameMode mode) =>
+        Math.Clamp(players, 1, mode == EGameMode.GM_MercDeathMatch ? LobbySetup.MaxMaxPlayers : LobbySetup.MaxMaxPlayers / 2);
 
     private static string? Find(MapCatalog? maps, string name)
     {

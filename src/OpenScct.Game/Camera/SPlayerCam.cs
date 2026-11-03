@@ -24,6 +24,8 @@ public partial class SPlayerCam
 
     // Solver memory that the original keeps outside the script fields.
     private FVector _prevPawnLocation;
+    private float _prevPawnCollisionHeight;
+    private bool _prevPawnCrouched;
     private SBasePawn? _previousFollowPawn;
     private bool _hasPrevPawn;
     private bool _followingViewUsed;
@@ -411,6 +413,14 @@ public partial class SPlayerCam
         // the displacement we actually saw too, so slow traversal easing cannot leave the orbit behind.
         // _prevPawnLocation is updated after each solve: repeated views in one frame consume this only once.
         FVector pawnDisplacement = _hasPrevPawn ? Pawn.Location - _prevPawnLocation : default;
+        FVector followDisplacement = pawnDisplacement;
+        if (_hasPrevPawn && Pawn.bIsCrouched != _prevPawnCrouched)
+        {
+            // Crouching/standing recentres the cylinder while its feet stay put. That is a stance change
+            // for the height ease, not world travel that should speed it up (especially at either end of
+            // a dive roll). Preserve any simultaneous vertical travel from stairs, a mover or a correction.
+            followDisplacement.Z -= Pawn.CollisionHeight - _prevPawnCollisionHeight;
+        }
 
         // 2. Start point, smoothing and fixed target.
         FVector start = Pawn.Location;
@@ -434,7 +444,7 @@ public partial class SPlayerCam
         }
         else if (m_SmoothDisplacement && m_Smoothvalue > 0f)
         {
-            float step = SvmMath.Max(Pawn.Velocity.Size() * dt, pawnDisplacement.Size()) + m_Smoothvalue * dt;
+            float step = SvmMath.Max(Pawn.Velocity.Size() * dt, followDisplacement.Size()) + m_Smoothvalue * dt;
             if ((start - m_prevStartPos).Size() <= step)
             {
                 if (!m_SmoothIsAlwaysActive)
@@ -491,7 +501,7 @@ public partial class SPlayerCam
         float vz = Pawn.Velocity.Z + (Pawn.Base is Mover mover ? mover.Velocity.Z : 0f);
         float vzAbs = SvmMath.Abs(vz);
         bool boost = (m_camMode is ECamMode.ECM_SecondPerson or ECamMode.ECM_SecondPersonCr or ECamMode.ECM_SplitJumpFP) && vzAbs > 0f;
-        float zStep = SvmMath.Max(vzAbs * dt, SvmMath.Abs(pawnDisplacement.Z)) +
+        float zStep = SvmMath.Max(vzAbs * dt, SvmMath.Abs(followDisplacement.Z)) +
             (boost ? CameraK.VerticalBoostSpeed : p.targetZSpeed) * dt;
         m_prevTargetZ = CameraMath.Approach(m_prevTargetZ, target.Z, zStep);
         m_prevTargetZ = SvmMath.Clamp(m_prevTargetZ, target.Z - m_targetZMaxDist, target.Z + m_targetZMaxDist);
@@ -587,6 +597,8 @@ public partial class SPlayerCam
         // 14. Keep the distance, move the controller to the camera, effects on the view.
         m_prevDistance = distance;
         _prevPawnLocation = Pawn.Location;
+        _prevPawnCollisionHeight = Pawn.CollisionHeight;
+        _prevPawnCrouched = Pawn.bIsCrouched;
         _previousFollowPawn = Pawn;
         _hasPrevPawn = true;
         _followingViewUsed = true;

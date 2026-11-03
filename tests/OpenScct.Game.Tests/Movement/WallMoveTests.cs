@@ -142,6 +142,15 @@ public sealed class WallMoveTests
         Assert.False(rig.Controller.IsInState(MovementStateNames.s_WallJumpSalto));
         Assert.True(StepUntil(rig, NoInput, MovementStateNames.s_PlayerWalkingSt0H, 300, seen), Seen(seen));
         Assert.Contains(MovementStateNames.PlayerLanding, seen);
+        Assert.False(rig.Controller.bBlockControlForJump);
+
+        var away = new PlayerInputFrame { BT_Down = 1 };
+        rig.Hold(away, 20);
+        rig.WaitStill(120);
+        rig.Step(JumpPress);
+        rig.Hold(away, 6);
+        Assert.Equal(EPhysics.PHYS_Falling, rig.Pawn.Physics);
+        Assert.True(rig.Pawn.Velocity.Y < -10f, "The next jump must accept backward air steering after a wall flip.");
     }
 
     // ---- split jump and Vandamme ----------------------------------------------------------------------------

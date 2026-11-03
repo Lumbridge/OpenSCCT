@@ -97,6 +97,10 @@ public sealed class HudLocation
         Vector2 at = renderer?.ToScreen(new Vector2(left, top), anchor) ?? new Vector2(left * s, top * s);
         float h = Mathf.Round(TextHeight * s);
         Color colour = page?.Side == HudSide.Merc ? HudK.MercColour : HudK.SpyColour;
-        DrawList.Items.Add(HudText.Item("Location", Shown, new Rect2(at.X, at.Y, Mathf.Max(1f, screen.X - at.X), h), h, MagmaAlign.Left, colour));
+        // Use the actual glyph width rather than a box extending to the screen's right edge. The HUD editor
+        // clamps and hit-tests this box; a screen-wide box prevented moving the zone label to the right.
+        float width = page?.Assets.Font(HudAssets.DefaultFont)?.Measure(Shown, h, 1f, HudText.Tracking * h)
+            ?? Shown.Length * h;
+        DrawList.Items.Add(HudText.Item("Location", Shown, new Rect2(at.X, at.Y, Mathf.Max(1f, width), h), h, MagmaAlign.Left, colour));
     }
 }

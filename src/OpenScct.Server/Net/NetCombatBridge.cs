@@ -112,6 +112,8 @@ public sealed class NetCombatBridge : ICombatNet
     public const float MaxWaitSeconds = 5f;
 
     private readonly List<Pending> _pending = new();
+    private readonly HashSet<ActorChannel> _cloakChannels = new();
+    private readonly List<ActorChannel> _closedCloakChannels = new();
 
     private readonly record struct Pending(PlayerController Controller, NetConnection Connection, string Function, CombatCall Call,
         long ViewTime, long QueuedAt, Pawn? SenderPawn);
@@ -194,6 +196,39 @@ public sealed class NetCombatBridge : ICombatNet
             SendNow(p.Controller, p.Connection, p.Function, p.Call, p.ViewTime, p.SenderPawn);
         }
         PumpOrientation();
+        PumpInitialCloaks();
+    }
+
+    private void PumpInitialCloaks()
+    {
+        if (!_driver.IsServer) return;
+        foreach (ActorChannel channel in _cloakChannels)
+            if (channel.Closing || channel.Connection.State == EConnectionState.USOCK_Closed)
+                _closedCloakChannels.Add(channel);
+        foreach (ActorChannel channel in _closedCloakChannels) _cloakChannels.Remove(channel);
+        _closedCloakChannels.Clear();
+
+        foreach (NetConnection connection in _driver.ClientConnections)
+        {
+            if (connection.Actor is not SPlayerController viewer) continue;
+            foreach (ActorChannel channel in connection.ActorChannels)
+            {
+                if (channel is not { OpenAcked: true, Closing: false, Actor: SPawnAttaque pawn } ||
+                    !_cloakChannels.Add(channel) || ReferenceEquals(viewer.Pawn, pawn)) continue;
+                float now = pawn.Level.TimeSeconds;
+                float flicker = MathF.Max(0f, pawn.PerturbationStartTime + pawn.PerturbationDuration - now);
+                if (pawn.DesiredGlassEffect == 0 && pawn.GlassEffect == 0 && flicker == 0f) continue;
+                float fade = pawn.SlopeGlassEffect == 0f ? 0f : MathF.Max(0f,
+                    (pawn.DesiredGlassEffect - (now * pawn.SlopeGlassEffect + pawn.BGlassEffect)) / pawn.SlopeGlassEffect);
+                // Relative durations survive different server/client clocks. Use the same reliable stream as
+                // later transitions, and avoid playing activation sounds again for a newly relevant pawn.
+                ClientCall(viewer, new CombatCall(new Name("InitialCloakState"))
+                {
+                    Target = pawn, Int1 = pawn.GlassEffect, Int2 = pawn.DesiredGlassEffect, Float1 = fade,
+                    Vector1 = new FVector(flicker, pawn.PerturbationValue, 0f),
+                });
+            }
+        }
     }
 
     private void PumpOrientation()

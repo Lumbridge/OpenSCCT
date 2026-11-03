@@ -119,8 +119,10 @@ public class RespawnAndSpawningTests
         GameCall mercRot = Assert.Single(w.Host.To(merc, "ClientSetRotation"));
         Assert.Equal(new FRotator(0, 4000, 0), mercRot.Rotation);
 
-        // Possess adds the offsets without wrapping, for both sides.
-        Assert.Equal(new FRotator(1200, 35000, 0), spy.Rotation);
+        // The server applies the same spawn view as the owner; signed and unsigned yaw values represent
+        // the same facing, so compare the angles after normalizing instead of requiring an unwrapped value.
+        Assert.Equal(new FRotator(1200, 35000, 0).Normalize(), spy.Rotation.Normalize());
+        Assert.Equal(mercRot.Rotation.Normalize(), merc.Rotation.Normalize());
         Assert.Equal(spy.Rotation, spy.MyDesiredRotation);
     }
 

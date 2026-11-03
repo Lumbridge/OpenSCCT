@@ -1,11 +1,15 @@
 using System.Collections.Generic;
 using OpenScct.Core;
 using OpenScct.Core.Engine;
+using OpenScct.Game.Movement;
 using OpenScct.Game.Objectives;
 using OpenScct.Game.SBase;
 using OpenScct.Net;
+using OpenScct.Physics.Collision;
 using OpenScct.Server;
+using OpenScctGame.Play.Session;
 using Xunit;
+using K = OpenScct.Game.Objectives.K;
 
 namespace OpenScct.Integration.Tests;
 
@@ -17,6 +21,116 @@ namespace OpenScct.Integration.Tests;
 public sealed class TerminalHackNetTests
 {
     private const string MapName = "SteeE";
+
+    [Fact]
+    public void A_walking_correction_during_alignment_returns_control_without_a_terminal_snap()
+    {
+        var geometry = new CollisionDataBuilder();
+        geometry.AddBox(new FVector(-1000, -1000, -100), new FVector(1000, 1000, 0));
+        PawnRig rig = PawnRig.Create(PawnTeam.Spy, geometry.Build());
+        rig.Place(new FVector(0, 0, 89.5f), default, default, false);
+        rig.WaitStill(120);
+        var terminal = rig.Level.SpawnActor(new SComputerObjectiveTrigger { bStatic = false, bNoDelete = false, CaptureTime = 30 },
+            rig.Pawn.Location + new FVector(180, 0, 0), new FRotator(0, 32768, 0));
+        Assert.NotNull(terminal);
+        rig.Controller.Role = rig.Pawn.Role = ENetRole.ROLE_AutonomousProxy;
+        rig.Controller.RemoteRole = ENetRole.ROLE_Authority;
+        rig.Controller.GotoState(K.s_Computer_GoTo);
+        Assert.True(rig.Pawn.Physics == EPhysics.PHYS_Repositionnal,
+            $"Initial {rig.Controller.GetStateName()}/{rig.Pawn.Physics}, pawn {rig.Pawn.Location}, terminal {terminal.Location}.");
+        rig.Step(default);
+        Assert.True(rig.Pawn.Physics == EPhysics.PHYS_Repositionnal,
+            $"After step {rig.Controller.GetStateName()}/{rig.Pawn.Physics}, pawn {rig.Pawn.Location}, terminal {terminal.Location}.");
+
+        var moves = new SBasePawnMoves(rig.Controller) { ModernCommands = true };
+        FVector corrected = rig.Pawn.Location;
+        moves.CapturePrediction(0);
+        moves.BeginPredictionReplay();
+        try
+        {
+            moves.RestorePrediction(0, corrected, default, EPhysics.PHYS_Walking, rig.Level.Info, rig.Pawn.ZoneConfig);
+        }
+        finally { moves.EndPredictionReplay(corrected); }
+        Assert.True(rig.Controller.IsInState(K.s_Computer_GoTo));
+        Assert.Equal(EPhysics.PHYS_Walking, rig.Pawn.Physics);
+
+        for (int i = 0; i < 5 * Sim.Hz; i++) rig.Step(default);
+
+        Assert.Equal(MovementStateNames.s_PlayerWalkingSt0H, rig.Controller.GetStateName());
+        Assert.InRange((rig.Pawn.Location - corrected).Size2D(), 0f, 1f);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void An_owner_aligns_and_hacks_over_the_movement_protocol(bool delayed)
+    {
+        Assert.SkipWhen(WalkerRig.Maps.FindFolder(MapName) is null, "SteeE has not been converted into .content/svmap.");
+        var clock = new StepClock();
+        using var session = new PlaySession(new PlaySettings
+        {
+            Map = MapName, Side = PlaySide.Spy, Rules = PlayRules.PlayLevel,
+            HostMode = PlayHostMode.Inline, SimLink = delayed ? SimLinkProfile.B : null,
+            TerminalsBlockPlayers = false,
+        }, clock);
+        void Tick()
+        {
+            clock.NowMicroseconds += 1_000_000 / Sim.Hz;
+            session.Step(clock.NowMicroseconds);
+        }
+        for (int i = 0; i < 1200 && (session.LocalPawn is null || session.ServerController?.Pawn is null ||
+            session.LocalController!.IsInState("WaitingForPawn")); i++) Tick();
+        SPlayerController owner = Assert.IsType<SPlayerController>(session.LocalController);
+        SPlayerController server = Assert.IsType<SPlayerController>(session.ServerController);
+        var serverPawn = Assert.IsAssignableFrom<SPawnAttaque>(server.Pawn);
+        for (int i = 0; i < 120; i++) Tick();
+
+        SComputerObjectiveTrigger? terminal = null;
+        foreach (SComputerObjectiveTrigger candidate in session.Host.World.Level.AllActors<SComputerObjectiveTrigger>())
+        {
+            terminal = candidate;
+            break;
+        }
+        Assert.NotNull(terminal);
+        terminal.bActive = true;
+        terminal.bLocked = false;
+        terminal.CaptureTime = 30;
+        if (terminal.Objective is { } objective) objective.ObjectiveTaken = false;
+        FVector front = terminal.Rotation.Vector();
+        FVector approach = terminal.Location + front * 100f;
+        var driver = MovementNatives.Driver(serverPawn)!;
+        Assert.True(driver.Collision.LineCheck(out FCheckResult floor, serverPawn,
+            approach - new FVector(0, 0, 500), approach + new FVector(0, 0, 100), new FVector(4, 4, 2),
+            OpenScct.Physics.K.Flags.Floor), $"No floor at {approach} (terminal {terminal.Location}, front {front}).");
+        FVector at = floor.Location + new FVector(0, 0, serverPawn.CollisionHeight + 2f);
+        MovementNatives.FarMoveActor(serverPawn, at);
+        serverPawn.Velocity = serverPawn.Acceleration = default;
+        serverPawn.Rotation = (-front).Rotation();
+        var serverMoves = ((NetMovementBridge)session.Host.World.Level.GetService<IMovementNet>()!).EndpointOf(server)!.Server!;
+        serverMoves.ReinitPawn();
+        owner.Rotation = serverPawn.Rotation;
+        for (int i = 0; i < RubberBandRun.SettleTicks; i++) Tick();
+        var pawn = Assert.IsAssignableFrom<SPawnAttaque>(owner.Pawn);
+        int index = session.Host.Driver.MapBinding.IndexOf(terminal);
+        var copy = Assert.IsType<SComputerObjectiveTrigger>(session.Client.Map!.MapActors[index]);
+        var entry = Assert.IsType<SComputerInteraction>(copy.ComputerInteraction);
+        Assert.True(entry.CanUse(owner));
+        long reinits = serverMoves.Sent.Reinits;
+        owner.InteractionInit(entry, 0);
+        bool aligned = false;
+        for (int i = 0; i < 5 * Sim.Hz && !owner.IsInState(K.s_Computer_Use); i++)
+        {
+            Tick();
+            aligned |= owner.IsInState(K.s_Computer_GoTo) && pawn.Physics == EPhysics.PHYS_Repositionnal;
+        }
+        Assert.True(aligned, "The owner must actually run laptop positioning through movement commands.");
+        Assert.True(owner.IsInState(K.s_Computer_Use), $"Owner remained in {owner.GetStateName()}/{pawn.Physics} at {pawn.Location}.");
+        for (int i = 0; i < Sim.Hz; i++) Tick();
+        Assert.True(server.IsInState(K.s_Computer_Use));
+        Assert.True(terminal.bTriggering);
+        Assert.InRange((serverPawn.Location - pawn.Location).Size(), 0f, 2f);
+        Assert.Equal(reinits, serverMoves.Sent.Reinits);
+    }
 
     [Theory]
     [InlineData(false)]

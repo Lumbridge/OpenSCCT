@@ -364,7 +364,7 @@ public sealed class SkeletalModel
 
     // The per-mesh shader values a split-off part takes over from its source mesh.
     // (A property: the parameter names are static fields declared further down, not yet set while this one would be.)
-    private static StringName[] InstanceParameters => [TintParameter, GlowHueParameter, GameplayObjects.VisionActorParameter, GlassParameter];
+    private static StringName[] InstanceParameters => [TintParameter, GlowHueParameter, GameplayObjects.VisionActorParameter];
 
     /// <summary>
     /// Moves the surfaces drawing <paramref name="material"/> (as the mesh export names it, such as SWeaponTex.1DEF_01)
@@ -555,7 +555,7 @@ public sealed class SkeletalModel
         foreach ((MeshInstance3D mesh, int surface, string name, Material? own) in _surfaces)
         {
             Material? over = skin?.Invoke(name);
-            mesh.SetSurfaceOverrideMaterial(surface, over ?? Base(mesh, surface, own));
+            SetSurfaceMaterial(mesh, surface, over ?? Base(mesh, surface, own));
             if (over is null)
             {
                 _skinned.Remove((mesh, surface));
@@ -627,7 +627,7 @@ public sealed class SkeletalModel
 
             if (!_skinned.Contains((mesh, surface)) && !slotted.Contains(name))
             {
-                mesh.SetSurfaceOverrideMaterial(surface, Base(mesh, surface, own));
+                SetSurfaceMaterial(mesh, surface, Base(mesh, surface, own));
             }
         }
     }
@@ -730,7 +730,7 @@ public sealed class SkeletalModel
         {
             if (name == own)
             {
-                mesh.SetSurfaceOverrideMaterial(surface, over ?? Base(mesh, surface, material));
+                SetSurfaceMaterial(mesh, surface, over ?? Base(mesh, surface, material));
             }
         }
 
@@ -797,16 +797,15 @@ public sealed class SkeletalModel
         _visionMeshCount = _meshes.Count;
     }
 
-    public const string CloakShaderPath = "res://Shaders/svm_cloak.gdshader";
-
-    public static readonly StringName GlassParameter = "svm_glass";
-
-    // A transparency above 0 moves the meshes to the transparent pass (after the screen copy the cloak samples); this
-    // one is the smallest Godot takes (alpha below 0.999), so the shading under the glass stays 99% opaque.
-    private const float CloakPass = 0.01f;
-
-    private static ShaderMaterial? s_cloak;
+    private readonly CloakMaterials _cloakMaterials = new();
     private float _glass;
+    private int _glassMeshCount;
+
+    private void SetSurfaceMaterial(MeshInstance3D mesh, int surface, Material? material)
+    {
+        material ??= mesh.Mesh?.SurfaceGetMaterial(surface);
+        mesh.SetSurfaceOverrideMaterial(surface, _glass > 0f && material is not null ? _cloakMaterials.Get(material) : material);
+    }
 
     /// <summary>
     /// The camo suit on every mesh (docs/RENDERING.md#cloak): <paramref name="amount"/> is GlassEffect / 255, 0 draws
@@ -815,27 +814,30 @@ public sealed class SkeletalModel
     public void SetGlass(float amount)
     {
         amount = Math.Clamp(amount, 0f, 1f);
-        if (amount == _glass)
+        if (amount == _glass && _glassMeshCount == _meshes.Count)
         {
             return;
         }
 
         bool on = amount > 0f;
-        if (on != (_glass > 0f))
+        if (on != (_glass > 0f) || _glassMeshCount != _meshes.Count)
         {
-            s_cloak ??= new ShaderMaterial { Shader = GD.Load<Shader>(CloakShaderPath) };
             foreach (MeshInstance3D mesh in _meshes)
             {
-                mesh.Transparency = on ? CloakPass : 0f;
-                mesh.MaterialOverlay = on ? s_cloak : null;
+                if (mesh.Mesh is null) continue;
+                for (int surface = 0; surface < mesh.Mesh.GetSurfaceCount(); surface++)
+                {
+                    Material? material = mesh.GetSurfaceOverrideMaterial(surface) ?? mesh.Mesh.SurfaceGetMaterial(surface);
+                    if (material is not null)
+                        mesh.SetSurfaceOverrideMaterial(surface, on ? _cloakMaterials.Get(material) : _cloakMaterials.Original(material));
+                }
             }
         }
 
         _glass = amount;
-        foreach (MeshInstance3D mesh in _meshes)
-        {
-            mesh.SetInstanceShaderParameter(GlassParameter, amount);
-        }
+        _glassMeshCount = _meshes.Count;
+        // Actor lighting occupies all 16 instance-uniform slots. Keep the fade on this model's own materials.
+        _cloakMaterials.SetAmount(amount);
     }
 
     /// <summary>Lights every mesh of the model with one actor light set.</summary>

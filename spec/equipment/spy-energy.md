@@ -101,13 +101,30 @@ belong to spy health regeneration in the native `TickNative`, not to energy (com
 - The HUD gauge reads the local value and is shown only while `EnergyLevel < EnergyLevelMax`.
 - The rewrite should keep the bar client-side for fidelity and may add a server shadow as an anti-cheat option.
 - Cloak (rep-pawn.md blocks 6 and 7): `SetDesiredGlassValue` and `SetPerturbationGlass` are client to server;
-  on the spy's own client they are sent and do not run there. The server runs them and broadcasts
+  in the decoded original, on the spy's own client they are sent and do not run there. The server runs them and broadcasts
   `SetDesiredGlassValueOnClients` and `SetPerturbationGlassOnClients` (broadcast flag, net-replication.md rule 20)
   to every client with the pawn's channel open, which runs the ramp and sound; a listen server runs them too. Port
   addition: a dedicated server also takes the ramp and the flicker window (no sound), since the original skips the
   call there and so kept the target at 255 after a damage decloak, refusing the next cloak.
-- GlassEffect itself is not replicated: a client that opens the spy's channel while it is cloaked draws it opaque
-  until the next toggle (as the original).
+- **Port addition: immediate local transition.** The owning client starts the same ramp, flicker window and
+  sounds when it requests a new cloak target, including reversing a fade when Hold is released or Toggle is
+  pressed again. It does not wait for the network round trip. Each request uses `CombatCall.Int2` as a correlation
+  ID, echoed on both broadcasts caused by that request. The owner acknowledges its predicted transition without
+  restarting the fade, flicker or sounds; other clients run those effects normally. Uncorrelated damage flicker
+  and forced decloaks still apply. An already-reached target is acknowledged to its requesting owner without
+  restarting the transition for observers. This is a responsiveness change to the decoded behavior, not a new
+  body animation: the original cloak scripts animate the glass effect and do not request a skeletal activation clip.
+- **Port addition: observer initialization and ticks.** The original did not replicate `GlassEffect`, leaving a
+  newly opened pawn channel opaque until the next toggle. The port sends a silent `InitialCloakState` through the
+  existing reliable combat stream once the observer acknowledges the pawn channel. It carries the current amount,
+  target, and remaining fade/flicker durations; the receiver rebases those durations to its own clock. Network pose
+  playback also advances the spy's local glass tick instead of skipping it with the normal script tick. Neither
+  observer path controls cloak input or spends energy.
+- **Port addition: detection during fade-out.** A cloak target, nonzero glass amount, or unfinished fade-out
+  perturbation keeps the spy fully EMF-visible. The owner updates its local EMF flags immediately and sends the
+  normal EMF state to the server; `bEMFIsOn` and `EMFOpacity` then replicate to observers. Once fade-out completes,
+  the owner rechecks other detection sources before clearing EMF. Cloak does not change heat intensity or opacity,
+  so the spy stays visible in thermal vision throughout.
 
 ## Edge cases
 - Firing at any time blocks cloaking until the bar is full again.

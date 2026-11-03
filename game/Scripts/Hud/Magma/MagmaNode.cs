@@ -12,6 +12,9 @@ public sealed class MagmaOverride
 {
     public bool? Hidden { get; set; }
 
+    /// <summary>Explicit screen mapping for an image independent of its enclosing area's HUD anchor.</summary>
+    public MagmaAnchor? Anchor { get; set; }
+
     public string? Text { get; set; }
 
     /// <summary>Replaces the keyframe colour: every corner of an image, the text colour of a text.</summary>
@@ -40,6 +43,7 @@ public sealed class MagmaOverride
     public void Clear()
     {
         Hidden = null;
+        Anchor = null;
         Text = null;
         Color = null;
         Rotation = null;
@@ -359,7 +363,7 @@ public sealed class MagmaNode
                     }
                 }
             }
-            else if (w.Mask != MagmaMask.Set)
+            else if (w.Mask != MagmaMask.Set && FindOverride(w.Name)?.Anchor is null)
             {
                 Rect4 r = k.Rect;
                 b = Union(b, new Rect4(Math.Min(r.L, r.R), Math.Min(r.T, r.B), Math.Max(r.L, r.R), Math.Max(r.T, r.B)));

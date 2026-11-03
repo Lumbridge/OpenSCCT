@@ -498,17 +498,17 @@ public partial class HudLayer : CanvasLayer
         }
 
         // Build the performance readouts first so the activity lane can reserve their actual bounds.
+        var editorLayout = Options.Layout.For(Snapshot.Side == HudSide.Merc);
         Fps.Add(dt);
-        Fps.Draw(screen, ShowFps);
+        Fps.Draw(screen, ShowFps, editorLayout.GetValueOrDefault("Fps"));
         Net.FpsBounds = Fps.Bounds;
-        Net.Draw(screen, dt, ShowNet, Fps.DrawList.Items.Count > 0);
+        Net.Draw(screen, dt, ShowNet, Fps.DrawList.Items.Count > 0, editorLayout.GetValueOrDefault("Network"));
         ActivityDrawer.Draw(screen, Activity.Entries, Snapshot.TimeSeconds,
             page, Fps.DrawList.Items, Net.DrawList.Items,
-            Snapshot.Valid && !Snapshot.HideHud);
+            Snapshot.Valid && !Snapshot.HideHud, editorLayout.GetValueOrDefault("Activity"),
+            layoutPage: Snapshot.Side == HudSide.Merc ? Merc : Spy);
 
-        var editorLayout = Options.Layout.For(Snapshot.Side == HudSide.Merc);
         HudEditorTransform.Apply(Console.DrawList.Items, editorLayout, screen);
-        HudEditorTransform.Apply(ActivityDrawer.DrawList.Items, editorLayout, screen);
         _items.Clear();
         if (Snapshot.Valid)
         {
@@ -547,6 +547,7 @@ public partial class HudLayer : CanvasLayer
         _items.AddRange(Net.DrawList.Items);
         Location.Draw(screen, Snapshot.Valid && !Snapshot.HideHud && pc is not null ? HudLocation.NameAt(pc.ViewTarget as OpenScct.Core.Engine.Pawn ?? pc.Pawn) : "",
             ShowLocation, page);
+        HudEditorTransform.Apply(Location.DrawList.Items, editorLayout, screen);
         _items.AddRange(Location.DrawList.Items);
 
         _canvas?.Submit(_items);

@@ -111,7 +111,7 @@ top-level area of a page starts hidden and stopped at frame 0; each driver shows
 
 | Area | Rule (spec) |
 |---|---|
-| Vie, Energie | fill top `min(133, 137 - v x 1.33)`, triangles 3 units above; both show the current health at once (the native 0x10b30090 curve blend truncates to 0); poison frame |
+| Vie, Energie | fill top `min(133, 137 - v x 1.33)`, triangles 3 units above; both show the current health at once (the native 0x10b30090 curve blend truncates to 0); poison frame and animated screen overlay |
 | Objectif | the Story count restarting on change; in a deathmatch the DeathMatch counter "own/other" lives (counters-and-prompts.md) |
 | Chrono | `rem:ss` of the time limit; kept inside the right screen edge |
 | ChronoHack, ChronoObjectif(2), ChronoAlarm | countdown boxes; the alarm box while an alarm of priority above 4 runs |
@@ -122,10 +122,17 @@ top-level area of a page starts hidden and stopped at frame 0; each driver shows
 | Reticule, ReticuleMessage, Pos_Merc, AlertMessage (merc) | reticle per weapon kind with spread and hit colour, laser gate, sound arrows, reticle message at the aim point, posture icon, alert box (merc-reticle.md) |
 | merc effects | perturbation, shutdown and reboot, foam, droplets, sticky shock, flash white-out (screen-effects.md) |
 | Ballistic | the charge gauge |
-| PCConnectedPlayers | up to four rows while shown (F10); Reloaded's ping column when `show_ping` is on; OpenSCCT's Rank column (level tag, spec/additions/progression.md) when a listed player has a rank; Reloaded's split (`scoreboard_split_team_size`, 1 to 4, default 3): once the bigger team has that many players (and both teams someone), the list shows the spies and a panel beside it the mercs, each up to four rows. OpenSCCT draws the list itself (HudPage.DrawBoard): a translucent panel with a header row, side icons, centred columns, the local row tinted and the ping coloured |
+| PCConnectedPlayers | up to 24 player rows while shown (F10), including all 12 players per side in a full 12v12 match; Reloaded's ping column when `show_ping` is on; OpenSCCT's Rank column (level tag, spec/additions/progression.md) when a listed player has a rank; Reloaded's split (`scoreboard_split_team_size`, 1 to 4, default 3): once the bigger team has that many players (and both teams someone), the list shows the spies and a panel beside it the mercs. OpenSCCT draws the list itself (HudPage.DrawBoard): a translucent panel with a header row, side icons, centred columns, the local row tinted and the ping coloured; long lists fit within the HUD height |
 | Radar | dish, blips, edge arrows (spy teammates and enemies, merc alarms and hacked terminals) |
 | P_SpectatorMode | objectives, time, lives, watched player, respawn countdown, tip (spectator-page.md) |
 | P_BinocularsATT / DEF | zoom label and marker, scope ring animations, sights and axes at the aim point, breath gauge, range finder, key help, Hack prompt, reticle message (binoculars.md) |
+
+Poison uses the original `jauge_poison` animation, starting at frame 1 and looping every 0.9 seconds; frame 0
+contains a stop action. Its two textured screen layers retain their Normal and Dodge blends, and stretch across
+the viewport independently of the health gauge's anchor and HUD-editor settings. Curing poison hides them
+immediately; a later infection restarts the animation. See [the poison spec](../spec/hud/poison.md).
+The `poison-hud` smoke checks the animation, gauge placement, layout edits and cure at 30/60/144 fps and three
+aspect ratios; with a renderer it also checks and captures the visible pulse and complete removal on cure.
 
 Countdown text uses `m:ss` with carried minutes. Alarm text reads the precise match clock used to start its
 countdown. Knockout text reads the local lying-state deadline that controls waking; both show `1` during their
@@ -162,12 +169,13 @@ commands are reused between samples, and rebuilt for a resize or FPS visibility 
 normal and large-counter layouts from 320×240 through 3440×1440 and that unchanged frames allocate nothing.
 
 **Performance telemetry controls.** Options → HUD has independent **FPS & frame timing** and **Network information**
-sections. Each display offers Never, Always, or Only during issues; horizontal/vertical position (0–100% of the
-available screen travel), scale (50–200%) and opacity (0–100%) affect the entire element, including its text, shadow,
-background and graph. Panels fit within the viewport even after resizing. At their default upper-right positions,
-network information stacks below the FPS panel's actual visible bounds. These preferences are stored in
+sections. Each display offers Never, Always, or Only during issues, scale (50–200%) and opacity (0–100%).
+Position is controlled in **HUD editor**, with separate Spy/Merc layouts; saved legacy percentage positions remain
+the baseline for existing profiles. Appearance affects the entire element, including text, shadow, background and
+graphs. Untouched network information stacks below the FPS panel's visible bounds. Edited telemetry uses fixed
+reference bounds so changing counters, warning rows or FPS visibility cannot move its anchor. Preferences are stored in
 `fps_telemetry` and `network_telemetry`; existing `show_fps`/`show_net` preferences retain their enabled state.
-The activity feed uses free space above or below moved panels within its usual lane. If tall FPS/network graphs
+The stock activity feed uses free space above or below moved panels within its usual lane. If tall FPS/network graphs
 leave too little room there, it uses space to their left, staying above the crosshair and clear of gameplay notices.
 Placing telemetry near the bottom does not hide otherwise unobstructed activity.
 
@@ -625,6 +633,9 @@ from 9 to 5 HUD pixels and fade from 85% to 15% opacity between 3 and 60 metres,
 beyond 60 metres. **Toggle teammate names** in Interface controls changes the current role's visibility during
 play. New/legacy layouts receive N when free; complete saved layouts retain their bindings and can assign the
 action manually. Role reset restores the setting to off; Apply uses the new setting immediately.
+The shared HUD option **Show HP beside teammate names** (`teammate_health`, default off)
+appends the teammate's current replicated health, for example `Echo (63 HP)`. It uses the
+same role visibility, distance fade and nametag opacity as the name.
 
 ### HUD editor
 
@@ -643,8 +654,11 @@ Back follows the existing discard flow. Old settings retain the stock HUD.
 
 Editable groups include health, energy, radar, match and objective timers, gadget,
 ammo, interaction/co-op prompts, movement/posture, throw charge, page messages,
-scoreboard (both team panels), chat and the event feed.
-Crosshair and telemetry retain their dedicated editors. World-space markers,
+scoreboard (both team panels), chat, the event feed, the zone name above the radar,
+FPS and network readouts. FPS/network positions are edited here for each role;
+the HUD tab retains their display modes, metrics, graphs and appearance settings.
+Previously saved telemetry positions remain the baseline for existing profiles.
+Crosshair retains its dedicated editor. World-space markers,
 damage washes and gameplay vision effects are outside this editor.
 Passive chat follows the role layout in matches and the hub; deliberately opening
 the composer still shows it even if passive chat is hidden. The native composer
@@ -652,4 +666,7 @@ uses the edited position and size, fitted to the available screen.
 The preview expands into available space; on narrow screens Layout tools collapses
 the presets/history/sharing controls. Open it when needed. Preview animation is
 frozen so the radar and selection outlines remain steady while editing.
+Gameplay radar placement uses its fixed artwork frame, so rotating rings do not
+change the editor's scale pivot or screen-edge clamp. An edited event feed uses a
+fixed top anchor; automatic prompt/telemetry avoidance only applies to stock placement.
 The preview is sample gameplay rather than the current match.

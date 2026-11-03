@@ -42,6 +42,8 @@ public sealed class HudFps
     private bool _drawnIssue;
     private Vector2 _drawnScreen;
     private LayoutKey _drawnSettings;
+    private HudTelemetryVisual.EditorKey _drawnEditor;
+    private bool _hasLayout;
     private MagmaFont? _font;
     private WhiteRegion? _white;
 
@@ -51,6 +53,8 @@ public sealed class HudFps
     public MagmaDrawList DrawList { get; } = new();
     public FpsTelemetrySettings Settings { get; set; } = new();
     public Rect2 Bounds { get; private set; }
+    public Rect2 EditorBaseBounds { get; private set; }
+    public Rect2 EditorBounds { get; private set; }
 
     /// <summary>The last readout: frames a second now, of the slowest 1 % and of the fastest 1 %.</summary>
     public (float Now, float Low, float High) Rates { get; private set; }
@@ -150,23 +154,27 @@ public sealed class HudFps
         PeakFrameTimeMs = _sorted[_count - 1] * 1000f;
     }
 
-    public void Draw(Vector2 screen, bool shown)
+    public void Draw(Vector2 screen, bool shown, HudElementSettings? layout = null, bool editorPreview = false)
     {
         bool issue = HasIssue;
-        if (!shown || _count == 0 || Settings.Opacity <= 0f || (Settings.DisplayMode == "Issues" && !issue))
+        if (!editorPreview && (!shown || _count == 0 || Settings.Opacity <= 0f || (Settings.DisplayMode == "Issues" && !issue)))
         {
             DrawList.Clear();
-            Bounds = default;
+            Bounds = EditorBaseBounds = EditorBounds = default;
+            _hasLayout = false;
             return;
         }
 
+        var editor = HudTelemetryVisual.EditorKey.Of(layout, editorPreview);
         var key = new LayoutKey(Settings.DisplayMode, Settings.PositionX, Settings.PositionY, Settings.Scale,
             Settings.Opacity, Settings.Graph, Settings.GraphSeconds, Settings.FrameTimeThresholdMs,
             Settings.ShowFrameTime, Settings.ShowPercentiles, Settings.ShowAverage, Settings.ShowPeakFrameTime);
-        if (!_dirty && _drawnScreen == screen && _drawnSettings == key && _drawnIssue == issue && DrawList.Items.Count > 0)
+        if (!_dirty && _drawnScreen == screen && _drawnSettings == key && _drawnEditor == editor && _drawnIssue == issue && _hasLayout)
             return;
         _drawnScreen = screen;
         _drawnSettings = key;
+        _drawnEditor = editor;
+        _hasLayout = true;
         _drawnIssue = issue;
         _dirty = false;
         Measure();
@@ -185,6 +193,8 @@ public sealed class HudFps
         bool graph = Settings.Graph != "Off" && _white.HasValue;
         float width = Math.Max(MeasureText(main, h), Math.Max(MeasureText(percentiles, h), MeasureText(extra, h))) + padding * 2f;
         if (graph) width = Math.Max(width, h * 23f);
+        // An edited panel has an authored width: changing counter digits cannot move its left edge.
+        if (layout is not null || editorPreview) width = Math.Max(100f, Math.Min(screen.X - 16f, h * 28f));
         float y = padding + pitch;
         if (percentiles.Length > 0) y += pitch;
         if (extra.Length > 0) y += pitch;
@@ -223,8 +233,9 @@ public sealed class HudFps
             AddText("Fps/Graph/Label", caption, padding, graphRect.End.Y + padding, graphRect.Size.X, h, muted);
         }
 
-        Bounds = HudTelemetryVisual.Place(screen, source.Size, Settings, defaultTop: 6f);
-        HudTelemetryVisual.Transform(DrawList, source, Bounds, Settings.Opacity);
+        EditorBaseBounds = HudTelemetryVisual.Place(screen, source.Size, Settings, defaultTop: 6f);
+        EditorBounds = HudTelemetryVisual.PlaceEdited(DrawList, screen, source, EditorBaseBounds, Settings.Opacity, layout);
+        Bounds = layout?.Visible == false ? default : EditorBounds;
     }
 
     private void AddText(string path, string text, float x, float y, float width, float height, Color color)

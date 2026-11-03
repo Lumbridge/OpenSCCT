@@ -20,7 +20,7 @@ public sealed record HostRequest
 
     public int Port { get; init; } = BuildInfo.DefaultGamePort;
 
-    public int MaxPlayers { get; init; } = 8;
+    public int MaxPlayers { get; init; } = LobbySetup.DefaultMaxPlayers;
 
     public string? Password { get; init; }
 
@@ -110,7 +110,9 @@ public sealed class ListenHost : IDisposable
     public static ListenHost Start(HostRequest request, MapCatalog maps, NetClassRegistry classes)
     {
         ArgumentNullException.ThrowIfNull(request);
-        LiteNetLibTransport udp = LiteNetLibTransport.Listen(request.Port, request.MaxPlayers + 6, request.LoopbackOnly);
+        // Reserve peers for a lobby enlarged through Session Options after hosting starts.
+        LiteNetLibTransport udp = LiteNetLibTransport.Listen(request.Port,
+            Math.Max(request.MaxPlayers, LobbySetup.MaxMaxPlayers) + 6, request.LoopbackOnly);
         try
         {
             var clock = new StopwatchClock();

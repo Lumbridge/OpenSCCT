@@ -289,7 +289,7 @@ public sealed class HubPads
         LobbySetup s = setup.Clamped() with { GamesInARow = 1, Revenge = false, RandomMap = false };
         bool mercsOnly = s.Mode == EGameMode.GM_MercDeathMatch;
         int players = Math.Clamp(s.MaxPlayers, LobbySetup.MinMaxPlayers, LobbySetup.MaxMaxPlayers);
-        int teamSize = mercsOnly ? players : Math.Clamp((players + 1) / 2, 1, 4);
+        int teamSize = mercsOnly ? players : Math.Clamp((players + 1) / 2, 1, LobbySetup.MaxMaxPlayers / 2);
         int slots = mercsOnly ? teamSize : 2 * teamSize;
         int minPlayers = s.Bots switch
         {

@@ -1,4 +1,6 @@
 using System;
+using OpenScct.Core;
+using OpenScct.Core.Engine;
 using OpenScct.Game.SBase;
 using OpenScctGame.Controls;
 using OpenScctGame.Options;
@@ -13,8 +15,11 @@ public sealed class SpyPerspectiveInputTests
     [Fact]
     public void ReleasingPerspectiveDuringFreeCameraClearsTheSuspendedPreference()
     {
-        var spy = new SPawnAttaque { Health = 100 };
-        var controller = new SPlayerController { Pawn = spy, SBPawn = spy, FreeCameraFlying = 1 };
+        var world = new World(1, ENetMode.NM_Standalone);
+        var spy = world.Level.SpawnActor(new SPawnAttaque { Health = 100 }, default, default)!;
+        var controller = world.Level.SpawnActor(new SPlayerController(), default, default)!;
+        controller.Possess(spy);
+        controller.FreeCameraFlying = 1;
         controller.SetSpyFirstPerson(true);
         Assert.True(controller.SpyFirstPersonRequested);
         Assert.True(PlayerCommands.Execute(controller, new InputCommand("SetSpyFirstPerson", 0)));

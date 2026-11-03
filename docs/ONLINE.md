@@ -185,7 +185,7 @@ clients ignore it.
 ### Bots
 
 The original has no bots in a network session; ours are an addition. The host sets them on the Create Session page
-(and in the lobby's Session Parameters, like every other row): **Bots** Off, **Per Side** (Bots per Side, 1 to 4, on
+(and in the lobby's Session Parameters, like every other row): **Bots** Off, **Per Side** (Bots per Side, 1 to 12, on
 each side) or **Fill Slots** (each side filled to half of Max Players, the spies taking the odd place), and **Bot
 Skill** Easy, Normal, Hard or Expert (docs/AI.md, "Difficulty"). The dedicated server's console has
 `set bots off|side|fill`, `set botsperside <n>` and `set botskill <name>`.
@@ -688,7 +688,7 @@ The old single-map flags (`--map`, `--game`, `--bots`) still run a bare `ServerH
 | `name` | SVM dedicated server | listed name |
 | `port` / `lanPort` | 28888 / 28889 | game port; LAN discovery port (0: off) |
 | `loopbackOnly` | false | bind 127.0.0.1 only (testing) |
-| `maxPlayers` / `maxSpectators` | 8 / 2 | |
+| `maxPlayers` / `maxSpectators` | 24 / 2 | up to 12v12; spectators have separate places |
 | `password` | none | |
 | `adminPassword` | none | in-game admins (`!login <password>`); with one set, only admins change maps |
 | `openMapCommands` | true | without admins, every player may change the map and launch |

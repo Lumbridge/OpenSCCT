@@ -25,6 +25,18 @@ public sealed class OnlineBotsTests
     private static bool TestBoxMissing => WalkerRig.Maps.FindFolder(MapCatalog.TestBox) is null;
 
     [Fact]
+    public void TwentyFourSlotsSupportTwelveBotsPerSideAndHumanReplacement()
+    {
+        LobbySetup setup = new LobbySetup { Bots = BotFill.PerSide, BotsPerSide = 12 }.Clamped();
+        Assert.Equal(12, setup.BotsPerSide);
+        Assert.Equal(setup, LobbySetup.FromOptions(setup.ToOptions()));
+        Assert.Equal((12, 12), OnlineBotRoster.Wanted(setup, 0, 0, 24));
+        Assert.Equal((11, 11), OnlineBotRoster.Wanted(setup, 1, 1, 24));
+        Assert.Equal((11, 12), OnlineBotRoster.Wanted(setup with { Bots = BotFill.Fill }, 1, 0, 24));
+        Assert.Equal((0, 24), OnlineBotRoster.Wanted(setup with { Mode = EGameMode.GM_MercDeathMatch }, 0, 0, 24));
+    }
+
+    [Fact]
     public void CustomTeamsKeepTheirRequestedCountsAndMakeRoomForHumans()
     {
         var custom = new LobbySetup { MaxPlayers = 4, Bots = BotFill.Custom, SpyBots = 0, MercBots = 3 };
@@ -44,7 +56,7 @@ public sealed class OnlineBotsTests
         var custom = new LobbySetup { Bots = BotFill.Custom, SpyBots = 0, MercBots = 7, MaxPlayers = 8, BotSkill = AiSkill.Hard };
         Assert.Equal(3, (int)BotFill.Custom);
         Assert.Equal(custom, LobbySetup.FromOptions(custom.ToOptions()));
-        Assert.Equal((0, 8), (new LobbySetup { SpyBots = -4, MercBots = 99 }.Clamped() is var limits ? (limits.SpyBots, limits.MercBots) : default));
+        Assert.Equal((0, 24), (new LobbySetup { SpyBots = -4, MercBots = 99 }.Clamped() is var limits ? (limits.SpyBots, limits.MercBots) : default));
         Assert.Equal((0, 7), (LobbySetup.FromOptions("?TimeLimit=9", custom) is var partial ? (partial.SpyBots, partial.MercBots) : default));
         foreach (BotFill mode in new[] { BotFill.Off, BotFill.PerSide, BotFill.Fill })
         {
@@ -109,7 +121,7 @@ public sealed class OnlineBotsTests
         // The setup carries them through the lobby protocol, within the page's ranges.
         LobbySetup setup = new LobbySetup { Bots = BotFill.PerSide, BotsPerSide = 3, BotSkill = AiSkill.Hard }.Clamped();
         Assert.Equal(setup, LobbySetup.FromOptions(setup.ToOptions()));
-        Assert.Equal((BotFill.Off, 4, AiSkill.Expert),
+        Assert.Equal((BotFill.Off, 12, AiSkill.Expert),
             (LobbySetup.FromOptions("?MapName=X?GameMode=5?SvmBots=9?SvmBotsPerSide=40?SvmBotSkill=9") is var w ? (w.Bots, w.BotsPerSide, w.BotSkill) : default));
         Assert.Contains("Hard bots per side", setup.Describe(), StringComparison.Ordinal);
     }

@@ -170,7 +170,7 @@ saturation, a props style in `kit_props`), add its tile kinds to `TILES` in `art
 
 ## Scaling: interest management
 
-A normal match has at most eight players and replicates every other pawn at its full schedule. With 50 players that
+A normal lobby supports up to 24 players and replicates every other pawn at its full schedule. With 50 players that
 would be about 7 KB/s down per client (measured: 6.7 KB/s with the distance bands alone, all 49 others near the plaza)
 and a server pass far over its frame. The hub opts in to three changes; a normal match is unchanged
 (`NetDriverSettings.Interest` null, the shared send budget):
@@ -276,7 +276,7 @@ Players, voice, auto balance, alternate rules, time, lives, respawn, disks, bots
 games in a row, revenge, random map or voice in lobby, because a hub match is one game with its own password and a lobby that launches at once.
 Apply sends `hub padsetup <pad> <options>`. The hub checks the player still stands at that laptop, the pad is not
 starting, it has the map and the map plays the mode. It then sets the pad's match: team size is half of Max Players
-(rounded up, at most 4), or all of it in Merc Deathmatch. Bots fill needs hub.json's `minPlayers` (else 1) people,
+(rounded up, at most 12), or all of it (at most 24) in Merc Deathmatch. Bots fill needs hub.json's `minPlayers` (else 1) people,
 and bots per side needs the places the bots leave. The queue stays; everyone on the pad is un-readied, the
 countdown starts over and they are told who changed it. Every client gets `hub padsetup <pad> <changed> <options>`
 when a pad's settings change, and the match starts with them. A changed pad that nobody queues on for 120 s goes back

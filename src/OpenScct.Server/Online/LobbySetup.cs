@@ -44,13 +44,11 @@ public sealed record LobbySetup
     [Provenance(ProvenanceKind.Decoded, "GUI.u SessionMaxPlayers MinValue 2")]
     public const int MinMaxPlayers = 2;
 
-    /// <summary>Most players the page's Max Players row offers.</summary>
-    [Provenance(ProvenanceKind.Decoded, "GUI.u SessionMaxPlayers MaxValue 8")]
-    public const int MaxMaxPlayers = 8;
+    /// <summary>Most players an online match offers: twelve spies and twelve mercenaries.</summary>
+    public const int MaxMaxPlayers = 24;
 
-    /// <summary>The page's Max Players when the profile holds no valid value.</summary>
-    [Provenance(ProvenanceKind.Decoded, "GUI.Create_Match.InitComponent: MaxPlayers outside the row's range becomes 4")]
-    public const int DefaultMaxPlayers = 4;
+    /// <summary>Player slots for a new lobby, or when the profile holds no valid value.</summary>
+    public const int DefaultMaxPlayers = MaxMaxPlayers;
 
     /// <summary>Most characters of a session password.</summary>
     [Provenance(ProvenanceKind.Decoded, "GUI.Create_Match.InitComponent: PasswordBox.MaxWidth(16)")]
@@ -99,7 +97,7 @@ public sealed record LobbySetup
     public int GamesInARow { get; init; } = 1;
 
     /// <summary>Players the match takes (the GameInfo's MaxPlayers).</summary>
-    public int MaxPlayers { get; init; } = 8;
+    public int MaxPlayers { get; init; } = DefaultMaxPlayers;
 
     /// <summary>
     /// The host's "Voice Chat" mode (Enhanced 4.0's Create Session row): who hears whom in the match
@@ -184,7 +182,7 @@ public sealed record LobbySetup
     };
 
     /// <summary>The match creation page's untouched values for <paramref name="mode"/> on a map with <paramref name="settings"/>.</summary>
-    public static LobbySetup ForMap(string map, EGameMode mode, USMapSettings? settings, int maxPlayers = 8)
+    public static LobbySetup ForMap(string map, EGameMode mode, USMapSettings? settings, int maxPlayers = DefaultMaxPlayers)
     {
         ArgumentException.ThrowIfNullOrEmpty(map);
         ModeSetup page = ModeSetup.Defaults(settings, mode, map, maxPlayers: maxPlayers);
@@ -211,7 +209,7 @@ public sealed record LobbySetup
             Disks = disks,
             DisksToWin = disks > 0 ? Math.Clamp(DisksToWin, 1, disks) : Math.Max(0, DisksToWin),
             GamesInARow = Revenge ? RevengeGames : Math.Clamp(GamesInARow, 1, MaxGamesInARow),
-            MaxPlayers = Math.Clamp(MaxPlayers, 1, GameK.MaxPlayersCap),
+            MaxPlayers = Math.Clamp(MaxPlayers, 1, MaxMaxPlayers),
             VoiceMode = VoiceModeOf(VoiceMenuIndex(VoiceMode)),
             Bots = Bots is BotFill.PerSide or BotFill.Fill or BotFill.Custom ? Bots : BotFill.Off,
             BotsPerSide = Math.Clamp(BotsPerSide, 1, OnlineBotRoster.MaxPerSide),

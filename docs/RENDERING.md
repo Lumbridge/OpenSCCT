@@ -388,8 +388,11 @@ Cookies share a texture array (`svm_spot_cookies`, each resampled to 256 x 256; 
 
 - Map LE_ESpotShadow lights (`MapSpotLights`, 364 over all maps) are not in the baked light: the bridge found FactD's
   lightmap uniform under the window patches the game draws with bar shadows (fix_plan I8), so every one that is on
-  is drawn, whatever its bApplyToStaticLighting. The six nearest the camera (`SpotShadowMapLights`, estimated) take
-  slots; each follows its switch and light type. Cookie: EchelonLightMaterial.ProjectedLightingTexture
+  is eligible whatever its bApplyToStaticLighting. Six map slots (`SpotShadowMapLights`, estimated) prioritize light
+  volumes intersecting the camera frustum, then distance to that volume. Existing occupants retain a 96 uu distance
+  advantage so small movements do not churn slots; visible replacements fade out/in over 0.15 seconds each, including
+  their beams, before reusing a slot. Offscreen occupants yield immediately. Each follows its switch and light type.
+  Cookie: EchelonLightMaterial.ProjectedLightingTexture
   (`echelon_texture_uri`), attenuation its AttenuationType (`echelon_attenuation`, written by the exporter since this
   change; linear, the class default, until the map is converted again), normal influence EchelonNormalInfluence
   (default 1). Lights without a material take the level's default Echelon light material: the soft round
@@ -572,7 +575,8 @@ Lights with `UsesLightBeam` and a `LightBeamMesh` (200 placed, `TestMapStaticM.A
   shadow slot (`SpotShadowLight.SlotOf`, the same frustum and filtered depth test as the world template) and
   multiplies the slice by the slot's cookie there: sun beams draw as shafts between the window bars and stop at the
   walls, RiveE's caustic light (`Mall_tibu.lightECHL`) throws teal shafts. A spot light without a slot this frame (not
-  among the `SpotShadowMapLights` nearest) draws no beam (estimate). `MapLightBeams.UpdateSlots` runs each frame after
+  selected by the visible-first `SpotShadowMapLights` budget) draws no beam (estimate); a selected beam follows its
+  slot's transition gain. `MapLightBeams.UpdateSlots` runs each frame after
   the spot lights take their slots (PlayRoot after `FlashLightView.Draw`, golden renders after `MapSpotLights.Update`).
 - Golden (2026-10-29, with the spot lights drawn): RiveE spy-90 SSIM 0.693 to 0.952, spy-270 0.659 to 0.938; FactD
   spy-0 0.766 to 0.886 (the uncut multiplied beam of Light274 had enclosed the camera and tinted the whole room red);
@@ -827,17 +831,29 @@ shift is `(-k Nx / 640, k Ny / 480)` with `k = 10 (1 - d / 1500)` (0 from 1500 u
 policy 0x109771f0); that it follows the vertex normal is inferred (the vertex shader is built at run time).
 
 `SimPawnView` hands GlassEffect / 255 to `SkeletalModel.SetGlass` for the body and the attachments (the gun) while the
-view's vision is 5. A cloaked model draws in the transparent pass (GeometryInstance3D.transparency 0.01, so the
-screen copy holds the scene without it) with `svm_cloak.gdshader` as its material overlay: the screen copy at the
-shifted pixel, alpha the glass amount. In night, thermal, motion and EMF vision the spy draws as uncloaked, as in the
+view's vision is 5. `CloakMaterials` makes a per-model variant of each Faithful material (`SVM_CLOAK` in
+`svm_world.gdshaderinc`), retaining its textures, actor lighting, tint and masked cutouts. It mixes the shaded
+surface with the shifted screen copy in one transparent draw, writing nearest depth and replacing the resulting
+pixel. There is no separate opaque body pass or overlay to interleave with the head, limbs or split cosmetic meshes.
+The fade uses a material uniform because actor lighting already occupies all 16 instance-uniform slots. Skin and
+cosmetic changes while cloaked receive the same variant; uncloaking restores their original materials and vision
+passes. `svm_cloak.gdshader` supplies the fallback for imported materials without Faithful metadata.
+In night, thermal, motion and EMF vision the spy draws as uncloaked, as in the
 original; the cloak also makes the spy EMF visible (TestAndSetEMFVisible) and hides it from motion tracking
 (DesiredGlassEffect 255). With the suit fully on (GlassEffect 255) the spy's body is not drawn at all in motion
 vision (Reloaded's scene traversal hook, spec/native/reloaded-hooks.md rule 33; `SimPawnView.DrawMotionCloak`); his
 gun and goggle glow still draw. The goggle glow is its own actor and is not glassed. The spy's own view has no screen effect
 (the HUD energy gauge and the suit messages only).
 
-Known differences: the pawn's surfaces in the transparent pass do not write depth, so while partly cloaked its own
-parts can overlap in draw order; other translucent surfaces behind the spy are missing from the screen copy.
+Thermal and EMF reveal the cloaked spy with their usual materials. As a port addition, EMF visibility stays on
+through the entire fade-out (`GlassEffect > 0`), then returns to the normal equipment-based rule once the fade
+finishes. Cloaking does not reduce heat intensity or heat opacity.
+
+Known difference: other translucent surfaces behind the spy are missing from the screen copy.
+The `cloak-render` windowed smoke checks the real spy from eight angles and the shocker from two: the partial
+fade, complete silhouette coverage at full cloak, a cosmetic split during cloaking and live cosmetic restoration.
+It also switches a real `SimPawnView` through normal, thermal and EMF, including the fade-out, and checks that
+returning to normal vision restores the cloak. Patterned-background captures show the refraction separately.
 
 ## Emitters
 

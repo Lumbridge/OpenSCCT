@@ -134,9 +134,26 @@ public sealed class MenuCreateSessionTests
     }
 
     [Fact]
-    public void AStartOutsideTheMaxPlayersRangeBecomesFour()
+    public void AStartOutsideTheMaxPlayersRangeUsesTheDefault()
     {
-        CreateSessionModel page = Page(new LobbySetup { Map = "SteeE", MaxPlayers = 20 });
+        CreateSessionModel page = Page(new LobbySetup { Map = "SteeE", MaxPlayers = 25 });
+        Assert.Equal(LobbySetup.DefaultMaxPlayers, page.Setup.MaxPlayers);
+    }
+
+    [Fact]
+    public void TwelvePerTeamSurvivesMapModeAndLobbyEdits()
+    {
+        CreateSessionModel page = Page(new LobbySetup { Map = "SteeE", MaxPlayers = 24 });
+        Assert.Equal((2, 24), page.Range(SessionRow.MaxPlayers));
+        Assert.Equal(24, page.Setup.MaxPlayers);
+        page.Step(SessionRow.Map, 1);
+        page.SelectMode(EGameMode.GM_MercDeathMatch);
+        Assert.Equal(24, page.Setup.MaxPlayers);
+        page.SetNumber(SessionRow.MaxPlayers, 25);
+        Assert.Equal(24, page.Setup.MaxPlayers);
+        page.SetNumber(SessionRow.MaxPlayers, 4);
         Assert.Equal(4, page.Setup.MaxPlayers);
+        page.Load(page.Setup with { MaxPlayers = 24 });
+        Assert.Equal(24, page.Setup.MaxPlayers);
     }
 }
