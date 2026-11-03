@@ -387,7 +387,9 @@ Players sign in with **Discord** (nothing else: no passwords, no email). Signing
 stats and achievements, settings that follow the player between PCs, and entry to **signed-in only** servers.
 Everyone else still plays offline, on LAN and on open servers; on a server linked to a master a guest shows as
 `Name#3fa2` (`PlayerNames.GuestName`: the name cut to 15 characters, then four hex digits from the install id), so
-a guest can never pass for a claimed name. Servers with no master (LAN, offline, direct only) keep plain names.
+a guest can never pass for a claimed name. Players on servers with no master (LAN, offline, direct only) keep plain names.
+A logged-out listen host's server title carries the same `#3fa2` tag in the website and in-game server lists,
+including custom titles and LAN discovery. Long titles are shortened to keep the full tag visible.
 
 **Pieces.** The master keeps accounts in SQLite (`accounts.db` next to its config: accounts, sign-in sessions, name
 history, bans, stats, achievements, synced settings, an audit log). Schema 7 also keeps player website sessions,

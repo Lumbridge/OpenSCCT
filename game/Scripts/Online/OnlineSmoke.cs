@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using Godot;
 using OpenScct.Core;
+using OpenScct.Net.Discovery;
 using OpenScct.Server;
 using OpenScct.Server.Online;
 using OpenScctGame.Match;
@@ -30,6 +31,7 @@ public sealed class OnlineSmoke : SmokeTest
     private long _guestTicks;
     private long _guestStart;
     private string _notes = string.Empty;
+    private volatile string? _listedName;
 
     public override string Name => TestName;
 
@@ -72,6 +74,7 @@ public sealed class OnlineSmoke : SmokeTest
                     return SmokeResult.Running;
                 }
 
+                service.Hosting!.Inspect(server => _listedName = server.Info().Name);
                 _guest = new OnlineClient(JoinTarget.FromAddress("127.0.0.1:" + service.Hosting!.Port), new OnlineClientSettings
                 {
                     PlayerName = "Guest", InstallId = "smoke-guest", PreferredTeam = 1, Maps = service.Catalog.Maps, Classes = service.Classes,
@@ -81,11 +84,14 @@ public sealed class OnlineSmoke : SmokeTest
                 return Next(context);
             case 2:
                 if (context.Tree.CurrentScene is not LobbyRoomScreen { Session: { } host } || host.Members.Count < 2 ||
-                    _guest is not { State: OnlineClientState.Lobby } guest)
+                    _guest is not { State: OnlineClientState.Lobby } guest || _listedName is null)
                 {
                     return SmokeResult.Running;
                 }
 
+                string expectedName = PlayerNames.GuestServerName("Smoke host", OnlineSettings.Current.InstallId);
+                if (_listedName != expectedName) return Fail($"guest host listed as '{_listedName}', expected '{expectedName}'");
+                _notes += $" listed='{_listedName}'";
                 _notes += $" lobby={host.Members.Count} spies={host.Members.Count(m => m.Side == Hud.HudSide.Spy)}";
                 guest.SetReady(true);
                 return Next(context);

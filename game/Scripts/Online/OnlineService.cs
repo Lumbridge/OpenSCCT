@@ -234,6 +234,7 @@ public partial class OnlineService : Node
         ArgumentNullException.ThrowIfNull(request);
         EndVisit();
         LastError = null;
+        request = request with { HostInstallId = OnlineSettings.Current.InstallId };
         AccountSettings account = AccountSettings.Current;
         if (request.HostAccount is null && account.AccountName is { } claimed && account.AccountId > 0)
         {

@@ -137,6 +137,9 @@ public sealed record OnlineServerSettings
     /// </summary>
     public HostAccount? HostAccount { get; init; }
 
+    /// <summary>The listen host's install id, for its guest tag in server lists before its player joins.</summary>
+    public string? HostInstallId { get; init; }
+
     /// <summary>The wall clock that player tickets' expiry is checked against (the simulation never reads it).</summary>
     public TimeProvider WallClock { get; init; } = TimeProvider.System;
 
@@ -2087,7 +2090,9 @@ public sealed partial class OnlineServer : IDisposable
             : 0;
         return new ServerInfo
         {
-            Name = Settings.Name, Map = Setup.Map, Mode = (byte)Setup.Mode, Phase = Phase, Players = players,
+            Name = !Settings.Dedicated && Settings.HostAccount is null && Settings.HostInstallId is { Length: > 0 } installId
+                ? PlayerNames.GuestServerName(Settings.Name, installId) : Settings.Name,
+            Map = Setup.Map, Mode = (byte)Setup.Mode, Phase = Phase, Players = players,
             MaxPlayers = Setup.MaxPlayers, GamePort = GamePort, ProtocolHash = Host.Driver.ProtocolHash,
             ContentHash = Maps.FindMap(Setup.Map)?.ContentHash ?? 0, HasPassword = Settings.Password is { Length: > 0 },
             Dedicated = Settings.Dedicated, SecondsLeft = left, PlayerList = list,
