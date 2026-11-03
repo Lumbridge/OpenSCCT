@@ -33,6 +33,7 @@ internal sealed record ReportContext
 internal static class ProjectLinks
 {
     public const string Repository = "https://github.com/Lumbridge/OpenSCCT";
+    public const string Website = "https://master.lumbridge.co.uk";
     private const int MaximumValueLength = 128;
     private const int MaximumUrlLength = 4096;
 
@@ -40,7 +41,7 @@ internal static class ProjectLinks
     {
         string url = destination switch
         {
-            ProjectDestination.BugReport => Repository + "/issues/new?template=bug_report.yml",
+            ProjectDestination.BugReport => Website + "/help/report-bug",
             ProjectDestination.FeatureRequest => Repository + "/issues/new?template=feature_request.yml",
             ProjectDestination.Issues => Repository + "/issues",
             ProjectDestination.Documentation => Repository + "/blob/main/docs/README.md",
@@ -48,18 +49,30 @@ internal static class ProjectLinks
             ProjectDestination.Development => Repository + "/blob/main/docs/DEVELOPMENT.md",
             ProjectDestination.PullRequests => Repository + "/pulls",
             ProjectDestination.NewPullRequest => Repository + "/compare?expand=1",
-            ProjectDestination.Help => "https://master.lumbridge.co.uk/help",
+            ProjectDestination.Help => Website + "/help",
             _ => throw new ArgumentOutOfRangeException(nameof(destination)),
         };
         if (context is null || destination is not (ProjectDestination.BugReport or ProjectDestination.FeatureRequest)) return url;
         if (destination == ProjectDestination.BugReport)
-            url += "&version=" + Uri.EscapeDataString(VersionSummary(context));
+        {
+            string area = context.Source switch { ReportSource.Launcher => "launcher", ReportSource.Website => "website", _ => "game" };
+            // Match the website form limits. Bound each detail instead of dropping match context when a URL is long.
+            for (int limit = MaximumValueLength; ; limit /= 2)
+            {
+                string report = url + "?area=" + area + "&version=" + Uri.EscapeDataString(VersionSummary(context, limit)) +
+                    "&platform=" + Uri.EscapeDataString(Clean(context.Platform, Math.Min(80, limit))) +
+                    "&environment=" + Uri.EscapeDataString(EnvironmentDetails(context, limit));
+                if (report.Length <= MaximumUrlLength) return report;
+            }
+        }
         string withEnvironment = url + "&environment=" + Uri.EscapeDataString(EnvironmentDetails(context));
         // Unusually long encoded map names must not prevent opening the form. Details remain available to copy.
         return withEnvironment.Length <= MaximumUrlLength ? withEnvironment : url;
     }
 
-    public static string EnvironmentDetails(ReportContext context)
+    public static string EnvironmentDetails(ReportContext context) => EnvironmentDetails(context, MaximumValueLength);
+
+    private static string EnvironmentDetails(ReportContext context, int valueLength)
     {
         ArgumentNullException.ThrowIfNull(context);
         var lines = new List<string> { "Source: " + SourceName(context.Source) };
@@ -95,17 +108,15 @@ internal static class ProjectLinks
 
         void Add(string label, string? value)
         {
-            string cleaned = Clean(value);
+            string cleaned = Clean(value, valueLength);
             if (cleaned.Length > 0) lines.Add(label + ": " + cleaned);
         }
     }
 
-    private static string VersionSummary(ReportContext context)
+    private static string VersionSummary(ReportContext context, int valueLength)
     {
-        string version = Clean(context.Source == ReportSource.Launcher ? context.LauncherVersion ?? context.Version : context.Version);
-        string platform = Clean(context.Platform);
-        return SourceName(context.Source) + (version.Length > 0 ? " " + version : " (version unavailable)") +
-            (platform.Length > 0 ? " / " + platform : "");
+        string version = Clean(context.Source == ReportSource.Launcher ? context.LauncherVersion ?? context.Version : context.Version, valueLength);
+        return Clean(SourceName(context.Source) + (version.Length > 0 ? " " + version : " (version unavailable)"), 120);
     }
 
     private static string SourceName(ReportSource source) => source switch
@@ -116,13 +127,13 @@ internal static class ProjectLinks
         _ => "OpenSCCT",
     };
 
-    private static string Clean(string? value)
+    private static string Clean(string? value, int maximumLength = MaximumValueLength)
     {
         if (string.IsNullOrWhiteSpace(value)) return string.Empty;
         var result = new StringBuilder();
         foreach (Rune rune in value.Trim().EnumerateRunes())
         {
-            if (result.Length + rune.Utf16SequenceLength > MaximumValueLength) break;
+            if (result.Length + rune.Utf16SequenceLength > maximumLength) break;
             result.Append(Rune.IsControl(rune) ? " " : rune.ToString());
         }
         return result.ToString().Trim();

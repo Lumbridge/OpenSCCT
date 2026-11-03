@@ -68,7 +68,7 @@ internal sealed class HelpForm : Form
         }
 
         Row(Theme.Label("Help && contribute", Theme.Heading, Theme.Accent), 0);
-        Row(Theme.Wrapping(Theme.Label("Links open in your browser for review. Submitting reports or pull requests requires GitHub sign-in.", Theme.Body, Theme.Muted)));
+        Row(Theme.Wrapping(Theme.Label("Links open in your browser. Bug reports use the website with Discord sign-in; feature suggestions and pull requests require GitHub sign-in.", Theme.Body, Theme.Muted)));
 
         _reportBug = LinkButton("Report a &bug", ProjectDestination.BugReport);
         Row(Links(_reportBug,
@@ -81,7 +81,7 @@ internal sealed class HelpForm : Form
         TableLayoutPanel detailsHeader = Theme.Grid(Theme.Fill, Theme.Auto);
         Theme.AddRow(detailsHeader, Theme.Wrapping(Theme.Label("Version details for your report", Theme.Heading)), copyDetails);
         Row(detailsHeader, 16);
-        Row(Theme.Wrapping(Theme.Label("Reports include these version details. No logs or account details are attached.", Theme.Body, Theme.Muted)));
+        Row(Theme.Wrapping(Theme.Label("The launcher includes these version details only. It does not attach logs, account details or local paths.", Theme.Body, Theme.Muted)));
         _details.Name = "ReportDetails";
         _details.Multiline = true;
         _details.ReadOnly = true;

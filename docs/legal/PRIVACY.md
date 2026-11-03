@@ -42,8 +42,14 @@ conflicts and prevent misuse.
 
 The website's bug-report form requires your existing Discord-linked OpenSCCT account. You review the report
 before sending it. The title and report text are then published as a public issue in the OpenSCCT GitHub
-repository. Website reports include the website's version, build and commit. Other app versions, system
-details, error messages and links are included only when you enter them into the form.
+repository. Website reports include the website's version, build and commit. Reports opened from the game
+or launcher prefill the app version, build, commit and operating system. Game reports also include available
+map, mode, side and host/client/offline context; launcher reports distinguish launcher and installed game
+versions. You can edit these details and remove optional context before sending. Error messages and links are included only
+when you enter them into the form.
+
+Prefilled details travel in the report link and a necessary, short-lived browser cookie during Discord
+sign-in. The cookie expires after ten minutes and is cleared when sign-in returns to the website.
 
 We do not automatically add your player name, Discord ID, private account details, network address or sign-in
 credentials to the issue. The issue is created by the GitHub account or app used by the server. Anything you

@@ -4,8 +4,10 @@ using System.Net;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.WebUtilities;
 using OpenScct.Master.Web;
 using static OpenScct.Master.Web.WebHtml;
 
@@ -19,6 +21,8 @@ internal sealed partial class PlayerPortal(MasterOptions options, AccountStore s
     private const string StateCookie = "svm_player_state";
     private const string ReturnCookie = "svm_player_return";
     private const string ReportReturnPath = "/help/report-bug";
+    // Leave room for cookie serialization overhead below browsers' per-cookie limit.
+    private static readonly ChunkingCookieManager ReturnCookies = new() { ChunkSize = 4000 };
     private const int PageSize = 24;
     private readonly MasterOptions _options = options;
     private readonly AccountStore _store = store;
@@ -110,7 +114,7 @@ internal sealed partial class PlayerPortal(MasterOptions options, AccountStore s
     private IResult SignIn(HttpContext c, string? problem = null, int status = 200, string? returnTo = null) =>
         Show(c, "Sign in", "account", $"<section class=\"panel signed-out\"><img src=\"{H(AssetUrl("/web/assets/mark.svg"))}\" alt=\"\" width=\"58\" height=\"58\">" +
             "<p class=\"eyebrow\">YOUR OPENSCCT ACCOUNT</p><h1>Sign in</h1><p class=\"lead\">" +
-            (LoginDestination(returnTo) == ReportReturnPath ? "Sign in to report a bug. " : "View your stats and manage your account. ") +
+            (LoginDestination(returnTo) != "/account" ? "Sign in to report a bug. " : "View your stats and manage your account. ") +
             "Use the same Discord account you use in OpenSCCT.</p>" + Link(LoginLink(returnTo), "Sign in with Discord →", "button wide") +
             "<small>Discord confirms which account is yours. OpenSCCT does not receive your Discord password, email address or friends list.</small>" +
             "<p class=\"account-side-note\">You can browse this website, play offline and join servers that allow guests without signing in.</p></section>", problem, problem is not null, status);
@@ -121,10 +125,11 @@ internal sealed partial class PlayerPortal(MasterOptions options, AccountStore s
         string state = _store.CreatePlayerOAuthState();
         string destination = LoginDestination(c.Request.Query["returnTo"].ToString());
         c.Response.Cookies.Append(StateCookie, state, Cookie(c, "/", SameSiteMode.Lax, TimeSpan.FromMinutes(10)));
-        if (destination == ReportReturnPath)
-            c.Response.Cookies.Append(ReturnCookie, state + "|" + destination, Cookie(c, "/", SameSiteMode.Lax, TimeSpan.FromMinutes(10)));
+        if (destination != "/account")
+            ReturnCookies.AppendResponseCookie(c, ReturnCookie, state + "|" + WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(destination)),
+                Cookie(c, "/", SameSiteMode.Lax, TimeSpan.FromMinutes(10)));
         else
-            c.Response.Cookies.Delete(ReturnCookie, Cookie(c, "/", SameSiteMode.Lax, null));
+            ReturnCookies.DeleteCookie(c, ReturnCookie, Cookie(c, "/", SameSiteMode.Lax, null));
         return Results.Redirect(DiscordAuth.AuthorizeUrl(_options, "player." + state));
     }
 
@@ -135,11 +140,9 @@ internal sealed partial class PlayerPortal(MasterOptions options, AccountStore s
         string nonce = state.StartsWith("player.", StringComparison.Ordinal) ? state[7..] : string.Empty;
         string expected = c.Request.Cookies[StateCookie] ?? string.Empty;
         // The only alternate destination is local and belongs to this exact login attempt.
-        string destination = expected.Length == 64 &&
-            string.Equals(c.Request.Cookies[ReturnCookie], expected + "|" + ReportReturnPath, StringComparison.Ordinal)
-                ? ReportReturnPath : "/account";
+        string destination = ReadLoginReturn(c, expected);
         c.Response.Cookies.Delete(StateCookie, Cookie(c, "/", SameSiteMode.Lax, null));
-        c.Response.Cookies.Delete(ReturnCookie, Cookie(c, "/", SameSiteMode.Lax, null));
+        ReturnCookies.DeleteCookie(c, ReturnCookie, Cookie(c, "/", SameSiteMode.Lax, null));
         if (nonce.Length != 64 || expected.Length != nonce.Length ||
             !CryptographicOperations.FixedTimeEquals(Encoding.UTF8.GetBytes(nonce), Encoding.UTF8.GetBytes(expected)) || !_store.ConsumePlayerOAuthState(nonce))
             return SignIn(c, "This sign-in expired or was already used. Please start again.", 400, destination);
@@ -156,14 +159,26 @@ internal sealed partial class PlayerPortal(MasterOptions options, AccountStore s
         return Results.Content("<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">" +
             $"<meta http-equiv=\"refresh\" content=\"0;url={H(destination)}\"><title>Signed in · OpenSCCT</title><link rel=\"stylesheet\" href=\"{H(AssetUrl("/web/assets/site.css"))}\"></head>" +
             "<body><main class=\"site-main\"><h1>Signed in.</h1>" +
-            Link(destination, destination == ReportReturnPath ? "Continue to bug report" : "Continue to your account", "button") +
+            Link(destination, destination != "/account" ? "Continue to bug report" : "Continue to your account", "button") +
             "</main></body></html>", "text/html; charset=utf-8");
     }
 
-    private static string LoginDestination(string? requested) => requested == ReportReturnPath ? ReportReturnPath : "/account";
+    private static string ReadLoginReturn(HttpContext c, string expected)
+    {
+        string? value = ReturnCookies.GetRequestCookie(c, ReturnCookie);
+        if (expected.Length != 64 || value is not { Length: > 65 and <= 5700 } ||
+            !value.StartsWith(expected + "|", StringComparison.Ordinal)) return "/account";
+        string encoded = value[65..];
+        // Keep in-progress sign-ins from the previous website version working during deployment.
+        if (encoded == ReportReturnPath) return ReportReturnPath;
+        try { return LoginDestination(Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(encoded))); }
+        catch (FormatException) { return "/account"; }
+    }
 
-    private static string LoginLink(string? returnTo) => LoginDestination(returnTo) == ReportReturnPath
-        ? "/auth/player/login?returnTo=" + U(ReportReturnPath) : "/auth/player/login";
+    private static string LoginDestination(string? requested) => BugReportReturnPath(requested) ?? "/account";
+
+    private static string LoginLink(string? returnTo) => LoginDestination(returnTo) is { } destination && destination != "/account"
+        ? "/auth/player/login?returnTo=" + U(destination) : "/auth/player/login";
 
     private CookieOptions Cookie(HttpContext c, string path, SameSiteMode sameSite, TimeSpan? maxAge) => new()
     {

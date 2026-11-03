@@ -50,7 +50,7 @@ public partial class HelpFeedbackScreen : MenuPage
         _actions = Actions ?? new ProjectLinkActions(url => OS.ShellOpen(url) == Error.Ok, DisplayServer.ClipboardSet);
         DisableBackgroundFocus(GetParent());
         Body.AddThemeConstantOverride("separation", 12);
-        Text("Introduction", "Get help, share a problem or help improve OpenSCCT. Links open your browser; GitHub sign-in is required to submit reports or pull requests.");
+        Text("Introduction", "Links open your browser. Bug reports use the OpenSCCT website and Discord sign-in. Feature requests and pull requests use GitHub sign-in.");
         if (MatchContinues) Text("MatchContinues", "The match continues while this menu is open.", warning: true);
 
         var report = Panel(Body, "Feedback", "Tell us about it");
@@ -59,7 +59,7 @@ public partial class HelpFeedbackScreen : MenuPage
         AddLink(report, "Suggest a feature", ProjectDestination.FeatureRequest, "SuggestFeature");
         AddLink(report, "Browse existing issues", ProjectDestination.Issues, "ExistingIssues");
 
-        Text("DetailsHint", "Reports include only the details below. Review them on GitHub before submitting. No logs or account details are attached.");
+        Text("DetailsHint", "The details below are prefilled in the report form for you to review. No logs, account details or server addresses are attached.");
         var details = new TextEdit
         {
             Name = "ReportDetails", Text = ProjectLinks.EnvironmentDetails(Context), Editable = false,

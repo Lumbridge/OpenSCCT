@@ -87,8 +87,10 @@ public sealed class HelpFeedbackSmoke : SmokeTest
                     return SmokeResult.Fail(label + "a newly added lobby row can take focus behind help");
                 if (Find<Label>("ActionStatus").Text != _actions!.Message || !_actions.Message.Contains("Could not open", StringComparison.Ordinal))
                     return SmokeResult.Fail(label + "browser failure has no readable fallback");
-                if (Find<LineEdit>("TargetUrl").Text != _opened || !_opened.StartsWith(ProjectLinks.Repository + "/issues/new?template=bug_report.yml", StringComparison.Ordinal))
+                if (Find<LineEdit>("TargetUrl").Text != _opened)
                     return SmokeResult.Fail(label + "fallback address differs from requested report");
+                if (BugReportProblem(_opened, _help!.Context) is { } bugProblem)
+                    return SmokeResult.Fail(label + bugProblem);
                 error = LayoutProblem();
                 if (error is not null) break;
                 if (_case == 0) Shot("browser-fallback");
@@ -99,6 +101,9 @@ public sealed class HelpFeedbackSmoke : SmokeTest
                     Press(link.Name);
                     if (_opened != ProjectLinks.Url(link.Destination, _help!.Context))
                         return SmokeResult.Fail(label + "wrong destination for " + link.Name);
+                    if (link.Destination == ProjectDestination.FeatureRequest &&
+                        !_opened.StartsWith(ProjectLinks.Repository + "/issues/new?template=feature_request.yml&", StringComparison.Ordinal))
+                        return SmokeResult.Fail(label + "feature requests no longer use the GitHub form");
                 }
                 Press("CopyDetails");
                 if (_copied != ProjectLinks.EnvironmentDetails(_help!.Context) || !_copied.Contains("Source: OpenSCCT game", StringComparison.Ordinal))
@@ -206,8 +211,8 @@ public sealed class HelpFeedbackSmoke : SmokeTest
             var menu = new InGameMenu
             {
                 Now = () => 2, HelpActions = _actions,
-                HelpContext = new ReportContext { Source = ReportSource.Game, Version = "smoke", Platform = "Test OS",
-                    Session = session, Map = "TestBox", Mode = "Story", Side = session == ReportSession.Replay ? "Spectator" : "Spy" },
+                HelpContext = new ReportContext { Source = ReportSource.Game, Version = "smoke+prefill", Platform = "Test OS / x64",
+                    Session = session, Map = "TestBox & Annex", Mode = "Story", Side = session == ReportSession.Replay ? "Spectator" : "Spy" },
             };
             menu.Model.Open(new InGameMenuContext(session is ReportSession.OnlineHost or ReportSession.HubHost,
                 session == ReportSession.Offline ? InGameMenuNet.None : InGameMenuNet.Lan, MatchBegun: true, Lives: 3), 0);
@@ -261,7 +266,7 @@ public sealed class HelpFeedbackSmoke : SmokeTest
                 _playSession = _play.Session;
                 // Native input is normally enabled by PlayRoot in a window; enable it for the headless variant too.
                 _play.Controls!.Enabled = true;
-                menu.Menu.HelpActions = new ProjectLinkActions(_ => false, _ => { });
+                menu.Menu.HelpActions = new ProjectLinkActions(url => { _opened = url; return false; }, _ => { });
                 menu.Open();
                 menu.Menu.HelpButton!.EmitSignal(Button.SignalName.Pressed);
                 break;
@@ -270,6 +275,9 @@ public sealed class HelpFeedbackSmoke : SmokeTest
                     help.Context.Session != ReportSession.Offline || help.Context.Map != "TestBox" ||
                     help.FindChild("MatchContinues", true, false) is null || _play.Controls!.Enabled)
                     return SmokeResult.Fail("live match help has wrong context, no continuing-match notice, or active player controls");
+                ((Button)help.FindChild("ReportBug", true, false)).EmitSignal(Button.SignalName.Pressed);
+                if (BugReportProblem(_opened, help.Context) is { } liveBugProblem)
+                    return SmokeResult.Fail("live match bug report: " + liveBugProblem);
                 _clientTick = _playSession!.Client.LocalTick;
                 _serverTick = _playSession.Host.World.TickCount;
                 context.Tree.Root.PushInput(new InputEventKey { Keycode = Key.W, Pressed = true });
@@ -296,6 +304,37 @@ public sealed class HelpFeedbackSmoke : SmokeTest
                 break;
         }
         return SmokeResult.Running;
+    }
+
+    private static string? BugReportProblem(string url, ReportContext expected)
+    {
+        if (!Uri.TryCreate(url, UriKind.Absolute, out Uri? uri) || uri.Scheme != Uri.UriSchemeHttps ||
+            uri.Host != "master.lumbridge.co.uk" || uri.AbsolutePath != "/help/report-bug")
+            return "bug report does not open the website Discord reporting flow";
+        var query = uri.Query.TrimStart('?').Split('&', StringSplitOptions.RemoveEmptyEntries)
+            .Select(part => part.Split('=', 2)).ToDictionary(part => Uri.UnescapeDataString(part[0]),
+                part => part.Length == 2 ? Uri.UnescapeDataString(part[1].Replace("+", " ", StringComparison.Ordinal)) : string.Empty);
+        if (!query.TryGetValue("area", out string? area) || area != "game" ||
+            !query.TryGetValue("version", out string? version) || version != "OpenSCCT game " + expected.Version ||
+            !query.TryGetValue("platform", out string? platform) || platform != expected.Platform)
+            return "website report lost its game area, version or platform prefill";
+        if (!query.TryGetValue("environment", out string? environment) || environment != ProjectLinks.EnvironmentDetails(expected))
+            return "website report lost the displayed environment details";
+        foreach (var (label, value) in new[] { ("Game version", expected.Version), ("Build", expected.Build),
+            ("Commit", expected.Commit), ("Platform", expected.Platform), ("Map", expected.Map), ("Mode", expected.Mode), ("Side", expected.Side) })
+            if (!string.IsNullOrEmpty(value) && !environment.Split('\n').Contains(label + ": " + value))
+                return "website report lost its " + label + " context";
+        string? session = expected.Session switch
+        {
+            ReportSession.Menu => "Menus", ReportSession.Offline => "Offline",
+            ReportSession.OnlineHost => "Online host", ReportSession.OnlineClient => "Online client",
+            ReportSession.HubHost => "Hub host", ReportSession.HubClient => "Hub client", ReportSession.Replay => "Replay", _ => null,
+        };
+        if (session is not null && !environment.Split('\n').Contains("Session: " + session))
+            return "website report lost its session role";
+        if (environment.Contains("private-address-not-in-report.invalid", StringComparison.Ordinal))
+            return "website report included the private hub address";
+        return null;
     }
 
     private string? LayoutProblem()

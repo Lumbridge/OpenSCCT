@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.WebUtilities;
 using OpenScct.Project;
 using static OpenScct.Master.Web.WebHtml;
 
@@ -18,12 +19,14 @@ internal sealed partial class PlayerPortal
 {
     private readonly GitHubBugReports _bugReports = bugReports ?? new(options, store);
     private const int ReportBodyLimit = 128 * 1024;
+    private const int ReportQueryLimit = 4096;
     private sealed record ReportField(string Key, string Label, int Max, bool Required, bool Multiline, string Help);
     private static readonly ReportField[] ReportFields =
     [
         new("title", "Short description", 160, true, false, "For example: The game closes when I join a server."),
         new("version", "Game or launcher version", 120, false, false, "Required for game and launcher reports. You can find it in the app."),
         new("platform", "Operating system", 80, false, false, "For example: Windows 11 or SteamOS."),
+        new("environment", "Game or launcher details (optional)", 2000, false, true, "The app may fill in its build, map, mode, side and session details. Check or edit them before sending."),
         new("steps", "How can we make it happen?", 3000, true, true, "List the steps. For game problems, include the map, mode, side and whether you were hosting or joining."),
         new("expected", "What should happen?", 2000, true, true, "Describe the result you expected."),
         new("actual", "What happened instead?", 3000, true, true, "Include any error message and how often the problem happens."),
@@ -32,12 +35,68 @@ internal sealed partial class PlayerPortal
 
     private void MapBugReports(WebApplication app)
     {
-        Get(app, ReportReturnPath, c => Current(c) is { } v ? BugReportForm(c, v, []) : BugReportSignIn(c));
+        Get(app, ReportReturnPath, OpenBugReport);
         Get(app, ReportReturnPath + "/sent/{submissionId}", c => Current(c) is { } v
             ? BugReportReceipt(c, v, c.Request.RouteValues["submissionId"]?.ToString() ?? "") : BugReportSignIn(c));
         ReportPost(app, "/review", (c, v, f) => Task.FromResult(ReviewBugReport(c, v, f)));
         ReportPost(app, "/edit", (c, v, f) => Task.FromResult(BugReportForm(c, v, ReadReport(f))));
         ReportPost(app, "/submit", SubmitBugReport);
+    }
+
+    private IResult OpenBugReport(HttpContext c)
+    {
+        bool valid = BugReportReturnPath(c.Request.Path + c.Request.QueryString) is not null;
+        string? problem = valid ? null : "The prefilled details were too long or could not be read. You can enter them in the report form.";
+        return Current(c) is { } viewer
+            ? BugReportForm(c, viewer, valid ? ReadReportPrefill(c.Request.Query) : [], problem)
+            : BugReportSignIn(c, problem);
+    }
+
+    /// <summary>Only this local report route and its bounded, explicit prefills may survive Discord sign-in.</summary>
+    private static string? BugReportReturnPath(string? requested)
+    {
+        if (requested == ReportReturnPath) return ReportReturnPath;
+        if (requested is null || !requested.StartsWith(ReportReturnPath + "?", StringComparison.Ordinal) ||
+            requested.Length - ReportReturnPath.Length > ReportQueryLimit ||
+            requested.Contains('#') || requested.Contains('\\') || requested.Any(char.IsControl)) return null;
+        var query = new QueryCollection(QueryHelpers.ParseQuery(requested[ReportReturnPath.Length..]));
+        Dictionary<string, string> values = ReadReportPrefill(query);
+        var canonical = new StringBuilder(ReportReturnPath);
+        foreach (string key in new[] { "area", "version", "platform", "environment" })
+            if (values.TryGetValue(key, out string? value) && value.Length > 0)
+                canonical.Append(canonical.Length == ReportReturnPath.Length ? '?' : '&').Append(key).Append('=').Append(U(value));
+        return canonical.Length <= ReportQueryLimit ? canonical.ToString() : null;
+    }
+
+    private static Dictionary<string, string> ReadReportPrefill(IQueryCollection query)
+    {
+        var values = new Dictionary<string, string>(StringComparer.Ordinal);
+        foreach (var entry in query)
+        {
+            if (entry.Value.Count != 1) continue;
+            string value = entry.Value[0] ?? string.Empty;
+            if (entry.Key == "area")
+            {
+                if (value.Trim() is "game" or "launcher") values[entry.Key] = value.Trim();
+                continue;
+            }
+            int maximum = entry.Key switch { "version" => 120, "platform" => 80, "environment" => 2000, _ => 0 };
+            if (maximum > 0) values[entry.Key] = NormalizeReportPrefill(value, maximum, entry.Key == "environment");
+        }
+        return values;
+    }
+
+    private static string NormalizeReportPrefill(string value, int maximum, bool multiline)
+    {
+        var clean = new StringBuilder();
+        foreach (Rune rune in value.Replace("\r\n", "\n", StringComparison.Ordinal).Replace('\r', '\n').Trim().EnumerateRunes())
+        {
+            string text = rune.Value is 0x2028 or 0x2029 ? (multiline ? "\n" : " ")
+                : Rune.IsControl(rune) && !(multiline && rune.Value is '\n' or '\t') ? " " : rune.ToString();
+            if (clean.Length + text.Length > maximum) break;
+            clean.Append(text);
+        }
+        return clean.ToString().Trim();
     }
 
     private void ReportPost(WebApplication app, string suffix, Func<HttpContext, Viewer, IFormCollection, Task<IResult>> handler) =>
@@ -94,7 +153,7 @@ internal sealed partial class PlayerPortal
             "<section class=\"panel report-page\"><h2>Sign in with Discord</h2>" +
             "<p>Use the same Discord account you use in OpenSCCT. You do not need a GitHub account.</p>" +
             "<p>You will review your report before it is published on GitHub. Your Discord ID and private account details are not included.</p>" +
-            Link(LoginLink(ReportReturnPath), "Sign in with Discord →", "button") +
+            Link(LoginLink(BugReportReturnPath(c.Request.Path + c.Request.QueryString) ?? ReportReturnPath), "Sign in with Discord →", "button") +
             "<p class=\"account-side-note\">Already reported? " + Link(ProjectLinks.Url(ProjectDestination.Issues), "Browse existing reports ↗") + "</p></section>", notice, notice is not null, status);
 
     private IResult? ReportRestriction(HttpContext c, Viewer viewer) =>
@@ -185,6 +244,7 @@ internal sealed partial class PlayerPortal
         yield return ("Where it happened", values["area"] switch { "game" => "Game", "launcher" => "Launcher", _ => "Website" });
         if (values["version"].Length > 0) yield return ("Game or launcher version", values["version"]);
         if (values["platform"].Length > 0) yield return ("Operating system", values["platform"]);
+        if (values["environment"].Length > 0) yield return ("Game or launcher details", values["environment"]);
         yield return ("Steps to reproduce", values["steps"]);
         yield return ("Expected result", values["expected"]);
         yield return ("Actual result", values["actual"]);

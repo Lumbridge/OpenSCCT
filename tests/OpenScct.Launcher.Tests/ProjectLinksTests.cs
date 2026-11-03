@@ -11,7 +11,6 @@ namespace OpenScct.Launcher.Tests;
 public sealed class ProjectLinksTests
 {
     [Theory]
-    [InlineData(ProjectDestination.BugReport, "/issues/new?template=bug_report.yml")]
     [InlineData(ProjectDestination.FeatureRequest, "/issues/new?template=feature_request.yml")]
     [InlineData(ProjectDestination.Issues, "/issues")]
     [InlineData(ProjectDestination.Documentation, "/blob/main/docs/README.md")]
@@ -27,13 +26,23 @@ public sealed class ProjectLinksTests
         Assert.Equal("https://master.lumbridge.co.uk/help", ProjectLinks.Url(ProjectDestination.Help, Game()));
 
     [Fact]
+    public void BugReportsUseTheWebsiteWithOrWithoutContext()
+    {
+        const string destination = "https://master.lumbridge.co.uk/help/report-bug";
+        Assert.Equal(destination, ProjectLinks.Url(ProjectDestination.BugReport));
+        Assert.Equal(destination, new Uri(ProjectLinks.Url(ProjectDestination.BugReport, Game())).GetLeftPart(UriPartial.Path));
+    }
+
+    [Fact]
     public void FormsFillOnlyDeclaredFieldsAndEscapeCustomMapNames()
     {
         ReportContext context = Game() with { Map = "a & + # ? / 雨\nSecond line", Mode = "Story & Disk" };
         Dictionary<string, string> query = Query(ProjectLinks.Url(ProjectDestination.BugReport, context));
-        Assert.Equal(["environment", "template", "version"], query.Keys.OrderBy(k => k).ToArray());
-        Assert.Equal("bug_report.yml", query["template"]);
-        Assert.Equal("OpenSCCT game 1.2.3 / Windows", query["version"]);
+        Assert.Equal(["area", "environment", "platform", "version"], query.Keys.OrderBy(k => k).ToArray());
+        Assert.Equal("game", query["area"]);
+        Assert.Equal("OpenSCCT game 1.2.3", query["version"]);
+        Assert.Equal("Windows", query["platform"]);
+        Assert.Equal(ProjectLinks.EnvironmentDetails(context), query["environment"]);
         Assert.Contains("Map: a & + # ? / 雨 Second line", query["environment"]);
         Assert.Contains("Session: Online host", query["environment"]);
         Assert.DoesNotContain("\nSecond line", query["environment"]);
@@ -53,6 +62,8 @@ public sealed class ProjectLinksTests
         Assert.DoesNotContain("must not appear", details);
         Assert.DoesNotContain("Session:", details);
         Assert.Contains("launcher 2", Query(ProjectLinks.Url(ProjectDestination.BugReport, launcher))["version"]);
+        Assert.Equal("launcher", Query(ProjectLinks.Url(ProjectDestination.BugReport, launcher))["area"]);
+        Assert.Equal(details, Query(ProjectLinks.Url(ProjectDestination.BugReport, launcher))["environment"]);
         var website = new ReportContext { Source = ReportSource.Website, Version = "3", Build = "20261103.1200", Map = "omitted" };
         details = ProjectLinks.EnvironmentDetails(website);
         Assert.Contains("Website version: 3", details);
@@ -60,6 +71,7 @@ public sealed class ProjectLinksTests
         Assert.DoesNotContain("Game version", details);
         Assert.DoesNotContain("Platform:", details);
         Assert.DoesNotContain("omitted", details);
+        Assert.Equal("website", Query(ProjectLinks.Url(ProjectDestination.BugReport, website))["area"]);
     }
 
     [Fact]
@@ -72,12 +84,35 @@ public sealed class ProjectLinksTests
             Version = longValue, Platform = longValue, Build = longValue, Commit = longValue };
         string url = ProjectLinks.Url(ProjectDestination.BugReport, context);
         Assert.True(url.Length <= 4096);
-        Assert.Equal("bug_report.yml", Query(url)["template"]);
-        Assert.DoesNotContain("environment", Query(url).Keys);
+        var query = Query(url);
+        Assert.Equal("game", query["area"]);
+        Assert.InRange(query["version"].Length, 1, 120);
+        Assert.InRange(query["platform"].Length, 1, 80);
+        Assert.InRange(query["environment"].Length, 1, 2000);
+        foreach (string field in new[] { "Source", "Game version", "Build", "Commit", "Platform", "Map", "Mode", "Side", "Session" })
+            Assert.Contains(field + ": ", query["environment"]);
+        Assert.Contains("Session: Online host", query["environment"]);
         Assert.DoesNotContain("\ufffd", Uri.UnescapeDataString(url));
         string details = ProjectLinks.EnvironmentDetails(context);
         Assert.DoesNotContain(longValue, details);
         Assert.Contains("Map:", details);
+    }
+
+    [Theory]
+    [InlineData(ReportSession.Menu, "Menus")]
+    [InlineData(ReportSession.Offline, "Offline")]
+    [InlineData(ReportSession.OnlineHost, "Online host")]
+    [InlineData(ReportSession.OnlineClient, "Online client")]
+    [InlineData(ReportSession.HubHost, "Hub host")]
+    [InlineData(ReportSession.HubClient, "Hub client")]
+    [InlineData(ReportSession.Replay, "Replay")]
+    internal void WebsitePrefillRetainsSessionContext(ReportSession session, string label)
+    {
+        var query = Query(ProjectLinks.Url(ProjectDestination.BugReport, Game() with { Session = session }));
+        Assert.Contains("Session: " + label, query["environment"]);
+        Assert.Contains("Map: SteeE", query["environment"]);
+        Assert.Contains("Mode: Story", query["environment"]);
+        Assert.Contains("Side: Spy", query["environment"]);
     }
 
     [Fact]

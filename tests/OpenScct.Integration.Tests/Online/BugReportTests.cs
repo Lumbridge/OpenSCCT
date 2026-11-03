@@ -22,12 +22,13 @@ using Microsoft.Extensions.Logging;
 using OpenScct.Master;
 using OpenScct.Master.Player;
 using OpenScct.Master.Web;
+using OpenScct.Project;
 using Xunit;
 
 namespace OpenScct.Integration.Tests.Online;
 
 /// <summary>Local account ledger and fake GitHub responses; these checks never create public issues.</summary>
-public sealed class BugReportTests
+public sealed partial class BugReportTests
 {
     private const string Token = "test-server-only-token";
     private const string Title = "Desert Eagle reload stops early";
@@ -149,6 +150,7 @@ public sealed class BugReportTests
         public Dictionary<string, string> Fields() => new(StringComparer.Ordinal)
         {
             ["csrf"] = Csrf, ["area"] = "game", ["title"] = "Door closes while entering", ["version"] = "0.8.74", ["platform"] = "Windows 11",
+            ["environment"] = "Map: Aquarius\nMode: Story\nSide: Spy\nSession: Online host",
             ["steps"] = "1. Start Aquarius.\n2. Walk through the door.", ["expected"] = "The door stays open.", ["actual"] = "The door closes.", ["evidence"] = "",
         };
 
@@ -343,6 +345,138 @@ public sealed class BugReportTests
         Assert.Empty(website.GitHub.Requests);
     }
 
+    [Theory]
+    [InlineData("game")]
+    [InlineData("launcher")]
+    public async Task ClientPrefillsRemainEditableThroughReviewAndIssueCreation(string area)
+    {
+        await using var website = new Website();
+        await website.Start();
+        website.SignIn();
+        CancellationToken ct = TestContext.Current.CancellationToken;
+        var context = new ReportContext { Source = area == "game" ? ReportSource.Game : ReportSource.Launcher,
+            Version = "1.2.3+build", Build = "abc123", Platform = "Test OS", InstalledGameVersion = "1.2.0",
+            Map = "TestBox & Annex", Mode = "Story", Side = "Spy", Session = ReportSession.OnlineClient };
+        var clientUrl = new Uri(ProjectLinks.Url(ProjectDestination.BugReport, context));
+        string environment = ProjectLinks.EnvironmentDetails(context);
+        string html = await website.Http.GetStringAsync(clientUrl.PathAndQuery + "&title=ignored-title&steps=ignored-steps&actual=ignored-result", ct);
+        Assert.Contains("value=\"" + area + "\" selected", html, StringComparison.Ordinal);
+        Assert.Equal(QueryHelpers.ParseQuery(clientUrl.Query)["version"].ToString(), ReportFormValue(html, "version"));
+        Assert.Equal("Test OS", ReportFormValue(html, "platform"));
+        Assert.Equal(environment, ReportFormValue(html, "environment"));
+        foreach (string key in new[] { "title", "steps", "expected", "actual", "evidence" }) Assert.Empty(ReportFormValue(html, key));
+        Assert.Empty(website.GitHub.Requests);
+
+        Dictionary<string, string> fields = website.Fields();
+        fields["area"] = area;
+        foreach (string key in new[] { "version", "platform", "environment" }) fields[key] = ReportFormValue(html, key);
+        using HttpResponseMessage review = await website.Post("review", fields);
+        Assert.Equal(HttpStatusCode.OK, review.StatusCode);
+        Dictionary<string, string> reviewed = HiddenFields(await review.Content.ReadAsStringAsync(ct));
+        Assert.Equal(environment, reviewed["environment"]);
+        using HttpResponseMessage edit = await website.Post("edit", reviewed);
+        Assert.Equal(environment, ReportFormValue(await edit.Content.ReadAsStringAsync(ct), "environment"));
+        fields["environment"] = "Edited map: <custom>\nSession: Offline\n```\n@someone";
+        using HttpResponseMessage edited = await website.Post("review", fields);
+        html = await edited.Content.ReadAsStringAsync(ct);
+        Assert.DoesNotContain("<custom>", html, StringComparison.Ordinal);
+        Dictionary<string, string> submission = HiddenFields(html);
+        Assert.Equal(fields["environment"], submission["environment"]);
+        submission["public"] = "yes";
+        using HttpResponseMessage sent = await website.Post("submit", submission);
+        Assert.Equal(HttpStatusCode.SeeOther, sent.StatusCode);
+        using JsonDocument payload = JsonDocument.Parse(Assert.Single(website.GitHub.Requests).Body);
+        string body = payload.RootElement.GetProperty("body").GetString()!;
+        Assert.Contains("### Game or launcher details\n\n````text\n" + fields["environment"] + "\n````", body, StringComparison.Ordinal);
+        Assert.DoesNotContain("Map: TestBox", body, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task PrefillAllowsOnlyKnownSingleValuesAndEscapesAndNormalizesTheirText()
+    {
+        await using var website = new Website();
+        await website.Start();
+        website.SignIn();
+        CancellationToken ct = TestContext.Current.CancellationToken;
+        string attack = "</textarea><script>alert(1)</script>\r\nMap: 雨 & + # ?\0";
+        string html = await website.Http.GetStringAsync("/help/report-bug?area=website&version=first&version=second&platform=" +
+            Uri.EscapeDataString("Test\r\nOS\0") + "&environment=" + Uri.EscapeDataString(attack) + "&steps=private-steps&csrf=private-csrf&returnTo=https%3A%2F%2Fattacker.example", ct);
+        Assert.Contains("value=\"game\" selected", html, StringComparison.Ordinal);
+        Assert.Empty(ReportFormValue(html, "version"));
+        Assert.Equal("Test OS", ReportFormValue(html, "platform"));
+        Assert.Equal("</textarea><script>alert(1)</script>\nMap: 雨 & + # ?", ReportFormValue(html, "environment"));
+        Assert.DoesNotContain("<script>alert(1)</script>", html, StringComparison.Ordinal);
+        Assert.DoesNotContain("private-", html, StringComparison.Ordinal);
+        Assert.DoesNotContain("attacker.example", html, StringComparison.Ordinal);
+        html = await website.Http.GetStringAsync("/help/report-bug?Area=launcher&Version=ignored&environment=one&Environment=two", ct);
+        Assert.Contains("value=\"game\" selected", html, StringComparison.Ordinal);
+        Assert.Empty(ReportFormValue(html, "version"));
+        Assert.Empty(ReportFormValue(html, "environment"));
+        Assert.Empty(website.GitHub.Requests);
+    }
+
+    [Fact]
+    public async Task PrefillBoundsPreserveUnicodeAndIgnoreAnOversizedOrExpandedQuery()
+    {
+        await using var website = new Website();
+        await website.Start();
+        website.SignIn();
+        CancellationToken ct = TestContext.Current.CancellationToken;
+        string version = new string('v', 119) + "🛰";
+        string environment = new string('e', 1999) + "🛰";
+        string html = await website.Http.GetStringAsync("/help/report-bug?area=launcher&version=" + Uri.EscapeDataString(version) +
+            "&platform=" + new string('p', 81) + "&environment=" + Uri.EscapeDataString(environment), ct);
+        Assert.Equal(new string('v', 119), ReportFormValue(html, "version"));
+        Assert.Equal(new string('p', 80), ReportFormValue(html, "platform"));
+        Assert.Equal(new string('e', 1999), ReportFormValue(html, "environment"));
+        Assert.DoesNotContain("\ufffd", html, StringComparison.Ordinal);
+        string longValue = string.Concat(Enumerable.Repeat("雨🛰", 1000));
+        var context = new ReportContext { Source = ReportSource.Game, Version = longValue, Build = longValue,
+            Commit = longValue, Platform = longValue, Map = longValue, Mode = longValue, Side = longValue, Session = ReportSession.OnlineHost };
+        var clientUrl = new Uri(ProjectLinks.Url(ProjectDestination.BugReport, context));
+        Assert.InRange(clientUrl.AbsoluteUri.Length, 1, 4096);
+        html = await website.Http.GetStringAsync(clientUrl.PathAndQuery, ct);
+        var sentQuery = QueryHelpers.ParseQuery(clientUrl.Query);
+        foreach (string key in new[] { "version", "platform", "environment" }) Assert.Equal(sentQuery[key].ToString(), ReportFormValue(html, key));
+        Assert.Contains("Session: Online host", ReportFormValue(html, "environment"), StringComparison.Ordinal);
+        Assert.DoesNotContain("\ufffd", html, StringComparison.Ordinal);
+        foreach (string query in new[] { "version=" + new string('v', 4097), "environment=" + new string('/', 1400) })
+        {
+            html = await website.Http.GetStringAsync("/help/report-bug?" + query, ct);
+            Assert.Contains("prefilled details were too long", html, StringComparison.Ordinal);
+            Assert.Empty(ReportFormValue(html, "version"));
+            Assert.Empty(ReportFormValue(html, "environment"));
+        }
+        html = await website.Http.GetStringAsync("/help/report-bug?environment=%ED%A0%80%ZZ", ct);
+        Assert.InRange(ReportFormValue(html, "environment").Length, 1, 2000);
+        Assert.Empty(website.GitHub.Requests);
+    }
+
+    [Fact]
+    public async Task EditedEnvironmentRemainsOptionalAndUsesTheSamePostLengthLimit()
+    {
+        await using var website = new Website();
+        await website.Start();
+        website.SignIn();
+        Dictionary<string, string> fields = website.Fields();
+        fields["environment"] = new string('e', 2001);
+        using HttpResponseMessage tooLong = await website.Post("review", fields);
+        Assert.Equal(HttpStatusCode.BadRequest, tooLong.StatusCode);
+        Assert.Contains("2000 characters", await tooLong.Content.ReadAsStringAsync(TestContext.Current.CancellationToken), StringComparison.Ordinal);
+        fields.Remove("environment");
+        using HttpResponseMessage empty = await website.Post("review", fields);
+        Assert.Equal(HttpStatusCode.OK, empty.StatusCode);
+        Assert.Equal("", HiddenFields(await empty.Content.ReadAsStringAsync(TestContext.Current.CancellationToken))["environment"]);
+        Assert.Empty(website.GitHub.Requests);
+    }
+
+    private static string ReportFormValue(string html, string key)
+    {
+        Match field = Regex.Match(html, "<input[^>]*name=\"" + Regex.Escape(key) + "\"[^>]*value=\"([^\"]*)\"|<textarea[^>]*name=\"" + Regex.Escape(key) + "\"[^>]*>(.*?)</textarea>", RegexOptions.Singleline);
+        Assert.True(field.Success, "Missing editable report field: " + key);
+        return WebUtility.HtmlDecode(field.Groups[1].Success ? field.Groups[1].Value : field.Groups[2].Value);
+    }
+
     [Fact]
     public async Task ReviewEscapesTheReportAndConsentPublishesThatContentOnceWithAnOwnerOnlyReceipt()
     {
@@ -385,6 +519,7 @@ public sealed class BugReportTests
         Assert.Equal(shownTitle, payload.RootElement.GetProperty("title").GetString());
         string body = payload.RootElement.GetProperty("body").GetString()!;
         Assert.Contains(fields["steps"], body, StringComparison.Ordinal);
+        Assert.Contains(fields["environment"], body, StringComparison.Ordinal);
         Assert.Contains(fields["expected"], body, StringComparison.Ordinal);
         Assert.Contains(fields["actual"], body, StringComparison.Ordinal);
         Assert.DoesNotContain("11111111111111111", body, StringComparison.Ordinal);
@@ -476,6 +611,7 @@ public sealed class BugReportTests
         string draft = ReportDraft(html);
         Assert.Contains(fields["actual"], draft, StringComparison.Ordinal);
         Assert.Contains(fields["steps"], draft, StringComparison.Ordinal);
+        Assert.Contains(fields["environment"], draft, StringComparison.Ordinal);
         Assert.Contains(fields["title"], draft, StringComparison.Ordinal);
         Assert.Contains("&lt;script&gt;", html, StringComparison.Ordinal);
         Assert.DoesNotContain("<script>alert('draft')</script>", html, StringComparison.Ordinal);
@@ -525,6 +661,7 @@ public sealed class BugReportTests
             string draft = ReportDraft(html);
             Assert.Contains(fields["actual"], draft, StringComparison.Ordinal);
             Assert.Contains(fields["steps"], draft, StringComparison.Ordinal);
+            Assert.Contains(fields["environment"], draft, StringComparison.Ordinal);
             Assert.DoesNotContain("<script>alert('uncertain')</script>", html, StringComparison.Ordinal);
             Assert.DoesNotContain(Token, html, StringComparison.Ordinal);
             Assert.DoesNotContain(website.Session, html, StringComparison.Ordinal);

@@ -40,10 +40,14 @@ Choose **Help** for documentation, bug reports, suggestions, existing issues and
 The same window links to developer setup and pull requests. Help stays available while the launcher
 downloads or prepares files, and opening it preserves the current progress or error message.
 
-Reports open in your browser for review before you submit them. **Copy details** copies the launcher
-and installed game versions, build information and operating system. Logs, account details and local
-file paths are not included. If the browser cannot open, use **Copy link** or select the address and
-copy it yourself. You can also select the version details manually if the clipboard is unavailable.
+**Report a bug** opens the [website bug report form](https://master.lumbridge.co.uk/help/report-bug).
+Sign in with Discord, review the report and submit it there. The form is prefilled for the launcher
+with its version, the installed game version, build information and operating system. **Suggest a feature**
+and pull requests use GitHub and require GitHub sign-in.
+
+**Copy details** copies the same version information. The launcher does not attach logs, account details
+or local file paths. If the browser cannot open, use **Copy link** or select the address and copy it
+yourself. You can also select the version details manually if the clipboard is unavailable.
 
 ## Website Join links
 

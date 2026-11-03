@@ -153,14 +153,17 @@ the current screen and returns to the same screen when closed. A match keeps run
 lobby readiness, chat and settings stay in place. Escape or the controller's Back button closes help and
 restores focus to the control that opened it.
 
-**Report a bug** and **Suggest a feature** open the matching GitHub form. Review the version, platform and
-available match details shown in help, then describe the problem on GitHub. **Copy details** lets you copy
-that summary yourself. Automatic details exclude account information, server addresses, paths and logs.
-GitHub sign-in is required to submit. If a browser cannot open, the link stays selectable and can be copied.
+**Report a bug** opens the [website's bug report form](https://master.lumbridge.co.uk/help/report-bug), which uses
+Discord sign-in. The form starts with the game version, platform and available match details shown in help;
+review those details and describe the problem before submitting. **Suggest a feature** opens the GitHub form
+and requires GitHub sign-in. **Copy details** lets you copy the summary yourself. Automatic details exclude
+account information, server addresses, paths and logs. If a browser cannot open, the link stays selectable
+and can be copied.
 
-The contribution section links to the guides and pull requests. Code contributions need a branch or fork.
-Help is available without the master service. The `help-feedback` smoke covers navigation, controller focus,
-copy/browser failures and layouts at 800×600, 1280×720 and 3840×2160 using fake external actions.
+The contribution section links to the guides and pull requests. Code contributions need a branch or fork
+and GitHub sign-in. The help menu opens without the master service; submitting a bug report requires the
+website. The `help-feedback` smoke covers report prefills, navigation, controller focus, copy/browser failures
+and layouts at 800×600, 1280×720 and 3840×2160 using fake external actions.
 
 ## Player stats and match history
 

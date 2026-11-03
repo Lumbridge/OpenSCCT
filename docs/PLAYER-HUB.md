@@ -54,8 +54,11 @@ Sign in with the same Discord account you use in OpenSCCT, describe the problem,
 report before pressing **Send bug report**. You do not need a GitHub account. The website creates
 the public GitHub issue and gives you a link to follow it.
 
-Choose whether the problem concerns the game, launcher or website. Add your game or launcher
-version yourself; website reports include the website's version, build and commit. Only the
+Choose whether the problem concerns the game, launcher or website. Reports opened from the game
+or launcher can prefill the version, operating system and available match details. Check or edit
+these details, then describe how to reproduce the problem; reproduction steps are never
+filled in automatically. Reports opened directly on the website start blank. Website reports
+include the website's version, build and commit. Only the
 report text you review is published. Your player name, Discord ID, account details, network
 address and sign-in credentials are not added. Anything you type into the form will be public,
 so leave out passwords and personal information. The form accepts text and links, not file uploads.
