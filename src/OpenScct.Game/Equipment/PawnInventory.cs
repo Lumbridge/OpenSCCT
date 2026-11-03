@@ -2,6 +2,7 @@ using System;
 using OpenScct.Core;
 using OpenScct.Core.Engine;
 using OpenScct.Core.Uc;
+using OpenScct.Game.Combat;
 using OpenScct.Game.Devices;
 using OpenScct.Game.SBase;
 using OpenScct.Provenance;
@@ -23,6 +24,7 @@ public static class PawnInventory
     private static readonly Name NAME_s_FallDown = new("s_FallDown");
     private static readonly Name NAME_s_StickyShock = new("s_StickyShock");
     private static readonly Name NAME_s_InteractWithObject = new("s_InteractWithObject");
+    private static readonly Name CNAME_ServerSelectedGadget = new("ServerSelectedGadget");
 
     /// <summary>The class index used to resolve gadget and weapon classes.</summary>
     public static UcClassIndex IndexOf(Actor actor) => actor.XLevel?.GetService<UcClassIndex>() ?? DeviceClasses.Index;
@@ -202,6 +204,7 @@ public static class PawnInventory
     /// <summary>True in the states where gadget selection is refused (inventory rules 4 and 5).</summary>
     internal static bool SelectionRefused(SBasePawn Pawn, bool bMineWall)
     {
+        if (Pawn.bStickyShocking) return true;
         if (Pawn.Controller is not SPlayerController pc)
         {
             return false;
@@ -217,7 +220,9 @@ public static class PawnInventory
     /// </summary>
     [Uc("SBase.SBasePawn.NextGadget", Sha1 = "01b8fe64fa1ab372b2de209d712352c249375b83")]
     [PortOf("uc:SBase.SBasePawn:NextGadget", Spec = "spec/equipment/inventory-selection.md#rules")]
-    public static void NextGadget(SBasePawn Pawn)
+    public static void NextGadget(SBasePawn Pawn) => NextGadget(Pawn, true);
+
+    private static void NextGadget(SBasePawn Pawn, bool sendSelection)
     {
         if (Pawn.Health <= 0 || SelectionRefused(Pawn, true))
         {
@@ -227,12 +232,14 @@ public static class PawnInventory
         if (Pawn.SelectedGadget is not { } current)
         {
             Pawn.SelectedGadget = Pawn.MyGadget?.SelectNext();
+            if (sendSelection) SendSelection(Pawn);
             return;
         }
 
         current.Unload();
         SGadget? next = current.MyGadget?.SelectNext() ?? Pawn.MyGadget?.SelectNext();
         Pawn.SelectedGadget = next;
+        if (sendSelection) SendSelection(Pawn);
         if (Pawn.Controller is PlayerController { myHUD: { } hud })
         {
             hud.bGadgetJustSelected = true;
@@ -283,6 +290,7 @@ public static class PawnInventory
 
         Pawn.SelectedGadget?.Unload();
         Pawn.SelectedGadget = before;
+        SendSelection(Pawn);
         before.Load();
         if (Pawn.Controller is PlayerController { myHUD: { } hud })
         {
@@ -325,9 +333,10 @@ public static class PawnInventory
         Pawn.SelectedGadget = hasCarry ? slotGadget : Pawn.MyGadget?.SelectNext();
         for (int i = 0; !hasCarry && i < num; i++)
         {
-            NextGadget(Pawn);
+            NextGadget(Pawn, false);
         }
 
+        SendSelection(Pawn);
         Pawn.SelectedGadget?.Load();
         if (Pawn.Controller is PlayerController { myHUD: { } hud })
         {
@@ -337,6 +346,29 @@ public static class PawnInventory
             }
 
             hud.LastSwitchGadget = num;
+        }
+    }
+
+    private static void SendSelection(SBasePawn pawn)
+    {
+        if (pawn.Role < ENetRole.ROLE_Authority && pawn.Controller is PlayerController pc &&
+            !pawn.XLevel.World.IsReplaying && pawn.SelectedGadget is { } selected)
+        {
+            CombatServices.Net(pawn).ServerCall(pc, new CombatCall(CNAME_ServerSelectedGadget) { Target = pawn, Actor1 = selected });
+        }
+    }
+
+    /// <summary>B5 selection synchronization, accepting only a selectable item in the current living pawn's inventory.</summary>
+    public static void ReceiveSelection(SBasePawn pawn, SGadget? selected)
+    {
+        if (pawn.Role != ENetRole.ROLE_Authority || pawn is not { Health: > 0, bDeleteMe: false, Controller: { } pc } ||
+            !ReferenceEquals(pc.Pawn, pawn) || selected is null || selected.bDeleteMe ||
+            !ReferenceEquals(selected.OwnerPawn, pawn) || !IsSelectable(selected) || SelectionRefused(pawn, true)) return;
+        for (SGadget? g = pawn.MyGadget; g is not null; g = g.MyGadget)
+        {
+            if (!ReferenceEquals(g, selected)) continue;
+            pawn.SelectedGadget = selected;
+            return;
         }
     }
 

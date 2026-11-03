@@ -18,6 +18,7 @@ public partial class SGadTorcheLaser
     private static readonly Name CNAME_TorcheOFF = new("TorcheOFF");
     private static readonly Name CNAME_ThrowSpyBullet = new("ThrowSpyBullet");
     private static readonly ClassRef GameMessages = new("SBase.SGameMessages");
+    private bool _markedCurrentTarget;
 
     /// <summary>The toggle (rule 3): needs the laser option; the messages are skipped for a temporary switch.</summary>
     [Uc("SBase.SGadTorcheLaser.Use", Sha1 = "1881faeeef3f18347a799e1a4770be3a665a23e6")]
@@ -97,6 +98,7 @@ public partial class SGadTorcheLaser
         }
 
         bInUse = false;
+        ClearTarget();
     }
 
     [Uc("SBase.SGadTorcheLaser.Unload", Sha1 = "900dca9a9e2981509c039f58194b129c73d51c0f")]
@@ -112,33 +114,19 @@ public partial class SGadTorcheLaser
     }
 
     /// <summary>
-    /// Every tick off a dedicated server (rule 8): the beam (native), and on the merc's own machine the mark once the
-    /// beam stayed on the same enemy for TimeToMark whole seconds; the mark target is dropped while the laser is off.
+    /// The beam runs on the authority as well as the owner. Marks require the server's own uninterrupted dwell;
+    /// owner requests cannot supply a target or skip that dwell.
     /// </summary>
     [Uc("SBase.SGadTorcheLaser.Tick", Sha1 = "bae8c8a90518f6b13438d7d4ec37bac369eacf6f")]
     [PortOf("uc:SBase.SGadTorcheLaser:Tick", Spec = "spec/equipment/merc-laser.md#rules")]
     protected override void Tick(float DeltaTime)
     {
-        // A server bot owns its input locally and must run the same beam dwell/mark logic as a human client.
-        if (Level.NetMode == ENetMode.NM_DedicatedServer && OwnerPawn?.Controller is not PlayerController { Player: OpenScct.Game.AI.AiViewport })
-        {
-            return;
-        }
-
         NativeTickTorcheLaser(DeltaTime);
-        if (!bInUse || OwnerPawn is not SBasePawn pawn || !(pawn.WeaponLoaded == 2 || pawn.bUsingCamNetwork))
-        {
-            TimeTarget = 0;
-            TargetPawn = null;
-            return;
-        }
-
-        if (pawn.Controller is PlayerController { IsRemotePlayer: false } && TimeTarget != 0 &&
-            TargetPawn is { Health: > 0 } target && target.SPawnType != pawn.SPawnType &&
+        if (!_markedCurrentTarget && (Role == ENetRole.ROLE_Authority || OwnerPawn?.Controller is PlayerController { IsRemotePlayer: false }) &&
+            TargetPawn is SPawnAttaque { Health: > 0 } target &&
             Level.TimeSeconds - TimeTarget > TimeToMark)
         {
             ThrowSpyBullet(target);
-            TimeTarget = 0;
         }
     }
 
@@ -155,14 +143,15 @@ public partial class SGadTorcheLaser
     [PortOf("nat:SBase.SGadTorcheLaser.NativeReplaceLaserLocal", Spec = "spec/equipment/merc-laser.md#rules")]
     public void NativeTickTorcheLaser(float dt)
     {
-        if (!bInUse || OwnerPawn is not SBasePawn pawn)
+        if (!CanTrack(out SPAWNDEFENSE? pawn))
         {
+            ClearTarget();
             return;
         }
 
         FVector start;
         FVector end;
-        if (pawn.bUsingCamNetwork && pawn.UsedObject is SCamNetwork cam)
+        if (pawn!.bUsingCamNetwork && pawn.UsedObject is SCamNetwork cam && ReferenceEquals(cam.aUsedByPawn, pawn))
         {
             cam.Rotation.GetAxes(out FVector x, out FVector y, out FVector z);
             start = cam.Location + (x * K.CamLaserForward) - (y * K.CamLaserSide) + (z * K.CamLaserSide);
@@ -178,6 +167,7 @@ public partial class SGadTorcheLaser
         }
         else
         {
+            ClearTarget();
             return;
         }
 
@@ -190,13 +180,28 @@ public partial class SGadTorcheLaser
             {
                 TargetPawn = spotted;
                 TimeTarget = SvmMath.Trunc(Level.TimeSeconds);
+                _markedCurrentTarget = false;
             }
         }
         else
         {
-            TargetPawn = null;
-            TimeTarget = 0;
+            ClearTarget();
         }
+    }
+
+    private bool CanTrack(out SPAWNDEFENSE? pawn)
+    {
+        pawn = OwnerPawn as SPAWNDEFENSE;
+        if (!bInUse || bDeleteMe || pawn is not { Health: > 0, bDeleteMe: false, Controller: PlayerController pc } ||
+            !ReferenceEquals(pc.Pawn, pawn) || PawnInventory.SelectionRefused(pawn, false)) return false;
+        return (pc.GameReplicationInfo ?? Level.Game?.GameReplicationInfo) is not { bAvlb_MERC_Laser: false };
+    }
+
+    private void ClearTarget()
+    {
+        TargetPawn = null;
+        TimeTarget = 0;
+        _markedCurrentTarget = false;
     }
 
     /// <summary>Where the beam started on its last placement (the view draws it from here to <see cref="HitLocation"/>).</summary>
@@ -210,14 +215,23 @@ public partial class SGadTorcheLaser
         if (Role < ENetRole.ROLE_Authority && OwnerPawn?.Controller is PlayerController pc)
         {
             CombatServices.Net(this).ServerCall(pc, new CombatCall(CNAME_ThrowSpyBullet) { Target = this, Actor1 = TargetPawnSpy });
+            _markedCurrentTarget = true;
+            TimeTarget = 0;
             return;
         }
 
-        if (TargetPawnSpy is not { Health: > 0 } target)
+        // Re-trace at receipt: the most recent simulation tick may precede a moved target or closed door.
+        // Acquiring a different target here starts a new dwell and cannot authorize the supplied pawn.
+        NativeTickTorcheLaser(0f);
+        if (Role != ENetRole.ROLE_Authority || _markedCurrentTarget ||
+            TargetPawnSpy is not SPawnAttaque { Health: > 0, bDeleteMe: false } target ||
+            !ReferenceEquals(target, TargetPawn) || Level.TimeSeconds - TimeTarget <= TimeToMark)
         {
             return;
         }
 
+        _markedCurrentTarget = true;
+        TimeTarget = 0;
         target.HitBySpyBullet(1);
         if (target is SPawnAttaque && OwnerPawn?.Controller?.PlayerReplicationInfo?.Stats is { } stats)
         {

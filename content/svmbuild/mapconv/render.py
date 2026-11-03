@@ -449,8 +449,9 @@ class RenderBuilder:
                     entry["props"] = self._typed(info)
                 zones.append(entry)
         self.stats["lights"] = len(lights)
+        from .fog import source_portals, source_volumes
         return {"lights": lights, "zones": zones, "sky": scene.get("sky"), "look": scene.get("look"),
-                "lightmaps": lightmaps}
+                "lightmaps": lightmaps, "fogPortals": source_portals(self.src), "fogVolumes": source_volumes(self.src)}
 
     def build_light_sprites(self, tex_dir: Path) -> Dict[str, dict]:
         """Visible DT_Sprite lights have their own world sprite, distinct from bCorona. Export its resolved

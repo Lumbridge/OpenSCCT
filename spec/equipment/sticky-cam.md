@@ -187,8 +187,9 @@ per pack; a cam that is destroyed or picked up comes back as a charge.
     Client: `ServerStickyCamGas(cam iPitch, iYaw)`, which writes the angles to the cam (and its rotation) on the
     server first, then `SpawnGaz`.
 21. **SpawnGaz** (server): with doses left and `now >= NextUseTime`: `NextUseTime = int(now + 5)`, one dose less,
-    spawn an `SStickyCamEmitter` at the cam (no collision check), play the gas sound (radius 100), count
-    `Spy_StickyCamUsed`.
+    spawn an `SStickyCamEmitter` at the cam (no collision check), play the gas sound (radius 100).
+    Enhanced Beta 5 counts `Spy_StickyCamUsed` on each successful authoritative camera deployment instead of each
+    gas dose. Failed placements and client prediction do not count; gas use does not count a second deployment.
 22. **Gas point** (native 0x10aa3130, the class's C++ `PostBeginPlay`: its only reference is slot 0xf8 of the
     ASStickyCamEmitter vtable 0x10bfb968, between the two `SetVolumes` and `setPhysics`, where AActor and AEmitter
     hold the empty 0x10968f20): once at spawn on every machine, `RefLocation = Location + 192 x forward axis of the
@@ -212,7 +213,7 @@ per pack; a cam that is destroyed or picked up comes back as a charge.
 25. **UsePreviousStickyCam(cam)**: a given cam becomes the used one; with a used cam and alive: change state to
     `s_UseObject_StickyCam`, without saving the previous state when coming from the menu or the smooth entry.
 26. **s_StickyCam_MenuInteraction** (extends walking; ignores Fire, AltFire, GadgetQuickChoice, the torch and laser
-    keys, PrevStickyCam), entered by `GotoStickyInteractionMenu`: `BeginState` resets the button edges and allows
+    keys, PrevStickyCam), entered by `GotoStickyInteractionMenu`: `BeginState` preserves held button edges (B5) and allows
     being grabbed; on the input machine `iCanUse[1]` is whether a cam is in use and `iCanUse[0]` the result of
     `UseStickyCam(true)`. `WheelUp`/`WheelDown` (and the up/down keys on their press edge in `PlayerMove`) move
     `iCurrentSelectedMenu` over 0..2 with wrap, skipping 1 without a used cam. `PlayerTick`: back to waiting when the

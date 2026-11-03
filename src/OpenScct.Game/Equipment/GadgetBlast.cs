@@ -62,7 +62,10 @@ public static class GadgetBlast
     public static void Run(in Blast b)
     {
         CombatDeathSource activity = b.Source is SMines mine ? mine.ActivityDeathSource :
-            b.Source is SProjFrag ? new(CombatDeathCause.FragGrenade) : default;
+            b.Source is SProjFrag frag ? new(CombatDeathCause.FragGrenade, Instigator: frag.ThrowerStatsOwner) : default;
+        // The blast belongs to its owner; the shooter/chain initiator stays in Detonator for spy-mine feats.
+        activity = activity with { Instigator = (b.Source as SMines)?.PcOwner?.PlayerReplicationInfo ??
+            b.Instigator?.PlayerReplicationInfo ?? activity.Instigator };
         using var activityScope = CombatDeathContext.Push(activity);
         bool? outer = CurrentIsMine;
         Pawn? outerDetonator = CurrentDetonator;

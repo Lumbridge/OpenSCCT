@@ -94,7 +94,9 @@ public partial class SSpyBulletLauncher
         }
 
         _hits.Clear();
-        world.MultiLineCheck(_hits, shooter, GrRotation, GrOrigin, FVector.Zero, SGadStickyCam.StickTraceFlags);
+        // Cameras exclude pawn bodies from wall placement; a spy bullet must still hit those bodies directly.
+        world.MultiLineCheck(_hits, shooter, GrRotation, GrOrigin, FVector.Zero,
+            SGadStickyCam.StickTraceFlags | ETraceFlags.TRACE_Pawns);
         foreach (FCheckResult hit in _hits)
         {
             if (!hit.bHit)
@@ -136,7 +138,11 @@ public partial class SSpyBulletLauncher
         if (Target is SPAWNDEFENSE)
         {
             (Level.Game as SGameInfo)?.BroadcastTeamLocalizedMessage(0, SBasePawn.GameMessagesClass, K.SpyBulletMsgEnemyLocked);
-            Shooter.Controller?.PlayerReplicationInfo?.Stats?.AddFeat(FeatKeys.SpyBulletHits); // OpenSCCT's own, for achievements
+            if (Shooter.Controller?.PlayerReplicationInfo?.Stats is { } stats)
+            {
+                stats.Spy_SpyBulletTargets++;
+                stats.AddFeat(FeatKeys.SpyBulletHits);
+            }
         }
 
         Shooter.PlaySound(FireSound, ESoundSlot.SLOT_Misc, 1f, false, K.SpyBulletSoundRadius);

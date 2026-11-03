@@ -231,7 +231,8 @@ public sealed class LobbyTests
             Assert.False(guest.Lobby.IsHost);
 
             guest.SetReady(true);
-            Assert.True(rig.RunUntil(() => host.Lobby.Players.Any(p => p.Name == "Guest" && p.Ready), 5));
+            rig.RunUntil(() => false, 1);
+            Assert.False(host.Lobby.Players.Single(p => p.Name == "Guest").Ready);
             host.Launch();
             Assert.True(rig.RunUntil(() => host.Lobby.Messages.Any(m => m.Text.Contains("different version of TestBox", StringComparison.Ordinal)), 5),
                 string.Join(" | ", host.Lobby.Messages.Select(m => m.Text)));

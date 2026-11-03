@@ -28,7 +28,7 @@ def _own_code() -> list[Path]:
 
 class MapsStep(Step):
     name = "maps"
-    version = 7  # Visible light sprites export their textures and resolved material/size metadata.
+    version = 8  # MaterialSequence timing/modifiers and Enhanced zone-fog portal geometry.
     deps = ("classes",)
     # The map folder holds audio/, which a rebuild or restore of this step removes: audio-map puts it back.
     followers = ("audio-map",)

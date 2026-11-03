@@ -21,6 +21,11 @@ public sealed record DisplayPostSettings
 
     public float FogEnd { get; init; }
 
+    public PortalFogFrame? PortalFog { get; init; }
+
+    /// <summary>The camera's materials already evaluated fog at their own surface depth.</summary>
+    public bool SurfaceFogApplied { get; init; }
+
     /// <summary>The glow composite's dark gate (applies whenever PlayerController.DoGlow is on, even at threshold 255).</summary>
     public bool GlowGate { get; init; } = true;
 
@@ -80,9 +85,10 @@ public sealed record DisplayPostSettings
 /// <summary>
 /// The Faithful pipeline's post pass (docs/RENDERING.md#display-space, #vision-modes). Materials write the original's
 /// display values into the colour buffer (in thermal its heat buffer); after the transparent pass this compute pass
-/// applies zone fog and the glow gate to the normal scene, builds the vision blur pyramid when thermal or motion need
+/// applies fallback fog for unregistered views and the glow gate, builds the vision blur pyramid when thermal or motion need
 /// it, runs the vision pass of RendMap in display space, then decodes sRGB exactly, so Godot's Linear tonemapper at
 /// exposure 1 (whose output encode is the exact sRGB curve) puts the display value back on screen.
+/// Registered views apply fog in their materials before transparency blending and skip its post-pass upload/work.
 /// </summary>
 [PortOf("eng:Render.DisplaySpace", Spec = "docs/RENDERING.md#display-space")]
 public partial class DisplaySpaceEffect : CompositorEffect
@@ -107,6 +113,9 @@ public partial class DisplaySpaceEffect : CompositorEffect
     private Rid _noise;
     private Rid _lut;
     private Rid _sonar;
+    private Rid _portalFog;
+    private int _portalFogBytes;
+    private PortalFogFrame? _uploadedPortalFog;
     private readonly Rid[] _params = new Rid[2];
     // The blur pyramid: the vision levels (RenderK.BlurTargets) then the glow's two further runs (GlowExtraTargets),
     // at the frame's detail scale (RenderK.PostDetailScale): remade when the frame width crosses its thresholds.
@@ -181,7 +190,7 @@ public partial class DisplaySpaceEffect : CompositorEffect
         }
 
         _released = true;
-        Rid[] rids = [.. _levelSets, _pipeline, _shader, _blurPipeline, _blurShader, _glowPipeline, _glowShader, _nearest, _linearRepeat, _linearClamp, _noise, _lut, _sonar, .. _params, .. _levels, _bright];
+        Rid[] rids = [.. _levelSets, _pipeline, _shader, _blurPipeline, _blurShader, _glowPipeline, _glowShader, _nearest, _linearRepeat, _linearClamp, _noise, _lut, _sonar, _portalFog, .. _params, .. _levels, _bright];
         RenderingServer.CallOnRenderThread(Callable.From(() =>
         {
             // On the render thread, between frames: the pass stops drawing before its resources go.
@@ -235,6 +244,8 @@ public partial class DisplaySpaceEffect : CompositorEffect
         _noise = Upload(GaussNoise(), NoiseSize, NoiseSize);
         _lut = Upload([255, 255, 255, 255], 1, 1);
         _sonar = Upload([255, 255, 255, 255], 1, 1);
+        _portalFog = _rd.StorageBufferCreate(16);
+        _portalFogBytes = 16;
         // One parameter block per stage, so the second dispatch of a frame never sees the first one's block rewritten.
         _params[0] = _rd.UniformBufferCreate(ParamVectors * 16);
         _params[1] = _rd.UniformBufferCreate(ParamVectors * 16);
@@ -427,6 +438,18 @@ public partial class DisplaySpaceEffect : CompositorEffect
         }
 
         DisplayPostSettings s = _settings;
+        if (!s.SurfaceFogApplied && s.PortalFog is { } portal && !ReferenceEquals(portal, _uploadedPortalFog))
+        {
+            byte[] data = MemoryMarshal.AsBytes(portal.Data.AsSpan()).ToArray();
+            if (data.Length > _portalFogBytes)
+            {
+                _rd.FreeRid(_portalFog);
+                _portalFogBytes = data.Length;
+                _portalFog = _rd.StorageBufferCreate((uint)_portalFogBytes);
+            }
+            _rd.BufferUpdate(_portalFog, 0, (uint)data.Length, data);
+            _uploadedPortalFog = portal;
+        }
         if (s.Pack is not null && !ReferenceEquals(s.Pack, _uploaded))
         {
             UploadPack(s.Pack);
@@ -439,7 +462,7 @@ public partial class DisplaySpaceEffect : CompositorEffect
         int mode = s.RendMap;
         _lastDrawnRendMap = mode;
         _lastDrawnCleanRects = mode == RenderK.RendMapMotion ? Math.Min(s.CleanRects.Length, DisplayPostSettings.MaxCleanRects) : 0;
-        bool fog = TakesFog(mode) && s.Fog;
+        bool fog = !s.SurfaceFogApplied && TakesFog(mode) && (s.Fog || s.PortalFog is not null);
         // The glow composite (the gate, and the glow when the threshold lets anything through) runs on the normal frame
         // only (night vision draws its own glow term, not ported); vision passes skip it.
         bool gate = s.GlowGate && RunsGlowComposite(mode);
@@ -448,7 +471,7 @@ public partial class DisplaySpaceEffect : CompositorEffect
         float slope = 1f + (3f * s.MtvSlope / 255f);
         Span<float> values =
         [
-            s.FogColor.R, s.FogColor.G, s.FogColor.B, fog ? 1f : 0f,
+            s.FogColor.R, s.FogColor.G, s.FogColor.B, fog ? s.PortalFog is null ? 1f : 2f : 0f,
             UeSpace.LengthToGodot(s.FogStart), UeSpace.LengthToGodot(s.FogEnd), UeSpace.LengthToGodot(s.Near), UeSpace.LengthToGodot(s.Far),
             gate ? 1f : 0f, RenderK.GlowGateGain, RenderK.GlowGateOffset, glow ? 1f : 0f,
             RenderK.GlowGateLuma.X, RenderK.GlowGateLuma.Y, RenderK.GlowGateLuma.Z, 0f,
@@ -482,13 +505,14 @@ public partial class DisplaySpaceEffect : CompositorEffect
         uint views = buffers.GetViewCount();
         for (uint view = 0; view < views; view++)
         {
-            Rid color = _storage.Begin(_rd, buffers.GetColorLayer(view), size);
+            // The legacy one-argument binding can return the MSAA image. These passes require the resolved layer.
+            Rid color = _storage.Begin(_rd, buffers.GetColorLayer(view, false), size);
             if (!color.IsValid)
             {
                 continue;
             }
 
-            Rid depth = buffers.GetDepthLayer(view);
+            Rid depth = buffers.GetDepthLayer(view, false);
             if (glow)
             {
                 // The bright pass reads the fogged scene, so fog runs first; the gate and glow follow the pyramid.
@@ -558,7 +582,8 @@ public partial class DisplaySpaceEffect : CompositorEffect
             RenderingDevice.UniformType.SamplerWithTexture, RenderingDevice.UniformType.SamplerWithTexture,
             RenderingDevice.UniformType.UniformBuffer, RenderingDevice.UniformType.SamplerWithTexture,
             RenderingDevice.UniformType.SamplerWithTexture, RenderingDevice.UniformType.SamplerWithTexture,
-            RenderingDevice.UniformType.SamplerWithTexture, RenderingDevice.UniformType.SamplerWithTexture);
+            RenderingDevice.UniformType.SamplerWithTexture, RenderingDevice.UniformType.SamplerWithTexture,
+            RenderingDevice.UniformType.StorageBuffer);
         slots.Set(0, color);
         slots.Set(1, _nearest, depth);
         slots.Set(2, _linearRepeat, _noise);
@@ -568,6 +593,7 @@ public partial class DisplaySpaceEffect : CompositorEffect
         slots.Set(6, _linearClamp, _levels[1]);
         slots.Set(7, _linearClamp, _levels[3]);
         slots.Set(8, _linearClamp, _bright);
+        slots.Set(9, _portalFog);
         Rid set = UniformSetCacheRD.GetCache(_shader, 0, slots.Array);
         long list = _rd.ComputeListBegin();
         _rd.ComputeListBindComputePipeline(list, _pipeline);

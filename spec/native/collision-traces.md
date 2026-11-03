@@ -137,6 +137,12 @@ None: the same on every machine.
 
 ## Evidence
 
+- 2026-11-03 full `golden_spy_fallledge_a` replay: the actor sweep must use the BSP-shortened segment
+  **before** applying the static-mesh pullback. A mesh in front of BSP otherwise gets a larger margin and lands
+  the pawn about 0.69 uu too high from frame 177. Editor-only sandbox line-check probes confirmed the segment
+  length dependence; all 30 full movement recordings now pass. Synthetic physics coverage checks single/multi
+  traces at three original lengths. Private probe evidence is in `local/b5-fixes/fall-probe/`.
+
 - Editor: SingleLineCheck 0x110be450, MultiLineCheck 0x110bc2b0, SinglePointCheck 0x110be1d0, MultiPointCheck
   0x110bbff0, FCollisionHash::ActorLineCheck 0x1115f5a0, ActorPointCheck 0x1115e950, AActor::ShouldTrace
   0x110ac870 (vtable 0xb4), APawn::ShouldTrace 0x110dc370.

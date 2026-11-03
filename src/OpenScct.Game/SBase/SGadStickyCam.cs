@@ -271,6 +271,11 @@ public partial class SGadStickyCam
             cam.Smoke_NbDoses = NbGasCharge;
         }
 
+        if (Role == ENetRole.ROLE_Authority && P.Controller?.PlayerReplicationInfo?.Stats is { } stats)
+        {
+            stats.Spy_StickyCamUsed++;
+        }
+
         return cam;
     }
 }

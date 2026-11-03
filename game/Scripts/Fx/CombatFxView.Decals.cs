@@ -1,3 +1,4 @@
+using OpenScctGame.Render.Materials;
 using System;
 using System.Collections.Generic;
 using Godot;
@@ -16,7 +17,7 @@ public partial class CombatFxView
 {
     private readonly Dictionary<int, MeshInstance3D> _projections = new();
     private readonly List<int> _projectionsGone = new();
-    private readonly Dictionary<string, StandardMaterial3D?> _projectionMaterials = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, EffectMaterial?> _projectionMaterials = new(StringComparer.Ordinal);
     private readonly Dictionary<string, ShaderMaterial> _tintedProjectionMaterials = new(StringComparer.Ordinal);
     private Shader? _tintedProjectionShader;
     private AbandonedProjectors? _projectionList;
@@ -214,6 +215,7 @@ public partial class CombatFxView
     [Provenance(ProvenanceKind.Decoded, "SFootPrint.PostBeginPlay: Combiner CO_Use_Color_From_Material2, AO_Multiply; TexScaler VScale -1, VOffset 32; FrameBufferBlendingOp PB_AlphaBlend")]
     private ShaderMaterial TintedProjectionMaterial(string path, Texture2D texture)
     {
+        Render.Post.SurfaceFogRegistry.EnsureGlobals();
         if (!_tintedProjectionMaterials.TryGetValue(path, out ShaderMaterial? material))
         {
             _tintedProjectionShader ??= new Shader { Code = TintedProjectionShaderCode };
@@ -230,6 +232,8 @@ public partial class CombatFxView
 shader_type spatial;
 render_mode unshaded, blend_mix, cull_disabled, depth_draw_never;
 
+#include ""res://Shaders/svm_fog.gdshaderinc""
+
 uniform sampler2D svm_tex : filter_linear_mipmap, repeat_disable;
 instance uniform vec4 svm_tint = vec4(1.0);
 instance uniform float svm_flip_v = 0.0;
@@ -240,22 +244,23 @@ void fragment() {
         uv.y = 1.0 - uv.y;
     }
 
-    ALBEDO = pow(svm_tint.rgb, vec3(2.2));
+    vec4 fog = surface_fog(CAMERA_VISIBLE_LAYERS, VERTEX, FRAGCOORD.xy, VIEWPORT_SIZE);
+    ALBEDO = pow(svm_tint.rgb, vec3(2.2)) * fog.a + fog.rgb;
     ALPHA = texture(svm_tex, uv).a * svm_tint.a;
 }
 ";
 
-    private StandardMaterial3D? ProjectionMaterial(string? texture)
+    private EffectMaterial? ProjectionMaterial(string? texture)
     {
         if (texture is null || _library is not { Available: true } lib)
         {
             return null;
         }
 
-        if (!_projectionMaterials.TryGetValue(texture, out StandardMaterial3D? material))
+        if (!_projectionMaterials.TryGetValue(texture, out EffectMaterial? material))
         {
             material = lib.Texture(lib.TexturePng(texture)) is { } t
-                ? new StandardMaterial3D
+                ? new EffectMaterial
                 {
                     ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded,
                     Transparency = BaseMaterial3D.TransparencyEnum.Alpha,

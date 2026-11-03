@@ -61,6 +61,7 @@ public sealed partial class CollisionWorld
 
         /// <summary>An overlap test of the shape the sweeps move (world cylinder on static meshes), not PointCheck's.</summary>
         public bool MoveShape;
+        public bool WorldOnly;
         public ETraceFlags Flags;
         public Actor? Source;
         public Actor? Ignore;
@@ -345,6 +346,59 @@ public sealed partial class CollisionWorld
 
     private void RunSweep(ref Query q, bool bruteForce)
     {
+        // ULevel::MultiLineCheck tests BSP first, shortens End to its reported hit, then asks the actor hash
+        // about that shorter segment. Primitive pull-backs therefore use the clipped length, not the original
+        // request length (significant for a mesh just above BSP when the pawn is already close to the floor).
+        if ((q.Flags & ETraceFlags.TRACE_Level) == 0 ||
+            (q.OnlyCollider >= 0 && _colliders[q.OnlyCollider].Kind != ColliderKind.WorldBsp))
+        {
+            RunSweepPass(ref q, bruteForce);
+            return;
+        }
+
+        Query world = NewQuery(q.S, q.D, q.E, q.Flags, q.Source, q.Ignore, q.OnlyCollider);
+        world.WorldOnly = true;
+        world.StopAtFirst = false;
+        RunSweepPass(ref world, bruteForce);
+        if (world.HasHit && q.StopAtFirst)
+        {
+            q = world;
+            return;
+        }
+
+        float scale = world.HasHit ? world.BestPulled : 1f;
+        bool collect = q.Collect;
+        Query actors = NewQuery(q.S, q.D * scale, q.E, q.Flags & ~ETraceFlags.TRACE_Level, q.Source, q.Ignore, q.OnlyCollider);
+        actors.Collect = collect;
+        if (scale > 0f) RunSweepPass(ref actors, bruteForce);
+        if (collect)
+        {
+            for (int i = 0; i < _multi.Count; i++)
+            {
+                MultiEntry entry = _multi[i];
+                entry.RawTime *= scale;
+                entry.Pulled *= scale;
+                _multi[i] = entry;
+            }
+            if (world.HasHit)
+            {
+                _multi.Add(new MultiEntry
+                {
+                    RawTime = world.BestT, Pulled = world.BestPulled, Key = world.BestKey,
+                    Result = MakeResult(ref world, world.BestPulled, world.S + world.D * world.BestPulled),
+                });
+            }
+        }
+        if (actors.HasHit)
+        {
+            actors.BestT *= scale;
+            actors.BestPulled *= scale;
+        }
+        q = actors.HasHit && (!world.HasHit || actors.BestPulled < world.BestPulled) ? actors : world;
+    }
+
+    private void RunSweepPass(ref Query q, bool bruteForce)
+    {
         _stamp++;
         if ((q.Flags & GeometryBits) != 0)
         {
@@ -388,7 +442,7 @@ public sealed partial class CollisionWorld
             }
         }
 
-        if ((q.Flags & ActorBits) != 0 && q.OnlyCollider < 0)
+        if (!q.WorldOnly && (q.Flags & ActorBits) != 0 && q.OnlyCollider < 0)
         {
             SweepActors(ref q);
         }
@@ -732,6 +786,7 @@ public sealed partial class CollisionWorld
     [Provenance(ProvenanceKind.Estimated, "Movers and volumes answer to TRACE_Movers / TRACE_Volumes as in UE2 (their ShouldTrace overrides are not decoded)")]
     private bool EvaluateCollider(ColliderState c, ref Query q)
     {
+        if (q.WorldOnly && c.Kind != ColliderKind.WorldBsp) return false;
         if (!c.Enabled || (q.OnlyCollider >= 0 && c.Index != q.OnlyCollider))
         {
             return false;

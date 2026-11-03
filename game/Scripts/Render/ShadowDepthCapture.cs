@@ -139,9 +139,9 @@ internal sealed partial class ShadowDepthCapture : CompositorEffect
         // The uniform list and the constant bytes are kept from frame to frame (no wrappers made per frame).
         Post.UniformSlots slots = _slots ??= new Post.UniformSlots(RenderingDevice.UniformType.SamplerWithTexture,
             RenderingDevice.UniformType.Image, RenderingDevice.UniformType.SamplerWithTexture);
-        slots.Set(0, _sampler, buffers.GetDepthLayer(0));
+        slots.Set(0, _sampler, buffers.GetDepthLayer(0, false));
         slots.Set(1, atlas);
-        slots.Set(2, _sampler, staticAtlas.IsValid ? staticAtlas : buffers.GetDepthLayer(0));
+        slots.Set(2, _sampler, staticAtlas.IsValid ? staticAtlas : buffers.GetDepthLayer(0, false));
         Rid set = UniformSetCacheRD.GetCache(_shader, 0, slots.Array);
         Span<float> push = [_near, _far, size.X, size.Y, _origin.X, _origin.Y, _parallel ? 1f : 0f, staticAtlas.IsValid ? 1f : 0f];
         MemoryMarshal.AsBytes(push).CopyTo(_push);

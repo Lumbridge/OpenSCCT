@@ -1,5 +1,6 @@
 using OpenScct.Core;
 using OpenScct.Core.Engine;
+using OpenScct.Core.Uc;
 using OpenScct.Game.Equipment;
 using OpenScct.Game.SBase;
 using OpenScct.Game.Tests.Combat;
@@ -184,6 +185,20 @@ public sealed class CamNetworkAndGasMaskTests
         mask.Use(1f);
         mask.Unload();
         Assert.False(merc.bGasMask);
+    }
+
+    [Fact]
+    public void ServerMaskStopClearsTheLingeringControllerChokeLoop()
+    {
+        (_, SPlayerController pc, SBasePawn merc, SGadGasMask mask) = Masked();
+        merc.AmbientSound = mask.Snd_Respiration;
+        pc.AmbientSound = mask.Snd_Etouffement;
+        mask.SetAmbientSoundOnServer(merc, 0);
+        Assert.True(merc.AmbientSound.IsNone);
+        Assert.True(pc.AmbientSound.IsNone);
+        pc.AmbientSound = new AssetRef("Test.UnrelatedLoop");
+        mask.SetAmbientSoundOnServer(merc, 0);
+        Assert.Equal(new AssetRef("Test.UnrelatedLoop"), pc.AmbientSound);
     }
 
     [Fact]

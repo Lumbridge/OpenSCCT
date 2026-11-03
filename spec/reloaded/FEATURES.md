@@ -1,5 +1,8 @@
 # Reloaded patch: feature inventory for the rewrite
 
+Current build comparison: [2026-11-03 Enhanced Beta 5 parity sweep](../enhanced/2026-11-03-beta5-parity-sweep.md).
+The v4.0d references below describe the earlier Beta 3 baseline; the new report records B5 evidence and limits.
+
 Status: research spec, M0. Scope: every player-facing feature of the SCCT Versus Reloaded patch
 (community patch by AllyPal, injected as `Reloaded.Core.dll`) that the rewrite should provide natively.
 Companion: `spec/enhanced/FEATURES.md` covers the Enhanced SCCT Versus content and script changes.

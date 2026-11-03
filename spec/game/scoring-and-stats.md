@@ -129,7 +129,26 @@ Server only. The results replicate through PRI.Score, Kills, Deaths, iNbObjectiv
 LevelInfo.NbPointsAttack, NbPointsDefense. Death messages go out as `ReceiveLocalizedMessage` (reliable,
 server to each client). SPlayerStats never leaves the server in script (Reloaded's match log may read it).
 
+### Enhanced Beta 5 counters and rewrite cause tracking
+
+The rewrite counts successful sticky-camera deployments instead of gas doses. Decoy activation raises an alarm
+without adding a real spy detection. A direct spy-bullet hit on a living merc increments `Spy_SpyBulletTargets`;
+actual ammo-stock use increments `Merc_AmmoStocksUsed`. These fields and the shocked-merc collision death counter
+are exported through `CareerStatCounters` beside existing career totals.
+
+Enemy kill causes are mutually exclusive with environmental credit. Poison deaths, including their delayed
+generic damage tick, count as mine kills/deaths. A bullet that kills an already-poisoned player still counts as a
+gun kill. `SDTStickyBlast` records the spy's death from a shocked mercenary collision. Grenades and mines retain
+their owner's identity independently of the pawn, so a still-connected owner's removed pawn does not discard
+posthumous kill credit or the weapon category. The player who detonates a mine remains separate from its owner
+for the existing spy-mine feat.
+
 ## Edge cases
+
+- The latest granted primary weapon and gadget class paths are recorded on the authority when the kit is
+  actually given. Rejected/duplicate client requests do not enter this metadata. A new kit grant resets the
+  previous kit, and completed results take an independent bounded copy for logs and match history. This is
+  metadata, not an additive career counter; old matches have no inferred loadout.
 - Spies earn no points for objectives in this table (index 15 is 0); their team counter grows from kills,
   knockouts and drop attacks.
 - A merc's knockout or drop attack adds to NbPointsAttack (team 0), not NbPointsDefense.

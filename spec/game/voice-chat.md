@@ -138,8 +138,11 @@ The rewrite's transport (docs/VOICE.md) sends every frame to the server, which f
   talker's last frame).
 - R4. A talker may send at most 60 frames a second (burst 15); the server writes the talker's id itself, so a client
   cannot speak for someone else, and audio from an endpoint that is no player is dropped.
-- R5. The server accepts a voice trace target only on the other side and within 6000 uu plus 1000 of slack (the
-  trace's longest reach and a second of movement; estimated), so a modified client cannot pick any enemy to hear.
+- R5. The server accepts a voice trace target only while the listener is alive and in the appropriate scope or
+  binocular state, enemy comms are allowed, and the first hit on the authoritative view trace is that living enemy.
+  The reach remains 6000 uu plus 1000 of movement slack (estimated); zoom levels are local presentation state.
+  Each relay read revalidates the target, so a missed client clear cannot retain access after scope exit, movement,
+  an obstructed view, death or a voice-mode change. The client's once-per-second trace renews an unchanged target.
 
 ## States
 

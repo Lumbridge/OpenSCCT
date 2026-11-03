@@ -10,7 +10,8 @@ namespace OpenScct.Game.Tests.Movement;
 /// <summary>
 /// Replays the recorded movement scenarios (tests/scenarios/movement) on the converted SteeE in a rig and compares
 /// every frame: controller state, physics mode, stance, base-channel clip, location and velocity. Needs the local
-/// golden runs and the converted map; without them the cases pass without checking anything.
+/// golden runs and the converted map. Missing local fixtures are reported as skips, or failures when
+/// OPENSCCT_REQUIRE_GOLDENS=1 (tools/ci/parity-gate.ps1). Every recorded frame and repeat is checked.
 /// </summary>
 public sealed class GoldenReplayTests
 {
@@ -20,36 +21,45 @@ public sealed class GoldenReplayTests
     /// <summary>The first frame of a teleport start: the walking floor snap settles in a few frames (see the report).</summary>
     private const int SettleFrames = 10;
 
-    [Theory]
-    [InlineData("movement.spy-run-forward", PawnTeam.Spy, int.MaxValue)]
-    [InlineData("movement.spy-run-stop", PawnTeam.Spy, int.MaxValue)]
-    [InlineData("movement.spy-sneak-walk", PawnTeam.Spy, int.MaxValue)]
-    [InlineData("movement.spy-crouch-walk", PawnTeam.Spy, int.MaxValue)]
-    [InlineData("movement.spy-jump-in-place", PawnTeam.Spy, int.MaxValue)]
-    [InlineData("movement.spy-jump-forward", PawnTeam.Spy, int.MaxValue)]
-    [InlineData("movement.merc-walk", PawnTeam.Merc, int.MaxValue)]
-    [InlineData("movement.merc-crouch-walk", PawnTeam.Merc, int.MaxValue)]
-    [InlineData("movement.merc-jump", PawnTeam.Merc, int.MaxValue)]
-    // The converted map has a collider under the landing spot the original falls through (frame 177).
-    [InlineData("movement.spy-fall-ledge", PawnTeam.Spy, 176)]
-    public void ReplayMatchesTheRecording(string scenario, PawnTeam team, int lastFrame)
+    public static TheoryData<string, PawnTeam, int> Recordings()
     {
-        List<GoldenRuns.GoldenFrame>? frames = GoldenRuns.Load(scenario);
+        var data = new TheoryData<string, PawnTeam, int>();
+        foreach ((string scenario, PawnTeam team) in new[]
+        {
+            ("movement.spy-run-forward", PawnTeam.Spy), ("movement.spy-run-stop", PawnTeam.Spy),
+            ("movement.spy-sneak-walk", PawnTeam.Spy), ("movement.spy-crouch-walk", PawnTeam.Spy),
+            ("movement.spy-jump-in-place", PawnTeam.Spy), ("movement.spy-jump-forward", PawnTeam.Spy),
+            ("movement.merc-walk", PawnTeam.Merc), ("movement.merc-crouch-walk", PawnTeam.Merc),
+            ("movement.merc-jump", PawnTeam.Merc), ("movement.spy-fall-ledge", PawnTeam.Spy),
+        })
+            for (int run = 1; run <= 3; run++) data.Add(scenario, team, run);
+        return data;
+    }
+
+    [Theory]
+    [MemberData(nameof(Recordings))]
+    public void ReplayMatchesTheRecording(string scenario, PawnTeam team, int run)
+    {
+        List<GoldenRuns.GoldenFrame>? frames = GoldenRuns.Load(scenario, run);
         if (frames is null)
         {
+            MissingFixture($"Missing {GoldenRuns.GoldenDir}/{scenario}/run{run}.jsonl.gz");
             return;
         }
 
         List<PawnSample>? samples = GoldenRuns.Replay("SteeE", team, frames);
         if (samples is null)
         {
+            MissingFixture($"Missing converted map {GoldenRuns.SvMapDir("SteeE")}");
             return;
         }
+
+        Assert.Equal(frames.Count - 1, samples.Count);
 
         var errors = new StringBuilder();
         int count = 0;
         int compared = 0;
-        for (int i = 0; i < samples.Count && frames[i + 1].F <= lastFrame; i++)
+        for (int i = 0; i < samples.Count; i++)
         {
             GoldenRuns.GoldenFrame g = frames[i + 1];
             PawnSample s = samples[i];
@@ -77,6 +87,8 @@ public sealed class GoldenReplayTests
                 Fail($"crouched {s.Crouch}, recorded {g.Crouch}");
             }
 
+            if (g.Hp != s.Hp) Fail($"health {s.Hp}, recorded {g.Hp}");
+
             if (g.Anim0.Length > 0 && !string.Equals(g.Anim0, s.Anim0.ToString(), StringComparison.OrdinalIgnoreCase))
             {
                 Fail($"channel 0 {s.Anim0}, recorded {g.Anim0}");
@@ -95,6 +107,12 @@ public sealed class GoldenReplayTests
         }
 
         Assert.True(compared > 100, $"only {compared} frames compared");
-        Assert.True(count == 0, $"{count} differences in {scenario}:{Environment.NewLine}{errors}");
+        Assert.True(count == 0, $"{count} differences in {scenario} run {run}:{Environment.NewLine}{errors}");
+    }
+
+    private static void MissingFixture(string message)
+    {
+        if (Environment.GetEnvironmentVariable("OPENSCCT_REQUIRE_GOLDENS") == "1") Assert.Fail(message);
+        Assert.Skip(message);
     }
 }

@@ -79,7 +79,8 @@ when the time limit has passed (rule 1), `Killed`, `AddPoint`, `NotifyObjectiveT
    10 minute limit.
 
 `sCheckEndGame()`, in this exact order:
-2. `UpdateTeamNumLives()`; `WinnerTeam = 255`.
+2. `UpdateTeamNumLives()`; in the rewrite, return false if the round has already ended, preserving its result;
+   otherwise `WinnerTeam = 255`.
 3. If `!GRI.bMatchHasBegun`: return false (always the case in the editor's Play Level).
 4. Time out: if `TimeLimit > 0` and `ElapsedTime >= TimeLimit * 60`: winner 1 (mercs), reason END_TIMEOUT,
    return true. This comes before every other test: once time is up, the mercs win whatever the objective
@@ -87,6 +88,8 @@ when the time limit has passed (rule 1), `Killed`, `AddPoint`, `NotifyObjectiveT
 5. Count, over every PlayerController in ControllerList whose PRI is neither bOnlySpectator nor
    bQuittedMatch: per side the number of players (`NbPlayersSPY`, `NbPlayersSENTRY`) and the number with
    `NumLives > 0` (`NumTeam0`, `NumTeam1`). A player who is dead but still has lives counts as alive.
+   Enhanced Beta 5 also remembers whether a non-spectator on either side has quit, even when no active player on
+   that side remains.
 6. Merc Deathmatch (P1): `KillLimit = MatchInfo.ScoreLimit`, or 20 when below 1. If `GetTopKills() >=
    KillLimit`: winner 1, END_STORY, true. `NumStillIn = CountMercsStillIn()` (team 1 players, not spectator,
    not quit, with `NumLives > 0` or `Deaths == 0`); if `NumStillIn <= 1` and `NumStillIn < NbPlayersSENTRY`:
@@ -94,9 +97,10 @@ when the time limit has passed (rule 1), `Killed`, `AddPoint`, `NotifyObjectiveT
 7. Standalone: if `NumTeam0 == 0` and `NumTeam1 == 0`: winner = 1 if `NbPlayersSPY > 0` else 0,
    END_TEAMDEATH, true. Otherwise, if the level has no SObjective actor at all, return false; else continue
    to rule 9 (the team death test of rule 8 is skipped offline).
-8. Network (any NetMode except Standalone): if (`NumTeam0 == 0` and `NbPlayersSPY > 0`) or (`NumTeam1 == 0`
-   and `NbPlayersSENTRY > 0`), and `NumTeam0 + NumTeam1 < GetNumPlayers()`: winner = (both zero:
-   1 if NbPlayersSPY > 0 else 0; only spies out: 1; only mercs out: 0), END_TEAMDEATH, true. The
+8. Network (any NetMode except Standalone): if (`NumTeam0 == 0` and (`NbPlayersSPY > 0` or a spy quit)) or
+   (`NumTeam1 == 0` and (`NbPlayersSENTRY > 0` or a merc quit)), and `NumTeam0 + NumTeam1 < GetNumPlayers()`:
+   winner = (both zero: 1 if NbPlayersSPY > 0 or a spy quit, else 0; only spies out: 1; only mercs out: 0),
+   END_TEAMDEATH, true. This includes the last player leaving a team (Enhanced Beta 5). The
    NumPlayers test is normally always true when the first part is; it only fails if NumPlayers is smaller
    than the counted players.
 9. Objectives: for every SObjective in the level (AllActors, missions included, all modes), if any has
@@ -107,10 +111,12 @@ when the time limit has passed (rule 1), `Killed`, `AddPoint`, `NotifyObjectiveT
    ObjectiveTaken true) before it marks itself taken, so the check passes on the mission's own
    NotifyObjectiveTaken (objectives spec).
 10. `ReplicateWinningReason(Team, Reason)` writes `GRI.WinningTeam = Team` and `GRI.WinningReason = Reason`;
-    it is called only on the true paths above (and by SEndZoneTip).
+    it is called only on the true paths above (and by SEndZoneTip). The rewrite preserves an already-published
+    result once the round ends; a first result may still replace 255 after entering the end state.
 
 `sEndGame()`:
-11. Merc Deathmatch: `GRI.NumDisks = GetTopKills()` (field reused to show the winning kill count).
+11. The rewrite ignores repeated `sEndGame` calls. Merc Deathmatch: `GRI.NumDisks = GetTopKills()`
+    (field reused to show the winning kill count).
 12. `GRI.bStopCountDown = true`; `bGameEnded = true`; `TriggerEvent('EndGame', self, None)`;
     `GotoState('s_MatchOver')`. sEndGame does not set the winner; a caller that skips
     ReplicateWinningReason leaves WinningTeam at 255.

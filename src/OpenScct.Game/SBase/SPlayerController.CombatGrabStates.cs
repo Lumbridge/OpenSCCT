@@ -675,6 +675,7 @@ public partial class SPlayerController
                 v.Pitch = v.Pitch < (K.GrabViewPitchUp + K.GrabViewPitchDown) / 2 ? K.GrabViewPitchUp : K.GrabViewPitchDown;
             }
 
+            v.Roll = 0;
             self.Rotation = v;
             self.aTurnPrevious = self.aTurn;
         }

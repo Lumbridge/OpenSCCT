@@ -123,6 +123,12 @@ public partial class SPlayerController
             case "SelectCarriedWeapon" when ReferenceEquals(target, Pawn):
                 ReceiveWeaponSelection(c.Int1, c.Int2);
                 break;
+            case "ServerSelectedGadget" when ReferenceEquals(target, Pawn) && target is SBasePawn selectionPawn:
+                PawnInventory.ReceiveSelection(selectionPawn, c.Actor1 as SGadget);
+                break;
+            case "DestroyGPO":
+                DestroyGPO(c.Actor1 as SBasicGamePlayObject, c.Int1, c.DamageType);
+                break;
             case "ReloadCarriedPrimary" when target is SWeaponDefense primary:
                 primary.RequestCarriedReload();
                 break;

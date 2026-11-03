@@ -8,6 +8,7 @@
 // light throws teal shafts.
 shader_type spatial;
 render_mode unshaded, fog_disabled, cull_disabled, depth_draw_never, blend_add, world_vertex_coords;
+#include "res://Shaders/svm_fog.gdshaderinc"
 
 global uniform int svm_vision;
 // The spot shadow lights' slot rows and depth atlas (SpotShadowLight; layout in svm_world.gdshaderinc).
@@ -85,5 +86,6 @@ void fragment() {
 	}
 	vec3 lit = beam_slot >= 0 ? beam_lit(beam_slot, v_world) : vec3(1.0);
 	ALBEDO = max(beam_boost.rgb, vec3(0.0)) * clamp(1.0 - v_along, 0.0, 1.0) * lit * beam_visibility;
+	ALBEDO *= surface_fog(CAMERA_VISIBLE_LAYERS, VERTEX, FRAGCOORD.xy, VIEWPORT_SIZE).a;
 	ALPHA = 1.0;
 }

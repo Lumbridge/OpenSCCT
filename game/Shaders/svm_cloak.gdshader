@@ -5,6 +5,7 @@
 // cloaked, so the screen copy holds the scene without it. Normal vision only (the view gates it).
 shader_type spatial;
 render_mode unshaded, fog_disabled, cull_disabled, blend_mix, depth_draw_always;
+#include "res://Shaders/svm_fog.gdshaderinc"
 
 // GlassEffect / 255.
 uniform float svm_glass = 0.0;
@@ -26,6 +27,8 @@ void fragment() {
 	vec2 uv = SCREEN_UV + vec2(-v_shift * n.x / 640.0, v_shift * n.y / 480.0);
 	vec4 surface = texture(tex_diffuse, UV) * base_color;
 	if (masked && surface.a < 0.5) { discard; }
+	vec4 fog = surface_fog(CAMERA_VISIBLE_LAYERS, VERTEX, FRAGCOORD.xy, VIEWPORT_SIZE);
+	surface.rgb = surface.rgb * fog.a + fog.rgb;
 	ALBEDO = mix(surface.rgb, texture(svm_behind, clamp(uv, vec2(0.0), vec2(1.0))).rgb, clamp(svm_glass, 0.0, 1.0));
 	ALPHA = 1.0;
 }

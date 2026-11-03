@@ -39,7 +39,13 @@ public partial class SAlarm
 
         [Uc("SBase.SAlarm.s_Listening.SimulateActivated", Sha1 = "63b08a02e69f67e732d9c299625b181d91bcec12")]
         [PortOf("uc:SBase.SAlarm:s_Listening.SimulateActivated", Spec = "spec/devices/alarm.md#rules")]
-        public void SimulateActivated(SAlarm self, Actor? Other, Pawn? EventInstigator) => Trigger(self, Other, EventInstigator);
+        public void SimulateActivated(SAlarm self, Actor? Other, Pawn? EventInstigator)
+        {
+            // A decoy raises the same alarm, but is not a real detection of its owner (Enhanced Beta 5).
+            self.TellInstigator(EventInstigator);
+            self.MarkTriggerActor(Other);
+            self.SetAlarmActive();
+        }
 
         /// <summary>A countdown left running from s_ActiveDefPresent: clears the marked device and the alarm flag.</summary>
         [Uc("SBase.SAlarm.s_Listening.Timer", Sha1 = "bf6a90e4f0e6d3d93399925ee672c6a7c5fda221")]

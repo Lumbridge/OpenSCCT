@@ -311,7 +311,9 @@ public partial class PlayMenu : Node
         if (online?.Client is { } client)
         {
             bool host = (client.Lobby.Local?.IsHost ?? false) || (pc?.PlayerReplicationInfo?.bIAmServer ?? false);
-            return new InGameMenuContext(host, InGameMenuNet.Lan, tutorial);
+            return new InGameMenuContext(host, InGameMenuNet.Lan, tutorial,
+                pc?.GameReplicationInfo?.bMatchHasBegun ?? false, pc?.bGameEnded ?? true,
+                pc?.PlayerReplicationInfo?.bOnlySpectator ?? true, pc?.PlayerReplicationInfo?.NumLives ?? 0);
         }
 
         return new InGameMenuContext(IAmServer: true, InGameMenuNet.None, tutorial);
@@ -357,6 +359,7 @@ public partial class PlayMenu : Node
             return;
         }
 
+        Model.UpdateContext(Context());
         InGameMenuAction action = Model.Tick(Now);
         if (action != InGameMenuAction.None)
         {
@@ -370,6 +373,11 @@ public partial class PlayMenu : Node
         switch (action)
         {
             case InGameMenuAction.Resume:
+                Resume();
+                break;
+            case InGameMenuAction.Resign:
+                if (Context().CanResign)
+                    GetTree().Root.GetNodeOrNull<OnlineService>(OnlineService.NodeName)?.Client?.Chat("!resign");
                 Resume();
                 break;
             case InGameMenuAction.ReturnToLobby:

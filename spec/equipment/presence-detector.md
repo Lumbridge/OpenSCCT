@@ -52,6 +52,13 @@ Placement, the trap limit (`NbTrapMineInMapIOwn`) and "remove oldest" are the la
     blips. The same path serves the alarms' devices.
 
 ## States
+OpenSCCT's larger-team extension (2026-11-03): scans retain all qualifying living spies rather than stopping at two.
+Notifications compare pawn identity across successful scans, so a spy moving to a different slot does not get
+another warning. A newly entering spy is notified even while other spies keep the alarm active. The two generated
+`DetectedPawn` slots mirror the first two entries for compatibility; no protocol/schema change is needed. Empty
+scans and chaff retain the existing nine-second warning expiry. Dead pawns cannot start a detection. This is a
+rewrite extension, not a claim that B5 changed the original two-slot native.
+
 `s_Activated` (auto, empty) and `s_LockedByChaff` (rule 7). The native tick does not look at the state.
 
 ## Constants

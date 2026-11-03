@@ -741,6 +741,8 @@ public sealed record ResultsReport
 
 public sealed record ResultsReportRow
 {
+    public RecordedLoadout? Loadout { get; init; }
+
     /// <summary>The signed-in player's account, or null for guests and bots.</summary>
     public long? AccountId { get; init; }
 

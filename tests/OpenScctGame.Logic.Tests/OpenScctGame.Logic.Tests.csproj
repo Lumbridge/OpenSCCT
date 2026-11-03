@@ -68,6 +68,11 @@
     <Compile Include="..\..\game\Scripts\Play\PlayAudioRouter.cs" Link="Linked\PlayAudioRouter.cs" />
     <!-- The wave chunk fixes the sound library applies before Godot loads a file. -->
     <Compile Include="..\..\game\Scripts\Audio\WavChunks.cs" Link="Linked\WavChunks.cs" />
+    <Compile Include="..\..\game\Scripts\Audio\AudioK.cs" Link="Linked\AudioK.cs" />
+    <Compile Include="..\..\game\Scripts\Audio\SoundRules.cs" Link="Linked\SoundRules.cs" />
+    <Compile Include="..\..\game\Scripts\Render\Post\ZoneFogRules.cs" Link="Render\ZoneFogRules.cs" />
+    <Compile Include="..\..\game\Scripts\Render\Post\FogVolumeRules.cs" Link="Render\FogVolumeRules.cs" />
+    <Compile Include="..\..\game\Scripts\Render\Materials\MaterialSequenceClock.cs" Link="Linked\MaterialSequenceClock.cs" />
     <!-- The particle natives (spec/native/emitters.md): parameters, the sub-emitter and Emitter updates, the geometry. -->
     <Compile Include="..\..\game\Scripts\Render\Particles\ParticleParams.cs" Link="Linked\Particles\ParticleParams.cs" />
     <Compile Include="..\..\game\Scripts\Render\Particles\ParticleEmitterSim.cs" Link="Linked\Particles\ParticleEmitterSim.cs" />

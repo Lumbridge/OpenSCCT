@@ -28,6 +28,7 @@ public partial class InGameMenu : Control
 
     private InGameMenuPage _shown = (InGameMenuPage)(-1);
     private Vector2 _shownSize;
+    private object? _shownEntries;
     private OptionsMenu? _options;
 
     public InGameMenu()
@@ -72,13 +73,14 @@ public partial class InGameMenu : Control
         Vector2 size = GetViewportRect().Size;
         InGameMenuPage page = Model.Page;
         Visible = page != InGameMenuPage.Closed;
-        if (page == _shown && size == _shownSize)
+        if (page == _shown && size == _shownSize && ReferenceEquals(_shownEntries, Model.Entries))
         {
             return;
         }
 
         _shown = page;
         _shownSize = size;
+        _shownEntries = Model.Entries;
         Build(page, size);
     }
 
@@ -115,6 +117,10 @@ public partial class InGameMenu : Control
             case InGameMenuPage.ConfirmLobby:
                 Dim(0.6f);
                 Dialog(size, quit: false);
+                break;
+            case InGameMenuPage.ConfirmResign:
+                Dim(0.6f);
+                Dialog(size, quit: false, resign: true);
                 break;
             case InGameMenuPage.Gear:
                 GearPage();
@@ -183,10 +189,10 @@ public partial class InGameMenu : Control
         }
 
         // The keyboard can move between the buttons as the original's pad and arrow keys do.
-        first?.CallDeferred(Control.MethodName.GrabFocus);
+        if (first is not null) FocusSoon(first);
     }
 
-    private void Dialog(Vector2 size, bool quit)
+    private void Dialog(Vector2 size, bool quit, bool resign = false)
     {
         // The original's boxes and rows, laid out symmetrically: its two buttons' WinLeft (0.35, 0.65) are taken as
         // centres, so they sit evenly about the box's middle, and Quit Game is centred under the line with the
@@ -208,9 +214,9 @@ public partial class InGameMenu : Control
         string question = (Model.Question ?? "").Replace('|', '\n');
         Text(question, new Rect2(box.Position, new Vector2(box.Size.X, questionBottom - box.Position.Y)));
 
-        string yes = quit ? InGameMenuK.EndSession : InGameMenuK.LobbyYes;
+        string yes = quit ? InGameMenuK.EndSession : resign ? InGameMenuK.Resign : InGameMenuK.LobbyYes;
         Button yesButton = DialogButton(yes, size.X * InGameMenuK.DialogYesLeft, row, buttonSize,
-            quit ? () => Act(Model.EndSession(Now())) : () => Act(Model.ConfirmLobby()));
+            quit ? () => Act(Model.EndSession(Now())) : resign ? () => Act(Model.ConfirmResign()) : () => Act(Model.ConfirmLobby()));
         Button cancel = DialogButton(InGameMenuK.Cancel, size.X * InGameMenuK.DialogNoLeft, row, buttonSize, () =>
         {
             Model.Cancel();
@@ -237,8 +243,13 @@ public partial class InGameMenu : Control
             quitButton.FocusNeighborTop = yesButton.GetPath();
         }
 
-        yesButton.CallDeferred(Control.MethodName.GrabFocus);
+        FocusSoon(resign ? cancel : yesButton);
     }
+
+    private static void FocusSoon(Control control) => Callable.From(() =>
+    {
+        if (IsInstanceValid(control) && control.IsInsideTree()) control.GrabFocus();
+    }).CallDeferred();
 
     /// <summary>A dialog button of <paramref name="buttonSize"/> centred on <paramref name="centreX"/>, its top at <paramref name="top"/> (pixels).</summary>
     private Button DialogButton(string text, float centreX, float top, Vector2 buttonSize, Action pressed)
@@ -257,6 +268,7 @@ public partial class InGameMenu : Control
         {
             Name = "Question",
             Text = text,
+            AutowrapMode = TextServer.AutowrapMode.WordSmart,
             HorizontalAlignment = HorizontalAlignment.Center,
             VerticalAlignment = VerticalAlignment.Center,
             Position = rect.Position,

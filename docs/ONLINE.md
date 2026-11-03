@@ -134,8 +134,12 @@ as long as the round is still being played. Our addition; the original's reconne
   that side instead of as a spectator, and a signed-in one needs no server password (his ticket proves who he is,
   and he may be rejoining from another PC). The map login carries `?SvmRejoin=1`, which lets `SGameInfo.Login` put him
   on his side waiting (as a Merc Deathmatch late joiner) instead of making him a visitor. Once he is in, the server
-  gives back the score, kills, deaths and lives he left with (the side's starting lives when the series moved on to
-  another game), spawns him if he has lives left, and announces "X rejoined the round."
+    restores score, kills and round statistics (the side's starting lives when the series moved on to another game)
+    and announces "X rejoined the round." During a competitive round, leaving a living pawn spends one life and
+    records one death; a player already dead pays no additional life. A same-round return waits the normal respawn
+    delay and only respawns with lives left. This deliberate rewrite policy prevents reconnecting for a free heal,
+    refill or faster respawn. Practice keeps immediate respawning without that life charge. Pawn health, equipment
+    and status are reset by normal spawning rather than serialized across a connection.
 - **The master knows** (signed-in players): heartbeats carry the kept places' account ids (`RejoinAccounts`), and the
   account answer (`GET /api/v1/account`, also the sign-in's answer) carries `rejoin` (`RejoinOffer`: server id,
   name, map, mode) when a game server that is loading or playing holds one for the account and he is not on it. So
@@ -1060,4 +1064,7 @@ shows the latest nine counted rounds, newest first. History has an empty state b
 scoreboards, timelines and demo metadata in a transaction. Lifetime stats, progression and achievements remain.
 Demo objects retain their existing bucket lifecycle policy. SQLite reuses freed database pages.
 Database schema 8 adds the timeline table and preserves existing rounds during upgrade.
+Schema 10 adds optional per-player loadout metadata to stored round rows. The authority snapshots the last
+granted weapon and gadgets; the history API returns them when available. Existing rows retain a null loadout,
+and old servers/clients remain compatible. These class paths are not added to numeric career totals.
 Deploy the updated master and trusted game servers to enable new timelines; older clients remain compatible.

@@ -9,6 +9,7 @@ using OpenScct.Core;
 using OpenScctGame.Render;
 using OpenScctGame.Render.Characters;
 using OpenScctGame.Render.Golden;
+using OpenScctGame.Render.Post;
 using OpenScctGame.Views;
 
 namespace OpenScctGame.Smoke;
@@ -183,6 +184,11 @@ public sealed class SteeERenderSmoke : SmokeTest
         }
 
         _view = new OffscreenView(context.Tree.Root, _map, new Vector2I(1280, 720));
+        if (_args.Debug.Contains("fog", StringComparison.Ordinal))
+        {
+            RenderingServer.ViewportSetMeasureRenderTime(_view.Viewport.GetViewportRid(), true);
+            if (_view.View.SkyViewport is { } sky) RenderingServer.ViewportSetMeasureRenderTime(sky.GetViewportRid(), true);
+        }
         AnimatedProps.Build(_map, _map.Root);
         AddPlayerStartCameras(folder);
         string golden = Path.Combine(_args.GoldenIn, _args.Map, "cameras.json");
@@ -212,6 +218,25 @@ public sealed class SteeERenderSmoke : SmokeTest
         _primitives.Add((int)RenderingServer.ViewportGetRenderInfo(rid, RenderingServer.ViewportRenderInfoType.Visible,
             RenderingServer.ViewportRenderInfo.PrimitivesInFrame));
         GD.Print($"SVM_RENDER camera {_cameras[_index].Name} drawCalls={calls} primitives={_primitives[^1]}");
+        if (_args.Debug.Contains("fog", StringComparison.Ordinal)) MeasureFog();
+    }
+
+    private void MeasureFog()
+    {
+        var settings = _view!.View.Effect.Settings;
+        var origin = _cameras[_index].Location;
+        int zone = _map!.ZoneAt(origin)?.ZoneIndex ?? 0;
+        const int repetitions = 8;
+        _ = PortalFogFrame.Build(_map.Lighting, _view.View.Camera, origin, zone, settings.Fog, settings.FogColor, settings.FogStart, settings.FogEnd);
+        long allocated = GC.GetAllocatedBytesForCurrentThread(), started = System.Diagnostics.Stopwatch.GetTimestamp();
+        PortalFogFrame? frame = null;
+        for (int i = 0; i < repetitions; i++)
+            frame = PortalFogFrame.Build(_map.Lighting, _view.View.Camera, origin, zone, settings.Fog, settings.FogColor, settings.FogStart, settings.FogEnd);
+        double milliseconds = System.Diagnostics.Stopwatch.GetElapsedTime(started).TotalMilliseconds / repetitions;
+        long bytes = (GC.GetAllocatedBytesForCurrentThread() - allocated) / repetitions;
+        Rid viewport = _view.Viewport.GetViewportRid();
+        GD.Print(string.Create(CultureInfo.InvariantCulture,
+            $"SVM_FOG_PERF camera={_cameras[_index].Name} portals={_map.Lighting.FogPortals.Count} frameBytes={frame!.Data.Length * sizeof(float)} buildMs={milliseconds:F3} allocatedBytes={bytes} uploadBytes={SurfaceFogRegistry.LastUploadBytes} uploadAllocatedBytes={SurfaceFogRegistry.LastUploadAllocatedBytes} uploadMs={SurfaceFogRegistry.LastUploadMilliseconds:F3} renderCpuMs={RenderingServer.ViewportGetMeasuredRenderTimeCpu(viewport):F3} renderGpuMs={RenderingServer.ViewportGetMeasuredRenderTimeGpu(viewport):F3}"));
     }
 
     /// <summary>

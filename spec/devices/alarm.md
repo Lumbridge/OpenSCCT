@@ -69,7 +69,8 @@ undone. It is the main way maps gate objectives and doors. 558 alarms on 72 of t
 1. Auto state `s_Listening`; `s_InitialyActive` is the other editable start state.
 2. `s_Listening.Trigger(Other, I)`: tell the instigator (rule 9); mark `Other` (rule 10); a spy pawn instigator
    (`SPawnAttaque` with a player controller and stats) adds 1 to `Spy_AlarmsTriggered`; then `SetAlarmActive`.
-   `UnTrigger` calls `SetAlarmListening`. `SimulateActivated` is the state's own Trigger.
+   `UnTrigger` calls `SetAlarmListening`. In Enhanced Beta 5, `SimulateActivated` performs the same notifications,
+   device marking and alarm activation without counting a real spy detection.
 3. `SetAlarmActive`: when no merc is in the alarm zone (rule 11): `TriggerEvent` every `Events` name (Other = the
    alarm, no instigator), `Lock` every objective trigger, for each mover do its `ActionBeforeLock` (Trigger or
    UnTrigger with Other = the alarm) and `Lock` it, go to `s_Active`, then `RestartCountdown`. With a merc in the zone:

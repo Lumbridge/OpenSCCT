@@ -39,6 +39,7 @@ public partial class RemanenceEffect : CompositorEffect
     public RemanenceEffect()
     {
         EffectCallbackType = EffectCallbackTypeEnum.PostTransparent;
+        AccessResolvedColor = true;
         RenderingServer.CallOnRenderThread(Callable.From(InitOnRenderThread));
     }
 
@@ -151,7 +152,7 @@ public partial class RemanenceEffect : CompositorEffect
             _captureSize = size;
         }
 
-        Rid color = _storage.Begin(_rd, buffers.GetColorLayer(0), size);
+        Rid color = _storage.Begin(_rd, buffers.GetColorLayer(0, false), size);
         if (!color.IsValid)
         {
             return;

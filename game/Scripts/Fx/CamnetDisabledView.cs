@@ -1,3 +1,4 @@
+using OpenScctGame.Render.Materials;
 using System;
 using Godot;
 using OpenScct.Game.SBase;
@@ -7,7 +8,7 @@ namespace OpenScctGame.Fx;
 /// <summary>A persistent, depth-tested fault indicator on a disabled Camnet lens, with no light or shocker halo.</summary>
 public partial class CamnetDisabledView : Node3D
 {
-    private readonly StandardMaterial3D _marker;
+    private readonly EffectMaterial _marker;
     private readonly CpuParticles3D _sparks;
     private readonly CpuParticles3D _smoke;
     private SCamNetwork? _camera;
@@ -17,7 +18,7 @@ public partial class CamnetDisabledView : Node3D
     public CamnetDisabledView()
     {
         Name = "CamnetDisabled";
-        _marker = new StandardMaterial3D
+        _marker = new EffectMaterial
         {
             ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded,
             AlbedoColor = new Color(1f, 0.42f, 0.055f),
@@ -48,7 +49,7 @@ public partial class CamnetDisabledView : Node3D
             ColorRamp = new Gradient { Offsets = [0f, 0.7f, 1f],
                 Colors = [new Color(1f, 0.58f, 0.12f), new Color(0.95f, 0.3f, 0.04f, 0.8f), new Color(0.6f, 0.12f, 0.01f, 0f)] },
             Mesh = new QuadMesh { Size = new Vector2(0.008f, 0.022f) },
-            MaterialOverride = new StandardMaterial3D
+            MaterialOverride = new EffectMaterial
             {
                 ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded,
                 BillboardMode = BaseMaterial3D.BillboardModeEnum.Enabled,
@@ -74,7 +75,7 @@ public partial class CamnetDisabledView : Node3D
             ColorRamp = new Gradient { Offsets = [0f, 0.25f, 1f],
                 Colors = [new Color(0.3f, 0.3f, 0.32f, 0f), new Color(0.3f, 0.3f, 0.32f, 0.36f), new Color(0.4f, 0.4f, 0.42f, 0f)] },
             Mesh = new QuadMesh { Size = Vector2.One * 0.12f },
-            MaterialOverride = new StandardMaterial3D
+            MaterialOverride = new EffectMaterial
             {
                 ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded,
                 BillboardMode = BaseMaterial3D.BillboardModeEnum.Enabled,

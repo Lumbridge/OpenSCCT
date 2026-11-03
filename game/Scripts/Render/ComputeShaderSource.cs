@@ -36,6 +36,22 @@ public static class ComputeShaderSource
             text = text.Remove(tag, ComputeTag.Length);
         }
 
+        const string fogInclude = "res://Shaders/svm_fog_math.gdshaderinc";
+        const string fogDirective = "#include \"" + fogInclude + "\"";
+        if (text.Contains(fogDirective, System.StringComparison.Ordinal))
+        {
+            // Shader includes may be remapped to resources in an exported build; load their code through the
+            // resource loader instead of requiring the original text file to remain beside the exported pack.
+            string? shared = ResourceLoader.Load<ShaderInclude>(fogInclude)?.Code;
+            if (string.IsNullOrEmpty(shared))
+            {
+                error = $"{fogInclude} shader include not found";
+                return default;
+            }
+            // RenderingDevice compiles a source string without Godot's material include resolver.
+            text = text.Replace(fogDirective, shared, System.StringComparison.Ordinal);
+        }
+
         using var source = new RDShaderSource { Language = RenderingDevice.ShaderLanguage.Glsl, SourceCompute = text };
         using RDShaderSpirV? spirv = rd.ShaderCompileSpirVFromSource(source);
         if (spirv is null || !string.IsNullOrEmpty(spirv.CompileErrorCompute))

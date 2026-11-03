@@ -41,6 +41,17 @@ layout(set = 0, binding = 5) uniform sampler2D sonar_texture;   // Engine.sonar_
 layout(set = 0, binding = 6) uniform sampler2D blur1_texture;   // 256 x 256 level of the pyramid, bilinear, clamp
 layout(set = 0, binding = 7) uniform sampler2D blur2_texture;   // 128 x 128 level
 layout(set = 0, binding = 8) uniform sampler2D glow_texture;    // the glow composite (512 x 512), bilinear, clamp
+layout(set = 0, binding = 9, std430) readonly buffer PortalFog { vec4 fog_data[]; } pf;
+
+vec4 svm_fog_row(int fog_base, int index) { return pf.fog_data[index]; }
+#include "res://Shaders/svm_fog_math.gdshaderinc"
+
+vec4 portal_fog(ivec2 pixel, vec2 size, float view_depth) {
+    vec2 ndc = (vec2(pixel) + 0.5) / size * 2.0 - 1.0;
+    vec3 ray = pf.fog_data[3].xyz + pf.fog_data[1].xyz * (ndc.x / pf.fog_data[1].w)
+        - pf.fog_data[2].xyz * (ndc.y / pf.fog_data[2].w);
+    return svm_fog_evaluate(0, pixel, normalize(ray), view_depth * length(ray));
+}
 
 float srgb_to_linear(float c) {
 	return c <= 0.04045 ? c / 12.92 : pow((c + 0.055) / 1.055, 2.4);
@@ -66,8 +77,14 @@ void main() {
 			float n = p.fog_range.z;
 			float f = p.fog_range.w;
 			float z = n * f / (d * (f - n) + n);
-			float k = clamp((z - p.fog_range.x) / max(p.fog_range.y - p.fog_range.x, 1e-4), 0.0, 1.0);
-			c = mix(c, p.fog_color.rgb, k);
+			if (p.fog_color.a > 1.5) {
+				vec4 fog = portal_fog(xy, vec2(size), z * pf.fog_data[3].w);
+				c = c * fog.a + fog.rgb;
+			} else {
+				float rate = p.fog_range.y > p.fog_range.x ? 1.0 / (p.fog_range.y - p.fog_range.x) : 1e8;
+				float k = clamp((z - p.fog_range.x) * rate, 0.0, 1.0);
+				c = mix(c, p.fog_color.rgb, k);
+			}
 		}
 	}
 

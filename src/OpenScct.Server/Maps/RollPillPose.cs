@@ -1,41 +1,94 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using OpenScct.Core;
 using OpenScct.Core.Engine;
 using OpenScct.Game.Combat;
+using OpenScct.Game.Animation;
 using OpenScct.Game.Movement;
 using OpenScct.Game.SBase;
 using OpenScct.Provenance;
+using OpenScct.Physics.Movement;
 
 namespace OpenScct.Server;
 
 /// <summary>
-/// Collision pills follow the installed spy roll animations on drawing and dedicated machines alike.
-/// Other actions, or installations without the character clips, retain the reference-pose fallback.
+/// Collision pills follow installed spy and merc animation channels on drawing and dedicated machines alike.
+/// The historical type name is retained for callers. Missing clips use the reference pose; sampled channels,
+/// transitions, mirrors and root locks use the same content and pose rules as the visible characters.
 /// </summary>
-public sealed class RollPillPose(RollPoseContent content) : IPillPose
+public sealed class RollPillPose : IPillPose
 {
-    private readonly RollPoseContent _content = content ?? throw new ArgumentNullException(nameof(content));
+    private readonly RollPoseContent? _spyContent;
+    private readonly RollPoseContent? _mercContent;
+    private readonly ConditionalWeakTable<SBasePawn, PawnPoseHistory> _histories = new();
 
-    public static IPillPose FromContent(string? characters) =>
-        characters is not null && RollPoseContent.Load(Path.Combine(characters, "SPerso", "ATT_01.glb")) is { } content
-            ? new RollPillPose(content) : EstimatedPillPose.Instance;
+    private sealed class PawnPoseHistory
+    {
+        public RollPoseContent.PoseHistory Pose = new();
+        public readonly List<PillShape> Scratch = new(15);
+        public float Time = -1f;
+        public uint ResetId;
+        public bool RootLocked;
+        public Matrix4x4 LockedRoot;
+
+        public PawnPoseHistory Copy() => new() { Pose = Pose.Copy(), Time = Time, ResetId = ResetId,
+            RootLocked = RootLocked, LockedRoot = LockedRoot };
+    }
+
+    public RollPillPose(RollPoseContent? content, RollPoseContent? mercContent = null)
+    {
+        if (content is null && mercContent is null) throw new ArgumentNullException(nameof(content));
+        _spyContent = content;
+        _mercContent = mercContent;
+    }
+
+    public static IPillPose FromContent(string? characters)
+    {
+        if (characters is null) return EstimatedPillPose.Instance;
+        RollPoseContent? spy = RollPoseContent.Load(Path.Combine(characters, "SPerso", "ATT_01.glb"), allClips: true);
+        RollPoseContent? merc = RollPoseContent.Load(Path.Combine(characters, "SPerso", "DEF_01.glb"), allClips: true);
+        return spy is null && merc is null ? EstimatedPillPose.Instance : new RollPillPose(spy, merc);
+    }
 
     public void GetPills(SBasePawn Pawn, List<PillShape> Shapes)
+        => GetPills(Pawn, Shapes, _histories.TryGetValue(Pawn, out PawnPoseHistory? history) ? history.Copy() : new());
+
+    public void UpdatePose(SBasePawn Pawn)
     {
-        PawnAnimChannel channel = Pawn.PawnAnim[SBasePawn.DBLJUMPCHANNEL];
-        if (!Pawn.bIsRolling || Pawn.SPawnType != PawnType.SPAWNOFFENSE || channel.Clip is not { Fps: > 0 } ||
-            !RollPoseContent.IsRollClip(channel.Sequence.ToString()) || channel.bMirror || channel.bGlobalPose || channel.Frame < 0f)
+        if (Pawn.XLevel.World.IsReplaying) return; // Prediction replays must not replace the last presented history.
+        PawnPoseHistory history = _histories.GetOrCreateValue(Pawn);
+        history.Scratch.Clear();
+        GetPills(Pawn, history.Scratch, history);
+    }
+
+    private void GetPills(SBasePawn Pawn, List<PillShape> Shapes, PawnPoseHistory history)
+    {
+        RollPoseContent? content = Pawn is SPawnAttaque ? _spyContent : Pawn is SPAWNDEFENSE ? _mercContent : null;
+        if (content is null)
         {
             EstimatedPillPose.Instance.GetPills(Pawn, Shapes);
             return;
         }
 
         var bones = new Dictionary<string, Matrix4x4>(StringComparer.Ordinal);
-        if (!TrySample(Pawn, channel, bones))
+        bool rootLocked = Pawn.Physics == EPhysics.PHYS_RootMotion && Pawn.iLockRootMotionType != 0;
+        if (Pawn.Level.TimeSeconds < history.Time || Pawn.NetworkResetId != history.ResetId)
         {
+            history.Pose.Reset();
+            history.RootLocked = false;
+        }
+        if (history.RootLocked && !rootLocked) content.CorrectHistoryRoot(history.Pose, history.LockedRoot);
+        history.Time = Pawn.Level.TimeSeconds;
+        history.ResetId = Pawn.NetworkResetId;
+        history.RootLocked = rootLocked;
+        if (!TrySample(Pawn, content, bones, history.Pose))
+        {
+            history.Pose.Reset();
+            history.RootLocked = false;
             EstimatedPillPose.Instance.GetPills(Pawn, Shapes);
             return;
         }
@@ -50,18 +103,72 @@ public sealed class RollPillPose(RollPoseContent content) : IPillPose
             }
         }
 
-        _content.RotOrigin.GetAxes(out FVector mx, out FVector my, out FVector mz);
+        content.RotOrigin.GetAxes(out FVector mx, out FVector my, out FVector mz);
         new FRotator(0, Pawn.Rotation.Yaw, 0).GetAxes(out FVector px, out FVector py, out FVector pz);
+        FVector MeshPoint(Vector3 local)
+        {
+            FVector mesh = mx * (local.X * 100f) + my * (local.Z * 100f) + mz * (local.Y * 100f);
+            return new FVector(mesh.X * content.MeshScale.X, mesh.Y * content.MeshScale.Y, mesh.Z * content.MeshScale.Z);
+        }
+
+        FVector rootOffset = default;
+        int rootTurn = 0;
+        PawnAnimChannel baseChannel = Pawn.PawnAnim[0];
+        if (rootLocked)
+        {
+            PawnRootMotion? mesh = ((ISBasePawnPhysics)Pawn).RootMotionMesh as PawnRootMotion;
+            int lockType = mesh is { RootLockType: not 0 } ? mesh.RootLockType : Pawn.iLockRootMotionType;
+            float firstFrame = baseChannel.bBackward ? baseChannel.AnimLast : 0f;
+            FVector locked = mesh is { RootLockType: not 0 } ? mesh.LockedRoot : baseChannel.Clip?.RootAt(firstFrame) ?? default;
+            if (!RootLockPose.Offset(baseChannel.Clip, baseChannel.ClipFrame, baseChannel.bMirror, locked, lockType,
+                baseChannel.bBackward, baseChannel.bLoop, out rootOffset))
+            {
+                // Content-only fixtures or clips without a root track pin the visible skeleton root.
+                var first = new Dictionary<string, Matrix4x4>(StringComparer.Ordinal);
+                if (baseChannel.Clip is not { Fps: > 0 } clip || !content.TrySampleLayers([
+                    new RollPoseContent.Layer(baseChannel.Sequence.ToString(), firstFrame * baseChannel.Frames / clip.Fps,
+                        1f, Mirror: baseChannel.bMirror)], first) || !first.TryGetValue("B", out Matrix4x4 atLock) || !bones.TryGetValue("B", out Matrix4x4 now))
+                {
+                    EstimatedPillPose.Instance.GetPills(Pawn, Shapes);
+                    return;
+                }
+                rootOffset = MeshPoint(atLock.Translation - now.Translation);
+            }
+            if ((lockType & 2) != 0 && mesh is not null) rootTurn = -mesh.CarriedRootTurn(baseChannel, baseChannel.ClipFrame);
+        }
+        new FRotator(0, rootTurn, 0).GetAxes(out FVector rx, out FVector ry, out FVector rz);
+        Matrix4x4 toPawn = Axes(MeshPoint(Vector3.UnitX), MeshPoint(Vector3.UnitY), MeshPoint(Vector3.UnitZ));
+        Matrix4x4 rootCorrection = Matrix4x4.CreateTranslation(ToVector(rootOffset)) * Axes(rx, ry, rz);
+        if (rootLocked && bones.TryGetValue("B", out Matrix4x4 root) && Matrix4x4.Invert(toPawn, out Matrix4x4 fromPawn))
+            history.LockedRoot = root * toPawn * rootCorrection * fromPawn;
+        Matrix4x4 toWorld = toPawn * rootCorrection * Axes(px, py, pz) * Matrix4x4.CreateTranslation(ToVector(Pawn.Location + Pawn.PrePivot));
+        foreach (string bone in bones.Keys.ToArray()) bones[bone] *= toWorld;
+        MeshAimIK aim = Pawn.PawnAnim.Aim;
+        if (aim.FullYaw != 0f || aim.FullPitch != 0f)
+        {
+            FVector Rotate(FVector value) => Turn(pz, aim.FullYaw, Turn(py, aim.FullPitch, value));
+            RotateSubtree(content, bones, MeshAimIK.FullAimBoneName,
+                Axes(Rotate(new FVector(1f, 0f, 0f)), Rotate(new FVector(0f, 1f, 0f)), Rotate(new FVector(0f, 0f, 1f))));
+        }
+        // Bone controls are absolute world rotations, processed parent first like the character renderer.
+        Matrix4x4 boneCoordinates = Axes(new FVector(1f, 0f, 0f), new FVector(0f, 0f, 1f), new FVector(0f, 1f, 0f));
+        foreach (BoneDirection direction in Pawn.PawnAnim.Directions.All.OrderBy(d => content.BoneDepth(d.Bone.ToString())))
+        {
+            string bone = direction.Bone.ToString();
+            if (!bones.TryGetValue(bone, out Matrix4x4 current) || !Matrix4x4.Decompose(boneCoordinates * current, out _, out Quaternion rotation, out _)) continue;
+            direction.Rotation.GetAxes(out FVector dx, out FVector dy, out FVector dz);
+            Quaternion desired = Quaternion.CreateFromRotationMatrix(Axes(dx, dy, dz));
+            Quaternion blended = Quaternion.Normalize(Quaternion.Slerp(rotation, desired, direction.Alpha));
+            Matrix4x4 correction = Matrix4x4.CreateFromQuaternion(Quaternion.Conjugate(rotation)) * Matrix4x4.CreateFromQuaternion(blended);
+            RotateSubtree(content, bones, bone, correction);
+        }
         Span<FVector> points = stackalloc FVector[Points.Length];
         for (int i = 0; i < Points.Length; i++)
         {
             CollisionPoint point = Points[i];
             FVector offset = point.Offset;
             Vector3 local = Vector3.Transform(new Vector3(offset.X, offset.Z, offset.Y) / 100f, bones[point.Bone]);
-            FVector mesh = mx * (local.X * 100f) + my * (local.Z * 100f) + mz * (local.Y * 100f);
-            mesh = new FVector(mesh.X * _content.MeshScale.X, mesh.Y * _content.MeshScale.Y, mesh.Z * _content.MeshScale.Z);
-            // Walking rolls keep their authored root displacement; only traversal root-motion clips lock it.
-            points[i] = Pawn.Location + Pawn.PrePivot + px * mesh.X + py * mesh.Y + pz * mesh.Z;
+            points[i] = new FVector(local.X, local.Y, local.Z);
         }
 
         for (int i = 0; i < Endpoints.Length; i++)
@@ -72,26 +179,44 @@ public sealed class RollPillPose(RollPoseContent content) : IPillPose
         }
     }
 
-    private bool TrySample(SBasePawn pawn, PawnAnimChannel roll, Dictionary<string, Matrix4x4> bones)
-    {
-        if (roll.BlendAlpha >= 1f)
-            return _content.TrySampleSeconds(roll.Sequence.ToString(), roll.ClipFrame * roll.Frames / roll.Clip!.Fps, bones);
+    private static Vector3 ToVector(FVector value) => new(value.X, value.Y, value.Z);
 
-        // During the 0.1 s entrance the run still contributes: immediately using the airborne roll pose would
-        // let the collision shape leave the ground before the visible body. Blend the same local bone channels.
-        var layers = new RollPoseContent.Layer[SBasePawn.DBLJUMPCHANNEL + 1];
+    private static Matrix4x4 Axes(FVector x, FVector y, FVector z) => new(
+        x.X, x.Y, x.Z, 0f, y.X, y.Y, y.Z, 0f, z.X, z.Y, z.Z, 0f, 0f, 0f, 0f, 1f);
+
+    private static void RotateSubtree(RollPoseContent content, Dictionary<string, Matrix4x4> bones, string root, Matrix4x4 rotation)
+    {
+        if (!bones.TryGetValue(root, out Matrix4x4 transform)) return;
+        Matrix4x4 correction = Matrix4x4.CreateTranslation(-transform.Translation) * rotation * Matrix4x4.CreateTranslation(transform.Translation);
+        foreach (string bone in bones.Keys.ToArray())
+            if (content.IsWithin(bone, root)) bones[bone] *= correction;
+    }
+
+    private static FVector Turn(FVector axis, float angle, FVector value)
+    {
+        float c = SvmMath.Cos(angle), s = SvmMath.Sin(angle), t = 1f - c;
+        // The native aim's coords use the negative right-hand turn (same convention as the visible aim).
+        return value * c + axis * ((axis | value) * t) - (axis ^ value) * s;
+    }
+
+    private static bool TrySample(SBasePawn pawn, RollPoseContent content, Dictionary<string, Matrix4x4> bones, RollPoseContent.PoseHistory history)
+    {
+        var layers = new RollPoseContent.Layer[PawnAnimation.ChannelCount];
         int count = 0;
-        for (int i = 0; i <= SBasePawn.DBLJUMPCHANNEL; i++)
+        int first = 0;
+        // A full-body overlay replaces all lower channels, including unsupported clips no longer contributing.
+        for (int i = 1; i < PawnAnimation.ChannelCount; i++)
+            if (pawn.PawnAnim[i] is { Clip: not null, BlendAlpha: >= 1f, Frame: >= 0f, StartBone.IsNone: true }) first = i;
+        for (int i = first; i < PawnAnimation.ChannelCount; i++)
         {
             PawnAnimChannel channel = pawn.PawnAnim[i];
             float alpha = i == 0 ? 1f : channel.BlendAlpha;
             if (alpha <= 0f || channel.Sequence.IsNone || channel.Clip is not { Fps: > 0 } clip) continue;
-            // History-dependent tweens and mirrored traversal overlays are outside this roll sampler.
-            if (channel.Frame < 0f || channel.bMirror || channel.bGlobalPose) return false;
             layers[count++] = new RollPoseContent.Layer(channel.Sequence.ToString(), channel.ClipFrame * channel.Frames / clip.Fps,
-                alpha, i == 0 || channel.StartBone.IsNone ? null : channel.StartBone.ToString(), channel.bLoop, clip.Fps);
+                alpha, i == 0 || channel.StartBone.IsNone ? null : channel.StartBone.ToString(), channel.bLoop, clip.Fps, channel.bMirror,
+                i, channel.Frame, channel.Frames, channel.bGlobalPose, pawn.BoneMirrors);
         }
-        return _content.TrySampleLayers(layers.AsSpan(0, count), bones);
+        return content.TrySampleLayers(layers.AsSpan(0, count), bones, history);
     }
 
     private readonly record struct CollisionPoint(string Bone, FVector Offset);

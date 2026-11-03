@@ -13,12 +13,16 @@ namespace OpenScct.Game.SBase;
 /// </summary>
 public partial class SProjFrag
 {
+    /// <summary>Kill credit survives the thrower's pawn being removed before the fuse expires.</summary>
+    public PlayerReplicationInfo? ThrowerStatsOwner { get; private set; }
+
     /// <summary>The launch sound; the trail emitter is a view effect.</summary>
     [Uc("SBase.SProjFrag.PostBeginPlay", Sha1 = "91b7047a3fea44a33f4f28b61ee84ed41f95e96d")]
     [PortOf("uc:SBase.SProjFrag:PostBeginPlay", Spec = "spec/equipment/frag-grenade.md#rules")]
     protected override void PostBeginPlay()
     {
         base.PostBeginPlay();
+        ThrowerStatsOwner = Instigator?.PlayerReplicationInfo ?? (Owner as Pawn)?.PlayerReplicationInfo;
         PlaySound(SoundLaunch, ESoundSlot.SLOT_None, null, false, K.GrenadeSoundRadius);
     }
 

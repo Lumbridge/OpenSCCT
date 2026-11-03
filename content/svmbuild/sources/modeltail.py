@@ -90,6 +90,7 @@ class Model:
     polys: int = 0
     bounds: Optional[np.ndarray] = None     # (n, 6) min, max
     leaf_hulls: Optional[np.ndarray] = None
+    root_outside: Optional[bool] = None
 
     def polygon(self, node: ModelNode) -> np.ndarray:
         """Point indices of a node's polygon (empty when it has none)."""
@@ -218,6 +219,24 @@ def read_model(pkg, export) -> Model:
         if nh < 0 or nh * 4 > r.remaining():
             raise ValueError(f"bad leaf hull count {nh}")
         model.leaf_hulls = np.frombuffer(r.raw(nh * 4), dtype=np.int32).copy() if nh else np.zeros((0,), np.int32)
+        # UModel::Serialize editor 0x110d20e0: Leaves (three compact fields per leaf,
+        # 0x110cb700), Lights (object refs), then serialized RootOutside and Linked.
+        leaves = r.compact()
+        if leaves < 0 or leaves * 3 > r.remaining():
+            raise ValueError(f"bad leaf count {leaves}")
+        for _ in range(leaves):
+            r.compact()
+            r.compact()
+            r.compact()
+        lights = r.compact()
+        if lights < 0 or lights > r.remaining():
+            raise ValueError(f"bad model light count {lights}")
+        for _ in range(lights):
+            r.compact()
+        root_outside, linked = r.i32(), r.i32()
+        if root_outside not in (0, 1) or linked not in (0, 1):
+            raise ValueError("invalid model RootOutside/Linked flags")
+        model.root_outside = bool(root_outside)
     except (ValueError, IndexError, struct.error) as e:
         # Brush models of some maps end earlier; the geometry above is all collision needs from them.
         model.zones = model.zones or []

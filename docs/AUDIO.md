@@ -294,7 +294,6 @@ yaw instead of along the foot bone, and the texture's axes on the floor are esti
 - The switch fallback trace (rule 13) uses the hit material's own SurfaceType, not the innermost material's (the
   collision data keeps the wrapper's). FootPrint's SetSwitch, which precedes every step sound, uses the hit
   material's own value in the original too.
-- The 0.8^(ZoneDist^2) factor the subsystem also applies to an occluded one-shot's priority radius.
 - The reach test of the server's hearing is an estimate (100 x the radius; spec open question 4).
 - Script sounds not ported yet (no call site in the ports): SFlashGen's SND_Tonnerre (the class is not ported: its
   lightning flicker belongs to the lights). The noise event NativeHitWall raises after a bounce sound is not ported.

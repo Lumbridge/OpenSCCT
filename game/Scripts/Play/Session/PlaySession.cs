@@ -489,6 +489,15 @@ public sealed class PlaySession : IDisposable
                 location = shown;
             }
             _view = new ViewSample(Client.LocalTick, location, rotation, viewer.FovAngle, true, viewer.SpyFirstPersonActive);
+            if (Client.RecordingPlayerViews && ViewOverride is null && viewer.Pawn is SBasePawn { Health: > 0 } recordedPawn)
+            {
+                Client.SubmitDemoView(new DemoViewFrame(0, 0, 0, location, rotation, viewer.FovAngle, viewer.Rotation,
+                    viewer.BinocularBreath, recordedPawn.MyWeapon is SWeaponDefense rifle ? rifle.GetAccuracy() : 0f,
+                    viewer.SpyFirstPersonActive,
+                    viewer.FreeCameraFlying == 0 && PlayerCalcView.SourceOf(viewer) == PlayerCalcView.EViewSource.Default &&
+                        (!viewer.bBehindView || viewer.SpyFirstPersonActive),
+                    viewer.FreeCameraFlying != 0 ? (byte)15 : (byte)PlayerCalcView.SourceOf(viewer)));
+            }
             if (viewer.Pawn is SBasePawn viewed && (!ReferenceEquals(viewed, _viewPawn) || _viewReset != viewed.NetworkResetId))
             {
                 _viewPawn = viewed;

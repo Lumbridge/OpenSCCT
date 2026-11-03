@@ -461,7 +461,10 @@ public sealed partial class SoundSystem : Node3D, ISimEventSink
         bool atListener = !music && !call.ambient && call.ActorId != 0 && call.ActorId == LocalPawnId;
         FVector location = atListener ? ListenerLocation : call.Location;
         float d2 = FVector.DistSquared(location, ListenerLocation);
-        float priority = SoundRules.Priority(d2, radius, source, flags);
+        byte occlusion = call.ActorId > 0 && !call.ambient && World is not null ? World.SoundOcclusionOf(call.ActorId) : call.occlusion;
+        bool positional = (call.ambient ? call.Def.Positional : leaf.Positional) && !music && !call.flat && !atListener;
+        float priority = SoundRules.Priority(d2, radius, source, flags,
+            positional && occlusion != AudioK.OcclusionNone && TryOcclusion(location, out _, out float factor) ? factor : 1f);
         Voice? v = Allocate(call.Id, priority);
         if (v is null)
         {
@@ -480,7 +483,7 @@ public sealed partial class SoundSystem : Node3D, ISimEventSink
         v.BaseVolume = call.Volume * chain;
         v.CallRadius = call.Radius;
         // Rule 18: an actor whose SoundOcclusion is OCCLUSION_None is never occluded; a call without an actor is.
-        v.SoundOcclusion = call.ActorId > 0 && !call.ambient && World is not null ? World.SoundOcclusionOf(call.ActorId) : call.occlusion;
+        v.SoundOcclusion = occlusion;
         v.OcclusionSettled = false;
         v.Pitch = call.ambient ? call.Pitch : SoundRules.Pitch(call.Pitch);
         if (leaf.Kind == "sequence")
@@ -622,6 +625,12 @@ public sealed partial class SoundSystem : Node3D, ISimEventSink
         v.MinDistance = SoundRules.MinDistance(v.Radius);
         v.Volume = SoundRules.SourceVolume(v.BaseVolume * chain, leaf.Volume, v.Music);
         v.Positional = (v.Ambient ? v.AmbientPositional : leaf.Positional) && !v.Music && !v.Flat;
+        // Native PlaySound stores a separate priority radius after allocation (retail 0x10b042dd):
+        // an occluded source uses the portal distance between its location and the listener, with base 0.8.
+        v.PriorityRadiusFactor = v.Positional && !v.FollowListener && v.SoundOcclusion != AudioK.OcclusionNone &&
+            TryOcclusion(v.Location, out _, out _) && World is not null
+            ? SoundRules.AmbientZoneFactor(Library?.Map?.ZoneDistance(World.ZoneIndexAt(v.Location), _listenerZoneIndex) ?? 0)
+            : 1f;
         v.Looping = loop;
         v.Play(stream);
         if (Started.Count >= MaxStarts)
@@ -737,7 +746,8 @@ public sealed partial class SoundSystem : Node3D, ISimEventSink
 
         v.Apply(gain, v.Pitch * Doppler(v, dt), v.Music ? ReverbBuses.MusicBus : v.Positional ? worldBus : ReverbBuses.FlatBus,
             UeSpace.ToGodot(v.Location));
-        v.Priority = SoundRules.Priority(d * d, v.Radius, v.Volume, v.Leaf?.Flags ?? 0);
+        v.Priority = SoundRules.Priority(d * d, v.Radius, v.Volume,
+            (v.Leaf?.Flags ?? 0) | (v.Music ? AudioK.FlagMusic | AudioK.Flag2D : 0), v.PriorityRadiusFactor);
     }
 
     /// <summary>
@@ -772,10 +782,7 @@ public sealed partial class SoundSystem : Node3D, ISimEventSink
         float target = v.MinDistance;
         if (World is not null && v.SoundOcclusion != AudioK.OcclusionNone && !v.FollowListener &&
             !(v.Ambient && v.ActorId != 0 && v.ActorId == ViewActorId) &&
-            World.OcclusionBetween(ListenerLocation, v.Location, out OcclusionHits hits) &&
-            SoundRules.Occlusion(FVector.Dist(hits.NearListener, hits.NearSource), hits.TypeNearListener, hits.TypeNearSource,
-                hits.ZoneNearListener, hits.ZoneNearSource,
-                Library?.Map?.ZoneDistance(hits.ZoneNearListener, hits.ZoneNearSource) ?? 0) is { } factor)
+            TryOcclusion(v.Location, out _, out float factor))
         {
             target = Math.Max(v.MinDistance * factor, AudioK.OccludedMinDistance);
         }
@@ -793,6 +800,22 @@ public sealed partial class SoundSystem : Node3D, ISimEventSink
         }
 
         return v.OccludedMinDistance;
+    }
+
+    private bool TryOcclusion(FVector location, out OcclusionHits hits, out float factor)
+    {
+        hits = default;
+        factor = 1f;
+        if (World is null || !World.OcclusionBetween(ListenerLocation, location, out hits) ||
+            SoundRules.Occlusion(FVector.Dist(hits.NearListener, hits.NearSource), hits.TypeNearListener, hits.TypeNearSource,
+                hits.ZoneNearListener, hits.ZoneNearSource,
+                Library?.Map?.ZoneDistance(hits.ZoneNearListener, hits.ZoneNearSource) ?? 0) is not { } value)
+        {
+            return false;
+        }
+
+        factor = value;
+        return true;
     }
 
     private float AudioZoomGain(FVector location)
@@ -1115,6 +1138,7 @@ public sealed partial class SoundSystem : Node3D, ISimEventSink
         public float Volume;
         public float CallRadius;
         public float Radius;
+        public float PriorityRadiusFactor = 1f;
         public float MinDistance;
 
         /// <summary>The actor's SoundOcclusion (rule 18) and the eased, occluded minimum distance.</summary>

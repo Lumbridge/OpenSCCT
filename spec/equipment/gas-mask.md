@@ -31,7 +31,8 @@ The merc's gas mask gives 30 s of air in total. While it is on, smoke clouds and
    (`SetAmbientSoundOnServer(pawn, 2)`), else the breathing loop (1). Off: the controller's breathing or choking loop
    stops and the server clears the pawn's (0).
 3. **SetAmbientSoundOnServer(pawn, b)** (client to server): 1 breathing, 2 choking (the old sound stopped first), 0
-   clears a breathing or choking ambient sound.
+   clears a breathing or choking ambient sound. Enhanced B5 also clears a lingering choking loop on the pawn's
+   controller when stopping; unrelated controller ambient sounds are preserved.
 4. **Tick** (every machine with the gadget): while the mask is on, `MaskDuration -= dt` (the server adds the time to
    `Merc_GasMaskTimeUsed`); at 0 the air is clamped to 0 and the mask comes off; under 7.5 s while the pawn's ambient
    sound is not the choking one, off and on again (which switches to the choking loop).

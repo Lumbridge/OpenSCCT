@@ -75,6 +75,9 @@ public readonly record struct PillShape(int Pill, FVector A, FVector B, float Ra
 /// </summary>
 public interface IPillPose
 {
+    /// <summary>Captures the simulation's pose at an animation update; queries must not advance this history.</summary>
+    void UpdatePose(SBasePawn Pawn) { }
+
     /// <summary>Adds the pills of <paramref name="Pawn"/> to <paramref name="Shapes"/> (none when it has no pill mesh).</summary>
     void GetPills(SBasePawn Pawn, List<PillShape> Shapes);
 }

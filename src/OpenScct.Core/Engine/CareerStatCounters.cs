@@ -32,6 +32,8 @@ public static class CareerStatCounters
         new("career.spy_deathfromterminate", "Spy", "Deaths from merc choke kills", s => s.Spy_DeathFromTerminate, 10000),
         new("career.spy_deathfromgrenade", "Spy", "Deaths from grenades", s => s.Spy_DeathFromGrenade, 10000),
         new("career.spy_deathfrommine", "Spy", "Deaths from mines", s => s.Spy_DeathFromMine, 10000),
+        new("career.spy_deathfromjumpingtasedmerc", "Spy", "Deaths from shocked mercenary collisions", s => s.Spy_DeathFromJumpingTasedMerc, 10000),
+        new("career.spy_spybullettargets", "Gadgets", "Spy · Spy-bullet targets tagged", s => s.Spy_SpyBulletTargets, 10000),
         new("career.spy_objectivetimecaptured", "Spy", "Objective capture time (seconds)", s => s.Spy_ObjectiveTimeCaptured, 86400),
         new("career.spy_alarmstriggered", "Spy", "Alarms triggered", s => s.Spy_AlarmsTriggered, 10000),
         new("career.merc_knockedfromstickycam", "Mercenary", "Sticky camera knockouts received", s => s.Merc_KnockedFromStickyCam, 10000),
@@ -45,6 +47,7 @@ public static class CareerStatCounters
         new("career.merc_gasmasktimeused", "Gadgets", "Mercenary · Gas-mask time (seconds)", s => (int)Math.Clamp(float.IsFinite(s.Merc_GasMaskTimeUsed) ? s.Merc_GasMaskTimeUsed : 0f, 0f, 86400f), 86400),
         new("career.merc_backpacksgiven", "Gadgets", "Mercenary · Backpacks given", s => s.Merc_BackpacksGiven, 10000),
         new("career.merc_backpackstaken", "Gadgets", "Mercenary · Backpacks taken", s => s.Merc_BackpacksTaken, 10000),
+        new("career.merc_ammostocksused", "Gadgets", "Mercenary · Ammo stocks used", s => s.Merc_AmmoStocksUsed, 10000),
     ];
 
     public const string ShotsFired = "career.shotsfired";

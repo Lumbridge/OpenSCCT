@@ -4,6 +4,7 @@ using OpenScct.Core.Engine;
 using OpenScct.Game.Movement;
 using OpenScct.Game.SBase;
 using OpenScct.Physics.Collision;
+using OpenScct.Game.Tests.Combat;
 using Xunit;
 using static OpenScct.Game.Tests.Movement.MovementTestKit;
 using static OpenScct.Game.Tests.Movement.MovesetTestKit;
@@ -17,6 +18,23 @@ namespace OpenScct.Game.Tests.Movement;
 /// </summary>
 public sealed class SlowClimbTests
 {
+    [Theory]
+    [InlineData(0, 0, true, true)]
+    [InlineData(15000, 16384, true, true)]
+    [InlineData(16384, 16384, true, false)]
+    [InlineData(16384, 16384, false, true)]
+    public void ProjectionUsesTheNativesIntegerWeightAtVerticalPitch(int pitch, int pawnYaw, bool forwardKey, bool climbsUp)
+    {
+        var scene = new CombatScene();
+        var (pc, pawn) = scene.Player(true, default, pawnYaw);
+        pawn.Physics = EPhysics.PHYS_OnLadder;
+        pc.Rotation = new FRotator(pitch, 0, 0);
+        pc.BT_Up = (byte)(forwardKey ? 1 : 0);
+        pc.BT_Left = (byte)(forwardKey ? 0 : 1);
+        bool previousUse = false;
+        ControlInput.Compute(pc, Sim.DeltaTime, ref previousUse);
+        Assert.Equal(climbsUp, (pc.iMove & SPlayerController.cMoveUp) != 0);
+    }
     private const float Top = 400f;
 
     private static PawnRig SlowSpyAtLadder()

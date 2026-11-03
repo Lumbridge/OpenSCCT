@@ -96,7 +96,7 @@ public enum EClientState : byte
 /// <para>After Welcome the client loads the map and compares its content hash with the server's; on a mismatch it
 /// leaves with the original wording and names the sim file that differs.</para>
 /// </summary>
-public sealed class ClientSession : INetworkNotify, IDisposable
+public sealed partial class ClientSession : INetworkNotify, IDisposable
 {
     /// <summary>Chat lines kept for <see cref="TakeChat"/>; older ones beyond it are dropped.</summary>
     public const int MaxPendingChat = 64;
@@ -439,6 +439,7 @@ public sealed class ClientSession : INetworkNotify, IDisposable
                 connection.Close("Rejected: " + message.Text);
                 break;
             case EControlMessage.Text:
+                if (ReceiveDemoViewRequest(message.Text)) break;
                 if (Online.SessionProtocol.IsSession(message.Text))
                 {
                     SessionLineReceived?.Invoke(message.Text!);

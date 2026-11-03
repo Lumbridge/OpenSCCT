@@ -91,13 +91,16 @@ public static class SoundRules
     public static float AmbientPitch(byte soundPitch) => Pitch(soundPitch / AudioK.PitchUnit);
 
     /// <summary>Rule 16: priority of a source from the listener.</summary>
-    public static float Priority(float distanceSquared, float radius, float volume, int flags)
+    public static float Priority(float distanceSquared, float radius, float volume, int flags, float radiusFactor = 1f)
     {
         float p = 1f;
         if (radius != 0f)
         {
-            float reach = AudioK.RangeFactor * radius;
-            p = Math.Clamp(1f - (distanceSquared / (reach * reach)), AudioK.PriorityFloor, 1f);
+            float reach = AudioK.RangeFactor * radius * Math.Max(0f, radiusFactor);
+            // An unreachable zone can underflow its radius factor to zero. That is distinct from an authored
+            // radius of zero (unlimited priority reach), and must not make a distant occluded voice win a slot.
+            p = distanceSquared == 0f ? 1f : reach == 0f ? AudioK.PriorityFloor
+                : Math.Clamp(1f - (distanceSquared / (reach * reach)), AudioK.PriorityFloor, 1f);
         }
 
         return (p * volume) + ((flags >> 4) & 1) + ((flags >> 2) & 2) + ((flags >> 2) & 1);

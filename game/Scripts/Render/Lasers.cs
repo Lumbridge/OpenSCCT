@@ -1,3 +1,4 @@
+using OpenScctGame.Render.Materials;
 using System;
 using System.Collections.Generic;
 using Godot;
@@ -31,7 +32,7 @@ public sealed class Lasers
     private readonly Dictionary<float, ShaderMaterial> _heatMaterials = new();
     private readonly ArrayMesh? _mesh;
     private readonly ShaderMaterial _material;
-    private StandardMaterial3D? _normalMaterial;
+    private EffectMaterial? _normalMaterial;
     private bool _normalMaterialTried;
 
     public Lasers(RenderMap map)
@@ -154,7 +155,7 @@ public sealed class Lasers
 
     /// <summary>The normal-vision look: the LaserBeamShader texture added to the picture (the spy laser's material).</summary>
     [Provenance(ProvenanceKind.Estimated, "The detector beam's normal look reuses the spy beam's additive LaserBeamShader texture on the LasDetectBeam mesh; the TexScaler U scale is not applied")]
-    private StandardMaterial3D? NormalMaterial()
+    private EffectMaterial? NormalMaterial()
     {
         if (!_normalMaterialTried)
         {

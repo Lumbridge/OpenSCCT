@@ -1,3 +1,4 @@
+using OpenScctGame.Render.Materials;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -793,7 +794,7 @@ public sealed partial class EffectViews : Node3D
         if (!_skinMaterials.TryGetValue(path, out Material? material))
         {
             material = lib.Texture(lib.AnimationForSkin(path)?.Texture ?? lib.TexturePng(path)) is { } texture
-                ? new StandardMaterial3D
+                ? new EffectMaterial
                 {
                     ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded,
                     Transparency = BaseMaterial3D.TransparencyEnum.Alpha,
@@ -806,7 +807,7 @@ public sealed partial class EffectViews : Node3D
             _skinMaterials[path] = material;
         }
 
-        if (material is StandardMaterial3D animated && lib.AnimationForSkin(path) is { } animation)
+        if (material is EffectMaterial animated && lib.AnimationForSkin(path) is { } animation)
         {
             int frame = (int)(MathF.Max(time, 0f) * animation.Fps) % animation.Frames;
             animated.Uv1Scale = new Vector3(1f / animation.Columns, 1f / animation.Rows, 1f);

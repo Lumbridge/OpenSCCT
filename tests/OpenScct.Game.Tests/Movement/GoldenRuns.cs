@@ -11,7 +11,7 @@ namespace OpenScct.Game.Tests.Movement;
 /// <summary>
 /// Reads the local golden runs of the movement scenarios (local/difftest/golden, recorded from the original; never
 /// tracked) and replays them in a <see cref="PawnRig"/> on the converted map (.content/svmap). Tests that need them
-/// return early when either is missing.
+/// explicitly skip when either is missing, and fail in the strict local parity gate.
 /// </summary>
 internal static class GoldenRuns
 {
@@ -20,7 +20,8 @@ internal static class GoldenRuns
         string Cs, bool Crouch, int Hp, float Gs, float Fwd, float ZMax, IReadOnlyDictionary<string, int> Buttons, bool Jump,
         bool? Fast, (int Pitch, int Yaw)? View, string Anim0, bool FastSpeed, float Ch);
 
-    public static string GoldenDir => Path.Combine(MovementTestKit.RepoRoot, "local", "difftest", "golden");
+    public static string GoldenDir => Environment.GetEnvironmentVariable("OPENSCCT_GOLDEN_ROOT") is { Length: > 0 } path
+        ? Path.GetFullPath(path) : Path.Combine(MovementTestKit.RepoRoot, "local", "difftest", "golden");
 
     public static string SvMapDir(string map) => Path.Combine(MovementTestKit.RepoRoot, ".content", "svmap", map);
 

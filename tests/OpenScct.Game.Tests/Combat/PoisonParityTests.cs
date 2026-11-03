@@ -166,9 +166,14 @@ public sealed class PoisonParityTests
         SPawnAttaque pawn = Poison(spy, merc);
         pawn.NativeTickHealth(5f);
         pawn.NbPointsRefillable = 15;
-        var heal = world.Level.SpawnActor(new SHealMateInteraction(), default, default)!;
-        heal.ReplicateMate(pawn);
-        InteractionMenuRules.InteractionInit(spy, heal, 0);
+        var healer = world.Level.Spawn<SPlayerController>()!;
+        var healerPawn = world.Level.Spawn<SPawnAttaque>(pawn.Location - new FVector(120f, 0f, 0f))!;
+        healer.Pawn = healer.SBPawn = healerPawn;
+        healerPawn.Controller = healer;
+        healer.GotoState("s_PlayerWalkingSt0H");
+        pawn.Rotation = new FRotator(0, 32768, 0);
+        var heal = world.Level.Spawn<SHealMateInteraction>(owner: healer)!;
+        InteractionMenuRules.InteractionInit(healer, heal, 0);
 
         Assert.Equal(100, pawn.Health);
         Assert.False(pawn.bPoisonned);

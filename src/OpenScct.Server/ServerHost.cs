@@ -151,7 +151,7 @@ public sealed class PlayerSlot
 /// runs a dedicated server (any transport) and a listen server (see <see cref="ListenServer"/>).
 /// <para>Single-threaded: call <see cref="Tick"/> (or <see cref="RunRealtime"/>) from one thread only.</para>
 /// </summary>
-public sealed class ServerHost : INetworkNotify, IDisposable
+public sealed partial class ServerHost : INetworkNotify, IDisposable
 {
     private readonly List<PlayerSlot> _players = new();
     private readonly List<NetConnection> _rejected = new();
@@ -509,6 +509,7 @@ public sealed class ServerHost : INetworkNotify, IDisposable
         if (pc.PlayerReplicationInfo is { } pri) pri.bWaitingPlayer = true;
         Driver.ResetConnectionPing(connection);
         recorder.StartTraining();
+        RequestDemoViews(true);
         return recorder;
     }
 
@@ -545,6 +546,7 @@ public sealed class ServerHost : INetworkNotify, IDisposable
             case EControlMessage.Text:
                 if (connection.State == EConnectionState.USOCK_Open)
                 {
+                    if (ReceiveDemoView(connection, message.Text)) break;
                     if (Online.SessionProtocol.IsSession(message.Text))
                     {
                         SessionLineReceived?.Invoke(connection, connection.UserData as PlayerSlot, message.Text!);
@@ -790,6 +792,7 @@ public sealed class ServerHost : INetworkNotify, IDisposable
 
         connection.bJoined = true;
         Driver.ResetConnectionPing(connection);
+        if (Recorder is { IsFinished: false }) connection.ControlChannel?.Send(ControlMessage.TextLine(DemoViewRequest));
         PlayerJoined?.Invoke(slot);
     }
 

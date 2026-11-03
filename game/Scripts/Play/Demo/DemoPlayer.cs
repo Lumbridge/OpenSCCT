@@ -232,7 +232,7 @@ public sealed class DemoPlayer : IDisposable
                 Session = new PlaySession(settings, Clock, client, catalog.Maps, folder, loader, _ => BeforeTick())
                 {
                     ViewOverride = ViewFor,
-                    FirstPersonOverride = () => Mode == DemoCameraMode.FirstPerson ? Target : null,
+                    FirstPersonOverride = FirstPersonBody,
                 };
                 return Session;
             },
@@ -433,6 +433,8 @@ public sealed class DemoPlayer : IDisposable
         switch (Mode)
         {
             case DemoCameraMode.FirstPerson when pawn is not null:
+                if (Client is not null && Client.TryRecordedDemoView(Recording, pawn, PacketTick, out DemoViewFrame recorded))
+                    return new ViewSample(tick, recorded.Location, recorded.Rotation, recorded.Fov, true, recorded.SpyFirstPerson);
                 return new ViewSample(tick, Eye(pawn), AimOf(pawn), fov, true);
             case DemoCameraMode.ThirdPerson when pawn is not null:
                 return _chase.ViewFor(pawn, tick, fov, ChaseDistance);
@@ -448,6 +450,14 @@ public sealed class DemoPlayer : IDisposable
     }
 
     private static FVector Eye(SBasePawn pawn) => pawn.Location + new FVector(0f, 0f, pawn.EyeHeight);
+
+    private SBasePawn? FirstPersonBody()
+    {
+        if (Mode != DemoCameraMode.FirstPerson || Target is not { } pawn) return null;
+        if (Client is not null && Client.TryRecordedDemoView(Recording, pawn, PacketTick, out DemoViewFrame view) &&
+            !view.FirstPersonBody) return null;
+        return pawn;
+    }
 
     /// <summary>Where the player aims: the aim the proxy samples carry (pitch high, yaw low), else the body.</summary>
     private static FRotator AimOf(SBasePawn pawn)

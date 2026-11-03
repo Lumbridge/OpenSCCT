@@ -106,6 +106,8 @@ internal sealed class PcState : ActorState
 /// </summary>
 internal class TestPC : SPlayerController
 {
+    public override bool CanInteract() => IsInState(K.s_PlayerWalkingSt0H) || IsInState(K.s_PlayerWalkingCr0H) || IsInState(K.s_MenuInteraction);
+
     public static readonly StateTable States = new(SPlayerController.ClassStates,
         new PcState(K.s_PlayerWalkingSt0H),
         new PcState(K.s_PlayerWalkingCr0H),

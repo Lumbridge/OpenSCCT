@@ -105,7 +105,7 @@ opens a menu to pick the type or remove the oldest mine. A merc can pick a mine 
    `AddMineCounter(1)`; stats `Merc_MinesPlaced`; on a gameplay object the mine takes it as its base.
 
 ### The menu
-8. **s_PutMineOnWall_InteractionMenu** (ignores the torch and laser keys): on entry the button edges reset; on the
+8. **s_PutMineOnWall_InteractionMenu** (ignores the torch and laser keys): on entry held buttons keep their edges (B5); on the
    input machine every type is unusable when there is no charge (outside the tutorial), "Delete oldest" is unusable
    until the server answers `AskServerToRemoveOldestMine(self, 0, test)`; grabs allowed. `WheelUp` /
    `WheelDown` (and the up/down keys on their press edge) select the previous / next item with wrap over the 5 items.
@@ -119,6 +119,12 @@ opens a menu to pick the type or remove the oldest mine. A merc can pick a mine 
     end goes back to waiting.
 
 ### Mines
+Enhanced B5's laser-mine arming timer first traces back from maximum beam reach to 2 uu in front of the mine.
+With no opposite surface it retries after 0.25 s, so an open moving door cannot leave a newly armed full-length
+beam. After activation, an out-of-range/no-wall beam is hidden; when the surface returns, the normal remeasurement
+shows it again. Proximity and poison mine arming is unchanged. The menu seeds its prior button state from the
+currently held keys, so opening it while moving does not scroll until a new press; the mouse wheel remains immediate.
+
 12. **SMines**: `SetInitialState` only marks the script initialised (no auto state). `PreBeginPlay` halves
     `HeatIntensity` in rain. `PostBeginPlay`: the placement sound (radius 24); on the server the arming timer
     (`TempsActivation`, or `Timer` at once when 0) and the gameplay object start (its interaction); `fSpawnedTime =

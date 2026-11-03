@@ -113,13 +113,27 @@ public class EndOfRoundTests
         Assert.Equal(1, w.Gri.WinningTeam);
     }
 
-    [Fact]
-    public void A_side_whose_players_all_quit_is_not_dead()
+    [Theory]
+    [InlineData(0, 1)]
+    [InlineData(1, 0)]
+    public void A_side_whose_last_player_quits_loses(int quitter, int winner)
     {
         (GameWorld w, SPlayerController[] p, _) = Net([false], "?Name=S?Team=0", "?Name=M?Team=1");
-        p[0].PlayerReplicationInfo!.bQuittedMatch = true;
-        p[0].PlayerReplicationInfo!.NumLives = 0;
-        Assert.False(w.Game.sCheckEndGame());
+        w.Game.Logout(p[quitter]);
+        Assert.True(w.Game.bGameEnded);
+        Assert.Equal(winner, w.Gri.WinningTeam);
+        Assert.Equal((byte)EEndReason.END_TEAMDEATH, w.Gri.WinningReason);
+    }
+
+    [Fact]
+    public void A_departing_teammate_or_spectator_does_not_end_a_contested_round()
+    {
+        (GameWorld w, SPlayerController[] p, _) = Net([false], "?Name=S?Team=0", "?Name=T?Team=0", "?Name=M?Team=1");
+        w.Game.Logout(p[0]);
+        Assert.False(w.Game.bGameEnded);
+        SPlayerController visitor = w.Join("?Name=V?Team=255");
+        w.Game.Logout(visitor);
+        Assert.False(w.Game.bGameEnded);
     }
 
     [Fact]
@@ -252,7 +266,7 @@ public class EndOfRoundTests
     }
 
     [Fact]
-    public void The_result_can_be_rewritten_after_the_end()
+    public void A_completed_result_survives_later_departures_and_end_requests()
     {
         (GameWorld w, SPlayerController[] p, SObjective[] o) = Net([false], "?Name=S?Team=0", "?Name=M?Team=1", "?Name=N?Team=1");
         o[0].ObjectiveTaken = true;
@@ -260,8 +274,12 @@ public class EndOfRoundTests
         Assert.Equal(0, w.Gri.WinningTeam);
         w.Gri.ElapsedTime = 600;
         w.Game.Logout(p[2]);
-        Assert.Equal(1, w.Gri.WinningTeam);
-        Assert.Equal((byte)EEndReason.END_TIMEOUT, w.Gri.WinningReason);
+        w.Game.ReplicateWinningReason(1, EEndReason.END_TIMEOUT);
+        w.Game.sEndGame();
+        Assert.False(w.Game.sCheckEndGame());
+        Assert.Equal(0, w.Game.WinnerTeam);
+        Assert.Equal(0, w.Gri.WinningTeam);
+        Assert.Equal((byte)EEndReason.END_STORY, w.Gri.WinningReason);
     }
 
     // ---- other entry points (rules 20 and 21) -------------------------------------------------------------------

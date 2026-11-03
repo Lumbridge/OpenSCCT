@@ -94,6 +94,13 @@ public partial class SGadGasMask
                 P.AmbientSound = AssetRef.None;
                 break;
         }
+
+        // Enhanced B5 also clears the controller copy, which can outlive the pawn's loop on the server.
+        if (bVal is not K.GAD_RESPIRE and not K.GAD_ETOUFFE && P.Controller is { } controller &&
+            controller.AmbientSound == Snd_Etouffement)
+        {
+            controller.AmbientSound = AssetRef.None;
+        }
     }
 
     /// <summary>The mask on or off: the flag here and on the server, the breathing or choking loop.</summary>

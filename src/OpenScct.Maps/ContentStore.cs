@@ -117,10 +117,12 @@ public sealed class ContentStore
     public bool Has(ContentMap map, ContentKind kind = ContentKind.Full)
     {
         ArgumentNullException.ThrowIfNull(map);
-        return InstalledMap(map.Code) is { } c && (c.Kind == ContentKind.Full || kind == ContentKind.Sim) &&
-            (string.Equals(c.Sha256, map.Full.Sha256, StringComparison.OrdinalIgnoreCase) ||
-             string.Equals(c.Sha256, map.Sim.Sha256, StringComparison.OrdinalIgnoreCase) ||
-             (c.ContentHash.Length > 0 && string.Equals(c.ContentHash, map.ContentHash, StringComparison.OrdinalIgnoreCase)));
+        if (InstalledMap(map.Code) is not { } c || c.Kind != ContentKind.Full && kind == ContentKind.Full) return false;
+        if (string.Equals(c.Sha256, map.Full.Sha256, StringComparison.OrdinalIgnoreCase)) return true;
+        // Gameplay compatibility does not imply current visuals/audio: a full pack can change without changing
+        // the multiplayer ContentHash. Only a simulation-only request may reuse that compatible older install.
+        return kind == ContentKind.Sim && (string.Equals(c.Sha256, map.Sim.Sha256, StringComparison.OrdinalIgnoreCase) ||
+            c.ContentHash.Length > 0 && string.Equals(c.ContentHash, map.ContentHash, StringComparison.OrdinalIgnoreCase));
     }
 
     /// <summary>

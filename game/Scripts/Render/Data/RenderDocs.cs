@@ -205,6 +205,7 @@ public sealed record FlipbookEntry(string Texture, int Cols, int Rows, int Frame
 /// <summary>One material of render/materials.json, keyed by its glTF material name.</summary>
 public sealed class MaterialEntry
 {
+    public IReadOnlyDictionary<string, MaterialSequenceEntry> Sequences { get; init; } = new Dictionary<string, MaterialSequenceEntry>();
     public required string Name { get; init; }
 
     public string? Source { get; init; }
@@ -275,6 +276,14 @@ public sealed class MaterialEntry
     public string? Lightmap { get; set; }
 
     public bool Skip { get; init; }
+
+    /// <summary>A sequence frame keeps the owning surface's lightmap without changing the shared parsed frame.</summary>
+    internal MaterialEntry WithLightmap(string? lightmap)
+    {
+        var copy = (MaterialEntry)MemberwiseClone();
+        copy.Lightmap = lightmap;
+        return copy;
+    }
 
     public MaterialBlend Blend =>
         ListBlend ?? (Translucent ? MaterialBlend.Translucent : Masked ? MaterialBlend.Masked : MaterialBlend.Opaque);
@@ -364,45 +373,58 @@ public sealed class MaterialsDoc
                     illumination = originalFlags;
                 }
                 bool opaqueCombiner = doc.IsBareCombiner(source);
-                doc._byName[m.Name] = new MaterialEntry
-                {
-                    Name = m.Name,
-                    Source = source,
-                    Texture = has ? Str(f, "texture") : null,
-                    Masked = has && Bool(f, "masked") && !opaqueCombiner,
-                    Translucent = has && Bool(f, "translucent") && !opaqueCombiner,
-                    TwoSided = has && Bool(f, "two_sided"),
-                    Unlit = has && Bool(f, "unlit"),
-                    SelfIllum = has ? Str(illumination, "self_illum") : null,
-                    SelfIllumMask = has ? Str(illumination, "self_illum_mask") : null,
-                    SpecMask = has ? Str(f, "spec_mask") : null,
-                    EnvColor = has && f.TryGetProperty("env_color", out JsonElement env) && env.ValueKind == JsonValueKind.Array
-                        ? new Vector3(env[0].GetSingle(), env[1].GetSingle(), env[2].GetSingle())
-                        : null,
-                    UvAnim = has && f.TryGetProperty("uv_anim", out JsonElement uv) ? UvAnim.From(uv) : null,
-                    UvMatrix = has && f.TryGetProperty("uv_matrix", out JsonElement um) ? UvAffine.From(um) : null,
-                    Opacity = has ? LayerOf(f, "opacity", Str(f, "opacity")) : null,
-                    OpacityLum = has && Bool(f, "opacity_lum"),
-                    SpecMaskLayer = has && (f.TryGetProperty("spec_mask_anim", out _) || f.TryGetProperty("spec_mask_matrix", out _))
-                        ? LayerOf(f, "spec_mask", Str(f, "spec_mask"))
-                        : null,
-                    SelfIllumLayer = has ? ChainLayerOf(illumination, "self_illum_layer", Str(illumination, "self_illum")) : null,
-                    SelfIllumMaskLayer = has ? ChainLayerOf(illumination, "self_illum_mask_layer", Str(illumination, "self_illum_mask")) : null,
-                    EnvTexture = has ? Str(f, "env_texture") : null,
-                    EnvWorld = has && Bool(f, "env_world"),
-                    Combine = has && f.TryGetProperty("combine", out JsonElement comb) ? CombineEntry.From(comb) : null,
-                    LightBeforeCombine = opaqueCombiner,
-                    Flipbook = has && f.TryGetProperty("flipbook", out JsonElement fb) ? FlipbookEntry.From(fb) : null,
-                    Mirror = has && Bool(f, "mirror"),
-                    Projector = has && Bool(f, "projector"),
-                    Skip = has && Bool(f, "skip"),
-                };
+                doc._byName[m.Name] = FromFlags(m.Name, f, source, opaqueCombiner, illumination);
             }
         }
 
         ApplyList(doc, root, "additive", _ => MaterialBlend.Additive);
         ApplyList(doc, root, "modulate", e => Str(e, "mode") == "darken" ? MaterialBlend.Darken : MaterialBlend.Modulate);
         return doc;
+    }
+
+    /// <summary>Reads the same flags for a static surface or one complete MaterialSequence Show frame.</summary>
+    public static MaterialEntry FromFlags(string name, JsonElement f, string? source = null,
+        bool opaqueCombiner = false, JsonElement illumination = default)
+    {
+        bool has = f.ValueKind == JsonValueKind.Object;
+        if (illumination.ValueKind != JsonValueKind.Object) illumination = f;
+        return new MaterialEntry
+        {
+            Name = name,
+            Source = source,
+            Texture = has ? Str(f, "texture") : null,
+            Masked = has && Bool(f, "masked") && !opaqueCombiner,
+            Translucent = has && Bool(f, "translucent") && !opaqueCombiner,
+            TwoSided = has && Bool(f, "two_sided"),
+            Unlit = has && Bool(f, "unlit"),
+            SelfIllum = has ? Str(illumination, "self_illum") : null,
+            SelfIllumMask = has ? Str(illumination, "self_illum_mask") : null,
+            SpecMask = has ? Str(f, "spec_mask") : null,
+            EnvColor = has && f.TryGetProperty("env_color", out JsonElement env) && env.ValueKind == JsonValueKind.Array
+                ? new Vector3(env[0].GetSingle(), env[1].GetSingle(), env[2].GetSingle())
+                : null,
+            UvAnim = has && f.TryGetProperty("uv_anim", out JsonElement uv) ? UvAnim.From(uv) : null,
+            UvMatrix = has && f.TryGetProperty("uv_matrix", out JsonElement um) ? UvAffine.From(um) : null,
+            Opacity = has ? LayerOf(f, "opacity", Str(f, "opacity")) : null,
+            OpacityLum = has && Bool(f, "opacity_lum"),
+            SpecMaskLayer = has && (f.TryGetProperty("spec_mask_anim", out _) || f.TryGetProperty("spec_mask_matrix", out _))
+                ? LayerOf(f, "spec_mask", Str(f, "spec_mask"))
+                : null,
+            SelfIllumLayer = has ? ChainLayerOf(illumination, "self_illum_layer", Str(illumination, "self_illum")) : null,
+            SelfIllumMaskLayer = has ? ChainLayerOf(illumination, "self_illum_mask_layer", Str(illumination, "self_illum_mask")) : null,
+            EnvTexture = has ? Str(f, "env_texture") : null,
+            EnvWorld = has && Bool(f, "env_world"),
+            Combine = has && f.TryGetProperty("combine", out JsonElement comb) ? CombineEntry.From(comb) : null,
+            LightBeforeCombine = opaqueCombiner,
+            Flipbook = has && f.TryGetProperty("flipbook", out JsonElement fb) ? FlipbookEntry.From(fb) : null,
+            Sequences = has ? MaterialSequenceEntry.From(f) : new Dictionary<string, MaterialSequenceEntry>(),
+            Mirror = has && Bool(f, "mirror"),
+            Projector = has && Bool(f, "projector"),
+            Skip = has && Bool(f, "skip"),
+            ListBlend = has ? Str(f, "blend") switch { "opaque" => MaterialBlend.Opaque, "masked" => MaterialBlend.Masked,
+                "translucent" => MaterialBlend.Translucent, "additive" => MaterialBlend.Additive,
+                "modulate" => MaterialBlend.Modulate, "darken" => MaterialBlend.Darken, _ => null } : null,
+        };
     }
 
     private bool IsBareCombiner(string? path)
@@ -583,6 +605,9 @@ public sealed record ZoneEntry(
 /// <summary>render/lighting.json.</summary>
 public sealed class LightingDoc
 {
+    public List<Post.FogPortal> FogPortals { get; } = [];
+    public List<Post.FogVolumePiece> FogVolumes { get; } = [];
+    public bool HasFogPortals { get; private set; }
     public List<LightEntry> Lights { get; } = [];
 
     public List<ZoneEntry> Zones { get; } = [];
@@ -624,6 +649,21 @@ public sealed class LightingDoc
 
         using JsonDocument json = JsonDocument.Parse(File.ReadAllBytes(path));
         JsonElement root = json.RootElement;
+        if (root.TryGetProperty("fogPortals", out JsonElement portals) && portals.ValueKind == JsonValueKind.Array)
+        {
+            doc.HasFogPortals = true;
+            foreach (JsonElement portal in portals.EnumerateArray())
+            {
+                JsonElement p = portal.GetProperty("plane");
+                var vertices = new List<System.Numerics.Vector3>();
+                foreach (JsonElement v in portal.GetProperty("vertices").EnumerateArray())
+                    vertices.Add(new(v[0].GetSingle(), v[1].GetSingle(), v[2].GetSingle()));
+                if (vertices.Count >= 3) doc.FogPortals.Add(new(new(p[0].GetSingle(), p[1].GetSingle(), p[2].GetSingle(), p[3].GetSingle()),
+                    portal.GetProperty("back").GetInt32(), portal.GetProperty("front").GetInt32(), vertices.ToArray()));
+            }
+        }
+        if (root.TryGetProperty("fogVolumes", out JsonElement volumes) && volumes.ValueKind == JsonValueKind.Array)
+            foreach (JsonElement volume in volumes.EnumerateArray()) doc.FogVolumes.Add(Post.FogVolumePiece.Read(volume));
         Dictionary<string, LightFlags> lightDefaults = LightClassDefaults(path);
         if (root.TryGetProperty("lights", out JsonElement lights))
         {

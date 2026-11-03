@@ -13,7 +13,7 @@ public sealed partial class MapCatalog
     private ulong? _characterContentHash;
     private IPillPose? _pillPose;
 
-    /// <summary>The same content-backed roll collision geometry on clients and dedicated servers.</summary>
+    /// <summary>The same animated character collision geometry on clients and dedicated servers.</summary>
     public IPillPose PillPose
     {
         get

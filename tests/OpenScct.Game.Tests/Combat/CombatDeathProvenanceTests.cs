@@ -40,6 +40,54 @@ public sealed class CombatDeathProvenanceTests
     }
 
     [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void AnExplosiveKeepsItsKillCategoryAfterTheOwnersPawnIsRemoved(bool mine)
+    {
+        var (world, spy, merc) = Match();
+        spy.Pawn!.SetLocation(new FVector(100, 0, 100));
+        Pawn owner = merc.Pawn!;
+        owner.SetLocation(new FVector(2000, 0, 100));
+        Actor explosive = mine
+            ? world.Level.SpawnActor(new SMineProx { PcOwner = merc }, new FVector(0, 0, 100), default, owner, owner)!
+            : world.Level.SpawnActor(new SProjFrag(), new FVector(0, 0, 100), default, owner, owner)!;
+        owner.Destroy();
+        world.World.Step();
+        Assert.Null(merc.Pawn);
+        if (explosive is SProjFrag frag) frag.Explode(frag.Location, default);
+        else explosive.eventTakeDamage(1, spy.Pawn, explosive.Location, default, SDamageType.SDTStickyShocker);
+        Assert.True(spy.Pawn!.Health <= 0);
+        Assert.Equal(1, merc.PlayerReplicationInfo!.Kills);
+        Assert.Equal(mine ? 1 : 0, merc.PlayerReplicationInfo.Stats!.Merc_MineKills);
+        Assert.Equal(mine ? 0 : 1, merc.PlayerReplicationInfo.Stats.Merc_GrenadeKills);
+        Assert.Equal(mine ? 1 : 0, spy.PlayerReplicationInfo!.Stats!.Spy_DeathFromMine);
+        Assert.Equal(mine ? 0 : 1, spy.PlayerReplicationInfo.Stats.Spy_DeathFromGrenade);
+    }
+
+    [Fact]
+    public void AShockedMercCollisionCountsTheSpysDeathCause()
+    {
+        var (world, spy, merc) = Match();
+        world.Game.Killed(merc, spy, spy.Pawn, SDamageType.SDTStickyBlast);
+        Assert.Equal(1, spy.PlayerReplicationInfo!.Stats!.Spy_DeathFromJumpingTasedMerc);
+        Assert.Equal(0, merc.PlayerReplicationInfo!.Stats!.Merc_WeaponHipfireKills);
+    }
+
+    [Fact]
+    public void ABulletKillingAnAlreadyPoisonedSpyCountsAsAGunKill()
+    {
+        var (world, spy, merc) = Match();
+        var gun = world.Level.SpawnActor(new SWeaponDefense(), merc.Pawn!.Location, default, merc.Pawn, merc.Pawn)!;
+        gun.GiveTo(merc.Pawn);
+        spy.PoisonInstigator = merc;
+        ((SBasePawn)spy.Pawn!).bPoisonned = true;
+        spy.PawnTakeDamage(500, merc.Pawn, spy.Pawn.Location, default, SDamageType.SDTBase, 1);
+        Assert.Equal(1, merc.PlayerReplicationInfo!.Stats!.Merc_WeaponHipfireKills);
+        Assert.Equal(0, merc.PlayerReplicationInfo.Stats.Merc_MineKills);
+        Assert.Equal(1, spy.PlayerReplicationInfo!.Stats!.Spy_DeathFromWeaponHipfire);
+    }
+
+    [Theory]
     [InlineData("FAC_STM.fakebaril", CombatDeathCause.BarrelExplosion)]
     [InlineData("SM_Egouts.Egouts_GD_SM_X-Box.X_F_BonbonneSE", CombatDeathCause.GasExplosion)]
     [InlineData("Squat.squ_mer_obj_extinct", CombatDeathCause.ExplosiveExtinguisher)]
@@ -93,6 +141,9 @@ public sealed class CombatDeathProvenanceTests
         Assert.Equal((int)SDamageType.SDTBase, CombatActivityDeath.LegacySwitch(death.Int));
         Assert.Same(merc.PlayerReplicationInfo, death.Pri1);
         Assert.Same(spy.PlayerReplicationInfo, death.Pri2);
+        Assert.Equal(1, merc.PlayerReplicationInfo!.Stats!.Merc_MineKills);
+        Assert.Equal(1, spy.PlayerReplicationInfo!.Stats!.Spy_DeathFromMine);
+        Assert.Equal(0, merc.PlayerReplicationInfo.Stats.Merc_WeaponHipfireKills);
     }
 
     [Theory]

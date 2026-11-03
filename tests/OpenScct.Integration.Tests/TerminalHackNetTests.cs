@@ -164,7 +164,11 @@ public sealed class TerminalHackNetTests
         // Drive the authoritative use and cancel; both the use timestamp and availability reach the late
         // client through normal replication, while its own level clock is still thirty seconds younger.
         var spy = rig.Server.World.Level.Spawn<SPlayerController>()!;
-        spy.Pawn = rig.Server.World.Level.Spawn<SPawnAttaque>(terminal.Location + new FVector(64, 0, 0))!;
+        FVector useSpot = entry.Location + entry.Rotation.Vector() * 30f;
+        spy.Pawn = rig.Server.World.Level.Spawn<SPawnAttaque>(useSpot, (entry.Location - useSpot).Rotation())!;
+        spy.SBPawn = (SBasePawn)spy.Pawn;
+        spy.Pawn.Controller = spy;
+        spy.GotoState("s_PlayerWalkingSt0H");
         InteractionMenuRules.InteractionInit(spy, entry, 0);
         terminal.eventTriggering(true);
         for (int n = 0; n < Sim.Hz; n++) rig.Step();

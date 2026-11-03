@@ -403,7 +403,7 @@ public sealed class InteractionSystemTests
     {
         var w = new ObjWorld();
         TestPC pc = w.AddPlayer(spy: true, default);
-        TestPC mate = w.AddPlayer(spy: true, default);
+        TestPC mate = w.AddPlayer(spy: true, new FVector(120f, 0f, 0f), new FRotator(0, 32768, 0));
         var mateBody = (SBasePawn)mate.Pawn!;
         mateBody.Health = 30;
         mateBody.bPoisonned = true;
@@ -419,7 +419,7 @@ public sealed class InteractionSystemTests
     // ---- rules 10 to 18: opening, release and the server calls --------------------------------------------------
 
     [Fact]
-    public void DoInteraction_opens_the_menu_only_when_slow_and_Use_is_held()
+    public void DoInteraction_opens_while_moving_when_Use_is_held_and_the_state_allows_it()
     {
         (ObjWorld w, SBasicGamePlayObject owner) = WithOwner();
         var entry = SpawnEntry<STriggerInteraction>(w, owner);
@@ -429,9 +429,6 @@ public sealed class InteractionSystemTests
         pc.bUsing = 1;
         pc.aForward = 4000f;
         pc.aStrafe = 1f;
-        Assert.False(InteractionMenuRules.DoInteraction(pc, canInteract: true));
-
-        pc.aStrafe = 0f;
         Assert.False(InteractionMenuRules.DoInteraction(pc, canInteract: false));
         Assert.True(InteractionMenuRules.DoInteraction(pc, canInteract: true));
         Assert.True(pc.IsInState(K.s_MenuInteraction));

@@ -313,14 +313,14 @@ public partial class SPlayerController
         [PortOf("uc:SBase.SPlayerController:s_StickyCam_MenuInteraction.CanIUseBinocular", Spec = "spec/equipment/sticky-cam.md#menu-previous-cam-refills")]
         public override bool CanIUseBinocular(SPlayerController self) => false;
 
-        /// <summary>The button edges reset, grabs allowed; on the input machine whether each item can be used.</summary>
+        /// <summary>Held buttons retain their edges, grabs are allowed, and the usable menu items are checked.</summary>
         [Uc("SBase.SPlayerController.s_StickyCam_MenuInteraction.BeginState", Sha1 = "58480ea0af0658b36b45d49e98f8234adb4fb2a7")]
         [PortOf("uc:SBase.SPlayerController:s_StickyCam_MenuInteraction.BeginState", Spec = "spec/equipment/sticky-cam.md#menu-previous-cam-refills")]
         public override void BeginState(Actor self)
         {
             var pc = (SPlayerController)self;
-            pc.Previous_BT_Up = 0;
-            pc.Previous_BT_Down = 0;
+            pc.Previous_BT_Up = pc.BT_Up;
+            pc.Previous_BT_Down = pc.BT_Down;
             pc.LastUpdateButton = pc.Level.TimeSeconds;
             if (pc.SBPawn is { } pawn)
             {

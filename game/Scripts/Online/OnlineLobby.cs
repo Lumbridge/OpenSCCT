@@ -142,7 +142,12 @@ public sealed class OnlineLobby : IOnlineLobbySession
 
     public void Spectate() => _client.SetTeam(SessionProtocol.SpectatorTeam);
 
-    public void SetReady(bool ready) => _client.SetReady(ready);
+    public bool HasReadyMap => State.Local?.Map == MapState.Ok;
+
+    public void SetReady(bool ready)
+    {
+        if (!ready || HasReadyMap) _client.SetReady(ready);
+    }
 
     public void Start(SceneTree tree) => _client.Launch();
 

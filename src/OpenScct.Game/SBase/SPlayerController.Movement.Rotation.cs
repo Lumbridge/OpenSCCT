@@ -109,6 +109,7 @@ public partial class SPlayerController
             v.Pitch = SvmMath.Clamp(v.Pitch, MovementK.PitchMin, MovementK.PitchMax);
         }
 
+        v.Roll = 0;
         Rotation = v;
     }
 

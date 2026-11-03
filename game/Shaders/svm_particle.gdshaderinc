@@ -10,6 +10,7 @@
 //   and nothing for the others; EMF draws nothing.
 
 global uniform int svm_vision;
+#include "res://Shaders/svm_fog.gdshaderinc"
 
 uniform sampler2D tex_sprite : filter_linear_mipmap, repeat_disable, hint_default_white;
 uniform bool blend_cells = false;
@@ -40,28 +41,31 @@ void fragment() {
 		discard;
 #endif
 	} else {
+		vec4 fog = surface_fog(CAMERA_VISIBLE_LAYERS, VERTEX, FRAGCOORD.xy, VIEWPORT_SIZE);
 #if defined(STYLE_ADD)
-		ALBEDO = c.rgb;
+		ALBEDO = c.rgb * fog.a;
 		ALPHA = 1.0;
 #elif defined(STYLE_MODULATE)
-		ALBEDO = c.rgb * 2.0;
+		// SetParticleMaterial uses byte-grey 127 as this draw style's fog color.
+		ALBEDO = mix(vec3(254.0 / 255.0), c.rgb * 2.0, fog.a);
 		ALPHA = 1.0;
 #elif defined(STYLE_DARKEN)
-		ALBEDO = vec3(1.0) - c.rgb;
+		ALBEDO = vec3(1.0) - c.rgb * fog.a;
 		ALPHA = 1.0;
 #elif defined(STYLE_PREMUL)
-		ALBEDO = c.rgb;
+		// Native premultiplied particles use black fog, like additive particles.
+		ALBEDO = c.rgb * fog.a;
 		ALPHA = c.a;
 #elif defined(STYLE_BRIGHTEN)
-		ALBEDO = c.rgb;
-		ALPHA = max(c.r, max(c.g, c.b));
+		ALBEDO = c.rgb * fog.a;
+		ALPHA = max(c.r, max(c.g, c.b)) * fog.a;
 #elif defined(STYLE_REGULAR)
 		if (alpha_ref >= 0.0 && c.a <= alpha_ref) {
 			discard;
 		}
-		ALBEDO = c.rgb;
+		ALBEDO = c.rgb * fog.a + fog.rgb;
 #else
-		ALBEDO = c.rgb;
+		ALBEDO = c.rgb * fog.a + fog.rgb;
 		ALPHA = c.a;
 #endif
 	}

@@ -4,12 +4,11 @@ using Godot;
 namespace OpenScctGame.Render.Post;
 
 /// <summary>
-/// The colour buffer as a storage image for the post passes, which read and write it in place. Without MSAA the
-/// scene's colour buffer is one. With MSAA the buffer the passes get is the resolve target, which Godot 4.7.2 makes
-/// without storage use (binding it as an image failed and crashed the armoury preview, 5678a73). Then the passes run
-/// on a copy: <see cref="Begin"/> copies the resolved frame into a storage texture of this helper's own (a compute
-/// copy through a sampler, as the resolve target cannot be copied from), and <see cref="End"/> copies the result back
-/// into the resolve target, which Godot's tonemap pass reads next. Render thread only.
+/// The resolved colour buffer as a storage image for in-place post passes. Callers explicitly request the
+/// single-sample layer. When that layer lacks storage usage but permits sampling and copying back, <see cref="Begin"/>
+/// copies it through a sampler into this helper's storage texture, and <see cref="End"/> copies the result back
+/// before tonemapping. Unsupported sample/usage combinations skip the pass rather than bind an invalid image.
+/// Render thread only.
 /// </summary>
 public sealed class StorageColor
 {
@@ -62,15 +61,18 @@ public sealed class StorageColor
         {
             using RDTextureFormat format = rd.TextureGetFormat(color);
             _checked = color;
-            _checkedStorage = (format.UsageBits & RenderingDevice.TextureUsageBits.StorageBit) != 0;
+            _checkedStorage = (format.UsageBits & RenderingDevice.TextureUsageBits.StorageBit) != 0
+                && format.Samples == RenderingDevice.TextureSamples.Samples1
+                && format.Format == RenderingDevice.DataFormat.R16G16B16A16Sfloat;
             _checkedCopyBack = (format.UsageBits & RenderingDevice.TextureUsageBits.CanCopyToBit) != 0
                 && (format.UsageBits & RenderingDevice.TextureUsageBits.SamplingBit) != 0
                 && format.Samples == RenderingDevice.TextureSamples.Samples1;
             _checkedFormat = format.Format;
             if (!_checkedStorage)
             {
-                GD.Print($"SVM_RENDER {_owner}: the colour buffer is not a storage image (MSAA resolve target); "
-                    + (_checkedCopyBack ? "the post passes run on a copy" : "it cannot be copied back either, the post passes are skipped"));
+                GD.Print($"SVM_RENDER {_owner}: the colour buffer is not a compatible storage image; "
+                    + (_checkedCopyBack ? "the post passes run on a copy" : "it cannot be copied back either, the post passes are skipped")
+                    + $"; usage={format.UsageBits}, samples={format.Samples}, type={format.TextureType}");
             }
         }
 

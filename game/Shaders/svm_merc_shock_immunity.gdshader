@@ -1,6 +1,7 @@
 // A depth-tested second draw of the merc body. It never replaces the character's skins or lighting.
 shader_type spatial;
 render_mode unshaded, blend_add, depth_draw_never, cull_back, shadows_disabled;
+#include "res://Shaders/svm_fog.gdshaderinc"
 
 uniform vec4 cue_color : source_color = vec4(1.0, 0.72, 0.27, 1.0);
 uniform float coverage = 1.0;
@@ -20,6 +21,6 @@ void fragment() {
 	// The upper boundary moves downwards: 50% left lights the bottom half of the currently posed body.
 	float edge = coverage >= 0.999 ? 1.0 : 1.0 - smoothstep(coverage - 0.012, coverage + 0.012, body_height);
 	float fresnel = pow(1.0 - clamp(dot(normalize(NORMAL), normalize(VIEW)), 0.0, 1.0), 2.2);
-	ALBEDO = cue_color.rgb;
+	ALBEDO = cue_color.rgb * surface_fog(CAMERA_VISIBLE_LAYERS, VERTEX, FRAGCOORD.xy, VIEWPORT_SIZE).a;
 	ALPHA = edge * pulse * vision_opacity * (0.055 + fresnel * 0.42);
 }

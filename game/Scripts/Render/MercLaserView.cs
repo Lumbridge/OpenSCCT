@@ -1,3 +1,4 @@
+using OpenScctGame.Render.Materials;
 using System;
 using System.Collections.Generic;
 using Godot;
@@ -39,9 +40,9 @@ public sealed partial class MercLaserView : Node3D
     private readonly Dictionary<OpenScctGame.Render.Characters.SkeletalModel, Transform3D> _sightReferences = new();
     private Mesh? _mesh;
     private bool _meshTried;
-    private StandardMaterial3D? _dotMaterial;
-    private StandardMaterial3D? _beamLook;
-    private StandardMaterial3D? _finLook;
+    private EffectMaterial? _dotMaterial;
+    private EffectMaterial? _beamLook;
+    private EffectMaterial? _finLook;
     private bool _beamLookTried;
 
     public RenderMap? Map { get; set; }
@@ -296,7 +297,7 @@ public sealed partial class MercLaserView : Node3D
         }
         else
         {
-            var standIn = new StandardMaterial3D
+            var standIn = new EffectMaterial
             {
                 ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded,
                 AlbedoColor = new Color(1f, 0.1f, 0.1f, 0.6f),
@@ -308,7 +309,7 @@ public sealed partial class MercLaserView : Node3D
             beam.MaterialOverride = standIn;
         }
 
-        _dotMaterial ??= new StandardMaterial3D
+        _dotMaterial ??= new EffectMaterial
         {
             ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded,
             AlbedoColor = new Color(1f, 0.15f, 0.1f, 1f),
@@ -354,7 +355,7 @@ public sealed partial class MercLaserView : Node3D
     /// too, which is moved to the transparent pass so the gun has marked the stencil before it draws.
     /// </summary>
     [Provenance(ProvenanceKind.Estimated, "The first-person gun covers the beam through the stencil (the original's weapon overlay draws it over the world)")]
-    private static void UnderFirstPerson(StandardMaterial3D? material)
+    private static void UnderFirstPerson(EffectMaterial? material)
     {
         if (material is null)
         {

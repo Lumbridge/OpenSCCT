@@ -116,9 +116,11 @@ stateDiagram-v2
 | Offline charge | 999 | | decoded | SGadget.PostNetBeginPlay |
 
 ## Network
-- The list (`MyGadget` links), the weapon and `Charge` replicate to the owning client only. `SelectedGadget` is local
-  (each machine chooses its own; the server never needs it because gadget actions arrive as RPCs on the gadget
-  actors themselves, for example `ThrowGren`).
+- The list (`MyGadget` links), the weapon and `Charge` replicate to the owning client only. Following Enhanced B5,
+  the owning client also sends its final selected gadget after Next, Previous or a slot selection. The server
+  accepts only a selectable, live item in the current living possessed pawn's inventory, while selection is allowed.
+  Intermediate steps of a slot selection do not send extra selections. The server updates the selection reference;
+  the existing gadget action RPCs perform the actual Load/Unload effects. Prediction replay sends nothing.
 - `DeleteAllInventory`, `DeleteGadget`, `DeleteWeapon`, `ServerSpawnInventory`, `ServerSpawnWeapon` are
   client -> server RPCs in the SBasePawn replication block.
 

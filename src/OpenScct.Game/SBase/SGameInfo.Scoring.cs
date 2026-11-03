@@ -45,14 +45,16 @@ public partial class SGameInfo
                             killerPri.Kills++;
                         }
 
-                        CountKillFeats(Killer, Killed, KilledPawn, DamageType);
-
                         SDamageVolume? volume = FindDamageVolume(Killed.Pawn, DamageType);
                         if (DamageType == SDamageType.Crushed ||
                             (GPODamageInstigator is not null && ReferenceEquals(Killer, GPODamageInstigator.Controller)) ||
                             (volume is not null && ReferenceEquals(Killer, volume.TriggerController)))
                         {
                             CountEnvironmentalKill(Killer, Killed);
+                        }
+                        else
+                        {
+                            CountKillFeats(Killer, Killed, KilledPawn, DamageType);
                         }
 
                         if (Killed is SPlayerController { SBPawn.CarriedFlag: { } flag })

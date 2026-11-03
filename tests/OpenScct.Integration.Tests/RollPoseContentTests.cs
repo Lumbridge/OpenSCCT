@@ -232,6 +232,102 @@ public sealed class RollPoseContentTests
         Assert.Equal(12f, pose["Child"].Translation.X, 4);
     }
 
+    [Fact]
+    public void TweenKeepsThePreviousPoseThenAdvancesOnceForEachFrame()
+    {
+        using var file = new Fixture();
+        RollPoseContent content = RollPoseContent.Load(file.Path)!;
+        var history = new RollPoseContent.PoseHistory();
+        var pose = new Dictionary<string, Matrix4x4>();
+        Assert.True(content.TrySampleLayers([new("RollStJpFdL", 2f, 1f)], pose, history));
+        foreach ((float frame, float expected) in new[] { (-.5f, 20f), (-.25f, 15f), (-.25f, 15f), (-.125f, 12.5f), (0f, 10f) })
+        {
+            Assert.True(content.TrySampleLayers([new("RollStJpFdL", 0f, 1f, Frame: frame, Frames: 2)], pose, history));
+            Assert.Equal(expected, pose["Root"].Translation.X, 4);
+        }
+        history.Reset();
+        Assert.True(content.TrySampleLayers([new("RollStJpFdL", 0f, 1f, Frame: -.5f, Frames: 2)], pose, history));
+        Assert.Equal(10f, pose["Root"].Translation.X, 4); // No previous pose survives a reset.
+    }
+
+    [Theory]
+    [InlineData(1f, 12f, 0f)]
+    [InlineData(.5f, 16f, 2f)]
+    public void GlobalStartBoneKeepsTheClipsMeshSpaceTransform(float alpha, float x, float y)
+    {
+        using var file = new Fixture();
+        var pose = new Dictionary<string, Matrix4x4>();
+        Assert.True(RollPoseContent.Load(file.Path)!.TrySampleLayers([
+            new("RollStJpFdL", 2f, 1f),
+            new("RollStJpFdL", 0f, alpha, "Child", GlobalPose: true),
+        ], pose));
+        Assert.Equal(20f, pose["Root"].Translation.X, 4);
+        Assert.Equal(x, pose["Child"].Translation.X, 4);
+        Assert.Equal(y, pose["Child"].Translation.Y, 4);
+    }
+
+    [Fact]
+    public void MirroringLeavesTheUnmappedSkeletonRootInPlace()
+    {
+        using var file = new Fixture(root => root["nodes"]![1]!["name"] = "B");
+        var pose = new Dictionary<string, Matrix4x4>();
+        Assert.True(RollPoseContent.Load(file.Path)!.TrySampleLayers([new("RollStJpFdL", 0f, 1f, Mirror: true)], pose));
+        Assert.Equal(new Vector3(10f, 0f, 0f), pose["B"].Translation);
+    }
+
+    [Fact]
+    public void GeneralLoadingIncludesNonLocomotionClips()
+    {
+        using var file = new Fixture(root => root["animations"]![0]!["name"] = "SyntheticClimb");
+        RollPoseContent content = RollPoseContent.Load(file.Path, allClips: true)!;
+        var pose = new Dictionary<string, Matrix4x4>();
+        Assert.True(content.TrySampleSeconds("SyntheticClimb", 1f, pose));
+        Assert.Equal(15f, pose["Root"].Translation.X, 3);
+    }
+
+    [Fact]
+    public void MirrorTableUsesMeshJointOrderIncludingUnanimatedHelperBones()
+    {
+        using var file = new Fixture(root =>
+        {
+            root["nodes"]![1]!["name"] = "B";
+            root["nodes"]![0]!["name"] = "Left";
+            root["nodes"]!.AsArray().Add(JsonNode.Parse("""{"name":"Helper"}"""));
+            root["nodes"]!.AsArray().Add(JsonNode.Parse("""{"name":"Right","translation":[-1,0,0]}"""));
+            root["nodes"]![1]!["children"] = new JsonArray(0, 2, 3);
+            root["skins"] = JsonNode.Parse("""[{"joints":[1,2,0,3]}]""");
+        });
+        var pose = new Dictionary<string, Matrix4x4>();
+        Assert.True(RollPoseContent.Load(file.Path)!.TrySampleLayers([
+            new("RollStJpFdL", 0f, 1f, Mirror: true, BoneMirrors: new[] { -1, -1, 3, 2 }),
+        ], pose));
+        Assert.Equal(new Vector3(10f, 0f, 0f), pose["B"].Translation);
+        Assert.Equal(new Vector3(-8f, 0f, 0f), pose["Left"].Translation);
+        Assert.Equal(new Vector3(-12f, 0f, 0f), pose["Right"].Translation);
+        Assert.Equal(new Vector3(10f, 0f, 0f), pose["Helper"].Translation);
+    }
+
+    [Fact]
+    public void MirroringExchangesLimbsAndReflectsTheirGlobalPositions()
+    {
+        using var file = new Fixture(root =>
+        {
+            root["nodes"]![0]!["name"] = "B L Hand";
+            root["nodes"]!.AsArray().Add(JsonNode.Parse("""{"name":"B R Hand","translation":[-1,0,0]}"""));
+            root["nodes"]![1]!["children"] = new JsonArray(0, 2);
+        });
+        RollPoseContent content = RollPoseContent.Load(file.Path)!;
+        var ordinary = new Dictionary<string, Matrix4x4>();
+        var mirrored = new Dictionary<string, Matrix4x4>();
+        Assert.True(content.TrySampleSeconds("RollStJpFdL", 1f, ordinary));
+        Assert.True(content.TrySampleLayers([new("RollStJpFdL", 1f, 1f, Mirror: true)], mirrored));
+        foreach ((string target, string source) in new[] { ("B L Hand", "B R Hand"), ("B R Hand", "B L Hand") })
+        {
+            Vector3 expected = ordinary[source].Translation * new Vector3(-1f, 1f, 1f);
+            Assert.InRange(Vector3.Distance(expected, mirrored[target].Translation), 0f, 0.0001f);
+        }
+    }
+
     /// <summary>Synthetic data only. Translation uses accessor offsets and a padded stride; the child precedes its parent.</summary>
     private sealed class Fixture : IDisposable
     {

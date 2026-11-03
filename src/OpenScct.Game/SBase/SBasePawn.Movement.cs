@@ -45,6 +45,7 @@ public partial class SBasePawn
             // still advance on every observing client.
             if (this is SPawnAttaque) OpenScct.Game.Equipment.PawnVision.TickGlass(this);
             OldPhysics = Physics;
+            XLevel.GetService<OpenScct.Game.Combat.IPillPose>()?.UpdatePose(this);
             return;
         }
 
@@ -72,6 +73,7 @@ public partial class SBasePawn
             {
                 UpdateEyeHeight(DeltaSeconds);
             }
+            XLevel.GetService<OpenScct.Game.Combat.IPillPose>()?.UpdatePose(this);
         }
     }
 

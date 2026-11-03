@@ -170,13 +170,36 @@ public sealed class MineTests
     }
 
     [Fact]
-    public void ALaserMineWithoutAWallHasABeamOfItsFullLength()
+    public void ALaserMineWaitsForAnOppositeWallAndRetriesArming()
     {
         CombatScene scene = GadgetKit.Scene();
         SMineLaser mine = Mine(scene, new SMineLaser(), new FVector(0f, 0f, 100f));
         Steps(scene, 5.2f);
         Assert.Equal(2000.1f, mine.fTailleFaisceau, 1);
         Assert.Equal(mine.Location, mine.vMurTouche);
+        Assert.NotEqual(GadgetStates.s_Activated, mine.GetStateName());
+        Assert.Null(mine.pLaser);
+        GadgetKit.Walls(scene, GadgetKit.WallAt(1000f));
+        Steps(scene, 0.3f);
+        Assert.Equal(GadgetStates.s_Activated, mine.GetStateName());
+        Assert.NotNull(mine.pLaser);
+        Assert.False(mine.pLaser.bHidden);
+    }
+
+    [Fact]
+    public void AnArmedLaserMineHidesItsBeamWhenTheOppositeSurfaceDisappears()
+    {
+        CombatScene scene = GadgetKit.Scene();
+        GadgetKit.Walls(scene, GadgetKit.WallAt(1000f));
+        SMineLaser mine = Mine(scene, new SMineLaser(), new FVector(0f, 0f, 100f));
+        Steps(scene, 5.2f);
+        Assert.False(mine.pLaser!.bHidden);
+        GadgetKit.Walls(scene);
+        Steps(scene, 2.1f);
+        Assert.True(mine.pLaser.bHidden);
+        GadgetKit.Walls(scene, GadgetKit.WallAt(1000f));
+        Steps(scene, 2.1f);
+        Assert.False(mine.pLaser.bHidden);
     }
 
     [Fact]

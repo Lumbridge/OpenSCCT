@@ -101,10 +101,12 @@ The original computes every colour in display (gamma) space and shows the frameb
 is the identity at the default settings. The Faithful pipeline does the same:
 
 1. Materials write display values (textures are sampled raw, no sRGB decode; lightmaps and vertex colours are
-   multiplied in display space). Blending therefore happens in display space too, as in the original.
+   multiplied in display space). Registered scene cameras apply their own zone/volume fog at each surface's depth
+   before blending, including transparent materials and effects. Blending happens in display space too.
 2. `Post/DisplaySpaceEffect`, a `CompositorEffect` after the transparent pass, runs `svm_display_post.glsl` in three
-   stages: distance fog; the glow composite of the normal view (gate, plus the glow from `svm_glow.glsl` when the
-   level's threshold is below 255); the vision pass of RendMap and the exact sRGB decode. Thermal, motion and EMF run
+   stages: fallback distance fog for unregistered diagnostic cameras only; the glow composite of the normal view
+   (gate, plus the glow from `svm_glow.glsl` when the level's threshold is below 255); the vision pass of RendMap and
+   the exact sRGB decode. Registered cameras skip post fog to avoid applying it twice. Thermal, motion and EMF run
    the blur pyramid (`svm_vision_blur.glsl`) before the vision pass.
 3. The environment passes colours through: Linear tonemapper, exposure 1, no glow, AO, SSR, SDFGI, fog, adjustments
    or auto exposure; no TAA or debanding, and MSAA and SMAA only when the player turns them on (see
@@ -122,13 +124,17 @@ The stock Versus renderer draws without anti-aliasing; Reloaded adds MSAA and SM
 `settings.json`. `SettingsApplier.ApplyAntiAliasing` sets them on the viewport that draws the game when the options
 are saved, so they apply at once:
 
-- MSAA is the viewport's `Msaa3D`. Godot resolves the samples after the transparent pass, before the compositor's
-  `PostTransparent` effects, so the display-space pass and the flash-bang after-image work on the resolved frame.
-  Godot 4.7.2 makes that resolve target without storage use (binding it as an image failed and crashed the armoury
-  preview), so `Post/StorageColor` runs those passes on a storage copy: a compute copy of the resolved frame through
-  a sampler in, the passes, a texture copy back into the resolve target, which the tonemap pass reads next. Without
-  MSAA the colour buffer is a storage image and the passes write it in place, as before. The first frame that needs
-  the copy prints `SVM_RENDER display post: the colour buffer is not a storage image`.
+- MSAA is the viewport's `Msaa3D`. The display-space and flash after-image effects request `AccessResolvedColor`
+  and explicitly call `GetColorLayer(view, false)`; depth samplers likewise request resolved depth and use
+  `GetDepthLayer(view, false)`. The legacy single-argument C# color binding returned a multisampled image in the
+  4.7.2 Vulkan check, causing the post passes to skip and leaving the output too bright. Godot's
+  [compatibility bindings](https://github.com/godotengine/godot/blob/4.7-stable/servers/rendering/renderer_rd/storage_rd/render_scene_buffers_rd.compat.inc)
+  select the multisampled variant whenever viewport MSAA is enabled. The resolved buffer works
+  directly as a storage image on that renderer. `Post/StorageColor` retains a guarded fallback for a sampled,
+  single-sample RGBA16F buffer that permits copying back: compute copy into a storage texture, post passes, then
+  texture copy back before tonemapping. Unsupported usage/sample formats are rejected before binding an image.
+  `surface-fog` checks 36 pixels across two simultaneous views with MSAA off/4x, including transparent blends,
+  separate reflections and cloak; `remanence-render` checks capture, hold, partial fade and clear in both modes.
 - With MSAA on, masked (alpha-tested) world materials draw with alpha to coverage (`MaterialCompiler.AlphaToCoverage`,
   `alpha_to_coverage` and `ALPHA_ANTIALIASING_EDGE` 0.3 in `svm_world.gdshaderinc`), so fences, grilles and foliage
   edges are smoothed by the samples too. Shaders are made when a map is built, so this follows from the next map.
@@ -159,9 +165,13 @@ the frame lerped to FlashColor first) and the composite adds the flash colour (p
 mode 2 is not ported. The original asks for texture filter 5 (gaussian cubic) for the bright pass's 2x reduction; we
 sample bilinear.
 
-**Distance fog.** Linear table fog on view depth (D3D W fog: FOGTABLEMODE linear when the device has table and W fog,
-0x1095d640), in display space, over what was drawn; where nothing was drawn the clear colour stays. The scene fog setup
-(0x10a15fb8) picks it each frame:
+**Distance fog.** The retail renderer uses linear table fog on view depth (D3D W fog: FOGTABLEMODE linear when the
+device has table and W fog, 0x1095d640). The rewrite's registered cameras use Enhanced B5 radial distance, BSP zone
+crossings and authored `SFogVolume` density, evaluated per fragment before blending. Main, sky and auxiliary views
+keep separate settings. Unregistered diagnostic cameras retain a compositor fallback based on opaque depth; that
+fallback cannot fog transparent layers at their own depths. See [Enhanced zone fog](../spec/native/enhanced-zone-fog.md)
+for the recovered equations, conversion rules and acceptance limits. The scene fog setup (0x10a15fb8) supplies the
+camera settings each frame:
 - Thermal: no fog. EMF: start 1500, end 2000 uu, colour 0xffffda85 (its clear colour).
 - Otherwise the camera zone's `bDistanceFog`, `DistanceFogColor`, `DistanceFogStart`, `DistanceFogEnd`, blended on a
   zone change over the new zone's `DistanceFogBlendTime` (class default 1 s; 41 zones set 0) with PlayerController's
@@ -196,6 +206,10 @@ Translucent shaders with a Specular layer retain the native separate additive pa
 alpha draw. Native `FD3DRenderInterface::SetShaderMaterial` (game `0x1096eac0`, editor `0x10f36a30`,
 `LAB_10f380e7`) selects ONE/ONE without a mask and SRCALPHA/ONE with one. Multiplying the reflection by diffuse
 opacity again attenuated AquaE's tank-glass reflection (`aqua_degradevitre02`).
+Surface fog is applied before the blend: diffuse uses its fog colour, additive reflection only attenuates,
+and cloak mixes its fogged body with the already fogged scene sample. Modulate uses native fog override
+127/255 (decoded editor `SetShaderMaterial` `0x10f36a30`, FinalBlend helper `0x10f33c90`); the shader's folded
+2x multiply therefore approaches 254/255. Darkening approaches white after its inverse-source operation.
 Shader.Opacity always samples the source alpha, including a constant alpha. The native bitmap stage
 (editor `0x10f37a14`, game SetShaderMaterial `0x1096eac0`) selects TEXTURE alpha directly; it does not substitute
 luminance. AquaE's `aqua_newglass_01` stores constant DXT5 alpha 144/255. The old converter replaced it with
@@ -253,8 +267,19 @@ graph when loaded; the converter also writes the corrected blend flags and stati
 a bake. `FLIPBOOK`
 plays an animated texture (Texture.AnimNext chain: AquaE caustics `SC01` 16 frames, ClubD's pool caustic projectors,
 AquaE's rain projectors) from an atlas, one frame per 1 / MaxFrameRate s (MinFrameRate when unset, else 30 fps
-[estimate: the game then steps a frame per rendered frame]). The game's MaterialSequence screens still show their
-first item.
+[estimate: the game then steps a frame per rendered frame]). MaterialSequence inputs retain authored Show/Fade
+durations, loop/pause and source identity. A Fade samples the preceding and current inputs with the native
+byte-quantized blend, including the last-to-first transition. Diffuse, glow and glow-mask inputs retain their own
+UV animation and flipbooks. Shared variants use the same sequence clock.
+
+A Show sequence whose frames change material state precompiles each complete frame and switches its shader and
+uniforms together. This preserves opacity, illumination, blend/depth/culling state and the owning surface's
+lightmap; the first frame's self-illumination does not make later frames permanently fullbright. Coordinate and
+FinalBlend wrappers remain attached, while a sequence used as a Shader's colour input does not replace the
+containing Shader's framebuffer state. The 17 unique sequences in the audited B5 map corpus include one such
+state change: the mine indicator's translucent/self-illuminated on frame and additive off frame. Incompatible
+full-state Fade combinations are not present in that corpus and are diagnosed during conversion, rather than
+silently freezing the first state. New sequence metadata requires reconversion of older content packs.
 
 Two-sided materials disable culling. Unlit materials without self-illumination draw fullbright. Shaders are shared
 per variant (SteeE: 20 variants, 196 materials). Animated UVs follow the global `svm_time` (Level.TimeSeconds),

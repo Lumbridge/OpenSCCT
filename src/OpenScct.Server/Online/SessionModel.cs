@@ -39,7 +39,10 @@ public sealed record LobbyPlayer(int Id, string Name, byte Team, SessionPlayerFl
 /// <summary>One line of the results table.</summary>
 /// <remarks><paramref name="Feats"/> are the round's achievement feats (FeatKeys), server-side only: not sent to clients.</remarks>
 public sealed record ResultRow(int Id, string Name, byte Team, int Score, int Kills, int Deaths, int Lives,
-    IReadOnlyDictionary<string, int>? Feats = null);
+    IReadOnlyDictionary<string, int>? Feats = null)
+{
+    public RecordedLoadout? Loadout { get; init; }
+}
 
 /// <summary>
 /// The results of a round: the winning side and reason (EEndReason: 0 objectives or kill limit, 1 time out, 2 a side

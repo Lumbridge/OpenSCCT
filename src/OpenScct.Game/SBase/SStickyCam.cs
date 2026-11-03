@@ -143,7 +143,7 @@ public partial class SStickyCam
 
     /// <summary>
     /// SpawnGaz (client to server): with a dose and the reuse delay over, one dose of gas in front of the cam, its
-    /// sound and the gasser's stat.
+    /// sound. The usage statistic counts deployed cameras, independently of their gas doses.
     /// </summary>
     [Uc("SBase.SStickyCam.SpawnGaz", Sha1 = "c092332db4a2ac163b75dd40cafab63aa865002c")]
     [PortOf("uc:SBase.SStickyCam:SpawnGaz", Spec = "spec/equipment/sticky-cam.md#gas")]
@@ -165,10 +165,6 @@ public partial class SStickyCam
         XLevel.SpawnActor(new SStickyCamEmitter(), Location, Rotation);
         PlaySound(SpawnGasSound, ESoundSlot.SLOT_None, 1f, false, K.StickyGasSoundRadius);
         GadgetFx.Notify(this, GadgetFx.StickyCamGas);
-        if (OwnerController?.PlayerReplicationInfo?.Stats is { } stats)
-        {
-            stats.Spy_StickyCamUsed++;
-        }
     }
 
     /// <summary>

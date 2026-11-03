@@ -22,6 +22,30 @@ public sealed class CollisionQueryTests
         return CollisionWorld.Build(b.Build());
     }
 
+    [Theory]
+    [InlineData(36f)]
+    [InlineData(100f)]
+    [InlineData(200f)]
+    public void Bsp_shortens_the_actor_trace_before_the_mesh_pullback(float length)
+    {
+        var b = new CollisionDataBuilder();
+        b.AddBox(V(-100f, -100f, -20f), V(100f, 100f, 0f));
+        int mesh = b.AddBoxMeshCollider(ColliderKind.MeshHull, null, CollisionDataBuilder.WorldFlags,
+            [(V(-90f, -90f, 1f), V(90f, 90f, 3f))]);
+        CollisionWorld w = CollisionWorld.Build(b.Build());
+        FVector start = V(0f, 0f, 92f);
+        FVector end = start - V(0f, 0f, length);
+        Assert.True(w.LineCheck(out FCheckResult hit, null, end, start, Pawn, World));
+        Assert.Equal(mesh, hit.Collider);
+        // BSP reports z=87.6, clipping the actor segment to 4.4 uu. Its mesh margin is then 10% (0.44),
+        // making the mesh report z=90.94 instead of the full-segment margin's z=91.5.
+        Assert.Equal(90.94f, hit.Location.Z, 3);
+        var hits = new List<FCheckResult>();
+        Assert.Equal(2, w.MultiLineCheck(hits, null, end, start, Pawn, World));
+        Assert.Equal(hit.Location.Z, hits[0].Location.Z, 3);
+        Assert.Equal(87.6f, hits[1].Location.Z, 3);
+    }
+
     [Fact]
     public void ZeroExtentLineHitsTheTopFace()
     {

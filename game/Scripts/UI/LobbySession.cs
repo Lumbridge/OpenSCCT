@@ -70,6 +70,9 @@ public interface IOnlineLobbySession : ILobbySession
     /// <summary>Only a host or authenticated admin may moderate other players.</summary>
     bool CanModerate => IsHost;
 
+    /// <summary>A checked, matching local map is required before becoming ready.</summary>
+    bool HasReadyMap => true;
+
     /// <summary>Seconds left of the launch countdown, or 0.</summary>
     float Countdown { get; }
 

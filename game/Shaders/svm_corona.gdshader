@@ -5,6 +5,7 @@
 // and the colour per instance.
 shader_type spatial;
 render_mode unshaded, fog_disabled, blend_add, depth_test_disabled, depth_draw_never, cull_disabled, skip_vertex_transform;
+#include "res://Shaders/svm_fog.gdshaderinc"
 
 uniform sampler2D corona_tex : filter_linear_mipmap, repeat_disable, hint_default_black;
 uniform sampler2D depth_tex : hint_depth_texture, filter_nearest;
@@ -36,6 +37,7 @@ void fragment() {
 			discard;
 		}
 	}
-	ALBEDO = texture(corona_tex, UV).rgb * svm_corona_colour.rgb;
+	vec4 fog = surface_fog(CAMERA_VISIBLE_LAYERS, v_center, uv * VIEWPORT_SIZE, VIEWPORT_SIZE);
+	ALBEDO = texture(corona_tex, UV).rgb * svm_corona_colour.rgb * fog.a;
 	ALPHA = 1.0;
 }

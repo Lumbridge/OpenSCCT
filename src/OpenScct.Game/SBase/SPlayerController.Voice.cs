@@ -193,14 +193,44 @@ public partial class SPlayerController
         }
 
         ServerClearVoiceChatTarget();
-        if (P?.Controller is not SPlayerController pc || !CanRouteVoice() || P is not SBasePawn target ||
-            SBPawn is not { } own || target.SPawnType == own.SPawnType ||
-            (target.Location - own.Location).Size() > K.SpyBinoVoiceRange + K.VoiceTargetServerSlack)
+        if (P?.Controller is not SPlayerController pc || !IsEligibleVoiceTarget(pc))
         {
             return;
         }
 
         VoiceChatTargetPC = pc;
+    }
+
+    /// <summary>The relay rechecks the current view and state before routing each voice packet.</summary>
+    public PlayerController? ValidatedVoiceChatTarget()
+    {
+        if (VoiceChatTargetPC is not SPlayerController target || !IsEligibleVoiceTarget(target))
+        {
+            VoiceChatTargetPC = null;
+        }
+
+        return VoiceChatTargetPC;
+    }
+
+    private bool IsEligibleVoiceTarget(SPlayerController target)
+    {
+        if (Role != ENetRole.ROLE_Authority || !CanRouteVoice() || !CanHackEnemyComs() ||
+            SBPawn is not { Health: > 0, bDeleteMe: false } own ||
+            target.SBPawn is not { Health: > 0, bDeleteMe: false } other || target.bDeleteMe ||
+            own.SPawnType == other.SPawnType ||
+            !(own is SPawnAttaque ? IsInState(CNAME_s_Binoculars_Att) : IsInState("s_Binoculars_Def")))
+        {
+            return false;
+        }
+
+        // The owner supplies a candidate, never permission to hear it. Use the authoritative view and collision
+        // scene. Keep the existing network range tolerance; zoom levels are local presentation state.
+        Rotation.GetAxes(out FVector direction, out _, out _);
+        FVector eye = own.Location + CombatServices.Ports(this).EyePosition(own);
+        Actor? hit = MovementNatives.Trace(this, out _, out _,
+            eye + direction * (K.SpyBinoVoiceRange + K.VoiceTargetServerSlack),
+            eye + direction * K.SpyBinoVoiceStart, true);
+        return ReferenceEquals(hit, other);
     }
 
     /// <summary>Owner to server: the voice target is lost.</summary>
@@ -265,6 +295,8 @@ public partial class SPlayerController
 
         if (ReferenceEquals(hit, VoiceChatTarget))
         {
+            // An authoritative recheck may have cleared a stale target between the client's periodic traces.
+            ServerSetVoiceChatTarget(hit as Pawn);
             return;
         }
 

@@ -89,6 +89,8 @@ public sealed partial class DemoRecorder
             return;
         }
 
+        _host.RequestDemoViews(false);
+
         _scanCountdown = 0;
         Scan();
         Mark(DemoMarkerKind.MatchEnd, "End");

@@ -50,13 +50,13 @@ public partial class CombatFxView : Node3D
     private readonly List<PendingFlash> _pending = new();
     private Level? _tracerLevel;
     private Texture2D? _flashTexture;
-    private StandardMaterial3D? _bulletMark;
-    private StandardMaterial3D? _shockMark;
-    private StandardMaterial3D? _tracerMaterial;
+    private EffectMaterial? _bulletMark;
+    private EffectMaterial? _shockMark;
+    private EffectMaterial? _tracerMaterial;
     private bool _loaded;
     private EffectViews? _effects;
     private FxLibrary? _library;
-    private readonly Dictionary<string, StandardMaterial3D?> _decals = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, EffectMaterial?> _decals = new(StringComparer.Ordinal);
     private SWeaponDefense? _rifle;
     private int _clip;
     private readonly Dictionary<SCamNetwork, CamnetDisabledView> _disabledCameras = new();
@@ -468,7 +468,7 @@ public partial class CombatFxView : Node3D
         }
     }
 
-    private StandardMaterial3D FlashMaterial(Color colour) => new()
+    private EffectMaterial FlashMaterial(Color colour) => new()
     {
         ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded,
         Transparency = BaseMaterial3D.TransparencyEnum.Alpha,
@@ -581,7 +581,7 @@ public partial class CombatFxView : Node3D
 
             _marks[i] = (node, m.Serial);
             bool shock = m.Type.ToString().Contains("Shocker", StringComparison.Ordinal);
-            StandardMaterial3D? decal = DecalFor(m.Type.ToString());
+            EffectMaterial? decal = DecalFor(m.Type.ToString());
             LastMarkDecal = decal is not null;
             node.MaterialOverride = decal ?? (shock ? _shockMark : _bulletMark);
             m.Rotation.GetAxes(out FVector x, out _, out _);
@@ -641,7 +641,7 @@ public partial class CombatFxView : Node3D
             Mesh = new QuadMesh { Size = Vector2.One * UeSpace.LengthToGodot(1.5f) },
             Emitting = true,
         };
-        particles.MaterialOverride = new StandardMaterial3D
+        particles.MaterialOverride = new EffectMaterial
         {
             ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded,
             BillboardMode = BaseMaterial3D.BillboardModeEnum.Enabled,
@@ -661,22 +661,22 @@ public partial class CombatFxView : Node3D
     /// blend), or null without the converted effects.
     /// </summary>
     [Provenance(ProvenanceKind.Decoded, "SImpactEffect* ImpactMaterial (sfx.Impacts.decal_*, Burn_sticky); SBulletImpact FrameBufferBlendingOp PB_AlphaBlend")]
-    private StandardMaterial3D? DecalFor(string type)
+    private EffectMaterial? DecalFor(string type)
     {
         if (_library is not { Available: true } lib)
         {
             return null;
         }
 
-        if (_decals.TryGetValue(type, out StandardMaterial3D? cached))
+        if (_decals.TryGetValue(type, out EffectMaterial? cached))
         {
             return cached;
         }
 
-        StandardMaterial3D? material = null;
+        EffectMaterial? material = null;
         if (lib.Find(type) is { } fx && fx.Assets.TryGetValue("ImpactMaterial", out string? path) && lib.Texture(lib.TexturePng(path)) is { } texture)
         {
-            material = new StandardMaterial3D
+            material = new EffectMaterial
             {
                 ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded,
                 Transparency = BaseMaterial3D.TransparencyEnum.Alpha,
@@ -712,7 +712,7 @@ public partial class CombatFxView : Node3D
         _flashTexture = RadialTexture(new Color(1f, 1f, 1f), 0.2f);
         _bulletMark = MarkMaterial(RadialTexture(new Color(0.05f, 0.045f, 0.04f), 0.55f));
         _shockMark = MarkMaterial(RadialTexture(new Color(0.08f, 0.12f, 0.25f), 0.7f));
-        _tracerMaterial = new StandardMaterial3D
+        _tracerMaterial = new EffectMaterial
         {
             ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded,
             BlendMode = BaseMaterial3D.BlendModeEnum.Add,
@@ -755,7 +755,7 @@ public partial class CombatFxView : Node3D
         new OmniLight3D().Free();
     }
 
-    private static StandardMaterial3D MarkMaterial(Texture2D texture) => new()
+    private static EffectMaterial MarkMaterial(Texture2D texture) => new()
     {
         ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded,
         Transparency = BaseMaterial3D.TransparencyEnum.Alpha,

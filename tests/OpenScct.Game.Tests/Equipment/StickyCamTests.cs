@@ -32,6 +32,22 @@ public sealed class StickyCamTests
     private static SStickyCam[] Cams(CombatScene Scene) => GadgetKit.All<SStickyCam>(Scene).ToArray();
 
     [Fact]
+    public void UsageCountsDeploymentOnceAndDoesNotCountEachGasDose()
+    {
+        (CombatScene scene, SPlayerController pc, SPawnAttaque spy, SGadStickyCam gad) = Spy();
+        pc.PlayerReplicationInfo = scene.Level.SpawnActor(new PlayerReplicationInfo { Stats = new USPlayerStats() }, default, default);
+        gad.Use(1f);
+        SStickyCam cam = Assert.Single(Cams(scene));
+        Assert.Equal(1, pc.PlayerReplicationInfo!.Stats!.Spy_StickyCamUsed);
+        cam.Smoke_NbDoses = 2;
+        cam.SpawnGaz();
+        cam.NextUseTime = 0;
+        cam.SpawnGaz();
+        Assert.Equal(0, cam.Smoke_NbDoses);
+        Assert.Equal(1, pc.PlayerReplicationInfo.Stats.Spy_StickyCamUsed);
+    }
+
+    [Fact]
     public void TheLauncherCarriesFiveCamsWithOneGasDoseEach()
     {
         (_, _, _, SGadStickyCam gad) = Spy();

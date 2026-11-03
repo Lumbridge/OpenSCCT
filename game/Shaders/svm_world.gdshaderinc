@@ -174,7 +174,7 @@ uniform vec2 tex_size = vec2(256.0);
 // Separate layers (UE2 transforms each Shader / Combiner input by its own modifier chain): each has an animation of the
 // UV_ANIM layout and a static transform (rows dotted with (u, v, 1)). They start from the mesh's own UVs: base_row_u / v
 // undo the static transform the exporter baked into the UVs for the Diffuse.
-#if defined(OPACITY_LAYER) || defined(SPEC_LAYER) || defined(SI_LAYER)
+#if defined(OPACITY_LAYER) || defined(SPEC_LAYER) || defined(SI_LAYER) || defined(SEQUENCE_D) || defined(SEQUENCE_SI) || defined(SEQUENCE_SIM)
 uniform vec3 base_row_u = vec3(1.0, 0.0, 0.0);
 uniform vec3 base_row_v = vec3(0.0, 1.0, 0.0);
 #endif
@@ -645,6 +645,9 @@ vec2 svm_uv(vec2 uv) {
 	return uv;
 }
 
+#include "res://Shaders/svm_sequence.gdshaderinc"
+#include "res://Shaders/svm_fog.gdshaderinc"
+
 #if !defined(SVM_CLOAK) && !defined(BLEND_MASKED) && !defined(BLEND_TRANSLUCENT) && !defined(BLEND_ADDITIVE) && !defined(BLEND_MODULATE) && !defined(BLEND_DARKEN) && !defined(VISION_SEE_THROUGH)
 #define SVM_DEPTH_SOLID
 #endif
@@ -681,10 +684,12 @@ void fragment() {
 	}
 #endif
 	vec2 uv = svm_uv(UV);
-#if defined(OPACITY_LAYER) || defined(SPEC_LAYER) || defined(SI_LAYER)
+#if defined(OPACITY_LAYER) || defined(SPEC_LAYER) || defined(SI_LAYER) || defined(SEQUENCE_D) || defined(SEQUENCE_SI) || defined(SEQUENCE_SIM)
 	vec2 raw_uv = svm_affine(UV, base_row_u, base_row_v);
 #endif
-#if defined(COMBINE)
+#if defined(SEQUENCE_D)
+    vec4 t = seq_d_sample(raw_uv);
+#elif defined(COMBINE)
 	// Each input through its own modifiers (after the Combiner's own), then CombineOperation / AlphaOperation.
 	vec2 uv1 = svm_anim(svm_affine(uv, c1_row_u, c1_row_v), c1_anim_type, c1_anim_a, c1_anim_b, c1_anim_c, vec2(textureSize(tex_diffuse, 0)));
 	vec2 uv2 = svm_anim(svm_affine(uv, c2_row_u, c2_row_v), c2_anim_type, c2_anim_a, c2_anim_b, c2_anim_c, vec2(textureSize(tex_c2, 0)));
@@ -798,7 +803,11 @@ void fragment() {
 #else
 	vec2 siuv = uv + si_pan * svm_time;
 #endif
+#ifdef SEQUENCE_SI
+    vec4 si = seq_si_sample(raw_uv);
+#else
 	vec4 si = texture(tex_self_illum, siuv);
+#endif
 #ifdef SELF_ILLUM_MASK
 #ifdef SI_LAYER
 	vec2 simuv = svm_affine(svm_anim(svm_affine(raw_uv, sim_row_u, sim_row_v), sim_anim_type, sim_anim_a, sim_anim_b, sim_anim_c,
@@ -806,7 +815,11 @@ void fragment() {
 #else
 	vec2 simuv = siuv;
 #endif
+#ifdef SEQUENCE_SIM
+    float m = seq_sim_sample(raw_uv).a;
+#else
 	float m = texture(tex_self_illum_mask, simuv).a;
+#endif
 #else
 	float m = si.a;
 #endif
@@ -946,12 +959,30 @@ void fragment() {
 		}
 #endif
 	}
+	// Fog belongs to this fragment's surface depth, before framebuffer blending. Applying a full-scene
+	// fog pass after transparency would instead use the opaque depth behind glass, effects or cloaked bodies.
+	vec4 surfaceFog = vec4(0.0, 0.0, 0.0, 1.0);
+	if ((CAMERA_VISIBLE_LAYERS & SVM_SHADOW_PASS) == 0u) {
+		surfaceFog = surface_fog(CAMERA_VISIBLE_LAYERS, VERTEX, FRAGCOORD.xy, VIEWPORT_SIZE);
+	}
+#if defined(BLEND_ADDITIVE)
+	c *= surfaceFog.a;
+#elif defined(BLEND_MODULATE)
+    // Decoded SetShaderMaterial 0x10f36a30 / FinalBlend helper 0x10f33c90: fog override 127/255,
+    // doubled here because Godot's multiply draw already folds in the native 2x modulation.
+    c = mix(vec3(254.0 / 255.0), c, surfaceFog.a);
+#elif defined(BLEND_DARKEN)
+    // Inverse-source darkening approaches white after the source's black fog override.
+	c = mix(vec3(1.0), c, surfaceFog.a);
+#else
+	c = c * surfaceFog.a + surfaceFog.rgb;
+#endif
 #ifdef ENV_SEPARATE
 	// Fold the original alpha-blended diffuse and additive Specular passes into one
 	// premultiplied draw. Glass opacity must not attenuate its reflection a second time.
 	c *= a;
 	if (svm_vision != 36 && svm_vision != 38) {
-		c += specular;
+		c += specular * surfaceFog.a;
 	}
 #endif
 #ifdef SVM_CLOAK
@@ -961,6 +992,7 @@ void fragment() {
 	vec2 cloak_normal = normalize(NORMAL).xy;
 	vec2 cloak_uv = SCREEN_UV + vec2(-v_cloak_shift * cloak_normal.x / 640.0, v_cloak_shift * cloak_normal.y / 480.0);
 	vec3 behind = texture(svm_behind, clamp(cloak_uv, vec2(0.0), vec2(1.0))).rgb;
+	// The sampled scene is already fogged at its own depths; only the body's colour needed surface fog.
 	ALBEDO = mix(c, behind, clamp(svm_glass, 0.0, 1.0));
 	// The mix already contains the scene. Write nearest depth and replace the pixel once, even across surfaces.
 	ALPHA = 1.0;

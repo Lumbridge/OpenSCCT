@@ -543,6 +543,7 @@ public partial class SimPawnView : Node3D
                 StartBone = start < 0 ? 0 : start,
                 Loop = ch.bLoop,
                 Mirror = ch.bMirror,
+                GlobalPose = ch.bGlobalPose,
             };
         }
 

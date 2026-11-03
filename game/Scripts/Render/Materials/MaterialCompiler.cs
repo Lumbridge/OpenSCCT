@@ -41,7 +41,7 @@ public enum LightSource
 /// <see cref="ShaderMaterial"/> of the Faithful template (game/Shaders/svm_world.gdshaderinc). Shaders are shared per
 /// variant (light source, blend, sidedness, extras); materials per (name, light source).
 /// </summary>
-public sealed class MaterialCompiler
+public sealed partial class MaterialCompiler
 {
     public const string TemplatePath = "res://Shaders/svm_world.gdshaderinc";
     public const string TimeParameter = "svm_time";
@@ -74,6 +74,7 @@ public sealed class MaterialCompiler
         ArgumentNullException.ThrowIfNull(textures);
         _doc = doc;
         _textures = textures;
+        s_sequenceCompilers.Add(new(this));
         EnsureGlobals();
         WorldLights.EnsureGlobals();
         SpotShadowLight.EnsureGlobals();
@@ -102,6 +103,7 @@ public sealed class MaterialCompiler
     /// <summary>Registers the global shader parameters the template reads (once per process).</summary>
     public static void EnsureGlobals()
     {
+        OpenScctGame.Render.Post.SurfaceFogRegistry.EnsureGlobals();
         if (s_globalsAdded)
         {
             return;
@@ -153,7 +155,15 @@ public sealed class MaterialCompiler
     }
 
     /// <summary>The scene time animated texture modifiers run on (Level.TimeSeconds in the original).</summary>
-    public static void SetTime(float seconds) => RenderingServer.GlobalShaderParameterSet(s_timeName, seconds);
+    public static void SetTime(float seconds)
+    {
+        RenderingServer.GlobalShaderParameterSet(s_timeName, seconds);
+        for (int i = s_sequenceCompilers.Count - 1; i >= 0; i--)
+        {
+            if (s_sequenceCompilers[i].TryGetTarget(out MaterialCompiler? compiler)) compiler.UpdateSequences(seconds);
+            else s_sequenceCompilers.RemoveAt(i);
+        }
+    }
 
     // Made once: SetTime runs every frame, and a name passed as a string makes a StringName per call.
     private static readonly StringName s_timeName = TimeParameter;
@@ -162,6 +172,13 @@ public sealed class MaterialCompiler
     public IEnumerable<(string Uri, bool Mipmaps)> TexturesOf(MaterialEntry m)
     {
         ArgumentNullException.ThrowIfNull(m);
+        foreach (MaterialSequenceEntry sequence in m.Sequences.Values)
+            foreach (MaterialSequenceFrame frame in sequence.Items)
+            {
+                yield return (frame.Flipbook?.Texture ?? frame.Layer.Texture, true);
+                if (frame.Material is { } state)
+                    foreach (var texture in TexturesOf(state)) yield return texture;
+            }
         if (m.Texture is { } t)
         {
             yield return (t, Mipmapped(m, "Diffuse"));
@@ -284,6 +301,8 @@ public sealed class MaterialCompiler
 
     private ShaderMaterial Compose(MaterialEntry entry, LightSource light, bool seeThroughPass = false, bool billboard = false)
     {
+        if (entry.Sequences.TryGetValue("diffuse", out MaterialSequenceEntry? sequence) && sequence.SwitchMaterial)
+            return ComposeSequence(entry, sequence, light, seeThroughPass, billboard);
         // Unlit materials draw fullbright; self-illumination keeps the lit diffuse under its mask (UE2 lerp).
         if (entry.Unlit && entry.SelfIllum is null)
         {
@@ -326,6 +345,8 @@ public sealed class MaterialCompiler
         AddIf(extras, entry.Opacity is not null, "OPACITY_LAYER");
         AddIf(extras, combine is not null, "COMBINE");
         AddIf(extras, flipbook is not null, "FLIPBOOK");
+        foreach ((string slot, string prefix) in SequenceSlots)
+            AddIf(extras, entry.Sequences.ContainsKey(slot), "SEQUENCE_" + prefix.ToUpperInvariant());
         AddIf(extras, entry.NormalTexture is not null && light == LightSource.Actor, "NORMAL_MAP");
         Shader shader = seeThroughPass ? SeeThroughShaderFor(light, blend, entry.TwoSided, extras) : ShaderFor(light, blend, entry.TwoSided, extras);
 
@@ -336,6 +357,7 @@ public sealed class MaterialCompiler
         SetTexture(material, "tex_diffuse", diffuse);
         if (entry.NormalTexture is { } normal) SetTexture(material, "tex_normal", _textures.Get(normal));
         ApplyLayers(material, entry, combine, flipbook);
+        BindSequences(material, entry);
         if (light == LightSource.Lightmap)
         {
             SetTexture(material, "tex_lightmap", _textures.Get(entry.Lightmap, mipmaps: false));
@@ -469,7 +491,7 @@ public sealed class MaterialCompiler
     /// </summary>
     private void ApplyLayers(ShaderMaterial material, MaterialEntry entry, CombineEntry? combine, FlipbookEntry? flipbook)
     {
-        if (entry.Opacity is not null || entry.SpecMaskLayer is not null || entry.SelfIllumLayer is not null)
+        if (entry.Opacity is not null || entry.SpecMaskLayer is not null || entry.SelfIllumLayer is not null || entry.Sequences.Count > 0)
         {
             UvAffine undo = entry.UvMatrix?.Inverse() ?? UvAffine.Identity;
             material.SetShaderParameter("base_row_u", undo.RowU);
@@ -632,7 +654,7 @@ public sealed class MaterialCompiler
         code.Append("#include \"").Append(TemplatePath).Append("\"\n");
         shader = new Shader { Code = code.ToString(), ResourceName = "svm_world " + key };
         shader.SetMeta("svm_shadow_animated", blend == MaterialBlend.Masked &&
-            (extras.Contains("UV_ANIM") || extras.Contains("FLIPBOOK") || extras.Contains("OPACITY_LAYER") || extras.Contains("COMBINE")));
+            (extras.Contains("UV_ANIM") || extras.Contains("FLIPBOOK") || extras.Contains("OPACITY_LAYER") || extras.Contains("COMBINE") || extras.Contains("SEQUENCE_D")));
         _shaders[key] = shader;
         return shader;
     }

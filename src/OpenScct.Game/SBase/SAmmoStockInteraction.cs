@@ -10,6 +10,9 @@ public partial class SAmmoStockInteraction
     [PortOf("uc:SBase.SAmmoStockInteraction:InitInteract", Spec = "spec/devices/infirmary-ammo.md#rules")]
     protected internal override void InitInteract(SPlayerController Instigator, int SubInteraction)
     {
+        if (Role == OpenScct.Core.Engine.ENetRole.ROLE_Authority && Owner is SAmmoStock &&
+            Instigator.Pawn is SPAWNDEFENSE { Health: > 0 } && Instigator.PlayerReplicationInfo?.Stats is { } stats)
+            stats.Merc_AmmoStocksUsed++;
         (Owner as SAmmoStock)?.Use(Instigator);
         base.InitInteract(Instigator, SubInteraction);
     }

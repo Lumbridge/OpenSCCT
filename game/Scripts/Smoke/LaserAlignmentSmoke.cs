@@ -1,3 +1,4 @@
+using OpenScctGame.Render.Materials;
 using System;
 using System.Collections.Generic;
 using Godot;
@@ -242,7 +243,7 @@ public sealed class LaserAlignmentSmoke : SmokeTest
     private static string? CheckBeamAnimation()
     {
         using var thermal = SpyLaserView.ThermalBeamPass(null);
-        using var body = new StandardMaterial3D { NextPass = thermal };
+        using var body = new EffectMaterial { NextPass = thermal };
         ulong bodyId = body.GetInstanceId(), thermalId = thermal.GetInstanceId();
         foreach ((float time, float expected) in new[] { (0f, 0f), (5f, 0.75f), (19.9f, 0.005f), (20f, 0f), (20.1f, 0.995f), (25f, 0.75f) })
         {

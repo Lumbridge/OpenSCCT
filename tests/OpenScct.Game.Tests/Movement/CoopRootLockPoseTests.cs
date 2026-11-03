@@ -77,12 +77,9 @@ public sealed class CoopRootLockPoseTests
     [Fact]
     public void AClipWithoutATrackKeepsTheRootBoneWhereTheLockFoundIt()
     {
-        PawnClip? clip = Clip("LedgStAlBg0");
-        Assert.SkipWhen(clip is null, "the converted characters are not in .content");
-        if (clip!.RootTrack is not null)
-        {
-            return;
-        }
+        // Exercise the absent-track branch regardless of how a locally converted clip was authored.
+        var clip = new PawnClip(new Name("NoSeparateRootTrack"), 3, 15f,
+            [new FVector(1, 2, 3), new FVector(10, 20, 30), new FVector(-4, 8, 12)]);
 
         FVector at0 = Drawn(clip, 0f);
         for (int f = 1; f < clip.Frames; f++)

@@ -114,6 +114,29 @@ None.
 
 ## Network
 
+As of 2026-11-03, the shared installed provider (`RollPillPose`, retaining its historical type name) loads both
+ATT_01 and DEF_01 animation tracks, samples every contributing channel, applies start-bone masks, local blends,
+loop seams, global start-bone transforms and skeleton-space mirroring, and places the decoded collision points on
+those bones. Mirrors use the mesh skin's joint order, including helper bones, rather than the animation package's
+shorter bone list. Root-motion translation/yaw compensation prevents applying movement twice. Full-spine procedural
+aim and bone direction controllers rotate their descendants with the same rules as the visible character.
+This runs from the simulation's channels on dedicated servers and clients and feeds lag-compensation snapshots.
+The content parser caches accessor tables/data; all-clips loading does not repeatedly scan the GLB accessor array.
+
+Negative-frame transitions retain the previous blended animation pose before aim/root corrections, and transfer
+the visible locked root when root motion ends. Simulation pose-cache points and pawn post-ticks capture history
+even without traces or lag compensation. A trace samples a copy: additional shots cannot advance tween history.
+Prediction replay steps do not overwrite the last simulation pose. Time moving backward or a network reset
+clears the cached pose. Missing character data, missing collision bones
+and unknown contributing clips retain the complete reference-pose fallback. A fresh history starts at the clip's
+first sample; renderer-only hub emote overlays are not applied to combat geometry.
+
+Synthetic tests cover both teams, masks/global starts, mirror joint ordering, transitions, sparse trace queries,
+root locks, full-spine aim, bone directions and laser/shot checks. The Godot `roll-collision` smoke compares installed
+spy/merc clips and mirrors plus sampled transitions, global starts and controllers against the actual renderer.
+Bone direction world-space semantics remain the existing estimated interpretation in `aim-ik.md`; agreement with
+the rewrite renderer is not original-game proof. Original-game shot-by-shot comparison remains required.
+
 TraceBone runs where the shot is resolved: on the server for the merc rifle and Uzi (TraceFire) and for the spy
 shocker's server fire. The pose used is the server's copy of the target pawn's animation, so the pill depends on the
 server-side animation state of the target (its actions arrive with its moves, execute-action.md).

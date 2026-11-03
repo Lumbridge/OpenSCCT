@@ -140,18 +140,28 @@ screen centre. Both its calibration trace and muzzle use the same interpolated c
 simulation eye/desired rotation with the drawn weapon caused sidearm laser jitter between ticks. This visual
 placement does not change the simulation's shot or spy-marking traces.
 
+## Rewrite authority (2026-11-03)
+
+The server computes the beam target and whole-second dwell on every tick, including human players on a dedicated
+server. This replaces the older client-decided marking described by the original rules above. A mark needs the
+current living possessed merc, an enabled laser, a drawn rifle or a network camera actually used by that merc,
+an allowed laser option, and a living spy on the current unobstructed beam for more than `TimeToMark` seconds.
+The server traces again when a request arrives, so a moved target or newly closed door cannot use the prior tick's
+result. An early packet does not reset earned dwell; the server completes the mark independently when due.
+Each uninterrupted target contact marks once. Losing the target or turning the beam off permits a fresh dwell.
+The client still renders its predicted beam and may request a mark, but cannot supply authoritative target state.
+This achieves the B5 target-state synchronization purpose without accepting client-written `TargetPawn`/`TimeTarget`.
+
 ## Network
 
 - Owning client: key, `Use`, `EteintLaser`/`RallumeLaserEteint`, marking decision (`ThrowSpyBullet` is sent by the
-  merc's client, so marking is client-decided).
+  merc's client as a request; the rewrite validates and also completes it on the server).
 - Server: `TorcheON`, `TorcheOFF`, `ThrowSpyBullet` (reliable `Role < ROLE_Authority`), `HitBySpyBullet`, expiry.
 - Replicated: `bInUse`, `SPAWNDEFENSE.bLaserOn`, `bSpyBulletOn`, `iTeamSpying`. The beam actors are local to each
   client. The laser actor is always relevant.
 
 ## Edge cases
-- The marking test runs every tick after the threshold; nothing in script stops it, so while the beam stays on the
-  spy the client re-sends `ThrowSpyBullet` each tick and the server re-marks and re-broadcasts (Open questions).
-- Re-marking resets `fTimeSpy`, so a held beam keeps the mark alive.
+- Repeated requests during the same uninterrupted contact do not refresh `fTimeSpy` or count another merc mark.
 - The beam only shows with the weapon drawn (`WeaponLoaded == 2`); with it holstered the laser stays logically on.
 - The key is refused in both reload states, grenade throw and elbow states (Rule 1 guards); the extra
   `s_Reloading` test in Rule 2 only matters when `PadUpGadgetSwitch` is called from elsewhere (scope exit).

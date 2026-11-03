@@ -13,6 +13,7 @@ public sealed class GlassBlendSmoke : SmokeTest
     public const string TestName = "glass-blend";
     public override string Name => TestName;
     private SubViewport? _viewport;
+    private DisplaySpaceEffect? _effect;
     private int _frame;
     private readonly float[] _alpha = [0f, 0.25f, 1f, 0.25f];
 
@@ -23,12 +24,12 @@ public sealed class GlassBlendSmoke : SmokeTest
             if (DisplayServer.GetName() == "headless") return SmokeResult.Fail("requires a renderer");
             _viewport = new SubViewport { Size = new Vector2I(128, 32), OwnWorld3D = true,
                 RenderTargetUpdateMode = SubViewport.UpdateMode.Always, UseDebanding = false };
-            var effect = new DisplaySpaceEffect { Settings = new DisplayPostSettings { GlowGate = false } };
+            _effect = new DisplaySpaceEffect { Settings = new DisplayPostSettings { GlowGate = false } };
             _viewport.AddChild(new Camera3D { Projection = Camera3D.ProjectionType.Orthogonal, Size = 4,
                 CullMask = 1, KeepAspect = Camera3D.KeepAspectEnum.Width, Near = 0.01f, Far = 10,
                 Position = new Vector3(0, 0, 2), Environment = FaithfulView.CreateEnvironment(),
                 Attributes = FaithfulView.CreateAttributes(),
-                Compositor = new Compositor { CompositorEffects = new Godot.Collections.Array<CompositorEffect> { effect } } });
+                Compositor = new Compositor { CompositorEffects = new Godot.Collections.Array<CompositorEffect> { _effect } } });
             var background = new ShaderMaterial { Shader = new Shader { Code = "shader_type spatial; render_mode unshaded, fog_disabled; void fragment() { ALBEDO = vec3(0.2,0.3,0.4); }" } };
             _viewport.AddChild(new MeshInstance3D { Mesh = new QuadMesh { Size = new Vector2(4, 1) }, MaterialOverride = background });
             var compiler = new MaterialCompiler(new MaterialsDoc(), new TextureCache(""));
@@ -56,6 +57,7 @@ public sealed class GlassBlendSmoke : SmokeTest
             worst = Math.Max(worst, Math.Max(Math.Abs(got.R - expected.X), Math.Max(Math.Abs(got.G - expected.Y), Math.Abs(got.B - expected.Z))));
             detail += $"alpha={_alpha[i]}:{got} ";
         }
+        _effect?.Release();
         _viewport.QueueFree();
         return worst < 3f / 255f ? SmokeResult.Pass(detail) : SmokeResult.Fail($"error={worst}: {detail}");
     }

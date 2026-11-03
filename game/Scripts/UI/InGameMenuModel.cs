@@ -23,6 +23,7 @@ public enum InGameMenuButton
     ChangeGear,
     StrategicMap,
     Options,
+    Resign,
     ReturnToLobby,
     QuitSession,
 }
@@ -46,6 +47,7 @@ public enum InGameMenuPage
 
     /// <summary><c>BackToLobbyValidation</c>: Return to lobby, Cancel.</summary>
     ConfirmLobby,
+    ConfirmResign,
 
     /// <summary><c>QuitMatch_Page</c>: a client leaving ("Leaving session, please wait ...").</summary>
     Leaving,
@@ -76,13 +78,18 @@ public enum InGameMenuAction
 
     /// <summary>Quit Game: leave the session, then quit the program (<c>QuitGame</c>).</summary>
     QuitGame,
+    Resign,
 }
 
 /// <summary>Who the player is when the menu opens.</summary>
 /// <param name="IAmServer">The player runs the server (<c>PlayerReplicationInfo.bIAmServer</c>; offline play too).</param>
 /// <param name="Net">The network type.</param>
 /// <param name="Tutorial">The map is a tutorial map (<c>SPersistentData.CurLevelIsTutorial</c>).</param>
-public readonly record struct InGameMenuContext(bool IAmServer, InGameMenuNet Net, bool Tutorial = false);
+public readonly record struct InGameMenuContext(bool IAmServer, InGameMenuNet Net, bool Tutorial = false,
+    bool MatchBegun = false, bool GameEnded = false, bool Spectator = false, int Lives = 0)
+{
+    public bool CanResign => Net == InGameMenuNet.Lan && !Tutorial && MatchBegun && !GameEnded && !Spectator && Lives > 0;
+}
 
 /// <summary>One shown button of the In-Game Menu: its caption and its top as a fraction of the screen height.</summary>
 public readonly record struct InGameMenuEntry(InGameMenuButton Button, string Caption, float Top);
@@ -121,6 +128,7 @@ public static class InGameMenuK
     public const string ChangeGear = "Change Gear";
 
     public const string Back = "Back", StrategicMap = "Strategic Map", Options = "Options", ReturnToLobby = "Return to Lobby", QuitSession = "Quit Session";
+    public const string Resign = "Resign", ResignQuestion = "Give up your remaining lives for this round?";
 
     [Provenance(ProvenanceKind.Decoded, "GUI.SSMenu_ConfirmQuitLAN defaults Txt_Label(0)")]
     public const string QuitQuestionServer = "Leaving the game now will end this session.|Are you sure?";
@@ -169,6 +177,7 @@ public sealed class InGameMenuModel
     {
         InGameMenuPage.ConfirmQuit => Context.IAmServer ? InGameMenuK.QuitQuestionServer : InGameMenuK.QuitQuestionClient,
         InGameMenuPage.ConfirmLobby => InGameMenuK.LobbyQuestion,
+        InGameMenuPage.ConfirmResign => InGameMenuK.ResignQuestion,
         InGameMenuPage.Leaving => InGameMenuK.LeavingText,
         _ => null,
     };
@@ -193,6 +202,15 @@ public sealed class InGameMenuModel
         _gearOnly = false;
         _mapOnly = false;
         return InGameMenuAction.Opened;
+    }
+
+    /// <summary>The match keeps running behind the menu; revoke stale resignation confirmations immediately.</summary>
+    public void UpdateContext(InGameMenuContext context)
+    {
+        if (Context == context) return;
+        Context = context;
+        Entries = Layout(context);
+        if (Page == InGameMenuPage.ConfirmResign && !context.CanResign) Page = InGameMenuPage.Main;
     }
 
     /// <summary>
@@ -325,6 +343,14 @@ public sealed class InGameMenuModel
             AddChangeGear(list);
         }
 
+        if (context.CanResign)
+        {
+            int at = list.FindIndex(entry => entry.Button == InGameMenuButton.Options) + 1;
+            for (int i = 0; i < list.Count; i++)
+                list[i] = list[i] with { Top = list[i].Top + (i < at ? -0.05f : 0.05f) };
+            list.Insert(at, new(InGameMenuButton.Resign, InGameMenuK.Resign, list[at - 1].Top + 0.1f));
+        }
+
         return list;
     }
 
@@ -370,7 +396,7 @@ public sealed class InGameMenuModel
                 return GearBack();
             case InGameMenuPage.StrategicMap when IsCloseKey(ik):
                 return StrategicMapBack();
-            case InGameMenuPage.ConfirmQuit or InGameMenuPage.ConfirmLobby when string.Equals(ik, "Escape", StringComparison.OrdinalIgnoreCase):
+            case InGameMenuPage.ConfirmQuit or InGameMenuPage.ConfirmLobby or InGameMenuPage.ConfirmResign when string.Equals(ik, "Escape", StringComparison.OrdinalIgnoreCase):
                 Page = InGameMenuPage.Main;
                 return InGameMenuAction.None;
             default:
@@ -401,6 +427,9 @@ public sealed class InGameMenuModel
             case InGameMenuButton.ReturnToLobby:
                 Page = InGameMenuPage.ConfirmLobby;
                 return InGameMenuAction.None;
+            case InGameMenuButton.Resign:
+                Page = InGameMenuPage.ConfirmResign;
+                return InGameMenuAction.None;
             case InGameMenuButton.QuitSession:
                 Page = InGameMenuPage.ConfirmQuit;
                 return InGameMenuAction.None;
@@ -427,10 +456,17 @@ public sealed class InGameMenuModel
     [PortOf("uc:GUI.GUIYesNoPage:NoButtonClick", Spec = "spec/hud/in-game-menu.md#rules")]
     public void Cancel()
     {
-        if (Page is InGameMenuPage.ConfirmQuit or InGameMenuPage.ConfirmLobby)
+        if (Page is InGameMenuPage.ConfirmQuit or InGameMenuPage.ConfirmLobby or InGameMenuPage.ConfirmResign)
         {
             Page = InGameMenuPage.Main;
         }
+    }
+
+    public InGameMenuAction ConfirmResign()
+    {
+        if (Page != InGameMenuPage.ConfirmResign || !Context.CanResign) return InGameMenuAction.None;
+        CloseAll();
+        return InGameMenuAction.Resign;
     }
 
     /// <summary>

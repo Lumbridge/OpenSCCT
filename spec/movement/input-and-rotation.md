@@ -180,7 +180,7 @@ Each `int()` truncates toward zero, separately for yaw and pitch.
   `V.Yaw += int(r * fTurnValue * dt * fSensibiliteSouris * 50)`. There is no final pitch clamp after the snap.
 - Unarmed spy: `V.Pitch += int(r * sens * 50 * dt * fLookUpValue)`; `V.Yaw += int(r * sens * 50 * dt * s *
   fTurnValue)` with s = -1 when bInvertHorizontalAxisCamSpy else 1; Normalize; clamp Pitch to [-12000, 13000].
-- `SetRotation(V)`. The spy path never calls UpdateDesiredRotation.
+- Clear V.Roll, then `SetRotation(V)` (Enhanced 4.0 B5). The spy path never calls UpdateDesiredRotation.
 
 `UpdateRotationDefenseur(dt, maxPitch)`: when falling, zero fTurnValue;
 `SetRotation(NativeRotationCameraDefenseur(dt))`; send `UpdateDesiredRotation` when MyDesiredRotation changed or

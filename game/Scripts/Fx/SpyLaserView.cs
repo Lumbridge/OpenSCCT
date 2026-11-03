@@ -1,3 +1,4 @@
+using OpenScctGame.Render.Materials;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -270,7 +271,7 @@ public sealed partial class SpyLaserView : Node3D
         }
         else
         {
-            beam.MaterialOverride = new StandardMaterial3D
+            beam.MaterialOverride = new EffectMaterial
             {
                 ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded,
                 AlbedoColor = new Color(1f, 0.08f, 0.05f, 0.7f),
@@ -330,7 +331,7 @@ public sealed partial class SpyLaserView : Node3D
     /// a solid red bar; the laser views draw the packed mesh with this material instead.
     /// </summary>
     [Provenance(ProvenanceKind.Decoded, "Bridge docs/EFFECTS_COVERAGE.md: SGameplayObjects_LaserBeam with the additive LaserBeamShader")]
-    internal static StandardMaterial3D? AdditiveBeamMaterial(RenderMap? map, string texture = BeamTexture)
+    internal static EffectMaterial? AdditiveBeamMaterial(RenderMap? map, string texture = BeamTexture)
     {
         if (map?.Pack?.GameplayGlb is not { } glb)
         {
@@ -344,7 +345,7 @@ public sealed partial class SpyLaserView : Node3D
         }
 
         ImageTexture tex = ImageTexture.CreateFromImage(image);
-        return new StandardMaterial3D
+        return new EffectMaterial
         {
             ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded,
             BlendMode = BaseMaterial3D.BlendModeEnum.Add,
@@ -359,7 +360,7 @@ public sealed partial class SpyLaserView : Node3D
     [Provenance(ProvenanceKind.Decoded, "SGameplayObjectsTex.LaserBeamShader Diffuse=pan_laserbeam; TexPanner PanRate=-0.05, PanDirection=(0,0,0)")]
     internal const float BeamPanRate = -0.05f;
 
-    internal static void AnimateBeam(StandardMaterial3D? material, float time)
+    internal static void AnimateBeam(EffectMaterial? material, float time)
     {
         if (material is null) return;
         float phase = time * BeamPanRate;
@@ -402,7 +403,7 @@ public sealed partial class SpyLaserView : Node3D
     /// across the beam's start (the merc's muzzle). <paramref name="showFin"/> false hides the start quad.
     /// </summary>
     [Provenance(ProvenanceKind.Decoded, "SGameplayObjects.LaserBeam sections: material 0 LaserBeamShader (crossed quads, V 0.425 to 0.575), material 1 lasebeam2fin (one quad at X 0)")]
-    internal static void ApplyBeamLook(MeshInstance3D beam, StandardMaterial3D? body, StandardMaterial3D? fin, bool showFin)
+    internal static void ApplyBeamLook(MeshInstance3D beam, EffectMaterial? body, EffectMaterial? fin, bool showFin)
     {
         ArgumentNullException.ThrowIfNull(beam);
         if (beam.Mesh is not { } mesh || mesh.GetSurfaceCount() < 2)
@@ -420,15 +421,15 @@ public sealed partial class SpyLaserView : Node3D
         }
     }
 
-    private static readonly StandardMaterial3D HiddenSection = new()
+    private static readonly EffectMaterial HiddenSection = new()
     {
         ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded,
         Transparency = BaseMaterial3D.TransparencyEnum.Alpha,
         AlbedoColor = new Color(0f, 0f, 0f, 0f),
     };
 
-    private StandardMaterial3D? _beamLook;
-    private StandardMaterial3D? _finLook;
+    private EffectMaterial? _beamLook;
+    private EffectMaterial? _finLook;
     private bool _beamLookTried;
 
     private Texture2D DotTextureOrStandIn()

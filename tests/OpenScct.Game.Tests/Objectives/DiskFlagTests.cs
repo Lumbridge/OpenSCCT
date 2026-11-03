@@ -379,6 +379,7 @@ public sealed class DiskFlagTests
         Setup s = Make();
         TestPC spy = CarrierAtZone(s);
         s.Flag.DropZone[0] = null;
+        spy.GotoState(K.s_MenuInteraction);
         spy.PreviousState = K.s_PlayerWalkingCr0H;
 
         InteractionMenuRules.InteractionInit(spy, s.Drop, 0);

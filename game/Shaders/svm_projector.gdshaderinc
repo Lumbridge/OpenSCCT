@@ -9,6 +9,7 @@
 
 global uniform float svm_time;
 global uniform int svm_vision;
+#include "res://Shaders/svm_fog.gdshaderinc"
 
 #ifdef PROJ_LASER
 uniform sampler2D proj_tex : source_color, filter_linear_mipmap, repeat_disable, hint_default_black;
@@ -91,17 +92,20 @@ void fragment() {
 		uv = (cell + clamp(fract(uv), 0.001, 0.999)) / proj_flip.xy;
 	}
 	vec4 c = texture(proj_tex, uv);
+	// A projector shades the reconstructed receiver, not its enclosing volume mesh.
+	vec4 fog = surface_fog(CAMERA_VISIBLE_LAYERS, view.xyz, FRAGCOORD.xy, VIEWPORT_SIZE);
 #if defined(PROJ_LASER)
-	ALBEDO = c.rgb;
+	ALBEDO = c.rgb * fog.a;
 	ALPHA = c.a;
 #elif defined(PROJ_MODULATE)
-	ALBEDO = c.rgb * 2.0;
+	// Native modulate fog is 127/255 before the doubled framebuffer multiplication.
+	ALBEDO = mix(vec3(254.0 / 255.0), c.rgb * 2.0, fog.a);
 	ALPHA = 1.0;
 #elif defined(PROJ_ADD)
-	ALBEDO = c.rgb;
+	ALBEDO = c.rgb * fog.a;
 	ALPHA = 1.0;
 #else
-	ALBEDO = c.rgb;
+	ALBEDO = c.rgb * fog.a + fog.rgb;
 	ALPHA = c.a;
 #endif
 }

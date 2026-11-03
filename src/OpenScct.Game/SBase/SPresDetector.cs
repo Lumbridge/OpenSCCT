@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using OpenScct.Core;
 using OpenScct.Core.Engine;
 using OpenScct.Core.Uc;
@@ -21,6 +22,12 @@ public partial class SPresDetector
     public override StateTable GetStateTable() => ClassStates;
 
     private static readonly ClassRef CREF_SGameMessages = new("SBase.SGameMessages");
+    private readonly List<SBasePawn> _detectedPawns = new();
+    private readonly List<SBasePawn> _scanPawns = new();
+    private readonly HashSet<SBasePawn> _previousPawns = new();
+
+    /// <summary>All spies in the latest successful scan; the two legacy slots mirror the first two.</summary>
+    public IReadOnlyList<SBasePawn> DetectedPawns => _detectedPawns;
 
     /// <summary>In rain the heat is halved (the same body as SMines.PreBeginPlay, which it runs).</summary>
     [Uc("SBase.SPresDetector.PreBeginPlay", Sha1 = "7cf035cdf3cf022e65ff4fbb199f16863f9d4da9")]
@@ -54,8 +61,8 @@ public partial class SPresDetector
     {
         if (Role == ENetRole.ROLE_Authority)
         {
-            DetectedPawn[0] = null;
-            DetectedPawn[1] = null;
+            _detectedPawns.Clear();
+            SyncLegacySlots();
             RemoveFromHud();
         }
 
@@ -103,34 +110,29 @@ public partial class SPresDetector
             return;
         }
 
-        SBasePawn? old0 = DetectedPawn[0];
-        SBasePawn? old1 = DetectedPawn[1];
+        _previousPawns.Clear();
+        foreach (SBasePawn pawn in _detectedPawns) _previousPawns.Add(pawn);
         bool due = DetectionPeriod == 0f || !(now <= fLastScanTime + DetectionPeriod);
         if (!due || !ScanPresence())
         {
-            if ((DetectedPawn[0] is null && DetectedPawn[1] is null) || now - fDetectionTime <= fWarningDuration)
+            if (!bDetected || now - fDetectionTime <= fWarningDuration)
             {
                 return;
             }
 
-            DetectedPawn[0] = null;
-            DetectedPawn[1] = null;
+            _detectedPawns.Clear();
+            SyncLegacySlots();
             RemoveFromHud();
             bDetected = false;
             return;
         }
 
         bool news = false;
-        if (DetectedPawn[0] is { } p0 && !ReferenceEquals(p0, old0))
+        foreach (SBasePawn pawn in _detectedPawns)
         {
+            if (_previousPawns.Contains(pawn)) continue;
             news = true;
-            (p0.Controller as SPlayerController)?.AddMessageOnHud(K.PresDetectedHudMessage);
-        }
-
-        if (DetectedPawn[1] is { } p1 && !ReferenceEquals(p1, old1))
-        {
-            news = true;
-            (p1.Controller as SPlayerController)?.AddMessageOnHud(K.PresDetectedHudMessage);
+            (pawn.Controller as SPlayerController)?.AddMessageOnHud(K.PresDetectedHudMessage);
         }
 
         if (news)
@@ -145,8 +147,9 @@ public partial class SPresDetector
 
     /// <summary>
     /// The scan (ASPresDetector virtual 0x138, decoded 0x10abd710): nothing while chaffed; the scan time and sound
-    /// (every player, radius twice the detection radius); the first two spies within fDetectionRadius, faster than
-    /// VitesseMin (3D when going up, else horizontal) and in sight of the detector go into DetectedPawn.
+    /// (every player, radius twice the detection radius); living spies within fDetectionRadius, faster than
+    /// VitesseMin (3D when going up, else horizontal) and in sight. OpenSCCT tracks all qualifying spies so larger
+    /// teams receive the same warnings; the original two slots remain compatibility mirrors.
     /// </summary>
     [PortOf("eng:ASPresDetector::Tick", Spec = "spec/equipment/presence-detector.md#rules")]
     [Provenance(ProvenanceKind.Decoded, "Game 0x10abd710 (unnamed vtable slot 0x138):bChaffed refuses, fLastScanTime, the scan sound, SPawnAttaque within the radius (squared, strict), speed squared above VitesseMin squared, the shot line (TraceBone) from the detector to the spy hits him or nothing, at most 2")]
@@ -163,10 +166,10 @@ public partial class SPresDetector
         float speed2 = VitesseMin * VitesseMin;
         float range2 = fDetectionRadius * fDetectionRadius;
         IHitZones zones = CombatServices.HitZones(this);
-        int found = 0;
+        _scanPawns.Clear();
         foreach (SBasePawn p in GadgetWorld.Pawns(XLevel))
         {
-            if (p is not SPawnAttaque || p.bDeleteMe || !(FVector.DistSquared(p.Location, Location) < range2))
+            if (p is not SPawnAttaque || p.bDeleteMe || p.Health <= 0 || !(FVector.DistSquared(p.Location, Location) < range2))
             {
                 continue;
             }
@@ -184,21 +187,27 @@ public partial class SPresDetector
                 continue;
             }
 
-            DetectedPawn[found++] = p;
-            if (found > 1)
-            {
-                return true;
-            }
+            _scanPawns.Add(p);
         }
 
-        return found > 0;
+        if (_scanPawns.Count == 0) return false;
+        _detectedPawns.Clear();
+        _detectedPawns.AddRange(_scanPawns);
+        SyncLegacySlots();
+        return true;
+    }
+
+    private void SyncLegacySlots()
+    {
+        DetectedPawn[0] = _detectedPawns.Count > 0 ? _detectedPawns[0] : null;
+        DetectedPawn[1] = _detectedPawns.Count > 1 ? _detectedPawns[1] : null;
     }
 
     protected override void CleanupDestroyedReferences()
     {
         base.CleanupDestroyedReferences();
-        DetectedPawn[0] = Live(DetectedPawn[0]);
-        DetectedPawn[1] = Live(DetectedPawn[1]);
+        _detectedPawns.RemoveAll(pawn => pawn.bDeleteMe);
+        SyncLegacySlots();
     }
 
     /// <summary>Armed (auto): nothing of its own; the native tick scans in any state but the chaff lock.</summary>

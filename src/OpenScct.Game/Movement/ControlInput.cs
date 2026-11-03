@@ -25,7 +25,7 @@ public static class ControlInput
     [UcNative("ASPlayerController::execNativeComputeControlVariables", Exe = 0x10aaf400, Editor = 0x111f37d0)]
     [PortOf("nat:SBase.SPlayerController.NativeComputeControlVariables", Spec = "spec/native/input.md#3-imove-bits")]
     [Provenance(ProvenanceKind.Decoded, "editor 0x111f37d0 (iMove bits), 0x111e6460 (input mapping): 6000 x k per key, 2100 on a ledge or fence, 3000 stick up and down, camera-relative 2100 sideways, 4500 forward (3000 held)")]
-    [Provenance(ProvenanceKind.Estimated, "stick up and down for a spy climbing (pipes, ladders, zip lines): the screen direction of the climb is taken as the screen's up (ClimbStickUp); the mouse path")]
+    [Provenance(ProvenanceKind.Decoded, "editor 0x111f3956..0x111f3b18: projection weight is cameraForward.Z * abs(trunc(cameraForward.Z)); normal views retain screen-up, exactly vertical views use the projected pawn-forward direction")]
     [PortOf("rl:fix.slow_strafe", Spec = "spec/native/input.md#1-input-mapping-the-shared-body-editor-0x111e6460-game-0x10aaa910")]
     [PortOf("rl:input.ledgeassist", Spec = "spec/movement/ledge.md#reloaded-ledge-assist")]
     [Provenance(ProvenanceKind.Decoded, "Reloaded.Core 0x1001ab50 (hooked at game 0x10aaa973): a standing spy's diagonal scaled by 0.70710677 per axis; fNormePadMove capped to 0.4 while bUsing in slow mode (not bFastSpeed)")]
@@ -165,7 +165,7 @@ public static class ControlInput
             Camera.PlayerCalcView.UpdateStickyCamForInputProjection(pc);
             // A spy climbing (ladder, pipe, zip line...): the stick (aStrafe, -aForward, 0.01) normalised, against the
             // screen direction of the climb, so the speed mode does not matter.
-            float up = ClimbStickUp(pc.aStrafe, pc.aForward);
+            float up = ClimbStickUp(pc);
             if (up > MovementK.ClimbStickCos)
             {
                 move |= SPlayerController.cMoveUp;
@@ -212,22 +212,32 @@ public static class ControlInput
     /// <summary>
     /// The climbing modes' up test: the stick on the screen (aStrafe right, -aForward down, 0.01 out of the screen),
     /// normalised, dotted with the screen direction of the climb. That direction is the projection of the pawn's
-    /// axes, which is not fully decoded (spec/native/input.md open question 2); with the camera behind a climbing
-    /// pawn it is the screen's up, which is used here.
+    /// forward axis. Native integer truncation makes its projection weight zero except at an exactly vertical
+    /// camera; ordinary climbing therefore uses screen-up, including steep but nonvertical views.
     /// </summary>
     [Provenance(ProvenanceKind.Decoded, "NativeComputeControlVariables editor 0x111f37d0: stick (aStrafe, -aForward, 0.01) normalised, dot with a normalised screen direction, +-0.45")]
-    [Provenance(ProvenanceKind.Estimated, "the screen direction is taken as the screen's up (0, -1, 0) (input.md open question 2)")]
-    internal static float ClimbStickUp(float aStrafe, float aForward)
+    [Provenance(ProvenanceKind.Decoded, "editor 0x111f3967/0x111f3a99 call CRT truncation at 0x1123fb80; direction = -projectedPawnForward * weight + screenUp * (1 - abs(trunc(weight)))")]
+    internal static float ClimbStickUp(SPlayerController pc)
     {
-        float sy = -aForward;
-        float len = SvmMath.Sqrt((aStrafe * aStrafe) + (sy * sy) + (MovementK.ClimbStickDepth * MovementK.ClimbStickDepth));
-        return -sy / len;
+        pc.Rotation.GetAxes(out FVector forward, out FVector right, out FVector up);
+        float weight = forward.Z * SvmMath.Abs(SvmMath.Trunc(forward.Z));
+        FVector direction = new(0f, -1f, 0f);
+        if (weight != 0f && pc.Pawn is { } pawn)
+        {
+            // The native projects controllerLocation + cameraForward + pawnForward relative to the view centre.
+            // At vertical pitch the camera-forward term has no screen displacement; the common perspective
+            // factor cancels when this screen direction is normalized.
+            FVector facing = pawn.Rotation.Vector();
+            FVector projected = new FVector(facing | right, -(facing | up), 0f).SafeNormal();
+            direction = (-projected * weight + direction * (1f - SvmMath.Abs(SvmMath.Trunc(weight)))).SafeNormal();
+        }
+        FVector stick = new(pc.aStrafe, -pc.aForward, MovementK.ClimbStickDepth);
+        return stick.SafeNormal() | direction;
     }
 
     private static FVector Flat(FVector v)
     {
-        float k = 1f / SvmMath.Sqrt(v.X * v.X + v.Y * v.Y);
-        return new FVector(v.X * k, v.Y * k, 0f);
+        return new FVector(v.X, v.Y, 0f).SafeNormal();
     }
 
     /// <summary>

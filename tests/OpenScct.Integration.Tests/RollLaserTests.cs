@@ -119,14 +119,11 @@ public sealed class RollLaserTests
         Assert.Equal(315f, pills[0].A.Z, 3);
     }
 
-    [Theory]
-    [InlineData(false, false)]
-    [InlineData(true, true)]
-    public void NonRollingOrUnknownClipsKeepTheExistingFallback(bool rolling, bool unknown)
+    [Fact]
+    public void UnknownClipsKeepTheExistingFallback()
     {
         using var file = new CharacterFixture();
-        Scene scene = new(file, unknown ? "UnknownRoll" : "RollStJpFdL");
-        scene.Pawn.bIsRolling = rolling;
+        Scene scene = new(file, "UnknownRoll");
         var expected = new List<PillShape>();
         var actual = new List<PillShape>();
         EstimatedPillPose.Instance.GetPills(scene.Pawn, expected);
@@ -134,6 +131,150 @@ public sealed class RollLaserTests
         Assert.Equal(expected, actual);
         Assert.Same(EstimatedPillPose.Instance, RollPillPose.FromContent(null));
         Assert.Same(EstimatedPillPose.Instance, RollPillPose.FromContent(Path.Combine(file.Root, "missing")));
+    }
+
+    [Theory]
+    [InlineData("CrouchPose", false)]
+    [InlineData("LadderPose", false)]
+    [InlineData("GrabPose", false)]
+    [InlineData("KnockoutPose", false)]
+    [InlineData("CrouchPose", true)]
+    [InlineData("LadderPose", true)]
+    [InlineData("GrabPose", true)]
+    [InlineData("KnockoutPose", true)]
+    public void BothTeamsUseInstalledNonRollAnimationForHitZones(string sequence, bool merc)
+    {
+        using var file = new CharacterFixture();
+        Scene scene = new(file, sequence, merc);
+        scene.Pawn.bIsRolling = false;
+        scene.SetTime(0.5f);
+        var pills = new List<PillShape>();
+        scene.Pose.GetPills(scene.Pawn, pills);
+        Assert.Equal(15, pills.Count);
+        Assert.Equal(85f, pills[0].A.Z, 3);
+        var zones = new TraceHitZones(scene.Pose);
+        SBasePawn shooter = scene.World.Level.SpawnActor(new SPawnDefense_1Mesh(), new FVector(-200f, 0f, 85f), default)!;
+        Assert.Same(scene.Pawn, zones.TraceBone(shooter, new FVector(200f, 0f, 85f), shooter.Location, false).Actor);
+    }
+
+    [Fact]
+    public void RootMotionPoseDoesNotApplyTheActorsDisplacementTwice()
+    {
+        using var file = new CharacterFixture();
+        Scene scene = new(file, "LadderPose");
+        scene.Pawn.PawnAnim.SetBlendAlpha(SBasePawn.DBLJUMPCHANNEL, 0f);
+        scene.Pawn.PawnAnim.PlayAnim(0, new PawnClip(new Name("LadderPose"), 3, 2f), 1f, 0f, false);
+        scene.Pawn.PawnAnim.SetFrame(0, 1f / 3f);
+        scene.Pawn.Physics = EPhysics.PHYS_RootMotion;
+        scene.Pawn.iLockRootMotionType = 1;
+        var pills = new List<PillShape>();
+        scene.Pose.GetPills(scene.Pawn, pills);
+        Assert.Equal(50f, pills[0].A.Z, 3); // The actor already carries the root's 35 uu ascent.
+    }
+
+    [Fact]
+    public void RootUnlockTweenStartsAtTheVisibleLockedPose()
+    {
+        using var file = new CharacterFixture();
+        Scene scene = new(file, "LadderPose");
+        scene.Pawn.PawnAnim.SetBlendAlpha(SBasePawn.DBLJUMPCHANNEL, 0f);
+        scene.Pawn.PawnAnim.PlayAnim(0, new PawnClip(new Name("LadderPose"), 3, 2f), 1f, 0f, false);
+        scene.Pawn.PawnAnim.SetFrame(0, 1f / 3f);
+        scene.Pawn.Physics = EPhysics.PHYS_RootMotion;
+        scene.Pawn.iLockRootMotionType = 1;
+        var pills = new List<PillShape>();
+        scene.Pose.GetPills(scene.Pawn, pills);
+        Assert.Equal(50f, pills[0].A.Z, 3);
+        scene.Pawn.Physics = EPhysics.PHYS_Falling;
+        scene.Pawn.PawnAnim.PlayAnim(0, new PawnClip(new Name("CrouchPose"), 3, 2f), 1f, .1f, false);
+        pills.Clear();
+        scene.Pose.GetPills(scene.Pawn, pills);
+        Assert.Equal(50f, pills[0].A.Z, 3);
+    }
+
+    [Theory]
+    [InlineData(1f, 2.376f, 4.172f)]
+    [InlineData(.5f, 4.63013f, 1.27000f)]
+    public void BoneDirectionsMoveDescendantHitZonesAndReleaseWithoutPoseAccumulation(float alpha, float x, float y)
+    {
+        using var file = new CharacterFixture(headUnderSpine: true);
+        Scene scene = new(file, "CrouchPose");
+        scene.Pawn.PawnAnim.Directions.SetBoneDirection(new Name("B Spine2"), new FRotator(0, 16384, 0), alpha);
+        var pills = new List<PillShape>();
+        scene.Pose.GetPills(scene.Pawn, pills);
+        Assert.Equal(x, pills[0].A.X, 3);
+        Assert.Equal(y, pills[0].A.Y, 3);
+        scene.Pawn.PawnAnim.Directions.Clear();
+        pills.Clear();
+        scene.Pose.GetPills(scene.Pawn, pills);
+        Assert.Equal(4.172f, pills[0].A.X, 3);
+        Assert.Equal(-2.376f, pills[0].A.Y, 3);
+    }
+
+    [Fact]
+    public void PredictionReplayDoesNotOverwritePoseHistoryAndNetworkResetClearsIt()
+    {
+        using var file = new CharacterFixture();
+        Scene scene = new(file, "CrouchPose");
+        scene.Pawn.PawnAnim.Owner = scene.Pawn;
+        scene.SetTime(.5f);
+        scene.Pawn.PawnAnim.UpdateTweenCache();
+        scene.World.IsReplaying = true;
+        scene.SetTime(0f);
+        scene.Pawn.PawnAnim.UpdateTweenCache();
+        scene.World.IsReplaying = false;
+        scene.Pawn.PawnAnim.PlayAnim(SBasePawn.DBLJUMPCHANNEL, new PawnClip(new Name("GrabPose"), 3, 2f), 1f, .2f, false);
+        var pills = new List<PillShape>();
+        scene.Pose.GetPills(scene.Pawn, pills);
+        Assert.Equal(85f, pills[0].A.Z, 3);
+        scene.Pawn.ResetNetworkHistory();
+        pills.Clear();
+        scene.Pose.GetPills(scene.Pawn, pills);
+        Assert.Equal(50f, pills[0].A.Z, 3);
+    }
+
+    [Fact]
+    public void FirstQueryDuringATweenMatchesAContinuouslyQueriedPawn()
+    {
+        using var file = new CharacterFixture();
+        Scene sparse = new(file, "CrouchPose"), frequent = new(file, "CrouchPose");
+        var sparsePills = new List<PillShape>();
+        var frequentPills = new List<PillShape>();
+        foreach (Scene scene in new[] { sparse, frequent })
+        {
+            scene.Pawn.PawnAnim.Owner = scene.Pawn;
+            scene.SetTime(.5f);
+            scene.Pawn.PawnAnim.UpdateTweenCache(); // The simulation captures the standing pose without a trace.
+            scene.Pawn.PawnAnim.PlayAnim(SBasePawn.DBLJUMPCHANNEL, new PawnClip(new Name("GrabPose"), 3, 2f), 1f, .2f, false);
+            scene.Pawn.PawnAnim.UpdateTweenCache();
+        }
+        for (int i = 0; i < 10; i++)
+        {
+            frequentPills.Clear();
+            frequent.Pose.GetPills(frequent.Pawn, frequentPills);
+        }
+        foreach (Scene scene in new[] { sparse, frequent })
+        {
+            scene.Pawn.PawnAnim.SetFrame(SBasePawn.DBLJUMPCHANNEL, -1f / 6f);
+            scene.Pawn.PawnAnim.UpdateTweenCache();
+        }
+        frequentPills.Clear();
+        sparse.Pose.GetPills(sparse.Pawn, sparsePills);
+        frequent.Pose.GetPills(frequent.Pawn, frequentPills);
+        Assert.Equal(67.5f, sparsePills[0].A.Z, 3);
+        Assert.Equal(frequentPills, sparsePills);
+    }
+
+    [Fact]
+    public void FullBodyAimTurnsTheHeadWithTheVisibleSpine()
+    {
+        using var file = new CharacterFixture(headUnderSpine: true);
+        Scene scene = new(file, "CrouchPose");
+        scene.Pawn.PawnAnim.Aim.FullPitch = MathF.PI / 2f;
+        var pills = new List<PillShape>();
+        scene.Pose.GetPills(scene.Pawn, pills);
+        Assert.Equal(54.172f, pills[0].A.Z, 3);
+        Assert.Equal(0f, pills[0].A.X, 3);
     }
 
     [Fact]
@@ -193,11 +334,11 @@ public sealed class RollLaserTests
         public AlarmReceiver Alarm { get; }
         public IPillPose Pose { get; }
 
-        public Scene(CharacterFixture file, string sequence)
+        public Scene(CharacterFixture file, string sequence, bool merc = false)
         {
             Pose = RollPillPose.FromContent(file.Characters);
             World.Level.SetService<IPillPose>(Pose);
-            Pawn = World.Level.SpawnActor(new SPawnAttaque_1Mesh(), new FVector(0, 0, 50), default)!;
+            Pawn = World.Level.SpawnActor<SBasePawn>(merc ? new SPawnDefense_1Mesh() : new SPawnAttaque_1Mesh(), new FVector(0, 0, 50), default)!;
             Pawn.CollisionRadius = 35f;
             Pawn.CollisionHeight = 50f;
             Pawn.PrePivot = default;
@@ -222,13 +363,13 @@ public sealed class RollLaserTests
         }
     }
 
-    /// <summary>Synthetic skeleton and three-key roll only; no game animation or mesh data.</summary>
+    /// <summary>Synthetic skeleton and three-key poses only; no game animation or mesh data.</summary>
     private sealed class CharacterFixture : IDisposable
     {
         public string Root { get; } = Path.Combine(Path.GetTempPath(), "roll-laser-" + Guid.NewGuid().ToString("N"));
         public string Characters => Path.Combine(Root, "shared", "chars");
 
-        public CharacterFixture(int rotOrigin = 0, bool omitHead = false)
+        public CharacterFixture(int rotOrigin = 0, bool omitHead = false, bool headUnderSpine = false)
         {
             string[] bones = ["B Head", "B Spine2", "B Pelvis", "B L UpperArm", "B L ForeArm", "B L Hand",
                 "B L Thigh", "B L Calf", "B L Foot", "B L Toe0", "B R UpperArm", "B R ForeArm", "B R Hand",
@@ -236,8 +377,14 @@ public sealed class RollLaserTests
             var nodes = new JsonArray { new JsonObject { ["name"] = "B" } };
             foreach (string name in bones.Where(b => !omitHead || b != "B Head")) nodes.Add(new JsonObject { ["name"] = name });
             nodes[0]!["children"] = new JsonArray(Enumerable.Range(1, nodes.Count - 1).Select(i => (JsonNode?)JsonValue.Create(i)).ToArray());
+            if (headUnderSpine)
+            {
+                nodes[0]!["children"] = new JsonArray(Enumerable.Range(2, nodes.Count - 2).Select(i => (JsonNode?)JsonValue.Create(i)).ToArray());
+                nodes[2]!["children"] = new JsonArray(1);
+            }
             var animations = new JsonArray();
-            foreach (string name in new[] { "RollStJpFdL", "RollStJpFdR", "RollStAlFdL", "RollStAlFdR" })
+            foreach (string name in new[] { "RollStJpFdL", "RollStJpFdR", "RollStAlFdL", "RollStAlFdR",
+                "CrouchPose", "LadderPose", "GrabPose", "KnockoutPose" })
             {
                 JsonNode animation = JsonNode.Parse("""
                     {"samplers":[{"input":0,"output":1}],
@@ -260,13 +407,16 @@ public sealed class RollLaserTests
             int padded = (json.Length + 3) & ~3;
             string folder = Path.Combine(Characters, "SPerso");
             Directory.CreateDirectory(folder);
-            using var output = File.Create(Path.Combine(folder, "ATT_01.glb"));
+            using var output = new MemoryStream();
             using var writer = new BinaryWriter(output);
             writer.Write(0x46546c67u); writer.Write(2u); writer.Write((uint)(12 + 8 + padded + 8 + 48));
             writer.Write((uint)padded); writer.Write(0x4e4f534au); writer.Write(json);
             for (int i = json.Length; i < padded; i++) writer.Write((byte)' ');
             writer.Write(48u); writer.Write(0x004e4942u);
             foreach (float value in new[] { 0f, 0.5f, 1f, 0f, 0f, 0f, 0f, 0.35f, 0f, 0f, 0f, 0f }) writer.Write(value);
+            writer.Flush();
+            File.WriteAllBytes(Path.Combine(folder, "ATT_01.glb"), output.ToArray());
+            File.WriteAllBytes(Path.Combine(folder, "DEF_01.glb"), output.ToArray());
         }
 
         public void Dispose() => Directory.Delete(Root, recursive: true);

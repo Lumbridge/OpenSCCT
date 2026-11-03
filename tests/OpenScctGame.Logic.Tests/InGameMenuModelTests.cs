@@ -11,6 +11,51 @@ public sealed class InGameMenuModelTests
     private static readonly InGameMenuContext LanHost = new(IAmServer: true, InGameMenuNet.Lan);
     private static readonly InGameMenuContext LanClient = new(IAmServer: false, InGameMenuNet.Lan);
 
+    [Fact]
+    public void ResignRequiresAnActiveNetworkParticipantAndConfirmation()
+    {
+        var active = LanClient with { MatchBegun = true, Lives = 3 };
+        Assert.True(active.CanResign);
+        foreach (var denied in new[] { active with { Net = InGameMenuNet.None }, active with { Tutorial = true },
+            active with { MatchBegun = false }, active with { GameEnded = true }, active with { Spectator = true }, active with { Lives = 0 } })
+        {
+            Assert.False(denied.CanResign);
+            Assert.DoesNotContain(InGameMenuModel.Layout(denied), e => e.Button == InGameMenuButton.Resign);
+        }
+        var m = new InGameMenuModel();
+        m.Open(active, 0);
+        Assert.Equal(InGameMenuAction.None, m.ConfirmResign());
+        Assert.Equal(InGameMenuAction.None, m.Click(InGameMenuButton.Resign));
+        Assert.Equal(InGameMenuPage.ConfirmResign, m.Page);
+        m.Cancel();
+        Assert.Equal(InGameMenuPage.Main, m.Page);
+        Assert.Equal(InGameMenuAction.None, m.ConfirmResign());
+        m.Click(InGameMenuButton.Resign);
+        Assert.Equal(InGameMenuAction.Resign, m.ConfirmResign());
+        Assert.False(m.IsOpen);
+        Assert.Equal(InGameMenuAction.None, m.ConfirmResign());
+    }
+
+    [Fact]
+    public void RoundEndingWhileResignDialogIsOpenRevokesTheAction()
+    {
+        var active = LanHost with { MatchBegun = true, Lives = 1 };
+        var m = new InGameMenuModel();
+        m.Open(active, 0);
+        m.Click(InGameMenuButton.Resign);
+        m.UpdateContext(active with { GameEnded = true });
+        Assert.Equal(InGameMenuPage.Main, m.Page);
+        Assert.Equal(InGameMenuAction.None, m.ConfirmResign());
+        Assert.DoesNotContain(m.Entries, e => e.Button == InGameMenuButton.Resign);
+    }
+
+    [Theory]
+    [InlineData(false, false, false)]
+    [InlineData(false, true, true)]
+    [InlineData(true, false, true)]
+    public void MissingMapBlocksReadyButNeverBlocksUnready(bool ready, bool mapMatches, bool allowed) =>
+        Assert.Equal(allowed, LobbyRoomModel.CanToggleReady(ready, mapMatches));
+
     private static (InGameMenuButton, float)[] Tops(InGameMenuContext c) =>
         InGameMenuModel.Layout(c).Select(e => (e.Button, e.Top)).ToArray();
 

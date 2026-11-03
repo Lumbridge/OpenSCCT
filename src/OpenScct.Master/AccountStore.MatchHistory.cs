@@ -31,6 +31,7 @@ internal sealed partial class AccountStore
             return new(HistoryEntry(match.Match), match.Rows.Select(r => new ResultsReportRow
             {
                 Name = r.Name, Team = r.Team, Score = r.Score, Kills = r.Kills, Deaths = r.Deaths, Bot = r.Bot,
+                Loadout = r.Loadout,
             }).ToArray(), timeline is null ? null : JsonSerializer.Deserialize<MatchTimelineEvent[]>(timeline.Events, MasterApi.Json),
                 timeline?.Truncated ?? false);
         }

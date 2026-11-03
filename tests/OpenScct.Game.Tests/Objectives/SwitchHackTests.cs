@@ -418,6 +418,7 @@ public sealed class SwitchHackTests
         ObjWorld.UseEntry(first, sw.InteractionObj!);
         first.GotoState(K.s_Hack_Enter);
 
+        second.GotoState(K.s_MenuInteraction);
         second.PreviousState = K.s_PlayerWalkingCr0H;
         InteractionMenuRules.InteractionInit(second, sw.InteractionObj, 0);
 
@@ -441,6 +442,7 @@ public sealed class SwitchHackTests
 
         ObjWorld.UseEntry(spy, sw!.InteractionObj!);
         Assert.True(spy.IsInState(K.s_Maintain_GoTo));
+        spy.GotoState(K.s_Maintain_Enter);
         SwitchHackRules.EnterStart(spy);
         Assert.True(sw.TriggerInteraction!.IsInState(K.s_Maintain_Use));
         SwitchHackRules.MaintainUseBeginState(spy);

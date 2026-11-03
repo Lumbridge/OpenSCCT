@@ -631,7 +631,8 @@ public partial class LobbyRoomScreen : MenuPage
         EquipmentButton!.Disabled = local?.Side is null || s.Launching;
         NoteJoins(s);
         MainButton!.Text = control && s.PreparingBots ? "Cancel start" : LobbyRoomModel.MainButton(control, local?.Ready ?? false, s.Launching);
-        MainButton.Disabled = local is null || (!control && local.Side is null) || (control && !s.Launching && !s.CanStart);
+        MainButton.Disabled = local is null || (!control && (local.Side is null || !LobbyRoomModel.CanToggleReady(local.Ready, s.HasReadyMap)))
+            || (control && !s.Launching && !s.CanStart);
         UpdateOverview();
         UpdateLoadout();
         UpdateTeamCards();

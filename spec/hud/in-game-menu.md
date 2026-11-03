@@ -115,6 +115,22 @@ execs that work in play; the menu takes them while it is open (rule 8).
 The menu is the player's own machine. Only its results reach the server: the server's end of session, the
 return to the lobby, a client's disconnect.
 
+## Enhanced Beta 5 resignation
+
+The B5 `GUI.SSMenu_LANMainPage` adds a resignation choice and
+`GUI.ResignValidation` adds confirmation. The rewrite exposes it during an
+active network round, outside tutorials, for a participant with remaining
+lives. It is hidden for spectators and once the round ends. Confirmation
+rechecks eligibility and uses the existing server resignation command; opening
+or cancelling the dialog has no gameplay effect. Losing eligibility while the
+dialog is open returns to the main menu. The default focused choice is Cancel.
+
+The rewrite's short confirmation sentence is original UI text. The compact
+and wide rendered layouts, cancellation, stale eligibility and one-shot
+confirmation are covered by the `resign-menu` Godot smoke. Evidence for the B5
+addition is the local `GUI` class diff under
+`local/enhanced-b5-audit/uc-diffs/GUI`.
+
 ## Edge cases
 
 - Offline (NET_NONE) the player is the server but never sees Return to Lobby.

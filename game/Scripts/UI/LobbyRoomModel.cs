@@ -41,6 +41,8 @@ public sealed class LobbyRoomModel
     public static string MainButton(bool host, bool ready, bool countingDown) =>
         LobbyPresentation.MainAction(host, ready, countingDown);
 
+    public static bool CanToggleReady(bool ready, bool mapMatches) => ready || mapMatches;
+
     /// <summary>The rows whose values differ between two setups (what a client sees blink after the host changed them).</summary>
     public static IReadOnlyList<SessionRow> Differences(LobbySetup before, LobbySetup after)
     {

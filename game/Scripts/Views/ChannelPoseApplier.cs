@@ -36,6 +36,8 @@ public struct ChannelPose
     public bool Loop;
 
     public bool Mirror;
+
+    public bool GlobalPose;
 }
 
 /// <summary>How the root bone is held during a root-motion move (iLockRootMotionType bits, anim.md rule 5.6).</summary>
@@ -421,9 +423,9 @@ public sealed class ChannelPoseApplier
 
     private void ApplyClip(ChannelPose ch, float alpha, float tween)
     {
-        if (ch.Mirror)
+        if (ch.Mirror || ch.GlobalPose)
         {
-            ApplyMirroredClip(ch, alpha, tween);
+            ApplyPreparedClip(ch, alpha, tween);
             return;
         }
 
@@ -501,7 +503,7 @@ public sealed class ChannelPoseApplier
     /// reflection bends the arms back and also turns the excluded root. The native reflects mesh X and bone Z;
     /// the converted skeleton maps UE bone Z to Godot Y. Rebuild local transforms before tweening and blending.
     /// </summary>
-    private void ApplyMirroredClip(ChannelPose ch, float alpha, float tween)
+    private void ApplyPreparedClip(ChannelPose ch, float alpha, float tween)
     {
         Array.Copy(_restPos, _samplePos, _count);
         Array.Copy(_restRot, _sampleRot, _count);
@@ -529,7 +531,7 @@ public sealed class ChannelPoseApplier
                     break;
                 case Animation.TrackType.Scale3D:
                     Vector3 scale = animation.ScaleTrackInterpolate(track, wrap ? length : time);
-                    _sampleScale[bone] = wrap ? scale.Lerp(animation.ScaleTrackInterpolate(track, 0.0), wrapAlpha) : scale;
+                    _sampleScale[bone] = wrap && ch.Mirror ? scale.Lerp(animation.ScaleTrackInterpolate(track, 0.0), wrapAlpha) : scale;
                     _sampled[bone] |= 4;
                     break;
             }
@@ -545,6 +547,11 @@ public sealed class ChannelPoseApplier
         Basis boneReflection = Basis.FromScale(new Vector3(1f, -1f, 1f));
         foreach (int bone in _order)
         {
+            if (!ch.Mirror)
+            {
+                _mirrorGlobal[bone] = _sampleGlobal[bone];
+                continue;
+            }
             int source = _mirror[bone];
             if (source < 0 || (source == bone && _sampled[bone] == 0))
             {
@@ -564,11 +571,11 @@ public sealed class ChannelPoseApplier
         foreach (int bone in _order)
         {
             if (!_included[bone]) continue;
-            int source = _mirror[bone];
+            int source = ch.Mirror ? _mirror[bone] : bone;
             byte sampled = _sampled[source >= 0 ? source : bone];
             Vector3 p = _samplePos[bone], scale = _sampleScale[bone];
             Quaternion q = _sampleRot[bone];
-            if (source >= 0 && (source != bone || sampled != 0))
+            if (ch.Mirror && source >= 0 && (source != bone || sampled != 0))
             {
                 // glTF drops constant tracks equal to rest. Their local transform can still change when a
                 // mirrored parent (or the excluded root) has a different frame, so rebuild both components.
@@ -579,6 +586,18 @@ public sealed class ChannelPoseApplier
                 p = local.Origin;
                 q = local.Basis.Orthonormalized().GetRotationQuaternion().Normalized();
                 scale = local.Basis.Scale;
+            }
+
+            if (ch.GlobalPose && bone == ch.StartBone && _parent[bone] >= 0)
+            {
+                Transform3D parent = Transform3D.Identity;
+                for (int ancestor = _parent[bone]; ancestor >= 0; ancestor = _parent[ancestor])
+                    parent = new Transform3D(new Basis(_rot[ancestor]).ScaledLocal(_scale[ancestor]), _pos[ancestor]) * parent;
+                Transform3D local = parent.AffineInverse() * _mirrorGlobal[bone];
+                p = local.Origin;
+                q = local.Basis.Orthonormalized().GetRotationQuaternion().Normalized();
+                scale = local.Basis.Scale;
+                sampled |= 7;
             }
 
             if ((sampled & 1) != 0)

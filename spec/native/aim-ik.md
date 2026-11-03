@@ -18,7 +18,8 @@ Units:
 How an armed pawn's upper body follows its aim: the merc's rifle and the spy's pistol point where the player aims,
 on every machine that draws the pawn (other players' pawns included). The script asks for the aim each tick, the
 mesh instance turns its stored angles toward it at a fixed speed, and the pose build turns one spine bone by them,
-so the arms, the head and the held weapon follow. It is presentation only: nothing in the simulation reads it.
+so the arms, the head and the held weapon follow. The rewrite's installed animated hit-zone provider also applies
+these pose turns when locating the character's collision pills.
 
 ## Data
 

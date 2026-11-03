@@ -22,6 +22,8 @@ public partial class FaithfulView : Node3D
     private SubViewport? _skyViewport;
     private Camera3D? _skyCamera;
     private DisplaySpaceEffect? _skyEffect;
+    private SurfaceFogRegistry? _surfaceFog;
+    private SurfaceFogRegistry? _skySurfaceFog;
     private MeshInstance3D? _backdrop;
     private FVector _cameraLocation;
     private FRotator _cameraRotation;
@@ -49,6 +51,7 @@ public partial class FaithfulView : Node3D
         DoubleVision = new RemanenceEffect { DoubleVision = true };
         Camera.Compositor = new Compositor { CompositorEffects = new Godot.Collections.Array<CompositorEffect> { Effect, DoubleVision, Remanence } };
         AddChild(Camera);
+        _surfaceFog = new SurfaceFogRegistry(Camera);
     }
 
     public Camera3D Camera { get; }
@@ -215,6 +218,7 @@ public partial class FaithfulView : Node3D
             Current = true,
         };
         _skyViewport.AddChild(_skyCamera);
+        _skySurfaceFog = new SurfaceFogRegistry(_skyCamera);
         AddChild(_skyViewport);
         ApplyVision();
 
@@ -340,6 +344,8 @@ public partial class FaithfulView : Node3D
                 }
             }
 
+            _surfaceFog?.Dispose();
+            _skySurfaceFog?.Dispose();
             Effect.Release();
             Remanence.Release();
             DoubleVision.Release();
@@ -444,9 +450,32 @@ public partial class FaithfulView : Node3D
     }
 
     private readonly ZoneFog _fog = new();
+    private PortalFogFrame? _portalFogFrame;
+    private LightingDoc? _portalFogLighting;
+    private Transform3D _portalFogTransform;
+    private Projection _portalFogProjection;
+    private Vector2I _portalFogSize;
+    private ViewFog _portalFogView;
+    private int _portalFogZone;
 
     /// <summary>The distance fog the view draws with: on, colour (display value), start and end in uu.</summary>
     private readonly record struct ViewFog(bool On, Color Color, float Start, float End);
+
+    private PortalFogFrame? PortalFog(ViewFog fog, int zone)
+    {
+        if (Map?.Lighting is not { } lighting || (!lighting.HasFogPortals && lighting.FogVolumes.Count == 0) || IsSceneVision(_rendMap)) return null;
+        Transform3D transform = Camera.GlobalTransform;
+        Projection projection = Camera.GetCameraProjection();
+        Vector2I size = (Vector2I)Camera.GetViewport().GetVisibleRect().Size;
+        if (_portalFogFrame is null || !ReferenceEquals(lighting, _portalFogLighting) || transform != _portalFogTransform ||
+            projection != _portalFogProjection || size != _portalFogSize || fog != _portalFogView || zone != _portalFogZone)
+        {
+            _portalFogLighting = lighting; _portalFogTransform = transform; _portalFogProjection = projection;
+            _portalFogSize = size; _portalFogView = fog; _portalFogZone = zone;
+            _portalFogFrame = PortalFogFrame.Build(lighting, Camera, _cameraLocation, zone, fog.On, fog.Color, fog.Start, fog.End);
+        }
+        return _portalFogFrame;
+    }
 
     /// <summary>
     /// The view's zone fog with its blend over the new zone's DistanceFogBlendTime (the scene fog setup, game
@@ -551,10 +580,12 @@ public partial class FaithfulView : Node3D
         UpdateClear(zone);
         Effect.Settings = new DisplayPostSettings
         {
+            SurfaceFogApplied = true,
             Fog = fog.On,
             FogColor = fog.Color,
             FogStart = fog.Start,
             FogEnd = fog.End,
+            PortalFog = PortalFog(fog, zone?.ZoneIndex ?? 0),
             GlowGate = GlowGate,
             // Post-Render Quality Normal draws no glow (threshold 255 lets nothing through); the gate still runs.
             GlowThreshold = OpenScctGame.Options.SettingsStore.Current.PostQuality == 0 ? 255 : Map?.Lighting.GlowThreshold ?? 255,
@@ -566,6 +597,7 @@ public partial class FaithfulView : Node3D
             Near = RenderK.NearClipUnits,
             Far = RenderK.FarClipUnits,
         };
+        _surfaceFog?.Update(Effect.Settings);
 
         if (_skyEffect is not null)
         {
@@ -575,6 +607,7 @@ public partial class FaithfulView : Node3D
             bool skyFog = sky is { Fog: true } && !IsSceneVision(_rendMap);
             _skyEffect.Settings = new DisplayPostSettings
             {
+                SurfaceFogApplied = true,
                 GlowGate = false,
                 Fog = skyFog,
                 FogColor = sky?.FogColor ?? default,
@@ -583,6 +616,7 @@ public partial class FaithfulView : Node3D
                 Near = RenderK.NearClipUnits,
                 Far = RenderK.FarClipUnits,
             };
+            _skySurfaceFog?.Update(_skyEffect.Settings);
         }
     }
 

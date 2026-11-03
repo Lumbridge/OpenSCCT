@@ -1,5 +1,6 @@
 using OpenScct.Core;
 using OpenScct.Core.Engine;
+using OpenScct.Game.Combat;
 using OpenScct.Game.SBase;
 using OpenScct.Game.Tests.Combat;
 using Xunit;
@@ -15,6 +16,7 @@ namespace OpenScct.Game.Tests.Equipment;
 /// </summary>
 public sealed class MercLaserMarkTests
 {
+    private sealed class RemoteConnection : UNetConnection { }
     private static (CombatScene Scene, SPlayerController PC, SBasePawn Merc, SBasePawn Spy, SGadTorcheLaser Laser) Setup(bool dedicatedBot = false)
     {
         var scene = new CombatScene(dedicatedBot ? ENetMode.NM_DedicatedServer : ENetMode.NM_ListenServer);
@@ -81,4 +83,80 @@ public sealed class MercLaserMarkTests
         scene.Run(2.5f);
         Assert.False(spy.bSpyBulletOn, "marked although the count started again 2.5 s ago");
     }
+
+    [Fact]
+    public void HumanDedicatedLaserTracksAndMarksWithoutTrustingClientTargetState()
+    {
+        var (scene, pc, _, spy, laser) = Setup(dedicatedBot: true);
+        pc.Player = new RemoteConnection();
+        laser.bInUse = true;
+        scene.Run(4.2f);
+        Assert.Same(spy, laser.TargetPawn);
+        Assert.True(spy.bSpyBulletOn);
+        spy.bSpyBulletOn = false;
+        RequestMark(pc, laser, spy);
+        scene.Run(1f);
+        Assert.False(spy.bSpyBulletOn); // No repeated mark for the same uninterrupted contact.
+    }
+
+    [Theory]
+    [InlineData("off")]
+    [InlineData("early")]
+    [InlineData("out-of-range")]
+    [InlineData("occluded")]
+    [InlineData("holstered")]
+    [InlineData("dead-owner")]
+    [InlineData("old-pawn")]
+    [InlineData("disabled")]
+    public void OwnerRequestsCannotBypassTheAuthoritativeLaserRules(string invalid)
+    {
+        var (scene, pc, merc, spy, laser) = Setup(dedicatedBot: true);
+        pc.Player = new RemoteConnection();
+        laser.bInUse = invalid != "off";
+        laser.NativeTickTorcheLaser(0f);
+        switch (invalid)
+        {
+            case "out-of-range": spy.SetLocation(new FVector(50000f, 0f, 100f)); break;
+            case "occluded": GadgetKit.Walls(scene, GadgetKit.WallAt(200f)); break;
+            case "holstered": merc.WeaponLoaded = 0; break;
+            case "dead-owner": merc.Health = 0; break;
+            case "old-pawn": pc.Pawn = null; break;
+            case "disabled": pc.GameReplicationInfo = scene.Level.SpawnActor(new GameReplicationInfo { bAvlb_MERC_Laser = false }, default, default); break;
+        }
+
+        RequestMark(pc, laser, spy);
+        Assert.False(spy.bSpyBulletOn);
+        if (invalid != "early")
+        {
+            scene.Run(5f);
+            RequestMark(pc, laser, spy);
+            Assert.False(spy.bSpyBulletOn);
+        }
+        else
+        {
+            // An early packet does not delay or suppress the server's eventual earned mark.
+            scene.Run(4.2f);
+            Assert.True(spy.bSpyBulletOn);
+        }
+    }
+
+    [Fact]
+    public void AnEarnedDwellCannotBeTransferredToAnotherPawn()
+    {
+        var (scene, pc, _, spy, laser) = Setup(dedicatedBot: true);
+        pc.Player = new RemoteConnection();
+        (_, SBasePawn otherSpy) = scene.Player(true, new FVector(400f, 500f, 100f));
+        (_, SBasePawn teammate) = scene.Player(false, new FVector(400f, -500f, 100f));
+        laser.bInUse = true;
+        scene.Run(3f);
+        RequestMark(pc, laser, otherSpy);
+        RequestMark(pc, laser, teammate);
+        Assert.False(otherSpy.bSpyBulletOn);
+        Assert.False(teammate.bSpyBulletOn);
+        scene.Run(1.2f);
+        Assert.True(spy.bSpyBulletOn);
+    }
+
+    private static void RequestMark(SPlayerController pc, SGadTorcheLaser laser, SBasePawn target) =>
+        pc.ReceiveCombatCall(new CombatCall(new Name("ThrowSpyBullet")) { Target = laser, Actor1 = target }, true);
 }

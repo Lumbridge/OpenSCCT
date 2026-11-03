@@ -38,6 +38,10 @@ internal sealed record DroppedPlayer
 
     public int Lives { get; init; }
 
+    public USPlayerStats? Stats { get; init; }
+
+    public bool WaitForRespawn { get; init; }
+
     public bool Matches(long? accountId, string? installId, string? publicKey) =>
         accountId is not null ? AccountId == accountId
         : AccountId is null && (PublicKey is { } key ? key == publicKey : InstallId is { Length: > 0 } id && id == installId);
@@ -61,11 +65,17 @@ public sealed partial class OnlineServer
 
         _dropped.RemoveAll(d => d.Matches(p.AccountId, p.InstallId, p.PublicKey));
         PlayerReplicationInfo? pri = Phase == SessionPhase.Match ? controller?.PlayerReplicationInfo : null;
+        bool waitForRespawn = pri is not null && Host.Game is { bGameEnded: false } game &&
+            !OpenScct.Game.Modes.PracticeRules.IsOn(game);
+        // A reconnect starts a fresh pawn. Outside practice, abandoning a living pawn therefore spends that life;
+        // an already-dead player has paid it. Both use the normal respawn wait instead of a free immediate reset.
+        bool lostLife = waitForRespawn && controller?.Pawn is { Health: > 0, bDeleteMe: false } && pri!.NumLives > 0;
         _dropped.Add(new DroppedPlayer
         {
             AccountId = p.AccountId, InstallId = p.InstallId, PublicKey = p.PublicKey, Name = p.Name, Team = p.Team, Round = RoundsStarted,
-            HasStats = pri is not null, Score = pri?.Score ?? 0f, Kills = pri?.Kills ?? 0, Deaths = pri?.Deaths ?? 0,
-            Lives = pri?.NumLives ?? 0,
+            HasStats = pri is not null, Score = pri?.Score ?? 0f, Kills = pri?.Kills ?? 0,
+            Deaths = (pri?.Deaths ?? 0) + (lostLife ? 1 : 0),
+            Lives = (pri?.NumLives ?? 0) - (lostLife ? 1 : 0), Stats = pri?.Stats, WaitForRespawn = waitForRespawn,
         });
         Log($"{p.Name} dropped out of round {RoundsStarted}: his place is kept until the session is back in the lobby");
     }
@@ -91,8 +101,8 @@ public sealed partial class OnlineServer
     }
 
     /// <summary>
-    /// A rejoining player is in: during the match he gets back the score, kills, deaths and lives he left with (the
-    /// side's lives when the series moved on to another game) and spawns, as a late joiner does (StartLateJoiner).
+    /// A rejoining player restores round counters, including any life abandoned on disconnect. A competitive
+    /// same-round return uses the normal respawn wait; practice and a new round can spawn immediately.
     /// </summary>
     private void Rejoined(SessionPlayer p, PlayerSlot slot)
     {
@@ -114,13 +124,19 @@ public sealed partial class OnlineServer
             pri.Kills = dropped.Kills;
             pri.Deaths = dropped.Deaths;
             pri.NumLives = dropped.Lives;
+            pri.Stats = dropped.Stats;
         }
         else
         {
             pri.NumLives = SGameInfo.TeamIndexOf(pc) == 0 ? game.MatchInfo?.NumLivesATT ?? 0 : game.MatchInfo?.NumLivesDEF ?? 0;
         }
 
-        if (pri.NumLives > 0 && !game.bGameEnded)
+        if (!game.bGameEnded && dropped.HasStats && dropped.Round == RoundsStarted && dropped.WaitForRespawn && pc is SPlayerController spc)
+        {
+            pri.bIsSpectator = true;
+            spc.eventMirrorState("s_MultiSpectating_WhenKilled");
+        }
+        else if (pri.NumLives > 0 && !game.bGameEnded)
         {
             game.eventRestartPlayer(pc);
         }

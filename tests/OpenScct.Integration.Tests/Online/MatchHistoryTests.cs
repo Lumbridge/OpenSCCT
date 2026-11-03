@@ -10,6 +10,49 @@ namespace OpenScct.Integration.Tests.Online;
 
 public sealed class MatchHistoryTests
 {
+    [Fact]
+    public void Granted_loadout_is_snapshotted_bounded_and_kept_in_history_with_legacy_nulls()
+    {
+        using var store = AccountStore.Open(":memory:");
+        long account = store.GetOrCreate("loadout-owner").Id;
+        var kit = new RecordedLoadout { Weapon = "SBase.SWeaponDefense", Gadgets =
+            ["SBase.SGadFragGrenade", "SBase.SGadGasMask", "SBase.SGadGasMask", "<invalid>"] };
+        long id = store.RecordMatch(new ResultsReport { Rows = [new() { AccountId = account, Loadout = kit }] }, "Test", true);
+        kit.Gadgets[0] = "SBase.SGadBomb";
+        var saved = Assert.Single(store.HistoryDetails(account, id)!.Players).Loadout!;
+        Assert.Equal("SBase.SWeaponDefense", saved.Weapon);
+        Assert.Equal(["SBase.SGadFragGrenade", "SBase.SGadGasMask"], saved.Gadgets);
+        long legacy = store.RecordMatch(new ResultsReport { Rows = [new() { AccountId = account }] }, "Old", true);
+        Assert.Null(Assert.Single(store.HistoryDetails(account, legacy)!.Players).Loadout);
+    }
+
+    [Fact]
+    public void Version_nine_migration_preserves_rounds_without_inventing_old_loadouts()
+    {
+        string path = Path.Combine(Path.GetTempPath(), Guid.NewGuid() + ".db");
+        try
+        {
+            long account, match;
+            using (var store = AccountStore.Open(path))
+            {
+                account = store.GetOrCreate("legacy-loadout-owner").Id;
+                match = store.RecordMatch(new ResultsReport { Rows = [new() { AccountId = account, Kills = 3 }] }, "Old", true);
+            }
+            using (var db = new SqliteConnection($"Data Source={path};Pooling=False"))
+            {
+                db.Open();
+                using var command = db.CreateCommand();
+                command.CommandText = "ALTER TABLE match_rows DROP COLUMN loadout; UPDATE schema_version SET version = 9;";
+                command.ExecuteNonQuery();
+            }
+            using var upgraded = AccountStore.Open(path);
+            var row = Assert.Single(upgraded.HistoryDetails(account, match)!.Players);
+            Assert.Equal(3, row.Kills);
+            Assert.Null(row.Loadout);
+        }
+        finally { SqliteConnection.ClearAllPools(); File.Delete(path); }
+    }
+
     private sealed class Clock : TimeProvider
     {
         public DateTimeOffset Now = DateTimeOffset.UtcNow;

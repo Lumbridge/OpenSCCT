@@ -8,7 +8,7 @@ The chain is followed until a Texture export is found.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field, replace
 from typing import Dict, Optional, Tuple
 
 from .package import Export, Package
@@ -112,6 +112,8 @@ class ResolvedMaterial:
     # Texture.AnimNext chain (animated texture, e.g. Aquarium Caustic1.C01..C16): {"frames": [Texture], "fps": float};
     # `texture` stays the first frame.
     flipbook: Optional[dict] = None
+    # MaterialSequence inputs, retaining each item's texture and modifier chain rather than freezing frame zero.
+    sequences: dict = field(default_factory=dict)
     # Shader inputs with their own texture modifiers. UE2 transforms each stage of a Shader by its own modifier chain,
     # so an Opacity or SpecularityMask that pans at another rate than the Diffuse (ClubD's CLU_Water_01_SH) cannot be
     # baked into the diffuse's alpha: the exporter writes them as separate layers when they differ from the Diffuse.
@@ -377,11 +379,15 @@ class MaterialResolver:
                 if si.texture is not None:
                     result.self_illum, result.self_illum_key = si.texture, si.key
                     result.self_illum_chain = si.chain
+                    if "diffuse" in si.sequences:
+                        result.sequences["self_illum"] = _sequence_input(si.sequences["diffuse"])
                 if props.get("SelfIlluminationMask"):
                     sm = self.resolve(owner, int(props["SelfIlluminationMask"]), depth + 1)
                     if sm.texture is not None:
                         result.self_illum_mask, result.self_illum_mask_key = sm.texture, sm.key
                         result.self_illum_mask_chain = sm.chain
+                        if "diffuse" in sm.sequences:
+                            result.sequences["self_illum_mask"] = _sequence_input(sm.sequences["diffuse"])
             elif ob == 5 and props.get("Diffuse") and self._is_env_map(owner, props.get("Specular")):
                 # Glass: lit diffuse plus an environment reflection, brightening what is behind it. Glow and FX
                 # shaders (light rays, holograms, lens flares) stay fullbright; not on bUnlit actors either (their
@@ -450,6 +456,8 @@ class MaterialResolver:
                 if inner.texture is not None:
                     result.texture = inner.texture
                     result.flipbook = inner.flipbook
+                    for slot, sequence in inner.sequences.items():
+                        result.sequences.setdefault(slot, _sequence_prefix(sequence, own, result, cls))
                     result.two_sided = result.two_sided or inner.two_sided
                     result.unlit = result.unlit or inner.unlit
                     if cls != "Combiner":
@@ -503,24 +511,76 @@ class MaterialResolver:
             # The inputs carry their own modifiers (exported per input): Material1's must not also apply to the whole
             # Combiner, or it would move twice.
             result.uv_anim, result.uv_matrix = None, None
-        if result.texture is None and cls == "MaterialSequence":
-            # Animated screens (security-room feeds, monitors, blinking mines) have no FallbackMaterial: show the
-            # sequence's first frame.
+        if cls == "MaterialSequence":
+            frames = []
             for item in props.get("SequenceItems") or []:
                 sub = item.get("Material") if isinstance(item, dict) else None
                 if isinstance(sub, int) and sub != 0:
                     inner = self.resolve(owner, sub, depth + 1)
                     if inner.texture is not None:
-                        result.texture, result.unlit = inner.texture, inner.unlit
-                        result.two_sided = result.two_sided or inner.two_sided
-                        result.translucent = result.translucent or inner.translucent
-                        result.masked = result.masked or inner.masked
-                        break
+                        frames.append((item, inner))
+            if frames:
+                result = replace(frames[0][1], key=result.key, sequences={})
+                self.cache[ckey] = result
+                switch_material = any(_sequence_state(frame) != _sequence_state(frames[0][1]) for _, frame in frames[1:])
+                if switch_material and any(int(item.get("Action", 0)) == 1 for item, _ in frames):
+                    self.cache.pop(ckey, None)
+                    raise ValueError(f"MaterialSequence {result.key} fades between incompatible material states")
+                for slot, texture_field, chain_field in (("diffuse", "texture", "chain"),
+                        ("self_illum", "self_illum", "self_illum_chain"),
+                        ("self_illum_mask", "self_illum_mask", "self_illum_mask_chain")):
+                    if all(getattr(frame, texture_field) is not None for _, frame in frames):
+                        result.sequences[slot] = {"source": result.key, "loop": bool(props.get("Loop", True)),
+                            "paused": bool(props.get("Paused", False)), "trigger_action": int(props.get("TriggerAction", 0)),
+                            "switch_material": switch_material and slot == "diffuse",
+                            "items": [{"time": max(0.0, float(item.get("Time", 0))), "action": int(item.get("Action", 0)),
+                                "texture": getattr(frame, texture_field), "key": frame.key + "__" + slot,
+                                "chain": getattr(frame, chain_field), "flipbook": frame.flipbook if slot == "diffuse" else None,
+                                **({"material": frame} if switch_material and slot == "diffuse" else {})}
+                                for item, frame in frames]}
         if result.texture is None and result.self_illum is not None:
             # A Shader with only SelfIllumination (screens, neon, EMF/heat displays) draws that texture fullbright;
             # without this it exported untextured (flat white in UE5).
             result.texture = result.self_illum
             result.unlit = True
+            if "self_illum" in result.sequences:
+                result.sequences["diffuse"] = result.sequences["self_illum"]
         if result.texture is None and cls == "ConstantColor" and isinstance(props.get("Color"), (tuple, list)):
             result.color = tuple(int(c) for c in props["Color"][:4])   # (R, G, B, A) 0-255
         return result
+
+
+def _sequence_state(material: ResolvedMaterial) -> tuple:
+    """State which cannot be interpolated merely by changing a diffuse/glow texture input."""
+    return tuple(getattr(material, name) for name in ("masked", "two_sided", "translucent", "unlit", "invisible",
+        "additive", "additive_gain", "darken", "modulate", "opacity_key", "opacity_layer", "spec_mask_key", "env_key")) + (
+        material.self_illum is not None, material.self_illum_mask is not None, material.combine is not None)
+
+
+def _sequence_input(sequence: dict) -> dict:
+    return {**sequence, "switch_material": False,
+        "items": [{key: value for key, value in item.items() if key != "material"} for item in sequence["items"]]}
+
+
+def _sequence_prefix(sequence: dict, prefix: tuple, outer: ResolvedMaterial, cls: str) -> dict:
+    # A sequence used as a Shader/Combiner input contributes RGBA; its framebuffer state does not replace that
+    # containing material. Coordinate modifiers and FinalBlend instead wrap the complete selected material.
+    complete = cls not in ("Shader", "LitSpecularMaterial", "Combiner", "EchelonLightingMaterial")
+    items = []
+    for item in sequence["items"]:
+        wrapped = {**item, "chain": prefix + item["chain"]}
+        if complete and item.get("material") is not None:
+            frame = item["material"]
+            changes = {"key": frame.key + "__wrapped_" + outer.key, "chain": prefix + frame.chain,
+                "self_illum_chain": prefix + frame.self_illum_chain,
+                "self_illum_mask_chain": prefix + frame.self_illum_mask_chain,
+                "uv_anim": outer.uv_anim or frame.uv_anim, "uv_matrix": outer.uv_matrix or frame.uv_matrix,
+                "two_sided": outer.two_sided or frame.two_sided}
+            if cls == "FinalBlend":
+                changes.update({name: getattr(outer, name) for name in
+                    ("masked", "translucent", "invisible", "additive", "additive_gain", "darken", "modulate")})
+            wrapped["material"] = replace(frame, **changes)
+        elif not complete:
+            wrapped.pop("material", None)
+        items.append(wrapped)
+    return {**sequence, "switch_material": complete and sequence.get("switch_material", False), "items": items}

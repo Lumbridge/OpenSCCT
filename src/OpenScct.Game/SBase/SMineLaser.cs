@@ -58,6 +58,21 @@ public partial class SMineLaser
         base.PostBeginPlay();
     }
 
+    /// <summary>Enhanced B5: delay initial arming while the opposite surface is absent, retrying every 0.25 s.</summary>
+    [Provenance(ProvenanceKind.Decoded, "Enhanced 4.0 Beta 5 SMineLaser.Timer: reverse trace from maximum reach to 2 uu ahead; retry 0.25 s when clear")]
+    protected override void Timer()
+    {
+        FVector ahead = Rotation.Vector();
+        if (!GadgetWorld.Line(this, Location + ahead * K.LaserProbeStart, Location + ahead * fDistanceMax,
+            BeamTraceFlags, out _))
+        {
+            SetTimer(0.25f, false);
+            return;
+        }
+
+        base.Timer();
+    }
+
     /// <summary>Any damage blows the mine.</summary>
     [Uc("SBase.SMineLaser.TakeDamage", Sha1 = "2c791e2bae007546d2756abdd5bdd2b72aea06fb")]
     [PortOf("uc:SBase.SMineLaser:TakeDamage", Spec = "spec/equipment/mine-launcher.md#mines")]
@@ -155,6 +170,7 @@ public partial class SMineLaser
         if (pLaser is { } beam)
         {
             beam.fTailleFaisceau = fTailleFaisceau;
+            beam.bHidden = fTailleFaisceau > fDistanceMax;
         }
 
         fLastUpadtedLaser = Level.TimeSeconds;
@@ -168,6 +184,7 @@ public partial class SMineLaser
         CheckForOppositeWall();
         FRotator toward = (vMurTouche - Location).Rotation();
         pLaser = XLevel.SpawnActor(new SLaserBeam_MineLaser(), Location, new FRotator(toward.Pitch, toward.Yaw, 0), this, Instigator);
+        if (pLaser is { } beam) beam.bHidden = fTailleFaisceau > fDistanceMax;
     }
 
     /// <summary>
@@ -257,7 +274,9 @@ public partial class SMineLaser
         {
             if (self.Role == ENetRole.ROLE_Authority)
             {
-                ((SMineLaser)self).CheckPresence();
+                var mine = (SMineLaser)self;
+                if (mine.pLaser is { } beam) beam.bHidden = mine.fTailleFaisceau > mine.fDistanceMax;
+                mine.CheckPresence();
             }
         }
     }

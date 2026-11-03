@@ -226,7 +226,8 @@ public partial class SPlayerController
         using var activityScope = CombatDeathContext.Push(incomingActivity);
         CombatDeathSource activitySource = CombatDeathContext.Current;
         bool delayedSource = activitySource.Cause is CombatDeathCause.PoisonMine or CombatDeathCause.Poison or
-            CombatDeathCause.MolotovFire or CombatDeathCause.Fire or CombatDeathCause.Hazard;
+            CombatDeathCause.MolotovFire or CombatDeathCause.Fire or CombatDeathCause.Hazard or
+            CombatDeathCause.FragGrenade or CombatDeathCause.ProximityMine or CombatDeathCause.LaserMine;
         PlayerReplicationInfo? recordedPri = activitySource.Instigator ?? activitySource.Detonator;
         Controller? recordedInstigator = delayedSource && recordedPri is { bDeleteMe: false, Owner: Controller { bDeleteMe: false } owner }
             ? owner : null;

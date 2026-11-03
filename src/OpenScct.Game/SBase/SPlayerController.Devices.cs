@@ -2,6 +2,8 @@ using OpenScct.Core;
 using OpenScct.Core.Engine;
 using OpenScct.Core.Uc;
 using OpenScct.Game.Devices;
+using OpenScct.Game.Combat;
+using OpenScct.Game.Equipment;
 using OpenScct.Provenance;
 
 namespace OpenScct.Game.SBase;
@@ -36,8 +38,45 @@ public partial class SPlayerController
     /// <summary>The merc charge on a gameplay object (client to server): damage from this player's pawn.</summary>
     [Uc("SBase.SPlayerController.DestroyGPO", Sha1 = "9c9c0cf0dbb07238dca8783961150ecb34b3815e")]
     [PortOf("uc:SBase.SPlayerController:DestroyGPO", Spec = "spec/devices/gameplay-object.md#effects-and-helpers")]
-    public void DestroyGPO(SBasicGamePlayObject? gpo, int Damage, SDamageType Type) =>
-        gpo?.eventTakeDamage(Damage, Pawn, FVector.Zero, new FVector(0f, 0f, 1f), Type, 0);
+    public void DestroyGPO(SBasicGamePlayObject? gpo, int Damage, SDamageType Type)
+    {
+        if (Role < ENetRole.ROLE_Authority)
+        {
+            CombatNet.ServerCall(this, new CombatCall(new Name("DestroyGPO")) { Actor1 = gpo, Int1 = Damage, DamageType = Type });
+            return;
+        }
+
+        bool charging = IsInState(WNAME_s_PlayerCharging);
+        bool berserk = IsInState(new Name("s_Berserk360"));
+        if ((!charging && !berserk) || SBPawn is not SPAWNDEFENSE { Health: > 0, bDeleteMe: false } pawn ||
+            !ReferenceEquals(Pawn, pawn) || !ReferenceEquals(pawn.Controller, this) || gpo is null || gpo.bDeleteMe ||
+            !ReferenceEquals(gpo.XLevel, XLevel) || _meleeDamagedObjects.Contains(gpo) ||
+            Damage != (int)iChargeDamage || Type != SDamageType.SDamage_Charged ||
+            (charging && GameReplicationInfo is { bAvlb_MERC_Charge: false })) return;
+
+        // Mesh origins need not be near the point of contact. Sweep toward the actual object's collider and
+        // require its first contact to be within a small allowance of the pawn's body.
+        FVector offset = gpo.Location - pawn.Location;
+        if (GadgetWorld.Collision(this) is { } world)
+        {
+            var extent = new FVector(pawn.CollisionRadius, pawn.CollisionRadius, System.Math.Max(0f, pawn.CollisionHeight - 2f));
+            var flags = GadgetWorld.SightFlags & ~OpenScct.Physics.Collision.ETraceFlags.TRACE_StopAtFirstHit;
+            if (!world.LineCheck(out var hit, pawn, gpo.Location, pawn.Location, extent, flags) ||
+                !ReferenceEquals(hit.Actor, gpo) || !(FVector.Dist(hit.Location, pawn.Location) <= 12f)) return;
+            offset = hit.Location - pawn.Location;
+        }
+        else
+        {
+            float radius = pawn.CollisionRadius + gpo.CollisionRadius + 8f;
+            if (!(offset.X * offset.X + offset.Y * offset.Y <= radius * radius) ||
+                !(System.Math.Abs(offset.Z) <= pawn.CollisionHeight + gpo.CollisionHeight)) return;
+        }
+        if (charging && (offset | pawn.Rotation.Vector()) < -1f) return;
+        _meleeDamagedObjects.Add(gpo);
+        gpo.eventTakeDamage((int)iChargeDamage, pawn, FVector.Zero, new FVector(0f, 0f, 1f), SDamageType.SDamage_Charged, 0);
+    }
+
+    private readonly System.Collections.Generic.HashSet<SBasicGamePlayObject> _meleeDamagedObjects = new();
 
     /// <summary>
     /// The ammo crate (server to the owning client, where it runs): a merc, or anyone carrying a bomb gadget (which is

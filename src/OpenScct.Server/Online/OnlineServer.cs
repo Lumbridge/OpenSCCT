@@ -1002,11 +1002,6 @@ public sealed partial class OnlineServer : IDisposable
             }
 
             players++;
-            if (!p.Ready && !p.IsHost)
-            {
-                return "Not all players are ready.";
-            }
-
             if (p.Map == MapState.Missing)
             {
                 return $"{p.Name} does not have {Setup.Map}.";
@@ -1015,6 +1010,14 @@ public sealed partial class OnlineServer : IDisposable
             if (p.Map == MapState.Differs)
             {
                 return $"{p.Name} has a different version of {Setup.Map}.";
+            }
+            if (p.Map != MapState.Ok)
+            {
+                return $"{p.Name} has not finished checking {Setup.Map}.";
+            }
+            if (!p.Ready && !p.IsHost)
+            {
+                return "Not all players are ready.";
             }
         }
 
@@ -1252,6 +1255,7 @@ public sealed partial class OnlineServer : IDisposable
                 AccountId = p?.AccountId, Name = row.Name, Team = row.Team, Score = row.Score, Kills = row.Kills, Deaths = row.Deaths,
                 Bot = p?.IsBot ?? false,
                 Feats = row.Feats ?? new Dictionary<string, int>(),
+                Loadout = row.Loadout,
             });
         }
 
@@ -1470,7 +1474,11 @@ public sealed partial class OnlineServer : IDisposable
             }
 
             rows.Add(new ResultRow(p.Id, p.Name, (byte)(pri.Team?.TeamIndex ?? p.Team), (int)pri.Score, pri.Kills, pri.Deaths,
-                pri.NumLives >= OpenScct.Game.GameFlow.K.UnlimitedLives ? -1 : pri.NumLives, FeatsOf(pri)));
+                pri.NumLives >= OpenScct.Game.GameFlow.K.UnlimitedLives ? -1 : pri.NumLives, FeatsOf(pri))
+            {
+                Loadout = pri.Stats is { } stats
+                    ? new RecordedLoadout { Weapon = stats.Weapon, Gadgets = stats.Gadgets }.Snapshot() : null,
+            });
         }
 
         rows.Sort((a, b) => a.Team != b.Team ? a.Team.CompareTo(b.Team) : b.Score.CompareTo(a.Score));

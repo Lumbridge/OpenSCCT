@@ -149,7 +149,7 @@ public sealed partial class OnlineServer
                 ChangeTeam(p, (byte)Math.Clamp(SessionProtocol.Int(f, 0, p.Team), 0, 255));
                 break;
             case "ready" when Phase is SessionPhase.Lobby or SessionPhase.Results:
-                p.Ready = SessionProtocol.Int(f, 0) != 0;
+                p.Ready = SessionProtocol.Int(f, 0) != 0 && p.Map == MapState.Ok;
                 BroadcastPlayer(p);
                 break;
             case "look" when !p.IsBot:
@@ -176,6 +176,7 @@ public sealed partial class OnlineServer
                     if (state != p.Map)
                     {
                         p.Map = state;
+                        if (state != MapState.Ok) p.Ready = false;
                         BroadcastPlayer(p);
                     }
                 }

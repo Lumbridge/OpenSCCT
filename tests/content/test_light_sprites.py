@@ -52,6 +52,7 @@ def test_visible_finalblend_sprite_exports_texture_size_scale_and_material_flags
     defaults = {"bHidden": True}
     value = lambda actor, key, fallback=None: actor.props.get(key, defaults.get(key, fallback))
     src = SimpleNamespace(actors=[visible, hidden, corona, mesh], pset=object(),
+                          header=SimpleNamespace(model_a=0, model_b=0),
                           db=SimpleNamespace(is_a=lambda *_: True), value=value,
                           flag=lambda actor, key: bool(value(actor, key, False)),
                           ref_export=lambda _: (object(), SimpleNamespace(index=0, class_name="FinalBlend")),

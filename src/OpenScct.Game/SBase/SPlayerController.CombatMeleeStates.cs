@@ -303,7 +303,11 @@ public partial class SPlayerController
             var pc = (SPlayerController)self;
             float now = pc.Level.TimeSeconds;
             pc.bIsCharging = true;
-            if (!pc.XLevel.World.IsReplaying) pc._receivedOwnerChargeHit = false;
+            if (!pc.XLevel.World.IsReplaying)
+            {
+                pc._receivedOwnerChargeHit = false;
+                pc._meleeDamagedObjects.Clear();
+            }
             pc.fGrabDate = now;
             pc.fRespawnDate = now + pc.FRand() * K.ChargePulseRandom + K.ChargePulseBase;
             pc.bNoReticule = true;
@@ -850,6 +854,7 @@ public partial class SPlayerController
         public override void BeginState(Actor self)
         {
             var pc = (SPlayerController)self;
+            if (!pc.XLevel.World.IsReplaying) pc._meleeDamagedObjects.Clear();
             pc.bNoReticule = true;
             pc.EteintLaser();
             if (!pc.IsRemotePlayer)

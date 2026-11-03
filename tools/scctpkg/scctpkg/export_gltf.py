@@ -658,7 +658,42 @@ def _layer_flags(key: str, res: ResolvedMaterial, tex_dir: Optional[Path], tex_u
         fb = _flipbook_png(key, res.flipbook, tex_dir, tex_uri)
         if fb:
             out["flipbook"] = fb
+    if res.sequences:
+        sequences = {}
+        for slot, sequence in res.sequences.items():
+            items = []
+            for item in sequence["items"]:
+                uri = _texture_png(item["key"], item["texture"], tex_dir, tex_uri)
+                if uri is None:
+                    break
+                frame = {"texture": uri, "time": item["time"], "action": item["action"],
+                         **chain_layer(item["chain"])}
+                if item.get("flipbook"):
+                    frame["flipbook"] = _flipbook_png(item["key"], item["flipbook"], tex_dir, tex_uri)
+                if item.get("material") is not None:
+                    frame["material"] = _sequence_material_flags(item["material"], tex_dir, tex_uri)
+                items.append(frame)
+            if len(items) == len(sequence["items"]):
+                sequences[slot] = {**{k: sequence[k] for k in ("source", "loop", "paused", "trigger_action")},
+                    "switch_material": sequence.get("switch_material", False), "items": items}
+        out["sequences"] = sequences
+        if res.uv_matrix is not None:
+            out["uv_matrix"] = list(res.uv_matrix)
     return out
+
+
+def _sequence_material_flags(res: ResolvedMaterial, tex_dir: Path, tex_uri) -> dict:
+    """A complete Show frame, using the same opacity bake, layer export and blend rules as a static material."""
+    writer = GltfWriter()
+    writer.tex_dir, writer.tex_uri = tex_dir, tex_uri
+    writer.material(res.key, res, _ensure_texture(res, tex_dir, tex_uri))
+    _self_illum_flags(writer, res.key, res, tex_dir, tex_uri)
+    flags = writer.material_flags[res.key]
+    flags["blend"] = "darken" if res.modulate == "darken" else "modulate" if res.modulate else "additive" if res.additive else "translucent" if res.translucent else "masked" if res.masked else "opaque"
+    flags["skip"] = res.skip
+    if res.self_illum is not None and res.self_illum_mask is None:
+        flags["self_illum"] = _texture_png(res.self_illum_key, res.self_illum, tex_dir, tex_uri)
+    return flags
 
 
 def _ensure_texture(res: Optional[ResolvedMaterial], tex_dir: Path, tex_uri: Dict[str, Optional[str]]) -> Optional[str]:

@@ -221,6 +221,18 @@ Notable differences from other UE2 builds (this engine has no `StartLocationShap
 | Best axis threshold | 0.57 | decoded | the sprite fill's axis helper |
 | Modulated fade grey | 0x7f7f7f | decoded | UpdateParticles, SetParticleMaterial texture factor |
 
+## Fog blending
+
+`FD3DRenderInterface::SetParticleMaterial` (`0x10f34260`, editor twin) supplies
+a draw-specific fog colour before framebuffer blending. Regular and alpha
+particles retain the scene fog colour. Modulated particles override it with
+`0x7f7f7f`; after the doubled modulate blend this is a multiplier of `254/255`.
+Additive, premultiplied, darken and brighten styles override it with black.
+The rewrite therefore attenuates their source colour without adding the scene
+fog colour. Premultiplied alpha remains unchanged; brighten coverage follows
+the attenuated source intensity. This operates at each particle fragment's
+depth. Thermal continues to use its separate heat/opacity path.
+
 ## Network
 None: emitters are drawn locally from their actors (Emitter RemoteRole None). Effect classes that need to be seen
 by everyone are spawned on each machine by script, or replicated as actors (SSmokeEmitter, SChaffeEmitter,

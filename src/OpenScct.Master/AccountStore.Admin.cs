@@ -19,7 +19,7 @@ internal sealed record MatchRow(
 
 /// <summary>One player's line of a stored round.</summary>
 internal sealed record MatchPlayerRow(long MatchId, long? AccountId, string Name, int Team, int Score, int Kills, int Deaths, bool Bot,
-    IReadOnlyDictionary<string, int> Feats);
+    IReadOnlyDictionary<string, int> Feats, RecordedLoadout? Loadout = null);
 
 /// <summary>One sample of what the master saw (players online, servers, hubs, relay sessions).</summary>
 internal sealed record MetricRow(long Time, int Players, int Servers, int Hubs, int RelaySessions);
@@ -314,11 +314,12 @@ internal sealed partial class AccountStore
                 foreach (ResultsReportRow row in report.Rows)
                 {
                     string name = row.Name ?? string.Empty;
-                    Exec("INSERT INTO match_rows (match_id, account_id, name, team, score, kills, deaths, bot, feats) " +
-                        "VALUES ($m, $a, $n, $t, $s, $k, $d, $b, $f);",
+                    Exec("INSERT INTO match_rows (match_id, account_id, name, team, score, kills, deaths, bot, feats, loadout) " +
+                        "VALUES ($m, $a, $n, $t, $s, $k, $d, $b, $f, $l);",
                         ("$m", id), ("$a", row.AccountId), ("$n", name.Length > 64 ? name[..64] : name), ("$t", row.Team),
                         ("$s", row.Score), ("$k", row.Kills), ("$d", row.Deaths), ("$b", row.Bot ? 1 : 0),
-                        ("$f", JsonSerializer.Serialize(row.Feats ?? new Dictionary<string, int>())));
+                        ("$f", JsonSerializer.Serialize(row.Feats ?? new Dictionary<string, int>())),
+                        ("$l", row.Loadout is null ? null : JsonSerializer.Serialize(row.Loadout.Snapshot(), MasterApi.Json)));
                 }
 
                 return id;
@@ -359,11 +360,12 @@ internal sealed partial class AccountStore
             }
 
             List<MatchPlayerRow> rows = Query(
-                "SELECT match_id, account_id, name, team, score, kills, deaths, bot, feats FROM match_rows WHERE match_id = $id " +
+                "SELECT match_id, account_id, name, team, score, kills, deaths, bot, feats, loadout FROM match_rows WHERE match_id = $id " +
                 "ORDER BY team, score DESC;",
                 r => new MatchPlayerRow(r.GetInt64(0), r.IsDBNull(1) ? null : r.GetInt64(1), r.GetString(2), r.GetInt32(3), r.GetInt32(4),
                     r.GetInt32(5), r.GetInt32(6), r.GetInt64(7) != 0,
-                    JsonSerializer.Deserialize<Dictionary<string, int>>(r.GetString(8)) ?? new Dictionary<string, int>()),
+                    JsonSerializer.Deserialize<Dictionary<string, int>>(r.GetString(8)) ?? new Dictionary<string, int>(),
+                    r.IsDBNull(9) ? null : JsonSerializer.Deserialize<RecordedLoadout>(r.GetString(9), MasterApi.Json)),
                 ("$id", id));
             return (match, rows);
         }

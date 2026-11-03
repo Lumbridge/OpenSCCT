@@ -1,5 +1,8 @@
 # Enhanced SCCT Versus: feature inventory for the rewrite
 
+Current audit: [2026-11-03 Beta 5 parity sweep](2026-11-03-beta5-parity-sweep.md). The inventory below records
+earlier research; its open questions and implementation notes are not a current completion checklist.
+
 Status: research spec, M0. Scope: what the Enhanced SCCT Versus patch (by Joshhhuaaa, GitHub
 Joshhhuaaa/EnhancedSCCTVersus) changes in the game, and how each change reaches the rewrite.
 Companion: `spec/reloaded/FEATURES.md` (the Reloaded patch, bundled with Enhanced). Not to be confused

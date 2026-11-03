@@ -1258,6 +1258,8 @@ public sealed partial class PawnAnimation
     [Provenance(ProvenanceKind.Decoded, "pose build 0x11109a50: t = 1 - frame / cached frame, weight += (1 - weight) t, reset to -1/N on a new sequence or t outside [0, 1]")]
     public void UpdateTweenCache()
     {
+        if (Owner is OpenScct.Game.SBase.SBasePawn { XLevel: not null } owner)
+            owner.XLevel.GetService<OpenScct.Game.Combat.IPillPose>()?.UpdatePose(owner);
         bool cached = _poseCached;
         for (int ch = 0; ch < _channels.Length; ch++)
         {

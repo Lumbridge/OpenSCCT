@@ -186,7 +186,7 @@ SA_EXIT_REPOS 326, SA_GRABBED_RELEASE_DROPTECH 327.
     `s_GrabbedByPlayer_Released_Grabbing_LD`. Animation end re-plays the held loop. Smoke only blurs the HUD.
 13. Spy movement (PlayerMove): input vector clamped to length 6000; scaled by GrabbingSpeed / RunningSpeed
     (0.17039); view rotation free (yaw and pitch at 50 * DeltaTime * input * sensitivity, pitch limited to 15000 up and
-    50536 down unsigned); pawn rotation follows the movement direction at 48000 units/s (80000 * 0.6, step capped at
+     50536 down unsigned, view roll cleared as of Enhanced 4.0 B5); pawn rotation follows the movement direction at 48000 units/s (80000 * 0.6, step capped at
     32000 / 48000 s) using 0.6 of the inputs; `GroundSpeed = RunningSpeed * |accel| / 3000`, set to 0 below
     0.47 * GrabbingSpeed (30.8 uu/s); no jumping. Use (press edge) requests `CheckForRoomToFreeGrabbedGuy(Normal)`.
 14. Fire (spy, not in inventory) requests `CheckForRoomToFreeGrabbedGuy(KO)`. The 15 s timer (owner): if no release is

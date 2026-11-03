@@ -124,8 +124,8 @@ public partial class SPlayerController
         public override void BeginState(Actor self)
         {
             var pc = (SPlayerController)self;
-            pc.Previous_BT_Up = 0;
-            pc.Previous_BT_Down = 0;
+            pc.Previous_BT_Up = pc.BT_Up;
+            pc.Previous_BT_Down = pc.BT_Down;
             InteractionMenuRules.MenuBeginState(pc);
             pc.LastUpdateButton = pc.Level.TimeSeconds;
             base.BeginState(self);

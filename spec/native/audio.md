@@ -151,6 +151,11 @@ stream that has the Sound's own name.
     gets a fresh id every call, so it never replaces a slot.
 16. Priority: `p x Volume + (2D ? 1 : 0) + (music ? 2 : 0) + (streamed ? 1 : 0)` with
     `p = clamp(1 - d^2 / (100 R)^2, 0.01, 1)` from the listener (1 when R is 0).
+    Before allocation, an occluded 3D sound uses the rule 18 occlusion factor on its priority radius.
+    Once allocated, its stored priority radius instead uses `0.8^(ZoneDist[source][listener]^2)`;
+    the source zone is sampled at its location, distinct from the wall-hit zones used for attenuation
+    (editor PlaySound 0x10f6c340; retail 0x10b042dd..0x10b042f9). A radius factor that underflows
+    to zero keeps distant voices at the priority floor; it does not mean the authored zero-radius exception.
 17. A 3D source follows its actor (or the bone it was started on) every update, unless flag 0x40 is set or the actor
     is gone; the listener's own sounds and sources moving faster than 300 uu/s get no Doppler velocity.
     PlaySound first replaces a locally controlled pawn source with the viewport controller, clears its bone and

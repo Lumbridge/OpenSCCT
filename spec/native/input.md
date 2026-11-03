@@ -88,8 +88,11 @@ PlayerTick) unless iDontUpdatePadInput is set.
    compared in screen space with a direction built from the pawn's axes projected to the screen (relative to the
    viewport centre): the normalised dot product above 0.45 sets 16, below -0.45 sets 32. The stick vector is
    `(aStrafe, -aForward, 0.01)` and is normalised, so the speed mode does not change the bits (a slow spy's key, 2400,
-   climbs). The projection details are not fully decoded (open question 2); the port takes the screen's up as the
-   climb direction. The projection has a separate camera side effect: the native calls helper 0x10aafab0,
+   climbs). The projection weight is `cameraForward.Z * abs(trunc(cameraForward.Z))`: integer truncation makes it
+   zero for every nonvertical view, so ordinary climbing uses screen-up. At exactly vertical pitch it uses the
+   negative normalized projection of pawn-forward, multiplied by that signed weight. The projected point is
+   `controllerLocation + cameraForward + pawnForward`; the helper subtracts the viewport center before normalizing.
+   The projection has a separate camera side effect: the native calls helper 0x10aafab0,
    which updates PlayerCalcView (return site 0x10aafb21) even with no movement input or input frozen. This adds
    one sticky-camera fly-in step for split jumps, pipes and the other qualifying spy physics modes. The rewrite
    restores that call during local sticky flight, excluding prediction replay and dedicated servers; see
@@ -160,5 +163,7 @@ the server through the move (net-moves.md: acceleration, iMove-derived action fl
 
 1. Confirm that the two Player fields of rule 1.1 are the viewport size (a resolution change would scale mouse
    look); the 640 x 480 divisors suggest it.
-2. The exact screen-space construction of rule 3.2 for climbing modes (which pawn axis is projected and how the
-   magnitude enters). Trace: on a ladder and a pipe, hold W and S with the camera at several yaws and read iMove.
+2. The screen-space weight and pawn axis are resolved by editor disassembly `0x111f3956..0x111f3b18`; calls at
+   `0x111f3967` and `0x111f3a99` reach the CRT truncation routine `0x1123fb80`, and `0x10e61f90` adds the pawn-forward
+   vector. The rewrite uses equivalent direction projection for the following camera. Runtime verification of the
+   exact-vertical branch with nonstandard view sources remains open; ordinary steep views must not rotate controls.

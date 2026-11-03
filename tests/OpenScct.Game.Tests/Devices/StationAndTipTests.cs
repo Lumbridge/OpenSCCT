@@ -10,6 +10,29 @@ namespace OpenScct.Game.Tests.Devices;
 public sealed class StationAndTipTests
 {
     [Fact]
+    public void Ammo_stock_statistics_count_living_authoritative_merc_interactions_only()
+    {
+        DeviceScene s = DeviceScene.Create();
+        SAmmoStock crate = s.Add(new SAmmoStock());
+        s.Begin();
+        TestMerc merc = s.Player<TestMerc>(default);
+        var pc = (SPlayerController)merc.Controller!;
+        pc.PlayerReplicationInfo = s.Spawn(new PlayerReplicationInfo());
+        pc.PlayerReplicationInfo.Stats = new USPlayerStats();
+        var entry = s.Spawn(new AmmoEntry());
+        entry.SetOwner(crate);
+        merc.MyWeapon = new SWeapon();
+        entry.UseBy(pc);
+        Assert.Equal(1, pc.PlayerReplicationInfo.Stats.Merc_AmmoStocksUsed);
+        merc.Health = 0;
+        entry.UseBy(pc);
+        merc.Health = 100;
+        entry.Role = ENetRole.ROLE_SimulatedProxy;
+        entry.UseBy(pc);
+        Assert.Equal(1, pc.PlayerReplicationInfo.Stats.Merc_AmmoStocksUsed);
+    }
+
+    [Fact]
     public void TheMedkitHealsFullyClearsPoisonAndCountsAUseOnlyWhenHurt()
     {
         DeviceScene s = DeviceScene.Create();

@@ -221,6 +221,11 @@ public static class Loadouts
         {
             case SGadget gadget:
                 gadget.GiveTo(Pawn);
+                if (Stats(Pawn) is { } stats && ReferenceEquals(gadget.Owner, Pawn))
+                {
+                    Array.Resize(ref stats.Gadgets, stats.Gadgets.Length + 1);
+                    stats.Gadgets[^1] = Class.Path ?? string.Empty;
+                }
                 break;
             case SWeapon weapon:
                 weapon.GiveTo(Pawn);
@@ -248,6 +253,7 @@ public static class Loadouts
         if (DeviceClasses.Spawn(Pawn, cls, Pawn, default, Pawn.Location, Pawn.Rotation) is SWeapon weapon)
         {
             weapon.GiveTo(Pawn);
+            if (Stats(Pawn) is { } stats && ReferenceEquals(weapon.Owner, Pawn)) stats.Weapon = cls.Path ?? string.Empty;
             Pawn.GearStartAmmo = weapon.Ammo;
             Pawn.GearStartClipAmmo = weapon is SWeaponDefense rifle ? rifle.ClipAmmo : 0;
         }
@@ -289,12 +295,20 @@ public static class Loadouts
     /// </summary>
     public static void OpenGrant(SBasePawn Pawn, EGameMode Mode)
     {
+        if (Stats(Pawn) is { } stats)
+        {
+            stats.Weapon = string.Empty;
+            stats.Gadgets = [];
+        }
         Pawn.GearGrantUntil = Pawn.Level.TimeSeconds + GearK.GrantSeconds;
         Pawn.GearGrantGadgets = Team(Pawn) is null ? K.TeamOptions : PawnInventory.TeamSlots(Pawn);
         Pawn.GearGrantWeapon = true;
         Pawn.GearGrantSidearm = Pawn is SPAWNDEFENSE && SidearmEquipment.Enabled(Pawn);
         Pawn.GearGrantBomb = Pawn is SPawnAttaque && IsBombMode(Mode);
     }
+
+    private static USPlayerStats? Stats(SBasePawn pawn) => pawn.Role == ENetRole.ROLE_Authority
+        ? (pawn.Controller?.PlayerReplicationInfo ?? pawn.PlayerReplicationInfo)?.Stats : null;
 
     /// <summary>
     /// Whether the server takes a spawn request under the pawn's open grant: a weapon from the team's list, or an

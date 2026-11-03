@@ -37,7 +37,7 @@ public static class InteractionMenuRules
     public static bool CanAddInteract(SPlayerController pc, SInteractObject IntObj) => true;
 
     /// <summary>
-    /// <c>SPlayerController.DoInteraction</c> (rule 11): opens the menu when Use is held, the player is slow enough,
+    /// <c>SPlayerController.DoInteraction</c> (rule 11): opens the menu when Use is held,
     /// the current state allows interacting (<paramref name="canInteract"/>, the controller's CanInteract) and an
     /// entry other than Exit is usable. True when the menu opened.
     /// </summary>
@@ -45,11 +45,6 @@ public static class InteractionMenuRules
     [PortOf("uc:SBase.SPlayerController:DoInteraction", Spec = "spec/objectives/interaction-system.md#rules")]
     public static bool DoInteraction(SPlayerController pc, bool canInteract)
     {
-        if (pc.aStrafe * pc.aStrafe + pc.aForward * pc.aForward > K.MenuSpeedLimit * K.MenuSpeedLimit)
-        {
-            return false;
-        }
-
         if (pc.bUsing > 0 && pc.bCanCheckUsingButton && canInteract && pc.IManager is { } manager &&
             manager.HasUsableInteractions())
         {
@@ -118,7 +113,6 @@ public static class InteractionMenuRules
             return EMenuRelease.PressButton;
         }
 
-        entry.iLastUsedTime = SvmMath.Trunc(pc.Level.TimeSeconds);
         InteractionInit(pc, entry, manager.SelectedSubInteractions);
         return EMenuRelease.InteractionInitSent;
     }
@@ -179,7 +173,6 @@ public static class InteractionMenuRules
     {
         if (pc.IManager?.GetCurrentInteraction() is { } entry)
         {
-            entry.iLastUsedTime = SvmMath.Trunc(pc.Level.TimeSeconds);
             InteractionInit(pc, entry, pc.IManager.SelectedSubInteractions);
         }
     }
@@ -188,7 +181,7 @@ public static class InteractionMenuRules
 
     /// <summary>
     /// <c>SPlayerController.InteractionInit(Obj, Index)</c> (server): stamps the use time and lets the object decide.
-    /// The server does not re-check usability, distance or team.
+    /// The server validates the current pawn, target, range, visibility, usability and action before dispatch.
     /// </summary>
     [Uc("SBase.SPlayerController.InteractionInit", Sha1 = "dfb163e2813cc884d84449c5ff7e75c261c2e1ba")]
     [PortOf("uc:SBase.SPlayerController:InteractionInit", Spec = "spec/objectives/interaction-system.md#rules")]
@@ -200,12 +193,14 @@ public static class InteractionMenuRules
             return;
         }
 
-        if (Obj is null || Obj.bDeleteMe)
+        if (!InteractionAuthorization.Begin(pc, Obj, Index))
         {
+            if (pc.IsInState(K.s_MenuInteraction) && ObjectiveNatives.IsAlive(pc))
+                ObjectiveNatives.MirrorState(pc, pc.PreviousState, Name.None, true);
             return;
         }
 
-        Obj.iLastUsedTime = SvmMath.Trunc(pc.Level.TimeSeconds);
+        Obj!.iLastUsedTime = SvmMath.Trunc(pc.XLevel.WorldTimeSeconds);
         Obj.eventInitInteract(pc, Index);
     }
 
@@ -220,9 +215,9 @@ public static class InteractionMenuRules
             return;
         }
 
-        if (Obj is { bDeleteMe: false })
+        if (InteractionAuthorization.Start(pc, Obj, Index))
         {
-            Obj.eventInteract(pc, Index);
+            Obj!.eventInteract(pc, Index);
         }
     }
 
@@ -237,9 +232,9 @@ public static class InteractionMenuRules
             return;
         }
 
-        if (Obj is { bDeleteMe: false })
+        if (InteractionAuthorization.Finish(pc, Obj, Index))
         {
-            Obj.eventPostInteract(pc, Index);
+            Obj!.eventPostInteract(pc, Index);
         }
     }
 

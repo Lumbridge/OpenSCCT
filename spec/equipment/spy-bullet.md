@@ -44,6 +44,9 @@ every merc who comes within 500 uu of it.
      rotated to the hit normal; the spy's controller hears `HitWallSound`; `LocalMessage(MessageOnWall, 3)`; every
      player hears `FireSound`; `Charge` goes down by one.
    The charge is only taken on the server; `Charge` reaches the owner by replication.
+   The rewrite's spy-bullet trace includes pawn bodies independently of sticky-camera placement flags. Direct
+   hits on living mercs increment `Spy_SpyBulletTargets` (Enhanced Beta 5 counter) and the existing spy-bullet-hit
+   feat; dead targets and wall-zone placements do not increment that target counter.
 4. **LocalMessage** (the native's event): MyLocalMessage.
 5. **MyLocalMessage** (server to owner): the owner's HUD adds `MessageOnWall` to its message stack for 3 s.
 6. **SProjMarqueurSpy.PreBeginPlay**: in a rain volume `HeatIntensity` halves. **AcceptStickableGPO** is false.

@@ -386,12 +386,80 @@ public sealed class GameplayObjectTests
     public void TheMercChargeDamagesAGameplayObjectFromThePlayersPawn()
     {
         DeviceScene s = DeviceScene.Create();
-        SGamePlayObject gpo = s.Add(new SGamePlayObject { bDamageable = true, HitPoints = 10 });
+        SGamePlayObject gpo = s.Add(new SGamePlayObject { bDamageable = true, HitPoints = 100 });
         s.Begin();
         TestMerc merc = s.Player<TestMerc>(default);
-        ((SPlayerController)merc.Controller!).DestroyGPO(gpo, 4, SDamageType.SDamage_Charged);
-        Assert.Equal(6, gpo.HitPoints);
+        var pc = (SPlayerController)merc.Controller!;
+        pc.GotoState("s_PlayerCharging");
+        pc.DestroyGPO(gpo, (int)pc.iChargeDamage, SDamageType.SDamage_Charged);
+        Assert.Equal(100 - (int)pc.iChargeDamage, gpo.HitPoints);
         Assert.Same(merc, gpo.Instigator);
+        pc.DestroyGPO(gpo, (int)pc.iChargeDamage, SDamageType.SDamage_Charged);
+        Assert.Equal(100 - (int)pc.iChargeDamage, gpo.HitPoints);
+    }
+
+    [Theory]
+    [InlineData("walking")]
+    [InlineData("far")]
+    [InlineData("dead")]
+    [InlineData("damage")]
+    [InlineData("type")]
+    [InlineData("behind")]
+    public void Invalid_gameplay_object_damage_requests_are_rejected(string request)
+    {
+        DeviceScene s = DeviceScene.Create();
+        SGamePlayObject gpo = s.Add(new SGamePlayObject { bDamageable = true, HitPoints = 100 });
+        s.Begin();
+        TestMerc merc = s.Player<TestMerc>(default);
+        var pc = (SPlayerController)merc.Controller!;
+        if (request != "walking") pc.GotoState("s_PlayerCharging");
+        if (request == "far") gpo.Location = new FVector(10000f, 0f, 0f);
+        if (request == "behind") gpo.Location = new FVector(-20f, 0f, 0f);
+        if (request == "dead") merc.Health = 0;
+        pc.DestroyGPO(gpo, request == "damage" ? 100000 : (int)pc.iChargeDamage,
+            request == "type" ? SDamageType.SDTBase : SDamageType.SDamage_Charged);
+        Assert.Equal(100, gpo.HitPoints);
+    }
+
+    [Fact]
+    public void Charge_validates_the_surface_contact_even_when_the_mesh_origin_is_far_away()
+    {
+        DeviceScene s = DeviceScene.Create();
+        SGamePlayObject gpo = s.Add(new SGamePlayObject { bDamageable = true, HitPoints = 100 }, new FVector(1000f, 0f, 0f));
+        s.Collider(gpo, new FVector(-970f, -100f, -100f), new FVector(20f, 100f, 100f));
+        s.Begin();
+        TestMerc merc = s.Player<TestMerc>(default);
+        var pc = (SPlayerController)merc.Controller!;
+        pc.GotoState("s_PlayerCharging");
+        pc.DestroyGPO(gpo, (int)pc.iChargeDamage, SDamageType.SDamage_Charged);
+        Assert.Equal(100 - (int)pc.iChargeDamage, gpo.HitPoints);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void Owner_charge_rpc_checks_nearest_contact_with_BSP_behind_the_object(bool obstruction)
+    {
+        DeviceScene s = DeviceScene.Create(ENetMode.NM_ListenServer);
+        s.Floor();
+        SGamePlayObject gpo = s.Add(new SGamePlayObject { bDamageable = true, HitPoints = 100 }, new FVector(1000f, 0f, 0f));
+        s.Collider(gpo, new FVector(-980f, -100f, -100f), new FVector(20f, 100f, 100f));
+        if (obstruction)
+        {
+            var wall = s.Add(new SGamePlayObject());
+            s.Collider(wall, new FVector(15f, -100f, 0f), new FVector(16f, 100f, 300f));
+        }
+        s.Begin();
+        TestMerc merc = s.Player<TestMerc>(new FVector(0f, 0f, 100f));
+        merc.CollisionRadius = 10f;
+        var pc = (SPlayerController)merc.Controller!;
+        pc.GotoState("s_PlayerCharging");
+        var call = new OpenScct.Game.Combat.CombatCall(new Name("DestroyGPO"))
+        { Actor1 = gpo, Int1 = (int)pc.iChargeDamage, DamageType = SDamageType.SDamage_Charged };
+        pc.ReceiveCombatCall(call, true);
+        Assert.Equal(obstruction ? 100 : 100 - (int)pc.iChargeDamage, gpo.HitPoints);
+        pc.ReceiveCombatCall(call, true);
+        Assert.Equal(obstruction ? 100 : 100 - (int)pc.iChargeDamage, gpo.HitPoints);
     }
 
     [Fact]

@@ -5,6 +5,7 @@
 
 global uniform float svm_time;
 global uniform int svm_vision;
+#include "res://Shaders/svm_fog.gdshaderinc"
 
 uniform sampler2D rain_tex : filter_linear_mipmap_anisotropic, repeat_enable, hint_default_black;
 // TexFriendlyPanner: xy scaleU / scaleV, zw PanU x PanRate / PanV x PanRate per second.
@@ -17,8 +18,10 @@ void fragment() {
 	}
 	vec2 uv = UV * rain_pan.xy + rain_pan.zw * svm_time;
 	vec4 t = texture(rain_tex, uv);
-	ALBEDO = t.rgb * COLOR.rgb;
+	vec4 fog = surface_fog(CAMERA_VISIBLE_LAYERS, VERTEX, FRAGCOORD.xy, VIEWPORT_SIZE);
+	ALBEDO = t.rgb * COLOR.rgb * fog.a;
 #ifdef RAIN_ALPHA
+	ALBEDO += fog.rgb;
 	ALPHA = t.a;
 #else
 	ALPHA = 1.0;

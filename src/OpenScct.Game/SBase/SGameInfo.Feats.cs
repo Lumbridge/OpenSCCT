@@ -1,5 +1,6 @@
 using OpenScct.Core;
 using OpenScct.Core.Engine;
+using OpenScct.Game.Combat;
 using OpenScct.Game.Equipment;
 using K = OpenScct.Game.GameFlow.K;
 
@@ -39,6 +40,11 @@ public partial class SGameInfo
     {
         USPlayerStats? ks = killer.PlayerReplicationInfo?.Stats;
         USPlayerStats? vs = killed.PlayerReplicationInfo?.Stats;
+        if (type == SDamageType.SDTStickyBlast)
+        {
+            if (TeamIndexOf(killed) == 0 && vs is not null) vs.Spy_DeathFromJumpingTasedMerc++;
+            return;
+        }
         if (ks is null)
         {
             return;
@@ -59,14 +65,18 @@ public partial class SGameInfo
                 return;
         }
 
-        if (killer.Pawn is not SPAWNDEFENSE merc)
+        if (TeamIndexOf(killer) != 1)
         {
             return;
         }
 
-        if (GadgetBlast.CurrentIsMine is { } mine)
+        // These sources outlive their owner's pawn. Poison's delayed health tick uses SDTBase, so read its
+        // retained source instead of treating every poisoned victim's later bullet death as a poison kill.
+        bool poison = type == SDamageType.SDamage_Poison ||
+            CombatDeathContext.Current.Cause is CombatDeathCause.PoisonMine or CombatDeathCause.Poison;
+        if (poison || GadgetBlast.CurrentIsMine is not null)
         {
-            if (mine)
+            if (poison || GadgetBlast.CurrentIsMine == true)
             {
                 ks.Merc_MineKills++;
                 ks.AddFeat(FeatKeys.MercMineKills);
@@ -88,6 +98,8 @@ public partial class SGameInfo
             return;
         }
 
+        if (killer.Pawn is not SPAWNDEFENSE merc) return;
+
         if (killedPawn is not null && ReferenceEquals(merc.m_PawnToTerminate, killedPawn))
         {
             ks.Merc_TerminateKills++;
@@ -100,7 +112,7 @@ public partial class SGameInfo
             return;
         }
 
-        if (killed is SPlayerController { PoisonInstigator: not null } || type is not (SDamageType.SDTBase or SDamageType.SDTSnipeShot))
+        if (type is not (SDamageType.SDTBase or SDamageType.SDTSnipeShot))
         {
             return;
         }

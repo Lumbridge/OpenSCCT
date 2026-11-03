@@ -192,11 +192,35 @@ length.
 | Magic and version | `SCCTDEMO`, format version (u16) |
 | Header | game version, protocol hash, map content hash, map, game options, server name, start time (Unix ms), tick rate, net rate |
 | Body | a Brotli stream of frames: `varint tickDelta, varint length, packet bytes` |
-| Index | first tick, last tick, packet count, raw bytes, players (id, name, team), markers (tick, kind, text) |
+| Recorded views (version 2) | optional second Brotli stream; fixed 61-byte frames with tick, player/pawn identity, camera position/rotation/FOV, aim rotation, breath, accuracy and spy-first-person flag |
+| Index | first tick, last tick, packet count, raw bytes, players (id, name, team), markers (tick, kind, text); version 2 appends recorded-view count (i32) and compressed-view bytes (i64) |
 | Trailer | index length (i64), `SCCTDEND` |
 
 The index is written when the recording finishes. A file without it (the server stopped mid-round) is refused as
 "cut short".
+
+Current writers use container version 2; readers also accept version 1. Network packets and their protocol hash
+are unchanged by the view extension. While recording, the server requests rendered views with `#demo-view 1`
+and stops them with `#demo-view 0`. Updated rendering clients submit at most ten samples a second; the server
+associates each with the submitting connection's current player and pawn, stamps its receive tick, validates finite
+values, and caps acceptance at twenty samples per second. Views are stored only in the replay and never applied to
+gameplay or sent to other live players. Backlogged reliable channels skip samples. Older clients and headless bots
+do not supply them.
+
+The player-view demo camera uses these actual camera positions, rotations and FOVs when available, including
+scope and remote-camera views. It interpolates nearby samples, avoids blending across respawns or camera jumps,
+and falls back to the existing pawn-eye/aim view when samples are missing or stale. View timing is sampled and
+stamped on server receipt, so it is not a frame-perfect video or a latency-free reconstruction. Breath and accuracy
+are retained in the view data; weapon and gadget presentation continue to use the recorded replicated equipment.
+
+### File limits
+
+Demo listing and playback bound strings (16 KiB), the index (16 MiB), players (4096), markers (250,000), packets
+(four million) and expanded packet data (512 MiB). Packet sizes cannot exceed the transport's 2048-byte limit.
+Playback decompresses incrementally without reserving memory from file-supplied counts, checks framing and tick
+arithmetic, and requires the decoded packet count and byte total to match the index. Recorded camera views have
+a separate one-million-frame limit (61 bytes per expanded frame), with no more than 4096 distinct players.
+Existing version 1 recordings remain supported; files beyond these playback limits report an invalid-data error.
 
 ## Storage online
 

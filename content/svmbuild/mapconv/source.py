@@ -29,7 +29,7 @@ PLF_PSX2_ONLY = 1
 EDITOR_CLASSES = ("Engine.Camera", "Engine.Brush")
 RENDER_CLASSES = ("Engine.StaticMeshActor", "Engine.Light", "Engine.Spotlight", "Engine.SunLight",
                   "Engine.AmbientSound", "Engine.Projector", "Engine.DynamicProjector", "Engine.AntiPortalActor",
-                  "Engine.ERainVolume", "SoftBody.ESBPatchActor", "SoftBody.ESBStripDoorActor")
+                  "Engine.ERainVolume", "SoftBody.ESBPatchActor", "SoftBody.ESBStripDoorActor", "SBase.SFogVolume")
 
 
 @dataclass
@@ -73,8 +73,6 @@ class MapSource:
         from .localization import apply_text, read_text  # noqa: PLC0415
 
         text = read_text(self.game, self.name)
-        render = {c.lower() for c in RENDER_CLASSES}
-        editor = {c.lower() for c in EDITOR_CLASSES}
         for pos, ref in enumerate(self.header.actors):
             if ref <= 0:
                 continue
@@ -97,23 +95,27 @@ class MapSource:
                 except Exception as ex:  # noqa: BLE001 - one bad actor must not stop the map
                     info.error = f"{type(ex).__name__}: {ex}"
                     self.notes.add("decode-error", f"{e.name}: {info.error}")
-            low = cls.lower()
-            if pos == 0:
-                info.category = "level"
-            elif low in editor:
-                info.category, info.reason = "editor", "editor only"
-            elif self.value(info, "bDeleteMe") or self.value(info, "bPendingDelete"):
-                info.category, info.reason = "skipped", "deleted in the editor"
-            elif self.value(info, "Platform", 0) == PLF_PSX2_ONLY:
-                info.category, info.reason = "skipped", "PS2 only"
-            elif low in render:
-                info.category = "render"
+            self.classify(info)
             self.actors.append(info)
             self.by_ref[ref] = info
         if not self.actors or not self.actors[0].cls.endswith("LevelInfo"):
             raise ValueError(f"{self.name}: Level.Actors[0] is not a LevelInfo")
 
     # ---- values --------------------------------------------------------------------------------
+
+    def classify(self, info: ActorInfo) -> None:
+        """Classify decoded actors, including newly introduced render-only classes absent from simulation codegen."""
+        low = info.cls.lower()
+        if info.position == 0:
+            info.category = "level"
+        elif low in {c.lower() for c in EDITOR_CLASSES}:
+            info.category, info.reason = "editor", "editor only"
+        elif self.value(info, "bDeleteMe") or self.value(info, "bPendingDelete"):
+            info.category, info.reason = "skipped", "deleted in the editor"
+        elif self.value(info, "Platform", 0) == PLF_PSX2_ONLY:
+            info.category, info.reason = "skipped", "PS2 only"
+        elif low in {c.lower() for c in RENDER_CLASSES}:
+            info.category = "render"
 
     def value(self, info: ActorInfo, name: str, default: Any = None) -> Any:
         if name in info.props:

@@ -21,6 +21,9 @@ public partial class SGameInfo
     public bool sCheckEndGame()
     {
         UpdateTeamNumLives();
+        // The published result belongs to the completed round. Later logout/damage callbacks must not
+        // recompute it from a smaller roster or a clock that has reached its limit.
+        if (bGameEnded) return false;
         WinnerTeam = K.NoResult;
         GameReplicationInfo? gri = GameReplicationInfo;
         if (gri is null || !gri.bMatchHasBegun)
@@ -37,16 +40,24 @@ public partial class SGameInfo
         int numTeam1 = 0;
         int nbPlayersSpy = 0;
         int nbPlayersSentry = 0;
+        bool spyQuit = false;
+        bool mercQuit = false;
         for (Controller? p = Level.ControllerList; p is not null; p = p.nextController)
         {
             // A missing PRI or team reads as zeros, as in script: such a controller counts as a spy without lives.
             PlayerReplicationInfo? pri = p.PlayerReplicationInfo;
-            if (p is not PlayerController || (pri?.bOnlySpectator ?? false) || (pri?.bQuittedMatch ?? false))
+            if (p is not PlayerController || (pri?.bOnlySpectator ?? false))
             {
                 continue;
             }
 
             int team = TeamIndexOf(p);
+            if (pri?.bQuittedMatch == true)
+            {
+                spyQuit |= team == 0;
+                mercQuit |= team == 1;
+                continue;
+            }
             int lives = pri?.NumLives ?? 0;
             if (team == 0)
             {
@@ -95,11 +106,11 @@ public partial class SGameInfo
                 return false;
             }
         }
-        else if (((numTeam0 == 0 && nbPlayersSpy > 0) || (numTeam1 == 0 && nbPlayersSentry > 0)) &&
+        else if (((numTeam0 == 0 && (nbPlayersSpy > 0 || spyQuit)) || (numTeam1 == 0 && (nbPlayersSentry > 0 || mercQuit))) &&
                  numTeam0 + numTeam1 < GetNumPlayers())
         {
             byte winner = numTeam0 == 0 && numTeam1 == 0
-                ? (nbPlayersSpy > 0 ? (byte)1 : (byte)0)
+                ? (nbPlayersSpy > 0 || spyQuit ? (byte)1 : (byte)0)
                 : numTeam0 == 0 ? (byte)1 : (byte)0;
             return Decide(winner, EEndReason.END_TEAMDEATH);
         }
@@ -127,6 +138,7 @@ public partial class SGameInfo
     [PortOf("uc:SBase.SGameInfo:sEndGame", Spec = "spec/game/end-of-round.md#rules")]
     public void sEndGame()
     {
+        if (bGameEnded) return;
         if (MatchInfo is { GameMode: EGameMode.GM_MercDeathMatch } && GameReplicationInfo is not null)
         {
             GameReplicationInfo.NumDisks = GetTopKills();
@@ -147,6 +159,8 @@ public partial class SGameInfo
     [PortOf("uc:SBase.SGameInfo:ReplicateWinningReason", Spec = "spec/game/end-of-round.md#rules")]
     public void ReplicateWinningReason(byte Team, EEndReason Reason)
     {
+        // The first result may arrive after the end-state transition; an already published result is final.
+        if (bGameEnded && GameReplicationInfo?.WinningTeam != K.NoResult) return;
         if (GameReplicationInfo is not null)
         {
             GameReplicationInfo.WinningTeam = Team;

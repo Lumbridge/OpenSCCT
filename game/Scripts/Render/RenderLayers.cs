@@ -3,6 +3,10 @@ namespace OpenScctGame.Render;
 /// <summary>Visibility layers of the Faithful views.</summary>
 public static class RenderLayers
 {
+    /// <summary>Unused geometry layers encode a per-camera fog slot; zero means no surface fog binding.</summary>
+    public const int FogViewShift = 8;
+    public const uint FogViewMask = 127u << FogViewShift;
+
     /// <summary>The world: BSP, static meshes, actors (Godot's default layer 1).</summary>
     public const uint World = 1u;
 
@@ -37,7 +41,7 @@ public static class RenderLayers
     public const uint Backdrop = 1u << 19;
 
     /// <summary>What a main view draws: everything but the sky zone and the shadow-only bodies.</summary>
-    public const uint MainView = 0xFFFFFu & ~Sky & ~ShadowOnly & ~ShadowPass;
+    public const uint MainView = 0xFFFFFu & ~Sky & ~ShadowOnly & ~ShadowPass & ~FogViewMask;
 
     /// <summary>What a spot light's shadow camera draws.</summary>
     public const uint SpotShadow = World | StaticWorld | ShadowPass;
