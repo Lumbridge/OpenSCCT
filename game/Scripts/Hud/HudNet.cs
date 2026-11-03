@@ -200,9 +200,14 @@ public sealed class HudNet
         float h = Mathf.Clamp(Mathf.Round(8f * screen.Y / MagmaRenderer.PageHeight), 11f, 22f);
         float y = 0f;
         float padding = Mathf.Round(h * 0.55f), pitch = h + Mathf.Round(h * 0.25f);
-        float width = Math.Max(100f, Math.Min(screen.X - 16f, h * 28f));
+        float headerHeight = h - 2f;
+        int graphs = Settings.Graph == "Off" ? 0 :
+            (Settings.ShowPingGraph ? 1 : 0) + (Settings.ShowJitterGraph ? 1 : 0) + (Settings.ShowLossGraph ? 1 : 0);
+        (float labelWidth, float contentWidth) = ConfiguredWidths(h, padding);
+        float width = Math.Max(contentWidth, Measure("NETWORK", headerHeight) + Measure("1s sample", headerHeight) + padding * 3f);
+        if (graphs > 0) width = Math.Max(width, h * 23f);
+        width = Math.Min(Math.Max(100f, Math.Min(screen.X - 16f, h * 28f)), width);
         float x = 0f;
-        float labelWidth = Measure("TRAFFIC", h) + padding;
         float valuesWidth = Math.Max(h * 5f, width - 2f * padding - labelWidth);
         var lines = new List<(Row Row, string Text, bool First)>();
         foreach (Row row in _rows)
@@ -215,10 +220,7 @@ public sealed class HudNet
             }
         }
 
-        float headerHeight = h - 2f;
         float height = padding * 2f + headerHeight + padding + lines.Count * pitch;
-        int graphs = Settings.Graph == "Off" ? 0 :
-            (Settings.ShowPingGraph ? 1 : 0) + (Settings.ShowJitterGraph ? 1 : 0) + (Settings.ShowLossGraph ? 1 : 0);
         float graphHeight = h * 3f;
         height += graphs * (graphHeight + pitch + padding);
         if (_white is { } white)
@@ -289,6 +291,31 @@ public sealed class HudNet
             HudTelemetryVisual.Graph(DrawList, white, "Net/Graph/" + name, plot,
                 _graphValues.AsSpan(0, count), maximum, Settings.Graph, color);
             top += graphHeight + padding;
+        }
+    }
+
+    private (float Labels, float Panel) ConfiguredWidths(float height, float padding)
+    {
+        // Size the selected metrics, while keeping digit changes and temporary host/issue rows from moving
+        // an edited panel. Runtime values wider than these templates wrap within the same footprint.
+        float labels = Math.Max(Measure("ISSUE", height), Measure("HOST", height));
+        float values = 0f;
+        Include("LINK", "ping 999 ms  jitter 999 ms  999 Hz");
+        if (Settings.ShowTraffic) Include("TRAFFIC", "down 9999.9 KB/s  up 9999.9 KB/s");
+        if (ShowLoss) Include("LOSS", "in 100.0%  out 100.0%");
+        if (Settings.Detailed)
+        {
+            Include("BUFFER", "999 ms  age 999 ms  underruns 9999");
+            Include("SYNC", "corr 9999.9/s  adjust 9999.9 uu");
+            Include("REPLAY", "9999 moves  anim gaps 9999  state gaps 9999");
+            Include("RESETS", "pose 9999  owner 9999");
+        }
+        return (labels + padding, labels + values + padding * 3f);
+
+        void Include(string label, string value)
+        {
+            labels = Math.Max(labels, Measure(label, height));
+            values = Math.Max(values, Measure(value, height));
         }
     }
 
