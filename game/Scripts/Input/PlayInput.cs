@@ -375,8 +375,10 @@ public partial class PlayInput : Node
                         {
                             input[b] = 1;
                         }
-                        else if (!IsButtonHeldElsewhere(a.Name, ik))
+                        else if (!IsButtonHeld(a.Name))
                         {
+                            // _down includes later events in this batch: a quick re-press of this key
+                            // must keep holding its buttons after the delayed release would run.
                             // Keep it down for this tick if it was pressed since the last one.
                             _pressedSinceTick.Add(b);
                         }
@@ -433,15 +435,10 @@ public partial class PlayInput : Node
         input.Commands.Add(new InputCommand("SetSpyFirstPerson", 0));
     }
 
-    private bool IsButtonHeldElsewhere(string button, string releasedKey)
+    private bool IsButtonHeld(string button)
     {
         foreach (string ik in _down)
         {
-            if (string.Equals(ik, releasedKey, StringComparison.OrdinalIgnoreCase) || Bindings is null)
-            {
-                continue;
-            }
-
             foreach (KeyAction a in ActionsOf(ik))
             {
                 if (a.Kind == KeyActionKind.Button && string.Equals(a.Name, button, StringComparison.OrdinalIgnoreCase))

@@ -416,6 +416,19 @@ public sealed class PawnAnimationSource : IPawnAnimationSource
             merc[new Name(n)] = new PawnClip(new Name(n), f, fps);
         }
 
+        // SPerso.PRO split-jump clips suspend physics until ImpulsionSplit. Keep their gameplay
+        // notify in the fallback source too, so missing converted animation content cannot leave
+        // a spy in s_PreSplitJump with PHYS_None forever.
+        foreach (string direction in new[] { "Lt", "Rt" })
+        {
+            Name split = new("SpltStAl" + direction + "0");
+            spy[split] = new PawnClip(split, 6, 15f)
+            {
+                Notifies = [new PawnClipNotify(.20166667f,
+                    new UAnimNotify_Script { NotifyName = new Name("ImpulsionSplit") })],
+            };
+        }
+
         // The merc's set lacks the spy-only traversal clips; the merc never plays them.
         foreach (KeyValuePair<Name, PawnClip> kv in spy)
         {

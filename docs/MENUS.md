@@ -155,7 +155,8 @@ restores focus to the control that opened it.
 
 **Report a bug** opens the [website's bug report form](https://master.lumbridge.co.uk/help/report-bug), which uses
 Discord sign-in. The form starts with the game version, platform and available match details shown in help;
-review those details and describe the problem before submitting. **Suggest a feature** opens the GitHub form
+reports opened in a map also include the `whereami` position, facing, movement state, physics and animation
+details captured when help opened. Review those details and describe the problem before submitting. **Suggest a feature** opens the GitHub form
 and requires GitHub sign-in. **Copy details** lets you copy the summary yourself. Automatic details exclude
 account information, server addresses, paths and logs. If a browser cannot open, the link stays selectable
 and can be copied.

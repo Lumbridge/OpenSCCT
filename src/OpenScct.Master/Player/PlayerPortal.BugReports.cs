@@ -26,7 +26,7 @@ internal sealed partial class PlayerPortal
         new("title", "Short description", 160, true, false, "For example: The game closes when I join a server."),
         new("version", "Game or launcher version", 120, false, false, "Required for game and launcher reports. You can find it in the app."),
         new("platform", "Operating system", 80, false, false, "For example: Windows 11 or SteamOS."),
-        new("environment", "Game or launcher details (optional)", 2000, false, true, "The app may fill in its build, map, mode, side and session details. Check or edit them before sending."),
+        new("environment", "Game or launcher details (optional)", 2000, false, true, "The app may fill in its build, map, mode, side, session, player position and movement state. Check or edit them before sending."),
         new("steps", "How can we make it happen?", 3000, true, true, "List the steps. For game problems, include the map, mode, side and whether you were hosting or joining."),
         new("expected", "What should happen?", 2000, true, true, "Describe the result you expected."),
         new("actual", "What happened instead?", 3000, true, true, "Include any error message and how often the problem happens."),

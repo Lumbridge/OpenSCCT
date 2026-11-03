@@ -5,7 +5,7 @@ using OpenScct.Game.SBase;
 
 namespace OpenScctGame.UI;
 
-/// <summary>Copyable local-player coordinates and facing for reproducing map and traversal problems.</summary>
+/// <summary>Copyable local-player coordinates, facing and movement state for reproducing traversal problems.</summary>
 public static class PlayerLocationReport
 {
     public static string Format(string map, SBasePawn pawn, SPlayerController controller)
@@ -13,9 +13,13 @@ public static class PlayerLocationReport
         ArgumentNullException.ThrowIfNull(pawn);
         ArgumentNullException.ThrowIfNull(controller);
         string side = pawn is SPAWNDEFENSE ? "merc" : "spy";
+        var animation = pawn.PawnAnim[0];
         return $"map={map} side={side} state={controller.GetStateName()} physics={pawn.Physics} crouched={pawn.bIsCrouched.ToString().ToLowerInvariant()} fast={controller.bFastSpeed.ToString().ToLowerInvariant()}\n" +
             $"location_uu={Vector(pawn.Location)}\n" +
             $"pawn_rotation_ue={Rotation(pawn.Rotation)} view_rotation_ue={Rotation(controller.Rotation)}\n" +
+            $"velocity_uu={Vector(pawn.Velocity)} acceleration_uu={Vector(pawn.Acceleration)}\n" +
+            string.Create(CultureInfo.InvariantCulture, $"action={pawn.sAction} animation={animation.Sequence} frame={animation.Frame:R} rate={animation.Rate:R} playing={animation.bPlaying} loop={animation.bLoop} notify_ignored={animation.bNotifyIgnore}\n") +
+            $"root_lock={pawn.NetworkRootMotion.RootLockType} weapon_transit={pawn.bWeaponTransit} rolling={pawn.bIsRolling} input_disabled={controller.iDontUpdatePadInput} waiting_for_reinit={controller.bWaitingForReinit} free_camera={controller.FreeCameraFlying}\n" +
             $"view_forward={Vector(controller.Rotation.Vector())}";
     }
 

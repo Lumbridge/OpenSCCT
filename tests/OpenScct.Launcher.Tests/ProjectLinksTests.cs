@@ -119,7 +119,7 @@ public sealed class ProjectLinksTests
     public void ContextHasOnlyExplicitProductFields()
     {
         string[] names = typeof(ReportContext).GetProperties().Select(p => p.Name).OrderBy(n => n).ToArray();
-        Assert.Equal(new[] { "Build", "Commit", "InstalledGameVersion", "LauncherVersion", "Map", "Mode", "Platform",
+        Assert.Equal(new[] { "Build", "Commit", "InstalledGameVersion", "LauncherVersion", "Map", "Mode", "Platform", "PlayerLocation",
             "Session", "Side", "Source", "Version" }, names);
     }
 

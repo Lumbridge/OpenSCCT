@@ -44,8 +44,9 @@ The website's bug-report form requires your existing Discord-linked OpenSCCT acc
 before sending it. The title and report text are then published as a public issue in the OpenSCCT GitHub
 repository. Website reports include the website's version, build and commit. Reports opened from the game
 or launcher prefill the app version, build, commit and operating system. Game reports also include available
-map, mode, side and host/client/offline context; launcher reports distinguish launcher and installed game
-versions. You can edit these details and remove optional context before sending. Error messages and links are included only
+map, mode, side and host/client/offline context. Reports opened in a map also include the local player's
+position, facing, velocity, movement state, physics and animation details captured when help opened.
+Launcher reports distinguish launcher and installed game versions. You can edit these details and remove optional context before sending. Error messages and links are included only
 when you enter them into the form.
 
 Prefilled details travel in the report link and a necessary, short-lived browser cookie during Discord

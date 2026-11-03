@@ -59,7 +59,7 @@ public partial class HelpFeedbackScreen : MenuPage
         AddLink(report, "Suggest a feature", ProjectDestination.FeatureRequest, "SuggestFeature");
         AddLink(report, "Browse existing issues", ProjectDestination.Issues, "ExistingIssues");
 
-        Text("DetailsHint", "The details below are prefilled in the report form for you to review. No logs, account details or server addresses are attached.");
+        Text("DetailsHint", "The details below are prefilled in the report form for you to review, including your position and movement state when reporting from a map. No logs, account details or server addresses are attached.");
         var details = new TextEdit
         {
             Name = "ReportDetails", Text = ProjectLinks.EnvironmentDetails(Context), Editable = false,

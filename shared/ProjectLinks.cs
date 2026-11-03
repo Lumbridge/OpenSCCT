@@ -13,7 +13,7 @@ internal enum ProjectDestination
 internal enum ReportSource { Game, Launcher, Website }
 internal enum ReportSession { Menu, Offline, OnlineHost, OnlineClient, HubHost, HubClient, Replay }
 
-/// <summary>Only these product details may enter a report URL. Never pass account, connection or log data.</summary>
+/// <summary>Only these product details may enter a report URL. Never pass account, address, connection or log data.</summary>
 internal sealed record ReportContext
 {
     public ReportSource Source { get; init; }
@@ -27,6 +27,7 @@ internal sealed record ReportContext
     public string? Mode { get; init; }
     public string? Side { get; init; }
     public ReportSession? Session { get; init; }
+    public string? PlayerLocation { get; init; }
 }
 
 /// <summary>Shared source compiled into each app; no application or simulation dependencies.</summary>
@@ -35,6 +36,7 @@ internal static class ProjectLinks
     public const string Repository = "https://github.com/Lumbridge/OpenSCCT";
     public const string Website = "https://master.lumbridge.co.uk";
     private const int MaximumValueLength = 128;
+    private const int MaximumEnvironmentLength = 2000;
     private const int MaximumUrlLength = 4096;
 
     public static string Url(ProjectDestination destination, ReportContext? context = null)
@@ -65,7 +67,7 @@ internal static class ProjectLinks
                 if (report.Length <= MaximumUrlLength) return report;
             }
         }
-        string withEnvironment = url + "&environment=" + Uri.EscapeDataString(EnvironmentDetails(context));
+        string withEnvironment = url + "&environment=" + Uri.EscapeDataString(EnvironmentDetails(context with { PlayerLocation = null }));
         // Unusually long encoded map names must not prevent opening the form. Details remain available to copy.
         return withEnvironment.Length <= MaximumUrlLength ? withEnvironment : url;
     }
@@ -104,7 +106,17 @@ internal static class ProjectLinks
                 _ => null,
             });
         }
-        return string.Join("\n", lines);
+        string details = string.Join("\n", lines);
+        if (context.Source == ReportSource.Game)
+        {
+            const string label = "\nPlayer state:\n";
+            int available = Math.Max(0, MaximumEnvironmentLength - details.Length - label.Length);
+            // Shrink the multiline diagnostics with the other fields when URL encoding exceeds the browser limit.
+            int diagnosticLength = Math.Min(available, MaximumEnvironmentLength * valueLength / MaximumValueLength);
+            string diagnostic = Clean(context.PlayerLocation, diagnosticLength, preserveNewlines: true);
+            if (diagnostic.Length > 0) details += label + diagnostic;
+        }
+        return details;
 
         void Add(string label, string? value)
         {
@@ -127,14 +139,15 @@ internal static class ProjectLinks
         _ => "OpenSCCT",
     };
 
-    private static string Clean(string? value, int maximumLength = MaximumValueLength)
+    private static string Clean(string? value, int maximumLength = MaximumValueLength, bool preserveNewlines = false)
     {
         if (string.IsNullOrWhiteSpace(value)) return string.Empty;
+        if (preserveNewlines) value = value.Replace("\r\n", "\n", StringComparison.Ordinal).Replace('\r', '\n');
         var result = new StringBuilder();
         foreach (Rune rune in value.Trim().EnumerateRunes())
         {
             if (result.Length + rune.Utf16SequenceLength > maximumLength) break;
-            result.Append(Rune.IsControl(rune) ? " " : rune.ToString());
+            result.Append(Rune.IsControl(rune) && !(preserveNewlines && rune.Value == '\n') ? " " : rune.ToString());
         }
         return result.ToString().Trim();
     }
