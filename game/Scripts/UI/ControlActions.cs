@@ -140,6 +140,17 @@ public sealed class ActionBindingDraft
     public void Reset(KeyLayout defaults) => Layout = defaults.Clone();
     public IEnumerable<string> Keys(ControlAction action) => Layout.Bindings.Where(b => Layout.Expanded(b.Value).Any(action.Matches)).Select(b => b.Key);
     public string CommandOf(string key) => Layout.Bindings.TryGetValue(key, out string? c) ? c : "";
+    /// <summary>Describe every stored action, including actions hidden from the current role's editable list.</summary>
+    public string Describe(string key, bool merc, string wheelMode = "Gadget")
+    {
+        string command = CommandOf(key);
+        var role = ControlActions.ForRole(merc, wheelMode).ToArray();
+        string description = string.Join(" / ", Layout.Expanded(command).Select(p =>
+            role.FirstOrDefault(a => a.Matches(p))?.Label ?? ControlActions.All.FirstOrDefault(a => a.Matches(p))?.Label ?? p)
+            .Distinct());
+        // An empty alias can still occupy a key; show its saved command rather than a blank warning.
+        return description.Length > 0 ? description : command;
+    }
     public void Remove(ControlAction action, string? key = null)
     {
         foreach (string k in Keys(action).Where(k => key is null || k.Equals(key, StringComparison.OrdinalIgnoreCase)).ToArray())

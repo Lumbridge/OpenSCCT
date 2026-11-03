@@ -110,6 +110,7 @@ public sealed class OptionsSmoke : SmokeTest
         try
         {
             Expect(!options.HasUnsavedChanges, "fresh editor is clean");
+            CheckBindingConflicts(options);
             CheckHudEditor(options);
             var volume = (NotchedSlider)options.Controls["master_volume"];
             double originalVolume = volume.Value;
@@ -332,6 +333,64 @@ public sealed class OptionsSmoke : SmokeTest
             SettingsStore.Reset(GameSettings.FromJson(original));
         }
         finally { InputBindings.UserFileSaved -= Wrote; }
+    }
+
+    private void CheckBindingConflicts(OptionsMenu options)
+    {
+        bool originalSplit = options.Editing.SplitKeyboard;
+        int originalTab = options.Tabs!.CurrentTab;
+        var originals = new Dictionary<PlaySide, KeyLayout>();
+        try
+        {
+            options.Editing.SplitKeyboard = true;
+            foreach (PlaySide side in new[] { PlaySide.Spy, PlaySide.Merc })
+            {
+                options.LoadLayout(side);
+                var draft = options.Keys!.Draft!;
+                originals[side] = draft.Layout.Clone();
+                draft.Reset(DefaultKeyLayout.Create());
+            }
+            foreach (bool split in new[] { false, true })
+            foreach (var conflict in new[]
+            {
+                (Side: PlaySide.Spy, Key: Key.F, Label: "Switch fire mode"),
+                (Side: PlaySide.Merc, Key: Key.Z, Label: "Back to wall"),
+                (Side: PlaySide.Spy, Key: Key.F3, Label: "Controls reference (unavailable)"),
+            })
+            {
+                options.Editing.SplitKeyboard = split;
+                options.Tabs.CurrentTab = conflict.Side == PlaySide.Merc ? 1 : 0;
+                options.LoadLayout(conflict.Side);
+                var draft = options.Keys!.Draft!;
+                string before = draft.Layout.ToIni();
+                string where = $"{(split ? "split" : "shared")} {conflict.Side} {conflict.Key} conflict";
+                options.KeyButtons["W"].EmitSignal(BaseButton.SignalName.Pressed);
+                Expect(options.Listening == "forward", where + " starts action capture");
+                options._Input(new InputEventKey { Keycode = conflict.Key, PhysicalKeycode = conflict.Key, Pressed = true });
+                var dialog = options.GetChildren().OfType<ConfirmationDialog>()
+                    .FirstOrDefault(d => !d.IsQueuedForDeletion() && d.Title == "Key already assigned");
+                Expect(dialog is not null, where + " opens the conflict popup");
+                Expect(dialog?.DialogText.Contains(conflict.Label, StringComparison.Ordinal) == true,
+                    where + " names its existing action");
+                dialog?.Hide();
+                dialog?.EmitSignal(ConfirmationDialog.SignalName.Canceled);
+                Expect(options.Listening is null && draft.Layout.ToIni() == before,
+                    where + " cancellation leaves bindings unchanged");
+            }
+        }
+        finally
+        {
+            options.Editing.SplitKeyboard = true;
+            foreach ((PlaySide side, KeyLayout layout) in originals)
+            {
+                options.LoadLayout(side);
+                options.Keys!.Draft!.Reset(layout);
+            }
+            options.Editing.SplitKeyboard = originalSplit;
+            options.Tabs.CurrentTab = originalTab;
+            options.LoadLayout(originalTab == 1 ? PlaySide.Merc : PlaySide.Spy);
+        }
+        Expect(!options.HasUnsavedChanges, "conflict popup checks restore clean drafts");
     }
 
     private void CheckHudEditor(OptionsMenu options)

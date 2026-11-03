@@ -187,13 +187,8 @@ public partial class OptionsMenu
         scroll?.SetDeferred(ScrollContainer.PropertyName.ScrollVertical, scrollOffset);
     }
 
-    private string DescribeBinding(ActionBindingDraft draft, string key, PlaySide side)
-    {
-        var role = ControlActions.ForRole(side == PlaySide.Merc, _edit.MouseWheel).ToArray();
-        return string.Join(" / ", draft.Layout.Expanded(draft.CommandOf(key)).Select(p =>
-            role.FirstOrDefault(a => a.Matches(p))?.Label ?? (ControlActions.All.Any(a => a.Matches(p)) ? null : p))
-            .Where(p => p is not null).Distinct());
-    }
+    private string DescribeBinding(ActionBindingDraft draft, string key, PlaySide side) =>
+        draft.Describe(key, side == PlaySide.Merc, _edit.MouseWheel);
 
     private void ShowBindingHelp(PlaySide side, string text)
     {
