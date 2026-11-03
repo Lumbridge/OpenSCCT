@@ -167,8 +167,11 @@ internal sealed partial class MainForm : Form
         };
         var title = new Wordmark { Margin = new Padding(3, 0, 3, 0) };
         Label subtitle = Theme.Label("Splinter Cell Chaos Theory Versus, rebuilt", Theme.Small, Theme.Muted);
-        TableLayoutPanel header = Theme.Grid(Theme.Auto, Theme.Fill);
-        Theme.AddRow(header, logo, Theme.Flow(true, title, subtitle));
+        Label version = Theme.Label("Launcher " + (_launcherVersion?.ToString() ?? "dev"), Theme.Small, Theme.Muted);
+        version.Anchor = AnchorStyles.Right | AnchorStyles.Top;
+        version.Margin = new Padding(12, 0, 0, 0);
+        TableLayoutPanel header = Theme.Grid(Theme.Auto, Theme.Fill, Theme.Auto);
+        Theme.AddRow(header, logo, Theme.Flow(true, title, subtitle), version);
         header.Margin = new Padding(0, 0, 0, 4);
 
         // A launcher update waiting for a restart: a banner above the steps.
@@ -197,16 +200,9 @@ internal sealed partial class MainForm : Form
         Theme.AddRow(actions, _status, _playCurrent, _main);
 
         // The less common actions, small, along the bottom edge.
-        Label version = Theme.Label("Launcher " + (_launcherVersion?.ToString() ?? "dev"), Theme.Small, Theme.Muted);
-        version.Anchor = AnchorStyles.Right;
-        version.Margin = new Padding(12, 0, 0, 0);
-        TableLayoutPanel more = Theme.Grid(Theme.Fill, Theme.Auto);
+        FlowLayoutPanel more = Theme.Flow(false, _whatsNew, _check, _website, _mapsButton, _settingsButton, _help);
         more.Dock = DockStyle.Bottom;
         more.Padding = new Padding(0, 12, 0, 0);
-        FlowLayoutPanel links = Theme.Flow(false, _whatsNew, _check, _website, _mapsButton, _settingsButton, _help);
-        links.WrapContents = true;
-        links.Dock = DockStyle.Fill;
-        Theme.AddRow(more, links, version);
 
         var root = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, BackColor = Color.Transparent };
         root.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100f));
@@ -237,6 +233,7 @@ internal sealed partial class MainForm : Form
                 _fitting = true;
                 try
                 {
+                    FitFooterWidth();
                     Theme.FitToContent(this, root);
                 }
                 finally
@@ -275,10 +272,26 @@ internal sealed partial class MainForm : Form
     {
         base.OnLoad(e);
 
-        // Footer actions wrap at the available width, including on small high-DPI displays.
+        FitFooterWidth();
         if (_root is not null)
         {
             Theme.FitToContent(this, _root);
+        }
+    }
+
+    private void FitFooterWidth()
+    {
+        // Measure after DPI scaling, including Check for updates when temporarily hidden. Keep every action on
+        // one row even at the minimum window width; the version lives in the header so it cannot crowd them out.
+        int width = Padding.Horizontal + Width - ClientSize.Width;
+        foreach (Button button in new[] { _whatsNew, _check, _website, _mapsButton, _settingsButton, _help })
+        {
+            width += button.GetPreferredSize(Size.Empty).Width + button.Margin.Horizontal;
+        }
+
+        if (width > MinimumSize.Width)
+        {
+            MinimumSize = new Size(width, MinimumSize.Height);
         }
     }
 
