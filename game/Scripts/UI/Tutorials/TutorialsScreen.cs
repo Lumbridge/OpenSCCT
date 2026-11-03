@@ -12,6 +12,10 @@ namespace OpenScctGame.UI;
 public partial class TutorialsScreen : MenuPage
 {
     public const string Section = "Tutorials_Page";
+    private BoxContainer? _pages;
+
+    protected override bool CenterBodyVertically => true;
+    protected override Vector2 ResponsiveReference => new(1600f, 900f);
 
     /// <summary>The main menu's Tutorials button (Menu_Multi's Tutorials).</summary>
     public static Button MenuButton(Node from) =>
@@ -25,16 +29,26 @@ public partial class TutorialsScreen : MenuPage
         Name = "Tutorials";
         // Menu_Multi.InitComponent turns the in-game help off; the menus here open from it, so it is off again.
         TutorialProfile.DisplayHelpInGame = false;
-        BuildFrame(TutorialText.Caption(Section, "TitlePage", "Tutorials"), 520f);
-        VBoxContainer column = Panel(Body, "Pages", null);
+        BuildFrame(TutorialText.Caption(Section, "TitlePage", "Tutorials"), 940f, responsive: true);
+        Body.AddThemeConstantOverride("separation", 14);
+        _pages = new BoxContainer { Name = "Pages", Vertical = AvailableBodyWidth < 840f };
+        _pages.AddThemeConstantOverride("separation", 14);
+        Body.AddChild(_pages);
+        VBoxContainer column = Panel(_pages, "Reference", "Learn the essentials");
+        ((Control)column.GetParent()).SizeFlagsHorizontal = SizeFlags.ExpandFill;
+        column.AddThemeConstantOverride("separation", 10);
         Button first = Add(column, "Tuto_Hud", "View HUD", "ViewHud", () => HudLegendScreen.Show(GetTree(), HudLegendPage.SpyHud));
         Add(column, "Tuto_Tips", "Tips", "Tips", () => TipsScreen.Show(GetTree(), 0));
         Add(column, "Tuto_Gadgets", "Gadget Details", "Gadgets", () => GadgetDetailsScreen.Show(GetTree(), 0));
+        column = Panel(_pages, "Training", "Practice in the field");
+        ((Control)column.GetParent()).SizeFlagsHorizontal = SizeFlags.ExpandFill;
+        column.AddThemeConstantOverride("separation", 10);
         Add(column, "Tuto_Maps_Spy", "Spy Tutorial Maps", "SpyMaps", () => TutorialMapsScreen.Show(GetTree(), 0));
         Add(column, "Tuto_Maps_Merc", "Mercenary Tutorial Maps", "MercMaps", () => TutorialMapsScreen.Show(GetTree(), 1));
         Add(column, "Tuto_VisitMap", "Visit a Map", "VisitMap", () => VisitMapScreen.Show(GetTree()));
 
-        Body.AddChild(new Label
+        VBoxContainer progress = Panel(Body, "TutorialProgress", "Your progress");
+        progress.AddChild(new Label
         {
             Name = "Progress", Text = ProgressLine(TutorialProfile.Current), HorizontalAlignment = HorizontalAlignment.Center,
             Modulate = UiStyle.MenuFocus, AutowrapMode = TextServer.AutowrapMode.WordSmart,
@@ -43,9 +57,16 @@ public partial class TutorialsScreen : MenuPage
         first.GrabFocus();
     }
 
+    public override void _Process(double delta)
+    {
+        base._Process(delta);
+        if (_pages is not null) _pages.Vertical = AvailableBodyWidth < 840f;
+    }
+
     private static Button Add(VBoxContainer column, string control, string fallback, string name, System.Action pressed)
     {
         Button b = UiStyle.MenuButton(TutorialText.Caption(Section, control + ".Caption", fallback), pressed, name);
+        b.CustomMinimumSize = new Vector2(0f, 44f);
         column.AddChild(b);
         return b;
     }

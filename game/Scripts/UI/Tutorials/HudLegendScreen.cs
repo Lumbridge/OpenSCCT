@@ -30,6 +30,9 @@ public enum HudLegendPage
 /// </summary>
 public partial class HudLegendScreen : MenuPage
 {
+    protected override bool CenterBodyVertically => true;
+    protected override Vector2 ResponsiveReference => new(1600f, 900f);
+
     /// <summary>A label of a picture page: its caption key, fallback, alignment and place (fractions of the 640 x 480 page).</summary>
     private readonly record struct Spot(string Control, string Fallback, HorizontalAlignment Align, float Top, float Left, float Width);
 
@@ -126,29 +129,55 @@ public partial class HudLegendScreen : MenuPage
             _ => ("View_Hud_Spy", "Spy HUD", "SPY_Tutorial2_User_Interface", SpySpots, HudLegendPage.MercHud, "Merc HUD"),
         };
         bool keyboard = Page is HudLegendPage.Keyboard1 or HudLegendPage.Keyboard2;
-        BuildFrame(TutorialText.Caption(section, "TitlePage", title), 400f);
+        BuildFrame(TutorialText.Caption(section, "TitlePage", title), 640f, responsive: true);
 
+        var frame = new PanelContainer
+        {
+            Name = "Reference", AnchorRight = 1f, AnchorBottom = 1f,
+            OffsetTop = 78f, OffsetBottom = -78f, OffsetLeft = 24f, OffsetRight = -24f,
+            MouseFilter = MouseFilterEnum.Ignore,
+        };
+        frame.AddThemeStyleboxOverride("panel", UiStyle.MenuPanelBox());
+        PageCanvas.AddChild(frame);
         var picture = new LegendPicture
         {
             Name = "Picture", Texture = UiStyle.Assets?.Texture("Tutorials_PC", texture),
-            AnchorRight = 1f, AnchorBottom = 1f, OffsetTop = 78f, OffsetBottom = -78f, OffsetLeft = 24f, OffsetRight = -24f,
         };
-        AddChild(picture);
+        frame.AddChild(picture);
         for (int i = 0; i < spots.Length; i++)
         {
             Spot s = spots[i];
             // The labels of the keyboard pages are in View_KeyboardConfigOne's section only (Two inherits them).
             string caption = TutorialText.Caption(keyboard ? "View_KeyboardConfigOne" : section, s.Control + ".Caption", s.Fallback);
             Vector2 at = Page == HudLegendPage.Keyboard2 && i == 0 ? ConfigTwoUse : new Vector2(s.Left, s.Top);
-            picture.AddSpot(TutorialText.Lines(caption), s.Align, new Rect2(at.X, at.Y, s.Width, SpotHeight / LegendPicture.PageHeight));
+            float width = s.Width;
+            float height = SpotHeight;
+            if (!UiStyle.IsOriginal)
+            {
+                // The modern font needs breathing room between adjacent legacy annotations.
+                if (keyboard)
+                {
+                    height = s.Control == "LBLSlowMode" ? 40f : 22f;
+                    if (s.Control == "LBLFire") width -= 0.02f;
+                    if (s.Control == "LBLPrevStickyCam") at.X += 0.04f;
+                }
+                else if (Page == HudLegendPage.MercHud)
+                {
+                    if (s.Control == "LBLLocalMsg") at.Y -= 0.02f;
+                    if (s.Control == "LBLER") at.Y += 0.02f;
+                }
+            }
+            picture.AddSpot(TutorialText.Lines(caption), s.Align, new Rect2(at.X, at.Y, width, height / LegendPicture.PageHeight));
         }
 
         if (picture.Texture is null)
         {
-            Body.AddChild(new Label
+            frame.Visible = false;
+            VBoxContainer missing = Panel(Body, "MissingArtwork", "Reference unavailable");
+            missing.AddChild(new Label
             {
-                Text = "The picture needs the converted tutorial textures (the ui content step).", Modulate = UiStyle.Dim,
-                HorizontalAlignment = HorizontalAlignment.Center,
+                Text = "Install the menu content to view the HUD and keyboard reference pictures.", Modulate = UiStyle.Dim,
+                HorizontalAlignment = HorizontalAlignment.Center, AutowrapMode = TextServer.AutowrapMode.WordSmart,
             });
         }
 

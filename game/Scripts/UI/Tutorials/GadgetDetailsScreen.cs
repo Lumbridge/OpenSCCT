@@ -23,6 +23,10 @@ public partial class GadgetDetailsScreen : MenuPage
     private const float IconSize = 64f;
 
     private static readonly UcClassIndex Classes = new(CorePackage.Info, EnginePackage.Info, SBasePackage.Info);
+    private BoxContainer? _top;
+
+    protected override Vector2 ResponsiveReference => new(1600f, 900f);
+    protected override bool CenterBodyVertically => true;
 
     /// <summary>0 spies, 1 mercs.</summary>
     public int Team { get; init; }
@@ -45,7 +49,8 @@ public partial class GadgetDetailsScreen : MenuPage
         string title = Gadget >= 0 && Gadget < titles.Count
             ? titles[Gadget]
             : Team == 0 ? TutorialText.Caption(ListSection, "TitlePageSpy", "Spy Gadgets") : TutorialText.Caption(ListSection, "TitlePageMerc", "Mercenary Gadgets");
-        BuildFrame(title, 900f);
+        BuildFrame(title, Gadget < 0 ? 680f : 1000f, responsive: true);
+        Body.AddThemeConstantOverride("separation", 14);
         if (Gadget < 0)
         {
             BuildList(titles);
@@ -54,6 +59,18 @@ public partial class GadgetDetailsScreen : MenuPage
         {
             BuildGadget(titles.Count);
         }
+        Fit();
+    }
+
+    public override void _Process(double delta)
+    {
+        base._Process(delta);
+        Fit();
+    }
+
+    private void Fit()
+    {
+        if (_top is not null) _top.Vertical = Mathf.Min(PreferredBodyWidth, AvailableBodyWidth) < 760f;
     }
 
     [PortOf("uc:GUI.Tuto_Gadgets:RefreshList", Spec = "spec/game/tutorials.md#rules")]
@@ -61,8 +78,8 @@ public partial class GadgetDetailsScreen : MenuPage
     [PortOf("uc:GUI.Tuto_Gadgets:SwitchTeam", Spec = "spec/game/tutorials.md#rules")]
     private void BuildList(IReadOnlyList<string> titles)
     {
-        VBoxContainer column = Panel(Body, "List", null, 520f);
-        column.SizeFlagsHorizontal = SizeFlags.ShrinkCenter;
+        VBoxContainer column = Panel(Body, "List", "Choose a gadget");
+        column.AddThemeConstantOverride("separation", 10);
         if (Team == 0) column.AddChild(new Label
         {
             Text = "Cloak is built into every spy's suit and uses no gadget slot.\nBind Cloak and choose Hold or Toggle in Options → Spy → Bindings.",
@@ -100,21 +117,26 @@ public partial class GadgetDetailsScreen : MenuPage
     private void BuildGadget(int count)
     {
         string side = Team == 0 ? "Spy" : "Merc";
-        var top = new HBoxContainer { Name = "Top", Alignment = BoxContainer.AlignmentMode.Center };
-        top.AddThemeConstantOverride("separation", 32);
+        var top = _top = new BoxContainer { Name = "Top", Alignment = BoxContainer.AlignmentMode.Center };
+        top.AddThemeConstantOverride("separation", 24);
         Body.AddChild(top);
         top.AddChild(new TextureRect
         {
             Name = "Picture", CustomMinimumSize = new Vector2(192f, 192f), ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
             StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered, Texture = Icon(Team, Gadget),
+            SizeFlagsHorizontal = SizeFlags.ShrinkCenter, SizeFlagsVertical = SizeFlags.ShrinkCenter,
         });
-        VBoxContainer legend = Panel(top, "Legend", null, 420f);
+        VBoxContainer legend = Panel(top, "Legend", "Gadget specifications");
+        legend.AddThemeConstantOverride("separation", 10);
+        ((Control)legend.GetParent()).SizeFlagsHorizontal = SizeFlags.ExpandFill;
         legend.AddChild(new Label
         {
             Name = "Text", Text = TutorialText.Lines(TutorialText.Item(GadgetSection, side + "_TutorialLegend", Gadget)),
-            AutowrapMode = TextServer.AutowrapMode.WordSmart, Modulate = UiStyle.MenuFocus, CustomMinimumSize = new Vector2(400f, 0f),
+            AutowrapMode = TextServer.AutowrapMode.WordSmart, Modulate = UiStyle.MenuFocus,
         });
-        Body.AddChild(new Label
+        VBoxContainer explanation = Panel(Body, "Instructions", "How to use");
+        explanation.AddThemeConstantOverride("separation", 10);
+        explanation.AddChild(new Label
         {
             Name = "Explanation", Text = TutorialText.Item(GadgetSection, side + "_TutorialText", Gadget),
             AutowrapMode = TextServer.AutowrapMode.WordSmart, Modulate = UiStyle.MenuText,

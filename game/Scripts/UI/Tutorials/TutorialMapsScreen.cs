@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System;
 using Godot;
 using OpenScct.Game.GameFlow;
 using OpenScct.Provenance;
@@ -15,6 +16,10 @@ namespace OpenScctGame.UI;
 public partial class TutorialMapsScreen : MenuPage
 {
     public const string Section = "Tuto_MapsList";
+    private ScrollContainer? _scroll;
+
+    protected override bool CenterBodyVertically => true;
+    protected override Vector2 ResponsiveReference => new(1600f, 900f);
 
     /// <summary>The page's caption control for each map of a side (Tuto_MapsList.RefreshPage: the merc page hides rows 2 and 5).</summary>
     [Provenance(ProvenanceKind.Decoded, "GUI.Tuto_MapsList.RefreshPage and ButtonClick: merc maps 0, 1, 2 on rows 0, 2, 3")]
@@ -33,13 +38,15 @@ public partial class TutorialMapsScreen : MenuPage
     public override void _Ready()
     {
         Name = Team == 0 ? "SpyTutorialMaps" : "MercTutorialMaps";
-        BuildFrame(Team == 0 ? TutorialText.Caption(Section, "TitleSpy", "Spy Tutorial Maps") : TutorialText.Caption(Section, "TitleMerc", "Mercenary Tutorial Maps"), 640f);
+        BuildFrame(Team == 0 ? TutorialText.Caption(Section, "TitleSpy", "Spy Tutorial Maps") : TutorialText.Caption(Section, "TitleMerc", "Mercenary Tutorial Maps"), 1000f, responsive: true);
+        Body.AddThemeConstantOverride("separation", 14);
         TutorialProgress progress = TutorialProfile.Current;
         IReadOnlyList<string> maps = TutorialMaps.Of(Team);
-        VBoxContainer column = Panel(Body, "Maps", null);
+        VBoxContainer column = Panel(Body, "Maps", Team == 0 ? "Spy training" : "Mercenary training");
+        column.AddThemeConstantOverride("separation", 10);
         var grid = new MapBrowserGrid();
         column.AddChild(grid.ViewToggle);
-        var scroll = new ScrollContainer { CustomMinimumSize = new Vector2(0, 360), HorizontalScrollMode = ScrollContainer.ScrollMode.ShowNever, SizeFlagsHorizontal = SizeFlags.ExpandFill };
+        var scroll = _scroll = new ScrollContainer { Name = "MapScroll", FollowFocus = true, CustomMinimumSize = new Vector2(0, 360), HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled, SizeFlagsHorizontal = SizeFlags.ExpandFill };
         column.AddChild(scroll);
         scroll.AddChild(grid);
         Button? first = null;
@@ -60,7 +67,20 @@ public partial class TutorialMapsScreen : MenuPage
             first ??= b.Disabled ? null : b;
         }
 
+        Fit();
         PageButton("Back", () => TutorialsScreen.Show(GetTree()), "Back");
         (first ?? PageButtons[0]).GrabFocus();
+    }
+
+    public override void _Process(double delta)
+    {
+        base._Process(delta);
+        Fit();
+    }
+
+    private void Fit()
+    {
+        if (_scroll is not null)
+            _scroll.CustomMinimumSize = new Vector2(0f, Math.Clamp(LayoutSize.Y - 240f, 240f, 480f));
     }
 }
