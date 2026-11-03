@@ -33,7 +33,9 @@ public sealed class LedgeKillNetworkTests(ITestOutputHelper output)
     [Theory]
     [InlineData(NetProfile.Enhanced, "A", 0)]
     [InlineData(NetProfile.Enhanced, "200", 0)]
+    [InlineData(NetProfile.Stock, "A", 0)]
     [InlineData(NetProfile.Stock, "200", 0)]
+    [InlineData(NetProfile.Enhanced, "A", 600)]
     [InlineData(NetProfile.Enhanced, "200", 600)]
     public void HangingSpyPullsAMercThroughNormalUseAndAllPeersFinishTheKill(NetProfile profile, string link, int serverLeadTicks)
     {
@@ -126,12 +128,23 @@ public sealed class LedgeKillNetworkTests(ITestOutputHelper output)
             pawn.Rotation = new FRotator(0, yaw, 0);
             pc.SetViewRotation(pawn.Rotation);
             pawn.ResetNetworkHistory();
+            // Like the input mirror's explicit placement, discard commands and prediction from before
+            // the teleport. ResetNetworkHistory alone only resets presentation/rewind history: a queued
+            // move or correction can otherwise restore the spawn facing before the ledge jump.
+            var endpoint = pc.XLevel.GetService<NetMovementBridge>()!.EndpointOf(pc)!;
+            endpoint.Client?.ResetPredictionHistory();
+            endpoint.Sequenced!.ResetLifetime(); // Starts an epoch on the authority; a no-op on the owner.
         }
         foreach (SPlayerController pc in new[] { spy, sourceSpy }) Place(pc, new FVector(-2450, 1305, -1127.5f), 16384);
         foreach (SPlayerController pc in new[] { merc, sourceMerc }) Place(pc, new FVector(-2450, 1410, -807.5f), 49152);
         Tick(120);
         output.WriteLine($"placed spy={spy.Pawn!.Location} merc={merc.Pawn!.Location}");
         Tick(15);
+        foreach (SPlayerController pc in new[] { spy, sourceSpy, merc, sourceMerc })
+        {
+            int yaw = pc.SPawnType == PawnType.SPAWNOFFENSE ? 16384 : 49152;
+            Assert.Equal(yaw, pc.Pawn!.Rotation.Yaw & 65535);
+        }
         spy.eventJump();
         for (int n = 0; n < 180 && !spy.IsInState("OnLedge"); n++) Tick();
         Assert.True(spy.IsInState("OnLedge"), $"normal jump failed to hang: {spy.GetStateName()} {spy.Pawn.Location}; source {sourceSpy.GetStateName()} {sourceSpy.Pawn!.Location}");
