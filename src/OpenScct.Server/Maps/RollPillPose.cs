@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using OpenScct.Core;
@@ -29,14 +28,28 @@ public sealed class RollPillPose : IPillPose
     private sealed class PawnPoseHistory
     {
         public RollPoseContent.PoseHistory Pose = new();
+        public readonly RollPoseContent.PoseHistory RootPose = new();
+        public readonly Dictionary<string, Matrix4x4> Bones = new(StringComparer.Ordinal);
+        public readonly Dictionary<string, Matrix4x4> FirstBones = new(StringComparer.Ordinal);
+        public readonly RollPoseContent.Layer[] Layers = new RollPoseContent.Layer[PawnAnimation.ChannelCount];
+        public readonly RollPoseContent.Layer[] RootLayer = new RollPoseContent.Layer[1];
+        public PawnPoseHistory? Query;
         public readonly List<PillShape> Scratch = new(15);
         public float Time = -1f;
         public uint ResetId;
         public bool RootLocked;
         public Matrix4x4 LockedRoot;
 
-        public PawnPoseHistory Copy() => new() { Pose = Pose.Copy(), Time = Time, ResetId = ResetId,
-            RootLocked = RootLocked, LockedRoot = LockedRoot };
+        public PawnPoseHistory QueryCopy()
+        {
+            // Trace evaluation owns separate reusable buffers; neither samples nor root corrections may
+            // overwrite the simulation's tween history. Nothing mutable is shared between pawn histories.
+            PawnPoseHistory copy = Query ??= new();
+            Pose.CopyTo(copy.Pose);
+            copy.Time = Time; copy.ResetId = ResetId;
+            copy.RootLocked = RootLocked; copy.LockedRoot = LockedRoot;
+            return copy;
+        }
     }
 
     public RollPillPose(RollPoseContent? content, RollPoseContent? mercContent = null)
@@ -55,7 +68,7 @@ public sealed class RollPillPose : IPillPose
     }
 
     public void GetPills(SBasePawn Pawn, List<PillShape> Shapes)
-        => GetPills(Pawn, Shapes, _histories.TryGetValue(Pawn, out PawnPoseHistory? history) ? history.Copy() : new());
+        => GetPills(Pawn, Shapes, _histories.GetOrCreateValue(Pawn).QueryCopy());
 
     public void UpdatePose(SBasePawn Pawn)
     {
@@ -74,7 +87,7 @@ public sealed class RollPillPose : IPillPose
             return;
         }
 
-        var bones = new Dictionary<string, Matrix4x4>(StringComparer.Ordinal);
+        Dictionary<string, Matrix4x4> bones = history.Bones;
         bool rootLocked = Pawn.Physics == EPhysics.PHYS_RootMotion && Pawn.iLockRootMotionType != 0;
         if (Pawn.Level.TimeSeconds < history.Time || Pawn.NetworkResetId != history.ResetId)
         {
@@ -85,7 +98,7 @@ public sealed class RollPillPose : IPillPose
         history.Time = Pawn.Level.TimeSeconds;
         history.ResetId = Pawn.NetworkResetId;
         history.RootLocked = rootLocked;
-        if (!TrySample(Pawn, content, bones, history.Pose))
+        if (!TrySample(Pawn, content, bones, history))
         {
             history.Pose.Reset();
             history.RootLocked = false;
@@ -124,10 +137,14 @@ public sealed class RollPillPose : IPillPose
                 baseChannel.bBackward, baseChannel.bLoop, out rootOffset))
             {
                 // Content-only fixtures or clips without a root track pin the visible skeleton root.
-                var first = new Dictionary<string, Matrix4x4>(StringComparer.Ordinal);
-                if (baseChannel.Clip is not { Fps: > 0 } clip || !content.TrySampleLayers([
-                    new RollPoseContent.Layer(baseChannel.Sequence.ToString(), firstFrame * baseChannel.Frames / clip.Fps,
-                        1f, Mirror: baseChannel.bMirror)], first) || !first.TryGetValue("B", out Matrix4x4 atLock) || !bones.TryGetValue("B", out Matrix4x4 now))
+                Dictionary<string, Matrix4x4> first = history.FirstBones;
+                if (baseChannel.Clip is not { Fps: > 0 } clip)
+                {
+                    EstimatedPillPose.Instance.GetPills(Pawn, Shapes);
+                    return;
+                }
+                history.RootLayer[0] = new RollPoseContent.Layer(baseChannel.Sequence.ToString(), firstFrame * baseChannel.Frames / clip.Fps, 1f, Mirror: baseChannel.bMirror);
+                if (!content.TrySampleLayers(history.RootLayer, first, history.RootPose) || !first.TryGetValue("B", out Matrix4x4 atLock) || !bones.TryGetValue("B", out Matrix4x4 now))
                 {
                     EstimatedPillPose.Instance.GetPills(Pawn, Shapes);
                     return;
@@ -142,7 +159,7 @@ public sealed class RollPillPose : IPillPose
         if (rootLocked && bones.TryGetValue("B", out Matrix4x4 root) && Matrix4x4.Invert(toPawn, out Matrix4x4 fromPawn))
             history.LockedRoot = root * toPawn * rootCorrection * fromPawn;
         Matrix4x4 toWorld = toPawn * rootCorrection * Axes(px, py, pz) * Matrix4x4.CreateTranslation(ToVector(Pawn.Location + Pawn.PrePivot));
-        foreach (string bone in bones.Keys.ToArray()) bones[bone] *= toWorld;
+        foreach (string bone in content.NamedBones) bones[bone] *= toWorld;
         MeshAimIK aim = Pawn.PawnAnim.Aim;
         if (aim.FullYaw != 0f || aim.FullPitch != 0f)
         {
@@ -152,15 +169,20 @@ public sealed class RollPillPose : IPillPose
         }
         // Bone controls are absolute world rotations, processed parent first like the character renderer.
         Matrix4x4 boneCoordinates = Axes(new FVector(1f, 0f, 0f), new FVector(0f, 0f, 1f), new FVector(0f, 1f, 0f));
-        foreach (BoneDirection direction in Pawn.PawnAnim.Directions.All.OrderBy(d => content.BoneDepth(d.Bone.ToString())))
+        IReadOnlyList<BoneDirection> directions = Pawn.PawnAnim.Directions.All;
+        foreach (string bone in content.NamedBones)
         {
-            string bone = direction.Bone.ToString();
-            if (!bones.TryGetValue(bone, out Matrix4x4 current) || !Matrix4x4.Decompose(boneCoordinates * current, out _, out Quaternion rotation, out _)) continue;
-            direction.Rotation.GetAxes(out FVector dx, out FVector dy, out FVector dz);
-            Quaternion desired = Quaternion.CreateFromRotationMatrix(Axes(dx, dy, dz));
-            Quaternion blended = Quaternion.Normalize(Quaternion.Slerp(rotation, desired, direction.Alpha));
-            Matrix4x4 correction = Matrix4x4.CreateFromQuaternion(Quaternion.Conjugate(rotation)) * Matrix4x4.CreateFromQuaternion(blended);
-            RotateSubtree(content, bones, bone, correction);
+            for (int d = 0; d < directions.Count; d++)
+            {
+                BoneDirection direction = directions[d];
+                if (direction.Bone.ToString() != bone || !bones.TryGetValue(bone, out Matrix4x4 current) ||
+                    !Matrix4x4.Decompose(boneCoordinates * current, out _, out Quaternion rotation, out _)) continue;
+                direction.Rotation.GetAxes(out FVector dx, out FVector dy, out FVector dz);
+                Quaternion desired = Quaternion.CreateFromRotationMatrix(Axes(dx, dy, dz));
+                Quaternion blended = Quaternion.Normalize(Quaternion.Slerp(rotation, desired, direction.Alpha));
+                Matrix4x4 correction = Matrix4x4.CreateFromQuaternion(Quaternion.Conjugate(rotation)) * Matrix4x4.CreateFromQuaternion(blended);
+                RotateSubtree(content, bones, bone, correction);
+            }
         }
         Span<FVector> points = stackalloc FVector[Points.Length];
         for (int i = 0; i < Points.Length; i++)
@@ -188,7 +210,7 @@ public sealed class RollPillPose : IPillPose
     {
         if (!bones.TryGetValue(root, out Matrix4x4 transform)) return;
         Matrix4x4 correction = Matrix4x4.CreateTranslation(-transform.Translation) * rotation * Matrix4x4.CreateTranslation(transform.Translation);
-        foreach (string bone in bones.Keys.ToArray())
+        foreach (string bone in content.NamedBones)
             if (content.IsWithin(bone, root)) bones[bone] *= correction;
     }
 
@@ -199,9 +221,9 @@ public sealed class RollPillPose : IPillPose
         return value * c + axis * ((axis | value) * t) - (axis ^ value) * s;
     }
 
-    private static bool TrySample(SBasePawn pawn, RollPoseContent content, Dictionary<string, Matrix4x4> bones, RollPoseContent.PoseHistory history)
+    private static bool TrySample(SBasePawn pawn, RollPoseContent content, Dictionary<string, Matrix4x4> bones, PawnPoseHistory history)
     {
-        var layers = new RollPoseContent.Layer[PawnAnimation.ChannelCount];
+        RollPoseContent.Layer[] layers = history.Layers;
         int count = 0;
         int first = 0;
         // A full-body overlay replaces all lower channels, including unsupported clips no longer contributing.
@@ -216,7 +238,7 @@ public sealed class RollPillPose : IPillPose
                 alpha, i == 0 || channel.StartBone.IsNone ? null : channel.StartBone.ToString(), channel.bLoop, clip.Fps, channel.bMirror,
                 i, channel.Frame, channel.Frames, channel.bGlobalPose, pawn.BoneMirrors);
         }
-        return content.TrySampleLayers(layers.AsSpan(0, count), bones, history);
+        return content.TrySampleLayers(layers.AsSpan(0, count), bones, history.Pose);
     }
 
     private readonly record struct CollisionPoint(string Bone, FVector Offset);

@@ -579,7 +579,8 @@ public sealed partial class NetMovementBridge : IMovementNet, IMoveEndpointSourc
     public void BeforeOwnerAnimation(SBasePawn pawn)
     {
         if (pawn.Controller is not SPlayerController { bWaitingForReinit: false } pc) return;
-        if (!SBasePawnMoves.IsCorpse(pc, pawn))
+        bool completedCommands = pc.bGameEnded && PeekEndpoint(pc)?.Sequenced is not null;
+        if (!completedCommands && !SBasePawnMoves.IsCorpse(pc, pawn))
         {
             // Knocked-out players author no movement from InactiveMove, and autonomous pawns do not
             // run Actor.NativeTick physics. Consume the fall/get-up clip's root motion on the local
@@ -593,9 +594,9 @@ public sealed partial class NetMovementBridge : IMovementNet, IMoveEndpointSourc
         }
         else
         {
-            // Autonomous pawns do not run Actor.NativeTick physics. Once input prediction stops at death,
-            // the body must still consume root motion and fall/land; those callbacks finish the death states.
-            // Do not record an unsent prediction heartbeat during the death/respawn delay.
+            // Autonomous pawns do not run Actor.NativeTick physics. After death or round completion the
+            // body still consumes root motion, braking and falling on the world clock. Neither boundary
+            // starts a new prediction heartbeat after a potentially long period without player input.
             pawn.Acceleration = default;
             pawn.XLevel.PhysicsDriver?.performPhysics(pawn, Sim.DeltaTime);
         }
@@ -617,7 +618,8 @@ public sealed partial class NetMovementBridge : IMovementNet, IMoveEndpointSourc
         for (int i = 0; i < connections.Count; i++)
             if (connections[i].Actor is SPlayerController { Pawn: not null } pc) EndpointOf(pc);
         foreach (var kv in _endpoints)
-            if (!kv.Key.bDeleteMe && kv.Value.Server is { } server) kv.Value.Sequenced?.PumpServer(server);
+            if (!kv.Key.bDeleteMe && kv.Key is not SPlayerController { bGameEnded: true } && kv.Value.Server is { } server)
+                kv.Value.Sequenced?.PumpServer(server);
     }
 
     public void AfterTick()
@@ -647,8 +649,8 @@ public sealed partial class NetMovementBridge : IMovementNet, IMoveEndpointSourc
                     // this command's completion fence so its state, collision and pose share the same boundary.
                     if (kv.Value.Sequenced is not null) pawn.SendActions();
                     // Landing can report lethal damage and enter s_Dead during this command. Its completion
-                    // fence must still carry those reliable calls; only creation of a new corpse heartbeat stops.
-                    kv.Value.Client?.FinishPredictionTick(ensureStep: !SBasePawnMoves.IsCorpse(pc, pawn));
+                    // fence must still carry those reliable calls; only new corpse/results heartbeats stop.
+                    kv.Value.Client?.FinishPredictionTick(ensureStep: !pc.bGameEnded && !SBasePawnMoves.IsCorpse(pc, pawn));
                 }
             }
         }
@@ -696,6 +698,14 @@ public sealed partial class NetMovementBridge : IMovementNet, IMoveEndpointSourc
             return;
         }
 
+        // The original results state submits zero-acceleration moves. The sequenced protocol has already
+        // stopped gameplay at this boundary; a dead player may have authored no input for longer than its
+        // history window. Continue local body physics in BeforeOwnerAnimation without reopening that stream.
+        if (PC.bGameEnded && PeekEndpoint(PC)?.Sequenced is not null)
+        {
+            if (PC.Pawn is { } pawn) pawn.Acceleration = FVector.Zero;
+            return;
+        }
         if (client.bUpdatePosition)
         {
             client.ClientUpdatePosition();
@@ -707,6 +717,7 @@ public sealed partial class NetMovementBridge : IMovementNet, IMoveEndpointSourc
     public void MyReplicateMoveWithoutMoving(SPlayerController PC, float LeftTime, FVector NewAccel)
     {
         if (PC.XLevel.World.IsReplaying) return;
+        if (PC.bGameEnded && PeekEndpoint(PC)?.Sequenced is not null) return;
         if (!_driver.IsServer && EndpointOf(PC)?.Client is { } client)
         {
             client.MyReplicateMoveWithoutMoving(LeftTime, NewAccel, PC.Level.XLevel.DeltaTime);

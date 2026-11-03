@@ -195,8 +195,13 @@ public static class InteractionMenuRules
 
         if (!InteractionAuthorization.Begin(pc, Obj, Index))
         {
-            if (pc.IsInState(K.s_MenuInteraction) && ObjectiveNatives.IsAlive(pc))
-                ObjectiveNatives.MirrorState(pc, pc.PreviousState, Name.None, true);
+            // The reliable request can arrive before the owner's movement/menu state. Always answer a
+            // rejected use from an otherwise interactable state, or its owner can wait in the menu forever.
+            if (ObjectiveNatives.IsAlive(pc) && pc.eventCanInteract())
+            {
+                pc.InvalidateOwnerStateAcknowledgement();
+                ObjectiveNatives.MirrorState(pc, pc.IsInState(K.s_MenuInteraction) ? pc.PreviousState : pc.GetStateName(), Name.None, true);
+            }
             return;
         }
 

@@ -21,6 +21,8 @@ public sealed class RollPoseContent
     private readonly int[] _order;
     private readonly Dictionary<string, Clip> _clips;
     private readonly Dictionary<string, int> _nodeNames = new(StringComparer.Ordinal);
+    private readonly string[] _namedBones;
+    private readonly int[] _opposites;
     private string[] _packageBones = [];
 
     private sealed record Node(string? Name, int Parent, Vector3 Translation, Quaternion Rotation, Vector3 Scale);
@@ -34,6 +36,15 @@ public sealed class RollPoseContent
         _clips = clips;
         for (int i = 0; i < nodes.Length; i++)
             if (nodes[i].Name is { } name) _nodeNames.Add(name, i);
+        _namedBones = order.Where(i => nodes[i].Name is not null).Select(i => nodes[i].Name!).ToArray();
+        _opposites = new int[nodes.Length];
+        for (int i = 0; i < nodes.Length; i++)
+        {
+            string? name = nodes[i].Name;
+            string? opposite = name?.Replace(" L ", " R ", StringComparison.Ordinal);
+            if (opposite == name) opposite = name?.Replace(" R ", " L ", StringComparison.Ordinal);
+            _opposites[i] = opposite is not null && _nodeNames.TryGetValue(opposite, out int mapped) ? mapped : i;
+        }
         RotOrigin = rotOrigin;
         MeshScale = meshScale;
     }
@@ -41,6 +52,7 @@ public sealed class RollPoseContent
     /// <summary>Converted mesh orientation and scale, applied by the renderer after the glTF-to-Unreal conversion.</summary>
     public FRotator RotOrigin { get; }
     public FVector MeshScale { get; }
+    internal ReadOnlySpan<string> NamedBones => _namedBones;
 
     /// <summary>An animation channel's sampled time and weight. Callers pass channel 0 at weight 1.</summary>
     public readonly record struct Layer(string ClipName, float Seconds, float Alpha, string? StartBone = null,
@@ -54,19 +66,41 @@ public sealed class RollPoseContent
         internal Quaternion[] Rotations = [];
         internal readonly Dictionary<int, (string Sequence, float Frame)> Tweens = new();
         internal Layer[] Layers = [];
+        internal int LayerCount = -1;
         internal readonly Dictionary<string, Matrix4x4> Pose = new(StringComparer.Ordinal);
+        internal Vector3[] WorkPositions = [], WorkScales = [], SamplePositions = [], SampleScales = [];
+        internal Quaternion[] WorkRotations = [], SampleRotations = [];
+        internal Matrix4x4[] World = [], MirrorSource = [], Mirrored = [];
+        internal byte[] Sampled = [], OriginalSamples = [];
         public void Reset()
         {
-            Positions = []; Scales = []; Rotations = []; Layers = [];
+            LayerCount = -1;
             Tweens.Clear(); Pose.Clear();
         }
 
-        internal PoseHistory Copy()
+        internal void CopyTo(PoseHistory copy)
         {
-            var copy = new PoseHistory { Positions = Positions, Rotations = Rotations, Scales = Scales, Layers = Layers };
+            Resize(ref copy.Positions, Positions.Length); Positions.CopyTo(copy.Positions, 0);
+            Resize(ref copy.Rotations, Rotations.Length); Rotations.CopyTo(copy.Rotations, 0);
+            Resize(ref copy.Scales, Scales.Length); Scales.CopyTo(copy.Scales, 0);
+            if (copy.Layers.Length < Layers.Length) copy.Layers = new Layer[Layers.Length];
+            Layers.CopyTo(copy.Layers, 0); copy.LayerCount = LayerCount;
+            copy.Tweens.Clear(); copy.Pose.Clear();
             foreach (var pair in Tweens) copy.Tweens.Add(pair.Key, pair.Value);
             foreach (var pair in Pose) copy.Pose.Add(pair.Key, pair.Value);
-            return copy;
+        }
+
+        internal void EnsureScratch(int count)
+        {
+            Resize(ref WorkPositions, count); Resize(ref WorkRotations, count); Resize(ref WorkScales, count);
+            Resize(ref SamplePositions, count); Resize(ref SampleRotations, count); Resize(ref SampleScales, count);
+            Resize(ref World, count); Resize(ref MirrorSource, count); Resize(ref Mirrored, count);
+            Resize(ref Sampled, count); Resize(ref OriginalSamples, count);
+        }
+
+        internal static void Resize<T>(ref T[] array, int count)
+        {
+            if (array.Length != count) array = new T[count];
         }
     }
 
@@ -137,17 +171,18 @@ public sealed class RollPoseContent
                 (layer.Loop && (!(layer.Fps > 0f) || !float.IsFinite(layer.Fps)))) return false;
         }
         if (!active) return false;
-        if (history is not null && layers.SequenceEqual(history.Layers))
+        if (history is { LayerCount: >= 0 } && layers.SequenceEqual(history.Layers.AsSpan(0, history.LayerCount)))
         {
             transforms.Clear();
             foreach (var pair in history.Pose) transforms[pair.Key] = pair.Value;
             return true;
         }
 
-        var translations = new Vector3[_nodes.Length];
-        var rotations = new Quaternion[_nodes.Length];
-        var scales = new Vector3[_nodes.Length];
-        var world = new Matrix4x4[_nodes.Length];
+        PoseHistory scratch = history ?? new PoseHistory();
+        scratch.EnsureScratch(_nodes.Length);
+        Vector3[] translations = scratch.WorkPositions, scales = scratch.WorkScales;
+        Quaternion[] rotations = scratch.WorkRotations;
+        Matrix4x4[] world = scratch.World;
         for (int i = 0; i < _nodes.Length; i++)
         {
             translations[i] = _nodes[i].Translation;
@@ -166,10 +201,10 @@ public sealed class RollPoseContent
             bool wrap = layer.Loop && layer.Seconds > clip.Duration && clip.Duration > 0f;
             float seconds = wrap ? clip.Duration : layer.Seconds;
             float wrapAlpha = wrap ? Math.Clamp((layer.Seconds - clip.Duration) * layer.Fps, 0f, 1f) : 0f;
-            var samplePos = new Vector3[_nodes.Length];
-            var sampleRot = new Quaternion[_nodes.Length];
-            var sampleScale = new Vector3[_nodes.Length];
-            var sampled = new byte[_nodes.Length];
+            Vector3[] samplePos = scratch.SamplePositions, sampleScale = scratch.SampleScales;
+            Quaternion[] sampleRot = scratch.SampleRotations;
+            byte[] sampled = scratch.Sampled;
+            Array.Clear(sampled);
             for (int i = 0; i < _nodes.Length; i++)
             {
                 samplePos[i] = _nodes[i].Translation;
@@ -217,7 +252,7 @@ public sealed class RollPoseContent
                     }
                 }
             }
-            if (layer.Mirror && !Mirror(samplePos, sampleRot, sampleScale, sampled, layer.BoneMirrors)) return false;
+            if (layer.Mirror && !Mirror(samplePos, sampleRot, sampleScale, sampled, layer.BoneMirrors, scratch)) return false;
             if (layer.GlobalPose && start >= 0 && _nodes[start].Parent >= 0)
             {
                 // Keep the start bone in the clip's mesh space while its lower-priority parent may be turned.
@@ -228,7 +263,7 @@ public sealed class RollPoseContent
                 sampled[start] |= 7;
             }
             float tween = 1f;
-            if (history is { Positions.Length: > 0 } && layer.Frame < 0f)
+            if (history is { Pose.Count: > 0 } && layer.Frame < 0f)
             {
                 int channel = layer.Channel >= 0 ? layer.Channel : layerIndex;
                 tween = history.Tweens.TryGetValue(channel, out var cached) ? 1f - layer.Frame / cached.Frame : -1f;
@@ -256,10 +291,13 @@ public sealed class RollPoseContent
 
         if (history is not null)
         {
-            history.Positions = translations;
-            history.Rotations = rotations;
-            history.Scales = scales;
-            history.Layers = layers.ToArray();
+            // Keep the preceding pose intact until every channel has used it for tweening, then swap buffers.
+            (history.Positions, history.WorkPositions) = (translations, history.Positions);
+            (history.Rotations, history.WorkRotations) = (rotations, history.Rotations);
+            (history.Scales, history.WorkScales) = (scales, history.Scales);
+            if (history.Layers.Length < layers.Length) history.Layers = new Layer[layers.Length];
+            layers.CopyTo(history.Layers);
+            history.LayerCount = layers.Length;
         }
 
         transforms.Clear();
@@ -274,7 +312,11 @@ public sealed class RollPoseContent
         if (history is not null)
         {
             history.Pose.Clear();
-            foreach (var pair in transforms) history.Pose[pair.Key] = pair.Value;
+            // Enumerating IDictionary boxes a Dictionary enumerator on every sampled pose.
+            if (transforms is Dictionary<string, Matrix4x4> dictionary)
+                foreach (var pair in dictionary) history.Pose[pair.Key] = pair.Value;
+            else
+                foreach (var pair in transforms) history.Pose[pair.Key] = pair.Value;
         }
         return true;
     }
@@ -302,21 +344,18 @@ public sealed class RollPoseContent
     /// <summary>Carry the visible root into a tween when root-motion locking ends.</summary>
     public void CorrectHistoryRoot(PoseHistory history, Matrix4x4 root)
     {
-        if (history.Positions.Length != _nodes.Length || !_nodeNames.TryGetValue("B", out int index)) return;
+        if (history.Pose.Count == 0 || history.Positions.Length != _nodes.Length || !_nodeNames.TryGetValue("B", out int index)) return;
         if (_nodes[index].Parent >= 0 && Matrix4x4.Invert(Global(_nodes[index].Parent, history.Positions, history.Rotations, history.Scales), out Matrix4x4 inverse)) root *= inverse;
         if (!Matrix4x4.Decompose(root, out Vector3 scale, out Quaternion rotation, out Vector3 position)) return;
-        history.Positions = (Vector3[])history.Positions.Clone();
-        history.Rotations = (Quaternion[])history.Rotations.Clone();
-        history.Scales = (Vector3[])history.Scales.Clone();
         history.Scales[index] = scale; history.Rotations[index] = rotation; history.Positions[index] = position;
-        history.Layers = [];
+        history.LayerCount = -1;
     }
 
-    private bool Mirror(Vector3[] positions, Quaternion[] rotations, Vector3[] scales, byte[] sampled, IReadOnlyList<int>? boneMirrors)
+    private bool Mirror(Vector3[] positions, Quaternion[] rotations, Vector3[] scales, byte[] sampled, IReadOnlyList<int>? boneMirrors, PoseHistory scratch)
     {
-        var source = new Matrix4x4[_nodes.Length];
-        var mirrored = new Matrix4x4[_nodes.Length];
-        var originalSamples = (byte[])sampled.Clone();
+        Matrix4x4[] source = scratch.MirrorSource, mirrored = scratch.Mirrored;
+        byte[] originalSamples = scratch.OriginalSamples;
+        sampled.CopyTo(originalSamples, 0);
         foreach (int i in _order)
         {
             Matrix4x4 local = Matrix4x4.CreateScale(scales[i]) * Matrix4x4.CreateFromQuaternion(rotations[i]) * Matrix4x4.CreateTranslation(positions[i]);
@@ -327,9 +366,7 @@ public sealed class RollPoseContent
         foreach (int i in _order)
         {
             string? name = _nodes[i].Name;
-            string? opposite = name?.Contains(" L ", StringComparison.Ordinal) == true ? name.Replace(" L ", " R ", StringComparison.Ordinal) :
-                name?.Contains(" R ", StringComparison.Ordinal) == true ? name.Replace(" R ", " L ", StringComparison.Ordinal) : name;
-            int from = opposite is not null && _nodeNames.TryGetValue(opposite, out int mapped) ? mapped : i;
+            int from = _opposites[i];
             if (boneMirrors is not null && _packageBones.Length > 0)
             {
                 int packageIndex = Array.IndexOf(_packageBones, name);

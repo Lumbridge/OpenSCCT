@@ -56,6 +56,11 @@ OpenSCCT additions, estimated design. The decoded rules remain in move-protocol.
    a newer received authoritative action.
    Dead pawns advance on the authority's world clock. Do not record untransmitted owner heartbeats while they wait
    through their death sequence; a new possession starts a fresh command lifetime.
+   Completed rounds also stop modern owner commands and authority command processing. A dead player may have
+   been silent longer than the input-history window; the results state's original zero-acceleration move must not
+   reopen that old stream and trigger a live-input timeline rejection. Bodies continue braking/falling on their
+   world clocks, pending completion fences and acknowledgements remain available, and new round possession resets
+   the bounded command history. This does not relax validation during an active round.
 6. A teleport clears interpolation and rewind history. A reset cannot be interpolated into an earlier lifetime.
 7. Hit rewind defaults to 300 ms. Invalid or future view times cannot select a historical pose. The recorded
    history and the configured ceiling bound valid rewinds.

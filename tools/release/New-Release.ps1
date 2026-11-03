@@ -4,8 +4,10 @@
     them. Publishes nothing itself.
 
 .DESCRIPTION
-    A version release (v<version>, the game's version) carries only the launcher, so players see one download.
+    By default a version release (v<version>, the game's version) carries only the launcher.
     Everything the launcher fetches itself goes to the game files release (tag game-files, shared by every version).
+    With another -StoreTag, update metadata also goes on the version release so existing launchers can find it;
+    the file list routes new blobs to that store and retains older blobs at their original locations.
 
     The launcher has its own version (LauncherVersion in Directory.Build.props). It is built only when that version is
     new; otherwise the release carries the exe made before, so players' launchers update themselves only when the
@@ -56,7 +58,7 @@ param(
 
     [string]$Repo = 'Lumbridge/OpenSCCT',
 
-    # The release that holds every version's game files (ReleasePicker.StoreTag in the launcher).
+    # The release that holds new game files. A custom store also puts discoverable metadata on the version release.
     [string]$StoreTag = 'game-files',
 
     [string]$NotesFile,
@@ -200,6 +202,10 @@ if (-not $NoDelta) {
         $baseDir = Join-Path $OutDir '.base'
         $baseVersion = $BaseTag.TrimStart('v')
         & gh release download $StoreTag --repo $Repo --pattern "OpenSCCT-$baseVersion-win-x64-files.json" --dir $baseDir 2>$null
+        # Existing launchers know game-files; the first release using a new store still needs its delta base there.
+        if ($StoreTag -ne 'game-files' -and -not (Test-Path (Join-Path $baseDir "OpenSCCT-$baseVersion-win-x64-files.json"))) {
+            & gh release download game-files --repo $Repo --pattern "OpenSCCT-$baseVersion-win-x64-files.json" --dir $baseDir 2>$null
+        }
         if (-not (Test-Path (Join-Path $baseDir "OpenSCCT-$baseVersion-win-x64-files.json"))) {
             & gh release download $BaseTag --repo $Repo --pattern '*-files.json' --dir $baseDir 2>$null
         }
@@ -289,6 +295,14 @@ foreach ($file in @($filesJson) + $assets) {
     [System.IO.File]::WriteAllText((Join-Path $blobDir $sumName), "$hash  $name`n")
 }
 
+if ($StoreTag -ne 'game-files') {
+    # ReleasePicker checks the version's own assets before the legacy game-files store. Keep all three metadata
+    # files discoverable there; file-list blob tags already route downloads across storage releases.
+    $assets += $filesJson
+    $assets += "$filesJson.sha256"
+    if ($launcherAsset) { $assets += (Join-Path $blobDir "$launcherName.sha256") }
+}
+
 if (-not $NotesFile) {
     $NotesFile = Join-Path $OutDir 'notes.md'
     @"
@@ -316,9 +330,10 @@ $quoted = ($assets | ForEach-Object {
     }) -join ' '
 $pre = if ($isPrerelease) { ' --prerelease' } else { '' }
 $publish = Join-Path $OutDir 'publish.ps1'
+$versionContents = if ($StoreTag -eq 'game-files') { 'the launcher only' } else { 'the launcher and update metadata' }
 @"
 # Uploads the game files to the $StoreTag release (made once, as a prerelease so it is never "Latest"), then creates
-# the draft release v$Version with the launcher only. Check the draft on GitHub, then publish it.
+# the draft release v$Version with $versionContents. Check the draft on GitHub, then publish it.
 `$ErrorActionPreference = 'Stop'
 gh release view $StoreTag --repo $Repo *> `$null
 if (`$LASTEXITCODE -ne 0) {

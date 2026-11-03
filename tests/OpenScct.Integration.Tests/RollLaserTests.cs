@@ -20,6 +20,38 @@ namespace OpenScct.Integration.Tests;
 public sealed class RollLaserTests
 {
     [Theory]
+    [InlineData(false, false)]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    [InlineData(true, true)]
+    public void ChangingPoseTicksAndShotQueriesReuseBuffersAfterWarmup(bool mirror, bool rootLocked)
+    {
+        using var file = new CharacterFixture(headUnderSpine: true);
+        Scene scene = new(file, "CrouchPose");
+        scene.Pawn.PawnAnim.SetBlendAlpha(SBasePawn.DBLJUMPCHANNEL, 0f);
+        scene.Pawn.PawnAnim.PlayAnim(0, new PawnClip(new Name("CrouchPose"), 3, 2f), 1f, 0f, false);
+        scene.Pawn.PawnAnim.SetMirror(0, mirror);
+        scene.Pawn.PawnAnim.Aim.FullYaw = .2f;
+        scene.Pawn.PawnAnim.Directions.SetBoneDirection(new Name("B Spine2"), new FRotator(0, 8192, 0), .5f);
+        scene.Pawn.Physics = rootLocked ? EPhysics.PHYS_RootMotion : EPhysics.PHYS_None;
+        scene.Pawn.iLockRootMotionType = rootLocked ? 1 : 0;
+        var pills = new List<PillShape>(15);
+        void Sample(int tick)
+        {
+            scene.Pawn.PawnAnim.SetFrame(0, tick % 60 / 90f);
+            scene.Pose.UpdatePose(scene.Pawn);
+            pills.Clear();
+            scene.Pose.GetPills(scene.Pawn, pills);
+        }
+        for (int i = 0; i < 64; i++) Sample(i);
+        long before = GC.GetAllocatedBytesForCurrentThread();
+        for (int i = 0; i < 128; i++) Sample(i);
+        long allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+        Assert.Equal(15, pills.Count);
+        Assert.Equal(0, allocated);
+    }
+
+    [Theory]
     [InlineData("RollStJpFdL")]
     [InlineData("RollStJpFdR")]
     public void DiveClearsALowBeamOnlyWhileItsAnimatedBodyClearsIt(string sequence)

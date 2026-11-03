@@ -76,6 +76,46 @@ public sealed class InteractionAuthorizationTests
         Assert.Equal(1, target.Triggers);
     }
 
+    [Theory]
+    [InlineData(false, 0f)]
+    [InlineData(true, 0f)]
+    [InlineData(false, 0.5f)]
+    [InlineData(true, 0.5f)]
+    [InlineData(false, 2f)]
+    [InlineData(true, 2f)]
+    public void RejectedUseAnswersTheOwnerEvenBeforeItsMenuStateReachesTheServer(bool menuArrived, float acknowledgementAge)
+    {
+        var (w, pc, entry, target) = Panel();
+        w.Run(acknowledgementAge);
+        Name walking = pc.GetStateName();
+        float queuedMenuAcknowledgement = pc.MirrorStateAcknowledgementTime;
+        if (menuArrived) pc.GotoState(K.s_MenuInteraction);
+        pc.Pawn!.Location = new FVector(10000f, 0f, 0f);
+        entry.iLastUsedTime = -1;
+        pc.Mirrors.Clear();
+
+        InteractionMenuRules.InteractionInit(pc, entry, 0);
+
+        var answer = Assert.Single(pc.Mirrors);
+        Assert.Equal(walking, answer.State);
+        Assert.True(answer.DontSave);
+        Assert.Equal(walking, pc.GetStateName());
+        Assert.Equal(-1, entry.iLastUsedTime);
+        Assert.Equal(0, target.Triggers);
+
+        // The owner's already-queued menu transition must not undo the rejection after it arrives.
+        pc.PCChangeServerState(queuedMenuAcknowledgement, K.s_MenuInteraction);
+        Assert.Equal(walking, pc.GetStateName());
+        Assert.True(pc.MirrorStateAcknowledgementTime > queuedMenuAcknowledgement);
+
+        // After acknowledging that correction, a later in-range use can proceed normally.
+        pc.PCChangeServerState(pc.MirrorStateAcknowledgementTime, K.s_MenuInteraction);
+        Assert.True(pc.IsInState(K.s_MenuInteraction));
+        pc.Pawn.Location = new FVector(40f, 0f, 0f);
+        InteractionMenuRules.InteractionInit(pc, entry, 0);
+        Assert.Equal(1, target.Triggers);
+    }
+
     [Fact]
     public void Moving_away_or_replacing_the_pawn_invalidates_a_hack()
     {
