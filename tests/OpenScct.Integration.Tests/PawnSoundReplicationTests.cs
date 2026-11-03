@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using OpenScct.Core;
 using OpenScct.Core.Engine;
 using OpenScct.Core.Uc;
@@ -27,9 +28,24 @@ public sealed class PawnSoundReplicationTests
     [InlineData("200")]
     [InlineData("300")]
     public void PawnLoopStartsAndStopsArriveOnceInOrderWithoutProxyNotifies(string link)
+        => LoopStartsAndStops(link, WalkerRig.Maps);
+
+    [Theory]
+    [InlineData("100")]
+    [InlineData("200")]
+    [InlineData("300")]
+    public void PawnLoopsAlsoRemainAllocationFreeWithoutCharacterContent(string link)
+    {
+        string repo = MapCatalog.FindRepoRoot(AppContext.BaseDirectory)!;
+        var maps = new MapCatalog(Path.Combine(repo, "fixtures"));
+        Assert.Null(maps.FindCharacterContent());
+        LoopStartsAndStops(link, maps);
+    }
+
+    private static void LoopStartsAndStops(string link, MapCatalog maps)
     {
         using var rig = WalkerRig.Create(SimLinkProfile.Get(link), 193, 1,
-            new ServerSettings { SpawnWalkers = false }, new ClientSettings { Gameplay = true });
+            new ServerSettings { SpawnWalkers = false, Maps = maps }, new ClientSettings { Gameplay = true, Maps = maps });
         Level level = rig.Server.World.Level;
         rig.Server.PlayerJoined += slot =>
         {

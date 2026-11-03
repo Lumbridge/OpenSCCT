@@ -25,6 +25,13 @@ public partial class SPlayerController
         return _lastSentMirrorStateTime;
     }
 
+    /// <summary>Reject queued owner states when an authoritative interaction correction supersedes them.</summary>
+    internal void InvalidateOwnerStateAcknowledgement()
+    {
+        MirrorStateAcknowledgementTime = System.MathF.Max(XLevel.WorldTimeSeconds,
+            System.MathF.BitIncrement(MirrorStateAcknowledgementTime + K.ServerStateTolerance));
+    }
+
     /// <summary>A state version of the controller's GotoState (states that ignore it implement it empty).</summary>
     public interface IGotoState
     {

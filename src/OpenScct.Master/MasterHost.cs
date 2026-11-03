@@ -385,6 +385,7 @@ public sealed class MasterHost : IAsyncDisposable
             Trusted = trusted is not null, TicketKey = _accounts?.TicketKey,
             KickAccounts = _accounts is not null && request.AccountIds.Count > 0 ? _accounts.Kicks(request.AccountIds) : [],
             Commands = commands,
+            AccountAppearances = trusted is not null && _accounts is not null ? _accounts.LiveAppearances(request.AccountIds) : new Dictionary<long, LiveAccountAppearance>(),
         }, MasterApi.Json);
     }
 

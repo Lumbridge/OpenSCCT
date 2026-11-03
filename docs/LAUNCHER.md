@@ -160,6 +160,12 @@ Cleanup retains the current and previous builds and avoids paths used by running
 versions can depend on those files. The publishing script stops before the release reaches 990 assets.
 `-BaseTag` selects a different delta base; `-NoDelta` creates a complete set of new blobs.
 
+When that store is nearly full, use `New-Release.ps1 -StoreTag game-files-2` (or another new tag).
+New blobs go to the new storage prerelease; reused blobs keep their original release tags.
+The version release also carries the file list, its checksum and the launcher's checksum, which existing
+launchers discover before looking in `game-files`. Delta lookup falls back to `game-files` for older bases.
+Keep every earlier storage release and its referenced assets.
+
 Older releases with a full game ZIP and `checksums.txt` remain supported. Drafts are ignored, and
 prereleases require the corresponding launcher setting. Assets without published checksums are rejected.
 

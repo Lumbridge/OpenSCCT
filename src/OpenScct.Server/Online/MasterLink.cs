@@ -165,6 +165,8 @@ public sealed class MasterLink : IDisposable
     /// <summary>Accounts the master banned that are on the server: raised on the host's thread, in <see cref="Tick"/>.</summary>
     public event Action<IReadOnlyList<long>>? KickAccounts;
 
+    public event Action<IReadOnlyDictionary<long, LiveAccountAppearance>>? AccountAppearances;
+
     /// <summary>
     /// Posts a finished round to the master (trusted servers only), off the host's thread: three tries ten seconds
     /// apart. A post that failed every try comes out of <see cref="Notice"/> at a later tick. The task ends with the
@@ -441,6 +443,8 @@ public sealed class MasterLink : IDisposable
                 old?.Dispose();
             }
         }
+
+        if (r.Trusted && r.AccountAppearances.Count > 0) AccountAppearances?.Invoke(r.AccountAppearances);
 
         if (r.KickAccounts is { Count: > 0 } kicks)
         {

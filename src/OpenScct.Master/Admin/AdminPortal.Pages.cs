@@ -156,11 +156,11 @@ internal sealed partial class AdminPortal
                 "<label class=\"field\"><span>Rank (level 1–55)</span>" +
                 Input("level", "Rank (level 1–55)", progress.Rank.Level.ToString(CultureInfo.InvariantCulture), type: "number") + "</label>" +
                 "<label class=\"field\"><span>Reason</span>" + Input("reason", "Reason", required: true) + "</label>" +
-                Button("Set rank", "do", "rank"), "Set this account's prestige and level?") + "</div>"));
+                Button("Set rank", "do", "rank"), "Set this account's prestige and level and reset level-title progress to the assigned level? Unavailable cosmetics will be unequipped and the title reset to default.") + "</div>"));
 
         var availableTitles = _store.Titles(id).Select(t => t.Id).ToHashSet();
         string? equippedTitle = _store.Appearance(id).Title;
-        body.Append(Section("Titles", "<p>Titles follow their progression or achievement unlock requirements. Revoke an earned achievement below to remove its title. Level titles use the highest level reached.</p>" +
+        body.Append(Section("Titles", "<p>Titles follow their progression or achievement unlock requirements. Revoke an earned achievement below to remove its title. Level titles use the highest level reached since the last admin rank reset.</p>" +
             Table(["Title", "Unlock requirement", "Access", "Equipped"], TitleCatalog.All.Select(t => new[]
             {
                 H(t.Text), H(t.HowToUnlock), availableTitles.Contains(t.Id) ? "Unlocked" : "Locked",
