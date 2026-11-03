@@ -100,7 +100,10 @@ public interface IOnlineLobbySession : ILobbySession
     /// <summary>A map's settings (its modes and their values), for the Session Parameters rows.</summary>
     OpenScct.Game.SBase.USMapSettings? MapSettings(string map);
 
-    /// <summary>The host's launch countdown is running (the host's page button cancels it).</summary>
+    /// <summary>The server is preparing bots for this map before the match starts.</summary>
+    bool PreparingBots => false;
+
+    /// <summary>The host's launch is preparing bots or counting down (the host's page button cancels it).</summary>
     bool Launching { get; }
 
     // ---- voice (spec/game/lobby-and-match-creation.md rules 16, 21 and 22) ----

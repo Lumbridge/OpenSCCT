@@ -68,13 +68,16 @@ master see (`SessionPhase`):
      be), and nobody lacks the map or has a different version of it (the lobby names who). Nobody on a side stops
      it too; an empty side does not (Reloaded lets a host start with an empty team). A dedicated lobby launches on
      its own once `MinPlayersToLaunch` players are ready. A countdown (5 s) runs first; a change stops it, and the
-     host's Launch pressed again (the page button reads Cancel) cancels it.
+     host's Launch pressed again (the page button reads Cancel) cancels it. With bots, cold navigation is prepared
+     on a worker before map travel; the lobby stays connected and shows "Preparing bots for this map…" with
+     **Cancel start** available. A preparation failure leaves everyone in the lobby with the reason.
 2. **Loading.** The server travels to the map with the setup's URL options (`?MapName=...?GameMode=5?...?NBPlayers=n`)
    and the game's `SGameInfo` spawned during the load; each player logs in with its lobby side
    (`?Team=`, and in a revenge series `?GamesInARow=` so `Login` swaps the sides of the second game, spec/game/
    round-travel.md rule 10). As the engine's URL parser does, a key given twice keeps its last value
    (`NativeUrl.Rebuild`): the series URL carries GamesInARow twice and the rules must see the lower one. The start gate (`DedicatedStartGate`, on listen hosts too) starts the round once every
-   expected player is in and waiting; after `LoadTimeoutSeconds` (60) it starts with those who came.
+   expected player is in and waiting; after `LoadTimeoutSeconds` (60) it starts with those who came. This client
+   loading budget starts once the server has finished preparing the map and its bots, including cold navigation.
 3. **Match.** The game's own rules run the round. A player who joins now watches as a spectator (Login rule 15).
    When the round has a winner, the end screen shows for 10 s (the original opens its end menu 10 s after the
    winner), then the results.
@@ -199,7 +202,9 @@ Skill** Easy, Normal, Hard or Expert (docs/AI.md, "Difficulty"). The dedicated s
   `OpenScct.Bots.OnlineServerBots.Factory`, set by the listen host and svm-server): `ServerBots` logs each one in
   through the game's Login and PostLogin on its lobby side, reports it waiting like a loaded client (the start gate
   counts it), and drives it with the game's AI (`AiController`) on the server's thread. Clients see the bots as any
-  other player. The results list them.
+  other player. The results list them. Navigation is prepared while the lobby keeps ticking, using the same cache
+  as the round's bots. Bot login finishes during map creation before the server accepts returning clients;
+  first-use navigation work consumes neither their travel timeout nor their loading timeout.
 - **Across maps** the bots stay in the session: the next game of a series makes them again on the new map's server,
   with the series count in their login, so Login swaps them in a revenge game as it swaps everyone; back in the lobby
   they are on their own sides again. The roster changes only in the lobby.

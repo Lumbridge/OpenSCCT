@@ -100,6 +100,9 @@ public sealed record HubSettings
     /// <summary>The bots of the pads' matches (OpenScct.Bots' <c>OnlineServerBots.Factory</c>); null: matches have no bots.</summary>
     public OnlineBotFactory? MatchBots { get; init; }
 
+    /// <summary>Prepares bot navigation while each pad match keeps its players connected in the lobby.</summary>
+    public OnlineBotPreparation? PrepareMatchBots { get; init; }
+
     /// <summary>Makes the wall clock of each pad match the default launcher runs (the host's own clock); null: no default launcher.</summary>
     public Func<IClock>? MatchClock { get; init; }
 
@@ -329,6 +332,7 @@ public sealed partial class HubServer : IDisposable
                 (Settings.Maps is { } maps && Settings.MatchClock is { } clock
                     ? new HubMatchLauncher(maps, Settings.Classes, Settings.MatchBots, config, clock, Settings.MatchLoopbackOnly)
                     {
+                        PrepareBots = Settings.PrepareMatchBots,
                         // Each match registers unlisted with the hub's master: reachable as the hub is, with tickets.
                         Master = Settings.Master is { Url.Length: > 0 } hubMaster && !Settings.MatchLoopbackOnly ? hubMaster : null,
                     }

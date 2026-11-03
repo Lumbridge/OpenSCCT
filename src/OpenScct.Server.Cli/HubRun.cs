@@ -54,6 +54,7 @@ internal static class HubRun
             HubServer hub;
             try
             {
+                var botNavigation = new AiNavCache();
                 hub = new HubServer(transport, new HubSettings
                 {
                     Name = options.Name ?? "OpenSCCT Hub",
@@ -72,7 +73,8 @@ internal static class HubRun
                     ScoresPath = Path.Combine(AppContext.BaseDirectory, "hub-scores.json"),
                     // The hub's own bans (the admin's ban command), next to the server too.
                     Bans = new BanList(Path.Combine(AppContext.BaseDirectory, "hub-bans.json"), static () => DateTimeOffset.UtcNow),
-                    MatchBots = OnlineServerBots.Factory(),
+                    MatchBots = OnlineServerBots.Factory(botNavigation),
+                    PrepareMatchBots = OnlineServerBots.Preparation(botNavigation),
                     MatchClock = static () => new StopwatchClock(),
                     MatchLoopbackOnly = options.LoopbackOnly,
                     Master = master,

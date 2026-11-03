@@ -101,6 +101,9 @@ public sealed class HubMatchLauncher : IHubMatchLauncher
     /// <summary>Seconds the session waits for its first player before it gives up.</summary>
     public float NobodyCameSeconds { get; init; } = 45f;
 
+    /// <summary>Prepares bot navigation before a pad match leaves its lobby.</summary>
+    public OnlineBotPreparation? PrepareBots { get; init; }
+
     /// <summary>
     /// The hub's master: each match registers there unlisted, so players reach it as they reach the hub (direct, NAT
     /// punch or the master's relay) and signed-in players bring their tickets. Null: matches are joined at the hub's
@@ -175,6 +178,7 @@ public sealed class HubMatchLauncher : IHubMatchLauncher
                 Maps = maps,
                 Classes = _classes,
                 Bots = _bots,
+                PrepareBots = PrepareBots,
                 AutoLaunch = true,
                 MinPlayersToLaunch = Math.Max(1, humans),
                 LaunchAfterSeconds = LaunchAfterSeconds,

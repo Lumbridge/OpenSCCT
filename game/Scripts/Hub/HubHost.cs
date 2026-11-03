@@ -69,12 +69,14 @@ public sealed class HubHost : IDisposable
             HubServer server;
             try
             {
+                var botNavigation = new OpenScct.Bots.AiNavCache();
                 server = new HubServer(udp, new HubSettings
                 {
                     Name = name,
                     Maps = maps,
                     Classes = classes,
-                    MatchBots = OpenScct.Bots.OnlineServerBots.Factory(),
+                    MatchBots = OpenScct.Bots.OnlineServerBots.Factory(botNavigation),
+                    PrepareMatchBots = OpenScct.Bots.OnlineServerBots.Preparation(botNavigation),
                     MatchClock = static () => new StopwatchClock(),
                     Master = master,
                     HostKey = key,

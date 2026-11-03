@@ -1015,8 +1015,106 @@ public sealed class HudSmoke(bool spectatorOnly = false) : SmokeTest
         ExpectContains(list, "Spectator/textTip", "spy tip");
         Expect(list.Find("Spectator/textNoRespawnLeft") is null, "respawn left");
         Expect(!layer.Spy!.Root.Visible && !layer.Merc!.Root.Visible, "player pages hidden while spectating");
+        CheckSpectatorBoardLayout();
         CheckClockBoundaries();
         _extra = null;
+    }
+
+    private void CheckSpectatorBoardLayout()
+    {
+        HudAssets assets = _layer!.Assets!;
+        var options = new HudOptions { ShowPing = true, SliceExtras = false };
+        var page = new SpectatorHudPage(assets, options);
+        var snapshot = new HudSnapshot { Valid = true, ShowPlayers = true };
+        snapshot.Spectator.Active = true;
+        snapshot.Spectator.ShowWatching = snapshot.Spectator.ShowSwitchPlayer = true;
+        snapshot.Spectator.Watched = "Long Spy Player 1";
+        snapshot.Spectator.Tip = "Spectator tip below the leaderboard.";
+        Vector2[] screens = [new(640, 480), new(1280, 720), new(2560, 1440), new(3440, 1440), new(600, 900)];
+        foreach (int perTeam in new[] { 4, 12 })
+        {
+            snapshot.Players.Clear();
+            snapshot.Score.Clear();
+            for (int team = 0; team < 2; team++)
+            {
+                for (int i = 1; i <= perTeam; i++)
+                {
+                    string name = (team == 0 ? "Long Spy Player " : "Long Mercenary Player ") + i;
+                    snapshot.Players.Add(new HudPlayerRow(name, team, false, i, 3, 20, 1));
+                    snapshot.Score.Add(new HudScoreRow(name, team, false, i, i, 0, 3, 20, team == 0 && i == 1, 1));
+                }
+            }
+            foreach (int split in new[] { 0, 3 })
+            {
+                options.ScoreboardSplit = split;
+                foreach (bool stretch in new[] { false, true })
+                {
+                    options.StretchHud = stretch;
+                    page.Update(snapshot, 0f);
+                    foreach (Vector2 screen in screens)
+                    {
+                        page.Draw(screen, snapshot);
+                        string scenario = $"spectator {perTeam}v{perTeam}, split={split}, stretch={stretch}, {screen}";
+                        MagmaDrawItem[] board = page.DrawList.Items.Where(i => HudEditorTransform.Group(i) == "Scoreboard").ToArray();
+                        Expect(board.Length > 0, $"{scenario}: leaderboard is drawn");
+                        Expect(board.Count(i => i.Path.StartsWith("Extras/BoardBack", StringComparison.Ordinal)) == (split == 0 ? 1 : 2),
+                            $"{scenario}: all team panels are drawn");
+                        string lastPath = split == 0 ? $"PCConnectedPlayers/PCTextPlayer{perTeam * 2}" : $"Extras/SplitPCTextPlayer{perTeam}";
+                        ExpectText(page.DrawList, lastPath, $"Long Mercenary Player {perTeam}");
+                        Expect(page.DrawList.Find("Extras/PingTitle") is not null && page.DrawList.Find("Extras/RankTitle") is not null,
+                            $"{scenario}: ping and rank columns are preserved");
+                        float scale = screen.Y / MagmaRenderer.PageHeight;
+                        var available = new Rect2(8f * scale, 180f * scale, screen.X - 16f * scale, 165f * scale);
+                        Rect2? bounds = null;
+                        foreach (MagmaDrawItem item in board)
+                        {
+                            Rect2 rect = item.Rect;
+                            if (item.Kind != MagmaWidgetKind.Text && item.Points.Length > 0)
+                            {
+                                rect = new Rect2(item.Points[0], Vector2.Zero);
+                                foreach (Vector2 point in item.Points) rect = rect.Expand(point);
+                            }
+                            bounds = bounds is { } previous ? previous.Merge(rect) : rect;
+                            Expect(Inside(rect), $"{scenario}: {item.Path} stays between spectator instructions and tip: {rect}");
+                            if (item.Kind == MagmaWidgetKind.Text && assets.Font(item.Font) is { } font)
+                            {
+                                float width = font.Measure(item.Text, item.HeightPx, item.XScale, item.TrackingPx);
+                                float x = item.Align switch
+                                {
+                                    MagmaAlign.Center => rect.Position.X + (rect.Size.X - width) / 2f,
+                                    MagmaAlign.Right => rect.End.X - width,
+                                    _ => rect.Position.X,
+                                };
+                                var text = new Rect2(x, rect.Position.Y, width, item.HeightPx);
+                                Expect(Inside(text), $"{scenario}: rendered {item.Path} stays on screen: {text}");
+                            }
+                        }
+                        Expect(bounds is { } b && Math.Abs(b.GetCenter().X - screen.X / 2f) < 1f,
+                            $"{scenario}: the complete leaderboard is horizontally centred");
+
+                        bool Inside(Rect2 rect) => rect.Position.X >= available.Position.X - 1f &&
+                            rect.Position.Y >= available.Position.Y - 1f && rect.End.X <= available.End.X + 1f &&
+                            rect.End.Y <= available.End.Y + 1f;
+                    }
+                }
+            }
+        }
+
+        snapshot.ShowPlayers = false;
+        page.Update(snapshot, 0f);
+        page.Draw(Screen, snapshot);
+        Expect(!page.DrawList.Items.Any(i => HudEditorTransform.Group(i) == "Scoreboard"), "spectator leaderboard toggle hides every panel");
+        snapshot.ShowPlayers = true;
+        snapshot.HideHud = true;
+        page.Update(snapshot, 0f);
+        page.Draw(Screen, snapshot);
+        Expect(page.DrawList.Items.Count == 0, "hidden spectator HUD has no leaderboard");
+        snapshot.HideHud = false;
+        options.Layout.Spy["Scoreboard"] = new HudElementSettings { Visible = false };
+        page.Update(snapshot, 0f);
+        page.Draw(Screen, snapshot);
+        Expect(!page.DrawList.Items.Any(i => HudEditorTransform.Group(i) == "Scoreboard"), "spectator leaderboard respects editor visibility");
+        _notes.Add("Spectator leaderboard bounds checked with 8/24 players, split/combined teams, ranks, ping and wide screens.");
     }
 
     private void CheckClockBoundaries()

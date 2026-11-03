@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Threading.Tasks;
 using OpenScct.Core;
 using OpenScct.Core.Engine;
 using OpenScct.Game.AI;
@@ -42,6 +43,12 @@ public interface IOnlineBotRunner : IDisposable
 /// first world tick so they play the round from its start.
 /// </summary>
 public delegate IOnlineBotRunner OnlineBotFactory(ServerHost host, MapCatalog maps, IReadOnlyList<OnlineBot> bots);
+
+/// <summary>
+/// Prepares a map's bot navigation before travel, while the session keeps its lobby connections alive. The task
+/// must use its own world and finish before <see cref="OnlineBotFactory"/> uses the prepared navigation.
+/// </summary>
+public delegate Task OnlineBotPreparation(MapCatalog maps, string map);
 
 /// <summary>Who the session's bots are: how many on each side for the humans in the lobby, and their names.</summary>
 public static class OnlineBotRoster

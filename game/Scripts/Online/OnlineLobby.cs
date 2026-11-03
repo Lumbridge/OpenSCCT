@@ -125,7 +125,8 @@ public sealed class OnlineLobby : IOnlineLobbySession
         get
         {
             string host = State.Dedicated ? "Dedicated server" : IsHost ? "You host" : "Hosted by a player";
-            string count = State.Countdown > 0 ? $" - starting in {Math.Ceiling(State.Countdown)} s" : string.Empty;
+            string count = PreparingBots ? " - preparing bots for this map…"
+                : State.Countdown > 0 ? $" - starting in {Math.Ceiling(State.Countdown)} s" : string.Empty;
             return $"{State.ServerName} ({host}) - {State.Setup.Describe()}{count}";
         }
     }
@@ -171,7 +172,9 @@ public sealed class OnlineLobby : IOnlineLobbySession
 
     public OpenScct.Game.SBase.USMapSettings? MapSettings(string map) => _client.Maps.GetMapSettings(map);
 
-    public bool Launching => State.Phase == SessionPhase.Lobby && State.Countdown > 0;
+    public bool PreparingBots => State.PreparingBots;
+
+    public bool Launching => State.Phase == SessionPhase.Lobby && (State.Countdown > 0 || PreparingBots);
 
     public bool TeamVoiceOnly => State.Local?.TeamVoiceOnly ?? false;
 

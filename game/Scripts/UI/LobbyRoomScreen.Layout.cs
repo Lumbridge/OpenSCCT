@@ -268,7 +268,7 @@ public partial class LobbyRoomScreen
     {
         var local = Local();
         string? download = s.MapFetch is { } fetch ? fetch.Text + (fetch.Running ? " — " + Math.Round(fetch.Fraction * 100) + "%" : "") : null;
-        _status!.Text = LobbyPresentation.Preparation(s.CanControl, local is not null, local?.Side is null, local?.Ready ?? false,
+        _status!.Text = s.PreparingBots ? "Preparing bots for this map…" : LobbyPresentation.Preparation(s.CanControl, local is not null, local?.Side is null, local?.Ready ?? false,
             s.Launching, seconds, s.Members.Where(p => p.Side is not null && !p.IsBot && !p.IsHost && !p.Ready).Select(p => p.Name),
             s.Members.Where(p => p.Side is not null && p.MapNote.Length > 0).Select(p => p.Name + ": " + p.MapNote), download);
         if (!s.Launching && s.Members.All(p => p.Side is null)) _status.Text = "No players have joined a team.";

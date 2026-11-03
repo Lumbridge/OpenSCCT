@@ -118,6 +118,7 @@ public sealed class ListenHost : IDisposable
             var clock = new StopwatchClock();
             string key = Convert.ToHexString(System.Security.Cryptography.RandomNumberGenerator.GetBytes(8)).ToLowerInvariant();
             var network = new LoopbackNetwork();
+            var botNavigation = new OpenScct.Bots.AiNavCache();
 
             // The composite's first transport is the loopback the host's own player connects over.
             var composite = new CompositeTransport(network.Bind(LoopbackAddress), udp);
@@ -133,7 +134,8 @@ public sealed class ListenHost : IDisposable
                 MapSource = MapDownloads.SourceOf,
                 Classes = classes,
                 HostKey = key,
-                Bots = OpenScct.Bots.OnlineServerBots.Factory(),
+                Bots = OpenScct.Bots.OnlineServerBots.Factory(botNavigation),
+                PrepareBots = OpenScct.Bots.OnlineServerBots.Preparation(botNavigation),
                 LanPort = request.LanPort,
                 LanLoopbackOnly = request.LoopbackOnly,
                 RequireAccounts = request.RequireAccounts,

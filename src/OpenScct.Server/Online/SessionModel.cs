@@ -109,6 +109,9 @@ public sealed class LobbyState
     /// <summary>Seconds left of the launch countdown or of the results, or 0.</summary>
     public float Countdown { get; internal set; }
 
+    /// <summary>The launch is waiting for bot navigation while players stay connected to the lobby.</summary>
+    public bool PreparingBots { get; internal set; }
+
     public IReadOnlyList<LobbyPlayer> Players => _players;
 
     /// <summary>Lobby chat and system messages, oldest first (the last 200).</summary>

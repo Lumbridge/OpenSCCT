@@ -792,6 +792,7 @@ public sealed partial class OnlineClient : IDisposable
             case "phase":
                 Lobby.Phase = SessionProtocol.ParsePhase(SessionProtocol.Text(f, 0));
                 Lobby.Countdown = SessionProtocol.Int(f, 1) / 10f;
+                Lobby.PreparingBots = SessionProtocol.Int(f, 2) != 0;
                 if (State is OnlineClientState.Lobby or OnlineClientState.Loading or OnlineClientState.Match or OnlineClientState.Results)
                 {
                     State = Lobby.Phase switch

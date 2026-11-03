@@ -56,7 +56,7 @@ public partial class ConnectingScreen : MenuPage
         Body.AddChild(_tip);
         _log = new Label { Name = "Log", Modulate = UiStyle.MenuFocus, AutowrapMode = TextServer.AutowrapMode.WordSmart, CustomMinimumSize = new Vector2(740f, 120f) };
         Body.AddChild(_log);
-        CancelButton = PageButton("Cancel", () => Service?.Leave(), "Cancel");
+        CancelButton = PageButton("Cancel", ConfirmCancel, "Cancel");
         CancelButton.GrabFocus();
         Refresh();
     }
@@ -65,6 +65,27 @@ public partial class ConnectingScreen : MenuPage
     {
         base._Process(delta);
         Refresh();
+    }
+
+    private void ConfirmCancel()
+    {
+        OnlineService? service = Service;
+        OnlineClient? client = service?.Client;
+        ConfirmBox.Open(PageCanvas, new ConfirmBox
+        {
+            Name = "CancelLoadingConfirmation",
+            Question = service?.Hosting is not null
+                ? "Cancel loading? This will end the session for all players."
+                : "Cancel loading and leave this session?",
+            YesCaption = "Cancel loading", NoCaption = "Continue loading",
+            Yes = () =>
+            {
+                // Loading can finish while the question is open; a replaced page must not end the new scene's visit.
+                if (!IsQueuedForDeletion() && GetTree().CurrentScene == this && ReferenceEquals(service?.Client, client))
+                    service?.Leave();
+            },
+            No = () => CancelButton?.GrabFocus(),
+        });
     }
 
     private void Refresh()

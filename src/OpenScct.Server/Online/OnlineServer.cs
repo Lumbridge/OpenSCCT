@@ -161,6 +161,9 @@ public sealed record OnlineServerSettings
     /// </summary>
     public OnlineBotFactory? Bots { get; init; }
 
+    /// <summary>Prepares bot navigation asynchronously while players remain connected to the lobby.</summary>
+    public OnlineBotPreparation? PrepareBots { get; init; }
+
     /// <summary>
     /// Records each round as a demo (docs/DEMOS.md) into this folder; null (the default) records nothing.
     /// <see cref="OnlineServer.DemoRecorded"/> reports each finished file.
@@ -311,6 +314,10 @@ public sealed partial class OnlineServer : IDisposable
     private long _relaunchAt = -1;
     private long _phaseStart;
     private long _countdownEnd = -1;
+    private bool _forceLaunch;
+    private Task? _botPreparation;
+    private string? _botPreparationMap;
+    private bool _botPreparationFailed;
     private long _endedAt = -1;
     private long _resultsEnd = -1;
     private long _nextPing;
@@ -511,6 +518,13 @@ public sealed partial class OnlineServer : IDisposable
         }
         else
         {
+            // Map creation (including cold bot navigation) can block for longer than the client load budget.
+            // Its tick timestamp predates that work, so start the budget on the first tick of the ready host.
+            if (Phase == SessionPhase.Loading && _phaseStart < 0)
+            {
+                _phaseStart = nowMicros;
+            }
+
             Host.Tick(nowMicros);
             switch (Phase)
             {
@@ -902,7 +916,7 @@ public sealed partial class OnlineServer : IDisposable
         }
 
         Phase = phase;
-        _phaseStart = _now;
+        _phaseStart = phase == SessionPhase.Loading ? -1 : _now;
         if (phase == SessionPhase.Lobby)
         {
             // The round (or the series) is over: nobody has a place to rejoin any more.
@@ -945,7 +959,7 @@ public sealed partial class OnlineServer : IDisposable
     {
         if (_countdownEnd >= 0)
         {
-            if (LaunchProblem() is { } problem)
+            if (!_forceLaunch && LaunchProblem() is { } problem)
             {
                 _countdownEnd = -1;
                 Announce("Launch stopped: " + problem);
@@ -961,7 +975,7 @@ public sealed partial class OnlineServer : IDisposable
 
         int humans = CountHumans(spectators: false);
         bool waitedLongEnough = Settings.LaunchAfterSeconds > 0 && humans > 0 && _now - _phaseStart >= (long)(Settings.LaunchAfterSeconds * Second);
-        if (AutoLaunch && (humans >= Math.Max(1, Settings.MinPlayersToLaunch) || waitedLongEnough) && LaunchProblem() is null)
+        if (!_botPreparationFailed && AutoLaunch && (humans >= Math.Max(1, Settings.MinPlayersToLaunch) || waitedLongEnough) && LaunchProblem() is null)
         {
             StartCountdown();
         }
@@ -969,6 +983,9 @@ public sealed partial class OnlineServer : IDisposable
 
     private void StartCountdown()
     {
+        _forceLaunch = false;
+        _botPreparationFailed = false;
+        if (_botPreparation is { IsFaulted: true } or { IsCanceled: true }) _botPreparation = null;
         _countdownEnd = _now + (long)(Settings.LaunchCountdownSeconds * Second);
         BroadcastPhase();
     }
@@ -1004,11 +1021,60 @@ public sealed partial class OnlineServer : IDisposable
         return players == 0 ? "Nobody is on a side." : null;
     }
 
-    private void Launch()
+    private void Launch(bool force = false)
     {
+        if (force || _countdownEnd < 0)
+        {
+            _forceLaunch = force;
+            _botPreparationFailed = false;
+            if (_botPreparation is { IsFaulted: true } or { IsCanceled: true }) _botPreparation = null;
+            _countdownEnd = _now;
+        }
+
+        if (!PrepareBotsForLaunch()) return;
         _countdownEnd = -1;
+        _botPreparation = null;
+        _botPreparationMap = null;
         int players = CountPlayers(spectators: false);
         BeginTravel(Setup.Map, Setup.ToGameOptions(players), SessionPhase.Loading);
+    }
+
+    private bool PreparingBots => Phase == SessionPhase.Lobby && _countdownEnd >= 0 &&
+        _botPreparation is { IsCompleted: false };
+
+    private bool PrepareBotsForLaunch()
+    {
+        if (Settings.PrepareBots is not { } prepare || !_players.Exists(p => p.IsBot)) return true;
+        if (_botPreparation is null || !string.Equals(_botPreparationMap, Setup.Map, StringComparison.OrdinalIgnoreCase))
+        {
+            _botPreparationMap = Setup.Map;
+            try
+            {
+                _botPreparation = prepare(Maps, Setup.Map);
+            }
+            catch (Exception error) when (error is IOException or InvalidOperationException or UnauthorizedAccessException)
+            {
+                _botPreparation = Task.FromException(error);
+            }
+
+            // Observe failures even if the host cancels, changes map, or closes before preparation completes.
+            _ = _botPreparation.ContinueWith(task => { _ = task.Exception; }, CancellationToken.None,
+                TaskContinuationOptions.OnlyOnFaulted | TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Default);
+            if (!_botPreparation.IsCompleted)
+            {
+                Announce("Preparing bots for " + Setup.Map + ". The match will start when they are ready.");
+                BroadcastPhase();
+            }
+        }
+
+        if (!_botPreparation.IsCompleted) return false;
+        if (_botPreparation.IsCompletedSuccessfully) return true;
+
+        _botPreparationFailed = true;
+        _countdownEnd = -1;
+        Announce("Could not prepare bots: " + (_botPreparation.Exception?.GetBaseException().Message ?? "preparation was cancelled."));
+        BroadcastPhase();
+        return false;
     }
 
     // ---- round --------------------------------------------------------------------------------------------------

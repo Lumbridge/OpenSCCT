@@ -681,7 +681,7 @@ public abstract class HudPage
     /// where the Magma list ends, centred on it. A split list (<see cref="SplitTeams"/>) draws a panel per team side by
     /// side.
     /// </summary>
-    protected void DrawBoard(HudSnapshot s)
+    protected virtual void DrawBoard(HudSnapshot s)
     {
         if (!s.ShowPlayers || DrawList.Find("PCConnectedPlayers/PCText_LivesTitle") is not { } title)
         {

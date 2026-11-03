@@ -124,7 +124,7 @@ top-level area of a page starts hidden and stopped at frame 0; each driver shows
 | Ballistic | the charge gauge |
 | PCConnectedPlayers | up to 24 player rows while shown (F10), including all 12 players per side in a full 12v12 match; Reloaded's ping column when `show_ping` is on; OpenSCCT's Rank column (level tag, spec/additions/progression.md) when a listed player has a rank; Reloaded's split (`scoreboard_split_team_size`, 1 to 4, default 3): once the bigger team has that many players (and both teams someone), the list shows the spies and a panel beside it the mercs. OpenSCCT draws the list itself (HudPage.DrawBoard): a translucent panel with a header row, side icons, centred columns, the local row tinted and the ping coloured; long lists fit within the HUD height |
 | Radar | dish, blips, edge arrows (spy teammates and enemies, merc alarms and hacked terminals) |
-| P_SpectatorMode | objectives, time, lives, watched player, respawn countdown, tip (spectator-page.md) |
+| P_SpectatorMode | objectives, time, lives, watched player, respawn countdown, tip (spectator-page.md); the connected-player panels are centred together below the spectator controls and fit between them and the tip, including large split or unsplit rosters |
 | P_BinocularsATT / DEF | zoom label and marker, scope ring animations, sights and axes at the aim point, breath gauge, range finder, key help, Hack prompt, reticle message (binoculars.md) |
 
 Poison uses the original `jauge_poison` animation, starting at frame 1 and looping every 0.9 seconds; frame 0

@@ -1,6 +1,8 @@
 using System;
 using System.Globalization;
+using Godot;
 using OpenScctGame.Hud.Magma;
+using OpenScctGame.Options;
 
 namespace OpenScctGame.Hud;
 
@@ -64,6 +66,25 @@ public sealed class SpectatorHudPage : HudPage
 
     /// <summary>The A_Spectator instance.</summary>
     public MagmaNode? Panel => Area("Spectator");
+
+    protected override void DrawBoard(HudSnapshot s)
+    {
+        base.DrawBoard(s);
+        if (!HudEditorTransform.Bounds(DrawList.Items).TryGetValue("Scoreboard", out Rect2 bounds))
+            return;
+
+        // The original narrow list starts at (49, 167). Expanded team panels must be centred as a group,
+        // below the spectator controls and above the tip, rather than growing off the left/top edges.
+        Vector2 screen = Renderer.Screen;
+        float margin = 8f * Renderer.S;
+        float top = 180f * Renderer.S;
+        float height = 165f * Renderer.S;
+        float scale = Math.Min(1f, Math.Min(Math.Max(1f, screen.X - margin * 2f) / bounds.Size.X,
+            height / bounds.Size.Y));
+        Vector2 origin = new((screen.X - bounds.Size.X * scale) / 2f, top);
+        HudEditorTransform.Apply(DrawList.Items, "Scoreboard", new HudElementSettings { Scale = scale },
+            bounds.Position, origin);
+    }
 
     protected override void Drive(HudSnapshot s, float dt)
     {

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using OpenScct.Core.Engine;
 using OpenScct.Game.AI;
 using OpenScct.Server;
@@ -33,6 +34,17 @@ public sealed class OnlineServerBots : IOnlineBotRunner
             Nav = nav,
             Maps = maps,
         });
+        try
+        {
+            // A cold map can spend tens of seconds building navigation. Finish that work as part of map
+            // creation, before the online server accepts clients and starts their loading timeout.
+            _bots.LoginAll();
+        }
+        catch
+        {
+            _bots.Dispose();
+            throw;
+        }
     }
 
     /// <summary>The bots' log (login failures).</summary>
@@ -51,6 +63,16 @@ public sealed class OnlineServerBots : IOnlineBotRunner
             ArgumentNullException.ThrowIfNull(bots);
             return new OnlineServerBots(host, maps, bots, cache);
         };
+    }
+
+    /// <summary>
+    /// Prepares navigation on a worker while the lobby continues ticking. Pass the same cache to
+    /// <see cref="Factory"/> so map creation reuses the graphs before clients start loading.
+    /// </summary>
+    public static OnlineBotPreparation Preparation(AiNavCache nav)
+    {
+        ArgumentNullException.ThrowIfNull(nav);
+        return (maps, map) => Task.Run(() => nav.Prepare(maps, map));
     }
 
     public PlayerController? ControllerOf(int id)

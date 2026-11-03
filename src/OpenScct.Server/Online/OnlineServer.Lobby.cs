@@ -117,7 +117,7 @@ public sealed partial class OnlineServer
     {
         long end = Phase == SessionPhase.Lobby ? _countdownEnd : Phase == SessionPhase.Results ? _resultsEnd : -1;
         long tenths = end >= 0 ? Math.Max(0, (end - _now) / 100_000) : 0;
-        return SessionProtocol.Line("phase", SessionProtocol.PhaseName(Phase), tenths);
+        return SessionProtocol.Line("phase", SessionProtocol.PhaseName(Phase), tenths, PreparingBots);
     }
 
     private void BroadcastPhase() => Send(null, PhaseLine());
@@ -342,6 +342,7 @@ public sealed partial class OnlineServer
         bool changed = clamped != Setup;
         Setup = clamped;
         _countdownEnd = -1;
+        _botPreparationFailed = false;
         if (practiceChanged)
         {
             PracticeChanged();
@@ -619,7 +620,7 @@ public sealed partial class OnlineServer
                     }
                     else
                     {
-                        Launch();
+                        Launch(force: true);
                         output.Add("launching " + Setup.Describe());
                     }
                 }

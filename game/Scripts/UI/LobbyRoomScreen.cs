@@ -630,7 +630,7 @@ public partial class LobbyRoomScreen : MenuPage
         SpectateButton!.Disabled = local is null || local.Side is null || (local.Ready && !control);
         EquipmentButton!.Disabled = local?.Side is null || s.Launching;
         NoteJoins(s);
-        MainButton!.Text = LobbyRoomModel.MainButton(control, local?.Ready ?? false, s.Launching);
+        MainButton!.Text = control && s.PreparingBots ? "Cancel start" : LobbyRoomModel.MainButton(control, local?.Ready ?? false, s.Launching);
         MainButton.Disabled = local is null || (!control && local.Side is null) || (control && !s.Launching && !s.CanStart);
         UpdateOverview();
         UpdateLoadout();

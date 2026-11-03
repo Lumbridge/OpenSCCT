@@ -297,8 +297,6 @@ if (-not $NotesFile) {
 -
 
 Built from $commit.
-
-Game content is not included: the launcher builds it from your own Splinter Cell Chaos Theory install.
 "@ | Set-Content -LiteralPath $NotesFile -Encoding utf8NoBOM
 }
 

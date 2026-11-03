@@ -58,6 +58,7 @@ internal static class OnlineRun
         {
             DemoFolders.Prune(demoFolder, TimeSpan.FromDays(config.Demos.KeepLocalDays), Log);
         }
+        var botNavigation = new OpenScct.Bots.AiNavCache();
         var settings = new OnlineServerSettings
         {
             Name = config.Name,
@@ -79,7 +80,8 @@ internal static class OnlineRun
             LaunchCountdownSeconds = config.LaunchCountdownSeconds,
             ResultsSeconds = config.ResultsSeconds,
             LoadTimeoutSeconds = config.LoadTimeoutSeconds,
-            Bots = OpenScct.Bots.OnlineServerBots.Factory(),
+            Bots = OpenScct.Bots.OnlineServerBots.Factory(botNavigation),
+            PrepareBots = OpenScct.Bots.OnlineServerBots.Preparation(botNavigation),
             Bans = new BanList(bansPath, () => DateTimeOffset.UtcNow),
             LanPort = config.LanPort,
             LanLoopbackOnly = config.LoopbackOnly,
