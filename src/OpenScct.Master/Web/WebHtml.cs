@@ -50,20 +50,21 @@ internal static class WebHtml
         html.Append("</head><body class=\"player-site\"><a class=\"skip-link\" href=\"#main\">Skip to content</a>")
             .Append($"<header class=\"site-header\"><div class=\"header-inner\"><a class=\"site-brand\" href=\"/\"><img src=\"{H(AssetUrl("/web/assets/mark.svg"))}\" alt=\"\" width=\"36\" height=\"36\"><span class=\"brand-copy\">{Wordmark}<small>SPIES VS MERCENARIES</small></span></a>")
             .Append("<button class=\"menu-toggle button secondary\" type=\"button\" aria-expanded=\"false\" aria-controls=\"primary-navigation\">Menu</button><nav id=\"primary-navigation\" class=\"primary-nav\" aria-label=\"Main navigation\">");
-        foreach ((string url, string label, string key) in new[] { ("/", "Overview", "home"), ("/servers", "Servers", "servers"),
+        foreach ((string url, string label, string key) in new[] { ("/", "Home", "home"), ("/servers", "Servers", "servers"),
             ("/players", "Players", "players"), ("/leaderboards", "Leaderboards", "leaderboards"), ("/matches", "Matches", "matches"),
-            ("/changelog", "Changelog", "changelog") })
+            ("/improvements", "Improvements", "improvements"), ("/changelog", "Updates", "changelog"), ("/help", "Help", "help") })
             html.Append("<a href=\"").Append(url).Append('"').Append(active == key ? " aria-current=\"page\"" : "").Append('>').Append(label).Append("</a>");
-        html.Append("</nav><div class=\"header-actions\">").Append(Link("/download", "Get the game", "button compact header-download"));
-        html.Append(name is not null ? Link("/account", name, "account-link") : Link("/account", "Sign in", "account-link"));
+        html.Append("</nav><div class=\"header-actions\">").Append(Link("/download", "Download", "button compact header-download"));
+        html.Append(name is not null ? "<a href=\"/account\" class=\"account-link\" aria-label=\"" + H("My account: " + name) + "\">" + H(name) + "</a>" : Link("/account", "Sign in", "account-link"));
         if (isAdmin && name is not null) html.Append(Link("/admin", "Admin", "button secondary compact header-admin"));
         if (name is not null && !string.IsNullOrEmpty(csrf))
             html.Append("<form class=\"header-signout\" method=\"post\" action=\"/account/logout\">").Append(Csrf(csrf))
                 .Append("<button class=\"button secondary compact\" type=\"submit\" aria-label=\"Sign out of this browser\">Sign out</button></form>");
         html.Append("</div></div></header><main id=\"main\" class=\"site-main\">");
         if (!string.IsNullOrEmpty(notice)) html.Append("<div role=\"status\" class=\"notice ").Append(bad ? "bad" : "ok").Append("\">").Append(H(notice)).Append("</div>");
+        if (active == "improvements") body += "<p class=\"help-context\">Have an idea or found a problem? " + Link("/help", "Help improve OpenSCCT →", "text-link") + "</p>";
         html.Append(body).Append("</main><footer class=\"site-footer\"><div><span class=\"footer-brand\">").Append(Wordmark).Append("</span><p>Spies vs. Mercenaries on modern PCs.</p></div>")
-            .Append("<nav aria-label=\"Footer\"><a href=\"/download\">Getting started</a><a href=\"/changelog\">Changelog</a><a href=\"https://github.com/Lumbridge/OpenSCCT\">Project</a>")
+            .Append("<nav aria-label=\"Footer\"><a href=\"/download\">Download</a><a href=\"/improvements\">Improvements</a><a href=\"/changelog\">Updates</a><a href=\"/help\">Help &amp; contribute</a><a href=\"https://github.com/Lumbridge/OpenSCCT\">Source code</a>")
             .Append("<a href=\"https://github.com/Lumbridge/OpenSCCT/blob/main/docs/legal/PRIVACY.md\">Privacy</a><a href=\"https://github.com/Lumbridge/OpenSCCT/blob/main/docs/legal/TERMS.md\">Terms</a></nav>")
             .Append("<small>Community project. Not affiliated with Ubisoft.</small></footer></body></html>");
         return Results.Content(html.ToString(), "text/html; charset=utf-8", Encoding.UTF8, status);
@@ -131,7 +132,7 @@ internal static class WebHtml
             using var copy = new MemoryStream();
             stream.CopyTo(copy);
             string file = name[4..];
-            string type = Path.GetExtension(file) switch { ".css" => "text/css; charset=utf-8", ".js" => "text/javascript; charset=utf-8", ".svg" => "image/svg+xml", _ => "application/octet-stream" };
+            string type = Path.GetExtension(file) switch { ".css" => "text/css; charset=utf-8", ".js" => "text/javascript; charset=utf-8", ".svg" => "image/svg+xml", ".png" => "image/png", ".jpg" or ".jpeg" => "image/jpeg", ".webp" => "image/webp", _ => "application/octet-stream" };
             assets[file] = (copy.ToArray(), type);
         }
         return assets;

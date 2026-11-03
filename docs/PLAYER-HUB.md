@@ -16,7 +16,9 @@ This is the website. The in-game social space is covered in the [social hub guid
 | Players | Find a player and view rank, stats, achievements, unlocks and recorded rounds. |
 | Leaderboards | Compare lifetime XP, wins or kills from counted rounds. |
 | Matches | Browse recorded rounds and team scoreboards; uncounted rounds are labelled. |
-| Changelog | Read published release notes. |
+| Improvements | Browse OpenSCCT features with screenshots and links to their details. |
+| Updates | Read published release notes. |
+| Help & contribute | Find guides, report bugs, suggest improvements and contribute changes. |
 | My account | Manage your name, privacy, sign-ins, prestige, unlocked cosmetics and title. |
 
 **Join** opens `openscct://join/<server-id>`. On Windows, run the launcher once to register the handler;
@@ -34,9 +36,39 @@ link, which leads to a separately authenticated portal.
 Names, prestige and unlocks follow the same rules as in the game. Prestige resets the current level and its
 level-specific unlocks; read the confirmation before submitting. Website forms cannot grant XP or admin access.
 
-**Changelog** reads stable public GitHub releases, refreshing at most every ten minutes. If GitHub is unavailable,
+The **Improvements** page at `/improvements` presents OpenSCCT features in six sections: matches and practice,
+equipment, hubs, recordings, player records, and setup. Screenshots open at full size; search filters the
+feature descriptions. Images are captured from the running game with its normal menus and gameplay.
+Text, section links and images also work without JavaScript.
+The old `/progress` address redirects to this page.
+
+**Updates** reads stable public GitHub releases, refreshing at most every ten minutes. If GitHub is unavailable,
 the last successful results remain visible. Drafts, prereleases and content-storage releases are excluded;
 GitHub's full release archive stays linked.
+
+### Help and contributions
+
+The public `/help` page links to setup guides, GitHub issues and contribution instructions.
+You do not need an account to read it. **Report a bug** opens a website form at `/help/report-bug`.
+Sign in with the same Discord account you use in OpenSCCT, describe the problem, then review the
+report before pressing **Send bug report**. You do not need a GitHub account. The website creates
+the public GitHub issue and gives you a link to follow it.
+
+Choose whether the problem concerns the game, launcher or website. Add your game or launcher
+version yourself; website reports include the website's version, build and commit. Only the
+report text you review is published. Your player name, Discord ID, account details, network
+address and sign-in credentials are not added. Anything you type into the form will be public,
+so leave out passwords and personal information. The form accepts text and links, not file uploads.
+
+Each account can send up to three reports in 24 hours, at least one minute apart. Repeated sends
+of the same report return its existing result. If GitHub does not confirm the outcome, the website
+does not send it again automatically; check the issue list before trying again. A private receipt
+records the account, a hash of the report, submission time, result and issue number for 30 days to
+prevent duplicates and apply these limits. The full report text is not stored in that receipt.
+
+Feature suggestions and pull requests still open directly on GitHub and require a GitHub account.
+Your Discord sign-in does not sign you into GitHub. Server operators can enable the website form
+with the [bug-report setup instructions](ONLINE.md#website-bug-reports).
 
 ### Profile privacy
 
@@ -99,6 +131,19 @@ Server command history distinguishes queued, dispatched, response received, expi
 Received output does not by itself mean the command succeeded. Pending/dispatched commands become interrupted
 after a master restart and are never replayed automatically. The advanced console is still limited to trusted
 servers and authorized administrators. Live refresh preserves form drafts, focus and filters.
+
+### Maintaining the improvements page
+
+Feature descriptions live in `src/OpenScct.Master/Web/GameAdditions.cs`; the page is rendered by
+`Player/PlayerPortal.Improvements.cs`. Check claims against the owning code and documentation when updating them.
+Describe what players can do in plain language, including conditions such as host settings or experimental support.
+Keep the focus on OpenSCCT without competitor comparisons or completion percentages.
+
+Screenshots live in `Web/assets/showcase-*.png`. `showcase-sources.txt` records their local source paths,
+dimensions, hashes and capture details. Use actual gameplay and normal menu screens, with default weapon skins.
+Do not use test fixtures, fabricated statistics or debug overlays. Keep captions accurate; never retouch the
+screenshots to invent game state or remove unwanted elements after capture.
+The page does not run tests or read repository files on a request; its content and assets ship with the master.
 
 ## Deploying and rolling back
 

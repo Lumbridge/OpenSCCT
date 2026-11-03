@@ -7,7 +7,7 @@
       The master's own version (MasterBuildInfo, the status answer's masterVersion, shown in the game under its own
       version). Bump it when the master changes; it is apart from the game's VersionPrefix and a release's -p:Version.
     -->
-    <MasterVersion>1.1.7</MasterVersion>
+    <MasterVersion>1.1.8</MasterVersion>
   </PropertyGroup>
   <ItemGroup>
     <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
@@ -22,6 +22,9 @@
   </ItemGroup>
   <ItemGroup>
     <InternalsVisibleTo Include="OpenScct.Integration.Tests" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\shared\ProjectLinks.cs" Link="Project\ProjectLinks.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Update="svm-master.example.json" CopyToOutputDirectory="PreserveNewest" />

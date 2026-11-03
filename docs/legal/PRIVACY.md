@@ -1,6 +1,6 @@
 # OpenSCCT Privacy Policy
 
-Last updated: 1 November 2026
+Last updated: 3 November 2026
 
 This explains what OpenSCCT (the game, the launcher, the master server and the OpenSCCT Discord app) collects and
 why. We keep it to what the game needs. We don't sell data, show ads or track you across other sites.
@@ -38,6 +38,24 @@ When you change cosmetics or your title on the website, we store your selection 
 synchronize it without overwriting unrelated settings. Account and moderation changes are audited to help resolve
 conflicts and prevent misuse.
 
+## Website bug reports
+
+The website's bug-report form requires your existing Discord-linked OpenSCCT account. You review the report
+before sending it. The title and report text are then published as a public issue in the OpenSCCT GitHub
+repository. Website reports include the website's version, build and commit. Other app versions, system
+details, error messages and links are included only when you enter them into the form.
+
+We do not automatically add your player name, Discord ID, private account details, network address or sign-in
+credentials to the issue. The issue is created by the GitHub account or app used by the server. Anything you
+include in the report text becomes public, so do not include passwords or personal information. The form does
+not upload files.
+
+We keep a private receipt containing your OpenSCCT account ID, an opaque report ID, a hash of the report title
+and body, the submission time, the result and the GitHub issue number. This prevents duplicate reports and
+limits repeated submissions. The receipt does not contain the full report text. It expires after 30 days and
+is removed by regular server cleanup; if the server was offline, cleanup resumes after startup. This does not
+delete the public GitHub issue.
+
 ## When you play online
 
 - The master server and game servers see your **IP address** to connect you. It's used for joining games, preventing
@@ -59,6 +77,8 @@ Public profile and match information is visible to website visitors as described
 the services that run OpenSCCT (the server host and cloud storage for demos) and when required by law.
 Discord's handling of your data is covered by
 [Discord's Privacy Policy](https://discord.com/privacy).
+Reports published to GitHub are also subject to
+[GitHub's Privacy Statement](https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement).
 
 ## Keeping and deleting data
 
