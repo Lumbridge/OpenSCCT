@@ -6,6 +6,7 @@ using Godot;
 using OpenScct.Core;
 using OpenScct.Core.Engine;
 using OpenScct.Core.Uc;
+using SpyCloak = OpenScct.Game.Equipment.SpyCloak;
 using OpenScct.Game.Objectives;
 using OpenScct.Game.SBase;
 using OpenScctGame.Chat;
@@ -40,6 +41,7 @@ public sealed class HudSmoke(bool spectatorOnly = false) : SmokeTest
     private readonly List<string> _failures = new();
     private readonly List<string> _notes = new();
     private int _phase;
+    private int _cloakCapturePhase;
     private int _wait;
     private double _bannerStart;
     private Scene? _scene;
@@ -90,7 +92,24 @@ public sealed class HudSmoke(bool spectatorOnly = false) : SmokeTest
                 CheckSpyExtras();
                 return Running();
             case 3:
-                Capture(context, "spy-list");
+                if (_captureDir is not null && DisplayServer.GetName() != "headless")
+                {
+                    if (_cloakCapturePhase < 2)
+                    {
+                        Capture(context, _cloakCapturePhase == 0 ? "spy-list" : "cloak-full");
+                        float energy = _cloakCapturePhase == 0 ? 100f : 20f;
+                        // Capture presentation samples without advancing the synthetic pawn's gameplay state.
+                        _layer!.Effects.Reset();
+                        _extra = s => { s.CloakEngaged = true; s.EnergyLevel = energy; s.EnergyLevelMax = 100; };
+                        Run(1);
+                        _cloakCapturePhase++;
+                        _phase--;
+                        _wait = Settle;
+                        return Running();
+                    }
+                    Capture(context, "cloak-low");
+                }
+                else Capture(context, "spy-list");
                 _viewer = _scene!.MercPc;
                 _extra = null;
                 Run(30);
@@ -195,6 +214,7 @@ public sealed class HudSmoke(bool spectatorOnly = false) : SmokeTest
         CheckScopeLayout(assets);
         CheckActivityLifecycle();
         CheckMercShutdownRecovery(assets);
+        CheckCloakEnergy(assets);
         var reader = new HudSimReader(() => _viewer, (section, key, fallback) => assets.Localize("MagmaDynamic", section, key, fallback), _layer.Effects);
         _layer.Source = new Composite(reader, s => _extra?.Invoke(s));
         _layer.Controller = () => _viewer;
@@ -204,12 +224,105 @@ public sealed class HudSmoke(bool spectatorOnly = false) : SmokeTest
         // Headless the HUD draws for a fixed 1280 x 720 screen; a capture run draws for the real window.
         _layer.ScreenSize = _captureDir is null ? Screen : null;
         _layer.ProcessMode = Node.ProcessModeEnum.Disabled;   // stepped by the test
-        _layer.Projector = _scene.Project;
+        HudLayer projectionLayer = _layer;
+        _layer.Projector = p => _scene.Project(p,
+            projectionLayer.ScreenSize ?? projectionLayer.GetViewport()?.GetVisibleRect().Size ?? Screen);
         context.Tree.Root.AddChild(_layer);
         _chat = new ChatInput { ProcessMode = Node.ProcessModeEnum.Disabled };
         context.Tree.Root.AddChild(_chat);
         _layer.AddOverlay(_chat);
         return SmokeResult.Running;
+    }
+
+    private void CheckCloakEnergy(HudAssets assets)
+    {
+        var scene = new Scene();
+        var spy = (SPawnAttaque)scene.SpyPawn;
+        var options = new HudOptions();
+        var page = new SpyHudPage(assets, options);
+        var snapshot = new HudSnapshot();
+        using var clock = scene.World.Level.CommandTime(1200, 20f, Dt);
+        spy.EnergyLevel = spy.EnergyLevelMax;
+
+        void ReadAndDraw()
+        {
+            snapshot.Clear();
+            HudSimReader.Read(scene.SpyPc, snapshot);
+            page.Update(snapshot, 0f);
+            page.Draw(Screen, snapshot);
+        }
+
+        ReadAndDraw();
+        Expect(!snapshot.CloakEngaged && !page.DrawList.Any("Energie/"), "full idle energy gauge stays hidden");
+        SpyCloak.SetActive(spy, true);
+        ReadAndDraw();
+        Expect(snapshot.CloakEngaged && spy.GlassEffect == 0 && page.DrawList.Any("Energie/"),
+            "full energy gauge appears on cloak request before the first visible fade sample");
+        foreach (int vision in new[] { 5, 36, 37, 38 })
+        {
+            scene.SpyPc.RendMap = vision;
+            ReadAndDraw();
+            Expect(snapshot.CloakEngaged && page.DrawList.Any("Energie/"), $"cloak energy remains visible in vision {vision}");
+        }
+
+        spy.GlassEffect = 128;
+        SpyCloak.SetActive(spy, false);
+        ReadAndDraw();
+        Expect(snapshot.CloakEngaged && page.DrawList.Any("Energie/"), "full energy gauge remains through decloak fade");
+        spy.GlassEffect = 0;
+        spy.BGlassEffect = 128f;
+        spy.PerturbationStartTime = scene.SpyPc.Level.TimeSeconds;
+        spy.PerturbationDuration = 1f;
+        ReadAndDraw();
+        Expect(snapshot.CloakEngaged && page.DrawList.Any("Energie/"), "a zero glass sample during flicker keeps energy visible");
+        spy.PerturbationDuration = 0f;
+        ReadAndDraw();
+        Expect(!snapshot.CloakEngaged && !page.DrawList.Any("Energie/"), "full energy hides after fade and flicker finish");
+
+        spy.EnergyLevel = 50f;
+        ReadAndDraw();
+        Color normal = page.DrawList.Find("Energie/jaugeinterne")!.Colors[0];
+        foreach (float energy in new[] { 0f, 19f, 20f })
+        {
+            spy.EnergyLevel = energy;
+            ReadAndDraw();
+            Color low = page.DrawList.Find("Energie/jaugeinterne")!.Colors[0];
+            Expect(low.R > low.G && low.G > low.B && Math.Abs(low.A - normal.A) < .001f,
+                $"{energy}% energy fill is amber without changing opacity");
+        }
+        spy.EnergyLevel = 20.01f;
+        ReadAndDraw();
+        Expect(page.DrawList.Find("Energie/jaugeinterne")!.Colors[0] == normal,
+            "energy fill restores its authored colour immediately above 20%");
+
+        spy.EnergyLevel = 20f;
+        ReadAndDraw();
+        Rect2 originalRect = page.DrawList.Find("Energie/jaugeinterne")!.Rect;
+        float originalAlpha = page.DrawList.Find("Energie/jaugeinterne")!.Colors[0].A;
+        var layout = new HudElementSettings { X = -.1f, Y = -.05f, Scale = 1.4f, Opacity = .4f };
+        options.Layout.Spy["Energie"] = layout;
+        ReadAndDraw();
+        MagmaDrawItem edited = page.DrawList.Find("Energie/jaugeinterne")!;
+        Expect(edited.Rect.Position.X < originalRect.Position.X && edited.Rect.Position.Y < originalRect.Position.Y &&
+            edited.Rect.Size.IsEqualApprox(originalRect.Size * layout.Scale), "low energy gauge retains editor position and scale");
+        Expect(Math.Abs(edited.Colors[0].A - originalAlpha * layout.Opacity) < .001f,
+            "low energy amber retains editor opacity");
+        layout.Visible = false;
+        ReadAndDraw();
+        Expect(!page.DrawList.Any("Energie/"), "editor visibility can hide the low energy gauge");
+        options.Layout.Spy.Clear();
+
+        snapshot.CloakEngaged = true;
+        snapshot.Clear();
+        Expect(!snapshot.CloakEngaged, "snapshot clear resets cloak engagement");
+        scene.SpyPc.Pawn = null;
+        ReadAndDraw();
+        Expect(!snapshot.CloakEngaged && !page.DrawList.Any("Energie/"), "losing the pawn clears cloak energy presentation");
+        scene.SpyPc.Pawn = spy;
+        spy.EnergyLevel = spy.EnergyLevelMax;
+        ReadAndDraw();
+        Expect(!snapshot.CloakEngaged && !page.DrawList.Any("Energie/"), "full respawn energy does not retain cloak presentation");
+        _notes.Add("Cloak energy: full activation/fade, goggles, amber threshold/restoration, editor layout and pawn reset checked.");
     }
 
     private void CheckActivityLifecycle()
@@ -1631,7 +1744,7 @@ public sealed class HudSmoke(bool spectatorOnly = false) : SmokeTest
         public SWeaponDefense Rifle { get; }
 
         /// <summary>A camera at the spy's eyes looking down +X with a 90 degree field of view.</summary>
-        public Vector2? Project(FVector p)
+        public Vector2? Project(FVector p, Vector2? screen = null)
         {
             FVector r = p - (SpyPawn.Location + new FVector(0f, 0f, 60f));
             if (r.X <= 1f)
@@ -1639,8 +1752,9 @@ public sealed class HudSmoke(bool spectatorOnly = false) : SmokeTest
                 return null;
             }
 
-            float f = Screen.X / 2f;
-            return new Vector2(Screen.X / 2f + r.Y / r.X * f, Screen.Y / 2f - r.Z / r.X * f);
+            Vector2 size = screen ?? Screen;
+            float f = size.X / 2f;
+            return new Vector2(size.X / 2f + r.Y / r.X * f, size.Y / 2f - r.Z / r.X * f);
         }
 
         private static T Spawn<T>(Level level, T actor, FVector at)

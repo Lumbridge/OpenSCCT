@@ -11,8 +11,8 @@ namespace OpenScct.Game.SBase;
 public partial class SGadCloak
 {
     /// <summary>
-    /// The switch-on test: not shocking, not in rain, weapon holstered, at most 240 uu/s, a full
-    /// energy bar and a state that allows the cloak.
+    /// The switch-on test: not shocking, not in rain, weapon holstered, at most 240 uu/s, positive
+    /// energy and a state that allows the cloak.
     /// </summary>
     [Uc("SBase.SGadCloak.CanTurnOn", Sha1 = "bd72e99c9a3e16991e9878f6659f776a4298eb9e")]
     [PortOf("uc:SBase.SGadCloak:CanTurnOn", Spec = "spec/equipment/spy-energy.md#rules")]

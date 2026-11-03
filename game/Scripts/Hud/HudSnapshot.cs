@@ -310,6 +310,9 @@ public sealed class HudSnapshot
 
     public int EnergyLevelMax { get; set; }
 
+    /// <summary>The cloak is requested or still fading, independently of the current vision mode.</summary>
+    public bool CloakEngaged { get; set; }
+
     /// <summary>SPlayerController.bFastSpeed: the sneak icon shows while it is false.</summary>
     public bool FastSpeed { get; set; } = true;
 
@@ -489,6 +492,7 @@ public sealed class HudSnapshot
         Yaw = 0;
         EnergyLevel = 0f;
         EnergyLevelMax = 0;
+        CloakEngaged = false;
         FastSpeed = true;
         HasWeapon = false;
         ActiveWeaponName = "";

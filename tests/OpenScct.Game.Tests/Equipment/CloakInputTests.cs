@@ -131,19 +131,61 @@ public sealed class CloakInputTests
     }
 
     [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
-    public void ActivationStillRequiresFullEnergyAndHolsteredWeapon(bool hold)
+    [InlineData(true, 0.001f)]
+    [InlineData(false, 0.001f)]
+    [InlineData(true, 1f)]
+    [InlineData(false, 1f)]
+    [InlineData(true, 50f)]
+    [InlineData(false, 50f)]
+    public void AnyPositiveEnergyActivatesWithoutAStartupCost(bool hold, float energy)
     {
         var (_, pc, pawn) = Player(hold);
-        pawn.EnergyLevel = pawn.EnergyLevelMax / 2;
+        pawn.EnergyLevel = energy;
+        Input(pc, true);
+        Assert.Equal(255, pawn.DesiredGlassEffect);
+        Assert.Equal(energy, pawn.EnergyLevel);
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void ActivationStillRequiresPositiveEnergyAndHolsteredWeapon(bool hold)
+    {
+        var (_, pc, pawn) = Player(hold);
+        pawn.EnergyLevel = 0f;
         Input(pc, true);
         Assert.Equal(0, pawn.DesiredGlassEffect);
         Input(pc, false);
-        pawn.EnergyLevel = pawn.EnergyLevelMax;
+        pawn.EnergyLevel = 1f;
         pawn.WeaponLoaded = 2;
         Input(pc, true);
         Assert.Equal(0, pawn.DesiredGlassEffect);
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void DepletionRequiresAFreshPressEvenAfterEnergyReturns(bool hold)
+    {
+        var (_, pc, pawn) = Player(hold);
+        pc.RemoteRole = ENetRole.ROLE_SimulatedProxy;
+        pawn.Level.TimeSeconds = 10f;
+        pawn.EnergyLevel = 0.5f;
+        Input(pc, true);
+        PawnVision.TickGlass(pawn);
+        pc.EquipmentPlayerTick(0.1f);
+        Assert.Equal(0f, pawn.EnergyLevel);
+        Assert.Equal(0, pawn.DesiredGlassEffect);
+        Assert.False(SpyCloak.CanActivate(pawn));
+
+        pawn.Level.TimeSeconds = 12f;
+        PawnVision.TickGlass(pawn);
+        pc.EquipmentPlayerTick(0.5f);
+        Assert.Equal(3.5f, pawn.EnergyLevel, 3);
+        Assert.Equal(0, pawn.DesiredGlassEffect);
+        Input(pc, false);
+        Input(pc, true);
+        Assert.Equal(255, pawn.DesiredGlassEffect);
     }
 
     [Theory]

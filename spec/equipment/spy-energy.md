@@ -9,16 +9,16 @@ Units:
 - def:SBase.SPawnAttaque, def:SBase.SGadCloak
 
 ## Purpose
-One energy bar per spy, spent by Shocker shots and drained by the Camo Suit, refilled in fixed steps once per
-second. It is computed only on the spy's own machine.
+One energy bar per spy, spent by Shocker shots and drained by the Camo Suit. OpenSCCT refills it continuously;
+the decoded original used fixed steps once per second. It is computed only on the spy's own machine.
 
 ## Data
 | Field | Type | Default | Notes |
 |---|---|---|---|
 | SPawnAttaque.EnergyLevelMax | int | 100 | |
 | SPawnAttaque.EnergyLevel | float | 0, set to EnergyLevelMax in SBasePawn.PostBeginPlay | |
-| SPawnAttaque.EnergyRefillAmount | int | 7 | energy added per whole second |
-| SPawnAttaque.EnergyRefill | float | 0 | accumulated seconds |
+| SPawnAttaque.EnergyRefillAmount | int | 7 | energy per second; whole-second steps in the original |
+| SPawnAttaque.EnergyRefill | float | 0 | original accumulated idle seconds; not used by OpenSCCT refill |
 | SBasePawn.GlassEffectEnergyUsePerTick | float | 8.0 | despite the name, energy per second |
 | SBasePawn.GlassEffect / DesiredGlassEffect | byte | 0 | cloak amount and target |
 | SBasePawn.PerturbationStartTime / PerturbationDuration | float | 0 | cloak flicker window |
@@ -27,6 +27,30 @@ second. It is computed only on the spy's own machine.
 
 `SPawnAttaque.NbPointsRefillable`, `NbPointsRefilledPerSecond` (4), `HealthRefill`, `MinTimeHealthRefill` (3 s)
 belong to spy health regeneration in the native `TickNative`, not to energy (combat spec).
+
+## Current OpenSCCT behavior
+
+- **Activation:** every spy owns cloak independently of inventory. Any `EnergyLevel > 0` is sufficient; there is
+  no percentage threshold, activation cost or replacement cooldown. Health, shock, rain, weapon/transit, speed
+  and controller-state restrictions still apply.
+- **Drain:** while `DesiredGlassEffect != 0`, spend 8 energy/s continuously, including fade-in and active cloak
+  flicker. A zero glass sample during active flicker never pauses spending. Switching cloak off stops drain
+  immediately; the battery holds steady through the remaining fade-out and flicker (`SpyCloak.IsEngaged`),
+  with neither drain nor recharge. Clamp depletion to zero and request the existing forced decloak; energy
+  cannot become negative.
+- **Recovery:** refill continuously at 7 energy/s, clamped to `EnergyLevelMax`, only when the cloak target and
+  visible glass are both zero and the perturbation window has finished. No refill occurs during a fade or flicker.
+- **Shared pool:** Shocker shots still spend 15 energy. A shot no longer locks cloak until the bar is full again;
+  any remaining positive energy can power it after the normal weapon/state restrictions clear.
+- **Controls and presentation:** Hold/Toggle still acts immediately on press, with local network prediction and
+  the existing visual fades, movement limits and damage reveal. A forced decloak while Hold remains pressed does
+  not automatically reactivate; release and press again.
+- **HUD:** the existing energy gauge appears below full charge and while cloak is engaged, even at full charge.
+  At 20% energy or less it is amber; it adds no status text. HUD-editor visibility and opacity still apply.
+
+These are intentional changes to the decoded original. The numbered rules, constants and original edge cases
+below preserve the original evidence; their full-bar gate, quantised refill and flicker pause are not current
+OpenSCCT behavior.
 
 ## Rules
 1. **Init.** `SBasePawn.PostBeginPlay` (every machine): for a spy, `NbPointsRefillable = 0` and
@@ -81,6 +105,9 @@ belong to spy health regeneration in the native `TickNative`, not to energy (com
    goggle mode draws it uncloaked (docs/RENDERING.md#cloak).
 
 ## Constants
+This table records the decoded original. OpenSCCT keeps the maximum, drain, shot cost and speed limit, uses
+7 energy/s continuous recovery (about 14.29 s from empty once fully decloaked), and has no button hold threshold.
+
 | Name | Value | Unit | Provenance | Source |
 |---|---|---|---|---|
 | Max energy | 100 | | decoded | def EnergyLevelMax |
@@ -98,7 +125,8 @@ belong to spy health regeneration in the native `TickNative`, not to energy (com
 - Owning client only: EnergyLevel, EnergyRefill, ComputeEnergyLevel and AuthorizeEnergy all run where the spy is
   locally controlled (PlayerTick is a local-player event; AuthorizeEnergy is a plain function called from the
   client's Fire). The server neither tracks nor checks energy, so Shocker shots are client-authorised.
-- The HUD gauge reads the local value and is shown only while `EnergyLevel < EnergyLevelMax`.
+- The original HUD gauge reads the local value and is shown only while `EnergyLevel < EnergyLevelMax`.
+  OpenSCCT also shows it while cloak is engaged and applies the low-energy tint described above.
 - The rewrite should keep the bar client-side for fidelity and may add a server shadow as an anti-cheat option.
 - Cloak (rep-pawn.md blocks 6 and 7): `SetDesiredGlassValue` and `SetPerturbationGlass` are client to server;
   in the decoded original, on the spy's own client they are sent and do not run there. The server runs them and broadcasts
@@ -127,6 +155,8 @@ belong to spy health regeneration in the native `TickNative`, not to energy (com
   so the spy stays visible in thermal vision throughout.
 
 ## Edge cases
+The following describe the decoded original; the current OpenSCCT overrides are listed above.
+
 - Firing at any time blocks cloaking until the bar is full again.
 - Refill is quantised: a shot at 99.9 energy waits for the next whole second of accumulated idle time.
 - `EnergyLevel` is not clamped after a +7 step: from 93.x or more the bar ends above 100 (up to 106.x). The HUD hides
@@ -146,8 +176,9 @@ belong to spy health regeneration in the native `TickNative`, not to energy (com
 ### Resolved
 - ComputeEnergyLevel (2026-10-26, REA session; Ghidra defines no function at 0x10af5fa0, so read from the
   disassembly): no clamp at `EnergyLevelMax`, one step per call, `EnergyRefill` never reset, the flicker test is
-  strict, and a controller on its controlling machine is required (rule 2). The port clamped and added a step per
-  whole second crossed; fixed.
+  strict, and a controller on its controlling machine is required (rule 2). The port originally restored these
+  rules after an incorrect clamp and multi-step refill; continuous recovery and clamping are now intentional
+  OpenSCCT changes documented above.
 - SPawnAttaque.TickNative and energy or cloak timing. Resolved: TickNative runs only the screen glass effect (the cloak
   ramp): cleared on rain, sticky shock or speed above 240 (not in root motion), GlassEffect moving by the slope
   `int((TimeSeconds + 0.1) SlopeGlassEffect + BGlassEffect)`, jitter during a perturbation; Reloaded only adds the

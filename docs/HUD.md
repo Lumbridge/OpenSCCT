@@ -131,6 +131,10 @@ top-level area of a page starts hidden and stopped at frame 0; each driver shows
 | P_SpectatorMode | objectives, time, lives, watched player, respawn countdown, tip (spectator-page.md); the connected-player panels are centred together below the spectator controls and fit between them and the tip, including large split or unsplit rosters |
 | P_BinocularsATT / DEF | zoom label and marker, scope ring animations, sights and axes at the aim point, breath gauge, range finder, key help, Hack prompt, reticle message (binoculars.md) |
 
+The spy's existing energy gauge remains visible below full charge and while cloak is engaged, including a
+full-charge activation. At 20% energy or less it turns amber without adding a status label. The gauge follows
+the HUD editor's energy-group visibility and opacity settings.
+
 Poison uses the original `jauge_poison` animation, starting at frame 1 and looping every 0.9 seconds; frame 0
 contains a stop action. Its two textured screen layers retain their Normal and Dodge blends, and stretch across
 the viewport independently of the health gauge's anchor and HUD-editor settings. Curing poison hides them
@@ -414,7 +418,12 @@ binding defaults to **K** on keyboard and **LB + RB** on controller; gadget trig
 Saved cloak loadout slots migrate to an unused standard gadget. **Spy → Bindings →
 Cloak** offers Toggle (default; press again to deactivate) or Hold (release to deactivate), shared by all devices.
 Wheel bindings always toggle. Cloak has no input hold threshold or toggle/refire delay;
-energy, rain, speed and weapon/state restrictions still apply, as does its visual fade. In camera
+any positive energy permits activation, while rain, speed and weapon/state restrictions still apply, as does its
+visual fade. Cloak drains the shared Shocker energy pool continuously at 8/s while switched on, including
+fade-in and active flicker. Switching it off stops drain immediately and holds the battery steady through
+the remaining fade-out and flicker; it then refills at 7/s up to its maximum. Shocker shots still cost
+15 energy. See [spy energy](../spec/equipment/spy-energy.md#current-openscct-behavior) for the current rules and
+the decoded original behavior. In camera
 views, RT releases sticky-camera gas and B leaves the view. Long roll pulses crouch when needed to stand first.
 Triggers press above 7680/32767 (about 23.4%). Spy free look uses Aggressive and gun look uses Soft response.
 These are the defaults with analog slow walk enabled and stick/bumper swaps disabled. The built-in keyboard

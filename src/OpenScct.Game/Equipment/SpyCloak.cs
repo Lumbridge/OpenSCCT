@@ -17,8 +17,17 @@ public static class SpyCloak
     public static bool CanActivate(SPawnAttaque spy) =>
         spy.Health > 0 && !spy.bStickyShocking && spy.CurrentRainVolume is null &&
         spy.WeaponLoaded == 0 && !spy.bWeaponTransit && spy.Velocity.Size() <= K.CloakMaxSpeed &&
-        spy.EnergyLevel >= spy.EnergyLevelMax &&
+        spy.EnergyLevel > 0f &&
         (spy.Controller as SPlayerController)?.eventCanActivateCloak() != false;
+
+    /// <summary>
+    /// The suit remains engaged through its fade and flicker, including frames where perturbation samples zero
+    /// glass. This state is independent of the viewer's goggles and gates recharge and gauge visibility.
+    /// </summary>
+    public static bool IsEngaged(SPawnAttaque spy) =>
+        spy.DesiredGlassEffect != 0 || spy.GlassEffect != 0 ||
+        (spy.BGlassEffect != 0f &&
+         spy.Level.TimeSeconds - spy.PerturbationStartTime < spy.PerturbationDuration);
 
     public static void Toggle(SPawnAttaque spy) => SetActive(spy, spy.DesiredGlassEffect != K.FullGlass);
 

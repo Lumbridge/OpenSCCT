@@ -51,11 +51,17 @@ public sealed class CloakVisionNetworkTests
         serverBridge.Trace = [];
         mercBridge.Trace = [];
         owner.WeaponLoaded = 0;
-        owner.EnergyLevel = owner.EnergyLevelMax;
+        const float initialEnergy = 60.25f; // Partial charge must work without waiting for a full battery.
+        owner.EnergyLevel = initialEnergy;
+        float serverEnergy = authority.EnergyLevel;
+        float mercCopyEnergy = Copy(merc).EnergyLevel;
         SpyCloak.SetActive(owner, true);
+        Assert.Equal(255, owner.DesiredGlassEffect);
         Assert.True(owner.bEMFIsOn);
         Assert.Equal(1f, owner.EMFOpacity);
         Tick(120);
+        Assert.InRange(owner.EnergyLevel, initialEnergy - 16.15f, initialEnergy - 15.85f);
+        CheckRemoteEnergy();
         Assert.Equal(255, owner.GlassEffect);
         Assert.True(Copy(merc).GlassEffect == 255,
             $"owner {owner.DesiredGlassEffect}/{owner.GlassEffect}, server {authority.DesiredGlassEffect}/{authority.GlassEffect}, " +
@@ -75,11 +81,16 @@ public sealed class CloakVisionNetworkTests
         Assert.True(late.State == EClientState.Joined, late.RejectReason);
         Check(Copy(late), true);
         Assert.Equal(255, Copy(late).GlassEffect);
+        float lateCopyEnergy = Copy(late).EnergyLevel;
+        Assert.InRange(owner.EnergyLevel, initialEnergy - 48.15f, initialEnergy - 47.85f);
+        CheckRemoteEnergy();
 
+        float energyAtRelease = owner.EnergyLevel;
         SpyCloak.SetActive(owner, false);
         Assert.True(owner.GlassEffect > 0);
         Check(owner, true);
         Tick(24);
+        Assert.Equal(energyAtRelease, owner.EnergyLevel, 3); // Decloaking holds the battery until the fade finishes.
         Assert.Equal(0, Copy(merc).DesiredGlassEffect);
         Assert.True(Copy(merc).GlassEffect > 0);
         Check(authority, true);
@@ -94,9 +105,22 @@ public sealed class CloakVisionNetworkTests
         Check(authority, false);
         Check(Copy(merc), false);
         Check(Copy(late), false);
+        Assert.False(SpyCloak.IsEngaged(owner));
+        float rechargingEnergy = owner.EnergyLevel;
+        Tick(30);
+        Assert.InRange(owner.EnergyLevel, rechargingEnergy + 3.35f, rechargingEnergy + 3.65f);
+        CheckRemoteEnergy();
+        Assert.Equal(lateCopyEnergy, Copy(late).EnergyLevel);
 
-        SBasePawn Copy(ClientSession client) => Assert.IsAssignableFrom<SBasePawn>(
+        SPawnAttaque Copy(ClientSession client) => Assert.IsAssignableFrom<SPawnAttaque>(
             client.Driver.FindActorByNetGuid((uint)authority.ActorId));
+
+        void CheckRemoteEnergy()
+        {
+            // The server and observers receive cloak state, but never spend or replicate the owner's battery.
+            Assert.Equal(serverEnergy, authority.EnergyLevel);
+            Assert.Equal(mercCopyEnergy, Copy(merc).EnergyLevel);
+        }
 
         static void Check(SBasePawn pawn, bool emf)
         {

@@ -4,6 +4,7 @@ using System.Globalization;
 using Godot;
 using OpenScct.Core;
 using OpenScct.Core.Engine;
+using SpyCloak = OpenScct.Game.Equipment.SpyCloak;
 using OpenScct.Game.Objectives;
 using OpenScct.Game.SBase;
 using OpenScct.Provenance;
@@ -187,6 +188,7 @@ public sealed class HudSimReader : IHudSource
     private static void ReadPawn(SPlayerController pc, SBasePawn? pawn, HudSnapshot s)
     {
         s.FastSpeed = pc.bFastSpeed;
+        s.CloakEngaged = false;
         if (pawn is null)
         {
             return;
@@ -202,6 +204,7 @@ public sealed class HudSimReader : IHudSource
         {
             s.EnergyLevel = spy.EnergyLevel;
             s.EnergyLevelMax = spy.EnergyLevelMax;
+            s.CloakEngaged = SpyCloak.IsEngaged(spy);
         }
 
         s.LaserOn = pawn is SPAWNDEFENSE { TorcheLaser: { bInUse: true } };

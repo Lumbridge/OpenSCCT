@@ -14,6 +14,10 @@ public sealed class SpyHudPage : HudPage
 
     private static readonly string[] CoopAreas = ["Coop1", "Coop2", "Coop3", "Coop4"];
 
+    private static readonly Color LowEnergyTint = new(1f, 182f / 255f, 68f / 255f, 1f);
+    // Remove the fill's authored blue before applying amber; multiplying keeps its animated alpha intact.
+    private static readonly Color LowEnergyFillTint = new(255f / 45f, 182f / 149f, 68f / 210f, 1f);
+
     private readonly HudRadar? _radar;
 
     public SpyHudPage(HudAssets assets, HudOptions? options = null)
@@ -63,15 +67,20 @@ public sealed class SpyHudPage : HudPage
         HideAll("StickyCamInteraction", "GameInvite");
     }
 
-    /// <summary>Energie: shown while the energy is below its maximum.</summary>
+    /// <summary>Energie: shown below maximum energy or throughout cloak activation and its fade.</summary>
     private void DriveEnergy(HudSnapshot s)
     {
         MagmaNode? energy = Area("Energie");
-        bool shown = s.HasPawn && s.EnergyLevelMax > 0 && s.EnergyLevel < s.EnergyLevelMax;
+        bool shown = s.HasPawn && s.EnergyLevelMax > 0 && (s.EnergyLevel < s.EnergyLevelMax || s.CloakEngaged);
         SetShown(energy, shown, restart: false);
         if (shown && energy is not null)
         {
-            DriveGauge(energy, s.EnergyLevel * 100f / s.EnergyLevelMax);
+            float percent = s.EnergyLevel * 100f / s.EnergyLevelMax;
+            DriveGauge(energy, percent);
+            bool low = percent <= 20f;
+            energy.Widget("jaugeinterne").Tint = low ? LowEnergyFillTint : null;
+            energy.Widget("jaugeindicator_gauche").Tint = low ? LowEnergyTint : null;
+            energy.Widget("jaugeindicator_droite").Tint = low ? LowEnergyTint : null;
         }
     }
 
