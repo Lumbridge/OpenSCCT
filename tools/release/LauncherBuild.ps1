@@ -20,7 +20,7 @@ function Resolve-LauncherExe {
     if ($props -notmatch '<LauncherVersion>([^<]+)</LauncherVersion>') { throw 'No LauncherVersion in Directory.Build.props.' }
     $launcherVersion = $Matches[1].Trim()
     if ($launcherVersion -notmatch $semver) { throw "LauncherVersion '$launcherVersion' is not MAJOR.MINOR.PATCH[-PRERELEASE]." }
-    $sources = 'src/OpenScct.Launcher', 'src/OpenScct.Launcher.Core', 'src/OpenScct.Maps', 'game/branding/icon.ico'
+    $sources = 'src/OpenScct.Launcher', 'src/OpenScct.Launcher.Core', 'src/OpenScct.Maps', 'game/branding/icon.ico', 'shared/ProjectLinks.cs'
     $fingerprint = ($sources | ForEach-Object { (& git -C $RepoRoot rev-parse "${Commit}:$_").Trim() }) -join ' '
     # Kept locally (and its checksum published) under the versioned name; released under the plain name.
     $launcherName = "OpenSCCT.Launcher-$launcherVersion-win-x64.exe"

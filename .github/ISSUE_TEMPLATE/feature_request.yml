@@ -3,6 +3,11 @@ description: Suggest a focused improvement to gameplay, tools or documentation.
 title: "[Suggestion] "
 body:
   - type: textarea
+    id: environment
+    attributes:
+      label: App context (optional)
+      description: Details supplied by OpenSCCT. Review or edit them before submitting.
+  - type: textarea
     id: problem
     attributes:
       label: What would this improve?
