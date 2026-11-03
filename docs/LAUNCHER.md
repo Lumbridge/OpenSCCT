@@ -21,7 +21,8 @@ completed work is kept where it can be reused. The launcher does not change the 
 
 ## Updates and troubleshooting
 
-- **Update** installs a newer game build. **Play current version** lets you defer it for that launch.
+- **Update** installs a newer game build and any newer downloaded game files, including file-only updates.
+  **Play current version** lets you defer updates for that launch.
   Play checks again for updates with a five-second timeout; a failed check still permits installed play.
 - **Rebuild** prepares content again if an update leaves a map or menu looking wrong.
 - **Maps** downloads additional converted maps, ready to play without conversion.

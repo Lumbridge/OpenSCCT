@@ -258,7 +258,7 @@ internal sealed partial class MainForm : Form
         _changeGame.Click += (_, _) => ChooseGameFolder();
         _useSteam.Click += (_, _) => UseSteamCopy();
         _useDownloads.Click += (_, _) => UseDownloadedFiles();
-        _rebuild.Click += async (_, _) => await RunAsync(GameFound ? BuildContentAsync : DownloadContentAsync);
+        _rebuild.Click += async (_, _) => await RunAsync(BuildContentAsync);
         _whatsNew.Click += async (_, _) => await OpenChangelogAsync();
         _check.Click += async (_, _) => await RunAsync(CheckAsync);
         _website.Click += (_, _) => OpenLink("https://master.lumbridge.co.uk/");
@@ -504,9 +504,7 @@ internal sealed partial class MainForm : Form
     /// <summary>Step 3 without an install: the game files come from OpenSCCT-Content.</summary>
     private void RefreshPackFilesStep(SemVersion? current)
     {
-        _rebuild.Visible = current is not null && PackedContent.Installed(_packs) && !PacksCurrent() && !_downloadingContent;
-        _rebuild.Enabled = _work is null;
-        _rebuild.Text = "Update game files";
+        _rebuild.Visible = false;
         if (_downloadingContent)
         {
             _filesStep.Set(StepState.Todo, "Downloading the maps, characters and sounds...");
@@ -524,7 +522,7 @@ internal sealed partial class MainForm : Form
         }
         else if (!PacksCurrent())
         {
-            _filesStep.Set(StepState.Choice, "Newer game files are available. Update game files now or press PLAY to use your installed files.");
+            _filesStep.Set(StepState.Choice, "Newer game files are available. Press Update, or choose Play current version to use your installed files.");
         }
         else
         {
@@ -539,6 +537,8 @@ internal sealed partial class MainForm : Form
         && (_packIndex is not { } index
             || (PackedContent.SharedToFetch(index, _packs).Count == 0 && PackedContent.MapsToFetch(index, _packs, firstDownload: false).Count == 0));
 
+    private bool PackUpdateAvailable => !GameFound && PackedContent.Installed(_packs) && !PacksCurrent();
+
     /// <summary>The game files are ready for the current version: built from the install, else downloaded.</summary>
     private bool FilesReady(SemVersion? current) => GameFound ? ContentIsCurrent(current) : current is not null && PacksCurrent();
 
@@ -552,8 +552,8 @@ internal sealed partial class MainForm : Form
     /// <summary>The big button: the next thing to do, or PLAY.</summary>
     private void RefreshMainButton(SemVersion? current, bool busy)
     {
-        bool update = current is not null && _store.Pending() is null
-            && _lastCheck is { GameUpdateAvailable: true, Latest: { } latest } && latest.Version > current;
+        bool update = current is not null && (PackUpdateAvailable || (_store.Pending() is null
+            && _lastCheck is { GameUpdateAvailable: true, Latest: { } latest } && latest.Version > current));
         bool playable = current is not null
             && (FilesReady(current) || DownloadedFilesPlayable(current) || (GameFound && BuiltFilesPlayable(current)));
         (NextAction next, string text, bool enabled) = busy
@@ -1046,7 +1046,7 @@ internal sealed partial class MainForm : Form
         }
         else
         {
-            SetStatus(check.GameUpdateAvailable && _store.Current() is not null
+            SetStatus((check.GameUpdateAvailable || PackUpdateAvailable) && _store.Current() is not null
                 ? "An update is available."
                 : string.Empty, Theme.Muted);
         }
@@ -1054,23 +1054,27 @@ internal sealed partial class MainForm : Form
 
     private async Task UpdateGameAsync(CancellationToken cancel)
     {
-        if (_lastCheck?.Latest is not { } latest)
+        SemVersion? current = _store.Current();
+        InstallOutcome? outcome = null;
+        // The main Update button also handles newer game files without a newer game build (or release data).
+        // Never reinstall an older release when only the downloaded files need updating.
+        if (_lastCheck is { GameUpdateAvailable: true, Latest: { } latest } && _store.Pending() is null
+            && (current is null || latest.Version > current))
         {
-            return;
+            SetStatus($"Downloading OpenSCCT {latest.Version}...", Theme.Muted);
+            outcome = await _service.InstallAsync(latest, ProgressReporter(), cancel);
+            SetStatus(outcome switch
+            {
+                InstallOutcome.Activated => $"OpenSCCT {latest.Version} is installed.",
+                InstallOutcome.WaitingForGameToClose => $"OpenSCCT {latest.Version} is ready and starts once you close the game.",
+                _ => $"OpenSCCT {latest.Version} is already installed.",
+            }, Theme.Accent);
+            await CheckAsync(cancel);
         }
 
-        SetStatus($"Downloading OpenSCCT {latest.Version}...", Theme.Muted);
-        InstallOutcome outcome = await _service.InstallAsync(latest, ProgressReporter(), cancel);
-        SetStatus(outcome switch
-        {
-            InstallOutcome.Activated => $"OpenSCCT {latest.Version} is installed.",
-            InstallOutcome.WaitingForGameToClose => $"OpenSCCT {latest.Version} is ready and starts once you close the game.",
-            _ => $"OpenSCCT {latest.Version} is already installed.",
-        }, Theme.Accent);
-        await CheckAsync(cancel);
-
-        // A new install (or a changed builder) needs its game files before PLAY: carry straight on.
-        if (outcome == InstallOutcome.Activated && !FilesReady(_store.Current()))
+        // Carry on with files after an install, or update downloaded files for the installed game on their own.
+        current = _store.Current();
+        if (current is not null && !FilesReady(current) && (outcome == InstallOutcome.Activated || !GameFound))
         {
             await (GameFound ? BuildContentAsync(cancel) : DownloadContentAsync(cancel));
         }
