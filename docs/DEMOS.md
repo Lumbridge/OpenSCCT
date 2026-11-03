@@ -1,9 +1,16 @@
 # Demos
 
-A demo is a recorded match that can be watched later in the game, the way CS2 demos work. It is not a video. The
-server records the network stream that a hidden spectator would receive, and playback feeds that stream into an
-ordinary client. The game then draws the match with its own maps, models and effects, so a viewer can watch any
-player in first or third person, or fly a free camera.
+[Documentation](README.md)
+
+Demos let you watch recorded matches in first person, third person or with a free camera.
+They store game data rather than video, so playback needs a compatible game build and matching map content.
+
+**To watch:** open **Demos → On this computer** from the main menu. **Recent online** lists recordings
+available to signed-in players. Use **Watch** to play or **Keep** to save a permanent local copy.
+
+This page covers [saving matches](#saving-your-own-matches), [playback and controls](#watching-game),
+[server recording](#recording-server) and [the file format](#file-format-scctdemo).
+Optional analysis exports are described under [Training data companions](#training-data-companions).
 
 ## Saving your own matches
 
@@ -24,6 +31,60 @@ pending recordings per player. Leaving/disconnecting before completion cancels a
 Hub matches wait on the results screen for the requested download before returning to the pads, for up to five
 minutes. Leaving still returns immediately; an expired wait reports that the incomplete demo was not saved. The
 hub keeps the match server alive for progressing downloads during this bounded grace period.
+
+## Watching (game)
+
+The library shows map pictures, mode, length, date, server, players and storage status. Search by map,
+player, server or local filename; use mode/storage filters and newest/oldest sorting to narrow the list.
+Unknown maps keep their recorded code and a placeholder picture. Small screens use one column; wider
+screens use two, with text scaled for high resolutions.
+
+- **On this computer** shows saved recordings in `user://demos` and cached downloads in `user://demos/cache`.
+  Cached files expire after seven days. **Keep** makes a permanent copy; saved files take precedence over duplicates.
+- **Recent online** shows one page of the master's recordings for signed-in players. Filters apply to that page.
+  **Watch** downloads, verifies size and SHA-256, then starts playback. **Keep** downloads without playing.
+  Leaving the library cancels unfinished transfers and removes temporary files.
+- **Delete** asks for confirmation and removes the local recording and any training companion. It does not
+  delete the online copy. Cancel or Escape keeps the file.
+- **Compatibility:** the protocol and map content hash must match the installed game. An incompatible protocol
+  disables Watch. Other failures explain the problem and preserve the library view when playback has not started.
+- **Command line:** `--svm-demo=path` opens a recording at startup.
+
+Playback runs from 0.25× to 4× speed. The visible timeline starts at the round-start marker, skipping loading.
+Seeking forward fast-forwards the stream; seeking backward reloads it from the beginning, so later targets take
+longer. Opening or rewinding a paused demo still reconstructs the initial world and recorded players.
+
+The compact playback dock includes Play/Pause (Replay at the end), restart, five-second skips, speed, player and camera
+selectors, controls help and Back to demos. The timeline previews timestamps and named events; dragging commits
+one seek on release. The dock stays visible while paused, seeking, hovered, dragging or using a selector/help.
+After four idle seconds during playback it hides, and mouse or keyboard activity reveals it again. A small
+**Show controls · H** button remains available whenever the dock is hidden. Explicit Hide stays hidden until that
+button or H restores it. Camera hints and the full shortcut list expand under **Controls**.
+Escape (after closing help) and Back to demos ask for confirmation before leaving. The prompt pauses playback;
+Keep watching or Escape cancels it and restores the previous pause state.
+
+Third person follows the watched player's recorded view direction. Hold right mouse to pan around them;
+release it to smoothly return behind them over about half a second. The return uses real time, so it works
+while paused and at any playback speed. Switching players or returning to third person starts behind the
+selected player. Switching to free camera keeps the current third-person position and direction.
+
+### Keys
+
+| Key | Action |
+| --- | --- |
+| Space | pause / play |
+| Up / Down | faster / slower |
+| Left / Right | Back / forward 5 seconds (Shift: 30 seconds) |
+| Click or drag the bar | jump on release (on a marker: 3 s before it) |
+| Home / End | restart / seek to the end |
+| C | first person, then third person, then free camera |
+| [ ] or mouse wheel | previous / next player |
+| 1 to 9 | watch that player |
+| Right mouse (hold) | orbit in third person (release to return behind); look round in free camera |
+| W A S D, Q / E, Shift | fly the free camera, down / up, faster |
+| H | hide / show the controls |
+| ? | show / hide shortcut help |
+| Escape | close help first, otherwise confirm returning to Demos; cancel an open confirmation |
 
 ## Training data companions
 
@@ -113,6 +174,14 @@ the download.
 "Demos": { "Record": true, "Folder": "demos", "Upload": true, "KeepLocalDays": 7 }
 ```
 
+### Playback implementation
+
+`DemoPlaybackTransport` feeds recorded packets into `ClientSession` up to the playback tick. Client replies
+are discarded and acknowledged locally; receive silence cannot time out playback or fill the reliable resend
+buffer. `DemoPlayer` runs the remote `PlaySession` in the normal scene, and `DemoClock` controls speed/pause.
+Seeking processes about 30 ms of ticks per frame behind the seeking indicator. Earlier packets are always
+replayed to reconstruct the world, even when the visible timeline starts later.
+
 ## File format (`.scctdemo`)
 
 The format lives in `src/OpenScct.Net/Demo/DemoFile.cs`. It is little endian, and strings are UTF-8 with a 7-bit
@@ -129,85 +198,15 @@ length.
 The index is written when the recording finishes. A file without it (the server stopped mid-round) is refused as
 "cut short".
 
-## Watching (game)
-
-- **How it plays:**
-  - `DemoPlaybackTransport` (`src/OpenScct.Net/Demo/DemoPlaybackTransport.cs`) hands a `ClientSession` the recorded
-    packets up to the tick the playback has reached, and drops whatever the client sends.
-    Discarded client replies are acknowledged locally and receive silence cannot time out this local connection.
-    Reliable spectator requests therefore cannot fill a resend buffer and disconnect a long replay.
-  - `DemoPlayer` (`game/Scripts/Play/Demo/DemoPlayer.cs`) runs that client through the remote `PlaySession` in the
-    normal play scene.
-  - `DemoClock` handles pause and speed (0.25× to 4×).
-- **Seeking:**
-  - Forward: the client is fast-forwarded, at about 30 ms of ticks per frame, behind "Seeking...".
-  - Back: playback starts again from the beginning and fast-forwards (`DemoPlayer.Restart`). A delta stream has no
-    other place to start from.
-  - The visible timeline begins at the first recorded round-start marker, skipping the empty loading period.
-    Earlier packets are still replayed to rebuild the world. Opening or rewinding a paused demo also consumes its
-    initial packets, so the first playable frame has its recorded players.
-- **Checks before playing:** the demo must have the same replication protocol and the same map content hash as the
-  installed game. Failures return to the demo library with the reason, preserving the current library view when
-  playback has not started.
-- **Ways in:**
-  - The main menu's **Demos** page opens **On this computer**, with a separate **Recent online** collection.
-    Cards show the catalog's map name and picture thumbnail, mode, length, date, server, players and storage status.
-    Unlisted maps keep their recorded map code and a named picture placeholder. Search finds map names/codes, players, servers and
-    local filenames; mode/storage filters and newest/oldest sorting narrow the collection. The layout uses one
-    column on smaller screens and two on wide screens, with scaled text at high resolutions.
-    - **Recent online:** the master's paginated list, for signed-in players. Filters apply to the displayed page.
-      Watch downloads into `user://demos/cache`, checks size and SHA-256, then opens playback. Keep downloads a
-      permanent copy without launching playback. A progress bar shows download/verification status; leaving the
-      library cancels unfinished transfers and cleans up temporary files.
-    - **On this computer:** `user://demos` (saved) and `user://demos/cache` (downloads, deleted after 7 days), with
-      Watch and Keep for downloads. Saved copies take precedence over duplicate cached copies. **Delete** opens a
-      confirmation naming the map, date and file; Cancel or Escape keeps it. Confirming permanently removes that
-      local recording and any training companion, then removes its card. Online recordings are unaffected.
-    - Incompatible protocols disable Watch with an explanation. Sign-in, loading, unavailable-server, empty,
-      filtered-empty and file errors have their own guidance and relevant actions.
-  - `--svm-demo=path` opens a file at start.
-
-The compact playback dock includes Play/Pause (Replay at the end), restart, five-second skips, speed, player and camera
-selectors, controls help and Back to demos. The timeline previews timestamps and named events; dragging commits
-one seek on release. The dock stays visible while paused, seeking, hovered, dragging or using a selector/help.
-After four idle seconds during playback it hides, and mouse or keyboard activity reveals it again. A small
-**Show controls · H** button remains available whenever the dock is hidden. Explicit Hide stays hidden until that
-button or H restores it. Camera hints and the full shortcut list expand under **Controls**.
-Escape (after closing help) and Back to demos ask for confirmation before leaving. The prompt pauses playback;
-Keep watching or Escape cancels it and restores the previous pause state.
-
-Third person follows the watched player's recorded view direction. Hold right mouse to pan around them;
-release it to smoothly return behind them over about half a second. The return uses real time, so it works
-while paused and at any playback speed. Switching players or returning to third person starts behind the
-selected player. Switching to free camera keeps the current third-person position and direction.
-
-### Keys
-
-| Key | Does |
-| --- | --- |
-| Space | pause / play |
-| Up / Down | faster / slower |
-| Left / Right | 5 s back / on (with Shift: 30 s) |
-| Click or drag the bar | jump on release (on a marker: 3 s before it) |
-| Home / End | restart / seek to the end |
-| C | first person, then third person, then free camera |
-| [ ] or mouse wheel | previous / next player |
-| 1 to 9 | watch that player |
-| Right mouse (hold) | orbit in third person (release to return behind); look round in free camera |
-| W A S D, Q / E, Shift | fly the free camera, down / up, faster |
-| H | hide / show the controls |
-| ? | show / hide shortcut help |
-| Escape | close help first, otherwise confirm returning to Demos; cancel an open confirmation |
-
 ## Storage online
 
 After a round, `OnlineServer` finishes the demo and hands it to `SubmitDemo`. On a trusted server with
 `Demos.Upload` on, the master link then uploads it to the master's S3 bucket through a signed link, once the master
 has stored the round's results. The master keeps it for 7 days: a bucket lifecycle rule deletes it, and the
 master's database row expires (schema v6). The S3 links, endpoints, bucket setup and costs are in
-`docs/ONLINE.md`, under "Demos".
+[Online hosting → Demos](ONLINE.md#demos).
 
-## Limits (first version)
+## Playback limits
 
 - **First-person presentation uses spectator data.** You see through the player's eyes with their aim, and their
   body is hidden. Merc weapons are drawn using the recorded weapon attachment and observed firing/reload actions,

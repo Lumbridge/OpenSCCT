@@ -1,5 +1,7 @@
 # Native physics and collision specs (index)
 
+[All specs](../README.md) · [Coverage report](../../docs/progress/COVERAGE.md)
+
 Behaviour of the engine's movement and collision code, decoded from the editor twin (ChaosTheory_Editor.exe,
 base 0x10E00000) and located in the game (SCCT Versus, base 0x10900000). These replace the estimated algorithms in
 OpenScct.Physics. Script-side movement is in spec/movement; this folder is the native half of native-contracts.md.

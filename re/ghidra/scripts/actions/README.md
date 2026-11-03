@@ -1,5 +1,7 @@
 # Actions study scripts
 
+[RE setup](../../../README.md) · [Source-data rules](../../../PROVENANCE.md)
+
 Helpers used to decode ExecuteAction, the animation natives, the input natives, the camera natives and the hit
 pills (results: spec/native/execute-action.md, anim.md, input.md, camera.md, hit-zones.md and ANSWERS-actions.md).
 They work on a private copy of the Ghidra project, local/ghidra-work/actions, never on local/ghidra itself.

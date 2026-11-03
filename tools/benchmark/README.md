@@ -1,11 +1,11 @@
 # FPS benchmarks
 
-Capture the original's rendered cameras, then replay those cameras through a release export's normal listen-server
-play path. Runs are sequential on the same machine, with a real renderer, uncapped FPS, vsync off, native resolution,
+Record fixed camera views in the original game, then replay them through an OpenSCCT release export.
+This compares rendering performance on the same machine. Runs are sequential on the same machine, with a real renderer, uncapped FPS, vsync off, native resolution,
 4x anisotropic filtering, no MSAA/SMAA, shadow quality 3 and smooth shadow edges. Player settings are isolated.
 Both processes opt out of Windows background execution-speed throttling. Vulkan is the OpenSCCT default;
 `-Driver d3d12` selects the other Windows backend without changing the player's configuration.
-No game data or derived images belong in Git; results, camera records, binary hashes and raw frame CSVs go in `local/`.
+Keep game data, derived images, camera records and raw frame CSVs in ignored `local/`.
 The [31 October results](RESULTS-2026-10-31.md) include the original comparison and remaining gaps.
 
 The original needs the existing RE+ automation tools and a complete, idle Play Level sandbox. The verified Reloaded
@@ -14,6 +14,8 @@ only the sandbox child's two cap values to 10,000. Executable code is unchanged.
 which measures capped player performance rather than uncapped engine throughput. All edited sandbox configuration
 files are restored when the capture exits. The original stays on its hidden desktop; OpenSCCT renders off screen
 without taking focus or the pointer.
+
+## Run a comparison
 
 ```powershell
 dotnet build game/OpenScctGame.slnx -c ExportRelease

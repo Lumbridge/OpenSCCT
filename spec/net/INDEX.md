@@ -1,9 +1,11 @@
 # spec/net index
 
-Behaviour specs for the original game's networking, script side. Each file starts with a `Units:`
-line listing the unit ids it covers (grammar of `re/inventory/README.md`; `eng:` ids name engine
-C++ behaviour that is not a script function, `fmt:` a file format). Engine addresses are in the
-sibling editor build unless stated; game addresses come from the reflection dump.
+[All specs](../README.md) · [Coverage report](../../docs/progress/COVERAGE.md)
+
+Rules for the original game's script networking. Each spec lists its coverage IDs in a
+`Units:` block. Engine addresses refer to the sibling editor build unless stated otherwise;
+game addresses come from the reflection dump. See [OpenSCCT networking](../../docs/NETCODE.md)
+for the current implementation.
 
 | File | Covers | Units | uc | nat | rep | def | eng/fmt |
 |---|---|---|---|---|---|---|---|
@@ -21,11 +23,16 @@ sibling editor build unless stated; game addresses come from the reflection dump
 | [`lag-compensation.md`](lag-compensation.md) | OpenSCCT's design of Reloaded's lag compensation and client fire prediction: pawn pill history, view time on calls, rewind window, shot numbers and hashed spread, predicted impacts. | 0 | 0 | 0 | 0 | 0 | 0 |
 | **distinct** | | 1036 | 246 | 35 | 601 | 84 | 70 |
 
+For OpenSCCT's synchronization design, see [modern synchronization](modern-synchronization.md).
+
 Coverage of the network-relevant set (every `rep:` unit plus every script or native function
 carrying `FUNC_Net`): 1020 units, 724 covered here, 296 not specced (listed below).
 `rep:` units: 601 of 666 covered.
 
 ## Relevant units not specced here
+
+These allocation notes reflect the original research pass. Use the linked specs and
+[coverage report](../../docs/progress/COVERAGE.md) to check later additions.
 
 Two kinds. (a) Bodies of replicated functions in covered classes: their replication (direction,
 condition, reliability, parameters) is specced through the matching `rep:` unit, but what they do

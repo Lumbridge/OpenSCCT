@@ -1,12 +1,14 @@
 # Pawn replication parity audit
 
-Modern synchronization is an OpenSCCT design, specified in `spec/net/modern-synchronization.md`.
-Original behavior remains documented in `spec/net/` and `spec/native/net-*.md`.
+Modern synchronization is an OpenSCCT design, specified in [spec/net/modern-synchronization.md](../spec/net/modern-synchronization.md).
+Original behavior remains documented in [spec/net/](../spec/net) and `spec/native/net-*.md`.
 
 The shared presentation path captures every pawn channel, including plays and clears made outside
 `ExecuteAction`. It transmits clip descriptors and phase, rather than bones. Proxies apply that state without
 executing the action dispatcher, physics, gameplay notifies or damage. This is the replication coverage mechanism;
 it does not by itself prove every original content sequence correct.
+
+**On this page:** [Automated checks and recordings](#automated-checks-and-recordings) · [Acceptance boundary](#acceptance-boundary)
 
 | Family | Authored state and authoritative outcome | Replication and recovery | Evidence / remaining validation |
 |---|---|---|---|

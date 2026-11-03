@@ -1,14 +1,19 @@
-# Controlled network game testing
+# Network test lab
 
-`tools/network-lab.ps1` launches independent game processes using the regular session or Hub code, with
-isolated settings and loopback UDP. `-Dedicated` adds a separate server executable and makes the host-view
-client connect over UDP too. Rendered runs use `-Windowed` but stay off screen without taking focus.
-These tests do not establish physical PC/laptop or Wi-Fi behavior.
+[tools/network-lab.ps1](../tools/network-lab.ps1) launches separate game processes over loopback UDP, using the
+regular session or Hub code. `-Dedicated` adds a server process and connects the host
+view over UDP too. `-Windowed` renders off screen without taking focus.
 
-The lab is opt-in through `SVM_NETLAB_DIR`; its command files are not a network administration API.
-Accounts, master registration, UPnP and production services are not required. The default content root is
-the checkout's `.content`. Build both solutions before a final acceptance run. `-SkipBuild` is for a build
-already verified in this checkout; avoid rebuilding a running dedicated server executable on Windows.
+These runs test controlled network conditions on one machine. Use the
+[two-PC checklist](NETWORK-TEST.md) to verify physical devices and networks.
+
+The lab is enabled through `SVM_NETLAB_DIR`; its command files are local test controls.
+It needs converted content (default: `.content`), but no accounts, master registration,
+UPnP or production services. Build both solutions before an acceptance run. Use
+`-SkipBuild` only with a verified build, and stop a Windows dedicated server before
+rebuilding its executable.
+
+**On this page:** [Runs](#runs) · [Network conditions](#network-conditions) · [Manual control and evidence](#manual-control-and-evidence) · [Named acceptance matrix](#named-acceptance-matrix)
 
 ## Runs
 
@@ -205,7 +210,7 @@ Physical-machine acceptance should use the same tested client build on both PCs 
 protocol handshake rejects older formats.
 
 Use `-GameExe <absolute-path-to-OpenSCCT.console.exe> -SkipBuild` to test an exported game. This omits
-`--path game`, so the run loads the export's pack and assemblies. Copy `game/override.cfg` beside that
+`--path game`, so the run loads the export's pack and assemblies. Copy `game/override.cfg` (local only) beside that
 executable before windowed runs, preserving the checkout's no-focus test policy. The manifest records the
 exported executable, pack and actual assembly hashes; the evidence index labels exported runs separately.
 
@@ -227,7 +232,7 @@ blackout ends; the fixture rejects runs where the grenade actually lived beyond 
 ## Named acceptance matrix
 
 `tools/network-lab-matrix.ps1 -List` lists the repository's named cross-map cases from
-`tools/network-lab-matrix.json`. Run all cases, or choose `-Case steel-movement,club-airborne-merc-death`.
+[tools/network-lab-matrix.json](../tools/network-lab-matrix.json). Run all cases, or choose `-Case steel-movement,club-airborne-merc-death`.
 Pass `-GameExe <path> -DedicatedExe <path> -SkipBuild` to reuse a prepared exported candidate and isolated dedicated helper; otherwise
 the runner builds once before starting. Do not rebuild a dedicated helper that is already running.
 `-DryRun` prints resolved case parameters without launching anything. `-MaxMinutes` prevents starting

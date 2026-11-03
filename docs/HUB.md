@@ -1,27 +1,45 @@
-# The Hub
+# Social hub
 
-The hub is an OpenSCCT addition, not part of the original game: a social space for up to about 50 players where
-spies and mercs walk around with the full moveset, see each other's names, chat and, later, start matches (H2) and
-play minigames (H3). Its rules are our own design and are written down in `spec/additions/hub.md`. This page says
-how it is built, how to run it, and what it measured.
+[Documentation](README.md)
+
+The hub is a shared space where spies and mercenaries can chat, queue for matches and use practice activities.
+It supports proximity voice, match pads, an assault course, an aim range, emotes and a jukebox.
+The design targets about 50 players; the [recorded soak test](#the-soak-test) describes the test conditions.
+The hub is an OpenSCCT addition, with rules in [the hub specification](../spec/additions/hub.md).
+
+## Visit a hub
+
+Open **Hub** from the main menu, select a listed hub and join. You can also join by address or host your own.
+On a match pad, use its laptop to choose the match settings, then ready up. The hub returns you to the pads
+after the match. A hub hosted in the game closes when its host leaves.
+
+| Default key | Action |
+| --- | --- |
+| J / K | Play as spy / mercenary |
+| N | Return to the plaza |
+| U | Use a laptop or activity; ready on a pad |
+| H | Watch the pad's match |
+| X | Stop an activity |
+| G | Choose an emote |
+| P | Open the player list, voice volume and mute controls |
+| Enter or F5 / F6 | Chat to everyone / your side |
+| Tab while typing | Cycle everyone, team and nearby chat |
+| Escape | Open the menu to leave |
+
+Voice is heard by nearby players. See [proximity voice](#proximity-voice) and the [voice setup guide](VOICE.md).
+Server owners can jump to [Running a hub](#running-a-hub) or [Match pads](#match-pads-h2).
+The remaining sections cover the map, implementation and validation.
 
 ## Pieces
 
-| Code | What it is |
-|---|---|
-| `tools/hubmap` | the hub map's layout (`layout.py`), its procedural art (`art.py`) and the generator (`generate.py`; reuses TestRange's world builder) |
-| `game/Scripts/Hub/HubPadThemes.cs` | shows a pad's theme kit (`Apply(padId, themeId)`) and maps a map code to a theme (`ThemeForMap`) |
-| `fixtures/hub`, `fixtures/hubmap/areas.json` | the generated SVMap (tracked, like TestBox) and its area manifest |
-| `src/OpenScct.Server/Hub/HubActivities*.cs`, `HubLayout`, `HubScores`, `HubPlayProtocol`, `HubPlayState`, `HubPlayK` | the activities (H3): course time trial, aim range, emotes, jukebox, plaza ball, the score boards and their file |
-| `src/OpenScct.Server/Hub` | `HubServer` (the session, with its voice relay; `HubServer.Admin.cs` moderation and admin commands, `HubServer.Social.cs` the player list lines and local chat), `SHubGameInfo` (the rules on top of SGameInfo), `HubClient` (a visit: lines, chat, name tags, the roster, signs, pads, queue, match tickets), `HubVoice` (a visit's voice), `HubVoicePositions`, `HubSigns` (server-driven world text), `HubPads` (match pads, queues, laptops, watching), `HubMatches` (the pads' match sessions), `HubConfig` (the pads' data), `HubProtocol`, `HubK` |
-| `fixtures/hubmap/hub.json` | the match pads' config: each pad's starting map, mode, team size and bots; the countdown, spectator places and the match ports |
-| `src/OpenScct.Game/Modes/PlayRules.cs` | the level service that turns damage and pawn attacks off (two gates in the ported code ask it) |
-| `src/OpenScct.Net/Replication/NetInterest.cs` | `INetInterest` and `DistanceInterest`, the opt-in interest layer of the server pass |
-| `src/OpenScct.Net/Voice/Proximity` | positional voice (falloff, occlusion, per-player volume and mute, the relay filter, `ProximityPlayback`) |
-| `src/OpenScct.Bots/HubWanderBrain.cs`, `HubSoak.cs` | hub visitors for the soak test |
-| `src/OpenScct.Server.Cli/HubRun.cs` | `svm-server --hub` and `--hub-bots` |
-| `game/Scripts/Hub` | the Hub entry of the main menu (`HubScreen`), the visit in the game (`HubService`), a hub hosted from the game (`HubHost`), the hub HUD (`HubHud`, with `HubHud.Activities.cs` and the queue panel), the player list (`HubPlayerList`), the emote poses (`HubEmotePoses`), the hub's voice chat (`HubVoiceChat`), the world signs (`HubSignsView`), the pads' floor overlays and map pictures (`HubPadView`), the activities' world props (`HubProps`) and sounds (`HubAudio`) |
-| `tests/OpenScct.Integration.Tests/Hub`, `tests/OpenScct.Net.Tests/InterestTests.cs`, `tests/OpenScct.Net.Tests/Voice/ProximityVoiceTests.cs`, `tools/hubmap/test_hubmap.py` | the checks |
+| Location | Responsibility |
+| --- | --- |
+| [tools/hubmap](../tools/hubmap/) | Map layout, procedural art and generator |
+| [fixtures/hub](../fixtures/hub/), [fixtures/hubmap](../fixtures/hubmap/) | Generated map, area manifest and match-pad configuration |
+| [OpenScct.Server/Hub](../src/OpenScct.Server/Hub/) | Sessions, match pads, activities, chat, moderation and scores |
+| [game/Scripts/Hub](../game/Scripts/Hub/) | Hub screens, player list, signs, activities, themes and audio |
+| [Voice/Proximity](../src/OpenScct.Net/Voice/Proximity/) | Positional voice, occlusion, volume and mute |
+| [Hub tests](../tests/OpenScct.Integration.Tests/Hub/) | Session, match-pad and activity checks |
 
 ## Running a hub
 
@@ -62,13 +80,9 @@ ping), "Join a hub by address", "Host a hub" with "Show it in the hub list"; Ref
   forwarded; Windows asks once to let OpenSCCT through its firewall). A listed hub's pad matches register on the
   master too (unlisted), so they are reached the same ways, the relay included. The hub closes when the host leaves it
   (Escape menu), which drops everyone in it.
-- **Join**: the hub's address (LAN or direct IP; the port defaults to 28886). In the hub: J play spy, K play merc, N back to the plaza, Enter or F5 to chat, F6 to chat to your side (Tab while
-typing goes everyone, your side, near you; `/l text` says it near you; Escape cancels), G emotes, U use (start an aim
-range round at the firing line, next jukebox record, ready on a pad, open a pad's laptop to set its match), X stop
-your run or round, H on a pad to watch its match, P the player list; leave from the Escape menu. The hub keys sit on keys the original's default layouts leave free. Names float over the other players' heads in their side's colour. Voice
-works as in a match (the options' Voice page: push to talk or voice activation; Caps Lock to talk, Y to your side
-only, F8 mutes the microphone), but each player is heard only near him: see "Proximity voice" below. The play scene
-needs the converted character content to draw pawns; without it the hub still plays.
+- **Join by address:** enter the LAN or public address; the default port is 28886.
+  Names appear above players in their team's colour. Converted character content is needed to draw pawns.
+  Use the controls listed above; voice settings are shared with online matches.
 
 The map is regenerated with `python -B tools/hubmap/generate.py` (and checked with `--check`; `python -B -m pytest
 tools/hubmap -q`). Nothing in it comes from the game.
@@ -249,7 +263,7 @@ The UDP run is all on one machine, so the link has no loss or delay; the bots ra
 
 Four pads east of the plaza (`MatchPads` in `fixtures/hubmap/areas.json`, Pad1 to Pad4) each queue for one match,
 in the spirit of a park's courts: walk onto a pad and you have "got next", the sign over the pad shows who is waiting,
-and the match starts when enough players stand there. The rules are in `spec/additions/hub.md` ("Match pads").
+and the match starts when enough players stand there. The rules are in [Hub](../spec/additions/hub.md) ("Match pads").
 
 **Config.** `fixtures/hubmap/hub.json` (found beside the hub map; without it the same four pads are built in):
 
@@ -497,27 +511,17 @@ The angles are our own, tuned by eye, and want a look in the game.
   them "(near)".
 - **Bubbles.** Any chat line a player says shows under his name tag for 6 s (two short lines at most).
 
-## Open items
+## Limits and manual checks
 
-- Activities: the emote poses and the assault course (layout version 3) were built by numbers and need a look and a
-  walk in the game; the HUD, props and music still need a look in a windowed game with the converted content.
-- Match pads: the pad flow is checked headless only (see "Match pads"); the windowed look (signs, overlays, map
-  pictures, the queue panel) and a full round to the end banner and back are still to see; so are votes, watching and
-  joining a match through its master entry. Matches run in the hub's process (a separate `svm-server` per match would
-  need a launcher of its own).
-- The pad themes follow each pad's map (`HubPadView.OnPadConfigChanged` -> `HubPadThemes.Apply(pad, ThemeForMap(map))`,
-  and the chosen kits go on once the hub map is built); maps with no kit of their own show the neutral `hub` theme.
-- The course and the new rails, benches and props were laid out by numbers (the kit heights) and drawn in an
-  offscreen render; walking them with the full moveset in the game is still to check.
-- The replication pass is one block of about 6 to 12 ms every third tick at 50 players; spreading it over the ticks
-  would flatten the p99.
-- A hub hosted in the game gives its own host no ticket (he joins on 127.0.0.1, not through the master), so the host
-  is a guest in his own hub (his looks and rank still go by his account, see "Looks").
-- The Armoury is on the main menu only, which ends the visit; a hub page or menu entry for it would use the live
-  `hub look` path. The hub's skins are not yet checked in a windowed game.
-- The play scene keeps the side the player arrived as in its settings. After a side change the pawn, its kit, the
-  view and the HUD page follow the new pawn, and the key layout is swapped for the new side's (PlayRoot.FollowSide);
-  anything else the scene chose from the settings at load still needs a check with the converted content.
-- The online server keeps its own ticket check (`OnlineServer.CheckTicket`); it can move onto `TicketGate` too.
-- Proximity voice was heard in the headless smoke and the tests; a windowed check with two real microphones (the
-  falloff and the muffling by ear) is still to do.
+- Test match pads in a windowed game: laptop settings, signs, queues, spectating, a full round and the return
+  to the hub. Headless checks cannot establish the visual result or the full public connection path.
+- Walk the assault course, rails and props with both movesets. Review activity HUDs, emotes, sounds and
+  cosmetics with converted content. Generated geometry and offscreen renders do not replace this check.
+- Check proximity voice with two microphones, including distance falloff and obstruction muffling.
+- Pad matches run inside the hub process. Hosting each in a separate process would require a supervisor.
+- An in-game host joins their hub over loopback without a master ticket. They appear as a guest, while their
+  cosmetics and rank use their account. The Armoury is in the main menu, so opening it ends the visit.
+- After changing side, check the pawn, equipment, camera, HUD and key layout together. Scene settings chosen
+  on entry may need separate handling.
+- At 50 players, the recorded benchmark's replication pass produced a spike every third tick. Re-measure
+  after networking changes; the historical numbers above are not a current performance guarantee.

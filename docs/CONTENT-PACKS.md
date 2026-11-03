@@ -1,17 +1,24 @@
-# Content packs (OpenSCCT-Content)
+# Content packs
+
+[Documentation](README.md)
 
 [OpenSCCT-Content](https://github.com/Lumbridge/OpenSCCT-Content) holds game content already converted to
 OpenSCCT's own formats, so a player (or a server) can download a map and play it without running the converter.
 It replaces [SCCT-Maps](https://github.com/Lumbridge/SCCT-Maps) for OpenSCCT only. SCCT-Maps stays as it is for the
 original game and SCCT Map Manager.
 
-The repository's tree holds only the index and the tools that make it. The packs themselves are GitHub Release
-assets, so git history stays small and downloads have no LFS quota.
+Players download packs through the launcher's **Maps** window, first-run Linux setup, or the missing-map
+prompt in a lobby. Locally converted content takes priority over downloaded packs.
+
+This page is the pack-format and publishing reference. For installation help, use the
+[launcher guide](LAUNCHER.md) or [Linux guide](LINUX.md).
+
+The content repository stores its index and tools in git. Pack archives are GitHub Release assets.
 
 ## The index
 
 `index.json` on the `main` branch, fetched raw:
-`https://raw.githubusercontent.com/Lumbridge/OpenSCCT-Content/main/index.json`. It is the only file a client reads
+[OpenSCCT-Content index](https://raw.githubusercontent.com/Lumbridge/OpenSCCT-Content/main/index.json). It is the only file a client reads
 from the tree.
 
 ```json
@@ -120,7 +127,8 @@ same way: `<content>/shared` when the player converted their install, else `<pac
 
 ## Publishing
 
-The tools live in the OpenSCCT-Content repository (`tools/`); its `docs/PUBLISHING.md` has the steps. In short:
+The [publishing guide](https://github.com/Lumbridge/OpenSCCT-Content/blob/main/docs/PUBLISHING.md)
+in OpenSCCT-Content covers the full process:
 1. Build the content with svmbuild from a full install plus the SCCT-Maps downloads.
 2. `pack` writes one archive per map (full and sim) and per shared pack, skipping any whose content is unchanged since the index.
 3. `publish` creates a release `content-<yyyy.MM.dd>[-n]` holding only the new archives, then rewrites `index.json` to point at them and commits it.

@@ -1,13 +1,32 @@
-# Player-configurable US lobbies
+# US lobby configuration templates
 
-These two configuration templates run regular dedicated lobbies on one host, without a US hub. Deploy with the server moderation-permission fix and matching client UI so public configuration does not grant moderation rights.
+These templates configure two dedicated lobbies on one host. They do not provision a host or
+create a US hub. The master remains in London; players connect directly to the game host.
+See the [online guide](../../../docs/ONLINE.md) for server setup.
 
-- Each lobby accepts up to 24 players, allowing 1v1 through 12v12 according to who joins and readies. Twenty-four is a ceiling, not a launch requirement. Automatic launch requires at least two players and everyone playing to be ready. Auto balance keeps the sides within one player; it does not require even numbers or change map objectives/lives to match population.
-- Every joined player can choose the map and match options through the lobby UI. Changes clear readiness so players must ready again. There is no elected lobby owner or voting mechanism.
-- Public configuration allows match settings and return-to-lobby actions, but never kick, ban or server-wide voice bans. Moderation requires the listen host or an authenticated server admin. Setting an admin password currently disables public configuration.
-- Bots are off by default. A single initial rotation entry preserves player-selected settings between series instead of forcing a multi-map rotation.
-- The two processes use different UDP ports and separate ban/match-log files. LAN discovery is disabled. The master remains in London; game connections should reach the US host directly.
+## Lobby behaviour
 
-Before deployment, replace the invite-key placeholder in private copies, install the server's map/content dependencies, and allow inbound UDP 28888 and 28890. Start separate supervised processes using `svm-server --config <absolute-path-to-server-1.json>` and the corresponding second config. Keep credentials out of Git. These are templates, not provisioned services; no AWS resources have been created.
+- Each lobby accepts up to 24 players. Automatic start needs at least two players and everyone
+  playing to be ready. Auto balance keeps the teams within one player.
+- Any joined player can change the map and match options. A change clears readiness.
+- Public configuration allows match settings and return-to-lobby actions. Kick, ban and
+  server-wide voice bans require the listen host or an authenticated server admin. Setting
+  an admin password currently disables public configuration.
+- Bots are off. A single rotation entry preserves player-selected settings between series.
+- The processes use separate UDP ports, ban files and match logs. LAN discovery is off.
 
-A $7 Lightsail instance is a trial candidate, not verified capacity for two populated 12v12 matches plus spectators. Validate both concurrent matches, map transitions, peak memory, tick times and CPU burst balance before relying on that size.
+## Deploy
+
+1. Make private copies of the templates and replace the invite-key placeholder.
+2. Install matching server and client versions with the moderation-permission fix, plus the
+   server's map/content dependencies.
+3. Allow inbound UDP ports 28888 and 28890.
+4. Run each configuration as a separate supervised process:
+
+```text
+svm-server --config <absolute-path-to-server-1.json>
+svm-server --config <absolute-path-to-server-2.json>
+```
+
+Keep credentials out of Git. Validate simultaneous matches, map changes, peak memory, tick
+times and CPU capacity before choosing a production host size.

@@ -1,18 +1,23 @@
-# Testing play the way a player plays
+# Player-path smoke tests
 
-Smoke tests that poke `PlaySession.Input` or check only simulation state can pass while the game is broken for a
-person at the keys. This page describes the real-play harness: `KeyPilot` presses the player's bound keys as Godot
-input events, `PlayInspector` checks every frame what the player sees and hears, and the `play-inspect` smoke puts
-the two together on SteeE.
+These smoke tests drive the player's bound keys through Godot and inspect the result.
+`KeyPilot` sends input events, `PlayInspector` checks visible and audible state each
+frame, and `play-inspect` combines them on SteeE. Simulation-only tests cannot catch
+all input, rendering or audio failures.
+
+Start with [test setup](TESTING.md). Use this reference to write a smoke or investigate
+one that fails.
+
+**On this page:** [The play-inspect smoke](#the-play-inspect-smoke) · [Using it from another smoke](#using-it-from-another-smoke) · [Test windows stay in the background](#test-windows-stay-in-the-background) · [Trusting the smokes (repeat runs, CI, flakes)](#trusting-the-smokes-repeat-runs-ci-flakes)
 
 | Path | What |
 |---|---|
-| `game/Scripts/Smoke/KeyPilot.cs` | `KeyPilot` and `KeyStep`: presses bound keys and moves the mouse through Godot input events |
-| `game/Scripts/Smoke/KeyPilotProbe.cs` | a node that sees the events KeyPilot sends, to prove they reach the scene |
-| `game/Scripts/Smoke/Inspector.cs` | `PlayInspector`, `InspectChecks`, `InspectIssue`: the per-frame checks and the report |
-| `game/Scripts/Smoke/InspectPose.cs` | animation and feet checks of one drawn pawn |
-| `game/Scripts/Smoke/InspectNet.cs` | counts the server's position corrections and reinits that reach the client |
-| `game/Scripts/Smoke/PlayInspectSmoke.cs` | `--svm-smoke=play-inspect`, and `PlayInspectSmoke.StartPlay` for other smokes |
+| [game/Scripts/Smoke/KeyPilot.cs](../game/Scripts/Smoke/KeyPilot.cs) | `KeyPilot` and `KeyStep`: presses bound keys and moves the mouse through Godot input events |
+| [game/Scripts/Smoke/KeyPilotProbe.cs](../game/Scripts/Smoke/KeyPilotProbe.cs) | a node that sees the events KeyPilot sends, to prove they reach the scene |
+| [game/Scripts/Smoke/Inspector.cs](../game/Scripts/Smoke/Inspector.cs) | `PlayInspector`, `InspectChecks`, `InspectIssue`: the per-frame checks and the report |
+| [game/Scripts/Smoke/InspectPose.cs](../game/Scripts/Smoke/InspectPose.cs) | animation and feet checks of one drawn pawn |
+| [game/Scripts/Smoke/InspectNet.cs](../game/Scripts/Smoke/InspectNet.cs) | counts the server's position corrections and reinits that reach the client |
+| [game/Scripts/Smoke/PlayInspectSmoke.cs](../game/Scripts/Smoke/PlayInspectSmoke.cs) | `--svm-smoke=play-inspect`, and `PlayInspectSmoke.StartPlay` for other smokes |
 
 ## The input path under test
 
@@ -131,7 +136,7 @@ without loosening the thresholds.
 
 ## The play-team smoke
 
-`--svm-smoke=play-team` (`game/Scripts/Smoke/PlayTeamSmoke.cs`): team mates helping each other on SteeE, launched as
+`--svm-smoke=play-team` ([game/Scripts/Smoke/PlayTeamSmoke.cs](../game/Scripts/Smoke/PlayTeamSmoke.cs)): team mates helping each other on SteeE, launched as
 the launchers do (Play Level rules, server thread, wall clock, HUD), the player with one bot on his side and the
 other side's bots held still. Two legs, `SVM_TEAM_LEGS=spy,merc`; `SVM_TEAM_SKIP` leaves out step groups (`menu`,
 `revive`, `coop`, `bot`); `SVM_TEAM_TRACE=1` prints the bot and the player twice a second. The scenario setup (the
@@ -216,7 +221,7 @@ floor layers and redundant long walk edges.
 
 ## The play-reticle smoke
 
-`--svm-smoke=play-reticle` (`game/Scripts/Smoke/PlayReticleSmoke.cs`): the merc's reticle against his shots and his
+`--svm-smoke=play-reticle` ([game/Scripts/Smoke/PlayReticleSmoke.cs](../game/Scripts/Smoke/PlayReticleSmoke.cs)): the merc's reticle against his shots and his
 frag on TestRange, as the launchers play it. The server puts the merc in the shooting lane 200, 600, 800 or 1900 uu from
 the berm; the keys turn him with the mouse, crouch, strafe and fire single shots, then select the frag (1) and throw it
 (right mouse). For each shot the drawn centre dot (the merc page's draw list, `rond02`) and the drawn camera of the
@@ -228,7 +233,7 @@ reported. With a window and `SVM_PLAY_SHOTS` it saves the window before and afte
 
 ## Where the lasers leave the guns (play-lasers smoke)
 
-`--svm-smoke=play-lasers` (`game/Scripts/Smoke/PlayLasersSmoke.cs`) plays SteeE twice from the keys. As the spy (one
+`--svm-smoke=play-lasers` ([game/Scripts/Smoke/PlayLasersSmoke.cs](../game/Scripts/Smoke/PlayLasersSmoke.cs)) plays SteeE twice from the keys. As the spy (one
 merc bot): a tap of E draws the pistol with its laser, and crouched, standing, walking and aiming up and down the drawn
 beam must start on the drawn pistol (the hand's 30 X - 4 Y + 8 Z, 3.5 uu behind the p190's FX bone), run along the
 hand's X axis and end on the drawn dot; then the server turns the bot's laser on and holds it in view, and its beam
@@ -242,7 +247,7 @@ go off, as they do in the original (spec/equipment/grenade-throw.md, Resolved). 
 
 `--svm-smoke=play-exit` plays two sessions in one process (`SVM_EXIT_SESSIONS` for more), each left the way the
 in-game menu leaves one (the session stops, the main menu opens, the play scene is freed), then quits. A crash at exit
-comes after the verdict line, so the run counts only with exit code 0 (`tools/ci/godot-smoke.ps1` checks it). Run it
+comes after the verdict line, so the run counts only with exit code 0 ([tools/ci/godot-smoke.ps1](../tools/ci/godot-smoke.ps1) checks it). Run it
 with a window: headless has no rendering device, and the crash it guards against was a renderer one. The windowed
 game used to end with a segmentation fault (exit 139) after a second session, after one `free_rid can only be called
 from the render thread` error per frame of the left session: the post passes' `RenderSceneBuffers` wrappers were left
@@ -256,7 +261,7 @@ tools\godot\4.7.2-stable\Godot_v4.7.2-stable_mono_win64_console.exe --path game 
 
 ## Frame time (play-hitch smoke)
 
-`--svm-smoke=play-hitch` (`game/Scripts/Smoke/PlayHitchSmoke.cs`) plays SteeE as the spy with three bots, launched as
+`--svm-smoke=play-hitch` ([game/Scripts/Smoke/PlayHitchSmoke.cs](../game/Scripts/Smoke/PlayHitchSmoke.cs)) plays SteeE as the spy with three bots, launched as
 `--svm-play=SteeE --side=spy --rules=playlevel --bots=3 --difficulty=normal` (host thread, wall clock, HUD, sound),
 for 90 s of real time after a 3 s warm-up, and fails when any frame takes longer than 33.4 ms: two frames of a 60 Hz
 display, so a visible hitch (a skipped picture) fails it while a single late present does not. Headless uses the same
@@ -293,7 +298,7 @@ young and cost no visible time.
 Windowed test runs must not take the focus or the mouse of the person at the machine. Smoke runs, SVM_PLAY_SHOTS runs
 and runs started with `--svm-background` (or SVM_BACKGROUND=1) move their window off-screen, drop its taskbar button and
 never take focus (`BackgroundWindow`); the game still renders and saves its frames there. `Controls.Pointer` keeps the
-real pointer free. Godot shows the window before any game code runs, so `game/override.cfg` (local, gitignored, excluded
+real pointer free. Godot shows the window before any game code runs, so `game/override.cfg` (local only) (local, gitignored, excluded
 from exports) starts it minimised and unfocused; `tools/ci/godot-smoke.ps1 -Export` writes the same file next to its
 scratch exe. Copy it next to any other scratch export before a windowed run, and never put it in `local/testbuild`.
 `SVM_SMOKE_FOCUS=1` turns all of this off for debugging. A separate Windows desktop is not an option: Godot's Vulkan and
@@ -301,7 +306,7 @@ D3D12 renderers fail there.
 
 ## Trusting the smokes (repeat runs, CI, flakes)
 
-A smoke that fails one run in five teaches people to ignore it. `tools/ci/godot-smoke.ps1` can run the suite many
+A smoke that fails one run in five teaches people to ignore it. [tools/ci/godot-smoke.ps1](../tools/ci/godot-smoke.ps1) can run the suite many
 times and says which tests are flaky:
 
 ```
@@ -322,7 +327,7 @@ pwsh tools/ci/godot-smoke.ps1 -Exe local/x/OpenSCCT.console.exe -Tests play-team
   has them).
 - Smoke runs play the stock key layout: `InputBindings` neither reads nor writes `user://svm_keys_*.ini` while
   `SettingsStore.Isolated` is on, so a player's rebinds cannot change a smoke and a smoke never writes his file.
-- Smokes find the checkout's tracked files (`fixtures/testrange/stations.json`, `tests/scenarios`) and `local/` through
+- Smokes find the checkout's tracked files ([fixtures/testrange/stations.json](../fixtures/testrange/stations.json), [tests/scenarios](../tests/scenarios)) and `local/` through
   `SmokePaths`: the folder above the exe or the game assembly that holds OpenSCCT.slnx, as `MapCatalog` finds maps. In
   an export `res://` is the exe's folder, so `res://..` named `local\fixtures\...` from local\testbuild, and
   play-reticle, range-motion and play-traversal failed there. Outside a checkout the same relative path next to the

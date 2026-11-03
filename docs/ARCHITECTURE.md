@@ -1,98 +1,97 @@
 # Architecture
 
-## Goal
+OpenSCCT separates the game simulation from the Godot client. The same C# simulation
+runs in a dedicated server, a locally hosted match and automated tests. Godot handles
+input, rendering, audio and menus.
 
-Reproduce Splinter Cell: Chaos Theory Versus behaviour exactly, in a codebase that is easier to
-maintain and extend than the original UE2.5 game. Behaviour is proven by differential traces against
-the real game, not by feel.
+The project aims to reproduce Chaos Theory Versus behavior. Specifications and
+comparisons with the original provide evidence; a passing build alone does not prove
+parity. See [testing](TESTING.md) and the [coverage report](progress/COVERAGE.md).
 
-## Tracks
+New to the codebase? Start with [development setup](DEVELOPMENT.md). Browse all guides
+in the [documentation index](README.md).
 
-Work runs on three parallel tracks.
+## Find the code
 
-- **R, reverse engineering.** Binary hashes and reflection dumps (R0), a headless Ghidra project
-  with idempotent scripts that name natives, classes, vtables and globals, using the editor build's
-  guard strings and BSim to carry names to the game (R1), an UnrealScript decompiler (R2), the
-  coverage inventory (R3), differential testing against the original (R4) and behaviour specs (R5,
-  R6). Outputs that come from the game stay local; see `re/PROVENANCE.md`.
-- **B, engine, gameplay and netcode.** The C# simulation, the SBase port, the UE2 network model,
-  hosting and the Godot presentation.
-- **C, content, SVMap and rendering.** The `svmbuild` pipeline that converts the original install,
-  the SVMap format, the map tools plugin and the renderer.
+| Area | Project or folder | Responsibility |
+|---|---|---|
+| Simulation runtime | [OpenScct.Core](../src/OpenScct.Core/) | Actors, states, timers, animation channels, simulation events and seeded random numbers |
+| Collision and movement | [OpenScct.Physics](../src/OpenScct.Physics/) | Traces, collision geometry, pawn physics and traversal queries |
+| Gameplay | [OpenScct.Game](../src/OpenScct.Game/) | Original SBase classes, objectives, combat, equipment and bot behavior |
+| Networking | [OpenScct.Net](../src/OpenScct.Net/) | Packets, replication, movement synchronization, discovery and voice |
+| Content loading | [OpenScct.Content](../src/OpenScct.Content/) | SVMap simulation data, class defaults and content manifests |
+| Map services | [OpenScct.Maps](../src/OpenScct.Maps/) | Map downloads, installation and content storage |
+| Hosting | [OpenScct.Server](../src/OpenScct.Server/), [Server.Cli](../src/OpenScct.Server.Cli/) | Map catalog, shared server/session code and the dedicated server executable |
+| Online services | [OpenScct.Master](../src/OpenScct.Master/) | Server directory, accounts, player website and connection services |
+| Bot hosting and tests | [OpenScct.Bots](../src/OpenScct.Bots/) | Server bots, headless clients and automated matches |
+| Launcher | [OpenScct.Launcher](../src/OpenScct.Launcher/), [Launcher.Core](../src/OpenScct.Launcher.Core/) | Installation, updates and content preparation |
+| Game client | [game](../game/) | Godot scenes, views, cameras, HUD, audio and UI |
+| Content conversion | [content/svmbuild](../content/svmbuild/) | Converts an original installation into maps and shared content packs |
+| Evidence and code generation | [OpenScct.Provenance](../src/OpenScct.Provenance/), [CodeGen](CODEGEN.md), [re](../re/README.md) | Links ports to specifications and original behavior |
 
-Milestones: M0 foundations, M1 RE infrastructure, M2 SteeE content and the Faithful renderer,
-M3 offline gameplay, M4 netcode core and combat, M5 services, M6 the SteeE Story 2v2 online
-vertical slice, M7 SteeE parity and the Standard playlist, M8 full parity (all 86 maps, every mode).
+## Dependencies
 
-## Projects
+```text
+Provenance <- Core <- Physics <- Game
+              ^
+              +-- Net
+              +-- Content
 
-| Project | Role |
-|---|---|
-| `OpenScct.Provenance` | attributes that link C# to the original (`[Uc]`, `[UcNative]`, `[PortOf]`, `[Provenance]`) |
-| `OpenScct.Core` | UE2 runtime: Name, FVector, FRotator, SvmMath, Actor, Pawn, Controller, PlayerController, Inventory, Mover, triggers, ZoneInfo, LevelInfo, GameInfo, GRI, PRI, Level (ordered tick, deferred spawn and destroy, tag index), states with serializable latent frames, timers, anim channels, SimEvents, seeded RNG streams |
-| `OpenScct.Physics` | `ICollisionWorld` (LineCheck, extent sweeps, PointCheck), BSP, hull, per-poly and BVH backends, physics modes 1 to 16 including pipe, zip, fence, ledge, ladder and hand-over-hand, GE queries |
-| `OpenScct.Game` | the SBase port: `SBase/<Class>.cs`, `<Class>.<state>.cs`, `Generated/{Defaults,Replication,Dispatch}` |
-| `OpenScct.Net` | the UE2 network model (see `docs/NETCODE.md`) |
-| `OpenScct.Content` | SVMap reader (`sim/` only), class-defaults pack, manifests with SHA-256, UE basis |
-| `OpenScct.Server`, `OpenScct.Server.Cli` | dedicated server for win-x64 and linux-x64, admin console, the online session (see `docs/ONLINE.md`) |
-| `OpenScct.Master` | master server on a VPS: HTTP server list, UDP NAT punch introducer and relay (see `docs/ONLINE.md`) |
-| `game/` | Godot project: boot, menus, server browser, lobby, game and results scenes, rendering, views, input, cameras, HUD, audio, UI, the map tools plugin |
-| `content/svmbuild` | Python pipeline: classes, textures, meshes, maps, characters, audio, UI, validate, cook |
-
-Planned and not yet in the solution: `OpenScct.Bots` (headless bot clients), `OpenScct.Generators` (Roslyn generators for state dispatch,
-replication, defaults and the net class registry), `OpenScct.Analyzers` (no Godot in the sim, banned
-APIs, `[Uc]` required in `OpenScct.Game`, no mutable statics).
-
-### Dependency rules
-
-```
-OpenScct.Provenance <- OpenScct.Core <- OpenScct.Physics <- OpenScct.Game
-                  OpenScct.Core <- OpenScct.Net
-                  OpenScct.Core <- OpenScct.Content
-OpenScct.Server     -> Core, Physics, Game, Net, Content (never Godot)
-game/          -> OpenScct.Server, so a player can host
+Server -> simulation, networking and content libraries
+Godot client -> Server and presentation code
 ```
 
-- The simulation libraries (Core, Physics, Game, Net, Content) never reference Godot. `build/Sim.props`
-  fails the build if one does, and turns banned-API use (RS0030) into an error.
-- Net and Content depend on Core only, not on each other or on Game.
-- Nothing in `src/` depends on `game/`.
+- The simulation libraries never reference Godot. [Sim.props](../build/Sim.props)
+  enforces this and treats banned API use as a build error.
+- Net and Content depend on Core, not on each other or Game.
+- Projects in `src/` do not depend on `game/`.
 
 ## Simulation and presentation
 
-- The simulation is pure C#. It runs a fixed 60 Hz tick, with the UE2 sub-step rule inside physics.
-- Views read `RenderState` and `SimEvents`. They never write simulation state.
-- A listen server is the dedicated server code on its own thread, with the local player connected
-  through the loopback transport. There is one code path for hosting.
-- The server reads only the `sim/` part of an SVMap. Rendering, audio and UI data are client-only.
-- Godot never drives gameplay. `Ue2PoseApplier` poses a Skeleton3D from the core anim sampler (no
-  AnimationTree), and the camera port lives in the core.
+The simulation runs at a fixed 60 Hz, with the original engine's sub-step rules inside
+physics. Rendering reads simulation state and events; it does not own gameplay rules.
+A listen server runs the shared server code on its own thread, with the local player
+connected through loopback transport.
 
-## UE conventions in the simulation
+The server loads only the simulation portion of a map. Client code loads the rendering,
+audio and UI data. Pawn animation comes from the simulation's animation channels;
+Godot poses the skeleton from those channels rather than using an AnimationTree to
+drive gameplay. See [animation](ANIMATION.md), [rendering](RENDERING.md) and
+[networking](NETCODE.md).
 
-- Unreal units (uu), left-handed, Z up.
-- Rotators in 65536 units per turn, float32 everywhere the original used float.
-- Original enums, names and values: for example `EPhysics` 0 None, 1 Walking, 2 Falling ... 16 Flying.
-- Traversal is data: GE records from the level (pole, fence, hand-over-hand, ledge, ladder, pipe,
-  zip line), gated by `LevelInfo.GEActivationMask`.
-- One conversion point to Godot space, `UeSpace`: UE (x, y, z) becomes Godot (x, z, y) / 100,
-  checked by a handedness test. Nothing else converts coordinates.
+## Coordinates and original names
+
+Simulation code keeps the original conventions:
+
+- Unreal units, left-handed coordinates and Z up.
+- Rotators use 65,536 units per turn; original float values stay 32-bit.
+- Classes, fields, states and enum values keep their original names.
+- Traversal uses the map's GE records for ledges, ladders, pipes, fences and zip lines.
+
+[UeSpace](../game/Scripts/Space/UeSpace.cs) converts simulation coordinates to Godot:
+`(x, y, z)` becomes `(x, z, y) / 100`. Other code should use this shared conversion.
+See [coding conventions](CONVENTIONS.md) for naming, provenance and determinism rules.
 
 ## Content flow
 
-```
-game install --svmbuild--> .content/ (SVMap per map + shared packs) --cook--> PCKs for releases
-                                 |
-                                 +-- sim/ --> OpenScct.Content --> server and client simulation
+```text
+Original installation -> svmbuild -> .content/ -> release content packs
+                                      |
+                                      +-- sim/ -> server and client simulation
+                                      +-- render/, audio/, shared/ -> Godot client
 ```
 
-Converted content is built from the user's own install and never committed. SVMap 1.0 is specified
-in `spec/svmap/1.0`.
+Converted game content stays out of Git. The [provenance policy](../re/PROVENANCE.md)
+defines what may be committed. See the [content pipeline](../content/README.md) and
+the [SVMap 1.1 format](../spec/svmap/1.1/README.md).
 
 ## Verification
 
-- `dotnet test`: unit, property and integration tests (virtual clock and SimLink), zero allocations
-  per tick.
-- Determinism: replay hashes from win-x64 and linux-x64 must match (planned CI job).
-- Godot headless smoke test in CI (`tools/ci/godot-smoke.ps1`).
-- Differential traces against the original, a collision oracle, golden renders and coverage gates.
+Unit and integration tests check the simulation and network behavior. Godot smoke
+tests check selected client paths. Local differential tests compare recorded behavior
+against the original game, and visual/audio checks cover results that automated tests
+cannot establish.
+
+Cross-platform replay-hash comparison remains a planned CI check. See
+[testing and CI](TESTING.md) for the checks that actually run, their limits and local
+commands.

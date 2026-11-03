@@ -1,15 +1,17 @@
-# Effects
+# Gameplay effects
 
-The gameplay effects: particles, the meshes of thrown and placed gadgets, muzzle flashes, impact marks and sparks,
-and flash lights. The engine rules are in `spec/native/emitters.md` (the particle natives, decoded); this page says
-where the assets come from, which class draws what and how it reaches the screen.
+This guide connects effect assets to their runtime views: particles, thrown and placed
+gadgets, muzzle flashes, impact marks, sparks and lights. The particle engine rules
+are documented in the [emitter specification](../spec/native/emitters.md).
+
+**On this page:** [Runtime](#runtime) · [Checks](#checks) · [Flash-bang](#flash-bang) · [Not done yet](#not-done-yet)
 
 ## Content: `python -m svmbuild fx`
 
 Also writes `skins` in `effects.json`: the three Stickess Shaders of `SBasePawn.BeginStickySkin` (Diffuse PNG,
 self-illumination PNG and mask, and the TexPanner's pan as a unit direction and rate).
 
-The step `fx` (`content/svmbuild/fx/`) reads the script packages and writes `.content/shared/fx/`:
+The step `fx` ([content/svmbuild/fx/](../content/svmbuild/fx)) reads the script packages and writes `.content/shared/fx/`:
 
 | File | What |
 |---|---|
@@ -25,15 +27,15 @@ The runtime lays each sub-emitter's stored values over its class defaults from `
 
 | Path | What |
 |---|---|
-| `game/Scripts/Render/Particles/ParticleParams.cs` | a sub-emitter's properties (Godot-free) |
-| `game/Scripts/Render/Particles/ParticleEmitterSim.cs` | UParticleEmitter: spawning, SpawnParticle, the update (age, move, revolution, collision, curves, colour, fade, velocity loss) |
-| `game/Scripts/Render/Particles/ParticleSystemSim.cs` | AEmitter::Tick over the sub-emitters (initial delay, warm-up, auto reset and destroy) |
-| `game/Scripts/Render/Particles/ParticleGeometry.cs` | sprite quads (UseDirectionAs, spin, texture cells), spark trails, mesh placements, beam strips |
-| `game/Scripts/Render/Particles/ParticleSystemView.cs` | the Godot meshes, filled each frame (sprite and beam quads written in place by `QuadBuffer.cs`, no Godot arrays per frame), with the draw style's blending (`game/Shaders/svm_particle.gdshaderinc`) |
-| `game/Scripts/Render/Particles/Emitters.cs` | the map's placed emitters (`render/fx.json`) on the same simulation |
-| `game/Scripts/Fx/FxLibrary.cs` | loads `shared/fx` |
-| `game/Scripts/Fx/EffectViews.cs` | the gameplay effects of the client world |
-| `game/Scripts/Fx/CombatFxView.cs` | shots: muzzle flashes, casings, tracers, impact decals and sparks; owns `EffectViews` |
+| [game/Scripts/Render/Particles/ParticleParams.cs](../game/Scripts/Render/Particles/ParticleParams.cs) | a sub-emitter's properties (Godot-free) |
+| [game/Scripts/Render/Particles/ParticleEmitterSim.cs](../game/Scripts/Render/Particles/ParticleEmitterSim.cs) | UParticleEmitter: spawning, SpawnParticle, the update (age, move, revolution, collision, curves, colour, fade, velocity loss) |
+| [game/Scripts/Render/Particles/ParticleSystemSim.cs](../game/Scripts/Render/Particles/ParticleSystemSim.cs) | AEmitter::Tick over the sub-emitters (initial delay, warm-up, auto reset and destroy) |
+| [game/Scripts/Render/Particles/ParticleGeometry.cs](../game/Scripts/Render/Particles/ParticleGeometry.cs) | sprite quads (UseDirectionAs, spin, texture cells), spark trails, mesh placements, beam strips |
+| [game/Scripts/Render/Particles/ParticleSystemView.cs](../game/Scripts/Render/Particles/ParticleSystemView.cs) | the Godot meshes, filled each frame (sprite and beam quads written in place by `QuadBuffer.cs`, no Godot arrays per frame), with the draw style's blending ([game/Shaders/svm_particle.gdshaderinc](../game/Shaders/svm_particle.gdshaderinc)) |
+| [game/Scripts/Render/Particles/Emitters.cs](../game/Scripts/Render/Particles/Emitters.cs) | the map's placed emitters (`render/fx.json`) on the same simulation |
+| [game/Scripts/Fx/FxLibrary.cs](../game/Scripts/Fx/FxLibrary.cs) | loads `shared/fx` |
+| [game/Scripts/Fx/EffectViews.cs](../game/Scripts/Fx/EffectViews.cs) | the gameplay effects of the client world |
+| [game/Scripts/Fx/CombatFxView.cs](../game/Scripts/Fx/CombatFxView.cs) | shots: muzzle flashes, casings, tracers, impact decals and sparks; owns `EffectViews` |
 
 `EffectViews` reads the client world after each tick and never writes to it:
 
@@ -144,16 +146,16 @@ wall. `CombatFxView` owns these cues; it no longer repeats the Shocker impact em
 
 ## Checks
 
-- `tests/OpenScctGame.Logic.Tests/FxParticleTests.cs`: the decoded rules on synthetic emitters.
+- [tests/OpenScctGame.Logic.Tests/FxParticleTests.cs](../tests/OpenScctGame.Logic.Tests/FxParticleTests.cs): the decoded rules on synthetic emitters.
 - `--svm-smoke=destructible-fx`: SteeE gas-cylinder and can blast motion, animated texture frames, the can's debris
   mesh, Molotov floor collision, delayed fire and burn expiry. `SVM_DESTRUCTIBLE_FX_PREVIEW=<folder>` also saves six
   offscreen views when run with a renderer.
-- `tests/OpenScct.Integration.Tests/DestructibleEffectNetworkTests.cs`: actual SteeE gas, can and bottle destruction
+- [tests/OpenScct.Integration.Tests/DestructibleEffectNetworkTests.cs](../tests/OpenScct.Integration.Tests/DestructibleEffectNetworkTests.cs): actual SteeE gas, can and bottle destruction
   reaches three clients once and in order through packet loss, duplication and reordering. Map-emitter triggers use
   the reliable device-event channel, matching `Engine.Emitter.ReplicateTrigger` in the original.
-- `tests/content/test_fx.py`: the step's helpers, and on the reference install the classes, sub-emitters, meshes,
+- [tests/content/test_fx.py](../tests/content/test_fx.py): the step's helpers, and on the reference install the classes, sub-emitters, meshes,
   decals and the Stickess skins it must find.
-- `--svm-smoke=play-fx` (`game/Scripts/Smoke/PlayFxSmoke.cs`): the effects from the real keys on SteeE, checking
+- `--svm-smoke=play-fx` ([game/Scripts/Smoke/PlayFxSmoke.cs](../game/Scripts/Smoke/PlayFxSmoke.cs)): the effects from the real keys on SteeE, checking
   meshes in the camera's view and particle counts per class; with a window and `SVM_PLAY_SHOTS=<folder under local/>`
   it saves each step and timed moments of each effect.
 - `--svm-smoke=camnet-disabled`: disabled-state lifecycle, lens restoration and depth-tested status cue, with
@@ -167,7 +169,7 @@ the spy's team gadgets (STeamAttaquant.ClassInventory) and allowed by the defaul
 the default kit (smoke, chaff, sticky cam, heartbeat sensor), so it only appears when a player puts it in a slot.
 Spec: spec/equipment/flash-bang.md. Its explode native flashes the mercs in range who face it (an SDTFlash hit: the
 merc page's white-out, the after-image), leaves the `SFlashBang` flare, whose `SFlashLight` each machine spawns, and
-the after-image is drawn by `game/Scripts/Render/Post/RemanenceEffect.cs` (svm_remanence.glsl) over the shown frame:
+the after-image is drawn by [game/Scripts/Render/Post/RemanenceEffect.cs](../game/Scripts/Render/Post/RemanenceEffect.cs) (svm_remanence.glsl) over the shown frame:
 a capture at the flash, blended in by RemanenceBlendFactor (1 to 0 over 8 s; the blend itself is estimated).
 
 ## Goggle glow
@@ -180,7 +182,7 @@ on every machine through the action stream.
 
 - Content: the chars step exports `SGoggle.ATT01_beams` and `SGoggle.DEF01_beams` to `shared/chars/SGoggle/` with the
   four skins (`TRA_goggle_green`, `TRD_goggle_orange`, `TRD_goggle_motion`, `TRD_goggle_EMF`) in `textures/`.
-- Drawing: `game/Scripts/Render/Characters/GoggleGlowView.cs`, one per drawn pawn (SimPawnView). Fullbright and
+- Drawing: [game/Scripts/Render/Characters/GoggleGlowView.cs](../game/Scripts/Render/Characters/GoggleGlowView.cs), one per drawn pawn (SimPawnView). Fullbright and
   two-sided; the spy's green is alpha blended through its texture, the merc's skins are added. HeatOpacity and
   EMFOpacity 0 leave it out of thermal and EMF vision; night vision and motion tracking draw it.
 - Who sees it: spies see every glow, mercs never see a spy's (the spy beam destroys itself on a merc's machine). The

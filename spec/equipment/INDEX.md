@@ -1,9 +1,55 @@
 # Equipment specs: index
 
-Folder owner: equipment (weapons, gadgets, vision). Every spec follows the house format; unit ids use the
-`uc:`, `nat:`, `rep:`, `def:` grammar. Counts below are distinct unit ids listed in each file's Units block.
+[All specs](../README.md) · [Coverage report](../../docs/progress/COVERAGE.md)
+
+Rules for weapons, gadgets, inventory and vision. Each spec lists its coverage IDs in a
+`Units:` block. Counts in this index describe those lists, not implementation or test coverage.
 
 ## Spec files
+
+| Guide | Topic |
+|---|---|
+| [ammo-stock.md](ammo-stock.md) | Ammo stock (SAmmoStock, SAmmoStockInteraction) |
+| [crosscheck-gadget-timings.md](crosscheck-gadget-timings.md) | Cross-check with the Bridge gadget timing research |
+| [flash-bang.md](flash-bang.md) | Flash-bang (SGadFlashBang, SProjFlashBang, SFlashBang) and the flash on mercs |
+| [flare.md](flare.md) | Flare (SGadFlareLauncher, SProjFlare, SFlareEmitter) |
+| [frag-grenade.md](frag-grenade.md) | Frag grenade (SGadFragGrenade, SProjFrag, SGrenadeExplosion) |
+| [rain.md](rain.md) | Rain (ERainVolume, wet pawns, SFlicFlocEmitter) |
+| [goggle-glow.md](goggle-glow.md) | Goggle glow (SGoggleBeam): the lit goggle lenses drawn on spies and mercs |
+| [grenade-throw.md](grenade-throw.md) | Grenade throwing (SGadGrenLauncher, SProjGrenade): aimed throw, quick launch, flight and fuse |
+| [impact-manager.md](impact-manager.md) | Bullet and shock impacts (SImpactManager, SImpactEffectBase, SBulletImpact) |
+| [inventory-selection.md](inventory-selection.md) | Gadget inventory and selection |
+| [loadouts.md](loadouts.md) | Default loadouts and inventory spawning |
+| [merc-flashlight.md](merc-flashlight.md) | Merc flashlight (SGadTorche) |
+| [merc-laser.md](merc-laser.md) | Merc laser sight and spy marking (SGadTorcheLaser) |
+| [merc-guns.md](merc-guns.md) | Merc Uzi and shotgun (SWeaponDefense_Uzi, SWeaponDefense_Shotgun) |
+| [merc-rifle.md](merc-rifle.md) | Merc rifle (SWeaponDefense, "FN2000 Auto") |
+| [merc-scope.md](merc-scope.md) | Merc scope (sniper mode, state s_Binoculars_Def) |
+| [motion-tracking.md](motion-tracking.md) | Merc motion tracking (SMotionTrackingVision, vision mode 37) |
+| [smoke-grenade.md](smoke-grenade.md) | Smoke grenade (SGadSmokeGrenade, SProjSmoke, SSmokeEmitter) and its effect on mercs |
+| [spy-energy.md](spy-energy.md) | Spy energy (Shocker ammunition and Camo Suit power) |
+| [spy-shocker.md](spy-shocker.md) | Spy Shocker Gun (SStickyShocker / SWeaponAttaque): drawing, laser, firing |
+| [sticky-shock-effect.md](sticky-shock-effect.md) | Sticky shock on the victim (freeze, electric state, wet bonus, head-shot HUD shutdown) |
+| [vision-goggles.md](vision-goggles.md) | Vision goggles (SGoggle): modes 5, 34, 36, 37, 38, 50 and switching |
+| [alarm-snare.md](alarm-snare.md) | Alarm snare (SGadNoiseEmitter, SNoiseEmitter) |
+| [backpack.md](backpack.md) | Backpack (SGadBackPack, SBackPack, SBackPack_Att) |
+| [camera-network-gadget.md](camera-network-gadget.md) | Camera network gadget (SGadCamNetwork) and the camera view states |
+| [chaff-grenade.md](chaff-grenade.md) | Chaff grenade (SGadChaffeGrenade, SProjChaffe, SChaffeEmitter) |
+| [gadget-hud.md](gadget-hud.md) | Gadget HUD views (sticky cam, camera network, menus, gas mask, heart sensor) |
+| [gadget-natives.md](gadget-natives.md) | Gadget natives (SGadget charges, refire and selection) |
+| [gas-mask.md](gas-mask.md) | Gas mask (SGadGasMask) |
+| [heartbeat-sensor.md](heartbeat-sensor.md) | Heartbeat sensor (SGadHeartBeatSensor) |
+| [merc-eye-adaptation.md](merc-eye-adaptation.md) | Merc eye adaptation and the squint |
+| [mine-launcher.md](mine-launcher.md) | Merc mine launcher (SGadMultiMinesLauncher) and mines (SMines, SMineProx, SMineLaser, SMinePoison) |
+| [presence-detector.md](presence-detector.md) | Presence detector (SPresDetector) |
+| [spy-binoculars.md](spy-binoculars.md) | Spy binoculars (state s_Binoculars_Att, vision mode 50) |
+| [spy-bullet.md](spy-bullet.md) | Spy bullet (SSpyBulletLauncher, SProjMarqueurSpy) and the spy mark expiry |
+| [spy-shocker-owner-notes.md](spy-shocker-owner-notes.md) | Spy Shocker Gun: how it must play (owner notes, 2026-10-25) |
+| [sticky-cam.md](sticky-cam.md) | Sticky cam (SGadStickyCam, SStickyCam, SStickyCamEmitter) and its remote view |
+| [tazer.md](tazer.md) | Merc taser (SGadTazerLauncher, STazerEmitter) |
+
+<details>
+<summary>Detailed unit mapping</summary>
 
 | File | Title | Units | Unit ids |
 |---|---|---|---|
@@ -32,7 +78,12 @@ Folder owner: equipment (weapons, gadgets, vision). Every spec follows the house
 
 Distinct units specced: 439 (sum over files 468; some units appear in two files).
 
+</details>
+
 ## Relevant units not specced here
+
+These allocation notes reflect the original research pass. Use the linked specs and
+[coverage report](../../docs/progress/COVERAGE.md) to check later additions.
 
 Found while working on this area and left for later or for another owner. Ids are exact; ports must not
 assume behaviour for them from these specs.

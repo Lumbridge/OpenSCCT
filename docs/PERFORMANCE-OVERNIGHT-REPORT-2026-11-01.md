@@ -1,5 +1,7 @@
 # Overnight performance report — 1 November 2026
 
+> Historical report. Results and open issues describe the recorded run. For current setup and checks, see [development](DEVELOPMENT.md), [testing](TESTING.md) and the [documentation index](README.md).
+
 Completed at the 08:00 London cutoff. All five proposed improvements and the three larger CPU improvements are implemented in the working tree. No texture quality, resolution, draw distance, effects count, lighting budget or animation update frequency was reduced. Changes are uncommitted and undeployed; unrelated work was preserved.
 
 **Measured result:** the two eligible stationary 1080p gameplay comparisons showed about **18% lower mean frame time**, with matching static HUD pixels. This is one before/after pair per role, not a general match-performance guarantee. The planned additional benchmark rounds could not start because other tests kept renderers active. A separate 30-minute run completed, but its timing assertions failed under heavy contention.
@@ -80,6 +82,6 @@ Everything is under `local/performance-overnight/` unless noted:
 - `content-inputs.json`, `content-differences.json`: original content hashes and final zero-difference result.
 - `overnight-work-log.md`: preserved chronological work log, including the corrected preview diagnosis.
 
-Analysis commands: `python local/performance-overnight/summarize-study.py --captures captures` and `python local/performance-overnight/check-content.py`. Build commands were `dotnet build OpenSCCT.slnx`, `dotnet build game/OpenScctGame.slnx` and the latter with `-c ExportRelease`, in isolated source copies. The existing `tools/benchmark/Invoke-OpenScct.ps1` supplied matching camera/content inputs, `-Seconds 10` and `-Gameplay` for the two role views; full arguments are retained in the worker scripts and capture records.
+Analysis commands: `python local/performance-overnight/summarize-study.py --captures captures` and `python local/performance-overnight/check-content.py`. Build commands were `dotnet build OpenSCCT.slnx`, `dotnet build game/OpenScctGame.slnx` and the latter with `-c ExportRelease`, in isolated source copies. The existing [tools/benchmark/Invoke-OpenScct.ps1](../tools/benchmark/Invoke-OpenScct.ps1) supplied matching camera/content inputs, `-Seconds 10` and `-Gameplay` for the two role views; full arguments are retained in the worker scripts and capture records.
 
 All owned observation/capture workers have exited. No unrelated process was stopped. Overnight monitoring is finished; no deployment or commit was made.

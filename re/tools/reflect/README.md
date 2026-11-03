@@ -1,12 +1,14 @@
-# reflect: reflection dumps of the running editor and game
+# Runtime reflection reader
 
-`dump.py` reads the UnrealScript reflection data (classes, structs, states, functions, properties,
-enums, constants and class defaults) out of a running `ChaosTheory_Editor.exe` or `SCCT Versus`,
-and diffs two dumps. It only reads: the target is opened with `PROCESS_VM_READ |
-PROCESS_QUERY_INFORMATION` and read with `ReadProcessMemory` (`procread.py`). Nothing is written,
-injected or suspended.
+`dump.py` reads classes, structs, states, functions, properties, enums, constants and class
+defaults from a running `ChaosTheory_Editor.exe` or `SCCT Versus`. It can also compare two dumps.
 
-Outputs are game-derived data. They go under `local/reflect/` (gitignored), never into a tracked path.
+The reader uses `ReadProcessMemory` with read/query permissions. It does not write to, inject
+into or suspend the target. The optional sandbox workflow has separate setup and muting
+behaviour described below.
+
+Keep dumps in ignored `local/reflect/`. See the [RE setup guide](../../README.md) and
+[provenance rules](../../PROVENANCE.md) before recording game data.
 
 ## Files
 
@@ -21,17 +23,17 @@ Outputs are game-derived data. They go under `local/reflect/` (gitignored), neve
 
 Always `python -I -B`.
 
-```
+```powershell
 # dump a running process (editor or game is told apart by its image name)
-python -I -B re/tools/reflect/dump.py attach --pid N --out local/reflect/game.json \
+python -I -B re/tools/reflect/dump.py attach --pid N --out local/reflect/game.json `
     --cdo-out local/reflect/game_cdo.json --cdo-packages SBase,Engine
 
 # the whole capture in a sandbox: headless editor, its dump, the map, Play Level, the game dump
-python -I -B re/tools/reflect/dump.py sandbox --sandbox F:\SCCT-Automation\svm\Sandbox \
+python -I -B re/tools/reflect/dump.py sandbox --sandbox F:\SCCT-Automation\svm\Sandbox `
     --map SteeE --out local/reflect --unslotted
 
 # editor vs game
-python -I -B re/tools/reflect/dump.py diff local/reflect/editor.json local/reflect/game.json \
+python -I -B re/tools/reflect/dump.py diff local/reflect/editor.json local/reflect/game.json `
     --out local/reflect/layout-diff.json --cdo-a local/reflect/editor_cdo.json --cdo-b local/reflect/game_cdo.json
 
 # annotated raw words of named objects, for checking a layout by eye

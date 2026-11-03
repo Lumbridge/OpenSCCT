@@ -1,5 +1,7 @@
 # S0: Godot 4.7.2 .NET on net10.0
 
+> Historical report. Results and open issues describe the recorded run. For current setup and checks, see [development](../DEVELOPMENT.md), [testing](../TESTING.md) and the [documentation index](../README.md).
+
 **Verdict: GO.** The game project and the simulation libraries target net10.0. The project builds,
 runs headless from the editor binary and exports to a self-contained Windows exe that boots and
 passes the smoke test. The net8.0 fallback is not needed.
@@ -19,17 +21,17 @@ editor binary, export, and run as an exported exe? Gate from the plan: "exported
 | OS | Windows 11 Pro 10.0.26200 |
 | .NET SDK | 10.0.302 (global.json, rollForward latestFeature) |
 | .NET runtimes present | 8.0.29, 9.0.18, 10.0.8, 10.0.10 |
-| Godot | v4.7.2.stable.mono.official.ed1daf0bf, from `tools/Get-Godot.ps1` |
+| Godot | v4.7.2.stable.mono.official.ed1daf0bf, from [tools/Get-Godot.ps1](../../tools/Get-Godot.ps1) |
 | Godot.NET.Sdk / GodotSharp / Godot.SourceGenerators | 4.7.2 from nuget.org (GodotSharp lib is `net8.0`) |
 | Export templates | `Godot_v4.7.2-stable_mono_export_templates.tpz`, SHA-512 checked |
-| Project | `game/OpenScctGame.csproj`, `Sdk="Godot.NET.Sdk/4.7.2"`, `TargetFramework` net10.0 |
+| Project | [game/OpenScctGame.csproj](../../game/OpenScctGame.csproj), `Sdk="Godot.NET.Sdk/4.7.2"`, `TargetFramework` net10.0 |
 
 The project inherits the root `Directory.Build.props` unchanged: C# 14, nullable, ImplicitUsings
 disabled, TreatWarningsAsErrors, AnalysisLevel latest, InvariantGlobalization.
 
 ## Evidence
 
-All commands run from the repo root. `$godot` is the console exe printed by `tools/Get-Godot.ps1`.
+All commands run from the repo root. `$godot` is the console exe printed by [tools/Get-Godot.ps1](../../tools/Get-Godot.ps1).
 
 | Step | Command | Exit | Time | Result |
 |---|---|---|---|---|
@@ -51,7 +53,7 @@ What the export contains:
   (`coreclr.dll` 10.0.10, `OpenScctGame.runtimeconfig.json` with `tfm` net10.0 and
   `includedFrameworks` Microsoft.NETCore.App 10.0.10) plus OpenScctGame, OpenScct.Core, OpenScct.Content and
   OpenScct.Provenance.
-- The exported `OpenScct.Core.dll` is byte-identical to `src/OpenScct.Core/bin/Release/net10.0/OpenScct.Core.dll`,
+- The exported `OpenScct.Core.dll` is byte-identical to `src/OpenScct.Core/bin/Release/net10.0/OpenScct.Core.dll` (local build output),
   so exports ship optimised libraries (see the configuration mapping below).
 
 ## Findings and gotchas
@@ -62,7 +64,7 @@ What the export contains:
    references are marked `IsImplicitlyDefined`, so `Directory.Packages.props` needs no Godot entries.
 2. **Export needs a solution file next to the project.** Without one, the export prints
    "no solution file was found at ...\OpenScctGame.sln" for every script, still **exits 0**, and writes an
-   exe with no `data_OpenScctGame_windows_x86_64` folder. `game/OpenScctGame.slnx` satisfies it (4.7 reads
+   exe with no `data_OpenScctGame_windows_x86_64` folder. [game/OpenScctGame.slnx](../../game/OpenScctGame.slnx) satisfies it (4.7 reads
    `.slnx`). Do not keep a `.sln` next to it.
 3. **Export exit codes are not trustworthy.** Treat an export as good only when the data folder
    exists and the exported exe passes the smoke test.
@@ -75,7 +77,7 @@ What the export contains:
    quits. `Scripts/App/smoke_watchdog.gd`, a small GDScript autoload with no .NET dependency, ends
    the run with exit 3 if the C# runner has not appeared after 15 s, and with exit 4 at the smoke
    timeout plus 30 s. CI should still wrap Godot in its own timeout.
-6. **Build before exporting.** If `game/.godot/mono/temp/bin` is missing, the export logs "Failed to
+6. **Build before exporting.** If `game/.godot/mono/temp/bin` (local only) is missing, the export logs "Failed to
    create an autoload ... is not compiling" while the editor loads, then publishes and succeeds.
    Running `dotnet build game/OpenScctGame.slnx` first keeps the log clean.
 7. **`.uid` files.** Any headless editor run (`--build-solutions`, `--import`, `--export-*`) writes a
@@ -120,7 +122,7 @@ When imported assets arrive, add `& $godot --headless --path game --import` befo
 
 Had net10.0 failed, the fallback was net8.0 for the game and every library the game references:
 
-- `game/OpenScctGame.csproj`: `TargetFramework` net8.0.
+- [game/OpenScctGame.csproj](../../game/OpenScctGame.csproj): `TargetFramework` net8.0.
 - Libraries referenced by the game (OpenScct.Provenance, OpenScct.Core, OpenScct.Content, later OpenScct.Physics,
   OpenScct.Game, OpenScct.Net, OpenScct.Server): `TargetFrameworks` net10.0;net8.0. The root
   `Directory.Build.props` sets the singular `TargetFramework`, so those projects would clear it and
@@ -133,7 +135,7 @@ Had net10.0 failed, the fallback was net8.0 for the game and every library the g
 ## M0 client wiring (follow-up, 2026-10-23)
 
 The game project now references OpenScct.Core, OpenScct.Content, OpenScct.Net and OpenScct.Server (OpenScct.Server brings OpenScct.Physics,
-OpenScct.Game and LiteNetLib), still on net10.0. `game/OpenScctGame.slnx` lists all seven libraries with the same
+OpenScct.Game and LiteNetLib), still on net10.0. [game/OpenScctGame.slnx](../../game/OpenScctGame.slnx) lists all seven libraries with the same
 ExportDebug / ExportRelease mapping. The verdict above stands.
 
 What the client does now:
@@ -201,9 +203,9 @@ What `testbox` checks:
 
 - Tests: `boot` (boot scene, every simulation library loads, a `World` steps 600 ticks), `testbox` (above),
   `selftest-fail`.
-- `tools/ci/godot-smoke.ps1` gets Godot, builds, imports, runs `boot` and `testbox` (must pass) and
+- [tools/ci/godot-smoke.ps1](../../tools/ci/godot-smoke.ps1) gets Godot, builds, imports, runs `boot` and `testbox` (must pass) and
   `selftest-fail` (must exit 1). With `-Export` it also exports, checks the data folder and the libraries in it,
-  copies `fixtures/testbox` to `local/build/maps/testbox` and runs the same tests with the exported console exe.
+  copies [fixtures/testbox](../../fixtures/testbox) to `local/build/maps/testbox` and runs the same tests with the exported console exe.
   Every step is a JUnit test case in `local/test-results/godot-smoke.xml`; logs are in
   `local/test-results/godot-smoke/`. It exits with 1 on any failure and kills a Godot run that outlives the
   smoke timeout by 60 s. Works in PowerShell 7 and Windows PowerShell 5.1.

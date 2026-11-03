@@ -1,6 +1,8 @@
 # Overnight networking report — 1 November 2026
 
-Status: final morning report. Work ran from approximately 01:43 to 07:53 Europe/London. Final scenario results and cleanup were checked at 07:52; the continuation heartbeat is paused. Changes remain local and uncommitted, with no release or deployment. **Acceptance is incomplete: the strict foot-alignment check still fails, and the outstanding work below remains required.**
+> Historical report. Results and open issues describe the recorded run. For current setup and checks, see [development](DEVELOPMENT.md), [testing](TESTING.md) and the [documentation index](README.md).
+
+This report records the 1 November investigation. At the checkpoint, changes were local and uncommitted, with no release or deployment. **Acceptance is incomplete: the strict foot-alignment check still fails, and the outstanding work below remains required.**
 
 ## Morning overview
 
@@ -39,13 +41,13 @@ The final death assertion also requires the camera to return to the new pawn and
 which authority puts a healthy replacement back into death/spectating. Simultaneous final deaths and the
 complete original death-animation set remain outside the validated cases.
 
-Final candidate: [network-candidate-20261101-0736](../local/network-candidate-20261101-0736/README.txt); matching isolated lab server:
+Final candidate: network-candidate-20261101-0736: `local/network-candidate-20261101-0736/README.txt` (local only); matching isolated lab server:
 `local/network-server-20261101-0736`. This is an uncommitted development export from the shared
 working tree, including concurrent performance work, and has not been deployed or published.
 
 ## Final verification
 
-The [final-candidate evidence index](../local/network-lab/evidence-final-candidate.md) filters by the
+The final-candidate evidence index: `local/network-lab/evidence-final-candidate.md` (local only) filters by the
 exact 07:36 executable. It contains **13 rendered real-UDP scenarios: 12 PASS, 1 FAIL**. Each run retains
 source/content fingerprints, process identities, inputs, traces, assertions and screenshots. A scenario
 pass is not blanket visual acceptance; independent pose findings remain in the index.
@@ -67,13 +69,13 @@ The prior 07:25 stress failure remains recorded separately: 62 pending commands 
 older builds completed hour-long soaks, including the 05:26 export's 3,600.394-second run with zero
 resynchronizations, but those are supporting evidence with different code and assertions. Historical
 operator interruptions are explicitly marked INTERRUPTED, never PASS. The
-[multi-build evidence index](../local/network-lab/evidence-current-candidates.md) preserves those distinctions.
+multi-build evidence index: `local/network-lab/evidence-current-candidates.md` (local only) preserves those distinctions.
 
-Representative captures: [Seaside after landing](../local/network-lab/20261101-075001-51514544/shots/guest-202611010750498214483-7c4f0e08.png),
-[merc corpse](../local/network-lab/20261101-074504-8adfaacf/shots/observer-202611010745587897655-9462d21d.png),
-[one remaining teammate](../local/network-lab/20261101-074902-5611f073/shots/guest-202611010749467817049-93501468.png),
-[merc team exhausted](../local/network-lab/20261101-074902-5611f073/shots/guest-202611010750001966529-ad3e7ab3.png),
-[spy team exhausted](../local/network-lab/20261101-074802-99f837d3/shots/guest-202611010748596200340-08272a73.png).
+Representative captures: Seaside after landing: `local/network-lab/20261101-075001-51514544/shots/guest-202611010750498214483-7c4f0e08.png` (local only),
+merc corpse: `local/network-lab/20261101-074504-8adfaacf/shots/observer-202611010745587897655-9462d21d.png` (local only),
+one remaining teammate: `local/network-lab/20261101-074902-5611f073/shots/guest-202611010749467817049-93501468.png` (local only),
+merc team exhausted: `local/network-lab/20261101-074902-5611f073/shots/guest-202611010750001966529-ad3e7ab3.png` (local only),
+spy team exhausted: `local/network-lab/20261101-074802-99f837d3/shots/guest-202611010748596200340-08272a73.png` (local only).
 
 All 218 runtime artifact hashes match the final candidate manifest. All manifest-owned test processes
 have exited, candidate display overrides were removed for normal manual launches, and the overnight
@@ -95,7 +97,7 @@ successful builds or selected scenario passes as full gameplay certification.
 ## Scope and provenance
 
 - Plan: [NETWORK-IMPROVEMENT-PLAN.md](NETWORK-IMPROVEMENT-PLAN.md).
-- Preserve unrelated working-tree changes in `docs/CONTENT-PACKS.md`, the prior portions of `game/Scripts/Online/OnlineService.cs`, `src/OpenScct.Content/Maps/MapCatalogData.cs`, and `tests/OpenScct.Content.Tests/MapCatalogDataTests.cs`.
+- Preserve unrelated working-tree changes in [docs/CONTENT-PACKS.md](CONTENT-PACKS.md), the prior portions of [game/Scripts/Online/OnlineService.cs](../game/Scripts/Online/OnlineService.cs), [src/OpenScct.Content/Maps/MapCatalogData.cs](../src/OpenScct.Content/Maps/MapCatalogData.cs), and [tests/OpenScct.Content.Tests/MapCatalogDataTests.cs](../tests/OpenScct.Content.Tests/MapCatalogDataTests.cs).
 - Initial working HEAD: `a12d374bef8ed2ec37c869391dd06c30f3466c88`. Networking changes are uncommitted. No release/deployment performed.
 - Physical laptop unavailable to this session. Real-process tests use separate game instances over UDP on this PC; fault injection and physical two-machine testing are separate evidence categories.
 - Current runs and failures are tracked below. Always use manifest PID and start-time ownership checks when stopping runs. Concurrent performance/rendering changes are preserved separately from this networking work.
@@ -130,7 +132,7 @@ Before overnight work: game build passed; 17 selected clock/synchronization test
 - **Grounded-but-falling owner recovery implemented:** correction/replay could restore airborne controller state while authoritative physics was already Walking, bypassing the landing callback permanently. Three new regressions (spy falling, spy jumping, merc falling) failed before the fix. After replay, a grounded airborne owner now completes the normal landing callback outside replay, so its landing animation and state request can run. All 13 prediction collision/root/independent-loader movement tests pass. The independent-loader test now checks the actual airborne state type rather than an incorrect state name. Exact user ledge reproduction still required.
 - **Hub scene readiness implemented:** each joining visitor remains pawnless until its scene-ready acknowledgement; the existing hub keeps running. The new two-client Hub regression failed before the change and passes afterward; all five Hub tests pass, including side changes and no-damage rules. Rendered Hub clients now explicitly report readiness. The lab's Hub listener is loopback-only and never lists with the master.
 - **Aquarius rendered grab/KO/recovery gameplay PASS:** `local/network-lab/20261101-020504-33ff6cf5/result.json`. Source/owner state checks and health/recovery checks pass. Captures are readable and were inspected. The host's hold pose deserves closer inspection, and the guest's final capture is black despite a walking gameplay state; **visual recovery is not accepted**. This is new actionable evidence, not a full visual pass.
-- Added real UDP fault injection (`tools/network-lab-proxy.py`), directional latency/jitter/loss/duplication counters, runtime blackout, process cleanup, build/source/content fingerprints, frame-rate parameters and stronger startup/airborne assertions. The new matrix is starting; syntax validation and the game build pass. This does not yet establish the network matrix passes.
+- Added real UDP fault injection ([tools/network-lab-proxy.py](../tools/network-lab-proxy.py)), directional latency/jitter/loss/duplication counters, runtime blackout, process cleanup, build/source/content fingerprints, frame-rate parameters and stronger startup/airborne assertions. The new matrix is starting; syntax validation and the game build pass. This does not yet establish the network matrix passes.
 
 ### 02:17 checkpoint
 
@@ -158,7 +160,7 @@ Before overnight work: game build passed; 17 selected clock/synchronization test
 - The credit-only soak `20261101-023128-f7a8313a` failed at cycle 11 with a 19.5 uu stance disagreement and resynchronizations. It is not accepted. The latest full recovery run `20261101-024022-c4c284ed` (exec 76977) is active with stronger assertions: zero unexpected resyncs, fewer than 60 outstanding commands at each settled checkpoint, and source/owner position within 3 uu. At cycle 11 it has zero resyncs/corrections and guest error 0.0314 uu. A completed one-hour soak is still pending.
 - **Rendered Aquarius Seaside drop completed:** `20261101-023039-7000cd34`, host spy at 360 FPS / guest merc at 30 FPS, typical impaired guest connection. Normal bound input drove the spy from spawn through the door, onto the upper exterior, and over the Seaside edge at roughly [5371,3862,633]. It landed near [5371,4303,54], then walked clear onto the courtyard floor at [4900,4303,-39], in `PHYS_Walking` / `s_PlayerWalkingSt0H`. Captures `host-202611010240105486774-2dcb4b47.png` and `host-202611010240508313292-84040773.png` were inspected. This is one successful host-side path; repeat as remote spy remains required. The centre-line support probe falsely reports unsupported samples on the bush/edge landing and needs a cylinder-support fallback before certifying that metric.
 - Remaining pose failure is now localized to transient crouch blending: this run measured owner toe depth down to 13.8 uu during initial crouch tween and 11.7 uu during crouched movement, while all 28 moving windows animated. Stable subsequent standing/walking is visually coherent. Do not waive the 8 uu limit or call the animation defect solved.
-- Death/spectating source audit started with `spec/combat/death-and-respawn.md`, `DeathLivesRespawnTests`, and `SpectatingTests`. The original rules distinguish temporarily having no living teammates from exhausting the team's lives; a respawn delay can include teammate spectating. Real multiplayer death/spectator/visual tests are still outstanding.
+- Death/spectating source audit started with [spec/combat/death-and-respawn.md](../spec/combat/death-and-respawn.md), `DeathLivesRespawnTests`, and `SpectatingTests`. The original rules distinguish temporarily having no living teammates from exhausting the team's lives; a respawn delay can include teammate spectating. Real multiplayer death/spectator/visual tests are still outstanding.
 
 ### 03:03 checkpoint
 
@@ -211,7 +213,7 @@ Before overnight work: game build passed; 17 selected clock/synchronization test
 - **Spy two → one → zero survivors PASS:** four rendered clients, rough UDP (`20261101-040250-5e9f4627`). Spectator personal lives are 0, teammate lives change 2 → 1, target switches and all clients receive the merc victory. The one-teammate screenshot was inspected. A dedicated visitor regression also passes: manual cycling across teams and replacing a dead target; its first draft omitted the original-required `Team=255` visitor option and was corrected.
 - **Teammate disconnect defects reproduced and fixed:** rendered merc run `20261101-040442-bfdcf494` switched targets but retained the departed player's life in the HUD. Two-world tests also found a destroyed controller/pawn could still satisfy the spectator validity test. Deleted targets/candidates are now excluded. After that correction the regressions reached and failed the stale life-total assertion (2 instead of 1). `ServerHost` now refreshes team lives after unlinking the departing controller, preserving the existing logout/end-rule decision. All seven spectator integration tests and 23 game spectator tests pass. The stronger rendered merc disconnect repeat `20261101-041011-ae0502d9` passes, including the displayed life count. Last-survivor disconnect and crouched-death cases are running next.
 - **Additional services checks PASS:** 25 selected integration tests cover Hub, online UDP, lifetime-aware lag compensation, pawn sounds, lobby voice and sidearm session options. These are automated integration coverage, not a rendered busy-Hub/voice-load certification.
-- Added [controlled-lab guide](NETWORK-LAB.md) and `tools/network-lab-report.py`. The index preserves failures/incomplete runs, scenario parameters, build/content hashes and checkpoint-only soak metrics. Python syntax checks pass and indexing actual evidence succeeds. A concurrent test executable briefly blocked a rebuild; that attempt was not counted as a test result. The subsequent complete runs are reported above.
+- Added [controlled-lab guide](NETWORK-LAB.md) and [tools/network-lab-report.py](../tools/network-lab-report.py). The index preserves failures/incomplete runs, scenario parameters, build/content hashes and checkpoint-only soak metrics. Python syntax checks pass and indexing actual evidence succeeds. A concurrent test executable briefly blocked a rebuild; that attempt was not counted as a test result. The subsequent complete runs are reported above.
 
 ### 04:34 checkpoint
 

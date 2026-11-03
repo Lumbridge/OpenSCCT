@@ -1,19 +1,24 @@
 # Audio
 
-How the original's sounds are converted and played. The playback rules (UNIAudio, the subsystem SCCT Versus uses in
-place of stock UE2 audio) and the file formats are specified in `spec/native/audio.md`; the map devices that call
-the sound natives in `spec/devices/sound-music.md`.
+The content pipeline converts the original sound assets; simulation events and client
+code decide when and how to play them. The original playback system is UNIAudio,
+which differs from stock UE2 audio.
+
+See the [audio specification](../spec/native/audio.md) for playback rules and formats,
+and [sound devices](../spec/devices/sound-music.md) for map actors that call them.
+
+**On this page:** [Content](#content) · [Client](#client) · [Findings](#findings) · [Not done yet](#not-done-yet)
 
 | Part | Where |
 |---|---|
-| decoders and writers | `content/svmbuild/audio/` (`sound.py`, `uas.py`, `ogg.py`, `mux.py`, `refs.py`, `build.py`) |
-| pipeline steps | `content/svmbuild/steps/audio.py` (`audio`), `content/svmbuild/steps/audio_map.py` (`audio-map`) |
-| client | `game/Scripts/Audio/` |
+| decoders and writers | [content/svmbuild/audio/](../content/svmbuild/audio) (`sound.py`, `uas.py`, `ogg.py`, `mux.py`, `refs.py`, `build.py`) |
+| pipeline steps | [content/svmbuild/steps/audio.py](../content/svmbuild/steps/audio.py) (`audio`), [content/svmbuild/steps/audio_map.py](../content/svmbuild/steps/audio_map.py) (`audio-map`) |
+| client | [game/Scripts/Audio/](../game/Scripts/Audio) |
 | simulation calls | `Actor.PlaySound`, `PlayOwnedSound`, `StopSound`, `SetSwitch`, `PlayMusic`, `StopMusic` (`OpenScct.Core`), raised as `SimEvent`s; footsteps in `SBase/SBasePawn.Footsteps.cs` |
 | events | `SimEventKind.PlaySound` (with `NoOverride`, `NoAttenuate`, `Bone`, `Owned` for PlayOwnedSound, `Heard` for the server's calls, `Flat` for 2D), `StopSound`, `PlayMusic`, `StopMusic`, `SetSwitch` (surface in `Slot`) |
 | network | `OpenScct.Server/Net/NetHearSound.cs` (server: ClientHearSound to the players in reach), `PlayerController.Sound.cs` (`ClientHearSound`, `ClientPlaySound`, `ClientSetMusic`) |
-| play scene | `game/Scripts/Play/PlayAudio.cs` (the sound of a match), `PlayAudioRouter.cs` (the client's own and the server's copy of one call play once) |
-| tests | `tests/content/test_audio_formats.py`, `tests/content/test_audio_steps.py`, `tests/OpenScct.Core.Tests/SimEventsLateTests.cs`, `tests/OpenScctGame.Logic.Tests/AudioRouterTests.cs`, `AudioCallsTests.cs` and `AudioSessionTests.cs`, smokes `--svm-smoke=audio`, `play-audio`, `play-audio-merc` |
+| play scene | [game/Scripts/Play/PlayAudio.cs](../game/Scripts/Play/PlayAudio.cs) (the sound of a match), `PlayAudioRouter.cs` (the client's own and the server's copy of one call play once) |
+| tests | [tests/content/test_audio_formats.py](../tests/content/test_audio_formats.py), [tests/content/test_audio_steps.py](../tests/content/test_audio_steps.py), [tests/OpenScct.Core.Tests/SimEventsLateTests.cs](../tests/OpenScct.Core.Tests/SimEventsLateTests.cs), [tests/OpenScctGame.Logic.Tests/AudioRouterTests.cs](../tests/OpenScctGame.Logic.Tests/AudioRouterTests.cs), `AudioCallsTests.cs` and `AudioSessionTests.cs`, smokes `--svm-smoke=audio`, `play-audio`, `play-audio-merc` |
 
 ## Content
 
@@ -261,7 +266,7 @@ back, 11 to 15 starts a run, each one after a rule-15 loss; a bare count of 20 f
   `Interface_PT/Objectifs` Jingl_AttacB, `Interface_PT/Objectifs` Jingl_DefB and `Amb_Krauser` krau_blup1. Godot's
   wave loader reads a loop entry past the end of such a chunk ("Reading less data than requested", four times a
   match) and makes the jingle a forward loop from 0 to 0. `AudioLibrary` drops an empty sampler chunk before
-  loading (`WavChunks`, tests in `tests/OpenScctGame.Logic.Tests/WavChunksTests.cs`) and sets a one-shot's loop mode to
+  loading (`WavChunks`, tests in [tests/OpenScctGame.Logic.Tests/WavChunksTests.cs](../tests/OpenScctGame.Logic.Tests/WavChunksTests.cs)) and sets a one-shot's loop mode to
   none, so the jingles play once and the warning is gone (play-aim log: 4 before, 0 after). The sound data were
   never short.
 
@@ -339,7 +344,7 @@ run; a silent/dummy mixer does not count as an output pass. Network lab status a
 `audio.voices` with source/leaf identity, source and listener positions, source volume, applied
 gain and the `AtListener` ownership decision.
 
-`tools/benchmark/capture_original_audio.py` reads native sources in an already-owned, muted
+[tools/benchmark/capture_original_audio.py](../tools/benchmark/capture_original_audio.py) reads native sources in an already-owned, muted
 sandbox session. It validates the retail voice table and requires movement sounds to be seen;
 it neither launches a process nor changes volume. Its observations establish native routing
 and sample identity, not original device-output loudness. Reverb calibration and a listening

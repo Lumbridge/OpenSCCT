@@ -1,5 +1,7 @@
 # R4 spike: combat ground truth with a two-pawn rig
 
+> Historical report. Results and open issues describe the recorded run. For current setup and checks, see [development](../DEVELOPMENT.md), [testing](../TESTING.md) and the [documentation index](../README.md).
+
 **Result: done.** A map script compiled into a sandbox copy of SteeE spawns a second player (the target) and drives
 the local player's weapon, so every combat case the specs asked to measure could be played in the original and
 sampled frame by frame. 32 two-player scenarios were recorded twice each (64 runs, one Play Level game per local
@@ -15,15 +17,15 @@ of R4-difftest.md), frame cap 60. Traces and tables are game-derived and stay in
 
 | Path | What |
 |---|---|
-| `re/tools/difftest/rig/SvmCombatRig.uc`, `SvmRigController.uc` | The map script: command channel, target player, aim, fire, grenades, the target's own shots |
-| `re/tools/difftest/combat_rig.py` | Builds the rig map (compile, place, save, install) and drives the placed rig in a game |
-| `re/tools/difftest/combat_live.py` | Stable per-frame samples of both players (pawn, controller, weapon, HUD, damage history, animation channels), the grenade and the bullet impacts |
-| `re/tools/difftest/combat.py` | CLI: `build`, `check`, `record`, `measure`, `show` |
-| `re/tools/difftest/combat_scenario.py` | `svm.combat/1` loader and validator |
-| `re/tools/difftest/combat_measure.py`, `combat_results.py` | Measurements against the spec formulas; `RESULTS.md` |
-| `re/tools/difftest/combat_suite.py` | Generates the scenario set (`--check` in CI-style use) |
-| `re/tools/difftest/combat_test.py` | 15 tests on synthetic data (format, formulas, extraction) |
-| `tests/scenarios/combat/` | 32 `*.combat.json`, `merc-fall-ledge.scenario.json` (svm.scenario/1), README, schema |
+| [re/tools/difftest/rig/SvmCombatRig.uc](../../re/tools/difftest/rig/SvmCombatRig.uc), `SvmRigController.uc` | The map script: command channel, target player, aim, fire, grenades, the target's own shots |
+| [re/tools/difftest/combat_rig.py](../../re/tools/difftest/combat_rig.py) | Builds the rig map (compile, place, save, install) and drives the placed rig in a game |
+| [re/tools/difftest/combat_live.py](../../re/tools/difftest/combat_live.py) | Stable per-frame samples of both players (pawn, controller, weapon, HUD, damage history, animation channels), the grenade and the bullet impacts |
+| [re/tools/difftest/combat.py](../../re/tools/difftest/combat.py) | CLI: `build`, `check`, `record`, `measure`, `show` |
+| [re/tools/difftest/combat_scenario.py](../../re/tools/difftest/combat_scenario.py) | `svm.combat/1` loader and validator |
+| [re/tools/difftest/combat_measure.py](../../re/tools/difftest/combat_measure.py), `combat_results.py` | Measurements against the spec formulas; `RESULTS.md` |
+| [re/tools/difftest/combat_suite.py](../../re/tools/difftest/combat_suite.py) | Generates the scenario set (`--check` in CI-style use) |
+| [re/tools/difftest/combat_test.py](../../re/tools/difftest/combat_test.py) | 15 tests on synthetic data (format, formulas, extraction) |
+| [tests/scenarios/combat/](../../tests/scenarios/combat) | 32 `*.combat.json`, `merc-fall-ledge.scenario.json` (svm.scenario/1), README, schema |
 
 ## Method
 
@@ -149,7 +151,7 @@ The same in both runs (the pawn's action afterwards reads 269). The clip falls a
 At walking speed the merc lands on a step 18 uu above the yard, so the drop is 772.6 uu, not the 790 of the spy
 scenario. Damage 58, 58 and 59 against `int((h - 450) / 550 * 100)`: all three match when h is taken at the lowest
 of the last air frame and the landing frame (in the 59 run the pawn was 2.3 uu below the step top before it was lifted
-onto it). The rewrite's sim (`tests/OpenScct.DiffTest`, PawnRigSim) passes this golden in DtReplay and Fixed timing.
+onto it). The rewrite's sim ([tests/OpenScct.DiffTest](../../tests/OpenScct.DiffTest), PawnRigSim) passes this golden in DtReplay and Fixed timing.
 
 ### Spy regeneration (seen in passing)
 

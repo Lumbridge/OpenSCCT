@@ -1,15 +1,16 @@
 # Cosmetic source artwork
 
-All textured unlockables now use fresh imagegen artwork: 26 active special and
+The cosmetic sources use generated artwork: 26 active special and
 ladder patterns, 32 distinct map camos, and nine solid-colour textile materials.
 The legacy unused Breaker source is also supplied. Skeleton has separate front
 and rear anatomy, making 69 source PNGs for 68 builder patterns and 67 currently
-used designs. These cover the catalog's 217 suit and weapon cosmetics. The 17
+used designs. These sources cover the suit and weapon cosmetic catalog. The 17
 light unlocks remain numeric hue settings and have no source texture.
 
 `textures/` contains the unmodified built-in imagegen outputs. `prompts/` contains
 the exact prompt for each image; `manifest.json` records source and prompt hashes.
-No API/CLI fallback was used. See `CREDITS.txt` for provenance.
+See [CREDITS.txt](CREDITS.txt) for provenance and the
+[fitted-skin guide](../../../docs/FITTED-SKINS.md) for the conversion process.
 
 The content builder samples these images in model space, preserves the protected
 gear/skin regions and original alpha, and writes fitted textures, finish-lighting

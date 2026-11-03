@@ -1,11 +1,15 @@
 # Fitted cosmetic finishes
 
-Cosmetic names, account IDs, unlock bits and palettes are unchanged. The content
-builder fits their paint to geometry and preserves functional materials. The nine
-solid suit colours now use `tint_<RGB>` textures instead of a whole-material tint.
+The content builder fits cosmetic artwork to character and weapon geometry while
+preserving functional materials. Cosmetic names, account IDs, unlocks and palettes
+remain stable. Solid suit colors use `tint_<RGB>` textures.
 
-All 68 source finishes are original imagegen PNGs under
-`content/assets/cosmetics/textures`, including the nine coloured fabric finishes
+[Preview and apply finishes](#build-and-review-without-touching-active-content) · [Content pipeline](../content/README.md)
+
+## Artwork and fitting
+
+The 68 source finishes are original PNGs under
+[content/assets/cosmetics/textures](../content/assets/cosmetics/textures), including the nine coloured fabric finishes
 and legacy pattern IDs. `cosmetic_art.py` reads their RGB artwork directly; no
 procedural substitute is used when a source is absent. Missing artwork fails
 preparation before cosmetic outputs are written. Every source image and the
@@ -21,7 +25,7 @@ without stretching to the width of padded sleeves. The source PNGs are unchanged
 Gold artwork is RGB paint like other finishes; its
 reflective response remains the runtime material's masked gold sheen.
 
-`content/svmbuild/fitted.py` reads every primitive of authored sidearms, including
+[content/svmbuild/fitted.py](../content/svmbuild/fitted.py) reads every primitive of authored sidearms, including
 independent vertex buffers and scene transforms. Retail meshes retain their existing
 bind-pose reader. The baker needs the actual model; missing geometry is an error,
 not permission to draw a pattern across the UV atlas.
@@ -31,12 +35,14 @@ lower-frame profiles identify grips welded into the receiver; authored pistols u
 their common mechanical coordinate frame. Head coverings, gloves, boots, grip frames
 and small parts get the actual skin motif in their own local frames at the same
 physical texture scale as the main panels,
-including nebulae, flames and camouflage—not solid-colour substitutes. Original
+including nebulae, flames and camouflage. Original
 weave, grip and moulded detail is retained. Boots include the shafts weighted to calf bones.
 Displays, exposed skin and equipment markings retain their original material.
 Atlas exclusions are for the current retail
 UV layouts and must be reviewed when those layouts change. Authored arm bone names
 are mapped separately so fingers cannot be classified as sleeves.
+
+## Material masks
 
 Each colour texture has a `.mask.png` companion. The world shader uses this mask for
 cosmetic brightness and sheen, so a golden receiver does not make its rubber grip
@@ -65,11 +71,15 @@ finalizes when all unselected outputs still have valid records.
 `--refinish-parts` updates these secondary regions of an existing full bake; its
 output is tested against a complete bake. It does not change the main motif.
 
+### Validate the staged content
+
 The `fitted-skins` Godot smoke exercises every non-light catalog item through the
 real Armoury model/material renderer and requires fitted masks. To keep this isolated,
 give `--svm-content` an **absolute** path to a staging content root containing
 `shared/chars`, including original models, their textures, and the staged finishes.
 `SVM_PLAY_SHOTS` enables numbered screenshots during a windowed run.
+
+### Apply the reviewed outputs
 
 After visually reviewing the previews and running the smoke:
 

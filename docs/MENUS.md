@@ -1,44 +1,35 @@
-# Menus
+# Menus and controls
 
-The front end: the main menu, Create Session, Find a Session (the server browser), Join with IP, the Lobby Room, the
-loading page, the results, the options' Voice page, and the Tutorials pages (tutorial maps, tips, gadget details, the
-HUD and keyboard pictures, Visit a Map). The rules come from the original's own pages, decoded in
-`spec/game/lobby-and-match-creation.md` (Enhanced 4.0's GUI package and Reloaded's voice page); the session behind them
-is in `docs/ONLINE.md`, voice in `docs/VOICE.md`, and the way to test it with two computers in `docs/NETWORK-TEST.md`.
+[Documentation](README.md)
 
-| Path | What it holds |
-|---|---|
-| `game/Scripts/UI/MenuPage.cs` | the PC page look: background, typed title, corner brackets, framed panels, page buttons, `Shot` |
-| `game/Scripts/UI/UiStyle.cs` | the look switch (`Look`), `MenuTheme` (the PC button and list boxes, the style colours), `MenuBackdrop`, `MenuTexture` |
-| `game/Scripts/UI/UiArt.cs`, `UiBox.cs`, `UiCorner.cs`, `UiRule.cs`, `UiWordmark.cs` | the modern look: our own art, drawn at the window's size |
-| `game/Scripts/UI/MainMenu.cs` | Responsive dashboard: Play, profile/progress, community activity, changelog, announcements and direct links to the existing pages |
-| `game/Scripts/UI/DashboardColumns.cs`, `DashboardDetailsScreen.cs`, `MenuDashboardModel.cs` | Content-sized column reflow, in-game release/announcement details and Godot-free presentation rules |
-| `game/Scripts/Online/MenuDashboardService.cs` | Cached dashboard feeds; requests run only while dashboard/detail pages are open |
-| `game/Scripts/UI/Tutorials/` | Tutorials (`TutorialsScreen`), the tutorial maps (`TutorialMapsScreen`), Tips (`TipsScreen`), Gadget Details (`GadgetDetailsScreen`), View HUD and the keyboard pictures (`HudLegendScreen`), Visit a Map (`VisitMapScreen`) |
-| `game/Scripts/Tutorials/` | the tutorial progress file (`TutorialProfile`, `user://tutorials.json`), the pages' words (`TutorialText`), offline play of a tutorial or a visit and the round's end (`TutorialPlay`, `TutorialRoundWatch`) |
-| `game/Scripts/UI/RankIcons.cs` | Rank pictures drawn from SVG (level insignia, prestige and master emblems) and `RankBadge` (emblem, level, title), used by the menus, lobby, results, F8 and hub tags |
-| `game/Scripts/UI/AccountScreen.cs` | Account: sign in with Discord (code, browser, wait), pick or change the name, the rank (emblem, level, XP bar, Prestige, prestige emblems, title picker; spec/additions/progression.md), stats, an achievements summary with links to Achievements and the Armoury, sign out (docs/ONLINE.md "Accounts") |
-| `game/Scripts/UI/StatsScreen.cs`, `MatchHistoryScreen.cs`, `CareerPanels.cs`, `CareerScroll.cs` | Career summary and category cards, recorded matches, scoreboard and timeline; compact dashboard styling and keyboard/controller scrolling |
-| `game/Scripts/UI/AchievementsScreen.cs` | Achievements (OpenSCCT's own): every achievement by group (filter buttons), what to do, what it unlocks, progress or earned date; the list is the shared catalogue, so it is complete even with an older master |
-| `game/Scripts/UI/ArmouryScreen.cs` | Armoury (OpenSCCT's own): the spy's and merc's cosmetics per slot; locked items name the achievement that unlocks them (docs/ONLINE.md "Cosmetics") |
-| `game/Scripts/UI/HostScreen.cs` | Create Session: wide map browser beside Game, Rules and Hosting tabs, with a persistent Create button |
-| `game/Scripts/UI/CreateSessionModel.cs` | the Create Session rules without Godot (rows, captions, ranges, mode rules, password) |
-| `game/Scripts/UI/SessionRowsView.cs` | shared dropdowns, editable numbers and labelled checks for Create Session and lobby match settings |
-| `game/Scripts/UI/LobbyRoomScreen.cs` | the online Lobby Room |
-| `game/Scripts/UI/LobbyRoomScreen.Settings.cs` | responsive match settings with the map browser and Game / Rules tabs |
-| `game/Scripts/UI/StrategicMapScreen.cs`, `StrategicMapModel.cs` | the Strategic map page (in a match and from the Lobby Room) and its rules without Godot |
-| `game/Scripts/UI/LobbyRoomModel.cs` | the Lobby Room rules without Godot (page button, blinking changes, chat spam delay) |
-| `game/Scripts/UI/JoinWithIpScreen.cs`, `ServerBrowserScreen.cs`, `ConnectingScreen.cs`, `ResultsScreen.cs` | Join with IP, Sessions, the loading page, the end menu |
-| `game/Scripts/UI/LobbyScreen.cs`, `LobbySession.cs` | the offline lobby (bots fill the 2v2) and the lobby interfaces |
-| `game/Scripts/Options/OptionsMenu.Voice.cs` | the Voice page and Test my microphone |
-| `game/Scripts/Online/OnlineVoiceChat.cs` | the visit's voice: microphone, keys, settings, per-player volume and mute, the round's overlay |
-| `game/Scripts/Options/OptionsMenu.cs` | the options pages; HUD holds "Discord status" (docs/DISCORD.md) |
-| `game/Scripts/UI/ConfirmBox.cs`, `LoadingTip.cs` | the yes/no question over a page (quit, keep the screen settings); the loading pages' tip |
-| `game/Scripts/Online/RoundStartList.cs` | the round's "Waiting for players" list (Loading_Menu) until the match begins |
-| `game/Scripts/Options/BrightnessTest.cs` | the brightness test pattern (GUI.Mire) |
-| `game/Scripts/Audio/FrontEndAudio.cs` | the menu and lobby music and the lobby's join sound |
-| `game/Scripts/UI/MenuPilot.cs` | drives the menus with input events (clicks, typing) for the smokes |
-| `game/Scripts/Online/NetLobbySmoke.cs` | the two-process `net-lobby` smoke |
+This guide covers the main menu, session setup, lobby, tutorials, options and results.
+For joining and hosting, start with [Online play](ONLINE.md); for microphone setup, use [Voice chat](VOICE.md).
+
+| Task | Page or reference |
+| --- | --- |
+| Start a match | [Create Session](#create-session), [Lobby Room](#lobby-room) |
+| Learn maps and gadgets | [Tutorials](#tutorials) |
+| Change gameplay restrictions | [Alternate Mode](#alternate-mode) |
+| Review progress | [Player stats and match history](#player-stats-and-match-history) |
+| Change bindings | [Role configuration and shared controls](#role-configuration-and-shared-controls) |
+| Change video settings | [Display page](#display-page-the-originals-video-options) |
+| Develop or test menu behavior | [Screen sizes](#screen-sizes-and-resizing), [Tests](#tests) |
+
+Menu behavior follows the [lobby and match creation specification](../spec/game/lobby-and-match-creation.md).
+OpenSCCT adds its own dashboard, accounts, progression, achievements and cosmetic selection.
+
+## Code map
+
+| Location | Responsibility |
+| --- | --- |
+| [game/Scripts/UI](../game/Scripts/UI/) | Menu pages, reusable controls and presentation models |
+| [game/Scripts/Options](../game/Scripts/Options/) | Display, audio, voice and input settings |
+| [game/Scripts/Online](../game/Scripts/Online/) | Session flow, dashboard feeds and lobby integration |
+| [game/Scripts/Tutorials](../game/Scripts/Tutorials/) | Tutorial progress, text and offline sessions |
+| [Logic tests](../tests/OpenScctGame.Logic.Tests/) | Menu behavior independent of Godot |
+
+`MenuPilot` drives menus with input events for the smoke checks. `MenuPage`, `UiStyle` and `UiArt` provide
+the shared appearance. `MainMenu` and `DashboardColumns` handle the dashboard's responsive layout.
 
 ## Look
 
@@ -49,7 +40,7 @@ GUIContent `fond` (the page background), `MN_cadre03` (the corner brackets), `lo
 (sSTY_PcList: edit boxes and lists), `Saquare_BOX` (panels) and `CommunicatorON` (the speaking icon). Text colours are
 the styles' FontColors (58, 73, 58 normal; 93, 117, 92 focused) and the page title's (69, 85, 69), doubled: every
 style draws its images at 128, which reads as neutral, so the colours are taken to be on the same scale. That doubling
-is an estimate: the original's menus cannot be captured under the test rules (only the editor's Play Level may run).
+is an estimate and needs visual comparison with the original menus.
 Page titles type out at ten letters a second with a blinking cursor (GUIPage.MyDrawPage); page buttons sit along the
 bottom, B first and A last. Without converted content the pages fall back to plain colours.
 
@@ -336,7 +327,7 @@ Offline lobbies use the same team and map positions without online chat, spectat
   applying implicitly. Changes received while a host draft is edited are flagged for review.
 - Record my matches is a personal switch in the lobby and the Game tab, available to hosts and guests alike.
   It is saved immediately, independently of Apply/Discard, and chooses whether upcoming rounds are saved under
-  Demos on this computer. The lobby reports recording/download status; see `docs/DEMOS.md` for delivery and playback.
+  Demos on this computer. The lobby reports recording/download status; see [Demos](DEMOS.md) for delivery and playback.
 - The live overview never previews unapplied settings. Applied changes appear as readable activity notices
   instead of blinking values. Server changes still control readiness invalidation and launch behavior.
 - Start match / Cancel countdown is the host's primary action; clients use Ready / Not ready. Countdown,

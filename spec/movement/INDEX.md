@@ -1,8 +1,9 @@
 # Movement specs index
 
-Behaviour specs for pawn movement and traversal (SBasePawn, SPawnAttaque, SPAWNDEFENSE, SPlayerController and the
-engine pieces they use). Unit grammar as in the coverage plan. Every unit listed under a file is described in that
-file; a unit may appear in two files when one describes its use and the other its contract.
+[All specs](../README.md) · [Coverage report](../../docs/progress/COVERAGE.md)
+
+Rules for player movement and traversal: input, walking, jumping, climbing and movement states.
+A unit may appear in more than one spec when one describes its use and another its contract.
 
 | File | Covers | Units |
 |---|---|---|
@@ -32,6 +33,9 @@ default gravity. The slice therefore needs input-and-rotation, walking, roll, ju
 barrier-and-low-ledges, wall-jump-split-vandamme (LG walls and corridors), pipe-vertical, zip-line, back-to-wall,
 coop (spies can boost and hoist at any LG), native-contracts, state-and-network and pawn. ladder, pipe-horizontal
 and fence are needed only after the slice (no such GEs on SteeE). Mercs on SteeE only walk, crouch, jump and land.
+
+<details>
+<summary>Unit reference by file</summary>
 
 ## Units by file
 
@@ -901,7 +905,12 @@ and fence are needed only after the slice (no such GEs on SteeE). Mercs on SteeE
 - def:SBase.SPawnAttaque_1Mesh
 - def:SBase.SPawnDefense_1Mesh
 
+</details>
+
 ## Relevant units not specced here
+
+These allocation notes reflect the original research pass. Use the linked specs and
+[coverage report](../../docs/progress/COVERAGE.md) to check later additions.
 
 Found while reading the movement code; each belongs to another spec area (named in the heading) and is listed so
 coverage can track it.

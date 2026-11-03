@@ -1,5 +1,7 @@
 # Name transfer and Reloaded study scripts
 
+[RE setup](../../../README.md) · [Source-data rules](../../../PROVENANCE.md)
+
 Carry the editor's names to the game build, and read Reloaded.Core. Results: `spec/native/ANSWERS-transfer.md`,
 `spec/native/reloaded-hooks.md`, `spec/native/reloaded-features-from-code.md`; names in
 `re/ghidra/annotations/transfer.json`.

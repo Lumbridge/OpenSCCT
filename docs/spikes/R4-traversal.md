@@ -1,5 +1,7 @@
 # R4 spike: golden traversal traces (SteeE)
 
+> Historical report. Results and open issues describe the recorded run. For current setup and checks, see [development](../DEVELOPMENT.md), [testing](../TESTING.md) and the [documentation index](../README.md).
+
 **Result: done.** Twelve SteeE traversal scenarios were recorded three times each, every run in its own
 headless sandbox Play Level game, with every frame sampled (36 runs, 0 torn, missed, late or unstable samples).
 Every scenario reaches its move in every run, and the three runs of each go through the same controller states
@@ -9,7 +11,7 @@ falls a frame apart (zip line 29: three frames). The measured speeds match the d
 recorder now also writes the GE held, the GE move fields, all 16 animation channels and the root-motion lock.
 
 Recorded 2026-10-23 from Enhanced SCCT Versus v4.0 Public Beta 3 in `F:\SCCT-Automation\svm\Sandbox`: the game
-(a98873aa...) and `Reloaded.Core.dll` (6b9d4444...) match `re/binaries.lock.json` (the editor differs, large
+(a98873aa...) and `Reloaded.Core.dll` (6b9d4444...) match [re/binaries.lock.json](../../re/binaries.lock.json) (the editor differs, large
 address aware as in R4); SteeE MapsEd c78319f4...; frame cap 60. Each of the 3 games held the play lock 97 s.
 
 ## What was built
@@ -17,19 +19,19 @@ address aware as in R4); SteeE MapsEd c78319f4...; frame cap 60. Each of the 3 g
 | Path | What |
 |---|---|
 | `tests/scenarios/traversal/*.scenario.json` | the 12 scenarios, profile `traversal` |
-| `re/tools/difftest/gespots.py` | spot finder at the GEs: ledge jump grabs and walk-offs, pipes, zip lines, crawl gaps, box walls |
-| `re/tools/difftest/phases.py` | a run as phases (state, Physics, timing, motion, channel 0, lock, GE) and the spread over runs |
-| `re/tools/difftest/livegame.py` | traversal extras: `TRAVERSAL_PAWN_FIELDS`, `TRAVERSAL_PC_FIELDS`, `decode_root_lock`, `ge_index` |
-| `re/tools/difftest/record.py` | `--traversal`, profile `traversal` turns the extras on; `leaveGE` setup step; `show` prints GE and lock |
-| `re/tools/difftest/scenario.py` | profile `traversal`, setup op `leaveGE` |
-| `re/tools/difftest/test_difftest.py` | 14 new tests (lock decode, GE match, extras in a sample and a frame line, phases, spot geometry) |
+| [re/tools/difftest/gespots.py](../../re/tools/difftest/gespots.py) | spot finder at the GEs: ledge jump grabs and walk-offs, pipes, zip lines, crawl gaps, box walls |
+| [re/tools/difftest/phases.py](../../re/tools/difftest/phases.py) | a run as phases (state, Physics, timing, motion, channel 0, lock, GE) and the spread over runs |
+| [re/tools/difftest/livegame.py](../../re/tools/difftest/livegame.py) | traversal extras: `TRAVERSAL_PAWN_FIELDS`, `TRAVERSAL_PC_FIELDS`, `decode_root_lock`, `ge_index` |
+| [re/tools/difftest/record.py](../../re/tools/difftest/record.py) | `--traversal`, profile `traversal` turns the extras on; `leaveGE` setup step; `show` prints GE and lock |
+| [re/tools/difftest/scenario.py](../../re/tools/difftest/scenario.py) | profile `traversal`, setup op `leaveGE` |
+| [re/tools/difftest/test_difftest.py](../../re/tools/difftest/test_difftest.py) | 14 new tests (lock decode, GE match, extras in a sample and a frame line, phases, spot geometry) |
 
-Shared files, additive: `tests/scenarios/README.md` and `svm.scenario-1.schema.json` (profile `traversal`,
+Shared files, additive: [tests/scenarios/README.md](../../tests/scenarios/README.md) and `svm.scenario-1.schema.json` (profile `traversal`,
 op `leaveGE`, trace keys `tv`, `rm`, `ach`).
 
 Local: goldens `local/difftest/golden-traversal/<id>/run{1,2,3}.jsonl.gz` with `envelope.json` and
 `phases.json`; spot survey `local/difftest/spots/SteeE-ge.json`. They are not under `golden/` because
-`tests/OpenScct.DiffTest` checks every golden there against locomotion rules: with these traces in it 24 tests fail
+[tests/OpenScct.DiffTest](../../tests/OpenScct.DiffTest) checks every golden there against locomotion rules: with these traces in it 24 tests fail
 (unknown profile `traversal`; Physics outside 1..2; steps larger than velocity x dt at the grab snap, the end of a
 root-motion move and the crouch height change).
 
@@ -118,7 +120,7 @@ error grows along the 1550 uu ride (zip 13 ends 12 uu apart). Zip line 29's end 
 
 ## Next
 
-- `tests/OpenScct.DiffTest`: a `traversal` profile (state and channel-0 sequences within 2 frames, location limits
+- [tests/OpenScct.DiffTest](../../tests/OpenScct.DiffTest): a `traversal` profile (state and channel-0 sequences within 2 frames, location limits
   that allow one-frame snaps), the locomotion checks gated by profile; then move the goldens into `golden/`.
 - More scenarios: ledge corners (both kinds, LG 104 to 102), TopLedgeBarrier, pipe from the top
   (s_WaitAtTopPipe), zip speed and slow poses (aForward over 1000 and under -1000), crouched roll, merc ladder.

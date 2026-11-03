@@ -1,16 +1,29 @@
 # Voice chat
 
-In-game voice, as the Reloaded patch gives it (spec/reloaded/FEATURES.md section 5): push to talk or a voice
-activation gate, team and all channels, the stock rules for who hears whom (team only, the dead, the downed,
-spectators, grab talk, hacked comms, the four Enhanced voice modes), per-player mute and volume, and a speaking
-indicator. Routing rules: `spec/game/voice-chat.md`. What Reloaded's code does: `spec/native/reloaded-features-from-code.md`
-rule 1.
+[Documentation](README.md)
 
-| Path | What it holds |
-|---|---|
-| `src/OpenScct.Net/Voice/` | codec, wire format, transport, jitter buffer, gate, routing, server relay, client (Godot-free) |
-| `game/Scripts/Voice/` | microphone capture and playback in Godot, keys, the `VoiceChat` node, the overlay, hosting glue, the `voice` smoke test |
-| `tests/OpenScct.Net.Tests/Voice/` | codec, jitter buffer, routing, relay, gate, wire and driver tests |
+Voice chat works in online lobbies, matches and social hubs. It supports push to talk, voice activation,
+team chat, per-player mute/volume and speaking indicators. Who can hear you also depends on the match's
+voice mode and gameplay rules, including spectating, grabs and hacked communications.
+
+## Set up your microphone
+
+1. Open **Options → Voice**, enable voice chat and select your microphone.
+2. Use **Test my microphone** to check the input and adjust activation or push to talk.
+3. In the lobby or hub player list, adjust another player's volume or mute them.
+
+The default talk key is **Caps Lock**; **Y** talks to your team and **F8** toggles your microphone mute.
+Automatic gain and Standard noise suppression start enabled. Echo cancellation is experimental and starts off.
+Per-player volumes survive restarts; changing a player's name starts their volume at the default 100%.
+
+See [channel rules](#channels-keys-and-the-gate), [settings](#settings) and [eavesdropping](#eavesdropping)
+for details. The implementation below follows the [voice routing specification](../spec/game/voice-chat.md).
+
+| Location | Responsibility |
+| --- | --- |
+| [OpenScct.Net/Voice](../src/OpenScct.Net/Voice/) | Codec, transport, buffering, routing and relay |
+| [game/Scripts/Voice](../game/Scripts/Voice/) | Godot microphone capture, playback, controls and overlay |
+| [Voice tests](../tests/OpenScct.Net.Tests/Voice/) | Codec, buffering, routing, relay and transport checks |
 
 ## The original
 
@@ -203,7 +216,8 @@ local or remote, speaking, channel, muted, volume. Names and teams come from the
 
 ## Hosting
 
-`VoiceHosting` has the glue; none of it is wired into a session yet.
+`VoiceHosting` connects voice transport to game hosts and clients. Online sessions already use this
+integration; see [the online session](#in-the-online-session). The lower-level setup is:
 
 - Dedicated server: `var t = VoiceHosting.Wrap(udp); var host = new ServerHost(t, settings);
   var relay = VoiceHosting.CreateRelay(host, t, clock);`
@@ -261,11 +275,12 @@ owned by playback prevents the mixer from reading freed memory during that fade 
 after the player and managed wrappers are disposed. The reference is released with native playback, without a
 fixed delay or a permanent cache.
 
-## Not done yet
+## Limits and manual checks
 
-- Offline play (the local listen server of `--svm-play`) has no voice. Left so on purpose: its other players are
-  bots, which neither talk nor listen, so there is nobody to hear.
+- Offline bot play (`--svm-play`) has no voice chat.
 - The clean-up is not tuned against Reloaded's (its speexdsp settings are not decoded), and the echo canceller
   does not follow a drift between the output and capture clocks beyond trimming the reference backlog.
-- Downed chat waits for the native code that finds chat partners (spec open question 1).
-- The lobby rules apply on the online session's lobby level, through the session's own directory.
+- Validate downed-player chat against the [original voice rules](../spec/game/voice-chat.md), including
+  how chat partners are selected.
+- Test microphone capture, echo behavior and routing with real players and devices; codec and routing tests
+  cannot establish perceived audio quality.

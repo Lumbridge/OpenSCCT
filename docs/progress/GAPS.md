@@ -1,5 +1,9 @@
 # Gap analysis (2026-10-28)
 
+> Historical audit. Statuses and metrics below describe 28 October 2026, not the current
+> release. Start with the [documentation index](../README.md) for current guides and the
+> [coverage report](COVERAGE.md) for the latest checked-in measurements.
+
 What the original still has that OpenSCCT does not, after checking every unported unit of the coverage report
 (`docs/progress/COVERAGE.md`) and every feature of `spec/reloaded/FEATURES.md` and `spec/enhanced/FEATURES.md`
 against the code. The coverage tool only counts units carrying `[PortOf]`/`[Uc]`/`[UcNative]`, so many "unported"

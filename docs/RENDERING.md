@@ -1,19 +1,22 @@
-# Rendering (Faithful profile)
+# Rendering
 
-The Godot client draws a converted SVMap the way the original does: the same display values in the same pixels.
-This page holds the rules the renderer follows, in our own words, with the evidence for each number. The code is in
-`game/Scripts/Render/` (map building, materials, lights, post, vision, emitters), `game/Scripts/Views/` (pawn views),
-`game/Shaders/` and `tools/golden/` (golden captures and scores). Constants live in `RenderK` (`RenderK.cs`,
-`RenderK.Vision.cs`) with their `[Provenance]`. Game addresses are of the game DLL (`System/SCCT Versus`, base
-0x10900000) unless the editor is named.
+The Faithful renderer aims to reproduce the original game's appearance. This reference
+records its rules, evidence, tests and remaining gaps. It is not a claim of complete
+visual parity.
 
-The renderer is client only. It reads `render/` of a map folder (spec/svmap/1.1), `sim/collision.bin` for zone
-lookups, `sim/gameplay.json` and `sim/classes.json` for gameplay actors, and the shared packs (`.content/shared`),
-and never writes simulation state.
+Code lives in [game/Scripts/Render/](../game/Scripts/Render), [game/Scripts/Views/](../game/Scripts/Views), [game/Shaders/](../game/Shaders) and
+[tools/golden/](../tools/golden). Constants in `RenderK` carry provenance. Unless stated otherwise,
+addresses refer to the game DLL (`System/SCCT Versus`, base `0x10900000`).
+
+Rendering is client-only. It reads map rendering data, collision zones, gameplay actors
+and shared packs without writing simulation state. See the
+[SVMap 1.1 format](../spec/svmap/1.1/README.md) for the content layout.
+
+**On this page:** [Map builder](#map-builder) · [Materials](#materials) · [Vision modes](#vision-modes) · [Characters](#characters) · [Golden renders](#golden-renders) · [Open issues](#open-issues)
 
 ## Render pack
 
-The content pipeline's `renderpack` step (`content/svmbuild/steps/renderpack.py`) writes `.content/shared/render/`,
+The content pipeline's `renderpack` step ([content/svmbuild/steps/renderpack.py](../content/svmbuild/steps/renderpack.py)) writes `.content/shared/render/`,
 read by `Data/RenderPack` once per folder:
 
 | File | Content |
@@ -200,7 +203,7 @@ RGB luminance because its alpha did not vary, baking coverage 7..129 instead. Th
 uniform green haze. Original runtime material-isolation captures measured effective coverage about 0.57,
 matching 144/255. Both baked opacity and separately animated opacity layers now retain alpha (vendor patch
 0015); map/character cache versions invalidate the old results. AquaD/E/T's affected glass textures were
-regenerated. `tests/content/test_shader_opacity.py` covers constant alpha, opaque RGB inputs and moving layers.
+regenerated. [tests/content/test_shader_opacity.py](../tests/content/test_shader_opacity.py) covers constant alpha, opaque RGB inputs and moving layers.
 
 Thermal and EMF retain their own alpha-weighted output. The `glass-blend` rendered smoke checks the two-pass
 equation at opacity 0, 0.25 and 1, and with a partial specularity mask, within three framebuffer byte steps.
@@ -500,7 +503,7 @@ only exported their diffuse images. `viewmodel-light` renders the Blue Room regr
 zero light; its captures and original runtime evidence are in `local/viewmodel-light/`.
 
 The rules (light choice, ranking, falloff, colour, light types, the spot shadow frustum and colour cap) live
-Godot-free in `src/OpenScct.Game/Lighting/ActorLightRules.cs`; `ActorLighting`, `SpotShadowLight` and `WorldLights`
+Godot-free in [src/OpenScct.Game/Lighting/ActorLightRules.cs](../src/OpenScct.Game/Lighting/ActorLightRules.cs); `ActorLighting`, `SpotShadowLight` and `WorldLights`
 call them, and so do the bots' light field (docs/AI.md, "Light"), so what a bot judges lit is what the screen draws.
 
 ## Coronas
@@ -654,7 +657,7 @@ views and the HUD.
 
 ## Frame pacing
 
-`tools/benchmark` records FPS, slowest-1% frame times,
+[tools/benchmark](../tools/benchmark) records FPS, slowest-1% frame times,
 allocations and GC pauses through the normal play path against recorded original-game cameras. GPU timing is opt-in
 because timestamp queries/readbacks can affect throughput. Raw captures stay in `local/fps`; see the benchmark README.
 
@@ -861,7 +864,7 @@ returning to normal vision restores the cloak. Patterned-background captures sho
 class defaults) with the same particle code as the gameplay effects: `ParticleSystemSim` (AEmitter::Tick) over
 `ParticleEmitterSim` (UParticleEmitter's spawning and update) and `ParticleSystemView` (sprite quads facing the
 viewport's camera, spark lines, beam strips, `svm_particle.gdshaderinc`). The rules are decoded from the engine:
-`spec/native/emitters.md`; the gameplay effects and their converted assets: `docs/EFFECTS.md`. `Trigger(tag)` is
+[spec/native/emitters.md](../spec/native/emitters.md); the gameplay effects and their converted assets: [docs/EFFECTS.md](EFFECTS.md). `Trigger(tag)` is
 Emitter.Trigger; `RenderMap.SetTime` steps every system at 60 Hz up to the scene time (going back restarts them).
 SteeE: 57 sprite emitters (flames, flares and smoke always on; explosions, sparks and debris wait for their events).
 Authored particle collision uses the live client's collision world, so can fragments and other colliding particles
@@ -1011,7 +1014,7 @@ are its slots in order, and the skin's texture is the chars step's `textures/Pac
 built on the slot's own material. The first-person view applies its weapon's Skins every frame: the merc rifle's
 rate-of-fire screen is `Skins[3]`, which `SWeaponDefense.SetMode` swaps between SI_rof_single (the mesh's own),
 SI_rof_burst and SI_rof_auto (the default), so the rifle reads AUTO, BURST or SINGLE as the HUD does. The chars step
-exports those three (`SKIN_SWAPS` in `content/svmbuild/charconv.py`); `play-merc` checks the screen at each switch.
+exports those three (`SKIN_SWAPS` in [content/svmbuild/charconv.py](../content/svmbuild/charconv.py)); `play-merc` checks the screen at each switch.
 
 ## Golden renders
 

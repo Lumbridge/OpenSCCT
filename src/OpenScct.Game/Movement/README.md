@@ -1,14 +1,13 @@
 # Movement (OpenScct.Game.Movement)
 
-Helpers for the pawn and controller movement port: the input sampling native, the pawn action player
-(ExecuteAction), the pawn animation channels and their root motion, the camera view windows, plus `PawnRig`, the
-factory the differential tests use to play scenarios in the rewrite. The physics modes, GE searches and traversal
-natives are OpenScct.Physics' `PhysicsDriver` (docs/PHYSICS.md, "Pawn movement API"); this layer calls it.
+This layer handles movement input, actions, animation channels, root motion and camera limits.
+It also provides `PawnRig`, which runs scenarios in the rewrite for differential tests.
+Physics modes and traversal queries live in [OpenScct.Physics](../../OpenScct.Physics/README.md).
 
-The script ports live next to their classes, written from `spec/movement/*.md` and `spec/native/execute-action.md`:
-`SBase/SPlayerController.Movement*.cs` (input, rotation, walking helpers, permissions, GE events, zone and
-traversal natives), one `SBase/SPlayerController.<state>.cs` per state, `SBase/SBasePawn.Movement*.cs`,
-`SBase/SPawnAttaque.Movement*.cs` and `SBase/SPAWNDEFENSE.Movement*.cs`.
+The script ports live beside their SBase classes: `SPlayerController.Movement*.cs`,
+`SPlayerController.<state>.cs` and the pawn movement files. See the
+[movement specs](../../../spec/movement/INDEX.md) and
+[ExecuteAction spec](../../../spec/native/execute-action.md) for the source behaviour.
 
 ## PawnRig (stable API)
 
@@ -115,4 +114,5 @@ weapon states), barrier and low ledges (`s_BarrierJumpDetect`, `s_BarrierJump`, 
 short ladder and hoist (helper and climber states), the merc charge and the drop attack trigger. The movement clips'
 script notifies are registered by `MovementNotifies` (the level's AnimNotifyHandlers).
 
-Not ported yet: the back-to-wall fire states and the grab of a merc from the hang.
+Back-to-wall firing and ledge grabs are implemented in the SBase combat states
+(`SPlayerController.s_BTWFire.cs` and `SPlayerController.CombatGrabLedge.cs`).

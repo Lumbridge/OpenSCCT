@@ -1,17 +1,28 @@
-# OpenScct.Coverage
+# Behaviour coverage report
 
-Coverage of the original game's units by the specs, the C# ports and the difftests. It writes
-`docs/progress/COVERAGE.md`, `docs/progress/coverage.json` and one row of `docs/progress/history.csv`.
+`OpenScct.Coverage` measures how much of the original game's recorded behaviour has a spec,
+a C# port or a passing differential test. **It does not measure C# line or branch coverage.**
+The [published report](../../docs/progress/COVERAGE.md) includes a full breakdown and evidence.
+
+## Run
+
+Run from the repository root. Build first: the tool reads provenance attributes from compiled
+assemblies, not source files.
 
 ```powershell
-dotnet build OpenSCCT.slnx                                  # the report reads the built assemblies
-dotnet run --project tools/OpenScct.Coverage                # write docs/progress
-dotnet run --project tools/OpenScct.Coverage -- --check     # write nothing; exit 1 on errors (CI-safe)
-dotnet run --project tools/OpenScct.Coverage -- --help
+dotnet build OpenSCCT.slnx
+dotnet build game/OpenScctGame.slnx
+dotnet run --project tools/OpenScct.Coverage
+dotnet run --project tools/OpenScct.Coverage -- --check
 ```
 
-It needs no local data. Only the verified status needs the local sim runner report; without it the
-report is what CI sees.
+The first run writes the reports; `--check` validates without writing. Add `--strict` to fail on
+warnings too. Use `--help` for all options, including assembly selection and output paths.
+
+The tool works without game data. Verified status normally needs a local simulation-runner
+report. `--no-sim-report` ignores that report; a fresh checkout will not reproduce verification
+figures that depend on local goldens. Refresh the reports only from the intended build and
+test inputs.
 
 ## Inputs
 

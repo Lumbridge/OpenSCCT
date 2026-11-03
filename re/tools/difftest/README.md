@@ -1,13 +1,17 @@
-# difftest: golden traces of the original game
+# Differential test recorder
 
-Records what the original does when a scenario (`tests/scenarios/**/*.scenario.json`) is played in
-it, one stable sample per frame, so the rewrite can be compared with it (`tests/OpenScct.DiffTest`).
-Formats: `tests/scenarios/README.md`. Results and numbers: `docs/spikes/R4-difftest.md` (locomotion) and
-`docs/spikes/R4-traversal.md` (GE moves, roll, back to wall, crawl) and `docs/spikes/R4-moveset.md` (ladders, hand
-over hand, fence, wall and split jumps, vault, drops, ramps, steps; SteeE and MounE).
+The recorder plays a scenario in the original game and saves one stable sample per frame.
+OpenSCCT's C# runner replays the scenario and compares the result with those reference traces.
 
-Traces, spot surveys and envelopes are game-derived data: they go under `local/difftest/`
-(gitignored), never into a tracked path.
+- [Scenario and trace formats](../../../tests/scenarios/README.md)
+- [Combat scenarios](../../../tests/scenarios/combat/README.md)
+- Recorded studies: [locomotion](../../../docs/spikes/R4-difftest.md),
+  [traversal](../../../docs/spikes/R4-traversal.md), [moveset](../../../docs/spikes/R4-moveset.md)
+  and [combat](../../../docs/spikes/R4-combat.md)
+
+Capturing the original requires the local sandbox and private automation tools described
+below. Synthetic tests run without them. Traces, spot surveys and comparison envelopes are
+game-derived data: keep them in ignored `local/difftest/`.
 
 ## Files
 

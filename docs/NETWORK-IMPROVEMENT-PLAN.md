@@ -1,6 +1,8 @@
 # Networking improvement plan
 
-Prepared 1 November 2026 for the reported PC/laptop LAN failures. Overnight execution was authorized and an hourly continuation heartbeat was created around 01:43 Europe/London, with an 08:00 work cutoff and a report on the first subsequent wake. Current status and evidence: [overnight report](NETWORK-OVERNIGHT-REPORT-2026-11-01.md). Planned items below are not claims of completed work.
+Historical plan prepared on 1 November 2026 after PC/laptop LAN failures. Planned
+items are not completion claims. See the [overnight report](NETWORK-OVERNIGHT-REPORT-2026-11-01.md)
+for that run's results and [network testing](NETWORK-LAB.md) for current commands.
 
 ## Outcome
 
@@ -14,7 +16,7 @@ This is an assessment of this repository and its reproduced failures, not a clai
 
 ## Evidence and current checkpoint
 
-The current working tree includes unrelated user work. Preserve it. The checkout was based on `a12d374bef8ed2ec37c869391dd06c30f3466c88` during the investigation; confirm HEAD and the working tree when resuming. New branches must use `fix/`, `feature/`, or `enhancement/`.
+The investigation used a checkout based on `a12d374bef8ed2ec37c869391dd06c30f3466c88` with local changes. The statuses below describe that investigation.
 
 | Finding | Evidence | Status |
 |---|---|---|
@@ -42,7 +44,7 @@ The screenshot's 37.5 uu correction matches the spy's standing/crouching height 
 
 Work already added:
 
-- `tools/network-lab.ps1` and `game/Scripts/Smoke/NetworkLabSmoke.cs`: two to four separate Godot processes, real UDP, isolated settings, key/mouse timelines, intentional stalls, screenshots, JSON state samples, JSONL traces, and owned-process cleanup. Match/Hub paths exist; a separate dedicated lab server is being validated.
+- [tools/network-lab.ps1](../tools/network-lab.ps1) and [game/Scripts/Smoke/NetworkLabSmoke.cs](../game/Scripts/Smoke/NetworkLabSmoke.cs): two to four separate Godot processes, real UDP, isolated settings, key/mouse timelines, intentional stalls, screenshots, JSON state samples, JSONL traces, and owned-process cleanup. Match/Hub paths exist; a separate dedicated lab server is being validated.
 - Host-thread inspection queues in `ListenHost` and `HubHost`, avoiding unsynchronized reads of the authoritative world.
 - Explicit fixture placement and facing commands, distinct from gameplay input. A setup command is not evidence that ordinary player input works.
 - Readiness and presentation-clock regression tests; independent server/client map-loader jump coverage.
@@ -183,20 +185,12 @@ Add a bounded long-run test after the focused fixes: repeated stance changes, mo
 
 Completion means zero known blockers in the reported scenarios, repeatable passes for the declared supported matrix, and an explicit list of remaining unverified cases. A finite overnight run cannot certify perfection across every network, machine and content sequence. Report `PASS`, `FAIL`, `SKIPPED` and `NOT RUN` distinctly, including coverage counts; do not count a missing render capture or a skipped assertion as a pass.
 
-## Overnight timeboxes and handoff
+## Validation approach
 
-Use roughly one engineering night as an initial budget, with this order: lab assertions and failing reproductions; lifecycle/clock fixes; movement and stance/ground alignment; grab ordering and the remaining rendered-animation cases; impaired-link verification and soak. Stance checks from step 5 run alongside movement work, not only at the end. Investigations may consume the budget. Correctness blockers take priority over bandwidth tuning or adding matrix combinations.
-
-After each meaningful fix:
-
-1. Preserve the failing reproduction and its before/after trace.
-2. Add a focused regression at the lowest useful layer and rerun the corresponding real-process scenario.
-3. Check the diff, build the affected solution, and run the required related suites. Broaden checks when a shared protocol/state contract changes.
-4. Record exact commands, run directories, outstanding failures and the next action in this document or a linked results note. Preserve unrelated working-tree edits.
-
-If a protocol payload changes, update its compatibility/version contract and verify both peers reject mismatched builds clearly. Prepare a tested build and evidence for PC/laptop validation; local loopback and injected network tests do not prove behavior on the physical laptop/Wi-Fi link. Publishing or deployment is a separate task.
-
-Morning handoff: fixes completed, unresolved defects with reproducible commands, changed architectural contracts, build identity, test/matrix results (including the additional release checks), rendered evidence, measured soak duration/load, and the short PC/laptop confirmation checklist. Report skipped, failed and unrun cases explicitly. Do not declare the networking reliable from unit tests alone.
+Preserve a failing reproduction, add a focused regression, then rerun the corresponding
+real-process scenario. Record commands, build identity, evidence and unresolved failures.
+Protocol changes also need compatibility checks with mismatched peers. Local loopback
+and injected network tests still require follow-up on the physical PC/laptop link.
 
 ## Starting commands and sources
 

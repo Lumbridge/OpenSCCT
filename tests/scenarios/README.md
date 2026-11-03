@@ -1,13 +1,20 @@
 # Scenarios and traces
 
-A scenario says what to play, frame by frame, in the original game and in the rewrite. The original
-recorder (`re/tools/difftest/record.py`) plays it in a headless sandbox Play Level and writes golden
-traces; the C# tests (`tests/OpenScct.DiffTest`) read the goldens, and a sim runner (`IScenarioSim`) will
-play the same scenario in the rewrite and compare.
+A scenario defines the inputs to play, frame by frame, in the original game and OpenSCCT.
+The [recorder](../../re/tools/difftest/README.md) runs the original in a sandbox and writes
+reference traces (goldens). The C# differential-test runner replays the same inputs and
+compares the results.
 
-Scenario files are ours and tracked: `tests/scenarios/<area>/<name>.scenario.json`, id `<area>.<name>`.
-Traces are game-derived and stay local: `local/difftest/golden/<id>/run<N>.jsonl.gz`.
-The schema is `svm.scenario-1.schema.json` beside this file.
+Scenario files are tracked in `tests/scenarios/<area>/<name>.scenario.json`, with the ID
+`<area>.<name>`. Game-derived traces stay local in `local/difftest/golden/<id>/run<N>.jsonl.gz`.
+The [scenario schema](svm.scenario-1.schema.json) defines the file format. For two-player
+combat cases, see [combat scenarios](combat/README.md).
+
+Validate scenarios from the repository root:
+
+```powershell
+python -I -B re/tools/difftest/record.py check tests/scenarios
+```
 
 ## svm.scenario/1
 

@@ -1,52 +1,73 @@
-# svmbuild
+# Content pipeline
 
-The content pipeline. It reads an original install (read-only) and writes SVMap folders and shared packs under
-`.content/` (gitignored). Nothing it produces from game files is ever committed.
+`svmbuild` converts an installed copy of SCCT Versus into the maps, characters, sound and UI
+used by OpenSCCT. It reads the install and writes to `.content/`, which is ignored by Git.
+Keep all converted game data out of commits; see the [provenance rules](../re/PROVENANCE.md).
 
-Python 3.10 with `content/requirements.txt` (numpy, Pillow, jsonschema; pytest for the tests). Game data is read
-with the vendored `tools/scctpkg` and the decoders in `re/formats/scctformats`, which the pipeline imports.
+Players can use the [launcher](../docs/LAUNCHER.md). This guide is for working on the converter.
+For the output formats, see [SVMap 1.1](../spec/svmap/1.1/README.md) and
+[content packs](../docs/CONTENT-PACKS.md).
 
 ## Running
 
-From `content/` (or with `content/` on `PYTHONPATH`):
+Install Python 3.10 and the dependencies, then run from the `content/` directory:
 
-```
-python -m svmbuild --list                                  steps, dependencies, status
-python -m svmbuild maps validate --maps SteeE              classes, then SteeE to .content/svmap/SteeE/, validated
-python -m svmbuild maps validate --maps all --jobs 8       every map, 8 worker processes
-python -m svmbuild validate --maps SteeE --check-stable    also convert again and require byte-identical files
-python -m svmbuild chars                                   characters, weapons, map props to .content/shared/chars/
-python -m svmbuild maps-preview --maps SteeE               vendored scctpkg export into .content/preview/SteeE/
-python -m svmbuild testbox                                 synthetic TestBox into .content/maps/TestBox/
-python -m svmbuild.testbox                                 regenerate the tracked fixtures/testbox/
-python -m svmbuild.testbox --check                         fail if fixtures/testbox/ is not what the generator writes
-python -m svmbuild.vectors --check                         fail if spec/svmap/1.0/vectors/canonical.json is stale
+```powershell
+python -m pip install -r content/requirements.txt
+cd content
+python -m svmbuild --list
+python -m svmbuild maps validate --maps SteeE
+python -m svmbuild maps validate --maps all --jobs 8
+python -m svmbuild chars ui audio audio-map maps-catalog renderpack fx --maps SteeE
 ```
 
-Options: `--maps A,B|all` (default all maps of the install, matched ignoring case), `--game PATH` (default
-`$SVM_GAME_ROOT`, else the reference install), `--out PATH` (default `$SVM_CONTENT`, else `<repo>/.content`),
-`--jobs N` (per-map steps in N worker processes), `--check-stable`, `--sim-only` (maps without `render/`),
-`--report FILE` (every unit's status, time and stats as JSON), `--force`, `--no-cache`, `--no-deps`, `--rehash`.
+Use `--game <install>` to select the game folder. The default is `SVM_GAME_ROOT`, then the
+reference install. `--out <folder>` overrides `SVM_CONTENT` or the repository's `.content/`.
+`--maps A,B` selects maps by name; `--maps all` processes the install's full map set.
 
-Tests: `python -m pytest tests/content` from the repository root. `test_maps_steee.py` converts SteeE from the
-reference install and skips when it is not there; the rest use synthetic data only.
+Useful checks, also run from `content/`:
+
+```powershell
+python -m svmbuild validate --maps SteeE --check-stable
+python -m svmbuild.testbox --check
+python -m svmbuild.vectors --check
+```
+
+`--check-stable` converts again and checks for identical output. `--force` rebuilds a step;
+`--no-cache` avoids cached results; `--sim-only` omits map rendering data. Use `--report <file>`
+for a JSON report or `--help` for the full options.
+
+Run converter tests from the repository root:
+
+```powershell
+python -m pytest tests/content
+```
+
+Tests that need a local game install or converted content skip when those inputs are absent.
+Synthetic tests run without them.
 
 ## Steps
 
-| Step | Scope | Status | Output |
-|---|---|---|---|
-| classes (P1) | global | ready | `shared/classes.json`: exact class defaults of the six script packages, typed |
-| textures (P2) | global | stub | (maps write their PNGs into `render/textures/` for now) |
-| meshes (P3) | global | stub | (maps decode static mesh collision themselves for now) |
-| chars (P5) | global | ready | `shared/chars/<Package>/`: GLB skins, `<Animation>.anim.json`, textures |
-| audio (P6) | global | stub | `packs/audio/` |
-| ui (P7) | global | ready | `shared/ui/`: Magma pages, atlases, .mft fonts, Magma strings (docs/HUD.md) |
-| maps (P4) | per map | ready | `svmap/<Map>/`: SVMap 1.1 (`spec/svmap/1.1`) |
-| validate (P8) | per map | ready | none (schemas, references, derived indexes, collision, hashes; `--check-stable`) |
-| maps-preview | per map | ready | `preview/<Map>/` |
-| testbox | global | ready | `maps/TestBox/` |
+`python -m svmbuild --list` shows the current steps and their dependencies.
 
-Results on the 83 shipped maps: `docs/spikes/P4-maps.md`.
+| Step | Scope | Output |
+|---|---|---|
+| `classes` | Shared | Typed class defaults in `shared/classes.json` |
+| `chars` | Shared | Characters, weapons, props and animations in `shared/chars/` |
+| `ui` | Shared | Pages, fonts, atlases and text in `shared/ui/` |
+| `audio` | Shared | Sound library in `shared/audio/` |
+| `maps` | Per map | SVMap 1.1 folders in `svmap/<Map>/` |
+| `audio-map` | Per map | Sound bank and actor/zone sound references in `svmap/<Map>/audio/` |
+| `maps-catalog` | Shared | Map lists, names and pictures in `shared/maps/` |
+| `renderpack` | Shared | Vision, lighting and gameplay-object assets in `shared/render/` |
+| `fx` | Shared | Gameplay effects in `shared/fx/` |
+| `validate` | Per map | Schema, reference, collision and hash checks |
+| `maps-preview` | Per map | Preview exports in `preview/<Map>/` |
+| `testbox` | Shared | Synthetic test map in `maps/TestBox/` |
+
+`textures` and `meshes` are placeholders for separate shared packs. The map step currently
+writes the textures and static-mesh data it needs. The [map conversion study](../docs/spikes/P4-maps.md)
+records the original all-map validation.
 
 ## Cache
 

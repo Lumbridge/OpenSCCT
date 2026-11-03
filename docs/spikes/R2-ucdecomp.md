@@ -1,10 +1,12 @@
 # R2 spike: UnrealScript bytecode decompiler
 
+> Historical report. Results and open issues describe the recorded run. For current setup and checks, see [development](../DEVELOPMENT.md), [testing](../TESTING.md) and the [documentation index](../README.md).
+
 Status: **GO**. Every script in the five v300 script packages decodes to a token tree that re-encodes
 byte for byte (T1 100%), and every structured function and state lowers back to the original bytes
 including the jump layout (T2 100%, target was 98%). No function needed a goto.
 
-Tool: `re/tools/ucdecomp` (run from `re/tools`, see its README). Outputs (gitignored):
+Tool: [re/tools/ucdecomp](../../re/tools/ucdecomp) (run from [re/tools](../../re/tools), see its README). Outputs (gitignored):
 `local/re-out/uc/<Pkg>/<Class>.uc`, `local/re-out/uc/uc-index.json`, `local/re-out/uc/check.json`.
 
 ## Results

@@ -1,5 +1,7 @@
 # P1: exact class default objects from the script packages
 
+> Historical report. Results and open issues describe the recorded run. For current setup and checks, see [development](../DEVELOPMENT.md), [testing](../TESTING.md) and the [documentation index](../README.md).
+
 **Verdict: GO.** A field-by-field reader of the v300 class export, with the bytecode walked token by
 token, finds the default properties exactly. All 665 classes of Core, Engine, SBase, GUI and IpDrv
 decode with no error, no unknown property and no tag whose size disagrees with its value. Against
@@ -7,7 +9,7 @@ the live class default objects of the running game, 17,986 values agree and the 
 all values the engine replaces at run time from `.ini` files or references into packages that the
 process had not loaded.
 
-Date: 2026-10-23. Decoder: `re/formats/scctformats/classdefaults.py`
+Date: 2026-10-23. Decoder: [re/formats/scctformats/classdefaults.py](../../re/formats/scctformats/classdefaults.py)
 (`python -B -m scctformats.classdefaults --live local/reflect/game_cdo.json`). Outputs:
 
 | File | Content |

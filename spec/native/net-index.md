@@ -1,5 +1,7 @@
 # spec/native: networking (net-*)
 
+[All specs](../README.md) · [Coverage report](../../docs/progress/COVERAGE.md)
+
 Native engine behaviour behind the script networking of `spec/net/`, decoded from the game
 executable and its sibling editor build. Specs are written in our own words; addresses are listed
 in each file's Evidence section, names and comments in `re/ghidra/annotations/net.json`.

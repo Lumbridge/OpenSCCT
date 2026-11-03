@@ -1,18 +1,25 @@
-# Discord Rich Presence
+# Discord status and joining friends
 
-The game shows what the player is doing on their Discord profile, and friends can press **Join** (or **Ask to Join**)
-there to land on the same server or hub. It talks to the Discord app running on the same PC over its local pipe
-(the `DiscordRichPresence` NuGet package, `DiscordRPC.dll`); there is no native DLL and the player does not sign in.
-Without the Discord app the game runs as normal and the client keeps retrying quietly.
+[Documentation](README.md)
 
-| Path | What it holds |
-|---|---|
-| `game/Scripts/Discord/DiscordPresence.cs` | the node under `/root/App`: client, 1 s updates, launch registration, Join handling |
-| `game/Scripts/Discord/PresenceSnapshot.cs` | reads the scene, the online visit, the hub and the match into a `PresenceState` |
-| `game/Scripts/Discord/DiscordJoinSecret.cs` | the join secret's format |
+OpenSCCT can show your current map, mode and server on your Discord profile. Friends can use **Join**
+or **Ask to Join** to reach the same server or hub. Enable or disable this in **Options → HUD → Discord status**;
+turning it off clears the status immediately.
 
-Application id: `1564377811014389862` (`DiscordPresence.ApplicationId`), the OpenSCCT app on the Discord Developer
-Portal.
+This feature talks to the Discord desktop app on the same PC. It does not require a separate sign-in,
+and the game works normally when Discord is closed. Account sign-in through Discord is a separate
+feature described in [Accounts](ONLINE.md#accounts).
+
+## Implementation
+
+| Location | Responsibility |
+| --- | --- |
+| `game/Scripts/Discord/DiscordPresence.cs` | Client lifecycle, status updates, launch registration and joins |
+| `game/Scripts/Discord/PresenceSnapshot.cs` | Current menu, match and hub state |
+| `game/Scripts/Discord/DiscordJoinSecret.cs` | Join-secret format |
+
+The managed `DiscordRichPresence` package communicates over Discord's local pipe. The OpenSCCT application
+ID is `1564377811014389862` (`DiscordPresence.ApplicationId`).
 
 ## When it runs
 
@@ -65,7 +72,7 @@ Discord starts the game for a friend who does not have it running through `disco
 the current user's classes on each run of an exported Windows build (not from the editor). The command is the exe
 alone; the join arrives over the pipe once the game is up.
 
-## Open items
+## Validation and future work
 
 - Join and Ask to Join over the local pipe are the old Rich Presence API: check them with a second Discord account.
 - Per-map large images (asset key per map) once the art exists.

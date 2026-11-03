@@ -1,25 +1,29 @@
 # HUD, chat and options
 
-The in-game HUD is the original's own Magma pages, played from the converted page data: `P_HudATT` for spies,
-`P_HudDEF` for mercs, `P_SpectatorMode` for dead players and spectators, `P_BinocularsATT` and `P_BinocularsDEF` in
-the binocular views, the spy's interaction list `P_InterATT` and the end banner `P_EndGame`. What the original draws on
-the SHud canvas (objective markers, washes, console lines, the knock-out text) is drawn on top in the same order. The
-front end (main menu, options, lobby, results) is our own Godot UI in the HUD's font and colours.
+The in-game HUD plays converted Magma pages for spies, mercs, spectators, binoculars,
+interaction menus and the end banner. Canvas overlays add objective markers, screen
+effects and messages. The front end uses Godot UI styled with the HUD's fonts and colors.
+
+This guide covers content conversion, page playback, data binding, chat, settings and
+extension points. See [menus](MENUS.md) for the front-end flow and
+[HUD specifications](../spec/hud/INDEX.md) for the original rules.
+
+**On this page:** [Page player](#page-player) · [Data binding](#data-binding) · [Text chat](#text-chat) · [Options and settings](#options-and-settings) · [Smoke test](#smoke-test) · [Slice additions and gaps](#slice-additions-and-gaps)
 
 | Path | What it holds |
 |---|---|
-| `content/svmbuild/uiconv/`, `content/svmbuild/steps/ui.py` | the `ui` step: Magma packages, atlases, fonts and strings to `.content/shared/ui/` |
-| `game/Scripts/Hud/Magma/` | the page player: package model, instances and clocks, keyframes, renderer, Godot canvas, bitmap fonts |
-| `game/Scripts/Hud/` | the HUD: snapshot and sim reader, page drivers, effects, messages, console, radar, markers, binoculars, status page, `HudLayer`, `PlayHud`, the `hud` smoke test (`Hud/Gadgets/` belongs to the gadget overlays) |
-| `game/Scripts/Chat/` | shared native chat panel, editor and retained transcript |
-| `game/Scripts/Options/` | the settings file, the options screen, applying settings, the controller |
-| `src/OpenScct.Net/Channels/ChatLine.cs`, `ControlMessage.cs` | the chat message on the control channel |
-| `src/OpenScct.Server/ChatRelay.cs` | the server's chat rules |
-| `spec/hud/` | the decoded HUD rules (index in `spec/hud/INDEX.md`) |
-| `game/Scripts/UI/`, `game/Scenes/UI/` | front end: main menu, lobby, results, the play entry and lobby interfaces |
+| [content/svmbuild/uiconv/](../content/svmbuild/uiconv), [content/svmbuild/steps/ui.py](../content/svmbuild/steps/ui.py) | the `ui` step: Magma packages, atlases, fonts and strings to `.content/shared/ui/` |
+| [game/Scripts/Hud/Magma/](../game/Scripts/Hud/Magma) | the page player: package model, instances and clocks, keyframes, renderer, Godot canvas, bitmap fonts |
+| [game/Scripts/Hud/](../game/Scripts/Hud) | the HUD: snapshot and sim reader, page drivers, effects, messages, console, radar, markers, binoculars, status page, `HudLayer`, `PlayHud`, the `hud` smoke test (`Hud/Gadgets/` belongs to the gadget overlays) |
+| [game/Scripts/Chat/](../game/Scripts/Chat) | shared native chat panel, editor and retained transcript |
+| [game/Scripts/Options/](../game/Scripts/Options) | the settings file, the options screen, applying settings, the controller |
+| [src/OpenScct.Net/Channels/ChatLine.cs](../src/OpenScct.Net/Channels/ChatLine.cs), `ControlMessage.cs` | the chat message on the control channel |
+| [src/OpenScct.Server/ChatRelay.cs](../src/OpenScct.Server/ChatRelay.cs) | the server's chat rules |
+| [spec/hud/](../spec/hud) | the decoded HUD rules (index in [spec/hud/INDEX.md](../spec/hud/INDEX.md)) |
+| [game/Scripts/UI/](../game/Scripts/UI), [game/Scenes/UI/](../game/Scenes/UI) | front end: main menu, lobby, results, the play entry and lobby interfaces |
 
-Evidence comes from our own decodes (specs in `spec/hud/`, the natives in a local Ghidra copy) and from the HUD
-research of the SCCT Versus UE5 Bridge project (its `docs/HUD.md`, `docs/OVERLAYS.md`, `docs/overlays/*.md`).
+Evidence comes from our own decodes (specs in [spec/hud/](../spec/hud), the natives in a local Ghidra copy) and from the HUD
+research of the SCCT Versus UE5 Bridge project (its [docs/HUD.md](HUD.md), `docs/OVERLAYS.md`, `docs/overlays/*.md`).
 Constants live in `HudK` (and the classes that use them) with their `[Provenance]`.
 
 ## Content: the ui step
@@ -243,7 +247,7 @@ Each card shares the same width; names receive space in proportion to their meas
 shares and grapheme-safe ellipses for long names. A larger icon sits beside both lines (at least 24 px).
 Detailed SVG silhouettes from Game-icons.net replace the hand-drawn symbols. They are embedded in the
 game assembly and decoded once into shared textures, independent of editor import caches. The CC BY 3.0 author
-credits, upstream URLs and modification records are in `game/branding/icons/event-feed/README.md` and
+credits, upstream URLs and modification records are in [game/branding/icons/event-feed/README.md](../game/branding/icons/event-feed/README.md) and
 `packaging/licenses/GameIcons-LICENSE.txt`; releases include the latter under `licenses/`.
 Narrow layouts show fewer rows without shrinking text. Flash and sleep effects draw above the feed.
 
@@ -318,7 +322,7 @@ original's rules (spectators may not chat unless dead and the voice mode allows 
 characters a second, team lines to the sender's team) and sends each recipient a chat message with the sender's id,
 name and team. The display preserves that metadata for channel labels and team-coloured names and renders user
 text literally. The hub retains `/l`, emotes, chat muting and overhead bubbles. No optimistic local echoes are
-added. Spec: `spec/hud/chat.md`; UI smoke: `modern-chat` (captures via `SVM_PLAY_SHOTS`).
+added. Spec: [spec/hud/chat.md](../spec/hud/chat.md); UI smoke: `modern-chat` (captures via `SVM_PLAY_SHOTS`).
 
 Admin announcements, moderation notices and command replies also appear as System entries. `OnlineService`
 forwards the session's separate system-message stream and buffers notices received while the match loads;
@@ -472,7 +476,7 @@ grow with the width (`HudLayout.HudScreen`: either `widescreen` or `widescreen_h
 `OptionsRuntime` installs the view policy as
 `FaithfulView.VerticalFovPolicy`.
 
-**Widescreen layout** (`Hud/HudLayout`, Godot-free, unit tested in `tests/OpenScctGame.Logic.Tests/LayoutTests.cs`):
+**Widescreen layout** (`Hud/HudLayout`, Godot-free, unit tested in [tests/OpenScctGame.Logic.Tests/LayoutTests.cs](../tests/OpenScctGame.Logic.Tests/LayoutTests.cs)):
 
 | Window | Laid out at | On screen | HUD page | ER extents (ws_er_small on / off) |
 |---|---|---|---|---|
@@ -561,9 +565,9 @@ checks what reaches the widgets, phase by phase:
 
 Every drawn texture and font must exist and the font pages must be padded. It needs the converted UI content, so
 CI's default set stays `boot` and `testbox`. With a renderer, `--svm-hud-capture=<dir>` saves each screen as a PNG
-(keep them under `local/`). Unit tests: `tests/OpenScctGame.Logic.Tests` (settings file, message routing, field of view),
-`tests/OpenScct.Game.Tests/Hud/SoundArrowTests.cs`,
-`tests/OpenScct.Net.Tests/ChatMessageTests.cs`, `tests/OpenScct.Integration.Tests/ChatRelayTests.cs`.
+(keep them under `local/`). Unit tests: [tests/OpenScctGame.Logic.Tests](../tests/OpenScctGame.Logic.Tests) (settings file, message routing, field of view),
+[tests/OpenScct.Game.Tests/Hud/SoundArrowTests.cs](../tests/OpenScct.Game.Tests/Hud/SoundArrowTests.cs),
+[tests/OpenScct.Net.Tests/ChatMessageTests.cs](../tests/OpenScct.Net.Tests/ChatMessageTests.cs), [tests/OpenScct.Integration.Tests/ChatRelayTests.cs](../tests/OpenScct.Integration.Tests/ChatRelayTests.cs).
 
 `--svm-smoke=hud-activity-feed` checks all seven HUD pages at 640x480, 1280x720, 1920x1080 and 3440x1440,
 including measured long-name truncation, enlarged/moved telemetry graphs in Always and Issues modes, stretched

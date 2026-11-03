@@ -1,7 +1,9 @@
 # R0 spike: reflection dumps of the editor and the game
 
+> Historical report. Results and open issues describe the recorded run. For current setup and checks, see [development](../DEVELOPMENT.md), [testing](../TESTING.md) and the [documentation index](../README.md).
+
 **Result: done.** A headless sandbox editor and its Play Level game (SteeE, spy) were dumped with
-`re/tools/reflect/dump.py`, read-only, and diffed. The dumps, class defaults and diff are in
+[re/tools/reflect/dump.py](../../re/tools/reflect/dump.py), read-only, and diffed. The dumps, class defaults and diff are in
 `local/reflect/` (not tracked). Script-side layouts agree between the two builds wherever both
 have a class; the differences are in native classes and in two reflection types.
 
@@ -102,7 +104,7 @@ this sandbox's own editor and game ever ran from it.
 - ClassReps and NetFields are filled only in the game.
 - FString is 8-bit in the editor and UTF-16 in the game.
 
-Full table: `re/tools/reflect/README.md`.
+Full table: [re/tools/reflect/README.md](../../re/tools/reflect/README.md).
 
 ## Diff (editor vs game)
 

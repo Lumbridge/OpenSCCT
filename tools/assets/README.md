@@ -1,5 +1,16 @@
 # External asset workflow
 
+Use these scripts to stage and validate character edits, external assets and animation
+experiments. Keep game-derived outputs under ignored `local/` or `.content/`; see the
+[provenance rules](../../re/PROVENANCE.md).
+
+- [Character authoring](#editable-spy-and-merc-bases)
+- [Blender setup](#local-integration)
+- [Static assets](#static-assets-and-native-rig-animation-exports)
+- [Mixamo retargeting](#mixamo-retarget-pilot)
+- [Validation](#verification)
+- [Weapon reloads](#weapon-reload-authoring) and [audio](#weapon-audio)
+
 ## Editable spy and merc bases
 
 `author_characters.py` builds Blender authoring files from the user's locally
@@ -24,14 +35,14 @@ retained. This is an authoring upgrade, not newly sculpted replacement geometry.
 Build authoring files (regenerates them; save edits elsewhere first):
 
 ```powershell
-& 'C:/Program Files/Blender Foundation/Blender 5.2/blender.exe' --background --python-exit-code 1 --python tools/assets/author_characters.py -- --repo C:/Users/ryans/source/repos/SVM-Rewrite
+blender --background --python-exit-code 1 --python tools/assets/author_characters.py -- --repo .
 ```
 
 Export model/texture edits while preserving original gameplay animations:
 
 ```powershell
-& 'C:/Program Files/Blender Foundation/Blender 5.2/blender.exe' --background --python-exit-code 1 --python tools/assets/export_character.py -- local/characters/spy/spy-authoring.blend local/characters/spy/export/ATT_01.glb
-& 'C:/Program Files/Blender Foundation/Blender 5.2/blender.exe' --background --python-exit-code 1 --python tools/assets/export_character.py -- local/characters/merc/merc-authoring.blend local/characters/merc/export/DEF_01.glb
+blender --background --python-exit-code 1 --python tools/assets/export_character.py -- local/characters/spy/spy-authoring.blend local/characters/spy/export/ATT_01.glb
+blender --background --python-exit-code 1 --python tools/assets/export_character.py -- local/characters/merc/merc-authoring.blend local/characters/merc/export/DEF_01.glb
 ```
 
 The default export copies original animation tracks/timing exactly; it does not
@@ -40,10 +51,8 @@ tracks stable across repeated exports/installations. For a new control-rig anima
 copy, key the controls, set the scene frame range and pass `--clip YourClipName`.
 This bakes the evaluated deformation skeleton and exports only the new clip.
 New clips need a separate gameplay mapping/timing integration before deployment.
-One-second hand-reach demonstrations were baked and loaded in Godot for both
-characters, with approximately 0.265 m of measured bone movement.
 
-`local/characters/enabled.json` lists enabled local overrides, currently
+`local/characters/enabled.json` lists enabled local overrides, for example
 `["spy", "merc"]`. The chars content step hashes the enabled GLBs and referenced
 textures, validates bone names, existing clip names/durations and placement
 metadata, then installs them before cosmetic texture generation. No manifest
@@ -51,10 +60,9 @@ means standard converted content. Set it to `[]` and rebuild chars to disable.
 Only compatible full-character exports belong in `export/`; single-clip
 experiments belong elsewhere, such as `demo/`.
 
-The local converted models were backed up under
-`local/characters/backups/before-authoring/SPerso` before installation. Source
-`.anim.json` files are unchanged. Derived Blender files/textures stay local and
-are not committed or included as independent redistributable assets.
+Keep backups of your converted models before installing edits. Source `.anim.json` files
+are unchanged. Derived Blender files and textures stay local; do not commit them or publish
+them as independent assets.
 
 Validation: rig rest-position/rotation checks, four IK effector checks per
 character, structural export checks, and `compare_character.gd` sampling five
@@ -74,38 +82,13 @@ the local gameplay content.
 
 ## Local integration
 
-This workstation has `blender` and `mixamo` registered in the user Codex MCP
-configuration. Their isolated environments and source checkouts are under
-`C:/Users/ryans/.codex/integrations/`:
+The scripts need Blender available as `blender` on `PATH`, or an absolute path to your
+Blender executable. Run the commands below from the repository root. Godot validation uses
+the version installed by the [developer setup](../../docs/DEVELOPMENT.md).
 
-After setup or server-code changes, restart Codex to refresh cached MCP
-transports. A fresh protocol client was tested independently of the chat's
-cached connection.
-
-- `mcp-for-blender`: version 2.2.6, upstream commit
-  `992233bb258975a05eec8b5691465c50c2831e34`.
-- `mixamo-mcp`: upstream commit `8bdb0a3ed91fdc1fadc469701e09ecb0bdb7aefd`,
-  MCP dependency pinned to 1.30.0. Local changes fix browser cleanup and retain
-  Adobe login state separately from the headless automation contexts.
-- Blender 5.2.2 LTS, add-on protocol 15. Poly Haven enabled in the saved asset
-  workspace; telemetry disabled and server safe mode enabled. The upstream
-  checkout omitted `blender_mcp/config.py`; a local disabled-telemetry config
-  supplies it. Preserve that patch when updating the integration.
-
-Open `asset-workspace.blend` from the integrations directory in Blender to start
-the bridge on localhost:9876. The add-on is enabled in Blender preferences;
-Poly Haven is a per-scene checkbox. Only one live Blender should own this port.
-Sketchfab and Poly Pizza remain optional and need their own API keys. No paid
-generation provider was enabled.
-
-If Mixamo reports an expired login, run its `login.py` using its virtualenv
-Python. Sign in in the window, wait for the character page, then close the
-window. `session-state.json` is a local credential file, not an asset: never
-copy it into the repository. An authenticated session was tested with an X Bot
-rifle-walk download; no OpenSCCT character was uploaded.
-
-Upstreams: https://github.com/ahujasid/mcp-for-blender and
-https://github.com/V1xel/mixamo-mcp. Asset licences are separate from MCP code.
+Blender and Mixamo integrations are optional ways to prepare source assets. Configure them
+locally and keep login state and API keys outside the repository. Asset licenses are separate
+from the integration's code license; record the source, author, license and any edits.
 
 ## Static assets and native-rig animation exports
 
@@ -114,7 +97,7 @@ Save a source `.blend`, `.fbx`, `.gltf` or `.glb` and create a manifest beside i
 ```json
 {
   "source": "crate.blend",
-  "output": "export/crate.glb",
+  "output": "export/plastic_crate_03.glb",
   "objects": ["crate"],
   "source_url": "https://polyhaven.com/a/plastic_crate_03",
   "author": "Pacific Penguin",
@@ -130,7 +113,7 @@ rejected for skinned meshes. `clip_names` optionally maps input action names
 to exported clip names. Run from the repository:
 
 ```powershell
-& 'C:/Program Files/Blender Foundation/Blender 5.2/blender.exe' --background --python-exit-code 1 --python tools/assets/export_asset.py -- local/asset-pipeline/crate.json
+blender --background --python-exit-code 1 --python tools/assets/export_asset.py -- local/asset-pipeline/crate.json
 python tools/assets/validate_glb.py local/asset-pipeline/export/plastic_crate_03.glb
 ```
 
@@ -157,7 +140,7 @@ Download FBX with skin at 30 fps, with **In Place** checked. Create a manifest:
 ```
 
 ```powershell
-& 'C:/Program Files/Blender Foundation/Blender 5.2/blender.exe' --background --python-exit-code 1 --python tools/assets/retarget_mixamo.py -- local/asset-pipeline/walk.json
+blender --background --python-exit-code 1 --python tools/assets/retarget_mixamo.py -- local/asset-pipeline/walk.json
 ```
 
 The pilot maps 22 body bones to the spy `B ...` skeleton, aligns anatomical
@@ -185,7 +168,7 @@ attachments, vision materials and multiplayer behaviour in-game.
 
 ```powershell
 python -m unittest discover -s tools/assets -p test_validate_glb.py
-& tools/godot/4.7.2-stable/Godot_v4.7.2-stable_mono_win64_console.exe --headless --path local/asset-pipeline --script ../../tools/assets/godot_validate.gd -- C:/Users/ryans/source/repos/SVM-Rewrite/local/asset-pipeline/export/plastic_crate_03.glb C:/Users/ryans/source/repos/SVM-Rewrite/local/asset-pipeline/export/spy-mixamo-walk.glb
+& tools/godot/4.7.2-stable/Godot_v4.7.2-stable_mono_win64_console.exe --headless --path local/asset-pipeline --script ../../tools/assets/godot_validate.gd -- (Resolve-Path local/asset-pipeline/export/plastic_crate_03.glb).Path (Resolve-Path local/asset-pipeline/export/spy-mixamo-walk.glb).Path
 ```
 
 The isolated `local/asset-pipeline/project.godot` only needs `config_version=5`.
@@ -196,7 +179,7 @@ Pilot sources: Poly Haven `plastic_crate_03` (Pacific Penguin, CC0) and Mixamo
 animation `116160902`, Walking while aiming rifle, on X Bot. Both were downloaded
 through the installed integrations. The crate was reduced to 12,000 triangles;
 a 6,000-triangle trial visibly damaged the lattice and was rejected.
-# Weapon reload authoring
+## Weapon reload authoring
 
 The content build applies `content/svmbuild/reload_choreography.py` to the rifle,
 Uzi, shotgun and all five merc sidearms. Revision 2 replaces the reload timelines:
@@ -216,7 +199,7 @@ unchanged. The spy shocker does not have a magazine reload to replace.
 Generate editable first-person workspaces after building content:
 
 ```powershell
-& 'C:/Program Files/Blender Foundation/Blender 5.2/blender.exe' -b --python-exit-code 1 --python tools/assets/author_weapon_rigs.py -- --repo .
+blender -b --python-exit-code 1 --python tools/assets/author_weapon_rigs.py -- --repo .
 ```
 
 Each `local/weapons/<weapon>/<weapon>-authoring.blend` contains a separate FK
@@ -249,4 +232,3 @@ Recordings, edits and licenses are documented in
 for its source layers. Original source recordings and deterministic authoring
 code are retained. Blender/Mixamo do not provide an audio library: the additional
 recordings came from the credited OpenGameArt sources.
-

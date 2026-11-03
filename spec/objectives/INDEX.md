@@ -1,6 +1,9 @@
 # Objectives and interactions: spec index
 
-Area: SteeE Story objectives and everything a player uses to complete them. The exact unit IDs of each file are in that file's `Units:` header (480 distinct IDs in total); the table gives the groups.
+[All specs](../README.md) · [Coverage report](../../docs/progress/COVERAGE.md)
+
+Rules for objectives and the interactions used to complete them: missions, terminals, disks,
+switches, bombs and team actions. Each spec's `Units:` block holds its exact coverage IDs.
 
 | File | Covers | Unit groups | IDs |
 |---|---|---|---|
@@ -16,6 +19,9 @@ Area: SteeE Story objectives and everything a player uses to complete them. The 
 | [messages.md](messages.md) | Message switches, broadcast and team delivery, HUD routing and stacks, HUD lists and radar markers fed by objectives, multicast RPC flag | SGameMessages.GetString (area switches), broadcast chain, SHud routing helpers, SHud.AddObjective/RemoveObjective | 20 |
 
 ## Relevant units not specced here
+
+These allocation notes reflect the original research pass. Use the linked specs and
+[coverage report](../../docs/progress/COVERAGE.md) to check later additions.
 
 Out of the slice or owned by another area; listed so coverage can track them.
 

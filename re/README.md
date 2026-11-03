@@ -1,20 +1,33 @@
-# re/: reverse-engineering tooling
+# Reverse-engineering tools
 
-Tools that turn the original game binaries into facts we can write specs from: a lock on the exact
-build we study, a Ghidra project of the game and the editor built headless by scripts, and the names
-and comments we add, exported as small JSON files that are tracked in git.
+These tools turn observations of the original game into evidence for our
+[behaviour specs](../spec/README.md). They identify the exact build being studied, collect
+reflection data, decode packages and keep our Ghidra names and comments in Git.
+
+Start with the [provenance rules](PROVENANCE.md). Game files, decompiled code, traces and
+Ghidra databases stay in ignored local folders.
+
+## Choose a tool
+
+| Task | Guide |
+|---|---|
+| Read script packages | [UnrealScript decompiler](tools/ucdecomp/README.md) |
+| Inspect a running editor or game | [Reflection reader](tools/reflect/README.md) |
+| Decode traversal and collision data | [Package format readers](formats/README.md) |
+| Compare original and rewrite behaviour | [Differential test recorder](tools/difftest/README.md) |
+| Understand coverage unit IDs | [Inventory](inventory/README.md) |
+| Study native code | [Physics](ghidra/scripts/physics/README.md), [actions](ghidra/scripts/actions/README.md), [remaining natives](ghidra/scripts/natives2/README.md), [name transfer](ghidra/scripts/transfer/README.md) |
 
 ## Tracked vs local-only
 
-| Tracked in git | Local only (gitignored) |
+| Tracked in Git | Local only |
 |---|---|
-| `re/binaries.lock.json`: SHA-256, size and header facts of each studied binary | The game install itself (read-only, never copied) |
-| `re/tools/*.py`, `re/tools/ghidra-env.ps1` | `re/.venv-ghidra/`: Python venv with PyGhidra |
-| `re/ghidra/build.ps1`, `re/ghidra/scripts/*.py`, `re/ghidra/lib/*.py` | `local/ghidra/`: the Ghidra project `SVM` (`SVM.gpr`, `SVM.rep/`), logs, analysis markers |
-| `re/ghidra/annotations/{game,editor}.json`: names, namespaces, function entry points and our comments, by address | `local/re-out/`: script reports and intermediate data (`*.analysis-stats.json`, `*-report.json`, `editor.natives.json`, `native-anchors.json`) |
+| Binary hashes in `re/binaries.lock.json` | Game install, read-only |
+| Tools and Ghidra scripts | Python environment in `re/.venv-ghidra/` |
+| Our names, addresses, types and comments in `re/ghidra/annotations/` | Ghidra databases and logs in `local/ghidra/` |
+| Original specs and synthetic tests | Dumps, decompiled output and reports in `local/re-out/` |
 
-Never commit decompiled C, disassembly, Ghidra databases, game files or anything else derived from
-the game other than the annotation files above (names and addresses only).
+The [provenance guide](PROVENANCE.md) defines the full rules and exceptions.
 
 ## Requirements
 

@@ -4,7 +4,7 @@ Python reader for SCCT Versus packages, copied from the Bridge repository.
 Do not edit files under `scctpkg/` here: change them upstream and re-run `sync.py`. A fix that cannot wait
 goes in `patches/` (applied by `sync.py`, verified by `sync.py --check`) until upstream has it.
 
-- Source repository: https://github.com/Lumbridge/SCCT_Versus_UE5_Bridge.git
+- Source repository: [SCCT Versus UE5 Bridge](https://github.com/Lumbridge/SCCT_Versus_UE5_Bridge)
 - Source path: `scctpkg/` (local checkout `%USERPROFILE%\source\repos\SCCT_Versus_UE5_Bridge`)
 - Commit: `839b70270a16ed353a105ca036b6b0163b70672a`
 - Commit date: 2026-09-29T00:01:36+01:00
@@ -13,8 +13,6 @@ goes in `patches/` (applied by `sync.py`, verified by `sync.py --check`) until u
 Files are taken from the git object store at that commit, so each one matches its upstream blob id.
 `class_defaults.json` is game-derived: it is copied for imports to work but is not tracked
 (`tools/scctpkg/.gitignore`). Re-run `python tools/scctpkg/sync.py` on a fresh clone to get it.
-
-A later split of scctpkg into its own repository (consumed here as a git subtree) is planned.
 
 ## Files
 

@@ -1,4 +1,11 @@
-# Demo training data, version 1
+# Demo training data
+
+[Documentation](README.md)
+
+This is the version 1 schema for optional structured demo exports. It is intended for data analysis and
+future training experiments. Ordinary [demo recording and playback](DEMOS.md) does not need it.
+
+## Enable capture
 
 Training data saving is disabled by default. Set `SVM_ENABLE_TRAINING_DATA=1` before starting the game/server to
 enable capture; online downloads also require that flag on the client. The equivalent programmatic setting is
@@ -10,8 +17,7 @@ export of structured simulation data; reading it does not require decoding netwo
 build. Keep the replay and matching map/build for visual investigation. Older replays cannot retroactively supply
 inputs or private player state that were never recorded.
 
-This implements data collection only. No model is trained, downloaded or used by the bots. Existing goal
-selection, movement and combat behaviour are unchanged. Training companions remain on the recording server and
+Capture collects data only; it does not train a model or change bot behavior. Training companions remain on the recording server and
 are delivered to opted-in personal-demo clients; the master's existing replay upload does not upload companions.
 
 ## Envelope and records

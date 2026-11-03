@@ -1,12 +1,14 @@
 # C2: static mesh collision (the tail after the render buffers)
 
+> Historical report. Results and open issues describe the recorded run. For current setup and checks, see [development](../DEVELOPMENT.md), [testing](../TESTING.md) and the [documentation index](../README.md).
+
 **Verdict: GO for decoding; one open question for physics.** Every static mesh export of the 62
 shipped `.usx` packages (4,961 meshes, 138.4 MB of tail data) and the 10 meshes stored inside maps
 decode to their last byte. Per-polygon collision matches the collision-enabled render triangles on
 every mesh. The hull data is decoded completely, but most stock hulls are open shells, not closed
 convex solids, so the physics port must treat hull collision as triangles (see Findings).
 
-Date: 2026-10-23. Decoder: `re/formats/scctformats/smcollision.py`
+Date: 2026-10-23. Decoder: [re/formats/scctformats/smcollision.py](../../re/formats/scctformats/smcollision.py)
 (`python -B -m scctformats.smcollision all`, `... maps` for the meshes inside `.sdc` files).
 Output: `local/formats/smcollision/<Package>.json` (per-mesh report) and `_summary.json`.
 

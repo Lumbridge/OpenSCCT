@@ -1,13 +1,14 @@
-# Physics (OpenScct.Physics)
+# Physics
 
-`OpenScct.Physics` is the collision world and the engine physics of the simulation: the line and box traces the
-natives and the script use, every pawn physics mode of SCCT (walking, falling, root motion, repositioning,
-Vandamme and the GE traversal modes), the GE zone natives, movers with encroachment, and MoveActor. It is pure C#,
-Godot-free and deterministic (the banned-API analyzer applies).
+`OpenScct.Physics` provides collision queries, pawn movement, traversal, movers and
+actor placement for the simulation. It is pure C# and has no Godot dependency.
 
-The rules follow the native code decoded in `spec/native/physics-*.md` and `collision-*.md` (physics v2). Every
-port carries `[UcNative]`, `[PortOf]` and `[Provenance]`; a rule stays `Estimated` only where the spec leaves it
-open, and the attribute says what is guessed. "Still estimated" below lists them.
+Rules and evidence are in the [native physics index](../spec/native/physics-index.md)
+and [collision specifications](../spec/native/collision-primitives.md). Ports record
+provenance; unresolved rules remain labeled `Estimated`. See [remaining estimates](#still-estimated)
+before treating a behavior as confirmed.
+
+**On this page:** [Pawn movement API](#pawn-movement-api) · [Setup](#setup) · [Queries](#queries) · [Still estimated](#still-estimated) · [Open questions](#open-questions)
 
 ## Pawn movement API
 
@@ -20,7 +21,7 @@ stable.
   (`ref FVector ISBasePawnPhysics.ZipP1 => ref ZipP1;`), the class defaults (`DefaultCollisionRadius`,
   `DefaultCollisionHeight`, `DefaultPrePivot`, `DefaultHealth`), `UnCrouch(bClientSimulation)` and
   `RootMotionMesh` (`IRootMotionMesh`: lock mode and root delta, from the animation port). Enum and actor fields
-  are get/set (`TypeLedge` as a byte, `m_AttackTarget` as a Pawn). `tests/OpenScct.Physics.Tests/TestSupport.cs`
+  are get/set (`TypeLedge` as a byte, `m_AttackTarget` as a Pawn). [tests/OpenScct.Physics.Tests/TestSupport.cs](../tests/OpenScct.Physics.Tests/TestSupport.cs)
   (`TestSBasePawn`) is a complete example.
 - `SPlayerController : ISPlayerControllerPhysics` (extends `IPhysicsEvents`): `ref fZMaxFalling`,
   `ref fLastTimeOnAMover`, `bTestBackFeetGrab`, `fDistanceForContextualJump`, and the events the natives raise,

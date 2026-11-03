@@ -1,5 +1,7 @@
 # Network audio, crouch, death presentation, ledge kills and timers — 2026-11-01
 
+> Historical report. Results and open issues describe the recorded run. For current setup and checks, see [development](DEVELOPMENT.md), [testing](TESTING.md) and the [documentation index](README.md).
+
 Follow-up to [0.8.54](NETWORK-FOLLOWUP-2026-11-01.md), focused on the remaining movement audio,
 crouch placement, death/spectator presentation, ledge kills and countdown accuracy.
 Released and deployed as [0.8.55](https://github.com/Lumbridge/OpenSCCT/releases/tag/v0.8.55)
@@ -257,7 +259,7 @@ records successful completion and cleanup with no owned processes remaining. The
 stopped before Jump because the harness expected a base walking state instead of the original's
 derived standing state; it is retained as an incomplete fixture, not a gameplay failure. Replay
 evidence in the validation checkout: `local/ledge-bones/verified.xml` and `local/ledge-bones/logs`.
-The reproducible command and its limits are documented in `tools/benchmark/README.md`; the helper
+The reproducible command and its limits are documented in [tools/benchmark/README.md](../tools/benchmark/README.md); the helper
 is `tools/benchmark/capture_original_ledge.py --repo . --out local/<new-capture-directory>`.
 
 ## Countdown accuracy

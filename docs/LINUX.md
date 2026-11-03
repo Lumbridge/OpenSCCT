@@ -1,8 +1,13 @@
 # Native Linux and Steam Deck (experimental)
 
-The Linux preset exports the Godot C# game as a native x86_64 executable with a self-contained .NET runtime.
-The Flatpak starts the game directly and provides first-run content setup in place of the Windows Forms launcher.
-Steam Deck hardware validation is pending; desktop Guix x86_64 has been tested with the certificate-path fix.
+[Documentation](README.md)
+
+Use the Flatpak to play on Linux without Wine, Proton or a system .NET installation. It starts the game
+directly and downloads content during first-run setup. Download the bundle from the
+[latest release](https://github.com/Lumbridge/OpenSCCT/releases/latest).
+
+Linux and Steam Deck support is experimental. Steam Deck hardware validation is still pending.
+For build details and automated checks, see [Build](#build) and [Validate](#validate).
 
 ## Install
 
@@ -43,7 +48,7 @@ For a manual Steam entry, use `/usr/bin/flatpak` as the executable and `run io.g
 launch options. Leave compatibility-tool overrides off and choose a **Gamepad** Steam Input layout. The game
 already supports analog sticks, menu navigation and separate spy/mercenary bindings. Steam+X opens the keyboard.
 
-Rendering uses upstream's Forward+ Vulkan path. For graphics troubleshooting, try
+Rendering uses Godot's Forward+ Vulkan path. For graphics troubleshooting, try
 `flatpak run io.github.Lumbridge.OpenSCCT --rendering-method gl_compatibility`; some effects require Forward+.
 Hardware frame rate, Gaming Mode integration, controller mapping and microphone capture need device testing.
 
@@ -55,14 +60,14 @@ Application ID: `io.github.Lumbridge.OpenSCCT`.
 - Settings/crash logs: `~/.var/app/io.github.Lumbridge.OpenSCCT/data/godot/app_userdata/OpenSCCT/`
 - Terminal output: launch using `flatpak run io.github.Lumbridge.OpenSCCT`.
 
-The launcher replaces missing/unreadable inherited `SSL_CERT_FILE` and `SSL_CERT_DIR` values with the runtime's
+The Flatpak startup script replaces missing or unreadable inherited `SSL_CERT_FILE` and `SSL_CERT_DIR` values with the runtime's
 `/etc/ssl/cert.pem` and `/etc/ssl/certs`. This fixes Guix/Nix profile paths that do not exist inside the sandbox.
 Readable custom CA files/directories, including colon-separated directory lists, are preserved. Certificate
-verification remains enabled. The launcher reports replacement paths on stderr.
+verification remains enabled. The script reports replacement paths on stderr.
 
 The sandbox allows network, IPC, X11/Wayland, audio/microphone and devices (GPU/controllers), with no home-directory
-access. The Windows-only Python content converter is omitted; this package uses upstream preconverted packs.
-The Windows launcher's self-update mechanism is not used. Discord remains disabled on Linux as upstream configures it.
+access. The Windows-only Python content converter is omitted; this package uses downloaded content packs.
+The Windows launcher's self-update mechanism is not used. Discord Rich Presence is disabled on Linux.
 
 ## Build
 
@@ -84,12 +89,11 @@ To package an existing export: `tools/linux/package-flatpak.sh local/linux`. Bui
 and sequential project compilation. Packaging uses `flatpak build-export --disable-sandbox` for the icon validator
 so it can run in nested containers; this does not weaken the installed application's sandbox.
 
-The `linux-export` GitHub Actions workflow builds the bundle, checks the native boot/TestBox smokes and uploads
+The [linux-export workflow](../.github/workflows/linux-export.yml) builds the bundle, checks the native boot/TestBox smokes and uploads
 an `openscct-linux-flatpak` artifact. Its ordinary run downloads toolchains, not game content.
 It also installs the bundle and runs boot/TestBox inside the Flatpak sandbox using `tools/linux/smoke-flatpak.sh`.
 
 Third-party notices for the engine, runtime, fonts and dependencies ship with the export and Flatpak.
-Application source licensing is unchanged from upstream.
 
 ## Validate
 

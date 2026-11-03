@@ -1,16 +1,18 @@
 # OpenScct.Core
 
-The UE2 runtime the simulation is built on: names, math, actors, the level tick, states with latent code,
-timers, the tag event bus, presentation events and seeded random streams. Pure C#, no Godot, deterministic
-(the banned-API analyzer from `build/Sim.props` applies).
+The deterministic simulation runtime: math, names, actors, world ticks, states, timers,
+events and seeded random streams. It is pure C# and has no Godot dependency.
+The [simulation build rules](../../build/Sim.props) enable the banned-API analyzer.
 
-Namespaces:
+See the [architecture](../../docs/ARCHITECTURE.md) for how Core fits into the game, or jump to
+[math](#math), [actors](#actors-and-events), [world ticks](#level-and-world) and
+[states](#states-and-latent-code).
 
-- `OpenScct.Core`: `Name`, `FVector`, `FRotator`, `FCoords`, `SvmMath`, `SimRandom`, `Sim`, `World`, `Level`,
-  `SimEvents`, `ActorState`, `StateTable`, `LatentFrame`, `ActorIterator<T>`, `IActorPhysics`, `StableHash`.
-- `OpenScct.Core.Engine`: ports of Engine package classes (`Actor`, `Pawn`, `Controller`, `PlayerController`, `Info`,
-  `ZoneInfo`, `LevelInfo`, `GameInfo`, `ReplicationInfo`, `GameReplicationInfo`, `PlayerReplicationInfo`) and
-  their enums (`EPhysics`, `ENetRole`, `ENetMode`, values decoded from Engine.u).
+## Namespaces
+
+- `OpenScct.Core`: math and names, `World`, `Level`, events, states, timers and random streams.
+- `OpenScct.Core.Engine`: ports of engine classes such as `Actor`, `Pawn`, `Controller`,
+  `GameInfo` and replication objects. Their enums retain the original decoded values.
 
 ## Math
 

@@ -1,10 +1,12 @@
 # P4: every shipped map converted to SVMap 1.1
 
+> Historical report. Results and open issues describe the recorded run. For current setup and checks, see [development](../DEVELOPMENT.md), [testing](../TESTING.md) and the [documentation index](../README.md).
+
 **Verdict: GO.** All 83 maps of `Packages/Maps` convert to SVMap 1.1 folders, pass the validator, and convert
 byte-identically a second time. The C# reader (`OpenScct.Content`) loads all 83 with sim hashes equal to the pipeline's.
 SteeE's known facts all hold, including the crane chain timings.
 
-Date: 2026-10-23. Pipeline: `content/svmbuild` (`maps` P4, `validate` P8, `classes` P1, `chars` P5). Run:
+Date: 2026-10-23. Pipeline: [content/svmbuild](../../content/svmbuild) (`maps` P4, `validate` P8, `classes` P1, `chars` P5). Run:
 
 ```
 cd content
@@ -12,7 +14,7 @@ python -B -m svmbuild classes chars maps validate --maps all --jobs 6 --check-st
 ```
 
 Output (gitignored): `.content/svmap/<Map>/` (1.9 GB for all maps), `.content/shared/classes.json`,
-`.content/shared/chars/`. Format: `spec/svmap/1.1`.
+`.content/shared/chars/`. Format: [spec/svmap/1.1](../../spec/svmap/1.1).
 
 ## Timings and budgets
 
@@ -197,7 +199,7 @@ per-map times include contention). Every row is ok: converted, validated, and by
 
 Totals: colliders by kind brush 3,259, glass 544, gpo 9,634, meshHull 37,811, meshPoly 50,331, mover 2,906, worldBsp 83. GEs by kind
 FENCE 137, HOH 553, LADDER 390, LG 39,937, PIPE 1,345, ZL 155, the same totals as the C3 census
-(`docs/spikes/C3-ge-list.md`, 42,517). Actors: 28,031 gameplay, 68,854 render-only,
+([docs/spikes/C3-ge-list.md](C3-ge-list.md), 42,517). Actors: 28,031 gameplay, 68,854 render-only,
 842 editor, 83 LevelInfo. Render: 60,339 mesh instances, 12,224
 PNG files, 13,301 lights, 2,105 emitters.
 
@@ -223,7 +225,7 @@ Conversion notes that remain (counted per map in the report, none fatal):
   map loads with strict collision reading (the three 1.1 chunks skipped as unknown), its computed sim hash equals the
   manifest's, `CheckReferences` finds nothing, and `MapLoader` instantiates every actor (ported classes or markers).
   `CheckDerived` reports `eventEdges` on 80 maps because it implements the 1.0 rule (only `Event`); see open issues.
-- `tests/OpenScct.Content.Tests`: 116 passed (TestBox fixture and Python cross-check unchanged).
+- [tests/OpenScct.Content.Tests](../../tests/OpenScct.Content.Tests): 116 passed (TestBox fixture and Python cross-check unchanged).
 - Stability: every map was converted twice in one run (`--check-stable`) and SteeE again in a new process; all
   files byte-identical.
 
@@ -244,7 +246,7 @@ Conversion notes that remain (counted per map in the report, none fatal):
 ## Open issues
 
 1. `OpenScct.Content.GameplayDoc.CheckDerived` needs the 1.1 event-edge rule (spec/svmap/1.1/README.md "Event edges") for
-   converted maps; the derivation is in `content/svmbuild/svmap.py` (`_derive_event_edges_11`).
+   converted maps; the derivation is in [content/svmbuild/svmap.py](../../content/svmbuild/svmap.py) (`_derive_event_edges_11`).
 2. `MapLoader` reports 79 to 281 unapplied props per map (ports not written yet); `sim/classes.json` now carries
    the class defaults a loader can apply before the instance props.
 3. Interaction cylinders use the generic `SInteractObject` size rule; pickups, drop zones and terminals resize at

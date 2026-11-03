@@ -1,12 +1,10 @@
 # Devices spec index
 
-Behaviour specs for the map devices SteeE uses: event dispatch, movers, triggers, animated meshes, shakers, GE
-switches, magic events, gameplay objects, glass, extinguishers, damage volumes, stations, hint zones, the camera
-network, sound devices, zones and volumes, security control zones, help paths, sprinklers, and the SteeE chains (crane timeline) that compose them.
+[All specs](../README.md) · [Coverage report](../../docs/progress/COVERAGE.md)
 
-Total units specced: 536.
-network, laser tripwires and volumetric sensors, sound devices, and the SteeE chains (crane timeline) that compose them.
-
+Rules for map devices: doors, lifts, triggers, alarms, cameras, breakable objects, stations,
+sound, lighting and traversal switches. [SteeE device chains](steee-chains.md) shows how these
+parts work together in the crane sequence.
 
 ## Files
 
@@ -45,6 +43,9 @@ network, laser tripwires and volumetric sensors, sound devices, and the SteeE ch
 | [laser-trigger.md](laser-trigger.md) | SLaserTrigger (laser tripwire) | 29 | 1 def, 1 eng, 2 nat, 4 rep, 21 uc |
 | [volumetric-sensor.md](volumetric-sensor.md) | SVolumetricSensor (motion sensor over volumes) | 20 | 1 def, 1 rep, 18 uc |
 | [steee-chains.md](steee-chains.md) | SteeE device chains (worked examples, crane timeline) | 0 | none (composition) |
+
+<details>
+<summary>Unit reference by file</summary>
 
 ## Units by file
 
@@ -600,7 +601,12 @@ network, laser tripwires and volumetric sensors, sound devices, and the SteeE ch
 - uc:SBase.SVolumetricSensor:s_LockedByChaff.Tick
 - rep:SBase.SVolumetricSensor.bLightState
 
+</details>
+
 ## Relevant units not specced here
+
+These allocation notes reflect the original research pass. Use the linked specs and
+[coverage report](../../docs/progress/COVERAGE.md) to check later additions.
 
 Found while tracing SteeE's devices; each is owned by another spec area or is not used by SteeE. Listed so coverage
 can track them. One unit per line.

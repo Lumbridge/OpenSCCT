@@ -1,5 +1,7 @@
 # Physics study scripts
 
+[RE setup](../../../README.md) · [Source-data rules](../../../PROVENANCE.md)
+
 Helpers used to decode the native movement and collision code (results: spec/native/physics-*.md and
 collision-*.md). They work on a private copy of the Ghidra project, never on local/ghidra itself:
 

@@ -1,9 +1,10 @@
 # Combat specs index
 
-Area: combat and damage for SCCT Versus (Enhanced 4.0): SBase and Engine script plus the native contracts it
-relies on. Unit grammar as in the plan. In the spec files, `uc:<Pkg>.<Class>:<State>.{A, B}` groups several
-functions of one state; the expanded one-per-line list is below. `eng:` marks native engine behaviour that has
-no UFunction of its own. Annotations in parentheses after a unit in the spec files say which part is covered.
+[All specs](../README.md) · [Coverage report](../../docs/progress/COVERAGE.md)
+
+Rules for combat, damage, grabs, knockouts, death and healing. The specs cover the SBase and
+Engine script behaviour and the native calls it depends on. Grouped IDs such as
+`uc:<Pkg>.<Class>:<State>.{A, B}` name several functions; `eng:` names engine behaviour without a UFunction.
 
 | File | Scope | Units |
 |---|---|---|
@@ -23,6 +24,9 @@ no UFunction of its own. Annotations in parentheses after a unit in the spec fil
 | [rumble.md](rumble.md) | Controller rumble: the Vibration_* shapes and priorities | 14 |
 
 Total unit references: 629 (unique 583).
+
+<details>
+<summary>Unit reference by file</summary>
 
 ## Units covered, by file
 
@@ -689,7 +693,12 @@ Total unit references: 629 (unique 583).
 - uc:SBase.SPlayerController:Vibration_Charge_Course
 - uc:SBase.SPlayerController:Vibration_Charge_Obstacle
 
+</details>
+
 ## Relevant units not specced here
+
+These allocation notes reflect the original research pass. Use the linked specs and
+[coverage report](../../docs/progress/COVERAGE.md) to check later additions.
 These units touch combat but belong to another area or were only read for context. Each needs an owner spec (or an
 n-a reason) before coverage can mark it.
 

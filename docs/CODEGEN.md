@@ -1,9 +1,13 @@
-# Class skeleton generator (OpenScct.CodeGen)
+# Class skeleton generator
 
-`tools/OpenScct.CodeGen` writes a C# skeleton for every UnrealScript class of the Core, Engine and SBase packages:
-the fields with their original names and mapped types, enums and structs, the decoded class defaults, and
-metadata (the unit manifest, states and replication as data). It writes no function bodies. Ports are written by
-hand from the specs, in partial files next to the generated ones.
+[tools/OpenScct.CodeGen](../tools/OpenScct.CodeGen) generates C# fields, enums, structs, decoded defaults and
+metadata for the original Core, Engine and SBase classes. It does not generate function
+bodies. Write behavior in hand-written partial files from the specifications.
+
+The generator requires local reflection and decompiler output. For an ordinary build,
+use the checked-in generated code and follow [development setup](DEVELOPMENT.md).
+
+**On this page:** [Running it](#running-it) · [Hand-written parts](#hand-written-parts) · [Porting a class](#porting-a-class) · [What the generator does not do](#what-the-generator-does-not-do)
 
 ## Running it
 
@@ -21,9 +25,9 @@ exit code is 1 when the report has errors.
 
 | Input | Default path | Made by |
 |---|---|---|
-| Decompiler index | `local/re-out/uc/uc-index.json` | `python -B -m ucdecomp decompile` (`re/tools/ucdecomp`) |
-| Reflection dumps, game first | `local/reflect/game.json`, `local/reflect/editor.json` | `re/tools/reflect/dump.py` |
-| Class defaults, localized | `local/formats/classdefaults_localized.json` | `python -B -m scctformats.classdefaults` (`re/formats`) |
+| Decompiler index | `local/re-out/uc/uc-index.json` | `python -B -m ucdecomp decompile` ([re/tools/ucdecomp](../re/tools/ucdecomp)) |
+| Reflection dumps, game first | `local/reflect/game.json`, `local/reflect/editor.json` | [re/tools/reflect/dump.py](../re/tools/reflect/dump.py) |
+| Class defaults, localized | `local/formats/classdefaults_localized.json` | `python -B -m scctformats.classdefaults` ([re/formats](../re/formats)) |
 | Class defaults, raw (class flags) | `local/formats/classdefaults.json` | same |
 
 The decompiler index gives classes, properties, functions (bytecode SHA-1, flags, signatures), states and
@@ -96,7 +100,7 @@ copies arrays inside structs with the struct; in C# a `List` or class array assi
 
 ## Hand-written parts
 
-The generator reads the hand-written C# of `src/OpenScct.Core` and `src/OpenScct.Game` as syntax (Roslyn, no compile, so it
+The generator reads the hand-written C# of [src/OpenScct.Core](../src/OpenScct.Core) and [src/OpenScct.Game](../src/OpenScct.Game) as syntax (Roslyn, no compile, so it
 works while generated code is stale), skipping `Generated` folders. A hand-written class with the same namespace
 and name as a generated one is its other partial part and must be declared `partial`.
 
@@ -202,7 +206,7 @@ replication of an ancestor's block.
 
 ## Porting a class
 
-A port is a partial file in the class's folder, for example `src/OpenScct.Game/SBase/SInterrupteur.cs`, written from the
+A port is a partial file in the class's folder, for example [src/OpenScct.Game/SBase/SInterrupteur.cs](../src/OpenScct.Game/SBase/SInterrupteur.cs), written from the
 spec. Every ported function carries `[Uc]` with the SHA-1 from the manifest and `[PortOf]` with the unit id and the
 spec anchor. Read both from the generated file (`UcMeta.Class.Functions`) or from the coverage inventory.
 
@@ -297,7 +301,7 @@ public partial class SBasicGamePlayObject
 
 ## Tests
 
-`tests/OpenScct.CodeGen.Tests`:
+[tests/OpenScct.CodeGen.Tests](../tests/OpenScct.CodeGen.Tests):
 
 - Generator tests on small made-up inputs (`Synthetic.cs`): names and hierarchy, every type mapping, hand-written
   members, shadowing, defaults as differences, consts, replication conditions, the unit manifest and states,

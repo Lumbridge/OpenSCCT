@@ -1,11 +1,25 @@
 # Game modes
 
-How the rewrite runs the generic match rules of every mode: Story, Disk Hunt, Deathmatch and Merc Deathmatch on
-stock maps, and Extraction, Sabotage and Neutralization for custom maps built for them. The rules are specced in
-`spec/game/game-modes.md` (the per-mode view and the menu defaults), `spec/game/` (match flow) and
-`spec/objectives/` (objective types). Map-specific event chains are not part of this.
+[Documentation](README.md)
 
-## One rules class, a mode number
+Choose a mode when creating a session. Each map controls which modes it supports.
+
+| Mode | Goal |
+| --- | --- |
+| Story | Spies complete the map's objectives; mercenaries defend them. |
+| Disk Hunt | Spies collect the required disks; mercenaries stop them and return dropped disks. |
+| Deathmatch | Exhaust the other team's lives before time runs out. |
+| Merc Deathmatch | Free-for-all mercenary combat with a kill limit. |
+| Extraction, Sabotage, Neutralization | Additional objective modes for custom maps built to support them. |
+
+Lives, respawn times, time limits and other defaults come from the map's settings. The host can change them
+in the lobby. See [Create Session](MENUS.md#create-session) for the controls.
+
+The rest of this guide explains the implementation. Detailed rules live in
+[Game modes](../spec/game/game-modes.md), [match flow](../spec/game/INDEX.md) and
+[objective specifications](../spec/objectives/INDEX.md). Map-specific event chains are documented separately.
+
+## Rules implementation
 
 There is a single game rules class, `SGameInfo` (`src/OpenScct.Game/SBase/SGameInfo*.cs`). The mode is the `GameMode` URL
 option (`EGameMode`: 1 Extraction, 2 Sabotage, 3 Neutralization, 4 Disk Hunt, 5 Story, 6 Deathmatch, 7 Merc
@@ -65,14 +79,14 @@ disks to take. An online session's server (`OnlineServer`) applies the lobby set
 
 The mission reminder (every mode): a player standing still for 20 s gets the job in the game message area: a spy
 carrying the Story disk "go to the drop zone", a Sabotage spy without a modem charge the no-modem line, otherwise
-each mission not taken shows its description for his side (`spec/hud/messages.md` "Mission reminder").
+each mission not taken shows its description for his side ([Messages](../spec/hud/messages.md) "Mission reminder").
 
 ## Extraction, Sabotage and Neutralization
 
 No stock map uses them: over the 85 converted maps no `SMission` has `GameMode` 1, 2 or 3 and no `SMapSettings.Modes`
 entry has `GameModeId` 1, 2 or 3 (the "Extraction" and "Neutralization" missions of the Orphanage maps are nested
 Story zones), and the original's mode box never lists them. Their rules are complete as the script has them (the
-table above; `spec/game/game-modes.md` rule 16), so a custom SVMap map can use them:
+table above; [Game Modes](../spec/game/game-modes.md) rule 16), so a custom SVMap map can use them:
 
 - give the map an `SMission` with `GameMode` 1, 2 or 3 and its objectives (disks and drop zones, bomb spots,
   terminals), and an `SMapSettings.Modes` entry with that `GameModeId` for the menu's starting values;
@@ -87,11 +101,11 @@ Offline: `--mode=Extraction`, `--mode=Sabotage` or `--mode=Neutralization`.
 
 | Type | Class | Mode | Spec |
 |---|---|---|---|
-| Terminal | `SComputerObjectiveTrigger` | Story | `spec/objectives/terminal-hack.md` |
-| Story disk and drop zones | `SFlag`, `SFlagDropZone` | Story | `spec/objectives/disk-flag.md` |
-| Bomb spot | `SBombTargetObjectiveTrigger`, `SBombTargetInteraction`, `SGadBomb` | Story (Sabotage) | `spec/objectives/bomb-target.md` |
-| Disk Hunt disk | `SDisk` | Disk Hunt | `spec/objectives/disk-hunt.md` |
-| End zone | `SEndZoneTip` | tutorials | `spec/game/end-of-round.md` |
+| Terminal | `SComputerObjectiveTrigger` | Story | [Terminal Hack](../spec/objectives/terminal-hack.md) |
+| Story disk and drop zones | `SFlag`, `SFlagDropZone` | Story | [Disk Flag](../spec/objectives/disk-flag.md) |
+| Bomb spot | `SBombTargetObjectiveTrigger`, `SBombTargetInteraction`, `SGadBomb` | Story (Sabotage) | [Bomb Target](../spec/objectives/bomb-target.md) |
+| Disk Hunt disk | `SDisk` | Disk Hunt | [Disk Hunt](../spec/objectives/disk-hunt.md) |
+| End zone | `SEndZoneTip` | tutorials | [End Of Round](../spec/game/end-of-round.md) |
 
 The pickup clips' `AnimNotifyPickup` script notify (registered in `Movement/MovementNotifies.cs`) puts the picked
 object in the hand and frees the hand of a Disk Hunt disk; `s_Pickup.EndState` still frees a hand that holds a disk
@@ -100,21 +114,21 @@ when no notify fired (a pawn without animation content). The controller states t
 Story disk walk and drop) and `SPlayerController.PlaceBomb.cs` (the plant). Their animations are the execute-action
 cases 226 to 229, 244, 245, 322 and 323 in `Movement/InteractionActions.cs`.
 
-Disk Hunt in short: `SMission.ActivateDisks` puts the active count in play one group at a time; a spy takes a disk
+**Disk Hunt:** `SMission.ActivateDisks` puts the active count in play one group at a time; a spy takes a disk
 from the Use menu (it leaves play and counts as taken); the mission completes, and the spies win, once
 `active count - disks still in play >= disks to take`; a dying carrier throws all his disks back into play; mercs
 walking over a dropped disk send it home; a dropped disk goes home on its own after 20 s.
 
-Bomb spots in short: a spy with the modem plants (about 1 s), the charge counts down `CaptureTime` seconds, mercs can
+**Bomb spots:** a spy with the modem plants (about 1 s), the charge counts down `CaptureTime` seconds, mercs can
 remove it from the menu and any damage defuses it; only one spot of an objective can be armed; the blast is the
 native gameplay-object blast (15 within 200 uu with linear falloff, SDamage_Explosion) and takes the objective.
 Pawns in reach go through their controller's `PawnTakeDamage` with the spy hold rule (`GadgetBlast.HurtPawn`,
-`spec/native/natives2-damage.md` rule 1.3.4), so the explosion reaction knocks them down; pawns just outside are
+[Natives2 Damage](../spec/native/natives2-damage.md) rule 1.3.4), so the explosion reaction knocks them down; pawns just outside are
 shaken.
 
 ## End of round, per mode
 
-All checks run in the same order (`spec/game/end-of-round.md`): time out first (mercs win in every mode), then Merc
+All checks run in the same order ([End Of Round](../spec/game/end-of-round.md)): time out first (mercs win in every mode), then Merc
 Deathmatch's kill limit and survivors, then a side out of lives, then every `SObjective` taken (spies win). A
 Deathmatch mission has no objectives on stock maps, so Deathmatch ends on time or by a side running out of lives.
 
@@ -136,22 +150,21 @@ Deathmatch mission has no objectives on stock maps, so Deathmatch ends on time o
 
 A dead player with lives left watches teammates (Fire for the next one) until his respawn; one out of lives keeps
 watching to the end of the round. A player who joins after the start watches any player until the next map, except
-in Merc Deathmatch, where he plays as a merc once ready (`spec/game/spectating.md`, `login-and-teams.md`).
+in Merc Deathmatch, where he plays as a merc once ready ([Spectating](../spec/game/spectating.md), `login-and-teams.md`).
 
 ## Tests and smokes
 
 - `tests/OpenScct.Game.Tests/Modes/`: Disk Hunt (`DiskHuntTests`), bomb spots (`BombTargetTests`), per-mode rules, late
   joiners and series (`ModeRulesTests`), the Story disk's carrier (`FlagCarryTests`), all with SteeE's own mode
   settings (`ModeTestKit.cs`). `BombTargetTests.The_blast_hits_pawns_within_the_damage_range_only` covers the blast
-  on pawns (it runs; it is no longer skipped). Extraction, Sabotage and Neutralization select their own mission on
-  a synthetic level (`ModeRulesTests.Extraction_Sabotage_and_Neutralization_select_their_own_mission`). The mission
-  reminder, the pickup notify, the `--game` host settings and the catalog's extra modes have no tests yet.
+  on pawns. Extraction, Sabotage and Neutralization select their own mission on
+  a synthetic level (`ModeRulesTests.Extraction_Sabotage_and_Neutralization_select_their_own_mission`). Review mission reminders, pickup animations and map-catalog modes in gameplay as well as the rules tests.
 - Client smokes (`tools/ci/godot-smoke.ps1 -Tests <name>`, need the converted SteeE): `play-diskhunt` (the spy walks
   to the nearest disk, picks it up through the Use menu and the server counts it, with the hand free again and the
   disk on his thigh), `play-deathmatch` (Deathmatch settings on the server, the spy killed and back with one life
   less after the death timeline).
 
-## Not done yet
+## Command-line limit
 
 - A dedicated `svm-server --game` run takes the menu's untouched disk counts; there is no option to set other ones
   (the online session's lobby has them).

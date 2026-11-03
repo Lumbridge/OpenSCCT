@@ -1,5 +1,7 @@
 # Map parity sweep — 2026-11-01
 
+> Historical report. Results and open issues describe the recorded run. For current setup and checks, see [development](DEVELOPMENT.md), [testing](TESTING.md) and the [documentation index](README.md).
+
 The automated sweep covers all 85 repository-converted maps, their 28,718 simulation actors and 8,701 event
 edges. The 83 maps with an available original package contain the same gameplay actor records and stored
 properties as those packages, with no decode failures. MoonD and TestRange have no original package in the
@@ -38,7 +40,7 @@ coverage; they do not establish complete interactive or visual parity with the o
 - **Crane lamps remained at their original positions:** the original native `AttachToBone` and `SetBase` paths
   accept static lights. The renderer now resolves the five render-only flare attachments on each Stee crane and
   moves their sprites with the animated bones. Native evidence and remaining visual limitations are recorded in
-  `spec/devices/animated-mesh.md`.
+  [spec/devices/animated-mesh.md](../spec/devices/animated-mesh.md).
 
 ## Coverage
 

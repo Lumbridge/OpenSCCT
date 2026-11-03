@@ -1,0 +1,39 @@
+name: Bug report
+description: Report a reproducible problem with the game, launcher or tools.
+title: "[Bug] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Search existing issues first. Share only relevant logs and remove tokens, passwords and personal information.
+        Do not upload original game files, converted asset packs or decompiled output.
+  - type: input
+    id: version
+    attributes:
+      label: Version and platform
+      description: Game or launcher version, operating system, and whether this is a source build.
+      placeholder: "OpenSCCT v…, Windows 11, launcher install"
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Include the map, game mode, side and whether you were offline, hosting or joining.
+      placeholder: |
+        1. …
+        2. …
+    validations:
+      required: true
+  - type: textarea
+    id: result
+    attributes:
+      label: Expected and actual behavior
+      description: What should happen, and what happens instead? How often does it happen?
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Logs, screenshots or a short clip
+      description: Optional supporting details. Include an error message as text when possible.

@@ -1,10 +1,12 @@
 # C3: GE list (traversal data) in the Level export
 
+> Historical report. Results and open issues describe the recorded run. For current setup and checks, see [development](../DEVELOPMENT.md), [testing](../TESTING.md) and the [documentation index](../README.md).
+
 **Verdict: GO.** The GE list is fully decoded from the packages. All 83 shipped maps decode to the
 last byte of their Level export, the SteeE truth matches exactly, and the 75 maps that also ship in
 `Packages/MapsEd` give identical GE lists.
 
-Date: 2026-10-23. Decoder: `re/formats/scctformats/ge.py` (`python -B -m scctformats.ge all --census
+Date: 2026-10-23. Decoder: [re/formats/scctformats/ge.py](../../re/formats/scctformats/ge.py) (`python -B -m scctformats.ge all --census
 --compare MapsEd`). Output: `local/formats/ge/<Map>.json` and `local/formats/ge/_summary.json`.
 
 ## Format (package version 300)

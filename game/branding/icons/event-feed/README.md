@@ -4,7 +4,8 @@ Icons made by Lorc, Delapouite, Sbed, Skoll, John Colburn and Guard13007, from [
 
 Source repository: [game-icons/icons at `82d948812bfe3f269ef8f731dcdb07b08160edc4`](https://github.com/game-icons/icons/tree/82d948812bfe3f269ef8f731dcdb07b08160edc4).
 
-The black full-canvas backgrounds were removed. Most icons retain their original white paths. Shot-triggered device variants combine the specific device silhouette with the licensed Silver bullet silhouette in the upper-left corner; headshot variants combine the firearm silhouette with the licensed Headshot symbol. The choke icon turns the original Grab grip upright and adds inward compression arrows. The HUD tints the silhouettes at runtime. No generated bitmap artwork is included. `sources.json` records all upstream sources, transformations and original/vendored SHA-256 hashes.
+The black full-canvas backgrounds were removed. Most icons retain their original white paths. Shot-triggered device variants combine the specific device silhouette with the licensed Silver bullet silhouette in the upper-left corner; headshot variants combine the firearm silhouette with the licensed Headshot symbol. The choke icon turns the original Grab grip upright and adds inward compression arrows. The HUD tints the silhouettes at runtime. No generated bitmap artwork is included. [sources.json](sources.json) records upstream sources, edits and original/vendored SHA-256 hashes.
+See the [HUD guide](../../../../docs/HUD.md) for the event feed implementation.
 
 | File | Icon title | Author | Original |
 | --- | --- | --- | --- |

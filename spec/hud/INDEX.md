@@ -1,8 +1,10 @@
 # HUD: spec index
 
-Area: what the in-game HUD draws and how it follows the simulation. The page player, the page drivers and the
-extension points are described in docs/HUD.md; the files below hold the rules ported from the decode. The exact unit
-IDs of each file are in that file's `Units:` header.
+[All specs](../README.md) · [Coverage report](../../docs/progress/COVERAGE.md)
+
+Rules for the in-game HUD and how it follows the simulation. For the page player, drivers
+and extension points, see the [HUD implementation guide](../../docs/HUD.md). Each spec lists
+its coverage IDs in its `Units:` block.
 
 | File | Covers |
 |---|---|
@@ -20,6 +22,9 @@ IDs of each file are in that file's `Units:` header.
 | [strategic-map.md](strategic-map.md) | The strategic map (the menu's button and F7, DisplayStrategicMap): floors, legend, the you-are-here and team-mate markers, UpdateMinimapParams |
 
 ## Relevant units not specced here
+
+These allocation notes reflect the original research pass. Use the linked specs and
+[coverage report](../../docs/progress/COVERAGE.md) to check later additions.
 
 - The gadget overlays (sticky cam view and menu, camera network, mines, backpack, gas mask, heart sensor): the
   gadget area, through the HUD's area driver and page override hooks (docs/HUD.md).

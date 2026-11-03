@@ -1,0 +1,23 @@
+name: Feature or improvement
+description: Suggest a focused improvement to gameplay, tools or documentation.
+title: "[Suggestion] "
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What would this improve?
+      description: Describe the problem and who it affects.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Suggested behavior
+      description: Explain what you want to happen. Examples or alternatives are welcome.
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Related behavior or evidence
+      description: If this concerns original-game parity, describe the original behavior and how to reproduce it.

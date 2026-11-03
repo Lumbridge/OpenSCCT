@@ -1,9 +1,12 @@
 # AI bots
 
-The original game has no bots. SVM adds them so a player can fill a match alone and so matches can be played
-headless for tests. The bots are meant to play fair: they act only through a player's input and perceive only what a
-player could see or hear. Their utility decisions, observed contact snapshots and spatial searches run locally,
-with difficulty presets and without gameplay recordings, trained models, a GPU or an external AI service.
+OpenSCCT adds bots for solo matches and automated tests. They use player inputs and
+perceive opponents through sight and hearing. Decisions and pathfinding run locally;
+no trained model, GPU or external AI service is required.
+
+For a two-versus-two match with three bots:
+
+**On this page:** [Principles](#principles) · [Navigation](#navigation) · [Behaviour](#behaviour) · [Difficulty](#difficulty) · [Using it](#using-it) · [Deviations and open issues](#deviations-and-open-issues)
 
 ```powershell
 OpenSCCT.exe -- --svm-play=SteeE --side=spy --bots=3 --difficulty=normal   # a 2v2 with three bots
@@ -22,30 +25,30 @@ OpenSCCT.exe -- --svm-play=SteeE --side=spy --bots=3 --difficulty=normal   # a 2
   on the target; hearing through the sounds and noises of the level; objectives through what the HUD shows (the merc
   objective radar, the localized messages). The existence of the other players is public (the scoreboard); their
   positions are not read unless perceived.
-- **Godot-free and deterministic.** `src/OpenScct.Game/AI` follows the simulation rules (no Godot, no banned APIs, seeded
+- **Godot-free and deterministic.** [src/OpenScct.Game/AI](../src/OpenScct.Game/AI) follows the simulation rules (no Godot, no banned APIs, seeded
   random streams from the match seed and the bot index, ordered collections where order matters).
 
 ## Layout
 
 | Path | What |
 |---|---|
-| `src/OpenScct.Game/AI/AiController.cs` | one bot: perception, memory, the side's brain, turn-rate limited view, stance key |
-| `src/OpenScct.Game/AI/AiInput.cs` | a tick of input (bytes, view, aim, two commands) and `AiViewport` |
-| `src/OpenScct.Game/AI/AiWorld.cs` | per level: graphs, light field, noise board, team boards, HUD message tap, smoke and torch lists |
-| `src/OpenScct.Game/AI/AiLightField.cs` | the pawn light level by the renderer's rules (`Lighting/ActorLightRules.cs`): zone ambient, four strongest lights, spot shadow lights and torches, trigger light switches |
-| `src/OpenScct.Game/AI/AiPerception.cs` | `AiSight`, `AiNoiseBoard` (MakeNoise hearing and sounds), `AiMemory` |
-| `src/OpenScct.Game/AI/AiSearch.cs` | reachable search locations, observed travel direction, visual inspection and teammate assignments |
-| `src/OpenScct.Game/AI/NavBuilder.cs`, `NavGraph.cs`, `NavFollower.cs` | navigation from collision and GEs, A*, following with keys |
-| `src/OpenScct.Game/AI/DoorAi.cs` | closed doors on a route: wait, hack the door's switch, or shut its edges |
-| `src/OpenScct.Game/AI/AiBrain.cs`, `SpyAi.cs`, `MercAi.cs` | utility choice and the two sides' goals |
-| `src/OpenScct.Game/AI/Evasion.cs`, `SpyGadgets.cs` | a spy's play round the motion tracker; its smoke, flash, chaff, heartbeat and sticky cam |
-| `src/OpenScct.Game/AI/TeamAi.cs` | team play: revive, heal and unspy a mate, climb on a mate's boost or hoist, offer a boost |
-| `src/OpenScct.Game/AI/AiDifficulty.cs`, `AiK.cs` | presets and constants (decoded ones carry their provenance) |
-| `src/OpenScct.Bots/ServerBots.cs` | adds bots to a `ServerHost` (login, per-tick drive) |
-| `src/OpenScct.Bots/AiNavCache.cs`, `AiMapLight.cs` | graphs per map content hash with a disk cache; lights from `render/lighting.json` |
-| `src/OpenScct.Bots/AiBotMatch.cs` | a headless bot-versus-bot match with a report |
-| `game/Scripts/Play` | `--bots=` and `--difficulty=` for offline play |
-| `tests/OpenScct.Game.Tests/AI` | perception, navigation, following and match tests |
+| [src/OpenScct.Game/AI/AiController.cs](../src/OpenScct.Game/AI/AiController.cs) | one bot: perception, memory, the side's brain, turn-rate limited view, stance key |
+| [src/OpenScct.Game/AI/AiInput.cs](../src/OpenScct.Game/AI/AiInput.cs) | a tick of input (bytes, view, aim, two commands) and `AiViewport` |
+| [src/OpenScct.Game/AI/AiWorld.cs](../src/OpenScct.Game/AI/AiWorld.cs) | per level: graphs, light field, noise board, team boards, HUD message tap, smoke and torch lists |
+| [src/OpenScct.Game/AI/AiLightField.cs](../src/OpenScct.Game/AI/AiLightField.cs) | the pawn light level by the renderer's rules (`Lighting/ActorLightRules.cs`): zone ambient, four strongest lights, spot shadow lights and torches, trigger light switches |
+| [src/OpenScct.Game/AI/AiPerception.cs](../src/OpenScct.Game/AI/AiPerception.cs) | `AiSight`, `AiNoiseBoard` (MakeNoise hearing and sounds), `AiMemory` |
+| [src/OpenScct.Game/AI/AiSearch.cs](../src/OpenScct.Game/AI/AiSearch.cs) | reachable search locations, observed travel direction, visual inspection and teammate assignments |
+| [src/OpenScct.Game/AI/NavBuilder.cs](../src/OpenScct.Game/AI/NavBuilder.cs), `NavGraph.cs`, `NavFollower.cs` | navigation from collision and GEs, A*, following with keys |
+| [src/OpenScct.Game/AI/DoorAi.cs](../src/OpenScct.Game/AI/DoorAi.cs) | closed doors on a route: wait, hack the door's switch, or shut its edges |
+| [src/OpenScct.Game/AI/AiBrain.cs](../src/OpenScct.Game/AI/AiBrain.cs), `SpyAi.cs`, `MercAi.cs` | utility choice and the two sides' goals |
+| [src/OpenScct.Game/AI/Evasion.cs](../src/OpenScct.Game/AI/Evasion.cs), `SpyGadgets.cs` | a spy's play round the motion tracker; its smoke, flash, chaff, heartbeat and sticky cam |
+| [src/OpenScct.Game/AI/TeamAi.cs](../src/OpenScct.Game/AI/TeamAi.cs) | team play: revive, heal and unspy a mate, climb on a mate's boost or hoist, offer a boost |
+| [src/OpenScct.Game/AI/AiDifficulty.cs](../src/OpenScct.Game/AI/AiDifficulty.cs), `AiK.cs` | presets and constants (decoded ones carry their provenance) |
+| [src/OpenScct.Bots/ServerBots.cs](../src/OpenScct.Bots/ServerBots.cs) | adds bots to a `ServerHost` (login, per-tick drive) |
+| [src/OpenScct.Bots/AiNavCache.cs](../src/OpenScct.Bots/AiNavCache.cs), `AiMapLight.cs` | graphs per map content hash with a disk cache; lights from `render/lighting.json` |
+| [src/OpenScct.Bots/AiBotMatch.cs](../src/OpenScct.Bots/AiBotMatch.cs) | a headless bot-versus-bot match with a report |
+| [game/Scripts/Play](../game/Scripts/Play) | `--bots=` and `--difficulty=` for offline play |
+| [tests/OpenScct.Game.Tests/AI](../tests/OpenScct.Game.Tests/AI) | perception, navigation, following and match tests |
 
 The older client bots of `OpenScct.Bots` (`BotClient`, `SpyBrain`, `MercBrain`, `NavGrid`) stay: they are scripted
 network test players for the netcode checks (docs/NETCODE.md, "Bot matches").
@@ -115,7 +118,7 @@ is the only judge of how lit a spy is, so the bots read the screen's rules.
 
 ### Hearing (`AiNoiseBoard`)
 
-- **MakeNoise**, decoded in `spec/native/make-noise.md`: server only, needs an Instigator, dampened by its
+- **MakeNoise**, decoded in [spec/native/make-noise.md](../spec/native/make-noise.md): server only, needs an Instigator, dampened by its
   `SoundDampening` when it made the noise, x 0.3 when its `Visibility` is below 2; `CheckNoiseHearing` keeps two noise
   slots per instigator and drops repeats within 0.2 s and 50 uu that are not louder than 1 / 0.9. The native has no
   distance test (the original delivers `HearNoise`, which no SBase controller implements); bots hear a noise within

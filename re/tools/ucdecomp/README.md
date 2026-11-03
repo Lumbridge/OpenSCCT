@@ -1,20 +1,27 @@
-# ucdecomp
+# UnrealScript decompiler
 
-UnrealScript bytecode decompiler for the SCCT Versus v300 script packages (Core, Engine, SBase, GUI,
-IpDrv). It reads the packages through `scctpkg` (the copy in `tools/scctpkg`, else the Bridge checkout)
-and writes UnrealScript text plus a JSON index. Decompiled output is game-derived: it goes to
-`local/re-out/uc/` (gitignored) and never into tracked paths.
+`ucdecomp` reads SCCT Versus v300 script packages (Core, Engine, SBase, GUI and IpDrv) and
+writes UnrealScript text and a JSON index. It uses the vendored `scctpkg`, with the Bridge
+checkout as a fallback. Output belongs in ignored `local/re-out/uc/`; never commit it.
 
-Run from `re/tools`:
+See the [RE setup guide](../../README.md) for prerequisites and the
+[decompiler study](../../../docs/spikes/R2-ucdecomp.md) for the recorded validation results.
 
-```
-python -B -m ucdecomp check --game "<install>" [--packages Core,Engine] [--json out.json]
-python -B -m ucdecomp decompile --game "<install>" [--out <dir>] [--packages ...]
+## Run
+
+Run from `re/tools`. Replace `<install>` with the game folder:
+
+```powershell
+python -B -m ucdecomp check --game "<install>"
+python -B -m ucdecomp decompile --game "<install>"
 python -B -m ucdecomp dis --game "<install>" SBase SPlayerController.PlayerTick
 python -B -m pytest ucdecomp/tests -p no:cacheprovider
 ```
 
-`check` exits non-zero unless every script re-encodes byte for byte.
+`check` fails unless every script re-encodes byte for byte. Use `--packages Core,Engine` to
+limit the packages, `--json <file>` for a check report, or `--out <folder>` for decompiled output.
+
+## Modules
 
 | Module | Role |
 |---|---|

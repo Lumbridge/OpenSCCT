@@ -1,9 +1,33 @@
 # Game flow specs: index
 
-Folder: `spec/game/`. Area: match setup and start, teams, lives, death, respawn, spawn selection,
-spectating, end of round, scoring, round travel, the replicated match objects, and the NetMode branches.
+[All specs](../README.md) · [Coverage report](../../docs/progress/COVERAGE.md)
+
+Rules for match setup, teams, lives, spawning, spectating, scoring and round changes.
+Each spec's `Units:` block is the authoritative list of the original behaviour it describes.
 
 ## Spec files
+
+| Guide | Topic |
+|---|---|
+| [match-options.md](match-options.md) | Match options: URL parsing, match settings and map mode defaults |
+| [match-lifecycle.md](match-lifecycle.md) | Match lifecycle: setup, start gate and StartMatch |
+| [login-and-teams.md](login-and-teams.md) | Login, team assignment, late joiners and logout |
+| [spawn-selection.md](spawn-selection.md) | Spawn point selection |
+| [respawn-and-spawning.md](respawn-and-spawning.md) | Spawning a pawn: RestartPlayer, possession, start state and spawn protection |
+| [death-lives-respawn.md](death-lives-respawn.md) | Death, lives and the respawn timer |
+| [spectating.md](spectating.md) | Spectating: dead players, out-of-lives players and visitors |
+| [end-of-round.md](end-of-round.md) | End of round: win conditions, time limit and the match-over states |
+| [scoring-and-stats.md](scoring-and-stats.md) | Scoring, kill credit, death messages and player statistics |
+| [round-travel.md](round-travel.md) | Round restart and map travel: GamesInARow, Revenge, ScoreATT and ScoreDEF |
+| [replication-info.md](replication-info.md) | GameReplicationInfo, PlayerReplicationInfo and TeamInfo |
+| [netmode-branches.md](netmode-branches.md) | NetMode branches: Play Level, offline, listen server, non-playing host and client |
+| [tutorials.md](tutorials.md) | Tutorials, the profile's tutorial flags and Visit a Map |
+| [game-modes.md](game-modes.md) | Game modes: what each mode changes in the generic rules |
+| [lobby-and-match-creation.md](lobby-and-match-creation.md) | Network match creation, the lobby room and the voice settings |
+| [voice-chat.md](voice-chat.md) | Voice chat: who hears whom |
+
+<details>
+<summary>Detailed unit mapping</summary>
 
 | File | Units covered (summary; the file's Units list is authoritative) |
 |---|---|
@@ -25,6 +49,8 @@ spectating, end of round, scoring, round travel, the replicated match objects, a
 Unit count: 322 distinct unit IDs listed across 12 spec files (before tutorials.md, which adds 29). SGameInfo: 48 of its 52 functions and all
 5 s_MatchOver functions are specced; the other 4 (two voice chat functions, two destructor stubs) are
 listed below.
+
+</details>
 
 ## SteeE Story slice: game-flow rules as decoded (supersedes the plan's summary where they differ)
 1. Settings reach the game only through the URL. Network launches from the menus carry SteeE's mode entry

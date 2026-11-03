@@ -1,20 +1,16 @@
-# Netcode
+# Networking
 
-`OpenScct.Net` reproduces the UE2 packet and actor model and adds modern movement and pawn synchronization.
-The original's rules are specified in
-`spec/net/*.md` (script side) and `spec/native/net-*.md` (engine side, decoded from the executable); this
-file says how `OpenScct.Net`, `OpenScct.Server` and `OpenScct.Server.Cli` implement them. The M0 transport, packet and
-bunch layers are described in `docs/NETCODE-M0.md` and are unchanged except where noted below.
+`OpenScct.Net` implements the original UE2 packet and actor model, with OpenSCCT's
+movement and pawn synchronization. `OpenScct.Server` connects those rules to hosted
+matches.
 
-Recently reordered packets (up to 32 packets behind the newest) may deliver reliable bunches to their
-channel's ordered, duplicate-suppressing queue. They do not update the snapshot timeline, apply stale
-unreliable properties, or receive packet acknowledgements. The last restriction preserves property-loss
-recovery: an acknowledgement still means the whole packet was processed. This prevents a delayed reliable
-control from unnecessarily blocking movement commands fenced behind it until retransmission.
-An unreliable extension can explicitly opt into late delivery only when it validates its own lifetime and
-sequence. Currently only `SvmMoveCommands` does so: epoch, pawn identity and command sequence still govern
-acceptance, ownership checks still apply, and ordinary calls/properties in the same packet remain excluded.
-The opt-in is part of the handshake hash (`move-commands-13:reordered`); previous builds are rejected.
+Start with [transport and packet foundations](NETCODE-M0.md), then use the sections
+below for replication, movement and sessions. Original behavior is documented in the
+[network specifications](../spec/net/INDEX.md) and
+[native network index](../spec/native/net-index.md). OpenSCCT's synchronization design
+has its own [specification](../spec/net/modern-synchronization.md).
+
+**On this page:** [Replication model](#replication-model) · [Move protocol](#move-protocol) · [Game sessions](#game-sessions) · [Checks](#checks) · [Measuring in play](#measuring-in-play) · [Open items](#open-items)
 
 ## The original
 
@@ -51,8 +47,8 @@ NetDriver: server pass, relevancy cadence, RPC routing        OpenScct.Net
 FBitWriter / FBitReader, NetWire, ITransport (Loopback, SimLink, LiteNetLib, Composite)
 ```
 
-Everything in `OpenScct.Net` and `OpenScct.Server` is simulation code: deterministic, no system clock, no
-`System.Random`; the driver's random stream (relevancy jitter) comes from the world's seed.
+Simulation code follows the [determinism rules](CONVENTIONS.md#deterministic-simulation).
+The driver's random stream for relevancy jitter comes from the world's seed.
 
 The server supplies the current authoritative viewing actor and position for relevance checks. Ordinary
 players use their pawn; camera/mirador users use the active object and its view offset; spectators use
@@ -69,6 +65,18 @@ Camera orientation reports are coalesced to the newest angle, at most 20 times p
 has used the connection's send budget. Unchanged angles do not produce a reliable stream. Pending reports
 retain their camera and pawn identities and are discarded when that camera or possession is no longer
 active. This keeps sustained camera use from starving movement commands behind reliable control fences.
+
+### Packet reordering
+
+Recently reordered packets (up to 32 packets behind the newest) may deliver reliable bunches to their
+channel's ordered, duplicate-suppressing queue. They do not update the snapshot timeline, apply stale
+unreliable properties, or receive packet acknowledgements. The last restriction preserves property-loss
+recovery: an acknowledgement still means the whole packet was processed. This prevents a delayed reliable
+control from unnecessarily blocking movement commands fenced behind it until retransmission.
+An unreliable extension can explicitly opt into late delivery only when it validates its own lifetime and
+sequence. Currently only `SvmMoveCommands` does so: epoch, pawn identity and command sequence still govern
+acceptance, ownership checks still apply, and ordinary calls/properties in the same packet remain excluded.
+The opt-in is part of the handshake hash (`move-commands-13:reordered`); previous builds are rejected.
 
 ## Replication model
 
@@ -207,7 +215,7 @@ host's local players) are not counted. `PerConnection` (stock UE2), `PerClientAd
 
 ### Send rate and budget: Stock and Enhanced
 
-`ServerSettings.Profile` (`NetProfile`, `src/OpenScct.Net/NetProfile.cs`) picks one of two behaviours; this is the
+`ServerSettings.Profile` (`NetProfile`, [src/OpenScct.Net/NetProfile.cs](../src/OpenScct.Net/NetProfile.cs)) picks one of two behaviours; this is the
 rewrite's side of `rl:net.rates` (spec/reloaded/FEATURES.md).
 
 | | Stock | Enhanced |
@@ -220,7 +228,7 @@ rewrite's side of `rl:net.rates` (spec/reloaded/FEATURES.md).
 **Who runs what.** The library default (`ServerSettings`, `OnlineServerSettings`) is the Stock rate preset.
 Both presets use modern synchronization. The hosts players play on choose Enhanced: `svm-server` single-map servers
 (`Program`), the online server (`svm-server --config` / `--online`, `OnlineRun`), the hub's matches
-(`HubMatchLauncher`), the game's online host (`game/Scripts/Online/ListenHost.cs`) and the game's own play session
+(`HubMatchLauncher`), the game's online host ([game/Scripts/Online/ListenHost.cs](../game/Scripts/Online/ListenHost.cs)) and the game's own play session
 (`PlaySession`, `--svm-play`). The hub map itself stays Stock with its per-connection budget. A client learns the
 rate from Welcome (`ClientSession.ServerNetRate`), so its interpolation delay follows.
 
@@ -255,7 +263,7 @@ measured average.
 
 ### Modern pawn synchronization (both profiles)
 
-The estimated design is specified separately in `spec/net/modern-synchronization.md`. The wire protocol is
+The estimated design is specified separately in [spec/net/modern-synchronization.md](../spec/net/modern-synchronization.md). The wire protocol is
 `svm-net/0.5`; the compatibility hash also includes handwritten extension signatures. Mismatched builds are rejected
 during Hello, before any actor data is read. Generated declarations remain unchanged.
 
@@ -360,7 +368,7 @@ several ticks before the next draw. Headless clients use the current presentatio
 Diagnostics include interpolation delay/underflows, snapshot age, replay count, correction distance, missing descriptors,
 snapshot, transition and body-state counts/bytes, state gaps, pose/prediction resets, budget deferrals, and the existing
 byte/packet/loss statistics. The parity audit
-and its validation boundaries are in `docs/NETCODE-PARITY.md`.
+and its validation boundaries are in [docs/NETCODE-PARITY.md](NETCODE-PARITY.md).
 
 The social hub uses Stock's 20 Hz preset with a 5,000 B/s per-visitor ceiling for its 50-player crowd budget.
 Match gameplay retains Enhanced as its normal 60 Hz default. Both use the same modern synchronization paths.
@@ -380,7 +388,7 @@ Enhanced pushes `Rotation` and the aim properties (`iDesiredYawPitch`, `iYawPitc
 changed, so the buffer gets them at the send rate; Stock keeps rule 3 (Rotation and aim at most every 0.09 s,
 Rotation sooner for a turn over 1800 units).
 
-**Client.** `PawnInterpolation` (`src/OpenScct.Server/Net/PawnInterpolation.cs`) keeps one `ProxyMotion` per proxy
+**Client.** `PawnInterpolation` ([src/OpenScct.Server/Net/PawnInterpolation.cs](../src/OpenScct.Server/Net/PawnInterpolation.cs)) keeps one `ProxyMotion` per proxy
 pawn (the same buffer the M0 `CubeWalker` path uses through `ActorChannel.Motion`; pawns cannot use that hook since
 their positions come as calls, not properties). After each tick's receive (`ClientSession.Tick`, before the world
 ticks) it buffers one state per pawn at the newest server packet tick (`NetDriver.NewestServerTick`):
@@ -414,7 +422,7 @@ a snap to the newest state would pop the pawn forward by the delay at every jump
 
 `rl:net.lagcomp` and `rl:net.fireprediction` (spec/reloaded/FEATURES.md; rules in spec/net/lag-compensation.md).
 
-**Lag compensation (server, on by default as in Reloaded).** `LagCompensation` (`src/OpenScct.Server/Net/LagCompensation.cs`) is
+**Lag compensation (server, on by default as in Reloaded).** `LagCompensation` ([src/OpenScct.Server/Net/LagCompensation.cs](../src/OpenScct.Server/Net/LagCompensation.cs)) is
 installed on every `ServerHost` level. When on, after each world step (`ServerHost.Tick`) it records every
 SBasePawn's hit pills (from the level's `IPillPose`, the same pose the hit trace uses) and where it stood, 64 ticks per
 pawn (a little over a second at 60 Hz); a pawn that is destroyed or not seen loses its history. Every combat call a
@@ -576,7 +584,7 @@ for a call that names an actor its connection has not seen yet.
 ## Maps and hosting
 
 Online sessions (lobby, map travel, results, the master, NAT punch and relay) sit on top of this; see
-`docs/ONLINE.md`.
+[docs/ONLINE.md](ONLINE.md).
 
 - `MapCatalog` loads SVMap folders (`maps` next to the executable, `.content/svmap` and `fixtures` in a
   checkout, or maps built in code) through `MapLoader` with every generated Core, Engine and SBase class and the
@@ -660,7 +668,7 @@ ledge or zip line would sit up to 0.87 uu off the client's. `GEPointCheck` (an a
 rounded points as they come) takes a proposed point within rounding of a point of one of the map's GEs as that
 exact point.
 
-`tests/OpenScct.Integration.Tests/RubberBandTraversalTests.cs` plays the recorded traversal and moveset scenarios of
+[tests/OpenScct.Integration.Tests/RubberBandTraversalTests.cs](../tests/OpenScct.Integration.Tests/RubberBandTraversalTests.cs) plays the recorded traversal and moveset scenarios of
 tests/scenarios as the local player of an offline match (`PlaySession`: listen server and client, the inputs as
 `PlayInput` fills them from the bound keys, `PlaySettings.SimLink` for a simulated link), with the pawn placed by the
 server and the client reinitialised there. Before the fixes of this section 12 of its 30 cases failed: the mount
@@ -702,7 +710,7 @@ count of corrections sent therefore measures the forced update, not disagreement
 size) say whether the player was pulled. In the play-inspect smoke's 46 s script the server sends about 56, of
 which the client applies 4 or 5: the starts from standing (a frame of motion, rule 3.5) and a jump.
 
-`tests/OpenScct.Integration.Tests/PlayStepCorrectionTests.cs` plays that script's walking part (walk, look, run, strafe,
+[tests/OpenScct.Integration.Tests/PlayStepCorrectionTests.cs](../tests/OpenScct.Integration.Tests/PlayStepCorrectionTests.cs) plays that script's walking part (walk, look, run, strafe,
 crouch walk, jumps) on SteeE from the spawn as the local player of an offline match, spy and merc, and requires no
 reinit and no applied correction over 16 uu. The spy's script ends walking and jumping along the wall at x = -1664,
 and the server's copy stands on the big moves' rounded location exactly on the wall's plane. There the box sweeps
@@ -740,7 +748,7 @@ from the second second of a rest, when the forced correction and its round trip 
 deaths, score) match the server's. `svm-server --map SteeE --bots spies` (or `mercs`, `timeout`) plays one over
 UDP on localhost in real time.
 
-Results (Debug build, `tests/OpenScct.Integration.Tests/BotMatchTests.cs`; bytes include the per-packet overhead;
+Results (Debug build, [tests/OpenScct.Integration.Tests/BotMatchTests.cs](../tests/OpenScct.Integration.Tests/BotMatchTests.cs); bytes include the per-packet overhead;
 the walk graphs, and so the routes and round times, depend on which match of a process builds them first):
 
 | Map | Link | Script | End | Round | Down per client | Up per client |
@@ -768,13 +776,13 @@ chunk, so traces and moves use the simple set as `UStaticMesh::LineCheck` does, 
 
 ## Checks
 
-- `tests/OpenScct.Net.Tests`: condition truth tables against the spec formulas (tree, bound and parsed forms
+- [tests/OpenScct.Net.Tests](../tests/OpenScct.Net.Tests): condition truth tables against the spec formulas (tree, bound and parsed forms
   agree; every generated condition binds), map binding, role swap, native and script conditions, ownership,
   relevancy and its timeout, temporaries, broadcast and owner calls (with six clients), the frequency gate and
   its starvation guard, the tick cap, the resend of a lost property behind `bNetDirty`, `Extend`, the call
   fallback, `ChannelForCall`, the role tick gates and the remote autonomous catch-up, the pawn Instigator, the
   move packing and the client and server move halves over an in-memory link.
-- `tests/OpenScct.Integration.Tests`: the M0 walker checks over loopback and SimLink A to D, the SteeE-shaped
+- [tests/OpenScct.Integration.Tests](../tests/OpenScct.Integration.Tests): the M0 walker checks over loopback and SimLink A to D, the SteeE-shaped
   TestBox test (a server and three clients replicate objective state under the native lists and a broadcast
   arrives once, not at a late joiner), the dedicated server frequency gate, the move protocol between real
   drivers with SPlayerController under SimLink B and C, bandwidth, allocations, handshake and UDP sessions.
@@ -828,7 +836,7 @@ error.
   "Packet loss in the network readout", `show_net_loss`, off by default as in Reloaded), KB/s down and up, position
   corrections applied per second and the server's send rate. A listen host (its own link is loopback) gets a second
   line: how many players have a ping and the best and worst of them (`PRI.Ping`). Source: the client connection's
-  `NetStats` and `ClientMoves.CorrectionsApplied` (`game/Scripts/Hud/HudNet.cs`, read in `PlayRoot.ReadNet`).
+  `NetStats` and `ClientMoves.CorrectionsApplied` ([game/Scripts/Hud/HudNet.cs](../game/Scripts/Hud/HudNet.cs), read in `PlayRoot.ReadNet`).
 - **Simulated bad link** (`--svm-simlink=A|B|C|D` with `--svm-play=<map>`): the local player's link to the host goes
   through `SimLinkNetwork` with that profile (A 0 ms; B 60 ms, 1% loss; C 120 ms +/-20, 2% loss; D 250 ms, 5% loss)
   on the real clock. It forces the inline host. Offline play only; online games use the real link.

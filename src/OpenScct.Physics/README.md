@@ -1,9 +1,10 @@
 # OpenScct.Physics
 
-The collision world and the engine physics of the simulation, written from the decoded natives in
-`spec/native/physics-*.md` and `collision-*.md`. Pure C#, no Godot, deterministic (the banned-API analyzer from
-`build/Sim.props` applies). The full description, the rules, what stays estimated and the API the pawn port
-uses are in `docs/PHYSICS.md`.
+Collision and movement physics for the deterministic simulation, written in C# without
+Godot. The implementation follows the [native physics specs](../../spec/native/physics-index.md).
+
+The [physics guide](../../docs/PHYSICS.md) explains the design, pawn API and remaining
+estimates. This page is a quick API reference.
 
 ```csharp
 PhysicsWorld physics = PhysicsWorld.Attach(map, loaded);   // collision, GE index, driver on the level

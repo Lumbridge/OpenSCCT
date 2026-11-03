@@ -1,8 +1,8 @@
-# Provenance and legal hygiene
+# Provenance and source-data rules
 
-This project studies a commercial game. What goes into git is our own work: ideas, numbers, names
-and code written from our own specs. Anything taken from the game, or produced from it, stays on the
-machine that made it.
+OpenSCCT studies a commercial game. Commit our own code, descriptions and approved source assets.
+Keep original game files and game-derived data in ignored local folders. The rules below explain
+what belongs in each category.
 
 ## Class A: tracked in git
 
@@ -12,7 +12,7 @@ Our own work, safe to commit:
 - Behaviour specs in `spec/`, in our own words: rules, constants, state diagrams, network role and
   evidence references. Short identifiers (class, function and field names, addresses) are fine; code
   is not.
-- File format specs: `spec/svmap/1.0`, `spec/formats/{ge,collision,uas,mgm}`.
+- File format specs, including [SVMap 1.1](../spec/svmap/1.1/README.md), and our descriptions of decoded formats.
 - Ghidra annotations exported to `re/ghidra/annotations/*.json`: names, types and comments only,
   never decompiled function bodies.
 - `re/binaries.lock.json`: SHA-256 hashes of the game exe, the editor, `Reloaded.Core.dll` and the
@@ -48,11 +48,12 @@ Three layers keep class B data out of git:
    per clone with `pwsh tools/hooks/install.ps1`.
 3. CI runs `tools/ci/no_game_data.py` on every push and pull request.
 
-The guard fails on game file types, the UE package tag `C1 83 2A 9E` at offset 0, PE executables
-and DLLs, Ghidra project files, DDS, glTF, OGG, WAV and image files outside `fixtures/` and
-`docs/images/`, files over 5 MB, local-only paths, and text that looks like decompiler output
-(tool banners, Ghidra variable and function names, UnrealScript class bodies outside `spec/`,
-bytecode and disassembly listings).
+The guard rejects game packages, executable files, Ghidra databases, local-only paths and
+text that looks like decompiled code or disassembly. Media is allowed in the designated
+fixture and original-art folders. Other reviewed assets must match the exact paths, sizes
+and hashes in [asset-provenance.json](../tools/ci/asset-provenance.json). That manifest also
+records the required credits. The usual 5 MB limit has a 64 MB exception for these approved
+art files. See [the guard](../tools/ci/no_game_data.py) for the complete checks.
 
 Hand-written samples for decompiler tests may hold UnrealScript or C that trips the text checks.
 Such a file can carry a comment line, near the top, that holds only the marker
@@ -68,8 +69,9 @@ reviewer should check that the sample really is hand-written.
 - Every spec names its evidence: a Ghidra address, a decompiler unit or a scenario.
 - Coverage units have IDs with a kind prefix: `uc:` (UnrealScript), `nat:` (natives), `eng:` (engine
   code), `rep:` (replication), `def:` (defaults), `fmt:` (file formats), `rl:` (Reloaded.Core).
-  Each unit is unported, specced, ported, verified or n-a. CI fails on unknown IDs, missing spec
-  anchors and n-a without a reason.
+  Each unit is unported, specced, ported, verified or n-a. The [coverage checker](../tools/OpenScct.Coverage/README.md)
+  rejects unknown IDs and n-a entries without a reason. Missing or invalid heading anchors are warnings
+  unless `--strict` is used.
 
 ## Rules
 

@@ -1,138 +1,139 @@
 # Network test with two PCs
 
-A short plan to play OpenSCCT between two computers: player 1 hosts, player 2 joins, both meet in the lobby, set up
-the match, talk, play a revenge pair and come back to the lobby; then the same with server bots filling the sides
-(section 4). The same steps run automatically on one machine in
-the `net-lobby` smoke (`docs/MENUS.md`); this is the version with real people, real networks and real microphones.
+Use this checklist to test a real host, guest, network and pair of microphones. It
+covers joining, lobby settings, voice, a revenge pair, reconnecting and server bots.
+For automated local runs, use the [network lab](NETWORK-LAB.md) or the smoke commands
+below. Local tests do not establish behavior between physical PCs.
+
+[Documentation](README.md) · [Testing](TESTING.md) · [Online setup](ONLINE.md)
 
 ## 1. Before you start (both PCs)
 
-- The same build on both: copy the same `OpenSCCT` folder (or the same commit's export) to both PCs. The server
-  browser greys out another build ("another build"), and the lobby names a player whose map differs.
-- The same converted maps: copy `.content` (or the release's `maps` folder) from PC 1 to PC 2, so the map content
-  hashes match. The lobby says "missing map" or "different map version" otherwise.
-- A headset with a microphone on each PC. In Options, Voice: pick the microphone under Device (or leave
-  "System default"), press Test my microphone, speak, and listen to the playback. If it says "Nothing was captured",
-  check Windows' privacy settings (Microphone access for desktop apps) and the communications device.
-- Each player sets his own name in Options (Player name), so the lobby can tell them apart.
+- Install the same build and maps. The browser marks incompatible builds; the lobby
+  reports missing maps or different map versions.
+- Set distinct names in **Options > Player name**.
+- Connect a headset and microphone. In **Options > Voice**, choose a device and use
+  **Test my microphone**. If nothing is captured, check Windows microphone access
+  for desktop apps and the selected communications device.
+- Record the build, map, network type and test start time.
 
 ## 2. Network
 
-| Port | Protocol | Who | What |
-|---|---|---|---|
-| 28888 | UDP | the host | the game and voice (one socket) |
-| 28889 | UDP | the host | LAN search answers |
+| Default port | Protocol | Host use |
+|---|---|---|
+| 28888 | UDP | Game and voice |
+| 28889 | UDP | LAN discovery |
 
-Windows Firewall on the host: the first time OpenSCCT hosts, Windows asks to allow it; allow Private networks (and
-Public if the PCs are on a network Windows calls public). Or add the rule by hand in an administrator PowerShell:
+Allow OpenSCCT through the host's firewall on the network profile you use. For a
+private network, an administrator can add the rule in PowerShell:
 
-```
+```powershell
 New-NetFirewallRule -DisplayName "OpenSCCT UDP" -Direction Inbound -Protocol UDP -LocalPort 28888,28889 -Action Allow -Profile Private
 ```
 
-- **Same LAN (home network):** nothing else to do. Player 2 finds the game with Find a Session, or types the host's
-  LAN address (`ipconfig`, "IPv4 Address", for example 192.168.1.20) in Join with IP.
-- **Over the internet:** the host's router must pass UDP 28888 to the host PC. Create Session's "Map the port (UPnP)"
-  does it on most routers (the lobby says whether it worked); otherwise forward UDP 28888 by hand to the host's LAN
-  address. Player 2 joins with Join with IP and the host's public address (search "what is my IP" on the host).
-  Behind carrier-grade NAT no port can be opened: use a master server with its relay (`docs/ONLINE.md`, "Deploying on
-  a VPS"), list the game on it, and player 2 finds it under Find a Session with the same master and invite key.
+On the same LAN, the guest can use **Find a Session** or **Join with IP** and the host's
+LAN address (`ipconfig` shows its IPv4 address).
+
+For a direct internet connection, forward UDP 28888 to the host PC. **Map the port
+(UPnP)** can do this on supported routers; check its result in the lobby. The guest
+joins the host's public address. For server discovery, NAT traversal or relay setup,
+see [online play](ONLINE.md).
 
 ## 3. The test
 
-Player 1 (host):
+### Host and join
 
-1. Main menu, Create a Session.
-2. Choose Map and Game Mode (Story), then set: Password (any, for example `swordfish`), Voice Chat (try Modern, then
-   Open in a second session), Max Players 4, Game Length 1 or 2 minutes for a quick test, Revenge on, Voice in Lobby on.
-3. Server Name, UDP port 28888, UPnP on for the internet; Create. The Lobby Room opens with you on the Spies.
+1. Host: choose **Create a Session**, a map and **Story** mode. Set a password, four
+   players, a one- or two-minute game, **Revenge** on and **Voice in Lobby** on.
+2. Use **Modern** voice first and repeat with **Open** voice. Set the server name and
+   port, then create the session.
+3. Guest: find the session or use **Join with IP**, enter the password and join.
+4. Both: check names, teams, ping and session parameters match on both screens.
 
-Player 2:
+### Lobby
 
-4. Main menu, Find a Session (LAN), pick the game (it shows a lock: it has a password), type the password, Join. Or
-   Join with IP: Server Address, Server Port 28888, Password, Join.
-5. The Lobby Room opens. Check Session Parameters show what player 1 set.
+- Speak in turn. Check the speaking icons and sound on the other PC.
+- Change the other player's volume, mute them, then unmute them. Confirm each change.
+- While on opposite teams, enable **Restrict Mic to Team** and confirm the other
+  player stops hearing you; then disable it.
+- Send **Say** and **TeamSay** messages.
+- Guest: press **Ready**. Host: change **Respawn Length** and press **Apply**. Check
+  that the guest becomes **Not Ready** and the changed value blinks. Ready again.
 
-Both, in the lobby:
+### Match and return
 
-6. Talk: each sees the other's speaking icon and hears him. Each moves the other's volume slider (for example to 40%)
-   and hears the change; tick Mute and the voice stops; untick it.
-7. Player 2 ticks Restrict Mic to Team while on the other side: player 1 stops hearing him; untick it.
-8. Chat with Say and TeamSay.
-9. Player 2 presses Ready. Player 1 changes a value (Respawn Length) and presses Apply: player 2 becomes Not Ready and
-   the value blinks; player 2 presses Ready again.
-10. Player 1 presses Launch: the loading page, then the map. Play; in Open mode you hear each other across sides, in
-    Modern only your own side (and the special cases: grab talk, hacked coms). The volumes from the lobby still apply;
-    the overlay at the top right shows who speaks and at which volume. Press F8 to mute your microphone and see
-    "Your microphone is muted".
-11. When the round ends: the end banner, the results, Next on both. Revenge plays the second game with the sides
-    swapped. After it, Next again: both are back in the Lobby Room.
-12. Player 2 presses Leave, joins again with Join with IP, and leaves. Player 1 sees him go and come back.
+1. Host: press **Launch**. Both players should load and enter the map.
+2. Play and check voice. **Open** allows cross-team speech; **Modern** uses team voice
+   with the game's special cases, including grabs and hacked communications.
+3. Confirm lobby volume settings still apply and the voice overlay identifies speakers.
+   Press F8 to mute your microphone and check the on-screen message.
+4. Finish the round and press **Next** on both PCs. The revenge round swaps teams.
+   Finish it and return to the lobby.
+5. Guest: leave, rejoin with IP, then leave again. Host: confirm each change appears.
 
-What to check at each step: the screen you expect opens; names, sides, Ready and ping are right on both PCs; voices
-are heard at the volume set; nothing freezes. Write down anything that differs, with the time.
+Record freezes, missing screens, incorrect team/ready state and voice problems with
+the time they happened. Repeat the same steps in the other voice mode.
 
 ## 4. With bots
 
-The host can fill the match with server bots. They play on the host's PC with the game's AI; player 2 only receives
-their pawns, as for any other player.
+Bots run on the server. The guest receives their pawns through the same replication
+path as other players.
 
-Player 1 (host):
+1. Host: create a four-player, two-minute session with revenge enabled. Choose
+   **Bots: Fill Slots** and **Bot Skill: Easy**. Alternatively, use **Per Side** with
+   one bot per side.
+2. With Fill Slots, the host starts beside SpyBot1, with MercBot1 and MercBot2 on the
+   other side. Bot ready rows should say **Bot**.
+3. Guest: join the mercenaries. One bot should leave to make room. Each side now has
+   one person and one bot; bot rows have no volume slider or Kick control.
+4. Guest: switch teams and back. Check bots keep the sides balanced.
+5. Ready and launch. Both PCs should show moving, playing bots. Only human players
+   should appear in the voice overlay.
+6. Complete the revenge pair. Bots should swap sides for revenge and return to their
+   lobby sides afterward.
+7. Guest: leave. Check a bot fills the slot. Host: set **Bots: Off** and apply; the bot
+   rows should disappear.
 
-1. Create a Session as above, with Max Players 4, Game Length 2 minutes, Revenge on. In the rules at the bottom
-   right: **Bots** Fill Slots, **Bot Skill** Easy (or Per Side with Bots per Side 1, for one bot on each side whoever
-   joins). Create.
-2. The Lobby Room shows you on the Spies with SpyBot1, and MercBot1 and MercBot2 on the Mercenaries; a bot's ready
-   column reads "Bot".
+The round must not wait for bots to ready up. The host log records each round as
+`SVM_HOST <n> Easy bots on <map>`.
 
-Player 2:
+The automated bot smoke covers one game without revenge:
 
-3. Join (LAN list or Join with IP) on the Mercenaries: MercBot2 leaves to make room. Each side now has one person and
-   one bot. A bot's row has no volume slider and no Kick.
-4. Switch Team to the Spies and back: the bots move to keep two on each side.
-
-Both:
-
-5. Player 2 Ready, player 1 Launch. In the round the bots move, hack and shoot; both of you see them. Talk: only the
-   two of you are heard (the voice overlay never lists a bot).
-6. After the results, Next: the second game of the revenge pair has everyone swapped, bots included. After it, back
-   in the Lobby Room the bots are on their own sides again.
-7. Player 2 leaves: a bot takes his place among the Mercenaries. Player 1 sets Bots Off and presses Apply: the bot
-   rows go.
-
-Check the bots' names and sides on both PCs, that they play (not standing still), and that the round starts without
-waiting for them. The host's log has a line `SVM_HOST <n> Easy bots on <map>` for every round.
-
-The same on one machine, automatically (one game, no revenge):
-
-```
+```powershell
 pwsh tools/ci/godot-smoke.ps1 -Tests net-bots -TimeoutSeconds 600
 ```
 
 ## 5. Logs
 
-Each PC writes its log to the Godot user folder:
+Each PC writes its latest log here, with older runs beside it:
 
-```
-%APPDATA%\Godot\app_userdata\OpenSCCT\logs\godot.log        (the newest; older runs beside it)
-```
-
-Lines starting with `SVM_HOST` are the host's session (joins, travels, kicks, the setup), `SVM_VOICE` the microphone.
-To keep a run's log apart, start the game with a log file of its own:
-
-```
-OpenSCCT.exe --log-file C:\temp\openscct-host.log        (player 1)
-OpenSCCT.exe --log-file C:\temp\openscct-guest.log       (player 2)
+```text
+%APPDATA%\Godot\app_userdata\OpenSCCT\logs\godot.log
 ```
 
-Send both logs, the times of anything odd, and a screenshot of each screen that looked wrong.
+`SVM_HOST` lines describe session events; `SVM_VOICE` lines describe microphone activity.
+To keep separate logs, create the destination folder and launch each PC with:
+
+```powershell
+# Host
+OpenSCCT.exe --log-file C:\temp\openscct-host.log
+# Guest
+OpenSCCT.exe --log-file C:\temp\openscct-guest.log
+```
+
+Include both logs, the build and map, event times and relevant screenshots in a bug
+report. Remove private account or connection details before posting publicly.
 
 ## 6. One machine, automatically
 
-```
+```powershell
 pwsh tools/ci/godot-smoke.ps1 -Tests net-lobby -TimeoutSeconds 900
 ```
 
-It starts two game processes (ports 28988 and 28989, so it never meets a game hosted on 28888) and plays steps 1 to 12
-through the menus, with a 440 Hz tone for player 2's microphone. Player 2's log is `local/net-lobby/guest.log`. With a
-window, `SVM_AUDIO_MUTE=1` and `SVM_PLAY_SHOTS=<folder under local/>` both players save a picture at every step.
+This smoke uses two game processes on ports 28988 and 28989, drives the lobby flow
+through the menus and supplies a 440 Hz tone as the guest microphone. The guest log
+is `local/net-lobby/guest.log`.
+
+For a windowed capture run, `SVM_AUDIO_MUTE=1` mutes playback and
+`SVM_PLAY_SHOTS=<folder under local/>` enables screenshots at each step. See
+[player-path testing](TESTING-PLAY.md) for the harness and its limits.

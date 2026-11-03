@@ -1,8 +1,11 @@
 # OpenScct.Content
 
-Reads the simulation side of an SVMap folder (`spec/svmap/1.0`, `spec/svmap/1.1`): `manifest.json` and `sim/`, which
-is all a dedicated server needs, and turns a map into OpenScct.Core actors. Pure C#, no Godot, deterministic (the
-banned-API analyzer from `build/Sim.props` applies).
+Loads the simulation data from an SVMap folder and creates OpenScct.Core actors. A dedicated
+server needs only `manifest.json` and `sim/`; the loader has no Godot dependency.
+
+See [SVMap 1.1](../../spec/svmap/1.1/README.md) for the format, the
+[content pipeline](../../content/README.md) for conversion, and
+[loading a map](#loading-a-map) for the load order and property rules.
 
 ```csharp
 SvMap map = SvMap.Load(@"path\to\SteeE");          // manifest, sim files, sim hash check, id checks

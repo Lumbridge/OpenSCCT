@@ -1,5 +1,7 @@
 # natives2 study scripts
 
+[RE setup](../../../README.md) · [Source-data rules](../../../PROVENANCE.md)
+
 Helpers used to decode the natives the ports still marked Estimated (results: spec/native/natives2-traversal.md,
 natives2-movement.md, natives2-damage.md, natives2-events.md and ANSWERS-natives2.md). They work on a private copy
 of the Ghidra project, local/ghidra-work/natives2, never on local/ghidra. Everything they write that comes from the

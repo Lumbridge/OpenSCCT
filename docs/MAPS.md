@@ -1,12 +1,14 @@
-# Maps: core gameplay on every map
+# Map catalog and validation
 
-Every converted versus map, the Enhanced versions (the E maps) and the default maps (the D maps), is played offline
-with bots by the map sweep, and drawn once with a window from a spawn. This page lists what the sweep found per map, which findings are
-core (the same cause on every map, fixed or listed for the owner of that area) and which are map-specific (left for
-the per-map work).
+Use the map catalog to find installed maps, supported modes and playlists. The tools
+below validate content and run bot matches across maps.
 
-The [2026-11-01 map parity sweep](MAP-PARITY-2026-11-01.md) checks source actor retention, event indexes,
-interactables, elevator routes and destructible effects across the installed content, with explicit coverage limits.
+The sweep tables record specific runs from October 2026, not the current health of
+every map. The [1 November map parity report](MAP-PARITY-2026-11-01.md) records a later
+check of actors, events, interactions, elevators and destructible effects, with its
+coverage limits.
+
+**On this page:** [The map catalog (API for the menus)](#the-map-catalog-api-for-the-menus) · [The tools](#the-tools) · [Core findings](#core-findings)
 
 ## The map catalog (API for the menus)
 
@@ -63,7 +65,7 @@ only gives the starting values. The catalog keeps all four on every map and says
   playlist), the others the normal merc and spy starts (`spawn-selection.md` rule 8).
 
 Extraction, Sabotage and Neutralization (`EGameMode` 1 to 3) are not in the original's mode box and no stock map
-has a mission or a settings entry for them (`spec/game/game-modes.md` rule 16). The catalog lists them
+has a mission or a settings entry for them ([spec/game/game-modes.md](../spec/game/game-modes.md) rule 16). The catalog lists them
 (`MapCatalog.ExtraModes`, after the four menu modes) only for a map that has a mission or an `SMapSettings.Modes`
 entry of the mode, playable when that mission has objectives and the map has spy and merc starts; the Create
 Session page offers them from the map's settings entries (an OpenSCCT choice, for custom maps). The Sabotage (S)
@@ -97,14 +99,14 @@ downloaded map's code is not in Reloaded's name table, so `Name` falls back to i
 
 | Tool | What |
 |---|---|
-| `tools/mapsweep` (`OpenScct.MapSweep`) | the sweep: `dotnet run --project tools/mapsweep -c Release -- --maps=all --modes=all --seconds=240 --parallel=6` |
+| [tools/mapsweep](../tools/mapsweep) (`OpenScct.MapSweep`) | the sweep: `dotnet run --project tools/mapsweep -c Release -- --maps=all --modes=all --seconds=240 --parallel=6` |
 | `--maps=` | `all` (every installed map of the catalog: host, training, menu and our own maps), `host` (the host list), `enhanced` (the Enhanced versions, the E maps), `default` (the maps with no variant word, such as the D maps), or a comma list |
 | `--modes=` | `all`: one run per mode that plays on the map (the catalog's `Playable`; a front end map is loaded once as a server and as a client, not played), or a comma list (`Story,DiskHunt,Deathmatch,MercDeathMatch`); reports are then `<map>-<mode>.txt` |
 | `--side=merc`, `--bots=N`, `--mode=`, `--seed=`, `--out=` | the local player's side, the server bots (3: a 2v2), the mode without `--modes` (the one the host menu preselects: Story when it plays, else the first mode that plays), the seed, the report folder (default `local/test-results/mapsweep`); a tutorial is always played alone as its side (TSP spy, TME merc) |
 | `--catalog` | prints the map catalog (docs/MAPS.md "The map catalog") as a table, then the playlists |
 | `--probe=Map:x,y,z[:merc[:cells[:colliders]]]` | draws the bots' walk graph around a point, the floors and fit tests of the columns there, the colliders near it |
 | `--place=Map:x,y,z:yaw:keys:seconds[:merc]` | puts the local player at a point as a respawn does (server move and client reinit) and holds keys (`BT_Up+bCrouch`), printing the client and server state four times a second |
-| `--svm-smoke=map-shots` | the game (`game/Scripts/Smoke/MapShotsSmoke.cs`): each map as the launcher plays it (spy, Play Level rules, host thread, HUD), four quarter turns of the view with the mouse, then the goggle key (night vision) and four more; with a window and `SVM_PLAY_SHOTS` it saves `<map>-<n>.png` and `<map>-nv<n>.png`; `SVM_MAPSHOTS_MAPS` limits the maps (default: every host and training map; a TME tutorial as a merc) |
+| `--svm-smoke=map-shots` | the game ([game/Scripts/Smoke/MapShotsSmoke.cs](../game/Scripts/Smoke/MapShotsSmoke.cs)): each map as the launcher plays it (spy, Play Level rules, host thread, HUD), four quarter turns of the view with the mouse, then the goggle key (night vision) and four more; with a window and `SVM_PLAY_SHOTS` it saves `<map>-<n>.png` and `<map>-nv<n>.png`; `SVM_MAPSHOTS_MAPS` limits the maps (default: every host and training map; a TME tutorial as a merc) |
 
 A sweep of one map is the offline play session (`PlaySession`, inline host, loopback) with three server bots next to
 a local spy whose keys walk forward and turn away from walls (the input bytes the bound keys give, at the speed the
@@ -135,7 +137,7 @@ drawn before (the P, S, T, U and X variants and the tutorials, a TME tutorial as
 (`map-shots`, 328 frames): all drew, no magenta, no missing texture or mesh; materials not drawn are listed below
 the older tables. A cell is "plays" with the Story or Disk Hunt objectives taken / needed, and in brackets the
 core areas with findings (spawn, embedded, net); the last column the bot findings (walk graph islands, objectives
-out of the bots' reach, stuck bots, failed traversal links), which belong to the bots (`src/OpenScct.Game/AI`):
+out of the bots' reach, stuck bots, failed traversal links), which belong to the bots ([src/OpenScct.Game/AI](../src/OpenScct.Game/AI)):
 bots have no Disk Hunt, Deathmatch or Merc Deathmatch goals yet (Merc Deathmatch: no kills in 75 runs).
 
 | Map | Story | Disk Hunt | Deathmatch | Merc Deathmatch | Bot gaps (AI) |
@@ -273,7 +275,7 @@ both play every mode their actors support (SteeD plays Story as SteeE does). Thi
 maps from that letter, which was wrong; the sweep now plays each map in the mode the host menu preselects (Story
 when it plays), so the next sweep plays the D maps in Story.
 
-In Deathmatch the bots have no goal (`src/OpenScct.Game/AI` has no Deathmatch rules): mercs stand at their spawn
+In Deathmatch the bots have no goal ([src/OpenScct.Game/AI](../src/OpenScct.Game/AI) has no Deathmatch rules): mercs stand at their spawn
 and spies idle on every D map. That is core (AI) and is not repeated per row; the Bots column shows the spy bot.
 
 | Map | Status | Load | Bots (uu) | Visual | Issues |

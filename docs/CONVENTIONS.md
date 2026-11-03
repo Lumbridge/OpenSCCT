@@ -1,87 +1,99 @@
-# Conventions
+# Coding and documentation conventions
 
-## Writing
+Use these rules when changing simulation code or documenting a port. For setup and
+test commands, see [development](DEVELOPMENT.md) and [testing](TESTING.md).
 
-- Plain English, short sentences. No em dashes: use a plain dash or a comma.
-- Code, docs and commit messages talk about the project only: no notes on how the text was produced
-  and no co-author lines.
-- Code comments only where they help a future reader: why, not what.
+## Write clearly
 
-## Spec first
+- Use plain English and short sentences. Use a comma or plain dash instead of an em dash.
+- Keep code, docs and commit messages about the project; omit production notes and co-author lines.
+- Explain non-obvious decisions in comments. Avoid repeating what the code already says.
+- Link related guides instead of copying their instructions. Label historical results with their date.
 
-No C# port without a spec anchor. A spec in `spec/<subsystem>/` describes one unit in our own words:
-rules, constants with their evidence tag, state diagrams, network role and evidence (Ghidra address,
-decompiler unit, scenario). The C# is written from the spec, not from decompiled text. Decompiled
-material never leaves `local/` (see `re/PROVENANCE.md`).
+## Write the specification first
 
-## Names: 1:1 with UnrealScript
+A C# port needs a spec anchor in `spec/<subsystem>/`. Describe the behavior in our own
+words: rules, constants, state changes, network roles and evidence. Evidence may be a
+native address, a decompiler unit or a recorded scenario.
 
-- A ported class has its original name: `SPlayerController`, `SBasePawn`, `SPAWNDEFENSE`.
-- The namespace is named after the UnrealScript package (Core, Engine, SBase, GUI, IpDrv).
-- Fields, functions, states, enums and enum values keep their original names and values:
-  `bFastSpeed`, `PlayerMove`, `s_PlayerWalkingWeapon`, `EPhysics.PHYS_Walking = 1`.
-- Ports of native engine code keep the native function names: `SingleLineCheck`, `physOnPipeH`.
-- `.editorconfig` turns off the naming rules that would fight this (IDE1006, CA1707, CA1711).
+Write the port from the specification. Decompiled material stays in `local/` and must
+not be committed. See the [provenance policy](../re/PROVENANCE.md).
 
-## File layout per class
+## Keep original names
 
+Ported classes, fields, functions, states and enum values keep their original names:
+`SPlayerController`, `bFastSpeed`, `s_PlayerWalkingWeapon`, `EPhysics.PHYS_Walking`.
+Namespaces follow the original package names, such as `Engine` and `SBase`. Native
+ports keep native names such as `SingleLineCheck` and `physOnPipeH`.
+
+[.editorconfig](../.editorconfig) disables naming rules that conflict with this policy.
+
+## File layout
+
+```text
+SBase/SPlayerController.cs                         class, fields, global functions
+SBase/SPlayerController.s_PlayerWalkingWeapon.cs   partial file for one state
+Generated/                                        generated code
 ```
-src/OpenScct.Game/SBase/SPlayerController.cs                          class body, fields, global functions
-src/OpenScct.Game/SBase/SPlayerController.s_PlayerWalkingWeapon.cs    one partial per state
-src/OpenScct.Game/Generated/{Defaults,Replication,Dispatch}/          generated, never edited by hand
-```
 
-- One class per file, plus one partial file per state, named `<Class>.<State>.cs`.
-- States are nested classes. Dispatch (state overrides, `ignores`, `Global.`, `Super.`) is generated.
-- Latent code (`Sleep`, `FinishAnim`, `MoveTo`...) is stored as serializable `LatentFrame` data, so a
-  running state can be saved, replayed and compared.
-- Generated defaults can be overridden by content JSON, which is how data mods work.
+Use one class per file and one partial file per state (`<Class>.<State>.cs`). States are
+nested classes. Latent operations such as `Sleep`, `FinishAnim` and `MoveTo` use
+serializable `LatentFrame` data so they can be saved, replayed and compared.
 
-## Provenance attributes
+Do not edit generated files by hand. See [code generation](CODEGEN.md) for regeneration,
+state metadata and hand-written members. Content JSON can override generated defaults.
 
-Every port says where it came from. The attributes live in `OpenScct.Provenance`; the coverage tool
-(`svm coverage`) reads them. Each one may be stacked.
+## Record provenance
 
-| Attribute | Goes on | Says |
-|---|---|---|
-| `[Uc("SPlayerController.s_PlayerWalkingWeapon.PlayerMove", Sha1 = "...")]` | every port of script code | the unit path, Class[.State].Function, and the SHA-1 of the original bytecode the port was written from, so ports whose source changed can be flagged |
-| `[UcNative("APawn::physOnPipeH", Exe = 0x..., Editor = 0x...)]` | every port of native engine code | the native name as in the engine guard strings, and its address in the game and editor executables (0 when unknown) |
-| `[PortOf("nat:APawn::physWalking", Spec = "spec/physics/walking.md#rules")]` | anything that implements a coverage unit | the coverage unit ID (`uc:`, `nat:`, `eng:`, `rep:`, `def:`, `fmt:`, `rl:`) and the spec anchor it was written from |
-| `[Provenance(ProvenanceKind.Decoded, "SBase.u SPlayerController defaults")]` | constants in `K.*`, rules | the evidence kind and where the value came from |
+The attributes in [OpenScct.Provenance](../src/OpenScct.Provenance/) link code to its
+source evidence. Multiple attributes can describe one member. The
+[coverage tool](../tools/OpenScct.Coverage/README.md) reads these links.
+
+| Attribute | Use |
+|---|---|
+| `Uc` | Original script unit path and the SHA-1 of its bytecode |
+| `UcNative` | Native function name and known game/editor addresses; use 0 for an unknown address |
+| `PortOf` | Coverage unit ID and the spec file/heading that describes the port |
+| `Provenance` | Evidence kind and source for a rule or constant |
+
+Unit IDs use the prefixes `uc:`, `nat:`, `eng:`, `rep:`, `def:`, `fmt:` or `rl:`.
+Use a real specification path and heading in `PortOf.Spec`.
 
 ## Constants
 
-- Every number taken from the original lives in a `K.*` class with a `[Provenance]` attribute, never
-  inline. Examples: `fErrorMax` 1.73, `NetServerMaxTickRate` 20, `MaxClientRate` 20000.
-- Each constant carries an evidence kind (`ProvenanceKind`):
-  - **Decoded**: read from the original binaries or packages (script, class defaults, disassembly)
-  - **Measured**: observed in the running original (traces, live reads, captures)
-  - **Estimated**: a best guess that still needs confirming
-- A value that was both decoded and measured gets both attributes.
+Put values taken from the original in a `K.*` class with a `Provenance` attribute.
+Avoid unexplained literals in gameplay code. Label the evidence:
 
-## Determinism
+| Kind | Meaning |
+|---|---|
+| `Decoded` | Read from binaries, packages, defaults or disassembly |
+| `Measured` | Observed in the running original through traces or captures |
+| `Estimated` | A guess that still needs confirmation |
 
-The simulation libraries (`OpenScct.Core`, `OpenScct.Physics`, `OpenScct.Game`, `OpenScct.Net`, `OpenScct.Content`) must give
-bit-identical results on every machine. Replay hashes from win-x64 and linux-x64 will be compared in CI.
+Use both attributes when a value has been decoded and measured.
 
-- No Godot. `build/Sim.props` fails the build if a sim library references it.
-- Banned APIs (`BannedSymbols.txt`, RS0030 is an error in sim code):
-  - `System.Random`: use the seeded sim RNG streams.
-  - `DateTime.Now`, `DateTime.UtcNow`, `Environment.TickCount`, `Stopwatch`: sim time comes from the
-    tick counter.
-  - `Math` and `MathF` transcendentals (`Sin`, `Cos`, `Tan`, `Asin`, `Acos`, `Atan`, `Atan2`, `Exp`,
-    `Log`, `Pow`): use `SvmMath`, which uses the UE2 sine table.
-  - `FusedMultiplyAdd`: no FMA in sim code.
-- float32 wherever the original uses float. No silent widening to double in sim maths.
-- Use ordered collections wherever iteration order can change a result. Never iterate a `Dictionary`
-  or `HashSet` to decide gameplay.
-- Fixed 60 Hz tick, with the UE2 sub-step rule inside physics.
-- No mutable statics in sim code. State lives in the level and its actors.
-- Zero allocations per tick in steady state.
+## Deterministic simulation
+
+Core, Physics, Game, Net and Content aim to produce identical results from identical
+inputs. Cross-platform replay-hash comparison is planned; it is not yet a CI guarantee.
+
+- Keep Godot out of simulation libraries. [Sim.props](../build/Sim.props) enforces this.
+- Follow [BannedSymbols.txt](../BannedSymbols.txt). Use seeded simulation RNG streams
+  instead of `System.Random`, and tick time instead of wall clocks or `Stopwatch`.
+- Use `SvmMath` for banned transcendental functions. Do not use fused multiply-add.
+- Keep original float calculations at 32-bit precision; avoid silent widening to double.
+- Use ordered collections when iteration order affects gameplay. Do not decide gameplay
+  by iterating a `Dictionary` or `HashSet`.
+- Keep the fixed 60 Hz tick and the original physics sub-step rules.
+- Store mutable state in the level and actors, not static fields.
+- Aim for zero allocations per tick in steady state.
 
 ## Tests
 
-- C# tests use xunit v3 and CsCheck for property tests, through `build/Test.props`, and run on the
-  Microsoft.Testing.Platform runner (`global.json`): `dotnet test --solution OpenSCCT.slnx`.
-- Python tests use pytest.
-- Test data in git is synthetic (`fixtures/`, the generated TestBox map).
+C# tests use xUnit v3 and CsCheck through [Test.props](../build/Test.props), with the
+Microsoft.Testing.Platform runner configured in [global.json](../global.json). Python
+tests use pytest. Test data committed to Git must be synthetic; original recordings
+and converted assets stay local.
+
+See [testing](TESTING.md) for commands and [player-path testing](TESTING-PLAY.md) for
+input, rendering and audio smoke tests.

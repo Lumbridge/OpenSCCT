@@ -1,13 +1,35 @@
-# Online play
+# Online play and hosting
 
-How players find, join and play each other: the online session (lobby, travel, round, results), the master server
-(list, NAT punch introducer, relay), the dedicated server, hosting from the game, and exactly what to deploy on a
-VPS. The game's own network model (packets, replication, moves) is in `docs/NETCODE.md`; this file is the layer
-above it. Reloaded's behaviour that this replaces is in `spec/reloaded/FEATURES.md` (rl:net.*, rl:qol.lobby) and
-`spec/native/reloaded-features-from-code.md`; the original's game flow is in `spec/game/`.
+[Documentation](README.md)
 
-Nothing here ever talks to the original game's or the Reloaded patch's master servers. Every address comes from
-our own settings.
+OpenSCCT supports public servers, direct IP joins, LAN play and player-hosted sessions.
+The master service provides server discovery, accounts and connection assistance. Game servers run
+the lobby, rounds and results. Offline/LAN play and self-hosting can run without a master.
+
+## Start here
+
+| Task | Read |
+| --- | --- |
+| Join or host from the game | [Player quick start](#player-quick-start) |
+| Run a dedicated server | [Server configuration](#dedicated-server-svm-server) |
+| Run a social hub | [Hub guide](HUB.md) |
+| Set up discovery and accounts | [Master server](#master-server-svm-master), [Accounts](#accounts) |
+| Deploy or update services | [VPS setup](#deploying-on-a-vps), [Updates](#updating-the-vps) |
+| Investigate connection problems | [Join attempts and errors](#joining), [Ports](#ports), [Network testing](NETWORK-TEST.md) |
+| Understand the protocol | [Session protocol](#session-protocol), [Netcode](NETCODE.md) |
+
+## Player quick start
+
+1. Open **Find a Session**, select a compatible server, then join. Sign in or enter a password when required.
+2. In the lobby, choose your side, download any missing map and mark yourself ready.
+3. To host, open **Create a Session**, choose the map and rules, and review the hosting settings.
+4. For a LAN or direct connection, use **Join with IP**. A public listing is optional.
+
+The connection screen shows each attempt and any refusal. A different game protocol or map content
+requires the matching game/content update. The [launcher](LAUNCHER.md) manages those downloads.
+
+OpenSCCT uses its own services; it does not contact the original game's or Reloaded's master servers.
+The rest of this guide is the configuration and implementation reference.
 
 ## Pieces
 
@@ -271,8 +293,9 @@ missing map, a different version of the map (content hash), or full.
 
 ## Master server (svm-master)
 
-One process: the HTTP list API on Kestrel, and three UDP sockets (introducer, relay, prober) sharing one in-memory
-registry. It keeps no database; after a restart hosts register again on their next heartbeat (a 404 makes them).
+The master runs the HTTP API on Kestrel and three UDP sockets for introductions, relaying and probes.
+Server listings live in memory; hosts register again after a restart. Accounts, progression, match history
+and website sessions are stored separately in the master's SQLite database.
 
 HTTP API (`MasterApi`, JSON camelCase, enums as text). With invite keys set, every call except the status needs
 `X-Svm-Key`:
@@ -488,33 +511,15 @@ someone else's key. Not done: the master does not see keys (its bans stay by acc
 
 ## Player hub
 
-`https://<master>/` is the public player website, served by the master alongside the game API and admin portal.
-See [Player hub](PLAYER-HUB.md) for player instructions, appearance synchronization, deployment and the manual
-acceptance checklist. The pages use the same accounts, stats and match records as the game.
-
-| Route | Purpose |
-|---|---|
-| `/`, `/download` | Welcome, public announcement, launcher download and installation instructions. |
-| `/servers` | Listed games and hubs; filter by name/map, mode, region and free space. Live data refreshes without replacing forms. |
-| `/players`, `/players/{id}` | Name search, progression, career stats, achievements, unlocks and personal round history. |
-| `/leaderboards` | Lifetime XP, wins or kills; private, hidden, unnamed and actively banned accounts are excluded. |
-| `/matches`, `/matches/{id}` | Recorded rounds and team scoreboards, with counted and uncounted rounds distinguished. |
-| `/account` | The signed-in player's name, progression and prestige action. |
-| `/account/appearance` | Unlocked spy/merc cosmetics and title, saved with an expected revision. |
-| `/account/privacy`, `/account/security` | Website visibility and individual/all game or player-website session revocation. |
+The master serves the public website at `/` alongside the game API and admin portal. The
+[player hub guide](PLAYER-HUB.md) covers its pages, joining, privacy, appearance synchronization,
+deployment and manual checks. It uses the same accounts, stats and match records as the game.
 
 **Browser sign-in.** `/auth/player/login` starts Discord sign-in with `state = player.<nonce>` and a ten-minute
 `svm_player_state` cookie. The shared `/auth/discord/callback` checks the cookie, consumes the stored state once,
 then issues a separate `svm_player` cookie: HttpOnly, Secure on HTTPS, SameSite=Strict, path `/`. Only the token's
 hash is stored. The session expires after 12 hours unused or seven days total. Every account-changing form checks
 the session and its CSRF token. A player cookie never authorizes an admin page or a game API request.
-
-**Privacy.** Existing and new named accounts start public. An owner's private setting or an admin moderation
-hide removes the public profile, personal history, search and leaderboard entries. Public match rows, including
-old rounds, and live player lists redact that identity when rendered. The owner retains `/account` access, and
-admins retain their moderation records. Public pages do not expose Discord IDs, previous names, IP addresses,
-credentials, synced controls or audit records. Website privacy does not change in-game names or existing demos;
-this website does not add public replay downloads.
 
 **Appearance API.** `GET /api/v1/account/appearance` returns `AccountAppearance` (`revision`, `spy`, `merc`,
 `title`). `PUT` accepts `AppearanceUpdateRequest` (`expectedRevision`, `spy`, `merc`, `title`) and returns
@@ -523,15 +528,9 @@ overwriting it. Items, sides, slots and title ownership are validated using the 
 unlocks. Both endpoints require the existing game invite key and account bearer token; website forms use their
 own cookie/CSRF checks and call the same account logic.
 
-The master seeds appearance from existing synced settings. Once managed independently, legacy whole-profile
-uploads cannot overwrite it; older clients still receive their existing settings format. Updated clients use
-the separate API in menus/lobbies every 30 seconds and before joining, deferring remote changes in active rounds.
-They offer reload/reapply for conflicting saves and fall back to ordinary profile sync against older masters.
-
-**Hosting and access.** Opening the website does not remove the game's invite-key requirement. Browser pages
-and refreshes use an independent rate limit, and browser assets contain no invite key. Shared assets are embedded
-under `/web/assets`; no separate frontend build service is required. Discord must be configured to enable the
-account-backed player hub. The master still supplies a download/sign-in-unavailable page when accounts are off.
+Public pages use separate allowlisted data and rate limits. They do not expose the game's invite key or
+remove its API requirements. Assets are embedded under `/web/assets`; no separate frontend service is needed.
+When Discord accounts are disabled, download pages remain available with sign-in-unavailable guidance.
 
 ## Admin portal
 
@@ -802,8 +801,8 @@ recording demos (each round into the player's demos folder, docs/DEMOS.md). The 
 runs the same `OnlineServer` on its own thread (`ListenHost`), the host's own player over loopback and everyone
 else over UDP. UPnP (Godot's `Upnp`, rl:net.upnp) maps the game port for 24 h and the lobby says whether it worked,
 naming the port to forward by hand when not. With a master set, the host also registers for punches and the relay,
-so players behind any NAT reach it; behind carrier-grade NAT (Ryan's line) no port can be opened and the master
-reports **relay only**: every remote player plays through the relay.
+so clients can try those paths when a direct connection fails. Carrier-grade NAT can prevent port
+forwarding; a host reported as **relay only** carries remote players through the relay.
 
 ## The game client
 
@@ -821,7 +820,7 @@ AWS master, `https://master.lumbridge.co.uk` (`OnlineSettings.DefaultMasterUrl`,
 with no master picks it up once (`[master] defaults`), and a player who clears it afterwards keeps it cleared. Smoke
 runs (isolated settings) keep the master empty.
 
-The player's Discord status (what they are playing, with Join for friends) is in `docs/DISCORD.md`.
+The player's Discord status (what they are playing, with Join for friends) is in [Discord](DISCORD.md).
 
 ## Updating the VPS
 
@@ -1024,14 +1023,14 @@ dotnet run --project src/OpenScct.Server.Cli -- --online --master http://127.0.0
 # then two game clients: Find a game, master http://127.0.0.1:28800
 ```
 
-## Open items
+## Limits and validation
 
 - Packets carry a per-connection salt but no encryption or signature (docs/NETCODE-M0.md): someone who can see the
   traffic can still forge packets.
 - Hosts are not authenticated beyond tokens and invite keys; players prove their own key pair (rl:ac.bans), which a
   player can make anew, as he can reset his install id. Signed releases (rl:ac.release) are later work.
-- The relay forwards LiteNetLib unconnected messages on LiteNetLib's receive threads; it has been run on localhost
-  only. Its throughput on the VPS and the overhead budget (under 30 ms) need measuring in the CGNAT playtests.
+- The relay forwards LiteNetLib unconnected messages on LiteNetLib's receive threads; localhost tests do not establish its
+  VPS throughput or latency. Measure both with real carrier-grade NAT clients.
 - The symmetric NAT test compares two ports of the same master address; a NAT that keeps the port for one
   destination address but not for another is not caught and shows as needs intro (the relay is still tried after
   a failed punch).
@@ -1039,8 +1038,7 @@ dotnet run --project src/OpenScct.Server.Cli -- --online --master http://127.0.0
   AddPinhole), so it would need our own UPnP SOAP client; a host behind an IPv6 firewall is reached through the
   punch or the relay as before. The host's own addresses sent to the master (players on the same network try them
   first) are its IPv4 ones, then up to two IPv6 ones (global or unique local, stable before temporary; no link-local).
-- Lag compensation is on by default, as in Reloaded (ceiling 120 ms as Reloaded); it has not been played over a
-  real link yet. The map list's playlists (rl:qol.lobbymaps) show variant words as part of the
+- Lag compensation is on by default, as in Reloaded (ceiling 120 ms as Reloaded); real-link behavior needs gameplay validation in addition to automated checks. The map list's playlists (rl:qol.lobbymaps) show variant words as part of the
   name (Reloaded dims them, and has an option to put the word after the name); Reloaded's separate Merc Deathmatch
   playlist choice (`active_map_playlist_mdm`) is one choice here.
 - Bots: the dedicated server's config file has no bot fields yet (the console's `set bots` works); its rotation

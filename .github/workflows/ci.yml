@@ -34,6 +34,9 @@ jobs:
       - name: Game data guard
         run: python tools/ci/no_game_data.py
 
+      - name: Documentation links and coverage summary
+        run: python tools/ci/docs.py
+
       # The vendored scctpkg must be exactly the recorded upstream files plus the listed local patches.
       - name: Vendored scctpkg check
         run: python tools/scctpkg/sync.py --check

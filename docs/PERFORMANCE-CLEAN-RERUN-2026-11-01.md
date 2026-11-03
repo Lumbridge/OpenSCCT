@@ -1,5 +1,7 @@
 # Clean performance rerun — 1 November 2026
 
+> Historical report. Results and open issues describe the recorded run. For current setup and checks, see [development](DEVELOPMENT.md), [testing](TESTING.md) and the [documentation index](README.md).
+
 The rerun confirms a useful gain in the tested scenes. With the corrected input driver, uncapped moving-camera combat averages **1.330 → 1.213 ms per frame: 8.76% less frame time, or 9.60% more throughput**. Balanced stationary rounds show **19.5% and 20.2% lower frame time** in Spy and Merc HUD views, **5.0–6.2%** in AquaE views, and approximately flat results in SteeE environment-only views.
 
 Controlled visual and pose comparisons passed, and no confirmed visual degradation was found in the inspected gameplay captures. This is bounded validation, **not a certification of every visual or animation-cadence case**. Native strict camera assertions still fail: detailed analysis identifies tiny integer-rotation residuals and a short sub-unit synthetic-input burst. They remain recorded rather than being reclassified as passes.
@@ -87,7 +89,7 @@ V1/v2 showed fewer but longer optimized GC pauses, including uncapped frames abo
 
 V3 changes only two common diagnostic files in isolated snapshots: held keys are submitted on transitions, and owned/validation input events are disposed. It preserves the input-delivery path, timeline and assertions. Both rendered quality checks passed before timing; all six final timing runs pass with sent/disposed counters matching. Production input, rendering, animation and performance code were not changed.
 
-Trace diagnosis has a material limitation: parsers encounter EOF near shutdown. Only the decoded `[0,58)`-second prefix is analyzed, with `parseSuccess=false` preserved and no reported lost events in the prefix. No full successful decode, retaining-path analysis or production leak finding is claimed. Profile-inflated timings are excluded. Exact commands/hashes and the corrected-run follow-up are in `profiling-v2/gc-cap60-20261101-115632/profiling-analysis.md/.json`.
+Trace diagnosis has a material limitation: parsers encounter EOF near shutdown. Only the decoded `0,58)`-second prefix is analyzed, with `parseSuccess=false` preserved and no reported lost events in the prefix. No full successful decode, retaining-path analysis or production leak finding is claimed. Profile-inflated timings are excluded. Exact commands/hashes and the corrected-run follow-up are in `profiling-v2/gc-cap60-20261101-115632/profiling-analysis.md/.json`.
 
 ## Comparison, isolation and provenance
 
@@ -130,4 +132,4 @@ Concurrent unrelated input/controller/UI edits after the source freeze were pres
 
 The remaining limits are broader live-play visual coverage and exact camera/input threshold behavior across rates. This evidence supports the measured gains and sampled visual/pose equivalence; it does not promise exhaustive equality of every frame, input path or animation transition.
 
-Detailed evidence: [measurement analysis](C:/Users/ryans/source/repos/SVM-Rewrite/local/performance-clean-2026-11-01-1030/final-analysis.md), [GC and action cadence](C:/Users/ryans/source/repos/SVM-Rewrite/local/performance-clean-2026-11-01-1030/v3-combat-gc-analysis.md), and [visual review](C:/Users/ryans/source/repos/SVM-Rewrite/local/performance-clean-2026-11-01-1030/visual-review.md).
+Detailed evidence: [measurement analysis: `local/performance-clean-2026-11-01-1030/final-analysis.md` (local only), GC and action cadence: `local/performance-clean-2026-11-01-1030/v3-combat-gc-analysis.md` (local only), and visual review: `local/performance-clean-2026-11-01-1030/visual-review.md` (local only).

@@ -1,5 +1,7 @@
 # Spy-host / merc-client follow-up — 1 November 2026
 
+> Historical report. Results and open issues describe the recorded run. For current setup and checks, see [development](DEVELOPMENT.md), [testing](TESTING.md) and the [documentation index](README.md).
+
 **Released and deployed:** [OpenSCCT 0.8.54](https://github.com/Lumbridge/OpenSCCT/releases/tag/v0.8.54),
 1 November 2026 at 14:34 UTC, from commit `5d516353e2c97d1628196717b22ec12b8c4324af`.
 This follows Ryan's hands-on 0.8.53 report; it does not supersede the outstanding acceptance items
@@ -112,4 +114,4 @@ the result with zero reinitializations. No bandwidth limit or gameplay threshold
   service configuration other than the latest-version notice, and downloaded game content are preserved.
 
 The source tree initially had unrelated `reports/` and `research_notes/` directories; concurrent
-`tools/deploy/us-lobbies/` work is also outside this change. These are excluded from the release commit.
+[tools/deploy/us-lobbies/](../tools/deploy/us-lobbies) work is also outside this change. These are excluded from the release commit.

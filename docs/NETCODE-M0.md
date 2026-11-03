@@ -1,17 +1,19 @@
 # Netcode M0
 
 What `OpenScct.Net`, `OpenScct.Server` and `OpenScct.Server.Cli` did at milestone M0, how the wire format works, what the
-tests measured, and what was a stand-in for the full UE2 model described in `docs/NETCODE.md`.
+tests measured, and what was a stand-in for the full UE2 model described in [docs/NETCODE.md](NETCODE.md).
 
 > Superseded in part. The packet, bunch, channel and transport layers below are still current. The
 > replication layout, relevancy, function calls, send budget, maps and handshake content check are now the
-> generated UE2 model of `docs/NETCODE.md`: the hand-written `MovementRepLayout` and `CubeWalkerRepLayout`
+> generated UE2 model of [docs/NETCODE.md](NETCODE.md): the hand-written `MovementRepLayout` and `CubeWalkerRepLayout`
 > are gone (the walker replicates with the generated Pawn layout plus `CubeWalkerNet`), the per-connection
 > QueuedBits budget became the driver budget with the CONF* law, and `MapCatalog` loads SVMaps.
 
 The M0 check is "4 loopback cube-walkers replicate": a server and 4 clients, each moving its own walker,
 and every client sees all 4 walkers where the server has them. It passes on loopback and over simulated
 internet links (see [Measured](#measured)).
+
+**On this page:** [Packets](#packets) · [Bunches and channels](#bunches-and-channels) · [Measured](#measured) · [Stand-ins and what UE2 parity still needs](#stand-ins-and-what-ue2-parity-still-needs)
 
 ## Layers
 
@@ -227,7 +229,7 @@ has `maxAcceptableUnAckBunch=40` and the adaptive `CONF*` net speed settings, wh
 
 ## Measured
 
-From `tests/OpenScct.Integration.Tests` (virtual clock, 4 clients, 10 s measured after a 2 s warm-up, 9600
+From [tests/OpenScct.Integration.Tests](../tests/OpenScct.Integration.Tests) (virtual clock, 4 clients, 10 s measured after a 2 s warm-up, 9600
 samples per run). "Displayed" is the interpolated position against the server's position at the render
 time; "replication" is each replicated state against the server's position at the tick it is stamped with.
 

@@ -1,25 +1,30 @@
 # Animation
 
-How a pawn is animated, from the simulation's channels to the drawn pose. The rules are in
-`spec/native/anim.md`, `spec/native/ANSWERS-anim.md` (the decoded detail: PlayAnim, the update passes, the walk
-blender, the tween cache, AnimateBTW) and `spec/native/execute-action.md` (which action plays what). Ports keep the
-original names.
+Pawn animation starts in simulation channels and ends in a rendered skeleton pose.
+This guide covers that path, including movement blending, actions, root motion, aiming
+and weapon models.
+
+The source rules are in [animation](../spec/native/anim.md),
+[decoded animation details](../spec/native/ANSWERS-anim.md) and
+[action dispatch](../spec/native/execute-action.md). Ports keep the original names.
+
+**On this page:** [Layers](#layers) · [Channels (simulation)](#channels-simulation) · [Pose (client)](#pose-client) · [Play check (play-anim smoke)](#play-check-play-anim-smoke) · [Open](#open)
 
 ## Layers
 
 | Layer | Where | What |
 |---|---|---|
-| Channel model | `src/OpenScct.Game/Movement/PawnAnimation.cs` | the 25 channels of a pawn's mesh instance and the engine's channel natives |
-| Walk blender | `src/OpenScct.Game/Animation/PawnMovementAnimation.cs` | `ASBasePawn::UpdateMovementAnimation`: channels 1 to 15 every tick |
-| Action animation | `src/OpenScct.Game/Animation/ActionAnimation.cs` | the channel side of ExecuteAction the action ports leave out |
-| Notifies | `src/OpenScct.Game/Animation/PawnAnimNotifies.cs` | clip notifies from the converted packages, fired by the update |
-| Root motion | `src/OpenScct.Game/Movement/PawnRootMotion.cs` | the root's movement and turn for PHYS_RootMotion |
-| Aim | `src/OpenScct.Game/Animation/MeshAimIK.cs`, `game/Scripts/Views/AimPose.cs` | the upper body turned toward the aim (AimAt) |
-| Arm aim | `src/OpenScct.Game/Animation/ArmAim.cs`, `MeshBoneDirections.cs` | an upper arm turned toward the view (TurnHead's arm cases) |
-| Pose | `game/Scripts/Views/ChannelPoseApplier.cs`, `SimPawnView.cs` | the client's pose from the channels |
-| Roll collision | `src/OpenScct.Server/Maps/RollPoseContent.cs`, `RollPillPose.cs` | the installed roll clips and collision-bone offsets sampled on clients and dedicated servers |
-| View models | `game/Scripts/Views/ViewModelPose.cs`, `FirstPersonView.cs`, `PawnAttachments.cs` | first-person arms, third-person weapons |
-| Difftest | `tests/OpenScct.DiffTest/Anim` | the channels against the real game, frame by frame |
+| Channel model | [src/OpenScct.Game/Movement/PawnAnimation.cs](../src/OpenScct.Game/Movement/PawnAnimation.cs) | the 25 channels of a pawn's mesh instance and the engine's channel natives |
+| Walk blender | [src/OpenScct.Game/Animation/PawnMovementAnimation.cs](../src/OpenScct.Game/Animation/PawnMovementAnimation.cs) | `ASBasePawn::UpdateMovementAnimation`: channels 1 to 15 every tick |
+| Action animation | [src/OpenScct.Game/Animation/ActionAnimation.cs](../src/OpenScct.Game/Animation/ActionAnimation.cs) | the channel side of ExecuteAction the action ports leave out |
+| Notifies | [src/OpenScct.Game/Animation/PawnAnimNotifies.cs](../src/OpenScct.Game/Animation/PawnAnimNotifies.cs) | clip notifies from the converted packages, fired by the update |
+| Root motion | [src/OpenScct.Game/Movement/PawnRootMotion.cs](../src/OpenScct.Game/Movement/PawnRootMotion.cs) | the root's movement and turn for PHYS_RootMotion |
+| Aim | [src/OpenScct.Game/Animation/MeshAimIK.cs](../src/OpenScct.Game/Animation/MeshAimIK.cs), [game/Scripts/Views/AimPose.cs](../game/Scripts/Views/AimPose.cs) | the upper body turned toward the aim (AimAt) |
+| Arm aim | [src/OpenScct.Game/Animation/ArmAim.cs](../src/OpenScct.Game/Animation/ArmAim.cs), `MeshBoneDirections.cs` | an upper arm turned toward the view (TurnHead's arm cases) |
+| Pose | [game/Scripts/Views/ChannelPoseApplier.cs](../game/Scripts/Views/ChannelPoseApplier.cs), `SimPawnView.cs` | the client's pose from the channels |
+| Roll collision | [src/OpenScct.Server/Maps/RollPoseContent.cs](../src/OpenScct.Server/Maps/RollPoseContent.cs), `RollPillPose.cs` | the installed roll clips and collision-bone offsets sampled on clients and dedicated servers |
+| View models | [game/Scripts/Views/ViewModelPose.cs](../game/Scripts/Views/ViewModelPose.cs), `FirstPersonView.cs`, `PawnAttachments.cs` | first-person arms, third-person weapons |
+| Difftest | [tests/OpenScct.DiffTest/Anim](../tests/OpenScct.DiffTest/Anim) | the channels against the real game, frame by frame |
 
 ## Channels (simulation)
 
@@ -197,7 +202,7 @@ An armed pawn's upper body follows its aim (spec/native/aim-ik.md), on every mac
 the drawn right hand's elevation from B Spine2 must change by at least half of 0.85 of the view's pitch change
 (before: 0.0 degrees for a 42.5 degree change; now 21.1). It also checks that the drawn hand turns sideways the way
 of the aim (89 % of the frames with a sideways aim over 8.6 degrees) and reports the merc bots' aim.
-`tests/OpenScctGame.Logic.Tests/Views/AimIKTests.cs` checks the step, the limits and that every armed merc bot proxy on
+[tests/OpenScctGame.Logic.Tests/Views/AimIKTests.cs](../tests/OpenScctGame.Logic.Tests/Views/AimIKTests.cs) checks the step, the limits and that every armed merc bot proxy on
 the client asks for the aim toward its owner's desired rotation. A rifle shot plays no body clip in the original
 (the combat goldens have no SA_FIRE); what other players see of a shot is this aim and the third-person muzzle flash.
 
@@ -208,7 +213,7 @@ back to wall (the right arm round a left corner, the left arm round a right one;
 draw plays backward), firing while holding a grabbed body, firing from a pipe hang (by one hand or by the legs) and
 firing braced in a split jump.
 
-- `ArmAim` (`src/OpenScct.Game/Animation/ArmAim.cs`, called from `PawnMovementAnimation.TurnHead`) picks the case,
+- `ArmAim` ([src/OpenScct.Game/Animation/ArmAim.cs](../src/OpenScct.Game/Animation/ArmAim.cs), called from `PawnMovementAnimation.TurnHead`) picks the case,
   steps the bone's world rotation toward the view plus the pose's offset by at most 100000 (split jump 150000)
   rotator units per second per axis, and leaves it on `PawnAnimation.Directions` (`MeshBoneDirections`, the mesh
   instance's SetBoneDirection controllers). It releases the arms when no case holds one; `RemoveBTWArmControl`
@@ -231,7 +236,7 @@ firing braced in a split jump.
 
 ## Difftest
 
-`tests/OpenScct.DiffTest/Anim` replays every movement and traversal scenario with goldens (DtReplay, recorded start) and
+[tests/OpenScct.DiffTest/Anim](../tests/OpenScct.DiffTest/Anim) replays every movement and traversal scenario with goldens (DtReplay, recorded start) and
 compares the pawn's channels with the reference run's record each frame: sequence, frame, AnimRate, blend alpha and,
 in the traversal records (`ach`, channels 0 to 15), the tween weight and tween rate. The sim's channels start from the
 reference's frame -1. Frames after the sim's movement leaves the reference (controller state or physics) are not
@@ -251,7 +256,7 @@ Reports: `local/difftest/anim/report.md` and one JSON per scenario (never tracke
 What the original plays in normal spy and merc play (execute-action.md, the goldens, the SPerso.PRO and SPerso.Def
 packages: 339 spy and 144 merc sequences, all named by the ported code or its generated defaults) against what our
 client drew. "Before" is the build Ryan tested (fa7fd88); "now" is after this wave. The play check is the
-`play-anim` smoke (below) and `tests/OpenScct.Game.Tests/Animation/ActionClipTests.cs`.
+`play-anim` smoke (below) and [tests/OpenScct.Game.Tests/Animation/ActionClipTests.cs](../tests/OpenScct.Game.Tests/Animation/ActionClipTests.cs).
 
 | Group | Original clips (examples) | Channel, by | Before | Now |
 |---|---|---|---|---|
@@ -343,7 +348,7 @@ tools\godot\4.7.2-stable\Godot_v4.7.2-stable_mono_win64_console.exe --path game 
   from the root bone. The four root-track goldens pass with it.
 - The merc's view model: s_Selected.Tick now runs AnimateWaiting every tick as the script does, so the arms play
   FirstWaitStFd2 while the merc stands (play-anim merc: 419 of 419 idle frames, before 0;
-  `tests/OpenScctGame.Logic.Tests/Views/MercArmsTests.cs`: 0 of 301 still ticks before). The walk loop's rate
+  [tests/OpenScctGame.Logic.Tests/Views/MercArmsTests.cs](../tests/OpenScctGame.Logic.Tests/Views/MercArmsTests.cs): 0 of 301 still ticks before). The walk loop's rate
   `clamp(|V| x 0.006, 0, 3)` is ported (Clip timing below). Not ported: the side-step blend of that tick
   (FirstWaitStLt2 and Rt2 on channels 1 and 2 at alpha |side|, 0.2 s blends; at rest their alpha is 0), and the
   view model loops raising AnimEnd when they wrap.
@@ -381,9 +386,9 @@ read straddles the next pose build while a foot moves fast (worst 11.4 uu). It s
 
 ## Third-person camera next to walls
 
-`tests/OpenScctGame.Logic.Tests/Views/WallCameraTests.cs` puts the spy at the SteeE spawn as the game captures do
-(`tools/golden/poses/SteeE-walls.json`; frames and cameras under `local/golden/game-wall/`, from
-`tools/golden/capture_game.py`) and compares the client's camera with the game's vCamLocation: all twelve poses match
+[tests/OpenScctGame.Logic.Tests/Views/WallCameraTests.cs](../tests/OpenScctGame.Logic.Tests/Views/WallCameraTests.cs) puts the spy at the SteeE spawn as the game captures do
+([tools/golden/poses/SteeE-walls.json](../tools/golden/poses/SteeE-walls.json); frames and cameras under `local/golden/game-wall/`, from
+[tools/golden/capture_game.py](../tools/golden/capture_game.py)) and compares the client's camera with the game's vCamLocation: all twelve poses match
 to 0.1 uu, open views and walls alike. With a wall right behind the spy the game pulls the camera in to
 m_absoluteMinDist (30 uu, inside the spy's cylinder) and its frame is filled by the spy's back; with the crouched spy
 behind a low wall the game's camera loses sight of him too, so the inspector flags only a camera nearer than 22 uu.
@@ -398,7 +403,7 @@ was not the cause: ignoring it changes no pose.
 ## Clip timing against the original
 
 Measured in the original (the sandbox's Play Level game, the channels of the local pawn and of its weapon read each
-frame at 60 fps) and in the play client (`tests/OpenScctGame.Logic.Tests/Views/AnimTimingTests.cs`, the inline play
+frame at 60 fps) and in the play client ([tests/OpenScctGame.Logic.Tests/Views/AnimTimingTests.cs](../tests/OpenScctGame.Logic.Tests/Views/AnimTimingTests.cs), the inline play
 session; clip fraction a second, loop time in brackets):
 
 | Clip | Original | Client | Note |

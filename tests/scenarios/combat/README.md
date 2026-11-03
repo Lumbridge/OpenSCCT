@@ -1,5 +1,7 @@
 # Combat scenarios
 
+[Scenario formats](../README.md) · [Recorder guide](../../../re/tools/difftest/README.md)
+
 Two-player combat cases recorded in the original with the combat rig (`re/tools/difftest/combat.py`,
 `docs/spikes/R4-combat.md`), and the single-player combat cases the movement recorder plays.
 

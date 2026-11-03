@@ -1,5 +1,7 @@
 # R4 spike: differential testing v1 (golden locomotion traces)
 
+> Historical report. Results and open issues describe the recorded run. For current setup and checks, see [development](../DEVELOPMENT.md), [testing](../TESTING.md) and the [documentation index](../README.md).
+
 **Result: done.** The original can be driven and sampled reliably from outside: ten SteeE locomotion
 scenarios were recorded three times each, every run in its own headless sandbox Play Level game, with
 every frame sampled and no torn, missed, late or unstable sample in 30 runs (nor in 30 more soak runs).
@@ -10,20 +12,20 @@ frame timing.
 
 Recorded 2026-10-23 from Enhanced SCCT Versus v4.0 Public Beta 3 in `F:\SCCT-Automation\svm\Sandbox`:
 the game `SCCT Versus` (a98873aa...) and `Reloaded.Core.dll` (6b9d4444...) match
-`re/binaries.lock.json`; the sandbox's `ChaosTheory_Editor.exe` differs from the lock because the RE+
+[re/binaries.lock.json](../../re/binaries.lock.json); the sandbox's `ChaosTheory_Editor.exe` differs from the lock because the RE+
 editor plugin marks it large address aware. SteeE MapsEd c78319f4...; frame cap 60.
 
 ## What was built
 
 | Path | What |
 |---|---|
-| `re/tools/difftest/record.py` | Recorder CLI (`record`, `envelope`, `summary`, `show`, `check`) |
-| `re/tools/difftest/livegame.py` | Per-frame stable sampling and input writes on the running game |
-| `re/tools/difftest/sandbox.py` | Headless editor, Play Level under `gamewait.play_lock`, clean-up of own processes |
-| `re/tools/difftest/spots.py` | Spot finder: flat lanes and walk-off edges from the editor's live collision |
+| [re/tools/difftest/record.py](../../re/tools/difftest/record.py) | Recorder CLI (`record`, `envelope`, `summary`, `show`, `check`) |
+| [re/tools/difftest/livegame.py](../../re/tools/difftest/livegame.py) | Per-frame stable sampling and input writes on the running game |
+| [re/tools/difftest/sandbox.py](../../re/tools/difftest/sandbox.py) | Headless editor, Play Level under `gamewait.play_lock`, clean-up of own processes |
+| [re/tools/difftest/spots.py](../../re/tools/difftest/spots.py) | Spot finder: flat lanes and walk-off edges from the editor's live collision |
 | `re/tools/difftest/{scenario,trace}.py` | `svm.scenario/1` and `svm.trace/1`, metrics, noise envelope |
-| `tests/scenarios/` | Format (`README.md`), JSON schema, the 10 movement scenarios |
-| `tests/OpenScct.DiffTest/` | Trace reader and writer, comparator with profiles, noise envelope, `IScenarioSim`, measurements, tests |
+| [tests/scenarios/](../../tests/scenarios) | Format (`README.md`), JSON schema, the 10 movement scenarios |
+| [tests/OpenScct.DiffTest/](../../tests/OpenScct.DiffTest) | Trace reader and writer, comparator with profiles, noise envelope, `IScenarioSim`, measurements, tests |
 
 ## Method
 
@@ -74,7 +76,7 @@ States: spy jump `s_PlayerWalkingSt0H > s_PlayerJump (45 frames, the clip) > Pla
 PlayerLanding > s_PlayerWalkingSt0H`; the merc stays in `s_PlayerJump` all 39 air frames; walk-off
 `s_PlayerWalkingSt0H > PlayerFalling` (fNormePadMove 0.4, no ledge behind) `> PlayerLanding`.
 
-`fZMaxFalling` (open question 1 of `spec/movement/jump-fall-land.md`): set to Location.Z on the first
+`fZMaxFalling` (open question 1 of [spec/movement/jump-fall-land.md](../../spec/movement/jump-fall-land.md)): set to Location.Z on the first
 airborne frame, follows the pawn up to the apex, and is neither reset on landing nor refreshed while
 walking (the next scenario starts with the last fall's value).
 
@@ -114,7 +116,7 @@ loc max 2.25 against 0.20).
 
 ## C# side
 
-`tests/OpenScct.DiffTest` (on the solution): `TraceFile` (svm.trace/1 reader and writer), `Scenario`
+[tests/OpenScct.DiffTest](../../tests/OpenScct.DiffTest) (on the solution): `TraceFile` (svm.trace/1 reader and writer), `Scenario`
 (timeline expansion identical to the recorder's), `RunMetrics` (location RMS, max and end, velocity
 RMS on a common clock), `ComparisonProfile.Locomotion` (2 / 10 / 10), `NoiseEnvelope` (pairwise
 worst, medoid reference), `Comparator` (pass, noise-dominated metrics, state sequences), `Locomotion`

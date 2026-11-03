@@ -1,5 +1,7 @@
 # R4 spike: the rewrite against the original (sim runner)
 
+> Historical report. Results and open issues describe the recorded run. For current setup and checks, see [development](../DEVELOPMENT.md), [testing](../TESTING.md) and the [documentation index](../README.md).
+
 **Result: done, with findings for the next wave.** `PawnRigSim` plays every recorded SteeE scenario (10
 locomotion, 12 traversal) in the rewrite: OpenScct.Content loads `.content/svmap/SteeE`, `PawnRig.Create` builds the
 level with `PhysicsWorld.Attach`, the pawn starts at the reference run's frame -1 and gets the recorded inputs frame
@@ -19,14 +21,14 @@ Run 2026-10-23 on the working tree of that day, goldens from `local/difftest/gol
 
 | Path | What |
 |---|---|
-| `tests/OpenScct.DiffTest/Sim/PawnRigSim.cs` | `IScenarioSim` on `PawnRig`: start (`SimStart.Recorded` or `Setup`), clock warm-up, per-frame inputs in `DtReplay` or `Fixed`, missed recorder frames filled, svm.trace/1 out |
-| `tests/OpenScct.DiffTest/Sim/SimTrace.cs` | rig state to `TraceFrame` (every svm.trace/1 frame key), header, footer; UE2 names written with the reference's spelling |
-| `tests/OpenScct.DiffTest/Sim/SimContent.cs` | the converted content (`SVM_CONTENT` or `.content`): maps and the clip table, loaded once |
-| `tests/OpenScct.DiffTest/Sim/SimHarness.cs` | runs a scenario against its goldens (both golden roots), writes runs to `local/difftest/sim`; `SimProfiles` with a provisional `traversal` profile |
-| `tests/OpenScct.DiffTest/Sim/SimReport.cs` | per scenario: profile verdicts, measurements on both runs with the golden spread, phase sequence and start offsets, channel-0 clip sequence, start error, first divergence; markdown and JSON |
-| `tests/OpenScct.DiffTest/RunnerTests.cs` | the harness as tests (skipped without goldens or content), a known-mismatch table, a determinism check, and two synthetic-floor tests that run in CI |
+| [tests/OpenScct.DiffTest/Sim/PawnRigSim.cs](../../tests/OpenScct.DiffTest/Sim/PawnRigSim.cs) | `IScenarioSim` on `PawnRig`: start (`SimStart.Recorded` or `Setup`), clock warm-up, per-frame inputs in `DtReplay` or `Fixed`, missed recorder frames filled, svm.trace/1 out |
+| [tests/OpenScct.DiffTest/Sim/SimTrace.cs](../../tests/OpenScct.DiffTest/Sim/SimTrace.cs) | rig state to `TraceFrame` (every svm.trace/1 frame key), header, footer; UE2 names written with the reference's spelling |
+| [tests/OpenScct.DiffTest/Sim/SimContent.cs](../../tests/OpenScct.DiffTest/Sim/SimContent.cs) | the converted content (`SVM_CONTENT` or `.content`): maps and the clip table, loaded once |
+| [tests/OpenScct.DiffTest/Sim/SimHarness.cs](../../tests/OpenScct.DiffTest/Sim/SimHarness.cs) | runs a scenario against its goldens (both golden roots), writes runs to `local/difftest/sim`; `SimProfiles` with a provisional `traversal` profile |
+| [tests/OpenScct.DiffTest/Sim/SimReport.cs](../../tests/OpenScct.DiffTest/Sim/SimReport.cs) | per scenario: profile verdicts, measurements on both runs with the golden spread, phase sequence and start offsets, channel-0 clip sequence, start error, first divergence; markdown and JSON |
+| [tests/OpenScct.DiffTest/RunnerTests.cs](../../tests/OpenScct.DiffTest/RunnerTests.cs) | the harness as tests (skipped without goldens or content), a known-mismatch table, a determinism check, and two synthetic-floor tests that run in CI |
 
-Shared file, additive: `tests/OpenScct.DiffTest/OpenScct.DiffTest.csproj` references OpenScct.Game, OpenScct.Physics and OpenScct.Content.
+Shared file, additive: [tests/OpenScct.DiffTest/OpenScct.DiffTest.csproj](../../tests/OpenScct.DiffTest/OpenScct.DiffTest.csproj) references OpenScct.Game, OpenScct.Physics and OpenScct.Content.
 
 ## Method
 

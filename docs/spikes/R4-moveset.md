@@ -1,5 +1,7 @@
 # R4 spike: golden traces for the rest of the moveset (SteeE, MounE)
 
+> Historical report. Results and open issues describe the recorded run. For current setup and checks, see [development](../DEVELOPMENT.md), [testing](../TESTING.md) and the [documentation index](../README.md).
+
 **Result: done.** Nineteen scenarios for the moves R4 and R4-traversal did not cover were recorded three times each,
 every run in its own headless sandbox Play Level game (57 runs, 12 games). Every run reaches its move, and the three
 runs of each scenario go through the same pawn states, controller states and Physics modes. Ladders (both teams, up
@@ -10,7 +12,7 @@ decoded values (ladder 126.0, fence 120.0, hand over hand 126.0, split push 250 
 midpoint, top-out offsets 73.9 / 68.8, down-from-top 72 / -192, fence crossing 75 / -3.25).
 
 Recorded 2026-10-23 from Enhanced SCCT Versus v4.0 Public Beta 3 in `F:\SCCT-Automation\svm\Sandbox`: the game
-(a98873aa...) and `Reloaded.Core.dll` (6b9d4444...) match `re/binaries.lock.json` (the editor differs, large address
+(a98873aa...) and `Reloaded.Core.dll` (6b9d4444...) match [re/binaries.lock.json](../../re/binaries.lock.json) (the editor differs, large address
 aware as in R4); SteeE MapsEd c78319f4..., MounE MapsEd 033c9972...; frame cap 60. The play lock was held 30 to 39 s
 per merc game and 42 to 52 s per spy game, 8.2 minutes in all.
 
@@ -21,9 +23,9 @@ Co-op moves (short ladder boost, hoist) need two players and were skipped; the r
 | Path | What |
 |---|---|
 | `tests/scenarios/moveset/*.scenario.json` | the 19 scenarios (profile `traversal` for GE moves and jumps, `locomotion` for walking, ramps, steps and drops) |
-| `re/tools/difftest/movespots.py` | spot finder for the moveset on any map: ladders, hand-over-hand pipes, fences (face texture), barrier vaults (CheckBarrier room box), wall jumps (window, kick, CheckGEForWallJump traces), split jump corridors, steps and stairs, slopes, drops; builds and caches a floor map |
-| `re/tools/difftest/test_difftest.py` | 4 new tests (steps and stairs, slope gradient, wall jump window and kick, the tracked moveset scenarios: ids, leaveGE, repeats, covers in the inventory) |
-| `re/tools/difftest/README.md` | movespots.py, the moveset commands and golden root |
+| [re/tools/difftest/movespots.py](../../re/tools/difftest/movespots.py) | spot finder for the moveset on any map: ladders, hand-over-hand pipes, fences (face texture), barrier vaults (CheckBarrier room box), wall jumps (window, kick, CheckGEForWallJump traces), split jump corridors, steps and stairs, slopes, drops; builds and caches a floor map |
+| [re/tools/difftest/test_difftest.py](../../re/tools/difftest/test_difftest.py) | 4 new tests (steps and stairs, slope gradient, wall jump window and kick, the tracked moveset scenarios: ids, leaveGE, repeats, covers in the inventory) |
+| [re/tools/difftest/README.md](../../re/tools/difftest/README.md) | movespots.py, the moveset commands and golden root |
 
 Local: goldens `local/difftest/golden-moveset/<id>/run{1,2,3}.jsonl.gz` with `envelope.json`; surveys
 `local/difftest/spots/{SteeE,MounE,FactD,StatD,DeftD}-moves.json` (and the floor maps beside them). The goldens are not
@@ -139,7 +141,7 @@ placement then gives the 55 uu loc max) and the merc jump on the ramp (where it 
 
 ## Next
 
-- `tests/OpenScct.DiffTest`: read `golden-moveset/` in SimGoldens (and the traversal profile there), then compare the ported
+- [tests/OpenScct.DiffTest](../../tests/OpenScct.DiffTest): read `golden-moveset/` in SimGoldens (and the traversal profile there), then compare the ported
   ladder, fence, HOH, wall jump, split jump and vault states once they exist (Movement README: not ported yet).
 - More scenarios: ladder slide and side change, ladder catch from a jump, fence from a jump, waist and feet ledges,
   wall jump salto (gz outside the window), HOH stance 4 and turn round.

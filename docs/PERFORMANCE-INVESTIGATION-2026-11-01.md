@@ -1,5 +1,7 @@
 # Performance investigation — 1 November 2026
 
+> Historical report. Results and open issues describe the recorded run. For current setup and checks, see [development](DEVELOPMENT.md), [testing](TESTING.md) and the [documentation index](README.md).
+
 The best first targets are HUD allocation and redraw work, HUD screen-copy bandwidth, and retained spark geometry. These remove repeated work while keeping the same image, animation cadence and gameplay. There are also smaller, straightforward opportunities in redundant skeleton/material submissions and match-long diagnostic storage.
 
 This is an investigation, not a performance patch. Findings describe the working tree inspected on 1 November, based on commit `a12d374` with existing uncommitted changes. No current FPS improvement or visual equivalence has been demonstrated. No game code, settings or content were changed.

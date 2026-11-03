@@ -1,17 +1,18 @@
-# TestRange, the test map
+# TestRange
 
-TestRange is a map made for tests: one hall with every traversal station, a dark-to-lit room, a shooting lane with
-glass and a grating, the objectives, pickups and cameras, the starts and open floor for bots, each at coordinates a
-test can read from a manifest. It is our own geometry (boxes, two wedges, one carved hall), written as data in
-`tools/testmap/layout.py`, and it exists in two forms with the same coordinates:
+TestRange is a synthetic map for traversal, lighting, shooting, objectives, pickups,
+cameras and bot tests. Its stations have fixed coordinates in a shared manifest.
+The layout comes from [tools/testmap/layout.py](../tools/testmap/layout.py) and has two forms:
+
+**On this page:** [Rebuilding](#rebuilding) · [Stations](#stations) · [How tests use it](#how-tests-use-it) · [Limits and notes](#limits-and-notes)
 
 | Form | Made by | Where | For |
 |---|---|---|---|
-| SVMap 1.1 (sim and render) | `tools/testmap/generate.py` | `.content/svmap/TestRange` (local), or any folder | tests, smokes and play without the game install |
+| SVMap 1.1 (sim and render) | [tools/testmap/generate.py](../tools/testmap/generate.py) | `.content/svmap/TestRange` (local), or any folder | tests, smokes and play without the game install |
 | `.sdc` twin | the map editor's automation in the sandbox, `tools/testmap/twin.py build` | `local/testrange/TestRange/` and the sandbox's `Packages/MapsEd` | recordings of the original game on the same layout |
 
-Neither form is tracked. The tracked files are the layout, the generator and twin tools (`tools/testmap/`), the
-station manifest (`fixtures/testrange/stations.json`, written by the generator), the tests and this page.
+Neither form is tracked. The tracked files are the layout, the generator and twin tools ([tools/testmap/](../tools/testmap)), the
+station manifest ([fixtures/testrange/stations.json](../fixtures/testrange/stations.json), written by the generator), the tests and this page.
 
 ## Rebuilding
 
@@ -55,14 +56,14 @@ SAME within tolerance
 ```
 
 The world lines are traced through each map's world BSP the way the engine walks it (down on a 32 uu grid and level
-across at six heights); the tolerances are in `tools/testmap/twindiff.py`. Gameplay objects collide through boxes
+across at six heights); the tolerances are in [tools/testmap/twindiff.py](../tools/testmap/twindiff.py). Gameplay objects collide through boxes
 round their meshes' collision in the SVMap form (measured from the converted twin), so their bounds may differ by a
 few units.
 
 ## How the SVMap form is made
 
 - The world is the boundary between empty space (the hall and the pool, less the solids) and solid, cut out of the
-  faces of every carve and solid (`tools/testmap/bsp.py`). Where two solids have coplanar faces facing the same way,
+  faces of every carve and solid ([tools/testmap/bsp.py](../tools/testmap/bsp.py)). Where two solids have coplanar faces facing the same way,
   the later one's face is kept, as the editor's CSG keeps the later brush's.
 - Collision: a world BSP over those polygons (`sim/collision.bin` `BSPN`), a node per polygon plane, front empty and
   back solid, so line checks walk it as they walk a converted map's; the gradient room's zone is split off first by
@@ -80,7 +81,7 @@ few units.
 ## Stations
 
 Units are uu (UE space, Z up, yaw 16384 = +Y). The hall is x 0..8192, y 0..6144, z 0..1024. A station's spot is
-where a test pawn stands (feet), facing its yaw. `fixtures/testrange/stations.json` has every station with its GE
+where a test pawn stands (feet), facing its yaw. [fixtures/testrange/stations.json](../fixtures/testrange/stations.json) has every station with its GE
 ids and points, sizes, and the actors by id.
 
 | Station | Kind | Spot (yaw) | What | Copies |
@@ -111,13 +112,13 @@ ids and points, sizes, and the actors by id.
 
 ## How tests use it
 
-- `tests/OpenScct.Content.Tests/TestRangeTests.cs` generates the map into a scratch folder (Python with numpy, Pillow and
+- [tests/OpenScct.Content.Tests/TestRangeTests.cs](../tests/OpenScct.Content.Tests/TestRangeTests.cs) generates the map into a scratch folder (Python with numpy, Pillow and
   jsonschema; skipped without, unless `SVM_REQUIRE_PYTHON`), checks the tracked manifest is current, loads the map
   with the game's classes, and checks every station against the collision, GEs, zones and lights: floors under the
   spots, lips at their heights with a wall under them, pipe and ladder tops flush, the zip line's length, slope and
   landing, the shaft's gap, steps and ramp, drops, the water's surface type, the panel wall's glass, open window and
   bullet-passable grating, the room's own zone and its light rising from 0 to the lit door (the bots' light field).
-- Smokes (`game/Scripts/Smoke/TestRangeSmokes.cs`), all through the player's path (keys as Godot input events, host
+- Smokes ([game/Scripts/Smoke/TestRangeSmokes.cs](../game/Scripts/Smoke/TestRangeSmokes.cs)), all through the player's path (keys as Godot input events, host
   thread, wall clock, HUD), with `SVM_PLAY_SHOTS` for screenshots:
   - `range-traversal`: the server puts the spy on a station's spot and reinitialises the client there, then the keys
     play a recorded scenario's inputs: the ledge pull-up at Ledge264, the zip line at Zip1760, the pipe at Pipe512,
@@ -128,9 +129,9 @@ ids and points, sizes, and the actors by id.
   - `range-bots`: a spy and three bots; every bot drawn, two walking, moving pawns animated.
 - `TestRange.Stations()` and `TestRange.Start()`, `Place()`, `Face()` and `Shot()` in the same file are the helpers for
   new smokes on the map.
-- Recordings: `tests/scenarios/testrange/spy-ledge-pull-up.scenario.json` plays the SteeE ledge scenario's inputs at
-  Ledge264. It is recorded on the twin with `re/tools/difftest/record.py` (the twin must be in the sandbox's MapsEd and
-  its GE list decoded: `python -B -m scctformats.ge <twin .sdc>` from `re/formats`), and `tests/OpenScct.DiffTest`
+- Recordings: [tests/scenarios/testrange/spy-ledge-pull-up.scenario.json](../tests/scenarios/testrange/spy-ledge-pull-up.scenario.json) plays the SteeE ledge scenario's inputs at
+  Ledge264. It is recorded on the twin with [re/tools/difftest/record.py](../re/tools/difftest/record.py) (the twin must be in the sandbox's MapsEd and
+  its GE list decoded: `python -B -m scctformats.ge <twin .sdc>` from [re/formats](../re/formats)), and [tests/OpenScct.DiffTest](../tests/OpenScct.DiffTest)
   (`RunnerTests`) plays it in the sim on the SVMap form: the same phases on the same frames, location RMS 0.01 uu
   (DtReplay) and 1.44 (Fixed), against a 5 uu profile.
 
