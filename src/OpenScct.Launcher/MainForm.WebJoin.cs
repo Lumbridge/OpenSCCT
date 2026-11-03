@@ -54,7 +54,7 @@ internal sealed partial class MainForm
             SemVersion? current = _store.Current();
             if (current is null)
             {
-                SetStatus("Your Join request is saved for this launcher session. Install OpenSCCT and get the game files using the steps above.", Theme.Warning);
+                SetStatus("Your Join request is saved for this launcher session. Choose Install to download OpenSCCT and its game files.", Theme.Warning);
                 return;
             }
             if (current < WebJoinRequest.MinimumGameVersion)
@@ -64,7 +64,7 @@ internal sealed partial class MainForm
             }
             if (!DownloadedFilesPlayable(current))
             {
-                SetStatus("Download the game files in step 2. Your Join request will continue when they are ready.", Theme.Warning);
+                SetStatus("Choose Finish install to download the required game files. Your Join request will continue when they are ready.", Theme.Warning);
                 return;
             }
             if (_pendingWebJoin != serverId) return;

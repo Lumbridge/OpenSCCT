@@ -25,8 +25,8 @@ using OpenScct.Project;
 namespace OpenScct.Launcher.App;
 
 /// <summary>
-/// The launcher window: download OpenSCCT, then its game files. One big button does the next thing and becomes PLAY
-/// when everything is ready. Less common actions are in the row below it.
+/// A play-first launcher: one action installs, updates or starts OpenSCCT. Setup phases share a status panel;
+/// release highlights and less common tools stay available below it.
 /// </summary>
 internal sealed partial class MainForm : Form
 {
@@ -53,7 +53,7 @@ internal sealed partial class MainForm : Form
         Cancel,
     }
 
-    private readonly LauncherLayout _layout = new(LauncherLayout.DefaultRoot);
+    private readonly LauncherLayout _layout;
     private readonly VersionStore _store;
     private readonly ContentStore _packs;
     private readonly IGameProcessProbe _games = new GameProcessProbe();
@@ -68,50 +68,55 @@ internal sealed partial class MainForm : Form
     private NextAction _next;
     private string _notesTitle = "What's new";
     private string _notesText = "Checking for releases...";
-    private Control? _root;
-    private bool _fitPending;
-    private bool _fitting;
-
-    private readonly StepCard _installStep;
-    private readonly StepCard _filesStep;
+    private string _operationTitle = "Getting ready";
+    private readonly Label _heading = Theme.Wrapping(Theme.Label("Install OpenSCCT", Theme.Status));
+    private readonly Label _installedInfo = Theme.Wrapping(Theme.Label(string.Empty, Theme.Small, Theme.Muted));
+    private readonly Label _launchDetail = Theme.Wrapping(Theme.Label(string.Empty, Theme.Body, Theme.Muted));
+    private readonly Label _previewTitle = Theme.Wrapping(Theme.Label("Latest release", Theme.Heading));
+    private readonly Label[] _previewItems = new Label[3];
     private readonly GreenProgressBar _progress = new();
     private readonly Label _progressText = Theme.Label(string.Empty, Theme.Small, Theme.Muted);
     private readonly Button _main = Theme.Button("PLAY", primary: true);
-    private readonly Button _playCurrent = Theme.Button("Play current version");
+    private readonly Button _playCurrent = Theme.QuietButton("Play current version", onPanel: true);
     private readonly LinkLabel _status = new()
     {
         AutoSize = true, Font = Theme.Body, ForeColor = Theme.Muted, BackColor = Color.Transparent,
-        LinkColor = Theme.Accent, ActiveLinkColor = Theme.Text, VisitedLinkColor = Theme.Accent,
+        LinkColor = Theme.Accent, ActiveLinkColor = Theme.Text, VisitedLinkColor = Theme.Accent, UseMnemonic = false,
     };
-    private readonly Button _whatsNew = Theme.Button("What's new");
-    private readonly Button _check = Theme.Button("Check for updates");
-    private readonly Button _website = Theme.Button("Website");
-    private readonly Button _help = Theme.Button("&Help");
-    private readonly Button _mapsButton = Theme.Button("Maps");
-    private readonly Button _settingsButton = Theme.Button("Settings");
+    private readonly Button _whatsNew = Theme.QuietButton("Full changelog", onPanel: true);
+    private readonly Button _check = Theme.QuietButton("Check for updates");
+    private readonly Button _website = Theme.QuietButton("Website");
+    private readonly Button _help = Theme.QuietButton("&Help");
+    private readonly Button _mapsButton = Theme.QuietButton("Maps");
+    private readonly Button _settingsButton = Theme.QuietButton("Settings");
     private readonly TableLayoutPanel _launcherBanner = Theme.Grid(Theme.Fill, Theme.Auto);
     private readonly Label _launcherInfo = Theme.Label(string.Empty, Theme.Body, Theme.Warning);
     private readonly Button _launcherButton = Theme.Button("Restart to finish");
     private readonly System.Windows.Forms.Timer _pendingTimer = new() { Interval = 3000 };
+    private readonly ToolTip _tips = new();
 
     public MainForm(string? joinServerId = null, string? protocolProblem = null)
+        : this(new LauncherLayout(LauncherLayout.DefaultRoot), joinServerId, protocolProblem, Program.ExePath)
     {
+    }
+
+    // Also used by the offscreen smoke harness, with an isolated installation and launcher path.
+    internal MainForm(LauncherLayout layout, string? joinServerId, string? protocolProblem, string? launcherPath)
+    {
+        _layout = layout;
         _pendingWebJoin = joinServerId;
         _protocolProblem = protocolProblem;
         _store = new VersionStore(_layout);
         _packs = new ContentStore(_layout.Packs, Http);
         _settings = LauncherSettings.Load(_layout.Settings);
         _service = CreateService();
-        if (Program.ExePath is { } exe)
+        if (launcherPath is { } exe)
         {
             _swap = new LauncherSwap(exe);
         }
 
         string? info = Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
         _launcherVersion = SemVersion.TryParse(info, out SemVersion? v) ? v : null;
-
-        _installStep = new StepCard(1, "Download OpenSCCT");
-        _filesStep = new StepCard(2, "Download game files");
 
         BuildUi();
         _pendingTimer.Tick += (_, _) => OnPendingTick();
@@ -129,108 +134,165 @@ internal sealed partial class MainForm : Form
         Icon = Theme.LoadIcon(32);
         AutoScaleMode = AutoScaleMode.Dpi;
         AutoScaleDimensions = new SizeF(96f, 96f);
-        ClientSize = new Size(720, 520);
-        MinimumSize = new Size(600, 480);
+        ClientSize = new Size(720, 480);
+        MinimumSize = new Size(600, 420);
         FormBorderStyle = FormBorderStyle.Sizable;
         StartPosition = FormStartPosition.CenterScreen;
         BackColor = Theme.Background;
         ForeColor = Theme.Text;
         Font = Theme.Body;
+        Padding = new Padding(24, 20, 24, 12);
 
-        // Laid out in tables that size to their text, so nothing is cut off at any display scaling (the window can
-        // also be made larger).
-        Padding = new Padding(24, 16, 24, 12);
         var logo = new PictureBox
         {
             Image = Theme.LoadIcon(64).ToBitmap(),
             SizeMode = PictureBoxSizeMode.Zoom,
-            Size = new Size(56, 56),
+            Size = new Size(48, 48),
             Margin = new Padding(0, 0, 12, 0),
             BackColor = Color.Transparent,
+            TabStop = false,
         };
-        var title = new Wordmark { Margin = new Padding(3, 0, 3, 0) };
-        Label subtitle = Theme.Label("Splinter Cell Chaos Theory Versus, rebuilt", Theme.Small, Theme.Muted);
+        var title = new Wordmark { Margin = new Padding(0) };
+        Label subtitle = Theme.Wrapping(Theme.Label("Splinter Cell Chaos Theory Versus, rebuilt", Theme.Small, Theme.Muted));
+        subtitle.Margin = new Padding(0, 4, 0, 0);
+        TableLayoutPanel brand = Theme.Grid(Theme.Fill);
+        Theme.AddRow(brand, title);
+        Theme.AddRow(brand, subtitle);
         Label version = Theme.Label("Launcher " + (_launcherVersion?.ToString() ?? "dev"), Theme.Small, Theme.Muted);
         version.Anchor = AnchorStyles.Right | AnchorStyles.Top;
-        version.Margin = new Padding(12, 0, 0, 0);
+        version.Margin = new Padding(12, 4, 0, 0);
         TableLayoutPanel header = Theme.Grid(Theme.Auto, Theme.Fill, Theme.Auto);
-        Theme.AddRow(header, logo, Theme.Flow(true, title, subtitle), version);
-        header.Margin = new Padding(0, 0, 0, 4);
+        Theme.AddRow(header, logo, brand, version);
+        header.Margin = new Padding(0, 0, 0, 20);
 
-        // A launcher update waiting for a restart: a banner above the steps.
+        _launcherBanner.Name = "LauncherUpdate";
         _launcherBanner.BackColor = Theme.Panel;
-        _launcherBanner.Padding = new Padding(14, 8, 14, 8);
-        _launcherBanner.Margin = new Padding(0, 8, 0, 0);
+        _launcherBanner.Padding = new Padding(14, 10, 14, 10);
+        _launcherBanner.Margin = new Padding(0, 0, 0, 12);
         _launcherBanner.Visible = false;
         _launcherButton.Anchor = AnchorStyles.Right;
+        _launcherButton.Name = "UpdateLauncher";
         Theme.AddRow(_launcherBanner, Theme.Wrapping(_launcherInfo), _launcherButton);
 
+        _heading.Name = "LaunchHeading";
+        _heading.Margin = new Padding(0);
+        _installedInfo.Name = "InstalledVersion";
+        _installedInfo.Margin = new Padding(0, 6, 0, 0);
+        _launchDetail.Margin = new Padding(0, 8, 0, 0);
+        TableLayoutPanel summary = Theme.Grid(Theme.Fill);
+        Theme.AddRow(summary, _heading);
+        Theme.AddRow(summary, _installedInfo);
+        Theme.AddRow(summary, _launchDetail);
+        summary.Margin = new Padding(0, 0, 16, 0);
+
+        _main.Name = "LaunchAction";
+        _main.Anchor = AnchorStyles.Right | AnchorStyles.Top;
+        _main.Margin = new Padding(0);
+        _main.TabIndex = 0;
+        _playCurrent.Name = "PlayCurrent";
+        _playCurrent.Anchor = AnchorStyles.Right;
+        _playCurrent.Margin = new Padding(0, 4, 0, 0);
+        _playCurrent.Visible = false;
+        TableLayoutPanel actions = Theme.Grid(Theme.Auto);
+        Theme.AddRow(actions, _main);
+        Theme.AddRow(actions, _playCurrent);
+        actions.Anchor = AnchorStyles.Right | AnchorStyles.Top;
+
+        Theme.Wrapping(_status);
+        _status.Name = "OperationStatus";
+        _status.AccessibleRole = AccessibleRole.Alert;
+        _status.Margin = new Padding(0, 12, 0, 0);
+        _status.Visible = false;
+        _status.LinkClicked += (_, e) => ShowInExplorer(e.Link?.LinkData as string);
+        _progress.Name = "DownloadProgress";
         _progress.Visible = false;
         _progress.Anchor = AnchorStyles.Left | AnchorStyles.Right;
-        _progress.Margin = new Padding(0, 14, 0, 2);
+        _progress.Margin = new Padding(0, 14, 0, 0);
         Theme.Wrapping(_progressText);
+        _progressText.Margin = new Padding(0, 6, 0, 0);
+        _progressText.Visible = false;
 
-        // The big button on the right, with a smaller option to defer an update and play.
-        _main.Anchor = AnchorStyles.Right | AnchorStyles.Top;
-        _playCurrent.Anchor = AnchorStyles.Right;
-        _playCurrent.Margin = new Padding(0, 0, 12, 0);
-        _playCurrent.Visible = false;
-        Theme.Wrapping(_status);
-        _status.Margin = new Padding(0, 8, 16, 0);
-        _status.LinkClicked += (_, e) => ShowInExplorer(e.Link?.LinkData as string);
-        TableLayoutPanel actions = Theme.Grid(Theme.Fill, Theme.Auto, Theme.Auto);
-        actions.Margin = new Padding(0, 14, 0, 0);
-        Theme.AddRow(actions, _status, _playCurrent, _main);
-
-        // The less common actions, small, along the bottom edge.
-        FlowLayoutPanel more = Theme.Flow(false, _whatsNew, _check, _website, _mapsButton, _settingsButton, _help);
-        more.Dock = DockStyle.Bottom;
-        more.Padding = new Padding(0, 12, 0, 0);
-
-        var root = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, BackColor = Color.Transparent };
-        root.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100f));
-        foreach (Control row in new Control[] { header, _launcherBanner, _installStep, _filesStep, _progress, _progressText, actions })
+        TableLayoutPanel launch = Theme.Grid(Theme.Fill, Theme.Auto);
+        launch.Name = "LaunchPanel";
+        launch.BackColor = Theme.Panel;
+        launch.Padding = new Padding(20, 18, 20, 18);
+        launch.TabIndex = 0;
+        Theme.AddRow(launch, summary, actions);
+        foreach (Control row in new Control[] { _status, _progress, _progressText })
         {
-            int r = root.RowCount++;
-            root.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-            root.Controls.Add(row, 0, r);
+            Theme.AddRow(launch, row);
+            launch.SetColumnSpan(row, 2);
         }
 
-        Controls.Add(root);
-        Controls.Add(more);
-        _root = root;
+        _whatsNew.Name = "FullChangelog";
+        _whatsNew.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+        _whatsNew.Margin = new Padding(12, 0, 0, 0);
+        _previewTitle.Name = "ReleaseTitle";
+        _previewTitle.UseMnemonic = false;
+        _previewTitle.Margin = new Padding(0, 6, 0, 0);
+        TableLayoutPanel notesHeader = Theme.Grid(Theme.Fill, Theme.Auto);
+        Theme.AddRow(notesHeader, _previewTitle, _whatsNew);
+        TableLayoutPanel notes = Theme.Grid(Theme.Fill);
+        notes.Dock = DockStyle.Top;
+        Theme.AddRow(notes, notesHeader);
+        for (int i = 0; i < _previewItems.Length; i++)
+        {
+            Label item = Theme.Wrapping(Theme.Label(string.Empty));
+            item.Name = "ReleaseHighlight" + (i + 1);
+            item.UseMnemonic = false;
+            item.Margin = new Padding(0, 10, 0, 0);
+            _previewItems[i] = item;
+            Theme.AddRow(notes, item);
+        }
+        var preview = new Panel
+        {
+            Name = "ReleasePreview",
+            Dock = DockStyle.Fill,
+            AutoScroll = true,
+            BackColor = Theme.Panel,
+            Padding = new Padding(16, 10, 16, 16),
+            Margin = new Padding(0, 16, 0, 0),
+            TabIndex = 1,
+        };
+        preview.Controls.Add(notes);
+        RefreshReleasePreview();
 
-        // Contents grow after the first fit (the launcher banner, an update line, a long status): grow the window
-        // again once that layout has settled, so the big button is never cut off.
-        // FitToContent lays the root out itself: the layouts it causes are ignored, or each fit would queue the next.
+        FlowLayoutPanel more = Theme.Flow(false, _mapsButton, _check, _website, _settingsButton, _help);
+        more.Name = "LauncherTools";
+        more.Dock = DockStyle.Bottom;
+        more.WrapContents = true;
+        more.Padding = new Padding(0, 10, 0, 0);
+        more.TabIndex = 1;
+        foreach (Control tool in more.Controls) tool.Margin = new Padding(0, 0, 6, 0);
+
+        // The preview takes remaining space and scrolls independently. The action panel keeps its preferred
+        // height; the outer scroll is a fallback for unusually long errors or a very small working area.
+        var root = new TableLayoutPanel
+        {
+            Dock = DockStyle.Fill, ColumnCount = 1,
+            BackColor = Color.Transparent, Margin = new Padding(0), TabIndex = 0,
+        };
+        root.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100f));
+        foreach (Control row in new Control[] { header, _launcherBanner, launch, preview })
+        {
+            int r = root.RowCount++;
+            root.RowStyles.Add(new RowStyle(row == preview ? SizeType.Percent : SizeType.AutoSize, row == preview ? 100f : 0f));
+            root.Controls.Add(row, 0, r);
+        }
         root.Layout += (_, _) =>
         {
-            if (_fitPending || _fitting || !IsHandleCreated)
-            {
-                return;
-            }
-
-            _fitPending = true;
-            BeginInvoke(() =>
-            {
-                _fitting = true;
-                try
-                {
-                    FitFooterWidth();
-                    Theme.FitToContent(this, root);
-                }
-                finally
-                {
-                    _fitting = false;
-                    _fitPending = false;
-                }
-            });
+            // AutoScroll on a table otherwise expands its percentage row to the notes' preferred height,
+            // scrolling the whole launcher. Use it only when the launch panel itself cannot fit.
+            int launchHeight = launch.GetPreferredSize(new Size(launch.Width, 0)).Height;
+            bool overflow = launch.Top - root.AutoScrollPosition.Y + launchHeight + launch.Margin.Bottom > root.ClientSize.Height;
+            if (root.AutoScroll != overflow) root.AutoScroll = overflow;
         };
+        Controls.Add(root);
+        Controls.Add(more);
 
-        var tips = new ToolTip();
-        tips.SetToolTip(_website, "Visit the OpenSCCT website in your browser.");
-        tips.SetToolTip(_help, "Get help, report a problem or contribute to OpenSCCT.");
-        tips.SetToolTip(_mapsButton, "Download new maps made by the community.");
+        _tips.SetToolTip(_website, "Visit the OpenSCCT website in your browser.");
+        _tips.SetToolTip(_help, "Get help, report a problem or contribute to OpenSCCT.");
+        _tips.SetToolTip(_mapsButton, "Download new maps made by the community.");
 
         _main.Click += async (_, _) => await DoNextAsync();
         _playCurrent.Click += async (_, _) => await PlayOrJoinAsync();
@@ -243,30 +305,21 @@ internal sealed partial class MainForm : Form
         _launcherButton.Click += async (_, _) => await RunAsync(UpdateLauncherAsync);
     }
 
-    protected override void OnLoad(EventArgs e)
+    private void RefreshReleasePreview()
     {
-        base.OnLoad(e);
-
-        FitFooterWidth();
-        if (_root is not null)
+        IReadOnlyList<string> highlights = ReleaseNotesPreview.Create(_lastCheck?.Latest?.Release.Body);
+        ReleaseInfo? release = _lastCheck?.Latest?.Release;
+        string when = release?.PublishedAt?.ToLocalTime().ToString("d MMM yyyy", CultureInfo.CurrentCulture) ?? string.Empty;
+        _previewTitle.Text = release is null ? "Latest release" : "Latest: " + (release.Name ?? release.TagName)
+            + (when.Length == 0 ? string.Empty : " · " + when);
+        for (int i = 0; i < _previewItems.Length; i++)
         {
-            Theme.FitToContent(this, _root);
-        }
-    }
-
-    private void FitFooterWidth()
-    {
-        // Measure after DPI scaling, including Check for updates when temporarily hidden. Keep every action on
-        // one row even at the minimum window width; the version lives in the header so it cannot crowd them out.
-        int width = Padding.Horizontal + Width - ClientSize.Width;
-        foreach (Button button in new[] { _whatsNew, _check, _website, _mapsButton, _settingsButton, _help })
-        {
-            width += button.GetPreferredSize(Size.Empty).Width + button.Margin.Horizontal;
-        }
-
-        if (width > MinimumSize.Width)
-        {
-            MinimumSize = new Size(width, MinimumSize.Height);
+            Label item = _previewItems[i];
+            item.Visible = i < highlights.Count || (i == 0 && highlights.Count == 0);
+            item.ForeColor = highlights.Count == 0 ? Theme.Muted : Theme.Text;
+            item.Text = i < highlights.Count ? "•  " + highlights[i]
+                : _lastCheck is null ? "Check for updates to load release notes."
+                : release is null ? "No release information available." : "No release notes available.";
         }
     }
 
@@ -296,15 +349,14 @@ internal sealed partial class MainForm : Form
         base.OnFormClosing(e);
     }
 
-    // ---- the steps ---------------------------------------------------------------------------------------------
+    // ---- launch state ---------------------------------------------------------------------------------------------
 
     private void RefreshLocal()
     {
         SemVersion? current = _store.Current();
         bool busy = _work is not null;
 
-        RefreshInstallStep(current);
-        RefreshFilesStep(current);
+        RefreshLaunchPanel(current, busy);
 
         _check.Enabled = !busy;
         _settingsButton.Enabled = !busy;
@@ -321,70 +373,62 @@ internal sealed partial class MainForm : Form
         RefreshMainButton(current, busy);
     }
 
-    private void RefreshInstallStep(SemVersion? current)
+    private void RefreshLaunchPanel(SemVersion? current, bool busy)
     {
-        SemVersion? pending = _store.Pending();
+        _launchDetail.Visible = !busy && (_status.Text.Length == 0 || (_status.ForeColor != Theme.Warning && _status.ForeColor != Theme.Error));
+        bool playable = DownloadedFilesPlayable(current);
         VersionedRelease? latest = _lastCheck?.Latest;
-        bool update = latest is not null && current is not null && latest.Version > current
-            && _lastCheck is { GameUpdateAvailable: true };
-        if (pending is not null)
-        {
-            _installStep.Set(StepState.Done, $"Version {pending} is ready and starts the next time you play.");
-        }
-        else if (current is not null && update && latest is not null)
-        {
-            _installStep.Set(StepState.Choice, $"Version {current} is installed. Version {latest.Version} is available. Press Update, or choose Play current version to update later.");
-        }
-        else if (current is not null)
-        {
-            bool checkedOnline = _lastCheck is { Feed.Source: ReleaseFeedSource.Network or ReleaseFeedSource.NotModified };
-            _installStep.Set(StepState.Done, checkedOnline
-                ? $"Version {current} is installed and up to date."
-                : $"Version {current} is installed. PLAY checks for updates when online.");
-        }
-        else if (_lastCheck is null)
-        {
-            _installStep.Set(StepState.Todo, _work is not null
-                ? "Looking for the latest version..."
-                : "Press Check for updates to find the latest version.");
-        }
-        else if (latest is not null)
-        {
-            _installStep.Set(StepState.Todo, $"Not installed yet. Version {latest.Version} is ready to download.");
-        }
-        else
-        {
-            _installStep.Set(StepState.Problem, "No download found yet. Check your internet connection, then press Check again.");
-        }
-    }
+        bool update = current is not null && (PackUpdateAvailable || (_store.Pending() is null
+            && _lastCheck is { GameUpdateAvailable: true } && latest is not null && latest.Version > current));
+        bool checkedOnline = _lastCheck is { Feed.Source: ReleaseFeedSource.Network or ReleaseFeedSource.NotModified };
+        int maps = playable ? _packs.Installed().Count(p => !p.IsShared) : 0;
+        _installedInfo.Text = current is not null
+            ? $"Version {current}" + (playable ? $"  ·  {maps} " + (maps == 1 ? "map installed" : "maps installed") : " installed")
+            : latest is not null ? $"Latest version {latest.Version}" : "Game and required files in one installation";
 
-    /// <summary>Step 2: the game files downloaded from OpenSCCT-Content.</summary>
-    private void RefreshFilesStep(SemVersion? current)
-    {
-        if (_downloadingContent)
+        if (busy)
         {
-            _filesStep.Set(StepState.Todo, "Downloading the maps, characters and sounds...");
+            _heading.Text = _operationTitle;
         }
         else if (current is null)
         {
-            _filesStep.Set(StepState.Waiting, "Downloads automatically after OpenSCCT is installed.");
+            _heading.Text = "Install OpenSCCT";
+            _launchDetail.Text = _lastCheck is { Latest: null }
+                ? "No download found. Check your connection and try again."
+                : "Download the game, maps, characters and sounds. Everything you need to play.";
         }
-        else if (!PackedContent.Installed(_packs))
+        else if (_store.Pending() is { } pending)
         {
+            _heading.Text = "Update ready";
+            _launchDetail.Text = $"Version {pending} will become active after the running game closes.";
+        }
+        else if (update)
+        {
+            _heading.Text = "Update available";
+            _launchDetail.Text = _lastCheck is { GameUpdateAvailable: true } && latest is not null && latest.Version > current
+                ? $"Version {latest.Version} is ready to download."
+                : "New game files are ready to download.";
+        }
+        else if (!playable)
+        {
+            _heading.Text = "Finish your installation";
             string size = _packIndex is { } index
                 ? " (about " + Gb(PackedContent.DownloadSize(PackedContent.SharedToFetch(index, _packs), PackedContent.MapsToFetch(index, _packs, firstDownload: true))) + ")"
                 : string.Empty;
-            _filesStep.Set(StepState.Todo, $"Downloads the maps, characters and sounds{size}. You can stop and carry on later.");
-        }
-        else if (!PacksCurrent())
-        {
-            _filesStep.Set(StepState.Choice, "Newer game files are available. Press Update, or choose Play current version to use your installed files.");
+            _launchDetail.Text = "Download the required maps, characters and sounds" + size + ".";
         }
         else
         {
-            int maps = _packs.Installed().Count(p => !p.IsShared);
-            _filesStep.Set(StepState.Done, $"Ready: {maps} maps downloaded. Get more from Maps.");
+            _heading.Text = _pendingWebJoin is null ? "Ready to play" : "Ready to join";
+            _launchDetail.Text = checkedOnline ? "You're up to date."
+                : "Your installed game is ready. Updates are checked before launch.";
         }
+    }
+
+    private void SetOperation(string title)
+    {
+        _operationTitle = title;
+        if (_work is not null) _heading.Text = title;
     }
 
     /// <summary>The downloaded game files are installed and, when the index is known, none has a newer copy.</summary>
@@ -410,13 +454,11 @@ internal sealed partial class MainForm : Form
         (NextAction next, string text, bool enabled) = busy
             ? (NextAction.Cancel, _downloadingContent ? "Stop" : "Cancel", true)
             : current is null
-                ? _lastCheck is { Latest: not null, GameUpdateAvailable: true }
-                    ? (NextAction.Install, "Install", true)
-                    : (NextAction.Check, _lastCheck is null ? "Check for updates" : "Check again", true)
+                ? (NextAction.Install, "Install", true)
                 : update
                     ? (NextAction.Update, "Update", true)
                     : !playable
-                        ? (NextAction.DownloadFiles, "Download game files", true)
+                        ? (NextAction.DownloadFiles, "Finish install", true)
                         : (NextAction.Play, "PLAY", true);
         if (!busy && _pendingWebJoin is not null && current is not null)
         {
@@ -425,11 +467,13 @@ internal sealed partial class MainForm : Form
             else if (next == NextAction.Play) text = "JOIN SESSION";
         }
         _next = next;
-        _playCurrent.Visible = update && playable
+        _playCurrent.Visible = !busy && update && playable
             && (_pendingWebJoin is null || current! >= WebJoinRequest.MinimumGameVersion);
         _playCurrent.Enabled = !busy;
         _playCurrent.Text = _pendingWebJoin is null ? "Play current version" : "Join with current version";
-        _check.Visible = next != NextAction.Check;
+        _check.Visible = true;
+        Theme.SetButtonEmphasis(_main, !busy);
+        _tips.SetToolTip(_main, busy ? "Stop now and continue later. Completed downloads are kept." : null);
         _main.Text = text;
         _main.Enabled = enabled;
     }
@@ -445,6 +489,12 @@ internal sealed partial class MainForm : Form
                 await RunAsync(CheckAsync);
                 break;
             case NextAction.Install:
+                await RunAsync(async cancel =>
+                {
+                    if (_lastCheck is not { Latest: not null, GameUpdateAvailable: true }) await CheckAsync(cancel);
+                    await UpdateGameAsync(cancel);
+                });
+                break;
             case NextAction.Update:
                 await RunAsync(UpdateGameAsync);
                 break;
@@ -603,6 +653,7 @@ internal sealed partial class MainForm : Form
     private async Task DownloadContentAsync(CancellationToken cancel)
     {
         _downloadingContent = true;
+        SetOperation("Downloading game files");
         RefreshLocal();
         try
         {
@@ -642,7 +693,7 @@ internal sealed partial class MainForm : Form
         }
     }
 
-    /// <summary>The content index, fetched or cached, so step 2 can show available game file updates.</summary>
+    /// <summary>The content index, fetched or cached, so the launch panel can show available game file updates.</summary>
     private async Task RefreshPackIndexAsync(CancellationToken cancel)
     {
         try
@@ -651,7 +702,7 @@ internal sealed partial class MainForm : Form
         }
         catch (Exception ex) when (ex is IOException or HttpRequestException)
         {
-            // Offline with no cached index: step 2 only checks the packs are there.
+            // Offline with no cached index: readiness only checks the packs are there.
         }
     }
 
@@ -674,6 +725,8 @@ internal sealed partial class MainForm : Form
                 : "No release was found.";
         }
 
+        RefreshReleasePreview();
+
         if (check.LauncherUpdateAvailable && check.LatestLauncher is { } launcher && _swap is not { HasStaged: true })
         {
             bool writable = _swap?.CanWriteFolder() == true;
@@ -688,6 +741,7 @@ internal sealed partial class MainForm : Form
 
     private async Task CheckAsync(CancellationToken cancel)
     {
+        SetOperation("Checking for updates");
         await RefreshPackIndexAsync(cancel);
 
         SetStatus("Looking for updates...", Theme.Muted);
@@ -732,6 +786,7 @@ internal sealed partial class MainForm : Form
         if (_lastCheck is { GameUpdateAvailable: true, Latest: { } latest } && _store.Pending() is null
             && (current is null || latest.Version > current))
         {
+            SetOperation("Downloading OpenSCCT");
             SetStatus($"Downloading OpenSCCT {latest.Version}...", Theme.Muted);
             InstallOutcome outcome = await _service.InstallAsync(latest, ProgressReporter(), cancel);
             SetStatus(outcome switch
@@ -776,6 +831,7 @@ internal sealed partial class MainForm : Form
         }
 
         SemVersion? launcher = ReleasePicker.LauncherVersion(latest);
+        SetOperation("Updating launcher");
         SetStatus($"Downloading launcher {launcher}...", Theme.Muted);
         await _service.StageLauncherAsync(latest, _swap, ProgressReporter(), cancel);
         _launcherInfo.Text = $"Launcher {launcher} is ready. Restart the launcher to use it.";
@@ -813,6 +869,7 @@ internal sealed partial class MainForm : Form
         bool updated = false;
         bool play = await PlayUpdateFlow.RunAsync(async checkCancel =>
         {
+            SetOperation("Checking for updates");
             SetStatus("Checking for updates before starting...", Theme.Muted);
             UpdateCheck check = await _service.CheckAsync(_settings.IncludePrereleases, _launcherVersion, checkCancel);
             ShowReleaseCheck(check);
@@ -863,7 +920,7 @@ internal sealed partial class MainForm : Form
 
         if (!DownloadedFilesPlayable(current))
         {
-            SetStatus("Download the game files first (step 2).", Theme.Warning);
+            SetStatus("Choose Finish install to download the required game files first.", Theme.Warning);
             return false;
         }
 
@@ -951,8 +1008,10 @@ internal sealed partial class MainForm : Form
     {
         _progress.Fraction = 0;
         _progress.Visible = true;
+        _progressText.Visible = true;
         return new Progress<DownloadProgress>(p =>
         {
+            _progress.Visible = p.Total > 0;
             _progress.Fraction = p.Total > 0 ? (double)p.Received / p.Total : 0;
             string rate = p.BytesPerSecond > 0 ? $"  {Mb(p.BytesPerSecond)}/s" : string.Empty;
             _progressText.Text = p.Total > 0 ? $"{Mb(p.Received)} of {Mb(p.Total)}{rate}" : Mb(p.Received) + rate;
@@ -963,9 +1022,12 @@ internal sealed partial class MainForm : Form
     {
         _progress.Fraction = 0;
         _progress.Visible = true;
+        _progressText.Visible = true;
         return new Progress<PackProgress>(p =>
         {
-            _progress.Fraction = p.Total > 0 ? (double)p.Received / p.Total : 1;
+            SetOperation(p.Extracting ? "Installing game files" : "Downloading game files");
+            _progress.Visible = p.Total > 0 && !p.Extracting;
+            _progress.Fraction = p.Total > 0 ? (double)p.Received / p.Total : 0;
             _progressText.Text = p.Extracting ? $"{prefix}: installing..." : $"{prefix}: {Mb(p.Received)} of {Mb(p.Total)}";
         });
     }
@@ -984,6 +1046,7 @@ internal sealed partial class MainForm : Form
             return;
         }
 
+        _operationTitle = "Getting ready";
         _work = new CancellationTokenSource();
         bool completed = false;
         RefreshLocal();
@@ -1010,6 +1073,7 @@ internal sealed partial class MainForm : Form
             _work = null;
             _progress.Visible = false;
             _progressText.Text = string.Empty;
+            _progressText.Visible = false;
             if (!IsDisposed)
             {
                 RefreshLocal();
@@ -1021,7 +1085,11 @@ internal sealed partial class MainForm : Form
     private void SetStatus(string text, Color color, string? path = null)
     {
         _status.Text = text;
+        _status.Visible = text.Length > 0;
         _status.ForeColor = color;
+        // An actionable warning/error takes the place of the generic instructions, keeping the important
+        // message beside the action even at the minimum size.
+        _launchDetail.Visible = _work is null && (text.Length == 0 || (color != Theme.Warning && color != Theme.Error));
 
         // A file named in the status opens its folder with the file selected.
         _status.Links.Clear();
@@ -1051,6 +1119,7 @@ internal sealed partial class MainForm : Form
         if (disposing)
         {
             _pendingTimer.Dispose();
+            _tips.Dispose();
             _work?.Dispose();
         }
 

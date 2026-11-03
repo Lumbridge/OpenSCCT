@@ -11,18 +11,19 @@ internal static class Theme
 {
     public static readonly Color Background = Color.FromArgb(16, 22, 18);
     public static readonly Color Panel = Color.FromArgb(22, 31, 25);
-    public static readonly Color Border = Color.FromArgb(36, 51, 42);
+    public static readonly Color Border = Color.FromArgb(45, 63, 51);
     public static readonly Color Accent = Color.FromArgb(120, 255, 140);
     public static readonly Color AccentDim = Color.FromArgb(58, 140, 74);
     public static readonly Color Text = Color.FromArgb(216, 232, 220);
-    public static readonly Color Muted = Color.FromArgb(127, 149, 133);
+    public static readonly Color Muted = Color.FromArgb(148, 170, 155);
     public static readonly Color Warning = Color.FromArgb(255, 196, 92);
     public static readonly Color Error = Color.FromArgb(255, 110, 100);
 
-    public static readonly Font Body = new("Segoe UI", 9.5f);
-    public static readonly Font Small = new("Segoe UI", 8.5f);
+    public static readonly Font Body = new("Segoe UI", 10f);
+    public static readonly Font Small = new("Segoe UI", 9f);
     public static readonly Font Heading = new("Segoe UI Semibold", 11f);
     public static readonly Font Title = new("Segoe UI Semibold", 20f);
+    public static readonly Font Status = new("Segoe UI Semibold", 18f);
     public static readonly Font PlayFont = new("Segoe UI Semibold", 14f);
     public static readonly Font Mono = new("Consolas", 9.5f);
 
@@ -41,18 +42,34 @@ internal static class Theme
             Text = text,
             AutoSize = true,
             AutoSizeMode = AutoSizeMode.GrowAndShrink,
-            Padding = primary ? new Padding(24, 8, 24, 8) : new Padding(12, 4, 12, 4),
-            MinimumSize = primary ? new Size(180, 52) : new Size(0, 32),
+            Padding = primary ? new Padding(24, 10, 24, 10) : new Padding(12, 5, 12, 5),
+            MinimumSize = primary ? new Size(180, 56) : new Size(0, 34),
             FlatStyle = FlatStyle.Flat,
-            BackColor = primary ? AccentDim : Panel,
-            ForeColor = primary ? Color.White : Text,
             Font = primary ? PlayFont : Body,
             Cursor = Cursors.Hand,
             UseVisualStyleBackColor = false,
         };
+        SetButtonEmphasis(button, primary);
+        return button;
+    }
+
+    /// <summary>Changes emphasis without changing size, including when the launch action becomes Stop.</summary>
+    public static void SetButtonEmphasis(Button button, bool primary)
+    {
+        button.BackColor = primary ? Accent : Panel;
+        button.ForeColor = primary ? Background : Text;
         button.FlatAppearance.BorderColor = primary ? Accent : Border;
-        button.FlatAppearance.MouseOverBackColor = primary ? Color.FromArgb(72, 170, 90) : Border;
-        button.FlatAppearance.MouseDownBackColor = primary ? Color.FromArgb(48, 118, 62) : Background;
+        button.FlatAppearance.MouseOverBackColor = primary ? Color.FromArgb(146, 255, 163) : Border;
+        button.FlatAppearance.MouseDownBackColor = primary ? Color.FromArgb(94, 220, 113) : Background;
+    }
+
+    public static Button QuietButton(string text, bool onPanel = false)
+    {
+        Button button = Button(text);
+        button.BackColor = onPanel ? Panel : Background;
+        button.ForeColor = onPanel ? Accent : Muted;
+        button.FlatAppearance.BorderSize = 0;
+        button.Padding = new Padding(8, 4, 8, 4);
         return button;
     }
 

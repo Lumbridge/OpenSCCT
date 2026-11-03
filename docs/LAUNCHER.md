@@ -10,10 +10,19 @@ For Linux and Steam Deck, use the [Flatpak guide](LINUX.md).
 
 1. Download **OpenSCCT.Launcher.exe** from the latest release and put it in a writable folder.
 2. Run it and press **Install**. The launcher downloads OpenSCCT and its game files.
-3. Press **PLAY** when both steps are ready.
+3. Press **PLAY** when the launch panel says **Ready to play**.
 
-The main button shows the next action. **Stop** or **Cancel** interrupts the current task;
-completed downloads are kept so setup can resume. No original Chaos Theory install or folder selection is needed.
+The main button shows the next action: **Install**, **Finish install**, **Update** or **PLAY**.
+Install checks for a release and downloads the game and its required files in one operation, even when
+startup update checks are off. The same panel shows the current task and download progress.
+**Stop** or **Cancel** interrupts the current task; completed downloads are kept so setup can resume.
+No original Chaos Theory install or folder selection is needed.
+
+Below the launch panel, the latest release preview shows up to three short changes from the release notes.
+It uses the same fetched or cached release data as update checks. **Full changelog** opens the website
+changelog, with built-in full release notes if the website or browser is unavailable.
+Maps, Check for updates, Website, Settings and Help are secondary controls along the bottom;
+they wrap on narrow windows while the release preview scrolls to leave room for launch controls.
 
 ## Updates and troubleshooting
 
@@ -21,8 +30,8 @@ completed downloads are kept so setup can resume. No original Chaos Theory insta
   **Play current version** lets you defer updates for that launch.
   Play checks again for updates with a five-second timeout; a failed check still permits installed play.
 - **Maps** downloads additional converted maps, ready to play without conversion.
-- **Website** opens the player hub. **What's new** opens its changelog, with built-in release notes if the
-  website or browser is unavailable.
+- **Website** opens the player hub. **Full changelog** opens its changelog, with built-in release notes if
+  the website or browser is unavailable.
 - Downloaded game files and menus are in English.
 - The launcher is unsigned, so Windows may show a SmartScreen warning on first launch.
 
@@ -99,8 +108,13 @@ Local conversion remains a developer workflow; see [Content tools](../content/RE
 ```powershell
 dotnet build OpenSCCT.slnx
 dotnet test --project tests/OpenScct.Launcher.Tests
+dotnet run --project tools/launcher-smoke
 dotnet publish src/OpenScct.Launcher -c Release -r win-x64
 ```
+
+The Windows-only [layout smoke harness](../tools/launcher-smoke/README.md) checks isolated launcher states
+and dialog layouts at 100%, 150% and 200% scaling, saving offscreen PNGs under
+`local/launcher-smoke/artifacts`. It uses temporary installations without starting downloads or the game.
 
 The publish command creates a self-contained `OpenSCCT.Launcher.exe` in
 `src/OpenScct.Launcher/bin/Release/net10.0-windows/win-x64/publish/`. Players do not need .NET installed.
