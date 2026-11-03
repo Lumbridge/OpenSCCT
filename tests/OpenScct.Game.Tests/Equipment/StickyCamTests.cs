@@ -1,12 +1,15 @@
+using System;
 using System.Linq;
 using OpenScct.Content.Collision;
 using OpenScct.Core;
 using OpenScct.Core.Engine;
+using OpenScct.Game.Camera;
 using OpenScct.Game.Equipment;
 using OpenScct.Game.SBase;
 using OpenScct.Game.Tests.Combat;
 using OpenScct.Physics.Collision;
 using Xunit;
+using CombatServices = OpenScct.Game.Combat.CombatServices;
 
 namespace OpenScct.Game.Tests.Equipment;
 
@@ -38,14 +41,14 @@ public sealed class StickyCamTests
     }
 
     [Fact]
-    public void ACamSticksTwoAndAHalfUnitsOffAPlainWallFacingBack()
+    public void ACamSticksOutsideAPlainWallFacingBack()
     {
         (CombatScene scene, SPlayerController pc, SPawnAttaque spy, SGadStickyCam gad) = Spy();
         // The shot leaves the pistol in the right hand (CombatNatives.SpyPistolCoords), right of the view line.
         float lineY = OpenScct.Game.Combat.CombatServices.Ports(gad).BoneCoords(spy.MyWeapon!, SWeaponDefense.FxBone).Origin.Y;
         gad.Use(1f);
         SStickyCam cam = Assert.Single(Cams(scene));
-        Assert.InRange(cam.Location.X, 296.5f, 298.5f);
+        Assert.InRange(cam.Location.X, 295.5f, 297.5f);
         Assert.Equal(lineY, cam.Location.Y, 0);
         Assert.Equal(32768, cam.Rotation.Yaw & 0xFFFF);
         Assert.Equal(4, gad.Charge);
@@ -149,15 +152,19 @@ public sealed class StickyCamTests
     }
 
     /// <summary>
-    /// A side wall exactly parallel to the shot: its normal is at 90 degrees to the shot, the "face back" test (n . D
-    /// at least 0) flips it, and the probe moves the cam 5 uu past that wall's face, as the original does.
+    /// A side wall parallel to the shot must push the mount back into the room. Orienting its normal against the
+    /// shot instead of the corner probe previously put the camera inside the wall.
     /// </summary>
-    [Fact]
-    public void AParallelSideWallInsideTheProbeMovesTheCamFiveUnitsPastItsFace()
+    [Theory]
+    [InlineData(-1f)]
+    [InlineData(1f)]
+    public void AParallelSideWallInsideTheProbeKeepsTheCamOutside(float side)
     {
         CombatScene scene = GadgetKit.Scene();
-        // The back wall at x = 300 and a side wall whose face is at y = 3, inside the 5.5 uu probe.
-        GadgetKit.Walls(scene, GadgetKit.WallAt(300f), (new FVector(-1000f, 3f, -1000f), new FVector(1000f, 60f, 1000f), CollisionMaterialFlags.None));
+        // The back wall at x = 300 and a side wall 3 uu from the shot, inside the 5.5 uu probe.
+        GadgetKit.Walls(scene, GadgetKit.WallAt(300f),
+            (new FVector(-1000f, side > 0f ? 3f : -60f, -1000f),
+             new FVector(1000f, side > 0f ? 60f : -3f, 1000f), CollisionMaterialFlags.None));
         (SPlayerController pc, SBasePawn pawn) = scene.Player(true, new FVector(0f, -60f, 100f));
         GadgetKit.Shocker(scene, pawn);
         SGadStickyCam gad = GadgetKit.Gadget(scene, pawn, new SGadStickyCam());
@@ -168,7 +175,118 @@ public sealed class StickyCamTests
         pawn.SetLocation(new FVector(0f, -right, 100f));
         Assert.True(gad.UseStickyCam(false));
         SStickyCam cam = Assert.Single(Cams(scene));
-        Assert.Equal(8f, cam.Location.Y, 0);
+        Assert.InRange(3f - cam.Location.Y * side, 4.5f, 6.5f);
+        PlayerCalcView.StickyCamView(pc, false, out _, out FVector eye, out _);
+        Assert.True(eye.Y * side < 3f, $"The camera eye crossed the side wall: {eye}");
+    }
+
+    [Fact]
+    public void ACornerTooNarrowForTheCameraDoesNotTakeAChargeOrRefireDelay()
+    {
+        (CombatScene scene, _, SPawnAttaque spy, SGadStickyCam gad) = Spy();
+        float lineY = CombatServices.Ports(gad).BoneCoords(spy.MyWeapon!, SWeaponDefense.FxBone).Origin.Y;
+        GadgetKit.Walls(scene, GadgetKit.WallAt(300f),
+            (new FVector(250f, lineY + 1f, -1000f), new FVector(400f, lineY + 60f, 1000f), CollisionMaterialFlags.None),
+            (new FVector(250f, lineY - 60f, -1000f), new FVector(400f, lineY - 1f, 1000f), CollisionMaterialFlags.None));
+        float lastUsed = gad.LastUsed;
+        int charge = gad.Charge;
+
+        Assert.False(gad.UseStickyCam(true));
+        Assert.False(gad.UseStickyCam(false));
+        Assert.Empty(Cams(scene));
+        Assert.Equal(lastUsed, gad.LastUsed);
+        Assert.Equal(charge, gad.Charge);
+        // A valid wall is usable immediately after the refused shot.
+        GadgetKit.Walls(scene, GadgetKit.WallAt(300f));
+        Assert.True(gad.UseStickyCam(false));
+    }
+
+    [Theory]
+    [InlineData(false, false)]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    [InlineData(true, true)]
+    public void APlayerInTheShotDoesNotOverrideTheWallPlacementRules(bool otherIsSpy, bool noStickyWall)
+    {
+        (CombatScene scene, _, SPawnAttaque spy, SGadStickyCam gad) = Spy();
+        FCoords muzzle = CombatServices.Ports(gad).BoneCoords(spy.MyWeapon!, SWeaponDefense.FxBone);
+        (_, SBasePawn other) = scene.Player(otherIsSpy, new FVector(150f, muzzle.Origin.Y, spy.Location.Z));
+        CollisionWorld world = GadgetKit.Walls(scene,
+            GadgetKit.WallAt(300f, noStickyWall ? CollisionMaterialFlags.NoStickyCam : CollisionMaterialFlags.None));
+        world.BindLevel(scene.Level);
+        FVector start = muzzle.Origin - muzzle.XAxis * K.StickyLaunchPullBack;
+        FVector end = start + muzzle.XAxis * gad.MaxLaunchDist;
+        Assert.True(world.LineCheck(out FCheckResult body, spy, end, start, default,
+            SGadStickyCam.StickTraceFlags | ETraceFlags.TRACE_Pawns));
+        Assert.Same(other, body.Actor);
+
+        Assert.Equal(!noStickyWall, gad.UseStickyCam(true));
+        Assert.Equal(!noStickyWall, gad.UseStickyCam(false));
+        if (noStickyWall)
+        {
+            Assert.Empty(Cams(scene));
+            Assert.Equal(5, gad.Charge);
+            return;
+        }
+
+        SStickyCam cam = Assert.Single(Cams(scene));
+        Assert.InRange(cam.Location.X, 295.5f, 297.5f);
+        Assert.Equal(4, gad.Charge);
+    }
+
+    [Theory]
+    [InlineData(0, 0)]
+    [InlineData(0, 32768)]
+    [InlineData(0, 16384)]
+    [InlineData(0, -16384)]
+    [InlineData(8192, 8192)]
+    [InlineData(-8192, -8192)]
+    public void AGrazingShotKeepsTheQuantizedMountAndCameraViewOutsideTheSurface(int shotYaw, int surfaceRoll)
+    {
+        CombatScene scene = GadgetKit.Scene();
+        (SPlayerController pc, SBasePawn pawn) = scene.Player(true, new FVector(0f, 0f, 100f), shotYaw);
+        GadgetKit.Shocker(scene, pawn);
+        SGadStickyCam gad = GadgetKit.Gadget(scene, pawn, new SGadStickyCam());
+        scene.Run(1.5f);
+        pc.Rotation = pc.MyDesiredRotation = new FRotator(0, shotYaw, 0);
+        FCoords muzzle = CombatServices.Ports(gad).BoneCoords(pawn.MyWeapon!, SWeaponDefense.FxBone);
+        float roll = surfaceRoll * MathF.PI / 32768f;
+        FVector tangentNormal = muzzle.YAxis * MathF.Cos(roll) + muzzle.ZAxis * MathF.Sin(roll);
+        // The shot meets a real collision triangle at less than two degrees from parallel.
+        FVector normal = (tangentNormal - muzzle.XAxis * 0.03f).SafeNormal();
+        FVector surface = muzzle.Origin + muzzle.XAxis * 600f;
+        normal.Rotation().GetAxes(out _, out FVector side, out FVector up);
+        var builder = new CollisionDataBuilder();
+        builder.AddQuad(surface - side * 4000f - up * 4000f,
+            surface + side * 4000f - up * 4000f, surface + side * 4000f + up * 4000f,
+            surface - side * 4000f + up * 4000f);
+        scene.Level.SetService<ICollisionWorld>(CollisionWorld.Build(builder.Build()));
+
+        Assert.True(gad.UseStickyCam(false));
+        SStickyCam cam = Assert.Single(Cams(scene));
+        float clearance = (cam.Location - surface) | normal;
+        Assert.True(clearance >= 2.5f, $"The quantized mount is only {clearance:F3} uu outside the surface: {cam.Location}");
+
+        // At the widest sticky camera FOV on a 16:9 viewport, every near-plane corner must remain on the room side
+        // of the wall even when looking to the mount's pitch/yaw limits. The render near plane is 2 uu.
+        float halfHeight = 2f * MathF.Tan(55f * MathF.PI / 180f) * 0.75f;
+        float halfWidth = halfHeight * 16f / 9f;
+        FRotator mount = cam.Rotation;
+        foreach (int pitch in new[] { -13000, 0, 13000 })
+        foreach (int yaw in new[] { -14000, 0, 14000 })
+        {
+            cam.Rotation = new FRotator(mount.Pitch + pitch, mount.Yaw + yaw, mount.Roll);
+            PlayerCalcView.StickyCamView(pc, false, out _, out FVector eye, out FRotator view);
+            view.GetAxes(out FVector forward, out FVector right, out FVector vertical);
+            foreach (float horizontalSign in new[] { -1f, 1f })
+            foreach (float verticalSign in new[] { -1f, 1f })
+            {
+                FVector corner = eye + forward * 2f + right * (horizontalSign * halfWidth) + vertical * (verticalSign * halfHeight);
+                float outside = (corner - surface) | normal;
+                Assert.True(outside > 0f,
+                    $"Near plane crossed the wall by {-outside:F3} uu at pitch {pitch}, yaw {yaw}; mount clearance {clearance:F3}");
+            }
+        }
     }
 
     [Fact]

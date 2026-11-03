@@ -14,6 +14,10 @@ public static partial class K
     [Provenance(ProvenanceKind.Decoded, "UseStickyCam 0x10aa21f3: the cam point 2.5 uu back from the hit")]
     public const float StickyHitPullBack = 2.5f;
 
+    /// <summary>Minimum mount clearance before coordinate rounding; leaves room for the remote view's near plane.</summary>
+    [Provenance(ProvenanceKind.Estimated, "OpenSCCT clipping fix: 3.5 uu minus at most sqrt(3)/2 uu rounding, plus the 3 uu lens offset, clears the 110-degree 16:9 near plane")]
+    public const float StickySurfaceClearance = 3.5f;
+
     [Provenance(ProvenanceKind.Decoded, "UseStickyCam 0x10aa2281: corner probes of 5.5 uu")]
     public const float StickyProbe = 5.5f;
 

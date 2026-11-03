@@ -80,6 +80,18 @@ per pack; a cam that is destroyed or picked up comes back as a charge.
       `SpawnCam(StickyCamClass, owner, P, facing, iNbSmokeChargeForCurrentSticky, hit actor)`; return true.
       The tiny reverse-shot bias gives vertical floor/ceiling normals a yaw back toward the shooter while keeping
       the view aligned with the surface normal. The corner probes still use the unmodified normal's rotation.
+   - **OpenSCCT placement fixes:** the stick line and corner probes omit pawns (`TRACE_Pawns`), so a merc's
+     collision cylinder cannot block a shot onto the wall behind it or displace the cam. World geometry, movers,
+     non-stickable gameplay objects and material restrictions still apply.
+   - To prevent wall clipping on grazing shots, preserve the shot pullback's tangential offset but ensure at least
+     3.5 uu clearance along the mounting surface normal before the probes and network rounding. Rounding can
+     remove at most sqrt(3)/2 uu of clearance; the view's additional 3 uu mount offset then leaves room for its
+     near plane at the maximum 110-degree FOV and 16:9 rendered aspect. This clearance is an OpenSCCT estimate.
+   - Each corner probe faces its hit normal back along its own probe direction, instead of the shot direction;
+     a side wall parallel to the shot must push the cam away from that wall. Validate the final rounded point:
+     retain at least 2.5 uu mounting-plane clearance, and require clear world/mover traces from the shot start
+     to the mount and from the mount to the lens (using the quantized rotation). Reject unsafe placements before
+     setting `LastUsed` or spawning/consuming a charge. Test-only placement uses the same checks.
 3. **CanUse** (native 0x10aa2870): true when the owner pawn's `UsedObject` is None. Nothing in script calls it.
 4. **SpawnCam** (simulated): the rotation is cut to its high byte (`& 0xFF00` per axis) and the location rounded
    with `NetRoundVectorAxis` (round half up: `int(v + 0.5)`, minus 1 when that is above `v + 0.5`), so a cam made on

@@ -2,6 +2,7 @@ using OpenScct.Content.Collision;
 using OpenScct.Core;
 using OpenScct.Core.Engine;
 using OpenScct.Core.Uc;
+using OpenScct.Game.Camera;
 using OpenScct.Game.Combat;
 using OpenScct.Game.Devices;
 using OpenScct.Game.Equipment;
@@ -24,11 +25,12 @@ public partial class SGadStickyCam
     public const ETraceFlags GpoTraceFlags = ETraceFlags.TRACE_BackdropSkip | ETraceFlags.TRACE_StopAtFirstHit |
         ETraceFlags.TRACE_LevelGeometry | ETraceFlags.TRACE_Others;
 
-    /// <summary>The stick line and the corner probes (rule 2.5): everything that collides, volumes, materials.</summary>
-    [Provenance(ProvenanceKind.Decoded, "UseStickyCam 0x10aa20ec: flags 0xc10bf (bit 0x40000 has no name in this port)")]
+    /// <summary>The stick line and corner probes (rule 2.5), excluding player bodies from wall placement.</summary>
+    [Provenance(ProvenanceKind.Decoded, "UseStickyCam 0x10aa20ec: original flags 0xc10bf (bit 0x40000 has no name in this port)")]
+    [Provenance(ProvenanceKind.Estimated, "OpenSCCT placement fix: omit TRACE_Pawns so player cylinders neither block a wall shot nor push a corner probe")]
     public const ETraceFlags StickTraceFlags = ETraceFlags.TRACE_BackdropSkip | (ETraceFlags)0x40000 | ETraceFlags.TRACE_Material |
         ETraceFlags.TRACE_LevelGeometry | ETraceFlags.TRACE_OnlyProjActor | ETraceFlags.TRACE_Others | ETraceFlags.TRACE_Volumes |
-        ETraceFlags.TRACE_Level | ETraceFlags.TRACE_Movers | ETraceFlags.TRACE_Pawns;
+        ETraceFlags.TRACE_Level | ETraceFlags.TRACE_Movers;
 
     /// <summary>
     /// Alt-fire: refused within the refire delay or with the Shocker holstered; a pawn already using a cam gives the
@@ -65,6 +67,7 @@ public partial class SGadStickyCam
     [PortOf("nat:SBase.SGadStickyCam.UseStickyCam", Spec = "spec/equipment/sticky-cam.md#firing-a-cam")]
     [Provenance(ProvenanceKind.Decoded, "sticky-cam.md rule 2: aim, two lines, world geometry without bNoStickyCam, 2.5 uu back, four 5.5 uu probes")]
     [Provenance(ProvenanceKind.Estimated, "The FX bone pose comes from the combat ports (the estimated muzzle until skeletal poses run)")]
+    [Provenance(ProvenanceKind.Estimated, "OpenSCCT clipping fix: normal clearance survives network rounding; corner probes face their own trace and the final mount/lens cannot cross geometry")]
     public bool UseStickyCam(bool bTest = false)
     {
         if (OwnerPawn is not { MyWeapon: { } weapon } pawn || weapon.Mesh.IsNone)
@@ -104,25 +107,36 @@ public partial class SGadStickyCam
             return false;
         }
 
-        if (!bTest)
-        {
-            LastUsed = Level.TimeSeconds;
-        }
-
         FVector n = FacingBack(hit.Normal, d);
         FVector p = hit.Location - d * K.StickyHitPullBack;
+        // Shot-direction pullback tends to zero clearance at grazing angles. Keep its tangential offset,
+        // but leave enough space along the surface normal for rounding and the remote view's near plane.
+        p += n * SvmMath.Max(0f, K.StickySurfaceClearance - ((p - hit.Location) | n));
         FRotator r = n.Rotation();
         FVector side = new FRotator(r.Pitch, r.Yaw + K.StickySideYaw, r.Roll).Vector();
         FVector up = new(0f, 0f, 1f);
-        p = Probe(pawn, p, side, d);
-        p = Probe(pawn, p, -side, d);
-        p = Probe(pawn, p, -up, d);
-        p = Probe(pawn, p, up, d);
+        p = Probe(pawn, p, side);
+        p = Probe(pawn, p, -side);
+        p = Probe(pawn, p, -up);
+        p = Probe(pawn, p, up);
+
+        // The original biases only the final facing, after the corner probes. A vertical normal has no yaw;
+        // the tiny reverse-shot component keeps floor/ceiling cams facing the shooter instead of world east.
+        FRotator facing = NetRoundRotation((n - d * K.StickyFacingBias).Rotation());
+        p = NetRoundLocation(p);
+        FVector lens = p + facing.Vector() * CameraK.StickyCamOffset;
+        // A later corner correction can cross a wall checked by an earlier probe, or put the lens through
+        // a close opposing face. Test the actual replicated pose before taking a charge or the refire delay.
+        if (((p - hit.Location) | n) < K.StickyHitPullBack ||
+            GadgetWorld.Line(pawn, p, start, GadgetWorld.SightFlags, out _) ||
+            GadgetWorld.Line(pawn, lens, p, GadgetWorld.SightFlags, out _))
+        {
+            return false;
+        }
+
         if (!bTest)
         {
-            // The original biases only the final facing, after the corner probes. A vertical normal has no yaw;
-            // the tiny reverse-shot component keeps floor/ceiling cams facing the shooter instead of world east.
-            FRotator facing = (n - d * K.StickyFacingBias).Rotation();
+            LastUsed = Level.TimeSeconds;
             SpawnCam(StickyCamClass, pawn, p, facing, iNbSmokeChargeForCurrentSticky, hit.Actor);
         }
 
@@ -138,11 +152,11 @@ public partial class SGadStickyCam
     public static FVector FacingBack(FVector Normal, FVector Dir) => (Dir | Normal) >= 0f ? -Normal : Normal;
 
     /// <summary>A 5.5 uu corner probe: a hit pushes the point 5 uu off that surface.</summary>
-    private FVector Probe(SBasePawn pawn, FVector p, FVector axis, FVector d)
+    private FVector Probe(SBasePawn pawn, FVector p, FVector axis)
     {
         if (GadgetWorld.Line(pawn, p + axis * K.StickyProbe, p, StickTraceFlags, out FCheckResult h))
         {
-            return h.Location + FacingBack(h.Normal, d) * K.StickyProbePush;
+            return h.Location + FacingBack(h.Normal, axis) * K.StickyProbePush;
         }
 
         return p;
@@ -175,8 +189,8 @@ public partial class SGadStickyCam
     [PortOf("uc:SBase.SGadStickyCam:SpawnCam", Spec = "spec/equipment/sticky-cam.md#firing-a-cam")]
     public void SpawnCam(ClassRef CamClass, Pawn P, FVector Loc, FRotator Rot, int NbGasCharge, Actor? HitActor)
     {
-        Rot = new FRotator(Rot.Pitch & K.NetRotationMask, Rot.Yaw & K.NetRotationMask, Rot.Roll & K.NetRotationMask);
-        Loc = new FVector(NetRoundVectorAxis(Loc.X), NetRoundVectorAxis(Loc.Y), NetRoundVectorAxis(Loc.Z));
+        Rot = NetRoundRotation(Rot);
+        Loc = NetRoundLocation(Loc);
         if (Level.NetMode != ENetMode.NM_Client)
         {
             if (CreateStickyCam(CamClass, P, Loc, Rot, NbGasCharge, HitActor) is not null)
@@ -222,6 +236,12 @@ public partial class SGadStickyCam
 
         return q;
     }
+
+    private static FVector NetRoundLocation(FVector location) =>
+        new(NetRoundVectorAxis(location.X), NetRoundVectorAxis(location.Y), NetRoundVectorAxis(location.Z));
+
+    private static FRotator NetRoundRotation(FRotator rotation) =>
+        new(rotation.Pitch & K.NetRotationMask, rotation.Yaw & K.NetRotationMask, rotation.Roll & K.NetRotationMask);
 
     /// <summary>
     /// Makes the cam owned by the pawn; on a gameplay object it rides that object; a dose count other than -1 is
