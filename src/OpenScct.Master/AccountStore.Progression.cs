@@ -165,9 +165,12 @@ internal sealed partial class AccountStore
             InTransaction(() =>
             {
                 ProgressRow before = ProgressionLocked(accountId);
+                var appearanceBefore = Appearance(accountId);
                 Exec("INSERT INTO progression (account_id, prestige, xp, best_level, total_xp, updated) VALUES ($a, $p, $x, $b, 0, $now) " +
                     "ON CONFLICT(account_id) DO UPDATE SET prestige = $p, xp = $x, best_level = $b, last_award = NULL, updated = $now;",
                     ("$a", accountId), ("$p", prestige), ("$x", xp), ("$b", level), ("$now", now));
+                var appearanceAfter = CleanAppearance(accountId, appearanceBefore with { Title = null });
+                WriteAppearanceLocked(accountId, appearanceAfter with { Revision = appearanceBefore.Revision + 1 }, managed: true);
                 AuditLocked("rank", $"account {accountId}: prestige {before.Prestige} level {before.Rank.Level} -> prestige {prestige} level {level}");
                 return 0;
             });

@@ -9,6 +9,38 @@ namespace OpenScct.Integration.Tests.Online;
 public sealed class RankTitleResetTests
 {
     [Fact]
+    public void RankResetRelocksAndUnequipsAllLevelFinishesAndDefaultsOwnedTitle()
+    {
+        using var store = AccountStore.Open(":memory:");
+        long id = store.GetOrCreate("cosmetic-reset").Id;
+        foreach (var pistol in OpenScct.Core.Engine.Sidearms.All)
+        foreach (string finish in new[] { "night_ops", "cryo" })
+        {
+            store.SetRank(id, 1, 55);
+            string cosmetic = $"merc.{pistol.Id}.{finish}";
+            Assert.Contains(cosmetic, store.Unlocked(id));
+            var before = store.Appearance(id);
+            Assert.True(store.UpdateAppearance(id, new AppearanceUpdateRequest
+            {
+                ExpectedRevision = before.Revision, Merc = [cosmetic], Title = "prestige_1",
+            }).Success);
+            long equippedRevision = store.Appearance(id).Revision;
+            store.SetRank(id, 1, 1);
+            Assert.DoesNotContain(cosmetic, store.Unlocked(id));
+            var after = store.Appearance(id);
+            Assert.Empty(after.Merc);
+            Assert.Null(after.Title);
+            Assert.True(after.Revision > equippedRevision);
+            Assert.Contains(store.Titles(id), t => t.Id == "prestige_1");
+            // A stale appearance editor cannot restore the old equipment.
+            Assert.True(store.UpdateAppearance(id, new AppearanceUpdateRequest
+            {
+                ExpectedRevision = equippedRevision, Merc = [cosmetic], Title = "prestige_1",
+            }).Conflict);
+        }
+    }
+
+    [Fact]
     public void AdminResetRelocksLevelTitlesAndClearsEquippedTitle()
     {
         using var store = AccountStore.Open(":memory:");
