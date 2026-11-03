@@ -344,6 +344,43 @@ HTTP API (`MasterApi`, JSON camelCase, enums as text). With invite keys set, eve
 Config: `svm-master.json` (`Master` section, see `src/OpenScct.Master/svm-master.example.json`), overridable with
 `SVM_Master__Key=value` environment variables.
 
+### Website bug reports
+
+The website's `/help/report-bug` form uses the existing Discord-linked player account. Players fill
+in the report, review what will be public, then submit it. The master creates the issue in
+`Lumbridge/OpenSCCT` and returns a link. Players do not need GitHub accounts for this form;
+feature suggestions and pull requests still use GitHub directly.
+
+To enable sending, configure Discord sign-in as described below and set
+`SVM_Master__BugReports__GitHubToken` in the master service's environment, then restart the master.
+Use a dedicated fine-grained GitHub token restricted to `Lumbridge/OpenSCCT` with **Issues: Read
+and write** permission. Keep the token in the server's protected secret configuration, outside
+source control. It is never sent to the browser. The GitHub account or app represented by the
+token is shown as the issue's author; the player's Discord account is not linked to GitHub.
+GitHub documents the required permission in its [create-issue API documentation](https://docs.github.com/en/rest/issues/issues#create-an-issue).
+
+Without a validly configured token, players can fill in and review reports but the send button is
+disabled. An expired token or a GitHub rejection shows an error and preserves the report text so
+the player can try later. No report is submitted merely by opening or reviewing the form.
+
+Only the reviewed title and report fields are sent to GitHub. Website reports also include the
+website version, build and commit; game and launcher versions are supplied by the player. The
+master does not append player names, Discord IDs, private account records, connection addresses
+or browser credentials. User text is rendered literally in the issue body so it cannot add
+hidden images or trigger mentions through Markdown. The form accepts text and links, not files.
+
+Signed-in accounts are limited to three send attempts in 24 hours, with at least one minute
+between attempts. Active account, Discord and address bans also block submission. The SQLite
+`website_bug_reports` table stores only the account ID, an opaque receipt ID, a hash of the title
+and body, submission time, outcome and GitHub issue number. It does not store the full report
+text. Limits and duplicate checks survive restarts. Receipts expire after 30 days and are removed
+by the master's once-a-minute cleanup; expired rows left during downtime are removed after startup.
+
+The master does not retry an issue-creation request automatically. If a connection fails after
+GitHub may have accepted a report, its receipt is marked uncertain and another send of the same
+report returns that result. This avoids creating duplicate issues. The player is asked to check
+the existing reports. Receipt cleanup does not delete public issues on GitHub.
+
 ## Accounts
 
 Players sign in with **Discord** (nothing else: no passwords, no email). Signing in gives a claimed, unique name,
@@ -558,6 +595,17 @@ config's `Admins` list. It is on when Discord sign-in is set up.
   forms, focused controls or filter selections. Server player controls verify the selected session is still current.
 
 **Pages.**
+
+Admin tables provide search across loaded rows or one column, per-column text filters, sortable headings,
+and 10/25/50/100-row pages with result counts and reset. These controls retain their state during live refreshes.
+For database lists, the existing server-side search and older/newer links still load additional records;
+the table controls explicitly apply only to the currently loaded rows.
+
+Player details list all titles, unlock requirements, availability and the equipped title. Achievement titles
+follow achievement ownership: admins can revoke an earned achievement with a reason and audited confirmation.
+This removes its earned rewards and clears unavailable equipped items, while preserving admin cosmetic grants,
+stats and XP. The achievement can be earned again in a later match. Level/prestige titles retain their normal
+progression rules, including the highest level reached for level titles.
 
 | Page | What it does |
 |---|---|

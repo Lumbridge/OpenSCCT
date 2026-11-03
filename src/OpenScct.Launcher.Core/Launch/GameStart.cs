@@ -6,16 +6,13 @@ using System.IO;
 namespace OpenScct.Launcher.Launch;
 
 /// <summary>
-/// How Play starts the game. A plain start opens the main menu, so no arguments are needed. When the original game
-/// path is set, it is passed as <c>--svm-game-root=</c> (key layouts) and as SVM_GAME_ROOT. When content built by
-/// the launcher exists, its folder (shared/ and svmap/) is passed as <c>--svm-content=</c>. Godot reads user
-/// arguments after "--". The downloaded maps folder is passed as <c>--svm-map-downloads=</c>, so the game can fetch a map
-/// a lobby picks that the player lacks (docs/LAUNCHER.md "Downloaded maps").
+/// Starts the game using its default downloaded packs. Legacy original-install and converted-content environment
+/// settings are excluded from the child process, so an old developer setup cannot replace the downloaded game
+/// files. Godot reads optional user arguments (such as a website Join request) after "--".
 /// </summary>
 public static class GameStart
 {
-    public static ProcessStartInfo Create(string exePath, string? originalGamePath, string? contentRoot, IEnumerable<string>? extraUserArgs = null,
-        string? mapsRoot = null)
+    public static ProcessStartInfo Create(string exePath, IEnumerable<string>? extraUserArgs = null)
     {
         ArgumentException.ThrowIfNullOrEmpty(exePath);
         var info = new ProcessStartInfo(exePath)
@@ -24,22 +21,10 @@ public static class GameStart
             WorkingDirectory = Path.GetDirectoryName(exePath)!,
         };
 
+        info.Environment.Remove("SVM_GAME_ROOT");
+        info.Environment.Remove("SVM_CONTENT");
+
         var user = new List<string>();
-        if (!string.IsNullOrWhiteSpace(originalGamePath))
-        {
-            user.Add("--svm-game-root=" + originalGamePath);
-            info.Environment["SVM_GAME_ROOT"] = originalGamePath;
-        }
-
-        if (!string.IsNullOrWhiteSpace(contentRoot) && Directory.Exists(contentRoot))
-        {
-            user.Add("--svm-content=" + contentRoot);
-        }
-
-        if (!string.IsNullOrWhiteSpace(mapsRoot))
-        {
-            user.Add("--svm-map-downloads=" + mapsRoot);
-        }
 
         if (extraUserArgs is not null)
         {

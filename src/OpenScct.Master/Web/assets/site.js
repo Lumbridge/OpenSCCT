@@ -1,13 +1,15 @@
 (function () {
   "use strict";
   var menu = document.querySelector(".menu-toggle");
-  if (menu) menu.addEventListener("click", function () {
-    var target = document.getElementById(menu.getAttribute("aria-controls"));
-    if (!target) return;
-    var open = menu.getAttribute("aria-expanded") !== "true";
-    menu.setAttribute("aria-expanded", String(open));
-    target.classList.toggle("open", open);
-  });
+  var target = menu && document.getElementById(menu.getAttribute("aria-controls"));
+  if (menu && target) {
+    menu.addEventListener("click", function () {
+      var open = menu.getAttribute("aria-expanded") !== "true";
+      menu.setAttribute("aria-expanded", String(open));
+      target.classList.toggle("open", open);
+    });
+    document.body.classList.add("menu-ready");
+  }
   document.addEventListener("submit", function (event) {
     var form = event.target;
     var confirmation = form.getAttribute && form.getAttribute("data-confirm");
@@ -157,4 +159,66 @@
   sidebar.parentElement.classList.add("search-enabled");
   search();
   revealTarget();
+})();
+
+// Feature text and screenshot links also work without JavaScript.
+(function () {
+  "use strict";
+  var page = document.querySelector(".improvements-page");
+  if (!page) return;
+  var search = page.querySelector(".showcase-search");
+  var input = page.querySelector("#feature-search");
+  var status = page.querySelector("#feature-search-status");
+  var clear = page.querySelector("[data-clear-features]");
+  var sections = Array.from(page.querySelectorAll("[data-feature-section]"));
+  var features = Array.from(page.querySelectorAll("[data-feature]")).map(function (node) {
+    return { node: node, text: (node.textContent + " " + node.closest("section").querySelector("h2").textContent).toLocaleLowerCase() };
+  });
+  function filter() {
+    var terms = input.value.trim().toLocaleLowerCase().split(/\s+/).filter(Boolean);
+    var count = 0;
+    features.forEach(function (feature) {
+      feature.node.hidden = !terms.every(function (term) { return feature.text.includes(term); });
+      if (!feature.node.hidden) count++;
+    });
+    var shownSections = 0;
+    sections.forEach(function (section) {
+      section.hidden = !Array.from(section.querySelectorAll("[data-feature]")).some(function (node) { return !node.hidden; });
+      if (!section.hidden) shownSections++;
+    });
+    clear.hidden = !terms.length;
+    status.textContent = count + (count === 1 ? " feature" : " features") + " in " + shownSections + (shownSections === 1 ? " section." : " sections.");
+    page.querySelector(".feature-no-results").hidden = count !== 0;
+  }
+  input.addEventListener("input", filter);
+  clear.addEventListener("click", function () { input.value = ""; filter(); input.focus(); });
+  page.querySelectorAll('.showcase-navigation a').forEach(function (link) {
+    link.addEventListener("click", function () { input.value = ""; filter(); });
+  });
+  search.hidden = false;
+  filter();
+
+  var dialog = page.querySelector(".showcase-dialog");
+  if (typeof dialog.showModal !== "function") return;
+  var activeLink;
+  var image = dialog.querySelector("img");
+  var caption = dialog.querySelector("#showcase-caption");
+  page.querySelectorAll("[data-showcase-image]").forEach(function (link) {
+    link.addEventListener("click", function (event) {
+      if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+      event.preventDefault();
+      activeLink = link;
+      image.src = link.href;
+      image.alt = link.querySelector("img").alt;
+      caption.textContent = link.getAttribute("data-caption");
+      dialog.showModal();
+      document.body.classList.add("showcase-viewing");
+    });
+  });
+  dialog.querySelector("[data-close-showcase]").addEventListener("click", function () { dialog.close(); });
+  dialog.addEventListener("click", function (event) { if (event.target === dialog) dialog.close(); });
+  dialog.addEventListener("close", function () {
+    document.body.classList.remove("showcase-viewing");
+    if (activeLink) activeLink.focus({ preventScroll: true });
+  });
 })();

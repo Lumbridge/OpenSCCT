@@ -27,6 +27,43 @@ public sealed class GitHubReleaseClientTests
     }
 
     [Fact]
+    public async Task OfficialSourceReadsPublicReleasesWithoutAuthentication()
+    {
+        using var dir = new TempDir();
+        var handler = new FakeHandler(_ => Ok("\"official\""));
+        using var http = new HttpClient(handler);
+        var client = new GitHubReleaseClient(http, ReleaseSource.Official, dir.Path);
+
+        ReleaseFeed feed = await client.GetReleasesAsync(TestContext.Current.CancellationToken);
+
+        HttpRequestMessage request = Assert.Single(handler.Requests);
+        Assert.Equal("https://api.github.com/repos/Lumbridge/OpenSCCT/releases?per_page=30", request.RequestUri!.AbsoluteUri);
+        Assert.Null(request.Headers.Authorization);
+        Assert.Equal(ReleaseFeedSource.Network, feed.Source);
+        Assert.Single(feed.Releases);
+    }
+
+    [Fact]
+    public void OfficialSourceDownloadsPublicAssetWithoutAuthentication()
+    {
+        using var dir = new TempDir();
+        using var http = new HttpClient(new FakeHandler(_ => Ok("\"official\"")));
+        var client = new GitHubReleaseClient(http, ReleaseSource.Official, dir.Path);
+        const string publicUrl = "https://github.com/Lumbridge/OpenSCCT/releases/download/v0.2.0/OpenSCCT-0.2.0-win-x64.zip";
+
+        using HttpRequestMessage request = client.CreateAssetRequest(new ReleaseAsset
+        {
+            Name = "OpenSCCT-0.2.0-win-x64.zip",
+            Url = "https://api.github.com/repos/Lumbridge/OpenSCCT/releases/assets/20",
+            BrowserDownloadUrl = publicUrl,
+        });
+
+        Assert.Equal(publicUrl, request.RequestUri!.AbsoluteUri);
+        Assert.Null(request.Headers.Authorization);
+        Assert.Equal("application/octet-stream", request.Headers.Accept.Single().MediaType);
+    }
+
+    [Fact]
     public async Task SendsTheETagAndUsesTheCacheOn304()
     {
         using var dir = new TempDir();

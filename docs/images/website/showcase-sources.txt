@@ -1,0 +1,66 @@
+OpenSCCT website screenshot sources
+Captured: 2026-11-03
+
+These are unchanged 1920 x 1080 PNG frames from normal OpenSCCT game scenes.
+No image was generated, retouched, cropped, resized or recompressed.
+No test UI fixtures, sample account statistics or artificial chat messages were used.
+Default cosmetic selections were used, including the Desert Eagle.
+The capture session used isolated settings and a separate user directory.
+Version labels and the hub key-help overlay were hidden in the running UI.
+The replay was recorded from a real local game with three bots; its match HUD
+was hidden while the native replay controls remained visible.
+
+Capture driver: local/website-capture-20261103/WebsiteCapture.cs
+Replay recording: local/website-capture-20261103/captures/recordings/20261103-163938-AquaE.scctdemo
+
+Asset: showcase-play.png
+Source: local/website-capture-20261103/captures/showcase-play.png
+Dimensions: 1920 x 1080
+Size: 1410406 bytes
+Caption: Create Session with installed maps and normal match settings.
+SHA-256: D0E89778974A7B0BCDCE45C77E2E421EC23D8C37692E507F54DD3EEEC138BD09
+
+Asset: showcase-player.png
+Source: local/website-capture-20261103/captures/showcase-player.png
+Dimensions: 1920 x 1080
+Size: 1472735 bytes
+Caption: The Armoury with the default spy appearance; no account statistics are shown.
+SHA-256: 16BAB4D82A31717AC113DE37CEF277B4FEBAB9656CF97D239E5C1CD4DCA74D25
+
+Asset: showcase-armoury.png
+Source: local/website-capture-20261103/captures/showcase-armoury.png
+Dimensions: 1920 x 1080
+Size: 1465194 bytes
+Caption: The Desert Eagle with its default finish in the Armoury.
+SHA-256: 39039F3784E5EEED7E9AC57D7CCF85BA1B1167416A59FD469BA182B43C883053
+
+Asset: showcase-setup.png
+Source: local/website-capture-20261103/captures/showcase-setup.png
+Dimensions: 1920 x 1080
+Size: 590477 bytes
+Caption: The normal Display options page.
+SHA-256: CB493434DB2D3E4899BB1FD77A3F8B77AAA71DDC059473DB0252EC620E052BC5
+
+Asset: showcase-sidearm.png
+Source: local/website-capture-20261103/captures/showcase-sidearm.png
+Dimensions: 1920 x 1080
+Size: 1962352 bytes
+Caption: A default-finish Desert Eagle in its normal idle pose in an actual Steel Squat match.
+SHA-256: 6D80E764FD59AF0852486DA20849157504BB18CF7CFF8536B874088E2FBCD484
+
+Asset: showcase-hub.png
+Source: local/website-capture-20261103/captures/showcase-hub.png
+Dimensions: 1920 x 1080
+Size: 699020 bytes
+Caption: A spy in a local community hub. The normal key-help label was hidden before capture.
+SHA-256: 4862AA462B38FF36E7D8AE9A605992C1C51F5F0756B45871AD227C8A1B3E89EA
+
+Asset: showcase-replays.png
+Source: local/website-capture-20261103/captures/showcase-replays.png
+Dimensions: 1920 x 1080
+Size: 1531005 bytes
+Caption: First-person playback of an actual Aquarius bot match; the match HUD is hidden and replay controls are visible.
+SHA-256: 43A0C1E556EE1E67241456E81951CD18C7167BE8BDCBF00CDE973C2EAC5656A0
+
+Image count: 7
+Total image size: 9131189 bytes

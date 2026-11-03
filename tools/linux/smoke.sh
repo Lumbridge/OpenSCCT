@@ -4,7 +4,7 @@ repo_root=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../.." && pwd)
 cd "$repo_root"
 exe=${OPENSCCT_EXE:-$repo_root/local/linux/OpenSCCT.x86_64}
 mkdir -p local/verification
-for smoke in boot testbox; do
+for smoke in boot testbox help-feedback; do
     "$exe" --headless -- --svm-smoke="$smoke" --svm-smoke-timeout=180 \
         > "local/verification/$smoke.log" 2>&1
     rg "SVM_SMOKE $smoke OK" "local/verification/$smoke.log"

@@ -9,30 +9,41 @@ For Linux and Steam Deck, use the [Flatpak guide](LINUX.md).
 ## Install and play
 
 1. Download **OpenSCCT.Launcher.exe** from the latest release and put it in a writable folder.
-2. Run it and press **Install**.
-3. Press **Download game files**, then **PLAY**.
-
-Your own Chaos Theory install is optional. To use it, select **Choose folder** in step 1 of the launcher
-and select the game folder, its `Versus` folder, or a folder inside `Versus`. The launcher then offers
-**Prepare game files** to convert its maps, characters, sounds and menus locally.
+2. Run it and press **Install**. The launcher downloads OpenSCCT and its game files.
+3. Press **PLAY** when both steps are ready.
 
 The main button shows the next action. **Stop** or **Cancel** interrupts the current task;
-completed work is kept where it can be reused. The launcher does not change the original install.
+completed downloads are kept so setup can resume. No original Chaos Theory install or folder selection is needed.
 
 ## Updates and troubleshooting
 
-- **Update** installs a newer game build. **Play current version** lets you defer it for that launch.
+- **Update** installs a newer game build and any newer downloaded game files, including file-only updates.
+  **Play current version** lets you defer updates for that launch.
   Play checks again for updates with a five-second timeout; a failed check still permits installed play.
-- **Rebuild** prepares content again if an update leaves a map or menu looking wrong.
 - **Maps** downloads additional converted maps, ready to play without conversion.
 - **Website** opens the player hub. **What's new** opens its changelog, with built-in release notes if the
   website or browser is unavailable.
-- **Language** in Settings selects English, French, German, Spanish or Italian when your original install
-  contains that language. Downloaded packs and OpenSCCT's own menus are English.
+- Downloaded game files and menus are in English.
 - The launcher is unsigned, so Windows may show a SmartScreen warning on first launch.
 
-Settings also includes prerelease updates, startup update checks, the release repository and shortcuts
-to the launcher and game data folders. Public releases require no GitHub token.
+Settings includes startup update checks, optional preview releases, folder shortcuts and installation reset.
+Save and Cancel stay visible while the settings scroll on smaller screens.
+The launcher gets updates from the public `Lumbridge/OpenSCCT` repository without a GitHub account or token.
+
+## Help and contributions
+
+Choose **Help** for documentation, bug reports, suggestions, existing issues and contribution guides.
+The same window links to developer setup and pull requests. Help stays available while the launcher
+downloads or prepares files, and opening it preserves the current progress or error message.
+
+**Report a bug** opens the [website bug report form](https://master.lumbridge.co.uk/help/report-bug).
+Sign in with Discord, review the report and submit it there. The form is prefilled for the launcher
+with its version, the installed game version, build information and operating system. **Suggest a feature**
+and pull requests use GitHub and require GitHub sign-in.
+
+**Copy details** copies the same version information. The launcher does not attach logs, account details
+or local file paths. If the browser cannot open, use **Copy link** or select the address and copy it
+yourself. You can also select the version details manually if the clipboard is unavailable.
 
 ## Website Join links
 
@@ -55,14 +66,13 @@ The launcher stores its files under `%LOCALAPPDATA%\OpenSCCT`:
 | Path | Contents |
 | --- | --- |
 | `install.json` | Current, previous and pending game versions |
-| `launcher.json` | Launcher settings and optional original-install path |
+| `launcher.json` | Startup update and preview-release preferences |
 | `versions/<version>/` | One exported game build per version |
 | `downloads/` | Completed and partial release downloads |
 | `cache/` | Cached release list and rate-limit state |
-| `content/` | Locally converted content, build cache and logs |
+| `content/` | Legacy converted content and logs, no longer used by the launcher |
 | `packs/` | Downloaded [content packs](CONTENT-PACKS.md) |
 | `maps/` | Original-format maps downloaded by older launchers |
-| `token.dat` | Optional private-repository token, encrypted for the Windows user |
 
 Game settings, bindings and saves live separately in
 `%APPDATA%\Godot\app_userdata\OpenSCCT` (Godot's `user://`). The launcher does not delete that folder.
@@ -70,39 +80,19 @@ Deleting the launcher data folder removes installed builds and content; use it o
 
 ## Game content
 
-Without an original install, the launcher downloads the required shared packs and maps from
+The launcher downloads the required shared packs and maps from
 [OpenSCCT-Content](https://github.com/Lumbridge/OpenSCCT-Content). See [Content packs](CONTENT-PACKS.md)
 for their format, checksums and installation paths.
 
-With an install selected, the bundled builder converts content into `content/`. Its cache reuses finished
-steps after cancellation and rebuilds only changed inputs. Progress appears in the launcher; full output
-is in `content/build.log`. `content/content-build.json` records the game version, source install, language
-and outcome. At least one successful build is needed before playing with that converted content.
+The first setup downloads the shared packs and stock maps. **Maps** downloads, updates and removes
+additional ready-to-play map packs. Missing maps can also be downloaded in game when joining a lobby.
 
-Locally converted maps and shared content take precedence over downloaded packs. Changing the language
-requires another build. Missing translations fall back to English; map-localized properties and briefings
-follow the original game's lookup rules.
+Existing installations that used local conversion now download the required packs before playing.
+The launcher starts the game using its downloaded packs, without legacy content overrides or inherited
+original-install paths. Existing game settings, bindings and saves
+are kept. Legacy converted files remain on disk until an installation reset or manual cleanup.
 
-The **Maps** window now uses converted packs. Original-format maps downloaded by older launchers remain
-supported as an addon layer below the player's install. The install's files win when both contain the same
-path. `ContentBuildPlan` passes that layer to the builder with `--addons`; removing an old download may
-require content preparation again. The player's original game folder is never modified.
-
-### Bundled converter
-
-[Build-ContentTools.ps1](../tools/release/Build-ContentTools.ps1) packages CPython 3.10, the dependencies in
-`content/requirements.txt`, and the tracked converter sources under `contenttools/`. It does not package
-game-derived class defaults; the builder reads those from the player's install.
-
-The launcher runs the equivalent of:
-
-```text
-contenttools\python\python.exe -u -m svmbuild classes chars audio ui maps-catalog renderpack fx maps audio-map --maps all --game "<install>" --out "<content>" --jobs <workers> --report "<content>\build-report.json"
-```
-
-Workers default to half the CPU cores, capped at six. Play passes `--svm-content=<content>` and, when an
-install is selected, `--svm-game-root=<install>` / `SVM_GAME_ROOT`. Download-only play lets the game find
-the installed packs. [Content tools](../content/README.md) covers checkout builds.
+Local conversion remains a developer workflow; see [Content tools](../content/README.md).
 
 ## Build and publish
 
@@ -173,15 +163,16 @@ versions can depend on those files. The publishing script stops before the relea
 Older releases with a full game ZIP and `checksums.txt` remain supported. Drafts are ignored, and
 prereleases require the corresponding launcher setting. Assets without published checksums are rejected.
 
-### Self-update and private forks
+### Self-update
 
 A newer launcher is downloaded, verified and staged beside the running executable as `.new`.
 **Restart to finish** swaps it into place and removes the old copy after restart. The launcher recovers
 an interrupted swap. A read-only folder prevents self-update; it does not trigger an elevation request.
 
-Private forks may use a fine-grained GitHub token with read-only **Contents** access to that repository.
-The token is encrypted with Windows DPAPI for the current user, never displayed again, and can be removed
-in Settings. A token that cannot be decrypted is treated as absent.
+Older launcher settings remain readable, but their GitHub source, original-install path and conversion
+language fields are ignored and removed on the next settings save. Any old `token.dat` is left untouched
+and is no longer read or used.
+Fork maintainers can change the release source in their own launcher build.
 
 ## Code and checks
 

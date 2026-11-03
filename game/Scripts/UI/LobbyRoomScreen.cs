@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using Godot;
+using OpenScct.Project;
 using OpenScct.Server.Online;
 using OpenScctGame.Hud;
 using OpenScctGame.Options;
@@ -112,6 +113,8 @@ public partial class LobbyRoomScreen : MenuPage
     public Button? MainButton { get; private set; }
 
     public Button? LeaveButton { get; private set; }
+    public Button? HelpButton { get; private set; }
+    internal ProjectLinkActions? HelpActions { get; init; }
 
     public Button? SwitchTeamButton { get; private set; }
 

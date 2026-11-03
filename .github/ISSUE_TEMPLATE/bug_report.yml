@@ -16,6 +16,11 @@ body:
     validations:
       required: true
   - type: textarea
+    id: environment
+    attributes:
+      label: App context (optional)
+      description: Details supplied by OpenSCCT. Review or edit them before submitting. Website builds describe the website, not your installed game.
+  - type: textarea
     id: steps
     attributes:
       label: Steps to reproduce

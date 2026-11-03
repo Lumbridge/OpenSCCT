@@ -540,6 +540,19 @@ public sealed partial class SBasePawnMoves
         // callback splits movement at this boundary and must not charge another full step to the input tick.
         if (!_wasReplaying && pawn.Physics == EPhysics.PHYS_Walking && _pc.StateNode is SPlayerController.s_PlayerJump)
             _pc.eventMyNotifyLanded(pawn.Floor.Z > 0.7f ? pawn.Floor : new FVector(0, 0, 1), _pc.XLevel.DeltaTime, pawn.Base);
+        // The server can reject an uncrouch that cleared the owner's collision probe. The corrected body is
+        // crouched, but replay retains the predicted stand-up state and clip. Its standing wish then restarts
+        // that clip before AnimEnd, repeatedly dropping jump/draw requests. Reconcile only after all pending
+        // moves, so a newer successful stance change or traversal is preserved, and send the restored state.
+        if (!_wasReplaying && pawn.Physics == EPhysics.PHYS_Walking && pawn.bIsCrouched &&
+            _pc.StateNode is SPlayerController.s_PlayerWalkingMario_T_CrToSt or SPlayerController.s_PlayerWalkingWeapon_T_CrToSt)
+        {
+            _pc.bCrouchWithRoll = true;
+            _pc.bUnCrouchAndUnDraw = 0;
+            bool armed = pawn is SPAWNDEFENSE || pawn.WeaponLoaded > 0;
+            pawn.ChangeEnumAction(armed ? SBasePawn.SA_WALK_CR_2H : SBasePawn.SA_WALK_CR_0H, true);
+            _pc.eventChangeState(armed ? MovementStateNames.s_PlayerWalkingCr2H : MovementStateNames.s_PlayerWalkingCr0H);
+        }
         // Replay preserves the live touch set. Reconcile it once at the resulting present position, so crossing
         // a trigger in historical inputs cannot duplicate an interaction or remove a current menu entry.
         if (!_wasReplaying) MovementNatives.Driver(pawn)?.EncroachTouches(pawn);

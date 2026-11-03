@@ -7,5 +7,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\OpenScct.Maps\OpenScct.Maps.csproj" />
+    <Compile Include="..\..\shared\ProjectLinks.cs" Link="Shared\ProjectLinks.cs" />
   </ItemGroup>
 </Project>

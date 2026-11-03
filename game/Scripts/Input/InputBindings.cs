@@ -92,7 +92,7 @@ public sealed class InputBindings
         Rebound?.Invoke(PlaySide.Merc);
     }
 
-    /// <summary>The game root: <c>--svm-game-root=</c>, then <c>SVM_GAME_ROOT</c>, then the reference install.</summary>
+    /// <summary>The explicit game root, or the reference install in checkout runs. Exported games need no original install.</summary>
     public static string GameRoot(string? option)
     {
         if (!string.IsNullOrWhiteSpace(option))
@@ -101,7 +101,7 @@ public sealed class InputBindings
         }
 
         string? env = System.Environment.GetEnvironmentVariable("SVM_GAME_ROOT");
-        return string.IsNullOrWhiteSpace(env) ? ReferenceGameRoot : env;
+        return !string.IsNullOrWhiteSpace(env) ? env : OS.HasFeature("template") ? string.Empty : ReferenceGameRoot;
     }
 
     /// <summary>Loads the layout of <paramref name="side"/>, applies the user file and seeds the InputMap.</summary>
@@ -110,7 +110,8 @@ public sealed class InputBindings
         // Shared layouts (rl:input.keyboard, use_split_spy_merc_keyboard off): both sides play the spy's files.
         PlaySide fileSide = (sharedOverride ?? Shared) ? PlaySide.Spy : side;
         string file = fileSide == PlaySide.Spy ? "Default_kbd_0.ini" : "Default_kbd_1.ini";
-        string original = Path.Combine(GameRoot(gameRoot), "System", file);
+        string root = GameRoot(gameRoot);
+        string? original = root.Length > 0 ? Path.Combine(root, "System", file) : null;
         KeyLayout layout;
         string source;
         if (File.Exists(original))

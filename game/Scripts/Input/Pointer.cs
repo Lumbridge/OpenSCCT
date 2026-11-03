@@ -14,6 +14,9 @@ public static class Pointer
     /// <summary>True in test runs: the real pointer is never captured or confined.</summary>
     public static bool Detached { get; set; }
 
+    /// <summary>The app's last explicit request, even if native focus loss already changed the actual mode.</summary>
+    internal static bool CaptureRequested => _requested == Input.MouseModeEnum.Captured;
+
     /// <summary>The pointer mode the game asked for (the real one when not detached).</summary>
     public static Input.MouseModeEnum Mode
     {

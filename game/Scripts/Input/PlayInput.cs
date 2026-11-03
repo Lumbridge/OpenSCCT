@@ -93,15 +93,7 @@ public partial class PlayInput : Node
         // buttons to this inactive window without delivering keyboard or raw mouse movement.
         if (!HasPlayFocus)
         {
-            if (!_foregroundLost) _activationClickConsumed = false;
-            _foregroundLost = true;
-            if (Enabled && CapturePointer && IsCaptured)
-            {
-                _recaptureOnFocus = true;
-                _captureOnStart = false;
-                Pointer.Release();
-                if (Target is { } target) ClearHeld(target);
-            }
+            LosePlayFocus();
         }
         else if (_foregroundLost)
         {
@@ -154,6 +146,23 @@ public partial class PlayInput : Node
         _captureOnStart = true;
     }
 
+    private void LosePlayFocus()
+    {
+        if (!_foregroundLost)
+        {
+            _foregroundLost = true;
+            _activationClickConsumed = false;
+            // Windows may have released native capture before this notification or foreground check.
+            // Keep the app's capture intent, while menu releases continue to opt out of recapture.
+            _recaptureOnFocus |= Enabled && CapturePointer && (_captureOnStart || Pointer.CaptureRequested);
+            _captureOnStart = false;
+            _eatenButton = MouseButton.None;
+            if (Target is { } target) ClearHeld(target);
+        }
+
+        if (Enabled && CapturePointer && IsCaptured) Pointer.Release();
+    }
+
     public override void _UnhandledInput(InputEvent @event)
     {
         if (!Enabled || Bindings is null)
@@ -163,6 +172,7 @@ public partial class PlayInput : Node
 
         if (RequireCapture && !HasPlayFocus)
         {
+            LosePlayFocus();
             if (CapturePointer && @event is InputEventMouseButton { Pressed: true } activation)
             {
                 _eatenButton = activation.ButtonIndex;
@@ -375,8 +385,10 @@ public partial class PlayInput : Node
                         {
                             input[b] = 1;
                         }
-                        else if (!IsButtonHeldElsewhere(a.Name, ik))
+                        else if (!IsButtonHeld(a.Name))
                         {
+                            // _down includes later events in this batch: a quick re-press of this key
+                            // must keep holding its buttons after the delayed release would run.
                             // Keep it down for this tick if it was pressed since the last one.
                             _pressedSinceTick.Add(b);
                         }
@@ -433,15 +445,10 @@ public partial class PlayInput : Node
         input.Commands.Add(new InputCommand("SetSpyFirstPerson", 0));
     }
 
-    private bool IsButtonHeldElsewhere(string button, string releasedKey)
+    private bool IsButtonHeld(string button)
     {
         foreach (string ik in _down)
         {
-            if (string.Equals(ik, releasedKey, StringComparison.OrdinalIgnoreCase) || Bindings is null)
-            {
-                continue;
-            }
-
             foreach (KeyAction a in ActionsOf(ik))
             {
                 if (a.Kind == KeyActionKind.Button && string.Equals(a.Name, button, StringComparison.OrdinalIgnoreCase))
@@ -462,19 +469,13 @@ public partial class PlayInput : Node
 
     public override void _Notification(int what)
     {
-        if (what == NotificationWMWindowFocusOut && Target is { } target)
+        if (what == NotificationWMWindowFocusOut)
         {
-            _activationClickConsumed = false;
-            _recaptureOnFocus |= Enabled && CapturePointer && IsCaptured;
-            _captureOnStart = false;
-            // The native window has lost capture. Keep Godot's requested mode in sync, otherwise
-            // clicking the inactive window can deliver buttons without restoring normal input.
-            if (_recaptureOnFocus) Pointer.Release();
-            _eatenButton = MouseButton.None;
-            ClearHeld(target);
+            LosePlayFocus();
         }
         else if (what == NotificationWMWindowFocusIn)
         {
+            _foregroundLost = false;
             _eatClickUntilMsec = _activationClickConsumed ? 0 : Time.GetTicksMsec() + RefocusClickMsec;
             if (_recaptureOnFocus)
             {

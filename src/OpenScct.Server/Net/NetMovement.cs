@@ -164,7 +164,9 @@ public sealed partial class SBasePawnMoves : IMovePawn, IMovePrediction, IMoveCo
             actions[i] = p.AllActions[first + i];
         }
 
-        p.iNbActionsSent = count;
+        // This field is the sent cursor in AllActions, even when modern commands send
+        // only its new suffix. Keeping the suffix count here prevents a later full table clearing.
+        p.iNbActionsSent = end;
         p.bActionsHasBeenSentByServerMove = true;
         p.iNbAction = 0;
         return count;

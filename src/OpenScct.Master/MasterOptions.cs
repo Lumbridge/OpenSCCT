@@ -124,6 +124,9 @@ public sealed class MasterOptions
     /// <summary>Discord sign-in. Accounts are on when both the client id and the secret are set.</summary>
     public DiscordOptions Discord { get; set; } = new();
 
+    /// <summary>Website bug reports submitted to the project's GitHub repository.</summary>
+    public BugReportOptions BugReports { get; set; } = new();
+
     /// <summary>Our own servers: a heartbeat with one of these keys is trusted (admin tickets, results count).</summary>
     public List<TrustedServerOptions> TrustedServers { get; set; } = new();
 
@@ -272,6 +275,13 @@ public sealed class MasterOptions
 
         return true;
     }
+}
+
+/// <summary>Server credential for creating public issues in Lumbridge/OpenSCCT.</summary>
+public sealed class BugReportOptions
+{
+    /// <summary>Set SVM_Master__BugReports__GitHubToken in the server environment; never send it to browsers.</summary>
+    public string? GitHubToken { get; set; }
 }
 
 /// <summary>The Discord application players sign in with (discord.com/developers, OAuth2).</summary>

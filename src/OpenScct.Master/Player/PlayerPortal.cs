@@ -4,8 +4,10 @@ using System.Net;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.WebUtilities;
 using OpenScct.Master.Web;
 using static OpenScct.Master.Web.WebHtml;
 
@@ -13,10 +15,14 @@ namespace OpenScct.Master.Player;
 
 /// <summary>The public player site and its independent, account-scoped browser session.</summary>
 internal sealed partial class PlayerPortal(MasterOptions options, AccountStore store, ServerRegistry registry, Func<HttpContext, IPAddress> clientIp,
-    ReleaseChangelog releases)
+    ReleaseChangelog releases, GitHubBugReports? bugReports = null)
 {
     private const string SessionCookie = "svm_player";
     private const string StateCookie = "svm_player_state";
+    private const string ReturnCookie = "svm_player_return";
+    private const string ReportReturnPath = "/help/report-bug";
+    // Leave room for cookie serialization overhead below browsers' per-cookie limit.
+    private static readonly ChunkingCookieManager ReturnCookies = new() { ChunkSize = 4000 };
     private const int PageSize = 24;
     private readonly MasterOptions _options = options;
     private readonly AccountStore _store = store;
@@ -29,6 +35,10 @@ internal sealed partial class PlayerPortal(MasterOptions options, AccountStore s
     {
         Get(app, "/", Home);
         Get(app, "/download", Download);
+        Get(app, "/help", Help);
+        MapBugReports(app);
+        Get(app, "/improvements", Improvements);
+        Get(app, "/progress", _ => Results.Redirect("/improvements"));
         app.MapGet("/changelog", (Func<HttpContext, Task<IResult>>)Changelog);
         Get(app, "/servers", Servers);
         Get(app, "/players", Players);
@@ -58,7 +68,7 @@ internal sealed partial class PlayerPortal(MasterOptions options, AccountStore s
             Secure(c);
             if (Current(c) is not { } viewer)
             {
-                await SignIn(c, "Your website session ended. Sign in to continue.", 401).ExecuteAsync(c).ConfigureAwait(false);
+                await SignIn(c, "You have been signed out. Sign in again to continue.", 401).ExecuteAsync(c).ConfigureAwait(false);
                 return;
             }
             if (!c.Request.HasFormContentType || c.Request.ContentLength > 32 * 1024)
@@ -99,19 +109,27 @@ internal sealed partial class PlayerPortal(MasterOptions options, AccountStore s
 
     private IResult NotFound(HttpContext c, string title = "Player unavailable") =>
         Show(c, title, string.Empty, PageHeader("NOT FOUND", title, "This page is unavailable or its owner has made it private.") +
-            Link("/", "Back to the player hub", "button secondary"), status: 404);
+            Link("/", "Back to home", "button secondary"), status: 404);
 
-    private IResult SignIn(HttpContext c, string? problem = null, int status = 200) =>
+    private IResult SignIn(HttpContext c, string? problem = null, int status = 200, string? returnTo = null) =>
         Show(c, "Sign in", "account", $"<section class=\"panel signed-out\"><img src=\"{H(AssetUrl("/web/assets/mark.svg"))}\" alt=\"\" width=\"58\" height=\"58\">" +
-            "<p class=\"eyebrow\">YOUR OPENSCCT ACCOUNT</p><h1>Sign in</h1><p class=\"lead\">View your stats and manage your account. " +
-            "Use the same Discord account as in the game.</p>" + Link("/auth/player/login", "Continue with Discord →", "button wide") +
-            "<small>We use your Discord ID to recognize your account. We never ask for your password, email, or friends list.</small></section>", problem, problem is not null, status);
+            "<p class=\"eyebrow\">YOUR OPENSCCT ACCOUNT</p><h1>Sign in</h1><p class=\"lead\">" +
+            (LoginDestination(returnTo) != "/account" ? "Sign in to report a bug. " : "View your stats and manage your account. ") +
+            "Use the same Discord account you use in OpenSCCT.</p>" + Link(LoginLink(returnTo), "Sign in with Discord →", "button wide") +
+            "<small>Discord confirms which account is yours. OpenSCCT does not receive your Discord password, email address or friends list.</small>" +
+            "<p class=\"account-side-note\">You can browse this website, play offline and join servers that allow guests without signing in.</p></section>", problem, problem is not null, status);
 
     private IResult Login(HttpContext c)
     {
         Secure(c);
         string state = _store.CreatePlayerOAuthState();
+        string destination = LoginDestination(c.Request.Query["returnTo"].ToString());
         c.Response.Cookies.Append(StateCookie, state, Cookie(c, "/", SameSiteMode.Lax, TimeSpan.FromMinutes(10)));
+        if (destination != "/account")
+            ReturnCookies.AppendResponseCookie(c, ReturnCookie, state + "|" + WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(destination)),
+                Cookie(c, "/", SameSiteMode.Lax, TimeSpan.FromMinutes(10)));
+        else
+            ReturnCookies.DeleteCookie(c, ReturnCookie, Cookie(c, "/", SameSiteMode.Lax, null));
         return Results.Redirect(DiscordAuth.AuthorizeUrl(_options, "player." + state));
     }
 
@@ -121,24 +139,46 @@ internal sealed partial class PlayerPortal(MasterOptions options, AccountStore s
         string state = c.Request.Query["state"].ToString();
         string nonce = state.StartsWith("player.", StringComparison.Ordinal) ? state[7..] : string.Empty;
         string expected = c.Request.Cookies[StateCookie] ?? string.Empty;
+        // The only alternate destination is local and belongs to this exact login attempt.
+        string destination = ReadLoginReturn(c, expected);
         c.Response.Cookies.Delete(StateCookie, Cookie(c, "/", SameSiteMode.Lax, null));
+        ReturnCookies.DeleteCookie(c, ReturnCookie, Cookie(c, "/", SameSiteMode.Lax, null));
         if (nonce.Length != 64 || expected.Length != nonce.Length ||
             !CryptographicOperations.FixedTimeEquals(Encoding.UTF8.GetBytes(nonce), Encoding.UTF8.GetBytes(expected)) || !_store.ConsumePlayerOAuthState(nonce))
-            return SignIn(c, "This sign-in expired or was already used. Please start again.", 400);
+            return SignIn(c, "This sign-in expired or was already used. Please start again.", 400, destination);
         string code = c.Request.Query["code"].ToString();
         if (c.Request.Query["error"].Count > 0 || code.Length is 0 or > 256)
-            return SignIn(c, "Discord sign-in was not completed. You can try again when you are ready.", 400);
+            return SignIn(c, "Discord sign-in was not completed. You can try again when you are ready.", 400, destination);
         string discordId;
         try { discordId = await DiscordAuth.IdentifyAsync(_options, code, c.RequestAborted).ConfigureAwait(false); }
-        catch (DiscordAuthException) { return SignIn(c, "Discord could not complete the sign-in. Please try again in a moment.", 502); }
+        catch (DiscordAuthException) { return SignIn(c, "Discord could not complete the sign-in. Please try again in a moment.", 502, destination); }
         AccountRow account = _store.GetOrCreate(discordId);
         string token = _store.CreatePlayerWebSession(account.Id);
         c.Response.Cookies.Append(SessionCookie, token, Cookie(c, "/", SameSiteMode.Strict, TimeSpan.FromSeconds(AccountStore.PlayerWebMax)));
         // A same-site document hop is required for the Strict session cookie after Discord's redirect.
         return Results.Content("<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">" +
-            $"<meta http-equiv=\"refresh\" content=\"0;url=/account\"><title>Signed in · OpenSCCT</title><link rel=\"stylesheet\" href=\"{H(AssetUrl("/web/assets/site.css"))}\"></head>" +
-            "<body><main class=\"site-main\"><h1>Signed in.</h1><a class=\"button\" href=\"/account\">Continue to your account</a></main></body></html>", "text/html; charset=utf-8");
+            $"<meta http-equiv=\"refresh\" content=\"0;url={H(destination)}\"><title>Signed in · OpenSCCT</title><link rel=\"stylesheet\" href=\"{H(AssetUrl("/web/assets/site.css"))}\"></head>" +
+            "<body><main class=\"site-main\"><h1>Signed in.</h1>" +
+            Link(destination, destination != "/account" ? "Continue to bug report" : "Continue to your account", "button") +
+            "</main></body></html>", "text/html; charset=utf-8");
     }
+
+    private static string ReadLoginReturn(HttpContext c, string expected)
+    {
+        string? value = ReturnCookies.GetRequestCookie(c, ReturnCookie);
+        if (expected.Length != 64 || value is not { Length: > 65 and <= 5700 } ||
+            !value.StartsWith(expected + "|", StringComparison.Ordinal)) return "/account";
+        string encoded = value[65..];
+        // Keep in-progress sign-ins from the previous website version working during deployment.
+        if (encoded == ReportReturnPath) return ReportReturnPath;
+        try { return LoginDestination(Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(encoded))); }
+        catch (FormatException) { return "/account"; }
+    }
+
+    private static string LoginDestination(string? requested) => BugReportReturnPath(requested) ?? "/account";
+
+    private static string LoginLink(string? returnTo) => LoginDestination(returnTo) is { } destination && destination != "/account"
+        ? "/auth/player/login?returnTo=" + U(destination) : "/auth/player/login";
 
     private CookieOptions Cookie(HttpContext c, string path, SameSiteMode sameSite, TimeSpan? maxAge) => new()
     {

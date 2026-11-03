@@ -28,6 +28,9 @@
       "ClientSecret": "",
       "RedirectUrl": "https://master.example.org/auth/discord/callback"
     },
+    "BugReports": {
+      "GitHubToken": ""
+    },
     "TrustedServers": [
       { "Name": "official-1", "Key": "change-me-to-a-long-random-server-key" }
     ],

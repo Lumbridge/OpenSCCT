@@ -62,9 +62,9 @@ internal sealed partial class MainForm
                 SetStatus($"Website Join needs OpenSCCT {WebJoinRequest.MinimumGameVersion} or later. Check for updates and update the game; your Join request will wait here.", Theme.Warning);
                 return;
             }
-            if (!FilesReady(current) && !DownloadedFilesPlayable(current) && !(GameFound && BuiltFilesPlayable(current)))
+            if (!DownloadedFilesPlayable(current))
             {
-                SetStatus("Get or prepare the game files in step 3. Your Join request will continue when they are ready.", Theme.Warning);
+                SetStatus("Download the game files in step 2. Your Join request will continue when they are ready.", Theme.Warning);
                 return;
             }
             if (_pendingWebJoin != serverId) return;

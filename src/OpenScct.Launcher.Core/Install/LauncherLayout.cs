@@ -8,7 +8,6 @@ namespace OpenScct.Launcher.Install;
 /// <code>
 /// install.json          which version is current and which is kept for rollback
 /// launcher.json         launcher settings
-/// token.dat             the GitHub token, encrypted with Windows DPAPI for the current user
 /// versions\0.2.0\       one game build per version, side by side
 /// downloads\            downloads in progress and finished zips
 /// cache\                the release list and its ETag
@@ -38,8 +37,6 @@ public sealed class LauncherLayout
     public string Manifest => Path.Combine(Root, "install.json");
 
     public string Settings => Path.Combine(Root, "launcher.json");
-
-    public string Token => Path.Combine(Root, "token.dat");
 
     public string Versions => Path.Combine(Root, "versions");
 

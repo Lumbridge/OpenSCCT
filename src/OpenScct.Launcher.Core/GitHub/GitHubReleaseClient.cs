@@ -13,11 +13,14 @@ using OpenScct.Launcher.Install;
 
 namespace OpenScct.Launcher.GitHub;
 
-/// <summary>Where releases come from. A token is only needed while the repository is private.</summary>
+/// <summary>Where releases come from, with optional authentication for callers using a private repository.</summary>
 public sealed record ReleaseSource(string Owner, string Repo, string? Token)
 {
     public const string DefaultOwner = "Lumbridge";
     public const string DefaultRepo = "OpenSCCT";
+
+    /// <summary>The public OpenSCCT releases used by the launcher, without GitHub sign-in.</summary>
+    public static ReleaseSource Official { get; } = new(DefaultOwner, DefaultRepo, null);
 
     public bool Authenticated => !string.IsNullOrEmpty(Token);
 }
@@ -100,21 +103,20 @@ public sealed class GitHubReleaseClient
                     SaveCache(cached);
                 }
 
-                string hint = _source.Authenticated ? string.Empty : " Add a token in Settings for a higher limit.";
-                return FromCache(cached, reset, "GitHub rate limit reached until " + reset.ToLocalTime().ToString("t", CultureInfo.CurrentCulture) + "." + hint);
+                return FromCache(cached, reset, "GitHub rate limit reached until " + reset.ToLocalTime().ToString("t", CultureInfo.CurrentCulture) + ". Try again after that time.");
             }
 
             if (response.StatusCode == HttpStatusCode.NotFound)
             {
                 string why = _source.Authenticated
                     ? $"Repository {_source.Owner}/{_source.Repo} not found, or the token cannot read it."
-                    : $"Repository {_source.Owner}/{_source.Repo} not found. A private repository needs a token in Settings.";
+                    : $"Repository {_source.Owner}/{_source.Repo} not found or not publicly accessible.";
                 return FromCache(cached, null, why);
             }
 
             if (response.StatusCode == HttpStatusCode.Unauthorized)
             {
-                return FromCache(cached, null, "GitHub refused the token (401). Check it in Settings.");
+                return FromCache(cached, null, "GitHub refused access to the releases (401).");
             }
 
             if (!response.IsSuccessStatusCode)

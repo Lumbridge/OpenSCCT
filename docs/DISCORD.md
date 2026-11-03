@@ -15,11 +15,19 @@ feature described in [Accounts](ONLINE.md#accounts).
 | Location | Responsibility |
 | --- | --- |
 | `game/Scripts/Discord/DiscordPresence.cs` | Client lifecycle, status updates, launch registration and joins |
+| `game/Scripts/Discord/DiscordInvitePipe.cs` | Compatibility fix for obsolete fields in the library's outgoing invite data |
 | `game/Scripts/Discord/PresenceSnapshot.cs` | Current menu, match and hub state |
 | `game/Scripts/Discord/DiscordJoinSecret.cs` | Join-secret format |
 
 The managed `DiscordRichPresence` package communicates over Discord's local pipe. The OpenSCCT application
 ID is `1564377811014389862` (`DiscordPresence.ApplicationId`).
+
+Version `1.6.1.70` serializes an obsolete `MatchSecret: null` property inside the activity's `secrets`.
+This matches [upstream issue #286](https://github.com/Lachee/discord-rpc-csharp/issues/286#issuecomment-4317214867):
+Discord offers **Invite to Play**, but sending it produces a blank message and Clyde's delivery error.
+`DiscordInvitePipe` removes only the obsolete `MatchSecret`/`match` fields from outgoing `SET_ACTIVITY` secrets;
+the join secret and the rest of the RPC exchange still use the library normally. Remove this adapter after
+upgrading to a package that omits those fields and verifying its serialized output and live invites.
 
 ## When it runs
 
@@ -74,5 +82,8 @@ alone; the join arrives over the pipe once the game is up.
 
 ## Validation and future work
 
+- `DiscordInvitePipeTests` checks the installed package's serialized invite payload through the compatibility pipe,
+  preservation of join data and unrelated frames, and presence clearing. These checks do not send Discord messages;
+  actual delivery and joining still require a live check with a second account.
 - Join and Ask to Join over the local pipe are the old Rich Presence API: check them with a second Discord account.
 - Per-map large images (asset key per map) once the art exists.

@@ -13,6 +13,7 @@ For joining and hosting, start with [Online play](ONLINE.md); for microphone set
 | Review progress | [Player stats and match history](#player-stats-and-match-history) |
 | Change bindings | [Role configuration and shared controls](#role-configuration-and-shared-controls) |
 | Change video settings | [Display page](#display-page-the-originals-video-options) |
+| Report a problem or contribute | [Help & contribute](#help--contribute) |
 | Develop or test menu behavior | [Screen sizes](#screen-sizes-and-resizing), [Tests](#tests) |
 
 Menu behavior follows the [lobby and match creation specification](../spec/game/lobby-and-match-creation.md).
@@ -144,6 +145,26 @@ The next-unlock action opens that achievement. Guests can still use the play rou
 ```powershell
 tools/ci/godot-smoke.ps1 -Tests menu-layout,options,lobby-layout,front-end-layout -ExpectedFailures @()
 ```
+
+## Help & contribute
+
+Open **Help & contribute** from the main menu, Escape menu, online lobby or hub browser. It opens over
+the current screen and returns to the same screen when closed. A match keeps running while help is open;
+lobby readiness, chat and settings stay in place. Escape or the controller's Back button closes help and
+restores focus to the control that opened it.
+
+**Report a bug** opens the [website's bug report form](https://master.lumbridge.co.uk/help/report-bug), which uses
+Discord sign-in. The form starts with the game version, platform and available match details shown in help;
+reports opened in a map also include the `whereami` position, facing, movement state, physics and animation
+details captured when help opened. Review those details and describe the problem before submitting. **Suggest a feature** opens the GitHub form
+and requires GitHub sign-in. **Copy details** lets you copy the summary yourself. Automatic details exclude
+account information, server addresses, paths and logs. If a browser cannot open, the link stays selectable
+and can be copied.
+
+The contribution section links to the guides and pull requests. Code contributions need a branch or fork
+and GitHub sign-in. The help menu opens without the master service; submitting a bug report requires the
+website. The `help-feedback` smoke covers report prefills, navigation, controller focus, copy/browser failures
+and layouts at 800×600, 1280×720 and 3840×2160 using fake external actions.
 
 ## Player stats and match history
 

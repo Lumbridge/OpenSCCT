@@ -129,9 +129,9 @@ public partial class PlayMenu : Node
 
     private void MenuInput(InputEvent @event)
     {
-        if (Model.Page == InGameMenuPage.Options)
+        if (Model.Page is InGameMenuPage.Options or InGameMenuPage.Help)
         {
-            // The options screen has the keys (its Escape and F12 come back here through its Closed).
+            // These child screens own input and return through their Closed callback.
             return;
         }
 

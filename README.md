@@ -1,6 +1,6 @@
 <img align="right" src="game/branding/icon.svg" width="88" alt="OpenSCCT logo">
 
-# OpenSCCT
+# OpenSCCT<br clear="right">
 
 **Spies vs. mercs, rebuilt for modern PCs.** OpenSCCT is a community rewrite of
 Splinter Cell: Chaos Theory Versus in Godot 4 and C#.
@@ -19,10 +19,9 @@ Splinter Cell: Chaos Theory Versus in Godot 4 and C#.
 ## Play
 
 1. Download **OpenSCCT.Launcher.exe** from the [latest release](https://github.com/Lumbridge/OpenSCCT/releases/latest).
-2. Run it and follow the main button: **Install**, then **Download game files**.
+2. Run it and press **Install**. The launcher downloads OpenSCCT and its game files.
 3. Click **PLAY**. The launcher checks for updates each time it starts.
 
-You can also choose your own Chaos Theory install in the launcher to prepare content from it.
 See the [launcher guide](docs/LAUNCHER.md) for setup, storage and troubleshooting.
 
 | Platform | Status |

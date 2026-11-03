@@ -6,8 +6,8 @@ namespace OpenScct.Launcher.Install;
 
 /// <summary>
 /// Puts the launcher back to a fresh install: removes every game version, download, cache, the content built from the
-/// player's install, downloaded maps and content packs, and install.json. Keeps launcher.json and token.dat (the
-/// player's settings) and never touches the game's user:// data, which is not under the root. A folder holding the
+/// player's install, downloaded maps and content packs, and install.json. Keeps launcher.json and never touches
+/// the game's user:// data, which is not under the root. A folder holding the
 /// running launcher exe is left alone.
 /// </summary>
 public static class InstallReset

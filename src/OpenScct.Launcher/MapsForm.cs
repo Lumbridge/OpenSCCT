@@ -14,17 +14,12 @@ using OpenScct.Maps;
 namespace OpenScct.Launcher.App;
 
 /// <summary>
-/// The Maps window: the maps of OpenSCCT-Content (docs/CONTENT-PACKS.md), already converted, so a download is ready
-/// to play at once (no "Prepare the game files"). Which ones are downloaded, which the player's own converted content
-/// already has, and Download / Update / Remove. Maps downloaded earlier from SCCT-Maps (<see cref="MapLibrary"/>)
-/// still show, so they can be removed; removing one is the only change that needs the game files prepared again
-/// (<see cref="Changed"/>).
+/// The Maps window: maps from OpenSCCT-Content (docs/CONTENT-PACKS.md), ready to play after downloading,
+/// with Download / Update / Remove for the packs installed on this PC.
 /// </summary>
 internal sealed class MapsForm : Form
 {
-    private readonly MapLibrary _library;
     private readonly ContentStore _store;
-    private readonly string _contentMaps;
 
     private readonly TextBox _search = Theme.TextBox();
     private readonly ListView _list = new()
@@ -52,16 +47,11 @@ internal sealed class MapsForm : Form
     private ContentIndex? _index;
     private CancellationTokenSource? _work;
 
-    /// <param name="library">Maps downloaded from SCCT-Maps by older launchers (shown so they can be removed).</param>
     /// <param name="packs">Where downloaded content packs go (the game reads them from there).</param>
-    /// <param name="content">The player's converted content (its svmap/ holds the maps converted from the install).</param>
-    public MapsForm(MapLibrary library, HttpClient http, string packs, string content)
+    public MapsForm(HttpClient http, string packs)
     {
-        ArgumentNullException.ThrowIfNull(library);
         ArgumentNullException.ThrowIfNull(http);
-        _library = library;
         _store = new ContentStore(packs, http);
-        _contentMaps = Path.Combine(content, "svmap");
 
         Text = "Maps";
         Icon = Theme.LoadIcon(32);
@@ -158,9 +148,6 @@ internal sealed class MapsForm : Form
         RefreshButtons();
     }
 
-    /// <summary>A map downloaded from SCCT-Maps was removed: the game files need preparing again without it.</summary>
-    public bool Changed { get; private set; }
-
     protected override async void OnShown(EventArgs e)
     {
         base.OnShown(e);
@@ -177,15 +164,15 @@ internal sealed class MapsForm : Form
     // ---- the list --------------------------------------------------------------------------------------------------
 
     /// <summary>
-    /// One row: a map of the index, a downloaded pack (listed or not), or a map downloaded from SCCT-Maps before.
+    /// One row: a map of the index or a downloaded pack the index no longer lists.
     /// </summary>
-    private sealed record Row(ContentMap? Map, InstalledContent? Pack, InstalledMap? Old)
+    private sealed record Row(ContentMap? Map, InstalledContent? Pack)
     {
-        public string Key => Old is not null ? "old:" + Old.Id : Map?.Code ?? Pack!.Code;
+        public string Key => Map?.Code ?? Pack!.Code;
 
-        public string Name => Map?.DisplayTitle ?? Old?.Name ?? Pack!.Code;
+        public string Name => Map?.DisplayTitle ?? Pack!.Code;
 
-        public string Category => Map?.Category ?? Old?.Category ?? (Pack!.Id.Split('/') is [var c, _] ? c : string.Empty);
+        public string Category => Map?.Category ?? (Pack!.Id.Split('/') is [var c, _] ? c : string.Empty);
     }
 
     private enum RowState
@@ -193,9 +180,7 @@ internal sealed class MapsForm : Form
         Available,
         Downloaded,
         UpdateAvailable,
-        InGame,
         Unlisted,
-        Old,
     }
 
     private IReadOnlyList<Row> Rows()
@@ -206,26 +191,18 @@ internal sealed class MapsForm : Form
         {
             foreach (ContentMap m in _index.PlayableMaps())
             {
-                rows.Add(new Row(m, packs.GetValueOrDefault(m.Code), null));
+                rows.Add(new Row(m, packs.GetValueOrDefault(m.Code)));
                 packs.Remove(m.Code);
             }
         }
 
         // Downloaded packs the index no longer lists (or before it has loaded), so they can still be removed.
-        rows.AddRange(packs.Values.Select(p => new Row(null, p, null)));
-        rows.AddRange(_library.Installed().Select(m => new Row(null, null, m)));
+        rows.AddRange(packs.Values.Select(p => new Row(null, p)));
         return rows;
     }
 
-    private bool InContent(string code) => File.Exists(Path.Combine(_contentMaps, code, "manifest.json"));
-
     private RowState StateOf(Row row)
     {
-        if (row.Old is not null)
-        {
-            return RowState.Old;
-        }
-
         if (row.Map is null)
         {
             return RowState.Unlisted;
@@ -236,16 +213,14 @@ internal sealed class MapsForm : Form
             return _store.Has(row.Map) ? RowState.Downloaded : RowState.UpdateAvailable;
         }
 
-        return InContent(row.Map.Code) ? RowState.InGame : RowState.Available;
+        return RowState.Available;
     }
 
     private static string StatusText(Row row, RowState state) => state switch
     {
         RowState.Downloaded => "Downloaded" + Version(row.Pack!.Version),
         RowState.UpdateAvailable => "Update available" + Version(row.Map!.Version),
-        RowState.InGame => "Converted from your game",
         RowState.Unlisted => "Downloaded (no longer listed)",
-        RowState.Old => "From SCCT-Maps (old download)",
         _ => string.Empty,
     };
 
@@ -268,7 +243,7 @@ internal sealed class MapsForm : Form
             }
 
             RowState state = StateOf(row);
-            long bytes = row.Map?.Full.Size ?? row.Old?.Files.Sum(f => f.Size) ?? 0;
+            long bytes = row.Map?.Full.Size ?? 0;
             var item = new ListViewItem([row.Name, row.Category, bytes > 0 ? Mb(bytes) : string.Empty, StatusText(row, state)])
             {
                 Tag = row,
@@ -276,7 +251,7 @@ internal sealed class MapsForm : Form
                 {
                     RowState.Downloaded => Theme.Accent,
                     RowState.UpdateAvailable => Theme.Warning,
-                    RowState.InGame or RowState.Unlisted or RowState.Old => Theme.Muted,
+                    RowState.Unlisted => Theme.Muted,
                     _ => Theme.Text,
                 },
             };
@@ -297,7 +272,7 @@ internal sealed class MapsForm : Form
         var states = rows.Select(StateOf).ToList();
         _download.Text = states.Count > 0 && states.All(s => s == RowState.UpdateAvailable) ? "Update" : "Download";
         _download.Enabled = !busy && states.Any(s => s is RowState.Available or RowState.UpdateAvailable);
-        _remove.Enabled = !busy && rows.Any(r => r.Pack is not null || r.Old is not null);
+        _remove.Enabled = !busy && rows.Any(r => r.Pack is not null);
         _refresh.Enabled = !busy;
         _stop.Visible = busy;
     }
@@ -326,22 +301,11 @@ internal sealed class MapsForm : Form
             }
 
             lines.Add($"Download {Mb(map.Full.Size)}");
-            if (InContent(map.Code))
-            {
-                lines.Add($"Your converted game files already have {map.Code}; the game uses that copy.");
-            }
         }
 
         if (row.Pack is { } pack)
         {
             lines.Add("Downloaded " + pack.InstalledAt.ToLocalTime().ToString("g", CultureInfo.CurrentCulture) + ".");
-        }
-
-        if (row.Old is { } old)
-        {
-            lines.Add("Downloaded from SCCT-Maps by an older launcher and converted with your game files. " +
-                "Remove it and download the map from this list instead.");
-            lines.Add("Downloaded " + old.InstalledAt.ToLocalTime().ToString("g", CultureInfo.CurrentCulture) + ".");
         }
 
         return string.Join("\r\n", lines);
@@ -375,14 +339,11 @@ internal sealed class MapsForm : Form
 
         await RunAsync("Downloading...", async cancel =>
         {
-            // Without converted game files the game has no shared content: the downloaded packs supply it.
-            if (!Directory.Exists(Path.Combine(Path.GetDirectoryName(_contentMaps)!, "shared")))
+            // Every map uses the downloaded shared packs, including installs upgraded from local conversion.
+            foreach (ContentSharedPack pack in index.Shared.Where(p => !_store.HasShared(p)))
             {
-                foreach (ContentSharedPack pack in index.Shared.Where(p => !_store.HasShared(p)))
-                {
-                    string name = pack.Title.Length > 0 ? pack.Title : pack.Id;
-                    await _store.InstallSharedAsync(pack, Progress(name), cancel);
-                }
+                string name = pack.Title.Length > 0 ? pack.Title : pack.Id;
+                await _store.InstallSharedAsync(pack, Progress(name), cancel);
             }
 
             for (int i = 0; i < maps.Count; i++)
@@ -415,7 +376,7 @@ internal sealed class MapsForm : Form
 
     private void RemoveSelected()
     {
-        List<Row> rows = SelectedRows().Where(r => r.Pack is not null || r.Old is not null).ToList();
+        List<Row> rows = SelectedRows().Where(r => r.Pack is not null).ToList();
         if (rows.Count == 0 || _work is not null)
         {
             return;
@@ -431,15 +392,7 @@ internal sealed class MapsForm : Form
         {
             foreach (Row row in rows)
             {
-                if (row.Old is { } old)
-                {
-                    _library.Remove(old.Id);
-                    Changed = true;
-                }
-                else
-                {
-                    _store.RemoveMap(row.Pack!.Code);
-                }
+                _store.RemoveMap(row.Pack!.Code);
             }
 
             SetStatus($"Removed {what}.", Theme.Accent);

@@ -9,7 +9,6 @@ using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
 using OpenScct.Launcher.Launch;
-using OpenScct.Launcher.Settings;
 
 namespace OpenScct.Launcher.Tests;
 
@@ -55,17 +54,6 @@ internal sealed class FakeGames : IGameProcessProbe
     public List<RunningGame> Games { get; } = [];
 
     public IReadOnlyList<RunningGame> Running() => Games.ToList();
-}
-
-/// <summary>Reversible stand-in for DPAPI.</summary>
-internal sealed class XorProtector : ISecretProtector
-{
-    public byte[] Protect(byte[] plain) => plain.Select(b => (byte)(b ^ 0x5A)).Prepend((byte)1).ToArray();
-
-    public byte[] Unprotect(byte[] protectedBytes) =>
-        protectedBytes.Length > 0 && protectedBytes[0] == 1
-            ? protectedBytes.Skip(1).Select(b => (byte)(b ^ 0x5A)).ToArray()
-            : throw new CryptographicException("not ours");
 }
 
 internal static class Builds

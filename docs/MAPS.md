@@ -91,9 +91,9 @@ images each map has) and `images/<Map>/{menu,loading-spy,loading-merc,briefing}.
 catalog reads it beside the SVMap root (`shared/maps` next to `svmap`) and reads the rest from each map's `ui/mapinfo.json` and `sim/gameplay.json`. Without the folder every
 map still lists, with its manifest title as both names, no images and no playlists.
 
-Maps downloaded through the launcher's Maps window (docs/LAUNCHER.md "Downloaded maps") are converted with the rest
-when the builder gets `--addons <folder>`: they join the original order by file name like any installed map. A
-downloaded map's code is not in Reloaded's name table, so `Name` falls back to its manifest title.
+The launcher's **Maps** window downloads ready-to-play [content packs](CONTENT-PACKS.md), whose catalog
+and images are included in the shared packs. Developer builds can still convert original-format addons
+with `--addons <folder>`; a map absent from Reloaded's name table uses its manifest title.
 
 ## The tools
 

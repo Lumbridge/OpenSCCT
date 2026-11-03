@@ -26,6 +26,7 @@ public enum InGameMenuButton
     Resign,
     ReturnToLobby,
     QuitSession,
+    Help,
 }
 
 /// <summary>What the menu shows.</summary>
@@ -38,6 +39,9 @@ public enum InGameMenuPage
 
     /// <summary>The options (<c>All_Settings</c>) over the game.</summary>
     Options,
+
+    /// <summary>Local help and external project links; the session keeps running.</summary>
+    Help,
 
     /// <summary>The gear picker (an OpenSCCT addition, spec/additions/gear-change.md).</summary>
     Gear,
@@ -396,6 +400,9 @@ public sealed class InGameMenuModel
                 return GearBack();
             case InGameMenuPage.StrategicMap when IsCloseKey(ik):
                 return StrategicMapBack();
+            case InGameMenuPage.Help when IsCloseKey(ik):
+                HelpClosed();
+                return InGameMenuAction.None;
             case InGameMenuPage.ConfirmQuit or InGameMenuPage.ConfirmLobby or InGameMenuPage.ConfirmResign when string.Equals(ik, "Escape", StringComparison.OrdinalIgnoreCase):
                 Page = InGameMenuPage.Main;
                 return InGameMenuAction.None;
@@ -409,7 +416,7 @@ public sealed class InGameMenuModel
     [PortOf("uc:GUI.SSMenu_LANMainPage:ButtonClick", Spec = "spec/hud/in-game-menu.md#rules")]
     public InGameMenuAction Click(InGameMenuButton button)
     {
-        if (Page != InGameMenuPage.Main || !Shown(button))
+        if (Page != InGameMenuPage.Main || (button != InGameMenuButton.Help && !Shown(button)))
         {
             return InGameMenuAction.None;
         }
@@ -420,6 +427,9 @@ public sealed class InGameMenuModel
                 return CloseAll();
             case InGameMenuButton.Options:
                 Page = InGameMenuPage.Options;
+                return InGameMenuAction.None;
+            case InGameMenuButton.Help:
+                Page = InGameMenuPage.Help;
                 return InGameMenuAction.None;
             case InGameMenuButton.ChangeGear:
                 Page = InGameMenuPage.Gear;
@@ -449,6 +459,11 @@ public sealed class InGameMenuModel
         {
             Page = InGameMenuPage.Main;
         }
+    }
+
+    public void HelpClosed()
+    {
+        if (Page == InGameMenuPage.Help) Page = InGameMenuPage.Main;
     }
 
     /// <summary><c>GUIYesNoPage.NoButtonClick</c>: Cancel on a confirmation page goes back to the In-Game Menu.</summary>

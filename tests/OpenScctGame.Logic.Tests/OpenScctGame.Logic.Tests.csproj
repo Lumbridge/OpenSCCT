@@ -8,6 +8,9 @@
     without the Godot runtime. Only files that use no Godot type may be listed.
   -->
   <ItemGroup>
+    <Compile Include="..\..\game\Scripts\Discord\DiscordInvitePipe.cs" Link="Linked\DiscordInvitePipe.cs" />
+    <Compile Include="..\..\shared\ProjectLinks.cs" Link="Shared\ProjectLinks.cs" />
+    <Compile Include="..\..\game\Scripts\UI\GameReportState.cs" Link="Linked\GameReportState.cs" />
     <Compile Include="..\..\game\Scripts\Chat\ChatTranscript.cs" Link="Linked\ChatTranscript.cs" />
     <Compile Include="..\..\game\Scripts\Chat\ChatNotifications.cs" Link="Linked\ChatNotifications.cs" />
     <Compile Include="..\..\game\Scripts\Play\PlayFrameStats.cs" Link="Linked\PlayFrameStats.cs" />
@@ -80,6 +83,7 @@
     <Compile Include="..\..\game\Scripts\Render\Particles\ParticleGeometry.cs" Link="Linked\Particles\ParticleGeometry.cs" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="DiscordRichPresence" />
     <ProjectReference Include="..\..\src\OpenScct.Game\OpenScct.Game.csproj" />
     <ProjectReference Include="..\..\src\OpenScct.Server\OpenScct.Server.csproj" />
     <ProjectReference Include="..\..\src\OpenScct.Bots\OpenScct.Bots.csproj" />
