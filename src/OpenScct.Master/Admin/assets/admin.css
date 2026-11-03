@@ -125,5 +125,14 @@
 
 .admin .dashboard-metrics .tiles { grid-template-columns:repeat(3,minmax(0,1fr)); }
 .admin button:disabled { opacity:.45; cursor:not-allowed; }
+.admin .table-controls { display:flex; flex-wrap:wrap; align-items:end; gap:12px; margin:16px 0 10px; }
+.admin .table-controls label { display:grid; gap:5px; font-size:12px; color:var(--muted); }
+.admin .table-controls input { min-width:180px; }
+.admin .table-filters input { width:100%; min-width:90px; padding:7px; font-size:12px; }
+.admin .table-sort { background:transparent; color:inherit; border:0; padding:0; text-align:left; font:inherit; cursor:pointer; }
+.admin th[aria-sort=ascending] .table-sort::after { content:" ↑"; }
+.admin th[aria-sort=descending] .table-sort::after { content:" ↓"; }
+.admin .table-pagination { display:flex; flex-wrap:wrap; align-items:center; justify-content:flex-end; gap:12px; margin:10px 0 18px; font-size:12px; }
+.admin .table tr[hidden] { display:none; }
 @media(min-width:1600px) { .admin .dashboard-metrics .tiles { grid-template-columns:repeat(6,minmax(0,1fr)); } }
 @media(max-width:720px) { .admin .dashboard-metrics .tiles { grid-template-columns:repeat(2,minmax(0,1fr)); } }

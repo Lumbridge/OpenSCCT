@@ -133,6 +133,7 @@ internal sealed partial class AdminPortal
         ProfileVisibilityRow visibility = _store.ProfileVisibility(id);
         body.Append("<nav class=\"tabs\" aria-label=\"Player sections\">")
             .Append(Link("#moderation", "Moderation")).Append(Link("#progression", "Progression"))
+            .Append(Link("#titles", "Titles"))
             .Append(Link("#recent-rounds", "Matches")).Append(Link("#sessions", "Sessions"))
             .Append(Link("#audit-history", "Audit")).Append("</nav>");
         body.Append(Section("Moderation", "<p class=\"muted\">Target: <strong>" + H(account.Name ?? "Unnamed account") + "</strong> · account #" + N(id) +
@@ -157,13 +158,24 @@ internal sealed partial class AdminPortal
                 "<label class=\"field\"><span>Reason</span>" + Input("reason", "Reason", required: true) + "</label>" +
                 Button("Set rank", "do", "rank"), "Set this account's prestige and level?") + "</div>"));
 
+        var availableTitles = _store.Titles(id).Select(t => t.Id).ToHashSet();
+        string? equippedTitle = _store.Appearance(id).Title;
+        body.Append(Section("Titles", "<p>Titles follow their progression or achievement unlock requirements. Revoke an earned achievement below to remove its title. Level titles use the highest level reached.</p>" +
+            Table(["Title", "Unlock requirement", "Access", "Equipped"], TitleCatalog.All.Select(t => new[]
+            {
+                H(t.Text), H(t.HowToUnlock), availableTitles.Contains(t.Id) ? "Unlocked" : "Locked",
+                equippedTitle == t.Id ? "Yes" : "No",
+            }))));
         body.Append(Section("Bans", Table(["#", "Reason", "Until", "Added"], _store.BansOf(account).Select(b => new[]
         {
             "#" + b.Id.ToString(CultureInfo.InvariantCulture), H(b.Reason), H(b.Until is { } u ? (u <= now ? "ended " : string.Empty) + Time(u) : "permanent"),
             H(Time(b.Added)),
         }), "No bans.")));
         body.Append(Section("Recent rounds", MatchTable(_store.Matches(0, 15, id))));
-        body.Append(Section("Achievements", Table(["Achievement", "Group", "Progress", "Unlocks"], info.Achievements.Select(a => new[]
+        body.Append(Section("Achievements", "<p>Revocation removes rewards earned through that achievement and clears unavailable equipped items. Admin cosmetic grants remain. Stats and XP are unchanged, so the achievement may be earned again in a later match.</p>" +
+            (info.Achievements.Any(a => a.Earned is not null) ? Form(c, self, Select("achievement", info.Achievements.Where(a => a.Earned is not null).Select(a => (a.Id, a.Title))) +
+                Input("reason", "Reason", required: true) + Button("Revoke achievement", "do", "revoke-achievement", "danger"),
+                "Revoke this achievement and its earned rewards? It may be earned again in a later match.", "bar") : "<p>No earned achievements to revoke.</p>") + Table(["Achievement", "Group", "Progress", "Unlocks"], info.Achievements.Select(a => new[]
         {
             (a.Earned is not null ? Badge("earned", "ok") + " " : string.Empty) + H(a.Title), H(a.Category),
             H(a.Earned is { } e ? e.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture) : $"{a.Current} / {a.Target}"),
@@ -220,6 +232,7 @@ internal sealed partial class AdminPortal
                 "unlock" => _actions.Grant(account, [Field(form, "what")], unlock: true),
                 "lock" => _actions.Grant(account, [Field(form, "what")], unlock: false),
                 "rank" => _actions.SetRank(account, Field(form, "prestige"), Field(form, "level")),
+                "revoke-achievement" => _store.RevokeAchievement(id, Field(form, "achievement"), reason),
                 _ => AdminResult.Refused("Unknown action."),
             };
         }

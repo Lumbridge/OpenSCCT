@@ -596,6 +596,17 @@ config's `Admins` list. It is on when Discord sign-in is set up.
 
 **Pages.**
 
+Admin tables provide search across loaded rows or one column, per-column text filters, sortable headings,
+and 10/25/50/100-row pages with result counts and reset. These controls retain their state during live refreshes.
+For database lists, the existing server-side search and older/newer links still load additional records;
+the table controls explicitly apply only to the currently loaded rows.
+
+Player details list all titles, unlock requirements, availability and the equipped title. Achievement titles
+follow achievement ownership: admins can revoke an earned achievement with a reason and audited confirmation.
+This removes its earned rewards and clears unavailable equipped items, while preserving admin cosmetic grants,
+stats and XP. The achievement can be earned again in a later match. Level/prestige titles retain their normal
+progression rules, including the highest level reached for level titles.
+
 | Page | What it does |
 |---|---|
 | Dashboard | Live counts, 24-hour activity, latest rounds/audit events and issues requiring attention: stale heartbeats, version mismatches or pending commands. |
