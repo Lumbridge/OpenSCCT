@@ -166,7 +166,7 @@ stateDiagram-v2
 
 ## Edge cases
 
-- If the server refuses a use but the controller is not in `s_MenuInteraction` on the server (its client state change was rejected), no mirror is sent and the client can stay in the menu with `bCanCheckUsingButton` false until something else changes its state.
+- Original behavior: if the server refuses a use but the controller is not in `s_MenuInteraction` on the server (its client state change was rejected), no mirror is sent and the client can stay in the menu with `bCanCheckUsingButton` false until something else changes its state. The rewrite's authority validation answers rejected uses from a living, interactable controller even before its queued menu state arrives: mirror the current state, or `PreviousState` if already in the menu. This correction advances the owner acknowledgement beyond the 0.01 s tolerance immediately, including inside the usual one-second refresh window, so a queued menu transition cannot undo it. Range, visibility, usability and action validation still apply to the next attempt. `InteractionAuthorizationTests` covers both arrival orders, acknowledgement ages 0/0.5/2 s, and a subsequent valid use; `StuckPawnMatrixTests` seed 2016 exercises the stalled network flow.
 - The share entry's HUD text reads `tGave` from the wrong slot and shows an empty word.
 - Priority 0 on map switches (rule 2) puts them ahead of terminals (10): lower values come first (rule 24).
 - `CanAddInteract` always returns true in script; the native may still filter.
