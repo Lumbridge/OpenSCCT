@@ -22,9 +22,6 @@ public partial class VisitMapScreen : MenuPage
     [Provenance(ProvenanceKind.Decoded, "GUI.Visit_Map_Set.InitComponent: SetWithMapName(\"AquaE\")")]
     private const string FirstMap = "AquaE";
 
-    /// <summary>The frame's title and buttons (78 each) and the map panel's caption, map name and padding above the list.</summary>
-    private const float ChromeHeight = 156f + 96f;
-
     private static string? _lastMap;
     private static PlaySide _lastSide = PlaySide.Spy;
 
@@ -35,35 +32,53 @@ public partial class VisitMapScreen : MenuPage
     private Button? _launch;
     private ScrollContainer? _scroll;
     private string? _map;
+    private BoxContainer? _row, _sideContent;
+
+    protected override bool CenterBodyVertically => true;
+    protected override Vector2 ResponsiveReference => new(1600f, 900f);
 
     public static VisitMapScreen Show(SceneTree tree) => FrontEnd.Show(tree, new VisitMapScreen());
 
     public override void _Ready()
     {
         Name = "VisitMap";
-        BuildFrame(TutorialText.Caption(Section, "TitlePage", "Visit a Map"), 1100f);
-        var row = new HBoxContainer { Name = "Row" };
-        row.AddThemeConstantOverride("separation", 24);
+        BuildFrame(TutorialText.Caption(Section, "TitlePage", "Visit a Map"), 1180f, responsive: true);
+        Body.AddThemeConstantOverride("separation", 14);
+        var row = _row = new BoxContainer { Name = "Row" };
+        row.AddThemeConstantOverride("separation", 14);
         Body.AddChild(row);
 
-        VBoxContainer sideColumn = Panel(row, "Side", null, 260f);
+        VBoxContainer sideColumn = Panel(row, "Side", "Your role");
+        sideColumn.AddThemeConstantOverride("separation", 10);
+        _sideContent = new BoxContainer { Name = "SideContent", Vertical = true };
+        _sideContent.AddThemeConstantOverride("separation", 14);
+        sideColumn.AddChild(_sideContent);
         _portrait = new TextureRect
         {
-            Name = "Portrait", CustomMinimumSize = new Vector2(240f, 300f), ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
+            Name = "Portrait", CustomMinimumSize = new Vector2(192f, 240f), ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
             StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered,
         };
-        sideColumn.AddChild(_portrait);
-        _side = new Label { Name = "SideName", HorizontalAlignment = HorizontalAlignment.Center };
-        sideColumn.AddChild(_side);
+        _sideContent.AddChild(_portrait);
+        var role = new VBoxContainer { Name = "Role", SizeFlagsHorizontal = SizeFlags.ExpandFill, SizeFlagsVertical = SizeFlags.ShrinkCenter };
+        role.AddThemeConstantOverride("separation", 10);
+        _sideContent.AddChild(role);
+        _side = new Label { Name = "SideName", HorizontalAlignment = HorizontalAlignment.Center, AutowrapMode = TextServer.AutowrapMode.WordSmart };
+        role.AddChild(_side);
+        role.AddChild(new Label
+        {
+            Name = "PracticeHelp", Text = "Explore alone with help paths and unlimited equipment.",
+            AutowrapMode = TextServer.AutowrapMode.WordSmart, Modulate = UiStyle.Dim,
+        });
 
         VBoxContainer mapColumn = Panel(row, "Maps", TutorialText.Caption(Section, "ImageMap.Caption", "Choose Map"));
+        mapColumn.AddThemeConstantOverride("separation", 10);
         mapColumn.SizeFlagsHorizontal = SizeFlags.ExpandFill;
         ((Control)mapColumn.GetParent()).SizeFlagsHorizontal = SizeFlags.ExpandFill;
         _mapName = new Label { Name = "MapName", Modulate = UiStyle.MenuFocus, AutowrapMode = TextServer.AutowrapMode.WordSmart };
         mapColumn.AddChild(_mapName);
         var scroll = _scroll = new ScrollContainer
         {
-            Name = "MapScroll", CustomMinimumSize = new Vector2(0f, 360f), HorizontalScrollMode = ScrollContainer.ScrollMode.ShowNever,
+            Name = "MapScroll", FollowFocus = true, CustomMinimumSize = new Vector2(0f, 360f), HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled,
             SizeFlagsHorizontal = SizeFlags.ExpandFill,
         };
         mapColumn.AddChild(scroll);
@@ -103,12 +118,15 @@ public partial class VisitMapScreen : MenuPage
         Fit();
     }
 
-    /// <summary>The page fills the window: the body spans most of its width and the map list the height left over.</summary>
+    /// <summary>Fit the role card and map list in the same logical canvas as the other menu pages.</summary>
     private void Fit()
     {
-        Vector2 size = GetViewportRect().Size;
-        PreferredBodyWidth = AvailableBodyWidth;
-        _scroll!.CustomMinimumSize = new Vector2(0f, Math.Max(240f, size.Y - ChromeHeight));
+        bool stacked = Math.Min(PreferredBodyWidth, AvailableBodyWidth) < 940f;
+        _row!.Vertical = stacked;
+        _sideContent!.Vertical = !stacked;
+        _portrait!.CustomMinimumSize = stacked ? new Vector2(80f, 100f) : new Vector2(192f, 240f);
+        ((Control)_sideContent.GetParent().GetParent()).CustomMinimumSize = new Vector2(stacked ? 0f : 260f, 0f);
+        _scroll!.CustomMinimumSize = new Vector2(0f, Math.Clamp(LayoutSize.Y - (stacked ? 420f : 280f), 220f, 560f));
     }
 
     /// <summary>The maps a visit can play: the host list's maps with Story that this machine can render.</summary>
