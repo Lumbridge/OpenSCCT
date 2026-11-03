@@ -605,7 +605,7 @@ Player details list all titles, unlock requirements, availability and the equipp
 follow achievement ownership: admins can revoke an earned achievement with a reason and audited confirmation.
 This removes its earned rewards and clears unavailable equipped items, while preserving admin cosmetic grants,
 stats and XP. The achievement can be earned again in a later match. Level/prestige titles retain their normal
-progression rules, including the highest level reached since the last admin rank reset for level titles. An admin rank change resets that history to the assigned level, so setting prestige 1, level 1 re-locks Recruit, Regular, Veteran and Elite. Admin rank changes also immediately unequip cosmetics no longer unlocked at the assigned level and reset the equipped title to default. Normal prestiging retains earned level titles.
+progression rules, including the highest level reached since the last admin rank reset for level titles. An admin rank change resets that history to the assigned level, so setting prestige 1, level 1 re-locks Recruit, Regular, Veteran and Elite. Admin rank changes also immediately unequip cosmetics no longer unlocked at the assigned level and reset the equipped title to default. Updated trusted match and hub servers receive authoritative appearance revisions through their next master heartbeat (normally within 30 seconds), update cosmetic entitlements, and replicate the new look, rank and title to connected players without a rejoin. Normal prestiging retains earned level titles.
 
 | Page | What it does |
 |---|---|

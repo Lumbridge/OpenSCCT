@@ -256,6 +256,8 @@ public sealed class SessionPlayer
     public CosmeticUnlocks Unlocks { get; internal set; } = CosmeticUnlocks.None;
 
     /// <summary>The checked cosmetic looks (only what the ticket unlocks; retail for guests and bots).</summary>
+    internal long AppearanceRevision { get; set; }
+
     public CosmeticLook SpyLook { get; internal set; }
 
     public CosmeticLook MercLook { get; internal set; }
@@ -415,6 +417,7 @@ public sealed partial class OnlineServer : IDisposable
             Master.Notice += Announce;
             Master.AccountIds = SignedInAccounts;
             Master.KickAccounts += OnMasterKicks;
+            Master.AccountAppearances += ApplyAccountAppearances;
             Master.PlayerDetails = PlayerDetailsForMaster;
             Master.RoundSecondsLeft = () => Phase == SessionPhase.Match ? Info().SecondsLeft : -1;
             Master.RejoinAccounts = RejoinAccounts;

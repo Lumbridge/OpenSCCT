@@ -206,6 +206,8 @@ public sealed class HubPlayer
     internal CosmeticUnlocks Unlocks { get; set; } = CosmeticUnlocks.None;
 
     /// <summary>What he wears as a spy, checked against <see cref="Unlocks"/>.</summary>
+    internal long AppearanceRevision { get; set; }
+
     public CosmeticLook SpyLook { get; internal set; }
 
     /// <summary>What he wears as a merc, checked against <see cref="Unlocks"/>.</summary>
@@ -351,6 +353,7 @@ public sealed partial class HubServer : IDisposable
                 Master.AccountIds = SignedInAccounts;
                 Master.PlayerDetails = PlayerDetailsForMaster;
                 Master.KickAccounts += OnMasterKicks;
+                Master.AccountAppearances += ApplyAccountAppearances;
                 Master.Commands += OnMasterCommands;
             }
         }

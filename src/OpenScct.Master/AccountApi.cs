@@ -40,6 +40,15 @@ internal sealed partial class AccountApi
         Links = new PendingLinks(time);
     }
 
+    public IReadOnlyDictionary<long, LiveAccountAppearance> LiveAppearances(IEnumerable<long> accounts)
+    {
+        var result = new Dictionary<long, LiveAccountAppearance>();
+        foreach (long id in accounts.Distinct().Take(64))
+            if (_store.FindById(id) is not null)
+                result[id] = _store.LiveAppearance(id);
+        return result;
+    }
+
     public PendingLinks Links { get; }
 
     /// <summary>The admin portal's sign-in, for Discord answers whose state starts with "admin." (one callback URL for both).</summary>

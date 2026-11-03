@@ -245,6 +245,8 @@ public sealed record MasterCommandResult
 }
 
 /// <summary>The master's answer to a heartbeat.</summary>
+public sealed record LiveAccountAppearance(int Rank, byte[] Unlocks, AccountAppearance Appearance);
+
 public sealed record HeartbeatResponse
 {
     public string ServerId { get; init; } = string.Empty;
@@ -282,6 +284,8 @@ public sealed record HeartbeatResponse
 
     /// <summary>Signed-in players on the server who are now banned: drop them.</summary>
     public IReadOnlyList<long> KickAccounts { get; init; } = [];
+
+    public IReadOnlyDictionary<long, LiveAccountAppearance> AccountAppearances { get; init; } = new Dictionary<long, LiveAccountAppearance>();
 
     /// <summary>Admin commands to run (trusted servers only; others get none and must ignore any).</summary>
     public IReadOnlyList<MasterCommand> Commands { get; init; } = [];
