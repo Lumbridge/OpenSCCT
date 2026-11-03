@@ -70,6 +70,7 @@ public static class TutorialPlay
                 Mode = "Story",
                 Rules = PlayRules.MapSettings,
                 OfflineRules = true,
+                UnlimitedGear = help,
                 Bots = 0,
                 PlayerName = string.IsNullOrWhiteSpace(name) ? "Player" : name,
             },

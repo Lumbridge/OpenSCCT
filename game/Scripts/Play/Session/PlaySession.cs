@@ -66,7 +66,7 @@ public sealed class PlaySession : IDisposable
         MapFolder = folder;
         SvMap map = SvMap.Load(folder);
         Loader = new PlayMapLoader(map, settings.GameOptions(map.Gameplay), PlayMapLoader.FindCharsDir(folder),
-            settings.HostSettings(map.Gameplay));
+            settings.HostSettings(map.Gameplay), unlimitedGear: settings.UnlimitedGear);
         Loader.Register(Catalog);
 
         var server = new ServerSettings
