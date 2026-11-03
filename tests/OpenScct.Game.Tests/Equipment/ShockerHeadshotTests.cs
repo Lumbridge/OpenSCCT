@@ -1,14 +1,88 @@
 using OpenScct.Core;
 using OpenScct.Core.Engine;
+using OpenScct.Game.AI;
+using OpenScct.Core.Uc;
 using OpenScct.Game.Combat;
 using OpenScct.Game.SBase;
 using OpenScct.Game.Tests.Combat;
+using OpenScct.Game.Tests.Game;
 using Xunit;
 
 namespace OpenScct.Game.Tests.Equipment;
 
 public sealed class ShockerHeadshotTests
 {
+    [Theory]
+    [InlineData(1, false)]
+    [InlineData(2, false)]
+    [InlineData(1, true)]
+    [InlineData(2, true)]
+    public void OwnerPlaysOriginalShockSoundsAndOnlyMercHeadshotsPlayShutdown(int pill, bool spy)
+    {
+        var scene = new CombatScene(ENetMode.NM_Client);
+        var (pc, pawn) = scene.Player(spy, default);
+        pc.Player = new SimViewport();
+        pc.ViewTarget = pawn;
+        pc.myHUD = scene.Level.Spawn<SHud>()!;
+        var host = new RecordingGameHost();
+        scene.Level.SetService<IGameHost>(host);
+
+        pc.ClientStickyShock(pill);
+
+        SimEvent[] events = scene.World.Events.Current.ToArray();
+        foreach (string sound in new[] { "Armes_impacts.Armes.StikyShok_Paf1", "Sound_Persos.onomatopees.RA_onoPaf" })
+        {
+            SimEvent played = Assert.Single(events, e => e.Kind == SimEventKind.PlaySound && e.What == new Name(sound));
+            Assert.Equal(pawn.ActorId, played.ActorId);
+            Assert.True(played.NoAttenuate);
+            Assert.Equal(SoundK.ClientPlaySoundVolume, played.Volume);
+        }
+
+        var shutdown = new Name("Armes_impacts.Gadgets.Hud_shutDown");
+        if (pill == 1 && !spy)
+            Assert.Single(events, e => e.Kind == SimEventKind.PlaySound && e.What == shutdown);
+        else
+            Assert.DoesNotContain(events, e => e.Kind == SimEventKind.PlaySound && e.What == shutdown);
+        Assert.Empty(host.Calls);
+    }
+
+    [Fact]
+    public void RemoteCombatSoundIsSentToOwnerWithoutPlayingOnServer()
+    {
+        var scene = new CombatScene(ENetMode.NM_DedicatedServer);
+        var (pc, _) = scene.Player(false, default);
+        pc.Player = new SimNetConnection();
+        var host = new RecordingGameHost();
+        scene.Level.SetService<IGameHost>(host);
+        var sound = new AssetRef("Armes_impacts.Gadgets.Hud_shutDown");
+
+        pc.ClientPlaySoundCombat(sound);
+
+        GameCall call = Assert.Single(host.To(pc, "ClientPlaySound"));
+        Assert.Equal(sound, call.Asset);
+        Assert.DoesNotContain(scene.World.Events.Current.ToArray(), e => e.Kind == SimEventKind.PlaySound);
+    }
+
+    [Theory]
+    [InlineData(ENetMode.NM_DedicatedServer)]
+    [InlineData(ENetMode.NM_ListenServer)]
+    public void BotShockDoesNotEmitPrivateVictimSoundsIntoServerWorld(ENetMode mode)
+    {
+        var scene = new CombatScene(mode);
+        var (pc, pawn) = scene.Player(false, default);
+        pc.Player = new AiViewport();
+        pc.ViewTarget = pawn;
+        pc.myHUD = scene.Level.Spawn<SHud>()!;
+
+        pc.ClientStickyShock(1);
+
+        Assert.True(pawn.bStickyShockedInTheHead);
+        Assert.DoesNotContain(scene.World.Events.Current.ToArray(), e => e.Kind == SimEventKind.PlaySound &&
+            (e.What == new Name("Armes_impacts.Gadgets.Hud_shutDown") ||
+             e.What == new Name("Armes_impacts.Armes.StikyShok_Paf1") ||
+             e.What == new Name("Sound_Persos.onomatopees.RA_onoPaf")));
+    }
+
     [Theory]
     [InlineData(1)]
     [InlineData(2)]

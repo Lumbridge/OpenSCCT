@@ -20,6 +20,9 @@ public sealed class MagmaOverride
     /// <summary>Replaces the keyframe colour: every corner of an image, the text colour of a text.</summary>
     public Color? Color { get; set; }
 
+    /// <summary>Images: multiplies the keyframe colour without replacing its animated opacity.</summary>
+    public Color? Tint { get; set; }
+
     public float? Rotation { get; set; }
 
     /// <summary>Images: the keyframe alpha times this, capped at 1 (a fade that holds longer before it drops).</summary>
@@ -46,6 +49,7 @@ public sealed class MagmaOverride
         Anchor = null;
         Text = null;
         Color = null;
+        Tint = null;
         Rotation = null;
         AlphaGain = null;
         Pos = null;
@@ -122,8 +126,8 @@ public sealed class MagmaNode
     /// <summary>Instance position in the parent area, replacing the keyframe position (native position writes).</summary>
     public Vector2? PositionOverride { get; set; }
 
-    /// <summary>Replaces the instance keyframe STATECOLOR (native colour writes).</summary>
-    public Color? StateOverride { get; set; }
+    /// <summary>Tints the instance keyframe STATECOLOR while preserving its animated opacity.</summary>
+    public Color? StateTint { get; set; }
 
     public int Frame => Mathf.FloorToInt(Time * Area.FrameRate + 1e-4f);
 
@@ -283,10 +287,15 @@ public sealed class MagmaNode
         if (action.IsGoto)
         {
             target.Time = action.Frame / target.Area.FrameRate;
-            target.LastFrame = action.Frame;   // the target frame's own actions do not fire again, so loops restart cleanly
+            // The destination owns actions too: HUD reboot clips return to frame 0, whose Stop keeps
+            // the restored HUD from playing straight back into its shutdown/perturbation keys.
+            target.LastFrame = action.Frame - 1;
         }
         else
         {
+            // Stop on the authored key exactly. Frame's rounding tolerance can otherwise fire Stop
+            // just before a zero-opacity key, leaving a tiny alpha (and opaque Dodge children) alive.
+            if (ReferenceEquals(target, this)) target.Time = LastFrame / Area.FrameRate;
             target.Playing = false;
         }
     }

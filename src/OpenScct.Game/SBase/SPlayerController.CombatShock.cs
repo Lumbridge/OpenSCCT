@@ -626,8 +626,20 @@ public partial class SPlayerController
         });
 
     /// <summary>ClientPlaySound for this player.</summary>
-    public void ClientPlaySoundCombat(AssetRef Sound) =>
-        GameHost.ClientCall(this, new GameCall(CNAME_ClientPlaySound) { Asset = Sound });
+    public void ClientPlaySoundCombat(AssetRef Sound)
+    {
+        if (Level.NetMode != ENetMode.NM_Client || IsRemotePlayer)
+        {
+            GameHost.ClientCall(this, new GameCall(CNAME_ClientPlaySound) { Asset = Sound });
+        }
+        else
+        {
+            // ClientStickyShock already runs on the owner. Its nested sound calls must execute here;
+            // the view host only handles unported presentation requests and may be absent. Authority
+            // keeps routing through the host so a bot's interface cues never become world sounds.
+            ClientPlaySound(Sound);
+        }
+    }
 
     // ---- HUD perturbation -------------------------------------------------------------------------------
 

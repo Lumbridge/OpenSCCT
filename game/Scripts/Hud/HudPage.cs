@@ -425,7 +425,7 @@ public abstract class HudPage
             image.Region = options!.Materials[icon].Region;
         }
 
-        image.Color = g.Unavailable ? UnavailableIconColour : null;
+        image.Tint = g.Unavailable ? UnavailableIconColour : null;
     }
 
     /// <summary>An unavailable gadget's icon: greyed and half transparent, like an unavailable gadget menu line.</summary>
@@ -447,6 +447,11 @@ public abstract class HudPage
             return;
         }
 
+        float opacity = 0f;
+        foreach (Color colour in icon.Colors) opacity = Math.Max(opacity, colour.A);
+        opacity = Math.Min(1f, opacity / UnavailableIconColour.A);
+        if (opacity <= 0f) return;
+
         _white ??= WhiteRegion.Find(Assets);
         if (_white is not { } white)
         {
@@ -466,16 +471,16 @@ public abstract class HudPage
         var tl = new Vector2(l + inset, t + inset);
         var br = new Vector2(r - inset, b - inset);
         float thickness = Mathf.Max(2f, (r - l) * 0.1f);
-        Bar("Extras/GadgetCrossA", tl, br, thickness, white);
-        Bar("Extras/GadgetCrossB", new Vector2(br.X, tl.Y), new Vector2(tl.X, br.Y), thickness, white);
+        Bar("Extras/GadgetCrossA", tl, br, thickness, white, opacity);
+        Bar("Extras/GadgetCrossB", new Vector2(br.X, tl.Y), new Vector2(tl.X, br.Y), thickness, white, opacity);
     }
 
     /// <summary>A solid bar from <paramref name="from"/> to <paramref name="to"/>, <paramref name="thickness"/> pixels wide.</summary>
-    private void Bar(string path, Vector2 from, Vector2 to, float thickness, WhiteRegion white)
+    private void Bar(string path, Vector2 from, Vector2 to, float thickness, WhiteRegion white, float opacity)
     {
         Vector2 dir = (to - from).Normalized();
         Vector2 side = new Vector2(-dir.Y, dir.X) * (thickness / 2f);
-        Color c = GadgetCrossColour;
+        Color c = GadgetCrossColour with { A = GadgetCrossColour.A * opacity };
         MagmaDrawItem item = DrawList.Add(MagmaWidgetKind.Image);
         item.Path = path;
         item.Package = white.Package;

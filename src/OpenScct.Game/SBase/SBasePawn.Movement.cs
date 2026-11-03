@@ -54,6 +54,13 @@ public partial class SBasePawn
         if (Role == ENetRole.ROLE_AutonomousProxy) commandService?.BeforeOwnerAnimation(this);
         bool commands = commandService?.DrivesPawn(this) == true;
         if (!commands) AdvanceAnimation();
+        else
+        {
+            // Goggle head motion is independent of movement. Keep its clip, blend and skin notifies
+            // on the world clock even when remote input commands arrive in bursts.
+            PawnAnim.Owner ??= this;
+            PawnAnim.AdvanceChannel(GOGGLECHANNEL, DeltaSeconds, _raiseAnimEnd ??= RaiseAnimEnd, _inRootMotion ??= InRootMotion);
+        }
         base.NativeTick(DeltaSeconds);
         if (!bDeleteMe)
         {
@@ -87,10 +94,10 @@ public partial class SBasePawn
     private System.Action<int>? _raiseAnimEnd;
     private System.Func<bool>? _inRootMotion;
 
-    public void AdvancePredictionAnimation(float deltaTime)
+    public void AdvancePredictionAnimation(float deltaTime, int skipChannel = -1)
     {
         PawnAnim.Owner ??= this;
-        PawnAnim.Advance(deltaTime, _raiseAnimEnd ??= RaiseAnimEnd, _inRootMotion ??= InRootMotion);
+        PawnAnim.Advance(deltaTime, _raiseAnimEnd ??= RaiseAnimEnd, _inRootMotion ??= InRootMotion, skipChannel);
     }
 
     private bool InRootMotion() => Physics == EPhysics.PHYS_RootMotion;

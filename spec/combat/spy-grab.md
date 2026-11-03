@@ -130,7 +130,7 @@ SA_EXIT_REPOS 326, SA_GRABBED_RELEASE_DROPTECH 327.
      (the spot 70.85 uu short of the merc along the line from the spy);
    - ground probe: world trace from G down by (CollisionHeight + h); no hit ends the search (the loop exits, no grab);
    - the probe hit must satisfy `|hitZ + CollisionHeight - TL.Z| < h` and `|MyLoc.Z - TL.Z| < h`, else the search
-     ends; then extent Z -= (that difference / 2 + 2) and G = hit + (0, 0, 1.1 * CollisionHeight);
+     ends; then extent Z -= (the absolute difference / 2 + 2) and G = hit + (0, 0, 1.1 * CollisionHeight);
    - a world-only box trace (spy radius, radius, adjusted height) from MyLoc to G must be clear: then
      `AskServerToGrabPawn(T)` and return true.
    Note the loop stops at the first candidate that fails the ground probe or the height test (it does not try

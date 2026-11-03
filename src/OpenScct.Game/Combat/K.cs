@@ -199,7 +199,7 @@ public static class K
     [Provenance(ProvenanceKind.Decoded, "AskToGrabPawn: G = hit + (0, 0, 1.1 * CollisionHeight)")]
     public const float GrabSpotRaise = 1.1f;
 
-    [Provenance(ProvenanceKind.Decoded, "AskToGrabPawn: extent Z -= difference / 2 + 2")]
+    [Provenance(ProvenanceKind.Decoded, "AskToGrabPawn: extent Z -= Abs(height difference) / 2 + 2")]
     public const float GrabExtentShrink = 2f;
 
     [Provenance(ProvenanceKind.Decoded, "AskServerToGrabPawn doubles fGrabDistance for its test")]

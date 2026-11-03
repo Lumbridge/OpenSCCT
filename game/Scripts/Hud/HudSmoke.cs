@@ -194,6 +194,7 @@ public sealed class HudSmoke(bool spectatorOnly = false) : SmokeTest
         CheckReticleSwaps(assets);
         CheckScopeLayout(assets);
         CheckActivityLifecycle();
+        CheckMercShutdownRecovery(assets);
         var reader = new HudSimReader(() => _viewer, (section, key, fallback) => assets.Localize("MagmaDynamic", section, key, fallback), _layer.Effects);
         _layer.Source = new Composite(reader, s => _extra?.Invoke(s));
         _layer.Controller = () => _viewer;
@@ -256,6 +257,101 @@ public sealed class HudSmoke(bool spectatorOnly = false) : SmokeTest
         finally
         {
             layer.Free();
+        }
+    }
+
+    private void CheckMercShutdownRecovery(HudAssets assets)
+    {
+        // Reboot clips return to an idle frame containing Stop. A Goto must run that destination action.
+        var idle = new MercHudPage(assets).Area("Vie")!;
+        idle.SetVisible(true);
+        idle.SetFrame(MercHudPage.RebootFrame);
+        idle.Playing = true;
+        for (int i = 0; i < 240; i++) idle.Tick(Dt);
+        Expect(idle is { Frame: 0, Playing: false }, "Magma reboot returns to and stops on the idle key");
+
+        foreach (int fps in new[] { 30, 60, 144 })
+        {
+            var scene = new Scene();
+            HudLayer? layer = HudLayer.Create(out string? error);
+            if (layer is null) { _failures.Add(error ?? "shutdown HUD unavailable"); return; }
+            try
+            {
+                float dt = 1f / fps;
+                layer.Controller = () => scene.MercPc;
+                layer.Source = new Composite(new HudSimReader(() => scene.MercPc, effects: layer.Effects),
+                    s => s.Gadget = new HudGadget("Camera network", 1, "C_Default_2", 0, 0, Unavailable: true));
+                layer.ScreenSize = Screen;
+                layer.Options.Crosshair.Custom = true;
+                StepAt(20f);
+                // Prime the stock reticle's hit tint too; it must not replace its shutdown alpha.
+                layer.Options.Crosshair.Custom = false;
+                StepAt(20f);
+                Expect(layer.Merc!.DrawList.Any("Reticule/Reticule/FN2000/"), $"stock reticle visible before shutdown at {fps} fps");
+                Expect(layer.Merc.DrawList.Any("Extras/GadgetCross"), $"unavailable gadget indicator visible before shutdown at {fps} fps");
+                layer.Effects.Post(new SimEvent
+                {
+                    Kind = SimEventKind.Notify, ActorId = scene.MercPc.ActorId,
+                    What = OpenScct.Game.Combat.CombatFx.HudShutDown, Location = new FVector(1f, 12.5f, 0f),
+                });
+                scene.MercHud.bShutDown = true;
+                layer.Receiver.Handle(scene.MercPc, new GameCall("ReceiveLocalizedMessage")
+                {
+                    Class = new ClassRef(HudMessages.GameMessagesClass), Int = 62,
+                    Pri1 = scene.SpyPc.PlayerReplicationInfo, Pri2 = scene.MercPc.PlayerReplicationInfo,
+                });
+                for (int i = 0; i <= 4 * fps; i++) StepAt(20f + i * dt);
+                MercHudPage page = layer.Merc!;
+                Expect(page.ShuttingDown && page.DrawList.Find("Ammo/TextAmmoStock") is { Color.A: <= .01f },
+                    $"merc shutdown hides ammunition at {fps} fps");
+                Expect(!page.DrawList.Any("Radar/"), $"merc shutdown suppresses readable radar information at {fps} fps");
+                Expect(page.DrawList.Find("Gadget/Gadget") is { } icon && icon.Colors.All(c => c.A <= .01f),
+                    $"unavailable gadget respects shutdown alpha at {fps} fps (frame {page.Area("Gadget")?.FrameF}, " +
+                    $"alpha {string.Join(",", page.DrawList.Find("Gadget/Gadget")?.Colors.Select(c => c.A) ?? [])})");
+                Expect(page.DrawList.Items.Where(i => i.Path.StartsWith("Reticule/Reticule/FN2000/", StringComparison.Ordinal))
+                    .All(i => i.Colors.All(c => c.A <= .01f)), $"stock reticle respects shutdown alpha at {fps} fps " +
+                    $"(frame {page.Area("Reticule")?.FrameF}, items " + string.Join(",", page.DrawList.Items.Where(i =>
+                        i.Path.StartsWith("Reticule/Reticule/FN2000/", StringComparison.Ordinal)).Select(i => i.Path + ":" + i.Colors.Max(c => c.A))) + ")");
+                layer.Options.Crosshair.Custom = true;
+                StepAt(24f);
+                Expect(!page.DrawList.Any("Extras/") && layer.ActivityDrawer.VisibleCount == 0,
+                    $"merc shutdown suppresses custom crosshair, readouts and activity at {fps} fps");
+                for (int i = 4 * fps + 1; i <= 13 * fps; i++) StepAt(20f + i * dt);
+                Expect(!scene.MercHud.bShutDown, $"merc shutdown flag clears before reboot at {fps} fps");
+                ExpectContains(page.DrawList, "SystemMessage/messageSystem", scene.MercHud.TextRebooting);
+                for (int i = 13 * fps + 1; i <= 22 * fps; i++) StepAt(20f + i * dt);
+                Expect(!page.ShuttingDown && !page.Perturbed, $"merc shutdown and perturbation finish at {fps} fps");
+                Expect(page.DrawList.Any("Radar/"), $"radar returns after reboot at {fps} fps");
+                foreach (string name in new[] { "Vie", "Radar", "Ammo", "Gadget", "Chrono", "Reticule", "Pos_Merc" })
+                    Expect(page.Area(name) is { Frame: 0, Playing: false }, $"{name} stays restored after reboot at {fps} fps");
+                Expect(page.DrawList.Find("Ammo/TextAmmoStock") is { Color.A: > .9f } && page.DrawList.Any("Extras/Crosshair/"),
+                    $"ammunition and custom crosshair return after reboot at {fps} fps");
+                Expect(page.DrawList.Any("Extras/GadgetCross"), $"unavailable gadget indicator returns after reboot at {fps} fps");
+                layer.Options.Crosshair.Custom = false;
+                StepAt(42f);
+                Expect(page.DrawList.Items.Any(i => i.Path.StartsWith("Reticule/Reticule/FN2000/", StringComparison.Ordinal) &&
+                    i.Colors.Any(c => c.A > .9f)), $"stock reticle returns after reboot at {fps} fps");
+                layer.Effects.Post(new SimEvent
+                {
+                    Kind = SimEventKind.Notify, ActorId = scene.MercPc.ActorId,
+                    What = OpenScct.Game.Combat.CombatFx.SetHudPerturbationLength, Location = new FVector(4.5f, 0f, 0f),
+                });
+                StepAt(43f);
+                Expect(page.Perturbed && !page.ShuttingDown, $"body shock perturbs without shutdown at {fps} fps");
+                for (int i = 1; i <= 12 * fps; i++) StepAt(43f + i * dt);
+                Expect(!page.Perturbed && page.Area("Radar") is { Frame: 0, Playing: false } &&
+                    page.Area("Vie") is { Frame: 0, Playing: false }, $"body shock restores a stable HUD at {fps} fps");
+
+                void StepAt(float time)
+                {
+                    using var clock = scene.World.Level.CommandTime((int)(time * fps), time, dt);
+                    layer.Step(dt);
+                }
+            }
+            finally
+            {
+                layer.Free();
+            }
         }
     }
 

@@ -486,12 +486,12 @@ public sealed partial class EffectViews : Node3D
                 mesh.Transform = onBone ? boneFrame : UeSpace.TransformToGodot(a.Location, a.Rotation, scale, a.PrePivot);
                 bool visionOnly = a.bHideInNormalVision;
                 mesh.Visible = !a.bHidden && (!visionOnly || rendMap is 36 or 38) && (!onBone || pawnShown);
-                // OpenSCCT's active-mask cue: carrying the gadget alone does not imply gas protection. An unresolved
+                // The carried gadget owns this visible mask even while its oxygen supply is off. An unresolved
                 // remote wearer/bone must not flash the mask at its actor origin while replication catches up.
                 if (a is SGasMask)
                 {
                     mesh.Visible &= onBone && a.AttachmentBone == OpenScct.Game.Equipment.K.GasMaskBone &&
-                        a.Instigator is SBasePawn { bGasMask: true, Health: > 0, bDeleteMe: false } wearer &&
+                        a.Instigator is SBasePawn { Health: > 0, bDeleteMe: false } wearer &&
                         ReferenceEquals(a.Base, wearer);
                     if (mesh.Visible && Map is { } maskMap)
                     {

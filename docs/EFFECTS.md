@@ -112,8 +112,9 @@ The runtime lays each sub-emitter's stored values over its class defaults from `
   `RespawnOverride`, `SpawnBudget`, `Restart`, `OnSpawn`). Splashes start on the drawn body (the native's 11 bone
   segments, matched to the converted skeletons by bone name), drips at the head with the pawn's horizontal speed.
 - The merc's gas mask (`SGasMask`, DEF_Gasmask on 'B Head', spec/equipment/gas-mask.md rule 6) is drawn as the
-  backpack is, at the drawn head bone. OpenSCCT shows it only while the living wearer has `bGasMask` enabled;
-  unresolved wearers or head attachments stay hidden. The owner's mask follows the body's shadow-only layer.
+  backpack is, at the drawn head bone. A living merc carrying the gadget wears the mesh even with oxygen off;
+  `bGasMask` still controls gas protection and air consumption. Unresolved wearers or head attachments stay
+  hidden. The owner's mask follows the body's shadow-only layer.
   Content converted before the fx step listed SGasMask gets the class from
   `FxLibrary`'s late classes and the mesh from meshes/SGameplayObjects.glb by the exporter's node naming.
 

@@ -16,6 +16,43 @@ namespace OpenScct.Game.Equipment;
 /// </summary>
 public static class PawnVision
 {
+    private sealed class GoggleVisualState
+    {
+        public int RequestedMode;
+        public int ActiveMode;
+    }
+
+    // Dedicated servers have no beam actor, but still execute the replicated goggle actions and clip notifies.
+    // Keep that visual state independently so snapshot observers and late joiners can recover the active colour.
+    private static readonly ConditionalWeakTable<SBasePawn, GoggleVisualState> GoggleVisuals = new();
+
+    /// <summary>The committed merc lens colour: 0 normal, 1 motion tracking, 2 EMF.</summary>
+    public static byte MercGlowMode(SBasePawn pawn) =>
+        pawn.SPawnType == PawnType.SPAWNDEFENSE && GoggleVisuals.TryGetValue(pawn, out GoggleVisualState? state)
+            ? state.ActiveMode switch { K.BeamModeMotion => (byte)1, K.BeamModeEmf => (byte)2, _ => (byte)0 }
+            : (byte)0;
+
+    /// <summary>Applies a sampled observer colour without replaying goggle actions or local vision changes.</summary>
+    public static void RestoreMercGlow(SBasePawn pawn, byte mode)
+    {
+        if (pawn.SPawnType != PawnType.SPAWNDEFENSE || pawn.GoggleBeam is not { } beam) return;
+        int beamMode = mode switch { 1 => K.BeamModeMotion, 2 => K.BeamModeEmf, _ => K.BeamModeNormal };
+        if (beam.CurrentMode == beamMode && !beam.Skin.IsNone) return;
+        beam.CurrentMode = beamMode;
+        beam.ChangeSkin();
+    }
+
+    private static void ApplyGoggleSkin(SBasePawn pawn)
+    {
+        GoggleVisualState state = GoggleVisuals.GetValue(pawn, static _ => new());
+        state.ActiveMode = state.RequestedMode;
+        if (pawn.GoggleBeam is { } beam)
+        {
+            beam.CurrentMode = state.ActiveMode;
+            beam.ChangeSkin();
+        }
+    }
+
     private static readonly Name CNAME_SetEMFToServer = new("SetEMFToServer");
     private static readonly Name CNAME_UnSetEMFToServer = new("UnSetEMFToServer");
 
@@ -37,7 +74,7 @@ public static class PawnVision
             goggle.eventDown();
         }
 
-        Pawn.GoggleBeam?.ChangeSkin();
+        ApplyGoggleSkin(Pawn);
     }
 
     /// <summary>The goggle clip's raise notify: goggles up (only while they are down).</summary>
@@ -57,7 +94,7 @@ public static class PawnVision
             goggle.eventUp();
         }
 
-        Pawn.GoggleBeam?.ChangeSkin();
+        ApplyGoggleSkin(Pawn);
     }
 
     private static readonly Name GoglStAlDn2 = new("GoglStAlDn2");
@@ -117,43 +154,40 @@ public static class PawnVision
     /// <summary>
     /// ExecuteActionForGoggle (goggle-glow.md rule 3): the vision actions set the beam's mode (68 thermal 1, 67 night
     /// 2, 69 motion 3, 66 EMF 4); 72 sets 5 for a merc and 0 for a spy, 269 the same and the skin at once; 70 puts on
-    /// the skin of the mode already set. Nothing without a beam.
+    /// the skin of the mode already set. The active mode is retained even on a dedicated server without a beam.
     /// </summary>
     [Uc("SBase.SBasePawn.ExecuteActionForGoggle", Sha1 = "c5523524219ff4e55a9ad7e13d0385dfcbe7ba28")]
     [PortOf("uc:SBase.SBasePawn:ExecuteActionForGoggle", Spec = "spec/equipment/goggle-glow.md#rules")]
     public static void ExecuteActionForGoggle(SBasePawn Pawn, int Action)
     {
-        if (Pawn.GoggleBeam is not { } beam)
-        {
-            return;
-        }
-
+        GoggleVisualState state = GoggleVisuals.GetValue(Pawn, static _ => new());
         int rest = Pawn.SPawnType == PawnType.SPAWNDEFENSE ? K.BeamModeNormal : K.BeamModeNone;
         switch (Action)
         {
             case SBasePawn.SA_GOG_DYNNOANIM:
-                beam.CurrentMode = rest;
-                beam.ChangeSkin();
+                state.RequestedMode = rest;
+                ApplyGoggleSkin(Pawn);
                 break;
             case SBasePawn.SA_GOG_SWITCH_WITHOUTANIM:
-                beam.ChangeSkin();
+                ApplyGoggleSkin(Pawn);
                 break;
             case SBasePawn.SA_VISION_THERMAL:
-                beam.CurrentMode = K.BeamModeThermal;
+                state.RequestedMode = K.BeamModeThermal;
                 break;
             case SBasePawn.SA_VISION_NIGHT:
-                beam.CurrentMode = K.BeamModeNight;
+                state.RequestedMode = K.BeamModeNight;
                 break;
             case SBasePawn.SA_VISION_EMF:
-                beam.CurrentMode = K.BeamModeEmf;
+                state.RequestedMode = K.BeamModeEmf;
                 break;
             case SBasePawn.SA_VISION_MOTION:
-                beam.CurrentMode = K.BeamModeMotion;
+                state.RequestedMode = K.BeamModeMotion;
                 break;
             case SBasePawn.SA_GOG_HEADMVT_OFF:
-                beam.CurrentMode = rest;
+                state.RequestedMode = rest;
                 break;
         }
+        if (Pawn.GoggleBeam is { } beam) beam.CurrentMode = state.RequestedMode;
     }
 
     private static readonly ClassRef SpyBeamClass = new("SBase.SGoggleBeam_ATT");

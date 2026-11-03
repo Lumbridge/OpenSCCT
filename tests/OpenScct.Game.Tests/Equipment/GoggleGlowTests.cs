@@ -103,6 +103,35 @@ public sealed class GoggleGlowTests
     }
 
     [Fact]
+    public void DedicatedServerRetainsTheActiveMercColourAtTheOriginalActionAndNotifyBoundaries()
+    {
+        (_, _, SBasePawn pawn, _) = Player(spy: false, ENetMode.NM_DedicatedServer);
+        Assert.Null(pawn.GoggleBeam);
+        Assert.Equal(0, PawnVision.MercGlowMode(pawn));
+
+        pawn.ExecuteAction(SBasePawn.SA_VISION_MOTION);
+        Assert.Equal(0, PawnVision.MercGlowMode(pawn));
+        GogglesReachTheEyes(pawn);
+        Assert.Equal(1, PawnVision.MercGlowMode(pawn));
+
+        pawn.ExecuteAction(SBasePawn.SA_VISION_EMF);
+        Assert.Equal(1, PawnVision.MercGlowMode(pawn));
+        pawn.ExecuteAction(SBasePawn.SA_GOG_SWITCH_WITHOUTANIM);
+        Assert.Equal(2, PawnVision.MercGlowMode(pawn));
+
+        pawn.ExecuteAction(SBasePawn.SA_GOG_HEADMVT_OFF);
+        Assert.Equal(2, PawnVision.MercGlowMode(pawn));
+        GogglesLeaveTheEyes(pawn);
+        Assert.Equal(0, PawnVision.MercGlowMode(pawn));
+
+        pawn.ExecuteAction(SBasePawn.SA_VISION_MOTION);
+        pawn.ExecuteAction(SBasePawn.SA_GOG_SWITCH_WITHOUTANIM);
+        Assert.Equal(1, PawnVision.MercGlowMode(pawn));
+        pawn.ExecuteAction(SBasePawn.SA_GOG_DYNNOANIM);
+        Assert.Equal(0, PawnVision.MercGlowMode(pawn));
+    }
+
+    [Fact]
     public void AMercsMachineHasNoSpyGlow()
     {
         (CombatScene scene, _, _, _) = Player(spy: false, ENetMode.NM_Client);

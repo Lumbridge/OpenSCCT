@@ -16,7 +16,7 @@ using OpenScctGame.Views;
 
 namespace OpenScctGame.Smoke;
 
-/// <summary>Real skinned meshes and pixel comparisons for the merc's protection edge and worn mask.</summary>
+/// <summary>Real skinned meshes and pixel comparisons for the merc's protection edge and carried mask.</summary>
 public sealed class MercStatusVisualSmoke : SmokeTest
 {
     public const string TestName = "merc-status-visual";
@@ -34,12 +34,12 @@ public sealed class MercStatusVisualSmoke : SmokeTest
     private MeshInstance3D _wall = null!;
     private int _stage, _frames;
     private string _folder = "";
-    private Image? _standing, _crouched, _maskOff, _occluded;
+    private Image? _standing, _crouched, _maskAbsent, _occluded;
     private float _standingHeight;
     private SmokeResult? _final;
     private int _teardown;
     private readonly string[] _names = ["stand-off", "stand-full", "stand-half", "stand-quarter", "stand-final-sliver",
-        "crouch-off", "crouch-full", "crouch-half", "walk-half", "thermal-half", "emf-half", "mask-off", "mask-on",
+        "crouch-off", "crouch-full", "crouch-half", "walk-half", "thermal-half", "emf-half", "mask-absent", "mask-carried-inactive",
         "first-person", "dead", "wall-off", "wall-full", "backpack-rear", "backpack-quarter", "backpack-crouch"];
 
     public override SmokeResult Step(SmokeContext context)
@@ -126,7 +126,8 @@ public sealed class MercStatusVisualSmoke : SmokeTest
     {
         MaterialCompiler.SetVision(_stage == 9 ? RenderK.RendMapThermal : _stage == 10 ? RenderK.RendMapEmf : RenderK.RendMapNormal);
         _pawn.Health = _stage == 14 ? 0 : 100;
-        _pawn.bGasMask = _stage is 12 or 13 or 14;
+        _pawn.bGasMask = _stage is 13 or 14;
+        _mask.bHidden = _stage == 11;
         _view.SetShadowOnly(_stage == 13);
         _wall.Visible = _stage is 15 or 16;
         _backpack.bHidden = _stage < 17;
@@ -169,9 +170,9 @@ public sealed class MercStatusVisualSmoke : SmokeTest
             if (Changed(image, _crouched!, 0, cut - 10) > 30 || Changed(image, _crouched!, cut + 10, image.GetHeight()) < 40)
                 return "crouched half coverage did not drain from head toward feet";
         }
-        if (_stage == 11) _maskOff = image;
-        if (_stage == 12 && (_effects.MeshOf(_mask) is not { Visible: true } || Changed(image, _maskOff!) < 10))
-            return "worn mask did not appear on the rendered head";
+        if (_stage == 11) _maskAbsent = image;
+        if (_stage == 12 && (_pawn.bGasMask || _effects.MeshOf(_mask) is not { Visible: true } || Changed(image, _maskAbsent!) < 10))
+            return "carried mask did not appear on the rendered head with oxygen inactive";
         if (_stage == 13 && (_cue.Shown || _effects.MeshOf(_mask)?.Layers != RenderLayers.ShadowOnly))
             return "first-person body cue or mask leaked into main view";
         if (_stage == 14 && _effects.MeshOf(_mask)?.Visible != false) return "dead wearer's mask remained visible";

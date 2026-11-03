@@ -107,6 +107,9 @@ public sealed class MercHudPage : HudPage
         // The merc update's effect handlers (spec/hud/screen-effects.md rule 9).
         SetShown(Area("Perturb_Global"), true, restart: false);
         bool shut = DriveShutDown(s);
+        // Radar disruption uses per-pixel noise masks, which the Magma renderer does not yet reproduce.
+        // Suppress its information during shutdown instead of leaving a fully readable radar underneath.
+        if (Area("Radar") is { } radar) radar.StateTint = shut ? Colors.Transparent : null;
         if (!shut && !DriveFoam(s))
         {
             DrivePerturbation(s);
@@ -196,6 +199,11 @@ public sealed class MercHudPage : HudPage
         {
             _shutLatch = false;
             _rebooting = false;
+            // Some areas (notably Radar) loop their perturbation keys instead of stopping between
+            // frames 10 and 40. Finish the reboot with every area back on its normal idle keys.
+            AllAreas(0, false);
+            _perturbed = false;
+            return false;
         }
 
         return true;
@@ -432,7 +440,7 @@ public sealed class MercHudPage : HudPage
 
         if (inner is not null)
         {
-            inner.StateOverride = s.ReticleHit ? new Color(1f, 0f, 0f, 1f) : new Color(1f, 1f, 1f, 1f);
+            inner.StateTint = s.ReticleHit ? new Color(1f, 0f, 0f, 1f) : Colors.White;
         }
 
         DriveArrows(reticule, s);
@@ -479,7 +487,7 @@ public sealed class MercHudPage : HudPage
     protected override void DrawCanvas(Vector2 screen, HudSnapshot s)
     {
         OpenScctGame.Options.CrosshairSettings c = Options.Crosshair;
-        if (!c.Custom || !s.HasPawn || !s.ShowReticle || Area("Reticule") is not { Visible: true })
+        if (ShuttingDown || !c.Custom || !s.HasPawn || !s.ShowReticle || Area("Reticule") is not { Visible: true })
         {
             return;
         }
@@ -598,6 +606,8 @@ public sealed class MercHudPage : HudPage
 
     protected override void DrawExtras(HudSnapshot s)
     {
+        if (ShuttingDown) return;
+
         // Under the ammunition count (94, 343, 76 x 20) and above the gadget box (49, 374), left anchored like them.
         if (s.HasWeapon && !s.AmmoOff)
         {

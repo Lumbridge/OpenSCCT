@@ -322,7 +322,7 @@ public sealed class MagmaRenderer
                     Vector2 p = c.PositionOverride ?? k.Pos;
                     MagmaAnchor anchor = StretchAll ? MagmaAnchor.Stretch : AnchorOf(c.ChildBounds(), p);
                     SetMode(w.Mask);
-                    DrawNode(c, p, c.StateOverride ?? k.State, anchor, into);
+                    DrawNode(c, p, k.State * (c.StateTint ?? Colors4.White), anchor, into);
                 }
             }
             else
@@ -360,7 +360,7 @@ public sealed class MagmaRenderer
 
     private void DrawNode(MagmaNode node, Vector2 origin, Color tint, MagmaAnchor anchor, MagmaDrawList into)
     {
-        if (!node.Visible)
+        if (!node.Visible || tint.A <= 0f)
         {
             return;
         }
@@ -386,7 +386,7 @@ public sealed class MagmaRenderer
                     {
                         SetMode(w.Mask);
                         MagmaMask before = _mode;
-                        DrawNode(c, origin + (c.PositionOverride ?? k.Pos), tint * (c.StateOverride ?? k.State), anchor, into);
+                        DrawNode(c, origin + (c.PositionOverride ?? k.Pos), tint * k.State * (c.StateTint ?? Colors4.White), anchor, into);
                         _mode = before;
                     }
                 }
@@ -661,6 +661,7 @@ public sealed class MagmaRenderer
             uvs[c] = new Vector2((region.L + su * (region.R - region.L)) / Math.Max(1, size.X),
                 (region.T + sv * (region.B - region.T)) / Math.Max(1, size.Y));
             Color keyed = o?.Color ?? k.Colors[c];
+            keyed *= o?.Tint ?? Colors4.White;
             if (o?.AlphaGain is { } gain)
             {
                 keyed.A = Math.Min(1f, keyed.A * gain);

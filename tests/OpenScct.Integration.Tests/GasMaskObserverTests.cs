@@ -47,7 +47,7 @@ public sealed class GasMaskObserverTests
         Step(240);
         Check(late, true);
 
-        // The same existing actor is hidden/shown by the renderer, not recreated on each toggle.
+        // The carried visual actor survives every oxygen toggle; only the protection state changes.
         for (int cycle = 0; cycle < 3; cycle++)
         {
             gadget.Activate(false);

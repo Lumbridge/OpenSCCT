@@ -266,7 +266,7 @@ public sealed class GoggleGlowSmoke : SmokeTest
             if (_side == PlaySide.Spy)
             {
                 Face(session, 1, "face a merc bot");
-                _steps.Add(("the merc's glow is orange", 4.0, () => { }, () => Glow(session, typeof(SPAWNDEFENSE), Orange, 0)));
+                _steps.Add(("the merc's glow is orange", 4.0, () => { }, () => Glow(session, typeof(SPAWNDEFENSE), Orange, K.BeamModeNormal)));
                 _steps.Add(("the merc bot's motion tracking turns it red", 5.0, () => _command = 1, () => Glow(session, typeof(SPAWNDEFENSE), Motion, K.BeamModeMotion)));
                 _steps.Add(("its EMF turns it blue at once", 5.0, () => _command = 2, () => Glow(session, typeof(SPAWNDEFENSE), Emf, K.BeamModeEmf)));
                 _steps.Add(("goggles up: orange again", 5.0, () => _command = 2, () => Glow(session, typeof(SPAWNDEFENSE), Orange, K.BeamModeNormal)));

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using OpenScct.Core;
 using OpenScct.Core.Engine;
 using OpenScct.Game.Animation;
+using OpenScct.Game.Equipment;
 using OpenScct.Game.Movement;
 using OpenScct.Game.SBase;
 using OpenScct.Net;
@@ -49,6 +50,7 @@ public sealed class PawnStateReplication : INetworkPawnPose, IPawnAnimationTrans
     public long PresentationRecordsSent { get; private set; }
     public long PresentationRecordsReceived { get; private set; }
     public long ShockStatusRecordsSent => _shock.RecordsSent;
+    /// <summary>Displayed intervals missing reliable body-state keys, counted once until recovered.</summary>
     public long StateGaps { get; private set; }
     public long MissingDescriptors { get; private set; }
     public long Resets { get; private set; }
@@ -100,7 +102,9 @@ public sealed class PawnStateReplication : INetworkPawnPose, IPawnAnimationTrans
     /// <summary>Whether display time has resolved descriptors and tick samples, rather than an underflow estimate.</summary>
     public bool IsPoseBuffered(SBasePawn pawn, long time)
     {
-        if (!_tracks.TryGetValue(pawn, out Track? track) || !track.Ready) return false;
+        if (!_tracks.TryGetValue(pawn, out Track? track) || !track.Ready || track.Newest < 0) return false;
+        // A newer snapshot can reveal an undelivered transition between the last body key and this
+        // display time. Keep that interval uncertain until its reliable history has caught up.
         if (track.StateSequence < track.Frames[Slot(track.Newest)].StateSequence) return false;
         for (int i = 0; i < track.Channels.Length; i++)
             if (!track.Channels[i].Buffered(time, i is 0 or 4 or 5)) return false;
@@ -139,9 +143,9 @@ public sealed class PawnStateReplication : INetworkPawnPose, IPawnAnimationTrans
     public static RepExtension CreateExtension()
     {
         var ext = new RepExtension();
-        ext.Functions.Add(new(Snapshot, false, false, "pawn-snapshot-21", ReceiveSnapshot));
+        ext.Functions.Add(new(Snapshot, false, false, "pawn-snapshot-22", ReceiveSnapshot));
         ext.Functions.Add(new(Animation, true, false, "pawn-animation-5", ReceiveAnimation));
-        ext.Functions.Add(new(Presentation, true, false, "pawn-presentation-6", ReceivePresentation));
+        ext.Functions.Add(new(Presentation, true, false, "pawn-presentation-7", ReceivePresentation));
         ext.Functions.Add(MercShockStream.Extension());
         return ext;
     }
@@ -152,7 +156,7 @@ public sealed class PawnStateReplication : INetworkPawnPose, IPawnAnimationTrans
         public uint Epoch;
         public ProxyState Motion;
         public EPhysics Physics;
-        public byte Zone, Weapon, Ik, Btw, Pipe;
+        public byte Zone, Weapon, Ik, Btw, Pipe, MercVision;
         public int Health;
         public bool Crouched, Lying, Sleeping, Hidden;
         public bool ReadyBoost, ReadyHoist;
@@ -180,6 +184,7 @@ public sealed class PawnStateReplication : INetworkPawnPose, IPawnAnimationTrans
         public uint ShockLocalReset;
         public long Newest = -1;
         public bool Ready;
+        public bool StateGapActive;
         public readonly ProxyMotion Motion = new();
         public readonly Frame[] Frames = new Frame[History];
         public readonly ChannelHistory[] Channels = new ChannelHistory[PawnAnimation.ChannelCount];
@@ -196,7 +201,7 @@ public sealed class PawnStateReplication : INetworkPawnPose, IPawnAnimationTrans
         }
         public void Reset(uint epoch)
         {
-            Epoch = epoch; Newest = -1; Ready = false; Motion.Reset();
+            Epoch = epoch; Newest = -1; Ready = StateGapActive = false; Motion.Reset();
             foreach (Frame f in Frames) f.Tick = -1;
             foreach (ChannelHistory c in Channels) c.Reset();
             TransitionSequence = 0; StateSequence = 0; Array.Clear(Revisions); Array.Clear(LastPose);
@@ -483,7 +488,7 @@ public sealed class PawnStateReplication : INetworkPawnPose, IPawnAnimationTrans
         a.Physics == b.Physics && a.Zone == b.Zone && a.Crouched == b.Crouched && a.Lying == b.Lying && a.Sleeping == b.Sleeping && a.Hidden == b.Hidden &&
         a.ReadyBoost == b.ReadyBoost && a.ReadyHoist == b.ReadyHoist && a.Grabbable == b.Grabbable && a.Terminable == b.Terminable &&
         a.StickyShocking == b.StickyShocking && a.Shock.SameStatus(b.Shock) && a.Health == b.Health && a.Radius == b.Radius && a.Height == b.Height && a.PrePivot == b.PrePivot &&
-        a.Weapon == b.Weapon && a.Ik == b.Ik && a.Btw == b.Btw && a.Pipe == b.Pipe && a.Attachments == b.Attachments &&
+        a.Weapon == b.Weapon && a.Ik == b.Ik && a.Btw == b.Btw && a.Pipe == b.Pipe && a.MercVision == b.MercVision && a.Attachments == b.Attachments &&
         ReferenceEquals(a.Base, b.Base) && ReferenceEquals(a.Target, b.Target) && ReferenceEquals(a.Attacker, b.Attacker) &&
         ReferenceEquals(a.UsedObject, b.UsedObject) && ReferenceEquals(a.Interaction, b.Interaction) &&
         ReferenceEquals(a.Released, b.Released) && ReferenceEquals(a.Terminate, b.Terminate) &&
@@ -562,6 +567,7 @@ public sealed class PawnStateReplication : INetworkPawnPose, IPawnAnimationTrans
         f.ReadyBoost = pawn.bReadyForShortLadder; f.ReadyHoist = pawn.bReadyForHoistClimb;
         f.Grabbable = pawn.bCanBeGrabbed; f.Terminable = pawn.bCanBeTerminated; f.StickyShocking = pawn.bStickyShocking;
         f.Weapon = pawn.WeaponLoaded; f.Ik = (byte)pawn.IK_Type; f.Btw = (byte)pawn.BTW; f.Pipe = (byte)pawn.PipHFire;
+        f.MercVision = PawnVision.MercGlowMode(pawn);
         f.Attachments = NetworkPawnAttachments.Capture(pawn);
         f.Base = pawn.Base; f.Target = pawn.m_AttackTarget; f.Attacker = pawn.m_AttackedBy;
         f.UsedObject = pawn.UsedObject; f.Interaction = pawn.m_InteractionTarget;
@@ -618,7 +624,6 @@ public sealed class PawnStateReplication : INetworkPawnPose, IPawnAnimationTrans
         // presentation velocity. Keep this contract shared with the legacy proxy sample receiver.
         pawn.ReceivedVelocity = frame.Motion.Velocity;
         t.ShockLocalReset = pawn.NetworkResetId;
-        if (frame.StateSequence > t.StateSequence) stream.StateGaps++;
         for (int i = 0; i < frame.Pose.Length; i++)
         {
             NetworkAnimChannel c = frame.Pose[i];
@@ -635,13 +640,12 @@ public sealed class PawnStateReplication : INetworkPawnPose, IPawnAnimationTrans
             pawn.NetworkPoseReady = false;
             return false;
         }
-        Frame? f = null;
-        for (int i = 0; i < History; i++)
-        {
-            Frame candidate = t.Frames[i];
-            if (candidate.Tick >= 0 && candidate.Tick * NetTimeline.Fraction <= RenderTimeFixed && (f is null || candidate.Tick > f.Tick)) f = candidate;
-        }
-        f ??= t.Frames[Slot(t.Newest)];
+        Frame f = DisplayFrame(t, RenderTimeFixed);
+        // Snapshots normally precede the reliable body key in the same send pass. Only a key still
+        // missing when its state reaches display time is a gap, not that harmless receive ordering.
+        bool stateGap = f.Tick * NetTimeline.Fraction <= RenderTimeFixed && f.StateSequence > t.StateSequence;
+        if (stateGap && !t.StateGapActive) StateGaps++;
+        t.StateGapActive = stateGap;
         if (!t.Ready)
         {
             bool complete = true;
@@ -685,6 +689,9 @@ public sealed class PawnStateReplication : INetworkPawnPose, IPawnAnimationTrans
         pawn.Velocity = motion.Velocity; pawn.Acceleration = motion.Velocity.SafeNormal();
         pawn.iDesiredYawPitch = motion.Aim; pawn.iYawPitchFromView = motion.View;
         pawn.WeaponLoaded = f.Weapon; pawn.IK_Type = (IK_Type_)f.Ik;
+        // Snapshot proxies consume authored poses without replaying goggle actions/notifies. Restore their
+        // persistent lens colour on the same sampled timeline, including the first baseline for a late joiner.
+        PawnVision.RestoreMercGlow(pawn, f.MercVision);
         pawn.NetworkAttachments = f.Attachments;
         pawn.BTW = (BTW_)f.Btw; pawn.PipHFire = (PipHFire_)f.Pipe;
         pawn.SetBase(f.Base, bNotifyActor: false); pawn.m_AttackTarget = f.Target; pawn.m_AttackedBy = f.Attacker;
@@ -705,6 +712,15 @@ public sealed class PawnStateReplication : INetworkPawnPose, IPawnAnimationTrans
         if (!run.IsNone) pawn.RunAnim = run;
         pawn.PawnAnim.Owner = pawn; pawn.OldRotYaw = pawn.Rotation.Yaw;
         ZoneRegions.SetActorZone(pawn);
+    }
+
+    private static Frame DisplayFrame(Track track, long time)
+    {
+        Frame? shown = null;
+        foreach (Frame candidate in track.Frames)
+            if (candidate.Tick >= 0 && candidate.Tick * NetTimeline.Fraction <= time &&
+                (shown is null || candidate.Tick > shown.Tick)) shown = candidate;
+        return shown ?? track.Frames[Slot(track.Newest)];
     }
 
     private static ProxyState MeshAnchorMotion(Frame frame)
@@ -779,6 +795,7 @@ public sealed class PawnStateReplication : INetworkPawnPose, IPawnAnimationTrans
         w.WriteBit(f.Health != 100);
         if (f.Health != 100) w.WriteIntPacked((uint)((f.Health << 1) ^ (f.Health >> 31)));
         SmallByte(w, f.Weapon, 2); SmallByte(w, f.Ik, 3); SmallByte(w, f.Btw, 4); SmallByte(w, f.Pipe, 3);
+        w.WriteBits(f.MercVision, 2);
         SmallByte(w, f.Attachments.ActiveSlot, 1);
         w.WriteBit(f.Attachments.WeaponInHand.HasValue);
         if (f.Attachments.WeaponInHand is { } inHand) w.WriteBit(inHand);
@@ -912,6 +929,7 @@ public sealed class PawnStateReplication : INetworkPawnPose, IPawnAnimationTrans
         uint health = r.ReadBit() ? r.ReadIntPacked() : 200u;
         f.Health = (int)(health >> 1) ^ -(int)(health & 1);
         f.Weapon = SmallByte(r, 2); f.Ik = SmallByte(r, 3); f.Btw = SmallByte(r, 4); f.Pipe = SmallByte(r, 3);
+        f.MercVision = (byte)r.ReadBits(2);
         byte activeSlot = SmallByte(r, 1);
         f.Attachments = new NetworkPawnAttachments(activeSlot, r.ReadBit() ? r.ReadBit() : null);
         uint references = (uint)r.ReadBits(7);

@@ -5,6 +5,7 @@ using Godot;
 using OpenScct.Net.Cosmetics;
 using OpenScct.Net.Discovery;
 using OpenScctGame.Online;
+using OpenScctGame.Options;
 
 namespace OpenScctGame.UI;
 
@@ -197,7 +198,9 @@ public partial class MainMenu : MenuPage
         if (_data is null) return;
         bool signedIn = _data.SignedIn;
         AccountInfo? account = signedIn ? _data.Account : null;
-        _account!.Text = signedIn ? account?.Name is { Length: > 0 } name ? name : "Signed in" : "Welcome, agent";
+        string playerName = SettingsStore.Current.PlayerName.Trim();
+        string welcome = playerName.Length == 0 || playerName == "Player" ? "Welcome, agent" : $"Welcome, {playerName}";
+        _account!.Text = signedIn ? account?.Name is { Length: > 0 } name ? name : "Signed in" : welcome;
         AccountButton!.Text = signedIn ? "Manage account" : "Sign in / Account";
         PlayerRank rank = RankBadge.OfAccount(account);
         _rank!.Show(rank, withTitle: true);

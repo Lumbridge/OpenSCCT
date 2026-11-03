@@ -112,6 +112,13 @@ the action stream arrives).
   properties, textures).
 - Real game captures in the sandbox (local/goggle-glow/game/), see docs/EFFECTS.md#goggle-glow.
 
+## OpenSCCT snapshot presentation
+OpenSCCT snapshot observers do not replay pawn actions or animation notifies. The server therefore retains the
+requested and active goggle colour independently of the local beam actor, including on dedicated servers where
+no beam exists. Only the clip notify or immediate mode-switch action commits that colour. The pawn presentation
+stream carries the active normal/motion/EMF colour on its sampled timeline, including late-join baselines, and
+restores the observer's existing beam material without replaying gameplay.
+
 ## Open questions
 - The exact D3D blend of a Shader with OutputBlending 3 and an Opacity texture (the green skin) is taken from the
   material resolver's rule (alpha blend through the opacity), not decoded from the render interface.

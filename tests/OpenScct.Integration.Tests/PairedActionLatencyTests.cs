@@ -246,6 +246,23 @@ public sealed class PairedActionLatencyTests
         var comparedClips = new System.Collections.Generic.HashSet<Name>();
         var sourceClips = new System.Collections.Generic.HashSet<Name>();
         var ownerClips = new System.Collections.Generic.HashSet<Name>();
+        var knockoutPhase = new System.Collections.Generic.Dictionary<SBasePawn, (float Last, int Samples, int Advanced)>();
+        void MeasureKnockout(SBasePawn pawn)
+        {
+            PawnAnimChannel channel = pawn.PawnAnim[0];
+            if (channel.Sequence != new Name("GrbdStAlKo0") || channel.Frame < .05f || channel.Frame > .9f) return;
+            if (knockoutPhase.TryGetValue(pawn, out var previous))
+            {
+                // Releasing the neck grab no longer waits for inert owner command packets.
+                // The collapse advances on every host tick, even when input arrives in bursts.
+                if (pawn.Role == ENetRole.ROLE_Authority)
+                    Assert.InRange(channel.Frame - previous.Last,
+                        channel.Rate * Sim.DeltaTime - .00001f, channel.Rate * Sim.DeltaTime + .00001f);
+                knockoutPhase[pawn] = (channel.Frame, previous.Samples + 1,
+                    previous.Advanced + (channel.Frame > previous.Last + .0001f ? 1 : 0));
+            }
+            else knockoutPhase.Add(pawn, (channel.Frame, 0, 0));
+        }
         void Compare(BotClient viewer, SBasePawn source, NetworkAnimChannel[] history)
         {
             long displayed = viewer.Session.RenderTimeFixed;
@@ -278,8 +295,11 @@ public sealed class PairedActionLatencyTests
             mercHistory[tick] = NetworkAnimChannel.Capture(recordedMerc.PawnAnim[0]);
             sourceClips.Add(recordedMerc.PawnAnim[0].Sequence);
             if (match.Bots[2].Controller?.Pawn is SBasePawn ownMerc) ownerClips.Add(ownMerc.PawnAnim[0].Sequence);
+            MeasureKnockout(recordedMerc);
             foreach (BotClient viewer in match.Bots)
             {
+                if (viewer.Session.Driver.FindActorByNetGuid((uint)recordedMerc.ActorId) is SBasePawn shownMerc)
+                    MeasureKnockout(shownMerc);
                 if (viewer == match.Bots[0] || viewer == match.Bots[2]) continue;
                 Compare(viewer, recordedSpy, spyHistory); Compare(viewer, recordedMerc, mercHistory);
             }
@@ -378,6 +398,10 @@ public sealed class PairedActionLatencyTests
         Assert.True(merc.Session.Movement.OwnerActionsApplied > 0);
         Assert.Contains(new Name("GrbdStAlKo0"), ownerClips);
         Assert.Contains(new Name("GrbdStAlWkA"), ownerClips);
+        Assert.Equal(match.Bots.Count + 1, knockoutPhase.Count);
+        foreach (var (pawn, phase) in knockoutPhase)
+            Assert.True(phase.Samples > 60 && phase.Advanced > phase.Samples * .8f,
+                $"{profile}/{link} knockout {pawn.Role}: advanced {phase.Advanced}/{phase.Samples} ticks");
         foreach (string clip in new[] { "GrabStAlBg0", "GrbdStAlBg0", "GrabStAlKo0", "GrbdStAlKo0", "GrbdStAlWkA" })
             Assert.True(comparedClips.Contains(new Name(clip)), $"missing {clip}: compared {string.Join(',', comparedClips)}; source {string.Join(',', sourceClips)}; owner {string.Join(',', ownerClips)}");
         foreach (BotClient owner in match.Bots)

@@ -51,6 +51,12 @@ public partial class SPlayerController
         else
         {
             Rotation = new FRotator(Rotation.Pitch, pawn.Rotation.Yaw, 0);
+            if (pawn is SPAWNDEFENSE)
+            {
+                // The next mouse update starts from this aim, not from the view held before the hit.
+                MyDesiredRotation = Rotation;
+                LocalMyDesiredRotation = Rotation;
+            }
         }
 
         bPressedJump = false;

@@ -21,8 +21,10 @@ public sealed partial class SBasePawnMoves : IMovePawn, IMovePrediction, IMoveCo
 {
     public bool CommandDriven { get; set; }
     public bool ModernCommands { get; set; }
+    // Release clears m_AttackedBy before the collapse ends. The victim still has no movement
+    // control, so its animation must keep advancing every world tick while owner packets arrive.
     public bool CommandSimulationEnabled => P is { m_AttackedBy: null } pawn && !IsCorpse(_pc, pawn) &&
-        !_pc.bGameEnded && _pc.StateNode is not SPlayerController.s_Inactive;
+        !_pc.bGameEnded && _pc.StateNode is not (SPlayerController.s_Inactive or SPlayerController.s_GrabbedByPlayer_Released);
 
     // The reliable death state can arrive before the independently replicated Health property.
     // PlayerFallingKO inherits the inert-fall implementation but remains a living, predicted pawn.
@@ -257,7 +259,9 @@ public sealed partial class SBasePawnMoves : IMovePawn, IMovePrediction, IMoveCo
     {
         if (P is not { } pawn) return;
         using var clock = CommandDriven ? pawn.XLevel.CommandTime(_commandTick, _commandTime, deltaTime) : default;
-        pawn.AdvancePredictionAnimation(deltaTime);
+        // The authority's world tick owns the goggle overlay. Owner prediction/replay still advances
+        // its complete pose normally; movement and gameplay-sensitive channels retain the input clock.
+        pawn.AdvancePredictionAnimation(deltaTime, CommandDriven && pawn.Role == ENetRole.ROLE_Authority ? SBasePawn.GOGGLECHANNEL : -1);
         pawn.UpdateMovementAnimation(deltaTime);
         pawn.OldPhysics = pawn.Physics;
     }
@@ -567,7 +571,7 @@ public sealed partial class NetMovementBridge : IMovementNet, IMoveEndpointSourc
 
     public bool DrivesPawn(SBasePawn pawn) => pawn.Role == ENetRole.ROLE_Authority && pawn.m_AttackedBy is null &&
         pawn.Controller is SPlayerController pc && !SBasePawnMoves.IsCorpse(pc, pawn) && !pc.bGameEnded &&
-        pc.StateNode is not SPlayerController.s_Inactive && PeekEndpoint(pc)?.Sequenced is not null;
+        pc.StateNode is not (SPlayerController.s_Inactive or SPlayerController.s_GrabbedByPlayer_Released) && PeekEndpoint(pc)?.Sequenced is not null;
 
     public bool RepositionsHeldPawnOnWorldClock(SBasePawn pawn) => pawn.m_AttackedBy is not null &&
         pawn.Controller is SPlayerController pc && PeekEndpoint(pc)?.Sequenced is not null;

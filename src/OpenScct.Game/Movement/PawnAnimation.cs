@@ -1213,7 +1213,7 @@ public sealed partial class PawnAnimation
     [Provenance(ProvenanceKind.Decoded, "ASBasePawn::Tick 0x11205fb0 and AActor::Tick 0x11183b50 update the mesh with the tick's DeltaSeconds before TickAuthoritative")]
     [Provenance(ProvenanceKind.Decoded, "UpdateAnimation 0x111056c0: passes, nudge, notify window, AnimLast end, loop AnimEnd at the AnimLast crossing, wrap to 0")]
     [Provenance(ProvenanceKind.Measured, "goldens traversal.spy-crawl-vent, spy-roll: each frame's advance is that frame's m_dT x rate (1e-8)")]
-    public void Advance(float tickDeltaTime, Action<int> animEnd, Func<bool>? inRootMotion = null)
+    public void Advance(float tickDeltaTime, Action<int> animEnd, Func<bool>? inRootMotion = null, int skipChannel = -1)
     {
         ArgumentNullException.ThrowIfNull(animEnd);
         if (tickDeltaTime <= 0f)
@@ -1225,13 +1225,21 @@ public sealed partial class PawnAnimation
         Aim.Update(tickDeltaTime);
         for (int ch = 0; ch < _channels.Length; ch++)
         {
-            UpdateChannel(ch, tickDeltaTime, animEnd, inRootMotion);
+            if (ch != skipChannel) UpdateChannel(ch, tickDeltaTime, animEnd, inRootMotion);
         }
 
         if (TweenCacheAfterAdvance)
         {
             UpdateTweenCache();
         }
+    }
+
+    /// <summary>Advances an independently clocked overlay, including its blends and callbacks, without stepping aim or other channels.</summary>
+    public void AdvanceChannel(int channel, float deltaTime, Action<int> animEnd, Func<bool>? inRootMotion = null)
+    {
+        ArgumentNullException.ThrowIfNull(animEnd);
+        if (!IsValidChannel(channel) || deltaTime <= 0f) return;
+        UpdateChannel(channel, deltaTime, animEnd, inRootMotion);
     }
 
     /// <summary>

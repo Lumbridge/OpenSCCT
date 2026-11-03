@@ -177,7 +177,7 @@ public partial class SPlayerController
             return GrabProbe.Stop;
         }
 
-        var extent = new FVector(spy.CollisionRadius, spy.CollisionRadius, ch - (diff / 2f + K.GrabExtentShrink));
+        var extent = new FVector(spy.CollisionRadius, spy.CollisionRadius, ch - (SvmMath.Abs(diff) / 2f + K.GrabExtentShrink));
         g = floor.Location + new FVector(0f, 0f, K.GrabSpotRaise * ch);
         return world.LineCheck(out _, spy, g, myLoc, extent, ETraceFlags.TRACE_World) ? GrabProbe.Blocked : GrabProbe.Clear;
     }

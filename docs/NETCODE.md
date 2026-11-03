@@ -269,6 +269,10 @@ input in its first received batch. Normal jitter then preserves one
 input tick per host tick instead of alternating held and burst-stepped authority poses. After an outage, older
 commands still catch up within the existing work and credit bounds.
 Pre-controls, physics and post-controls share the input's clock; authored presentation events retain the host tick.
+Locomotion and gameplay-sensitive animation channels also follow that input clock. Goggle head motion on channel 18
+advances once per authority world tick, including its blend, skin notifies and completion, so delayed input batches
+cannot pause or rush the cosmetic motion. Owner animation and prediction replay keep their complete local pose.
+Held pawns and inactive grab-release victims use the world clock for the full pose through collapse and recovery.
 Commands use compact sequences, control fences, ordinary tick deltas and packed view angles. Recovery rotates
 through the region around the oldest missing input while reserving slots for recent inputs, so distant gaps after
 an outage cannot hold a stop or action behind an entire pending window.
@@ -318,6 +322,10 @@ Root cursors retain full numeric values with compact common scalars and signed i
 can reuse the already transmitted body yaw; divergent directions and all pitch values remain explicit.
 Timestamped reliable body-state keys preserve physics, stance, visibility, attachment and paired-action changes that occur
 between movement snapshots. A state sequence detects a missing key without blocking newer movement packets.
+The state-gap diagnostic counts an unresolved interval only when the missing key is needed at display time,
+then waits for recovery before counting another gap. Snapshots normally precede their reliable body keys in
+the same send pass; that receive ordering alone is not a gap. Pose-buffer checks remain conservative when
+a newer snapshot reveals missing intermediate state history.
 Historical keys can fill motion history without replacing its newest receive reference. Actor reference codes
 remain in the buffered state and resolve again during presentation, including when the actor arrives after the key.
 Legacy pawn properties carried by this timeline are withheld for remote proxies, so an unrelated property arrival

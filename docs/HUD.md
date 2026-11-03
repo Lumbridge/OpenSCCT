@@ -220,6 +220,15 @@ player's machine: `ClientDamageHudEffect` (red wash for spies, perturbation for 
 white-out, extinguisher foam), `HudShutDown`, `SetBallisticValue`, the goggle messages. `HudEventTap` chains the
 world's event sink so nothing else changes.
 
+Merc headshot shutdown plays the original `Armes_impacts.Gadgets.Hud_shutDown` cue on the owning client,
+alongside the ordinary shock impact and grunt. The stock reticle follows its authored shutdown fade; the custom
+crosshair, added weapon readouts, motion/teammate labels, activity feed and location readout hide until reboot
+finishes. Reboot returns every top-level HUD area to its normal stopped frame, and Magma frame jumps execute
+the destination's actions so restored areas cannot drift back into shutdown keys. The `hud` smoke checks the
+shutdown, reboot and continued recovery at 30, 60 and 144 FPS.
+The radar is suppressed until reboot finishes: its authored disruption uses per-pixel noise masks that the
+Magma renderer does not yet reproduce, so showing it would leave the radar information readable during shutdown.
+
 **Activity feed and contextual messages.** `HudReceiver` routes localized match events into the `HudLayer`'s
 activity feed: kills, deaths, suicides, resignations, sleeps, knockouts, joins/leaves, match notices and last-life notices.
 Five newest events appear immediately, newest first, for six seconds each; entrance takes 150 ms and the final

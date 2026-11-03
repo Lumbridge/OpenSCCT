@@ -28,6 +28,8 @@ public sealed class SessionTests
     [InlineData("SvmCombatCall", "combat2")]
     [InlineData("SvmCombatCall", "combat3-authoritative-ammo")]
     [InlineData("SvmCombatCall", "combat4-shot-clock")]
+    [InlineData("SvmPawnSnapshot", "pawn-snapshot-21")]
+    [InlineData("SvmPawnPresentation", "pawn-presentation-6")]
     public void PreviousNetworkContractIsRejectedBeforeJoining(string functionName, string previousSignature)
     {
         var clock = new VirtualClock();
@@ -35,7 +37,9 @@ public sealed class SessionTests
         using var serverTransport = network.Bind("server");
         using var server = new ServerHost(serverTransport, new ServerSettings { Classes = NetClasses.Create(), Maps = WalkerRig.Maps });
         var oldClasses = NetClasses.Create();
-        RepExtension extension = oldClasses.Find(typeof(OpenScct.Game.SBase.SPlayerController))!.Extension!;
+        Type owner = functionName.StartsWith("SvmPawn", StringComparison.Ordinal)
+            ? typeof(OpenScct.Game.SBase.SPawnAttaque) : typeof(OpenScct.Game.SBase.SPlayerController);
+        RepExtension extension = oldClasses.Find(owner)!.Extension!;
         int command = extension.Functions.FindIndex(f => f.Name == functionName);
         Assert.True(command >= 0);
         extension.Functions[command] = extension.Functions[command] with { Signature = previousSignature, AcceptReordered = false };

@@ -406,14 +406,14 @@ public sealed class PlayMercSmoke : SmokeTest
                 return $"FAIL: the mask is {(view.Worn ? "worn" : "not worn")} on the HUD and used {used:F2} s of air in {s.ClientTime - t0:F2} s";
             }
 
-            if (s.MaskVisualFailure(worn: true) is { } visualFailure) return "FAIL: " + visualFailure;
+            if (s.MaskVisualFailure() is { } visualFailure) return "FAIL: " + visualFailure;
 
             return s.Detail($"worn, air {air0:F1} -> {mask.MaskDuration:F1} s, HUD gauge frame {view.GaugeFrame}, mask mesh follows head on first-person shadow layer");
         });
         leg.Add("take the gas mask off (right mouse)", 300, s => s.Tap("RightMouse", 5, 4), s =>
         {
             if (s.Pawn is not { bGasMask: false } || GadgetHudRules.GasMask(s.PC).Worn || s.Ticks <= 20) return null;
-            return s.MaskVisualFailure(worn: false) is { } failure ? "FAIL: " + failure : s.Detail("off, attached mask mesh hidden");
+            return s.MaskVisualFailure() is { } failure ? "FAIL: " + failure : s.Detail("oxygen off, carried mask mesh remains attached");
         });
 
         leg.Add("select the camera network (3)", 120, s => s.Tap("3", 0, 3), s =>
@@ -1027,7 +1027,7 @@ public sealed class PlayMercSmoke : SmokeTest
 
         public OpenScctGame.Hud.HudLayer? Hud => _root.Hud;
 
-        public string? MaskVisualFailure(bool worn)
+        public string? MaskVisualFailure()
         {
             var masks = new List<SGasMask>();
             foreach (SGasMask candidate in Session.Client.World.Level.AllActors<SGasMask>())
@@ -1035,8 +1035,7 @@ public sealed class PlayMercSmoke : SmokeTest
             if (masks.Count != 1) return $"expected one replicated mask for the merc, found {masks.Count}";
             SGasMask mask = masks[0];
             if (_root.Fx?.Effects?.MeshOf(mask) is not { } mesh) return "replicated gas mask has no rendered mesh";
-            if (mesh.Visible != worn) return $"mask mesh visibility {mesh.Visible} disagrees with worn={worn}";
-            if (!worn) return null;
+            if (!mesh.Visible) return "carried mask mesh is hidden";
             if (!ReferenceEquals(mask.Base, Pawn) || mask.AttachmentBone != K.GasMaskBone ||
                 _root.Pawns?.TryGetBone(Pawn, K.GasMaskBone, out Transform3D head) != true)
                 return "worn gas mask is not attached to the drawn head";

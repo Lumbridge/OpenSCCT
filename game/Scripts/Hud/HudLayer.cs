@@ -435,14 +435,15 @@ public partial class HudLayer : CanvasLayer
 
         // The laser's target name: the merc HUD's aim point helper past its gates, or the camera network's HUD state.
         bool mercPage = playerPage && Snapshot.Side == HudSide.Merc;
+        bool mercShutdown = ReferenceEquals(page, Merc) && Merc!.ShuttingDown;
         bool camNetwork = IsCamNetworkPage(page);
         SCamNetwork? disabledCamera = camNetwork && pc?.SBPawn?.UsedObject is SCamNetwork { IsShotDisabled: true } camera ? camera : null;
         bool targetName = camNetwork || (mercPage && _mercAimRan && pc?.myHUD is SHud aimHud && aimHud.TargetNameInAimHelper());
-        Motion.Update((mercPage || camNetwork) && disabledCamera is null ? pc : null, screen, Projector, Options.StretchHud, Assets, targetName);
+        Motion.Update((mercPage || camNetwork) && disabledCamera is null && !mercShutdown ? pc : null, screen, Projector, Options.StretchHud, Assets, targetName);
         _canvasList.Clear();
         ShockImmunity.Draw(screen, Snapshot, _white, Options.StretchHud,
-            suppressed: pc is { bGameEnded: true } || ReferenceEquals(page, Merc) && Merc!.ShuttingDown);
-        TeammateNames.Draw(playerPage && Snapshot.Valid && !Snapshot.HideHud ? pc : null, Projector, screen);
+            suppressed: pc is { bGameEnded: true } || mercShutdown);
+        TeammateNames.Draw(playerPage && Snapshot.Valid && !Snapshot.HideHud && !mercShutdown ? pc : null, Projector, screen);
         if (Snapshot.RespawnWeapon is { } weapon && !Snapshot.HideHud && Assets?.TextureSize(HudRespawnWeaponDrawer.Package, HudRespawnWeaponDrawer.Atlas) is { } atlas)
         {
             // BeginRespawnWeaponPick names the key bound to Use: here the bUsing button's key.
@@ -505,7 +506,7 @@ public partial class HudLayer : CanvasLayer
         Net.Draw(screen, dt, ShowNet, Fps.DrawList.Items.Count > 0, editorLayout.GetValueOrDefault("Network"));
         ActivityDrawer.Draw(screen, Activity.Entries, Snapshot.TimeSeconds,
             page, Fps.DrawList.Items, Net.DrawList.Items,
-            Snapshot.Valid && !Snapshot.HideHud, editorLayout.GetValueOrDefault("Activity"),
+            Snapshot.Valid && !Snapshot.HideHud && !mercShutdown, editorLayout.GetValueOrDefault("Activity"),
             layoutPage: Snapshot.Side == HudSide.Merc ? Merc : Spy);
 
         HudEditorTransform.Apply(Console.DrawList.Items, editorLayout, screen);
@@ -545,7 +546,7 @@ public partial class HudLayer : CanvasLayer
         _items.AddRange(_overlayList.Items);
         _items.AddRange(Fps.DrawList.Items);
         _items.AddRange(Net.DrawList.Items);
-        Location.Draw(screen, Snapshot.Valid && !Snapshot.HideHud && pc is not null ? HudLocation.NameAt(pc.ViewTarget as OpenScct.Core.Engine.Pawn ?? pc.Pawn) : "",
+        Location.Draw(screen, Snapshot.Valid && !Snapshot.HideHud && !mercShutdown && pc is not null ? HudLocation.NameAt(pc.ViewTarget as OpenScct.Core.Engine.Pawn ?? pc.Pawn) : "",
             ShowLocation, page);
         HudEditorTransform.Apply(Location.DrawList.Items, editorLayout, screen);
         _items.AddRange(Location.DrawList.Items);

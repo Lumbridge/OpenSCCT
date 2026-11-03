@@ -36,7 +36,18 @@ public sealed class GoggleGlowView
     }
 
     /// <summary>True when the glow was drawn this frame (its pawn view shown too: not the own pawn in first person).</summary>
-    public bool Shown => _model is { } m && m.Root.IsVisibleInTree();
+    public bool Shown
+    {
+        get
+        {
+            if (_model is not { } model || !model.Root.IsVisibleInTree()) return false;
+            foreach (MeshInstance3D mesh in model.Meshes)
+            {
+                if (mesh.IsVisibleInTree() && (mesh.Layers & RenderLayers.MainView) != 0) return true;
+            }
+            return false;
+        }
+    }
 
     /// <summary>The skin drawn (the material's package and name, without groups), or the mesh's own material's.</summary>
     public string? DrawnSkin => _model is null ? null : _skinOn;
