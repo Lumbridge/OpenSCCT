@@ -191,10 +191,15 @@ public sealed class HudFps
         if (Settings.ShowPeakFrameTime)
             extra += (extra.Length == 0 ? "" : "  ") + string.Create(CultureInfo.InvariantCulture, $"peak {PeakFrameTimeMs:0.0} ms");
         bool graph = Settings.Graph != "Off" && _white.HasValue;
-        float width = Math.Max(MeasureText(main, h), Math.Max(MeasureText(percentiles, h), MeasureText(extra, h))) + padding * 2f;
+        // Size from the selected readouts, reserving ordinary numeric ranges so live digits cannot move the panel.
+        string mainTemplate = Settings.ShowFrameTime ? "9999 fps  999.9 ms" : "9999 fps";
+        string percentilesTemplate = Settings.ShowPercentiles ? "1% low 9999  1% high 9999" : "";
+        string extraTemplate = Settings.ShowAverage ? "avg 9999 fps" : "";
+        if (Settings.ShowPeakFrameTime)
+            extraTemplate += (extraTemplate.Length == 0 ? "" : "  ") + "peak 999.9 ms";
+        float width = Math.Max(MeasureText(mainTemplate, h), Math.Max(MeasureText(percentilesTemplate, h), MeasureText(extraTemplate, h))) + padding * 2f;
         if (graph) width = Math.Max(width, h * 23f);
-        // An edited panel has an authored width: changing counter digits cannot move its left edge.
-        if (layout is not null || editorPreview) width = Math.Max(100f, Math.Min(screen.X - 16f, h * 28f));
+        width = Math.Min(width, Math.Max(1f, screen.X - 16f));
         float y = padding + pitch;
         if (percentiles.Length > 0) y += pitch;
         if (extra.Length > 0) y += pitch;
