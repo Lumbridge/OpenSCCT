@@ -52,7 +52,7 @@ public static class TitleCatalog
         return All.Where(t => t.Source switch
         {
             TitleSource.Prestige => t.Value > ProgressionK.MaxPrestige ? master : prestige >= t.Value,
-            TitleSource.Level => Math.Max(bestLevel, level) >= t.Value || prestige > 0 && t.Value <= ProgressionK.MaxLevel,
+            TitleSource.Level => Math.Max(bestLevel, level) >= t.Value,
             _ => t.Achievement is not null && ids.Contains(t.Achievement),
         }).ToList();
     }
@@ -97,7 +97,7 @@ public static class TitleCatalog
 
         Add("prestige_master", "Splinter Cell", TitleSource.Prestige, ProgressionK.MaxPrestige + 1);
 
-        // Level milestones (any prestige; a prestiged account has them all).
+        // Level milestones (any prestige; earned history survives normal prestige, but admins can reset it).
         Add("level_10", "Recruit", TitleSource.Level, 10);
         Add("level_25", "Regular", TitleSource.Level, 25);
         Add("level_40", "Veteran", TitleSource.Level, 40);
