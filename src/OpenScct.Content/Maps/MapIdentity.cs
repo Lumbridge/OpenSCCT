@@ -268,14 +268,22 @@ public sealed class MapIdentity
             return null;
         }
 
-        string path = Path.GetFullPath(Path.Combine(uiFolder, rel));
-        if (!path.StartsWith(picturesPrefix, StringComparison.OrdinalIgnoreCase))
+        try
         {
+            string path = Path.GetFullPath(Path.Combine(uiFolder, rel));
+            if (!path.StartsWith(picturesPrefix, StringComparison.OrdinalIgnoreCase))
+            {
+                return null;
+            }
+
+            var info = new FileInfo(path);
+            return info.Exists && info.Length <= MaxPictureBytes ? path : null;
+        }
+        catch (Exception e) when (e is ArgumentException or NotSupportedException or IOException or UnauthorizedAccessException)
+        {
+            // A path the file system refuses (a null character, a device name) is one broken picture, not a broken catalogue.
             return null;
         }
-
-        var info = new FileInfo(path);
-        return info.Exists && info.Length <= MaxPictureBytes ? path : null;
     }
 
     private static string? Text(JsonElement obj, string key, int max)

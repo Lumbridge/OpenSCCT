@@ -14,38 +14,29 @@ namespace OpenScctGame.UI;
 public static class MapImages
 {
     private static readonly Dictionary<string, Texture2D?> Textures = new(StringComparer.OrdinalIgnoreCase);
-    private static readonly Dictionary<string, int> LoadingPicks = new(StringComparer.OrdinalIgnoreCase);
     private static MapCatalog? _default;
 
     /// <summary>The catalog pages use when they have none of their own (the default roots of this install).</summary>
     public static MapCatalog Default => _default ??= MapCatalog.CreateDefault();
 
     /// <summary>The map's host list picture, or null.</summary>
-    public static Texture2D? Preview(MapCatalog? maps, string? map) => Load(Entry(maps, map)?.PreviewImage);
+    public static Texture2D? Preview(MapCatalog? maps, string? map) => First(maps, map, e => Load(e.PreviewImage));
 
     /// <summary>
     /// The map's loading picture for the side (the other side's, then the host list's, when it lacks one), or null. A
-    /// map with several pictures for a side shows one picked once per game session, so every page of one load agrees.
+    /// map with several pictures for a side gives a random one on each call: a loading page asks once per load.
     /// </summary>
-    public static Texture2D? Loading(MapCatalog? maps, string? map, bool merc)
-    {
-        MapCatalogEntry? entry = Entry(maps, map);
-        if (entry is null)
-        {
-            return null;
-        }
-
-        IReadOnlyList<string> own = merc ? entry.LoadingMercImages : entry.LoadingSpyImages;
-        IReadOnlyList<string> other = merc ? entry.LoadingSpyImages : entry.LoadingMercImages;
-        return Load(Pick(entry.Id, merc, own)) ?? Load(Pick(entry.Id, !merc, other)) ?? Load(entry.PreviewImage);
-    }
+    public static Texture2D? Loading(MapCatalog? maps, string? map, bool merc) =>
+        First(maps, map, e => Load(Pick(merc ? e.LoadingMercImages : e.LoadingSpyImages))) ??
+        First(maps, map, e => Load(Pick(merc ? e.LoadingSpyImages : e.LoadingMercImages))) ??
+        Preview(maps, map);
 
     /// <summary>
     /// The lobby briefing's plan of the map (GetLevelBrief), else the defenders' (mercs') loading picture as the
     /// original does (spec/game/lobby-and-match-creation.md rule 31), or null.
     /// </summary>
     public static Texture2D? Briefing(MapCatalog? maps, string? map) =>
-        Load(Entry(maps, map)?.BriefingImage) ?? Loading(maps, map, merc: true);
+        First(maps, map, e => Load(e.BriefingImage)) ?? Loading(maps, map, merc: true);
 
     /// <summary>The catalog entry of a map in the given catalog, else in the install's default one.</summary>
     public static MapCatalogEntry? Entry(MapCatalog? maps, string? map)
@@ -64,21 +55,31 @@ public static class MapImages
         return entry;
     }
 
-    private static string? Pick(string map, bool merc, IReadOnlyList<string> pictures)
+    /// <summary>A picture from the map's entry in the given catalog, else (picture by picture) from the install's
+    /// default catalog, which holds the shared pictures a server's or hub's own catalog may lack.</summary>
+    private static Texture2D? First(MapCatalog? maps, string? map, Func<MapCatalogEntry, Texture2D?> picture)
     {
-        if (pictures.Count <= 1)
+        if (string.IsNullOrEmpty(map))
         {
-            return pictures.Count == 1 ? pictures[0] : null;
+            return null;
         }
 
-        string key = (merc ? "merc:" : "spy:") + map;
-        if (!LoadingPicks.TryGetValue(key, out int pick))
+        MapCatalog catalog = maps ?? Default;
+        Texture2D? found = catalog.GetCatalogEntry(map) is { } entry ? picture(entry) : null;
+        if (found is null && !ReferenceEquals(catalog, Default) && Default.GetCatalogEntry(map) is { } shared)
         {
-            LoadingPicks[key] = pick = System.Random.Shared.Next(pictures.Count);
+            found = picture(shared);
         }
 
-        return pictures[pick % pictures.Count];
+        return found;
     }
+
+    private static string? Pick(IReadOnlyList<string> pictures) => pictures.Count switch
+    {
+        0 => null,
+        1 => pictures[0],
+        _ => pictures[System.Random.Shared.Next(pictures.Count)],
+    };
 
     private static Texture2D? Load(string? path)
     {

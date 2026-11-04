@@ -12,8 +12,9 @@ namespace OpenScctGame.Render.Golden;
 /// renderer and quits (docs/MAPS.md "Map pictures"). The request is a golden camera file (<see cref="GoldenShots"/>)
 /// without pawns, plus <c>map</c> (the map id, found like any map), an optional <c>folder</c> (the SVMap folder to use
 /// instead), <c>out</c> (where the PNGs go; the request's folder when absent) and <c>mode</c> (whose objective props
-/// show; Story when absent). Each shot is drawn in an <see cref="OffscreenView"/> at its exact size, with its look
-/// (plain, night vision or thermal), and saved as its <c>image</c>. Prints one <c>SVM_MAPSHOT</c> JSON line per shot
+/// show; Story when absent). Each shot is drawn in an <see cref="OffscreenView"/> at twice its size (as far as 4096
+/// pixels allow) and scaled down to it, so edges are smooth, with its look (plain, night vision or thermal), and saved
+/// as its <c>image</c>. Prints one <c>SVM_MAPSHOT</c> JSON line per shot
 /// and quits with 0 when every shot was saved, 1 otherwise. Needs a real renderer: start it with --svm-background,
 /// never --headless.
 /// </summary>
@@ -27,6 +28,9 @@ public partial class MapShot : Node
 
     /// <summary>Frames between freeing the view and quitting, so no render-thread callback runs into the shutdown.</summary>
     private const int TeardownFrames = 4;
+
+    /// <summary>The largest side drawn; a shot is supersampled only as far as this allows.</summary>
+    private const int MaxRenderSide = 4096;
 
     private readonly string _request;
     private readonly List<GoldenShot> _shots = [];
@@ -106,7 +110,7 @@ public partial class MapShot : Node
 
         Directory.CreateDirectory(_out);
         _map = MapBuilder.Build(folder);
-        _view = new OffscreenView(GetTree().Root, _map, new Vector2I(_shots[0].Width, _shots[0].Height));
+        _view = new OffscreenView(GetTree().Root, _map, RenderSize(_shots[0]));
         _spots = new MapSpotLights(_map, _view.Viewport);
         AnimatedProps.Build(_map, _map.Root);
         GameplayObjects.ShowMode(_map, mode);
@@ -147,6 +151,13 @@ public partial class MapShot : Node
 
         string path = Path.Combine(_out, shot.Image);
         Image image = _view.Capture();
+        if (image.GetWidth() != shot.Width || image.GetHeight() != shot.Height)
+        {
+            // OffscreenView draws without anti-aliasing (golden comparisons need that); a menu picture is smoothed by
+            // drawing it larger and scaling it down.
+            image.Resize(shot.Width, shot.Height, Image.Interpolation.Lanczos);
+        }
+
         Error saved = image.SavePng(path);
         if (saved == Error.Ok)
         {
@@ -173,13 +184,21 @@ public partial class MapShot : Node
     private void Place(GoldenShot shot)
     {
         _map!.SetTime(shot.TimeSeconds);
-        if (_view!.Viewport.Size != new Vector2I(shot.Width, shot.Height))
+        Vector2I size = RenderSize(shot);
+        if (_view!.Viewport.Size != size)
         {
-            _view.Viewport.Size = new Vector2I(shot.Width, shot.Height);
+            _view.Viewport.Size = size;
         }
 
         _view.View.RendMap = GoldenShots.RendMapOf(shot.Look) ?? RenderK.RendMapNormal;
         _view.View.SetUeCamera(shot.CameraLocation, shot.CameraRotation, shot.Fov, cut: true);
+    }
+
+    /// <summary>The size a shot is drawn at: twice its own, or less when that would pass <see cref="MaxRenderSide"/>.</summary>
+    private static Vector2I RenderSize(GoldenShot shot)
+    {
+        float scale = Math.Clamp(MaxRenderSide / (float)Math.Max(shot.Width, shot.Height), 1f, 2f);
+        return new Vector2I((int)(shot.Width * scale), (int)(shot.Height * scale));
     }
 
     private void Finish()

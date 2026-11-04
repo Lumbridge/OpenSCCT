@@ -23,6 +23,8 @@ public partial class ConnectingScreen : MenuPage
     private TextureRect? _modeImage;
     private MapThumb? _mapPicture;
     private string? _pictureKey;
+    private int _loads;
+    private bool _wasLoading;
     private Label? _log;
     private Label? _tip;
     private bool? _tipSide;
@@ -70,6 +72,14 @@ public partial class ConnectingScreen : MenuPage
         }
 
         string map = client.TravellingTo ?? client.CurrentMap ?? client.Lobby.Setup.Map ?? string.Empty;
+        // Each load (from the lobby or straight after a round) picks its loading picture again.
+        bool loading = client.State is OnlineClientState.Travelling or OnlineClientState.Loading;
+        if (loading && !_wasLoading)
+        {
+            _loads++;
+        }
+
+        _wasLoading = loading;
         bool round = client.State is OnlineClientState.Loading or OnlineClientState.Match ||
             (client.State == OnlineClientState.Travelling && !OpenScct.Server.MapCatalog.IsMenuMap(map));
         _heading.Text = client.State switch
@@ -83,7 +93,7 @@ public partial class ConnectingScreen : MenuPage
         if (round)
         {
             bool merc = client.Lobby.Local?.Team == 1;
-            string key = map + (merc ? "/merc" : "/spy");
+            string key = $"{map}/{(merc ? "merc" : "spy")}/{_loads}";
             if (key != _pictureKey)
             {
                 _pictureKey = key;

@@ -248,13 +248,13 @@ what breaks a rule below, never failing the map. Schema: [schemas/identity.schem
 | `version` | The author's version of the map (SemVer recommended), independent of any pack version. |
 | `language` | BCP 47 primary tag of the texts in `identity.json`, `mapinfo.json` and the actors' localised properties in `sim/`; `en` when absent. |
 | `players` | `{recommended}`: the lobby size (1 to 24, `LobbySetup.MaxMaxPlayers`) the map plays best at. The range of lobby sizes a map supports is gameplay (its match-size rules) and lives in `sim/`, never here. Absent: 6 for maps tagged `3v3` (or in a shared `3v3` playlist), else 4. |
-| `tags` | Lowercase `[a-z0-9-]{1,24}`, unique. Known tags: `3v3` (the 3v3 filter lists the map; also implied by `players.recommended >= 6`), `1v1`, `competitive`, `casual`, `small`, `large`. Others are shown and searchable. A map never names its own playlists: playlists are kept by whoever curates them (the shared catalogue, the content index, a server's config). |
+| `tags` | Lowercase `[a-z0-9-]{1,24}`, unique. Known tags: `3v3` (the 3v3 filter lists the map; also implied by `players.recommended` of exactly 6), `1v1`, `competitive`, `casual`, `small`, `large`. Others are shown and searchable. A map never names its own playlists: playlists are kept by whoever curates them (the shared catalogue, the content index, a server's config). |
 | `places` | `{number, name, at, floor?}`: the numbered areas of the briefing plan and the strategic map. `number` 1 to 99, unique; `at` a UE-space point, the label's anchor; `floor` the `LevelInfo.MapFloors` index (absent: the floor of `at`'s height). Readers draw the numbers over the strategic map's floors and over a briefing plan whose `briefingProjection` is `snapshot`; `mapinfo.json` `LegendMapInBrief` lists them. |
 | `pictures.menu` | The map list picture. Square, at least 512 x 512 (1024 x 1024 recommended). |
 | `pictures.loading.spy`, `.merc` | The loading pictures of each side, up to 8 each. Square, 1024 x 1024 recommended. With several, a reader shows one per load (or per session). |
 | `pictures.briefing` | The lobby's plan of the map. Square; transparent outside the map allowed. |
 | `pictures.briefingProjection` | `snapshot` when the plan was drawn through `levelInfo.SnapshotCamera` exactly as the strategic map's floors are, so a reader can project places onto it; otherwise absent or null, and no numbers are drawn on it. |
-| `pictures.banner` | Optional 16:9 picture (1920 x 1080 recommended) for wide layouts. |
+| `pictures.banner` | Optional 16:9 picture (1920 x 1080 recommended) for wide layouts such as map browsers. OpenSCCT reads it but its menus do not show it yet. |
 | `pictures.generated` | Slots (`menu`, `loading`, `briefing`, `banner`) whose picture a tool drew, so tools know they are not art. |
 
 Pictures: paths are relative to `ui/`, inside `ui/pictures/`, ASCII, no `..`; files are PNG (any alpha) or JPEG,

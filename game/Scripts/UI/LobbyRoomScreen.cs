@@ -150,6 +150,10 @@ public partial class LobbyRoomScreen : MenuPage
         AddChild(new BriefingPanel(pages, MapImages.Preview(_mapCatalog, map), MapImages.Briefing(_mapCatalog, map), PlaceMarks(map), title));
     }
 
+    /// <summary>The room a place number takes on the plan, as a share of its width and height (two digits at the
+    /// briefing's font size).</summary>
+    private const float MarkWidth = 0.06f, MarkHeight = 0.045f;
+
     /// <summary>The map's numbered places on its briefing plan, when the plan was drawn through the snapshot camera.</summary>
     private List<BriefingMark> PlaceMarks(string map)
     {
@@ -164,7 +168,14 @@ public partial class LobbyRoomScreen : MenuPage
         {
             if (strategic.Project(new StrategicMapPoint(place.At.X, place.At.Y, place.At.Z)) is { } uv && uv.U is >= 0f and <= 1f && uv.V is >= 0f and <= 1f)
             {
-                marks.Add(new BriefingMark(uv.U, uv.V, place.Number));
+                // Places on different floors can land on the same spot of the plan: such numbers stack downwards.
+                float v = uv.V;
+                while (v + MarkHeight <= 1f && marks.Any(m => Math.Abs(m.U - uv.U) < MarkWidth && Math.Abs(m.V - v) < MarkHeight))
+                {
+                    v += MarkHeight;
+                }
+
+                marks.Add(new BriefingMark(uv.U, v, place.Number));
             }
         }
 

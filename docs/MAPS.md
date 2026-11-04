@@ -63,7 +63,7 @@ The launch roster is recorded in [Official Xbox Magazine, March 2005, p. 52](htt
 Enhanced uses the `Enhanced` or `Enh` prefix in the catalog or original menu name and excludes 3v3 variants from its
 filter. Community contains everything outside Stock and the Enhanced family, including community 3v3 maps;
 enhanced 3v3 maps remain in All and 3v3 optimised. The 3v3 group uses Reloaded's `3v3` playlist, an explicit `3v3`
-label in the map's name or code, or a map's own identity (a `3v3` tag, or six or more recommended players). These
+label in the map's name or code, or a map's own identity (a `3v3` tag, or exactly six recommended players). These
 groups work without the shared catalog data and keep the host map order. Search (map name, code, authors and tags)
 and the selected mode further narrow the visible results.
 
@@ -138,9 +138,13 @@ for menu and loading pictures taken from a camera bookmark. The request is the g
 
 `folder` is optional (the map is otherwise found by id like any other); `out` defaults to the request's folder;
 `look` is `plain`, `nightvision` or `thermal` (RendMap 5, 34 and 36). Each shot is drawn in an `OffscreenView` at
-its exact size, as golden renders are, and saved as `<id>.png` (or its `image`). The run prints one `SVM_MAPSHOT`
-JSON line per shot and exits 0 when every shot was saved. It needs a real renderer: it always runs as a background
-window (off-screen, never focused), and refuses `--headless`.
+twice its size (as far as 4096 pixels allow) and scaled down to it, so edges are smooth where golden renders keep
+hard ones, and saved as `<id>.png` (or its `image`). The run uses default settings, writes none of the player's and
+starts no online presence. It prints one `SVM_MAPSHOT` JSON line per shot and exits 0 when every shot was saved. It
+needs a real renderer: it always runs as a background window and refuses `--headless` (with an `SVM_MAPSHOT` error
+line, which tells a tool the game knows the option). Godot shows the window before any game code runs, so a caller
+that must not take the person's focus starts it off-screen (`--position -32000,-32000`) or, for a local test build,
+beside `game/override.cfg` (local only, docs/TESTING-PLAY.md).
 
 ## The tools
 
