@@ -90,6 +90,13 @@ public static class MoveK
     [Provenance(ProvenanceKind.Decoded, "net-moves.md rule 12")]
     public const float ForcedCorrectionError = 10000f;
 
+    /// <summary>
+    /// Corrections in a row a client sets aside while it waits for a world change the server already applied
+    /// (OpenSCCT addition: <see cref="IMovePrediction.PredictionInputRevision"/>). Past this it replays anyway, so a
+    /// change that never arrives cannot stop corrections.
+    /// </summary>
+    public const int MaxDeferredCorrections = 32;
+
     /// <summary>No correction at or below this squared error (1.73 uu, the client's fErrorMax).</summary>
     [Provenance(ProvenanceKind.Decoded, "net-moves.md rule 12")]
     public const float CorrectionErrorSquared = 3f;

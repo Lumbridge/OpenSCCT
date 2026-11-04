@@ -314,7 +314,10 @@ Recorded collision inputs stage other pawn cylinders and moving-base poses durin
 afterwards, and reproduce rider translation and rotation without advancing another actor's gameplay. They also hold
 each conveyor's running state and speed as the client saw them. A correction carries the server tick it was sent at;
 a replayed move the server applied at or after a conveyor's last change replays with the replicated state instead, so
-a start, stop or reversal costs one correction ([conveyors](../spec/additions/conveyors.md#network)).
+a start, stop or reversal costs one correction ([conveyors](../spec/additions/conveyors.md#network)). A correction
+also carries the server's prediction input revision (the sum of the conveyors' change ticks). A client whose own
+value is behind has not received the change yet (its update was lost or is late), so it takes the acknowledgement
+and waits instead of replaying, at most 32 corrections in a row.
 Collision state changes immediately; the local mesh and ordinary pawn camera retain a decaying 100 ms visual
 offset. The camera offset is swept against world collision. Teleports, possession changes and reinitializations
 cut render history, and exhausted command history requests a controlled reinitialization.

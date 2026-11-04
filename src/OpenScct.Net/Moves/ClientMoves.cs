@@ -61,6 +61,9 @@ public sealed class ClientMoves
     public long MovesReplayed { get; private set; }
     public long AuthoritativeCorrectionsReceived { get; private set; }
     public long CorrectionsObsoletedByState { get; private set; }
+
+    /// <summary>Corrections set aside because this client had not yet received a world change the server applied.</summary>
+    public long CorrectionsDeferred { get; private set; }
     public float LastCorrectionDistance { get; private set; }
     private FVector _authoritativeVelocity;
     private EPhysics _authoritativePhysics;
@@ -68,6 +71,7 @@ public sealed class ClientMoves
     private long _authoritativeServerTick = -1;
     private bool Modern => Transport is SequencedMoveTransport;
     private uint _correctionEpoch, _acknowledgedSequence;
+    private int _deferredInARow;
 
     public void ResetPredictionHistory()
     {
@@ -83,10 +87,23 @@ public sealed class ClientMoves
     }
 
     /// <param name="serverTick">The server tick the state was sent at, or -1 when unknown.</param>
+    /// <param name="inputRevision">The server's <see cref="IMovePrediction.PredictionInputRevision"/> when it sent the state.</param>
     public void ReceiveAuthoritativeState(uint epoch, uint sequence, float stamp, FVector location, FVector velocity, EPhysics physics, byte zone, Actor? @base,
-        FVector? basePosition = null, FRotator baseRotation = default, long serverTick = -1)
+        FVector? basePosition = null, FRotator baseRotation = default, long serverTick = -1, uint inputRevision = 0)
     {
         if (Pawn is not IMovePrediction prediction || (_correctionEpoch == epoch && sequence <= _acknowledgedSequence)) return;
+        // The server moved the pawn under a change this client has not received (its update was lost or is late):
+        // replaying now would predict the old way again and earn another correction. Take the acknowledgement and
+        // wait for the change; the server keeps correcting while the client is off.
+        if ((int)(inputRevision - prediction.PredictionInputRevision) > 0 && _deferredInARow < MoveK.MaxDeferredCorrections)
+        {
+            _deferredInARow++;
+            CorrectionsDeferred++;
+            AcknowledgePrediction(epoch, sequence, stamp);
+            return;
+        }
+
+        _deferredInARow = 0;
         _correctionEpoch = epoch; _acknowledgedSequence = sequence;
         AuthoritativeCorrectionsReceived++;
         CurrentTimeStamp = stamp;

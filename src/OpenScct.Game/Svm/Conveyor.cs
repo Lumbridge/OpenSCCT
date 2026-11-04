@@ -168,6 +168,8 @@ public sealed partial class Conveyor : Actor, IConveyor
 
     public bool Carries(ConveyorCargo cargo) => cargo == ConveyorCargo.Pawns ? bCarryPlayers : bCarryObjects;
 
+    int IConveyor.ChangeTick => ChangeTick;
+
     /// <summary>
     /// Distance the belt has travelled at server tick <paramref name="tick"/> (fractional for drawing between ticks):
     /// rollers, treads and items are placed from it. Before the last change it runs at the speed it had then, so a
@@ -226,9 +228,14 @@ public sealed partial class Conveyor : Actor, IConveyor
             return;
         }
 
-        PhaseAtChange = (float)PhaseAt(XLevel.TickCount);
-        ChangeTick = (int)XLevel.TickCount;
-        SpeedBeforeChange = SurfaceSpeed;
+        // A second change in the same tick keeps the speed the belt had before the first.
+        if (ChangeTick != (int)XLevel.TickCount)
+        {
+            PhaseAtChange = (float)PhaseAt(XLevel.TickCount);
+            SpeedBeforeChange = SurfaceSpeed;
+            ChangeTick = (int)XLevel.TickCount;
+        }
+
         bOn = on;
         Speed = speed;
     }

@@ -5,6 +5,7 @@ using OpenScct.Game.Animation;
 using OpenScct.Game.Movement;
 using OpenScct.Game.SBase;
 using OpenScct.Net.Moves;
+using OpenScct.Physics.Conveyors;
 
 namespace OpenScct.Server;
 
@@ -400,6 +401,9 @@ public sealed partial class SBasePawnMoves
         if (_replayPreserveHomingTarget && pawn.Physics == EPhysics.PHYS_Falling)
             pawn.m_AttackTarget = _replayHomingTarget is { bDeleteMe: false } ? _replayHomingTarget : null;
     }
+
+    /// <summary>The level's conveyor changes (a level without conveyors has none).</summary>
+    public uint PredictionInputRevision => _pc.XLevel.GetService<ConveyorField>()?.Revision ?? 0u;
 
     public bool PredictionHistoryComplete(int slot) => _prediction is not null && _prediction[slot].Collision.Complete;
 

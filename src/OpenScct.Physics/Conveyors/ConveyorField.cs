@@ -25,6 +25,9 @@ public interface IConveyor
     float SurfaceSpeed { get; }
 
     bool Carries(ConveyorCargo cargo);
+
+    /// <summary>Server tick of the last start, stop or reversal (replicated).</summary>
+    int ChangeTick { get; }
 }
 
 /// <summary>
@@ -62,6 +65,25 @@ public sealed class ConveyorField
     }
 
     public void Remove(IConveyor conveyor) => _conveyors.Remove(conveyor);
+
+    /// <summary>
+    /// Grows with every start, stop or reversal (the sum of the conveyors' change ticks, which only grow). A client has
+    /// every change the server made once its value matches the server's, so a movement correction can tell whether
+    /// the client already knows the belt state it was made under.
+    /// </summary>
+    public uint Revision
+    {
+        get
+        {
+            uint sum = 0;
+            for (int i = 0; i < _conveyors.Count; i++)
+            {
+                sum += (uint)_conveyors[i].ChangeTick;
+            }
+
+            return sum;
+        }
+    }
 
     /// <summary>
     /// The running conveyor that carries a body of <paramref name="radius"/> whose lowest point is

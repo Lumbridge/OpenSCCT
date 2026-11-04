@@ -115,8 +115,18 @@ acknowledged one, and stages, per conveyor:
   state for it, even if the client predicted it before it heard of the change;
 - the recorded state for an earlier move.
 
-So a start, stop or reversal costs one correction, the first acknowledgement after the change, rather than one per
-acknowledgement until the moves predicted with the old state age out.
+A correction also carries the server's revision: the sum of every conveyor's `ChangeTick`, which grows with each
+change. When the client's own sum is lower, the property update with the change has not arrived (it was lost and
+is being resent, or is still on its way), and replaying would predict the old way again. The client then takes the
+correction as a plain acknowledgement and waits, at most 32 corrections in a row (`MoveK.MaxDeferredCorrections`),
+so a change that never arrives cannot stop corrections.
+
+So a start, stop or reversal costs one correction, the first acknowledgement after the client has the change, rather
+than one per acknowledgement until the moves predicted with the old state age out. Checked with a host and a client
+over the simulated links: one correction per change on profiles A to D (D: 250 ms and 5% loss, where a lost
+property update used to cost 9 corrections on one reversal).
+
+`SetRunning` called twice in one server tick keeps the phase and the speed from before the first call.
 
 ## Look
 

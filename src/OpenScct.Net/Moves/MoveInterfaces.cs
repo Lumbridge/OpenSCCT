@@ -19,6 +19,13 @@ public interface IMovePrediction
     /// </param>
     void BeginPredictionReplay(long serverTick = -1);
     void EndPredictionReplay(FVector previousLocation);
+
+    /// <summary>
+    /// How far this machine's replicated world state that changes how moves play out (conveyors starting, stopping
+    /// and reversing) has advanced; it only grows. A correction carries the server's value: a client behind it has
+    /// not yet received the change, so replaying would repeat the server's error.
+    /// </summary>
+    uint PredictionInputRevision => 0;
 }
 
 public interface IMoveCommandPawn
