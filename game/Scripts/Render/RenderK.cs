@@ -60,6 +60,21 @@ public static partial class RenderK
     [Provenance(ProvenanceKind.Decoded, "Engine.u Actor.MaxLights default 4")]
     public const int MaxActorLights = 4;
 
+    /// <summary>The most lights the gather keeps for any actor: min(8, Actor.MaxLights).</summary>
+    [Provenance(ProvenanceKind.Decoded, "actor light pick, game 0x10a363d0 (0x10a3692b)")]
+    public const int HardMaxActorLights = OpenScct.Game.Lighting.ActorLightRules.HardMaxActorLights;
+
+    /// <summary>
+    /// Light slots of the actor-lit template (svm_l0..3): Godot allows 16 instance uniforms per shader and the template
+    /// spends them on the vision, tint, glow hue and ambient values and four lights. An actor whose MaxLights is above 4
+    /// (KrauU's and StatD/E/S's GAR_humvee gameplay objects, at 6) loses its fifth and sixth lights.
+    /// </summary>
+    [Provenance(ProvenanceKind.Estimated, "Godot 4 instance uniform limit (16 per shader); the original keeps up to 8 (HardMaxActorLights)")]
+    public const int ActorLightSlots = 4;
+
+    /// <summary>The lights an actor keeps: min(8, its MaxLights), 0 for none (<see cref="OpenScct.Game.Lighting.ActorLightRules.ActorLightCap"/>).</summary>
+    public static int ActorLightCap(int maxLights) => OpenScct.Game.Lighting.ActorLightRules.ActorLightCap(maxLights);
+
     /// <summary>Point light gain: the light colour carries /510 and the stage modulates 2x.</summary>
     [Provenance(ProvenanceKind.Decoded, "RenderingModeNormal::SetLight falloff f(d) = 2 S(d/R), editor 0x10f29790")]
     public const float PointLightGain = 2f;

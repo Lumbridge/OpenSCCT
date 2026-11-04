@@ -117,6 +117,9 @@ public sealed class GameplayMesh
 
     /// <summary>The light actor names of its IgnoredEchelonLights, or null.</summary>
     public IReadOnlySet<string>? IgnoredLights { get; init; }
+
+    /// <summary>Actor.MaxLights: it keeps min(8, MaxLights) lights (<see cref="ActorLightRules.ActorLightCap"/>), none at 0.</summary>
+    public int MaxLights { get; init; } = RenderK.MaxActorLights;
 }
 
 /// <summary>The Godot side of one map's render folder.</summary>
@@ -309,11 +312,11 @@ public sealed class RenderMap
 
     /// <summary>
     /// Light set of an actor at <paramref name="location"/> (zone ambient, AmbientGlow, own-zone lights), with its
-    /// bSpecialLit and the light names of its IgnoredEchelonLights (pawns have neither).
+    /// bSpecialLit, the light names of its IgnoredEchelonLights (pawns have neither) and its MaxLights.
     /// </summary>
     public ActorLightSet LightActor(FVector location, float radius, int ambientGlow, bool? specialLit = false,
-        IReadOnlySet<string>? ignored = null) =>
-        ActorLighting.Select(location, radius, AmbientAt(location, ambientGlow), ZoneIndexAt(location), specialLit, ignored);
+        IReadOnlySet<string>? ignored = null, int maxLights = RenderK.MaxActorLights) =>
+        ActorLighting.Select(location, radius, AmbientAt(location, ambientGlow), ZoneIndexAt(location), specialLit, ignored, maxLights);
 
     /// <summary>
     /// The bSpecialLit and IgnoredEchelonLights light names of a placed actor (sim/gameplay.json over its class
@@ -379,7 +382,7 @@ public sealed class RenderMap
             if (g.Light == LightSource.Actor)
             {
                 FVector at = UeSpace.ToUe(g.Node.GlobalPosition);
-                ActorLighting.Apply(g.Node, LightActor(at, g.Radius, g.AmbientGlow, g.SpecialLit, g.IgnoredLights));
+                ActorLighting.Apply(g.Node, LightActor(at, g.Radius, g.AmbientGlow, g.SpecialLit, g.IgnoredLights, g.MaxLights));
             }
         }
 
@@ -952,7 +955,7 @@ public static class MapBuilder
             if (gameplay || light == LightSource.Actor)
             {
                 AddGameplay(actor, cls, meshName, mesh, transform, location, light, glow, hidden, VisionOf(inst), echelon, specialLit,
-                    ignoredLights);
+                    ignoredLights, MaxLightsOf(actor));
                 return;
             }
 
@@ -1049,6 +1052,17 @@ public static class MapBuilder
         }
 
         /// <summary>
+        /// A placed actor's Actor.MaxLights (sim/gameplay.json over its class defaults), else the default 4. Stock maps
+        /// store it on AquaD/E/T's movers (2), ClubD/E/S/T's SGamePlayObject1756 (0), the GAR_humvee gameplay objects
+        /// of KrauU and StatD/E/S (6) and three StaticMeshActors; the movers and static meshes are vertex-lit, so only
+        /// the gameplay objects' cap changes what is drawn.
+        /// </summary>
+        private int MaxLightsOf(string actor) =>
+            actor.Length > 0 && _map.Actors.Find(actor) is { } placed
+                ? placed.Int("MaxLights", RenderK.MaxActorLights)
+                : RenderK.MaxActorLights;
+
+        /// <summary>
         /// An instance's Echelon code (<see cref="RenderMap.EchelonCode"/>) from its extras "echelonIgnore" (the
         /// flags) and "ignoredEchelonLights" (light actor names, also returned in <paramref name="ignored"/>, as they skip
         /// ordinary lights too); 0 for maps converted before they were exported.
@@ -1110,7 +1124,8 @@ public static class MapBuilder
         }
 
         private void AddGameplay(string actor, string cls, string meshName, int mesh, in Transform3D transform, FVector location,
-            LightSource light, int glow, bool hidden, Vector4 vision, int echelon, bool? specialLit, IReadOnlySet<string>? ignoredLights)
+            LightSource light, int glow, bool hidden, Vector4 vision, int echelon, bool? specialLit, IReadOnlySet<string>? ignoredLights,
+            int maxLights)
         {
             int glowKey = light == LightSource.Vertex ? glow : 0;
             // Vertex-lit gameplay meshes carry their zones per vertex, so they are not shared between actors.
@@ -1179,6 +1194,7 @@ public static class MapBuilder
                 Radius = radius,
                 SpecialLit = specialLit,
                 IgnoredLights = ignoredLights,
+                MaxLights = maxLights,
             };
             if (actor.Length > 0)
             {
@@ -1188,7 +1204,7 @@ public static class MapBuilder
             if (light == LightSource.Actor && arrayMesh.GetSurfaceCount() > 0)
             {
                 FVector center = UeSpace.ToUe(box.GetCenter());
-                ActorLighting.Apply(node, _map.LightActor(center, radius, glow, specialLit, ignoredLights));
+                ActorLighting.Apply(node, _map.LightActor(center, radius, glow, specialLit, ignoredLights, maxLights));
             }
         }
 

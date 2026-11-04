@@ -49,6 +49,16 @@ public static class ActorLightRules
     [Provenance(ProvenanceKind.Decoded, "Engine.u Actor.MaxLights default 4")]
     public const int MaxActorLights = 4;
 
+    /// <summary>The most lights the gather keeps for any actor, whatever its MaxLights.</summary>
+    [Provenance(ProvenanceKind.Decoded, "actor light pick, game 0x10a363d0: min(8, Actor.MaxLights at +0x2e1) at 0x10a3692b; editor twin 0x111a6100 at 0x111a65d5 and 0x111a6c1b")]
+    public const int HardMaxActorLights = 8;
+
+    /// <summary>
+    /// The lights an actor keeps: min(8, its Actor.MaxLights), 0 for none (the actor is lit by its ambient alone).
+    /// </summary>
+    [Provenance(ProvenanceKind.Decoded, "actor light pick, game 0x10a363d0 (0x10a3692b); editor 0x111a6100 (0x111a65d5, 0x111a6c1b): a cap of 0 links no lights")]
+    public static int ActorLightCap(int maxLights) => System.Math.Clamp(maxLights, 0, HardMaxActorLights);
+
     /// <summary>Point light gain: the D3D vertex light falloff f(d) = 2 S(d / R).</summary>
     [Provenance(ProvenanceKind.Decoded, "RenderingModeNormal::SetLight falloff f(d) = 2 S(d/R), editor 0x10f29790")]
     public const float PointLightGain = 2f;

@@ -177,10 +177,12 @@ public sealed class ActorLighting
     /// the actor's zone index (-1 unknown), tested at the bounds' centre (the original takes every leaf the actor
     /// touches); <paramref name="specialLit"/> the actor's bSpecialLit (null when the map's content does not say, as
     /// conversions made before it was exported: no light is then skipped for it) and <paramref name="ignored"/> the
-    /// light names of its IgnoredEchelonLights (<see cref="ActorLightRules.LightsActor"/>).
+    /// light names of its IgnoredEchelonLights (<see cref="ActorLightRules.LightsActor"/>). <paramref name="maxLights"/>
+    /// is its Actor.MaxLights: it keeps min(8, MaxLights) lights (none at 0), of which the template draws the first
+    /// <see cref="RenderK.ActorLightSlots"/>.
     /// </summary>
     public ActorLightSet Select(FVector center, float radius, Vector3 ambient, int zone = -1, bool? specialLit = false,
-        IReadOnlySet<string>? ignored = null)
+        IReadOnlySet<string>? ignored = null, int maxLights = RenderK.MaxActorLights)
     {
         _ranked.Clear();
         LastMapCandidates = 0;
@@ -229,7 +231,7 @@ public sealed class ActorLighting
         });
 
         var set = new ActorLightSet { Ambient = ambient };
-        int n = Math.Min(RenderK.MaxActorLights, _ranked.Count);
+        int n = Math.Min(Math.Min(RenderK.ActorLightCap(maxLights), RenderK.ActorLightSlots), _ranked.Count);
         for (int i = 0; i < n; i++)
         {
             // Ranked by LightBrightness alone; the light type scales the colour (FDynamicLight::Update).
@@ -399,7 +401,7 @@ public sealed class ActorLighting
         ArgumentNullException.ThrowIfNull(set);
         float echelon = node.HasMeta(EchelonMeta) ? (float)node.GetMeta(EchelonMeta) : 0f;
         node.SetInstanceShaderParameter(AmbientParam, new Vector4(set.Ambient.X, set.Ambient.Y, set.Ambient.Z, echelon));
-        for (int i = 0; i < RenderK.MaxActorLights; i++)
+        for (int i = 0; i < RenderK.ActorLightSlots; i++)
         {
             PackedLight p = i < set.Count ? set.Lights[i] : default;
             node.SetInstanceShaderParameter(PosParams[i], p.Pos);
@@ -417,9 +419,9 @@ public sealed class ActorLightSet
 {
     public Vector3 Ambient { get; init; }
 
-    public PackedLight[] Lights { get; } = new PackedLight[RenderK.MaxActorLights];
+    public PackedLight[] Lights { get; } = new PackedLight[RenderK.ActorLightSlots];
 
-    public string?[] Names { get; } = new string?[RenderK.MaxActorLights];
+    public string?[] Names { get; } = new string?[RenderK.ActorLightSlots];
 
     public int Count { get; set; }
 }

@@ -113,11 +113,13 @@ public static class GameplayObjects
                 Radius = radius,
                 SpecialLit = actor.Bool("bSpecialLit"),
                 IgnoredLights = ActorLighting.IgnoredLightNames(actor),
+                MaxLights = actor.Int("MaxLights", RenderK.MaxActorLights),
             };
             map.Gameplay[actor.Id] = entry;
             if (!unlit)
             {
-                ActorLighting.Apply(node, map.LightActor(UeSpace.ToUe(box.GetCenter()), radius, glow, entry.SpecialLit, entry.IgnoredLights));
+                ActorLighting.Apply(node, map.LightActor(UeSpace.ToUe(box.GetCenter()), radius, glow, entry.SpecialLit, entry.IgnoredLights,
+                    entry.MaxLights));
             }
 
             placed++;
@@ -190,7 +192,8 @@ public static class GameplayObjects
                 node.SetInstanceShaderParameter(VisionActorParameter, a.Vision());
             }
 
-            ActorLighting.Apply(node, map.LightActor(location, owner.Radius, owner.AmbientGlow, owner.SpecialLit, owner.IgnoredLights));
+            ActorLighting.Apply(node, map.LightActor(location, owner.Radius, owner.AmbientGlow, owner.SpecialLit, owner.IgnoredLights,
+                owner.MaxLights));
             map.Gameplay[id] = new GameplayMesh
             {
                 ActorId = id,
@@ -202,6 +205,7 @@ public static class GameplayObjects
                 Radius = owner.Radius,
                 SpecialLit = owner.SpecialLit,
                 IgnoredLights = owner.IgnoredLights,
+                MaxLights = owner.MaxLights,
             };
             shown++;
         }

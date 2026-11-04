@@ -543,8 +543,16 @@ UnRenderVisibility.cpp), which fills the actor's surface light list (+0xe8):
   light only bSpecialLit actors, never a pawn.
 - Then bAffectOwnZoneOnly (light+0x2e8 bit 0x200 against the zone byte at +0x1b4, 0x10a37934), the sphere test
   against the light's radius (suns exempt), and at most 256 candidates
-  (cmp 0x100 at 0x10a378b0 and 0x10a37b3c). 0x10a363d0 keeps min(8, MaxLights at +0x2e1) of them (0x10a3692b);
-  OpenSCCT keeps the default MaxLights 4.
+  (cmp 0x100 at 0x10a378b0 and 0x10a37b3c). 0x10a363d0 keeps min(8, MaxLights at +0x2e1) of them (0x10a3692b;
+  editor 0x111a6100 at 0x111a65d5 and 0x111a6c1b), and a MaxLights of 0 links no lights: the actor is lit by its
+  zone ambient and AmbientGlow alone. OpenSCCT reads each actor's MaxLights (sim/gameplay.json over the class default
+  4, or the runtime actor's) and keeps min(8, MaxLights). Every class has the default 4; the stock maps store
+  AquaD/E/T's 21 movers at 2, ClubD/E/S/T's SGamePlayObject1756 (the destructible CLU_ZenPoles01 pipe) at 0, the
+  GAR_humvee gameplay objects KrauU SGamePlayObject8221 and 6084 and StatD/E/S SGamePlayObject6084 at 6, and three
+  StaticMeshActors (OffsD StaticMeshActor6917 at 255, TermD StaticMeshActor10864 at 16, ZiopD/S StaticMeshActor6369 at
+  8). The movers and static mesh actors are vertex-lit here, so their cap changes nothing drawn; ClubD's pipe is drawn
+  with ambient only, as in the original. The actor-lit template has four light slots (Godot allows 16 instance
+  uniforms per shader), so a cap above 4 (the humvees) draws the four strongest and loses the fifth and sixth.
 - Being a light depends on the actor's LightType, not its class: the cook's actor filter (0x10ee13b0, predicates
   0x10edd1e0 and 0x10edacf0) tests LightType (+0x2d1) before the Brush test, and the cooked lists hold movers and
   other gameplay actors with a light type (DeftD/S Mover2432, the LE_ESpotShadow projector riding lift B; DeftD/S
