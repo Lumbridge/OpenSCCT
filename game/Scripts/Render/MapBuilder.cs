@@ -124,6 +124,9 @@ public sealed class GameplayMesh
 
     /// <summary>Actor.Physics, which grows the bounds box the actor's touched leaves come from (<see cref="LeafLights.TouchExtent"/>).</summary>
     public EPhysics Physics { get; init; }
+
+    /// <summary>Actor.ForcedVisibilityZoneTag, null when unset: its touched leaves are kept to zones with that Tag (<see cref="ActorLeafBounds"/>).</summary>
+    public string? ZoneTag { get; init; }
 }
 
 /// <summary>The Godot side of one map's render folder.</summary>
@@ -390,7 +393,7 @@ public sealed class RenderMap
             {
                 FVector at = UeSpace.ToUe(g.Node.GlobalPosition);
                 ActorLighting.Apply(g.Node, LightActor(at, g.Radius, g.AmbientGlow, g.SpecialLit, g.IgnoredLights, g.MaxLights,
-                    ActorLighting.LeafBounds(g.Node, g.Physics)));
+                    ActorLighting.LeafBounds(g.Node, g.Physics, g.ZoneTag)));
             }
         }
 
@@ -1200,6 +1203,7 @@ public static class MapBuilder
 
             Aabb box = arrayMesh.GetSurfaceCount() > 0 ? transform * arrayMesh.GetAabb() : new Aabb(transform.Origin, Vector3.Zero);
             float radius = UeSpace.UnitsPerMetre * box.Size.Length() * 0.5f;
+            string? zoneTag = actor.Length > 0 ? ActorLighting.ZoneTag(_map.Actors.Find(actor)) : null;
             var entry = new GameplayMesh
             {
                 ActorId = actor,
@@ -1213,6 +1217,7 @@ public static class MapBuilder
                 IgnoredLights = ignoredLights,
                 MaxLights = maxLights,
                 Physics = physics,
+                ZoneTag = zoneTag,
             };
             if (actor.Length > 0)
             {
@@ -1223,7 +1228,7 @@ public static class MapBuilder
             {
                 FVector center = UeSpace.ToUe(box.GetCenter());
                 ActorLighting.Apply(node, _map.LightActor(center, radius, glow, specialLit, ignoredLights, maxLights,
-                    ActorLighting.LeafBounds(box, physics)));
+                    ActorLighting.LeafBounds(box, physics, zoneTag: zoneTag)));
             }
         }
 

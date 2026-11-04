@@ -83,7 +83,9 @@ public static class AnimatedProps
             GameplayActor? placed = map.Actors.Find(id);
             int maxLights = placed?.Int("MaxLights", RenderK.MaxActorLights) ?? RenderK.MaxActorLights;
             var physics = (OpenScct.Core.Engine.EPhysics)(placed?.Int("Physics") ?? Int(p, "Physics"));
-            ActorLeafBounds? box = RestBox(model) is { } rest ? ActorLighting.LeafBounds(rest, physics, exact: false) : null;
+            ActorLeafBounds? box = RestBox(model) is { } rest
+                ? ActorLighting.LeafBounds(rest, physics, exact: false, ActorLighting.ZoneTag(placed))
+                : null;
             model.Light(map.LightActor(center, radius, glow, specialLit, ignored, maxLights, box));
             props.Add(new AnimatedProp(id, model, location, drawScale));
         }

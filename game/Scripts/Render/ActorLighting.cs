@@ -68,6 +68,11 @@ public sealed class ActorLighting
         _hasMoved = new bool[_lights.Count];
         _leafId = new int[_lights.Count];
         Array.Fill(_leafId, -1);
+        foreach (ZoneEntry z in lighting.Zones)
+        {
+            _zoneTags.TryAdd(z.Name, z.Tag);
+        }
+
         if (leaves is not null)
         {
             _leaves = leaves;
@@ -112,6 +117,28 @@ public sealed class ActorLighting
     private readonly LeafLights.LeafLightSet? _leafSet;
     private (bool? SpecialLit, IReadOnlySet<string>? Ignored) _filter;
     private bool _sunByLeaves;
+    private readonly Dictionary<string, string> _zoneTags = new(StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<string, bool[]> _zoneTagMasks = new(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>
+    /// The LevelInfo's Tag, which a leaf with no zone actor (or a zone the map's lighting does not list) is tested
+    /// against: every stock map keeps the default.
+    /// </summary>
+    private const string LevelInfoTag = "LevelInfo";
+
+    // The zones a ForcedVisibilityZoneTag keeps, by zone id of the leaf lists (FName compares ignore case).
+    private bool[] ZoneTagMask(string tag)
+    {
+        if (!_zoneTagMasks.TryGetValue(tag, out bool[]? mask))
+        {
+            mask = _leaves!.ZoneMask(name =>
+                string.Equals(name is not null && _zoneTags.TryGetValue(name, out string? t) ? t : LevelInfoTag, tag,
+                    StringComparison.OrdinalIgnoreCase));
+            _zoneTagMasks.Add(tag, mask);
+        }
+
+        return mask;
+    }
 
     public int LightCount => _lights.Count;
 
@@ -182,7 +209,8 @@ public sealed class ActorLighting
     /// light names of its IgnoredEchelonLights (<see cref="ActorLightRules.LightsActor"/>). <paramref name="maxLights"/>
     /// is its Actor.MaxLights: it keeps min(8, MaxLights) lights (none at 0), of which the template draws the first
     /// <see cref="RenderK.ActorLightSlots"/>. <paramref name="bounds"/> is the actor's render bounds box and Physics, which
-    /// pick the leaves it touches (the box, or the sphere of radius |extent| when the box is chunky, grown by its Physics);
+    /// pick the leaves it touches (the box, or the sphere of radius |extent| when the box is chunky, grown by its Physics),
+    /// kept to the zones whose Tag is its ForcedVisibilityZoneTag when it has one (none kept: no light);
     /// without one the leaves are those the sphere (<paramref name="center"/>, <paramref name="radius"/>) reaches.
     /// The sphere always ranks the lights.
     /// </summary>
@@ -192,9 +220,19 @@ public sealed class ActorLighting
         _ranked.Clear();
         LastMapCandidates = 0;
         _filter = (specialLit, ignored);
+        bool noLeaves = false;
         if (bounds is { } box)
         {
-            _leafSet?.Gather(box);
+            if (_leafSet is not null)
+            {
+                bool[]? keep = box.ZoneTag is { Length: > 0 } tag && !string.Equals(tag, "None", StringComparison.OrdinalIgnoreCase)
+                    ? ZoneTagMask(tag)
+                    : null;
+                _leafSet.Gather(box, keep);
+                // Both passes of the gather read the touched leaves' lists, so an actor whose ForcedVisibilityZoneTag
+                // keeps none of them takes no light.
+                noLeaves = keep is not null && _leafSet.LeafCount == 0;
+            }
         }
         else
         {
@@ -202,6 +240,11 @@ public sealed class ActorLighting
         }
 
         _sunByLeaves = _leafSet is not null && bounds is { Exact: true };
+        if (noLeaves)
+        {
+            _filter = default;
+            return new ActorLightSet { Ambient = ambient };
+        }
 
         if (_index is not null && _moved.Count < _lights.Count / 2)
         {
@@ -413,17 +456,28 @@ public sealed class ActorLighting
     /// <summary>
     /// The leaf-walk bounds of a drawn box (Godot world space) for an actor with <paramref name="physics"/>: its centre
     /// and half size in uu. <paramref name="exact"/> is false for a box that only approximates the original's render
-    /// bounds (<see cref="ActorLeafBounds.Exact"/>).
+    /// bounds (<see cref="ActorLeafBounds.Exact"/>); <paramref name="zoneTag"/> is the actor's ForcedVisibilityZoneTag.
     /// </summary>
-    public static ActorLeafBounds LeafBounds(Aabb box, EPhysics physics = EPhysics.PHYS_None, bool exact = true) =>
-        new(UeSpace.ToUe(box.GetCenter()), UeSpace.ToUe(box.Size * 0.5f), physics, exact);
+    public static ActorLeafBounds LeafBounds(Aabb box, EPhysics physics = EPhysics.PHYS_None, bool exact = true, string? zoneTag = null) =>
+        new(UeSpace.ToUe(box.GetCenter()), UeSpace.ToUe(box.Size * 0.5f), physics, exact, zoneTag);
 
     /// <summary>The leaf-walk bounds of a drawn mesh node from its current world box, or null when it has no mesh.</summary>
-    public static ActorLeafBounds? LeafBounds(MeshInstance3D node, EPhysics physics)
+    public static ActorLeafBounds? LeafBounds(MeshInstance3D node, EPhysics physics, string? zoneTag = null)
     {
         ArgumentNullException.ThrowIfNull(node);
-        return node.Mesh is { } mesh ? LeafBounds(node.GlobalTransform * mesh.GetAabb(), physics) : null;
+        return node.Mesh is { } mesh ? LeafBounds(node.GlobalTransform * mesh.GetAabb(), physics, zoneTag: zoneTag) : null;
     }
+
+    /// <summary>A runtime actor's ForcedVisibilityZoneTag for <see cref="LeafBounds(Aabb, EPhysics, bool, string)"/>, null when unset.</summary>
+    public static string? ZoneTag(OpenScct.Core.Name tag) => tag.IsNone ? null : tag.ToString();
+
+    /// <summary>A placed actor's ForcedVisibilityZoneTag (sim/gameplay.json), null when unset.</summary>
+    public static string? ZoneTag(GameplayActor? actor) =>
+        actor is not null && actor.TryGet("ForcedVisibilityZoneTag", out System.Text.Json.JsonElement v) &&
+        v.ValueKind == System.Text.Json.JsonValueKind.String && v.GetString() is { Length: > 0 } s &&
+        !string.Equals(s, "None", StringComparison.OrdinalIgnoreCase)
+            ? s
+            : null;
 
     /// <summary>Writes a light set onto a drawn instance (its material must use the actor-lit template).</summary>
     public static void Apply(GeometryInstance3D node, ActorLightSet set)

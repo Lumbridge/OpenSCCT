@@ -28,17 +28,47 @@ public sealed class LeafLights
     private readonly int[][] _leafLights;
     private readonly int[] _nodeLeaf;
     private readonly Dictionary<string, int> _lightIds;
+    private readonly int[] _leafZone;
+    private readonly List<string?> _zoneNames;
 
-    private LeafLights(CollisionWorld world, int[][] leafLights, int[] nodeLeaf, Dictionary<string, int> lightIds)
+    private LeafLights(CollisionWorld world, int[][] leafLights, int[] nodeLeaf, Dictionary<string, int> lightIds, int[] leafZone,
+        List<string?> zoneNames)
     {
         _world = world;
         _leafLights = leafLights;
         _nodeLeaf = nodeLeaf;
         _lightIds = lightIds;
+        _leafZone = leafZone;
+        _zoneNames = zoneNames;
     }
 
     /// <summary>Distinct lights named by some leaf's list.</summary>
     public int LightCount => _lightIds.Count;
+
+    /// <summary>Distinct zones named by the leaves (a leaf with no zone actor counts as one more, named null).</summary>
+    public int ZoneCount => _zoneNames.Count;
+
+    /// <summary>The zone actor name of a zone id (<see cref="ZoneOf"/>), null for leaves with no zone actor.</summary>
+    public string? ZoneName(int zone) => (uint)zone < (uint)_zoneNames.Count ? _zoneNames[zone] : null;
+
+    /// <summary>The zone id of a leaf (an index for <see cref="ZoneName"/>), -1 for an unknown leaf.</summary>
+    public int ZoneOf(int leaf) => (uint)leaf < (uint)_leafZone.Length ? _leafZone[leaf] : -1;
+
+    /// <summary>
+    /// A zone mask for <see cref="LeafLightSet.Gather(in ActorLeafBounds, bool[])"/>: true for each zone id whose zone
+    /// actor name (null for leaves with no zone actor) passes <paramref name="keep"/>.
+    /// </summary>
+    public bool[] ZoneMask(Func<string?, bool> keep)
+    {
+        ArgumentNullException.ThrowIfNull(keep);
+        var mask = new bool[_zoneNames.Count];
+        for (int i = 0; i < mask.Length; i++)
+        {
+            mask[i] = keep(_zoneNames[i]);
+        }
+
+        return mask;
+    }
 
     /// <summary>
     /// The lists of a map folder's <see cref="FileName"/> over <paramref name="world"/>'s BSP, or null when the file is
@@ -88,11 +118,36 @@ public sealed class LeafLights
 
         var ids = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
         var leafLights = new int[leaves.GetArrayLength()][];
+        var leafZone = new int[leafLights.Length];
+        var zoneIds = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+        var zoneNames = new List<string?>();
+        int noZone = -1;
         int li = 0;
         var run = new List<int>();
         foreach (JsonElement leaf in leaves.EnumerateArray())
         {
             run.Clear();
+            string? zoneName = leaf.ValueKind == JsonValueKind.Object && leaf.TryGetProperty("zone", out JsonElement z) &&
+                z.ValueKind == JsonValueKind.String && z.GetString() is { Length: > 0 } zn ? zn : null;
+            int zoneId;
+            if (zoneName is null)
+            {
+                if (noZone < 0)
+                {
+                    noZone = zoneNames.Count;
+                    zoneNames.Add(null);
+                }
+
+                zoneId = noZone;
+            }
+            else if (!zoneIds.TryGetValue(zoneName, out zoneId))
+            {
+                zoneId = zoneNames.Count;
+                zoneIds.Add(zoneName, zoneId);
+                zoneNames.Add(zoneName);
+            }
+
+            leafZone[li] = zoneId;
             if (leaf.ValueKind == JsonValueKind.Object)
             {
                 if (leaf.TryGetProperty("lights", out JsonElement names) && names.ValueKind == JsonValueKind.Array)
@@ -129,7 +184,7 @@ public sealed class LeafLights
             nodeLeaf[ni++] = front < leafLights.Length ? front : -1;
         }
 
-        return new LeafLights(world, leafLights, nodeLeaf, ids);
+        return new LeafLights(world, leafLights, nodeLeaf, ids, leafZone, zoneNames);
     }
 
     /// <summary>The id of a light named by some leaf's list, or -1 when no leaf lists it.</summary>
@@ -226,6 +281,7 @@ public sealed class LeafLights
         private readonly LeafLights _lists;
         private readonly int[] _mark;
         private readonly List<int> _leaves = [];
+        private readonly List<int> _zones = [];
         private int _stamp;
 
         internal LeafLightSet(LeafLights lists)
@@ -253,8 +309,40 @@ public sealed class LeafLights
             Mark();
         }
 
-        /// <summary>Collects the lights listed by every leaf an actor with these render bounds touches.</summary>
-        public void Gather(in ActorLeafBounds bounds) => Gather(bounds.Center, TouchExtent(bounds.Extent, bounds.Physics));
+        /// <summary>
+        /// Collects the lights listed by every leaf an actor with these render bounds touches. With
+        /// <paramref name="keepZone"/> (indexed by zone id, <see cref="ZoneOf"/>) the touched leaves of the other zones
+        /// are dropped first: the original keeps only the leaves whose zone's Tag is the actor's ForcedVisibilityZoneTag
+        /// when that is set (<see cref="ZoneMask"/>).
+        /// </summary>
+        [Provenance(ProvenanceKind.Decoded, "actor leaf array, game 0x10990e60 at 0x109910d0-0x10991152: with ForcedVisibilityZoneTag (+0x2b0) set, a touched leaf whose zone actor's Tag (+0x2bc; the LevelInfo when the leaf has none) differs is removed")]
+        public void Gather(in ActorLeafBounds bounds, bool[]? keepZone = null)
+        {
+            Begin();
+            _lists.BoxLeaves(bounds.Center, TouchExtent(bounds.Extent, bounds.Physics), _leaves);
+            if (keepZone is not null)
+            {
+                int kept = 0;
+                for (int i = 0; i < _leaves.Count; i++)
+                {
+                    int zone = _lists.ZoneOf(_leaves[i]);
+                    if ((uint)zone < (uint)keepZone.Length && keepZone[zone])
+                    {
+                        _leaves[kept++] = _leaves[i];
+                    }
+                }
+
+                _leaves.RemoveRange(kept, _leaves.Count - kept);
+            }
+
+            Mark();
+        }
+
+        /// <summary>The zone ids (<see cref="ZoneOf"/>) of the leaves the last Gather kept, each once.</summary>
+        public IReadOnlyList<int> Zones => _zones;
+
+        /// <summary>The number of leaves the last Gather kept.</summary>
+        public int LeafCount => _leaves.Count;
 
         private void Begin()
         {
@@ -265,12 +353,16 @@ public sealed class LeafLights
             }
 
             _leaves.Clear();
+            _zones.Clear();
         }
 
         private void Mark()
         {
             foreach (int leaf in _leaves)
             {
+                int zone = _lists.ZoneOf(leaf);
+                if (zone >= 0 && !_zones.Contains(zone)) _zones.Add(zone);
+
                 foreach (int id in _lists.LightsOf(leaf))
                 {
                     _mark[id] = _stamp;
@@ -287,6 +379,7 @@ public sealed class LeafLights
 /// An actor's render bounds for the leaf walk (<see cref="LeafLights.BoxLeaves"/>): the box's centre and half size in uu
 /// (axis aligned, in world space) and the actor's Physics, which picks how the box is grown (<see cref="LeafLights.TouchExtent"/>).
 /// <paramref name="Exact"/> is false when the box only approximates the original's render bounds (a skeletal mesh's rest
-/// pose box): its leaves are then not trusted to keep a sun to its zone.
+/// pose box): its leaves are then not trusted to keep a sun to its zone. <paramref name="ZoneTag"/> is the actor's
+/// ForcedVisibilityZoneTag (null when unset): only the touched leaves of zones with that Tag are kept.
 /// </summary>
-public readonly record struct ActorLeafBounds(FVector Center, FVector Extent, EPhysics Physics, bool Exact = true);
+public readonly record struct ActorLeafBounds(FVector Center, FVector Extent, EPhysics Physics, bool Exact = true, string? ZoneTag = null);

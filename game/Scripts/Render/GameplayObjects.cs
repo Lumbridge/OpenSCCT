@@ -115,12 +115,13 @@ public static class GameplayObjects
                 IgnoredLights = ActorLighting.IgnoredLightNames(actor),
                 MaxLights = actor.Int("MaxLights", RenderK.MaxActorLights),
                 Physics = (OpenScct.Core.Engine.EPhysics)actor.Int("Physics"),
+                ZoneTag = ActorLighting.ZoneTag(actor),
             };
             map.Gameplay[actor.Id] = entry;
             if (!unlit)
             {
                 ActorLighting.Apply(node, map.LightActor(UeSpace.ToUe(box.GetCenter()), radius, glow, entry.SpecialLit, entry.IgnoredLights,
-                    entry.MaxLights, ActorLighting.LeafBounds(box, entry.Physics)));
+                    entry.MaxLights, ActorLighting.LeafBounds(box, entry.Physics, zoneTag: entry.ZoneTag)));
             }
 
             placed++;
@@ -194,7 +195,7 @@ public static class GameplayObjects
             }
 
             ActorLighting.Apply(node, map.LightActor(location, owner.Radius, owner.AmbientGlow, owner.SpecialLit, owner.IgnoredLights,
-                owner.MaxLights, ActorLighting.LeafBounds(node.Transform * mesh.GetAabb(), owner.Physics)));
+                owner.MaxLights, ActorLighting.LeafBounds(node.Transform * mesh.GetAabb(), owner.Physics, zoneTag: owner.ZoneTag)));
             map.Gameplay[id] = new GameplayMesh
             {
                 ActorId = id,
@@ -208,6 +209,7 @@ public static class GameplayObjects
                 IgnoredLights = owner.IgnoredLights,
                 MaxLights = owner.MaxLights,
                 Physics = owner.Physics,
+                ZoneTag = owner.ZoneTag,
             };
             shown++;
         }

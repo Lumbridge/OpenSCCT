@@ -570,8 +570,14 @@ from its render bounds box, as the original builds its leaf array: 0x10990e60 gr
 Physics adds 128 uu to each half size (0x10bff1b4)), and the walk 0x10a08320 takes a chunky box (twice its smallest
 half size above its largest) as the sphere of radius |extent| at its centre and an elongated one as the box itself
 (each node plane's reach |Nx ex| + |Ny ey| + |Nz ez|), so the box is never looser than that sphere
-(`LeafLights.BoxLeaves`, `LeafLights.TouchExtent`). Placed static meshes and gameplay objects are PHYS_None; movers
-PHYS_MovingBrush. Gameplay meshes, devices, camera mounts and spawned effect meshes pass their drawn box; animated
+(`LeafLights.BoxLeaves`, `LeafLights.TouchExtent`). After the walk (0x109910d0-0x10991152) an actor whose
+ForcedVisibilityZoneTag (+0x2b0) is set keeps only the touched leaves whose zone actor's Tag (+0x2bc; the LevelInfo's
+for a leaf with no zone actor) is that tag; both passes of the gather read only the kept leaves, so an actor that keeps
+none takes no light. 268 stock actors set it (movers, gameplay objects, animated meshes, fish, emitters and
+STriggerLights of the Aqua, Bank, Club, Fact, Krau, Sanc, Shad, Stat and Ware maps; ClubD's paper doors
+SGamePlayObject276 and 4140 keep to `zone_lunch_room`). OpenSCCT applies it to the actors gathered by a box
+(`ActorLeafBounds.ZoneTag`, zone tags from render/lighting.json). Placed static meshes and gameplay objects are
+PHYS_None; movers PHYS_MovingBrush. Gameplay meshes, devices, camera mounts and spawned effect meshes pass their drawn box; animated
 (skeletal) meshes pass their rest pose box, which only approximates the original's render bounds; pawns, the
 first-person view, emitters, puddles and soft bodies still take the leaves their bounding sphere reaches. The file is used only when its `nodeLeaf` has one entry per node of
 the world collider's BSP in sim/collision.bin. A static light with a light type must be listed by one of them,

@@ -600,6 +600,9 @@ public sealed record ZoneEntry(
 
     /// <summary>ZoneInfo.bClearToFogColor: with <see cref="Fog"/>, the main view clears to <see cref="FogColor"/>.</summary>
     public bool ClearToFog { get; init; }
+
+    /// <summary>The zone actor's Tag (its class name when the map does not store one).</summary>
+    public string Tag { get; init; } = "ZoneInfo";
 }
 
 /// <summary>render/lighting.json.</summary>
@@ -740,6 +743,7 @@ public sealed class LightingDoc
                 {
                     FogBlendTime = Num(z, "fog_blend_time", 1f),
                     ClearToFog = MaterialsDoc.Bool(z, "clear_to_fog"),
+                    Tag = MaterialsDoc.Str(z, "tag") ?? MaterialsDoc.Str(z, "class") ?? "ZoneInfo",
                 });
             }
         }

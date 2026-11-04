@@ -291,7 +291,7 @@ public sealed class DeviceViews
             if (relight && m.Moved && m.Entry.Light == LightSource.Actor && m.Entry.Node.Visible)
             {
                 ActorLighting.Apply(m.Entry.Node, _map.LightActor(UeSpace.ToUe(m.Entry.Node.GlobalPosition), m.Entry.Radius, m.Entry.AmbientGlow,
-                    m.Entry.SpecialLit, m.Entry.IgnoredLights, m.Entry.MaxLights, ActorLighting.LeafBounds(m.Entry.Node, m.Actor.Physics)));
+                    m.Entry.SpecialLit, m.Entry.IgnoredLights, m.Entry.MaxLights, ActorLighting.LeafBounds(m.Entry.Node, m.Actor.Physics, m.Entry.ZoneTag)));
             }
         }
 
@@ -723,7 +723,7 @@ public sealed class AnimatedMeshView
             (FVector center, float radius) = AnimatedProps.Bounds(Model);
             // The rest pose box stands in for the mesh's render bounds, so its leaves do not decide suns (Exact false).
             ActorLeafBounds? box = AnimatedProps.RestBox(Model) is { } rest
-                ? ActorLighting.LeafBounds(rest, _actor.Physics, exact: false)
+                ? ActorLighting.LeafBounds(rest, _actor.Physics, exact: false, ActorLighting.ZoneTag(_actor.ForcedVisibilityZoneTag))
                 : null;
             Model.Light(_map.LightActor(center, radius, _actor.AmbientGlow, _actor.bSpecialLit, _map.LightFilterOf(Id).Ignored,
                 _actor.MaxLights, box));
