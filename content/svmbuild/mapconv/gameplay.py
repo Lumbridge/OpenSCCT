@@ -10,7 +10,8 @@
   The server needs them: AnimNotify_Trigger notifies fire events (the SteeE crane).
 - tagIndex, eventEdges, missionTree: derived (svmbuild.svmap, 1.1 rules).
 - sim/classes.json: the effective class defaults of every class used by those actors, and the super chains, so a
-  reader can rebuild the full state of an actor (defaults overlaid with its props) from sim/ alone.
+  reader can rebuild the full state of an actor (defaults overlaid with its props) from sim/ alone. Classes the map
+  defines itself carry "mapScript": true.
 """
 
 from __future__ import annotations
@@ -170,8 +171,9 @@ def build_animations(src: MapSource, actors: List[ActorInfo]) -> dict:
 
 # ---- documents -------------------------------------------------------------------------------------
 
-def build_gameplay(src: MapSource) -> Tuple[dict, dict, dict]:
-    """(gameplay.json document, ui mapinfo, stats)."""
+def build_gameplay(src: MapSource, native: Optional[List[dict]] = None) -> Tuple[dict, dict, dict]:
+    """(gameplay.json document, ui mapinfo, stats). `native` are OpenSCCT actors made from lifted RE+ actors (converted
+    conveyors), written after the map's own."""
     level = src.level_info
     li = actor_json(src, level)
     mask = level.props.get("GEActivationMask")
@@ -179,7 +181,7 @@ def build_gameplay(src: MapSource) -> Tuple[dict, dict, dict]:
         mask = src.db.default(level.cls, "GEActivationMask", 0) or 0
     li["props"]["GEActivationMask"] = int(mask)
     gameplay_actors = src.of("gameplay")
-    actors = [actor_json(src, a) for a in gameplay_actors]
+    actors = [actor_json(src, a) for a in gameplay_actors] + list(native or [])
     settings, ui, settings_path = read_map_settings(src)
     doc = {
         "formatVersion": LATEST_VERSION,
@@ -193,6 +195,8 @@ def build_gameplay(src: MapSource) -> Tuple[dict, dict, dict]:
     by_class: Dict[str, int] = {}
     for a in [level, *gameplay_actors]:
         by_class[a.cls] = by_class.get(a.cls, 0) + 1
+    for a in native or []:
+        by_class[a["class"]] = by_class.get(a["class"], 0) + 1
     cats: Dict[str, int] = {}
     for a in src.actors:
         cats[a.category] = cats.get(a.category, 0) + 1
@@ -210,6 +214,8 @@ def build_class_table(src: MapSource) -> dict:
     for cls in used:
         for i, c in enumerate(src.db.chain(cls)):
             entry = classes.setdefault(c, {"super": src.db.classes[c].get("super")})
+            if src.db.is_package_class(c, src.pkg.path.stem):
+                entry["mapScript"] = True
             if i == 0:
                 entry["defaults"] = src.db.defaults_json(c, notes=src.notes)
     return {"format": "svm.classes/1", "classes": classes}

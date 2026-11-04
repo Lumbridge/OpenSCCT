@@ -58,6 +58,12 @@ public sealed class GoggleGlowView
     /// <summary>The model drawn (for checks), or null.</summary>
     public SkeletalModel? Model => _model;
 
+    /// <summary>
+    /// A map outfit's model under the pawn (spec/additions/map-outfits.md): the bone the glow hangs from and the offset
+    /// in that bone's axes added to the beam's own, so the lights sit on the outfit's goggles. Null on the stock meshes.
+    /// </summary>
+    public (Name Bone, FVector Offset)? Outfit { get; init; }
+
     /// <summary>Places the glow of <paramref name="pawn"/> for this frame, or hides it when the pawn has none.</summary>
     public void Draw(SBasePawn pawn)
     {
@@ -74,7 +80,7 @@ public sealed class GoggleGlowView
             return;
         }
 
-        (bool ok, Transform3D bone) = _bone(beam.AttachmentBone);
+        (bool ok, Transform3D bone) = _bone(Outfit?.Bone ?? beam.AttachmentBone);
         if (!ok)
         {
             Hide();
@@ -83,7 +89,8 @@ public sealed class GoggleGlowView
 
         // UE2 bone attachment: the actor's axes are the bone's turned by RelativeRotation in the bone's own frame.
         Basis basis = bone.Basis.Orthonormalized() * UeSpace.RotationToGodot(beam.RelativeRotation);
-        Vector3 origin = bone.Origin + (bone.Basis.Orthonormalized() * UeSpace.ToGodot(beam.RelativeLocation));
+        FVector relative = beam.RelativeLocation + (Outfit?.Offset ?? default);
+        Vector3 origin = bone.Origin + (bone.Basis.Orthonormalized() * UeSpace.ToGodot(relative));
         _model!.Root.GlobalTransform = new Transform3D(basis, origin);
         string skin = SkinKey(beam.Skin.IsNone ? null : beam.Skin.Path) ?? _model.Slots[0];
         if (skin != _skinOn)

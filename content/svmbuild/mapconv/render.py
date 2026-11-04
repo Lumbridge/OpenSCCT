@@ -97,10 +97,12 @@ def _sprite_blend(material, style: int) -> str:
 
 
 class RenderBuilder:
-    def __init__(self, src: MapSource, work: Path, gameplay_ids: set):
+    def __init__(self, src: MapSource, work: Path, gameplay_ids: set, item_meshes: Optional[List[Ref]] = None):
         self.src = src
         self.work = Path(work)
         self.gameplay_ids = gameplay_ids
+        # Meshes conveyors carry as items (conveyors.py): library nodes even when no placed actor uses them.
+        self.item_meshes = list(item_meshes or [])
         self.stats: Dict[str, Any] = {}
         self.files: Dict[str, bytes] = {}
         self._particle_refs: Optional[List[Ref]] = None
@@ -119,8 +121,9 @@ class RenderBuilder:
             shutil.rmtree(self.work)
         self.work.mkdir(parents=True)
         extra = [r.ref for r in self._swap_meshes()] + [r.ref for r in self._particle_meshes()]
+        extra += [r.ref for r in self.item_meshes if self.src.own(r)]
         st = export_gltf.export_map(self.src.path, self.src.pset, self.work, include_bsp=True,
-                                    extra_mesh_refs=extra)
+                                    extra_mesh_refs=extra, skip_refs=self.src.unsaved_refs)
         out = self.work / self.src.name
         gltf = json.loads((out / f"{self.src.name}.gltf").read_text(encoding="utf-8"))
         binary = (out / f"{self.src.name}.bin").read_bytes()
@@ -236,6 +239,7 @@ class RenderBuilder:
             refs.append(sm)
         refs.extend(self._swap_meshes())
         refs.extend(self._particle_meshes())
+        refs.extend(self.item_meshes)
         for sm in refs:
             if not isinstance(sm, Ref) or sm.ref == 0 or not sm.path:
                 continue
@@ -542,13 +546,18 @@ class RenderBuilder:
         self.stats["spawnParticles"] = len(spawn)
         return {"emitters": emitters, "spawnParticles": spawn, **extra}
 
-    def write_spawn_particle_textures(self, tex_dir: Path) -> None:
-        """The PNGs of the gameplay objects' damage effect textures, named as the exporter names the placed emitters'
-        (textures/<Package.Name>.png), for those it did not write."""
+    def write_particle_textures(self, tex_dir: Path) -> None:
+        """The PNGs of the sub-emitter textures the exporter did not write, named as it names them
+        (textures/<Package.Name>.png): the gameplay objects' damage effects, and the placed emitters' sub-emitters
+        that come before every Emitter export in the package (the exporter gives a sub-emitter to the nearest
+        preceding one). An editor copy stores sub-emitters ahead of the actors (OffsE); some cooked copies do too
+        (OffsD, PanaD, Cistern, ScheU)."""
         from scctpkg import export_gltf  # noqa: PLC0415
         from scctpkg.texture import read_texture  # noqa: PLC0415
 
-        for _r, _cls, decoded in self._spawn_particles():
+        placed = [(sub, "emitter-texture") for info in self._emitters() for sub in self._emitter_subs(info)]
+        spawned = [(sub, "spawn-particle-texture") for sub in self._spawn_particles()]
+        for (_r, _cls, decoded), note in placed + spawned:
             tex = decoded.get("Texture")
             if not isinstance(tex, Ref) or tex.ref == 0 or not tex.path or tex.is_class:
                 continue
@@ -558,11 +567,11 @@ class RenderBuilder:
                 continue
             pkg, e = self.src.ref_export(tex)
             if pkg is None or e is None or e.class_name != "Texture":
-                self.src.notes.add("spawn-particle-texture", tex.path)
+                self.src.notes.add(note, tex.path)
                 continue
             tx = read_texture(pkg, e)
             if tx is None or tx.image is None:
-                self.src.notes.add("spawn-particle-texture", tex.path)
+                self.src.notes.add(note, tex.path)
                 continue
             tex_dir.mkdir(parents=True, exist_ok=True)
             export_gltf._write_png(tx.image, path)
@@ -669,7 +678,7 @@ class RenderBuilder:
         tex_dir = self.work / self.src.name / "textures"
         projectors = self.build_projectors(scene, tex_dir)   # writes its PNGs before the textures are collected
         light_sprites = self.build_light_sprites(tex_dir)
-        self.write_spawn_particle_textures(tex_dir)
+        self.write_particle_textures(tex_dir)
         textures = {}
         renamed: Dict[str, str] = {}
         if tex_dir.is_dir():

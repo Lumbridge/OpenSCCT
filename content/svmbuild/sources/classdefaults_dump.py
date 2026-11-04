@@ -11,6 +11,7 @@ converted maps are the same as with the upstream file. Checked equal to the upst
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 
 # The actor classes of the upstream dump (short names). Class names only: the values come from the player's install.
@@ -93,7 +94,14 @@ def ensure(scctpkg_dir: Path, content_root: Path) -> bool:
     if not source.exists():
         return False
     doc = json.loads(source.read_text(encoding="utf-8"))
-    tmp = target.with_suffix(".json.tmp")
+    # Builds sharing one scctpkg folder may write it at the same moment: each writes its own temp file, and on
+    # Windows a rename onto the file another build just wrote (and may hold open) fails, leaving the same content.
+    tmp = target.with_name(f"{target.name}.{os.getpid()}.tmp")
     tmp.write_text(json.dumps(derive(doc), indent=1, sort_keys=True) + "\n", encoding="utf-8")
-    tmp.replace(target)
+    try:
+        os.replace(tmp, target)
+    except PermissionError:
+        tmp.unlink(missing_ok=True)
+        if not target.exists():
+            raise
     return True

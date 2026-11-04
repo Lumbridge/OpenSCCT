@@ -422,6 +422,7 @@ public sealed class SequencedMoveTransport : IMoveTransport
             Vec(b.Writer, _pawn.Location); Vec(b.Writer, _pawn.Velocity);
             b.Writer.WriteByte((byte)_pawn.Physics); b.Writer.WriteByte(_pawn.ZoneConfig);
             channel.Connection.WriteObject(b.Writer, _pawn.Base, out _);
+            b.Writer.WriteIntPacked((_pawn as IMovePrediction)?.PredictionInputRevisionAt(_pawn.Location) ?? 0u);
             bool based = _pawn.Base is { bWorldGeometry: false, bStatic: false };
             b.Writer.WriteBit(based);
             if (based)
@@ -436,18 +437,19 @@ public sealed class SequencedMoveTransport : IMoveTransport
 
     private static void ReceiveAck(Actor actor, FBitReader r, NetConnection connection)
     {
-        uint epoch = r.ReadIntPacked(), sequence = r.ReadIntPacked(); _ = r.ReadIntPacked();
+        uint epoch = r.ReadIntPacked(), sequence = r.ReadIntPacked(), serverTick = r.ReadIntPacked();
         int received = r.ReadByte();
         Span<bool> receipt = stackalloc bool[Capacity];
         for (int i = 0; i < received; i++) receipt[i] = r.ReadBit();
         float stamp = r.ReadFloat(); bool correction = r.ReadBit();
         FVector location = default, velocity = default;
         FVector? basePosition = null; FRotator baseRotation = default;
-        EPhysics physics = default; byte zone = 0; Actor? @base = null;
+        EPhysics physics = default; byte zone = 0; Actor? @base = null; uint inputRevision = 0;
         if (correction)
         {
             location = Vec(r); velocity = Vec(r); physics = (EPhysics)r.ReadByte(); zone = r.ReadByte();
             @base = connection.ReadObject(r) as Actor;
+            inputRevision = r.ReadIntPacked();
             if (r.ReadBit())
             {
                 basePosition = Vec(r);
@@ -465,7 +467,7 @@ public sealed class SequencedMoveTransport : IMoveTransport
         }
         if (sequence == 0) return;
         if (epoch != transport.CommandEpoch) return;
-        if (correction) endpoint.Client?.ReceiveAuthoritativeState(epoch, sequence, stamp, location, velocity, physics, zone, @base, basePosition, baseRotation);
+        if (correction) endpoint.Client?.ReceiveAuthoritativeState(epoch, sequence, stamp, location, velocity, physics, zone, @base, basePosition, baseRotation, serverTick, inputRevision);
         else endpoint.Client?.AcknowledgePrediction(epoch, sequence, stamp);
     }
 

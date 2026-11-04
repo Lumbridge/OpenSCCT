@@ -1,6 +1,7 @@
 using OpenScct.Core;
 using OpenScct.Core.Engine;
 using OpenScct.Core.Uc;
+using OpenScct.Game.Modes;
 using OpenScct.Physics.Collision;
 using OpenScct.Provenance;
 using K = OpenScct.Game.GameFlow.K;
@@ -14,9 +15,9 @@ public partial class SGameInfo
     // ---- match start ---------------------------------------------------------------------------------------
 
     /// <summary>
-    /// Starts the match: Merc Deathmatch moves everyone to the mercs, the Engine part spawns the players, every
-    /// mission is deactivated and the current mode's missions reset, each player gets the lives of its side, then
-    /// the clock restarts and the team lives are counted.
+    /// Starts the match: Merc Deathmatch moves everyone to the mercs, the map's match-size rules (an OpenSCCT addition)
+    /// lay the round out, the Engine part spawns the players, every mission is deactivated and the current mode's
+    /// missions reset, each player gets the lives of its side, then the clock restarts and the team lives are counted.
     /// </summary>
     [Uc("SBase.SGameInfo.StartMatch", Sha1 = "9591cd4c170a3d875634ca3fbd3bd2988990dfc0")]
     [PortOf("uc:SBase.SGameInfo:StartMatch", Spec = "spec/game/match-lifecycle.md#rules")]
@@ -28,6 +29,9 @@ public partial class SGameInfo
             MoveEveryoneToMercs(false);
         }
 
+        // OpenSCCT: the map's match-size rules lay this round out before anyone spawns, so no player starts at a
+        // start the round leaves out or beside a mover that is about to move.
+        ApplyMatchSizeRules();
         base.StartMatch();
         foreach (SMission m in XLevel.AllActors<SMission>())
         {
@@ -51,7 +55,7 @@ public partial class SGameInfo
             {
                 if (m.GameMode == EGameMode.GM_DiskHunt)
                 {
-                    m.MinimumObjectives = PersistentData.NumDisks;
+                    m.MinimumObjectives = MatchSizeRules.For(XLevel)?.DiskHuntDisks(m, PersistentData.NumDisks) ?? PersistentData.NumDisks;
                 }
 
                 m.Reset();
@@ -272,7 +276,16 @@ public partial class SGameInfo
         }
 
         aPlayer.StartSpot = startSpot;
-        if (!aPlayer.PawnClass.IsNone)
+        // OpenSCCT: a test play from the map editor spawns its player once at the editor's camera
+        // (spec/additions/test-start.md).
+        bool testStart = false;
+        FRotator testRotation = default;
+        if (!aPlayer.PawnClass.IsNone && SpawnAtTestStart(aPlayer, out testRotation) is { } testPawn)
+        {
+            aPlayer.Pawn = testPawn;
+            testStart = true;
+        }
+        else if (!aPlayer.PawnClass.IsNone)
         {
             FVector spawnAt = startSpot.Location;
             FVector end = spawnAt - new FVector(0f, 0f, K.FloorProbeLength);
@@ -307,11 +320,14 @@ public partial class SGameInfo
         aPlayer.PawnClass = pawnClass;
         Ports.PlayTeleportEffect(pawn, true, true);
 
-        FRotator clientRotation = teamNum == 0 ? SpyCameraRotation(startSpot) : pawn.Rotation;
+        FRotator clientRotation = testStart ? testRotation : teamNum == 0 ? SpyCameraRotation(startSpot) : pawn.Rotation;
         SendClientSetRotation(aPlayer, clientRotation);
 
         AddDefaultInventory(pawn);
-        TriggerEvent(startSpot.Event, startSpot, pawn);
+        if (!testStart)
+        {
+            TriggerEvent(startSpot.Event, startSpot, pawn);
+        }
         if (aPlayer is SPlayerController spc)
         {
             spc.MyDesiredRotation = aPlayer.Rotation;

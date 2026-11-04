@@ -2,13 +2,15 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
+using OpenScct.Content.Maps;
 using OpenScct.Core;
 using OpenScct.Game.SBase;
 
 namespace OpenScct.Server;
 
-// The map's own words (SMapSettings' localized strings as the converter writes them to ui/mapinfo.json): the
-// briefing texts and, per mode, the loading and briefing explanations.
+// The map's own words (SMapSettings' localized strings as the converter writes them to ui/mapinfo.json, with the
+// map's translation into the game's language over them, ui/text/<lang>.json): the briefing texts and, per mode, the
+// loading and briefing explanations.
 public sealed partial class MapCatalog
 {
     private readonly Dictionary<string, MapTexts> _texts = new(StringComparer.OrdinalIgnoreCase);
@@ -46,7 +48,7 @@ public sealed partial class MapCatalog
             }
         }
 
-        MapTexts texts = ReadTexts(Path.Combine(folder, "ui", "mapinfo.json"));
+        MapTexts texts = ReadTexts(Path.Combine(folder, "ui", "mapinfo.json"), MapText.Load(folder, ContentPaths.Language));
         lock (_gate)
         {
             _texts[folder] = texts;
@@ -55,7 +57,7 @@ public sealed partial class MapCatalog
         return texts;
     }
 
-    private static MapTexts ReadTexts(string path)
+    private static MapTexts ReadTexts(string path, MapText text)
     {
         if (!File.Exists(path))
         {
@@ -79,20 +81,22 @@ public sealed partial class MapCatalog
                 foreach (JsonProperty mode in m.EnumerateObject())
                 {
                     JsonElement v = mode.Value;
+                    string Mode(string key) => text.ModeOr(mode.Name, key, Text(v, key));
                     modes[mode.Name] = new FGameModeInfoStrings
                     {
-                        ExplicationModeSpy = Text(v, "ExplicationModeSpy"),
-                        ExplicationModeSentry = Text(v, "ExplicationModeSentry"),
-                        ExpliModeInBriefSpy = Text(v, "ExpliModeInBriefSpy"),
-                        ExpliModeInBriefSentry = Text(v, "ExpliModeInBriefSentry"),
-                        LegendModeInBriefSpy = Text(v, "LegendModeInBriefSpy"),
-                        LegendModeInBriefSentry = Text(v, "LegendModeInBriefSentry"),
+                        ExplicationModeSpy = Mode("ExplicationModeSpy"),
+                        ExplicationModeSentry = Mode("ExplicationModeSentry"),
+                        ExpliModeInBriefSpy = Mode("ExpliModeInBriefSpy"),
+                        ExpliModeInBriefSentry = Mode("ExpliModeInBriefSentry"),
+                        LegendModeInBriefSpy = Mode("LegendModeInBriefSpy"),
+                        LegendModeInBriefSentry = Mode("LegendModeInBriefSentry"),
                     };
                 }
             }
 
-            return new MapTexts(Text(root, "LegendMapInBrief"), Text(root, "ExpliMapInBriefSpy"),
-                Text(root, "ExpliMapInBriefSentry"), modes);
+            return new MapTexts(text.MapInfoOr("LegendMapInBrief", Text(root, "LegendMapInBrief")),
+                text.MapInfoOr("ExpliMapInBriefSpy", Text(root, "ExpliMapInBriefSpy")),
+                text.MapInfoOr("ExpliMapInBriefSentry", Text(root, "ExpliMapInBriefSentry")), modes);
         }
         catch (Exception e) when (e is IOException or JsonException or UnauthorizedAccessException)
         {

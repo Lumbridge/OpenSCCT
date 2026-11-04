@@ -264,7 +264,7 @@ measured average.
 ### Modern pawn synchronization (both profiles)
 
 The estimated design is specified separately in [spec/net/modern-synchronization.md](../spec/net/modern-synchronization.md). The wire protocol is
-`svm-net/0.5`; the compatibility hash also includes handwritten extension signatures. Mismatched builds are rejected
+`svm-net/0.6`; the compatibility hash also includes handwritten extension signatures. Mismatched builds are rejected
 during Hello, before any actor data is read. Generated declarations remain unchanged.
 
 `SequencedMoveTransport` sends individual fixed-step inputs with explicit input ticks in sequence with redundant older commands. Each
@@ -311,7 +311,15 @@ the separately replicated lock-on arrives.
 Replay suppresses network calls, damage, animation notifies and simulation presentation events. Historical touch
 callbacks are suppressed; the live contact set is reconciled once at the resulting present position.
 Recorded collision inputs stage other pawn cylinders and moving-base poses during replay, restore live actors
-afterwards, and reproduce rider translation and rotation without advancing another actor's gameplay.
+afterwards, and reproduce rider translation and rotation without advancing another actor's gameplay. They also hold
+each conveyor's running state and speed as the client saw them. A correction carries the server tick it was sent at;
+a replayed move the server applied at or after a conveyor's last change replays with the replicated state instead, so
+a start, stop or reversal costs one correction ([conveyors](../spec/additions/conveyors.md#network)). A correction
+also carries the server's prediction input revision at the location it sends (the sum of the change ticks of the
+conveyors near it). A client whose own value there is behind has not received the change yet (its update was lost
+or is late), so it takes the acknowledgement and waits instead of replaying, at most 32 corrections in a row; a
+correction it took earlier in the same receive still applies, and changes of conveyors away from the pawn hold
+nothing back.
 Collision state changes immediately; the local mesh and ordinary pawn camera retain a decaying 100 ms visual
 offset. The camera offset is swept against world collision. Teleports, possession changes and reinitializations
 cut render history, and exhausted command history requests a controlled reinitialization.

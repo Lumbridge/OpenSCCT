@@ -2,9 +2,11 @@
 
 Format notes (verified against the 4.0 Public Beta package set):
 
-* Container: raw packages start with the Unreal tag ``9E 2A 83 C1``. Cooked
-  maps (``.sdc``) and ``.utc`` textures are a zlib container:
-  ``uint32 uncompressedSize, uint32 compressedSize, zlib stream``.
+* Container: raw packages start with the Unreal tag ``9E 2A 83 C1``. Maps
+  (``.sdc``) and ``.utc`` textures are a zlib container: a run of chunks
+  ``uint32 uncompressedSize, uint32 compressedSize, zlib stream`` to the end of
+  the file, joined in order. A normal save writes one chunk; the editor's
+  autosaves (``MapsEd/Auto0..9.sdc``) write 15 MiB chunks.
 * Header: standard UE2 ``FPackageFileSummary`` (tag, version u16, licensee
   u16, flags, name/export/import count+offset, GUID, generations).
   Package versions seen: 172, 175 (stock UE2-era) and 300 (SCCT cooked).
@@ -18,6 +20,10 @@ Format notes (verified against the 4.0 Public Beta package set):
 * Import record: ClassPackage nref, ClassName nref, Outer int32, ObjectName nref.
 * Export record: Class compact, Super compact, Outer int32, Name nref,
   Flags int32, Size compact, Offset compact (offset only present if size > 0).
+* Some editor autosaves were written with all six table counts and offsets left
+  at 0; the tables are still there and ``_recover_tables`` finds them.
+* A map is an editor copy (``Packages/MapsEd``, with its brushes) or a cooked
+  copy (``Packages/Maps``, what the game loads); see ``Package.layout``.
 """
 
 from __future__ import annotations
@@ -25,10 +31,14 @@ from __future__ import annotations
 import struct
 import zlib
 from dataclasses import dataclass, field
+from functools import cached_property
 from pathlib import Path
 from typing import List, Optional, Tuple
 
 PACKAGE_TAG = 0x9E2A83C1
+# Container sanity limits (the Reloaded editor's SdcBlockModel.h): a damaged size field must not allocate gigabytes.
+MAX_UNPACKED = 1 << 30
+MAX_INFLATE_RATIO = 1032
 
 
 class PackageError(Exception):
@@ -164,6 +174,45 @@ class Reader:
         return len(self.d) - self.p
 
 
+def _unpack_chunks(raw: bytes, file_name: str) -> bytes:
+    """The package inside a zlib container: every chunk to the end of the file, each inflating to its stated size."""
+    out: List[bytes] = []
+    total = 0
+    p = 0
+    while p < len(raw):
+        if p + 8 > len(raw):
+            raise PackageError(f"{file_name}: truncated zlib chunk header at {p}")
+        unc, comp = struct.unpack_from("<2I", raw, p)
+        if unc == 0 or p + 8 + comp > len(raw):
+            raise PackageError(f"{file_name}: not an Unreal package" if p == 0 else f"{file_name}: bad zlib chunk at {p}")
+        if unc > comp * MAX_INFLATE_RATIO or total + unc > MAX_UNPACKED:
+            raise PackageError(f"{file_name}: zlib chunk at {p} claims {unc} bytes from {comp}")
+        try:
+            chunk = zlib.decompress(raw[p + 8:p + 8 + comp])
+        except zlib.error as e:
+            raise PackageError(f"{file_name}: zlib container failed at {p}: {e}")
+        if len(chunk) != unc:
+            raise PackageError(f"{file_name}: container size mismatch at {p}")
+        out.append(chunk)
+        total += unc
+        p += 8 + comp
+    data = out[0] if len(out) == 1 else b"".join(out)
+    if struct.unpack_from("<I", data, 0)[0] != PACKAGE_TAG:
+        raise PackageError(f"{file_name}: bad tag after decompression")
+    return data
+
+
+def _encode_compact(v: int) -> bytes:
+    """Inverse of read_compact."""
+    a = abs(v)
+    out = bytearray([(0x80 if v < 0 else 0) | (a & 0x3F) | (0x40 if a > 0x3F else 0)])
+    a >>= 6
+    while a:
+        out.append((a & 0x7F) | (0x80 if a > 0x7F else 0))
+        a >>= 7
+    return bytes(out)
+
+
 @dataclass
 class Import:
     class_package: str
@@ -199,6 +248,7 @@ class Package:
     exports: List[Export] = field(default_factory=list)
     names_obfuscated: bool = True
     compressed: bool = False
+    recovered_tables: bool = False  # the summary's table counts were 0 and the tables were found by scanning
 
     # ---- construction -------------------------------------------------
     @classmethod
@@ -209,18 +259,8 @@ class Package:
             raise PackageError(f"{path.name}: too small")
         compressed = False
         if struct.unpack_from("<I", raw, 0)[0] != PACKAGE_TAG:
-            unc, comp = struct.unpack_from("<2I", raw, 0)
-            if comp + 8 > len(raw) or unc == 0:
-                raise PackageError(f"{path.name}: not an Unreal package")
-            try:
-                data = zlib.decompress(raw[8:8 + comp])
-            except zlib.error as e:
-                raise PackageError(f"{path.name}: zlib container failed: {e}")
-            if len(data) != unc:
-                raise PackageError(f"{path.name}: container size mismatch")
+            data = _unpack_chunks(raw, path.name)
             compressed = True
-            if struct.unpack_from("<I", data, 0)[0] != PACKAGE_TAG:
-                raise PackageError(f"{path.name}: bad tag after decompression")
         else:
             data = raw
         tag, version, licensee, flags = struct.unpack_from("<IHHI", data, 0)
@@ -238,6 +278,9 @@ class Package:
     def _read_tables(self) -> None:
         d = self.data
         nc, no, ec, eo, ic, io = struct.unpack_from("<6i", d, 12)
+        if (nc, no, ec, eo, ic, io) == (0, 0, 0, 0, 0, 0):
+            self._recover_tables()
+            return
         # Name table: XOR-obfuscated by position in most packages. Detect plain tables by their first entry, which is
         # usually "None" but not always (MHOtex_xbox.utx starts with "SpecificScaleCoeff"): a plain entry is printable
         # text ending in a NUL.
@@ -279,10 +322,95 @@ class Package:
             size = r.compact()
             offset = r.compact() if size > 0 else 0
             exports.append(Export(i, class_ref, super_ref, outer, name, flags, size, offset))
+        self._set_exports(exports)
+
+    def _set_exports(self, exports: List[Export]) -> None:
         self.exports = exports
         for e in exports:
             e.class_name, e.class_package = self._class_of(e)
             e.full_name = self.full_name(e.index + 1)
+
+    def _recover_tables(self) -> None:
+        """Tables of a package whose summary counts and offsets are all 0 (the MapsEd autosaves of the 4.0 mapping
+        install). The file order is summary, names (at 64), export data, imports, exports, so: read names from 64 while
+        they look like names; find the import table by an import record Core.Package (or Core.Class) with outer 0; read
+        imports one at a time and after each try to read export records from there. The split is right when the export
+        records end exactly at the end of the file and every export's data lies before the import table."""
+        d = self.data
+        names: List[str] = []
+        p = 64
+        while p < len(d):
+            n, q = read_compact(d, p)
+            if not 1 < n <= 64 or q + n + 4 > len(d):
+                break
+            chunk = bytes(v ^ ((q + j) & 0xFF) for j, v in enumerate(d[q:q + n]))
+            if chunk[-1] != 0 or not all(32 <= c < 127 for c in chunk[:-1]):
+                break
+            names.append(chunk[:-1].decode("latin1"))
+            p = q + n + 4
+        self.names, self.names_obfuscated = names, True
+        core = _encode_compact(names.index("Core")) if "Core" in names else None
+        start = p
+        while core is not None:
+            start = d.find(core, start + 1)
+            if start < 0:
+                break
+            r = Reader(d, start, self)
+            try:
+                if r.name() != "Core" or r.name() not in ("Package", "Class") or r.i32() != 0:
+                    continue
+                r.name()
+            except (PackageError, IndexError, struct.error):
+                continue
+            r = Reader(d, start, self)
+            imports: List[Import] = []
+            while True:
+                try:
+                    imp = Import(r.name(), r.name(), r.i32(), r.name())
+                except (PackageError, IndexError, struct.error):
+                    break
+                if imp.outer > 0:  # an import's outer is another import or none
+                    break
+                imports.append(imp)
+                exports = self._exports_to_end(r.p, len(imports), start)
+                if exports is not None:
+                    self.imports = imports
+                    self._set_exports(exports)
+                    self.recovered_tables = True
+                    return
+        raise PackageError(f"{self.path.name}: the summary has no tables and none were found")
+
+    def _exports_to_end(self, p: int, import_count: int, data_end: int) -> Optional[List[Export]]:
+        """Export records from p that end exactly at the end of the file, each with its data before data_end."""
+        d = self.data
+        r = Reader(d, p, self)
+        exports: List[Export] = []
+        try:
+            while r.p < len(d):
+                class_ref = r.compact()
+                super_ref = r.compact()
+                outer = r.i32()
+                name = r.name()
+                flags = r.u32()
+                size = r.compact()
+                offset = r.compact() if size > 0 else 0
+                if class_ref < -import_count or size < 0 or offset < 0 or offset + size > data_end:
+                    return None
+                exports.append(Export(len(exports), class_ref, super_ref, outer, name, flags, size, offset))
+        except (PackageError, IndexError, struct.error):
+            return None
+        if r.p != len(d) or not exports or any(e.class_ref > len(exports) for e in exports):
+            return None
+        return exports
+
+    @cached_property
+    def layout(self) -> str:
+        """"editor" for an editor copy (what the stock editor saves to Packages/MapsEd: brushes, a source FPoly on every
+        BSP surface, the lightmap array) or "cooked" for a cooked copy (Packages/Maps, what the game loads). Nothing in
+        the file records it and folders are only a hint: see bsp.detect_layout."""
+        from .bsp import detect_layout  # noqa: PLC0415 - bsp imports this module
+
+        return detect_layout(self)
 
     # ---- helpers ------------------------------------------------------
     def _class_of(self, e: Export) -> Tuple[str, str]:

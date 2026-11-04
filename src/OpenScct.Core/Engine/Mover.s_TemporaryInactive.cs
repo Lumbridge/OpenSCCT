@@ -35,8 +35,15 @@ public partial class Mover
         {
         }
 
+        /// <summary>Back to InitialState, unless the match-size rules hold the mover for this round.</summary>
         [Uc("Engine.Mover.s_TemporaryInactive.UnLock", Sha1 = "7eed925316d750535ddba797e61b97533e37d915")]
         [PortOf("uc:Engine.Mover:s_TemporaryInactive.UnLock", Spec = "spec/devices/mover.md#interpolation")]
-        public override void UnLock(Mover self) => self.GotoState(self.InitialState);
+        public override void UnLock(Mover self)
+        {
+            if (!self.MatchLocked)
+            {
+                self.GotoState(self.InitialState);
+            }
+        }
     }
 }

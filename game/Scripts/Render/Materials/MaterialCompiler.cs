@@ -20,6 +20,12 @@ public enum VisionLookup
     SkinBase,
 }
 
+/// <summary>
+/// Heat and EMF masks made for a material the render pack has no vision modifiers for (a map outfit's own model, from
+/// the stock suit it stands in for): the heat in HEATTEX_Cool form, the EMF not inverted.
+/// </summary>
+public sealed record VisionMasks(Texture2D Heat, Texture2D Emf);
+
 /// <summary>Where a surface's light comes from (docs/RENDERING.md#baked-light).</summary>
 public enum LightSource
 {
@@ -89,6 +95,9 @@ public sealed partial class MaterialCompiler
 
     /// <summary>How materials find their vision modifiers in the pack.</summary>
     public VisionLookup VisionLookup { get; set; } = VisionLookup.MapSource;
+
+    /// <summary>Masks for materials (by name) that have no vision modifiers in <see cref="Pack"/>; null for none.</summary>
+    public Func<string, VisionMasks?>? OwnVision { get; set; }
 
     /// <summary>Materials given a heat or EMF texture from the pack.</summary>
     public int VisionMaterials { get; private set; }
@@ -409,14 +418,22 @@ public sealed partial class MaterialCompiler
             material.SetShaderParameter("env_color", new Vector3(ToDisplay(c.X), ToDisplay(c.Y), ToDisplay(c.Z)));
         }
 
-        ApplyVision(material, VisionLookup switch
+        VisionTextures? vision = VisionLookup switch
         {
             // A cosmetic camo is named "<skin>+<pattern>": it keeps the heat and EMF textures of the skin it repaints.
             VisionLookup.SkinBase => Pack?.VisionOfModifierName(entry.Source)
                 ?? Pack?.VisionOfSkin(entry.Name is { } skin && skin.IndexOf('+') is var plus and > 0 ? skin[..plus] : entry.Name),
             VisionLookup.ModifierName => Pack?.VisionOfModifierName(entry.Name),
             _ => Pack?.VisionOf(entry.Source),
-        });
+        };
+        if (vision is null && entry.Name is { } name && OwnVision?.Invoke(name) is { } masks)
+        {
+            ApplyVision(material, masks);
+        }
+        else
+        {
+            ApplyVision(material, vision);
+        }
 
         if (uvAnim)
         {
@@ -483,6 +500,15 @@ public sealed partial class MaterialCompiler
         {
             VisionMaterials++;
         }
+    }
+
+    private void ApplyVision(ShaderMaterial material, VisionMasks masks)
+    {
+        material.SetShaderParameter("tex_heat", masks.Heat);
+        material.SetShaderParameter("heat_mode", 1);
+        material.SetShaderParameter("tex_emf", masks.Emf);
+        material.SetShaderParameter("emf_mode", 1);
+        VisionMaterials++;
     }
 
     /// <summary>

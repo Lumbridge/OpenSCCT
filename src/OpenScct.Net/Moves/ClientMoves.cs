@@ -61,30 +61,53 @@ public sealed class ClientMoves
     public long MovesReplayed { get; private set; }
     public long AuthoritativeCorrectionsReceived { get; private set; }
     public long CorrectionsObsoletedByState { get; private set; }
+
+    /// <summary>Corrections set aside because this client had not yet received a world change the server applied.</summary>
+    public long CorrectionsDeferred { get; private set; }
     public float LastCorrectionDistance { get; private set; }
     private FVector _authoritativeVelocity;
     private EPhysics _authoritativePhysics;
     private byte _authoritativeZone;
+    private long _authoritativeServerTick = -1;
     private bool Modern => Transport is SequencedMoveTransport;
     private uint _correctionEpoch, _acknowledgedSequence;
+    private int _deferredInARow;
 
     public void ResetPredictionHistory()
     {
         SavedMoves.Clear(); bUpdatePosition = false; UpdatingSMove = null;
-        _acknowledgedSequence = 0; fPendingDeltaTime = 0f; NumberOfBigServerMoveToReSend = 0;
+        _acknowledgedSequence = 0; fPendingDeltaTime = 0f; NumberOfBigServerMoveToReSend = 0; _deferredInARow = 0;
     }
 
     public void AcknowledgePrediction(uint epoch, uint sequence, float stamp)
     {
         if (_correctionEpoch == epoch && sequence <= _acknowledgedSequence) return;
         _correctionEpoch = epoch; _acknowledgedSequence = sequence; CurrentTimeStamp = stamp;
-        bUpdatePosition = false; UpdatingSMove = null;
+        bUpdatePosition = false; UpdatingSMove = null; _deferredInARow = 0;
     }
 
+    /// <param name="serverTick">The server tick the state was sent at, or -1 when unknown.</param>
+    /// <param name="inputRevision">
+    /// The server's <see cref="IMovePrediction.PredictionInputRevisionAt"/> at <paramref name="location"/> when it sent
+    /// the state.
+    /// </param>
     public void ReceiveAuthoritativeState(uint epoch, uint sequence, float stamp, FVector location, FVector velocity, EPhysics physics, byte zone, Actor? @base,
-        FVector? basePosition = null, FRotator baseRotation = default)
+        FVector? basePosition = null, FRotator baseRotation = default, long serverTick = -1, uint inputRevision = 0)
     {
         if (Pawn is not IMovePrediction prediction || (_correctionEpoch == epoch && sequence <= _acknowledgedSequence)) return;
+        // The server moved the pawn under a change near it that this client has not received (its update was lost
+        // or is late): replaying now would predict the old way again and earn another correction. Take the
+        // acknowledgement and wait for the change; the server keeps correcting while the client is off. A correction
+        // taken earlier in the same receive still applies: it was made under a state this client has.
+        if ((int)(inputRevision - prediction.PredictionInputRevisionAt(location)) > 0 && _deferredInARow < MoveK.MaxDeferredCorrections)
+        {
+            _deferredInARow++;
+            CorrectionsDeferred++;
+            _correctionEpoch = epoch; _acknowledgedSequence = sequence; CurrentTimeStamp = stamp;
+            return;
+        }
+
+        _deferredInARow = 0;
         _correctionEpoch = epoch; _acknowledgedSequence = sequence;
         AuthoritativeCorrectionsReceived++;
         CurrentTimeStamp = stamp;
@@ -103,6 +126,7 @@ public sealed class ClientMoves
                     move.ZoneConfig == zone && ReferenceEquals(move.SavedBase, @base)) return;
                 UpdatingSMove = move; vUpdateLocation = location; _authoritativeVelocity = velocity;
                 _authoritativePhysics = physics; _authoritativeZone = zone; aUpdateBase = @base; bUpdatePosition = true;
+                _authoritativeServerTick = serverTick;
                 return;
             }
             if (ReferenceEquals(move, SavedMoves.LastSMove)) break;
@@ -538,7 +562,7 @@ public sealed class ClientMoves
             if (UpdatingSMove is not { } acknowledged) return;
             if (!prediction.CanReplayPrediction(acknowledged.Slot)) return;
             FVector previous = Pawn.Location;
-            prediction.BeginPredictionReplay();
+            prediction.BeginPredictionReplay(_authoritativeServerTick);
             try
             {
                 prediction.RestorePrediction(acknowledged.Slot, vUpdateLocation, _authoritativeVelocity, _authoritativePhysics, aUpdateBase, _authoritativeZone);

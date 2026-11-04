@@ -167,7 +167,10 @@ Each map runs its own `ServerHost` with its own driver, and clients reconnect fo
 `ClientTravel`. To keep punched NAT mappings and relay sessions, both sides keep the same socket and peer and give
 each map's driver a new `SessionTransport` generation:
 
-1. The server sends `travel <map> <content>` to everyone, stops taking new connections, and holds its peers.
+1. The server sends `travel <map> <content> <picture>` to everyone (`<picture>` picks among the map's loading
+   pictures, so the connecting screens of all players show the same picture of their side; older clients ignore it),
+   stops taking new connections, and holds its peers. A player who joins after the travel gets the same pick in a
+   `picture <seed>` line of the welcome. The hub's loading screen and offline loads still pick at random.
 2. Each client closes its connection at once (the close carries the acknowledgement), checks it has the map (same
    content hash, or it leaves with "Your game's version is not the same as the server's"), waits
    `TravelQuietSeconds` (2 s), drops whatever arrived meanwhile, and connects again on the same socket with its
