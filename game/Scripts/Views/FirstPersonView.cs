@@ -153,13 +153,15 @@ public partial class FirstPersonView : Node3D
     }
 
     /// <summary>
-    /// Ordinary lights near the eye. The 64 uu sphere and unknown zone remain approximations; the original
-    /// uses the weapon's bounds and BSP leaves. Reflections belong to the material and eye adaptation to the
+    /// Ordinary lights near the eye, filtered by the eye's zone: the weapon actor sits at the eye, in the camera's
+    /// zone, so own-zone-only lights and suns of other zones are dropped. The 64 uu sphere remains an approximation;
+    /// the original uses the weapon's render bounds. Reflections belong to the material and eye adaptation to the
     /// scene renderer, so neither is replaced with a viewmodel ambient floor here.
     /// </summary>
-    [Provenance(ProvenanceKind.Estimated, "Eye-centred light selection; original FActorSceneNode::Render 0x10a172f0 uses weapon bounds/BSP leaves")]
+    [Provenance(ProvenanceKind.Decoded, "FActorSceneNode::Render 0x10a172f0 pass 0, 0x10a17463: a bAffectOwnZoneOnly light (+0x2e8 & 0x200) is dropped unless its zone byte (+0x1b4) is the rendered actor's; runtime probe: the first-person weapon actor is at the eye, in the camera's zone")]
+    [Provenance(ProvenanceKind.Estimated, "The 64 uu eye sphere; the original takes the weapon's render bounds (measured once, AquaE: r 262.6 centred off the eye)")]
     internal static ActorLightSet LightAtEye(RenderMap map, FVector eye) =>
-        map.ActorLighting.Select(eye, 64f, map.AmbientAt(eye, 0), -1);
+        map.ActorLighting.Select(eye, 64f, map.AmbientAt(eye, 0), map.ZoneIndexAt(eye));
 
     /// <summary>
     /// The weapon's Skins over the view model's material slots: the rifle's rate-of-fire screen is Skins[3], which

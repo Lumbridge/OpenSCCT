@@ -581,9 +581,12 @@ the static spot Light17191 (796 uu, R 1275; its cone already kept it out of the 
 Light4199 loses the sun. A non-special actor under SteeE's Light1901 or ClubD's Light7462 no longer takes them; a
 bSpecialLit one still does.
 
-The first-person arms and gun currently select ordinary lights at the eye (a 64 uu sphere, no own-zone
-filter; with the leaf lists, static lights listed by the leaves that sphere touches). This remains an approximation: the original gathers from the weapon's BSP leaves and actual bounds,
-then filters using the weapon's zone. There is no added viewmodel ambient floor. At the measured AquaE Blue Room
+The first-person arms and gun select ordinary lights at the eye (a 64 uu sphere, filtered by the eye's zone (the
+weapon actor's zone; own-zone-only lights and suns of other zones are dropped); with the leaf lists, static lights
+listed by the leaves that sphere touches). The weapon actor sits at the eye, in the camera's zone (runtime probe), and
+FActorSceneNode::Render (`0x10a172f0`, test at `0x10a17463`) drops a bAffectOwnZoneOnly light unless its zone is the
+rendered actor's. The sphere is still an approximation: the original gathers from the weapon's render bounds (one
+sample, AquaE: radius 262.6 centred off the eye). There is no added viewmodel ambient floor. At the measured AquaE Blue Room
 pose (eye `7152, 1036, 272.50626`, yaw 16384, FOV 95), the original selects zero ordinary lights and has zero
 actor/zone ambient. Its rifle highlights come from the original material chain through the heat/EMF modifiers:
 `SFX_xbox.final_gundef` supplies `envmap_gundef` and `M160_specular_mask`. Skeletal export and loading must preserve
