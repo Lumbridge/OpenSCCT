@@ -73,7 +73,13 @@ public sealed class NetDeviceEvents : IMusicTriggerRelay
     /// <summary>True when the server must send <paramref name="source"/>'s events: its client copies run no script.</summary>
     public static bool IsRelayed(Actor? source, in SimEvent e)
     {
-        if (e.Kind == SimEventKind.StopSound) return source is not SBasePawn;
+        if (e.Kind == SimEventKind.StopSound)
+        {
+            // Pawn stops use their ordered presentation stream. Controller-wide cleanup still needs the
+            // authority's call; simulated devices already stop their own sounds on each client tick.
+            if (source is SBasePawn) return false;
+            if (source is PlayerController) return true;
+        }
         // The original call now reaches every client, where it evaluates instigator and
         // toggle state. Relaying the listen host's resulting track would play it twice.
         if (source is MusicTrigger && e.Kind is SimEventKind.PlayMusic or SimEventKind.StopMusic) return false;

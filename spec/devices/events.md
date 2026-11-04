@@ -112,6 +112,12 @@ depends on them. They are not yet confirmed in this binary (see Open questions).
   server-to-client calls on unowned, always-relevant map actors (`Emitter.ReplicateTrigger` when `bNetworkTrigger`,
   `MusicTrigger.ClientPlayStopMusic`, `SGamePlayObject.SpawnDamageEmitter`). The last kind is expected to reach every
   client in this build (see `sound-music.md`); the net spec must provide it.
+- The rewrite's reliable `StopSound` device relay follows the same source-role filter as device playback:
+  server-only and dumb-proxy devices need it; simulated devices run their own sound cleanup locally. In particular,
+  `SCamNetwork.Tick` and `SOrientableObject.Tick` stop idle rotation/zoom sounds every tick, so relaying those calls
+  would fill the reliable channel while a client loads its scene. Controller-wide cleanup remains an explicit
+  authority relay; pawn stops use the ordered pawn presentation stream. A missing scoped source is never treated
+  as a global stop.
 - `Emitter.Trigger` calls `ReplicateTrigger`, which fires every sub-emitter (`ParticleEmitter.Trigger`). With
   `bNetworkTrigger` (set on 1,304 of the map emitters) the emitter's `PreBeginPlay` makes it an always-relevant
   simulated proxy so the call reaches clients; without it only the server's own screen shows the burst. The rewrite
