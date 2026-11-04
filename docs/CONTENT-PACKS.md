@@ -73,8 +73,10 @@ from the tree.
   - `contentHash` is `MapCatalog.ContentHashOf`: the first 16 hex characters of the manifest's sim hash. This is what lobbies and the hub compare, so a client can tell whether its copy matches without downloading.
   - `full` is everything the game needs to play the map. `sim` is `manifest.json` and `sim/` only, which is what a dedicated server or hub needs.
   - `version` is the pack's version: SemVer, bumped for every republish of the same code.
-- The published index also carries `treeSha256` (spots unchanged packs), `generator` (the svmbuild that made the pack)
-  and `source.kind` (`install`, `repo` or `release`).
+- The published index also carries `treeSha256` (spots unchanged packs), `generator` (the svmbuild or editor that
+  made the pack) and `source.kind` (`install`, `repo` or `release` for a converted map, `authored` for a map made in
+  the map editor). An authored map's entry also has its identity's `description`, `authors`, `players`
+  (`{"recommended": n}`) and `tags`; the game reads those from the map itself once it is installed.
 - **Duplicate codes:** a code may appear in two categories (`community/EDE64` and `recovered/EDE64`). A client takes
   the entry whose `contentHash` matches, else the first of stock, original, enhanced, recovered, ports, community
   (`ContentIndex.FindMap`), so a player and a hub agree. Maps without `modes` (Entry, Lobby, the Double Agent ports

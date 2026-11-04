@@ -52,8 +52,8 @@ public sealed class MapIdentity
     public const int MaxDescriptionLength = 300;
     public const int MaxPictureBytes = 4 * 1024 * 1024;
 
-    /// <summary>The most players a map may recommend; lobbies clamp further to their own limit.</summary>
-    public const int MaxPlayers = 64;
+    /// <summary>The most players a map may recommend (the spec's limit, and the largest lobby).</summary>
+    public const int MaxPlayers = 24;
 
     public static readonly MapIdentity Empty = new();
 
