@@ -32,6 +32,7 @@ differs from the class defaults, typed as in 1.1. Example:
   render-only).
 - Enums are stored as numbers: `Look` (0 frame, 1 driver, 2 treadmill, 3 escalator), `Walls` (0 both, 1 left, 2 right,
   3 none, 4 auto; 4 is the default), `TriggerAction` (0 toggle, 1 on, 2 off, 3 reverse).
+- `Next` is an actor reference as in 1.1, `{"$actor": "Conveyor1"}`: the conveyor this one's end hands its items to.
 - `Tag` receives events as for any actor (event edges list the conveyor as a receiver).
 - A conveyor takes no player-count rule (`sim/match.json`): its built look and riding surface are world geometry, so a
   rule could not take it out of a round. Gate what switches it instead ([match.md](match.md)).
@@ -44,8 +45,9 @@ above and [conveyors](../../additions/conveyors.md)); a map that does list it gi
 ## `sim/collision.bin`
 
 The built look's collision is ordinary world collision without an actor id: the belt surface (frame, treadmill), the
-steps' slope (escalator), and the frame's walls, edges and balustrades. A driver conveyor adds none; the map's own
-meshes are its floor.
+steps' slope (escalator), and the frame's walls, edges and balustrades. The belt, drums and slope have surface type
+`SURFACE_Conveyor` (10) unless `BeltMaterial` gives one; the frame takes `FrameMaterial`'s. A driver conveyor adds
+none; the map's own meshes are its floor.
 
 ## `render/world.glb`
 
@@ -53,7 +55,9 @@ meshes are its floor.
   package with an `instances` entry like any static mesh (actor `<id>.Frame`, `gameplay` false).
 - The moving parts are `Library` meshes with `instances` entries that have `gameplay` true, so the client keeps them as
   separate nodes: actor `<id>.Belt`, `<id>.Steps` or `<id>.Rollers`, class `Conveyor`. Their texture coordinates follow
-  the layout in [conveyors: look](../../additions/conveyors.md#look).
+  the layout in [conveyors: look](../../additions/conveyors.md#look). `<id>.Steps` holds the steps at phase 0; a 1.2
+  reader rebuilds them where the belt has moved them ([moving steps](../../additions/conveyors.md#moving-steps)) and
+  keeps the light baked into their vertex colours.
 - Item meshes (`ItemMeshes`) are `Library` nodes the map's instances may not use; the client builds them for actors.
 - Each `ScrollTargets` mesh actor's instance has `gameplay` true, so it is a separate node whose material the client
   can move.

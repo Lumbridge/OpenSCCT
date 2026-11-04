@@ -7,7 +7,9 @@ that the movement physics knows. The SVMap data is in [SVMap 1.2: conveyors](../
 
 Code: `src/OpenScct.Physics/Conveyors` (path maths, the level's conveyor field),
 `src/OpenScct.Physics/Movement/PhysicsDriver.Conveyor.cs` (the carry), `src/OpenScct.Game/Svm` (the actor, its
-metadata and the shared look values), `game/Scripts/Views/ConveyorViews.cs` (drawing).
+metadata, the shared look values, the moving steps `ConveyorSteps` and the item flow `ConveyorItemFlow`),
+`src/OpenScct.Game/AI/NavConveyors.cs` (bots), `game/Scripts/Views/ConveyorViews.cs` (drawing),
+`game/Scripts/Audio/AudioWorld.cs` (the hum).
 
 ## Properties
 
@@ -25,6 +27,8 @@ metadata and the shared look values), `game/Scripts/Views/ConveyorViews.cs` (dra
 | `TriggerAction` | `CT_Toggle` | What an event does: `CT_Toggle`, `CT_TurnOn`, `CT_TurnOff`, `CT_Reverse`. |
 | `ItemMeshes` | empty | Static meshes riding the belt; each item picks one from the seed. |
 | `ItemSpacing`, `ItemScale`, `ItemFade`, `ItemSeed`, `ItemYawJitter` | 160, 1, 48, 0, 65536 | Item spacing along the path, size, fade length at the ends of an open path, seed and largest random turn (rotator units). |
+| `Next` | none | The conveyor this one's end hands its items to ([items](#items)). |
+| `AmbientSound`, `SoundRadius`, `SoundVolume` | `Amb_Krauser.Ambiances.Krau_machine1`, 32, 96 | The hum while the belt runs ([sound](#sound)); `None` silences it. |
 | `ScrollTargets` | empty | `{Target, UnitsPerTile, Axis}`: a placed mesh actor (by id) whose texture moves with the belt. `UnitsPerTile` is the uu one texture repeat covers along the direction of travel, `Axis` 0 for U and 1 for V. |
 | `BeltMaterial`, `FrameMaterial` | none | Materials the map builder uses for the generated look. |
 
@@ -147,26 +151,90 @@ closed by the drums on a frame, else by a flat end. `ConveyorLayout` holds these
 
 - The belt and the body follow the path: straight runs, arcs cut every 15 degrees, at most 64 uu between
   cross-sections (lighting is per vertex), widened at a sharp corner so both runs keep their width.
-- Escalator steps are 40 uu along the path each. A step's tread is level at the higher of its two ends and its riser
-  stands at the lower end, so the slope runs through the steps' inner corners. Pawns collide with the slope, not the
-  steps; a pawn on a slope stands `radius x slope` above it, so its feet stay within a few units of the treads. The
-  shape does not move; the texture slides one repeat per step. More than 20 uu rise per step (over 30 degrees) is a
-  map check warning.
+- Escalator steps are 40 uu along the path each ([moving steps](#moving-steps)). A step's tread is level at the
+  higher of its two ends and its riser stands at the lower end, so the slope runs through the steps' inner corners.
+  The map builder bakes the steps at phase 0. More than 20 uu rise per step (over 30 degrees) is a map check warning.
 - `CW_Auto` walls open where another conveyor's open end meets this one's side: over the joining conveyor's width
   (lengthened for a slanted join) plus the wall's thickness either side, with the cut wall ends closed.
 - Textures: the belt and steps use `BeltMaterial` (U across, one repeat per 128 uu), the drums too, and the frame
   `FrameMaterial`; with none, the editor's default material. On both drums U runs the way the belt moves round them
   (over the top and down at the far end, up from the bottom at the start), so one scroll turns both with the belt.
 
-Clients slide the moving parts' textures by the phase at the displayed server time, including every `ScrollTargets`
-mesh. Each node gets its own copies of its materials and of their later passes (the vision passes), and every texture
-layer (diffuse, opacity, specular, self-illumination and sequences) slides. Items are drawn one node each and lit as
-actors (they take the actor light slots like any moving prop). Item `i` of `n = max(1, floor(L / ItemSpacing))` sits
-at `i x L / n + jitter(i) + phase` along the path (wrapped). It faces the direction of travel and tilts with the
-belt's climb, turns about the belt's up by a seeded amount, and is raised so its mesh's lowest point rests on the
-belt (RE+ kept per-mesh `ItemOffsets` for this). Its mesh is picked from the seed. On an open path it scales from 0
-to `ItemScale` over `ItemFade` at both ends. Items are drawn only: they do not collide, unlike RE+'s item actors. The
-same function places the editor's preview.
+Clients slide the belt's and drums' textures by the phase at the displayed server time, including every
+`ScrollTargets` mesh. Each node gets its own copies of its materials and of their later passes (the vision passes),
+and every texture layer (diffuse, opacity, specular, self-illumination and sequences) slides. The editor's textured
+views show the same motion while its conveyor tool runs the belts.
+
+## Moving steps
+
+An escalator's steps travel with the belt (`ConveyorSteps`). At phase `p` the step boundaries are at
+`(p mod 40) + 40k` along the path; each step between two boundaries is built as above (tread level at its higher
+end, riser at its lower end, V running 0 to 1 over the step so its texture travels with it). Past the path's ends a
+step is cut off and held level at the landing. Clients rebuild the `<id>.Steps` node's mesh every frame from the
+phase at the displayed server time. The baked light stays put: each new vertex takes the light the baked steps had
+in the same 8 uu bin along the path, on the same side and facing the same way (tread or riser).
+
+Pawns collide with the slope through the steps' inner corners, which lies under the steps wherever they are, so the
+physics and the prediction do not depend on the phase. A walking pawn's mesh is drawn with its feet on the tread
+under it: `TreadAt(along, phase) - feet height`, eased at 20 per second so the feet ride each step up and settle at
+the next. The drawn location only; the pawn's location, collision and camera are unchanged.
+
+## Items
+
+`ConveyorItemFlow` runs the items of every conveyor in a level, one server tick at a time from tick 0, from the
+conveyors' phases only. Every machine (and the editor's preview) gets the same items for the same belt history. A
+client that joins late runs the flow from tick 0 up to now when it first draws; it knows only each belt's last
+change, so its items can differ where a queue formed before it joined.
+
+- **Start.** A conveyor with `ItemMeshes` and `ItemSpacing` above 0 starts with `n = max(1, floor(L / ItemSpacing))`
+  items: item `i` at `i x L / n + jitter(i)` along the path (wrapped on a loop, clamped on an open path), `jitter` a
+  seeded quarter of the spacing either way. Items closer than one item length to the one before are dropped.
+- **Length.** Each item takes up its mesh's widest flat extent times `ItemScale` along the belt (32 uu when the mesh
+  is unknown; the editor's preview always uses 32). Two items' centres stay at least the mean of their lengths apart.
+- **Moving.** Each tick a conveyor's items move by its phase change, front first; an item stops behind the one ahead
+  (on a loop the front item is held by the rearmost, a lap ahead). An item is never pushed back. So a queue builds
+  behind a stopped belt or a busy join.
+- **Handing on.** An open conveyor whose `Next` names another conveyor hands its items on where its end meets that
+  one: the end projects onto the other's path within its half width plus 32 uu, and within 32 uu above or below its
+  surface. An item that runs off the end goes on there when there is room (no item closer than the gap) and the other
+  conveyor would not carry it straight back off its own end; otherwise it waits at the end. When the end meets the
+  other's start (within 16 uu), the two run as one line: run backwards, the other hands the items back. An end with
+  nothing to hand on to removes the item.
+- **New items.** An open end that nothing feeds brings in a new item each time the belt has moved `ItemSpacing` plus
+  the next item's jitter (at least one item length), unless the queue reaches the end.
+- **Drawing.** An item faces the direction of travel and tilts with the belt's climb, turns about the belt's up by a
+  seeded amount, and is raised so its mesh's lowest point rests on the belt (RE+ kept per-mesh `ItemOffsets` for
+  this). Its mesh, turn, size and seed come from the conveyor it started on. It scales from 0 to `ItemScale` over
+  `ItemFade` near an end where items appear or vanish the way the belt runs; ends that hand items on or are handed
+  them do not shrink them. Clients draw each item between where it was a tick before and where it is now, one node
+  each, lit as actors (they take the actor light slots like any moving prop).
+
+Items are drawn only: they collide with each other on the belt but not with pawns, objects or soft bodies, unlike
+RE+'s item actors.
+
+## Sound
+
+A running conveyor (`bOn` and `Speed` not 0) plays its `AmbientSound` as an ambient sound from the point of its path
+nearest the listener, so a long belt sounds from where the listener is beside it. Range, volume, pitch and
+occlusion follow the ambient sound rules (audible within `100 x SoundRadius`). The default is a steady 4.1 s machine
+loop from the shared sounds. A stopped belt is silent.
+
+The map builder gives the belt and the escalator slope the `SURFACE_Conveyor` surface type unless their material
+names one, so footsteps and other surface sounds pick the bank's conveyor entry (the default entry when a bank has
+none).
+
+## Bots
+
+Bots plan and walk with the belts (`NavConveyors`). The navigation graph knows nothing of conveyors, because they
+switch and reverse during a round; the planner and the follower read the belts' state when they plan and steer.
+
+- **Planning.** Each walking edge whose middle a running conveyor carries costs its length times
+  `speed / headway`, where `headway` is the speed along the edge of walking at run speed (385) with the belt under it,
+  steering so the belt's sideways push is cancelled: `along + sqrt(speed^2 - across^2)`. With the belt this is below
+  1; against it above 1; a belt that leaves no headway (faster than the bot runs, against it) costs 100 times the
+  length. Edges that use a link (ladders and the like) are not scaled.
+- **Steering.** On a carrying conveyor the follower aims so that its walk plus the belt heads for the next waypoint;
+  when the belt is too fast across the way, it walks straight against the belt's sideways part.
 
 ## Constants
 
@@ -184,10 +252,10 @@ All values are OpenSCCT design values (estimated), not decoded from the original
 
 - One actor per conveyor instead of a chain of belts, corner pieces and chord-approximated curves.
 - Pawns are carried by the shared walking physics, not by `Pawn.Move` calls on each machine.
-- Items, rollers and treads come from the replicated phase, so every client shows the same belt. RE+ placed items with
+- Items, rollers and steps come from the replicated phase, so every client shows the same belt. RE+ placed items with
   each machine's own random numbers.
 - Events start, stop and reverse conveyors; RE+ belts could not be switched.
-- Items do not collide with pawns or soft bodies.
-- Not built yet: bots do not plan with conveyor velocity, footsteps do not use `SURFACE_Conveyor`, conveyors have no
-  loop sound, soft-body curtains do not part around items, items are not handed on from one conveyor to the next
-  (each conveyor's items shrink away at its open ends), and escalator steps do not move (their texture slides).
+- Items queue behind each other and pass from one conveyor to the one its `Next` names; RE+ items stayed on their own
+  chain. They do not collide with pawns or soft bodies.
+- Escalator steps move, but pawns walk on the slope under them and only their drawn feet follow the treads.
+- Not built yet: soft-body curtains do not part around items.

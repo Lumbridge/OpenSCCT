@@ -112,6 +112,30 @@ public sealed class ConveyorItemFlow
         }
     }
 
+    /// <summary>
+    /// Where along <paramref name="next"/> (half width <paramref name="nextHalfWidth"/>) the end of
+    /// <paramref name="path"/> meets it, so items handed on there land on it; false when the end is too far from it.
+    /// </summary>
+    public static bool HandsOnAt(ConveyorPath path, ConveyorPath next, float nextHalfWidth, out float along)
+    {
+        ArgumentNullException.ThrowIfNull(path);
+        ArgumentNullException.ThrowIfNull(next);
+        along = 0f;
+        if (path.IsLoop || path.Length <= 0f || next.Length <= 0f)
+        {
+            return false;
+        }
+
+        path.Evaluate(path.Length, out FVector end, out _);
+        if (!next.Project(end, nextHalfWidth + JoinReach, JoinReach, JoinReach, 0f, out ConveyorProjection at))
+        {
+            return false;
+        }
+
+        along = at.Along;
+        return true;
+    }
+
     /// <summary>Finds where each conveyor hands its items on and where it is handed items.</summary>
     private void Link(Lane lane)
     {
@@ -122,14 +146,13 @@ public sealed class ConveyorItemFlow
         }
 
         Lane to = _lanes[target];
-        lane.Path.Evaluate(lane.Path.Length, out FVector end, out _);
-        if (!to.Path.Project(end, to.Conveyor.HalfWidth + JoinReach, JoinReach, JoinReach, 0f, out ConveyorProjection at))
+        if (!HandsOnAt(lane.Path, to.Path, to.Conveyor.HalfWidth, out float along))
         {
             return;
         }
 
-        lane.OutEnd = new Exit(target, at.Along);
-        if (!to.Path.IsLoop && at.Along <= EndJoin)
+        lane.OutEnd = new Exit(target, along);
+        if (!to.Path.IsLoop && along <= EndJoin)
         {
             // End to end: running backwards, the next conveyor hands its items back.
             lane.EndToEnd = true;

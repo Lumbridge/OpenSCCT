@@ -101,9 +101,12 @@ mesh's own material. A node is drawn where its actor is after BeginPlay (a camer
 look into `world.glb`; the belt, steps and rollers are gameplay instances named `<id>.Belt`, `<id>.Steps` and
 `<id>.Rollers`. Each such node, and each of the conveyor's scroll targets, gets its own copies of its materials and
 their later passes, and every frame their `svm_scroll` offset follows the belt's phase at the displayed server time.
-`svm_scroll` moves the surface UV before every layer reads it. Items are one actor-lit node each, placed by
-`ConveyorLayout.PlaceItem`, tilted with the belt and resting on it by their mesh bounds. Rules:
-[conveyors](../spec/additions/conveyors.md#look).
+`svm_scroll` moves the surface UV before every layer reads it. An escalator's `<id>.Steps` mesh is rebuilt every frame
+where the phase puts the steps (`ConveyorSteps`), each vertex lit from a table read off the baked steps by place
+along the path, side and facing. Walking pawns' meshes are raised or lowered so their feet rest on the tread under
+them (`ConveyorViews.FeetLift`, eased; their location is unchanged). Items come from `ConveyorItemFlow` (which hands
+them between linked conveyors and queues them), one actor-lit node each, tilted with the belt and resting on it by
+their mesh bounds. Rules: [conveyors](../spec/additions/conveyors.md#look).
 
 ## Display space
 
