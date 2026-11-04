@@ -213,8 +213,9 @@ public sealed partial class OnlineClient : IDisposable
     public string? TravellingTo => State == OnlineClientState.Travelling ? _expectedMap : null;
 
     /// <summary>
-    /// The server's pick among the map's loading pictures for the last travel, the same for every player of the
-    /// session, so all of them see the same picture of their side; null when the server sent none (an older one).
+    /// The server's pick among the current map's loading pictures (sent with the travel, or on joining after it), the
+    /// same for every player of the session, so all of them see the same picture of their side; null when the server
+    /// sent none (an older one).
     /// </summary>
     public int? LoadingPictureSeed { get; private set; }
 
@@ -817,9 +818,10 @@ public sealed partial class OnlineClient : IDisposable
                 break;
             case "travel":
                 MasterApi.TryParseHex(SessionProtocol.Text(f, 1), out ulong travelContent);
-                _travelRequest = (SessionProtocol.Text(f, 0), travelContent,
-                    int.TryParse(SessionProtocol.Text(f, 2), System.Globalization.NumberStyles.None, System.Globalization.CultureInfo.InvariantCulture,
-                        out int pictureSeed) ? pictureSeed : null);
+                _travelRequest = (SessionProtocol.Text(f, 0), travelContent, PictureSeed(SessionProtocol.Text(f, 2)));
+                break;
+            case "picture":
+                LoadingPictureSeed = PictureSeed(SessionProtocol.Text(f, 0));
                 break;
             case "row":
                 _rows.Add(new ResultRow(SessionProtocol.Int(f, 0), SessionProtocol.Text(f, 6), (byte)SessionProtocol.Int(f, 1),
@@ -843,6 +845,9 @@ public sealed partial class OnlineClient : IDisposable
 
         Changed?.Invoke();
     }
+
+    private static int? PictureSeed(string field) =>
+        int.TryParse(field, System.Globalization.NumberStyles.None, System.Globalization.CultureInfo.InvariantCulture, out int seed) ? seed : null;
 
     /// <summary>How many fields a command has, so its last one keeps its spaces.</summary>
     private static int FieldCount(string line)

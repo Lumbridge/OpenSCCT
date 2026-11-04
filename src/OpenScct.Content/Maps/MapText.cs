@@ -14,8 +14,6 @@ namespace OpenScct.Content.Maps;
 /// </summary>
 public sealed class MapText
 {
-    public const string Folder = "ui/text";
-
     /// <summary>The <c>ui/mapinfo.json</c> strings a translation may replace (never <c>MapName</c>).</summary>
     public static readonly IReadOnlyList<string> MapInfoKeys = ["LegendMap", "LegendMapInBrief", "ExpliMapInBriefSpy", "ExpliMapInBriefSentry"];
 

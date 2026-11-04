@@ -9,7 +9,12 @@ namespace OpenScctGame.UI;
 /// <summary>Responsive map cards, text lists and thumbnail lists, with one saved preference for every map browser.</summary>
 public partial class MapBrowserGrid : GridContainer
 {
-    private sealed record MapCard(Button Button, VBoxContainer Content, MapThumb Picture, Label Title, HBoxContainer Row, string Id);
+    private sealed record MapCard(Button Button, VBoxContainer Content, MapThumb Picture, Label Title, HBoxContainer Row, MapThumb Thumbnail,
+        MapCatalog Maps, string Id)
+    {
+        /// <summary>Whether <see cref="Thumbnail"/> has its picture: it is read the first time the thumbnail list shows.</summary>
+        public bool ThumbnailLoaded { get; set; }
+    }
 
     private readonly List<MapCard> _cards = new();
     private readonly bool _compact;
@@ -66,8 +71,7 @@ public partial class MapBrowserGrid : GridContainer
         };
         var content = new VBoxContainer { Name = "Column", MouseFilter = MouseFilterEnum.Ignore };
         var picture = new MapThumb(new Vector2(160, 160)) { SizeFlagsHorizontal = SizeFlags.ExpandFill };
-        Texture2D? wide = MapImages.Wide(maps, id);
-        picture.SetMap(_compact ? wide : MapImages.Preview(maps, id), title);
+        picture.SetMap(_compact ? MapImages.Wide(maps, id) : MapImages.Preview(maps, id), title);
         if (_compact)
         {
             // Host setup gives the map browser half the page: landscape previews (the map's banner when it has one)
@@ -75,6 +79,7 @@ public partial class MapBrowserGrid : GridContainer
             TextureRect image = picture.GetNode<TextureRect>("Picture");
             image.StretchMode = TextureRect.StretchModeEnum.KeepAspectCovered;
             image.ClipContents = true;
+            image.TextureFilter = TextureFilterEnum.LinearWithMipmaps;
         }
         var label = new Label
         {
@@ -96,12 +101,10 @@ public partial class MapBrowserGrid : GridContainer
         {
             SizeFlagsHorizontal = SizeFlags.ShrinkBegin, SizeFlagsVertical = SizeFlags.ShrinkCenter,
         };
-        thumbnail.SetMap(wide, title);
-        // The adjacent title already labels a missing preview; keep the small frame from wrapping a second title.
-        thumbnail.GetNode<Label>("Placeholder").Hide();
         var thumbnailImage = thumbnail.GetNode<TextureRect>("Picture");
         thumbnailImage.StretchMode = TextureRect.StretchModeEnum.KeepAspectCovered;
         thumbnailImage.ClipContents = true;
+        thumbnailImage.TextureFilter = TextureFilterEnum.LinearWithMipmaps;
         row.AddChild(thumbnail);
         var details = new VBoxContainer
         {
@@ -128,7 +131,7 @@ public partial class MapBrowserGrid : GridContainer
         button.AddChild(row);
         row.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect, LayoutPresetMode.Minsize, 6);
         AddChild(button);
-        _cards.Add(new MapCard(button, content, picture, label, row, id));
+        _cards.Add(new MapCard(button, content, picture, label, row, thumbnail, maps, id));
         _width = -1;
         return button;
     }
@@ -153,6 +156,13 @@ public partial class MapBrowserGrid : GridContainer
             card.Button.CustomMinimumSize = new Vector2(grid ? cardWidth : 172, grid ? pictureHeight + 60 : textList ? 40 : 72);
             card.Content.Visible = grid;
             card.Row.Visible = view == MapBrowserView.ThumbnailList;
+            if (card.Row.Visible && !card.ThumbnailLoaded)
+            {
+                card.ThumbnailLoaded = true;
+                card.Thumbnail.SetMap(MapImages.Wide(card.Maps, card.Id), card.Title.Text);
+                // The adjacent title already labels a missing preview; keep the small frame from wrapping a second title.
+                card.Thumbnail.GetNode<Label>("Placeholder").Hide();
+            }
             card.Button.Text = textList ? card.Title.Text + " (" + card.Id + ")" : string.Empty;
             card.Button.Alignment = HorizontalAlignment.Left;
             card.Picture.CustomMinimumSize = new Vector2(0, pictureHeight);

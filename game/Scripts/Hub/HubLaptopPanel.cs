@@ -95,7 +95,7 @@ public partial class HubLaptopPanel : Control
         ListIndexMaps();
 
         // The model keeps this list: maps of the index join it when the index arrives.
-        _model = new CreateSessionModel(_list, map => _maps?.GetMapSettings(map), Current(), map => _maps?.GetCatalogEntry(map)?.StatedPlayers);
+        _model = new CreateSessionModel(_list, map => _maps?.GetMapSettings(map), Current());
         _model.Changed += OnModelChanged;
         _pickerHolder = new VBoxContainer { Name = "Maps" };
         column.AddChild(_pickerHolder);

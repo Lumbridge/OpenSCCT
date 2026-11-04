@@ -93,7 +93,7 @@ public partial class ConnectingScreen : MenuPage
         if (round)
         {
             bool merc = client.Lobby.Local?.Team == 1;
-            string key = $"{map}/{(merc ? "merc" : "spy")}/{_loads}";
+            string key = $"{map}/{(merc ? "merc" : "spy")}/{_loads}/{client.LoadingPictureSeed}";
             if (key != _pictureKey)
             {
                 _pictureKey = key;

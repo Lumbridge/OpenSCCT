@@ -30,8 +30,13 @@ public sealed class MapFacts
     /// <summary><c>SMapSettings.LegendMap</c> (lines split by <c>|</c>), or null.</summary>
     public string? Legend { get; private init; }
 
-    /// <summary>The map's own identity (<see cref="MapIdentity.Empty"/> when it has none).</summary>
+    /// <summary>The map's own identity, in its own language (<see cref="MapIdentity.Empty"/> when it has none).</summary>
     public MapIdentity Identity { get; private init; } = MapIdentity.Empty;
+
+    /// <summary>The map's translation of its texts into the language it was read in (<see cref="MapText.None"/> for
+    /// its own language): <see cref="Legend"/> already holds it, the identity's texts take it with
+    /// <see cref="MapIdentity.Translated"/>.</summary>
+    public MapText Text { get; private init; } = MapText.None;
 
     /// <summary>Normal player starts of the spies (TeamNumber 0) and the mercs (1), without the Merc Deathmatch set.</summary>
     public int SpyStarts { get; private init; }
@@ -81,7 +86,7 @@ public sealed class MapFacts
         string gameplay = Path.Combine(folder, "sim", "gameplay.json");
         MapText text = MapText.Load(folder, language);
         return Parse(File.Exists(info) ? File.ReadAllBytes(info) : null, File.Exists(gameplay) ? File.ReadAllBytes(gameplay) : null,
-            MapIdentity.Load(folder).Translated(text), text);
+            MapIdentity.Load(folder), text);
     }
 
     /// <summary>Parses the two documents (either may be null), with the identity read beside them and the translation
@@ -161,6 +166,7 @@ public sealed class MapFacts
             MapName = name,
             Legend = legend,
             Identity = identity ?? MapIdentity.Empty,
+            Text = text ?? MapText.None,
             SpyStarts = spy,
             MercStarts = merc,
             MercDeathmatchStarts = mdm,

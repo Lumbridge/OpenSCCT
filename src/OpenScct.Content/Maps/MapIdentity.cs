@@ -95,11 +95,8 @@ public sealed class MapIdentity
 
     public MapPictures Pictures { get; private init; } = MapPictures.None;
 
-    /// <summary>Reads <c>ui/identity.json</c> of an SVMap folder, in <paramref name="language"/> when the map has a
-    /// translation into it (<see cref="MapText"/>; null: the map's own language).</summary>
-    public static MapIdentity Load(string mapFolder, string? language) => Load(mapFolder).Translated(MapText.Load(mapFolder, language));
-
-    /// <summary>Reads <c>ui/identity.json</c> of an SVMap folder, in the map's own language.</summary>
+    /// <summary>Reads <c>ui/identity.json</c> of an SVMap folder, in the map's own language (<see cref="Translated"/>
+    /// gives it in another).</summary>
     public static MapIdentity Load(string mapFolder)
     {
         string path = Path.Combine(mapFolder, "ui", "identity.json");

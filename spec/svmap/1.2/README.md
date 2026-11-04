@@ -322,8 +322,9 @@ outside the spec):
 
 The files `identity.json` names, in the `ui` hash group. Suggested names: `menu.png`, `loading-spy.png` (then
 `loading-spy-2.png`...), `loading-merc.png`, `briefing.png`, `banner.jpg`. JPEG keeps 1024 x 1024 loading pictures
-near 200 KiB where PNG can take 1 to 2 MiB. Within a session OpenSCCT shows every player the same loading picture of a
-side: the server sends a seed with the map travel and each client picks with it.
+near 200 KiB where PNG can take 1 to 2 MiB. In an online session OpenSCCT shows every player of a side the same
+loading picture: the server picks it when the map changes and tells players who join later. The hub and offline
+play pick one at random per load.
 
 ## `ui/text/<lang>.json` (1.2)
 
@@ -349,7 +350,8 @@ anything missing falls back to the base language. Schema: [schemas/text.schema.j
 - OpenSCCT reads the file of the game content's language (the launcher's content language: `int` reads `en`, `fra`
   `fr`, `deu` `de`, `esp` `es`, `ita` `it`) and applies `identity` (name, description, dossier, place names) and
   `mapinfo` (`LegendMap`, `LegendMapInBrief`, `ExpliMapInBrief*`, the per-mode strings). It does not apply `actors`
-  yet. A translated `identity.name` is shown whole: the family and variant split comes from the base name only.
+  yet. A translated `identity.name` is shown whole: the family and variant split, the host list's order and the
+  playlists come from the base name only, so they do not change with the language.
 
 ## Versioning
 

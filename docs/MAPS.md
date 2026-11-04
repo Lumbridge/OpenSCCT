@@ -120,11 +120,16 @@ needs no other file. The catalog takes each value from the map first, then the s
 map's `catalog/entry.json`, then `SMapSettings` (the spec's table lists the order per value). Playlists never come
 from a map: a map states facts (tags, recommended players) and the filters above pick it up from them.
 
-`MapFacts.Load(folder, language)` and `MapIdentity.Load(folder, language)` overlay the map's `ui/text/<lang>.json`
-(`MapText`) for the content language (`ContentPaths.Language`, from `content-build.json`); a missing text keeps the
-map's own. The catalog's `StatedPlayers` is the map's own `players.recommended` only: when the host changes the map in
-Create Session or the lobby, the player slots follow it unless the host set them by hand. The picture grid's landscape
-cards and the thumbnail list show the map's banner (`BannerImage`), else its menu picture.
+`MapFacts.Load(folder, language)` reads the map's `ui/text/<lang>.json` (`MapText`) for the content language
+(`ContentPaths.Language`, from `content-build.json`) beside its own identity; the catalog shows the translated name,
+description, dossier and place names (`MapIdentity.Translated`; a missing text keeps the map's own), while the
+entry's `Name`, its sort order and the playlist rules keep the map's own name, so a map sorts and groups the same in
+every language. The catalog's `StatedPlayers` is the map's own `players.recommended` only. Until the host sets the
+player slots by hand (Create Session remembers that, `host/players_chosen`), they follow the map: its stated count,
+else 24, when the page opens and whenever the map changes; the lobby keeps following while the slots are what
+following gave. The hub laptop keeps its pad's slots. The picture grid's landscape cards and the thumbnail list show
+the map's banner (`BannerImage`, kept at 640 pixels wide with mipmaps, read when a card first shows it), else its
+menu picture.
 
 The lobby's Briefing shows the map's menu picture on page 1 (the original's level picture, `GetLevelPicture`) and
 its briefing plan on page 2 (`GetLevelBrief`, the mercs' loading picture when there is none). A plan drawn through

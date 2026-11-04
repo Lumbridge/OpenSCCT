@@ -97,7 +97,7 @@ public partial class HostScreen : MenuPage
         }
 
         LobbySetup start = StartSetup(s, maps, list);
-        Model = new CreateSessionModel(list, maps.GetMapSettings, start, map => maps.GetCatalogEntry(map)?.StatedPlayers);
+        Model = new CreateSessionModel(list, maps.GetMapSettings, start, map => maps.GetCatalogEntry(map)?.StatedPlayers, s.HostPlayersChosen);
         Model.SetPassword(s.HostPassword);
         Rows = new SessionRowsView(Model, CreateSessionModel.Rows, showPassword: true, form: true);
         Body.AddChild(Rows);
@@ -269,20 +269,22 @@ public partial class HostScreen : MenuPage
         }
     }
 
-    /// <summary>The last session's values when its map is still installed, else the first map's defaults.</summary>
+    /// <summary>The last session's values when its map is still installed, else the first map's defaults. The player
+    /// slots are the host's last pick, else what the map gets (<see cref="CreateSessionModel.FollowedPlayers"/>).</summary>
     private static LobbySetup StartSetup(OnlineSettings s, MapCatalog maps, List<(string Id, string Title)> list)
     {
+        int Players(string map) => s.HostPlayersChosen ? s.HostMaxPlayers : CreateSessionModel.FollowedPlayers(maps.GetCatalogEntry(map)?.StatedPlayers);
         if (s.HostSetup.Length > 0)
         {
             LobbySetup last = LobbySetup.FromOptions(s.HostSetup);
             if (maps.FindMap(last.Map) is not null)
             {
-                return last with { MaxPlayers = s.HostMaxPlayers };
+                return last with { MaxPlayers = Players(last.Map) };
             }
         }
 
         string map = maps.FindMap("SteeE") is not null ? "SteeE" : list.Count > 0 ? list[0].Id : MapCatalog.TestBox;
-        return LobbySetup.ForMap(map, EGameMode.GM_Multi, maps.GetMapSettings(map), s.HostMaxPlayers);
+        return LobbySetup.ForMap(map, EGameMode.GM_Multi, maps.GetMapSettings(map), Players(map));
     }
 
     /// <summary>Signed-in players only needs a master (the tickets come from it).</summary>
@@ -338,6 +340,7 @@ public partial class HostScreen : MenuPage
         s.HostName = _name!.Text.Trim();
         s.HostPort = (int)_port!.Value;
         s.HostMaxPlayers = setup.MaxPlayers;
+        s.HostPlayersChosen = Model.PlayersChosen;
         s.HostPassword = Model.Password;
         s.MasterUrl = _master!.Text.Trim();
         s.HostListed = _listed!.ButtonPressed;
