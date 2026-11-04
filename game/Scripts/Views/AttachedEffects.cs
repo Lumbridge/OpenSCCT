@@ -19,7 +19,9 @@ namespace OpenScctGame.Views;
 /// particle systems (<see cref="Render.Particles.Emitters.SetPlace"/>); lights move their world term, actor lighting
 /// and corona (<see cref="RenderMap.MoveLight"/>). Render-only lights explicitly named in ActorsToAttach also follow
 /// their bones, including SteeE's crane flares; ordinary baked lights remain at their authored positions.
-/// Reads the simulation and never writes it.
+/// A light that is itself a mover (a lift or door with a LightType: DeftD's Mover2432 projector on lift B, the SLift
+/// lights of the Orph, Shad and Skys maps; the original cooks any actor with a light type as a light) follows its own
+/// moves the same way. Reads the simulation and never writes it.
 /// </summary>
 [PortOf("eng:Render.AttachedEffects", Spec = "spec/devices/animated-mesh.md#rules")]
 public sealed class AttachedEffects
@@ -269,8 +271,8 @@ public sealed class AttachedEffects
 
         public bool IsEmitter { get; } = emitter;
 
-        /// <summary>True while the actor is based on another actor (a mover, a prop's bone).</summary>
-        public bool Riding => Actor is { bDeleteMe: false, Base: { bWorldGeometry: false } };
+        /// <summary>True while the actor is based on another actor (a mover, a prop's bone), or is a mover itself.</summary>
+        public bool Riding => Actor is { bDeleteMe: false } && (Actor.Base is { bWorldGeometry: false } || Actor is Mover);
 
         public FVector ShownLocation { get; set; } = actor.Location;
 

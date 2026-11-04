@@ -111,11 +111,13 @@ public static class GameplayObjects
                 Light = unlit ? LightSource.None : LightSource.Actor,
                 AmbientGlow = glow,
                 Radius = radius,
+                SpecialLit = actor.Bool("bSpecialLit"),
+                IgnoredLights = ActorLighting.IgnoredLightNames(actor),
             };
             map.Gameplay[actor.Id] = entry;
             if (!unlit)
             {
-                ActorLighting.Apply(node, map.LightActor(UeSpace.ToUe(box.GetCenter()), radius, glow));
+                ActorLighting.Apply(node, map.LightActor(UeSpace.ToUe(box.GetCenter()), radius, glow, entry.SpecialLit, entry.IgnoredLights));
             }
 
             placed++;
@@ -188,7 +190,7 @@ public static class GameplayObjects
                 node.SetInstanceShaderParameter(VisionActorParameter, a.Vision());
             }
 
-            ActorLighting.Apply(node, map.LightActor(location, owner.Radius, owner.AmbientGlow));
+            ActorLighting.Apply(node, map.LightActor(location, owner.Radius, owner.AmbientGlow, owner.SpecialLit, owner.IgnoredLights));
             map.Gameplay[id] = new GameplayMesh
             {
                 ActorId = id,
@@ -198,6 +200,8 @@ public static class GameplayObjects
                 Light = LightSource.Actor,
                 AmbientGlow = owner.AmbientGlow,
                 Radius = owner.Radius,
+                SpecialLit = owner.SpecialLit,
+                IgnoredLights = owner.IgnoredLights,
             };
             shown++;
         }

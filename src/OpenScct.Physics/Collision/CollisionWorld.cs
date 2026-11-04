@@ -113,6 +113,7 @@ public sealed partial class CollisionWorld : ICollisionWorld
     private readonly ZoneInfo?[] _zoneActors;
     private readonly CollisionBspNode[] _bsp;
     private readonly int _bspRoot = -1;
+    private readonly int _bspNodeCount;
     private readonly CollisionCylinder[] _cylinders;
     private readonly string?[] _cylinderActorIds;
     private readonly int[] _nextColliderOfActor;
@@ -214,6 +215,7 @@ public sealed partial class CollisionWorld : ICollisionWorld
             if (_bspRoot < 0 && c.Kind == ColliderKind.WorldBsp && c.BspCount > 0)
             {
                 _bspRoot = (int)c.BspStart;
+                _bspNodeCount = (int)c.BspCount;
 
                 // The level model is untransformed; its tree answers zero-extent traces (UModel::LineCheck).
                 if (!state.IsDynamic && c.Location.IsZero() && c.Rotation == default && c.PrePivot.IsZero() &&

@@ -130,6 +130,9 @@ public sealed class WorldLights
     /// (cooked light references, editor 0x110cd700; the in-game leaf light lists, UnVisi.cpp 0x1101dcb7), and the
     /// static flag only decides what Build Lighting bakes. Seen in game: MoonD's flickering STriggerLights, saved with
     /// bApplyToStaticLighting False and no in-game flag, light their wall (Reloaded Editor docs/MapBuilderPatterns.md).
+    /// The leaf light lists (render/leaflights.json) decide which static lights reach actors (<see cref="ActorLighting"/>);
+    /// this world term is not restricted by them and lights surfaces by distance and own zone (the per-pixel term
+    /// stands in for the original's BSP and vertex light passes, whose own leaf filtering is not reproduced).
     /// </summary>
     [Provenance(ProvenanceKind.Decoded, "editor 0x110cd700 and 0x1101dcb7: lights kept for run time are in-game or bDynamicLight")]
     public static bool IsDynamicWorldLight(LightEntry l)

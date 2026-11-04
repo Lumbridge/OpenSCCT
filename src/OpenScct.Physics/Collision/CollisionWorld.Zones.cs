@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using OpenScct.Content.Collision;
 using OpenScct.Core;
 using OpenScct.Core.Engine;
@@ -71,6 +73,50 @@ public sealed partial class CollisionWorld : IZoneRegions
 
         return 0;
     }
+
+    /// <summary>The node count of the world collider's BSP (the level model), 0 without one.</summary>
+    public int WorldBspNodeCount => _bspNodeCount;
+
+    /// <summary>
+    /// Every world BSP leaf side a sphere touches: descends both children where the sphere straddles a node's plane and
+    /// adds (node from the world collider's first node, front) for each empty child reached. A stand-in for the leaves
+    /// an actor touches (the original's actor leaf array, built from its bounds).
+    /// </summary>
+    [Provenance(ProvenanceKind.Estimated, "sphere descent of the world BSP for the actor's touched leaves (actor+0x1c4 in the original)")]
+    public void SphereLeafNodes(FVector center, float radius, List<(int Node, bool Front)> into)
+    {
+        ArgumentNullException.ThrowIfNull(into);
+        if (_bspRoot < 0)
+        {
+            return;
+        }
+
+        float r = MathF.Max(0f, radius);
+        List<int> stack = t_leafStack ??= [];
+        stack.Clear();
+        stack.Add(_bspRoot);
+        for (int guard = 0; stack.Count > 0 && guard <= _bsp.Length; guard++)
+        {
+            int at = stack[^1];
+            stack.RemoveAt(stack.Count - 1);
+            CollisionBspNode n = _bsp[at];
+            float d = n.Plane.PlaneDot(center);
+            if (d >= -r)
+            {
+                if (n.Front >= 0) stack.Add(n.Front);
+                else into.Add((at - _bspRoot, true));
+            }
+
+            if (d < r)
+            {
+                if (n.Back >= 0) stack.Add(n.Back);
+                else into.Add((at - _bspRoot, false));
+            }
+        }
+    }
+
+    [ThreadStatic]
+    private static List<int>? t_leafStack;
 
     public ZoneInfo? GetZoneInfo(FVector Location)
     {

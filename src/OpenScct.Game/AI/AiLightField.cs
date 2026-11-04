@@ -4,13 +4,16 @@ using OpenScct.Core;
 using OpenScct.Core.Engine;
 using OpenScct.Game.Lighting;
 using OpenScct.Game.SBase;
+using OpenScct.Physics.Collision;
 using OpenScct.Provenance;
 
 namespace OpenScct.Game.AI;
 
 /// <summary>
 /// A map light of the actor light set (render/lighting.json, docs/RENDERING.md#actor-lighting): kept for run time
-/// (bApplyToInGameLighting or bDynamicLight), with a light type, not LE_ESpotShadow.
+/// (bApplyToInGameLighting or bDynamicLight), with a light type, not LE_ESpotShadow. <paramref name="SpecialLit"/> is
+/// its bSpecialLit (pawns are not, so such a light never lights one); <paramref name="Static"/> its bStatic (with the
+/// map's leaf light lists a static light lights only pawns in the leaves that list it).
 /// </summary>
 public readonly record struct AiLight(
     FVector Location,
@@ -27,7 +30,9 @@ public readonly record struct AiLight(
     float Period = 32f,
     float Phase = 0f,
     string? Name = null,
-    bool InitiallyOn = true);
+    bool InitiallyOn = true,
+    bool SpecialLit = false,
+    bool Static = false);
 
 /// <summary>
 /// A map LE_ESpotShadow light (window and sun projectors, searchlight patches: docs/RENDERING.md#spot-shadow-lights).
@@ -66,10 +71,12 @@ public readonly record struct AiRgb(float R, float G, float B)
 /// <summary>
 /// How lit a pawn is, by the rules the renderer lights pawns with (<see cref="ActorLightRules"/>, docs/RENDERING.md
 /// "Actor lighting" and "Spot shadow lights"): the zone ambient plus the four strongest map lights (in-game or
-/// dynamic, on, own-zone lights only in their zone, scaled by their light type), saturating at 2, plus every spot
+/// dynamic, on, own-zone lights and suns only in their zone, not bSpecialLit, with the map's leaf light lists a static
+/// light only where a leaf the pawn touches lists it, scaled by their light type), saturating at 2, plus every spot
 /// shadow light whose frustum holds the pawn and whose line to it is open (the map's projectors and the merc torches),
 /// saturating at 2 again. The level is the luminance of that term on the side of the target that faces the viewer, so
-/// a spy lit from behind stays dark to a merc in front of it. Map lights follow their STriggerLight switches.
+/// a spy lit from behind stays dark to a merc in front of it. Map lights follow their STriggerLight switches, and a
+/// light whose actor is a mover or rides one follows its moves (<see cref="AddFollower"/>).
 /// <para>Godot-free and deterministic: the renderer's <c>ActorLighting</c> and <c>SpotShadowLight</c> use the same
 /// <see cref="ActorLightRules"/>.</para>
 /// </summary>
@@ -85,15 +92,19 @@ public sealed class AiLightField
     private readonly Func<FVector, FVector, bool>? _lineOpen;
     private readonly (float Score, int Index)[] _ranked;
     private readonly List<(STriggerLight Actor, string Name, bool? Shown)> _switches = [];
+    private readonly List<(Actor Actor, int[] Lights, int[] Spots)> _followers = [];
+    private readonly int[] _leafId;
+    private readonly LeafLights.LeafLightSet? _leafSet;
 
     /// <summary>
     /// A field over <paramref name="lights"/> (the actor light set's lights) and the zone ambients by zone index
     /// (display units, 0 to 1). <paramref name="zoneOf"/> gives a point's zone index (the collision BSP), or null when
     /// unknown. <paramref name="spots"/> are the map's spot shadow lights, <paramref name="lineOpen"/> their shadow test
     /// (from, to: true when no geometry blocks the line); without it spot shadow lights are not shadowed.
+    /// <paramref name="leaves"/> are the map's leaf light lists, or null to choose static lights by distance.
     /// </summary>
     public AiLightField(IReadOnlyList<AiLight> lights, IReadOnlyDictionary<int, AiRgb>? zoneAmbient = null, Func<FVector, int>? zoneOf = null,
-        IReadOnlyList<AiSpotLight>? spots = null, Func<FVector, FVector, bool>? lineOpen = null)
+        IReadOnlyList<AiSpotLight>? spots = null, Func<FVector, FVector, bool>? lineOpen = null, LeafLights? leaves = null)
     {
         ArgumentNullException.ThrowIfNull(lights);
         _lights = new AiLight[lights.Count];
@@ -124,9 +135,27 @@ public sealed class AiLightField
 
         _zoneOf = zoneOf;
         _lineOpen = lineOpen;
+        _leafId = new int[_lights.Length];
+        Array.Fill(_leafId, -1);
+        if (leaves is not null)
+        {
+            _leafSet = leaves.NewSet();
+            for (int i = 0; i < _lights.Length; i++)
+            {
+                if (_lights[i].Static && _lights[i].LightType != 0)
+                {
+                    int id = _lights[i].Name is { } name ? leaves.IdOf(name) : -1;
+                    _leafId[i] = id >= 0 ? id : NotListed;
+                }
+            }
+        }
+
         _ranked = new (float, int)[_lights.Length];
         HasData = _lights.Length > 0 || _spots.Length > 0 || _ambient.Count > 0;
     }
+
+    // A static light no leaf lists (in _leafId; -1 for lights chosen by distance).
+    private const int NotListed = int.MaxValue;
 
     /// <summary>A field without light data: every point reads <see cref="UnknownLevel"/>.</summary>
     public static AiLightField Unknown { get; } = new([]);
@@ -175,9 +204,77 @@ public sealed class AiLightField
         _switches.Add((actor, name, null));
     }
 
-    /// <summary>Applies the followed trigger lights' state (once a tick).</summary>
+    /// <summary>
+    /// Follows the moves of the light(s) named <paramref name="name"/> (the actor id of <paramref name="actor"/>, the
+    /// light's own actor): while the actor rides another actor (a mover, a prop's bone) or is a mover itself (a lift or
+    /// door with a light type, such as DeftD's Mover2432 projector on lift B), the light is where the actor is now, as
+    /// the client's AttachedEffects moves the drawn light; otherwise it stays where it last was. False when no map light
+    /// has the name.
+    /// </summary>
+    public bool AddFollower(Actor actor, string name)
+    {
+        ArgumentNullException.ThrowIfNull(actor);
+        ArgumentNullException.ThrowIfNull(name);
+        if (_named is null)
+        {
+            _named = new Dictionary<string, (List<int>, List<int>)>(StringComparer.OrdinalIgnoreCase);
+            for (int i = 0; i < _lights.Length; i++)
+            {
+                if (_lights[i].Name is { } n) NamedOf(n).Lights.Add(i);
+            }
+
+            for (int i = 0; i < _spots.Length; i++)
+            {
+                if (_spots[i].Name is { } n) NamedOf(n).Spots.Add(i);
+            }
+        }
+
+        if (!_named.TryGetValue(name, out (List<int> Lights, List<int> Spots) named))
+        {
+            return false;
+        }
+
+        _followers.Add((actor, named.Lights.ToArray(), named.Spots.ToArray()));
+        return true;
+    }
+
+    // Light and spot indices by light name, built by the first AddFollower.
+    private Dictionary<string, (List<int> Lights, List<int> Spots)>? _named;
+
+    private (List<int> Lights, List<int> Spots) NamedOf(string name)
+    {
+        if (!_named!.TryGetValue(name, out (List<int> Lights, List<int> Spots) named))
+        {
+            named = ([], []);
+            _named.Add(name, named);
+        }
+
+        return named;
+    }
+
+    /// <summary>Applies the followed trigger lights' state and the followed lights' places (once a tick).</summary>
     public void FollowSwitches()
     {
+        foreach ((Actor actor, int[] lights, int[] spots) in _followers)
+        {
+            if (actor.bDeleteMe || !(actor is Mover || actor.Base is { bWorldGeometry: false }))
+            {
+                continue;
+            }
+
+            FVector at = actor.Location;
+            FRotator facing = actor.Rotation;
+            foreach (int i in lights)
+            {
+                if (_lights[i].Location != at || _lights[i].Rotation != facing) _lights[i] = _lights[i] with { Location = at, Rotation = facing };
+            }
+
+            foreach (int i in spots)
+            {
+                if (_spots[i].Location != at || _spots[i].Rotation != facing) _spots[i] = _spots[i] with { Location = at, Rotation = facing };
+            }
+        }
+
         for (int i = 0; i < _switches.Count; i++)
         {
             (STriggerLight actor, string name, bool? shown) = _switches[i];
@@ -246,16 +343,22 @@ public sealed class AiLightField
     {
         int zone = _zoneOf?.Invoke(center) ?? -1;
         LightRgb set = zone >= 0 && _ambient.TryGetValue(zone, out AiRgb a) ? a : default;
+        _leafSet?.Gather(center, radius);
         int n = 0;
-        for (int i = 0; i < _lights.Length; i++)
+        for (int i = 0; i < _lights.Length && n < ActorLightRules.MaxCandidates; i++)
         {
             if (!_lightOn[i])
             {
                 continue;
             }
 
+            // As the renderer's ActorLighting (the game's gather 0x10a37610): a pawn is not bSpecialLit; own-zone lights
+            // and suns stay in their zone; a static light must be listed by a leaf the pawn touches.
             ref readonly AiLight l = ref _lights[i];
-            if (l.OwnZoneOnly && zone >= 0 && l.ZoneIndex >= 0 && l.ZoneIndex != zone)
+            int leafId = _leafId[i];
+            if (!ActorLightRules.LightsActor(l.SpecialLit, l.Name, false, null) ||
+                !ActorLightRules.ZoneAdmits(l.Effect, l.OwnZoneOnly, l.ZoneIndex, zone) ||
+                (leafId >= 0 && (leafId == NotListed || !_leafSet!.Contains(leafId))))
             {
                 continue;
             }

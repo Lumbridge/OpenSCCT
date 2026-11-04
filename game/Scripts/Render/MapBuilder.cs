@@ -7,6 +7,7 @@ using System.Text.Json;
 using Godot;
 using OpenScct.Content.Collision;
 using OpenScct.Core;
+using OpenScct.Game.Lighting;
 using OpenScct.Physics.Collision;
 using OpenScct.Provenance;
 using OpenScctGame.Render.Data;
@@ -107,6 +108,15 @@ public sealed class GameplayMesh
     public int AmbientGlow { get; init; }
 
     public float Radius { get; init; }
+
+    /// <summary>
+    /// Actor.bSpecialLit: only lights with the same flag light it (<see cref="ActorLightRules.LightsActor"/>); null when
+    /// the map's content does not say (a plain static mesh of a conversion made before the flag was exported).
+    /// </summary>
+    public bool? SpecialLit { get; init; }
+
+    /// <summary>The light actor names of its IgnoredEchelonLights, or null.</summary>
+    public IReadOnlySet<string>? IgnoredLights { get; init; }
 }
 
 /// <summary>The Godot side of one map's render folder.</summary>
@@ -248,6 +258,9 @@ public sealed class RenderMap
 
     internal CollisionWorld? Zones { get; }
 
+    /// <summary>The map's leaf light lists (render/leaflights.json), or null for content without them.</summary>
+    public LeafLights? LeafLights { get; internal set; }
+
     public RenderMapStats Stats { get; } = new();
 
     public List<string> Warnings { get; } = [];
@@ -294,9 +307,22 @@ public sealed class RenderMap
     /// <summary>The zone index of a point (UE space) through the collision BSP, or -1 without zone data.</summary>
     public int ZoneIndexAt(FVector location) => Zones?.GetZoneIndex(location) ?? -1;
 
-    /// <summary>Light set of an actor at <paramref name="location"/> (zone ambient, AmbientGlow, own-zone lights).</summary>
-    public ActorLightSet LightActor(FVector location, float radius, int ambientGlow) =>
-        ActorLighting.Select(location, radius, AmbientAt(location, ambientGlow), ZoneIndexAt(location));
+    /// <summary>
+    /// Light set of an actor at <paramref name="location"/> (zone ambient, AmbientGlow, own-zone lights), with its
+    /// bSpecialLit and the light names of its IgnoredEchelonLights (pawns have neither).
+    /// </summary>
+    public ActorLightSet LightActor(FVector location, float radius, int ambientGlow, bool? specialLit = false,
+        IReadOnlySet<string>? ignored = null) =>
+        ActorLighting.Select(location, radius, AmbientAt(location, ambientGlow), ZoneIndexAt(location), specialLit, ignored);
+
+    /// <summary>
+    /// The bSpecialLit and IgnoredEchelonLights light names of a placed actor (sim/gameplay.json over its class
+    /// defaults), for <see cref="LightActor"/>; (false, null) for an actor the map did not place.
+    /// </summary>
+    public (bool SpecialLit, IReadOnlySet<string>? Ignored) LightFilterOf(string? actorId) =>
+        actorId is not null && Actors.Find(actorId) is { } actor
+            ? (actor.Bool("bSpecialLit"), ActorLighting.IgnoredLightNames(actor))
+            : (false, null);
 
     /// <summary>The zone of a point (UE space) through the collision BSP, or null without zone data.</summary>
     public ZoneEntry? ZoneAt(FVector location) => Zones is null ? null : Lighting.ZoneByIndex(Zones.GetZoneIndex(location));
@@ -353,7 +379,7 @@ public sealed class RenderMap
             if (g.Light == LightSource.Actor)
             {
                 FVector at = UeSpace.ToUe(g.Node.GlobalPosition);
-                ActorLighting.Apply(g.Node, LightActor(at, g.Radius, g.AmbientGlow));
+                ActorLighting.Apply(g.Node, LightActor(at, g.Radius, g.AmbientGlow, g.SpecialLit, g.IgnoredLights));
             }
         }
 
@@ -440,10 +466,13 @@ public static class MapBuilder
             zones = CollisionWorld.Build(CollisionReader.Load(collisionPath));
         }
 
+        LeafLights? leafLights = LeafLights.Load(mapFolder, zones);
+
         using GlbDocument glb = GlbDocument.Load(glbPath);
         string mapId = Path.GetFileName(Path.GetFullPath(mapFolder));
         var root = new Node3D { Name = "RenderMap" };
-        var map = new RenderMap(mapFolder, mapId, root, materials, lighting, textures, compiler, new ActorLighting(lighting), zones);
+        var map = new RenderMap(mapFolder, mapId, root, materials, lighting, textures, compiler, new ActorLighting(lighting, leafLights), zones);
+        map.LeafLights = leafLights;
         map.Pack = pack;
         map.Actors = GameplayActors.Load(mapFolder);
         List<OpenScctGame.Render.Projectors.ProjectorEntry>? projectors = OpenScctGame.Render.Projectors.ProjectorsDoc.Load(mapFolder);
@@ -510,6 +539,7 @@ public static class MapBuilder
         private readonly Dictionary<(string Mesh, LightSource Light, int Glow), ArrayMesh> _shared = [];
         private readonly Node3D _static = new() { Name = "Static" };
         private readonly Node3D _gameplay = new() { Name = "Gameplay" };
+        private bool _specialLitExported;
 
         public Builder(RenderMap map, GlbDocument glb, RenderOptions options)
         {
@@ -533,6 +563,12 @@ public static class MapBuilder
             if (_glb.Root.TryGetProperty("extras", out JsonElement extras) && extras.TryGetProperty("svmap", out JsonElement svmap)
                 && svmap.TryGetProperty("instances", out JsonElement instances))
             {
+                _specialLitExported = File.Exists(Path.Combine(_map.Folder, LeafLights.FileName));
+                foreach (JsonElement inst in instances.EnumerateArray())
+                {
+                    _specialLitExported |= inst.TryGetProperty("special_lit", out _) || inst.TryGetProperty("specialLit", out _);
+                }
+
                 foreach (JsonElement inst in instances.EnumerateArray())
                 {
                     AddInstance(inst);
@@ -888,7 +924,8 @@ public static class MapBuilder
             bool gameplay = Bool(inst, "gameplay") || Str(inst, "kind") == "mover";
             bool unlit = Bool(inst, "unlit");
             int glow = inst.TryGetProperty("ambientGlow", out JsonElement g) ? g.GetInt32() : 0;
-            int echelon = EchelonOf(inst);
+            int echelon = EchelonOf(inst, out IReadOnlySet<string>? ignoredLights);
+            bool? specialLit = SpecialLitOf(inst, actor);
             FVector location = Vec(inst, "location");
             FRotator rotation = Rot(inst, "rotation");
             FVector scale = inst.TryGetProperty("scale", out _) ? Vec(inst, "scale") : new FVector(1f, 1f, 1f);
@@ -914,7 +951,8 @@ public static class MapBuilder
 
             if (gameplay || light == LightSource.Actor)
             {
-                AddGameplay(actor, cls, meshName, mesh, transform, location, light, glow, hidden, VisionOf(inst), echelon);
+                AddGameplay(actor, cls, meshName, mesh, transform, location, light, glow, hidden, VisionOf(inst), echelon, specialLit,
+                    ignoredLights);
                 return;
             }
 
@@ -987,25 +1025,50 @@ public static class MapBuilder
         private static byte ToByte(float v) => (byte)Math.Clamp((int)MathF.Round(v * 255f), 0, 255);
 
         /// <summary>
-        /// An instance's Echelon code (<see cref="RenderMap.EchelonCode"/>) from its extras "echelonIgnore" (the
-        /// flags) and "ignoredEchelonLights" (light actor names); 0 for maps converted before they were exported.
+        /// An instance's bSpecialLit: its "special_lit" extra (written only when true), else for a placed actor its
+        /// sim/gameplay.json value over the class defaults, else false when the conversion exports the flag (it writes
+        /// render/leaflights.json alongside, or some instance carries it) and null (unknown: no light is skipped for it)
+        /// for a conversion made before.
         /// </summary>
-        private int EchelonOf(JsonElement inst)
+        private bool? SpecialLitOf(JsonElement inst, string actor)
+        {
+            foreach (string key in (ReadOnlySpan<string>)["special_lit", "specialLit"])
+            {
+                if (inst.TryGetProperty(key, out JsonElement v) && v.ValueKind is JsonValueKind.True or JsonValueKind.False)
+                {
+                    return v.GetBoolean();
+                }
+            }
+
+            if (actor.Length > 0 && _map.Actors.Find(actor) is { } placed)
+            {
+                return placed.Bool("bSpecialLit");
+            }
+
+            return _specialLitExported ? false : null;
+        }
+
+        /// <summary>
+        /// An instance's Echelon code (<see cref="RenderMap.EchelonCode"/>) from its extras "echelonIgnore" (the
+        /// flags) and "ignoredEchelonLights" (light actor names, also returned in <paramref name="ignored"/>, as they skip
+        /// ordinary lights too); 0 for maps converted before they were exported.
+        /// </summary>
+        private int EchelonOf(JsonElement inst, out IReadOnlySet<string>? ignored)
         {
             int flags = inst.TryGetProperty("echelonIgnore", out JsonElement f) && f.ValueKind == JsonValueKind.Number ? f.GetInt32() : 0;
-            List<string>? lights = null;
+            HashSet<string>? lights = null;
             if (inst.TryGetProperty("ignoredEchelonLights", out JsonElement l) && l.ValueKind == JsonValueKind.Array)
             {
-                lights = [];
                 foreach (JsonElement n in l.EnumerateArray())
                 {
                     if (n.ValueKind == JsonValueKind.String && n.GetString() is { Length: > 0 } name)
                     {
-                        lights.Add(name);
+                        (lights ??= new HashSet<string>(StringComparer.OrdinalIgnoreCase)).Add(name);
                     }
                 }
             }
 
+            ignored = lights;
             return _map.EchelonCode(flags, lights);
         }
 
@@ -1047,7 +1110,7 @@ public static class MapBuilder
         }
 
         private void AddGameplay(string actor, string cls, string meshName, int mesh, in Transform3D transform, FVector location,
-            LightSource light, int glow, bool hidden, Vector4 vision, int echelon)
+            LightSource light, int glow, bool hidden, Vector4 vision, int echelon, bool? specialLit, IReadOnlySet<string>? ignoredLights)
         {
             int glowKey = light == LightSource.Vertex ? glow : 0;
             // Vertex-lit gameplay meshes carry their zones per vertex, so they are not shared between actors.
@@ -1114,6 +1177,8 @@ public static class MapBuilder
                 Light = light,
                 AmbientGlow = glow,
                 Radius = radius,
+                SpecialLit = specialLit,
+                IgnoredLights = ignoredLights,
             };
             if (actor.Length > 0)
             {
@@ -1123,7 +1188,7 @@ public static class MapBuilder
             if (light == LightSource.Actor && arrayMesh.GetSurfaceCount() > 0)
             {
                 FVector center = UeSpace.ToUe(box.GetCenter());
-                ActorLighting.Apply(node, _map.LightActor(center, radius, glow));
+                ActorLighting.Apply(node, _map.LightActor(center, radius, glow, specialLit, ignoredLights));
             }
         }
 

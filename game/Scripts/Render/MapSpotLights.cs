@@ -13,7 +13,8 @@ namespace OpenScctGame.Render;
 /// lightmap under FactD's window patches is uniform while the game draws the patch with its bar shadows; bridge
 /// docs/handoff/fix_plan.md I8), so every one that is on is drawn, whatever its bApplyToStaticLighting. The template
 /// has <see cref="RenderK.SpotShadowSlots"/> slots. Visible light volumes have priority, with stable selection and
-/// fading when the map budget is exceeded. Each follows its switch (STriggerLight) and light type.
+/// fading when the map budget is exceeded. Each follows its switch (STriggerLight) and light type, and a light that
+/// moves (riding a mover, or a mover itself: <see cref="RenderMap.MoveLight"/>) is drawn where it is now.
 /// </summary>
 [PortOf("eng:Render.SpotShadow", Spec = "docs/RENDERING.md#spot-shadow-lights")]
 public sealed class MapSpotLights : IDisposable
@@ -22,6 +23,7 @@ public sealed class MapSpotLights : IDisposable
     private readonly Node _parent;
     private readonly List<LightEntry> _lights = [];
     private readonly List<Aabb> _bounds = [];
+    private readonly List<(FVector Location, FRotator Rotation)> _boundsAt = [];
     private readonly Dictionary<int, SpotShadowLight> _drawn = [];
     private readonly List<MapSpotLightCandidate> _candidates = [];
     private readonly MapSpotLightBudget _budget = new(RenderK.SpotShadowMapLights);
@@ -40,6 +42,7 @@ public sealed class MapSpotLights : IDisposable
             {
                 _lights.Add(l);
                 _bounds.Add(SpotShadowShape.Of(l, l.Echelon).InfluenceBounds(l.Location, l.Rotation));
+                _boundsAt.Add((l.Location, l.Rotation));
             }
         }
     }
@@ -62,8 +65,9 @@ public sealed class MapSpotLights : IDisposable
             LightEntry l = _lights[i];
             if (_map.IsLightOn(l.Name, l.InitiallyOn && l.LightType != 0))
             {
+                (FVector location, FRotator rotation) = PlaceOf(i);
                 bool visible = cameraNode is null || ViewFrustum.Intersects(_bounds[i], _frustum);
-                _candidates.Add(new MapSpotLightCandidate(i, Distance(l, camera), visible));
+                _candidates.Add(new MapSpotLightCandidate(i, Distance(l, location, rotation, camera), visible));
             }
         }
 
@@ -101,7 +105,8 @@ public sealed class MapSpotLights : IDisposable
 
             light.Scale = WorldLights.Modulation(l, _map.Time);
             light.VisibilityGain = visibility;
-            light.Place(l.Location, l.Rotation);
+            (FVector at, FRotator facing) = PlaceOf(index);
+            light.Place(at, facing);
             if (cameraNode is not null)
             {
                 light.CullShadow(_frustum);
@@ -114,17 +119,38 @@ public sealed class MapSpotLights : IDisposable
     }
 
     /// <summary>
+    /// Where light <paramref name="i"/> is now: where it was last moved to (<see cref="RenderMap.TryGetLightPlace"/>),
+    /// else where the map placed it. A moved light's influence bounds follow it.
+    /// </summary>
+    private (FVector Location, FRotator Rotation) PlaceOf(int i)
+    {
+        LightEntry l = _lights[i];
+        if (!_map.TryGetLightPlace(l.Name, out FVector location, out FRotator rotation))
+        {
+            return (l.Location, l.Rotation);
+        }
+
+        if (_boundsAt[i] != (location, rotation))
+        {
+            _boundsAt[i] = (location, rotation);
+            _bounds[i] = SpotShadowShape.Of(l, l.Echelon!).InfluenceBounds(location, rotation);
+        }
+
+        return (location, rotation);
+    }
+
+    /// <summary>
     /// How far the camera is from the light's frustum: from the nearest point of its axis (light to EchelonRange),
     /// less the frustum's half size there.
     /// </summary>
-    private static float Distance(LightEntry l, FVector camera)
+    private static float Distance(LightEntry l, FVector location, FRotator rotation, FVector camera)
     {
         EchelonSpot e = l.Echelon!;
-        FVector dir = l.Rotation.Vector();
-        float t = Math.Clamp((camera - l.Location) | dir, 0f, e.Range);
+        FVector dir = rotation.Vector();
+        float t = Math.Clamp((camera - location) | dir, 0f, e.Range);
         float p = Math.Clamp(e.NearPlaneRatio, 0f, 1f);
         float half = MathF.Max(e.Width, e.Height) * (p + ((1f - p) * t / MathF.Max(1f, e.Range)));
-        return MathF.Max(0f, FVector.Dist(camera, l.Location + (dir * t)) - half);
+        return MathF.Max(0f, FVector.Dist(camera, location + (dir * t)) - half);
     }
 
     public void Dispose()

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Godot;
 using OpenScct.Core;
 using OpenScct.Game.Lighting;
+using OpenScct.Physics.Collision;
 using OpenScct.Provenance;
 using OpenScctGame.Render.Data;
 
@@ -15,6 +16,11 @@ namespace OpenScctGame.Render;
 /// S(x) = 1 - 3x^2 + 2x^3, k = 2 for point lights and 1.75 for suns, C the light's FGetHSV colour x brightness / 255
 /// and A the zone ambient plus AmbientGlow. The light set is chosen on the CPU and handed to the template as
 /// instance uniforms (svm_ambient, svm_l0..3_pos/col/spot). docs/RENDERING.md#actor-lighting.
+/// <para>The candidates follow the game's gather (0x10a37610): with the map's leaf light lists
+/// (<see cref="LeafLights"/>) a static light must be listed by a leaf the actor touches, wherever it has moved to,
+/// other lights must reach it; a light whose bSpecialLit differs from the actor's or that the actor's
+/// IgnoredEchelonLights names is skipped; own-zone lights and suns stay in their zone; at most 256 candidates are
+/// ranked.</para>
 /// </summary>
 [PortOf("eng:Render.ActorLighting", Spec = "docs/RENDERING.md#actor-lighting")]
 public sealed class ActorLighting
@@ -32,7 +38,7 @@ public sealed class ActorLighting
     private readonly List<int> _moved = [];
     private readonly bool[] _hasMoved;
 
-    public ActorLighting(LightingDoc lighting)
+    public ActorLighting(LightingDoc lighting, LeafLights? leaves = null)
     {
         ArgumentNullException.ThrowIfNull(lighting);
         foreach (LightEntry l in lighting.Lights)
@@ -58,6 +64,26 @@ public sealed class ActorLighting
         }
 
         _hasMoved = new bool[_lights.Count];
+        _leafId = new int[_lights.Count];
+        Array.Fill(_leafId, -1);
+        if (leaves is not null)
+        {
+            _leaves = leaves;
+            _leafSet = leaves.NewSet();
+            for (int i = 0; i < _lights.Count; i++)
+            {
+                // Static lights with a light type are in the leaf lists (pass 0 of the gather); the others are reached
+                // by distance (the runtime list, pass 1, which the game fills per frame with non-static lights only:
+                // 0x10a3d3b0 skips bStatic at 0x10a3d66b). A static light no leaf lists lights no actor.
+                LightEntry light = _lights[i];
+                if (light.Static && light.LightType != 0)
+                {
+                    int id = leaves.IdOf(light.Name);
+                    _leafId[i] = id >= 0 ? id : NotListed;
+                }
+            }
+        }
+
         // Small maps are cheaper to scan. The BVH is immutable; any light that moves joins the always-checked
         // list, while its old index entry is harmless (duplicates are removed before scoring).
         if (_lights.Count >= 32)
@@ -75,6 +101,14 @@ public sealed class ActorLighting
 
     private readonly HashSet<string> _off = new(StringComparer.OrdinalIgnoreCase);
     private readonly List<LightEntry> _spawned = [];
+
+    // Per map light: its id in the leaf lists when it is a static light the lists decide (NotListed when no leaf lists
+    // it), else -1 (chosen by distance).
+    private const int NotListed = int.MaxValue;
+    private readonly int[] _leafId;
+    private readonly LeafLights? _leaves;
+    private readonly LeafLights.LeafLightSet? _leafSet;
+    private (bool? SpecialLit, IReadOnlySet<string>? Ignored) _filter;
 
     public int LightCount => _lights.Count;
 
@@ -140,12 +174,18 @@ public sealed class ActorLighting
     /// <summary>
     /// The light set of an actor whose bounding sphere is (<paramref name="center"/>, <paramref name="radius"/>) in
     /// uu. <paramref name="ambient"/> is A in display units (zone ambient plus AmbientGlow / 255); <paramref name="zone"/>
-    /// the actor's zone index (-1 unknown).
+    /// the actor's zone index (-1 unknown), tested at the bounds' centre (the original takes every leaf the actor
+    /// touches); <paramref name="specialLit"/> the actor's bSpecialLit (null when the map's content does not say, as
+    /// conversions made before it was exported: no light is then skipped for it) and <paramref name="ignored"/> the
+    /// light names of its IgnoredEchelonLights (<see cref="ActorLightRules.LightsActor"/>).
     /// </summary>
-    public ActorLightSet Select(FVector center, float radius, Vector3 ambient, int zone = -1)
+    public ActorLightSet Select(FVector center, float radius, Vector3 ambient, int zone = -1, bool? specialLit = false,
+        IReadOnlySet<string>? ignored = null)
     {
         _ranked.Clear();
         LastMapCandidates = 0;
+        _filter = (specialLit, ignored);
+        _leafSet?.Gather(center, radius);
         if (_index is not null && _moved.Count < _lights.Count / 2)
         {
             _index.Query(center, radius, _candidates);
@@ -160,20 +200,25 @@ public sealed class ActorLighting
                 previous = i;
                 LastMapCandidates++;
                 LightEntry l = _lights[i];
-                if (_off.Count == 0 || !_off.Contains(l.Name)) Rank(l, center, radius, zone);
+                if ((_off.Count == 0 || !_off.Contains(l.Name)) && LeafAdmits(i)) Rank(l, center, radius, zone);
             }
         }
         else
         {
             LastMapCandidates = _lights.Count;
-            foreach (LightEntry l in _lights)
-                if (_off.Count == 0 || !_off.Contains(l.Name)) Rank(l, center, radius, zone);
+            for (int i = 0; i < _lights.Count; i++)
+            {
+                LightEntry l = _lights[i];
+                if ((_off.Count == 0 || !_off.Contains(l.Name)) && LeafAdmits(i)) Rank(l, center, radius, zone);
+            }
         }
 
         foreach (LightEntry l in _spawned)
         {
             Rank(l, center, radius, zone);
         }
+
+        _filter = default;
 
         // Suns always first, then by score, retaining the original sort and input order for equal scores.
         _ranked.Sort((a, b) =>
@@ -197,10 +242,27 @@ public sealed class ActorLighting
         return set;
     }
 
+    // Pass 0 of the gather: a static light the leaf lists decide must be listed by a leaf the actor touches. A static
+    // light that has moved (bone-attached flares) is still taken only from the lists Build made, then tested at its
+    // current place, as the game's runtime list holds no bStatic light.
+    private bool LeafAdmits(int i)
+    {
+        int id = _leafId[i];
+        return id < 0 || (id != NotListed && _leafSet!.Contains(id));
+    }
+
     private void Rank(LightEntry l, FVector center, float radius, int zone)
     {
-        // bAffectOwnZoneOnly lights reach only actors in their zone.
-        if (l.OwnZoneOnly && zone >= 0 && l.ZoneIndex >= 0 && l.ZoneIndex != zone)
+        // The gather's candidate array holds 256 lights, filled in the order it meets them.
+        if (_ranked.Count >= ActorLightRules.MaxCandidates)
+        {
+            return;
+        }
+
+        // bSpecialLit must match (unless the content does not say the actor's) and IgnoredEchelonLights must not name
+        // the light (game 0x10a37d86); bAffectOwnZoneOnly lights and suns reach only actors in their zone.
+        if (!ActorLightRules.LightsActor(l.SpecialLit, l.Name, _filter.SpecialLit ?? l.SpecialLit, _filter.Ignored) ||
+            !ActorLightRules.ZoneAdmits(l.Effect, l.OwnZoneOnly, l.ZoneIndex, zone))
         {
             return;
         }
@@ -283,9 +345,11 @@ public sealed class ActorLighting
     /// The spot shadow lights an actor skips, as the template's Echelon code (<see cref="RenderMap.EchelonCode"/>).
     /// An LE_ESpotShadow light lights an actor unless the light is static and the actor has bIgnoreEchelonLighting,
     /// the light is dynamic and the actor has bIgnoreDynamicEchelonLighting, the light is in the actor's
-    /// IgnoredEchelonLights or the actor's GlassEffect is set.
+    /// IgnoredEchelonLights or the actor's GlassEffect is set. Only the two bIgnore*EchelonLighting flags and
+    /// GlassEffect are particular to spot shadow lights: IgnoredEchelonLights skips every kind of light
+    /// (<see cref="ActorLightRules.LightsActor"/>, which <see cref="Select"/> applies to the ordinary ones).
     /// </summary>
-    [Provenance(ProvenanceKind.Decoded, "game 0x10a37310, called by the actor light gathering 0x10a37610 for LightEffect 22 only")]
+    [Provenance(ProvenanceKind.Decoded, "game 0x10a37310 for LightEffect 22; the ordinary branch 0x10a37d86 also tests IgnoredEchelonLights")]
     public static int EchelonCode(RenderMap map, GameplayActor actor)
     {
         ArgumentNullException.ThrowIfNull(map);
@@ -293,7 +357,14 @@ public sealed class ActorLighting
         int flags = actor.Int("GlassEffect") != 0
             ? 3
             : (actor.Bool("bIgnoreEchelonLighting") ? 1 : 0) | (actor.Bool("bIgnoreDynamicEchelonLighting") ? 2 : 0);
-        List<string>? lights = null;
+        return map.EchelonCode(flags, IgnoredLightNames(actor));
+    }
+
+    /// <summary>The light actor names of a placed actor's IgnoredEchelonLights (sim/gameplay.json), or null when it has none.</summary>
+    public static IReadOnlySet<string>? IgnoredLightNames(GameplayActor actor)
+    {
+        ArgumentNullException.ThrowIfNull(actor);
+        HashSet<string>? lights = null;
         if (actor.TryGet("IgnoredEchelonLights", out System.Text.Json.JsonElement list) && list.ValueKind == System.Text.Json.JsonValueKind.Array)
         {
             foreach (System.Text.Json.JsonElement item in list.EnumerateArray())
@@ -304,12 +375,12 @@ public sealed class ActorLighting
                     : item.TryGetProperty("$asset", out System.Text.Json.JsonElement b) ? b.GetString() : null;
                 if (!string.IsNullOrEmpty(path))
                 {
-                    (lights ??= []).Add(path[(path.LastIndexOf('.') + 1)..]);
+                    (lights ??= new HashSet<string>(StringComparer.OrdinalIgnoreCase)).Add(path[(path.LastIndexOf('.') + 1)..]);
                 }
             }
         }
 
-        return map.EchelonCode(flags, lights);
+        return lights;
     }
 
     /// <summary>Sets the Echelon code of an actor-lit instance (<see cref="EchelonCode"/>); kept by later <see cref="Apply"/> calls.</summary>
