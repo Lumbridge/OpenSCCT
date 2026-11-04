@@ -29,7 +29,7 @@ metadata, the shared look values, the moving steps `ConveyorSteps` and the item 
 | `ItemSpacing`, `ItemScale`, `ItemFade`, `ItemSeed`, `ItemYawJitter` | 160, 1, 48, 0, 65536 | Item spacing along the path, size, fade length at the ends of an open path, seed and largest random turn (rotator units). |
 | `Next` | none | The conveyor items go on to from the end they leave by ([items](#items)). |
 | `AmbientSound`, `SoundRadius`, `SoundVolume` | `Amb_Krauser.Ambiances.Krau_machine1`, 32, 96 | The hum while the belt runs ([sound](#sound)); `None` silences it. A driver does not play the default. |
-| `ScrollTargets` | empty | `{Target, UnitsPerTile, Axis}`: a placed mesh actor (by id) whose texture moves with the belt. `UnitsPerTile` is the uu one texture repeat covers along the direction of travel, `Axis` 0 for U and 1 for V. |
+| `ScrollTargets` | empty | `{Target, UnitsPerTile, Axis, Material}`: a placed mesh actor (by id) whose texture moves with the belt. `UnitsPerTile` is the uu one texture repeat covers along the direction of travel (negative where the texture's axis runs against it), `Axis` 0 for U and 1 for V, and `Material`, when set, the only material of the mesh that moves. |
 | `BeltMaterial`, `FrameMaterial` | none | Materials the map builder uses for the generated look. |
 
 `PhaseAtChange`, `ChangeTick` and `SpeedBeforeChange` are runtime state (below); maps leave them at 0.
@@ -170,7 +170,8 @@ closed by the drums on a frame, else by a flat end. `ConveyorLayout` holds these
   (over the top and down at the far end, up from the bottom at the start), so one scroll turns both with the belt.
 
 Clients slide the belt's and drums' textures by the phase at the displayed server time, including every
-`ScrollTargets` mesh. Each node gets its own copies of its materials and of their later passes (the vision passes),
+`ScrollTargets` mesh (only its surfaces drawn with the target's `Material`, when it names one). Each node gets its own
+copies of its materials and of their later passes (the vision passes),
 and every texture layer (diffuse, opacity, specular, self-illumination and sequences) slides. The editor's textured
 views show the same motion while its conveyor tool runs the belts.
 
@@ -270,6 +271,44 @@ switch and reverse during a round; the planner and the follower read the belts' 
 | `ConveyorK.ObjectFloorProbe` | 8 | design value |
 
 All values are OpenSCCT design values (estimated), not decoded from the original.
+
+## Converted RE+ belts
+
+The map converter (svmbuild `mapconv/conveyors.py`) turns the RE+ belts a map defines itself (`ConveyorBelt`, the
+class RE+ 2.7 compiles into the map; RE+ `Reloaded.Editor/ConveyorModel.h`) into conveyors, and does not write the
+belts. What it keeps from RE+'s script:
+
+- **Geometry.** A belt's pivot is its start on the riding surface and `vector(Rotation)` its direction and slope; its
+  end is `Location + vector(Rotation) x Length`. Belts linked by `NextBelt` form a chain. RE+'s chain leader is the
+  belt nothing links onto (in a closed loop, the belt whose name sorts first), and a chain runs over at most the
+  class's `Seg` array (16 belts in class version 1, AeroD's; 64 from version 2).
+- **Runs.** A chain is cut into runs of belts that join end to start (within 1 uu) and share `Speed`, `Width` and
+  `bCarryPlayers`. Each run is one conveyor through its belts' starts and ends, with sharp corners (RE+ curves are
+  already chords). Items come onto a belt from the end of the one before at the nearest point of its centre line
+  (RE+ `Join`, `Entry`); where that is past the belt's start, the belt is cut there and the part before is a
+  conveyor of its own that carries riders but no items (`<id>_Start`). Runs hand items on with `Next`. A loop that is
+  one run is a `bLoop` path.
+- **Carrying.** `Width`, `Speed` and `bCarryPlayers` per run. `bCarryObjects` is false: RE+ moved only pawns.
+- **Items.** Every run that carries the chain's items takes its leader's `ItemMeshes` (the slots set, in order),
+  `ItemSpacing`, `ItemScale` and `FadeDistance` (as `ItemFade`), when its `bShowItems` is set. `ItemSeed` is a
+  CRC-32 of the leader's name, `ItemYawJitter` 2001 (RE+ turned items by `Rand(2001) - 1000`). The library carries
+  the item meshes and the client builds them lit as actors.
+- **Look.** `CL_Driver`: what RE+ draws stays as the map has it. A hidden belt (AeroD's drivers) draws nothing; a
+  drawn belt's `ConveyorFrame` mesh stays a static mesh of the world, in the render and the collision.
+- **Events.** None: the conveyor's `Tag` is its own id, since RE+ belts take no events.
+- **Treads.** AeroD's `AerTreadScroll` map script set a `TexPanner` (`PanDirection` Yaw 16384, its `Rates[i]`) over a
+  tread texture into `Skins[Slot]` of the meshes tagged `Runs[i]`. Each tagged mesh becomes a scroll target of the
+  conveyor whose path passes nearest its pivot (within 512 uu): `Axis` 1, `Material` the slot's material, and
+  `UnitsPerTile = -Speed / Rates[i]`, so the tread moves as the panner moved it (a panner adds
+  `PanRate x time` to the texture coordinates; a scroll subtracts `phase / UnitsPerTile`). The script is not written.
+- **Runtime classes.** `ConveyorMotor`, `ConveyorItem` and `ConveyorRoller` are spawned by belts at run time; a map
+  that places one has it dropped too.
+
+`src.liftedFrom` names the RE+ actors each conveyor stands for ([SVMap 1.2: conveyors](../svmap/1.2/conveyors.md)).
+Not kept: RE+'s side push into a belt's centre (`Push`: riders overlapping its channels move inwards), the rollers a
+drawn belt spins, items' centring on their mesh bounds (`ItemOffsets`; OpenSCCT only rests them on their lowest
+point), the riders' height band (RE+ carries feet from 16 below to 34 above the surface) and RE+'s carrying of
+pawns that stand on a belt only by its box (see below).
 
 ## Differences from RE+
 

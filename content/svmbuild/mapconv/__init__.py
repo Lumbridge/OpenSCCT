@@ -4,6 +4,8 @@ source.py     opens the map: package, Level export, GE partition, every actor of
 gameplay.py   sim/gameplay.json (and the per-map class table sim/classes.json)
 collision.py  sim/collision.bin
 traversal.py  sim/traversal.json
+mapclasses.py the RE+ classes a map defines itself lifted into player-count rules and outfits
+conveyors.py  RE+ conveyor belts lifted into native Svm.Conveyor actors
 rain.py       sim/rain.json (the ERainVolume boxes the pawn tick tests, written when the map has any)
 render.py     render/ (world.glb from scctpkg's exporter, materials, lighting, fx, textures) and ui/mapinfo.json
 strategicmap.py  ui/strategicmap/floor<n>.png, the strategic map's floor pictures

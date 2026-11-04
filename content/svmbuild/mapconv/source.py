@@ -11,7 +11,7 @@ Actor categories (decided per actor, in Level.Actors order):
     skipped   actors that never exist in the PC game: bDeleteMe / bPendingDelete ghosts and PS2-only actors
               (Platform = PLF_PSX2_Only); not written, counted
     lifted    actors of RE+ classes the map defines itself whose settings become native SVMap data (player-count
-              rules, character outfits; mapclasses.py); not written as actors
+              rules, character outfits; mapclasses.py; conveyor belts, conveyors.py); not written as actors
 
 Classes the map package defines itself are registered from its own Class exports before the actors are decoded,
 so their actors keep every property (mapclasses.py).

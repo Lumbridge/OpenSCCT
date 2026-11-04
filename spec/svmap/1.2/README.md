@@ -56,7 +56,7 @@ The dedicated server loads only `sim/` and `manifest.json`. The client loads all
 complete synthetic 1.0 example. A map declares `formatVersion` `1.2.x` in `manifest.json`, `sim/gameplay.json` and
 `sim/traversal.json` when it uses something new in 1.2 (`ui/identity.json`, `ui/text/`, `sim/match.json`,
 `sim/movers.json`, `render/outfits.json` or a `Svm.Conveyor` actor); other maps stay 1.1. Converted maps are 1.1
-unless the original carries one of the RE+ families that convert to a 1.2 file; maps made in the map editor are 1.2
+unless the original carries one of the RE+ families that convert to 1.2 data; maps made in the map editor are 1.2
 when they use one of these.
 
 ## Documents
@@ -178,7 +178,9 @@ overlaid with its props by the rules above.
   props like any other. Their entries carry `"mapScript": true` and their defaults like any other class. OpenSCCT
   loads such an actor as an inert actor (`UnportedActor`) that keeps its class path, its record with every prop and
   its class defaults; none of its script runs. The RE+ families with a native form are not written as actors:
-  `SMatchSizeRules` becomes `sim/match.json`, `SCharacterOutfits` becomes `render/outfits.json`.
+  `SMatchSizeRules` becomes `sim/match.json`, `SCharacterOutfits` becomes `render/outfits.json`, and `ConveyorBelt`
+  (with AeroD's `AerTreadScroll`) becomes `Svm.Conveyor` actors
+  ([converted RE+ belts](../../additions/conveyors.md#converted-re-belts)).
 - The table need not list `Svm.Conveyor` (1.2); a reader that finds no entry uses the class's own defaults
   ([conveyors.md](conveyors.md)).
 
