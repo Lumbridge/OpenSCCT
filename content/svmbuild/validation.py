@@ -162,21 +162,39 @@ def class_table_errors(table, gameplay: dict) -> list[str]:
     return errs[:50]
 
 
+# The stock classes these checks ask about and their super classes, as the game's class tree has them (the generated
+# classes under src/OpenScct.Core/Generated and src/OpenScct.Game/Generated). A map built against the shared class
+# pack need not carry sim/classes.json, so a class chain falls back on these; the map's own table comes first.
+STOCK_SUPERS = {
+    "Engine.MoverRotating": "Engine.Mover",
+    "SBase.SLift": "Engine.Mover",
+    "SBase.SLiftDoor": "Engine.Mover",
+}
+
+
+def class_is_a(cls: str, base: str, classes) -> bool:
+    """Whether `cls` is `base` or descends from it, by the map's sim/classes.json, else the stock class tree."""
+    table = classes.get("classes", {}) if isinstance(classes, dict) else {}
+    if not isinstance(table, dict):
+        table = {}
+    for _ in range(64):
+        if not cls:
+            return False
+        if cls.lower() == base.lower():
+            return True
+        entry = table.get(cls)
+        cls = (entry.get("super") if isinstance(entry, dict) else None) or STOCK_SUPERS.get(cls) or ""
+    return False
+
+
 def match_errors(match: dict, gameplay: dict, classes) -> list[str]:
     """sim/match.json (spec/svmap/1.2/match.md) beyond its schema: rules name written actors once each with min <=
     max, key positions only on movers, no rules on conveyors, and win targets name missions."""
     where = "sim/match.json"
     actors = {a["id"].lower(): a for a in all_actors(gameplay) if isinstance(a, dict) and isinstance(a.get("id"), str)}
-    table = classes.get("classes", {}) if isinstance(classes, dict) else {}
 
     def is_a(cls: str, base: str) -> bool:
-        for _ in range(64):
-            if not cls:
-                return False
-            if cls.lower() == base.lower():
-                return True
-            cls = (table.get(cls) or {}).get("super") or ""
-        return False
+        return class_is_a(cls, base, classes)
 
     errs = []
     ruled = set()
@@ -209,16 +227,9 @@ def movers_errors(movers: dict, gameplay: dict, classes) -> list[str]:
     """sim/movers.json (spec/svmap/1.2/movers.md) beyond its schema: each entry names a mover of the map, once."""
     where = "sim/movers.json"
     actors = {a["id"].lower(): a for a in all_actors(gameplay) if isinstance(a, dict) and isinstance(a.get("id"), str)}
-    table = classes.get("classes", {}) if isinstance(classes, dict) else {}
 
     def is_mover(cls: str) -> bool:
-        for _ in range(64):
-            if not cls:
-                return False
-            if cls.lower() == "engine.mover":
-                return True
-            cls = (table.get(cls) or {}).get("super") or ""
-        return False
+        return class_is_a(cls, "Engine.Mover", classes)
 
     errs = []
     seen = set()

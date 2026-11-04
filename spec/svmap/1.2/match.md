@@ -48,10 +48,11 @@ Win targets by team size, one entry per mission at most.
 
 Schema: [schemas/match.schema.json](schemas/match.schema.json) (the format id, ranges, key bounds, states and 12 team
 sizes). The validator also checks that min is not above max, every `actor` exists in `sim/gameplay.json` and has one
-rule, key states name movers, no rule names a conveyor, and every `mission` is an `SMission` (its class or a subclass
-in `sim/classes.json`). The file holds no derived summary: what a
-given count plays is computed by the one implementation (`OpenScct.Core.Match.MatchLayout`), which the server and the
-editor share.
+rule, key states name movers, no rule names a conveyor, and every `mission` is an `SMission`. A class counts by its
+own name or by its super classes: those in `sim/classes.json`, else the game's stock class tree (`SBase.SLift`,
+`SBase.SLiftDoor` and `Engine.MoverRotating` are movers), since a map built against the shared class pack need not
+carry the table. The file holds no derived summary: what a given count plays is computed by the one implementation
+(`OpenScct.Core.Match.MatchLayout`), which the server and the editor share.
 
 ## Converted maps
 
