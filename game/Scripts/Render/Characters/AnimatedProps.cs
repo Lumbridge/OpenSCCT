@@ -76,7 +76,8 @@ public static class AnimatedProps
             // Lights are ranked against the actor's bounding sphere (ActorLighting.Score): the mesh's own bounds, which
             // for SteeE's crane (DrawScale 10) reach far from its location.
             (FVector center, float radius) = Bounds(model);
-            model.Light(map.LightActor(center, radius, glow));
+            (bool specialLit, IReadOnlySet<string>? ignored) = map.LightFilterOf(id);
+            model.Light(map.LightActor(center, radius, glow, specialLit, ignored));
             props.Add(new AnimatedProp(id, model, location, drawScale));
         }
 

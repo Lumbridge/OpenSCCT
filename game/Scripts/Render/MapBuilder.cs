@@ -943,7 +943,7 @@ public static class MapBuilder
             // Soft bodies are lit as actors (SoftBodyViews.Relight), bUnlit ones fullbright.
             if (!hidden && inst.TryGetProperty("softBody", out JsonElement softBody)
                 && _map.SoftBodies?.Add(actor, softBody, transform, location, prims, _map.Compiler, VisionOf(inst),
-                    unlit ? LightSource.None : LightSource.Actor, glow, echelon) == true)
+                    unlit ? LightSource.None : LightSource.Actor, glow, echelon, specialLit, ignoredLights) == true)
             {
                 _map.SoftBodies.Relight(_map);
                 return;
