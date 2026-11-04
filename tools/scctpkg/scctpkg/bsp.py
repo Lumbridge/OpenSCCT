@@ -25,9 +25,9 @@ detect_layout parses one in both.
 
 Polygon extraction: for each node with NumVertices >= 3 the polygon is
 Points[Verts[iVertPool + k].pVertex]; NodeFlags & 0x21 marks non-structural
-(NF_NotCsg | NF_NotVisBlocking) nodes; winding is flipped when it disagrees
-with Vectors[surf.vNormal]. Texture coordinates: for a point P,
-U = dot(P - Points[pBase], Vectors[vTextureU]) / texW, V likewise.
+nodes (NF_NotCsg | NF_IsNew), the same 0x21 mask as the original's BSP line check;
+winding is flipped when it disagrees with Vectors[surf.vNormal].
+Texture coordinates: for a point P, U = dot(P - Points[pBase], Vectors[vTextureU]) / texW, V likewise.
 """
 
 from __future__ import annotations
@@ -51,7 +51,7 @@ PF_SEMISOLID = 0x00000020
 PF_UNLIT = 0x00400000       # drawn fullbright (no lightmap): skylight/window glow panels, neon
 
 NF_NOT_CSG = 0x01
-NF_NOT_VIS_BLOCKING = 0x20
+NF_IS_NEW = 0x20            # cleared on load, never set on shipped maps (FBspNode load 0x110cdc80 keeps bits 0x1F)
 
 EDITOR = "editor"
 COOKED = "cooked"
@@ -395,7 +395,7 @@ def extract_polygons(model: BspModel, include_nonstructural: bool = True,
     for ni, node in enumerate(model.nodes):
         if node.numverts < 3:
             continue
-        if not include_nonstructural and (node.flags & (NF_NOT_CSG | NF_NOT_VIS_BLOCKING)):
+        if not include_nonstructural and (node.flags & (NF_NOT_CSG | NF_IS_NEW)):
             continue
         if node.isurf < 0 or node.isurf >= len(model.surfs):
             continue
