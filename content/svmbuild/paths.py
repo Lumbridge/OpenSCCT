@@ -54,3 +54,32 @@ def is_within(path: Path, root: Path) -> bool:
         return True
     except ValueError:
         return False
+
+
+def lexical_path(path) -> str:
+    """The absolute, case-folded form of a path, without touching the disk (see is_within_lexical)."""
+    return os.path.normcase(os.path.abspath(path))
+
+
+def is_within_lexical(path, root) -> bool:
+    r"""is_within without resolving links: compares the absolute paths only.
+
+    Use it for paths built from an already resolved root. On Windows, Path.resolve() of a folder that does not exist
+    yet can keep a \\?\ prefix: realpath looks the path up twice and strips the prefix only when both lookups fail
+    the same way, so a parent folder made between them by another worker (parallel map builds) leaves it on, and the
+    path no longer compares as inside its root.
+    """
+    p, r = lexical_path(path), lexical_path(root)
+    try:
+        return os.path.commonpath([p, r]) == r
+    except ValueError:  # different drives
+        return False
+
+
+def is_output_within(path, root) -> bool:
+    """Whether a step may write (and clear) an output path under an already resolved root.
+
+    Always checked lexically (see is_within_lexical). A path that already exists is also resolved, so a link below
+    root that leads out of it is refused before its target is cleared; resolving an existing path has no race.
+    """
+    return is_within_lexical(path, root) and (not Path(path).exists() or is_within(path, root))

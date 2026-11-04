@@ -538,7 +538,7 @@ public sealed record LightEntry(
     float Phase,
     bool OwnZoneOnly)
 {
-    /// <summary>Zone index of <see cref="Zone"/>, set once the zones are read; -1 when unknown.</summary>
+    /// <summary>The light's BSP point-region zone number, falling back to <see cref="Zone"/>; -1 when unknown.</summary>
     public int ZoneIndex { get; set; } = -1;
 
     /// <summary>A number made from the name, for per-light noise (the flicker).</summary>
@@ -718,6 +718,7 @@ public sealed class LightingDoc
                     Num(l, "light_phase"),
                     MaterialsDoc.Bool(l, "own_zone_only"))
                 {
+                    ZoneIndex = LightZoneOf(l),
                     Echelon = EchelonOf(l),
                     ActorShadows = LightFlagOf(l, "actor_shadows", "bActorShadows", defaults.ActorShadows),
                     Static = LightFlagOf(l, "static", "bStatic", defaults.Static),
@@ -750,6 +751,11 @@ public sealed class LightingDoc
 
         foreach (LightEntry l in doc.Lights)
         {
+            if (l.ZoneIndex >= 0)
+            {
+                continue;
+            }
+
             foreach (ZoneEntry z in doc.Zones)
             {
                 if (string.Equals(z.Name, l.Zone, StringComparison.Ordinal))
@@ -798,6 +804,23 @@ public sealed class LightingDoc
         }
 
         return fallback;
+    }
+
+    private static int LightZoneOf(JsonElement light)
+    {
+        // Zone actors do not uniquely identify BSP zones: regions without a ZoneInfo share LevelInfo0.
+        // ShipD's elevator light uses zone 7 with that default actor. Resolving by actor name alone loses its
+        // bAffectOwnZoneOnly restriction and lets the flashing red light illuminate the yard above the shaft.
+        if (light.TryGetProperty("props", out JsonElement props) && props.ValueKind == JsonValueKind.Object &&
+            props.TryGetProperty("Region", out JsonElement region) && region.ValueKind == JsonValueKind.Object &&
+            region.TryGetProperty("ZoneNumber", out JsonElement number) && number.ValueKind == JsonValueKind.Number &&
+            number.TryGetInt32(out int zone) &&
+            zone is >= 0 and <= 255)
+        {
+            return zone;
+        }
+
+        return -1;
     }
 
     private static bool IsLightClass(string cls) =>

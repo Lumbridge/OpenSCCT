@@ -7,7 +7,7 @@
 //   STYLE_PREMUL (ONE, INVSRCALPHA), STYLE_DARKEN (ZERO, INVSRCCOLOR), STYLE_BRIGHTEN (ONE, INVSRCCOLOR; drawn
 //   premultiplied with the brightest channel as coverage). PARTICLE_MESH: a mesh emitter drawn with the particle
 //   style (instance colour). Thermal draws the translucent rule (0, 0, fade) by alpha x HeatOpacity for alpha styles
-//   and nothing for the others; EMF draws nothing.
+//   and nothing for the others; EMF draws nothing. AlphaTest/AlphaRef apply to every draw style.
 
 global uniform int svm_vision;
 #include "res://Shaders/svm_fog.gdshaderinc"
@@ -25,10 +25,15 @@ void fragment() {
 		v.a = 1.0;
 	}
 #if defined(STYLE_MODULATE)
-	vec4 c = vec4(mix(v.rgb, t.rgb, v.a), 1.0);
+	vec4 c = mix(v, t, v.a);
 #else
 	vec4 c = t * v;
 #endif
+	// SetParticleMaterial enables alpha testing independently of the blend factors. In particular, Brighten
+	// clouds can contain nonzero RGB under zero alpha; drawing those texels exposes lines at the sprite edges.
+	if (alpha_ref >= 0.0 && c.a <= alpha_ref) {
+		discard;
+	}
 	if (svm_vision == 38) {
 		discard;
 	}
@@ -60,9 +65,6 @@ void fragment() {
 		ALBEDO = c.rgb * fog.a;
 		ALPHA = max(c.r, max(c.g, c.b)) * fog.a;
 #elif defined(STYLE_REGULAR)
-		if (alpha_ref >= 0.0 && c.a <= alpha_ref) {
-			discard;
-		}
 		ALBEDO = c.rgb * fog.a + fog.rgb;
 #else
 		ALBEDO = c.rgb * fog.a + fog.rgb;

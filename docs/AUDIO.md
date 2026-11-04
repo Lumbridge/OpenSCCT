@@ -330,6 +330,9 @@ yaw instead of along the foot bone, and the texture's axes on the floor are esti
   remote listeners, with prediction/replay suppression. Default PlaySound/PlayOwnedSound slots are SLOT_Misc,
   while explicit SLOT_None keeps independent overlap. StopSound(None) stops the actor's sources and is retained
   by reliable network delivery; unresolved actor references cannot turn into global stops.
+- Simulated devices such as network and sticky cameras stop their rotation/zoom sounds locally. Their repeated
+  idle cleanup is not relayed, so loading clients cannot overflow the reliable channel with redundant stops.
+  Server-only device stops and controller-wide cleanup still reach clients; pawn stops use their ordered stream.
 
 ### Predicted action sounds
 
