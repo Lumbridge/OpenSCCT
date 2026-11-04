@@ -23,7 +23,6 @@ public partial class HubVoiceChat : Node
 
     private readonly Dictionary<ushort, (double Sum, long Count)> _heard = new();
     private readonly VoiceSettings _settings = new();
-    private bool _microphoneTried;
 
     /// <summary>The visit's voice, or null before <see cref="Attach"/>.</summary>
     public HubVoice? Voice { get; private set; }
@@ -88,7 +87,6 @@ public partial class HubVoiceChat : Node
         }
 
         _heard.Clear();
-        _microphoneTried = false;
     }
 
     public void Detach()
@@ -98,7 +96,7 @@ public partial class HubVoiceChat : Node
         if (Audio is not null)
         {
             Audio.Client = null;
-            Audio.StopMicrophone();
+            Audio.ResetMicrophone();
         }
     }
 
@@ -121,23 +119,13 @@ public partial class HubVoiceChat : Node
         }
 
         // Smoke runs and tests (isolated settings) never open the player's microphone.
-        if (!_microphoneTried && _settings.Enabled && Audio is not null && !SettingsStore.Isolated)
-        {
-            _microphoneTried = true;
-            if (!Audio.StartMicrophone(SettingsStore.Current.VoiceInputDevice) && Audio.MicrophoneProblem is { } problem)
-            {
-                GD.Print("SVM_VOICE microphone: " + problem);
-            }
-        }
+        Audio?.UpdateMicrophone(_settings.Enabled && !SettingsStore.Isolated,
+            SettingsStore.Current.VoiceInputDevice, delta);
 
         if (ReadKeys)
         {
-            bool blocked = KeysBlocked?.Invoke() ?? false;
-            voice.Voice.TalkKey = !blocked && Input.IsActionPressed(VoiceInput.PushToTalk);
-            voice.Voice.TeamKey = !blocked && Input.IsActionPressed(VoiceInput.TeamPushToTalk);
-            if (!blocked && Input.IsActionJustPressed(VoiceInput.ToggleMute))
+            if (VoiceInput.ReadKeys(voice.Voice, KeysBlocked?.Invoke() ?? false))
             {
-                _settings.MicMuted = !_settings.MicMuted;
                 SettingsStore.Current.VoiceMuted = _settings.MicMuted;
             }
         }

@@ -758,10 +758,8 @@ public sealed class OptionsSmoke : SmokeTest
                 HudEditorPreview.PreparePage(rolePage, sample);
                 Expect(rolePage.Area(merc ? "Ballistic/Ballistic" : "Ballistic")?.Frame == (int)(10 * value), "preview charge follows sample rather than fixed display frame");
             }
-            Expect(rolePage.DrawList.Items.Any(i => i.Path.StartsWith("Extras/Split")), "sample exercises split scoreboard");
-            rolePage.Options.Layout.Element(merc, "Scoreboard").Visible = false;
-            rolePage.Draw(new Vector2(1280, 720), sample);
-            Expect(!rolePage.DrawList.Items.Any(i => OpenScctGame.Hud.HudEditorTransform.Group(i) == "Scoreboard"), "scoreboard hides both teams, backgrounds and ping columns");
+            Expect(!rolePage.DrawList.Items.Any(i => i.Path.StartsWith("PCConnectedPlayers/")), "HUD preview excludes the replaced compact roster");
+            Expect(!HudEditorSettings.Elements.ContainsKey("Scoreboard"), "full scoreboard is independent of HUD editor placement");
         }
         var chatSetting = new HudElementSettings { X = .2f, Y = -.1f, Scale = 1.4f, Opacity = .5f };
         var chat = new OpenScctGame.Chat.ChatPanel { PreviewScreen = new Vector2(1280, 720), Clock = () => 1, LayoutOverride = () => chatSetting };

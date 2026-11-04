@@ -88,7 +88,7 @@ public partial class ResultsScreen : Control
         var column = new VBoxContainer { Name = "Column" };
         column.AddThemeConstantOverride("separation", 10);
         centre.AddChild(column);
-        void Fit() => column.CustomMinimumSize = new Vector2(Math.Min(820f, Math.Max(1f, Size.X - 66f)), 0f);
+        void Fit() => column.CustomMinimumSize = new Vector2(Math.Min(result.Scoreboard is null ? 820f : 1380f, Math.Max(1f, Size.X - 66f)), 0f);
         Resized += Fit;
         Fit();
         _column = column;
@@ -134,6 +134,11 @@ public partial class ResultsScreen : Control
             AddCell(row.Objectives.ToString(CultureInfo.InvariantCulture), c);
         }
 
+        if (result.Scoreboard is { } scoreboard)
+        {
+            Table.Visible = false;
+            column.AddChild(new RoundScoreboardView { Scoreboard = scoreboard, LocalParticipantId = result.LocalParticipantId, Detailed = true });
+        }
         column.AddChild(Table);
         // Online, the original's end menu: Next (ready for the next game of the series, or the lobby) and Leave.
         RematchButton = UiStyle.MenuButton(Online is null ? "Rematch" : "Next", Rematch, "Rematch");

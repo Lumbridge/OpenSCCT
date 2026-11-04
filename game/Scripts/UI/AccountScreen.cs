@@ -524,7 +524,7 @@ public partial class AccountScreen : MenuPage
         }
         var careerActions = Actions(stats, "CareerActions");
         careerActions.AddChild(ActionButton("Full stats", () => FrontEnd.ShowStats(GetTree()), "FullStats"));
-        careerActions.AddChild(ActionButton("Match history", () => FrontEnd.Show(GetTree(), new MatchHistoryScreen()), "MatchHistory"));
+        careerActions.AddChild(ActionButton("Match history", () => FrontEnd.ShowMatchHistory(GetTree()), "MatchHistory"));
 
         if (info?.Progress is { } progress) BuildTitles(progress);
     }

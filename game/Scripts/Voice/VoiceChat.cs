@@ -110,14 +110,7 @@ public partial class VoiceChat : Node
 
         if (ReadKeys)
         {
-            BindingInput? bindings = BindingInput.Current;
-            client.TalkKey = bindings?.VoiceAllHeld ?? Input.IsActionPressed(VoiceInput.PushToTalk);
-            client.TeamKey = bindings?.VoiceTeamHeld ?? Input.IsActionPressed(VoiceInput.TeamPushToTalk);
-            bool toggle = bindings is null ? Input.IsActionJustPressed(VoiceInput.ToggleMute) : (bindings.TakeMuteEdges() & 1) != 0;
-            if (toggle)
-            {
-                Settings.MicMuted = !Settings.MicMuted;
-            }
+            VoiceInput.ReadKeys(client);
         }
 
         VoiceAudio.SetVolume(Settings.OutputVolume);

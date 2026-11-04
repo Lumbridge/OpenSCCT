@@ -150,8 +150,13 @@ public sealed partial class PlayAudio : Node
             sound.SetAudioZoom(pc.AudioZoomFactor, pc.FovAngle);
             sound.ViewActorId = (pc.ViewTarget ?? pc.Pawn)?.ActorId ?? 0;
             sound.LocalPawnId = pc.Pawn?.ActorId ?? 0;
+            sound.LocalControllerId = pc.ActorId;
         }
-        else sound.LocalPawnId = 0;
+        else
+        {
+            sound.LocalPawnId = 0;
+            sound.LocalControllerId = 0;
+        }
 
         sound.Update(delta);
 

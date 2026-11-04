@@ -27,7 +27,7 @@ See the [launcher guide](docs/LAUNCHER.md) for setup, storage and troubleshootin
 | Platform | Status |
 |---|---|
 | Windows 10/11, 64-bit | Main player build, with an automatic updater |
-| Linux | Experimental native and Flatpak builds; [installation guide](docs/LINUX.md) |
+| Linux | Native x86-64 launcher and experimental game/Flatpak builds; [installation guide](docs/LINUX.md) |
 | Steam Deck | Experimental; hardware validation is still pending |
 
 ## What you can do

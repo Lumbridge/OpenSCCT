@@ -10,9 +10,9 @@ namespace OpenScctGame.Hud;
 
 /// <summary>
 /// The binocular pages of the HUD page manager (spec/hud/binoculars.md rule 1): while the spy is in s_Binoculars_Att
-/// P_BinocularsATT replaces P_HudATT, while the merc is in s_Binoculars_Def (or its reloading child state)
-/// P_BinocularsDEF replaces P_HudDEF. The native manager makes a new page object each time, so a page starts afresh
-/// when its view is entered.
+/// P_BinocularsATT replaces P_HudATT, while the merc's scope is raised in s_Binoculars_Def
+/// P_BinocularsDEF replaces P_HudDEF. Reloading returns to the ordinary HUD. The native manager makes a new page
+/// object each time, so a page starts afresh when its view is entered.
 /// </summary>
 public sealed class HudBinocularPages : IHudPageOverride
 {

@@ -567,6 +567,7 @@ public partial class LobbyRoomScreen : MenuPage
             return;
         }
 
+        RefreshLastGame();
         var seen = new HashSet<int>();
         foreach (OnlineLobbyPlayer p in s.Members)
         {

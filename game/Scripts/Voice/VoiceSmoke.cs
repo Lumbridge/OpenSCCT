@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using Godot;
 using OpenScct.Net;
 using OpenScct.Net.Voice;
@@ -50,6 +51,7 @@ public sealed class VoiceSmoke : SmokeTest
     private bool _sawSpeaking;
     private bool _sawSilent;
     private bool _indicatorShowed;
+    private bool _overlayControlsChecked;
     private int _phase;
     private double _phaseStart;
 
@@ -165,6 +167,28 @@ public sealed class VoiceSmoke : SmokeTest
         if (_b!.Speakers.Count > 0 && _indicatorB!.Text.Contains("Player 1", StringComparison.Ordinal))
         {
             _indicatorShowed = true;
+            if (!_overlayControlsChecked)
+            {
+                Label Row() => _indicatorB.GetNode<VBoxContainer>("VoiceRows").GetChildren().OfType<Label>()
+                    .Single(row => row.Text.StartsWith("Player 1", StringComparison.Ordinal));
+                void Send(Label row, MouseButton button, bool pressed = true) =>
+                    row.EmitSignal(Control.SignalName.GuiInput, new InputEventMouseButton { ButtonIndex = button, Pressed = pressed });
+                Send(Row(), MouseButton.Left);
+                if (!_b.Client!.IsMuted(1)) throw new InvalidOperationException("speaker row GUI click did not mute");
+                _indicatorB._Process(0);
+                if (!Row().Text.Contains("muted", StringComparison.Ordinal))
+                    throw new InvalidOperationException("muted speaker row disappeared instead of remaining available to unmute");
+                Send(Row(), MouseButton.Left, false);
+                if (!_b.Client.IsMuted(1)) throw new InvalidOperationException("speaker row mouse release toggled mute twice");
+                Send(Row(), MouseButton.WheelUp);
+                if (Math.Abs(_b.Client.FindTalker(1)!.Volume - 1.1f) > 0.001f)
+                    throw new InvalidOperationException("speaker row GUI scroll did not adjust volume");
+                Send(Row(), MouseButton.WheelDown);
+                Send(Row(), MouseButton.Left);
+                if (_b.Client.IsMuted(1) || Math.Abs(_b.Client.FindTalker(1)!.Volume - 1f) > 0.001f)
+                    throw new InvalidOperationException("speaker row GUI did not restore mute/volume");
+                _overlayControlsChecked = true;
+            }
         }
     }
 
@@ -252,12 +276,12 @@ public sealed class VoiceSmoke : SmokeTest
                 return SmokeResult.Fail("player 2 did not hear the tone; " + string.Join("; ", _notes));
             }
 
-            if (!_sawSpeaking || !_sawSilent || !_indicatorShowed)
+            if (!_sawSpeaking || !_sawSilent || !_indicatorShowed || !_overlayControlsChecked)
             {
-                return SmokeResult.Fail($"speaking indicator: on {_sawSpeaking}, off {_sawSilent}, overlay {_indicatorShowed}; " + string.Join("; ", _notes));
+                return SmokeResult.Fail($"speaking indicator: on {_sawSpeaking}, off {_sawSilent}, overlay {_indicatorShowed}, GUI controls {_overlayControlsChecked}; " + string.Join("; ", _notes));
             }
 
-            _notes.Add($"relay down {relay.Stats.DownPackets} packets, unrouted {relay.Stats.Unrouted}");
+            _notes.Add($"relay down {relay.Stats.DownPackets} packets, unrouted {relay.Stats.Unrouted}; speaker GUI click/mute retention/unmute/scroll passed");
             return SmokeResult.Pass(string.Join("; ", _notes));
         }
         finally

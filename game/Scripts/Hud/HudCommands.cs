@@ -28,35 +28,76 @@ public partial class HudCommands : Node
     public Func<bool>? Blocked { get; set; }
 
     public GameStatusPage? Status { get; set; }
+    public ScoreboardOverlay? Scoreboard { get; set; }
+    private BindingInput? _bindingInput;
 
     /// <summary>The play input's layout, and the input to stop while a menu is open.</summary>
     public PlayInput? PlayInput { get; set; }
 
     public override void _Ready()
     {
-        if (PlayInput is { } input) input.LocalCommand += OnLocalCommand;
+        if (PlayInput is { } input)
+        {
+            input.LocalCommand += OnLocalCommand;
+            input.LocalAction += OnLocalAction;
+            input.LocalActionsReset += ResetScoreboard;
+        }
+        _bindingInput = BindingInput.Current;
+        if (_bindingInput is not null) _bindingInput.Released += Released;
     }
 
     public override void _ExitTree()
     {
-        if (PlayInput is { } input) input.LocalCommand -= OnLocalCommand;
+        if (PlayInput is { } input)
+        {
+            input.LocalCommand -= OnLocalCommand;
+            input.LocalAction -= OnLocalAction;
+            input.LocalActionsReset -= ResetScoreboard;
+        }
+        if (_bindingInput is not null) _bindingInput.Released -= Released;
+        ResetScoreboard();
+    }
+
+    private bool InputAvailable => PlayInput is { Enabled: true, HasInputFocus: true } && !(Status?.IsOpen ?? false) && !(Blocked?.Invoke() ?? false);
+    private void ResetScoreboard() { if (GodotObject.IsInstanceValid(Scoreboard)) Scoreboard!.Clear(); }
+    private void Released(string source) => Scoreboard?.Hold(source, false);
+    public override void _Process(double delta) { if (!InputAvailable && Scoreboard?.IsOpen == true) ResetScoreboard(); }
+    private void OnLocalAction(string command, string source, bool pressed)
+    {
+        if (command.Equals("HoldScoreboard", StringComparison.OrdinalIgnoreCase))
+        {
+            if (!pressed || InputAvailable) Scoreboard?.Hold(source, pressed);
+        }
+        else if (pressed && InputAvailable) Run(command);
     }
 
     private void OnLocalCommand(string command)
     {
-        if (PlayInput?.Enabled == true && !(Status?.IsOpen ?? false) && !(Blocked?.Invoke() ?? false)) Run(command);
+        if (InputAvailable) Run(command);
     }
 
     public override void _Input(InputEvent @event)
     {
-        if (@event is not InputEventKey { Pressed: true, Echo: false } || PlayInput?.Bindings is not { } bindings ||
-            BindingInput.ResolveKey(@event, bindings) is not { } ik || (Status?.IsOpen ?? false) || (Blocked?.Invoke() ?? false) || !PlayInput.Enabled)
+        if (@event is not (InputEventKey or InputEventMouseButton) || @event is InputEventKey { Echo: true }) return;
+        if (!@event.IsPressed())
+        {
+            if (_bindingInput is null && GodotKeys.ToBinding(@event) is { } released) Released(released);
+            return;
+        }
+        if (PlayInput?.Bindings is not { } bindings || BindingInput.ResolveKey(@event, bindings) is not { } ik || !InputAvailable)
         {
             return;
         }
 
         foreach (KeyAction a in bindings.Actions(ik))
         {
+            if (a.Kind == KeyActionKind.Command && a.Name.Equals("HoldScoreboard", StringComparison.OrdinalIgnoreCase))
+            {
+                // Wheel events have no sustained hold; do not turn a hold binding into a sticky toggle.
+                if (!GodotKeys.IsPulse(ik)) Scoreboard?.Hold(ik, true);
+                GetViewport().SetInputAsHandled();
+                return;
+            }
             if (a.Kind == KeyActionKind.Command && Run(a.Name, ik))
             {
                 GetViewport().SetInputAsHandled();
@@ -102,7 +143,7 @@ public partial class HudCommands : Node
                 }
                 return true;
             case "SHOWCONNECTEDPLAYERS":
-                Hud?.ShowConnectedPlayers();
+                Scoreboard?.Toggle();
                 return true;
             case "DISPLAYSESSIONSTATUS":
                 if (Status is not null)

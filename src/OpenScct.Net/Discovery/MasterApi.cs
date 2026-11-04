@@ -719,6 +719,9 @@ public sealed record ProfileData
 /// <summary>A finished round on a trusted server, for stats and achievements.</summary>
 public sealed record ResultsReport
 {
+    /// <summary>The completed, server-authored scoreboard, independent of replay availability.</summary>
+    public OpenScct.Net.Scoreboards.RoundScoreboard? Scoreboard { get; init; }
+
     public IReadOnlyList<MatchTimelineEvent>? Events { get; init; }
     public bool TimelineTruncated { get; init; }
 
@@ -745,6 +748,9 @@ public sealed record ResultsReport
 
 public sealed record ResultsReportRow
 {
+    /// <summary>Participated but was absent at the end; retained in history without career awards.</summary>
+    public bool LeftEarly { get; init; }
+
     public RecordedLoadout? Loadout { get; init; }
 
     /// <summary>The signed-in player's account, or null for guests and bots.</summary>
@@ -833,6 +839,8 @@ public sealed record DemoListResponse
 /// <summary>A ready demo with its round.</summary>
 public sealed record DemoEntry
 {
+    public string? RoundId { get; init; }
+
     public long Id { get; init; }
 
     public long MatchId { get; init; }

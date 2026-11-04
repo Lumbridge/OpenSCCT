@@ -96,6 +96,10 @@ public partial class SPlayerController
             TimeShock = now;
             TimeShockForGrab = now;
             ClientStickyShock(PillTag, bPlayAnim);
+            if (Role == ENetRole.ROLE_Authority && pawn.SPawnType == PawnType.SPAWNDEFENSE && instigatorThisTick &&
+                ShockInstigator!.Controller is SPlayerController { SPawnType: PawnType.SPAWNOFFENSE } stunningSpy &&
+                SGameInfo.TeamIndexOf(stunningSpy) != SGameInfo.TeamIndexOf(this))
+                stunningSpy.PlayerReplicationInfo?.Stats?.AddFeat(FeatKeys.SpyShockerStuns);
             if (PillTag == 1 && pawn.SPawnType == PawnType.SPAWNDEFENSE && instigatorThisTick)
             {
                 IncStat(ShockInstigator!.Controller!, static s => s.Spy_ShockerGunHeadshots++);

@@ -211,7 +211,8 @@ public sealed class AudioLibrary
         {
             JsonElement v = p.Value;
 
-            // A sound stored in the map package itself (a community map's music): a full record, files in the map folder.
+            // A complete source definition: a sound stored in the map package itself, or a bank stream whose
+            // object path an older shared library may not contain. Its file lives in the map folder.
             if (v.TryGetProperty("root", out JsonElement own) && own.GetString() == "map" && v.TryGetProperty("flags", out _))
             {
                 _sounds[p.Name] = Read(p.Name, v, MapDir!);
@@ -248,7 +249,7 @@ public sealed class AudioLibrary
         }
 
         string kind = v.GetProperty("kind").GetString()!;
-        string? file = kind == "wave" && v.TryGetProperty("file", out JsonElement fe)
+        string? file = v.TryGetProperty("file", out JsonElement fe)
             ? System.IO.Path.GetFullPath(System.IO.Path.Combine(baseDir, fe.GetString()!))
             : null;
         return new SoundDef
@@ -382,6 +383,12 @@ public sealed class MapAudioDoc
                         else if (p.Value.ValueKind is JsonValueKind.True or JsonValueKind.False)
                         {
                             effect[p.Name] = p.Value.GetBoolean() ? 1f : 0f;
+                        }
+                        else if (p.Value.ValueKind == JsonValueKind.Object)
+                        {
+                            foreach (string axis in new[] { "X", "Y", "Z" })
+                                if (p.Value.TryGetProperty(axis, out JsonElement value) && value.ValueKind == JsonValueKind.Number)
+                                    effect[p.Name + axis] = value.GetSingle();
                         }
                     }
                 }

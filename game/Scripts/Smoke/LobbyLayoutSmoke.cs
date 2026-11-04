@@ -873,6 +873,8 @@ public sealed class LobbyLayoutSmoke : SmokeTest
 
     internal sealed class FixtureLobby : IOnlineLobbySession
     {
+        public OpenScct.Net.Scoreboards.RoundScoreboard? LastScoreboard { get; set; }
+        public int LastScoreboardLocalParticipantId { get; set; } = -1;
         public bool CanControl { get; set; } = true;
         public bool IsHost => CanControl;
         public LobbySetup Setup { get; set; } = new() { Map = "TestBox", TimeLimit = 10, SpyLives = 3, MercLives = 3,

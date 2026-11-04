@@ -53,6 +53,7 @@ public partial class VoiceAudio : Node
     private AudioEffectCapture? _capture;
     private VoiceClient? _client;
     private bool _usingMicrophone;
+    private readonly VoiceMicrophoneState _microphoneState = new();
     private double _clockFrames;
 
     /// <summary>The client whose microphone and talkers this node serves. Changing visits releases the old playback.</summary>
@@ -162,6 +163,18 @@ public partial class VoiceAudio : Node
             _usingMicrophone = false;
             SharedMicrophone.Release();
         }
+    }
+
+    /// <summary>Applies device changes immediately and retries unavailable devices at a bounded interval.</summary>
+    public void UpdateMicrophone(bool enabled, string? device, double delta) =>
+        _microphoneState.Update(enabled, device, delta,
+            wanted => StartMicrophone(wanted) && MicrophoneProblem is null, StopMicrophone);
+
+    /// <summary>Ends a visit's capture and allows the next visit to try immediately.</summary>
+    public void ResetMicrophone()
+    {
+        _microphoneState.Reset();
+        StopMicrophone();
     }
 
     /// <summary>Output volume of every voice, 0 to 1 (<c>voice_output_volume</c>).</summary>
@@ -318,7 +331,9 @@ public partial class VoiceAudio : Node
 
     private void PumpPlayback(VoiceClient client, double delta)
     {
-        float master = client.Settings.OutputVolume;
+        // Per-player gain belongs to the decoded samples; output volume belongs to SvmVoice only.
+        // Applying it here as well makes 50% output play at 25% and disagrees with the microphone test.
+        float outputGain = OutputGain();
         int clockFrames = 0;
         if (Pacing == VoicePlaybackPacing.Clock)
         {
@@ -346,7 +361,7 @@ public partial class VoiceAudio : Node
             // the banking, the generator only bridges the gaps between process frames.
             for (int f = 0; Pacing == VoicePlaybackPacing.Clock ? f < clockFrames : output.Queued < OutputQueueFrames * VoiceK.FrameSamples; f++)
             {
-                if (!talker.ReadFrame(_frame, master))
+                if (!talker.ReadFrame(_frame))
                 {
                     break;
                 }
@@ -362,7 +377,7 @@ public partial class VoiceAudio : Node
                     output.Playback.PushBuffer(_push);
                     if (reference)
                     {
-                        MixReference(f, master);
+                        MixReference(f, outputGain);
                         mixed = Math.Max(mixed, f + 1);
                     }
                 }
@@ -376,6 +391,23 @@ public partial class VoiceAudio : Node
             client.SubmitPlayback(_mix.AsSpan(0, mixed * VoiceK.FrameSamples));
             Array.Clear(_mix, 0, mixed * VoiceK.FrameSamples);
         }
+    }
+
+    private static float OutputGain()
+    {
+        float gain = 1;
+        int bus = AudioServer.GetBusIndex(VoiceBus);
+        // The reference follows the actual output route, including Master volume and mute.
+        while (bus >= 0)
+        {
+            if (AudioServer.IsBusMute(bus)) return 0;
+            gain *= Mathf.DbToLinear(AudioServer.GetBusVolumeDb(bus));
+            if (bus == 0) break;
+            int next = AudioServer.GetBusIndex(AudioServer.GetBusSend(bus));
+            if (next >= bus) break;
+            bus = next;
+        }
+        return gain;
     }
 
     /// <summary>
