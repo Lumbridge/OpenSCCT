@@ -194,9 +194,11 @@ public abstract class AiBrain
     /// <summary>
     /// A floor in front of a bomb spot (<see cref="SInteractObject.UsesCollisionFan"/>) where this pawn, its centre
     /// <paramref name="centerHeight"/> above the floor, can use it: on the entry's horizontal X axis, nearest first,
-    /// with room to stand, inside the entry's fan and the server's reach test. Null when the entry has no fan or no such
-    /// floor is found; the caller then keeps its nav floor. The entry's own fan is not built here: it is frozen at the
-    /// first CanUse, so a question asked from afar (a door closed in front then) must not fix it.
+    /// with room to stand, inside the entry's fan and the server's reach test. The fan must also hold all round the
+    /// follower's arrival distance (<see cref="NavFollower.ArriveRadius"/>), since the pawn stops anywhere within it;
+    /// when no floor has that slack, the first floor without it. Null when the entry has no fan or no such floor is
+    /// found; the caller then keeps its nav floor. The entry's own fan is not built here: it is frozen at the first
+    /// CanUse, so a question asked from afar (a door closed in front then) must not fix it.
     /// </summary>
     protected FVector? FanFloor(SInteractObject entry, float centerHeight)
     {
@@ -212,6 +214,7 @@ public abstract class AiBrain
         const ETraceFlags world = ETraceFlags.TRACE_Level | ETraceFlags.TRACE_LevelGeometry | ETraceFlags.TRACE_Movers;
         float[] fan = entry.MaxDistToInteract[0] == -1f ? entry.MeasureMaxDistToInteract() : entry.MaxDistToInteract;
         float radius = Pawn.CollisionRadius;
+        FVector? tight = null;
         foreach (float distance in FanFloorDistances)
         {
             FVector above = entry.Location + front * distance;
@@ -229,10 +232,30 @@ public abstract class AiBrain
                 continue;
             }
 
-            return floor.Location;
+            if (InFanAllRound(entry, center, fan))
+            {
+                return floor.Location;
+            }
+
+            tight ??= floor.Location;
         }
 
-        return null;
+        return tight;
+    }
+
+    /// <summary>True when the fan holds at eight points <see cref="NavFollower.ArriveRadius"/> round <paramref name="center"/>.</summary>
+    private static bool InFanAllRound(SInteractObject entry, FVector center, float[] fan)
+    {
+        for (int i = 0; i < 8; i++)
+        {
+            FVector offset = new FRotator(0, i * 0x2000, 0).Vector() * NavFollower.ArriveRadius;
+            if (!entry.InCollisionFan(center + offset, fan))
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /// <summary>The yaw error (degrees) between the view and the direction to <paramref name="point"/>.</summary>

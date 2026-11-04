@@ -144,6 +144,12 @@ public sealed partial class SpyAi
             FailOtherObjective(now);
             return;
         }
+        if (!Pc.IsInState(NAME_s_MenuInteraction) && !entry.InCollisionFan(Pawn.Location))
+        {
+            // Stopped short of a bomb spot's fan (the follower arrives within 20 uu): close the gap facing it.
+            if (AimErrorTo(entry.Location) < 15f) plan.Keys.BT_Up = 1;
+            return;
+        }
         if (!Pc.IsInState(NAME_s_MenuInteraction))
         {
             // Walking consumes Use on its rising edge. Settle first, then retry a rejected press;
