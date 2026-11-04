@@ -321,12 +321,13 @@ public sealed class RenderMap
     /// Light set of an actor at <paramref name="location"/> (zone ambient, AmbientGlow, own-zone lights), with its
     /// bSpecialLit, the light names of its IgnoredEchelonLights (pawns have neither) and its MaxLights. With
     /// <paramref name="bounds"/> (its render bounds box and Physics) the leaf lists are read for the leaves that box
-    /// touches, else for those the sphere reaches (<see cref="ActorLighting.Select"/>).
+    /// touches, and its zone ambient is the brightest of their zones', else the lists are read for the leaves the
+    /// sphere reaches and the zone ambient is that at <paramref name="location"/> (<see cref="ActorLighting.Select"/>).
     /// </summary>
     public ActorLightSet LightActor(FVector location, float radius, int ambientGlow, bool? specialLit = false,
         IReadOnlySet<string>? ignored = null, int maxLights = RenderK.MaxActorLights, ActorLeafBounds? bounds = null) =>
         ActorLighting.Select(location, radius, AmbientAt(location, ambientGlow), ZoneIndexAt(location), specialLit, ignored, maxLights,
-            bounds);
+            bounds, ambientGlow);
 
     /// <summary>
     /// The bSpecialLit and IgnoredEchelonLights light names of a placed actor (sim/gameplay.json over its class

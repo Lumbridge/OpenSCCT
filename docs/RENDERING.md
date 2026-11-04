@@ -576,7 +576,13 @@ for a leaf with no zone actor) is that tag; both passes of the gather read only 
 none takes no light. 268 stock actors set it (movers, gameplay objects, animated meshes, fish, emitters and
 STriggerLights of the Aqua, Bank, Club, Fact, Krau, Sanc, Shad, Stat and Ware maps; ClubD's paper doors
 SGamePlayObject276 and 4140 keep to `zone_lunch_room`). OpenSCCT applies it to the actors gathered by a box
-(`ActorLeafBounds.ZoneTag`, zone tags from render/lighting.json). Placed static meshes and gameplay objects are
+(`ActorLeafBounds.ZoneTag`, zone tags from render/lighting.json). The same function then sets the actor's ambient
+from the kept leaves (0x10991154-0x109911fb): the per-channel maximum of their zones' m_RefAmbientColor (black when
+none is kept), plus AmbientGlow saturating (0x1097ac20), kept at FDynamicActor+0xb8, which the actor render paths
+pass to SetAmbientLight (0x10980ff8, 0x10985b50, 0x10a4d088; the soft body render at 0x1099a140).
+OpenSCCT takes A that way for the actors gathered by a box, and from the zone at the bounds' centre for the others
+(`ActorLighting.LeafAmbient`, `RenderMap.AmbientAt`); in most stock zones m_RefAmbientColor is black, so this matters
+where a box reaches into a lit zone (ClubD's sky zone, 149). Placed static meshes and gameplay objects are
 PHYS_None; movers PHYS_MovingBrush. Gameplay meshes, devices, camera mounts and spawned effect meshes pass their drawn box; animated
 (skeletal) meshes pass their rest pose box, which only approximates the original's render bounds; pawns, the
 first-person view, emitters, puddles and soft bodies still take the leaves their bounding sphere reaches. The file is used only when its `nodeLeaf` has one entry per node of

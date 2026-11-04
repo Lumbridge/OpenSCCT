@@ -77,6 +77,17 @@ public sealed class ActorLighting
         {
             _leaves = leaves;
             _leafSet = leaves.NewSet();
+            // Each leaf zone's m_RefAmbientColor; a leaf with no zone actor (the LevelInfo, black in every stock map)
+            // or a zone the lighting does not list has none, as AmbientAt.
+            _zoneAmbient = new Vector3[leaves.ZoneCount];
+            for (int z = 0; z < _zoneAmbient.Length; z++)
+            {
+                if (leaves.ZoneName(z) is { } name && lighting.Zones.Find(e => string.Equals(e.Name, name, StringComparison.OrdinalIgnoreCase)) is { } zone)
+                {
+                    _zoneAmbient[z] = new Vector3(zone.Ambient.R, zone.Ambient.G, zone.Ambient.B);
+                }
+            }
+
             for (int i = 0; i < _lights.Count; i++)
             {
                 // Static lights with a light type are in the leaf lists (pass 0 of the gather); the others are reached
@@ -118,6 +129,7 @@ public sealed class ActorLighting
     private (bool? SpecialLit, IReadOnlySet<string>? Ignored) _filter;
     private bool _sunByLeaves;
     private readonly Dictionary<string, string> _zoneTags = new(StringComparer.OrdinalIgnoreCase);
+    private readonly Vector3[] _zoneAmbient = [];
     private readonly Dictionary<string, bool[]> _zoneTagMasks = new(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>
@@ -212,10 +224,13 @@ public sealed class ActorLighting
     /// pick the leaves it touches (the box, or the sphere of radius |extent| when the box is chunky, grown by its Physics),
     /// kept to the zones whose Tag is its ForcedVisibilityZoneTag when it has one (none kept: no light);
     /// without one the leaves are those the sphere (<paramref name="center"/>, <paramref name="radius"/>) reaches.
-    /// The sphere always ranks the lights.
+    /// The sphere always ranks the lights. With <paramref name="ambientGlow"/> (the actor's AmbientGlow), bounds and the
+    /// leaf lists, A is taken from the kept leaves instead of <paramref name="ambient"/>
+    /// (<see cref="LeafAmbient"/>).
     /// </summary>
     public ActorLightSet Select(FVector center, float radius, Vector3 ambient, int zone = -1, bool? specialLit = false,
-        IReadOnlySet<string>? ignored = null, int maxLights = RenderK.MaxActorLights, ActorLeafBounds? bounds = null)
+        IReadOnlySet<string>? ignored = null, int maxLights = RenderK.MaxActorLights, ActorLeafBounds? bounds = null,
+        int? ambientGlow = null)
     {
         _ranked.Clear();
         LastMapCandidates = 0;
@@ -240,6 +255,11 @@ public sealed class ActorLighting
         }
 
         _sunByLeaves = _leafSet is not null && bounds is { Exact: true };
+        if (ambientGlow is { } glow && bounds is not null && _leafSet is not null)
+        {
+            ambient = LeafAmbient(glow);
+        }
+
         if (noLeaves)
         {
             _filter = default;
@@ -300,6 +320,27 @@ public sealed class ActorLighting
 
         set.Count = n;
         return set;
+    }
+
+    /// <summary>
+    /// A from the leaves the last gather kept: the per-channel maximum of their zones' m_RefAmbientColor (black when
+    /// none is kept) plus AmbientGlow, saturating. An actor whose box reaches into a brighter zone takes that zone's
+    /// ambient.
+    /// </summary>
+    [Provenance(ProvenanceKind.Decoded, "actor ambient, game 0x10990e60 at 0x10991154-0x109911fb: per-channel max of ZoneInfo+0x314 (m_RefAmbientColor) over the kept leaves' zones into FDynamicActor+0xe4, then +0xb8 = saturating add of AmbientGlow (0x1097ac20), the colour the actor renders pass to SetAmbientLight (0x10980ff8, 0x10985b50, 0x1099a140, 0x10a4d088)")]
+    private Vector3 LeafAmbient(int ambientGlow)
+    {
+        Vector3 a = Vector3.Zero;
+        foreach (int z in _leafSet!.Zones)
+        {
+            if ((uint)z < (uint)_zoneAmbient.Length)
+            {
+                a = a.Max(_zoneAmbient[z]);
+            }
+        }
+
+        float g = ambientGlow / 255f;
+        return new Vector3(MathF.Min(1f, a.X + g), MathF.Min(1f, a.Y + g), MathF.Min(1f, a.Z + g));
     }
 
     // Pass 0 of the gather: a static light the leaf lists decide must be listed by a leaf the actor touches. A static
