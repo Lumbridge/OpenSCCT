@@ -49,7 +49,12 @@ public partial class MapShot : Node
         Name = "MapShot";
     }
 
-    public override void _Ready()
+    public override void _Ready() =>
+        // The app adds this node from its own _Ready, while the root is still setting up its children: the view can
+        // only join the tree a moment later.
+        Callable.From(Begin).CallDeferred();
+
+    private void Begin()
     {
         if (Start() is { } problem)
         {
