@@ -79,7 +79,7 @@ public static class AnimatedProps
             (FVector center, float radius) = Bounds(model);
             (bool specialLit, IReadOnlySet<string>? ignored) = map.LightFilterOf(id);
             ActorLeafBounds? box = RestBox(model) is { } rest
-                ? ActorLighting.LeafBounds(rest, (OpenScct.Core.Engine.EPhysics)Int(p, "Physics"))
+                ? ActorLighting.LeafBounds(rest, (OpenScct.Core.Engine.EPhysics)Int(p, "Physics"), exact: false)
                 : null;
             model.Light(map.LightActor(center, radius, glow, specialLit, ignored, RenderK.MaxActorLights, box));
             props.Add(new AnimatedProp(id, model, location, drawScale));

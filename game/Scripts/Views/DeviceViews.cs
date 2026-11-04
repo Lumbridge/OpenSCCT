@@ -721,7 +721,10 @@ public sealed class AnimatedMeshView
         {
             _lit = true;
             (FVector center, float radius) = AnimatedProps.Bounds(Model);
-            ActorLeafBounds? box = AnimatedProps.RestBox(Model) is { } rest ? ActorLighting.LeafBounds(rest, _actor.Physics) : null;
+            // The rest pose box stands in for the mesh's render bounds, so its leaves do not decide suns (Exact false).
+            ActorLeafBounds? box = AnimatedProps.RestBox(Model) is { } rest
+                ? ActorLighting.LeafBounds(rest, _actor.Physics, exact: false)
+                : null;
             Model.Light(_map.LightActor(center, radius, _actor.AmbientGlow, _actor.bSpecialLit, _map.LightFilterOf(Id).Ignored,
                 _actor.MaxLights, box));
         }

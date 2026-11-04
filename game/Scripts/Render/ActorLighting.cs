@@ -21,8 +21,8 @@ namespace OpenScctGame.Render;
 /// (<see cref="LeafLights"/>) a static light must be listed by a leaf the actor touches (its bounds box when the caller
 /// has one, <see cref="ActorLeafBounds"/>, else its bounds sphere), wherever it has moved to, other lights must reach
 /// it; a light whose bSpecialLit differs from the actor's or that the actor's IgnoredEchelonLights names is skipped;
-/// own-zone lights stay in their zone, and suns too unless the leaves come from the actor's bounds box
-/// (<see cref="ActorLightRules.ZoneAdmits"/>); at most 256 candidates are ranked.</para>
+/// own-zone lights stay in their zone, and suns too unless the leaves come from the actor's decoded bounds box
+/// (<see cref="ActorLeafBounds.Exact"/>, <see cref="ActorLightRules.ZoneAdmits"/>); at most 256 candidates are ranked.</para>
 /// </summary>
 [PortOf("eng:Render.ActorLighting", Spec = "docs/RENDERING.md#actor-lighting")]
 public sealed class ActorLighting
@@ -201,7 +201,7 @@ public sealed class ActorLighting
             _leafSet?.Gather(center, radius);
         }
 
-        _sunByLeaves = _leafSet is not null && bounds is not null;
+        _sunByLeaves = _leafSet is not null && bounds is { Exact: true };
 
         if (_index is not null && _moved.Count < _lights.Count / 2)
         {
@@ -278,7 +278,7 @@ public sealed class ActorLighting
 
         // bSpecialLit must match (unless the content does not say the actor's) and IgnoredEchelonLights must not name
         // the light (game 0x10a37d86); bAffectOwnZoneOnly lights reach only actors in their zone, and suns too unless
-        // the leaves of the actor's bounds box keep them there.
+        // the leaves of the actor's decoded bounds box keep them there.
         if (!ActorLightRules.LightsActor(l.SpecialLit, l.Name, _filter.SpecialLit ?? l.SpecialLit, _filter.Ignored) ||
             !ActorLightRules.ZoneAdmits(l.Effect, l.OwnZoneOnly, l.ZoneIndex, zone, _sunByLeaves))
         {
@@ -412,10 +412,11 @@ public sealed class ActorLighting
 
     /// <summary>
     /// The leaf-walk bounds of a drawn box (Godot world space) for an actor with <paramref name="physics"/>: its centre
-    /// and half size in uu.
+    /// and half size in uu. <paramref name="exact"/> is false for a box that only approximates the original's render
+    /// bounds (<see cref="ActorLeafBounds.Exact"/>).
     /// </summary>
-    public static ActorLeafBounds LeafBounds(Aabb box, EPhysics physics = EPhysics.PHYS_None) =>
-        new(UeSpace.ToUe(box.GetCenter()), UeSpace.ToUe(box.Size * 0.5f), physics);
+    public static ActorLeafBounds LeafBounds(Aabb box, EPhysics physics = EPhysics.PHYS_None, bool exact = true) =>
+        new(UeSpace.ToUe(box.GetCenter()), UeSpace.ToUe(box.Size * 0.5f), physics, exact);
 
     /// <summary>The leaf-walk bounds of a drawn mesh node from its current world box, or null when it has no mesh.</summary>
     public static ActorLeafBounds? LeafBounds(MeshInstance3D node, EPhysics physics)

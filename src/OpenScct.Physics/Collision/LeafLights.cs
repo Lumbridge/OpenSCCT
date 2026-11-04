@@ -282,5 +282,7 @@ public sealed class LeafLights
 /// <summary>
 /// An actor's render bounds for the leaf walk (<see cref="LeafLights.BoxLeaves"/>): the box's centre and half size in uu
 /// (axis aligned, in world space) and the actor's Physics, which picks how the box is grown (<see cref="LeafLights.TouchExtent"/>).
+/// <paramref name="Exact"/> is false when the box only approximates the original's render bounds (a skeletal mesh's rest
+/// pose box): its leaves are then not trusted to keep a sun to its zone.
 /// </summary>
-public readonly record struct ActorLeafBounds(FVector Center, FVector Extent, EPhysics Physics);
+public readonly record struct ActorLeafBounds(FVector Center, FVector Extent, EPhysics Physics, bool Exact = true);

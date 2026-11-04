@@ -163,14 +163,15 @@ public static class ActorLightRules
     /// editor 0x111a7300) reads only the lists of the leaves the actor touches (its bounds box down the world BSP,
     /// <c>LeafLights.BoxLeaves</c>), so the leaf lists alone keep a sun to its zone: <paramref name="sunByLeaves"/> is
     /// true when the lists are loaded and the touched leaves come from the actor's decoded bounds box. Otherwise a sun
-    /// is held to the actor's zone here: maps converted before the lists were exported, and actors whose leaves still
-    /// come from a bounds sphere (pawns, the bots' light field, the first-person view, emitters, soft bodies). A pawn's
+    /// is held to the actor's zone here: maps converted before the lists were exported, actors whose leaves still
+    /// come from a bounds sphere (pawns, the bots' light field, the first-person view, emitters, soft bodies) and
+    /// skeletal meshes, whose box is their rest pose's rather than the original's render bounds. A pawn's
     /// decoded box (its cylinder grown by 128 uu) reaches the sun's leaves beside PolaD's spy start as its sphere does,
     /// where the original's golden capture draws the spy unlit, so the pawn's leaves are not settled. Unknown zones
     /// (-1) admit the light.
     /// </summary>
     [Provenance(ProvenanceKind.Decoded, "own zone: game 0x10a37934; suns per zone: editor 0x1101b050 / 0x111a7300 (cooked PolaD, ClarD, DeftD, ShadD lists)")]
-    [Provenance(ProvenanceKind.Estimated, "the sun held to the actor's zone for actors whose touched leaves come from a sphere (pawns): PolaD spy start golden")]
+    [Provenance(ProvenanceKind.Estimated, "the sun held to the actor's zone for actors whose touched leaves come from a sphere (pawns: PolaD spy start golden) or an estimated box (skeletal meshes)")]
     public static bool ZoneAdmits(int effect, bool ownZoneOnly, int lightZone, int actorZone, bool sunByLeaves = false) =>
         !(ownZoneOnly || (effect == LE_Sunlight && !sunByLeaves)) || actorZone < 0 || lightZone < 0 || actorZone == lightZone;
 

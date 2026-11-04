@@ -570,9 +570,9 @@ Physics adds 128 uu to each half size (0x10bff1b4)), and the walk 0x10a08320 tak
 half size above its largest) as the sphere of radius |extent| at its centre and an elongated one as the box itself
 (each node plane's reach |Nx ex| + |Ny ey| + |Nz ez|), so the box is never looser than that sphere
 (`LeafLights.BoxLeaves`, `LeafLights.TouchExtent`). Placed static meshes and gameplay objects are PHYS_None; movers
-PHYS_MovingBrush. Gameplay meshes, devices, camera mounts, animated meshes and spawned effect meshes pass their
-drawn box; pawns, the first-person view, emitters, puddles and soft bodies still take the leaves their bounding
-sphere reaches. The file is used only when its `nodeLeaf` has one entry per node of
+PHYS_MovingBrush. Gameplay meshes, devices, camera mounts and spawned effect meshes pass their drawn box; animated
+(skeletal) meshes pass their rest pose box, which only approximates the original's render bounds; pawns, the
+first-person view, emitters, puddles and soft bodies still take the leaves their bounding sphere reaches. The file is used only when its `nodeLeaf` has one entry per node of
 the world collider's BSP in sim/collision.bin. A static light with a light type must be listed by one of them,
 wherever it has moved to; non-static and spawned lights keep the radius test (standing for both passes).
 `ActorLighting`, the spy's shadow lights (`SpyShadowLighting`) and the bots' light field (`AiLightField`) apply the
@@ -580,8 +580,8 @@ lists, the skips (`ActorLightRules.LightsActor`), the own-zone rule (`ActorLight
 the bounds box no sun test is added: PolaD's first-aid cabinet SInfirmary7655 beside the spy start (about 39 x 21 x
 59 uu, elongated, PHYS_None) touches only leaf 155, its stored leaf, which does not list the sun Light13074 of
 ZoneInfo231 behind its wall, so it stays unlit as in the golden capture (its 36.9 uu bounds sphere also reached leaf
-156, which lists the sun). Actors whose leaves still come from a sphere keep the sun to their zone at its centre, as
-do maps without the lists. For a pawn this is not settled: the original grows a walking pawn's box by 128 uu (and
+156, which lists the sun). Actors whose leaves still come from a sphere or a rest pose box keep the sun to their zone
+at its centre, as do maps without the lists. For a pawn this is not settled: the original grows a walking pawn's box by 128 uu (and
 caches the leaves until its bounds leave the cached box), and that box reaches leaf 156 at PolaD's spy start as the
 95 uu sphere does, yet the golden capture draws the spy there with no sun.
 Placed mesh actors and gameplay objects pass their bSpecialLit and IgnoredEchelonLights (world.glb `special_lit` and
