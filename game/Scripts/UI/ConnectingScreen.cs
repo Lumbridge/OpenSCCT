@@ -1,4 +1,3 @@
-using System;
 using System.Text;
 using Godot;
 using OpenScct.Core;
@@ -9,7 +8,7 @@ using OpenScctGame.Online;
 namespace OpenScctGame.UI;
 
 /// <summary>
-/// Joining a server and changing maps. Joining: what the visit is trying (direct, NAT punch, relay) and Cancel. Going
+/// Joining a server and changing maps. Joining: what the visit is trying (direct, NAT punch, relay). Going
 /// to a round: the original's loading page (GUI.loading.InitBackground): "Loading...", the map's loading picture for
 /// the player's side (SMapSettings' loading textures, <see cref="MapImages.Loading"/>), the mode's picture and name
 /// (common L_Story, L_diskhunt, L_Death), and the map's explanation of the mode for the player's side
@@ -29,8 +28,6 @@ public partial class ConnectingScreen : MenuPage
     private bool? _tipSide;
 
     public OnlineService? Service { get; set; }
-
-    public Button? CancelButton { get; private set; }
 
     public override void _Ready()
     {
@@ -56,8 +53,6 @@ public partial class ConnectingScreen : MenuPage
         Body.AddChild(_tip);
         _log = new Label { Name = "Log", Modulate = UiStyle.MenuFocus, AutowrapMode = TextServer.AutowrapMode.WordSmart, CustomMinimumSize = new Vector2(740f, 120f) };
         Body.AddChild(_log);
-        CancelButton = PageButton("Cancel", ConfirmCancel, "Cancel");
-        CancelButton.GrabFocus();
         Refresh();
     }
 
@@ -65,27 +60,6 @@ public partial class ConnectingScreen : MenuPage
     {
         base._Process(delta);
         Refresh();
-    }
-
-    private void ConfirmCancel()
-    {
-        OnlineService? service = Service;
-        OnlineClient? client = service?.Client;
-        ConfirmBox.Open(PageCanvas, new ConfirmBox
-        {
-            Name = "CancelLoadingConfirmation",
-            Question = service?.Hosting is not null
-                ? "Cancel loading? This will end the session for all players."
-                : "Cancel loading and leave this session?",
-            YesCaption = "Cancel loading", NoCaption = "Continue loading",
-            Yes = () =>
-            {
-                // Loading can finish while the question is open; a replaced page must not end the new scene's visit.
-                if (!IsQueuedForDeletion() && GetTree().CurrentScene == this && ReferenceEquals(service?.Client, client))
-                    service?.Leave();
-            },
-            No = () => CancelButton?.GrabFocus(),
-        });
     }
 
     private void Refresh()
