@@ -14,7 +14,7 @@ public sealed class MouseAimSmoke : SmokeTest
     public override string Name => TestName;
     private readonly List<string> _problems = new();
     private readonly Vector2I[] _sizes = [new(1280, 720), new(800, 600), new(3840, 2160), new(800, 600)];
-    private readonly string[] _categories = ["Sensitivity", "Scope & cameras", "Modifiers", "View & performance"];
+    private readonly string[] _categories = ["All", "Sensitivity", "Scope & cameras", "Modifiers", "View"];
     private readonly string[] _queries = ["fps", "fov", "sensitivity"];
     private OptionsMenu? _options;
     private int _size, _role, _case, _frames;
@@ -43,7 +43,7 @@ public sealed class MouseAimSmoke : SmokeTest
             var category = page.FindChild("MouseAimCategory", true, false) as OptionButton;
             var search = page.FindChild("MouseAimSearch", true, false) as LineEdit;
             if (category is null || search is null) return SmokeResult.Fail("Mouse & Aim category or search control is missing");
-            Expect(category.ItemCount == _categories.Length, "Mouse & Aim has four categories");
+            Expect(category.ItemCount == _categories.Length, "Mouse & Aim has All and four setting categories");
             for (int i = 0; i < Math.Min(category.ItemCount, _categories.Length); i++)
                 Expect(category.GetItemText(i) == _categories[i], $"category {i} has its expected label");
             search.Text = "";
@@ -136,7 +136,7 @@ public sealed class MouseAimSmoke : SmokeTest
         string prefix = _role == 0 ? "controls_spy_kbm" : "controls_merc_kbm";
         switch (_queries[_case - _categories.Length])
         {
-            case "fps": Expect(keys.Contains(_role == 0 ? "fps_spy" : "fps_merc"), where + ": search finds role frame rate across categories"); break;
+            case "fps": Expect(keys.Length == 0, where + ": role frame rate belongs to Performance instead of Mouse & Aim"); break;
             case "fov": Expect(_role == 0 ? keys.Length == 0 : keys.Contains("ws_fov"), where + ": search respects role-specific field of view"); break;
             case "sensitivity": Expect(keys.Contains(prefix + ".look"), where + ": search finds look sensitivity"); break;
         }

@@ -36,7 +36,7 @@ public sealed class OptionsCategoriesSmoke : SmokeTest
                 toggle.ButtonPressed = true;
             _browsers = _options.FindChildren("*", nameof(Control), true, false).OfType<Control>()
                 .Where(c => c.HasMeta("settings_browser") && c.GetMeta("settings_browser").AsBool()).ToArray();
-            foreach (string name in new[] { "Display", "Audio", "Voice", "HUD", "Controller (Shared)", "Crosshair" })
+            foreach (string name in new[] { "Display", "Performance", "Audio", "Voice", "HUD", "Controller (Shared)", "Crosshair" })
                 Expect(_browsers.Any(c => Ancestors(c).Any(n => n.Name == name)), name + " uses a settings browser");
             if (_browsers.Length == 0) return SmokeResult.Fail("no settings browsers were found");
             Resize(tree, _sizes[_size]);

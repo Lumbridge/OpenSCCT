@@ -13,7 +13,7 @@ using OpenScctGame.UI;
 
 namespace OpenScctGame.Smoke;
 
-/// <summary>Passive scoreboard input and responsive 24-player presentation, with isolated synthetic snapshots.</summary>
+/// <summary>Passive scoreboard input and centered solo, 2v2 and 24-player presentation, with isolated snapshots.</summary>
 public sealed class ScoreboardSmoke : SmokeTest
 {
     public const string TestName = "scoreboard";
@@ -27,7 +27,8 @@ public sealed class ScoreboardSmoke : SmokeTest
     private BindingInput? _ownedBinding;
     private KeyLayout? _savedLayout;
     private int _step, _frames;
-    private const int Cases = 4;
+    private float _fullRosterHeight;
+    private const int Cases = 6;
 
     public override SmokeResult Step(SmokeContext context)
     {
@@ -41,15 +42,32 @@ public sealed class ScoreboardSmoke : SmokeTest
         if (++_frames < 12) return SmokeResult.Running;
         _frames = 0;
         var view = _overlay!.View!;
+        int scenario = _step % Cases;
+        int players = scenario == 4 ? 1 : scenario == 5 ? 4 : 24;
         Vector2 screen = context.Tree.Root.GetVisibleRect().Size;
         Rect2 rect = view.GetGlobalRect();
         Expect(rect.Position.X >= 0 && rect.Position.Y >= 0 && rect.End.X <= screen.X + 1 && rect.End.Y <= screen.Y + 1,
-            $"24-player scoreboard fits {screen}: {rect}");
+            $"{players}-player scoreboard fits {screen}: {rect}");
         Rect2 panel = ((Control)view.GetParent()).GetGlobalRect();
         Expect(panel.Position.Y >= 0 && panel.End.Y <= screen.Y + 1, $"scoreboard frame fits {screen}: {panel}");
+        Expect(Mathf.Abs(panel.GetCenter().X - screen.X / 2) <= 2 && Mathf.Abs(panel.GetCenter().Y - screen.Y / 2) <= 2,
+            $"{players}-player frame is centered at {screen}: {panel}");
+        if (screen.X > 1280)
+            Expect(panel.Size.X <= 1200 * Mathf.Max(1, screen.Y / 1080) + 2,
+                $"{players}-player frame has a bounded desktop width at {screen}: {panel}");
+        if (scenario == 0) _fullRosterHeight = panel.Size.Y;
+        if (scenario >= 4)
+            Expect(panel.Size.Y < _fullRosterHeight * .6f,
+                $"{players}-player frame shrinks naturally from the full roster at {screen}: {panel.Size.Y} vs {_fullRosterHeight}");
         string[] labels = view.FindChildren("*", nameof(Label), true, false).OfType<Label>().Select(l => l.Text).ToArray();
-        Expect(labels.Any(t => t.StartsWith("Spy player 12")) && labels.Any(t => t.StartsWith("Merc player 12")), "all 24 players have rows");
-        Expect((labels.Contains("Cam sleep") || labels.Contains("Cam KO")) && labels.Contains("Damage") && labels.Contains("Mines"), "each role has its own columns");
+        Expect(labels.Count(t => t.StartsWith("Spy player ") || t.StartsWith("Merc player ")) == players,
+            $"all {players} players have rows at {screen}");
+        if (players == 24)
+            Expect(labels.Any(t => t.StartsWith("Spy player 12")) && labels.Any(t => t.StartsWith("Merc player 12")), "all 24 players have rows");
+        if (view.Scoreboard!.Rows.Any(p => p.Team == 0))
+            Expect(labels.Contains("Cam sleep") || labels.Contains("Cam KO"), "spy rows have their own columns");
+        if (view.Scoreboard.Rows.Any(p => p.Team == 1))
+            Expect(labels.Contains("Damage") && labels.Contains("Mines"), "merc rows have their own columns");
         if (_step % Cases == 1) Expect(labels.Contains("Pending"), "unreleased counters display Pending");
         if (_step % Cases == 2) Expect(labels.Contains("—"), "legacy counters display unavailable");
         if (_step % Cases == 3) Expect(labels.Contains("3 earlier participants are included in final details") && !labels.Any(t => t.StartsWith("Earlier player")), "departed rows never displace the 24 active participants");
@@ -57,7 +75,7 @@ public sealed class ScoreboardSmoke : SmokeTest
         if (++_step == Sizes.Length * Cases)
         {
             Cleanup();
-            return _problems.Count == 0 ? SmokeResult.Pass("24-player live layouts, delayed/legacy states, F10 and keyboard/mouse/controller holds passed.")
+            return _problems.Count == 0 ? SmokeResult.Pass("Centered solo/2v2/24-player layouts, delayed/legacy states, F10 and keyboard/mouse/controller holds passed.")
                 : SmokeResult.Fail(string.Join("; ", _problems));
         }
         Present(context);
@@ -145,8 +163,10 @@ public sealed class ScoreboardSmoke : SmokeTest
         if (_step % Cases is 1 or 2) board = board with { AsOfSeconds = null, Rows = board.Rows.Select(p => p with { Stats = null, StatsVersion = _step % Cases == 2 ? 0 : 1 }).ToArray() };
         if (_step % Cases == 3) board = board with { Rows = board.Rows.Select(p => p with { LeftEarly = false }).Concat(
             Enumerable.Range(24, 3).Select(i => board.Rows[0] with { ParticipantId = i, Name = "Earlier player " + i, LeftEarly = true })).ToArray() };
+        if (_step % Cases == 4) board = board with { Rows = [board.Rows[12] with { Rank = new PlayerRank(10, 55, 0, 0).Pack() }] };
+        if (_step % Cases == 5) board = board with { Rows = board.Rows.Where(p => p.ParticipantId is 0 or 1 or 12 or 13).ToArray() };
         _overlay.View!.Scoreboard = board;
-        _overlay.View.LocalParticipantId = _step % 2 == 0 ? 0 : 12;
+        _overlay.View.LocalParticipantId = _step % Cases == 4 ? 12 : _step % 2 == 0 ? 0 : 12;
         _overlay.View.Refresh();
     }
 

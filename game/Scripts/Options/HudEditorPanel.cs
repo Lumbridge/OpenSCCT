@@ -94,7 +94,8 @@ public partial class HudEditorPanel : VBoxContainer
         categoryMargin.AddChild(_elementRows);
         _sidebar.AddChild(categoryMargin);
         body.AddChild(_sidebar);
-        _sidebarDivider = new ColorRect { Name = "HudEditorPreviewDivider", CustomMinimumSize = new Vector2(1, 0), Color = UiStyle.MenuFocus with { A = .2f }, MouseFilter = MouseFilterEnum.Ignore };
+        _sidebarDivider = new VSeparator { Name = "HudEditorPreviewDivider", MouseFilter = MouseFilterEnum.Ignore };
+        _sidebarDivider.AddThemeStyleboxOverride("separator", new StyleBoxLine { Color = UiStyle.MenuFocus with { A = .3f }, Thickness = 1, Vertical = true });
         body.AddChild(_sidebarDivider);
         _preview = new HudEditorPreview(_settings, () => _selected, _selection.Contains) { Name = "HudEditorPreview", CustomMinimumSize = new Vector2(280, 140), SizeFlagsVertical = SizeFlags.ExpandFill, SizeFlagsHorizontal = SizeFlags.ExpandFill, ClipContents = true };
         body.AddChild(_preview);

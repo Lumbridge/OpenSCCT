@@ -21,6 +21,7 @@ public partial class ScoreboardOverlay : Control
     private string? _round;
     private double _fallbackAt;
     private int _local = -1;
+    private PanelContainer? _panel;
 
     public override void _Ready()
     {
@@ -32,22 +33,16 @@ public partial class ScoreboardOverlay : Control
         var dim = new ColorRect { Color = new Color(0, 0, 0, .35f), MouseFilter = MouseFilterEnum.Ignore };
         dim.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
         AddChild(dim);
-        var outer = new MarginContainer { MouseFilter = MouseFilterEnum.Ignore };
-        outer.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
-        foreach (string side in new[] { "left", "right", "top", "bottom" }) outer.AddThemeConstantOverride("margin_" + side, 16);
-        AddChild(outer);
-        var centre = new VBoxContainer { Alignment = BoxContainer.AlignmentMode.Center, MouseFilter = MouseFilterEnum.Ignore };
-        outer.AddChild(centre);
-        var panel = new PanelContainer { MouseFilter = MouseFilterEnum.Ignore };
-        panel.AddThemeStyleboxOverride("panel", new StyleBoxFlat
+        _panel = new PanelContainer { Name = "ScoreboardPanel", MouseFilter = MouseFilterEnum.Ignore };
+        _panel.AddThemeStyleboxOverride("panel", new StyleBoxFlat
         {
             BgColor = new Color(.025f, .035f, .045f, .96f), BorderColor = new Color(.25f, .35f, .4f, .7f),
             BorderWidthLeft = 1, BorderWidthRight = 1, BorderWidthTop = 1, BorderWidthBottom = 1,
             ContentMarginLeft = 12, ContentMarginRight = 12, ContentMarginTop = 10, ContentMarginBottom = 10,
         });
-        centre.AddChild(panel);
+        AddChild(_panel);
         View = new RoundScoreboardView();
-        panel.AddChild(View);
+        _panel.AddChild(View);
         Present();
     }
 
@@ -63,7 +58,7 @@ public partial class ScoreboardOverlay : Control
             _round = current.RoundId;
         }
         if (!Visible || View is null) return;
-        View.LiveHeight = Math.Max(0, Size.Y - 52);
+        ArrangePanel();
         _fallbackAt -= delta;
         var board = Session?.Scoreboard;
         int local = Session?.ScoreboardLocalParticipantId ?? -1;
@@ -80,7 +75,22 @@ public partial class ScoreboardOverlay : Control
             View.Scoreboard = board;
             View.LocalParticipantId = local;
             View.Refresh();
+            ArrangePanel();
         }
+    }
+
+    private void ArrangePanel()
+    {
+        if (_panel is null || View is null) return;
+        // Use a readable desktop-sized card instead of stretching the columns across the viewport.
+        // Scale that card on high-resolution displays; smaller screens use the existing dense layout.
+        float scale = Math.Max(1, Size.Y / 1080f);
+        float preferredWidth = Math.Clamp(Size.X * .67f / scale, 960, 1200);
+        float width = Math.Min(preferredWidth, Math.Max(0, Size.X - 32) / scale);
+        View.LiveHeight = Math.Max(0, (Size.Y - 32) / scale - 20);
+        _panel.Scale = Vector2.One * scale;
+        _panel.Size = new Vector2(width, _panel.GetCombinedMinimumSize().Y);
+        _panel.Position = (Size - _panel.Size * scale) / 2;
     }
 
     private void Present()

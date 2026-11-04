@@ -10,6 +10,28 @@ public partial class OptionsMenu
 {
     private readonly Dictionary<string, (int Category, string Search)> _settingsBrowsing = new();
 
+    private static VSeparator SettingsColumnDivider(string name)
+    {
+        var divider = new VSeparator { Name = name, MouseFilter = MouseFilterEnum.Ignore };
+        divider.AddThemeStyleboxOverride("separator", new StyleBoxLine { Color = UiStyle.MenuFocus with { A = .3f }, Thickness = 1, Vertical = true });
+        return divider;
+    }
+
+    private static MarginContainer SettingsSectionHeading(string name, string title, bool first)
+    {
+        var section = new MarginContainer { Name = name, SizeFlagsHorizontal = SizeFlags.ExpandFill };
+        section.AddThemeConstantOverride("margin_top", first ? 2 : 8);
+        section.AddThemeConstantOverride("margin_bottom", 4);
+        var heading = new HBoxContainer();
+        heading.AddThemeConstantOverride("separation", 10);
+        heading.AddChild(new Label { Text = title, Modulate = UiStyle.MenuFocus });
+        var rule = new HSeparator { SizeFlagsHorizontal = SizeFlags.ExpandFill, MouseFilter = MouseFilterEnum.Ignore };
+        rule.AddThemeStyleboxOverride("separator", new StyleBoxLine { Color = UiStyle.MenuFocus with { A = .3f }, Thickness = 1 });
+        heading.AddChild(rule);
+        section.AddChild(heading);
+        return section;
+    }
+
     /// <summary>Add an entire custom editor as one searchable entry in the current category.</summary>
     private static void SettingsPanel(GridContainer grid, string key, string label, string description, Control content)
     {
@@ -63,8 +85,8 @@ public partial class OptionsMenu
         _settingsGrids.Remove(source);
         source.Free();
 
-        var state = _settingsBrowsing.GetValueOrDefault(identity, (Category: 0, Search: ""));
-        int selected = Math.Clamp(state.Category, 0, categories.Count - 1);
+        var state = _settingsBrowsing.GetValueOrDefault(identity, (Category: -1, Search: ""));
+        int selected = Math.Clamp(state.Category, -1, categories.Count - 1);
         var page = new VBoxContainer { Name = name, SizeFlagsHorizontal = SizeFlags.ExpandFill, SizeFlagsVertical = SizeFlags.ExpandFill };
         page.SetMeta("settings_browser", true);
         page.SetMeta("settings_page", identity);
@@ -77,19 +99,26 @@ public partial class OptionsMenu
         };
         toolbar.AddChild(search);
         var category = new OptionButton { Name = "SettingsCategory", FitToLongestItem = false, ClipText = true, CustomMinimumSize = new Vector2(220, 32) };
+        category.AddItem("All");
         foreach (string label in categories) category.AddItem(label);
         toolbar.AddChild(category);
         page.AddChild(toolbar);
         var body = new HBoxContainer { SizeFlagsVertical = SizeFlags.ExpandFill };
-        body.AddThemeConstantOverride("separation", 16);
+        body.AddThemeConstantOverride("separation", 14);
         var sidebar = new ScrollContainer
         {
             Name = "SettingsCategoryList", CustomMinimumSize = new Vector2(190, 0),
             HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled,
         };
         var navigation = new VBoxContainer { Name = "SettingsCategories", SizeFlagsHorizontal = SizeFlags.ExpandFill };
+        navigation.AddThemeConstantOverride("separation", 2);
         sidebar.AddChild(navigation);
-        body.AddChild(sidebar);
+        var categoryMargin = new MarginContainer { Name = "SettingsCategoryMargin" };
+        categoryMargin.AddThemeConstantOverride("margin_top", 6);
+        categoryMargin.AddChild(sidebar);
+        body.AddChild(categoryMargin);
+        var columnDivider = SettingsColumnDivider("SettingsColumnDivider");
+        body.AddChild(columnDivider);
         var main = new VBoxContainer { SizeFlagsHorizontal = SizeFlags.ExpandFill };
         var title = new Label { Name = "SettingsHeading" };
         title.AddThemeColorOverride("font_color", UiStyle.MenuFocus);
@@ -105,6 +134,7 @@ public partial class OptionsMenu
         main.AddChild(list);
         body.AddChild(main);
         page.AddChild(body);
+        page.AddChild(new HSeparator());
         var details = new VBoxContainer { Name = "SettingsDetails" };
         var detailTitle = new Label { Name = "SettingsDetailsTitle" };
         detailTitle.AddThemeColorOverride("font_color", UiStyle.MenuFocus);
@@ -119,6 +149,7 @@ public partial class OptionsMenu
         details.AddChild(detailText);
         page.AddChild(details);
         var panels = new List<(PanelContainer Panel, BoxContainer Row)>();
+        var sectionHeadings = new Dictionary<int, MarginContainer>();
         PanelContainer? highlighted = null;
         StyleBoxFlat RowStyle(bool active) => new()
         {
@@ -143,6 +174,12 @@ public partial class OptionsMenu
         for (int index = 0; index < entries.Count; index++)
         {
             var entry = entries[index];
+            if (!sectionHeadings.ContainsKey(entry.Category))
+            {
+                var section = SettingsSectionHeading("SettingsSection_" + entry.Category, categories[entry.Category], sectionHeadings.Count == 0);
+                sectionHeadings.Add(entry.Category, section);
+                rows.AddChild(section);
+            }
             var panel = new PanelContainer { Name = "Setting_" + Safe(entry.Key), MouseFilter = MouseFilterEnum.Pass };
             panel.SetMeta("options_setting", entry.Key);
             panel.AddThemeStyleboxOverride("panel", RowStyle(false));
@@ -194,16 +231,25 @@ public partial class OptionsMenu
         {
             string query = search.Text.Trim();
             _settingsBrowsing[identity] = (selected, search.Text);
-            category.Select(selected);
-            title.Text = query.Length > 0 ? "Search results" : categories[selected];
-            for (int i = 0; i < buttons.Count; i++) buttons[i].SetPressedNoSignal(query.Length == 0 && i == selected);
+            int activeCategory = query.Length > 0 ? -1 : selected;
+            category.Select(activeCategory + 1);
+            title.Text = query.Length > 0 ? "Search results" : selected < 0 ? "All" : categories[selected];
+            for (int i = 0; i < buttons.Count; i++) buttons[i].SetPressedNoSignal(i == activeCategory + 1);
+            foreach (MarginContainer section in sectionHeadings.Values) section.Hide();
+            var visibleCategories = new HashSet<int>();
             int first = -1;
             for (int i = 0; i < entries.Count; i++)
             {
                 var entry = entries[i];
-                bool visible = query.Length == 0 ? entry.Category == selected :
+                bool visible = query.Length == 0 ? selected < 0 || entry.Category == selected :
                     (entry.Label + " " + entry.Key + " " + entry.Description + " " + categories[entry.Category]).Contains(query, StringComparison.OrdinalIgnoreCase);
                 panels[i].Panel.Visible = visible;
+                if (visible && (selected < 0 || query.Length > 0) && visibleCategories.Add(entry.Category))
+                {
+                    MarginContainer section = sectionHeadings[entry.Category];
+                    section.AddThemeConstantOverride("margin_top", visibleCategories.Count == 1 ? 2 : 8);
+                    section.Show();
+                }
                 if (first < 0 && visible) first = i;
             }
             empty.Visible = first < 0;
@@ -217,23 +263,25 @@ public partial class OptionsMenu
             search.Text = "";
             Filter();
         }
-        for (int i = 0; i < categories.Count; i++)
+        for (int i = -1; i < categories.Count; i++)
         {
             int captured = i;
-            var button = QuietBindingButton(categories[i], "SettingsCategory_" + i);
+            string label = i < 0 ? "All" : categories[i];
+            var button = QuietBindingButton(label, i < 0 ? "SettingsCategory_All" : "SettingsCategory_" + i);
             button.ToggleMode = true;
             button.CustomMinimumSize = new Vector2(0, 36);
-            button.TooltipText = categories[i];
+            button.TooltipText = label;
             button.Pressed += () => Choose(captured);
             navigation.AddChild(button);
             buttons.Add(button);
         }
-        category.ItemSelected += index => Choose((int)index);
+        category.ItemSelected += index => Choose((int)index - 1);
         search.TextChanged += _ => Filter();
         void Fit()
         {
             bool narrow = page.Size.X < 900;
-            sidebar.Visible = !narrow;
+            categoryMargin.Visible = !narrow;
+            columnDivider.Visible = !narrow;
             category.Visible = narrow;
             title.Visible = !narrow;
             for (int i = 0; i < entries.Count; i++) panels[i].Row.Vertical = entries[i].Panel || main.Size.X < 620;

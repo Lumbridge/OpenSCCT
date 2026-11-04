@@ -409,22 +409,27 @@ cancellation (experimental) sit under Microphone Volume (docs/VOICE.md "Micropho
 
 ## Role configuration and shared controls
 
-Options has **Spy**, **Mercenary**, Display, Audio, Voice, HUD and **Controller (Shared)** tabs. Each role contains
+Options has **Spy**, **Mercenary**, Display, Performance, Audio, Voice, HUD, HUD editor and **Controller (Shared)** tabs. Each role contains
 Bindings, Mouse & Aim and Controller sections. Mercenary also contains the custom Crosshair editor and preview;
-the spy retains its original contextual reticle. Role frame caps, the mercenary FOV cap and shared vertical mouse
-inversion are under Mouse & Aim. The Controller (Shared) tab holds shared controller setup, stick behavior and
+the spy retains its original contextual reticle. Performance sits beside Display and holds the shared frame cap,
+separate Spy and Mercenary caps, vertical sync, and latency/power settings. The mercenary FOV cap and shared vertical mouse
+inversion remain under Mouse & Aim. The Controller (Shared) tab holds shared controller setup, stick behavior and
 vibration settings; role-specific sensitivity and button bindings live in each role's Controller section.
 Mouse & Aim follows the binding editor's category navigation and search, with Sensitivity, Scope & cameras,
-Modifiers and View & performance categories. Each setting has its own aligned row and exact numeric fields;
+Modifiers and View categories. Each setting has its own aligned row and exact numeric fields;
 focusing or hovering a control explains it below the list. A category dropdown replaces the sidebar on narrow
-windows. Reset is a compact menu and remains staged until Apply.
+windows. Reset is a compact menu and remains staged until Apply; mouse reset preserves the Performance frame cap,
+while resetting the entire role also restores its frame cap.
 
-Display, Audio, Voice, HUD and Controller (Shared) use the same category/search browser. Display separates
-screen setup, frame pacing, widescreen layout, image quality and restart settings. Voice keeps playback,
+Display, Performance, Audio, Voice, HUD and Controller (Shared) use the same category/search browser. Display separates
+screen setup, widescreen layout and image quality. Performance separates frame pacing, per-team limits and
+latency/power settings. Voice keeps playback,
 microphone processing, transmission, shortcuts and microphone testing in distinct categories; the live meter
 and test retain their existing behavior. Role controller tuning uses categories beside its bindings view.
 Crosshair settings use the same rows with a live preview dock on wide windows and a Preview button on smaller
-ones. HUD editor has searchable element navigation, aligned properties, a persistent drag preview and a compact
+ones. These settings browsers and Mouse & Aim open with **All** selected, show category headings across the combined
+list and search results, and use the binding editor's divider between the category sidebar and settings.
+HUD editor has searchable element navigation, aligned properties, a persistent drag preview and a compact
 More menu for presets, resets, copying and importing. Browsing and editing stay within the existing Apply,
 Save & Close and discard workflow; category and search selections survive page rebuilds.
 

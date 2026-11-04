@@ -44,7 +44,7 @@ public sealed class OptionsSmoke : SmokeTest
         if (++_frames == 1)
         {
             _options.Tabs!.CurrentTab = _tab;
-            if (_tab == 6)
+            if (_options.Tabs.GetCurrentTabControl() is HudEditorPanel)
             {
                 var role = _options.FindChild("HudEditorRole", true, false) as OptionButton;
                 var aspect = _options.FindChild("HudEditorAspect", true, false) as OptionButton;
@@ -60,7 +60,7 @@ public sealed class OptionsSmoke : SmokeTest
                     if (node is CheckButton button && button.Text == "Advanced settings") button.ButtonPressed = _advanced;
                 if (_allBindings && sections.GetCurrentTabControl().FindChild("BindingCategory", true, false) is OptionButton category)
                 {
-                    _previousBindingCategory = category.Selected >= 0 ? category.GetItemText(category.Selected) : "Movement";
+                    _previousBindingCategory = category.Selected >= 0 ? category.GetItemText(category.Selected) : "All";
                     PickBindingCategory(category, "All");
                 }
             }
@@ -76,7 +76,7 @@ public sealed class OptionsSmoke : SmokeTest
         if (_options.Size.X > _sizes[_size].X + 1f)
             problems.Add($"options expanded to {_options.Size.X:0}px in a {_sizes[_size].X}px viewport");
         problems.AddRange(LayoutCheck.BoundsProblems(_options, _sizes[_size]));
-        if (_tab == 6 && _options.FindChildren("*", "", true, false).OfType<HudEditorPreview>().FirstOrDefault() is { } preview)
+        if (_options.Tabs!.GetCurrentTabControl() is HudEditorPanel && _options.FindChildren("*", "", true, false).OfType<HudEditorPreview>().FirstOrDefault() is { } preview)
         {
             for (Node? parent = preview.GetParent(); parent is not null; parent = parent.GetParent())
                 if (parent is ScrollContainer scroll && !scroll.GetGlobalRect().Grow(2f).Encloses(preview.GetGlobalRect()))
@@ -89,7 +89,7 @@ public sealed class OptionsSmoke : SmokeTest
                     problems.Add("HUD editor " + id + " outline leaves the preview");
             }
         }
-        if (_tab == 6) problems.AddRange(HudEditorSidebarChecks.Run(_options));
+        if (_options.Tabs.GetCurrentTabControl() is HudEditorPanel) problems.AddRange(HudEditorSidebarChecks.Run(_options));
         foreach (Node node in _options.FindChildren("ActionList", nameof(ScrollContainer), true, false))
         {
             if (node is not ScrollContainer list || !list.IsVisibleInTree()) continue;
@@ -112,7 +112,7 @@ public sealed class OptionsSmoke : SmokeTest
                 RestoreBindingCountTexts();
                 if (_options.Tabs!.GetCurrentTabControl().GetNode<TabContainer>("Sections").GetCurrentTabControl()
                     .FindChild("BindingCategory", true, false) is OptionButton category)
-                    PickBindingCategory(category, _previousBindingCategory ?? "Movement");
+                    PickBindingCategory(category, _previousBindingCategory ?? "All");
                 _allBindings = false;
                 _previousBindingCategory = null;
             }
@@ -121,7 +121,7 @@ public sealed class OptionsSmoke : SmokeTest
             if (++_section < _options.Tabs!.GetCurrentTabControl().GetNode<TabContainer>("Sections").GetTabCount()) return SmokeResult.Running;
             _section = 0;
         }
-        if (_tab == 6) { if (++_section < 6) return SmokeResult.Running; _section = 0; }
+        if (_options.Tabs.GetCurrentTabControl() is HudEditorPanel) { if (++_section < 6) return SmokeResult.Running; _section = 0; }
         if (++_tab < _options.Tabs!.GetTabCount()) return SmokeResult.Running;
         _tab = 0;
         if (++_size < _sizes.Length) { Resize(tree, _sizes[_size]); return SmokeResult.Running; }
@@ -650,18 +650,18 @@ public sealed class OptionsSmoke : SmokeTest
         try
         {
             Expect(search is not null && keyboard.FindChild("BindingRow_forward", true, false) is not null,
-                "bindings start in Movement with one named row per action");
+                "bindings start in All with one named row per action");
             if (search is null) return;
             Search(search, "cloak");
             Expect(keyboard.FindChild("BindingRow_cloak", true, false) is not null &&
                 keyboard.FindChild("BindingRow_forward", true, false) is null, "search spans every category");
             Search(search, "");
             Expect(keyboard.FindChild("BindingRow_forward", true, false) is not null &&
-                keyboard.FindChild("BindingRow_cloak", true, false) is null, "clearing search restores Movement");
+                keyboard.FindChild("BindingRow_cloak", true, false) is not null, "clearing search restores All");
             (keyboard.FindChild("BindingCategory_Vision", true, false) as Button)?.EmitSignal(BaseButton.SignalName.Pressed);
             Expect(keyboard.FindChild("BindingRow_vision1", true, false) is not null &&
                 keyboard.FindChild("BindingRow_forward", true, false) is null, "category navigation limits the visible action list");
-            (keyboard.FindChild("BindingCategory_Movement", true, false) as Button)?.EmitSignal(BaseButton.SignalName.Pressed);
+            (keyboard.FindChild("BindingCategory_All", true, false) as Button)?.EmitSignal(BaseButton.SignalName.Pressed);
             Search(search, "no matching action zzz");
             Expect(keyboard.FindChildren("BindingSlot_*", nameof(Button), true, false).Count == 0,
                 "empty search results hide stale binding rows");
@@ -688,7 +688,7 @@ public sealed class OptionsSmoke : SmokeTest
         {
             draft.Reset(original);
             if (search is not null) Search(search, "");
-            (keyboard.FindChild("BindingCategory_Movement", true, false) as Button)?.EmitSignal(BaseButton.SignalName.Pressed);
+            (keyboard.FindChild("BindingCategory_All", true, false) as Button)?.EmitSignal(BaseButton.SignalName.Pressed);
             sections.CurrentTab = 0;
             options.Editing.SplitKeyboard = split;
             options.Tabs.CurrentTab = tab;

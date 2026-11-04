@@ -16,7 +16,7 @@ public partial class OptionsMenu
     private sealed record BindingSlot(string Input, string? PadAction = null);
     private sealed class BindingView
     {
-        public string Category = "Movement";
+        public string Category = "All";
         public string Search = "";
         public int Filter;
         public string? Selected;
@@ -90,8 +90,7 @@ public partial class OptionsMenu
         var categoryMargin = new MarginContainer { Name = "BindingCategoryMargin" };
         categoryMargin.AddThemeConstantOverride("margin_top", 6);
         sidebar.AddChild(categories); categoryMargin.AddChild(sidebar); body.AddChild(categoryMargin);
-        var columnDivider = new VSeparator { Name = "BindingColumnDivider", MouseFilter = MouseFilterEnum.Ignore };
-        columnDivider.AddThemeStyleboxOverride("separator", new StyleBoxLine { Color = UiStyle.MenuFocus with { A = .3f }, Thickness = 1, Vertical = true });
+        var columnDivider = SettingsColumnDivider("BindingColumnDivider");
         body.AddChild(columnDivider);
         var table = new VBoxContainer { SizeFlagsHorizontal = SizeFlags.ExpandFill, SizeFlagsVertical = SizeFlags.ExpandFill };
         var heading = new HBoxContainer();

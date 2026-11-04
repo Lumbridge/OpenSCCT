@@ -146,6 +146,7 @@ public partial class OptionsMenu : Control
         _tabs.AddChild(RolePage(PlaySide.Spy));
         _tabs.AddChild(RolePage(PlaySide.Merc));
         _tabs.AddChild(DisplayPage());
+        _tabs.AddChild(PerformancePage());
         _tabs.AddChild(AudioPage());
         _tabs.AddChild(VoicePage());
         _tabs.AddChild(HudPage());
@@ -475,10 +476,6 @@ public partial class OptionsMenu : Control
             v => _edit.Resolution = v == DesktopLabel ? "" : v);
         Choice(g, "Window position (windowed)", "window_position", GameSettings.WindowPositions, _edit.WindowPosition, v => _edit.WindowPosition = v,
             w => w switch { "Default" => "Top left", "Stretched" => "Fill the screen", _ => w });
-        Section(g, "Frame pacing", "Choose the frame-rate limit and vertical sync. Display changes are previewed after Apply so you can keep or revert them.");
-        Check(g, "Vertical sync", "vsync", _edit.VSync, v => _edit.VSync = v);
-        FrameRateChoice(g, "Max FPS", "max_fps");
-        _controls["max_fps"].TooltipText = "Sets the limit for both roles. Match refresh rate follows your display's current refresh rate; Unlimited removes the cap. Vertical sync can still limit FPS. Separate role limits can be set under Mouse & Aim.";
         Section(g, "Widescreen layout", "Widen the view and adjust how the HUD fits a widescreen display.");
         Check(g, "Wider field of view on widescreen", "widescreen", _edit.Widescreen, v => _edit.Widescreen = v);
         Check(g, "Fit HUD to widescreen", "widescreen_hud", _edit.WidescreenHud, v => _edit.WidescreenHud = v);
@@ -500,14 +497,30 @@ public partial class OptionsMenu : Control
         g.AddChild(new Label { Text = "Brightness", CustomMinimumSize = new Vector2(320f, 0f) });
         g.AddChild(UiStyle.MenuButton("Brightness configuration", OpenBrightnessTest, "BrightnessConfiguration"));
         g.AddChild(new Control());
-        Section(g, "Performance", "These settings require restarting the game.");
+
+        return CreateSettingsEditor("Display", g);
+    }
+
+    private Control PerformancePage()
+    {
+        GridContainer g = Grid("Performance");
+        Section(g, "Frame pacing", "Choose the frame-rate limit and vertical sync. Match refresh rate follows your display; Unlimited removes the cap.");
+        Check(g, "Vertical sync", "vsync", _edit.VSync, v => _edit.VSync = v);
+        FrameRateChoice(g, "Max FPS (both teams)", "max_fps");
+        _controls["max_fps"].TooltipText = "Sets the limit for both teams. Match refresh rate follows your display's current refresh rate; Unlimited removes the cap. Vertical sync can still limit FPS. Use the per-team limits to set different values for Spy and Mercenary.";
+        Section(g, "Per-team limits", "Set separate frame-rate limits for Spy and Mercenary. Vertical sync can still limit FPS.");
+        FrameRateChoice(g, "Spy maximum FPS", "fps_spy");
+        _controls["fps_spy"].TooltipText = "Frame-rate limit while playing as Spy. Match refresh rate follows your display; Unlimited removes the cap. Vertical sync can still limit FPS.";
+        FrameRateChoice(g, "Mercenary maximum FPS", "fps_merc");
+        _controls["fps_merc"].TooltipText = "Frame-rate limit while playing as Mercenary, in menus and in the lobby. Match refresh rate follows your display; Unlimited removes the cap. Vertical sync can still limit FPS.";
+        Section(g, "Latency & power", "These settings require restarting the game.");
         Choice(g, "Reduce input lag (restart)", "low_latency_mode", GameSettings.LatencyModes, _edit.LowLatencyMode, v => _edit.LowLatencyMode = v);
         if (OperatingSystem.IsWindows())
         {
             Check(g, "Stop Windows power throttling (restart)", "throttle_stop", _edit.ThrottleStop, v => _edit.ThrottleStop = v);
         }
 
-        return CreateSettingsEditor("Display", g);
+        return CreateSettingsEditor("Performance", g);
     }
 
     private const string DesktopLabel = "Desktop";

@@ -16,9 +16,9 @@ public partial class OptionsMenu
         bool merc = side == PlaySide.Merc;
         string prefix = merc ? "controls_merc_kbm" : "controls_spy_kbm";
         LookSettings Look() => _edit.LookOf(merc, false);
-        string[] categories = ["Sensitivity", "Scope & cameras", "Modifiers", "View & performance"];
-        var state = _mouseAimBrowsing.GetValueOrDefault(side, (Category: 0, Search: ""));
-        int selected = state.Category;
+        string[] categories = ["Sensitivity", "Scope & cameras", "Modifiers", "View"];
+        var state = _mouseAimBrowsing.GetValueOrDefault(side, (Category: -1, Search: ""));
+        int selected = Math.Clamp(state.Category, -1, categories.Length - 1);
         var page = new VBoxContainer { Name = "Mouse & Aim", SizeFlagsVertical = SizeFlags.ExpandFill };
         page.AddThemeConstantOverride("separation", 8);
         var toolbar = new HBoxContainer();
@@ -32,7 +32,7 @@ public partial class OptionsMenu
         var reset = new MenuButton { Name = "ResetMouse", Text = "Reset…", CustomMinimumSize = new Vector2(90, 32) };
         reset.GetPopup().AddItem("Reset mouse & aim", 0);
         reset.GetPopup().IdPressed += _ => Confirm("Reset mouse & aim",
-            "Restore this role's mouse sensitivity, camera settings and frame-rate limit? Changes take effect when you Apply or Save & Close.",
+            "Restore this role's mouse sensitivity and camera settings? Changes take effect when you Apply or Save & Close.",
             () => ResetLook(side, false), "Reset mouse & aim");
         toolbar.AddChild(reset);
         page.AddChild(toolbar);
@@ -42,6 +42,7 @@ public partial class OptionsMenu
             Name = "MouseAimCategory", FitToLongestItem = false, ClipText = true,
             CustomMinimumSize = new Vector2(220, 32),
         };
+        category.AddItem("All");
         foreach (string name in categories) category.AddItem(name);
         toolbar.AddChild(category);
         toolbar.MoveChild(category, 1);
@@ -49,6 +50,8 @@ public partial class OptionsMenu
         body.AddThemeConstantOverride("separation", 16);
         var sidebar = new VBoxContainer { Name = "MouseAimCategories", CustomMinimumSize = new Vector2(190, 0) };
         body.AddChild(sidebar);
+        var columnDivider = SettingsColumnDivider("MouseAimColumnDivider");
+        body.AddChild(columnDivider);
         var main = new VBoxContainer { SizeFlagsHorizontal = SizeFlags.ExpandFill };
         var title = new Label { Name = "MouseAimHeading" };
         title.AddThemeColorOverride("font_color", UiStyle.MenuFocus);
@@ -65,6 +68,7 @@ public partial class OptionsMenu
         body.AddChild(main);
         page.AddChild(body);
 
+        page.AddChild(new HSeparator());
         var details = new VBoxContainer { Name = "MouseAimDetails" };
         var detailTitle = new Label { Name = "MouseAimDetailsTitle" };
         detailTitle.AddThemeColorOverride("font_color", UiStyle.MenuFocus);
@@ -80,6 +84,7 @@ public partial class OptionsMenu
         page.AddChild(details);
 
         var entries = new List<(int Category, string Key, string Label, string Description, PanelContainer Panel, BoxContainer Row)>();
+        var sections = new Dictionary<int, MarginContainer>();
         var categoryButtons = new List<Button>();
         PanelContainer? highlighted = null;
         StyleBoxFlat RowStyle(bool active) => new()
@@ -104,7 +109,7 @@ public partial class OptionsMenu
         void Add(int group, string key, string label, string description, Action<GridContainer> build)
         {
             // Reuse the setting callbacks and typed-value synchronization, then own the complete row here.
-            // A compound editor (such as the FPS slider) never shares grid columns with another setting.
+            // Each editor keeps its own columns without affecting other settings.
             var source = new GridContainer();
             build(source);
             Node[] cells = source.GetChildren().ToArray();
@@ -140,6 +145,12 @@ public partial class OptionsMenu
             panel.SetMeta("mouse_aim_setting", key);
             panel.AddThemeStyleboxOverride("panel", RowStyle(false));
             panel.AddChild(row);
+            if (!sections.ContainsKey(group))
+            {
+                var section = SettingsSectionHeading("MouseAimSection_" + group, categories[group], sections.Count == 0);
+                rows.AddChild(section);
+                sections.Add(group, section);
+            }
             rows.AddChild(panel);
             void ShowDetails() => Explain(panel, label, description);
             panel.MouseEntered += ShowDetails;
@@ -199,9 +210,6 @@ public partial class OptionsMenu
         if (merc) Modifier(true);
         if (!merc) Toggle(3, "spy_roll_free_look", "Free camera while rolling", "Look around with the mouse or controller while rolling. The roll continues in its starting direction.",
             _edit.SpyRollFreeLook, v => _edit.SpyRollFreeLook = v);
-        string fpsKey = merc ? "fps_merc" : "fps_spy";
-        Add(3, fpsKey, "Maximum frame rate", "Frame-rate limit for this role. Match refresh rate follows your display; Unlimited removes the cap. Vertical sync can still limit FPS.",
-            g => FrameRateChoice(g, "Maximum frame rate", fpsKey));
         if (merc) Add(3, "ws_fov", "Field of view cap", "Maximum field of view for the Mercenary camera, in degrees.",
             g => Slider(g, "Field of view cap", "ws_fov", GameSettings.MinMercFov, GameSettings.MaxMercFov, 1,
                 _edit.MercFovCap, v => _edit.MercFovCap = v, "0", typed: true));
@@ -212,11 +220,20 @@ public partial class OptionsMenu
         {
             string query = search.Text.Trim();
             _mouseAimBrowsing[side] = (selected, search.Text);
-            title.Text = query.Length > 0 ? "Search results" : categories[selected];
-            category.Select(selected);
-            for (int i = 0; i < categoryButtons.Count; i++) categoryButtons[i].SetPressedNoSignal(query.Length == 0 && selected == i);
-            foreach (var entry in entries) entry.Panel.Visible = query.Length == 0 ? entry.Category == selected :
+            int activeCategory = query.Length > 0 ? -1 : selected;
+            title.Text = query.Length > 0 ? "Search results" : selected < 0 ? "All" : categories[selected];
+            category.Select(activeCategory + 1);
+            for (int i = 0; i < categoryButtons.Count; i++) categoryButtons[i].SetPressedNoSignal(activeCategory == i - 1);
+            foreach (var entry in entries) entry.Panel.Visible = query.Length == 0 ? selected < 0 || entry.Category == selected :
                 (entry.Label + " " + entry.Description + " " + entry.Key + " " + categories[entry.Category]).Contains(query, StringComparison.OrdinalIgnoreCase);
+            bool firstSection = true;
+            foreach (var (group, section) in sections)
+            {
+                section.Visible = activeCategory < 0 && entries.Any(e => e.Category == group && e.Panel.Visible);
+                if (!section.Visible) continue;
+                section.AddThemeConstantOverride("margin_top", firstSection ? 2 : 8);
+                firstSection = false;
+            }
             empty.Visible = !entries.Any(e => e.Panel.Visible);
             list.ScrollVertical = 0;
             var first = entries.FirstOrDefault(e => e.Panel.Visible);
@@ -229,21 +246,23 @@ public partial class OptionsMenu
             search.Text = "";
             Filter();
         }
-        for (int i = 0; i < categories.Length; i++)
+        for (int i = -1; i < categories.Length; i++)
         {
             int index = i;
-            var button = QuietBindingButton(categories[i], "MouseAimCategory_" + i);
+            string label = i < 0 ? "All" : categories[i];
+            var button = QuietBindingButton(label, "MouseAimCategory_" + (i < 0 ? "All" : i.ToString()));
             button.ToggleMode = true;
             button.CustomMinimumSize = new Vector2(0, 36);
             button.Pressed += () => SelectCategory(index);
             sidebar.AddChild(button);
             categoryButtons.Add(button);
         }
-        category.ItemSelected += index => SelectCategory((int)index);
+        category.ItemSelected += index => SelectCategory((int)index - 1);
         search.TextChanged += _ => Filter();
         void Fit()
         {
             sidebar.Visible = page.Size.X >= 900;
+            columnDivider.Visible = sidebar.Visible;
             category.Visible = !sidebar.Visible;
             title.Visible = sidebar.Visible;
             foreach (var entry in entries) entry.Row.Vertical = main.Size.X < 620;

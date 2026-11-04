@@ -274,7 +274,7 @@ public sealed class FrameRateSmoke : SmokeTest
 
                 break;
             case Phase.Options:
-                // The options over the game (F12, as a player opens them) on the Display page.
+                // The options over the game (F12, as a player opens them) on the Performance page.
                 if (_stepFrames == 0)
                 {
                     _keys.Tap("IK_F12");
@@ -286,7 +286,7 @@ public sealed class FrameRateSmoke : SmokeTest
                 }
                 else if (t >= 1.0)
                 {
-                    Shot("options-display");
+                    Shot("options-performance");
                     return Finish(Analyse());
                 }
 
@@ -451,7 +451,7 @@ public sealed class FrameRateSmoke : SmokeTest
         }
     }
 
-    /// <summary>The F12 options show the max frame rate rows with the monitor's rate and vertical sync on the Display page.</summary>
+    /// <summary>The F12 options show the max frame rate rows with the monitor's rate and vertical sync on the Performance page.</summary>
     private void CheckOptions()
     {
         OptionsMenu? menu = Find<OptionsMenu>(_root!);
@@ -463,7 +463,7 @@ public sealed class FrameRateSmoke : SmokeTest
 
         for (int i = 0; i < tabs.GetTabCount(); i++)
         {
-            if (tabs.GetTabTitle(i) == "Display")
+            if (tabs.GetTabTitle(i) == "Performance")
             {
                 tabs.CurrentTab = i;
             }

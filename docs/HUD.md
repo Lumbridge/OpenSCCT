@@ -388,8 +388,11 @@ applies them at start and on save.
 | console | `override_console_key` (true: the key left of 1; false: the apostrophe key) |
 
 `OptionsMenu` is the screen from the main menu or the in-game F12 overlay. Spy and Mercenary each contain
-Bindings, Mouse & Aim and Controller sections; Mercenary also has Crosshair. Display, Audio, Voice and HUD follow,
-then Controller (Shared) holds shared controller settings in the far-right tab (docs/MENUS.md). Settings and bindings are staged until Apply or
+Bindings, Mouse & Aim and Controller sections; Mercenary also has Crosshair. Display, Performance, Audio, Voice,
+HUD and HUD editor follow, then Controller (Shared) holds shared controller settings in the far-right tab
+(docs/MENUS.md). Performance sits beside Display and contains shared and per-team frame caps, vertical sync,
+and latency/power settings. Settings browsers open on All, with grouped headings and the binding editor's sidebar
+divider. Settings and bindings are staged until Apply or
 Save & Close; Back confirms discarding edits. `OptionsRuntime` applies role sensitivity, HUD switches, frame caps,
 FOV and controller settings. `GamepadInput` retains keyboard-linked assignments and supports independent action
 bindings, alongside radial dead zones, response curves and the spy's run threshold.

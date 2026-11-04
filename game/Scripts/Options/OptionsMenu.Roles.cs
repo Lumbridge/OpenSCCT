@@ -106,8 +106,8 @@ public partial class OptionsMenu
             if (merc) { _edit.MercPad = defaults.MercPad; _edit.Pad.MercMove8 = defaults.Pad.MercMove8; }
             else { _edit.SpyPad = defaults.SpyPad; _edit.Pad.SpyMove8 = defaults.Pad.SpyMove8; _edit.Pad.RunThreshold = defaults.Pad.RunThreshold; }
         }
-        else if (merc) { _edit.MercKbm = defaults.MercKbm; _edit.MercFovCap = defaults.MercFovCap; _edit.FpsMerc = defaults.FpsMerc; }
-        else { _edit.SpyKbm = defaults.SpyKbm; _edit.InvertXSpy = defaults.InvertXSpy; _edit.SpyRollFreeLook = defaults.SpyRollFreeLook; _edit.FpsSpy = defaults.FpsSpy; }
+        else if (merc) { _edit.MercKbm = defaults.MercKbm; _edit.MercFovCap = defaults.MercFovCap; }
+        else { _edit.SpyKbm = defaults.SpyKbm; _edit.InvertXSpy = defaults.InvertXSpy; _edit.SpyRollFreeLook = defaults.SpyRollFreeLook; }
         if (rebuild) RebuildPages();
     }
 

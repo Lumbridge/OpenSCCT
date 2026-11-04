@@ -29,7 +29,7 @@ internal static class ControllerBindingEditorChecks
         var category = (OptionButton)controller.FindChild("BindingCategory", true, false);
         var filter = (OptionButton)controller.FindChild("BindingFilter", true, false);
         string oldSearch = search.Text;
-        string oldCategory = category.Selected >= 0 ? category.GetItemText(category.Selected) : "Movement";
+        string oldCategory = category.Selected >= 0 ? category.GetItemText(category.Selected) : "All";
         int oldFilter = filter.Selected;
         var scroll = (ScrollContainer)controller.FindChild("ActionList", true, false);
         int oldScroll = scroll.ScrollVertical;
