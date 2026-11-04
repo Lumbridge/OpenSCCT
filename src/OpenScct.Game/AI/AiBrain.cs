@@ -189,6 +189,50 @@ public abstract class AiBrain
         plan.Tolerance = 65536;
     }
 
+    private static readonly float[] FanFloorDistances = [40f, 50f, 60f, 75f, 90f, 110f];
+
+    /// <summary>
+    /// A floor in front of a bomb spot (<see cref="SInteractObject.UsesCollisionFan"/>) where this pawn, its centre
+    /// <paramref name="centerHeight"/> above the floor, can use it: on the entry's horizontal X axis, nearest first,
+    /// with room to stand, inside the entry's fan and the server's reach test. Null when the entry has no fan or no such
+    /// floor is found; the caller then keeps its nav floor.
+    /// </summary>
+    protected FVector? FanFloor(SInteractObject entry, float centerHeight)
+    {
+        ArgumentNullException.ThrowIfNull(entry);
+        FVector front = entry.Rotation.Vector();
+        front.Z = 0f;
+        front = front.SafeNormal();
+        if (!entry.UsesCollisionFan || front.IsZero())
+        {
+            return null;
+        }
+
+        const ETraceFlags world = ETraceFlags.TRACE_Level | ETraceFlags.TRACE_LevelGeometry | ETraceFlags.TRACE_Movers;
+        float radius = Pawn.CollisionRadius;
+        foreach (float distance in FanFloorDistances)
+        {
+            FVector above = entry.Location + front * distance;
+            if (!World.Collision.LineCheck(out FCheckResult floor, Pawn, above - new FVector(0f, 0f, 400f), above, FVector.Zero, world) ||
+                !floor.bHit || floor.Normal.Z < 0.7f)
+            {
+                continue;
+            }
+
+            FVector center = floor.Location + new FVector(0f, 0f, centerHeight + 1f);
+            if (World.Collision.PointCheck(out _, Pawn, center, new FVector(radius, radius, centerHeight), world) ||
+                !entry.InCollisionFan(center) ||
+                !Objectives.InteractionReach.From(entry, Pawn, center, radius, centerHeight))
+            {
+                continue;
+            }
+
+            return floor.Location;
+        }
+
+        return null;
+    }
+
     /// <summary>The yaw error (degrees) between the view and the direction to <paramref name="point"/>.</summary>
     protected float AimErrorTo(FVector point)
     {

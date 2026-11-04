@@ -39,6 +39,8 @@ public sealed partial class MercAi
                 _bombFloor = floor;
             }
         }
+        // The Remove entry is offered only from in front of the spot, within its fan (rule 23 of the interaction spec).
+        if (best?.InteractionObj is { } bestEntry && FanFloor(bestEntry, AiK.StandingHeight) is { } front) _bombFloor = front;
         return best;
     }
 
@@ -76,6 +78,7 @@ public sealed partial class MercAi
             return;
         }
         LookAt(bomb.Location, ref plan);
+        plan.Crouched = false; // The fan floor is measured for a standing pawn.
         bool listed = false;
         if (Pc.IManager is { } manager)
             foreach (SInteractObject? item in manager.Interactions)

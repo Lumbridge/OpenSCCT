@@ -17,6 +17,7 @@ public sealed partial class SpyAi
     private float _objectiveProgressAt;
     private float _objectiveUseAt = -1f;
     private bool _objectiveMenuDown;
+    private bool _objectiveStand;
     private float _objectiveSearchAt;
 
     public SObjectiveTrigger? OtherObjectiveTarget => _otherObjective;
@@ -38,6 +39,7 @@ public sealed partial class SpyAi
     {
         if (_otherObjective is { } current && AvailableObjective(current, now)) return current;
         _otherObjective = null;
+        _objectiveStand = false;
         if (now < _objectiveSearchAt) return null;
         _objectiveSearchAt = now + 1f;
         var candidates = new List<SObjectiveTrigger>();
@@ -66,6 +68,17 @@ public sealed partial class SpyAi
                 best = costs[node];
                 _otherObjective = candidate;
                 _objectiveFloor = floor;
+            }
+        }
+        // A bomb spot is offered only from in front of it, within its fan (rule 23 of the interaction spec). A high
+        // spot can be out of a crouched spy's reach: then he stands to use it.
+        if (_otherObjective is SBombTargetObjectiveTrigger { InteractionObj: { } bombEntry })
+        {
+            if (FanFloor(bombEntry, AiK.SpyCrouchHeight) is { } low) _objectiveFloor = low;
+            else if (FanFloor(bombEntry, AiK.StandingHeight) is { } high)
+            {
+                _objectiveFloor = high;
+                _objectiveStand = true;
             }
         }
         if (_otherObjective is not null)
@@ -123,7 +136,7 @@ public sealed partial class SpyAi
             _objectiveUseAt = now;
         }
         plan.Keys = default;
-        plan.Crouched = null;
+        plan.Crouched = _objectiveStand ? false : null;
         LookAt(entry.Location, ref plan);
         if (Pawn.WeaponLoaded != 0 || Pawn.bWeaponTransit) return; // The shared holster step puts the gun away.
         if (now - _objectiveUseAt > 5f)
