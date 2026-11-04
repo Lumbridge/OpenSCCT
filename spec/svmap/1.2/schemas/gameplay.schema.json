@@ -271,6 +271,17 @@
               "type": "null"
             }
           ]
+        },
+        "Next": {
+          "description": "The conveyor items go on to from the end they leave by (an Svm.Conveyor; the validator checks the class).",
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/actorRef"
+            },
+            {
+              "type": "null"
+            }
+          ]
         }
       }
     },

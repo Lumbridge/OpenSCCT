@@ -32,15 +32,16 @@ differs from the class defaults, typed as in 1.1. Example:
   render-only).
 - Enums are stored as numbers: `Look` (0 frame, 1 driver, 2 treadmill, 3 escalator), `Walls` (0 both, 1 left, 2 right,
   3 none, 4 auto; 4 is the default), `TriggerAction` (0 toggle, 1 on, 2 off, 3 reverse).
-- `Next` is an actor reference as in 1.1, `{"$actor": "Conveyor1"}`: the conveyor items go on to from the end they leave by (the path's end running forwards, its start running
-  backwards).
+- `Next` is an actor reference as in 1.1, `{"$actor": "Conveyor1"}`: the conveyor items go on to from the end they
+  leave by (the path's end running forwards, its start running backwards). It names another `Svm.Conveyor`.
 - `Tag` receives events as for any actor (event edges list the conveyor as a receiver).
 - A conveyor takes no player-count rule (`sim/match.json`): its built look and riding surface are world geometry, so a
   rule could not take it out of a round. Gate what switches it instead ([match.md](match.md)).
 
 The gameplay schema ([schemas/gameplay.schema.json](schemas/gameplay.schema.json), `conveyorProps`) types these props on
 any actor of class `Svm.Conveyor`; its other props are typed as for any actor. Conveyors make the map 1.2: the
-validator rejects them in a map that declares 1.1.
+validator rejects them in a map that declares 1.1. It also checks that `Next` names a conveyor (unknown actors are
+reported as for any reference).
 
 ## `sim/classes.json`
 

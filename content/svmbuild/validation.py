@@ -129,6 +129,21 @@ CONVEYOR_CLASS = "Svm.Conveyor"
 NATIVE_CLASSES = frozenset({CONVEYOR_CLASS})
 
 
+def conveyor_errors(gameplay: dict) -> list[str]:
+    """Svm.Conveyor actors beyond the gameplay schema (spec/svmap/1.2/conveyors.md): `Next` names a conveyor."""
+    actors = {a["id"].lower(): a for a in all_actors(gameplay) if isinstance(a, dict) and isinstance(a.get("id"), str)}
+    errs = []
+    for a in actors.values():
+        if a.get("class") != CONVEYOR_CLASS:
+            continue
+        nxt = (a.get("props") or {}).get("Next")
+        name = nxt.get("$actor") if isinstance(nxt, dict) else None
+        target = actors.get(name.lower()) if isinstance(name, str) else None
+        if target is not None and target.get("class") != CONVEYOR_CLASS:
+            errs.append(f"gameplay: {a['id']} Next names {name}, which is not a {CONVEYOR_CLASS}")
+    return errs
+
+
 def class_table_errors(table, gameplay: dict) -> list[str]:
     if not isinstance(table, dict) or not isinstance(table.get("classes"), dict):
         return ["sim/classes.json: no classes object"]
@@ -296,6 +311,7 @@ def validate_svmap(root: Path) -> list[str]:
             errs += gameplay_errors(gameplay)
             if minor_of(gameplay["formatVersion"]) < 2 and any(a["class"] == CONVEYOR_CLASS for a in gameplay["actors"]):
                 errs.append(f"gameplay: {CONVEYOR_CLASS} actors are new in SVMap 1.2; the map is {gameplay['formatVersion']}")
+            errs += conveyor_errors(gameplay)
     if traversal is not None:
         se = schema_errors("traversal", traversal)
         errs += se
