@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using OpenScct.Content.Actors;
 using OpenScct.Core;
 using OpenScct.Core.Engine;
+using OpenScct.Core.Match;
 using OpenScct.Core.Uc;
 
 namespace OpenScct.Content.Loading;
@@ -57,14 +58,16 @@ public sealed class MapLoader
 
     /// <summary>
     /// Loads <paramref name="map"/> into the world's level, with its class table, and gives the level the map's rain
-    /// volumes (<see cref="RainVolumeLoader"/>).
+    /// volumes (<see cref="RainVolumeLoader"/>) and its match-size rules (<see cref="SvMap.Match"/>, none when it has none).
     /// </summary>
     public MapLoadResult Load(World world, SvMap map)
     {
         ArgumentNullException.ThrowIfNull(world);
         ArgumentNullException.ThrowIfNull(map);
         world.Level.SetService(RainVolumeLoader.Load(map.Root));
-        return Load(world.Level, map.Gameplay, map.Classes);
+        MapLoadResult result = Load(world.Level, map.Gameplay, map.Classes);
+        world.Level.SetService(map.Match is { IsEmpty: false } match ? new LevelMatchRules(match, result.PlacedActors()) : null);
+        return result;
     }
 
     /// <inheritdoc cref="Load(Level, GameplayDoc, ClassTable)"/>
@@ -508,6 +511,19 @@ public sealed class MapLoadResult
 
     /// <summary>The actor created for <paramref name="id"/> (ignoring ASCII case), or null.</summary>
     public Actor? FindActor(string id) => Gameplay.FindActor(id) is { } record ? _actors[record.Index] : null;
+
+    /// <summary>Every placed actor that spawned, with its map id, in level order (the LevelInfo first).</summary>
+    public IEnumerable<(Actor Actor, string Id)> PlacedActors()
+    {
+        IReadOnlyList<ActorRecord> records = Gameplay.AllActors;
+        for (int i = 0; i < records.Count; i++)
+        {
+            if (_actors[i] is { } actor)
+            {
+                yield return (actor, records[i].Id);
+            }
+        }
+    }
 
     /// <summary>The actor created for <paramref name="record"/>, or null.</summary>
     public Actor? ActorOf(ActorRecord record)

@@ -10,6 +10,11 @@ Actor categories (decided per actor, in Level.Actors order):
     editor    editor viewports (Camera) and the builder brush (Engine.Brush); not written
     skipped   actors that never exist in the PC game: bDeleteMe / bPendingDelete ghosts and PS2-only actors
               (Platform = PLF_PSX2_Only); not written, counted
+    lifted    actors of RE+ classes the map defines itself whose settings become native SVMap data (player-count
+              rules, character outfits; mapclasses.py); not written as actors
+
+Classes the map package defines itself are registered from its own Class exports before the actors are decoded,
+so their actors keep every property (mapclasses.py).
 """
 
 from __future__ import annotations
@@ -63,6 +68,7 @@ class MapSource:
         self.pkg = Package.load(self.path)
         self.pset = PackageSet(package_roots(Path(self.game)))
         self.pset.register(self.pkg)
+        self.map_classes = self.db.add_package_classes(self.pkg)
         self._path_index: Dict[str, dict] = {}
         lv = sf.ge.level_export(self.pkg)
         self.level_export = lv

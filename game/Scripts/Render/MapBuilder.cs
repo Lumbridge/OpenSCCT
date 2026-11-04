@@ -146,6 +146,26 @@ public sealed class RenderMap
     /// <summary>The map's gameplay actors (sim/gameplay.json over sim/classes.json).</summary>
     public GameplayActors Actors { get; internal set; } = new();
 
+    /// <summary>The map's outfits (render/outfits.json, SVMap 1.2); none when the map has no file.</summary>
+    public OpenScct.Content.MapOutfits Outfits { get; internal set; } = OpenScct.Content.MapOutfits.None;
+
+    /// <summary>
+    /// The outfits of a map folder. A file this build cannot read leaves the stock look (the outfits change only the
+    /// look, so a map with a newer outfit file still plays).
+    /// </summary>
+    public static OpenScct.Content.MapOutfits OutfitsOf(string mapFolder)
+    {
+        try
+        {
+            return OpenScct.Content.OutfitsDoc.Load(mapFolder) ?? OpenScct.Content.MapOutfits.None;
+        }
+        catch (OpenScct.Content.SvMapFormatException e)
+        {
+            GD.PushWarning($"{mapFolder}: outfits left out: {e.Message}");
+            return OpenScct.Content.MapOutfits.None;
+        }
+    }
+
     private readonly List<IReadOnlySet<string>> _echelonGroups = [new HashSet<string>()];
     private readonly Dictionary<string, int> _echelonGroupIds = new(StringComparer.Ordinal) { [""] = 0 };
 
@@ -446,6 +466,8 @@ public static class MapBuilder
         var map = new RenderMap(mapFolder, mapId, root, materials, lighting, textures, compiler, new ActorLighting(lighting), zones);
         map.Pack = pack;
         map.Actors = GameplayActors.Load(mapFolder);
+        map.Outfits = RenderMap.OutfitsOf(mapFolder);
+        Characters.PawnCosmetics.Outfits = map.Outfits;
         List<OpenScctGame.Render.Projectors.ProjectorEntry>? projectors = OpenScctGame.Render.Projectors.ProjectorsDoc.Load(mapFolder);
         map.SkipProjectorDecals = projectors is not null;
         map.SoftBodies = new OpenScctGame.Render.SoftBodies.SoftBodyViews(root);

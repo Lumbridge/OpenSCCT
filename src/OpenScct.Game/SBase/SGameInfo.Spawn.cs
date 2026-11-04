@@ -1,6 +1,7 @@
 using OpenScct.Core;
 using OpenScct.Core.Engine;
 using OpenScct.Core.Uc;
+using OpenScct.Game.Modes;
 using OpenScct.Physics.Collision;
 using OpenScct.Provenance;
 using K = OpenScct.Game.GameFlow.K;
@@ -15,8 +16,9 @@ public partial class SGameInfo
 
     /// <summary>
     /// Starts the match: Merc Deathmatch moves everyone to the mercs, the Engine part spawns the players, every
-    /// mission is deactivated and the current mode's missions reset, each player gets the lives of its side, then
-    /// the clock restarts and the team lives are counted.
+    /// mission is deactivated, the map's match-size rules (an OpenSCCT addition) lay the round out and the current
+    /// mode's missions reset, each player gets the lives of its side, then the clock restarts and the team lives are
+    /// counted.
     /// </summary>
     [Uc("SBase.SGameInfo.StartMatch", Sha1 = "9591cd4c170a3d875634ca3fbd3bd2988990dfc0")]
     [PortOf("uc:SBase.SGameInfo:StartMatch", Spec = "spec/game/match-lifecycle.md#rules")]
@@ -40,6 +42,8 @@ public partial class SGameInfo
             gri.NumObjectives = 0;
         }
 
+        // OpenSCCT: the map's match-size rules lay this round out before the missions reset.
+        ApplyMatchSizeRules();
         foreach (SMission m in XLevel.AllActors<SMission>())
         {
             if (mode == EGameMode.GM_MercDeathMatch)
@@ -51,7 +55,7 @@ public partial class SGameInfo
             {
                 if (m.GameMode == EGameMode.GM_DiskHunt)
                 {
-                    m.MinimumObjectives = PersistentData.NumDisks;
+                    m.MinimumObjectives = MatchSizeRules.For(XLevel)?.DiskHuntDisks(m, PersistentData.NumDisks) ?? PersistentData.NumDisks;
                 }
 
                 m.Reset();
