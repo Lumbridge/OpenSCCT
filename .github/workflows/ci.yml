@@ -18,6 +18,7 @@ env:
   DOTNET_CLI_TELEMETRY_OPTOUT: "1"
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: "1"
   NUGET_XMLDOC_MODE: skip
+  DOTNET_PROCESSOR_COUNT: "2"
 
 jobs:
   linux:
@@ -57,7 +58,7 @@ jobs:
       # Microsoft.Testing.Platform runner (global.json). Exit code 8 means a test project has no
       # tests yet; drop the ignore once every project has some.
       - name: Test
-        run: dotnet test --solution OpenSCCT.slnx -c Release --no-build --ignore-exit-code 8
+        run: dotnet test --solution OpenSCCT.slnx -c Release --no-build --ignore-exit-code 8 --max-parallel-test-modules 2
 
       - name: Publish dedicated server (linux-x64)
         run: >-
@@ -118,7 +119,7 @@ jobs:
       # Microsoft.Testing.Platform runner (global.json). Exit code 8 means a test project has no
       # tests yet; drop the ignore once every project has some.
       - name: Test
-        run: dotnet test --solution OpenSCCT.slnx -c Release --no-build --ignore-exit-code 8
+        run: dotnet test --solution OpenSCCT.slnx -c Release --no-build --ignore-exit-code 8 --max-parallel-test-modules 2
 
       - name: Banned API check
         run: ./tools/ci/check-banned-api.ps1

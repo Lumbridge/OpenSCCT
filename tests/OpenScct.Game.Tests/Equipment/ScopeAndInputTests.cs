@@ -122,7 +122,9 @@ public sealed class ScopeAndInputTests
         pc.bPressedJump = true;
         pc.eventPlayerMove(Sim.DeltaTime);
         Assert.Equal(scopedInput, pc.aForward);
-        Assert.InRange(pc.aForward, 1f, 5999f);
+        // The retail input curve is 1 at full forward; BinocularWalkSpeed scales the resulting movement.
+        Assert.Equal(6000f, pc.aForward);
+        Assert.Equal(merc.RunningSpeed * 0.4f, merc.GroundSpeed, 3);
         Assert.False(pc.bPressedJump);
         Assert.Equal(new Name("s_Binoculars_Def_Reloading"), pc.GetStateName());
         pc.eventFire(1f);

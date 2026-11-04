@@ -91,6 +91,9 @@ public sealed class CloakVisionNetworkTests
         Check(owner, true);
         Tick(24);
         Assert.Equal(energyAtRelease, owner.EnergyLevel, 3); // Decloaking holds the battery until the fade finishes.
+        // Reliable equipment RPCs follow the input-command fence. Under Stock's constrained
+        // link, allow up to one second for delivery, while still requiring an unfinished fade.
+        for (int wait = 0; Copy(merc).DesiredGlassEffect != 0 && wait < 36; wait++) Tick(1);
         Assert.Equal(0, Copy(merc).DesiredGlassEffect);
         Assert.True(Copy(merc).GlassEffect > 0);
         Check(authority, true);

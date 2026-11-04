@@ -231,9 +231,11 @@ public sealed class LinuxLauncherTests
 
         using var dir = new TempDir();
         string executable = dir.Combine(Linux.GameFileName);
-        File.Copy("/bin/sleep", executable);
+        // Use the shell ELF rather than sleep: some distributions ship sleep as a multicall wrapper
+        // that refuses a renamed executable, before the process probe can observe it.
+        File.Copy("/bin/sh", executable);
         Linux.MakeExecutable(executable);
-        using Process process = Process.Start(new ProcessStartInfo(executable) { ArgumentList = { "30" }, UseShellExecute = false })!;
+        using Process process = Process.Start(new ProcessStartInfo(executable) { ArgumentList = { "-c", "sleep 30 & wait" }, UseShellExecute = false })!;
         try
         {
             RunningGame game = Assert.Single(new GameProcessProbe(Linux).Running(), game => game.ProcessId == process.Id);
@@ -241,7 +243,7 @@ public sealed class LinuxLauncherTests
         }
         finally
         {
-            process.Kill();
+            process.Kill(entireProcessTree: true);
             process.WaitForExit();
         }
     }

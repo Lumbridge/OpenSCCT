@@ -19,6 +19,11 @@ public static class StatsModel
     [
         .. CareerStatCounters.All.Select(c => (c.Category, c.Key, c.Label)),
         ("Spy", FeatKeys.SpyGrabKills, "Grab kills"),
+        ("Spy", FeatKeys.SpyGrabKos, "Grab knockouts"),
+        ("Spy", FeatKeys.SpyShockerStuns, "Shocker stuns"),
+        ("Spy", FeatKeys.SpyDropKos, "Drop knockouts"),
+        ("Spy", FeatKeys.SpyNeutralisations, "Neutralisations"),
+        ("Overview", FeatKeys.EnemyKills, "Enemy kills"),
         ("Spy", FeatKeys.SpyNeckBreaks, "Neck breaks"),
         ("Spy", FeatKeys.SpyChokes, "Chokes"),
         ("Spy", FeatKeys.SpyDropKills, "Drop kills"),
