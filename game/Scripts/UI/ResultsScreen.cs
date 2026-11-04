@@ -137,7 +137,7 @@ public partial class ResultsScreen : Control
         if (result.Scoreboard is { } scoreboard)
         {
             Table.Visible = false;
-            column.AddChild(new RoundScoreboardView { Scoreboard = scoreboard, LocalParticipantId = result.LocalParticipantId, Detailed = true });
+            column.AddChild(new RoundScoreboardView { Scoreboard = scoreboard, LocalParticipantId = result.LocalParticipantId, Detailed = true, Maps = Online?.Maps });
         }
         column.AddChild(Table);
         // Online, the original's end menu: Next (ready for the next game of the series, or the lobby) and Leave.
